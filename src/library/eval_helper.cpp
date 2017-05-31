@@ -45,6 +45,11 @@ void eval_helper::dependency_injection() {
 }
 
 vm_obj eval_helper::invoke_fn() {
+    unsigned arity = m_vms.get_decl(m_fn)->get_arity();
+    if (arity > m_args.size()) {
+        throw exception(sstream() << "cannot evaluate function: " << m_args.size()
+                                  << " arguments given but expected " << arity);
+    }
     std::reverse(m_args.begin(), m_args.end());
     return m_vms.invoke(m_fn, m_args.size(), m_args.data());
 }

@@ -1184,6 +1184,23 @@ protected theorem div_eq_of_eq_mul_right {m n k : ℕ} (H1 : n > 0) (H2 : m = n 
   m / n = k :=
 by rw [H2, nat.mul_div_cancel_left _ H1]
 
+protected theorem div_div_eq_div_mul (m n k : ℕ) : m / n / k = m / (n * k) :=
+begin
+  cases eq_zero_or_pos k with k0 kpos, {rw [k0, mul_zero, nat.div_zero, nat.div_zero]},
+  cases eq_zero_or_pos n with n0 npos, {rw [n0, zero_mul, nat.div_zero, nat.zero_div]},
+  apply le_antisymm,
+  { apply (le_div_iff_mul_le _ _ (mul_pos npos kpos)).2,
+    rw [mul_comm n k, -mul_assoc],
+    apply (le_div_iff_mul_le _ _ npos).1,
+    apply (le_div_iff_mul_le _ _ kpos).1,
+    refl },
+  { apply (le_div_iff_mul_le _ _ kpos).2,
+    apply (le_div_iff_mul_le _ _ npos).2,
+    rw [mul_assoc, mul_comm n k],
+    apply (le_div_iff_mul_le _ _ (mul_pos kpos npos)).1,
+    refl }
+end
+
 /- pow -/
 
 @[simp] lemma pow_one (b : ℕ) : b^1 = b := by simp [pow_succ]

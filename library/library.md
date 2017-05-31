@@ -44,6 +44,6 @@ sparingly. For example:
 * Hilbert choice is used to define the multiplicative inverse on the reals, and
   also to define function inverses classically.
 
-You can use `print axioms foo` to see which axioms `foo` depends
+You can use `#print axioms foo` to see which axioms `foo` depends
 on. Many of the theories in the `theories` folder are unreservedly
 classical.

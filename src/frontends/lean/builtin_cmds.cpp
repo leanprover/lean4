@@ -432,9 +432,9 @@ static environment compile_cmd(parser & p) {
 static environment eval_cmd(parser & p) {
     auto pos = p.pos();
     expr e; level_param_names ls;
-    std::tie(e, ls) = parse_local_expr(p, "_eval");
-    if (has_metavar(e))
-        throw parser_error("invalid eval command, expression contains metavariables", pos);
+    std::tie(e, ls) = parse_local_expr(p, "_eval", /* relaxed */ false);
+    if (has_synthetic_sorry(e))
+        return p.env();
 
     type_context tc(p.env(), transparency_mode::All);
     auto type = tc.infer(e);

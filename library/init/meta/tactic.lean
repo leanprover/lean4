@@ -522,7 +522,7 @@ do t ← target,
    end
 
 meta def introv : list name → tactic (list expr)
-| []      := return []
+| []      := intros_dep
 | (n::ns) := do hs ← intros_dep, h ← intro n, hs' ← introv ns, return (hs ++ h :: hs')
 
 /-- Returns n fully qualified if it refers to a constant, or else fails. -/

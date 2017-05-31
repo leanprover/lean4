@@ -4,8 +4,10 @@ import json
 import os
 import subprocess
 
+script_path = os.path.dirname(os.path.realpath(__file__))
+root_path = os.path.dirname(script_path)
+
 def get_packages():
-    script_path = os.path.dirname(os.path.realpath(__file__))
     pkg_registry = os.path.join(script_path, "package_registry.json")
     pkg_json = json.loads(open(pkg_registry, 'r').read())
     return pkg_json['packages']
@@ -20,7 +22,7 @@ def git_pull():
     subprocess.run(["git", "pull"])
 
 def leanpkg_test():
-    proc = subprocess.run(["leanpkg", "test"])
+    proc = subprocess.run([os.path.join(root_path, "bin", "leanpkg"), "test"])
     if proc.returncode == 0:
         return True
     else:
@@ -58,5 +60,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-

@@ -117,9 +117,8 @@ script:
           ../src || exit
   - make -j2 || exit
   - export PATH="$TRAVIS_BUILD_DIR/bin:$PATH"
-  - cpack
   - if [[ $TEST != OFF ]]; then yes "A" | ctest -j2 --output-on-failure; fi
-  - if [[ $PACKAGE == TRUE ]]; then make package; fi
+  - if [[ $PACKAGE == TRUE ]]; then cpack; make package; fi
   - if [[ $TEST_LEANPKG_REGISTRY == ON ]]; then ../script/test_registry.py; fi
   - cd ..
 

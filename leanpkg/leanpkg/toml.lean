@@ -33,14 +33,17 @@ private def escapec : char → string
 private def escape (s : string) : string :=
 list.bind s escapec
 
-private def to_string_core : ∀ (n : ℕ), value → string
-| _ (value.str s) := "\"" ++ escape s ++ "\""
-| _ (value.nat n) := n.to_string
-| _ (value.bool tt) := "true"
-| _ (value.bool ff) := "false"
-| (n+1) (value.table cs) :=
-  "{ " ++ join ", " (do (k, v) ← cs, [k ++ " = " ++ to_string_core n v]) ++ " }"
-| 0 _ := "<max recursion depth reached>"
+private mutual def to_string_core, to_string_pairs
+with to_string_core : value → string
+| (value.str s)    := "\"" ++ escape s ++ "\""
+| (value.nat n)    := n.to_string
+| (value.bool tt)  := "true"
+| (value.bool ff)  := "false"
+| (value.table cs) := "{" ++ to_string_pairs cs ++ "}"
+with to_string_pairs : list (string × value) → string
+| []               := ""
+| [(k, v)]         := k ++ " = " ++ to_string_core v
+| ((k, v)::kvs)    := k ++ " = " ++ to_string_core v ++ ", " ++ to_string_pairs kvs
 
 protected def to_string : ∀ (v : value), string
 | (table cs) := join "\n" $ do (h, c) ← cs,
@@ -48,10 +51,10 @@ protected def to_string : ∀ (v : value), string
   | table ds :=
     ["[" ++ h ++ "]\n" ++
      join "" (do (k, v) ← ds,
-       [k ++ " = " ++ to_string_core 1024 v ++ "\n"])]
-  | _ := ["<error> " ++ to_string_core 1024 c]
+       [k ++ " = " ++ to_string_core v ++ "\n"])]
+  | _ := ["<error> " ++ to_string_core c]
   end
-| v := to_string_core (sizeof v) v
+| v := to_string_core v
 
 instance : has_to_string value :=
 ⟨value.to_string⟩

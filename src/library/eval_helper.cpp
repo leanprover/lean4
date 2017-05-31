@@ -67,7 +67,7 @@ optional<vm_obj> eval_helper::try_exec_io() {
 optional<vm_obj> eval_helper::try_exec_tac() {
     if (is_constant(get_app_fn(m_ty), get_tactic_name())) {
         auto tac_st = mk_tactic_state_for(m_env, m_opts, m_fn, m_tc.mctx(), m_tc.lctx(), mk_true());
-        m_vms.push(tactic::to_obj(tac_st));
+        m_args.push_back(tactic::to_obj(tac_st));
         auto r = invoke_fn();
         if (tactic::is_result_success(r)) {
             return optional<vm_obj>(tactic::get_result_value(r));

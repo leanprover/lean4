@@ -68,7 +68,7 @@ private meta def parser_desc_aux : expr → tactic (list format)
 | `(qexpr) := return ["expr"]
 | `(tk %%c) := list.ret <$> to_fmt <$> eval_expr string c
 | `(cur_pos) := return []
-| `(return ._) := return []
+| `(pure ._) := return []
 | `(._ <$> %%p) := parser_desc_aux p
 | `(skip_info %%p) := parser_desc_aux p
 | `(set_goal_info_pos %%p) := parser_desc_aux p

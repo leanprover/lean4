@@ -76,6 +76,7 @@ void scanner::fetch_line() {
         m_spos  = 0;
         m_upos  = 0;
         m_curr  = m_curr_line[m_spos];
+        if (m_curr == EOF) m_curr = 0;
         m_uskip = get_utf8_size(m_curr);
         m_uskip--;
     } else {
@@ -96,6 +97,7 @@ void scanner::next() {
         }
     }
     m_curr = m_curr_line[m_spos];
+    if (m_curr == EOF) m_curr = 0;
     if (m_uskip > 0) {
         if (!is_utf8_next(m_curr))
             throw_exception("invalid utf-8 sequence character");

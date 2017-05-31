@@ -406,6 +406,9 @@ std::vector<module_name> module_mgr::get_direct_imports(module_id const & id, st
         std::istringstream in(contents);
         bool use_exceptions = true;
         parser p(get_initial_env(), m_ios, nullptr, in, id, use_exceptions);
+        try {
+            p.init_scanner();
+        } catch (...) {}
         p.get_imports(imports);
     } catch (...) {}
 

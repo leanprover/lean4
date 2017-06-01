@@ -45,6 +45,16 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_UNFOLD_LEMMAS false
 #endif
 
+/* Comment the following line for disabling the thread local caches.
+   This is useful for debugging cache management bugs. */
+#define LEAN_TYPE_CONTEXT_CACHE_RESULTS
+
+#ifdef LEAN_TYPE_CONTEXT_CACHE_RESULTS
+#define CACHE_CODE(code) code
+#else
+#define CACHE_CODE(code)
+#endif
+
 namespace lean {
 static name * g_class_instance_max_depth = nullptr;
 static name * g_nat_offset_threshold     = nullptr;
@@ -113,27 +123,30 @@ bool type_context_cache::is_transparent(transparency_mode m, declaration const &
 }
 
 optional<declaration> type_context_cache::is_transparent(transparency_mode m, name const & n) {
-    auto & cache = m_transparency_cache[static_cast<unsigned>(m)];
-    auto it = cache.find(n);
-    if (it != cache.end()) {
-        return it->second;
-    }
+    CACHE_CODE(
+        auto & cache = m_transparency_cache[static_cast<unsigned>(m)];
+        auto it = cache.find(n);
+        if (it != cache.end()) {
+            return it->second;
+        });
     optional<declaration> r;
     if (auto d = m_env.find(n)) {
         if (d->is_definition() && is_transparent(m, *d)) {
             r = d;
         }
     }
-    cache.insert(mk_pair(n, r));
+    CACHE_CODE(cache.insert(mk_pair(n, r)););
     return r;
 }
 
 bool type_context_cache::is_aux_recursor(name const & n) {
-    auto it = m_aux_recursor_cache.find(n);
-    if (it != m_aux_recursor_cache.end())
-        return it->second;
+    CACHE_CODE(
+        auto it = m_aux_recursor_cache.find(n);
+        if (it != m_aux_recursor_cache.end())
+            return it->second;
+        );
     bool r = ::lean::is_aux_recursor(env(), n);
-    m_aux_recursor_cache.insert(mk_pair(n, r));
+    CACHE_CODE(m_aux_recursor_cache.insert(mk_pair(n, r)););
     return r;
 }
 
@@ -226,25 +239,29 @@ bool type_context::tmp_locals::all_let_decls() const {
    ===================== */
 MK_THREAD_LOCAL_GET_DEF(type_context_cache_manager, get_tcm);
 
-void type_context::cache_failure(expr const & t, expr const & s) {
-    if (t.hash() <= s.hash())
-        get_failure_cache().insert(mk_pair(t, s));
-    else
-        get_failure_cache().insert(mk_pair(s, t));
+void type_context::cache_failure(expr const & CACHE_CODE(t), expr const & CACHE_CODE(s)) {
+    CACHE_CODE(
+        if (t.hash() <= s.hash())
+            get_failure_cache().insert(mk_pair(t, s));
+        else
+            get_failure_cache().insert(mk_pair(s, t));
+        )
 }
 
-bool type_context::is_cached_failure(expr const & t, expr const & s) {
-    if (has_expr_metavar(t) || has_expr_metavar(s)) return false;
-    type_context_cache::failure_cache const & fcache = get_failure_cache();
-    if (t.hash() < s.hash()) {
-        return fcache.find(mk_pair(t, s)) != fcache.end();
-    } else if (t.hash() > s.hash()) {
-        return fcache.find(mk_pair(s, t)) != fcache.end();
-    } else {
-        return
-            fcache.find(mk_pair(t, s)) != fcache.end() ||
-            fcache.find(mk_pair(s, t)) != fcache.end();
-    }
+bool type_context::is_cached_failure(expr const & CACHE_CODE(t), expr const & CACHE_CODE(s)) {
+    CACHE_CODE(
+        if (has_expr_metavar(t) || has_expr_metavar(s)) return false;
+        type_context_cache::failure_cache const & fcache = get_failure_cache();
+        if (t.hash() < s.hash()) {
+            return fcache.find(mk_pair(t, s)) != fcache.end();
+        } else if (t.hash() > s.hash()) {
+            return fcache.find(mk_pair(s, t)) != fcache.end();
+        } else {
+            return
+                fcache.find(mk_pair(t, s)) != fcache.end() ||
+                fcache.find(mk_pair(s, t)) != fcache.end();
+        });
+    return false;
 }
 
 void type_context::init_local_instances() {
@@ -879,12 +896,13 @@ expr type_context::whnf(expr const & e) {
     default:
         break;
     }
-    auto & cache = m_cache->m_whnf_cache[static_cast<unsigned>(m_transparency_mode)];
-    if (!m_transparency_pred && !m_unfold_pred) {
-        auto it = cache.find(e);
-        if (it != cache.end())
-            return it->second;
-    }
+    CACHE_CODE(
+        auto & cache = m_cache->m_whnf_cache[static_cast<unsigned>(m_transparency_mode)];
+        if (!m_transparency_pred && !m_unfold_pred) {
+            auto it = cache.find(e);
+            if (it != cache.end())
+                return it->second;
+        });
     reset_used_assignment reset(*this);
     unsigned postponed_sz = m_postponed.size();
     expr t = e;
@@ -896,7 +914,7 @@ expr type_context::whnf(expr const & e) {
             if ((!in_tmp_mode() || !has_expr_metavar(t1)) &&
                 !m_used_assignment && !is_stuck(t1) &&
                 postponed_sz == m_postponed.size() && !m_transparency_pred && !m_unfold_pred) {
-                cache.insert(mk_pair(e, t1));
+                CACHE_CODE(cache.insert(mk_pair(e, t1)););
             }
             return t1;
         }
@@ -975,11 +993,13 @@ expr type_context::infer(expr const & e) {
 
 expr type_context::infer_core(expr const & e) {
 #ifndef LEAN_NO_TYPE_INFER_CACHE
-    auto & cache = m_cache->m_infer_cache;
-    unsigned postponed_sz = m_postponed.size();
-    auto it = cache.find(e);
-    if (it != cache.end())
-        return it->second;
+    CACHE_CODE(
+        auto & cache = m_cache->m_infer_cache;
+        unsigned postponed_sz = m_postponed.size();
+        auto it = cache.find(e);
+        if (it != cache.end())
+            return it->second;
+        );
 #endif
 
     reset_used_assignment reset(*this);
@@ -1018,8 +1038,10 @@ expr type_context::infer_core(expr const & e) {
     }
 
 #ifndef LEAN_NO_TYPE_INFER_CACHE
-    if (!m_used_assignment && postponed_sz == m_postponed.size())
-        cache.insert(mk_pair(e, r));
+    CACHE_CODE(
+        if (!m_used_assignment && postponed_sz == m_postponed.size())
+            cache.insert(mk_pair(e, r));
+        );
 #endif
     return r;
 }
@@ -3636,10 +3658,12 @@ struct instance_synthesizer {
             return none_expr();
     }
 
-    void cache_result(expr const & type, optional<expr> const & inst) {
+    void cache_result(expr const & CACHE_CODE(type), optional<expr> const & CACHE_CODE(inst)) {
 #ifndef LEAN_NO_TYPE_CLASS_CACHE
-        if (!has_expr_metavar(type))
-            m_ctx.m_cache->m_instance_cache.insert(mk_pair(type, inst));
+        CACHE_CODE(
+            if (!has_expr_metavar(type))
+                m_ctx.m_cache->m_instance_cache.insert(mk_pair(type, inst));
+            );
 #endif
     }
 
@@ -3672,17 +3696,18 @@ struct instance_synthesizer {
         /* We do not cache results when multiple instances have to be generated. */
         if (!has_expr_metavar(type)) {
 #ifndef LEAN_NO_TYPE_CLASS_CACHE
-            auto it = m_ctx.m_cache->m_instance_cache.find(type);
-            if (it != m_ctx.m_cache->m_instance_cache.end()) {
-                /* instance/failure is already cached */
-                lean_trace("class_instances",
-                           scope_trace_env scope(m_ctx.env(), m_ctx);
-                           if (it->second)
-                               tout() << "cached instance for " << type << "\n" << *(it->second) << "\n";
-                           else
-                               tout() << "cached failure for " << type << "\n";);
-                return it->second;
-            }
+            CACHE_CODE(
+                auto it = m_ctx.m_cache->m_instance_cache.find(type);
+                if (it != m_ctx.m_cache->m_instance_cache.end()) {
+                    /* instance/failure is already cached */
+                    lean_trace("class_instances",
+                               scope_trace_env scope(m_ctx.env(), m_ctx);
+                               if (it->second)
+                                   tout() << "cached instance for " << type << "\n" << *(it->second) << "\n";
+                               else
+                                   tout() << "cached failure for " << type << "\n";);
+                    return it->second;
+                });
 #endif
         }
         m_state          = state();
@@ -3837,9 +3862,11 @@ optional<expr> type_context::mk_class_instance(expr const & type) {
 }
 
 optional<expr> type_context::mk_subsingleton_instance(expr const & type) {
-    auto it = m_cache->m_subsingleton_cache.find(type);
-    if (it != m_cache->m_subsingleton_cache.end())
-        return it->second;
+    CACHE_CODE(
+        auto it = m_cache->m_subsingleton_cache.find(type);
+        if (it != m_cache->m_subsingleton_cache.end())
+            return it->second;
+        );
     expr Type  = whnf(infer(type));
     if (!is_sort(Type)) {
         m_cache->m_subsingleton_cache.insert(mk_pair(type, none_expr()));
@@ -3848,7 +3875,7 @@ optional<expr> type_context::mk_subsingleton_instance(expr const & type) {
     level lvl    = sort_level(Type);
     expr subsingleton = mk_app(mk_constant(get_subsingleton_name(), {lvl}), type);
     auto r = mk_class_instance(subsingleton);
-    m_cache->m_subsingleton_cache.insert(mk_pair(type, r));
+    CACHE_CODE(m_cache->m_subsingleton_cache.insert(mk_pair(type, r)););
     return r;
 }
 

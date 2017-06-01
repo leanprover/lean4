@@ -85,7 +85,7 @@ unpack_eqns::unpack_eqns(type_context & ctx, expr const & e):
     unsigned num_fns = equations_num_fns(e);
     to_equations(e, eqs);
     /* Extract functions. */
-    lean_assert(eqs.size() > 0);
+    if (eqs.size() == 0) throw_ill_formed_eqns();
     expr eq = eqs[0];
     for (unsigned i = 0; i < num_fns; i++) {
         if (!is_lambda(eq)) throw_ill_formed_eqns();

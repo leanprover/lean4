@@ -42,6 +42,9 @@ meta constant set_goal_info_pos (p : parser α) : parser α
 /-- Return the current parser position without consuming any input. -/
 meta def cur_pos : parser pos := λ s, success (parser_state.cur_pos s) s
 
+/-- Temporarily replace input of the parser state, run `p`, and return remaining input. -/
+meta constant with_input (p : parser α) (input : string) : parser (α × string)
+
 meta def parser_orelse (p₁ p₂ : parser α) : parser α :=
 λ s,
 let pos₁ := parser_state.cur_pos s in

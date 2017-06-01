@@ -23,6 +23,7 @@ Author: Sebastian Ullrich
 #include "library/vm/interaction_state_imp.h"
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/elaborator.h"
+#include "util/utf8.h"
 
 namespace lean {
 
@@ -49,6 +50,9 @@ expr parse_interactive_param(parser & p, expr const & param_ty) {
     get_app_args(param_ty, param_args);
     // alpha, has_reflect alpha, parser alpha
     lean_assert(param_args.size() == 3);
+    if (!closed(param_args[2])) {
+        throw elaborator_exception(param_args[2], "error running user-defined parser: must be closed expression");
+    }
     try {
         vm_obj vm_parsed = run_parser(p, param_args[2]);
         type_context ctx(p.env());
@@ -148,6 +152,38 @@ vm_obj vm_parser_set_goal_info_pos(vm_obj const &, vm_obj const & vm_p, vm_obj c
     }
 }
 
+vm_obj vm_parser_with_input(vm_obj const &, vm_obj const & vm_p, vm_obj const & vm_input, vm_obj const & o) {
+    auto const & s = lean_parser::to_state(o);
+    std::string input = to_string(vm_input);
+    std::istringstream strm(input);
+    vm_obj vm_state; pos_info pos;
+    std::tie(vm_state, pos) = s.m_p->with_input<vm_obj>(strm, [&]() {
+        return invoke(vm_p, o);
+    });
+
+    if (lean_parser::is_result_exception(vm_state)) {
+        return vm_state;
+    }
+    auto vm_res = lean_parser::get_result_value(vm_state);
+
+    // figure out remaining string from end position
+    pos_info pos2 = {1, 0};
+    unsigned spos = 0;
+    while (pos2 < pos) {
+        lean_assert(spos < input.size());
+        if (input[spos] == '\n') {
+            pos2.first++;
+            pos2.second = 0;
+        } else {
+            pos2.second++;
+        }
+        spos += get_utf8_size(input[spos]);
+    }
+
+    vm_res = mk_vm_pair(vm_res, to_obj(input.substr(spos)));
+    return lean_parser::mk_result(vm_res, lean_parser::get_result_state(vm_state));
+}
+
 void initialize_vm_parser() {
     DECLARE_VM_BUILTIN(name({"lean", "parser_state", "env"}),         vm_parser_state_env);
     DECLARE_VM_BUILTIN(name({"lean", "parser_state", "options"}),     vm_parser_state_options);
@@ -158,6 +194,7 @@ void initialize_vm_parser() {
     DECLARE_VM_BUILTIN(name({"lean", "parser", "qexpr"}),             vm_parser_qexpr);
     DECLARE_VM_BUILTIN(name({"lean", "parser", "skip_info"}),         vm_parser_skip_info);
     DECLARE_VM_BUILTIN(name({"lean", "parser", "set_goal_info_pos"}), vm_parser_set_goal_info_pos);
+    DECLARE_VM_BUILTIN(name({"lean", "parser", "with_input"}),        vm_parser_with_input);
 }
 
 void finalize_vm_parser() {

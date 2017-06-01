@@ -10,21 +10,22 @@ meta def unquote_macro (_ : parse $ tk "unquote!") (e : parse lean.parser.pexpr)
 
 #eval unquote! ``(1 + 1)
 
-private meta def parse_format : string → string → ℕ × pexpr
-| acc [] := (0, pexpr.of_expr (reflect acc))
+private meta def parse_format : string → string → parser pexpr
+| acc []            := pure $ pexpr.of_expr (reflect acc)
 | acc ('{'::'{'::s) := parse_format (acc ++ "{") s
-| acc ('{'::'}'::s) :=
-  let (n, f) := parse_format [] s in
-  (n + 1, ``(to_fmt %%(reflect acc) ++ to_fmt %%(expr.var n : pexpr) ++ %%f))
+| acc ('{'::s) :=
+do (e, s) ← with_input (lean.parser.pexpr 0) s.reverse,
+   '}'::s ← pure s.reverse | fail "'}' expected",
+   f ← parse_format [] s,
+   pure ``(to_fmt %%(reflect acc) ++ to_fmt %%(e) ++ %%f)
 | acc (c::s) := parse_format (acc ++ [c]) s
 
 reserve prefix `format! `:100
 @[user_notation]
-let (n, f) := parse_format "" s.reverse in
-pure $ n.repeat (λ _ e, expr.lam `_ binder_info.default pexpr.mk_placeholder e) f
 meta def format_macro (_ : parse $ tk "format!") (s : string) : parser pexpr :=
+parse_format "" s.reverse
 
-#eval format! "a{}c" "b"
+#eval let a := "bla" in format! "({to_fmt a ++ format! \"{a}\"} {42})"
 -- #eval format! "{} {}" "a" "bla" -- TODO: delayed abstractions issue
 
 reserve infix ` +⋯+ `:65

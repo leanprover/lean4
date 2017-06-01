@@ -29,7 +29,7 @@ enum class token_kind {Keyword, CommandKeyword, Identifier, Numeral, Decimal,
 class scanner {
 protected:
     token_table const * m_tokens;
-    std::istream &      m_stream;
+    std::istream *      m_stream;
     std::string         m_stream_name;
     std::string         m_curr_line;
     bool                m_last_line;

@@ -70,7 +70,7 @@ bool is_sub_script_alnum_unicode(unsigned u) {
 
 void scanner::fetch_line() {
     m_curr_line.clear();
-    if (std::getline(m_stream, m_curr_line)) {
+    if (std::getline(*m_stream, m_curr_line)) {
         m_curr_line.push_back('\n');
         m_sline++;
         m_spos  = 0;
@@ -681,7 +681,7 @@ auto scanner::scan(environment const & env) -> token_kind {
 }
 
 scanner::scanner(std::istream & strm, char const * strm_name):
-    m_tokens(nullptr), m_stream(strm) {
+    m_tokens(nullptr), m_stream(&strm) {
     m_stream_name = strm_name ? strm_name : "[unknown]";
     m_sline = 0;
     m_spos  = 0;

@@ -189,6 +189,14 @@ public:
         flet<optional<pos_info>> l(m_break_at_pos, {});
         return f();
     }
+    template <class T>
+    pair<T, pos_info> with_input(std::istream & input, std::function<T()> const & f) {
+        flet<token_kind> l(m_curr, token_kind::Eof);
+        flet<scanner> l1(m_scanner, scanner(input, m_scanner.get_stream_name().c_str()));
+        m_curr = m_scanner.scan(m_env);
+        T t = f();
+        return {t, pos()};
+    }
     bool get_complete() { return m_complete; }
     void set_complete(bool complete) { m_complete = complete; }
     /** \brief Throw \c break_at_pos_exception with given context if \c m_break_at_pos is inside current token. */

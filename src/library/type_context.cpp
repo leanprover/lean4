@@ -143,8 +143,7 @@ bool type_context_cache::is_aux_recursor(name const & n) {
     CACHE_CODE(
         auto it = m_aux_recursor_cache.find(n);
         if (it != m_aux_recursor_cache.end())
-            return it->second;
-        );
+            return it->second;);
     bool r = ::lean::is_aux_recursor(env(), n);
     CACHE_CODE(m_aux_recursor_cache.insert(mk_pair(n, r)););
     return r;
@@ -1002,8 +1001,7 @@ expr type_context::infer_core(expr const & e) {
         unsigned postponed_sz = m_postponed.size();
         auto it = cache.find(e);
         if (it != cache.end())
-            return it->second;
-        );
+            return it->second;);
 #endif
 
     reset_used_assignment reset(*this);
@@ -1044,8 +1042,7 @@ expr type_context::infer_core(expr const & e) {
 #ifndef LEAN_NO_TYPE_INFER_CACHE
     CACHE_CODE(
         if (!m_used_assignment && postponed_sz == m_postponed.size())
-            cache.insert(mk_pair(e, r));
-        );
+            cache.insert(mk_pair(e, r)););
 #endif
     return r;
 }
@@ -3666,8 +3663,7 @@ struct instance_synthesizer {
 #ifndef LEAN_NO_TYPE_CLASS_CACHE
         CACHE_CODE(
             if (!has_expr_metavar(type))
-                m_ctx.m_cache->m_instance_cache.insert(mk_pair(type, inst));
-            );
+                m_ctx.m_cache->m_instance_cache.insert(mk_pair(type, inst)););
 #endif
     }
 
@@ -3869,8 +3865,7 @@ optional<expr> type_context::mk_subsingleton_instance(expr const & type) {
     CACHE_CODE(
         auto it = m_cache->m_subsingleton_cache.find(type);
         if (it != m_cache->m_subsingleton_cache.end())
-            return it->second;
-        );
+            return it->second;);
     expr Type  = whnf(infer(type));
     if (!is_sort(Type)) {
         m_cache->m_subsingleton_cache.insert(mk_pair(type, none_expr()));

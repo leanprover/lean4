@@ -12,13 +12,18 @@ meta instance bool.reflect : has_reflect bool
 | tt := `(tt)
 | ff := `(ff)
 
-meta instance nat.reflect : has_reflect nat
-| n := if n = 0 then unchecked_cast `(0 : nat)
-       else if n % 2 = 0 then unchecked_cast $ `(λ n : nat, bit0 n).subst (nat.reflect (n / 2))
-       else unchecked_cast $ `(λ n : nat, bit1 n).subst (nat.reflect (n / 2))
+section
+local attribute [semireducible] reflected
+
+meta instance nat.reflect : has_reflect ℕ
+| n := if n = 0 then `(nat.zero)
+       else if n % 2 = 0 then `(bit0 %%(nat.reflect (n / 2)) : ℕ)
+       else `(bit1 %%(nat.reflect (n / 2)) : ℕ)
 
 meta instance unsigned.reflect : has_reflect unsigned
-| ⟨n, pr⟩ := unchecked_cast `(unsigned.of_nat' n)
+| ⟨n, pr⟩ := `(unsigned.of_nat' n)
+
+end
 
 meta instance name.reflect : has_reflect name
 | name.anonymous        := `(name.anonymous)

@@ -262,7 +262,7 @@ meta constant get_local     : name → tactic expr
 meta constant resolve_name  : name → tactic pexpr
 /- Return the hypothesis in the main goal. Fail if tactic_state does not have any goal left. -/
 meta constant local_context : tactic (list expr)
-meta constant get_unused_name : name → option nat → tactic name
+meta constant get_unused_name (n : name) (i : option nat := none) : tactic name
 /--  Helper tactic for creating simple applications where some arguments are inferred using
     type inference.
 

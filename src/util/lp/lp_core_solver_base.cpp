@@ -349,7 +349,8 @@ column_is_dual_feasible(unsigned j) const {
         return x_is_at_low_bound(j) && d_is_not_negative(j);
     case upper_bound:
         std::cout << "upper_bound type should be switched to low_bound" << std::endl;
-        lean_assert(false); // impossible case
+        lean_unreachable();
+        [[fallthrough]];
     case free_column:
         return numeric_traits<X>::is_zero(m_d[j]);
     default:

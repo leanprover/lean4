@@ -432,7 +432,8 @@ struct wf_rec_fn {
             unsigned packed_num_params = get_app_num_args(packed_fn);
             unsigned i = 1;
             unsigned next_eqn_idx = 1;
-            optional<name> prev_fn_name;
+            bool has_prev_fn_name = false;
+            name prev_fn_name;
             while (true) {
                 name packed_eqn_name = mk_equation_name(packed_name, i);
                 optional<declaration> packed_eqn_decl = m_env.find(packed_eqn_name);
@@ -458,15 +459,16 @@ struct wf_rec_fn {
                 trace_debug_wf(tout() << "after unpacking\n";
                                tout() << *new_lhs << " = " << new_rhs << "\n";);
                 name fn_name   = const_name(get_app_fn(*new_lhs));
-                if (!prev_fn_name || fn_name != *prev_fn_name) {
+                if (!has_prev_fn_name || fn_name != prev_fn_name) {
                     next_eqn_idx = 1;
                 } else {
                     next_eqn_idx++;
                 }
-                prev_fn_name   = fn_name;
-                expr new_eqn   = mk_eq(ctx, *new_lhs, new_rhs);
-                expr new_type  = args.mk_pi(new_eqn);
-                expr new_proof = args.mk_lambda(mk_app(mk_constant(packed_eqn_decl->get_name(), packed_eqn_levels),
+                prev_fn_name     = fn_name;
+                has_prev_fn_name = true;
+                expr new_eqn     = mk_eq(ctx, *new_lhs, new_rhs);
+                expr new_type    = args.mk_pi(new_eqn);
+                expr new_proof   = args.mk_lambda(mk_app(mk_constant(packed_eqn_decl->get_name(), packed_eqn_levels),
                                                        args.size(), args.data()));
                 m_env = mk_aux_lemma(m_env, ctx.mctx(), ctx.lctx(),
                                      mk_equation_name(fn_name, next_eqn_idx),

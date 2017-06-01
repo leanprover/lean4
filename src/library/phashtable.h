@@ -29,10 +29,10 @@ protected:
     union {
         T     m_data;
     };
-    explicit default_hash_entry(bool):m_state(Deleted) {} // NOLINT
+    explicit default_hash_entry(bool):m_hash(0), m_state(Deleted) {} // NOLINT
 public:
     typedef T                data;
-    default_hash_entry():m_state(Free) {}
+    default_hash_entry():m_hash(0), m_state(Free) {}
     default_hash_entry(default_hash_entry const & src):
         m_hash(src.m_hash), m_state(src.m_state) {
         if (m_state == Used)

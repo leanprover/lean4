@@ -877,7 +877,7 @@ void vm_instr::serialize(serializer & s, std::function<name(unsigned)> const & i
         break;
     case opcode::BuiltinCases:
         s << idx2name(m_cases_idx);
-        // continue on CasesN
+        [[fallthrough]];
     case opcode::CasesN:
         s << m_npcs[0];
         for (unsigned j = 1; j < m_npcs[0] + 1; j++)

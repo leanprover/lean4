@@ -303,6 +303,7 @@ void mt_task_queue::cancel_core(gtask const & t) {
     switch (get_state(t).load()) {
         case task_state::Waiting:
             m_waiting.erase(t);
+            [[fallthrough]];
         case task_state::Created: case task_state::Queued:
             fail(t, std::make_exception_ptr(cancellation_exception()));
             handle_finished(t);

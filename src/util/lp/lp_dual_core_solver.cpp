@@ -499,6 +499,7 @@ template <typename T, typename X> void lp_dual_core_solver<T, X>::recover_leavin
         break;
     case free_of_bounds:
         this->m_x[m_q] = zero_of_type<X>();
+        break;
     default:
         lean_unreachable();
     }

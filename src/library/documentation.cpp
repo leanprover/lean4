@@ -77,7 +77,8 @@ static void rtrim(std::string & s) {
 }
 
 static unsigned get_indentation(std::string const & s) {
-    optional<unsigned> r;
+    bool r_init = false;
+    unsigned r  = 0;
     bool searching = true;
     unsigned i = 0;
     for (auto it = s.begin(); it != s.end(); it++) {
@@ -88,13 +89,15 @@ static unsigned get_indentation(std::string const & s) {
             i++;
         } else if (searching) {
             searching = false;
-            if (r)
-                r = std::min(*r, i);
-            else
-                r = i;
+            if (r_init) {
+                r = std::min(r, i);
+            } else {
+                r      = i;
+                r_init = true;
+            }
         }
     }
-    return r ? *r : 0;
+    return r;
 }
 
 static std::string unindent(std::string const & s) {

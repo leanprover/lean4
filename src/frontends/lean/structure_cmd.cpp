@@ -513,8 +513,10 @@ struct structure_cmd_fn {
         expr tmp = m_type;
         m_type = elaborate_for_each<expr>(m_parents, tmp, std::bind(&structure_cmd_fn::elaborate_parent, this, true, _1, _2, _3), [&](expr tmp) {
             return elaborate_for_each<expr>(m_params, tmp, std::bind(&structure_cmd_fn::elaborate_local, this, false, _1, _2, _3), [&](expr tmp) {
-                collect_implicit_locals(m_p, m_level_names, m_ctx_locals, tmp);
-                return elaborate_for_each<expr>(m_ctx_locals, tmp, std::bind(&structure_cmd_fn::elaborate_local, this, true, _1, _2, _3), [&](expr tmp) {
+                buffer<name> lp_names;
+                buffer<expr> ctx;
+                collect_implicit_locals(m_p, lp_names, ctx, tmp);
+                return elaborate_for_each<expr>(ctx, tmp, std::bind(&structure_cmd_fn::elaborate_local, this, true, _1, _2, _3), [&](expr tmp) {
                     level_param_names new_ls;
                     expr new_tmp;
                     std::tie(new_tmp, new_ls) = m_p.elaborate_type(m_name, list<expr>(), tmp);

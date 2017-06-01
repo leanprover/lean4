@@ -1,6 +1,6 @@
 constant a : nat
 
-noncomputable meta def ex : tactic expr :=
+meta def ex : tactic expr :=
 return `(a)
 
 open tactic

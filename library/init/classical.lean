@@ -33,9 +33,12 @@ private def V (x : Prop) : Prop := x = false ∨ p
 private lemma exU : ∃ x, U x := ⟨true, or.inl rfl⟩
 private lemma exV : ∃ x, V x := ⟨false, or.inl rfl⟩
 
-private noncomputable def u := some exU
-private noncomputable def v := some exV
+/- TODO(Leo): check why the code generator is not ignoring (some exU)
+   when we mark u as def. -/
+private lemma u : Prop := some exU
+private lemma v : Prop := some exV
 
+set_option type_context.unfold_lemmas true
 private lemma u_def : U u := some_spec exU
 private lemma v_def : V v := some_spec exV
 

@@ -4,10 +4,10 @@ constant Foo2 : ((Σu:nat, nat) → nat) → Prop
 noncomputable instance : decidable (Foo (λ ⟨a, b⟩, a)) := -- ERROR
 sorry
 
-noncomputable instance I1 : decidable (Foo (λ ⟨a, b⟩, a)) :=
+instance I1 : decidable (Foo (λ ⟨a, b⟩, a)) :=
 sorry
 
-noncomputable instance I2 : decidable (Foo2 (λ ⟨a, b⟩, a)) :=
+instance I2 : decidable (Foo2 (λ ⟨a, b⟩, a)) :=
 sorry
 
 def test (f : ((Σu:nat, nat) → nat) → nat) : f (λ ⟨a, b⟩, a) = f (λ⟨a, b⟩, a) :=

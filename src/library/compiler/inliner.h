@@ -21,6 +21,8 @@ environment add_inline(environment const & env, name const & n);
     Example: this procedure reduces (@add nat nat_has_add a b) into (nat.add a b). */
 expr inline_simple_definitions(environment const & env, expr const & e);
 
+bool is_inline(environment const & env, name const & n);
+
 void initialize_inliner();
 void finalize_inliner();
 }

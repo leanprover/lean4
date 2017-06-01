@@ -8,11 +8,15 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/sstream.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/instantiate.h"
 #include "kernel/type_checker.h"
 #include "library/module.h"
 #include "library/util.h"
 #include "library/fingerprint.h"
-
+#include "library/trace.h"
+#include "library/quote.h"
+// TODO(Leo): move inline attribute declaration to library
+#include "library/compiler/inliner.h"
 namespace lean {
 struct noncomputable_ext : public environment_extension {
     name_set m_noncomputable;
@@ -91,6 +95,98 @@ environment mark_noncomputable(environment const & env, name const & n) {
     return module::add(new_env, std::make_shared<noncomputable_modification>(n));
 }
 
+struct get_noncomputable_reason_fn {
+    struct found {
+        name m_reason;
+        found(name const & r):m_reason(r) {}
+    };
+
+    type_checker &            m_tc;
+    noncomputable_ext const & m_ext;
+    expr_set                  m_cache;
+
+    get_noncomputable_reason_fn(type_checker & tc):
+        m_tc(tc), m_ext(get_extension(tc.env())) {
+    }
+
+    void visit_constant(expr const & e) {
+        if (is_noncomputable(m_tc, m_ext, const_name(e)))
+            throw found(const_name(e));
+    }
+
+    bool should_visit(expr const & e) {
+        if (m_cache.find(e) != m_cache.end())
+            return false;
+        m_cache.insert(e);
+        expr type = m_tc.whnf(m_tc.infer(e));
+        return !m_tc.is_prop(type) && !is_sort(type);
+    }
+
+    void visit_macro(expr const & e) {
+        if (is_expr_quote(e) || is_pexpr_quote(e))
+            return;
+        if (should_visit(e)) {
+            for (unsigned i = 0; i < macro_num_args(e); i++)
+                visit(macro_arg(e, i));
+        }
+    }
+
+    void visit_app(expr const & e) {
+        if (should_visit(e)) {
+            buffer<expr> args;
+            expr const & fn = get_app_args(e, args);
+            if (is_constant(fn) && is_inline(m_tc.env(), const_name(fn))) {
+                if (auto new_e = unfold_app(m_tc.env(), e)) {
+                    visit(*new_e);
+                    return;
+                }
+            }
+            visit(fn);
+            for (expr const & arg : args)
+                visit(arg);
+        }
+    }
+
+    void visit_binding(expr const & _e) {
+        if (should_visit(_e)) {
+            buffer<expr> ls;
+            expr e = _e;
+            while (is_lambda(e) || is_pi(e)) {
+                expr d = instantiate_rev(binding_domain(e), ls.size(), ls.data());
+                expr l = mk_local(mk_fresh_name(), binding_name(e), d, binding_info(e));
+                ls.push_back(l);
+                e = binding_body(e);
+            }
+            visit(instantiate_rev(e, ls.size(), ls.data()));
+        }
+    }
+
+    void visit_let(expr const & e) {
+        if (should_visit(e)) {
+            visit(instantiate(let_body(e), let_value(e)));
+        }
+    }
+
+    void visit(expr const & e) {
+        switch (e.kind()) {
+        case expr_kind::Sort:      return;
+        case expr_kind::Macro:     visit_macro(e);    return;
+        case expr_kind::Constant:  visit_constant(e); return;
+        case expr_kind::Var:       lean_unreachable();
+        case expr_kind::Meta:      lean_unreachable();
+        case expr_kind::Local:     return;
+        case expr_kind::App:       visit_app(e);      return;
+        case expr_kind::Lambda:    visit_binding(e);  return;
+        case expr_kind::Pi:        visit_binding(e);  return;
+        case expr_kind::Let:       visit_let(e);      return;
+        }
+    }
+
+    void operator()(expr const & e) {
+        visit(e);
+    }
+};
+
 optional<name> get_noncomputable_reason(environment const & env, name const & n) {
     declaration const & d = env.get(n);
     if (!d.is_definition())
@@ -100,14 +196,26 @@ optional<name> get_noncomputable_reason(environment const & env, name const & n)
         return optional<name>(); // definition is a proposition, then do nothing
     expr const & v = d.get_value();
     auto ext = get_extension(env);
-    optional<name> r;
+    bool ok  = true;
+    /* quick check */
     for_each(v, [&](expr const & e, unsigned) {
+            if (!ok) return false; // stop the search
             if (is_constant(e) && is_noncomputable(tc, ext, const_name(e))) {
-                r = const_name(e);
+                ok = false;
             }
             return true;
         });
-    return r;
+    if (ok) {
+        return optional<name>();
+    }
+    /* expensive check */
+    try {
+        get_noncomputable_reason_fn proc(tc);
+        proc(v);
+        return optional<name>();
+    } catch (get_noncomputable_reason_fn::found & r) {
+        return optional<name>(r.m_reason);
+    }
 }
 
 bool check_computable(environment const & env, name const & n) {

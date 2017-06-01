@@ -1,1 +1,0 @@
-noncomputable_bytecode_issue.lean:8:0: error: failed to generate bytecode, expression depends on noncomputable definition 'ex'

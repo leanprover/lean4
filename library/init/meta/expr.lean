@@ -76,7 +76,7 @@ attribute [instance] expr.reflect string.reflect
 
 universes u
 
-meta instance {α : Sort u} (a : α) : has_coe (reflected a) expr :=
+@[inline] meta instance {α : Sort u} (a : α) : has_coe (reflected a) expr :=
 ⟨reflected.to_expr⟩
 
 meta def reflect {α : Sort u} (a : α) [h : reflected a] : reflected a := h

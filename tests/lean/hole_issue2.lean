@@ -2,7 +2,7 @@ constant bag_setoid : ∀ A, setoid (list A)
 attribute [instance] bag_setoid
 
 
-noncomputable definition bag (A : Type) : Type :=
+definition bag (A : Type) : Type :=
 quotient (bag_setoid A)
 
 constant subcount : ∀ {A}, list A → list A → bool
@@ -12,7 +12,7 @@ constant ex_of_subcount_eq_ff : ∀ {A} {l₁ l₂ : list A}, subcount l₁ l₂
 noncomputable definition count {A} (a : A) (b : bag A) : nat :=
 quotient.lift_on b (λ l, list.count a l)
   (λ l₁ l₂ h, sorry)
-noncomputable definition subbag {A} (b₁ b₂ : bag A) := ∀ a, count a b₁ ≤ count a b₂
+definition subbag {A} (b₁ b₂ : bag A) := ∀ a, count a b₁ ≤ count a b₂
 infix ⊆ := subbag
 
 noncomputable definition decidable_subbag_1 {A} (b₁ b₂ : bag A) : decidable (b₁ ⊆ b₂) :=

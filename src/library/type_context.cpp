@@ -180,7 +180,11 @@ type_context_cache_ptr type_context_cache_manager::release() {
 }
 
 type_context_cache_ptr type_context_cache_manager::mk(environment const & env, options const & o) {
-    if (!m_cache_ptr || get_class_instance_max_depth(o) != m_max_depth) return mk_cache(env, o, m_use_bi);
+    if (!m_cache_ptr ||
+        get_class_instance_max_depth(o) != m_max_depth ||
+        get_unfold_lemmas(o) != get_unfold_lemmas(m_cache_ptr->m_options)) {
+        return mk_cache(env, o, m_use_bi);
+    }
     if (is_eqp(env, m_env)) {
         m_cache_ptr->m_options = o;
         return release();

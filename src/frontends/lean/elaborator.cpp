@@ -678,6 +678,7 @@ optional<expr> elaborator::try_monad_coercion(expr const & e, expr const & e_typ
 
 optional<expr> elaborator::mk_coercion(expr const & e, expr e_type, expr type, expr const & ref) {
     if (!m_coercions) return none_expr();
+    synthesize_type_class_instances();
     e_type = instantiate_mvars(e_type);
     type   = instantiate_mvars(type);
     if (!has_expr_metavar(e_type) && !has_expr_metavar(type)) {

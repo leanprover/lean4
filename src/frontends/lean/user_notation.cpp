@@ -46,24 +46,21 @@ static environment add_user_notation(environment const & env, name const & d, un
     return add_notation(env, notation_entry(is_nud, {notation::transition(tk, notation::mk_ext_action(
             [=](parser & p, unsigned num, expr const * args, pos_info const &) -> expr {
                 lean_assert(num == (is_nud ? 0 : 1));
-                expr tactic = mk_constant(d);
+                expr parser = mk_constant(d);
                 if (!is_nud)
-                    tactic = mk_app(tactic, mk_pexpr_quote(args[0]));
+                    parser = mk_app(parser, mk_pexpr_quote(args[0]));
                 // `parse (tk c)` arg
-                tactic = mk_app(tactic, mk_constant(get_unit_star_name()));
+                parser = mk_app(parser, mk_constant(get_unit_star_name()));
                 for (expr t = type; is_pi(t); t = binding_body(t)) {
                     expr arg_type = binding_domain(t);
                     if (is_app_of(arg_type, get_interactive_parse_name())) {
-                        tactic = mk_app(tactic, parse_interactive_param(p, arg_type));
+                        parser = mk_app(parser, parse_interactive_param(p, arg_type));
                     } else {
-                        tactic = mk_app(tactic, p.parse_expr(get_max_prec()));
+                        parser = mk_app(parser, p.parse_expr(get_max_prec()));
                     }
                 }
-                tactic = p.elaborate("_user_notation", {}, tactic).first;
-                tactic_state s = mk_tactic_state_for(p.env(), p.get_options(), "_user_notation", local_context(), dummy);
-                type_context ctx(p.env());
-                auto result = tactic::evaluator(ctx, p.get_options())(tactic, s);
-                return to_expr(tactic::get_result_value(result));
+                parser = p.elaborate("_user_notation", {}, parser).first;
+                return to_expr(run_parser(p, parser));
             }))}, Var(0), /* overload */ persistent, prio, notation_entry_group::Main, /* parse_only */ true));
 }
 

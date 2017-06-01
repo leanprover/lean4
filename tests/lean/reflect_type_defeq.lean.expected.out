@@ -1,0 +1,6 @@
+reflect_type_defeq.lean:2:0: error: equation type mismatch, expression
+  x
+has type
+  reflected 3
+but is expected to have type
+  reflected [10]

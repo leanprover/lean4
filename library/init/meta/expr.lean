@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.meta.level init.category.monad
+universes u v
 
 structure pos :=
 (line   : nat)
@@ -47,39 +48,6 @@ meta inductive expr (elaborated : bool := tt)
 | macro       : macro_def → list expr → expr
 
 variable {elab : bool}
-/-- Internal representation for reflected_core -/
-meta constant {u} reflected_core : Sort u
-meta constant reflected_core.to_expr : reflected_core → expr
-meta constant reflected_core.subst : reflected_core → reflected_core → reflected_core
-/-- (reflected a) is a special opaque container for a closed `expr` representing `a`.
-    It can only be obtained via type class inference, which will use the representation
-    of `a` in the calling context. Local constants in the representation are replaced
-    by nested inference of `reflected` instances.
-
-    The quotation expression `(a) (outside of patterns) is equivalent to `reflect a`
-    and thus can be used as an explicit way of inferring an instance of `reflected a`. -/
-meta def {u} reflected {α : Sort u} : α → Sort (max 1 u) :=
-λ _, reflected_core
-
-@[inline] meta def {u} reflected.to_expr {α : Sort u} {a : α} : reflected a → expr :=
-reflected_core.to_expr
-
-@[inline] meta def {v u} reflected.subst {α : Sort u} {β : α → Sort v} {f : Π a : α, β a} {a : α} :
-  reflected f → reflected a → reflected (f a) :=
-reflected_core.subst
-
-meta constant expr.reflect (e : expr elab) : reflected e
-meta constant string.reflect (s : string) : reflected s
-
-attribute [class] reflected
-attribute [instance] expr.reflect string.reflect
-
-universes u
-
-@[inline] meta instance {α : Sort u} (a : α) : has_coe (reflected a) expr :=
-⟨reflected.to_expr⟩
-
-meta def reflect {α : Sort u} (a : α) [h : reflected a] : reflected a := h
 
 meta instance : inhabited expr :=
 ⟨expr.sort level.zero⟩
@@ -159,6 +127,35 @@ meta constant expr.get_nat_value : expr → option nat
 meta constant expr.collect_univ_params : expr → list name
 /-- `occurs e t` returns `tt` iff `e` occurs in `t` -/
 meta constant expr.occurs        : expr → expr → bool
+
+/-- (reflected a) is a special opaque container for a closed `expr` representing `a`.
+    It can only be obtained via type class inference, which will use the representation
+    of `a` in the calling context. Local constants in the representation are replaced
+    by nested inference of `reflected` instances.
+
+    The quotation expression `(a) (outside of patterns) is equivalent to `reflect a`
+    and thus can be used as an explicit way of inferring an instance of `reflected a`. -/
+meta def reflected {α : Sort u} : α → Type :=
+λ _, expr
+
+@[inline] meta def reflected.to_expr {α : Sort u} {a : α} : reflected a → expr :=
+id
+
+@[inline] meta def reflected.subst {α : Sort v} {β : α → Sort u} {f : Π a : α, β a} {a : α} :
+  reflected f → reflected a → reflected (f a) :=
+expr.subst
+
+meta constant expr.reflect (e : expr elab) : reflected e
+meta constant string.reflect (s : string) : reflected s
+
+attribute [class] reflected
+attribute [instance] expr.reflect string.reflect
+attribute [irreducible] reflected reflected.subst reflected.to_expr
+
+@[inline] meta instance {α : Sort u} (a : α) : has_coe (reflected a) expr :=
+⟨reflected.to_expr⟩
+
+meta def reflect {α : Sort u} (a : α) [h : reflected a] : reflected a := h
 
 namespace expr
 open decidable

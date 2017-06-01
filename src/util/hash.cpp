@@ -41,17 +41,17 @@ unsigned hash_str(unsigned length, char const * str, unsigned init_value) {
     c += length;
     switch (len) {
         /* all the case statements fall through */
-    case 11:  c+=((unsigned)str[10] << 24);  [[fallthrough]];
-    case 10:  c+=((unsigned)str[9] << 16);   [[fallthrough]];
-    case 9 :  c+=((unsigned)str[8] << 8);    [[fallthrough]];
+    case 11:  c+=((unsigned)str[10] << 24);  /* fall-thru */
+    case 10:  c+=((unsigned)str[9] << 16);   /* fall-thru */
+    case 9 :  c+=((unsigned)str[8] << 8);    /* fall-thru */
         /* the first byte of c is reserved for the length */
-    case 8 :  b+=((unsigned)str[7] << 24);   [[fallthrough]];
-    case 7 :  b+=((unsigned)str[6] << 16);   [[fallthrough]];
-    case 6 :  b+=((unsigned)str[5] << 8);    [[fallthrough]];
-    case 5 :  b+=str[4];                     [[fallthrough]];
-    case 4 :  a+=((unsigned)str[3] << 24);   [[fallthrough]];
-    case 3 :  a+=((unsigned)str[2] << 16);   [[fallthrough]];
-    case 2 :  a+=((unsigned)str[1] << 8);    [[fallthrough]];
+    case 8 :  b+=((unsigned)str[7] << 24);   /* fall-thru */
+    case 7 :  b+=((unsigned)str[6] << 16);   /* fall-thru */
+    case 6 :  b+=((unsigned)str[5] << 8);    /* fall-thru */
+    case 5 :  b+=str[4];                     /* fall-thru */
+    case 4 :  a+=((unsigned)str[3] << 24);   /* fall-thru */
+    case 3 :  a+=((unsigned)str[2] << 16);   /* fall-thru */
+    case 2 :  a+=((unsigned)str[1] << 8);    /* fall-thru */
     case 1 :  a+=str[0];
         /* case 0: nothing left to add */
     }

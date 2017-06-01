@@ -350,7 +350,7 @@ column_is_dual_feasible(unsigned j) const {
     case upper_bound:
         std::cout << "upper_bound type should be switched to low_bound" << std::endl;
         lean_unreachable();
-        [[fallthrough]];
+        /* fall-thru */
     case free_column:
         return numeric_traits<X>::is_zero(m_d[j]);
     default:

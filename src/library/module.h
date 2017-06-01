@@ -25,6 +25,9 @@ public:
 struct module_name {
     name               m_name;
     optional<unsigned> m_relative;
+    module_name() {}
+    module_name(name const & n, unsigned k):m_name(n), m_relative(k) {}
+    explicit module_name(name const & n):m_name(n) {}
 };
 
 struct modification;

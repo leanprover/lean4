@@ -700,8 +700,8 @@ public:
         scoped_expr_caching disable(false);
 
         auto mod_ldr = mk_olean_loader(m_path);
-        optional<unsigned> k;
-        m_env = import_modules(m_env, get_stream_name(), {{"init", k}, {"smt", k}}, mod_ldr);
+        m_env = import_modules(m_env, get_stream_name(), {module_name("init"), module_name("smt")},
+                               mod_ldr);
 
         bool ok = true;
         try {

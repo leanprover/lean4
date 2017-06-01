@@ -2337,31 +2337,35 @@ void parser::parse_imports(unsigned & fingerprint, std::vector<module_name> & im
         prelude = true;
     }
     if (!prelude) {
-        imports.push_back({ "init", optional<unsigned>() });
+        module_name m("init");
+        imports.push_back(m);
     }
     while (curr_is_token(get_import_tk())) {
         m_last_cmd_pos = pos();
         next();
         while (true) {
-            pos_info p = pos();
-            optional<unsigned> k;
+            pos_info p  = pos();
+            bool k_init = false;
+            unsigned k  = 0;
             try {
                 unsigned h = 0;
                 while (true) {
                     if (curr_is_token(get_period_tk())) {
-                        if (!k) {
+                        if (!k_init) {
                             k = 0;
+                            k_init = true;
                         } else {
-                            k = *k + 1;
+                            k = k + 1;
                             h++;
                         }
                         next();
                     } else if (curr_is_token(get_ellipsis_tk())) {
-                        if (!k) {
+                        if (!k_init) {
                             k = 2;
+                            k_init = true;
                             h = 2;
                         } else {
-                            k = *k + 3;
+                            k = k + 3;
                             h += 3;
                         }
                         next();
@@ -2374,14 +2378,20 @@ void parser::parse_imports(unsigned & fingerprint, std::vector<module_name> & im
                     break;
                 name f = get_name_val();
                 fingerprint = hash(fingerprint, f.hash());
-                if (k) {
+                if (k_init) {
                     fingerprint = hash(fingerprint, h);
                 }
-                imports.push_back({f, k});
+                if (k_init) {
+                    module_name m(f, k);
+                    imports.push_back(m);
+                } else {
+                    module_name m(f);
+                    imports.push_back(m);
+                }
                 next();
             } catch (break_at_pos_exception & e) {
-                if (k)
-                    e.m_token_info.m_token = std::string(*k + 1, '.') + e.m_token_info.m_token.to_string();
+                if (k_init)
+                    e.m_token_info.m_token = std::string(k + 1, '.') + e.m_token_info.m_token.to_string();
                 e.m_token_info.m_context = break_at_pos_exception::token_context::import;
                 e.m_token_info.m_pos = p;
                 throw;

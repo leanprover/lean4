@@ -5,6 +5,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 */
 #if defined(LEAN_JSON)
+// Remark: gcc 7 produces a warning at json.hpp
+// We believe it is a spurious warning
+#if defined(__GNUC__) && !defined(__CLANG__)
+#pragma GCC diagnostic ignored "-Wuninitialized"
+#endif
+
 #include <list>
 #include <string>
 #include <vector>
@@ -26,7 +32,6 @@ Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 #include "shell/server.h"
 
 namespace lean {
-
 struct all_messages_msg {
     std::vector<message> m_msgs;
 

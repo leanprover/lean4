@@ -29,7 +29,7 @@ public:
             new (&m_value) T(other.m_value);
     }
     optional(optional && other):m_some(other.m_some) {
-        if (m_some)
+        if (other.m_some)
             new (&m_value) T(std::forward<T>(other.m_value));
     }
     explicit optional(T const & v):m_some(true) {

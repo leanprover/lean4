@@ -24,7 +24,8 @@ lean_bool lean_env_import(lean_env env, lean_ios ios, lean_list_name modules, le
     auto new_env = to_env_ref(env);
     std::vector<module_name> imports;
     for (name const & n : to_list_name_ref(modules)) {
-        imports.push_back({n, optional<unsigned>()});
+        module_name m(n);
+        imports.push_back(m);
     }
     new_env = import_modules(new_env, "", imports, mk_olean_loader(standard_search_path().get_path()));
     *r = of_env(new environment(new_env));

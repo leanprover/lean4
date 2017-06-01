@@ -10,6 +10,8 @@ namespace lean
 
 -- TODO: make inspectable (and pure)
 meta constant parser_state : Type
+meta constant parser_state.env     : parser_state → environment
+meta constant parser_state.options : parser_state → options
 meta constant parser_state.cur_pos : parser_state → pos
 
 @[reducible] meta def parser := interaction_monad parser_state
@@ -19,6 +21,7 @@ open interaction_monad
 open interaction_monad.result
 
 namespace parser
+variable {α : Type}
 
 /-- Make sure the next token is an identifier, consume it, and
     produce the quoted name `t, where t is the identifier. -/
@@ -32,14 +35,14 @@ protected meta constant pexpr (rbp := std.prec.max) : parser pexpr
 meta constant qexpr (rbp := std.prec.max) : parser pexpr
 
 /-- Do not report info from content parsed by `p`. -/
-meta constant skip_info {α : Type} (p : parser α) : parser α
+meta constant skip_info (p : parser α) : parser α
 /-- Set goal info position of content parsed by `p` to current position. Nested calls take precedence. -/
-meta constant set_goal_info_pos {α : Type} (p : parser α) : parser α
+meta constant set_goal_info_pos (p : parser α) : parser α
 
 /-- Return the current parser position without consuming any input. -/
 meta def cur_pos : parser pos := λ s, success (parser_state.cur_pos s) s
 
-meta def parser_orelse {α : Type} (p₁ p₂ : parser α) : parser α :=
+meta def parser_orelse (p₁ p₂ : parser α) : parser α :=
 λ s,
 let pos₁ := parser_state.cur_pos s in
 result.cases_on (p₁ s)
@@ -67,8 +70,14 @@ meta def {u v} many {f : Type u → Type v} [monad f] [alternative f] {a : Type 
 local postfix `?`:100 := optional
 local postfix `*`:100 := many
 
-meta def sep_by {α : Type} : parser unit → parser α → parser (list α)
+meta def sep_by : parser unit → parser α → parser (list α)
 | s p := (list.cons <$> p <*> (s *> p)*) <|> return []
+
+meta instance tactic_to_parser : has_coe (tactic α) (parser α) :=
+⟨λ t s, match t (tactic_state.mk_empty s.env s.options) with
+ | success x _     := success x s
+ | exception f p _ := exception f p s
+ end⟩
 
 end parser
 end lean

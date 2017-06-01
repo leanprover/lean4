@@ -70,6 +70,16 @@ expr parse_interactive_param(parser & p, expr const & param_ty) {
     }
 }
 
+vm_obj vm_parser_state_env(vm_obj const & o) {
+    auto const & s = lean_parser::to_state(o);
+    return to_obj(s.m_p->env());
+}
+
+vm_obj vm_parser_state_options(vm_obj const & o) {
+    auto const & s = lean_parser::to_state(o);
+    return to_obj(s.m_p->get_options());
+}
+
 vm_obj vm_parser_state_cur_pos(vm_obj const & o) {
     auto const & s = lean_parser::to_state(o);
     return to_obj(s.m_p->pos());
@@ -139,6 +149,8 @@ vm_obj vm_parser_set_goal_info_pos(vm_obj const &, vm_obj const & vm_p, vm_obj c
 }
 
 void initialize_vm_parser() {
+    DECLARE_VM_BUILTIN(name({"lean", "parser_state", "env"}),         vm_parser_state_env);
+    DECLARE_VM_BUILTIN(name({"lean", "parser_state", "options"}),     vm_parser_state_options);
     DECLARE_VM_BUILTIN(name({"lean", "parser_state", "cur_pos"}),     vm_parser_state_cur_pos);
     DECLARE_VM_BUILTIN(name({"lean", "parser", "ident"}),             vm_parser_ident);
     DECLARE_VM_BUILTIN(get_lean_parser_tk_name(),                     vm_parser_tk);

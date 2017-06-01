@@ -14,6 +14,8 @@ meta constant tactic_state : Type
 universes u v
 
 namespace tactic_state
+/-- Create a tactic state with an empty local context and a dummy goal. -/
+meta constant mk_empty    : environment → options → tactic_state
 meta constant env         : tactic_state → environment
 meta constant to_format   : tactic_state → format
 /- Format expression with respect to the main goal in the tactic state.

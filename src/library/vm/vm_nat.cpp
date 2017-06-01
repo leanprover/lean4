@@ -183,6 +183,29 @@ vm_obj nat_shiftr(vm_obj const & a1, vm_obj const & a2) {
     }
 }
 
+vm_obj nat_div2(vm_obj const & a) {
+    if (LEAN_LIKELY(is_simple(a))) {
+        return mk_vm_nat(cidx(a) >> 1);
+    } else {
+        mpz v = to_mpz1(a);
+        div2k(v, v, 1);
+        return mk_vm_mpz(v);
+    }
+}
+
+vm_obj nat_bodd(vm_obj const & a1) {
+    if (LEAN_LIKELY(is_simple(a1))) {
+        return mk_vm_bool((cidx(a1) & 1u) != 0);
+    } else {
+        mpz const & v1 = to_mpz1(a1);
+        return mk_vm_bool(v1.test_bit(0));
+    }
+}
+
+vm_obj nat_bodd_div2(vm_obj const & a) {
+    return mk_vm_pair(nat_bodd(a), nat_div2(a));
+}
+
 vm_obj nat_land(vm_obj const & a1, vm_obj const & a2) {
     if (LEAN_LIKELY(is_simple(a1) && is_simple(a2))) {
         return mk_vm_nat(cidx(a1) & cidx(a2));
@@ -305,6 +328,9 @@ void initialize_vm_nat() {
     DECLARE_VM_BUILTIN(name({"nat", "decidable_lt"}),     nat_decidable_lt);
     DECLARE_VM_BUILTIN(name({"nat", "repr"}),             nat_repr);
     DECLARE_VM_BUILTIN(name({"nat", "repeat"}),           nat_repeat);
+    DECLARE_VM_BUILTIN(name({"nat", "bodd"}),             nat_bodd);
+    DECLARE_VM_BUILTIN(name({"nat", "div2"}),             nat_div2);
+    DECLARE_VM_BUILTIN(name({"nat", "bodd_div2"}),        nat_bodd_div2);
     DECLARE_VM_BUILTIN(name({"nat", "shiftl"}),           nat_shiftl);
     DECLARE_VM_BUILTIN(name({"nat", "shiftr"}),           nat_shiftr);
     DECLARE_VM_BUILTIN(name({"nat", "lor"}),              nat_lor);

@@ -3217,12 +3217,19 @@ optional<name> type_context::constant_is_class(expr const & e) {
 }
 
 optional<name> type_context::is_full_class(expr type) {
-    type = whnf(type);
-    if (is_pi(type)) {
+    expr new_type = whnf(type);
+    if (is_pi(new_type)) {
+        type = new_type;
         tmp_locals locals(*this);
         return is_full_class(::lean::instantiate(binding_body(type), locals.push_local_from_binding(type)));
     } else {
+        // TODO(Leo): this can be improved using whnf_pred
         expr f = get_app_fn(type);
+        if (is_constant(f)) {
+            if (auto r = constant_is_class(f))
+                return r;
+        }
+        f = get_app_fn(new_type);
         if (!is_constant(f))
             return optional<name>();
         return constant_is_class(f);
@@ -3373,9 +3380,10 @@ struct instance_synthesizer {
             expr const & mvar = e.m_mvar;
             expr mvar_type    = m_ctx.infer(mvar);
             while (true) {
-                mvar_type = m_ctx.relaxed_whnf(mvar_type);
-                if (!is_pi(mvar_type))
+                expr new_mvar_type = m_ctx.relaxed_whnf(mvar_type);
+                if (!is_pi(new_mvar_type))
                     break;
+                mvar_type   = new_mvar_type;
                 expr local  = locals.push_local_from_binding(mvar_type);
                 mvar_type   = instantiate(binding_body(mvar_type), local);
             }
@@ -3383,9 +3391,10 @@ struct instance_synthesizer {
             expr r     = inst;
             buffer<expr> new_inst_mvars;
             while (true) {
-                type = m_ctx.relaxed_whnf(type);
-                if (!is_pi(type))
+                expr new_type = m_ctx.relaxed_whnf(type);
+                if (!is_pi(new_type))
                     break;
+                type          = new_type;
                 expr new_mvar = m_ctx.mk_tmp_mvar(locals.mk_pi(binding_domain(type)));
                 if (binding_info(type).is_inst_implicit()) {
                     new_inst_mvars.push_back(new_mvar);
@@ -3516,24 +3525,23 @@ struct instance_synthesizer {
         expr const & mvar = e.m_mvar;
         expr mvar_type    = m_ctx.infer(mvar);
         while (true) {
-            mvar_type = m_ctx.relaxed_whnf(mvar_type);
-            if (!is_pi(mvar_type))
+            expr new_mvar_type = m_ctx.relaxed_whnf(mvar_type);
+            if (!is_pi(new_mvar_type))
                 break;
+            mvar_type   = new_mvar_type;
             expr local  = locals.push_local_from_binding(mvar_type);
             mvar_type   = instantiate(binding_body(mvar_type), local);
         }
         mvar_type = m_ctx.instantiate_mvars(mvar_type);
         if (!has_metavar(mvar_type) && !has_param_univ(mvar_type) &&
-                is_app_of(mvar_type, get_reflected_name(), 2)) {
+            is_app_of(mvar_type, get_reflected_name(), 2)) {
             lean_trace_plain("class_instances",
                              scope_trace_env scope(m_ctx.env(), m_ctx);
-                                     tout() << "process special: " << mvar_type << "\n";);
+                             tout() << "process special: " << mvar_type << "\n";);
             expr r = app_arg(mvar_type);
-
             // prevent infinite recursion
             if (is_local(r))
                 return false;
-
             // recursively look up reflected instances for locals in r and substitute them into the quotation of r
             collected_locals r_locals;
             collect_locals(r, r_locals);
@@ -3554,11 +3562,10 @@ struct instance_synthesizer {
                 r = instantiate(binding_body(r), local);
                 r_ty = instantiate(binding_body(r_ty), local);
             }
-
             q = locals.mk_lambda(q);
             lean_trace_plain("class_instances",
                              scope_trace_env scope(m_ctx.env(), m_ctx);
-                                     trace(e.m_depth, e.m_mvar, mvar_type, q););
+                             trace(e.m_depth, e.m_mvar, mvar_type, q););
             if (!m_ctx.is_def_eq(mvar, q)) {
                 lean_trace_plain("class_instances", tout() << "failed is_def_eq\n";);
                 return false;

@@ -25,6 +25,8 @@ namespace parser
 meta constant ident : parser name
 /-- Check that the next token is `tk` and consume it. `tk` must be a registered token. -/
 meta constant tk (tk : string) : parser unit
+/-- Parse an unelaborated expression using the given right-binding power. -/
+protected meta constant pexpr (rbp := std.prec.max) : parser pexpr
 /-- Parse an unelaborated expression using the given right-binding power. The expression
     may contain antiquotations (`%%e`). -/
 meta constant qexpr (rbp := std.prec.max) : parser pexpr

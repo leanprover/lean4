@@ -21,7 +21,7 @@ static environment add_user_notation(environment const & env, name const & d, un
     name tk;
     if (is_app_of(binding_domain(type), get_interactive_parse_name(), 3)) {
         auto const & parser = app_arg(binding_domain(type));
-        if (is_app_of(parser, get_lean_parser_qexpr_name(), 1)) {
+        if (is_app_of(parser, get_lean_parser_pexpr_name(), 1)) {
             is_nud = false;
             type = binding_body(type);
         }

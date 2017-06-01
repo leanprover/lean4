@@ -4,11 +4,10 @@ open tactic
 
 reserve prefix `unquote! `:100
 @[user_notation]
-meta def unquote_macro (_ : parse $ tk "unquote!") (e : parse qexpr) : tactic pexpr :=
 to_expr e >>= eval_expr pexpr
+meta def unquote_macro (_ : parse $ tk "unquote!") (e : parse lean.parser.pexpr) : parser pexpr :=
 
-meta def e := ``(1 + 1)
-#eval unquote! e
+#eval unquote! ``(1 + 1)
 
 private meta def parse_format : string → string → ℕ × pexpr
 | acc [] := (0, pexpr.of_expr (reflect acc))
@@ -29,8 +28,8 @@ pure $ n.repeat (λ _ e, expr.lam `_ binder_info.default pexpr.mk_placeholder e)
 
 reserve infix ` +⋯+ `:65
 @[user_notation]
-meta def upto_notation (e₁ : parse qexpr) (_ : parse $ tk "+⋯+") (n₂ : ℕ) : tactic pexpr :=
 do n₁ ← to_expr e₁ >>= eval_expr nat,
+meta def upto_notation (e₁ : parse lean.parser.pexpr) (_ : parse $ tk "+⋯+") (n₂ : ℕ) : parser pexpr :=
    pure $ (n₂+1-n₁).repeat (λ i e, ``(%%e + %%(reflect $ n₁ + i))) ``(0)
 
 #check 1 +⋯+ 10

@@ -174,7 +174,7 @@ name const * g_is_associative_assoc = nullptr;
 name const * g_is_commutative = nullptr;
 name const * g_is_commutative_comm = nullptr;
 name const * g_ite = nullptr;
-name const * g_lean_parser_qexpr = nullptr;
+name const * g_lean_parser_pexpr = nullptr;
 name const * g_lean_parser_tk = nullptr;
 name const * g_left_distrib = nullptr;
 name const * g_left_comm = nullptr;
@@ -544,7 +544,7 @@ void initialize_constants() {
     g_is_commutative = new name{"is_commutative"};
     g_is_commutative_comm = new name{"is_commutative", "comm"};
     g_ite = new name{"ite"};
-    g_lean_parser_qexpr = new name{"lean", "parser", "qexpr"};
+    g_lean_parser_pexpr = new name{"lean", "parser", "pexpr"};
     g_lean_parser_tk = new name{"lean", "parser", "tk"};
     g_left_distrib = new name{"left_distrib"};
     g_left_comm = new name{"left_comm"};
@@ -915,7 +915,7 @@ void finalize_constants() {
     delete g_is_commutative;
     delete g_is_commutative_comm;
     delete g_ite;
-    delete g_lean_parser_qexpr;
+    delete g_lean_parser_pexpr;
     delete g_lean_parser_tk;
     delete g_left_distrib;
     delete g_left_comm;
@@ -1285,7 +1285,7 @@ name const & get_is_associative_assoc_name() { return *g_is_associative_assoc; }
 name const & get_is_commutative_name() { return *g_is_commutative; }
 name const & get_is_commutative_comm_name() { return *g_is_commutative_comm; }
 name const & get_ite_name() { return *g_ite; }
-name const & get_lean_parser_qexpr_name() { return *g_lean_parser_qexpr; }
+name const & get_lean_parser_pexpr_name() { return *g_lean_parser_pexpr; }
 name const & get_lean_parser_tk_name() { return *g_lean_parser_tk; }
 name const & get_left_distrib_name() { return *g_left_distrib; }
 name const & get_left_comm_name() { return *g_left_comm; }

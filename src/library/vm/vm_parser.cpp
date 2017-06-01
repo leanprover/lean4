@@ -95,6 +95,18 @@ vm_obj vm_parser_tk(vm_obj const & vm_tk, vm_obj const & o) {
     CATCH;
 }
 
+vm_obj vm_parser_pexpr(vm_obj const & vm_rbp, vm_obj const & o) {
+    auto const & s = lean_parser::to_state(o);
+    TRY;
+        auto rbp = to_unsigned(vm_rbp);
+        if (auto e = s.m_p->maybe_parse_expr(rbp)) {
+            return lean_parser::mk_success(to_obj(*e), s);
+        } else {
+            throw parser_error(sstream() << "expression expected", s.m_p->pos());
+        }
+    CATCH;
+}
+
 vm_obj vm_parser_qexpr(vm_obj const & vm_rbp, vm_obj const & o) {
     auto const & s = lean_parser::to_state(o);
     TRY;
@@ -130,7 +142,8 @@ void initialize_vm_parser() {
     DECLARE_VM_BUILTIN(name({"lean", "parser_state", "cur_pos"}),     vm_parser_state_cur_pos);
     DECLARE_VM_BUILTIN(name({"lean", "parser", "ident"}),             vm_parser_ident);
     DECLARE_VM_BUILTIN(get_lean_parser_tk_name(),                     vm_parser_tk);
-    DECLARE_VM_BUILTIN(get_lean_parser_qexpr_name(),                  vm_parser_qexpr);
+    DECLARE_VM_BUILTIN(get_lean_parser_pexpr_name(),                  vm_parser_pexpr);
+    DECLARE_VM_BUILTIN(name({"lean", "parser", "qexpr"}),             vm_parser_qexpr);
     DECLARE_VM_BUILTIN(name({"lean", "parser", "skip_info"}),         vm_parser_skip_info);
     DECLARE_VM_BUILTIN(name({"lean", "parser", "set_goal_info_pos"}), vm_parser_set_goal_info_pos);
 }

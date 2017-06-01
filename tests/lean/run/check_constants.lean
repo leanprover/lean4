@@ -174,7 +174,7 @@ run_cmd script_check_id `is_associative.assoc
 run_cmd script_check_id `is_commutative
 run_cmd script_check_id `is_commutative.comm
 run_cmd script_check_id `ite
-run_cmd script_check_id `lean.parser.qexpr
+run_cmd script_check_id `lean.parser.pexpr
 run_cmd script_check_id `lean.parser.tk
 run_cmd script_check_id `left_distrib
 run_cmd script_check_id `left_comm

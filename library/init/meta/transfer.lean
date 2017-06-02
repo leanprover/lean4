@@ -48,7 +48,7 @@ meta instance has_to_tactic_format_rel_data : has_to_tactic_format rel_data :=
   R ← pp r.relation,
   α ← pp r.in_type,
   β ← pp r.out_type,
-  return $ to_fmt "(" ++ R ++ ": rel (" ++ α ++ ") (" ++ β ++ "))" ⟩
+  return format!"({R}: rel ({α}) ({β}))" ⟩
 
 private meta structure rule_data :=
 (pr      : expr)
@@ -68,7 +68,7 @@ meta instance has_to_tactic_format_rule_data : has_to_tactic_format rule_data :=
   ma ← pp r.args,
   pat ← pp r.pat.target,
   out ← pp r.out,
-  return $ to_fmt "{ ⟨" ++ pat ++ "⟩ pr: " ++ pr ++ " → " ++ out ++ ", " ++ up ++ " " ++ mp ++ " " ++ ua ++ " " ++ ma ++ " }" ⟩
+  return format!"{{ ⟨{pat}⟩ pr: {pr} → {out}, {up} {mp} {ua} {ma} }" ⟩
 
 private meta def get_lift_fun : expr → tactic (list rel_data × expr)
 | e :=
@@ -150,9 +150,9 @@ meta def compute_transfer : list rule_data → list expr → expr → tactic (ex
     -- Argument has function type
     (args, r) ← get_lift_fun (i d.relation),
     ((a_vars, b_vars), (R_vars, bnds)) ← monad.for (enum args) (λ⟨n, arg⟩, do
-      a ← mk_local_def (("a" ++ to_string n) : string) arg.in_type,
-      b ← mk_local_def (("b" ++ to_string n) : string) arg.out_type,
-      R ← mk_local_def (("R" ++ to_string n) : string) (arg.relation a b),
+      a ← mk_local_def sformat!"a{n}" arg.in_type,
+      b ← mk_local_def sformat!"b{n}" arg.out_type,
+      R ← mk_local_def sformat!"R{n}" (arg.relation a b),
       return ((a, b), (R, [a, b, R]))) >>= (return ∘ prod.map unzip unzip ∘ unzip),
     rds'      ← monad.for R_vars (analyse_rule []),
 

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 Helper tactic for showing that a type has decidable equality.
 -/
 prelude
+import init.meta.interactive_base
 import init.meta.contradiction_tactic init.meta.constructor_tactic
 import init.meta.injection_tactic init.meta.relation_tactics
 
@@ -41,10 +42,10 @@ do
   I      ← get_inhabited_type_name,
   env    ← get_env,
   let n  := length (constructors_of env I),
-  when (n = 0) (fail $ "mk_inhabited_instance failed, type '" ++ to_string I ++ "' does not have constructors"),
+  when (n = 0) (fail format!"mk_inhabited_instance failed, type '{I}' does not have constructors"),
   constructor,
   (try_constructors n n)
   <|>
-  (fail $ "mk_inhabited_instance failed, failed to build instance using all constructors of '" ++ to_string I ++ "'")
+  (fail format!"mk_inhabited_instance failed, failed to build instance using all constructors of '{I}'")
 
 end tactic

@@ -38,7 +38,7 @@ match o₁, o₂ with
   env ← get_env,
   match env.trans_for r with
   | some trans := do pr ← mk_app trans [p₁, p₂], return $ some pr
-  | none       := fail $ "converter failed, relation '" ++ r.to_string ++ "' is not transitive"
+  | none       := fail format!"converter failed, relation '{r}' is not transitive"
   end
 end
 
@@ -120,7 +120,7 @@ private meta def mk_refl_proof (r : name) (e : expr) : tactic expr :=
 do env ← get_env,
    match (environment.refl_for env r) with
    | (some refl) := do pr ← mk_app refl [e], return pr
-   | none        := fail $ "converter failed, relation '" ++ r.to_string ++ "' is not reflexive"
+   | none        := fail format!"converter failed, relation '{r}' is not reflexive"
    end
 
 meta def to_tactic (c : conv unit) : name → expr → tactic (expr × expr) :=

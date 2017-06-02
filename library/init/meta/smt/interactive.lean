@@ -135,7 +135,7 @@ smt_tactic.by_contradiction
 open tactic (resolve_name transparency to_expr)
 
 private meta def report_invalid_em_lemma {α : Type} (n : name) : smt_tactic α :=
-fail ("invalid ematch lemma '" ++ to_string n ++ "'")
+fail format!"invalid ematch lemma '{n}'"
 
 private meta def add_lemma_name (md : transparency) (lhs_lemma : bool) (n : name) (ref : pexpr) : smt_tactic unit :=
 do
@@ -169,7 +169,7 @@ private meta def add_eqn_lemmas_for_core (md : transparency) : list name → smt
   p ← resolve_name c,
   match p with
   | expr.const n _           := add_ematch_eqn_lemmas_for_core md n >> add_eqn_lemmas_for_core cs
-  | _                        := fail $ "'" ++ to_string c ++ "' is not a constant"
+  | _                        := fail format!"'{c}' is not a constant"
   end
 
 meta def add_eqn_lemmas_for (ids : parse ident*) : smt_tactic unit :=

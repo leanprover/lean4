@@ -47,16 +47,16 @@ do {
   d      ← vm.get_decl fn,
   some p ← return (vm_decl.pos d) | failure,
   file   ← get_file fn,
-  return (file ++ ":" ++ p.line.to_string ++ ":" ++ p.column.to_string)
+  return sformat!"{file}:{p.line}:{p.column}"
 }
 <|>
 return "<position not available>"
 
 meta def show_fn (header : string) (fn : name) (frame : nat) : vm unit :=
 do pos ← pos_info fn,
-   vm.put_str ("[" ++ frame.to_string ++ "] " ++ header),
+   vm.put_str sformat!"[{frame}] {header}",
    if header = "" then return () else vm.put_str " ",
-   vm.put_str (fn.to_string ++ " at " ++ pos ++ "\n")
+   vm.put_str sformat!"{fn} at {pos}\n"
 
 meta def show_curr_fn (header : string) : vm unit :=
 do fn ← vm.curr_fn,
@@ -105,7 +105,7 @@ meta def show_vars_core : nat → nat → nat → vm unit
   else do
     (n, type) ← vm.stack_obj_info i,
     type_str  ← type_to_string type i,
-    vm.put_str $ "#" ++ c.to_string ++ " " ++ n.to_string ++ " : " ++ type_str ++ "\n",
+    vm.put_str sformat!"#{c} {n} : {type_str}\n",
     show_vars_core (c+1) (i+1) e
 
 meta def show_vars (frame : nat) : vm unit :=

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.tactic init.meta.set_get_option_tactics
+import init.meta.interactive_base init.meta.tactic init.meta.set_get_option_tactics
 
 structure cc_config :=
 /- If tt, congruence closure will treat implicit instance arguments as constants. -/
@@ -103,8 +103,7 @@ do intros, s ← cc_state.mk_using_hs_core cfg, t ← target, s ← s.internaliz
        dbg ← get_bool_option `trace.cc.failure ff,
        if dbg then do {
          ccf ← pp s,
-         msg ← return $ to_fmt "cc tactic failed, equivalence classes: " ++ format.line ++ ccf,
-         fail msg
+         fail format!"cc tactic failed, equivalence classes: \n{ccf}"
        } else do {
          fail "cc tactic failed"
        }

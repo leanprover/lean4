@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.meta.smt.congruence_closure
 import init.meta.attribute init.meta.simp_tactic
+import init.meta.interactive_base
 open tactic
 
 /- Heuristic instantiation lemma -/
@@ -44,7 +45,7 @@ let tac := s.fold (return format.nil)
       hpp ← h.pp,
       r   ← tac,
       if r.is_nil then return hpp
-      else return (r ++ to_fmt "," ++ format.line ++ hpp))
+      else return format!"{r},\n{hpp}")
 in do
   r ← tac,
   return $ format.cbrace (format.group r)
@@ -94,7 +95,7 @@ meta def mk_hinst_lemma_attrs_core (as_simp : bool) : list name → command
   (do type ← infer_type (expr.const n []),
       let expected := `(caching_user_attribute hinst_lemmas),
       (is_def_eq type expected
-       <|> fail ("failed to create hinst_lemma attribute '" ++ n.to_string ++ "', declaration already exists and has different type.")),
+       <|> fail format!"failed to create hinst_lemma attribute '{n}', declaration already exists and has different type."),
       mk_hinst_lemma_attrs_core ns)
 
 meta def merge_hinst_lemma_attrs (m : transparency) (as_simp : bool) : list name → hinst_lemmas → tactic hinst_lemmas

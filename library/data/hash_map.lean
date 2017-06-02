@@ -716,7 +716,7 @@ section string
 variables [has_to_string α] [∀ a, has_to_string (β a)]
 open prod
 private def key_data_to_string (a : α) (b : β a) (first : bool) : string :=
-(if first then "" else ", ") ++ to_string a ++ " ← " ++ to_string b
+(if first then "" else ", ") ++ sformat!"{a} ← {b}"
 
 private def to_string (m : hash_map α β) : string :=
 "⟨" ++ (fst (fold m ("", tt) (λ p a b, (fst p ++ key_data_to_string a b (snd p), ff)))) ++ "⟩"

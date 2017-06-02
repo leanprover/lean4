@@ -132,3 +132,41 @@ meta def param_desc : expr → tactic format
   then return $ to_fmt "{ tactic }"
   else paren <$> pp e
 end interactive
+
+section macros
+open interaction_monad
+open interactive
+
+private meta def parse_format : string → string → parser pexpr
+| acc []            := pure ``(to_fmt %%(reflect acc))
+| acc ('\n'::s)     :=
+do f ← parse_format [] s,
+   pure ``(to_fmt %%(reflect acc) ++ format.line ++ %%f)
+| acc ('{'::'{'::s) := parse_format (acc ++ "{") s
+| acc ('{'::s) :=
+do (e, s) ← with_input (lean.parser.pexpr 0) s.reverse,
+   '}'::s ← pure s.reverse | fail "'}' expected",
+   f ← parse_format [] s,
+   pure ``(to_fmt %%(reflect acc) ++ to_fmt %%e ++ %%f)
+| acc (c::s) := parse_format (acc ++ [c]) s
+
+reserve prefix `format! `:100
+@[user_notation]
+meta def format_macro (_ : parse $ tk "format!") (s : string) : parser pexpr :=
+parse_format "" s.reverse
+
+private meta def parse_sformat : string → string → parser pexpr
+| acc []            := pure $ pexpr.of_expr (reflect acc)
+| acc ('{'::'{'::s) := parse_sformat (acc ++ "{") s
+| acc ('{'::s) :=
+do (e, s) ← with_input (lean.parser.pexpr 0) s.reverse,
+   '}'::s ← pure s.reverse | fail "'}' expected",
+   f ← parse_sformat [] s,
+   pure ``(to_string %%(reflect acc) ++ to_string %%e ++ %%f)
+| acc (c::s) := parse_sformat (acc ++ [c]) s
+
+reserve prefix `sformat! `:100
+@[user_notation]
+meta def sformat_macro (_ : parse $ tk "sformat!") (s : string) : parser pexpr :=
+parse_sformat "" s.reverse
+end macros

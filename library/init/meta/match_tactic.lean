@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.tactic init.function
+import init.meta.interactive_base init.function
 
 namespace tactic
 meta structure pattern :=
@@ -110,6 +110,6 @@ meta instance : has_to_tactic_format pattern :=
   uo ← pp p.uoutput,
   u ← pp p.nuvars,
   m ← pp p.nmvars,
-  return $ to_fmt "pattern.mk (" ++ t ++ ") " ++ uo ++ " " ++ mo ++ " " ++ u ++ " " ++ m ++ "" ⟩
+  return format!"pattern.mk ({t}) {uo} {mo} {u} {m}" ⟩
 
 end tactic

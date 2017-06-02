@@ -1,0 +1,18 @@
+andthen_focus_error_message.lean:3:14: error: focus tactic failed, insufficient number of goals
+state:
+a b c : ℕ
+⊢ b = b
+andthen_focus_error_message.lean:9:13: error: focus tactic failed, insufficient number of goals
+state:
+a b c : ℕ
+⊢ b = b
+andthen_focus_error_message.lean:16:14: error: focus tactic failed, insufficient number of tactics
+state:
+no goals
+andthen_focus_error_message.lean:22:14: error: focus tactic failed, insufficient number of tactics
+state:
+a : ℕ
+⊢ a = a
+
+a : ℕ
+⊢ a = a

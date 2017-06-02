@@ -211,6 +211,20 @@ static bool is_curr_exact_shortcut(parser & p) {
         p.curr_is_token(get_suppose_tk());
 }
 
+static expr mk_lean_list(parser & p, buffer<expr> const & es, pos_info const & pos) {
+    expr r = p.save_pos(mk_constant(get_list_nil_name()), pos);
+    unsigned i = es.size();
+    while (i > 0) {
+        --i;
+        r = p.save_pos(mk_app(p.save_pos(mk_constant(get_list_cons_name()), pos), es[i], r), pos);
+    }
+    return r;
+}
+
+static expr mk_tactic_unit(name const & tac_class) {
+    return mk_app(mk_constant(tac_class), mk_constant(get_unit_name()));
+}
+
 struct parse_tactic_fn {
     parser & m_p;
     name     m_tac_class;
@@ -224,7 +238,10 @@ struct parse_tactic_fn {
     }
 
     expr andthen(expr const & tac1, expr const & tac2, pos_info const & pos) {
-        return m_p.save_pos(mk_app(mk_constant(get_andthen_name()), tac1, tac2), pos);
+        expr r = m_p.save_pos(mk_app(mk_constant(get_andthen_name()), tac1, tac2), pos);
+        if (m_use_istep)
+            r = mk_tactic_istep(m_p, r, pos, pos, m_tac_class);
+        return r;
     }
 
     expr orelse(expr const & tac1, expr const & tac2, pos_info const & pos) {
@@ -287,20 +304,39 @@ struct parse_tactic_fn {
         return ::lean::parse_begin_end_block(m_p, pos, end_tk, m_tac_class, m_use_istep);
     }
 
-    expr parse_elem(bool save_info) {
+    expr parse_elem(bool save_info, bool use_solve1 = true) {
         if (m_p.curr_is_token(get_begin_tk()) ||
             m_p.curr_is_token(get_lcurly_tk())) {
             auto pos = m_p.pos();
             name const & end_tk = m_p.curr_is_token(get_begin_tk()) ? get_end_tk() : get_rcurly_tk();
             expr next_tac = parse_block(pos, end_tk);
             auto end_pos = m_p.pos_of(next_tac);
-            next_tac       = mk_tactic_solve1(m_p, next_tac, pos, end_pos, m_tac_class, m_use_istep && save_info);
+            if (use_solve1) {
+                next_tac       = mk_tactic_solve1(m_p, next_tac, pos, end_pos, m_tac_class, m_use_istep && save_info);
+            }
             if (save_info) {
                 expr info_tac = mk_tactic_save_info(m_p, pos, m_tac_class);
                 return concat(info_tac, next_tac, pos);
             } else {
                 return next_tac;
             }
+        } else if (m_p.curr_is_token(get_lbracket_tk())) {
+            auto pos = m_p.pos();
+            m_p.next();
+            buffer<expr> args;
+            if (!m_p.curr_is_token(get_rbracket_tk())) {
+                while (true) {
+                    args.push_back(parse_elem(save_info, false));
+                    if (!m_p.curr_is_token(get_comma_tk()))
+                        break;
+                    m_p.next();
+                }
+            }
+            m_p.check_token_next(get_rbracket_tk(), "invalid tactic list, ']' expected");
+            expr r = mk_lean_list(m_p, args, pos);
+            expr type = mk_app(mk_constant(get_list_name()), mk_tactic_unit(m_tac_class));
+            r = m_p.save_pos(mk_typed_expr(type, r), pos);
+            return r;
         } else {
             return parse_elem_core(save_info);
         }
@@ -352,10 +388,6 @@ static expr parse_tactic(parser & p, name const & tac_class, bool use_istep) {
     } else {
         return parse_tactic_core(p, tac_class, use_istep);
     }
-}
-
-static expr mk_tactic_unit(name const & tac_class) {
-    return mk_app(mk_constant(tac_class), mk_constant(get_unit_name()));
 }
 
 static optional<name> is_tactic_class(environment const & env, name const & n) {

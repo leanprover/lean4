@@ -693,13 +693,14 @@ meta def solve (ts : list (tactic unit)) : tactic unit :=
 first $ map solve1 ts
 
  private meta def focus_aux : list (tactic unit) → list expr → list expr → tactic unit
-| []       gs      rs := set_goals $ rs ++ gs
+| []       []      rs := set_goals rs
+| []       gs      rs := fail "focus tactic failed, insufficient number of tactics"
 | (t::ts)  (g::gs) rs := do
   set_goals [g], t, rs' ← get_goals,
   focus_aux ts gs (rs ++ rs')
 | (t::ts)  []      rs := fail "focus tactic failed, insufficient number of goals"
 
-/- focus [t_1, ..., t_n] applies t_i to the i-th goal. Fails if there are less tha n goals. -/
+/- focus [t_1, ..., t_n] applies t_i to the i-th goal. Fails if the number of goals is not n. -/
 meta def focus (ts : list (tactic unit)) : tactic unit :=
 do gs ← get_goals, focus_aux ts gs []
 

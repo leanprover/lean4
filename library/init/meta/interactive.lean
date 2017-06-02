@@ -719,12 +719,16 @@ It has many variants.
    The `h_i`'s are terms. If a `h_i` is a definition `f`, then the equational lemmas associated with `f` are used.
    This is a convenient way to "unfold" `f`.
 
+- `simp only [h_1, ..., h_n]` is like `simp [h_1, ..., h_n]` but does not use `[simp]` lemmas
+
 - `simp without id_1 ... id_n` simplifies the main goal target using the lemmas tagged with the attribute `[simp]`,
    but removes the ones named `id_i`s.
 
-- `simp at h` simplifies the non dependent hypothesis `h : T`. The tactic fails if the target or another hypothesis depends on `h`.
+- `simp at h_1 ... h_n` simplifies the non dependent hypotheses `h_1 : T_1` ... `h_n : T : n`. The tactic fails if the target or another hypothesis depends on one of them.
 
-- `simp with attr` simplifies the main goal target using the lemmas tagged with the attribute `[attr]`.
+- `simp at *` simplifies all the hypotheses and the goal.
+
+- `simp with attr_1 ... attr_n` simplifies the main goal target using the lemmas tagged with any of the attributes `[attr_1]`, ..., `[attr_n]` or `[simp]`.
 -/
 meta def simp (no_dflt : parse only_flag) (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list) (locat : parse location)
               (cfg : simp_config := {}) : tactic unit :=

@@ -26,16 +26,22 @@ begin
     split; reflexivity
 end
 
+run_cmd mk_simp_attr `foo
+run_cmd mk_simp_attr `bar
+
 constants (f : ℕ → ℕ) (a b c : ℕ) (fab : f a = f b) (fbc : f b = f c)
 constants (p : ℕ → Prop) (pfa : p (f a)) (pfb : p (f b)) (pfc :p (f c))
 
-attribute [simp] fbc
+attribute [simp, foo] fbc
 
 example : p (f a) :=
 by simp [fab]; exact pfc
 
 example : p (f a) :=
 by simp only [fab]; exact pfb
+
+example : p (f a) :=
+by simp only [fab] with foo bar; exact pfc
 
 example (h : p (f a)) : p (f c) :=
 by simp [fab] at h; assumption

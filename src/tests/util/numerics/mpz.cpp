@@ -63,8 +63,22 @@ static void tst2() {
     lean_assert(n4 == m4);
 }
 
+static void tst3() {
+    mpz n1(1099511627776ull);
+    mpz n2("1099511627776");
+    lean_assert(n1 == n2);
+}
+
+static void tst4() {
+    mpz n1(1152921504609785454ull);
+    mpz n2("1152921504609785454");
+    lean_assert(n1 == n2);
+}
+
 int main() {
     tst1();
     tst2();
+    tst3();
+    tst4();
     return has_violations() ? 1 : 0;
 }

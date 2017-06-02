@@ -856,7 +856,7 @@ tactic.done
 private meta def show_goal_aux (p : pexpr) : list expr → list expr → tactic unit
 | []      r := fail "show_goal tactic failed"
 | (g::gs) r := do
-  do {set_goals [g], g_ty ← target, ty ← i_to_expr_strict p, is_def_eq g_ty ty >> set_goals (g :: r.reverse ++ gs) }
+  do {set_goals [g], g_ty ← target, ty ← i_to_expr p, unify g_ty ty >> set_goals (g :: r.reverse ++ gs) }
   <|>
   show_goal_aux gs (g::r)
 

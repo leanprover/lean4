@@ -87,6 +87,7 @@ meta constant structure_fields : environment → name → option (list name)
    occurring in instances of type classes tagged with the attribute `attr_name`.
    Example: [algebra] -/
 meta constant get_class_attribute_symbols : environment → name → name_set
+meta constant fingerprint : environment → nat
 open expr
 
 meta constant unfold_untrusted_macros : environment → expr → expr

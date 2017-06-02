@@ -409,6 +409,8 @@ meta constant generalize (e : expr) (n : name := `_x) (md := semireducible) : ta
 meta constant instantiate_mvars : expr → tactic expr
 /-- Add the given declaration to the environment -/
 meta constant add_decl : declaration → tactic unit
+/-- Changes the environment to the `new_env`. `new_env` needs to be a descendant from the current environment. -/
+meta constant set_env : environment → tactic unit
 /-- (doc_string env d k) return the doc string for d (if available) -/
 meta constant doc_string : name → tactic string
 meta constant add_doc_string : name → string → tactic unit
@@ -1007,6 +1009,17 @@ match _root_.try_for max (tac s) with
 | some r := r
 | none   := mk_exception "try_for tactic failed, timeout" none s
 end
+
+meta def updateex_env (f : environment → exceptional environment) : tactic unit :=
+do env ← get_env,
+   env ← returnex $ f env,
+   set_env env
+
+/- Add a new inductive datatype to the environment
+   name, universe parameters, number of parameters, type, constructors (name and type), is_meta -/
+meta def add_inductive (n : name) (ls : list name) (p : nat) (ty : expr) (is : list (name × expr))
+  (is_meta : bool := ff) : tactic unit :=
+updateex_env $ λe, e.add_inductive n ls p ty is is_meta
 
 meta def add_meta_definition (n : name) (lvls : list name) (type value : expr) : tactic unit :=
 add_decl (declaration.defn n lvls type value reducibility_hints.abbrev ff)

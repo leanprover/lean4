@@ -206,7 +206,6 @@ static expr parse_interactive_tactic(parser & p, name const & decl_name, name co
 static bool is_curr_exact_shortcut(parser & p) {
     return
         p.curr_is_token(get_have_tk()) ||
-        p.curr_is_token(get_show_tk()) ||
         p.curr_is_token(get_assume_tk()) ||
         p.curr_is_token(get_calc_tk()) ||
         p.curr_is_token(get_suppose_tk());
@@ -265,6 +264,11 @@ struct parse_tactic_fn {
                 }
                 throw;
             }
+        } else if (m_p.curr_is_token(get_show_tk())) {
+            m_p.next();
+            expr arg = parse_qexpr();
+            r = m_p.mk_app(m_p.save_pos(mk_constant(get_interactive_tactic_full_name(m_tac_class, "show_goal")), pos), arg, pos);
+            if (m_use_istep) r = mk_tactic_istep(m_p, r, pos, pos, m_tac_class);
         } else if (is_curr_exact_shortcut(m_p)) {
             expr arg = parse_qexpr();
             r = m_p.mk_app(m_p.save_pos(mk_constant(get_interactive_tactic_full_name(m_tac_class, "exact")), pos), arg, pos);

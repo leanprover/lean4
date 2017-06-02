@@ -450,6 +450,9 @@ meta constant open_namespaces : tactic (list name)
     performed. -/
 meta constant kdepends_on (e t : expr) (md := reducible) : tactic bool
 
+/-- Blocks the execution of the current thread for at least `msecs` milliseconds.
+    This tactic is used mainly for debugging purposes. -/
+meta constant sleep (msecs : nat) : tactic unit
 open list nat
 
 meta def induction' (h : expr) (ns : list name := []) (rec : option name := none) (md := semireducible) : tactic unit :=

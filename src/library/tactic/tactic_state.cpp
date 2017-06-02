@@ -804,6 +804,17 @@ vm_obj tactic_write_ref(vm_obj const &, vm_obj const & ref, vm_obj const & v, vm
     }
 }
 
+vm_obj tactic_sleep(vm_obj const & msecs, vm_obj const & s0) {
+    tactic_state s = tactic::to_state(s0);
+    if (optional<unsigned> m = try_to_unsigned(msecs)) {
+        chrono::milliseconds cm(*m);
+        this_thread::sleep_for(cm);
+        return tactic::mk_success(s);
+    } else {
+        return tactic::mk_exception("sleep failed, argument is too big", s);
+    }
+}
+
 void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),            tactic_state_env);
     DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}),    tactic_state_format_expr);
@@ -848,6 +859,7 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "using_new_ref"}),        tactic_using_new_ref);
     DECLARE_VM_BUILTIN(name({"tactic", "read_ref"}),             tactic_read_ref);
     DECLARE_VM_BUILTIN(name({"tactic", "write_ref"}),            tactic_write_ref);
+    DECLARE_VM_BUILTIN(name({"tactic", "sleep"}),                tactic_sleep);
 }
 
 void finalize_tactic_state() {

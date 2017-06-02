@@ -849,5 +849,9 @@ tactic.by_contradiction >> return ()
 meta def by_contra : tactic unit :=
 tactic.by_contradiction >> return ()
 
+/-- Fail if there are unsolved goals. -/
+meta def done : tactic unit :=
+tactic.done
+
 end interactive
 end tactic

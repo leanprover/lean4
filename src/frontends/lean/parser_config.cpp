@@ -319,6 +319,10 @@ name * notation_config::g_class_name = nullptr;
 template class scoped_ext<notation_config>;
 typedef scoped_ext<notation_config> notation_ext;
 
+environment add_notation(environment const & env, notation_entry const & e, persistence persistent) {
+    return notation_ext::add_entry(env, get_dummy_ios(), e, persistent);
+}
+
 environment add_notation(environment const & env, notation_entry const & e, bool persistent) {
     return notation_ext::add_entry(env, get_dummy_ios(), e, persistent);
 }

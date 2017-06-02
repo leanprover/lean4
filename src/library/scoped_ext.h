@@ -17,6 +17,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 enum class scope_kind { Namespace, Section };
+enum class persistence { scope, file, global };
+
 typedef environment (*push_scope_fn)(environment const &, io_state const &, scope_kind);
 typedef environment (*pop_scope_fn)(environment const &, io_state const &, scope_kind);
 
@@ -189,17 +191,22 @@ public:
         return update(env, get(env)._register_entry(env, ios, e));
     }
 
-    static environment add_entry(environment env, io_state const & ios, entry const & e, bool persistent) {
+    static environment add_entry(environment env, io_state const & ios, entry const & e, persistence persist) {
         if (auto h = get_fingerprint(e)) {
             env = update_fingerprint(env, *h);
         }
-        if (!persistent) {
+        if (persist == persistence::scope) {
             return update(env, get(env)._add_tmp_entry(env, ios, e));
         } else {
-            name n = get_namespace(env);
-            env = module::add(env, std::make_shared<modification>(e));
+            if (persist == persistence::global) {
+                env = module::add(env, std::make_shared<modification>(e));
+            }
             return update(env, get(env)._register_entry(env, ios, e));
         }
+    }
+
+    static environment add_entry(environment const & env, io_state const & ios, entry const & e, bool persistent) {
+        return add_entry(env, ios, e, persistent ? persistence::global : persistence::scope);
     }
 
     static state const & get_state(environment const & env) {

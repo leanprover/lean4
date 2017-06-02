@@ -7,6 +7,7 @@ Author: Sebastian Ullrich
 #include "kernel/abstract.h"
 #include "library/constants.h"
 #include "library/attribute_manager.h"
+#include "library/scoped_ext.h"
 #include "library/tactic/elaborator_exception.h"
 #include "library/string.h"
 #include "library/vm/vm_expr.h"
@@ -43,6 +44,8 @@ static environment add_user_notation(environment const & env, name const & d, un
                                 "parameter, optionally preceded by `interactive.parse lean.parser.qexpr` parameter");
     }
     expr dummy = mk_true();
+    persistence persist = persistent ? persistence::file : persistence::scope;
+
     return add_notation(env, notation_entry(is_nud, {notation::transition(tk, notation::mk_ext_action(
             [=](parser & p, unsigned num, expr const * args, pos_info const &) -> expr {
                 lean_assert(num == (is_nud ? 0 : 1));
@@ -61,16 +64,43 @@ static environment add_user_notation(environment const & env, name const & d, un
                 }
                 parser = p.elaborate("_user_notation", {}, parser).first;
                 return to_expr(run_parser(p, parser));
-            }))}, Var(0), /* overload */ persistent, prio, notation_entry_group::Main, /* parse_only */ true));
+            }))}, Var(0), /* overload */ persistent, prio, notation_entry_group::Main, /* parse_only */ true), persist);
 }
 
+struct user_notation_modification : public modification {
+    LEAN_MODIFICATION("USR_NOTATION")
+
+    name m_name;
+
+    user_notation_modification() {}
+    user_notation_modification(name const & name) : m_name(name) {}
+
+    void perform(environment & env) const override {
+        unsigned prio = get_attribute(env, "user_notation").get_prio(env, m_name);
+        env = add_user_notation(env, m_name, prio, /* persistent */ true);
+    }
+
+    void serialize(serializer & s) const override {
+        s << m_name;
+    }
+
+    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+        return std::make_shared<user_notation_modification>(read_name(d));
+    }
+};
 void initialize_user_notation() {
+    user_notation_modification::init();
     register_system_attribute(basic_attribute(
             "user_notation", "user-defined notation",
             [](environment const & env, io_state const &, name const & d, unsigned prio, bool persistent) {
-                return add_user_notation(env, d, prio, persistent);
+                if (persistent) {
+                    return module::add_and_perform(env, std::make_shared<user_notation_modification>(d));
+                } else {
+                    return add_user_notation(env, d, prio, persistent);
+                }
             }));
 }
 void finalize_user_notation() {
+    user_notation_modification::finalize();
 }
 }

@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <vector>
 #include "kernel/environment.h"
+#include "library/scoped_ext.h"
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/parse_table.h"
 #include "frontends/lean/cmd_table.h"
@@ -67,6 +68,7 @@ inline bool operator!=(notation_entry const & e1, notation_entry const & e2) {
 notation_entry replace(notation_entry const & e, std::function<expr(expr const &)> const & f);
 
 environment add_token(environment const & env, token_entry const & e, bool persistent = true);
+environment add_notation(environment const & env, notation_entry const & e, persistence persistent);
 environment add_notation(environment const & env, notation_entry const & e, bool persistent = true);
 environment add_token(environment const & env, char const * val, unsigned prec);
 token_table const & get_token_table(environment const & env);

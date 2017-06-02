@@ -287,7 +287,7 @@ class has_mod      (α : Type u) := (mod : α → α → α)
 class has_le       (α : Type u) := (le : α → α → Prop)
 class has_lt       (α : Type u) := (lt : α → α → Prop)
 class has_append   (α : Type u) := (append : α → α → α)
-class has_andthen  (α : Type u) := (andthen : α → α → α)
+class has_andthen  (α : Type u) (β : Type v) (σ : inout Type w) := (andthen : α → β → σ)
 class has_union    (α : Type u) := (union : α → α → α)
 class has_inter    (α : Type u) := (inter : α → α → α)
 class has_sdiff    (α : Type u) := (sdiff : α → α → α)
@@ -304,6 +304,9 @@ class has_sep (α : inout Type u) (γ : Type v) :=
 /- Type class for set-like membership -/
 class has_mem (α : inout Type u) (γ : Type v) := (mem : α → γ → Prop)
 
+def andthen {α : Type u} {β : Type v} {σ : Type w} [has_andthen α β σ] : α → β → σ :=
+has_andthen.andthen σ
+
 infix ∈        := has_mem.mem
 notation a ∉ s := ¬ has_mem.mem a s
 infix +        := has_add.add
@@ -317,7 +320,7 @@ infix <=       := has_le.le
 infix ≤        := has_le.le
 infix <        := has_lt.lt
 infix ++       := has_append.append
-infix ;        := has_andthen.andthen
+infix ;        := andthen
 notation `∅`   := has_emptyc.emptyc _
 infix ∪        := has_union.union
 infix ∩        := has_inter.inter

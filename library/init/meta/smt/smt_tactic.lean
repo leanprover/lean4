@@ -255,7 +255,7 @@ do (s::ss, t::ts) ← get_goals,
    (new_ss, new_ts) ← get_goals,
    set_goals (new_ss ++ ss) (new_ts ++ ts)
 
-meta instance : has_andthen (smt_tactic unit) :=
+meta instance : has_andthen (smt_tactic unit) (smt_tactic unit) (smt_tactic unit) :=
 ⟨seq⟩
 
 meta def focus1 {α} (tac : smt_tactic α) : smt_tactic α :=

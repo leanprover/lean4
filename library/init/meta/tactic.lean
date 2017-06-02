@@ -750,8 +750,18 @@ do g::gs ← get_goals,
    gs' ← get_goals,
    set_goals (gs' ++ gs)
 
-meta instance : has_andthen (tactic unit) :=
+meta def seq_focus (tac1 : tactic unit) (tacs2 : list (tactic unit)) : tactic unit :=
+do g::gs ← get_goals,
+   set_goals [g],
+   tac1, focus tacs2,
+   gs' ← get_goals,
+   set_goals (gs' ++ gs)
+
+meta instance andthen_seq : has_andthen (tactic unit) (tactic unit) (tactic unit) :=
 ⟨seq⟩
+
+meta instance andthen_seq_focus : has_andthen (tactic unit) (list (tactic unit)) (tactic unit) :=
+⟨seq_focus⟩
 
 meta constant is_trace_enabled_for : name → bool
 

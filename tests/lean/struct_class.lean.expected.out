@@ -1,6 +1,6 @@
 decidable : Prop → Type
 has_add : Type u → Type u
-has_andthen : Type u → Type u
+has_andthen : Type u → Type v → (inout Type w) → Type (max u v w)
 has_append : Type u → Type u
 has_div : Type u → Type u
 has_dvd : Type u → Type u
@@ -26,7 +26,7 @@ has_zero : Type u → Type u
 point : Type u_1 → Type u_2 → Type (max u_1 u_2)
 decidable : Prop → Type
 has_add : Type u → Type u
-has_andthen : Type u → Type u
+has_andthen : Type u → Type v → (inout Type w) → Type (max u v w)
 has_append : Type u → Type u
 has_div : Type u → Type u
 has_dvd : Type u → Type u

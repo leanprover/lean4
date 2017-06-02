@@ -67,4 +67,55 @@ do env ← get_env,
    cs  ← return $ env.constructors_of I,
    mk_constructors_arg_names_aux cs p 1 []
 
+private meta def mk_fresh_arg_name_aux : name → nat → name_set → tactic (name × name_set)
+| n i s :=
+  do r ← get_unused_name n (some i),
+     if s.contains r then
+        mk_fresh_arg_name_aux n (i+1) s
+     else
+        return (r, s.insert r)
+
+private meta def mk_fresh_arg_name (n : name) (s : name_set) : tactic (name × name_set) :=
+do r ← get_unused_name n,
+   if s.contains r then
+      mk_fresh_arg_name_aux n 1 s
+   else
+      return (r, s.insert r)
+
+private meta def mk_constructor_fresh_names_aux : nat → expr → name_set → tactic (list name × name_set)
+| nparams ty s := do
+  ty ← whnf ty,
+  match ty with
+  | expr.pi n bi d b :=
+     if nparams = 0 then do {
+       (n', s') ← mk_fresh_arg_name n s,
+       x        ← mk_local' n' bi d,
+       let ty' := b.instantiate_var x,
+       (ns, s'') ← mk_constructor_fresh_names_aux 0 ty' s',
+       return (n'::ns, s'')
+     } else do {
+       x        ← mk_local' n bi d,
+       let ty' := b.instantiate_var x,
+       mk_constructor_fresh_names_aux (nparams - 1) ty' s
+     }
+  | _ := return ([], s)
+  end
+
+meta def mk_constructor_fresh_names (nparams : nat) (c : name) (s : name_set) : tactic (list name × name_set) :=
+do d    ← get_decl c,
+   let t := d.type,
+   mk_constructor_fresh_names_aux nparams t s
+
+private meta def mk_constructors_fresh_names_aux : nat → list name → name_set → list (list name) → tactic (list (list name))
+| np []      s r := return (list.reverse r)
+| np (c::cs) s r := do
+  (ns, s') ← mk_constructor_fresh_names np c s,
+  mk_constructors_fresh_names_aux np cs s' (ns::r)
+
+meta def mk_constructors_fresh_names (I : name) : tactic (list (list name)) :=
+do env ← get_env,
+   let cs := env.constructors_of I,
+   let nparams := env.inductive_num_params I,
+   mk_constructors_fresh_names_aux nparams cs mk_name_set []
+
 end tactic

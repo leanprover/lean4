@@ -17,23 +17,36 @@ Author: Leonardo de Moura
 namespace lean {
 typedef defeq_canonizer::state defeq_can_state;
 
+struct tactic_user_state {
+    unsigned_map<vm_obj> m_mem;
+    list<unsigned>       m_free_refs;
+    unsigned             m_next_idx{0};
+public:
+    unsigned alloc(vm_obj const & v);
+    void dealloc(unsigned ref);
+    vm_obj read(unsigned ref) const;
+    void write(unsigned ref, vm_obj const & o);
+};
+
 class tactic_state_cell {
     MK_LEAN_RC();
-    environment     m_env;
-    options         m_options;
-    name            m_decl_name;
-    metavar_context m_mctx;
-    list<expr>      m_goals;
-    expr            m_main;
-    defeq_can_state m_defeq_can_state;
+    environment       m_env;
+    options           m_options;
+    name              m_decl_name;
+    metavar_context   m_mctx;
+    list<expr>        m_goals;
+    expr              m_main;
+    defeq_can_state   m_defeq_can_state;
+    tactic_user_state m_tactic_user_state;
     friend class tactic_state;
     void dealloc();
 public:
     tactic_state_cell(environment const & env, options const & o, name const & decl_name,
                       metavar_context const & ctx, list<expr> const & gs,
-                      expr const & main, defeq_can_state const & s):
+                      expr const & main, defeq_can_state const & s, tactic_user_state const & us):
         m_rc(0), m_env(env), m_options(o), m_decl_name(decl_name),
-        m_mctx(ctx), m_goals(gs), m_main(main), m_defeq_can_state(s) {}
+        m_mctx(ctx), m_goals(gs), m_main(main), m_defeq_can_state(s),
+        m_tactic_user_state(us) {}
 };
 
 class tactic_state {
@@ -47,7 +60,7 @@ private:
 public:
     tactic_state(environment const & env, options const & o, name const & decl_name,
                  metavar_context const & ctx, list<expr> const & gs,
-                 expr const & main, defeq_can_state const & s);
+                 expr const & main, defeq_can_state const & s, tactic_user_state const & us);
     tactic_state(tactic_state const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
     tactic_state(tactic_state && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     ~tactic_state() { if (m_ptr) m_ptr->dec_ref(); }
@@ -63,6 +76,8 @@ public:
     name const & decl_name() const { lean_assert(m_ptr); return m_ptr->m_decl_name; }
     defeq_can_state const & get_defeq_canonizer_state() const { return m_ptr->m_defeq_can_state; }
     defeq_can_state const & dcs() const { return get_defeq_canonizer_state(); }
+    tactic_user_state const & get_user_state() const { return m_ptr->m_tactic_user_state; }
+    tactic_user_state const & us() const { return get_user_state(); }
 
     tactic_state & operator=(tactic_state const & s) { LEAN_COPY_REF(s); }
     tactic_state & operator=(tactic_state && s) { LEAN_MOVE_REF(s); }
@@ -103,6 +118,7 @@ tactic_state set_mctx_goals(tactic_state const & s, metavar_context const & mctx
 tactic_state set_env_mctx_goals(tactic_state const & s, environment const & env, metavar_context const & mctx, list<expr> const & gs);
 tactic_state set_mctx_goals_dcs(tactic_state const & s, metavar_context const & mctx, list<expr> const & gs, defeq_can_state const & dcs);
 tactic_state set_defeq_can_state(tactic_state const & s, defeq_can_state const & dcs);
+tactic_state set_user_state(tactic_state const & s, tactic_user_state const & us);
 inline tactic_state set_dcs(tactic_state const & s, defeq_can_state const & dcs) { return set_defeq_can_state(s, dcs); }
 
 

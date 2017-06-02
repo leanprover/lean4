@@ -30,6 +30,7 @@ struct lean_parser_state {
     parser * m_p;
 };
 
+bool is_ts_safe(lean_parser_state const &) { return false; }
 template struct interaction_monad<lean_parser_state>;
 typedef interaction_monad<lean_parser_state> lean_parser;
 

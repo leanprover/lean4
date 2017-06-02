@@ -147,8 +147,15 @@ This tactic applies to any goal. `change U` replaces the main goal target `T` wi
 providing that `U` is well-formed with respect to the main goal local context,
 and `T` and `U` are definitionally equal.
 -/
-meta def change (q : parse texpr) : tactic unit :=
-i_to_expr q >>= tactic.change
+meta def change (q : parse texpr) : parse location → tactic unit
+| [] := i_to_expr q >>= tactic.change
+| [h] :=
+  do num_reverted : ℕ ← get_local h >>= revert,
+     expr.pi n bi d b ← target,
+     e ← i_to_expr q,
+     tactic.change $ expr.pi n bi e b,
+     intron num_reverted
+| _ := fail "change does not support multiple locations"
 
 /--
 This tactic applies to any goal. It gives directly the exact proof

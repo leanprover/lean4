@@ -853,5 +853,16 @@ tactic.by_contradiction >> return ()
 meta def done : tactic unit :=
 tactic.done
 
+private meta def show_goal_aux (p : pexpr) : list expr → list expr → tactic unit
+| []      r := fail "show_goal tactic failed"
+| (g::gs) r := do
+  do {set_goals [g], g_ty ← target, ty ← i_to_expr_strict p, is_def_eq g_ty ty >> set_goals (g :: r.reverse ++ gs) }
+  <|>
+  show_goal_aux gs (g::r)
+
+meta def show_goal (q : parse texpr) : tactic unit :=
+do gs ← get_goals,
+   show_goal_aux q gs []
+
 end interactive
 end tactic

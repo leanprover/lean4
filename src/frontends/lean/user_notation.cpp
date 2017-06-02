@@ -59,7 +59,11 @@ static environment add_user_notation(environment const & env, name const & d, un
                     if (is_app_of(arg_type, get_interactive_parse_name())) {
                         parser = mk_app(parser, parse_interactive_param(p, arg_type));
                     } else {
-                        parser = mk_app(parser, p.parse_expr(get_max_prec()));
+                        expr e = p.parse_expr(get_max_prec());
+                        if (!closed(e) || has_local(e)) {
+                            throw elaborator_exception(e, "invalid argument to user-defined notation, must be closed term");
+                        }
+                        parser = mk_app(parser, e);
                     }
                 }
                 parser = p.elaborate("_user_notation", {}, parser).first;

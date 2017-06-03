@@ -4,25 +4,27 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Sebastian Ullrich
 */
+#include "library/vm/vm_parser.h"
 #include <string>
 #include <iostream>
 #include <vector>
-#include "library/type_context.h"
+#include "library/constants.h"
+#include "library/explicit.h"
 #include "library/num.h"
 #include "library/quote.h"
 #include "library/trace.h"
-#include "library/tactic/tactic_evaluator.h"
-#include "library/explicit.h"
+#include "library/vm/interaction_state_imp.h"
 #include "library/tactic/elaborate.h"
-#include "library/vm/vm.h"
 #include "library/vm/vm_string.h"
+#include "library/vm/vm_options.h"
+#include "library/vm/vm_environment.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_nat.h"
-#include "library/vm/vm_parser.h"
+#include "library/vm/vm_name.h"
 #include "library/vm/vm_pos_info.h"
-#include "library/vm/interaction_state_imp.h"
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/elaborator.h"
+#include "frontends/lean/parser.h"
 #include "util/utf8.h"
 
 namespace lean {
@@ -57,7 +59,7 @@ expr parse_interactive_param(parser & p, expr const & param_ty) {
         vm_obj vm_parsed = run_parser(p, param_args[2]);
         type_context ctx(p.env());
         name n("_reflect");
-        tactic_evaluator eval(ctx, p.get_options(), param_args[0]);
+        lean_parser::evaluator eval(ctx, p.get_options());
         auto env = eval.compile(n, param_args[1]);
         vm_state S(env, p.get_options());
         auto vm_res = S.invoke(n, vm_parsed);

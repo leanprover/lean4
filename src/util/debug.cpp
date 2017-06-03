@@ -79,9 +79,9 @@ void invoke_debugger() {
     exit(1);
 #else
     g_has_violations = true;
-    if (!g_debug_dialog)
-        exit(1);
-    int * x = 0;
+    if (!g_debug_dialog) {
+        throw unreachable_reached();
+    }
     for (;;) {
         if (std::cin.eof())
             exit(1);

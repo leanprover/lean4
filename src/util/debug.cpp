@@ -73,6 +73,11 @@ void enable_debug_dialog(bool flag) {
     g_debug_dialog = flag;
 }
 
+[[noreturn]] void debuggable_exit() {
+    abort();
+    *((volatile int *) nullptr) = 0;
+}
+
 void invoke_debugger() {
 #if defined(LEAN_EMSCRIPTEN)
     EM_ASM(debugger;);
@@ -84,11 +89,11 @@ void invoke_debugger() {
     }
     for (;;) {
         if (std::cin.eof())
-            exit(1);
+            debuggable_exit();
         #ifdef _WINDOWS
-        std::cerr << "(C)ontinue, (A)bort, (S)top\n";
+        std::cerr << "(C)ontinue, (A)bort/exit, (S)top/trap\n";
         #else
-        std::cerr << "(C)ontinue, (A)bort, (S)top, Invoke (G)DB\n";
+        std::cerr << "(C)ontinue, (A)bort/exit, (S)top/trap, Invoke (G)DB\n";
         #endif
         char result;
         std::cin >> result;
@@ -103,8 +108,7 @@ void invoke_debugger() {
         case 'S':
         case 's':
             // force seg fault...
-            *x = 0;
-            return;
+            debuggable_exit();
         #ifndef _WINDOWS
         case 'G':
         case 'g': {
@@ -116,7 +120,7 @@ void invoke_debugger() {
             } else {
                 std::cerr << "ERROR STARTING GDB...\n";
                 // forcing seg fault.
-                *x = 0;
+                debuggable_exit();
             }
             return;
         }

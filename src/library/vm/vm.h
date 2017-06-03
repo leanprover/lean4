@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <string>
 #include "util/debug.h"
+#include "util/compiler_hints.h"
 #include "util/rc.h"
 #include "util/interrupt.h"
 #include "util/small_object_allocator.h"
@@ -49,16 +50,6 @@ public:
 #define LEAN_VM_IS_PTR(obj) ((reinterpret_cast<size_t>(obj) & 1) == 0)
 #define LEAN_VM_BOX(num)    (reinterpret_cast<vm_obj_cell*>((num << 1) | 1))
 #define LEAN_VM_UNBOX(obj)  (reinterpret_cast<size_t>(obj) >> 1)
-
-#if defined(__GNUC__) || defined(__clang__)
-#define LEAN_UNLIKELY(x) (__builtin_expect((x), 0))
-#define LEAN_LIKELY(x) (__builtin_expect((x), 1))
-#define LEAN_ALWAYS_INLINE __attribute__((always_inline))
-#else
-#define LEAN_UNLIKELY(x) (x)
-#define LEAN_LIKELY(x) (x)
-#define LEAN_ALWAYS_INLINE
-#endif
 
 [[noreturn]] void vm_check_failed(char const * condition);
 #if defined(LEAN_VM_UNCHECKED)

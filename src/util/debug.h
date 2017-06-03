@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <typeinfo>
 #include "util/exception.h"
+#include "util/compiler_hints.h"
 
 #ifndef __has_builtin
 #define __has_builtin(x) 0
@@ -22,7 +23,7 @@ Author: Leonardo de Moura
 #define lean_unreachable() { DEBUG_CODE({lean::notify_assertion_violation(__FILE__, __LINE__, "UNREACHABLE CODE WAS REACHED."); lean::invoke_debugger();}) throw lean::unreachable_reached(); }
 
 #ifdef LEAN_DEBUG
-#define lean_verify(COND) if (!(COND)) { lean::notify_assertion_violation(__FILE__, __LINE__, #COND); lean::invoke_debugger(); }
+#define lean_verify(COND) if (LEAN_UNLIKELY(!(COND))) { lean::notify_assertion_violation(__FILE__, __LINE__, #COND); lean::invoke_debugger(); }
 #else
 #define lean_verify(COND) (COND)
 #endif
@@ -82,9 +83,9 @@ Author: Leonardo de Moura
 #define LEAN_JOIN(A, B) LEAN_JOIN0(A, B)
 #define LEAN_DISPLAY(ARGS...) { LEAN_JOIN(LEAN_DISPLAY, LEAN_NARG(ARGS))(ARGS) }
 
-#define lean_assert(COND, ARGS...) DEBUG_CODE({if (!(COND)) { lean::notify_assertion_violation(__FILE__, __LINE__, #COND); LEAN_DISPLAY(ARGS); lean::invoke_debugger(); }})
-#define lean_cond_assert(TAG, COND, ARGS...) DEBUG_CODE({if (lean::is_debug_enabled(TAG) && !(COND)) { lean::notify_assertion_violation(__FILE__, __LINE__, #COND); LEAN_DISPLAY(ARGS); lean::invoke_debugger(); }})
-#define lean_always_assert(COND, ARGS...) { if (!(COND)) { lean::notify_assertion_violation(__FILE__, __LINE__, #COND); LEAN_DISPLAY(ARGS); lean_unreachable(); } }
+#define lean_assert(COND, ARGS...) DEBUG_CODE({if (LEAN_UNLIKELY(!(COND))) { lean::notify_assertion_violation(__FILE__, __LINE__, #COND); LEAN_DISPLAY(ARGS); lean::invoke_debugger(); }})
+#define lean_cond_assert(TAG, COND, ARGS...) DEBUG_CODE({if (lean::is_debug_enabled(TAG) && LEAN_UNLIKELY(!(COND))) { lean::notify_assertion_violation(__FILE__, __LINE__, #COND); LEAN_DISPLAY(ARGS); lean::invoke_debugger(); }})
+#define lean_always_assert(COND, ARGS...) { if (LEAN_UNLIKELY(!(COND))) { lean::notify_assertion_violation(__FILE__, __LINE__, #COND); LEAN_DISPLAY(ARGS); lean_unreachable(); } }
 
 #define lean_assert_eq(A, B) lean_assert(A == B, A, B)
 #define lean_assert_ne(A, B) lean_assert(A != B, A, B)

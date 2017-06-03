@@ -1,11 +1,3 @@
-string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_lower)
-if (CMAKE_BUILD_TYPE_lower STREQUAL "debug")
-  # LP_DBG_FILES include files that are only needed in DEBUG mode.
-  # We use this trick to avoid warning messages when compiling in Release mode on OSX.
-  # These files are empty in Release mode.
-  set(LP_DBG_FILES dense_matrix_instances.cpp matrix_instances.cpp)
-endif()
-
 add_library(lp OBJECT
   binary_heap_priority_queue_instances.cpp
   binary_heap_upair_queue_instances.cpp
@@ -29,5 +21,5 @@ add_library(lp OBJECT
   scaler_instances.cpp
   eta_matrix_instances.cpp
   lar_constraints.cpp
-  ${LP_DBG_FILES}
+  dense_matrix_instances.cpp matrix_instances.cpp
   )

@@ -1,28 +1,27 @@
 /- test cases for coinduction -/
 import data.stream
 
-open expr tactic
-
-/-
+open level expr tactic
 
 coinductive {u} all_stream {α : Type u} (s : set α) : stream α → Prop
 | step {} : ∀{a : α} {ω : stream α}, a ∈ s → all_stream ω → all_stream (a :: ω)
 
--/
-
+/-
 run_cmd
 do
   let n := `all_stream,
   let p := 2,
   let u := `u,
   let us : list name := [u],
-  let Ty : expr := sort $ level.succ $ level.param u,
-  type ← to_expr ``(Π{α : %%Ty} (s : set α), stream α → Prop),
-  let l' : expr := local_const n n binder_info.default type,
-  intro₁ ← to_expr ``(∀{α : %%Ty} {s : set α} {a : α} {ω : stream α}, a ∈ s → %%l' s ω → %%l' s (a :: ω)),
-  let intro₁ := instantiate_local n (const n [level.param u]) intro₁,
-  let intros := [(`all_stream.step, intro₁)],
-  add_coinductive_predicate n us p type intros
+  let Ty : expr := sort $ succ $ param u,
+  let α := local_const `α `α binder_info.implicit Ty,
+  let s := local_const `s `s binder_info.default ((const `set [param u] : expr) $ α),
+  type ← to_expr ``(stream %%α → Prop),
+  let l : expr := local_const n n binder_info.default type,
+  intro₁ ← to_expr ``(∀{a : %%α} {ω : stream %%α}, a ∈ %%s → %%l ω → %%l (a :: ω)),
+  let intros := [local_const `all_stream.step `all_stream.step binder_info.default intro₁],
+  add_coinductive_predicate us [α, s] [(l, intros)]
+-/
 
 #print prefix all_stream
 

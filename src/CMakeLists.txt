@@ -182,7 +182,7 @@ set(CMAKE_CXX_FLAGS                "-Wall -Wextra -std=c++11 ${LEAN_EXTRA_CXX_FL
 set(CMAKE_CXX_FLAGS_DEBUG          "-g3 -DLEAN_DEBUG -DLEAN_TRACE")
 set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g3")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g3 -DLEAN_DEBUG")
 set(CMAKE_CXX_FLAGS_GPROF          "-O2 -g -pg")
 
 # OSX .dmg generation (this is working in progress)

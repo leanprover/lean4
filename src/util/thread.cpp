@@ -205,9 +205,10 @@ public:
 
 static thread_finalizers_manager * g_thread_finalizers_mgr = nullptr;
 
+// TODO(gabriel): race condition with thread finalizers
 void delete_thread_finalizer_manager() {
-    delete g_thread_finalizers_mgr;
-    g_thread_finalizers_mgr = nullptr;
+    // delete g_thread_finalizers_mgr;
+    // g_thread_finalizers_mgr = nullptr;
 }
 
 void register_thread_finalizer(thread_finalizer fn, void * p) {

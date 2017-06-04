@@ -1,0 +1,15 @@
+1638.lean:6:3: error: invalid exact tactic, trying to solve goal using itself
+state:
+⊢ true
+
+⊢ true
+1638.lean:13:3: error: invalid exact tactic, trying to solve goal using itself
+state:
+⊢ true
+1638.lean:20:3: error: exact tactic failed, failed to assign 
+  id ?m_1
+to metavariable ?m_1 (possible cause: occurs check failed)
+state:
+⊢ true
+
+⊢ true

@@ -426,6 +426,23 @@ vm_obj tactic_mk_instance(vm_obj const & e, vm_obj const & s0) {
     }
 }
 
+static vm_obj mk_unify_exception(char const * header, expr const & e1, expr const & e2, tactic_state const & s) {
+    auto thunk = [=]() {
+        format r(header);
+        unsigned indent = get_pp_indent(s.get_options());
+        formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
+        type_context ctx = mk_type_context_for(s, transparency_mode::All);
+        formatter fmt    = fmtf(s.env(), s.get_options(), ctx);
+        expr e1_type = ctx.infer(e1);
+        expr e2_type = ctx.infer(e2);
+        r += nest(indent, line() + group(fmt(e1) + line() + format(": ") + fmt(e1_type)));
+        r += line() + format("and");
+        r += nest(indent, line() + group(fmt(e2) + line() + format(": ") + fmt(e2_type)));
+        return r;
+    };
+    return tactic::mk_exception(thunk, s);
+}
+
 vm_obj tactic_unify(vm_obj const & e1, vm_obj const & e2, vm_obj const & t, vm_obj const & s0) {
     tactic_state const & s = tactic::to_state(s0);
     type_context ctx       = mk_type_context_for(s, to_transparency_mode(t));
@@ -433,10 +450,12 @@ vm_obj tactic_unify(vm_obj const & e1, vm_obj const & e2, vm_obj const & t, vm_o
         check_closed("unify", to_expr(e1));
         check_closed("unify", to_expr(e2));
         bool r = ctx.is_def_eq(to_expr(e1), to_expr(e2));
-        if (r)
+        if (r) {
             return tactic::mk_success(set_mctx(s, ctx.mctx()));
-        else
-            return tactic::mk_exception("unify tactic failed", s);
+        } else {
+            return mk_unify_exception("unify tactic failed, failed to unify",
+                                      to_expr(e1), to_expr(e2), s);
+        }
     } catch (exception & ex) {
         return tactic::mk_exception(ex, s);
     }
@@ -450,10 +469,13 @@ vm_obj tactic_is_def_eq(vm_obj const & e1, vm_obj const & e2, vm_obj const & t, 
         check_closed("is_def_eq", to_expr(e1));
         check_closed("is_def_eq", to_expr(e2));
         bool r = ctx.is_def_eq(to_expr(e1), to_expr(e2));
-        if (r)
+        if (r) {
             return tactic::mk_success(s);
-        else
-            return tactic::mk_exception("is_def_eq failed", s);
+        } else {
+            return mk_unify_exception("is_def_eq tactic failed, the following expressions are not definitionally equal "
+                                      "(remark: is_def_eq tactic does modify the metavariable assignment)",
+                                      to_expr(e1), to_expr(e2), s);
+        }
     } catch (exception & ex) {
         return tactic::mk_exception(ex, s);
     }

@@ -347,6 +347,7 @@ run_cmd script_check_id `psum.inr
 run_cmd script_check_id `tactic
 run_cmd script_check_id `tactic.try
 run_cmd script_check_id `tactic.triv
+run_cmd script_check_id `tactic.add_coinductive_predicate
 run_cmd script_check_id `thunk
 run_cmd script_check_id `to_fmt
 run_cmd script_check_id `to_string

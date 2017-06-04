@@ -342,6 +342,7 @@ psum.inr
 tactic
 tactic.try
 tactic.triv
+tactic.add_coinductive_predicate
 thunk
 to_fmt
 to_string

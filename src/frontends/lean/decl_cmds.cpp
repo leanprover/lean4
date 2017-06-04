@@ -487,6 +487,9 @@ static environment definition_cmd_ex(parser & p, decl_attributes const & attribu
         if (!modifiers.m_is_private && !modifiers.m_is_protected && !modifiers.m_is_noncomputable &&
             p.curr_is_token(get_inductive_tk())) {
             return mutual_inductive_cmd_ex(p, attributes, modifiers.m_is_meta);
+        } else if (!modifiers.m_is_private && !modifiers.m_is_protected && !modifiers.m_is_noncomputable &&
+                   !modifiers.m_is_meta && p.curr_is_token(get_coinductive_tk())) {
+            return mutual_coinductive_cmd_ex(p, attributes);
         }
     }
 
@@ -522,6 +525,8 @@ static environment attribute_cmd_core(parser & p, bool persistent) {
     if (p.curr_is_command()) {
         if (p.curr_is_token_or_id(get_inductive_tk())) {
             return inductive_cmd_ex(p, attributes, false);
+        } else  if (p.curr_is_token_or_id(get_coinductive_tk())) {
+            return coinductive_cmd_ex(p, attributes);
         } else  if (p.curr_is_token_or_id(get_structure_tk())) {
             return structure_cmd_ex(p, attributes, {});
         } else  if (p.curr_is_token_or_id(get_class_tk())) {
@@ -557,6 +562,8 @@ static environment compact_attribute_cmd(parser & p) {
     attributes.parse_compact(p);
     if (p.curr_is_token_or_id(get_inductive_tk())) {
         return inductive_cmd_ex(p, attributes, false);
+    } else  if (p.curr_is_token_or_id(get_coinductive_tk())) {
+        return coinductive_cmd_ex(p, attributes);
     } else  if (p.curr_is_token_or_id(get_structure_tk())) {
         return structure_cmd_ex(p, attributes, {});
     } else  if (p.curr_is_token_or_id(get_class_tk())) {
@@ -609,7 +616,7 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("axioms",          "declare new axioms", axioms_cmd));
     add_cmd(r, cmd_info("definition",      "add new definition", definition_cmd, false));
     add_cmd(r, cmd_info("meta",            "add new meta definition/constant", definition_cmd, false));
-    add_cmd(r, cmd_info("mutual",          "add new mutal definition/constant/inductive", definition_cmd, false));
+    add_cmd(r, cmd_info("mutual",          "add new mutal definition/constant/inductive/coinductive", definition_cmd, false));
     add_cmd(r, cmd_info("noncomputable",   "add new noncomputable definition", definition_cmd, false));
     add_cmd(r, cmd_info("private",         "add new private definition/theorem", definition_cmd, false));
     add_cmd(r, cmd_info("protected",       "add new protected definition/theorem/variable", definition_cmd, false));

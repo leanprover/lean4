@@ -10,6 +10,8 @@ Author: Daniel Selsam
 namespace lean {
 environment inductive_cmd_ex(parser & p, decl_attributes const & attrs, bool is_meta);
 environment mutual_inductive_cmd_ex(parser & p, decl_attributes const & attrs, bool is_meta);
+environment coinductive_cmd_ex(parser & p, decl_attributes const & attrs);
+environment mutual_coinductive_cmd_ex(parser & p, decl_attributes const & attrs);
 
 void register_inductive_cmds(cmd_table & r);
 void initialize_inductive_cmds();

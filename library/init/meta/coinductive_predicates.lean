@@ -6,8 +6,20 @@ Author: Johannes Hölzl (CMU)
 prelude
 import init.meta.expr init.meta.tactic init.meta.constructor_tactic
 
+namespace name
+
+def last_string : name → string
+| anonymous        := "[anonymous]"
+| (mk_string s _)  := s
+| (mk_numeral _ n) := last_string n
+
+end name
+
 namespace expr
 open expr
+
+meta def replace_with (e : expr) (s : expr) (s' : expr) : expr :=
+e.replace $ λc d, if c = s then some (s'.lift_vars 0 d) else none
 
 meta def local_binder_info : expr → binder_info
 | (local_const x n bi t) := bi
@@ -151,14 +163,15 @@ meta def add_coinductive_predicate
 
   pds ← preds.mmap (λ⟨c, is⟩, do
     (ls, `(Prop)) ← mk_local_pis c.local_type,
-    f₁ ← mk_local_def `f₁ c.local_type,
-    f₂ ← mk_local_def `f₂ c.local_type,
+    let n := if preds.length = 1 then "" else "_" ++ c.local_pp_name.last_string,
+    f₁ ← mk_local_def (mk_simple_name $ "C" ++ n) c.local_type,
+    f₂ ← mk_local_def (mk_simple_name $ "C₂" ++ n) c.local_type,
     sort u_f ← infer_type f₁ >>= infer_type,
-    let func : expr := const (c.local_pp_name ++ "functional") u_params',
+    let func : expr := const (c.local_uniq_name ++ "functional") u_params',
     return {tactic.add_coinductive_predicate.pred_predata .
-      pd_name := c.local_pp_name,
-      pred := const c.local_pp_name u_params', type := c.local_type,
-      intros := is.map (λi, (i.local_pp_name, i.local_type)),
+      pd_name := c.local_uniq_name,
+      pred := const c.local_uniq_name u_params', type := c.local_type,
+      intros := is.map (λi, (i.local_uniq_name, i.local_type)),
       locals := ls, params := params, u_params := u_params',
       f₁ := f₁, f₂ := f₂, u_f := u_f, func := func}),
 
@@ -174,26 +187,27 @@ meta def add_coinductive_predicate
     func_intros ← pd.intros.mmap (λ⟨nr, t⟩, do
       (bs, t') ← mk_local_pis t,
       (name.mk_string sub p) ← return $ nr,
-      let bs := bs.map $ expr.instantiate_locals $ pds.map (λpd:pred_predata, (pd.pd_name, pd.f₁)),
-      let t' := expr.instantiate_local pd.pd_name (pd.func.app_of_list $ params ++ f₁) t',
+      let bs := bs.map $ λe, pds.foldl (λ(e:expr) (pd:pred_predata),
+        e.replace_with pd.pred_g pd.f₁) e,
+      let t' := t'.replace_with pd.pred_g (pd.func.app_of_list $ params ++ f₁),
       return ((p ++ "functional") ++ sub, t'.pis $ params ++ f₁ ++ bs)),
     let func_type := pd.type.pis $ params ++ f₁,
     add_inductive pd.func.const_name u_params (params.length + preds.length) func_type func_intros,
 
     /- Prove monotonicity rule -/
     let mono_type :=
-      pds.foldl (λc (pd:pred_predata), ((pd.le pd.f₁ pd.f₂).imp c).pis [pd.f₁, pd.f₂]) $
+      pds.reverse.foldl (λc (pd:pred_predata), ((pd.le pd.f₁ pd.f₂).imp c).pis [pd.f₁, pd.f₂]) $
       pd.le func_f₁ func_f₂,
     add_theorem_by (pd.func.const_name ++ "mono") u_params (mono_type.pis $ params) (do
       params ← intro_lst params_names,
       hf ← pds.mmap (λpd, do
-        [f₁, f₂, hf] ← intro_lst [`f₁, `f₂, `hf],
+        [f₁, f₂, hf] ← intro_lst [pd.f₁.local_pp_name, pd.f₂.local_pp_name, `hf],
         return (f₂, hf)),
       let fs₂ := hf.map prod.fst,
       let hfs := hf.map prod.snd,
       m ← mk_const (pd.func.const_name ++ "rec"),
         -- ^^ `rec`'s universes are not always `u_params`, e.g. eq, wf, false
-      apply $ m.app_of_list params, -- somhow `induction` / `cases` doesn't work?
+      apply $ m.app_of_list params, -- somehow `induction` / `cases` doesn't work?
       focus $ func_intros.map (λ⟨n, t⟩, do
         bs ← intros,
         ms ← apply_core ((const n u_params').app_of_list $ params ++ fs₂) { all := tt },
@@ -201,19 +215,19 @@ meta def add_coinductive_predicate
         focus $ params.map (λ⟨m, d⟩, apply d <|> first (hfs.map $ λ hf, apply hf >> apply d))))),
 
   pds.mmap (λpd:pred_predata, do
-    let func_f := pd.func_g.app_of_list $ pds.map pred_predata.f₁,
+    let func_f := λpd:pred_predata, pd.func_g.app_of_list $ pds.map pred_predata.f₁,
 
     /- define final predicate -/
     pred_body ← (do
-      corec ← pds.mfoldl
-        (λcont pd, to_expr ``(%%(pd.le pd.f₁ func_f) ∧ %%cont))
+      corec ← pds.reverse.mfoldl
+        (λcont pd, to_expr ``(%%(pd.le pd.f₁ (func_f pd)) ∧ %%cont))
         (pd.f₁.app_of_list pd.locals),
-      pds.mfoldl (λcont pd, to_expr ``(@Exists %%pd.type %%(cont.lambdas [pd.f₁]))) corec),
+      pds.reverse.mfoldl (λcont pd, to_expr ``(@Exists %%pd.type %%(cont.lambdas [pd.f₁]))) corec),
     add_decl $ mk_definition pd.pred.const_name u_params (pd.type.pis $ params) $
       pred_body.lambdas $ params ++ pd.locals,
 
     /- prove `corec_functional` rule -/
-    let corec_type := pds.foldl (λc pd, (pd.le pd.f₁ func_f).imp c) (pd.le pd.f₁ pd.pred_g),
+    let corec_type := pds.reverse.foldl (λc pd, (pd.le pd.f₁ (func_f pd)).imp c) (pd.le pd.f₁ pd.pred_g),
     add_theorem_by (pd.pred.const_name ++ "corec_functional") u_params (corec_type.pis $ params ++ f₁) (do
       params ← intro_lst params_names,
       fs ← intro_lst $ f₁.map local_pp_name,
@@ -236,11 +250,11 @@ meta def add_coinductive_predicate
       params ← intro_lst params_names,
       ls ← intro_lst $ pd.locals.map local_pp_name,
       h ← intro `h,
-      (fs, h) ← pds.mfoldl (λ(c:list expr × expr) (pd:pred_predata), do
+      (fs, h) ← pds.reverse.mfoldl (λ(c:list expr × expr) (pd:pred_predata), do
           [([f, hf], [])] ← induction c.2 [`f, `hf],
           return (c.1 ++ [f], hf))
         ([], h),
-      (hs, h) ← pds.mfoldl (λ(c:list expr × expr) (pd:pred_predata), do
+      (hs, h) ← pds.reverse.mfoldl (λ(c:list expr × expr) (pd:pred_predata), do
           [([h, h'], [])] ← induction c.2 [`h, `h'],
           return (c.1 ++ [h], h'))
         ([], h),
@@ -257,9 +271,12 @@ meta def add_coinductive_predicate
     add_theorem_by (pd.pred.const_name ++ "construct") u_params
         ((pd.le (func_f pd) pd.pred_g).pis $ params) (do
       params ← intro_lst params_names,
-      apply $ pd.corec.app_of_list $ params,
-      apply $ pd.mono.app_of_list $ params,
-      focus $ pds.map (λpd, apply pd.destruct))),
+      let func_pred_g := λpd:pred_predata,
+        pd.func.app_of_list $ params ++ pds.map (λpd:pred_predata, pd.pred.app_of_list params),
+      apply $ pd.corec.app_of_list $ params ++ pds.map func_pred_g,
+      focus $ pds.map (λpd:pred_predata, do
+        apply $ pd.mono.app_of_list $ params,
+        focus $ pds.map (λpd, apply pd.destruct)))),
 
   /- prove constructors -/
   pds.mmap (λpd:pred_predata, do
@@ -267,12 +284,13 @@ meta def add_coinductive_predicate
       let t : expr := expr.instantiate_locals (pds.map (λpd:pred_predata,
         (pd.pd_name, (const pd.pd_name u_params').app_of_list params))) t,
       add_theorem_by nr u_params (t.pis params) $ do
-      (name.mk_string sub p) ← return nr,
-      let func_rule : expr := (const ((p ++ "functional") ++ sub) u_params'),
-      params ← intro_lst params_names, bs ← intros,
-      apply $ pd.construct.app_of_list $ params,
-      exact $ func_rule.app_of_list $ params ++ [pd.pred.app_of_list params] ++ bs)),
+        (name.mk_string sub p) ← return nr,
+        let func_rule : expr := (const ((p ++ "functional") ++ sub) u_params'),
+        params ← intro_lst params_names, bs ← intros,
+        apply $ pd.construct.app_of_list $ params,
+        exact $ func_rule.app_of_list $ params ++
+          (pds.map (λpd:pred_predata, pd.pred.app_of_list params)) ++ bs)),
 
-  return ()
+  try triv -- we setup a trivial goal for the tactic framework
 
 end tactic

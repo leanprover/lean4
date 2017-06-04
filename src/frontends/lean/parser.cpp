@@ -2638,6 +2638,7 @@ void initialize_parser() {
     g_documentable_cmds->insert("class");
     g_documentable_cmds->insert("instance");
     g_documentable_cmds->insert("inductive");
+    g_documentable_cmds->insert("coinductive");
     g_documentable_cmds->insert("structure");
 }
 

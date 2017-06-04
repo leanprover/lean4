@@ -104,7 +104,7 @@ void init_token_table(token_table & t) {
          "variables", "parameter", "parameters", "constant", "constants",
          "using_well_founded", "[whnf]",
          "end", "namespace", "section", "prelude",
-         "import", "inductive", "structure", "class", "universe", "universes", "local",
+         "import", "inductive", "coinductive", "structure", "class", "universe", "universes", "local",
          "precedence", "reserve", "infixl", "infixr", "infix", "postfix", "prefix", "notation",
          "set_option", "open", "export", "@[",
          "attribute", "instance", "include", "omit", "init_quotient",

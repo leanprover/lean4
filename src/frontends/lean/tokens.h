@@ -120,6 +120,7 @@ name const & get_root_tk();
 name const & get_fields_tk();
 name const & get_trust_tk();
 name const & get_inductive_tk();
+name const & get_coinductive_tk();
 name const & get_instance_tk();
 name const & get_this_tk();
 name const & get_noncomputable_tk();

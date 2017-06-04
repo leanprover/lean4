@@ -31,7 +31,11 @@ Authors: Daniel Selsam, Leonardo de Moura
 #include "library/app_builder.h"
 #include "library/type_context.h"
 #include "library/documentation.h"
+#include "library/constants.h"
 #include "library/inductive_compiler/add_decl.h"
+#include "library/tactic/tactic_evaluator.h"
+#include "library/vm/vm_list.h"
+#include "library/vm/vm_expr.h"
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/decl_util.h"
 #include "frontends/lean/util.h"
@@ -694,6 +698,59 @@ public:
         parse_mutual_inductive(params, inds, intro_rules);
         return shared_inductive_cmd(params, inds, intro_rules);
     }
+
+    environment shared_coinductive_cmd(buffer<expr> const & params,
+                                       buffer<expr> const & inds,
+                                       buffer<buffer<expr> > const & intro_rules) {
+        buffer<expr> new_params;
+        buffer<expr> new_inds;
+        buffer<buffer<expr> > new_intro_rules;
+        if (!m_explicit_levels) {
+            m_explicit_levels = has_explicit_level(intro_rules);
+        }
+        elaborate_inductive_decls(params, inds, intro_rules, new_params, new_inds, new_intro_rules);
+
+        expr first_ind = inds[0];
+        metavar_context mctx;
+        options opts = m_p.get_options();
+
+        tactic_state s = mk_tactic_state_for(m_env, opts, mlocal_name(first_ind), mctx, local_context(), mk_true());
+        buffer<vm_obj> args;
+        buffer<vm_obj> inds_arg;
+        for (unsigned i = 0; i < new_inds.size(); i ++) {
+            inds_arg.push_back(mk_vm_pair(to_obj(new_inds[i]), to_obj(new_intro_rules[i])));
+        }
+        args.push_back(to_obj(m_lp_names));
+        args.push_back(to_obj(new_params));
+        args.push_back(to_obj(inds_arg));
+
+        vm_obj r = tactic_evaluator(m_ctx, opts, first_ind)
+            (mk_constant(get_tactic_add_coinductive_predicate_name()), args, s);
+        if (auto new_s = tactic::is_success(r)) {
+            m_env = new_s->env();
+            post_process(new_params, new_inds, new_intro_rules);
+            return m_env;
+        }
+
+        throw generic_exception(first_ind, "coinduction command failed");
+    }
+
+    environment coinductive_cmd() {
+        buffer<expr> params;
+        buffer<expr> inds;
+        buffer<buffer<expr> > intro_rules;
+        intro_rules.emplace_back();
+        inds.push_back(parse_inductive(params, intro_rules.back()));
+        return shared_coinductive_cmd(params, inds, intro_rules);
+    }
+
+    environment mutual_coinductive_cmd() {
+        buffer<expr> params;
+        buffer<expr> inds;
+        buffer<buffer<expr> > intro_rules;
+        parse_mutual_inductive(params, inds, intro_rules);
+        return shared_coinductive_cmd(params, inds, intro_rules);
+    }
 };
 
 environment inductive_cmd_ex(parser & p, decl_attributes const & attrs, bool is_meta) {
@@ -710,12 +767,31 @@ environment mutual_inductive_cmd_ex(parser & p, decl_attributes const & attrs, b
     return inductive_cmd_fn(p, attrs, !is_meta).mutual_inductive_cmd();
 }
 
+environment coinductive_cmd_ex(parser & p, decl_attributes const & attrs) {
+    p.next();
+    auto pos = p.pos();
+    module::scope_pos_info scope_pos(pos);
+    return inductive_cmd_fn(p, attrs, true).coinductive_cmd();
+}
+
+environment mutual_coinductive_cmd_ex(parser & p, decl_attributes const & attrs) {
+    p.next();
+    auto pos = p.pos();
+    module::scope_pos_info scope_pos(pos);
+    return inductive_cmd_fn(p, attrs, true).mutual_coinductive_cmd();
+}
+
 environment inductive_cmd(parser & p) {
     return inductive_cmd_ex(p, {}, false);
 }
 
+environment coinductive_cmd(parser & p) {
+    return coinductive_cmd_ex(p, {});
+}
+
 void register_inductive_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("inductive", "declare an inductive datatype", inductive_cmd, false));
+    add_cmd(r, cmd_info("coinductive", "declare a coinductive predicate", coinductive_cmd, false));
 }
 
 void initialize_inductive_cmds() {

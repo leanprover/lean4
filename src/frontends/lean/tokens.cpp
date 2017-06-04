@@ -118,6 +118,7 @@ static name const * g_root_tk = nullptr;
 static name const * g_fields_tk = nullptr;
 static name const * g_trust_tk = nullptr;
 static name const * g_inductive_tk = nullptr;
+static name const * g_coinductive_tk = nullptr;
 static name const * g_instance_tk = nullptr;
 static name const * g_this_tk = nullptr;
 static name const * g_noncomputable_tk = nullptr;
@@ -241,6 +242,7 @@ void initialize_tokens() {
     g_fields_tk = new name{"fields"};
     g_trust_tk = new name{"trust"};
     g_inductive_tk = new name{"inductive"};
+    g_coinductive_tk = new name{"coinductive"};
     g_instance_tk = new name{"instance"};
     g_this_tk = new name{"this"};
     g_noncomputable_tk = new name{"noncomputable"};
@@ -365,6 +367,7 @@ void finalize_tokens() {
     delete g_fields_tk;
     delete g_trust_tk;
     delete g_inductive_tk;
+    delete g_coinductive_tk;
     delete g_instance_tk;
     delete g_this_tk;
     delete g_noncomputable_tk;
@@ -488,6 +491,7 @@ name const & get_root_tk() { return *g_root_tk; }
 name const & get_fields_tk() { return *g_fields_tk; }
 name const & get_trust_tk() { return *g_trust_tk; }
 name const & get_inductive_tk() { return *g_inductive_tk; }
+name const & get_coinductive_tk() { return *g_coinductive_tk; }
 name const & get_instance_tk() { return *g_instance_tk; }
 name const & get_this_tk() { return *g_this_tk; }
 name const & get_noncomputable_tk() { return *g_noncomputable_tk; }

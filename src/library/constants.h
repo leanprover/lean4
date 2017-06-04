@@ -349,6 +349,7 @@ name const & get_psum_inr_name();
 name const & get_tactic_name();
 name const & get_tactic_try_name();
 name const & get_tactic_triv_name();
+name const & get_tactic_add_coinductive_predicate_name();
 name const & get_thunk_name();
 name const & get_to_fmt_name();
 name const & get_to_string_name();

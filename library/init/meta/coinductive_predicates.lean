@@ -25,6 +25,12 @@ meta def local_binder_info : expr → binder_info
 | (local_const x n bi t) := bi
 | e                      := binder_info.default
 
+meta def to_implicit_binder : expr → expr
+| (local_const n₁ n₂ _ d) := local_const n₁ n₂ binder_info.implicit d
+| (lam n _ d b) := lam n binder_info.implicit d b
+| (pi n _ d b) := pi n binder_info.implicit d b
+| e  := e
+
 end expr
 
 namespace tactic
@@ -49,10 +55,11 @@ meta def drop_pis : list expr → expr → tactic expr
 meta def mk_theorem (n : name) (ls : list name) (t : expr) (e : expr) : declaration :=
 declaration.thm n ls t (task.pure e)
 
-meta def add_theorem_by (n : name) (ls : list name) (type : expr) (tac : tactic unit) : tactic expr := do
+meta def add_theorem_by (n : name) (ls : list name) (type : expr) (locals : list expr) (tac : tactic unit) :
+  tactic expr := do
   ((), body) ← solve_aux type tac,
-  body ← mk_theorem n ls type <$> instantiate_mvars body,
-  add_decl body,
+  body ← instantiate_mvars body,
+  add_decl $ mk_theorem n ls (type.pis locals) (body.lambdas locals),
   return $ const n $ ls.map param
 
 meta def is_assigned (m : expr): tactic bool :=
@@ -86,7 +93,7 @@ where
   def {u} pred_i (A) (a) : Prop :=
   ∃[pred'], (Λi, ∀a, pred_i a → pred_i.functional A [pred] a) ∧ pred'_i a
 
-  lemma {u} pred_i.corec_functional (A) [(C : a → Prop)] (h : ∀[a], [C a] → pred.functional A [C] a) :
+  lemma {u} pred_i.corec_functional (A) [Λi, C_i : a_i → Prop] [Λi, h : ∀a, C_i a → pred_i.functional A C_i a] :
     ∀a, C_i a → pred_i A a :=
   take a ha, ⟨[C], [h], ha⟩
 
@@ -101,6 +108,13 @@ where
   pred.corec_functional A (pred.functional A (pred A))
     (pred.functional.mono A (pred A) (pred.functional A (pred A)) (pred.destruct A))
 
+  lemma {u} pred_i.cases_on (A) (C : a → Prop) {a} (h : pred_i a) [Λi, ∀a, b → C p] → C a
+
+  -- TODO:
+  lemma {u} pred_i.corec_on (A) [(C : a → Prop)] (a) (h : C_i a)
+    [Λi, h_i : ∀a, C_i a → [V j ∃b, a = p]] :
+    pred_i A a
+
   lemma {u} pred.r (A) (b) : pred_i A p :=
   pred_i.construct A p $ pred_i.functional.r A [pred A] b
 -/
@@ -110,7 +124,7 @@ open level expr tactic
 namespace add_coinductive_predicate
 
 /- private -/ meta structure pred_predata : Type :=
-(u_params : list level)
+(u_names  : list name)
 (params   : list expr)
 (pd_name  : name)
 (pred     : expr)
@@ -122,6 +136,9 @@ namespace add_coinductive_predicate
 (func     : expr)
 
 namespace pred_predata
+
+meta def u_params (pd : pred_predata) : list level :=
+pd.u_names.map param
 
 meta def f₁_l (pd : pred_predata) : expr :=
 pd.f₁.app_of_list pd.locals
@@ -144,11 +161,18 @@ const (pd.pd_name ++ "corec_functional") pd.u_params
 meta def mono (pd : pred_predata) : expr :=
 const (pd.func.const_name ++ "mono") pd.u_params
 
+meta def rec' (pd : pred_predata) : tactic expr :=
+mk_const (pd.func.const_name ++ "rec")
+  -- ^^ `rec`'s universes are not always `u_params`, e.g. eq, wf, false
+
 meta def construct (pd : pred_predata) : expr :=
 const (pd.pd_name ++ "construct") pd.u_params
 
 meta def destruct (pd : pred_predata) : expr :=
 const (pd.pd_name ++ "destruct") pd.u_params
+
+meta def add_theorem (pd : pred_predata) (n : name) (type : expr) (locals : list expr) (tac : tactic unit) : tactic expr :=
+add_theorem_by n pd.u_names type (pd.params ++ locals) tac
 
 end pred_predata
 
@@ -172,7 +196,7 @@ meta def add_coinductive_predicate
       pd_name := c.local_uniq_name,
       pred := const c.local_uniq_name u_params', type := c.local_type,
       intros := is.map (λi, (i.local_uniq_name, i.local_type)),
-      locals := ls, params := params, u_params := u_params',
+      locals := ls, params := params, u_names := u_params,
       f₁ := f₁, f₂ := f₂, u_f := u_f, func := func}),
 
   let f₁ := pds.map pred_predata.f₁,
@@ -189,7 +213,7 @@ meta def add_coinductive_predicate
       (name.mk_string sub p) ← return $ nr,
       let bs := bs.map $ λe, pds.foldl (λ(e:expr) (pd:pred_predata),
         e.replace_with pd.pred_g pd.f₁) e,
-      let t' := t'.replace_with pd.pred_g (pd.func.app_of_list $ params ++ f₁),
+      let t' := t'.replace_with pd.pred_g (pd.func_g.app_of_list $ f₁),
       return ((p ++ "functional") ++ sub, t'.pis $ params ++ f₁ ++ bs)),
     let func_type := pd.type.pis $ params ++ f₁,
     add_inductive pd.func.const_name u_params (params.length + preds.length) func_type func_intros,
@@ -198,15 +222,13 @@ meta def add_coinductive_predicate
     let mono_type :=
       pds.reverse.foldl (λc (pd:pred_predata), ((pd.le pd.f₁ pd.f₂).imp c).pis [pd.f₁, pd.f₂]) $
       pd.le func_f₁ func_f₂,
-    add_theorem_by (pd.func.const_name ++ "mono") u_params (mono_type.pis $ params) (do
-      params ← intro_lst params_names,
+    pd.add_theorem (pd.func.const_name ++ "mono") mono_type [] (do
       hf ← pds.mmap (λpd, do
         [f₁, f₂, hf] ← intro_lst [pd.f₁.local_pp_name, pd.f₂.local_pp_name, `hf],
         return (f₂, hf)),
       let fs₂ := hf.map prod.fst,
       let hfs := hf.map prod.snd,
-      m ← mk_const (pd.func.const_name ++ "rec"),
-        -- ^^ `rec`'s universes are not always `u_params`, e.g. eq, wf, false
+      m ← pd.rec',
       apply $ m.app_of_list params, -- somehow `induction` / `cases` doesn't work?
       focus $ func_intros.map (λ⟨n, t⟩, do
         bs ← intros,
@@ -227,15 +249,12 @@ meta def add_coinductive_predicate
       pred_body.lambdas $ params ++ pd.locals,
 
     /- prove `corec_functional` rule -/
-    let corec_type := pds.reverse.foldl (λc pd, (pd.le pd.f₁ (func_f pd)).imp c) (pd.le pd.f₁ pd.pred_g),
-    add_theorem_by (pd.pred.const_name ++ "corec_functional") u_params (corec_type.pis $ params ++ f₁) (do
-      params ← intro_lst params_names,
-      fs ← intro_lst $ f₁.map local_pp_name,
-      hs ← intro_lst $ f₁.map (λf, mk_simple_name "hc"),
+    hs ← pds.mmap $ λpd:pred_predata, mk_local_def `hc $ pd.le pd.f₁ (func_f pd),
+    pd.add_theorem (pd.pred.const_name ++ "corec_functional") (pd.le pd.f₁ pd.pred_g) (f₁ ++ hs) (do
       ls ← intro_lst $ pd.locals.map local_pp_name,
       h ← intro `h,
       whnf_target,
-      fs.mmap existsi,
+      f₁.mmap existsi,
       hs.mmap (λf, constructor >> exact f),
       exact h)),
  
@@ -245,9 +264,8 @@ meta def add_coinductive_predicate
   pds.enum.mmap (λd:ℕ × pred_predata, do
     let n := d.1,
     let pd := d.2,
-    let destruct := (pd.le pd.pred_g (func_f pd)).pis $ params,
-    add_theorem_by (pd.pred.const_name ++ "destruct") u_params destruct (do
-      params ← intro_lst params_names,
+    let destruct := pd.le pd.pred_g (func_f pd),
+    pd.add_theorem (pd.pred.const_name ++ "destruct") destruct [] (do
       ls ← intro_lst $ pd.locals.map local_pp_name,
       h ← intro `h,
       (fs, h) ← pds.reverse.mfoldl (λ(c:list expr × expr) (pd:pred_predata), do
@@ -268,9 +286,7 @@ meta def add_coinductive_predicate
 
   /- prove `construct` rules -/
   pds.mmap (λpd:pred_predata,
-    add_theorem_by (pd.pred.const_name ++ "construct") u_params
-        ((pd.le (func_f pd) pd.pred_g).pis $ params) (do
-      params ← intro_lst params_names,
+    pd.add_theorem (pd.pred.const_name ++ "construct") (pd.le (func_f pd) pd.pred_g) [] (do
       let func_pred_g := λpd:pred_predata,
         pd.func.app_of_list $ params ++ pds.map (λpd:pred_predata, pd.pred.app_of_list params),
       apply $ pd.corec.app_of_list $ params ++ pds.map func_pred_g,
@@ -278,18 +294,32 @@ meta def add_coinductive_predicate
         apply $ pd.mono.app_of_list $ params,
         focus $ pds.map (λpd, apply pd.destruct)))),
 
+  /- prove `cases_on` rules -/
+  pds.mmap (λpd:pred_predata, do
+    let motiv := (sort level.zero : expr).pis $ pd.locals,
+    C ← mk_local' `C binder_info.implicit motiv,
+    h ← mk_local_def `h $ pd.pred_g.app_of_list pd.locals,
+    rules ← pd.intros.mmap (λp:name × expr, do
+      (args, concl) ← mk_local_pis p.2,
+      mk_local_def p.1 $ (C.app_of_list $ concl.get_app_args.dropn params.length).pis args),
+    pd.add_theorem (pd.pred.const_name ++ "cases_on")
+      (C.app_of_list $ pd.locals) ([C] ++ (pd.locals.map to_implicit_binder) ++ [h] ++ rules)
+      (do
+        func_rec ← pd.rec',
+        apply $ func_rec.app_of_list $ params ++ pds.map pred_predata.pred_g ++ [C] ++ rules,
+        apply $ const (pd.pred.const_name ++ "destruct") u_params',
+        exact h)),
+
   /- prove constructors -/
   pds.mmap (λpd:pred_predata, do
     pd.intros.mmap (λ⟨nr, t⟩, do
-      let t : expr := expr.instantiate_locals (pds.map (λpd:pred_predata,
-        (pd.pd_name, (const pd.pd_name u_params').app_of_list params))) t,
-      add_theorem_by nr u_params (t.pis params) $ do
+      let t := t.instantiate_locals $ pds.map $ λpd:pred_predata, (pd.pd_name, pd.pred_g),
+      pd.add_theorem nr t [] $ do
         (name.mk_string sub p) ← return nr,
-        let func_rule : expr := (const ((p ++ "functional") ++ sub) u_params'),
-        params ← intro_lst params_names, bs ← intros,
+        bs ← intros,
         apply $ pd.construct.app_of_list $ params,
-        exact $ func_rule.app_of_list $ params ++
-          (pds.map (λpd:pred_predata, pd.pred.app_of_list params)) ++ bs)),
+        exact $ (const ((p ++ "functional") ++ sub) u_params').app_of_list $
+          params ++ pds.map pred_predata.pred_g ++ bs)),
 
   try triv -- we setup a trivial goal for the tactic framework
 

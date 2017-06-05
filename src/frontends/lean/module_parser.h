@@ -23,8 +23,8 @@ struct module_parser_result {
 
     std::shared_ptr<snapshot const> m_snapshot_at_end;
     log_tree::node m_lt;
-    cancellation_token m_cancel;
 
+    cancellation_token m_cancel;
     task<module_parser_result> m_next;
 };
 
@@ -38,7 +38,8 @@ class module_parser : public std::enable_shared_from_this<module_parser> {
     bool m_separate_tasks = true;
     bool m_save_info = false;
 
-    task<module_parser_result> parse_next_command_like(optional<std::vector<gtask>> const & dependencies = {});
+    pair<cancellation_token, task<module_parser_result>>
+    parse_next_command_like(optional<std::vector<gtask>> const & dependencies = {});
 
 public:
     module_parser(std::string const & file_name, std::string const & content,
@@ -49,9 +50,14 @@ public:
     void save_info(bool save) { m_save_info = save; }
     void break_at_pos(pos_info const & pos, bool complete);
 
-    task<module_parser_result> resume(module_parser_result const &, optional<std::vector<gtask>> const & dependencies);
-    module_parser_result resume_from_start(module_parser_result const &, pos_info const & diff_pos,
-                                           optional<std::vector<gtask>> const & dependencies);
+    pair<cancellation_token, task<module_parser_result>>
+    resume(module_parser_result const &, optional<std::vector<gtask>> const & dependencies);
+
+    module_parser_result resume_from_start(
+        module_parser_result const &, cancellation_token const &,
+        pos_info const & diff_pos,
+        optional<std::vector<gtask>> const & dependencies,
+        bool cancel_old = true);
 
     module_parser_result parse(optional<std::vector<gtask>> const & dependencies);
 };

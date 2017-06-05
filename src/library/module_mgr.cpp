@@ -267,6 +267,7 @@ module_mgr::build_lean(module_id const & id, std::string const & contents, time_
     module_parser_result snapshots;
     std::tie(mod->m_cancel, snapshots) = build_lean_snapshots(
             mod_parser_fn, m_modules[id], deps, contents);
+    lean_assert(!mod->m_cancel->is_cancelled());
     scope_cancellation_token scope_cancel(mod->m_cancel);
 
     if (m_server_mode) {
@@ -300,6 +301,7 @@ module_mgr::build_lean(module_id const & id, std::string const & contents, time_
 }
 
 static optional<pos_info> get_first_diff_pos(std::string const & as, std::string const & bs) {
+    if (as == bs) return optional<pos_info>();
     char const * a = as.c_str(), * b = bs.c_str();
     int line = 1;
     while (true) {
@@ -352,7 +354,8 @@ module_mgr::build_lean_snapshots(std::shared_ptr<module_parser> const & mod_pars
     logtree().reuse("_next"); // TODO(gabriel): this needs to be the same name as in module_parser...
     if (auto diff_pos = get_first_diff_pos(contents, *old_mod->m_lean_contents)) {
         return std::make_pair(old_mod->m_cancel,
-                              mod_parser->resume_from_start(snap, *diff_pos, optional<std::vector<gtask>>(deps)));
+                              mod_parser->resume_from_start(snap, old_mod->m_cancel,
+                                                            *diff_pos, optional<std::vector<gtask>>(deps)));
     } else {
         // no diff
         return std::make_pair(old_mod->m_cancel, snap);

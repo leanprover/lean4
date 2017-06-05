@@ -18,6 +18,7 @@ struct cancellable_task_imp : public delegating_task_imp {
 
     void execute(void * result) override {
         scope_cancellation_token scope_cancel_tok(&m_ctok);
+        check_interrupted();
         m_base->execute(result);
     }
 };

@@ -32,7 +32,8 @@ module_parser::module_parser(std::string const & file_name, std::string const & 
 
 module_parser::~module_parser() {}
 
-task<module_parser_result> module_parser::resume(module_parser_result const & res, optional<std::vector<gtask>> const & dependencies) {
+pair<cancellation_token, task<module_parser_result>>
+module_parser::resume(module_parser_result const & res, optional<std::vector<gtask>> const & dependencies) {
     auto & s = *res.m_snapshot_at_end;
     m_parser.m_scanner.skip_to_pos(s.m_pos);
     m_parser.m_env = s.m_env;
@@ -49,7 +50,6 @@ task<module_parser_result> module_parser::resume(module_parser_result const & re
 
     auto lt = res.m_lt;
     scope_log_tree_core scope_lt(&lt);
-    scope_cancellation_token scope_cancel(&res.m_cancel);
     return parse_next_command_like(dependencies);
 }
 
@@ -62,13 +62,13 @@ module_parser_result module_parser::parse(optional<std::vector<gtask>> const & d
     if (m_save_info)
         res.m_snapshot_at_end = m_parser.mk_snapshot();
     res.m_range = {{1, 0}, {1, 0}};
-    res.m_cancel = global_cancellation_token();
     res.m_lt = lt.get();
-    res.m_next = parse_next_command_like(dependencies);
+    std::tie(res.m_cancel, res.m_next) = parse_next_command_like(dependencies);
     return res;
 }
 
-task<module_parser_result> module_parser::parse_next_command_like(optional<std::vector<gtask>> const & dependencies) {
+pair<cancellation_token, task<module_parser_result>>
+module_parser::parse_next_command_like(optional<std::vector<gtask>> const & dependencies) {
     auto self = shared_from_this();
     auto begin_pos = m_parser.pos();
     lean_assert(begin_pos >= pos_info(1, 0));
@@ -78,6 +78,7 @@ task<module_parser_result> module_parser::parse_next_command_like(optional<std::
 
         bool done = false;
         try {
+            check_system("module_parser::parse_next_command_like");
             auto_reporting_info_manager_scope scope_infom(self->m_parser.m_file_name, self->m_save_info);
             done = self->m_parser.parse_command_like();
         } catch (parser_exception & ex) {
@@ -98,26 +99,29 @@ task<module_parser_result> module_parser::parse_next_command_like(optional<std::
         if (done || self->m_save_info)
             res.m_snapshot_at_end = self->m_parser.mk_snapshot();
         res.m_range = {begin_pos, end_pos};
-        res.m_cancel = global_cancellation_token();
         res.m_lt = logtree();
-        if (!done) res.m_next = self->parse_next_command_like();
+        if (!done) {
+            std::tie(res.m_cancel, res.m_next) = self->parse_next_command_like();
+        }
         return res;
     };
 
+    auto ctok = mk_cancellation_token(global_cancellation_token());
+    scope_cancellation_token scope_ctok(&ctok);
     auto lt = logtree().mk_child(
             "_next", "parsing", {m_parser.m_file_name, {begin_pos, m_end_pos}},
             log_tree::DefaultLevel, true);
     if (dependencies || m_separate_tasks) {
         auto task = task_builder<module_parser_result>(std::move(fn))
-                .set_cancellation_token(mk_cancellation_token(global_cancellation_token()))
+                .set_cancellation_token(ctok)
                 .wrap(library_scopes(lt))
                 .depends_on(dependencies ? *dependencies : std::vector<gtask>())
                 .build();
         lt.set_producer(task);
-        return task;
+        return {ctok, task};
     } else {
         scope_log_tree scope_lt(lt);
-        return mk_pure_task(fn());
+        return {ctok, mk_pure_task(fn())};
     }
 }
 
@@ -126,22 +130,34 @@ void module_parser::break_at_pos(pos_info const & pos, bool complete) {
     m_parser.set_complete(complete);
 }
 
-module_parser_result module_parser::resume_from_start(module_parser_result const & old_res, pos_info const & diff_pos,
-                                                            optional<std::vector<gtask>> const & dependencies) {
+module_parser_result module_parser::resume_from_start(
+        module_parser_result const & old_res, cancellation_token const & ctok,
+        pos_info const & diff_pos,
+        optional<std::vector<gtask>> const & dependencies,
+        bool cancel_old) {
     auto res = old_res;
 
     lean_assert(!old_res.m_lt.is_detached());
+    lean_assert(!ctok->is_cancelled());
 
-    if (res.m_next) {
+    if (res.m_next && !res.m_cancel->is_cancelled()) {
         if (auto next = peek(res.m_next)) {
             if (next->m_range.m_end < diff_pos) {
-                res.m_next = mk_pure_task(resume_from_start(*next, diff_pos, dependencies));
+                res.m_next = mk_pure_task(resume_from_start(*next, res.m_cancel, diff_pos, dependencies, cancel_old));
                 return res;
             }
         }
     }
 
-    res.m_next = resume(old_res, dependencies);
+    auto next_ctok = old_res.m_cancel;
+    if (cancel_old) {
+        cancel(next_ctok);
+        next_ctok = mk_cancellation_token(ctok);
+        lean_assert(!next_ctok->is_cancelled());
+    }
+
+    scope_cancellation_token scope_cancel(&next_ctok);
+    std::tie(res.m_cancel, res.m_next) = resume(old_res, dependencies);
     return res;
 }
 

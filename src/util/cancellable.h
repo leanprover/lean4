@@ -39,6 +39,10 @@ public:
 
     void cancel(std::shared_ptr<cancellable> const & self) override;
 
+    cancellation_token const & get_parent() const { return m_parent; }
+
+    bool is_cancelled() const { return m_cancelled.load(); }
+
     atomic_bool * get_cancellation_flag() { return &m_cancelled; }
 };
 

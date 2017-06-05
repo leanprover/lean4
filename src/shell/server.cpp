@@ -421,6 +421,10 @@ void server::handle_request(json const & jreq) {
         handle_request(req);
     } catch (std::exception & ex) {
         send_msg(cmd_res(req.m_seq_num, std::string(ex.what())));
+    } catch (interrupted) {
+        send_msg(cmd_res(req.m_seq_num, std::string("interrupted")));
+    } catch (...) {
+        send_msg(cmd_res(req.m_seq_num, std::string("unknown exception")));
     }
 }
 
@@ -454,6 +458,8 @@ void server::handle_async_response(server::cmd_req const & req, task<cmd_res> co
             send_msg(get(res));
         } catch (throwable & ex) {
             send_msg(cmd_res(req.m_seq_num, std::string(ex.what())));
+        } catch (...) {
+            send_msg(cmd_res(req.m_seq_num, std::string("unknown exception")));
         }
         return unit{};
     }).depends_on(res).build());
@@ -513,6 +519,7 @@ void parse_breaking_at_pos(module_id const & mod_id, std::shared_ptr<module_info
         scope_log_tree scope_lt(null.get_root());
         snap->m_lt = logtree();
         snap->m_cancel = global_cancellation_token();
+        snap->m_next = nullptr;
 
         auto p = std::make_shared<module_parser>(mod_id, *mod_info->m_lean_contents, environment(), mk_dummy_loader());
         p->save_info(false);

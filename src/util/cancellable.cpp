@@ -55,7 +55,6 @@ LEAN_THREAD_PTR(cancellation_token const, g_cancellation_token);
 scope_cancellation_token::scope_cancellation_token(cancellation_token const * tok) :
     flet<cancellation_token const *>(g_cancellation_token, tok),
     scoped_interrupt_flag(*tok ? (*tok)->get_cancellation_flag() : nullptr) {
-    check_interrupted();
 }
 
 cancellation_token global_cancellation_token() {

@@ -677,10 +677,8 @@ open interactive interactive.types expr
 
 private meta def simp_goal (cfg : simp_config) : simp_lemmas → tactic unit
 | s := do
-   (new_target, Heq) ← target >>= simplify_core cfg s `eq,
-   tactic.assert `Htarget new_target, swap,
-   Ht ← get_local `Htarget,
-   mk_eq_mpr Heq Ht >>= tactic.exact
+   (new_target, pr) ← target >>= simplify_core cfg s `eq,
+   replace_target new_target pr
 
 private meta def simp_hyp (cfg : simp_config) (s : simp_lemmas) (h_name : name) : tactic unit :=
 do h     ← get_local h_name,

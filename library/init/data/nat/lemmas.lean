@@ -38,7 +38,7 @@ protected lemma add_comm : ∀ n m : ℕ, n + m = m + n
 
 protected lemma add_assoc : ∀ n m k : ℕ, (n + m) + k = n + (m + k)
 | n m 0        := rfl
-| n m (succ k) := by simp [add_succ, add_assoc n m k]
+| n m (succ k) := by rw [add_succ, add_succ, add_assoc]
 
 protected lemma add_left_comm : ∀ (n m k : ℕ), n + (m + k) = m + (n + k) :=
 left_comm nat.add nat.add_comm nat.add_assoc

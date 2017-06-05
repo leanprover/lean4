@@ -681,12 +681,11 @@ private meta def simp_goal (cfg : simp_config) : simp_lemmas → tactic unit
    replace_target new_target pr
 
 private meta def simp_hyp (cfg : simp_config) (s : simp_lemmas) (h_name : name) : tactic unit :=
-do h     ← get_local h_name,
-   htype ← infer_type h,
-   (new_htype, eqpr) ← simplify_core cfg s `eq htype,
-   tactic.assert (expr.local_pp_name h) new_htype,
-   mk_eq_mp eqpr h >>= tactic.exact,
-   try $ tactic.clear h
+do h      ← get_local h_name,
+   h_type ← infer_type h,
+   (h_new_type, pr) ← simplify_core cfg s `eq h_type,
+   replace_hyp h h_new_type pr,
+   return ()
 
 private meta def simp_hyps (cfg : simp_config) : simp_lemmas → list name → tactic unit
 | s []      := skip

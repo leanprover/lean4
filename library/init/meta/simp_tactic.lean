@@ -360,16 +360,20 @@ step $
 do s ← collect_ctx_simps >>= s.append,
    simp_intro_aux cfg tt s tt ns
 
+meta def replace_hyp (h : expr) (h_new_type : expr) (pr : expr) : tactic expr :=
+do h_type ← infer_type h,
+   new_h ← assert h.local_pp_name h_new_type,
+   mk_eq_mp pr h >>= exact,
+   try $ clear h,
+   return new_h
+
 meta def simp_at (h : expr) (extra_lemmas : list expr := []) (cfg : simp_config := {}) : tactic expr :=
 do when (expr.is_local_constant h = ff) (fail "tactic simp_at failed, the given expression is not a hypothesis"),
    htype ← infer_type h,
    S     ← simp_lemmas.mk_default,
    S     ← S.append extra_lemmas,
-   (new_htype, heq) ← simplify S htype cfg,
-   newh ← assert (expr.local_pp_name h) new_htype,
-   mk_eq_mp heq h >>= exact,
-   try $ clear h,
-   return newh
+   (h_new_type, pr) ← simplify S htype cfg,
+   replace_hyp h h_new_type pr
 
 meta def simp_at_using_hs (h : expr) (extra_lemmas : list expr := []) (cfg : simp_config := {}) : tactic expr :=
 do hs ← collect_ctx_simps,

@@ -22,7 +22,7 @@ pos_info find_end_pos(std::string const & src) {
         line_no++;
         std::getline(in, line);
     }
-    return {line_no, static_cast<unsigned>(utf8_strlen(line.c_str()))};
+    return {line_no, static_cast<unsigned>(utf8_strlen(line.c_str())) + 1};
 }
 
 module_parser::module_parser(std::string const & file_name, std::string const & content,

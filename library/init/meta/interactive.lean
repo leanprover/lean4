@@ -916,3 +916,30 @@ do gs ← get_goals,
 
 end interactive
 end tactic
+
+section add_interactive
+open tactic
+
+/- See add_interactive -/
+private meta def add_interactive_aux (new_namespace : name) : list name → command
+| []      := return ()
+| (n::ns) := do
+  env    ← get_env,
+  d_name ← resolve_constant n,
+  (declaration.defn _ ls ty val hints trusted) ← env.get d_name,
+  (name.mk_string h _) ← return d_name,
+  let new_name := `tactic.interactive <.> h,
+  add_decl (declaration.defn new_name ls ty (expr.const d_name (ls.map level.param)) hints trusted),
+  add_interactive_aux ns
+
+/--
+   Copy a list of meta definitions in the current namespace to
+   tactic.interactive.
+
+   This command is useful when we want to update tactic.interactive
+   without closing the current namespace.
+-/
+meta def add_interactive (ns : list name) (p : name := `tactic.interactive) : command :=
+add_interactive_aux p ns
+
+end add_interactive

@@ -9,6 +9,7 @@ addons:
       - sourceline: 'ppa:kalakris/cmake' # cmake 2.8 for precise
       - sourceline: 'ppa:adrozdoff/cmake' # cmake 3 for trusty
       - sourceline: 'ppa:h-rayflood/llvm'
+      - sourceline: ppa:hvr/z3   # z3 for the smt interface package
     packages: &default_packages
       - cmake
       - libgmp-dev
@@ -61,6 +62,12 @@ matrix:
        MULTI_THREAD=OFF
 
    - os: linux
+     addons:
+       apt:
+         sources: *apt_sources
+         packages:
+           - *default_packages
+           - z3
      env:
        CMAKE_CXX_COMPILER=g++-4.9
        CMAKE_BUILD_TYPE=Release

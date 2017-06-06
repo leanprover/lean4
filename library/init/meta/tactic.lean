@@ -313,7 +313,7 @@ meta constant mk_eq_trans   : expr → expr → tactic expr
 meta constant mk_eq_mp      : expr → expr → tactic expr
 /-- (mk_eq_mpr h₁ h₂) is a more efficient version of (mk_app `eq.mpr [h₁, h₂]) -/
 meta constant mk_eq_mpr      : expr → expr → tactic expr
-/- Given a local constant t, if t has type (lhs = rhs) apply susbstitution.
+/- Given a local constant t, if t has type (lhs = rhs) apply substitution.
    Otherwise, try to find a local constant that has type of the form (t = t') or (t' = t).
    The tactic fails if the given expression is not a local constant. -/
 meta constant subst         : expr → tactic unit

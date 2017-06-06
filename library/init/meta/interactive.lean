@@ -794,10 +794,9 @@ tactic.symmetry
 meta def transitivity (q : parse texpr?) : tactic unit :=
 tactic.transitivity >> match q with
 | none := skip
-| some q := do t ← target, match t with
-  | (app (app r lhs) rhs) := i_to_expr q >>= unify rhs
-  | _ := failed
-  end
+| some q :=
+  do (r, lhs, rhs) ← target_lhs_rhs,
+     i_to_expr q >>= unify rhs
 end
 
 meta def ac_reflexivity : tactic unit :=

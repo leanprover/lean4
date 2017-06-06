@@ -42,6 +42,12 @@ def list.mfoldl {m : Type u → Type v} [monad m] {s : Type u} {α : Type w} : (
   s' ← f s h,
   list.mfoldl f s' r
 
+def list.mfoldr {m : Type u → Type v} [monad m] {s : Type u} {α : Type w} : (α → s → m s) → s → list α → m s
+| f s [] := return s
+| f s (h :: r) := do
+  s' ← list.mfoldr f s r,
+  f h s'
+
 def when {m : Type → Type} [monad m] (c : Prop) [h : decidable c] (t : m unit) : m unit :=
 ite c t (pure ())
 

@@ -152,8 +152,14 @@ pd.func.app_of_list $ pd.params
 meta def pred_g (pd : pred_predata) : expr :=
 pd.pred.app_of_list $ pd.params
 
+meta def impl_locals (pd : pred_predata) : list expr :=
+pd.locals.map to_implicit_binder
+
+meta def impl_params (pd : pred_predata) : list expr :=
+pd.params.map to_implicit_binder
+
 meta def le (pd : pred_predata) (f₁ f₂ : expr) : expr :=
-(imp (f₁.app_of_list pd.locals) (f₂.app_of_list pd.locals)).pis pd.locals
+(imp (f₁.app_of_list pd.locals) (f₂.app_of_list pd.locals)).pis pd.impl_locals
 
 meta def corec (pd : pred_predata) : expr :=
 const (pd.pd_name ++ "corec_functional") pd.u_params
@@ -171,8 +177,9 @@ const (pd.pd_name ++ "construct") pd.u_params
 meta def destruct (pd : pred_predata) : expr :=
 const (pd.pd_name ++ "destruct") pd.u_params
 
-meta def add_theorem (pd : pred_predata) (n : name) (type : expr) (locals : list expr) (tac : tactic unit) : tactic expr :=
-add_theorem_by n pd.u_names type (pd.params ++ locals) tac
+meta def add_theorem (pd : pred_predata) (n : name) (type : expr) (locals : list expr) (tac : tactic unit) :
+  tactic expr :=
+add_theorem_by n pd.u_names type (pd.impl_params ++ locals) tac
 
 end pred_predata
 
@@ -245,7 +252,7 @@ meta def add_coinductive_predicate
         (λcont pd, to_expr ``(%%(pd.le pd.f₁ (func_f pd)) ∧ %%cont))
         (pd.f₁.app_of_list pd.locals),
       pds.reverse.mfoldl (λcont pd, to_expr ``(@Exists %%pd.type %%(cont.lambdas [pd.f₁]))) corec),
-    add_decl $ mk_definition pd.pred.const_name u_params (pd.type.pis $ params) $
+    add_decl $ mk_definition pd.pd_name u_params (pd.type.pis $ params) $
       pred_body.lambdas $ params ++ pd.locals,
 
     /- prove `corec_functional` rule -/
@@ -302,13 +309,14 @@ meta def add_coinductive_predicate
     rules ← pd.intros.mmap (λp:name × expr, do
       (args, concl) ← mk_local_pis p.2,
       mk_local_def p.1 $ (C.app_of_list $ concl.get_app_args.dropn params.length).pis args),
-    pd.add_theorem (pd.pred.const_name ++ "cases_on")
-      (C.app_of_list $ pd.locals) ([C] ++ (pd.locals.map to_implicit_binder) ++ [h] ++ rules)
+    cases_on ← pd.add_theorem (pd.pred.const_name ++ "cases_on")
+      (C.app_of_list $ pd.locals) ([C] ++ pd.impl_locals ++ [h] ++ rules)
       (do
         func_rec ← pd.rec',
         apply $ func_rec.app_of_list $ params ++ pds.map pred_predata.pred_g ++ [C] ++ rules,
         apply $ const (pd.pred.const_name ++ "destruct") u_params',
-        exact h)),
+        exact h),
+    set_basic_attribute `elab_as_eliminator cases_on.const_name),
 
   /- prove constructors -/
   pds.mmap (λpd:pred_predata, do
@@ -320,6 +328,9 @@ meta def add_coinductive_predicate
         apply $ pd.construct.app_of_list $ params,
         exact $ (const ((p ++ "functional") ++ sub) u_params').app_of_list $
           params ++ pds.map pred_predata.pred_g ++ bs)),
+
+  pds.mmap (λpd:pred_predata, do
+    set_basic_attribute `irreducible pd.pd_name),
 
   try triv -- we setup a trivial goal for the tactic framework
 

@@ -124,23 +124,23 @@ meta constant dunfold_occs_core (m : transparency) (max_steps : nat) (occs : occ
 meta constant dunfold_core (m : transparency) (max_steps : nat) (cs : list name) (e : expr) : tactic expr
 
 meta def dunfold : list name → tactic unit :=
-λ cs, target >>= dunfold_core transparency.instances default_max_steps cs >>= change
+λ cs, target >>= dunfold_core transparency.instances default_max_steps cs >>= unsafe_change
 
 meta def dunfold_occs_of (occs : list nat) (c : name) : tactic unit :=
-target >>= dunfold_occs_core transparency.instances default_max_steps (occurrences.pos occs) [c] >>= change
+target >>= dunfold_occs_core transparency.instances default_max_steps (occurrences.pos occs) [c] >>= unsafe_change
 
 meta def dunfold_core_at (occs : occurrences) (cs : list name) (h : expr) : tactic unit :=
 do num_reverted ← revert h,
    (expr.pi n bi d b : expr) ← target,
    new_d ← dunfold_occs_core transparency.instances default_max_steps occs cs d,
-   change $ expr.pi n bi new_d b,
+   unsafe_change $ expr.pi n bi new_d b,
    intron num_reverted
 
 meta def dunfold_at (cs : list name) (h : expr) : tactic unit :=
 do num_reverted ← revert h,
    (expr.pi n bi d b : expr) ← target,
    new_d ← dunfold_core transparency.instances default_max_steps cs d,
-   change $ expr.pi n bi new_d b,
+   unsafe_change $ expr.pi n bi new_d b,
    intron num_reverted
 
 structure delta_config :=
@@ -168,13 +168,13 @@ in do (c, new_e) ← dsimplify_core () cfg.max_steps cfg.visit_instances (λ c e
       return new_e
 
 meta def delta (cs : list name) : tactic unit :=
-target >>= delta_core {} cs >>= change
+target >>= delta_core {} cs >>= unsafe_change
 
 meta def delta_at (cs : list name) (h : expr) : tactic unit :=
 do num_reverted ← revert h,
    (expr.pi n bi d b : expr) ← target,
    new_d ← delta_core {} cs d,
-   change $ expr.pi n bi new_d b,
+   unsafe_change $ expr.pi n bi new_d b,
    intron num_reverted
 
 structure simp_config :=
@@ -252,7 +252,7 @@ do S ← simp_lemmas.mk_default,
 simplify_goal S cfg >> try triv
 
 meta def dsimp_core (s : simp_lemmas) : tactic unit :=
-target >>= s.dsimplify >>= change
+target >>= s.dsimplify >>= unsafe_change
 
 meta def dsimp : tactic unit :=
 simp_lemmas.mk_default >>= dsimp_core
@@ -261,7 +261,7 @@ meta def dsimp_at_core (s : simp_lemmas) (h : expr) : tactic unit :=
 do num_reverted : ℕ ← revert h,
    expr.pi n bi d b ← target,
    h_simp ← s.dsimplify d,
-   change $ expr.pi n bi h_simp b,
+   unsafe_change $ expr.pi n bi h_simp b,
    intron num_reverted
 
 meta def dsimp_at (h : expr) : tactic unit :=
@@ -322,7 +322,7 @@ meta def simp_intro_aux (cfg : simp_config) (updt : bool) : simp_lemmas → bool
     intro1_aux use_ns ns >> simp_intro_aux S use_ns ns.tail
   else do
     new_t ← whnf t reducible,
-    if new_t.is_pi then change new_t >> simp_intro_aux S use_ns ns
+    if new_t.is_pi then unsafe_change new_t >> simp_intro_aux S use_ns ns
     else
       try (simplify_goal S cfg) >>
       mcond (expr.is_pi <$> target)

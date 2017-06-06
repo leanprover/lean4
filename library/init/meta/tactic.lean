@@ -329,8 +329,11 @@ meta constant is_class      : expr → tactic bool
 /- Try to create an instance of the given type class. -/
 meta constant mk_instance   : expr → tactic expr
 /- Change the target of the main goal.
-   The input expression must be definitionally equal to the current target. -/
-meta constant change        : expr → tactic unit
+   The input expression must be definitionally equal to the current target.
+   If `check` is `ff`, then the tactic does not check whether `e`
+   is definitionally equal to the current target. If it is not,
+   then the error will only be detected by the kernel type checker. -/
+meta constant change (e : expr) (check : bool := tt): tactic unit
 /- (assert_core H T), adds a new goal for T, and change target to (T -> target). -/
 meta constant assert_core   : name → expr → tactic unit
 /- (assertv_core H T P), change target to (T -> target) if P has type T. -/
@@ -488,6 +491,9 @@ whnf e transparency.none
 
 meta def whnf_target : tactic unit :=
 target >>= whnf >>= change
+
+meta def unsafe_change (e : expr) : tactic unit :=
+change e ff
 
 meta def intro (n : name) : tactic expr :=
 do t ← target,

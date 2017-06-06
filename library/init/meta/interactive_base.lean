@@ -27,6 +27,15 @@ meta instance : has_reflect loc
 | loc.wildcard := `(_)
 | (loc.ns xs)  := `(_)
 
+meta def loc.include_goal : loc → bool
+| loc.wildcard := tt
+| (loc.ns [])  := tt
+| _            := ff
+
+meta def loc.get_locals : loc → tactic (list expr)
+| loc.wildcard := tactic.local_context
+| (loc.ns xs)  := mmap tactic.get_local xs
+
 namespace types
 variables {α β : Type}
 

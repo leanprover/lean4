@@ -142,20 +142,33 @@ If it is the case, the subgoal is proved. Otherwise, it fails.
 meta def assumption : tactic unit :=
 tactic.assumption
 
+private meta def change_core (e : expr) : option expr → tactic unit
+| none := tactic.change e
+| (some h) :=
+  do num_reverted : ℕ ← revert h,
+     expr.pi n bi d b ← target,
+     tactic.change $ expr.pi n bi e b,
+     intron num_reverted
+
 /--
 This tactic applies to any goal. `change U` replaces the main goal target `T` with `U`
 providing that `U` is well-formed with respect to the main goal local context,
-and `T` and `U` are definitionally equal.
+and `T` and `U` are definitionally equal. `change U at h` will change a local hypothesis
+with `U`. `change A with B at h1 h2 ...` will replace `A` with `B` in all the supplied
+hypotheses (or `*`), or in the goal if no `at` clause is specified, provided that
+`A` and `B` are definitionally equal.
 -/
-meta def change (q : parse texpr) : parse location → tactic unit
-| [] := i_to_expr q >>= tactic.change
-| [h] :=
-  do num_reverted : ℕ ← get_local h >>= revert,
-     expr.pi n bi d b ← target,
-     e ← i_to_expr q,
-     tactic.change $ expr.pi n bi e b,
-     intron num_reverted
-| _ := fail "change does not support multiple locations"
+meta def change (q : parse texpr) : parse (tk "with" *> texpr)? → parse location → tactic unit
+| none (loc.ns []) := do e ← i_to_expr q, change_core e none
+| none (loc.ns [h]) := do eq ← i_to_expr q, eh ← get_local h, change_core eq (some eh)
+| none _ := fail "change-at does not support multiple locations"
+| (some w) l :=
+  do hs ← l.get_locals,
+     eq ← i_to_expr_strict q,
+     ew ← i_to_expr_strict w,
+     let repl := λe : expr, e.replace (λ a n, if a = eq then some ew else none),
+     hs.mmap' (λh, do e ← infer_type h, change_core (repl e) (some h)),
+     if l.include_goal then do g ← target, change_core (repl g) none else skip
 
 /--
 This tactic applies to any goal. It gives directly the exact proof
@@ -173,17 +186,13 @@ meta def exacts : parse qexpr_list_or_texpr → tactic unit
 | [] := done
 | (t :: ts) := exact t >> exacts ts
 
-private meta def get_locals : list name → tactic (list expr)
-| []      := return []
-| (n::ns) := do h ← get_local n, hs ← get_locals ns, return (h::hs)
-
 /--
 `revert h₁ ... hₙ` applies to any goal with hypotheses `h₁` ... `hₙ`.
 It moves the hypotheses and its dependencies to the goal target.
 This tactic is the inverse of `intro`.
 -/
 meta def revert (ids : parse ident*) : tactic unit :=
-do hs ← get_locals ids, revert_lst hs, skip
+do hs ← mmap tactic.get_local ids, revert_lst hs, skip
 
 private meta def resolve_name' (n : name) : tactic expr :=
 do {
@@ -276,7 +285,7 @@ precedence `generalizing` : 0
 meta def induction (p : parse texpr) (rec_name : parse using_ident) (ids : parse with_ident_list)
   (revert : parse $ (tk "generalizing" *> ident*)?) : tactic unit :=
 do e ← i_to_expr p,
-   locals ← get_locals $ revert.get_or_else [],
+   locals ← mmap tactic.get_local $ revert.get_or_else [],
    n ← revert_lst locals,
    tactic.induction e ids rec_name,
    all_goals (intron n)

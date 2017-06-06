@@ -72,7 +72,7 @@ meta def apply_instance : smt_tactic unit :=
 tactic.apply_instance
 
 meta def change (q : parse texpr) : smt_tactic unit :=
-tactic.interactive.change q
+tactic.interactive.change q none (loc.ns [])
 
 meta def exact (q : parse texpr) : smt_tactic unit :=
 tactic.interactive.exact q

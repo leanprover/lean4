@@ -149,23 +149,24 @@ bool depends_on(expr const & e, metavar_context const & mctx, local_context cons
 }
 
 void local_context::insert_user_name(local_decl const &d) {
-    list<local_decl> ds;
-    if (auto existing_decls = m_user_name2local_decls.find(d.get_pp_name())) {
-        ds = *existing_decls;
+    unsigned_set idxs;
+    if (auto existing_idxs = m_user_name2idxs.find(d.get_pp_name())) {
+        idxs = *existing_idxs;
     } else {
         m_user_names.insert(d.get_pp_name());
     }
-    m_user_name2local_decls.insert(d.get_pp_name(), cons(d, ds));
+    idxs.insert(d.get_idx());
+    m_user_name2idxs.insert(d.get_pp_name(), idxs);
 }
 
-void local_context::erase_user_name(local_decl const &d) {
-    list<local_decl> ds = *m_user_name2local_decls.find(d.get_pp_name());
-    ds = filter(ds, [&](local_decl const & old_d) { return d.get_idx() != old_d.get_idx(); });
-    if (is_nil(ds)) {
-        m_user_name2local_decls.erase(d.get_pp_name());
+void local_context::erase_user_name(local_decl const & d) {
+    unsigned_set idxs = *m_user_name2idxs.find(d.get_pp_name());
+    idxs.erase(d.get_idx());
+    if (idxs.empty()) {
+        m_user_name2idxs.erase(d.get_pp_name());
         m_user_names.erase(d.get_pp_name());
     } else {
-        m_user_name2local_decls.insert(d.get_pp_name(), ds);
+        m_user_name2idxs.insert(d.get_pp_name(), idxs);
     }
 }
 
@@ -250,11 +251,12 @@ optional<local_decl> local_context::back_find_if(std::function<bool(local_decl c
 }
 
 optional<local_decl> local_context::find_local_decl_from_user_name(name const & n) const {
-    if (auto ds = m_user_name2local_decls.find(n)) {
-        return optional<local_decl>(head(*ds));
-    } else {
-        return optional<local_decl>();
+    if (auto idxs = m_user_name2idxs.find(n)) {
+        if (auto m = idxs->max()) {
+            return optional<local_decl>(*m_idx2local_decl.find(*m));
+        }
     }
+    return optional<local_decl>();
 }
 
 optional<local_decl> local_context::find_last_local_decl() const {

@@ -81,12 +81,13 @@ class metavar_context;
 
 class local_context {
     typedef unsigned_map<local_decl> idx2local_decl;
-    unsigned                   m_next_idx;
-    name_map<local_decl>       m_name2local_decl;
-    subscripted_name_set       m_user_names;
-    name_map<list<local_decl>> m_user_name2local_decls;
-    idx2local_decl             m_idx2local_decl;
-    optional<unsigned>         m_instance_fingerprint;
+    typedef rb_tree<unsigned, unsigned_cmp> unsigned_set;
+    unsigned               m_next_idx;
+    name_map<local_decl>   m_name2local_decl;
+    subscripted_name_set   m_user_names;
+    name_map<unsigned_set> m_user_name2idxs;
+    idx2local_decl         m_idx2local_decl;
+    optional<unsigned>     m_instance_fingerprint;
     friend class type_context;
     /* Return the instance fingerprint for empty local_contexts */
     static unsigned get_empty_instance_fingerprint() { return 31; }

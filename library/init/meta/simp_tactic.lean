@@ -120,23 +120,8 @@ meta constant unfold_projection_core : transparency → expr → tactic expr
 meta def unfold_projection : expr → tactic expr :=
 unfold_projection_core transparency.instances
 
-meta def dunfold_occs_core (m : transparency) (max_steps : nat) (occs : occurrences) (cs : list name) (e : expr) : tactic expr :=
-let unfold (c : nat) (e : expr) : tactic (nat × expr × bool) := do
-  guard (cs.any e.is_app_of),
-  new_e ← dunfold_expr_core m e,
-  if occs.contains c
-  then return (c+1, new_e, tt)
-  else return (c+1, e, tt)
-in do (c, new_e) ← dsimplify_core 1 max_steps tt unfold (λ c e, failed) e,
-      return new_e
-
-meta def dunfold_core (m : transparency) (max_steps : nat) (cs : list name) (e : expr) : tactic expr :=
-let unfold (u : unit) (e : expr) : tactic (unit × expr × bool) := do
-  guard (cs.any e.is_app_of),
-  new_e ← dunfold_expr_core m e,
-  return (u, new_e, tt)
-in do (c, new_e) ← dsimplify_core () max_steps tt (λ c e, failed) unfold e,
-      return new_e
+meta constant dunfold_occs_core (m : transparency) (max_steps : nat) (occs : occurrences) (cs : list name) (e : expr) : tactic expr
+meta constant dunfold_core (m : transparency) (max_steps : nat) (cs : list name) (e : expr) : tactic expr
 
 meta def dunfold : list name → tactic unit :=
 λ cs, target >>= dunfold_core transparency.instances default_max_steps cs >>= change

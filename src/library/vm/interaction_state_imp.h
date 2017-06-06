@@ -246,6 +246,7 @@ vm_obj interaction_monad<State>::evaluator::operator()(expr const & interaction,
     name interaction_name("_interaction");
     environment new_env = compile(interaction_name, interaction);
     vm_state S(new_env, m_opts);
+    scope_vm_state scope(S);
     vm_state::profiler prof(S, m_opts);
     buffer<vm_obj> args_s;
     args_s.append(args);

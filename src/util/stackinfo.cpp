@@ -64,12 +64,15 @@ size_t get_stack_size(int main) {
 LEAN_THREAD_VALUE(bool, g_stack_info_init, false);
 LEAN_THREAD_VALUE(size_t, g_stack_size, 0);
 LEAN_THREAD_VALUE(size_t, g_stack_base, 0);
+LEAN_THREAD_VALUE(size_t, g_stack_threshold, 0);
 
 void save_stack_info(bool main) {
     g_stack_info_init = true;
     g_stack_size = get_stack_size(main);
     char x;
     g_stack_base = reinterpret_cast<size_t>(&x);
+    /* g_stack_threshold is a redundant value used to optimize check_stack */
+    g_stack_threshold = g_stack_base + LEAN_STACK_BUFFER_SPACE - g_stack_size;
 }
 
 size_t get_used_stack_size() {
@@ -89,7 +92,9 @@ size_t get_available_stack_size() {
 void check_stack(char const * component_name) {
     if (!g_stack_info_init)
         save_stack_info(false);
-    if (get_used_stack_size() + LEAN_STACK_BUFFER_SPACE > g_stack_size)
+    char y;
+    size_t curr_stack = reinterpret_cast<size_t>(&y);
+    if (curr_stack < g_stack_threshold)
         throw stack_space_exception(component_name);
 }
 }

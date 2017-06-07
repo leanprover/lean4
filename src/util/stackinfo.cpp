@@ -73,6 +73,10 @@ void save_stack_info(bool main) {
     g_stack_base = reinterpret_cast<size_t>(&x);
     /* g_stack_threshold is a redundant value used to optimize check_stack */
     g_stack_threshold = g_stack_base + LEAN_STACK_BUFFER_SPACE - g_stack_size;
+    if (g_stack_threshold > g_stack_base + LEAN_STACK_BUFFER_SPACE) {
+        // negative overflow
+        g_stack_threshold = 0;
+    }
 }
 
 size_t get_used_stack_size() {

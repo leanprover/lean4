@@ -3,7 +3,7 @@ if [ $# -ne 2 ]; then
     echo "Usage: run_single.sh [lean-executable-path] [file]"
     exit 1
 fi
-ulimit -s unlimited
+ulimit -s 8192
 LEAN=$1
 if command -v greadlink >/dev/null 2>&1; then
     # macOS readlink doesn't support -f option

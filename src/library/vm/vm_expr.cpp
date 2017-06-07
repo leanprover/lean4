@@ -450,7 +450,7 @@ vm_obj expr_is_annotation(vm_obj const &, vm_obj const & _e) {
 
 vm_obj reflect_expr(vm_obj const & elab, vm_obj const & e) {
     if (to_bool(elab))
-        return to_obj(mk_expr_quote(to_expr(e)));
+        return to_obj(mk_elaborated_expr_quote(to_expr(e)));
     else
         return to_obj(mk_pexpr_quote_and_substs(to_expr(e), /* is_strict */ false));
 }

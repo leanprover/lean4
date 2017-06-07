@@ -684,7 +684,7 @@ static expr parse_quoted_expr(parser_state & p, unsigned, expr const *, pos_info
         }
         p.check_token_next(get_rparen_tk(), "invalid quoted expression, `)` expected");
     }
-    return p.save_pos(mk_expr_quote(e), pos);
+    return p.save_pos(mk_unelaborated_expr_quote(e), pos);
 }
 
 static expr parse_antiquote_expr(parser_state & p, unsigned, expr const *, pos_info const & pos) {

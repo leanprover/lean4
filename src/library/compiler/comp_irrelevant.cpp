@@ -62,7 +62,7 @@ protected:
     }
 
     virtual expr visit_macro(expr const & e) override {
-        if (is_marked_as_comp_irrelevant(e) || is_expr_quote(e))
+        if (is_marked_as_comp_irrelevant(e))
             return e;
         else if (auto v = mark_if_irrel_core(e))
             return *v;

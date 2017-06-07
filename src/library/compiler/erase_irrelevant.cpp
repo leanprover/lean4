@@ -69,8 +69,6 @@ class erase_irrelevant_fn : public compiler_step_visitor {
             return mk_constant(get_rec_fn_name(e));
         } else if (is_nat_value(e)) {
             return e;
-        } else if (is_expr_quote(e)) {
-            return e;
         } else if (auto r = macro_def(e).expand(e, m_ctx)) {
             return visit(*r);
         } else {

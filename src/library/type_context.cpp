@@ -3583,7 +3583,7 @@ struct instance_synthesizer {
             collect_locals(r, r_locals);
             r = m_ctx.mk_lambda(r_locals.get_collected(), r);
             expr r_ty = m_ctx.infer(r);
-            expr q = mk_expr_quote(r);
+            expr q = mk_elaborated_expr_quote(r);
             buffer<expr> new_inst_mvars;
             for (expr const & local : r_locals.get_collected()) {
                 expr ty = m_ctx.infer(local);

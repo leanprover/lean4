@@ -12,7 +12,8 @@ bool is_expr_quote(expr const &e);
 bool is_pexpr_quote(expr const &e);
 expr const & get_expr_quote_value(expr const & e);
 expr const & get_pexpr_quote_value(expr const & e);
-expr mk_expr_quote(expr const & e);
+expr mk_unelaborated_expr_quote(expr const & e);
+expr mk_elaborated_expr_quote(expr const & e);
 expr mk_pexpr_quote(expr const & e);
 
 expr mk_antiquote(expr const & e);

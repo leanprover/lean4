@@ -2913,7 +2913,7 @@ expr elaborator::visit_expr_quote(expr const & e, optional<expr> const & expecte
             throw elaborator_exception(e, "invalid quotation, contains universe metavariable");
         if (has_local(new_s))
             throw elaborator_exception(e, "invalid quotation, contains local constant");
-        q = mk_expr_quote(new_s);
+        q = mk_elaborated_expr_quote(new_s);
         q = mk_as_is(q);
         expr subst_fn = mk_app(mk_explicit(mk_constant(get_expr_subst_name())), mk_bool_tt());
         for (expr const & subst : substs) {

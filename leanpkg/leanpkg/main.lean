@@ -32,7 +32,7 @@ return $ ev = 0
 
 -- TODO(gabriel): io.env.get_current_directory
 def get_current_directory : io string :=
-do cwd ← io.cmd { cmd := "pwd" }, return (cwd.dropn 1) -- remove final newline
+do cwd ← io.cmd { cmd := "pwd" }, return cwd.pop_back -- remove final newline
 
 def mk_path_file : ∀ (paths : list string), string
 | [] := "builtin_path\n"
@@ -76,10 +76,8 @@ exec_cmd {cmd := "leanpkg", args := ["configure"], cwd := dir}
 def init (n : string) := init_pkg n "."
 
 -- TODO(gabriel): windows
-def basename : ∀ (fn : string), string
-| []          := []
-| (c :: rest) :=
-  if c = '/' then [] else c :: basename rest
+def basename (s : string) : string :=
+s.fold "" $ λ s c, if c = '/' then "" else s.str c
 
 def add_dep_to_manifest (dep : dependency) : io unit := do
 d ← read_manifest,
@@ -87,10 +85,10 @@ let d' := { d with dependencies := d.dependencies.filter (λ old_dep, old_dep.na
 write_manifest d'
 
 def strip_dot_git (url : string) : string :=
-if url.taken 4 = ".git" then url.dropn 4 else url
+if url.backn 4 = ".git" then url.popn_back 4 else url
 
 def looks_like_git_url (dep : string) : bool :=
-':' ∈ show list char, from dep
+':' ∈ dep.to_list
 
 def absolutize_add_dep (dep : string) : io string :=
 if looks_like_git_url dep then return dep
@@ -104,7 +102,7 @@ else
 
 def git_head_revision (git_repo_dir : string) : io string := do
 rev ← io.cmd {cmd := "git", args := ["rev-parse", "HEAD"], cwd := git_repo_dir},
-return (rev.dropn 1) -- remove newline at end
+return rev.pop_back -- remove newline at end
 
 def fixup_git_version (dir : string) : ∀ (src : source), io source
 | (source.git url _) := source.git url <$> git_head_revision dir

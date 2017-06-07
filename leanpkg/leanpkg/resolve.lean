@@ -10,7 +10,7 @@ namespace leanpkg
 
 def assignment := hash_map string (λ _, string)
 -- TODO(gabriel): hash function for strings
-def assignment.empty : assignment := mk_hash_map list.length
+def assignment.empty : assignment := mk_hash_map string.length
 
 @[reducible] def solver := state_t assignment io
 instance {α : Type} : has_coe (io α) (solver α) := ⟨state_t.lift⟩
@@ -32,7 +32,7 @@ return $ ev = 0
 
 -- TODO(gabriel): windows?
 def resolve_dir (abs_or_rel : string) (base : string) : string :=
-if abs_or_rel.reverse.head = '/' then
+if abs_or_rel.front = '/' then
   abs_or_rel -- absolute
 else
   base ++ "/" ++ abs_or_rel

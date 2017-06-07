@@ -361,6 +361,7 @@ static vm_obj io_process_spawn(vm_obj const & process_obj, vm_obj const &) {
     if (cwd) proc.set_cwd(*cwd);
 
     auto ch = proc.spawn();
+
     return mk_io_result(to_obj(ch));
 }
 

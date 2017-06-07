@@ -344,6 +344,13 @@ meta def binding_body : expr → expr
 | (lam _ _ _ b) := b
 | e             := e
 
+meta def is_numeral : expr → bool
+| `(@has_zero.zero %%α %%s)  := tt
+| `(@has_one.one %%α %%s)    := tt
+| `(@bit0 %%α %%s %%v)       := is_numeral v
+| `(@bit1 %%α %%s₁ %%s₂ %%v) := is_numeral v
+| _                          := ff
+
 meta def imp (a b : expr) : expr :=
 pi `_ binder_info.default a b
 

@@ -113,7 +113,7 @@ def eps : parser unit := return ()
 
 /-- Matches the given character. -/
 def ch (c : char) : parser unit :=
-decorate_error [c] $ sat (= c) >> eps
+decorate_error c.to_string $ sat (= c) >> eps
 
 /-- Matches a whole char_buffer.  Does not consume input in case of failure. -/
 def char_buf (s : char_buffer) : parser unit :=
@@ -121,7 +121,7 @@ decorate_error s.to_string $ monad.for' s.to_list ch
 
 /-- Matches one out of a list of characters. -/
 def one_of (cs : list char) : parser char :=
-decorate_errors (do c ← cs, return [c]) $
+decorate_errors (do c ← cs, return c.to_string) $
 sat (∈ cs)
 
 def one_of' (cs : list char) : parser unit :=
@@ -129,7 +129,7 @@ one_of cs >> eps
 
 /-- Matches a string.  Does not consume input in case of failure. -/
 def str (s : string) : parser unit :=
-decorate_error s $ monad.for' s.reverse ch
+decorate_error s $ monad.for' s.to_list ch
 
 /-- Number of remaining input characters. -/
 def remaining : parser ℕ :=
@@ -148,6 +148,9 @@ def many_core (p : parser α) : ∀ (reps : ℕ), parser (list α)
 def many (p : parser α) : parser (list α) :=
 λ input pos, many_core p (input.size - pos + 1) input pos
 
+def many_char (p : parser char) : parser string :=
+list.as_string <$> many p
+
 /-- Matches zero or more occurrences of `p`. -/
 def many' (p : parser α) : parser unit :=
 many p >> eps
@@ -155,6 +158,9 @@ many p >> eps
 /-- Matches one or more occurrences of `p`. -/
 def many1 (p : parser α) : parser (list α) :=
 list.cons <$> p <*> many p
+
+def many_char1 (p : parser char) : parser string :=
+list.as_string <$> many1 p
 
 /-- Matches one or more occurrences of `p`, separated by `sep`. -/
 def sep_by1 (sep : parser unit) (p : parser α) : parser (list α) :=
@@ -184,7 +190,7 @@ left_ctx.map make_monospaced ++ right_ctx.map make_monospaced ++ "\n".to_char_bu
 left_ctx.map (λ _, ' ') ++ "^\n".to_char_buffer ++
 "\n".to_char_buffer ++
 "expected: ".to_char_buffer
-  ++ string.to_char_buffer (list.intercalate " | " expected.to_list)
+  ++ string.to_char_buffer (" | ".intercalate expected.to_list)
   ++ "\n".to_char_buffer
 
 /-- Runs a parser on the given input.  The parser needs to match the complete input. -/

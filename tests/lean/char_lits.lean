@@ -6,7 +6,7 @@ open io
 #eval '\n'
 #eval '\\'
 variable [io.interface]
-#eval put_str (list.cons '\\' "aaa")
-#eval put_str ['\n']
-#eval put_str ['\n']
-#eval put_str (list.cons '\'' "aaa")
+#eval put_str ("aaa".str '\\')
+#eval put_str '\n'.to_string
+#eval put_str '\n'.to_string
+#eval put_str ("aaa".str '\'')

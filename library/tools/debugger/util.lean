@@ -7,31 +7,31 @@ namespace debugger
 def is_space (c : char) : bool :=
 if c = ' ' ∨ c = char.of_nat 11 ∨ c = '\n' then tt else ff
 
-def split_core : string → string → list string
-| (c::cs) [] :=
-  if is_space c then split_core cs [] else split_core cs [c]
-| (c::cs) r  :=
-  if is_space c then r.reverse :: split_core cs [] else split_core cs (c::r)
-| []      [] := []
-| []      r  := [r.reverse]
+private def split_core : list char → option string → list string
+| (c::cs) none     :=
+  if is_space c then split_core cs none else split_core cs (some c.to_string)
+| (c::cs) (some s) :=
+  if is_space c then s :: split_core cs none else split_core cs (s.str c)
+| []      none     := []
+| []      (some s) := [s]
 
 def split (s : string) : list string :=
-(split_core s []).reverse
+split_core s.to_list none
 
-def to_qualified_name_core : string → string → name
-| []      r := if r = "" then name.anonymous else mk_simple_name r.reverse
-| (c::cs) r :=
-  if is_space c then to_qualified_name_core cs r
+def to_qualified_name_core : list char → name → string → name
+| []      r s := if s.is_empty then r else r <.> s
+| (c::cs) r s :=
+  if is_space c then to_qualified_name_core cs r s
   else if c = '.' then
-       if r = ""   then to_qualified_name_core cs []
-       else             name.mk_string r.reverse (to_qualified_name_core cs [])
-  else to_qualified_name_core cs (c::r)
+       if s.is_empty then to_qualified_name_core cs r ""
+       else               to_qualified_name_core cs (r <.> s) ""
+  else to_qualified_name_core cs r (s.str c)
 
 def to_qualified_name (s : string) : name :=
-to_qualified_name_core s []
+to_qualified_name_core s.to_list name.anonymous ""
 
 def olean_to_lean (s : string) :=
-list.dropn 5 s ++ "lean"
+s.popn_back 5 ++ "lean"
 
 meta def get_file (fn : name) : vm string :=
 do {

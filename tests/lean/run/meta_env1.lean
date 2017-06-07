@@ -44,4 +44,4 @@ open name
    exceptional.success (declaration.type d₁, declaration.type d₂,
                         environment.is_recursor e₂ `Two.rec,
                         environment.constructors_of e₂ `Two,
-                        environment.fold e₂ (to_format "") (λ d r, r ++ format.line ++ to_fmt (declaration.to_name d)))
+                        environment.fold e₂ (to_fmt "") (λ d r, r ++ format.line ++ to_fmt (declaration.to_name d)))

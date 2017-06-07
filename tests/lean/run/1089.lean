@@ -8,7 +8,7 @@ inductive token
 open token
 open option
 
-def to_token : string → option token
+def to_token : list char → option token
 | [] := none
 | (c :: cs) :=
   let t : option token := match c with

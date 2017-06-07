@@ -82,7 +82,7 @@ meta instance : has_to_format unsigned :=
 ⟨λ n, to_fmt n.to_nat⟩
 
 meta instance : has_to_format char :=
-⟨λ c : char, format.of_string [c]⟩
+⟨λ c : char, format.of_string c.to_string⟩
 
 meta def list.to_format {α : Type u} [has_to_format α] : list α → format
 | [] := to_fmt "[]"

@@ -142,11 +142,10 @@ optional<expr> mk_char_val_ne_proof(expr const & a, expr const & b) {
 }
 
 /* Remark: this function assumes 'e' has type string */
-static bool is_string_str(expr const & e, expr & c, expr & s) {
-    if (is_app_of(e, get_string_str_name(), 2) ||
-        is_app_of(e, get_list_cons_name(), 3)) {
-        c = app_arg(app_fn(e));
-        s = app_arg(e);
+static bool is_string_str(expr const & e, expr & s, expr & c) {
+    if (is_app_of(e, get_string_str_name(), 2)) {
+        s = app_arg(app_fn(e));
+        c = app_arg(e);
         return true;
     }
     return false;
@@ -154,9 +153,7 @@ static bool is_string_str(expr const & e, expr & c, expr & s) {
 
 /* Remark: this function assumes 'e' has type string */
 static bool is_string_empty(expr const & e) {
-    return
-        is_constant(e, get_string_empty_name()) ||
-        is_app_of(e, get_list_nil_name(), 1);
+    return is_constant(e, get_string_empty_name());
 }
 
 optional<expr> mk_string_val_ne_proof(expr a, expr b) {
@@ -166,8 +163,8 @@ optional<expr> mk_string_val_ne_proof(expr a, expr b) {
         b = *new_b;
     expr c_a, s_a;
     expr c_b, s_b;
-    if (is_string_str(a, c_a, s_a)) {
-        if (is_string_str(b, c_b, s_b)) {
+    if (is_string_str(a, s_a, c_a)) {
+        if (is_string_str(b, s_b, c_b)) {
             if (auto pr = mk_char_val_ne_proof(c_a, c_b)) {
                 return some_expr(mk_app({mk_constant(get_string_str_ne_str_left_name()), c_a, c_b, s_a, s_b, *pr}));
             } else if (auto pr = mk_string_val_ne_proof(s_a, s_b)) {
@@ -177,7 +174,7 @@ optional<expr> mk_string_val_ne_proof(expr a, expr b) {
             return some_expr(mk_app(mk_constant(get_string_str_ne_empty_name()), c_a, s_a));
         }
     } else if (is_string_empty(a)) {
-        if (is_string_str(b, c_b, s_b)) {
+        if (is_string_str(b, s_b, c_b)) {
             return some_expr(mk_app(mk_constant(get_string_empty_ne_str_name()), c_b, s_b));
         }
     }

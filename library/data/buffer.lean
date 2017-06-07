@@ -53,15 +53,15 @@ by cases b; unfold write write'; simp [array.write_eq_write']
 def to_list (b : buffer α) : list α :=
 b.to_array.to_list
 
-protected def to_string (b : buffer α) : list α :=
-b.to_array.to_list.reverse
+protected def to_string (b : buffer char) : string :=
+b.to_array.to_list.as_string
 
 def append_list {α : Type u} : buffer α → list α → buffer α
 | b []      := b
 | b (v::vs) := append_list (b.push_back v) vs
 
 def append_string (b : buffer char) (s : string) : buffer char :=
-b.append_list s.reverse
+b.append_list s.to_list
 
 def append_array {α : Type u} {n : nat} (nz : n > 0) : buffer α → array α n → ∀ i : nat, i < n → buffer α
 | ⟨m, b⟩ a 0     _ :=

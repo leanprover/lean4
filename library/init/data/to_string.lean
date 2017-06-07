@@ -82,18 +82,18 @@ else if  c = '\t' then "\\t"
 else if  c = '\\' then "\\\\"
 else if  c = '\"' then "\\\""
 else if  char.to_nat c <= 31 then "\\x" ++ char_to_hex c
-else [c]
+else c.to_string
 
 instance : has_to_string char :=
 ⟨λ c, "'" ++ char.quote_core c ++ "'"⟩
 
-def string.quote_aux : string → string
+def string.quote_aux : list char → string
 | []      := ""
-| (x::xs) := string.quote_aux xs ++ char.quote_core x
+| (x::xs) := char.quote_core x ++ string.quote_aux xs
 
-def string.quote : string → string
-| []      := "\"\""
-| (x::xs) := "\"" ++ string.quote_aux (x::xs) ++ "\""
+def string.quote (s : string) : string :=
+if s.is_empty = tt then "\"\""
+else "\"" ++ string.quote_aux s.to_list ++ "\""
 
 instance : has_to_string string :=
 ⟨string.quote⟩

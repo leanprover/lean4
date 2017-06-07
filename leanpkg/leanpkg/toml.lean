@@ -28,15 +28,15 @@ private def escapec : char → string
 | '\t' := "\\t"
 | '\n' := "\\n"
 | '\\' := "\\\\"
-| c    := [c]
+| c    := to_string c
 
 private def escape (s : string) : string :=
-list.bind s escapec
+s.fold "" (λ s c, s ++ escapec c)
 
 private mutual def to_string_core, to_string_pairs
 with to_string_core : value → string
 | (value.str s)    := "\"" ++ escape s ++ "\""
-| (value.nat n)    := n.to_string
+| (value.nat n)    := to_string n
 | (value.bool tt)  := "true"
 | (value.bool ff)  := "false"
 | (value.table cs) := "{" ++ to_string_pairs cs ++ "}"
@@ -76,7 +76,7 @@ ch '#' >> many' (sat (≠ '#')) >> optional (ch '\n') >> eps
 
 def Ws : parser unit :=
 decorate_error "<whitespace>" $
-many' $ one_of' " \t\n" <|> Comment
+many' $ one_of' " \t\n".to_list <|> Comment
 
 def tok (s : string) := str s >> Ws
 
@@ -89,14 +89,13 @@ sat (λc, c ≠ '\"' ∧ c ≠ '\\' ∧ c.val > 0x1f)
          (str "\"" >> return '\"'))
 
 def BasicString : parser string :=
-str "\"" *> (list.reverse <$> many StringChar) <* str "\"" <* Ws
+str "\"" *> (many_char StringChar) <* str "\"" <* Ws
 
 def String := BasicString
 
 def Nat : parser nat :=
-do l ← many1 (one_of "0123456789"),
+do s ← many_char1 (one_of "0123456789".to_list),
    Ws,
-   let s : string := l.reverse,
    return s.to_nat
 
 def Boolean : parser bool :=
@@ -104,9 +103,9 @@ def Boolean : parser bool :=
 (tok "false" >> return ff)
 
 def BareKey : parser string := do
-cs ← many1 $ sat $ λ c, c.is_alpha ∨ c.is_digit ∨ c = '_' ∨ c = '-',
+cs ← many_char1 $ sat $ λ c, c.is_alpha ∨ c.is_digit ∨ c = '_' ∨ c = '-',
 Ws,
-return cs.reverse
+return cs
 
 def Key := BareKey <|> BasicString
 

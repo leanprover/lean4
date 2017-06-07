@@ -46,8 +46,9 @@ def num_consts : term → nat
 | (term.app n ts) :=
   ts.attach.foldl
    (λ r p,
-     have sizeof p.1 < 1 + (sizeof n + sizeof ts), from
-       nat.lt_one_add_of_lt (nat.lt_add_of_lt (list.sizeof_lt_sizeof_of_mem p.2)),
+     have sizeof p.1 < n.length + (1 + sizeof ts), from
+       calc sizeof p.1 < 1 + (n.length + sizeof ts) : nat.lt_one_add_of_lt (nat.lt_add_of_lt (list.sizeof_lt_sizeof_of_mem p.2))
+                 ...   = n.length + (1 + sizeof ts) : by simp,
      r + num_consts p.1)
    0
 
@@ -60,8 +61,9 @@ def num_consts' : term → nat
 | (term.app n ts) :=
   ts.attach.foldl
    (λ r ⟨t, h⟩,
-     have sizeof t < 1 + (sizeof n + sizeof ts), from
-       nat.lt_one_add_of_lt (nat.lt_add_of_lt (list.sizeof_lt_sizeof_of_mem h)),
+     have sizeof t < n.length + (1 + sizeof ts), from
+       calc sizeof t < 1 + (n.length + sizeof ts) : nat.lt_one_add_of_lt (nat.lt_add_of_lt (list.sizeof_lt_sizeof_of_mem h))
+                 ... = n.length + (1 + sizeof ts) : by simp,
      r + num_consts' t)
    0
 

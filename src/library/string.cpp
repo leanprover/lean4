@@ -24,9 +24,6 @@ static expr * g_string               = nullptr;
 static expr * g_empty                = nullptr;
 static expr * g_str                  = nullptr;
 static expr * g_fin_mk               = nullptr;
-static expr * g_list_char            = nullptr;
-static expr * g_list_cons            = nullptr;
-static expr * g_list_nil_char        = nullptr;
 
 expr from_string_core(std::string const & s);
 
@@ -125,9 +122,6 @@ void initialize_string() {
     g_empty           = new expr(Const(get_string_empty_name()));
     g_str             = new expr(Const(get_string_str_name()));
     g_fin_mk          = new expr(Const(get_fin_mk_name()));
-    g_list_char       = new expr(mk_app(mk_constant(get_list_name(), {mk_level_one()}), *g_char));
-    g_list_cons       = new expr(mk_constant(get_list_cons_name(), {mk_level_one()}));
-    g_list_nil_char   = new expr(mk_app(mk_constant(get_list_nil_name(), {mk_level_one()}), *g_char));
     register_macro_deserializer(*g_string_opcode,
                                 [](deserializer & d, unsigned num, expr const *) {
                                     if (num != 0)
@@ -151,9 +145,6 @@ void finalize_string() {
     delete g_char;
     delete g_string_opcode;
     delete g_string_macro;
-    delete g_list_char;
-    delete g_list_cons;
-    delete g_list_nil_char;
     delete g_fin_mk;
 }
 
@@ -162,7 +153,7 @@ expr from_string_core(std::string const & s) {
     for (unsigned i = 0; i < s.size(); i++) {
         expr n = to_nat_expr(mpz(static_cast<unsigned char>(s[i])));
         expr c = mk_app(*g_char_of_nat, n);
-        r = mk_app(*g_str, c, r);
+        r = mk_app(*g_str, r, c);
     }
     return r;
 }
@@ -217,7 +208,7 @@ static bool append_char(expr const & e, std::string & r) {
 }
 
 bool to_string_core(expr const & e, std::string & r) {
-    if (e == *g_empty || e == *g_list_nil_char) {
+    if (e == *g_empty) {
         return true;
     } else if (is_string_macro(e)) {
         r = to_string_macro(e).get_value();
@@ -226,9 +217,7 @@ bool to_string_core(expr const & e, std::string & r) {
         buffer<expr> args;
         expr const & fn = get_app_args(e, args);
         if (fn == *g_str && args.size() == 2) {
-            return to_string_core(args[1], r) && append_char(args[0], r);
-        } else if (fn == *g_list_cons && args.size() == 3 && args[0] == *g_char) {
-            return to_string_core(args[2], r) && append_char(args[1], r);
+            return to_string_core(args[0], r) && append_char(args[1], r);
         } else {
             return false;
         }

@@ -17,6 +17,14 @@ lemma nat.zero_lt_one_add (a : nat) : 0 < 1 + a :=
 suffices 0 < a + 1, by {simp, assumption},
 nat.zero_lt_succ _
 
+/- TODO(Leo): move this lemma, or delete it after we add algebraic normalizer. -/
+lemma nat.lt_add_right (a b c : nat) : a < b → a < b + c :=
+λ h, lt_of_lt_of_le h (nat.le_add_right _ _)
+
+/- TODO(Leo): move this lemma, or delete it after we add algebraic normalizer. -/
+lemma nat.lt_add_left (a b c : nat) : a < b → a < c + b :=
+λ h, lt_of_lt_of_le h (nat.le_add_left _ _)
+
 namespace well_founded_tactics
 open tactic
 
@@ -140,12 +148,21 @@ do `(%%lhs < %%rhs) ← target,
      replace_target new_target target_pr,
      `[apply nat.add_lt_add_left] <|> `[apply nat.lt_add_of_zero_lt_left]
 
+meta def check_target_is_value_lt : tactic unit :=
+do `(%%lhs < %%rhs) ← target,
+    guard lhs.is_numeral
+
 meta def trivial_nat_lt : tactic unit :=
 comp_val
 <|>
 `[apply nat.zero_lt_one_add]
 <|>
 assumption
+<|>
+(do check_target_is_value_lt,
+    (`[apply nat.lt_add_right] >> trivial_nat_lt)
+    <|>
+    (`[apply nat.lt_add_left] >> trivial_nat_lt))
 <|>
 failed
 end simple_dec_tac

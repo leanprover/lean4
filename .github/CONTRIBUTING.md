@@ -2,7 +2,7 @@
 
 Thank you for choosing to contribute to Lean, this document is a intended as a brief guide
 for new contributors to help streamline the process and make it as easy as possible
-for you (the contributors) and us (the mainatiners).
+for you (the contributors) and us (the maintainers).
 
 ### Writing Code
 

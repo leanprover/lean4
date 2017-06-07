@@ -337,7 +337,7 @@ private meta def rename_lams : expr → list name → tactic unit
 
 /-- Focuses on the `induction`/`cases` subgoal corresponding to the given introduction rule,
     optionally renaming introduced locals. -/
-meta def case (ctor : parse ident) (ids : parse ident*) (tac : itactic) : tactic unit :=
+meta def case (ctor : parse ident) (ids : parse ident_*) (tac : itactic) : tactic unit :=
 do r   ← result,
    env ← get_env,
    ctor ← resolve_constant ctor

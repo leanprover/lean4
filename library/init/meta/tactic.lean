@@ -189,6 +189,12 @@ meta def option_to_tactic_format {α : Type u} [has_to_tactic_format α] : optio
 meta instance {α : Type u} [has_to_tactic_format α] : has_to_tactic_format (option α) :=
 ⟨option_to_tactic_format⟩
 
+meta def reflect_to_tactic_format {α} {a : α} (h : reflected a) : tactic format :=
+pp (reflect a).to_expr
+
+meta instance reflected.has_to_tactic_format {α} (a : α) : has_to_tactic_format (reflected a) :=
+⟨reflect_to_tactic_format⟩
+
 @[priority 10] meta instance has_to_format_to_has_to_tactic_format (α : Type) [has_to_format α] : has_to_tactic_format α :=
 ⟨(λ x, return x) ∘ to_fmt⟩
 

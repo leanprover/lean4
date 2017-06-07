@@ -3,3 +3,8 @@ structure_instance_bug3.lean:1:23: error: invalid structure value { ... }, field
 structure_instance_bug3.lean:1:23: error: invalid structure value { ... }, field 'bind' was not provided
 structure_instance_bug3.lean:1:23: error: invalid structure value { ... }, field 'pure_bind' was not provided
 structure_instance_bug3.lean:1:23: error: invalid structure value { ... }, field 'bind_assoc' was not provided
+structure_instance_bug3.lean:1:23: error: unexpected field 'map_pure'
+given field value
+  λ (α β : Type ?) (g : α → β) (x : α), eq.trans (eq.symm (?m_2 g (⁇ α x))) (⁇ α β x (⁇ β ∘ g))
+expected field value
+  ?m_1

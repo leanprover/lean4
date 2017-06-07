@@ -672,6 +672,16 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     if (is_local(t_n) && is_local(s_n) && mlocal_name(t_n) == mlocal_name(s_n))
         return true;
 
+    if (is_macro(t_n) && is_macro(s_n) && macro_def(t_n) == macro_def(s_n) && macro_num_args(t_n) == macro_num_args(s_n)) {
+        unsigned i = 0;
+        for (; i < macro_num_args(t_n); i++) {
+            if (!is_def_eq_core(macro_arg(t_n, i), macro_arg(s_n, i)))
+                break;
+        }
+        if (i == macro_num_args(t_n))
+            return true;
+    }
+
     // At this point, t_n and s_n are in weak head normal form (modulo meta-variables and proof irrelevance)
     if (is_def_eq_app(t_n, s_n))
         return true;

@@ -3146,6 +3146,19 @@ bool type_context::is_def_eq_core_core(expr t, expr s) {
     r = is_def_eq_proj(t, s);
     if (r != l_undef) return r == l_true;
 
+    if (is_macro(t) && is_macro(s) && macro_def(t) == macro_def(s) && macro_num_args(t) == macro_num_args(s)) {
+        scope S(*this);
+        unsigned i = 0;
+        for (; i < macro_num_args(t); i++) {
+            if (!is_def_eq_core(macro_arg(t, i), macro_arg(s, i)))
+                break;
+        }
+        if (i == macro_num_args(t)) {
+            S.commit();
+            return true;
+        }
+    }
+
     if (is_app(t) && is_app(s)) {
         scope S(*this);
         if (is_def_eq_core(get_app_fn(t), get_app_fn(s)) &&

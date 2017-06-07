@@ -169,6 +169,7 @@ is_associative.assoc
 is_commutative
 is_commutative.comm
 ite
+lean.parser
 lean.parser.pexpr
 lean.parser.tk
 left_distrib

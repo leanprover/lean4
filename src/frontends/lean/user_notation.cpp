@@ -20,14 +20,14 @@ static environment add_user_notation(environment const & env, name const & d, un
     auto type = env.get(d).get_type();
     bool is_nud = true;
     name tk;
-    if (is_app_of(binding_domain(type), get_interactive_parse_name(), 3)) {
+    if (is_binding(type) && is_app_of(binding_domain(type), get_interactive_parse_name(), 3)) {
         auto const & parser = app_arg(binding_domain(type));
         if (is_app_of(parser, get_lean_parser_pexpr_name(), 1)) {
             is_nud = false;
             type = binding_body(type);
         }
     }
-    if (is_app_of(binding_domain(type), get_interactive_parse_name(), 3)) {
+    if (is_binding(type) && is_app_of(binding_domain(type), get_interactive_parse_name(), 3)) {
         auto const & parser = app_arg(binding_domain(type));
         if (is_app_of(parser, get_lean_parser_tk_name(), 1)) {
             if (auto lit = to_string(app_arg(parser))) {
@@ -41,14 +41,21 @@ static environment add_user_notation(environment const & env, name const & d, un
     }
     if (!tk) {
         throw exception("invalid user-defined notation, must start with `interactive.parse (lean.parser.tk c)` "
-                                "parameter, optionally preceded by `interactive.parse lean.parser.qexpr` parameter");
+                                "parameter, optionally preceded by `interactive.parse lean.parser.pexpr` parameter");
     }
+
+    expr t = type;
+    while (is_pi(t)) { t = binding_body(t); }
+    if (!is_app_of(t, get_lean_parser_name(), 1)) {
+        throw exception("invalid user-defined notation, must return type `lean.parser p`");
+    }
+
     expr dummy = mk_true();
     persistence persist = persistent ? persistence::file : persistence::scope;
 
     return add_notation(env, notation_entry(is_nud, {notation::transition(tk, notation::mk_ext_action(
-            [=](parser & p, unsigned num, expr const * args, pos_info const &) -> expr {
-                lean_assert(num == (is_nud ? 0 : 1));
+            [=](parser & p, unsigned num, expr const * args, pos_info const & pos) -> expr {
+                lean_always_assert(num == (is_nud ? 0 : 1));
                 expr parser = mk_constant(d);
                 if (!is_nud)
                     parser = mk_app(parser, mk_pexpr_quote(args[0]));
@@ -67,7 +74,15 @@ static environment add_user_notation(environment const & env, name const & d, un
                     }
                 }
                 parser = p.elaborate("_user_notation", {}, parser).first;
-                return to_expr(run_parser(p, parser));
+                try {
+                    return to_expr(run_parser(p, parser));
+                } catch (formatted_exception const & ex) {
+                    if (ex.get_pos() && *ex.get_pos() >= pos) {
+                        throw;
+                    } else {
+                        throw formatted_exception(some(pos), ex.pp());
+                    }
+                }
             }))}, Var(0), /* overload */ persistent, prio, notation_entry_group::Main, /* parse_only */ true), persist);
 }
 

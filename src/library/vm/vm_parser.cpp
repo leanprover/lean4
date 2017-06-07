@@ -157,9 +157,12 @@ vm_obj vm_parser_with_input(vm_obj const &, vm_obj const & vm_p, vm_obj const & 
     std::string input = to_string(vm_input);
     std::istringstream strm(input);
     vm_obj vm_state; pos_info pos;
-    std::tie(vm_state, pos) = s.m_p->with_input<vm_obj>(strm, [&]() {
-        return invoke(vm_p, o);
-    });
+    auto _ = s.m_p->no_error_recovery_scope();
+    TRY;
+        std::tie(vm_state, pos) = s.m_p->with_input<vm_obj>(strm, [&]() {
+            return invoke(vm_p, o);
+        });
+    CATCH;
 
     if (lean_parser::is_result_exception(vm_state)) {
         return vm_state;

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Johannes Hölzl (CMU)
 -/
 prelude
-import init.meta.expr init.meta.tactic init.meta.constructor_tactic
+import init.meta.expr init.meta.tactic init.meta.constructor_tactic init.meta.attribute
 
 namespace name
 
@@ -98,6 +98,87 @@ meta def elim_gen_sum (n : nat) (e : expr) : tactic (list expr) := do
   set_goals ((gs.taken n).reverse ++ gs.dropn n),
   return $ hs.reverse ++ [h']
 
+end tactic
+
+section
+universe u
+
+def monotonicity := { user_attribute . name := `monotonicity, descr := "Monotonicity rules for predicates" }
+run_cmd register_attribute `monotonicity
+
+lemma monotonicity.pi {α : Sort u} {p q : α → Prop} (h : ∀a, implies (p a) (q a)) :
+  implies (Πa, p a) (Πa, q a) :=
+take h' a, h a (h' a)
+
+lemma monotonicity.imp {p p' q q' : Prop} (h₁ : implies p' q') (h₂ : implies q p) :
+  implies (p → p') (q → q') :=
+take h, h₁ ∘ h ∘ h₂
+
+@[monotonicity]
+lemma monotonicity.const (p : Prop) : implies p p := id
+
+@[monotonicity]
+lemma monotonicity.true (p : Prop) : implies p true := take _, trivial
+
+@[monotonicity]
+lemma monotonicity.false (p : Prop) : implies false p := false.elim
+
+@[monotonicity]
+lemma monotonicity.exists {α : Sort u} {p q : α → Prop} (h : ∀a, implies (p a) (q a)) :
+  implies (∃a, p a) (∃a, q a) :=
+exists_imp_exists h
+
+@[monotonicity]
+lemma monotonicity.and {p p' q q' : Prop} (hp : implies p p') (hq : implies q q') :
+  implies (p ∧ q) (p' ∧ q') :=
+and.imp hp hq
+
+@[monotonicity]
+lemma monotonicity.or {p p' q q' : Prop} (hp : implies p p') (hq : implies q q') :
+  implies (p ∨ q) (p' ∨ q') :=
+or.imp hp hq
+
+@[monotonicity]
+lemma monotonicity.not {p q : Prop} (h : implies p q) :
+  implies (¬ q) (¬ p) :=
+mt h
+
+end
+
+namespace tactic
+open expr tactic
+
+/- TODO: use backchaining -/
+private meta def mono_aux (ns : list name) (hs : list expr) : tactic unit := do
+  intros,
+  (do
+    `(implies %%p %%q) ← target,
+    (do is_def_eq p q, applyc `monotone.const) <|>
+    (do
+      (expr.pi pn pbi pd pb) ← return p,
+      (expr.pi qn qbi qd qb) ← return q,
+      sort u ← infer_type pd,
+      (do is_def_eq pd qd,
+        let p' := expr.lam pn pbi pd pb,
+        let q' := expr.lam qn qbi qd qb,
+        apply $ (const `monotonicity.pi [u] : expr) pd p' q') <|>
+      (do guard $ u = level.zero ∧ is_arrow p ∧ is_arrow q,
+        let p' := pb.lower_vars 0 1,
+        let q' := qb.lower_vars 0 1,
+        apply $ (const `monotonicity.imp []: expr) pd p' qd q'))) <|>
+  first (hs.map $ λh, apply_core h { md := transparency.none } >> skip) <|>
+  first (ns.map $ λn, do c ← mk_const n, apply_core c { md := transparency.none }, skip),
+  all_goals mono_aux
+
+meta def mono (e : expr) (hs : list expr) : tactic unit := do
+  t ← target,
+  t' ← infer_type e,
+  ns ← attribute.get_instances `monotonicity,
+  ((), p) ← solve_aux `(implies %%t' %%t) (mono_aux ns hs),
+  exact (p e)
+
+end tactic
+
 /-
 The coinductive predicate `pred`:
 
@@ -139,6 +220,7 @@ where
   lemma {u} pred.r (A) (b) : pred_i A p
 -/
 
+namespace tactic
 open level expr tactic
 
 namespace add_coinductive_predicate
@@ -202,7 +284,11 @@ meta def mono (pd : coind_pred) : expr :=
 (const (pd.func.const_name ++ "mono") pd.u_params).app_of_list pd.params
 
 meta def rec' (pd : coind_pred) : tactic expr :=
-mk_const (pd.func.const_name ++ "rec")
+do let c := pd.func.const_name ++ "rec",
+   env  ← get_env,
+   decl ← env.get c,
+   let num := decl.univ_params.length,
+   return (const c $ if num = pd.u_params.length then pd.u_params else level.zero :: pd.u_params)
   -- ^^ `rec`'s universes are not always `u_params`, e.g. eq, wf, false
 
 meta def construct (pd : coind_pred) : expr :=
@@ -243,7 +329,7 @@ meta def add_coinductive_predicate
     intros ← is.mmap (λi, do
       (args, t') ← mk_local_pis i.local_type,
       (name.mk_string sub p) ← return i.local_uniq_name,
-      let loc_args := args.map $ λe, (fs₁.zip preds).foldl (λ(e:expr) ⟨f, c, _⟩, 
+      let loc_args := args.map $ λe, (fs₁.zip preds).foldl (λ(e:expr) ⟨f, c, _⟩,
         e.replace_with (pred_g c) f) e,
       let t' := t'.replace_with (pred_g c) f₂,
       return { tactic.add_coinductive_predicate.coind_rule .
@@ -260,7 +346,7 @@ meta def add_coinductive_predicate
       intros := intros, locals := ls, params := params, u_names := u_names }),
 
   /- Introduce all functionals -/
-  pds.mmap (λpd:coind_pred, do
+  pds.mmap' (λpd:coind_pred, do
     let func_f₁ := pd.func_g.app_of_list $ fs₁,
     let func_f₂ := pd.func_g.app_of_list $ fs₂,
 
@@ -272,24 +358,24 @@ meta def add_coinductive_predicate
       (params.length + preds.length) (pd.type.pis $ params ++ fs₁) func_intros,
 
     /- Prove monotonicity rule -/
-    let mono_type :=
-      pds.reverse.foldl (λc (pd:coind_pred), ((pd.le pd.f₁ pd.f₂).imp c).pis [pd.f₁, pd.f₂]) $
-      pd.le func_f₁ func_f₂,
-    pd.add_theorem (pd.func.const_name ++ "mono") mono_type [] (do
-      hf ← pds.mmap (λpd, do
-        [f₁, f₂, hf] ← intro_lst [pd.f₁.local_pp_name, pd.f₂.local_pp_name, `hf],
-        return (f₂, hf)),
-      let fs₂ := hf.map prod.fst,
-      let hfs := hf.map prod.snd,
+    monos ← pds.mmap (λpd, do
+      h ← mk_local_def `h $ pd.le pd.f₁ pd.f₂,
+      -- the type of h' reduces to h
+      let h' := local_const h.local_uniq_name h.local_pp_name h.local_binder_info $
+        ((const `implies [] : expr) (pd.f₁.app_of_list pd.locals) (pd.f₂.app_of_list pd.locals)).pis pd.locals,
+      return ([pd.f₁, pd.f₂, h], h')),
+    let mono_params := monos.map prod.fst,
+    let mono_rules  := monos.map prod.snd,
+    pd.add_theorem (pd.func.const_name ++ "mono") (pd.le func_f₁ func_f₂) mono_params.join (do
       m ← pd.rec',
       apply $ m.app_of_list params, -- somehow `induction` / `cases` doesn't work?
-      focus $ func_intros.map (λ⟨n, t⟩, do
+      func_intros.mmap' (λ⟨n, t⟩, solve1 $ do
         bs ← intros,
         ms ← apply_core ((const n u_params).app_of_list $ params ++ fs₂) { all := tt },
         params ← (ms.zip bs).mfilter (λ⟨m, d⟩, is_assigned m),
-        focus $ params.map (λ⟨m, d⟩, apply d <|> first (hfs.map $ λ hf, apply hf >> apply d))))),
+        params.mmap' (λ⟨m, d⟩, mono d mono_rules)))),
 
-  pds.mmap (λpd:coind_pred, do
+  pds.mmap' (λpd:coind_pred, do
     let func_f := λpd:coind_pred, pd.func_g.app_of_list $ pds.map coind_pred.f₁,
 
     /- define final predicate -/
@@ -307,14 +393,14 @@ meta def add_coinductive_predicate
       ls ← intro_lst $ pd.locals.map local_pp_name,
       h ← intro `h,
       whnf_target,
-      fs₁.mmap existsi,
-      hs.mmap (λf, constructor >> exact f),
+      fs₁.mmap' existsi,
+      hs.mmap' (λf, constructor >> exact f),
       exact h)),
 
   let func_f := λpd : coind_pred, pd.func_g.app_of_list $ pds.map coind_pred.pred_g,
 
   /- prove `destruct` rules -/
-  pds.enum.mmap (λ⟨n, pd⟩, do
+  pds.enum.mmap' (λ⟨n, pd⟩, do
     let destruct := pd.le pd.pred_g (func_f pd),
     pd.add_theorem (pd.pred.const_name ++ "destruct") destruct [] (do
       ls ← intro_lst $ pd.locals.map local_pp_name,
@@ -322,7 +408,7 @@ meta def add_coinductive_predicate
       (fs, h) ← elim_gen_prod pds.length h [],
       (hs, h) ← elim_gen_prod pds.length h [],
       apply $ pd.mono,
-      pds.mmap (λpd:coind_pred, focus1 $ do
+      pds.mmap' (λpd:coind_pred, focus1 $ do
         apply $ pd.corec_functional,
         focus $ hs.map exact),
       some h' ← return $ hs.nth n,
@@ -330,17 +416,17 @@ meta def add_coinductive_predicate
       exact h)),
 
   /- prove `construct` rules -/
-  pds.mmap (λpd:coind_pred,
+  pds.mmap' (λpd:coind_pred,
     pd.add_theorem (pd.pred.const_name ++ "construct") (pd.le (func_f pd) pd.pred_g) [] (do
       let func_pred_g := λpd:coind_pred,
         pd.func.app_of_list $ params ++ pds.map (λpd:coind_pred, pd.pred.app_of_list params),
       apply $ pd.corec_functional.app_of_list $ pds.map func_pred_g,
-      focus $ pds.map (λpd:coind_pred, do
+      pds.mmap' (λpd:coind_pred, solve1 $ do
         apply pd.mono,
-        focus $ pds.map (λpd, apply pd.destruct)))),
+        pds.mmap' (λpd, solve1 $ apply pd.destruct)))),
 
   /- prove `cases_on` rules -/
-  pds.mmap (λpd:coind_pred, do
+  pds.mmap' (λpd:coind_pred, do
     let C := pd.f₁.to_implicit_binder,
     h ← mk_local_def `h $ pd.pred_g.app_of_list pd.locals,
     rules ← pd.intros.mmap (λr:coind_rule, do
@@ -355,12 +441,12 @@ meta def add_coinductive_predicate
     set_basic_attribute `elab_as_eliminator cases_on.const_name),
 
   /- prove `corec_on` rules -/
-  pds.mmap (λpd:coind_pred, do
+  pds.mmap' (λpd:coind_pred, do
     rules ← pds.mmap (λpd, do
       intros ← pd.intros.mmap (λr:coind_rule, do
         eqs ← (list.zip pd.locals r.insts).mmap (λ⟨l, i⟩, do
           sort u ← infer_type l.local_type,
-          return $ (const `eq [u] : expr) l.local_type l i),
+          return $ (const `eq [u] : expr) l.local_type i l),
         mk_exists_lst r.loc_args $ mk_and_lst eqs),
       mk_local_def (mk_simple_name $ "h_" ++ pd.pd_name.last_string) $
         ((pd.f₁.app_of_list pd.locals).imp (mk_or_lst intros)).pis pd.locals),
@@ -386,15 +472,15 @@ meta def add_coinductive_predicate
             skip
           end),
         exact h)),
-  
+
   /- prove constructors -/
-  pds.mmap (λpd:coind_pred, pd.intros.mmap (λr,
+  pds.mmap' (λpd:coind_pred, pd.intros.mmap' (λr,
     pd.add_theorem r.orig_nm r.type [] $ do
       bs ← intros,
       apply $ pd.construct,
       exact $ (const r.func_nm u_params).app_of_list $ params ++ pds.map coind_pred.pred_g ++ bs)),
 
-  pds.mmap (λpd:coind_pred, set_basic_attribute `irreducible pd.pd_name),
+  pds.mmap' (λpd:coind_pred, set_basic_attribute `irreducible pd.pd_name),
 
   try triv -- we setup a trivial goal for the tactic framework
 

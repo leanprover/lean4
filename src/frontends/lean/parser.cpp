@@ -508,7 +508,7 @@ void parser::add_local_expr(name const & n, expr const & p, bool is_variable) {
     m_local_decls.insert(n, p);
     if (is_variable) {
         lean_assert(is_local(p));
-        m_variables.insert(local_pp_name(p));
+        m_variables.insert(mlocal_name(p));
     }
 }
 
@@ -555,6 +555,16 @@ void parser::add_parameter(name const & n, expr const & p) {
     check_no_metavars(n, p);
     add_local_expr(n, p, false);
     m_has_params = true;
+}
+
+bool parser::is_local_decl(expr const & l) {
+    lean_assert(is_local(l));
+    // TODO(Leo): add a name_set with internal ids if this is a bottleneck
+    for (pair<name, expr> const & p : m_local_decls.get_entries()) {
+        if (is_local(p.second) && mlocal_name(p.second) == mlocal_name(l))
+            return true;
+    }
+    return false;
 }
 
 bool parser::update_local_binder_info(name const & n, binder_info const & bi) {

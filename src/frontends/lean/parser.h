@@ -435,10 +435,16 @@ public:
     void add_parameter(name const & n, expr const & p);
     void add_local(expr const & p) { return add_local_expr(local_pp_name(p), p); }
     bool has_params() const { return m_has_params; }
-    bool is_local_decl(expr const & l) const { return is_local(l) && m_local_decls.contains(local_pp_name(l)); }
+    bool is_local_decl_user_name(expr const & l) const { return is_local(l) && m_local_decls.contains(local_pp_name(l)); }
+    bool is_local_decl(expr const & l);
     bool is_local_level_variable(name const & n) const { return m_level_variables.contains(n); }
-    bool is_local_variable(name const & n) const { return m_variables.contains(n); }
-    bool is_local_variable(expr const & e) const { return is_local_variable(local_pp_name(e)); }
+    bool is_local_variable(expr const & e) const { return m_variables.contains(mlocal_name(e)); }
+    bool is_local_variable_user_name(name const & n) const {
+        if (expr const * d = m_local_decls.find(n))
+            return is_local(*d) && m_variables.contains(mlocal_name(*d));
+        else
+            return false;
+    }
     /** \brief Update binder information for the section parameter n, return true if success, and false if n is not a section parameter. */
     bool update_local_binder_info(name const & n, binder_info const & bi);
     void include_variable(name const & n) { m_include_vars.insert(n); }

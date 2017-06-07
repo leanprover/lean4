@@ -125,7 +125,8 @@ class inductive_cmd_fn {
         unsigned j = 0;
         for (unsigned i = 0; i < params.size(); i++) {
             expr const & param = params[i];
-            if (m_p.is_local_decl(param) && !m_p.is_local_variable(param)) {
+            if (m_p.is_local_decl_user_name(param) &&
+                !m_p.is_local_variable_user_name(local_pp_name(param))) {
                 expr const * klocal = m_p.get_local(local_pp_name(param));
                 lean_assert(klocal);
                 params[j] = *klocal;

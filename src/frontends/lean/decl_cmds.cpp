@@ -172,14 +172,14 @@ static void update_local_binder_info(parser & p, variable_kind k, name const & n
     binder_info new_bi;
     if (bi) new_bi = *bi;
     if (k == variable_kind::Parameter) {
-        if (p.is_local_variable(n))
+        if (p.is_local_variable_user_name(n))
             throw parser_error(sstream() << "invalid parameter binder type update, '"
                                << n << "' is a variable", pos);
         if (!p.update_local_binder_info(n, new_bi))
             throw parser_error(sstream() << "invalid parameter binder type update, '"
                                << n << "' is not a parameter", pos);
     } else {
-        if (!p.update_local_binder_info(n, new_bi) || !p.is_local_variable(n))
+        if (!p.update_local_binder_info(n, new_bi) || !p.is_local_variable_user_name(n))
             throw parser_error(sstream() << "invalid variable binder type update, '"
                                << n << "' is not a variable", pos);
     }

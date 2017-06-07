@@ -193,7 +193,7 @@ void sort_locals(buffer<expr> const & locals, parser const & p, buffer<expr> & p
     }
     for (expr const & l : locals) {
         // we only copy the locals that are in p's local context
-        if (p.is_local_decl(l) && !explicit_param_names.contains(mlocal_name(l)))
+        if (p.is_local_decl_user_name(l) && !explicit_param_names.contains(mlocal_name(l)))
             extra.push_back(l);
     }
     std::sort(extra.begin(), extra.end(), [&](expr const & p1, expr const & p2) {

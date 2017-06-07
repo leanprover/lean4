@@ -17,6 +17,7 @@ local attribute [semireducible] reflected
 
 meta instance nat.reflect : has_reflect ℕ
 | n := if n = 0 then `(nat.zero)
+       else if n = 1 then `(1 : nat)
        else if n % 2 = 0 then `(bit0 %%(nat.reflect (n / 2)) : ℕ)
        else `(bit1 %%(nat.reflect (n / 2)) : ℕ)
 

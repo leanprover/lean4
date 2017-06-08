@@ -657,9 +657,8 @@ do s ← mk_simp_set no_dflt attr_names hs wo_ids,
    end,
    try triv >> try (reflexivity reducible)
 
-private meta def dsimp_hyps (s : simp_lemmas) : list name → tactic unit
-| []      := skip
-| (h::hs) := get_local h >>= dsimp_at_core s
+private meta def dsimp_hyps (s : simp_lemmas) (hs : list name) : tactic unit :=
+hs.mfor' (λ h, get_local h >>= dsimp_at_core s)
 
 meta def dsimp (no_dflt : parse only_flag) (es : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list) : parse location → tactic unit
 | (loc.ns [])    := do s ← mk_simp_set no_dflt attr_names es ids, tactic.dsimp_core s

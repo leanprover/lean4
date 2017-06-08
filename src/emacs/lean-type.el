@@ -134,7 +134,7 @@
       (lean-get-info-record-at-point
        (lambda (info-record)
          (let ((state (plist-get info-record :state)))
-           (unless (s-blank-str? state)
+           (unless (or (s-blank? state) (s-blank? (s-trim state)))
              (lean-with-info-output-to-buffer lean-show-goal-buffer-name (princ state)))))))))
 
 (defun lean-toggle-show-goal ()

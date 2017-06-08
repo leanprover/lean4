@@ -5,6 +5,7 @@ Author: Johannes Hölzl (CMU)
 -/
 prelude
 import init.meta.expr init.meta.tactic init.meta.constructor_tactic init.meta.attribute
+import init.meta.interactive_base
 
 namespace name
 
@@ -313,7 +314,10 @@ meta def add_coinductive_predicate
   let u_params := u_names.map param,
 
   pre_info ← preds.mmap (λ⟨c, is⟩, do
-    (ls, `(Prop)) ← mk_local_pis c.local_type,
+    (ls, t) ← mk_local_pis c.local_type,
+    (is_def_eq t `(Prop) <|>
+      fail (format! "Type of {c.local_pp_name} is not Prop. Currently only " ++
+                    "coinductive predicates are supported.")),
     let n := if preds.length = 1 then "" else "_" ++ c.local_pp_name.last_string,
     f₁ ← mk_local_def (mk_simple_name $ "C" ++ n) c.local_type,
     f₂ ← mk_local_def (mk_simple_name $ "C₂" ++ n) c.local_type,
@@ -353,9 +357,9 @@ meta def add_coinductive_predicate
     /- Define functional for `pd` as inductive predicate -/
     func_intros ← pd.intros.mmap (λr:coind_rule, do
       let t := instantiate_local pd.f₂.local_uniq_name (pd.func_g.app_of_list fs₁) r.loc_type,
-      return (r.func_nm, t.pis $ params ++ fs₁)),
+      return (r.func_nm, r.orig_nm, t.pis $ params ++ fs₁)),
     add_inductive pd.func.const_name u_names
-      (params.length + preds.length) (pd.type.pis $ params ++ fs₁) func_intros,
+      (params.length + preds.length) (pd.type.pis $ params ++ fs₁) (func_intros.map $ λ⟨t, _, r⟩, (t, r)),
 
     /- Prove monotonicity rule -/
     monos ← pds.mmap (λpd, do
@@ -369,11 +373,12 @@ meta def add_coinductive_predicate
     pd.add_theorem (pd.func.const_name ++ "mono") (pd.le func_f₁ func_f₂) mono_params.join (do
       m ← pd.rec',
       apply $ m.app_of_list params, -- somehow `induction` / `cases` doesn't work?
-      func_intros.mmap' (λ⟨n, t⟩, solve1 $ do
+      func_intros.mmap' (λ⟨n, pp_n, t⟩, solve1 $ do
         bs ← intros,
         ms ← apply_core ((const n u_params).app_of_list $ params ++ fs₂) { all := tt },
-        params ← (ms.zip bs).mfilter (λ⟨m, d⟩, is_assigned m),
-        params.mmap' (λ⟨m, d⟩, mono d mono_rules)))),
+        params ← (ms.zip bs).enum.mfilter (λ⟨n, m, d⟩, is_assigned m),
+        params.mmap' (λ⟨n, m, d⟩, mono d mono_rules <|>
+          fail format! "failed to prove montonoicity of {n+1}. parameter of intro-rule {pp_n}")))),
 
   pds.mmap' (λpd:coind_pred, do
     let func_f := λpd:coind_pred, pd.func_g.app_of_list $ pds.map coind_pred.f₁,
@@ -465,9 +470,10 @@ meta def add_coinductive_predicate
             hs ← elim_gen_sum n h',
             (hs.zip pd.intros).mmap (λ⟨h, r⟩, solve1 $ do
               (as, h)    ← elim_gen_prod (r.args.length) h [],
-              (eqs, eq') ← elim_gen_prod (pd.locals.length - 1) h [],
-              let eqs := eqs ++ [eq'],
-              eqs.mmap subst,
+              if pd.locals.length > 0 then do
+                (eqs, eq') ← elim_gen_prod (pd.locals.length - 1) h [],
+                (eqs ++ [eq']).mmap' subst
+              else skip,
               apply ((const r.func_nm u_params).app_of_list $ params ++ fs₁ ++ as)),
             skip
           end),

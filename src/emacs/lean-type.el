@@ -133,10 +133,9 @@
                (lean-info-buffer-active lean-show-goal-buffer-name))
       (lean-get-info-record-at-point
        (lambda (info-record)
-         (lean-with-info-output-to-buffer
-          lean-show-goal-buffer-name
-          (-if-let (state (plist-get info-record :state))
-              (princ state))))))))
+         (let ((state (plist-get info-record :state)))
+           (unless (s-blank-str? state)
+             (lean-with-info-output-to-buffer lean-show-goal-buffer-name (princ state)))))))))
 
 (defun lean-toggle-show-goal ()
   "Show goal at the current point."

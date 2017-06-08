@@ -2060,7 +2060,7 @@ expr elaborator::visit_anonymous_constructor(expr const & e, optional<expr> cons
         throw elaborator_exception(e, format("invalid constructor ⟨...⟩, expected type is not an inductive type") +
                                    pp_indent(*expected_type));
     name I_name = const_name(I);
-    if (is_private(m_env, I_name))
+    if (is_private(m_env, I_name) && !is_expr_aliased(m_env, I_name))
         throw elaborator_exception(e, "invalid constructor ⟨...⟩, type is a private inductive datatype");
     if (!inductive::is_inductive_decl(m_env, I_name))
         throw elaborator_exception(e, sstream() << "invalid constructor ⟨...⟩, '" << I_name << "' is not an inductive type");
@@ -2612,6 +2612,8 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                                        "(solution: use qualified structure instance { struct_id . ... }");
         }
     }
+    if (is_private(m_env, S_name) && !is_expr_aliased(m_env, S_name))
+        throw elaborator_exception(e, "invalid structure instance, type is a private structure");
     buffer<bool> used;
     used.resize(fnames.size(), false);
     if (src) src = copy_tag(*src, mk_as_is(*src));

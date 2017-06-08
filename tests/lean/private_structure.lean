@@ -12,7 +12,8 @@ definition mk : bla := point.mk 10 10
 #check point.cases_on
 #check point.x
 #check point.y
-
+#check (⟨1, 2⟩ : bla)
+#check ({x := 1, y := 2} : bla)
 end foo
 
 open foo
@@ -33,4 +34,5 @@ set_option pp.all true
 #print bla
 
 #check (⟨1, 2⟩ : bla)
+#check ({x := 1, y := 2} : bla)
 #check mk

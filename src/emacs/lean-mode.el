@@ -136,6 +136,7 @@
     ;; info windows
     (post-command-hook                   . lean-show-goal--handler)
     (post-command-hook                   . lean-next-error--handler)
+    (flycheck-after-syntax-check-hook    . lean-show-goal--handler)
     (flycheck-after-syntax-check-hook    . lean-next-error--handler)
     )
   "Hooks which lean-mode needs to hook in.

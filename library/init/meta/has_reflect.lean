@@ -48,9 +48,3 @@ meta instance prod.reflect {α β : Type} [has_reflect α] [reflected α] [has_r
 
 meta instance pos.reflect : has_reflect pos
 | ⟨l, c⟩ := `(_)
-
-meta def reflected.to_format {α} {a : α} (h : reflected a) : format :=
-to_fmt (reflect a).to_expr
-
-meta instance {α} (a : α) : has_to_format (reflected a) :=
-⟨reflected.to_format⟩

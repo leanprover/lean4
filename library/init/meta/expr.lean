@@ -157,6 +157,9 @@ attribute [irreducible] reflected reflected.subst reflected.to_expr
 
 meta def reflect {α : Sort u} (a : α) [h : reflected a] : reflected a := h
 
+meta instance {α} (a : α) : has_to_format (reflected a) :=
+⟨λ h, to_fmt h.to_expr⟩
+
 namespace expr
 open decidable
 

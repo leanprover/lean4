@@ -7,8 +7,10 @@ prelude
 import init.data.list.basic
 import init.data.char.basic
 
-structure string :=
+private structure string_imp :=
 (data : list char)
+
+def string := string_imp
 
 def list.as_string (s : list char) : string :=
 ⟨s.reverse⟩

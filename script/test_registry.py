@@ -52,9 +52,8 @@ def main():
     if not os.path.exists("packages"):
         os.makedirs("packages")
 
-    for pkg in pkgs:
-        if not test_package("packages", pkg):
-            exit(-1)
+    if any([not test_package("packages", pkg) for pkg in pkgs]):
+        exit(-1)
 
     exit(0)
 

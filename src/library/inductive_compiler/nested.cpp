@@ -1863,7 +1863,10 @@ class add_nested_inductive_decl_fn {
             buffer<expr> inner_minor_premise_rec_args;
             while (is_pi(ty)) {
                 expr arg = mk_local_for(ty);
-                if (get_app_fn(mlocal_type(arg)) != pack_type(C)) {
+
+                expr it = m_tctx.infer(arg);
+                while (is_pi(it)) it = binding_body(it);
+                if (get_app_fn(it) != pack_type(C)) {
                     lean_assert(inner_minor_premise_rec_args.empty());
                     inner_minor_premise_args.push_back(arg);
                 } else {

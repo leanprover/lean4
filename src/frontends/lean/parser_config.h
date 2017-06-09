@@ -17,8 +17,9 @@ Author: Leonardo de Moura
 namespace lean {
 struct token_entry {
     std::string m_token;
-    unsigned    m_prec;
+    optional<unsigned> m_prec; // if none: command token
     token_entry(std::string const & tk, unsigned prec): m_token(tk), m_prec(prec) {}
+    token_entry(std::string const & tk): m_token(tk) {}
     token_entry() : m_prec(0) {}
 };
 inline token_entry mk_token_entry(std::string const & tk, unsigned prec) { return token_entry(tk, prec); }
@@ -77,6 +78,7 @@ parse_table const & get_led_table(environment const & env);
 parse_table const & get_reserved_nud_table(environment const & env);
 parse_table const & get_reserved_led_table(environment const & env);
 cmd_table const & get_cmd_table(environment const & env);
+environment add_command(environment const & env, name const & n, cmd_info const & info);
 
 /** \brief Add \c n as notation for \c e */
 environment add_mpz_notation(environment const & env, mpz const & n, expr const & e, bool overload = true, bool parse_only = false);

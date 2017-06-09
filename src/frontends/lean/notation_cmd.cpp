@@ -318,7 +318,7 @@ static unsigned get_precedence(environment const & env, buffer<token_entry> cons
     std::string token_str = token.to_string();
     for (auto const & e : new_tokens) {
         if (e.m_token == token_str)
-            return e.m_prec;
+            return *e.m_prec;
     }
     auto prec = get_expr_precedence(get_token_table(env), token_str.c_str());
     if (prec)

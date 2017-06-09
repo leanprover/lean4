@@ -1,0 +1,11 @@
+user_command.lean:8:5: error: invalid user-defined command, must take `interactive.parse (lean.parser.tk c)` parameter, optionally preceded by `interactive.decl_meta_info` parameter
+user_command.lean:8:5: warning: declaration 'foo_cmd' uses sorry
+user_command.lean:14:0: error: unknown identifier 'foo'
+user_command.lean:12:5: error: invalid user-defined command, must return type `lean.parser unit`
+user_command.lean:12:50: error: function expected at
+  ()
+foo
+user_command.lean:23:8: error: command does not accept modifiers
+bar
+ff
+tt

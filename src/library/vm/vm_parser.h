@@ -9,7 +9,7 @@ Author: Sebastian Ullrich
 #include "frontends/lean/parser.h"
 
 namespace lean {
-vm_obj run_parser(parser & p, expr const & spec);
+vm_obj run_parser(parser & p, expr const & spec, buffer<vm_obj> const & args = {});
 expr parse_interactive_param(parser & p, expr const & param_ty);
 
 vm_obj to_obj(cmd_meta const & meta);

@@ -261,6 +261,11 @@ def ilast [inhabited α] : list α → α
 | [a, b]    := b
 | (a::b::l) := ilast l
 
+def init : list α → list α
+| []     := []
+| [a]    := []
+| (a::l) := a::init l
+
 def intersperse (sep : α) : list α → list α
 | []      := []
 | [x]     := [x]

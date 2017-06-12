@@ -81,3 +81,19 @@ with walk_a : α → Prop
 | term : ∀a, t a → walk_a a
 with walk_b : β → Prop
 | step : ∀b, walk_a (g b) → walk_b b
+
+
+coinductive walk_list {α : Type} (f : α → list α) (p : α → Prop) : ℕ → α → Prop
+| step : ∀n a, all_list (walk_list n) (f a) → p a → walk_list (n + 1) a
+
+-- #check walk_a.corec_on
+
+example {f : ℕ → list ℕ} {a' : ℕ} {n : ℕ} {a : fin n}:
+  walk_list f (λ a'', a'' = a') (n + 1) a' :=
+begin
+  coinduction walk_list.corec_on generalizing a n,
+  show ∃ (n : ℕ),
+    all_list (λ (a : ℕ), ∃ {n_1 : ℕ} {a_1 : fin n_1}, n_1 + 1 = n ∧ a' = a) (f a') ∧
+      a' = a' ∧ n + 1 = a_1 + 1,
+  admit
+end

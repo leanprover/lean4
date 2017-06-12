@@ -5,7 +5,7 @@ Author: Johannes Hölzl (CMU)
 -/
 prelude
 import init.meta.expr init.meta.tactic init.meta.constructor_tactic init.meta.attribute
-import init.meta.interactive_base
+import init.meta.interactive
 
 namespace name
 
@@ -31,6 +31,13 @@ meta def to_implicit_binder : expr → expr
 | (lam n _ d b) := lam n binder_info.implicit d b
 | (pi n _ d b) := pi n binder_info.implicit d b
 | e  := e
+
+meta def get_app_fn_args_aux : list expr → expr → expr × list expr
+| r (app f a) := get_app_fn_args_aux (a::r) f
+| r e         := (e, r)
+
+meta def get_app_fn_args : expr → expr × list expr :=
+get_app_fn_args_aux []
 
 end expr
 
@@ -67,8 +74,11 @@ meta def is_assigned (m : expr): tactic bool :=
 
 meta def mk_exists_lst (args : list expr) (inner : expr) : tactic expr :=
 args.mfoldr (λarg i:expr, do
-    sort l ← infer_type arg.local_type,
-    return $ (const `Exists [l] : expr) arg.local_type (i.lambdas [arg]))
+    t ← infer_type arg,
+    sort l ← infer_type t,
+    return $ if arg.occurs i ∨ l ≠ level.zero
+      then (const `Exists [l] : expr) t (i.lambdas [arg])
+      else (const `and [] : expr) t i)
   inner
 
 meta def mk_op_lst (op : expr) (empty : expr) : list expr → expr
@@ -307,6 +317,20 @@ end add_coinductive_predicate
 
 open add_coinductive_predicate
 
+/- compact_relation bs as_ps: Product a relation of the form:
+  R := λ as, ∃ bs, Λ_i a_i = p_i[bs]
+This relation is user visible, so we compact it by removing each `b_j` where a `p_i = b_j`, and
+hence `a_i = b_j`. We need to take care when there are `p_i` and `p_j` with `p_i = p_j = b_k`. -/
+private meta def compact_relation :
+  list expr → list (expr × expr) → list expr × list (expr × expr)
+| [] ps      := ([], ps)
+| (list.cons b bs) ps :=
+  match ps.span (λap:expr × expr, ¬ ap.2 =ₐ b) with
+    | (_, [])           := let (bs, ps) := compact_relation bs ps in (b::bs, ps)
+    | (ps₁, list.cons (a, _) ps₂) := let i := a.instantiate_local b.local_uniq_name in
+      compact_relation (bs.map i) ((ps₁ ++ ps₂).map (λ⟨a, p⟩, (a, i p)))
+  end
+
 meta def add_coinductive_predicate
   (u_names : list name) (params : list expr) (preds : list $ expr × list expr) : command := do
   let params_names := params.map local_pp_name,
@@ -368,8 +392,8 @@ meta def add_coinductive_predicate
       ((pd.le func_f₁ func_f₂).pis $ params ++ mono_params.join)
       (do
       ps ← intro_lst $ params.map expr.local_pp_name,
-      fs ← mono_params.mmap (λmp, do
-        [f₁, f₂, h] ← intro_lst $ mp.map expr.local_pp_name,
+      fs ← pds.mmap (λpd, do
+        [f₁, f₂, h] ← intro_lst [pd.f₁.local_pp_name, pd.f₂.local_pp_name, `h],
         -- the type of h' reduces to h
         let h' := local_const h.local_uniq_name h.local_pp_name h.local_binder_info $
           (((const `implies [] : expr)
@@ -464,12 +488,22 @@ meta def add_coinductive_predicate
   pds.mmap' (λpd, do
     rules ← pds.mmap (λpd, do
       intros ← pd.intros.mmap (λr, do
-        eqs ← (list.zip pd.locals r.insts).mmap (λ⟨l, i⟩, do
+        let (bs, eqs) := compact_relation r.loc_args $ pd.locals.zip r.insts,
+        eqs ← eqs.mmap (λ⟨l, i⟩, do
           sort u ← infer_type l.local_type,
           return $ (const `eq [u] : expr) l.local_type i l),
-        mk_exists_lst r.loc_args $ mk_and_lst eqs),
-      mk_local_def (mk_simple_name $ "h_" ++ pd.pd_name.last_string) $
-        ((pd.f₁.app_of_list pd.locals).imp (mk_or_lst intros)).pis pd.locals),
+        match bs, eqs with
+        | [], [] := return ((0, 0), mk_true)
+        | _, []  := prod.mk (bs.length, 0) <$> mk_exists_lst bs.init bs.ilast.local_type
+        | _, _   := prod.mk (bs.length, eqs.length) <$> mk_exists_lst bs (mk_and_lst eqs)
+        end),
+      let shape  := intros.map prod.fst,
+      let intros := intros.map prod.snd,
+      prod.mk shape <$>
+        mk_local_def (mk_simple_name $ "h_" ++ pd.pd_name.last_string)
+          (((pd.f₁.app_of_list pd.locals).imp (mk_or_lst intros)).pis pd.locals)),
+    let shape := rules.map prod.fst,
+    let rules := rules.map prod.snd,
     h ← mk_local_def `h $ pd.f₁.app_of_list pd.locals,
     pd.add_theorem (pd.pred.const_name ++ "corec_on")
       ((pd.pred_g.app_of_list $ pd.locals).pis $ params ++ fs₁ ++ pd.impl_locals ++ [h] ++ rules)
@@ -480,21 +514,22 @@ meta def add_coinductive_predicate
         h  ← intro `h,
         rules  ← intro_lst $ rules.map local_pp_name,
         apply $ pd.corec_functional.app_of_list $ ps ++ fs,
-        (pds.zip rules).mmap (λ⟨pd, hr⟩, solve1 $ do
+        (pds.zip $ rules.zip shape).mmap (λ⟨pd, hr, s⟩, solve1 $ do
           ls ← intro_lst $ pd.locals.map local_pp_name,
           h' ← intro `h,
           h' ← note `h' none $ hr.app_of_list ls h',
-          match pd.intros.length with
+          match s.length with
           | 0     := induction h' >> skip -- h' : false
           | (n+1) := do
             hs ← elim_gen_sum n h',
-            (hs.zip pd.intros).mmap' (λ⟨h, r⟩, solve1 $ do
-              (as, h) ← elim_gen_prod (r.args.length) h [],
-              if pd.locals.length > 0 then do
-                (eqs, eq') ← elim_gen_prod (pd.locals.length - 1) h [],
+            (hs.zip $ pd.intros.zip s).mmap' (λ⟨h, r, n_bs, n_eqs⟩, solve1 $ do
+              (as, h) ← elim_gen_prod (n_bs - (if n_eqs = 0 then 1 else 0)) h [],
+              if n_eqs > 0 then do
+                (eqs, eq') ← elim_gen_prod (n_eqs - 1) h [],
                 (eqs ++ [eq']).mmap' subst
               else skip,
-              apply ((const r.func_nm u_params).app_of_list $ ps ++ fs ++ as))
+              apply ((const r.func_nm u_params).app_of_list $ ps ++ fs),
+              repeat assumption)
           end),
         exact h)),
 
@@ -509,5 +544,67 @@ meta def add_coinductive_predicate
   pds.mmap' (λpd:coind_pred, set_basic_attribute `irreducible pd.pd_name),
 
   try triv -- we setup a trivial goal for the tactic framework
+
+/-- Prepares coinduction proofs. This tactic constructs the coinduction invariant from
+the quantifiers in the current goal.
+
+Current version: do not support mutual inductive rules (i.e. only a since C -/
+meta def coinduction (rule : expr) : tactic unit := focus1 $
+do
+  ctxts' ← intros,
+  -- TODO: why do we need to fix the type here?
+  ctxts ← ctxts'.mmap (λv,
+    local_const v.local_uniq_name v.local_pp_name v.local_binder_info <$> infer_type v),
+  mvars ← apply_core rule { approx := ff, all := tt },
+
+  -- analyse relation
+  g ← list.head <$> get_goals,
+  (list.cons _ m_is) ← return $ mvars.drop_while (λv, v ≠ g),
+  tgt ← target,
+  (is, ty) ← mk_local_pis tgt,
+
+  -- construct coinduction predicate
+  (bs, eqs) ← compact_relation ctxts <$>
+    ((is.zip m_is).mmap (λ⟨i, m⟩, prod.mk i <$> instantiate_mvars m)),
+
+  solve1 (do
+    eqs ← mk_and_lst <$> eqs.mmap (λ⟨i, m⟩, mk_app `eq [m, i] >>= instantiate_mvars),
+    rel ← mk_exists_lst bs eqs,
+    exact (rel.lambdas is)),
+
+  -- prove predicate
+  solve1 (do
+    target >>= instantiate_mvars >>= change, -- TODO: bug in existsi & constructor when mvars in hyptohesis
+    bs.mmap existsi,
+    repeat constructor),
+
+  -- clean up remaining coinduction steps
+  all_goals (do
+    ctxts'.reverse.mmap clear,
+    target >>= instantiate_mvars >>= change, -- TODO: bug in subst when mvars in hyptohesis
+    is ← intro_lst $ is.map expr.local_pp_name,
+    h ← intro1,
+    (_, h) ← elim_gen_prod (bs.length - (if eqs.length = 0 then 1 else 0)) h [],
+    (match eqs with
+    | [] := clear h
+    | (e::eqs) := do
+      (hs, h) ← elim_gen_prod eqs.length h [],
+      (h::(hs.reverse)).mmap' subst
+    end))
+
+namespace interactive
+open interactive interactive.types expr lean.parser
+local postfix `?`:9001 := optional
+local postfix *:9001 := many
+
+meta def coinduction (corec_name : parse ident)
+  (revert : parse $ (tk "generalizing" *> ident*)?) : tactic unit := do
+  rule ← mk_const corec_name,
+  locals ← mmap tactic.get_local $ revert.get_or_else [],
+  revert_lst locals,
+  tactic.coinduction rule,
+  skip
+
+end interactive
 
 end tactic

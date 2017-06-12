@@ -158,7 +158,7 @@ init <name>     adds a leanpkg.toml file to the current directory, and sets up .
 
 add <url>       adds a dependency from a git repository (uses current master revision)
 add <dir>       adds a local dependency
-upgrade         upgrades all local git dependencies to the latest upstream version
+upgrade         upgrades all git dependencies to the latest upstream version
 
 install <url>   installs a user-wide package from git
 install <dir>   installs a user-wide package from a local directory

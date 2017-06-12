@@ -143,7 +143,8 @@ def upgrade := do
 m ← read_manifest,
 assg ← solve_deps m,
 ds' ← mfor m.dependencies (upgrade_dep assg),
-write_manifest {m with dependencies := ds'}
+write_manifest {m with dependencies := ds'},
+configure
 
 def usage := "
 Usage: leanpkg <command>

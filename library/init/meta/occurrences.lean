@@ -8,7 +8,7 @@ import init.logic init.data.to_string init.meta.format
 import init.meta.contradiction_tactic init.meta.constructor_tactic
 import init.meta.relation_tactics init.meta.injection_tactic
 
-/-  We can specify the scope of application of some tactics using
+/--  We can specify the scope of application of some tactics using
    the following type.
 
    - all : all occurrences of a given term are considered.

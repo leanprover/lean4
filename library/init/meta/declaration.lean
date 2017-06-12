@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.meta.expr init.meta.name init.meta.task
 
-/-
+/--
 Reducibility hints are used in the convertibility checker.
 When trying to solve a constraint such a
 
@@ -43,7 +43,7 @@ inductive reducibility_hints
 | abbrev  : reducibility_hints
 | regular : nat → bool → reducibility_hints
 
-/- Reflect a C++ declaration object. The VM replaces it with the C++ implementation. -/
+/-- Reflect a C++ declaration object. The VM replaces it with the C++ implementation. -/
 meta inductive declaration
 /- definition: name, list universe parameters, type, value, is_trusted -/
 | defn : name → list name → expr → expr → reducibility_hints → bool → declaration
@@ -121,10 +121,10 @@ meta def to_definition : declaration → declaration
 | (ax n ls t)      := thm n ls t (task.pure (default expr))
 | d                := d
 
-/- Instantiate a universe polymorphic declaration type with the given universes. -/
+/-- Instantiate a universe polymorphic declaration type with the given universes. -/
 meta constant instantiate_type_univ_params : declaration → list level → option expr
 
-/- Instantiate a universe polymorphic declaration value with the given universes. -/
+/-- Instantiate a universe polymorphic declaration value with the given universes. -/
 meta constant instantiate_value_univ_params : declaration → list level → option expr
 
 end declaration

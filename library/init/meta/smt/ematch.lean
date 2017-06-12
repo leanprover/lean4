@@ -9,12 +9,12 @@ import init.meta.attribute init.meta.simp_tactic
 import init.meta.interactive_base
 open tactic
 
-/- Heuristic instantiation lemma -/
+/-- Heuristic instantiation lemma -/
 meta constant hinst_lemma : Type
 
 meta constant hinst_lemmas : Type
 
-/- (mk_core m e as_simp), m is used to decide which definitions will be unfolded in patterns.
+/-- `mk_core m e as_simp`, m is used to decide which definitions will be unfolded in patterns.
    If as_simp is tt, then this tactic will try to use the left-hand-side of the conclusion
    as a pattern. -/
 meta constant hinst_lemma.mk_core           : transparency → expr → bool → tactic hinst_lemma

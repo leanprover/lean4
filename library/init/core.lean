@@ -128,7 +128,7 @@ inductive heq {α : Sort u} (a : α) : Π {β : Sort u}, β → Prop
 structure prod (α : Type u) (β : Type v) :=
 (fst : α) (snd : β)
 
-/- Similar to prod, but α and β can be propositions.
+/-- Similar to `prod`, but α and β can be propositions.
    We use this type internally to automatically generate the brec_on recursor. -/
 structure pprod (α : Sort u) (β : Sort v) :=
 (fst : α) (snd : β)

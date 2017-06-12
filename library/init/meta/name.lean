@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.data.ordering init.coe
 
-/- Reflect a C++ name object. The VM replaces it with the C++ implementation. -/
+/-- Reflect a C++ name object. The VM replaces it with the C++ implementation. -/
 inductive name
 | anonymous  : name
 | mk_string  : string → name → name
@@ -85,7 +85,7 @@ meta instance : has_ordering name :=
 meta instance : has_append name :=
 ⟨name.append⟩
 
-/- (name.append_after n i) return a name of the form n_i -/
+/-- `name.append_after n i` return a name of the form n_i -/
 meta constant name.append_after : name → nat → name
 
 meta def name.is_prefix_of : name → name → bool

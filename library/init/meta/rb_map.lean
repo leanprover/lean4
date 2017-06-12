@@ -109,9 +109,8 @@ meta instance : has_to_string (rb_map key data) :=
 ⟨λ m, "⟨" ++ (fst (fold m ("", tt) (λ k d p, (fst p ++ key_data_to_string k d (snd p), ff)))) ++ "⟩"⟩
 end
 
-/- a variant of rb_maps that stores a list of elements for each key.
-   "find" returns the list of elements in the opposite order that they were inserted. -/
-
+/-- a variant of rb_maps that stores a list of elements for each key.
+   `find` returns the list of elements in the opposite order that they were inserted. -/
 meta def rb_lmap (key : Type) (data : Type) : Type := rb_map key (list data)
 
 namespace rb_lmap

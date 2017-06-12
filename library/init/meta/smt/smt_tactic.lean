@@ -155,12 +155,12 @@ meta def try {α : Type} (t : smt_tactic α) : smt_tactic unit :=
  (λ ⟨a, new_ss⟩, result.success ((), new_ss))
  (λ e ref s', result.success ((), ss) ts)
 
-/- (repeat_at_most n t): repeat the given tactic at most n times or until t fails -/
+/-- `repeat_at_most n t`: repeat the given tactic at most n times or until t fails -/
 meta def repeat_at_most : nat → smt_tactic unit → smt_tactic unit
 | 0     t := return ()
 | (n+1) t := (do t, repeat_at_most n t) <|> return ()
 
-/-- (repeat_exactly n t) : execute t n times -/
+/-- `repeat_exactly n t` : execute t n times -/
 meta def repeat_exactly : nat → smt_tactic unit → smt_tactic unit
 | 0     t := return ()
 | (n+1) t := do t, repeat_exactly n t
@@ -242,12 +242,12 @@ private meta def all_goals_core (tac : smt_tactic unit) : list smt_goal → list
      (new_ss, new_ts) ← get_goals,
      all_goals_core ss ts (acs ++ new_ss) (act ++ new_ts)
 
-/- Apply the given tactic to all goals. -/
+/-- Apply the given tactic to all goals. -/
 meta def all_goals (tac : smt_tactic unit) : smt_tactic unit :=
 do (ss, ts) ← get_goals,
    all_goals_core tac ss ts [] []
 
-/- LCF-style AND_THEN tactic. It applies tac1, and if succeed applies tac2 to each subgoal produced by tac1 -/
+/-- LCF-style AND_THEN tactic. It applies tac1, and if succeed applies tac2 to each subgoal produced by tac1 -/
 meta def seq (tac1 : smt_tactic unit) (tac2 : smt_tactic unit) : smt_tactic unit :=
 do (s::ss, t::ts) ← get_goals,
    set_goals [s] [t],
@@ -349,11 +349,11 @@ do t ← target,
      apply a,
      intros
 
-/- Return a proof for e, if 'e' is a known fact in the main goal. -/
+/-- Return a proof for e, if 'e' is a known fact in the main goal. -/
 meta def proof_for (e : expr) : smt_tactic expr :=
 do cc ← to_cc_state, cc.proof_for e
 
-/- Return a refutation for e (i.e., a proof for (not e)), if 'e' has been refuted in the main goal. -/
+/-- Return a refutation for e (i.e., a proof for (not e)), if 'e' has been refuted in the main goal. -/
 meta def refutation_for (e : expr) : smt_tactic expr :=
 do cc ← to_cc_state, cc.refutation_for e
 

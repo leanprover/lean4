@@ -7,7 +7,7 @@ prelude
 import init.meta.expr
 universe u
 
-/- Quoted expressions. They can be converted into expressions by using a tactic. -/
+/-- Quoted expressions. They can be converted into expressions by using a tactic. -/
 @[reducible] meta def pexpr := expr ff
 protected meta constant pexpr.of_expr  : expr → pexpr
 
@@ -15,7 +15,7 @@ meta constant pexpr.mk_placeholder : pexpr
 meta constant pexpr.mk_field_macro : pexpr → name → pexpr
 meta constant pexpr.mk_explicit : pexpr → pexpr
 
-/- Choice macros are used to implement overloading. -/
+/-- Choice macros are used to implement overloading. -/
 meta constant pexpr.is_choice_macro : pexpr → bool
 
 meta class has_to_pexpr (α : Sort u) :=

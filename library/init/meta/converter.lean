@@ -105,7 +105,7 @@ meta def apply_lemmas_core (s : simp_lemmas) (prove : tactic unit) : conv unit :
 meta def apply_lemmas (s : simp_lemmas) : conv unit :=
 apply_lemmas_core s failed
 
-/- αdapter for using iff-lemmas as eq-lemmas -/
+/- adapter for using iff-lemmas as eq-lemmas -/
 meta def apply_propext_lemmas_core (s : simp_lemmas) (prove : tactic unit) : conv unit :=
 λ r e, do
   guard (r = `eq),

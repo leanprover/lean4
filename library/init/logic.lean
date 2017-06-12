@@ -948,7 +948,7 @@ match h₁, h₂ with
 | (is_false h_c), h₂ := false.elim h₂
 end
 
-/- Universe lifting operation -/
+/-- Universe lifting operation -/
 structure {r s} ulift (α : Type s) : Type (max s r) :=
 up :: (down : α)
 
@@ -961,7 +961,7 @@ lemma down_up {α : Type u} (a : α) : down (up.{v} a) = a :=
 rfl
 end ulift
 
-/- Universe lifting operation from Sort to Type -/
+/-- Universe lifting operation from Sort to Type -/
 structure plift (α : Sort u) : Type u :=
 up :: (down : α)
 

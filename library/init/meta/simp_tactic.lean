@@ -37,7 +37,7 @@ meta def simp_lemmas.append : simp_lemmas → list expr → tactic simp_lemmas
   new_sls ← simp_lemmas.add sls l,
   simp_lemmas.append new_sls ls
 
-/- (simp_lemmas.rewrite_core m s prove R e) apply a simplification lemma from 's'
+/-- `simp_lemmas.rewrite_core m s prove R e` apply a simplification lemma from 's'
 
    - 'prove' is used to discharge proof obligations.
    - 'R'     is the equivalence relation being used (e.g., 'eq', 'iff')
@@ -49,13 +49,13 @@ meta constant simp_lemmas.rewrite_core : transparency → simp_lemmas → tactic
 meta def simp_lemmas.rewrite : simp_lemmas → tactic unit → name → expr → tactic (expr × expr) :=
 simp_lemmas.rewrite_core reducible
 
-/- (simp_lemmas.drewrite s e) tries to rewrite 'e' using only refl lemmas in 's' -/
+/-- `simp_lemmas.drewrite s e` tries to rewrite 'e' using only refl lemmas in 's' -/
 meta constant simp_lemmas.drewrite_core : transparency → simp_lemmas → expr → tactic expr
 
 meta def simp_lemmas.drewrite : simp_lemmas → expr → tactic expr :=
 simp_lemmas.drewrite_core reducible
 
-/- (Definitional) Simplify the given expression using *only* reflexivity equality lemmas from the given set of lemmas.
+/-- (Definitional) Simplify the given expression using *only* reflexivity equality lemmas from the given set of lemmas.
    The resulting expression is definitionally equal to the input. -/
 meta constant simp_lemmas.dsimplify_core (max_steps : nat) (visit_instances : bool) : simp_lemmas → expr → tactic expr
 
@@ -70,7 +70,7 @@ simp_lemmas.dsimplify_core default_max_steps ff
 meta constant simp_lemmas.pp : simp_lemmas → tactic format
 
 namespace tactic
-/- (get_eqn_lemmas_for deps d) returns the automatically generated equational lemmas for definition d.
+/-- `get_eqn_lemmas_for deps d` returns the automatically generated equational lemmas for definition d.
    If deps is tt, then lemmas for automatically generated auxiliary declarations used to define d are also included. -/
 meta constant get_eqn_lemmas_for : bool → name → tactic (list name)
 
@@ -154,7 +154,7 @@ cs.any (λ c,
        /- f is an auxiliary constant generated when compiling c -/
        f.is_constant && f.const_name.is_internal && (f.const_name.get_prefix = c))
 
-/- Delta reduce the given constant names -/
+/-- Delta reduce the given constant names -/
 meta def delta_core (cfg : delta_config) (cs : list name) (e : expr) : tactic expr :=
 let unfold (u : unit) (e : expr) : tactic (unit × expr × bool) := do
   guard (is_delta_target e cs),
@@ -406,7 +406,7 @@ else do
   s ← simp_lemmas.mk_default,
   join_user_simp_lemmas_core s attrs
 
-/- Normalize numerical expression, returns a pair (n, pr) where n is the resultant numeral,
+/-- Normalize numerical expression, returns a pair (n, pr) where n is the resultant numeral,
    and pr is a proof that the input argument is equal to n. -/
 meta constant norm_num : expr → tactic (expr × expr)
 

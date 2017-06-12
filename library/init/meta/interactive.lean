@@ -26,7 +26,7 @@ to_expr q ff
 namespace interactive
 open interactive interactive.types expr
 
-/-
+/--
 itactic: parse a nested "interactive" tactic. That is, parse
   `{` tactic `}`
 -/

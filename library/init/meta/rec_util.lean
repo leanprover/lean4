@@ -11,7 +11,7 @@ import init.meta.tactic init.data.option.instances
 namespace tactic
 open expr
 
-/- Return tt iff e's type is of the form `(I_name ...)` -/
+/-- Return tt iff e's type is of the form `(I_name ...)` -/
 meta def is_type_app_of (e : expr) (I_name : name) : tactic bool :=
 do t ← infer_type e,
    return $ is_constant_of (get_app_fn t) I_name
@@ -25,7 +25,7 @@ private meta def mk_rec_inst_aux : expr → nat → tactic expr
   F' ← mk_app `pprod.snd [F],
   mk_rec_inst_aux F' n
 
-/- Construct brec_on "recursive value". F_name is the name of the brec_on "dictionary".
+/-- Construct brec_on "recursive value". F_name is the name of the brec_on "dictionary".
    Type of the F_name hypothesis should be of the form (below (C ...)) where C is a constructor.
    The result is the "recursive value" for the (i+1)-th recursive value of the constructor C. -/
 meta def mk_brec_on_rec_value (F_name : name) (i : nat) : tactic expr :=
@@ -48,7 +48,7 @@ private meta def mk_name_list_aux : name → nat → nat → list name → list 
 private meta def mk_name_list (p : name) (i : nat) (n : nat) : list name × nat :=
 mk_name_list_aux p i n []
 
-/- Return a list of names of the form [p.i, ..., p.{i+n}] where n is
+/-- Return a list of names of the form [p.i, ..., p.{i+n}] where n is
    the number of fields of the constructor c -/
 meta def mk_constructor_arg_names (c : name) (p : name) (i : nat) : tactic (list name × nat) :=
 do nfields ← constructor_num_fields c,
@@ -60,7 +60,7 @@ private meta def mk_constructors_arg_names_aux : list name → name → nat → 
   v : list name × nat ← mk_constructor_arg_names c p i,
   match v with (l, i') := mk_constructors_arg_names_aux cs p i' (l :: r) end
 
-/- Given an inductive datatype I with k constructors and where constructor i has n_i fields,
+/-- Given an inductive datatype I with k constructors and where constructor i has n_i fields,
    return the list [[p.1, ..., p.n_1], [p.{n_1 + 1}, ..., p.{n_1 + n_2}], ..., [..., p.{n_1 + ... + n_k}]] -/
 meta def mk_constructors_arg_names (I : name) (p : name) : tactic (list (list name)) :=
 do env ← get_env,

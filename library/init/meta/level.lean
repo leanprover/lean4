@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.meta.name init.meta.format
 
-/- Reflect a C++ level object. The VM replaces it with the C++ implementation. -/
+/-- Reflect a C++ level object. The VM replaces it with the C++ implementation. -/
 meta inductive level
 | zero   : level
 | succ   : level → level
@@ -24,14 +24,14 @@ attribute [instance] level.has_decidable_eq
 meta constant level.lt : level → level → bool
 meta constant level.lex_lt : level → level → bool
 meta constant level.fold {α :Type} : level → α → (level → α → α) → α
-/- Return the given level expression normal form -/
+/-- Return the given level expression normal form -/
 meta constant level.normalize : level → level
-/- Return tt iff lhs and rhs denote the same level.
+/-- Return tt iff lhs and rhs denote the same level.
    The check is done by normalization. -/
 meta constant level.eqv : level → level → bool
-/- Return tt iff the first level occurs in the second -/
+/-- Return tt iff the first level occurs in the second -/
 meta constant level.occurs : level → level → bool
-/- Replace a parameter named n with l in the first level if the list contains the pair (n, l) -/
+/-- Replace a parameter named n with l in the first level if the list contains the pair (n, l) -/
 meta constant level.instantiate : level → list (name × level) → list level
 meta constant level.to_format : level → options → format
 meta constant level.to_string : level → string

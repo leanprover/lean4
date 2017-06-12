@@ -30,14 +30,14 @@ universes u v
 class has_lift (a : Sort u) (b : Sort v) :=
 (lift : a → b)
 
-/- Auxiliary class that contains the transitive closure of has_lift. -/
+/-- Auxiliary class that contains the transitive closure of has_lift. -/
 class has_lift_t (a : Sort u) (b : Sort v) :=
 (lift : a → b)
 
 class has_coe (a : Sort u) (b : Sort v) :=
 (coe : a → b)
 
-/- Auxiliary class that contains the transitive closure of has_coe. -/
+/-- Auxiliary class that contains the transitive closure of has_coe. -/
 class has_coe_t (a : Sort u) (b : Sort v) :=
 (coe : a → b)
 

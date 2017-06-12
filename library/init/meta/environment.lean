@@ -23,67 +23,67 @@ structure projection_info :=
 (idx : nat)
 (is_class : bool)
 
-/- Create a standard environment using the given trust level -/
+/-- Create a standard environment using the given trust level -/
 meta constant mk_std          : nat → environment
-/- Return the trust level of the given environment -/
+/-- Return the trust level of the given environment -/
 meta constant trust_lvl       : environment → nat
-/- Add a new declaration to the environment -/
+/-- Add a new declaration to the environment -/
 meta constant add             : environment → declaration → exceptional environment
-/- Retrieve a declaration from the environment -/
+/-- Retrieve a declaration from the environment -/
 meta constant get             : environment → name → exceptional declaration
 meta def      contains (env : environment) (d : name) : bool :=
 match env.get d with
 | exceptional.success _      := tt
 | exceptional.exception ._ _ := ff
 end
-/- Return tt iff the given name is a namespace -/
+/-- Return tt iff the given name is a namespace -/
 meta constant is_namespace    : environment → name → bool
-/- Add a new inductive datatype to the environment
+/-- Add a new inductive datatype to the environment
    name, universe parameters, number of parameters, type, constructors (name and type), is_meta -/
 meta constant add_inductive   : environment → name → list name → nat → expr → list (name × expr) → bool →
                                 exceptional environment
-/- Return tt iff the given name is an inductive datatype -/
+/-- Return tt iff the given name is an inductive datatype -/
 meta constant is_inductive    : environment → name → bool
-/- Return tt iff the given name is a constructor -/
+/-- Return tt iff the given name is a constructor -/
 meta constant is_constructor  : environment → name → bool
-/- Return tt iff the given name is a recursor -/
+/-- Return tt iff the given name is a recursor -/
 meta constant is_recursor     : environment → name → bool
-/- Return tt iff the given name is a recursive inductive datatype -/
+/-- Return tt iff the given name is a recursive inductive datatype -/
 meta constant is_recursive    : environment → name → bool
-/- Return the name of the inductive datatype of the given constructor. -/
+/-- Return the name of the inductive datatype of the given constructor. -/
 meta constant inductive_type_of : environment → name → option name
-/- Return the constructors of the inductive datatype with the given name -/
+/-- Return the constructors of the inductive datatype with the given name -/
 meta constant constructors_of : environment → name → list name
-/- Return the recursor of the given inductive datatype -/
+/-- Return the recursor of the given inductive datatype -/
 meta constant recursor_of     : environment → name → option name
-/- Return the number of parameters of the inductive datatype -/
+/-- Return the number of parameters of the inductive datatype -/
 meta constant inductive_num_params : environment → name → nat
-/- Return the number of indices of the inductive datatype -/
+/-- Return the number of indices of the inductive datatype -/
 meta constant inductive_num_indices : environment → name → nat
-/- Return tt iff the inductive datatype recursor supports dependent elimination -/
+/-- Return tt iff the inductive datatype recursor supports dependent elimination -/
 meta constant inductive_dep_elim : environment → name → bool
-/- Return tt iff the given name is a generalized inductive datatype -/
+/-- Return tt iff the given name is a generalized inductive datatype -/
 meta constant is_ginductive : environment → name → bool
 meta constant is_projection : environment → name → option projection_info
-/- Fold over declarations in the environment -/
+/-- Fold over declarations in the environment -/
 meta constant fold {α :Type} : environment → α → (declaration → α → α) → α
-/- (relation_info env n) returns some value if n is marked as a relation in the given environment.
+/-- `relation_info env n` returns some value if n is marked as a relation in the given environment.
    the tuple contains: total number of arguments of the relation, lhs position and rhs position. -/
 meta constant relation_info : environment → name → option (nat × nat × nat)
-/- (refl_for env R) returns the name of the reflexivity theorem for the relation R -/
+/-- `refl_for env R` returns the name of the reflexivity theorem for the relation R -/
 meta constant refl_for : environment → name → option name
-/- (symm_for env R) returns the name of the symmetry theorem for the relation R -/
+/-- `symm_for env R` returns the name of the symmetry theorem for the relation R -/
 meta constant symm_for : environment → name → option name
-/- (trans_for env R) returns the name of the transitivity theorem for the relation R -/
+/-- `trans_for env R` returns the name of the transitivity theorem for the relation R -/
 meta constant trans_for : environment → name → option name
-/- (decl_olean env d) returns the name of the .olean file where d was defined.
+/-- `decl_olean env d` returns the name of the .olean file where d was defined.
    The result is none if d was not defined in an imported file. -/
 meta constant decl_olean : environment → name → option string
-/- (decl_pos env d) returns the source location of d if available. -/
+/-- `decl_pos env d` returns the source location of d if available. -/
 meta constant decl_pos : environment → name → option pos
-/- Return the fields of the structure with the given name, or `none` if it is not a structure -/
+/-- Return the fields of the structure with the given name, or `none` if it is not a structure -/
 meta constant structure_fields : environment → name → option (list name)
-/- (get_class_attribute_symbols env attr_name) return symbols
+/-- `get_class_attribute_symbols env attr_name` return symbols
    occurring in instances of type classes tagged with the attribute `attr_name`.
    Example: [algebra] -/
 meta constant get_class_attribute_symbols : environment → name → name_set

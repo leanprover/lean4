@@ -34,7 +34,7 @@ end⟩
 
 meta constant macro_def : Type
 
-/- Reflect a C++ expr object. The VM replaces it with the C++ implementation. -/
+/-- Reflect a C++ expr object. The VM replaces it with the C++ implementation. -/
 meta inductive expr (elaborated : bool := tt)
 | var      {} : nat → expr
 | sort     {} : level → expr
@@ -66,11 +66,11 @@ meta def expr.erase_annotations : expr elab → expr elab
   | none        := e
   end
 
--- Compares expressions, including binder names.
+/-- Compares expressions, including binder names. -/
 meta constant expr.has_decidable_eq : decidable_eq expr
 attribute [instance] expr.has_decidable_eq
 
--- Compares expressions while ignoring binder names.
+/-- Compares expressions while ignoring binder names. -/
 meta constant expr.alpha_eqv : expr → expr → bool
 notation a ` =ₐ `:50 b:50 := expr.alpha_eqv a b = bool.tt
 
@@ -85,11 +85,11 @@ meta instance : has_coe_to_fun (expr elab) :=
 
 meta constant expr.hash : expr → nat
 
--- Compares expressions, ignoring binder names, and sorting by hash.
+/-- Compares expressions, ignoring binder names, and sorting by hash. -/
 meta constant expr.lt : expr → expr → bool
--- Compares expressions, ignoring binder names.
+/-- Compares expressions, ignoring binder names. -/
 meta constant expr.lex_lt : expr → expr → bool
--- Compares expressions, ignoring binder names, and sorting by hash.
+/-- Compares expressions, ignoring binder names, and sorting by hash. -/
 meta def expr.cmp (a b : expr) : ordering :=
 if expr.lt a b then ordering.lt
 else if a =ₐ b then ordering.eq
@@ -118,7 +118,7 @@ meta constant expr.has_meta_var  : expr → bool
 meta constant expr.lift_vars     : expr → nat → nat → expr
 meta constant expr.lower_vars    : expr → nat → nat → expr
 protected meta constant expr.pos : expr elab → option pos
-/- (copy_pos_info src tgt) copy position information from src to tgt. -/
+/-- `copy_pos_info src tgt` copies position information from `src` to `tgt`. -/
 meta constant expr.copy_pos_info : expr → expr → expr
 
 meta constant expr.is_internal_cnstr : expr → option unsigned
@@ -163,7 +163,7 @@ meta instance {α} (a : α) : has_to_format (reflected a) :=
 namespace expr
 open decidable
 
--- Compares expressions, ignoring binder names, and sorting by hash.
+/-- Compares expressions, ignoring binder names, and sorting by hash. -/
 meta instance : has_ordering expr :=
 ⟨ expr.cmp ⟩
 

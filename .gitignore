@@ -15,3 +15,5 @@ compile_commands.json
 *.idea
 tasks.json
 settings.json
+.gdb_history
+.vscode

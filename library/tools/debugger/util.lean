@@ -9,7 +9,7 @@ if c = ' ' ∨ c = char.of_nat 11 ∨ c = '\n' then tt else ff
 
 private def split_core : list char → option string → list string
 | (c::cs) none     :=
-  if is_space c then split_core cs none else split_core cs (some c.to_string)
+  if is_space c then split_core cs none else split_core cs (some $ string.singleton c)
 | (c::cs) (some s) :=
   if is_space c then s :: split_core cs none else split_core cs (s.str c)
 | []      none     := []

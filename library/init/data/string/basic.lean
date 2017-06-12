@@ -69,6 +69,9 @@ def backn : string → nat → string
 def join (l : list string) : string :=
 l.foldl (λ r s, r ++ s) ""
 
+def singleton (c : char) : string :=
+str empty c
+
 end string
 
 open list string
@@ -98,6 +101,3 @@ private def to_nat_core : list char → nat → nat
 
 def string.to_nat (s : string) : nat :=
 to_nat_core s.to_list 0
-
-def char.to_string (c : char) : string :=
-str empty c

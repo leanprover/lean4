@@ -157,7 +157,7 @@ do (e, s) ← with_input (lean.parser.pexpr 0) s.as_string,
    '}'::s ← return s.to_list | fail "'}' expected",
    f ← parse_format "" s,
    pure ``(to_fmt %%(reflect acc) ++ to_fmt %%e ++ %%f)
-| acc (c::s) := parse_format (acc ++ c.to_string) s
+| acc (c::s) := parse_format (acc.str c) s
 
 reserve prefix `format! `:100
 @[user_notation]
@@ -172,7 +172,7 @@ do (e, s) ← with_input (lean.parser.pexpr 0) s.as_string,
    '}'::s ← return s.to_list | fail "'}' expected",
    f ← parse_sformat "" s,
    pure ``(%%(reflect acc) ++ to_string %%e ++ %%f)
-| acc (c::s) := parse_sformat (acc ++ c.to_string) s
+| acc (c::s) := parse_sformat (acc.str c) s
 
 reserve prefix `sformat! `:100
 @[user_notation]

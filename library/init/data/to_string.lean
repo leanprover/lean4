@@ -82,7 +82,7 @@ else if  c = '\t' then "\\t"
 else if  c = '\\' then "\\\\"
 else if  c = '\"' then "\\\""
 else if  char.to_nat c <= 31 then "\\x" ++ char_to_hex c
-else c.to_string
+else string.singleton c
 
 instance : has_to_string char :=
 ⟨λ c, "'" ++ char.quote_core c ++ "'"⟩
@@ -103,3 +103,6 @@ instance (n : nat) : has_to_string (fin n) :=
 
 instance : has_to_string unsigned :=
 ⟨λ n, to_string (fin.val n)⟩
+
+def char.to_string (c : char) : string :=
+to_string c

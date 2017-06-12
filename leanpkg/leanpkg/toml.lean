@@ -28,7 +28,7 @@ private def escapec : char → string
 | '\t' := "\\t"
 | '\n' := "\\n"
 | '\\' := "\\\\"
-| c    := c.to_string
+| c    := string.singleton c
 
 private def escape (s : string) : string :=
 s.fold "" (λ s c, s ++ escapec c)

@@ -1,4 +1,0 @@
-+ *.lean
-- flycheck*.lean
-- .#*.lean
-- ffi.lean

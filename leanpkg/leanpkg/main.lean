@@ -104,6 +104,11 @@ def git_head_revision (git_repo_dir : string) : io string := do
 rev ← io.cmd {cmd := "git", args := ["rev-parse", "HEAD"], cwd := git_repo_dir},
 return rev.pop_back -- remove newline at end
 
+def git_latest_origin_revision (git_repo_dir : string) : io string := do
+io.cmd {cmd := "git", args := ["fetch"], cwd := git_repo_dir},
+rev ← io.cmd {cmd := "git", args := ["rev-parse", "origin/master"], cwd := git_repo_dir},
+return rev.pop_back -- remove newline at end
+
 def fixup_git_version (dir : string) : ∀ (src : source), io source
 | (source.git url _) := source.git url <$> git_head_revision dir
 | src := return src
@@ -124,6 +129,22 @@ when ex $ io.fail $ "directory already exists: " ++ dir,
 exec_cmd {cmd := "mkdir", args := ["-p", dir]},
 init_pkg (basename dir) dir
 
+def upgrade_dep (assg : assignment) (d : dependency) : io dependency :=
+match d.src with
+| (source.git url rev) := (do
+    some path ← return (assg.find d.name) | io.fail "unresolved dependency",
+    new_rev ← git_latest_origin_revision path,
+    return {d with src := source.git url new_rev})
+  <|> return d
+| _ := return d
+end
+
+def upgrade := do
+m ← read_manifest,
+assg ← solve_deps m,
+ds' ← mfor m.dependencies (upgrade_dep assg),
+write_manifest {m with dependencies := ds'}
+
 def usage := "
 Usage: leanpkg <command>
 
@@ -136,6 +157,7 @@ init <name>     adds a leanpkg.toml file to the current directory, and sets up .
 
 add <url>       adds a dependency from a git repository (uses current master revision)
 add <dir>       adds a local dependency
+upgrade         upgrades all local git dependencies to the latest upstream version
 
 install <url>   installs a user-wide package from git
 install <dir>   installs a user-wide package from a local directory
@@ -150,6 +172,7 @@ def main : ∀ (args : list string), io unit
 | ["new", dir] := new dir
 | ["init", name] := init name
 | ["add", dep] := add dep
+| ["upgrade"] := upgrade
 | ["install", dep] := do
   dep ← absolutize_add_dep dep,
   dot_lean_dir ← get_dot_lean_dir,

@@ -23,7 +23,9 @@ expr replace_visitor::visit_meta(expr const & e) { return visit_mlocal(e); }
 expr replace_visitor::visit_local(expr const & e) { return visit_mlocal(e); }
 expr replace_visitor::visit_app(expr const & e) {
     lean_assert(is_app(e));
-    return update_app(e, visit(app_fn(e)), visit(app_arg(e)));
+    expr new_fn  = visit(app_fn(e));
+    expr new_arg = visit(app_arg(e));
+    return update_app(e, new_fn, new_arg);
 }
 expr replace_visitor::visit_binding(expr const & e) {
     lean_assert(is_binding(e));

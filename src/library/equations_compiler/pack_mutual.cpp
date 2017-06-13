@@ -120,9 +120,7 @@ struct pack_mutual_fn {
                 expr new_arg = mk_new_arg(arg, *fidx);
                 return copy_tag(e, mk_app(m_new_fn, new_arg));
             } else {
-                expr new_fn  = visit(app_fn(e));
-                expr new_arg = visit(app_arg(e));
-                return update_app(e, new_fn, new_arg);
+                return replace_visitor::visit_app(e);
             }
         }
 

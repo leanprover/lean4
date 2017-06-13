@@ -693,14 +693,14 @@ meta def first {α : Type u} : list (tactic α) → tactic α
 meta def solve1 (tac : tactic unit) : tactic unit :=
 do gs ← get_goals,
    match gs with
-   | []      := fail "focus tactic failed, there isn't any goal left to focus"
+   | []      := fail "solve1 tactic failed, there isn't any goal left to focus"
    | (g::rs) :=
      do set_goals [g],
         tac,
         gs' ← get_goals,
         match gs' with
         | [] := set_goals rs
-        | gs := fail "focus tactic failed, focused goal has not been solved"
+        | gs := fail "solve1 tactic failed, focused goal has not been solved"
         end
    end
 

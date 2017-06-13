@@ -8,7 +8,7 @@ x : ℕ := ?m_1
 --- inside focus tac ---
 a : ℕ
 ⊢ ℕ
-focus_tac.lean:4:3: error: focus tactic failed, focused goal has not been solved
+focus_tac.lean:4:3: error: solve1 tactic failed, focused goal has not been solved
 state:
 a : ℕ
 ⊢ ℕ

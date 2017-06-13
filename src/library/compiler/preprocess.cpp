@@ -203,15 +203,14 @@ class preprocess_fn {
     }
 #endif
 
-    /* If type of d is a proposition, we don't need to compile it.
+    /* If type of d is a proposition or return a type, we don't need to compile it.
        We can just generate (fun args, neutral_expr)
 
-       This procedure returns true if type of d is a proposition,
+       This procedure returns true if type of d is a proposition or return a type,
        and store the dummy code above in */
-    bool compile_lemma(declaration const & d, buffer<procedure> & procs) {
+    bool compile_irrelevant(declaration const & d, buffer<procedure> & procs) {
         type_context ctx(m_env, transparency_mode::All);
         expr type = d.get_type();
-        if (!ctx.is_prop(type)) return false;
         type_context::tmp_locals locals(ctx);
         while (true) {
             type = ctx.relaxed_whnf(type);
@@ -220,9 +219,13 @@ class preprocess_fn {
             expr local = locals.push_local_from_binding(type);
             type       = instantiate(binding_body(type), local);
         }
-        expr r = locals.mk_lambda(mk_neutral_expr());
-        procs.emplace_back(d.get_name(), optional<pos_info>(), r);
-        return true;
+        if (ctx.is_prop(type) || is_sort(type)) {
+            expr r = locals.mk_lambda(mk_neutral_expr());
+            procs.emplace_back(d.get_name(), optional<pos_info>(), r);
+            return true;
+        } else {
+            return false;
+        }
     }
 
 public:
@@ -230,7 +233,7 @@ public:
         m_env(env) {}
 
     void operator()(declaration const & d, buffer<procedure> & procs) {
-        if (compile_lemma(d, procs))
+        if (compile_irrelevant(d, procs))
             return;
         expr v = d.get_value();
         lean_trace(name({"compiler", "input"}), tout() << "\n" << v << "\n";);

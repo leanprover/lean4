@@ -11,6 +11,19 @@
 (require 'lean-pkg)
 (require 'dash)
 
+(defcustom lean-server-show-message-hook '()
+  "Hook run on messages from Lean, allowing custom display.
+
+Each hook is a function that receives a list of message objects
+for the current buffer.  Each message object is a plist with at
+least the following keys:
+ - :pos_line  is the line number of the message, a number
+ - :pos_col is the column of the start of the message, a number
+ - :caption is a category of message, a string
+ - :text is the text to display, a string."
+  :group 'lean
+  :type 'hook)
+
 (defstruct lean-server-session
   path-file        ; the leanpkg.path file of this lean server
   process          ; process object of lean --server
@@ -283,7 +296,15 @@
                                  (when lean-server-flycheck-delayed-update
                                    (setq lean-server-flycheck-delayed-update nil)
                                    (flycheck-buffer))))
-                             (current-buffer))))))))
+                             (current-buffer))))))
+    (when lean-server-session
+      (let ((relevant-msgs
+             (remove-if-not (lambda (msg)
+                              (equal (buffer-file-name buf)
+                                     (plist-get msg :file_name)))
+                            (lean-server-session-messages lean-server-session))))
+        (dolist (hook lean-server-show-message-hook)
+          (funcall hook relevant-msgs))))))
 
 (defvar-local lean-server-show-tasks-delay-timer nil)
 
@@ -301,7 +322,8 @@
 (defun lean-server-notify-messages-changed (sess)
   (dolist (buf (buffer-list))
     (with-current-buffer buf
-      (when (eq sess lean-server-session)
+      (when (and lean-server-session
+                 (eq sess lean-server-session))
         (lean-server-show-messages)))))
 
 (defun lean-server-notify-tasks-changed (sess old-tasks)

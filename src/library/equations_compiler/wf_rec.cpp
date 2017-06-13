@@ -175,7 +175,9 @@ struct wf_rec_fn {
                 expr hlt = mk_dec_proof(y, e);
                 return mk_app(m_F, y, hlt);
             } else {
-                return replace_visitor_with_tc::visit_app(e);
+                expr new_fn  = visit(app_fn(e));
+                expr new_arg = visit(app_arg(e));
+                return update_app(e, new_fn, new_arg);
             }
         }
     };
@@ -257,7 +259,7 @@ struct wf_rec_fn {
 
         virtual expr visit_local(expr const & e) override {
             if (e == m_F) {
-                throw exception("equation compiler failed when generation equational lemmas");
+                throw exception("equation compiler failed to generate equational lemmas");
             } else {
                 return e;
             }
@@ -267,7 +269,9 @@ struct wf_rec_fn {
             if (is_app(app_fn(e)) && app_fn(app_fn(e)) == m_F) {
                 return mk_app(m_fn, visit(app_arg(app_fn(e))));
             } else {
-                return replace_visitor_with_tc::visit_app(e);
+                expr new_fn  = visit(app_fn(e));
+                expr new_arg = visit(app_arg(e));
+                return update_app(e, new_fn, new_arg);
             }
         }
     };
@@ -390,7 +394,9 @@ struct wf_rec_fn {
             if (auto r = unpack_app(e, m_packed_name, m_packed_num_params, m_ues, m_result_fns)) {
                 return visit(*r);
             } else {
-                return replace_visitor_with_tc::visit_app(e);
+                expr new_fn  = visit(app_fn(e));
+                expr new_arg = visit(app_arg(e));
+                return update_app(e, new_fn, new_arg);
             }
         }
     };

@@ -9,8 +9,8 @@ Author: Leonardo de Moura
 #include "frontends/lean/decl_util.h"
 #include "frontends/lean/cmd_table.h"
 namespace lean {
-environment structure_cmd_ex(parser & p, decl_attributes const & attrs, decl_modifiers const & modifiers);
-environment class_cmd_ex(parser & p, decl_attributes attrs, decl_modifiers const & modifiers);
+environment structure_cmd(parser & p, cmd_meta const & meta);
+environment class_cmd(parser & p, cmd_meta const & meta);
 buffer<name> get_structure_fields(environment const & env, name const & S);
 void register_structure_cmd(cmd_table & r);
 /** \brief Return true iff \c S is a structure created with the structure command */

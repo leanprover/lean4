@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/local_level_decls.h"
 #include "frontends/lean/parser_config.h"
 #include "frontends/lean/local_context_adapter.h"
+#include "frontends/lean/decl_util.h"
 
 namespace lean {
 struct interrupt_parser {};
@@ -83,9 +84,6 @@ class parser : public abstract_parser {
     // noncomputable definitions not tagged as noncomputable.
     bool                   m_ignore_noncomputable;
 
-    // Docgen
-    optional<std::string>  m_doc_string;
-
     void sync_command();
 
     tag get_tag(expr e);
@@ -96,13 +94,10 @@ class parser : public abstract_parser {
     level parse_level_nud();
     level parse_level_led(level left);
 
-    void parse_doc_block();
+    std::string parse_doc_block();
     void parse_mod_doc_block();
-    void check_no_doc_string();
-    void reset_doc_string();
 
     void process_imports();
-    void parse_command();
     bool parse_command_like();
     void process_postponed(buffer<expr> const & args, bool is_left, buffer<notation::action_kind> const & kinds,
                            buffer<list<expr>> const & nargs, buffer<expr> const & ps, buffer<pair<unsigned, pos_info>> const & scoped_info,
@@ -241,8 +236,6 @@ public:
     pos_info pos_of(expr const & e) const { return pos_of(e, pos()); }
     pos_info cmd_pos() const { return m_last_cmd_pos; }
     name const & get_cmd_token() const { return m_cmd_token; }
-
-    optional<std::string> get_doc_string() const { return m_doc_string; }
 
     parser_pos_provider get_parser_pos_provider(pos_info const & some_pos) const {
         return parser_pos_provider(m_pos_table, m_file_name, some_pos, m_next_tag_idx);
@@ -413,6 +406,7 @@ public:
     expr parse_scoped_expr(buffer<expr> const & ps, unsigned rbp = 0) { return parse_scoped_expr(ps.size(), ps.data(), rbp); }
     expr parse_expr_with_env(local_environment const & lenv, unsigned rbp = 0);
 
+    void parse_command(cmd_meta const & meta);
     void parse_imports(unsigned & fingerprint, std::vector<module_name> &);
 
     struct local_scope {

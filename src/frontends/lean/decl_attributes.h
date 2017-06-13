@@ -36,6 +36,7 @@ public:
     list<entry> const & get_entries() const { return m_entries; }
     bool is_parsing_only() const { return m_parsing_only; }
     optional<unsigned > get_priority() const { return m_prio; }
+    void set_persistent(bool persistent) { m_persistent = persistent; }
     bool ok_for_inductive_type() const;
     bool has_class() const;
     operator bool() const { return static_cast<bool>(m_entries); }

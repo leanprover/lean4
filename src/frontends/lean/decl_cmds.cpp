@@ -92,7 +92,7 @@ static void check_parameter_type(parser & p, name const & n, expr const & type, 
 static environment declare_var(parser & p, environment env,
                                name const & n, level_param_names const & ls, expr const & type,
                                variable_kind k, optional<binder_info> const & _bi, pos_info const & pos,
-                               decl_modifiers const & modifiers) {
+                               cmd_meta const & meta) {
     binder_info bi;
     if (_bi) bi = *_bi;
     if (k == variable_kind::Parameter || k == variable_kind::Variable) {
@@ -125,18 +125,18 @@ static environment declare_var(parser & p, environment env,
         if (k == variable_kind::Axiom) {
             env = module::add(env, check(env, mk_axiom(full_n, ls, new_type)));
         } else {
-            bool is_trusted = !modifiers.m_is_meta;
+            bool is_trusted = !meta.m_modifiers.m_is_meta;
             env = module::add(env, check(env, mk_constant_assumption(full_n, ls, new_type, is_trusted)));
         }
-        if (auto doc = p.get_doc_string())
-            env = add_doc_string(env, full_n, *doc);
+        if (meta.m_doc_string)
+            env = add_doc_string(env, full_n, *meta.m_doc_string);
         if (!ns.is_anonymous()) {
-            if (modifiers.m_is_protected)
+            if (meta.m_modifiers.m_is_protected)
                 env = add_expr_alias(env, get_protected_shortest_name(full_n), full_n);
             else
                 env = add_expr_alias(env, n, full_n);
         }
-        if (modifiers.m_is_protected)
+        if (meta.m_modifiers.m_is_protected)
             env = add_protected(env, full_n);
         env = ensure_decl_namespaces(env, full_n);
         return env;
@@ -190,7 +190,7 @@ static bool curr_is_binder_annotation(parser & p) {
            p.curr_is_token(get_ldcurly_tk()) || p.curr_is_token(get_lbracket_tk());
 }
 
-static environment variable_cmd_core(parser & p, variable_kind k, decl_modifiers const & modifiers = decl_modifiers()) {
+static environment variable_cmd_core(parser & p, variable_kind k, cmd_meta const & meta) {
     check_variable_kind(p, k);
     auto pos = p.pos();
     module::scope_pos_info scope_pos(pos);
@@ -284,22 +284,24 @@ static environment variable_cmd_core(parser & p, variable_kind k, decl_modifiers
     std::tie(type, new_ls) = p.elaborate_type("_variable", ctx, type);
     if (k == variable_kind::Variable || k == variable_kind::Parameter)
         update_local_levels(p, new_ls, k == variable_kind::Variable);
-    return declare_var(p, p.env(), n, append(ls, new_ls), type, k, bi, pos, modifiers);
+    return declare_var(p, p.env(), n, append(ls, new_ls), type, k, bi, pos, meta);
 }
-static environment variable_cmd(parser & p) {
-    return variable_cmd_core(p, variable_kind::Variable);
+static environment variable_cmd(parser & p, cmd_meta const & meta) {
+    return variable_cmd_core(p, variable_kind::Variable, meta);
 }
-static environment axiom_cmd(parser & p)    {
-    return variable_cmd_core(p, variable_kind::Axiom);
+static environment axiom_cmd(parser & p, cmd_meta const & meta)    {
+    if (meta.m_modifiers.m_is_meta)
+        throw exception("invalid 'meta' modifier for axiom");
+    return variable_cmd_core(p, variable_kind::Axiom, meta);
 }
-static environment constant_cmd(parser & p)    {
-    return variable_cmd_core(p, variable_kind::Constant);
+static environment constant_cmd(parser & p, cmd_meta const & meta)    {
+    return variable_cmd_core(p, variable_kind::Constant, meta);
 }
-static environment parameter_cmd(parser & p)    {
-    return variable_cmd_core(p, variable_kind::Parameter);
+static environment parameter_cmd(parser & p, cmd_meta const & meta)    {
+    return variable_cmd_core(p, variable_kind::Parameter, meta);
 }
 
-static environment variables_cmd_core(parser & p, variable_kind k, decl_modifiers const & modifiers = decl_modifiers()) {
+static environment variables_cmd_core(parser & p, variable_kind k, cmd_meta const & meta) {
     check_variable_kind(p, k);
     auto pos = p.pos();
     module::scope_pos_info scope_pos(pos);
@@ -325,7 +327,7 @@ static environment variables_cmd_core(parser & p, variable_kind k, decl_modifier
                 p.parse_close_binder_info(bi);
                 update_local_binder_info(p, k, id, bi, pos);
                 if (curr_is_binder_annotation(p))
-                    return variables_cmd_core(p, k);
+                    return variables_cmd_core(p, k, meta);
                 else
                     return env;
             } else {
@@ -363,7 +365,7 @@ static environment variables_cmd_core(parser & p, variable_kind k, decl_modifier
                     update_local_binder_info(p, k, id, bi, pos);
                 }
                 if (curr_is_binder_annotation(p))
-                    return variables_cmd_core(p, k);
+                    return variables_cmd_core(p, k, meta);
                 else
                     return env;
             } else {
@@ -388,7 +390,7 @@ static environment variables_cmd_core(parser & p, variable_kind k, decl_modifier
         if (k == variable_kind::Variable || k == variable_kind::Parameter)
             update_local_levels(p, new_ls, k == variable_kind::Variable);
         new_ls = append(ls, new_ls);
-        env = declare_var(p, env, id, new_ls, new_type, k, bi, pos, modifiers);
+        env = declare_var(p, env, id, new_ls, new_type, k, bi, pos, meta);
     }
     if (curr_is_binder_annotation(p)) {
         if (k == variable_kind::Constant || k == variable_kind::Axiom) {
@@ -396,125 +398,87 @@ static environment variables_cmd_core(parser & p, variable_kind k, decl_modifier
             // We must do that to be able to process
             //    constants (A : Type) (a : A)
             parser::local_scope scope2(p, env);
-            return variables_cmd_core(p, k);
+            return variables_cmd_core(p, k, meta);
         } else {
-            return variables_cmd_core(p, k);
+            return variables_cmd_core(p, k, meta);
         }
     }
     return env;
 }
-static environment variables_cmd(parser & p) {
-    return variables_cmd_core(p, variable_kind::Variable);
+static environment variables_cmd(parser & p, cmd_meta const & meta) {
+    return variables_cmd_core(p, variable_kind::Variable, meta);
 }
-static environment parameters_cmd(parser & p) {
-    return variables_cmd_core(p, variable_kind::Parameter);
+static environment parameters_cmd(parser & p, cmd_meta const & meta) {
+    return variables_cmd_core(p, variable_kind::Parameter, meta);
 }
-static environment constants_cmd(parser & p) {
-    return variables_cmd_core(p, variable_kind::Constant);
+static environment constants_cmd(parser & p, cmd_meta const & meta) {
+    return variables_cmd_core(p, variable_kind::Constant, meta);
 }
-static environment axioms_cmd(parser & p) {
-    return variables_cmd_core(p, variable_kind::Axiom);
+static environment axioms_cmd(parser & p, cmd_meta const & meta) {
+    return variables_cmd_core(p, variable_kind::Axiom, meta);
 }
 
-static environment definition_cmd_ex(parser & p, decl_attributes const & attributes) {
-    decl_modifiers modifiers;
+static environment definition_cmd(parser & p, cmd_meta const & meta) {
+    return definition_cmd_core(p, def_cmd_kind::Definition, meta);
+}
+static environment theorem_cmd(parser & p, cmd_meta const & meta) {
+    return definition_cmd_core(p, def_cmd_kind::Theorem, meta);
+}
+static environment example_cmd(parser & p, cmd_meta const & meta) {
+    return definition_cmd_core(p, def_cmd_kind::Example, meta);
+}
+static environment instance_cmd(parser & p, cmd_meta const & _meta) {
+    auto meta = _meta;
+    if (meta.m_modifiers.m_is_private)
+        throw exception("invalid 'private' modifier for instance command");
+    if (meta.m_modifiers.m_is_protected)
+        throw exception("invalid 'protected' modifier for instance command");
+    if (meta.m_modifiers.m_is_mutual)
+        throw exception("invalid 'mutual' modifier for instance command");
+    meta.m_modifiers.m_is_protected = true;
+    return definition_cmd_core(p, def_cmd_kind::Instance, meta);
+}
+
+static environment modifiers_cmd(parser & p, cmd_meta const & _meta) {
+    auto meta = _meta;
     if (p.curr_is_token(get_private_tk())) {
-        modifiers.m_is_private = true;
+        meta.m_modifiers.m_is_private = true;
         p.next();
-
-        if (!attributes && p.curr_is_token(get_structure_tk())) {
-            return structure_cmd_ex(p, attributes, modifiers);
-        }
-        if (!attributes && p.curr_is_token(get_class_tk())) {
-            return class_cmd_ex(p, attributes, modifiers);
-        }
     } else if (p.curr_is_token(get_protected_tk())) {
-        modifiers.m_is_protected = true;
+        meta.m_modifiers.m_is_protected = true;
         p.next();
-        if (!attributes) {
-            if (p.curr_is_token_or_id(get_axiom_tk())) {
-                p.next();
-                return variable_cmd_core(p, variable_kind::Axiom, modifiers);
-            } else if (p.curr_is_token_or_id(get_constant_tk())) {
-                p.next();
-                return variable_cmd_core(p, variable_kind::Constant, modifiers);
-            } else if (p.curr_is_token_or_id(get_axioms_tk())) {
-                p.next();
-                return variables_cmd_core(p, variable_kind::Axiom, modifiers);
-            } else if (p.curr_is_token_or_id(get_constants_tk())) {
-                p.next();
-                return variables_cmd_core(p, variable_kind::Constant, modifiers);
-            }
-        }
     }
 
     if (p.curr_is_token(get_noncomputable_tk())) {
-        modifiers.m_is_noncomputable = true;
         p.next();
-
-        if (!attributes && !modifiers.m_is_private && !modifiers.m_is_protected && p.curr_is_token_or_id(get_theory_tk())) {
+        if (!meta.m_attrs && !meta.m_modifiers && p.curr_is_token_or_id(get_theory_tk())) {
+            // `noncomputable theory`
             p.next();
             p.set_ignore_noncomputable();
             return p.env();
+        } else {
+            meta.m_modifiers.m_is_noncomputable = true;
         }
     }
     if (p.curr_is_token(get_meta_tk())) {
-        modifiers.m_is_meta = true;
+        meta.m_modifiers.m_is_meta = true;
         p.next();
-        if (!attributes) {
-            if (p.curr_is_token_or_id(get_constant_tk())) {
-                p.next();
-                return variable_cmd_core(p, variable_kind::Constant, modifiers);
-            } else if (p.curr_is_token_or_id(get_constants_tk())) {
-                p.next();
-                return variables_cmd_core(p, variable_kind::Constant, modifiers);
-            }
-        }
-        if (!modifiers.m_is_private && !modifiers.m_is_protected && p.curr_is_token(get_inductive_tk())) {
-            return inductive_cmd_ex(p, attributes, modifiers.m_is_meta);
-        }
-        if (!attributes && !modifiers.m_is_protected && p.curr_is_token(get_structure_tk())) {
-            return structure_cmd_ex(p, attributes, modifiers);
-        }
-        if (!attributes && !modifiers.m_is_protected && p.curr_is_token(get_class_tk())) {
-            return class_cmd_ex(p, attributes, modifiers);
-        }
     }
 
     if (p.curr_is_token(get_mutual_tk())) {
-        modifiers.m_is_mutual = true;
+        meta.m_modifiers.m_is_mutual = true;
         p.next();
-        if (!modifiers.m_is_private && !modifiers.m_is_protected && !modifiers.m_is_noncomputable &&
-            p.curr_is_token(get_inductive_tk())) {
-            return mutual_inductive_cmd_ex(p, attributes, modifiers.m_is_meta);
-        } else if (!modifiers.m_is_private && !modifiers.m_is_protected && !modifiers.m_is_noncomputable &&
-                   !modifiers.m_is_meta && p.curr_is_token(get_coinductive_tk())) {
-            return mutual_coinductive_cmd_ex(p, attributes);
-        }
     }
 
-    def_cmd_kind kind = Definition;
-    if (p.curr_is_token_or_id(get_definition_tk())) {
-        p.next();
-    } else if (p.curr_is_token_or_id(get_theorem_tk())) {
-        p.next();
-        kind = Theorem;
-    } else if (p.curr_is_token_or_id(get_example_tk())) {
-        p.next();
-        kind = Example;
-    } else if (!modifiers.m_is_private && !modifiers.m_is_protected && p.curr_is_token_or_id(get_instance_tk())) {
-        p.next();
-        modifiers.m_is_protected = true;
-        modifiers.m_is_instance  = true;
-    } else {
-        throw parser_error("invalid definition/theorem, 'definition' or 'theorem' expected", p.pos());
+    if (p.curr_is_token(get_private_tk()) || p.curr_is_token(get_protected_tk()) || p.curr_is_token(get_noncomputable_tk())
+        || p.curr_is_token(get_meta_tk()) || p.curr_is_token(get_mutual_tk())) {
+        throw parser_error("unexpected definition modifier", p.pos());
     }
-
-    return definition_cmd_core(p, kind, modifiers, attributes);
-}
-
-static environment definition_cmd(parser & p) {
-    return definition_cmd_ex(p, {});
+    if (p.curr_is_token(get_attribute_tk()) || p.curr_is_token("@[")) {
+        throw parser_error("unexpected attributes declaration", p.pos());
+    }
+    p.parse_command(meta);
+    return p.env();
 }
 
 static environment attribute_cmd_core(parser & p, bool persistent) {
@@ -523,17 +487,7 @@ static environment attribute_cmd_core(parser & p, bool persistent) {
     attributes.parse(p);
     // 'attribute [attr] definition ...'
     if (p.curr_is_command()) {
-        if (p.curr_is_token_or_id(get_inductive_tk())) {
-            return inductive_cmd_ex(p, attributes, false);
-        } else  if (p.curr_is_token_or_id(get_coinductive_tk())) {
-            return coinductive_cmd_ex(p, attributes);
-        } else  if (p.curr_is_token_or_id(get_structure_tk())) {
-            return structure_cmd_ex(p, attributes, {});
-        } else  if (p.curr_is_token_or_id(get_class_tk())) {
-            return class_cmd_ex(p, attributes, {});
-        } else {
-            return definition_cmd_ex(p, attributes);
-        }
+        return modifiers_cmd(p, {attributes, {}, {}});
     }
     name d          = p.check_constant_next("invalid 'attribute' command, constant expected");
     ds.push_back(d);
@@ -556,21 +510,11 @@ environment local_attribute_cmd(parser & p) {
     return attribute_cmd_core(p, false);
 }
 
-static environment compact_attribute_cmd(parser & p) {
+static environment compact_attribute_cmd(parser & p, cmd_meta const & meta) {
     bool persistent = true;
     decl_attributes attributes(persistent);
     attributes.parse_compact(p);
-    if (p.curr_is_token_or_id(get_inductive_tk())) {
-        return inductive_cmd_ex(p, attributes, false);
-    } else  if (p.curr_is_token_or_id(get_coinductive_tk())) {
-        return coinductive_cmd_ex(p, attributes);
-    } else  if (p.curr_is_token_or_id(get_structure_tk())) {
-        return structure_cmd_ex(p, attributes, {});
-    } else  if (p.curr_is_token_or_id(get_class_tk())) {
-        return class_cmd_ex(p, attributes, {});
-    } else {
-        return definition_cmd_ex(p, attributes);
-    }
+    return modifiers_cmd(p, {attributes, meta.m_modifiers, meta.m_doc_string});
 }
 
 static environment include_cmd_core(parser & p, bool include) {
@@ -614,15 +558,15 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("parameters",      "declare new parameters", parameters_cmd));
     add_cmd(r, cmd_info("constants",       "declare new constants (aka top-level variables)", constants_cmd));
     add_cmd(r, cmd_info("axioms",          "declare new axioms", axioms_cmd));
-    add_cmd(r, cmd_info("definition",      "add new definition", definition_cmd, false));
-    add_cmd(r, cmd_info("meta",            "add new meta definition/constant", definition_cmd, false));
-    add_cmd(r, cmd_info("mutual",          "add new mutal definition/constant/inductive/coinductive", definition_cmd, false));
-    add_cmd(r, cmd_info("noncomputable",   "add new noncomputable definition", definition_cmd, false));
-    add_cmd(r, cmd_info("private",         "add new private definition/theorem", definition_cmd, false));
-    add_cmd(r, cmd_info("protected",       "add new protected definition/theorem/variable", definition_cmd, false));
-    add_cmd(r, cmd_info("theorem",         "add new theorem", definition_cmd, false));
-    add_cmd(r, cmd_info("instance",        "add new instance", definition_cmd, false));
-    add_cmd(r, cmd_info("example",         "add new example", definition_cmd, false));
+    add_cmd(r, cmd_info("meta",            "add new meta declaration", modifiers_cmd, false));
+    add_cmd(r, cmd_info("mutual",          "add new mutal declaration", modifiers_cmd, false));
+    add_cmd(r, cmd_info("noncomputable",   "add new noncomputable definition", modifiers_cmd, false));
+    add_cmd(r, cmd_info("private",         "add new private declaration", modifiers_cmd, false));
+    add_cmd(r, cmd_info("protected",       "add new protected declaration", modifiers_cmd, false));
+    add_cmd(r, cmd_info("definition",      "add new definition", definition_cmd));
+    add_cmd(r, cmd_info("theorem",         "add new theorem", theorem_cmd));
+    add_cmd(r, cmd_info("instance",        "add new instance", instance_cmd));
+    add_cmd(r, cmd_info("example",         "add new example", example_cmd));
     add_cmd(r, cmd_info("include",         "force section parameter/variable to be included", include_cmd));
     add_cmd(r, cmd_info("attribute",       "set declaration attributes", attribute_cmd));
     add_cmd(r, cmd_info("@[",              "declaration attributes", compact_attribute_cmd));

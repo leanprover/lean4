@@ -1,7 +1,7 @@
 prelude
 import init.core
 
-structure [class] point (A : Type*) (B : Type*) :=
+class point (A : Type*) (B : Type*) :=
 mk :: (x : A) (y : B)
 
 #print classes

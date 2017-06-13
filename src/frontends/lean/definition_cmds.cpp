@@ -242,24 +242,23 @@ static environment compile_decl(parser & p, environment const & env,
 
 static pair<environment, name>
 declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffer<name> const & lp_names,
-                   name const & c_name, expr type, optional<expr> val, task<expr> const & proof,
-                   decl_modifiers const & modifiers, decl_attributes attrs, optional<std::string> const & doc_string,
+                   name const & c_name, expr type, optional<expr> val, task<expr> const & proof, cmd_meta const & meta,
                    pos_info const & pos) {
-    auto env_n = mk_real_name(env, c_name, modifiers.m_is_private, pos);
+    auto env_n = mk_real_name(env, c_name, meta.m_modifiers.m_is_private, pos);
     environment new_env = env_n.first;
     name c_real_name    = env_n.second;
-    if (val && modifiers.m_is_meta) {
+    if (val && meta.m_modifiers.m_is_meta) {
         /* TODO(Leo): fix fix_rec_fn_name for mutual definitions.
            We currently do not support meta mutual definitions. Thus, this is not currently an issue. */
         *val = fix_rec_fn_name(*val, c_name, c_real_name);
     }
-    if (val && !modifiers.m_is_meta && !type_checker(env).is_prop(type)) {
+    if (val && !meta.m_modifiers.m_is_meta && !type_checker(env).is_prop(type)) {
         /* We only abstract nested proofs if the type of the definition is not a proposition */
         std::tie(new_env, type) = abstract_nested_proofs(new_env, c_real_name, type);
         std::tie(new_env, *val) = abstract_nested_proofs(new_env, c_real_name, *val);
     }
     bool use_conv_opt = true;
-    bool is_trusted   = !modifiers.m_is_meta;
+    bool is_trusted   = !meta.m_modifiers.m_is_meta;
     auto def          =
         !val ? mk_theorem(c_real_name, to_list(lp_names), type, proof) : (kind == Theorem ?
         mk_theorem(c_real_name, to_list(lp_names), type, *val) :
@@ -267,23 +266,23 @@ declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffe
     auto cdef         = check(p, new_env, c_name, def, pos);
     new_env           = module::add(new_env, cdef);
 
-    check_noncomputable(p.ignore_noncomputable(), new_env, c_name, c_real_name, modifiers.m_is_noncomputable, p.get_file_name(), pos);
+    check_noncomputable(p.ignore_noncomputable(), new_env, c_name, c_real_name, meta.m_modifiers.m_is_noncomputable, p.get_file_name(), pos);
 
-    if (modifiers.m_is_protected)
+    if (meta.m_modifiers.m_is_protected)
         new_env = add_protected(new_env, c_real_name);
 
-    new_env = add_alias(new_env, modifiers.m_is_protected, c_name, c_real_name);
+    new_env = add_alias(new_env, meta.m_modifiers.m_is_protected, c_name, c_real_name);
 
-    if (!modifiers.m_is_private) {
+    if (!meta.m_modifiers.m_is_private) {
         new_env = ensure_decl_namespaces(new_env, c_real_name);
     }
 
     new_env = compile_decl(p, new_env, c_name, c_real_name, pos);
-    if (doc_string) {
-        new_env = add_doc_string(new_env, c_real_name, *doc_string);
+    if (meta.m_doc_string) {
+        new_env = add_doc_string(new_env, c_real_name, *meta.m_doc_string);
     }
     // note: some attribute handlers rely on the new definition being compiled already
-    new_env = attrs.apply(new_env, p.ios(), c_real_name);
+    new_env = meta.m_attrs.apply(new_env, p.ios(), c_real_name);
     return mk_pair(new_env, c_real_name);
 }
 
@@ -470,16 +469,16 @@ static environment copy_equation_lemmas(environment const & env, name const & d_
     return copy_equation_lemmas(env, d_names);
 }
 
-environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modifiers const & modifiers, decl_attributes attrs) {
+static environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, cmd_meta const & meta) {
     buffer<name> lp_names;
     buffer<expr> fns, params;
-    declaration_info_scope scope(p, kind, modifiers);
+    declaration_info_scope scope(p, kind, meta.m_modifiers);
     auto header_pos = p.pos();
     /* TODO(Leo): allow a different doc string for each function in a mutual definition. */
-    optional<std::string> doc_string = p.get_doc_string();
+    optional<std::string> doc_string = meta.m_doc_string;
     expr val = parse_mutual_definition(p, lp_names, fns, params);
 
-    if (modifiers.m_is_meta) {
+    if (meta.m_modifiers.m_is_meta) {
         throw exception("support for mutual meta definitions has not been implemented yet");
     }
 
@@ -505,13 +504,12 @@ environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
     for (unsigned i = 0; i < num_defs; i++) {
         expr curr      = get_equations_result(val, i);
         expr curr_type = head_beta_reduce(elab.infer_type(curr));
-        finalize_definition(elab, new_params, curr_type, curr, lp_names, modifiers.m_is_meta);
+        finalize_definition(elab, new_params, curr_type, curr, lp_names, meta.m_modifiers.m_is_meta);
         environment env = elab.env();
         name c_name = mlocal_name(fns[i]);
         name c_real_name;
         std::tie(env, c_real_name) = declare_definition(p, env, kind, lp_names, c_name,
-                                                        curr_type, some_expr(curr), {}, modifiers, attrs,
-                                                        doc_string, header_pos);
+                                                        curr_type, some_expr(curr), {}, meta, header_pos);
         new_d_names.push_back(c_real_name);
         elab.set_env(env);
     }
@@ -768,21 +766,20 @@ static bool is_rfl_preexpr(expr const & e) {
     return is_constant(e, get_rfl_name());
 }
 
-environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modifiers modifiers, decl_attributes attrs) {
+environment single_definition_cmd_core(parser & p, def_cmd_kind kind, cmd_meta meta) {
     buffer<name> lp_names;
     buffer<expr> params;
     expr fn, val;
     auto header_pos = p.pos();
-    optional<std::string> doc_string = p.get_doc_string();
     module::scope_pos_info scope_pos(header_pos);
-    declaration_info_scope scope(p, kind, modifiers);
+    declaration_info_scope scope(p, kind, meta.m_modifiers);
     bool is_example  = (kind == def_cmd_kind::Example);
-    bool is_instance = modifiers.m_is_instance;
+    bool is_instance = (kind == def_cmd_kind::Instance);
     bool aux_lemmas  = scope.gen_aux_lemmas();
     bool is_rfl      = false;
     if (is_instance)
-        attrs.set_attribute(p.env(), "instance");
-    std::tie(fn, val) = parse_definition(p, lp_names, params, is_example, is_instance, modifiers.m_is_meta);
+        meta.m_attrs.set_attribute(p.env(), "instance");
+    std::tie(fn, val) = parse_definition(p, lp_names, params, is_example, is_instance, meta.m_modifiers.m_is_meta);
 
     auto begin_pos = p.cmd_pos();
     auto end_pos = p.pos();
@@ -827,8 +824,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
                                        new_fn, val, thm_finfo, is_rfl, type,
                                        mctx, lctx, pos_provider, use_info_manager, file_name);
             }), log_tree::ElaborationLevel);
-            env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, type, opt_val, proof, modifiers, attrs,
-                                       doc_string, header_pos);
+            env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, type, opt_val, proof, meta, header_pos);
         } else if (kind == Example) {
             auto env = p.env();
             auto opts = p.get_options();
@@ -841,7 +837,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
             bool noncomputable_theory = p.ignore_noncomputable();
             std::string file_name = p.get_file_name();
             add_library_task<unit>([=] {
-                check_example(env, opts, modifiers, noncomputable_theory,
+                check_example(env, opts, meta.m_modifiers, noncomputable_theory,
                               lp_name_list, new_params_list, fn, val, mctx, lctx,
                               pos_provider, use_info_manager, file_name);
                 return unit();
@@ -849,7 +845,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
             return p.env();
         } else {
             std::tie(val, type) = elaborate_definition(p, elab, kind, fn, val, header_pos);
-            if (modifiers.m_is_meta) {
+            if (meta.m_modifiers.m_is_meta) {
                 val = fix_rec_fn_macro_args(elab, mlocal_name(fn), new_params, type, val);
             }
             eqns = is_equations_result(val);
@@ -858,9 +854,9 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
                 lean_assert(get_equations_result_size(val) == 1);
                 val = get_equations_result(val, 0);
             }
-            finalize_definition(elab, new_params, type, val, lp_names, modifiers.m_is_meta);
+            finalize_definition(elab, new_params, type, val, lp_names, meta.m_modifiers.m_is_meta);
             env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, type, some_expr(val),
-                                       {}, modifiers, attrs, doc_string, header_pos);
+                                       {}, meta, header_pos);
         }
         environment new_env = env_n.first;
         name c_real_name    = env_n.second;
@@ -869,9 +865,9 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
         if (eqns && aux_lemmas) {
             new_env = copy_equation_lemmas(new_env, c_real_name);
         }
-        if (!eqns && !modifiers.m_is_meta && kind == Definition) {
+        if (!eqns && !meta.m_modifiers.m_is_meta && (kind == Definition || kind == Instance)) {
             unsigned arity = new_params.size();
-            new_env = mk_simple_equation_lemma_for(new_env, p.get_options(), modifiers.m_is_private, c_real_name, arity);
+            new_env = mk_simple_equation_lemma_for(new_env, p.get_options(), meta.m_modifiers.m_is_private, c_real_name, arity);
         }
         return new_env;
     };
@@ -890,10 +886,10 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, decl_modif
     }
 }
 
-environment definition_cmd_core(parser & p, def_cmd_kind kind, decl_modifiers const & modifiers, decl_attributes attrs) {
-    if (modifiers.m_is_mutual)
-        return mutual_definition_cmd_core(p, kind, modifiers, attrs);
+environment definition_cmd_core(parser & p, def_cmd_kind kind, cmd_meta const & meta) {
+    if (meta.m_modifiers.m_is_mutual)
+        return mutual_definition_cmd_core(p, kind, meta);
     else
-        return single_definition_cmd_core(p, kind, modifiers, attrs);
+        return single_definition_cmd_core(p, kind, meta);
 }
 }

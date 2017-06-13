@@ -256,16 +256,14 @@ struct structure_cmd_fn {
     };
 
     parser &                    m_p;
-    decl_modifiers              m_modifiers;
+    cmd_meta                    m_meta_info;
     environment                 m_env;
     type_context                m_ctx;
     name                        m_namespace;
     name                        m_name;
     name                        m_given_name;
-    optional<std::string>       m_doc_string;
     pos_info                    m_name_pos;
     buffer<name>                m_level_names;
-    decl_attributes             m_attrs;
     buffer<expr>                m_params;
     expr                        m_type;
     buffer<optional<name>>      m_parent_refs;
@@ -286,31 +284,24 @@ struct structure_cmd_fn {
     buffer<expr>                m_ctx_locals; // context local constants for creating aliases
     unsigned                    m_prio;
 
-    structure_cmd_fn(parser & p, decl_attributes const & attrs, decl_modifiers const & modifiers):
+    structure_cmd_fn(parser & p, cmd_meta const & meta):
         m_p(p),
-        m_modifiers(modifiers),
+        m_meta_info(meta),
         m_env(p.env()),
         m_ctx(p.env()),
-        m_namespace(get_namespace(m_env)),
-        m_attrs(attrs) {
+        m_namespace(get_namespace(m_env)) {
         m_explicit_universe_params = false;
         m_infer_result_universe    = false;
         m_inductive_predicate      = false;
         m_subobjects               = !p.get_options().get_bool("old_structure_cmd", false);
         m_prio                     = get_default_priority(p.get_options());
-        m_doc_string               = p.get_doc_string();
-    }
-
-    void check_attrs(decl_attributes const & attrs, pos_info const & pos) const {
-        if (!attrs.ok_for_inductive_type())
-            throw parser_error("only attribute [class] accepted for structures", pos);
+        if (!meta.m_attrs.ok_for_inductive_type())
+            throw exception("only attribute [class] accepted for structures");
     }
 
     /** \brief Parse structure name and (optional) universe parameters */
     void parse_decl_name() {
         m_name_pos = m_p.pos();
-        m_attrs.parse(m_p);
-        check_attrs(m_attrs, m_name_pos);
         buffer<name> ls_buffer;
         if (parse_univ_params(m_p, ls_buffer)) {
             m_explicit_universe_params = true;
@@ -319,7 +310,7 @@ struct structure_cmd_fn {
             m_explicit_universe_params = false;
         }
         m_given_name = m_p.check_decl_id_next("invalid 'structure', identifier expected");
-        if (m_modifiers.m_is_private) {
+        if (m_meta_info.m_modifiers.m_is_private) {
             unsigned h   = hash(m_name_pos.first, m_name_pos.second);
             auto env_n   = add_private_name(m_env, m_given_name, optional<unsigned>(h));
             m_env        = env_n.first;
@@ -1017,7 +1008,7 @@ struct structure_cmd_fn {
         levels rec_ctx_levels;
         if (!is_nil(m_ctx_levels))
             rec_ctx_levels = levels(mk_level_placeholder(), m_ctx_levels);
-        if (m_modifiers.m_is_private) {
+        if (m_meta_info.m_modifiers.m_is_private) {
             name given_rec_name = name(m_given_name, n.get_string());
             m_env = ::lean::add_alias(m_p, m_env, given_rec_name, n, rec_ctx_levels, m_ctx_locals);
         } else {
@@ -1033,7 +1024,7 @@ struct structure_cmd_fn {
         level_param_names lnames = to_list(m_level_names.begin(), m_level_names.end());
         inductive::intro_rule intro = inductive::mk_intro_rule(m_mk, intro_type);
         inductive::inductive_decl  decl(m_name, lnames, m_params.size(), structure_type, to_list(intro));
-        bool is_trusted = !m_modifiers.m_is_meta;
+        bool is_trusted = !m_meta_info.m_modifiers.m_is_meta;
         m_env = module::add_inductive(m_env, decl, is_trusted);
         name rec_name = inductive::get_elim_name(m_name);
         m_env = add_namespace(m_env, m_name);
@@ -1041,7 +1032,7 @@ struct structure_cmd_fn {
         add_alias(m_given_name, m_name);
         add_alias(m_mk);
         add_rec_alias(rec_name);
-        m_env = m_attrs.apply(m_env, m_p.ios(), m_name);
+        m_env = m_meta_info.m_attrs.apply(m_env, m_p.ios(), m_name);
 
         m_env = add_structure_declaration_aux(m_env, m_p.get_options(), m_level_names, m_params,
                                               mk_local(m_name, mk_structure_type_no_params()),
@@ -1052,7 +1043,7 @@ struct structure_cmd_fn {
         buffer<name> proj_names = get_structure_fields(m_env, m_name);
         for (auto & n : proj_names)
             n = m_name + n;
-        m_env = mk_projections(m_env, m_name, proj_names, m_mk_infer, m_attrs.has_class());
+        m_env = mk_projections(m_env, m_name, proj_names, m_mk_infer, m_meta_info.m_attrs.has_class());
         for (auto const & n : proj_names)
             add_alias(n);
     }
@@ -1101,7 +1092,8 @@ struct structure_cmd_fn {
                 declaration new_decl = mk_definition_inferring_trusted(m_env, decl_name, decl_lvls,
                                                                        decl_type, decl_value, reducibility_hints::mk_abbreviation());
                 m_env = module::add(m_env, check(m_env, new_decl));
-                m_env = mk_simple_equation_lemma_for(m_env, m_p.get_options(), m_modifiers.m_is_private, decl_name, args.size());
+                m_env = mk_simple_equation_lemma_for(m_env, m_p.get_options(),
+                                                     m_meta_info.m_modifiers.m_is_private, decl_name, args.size());
                 m_env = set_reducible(m_env, decl_name, reducible_status::Reducible, true);
             }
         }
@@ -1173,7 +1165,7 @@ struct structure_cmd_fn {
             name const & parent_name       = const_name(parent_fn);
             if (m_subobjects) {
                 if (!m_private_parents[i]) {
-                    if (m_attrs.has_class() && is_class(m_env, parent_name)) {
+                    if (m_meta_info.m_attrs.has_class() && is_class(m_env, parent_name)) {
                         // if both are classes, then we also mark coercion_name as an instance
                         m_env = add_instance(m_env, m_name + m_fields[i].get_name(), m_prio, true);
                     }
@@ -1191,7 +1183,7 @@ struct structure_cmd_fn {
             level parent_rlvl              = sort_level(parent_type);
             expr st_type                   = mk_app(mk_constant(m_name, st_ls), m_params);
             binder_info bi;
-            if (m_attrs.has_class())
+            if (m_meta_info.m_attrs.has_class())
                 bi = mk_inst_implicit_binder_info();
             expr st                        = mk_local(mk_fresh_name(), "s", st_type, bi);
             expr coercion_type             = infer_implicit(Pi(m_params, Pi(st, parent, m_p), m_p), m_params.size(), true);;
@@ -1210,7 +1202,7 @@ struct structure_cmd_fn {
             add_alias(coercion_name);
             m_env = vm_compile(m_env, m_env.get(coercion_name));
             if (!m_private_parents[i]) {
-                if (m_attrs.has_class() && is_class(m_env, parent_name)) {
+                if (m_meta_info.m_attrs.has_class() && is_class(m_env, parent_name)) {
                     // if both are classes, then we also mark coercion_name as an instance
                     m_env = add_instance(m_env, coercion_name, m_prio, true);
                 }
@@ -1241,8 +1233,8 @@ struct structure_cmd_fn {
     }
 
     void add_doc_string() {
-        if (m_doc_string)
-            m_env = ::lean::add_doc_string(m_env, m_name, *m_doc_string);
+        if (m_meta_info.m_doc_string)
+            m_env = ::lean::add_doc_string(m_env, m_name, *m_meta_info.m_doc_string);
     }
 
     environment operator()() {
@@ -1288,27 +1280,21 @@ struct structure_cmd_fn {
     }
 };
 
-environment structure_cmd_ex(parser & p, decl_attributes const & attrs, decl_modifiers const & modifiers) {
+environment structure_cmd(parser & p, cmd_meta const & meta) {
     p.next();
-    return structure_cmd_fn(p, attrs, modifiers)();
+    return structure_cmd_fn(p, meta)();
 }
 
-environment structure_cmd(parser & p) {
-    return structure_cmd_ex(p, {}, {});
-}
-
-environment class_cmd_ex(parser & p, decl_attributes attrs, decl_modifiers const & modifiers) {
-    attrs.set_attribute(p.env(), "class");
+environment class_cmd(parser & p, cmd_meta const & _meta) {
+    auto meta = _meta;
+    meta.m_attrs.set_persistent(true);
+    meta.m_attrs.set_attribute(p.env(), "class");
     p.next();
     if (p.curr_is_token(get_inductive_tk())) {
-        return inductive_cmd_ex(p, attrs, modifiers.m_is_meta);
+        return inductive_cmd(p, meta);
     } else {
-        return structure_cmd_fn(p, attrs, modifiers)();
+        return structure_cmd_fn(p, meta)();
     }
-}
-
-environment class_cmd(parser & p) {
-    return class_cmd_ex(p, {}, {});
 }
 
 void register_structure_cmd(cmd_table & r) {

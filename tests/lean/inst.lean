@@ -1,6 +1,6 @@
 set_option pp.notation false
 
-inductive [class] C (A : Type*)
+class inductive C (A : Type*)
 | mk : A → C
 
 definition val {A : Type*} (c : C A) : A :=

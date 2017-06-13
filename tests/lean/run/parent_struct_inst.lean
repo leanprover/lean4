@@ -1,6 +1,6 @@
 open nat
 
-structure [class] A := (n : ℕ)
+class A := (n : ℕ)
 
 definition f [A] := A.n
 

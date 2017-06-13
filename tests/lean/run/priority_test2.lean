@@ -1,6 +1,6 @@
 open nat
 
-structure [class] foo :=
+class foo :=
 (a : nat) (b : nat)
 
 attribute [instance, priority std.priority.default-2]

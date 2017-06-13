@@ -6,7 +6,7 @@
 open nat
 
 -- first define a class of homogeneous equality
-inductive [class] simplifies_to {T : Type} (t1 t2 : T) : Prop
+class inductive simplifies_to {T : Type} (t1 t2 : T) : Prop
 | mk : t1 = t2 → simplifies_to
 
 namespace simplifies_to

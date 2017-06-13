@@ -1,4 +1,4 @@
-inductive [class] C {A : Type} : A → Prop
+class inductive C {A : Type} : A → Prop
 
 constant f {A : Type} (a : A) [H : C a] : Prop
 

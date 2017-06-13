@@ -8,10 +8,8 @@ Author: Daniel Selsam
 #include "frontends/lean/cmd_table.h"
 #include "frontends/lean/decl_attributes.h"
 namespace lean {
-environment inductive_cmd_ex(parser & p, decl_attributes const & attrs, bool is_meta);
-environment mutual_inductive_cmd_ex(parser & p, decl_attributes const & attrs, bool is_meta);
-environment coinductive_cmd_ex(parser & p, decl_attributes const & attrs);
-environment mutual_coinductive_cmd_ex(parser & p, decl_attributes const & attrs);
+environment inductive_cmd(parser & p, cmd_meta const & meta);
+environment coinductive_cmd(parser & p, cmd_meta const & meta);
 
 void register_inductive_cmds(cmd_table & r);
 void initialize_inductive_cmds();

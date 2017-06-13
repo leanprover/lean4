@@ -1,4 +1,4 @@
-hole_issue2.lean:12:0: warning: declaration 'count' uses sorry
+hole_issue2.lean:12:14: warning: declaration 'count' uses sorry
 hole_issue2.lean:22:74: error: don't know how to synthesize placeholder
 context:
 A : Type,

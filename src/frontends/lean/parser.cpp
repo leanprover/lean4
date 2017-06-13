@@ -2270,22 +2270,15 @@ public:
     virtual optional<expr> is_stuck(expr const & e) override { return ctx().is_stuck(e); }
 };
 
-static name_set * g_documentable_cmds = nullptr;
-
-static bool support_docummentation(name const & n) {
-    return g_documentable_cmds->contains(n);
-}
-
-void parser::parse_command() {
-    lean_assert(curr() == token_kind::CommandKeyword);
+void parser::parse_command(cmd_meta const & meta) {
+    if (curr() != token_kind::CommandKeyword) {
+        auto p = pos();
+        maybe_throw_error({"expected command", p});
+        return;
+    }
     m_last_cmd_pos = pos();
     name cmd_name = get_token_info().value();
     m_cmd_token = get_token_info().token();
-    if (m_doc_string && !support_docummentation(cmd_name)) {
-        next();
-        reset_doc_string();
-        maybe_throw_error({sstream() << "command '" << cmd_name << "' does not support doc string", m_last_cmd_pos});
-    }
     if (auto it = cmds().find(cmd_name)) {
         lazy_type_context tc(m_env, get_options());
         scope_global_ios scope1(m_ios);
@@ -2295,42 +2288,28 @@ void parser::parse_command() {
             in_notation_ctx ctx(*this);
             if (it->get_skip_token())
                 next();
-            m_env = it->get_fn()(*this);
+            m_env = it->get_fn()(*this, meta);
         } else {
             if (it->get_skip_token())
                 next();
-            m_env = it->get_fn()(*this);
+            m_env = it->get_fn()(*this, meta);
         }
     } else {
-        reset_doc_string();
         auto p = pos();
         next();
         maybe_throw_error({sstream() << "unknown command '" << cmd_name << "'", p});
     }
-    reset_doc_string();
 }
 
-void parser::parse_doc_block() {
-    m_doc_string = m_scanner.get_str_val();
+std::string parser::parse_doc_block() {
+    auto val = m_scanner.get_str_val();
     next();
+    return val;
 }
 
 void parser::parse_mod_doc_block() {
     m_env = add_module_doc_string(m_env, m_scanner.get_str_val());
     next();
-}
-
-void parser::check_no_doc_string() {
-    if (m_doc_string) {
-        auto p = pos();
-        next();
-        reset_doc_string();
-        maybe_throw_error({"invalid occurrence of doc string immediately before current position", p});
-    }
-}
-
-void parser::reset_doc_string() {
-    m_doc_string = optional<std::string>();
 }
 
 #if defined(__GNUC__) && !defined(__CLANG__)
@@ -2494,29 +2473,22 @@ bool parser::parse_command_like() {
 
     switch (curr()) {
         case token_kind::CommandKeyword:
-            if (curr_is_token(get_end_tk())) {
-                check_no_doc_string();
-            }
-            parse_command();
+            parse_command({});
             updt_options();
             break;
         case token_kind::DocBlock:
-            check_no_doc_string();
-            parse_doc_block();
+            parse_command({{}, {}, some(parse_doc_block())});
             break;
         case token_kind::ModDocBlock:
-            check_no_doc_string();
             parse_mod_doc_block();
             break;
         case token_kind::Eof:
-            check_no_doc_string();
             if (has_open_scopes(m_env)) {
                 maybe_throw_error({"invalid end of module, expecting 'end'", pos()});
             }
             return true;
             break;
         case token_kind::Keyword:
-            check_no_doc_string();
             if (curr_is_token(get_period_tk())) {
                 next();
                 break;
@@ -2633,26 +2605,10 @@ void initialize_parser() {
     register_bool_option(*g_parser_show_errors, LEAN_DEFAULT_PARSER_SHOW_ERRORS,
                          "(lean parser) display error messages in the regular output channel");
     g_tmp_prefix = new name(name::mk_internal_unique_name());
-    g_documentable_cmds = new name_set();
-
-    g_documentable_cmds->insert("definition");
-    g_documentable_cmds->insert("theorem");
-    g_documentable_cmds->insert("constant");
-    g_documentable_cmds->insert("axiom");
-    g_documentable_cmds->insert("meta");
-    g_documentable_cmds->insert("mutual");
-    g_documentable_cmds->insert("@[");
-    g_documentable_cmds->insert("protected");
-    g_documentable_cmds->insert("class");
-    g_documentable_cmds->insert("instance");
-    g_documentable_cmds->insert("inductive");
-    g_documentable_cmds->insert("coinductive");
-    g_documentable_cmds->insert("structure");
 }
 
 void finalize_parser() {
     delete g_tmp_prefix;
     delete g_parser_show_errors;
-    delete g_documentable_cmds;
 }
 }

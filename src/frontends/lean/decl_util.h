@@ -13,7 +13,7 @@ namespace lean {
 class parser;
 class elaborator;
 
-enum def_cmd_kind { Theorem, Definition, Example };
+enum def_cmd_kind { Theorem, Definition, Example, Instance };
 
 struct decl_modifiers {
     bool m_is_private{false};
@@ -21,8 +21,10 @@ struct decl_modifiers {
     bool m_is_meta{false};
     bool m_is_mutual{false};
     bool m_is_noncomputable{false};
-    bool m_is_instance{false};
-    bool m_is_class{false};
+
+    operator bool() const {
+        return m_is_private || m_is_protected || m_is_meta || m_is_mutual || m_is_noncomputable;
+    }
 };
 
 /** \brief In Lean, declarations may contain nested definitions.

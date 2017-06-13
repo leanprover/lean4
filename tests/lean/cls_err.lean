@@ -1,6 +1,6 @@
 --
 universe variables u
-inductive [class] H (A : Type u)
+class inductive H (A : Type u)
 | mk : A → H
 
 definition foo {A : Type u} [h : H A] : A :=

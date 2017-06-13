@@ -19,7 +19,7 @@ private meta def try_constructors : list name → tactic unit
 | (c::cs) := (mk_const c >>= apply) <|> try_constructors cs
 
 meta def constructor : tactic unit :=
-target >>= get_constructors_for >>= try_constructors
+target >>= instantiate_mvars >>= get_constructors_for >>= try_constructors
 
 meta def left : tactic unit :=
 do tgt ← target,

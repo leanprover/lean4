@@ -121,6 +121,7 @@ name const & get_heq_refl_name();
 name const & get_heq_symm_name();
 name const & get_heq_trans_name();
 name const & get_heq_of_eq_name();
+name const & get_hole_command_name();
 name const & get_id_locked_name();
 name const & get_if_neg_name();
 name const & get_if_pos_name();

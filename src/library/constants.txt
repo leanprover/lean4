@@ -114,6 +114,7 @@ heq.refl
 heq.symm
 heq.trans
 heq_of_eq
+hole_command
 id_locked
 if_neg
 if_pos

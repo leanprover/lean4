@@ -119,6 +119,7 @@ run_cmd script_check_id `heq.refl
 run_cmd script_check_id `heq.symm
 run_cmd script_check_id `heq.trans
 run_cmd script_check_id `heq_of_eq
+run_cmd script_check_id `hole_command
 run_cmd script_check_id `id_locked
 run_cmd script_check_id `if_neg
 run_cmd script_check_id `if_pos

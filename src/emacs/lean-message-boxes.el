@@ -8,6 +8,7 @@
 ;;; Code:
 
 (require 's)
+(require 'lean-server)
 
 (defface lean-message-boxes-caption-face
   '((t :inherit bold))
@@ -25,20 +26,35 @@
   "Whether or not to display message boxes.")
 (make-variable-buffer-local 'lean-message-boxes-enabledp)
 
+(defun lean-message-boxes--ask-for-messages ()
+  "Get the current messages out of the Lean server session."
+  (let ((buf (current-buffer)))
+    (if lean-server-session
+        (remove-if-not (lambda (msg)
+                         (equal (buffer-file-name buf)
+                                (plist-get msg :file_name)))
+                       (lean-server-session-messages lean-server-session))
+      '())))
+
+(defun lean-message-boxes--set-enabledp (enabledp)
+  "Enable the boxes if ENABLEDP is non-nil."
+  (setq lean-message-boxes-enabledp enabledp)
+  (lean-message-boxes-display (lean-message-boxes--ask-for-messages)))
+
 (defun lean-message-boxes-toggle ()
   "Toggle the display of message boxes."
   (interactive)
-  (setq lean-message-boxes-enabledp (not lean-message-boxes-enabledp)))
+  (lean-message-boxes--set-enabledp (not lean-message-boxes-enabledp)))
 
 (defun lean-message-boxes-enable ()
   "Enable the display of message boxes."
   (interactive)
-  (setq lean-message-boxes-enabledp t))
+  (setq lean-message-boxes--set-enabledp t))
 
 (defun lean-message-boxes-disable ()
   "Disable the display of message boxes."
   (interactive)
-  (setq lean-message-boxes-disabledp t))
+  (setq lean-message-boxes--set-enabledp t))
 
 (defvar lean-message-boxes--overlays '()
   "The overlays in the current buffer from Lean messages.")

@@ -10,9 +10,9 @@
 (require 's)
 (require 'lean-server)
 
-(defface lean-message-boxes-caption-face
-  '((t :inherit bold))
-  "Face for Lean message box captions."
+(defface lean-message-boxes-content-face
+  '((t :inherit font-lock-doc-face))
+  "Face for Lean message box contents."
   :group 'lean)
 
 (defcustom lean-message-boxes-enabled-captions '("check result" "print result")
@@ -86,37 +86,34 @@
 (defun lean-message-boxes--as-string (caption str)
   "Construct a propertized string representing CAPTION and STR."
   (let* ((caption-copy (concat caption))
-         (lines (s-lines str))
-         (w (apply #'max (mapcar #'length (cons caption lines))))
-         (top (concat "╭" (make-string (+ w 2) ?─) "╮"))
-         (horiz (concat "├" (make-string (+ w 2) ?─) "┤"))
-         (bot (concat "╰" (make-string (+ w 2) ?─) "╯")))
-    (put-text-property 0 (length caption-copy)
-                       'face 'lean-message-boxes-caption-face
-                       caption-copy)
-    (apply #'concat
-           top "\n"
-           "│ " (lean-message-boxes--pad-to caption-copy w)  " │\n"
-           horiz "\n"
-           (append
-            (mapcar
-             (lambda (l)
-               (concat "│ "
-                       (lean-message-boxes--pad-to l w)
-                       " │\n"))
-             lines)
-            (list bot)))))
+         (str-copy (s-trim str)))
+    (put-text-property 0 (length str-copy)
+                       'face 'lean-message-boxes-content-face
+                       str-copy)
+    (let* ((lines (s-lines str-copy))
+           (w (apply #'max (mapcar #'length (cons caption lines)))))
+      (if (= (length lines) 1)
+          (concat "\t│ " (car lines))
+        (apply #'concat
+               "\n"
+               (mapcar
+                (lambda (l)
+                  (concat "│ "
+                          (lean-message-boxes--pad-to l w)
+                          "\n"))
+                lines))))))
 
 (defun lean-message-boxes--make-overlay (line col caption text)
   "Construct a message box overlay at LINE and COL with CAPTION and TEXT."
   (let* ((where (save-excursion (goto-char (point-min))
                                 (forward-line (1- line))
                                 (line-end-position)))
-         (overlay (make-overlay where (+ 1 where))))
+         (overlay (make-overlay where (+ 1 where)))
+         (as-box (lean-message-boxes--as-string caption text)))
     (overlay-put overlay 'display
-                 (concat "\n" (lean-message-boxes--as-string caption text) "\n"))
-                                        ;(overlay-put overlay 'face font-lock-builtin-face)
-    (overlay-put overlay 'mouse-face font-lock-warning-face)
+                 (concat as-box "\n"))
+    (overlay-put overlay 'face 'font-lock-comment-face)
+    (overlay-put overlay 'help-echo caption)
     (overlay-put overlay 'lean-is-output-overlay t)
     overlay))
 

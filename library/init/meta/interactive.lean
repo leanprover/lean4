@@ -447,47 +447,45 @@ meta def focus (tac : itactic) : tactic unit :=
 tactic.focus [tac]
 
 /--
-This tactic applies to any goal. `assert h : T` adds a new hypothesis of name `h` and type `T` to the current goal and opens a new subgoal with target `T`.
+This tactic applies to any goal.
+- `note h : T := p` adds a new hypothesis of name `h` and type `T` to the current goal if `p` a term of type `T`.
+- `note h : T` adds a new hypothesis of name `h` and type `T` to the current goal and opens a new subgoal with target `T`.
 The new subgoal becomes the main goal.
 -/
-meta def assert (h : parse ident) (q : parse $ tk ":" *> texpr) : tactic unit :=
-do e ← i_to_expr_strict q,
-   tactic.assert h e,
-   return ()
+meta def note (h : parse ident?) (q₁ : parse (tk ":" *> texpr)?) (q₂ : parse $ (tk ":=" *> texpr)?) : tactic unit :=
+let h := h.get_or_else `this in
+match q₁, q₂ with
+| some e, some p := do
+  t ← i_to_expr e,
+  v ← i_to_expr ``(%%p : %%t),
+  tactic.assertv h t v
+| none, some p := do
+  p ← i_to_expr p,
+  tactic.note h none p
+| some e, none := i_to_expr e >>= tactic.assert h
+| none, none := do
+  u ← mk_meta_univ,
+  e ← mk_meta_var (sort u),
+  tactic.assert h e
+end >> skip
 
-meta def define (h : parse ident) (q : parse $ tk ":" *> texpr) : tactic unit :=
-do e ← i_to_expr_strict q,
-   tactic.define h e,
-   return ()
+meta def pose (h : parse ident?) (q₁ : parse (tk ":" *> texpr)?) (q₂ : parse $ (tk ":=" *> texpr)?) : tactic unit :=
+let h := h.get_or_else `this in
+match q₁, q₂ with
+| some e, some p := do
+  t ← i_to_expr e,
+  v ← i_to_expr ``(%%p : %%t),
+  tactic.definev h t v
+| none, some p := do
+  p ← i_to_expr p,
+  tactic.pose h none p
+| some e, none := i_to_expr e >>= tactic.define h
+| none, none := do
+  u ← mk_meta_univ,
+  e ← mk_meta_var (sort u),
+  tactic.define h e
+end >> skip
 
-/--
-This tactic applies to any goal. `note h : T := p` adds a new hypothesis of name `h` and type `T` to the current goal if `p` a term of type `T`.
--/
-meta def note (h : parse ident?) (q₁ : parse (tk ":" *> texpr)?) (q₂ : parse $ tk ":=" *> texpr) : tactic unit :=
-match q₁ with
-| some e := do
-  t ← i_to_expr_strict e,
-  v ← i_to_expr_strict ``(%%q₂ : %%t),
-  tactic.assertv (h.get_or_else `this) t v,
-  return ()
-| none := do
-  p ← i_to_expr_strict q₂,
-  tactic.note (h.get_or_else `this) none p,
-  return ()
-end
-
-meta def pose (h : parse ident?) (q₁ : parse (tk ":" *> texpr)?) (q₂ : parse $ tk ":=" *> texpr) : tactic unit :=
-match q₁ with
-| some e := do
-  t ← i_to_expr_strict e,
-  v ← i_to_expr_strict ``(%%q₂ : %%t),
-  tactic.definev (h.get_or_else `this) t v,
-  return ()
-| none := do
-  p ← i_to_expr_strict q₂,
-  tactic.pose (h.get_or_else `this) none p,
-  return ()
-end
 
 /--
 This tactic displays the current state in the tracing buffer.

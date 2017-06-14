@@ -113,7 +113,7 @@ by rw [-h, mul_div_assoc]
 lemma nonzero_of_div_helper [field α] (a b : α) (ha : a ≠ 0) (hb : b ≠ 0) : a / b ≠ 0 :=
 begin
   intro hab,
-  assert habb : (a / b) * b = 0, rw [hab, zero_mul],
+  note habb : (a / b) * b = 0, rw [hab, zero_mul],
   rw [div_mul_cancel _ hb] at habb,
   exact ha habb
 end

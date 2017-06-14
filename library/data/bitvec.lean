@@ -192,7 +192,7 @@ section conversion
     revert n,
     induction k with k ; intro n,
     { unfold pow, simp [nat.mod_one], refl },
-    { assert h : 0 < 2, { apply le_succ },
+    { note h : 0 < 2, { apply le_succ },
       rw [ of_nat_succ
          , to_nat_append
          , ih_1

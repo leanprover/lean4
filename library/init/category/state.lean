@@ -69,7 +69,7 @@ instance (σ : Type u) (m : Type u → Type v) [monad m] : monad (state_t σ m) 
  id_map := begin
    intros, apply funext, intro,
    simp [state_t_bind, state_t_return, function.comp, return],
-   assert h : state_t_bind._match_1 (λ (x : α) (s : σ), @pure m _ _ (x, s)) = pure,
+   note h : state_t_bind._match_1 (λ (x : α) (s : σ), @pure m _ _ (x, s)) = pure,
    { apply funext, intro s, cases s, apply rfl },
    { rw h, apply @monad.bind_pure _ σ },
  end,

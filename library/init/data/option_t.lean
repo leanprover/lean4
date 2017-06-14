@@ -29,7 +29,7 @@ instance {m : Type u → Type v} [monad m] : monad (option_t m) :=
  id_map := begin
    intros,
    simp [option_t_bind, function.comp],
-   assert h : option_t_bind._match_1 option_t_return = @pure m _ (option α),
+   note h : option_t_bind._match_1 option_t_return = @pure m _ (option α),
    { apply funext, intro s, cases s, refl, refl },
    { simp [h], apply @monad.bind_pure _ (option α) m },
  end,

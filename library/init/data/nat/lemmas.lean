@@ -884,7 +884,7 @@ by note h := mod_def_aux x y; rwa [dif_eq_if] at h
 lemma mod_zero (a : nat) : a % 0 = a :=
 begin
   rw mod_def,
-  assert h : ¬ (0 < 0 ∧ 0 ≤ a),
+  note h : ¬ (0 < 0 ∧ 0 ≤ a),
   simp [lt_irrefl],
   simp [if_neg, h]
 end
@@ -892,7 +892,7 @@ end
 lemma mod_eq_of_lt {a b : nat} (h : a < b) : a % b = a :=
 begin
   rw mod_def,
-  assert h' : ¬(0 < b ∧ b ≤ a),
+  note h' : ¬(0 < b ∧ b ≤ a),
   simp [not_le_of_gt h],
   simp [if_neg, h']
 end
@@ -900,7 +900,7 @@ end
 @[simp] lemma zero_mod (b : nat) : 0 % b = 0 :=
 begin
   rw mod_def,
-  assert h : ¬(0 < b ∧ b ≤ 0),
+  note h : ¬(0 < b ∧ b ≤ 0),
   {intro hn, cases hn with l r, exact absurd (lt_of_lt_of_le l r) (lt_irrefl 0)},
   simp [if_neg, h]
 end
@@ -917,9 +917,9 @@ begin
   {apply or.elim (decidable.em (succ x < y)),
     {intro h₁, rwa [mod_eq_of_lt h₁]},
     {intro h₁,
-      assert h₁ : succ x % y = (succ x - y) % y, {exact mod_eq_sub_mod (le_of_not_gt h₁)},
-      assert this : succ x - y ≤ x, {exact le_of_lt_succ (sub_lt (succ_pos x) h)},
-      assert h₂ : (succ x - y) % y < y, {exact ih _ this},
+      note h₁ : succ x % y = (succ x - y) % y, {exact mod_eq_sub_mod (le_of_not_gt h₁)},
+      note this : succ x - y ≤ x, {exact le_of_lt_succ (sub_lt (succ_pos x) h)},
+      note h₂ : (succ x - y) % y < y, {exact ih _ this},
       rwa -h₁ at h₂}}
 end
 
@@ -977,7 +977,7 @@ by rw [mul_comm x z, mul_comm y z, mul_comm (x % y) z]; apply mul_mod_mul_left
 lemma mod_two_eq_zero_or_one (n : ℕ)
 : n % 2 = 0 ∨ n % 2 = 1 :=
 begin
-  assert h : ((n % 2 < 1) ∨ (n % 2 = 1)),
+  note h : ((n % 2 < 1) ∨ (n % 2 = 1)),
   { apply lt_or_eq_of_le,
     apply nat.le_of_succ_le_succ,
     apply @nat.mod_lt n 2 (nat.le_succ _) },
@@ -1004,11 +1004,11 @@ lemma sub_mul_mod (x k n : ℕ) (h₁ : n*k ≤ x) : (x - n*k) % n = x % n :=
 begin
   induction k with k,
   { simp },
-  { assert h₂ : n * k ≤ x,
+  { note h₂ : n * k ≤ x,
     { rw [mul_succ] at h₁,
       apply nat.le_trans _ h₁,
       apply le_add_right _ n },
-    assert h₄ : x - n * k ≥ n,
+    note h₄ : x - n * k ≥ n,
     { apply @nat.le_of_add_le_add_right (n*k),
       rw [nat.sub_add_cancel h₂],
       simp [mul_succ] at h₁, simp [h₁] },
@@ -1027,7 +1027,7 @@ begin
   intros m IH,
   cases decidable.em (0 < k ∧ k ≤ m) with h h',
   -- 0 < k ∧ k ≤ m
-  { assert h' : m - k < m,
+  { note h' : m - k < m,
     { apply nat.sub_lt _ h.left,
       apply lt_of_lt_of_le h.left h.right },
     rw [div_def, mod_def, if_pos h, if_pos h],
@@ -1078,11 +1078,11 @@ begin
   { rw [h₀, nat.div_zero, nat.div_zero, nat.zero_sub] },
   { induction p with p,
     { simp },
-    { assert h₂ : n*p ≤ x,
+    { note h₂ : n*p ≤ x,
       { transitivity,
         { apply nat.mul_le_mul_left, apply le_succ },
         { apply h₁ } },
-      assert h₃ : x - n * p ≥ n,
+      note h₃ : x - n * p ≥ n,
       { apply le_of_add_le_add_right,
         rw [nat.sub_add_cancel h₂, add_comm],
         rw [mul_succ] at h₁,
@@ -1130,7 +1130,7 @@ begin
   { rw [div_eq_sub_div Hk h],
     cases x with x,
     { simp [zero_mul, zero_le_iff_true] },
-    { assert Hlt : y - k < y,
+    { note Hlt : y - k < y,
       { apply sub_lt_of_pos_le ; assumption },
       rw [ -add_one_eq_succ
          , nat.add_le_add_iff_le_right
@@ -1248,7 +1248,7 @@ begin
   intros p IH,
   cases lt_or_ge p (b^succ w) with h₁ h₁,
   -- base case: p < b^succ w
-  { assert h₂ : p / b < b^w,
+  { note h₂ : p / b < b^w,
     { rw [div_lt_iff_lt_mul p _ b_pos],
       simp [pow_succ] at h₁,
       simp [h₁] },
@@ -1256,7 +1256,7 @@ begin
     simp [mod_add_div] },
   -- step: p ≥ b^succ w
   { -- Generate condiition for induction principal
-    assert h₂ : p - b^succ w < p,
+    note h₂ : p - b^succ w < p,
     { apply sub_lt_of_pos_le _ _ (pos_pow_of_pos _ b_pos) h₁ },
 
     -- Apply induction
@@ -1267,7 +1267,7 @@ begin
     -- Pull subtraction outside mod and div
     rw [sub_mul_mod _ _ _ h₁, sub_mul_div _ _ _ h₁],
     -- Cancel subtraction inside mod b^w
-    assert p_b_ge :  b^w ≤ p / b,
+    note p_b_ge :  b^w ≤ p / b,
     { rw [le_div_iff_mul_le _ _ b_pos],
       simp [h₁] },
     rw [eq.symm (mod_eq_sub_mod p_b_ge)] }

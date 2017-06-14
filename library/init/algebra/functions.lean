@@ -306,7 +306,7 @@ or.elim (le_total b 0)
   aux1 h1 (le_of_not_gt h3))
  (assume h2 : 0 ≤ b,
   begin
-    assert h3 : abs (b + a) ≤ abs b + abs a,
+    note h3 : abs (b + a) ≤ abs b + abs a,
     begin
       rw add_comm at h1,
       exact aux1 h1 h2

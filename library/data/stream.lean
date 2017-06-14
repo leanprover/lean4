@@ -483,7 +483,7 @@ begin
   intro h, apply stream.ext, intro n,
   induction n with n ih,
   { note aux := h 1, unfold approx at aux, injection aux },
-  { assert h₁ : some (nth (succ n) s₁) = some (nth (succ n) s₂),
+  { note h₁ : some (nth (succ n) s₁) = some (nth (succ n) s₂),
     { rw [-nth_approx, -nth_approx, h (succ (succ n))] },
     injection h₁ }
 end

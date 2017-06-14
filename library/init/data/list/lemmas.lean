@@ -270,7 +270,7 @@ by {induction l; intros, contradiction, simph, reflexivity}
 @[simp] lemma last_append {a : α} (l : list α) (h : l ++ [a] ≠ []) : last (l ++ [a]) h = a :=
 begin
   induction l with hd tl ih; rsimp,
-  assert haux : tl ++ [a] ≠ [],
+  note haux : tl ++ [a] ≠ [],
     {apply append_ne_nil_of_ne_nil_right, contradiction},
   simph
 end
@@ -735,7 +735,7 @@ by simp [sublists]; exact
       (sublist_of_cons_sublist sl) _ hs
   end,
 λsl, begin
-  assert this : ∀ {a : α} {y t}, y ∈ t → y ∈ foldr (λ ys r, ys :: (a :: ys) :: r) nil t
+  note this : ∀ {a : α} {y t}, y ∈ t → y ∈ foldr (λ ys r, ys :: (a :: ys) :: r) nil t
                                   ∧ a :: y ∈ foldr (λ ys r, ys :: (a :: ys) :: r) nil t,
   { intros a y t yt, induction t with x t IH, exact absurd yt (not_mem_nil _),
     simp, simp at yt, cases yt with yx yt,

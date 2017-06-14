@@ -165,7 +165,7 @@ have h1 : list.length (array.to_list bkts) - 1 - i < list.length (list.reverse (
 have sigma.mk a b ∈ list.nth_le (array.to_list bkts) i (by simph[array.to_list_length]), by {rw array.to_list_nth, exact el},
 begin
   rw -list.nth_le_reverse at this,
-  assert v : valid_aux (λa, (mk_idx n (hash_fn a)).1) (array.to_list bkts).reverse sz,
+  note v : valid_aux (λa, (mk_idx n (hash_fn a)).1) (array.to_list bkts).reverse sz,
   rw array.to_list_reverse,
   exact v,
   note mm := @_root_.hash_map.valid_aux.eq _ _ _ _ _ _ v -- TODO (Mario): Why is explicit namespacing needed here?

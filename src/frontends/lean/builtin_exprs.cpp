@@ -988,23 +988,44 @@ expr mk_hole(parser & p, expr const & e, pos_info const & begin_pos, pos_info co
     return mk_annotation_with_pos(p, *g_begin_hole, mk_annotation_with_pos(p, *g_end_hole, e, end_pos), begin_pos);
 }
 
-bool is_hole(expr const & e) { return is_annotation(e, *g_begin_hole); }
+bool is_hole(expr const & e) {
+    return is_annotation(e, *g_begin_hole);
+}
+
+std::tuple<expr, optional<pos_info>, optional<pos_info>> get_hole_info(expr const & e) {
+    lean_assert(is_hole(e));
+    optional<pos_info> begin_pos, end_pos;
+    if (get_pos_info_provider()) {
+        begin_pos = get_pos_info_provider()->get_pos_info(e);
+        end_pos   = get_pos_info_provider()->get_pos_info(get_annotation_arg(e));
+    }
+    expr args = get_annotation_arg(get_annotation_arg(e));
+    return std::make_tuple(args, begin_pos, end_pos);
+}
+
+expr update_hole_args(expr const & e, expr const & new_args) {
+    lean_assert(is_hole(e));
+    return copy_annotations(e, new_args);
+}
 
 static expr parse_hole(parser_state & p, unsigned, expr const *, pos_info const & begin_pos) {
-    expr e;
-    if (!p.curr_is_token(get_rcurlybang_tk())) {
+    buffer<expr> ps;
+    while (!p.curr_is_token(get_rcurlybang_tk())) {
+        expr e;
         if (p.in_quote()) {
             e = p.parse_expr();
         } else {
             parser_state::quote_scope scope(p, false);
             e = p.parse_expr();
         }
-    } else {
-        e = p.save_pos(mk_expr_placeholder(), begin_pos);;
+        ps.push_back(copy_tag(e, mk_pexpr_quote(e)));
+        if (!p.curr_is_token(get_comma_tk()))
+            break;
+        p.next();
     }
     auto end_pos = p.pos();
     p.check_token_next(get_rcurlybang_tk(), "invalid hole, `!}` expected");
-    expr r = mk_hole(p, e, begin_pos, end_pos);
+    expr r = mk_hole(p, mk_lean_list(ps), begin_pos, end_pos);
     return r;
 }
 

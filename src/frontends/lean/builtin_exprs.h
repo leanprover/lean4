@@ -21,6 +21,8 @@ parse_table get_builtin_led_table();
 bool is_infix_function(expr const & e);
 
 bool is_hole(expr const & e);
+std::tuple<expr, optional<pos_info>, optional<pos_info>> get_hole_info(expr const & e);
+expr update_hole_args(expr const & e, expr const & new_args);
 
 void initialize_builtin_exprs();
 void finalize_builtin_exprs();

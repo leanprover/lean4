@@ -186,16 +186,6 @@ static bool is_curr_exact_shortcut(parser & p) {
         p.curr_is_token(get_suppose_tk());
 }
 
-static expr mk_lean_list(parser & p, buffer<expr> const & es, pos_info const & pos) {
-    expr r = p.save_pos(mk_constant(get_list_nil_name()), pos);
-    unsigned i = es.size();
-    while (i > 0) {
-        --i;
-        r = p.save_pos(mk_app(p.save_pos(mk_constant(get_list_cons_name()), pos), es[i], r), pos);
-    }
-    return r;
-}
-
 static expr mk_tactic_unit(name const & tac_class) {
     return mk_app(mk_constant(tac_class), mk_constant(get_unit_name()));
 }

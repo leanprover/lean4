@@ -531,6 +531,31 @@ vm_obj eval_closed_expr(environment const & env, name const & n, expr const & ty
     return vm.invoke(n, 0, nullptr);
 }
 
+static expr save_pos(parser * p, expr const & e, optional<pos_info> const & pos) {
+    if (pos)
+        return p->save_pos(e, *pos);
+    else
+        return e;
+}
+
+static expr mk_lean_list(parser * p, buffer<expr> const & es, optional<pos_info> const & pos) {
+    expr r = save_pos(p, mk_constant(get_list_nil_name()), pos);
+    unsigned i = es.size();
+    while (i > 0) {
+        --i;
+        r = save_pos(p, mk_app(save_pos(p, mk_constant(get_list_cons_name()), pos), es[i], r), pos);
+    }
+    return r;
+}
+
+expr mk_lean_list(parser & p, buffer<expr> const & es, pos_info const & pos) {
+    return mk_lean_list(&p, es, optional<pos_info>(pos));
+}
+
+expr mk_lean_list(buffer<expr> const & es) {
+    return mk_lean_list(nullptr, es, optional<pos_info>());
+}
+
 void finalize_frontend_lean_util() {
     delete g_auto_param_check_exists;
     delete g_no_info;

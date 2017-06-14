@@ -4,5 +4,5 @@ example : ∀ a b : nat, a + b = b + a :=
 example : ∀ a b : nat, a + b = b + a :=
 begin
   intros h,
-  exact  λ x, {! _+_ !}
+  exact  λ x, {! _+_, "lt" !}
 end

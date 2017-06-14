@@ -2055,8 +2055,13 @@ expr elaborator::visit_by(expr const & e, optional<expr> const & expected_type) 
 expr elaborator::visit_hole(expr const & e, optional<expr> const & expected_type) {
     lean_assert(is_hole(e));
     expr const & ref = e;
+    expr args; optional<pos_info> begin_pos, end_pos;
+    std::tie(args, begin_pos, end_pos) = get_hole_info(e);
+    expr args_type   = mk_app(mk_constant(get_list_name(), {mk_level_zero()}),
+                              mk_app(mk_constant(get_expr_name()), mk_constant(get_bool_ff_name())));
+    expr new_args    = ground_uvars(strict_visit(args, some_expr(args_type)));
     expr mvar        = mk_metavar(expected_type, ref);
-    m_holes          = cons(mk_pair(mvar, e), m_holes);
+    m_holes          = cons(mk_pair(mvar, update_hole_args(e, new_args)), m_holes);
     return mvar;
 }
 

@@ -11,7 +11,7 @@
 (require 'lean-pkg)
 (require 'dash)
 
-(defcustom lean-server-show-message-hook '()
+(defcustom lean-server-show-message-hook '(lean-message-boxes-display)
   "Hook run on messages from Lean, allowing custom display.
 
 Each hook is a function that receives a list of message objects
@@ -22,7 +22,8 @@ least the following keys:
  - :caption is a category of message, a string
  - :text is the text to display, a string."
   :group 'lean
-  :type 'hook)
+  :type 'hook
+  :options '(lean-message-boxes-display))
 
 (defstruct lean-server-session
   path-file        ; the leanpkg.path file of this lean server

@@ -129,4 +129,7 @@ false (nil)."
 (defcustom lean-keybinding-lean-toggle-next-error (kbd "C-c C-n")
   "Lean Keybinding for lean-toggle-next-error"
   :group 'lean-keybinding  :type 'key-sequence)
+(defcustom lean-keybinding-lean-message-boxes-toggle (kbd "C-c C-b")
+  "Lean Keybinding for lean-message-boxes-toggle"
+  :group 'lean-keybinding :type 'key-sequence)
 (provide 'lean-settings)

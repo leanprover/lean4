@@ -136,14 +136,14 @@ namespace nat
   @[simp] lemma zero_shiftr (n) : shiftr 0 n = 0 :=
   (shiftr_eq_div_pow _ _).trans (nat.zero_div _)
 
-  lemma test_bit_zero (b n) : test_bit (bit b n) 0 = b := bodd_bit _ _
+  @[simp] lemma test_bit_zero (b n) : test_bit (bit b n) 0 = b := bodd_bit _ _
 
   lemma test_bit_succ (m b n) : test_bit (bit b n) (succ m) = test_bit n m :=
   have bodd (shiftr (shiftr (bit b n) 1) m) = bodd (shiftr n m),
     by dsimp [shiftr]; rw div2_bit,
   by rw [-shiftr_add, add_comm] at this; exact this
 
-  def binary_rec {C : nat → Sort u} (f : ∀ b n, C n → C (bit b n)) (z : C 0) : Π n, C n
+  def binary_rec {C : nat → Sort u} (z : C 0) (f : ∀ b n, C n → C (bit b n)) : Π n, C n
   | n := if n0 : n = 0 then by rw n0; exact z else let n' := div2 n in
     have n' < n, begin
       change div2 n < n, rw div2_val,
@@ -155,29 +155,29 @@ namespace nat
     by rw [-show bit (bodd n) n' = n, from bit_decomp n]; exact 
     f (bodd n) n' (binary_rec n')
 
-  def size : ℕ → ℕ := binary_rec (λ_ _, succ) 0
+  def size : ℕ → ℕ := binary_rec 0 (λ_ _, succ)
 
-  def bits : ℕ → list bool := binary_rec (λb _ IH, b :: IH) []
+  def bits : ℕ → list bool := binary_rec [] (λb _ IH, b :: IH)
 
   def bitwise (f : bool → bool → bool) : ℕ → ℕ → ℕ :=
   binary_rec
-    (λa m Ia, binary_rec
-      (λb n _, bit (f a b) (Ia n))
-      (cond (f tt ff) (bit a m) 0))
     (λn, cond (f ff tt) n 0)
+    (λa m Ia, binary_rec
+      (cond (f tt ff) (bit a m) 0)
+      (λb n _, bit (f a b) (Ia n)))
 
   def lor   : ℕ → ℕ → ℕ := bitwise bor
   def land  : ℕ → ℕ → ℕ := bitwise band
   def ldiff : ℕ → ℕ → ℕ := bitwise (λ a b, a && bnot b)
   def lxor  : ℕ → ℕ → ℕ := bitwise bxor
 
-  lemma binary_rec_zero {C : nat → Sort u} (f : ∀ b n, C n → C (bit b n)) (z) :
-    binary_rec f z 0 = z :=
+  @[simp] lemma binary_rec_zero {C : nat → Sort u} (z : C 0) (f : ∀ b n, C n → C (bit b n)) :
+    binary_rec z f 0 = z :=
   by {rw [binary_rec.equations._eqn_1], refl}
 
-  lemma binary_rec_eq {C : nat → Sort u} {f : ∀ b n, C n → C (bit b n)} {z}
+  lemma binary_rec_eq {C : nat → Sort u} {z : C 0} {f : ∀ b n, C n → C (bit b n)}
     (h : f ff 0 z = z) (b n) :
-    binary_rec f z (bit b n) = f b n (binary_rec f z n) :=
+    binary_rec z f (bit b n) = f b n (binary_rec z f n) :=
   begin
     rw [binary_rec.equations._eqn_1],
     cases (by apply_instance : decidable (bit b n = 0)) with b0 b0; dsimp [dite],
@@ -191,8 +191,8 @@ namespace nat
 
   lemma bitwise_bit_aux {f : bool → bool → bool} (h : f ff ff = ff) :
     @binary_rec (λ_, ℕ)
-      (λ b n _, bit (f ff b) (cond (f ff tt) n 0))
-      (cond (f tt ff) (bit ff 0) 0) =
+      (cond (f tt ff) (bit ff 0) 0)
+      (λ b n _, bit (f ff b) (cond (f ff tt) n 0)) =
     λ (n : ℕ), cond (f ff tt) n 0 :=
   begin
     apply funext, intro n,
@@ -202,20 +202,20 @@ namespace nat
              show cond (f tt ff) (bit ff 0) 0 = 0, by cases f tt ff; refl]; refl }
   end
 
-  lemma bitwise_zero_left (f : bool → bool → bool) (n) :
+  @[simp] lemma bitwise_zero_left (f : bool → bool → bool) (n) :
     bitwise f 0 n = cond (f ff tt) n 0 :=
   by unfold bitwise; rw [binary_rec_zero]
 
-  lemma bitwise_zero_right (f : bool → bool → bool) (h : f ff ff = ff) (m) :
+  @[simp] lemma bitwise_zero_right (f : bool → bool → bool) (h : f ff ff = ff) (m) :
     bitwise f m 0 = cond (f tt ff) m 0 :=
   by unfold bitwise; apply bit_cases_on m; intros;
      rw [binary_rec_eq, binary_rec_zero]; exact bitwise_bit_aux h
 
-  lemma bitwise_zero (f : bool → bool → bool) :
+  @[simp] lemma bitwise_zero (f : bool → bool → bool) :
     bitwise f 0 0 = 0 :=
   by rw bitwise_zero_left; cases f ff tt; refl
 
-  lemma bitwise_bit {f : bool → bool → bool} (h : f ff ff = ff) (a m b n) :
+  @[simp] lemma bitwise_bit {f : bool → bool → bool} (h : f ff ff = ff) (a m b n) :
     bitwise f (bit a m) (bit b n) = bit (f a b) (bitwise f m n) :=
   begin
     unfold bitwise,
@@ -232,13 +232,24 @@ namespace nat
     { exact bitwise_bit_aux h }
   end
 
-  lemma lor_bit : ∀ (a m b n),
+  theorem bitwise_swap {f : bool → bool → bool} (h : f ff ff = ff) :
+    bitwise (function.swap f) = function.swap (bitwise f) :=
+  begin
+    apply funext, intro m, apply funext,
+    dsimp [function.swap],
+    apply binary_rec _ (λ a m' IH, _) m; intro n,
+    { rw [bitwise_zero_left, bitwise_zero_right], exact h },
+    apply bit_cases_on n; intros b n',
+    rw [bitwise_bit, bitwise_bit, IH]; exact h
+  end
+
+  @[simp] lemma lor_bit : ∀ (a m b n),
     lor (bit a m) (bit b n) = bit (a || b) (lor m n) := bitwise_bit rfl
-  lemma land_bit : ∀ (a m b n),
+  @[simp] lemma land_bit : ∀ (a m b n),
     land (bit a m) (bit b n) = bit (a && b) (land m n) := bitwise_bit rfl
-  lemma ldiff_bit : ∀ (a m b n),
+  @[simp] lemma ldiff_bit : ∀ (a m b n),
     ldiff (bit a m) (bit b n) = bit (a && bnot b) (ldiff m n) := bitwise_bit rfl
-  lemma lxor_bit : ∀ (a m b n),
+  @[simp] lemma lxor_bit : ∀ (a m b n),
     lxor (bit a m) (bit b n) = bit (bxor a b) (lxor m n) := bitwise_bit rfl
 
   def test_bit_bitwise {f : bool → bool → bool} (h : f ff ff = ff) (m n k) :

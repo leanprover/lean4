@@ -1886,6 +1886,9 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
 
     bool has_args = !args.empty();
 
+    if (is_hole(fn))
+        throw elaborator_exception(ref, "holes {! ... !} cannot be used where a function is expected");
+
     while (is_annotation(fn))
         fn = get_annotation_arg(fn);
 
@@ -2046,6 +2049,14 @@ expr elaborator::visit_by(expr const & e, optional<expr> const & expected_type) 
     m_tactics = cons(mk_pair(mvar, tac), m_tactics);
     trace_elab(tout() << "tactic for ?m_" << get_metavar_decl_ref_suffix(mvar) << " at " <<
                pos_string_for(mvar) << "\n" << tac << "\n";);
+    return mvar;
+}
+
+expr elaborator::visit_hole(expr const & e, optional<expr> const & expected_type) {
+    lean_assert(is_hole(e));
+    expr const & ref = e;
+    expr mvar        = mk_metavar(expected_type, ref);
+    m_holes          = cons(mk_pair(mvar, e), m_holes);
     return mvar;
 }
 
@@ -2950,6 +2961,8 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
         return visit_app_core(e, buffer<expr>(), expected_type, e);
     } else if (is_by(e)) {
         return visit_by(e, expected_type);
+    } else if (is_hole(e)) {
+        return visit_hole(e, expected_type);
     } else if (is_equations(e)) {
         lean_assert(!is_app_fn); // visit_convoy is used in this case
         return visit_equations(e);
@@ -3362,10 +3375,48 @@ void elaborator::synthesize_no_tactics() {
     synthesize_type_class_instances();
 }
 
+void elaborator::process_hole(expr const & mvar, expr const & arg) {
+    lean_assert(is_hole(arg));
+    expr val = instantiate_mvars(mvar);
+    if (!is_metavar(val)) {
+        auto pp_fn = mk_pp_ctx();
+        throw elaborator_exception(mvar,
+                                   format("invalid use of hole, type inference and elaboration rules force the hole to be")
+                                   + pp_indent(pp_fn, val));
+    }
+    expr ty = m_ctx.instantiate_mvars(m_ctx.infer(mvar));
+    if (get_global_info_manager() && get_pos_info_provider()) {
+        if (auto pos = get_pos_info_provider()->get_pos_info(arg)) {
+            tactic_state s = elaborator::mk_tactic_state_for(val);
+            get_global_info_manager()->add_hole_info(*pos, s, arg);
+            /* The following command is a hack to make sure we see the hole's type in Emacs */
+            get_global_info_manager()->add_identifier_info(*pos, "[goal]");
+            /* also store info at !} */
+            if (auto end_pos = get_pos_info_provider()->get_pos_info(get_annotation_arg(arg))) {
+                get_global_info_manager()->add_hole_info(*end_pos, s, arg);
+                /* same hack again */
+                get_global_info_manager()->add_identifier_info(*end_pos, "[goal]");
+            }
+        }
+    }
+    m_ctx.assign(mvar, copy_tag(arg, mk_sorry(ty)));
+}
+
+void elaborator::process_holes() {
+    buffer<expr_pair> to_process;
+    to_buffer(m_holes, to_process);
+    m_holes = list<expr_pair>();
+    for (expr_pair const & p : to_process) {
+        lean_assert(is_metavar(p.first));
+        process_hole(p.first, p.second);
+    }
+}
+
 void elaborator::synthesize() {
     synthesize_numeral_types();
     synthesize_type_class_instances();
     synthesize_using_tactics();
+    process_holes();
 }
 
 void elaborator::check_inaccessible(list<expr_pair> const & old_stack) {
@@ -3446,6 +3497,7 @@ elaborator::snapshot::snapshot(elaborator const & e) {
     m_saved_instances          = e.m_instances;
     m_saved_numeral_types      = e.m_numeral_types;
     m_saved_tactics            = e.m_tactics;
+    m_saved_holes              = e.m_holes;
     m_saved_inaccessible_stack = e.m_inaccessible_stack;
 }
 
@@ -3455,6 +3507,7 @@ void elaborator::snapshot::restore(elaborator & e) {
     e.m_instances          = m_saved_instances;
     e.m_numeral_types      = m_saved_numeral_types;
     e.m_tactics            = m_saved_tactics;
+    e.m_holes              = m_saved_holes;
     e.m_inaccessible_stack = m_saved_inaccessible_stack;
 }
 
@@ -3874,7 +3927,7 @@ struct resolve_names_fn : public replace_visitor {
 
 
     virtual expr visit(expr const & e) override {
-        if (is_placeholder(e) || is_by(e) || is_as_is(e) || is_emptyc_or_emptys(e) || is_as_atomic(e)) {
+        if (is_placeholder(e) || is_by(e) || is_hole(e) || is_as_is(e) || is_emptyc_or_emptys(e) || is_as_atomic(e)) {
             return e;
         } else if (is_choice(e)) {
             return visit_choice(e);

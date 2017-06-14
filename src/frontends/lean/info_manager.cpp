@@ -57,6 +57,22 @@ public:
 #endif
 };
 
+class hole_info_data : public info_data_cell {
+    tactic_state m_state;
+    expr         m_arg;
+    /* TODO(Leo): we need to store the string for command containing the whole, and where it starts */
+public:
+    hole_info_data(tactic_state const & s, expr const & arg):
+        m_state(s), m_arg(arg) {}
+
+#ifdef LEAN_JSON
+    virtual void report(io_state_stream const & ios, json & record) const override {
+        type_context ctx = mk_type_context_for(m_state);
+        interactive_report_type(ios.get_environment(), ios.get_options(), ctx.infer(m_state.main()), record);
+    }
+#endif
+};
+
 #ifdef LEAN_JSON
 void vm_obj_format_info::report(io_state_stream const & ios, json & record) const {
     if (!m_cache) {
@@ -74,6 +90,7 @@ void vm_obj_format_info::report(io_state_stream const & ios, json & record) cons
 info_data mk_type_info(expr const & e) { return info_data(new type_info_data(e)); }
 info_data mk_identifier_info(name const & full_id) { return info_data(new identifier_info_data(full_id)); }
 info_data mk_vm_obj_format_info(environment const & env, vm_obj const & thunk) { return info_data(new vm_obj_format_info(env, thunk)); }
+info_data mk_hole_info(tactic_state const & s, expr const & arg) { return info_data(new hole_info_data(s, arg)); }
 
 void info_manager::add_info(pos_info pos, info_data data) {
 #ifdef LEAN_NO_INFO
@@ -133,6 +150,13 @@ void info_manager::add_identifier_info(pos_info pos, name const & full_id) {
 void info_manager::add_const_info(environment const & env, pos_info pos, name const & full_id) {
     add_identifier_info(pos, full_id);
     add_type_info(pos, env.get(full_id).get_type());
+}
+
+void info_manager::add_hole_info(pos_info pos, tactic_state const & s, expr const & arg) {
+#ifdef LEAN_NO_INFO
+    return;
+#endif
+    add_info(pos, mk_hole_info(s, arg));
 }
 
 void info_manager::add_vm_obj_format_info(pos_info pos, environment const & env, vm_obj const & thunk) {

@@ -17,6 +17,8 @@ ldcurly      ⦃
 rdcurly      ⦄
 lbracket     [
 rbracket     ]
+lcurlybang   {!
+rcurlybang   !}
 langle       ⟨
 rangle       ⟩
 triangle     ▸

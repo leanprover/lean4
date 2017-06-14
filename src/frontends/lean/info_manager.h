@@ -15,9 +15,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/json.h"
 
 namespace lean {
-
-class proof_state;
-
+class tactic_state;
 class info_data;
 
 class info_data_cell {
@@ -87,6 +85,7 @@ public:
     /* Takes type info from global declaration with the given name. */
     void add_const_info(environment const & env, pos_info pos, name const & full_id);
     void add_vm_obj_format_info(pos_info pos, environment const & env, vm_obj const & thunk);
+    void add_hole_info(pos_info pos, tactic_state const & s, expr const & arg);
 
     line_info_data_set get_line_info_set(unsigned l) const;
 

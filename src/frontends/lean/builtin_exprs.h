@@ -20,6 +20,8 @@ parse_table get_builtin_led_table();
 
 bool is_infix_function(expr const & e);
 
+bool is_hole(expr const & e);
+
 void initialize_builtin_exprs();
 void finalize_builtin_exprs();
 }

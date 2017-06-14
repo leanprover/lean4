@@ -22,6 +22,8 @@ static name const * g_ldcurly_tk = nullptr;
 static name const * g_rdcurly_tk = nullptr;
 static name const * g_lbracket_tk = nullptr;
 static name const * g_rbracket_tk = nullptr;
+static name const * g_lcurlybang_tk = nullptr;
+static name const * g_rcurlybang_tk = nullptr;
 static name const * g_langle_tk = nullptr;
 static name const * g_rangle_tk = nullptr;
 static name const * g_triangle_tk = nullptr;
@@ -146,6 +148,8 @@ void initialize_tokens() {
     g_rdcurly_tk = new name{"⦄"};
     g_lbracket_tk = new name{"["};
     g_rbracket_tk = new name{"]"};
+    g_lcurlybang_tk = new name{"{!"};
+    g_rcurlybang_tk = new name{"!}"};
     g_langle_tk = new name{"⟨"};
     g_rangle_tk = new name{"⟩"};
     g_triangle_tk = new name{"▸"};
@@ -271,6 +275,8 @@ void finalize_tokens() {
     delete g_rdcurly_tk;
     delete g_lbracket_tk;
     delete g_rbracket_tk;
+    delete g_lcurlybang_tk;
+    delete g_rcurlybang_tk;
     delete g_langle_tk;
     delete g_rangle_tk;
     delete g_triangle_tk;
@@ -395,6 +401,8 @@ name const & get_ldcurly_tk() { return *g_ldcurly_tk; }
 name const & get_rdcurly_tk() { return *g_rdcurly_tk; }
 name const & get_lbracket_tk() { return *g_lbracket_tk; }
 name const & get_rbracket_tk() { return *g_rbracket_tk; }
+name const & get_lcurlybang_tk() { return *g_lcurlybang_tk; }
+name const & get_rcurlybang_tk() { return *g_rcurlybang_tk; }
 name const & get_langle_tk() { return *g_langle_tk; }
 name const & get_rangle_tk() { return *g_rangle_tk; }
 name const & get_triangle_tk() { return *g_triangle_tk; }

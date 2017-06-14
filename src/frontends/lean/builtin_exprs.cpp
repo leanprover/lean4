@@ -975,6 +975,39 @@ static expr parse_atomic_inaccessible(parser_state & p, unsigned, expr const *, 
     return p.save_pos(mk_inaccessible(p.save_pos(mk_expr_placeholder(), pos)), pos);
 }
 
+static name * g_begin_hole = nullptr;
+static name * g_end_hole   = nullptr;
+
+expr mk_annotation_with_pos(parser & p, name const & a, expr const & e, pos_info const & pos) {
+    expr r = mk_annotation(a, e);
+    r.set_tag(nulltag); // mk_annotation copies e's tag
+    return p.save_pos(r, pos);
+}
+
+expr mk_hole(parser & p, expr const & e, pos_info const & begin_pos, pos_info const & end_pos) {
+    return mk_annotation_with_pos(p, *g_begin_hole, mk_annotation_with_pos(p, *g_end_hole, e, end_pos), begin_pos);
+}
+
+bool is_hole(expr const & e) { return is_annotation(e, *g_begin_hole); }
+
+static expr parse_hole(parser_state & p, unsigned, expr const *, pos_info const & begin_pos) {
+    expr e;
+    if (!p.curr_is_token(get_rcurlybang_tk())) {
+        if (p.in_quote()) {
+            e = p.parse_expr();
+        } else {
+            parser_state::quote_scope scope(p, false);
+            e = p.parse_expr();
+        }
+    } else {
+        e = p.save_pos(mk_expr_placeholder(), begin_pos);;
+    }
+    auto end_pos = p.pos();
+    p.check_token_next(get_rcurlybang_tk(), "invalid hole, `!}` expected");
+    expr r = mk_hole(p, e, begin_pos, end_pos);
+    return r;
+}
+
 parse_table init_nud_table() {
     action Expr(mk_expr_action());
     action Skip(mk_skip_action());
@@ -990,6 +1023,7 @@ parse_table init_nud_table() {
     r = r.add({transition("(", mk_ext_action(parse_lparen))}, x0);
     r = r.add({transition("⟨", mk_ext_action(parse_constructor))}, x0);
     r = r.add({transition("{", mk_ext_action(parse_curly_bracket))}, x0);
+    r = r.add({transition("{!", mk_ext_action(parse_hole))}, x0);
     r = r.add({transition(".(", mk_ext_action(parse_inaccessible))}, x0);
     r = r.add({transition("._", mk_ext_action(parse_atomic_inaccessible))}, x0);
     r = r.add({transition("```(", mk_ext_action(parse_lazy_quoted_pexpr))}, x0);
@@ -1084,6 +1118,12 @@ void initialize_builtin_exprs() {
     g_infix_function    = new name("infix_fn");
     register_annotation(*g_infix_function);
 
+    g_begin_hole = new name("begin_hole");
+    register_annotation(*g_begin_hole);
+
+    g_end_hole = new name("end_hole");
+    register_annotation(*g_end_hole);
+
     g_not               = new expr(mk_constant(get_not_name()));
     g_nud_table         = new parse_table();
     *g_nud_table        = init_nud_table();
@@ -1102,6 +1142,8 @@ void initialize_builtin_exprs() {
 }
 
 void finalize_builtin_exprs() {
+    delete g_begin_hole;
+    delete g_end_hole;
     delete g_do_failure_eq;
     delete g_infix_function;
     delete g_led_table;

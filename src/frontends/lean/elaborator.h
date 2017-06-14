@@ -47,6 +47,7 @@ private:
     list<expr>        m_instances;
     list<expr>        m_numeral_types;
     list<expr_pair>   m_tactics;
+    list<expr_pair>   m_holes;
     list<expr_pair>   m_inaccessible_stack;
 
     /* m_depth is only used for tracing */
@@ -61,6 +62,7 @@ private:
         list<expr>             m_saved_instances;
         list<expr>             m_saved_numeral_types;
         list<expr_pair>        m_saved_tactics;
+        list<expr_pair>        m_saved_holes;
         list<expr_pair>        m_saved_inaccessible_stack;
 
         snapshot(elaborator const & elab);
@@ -183,6 +185,7 @@ private:
     expr visit_have_expr(expr const & e, optional<expr> const & expected_type);
     expr visit_suffices_expr(expr const & e, optional<expr> const & expected_type);
     expr visit_by(expr const & e, optional<expr> const & expected_type);
+    expr visit_hole(expr const & e, optional<expr> const & expected_type);
     expr visit_anonymous_constructor(expr const & e, optional<expr> const & expected_type);
     expr visit_emptyc_or_emptys(expr const & e, optional<expr> const & expected_type);
 
@@ -263,6 +266,10 @@ private:
     void invoke_tactic(expr const & mvar, expr const & tac);
 
     bool ready_to_synthesize(expr inst_type);
+
+    void process_hole(expr const & mvar, expr const & arg);
+    void process_holes();
+
     bool synthesize_type_class_instance_core(expr const & mvar, expr const & inferred_inst, expr const & inst_type);
     bool try_synthesize_type_class_instance(expr const & mvar);
     void synthesize_numeral_types();

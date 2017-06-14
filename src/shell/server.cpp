@@ -437,6 +437,8 @@ void server::handle_request(server::cmd_req const & req) {
         handle_async_response(req, handle_complete(req));
     } else if (command == "info") {
         handle_async_response(req, handle_info(req));
+    } else if (command == "hole") {
+        handle_async_response(req, handle_hole(req));
     } else if (command == "search") {
         send_msg(handle_search(req));
     } else if (command == "roi") {
@@ -615,6 +617,43 @@ task<server::cmd_res> server::handle_info(server::cmd_req const & req) {
         return cmd_res(req.m_seq_num, info(mod_info, pos));
     }).wrap(library_scopes(log_tree::node()))
       .set_cancellation_token(m_bg_task_ctok).build();
+}
+
+json server::hole_command(std::shared_ptr<module_info const> const & /* mod_info */, std::string const & /* action */,
+                          pos_info const & pos) {
+    json j;
+    std::vector<info_manager> im = get_info_managers(m_lt);
+
+    j["message"] = "HOLE!!!!";
+    j["replacements"]["file"] = "f";
+    j["replacements"]["start"]["line"] = pos.first;
+    j["replacements"]["start"]["column"] = pos.second;
+    j["replacements"]["end"]["line"] = pos.first;
+    j["replacements"]["end"]["column"] = pos.second + 4;
+    json r1;
+    r1["code"] = "(1 + 1)";
+    r1["description"] = "this is a dummy replacement";
+    json r2;
+    r2["code"] = "(2 + 1)";
+    r2["description"] = "this is another dummy replacement";
+    j["replacements"]["alternatives"] = {r1, r2};
+
+    // TODO(Leo)
+    return j;
+}
+
+task<server::cmd_res> server::handle_hole(cmd_req const & req) {
+    cancel(m_bg_task_ctok);
+    m_bg_task_ctok = mk_cancellation_token();
+    std::string action = req.m_payload.at("action");
+    std::string fn     = req.m_payload.at("file_name");
+    pos_info pos       = {req.m_payload.at("line"), req.m_payload.at("column")};
+    auto mod_info      = m_mod_mgr->get_module(fn);
+
+    return task_builder<cmd_res>([=] { return cmd_res(req.m_seq_num, hole_command(mod_info, action, pos)); })
+        .wrap(library_scopes(log_tree::node()))
+        .set_cancellation_token(m_bg_task_ctok)
+        .build();
 }
 
 server::cmd_res server::handle_search(server::cmd_req const & req) {

@@ -235,7 +235,8 @@ bool execute_hole_command(tactic_state const & s, name const & cmd_decl_name, ex
     vm_obj r = S.top();
     if (optional<tactic::exception_info> ex = tactic::is_exception(S, r)) {
         format msg = mk_tactic_error_msg(std::get<2>(*ex), std::get<0>(*ex));
-        throw generic_exception(some_expr(ref), [=](formatter const &) { return msg; });
+        j["message"] = (sstream() << msg).str();
+        return false;
     } else {
         std::string msg = msgs.get_string();
         if (!msg.empty())
@@ -320,13 +321,17 @@ void execute_hole_command(module_info const & m_mod_info,
                           std::vector<info_manager> const & info_managers,
                           pos_info const & pos, std::string const & action, json & j) {
     optional<info_data> info = find_hole(m_mod_info, info_managers, pos);
-    if (!info)
-        throw exception("hole not found");
+    if (!info) {
+        j["message"] = "hole not found";
+        return;
+    }
     hole_info_data const & hole = to_hole_info_data(*info);
     tactic_state const & s = hole.get_tactic_state();
     optional<name> cmd_decl_name = is_hole_command(s.env(), name(action));
-    if (!cmd_decl_name)
-        throw exception(sstream() << "unknown hole command '" << action << "'");
+    if (!cmd_decl_name) {
+        j["message"] = (sstream() << "unknown hole command '" << action << "'").str();
+        return;
+    }
     if (execute_hole_command(s, *cmd_decl_name, hole.get_args(), j)) {
         j["replacements"]["file"] = m_mod_info.m_mod;
         j["replacements"]["start"]["line"]   = hole.get_begin_pos().first;

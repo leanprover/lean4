@@ -9,6 +9,8 @@ Lean is still evolving rapidly, and we apologize for the resulting instabilities
 
 * Well-founded recursion is now supported. (Details and examples for this and the next two items will soon appear in _Theorem Proving in Lean_.)
 
+* Mutually (non meta) recursive definitions are now supported.
+
 * Nested and mutual inductive data types are now supported.
 
 * There is support for coinductive predicates.
@@ -29,12 +31,28 @@ Lean is still evolving rapidly, and we apologize for the resulting instabilities
 
 * The monadic hierarchy now includes axioms for monadic classes. (See [here](https://github.com/leanprover/lean/pull/1447).)
 
+* The tactic notation `tac ; [tac_1, ..., tac_n]` has been added.
+
+* The type classes `has_well_founded`, `has_map`, `has_seq`, `has_orelse` have been added.
+
+* Type classes can have input/output parameters. Some examples can be found [here](https://github.com/leanprover/lean/blob/master/library/init/core.lean).
+
+* `tactic.run_io` can now be used to perform IO in tactics.
 
 *Changes*
+
+* Type class instances are not `[reducible]` by default anymore.
 
 * Commands that produce output are now preceded by a hash symbol, as in `#check`, `#print`, `#eval` and `#reduce`. The `#eval` command calls the bytecode evaluator, and `#reduce` does definitional reduction in the kernel. Many instances of alternative syntax like `premise` for `variable` and `hypothesis` for `parameter` have been eliminated. See the discussion [here](https://github.com/leanprover/lean/issues/1432).
 
 * The hierarchy of universes is now named `Sort 0`, `Sort 1`, `Sort 2`, and so on. `Prop` is alternative syntax for `Sort 0`, `Type` is alternative syntax for `Sort 1`, and `Type n` is alternative syntax for `Sort (n + 1)`. Many general constructors have been specialized from arbitrary `Sort`s to `Type` in order to simplify elaboration.
+
+* Automatically generate dependent eliminators for inductive predicates.
+
+* Improve unification hint matcher.
+
+* Improve unifier. In function applications, explicit arguments are unified before implicit ones.
+  Moreover, more aggresive unfolding is used when processing implicit arguments.
 
 * Use `universe u` instead of `universe variable u` to declare a universe variable.
 
@@ -44,6 +62,8 @@ Lean is still evolving rapidly, and we apologize for the resulting instabilities
 
 * The `assertv` and `definev` tactics have been eliminated in favor of `note` and `pose`.
 
+* `has_andthen` type class is now heterogeneous,
+
 * The encoding of structures has been changed, following the strategy described [here](https://github.com/leanprover/lean/wiki/Refactoring-structures). Generic operations like `add` and `mul` are replaced by `has_add.add` and `has_mul.mul`, respectively. One can provisionally obtain the old encodings with `set_option old_structure_cmd true
 `.
 
@@ -51,5 +71,10 @@ Lean is still evolving rapidly, and we apologize for the resulting instabilities
 
 * The types `expr` for expressions and `pexpr` for pre-expressions have been unified, so that `pexpr` is defined as `expr ff`. See [here](https://github.com/leanprover/lean/pull/1580).
 
-* Handling of the `io` monad has changed. Examples can be found [here](https://github.com/leanprover/lean/tree/master/leanpkg/leanpkg) in the code for `leanpkg`, which is written in Lean itself. 
+* Handling of the `io` monad has changed. Examples can be found [here](https://github.com/leanprover/lean/tree/master/leanpkg/leanpkg) in the code for `leanpkg`, which is written in Lean itself.
 
+- `state` and `state_t` are universe polymorphic.
+
+* GCC 7 compatibility
+
+* Use single quotes for character literals (e.g., 'a').

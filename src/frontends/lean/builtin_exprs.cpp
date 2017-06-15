@@ -1025,6 +1025,7 @@ static expr parse_hole(parser_state & p, unsigned, expr const *, pos_info const 
     }
     auto end_pos = p.pos();
     p.check_token_next(get_rcurlybang_tk(), "invalid hole, `!}` expected");
+    end_pos.second += 2;
     expr r = mk_hole(p, mk_lean_list(ps), begin_pos, end_pos);
     return r;
 }

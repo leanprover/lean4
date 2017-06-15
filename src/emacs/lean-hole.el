@@ -106,7 +106,7 @@
             (when selected-code
               (save-excursion
                 (goto-char start-marker)
-                (delete-region start-marker (1+ end-marker))
+                (delete-region start-marker (1- end-marker))
                 (insert selected-code)))))
         (when message
           (message "%s" (s-trim message)))

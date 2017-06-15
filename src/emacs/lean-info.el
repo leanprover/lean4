@@ -67,6 +67,26 @@
       (lambda (&key record)
         (funcall cont record))))))
 
+(defun lean-info-right-click-find-definition ()
+  "Offer to jump to definition of right-click target."
+  (interactive)
+  (list 'info
+        (list :file_name (buffer-file-name)
+              :line (line-number-at-pos)
+              :column (lean-line-offset))
+        (cl-function
+         (lambda (&key record)
+           (let ((source-record (plist-get record :source)))
+             (if source-record
+                 (let ((full-name (plist-get record :full-id)))
+                   (list
+                    (list :name (if full-name
+                                    (concat "Find definition of " full-name)
+                                  "Find definition")
+                          :action (lambda ()
+                                    (apply #'lean-find-definition-cont source-record)))))
+               (list)))))))
+
 (cl-defun lean-find-definition-cont (&key file line column)
   (when (fboundp 'xref-push-marker-stack) (xref-push-marker-stack))
   (when file

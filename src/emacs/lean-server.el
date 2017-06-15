@@ -59,7 +59,7 @@ least the following keys:
        (lean-server-notify-tasks-changed sess old-tasks)))
     ("error"
      (message "error: %s" (plist-get res :message))
-     ; TODO(gabriel): maybe even add the error as a message
+     ;; TODO(gabriel): maybe even add the error as a message
      (when (plist-get res :seq_num)
        (let ((cb (lean-server-session-pop-callback sess (plist-get res :seq_num))))
          (when (cdr cb) (funcall (cdr cb) res)))))
@@ -370,13 +370,21 @@ least the following keys:
   "Sends a command to the lean server for the current buffer, waiting for and returning the response"
   ;; inspired by company--force-sync
   (let ((res 'trash)
+        (ok t)
         (start (time-to-seconds)))
-    (lean-server-send-command cmd params (lambda (&rest result) (setq res result)))
+    (lean-server-send-command cmd params
+                              (lambda (&rest result) (setq res result))
+                              (cl-function
+                               (lambda (&key message)
+                                 (setq ok nil)
+                                 (setq res message))))
     (while (eq res 'trash)
       (if (> (- (time-to-seconds) start) company-async-timeout)
           (error "Lean server timed out")
         (sleep-for company-async-wait)))
-    res))
+    (if ok
+        res
+      (error res))))
 
 (defun lean-server-sync (&optional buf)
   "Synchronizes the state of BUF (or the current buffer, if nil) with the lean server"
@@ -396,6 +404,7 @@ least the following keys:
           (run-at-time "50 milliseconds" nil #'lean-server-sync (current-buffer)))))
 
 (defun lean-server-compute-roi (sess)
+  "Compute the region of interest for the session SESS."
   (--mapcat (with-current-buffer it
               (when (eq lean-server-session sess)
                 (list (cons (buffer-file-name)

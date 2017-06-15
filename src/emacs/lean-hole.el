@@ -113,5 +113,39 @@
         (set-marker start-marker nil)
         (set-marker end-marker nil))))))
 
+(defun lean-hole-right-click ()
+  "Ask Lean for a list of hole commands, then ask the user which to use."
+  (interactive)
+  (let ((buf (current-buffer)))
+    (ignore-errors
+      (list
+       'hole_commands
+       (list :file_name (buffer-file-name)
+             :line (line-number-at-pos)
+             :column (lean-line-offset))
+       (cl-function
+        (lambda (&key start end results)
+          (when (and start end)
+            (with-current-buffer buf
+              (let ((start-pos (lean-hole--line-col->pos (plist-get start :line)
+                                                         (plist-get start :column)))
+                    (end-pos (lean-hole--line-col->pos (plist-get end :line)
+                                                       (plist-get end :column))))
+                (let ((start-marker (make-marker))
+                      (end-marker (make-marker)))
+                  (set-marker start-marker start-pos (current-buffer))
+                  (set-marker end-marker (1+ end-pos) (current-buffer))
+                  (mapcar (lambda (res)
+                            (let ((item-name (plist-get res :name))
+                                  (item-desc (plist-get res :description)))
+                              (list :name
+                                    (concat item-name " — " item-desc)
+                                    :action
+                                    (lambda ()
+                                      (lean-hole--command
+                                       item-name
+                                       start-marker end-marker)))))
+                          results)))))))))))
+
 (provide 'lean-hole)
 ;;; lean-hole.el ends here

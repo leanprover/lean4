@@ -32,6 +32,7 @@
 (require 'lean-hole)
 (require 'lean-type)
 (require 'lean-message-boxes)
+(require 'lean-right-click)
 
 (defun lean-compile-string (exe-name args file-name)
   "Concatenate exe-name, args, and file-name"
@@ -86,7 +87,11 @@
   (local-set-key lean-keybinding-hole                      'lean-hole)
   (local-set-key lean-keybinding-lean-toggle-show-goal     'lean-toggle-show-goal)
   (local-set-key lean-keybinding-lean-toggle-next-error    'lean-toggle-next-error)
-  (local-set-key lean-keybinding-lean-message-boxes-toggle 'lean-message-boxes-toggle))
+  (local-set-key lean-keybinding-lean-message-boxes-toggle 'lean-message-boxes-toggle)
+  ;; This only works as a mouse binding due to the event, so it is not abstracted
+  ;; to avoid user confusion.
+  (local-set-key (kbd "<mouse-3>")                         'lean-right-click-show-menu)
+  )
 
 (define-abbrev-table 'lean-abbrev-table
   '())
@@ -154,6 +159,9 @@ enabled and disabled respectively.")
   ;; server
   (ignore-errors (lean-server-ensure-alive))
   (setq mode-name '("Lean" (:eval (lean-server-status-string))))
+  ;; Right click menu sources
+  (setq lean-right-click-item-functions '(lean-info-right-click-find-definition
+                                          lean-hole-right-click))
   ;; Flycheck
   (lean-flycheck-turn-on)
   (setq-local flycheck-disabled-checkers '())

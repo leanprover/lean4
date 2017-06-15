@@ -3390,14 +3390,14 @@ void elaborator::process_hole(expr const & mvar, expr const & hole) {
                                    + pp_indent(pp_fn, val));
     }
     expr ty = m_ctx.instantiate_mvars(m_ctx.infer(mvar));
-    if (get_global_info_manager()) {
+    if (m_uses_infom) {
         expr args; optional<pos_info> begin_pos, end_pos;
         std::tie(args, begin_pos, end_pos) = get_hole_info(hole);
         if (begin_pos && end_pos) {
             tactic_state s = elaborator::mk_tactic_state_for(val);
-            get_global_info_manager()->add_hole_info(*begin_pos, *end_pos, s, args);
+            m_info.add_hole_info(*begin_pos, *end_pos, s, args);
             /* The following command is a hack to make sure we see the hole's type in Emacs */
-            get_global_info_manager()->add_identifier_info(*begin_pos, "[goal]");
+            m_info.add_identifier_info(*begin_pos, "[goal]");
         }
     }
     m_ctx.assign(mvar, copy_tag(hole, mk_sorry(ty)));

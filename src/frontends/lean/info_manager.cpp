@@ -160,7 +160,6 @@ void info_manager::add_hole_info(pos_info const & begin_pos, pos_info const & en
 #endif
     info_data d = mk_hole_info(s, hole_args, begin_pos, end_pos);
     add_info(begin_pos, d);
-    add_info(end_pos, d);
 }
 
 void info_manager::add_vm_obj_format_info(pos_info pos, environment const & env, vm_obj const & thunk) {

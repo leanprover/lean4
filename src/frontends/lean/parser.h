@@ -220,6 +220,7 @@ public:
     io_state const & ios() const { return m_ios; }
 
     message_builder mk_message(pos_info const & p, message_severity severity) const;
+    message_builder mk_message(pos_info const & start_pos, pos_info const & end_pos, message_severity severity) const;
     message_builder mk_message(message_severity severity) const;
 
     local_level_decls const & get_local_level_decls() const { return m_local_level_decls; }

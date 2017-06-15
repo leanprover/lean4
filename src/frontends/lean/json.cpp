@@ -33,6 +33,10 @@ json json_of_message(message const & msg) {
     j["file_name"] = msg.get_file_name();
     j["pos_line"]  = msg.get_pos().first;
     j["pos_col"]   = msg.get_pos().second;
+    if (auto end_pos = msg.get_end_pos()) {
+        j["end_pos_line"] = end_pos->first;
+        j["end_pos_col"]  = end_pos->second;
+    }
     j["severity"]  = json_of_severity(msg.get_severity());
     j["caption"]   = msg.get_caption();
     j["text"]      = msg.get_text();

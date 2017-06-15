@@ -28,7 +28,7 @@ message message_builder::build() {
     auto text = m_text->str();
     if (!text.empty() && *text.rbegin() == '\n')
         text = text.substr(0, text.size() - 1);
-    return message(m_file_name, m_pos, m_severity, m_caption, text);
+    return message(m_file_name, m_pos, m_end_pos, m_severity, m_caption, text);
 }
 
 message_builder & message_builder::set_exception(std::exception const & ex, bool use_pos) {

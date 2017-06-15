@@ -622,6 +622,7 @@ environment print_cmd(parser & p) {
     } else {
         throw parser_error("invalid '#print' command", p.pos());
     }
+    out.set_end_pos(p.pos());
     out.report();
     return p.env();
 }

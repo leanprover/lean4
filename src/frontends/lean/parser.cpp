@@ -2571,6 +2571,14 @@ message_builder parser::mk_message(pos_info const &p, message_severity severity)
     std::shared_ptr<abstract_type_context> tc = std::make_shared<type_context>(env(), get_options());
     return message_builder(tc, env(), ios(), get_file_name(), p, severity);
 }
+
+message_builder parser::mk_message(pos_info const & start_pos, pos_info const & end_pos, message_severity severity) const {
+    std::shared_ptr<abstract_type_context> tc = std::make_shared<type_context>(env(), get_options());
+    message_builder b(tc, env(), ios(), get_file_name(), start_pos, severity);
+    b.set_end_pos(end_pos);
+    return b;
+}
+
 message_builder parser::mk_message(message_severity severity) const {
     return mk_message(pos(), severity);
 }

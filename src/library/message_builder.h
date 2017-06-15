@@ -18,6 +18,7 @@ class message_builder {
     std::shared_ptr<abstract_type_context> m_tc;
     std::string                            m_file_name;
     pos_info                               m_pos;
+    optional<pos_info>                     m_end_pos;
     message_severity                       m_severity;
     std::string                            m_caption;
     std::shared_ptr<string_output_channel> m_text;
@@ -37,6 +38,7 @@ public:
 
     message_builder & set_file_name(std::string const & file_name) { m_file_name = file_name; return *this; }
     message_builder & set_pos(pos_info const & pos) { m_pos = pos; return *this; }
+    message_builder & set_end_pos(pos_info const & pos) { m_end_pos = pos; return *this; }
     message_builder & set_severity(message_severity severity) { m_severity = severity; return *this; }
     message_builder & set_caption(std::string const & caption) { m_caption = caption; return *this; }
 

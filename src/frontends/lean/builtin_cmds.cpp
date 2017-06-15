@@ -188,7 +188,7 @@ environment check_cmd(parser & p) {
         // do not show useless type-checking results such as ?? : ?M_1
         return p.env();
     }
-    auto out              = p.mk_message(p.cmd_pos(), INFORMATION);
+    auto out              = p.mk_message(p.cmd_pos(), p.pos(), INFORMATION);
     formatter fmt         = out.get_formatter();
     unsigned indent       = get_pp_indent(p.get_options());
     format e_fmt    = fmt(e);
@@ -216,7 +216,7 @@ environment reduce_cmd(parser & p) {
         bool eta = false;
         r = normalize(tc, e, eta);
     }
-    auto out = p.mk_message(p.cmd_pos(), INFORMATION);
+    auto out = p.mk_message(p.cmd_pos(), p.pos(), INFORMATION);
     out.set_caption("reduce result") << r;
     out.report();
     return p.env();
@@ -346,6 +346,7 @@ static environment help_cmd(parser & p) {
     auto rep = p.mk_message(p.cmd_pos(), INFORMATION);
     if (p.curr_is_token_or_id(get_options_tk())) {
         p.next();
+        rep.set_end_pos(p.pos());
         auto decls = get_option_declarations();
         decls.for_each([&](name const &, option_declaration const & opt) {
                 rep << "  " << opt.get_name() << " (" << opt.kind() << ") "
@@ -359,6 +360,7 @@ static environment help_cmd(parser & p) {
                 ns.push_back(n);
             });
         std::sort(ns.begin(), ns.end());
+        rep.set_end_pos(p.pos());
         for (name const & n : ns) {
             rep << "  " << n << ": " << cmds.find(n)->get_descr() << "\n";
         };
@@ -409,7 +411,7 @@ static environment unify_cmd(parser & p) {
     local_context   lctx;
     e1 = convert_metavars(mctx, e1);
     e2 = convert_metavars(mctx, e2);
-    auto rep = p.mk_message(p.cmd_pos(), INFORMATION);
+    auto rep = p.mk_message(p.cmd_pos(), p.pos(), INFORMATION);
     rep << e1 << " =?= " << e2 << "\n";
     type_context ctx(env, p.get_options(), mctx, lctx, transparency_mode::Semireducible);
     bool success = ctx.is_def_eq(e1, e2);
@@ -461,7 +463,7 @@ static environment eval_cmd(parser & p) {
     name fn_name = "_main";
     auto new_env = compile_expr(p.env(), fn_name, ls, type, e, pos);
 
-    auto out = p.mk_message(p.cmd_pos(), INFORMATION);
+    auto out = p.mk_message(p.cmd_pos(), p.pos(), INFORMATION);
     scope_traces_as_messages scope_traces(p.get_stream_name(), p.cmd_pos());
     bool should_report = false;
 

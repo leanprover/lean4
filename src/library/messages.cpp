@@ -42,8 +42,10 @@ void report_message(message const & msg0) {
         msg = std::make_shared<message>(msg0);
     } else {
         auto pos_ok = loc.m_range.m_begin <= msg0.get_pos() && msg0.get_pos() <= loc.m_range.m_end;
-        msg = std::make_shared<message>(loc.m_file_name, pos_ok ? msg0.get_pos() : loc.m_range.m_begin,
-            msg0.get_severity(), msg0.get_caption(), msg0.get_text());
+        msg = std::make_shared<message>(loc.m_file_name,
+                                        pos_ok ? msg0.get_pos() : loc.m_range.m_begin,
+                                        pos_ok ? msg0.get_end_pos() : optional<pos_info>(),
+                                        msg0.get_severity(), msg0.get_caption(), msg0.get_text());
     }
     l.add(msg);
 }

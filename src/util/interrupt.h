@@ -64,6 +64,7 @@ constexpr unsigned g_small_sleep = 10;
    \remark check_interrupted is invoked every \c step_ms milliseconds;
 */
 void sleep_for(unsigned ms, unsigned step_ms = g_small_sleep);
+inline void sleep_for(chrono::milliseconds const & ms) { sleep_for(ms.count(), 10); }
 
 /**
    \brief Thread that provides a method for setting its interrupt flag.

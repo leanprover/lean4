@@ -847,7 +847,7 @@ vm_obj tactic_sleep(vm_obj const & msecs, vm_obj const & s0) {
     tactic_state s = tactic::to_state(s0);
     if (optional<unsigned> m = try_to_unsigned(msecs)) {
         chrono::milliseconds cm(*m);
-        this_thread::sleep_for(cm);
+        sleep_for(cm);
         return tactic::mk_success(s);
     } else {
         return tactic::mk_exception("sleep failed, argument is too big", s);

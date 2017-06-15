@@ -35,6 +35,7 @@ Key Bindings and Commands
 | <kbd>S-SPC</kbd>   | auto complete identifiers, options, imports, etc. (`company-complete`)          |
 | <kbd>C-c C-k</kbd> | shows the keystroke needed to input the symbol under the cursor                 |
 | <kbd>C-c C-x</kbd> | execute lean in stand-alone mode (`lean-std-exe`)                               |
+| <kbd>C-c SPC</kbd> | run a command on the hole at point (`lean-hole`)
 | <kbd>C-c C-g</kbd> | toggle showing current tactic proof goal (`lean-toggle-show-goal`)              |
 | <kbd>C-c C-n</kbd> | toggle showing next error in dedicated buffer (`lean-toggle-next-error`)        |
 | <kbd>C-c C-r</kbd> | restart the lean server (`lean-server-restart`)                                 |

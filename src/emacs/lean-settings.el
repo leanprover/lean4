@@ -120,6 +120,9 @@ false (nil)."
 (defcustom lean-keybinding-auto-complete (kbd "S-SPC")
   "Lean Keybinding for auto completion"
   :group 'lean-keybinding  :type 'key-sequence)
+(defcustom lean-keybinding-hole (kbd "C-c SPC")
+  "Lean Keybinding for hole manipulation"
+  :group 'lean-keybinding  :type 'key-sequence)
 (defcustom lean-keybinding-lean-toggle-show-goal (kbd "C-c C-g")
   "Lean Keybinding for show-goal-at-pos"
   :group 'lean-keybinding  :type 'key-sequence)

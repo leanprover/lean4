@@ -29,6 +29,7 @@
 (require 'lean-server)
 (require 'lean-flycheck)
 (require 'lean-info)
+(require 'lean-hole)
 (require 'lean-type)
 
 (defun lean-compile-string (exe-name args file-name)
@@ -81,6 +82,7 @@
   (local-set-key lean-keybinding-find-definition           'lean-find-definition)
   (local-set-key lean-keybinding-tab-indent                'lean-tab-indent)
   (local-set-key lean-keybinding-auto-complete             'company-complete)
+  (local-set-key lean-keybinding-hole                      'lean-hole)
   (local-set-key lean-keybinding-lean-toggle-show-goal     'lean-toggle-show-goal)
   (local-set-key lean-keybinding-lean-toggle-next-error    'lean-toggle-next-error)
   )

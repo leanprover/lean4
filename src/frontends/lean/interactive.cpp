@@ -192,21 +192,26 @@ optional<info_data> find_hole(module_info const & m_mod_info,
     optional<info_data> r;
     for (auto & infom : info_managers) {
         if (infom.get_file_name() == m_mod_info.m_mod) {
-            line_info_data_set S = infom.get_line_info_set(pos.first);
-            S.for_each([&](unsigned, list<info_data> const & info_list) {
-                    if (r) return;
-                    for (info_data const & info : info_list) {
-                        if (hole_info_data const * hole = is_hole_info_data(info)) {
-                            pos_info const & begin = hole->get_begin_pos();
-                            pos_info const & end   = hole->get_end_pos();
-                            if ((pos.first > begin.first || (pos.first == begin.first && pos.second >= begin.second)) &&
-                                (pos.first < end.first || (pos.first == end.first && pos.second <= end.second))) {
-                                r = info;
+            unsigned line = pos.first;
+            while (true) {
+                line_info_data_set S = infom.get_line_info_set(line);
+                S.for_each([&](unsigned, list<info_data> const & info_list) {
+                        if (r) return;
+                        for (info_data const & info : info_list) {
+                            if (hole_info_data const * hole = is_hole_info_data(info)) {
+                                pos_info const & begin = hole->get_begin_pos();
+                                pos_info const & end   = hole->get_end_pos();
+                                if ((pos.first > begin.first || (pos.first == begin.first && pos.second >= begin.second)) &&
+                                    (pos.first < end.first || (pos.first == end.first && pos.second <= end.second))) {
+                                    r = info;
+                                }
                             }
                         }
-                    }
-                });
-            if (r) break;
+                    });
+                if (r) break;
+                if (line == 0) break;
+                line--;
+            }
         }
     }
     return r;

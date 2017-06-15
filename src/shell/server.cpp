@@ -439,6 +439,8 @@ void server::handle_request(server::cmd_req const & req) {
         handle_async_response(req, handle_info(req));
     } else if (command == "hole") {
         handle_async_response(req, handle_hole(req));
+    } else if (command == "hole_commands") {
+        send_msg(handle_hole_commands(req));
     } else if (command == "search") {
         send_msg(handle_search(req));
     } else if (command == "roi") {
@@ -639,6 +641,16 @@ task<server::cmd_res> server::handle_hole(cmd_req const & req) {
         .wrap(library_scopes(log_tree::node()))
         .set_cancellation_token(m_bg_task_ctok)
         .build();
+}
+
+server::cmd_res server::handle_hole_commands(server::cmd_req const & req) {
+    std::string fn     = req.m_payload.at("file_name");
+    pos_info pos       = {req.m_payload.at("line"), req.m_payload.at("column")};
+    auto mod_info      = m_mod_mgr->get_module(fn);
+    std::vector<info_manager> im = get_info_managers(m_lt);
+    json j;
+    get_hole_commands(*mod_info, im, pos, j);
+    return cmd_res(req.m_seq_num, j);
 }
 
 server::cmd_res server::handle_search(server::cmd_req const & req) {

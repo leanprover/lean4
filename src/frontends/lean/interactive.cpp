@@ -255,10 +255,36 @@ bool execute_hole_command(tactic_state const & s, name const & cmd_decl_name, ex
     }
 }
 
+void get_hole_commands(module_info const & m_mod_info,
+                       std::vector<info_manager> const & info_managers,
+                       pos_info const & pos, json & j) {
+    optional<info_data> info = find_hole(m_mod_info, info_managers, pos);
+    if (!info)
+        throw exception("hole not found");
+    hole_info_data const & hole = to_hole_info_data(*info);
+    tactic_state const & s = hole.get_tactic_state();
+    buffer<pair<name, std::string>> cmd_descrs;
+    get_hole_commands(s.env(), cmd_descrs);
+    if (cmd_descrs.empty())
+        throw exception("hole commands are not available");
+    std::vector<json> ds;
+    for (auto const & p : cmd_descrs) {
+        json d;
+        d["name"] = p.first.to_string();
+        d["description"] = p.second;
+        ds.push_back(d);
+    }
+    j["results"] = ds;
+    j["file"] = m_mod_info.m_mod;
+    j["start"]["line"]   = hole.get_begin_pos().first;
+    j["start"]["column"] = hole.get_begin_pos().second;
+    j["end"]["line"]     = hole.get_end_pos().first;
+    j["end"]["column"]   = hole.get_end_pos().second;
+}
+
 void execute_hole_command(module_info const & m_mod_info,
                           std::vector<info_manager> const & info_managers,
                           pos_info const & pos, std::string const & action, json & j) {
-    json record;
     optional<info_data> info = find_hole(m_mod_info, info_managers, pos);
     if (!info)
         throw exception("hole not found");

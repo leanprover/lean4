@@ -76,6 +76,12 @@ optional<name> is_hole_command(environment const & env, name const & n) {
         return optional<name>();
 }
 
+void get_hole_commands(environment const & env, buffer<pair<name, std::string>> & r) {
+    get_extension(env).m_cmds.for_each([&](name const & n, pair<name, std::string> const & p) {
+            r.emplace_back(n, p.second);
+        });
+}
+
 void initialize_hole_command() {
     register_system_attribute(basic_attribute(
             "hole_command", "register a definition of type `hole_command` in the system",

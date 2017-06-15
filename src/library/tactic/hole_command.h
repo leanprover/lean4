@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 namespace lean {
 optional<name> is_hole_command(environment const & env, name const & n);
+void get_hole_commands(environment const & env, buffer<pair<name, std::string>> & r);
 void initialize_hole_command();
 void finalize_hole_command();
 }

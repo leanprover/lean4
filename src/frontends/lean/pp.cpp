@@ -53,6 +53,8 @@ Author: Leonardo de Moura
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/tokens.h"
 
+#include "library/trace.h"
+
 namespace lean {
 static format * g_ellipsis_n_fmt  = nullptr;
 static format * g_ellipsis_fmt    = nullptr;
@@ -345,6 +347,7 @@ void pretty_fn::set_options_core(options const & _o) {
     m_binder_types      = get_pp_binder_types(o);
     m_hide_comp_irrel   = get_pp_hide_comp_irrel(o);
     m_delayed_abstraction  = get_pp_delayed_abstraction(o);
+    m_use_holes         = get_pp_use_holes(o);
     m_hide_full_terms   = get_formatter_hide_full_terms(o);
     m_num_nat_coe       = m_numerals;
     m_structure_instances = get_pp_structure_instances(o);
@@ -741,8 +744,12 @@ auto pretty_fn::pp_const(expr const & e, optional<unsigned> const & num_ref_univ
     }
 }
 
+static format pp_hole() { return format("{! !}"); }
+
 auto pretty_fn::pp_meta(expr const & e) -> result {
-    if (is_idx_metavar(e)) {
+    if (m_use_holes) {
+        return pp_hole();
+    } else if (is_idx_metavar(e)) {
         return result(format((sstream() << "?x_" << to_meta_idx(e)).str()));
     } else if (is_metavar_decl_ref(e) && !m_purify_metavars) {
         return result(format((sstream() << "?m_" << get_metavar_decl_ref_suffix(e)).str()));
@@ -1030,7 +1037,9 @@ auto pretty_fn::pp_explicit(expr const & e) -> result {
 }
 
 auto pretty_fn::pp_delayed_abstraction(expr const & e) -> result {
-    if (m_delayed_abstraction) {
+    if (m_use_holes) {
+        return pp_hole();
+    } else if (m_delayed_abstraction) {
         format r = format("delayed[");
         r += pp(get_delayed_abstraction_expr(e)).fmt();
         r += format("]");
@@ -1158,9 +1167,15 @@ auto pretty_fn::pp_macro(expr const & e) -> result {
     } else if (is_rec_fn_macro(e)) {
         return format("[") + format(get_rec_fn_name(e)) + format("]");
     } else if (is_synthetic_sorry(e)) {
-        return m_unicode ? format("⁇") : format("??");
+        if (m_use_holes)
+            return pp_hole();
+        else
+            return m_unicode ? format("⁇") : format("??");
     } else if (is_sorry(e)) {
-        return format("sorry");
+        if (m_use_holes)
+            return pp_hole();
+        else
+            return format("sorry");
     } else {
         return pp_macro_default(e);
     }

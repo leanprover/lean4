@@ -11,6 +11,7 @@ Author: Sebastian Ullrich
 #include "util/sexpr/option_declarations.h"
 #include "library/module_mgr.h"
 #include "library/constants.h"
+#include "library/pp_options.h"
 #include "library/exception.h"
 #include "library/documentation.h"
 #include "library/attribute_manager.h"
@@ -217,15 +218,18 @@ optional<info_data> find_hole(module_info const & m_mod_info,
     return r;
 }
 
-bool execute_hole_command(tactic_state const & s, name const & cmd_decl_name, expr const & args, json & j) {
+bool execute_hole_command(tactic_state s, name const & cmd_decl_name, expr const & args, json & j) {
     type_context ctx = mk_type_context_for(s);
-    scope_trace_env _(s.env(), s.get_options(), ctx);
+    options opts     = s.get_options();
+    opts = opts.update_if_undef(get_pp_use_holes_name(), true);
+    s = set_options(s, opts);
+    scope_trace_env _(s.env(), opts, ctx);
     scope_traces_as_string msgs;
     expr const & ref = args;
-    tactic_evaluator evaluator(ctx, s.get_options(), ref);
+    tactic_evaluator evaluator(ctx, opts, ref);
     name args_name("_args");
     environment new_env = evaluator.compile(args_name, args);
-    vm_state S(new_env, s.get_options());
+    vm_state S(new_env, opts);
     vm_obj decl_obj = S.get_constant(cmd_decl_name);
     vm_obj tac  = cfield(decl_obj, 2);
     S.push(to_obj(s));

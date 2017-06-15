@@ -112,6 +112,10 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_PP_INSTANTIATE_MVARS true
 #endif
 
+#ifndef LEAN_DEFAULT_PP_USE_HOLES
+#define LEAN_DEFAULT_PP_USE_HOLES false
+#endif
+
 namespace lean {
 static name * g_pp_max_depth         = nullptr;
 static name * g_pp_max_steps         = nullptr;
@@ -138,6 +142,7 @@ static name * g_pp_structure_instances = nullptr;
 static name * g_pp_structure_instances_qualifier = nullptr;
 static name * g_pp_structure_projections    = nullptr;
 static name * g_pp_instantiate_mvars = nullptr;
+static name * g_pp_use_holes         = nullptr;
 static name * g_pp_all               = nullptr;
 static list<options> * g_distinguishing_pp_options = nullptr;
 
@@ -168,6 +173,7 @@ void initialize_pp_options() {
     g_pp_structure_instances_qualifier = new name{"pp", "structure_instances_qualifier"};
     g_pp_structure_projections = new name{"pp", "structure_projections"};
     g_pp_instantiate_mvars = new name{"pp", "instantiate_mvars"};
+    g_pp_use_holes         = new name{"pp", "use_holes"};
 
     register_unsigned_option(*g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH,
                              "(pretty printer) maximum expression depth, after that it will use ellipsis");
@@ -227,6 +233,8 @@ void initialize_pp_options() {
                          "and disable beta reduction and notation during pretty printing");
     register_bool_option(*g_pp_instantiate_mvars, LEAN_DEFAULT_PP_INSTANTIATE_MVARS,
                          "(pretty printer) instantiate assigned metavariables before pretty printing terms and goals");
+    register_bool_option(*g_pp_use_holes, LEAN_DEFAULT_PP_USE_HOLES,
+                         "(pretty printer) use holes '{! !}' when pretty printing metavariables and `sorry`");
 
     options universes_true(*g_pp_universes, true);
     options full_names_true(*g_pp_full_names, true);
@@ -271,6 +279,7 @@ void finalize_pp_options() {
     delete g_pp_all;
     delete g_pp_delayed_abstraction;
     delete g_pp_instantiate_mvars;
+    delete g_pp_use_holes;
     delete g_distinguishing_pp_options;
 }
 
@@ -287,6 +296,7 @@ name const & get_pp_beta_name() { return *g_pp_beta; }
 name const & get_pp_preterm_name() { return *g_pp_preterm; }
 name const & get_pp_numerals_name() { return *g_pp_numerals; }
 name const & get_pp_strings_name() { return *g_pp_strings; }
+name const & get_pp_use_holes_name() { return *g_pp_use_holes; }
 name const & get_pp_binder_types_name() { return *g_pp_binder_types; }
 
 unsigned get_pp_max_depth(options const & opts)         { return opts.get_unsigned(*g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH); }
@@ -314,5 +324,6 @@ bool     get_pp_structure_instances(options const & opts) { return opts.get_bool
 bool     get_pp_structure_instances_qualifier(options const & opts) { return opts.get_bool(*g_pp_structure_instances_qualifier, LEAN_DEFAULT_PP_STRUCTURE_INSTANCES_QUALIFIER); }
 bool     get_pp_structure_projections(options const & opts) { return opts.get_bool(*g_pp_structure_projections, LEAN_DEFAULT_PP_STRUCTURE_PROJECTIONS); }
 bool     get_pp_instantiate_mvars(options const & o)    { return o.get_bool(*g_pp_instantiate_mvars, LEAN_DEFAULT_PP_INSTANTIATE_MVARS); }
+bool     get_pp_use_holes(options const & o)            { return o.get_bool(*g_pp_use_holes, LEAN_DEFAULT_PP_USE_HOLES); }
 bool     get_pp_all(options const & opts)               { return opts.get_bool(*g_pp_all, LEAN_DEFAULT_PP_ALL); }
 }

@@ -272,7 +272,7 @@ bool json_of_hole(hole_info_data const & hole, std::string const & file, json & 
     j["start"]["line"]   = hole.get_begin_pos().first;
     j["start"]["column"] = hole.get_begin_pos().second;
     j["end"]["line"]     = hole.get_end_pos().first;
-    j["end"]["column"]   = hole.get_end_pos().second;
+    j["end"]["column"]   = hole.get_end_pos().second + 1;
     return true;
 }
 
@@ -327,7 +327,7 @@ void execute_hole_command(module_info const & m_mod_info,
         j["replacements"]["start"]["line"]   = hole.get_begin_pos().first;
         j["replacements"]["start"]["column"] = hole.get_begin_pos().second;
         j["replacements"]["end"]["line"]     = hole.get_end_pos().first;
-        j["replacements"]["end"]["column"]   = hole.get_end_pos().second;
+        j["replacements"]["end"]["column"]   = hole.get_end_pos().second + 1;
     }
 }
 

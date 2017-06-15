@@ -45,7 +45,7 @@ static environment add_hole_command(environment const & env, name const & d) {
     if (ext.m_cmds.contains(n))
         throw exception(sstream() << "hole commad named [" << n << "] has already been registered");
     std::string descr = to_string(cfield(o, 1));
-    ext.m_cmds.insert(n, {n, descr});
+    ext.m_cmds.insert(n, {d, descr});
     return update(env, ext);
 }
 
@@ -68,6 +68,13 @@ struct hole_command_modification : public modification {
         return std::make_shared<hole_command_modification>(read_name(d));
     }
 };
+
+optional<name> is_hole_command(environment const & env, name const & n) {
+    if (auto p = get_extension(env).m_cmds.find(n))
+        return optional<name>(p->first);
+    else
+        return optional<name>();
+}
 
 void initialize_hole_command() {
     register_system_attribute(basic_attribute(

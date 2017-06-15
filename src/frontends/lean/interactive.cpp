@@ -11,11 +11,15 @@ Author: Sebastian Ullrich
 #include "util/sexpr/option_declarations.h"
 #include "library/module_mgr.h"
 #include "library/constants.h"
+#include "library/exception.h"
 #include "library/documentation.h"
 #include "library/attribute_manager.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_expr.h"
+#include "library/vm/vm_string.h"
 #include "library/vm/vm_format.h"
+#include "library/tactic/hole_command.h"
+#include "library/tactic/tactic_evaluator.h"
 #include "frontends/lean/completion.h"
 #include "frontends/lean/interactive.h"
 #include "frontends/lean/pp.h"
@@ -180,6 +184,96 @@ void report_info(environment const & env, options const & opts, io_state const &
 
     if (!record.is_null())
         j["record"] = record;
+}
+
+optional<info_data> find_hole(module_info const & m_mod_info,
+                              std::vector<info_manager> const & info_managers,
+                              pos_info const & pos) {
+    optional<info_data> r;
+    for (auto & infom : info_managers) {
+        if (infom.get_file_name() == m_mod_info.m_mod) {
+            line_info_data_set S = infom.get_line_info_set(pos.first);
+            S.for_each([&](unsigned, list<info_data> const & info_list) {
+                    if (r) return;
+                    for (info_data const & info : info_list) {
+                        if (hole_info_data const * hole = is_hole_info_data(info)) {
+                            pos_info const & begin = hole->get_begin_pos();
+                            pos_info const & end   = hole->get_end_pos();
+                            if ((pos.first > begin.first || (pos.first == begin.first && pos.second >= begin.second)) &&
+                                (pos.first < end.first || (pos.first == end.first && pos.second <= end.second))) {
+                                r = info;
+                            }
+                        }
+                    }
+                });
+            if (r) break;
+        }
+    }
+    return r;
+}
+
+bool execute_hole_command(tactic_state const & s, name const & cmd_decl_name, expr const & args, json & j) {
+    type_context ctx = mk_type_context_for(s);
+    scope_trace_env _(s.env(), s.get_options(), ctx);
+    scope_traces_as_string msgs;
+    expr const & ref = args;
+    tactic_evaluator evaluator(ctx, s.get_options(), ref);
+    name args_name("_args");
+    environment new_env = evaluator.compile(args_name, args);
+    vm_state S(new_env, s.get_options());
+    vm_obj decl_obj = S.get_constant(cmd_decl_name);
+    vm_obj tac  = cfield(decl_obj, 2);
+    S.push(to_obj(s));
+    S.push(S.get_constant(args_name));
+    S.push(tac);
+    S.apply(2);
+    vm_obj r = S.top();
+    if (optional<tactic::exception_info> ex = tactic::is_exception(S, r)) {
+        format msg = mk_tactic_error_msg(std::get<2>(*ex), std::get<0>(*ex));
+        throw generic_exception(some_expr(ref), [=](formatter const &) { return msg; });
+    } else {
+        std::string msg = msgs.get_string();
+        if (!msg.empty())
+            j["message"] = msgs.get_string();
+        std::vector<json> as;
+        vm_obj l     = tactic::get_result_value(r);
+        while (cidx(l) != 0) {
+            lean_assert(cidx(l) == 1);
+            vm_obj p = cfield(l, 0);
+            json a;
+            a["code"]        = to_string(cfield(p, 0));
+            a["description"] = to_string(cfield(p, 1));
+            as.push_back(a);
+            l = cfield(l, 1);
+        }
+        if (as.empty()) {
+            return false;
+        } else {
+            j["replacements"]["alternatives"] = as;
+            return true;
+        }
+    }
+}
+
+void execute_hole_command(module_info const & m_mod_info,
+                          std::vector<info_manager> const & info_managers,
+                          pos_info const & pos, std::string const & action, json & j) {
+    json record;
+    optional<info_data> info = find_hole(m_mod_info, info_managers, pos);
+    if (!info)
+        throw exception("hole not found");
+    hole_info_data const & hole = to_hole_info_data(*info);
+    tactic_state const & s = hole.get_tactic_state();
+    optional<name> cmd_decl_name = is_hole_command(s.env(), name(action));
+    if (!cmd_decl_name)
+        throw exception(sstream() << "unknown hole command '" << action << "'");
+    if (execute_hole_command(s, *cmd_decl_name, hole.get_args(), j)) {
+        j["replacements"]["file"] = m_mod_info.m_mod;
+        j["replacements"]["start"]["line"]   = hole.get_begin_pos().first;
+        j["replacements"]["start"]["column"] = hole.get_begin_pos().second;
+        j["replacements"]["end"]["line"]     = hole.get_end_pos().first;
+        j["replacements"]["end"]["column"]   = hole.get_end_pos().second;
+    }
 }
 
 void initialize_interactive() {

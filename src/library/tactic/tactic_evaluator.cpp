@@ -17,7 +17,7 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic_evaluator.h"
 
 namespace lean {
-static format mk_tactic_error_msg(tactic_state const & ts, format const & fmt) {
+format mk_tactic_error_msg(tactic_state const & ts, format const & fmt) {
     return fmt + line() + format("state:") + line() + ts.pp();
 }
 

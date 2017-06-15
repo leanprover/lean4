@@ -619,26 +619,11 @@ task<server::cmd_res> server::handle_info(server::cmd_req const & req) {
       .set_cancellation_token(m_bg_task_ctok).build();
 }
 
-json server::hole_command(std::shared_ptr<module_info const> const & /* mod_info */, std::string const & /* action */,
+json server::hole_command(std::shared_ptr<module_info const> const & mod_info, std::string const & action,
                           pos_info const & pos) {
     json j;
     std::vector<info_manager> im = get_info_managers(m_lt);
-
-    j["message"] = "HOLE!!!!";
-    j["replacements"]["file"] = "f";
-    j["replacements"]["start"]["line"] = pos.first;
-    j["replacements"]["start"]["column"] = pos.second;
-    j["replacements"]["end"]["line"] = pos.first;
-    j["replacements"]["end"]["column"] = pos.second + 4;
-    json r1;
-    r1["code"] = "(1 + 1)";
-    r1["description"] = "this is a dummy replacement";
-    json r2;
-    r2["code"] = "(2 + 1)";
-    r2["description"] = "this is another dummy replacement";
-    j["replacements"]["alternatives"] = {r1, r2};
-
-    // TODO(Leo)
+    execute_hole_command(*mod_info, im, pos, action, j);
     return j;
 }
 

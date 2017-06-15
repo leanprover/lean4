@@ -9,9 +9,9 @@ import init.meta.tactic
 /--
 The front-end (e.g., Emacs, VS Code) can invoke commands for holes {! ... !} in
 a declaration. A command is a tactic that takes zero or more pre-terms in the
-hole, and returns a list of expressions. The Lean server converts the list
-into a list of strings using the pretty printer, and returns it to the front-end.
-Each string represents a different way to fill the hole.
+hole, and returns a list of pair (s, descr) where 's' is a substitution and 'descr' is
+a short explanation for the substitution.
+Each string 's' represents a different way to fill the hole.
 The front-end is responsible for replacing the hole with the string/alternative selected by the user.
 
 This infra-structure can be use to implement auto-fill and/or refine commands.
@@ -22,7 +22,7 @@ information such as: the type of an expression, its normal form, etc.
 meta structure hole_command :=
 (name   : string)
 (descr  : string)
-(action : list pexpr → tactic (list expr))
+(action : list pexpr → tactic (list (string × string)))
 
 open tactic
 
@@ -45,4 +45,20 @@ meta def show_goal_cmd : hole_command :=
   action := λ _, do
     trace_state,
     return []
+}
+
+@[hole_command]
+meta def use_cmd : hole_command :=
+{ name   := "Use",
+  descr  := "Try to fill the hole using the given argument",
+  action := λ ps, do
+    [p] ← return ps | fail "Use command failed, the hole must contain a single term",
+    t   ← target,
+    e   ← to_expr ``(%%p : %%t),
+    ty  ← infer_type e,
+    is_def_eq t ty,
+    fmt ← tactic_format_expr e,
+    o   ← get_options,
+    let s := fmt.to_string o,
+    return [(s, "")]
 }

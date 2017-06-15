@@ -216,8 +216,10 @@ environment interaction_monad<State>::evaluator::compile(name const & interactio
                     mk_definition(new_env, interaction_name, {}, interaction_type, interaction, use_conv_opt,
                                   is_trusted));
     new_env = new_env.add(cd);
-    if (auto pos = provider->get_pos_info(interaction))
-        new_env = add_transient_decl_pos_info(new_env, interaction_name, *pos);
+    if (provider) {
+        if (auto pos = provider->get_pos_info(interaction))
+            new_env = add_transient_decl_pos_info(new_env, interaction_name, *pos);
+    }
     try {
         bool optimize_bytecode = false;
         return vm_compile(new_env, new_env.get(interaction_name), optimize_bytecode);
@@ -252,7 +254,7 @@ vm_obj interaction_monad<State>::evaluator::operator()(expr const & interaction,
     args_s.append(args);
     args_s.push_back(to_obj(s));
     vm_obj r = S.invoke(S.get_constant(interaction_name), args_s.size(), args_s.data());
-    if (prof.enabled()) {
+    if (prof.enabled() && get_pos_info_provider()) {
         auto out = message_builder(environment(), get_global_ios(),
                                    get_pos_info_provider()->get_file_name(),
                                    get_pos_info_provider()->get_pos_info_or_some(interaction),

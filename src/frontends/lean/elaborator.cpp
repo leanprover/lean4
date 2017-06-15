@@ -3380,8 +3380,8 @@ void elaborator::synthesize_no_tactics() {
     synthesize_type_class_instances();
 }
 
-void elaborator::process_hole(expr const & mvar, expr const & arg) {
-    lean_assert(is_hole(arg));
+void elaborator::process_hole(expr const & mvar, expr const & hole) {
+    lean_assert(is_hole(hole));
     expr val = instantiate_mvars(mvar);
     if (!is_metavar(val)) {
         auto pp_fn = mk_pp_ctx();
@@ -3390,21 +3390,17 @@ void elaborator::process_hole(expr const & mvar, expr const & arg) {
                                    + pp_indent(pp_fn, val));
     }
     expr ty = m_ctx.instantiate_mvars(m_ctx.infer(mvar));
-    if (get_global_info_manager() && get_pos_info_provider()) {
-        if (auto pos = get_pos_info_provider()->get_pos_info(arg)) {
+    if (get_global_info_manager()) {
+        expr args; optional<pos_info> begin_pos, end_pos;
+        std::tie(args, begin_pos, end_pos) = get_hole_info(hole);
+        if (begin_pos && end_pos) {
             tactic_state s = elaborator::mk_tactic_state_for(val);
-            get_global_info_manager()->add_hole_info(*pos, s, arg);
+            get_global_info_manager()->add_hole_info(*begin_pos, *end_pos, s, args);
             /* The following command is a hack to make sure we see the hole's type in Emacs */
-            get_global_info_manager()->add_identifier_info(*pos, "[goal]");
-            /* also store info at !} */
-            if (auto end_pos = get_pos_info_provider()->get_pos_info(get_annotation_arg(arg))) {
-                get_global_info_manager()->add_hole_info(*end_pos, s, arg);
-                /* same hack again */
-                get_global_info_manager()->add_identifier_info(*end_pos, "[goal]");
-            }
+            get_global_info_manager()->add_identifier_info(*begin_pos, "[goal]");
         }
     }
-    m_ctx.assign(mvar, copy_tag(arg, mk_sorry(ty)));
+    m_ctx.assign(mvar, copy_tag(hole, mk_sorry(ty)));
 }
 
 void elaborator::process_holes() {

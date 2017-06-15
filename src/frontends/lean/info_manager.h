@@ -12,10 +12,10 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/metavar_context.h"
 #include "library/vm/vm.h"
+#include "library/tactic/tactic_state.h"
 #include "frontends/lean/json.h"
 
 namespace lean {
-class tactic_state;
 class info_data;
 
 class info_data_cell {
@@ -43,6 +43,25 @@ public:
 #endif
 };
 
+class hole_info_data : public info_data_cell {
+    tactic_state m_state;
+    expr         m_args;
+    pos_info     m_begin_pos;
+    pos_info     m_end_pos;
+    /* TODO(Leo): we need to store the string for command containing the whole, and where it starts */
+public:
+    hole_info_data(tactic_state const & s, expr const & args, pos_info const & b, pos_info const & e):
+        m_state(s), m_args(args), m_begin_pos(b), m_end_pos(e) {}
+
+#ifdef LEAN_JSON
+    virtual void report(io_state_stream const & ios, json & record) const override;
+#endif
+    tactic_state const & get_tactic_state() const { return m_state; }
+    expr const & get_args() const { return m_args; }
+    pos_info const & get_begin_pos() const { return m_begin_pos; }
+    pos_info const & get_end_pos() const { return m_end_pos; }
+};
+
 class info_data {
 private:
     info_data_cell * m_ptr;
@@ -65,6 +84,9 @@ public:
     }
 };
 
+hole_info_data const * is_hole_info_data(info_data const & d);
+hole_info_data const & to_hole_info_data(info_data const & d);
+
 typedef rb_map<unsigned, list<info_data>, unsigned_cmp> line_info_data_set;
 
 class info_manager : public log_entry_cell {
@@ -85,7 +107,7 @@ public:
     /* Takes type info from global declaration with the given name. */
     void add_const_info(environment const & env, pos_info pos, name const & full_id);
     void add_vm_obj_format_info(pos_info pos, environment const & env, vm_obj const & thunk);
-    void add_hole_info(pos_info pos, tactic_state const & s, expr const & arg);
+    void add_hole_info(pos_info const & begin_pos, pos_info const & end_pos, tactic_state const & s, expr const & hole_args);
 
     line_info_data_set get_line_info_set(unsigned l) const;
 

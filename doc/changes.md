@@ -5,6 +5,10 @@ Lean is still evolving rapidly, and we apologize for the resulting instabilities
 
 *Features*
 
+* Holes `{! ... !}` expressions and (user-defined) hole commands.
+In Emacs, hole commands are executed using the keybinding C-c SPC.
+The available commands can be found [here](https://github.com/leanprover/lean/blob/master/library/init/meta/hole_command.lean).
+
 * The `leanpkg` package manager now manages projects and dependencies. See the documentation [here](https://github.com/leanprover/lean/tree/master/leanpkg). Parts of the standard library, like the superposition theorem prover `super`, have been moved to their own repositories. `.project` files are no longer needed to use `emacs` with projects.
 
 * Well-founded recursion is now supported. (Details and examples for this and the next two items will soon appear in _Theorem Proving in Lean_.)

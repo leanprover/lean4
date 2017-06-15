@@ -110,6 +110,7 @@ public:
     void add_hole_info(pos_info const & begin_pos, pos_info const & end_pos, tactic_state const & s, expr const & hole_args);
 
     line_info_data_set get_line_info_set(unsigned l) const;
+    rb_map<unsigned, line_info_data_set, unsigned_cmp> const & get_line_info_sets() const { return m_line_data; }
 
     void instantiate_mvars(metavar_context const & mctx);
     void merge(info_manager const & info);

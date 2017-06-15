@@ -255,18 +255,11 @@ bool execute_hole_command(tactic_state const & s, name const & cmd_decl_name, ex
     }
 }
 
-void get_hole_commands(module_info const & m_mod_info,
-                       std::vector<info_manager> const & info_managers,
-                       pos_info const & pos, json & j) {
-    optional<info_data> info = find_hole(m_mod_info, info_managers, pos);
-    if (!info)
-        throw exception("hole not found");
-    hole_info_data const & hole = to_hole_info_data(*info);
+bool json_of_hole(hole_info_data const & hole, std::string const & file, json & j) {
     tactic_state const & s = hole.get_tactic_state();
     buffer<pair<name, std::string>> cmd_descrs;
     get_hole_commands(s.env(), cmd_descrs);
-    if (cmd_descrs.empty())
-        throw exception("hole commands are not available");
+    if (cmd_descrs.empty()) return false;
     std::vector<json> ds;
     for (auto const & p : cmd_descrs) {
         json d;
@@ -275,11 +268,47 @@ void get_hole_commands(module_info const & m_mod_info,
         ds.push_back(d);
     }
     j["results"] = ds;
-    j["file"] = m_mod_info.m_mod;
+    j["file"] = file;
     j["start"]["line"]   = hole.get_begin_pos().first;
     j["start"]["column"] = hole.get_begin_pos().second;
     j["end"]["line"]     = hole.get_end_pos().first;
     j["end"]["column"]   = hole.get_end_pos().second;
+    return true;
+}
+
+void get_hole_commands(module_info const & m_mod_info,
+                       std::vector<info_manager> const & info_managers,
+                       pos_info const & pos, json & j) {
+    optional<info_data> info = find_hole(m_mod_info, info_managers, pos);
+    if (!info)
+        throw exception("hole not found");
+    hole_info_data const & hole = to_hole_info_data(*info);
+    if (!json_of_hole(hole, m_mod_info.m_mod, j)) {
+        throw exception("hole commands are not available");
+    }
+}
+
+void get_all_hole_commands(module_info const & m_mod_info,
+                           std::vector<info_manager> const & info_managers,
+                           json & j) {
+    std::vector<json> holes;
+    for (auto & infom : info_managers) {
+        if (infom.get_file_name() == m_mod_info.m_mod) {
+            infom.get_line_info_sets().for_each([&](unsigned, line_info_data_set const & S) {
+                S.for_each([&](unsigned, list<info_data> const & info_list) {
+                    for (info_data const & info : info_list) {
+                        if (hole_info_data const * hole = is_hole_info_data(info)) {
+                            json j;
+                            if (json_of_hole(*hole, m_mod_info.m_mod, j)) {
+                                holes.push_back(j);
+                            }
+                        }
+                    }
+                });
+            });
+        }
+    }
+    j["holes"] = holes;
 }
 
 void execute_hole_command(module_info const & m_mod_info,

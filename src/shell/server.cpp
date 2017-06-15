@@ -441,6 +441,8 @@ void server::handle_request(server::cmd_req const & req) {
         handle_async_response(req, handle_hole(req));
     } else if (command == "hole_commands") {
         send_msg(handle_hole_commands(req));
+    } else if (command == "all_hole_commands") {
+        send_msg(handle_all_hole_commands(req));
     } else if (command == "search") {
         send_msg(handle_search(req));
     } else if (command == "roi") {
@@ -650,6 +652,15 @@ server::cmd_res server::handle_hole_commands(server::cmd_req const & req) {
     std::vector<info_manager> im = get_info_managers(m_lt);
     json j;
     get_hole_commands(*mod_info, im, pos, j);
+    return cmd_res(req.m_seq_num, j);
+}
+
+server::cmd_res server::handle_all_hole_commands(server::cmd_req const & req) {
+    std::string fn     = req.m_payload.at("file_name");
+    auto mod_info      = m_mod_mgr->get_module(fn);
+    std::vector<info_manager> im = get_info_managers(m_lt);
+    json j;
+    get_all_hole_commands(*mod_info, im, j);
     return cmd_res(req.m_seq_num, j);
 }
 

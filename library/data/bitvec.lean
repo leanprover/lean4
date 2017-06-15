@@ -165,7 +165,7 @@ section conversion
     simp [bits_to_nat_to_list], clear P,
     unfold bits_to_nat list.foldl,
       -- the next 4 lines generalize the accumulator of foldl
-    pose x := 0,
+    define x := 0,
     change _ = add_lsb x b + _,
     generalize 0 y,
     revert x, simp,

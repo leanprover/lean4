@@ -469,7 +469,7 @@ match q₁, q₂ with
   tactic.assert h e
 end >> skip
 
-meta def pose (h : parse ident?) (q₁ : parse (tk ":" *> texpr)?) (q₂ : parse $ (tk ":=" *> texpr)?) : tactic unit :=
+meta def define (h : parse ident?) (q₁ : parse (tk ":" *> texpr)?) (q₂ : parse $ (tk ":=" *> texpr)?) : tactic unit :=
 let h := h.get_or_else `this in
 match q₁, q₂ with
 | some e, some p := do

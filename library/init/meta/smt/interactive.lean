@@ -77,35 +77,39 @@ tactic.interactive.change q none (loc.ns [])
 meta def exact (q : parse texpr) : smt_tactic unit :=
 tactic.interactive.exact q
 
-meta def assert (h : parse ident) (q : parse $ tk ":" *> texpr) : smt_tactic unit :=
-do e ← tactic.to_expr_strict q,
-   smt_tactic.assert h e
+meta def note (h : parse ident?) (q₁ : parse (tk ":" *> texpr)?) (q₂ : parse $ (tk ":=" *> texpr)?) : smt_tactic unit :=
+let h := h.get_or_else `this in
+match q₁, q₂ with
+| some e, some p := do
+  t ← tactic.to_expr e,
+  v ← tactic.to_expr ``(%%p : %%t),
+  smt_tactic.assertv h t v
+| none, some p := do
+  p ← tactic.to_expr p,
+  smt_tactic.note h none p
+| some e, none := tactic.to_expr e >>= smt_tactic.assert h
+| none, none := do
+  u ← tactic.mk_meta_univ,
+  e ← tactic.mk_meta_var (expr.sort u),
+  smt_tactic.assert h e
+end >> return ()
 
-meta def define (h : parse ident) (q : parse $ tk ":" *> texpr) : smt_tactic unit :=
-do e ← tactic.to_expr_strict q,
-   smt_tactic.define h e
-
-meta def note (h : parse ident?) (q₁ : parse (tk ":" *> texpr)?) (q₂ : parse $ tk ":=" *> texpr) : smt_tactic unit :=
-match q₁ with
-| some e := do
-  t ← tactic.to_expr_strict e,
-  v ← tactic.to_expr_strict ``(%%q₂ : %%t),
-  smt_tactic.assertv (h.get_or_else `this) t v
-| none := do
-  p ← tactic.to_expr_strict q₂,
-  smt_tactic.note (h.get_or_else `this) none p
-end
-
-meta def pose (h : parse ident?) (q₁ : parse (tk ":" *> texpr)?) (q₂ : parse $ tk ":=" *> texpr) : smt_tactic unit :=
-match q₁ with
-| some e := do
-  t ← tactic.to_expr_strict e,
-  v ← tactic.to_expr_strict ``(%%q₂ : %%t),
-  smt_tactic.definev (h.get_or_else `this) t v
-| none := do
-  p ← tactic.to_expr_strict q₂,
-  smt_tactic.pose (h.get_or_else `this) none p
-end
+meta def define (h : parse ident?) (q₁ : parse (tk ":" *> texpr)?) (q₂ : parse $ (tk ":=" *> texpr)?) : smt_tactic unit :=
+let h := h.get_or_else `this in
+match q₁, q₂ with
+| some e, some p := do
+  t ← tactic.to_expr e,
+  v ← tactic.to_expr ``(%%p : %%t),
+  smt_tactic.definev h t v
+| none, some p := do
+  p ← tactic.to_expr p,
+  smt_tactic.pose h none p
+| some e, none := tactic.to_expr e >>= smt_tactic.define h
+| none, none := do
+  u ← tactic.mk_meta_univ,
+  e ← tactic.mk_meta_var (expr.sort u),
+  smt_tactic.define h e
+end >> return ()
 
 meta def add_fact (q : parse texpr) : smt_tactic unit :=
 do h ← tactic.get_unused_name `h none,

@@ -6,6 +6,7 @@ Author: Sebastian Ullrich
 */
 #pragma once
 #include <vector>
+#include <string>
 #include "library/module_mgr.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/info_manager.h"

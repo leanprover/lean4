@@ -290,11 +290,14 @@ void get_hole_commands(module_info const & m_mod_info,
                        std::vector<info_manager> const & info_managers,
                        pos_info const & pos, json & j) {
     optional<info_data> info = find_hole(m_mod_info, info_managers, pos);
-    if (!info)
-        throw exception("hole not found");
+    if (!info) {
+        j["message"] = "hole not found";
+        return;
+    }
     hole_info_data const & hole = to_hole_info_data(*info);
     if (!json_of_hole(hole, m_mod_info.m_mod, j)) {
-        throw exception("hole commands are not available");
+        j["message"] = "hole commands are not available";
+        return;
     }
 }
 

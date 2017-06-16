@@ -33,7 +33,7 @@ The available commands can be found [here](https://github.com/leanprover/lean/bl
 
 * There is a `transfer` method that can be used to transfer results e.g. to isomorphic structures; see [here](https://github.com/leanprover/lean/pull/1435).
 
-* The monadic hierarchy now includes axioms for monadic classes. (See [here](https://github.com/leanprover/lean/pull/1447).)
+* The monadic hierarchy now includes axioms for monadic classes. (See [here](https://github.com/leanprover/lean/pull/1485).)
 
 * The tactic notation `tac ; [tac_1, ..., tac_n]` has been added.
 

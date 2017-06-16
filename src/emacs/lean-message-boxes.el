@@ -75,12 +75,14 @@
   (lean-message-boxes--kill-overlays)
   (when lean-message-boxes-enabledp
     (dolist (msg msgs)
-      (let ((line (plist-get msg :pos_line))
-            (col (plist-get msg :pos_col))
+      (let ((end-line (plist-get msg :end_pos_line))
+            (end-col (plist-get msg :end_pos_col))
             (caption (plist-get msg :caption))
             (text (plist-get msg :text)))
         (when (member caption lean-message-boxes-enabled-captions)
-          (let ((overlay (lean-message-boxes--make-overlay line col caption text)))
+          (let ((overlay (lean-message-boxes--make-overlay
+                          end-line end-col
+                          caption text)))
             (push overlay lean-message-boxes--overlays)))))))
 
 (defun lean-message-boxes--as-string (caption str)
@@ -92,29 +94,30 @@
                        str-copy)
     (let* ((lines (s-lines str-copy))
            (w (apply #'max (mapcar #'length (cons caption lines)))))
-      (if (= (length lines) 1)
-          (concat "\t│ " (car lines))
-        (apply #'concat
-               "\n"
-               (mapcar
-                (lambda (l)
-                  (concat "│ "
-                          (lean-message-boxes--pad-to l w)
-                          "\n"))
-                lines))))))
+      (apply #'concat
+             (mapcar
+              (lambda (l)
+                (concat "│ "
+                        (lean-message-boxes--pad-to l w)
+                        "\n"))
+              lines)))))
 
-(defun lean-message-boxes--make-overlay (line col caption text)
+(defun lean-message-boxes--make-overlay (end-line end-col caption text)
   "Construct a message box overlay at LINE and COL with CAPTION and TEXT."
-  (let* ((where (save-excursion (goto-char (point-min))
-                                (forward-line (1- line))
-                                (line-end-position)))
-         (overlay (make-overlay where (+ 1 where)))
+  (let* ((end-pos (save-excursion (goto-char (point-min))
+                                  (forward-line (1- end-line))
+                                  (forward-char (1- end-col))
+                                  (while (looking-at-p "[\t\r\n ]")
+                                    (forward-char -1))
+                                  (end-of-line)
+                                  (1+ (point))))
+         (overlay (make-overlay end-pos (1+ end-pos)))
          (as-box (lean-message-boxes--as-string caption text)))
-    (overlay-put overlay 'display
-                 (concat as-box "\n"))
-    (overlay-put overlay 'face 'font-lock-comment-face)
+    (put-text-property 0 1 'cursor t as-box)
+    (overlay-put overlay 'before-string as-box)
     (overlay-put overlay 'help-echo caption)
     (overlay-put overlay 'lean-is-output-overlay t)
+    (overlay-put overlay 'evaporate t)
     overlay))
 
 (add-hook 'lean-server-show-message-hook 'lean-message-boxes-display)

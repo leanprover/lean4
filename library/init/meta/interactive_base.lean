@@ -140,6 +140,41 @@ meta def param_desc : expr → tactic format
 | e := if is_constant e ∧ (const_name e).components.ilast = `itactic
   then return $ to_fmt "{ tactic }"
   else paren <$> pp e
+
+
+meta constant decl_attributes : Type
+
+meta constant decl_attributes.apply : decl_attributes → name → parser unit
+
+meta structure decl_modifiers :=
+(is_private       : bool)
+(is_protected     : bool)
+(is_meta          : bool)
+(is_mutual        : bool)
+(is_noncomputable : bool)
+
+meta structure decl_meta_info :=
+(attrs      : decl_attributes)
+(modifiers  : decl_modifiers)
+(doc_string : option string)
+
+
+meta structure single_inductive_decl :=
+(attrs  : decl_attributes)
+(sig    : expr)
+(intros : list expr)
+
+meta def single_inductive_decl.name (d : single_inductive_decl) : name :=
+d.sig.app_fn.const_name
+
+meta structure inductive_decl :=
+(u_names     : list name)
+(params      : list expr)
+(decls       : list single_inductive_decl)
+
+/-- Parses and elaborates a single or multiple mutual inductive declarations (without the `inductive` keyword), depending on `is_mutual` -/
+meta constant inductive_decl.parse : decl_meta_info → parser inductive_decl
+
 end interactive
 
 section macros

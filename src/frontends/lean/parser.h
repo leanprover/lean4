@@ -212,6 +212,7 @@ public:
     cmd_table const & cmds() const { return get_cmd_table(env()); }
 
     environment const & env() const { return m_env; }
+    void set_env(environment const & env) { m_env = env; }
     io_state const & ios() const { return m_ios; }
 
     message_builder mk_message(pos_info const & p, message_severity severity) const;

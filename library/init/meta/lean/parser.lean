@@ -23,6 +23,8 @@ open interaction_monad.result
 namespace parser
 variable {α : Type}
 
+meta constant set_env : environment → parser unit
+
 /-- Make sure the next token is an identifier, consume it, and
     produce the quoted name `t, where t is the identifier. -/
 meta constant ident : parser name

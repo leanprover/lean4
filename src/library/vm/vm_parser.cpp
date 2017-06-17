@@ -25,6 +25,7 @@ Author: Sebastian Ullrich
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/parser.h"
+#include "frontends/lean/inductive_cmds.h"
 #include "util/utf8.h"
 
 namespace lean {
@@ -76,6 +77,72 @@ expr parse_interactive_param(parser & p, expr const & param_ty) {
     }
 }
 
+struct vm_decl_attributes : public vm_external {
+    decl_attributes m_val;
+    vm_decl_attributes(decl_attributes const & v):m_val(v) {}
+    virtual ~vm_decl_attributes() {}
+    virtual void dealloc() override { this->~vm_decl_attributes(); get_vm_allocator().deallocate(sizeof(vm_decl_attributes), this); }
+    virtual vm_external * ts_clone(vm_clone_fn const &) override { return new vm_decl_attributes(m_val); }
+    virtual vm_external * clone(vm_clone_fn const &) override { return new (get_vm_allocator().allocate(sizeof(vm_decl_attributes))) vm_decl_attributes(m_val); }
+};
+
+static decl_attributes const & to_decl_attributes(vm_obj const & o) {
+    lean_vm_check(dynamic_cast<vm_decl_attributes*>(to_external(o)));
+    return static_cast<vm_decl_attributes*>(to_external(o))->m_val;
+}
+
+static vm_obj to_obj(decl_attributes const & n) {
+    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_decl_attributes))) vm_decl_attributes(n));
+}
+
+static vm_obj to_obj(decl_modifiers const & mods) {
+    return mk_vm_constructor(0, {
+            mk_vm_bool(mods.m_is_private),
+            mk_vm_bool(mods.m_is_protected),
+            mk_vm_bool(mods.m_is_meta),
+            mk_vm_bool(mods.m_is_mutual),
+            mk_vm_bool(mods.m_is_noncomputable),
+    });
+}
+
+vm_obj to_obj(cmd_meta const & meta) {
+    return mk_vm_constructor(0, {
+            to_obj(meta.m_attrs),
+            to_obj(meta.m_modifiers),
+            to_obj(meta.m_doc_string)
+    });
+}
+
+decl_modifiers to_decl_modifiers(vm_obj const & o) {
+    lean_always_assert(cidx(o) == 0);
+    decl_modifiers mods;
+    if (to_bool(cfield(o, 0))) {
+        mods.m_is_private = true;
+    }
+    if (to_bool(cfield(o, 1))) {
+        mods.m_is_protected = true;
+    }
+    if (to_bool(cfield(o, 2))) {
+        mods.m_is_meta = true;
+    }
+    if (to_bool(cfield(o, 3))) {
+        mods.m_is_mutual = true;
+    }
+    if (to_bool(cfield(o, 4))) {
+        mods.m_is_noncomputable = true;
+    }
+    return mods;
+}
+
+cmd_meta to_cmd_meta(vm_obj const & o) {
+    lean_always_assert(cidx(o) == 0);
+    optional<std::string> doc_string;
+    if (!is_none(cfield(o, 2))) {
+        doc_string = some(to_string(get_some_value(cfield(o, 2))));
+    }
+    return {to_decl_attributes(cfield(o, 0)), to_decl_modifiers(cfield(o, 1)), doc_string};
+}
+
 vm_obj vm_parser_state_env(vm_obj const & o) {
     auto const & s = lean_parser::to_state(o);
     return to_obj(s.m_p->env());
@@ -89,6 +156,12 @@ vm_obj vm_parser_state_options(vm_obj const & o) {
 vm_obj vm_parser_state_cur_pos(vm_obj const & o) {
     auto const & s = lean_parser::to_state(o);
     return to_obj(s.m_p->pos());
+}
+
+vm_obj vm_parser_set_env(vm_obj const & vm_env, vm_obj const & o) {
+    auto const & s = lean_parser::to_state(o);
+    s.m_p->set_env(to_env(vm_env));
+    return lean_parser::mk_success(s);
 }
 
 vm_obj vm_parser_ident(vm_obj const & o) {
@@ -189,17 +262,47 @@ vm_obj vm_parser_with_input(vm_obj const &, vm_obj const & vm_p, vm_obj const & 
     return lean_parser::mk_result(vm_res, lean_parser::get_result_state(vm_state));
 }
 
+static vm_obj interactive_decl_attributes_apply(vm_obj const & vm_attrs, vm_obj const & vm_n, vm_obj const & vm_s) {
+    auto s = lean_parser::to_state(vm_s);
+    TRY;
+        auto env = to_decl_attributes(vm_attrs).apply(s.m_p->env(), get_dummy_ios(), to_name(vm_n));
+        s.m_p->set_env(env);
+        return lean_parser::mk_success({s.m_p});
+    CATCH;
+}
+
+static vm_obj to_obj(single_inductive_decl const & d) {
+    return mk_vm_constructor(0, {to_obj(d.m_attrs), to_obj(d.m_expr), to_obj(d.m_intros)});
+}
+
+static vm_obj to_obj(inductive_decl const & d) {
+    return mk_vm_constructor(0, {to_obj(d.m_lp_names), to_obj(d.m_params),
+                                 to_vm_list(to_list(d.m_decls), [](single_inductive_decl const & d) { return to_obj(d); })});
+}
+
+static vm_obj interactive_inductive_decl_parse(vm_obj const & vm_meta, vm_obj const & vm_s) {
+    auto s = lean_parser::to_state(vm_s);
+    TRY;
+        auto decl = parse_inductive_decl(*s.m_p, to_cmd_meta(vm_meta));
+        return lean_parser::mk_success(to_obj(decl), s);
+    CATCH;
+}
+
 void initialize_vm_parser() {
     DECLARE_VM_BUILTIN(name({"lean", "parser_state", "env"}),         vm_parser_state_env);
     DECLARE_VM_BUILTIN(name({"lean", "parser_state", "options"}),     vm_parser_state_options);
     DECLARE_VM_BUILTIN(name({"lean", "parser_state", "cur_pos"}),     vm_parser_state_cur_pos);
     DECLARE_VM_BUILTIN(name({"lean", "parser", "ident"}),             vm_parser_ident);
+    DECLARE_VM_BUILTIN(name({"lean", "parser", "set_env"}),           vm_parser_set_env);
     DECLARE_VM_BUILTIN(get_lean_parser_tk_name(),                     vm_parser_tk);
     DECLARE_VM_BUILTIN(get_lean_parser_pexpr_name(),                  vm_parser_pexpr);
     DECLARE_VM_BUILTIN(name({"lean", "parser", "qexpr"}),             vm_parser_qexpr);
     DECLARE_VM_BUILTIN(name({"lean", "parser", "skip_info"}),         vm_parser_skip_info);
     DECLARE_VM_BUILTIN(name({"lean", "parser", "set_goal_info_pos"}), vm_parser_set_goal_info_pos);
     DECLARE_VM_BUILTIN(name({"lean", "parser", "with_input"}),        vm_parser_with_input);
+
+    DECLARE_VM_BUILTIN(name({"interactive", "decl_attributes", "apply"}), interactive_decl_attributes_apply);
+    DECLARE_VM_BUILTIN(name({"interactive", "inductive_decl", "parse"}),  interactive_inductive_decl_parse);
 }
 
 void finalize_vm_parser() {

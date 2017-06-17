@@ -569,6 +569,7 @@ class inductive_cmd_fn {
         declaration_name_scope nscope;
         expr ind = parse_single_header(m_p, nscope, m_lp_names, params);
         m_explicit_levels = !m_lp_names.empty();
+        m_mut_attrs.push_back({});
 
         ind = mk_local(get_namespace(m_p.env()) + mlocal_name(ind), mlocal_name(ind), mlocal_type(ind), local_info(ind));
 
@@ -661,11 +662,9 @@ public:
             if (m_meta_info.m_doc_string)
                 m_env = add_doc_string(m_env, mlocal_name(ind), *m_meta_info.m_doc_string);
         }
-        if (!m_mut_attrs.empty()) {
-            lean_assert(new_inds.size() == m_mut_attrs.size());
-            for (unsigned i = 0; i < new_inds.size(); ++i)
-                m_env = m_mut_attrs[i].apply(m_env, m_p.ios(), mlocal_name(new_inds[i]));
-        }
+        lean_assert(new_inds.size() == m_mut_attrs.size());
+        for (unsigned i = 0; i < new_inds.size(); ++i)
+            m_env = m_mut_attrs[i].apply(m_env, m_p.ios(), mlocal_name(new_inds[i]));
     }
 
     environment inductive_cmd() {

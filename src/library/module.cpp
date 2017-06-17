@@ -599,6 +599,7 @@ modification_list parse_olean_modifications(std::vector<char> const & olean_code
     unsigned obj_counter = 0;
     while (true) {
         std::string k;
+        unsigned offset = in.tellg();
         d >> k;
         if (k == g_olean_end_file) {
             break;
@@ -606,7 +607,8 @@ modification_list parse_olean_modifications(std::vector<char> const & olean_code
 
         auto it = readers.find(k);
         if (it == readers.end())
-            throw exception(sstream() << "file '" << file_name << "' has been corrupted, unknown object: " << k);
+            throw exception(sstream() << "file '" << file_name << "' has been corrupted at offset " << offset
+                                      << ", unknown object: " << k);
         ms.emplace_back(it->second(d));
 
         obj_counter++;

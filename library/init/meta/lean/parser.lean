@@ -78,11 +78,14 @@ local postfix `*`:100 := many
 meta def sep_by : parser unit → parser α → parser (list α)
 | s p := (list.cons <$> p <*> (s *> p)*) <|> return []
 
-meta instance tactic_to_parser : has_coe (tactic α) (parser α) :=
-⟨λ t s, match t (tactic_state.mk_empty s.env s.options) with
- | success x _     := success x s
+meta def tactic_to_parser : tactic α → parser α :=
+λ t s, match t (tactic_state.mk_empty s.env s.options) with
+ | success x ts    := (set_env ts.env >> pure x) s
  | exception f p _ := exception f p s
- end⟩
+ end
+
+meta instance : has_coe (tactic α) (parser α) :=
+⟨tactic_to_parser⟩
 
 end parser
 end lean

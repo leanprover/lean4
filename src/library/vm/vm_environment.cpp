@@ -216,6 +216,10 @@ vm_obj environment_decl_pos(vm_obj const & env, vm_obj const & n) {
     }
 }
 
+vm_obj environment_add_namespace(vm_obj const & env, vm_obj const & n) {
+    return to_obj(add_namespace(to_env(env), to_name(n)));
+}
+
 vm_obj environment_is_namespace(vm_obj const & env, vm_obj const & n) {
     return mk_vm_bool(is_namespace(to_env(env), to_name(n)));
 }
@@ -273,6 +277,7 @@ void initialize_vm_environment() {
     DECLARE_VM_BUILTIN(name({"environment", "inductive_num_params"}),  environment_inductive_num_params);
     DECLARE_VM_BUILTIN(name({"environment", "inductive_num_indices"}), environment_inductive_num_indices);
     DECLARE_VM_BUILTIN(name({"environment", "inductive_dep_elim"}),    environment_inductive_dep_elim);
+    DECLARE_VM_BUILTIN(name({"environment", "add_namespace"}),         environment_add_namespace);
     DECLARE_VM_BUILTIN(name({"environment", "is_namespace"}),          environment_is_namespace);
     DECLARE_VM_BUILTIN(name({"environment", "is_ginductive"}),         environment_is_ginductive);
     DECLARE_VM_BUILTIN(name({"environment", "is_projection"}),         environment_is_projection);

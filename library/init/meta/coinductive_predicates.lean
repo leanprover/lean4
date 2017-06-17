@@ -114,8 +114,8 @@ end tactic
 section
 universe u
 
+@[user_attribute]
 def monotonicity := { user_attribute . name := `monotonicity, descr := "Monotonicity rules for predicates" }
-run_cmd register_attribute `monotonicity
 
 lemma monotonicity.pi {α : Sort u} {p q : α → Prop} (h : ∀a, implies (p a) (q a)) :
   implies (Πa, p a) (Πa, q a) :=
@@ -544,6 +544,21 @@ meta def add_coinductive_predicate
   pds.mmap' (λpd:coind_pred, set_basic_attribute `irreducible pd.pd_name),
 
   try triv -- we setup a trivial goal for the tactic framework
+
+open lean.parser
+open interactive
+
+@[user_command]
+meta def coinductive_predicate (meta_info : decl_meta_info) (_ : parse $ tk "coinductive") : lean.parser unit := do
+  decl ← inductive_decl.parse meta_info,
+  add_coinductive_predicate decl.u_names decl.params $ decl.decls.map $ λ d, (d.sig, d.intros),
+  decl.decls.mfor' $ λ d, do {
+    get_env >>= λ env, set_env $ env.add_namespace d.name,
+    meta_info.attrs.apply d.name,
+    d.attrs.apply d.name,
+    some doc_string ← pure meta_info.doc_string | skip,
+    add_doc_string d.name doc_string
+  }
 
 /-- Prepares coinduction proofs. This tactic constructs the coinduction invariant from
 the quantifiers in the current goal.

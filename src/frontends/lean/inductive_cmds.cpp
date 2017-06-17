@@ -691,7 +691,7 @@ public:
         return m_env;
     }
 
-    environment coinductive_cmd() {
+    inductive_decl parse_and_elaborate() {
         buffer<expr> params;
         buffer<expr> inds;
         buffer<buffer<expr> > intro_rules;
@@ -709,31 +709,19 @@ public:
         }
         elaborate_inductive_decls(params, inds, intro_rules, new_params, new_inds, new_intro_rules);
 
-        expr first_ind = inds[0];
-        metavar_context mctx;
-        options opts = m_p.get_options();
-
-        tactic_state s = mk_tactic_state_for(m_env, opts, mlocal_name(first_ind), mctx, local_context(), mk_true());
-        buffer<vm_obj> args;
-        buffer<vm_obj> inds_arg;
-        for (unsigned i = 0; i < new_inds.size(); i ++) {
-            inds_arg.push_back(mk_vm_pair(to_obj(new_inds[i]), to_obj(new_intro_rules[i])));
+        buffer<single_inductive_decl> decls;
+        for (unsigned i = 0; i < new_inds.size(); i++) {
+            decls.push_back({m_mut_attrs[i], new_inds[i], new_intro_rules[i]});
         }
-        args.push_back(to_obj(m_lp_names));
-        args.push_back(to_obj(new_params));
-        args.push_back(to_obj(inds_arg));
-
-        vm_obj r = tactic_evaluator(m_ctx, opts, first_ind)
-            (mk_constant(get_tactic_add_coinductive_predicate_name()), args, s);
-        if (auto new_s = tactic::is_success(r)) {
-            m_env = new_s->env();
-            post_process(new_params, new_inds, new_intro_rules);
-            return m_env;
-        }
-
-        throw generic_exception(first_ind, "coinduction command failed");
+        return { m_lp_names, new_params, decls };
     }
 };
+
+inductive_decl parse_inductive_decl(parser & p, cmd_meta const & meta) {
+    auto pos = p.pos();
+    module::scope_pos_info scope_pos(pos);
+    return inductive_cmd_fn(p, meta).parse_and_elaborate();
+}
 
 environment inductive_cmd(parser & p, cmd_meta const & meta) {
     p.next();
@@ -742,16 +730,8 @@ environment inductive_cmd(parser & p, cmd_meta const & meta) {
     return inductive_cmd_fn(p, meta).inductive_cmd();
 }
 
-environment coinductive_cmd(parser & p, cmd_meta const & meta) {
-    p.next();
-    auto pos = p.pos();
-    module::scope_pos_info scope_pos(pos);
-    return inductive_cmd_fn(p, meta).coinductive_cmd();
-}
-
 void register_inductive_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("inductive", "declare an inductive datatype", inductive_cmd, false));
-    add_cmd(r, cmd_info("coinductive", "declare a coinductive predicate", coinductive_cmd, false));
 }
 
 void initialize_inductive_cmds() {

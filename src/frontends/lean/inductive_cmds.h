@@ -22,7 +22,6 @@ struct inductive_decl {
 
 inductive_decl parse_inductive_decl(parser & p, cmd_meta const & meta);
 environment inductive_cmd(parser & p, cmd_meta const & meta);
-environment coinductive_cmd(parser & p, cmd_meta const & meta);
 
 void register_inductive_cmds(cmd_table & r);
 void initialize_inductive_cmds();

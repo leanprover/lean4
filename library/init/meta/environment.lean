@@ -36,6 +36,8 @@ match env.get d with
 | exceptional.success _      := tt
 | exceptional.exception ._ _ := ff
 end
+/-- Register the given name as a namespace, making it available to the `open` command -/
+meta constant add_namespace   : environment → name → environment
 /-- Return tt iff the given name is a namespace -/
 meta constant is_namespace    : environment → name → bool
 /-- Add a new inductive datatype to the environment

@@ -93,7 +93,6 @@ matrix:
        CMAKE_BUILD_TYPE=Release
        TARGET=build/lean-@LEAN_VERSION_MAJOR@.@LEAN_VERSION_MINOR@.@LEAN_VERSION_PATCH@-darwin.zip
        UPLOAD=ON
-       PACKAGE=TRUE
 
    - os: osx
      env:
@@ -124,7 +123,7 @@ script:
           ../src || exit
   - make -j2 || exit
   - if [[ $TEST != OFF ]]; then yes "A" | ctest -j2 --output-on-failure; fi
-  - if [[ $PACKAGE == TRUE ]]; then cpack; make package; fi
+  - if [[ $UPLOAD == ON ]]; then cpack; make package; fi
   - if [[ $TEST_LEANPKG_REGISTRY == ON ]]; then ../script/test_registry.py; fi
   - cd ..
 

@@ -64,7 +64,7 @@
           (let ((start-marker (make-marker))
                 (end-marker (make-marker)))
             (set-marker start-marker start-pos (current-buffer))
-            (set-marker end-marker (1+ end-pos) (current-buffer))
+            (set-marker end-marker end-pos (current-buffer))
             (let* ((choices
                     (cl-loop for res in results
                              collect (cons (concat (plist-get res :name)
@@ -106,7 +106,7 @@
             (when selected-code
               (save-excursion
                 (goto-char start-marker)
-                (delete-region start-marker (1- end-marker))
+                (delete-region start-marker end-marker)
                 (insert selected-code)))))
         (when message
           (message "%s" (s-trim message)))

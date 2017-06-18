@@ -2291,7 +2291,7 @@ bool elaborator::keep_do_failure_eq(expr const & first_eq) {
     return is_app(type) && is_monad_fail(app_fn(type));
 }
 
-expr elaborator::mk_aux_meta_def(expr const & e) {
+expr elaborator::mk_aux_meta_def(expr const & e, expr const & ref) {
     name aux_name(m_decl_name, "_aux_meta");
     aux_name = aux_name.append_after(m_aux_meta_idx);
     m_aux_meta_idx++;
@@ -2299,7 +2299,9 @@ expr elaborator::mk_aux_meta_def(expr const & e) {
     metavar_context mctx = m_ctx.mctx();
     std::tie(m_env, new_c) = mk_aux_definition(m_env, mctx, local_context(),
                                                aux_name, e, optional<bool>(true));
-    lean_assert(is_constant(new_c));
+    if (!is_constant(new_c)) {
+        throw elaborator_exception(ref, "failed to create auxiliary definition");
+    }
     m_env = vm_compile(m_env, m_env.get(const_name(new_c)));
     m_ctx.set_env(m_env);
     m_ctx.set_mctx(mctx);
@@ -2323,7 +2325,7 @@ expr elaborator::visit_equations(expr const & e) {
         new_tacs  = visit(equations_wf_tactics(e), some_expr(type));
         new_tacs  = enforce_type(*new_tacs, type, "well_founded_tactics object expected", ref);
         if (!is_constant(*new_tacs)) {
-            new_tacs = mk_aux_meta_def(*new_tacs);
+            new_tacs = mk_aux_meta_def(*new_tacs, ref);
         }
     }
 

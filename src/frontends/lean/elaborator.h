@@ -286,7 +286,7 @@ private:
     expr mk_auto_param(expr const & name_lit, expr const & expected_type, expr const & ref);
     optional<expr> process_optional_and_auto_params(expr type, expr const & ref, buffer<expr> & eta_args, buffer<expr> & new_args);
 
-    expr mk_aux_meta_def(expr const & e);
+    expr mk_aux_meta_def(expr const & e, expr const & ref);
 
 public:
     elaborator(environment const & env, options const & opts, name const & decl_name,

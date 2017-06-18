@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/freset.h"
 #include "kernel/free_vars.h"
 #include "kernel/abstract.h"
 #include "kernel/abstract_type_context.h"
@@ -105,7 +106,6 @@ struct push_delayed_abstraction_fn : public replace_visitor {
     void add_vidxs(int v) {
         for (unsigned & d : m_deltas)
             d += v;
-        m_cache.clear();
     }
 
     void inc_vidxs() { add_vidxs(1); }
@@ -114,7 +114,11 @@ struct push_delayed_abstraction_fn : public replace_visitor {
     expr visit_binding(expr const & e) override {
         expr new_d = visit(binding_domain(e));
         inc_vidxs();
-        expr new_b = visit(binding_body(e));
+        expr new_b;
+        {
+            freset<cache> reset_cache(m_cache);
+            new_b = visit(binding_body(e));
+        }
         dec_vidxs();
         return update_binding(e, new_d, new_b);
     }
@@ -123,7 +127,11 @@ struct push_delayed_abstraction_fn : public replace_visitor {
         expr new_t = visit(let_type(e));
         expr new_v = visit(let_value(e));
         inc_vidxs();
-        expr new_b = visit(let_body(e));
+        expr new_b;
+        {
+            freset<cache> reset_cache(m_cache);
+            new_b = visit(let_body(e));
+        }
         dec_vidxs();
         return update_let(e, new_t, new_v, new_b);
     }
@@ -159,12 +167,14 @@ struct push_delayed_abstraction_fn : public replace_visitor {
             m_ns.append(new_ns);
             m_vs.append(new_vs);
             m_deltas.resize(m_vs.size(), 0);
-            m_cache.clear();
-            expr r = visit(get_delayed_abstraction_expr(e));
+            expr r;
+            {
+                freset<cache> reset_cache(m_cache);
+                r = visit(get_delayed_abstraction_expr(e));
+            }
             m_ns.shrink(sz);
             m_vs.shrink(sz);
             m_deltas.shrink(sz);
-            m_cache.clear();
             return r;
         } else {
             return replace_visitor::visit_macro(e);

@@ -1,4 +1,7 @@
-Current build
+master branch (aka work in progress branch)
+-------------
+
+v3.2.0 (18 June 2017)
 -------------
 
 Lean is still evolving rapidly, and we apologize for the resulting instabilities. The lists below summarizes some of the new features and incompatibilities with respect to release 3.1.0.

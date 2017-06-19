@@ -12,8 +12,8 @@ axiom Hc : c
   have b ∧ a, from and_intro b a Hb Ha,
   have H : a ∧ b, from and_intro a b Ha Hb,
   have H : a ∧ b, from and_intro a b Ha Hb,
-  then have a ∧ b, from and_intro a b Ha Hb,
-  then have b ∧ a, from and_intro b a Hb Ha,
-  then have H : a ∧ b, from and_intro a b Ha Hb,
-  then have H : a ∧ b, from and_intro a b Ha Hb,
+  have a ∧ b, from and_intro a b Ha Hb,
+  have b ∧ a, from and_intro b a Hb Ha,
+  have H : a ∧ b, from and_intro a b Ha Hb,
+  have H : a ∧ b, from and_intro a b Ha Hb,
     Ha

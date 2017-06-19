@@ -454,15 +454,7 @@ static expr parse_have_core(parser_state & p, pos_info const & pos, optional<exp
     parser_state::local_scope scope(p);
     expr l = p.save_pos(mk_local(id, prop), pos);
     p.add_local(l);
-    expr body;
-    if (p.curr_is_token(get_then_tk())) {
-        auto then_pos = p.pos();
-        p.next();
-        p.check_token_next(get_have_tk(), "invalid 'then' declaration, 'have' expected");
-        body  = parse_have_core(p, then_pos, some_expr(l));
-    } else {
-        body  = p.parse_expr();
-    }
+    expr body = p.parse_expr();
     body = abstract(body, l);
     if (get_parser_checkpoint_have(p.get_options()))
         body = mk_checkpoint_annotation(body);

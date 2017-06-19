@@ -95,7 +95,6 @@ begin
    {right, rw [nth_succ, tail_cons] at h, exact ⟨n', h⟩}
 end
 
-
 lemma mem_of_nth_eq {n : nat} {s : stream α} {a : α} : a = nth n s → a ∈ s :=
 assume h, exists.intro n h
 
@@ -129,9 +128,15 @@ rfl
 lemma map_map (g : β → δ) (f : α → β) (s : stream α) : map g (map f s) = map (g ∘ f) s :=
 rfl
 
+lemma map_tail (s : stream α) : map f (tail s) = tail (map f s) :=
+rfl
+
 lemma mem_map {a : α} {s : stream α} : a ∈ s → f a ∈ map f s :=
 assume ⟨n, h⟩,
 exists.intro n (by rw [nth_map, h])
+
+lemma exists_of_mem_map {f} {b : β} {s : stream α} : b ∈ map f s → ∃ a, a ∈ s ∧ f a = b :=
+assume ⟨n, h⟩, ⟨nth n s, ⟨n, rfl⟩, h.symm⟩
 end map
 
 section zip
@@ -286,6 +291,14 @@ by rw [corec_def, map_id, iterate_id]
 lemma corec_id_f_eq_iterate (f : α → α) (a : α) : corec id f a = iterate f a :=
 rfl
 end corec
+
+section corec'
+def corec' (f : α → β × α) : α → stream β := corec (prod.fst ∘ f) (prod.snd ∘ f)
+
+lemma corec'_eq (f : α → β × α) (a : α) : corec' f a = (f a).1 :: corec' f (f a).2 :=
+corec_eq _ _ _
+
+end corec'
 
 -- corec is also known as unfold
 def unfolds (g : α → β) (f : α → α) (a : α) : stream β :=

@@ -19,6 +19,10 @@ def of_list : list α → lazy_list α
 | []     := nil
 | (h::t) := cons h (of_list t)
 
+def to_list : lazy_list α → list α
+| nil        := []
+| (cons h t) := h :: to_list (t ())
+
 def head [inhabited α] : lazy_list α → α
 | nil        := default α
 | (cons h t) := h

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.ordering init.coe
+import init.data.ordering init.coe init.data.to_string
 
 /-- Reflect a C++ name object. The VM replaces it with the C++ implementation. -/
 inductive name
@@ -48,12 +48,12 @@ def name.update_prefix : name → name → name
 | (mk_string s p)  new_p := mk_string s new_p
 | (mk_numeral s p) new_p := mk_numeral s new_p
 
-def name.repr_with_sep (sep : string) : name → string
+def name.to_string_with_sep (sep : string) : name → string
 | anonymous                := "[anonymous]"
 | (mk_string s anonymous)  := s
 | (mk_numeral v anonymous) := repr v
-| (mk_string s n)          := name.repr_with_sep n ++ sep ++ s
-| (mk_numeral v n)         := name.repr_with_sep n ++ sep ++ repr v
+| (mk_string s n)          := name.to_string_with_sep n ++ sep ++ s
+| (mk_numeral v n)         := name.to_string_with_sep n ++ sep ++ repr v
 
 private def name.components' : name -> list name
 | anonymous                := []
@@ -63,14 +63,11 @@ private def name.components' : name -> list name
 def name.components (n : name) : list name :=
 (name.components' n).reverse
 
-protected def name.repr : name → string :=
-name.repr_with_sep "."
-
-instance : has_repr name :=
-⟨name.repr⟩
-
 protected def name.to_string : name → string :=
-name.repr
+name.to_string_with_sep "."
+
+instance : has_to_string name :=
+⟨name.to_string⟩
 
 /- TODO(Leo): provide a definition in Lean. -/
 meta constant name.has_decidable_eq : decidable_eq name

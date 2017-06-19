@@ -27,7 +27,7 @@ format_concat
 namespace format_cpp
 
 meta def mangle_name (n : name) : format :=
-    to_fmt $ name.repr_with_sep "_" n
+    to_fmt $ name.to_string_with_sep "_" n
 
 private meta def mk_constructor_args : list name → list format
 | [] := []
@@ -46,7 +46,7 @@ meta def literal : ir.literal → format
 | (ir.literal.nat n) := to_fmt "lean::mk_vm_nat(" ++ to_fmt n ++ ")"
 
 meta def format_local (n : name) : format :=
-  to_fmt (name.repr_with_sep "_" n)
+  to_fmt (name.to_string_with_sep "_" n)
 
 meta def string_lit (s : string) : format :=
   format.bracket "\"" "\"" (to_fmt s)
@@ -76,10 +76,10 @@ meta def expr' (action : ir.stmt → format) : ir.expr → format
 | (ir.expr.panic err_msg) :=
   to_fmt "throw std::runtime_error(" ++ string_lit err_msg ++ ");"
 | (ir.expr.mk_native_closure n args) :=
-"lean::mk_native_closure(*g_env, lean::name({\"" ++ name.repr_with_sep "\", \"" n ++ "\"})" ++ "," ++
+"lean::mk_native_closure(*g_env, lean::name({\"" ++ name.to_string_with_sep "\", \"" n ++ "\"})" ++ "," ++
    format.bracket "{" "}" (comma_sep (list.map format_local args)) ++ ")"
  | (ir.expr.invoke n args) :=
- "lean::invoke(" ++ name.repr_with_sep "_" n ++ ", " ++
+ "lean::invoke(" ++ name.to_string_with_sep "_" n ++ ", " ++
  (comma_sep (list.map format_local args)) ++ ")"
  | (ir.expr.uninitialized) := ";"
  | (ir.expr.assign n val) := mangle_name n ++ " = " ++ expr' val
@@ -149,7 +149,7 @@ meta def expr := expr' stmt
 meta def format_param (param : name × ir.ty) :=
 ty (prod.snd param) ++
 format.space ++
-to_fmt (name.repr_with_sep "_" (mk_str_name "_$local$_" (name.repr_with_sep "_" (prod.fst param))))
+to_fmt (name.to_string_with_sep "_" (mk_str_name "_$local$_" (name.to_string_with_sep "_" (prod.fst param))))
 
 meta def format_argument_list (tys : list (name × ir.ty)) : format :=
   format.bracket "(" ")" (comma_sep (list.map format_param tys))

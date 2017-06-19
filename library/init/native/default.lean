@@ -184,7 +184,7 @@ meta def bind_value (val : ir.expr) (body : name → ir_compiler ir.stmt) : ir_c
 
 -- not in love with this --solution-- hack, revisit
 meta def compile_local (n : name) : ir_compiler name :=
-return $ (mk_str_name "_$local$_" (name.repr_with_sep "_" n))
+return $ (mk_str_name "_$local$_" (name.to_string_with_sep "_" n))
 
 meta def mk_invoke (loc : name) (args : list ir.expr) : ir_compiler ir.expr :=
 let args'' := list.map assert_name args
@@ -292,7 +292,7 @@ meta def compile_builtin_cases (action : expr → ir_compiler ir.stmt) (scrut : 
   return $ (n, case) :: cs'
 
 meta def in_lean_ns (n : name) : name :=
-  mk_simple_name ("lean::" ++ name.repr_with_sep "_" n)
+  mk_simple_name ("lean::" ++ name.to_string_with_sep "_" n)
 
 meta def mk_builtin_cases_on (case_name scrut : name) (cases : list (nat × ir.stmt)) (default : ir.stmt) : ir.stmt :=
 -- replace `ctor_index with a generated name

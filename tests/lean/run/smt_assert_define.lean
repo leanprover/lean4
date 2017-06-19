@@ -35,6 +35,6 @@ end
 lemma ex4 (a b c : nat) : a = b → p (f a) (f b) → p a b :=
 begin [smt]
   intros,
-  assert h : p (f a) (f a),
+  note h : p (f a) (f a),
   add_fact (pf _ h)
 end

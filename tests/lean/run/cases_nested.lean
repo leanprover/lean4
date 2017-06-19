@@ -18,7 +18,7 @@ lemma ex (t : term) (h : cidx t = 2) : term.app (tid t) (to_list t) = t :=
 begin
   cases t,
   {simp [cidx] at h,
-   assert h : 1 ≠ 2, tactic.comp_val,
+   note h : 1 ≠ 2, tactic.comp_val,
    contradiction},
   {simp [tid, to_list]}
 end

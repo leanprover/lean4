@@ -3,7 +3,7 @@ axiom H_f_g : ∀ n, f (g n) = n
 
 example (m : ℕ) : h m = h m :=
 begin
-pose n : ℕ := g m,
+define n : ℕ := g m,
 note H : f n = m := begin dsimp, rw H_f_g end,
 subst H, -- Error here
 end
@@ -20,7 +20,7 @@ end
 
 example (m : ℕ) : h m = h m :=
 begin
-pose n : ℕ := g m,
+define n : ℕ := g m,
 note H : f n = m := begin dsimp, rw H_f_g end,
 subst m, -- Error here
 end
@@ -37,7 +37,7 @@ end
 
 example (m p: ℕ) : h m = h m :=
 begin
-pose a : ℕ := g p,
-pose n : ℕ := g a,
+define a : ℕ := g p,
+define n : ℕ := g a,
 clear p -- Error here
 end

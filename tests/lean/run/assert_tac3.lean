@@ -26,7 +26,7 @@ by do
 
 definition tst4 (a : nat) : a = a :=
 begin
-  assert x : nat,
+  note x : nat,
   rotate 1,
   exact eq.refl a,
   exact a
@@ -34,14 +34,14 @@ end
 
 definition tst5 (a : nat) : a = a :=
 begin
-  pose x : nat := a,
+  define x : nat := a,
   trace_state,
   exact eq.refl x
 end
 
 definition tst6 (a : nat) : a = a :=
 begin
-  pose x := a,
+  define x := a,
   trace_state,
   exact eq.refl x
 end

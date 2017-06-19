@@ -11,7 +11,7 @@ by using_smt $ do
 lemma ex2 (p q : Prop) : p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p ∨ ¬q → false :=
 begin [smt]
    intros,
-   assert h : p ∨ q,
+   note h : p ∨ q,
    destruct h
 end
 

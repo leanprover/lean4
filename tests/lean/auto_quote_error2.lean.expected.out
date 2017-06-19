@@ -42,8 +42,11 @@ state:
 b : ℕ,
 h2 : b = 0
 ⊢ 0 = b
-auto_quote_error2.lean:52:15: error: don't know how to synthesize placeholder
-context:
-⊢ Sort ?
+auto_quote_error2.lean:51:25: error: solve1 tactic failed, focused goal has not been solved
 state:
+h' : ?m_2 = ?m_2
 ⊢ true
+
+⊢ Sort ?
+
+⊢ ?m_1

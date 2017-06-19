@@ -48,8 +48,6 @@ end
 
 example : true :=
 begin
-  {
-    note h' := eq.refl _,
-            --^  error should be on this line
-   }
+  { note h' := eq.refl _ },
+                       --^ error should be at `}`
 end

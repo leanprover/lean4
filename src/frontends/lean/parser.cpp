@@ -2473,11 +2473,11 @@ bool parser::parse_command_like() {
 
     switch (curr()) {
         case token_kind::CommandKeyword:
-            parse_command({});
+            parse_command(cmd_meta());
             updt_options();
             break;
         case token_kind::DocBlock:
-            parse_command({{}, {}, some(parse_doc_block())});
+            parse_command(cmd_meta({}, {}, some(parse_doc_block())));
             break;
         case token_kind::ModDocBlock:
             parse_mod_doc_block();

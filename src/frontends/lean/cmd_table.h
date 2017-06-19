@@ -18,6 +18,11 @@ struct cmd_meta {
     decl_attributes       m_attrs;
     decl_modifiers        m_modifiers;
     optional<std::string> m_doc_string;
+    cmd_meta() {}
+    explicit cmd_meta(decl_attributes const & attrs):m_attrs(attrs) {}
+    cmd_meta(decl_attributes const & attrs, decl_modifiers const & mods,
+             optional<std::string> const & doc = optional<std::string>()):
+        m_attrs(attrs), m_modifiers(mods), m_doc_string(doc) {}
 };
 
 typedef std::function<environment(parser&, cmd_meta const &)> command_fn;

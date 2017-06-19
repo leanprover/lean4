@@ -34,7 +34,7 @@ meta instance : has_append format :=
 ⟨format.compose⟩
 
 meta instance : has_to_string format :=
-⟨λ f, format.to_string f options.mk⟩
+⟨λ f, f.to_string options.mk⟩
 
 meta class has_to_format (α : Type u) :=
 (to_format : α → format)

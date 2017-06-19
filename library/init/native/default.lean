@@ -158,11 +158,11 @@ def label {A : Type} (xs : list A) : list (nat × A) :=
 -- HELPERS --
 meta def assert_name : ir.expr → ir_compiler name
 | (ir.expr.locl n) := lift_result $ native.result.ok n
-| e := mk_error $ "expected name found: " ++ format.to_string (format_cpp.expr e)
+| e := mk_error $ "expected name found: " ++ to_string (format_cpp.expr e)
 
 meta def assert_expr : ir.stmt → ir_compiler ir.expr
 | (ir.stmt.e exp) := return exp
-| s := mk_error ("internal invariant violated, found: " ++ (format.to_string (format_cpp.stmt s)))
+| s := mk_error ("internal invariant violated, found: " ++ to_string (format_cpp.stmt s))
 
 meta def mk_call (head : name) (args : list ir.expr) : ir_compiler ir.expr :=
   let args'' := list.map assert_name args

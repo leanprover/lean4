@@ -30,7 +30,7 @@ meta instance : has_to_format tactic_state :=
 ⟨tactic_state.to_format⟩
 
 meta instance : has_to_string tactic_state :=
-⟨λ s, format.to_string (to_fmt s) s.get_options⟩
+⟨λ s, (to_fmt s).to_string s.get_options⟩
 
 @[reducible] meta def tactic := interaction_monad tactic_state
 @[reducible] meta def tactic_result := interaction_monad.result tactic_state

@@ -97,7 +97,7 @@ meta def type_to_string : option expr → nat → vm string
 | (some type) i := do
   fmt ← vm.pp_expr type,
   opts ← vm.get_options,
-  return (format.to_string fmt opts)
+  return $ fmt.to_string opts
 
 meta def show_vars_core : nat → nat → nat → vm unit
 | c i e :=

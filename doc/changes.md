@@ -7,6 +7,12 @@ master branch (aka work in progress branch)
 The `has_to_string` type class in v3.2.0 is roughly equivalent to `has_repr`.
 For more details, see discussion at issue #1664.
 
+* The old `structure [class]` syntax is finally gone.
+
+* There may be some new combinations which previously had been illegal, e.g. private axiom, meta structures with attributes, etc.
+
+* Definition errors without location information are now shown at the command keyword instead of at its attributes/modifiers, which should help with the Next Error view.
+
 v3.2.0 (18 June 2017)
 -------------
 

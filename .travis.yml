@@ -32,6 +32,7 @@ matrix:
      env:
        CMAKE_CXX_COMPILER=clang++-3.4
        CMAKE_BUILD_TYPE=Release
+       LEAN_EXTRA_MAKE_OPTS=-t0
        TCMALLOC=ON
 
    - os: linux
@@ -78,7 +79,6 @@ matrix:
      env:
        CMAKE_CXX_COMPILER=clang++-3.4
        CMAKE_BUILD_TYPE=Debug
-       LEAN_EXTRA_MAKE_OPTS=-t0
        TCMALLOC=ON
 
    - os: linux

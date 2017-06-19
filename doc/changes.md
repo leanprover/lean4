@@ -1,6 +1,12 @@
 master branch (aka work in progress branch)
 -------------
 
+*Changes*
+
+* We now have two type classes for converting to string: `has_to_string` and `has_repr`.
+The `has_to_string` type class in v3.2.0 is roughly equivalent to `has_repr`.
+For more details, see discussion at issue #1664.
+
 v3.2.0 (18 June 2017)
 -------------
 

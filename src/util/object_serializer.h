@@ -50,7 +50,7 @@ public:
     T read_core(F && f) {
         deserializer & d = get_owner();
         char c = d.read_char();
-        if (c > 0) {
+        if (c != 0) {
             T r = f(c-1);
             m_table.push_back(r);
             return r;

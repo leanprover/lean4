@@ -1,6 +1,7 @@
 abs
 absurd
 acc.cases_on
+acc.rec
 add_comm_group
 add_comm_semigroup
 add_group

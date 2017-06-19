@@ -8,6 +8,7 @@ void finalize_constants();
 name const & get_abs_name();
 name const & get_absurd_name();
 name const & get_acc_cases_on_name();
+name const & get_acc_rec_name();
 name const & get_add_comm_group_name();
 name const & get_add_comm_semigroup_name();
 name const & get_add_group_name();

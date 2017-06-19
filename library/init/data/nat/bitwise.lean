@@ -116,7 +116,6 @@ namespace nat
   def ldiff : ℕ → ℕ → ℕ := bitwise (λ a b, a && bnot b)
   def lxor  : ℕ → ℕ → ℕ := bitwise bxor
 
-  set_option type_context.unfold_lemmas true
   lemma binary_rec_eq {C : nat → Sort u} {f : ∀ b n, C n → C (bit b n)} {z}
     (h : f ff 0 z = z) (b n) :
     binary_rec f z (bit b n) = f b n (binary_rec f z n) :=

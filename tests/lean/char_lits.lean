@@ -7,6 +7,6 @@ open io
 #eval '\\'
 variable [io.interface]
 #eval put_str ("aaa".str '\\')
-#eval put_str '\n'.to_string
+#eval put_str $ repr '\n'
 #eval put_str $ string.singleton '\n'
 #eval put_str ("aaa".str '\'')

@@ -19,7 +19,7 @@ private meta def try_constructors (cfg : apply_cfg): list name → tactic unit
 | (c::cs) := (mk_const c >>= λ e, apply_core e cfg >> return ()) <|> try_constructors cs
 
 meta def constructor (cfg : apply_cfg := {}): tactic unit :=
-target >>= instantiate_mvars >>= get_constructors_for >>= try_constructors cfg
+target >>= instantiate_mvars >>= whnf >>= get_constructors_for >>= try_constructors cfg
 
 meta def econstructor : tactic unit :=
 constructor {new_goals := new_goals.non_dep_only}

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.options init.function
+import init.meta.options init.function init.data.to_string
 
 universes u v
 
@@ -33,10 +33,8 @@ meta instance : inhabited format :=
 meta instance : has_append format :=
 ⟨format.compose⟩
 
-/- TODO(Leo): has_to_string
 meta instance : has_to_string format :=
 ⟨λ f, format.to_string f options.mk⟩
--/
 
 meta class has_to_format (α : Type u) :=
 (to_format : α → format)

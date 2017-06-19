@@ -29,10 +29,8 @@ end tactic_state
 meta instance : has_to_format tactic_state :=
 ⟨tactic_state.to_format⟩
 
-/- TODO(Leo): has_to_string
 meta instance : has_to_string tactic_state :=
-⟨λ s, (to_fmt s).to_string s.get_options⟩
--/
+⟨λ s, format.to_string (to_fmt s) s.get_options⟩
 
 @[reducible] meta def tactic := interaction_monad tactic_state
 @[reducible] meta def tactic_result := interaction_monad.result tactic_state
@@ -958,7 +956,7 @@ do dec_e ← (mk_app `decidable [e] <|> fail "by_cases tactic failed, type is no
    swap
 
 private meta def get_undeclared_const (env : environment) (base : name) : ℕ → name | i :=
-let n := base <.> ("_aux_" ++ to_string i) in
+let n := base <.> ("_aux_" ++ repr i) in
 if ¬env.contains n then n
 else get_undeclared_const (i+1)
 

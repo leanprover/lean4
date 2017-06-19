@@ -185,7 +185,7 @@ def main : ∀ (args : list string), io unit
       version := "1"
     } user_toml_fn,
   exec_cmd {cmd := "leanpkg", args := ["add", dep], cwd := dot_lean_dir}
-| ["dump"] := read_manifest >>= io.print_ln
+| ["dump"] := read_manifest >>= io.print_ln ∘ repr
 | _ := io.fail usage
 
 end leanpkg

@@ -16,7 +16,6 @@ meta inductive exceptional (α : Type)
 section
 open exceptional
 variables {α : Type}
-/- TODO(Leo): has_to_string
 variables [has_to_string α]
 
 protected meta def exceptional.to_string : exceptional α → string
@@ -25,7 +24,6 @@ protected meta def exceptional.to_string : exceptional α → string
 
 meta instance : has_to_string (exceptional α) :=
 has_to_string.mk exceptional.to_string
--/
 end
 
 namespace exceptional

@@ -15,6 +15,9 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser_config.h"
 
 namespace lean {
+
+constexpr char Eof = 0xFF;
+
 unsigned scanner::get_utf8_size(unsigned char c) {
     unsigned r = ::lean::get_utf8_size(c);
     if (r == 0)
@@ -76,28 +79,28 @@ void scanner::fetch_line() {
         m_spos  = 0;
         m_upos  = 0;
         m_curr  = m_curr_line[m_spos];
-        if (m_curr == EOF) m_curr = 0;
+        if (m_curr == Eof) m_curr = 0;
         m_uskip = get_utf8_size(m_curr);
         m_uskip--;
     } else {
         m_last_line = true;
-        m_curr      = EOF;
+        m_curr      = Eof;
     }
 }
 
 void scanner::next() {
-    lean_assert(m_curr != EOF);
+    lean_assert(m_curr != Eof);
     m_spos++;
     while (m_spos >= static_cast<int>(m_curr_line.size())) {
         if (m_last_line) {
-            m_curr = EOF;
+            m_curr = Eof;
             return;
         } else {
             return fetch_line();
         }
     }
     m_curr = m_curr_line[m_spos];
-    if (m_curr == EOF) m_curr = 0;
+    if (m_curr == Eof) m_curr = 0;
     if (m_uskip > 0) {
         if (!is_utf8_next(m_curr))
             throw_exception("invalid utf-8 sequence character");
@@ -110,12 +113,12 @@ void scanner::next() {
 }
 
 void scanner::check_not_eof(char const * error_msg) {
-    if (curr() == EOF) throw_exception(error_msg);
+    if (curr() == Eof) throw_exception(error_msg);
 }
 
 [[ noreturn ]] void scanner::throw_exception(char const * msg) {
     pos_info pos = {m_sline, m_upos};
-    while (curr() != EOF && !std::isspace(curr()))
+    while (curr() != Eof && !std::isspace(curr()))
         next();
     throw parser_exception(msg, m_stream_name.c_str(), pos);
 }
@@ -233,7 +236,7 @@ auto scanner::read_quoted_symbol() -> token_kind {
 }
 
 bool scanner::is_next_digit() {
-    lean_assert(curr() != EOF);
+    lean_assert(curr() != Eof);
     if (m_spos + 1 < static_cast<int>(m_curr_line.size()))
         return std::isdigit(m_curr_line[m_spos+1]);
     else
@@ -347,7 +350,7 @@ void scanner::read_single_line_comment() {
         if (curr() == '\n') {
             next();
             return;
-        } else if (curr() == EOF) {
+        } else if (curr() == Eof) {
             return;
         } else {
             next();
@@ -436,7 +439,7 @@ void scanner::read_until(char const * end_str, char const * error_msg) {
 void scanner::move_back(unsigned offset, unsigned u_offset) {
     lean_assert(m_uskip == 0);
     if (offset != 0) {
-        if (curr() == EOF) {
+        if (curr() == Eof) {
             m_curr = 0;
             m_spos--;
             m_upos--;

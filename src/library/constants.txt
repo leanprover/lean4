@@ -102,7 +102,7 @@ has_sizeof.mk
 has_sub
 has_sub.sub
 has_to_format
-has_to_string
+has_repr
 has_well_founded
 has_well_founded.r
 has_well_founded.wf
@@ -305,6 +305,7 @@ real.has_lt
 real.has_le
 reflected
 reflected.subst
+repr
 rfl
 right_distrib
 ring
@@ -346,7 +347,6 @@ tactic.triv
 tactic.add_coinductive_predicate
 thunk
 to_fmt
-to_string
 trans_rel_left
 trans_rel_right
 true

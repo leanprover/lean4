@@ -171,7 +171,7 @@ private meta def parse_sformat : string → list char → parser pexpr
 do (e, s) ← with_input (lean.parser.pexpr 0) s.as_string,
    '}'::s ← return s.to_list | fail "'}' expected",
    f ← parse_sformat "" s,
-   pure ``(%%(reflect acc) ++ to_string %%e ++ %%f)
+   pure ``(%%(reflect acc) ++ repr %%e ++ %%f)
 | acc (c::s) := parse_sformat (acc.str c) s
 
 reserve prefix `sformat! `:100

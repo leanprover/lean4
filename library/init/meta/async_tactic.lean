@@ -10,7 +10,7 @@ import init.meta.interactive
 namespace tactic
 
 private meta def report {α} (s : tactic_state) : option (unit → format) → α
-| (some fmt) := undefined_core $ to_string $ fmt () ++ format.line ++ to_fmt s
+| (some fmt) := undefined_core $ format.to_string $ fmt () ++ format.line ++ to_fmt s
 | none       := undefined_core "silent failure"
 
 

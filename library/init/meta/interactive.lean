@@ -341,9 +341,9 @@ meta def case (ctor : parse ident) (ids : parse ident_*) (tac : itactic) : tacti
 do r   ← result,
    env ← get_env,
    ctor ← resolve_constant ctor
-       <|> fail ("'" ++ to_string ctor ++ "' is not a constructor"),
+       <|> fail ("'" ++ repr ctor ++ "' is not a constructor"),
    ty  ← (env.inductive_type_of ctor).to_monad
-       <|> fail ("'" ++ to_string ctor ++ "' is not a constructor"),
+       <|> fail ("'" ++ repr ctor ++ "' is not a constructor"),
    let ctors := env.constructors_of ty,
    let idx   := env.inductive_num_params ty + /- motive -/ 1 +
      list.index_of ctor ctors,
@@ -528,7 +528,7 @@ private meta def add_simps : simp_lemmas → list name → tactic simp_lemmas
 | s (n::ns) := do s' ← s.add_simp n, add_simps s' ns
 
 private meta def report_invalid_simp_lemma {α : Type} (n : name): tactic α :=
-fail ("invalid simplification lemma '" ++ to_string n ++ "' (use command 'set_option trace.simp_lemmas true' for more details)")
+fail ("invalid simplification lemma '" ++ repr n ++ "' (use command 'set_option trace.simp_lemmas true' for more details)")
 
 private meta def simp_lemmas.resolve_and_add (s : simp_lemmas) (n : name) (ref : pexpr) : tactic simp_lemmas :=
 do
@@ -710,7 +710,7 @@ meta def clear : parse ident* → tactic unit :=
 tactic.clear_lst
 
 private meta def to_qualified_name_core : name → list name → tactic name
-| n []        := fail $ "unknown declaration '" ++ to_string n ++ "'"
+| n []        := fail $ "unknown declaration '" ++ repr n ++ "'"
 | n (ns::nss) := do
   curr ← return $ ns ++ n,
   env  ← get_env,

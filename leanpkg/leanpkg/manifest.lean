@@ -29,8 +29,9 @@ def to_toml : ∀ (s : source), toml.value
 | (git url rev) :=
   toml.value.table [("git", toml.value.str url), ("rev", toml.value.str rev)]
 
-instance : has_to_string source :=
-⟨λ s, s.to_toml.to_string⟩
+/- TODO(Leo): has_to_string -/
+instance : has_repr source :=
+⟨λ s, repr s.to_toml⟩
 
 end source
 
@@ -38,8 +39,9 @@ structure dependency :=
 (name : string) (src : source)
 
 namespace dependency
-instance : has_to_string dependency :=
-⟨λ d, d.name ++ " = " ++ to_string d.src⟩
+/- TODO(Leo): has_to_string -/
+instance : has_repr dependency :=
+⟨λ d, d.name ++ " = " ++ repr d.src⟩
 end dependency
 
 structure manifest :=
@@ -79,8 +81,8 @@ let pkg := [("name", toml.value.str d.name), ("version", toml.value.str d.versio
     deps := toml.value.table $ d.dependencies.for $ λ dep, (dep.name, dep.src.to_toml) in
 toml.value.table [("package", toml.value.table pkg), ("dependencies", deps)]
 
-instance : has_to_string manifest :=
-⟨λ d, d.to_toml.to_string⟩
+instance : has_repr manifest :=
+⟨λ d, repr d.to_toml⟩
 
 def from_string (s : string) : option manifest :=
 match parser.run_string toml.File s with
@@ -97,7 +99,7 @@ toml ←
   | sum.inr res := return res
   end),
 some manifest ← return (from_toml toml)
-  | io.fail ("cannot read manifest from " ++ fn ++ "\n\n" ++ toml.to_string),
+  | io.fail ("cannot read manifest from " ++ fn ++ "\n\n" ++ repr toml),
 return manifest
 
 end manifest

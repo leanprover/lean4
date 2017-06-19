@@ -59,6 +59,6 @@ meta def use_cmd : hole_command :=
     is_def_eq t ty,
     fmt ← tactic_format_expr e,
     o   ← get_options,
-    let s := fmt.to_string o,
+    let s := format.to_string fmt o,
     return [(s, "")]
 }

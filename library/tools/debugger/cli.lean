@@ -98,7 +98,7 @@ meta def pidx_cmd : nat → list string → vm unit
     opts    ← vm.get_options,
     vm.put_str n.to_string,
     vm.put_str " := ",
-    vm.put_str (v.to_string opts),
+    vm.put_str (format.to_string v opts),
     vm.put_str "\n"
 | _ _ :=
   vm.put_str "invalid 'pidx <idx>' command, incorrect number of arguments\n"
@@ -113,7 +113,7 @@ meta def print_var : nat → nat → name → vm unit
        opts ← vm.get_options,
        vm.put_str n.to_string,
        vm.put_str " := ",
-       vm.put_str (v.to_string opts),
+       vm.put_str (format.to_string v opts),
        vm.put_str "\n"
     else
        print_var (i+1) ep v

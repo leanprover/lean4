@@ -7,7 +7,7 @@ prelude
 import init.function init.data.option.basic init.util
 import init.category.combinators init.category.monad init.category.alternative init.category.monad_fail
 import init.data.nat.div init.meta.exceptional init.meta.format init.meta.environment
-import init.meta.pexpr init.data.to_string init.data.string.basic
+import init.meta.pexpr init.data.repr init.data.string.basic
 
 universes u v
 
@@ -18,6 +18,8 @@ meta inductive interaction_monad.result (state : Type) (α : Type u)
 open interaction_monad.result
 
 section
+
+/- TODO(Leo): has_to_string
 variables {state : Type} {α : Type u}
 variables [has_to_string α]
 
@@ -28,6 +30,7 @@ meta def interaction_monad.result_to_string : result state α → string
 
 meta instance interaction_monad.result_has_string : has_to_string (result state α) :=
 ⟨interaction_monad.result_to_string⟩
+-/
 end
 
 meta def interaction_monad.result.clamp_pos {state : Type} {α : Type u} (line0 line col : ℕ) : result state α → result state α

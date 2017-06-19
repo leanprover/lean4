@@ -105,8 +105,8 @@ def reverse (b : buffer α) : buffer α :=
 instance : has_append (buffer α) :=
 ⟨buffer.append⟩
 
-instance [has_to_string α] : has_to_string (buffer α) :=
-⟨to_string ∘ to_list⟩
+instance [has_repr α] : has_repr (buffer α) :=
+⟨repr ∘ to_list⟩
 
 meta instance [has_to_format α] : has_to_format (buffer α) :=
 ⟨to_fmt ∘ to_list⟩

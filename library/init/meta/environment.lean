@@ -116,7 +116,7 @@ end
 
 end environment
 
-meta instance : has_to_string environment :=
+meta instance : has_repr environment :=
 ⟨λ e, "[environment]"⟩
 
 meta instance : inhabited environment :=

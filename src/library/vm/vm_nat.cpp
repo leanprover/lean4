@@ -262,7 +262,7 @@ void nat_no_confusion(vm_state &) {
     lean_unreachable();
 }
 
-vm_obj nat_to_string(vm_obj const & a) {
+vm_obj nat_repr(vm_obj const & a) {
     std::ostringstream out;
     if (is_simple(a)) {
         out << cidx(a);
@@ -303,7 +303,7 @@ void initialize_vm_nat() {
     DECLARE_VM_BUILTIN(name({"nat", "decidable_eq"}),     nat_decidable_eq);
     DECLARE_VM_BUILTIN(name({"nat", "decidable_le"}),     nat_decidable_le);
     DECLARE_VM_BUILTIN(name({"nat", "decidable_lt"}),     nat_decidable_lt);
-    DECLARE_VM_BUILTIN(name({"nat", "to_string"}),        nat_to_string);
+    DECLARE_VM_BUILTIN(name({"nat", "repr"}),             nat_repr);
     DECLARE_VM_BUILTIN(name({"nat", "repeat"}),           nat_repeat);
     DECLARE_VM_BUILTIN(name({"nat", "shiftl"}),           nat_shiftl);
     DECLARE_VM_BUILTIN(name({"nat", "shiftr"}),           nat_shiftr);

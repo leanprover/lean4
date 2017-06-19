@@ -48,12 +48,12 @@ def name.update_prefix : name → name → name
 | (mk_string s p)  new_p := mk_string s new_p
 | (mk_numeral s p) new_p := mk_numeral s new_p
 
-def name.to_string_with_sep (sep : string) : name → string
+def name.repr_with_sep (sep : string) : name → string
 | anonymous                := "[anonymous]"
 | (mk_string s anonymous)  := s
-| (mk_numeral v anonymous) := to_string v
-| (mk_string s n)          := name.to_string_with_sep n ++ sep ++ s
-| (mk_numeral v n)         := name.to_string_with_sep n ++ sep ++ to_string v
+| (mk_numeral v anonymous) := repr v
+| (mk_string s n)          := name.repr_with_sep n ++ sep ++ s
+| (mk_numeral v n)         := name.repr_with_sep n ++ sep ++ repr v
 
 private def name.components' : name -> list name
 | anonymous                := []
@@ -63,11 +63,14 @@ private def name.components' : name -> list name
 def name.components (n : name) : list name :=
 (name.components' n).reverse
 
-def name.to_string : name → string :=
-name.to_string_with_sep "."
+protected def name.repr : name → string :=
+name.repr_with_sep "."
 
-instance : has_to_string name :=
-⟨name.to_string⟩
+instance : has_repr name :=
+⟨name.repr⟩
+
+protected def name.to_string : name → string :=
+name.repr
 
 /- TODO(Leo): provide a definition in Lean. -/
 meta constant name.has_decidable_eq : decidable_eq name

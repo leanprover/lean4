@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.logic init.data.to_string init.meta.format
+import init.logic init.data.repr init.meta.format
 import init.meta.contradiction_tactic init.meta.constructor_tactic
 import init.meta.relation_tactics init.meta.injection_tactic
 
@@ -33,13 +33,13 @@ def occurrences.contains : occurrences → nat → bool
 instance : inhabited occurrences :=
 ⟨all⟩
 
-def occurrences_to_string : occurrences → string
+def occurrences_repr : occurrences → string
 | occurrences.all     := "*"
-| (occurrences.pos l) := to_string l
-| (occurrences.neg l) := "-" ++ to_string l
+| (occurrences.pos l) := repr l
+| (occurrences.neg l) := "-" ++ repr l
 
-instance : has_to_string occurrences :=
-⟨occurrences_to_string⟩
+instance : has_repr occurrences :=
+⟨occurrences_repr⟩
 
 meta def occurrences_to_format : occurrences → format
 | occurrences.all     := to_fmt "*"

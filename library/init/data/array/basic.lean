@@ -118,8 +118,8 @@ instance : has_mem α (array α n) := ⟨array.mem⟩
 
 theorem read_mem (a : array α n) (i) : read a i ∈ a := exists.intro i rfl
 
-instance [has_to_string α] : has_to_string (array α n) :=
-⟨to_string ∘ to_list⟩
+instance [has_repr α] : has_repr (array α n) :=
+⟨repr ∘ to_list⟩
 
 meta instance [has_to_format α] : has_to_format (array α n) :=
 ⟨to_fmt ∘ to_list⟩

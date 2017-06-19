@@ -713,16 +713,16 @@ if h : a = a' then by rw if_pos h; exact
 else by rw if_neg h; exact find_erase_ne m a a' h
 
 section string
-variables [has_to_string α] [∀ a, has_to_string (β a)]
+variables [has_repr α] [∀ a, has_repr (β a)]
 open prod
-private def key_data_to_string (a : α) (b : β a) (first : bool) : string :=
+private def key_data_repr (a : α) (b : β a) (first : bool) : string :=
 (if first then "" else ", ") ++ sformat!"{a} ← {b}"
 
-private def to_string (m : hash_map α β) : string :=
-"⟨" ++ (fst (fold m ("", tt) (λ p a b, (fst p ++ key_data_to_string a b (snd p), ff)))) ++ "⟩"
+private def repr (m : hash_map α β) : string :=
+"⟨" ++ (fst (fold m ("", tt) (λ p a b, (fst p ++ key_data_repr a b (snd p), ff)))) ++ "⟩"
 
-instance : has_to_string (hash_map α β) :=
-⟨to_string⟩
+instance : has_repr (hash_map α β) :=
+⟨repr⟩
 
 end string
 

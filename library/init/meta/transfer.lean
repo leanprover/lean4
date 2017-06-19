@@ -89,7 +89,7 @@ private meta def analyse_rule (u' : list name) (pr : expr) : tactic rule_data :=
   (params, app (app r f) g) ← mk_local_pis t,
   (arg_rels, R) ← get_lift_fun r,
   args    ← monad.for (enum arg_rels) (λ⟨n, a⟩,
-    prod.mk <$> mk_local_def (mk_simple_name ("a_" ++ to_string n)) a.in_type <*> pure a),
+    prod.mk <$> mk_local_def (mk_simple_name ("a_" ++ repr n)) a.in_type <*> pure a),
   a_vars  ← return $ prod.fst <$> args,
   p       ← head_beta (app_of_list f a_vars),
   p_data  ← return $ mark_occurences (app R p) params,

@@ -128,10 +128,11 @@ interface.term.get_line
 def cmdline_args : io (list string) :=
 return interface.term.cmdline_args
 
-def print {α} [has_to_string α] (s : α) : io unit :=
-put_str ∘ to_string $ s
+/- TODO(Leo): has_to_string -/
+def print {α} [has_repr α] (s : α) : io unit :=
+put_str ∘ repr $ s
 
-def print_ln {α} [has_to_string α] (s : α) : io unit :=
+def print_ln {α} [has_repr α] (s : α) : io unit :=
 print s >> put_str "\n"
 
 def handle : Type :=
@@ -235,7 +236,7 @@ def io.cmd (args : io.process.spawn_args) : io string :=
 do child ← io.proc.spawn { args with stdout := io.process.stdio.piped },
   buf ← io.fs.read_to_end child.stdout,
   exitv ← io.proc.wait child,
-  when (exitv ≠ 0) $ io.fail $ "process exited with status " ++ exitv.to_string,
+  when (exitv ≠ 0) $ io.fail $ "process exited with status " ++ repr exitv,
   return buf.to_string
 
 omit ioi

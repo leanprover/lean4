@@ -16,7 +16,7 @@ def trace {α : Type u} (s : string) (f : thunk α) : α :=
 f ()
 
 meta def trace_val {α : Type u} [has_to_format α] (f : α) : α :=
-trace (to_string (to_fmt f)) f
+trace (to_fmt f).to_string f
 
 /-- This function has a native implementation that shows the VM call stack. -/
 def trace_call_stack {α : Type u} (f : thunk α) : α :=

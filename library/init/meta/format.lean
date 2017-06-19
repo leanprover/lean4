@@ -22,7 +22,7 @@ meta constant format.group           : format → format
 meta constant format.of_string       : string → format
 meta constant format.of_nat          : nat → format
 meta constant format.flatten         : format → format
-meta constant format.to_string       : format → options → string
+meta constant format.to_string  (f : format) (o : options := options.mk) : string
 meta constant format.of_options      : options → format
 meta constant format.is_nil          : format → bool
 meta constant trace_fmt {α : Type u} : format → (unit → α) → α
@@ -33,8 +33,10 @@ meta instance : inhabited format :=
 meta instance : has_append format :=
 ⟨format.compose⟩
 
+/- TODO(Leo): has_to_string
 meta instance : has_to_string format :=
 ⟨λ f, format.to_string f options.mk⟩
+-/
 
 meta class has_to_format (α : Type u) :=
 (to_format : α → format)
@@ -94,7 +96,7 @@ meta instance {α : Type u} [has_to_format α] : has_to_format (list α) :=
 attribute [instance] string.has_to_format
 
 meta instance : has_to_format name :=
-⟨λ n, to_fmt (to_string n)⟩
+⟨λ n, to_fmt n.to_string⟩
 
 meta instance : has_to_format unit :=
 ⟨λ u, to_fmt "()"⟩

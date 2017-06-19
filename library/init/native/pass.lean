@@ -24,7 +24,7 @@ meta def file_name_for_dump (p : pass) :=
 -- Unit functions get optimized away, need to talk to Leo about this one.
 meta def run_pass (conf : config) (p : pass) (proc : procedure) : (format × procedure × format) :=
   let result := pass.transform p conf proc in
-  (to_string proc, result, to_string result)
+  (repr proc, result, repr result)
 
 meta def collect_dumps {A : Type} : list (format × A × format) → format × list A × format
 | [] := (format.nil, [], format.nil)

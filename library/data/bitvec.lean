@@ -210,12 +210,12 @@ section conversion
 
 end conversion
 
-private def to_string {n : nat} : bitvec n → string
+private def repr {n : nat} : bitvec n → string
 | ⟨bs, p⟩ :=
   "0b" ++ (bs.map (λ b : bool, if b then '1' else '0')).as_string
 
-instance (n : nat) : has_to_string (bitvec n) :=
-⟨to_string⟩
+instance (n : nat) : has_repr (bitvec n) :=
+⟨repr⟩
 end bitvec
 
 instance {n} {x y : bitvec n} : decidable (bitvec.ult x y) := bool.decidable_eq _ _

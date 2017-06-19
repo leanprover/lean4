@@ -114,7 +114,7 @@ vm_obj level_to_format(vm_obj const & l, vm_obj const & o) {
     return to_obj(pp(to_level(l), to_options(o)));
 }
 
-vm_obj level_to_string(vm_obj const & l) {
+vm_obj level_repr(vm_obj const & l) {
     std::ostringstream out;
     out << to_level(l);
     return to_obj(out.str());
@@ -158,7 +158,7 @@ void initialize_vm_level() {
     DECLARE_VM_BUILTIN(name({"level", "normalize"}),        level_normalize);
     DECLARE_VM_BUILTIN(name({"level", "occurs"}),           level_occurs);
     DECLARE_VM_BUILTIN(name({"level", "to_format"}),        level_to_format);
-    DECLARE_VM_BUILTIN(name({"level", "to_string"}),        level_to_string);
+    DECLARE_VM_BUILTIN(name({"level", "repr"}),             level_repr);
     DECLARE_VM_BUILTIN(name({"level", "fold"}),             level_fold);
     DECLARE_VM_BUILTIN(name({"level", "instantiate"}),      level_instantiate);
     DECLARE_VM_CASES_BUILTIN(name({"level", "cases_on"}),   level_cases_on);

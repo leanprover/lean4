@@ -24,7 +24,6 @@ if h : n < char_sz then fin.mk n h else fin.mk 0 zero_lt_char_sz
 
 def to_nat (c : char) : nat :=
 fin.val c
-
 end char
 
 instance : decidable_eq char :=

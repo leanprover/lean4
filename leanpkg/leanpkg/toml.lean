@@ -33,31 +33,33 @@ private def escapec : char → string
 private def escape (s : string) : string :=
 s.fold "" (λ s c, s ++ escapec c)
 
-private mutual def to_string_core, to_string_pairs
-with to_string_core : value → string
+/- TODO(Leo): has_to_string -/
+private mutual def repr_core, repr_pairs
+with repr_core : value → string
 | (value.str s)    := "\"" ++ escape s ++ "\""
-| (value.nat n)    := to_string n
+| (value.nat n)    := repr n
 | (value.bool tt)  := "true"
 | (value.bool ff)  := "false"
-| (value.table cs) := "{" ++ to_string_pairs cs ++ "}"
-with to_string_pairs : list (string × value) → string
+| (value.table cs) := "{" ++ repr_pairs cs ++ "}"
+with repr_pairs : list (string × value) → string
 | []               := ""
-| [(k, v)]         := k ++ " = " ++ to_string_core v
-| ((k, v)::kvs)    := k ++ " = " ++ to_string_core v ++ ", " ++ to_string_pairs kvs
+| [(k, v)]         := k ++ " = " ++ repr_core v
+| ((k, v)::kvs)    := k ++ " = " ++ repr_core v ++ ", " ++ repr_pairs kvs
 
-protected def to_string : ∀ (v : value), string
+protected def repr : ∀ (v : value), string
 | (table cs) := join "\n" $ do (h, c) ← cs,
   match c with
   | table ds :=
     ["[" ++ h ++ "]\n" ++
      join "" (do (k, v) ← ds,
-       [k ++ " = " ++ to_string_core v ++ "\n"])]
-  | _ := ["<error> " ++ to_string_core c]
+       [k ++ " = " ++ repr_core v ++ "\n"])]
+  | _ := ["<error> " ++ repr_core c]
   end
-| v := to_string_core v
+| v := repr_core v
 
-instance : has_to_string value :=
-⟨value.to_string⟩
+/- TODO(Leo): has_to_string -/
+instance : has_repr value :=
+⟨value.repr⟩
 
 def lookup : value → string → option value
 | (value.table cs) k :=

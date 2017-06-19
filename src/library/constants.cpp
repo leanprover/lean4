@@ -107,7 +107,7 @@ name const * g_has_sizeof_mk = nullptr;
 name const * g_has_sub = nullptr;
 name const * g_has_sub_sub = nullptr;
 name const * g_has_to_format = nullptr;
-name const * g_has_to_string = nullptr;
+name const * g_has_repr = nullptr;
 name const * g_has_well_founded = nullptr;
 name const * g_has_well_founded_r = nullptr;
 name const * g_has_well_founded_wf = nullptr;
@@ -310,6 +310,7 @@ name const * g_real_has_lt = nullptr;
 name const * g_real_has_le = nullptr;
 name const * g_reflected = nullptr;
 name const * g_reflected_subst = nullptr;
+name const * g_repr = nullptr;
 name const * g_rfl = nullptr;
 name const * g_right_distrib = nullptr;
 name const * g_ring = nullptr;
@@ -351,7 +352,6 @@ name const * g_tactic_triv = nullptr;
 name const * g_tactic_add_coinductive_predicate = nullptr;
 name const * g_thunk = nullptr;
 name const * g_to_fmt = nullptr;
-name const * g_to_string = nullptr;
 name const * g_trans_rel_left = nullptr;
 name const * g_trans_rel_right = nullptr;
 name const * g_true = nullptr;
@@ -480,7 +480,7 @@ void initialize_constants() {
     g_has_sub = new name{"has_sub"};
     g_has_sub_sub = new name{"has_sub", "sub"};
     g_has_to_format = new name{"has_to_format"};
-    g_has_to_string = new name{"has_to_string"};
+    g_has_repr = new name{"has_repr"};
     g_has_well_founded = new name{"has_well_founded"};
     g_has_well_founded_r = new name{"has_well_founded", "r"};
     g_has_well_founded_wf = new name{"has_well_founded", "wf"};
@@ -683,6 +683,7 @@ void initialize_constants() {
     g_real_has_le = new name{"real", "has_le"};
     g_reflected = new name{"reflected"};
     g_reflected_subst = new name{"reflected", "subst"};
+    g_repr = new name{"repr"};
     g_rfl = new name{"rfl"};
     g_right_distrib = new name{"right_distrib"};
     g_ring = new name{"ring"};
@@ -724,7 +725,6 @@ void initialize_constants() {
     g_tactic_add_coinductive_predicate = new name{"tactic", "add_coinductive_predicate"};
     g_thunk = new name{"thunk"};
     g_to_fmt = new name{"to_fmt"};
-    g_to_string = new name{"to_string"};
     g_trans_rel_left = new name{"trans_rel_left"};
     g_trans_rel_right = new name{"trans_rel_right"};
     g_true = new name{"true"};
@@ -854,7 +854,7 @@ void finalize_constants() {
     delete g_has_sub;
     delete g_has_sub_sub;
     delete g_has_to_format;
-    delete g_has_to_string;
+    delete g_has_repr;
     delete g_has_well_founded;
     delete g_has_well_founded_r;
     delete g_has_well_founded_wf;
@@ -1057,6 +1057,7 @@ void finalize_constants() {
     delete g_real_has_le;
     delete g_reflected;
     delete g_reflected_subst;
+    delete g_repr;
     delete g_rfl;
     delete g_right_distrib;
     delete g_ring;
@@ -1098,7 +1099,6 @@ void finalize_constants() {
     delete g_tactic_add_coinductive_predicate;
     delete g_thunk;
     delete g_to_fmt;
-    delete g_to_string;
     delete g_trans_rel_left;
     delete g_trans_rel_right;
     delete g_true;
@@ -1227,7 +1227,7 @@ name const & get_has_sizeof_mk_name() { return *g_has_sizeof_mk; }
 name const & get_has_sub_name() { return *g_has_sub; }
 name const & get_has_sub_sub_name() { return *g_has_sub_sub; }
 name const & get_has_to_format_name() { return *g_has_to_format; }
-name const & get_has_to_string_name() { return *g_has_to_string; }
+name const & get_has_repr_name() { return *g_has_repr; }
 name const & get_has_well_founded_name() { return *g_has_well_founded; }
 name const & get_has_well_founded_r_name() { return *g_has_well_founded_r; }
 name const & get_has_well_founded_wf_name() { return *g_has_well_founded_wf; }
@@ -1430,6 +1430,7 @@ name const & get_real_has_lt_name() { return *g_real_has_lt; }
 name const & get_real_has_le_name() { return *g_real_has_le; }
 name const & get_reflected_name() { return *g_reflected; }
 name const & get_reflected_subst_name() { return *g_reflected_subst; }
+name const & get_repr_name() { return *g_repr; }
 name const & get_rfl_name() { return *g_rfl; }
 name const & get_right_distrib_name() { return *g_right_distrib; }
 name const & get_ring_name() { return *g_ring; }
@@ -1471,7 +1472,6 @@ name const & get_tactic_triv_name() { return *g_tactic_triv; }
 name const & get_tactic_add_coinductive_predicate_name() { return *g_tactic_add_coinductive_predicate; }
 name const & get_thunk_name() { return *g_thunk; }
 name const & get_to_fmt_name() { return *g_to_fmt; }
-name const & get_to_string_name() { return *g_to_string; }
 name const & get_trans_rel_left_name() { return *g_trans_rel_left; }
 name const & get_trans_rel_right_name() { return *g_trans_rel_right; }
 name const & get_true_name() { return *g_true; }

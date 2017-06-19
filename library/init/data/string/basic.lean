@@ -101,3 +101,6 @@ private def to_nat_core : list char → nat → nat
 
 def string.to_nat (s : string) : nat :=
 to_nat_core s.to_list 0
+
+protected def char.to_string (c : char) : string :=
+string.str "" c

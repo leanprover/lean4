@@ -107,7 +107,7 @@ run_cmd script_check_id `has_sizeof.mk
 run_cmd script_check_id `has_sub
 run_cmd script_check_id `has_sub.sub
 run_cmd script_check_id `has_to_format
-run_cmd script_check_id `has_to_string
+run_cmd script_check_id `has_repr
 run_cmd script_check_id `has_well_founded
 run_cmd script_check_id `has_well_founded.r
 run_cmd script_check_id `has_well_founded.wf
@@ -310,6 +310,7 @@ run_cmd script_check_id `real.has_lt
 run_cmd script_check_id `real.has_le
 run_cmd script_check_id `reflected
 run_cmd script_check_id `reflected.subst
+run_cmd script_check_id `repr
 run_cmd script_check_id `rfl
 run_cmd script_check_id `right_distrib
 run_cmd script_check_id `ring
@@ -351,7 +352,6 @@ run_cmd script_check_id `tactic.triv
 run_cmd script_check_id `tactic.add_coinductive_predicate
 run_cmd script_check_id `thunk
 run_cmd script_check_id `to_fmt
-run_cmd script_check_id `to_string
 run_cmd script_check_id `trans_rel_left
 run_cmd script_check_id `trans_rel_right
 run_cmd script_check_id `true

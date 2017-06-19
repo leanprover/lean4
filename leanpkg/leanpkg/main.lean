@@ -17,7 +17,7 @@ def read_manifest : io manifest :=
 manifest.from_file leanpkg_toml_fn
 
 def write_manifest (d : manifest) (fn := leanpkg_toml_fn) : io unit :=
-write_file fn (to_string d)
+write_file fn (repr d)
 
 -- TODO(gabriel): implement a cross-platform api
 def get_dot_lean_dir : io string := do
@@ -50,7 +50,7 @@ def make : io unit := do
 manifest ← read_manifest,
 exec_cmd {
   cmd := "lean",
-  args := (match manifest.timeout with some t := ["-T", t.to_string] | none := [] end) ++
+  args := (match manifest.timeout with some t := ["-T", repr t] | none := [] end) ++
     ["--make"] ++ manifest.effective_path,
   env := [("LEAN_PATH", none)]
 }

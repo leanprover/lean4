@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.to_string init.data.prod init.data.sum.basic
+import init.data.repr init.data.prod init.data.sum.basic
 
 inductive ordering
 | lt | eq | gt
@@ -23,8 +23,8 @@ end ordering
 
 open ordering
 
-instance : has_to_string ordering :=
-has_to_string.mk (λ s, match s with | ordering.lt := "lt" | ordering.eq := "eq" | ordering.gt := "gt" end)
+instance : has_repr ordering :=
+⟨(λ s, match s with | ordering.lt := "lt" | ordering.eq := "eq" | ordering.gt := "gt" end)⟩
 
 class has_ordering (α : Type) :=
 (cmp : α → α → ordering)

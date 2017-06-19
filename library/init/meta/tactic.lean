@@ -7,7 +7,7 @@ prelude
 import init.function init.data.option.basic init.util
 import init.category.combinators init.category.monad init.category.alternative init.category.monad_fail
 import init.data.nat.div init.meta.exceptional init.meta.format init.meta.environment
-import init.meta.pexpr init.data.to_string init.data.string.basic init.meta.interaction_monad
+import init.meta.pexpr init.data.repr init.data.string.basic init.meta.interaction_monad
 
 meta constant tactic_state : Type
 
@@ -29,8 +29,10 @@ end tactic_state
 meta instance : has_to_format tactic_state :=
 ⟨tactic_state.to_format⟩
 
+/- TODO(Leo): has_to_string
 meta instance : has_to_string tactic_state :=
 ⟨λ s, (to_fmt s).to_string s.get_options⟩
+-/
 
 @[reducible] meta def tactic := interaction_monad tactic_state
 @[reducible] meta def tactic_result := interaction_monad.result tactic_state

@@ -19,6 +19,6 @@ io.put_str_ln $ "> " ++
 ch ← spawn args,
 exitv ← wait ch,
 when (exitv ≠ 0) $ io.fail $
-  "external command exited with status " ++ exitv.to_string
+  "external command exited with status " ++ repr exitv
 
 end leanpkg

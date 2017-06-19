@@ -23,7 +23,7 @@ meta instance : has_to_format pos :=
 inductive binder_info
 | default | implicit | strict_implicit | inst_implicit | aux_decl
 
-instance : has_to_string binder_info :=
+instance : has_repr binder_info :=
 ⟨λ bi, match bi with
 | binder_info.default := "default"
 | binder_info.implicit := "implicit"
@@ -74,10 +74,10 @@ attribute [instance] expr.has_decidable_eq
 meta constant expr.alpha_eqv : expr → expr → bool
 notation a ` =ₐ `:50 b:50 := expr.alpha_eqv a b = bool.tt
 
-protected meta constant expr.to_string : expr elab → string
+protected meta constant expr.repr : expr elab → string
 
-meta instance : has_to_string (expr elab) := ⟨expr.to_string⟩
-meta instance : has_to_format (expr elab) := ⟨λ e, e.to_string⟩
+meta instance : has_repr (expr elab) := ⟨expr.repr⟩
+meta instance : has_to_format (expr elab) := ⟨λ e, e.repr⟩
 
 /- Coercion for letting users write (f a) instead of (expr.app f a) -/
 meta instance : has_coe_to_fun (expr elab) :=
@@ -378,8 +378,8 @@ meta def to_raw_fmt : expr elab → format
 | (mvar n t)   := p ["mvar", to_fmt n, to_raw_fmt t]
 | (local_const n m bi t) := p ["local_const", to_fmt n, to_fmt m, to_raw_fmt t]
 | (app e f) := p ["app", to_raw_fmt e, to_raw_fmt f]
-| (lam n bi e t) := p ["lam", to_fmt n, to_string bi, to_raw_fmt e, to_raw_fmt t]
-| (pi n bi e t) := p ["pi", to_fmt n, to_string bi, to_raw_fmt e, to_raw_fmt t]
+| (lam n bi e t) := p ["lam", to_fmt n, repr bi, to_raw_fmt e, to_raw_fmt t]
+| (pi n bi e t) := p ["pi", to_fmt n, repr bi, to_raw_fmt e, to_raw_fmt t]
 | (elet n g e f) := p ["elet", to_fmt n, to_raw_fmt g, to_raw_fmt e, to_raw_fmt f]
 | (macro d args) := sbracket (format.join (list.intersperse " " ("macro" :: to_fmt (macro_def_name d) :: args.map to_raw_fmt)))
 

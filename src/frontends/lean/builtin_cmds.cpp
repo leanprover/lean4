@@ -441,13 +441,13 @@ static environment eval_cmd(parser & p) {
     type_context tc(p.env(), transparency_mode::All);
     auto type = tc.infer(e);
 
-    /* Check if resultant type has an instance of has_to_string */
+    /* Check if resultant type has an instance of has_repr */
     try {
-        expr has_to_string_type = mk_app(tc, get_has_to_string_name(), type);
-        optional<expr> to_string_instance = tc.mk_class_instance(has_to_string_type);
-        if (to_string_instance) {
-            /* Modify the 'program' to (to_string e) */
-            e         = mk_app(tc, get_to_string_name(), type, *to_string_instance, e);
+        expr has_repr_type = mk_app(tc, get_has_repr_name(), type);
+        optional<expr> repr_instance = tc.mk_class_instance(has_repr_type);
+        if (repr_instance) {
+            /* Modify the 'program' to (repr e) */
+            e         = mk_app(tc, get_repr_name(), type, *repr_instance, e);
             type      = tc.infer(e);
         }
     } catch (exception &) {}

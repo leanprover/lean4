@@ -1924,7 +1924,7 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
                     new_args.push_back(copy_tag(fn, std::move(coerced_s)));
                     for (; i < args.size(); i++)
                         new_args.push_back(args[i]);
-                    expr new_proj = visit(proj, none_expr());
+                    expr new_proj = visit_function(proj, has_args, ref);
                     return visit_base_app(new_proj, amask, new_args, expected_type, ref);
                 } else {
                     if (i >= args.size()) {

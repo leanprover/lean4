@@ -101,12 +101,11 @@ meta instance : has_to_format (rb_map key data) :=
 end
 
 section
-variables {key : Type} {data : Type} [has_repr key] [has_repr data]
+variables {key : Type} {data : Type} [has_to_string key] [has_to_string data]
 private meta def key_data_to_string (k : key) (d : data) (first : bool) : string :=
-(if first then "" else ", ") ++ repr k ++ " ← " ++ repr d
+(if first then "" else ", ") ++ to_string k ++ " ← " ++ to_string d
 
-/- The following instance is abusing has_repr since the result cannot be parsed by Lean -/
-meta instance : has_repr (rb_map key data) :=
+meta instance : has_to_string (rb_map key data) :=
 ⟨λ m, "⟨" ++ (fst (fold m ("", tt) (λ k d p, (fst p ++ key_data_to_string k d (snd p), ff)))) ++ "⟩"⟩
 end
 

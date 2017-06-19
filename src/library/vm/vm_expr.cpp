@@ -214,7 +214,7 @@ vm_obj expr_alpha_eqv(vm_obj const & o1, vm_obj const & o2) {
     return mk_vm_bool(to_expr(o1) == to_expr(o2));
 }
 
-vm_obj expr_repr(vm_obj const &, vm_obj const & l) {
+vm_obj expr_to_string(vm_obj const &, vm_obj const & l) {
     std::ostringstream out;
     out << to_expr(l);
     return to_obj(out.str());
@@ -479,7 +479,7 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "macro_def_name"}),   expr_macro_def_name);
     DECLARE_VM_BUILTIN(name({"expr", "has_decidable_eq"}), expr_has_decidable_eq);
     DECLARE_VM_BUILTIN(name({"expr", "alpha_eqv"}),        expr_alpha_eqv);
-    DECLARE_VM_BUILTIN(name({"expr", "repr"}),             expr_repr);
+    DECLARE_VM_BUILTIN(name({"expr", "to_string"}),        expr_to_string);
     DECLARE_VM_BUILTIN(name({"expr", "lt"}),               expr_lt);
     DECLARE_VM_BUILTIN(name({"expr", "lex_lt"}),           expr_lex_lt);
     DECLARE_VM_BUILTIN(name({"expr", "fold"}),             expr_fold);

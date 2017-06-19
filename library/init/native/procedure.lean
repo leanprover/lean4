@@ -12,7 +12,7 @@ meta def procedure :=
 name × expr
 
 meta def procedure.repr : procedure → string
-| (n, e) := "def " ++ repr n ++ " := \n" ++ repr e
+| (n, e) := "def " ++ to_string n ++ " := \n" ++ to_string e -- to_string for expr does not produce string that can be parsed by Lean
 
 meta def procedure.map_body (f : expr → expr) : procedure → procedure
 | (n, e) := (n, f e)

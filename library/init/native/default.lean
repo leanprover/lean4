@@ -118,7 +118,7 @@ meta def lookup_arity (n : name) : ir_compiler nat := do
   then pure 2
   else
   match rb_map.find map n with
-  | option.none := mk_error $ "could not find arity for: " ++ repr n
+  | option.none := mk_error $ "could not find arity for: " ++ to_string n
   | option.some n := return n
   end
 
@@ -210,7 +210,7 @@ meta def is_return (n : name) : bool :=
 `native_compiler.return = n
 
 meta def compile_call (head : name) (arity : nat) (args : list ir.expr) : ir_compiler ir.expr := do
-  trace_ir $ "compile_call: " ++ (repr head),
+  trace_ir $ "compile_call: " ++ to_string head,
   if list.length args = arity
   then mk_call head args
   else if list.length args < arity
@@ -264,7 +264,7 @@ meta def compile_cases_on_to_ir_expr
     (action : expr → ir_compiler ir.stmt) : ir_compiler ir.expr := do
     default ← panic "default case should never be reached",
     match cases with
-    | [] := mk_error $ "found " ++ repr case_name ++ " applied to zero arguments"
+    | [] := mk_error $ "found " ++ to_string case_name ++ " applied to zero arguments"
     | (h :: cs) := do
       ir_scrut ← action h >>= assert_expr,
       ir.expr.block <$> bind_value ir_scrut (fun scrut, do
@@ -308,7 +308,7 @@ meta def compile_builtin_cases_on_to_ir_expr
 (action : expr → ir_compiler ir.stmt) : ir_compiler ir.expr := do
 default ← panic "default case should never be reached",
 match cases with
-| [] := mk_error $ "found " ++ repr case_name ++ " applied to zero arguments"
+| [] := mk_error $ "found " ++ to_string case_name ++ " applied to zero arguments"
 | (h :: cs) := do
   ir_scrut ← action h >>= assert_expr,
   ir.expr.block <$> bind_value ir_scrut (fun scrut, do
@@ -368,12 +368,12 @@ meta def compile_nat_cases_on_to_ir_expr
 (cases : list expr)
 (action : expr → ir_compiler ir.stmt) : ir_compiler ir.expr :=
   match cases with
-  | [] := mk_error $ "found " ++ repr case_name ++ " applied to zero arguments"
+  | [] := mk_error $ "found " ++ to_string case_name ++ " applied to zero arguments"
   | (h :: cs) := do
     ir_scrut ← action h >>= assert_expr,
     (zero_case, succ_case) ← assert_two_cases cs,
-    trace_ir (repr zero_case),
-    trace_ir (repr succ_case),
+    trace_ir (to_string zero_case),
+    trace_ir (to_string succ_case),
     ir.expr.block <$> bind_value ir_scrut (fun scrut, do
       zc ← action zero_case,
       sc ← compile_succ_case action scrut succ_case,
@@ -418,7 +418,7 @@ meta def compile_expr_app_to_ir_expr
   (head : expr)
   (args : list expr)
   (action : expr → ir_compiler ir.stmt) : ir_compiler ir.expr := do
-    trace_ir (repr head  ++ repr args),
+    trace_ir (to_string head  ++ to_string args),
     if expr.is_constant head = bool.tt
     then (if is_return (expr.const_name head)
     then do
@@ -452,7 +452,7 @@ meta def compile_expr_app_to_ir_expr
     then do
       args' ← monad.sequence $ list.map (fun x, action x >>= assert_expr) args,
       mk_invoke (expr.local_uniq_name head) args'
-    else (mk_error ("unsupported call position " ++ (repr head)))
+    else (mk_error ("unsupported call position " ++ (to_string head)))
 
 meta def compile_expr_macro_to_ir_expr (e : expr) : ir_compiler ir.expr :=
   match native.get_nat_value e with
@@ -519,7 +519,7 @@ meta def replace_main (n : name) : name :=
      else n
 
 meta def trace_expr (e : expr) : ir_compiler unit :=
-  trace ("trace_expr: " ++ repr e) (return ())
+  trace ("trace_expr: " ++ to_string e) (return ())
 
 meta def compile_defn (decl_name : name) (e : expr) : ir_compiler format :=
   let arity := get_arity e in do

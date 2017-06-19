@@ -74,10 +74,10 @@ attribute [instance] expr.has_decidable_eq
 meta constant expr.alpha_eqv : expr → expr → bool
 notation a ` =ₐ `:50 b:50 := expr.alpha_eqv a b = bool.tt
 
-protected meta constant expr.repr : expr elab → string
+protected meta constant expr.to_string : expr elab → string
 
-meta instance : has_repr (expr elab) := ⟨expr.repr⟩
-meta instance : has_to_format (expr elab) := ⟨λ e, e.repr⟩
+meta instance : has_to_string (expr elab) := ⟨expr.to_string⟩
+meta instance : has_to_format (expr elab) := ⟨λ e, e.to_string⟩
 
 /- Coercion for letting users write (f a) instead of (expr.app f a) -/
 meta instance : has_coe_to_fun (expr elab) :=

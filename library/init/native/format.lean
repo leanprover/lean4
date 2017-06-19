@@ -124,7 +124,7 @@ meta def stmt : ir.stmt → format
 | (ir.stmt.letb n t (ir.expr.constructor ty_name args) nop) :=
   -- temporary hack, need to think about how to model this better
   if ty_name = "lean::name"
-  then let ctor_args := comma_sep (list.map (string_lit ∘ repr) args) in
+  then let ctor_args := comma_sep (list.map (string_lit ∘ to_string) args) in
     ty t ++ (mangle_name n) ++ " = lean::name({" ++ ctor_args ++ "})" ++ to_fmt ";" ++ format.line
   else let ctor_args := parens $ comma_sep (list.map mangle_name args) in
        ty t ++ (mangle_name n) ++ ctor_args ++ to_fmt ";" ++ format.line

@@ -31,6 +31,9 @@ protected def int.repr : int → string
 instance : has_repr int :=
 ⟨int.repr⟩
 
+instance : has_to_string int :=
+⟨int.repr⟩
+
 namespace int
 
 protected lemma coe_nat_eq (n : ℕ) : ↑n = int.of_nat n := rfl

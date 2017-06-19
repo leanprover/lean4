@@ -17,3 +17,4 @@ tasks.json
 settings.json
 .gdb_history
 .vscode
+/*.nix

@@ -53,22 +53,49 @@ instance {α : Type u} {β : α → Type v} [has_repr α] [s : ∀ x, has_repr (
 instance {α : Type u} {p : α → Prop} [has_repr α] : has_repr (subtype p) :=
 ⟨λ s, repr (val s)⟩
 
-/- Remark: the code generator replaces this definition with one that display natural numbers in decimal notation -/
-protected def nat.repr : nat → string
-| 0        := "zero"
-| (succ a) := "(succ " ++ nat.repr a ++ ")"
+namespace nat
+
+def digit_char (n : ℕ) : char :=
+if n = 0 then '0' else
+if n = 1 then '1' else
+if n = 2 then '2' else
+if n = 3 then '3' else
+if n = 4 then '4' else
+if n = 5 then '5' else
+if n = 6 then '6' else
+if n = 7 then '7' else
+if n = 8 then '8' else
+if n = 9 then '9' else
+if n = 0xa then 'a' else
+if n = 0xb then 'b' else
+if n = 0xc then 'c' else
+if n = 0xd then 'd' else
+if n = 0xe then 'e' else
+if n = 0xf then 'f' else
+'*'
+
+def digit_succ (base : ℕ) : list ℕ → list ℕ
+| [] := [1]
+| (d::ds) :=
+    if d+1 = base then
+        0 :: digit_succ ds
+    else
+        (d+1) :: ds
+
+def to_digits (base : ℕ) : ℕ → list ℕ
+| 0 := [0]
+| (n+1) := digit_succ base (to_digits n)
+
+protected def repr (n : ℕ) : string :=
+((to_digits 10 n).map digit_char).reverse.as_string
+
+end nat
 
 instance : has_repr nat :=
 ⟨nat.repr⟩
 
 def hex_digit_repr (n : nat) : string :=
-if n ≤ 9 then repr n
-else if n = 10 then "a"
-else if n = 11 then "b"
-else if n = 12 then "c"
-else if n = 13 then "d"
-else if n = 14 then "e"
-else "f"
+string.singleton $ nat.digit_char n
 
 def char_to_hex (c : char) : string :=
 let n  := char.to_nat c,

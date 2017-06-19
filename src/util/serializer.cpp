@@ -69,7 +69,7 @@ std::string deserializer_core::read_string() {
         char c = m_in.get();
         if (c == 0)
             break;
-        if (c == EOF)
+        if (m_in.eof())
             throw corrupted_stream_exception();
         r += c;
     }

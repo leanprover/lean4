@@ -97,13 +97,14 @@ void invoke_debugger() {
         #endif
         char result;
         std::cin >> result;
+        if (std::cin.eof())
+            debuggable_exit();
         switch (result) {
         case 'C':
         case 'c':
             return;
         case 'A':
         case 'a':
-        case EOF:
             exit(1);
         case 'S':
         case 's':

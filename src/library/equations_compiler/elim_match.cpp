@@ -221,7 +221,7 @@ struct elim_match_fn {
     format pp_problem(problem const & P) {
         format r;
         auto pp = mk_pp_ctx(P);
-        r += format("match") + space() + format(P.m_fn_name) + space();
+        r += format("match") + space() + format(P.m_fn_name) + space() + format(":") + space() + pp(P.m_goal);
         format v;
         bool first = true;
         for (expr const & x : P.m_var_stack) {
@@ -549,8 +549,12 @@ struct elim_match_fn {
         type_context ctx  = mk_type_context(P);
         /* Check whether other variables on the variable stack depend on the head. */
         expr const & v   = head(P.m_var_stack);
+        if (depends_on(ctx.infer(P.m_goal), v)) {
+            trace_match(tout() << "variable transition is not used because the target depends on '" << v << "'\n";);
+            return false;
+        }
         for (expr const & w : tail(P.m_var_stack)) {
-            expr w_type = ctx.infer(w);
+            expr w_type = ctx.instantiate_mvars(ctx.infer(w));
             if (depends_on(w_type, v)) {
                 trace_match(tout() << "variable transition is not used because type of '" << w << "' depends on '" << v << "'\n";);
                 return false;

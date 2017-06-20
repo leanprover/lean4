@@ -32,6 +32,7 @@ Authors: Daniel Selsam, Leonardo de Moura
 #include "library/type_context.h"
 #include "library/documentation.h"
 #include "library/constants.h"
+#include "library/normalize.h"
 #include "library/inductive_compiler/add_decl.h"
 #include "library/tactic/tactic_evaluator.h"
 #include "library/vm/vm_list.h"
@@ -400,6 +401,12 @@ class inductive_cmd_fn {
         }
     }
 
+    /* Apply beta and zeta reduction */
+    expr normalize(expr const & e) {
+        type_context::transparency_scope scope(m_ctx, transparency_mode::None);
+        return ::lean::normalize(m_ctx, e);
+    }
+
     void elaborate_inductive_decls(buffer<expr> const & params, buffer<expr> const & inds, buffer<buffer<expr> > const & intro_rules,
                                    buffer<expr> & new_params, buffer<expr> & new_inds, buffer<buffer<expr> > & new_intro_rules) {
         options opts = m_p.get_options();
@@ -424,6 +431,7 @@ class inductive_cmd_fn {
             if (is_placeholder(new_ind_type))
                 new_ind_type = mk_sort(mk_level_placeholder());
             new_ind_type = elab.elaborate(replace_locals(new_ind_type, params_no_inds, new_params));
+            new_ind_type = normalize(new_ind_type);
             level l = get_datatype_result_level(new_ind_type);
             if (is_meta(l)) {
                 if (m_explicit_levels)
@@ -446,7 +454,9 @@ class inductive_cmd_fn {
             new_intro_rules.emplace_back();
             replace_params(params_no_inds, new_params, inds, new_inds, irs, new_intro_rules.back());
             for (expr & new_ir : new_intro_rules.back()) {
-                new_ir = update_mlocal(new_ir, elab.elaborate(mlocal_type(new_ir)));
+                expr new_ir_type = elab.elaborate(mlocal_type(new_ir));
+                new_ir_type      = normalize(new_ir_type);
+                new_ir = update_mlocal(new_ir, new_ir_type);
                 lean_trace(name({"inductive", "infer_resultant"}), tout() << "[elaborated ir]: " << mlocal_type(new_ir) << "\n";);
             }
         }

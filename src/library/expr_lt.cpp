@@ -47,12 +47,14 @@ bool is_lt(expr const & a, expr const & b, bool use_hash, local_context const * 
             return is_lt(let_body(a), let_body(b), use_hash, lctx);
     case expr_kind::Sort:
         return is_lt(sort_level(a), sort_level(b), use_hash);
-    case expr_kind::Local: case expr_kind::Meta:
+    case expr_kind::Local:
         if (lctx) {
             if (auto d1 = lctx->find_local_decl(a))
             if (auto d2 = lctx->find_local_decl(b))
                 return d1->get_idx() < d2->get_idx();
         }
+        /* fall-thru */
+    case expr_kind::Meta:
         if (mlocal_name(a) != mlocal_name(b))
             return mlocal_name(a) < mlocal_name(b);
         else

@@ -19,7 +19,8 @@ vm_obj change_core(expr const & e, bool check, tactic_state const & s) {
         type_context ctx         = mk_type_context_for(s);
         if (!check || ctx.is_def_eq(e, g->get_type())) {
             auto mctx    = ctx.mctx();
-            expr new_M   = mctx.mk_metavar_decl(g->get_context(), e);
+            expr new_e   = mctx.instantiate_mvars(e);
+            expr new_M   = mctx.mk_metavar_decl(g->get_context(), new_e);
             /*
                We use the proof term
 
@@ -41,8 +42,8 @@ vm_obj change_core(expr const & e, bool check, tactic_state const & s) {
             };
             return tactic::mk_exception(thunk, s);
         }
-    } catch (exception & e) {
-        return tactic::mk_exception(e, s);
+    } catch (exception & ex) {
+        return tactic::mk_exception(ex, s);
     }
 }
 

@@ -584,7 +584,7 @@ simp_result simplify_core_fn::rewrite_core(expr const & e, simp_lemma const & sl
     }
 
     if (sl.is_permutation()) {
-        if (!is_lt(new_rhs, new_lhs, false)) {
+        if (!is_lt(new_rhs, new_lhs, false, &m_ctx.lctx())) {
             lean_simp_trace(tmp_ctx, name({"simplify", "perm"}),
                             tout() << "perm rejected: " << new_rhs << " !< " << new_lhs << "\n";);
             return simp_result(e);

@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "library/expr_lt.h"
 
 namespace lean {
-bool is_lt(expr const & a, expr const & b, bool use_hash) {
+bool is_lt(expr const & a, expr const & b, bool use_hash, local_context const * lctx) {
     if (is_eqp(a, b))                    return false;
     unsigned wa = get_weight(a);
     unsigned wb = get_weight(b);
@@ -30,28 +30,33 @@ bool is_lt(expr const & a, expr const & b, bool use_hash) {
             return is_lt(const_levels(a), const_levels(b), use_hash);
     case expr_kind::App:
         if (app_fn(a) != app_fn(b))
-            return is_lt(app_fn(a), app_fn(b), use_hash);
+            return is_lt(app_fn(a), app_fn(b), use_hash, lctx);
         else
-            return is_lt(app_arg(a), app_arg(b), use_hash);
+            return is_lt(app_arg(a), app_arg(b), use_hash, lctx);
     case expr_kind::Lambda: case expr_kind::Pi:
         if (binding_domain(a) != binding_domain(b))
-            return is_lt(binding_domain(a), binding_domain(b), use_hash);
+            return is_lt(binding_domain(a), binding_domain(b), use_hash, lctx);
         else
-            return is_lt(binding_body(a), binding_body(b), use_hash);
+            return is_lt(binding_body(a), binding_body(b), use_hash, lctx);
     case expr_kind::Let:
         if (let_type(a) != let_type(b))
-            return is_lt(let_type(a), let_type(b), use_hash);
+            return is_lt(let_type(a), let_type(b), use_hash, lctx);
         else if (let_value(a) != let_value(b))
-            return is_lt(let_value(a), let_value(b), use_hash);
+            return is_lt(let_value(a), let_value(b), use_hash, lctx);
         else
-            return is_lt(let_body(a), let_body(b), use_hash);
+            return is_lt(let_body(a), let_body(b), use_hash, lctx);
     case expr_kind::Sort:
         return is_lt(sort_level(a), sort_level(b), use_hash);
     case expr_kind::Local: case expr_kind::Meta:
+        if (lctx) {
+            if (auto d1 = lctx->find_local_decl(a))
+            if (auto d2 = lctx->find_local_decl(b))
+                return d1->get_idx() < d2->get_idx();
+        }
         if (mlocal_name(a) != mlocal_name(b))
             return mlocal_name(a) < mlocal_name(b);
         else
-            return is_lt(mlocal_type(a), mlocal_type(b), use_hash);
+            return is_lt(mlocal_type(a), mlocal_type(b), use_hash, lctx);
     case expr_kind::Macro:
         if (macro_def(a) != macro_def(b))
             return macro_def(a) < macro_def(b);
@@ -59,7 +64,7 @@ bool is_lt(expr const & a, expr const & b, bool use_hash) {
             return macro_num_args(a) < macro_num_args(b);
         for (unsigned i = 0; i < macro_num_args(a); i++) {
             if (macro_arg(a, i) != macro_arg(b, i))
-                return is_lt(macro_arg(a, i), macro_arg(b, i), use_hash);
+                return is_lt(macro_arg(a, i), macro_arg(b, i), use_hash, lctx);
         }
         return false;
     }

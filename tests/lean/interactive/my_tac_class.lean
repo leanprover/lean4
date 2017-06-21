@@ -16,7 +16,7 @@ meta def step {α : Type} (t : mytac α) : mytac unit :=
 t >> return ()
 
 meta def istep {α : Type} (line0 col0 line col : nat) (t : mytac α) : mytac unit :=
-λ v s, result.cases_on (@scope_trace _ line col (t v s))
+λ v s, result.cases_on (@scope_trace _ line col (λ_, t v s))
   (λ ⟨a, v⟩ new_s, result.success ((), v) new_s)
   (λ opt_msg_thunk e new_s, match opt_msg_thunk with
     | some msg_thunk :=

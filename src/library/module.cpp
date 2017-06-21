@@ -188,6 +188,10 @@ deserializer & operator>>(deserializer & d, module_name & r) {
     return d;
 }
 
+static unsigned olean_hash(const char * data, unsigned size) {
+    return hash(size, [&] (unsigned i) { return static_cast<unsigned char>(data[i]); });
+}
+
 void write_module(loaded_module const & mod, std::ostream & out) {
     std::ostringstream out1(std::ios_base::binary);
     serializer s1(out1);
@@ -201,7 +205,7 @@ void write_module(loaded_module const & mod, std::ostream & out) {
 
     serializer s2(out);
     std::string r = out1.str();
-    unsigned h    = hash(r.size(), [&](unsigned i) { return r[i]; });
+    unsigned h    = olean_hash(r.data(), r.size());
     s2 << g_olean_header << LEAN_VERSION_MAJOR << LEAN_VERSION_MINOR << LEAN_VERSION_PATCH;
     s2 << h;
     s2 << static_cast<bool>(get(mod.m_uses_sorry));
@@ -509,7 +513,7 @@ olean_data parse_olean(std::istream & in, std::string const & file_name, bool ch
 
 //    if (m_senv.env().trust_lvl() <= LEAN_BELIEVER_TRUST_LEVEL) {
     if (check_hash) {
-        unsigned computed_hash = hash(code_size, [&](unsigned i) { return code[i]; });
+        unsigned computed_hash = olean_hash(code.data(), code_size);
         if (claimed_hash != computed_hash)
             throw exception(sstream() << "file '" << file_name << "' has been corrupted, checksum mismatch");
     }

@@ -203,6 +203,7 @@ structure simp_config :=
 (beta : bool               := tt)
 (eta  : bool               := tt)
 (proj : bool               := tt) -- reduce projections
+(single_pass : bool        := ff)
 
 meta constant simplify_core
   (c : simp_config)

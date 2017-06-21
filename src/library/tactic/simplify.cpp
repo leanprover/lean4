@@ -71,7 +71,8 @@ simp_config::simp_config():
     m_zeta(false),
     m_beta(false),
     m_eta(true),
-    m_proj(true) {
+    m_proj(true),
+    m_single_pass(false) {
 }
 
 simp_config::simp_config(vm_obj const & obj) {
@@ -85,6 +86,7 @@ simp_config::simp_config(vm_obj const & obj) {
     m_beta               = to_bool(cfield(obj, 7));
     m_eta                = to_bool(cfield(obj, 8));
     m_proj               = to_bool(cfield(obj, 9));
+    m_single_pass        = to_bool(cfield(obj, 10));
 }
 
 /* -----------------------------------
@@ -696,8 +698,10 @@ simp_result simplify_core_fn::visit(expr const & e, optional<expr> const & paren
             } else if (r2->first.get_new() == curr_result.get_new()) {
                 break;
             } else {
-                /* continue simplifying */
                 curr_result = join(new_result, r2->first);
+                if (m_cfg.m_single_pass)
+                    break;
+                /* continue simplifying */
             }
         } else {
             curr_result = new_result;

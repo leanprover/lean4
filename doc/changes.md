@@ -5,6 +5,9 @@ master branch (aka work in progress branch)
 
 * In addition to user-defined notation parsers introduced in Lean 3.2.0, users may now also define top-level commands in Lean. For an example, see the [`coinductive` command](https://github.com/leanprover/lean/blob/814a5edaf172c3835c000e3f631bddd85bd879ab/library/init/meta/coinductive_predicates.lean#L551-L552) that has been ported to the new model.
 
+* Add new simplifier configuration option `simp_config.single_pass`. It is useful for simplification rules that may produce non-termination.
+  Example: `simp {single_pass := tt}`
+
 *Changes*
 
 * We now have two type classes for converting to string: `has_to_string` and `has_repr`.

@@ -25,6 +25,7 @@ structure simp_config :=
 (beta : bool)
 (eta  : bool)
 (proj : bool)
+(single_pass : bool)
 */
 struct simp_config {
     unsigned                  m_max_steps;
@@ -37,6 +38,7 @@ struct simp_config {
     bool                      m_beta;
     bool                      m_eta;
     bool                      m_proj;
+    bool                      m_single_pass;
     simp_config();
     simp_config(vm_obj const & o);
 };

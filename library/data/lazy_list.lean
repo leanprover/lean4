@@ -29,7 +29,7 @@ def tail : lazy_list α → lazy_list α
 
 def append : lazy_list α → thunk (lazy_list α) → lazy_list α
 | nil        l  := l ()
-| (cons h t) l  := cons h (append (t ()) (l ()))
+| (cons h t) l  := cons h (@append (t ()) l)
 
 def map (f : α → β) : lazy_list α → lazy_list β
 | nil        := nil

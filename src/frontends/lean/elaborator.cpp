@@ -1516,7 +1516,7 @@ expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<
             } else if (i < args.size()) {
                 expr expected_type = d;
                 optional<expr> thunk_of;
-                if (!m_in_pattern) thunk_of = is_thunk(d);
+                if (!m_in_pattern && amask == arg_mask::Default) thunk_of = is_thunk(d);
                 if (thunk_of) expected_type = *thunk_of;
                 // explicit argument
                 expr ref_arg = get_ref_for_child(args[i], ref);

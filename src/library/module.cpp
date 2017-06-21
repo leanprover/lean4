@@ -511,6 +511,10 @@ olean_data parse_olean(std::istream & in, std::string const & file_name, bool ch
     code.resize(code_size);
     d1.read(code);
 
+    if (!in.good()) {
+        throw exception(sstream() << "file '" << file_name << "' has been corrupted");
+    }
+
 //    if (m_senv.env().trust_lvl() <= LEAN_BELIEVER_TRUST_LEVEL) {
     if (check_hash) {
         unsigned computed_hash = olean_hash(code.data(), code_size);
@@ -616,6 +620,9 @@ modification_list parse_olean_modifications(std::vector<char> const & olean_code
         ms.emplace_back(it->second(d));
 
         obj_counter++;
+    }
+    if (!in.good()) {
+        throw exception(sstream() << "file '" << file_name << "' has been corrupted");
     }
     return ms;
 }

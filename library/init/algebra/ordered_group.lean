@@ -262,145 +262,145 @@ by rwa neg_zero at this
 
 lemma le_neg_of_le_neg {a b : α} (h : a ≤ -b) : b ≤ -a :=
 begin
-  note h := neg_le_neg h,
+  have h := neg_le_neg h,
   rwa neg_neg at h
 end
 
 lemma neg_le_of_neg_le {a b : α} (h : -a ≤ b) : -b ≤ a :=
 begin
-  note h := neg_le_neg h,
+  have h := neg_le_neg h,
   rwa neg_neg at h
 end
 
 lemma lt_neg_of_lt_neg {a b : α} (h : a < -b) : b < -a :=
 begin
-  note h := neg_lt_neg h,
+  have h := neg_lt_neg h,
   rwa neg_neg at h
 end
 
 lemma neg_lt_of_neg_lt {a b : α} (h : -a < b) : -b < a :=
 begin
-  note h := neg_lt_neg h,
+  have h := neg_lt_neg h,
   rwa neg_neg at h
 end
 
 lemma sub_nonneg_of_le {a b : α} (h : b ≤ a) : 0 ≤ a - b :=
 begin
-  note h := add_le_add_right h (-b),
+  have h := add_le_add_right h (-b),
   rwa add_right_neg at h
 end
 
 lemma le_of_sub_nonneg {a b : α} (h : 0 ≤ a - b) : b ≤ a :=
 begin
-  note h := add_le_add_right h b,
+  have h := add_le_add_right h b,
   rwa [sub_add_cancel, zero_add] at h
 end
 
 lemma sub_nonpos_of_le {a b : α} (h : a ≤ b) : a - b ≤ 0 :=
 begin
-  note h := add_le_add_right h (-b),
+  have h := add_le_add_right h (-b),
   rwa add_right_neg at h
 end
 
 lemma le_of_sub_nonpos {a b : α} (h : a - b ≤ 0) : a ≤ b :=
 begin
-  note h := add_le_add_right h b,
+  have h := add_le_add_right h b,
   rwa [sub_add_cancel, zero_add] at h
 end
 
 lemma sub_pos_of_lt {a b : α} (h : b < a) : 0 < a - b :=
 begin
-  note h := add_lt_add_right h (-b),
+  have h := add_lt_add_right h (-b),
   rwa add_right_neg at h
 end
 
 lemma lt_of_sub_pos {a b : α} (h : 0 < a - b) : b < a :=
 begin
-  note h := add_lt_add_right h b,
+  have h := add_lt_add_right h b,
   rwa [sub_add_cancel, zero_add] at h
 end
 
 lemma sub_neg_of_lt {a b : α} (h : a < b) : a - b < 0 :=
 begin
-  note h := add_lt_add_right h (-b),
+  have h := add_lt_add_right h (-b),
   rwa add_right_neg at h
 end
 
 lemma lt_of_sub_neg {a b : α} (h : a - b < 0) : a < b :=
 begin
-  note h := add_lt_add_right h b,
+  have h := add_lt_add_right h b,
   rwa [sub_add_cancel, zero_add] at h
 end
 
 lemma add_le_of_le_neg_add {a b c : α} (h : b ≤ -a + c) : a + b ≤ c :=
 begin
-  note h := add_le_add_left h a,
+  have h := add_le_add_left h a,
   rwa add_neg_cancel_left at h
 end
 
 lemma le_neg_add_of_add_le {a b c : α} (h : a + b ≤ c) : b ≤ -a + c :=
 begin
-  note h := add_le_add_left h (-a),
+  have h := add_le_add_left h (-a),
   rwa neg_add_cancel_left at h
 end
 
 lemma add_le_of_le_sub_left {a b c : α} (h : b ≤ c - a) : a + b ≤ c :=
 begin
-  note h := add_le_add_left h a,
+  have h := add_le_add_left h a,
   rwa [-add_sub_assoc, add_comm a c, add_sub_cancel] at h
 end
 
 lemma le_sub_left_of_add_le {a b c : α} (h : a + b ≤ c) : b ≤ c - a :=
 begin
-  note h := add_le_add_right h (-a),
+  have h := add_le_add_right h (-a),
   rwa [add_comm a b, add_neg_cancel_right] at h
 end
 
 lemma add_le_of_le_sub_right {a b c : α} (h : a ≤ c - b) : a + b ≤ c :=
 begin
-  note h := add_le_add_right h b,
+  have h := add_le_add_right h b,
   rwa sub_add_cancel at h
 end
 
 lemma le_sub_right_of_add_le {a b c : α} (h : a + b ≤ c) : a ≤ c - b :=
 begin
-  note h := add_le_add_right h (-b),
+  have h := add_le_add_right h (-b),
   rwa add_neg_cancel_right at h
 end
 
 lemma le_add_of_neg_add_le {a b c : α} (h : -b + a ≤ c) : a ≤ b + c :=
 begin
-  note h := add_le_add_left h b,
+  have h := add_le_add_left h b,
   rwa add_neg_cancel_left at h
 end
 
 lemma neg_add_le_of_le_add {a b c : α} (h : a ≤ b + c) : -b + a ≤ c :=
 begin
-  note h := add_le_add_left h (-b),
+  have h := add_le_add_left h (-b),
   rwa neg_add_cancel_left at h
 end
 
 lemma le_add_of_sub_left_le {a b c : α} (h : a - b ≤ c) : a ≤ b + c :=
 begin
-  note h := add_le_add_right h b,
+  have h := add_le_add_right h b,
   rwa [sub_add_cancel, add_comm] at h
 end
 
 lemma sub_left_le_of_le_add {a b c : α} (h : a ≤ b + c) : a - b ≤ c :=
 begin
-  note h := add_le_add_right h (-b),
+  have h := add_le_add_right h (-b),
   rwa [add_comm b c, add_neg_cancel_right] at h
 end
 
 lemma le_add_of_sub_right_le {a b c : α} (h : a - c ≤ b) : a ≤ b + c :=
 begin
-  note h := add_le_add_right h c,
+  have h := add_le_add_right h c,
   rwa sub_add_cancel at h
 end
 
 lemma sub_right_le_of_le_add {a b c : α} (h : a ≤ b + c) : a - c ≤ b :=
 begin
-  note h := add_le_add_right h (-c),
+  have h := add_le_add_right h (-c),
   rwa add_neg_cancel_right at h
 end
 
@@ -433,7 +433,7 @@ le_add_of_neg_add_le_left (add_le_of_le_sub_right h)
 
 lemma neg_le_sub_left_of_le_add {a b c : α} (h : c ≤ a + b) : -a ≤ b - c :=
 begin
-  note h := le_neg_add_of_add_le (sub_left_le_of_le_add h),
+  have h := le_neg_add_of_add_le (sub_left_le_of_le_add h),
   rwa add_comm at h
 end
 
@@ -457,73 +457,73 @@ add_le_add hab (neg_le_neg hcd)
 
 lemma add_lt_of_lt_neg_add {a b c : α} (h : b < -a + c) : a + b < c :=
 begin
-  note h := add_lt_add_left h a,
+  have h := add_lt_add_left h a,
   rwa add_neg_cancel_left at h
 end
 
 lemma lt_neg_add_of_add_lt {a b c : α} (h : a + b < c) : b < -a + c :=
 begin
-  note h := add_lt_add_left h (-a),
+  have h := add_lt_add_left h (-a),
   rwa neg_add_cancel_left at h
 end
 
 lemma add_lt_of_lt_sub_left {a b c : α} (h : b < c - a) : a + b < c :=
 begin
-  note h := add_lt_add_left h a,
+  have h := add_lt_add_left h a,
   rwa [-add_sub_assoc, add_comm a c, add_sub_cancel] at h
 end
 
 lemma lt_sub_left_of_add_lt {a b c : α} (h : a + b < c) : b < c - a :=
 begin
-  note h := add_lt_add_right h (-a),
+  have h := add_lt_add_right h (-a),
   rwa [add_comm a b, add_neg_cancel_right] at h
 end
 
 lemma add_lt_of_lt_sub_right {a b c : α} (h : a < c - b) : a + b < c :=
 begin
-  note h := add_lt_add_right h b,
+  have h := add_lt_add_right h b,
   rwa sub_add_cancel at h
 end
 
 lemma lt_sub_right_of_add_lt {a b c : α} (h : a + b < c) : a < c - b :=
 begin
-  note h := add_lt_add_right h (-b),
+  have h := add_lt_add_right h (-b),
   rwa add_neg_cancel_right at h
 end
 
 lemma lt_add_of_neg_add_lt {a b c : α} (h : -b + a < c) : a < b + c :=
 begin
-  note h := add_lt_add_left h b,
+  have h := add_lt_add_left h b,
   rwa add_neg_cancel_left at h
 end
 
 lemma neg_add_lt_of_lt_add {a b c : α} (h : a < b + c) : -b + a < c :=
 begin
-  note h := add_lt_add_left h (-b),
+  have h := add_lt_add_left h (-b),
   rwa neg_add_cancel_left at h
 end
 
 lemma lt_add_of_sub_left_lt {a b c : α} (h : a - b < c) : a < b + c :=
 begin
-  note h := add_lt_add_right h b,
+  have h := add_lt_add_right h b,
   rwa [sub_add_cancel, add_comm] at h
 end
 
 lemma sub_left_lt_of_lt_add {a b c : α} (h : a < b + c) : a - b < c :=
 begin
-  note h := add_lt_add_right h (-b),
+  have h := add_lt_add_right h (-b),
   rwa [add_comm b c, add_neg_cancel_right] at h
 end
 
 lemma lt_add_of_sub_right_lt {a b c : α} (h : a - c < b) : a < b + c :=
 begin
-  note h := add_lt_add_right h c,
+  have h := add_lt_add_right h c,
   rwa sub_add_cancel at h
 end
 
 lemma sub_right_lt_of_lt_add {a b c : α} (h : a < b + c) : a - c < b :=
 begin
-  note h := add_lt_add_right h (-c),
+  have h := add_lt_add_right h (-c),
   rwa add_neg_cancel_right at h
 end
 
@@ -556,7 +556,7 @@ lt_add_of_neg_add_lt_left (add_lt_of_lt_sub_right h)
 
 lemma neg_lt_sub_left_of_lt_add {a b c : α} (h : c < a + b) : -a < b - c :=
 begin
-  note h := lt_neg_add_of_add_lt (sub_left_lt_of_lt_add h),
+  have h := lt_neg_add_of_add_lt (sub_left_lt_of_lt_add h),
   rwa add_comm at h
 end
 

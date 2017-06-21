@@ -44,7 +44,7 @@ end
 lemma ex6 (a b c d e : nat) : (∀ x, g x (f x) = 0) → a = f b → g b a + 0 = f 0 :=
 begin [smt]
    intros,
-   note h : ∀ x, g x (f x) = 0,
+   have h : ∀ x, g x (f x) = 0,
    add_lemma [h, fax, add_zero],
    ematch
 end
@@ -52,7 +52,7 @@ end
 lemma ex7 (a b c d e : nat) : (∀ x, g x (f x) = 0) → a = f b → g b a + 0 = f 0 :=
 begin [smt]
    intros,
-   note h : ∀ x, g x (f x) = 0,
+   have h : ∀ x, g x (f x) = 0,
    ematch_using [h, fax, add_zero]
 end
 

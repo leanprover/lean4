@@ -130,14 +130,14 @@ lemma sub_nat_nat_elim (m n : ℕ) (P : ℕ → ℕ → ℤ → Prop)
   (hn : ∀i m, P m (m + i + 1) (-[1+ i])) :
   P m n (sub_nat_nat m n) :=
 begin
-  note H : ∀k, n - m = k → P m n (nat.cases_on k (of_nat (m - n)) (λa, -[1+ a])),
+  have H : ∀k, n - m = k → P m n (nat.cases_on k (of_nat (m - n)) (λa, -[1+ a])),
   { intro k, cases k,
     { intro e,
       cases (nat.le.dest (nat.le_of_sub_eq_zero e)) with k h,
       rw [h.symm, nat.add_sub_cancel_left],
       apply hp },
     { intro heq,
-      note h : m ≤ n,
+      have h : m ≤ n,
       { exact nat.le_of_lt (nat.lt_of_sub_eq_succ heq) },
       rw [nat.sub_eq_iff_eq_add h] at heq,
       rw [heq, add_comm],

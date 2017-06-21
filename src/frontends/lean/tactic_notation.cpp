@@ -115,9 +115,36 @@ name get_interactive_tactic_full_name(name const & tac_class, name const & tac) 
     return name(tac_class, "interactive") + tac;
 }
 
+static bool is_curr_exact_shortcut(parser & p) {
+    return
+            p.curr_is_token(get_assume_tk()) ||
+            p.curr_is_token(get_calc_tk()) ||
+            p.curr_is_token(get_suppose_tk());
+}
+
+static bool is_keyword_tactic(parser & p) {
+    return
+            p.curr_is_token(get_let_tk()) ||
+            p.curr_is_token(get_have_tk()) ||
+            p.curr_is_token(get_show_tk());
+}
+
 static optional<name> is_interactive_tactic(parser & p, name const & tac_class) {
-    if (!p.curr_is_identifier()) return optional<name>();
-    name id = get_interactive_tactic_full_name(tac_class, p.get_name_val());
+    name id;
+    switch (p.curr()) {
+        case token_kind::Identifier:
+            id = p.get_name_val();
+            break;
+        case token_kind::Keyword:
+            if (is_keyword_tactic(p)) {
+                id = p.get_token_info().value().append_after("_tac");
+                break;
+            }
+            /* fall through */
+        default:
+            return {};
+    }
+    id = get_interactive_tactic_full_name(tac_class, id);
     if (p.env().find(id))
         return optional<name>(id);
     else
@@ -176,14 +203,6 @@ static expr parse_interactive_tactic(parser & p, name const & decl_name, name co
     }
     expr r = p.mk_app(p.save_pos(mk_constant(decl_name), pos), args, pos);
     return mk_tactic_step(p, r, pos, pos, tac_class, use_istep);
-}
-
-static bool is_curr_exact_shortcut(parser & p) {
-    return
-        p.curr_is_token(get_have_tk()) ||
-        p.curr_is_token(get_assume_tk()) ||
-        p.curr_is_token(get_calc_tk()) ||
-        p.curr_is_token(get_suppose_tk());
 }
 
 static expr mk_tactic_unit(name const & tac_class) {
@@ -246,11 +265,6 @@ struct parse_tactic_fn {
                 }
                 throw;
             }
-        } else if (m_p.curr_is_token(get_show_tk())) {
-            m_p.next();
-            expr arg = parse_qexpr();
-            r = m_p.mk_app(m_p.save_pos(mk_constant(get_interactive_tactic_full_name(m_tac_class, "show_goal")), pos), arg, pos);
-            if (m_use_istep) r = mk_tactic_istep(m_p, r, pos, pos, m_tac_class);
         } else if (is_curr_exact_shortcut(m_p)) {
             expr arg = parse_qexpr();
             r = m_p.mk_app(m_p.save_pos(mk_constant(get_interactive_tactic_full_name(m_tac_class, "exact")), pos), arg, pos);

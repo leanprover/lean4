@@ -5,7 +5,7 @@ axiom pf (a : nat) : p (f a) (f a) → p a a
 example (a b c : nat) : a = b → p (f a) (f b) → p a b :=
 begin [smt]
   intros,
-  note h : p (f a) (f a),
+  have h : p (f a) (f a),
   trace_state,
   add_fact (pf _ h)
 end
@@ -21,7 +21,7 @@ begin
   subst h,
   begin [smt]
     intros,
-    note h₁ : p (f a) (f a),
+    have h₁ : p (f a) (f a),
     trace_state,
     add_fact (pf _ h₁)
   end

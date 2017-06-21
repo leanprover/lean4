@@ -28,7 +28,7 @@ by do
 
 definition tst3 (a : nat) : a = a :=
 begin
-  define x : nat,
+  let x : nat,
   exact a,
   revert x,
   intro y,

@@ -75,7 +75,7 @@ lemma coe_zero_le (n : ℕ) : 0 ≤ (↑n : ℤ) :=
 coe_nat_le_coe_nat_of_le n.zero_le
 
 lemma eq_coe_of_zero_le {a : ℤ} (h : 0 ≤ a) : ∃ n : ℕ, a = n :=
-by note t := le.dest_sub h; simp at t; exact t
+by have t := le.dest_sub h; simp at t; exact t
 
 lemma lt_add_succ (a : ℤ) (n : ℕ) : a < a + ↑(nat.succ n) :=
 le.intro (show a + 1 + n = a + nat.succ n, begin simp [int.coe_nat_eq], reflexivity end)

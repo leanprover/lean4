@@ -38,8 +38,8 @@ lemma NaturalTransformations_componentwise_equal
   begin
     induction α with αc,
     induction β with βc,
-    have hc : αc = βc, from funext w,
-    by subst hc
+    have hc : αc = βc := funext w,
+    subst hc
   end
 
 @[simp]

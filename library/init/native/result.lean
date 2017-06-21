@@ -50,7 +50,7 @@ section resultT
    id_map := begin
      intros, cases x,
      dsimp [resultT.and_then],
-     note h : @resultT.and_then._match_1 _ m E α _ resultT.pure = pure,
+     have h : @resultT.and_then._match_1 _ m E α _ resultT.pure = pure,
      { apply funext, intro x,
        cases x; simp [resultT.and_then, resultT.pure, resultT.and_then] },
      { rw [h, @monad.bind_pure _ (result E α) _] },

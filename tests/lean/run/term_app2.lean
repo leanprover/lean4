@@ -1,15 +1,15 @@
 lemma nat.lt_add_of_lt {a b c : nat} : a < b → a < c + b :=
 begin
   intro h,
-  note aux₁ := nat.le_add_right b c,
-  note aux₂ := lt_of_lt_of_le h aux₁,
+  have aux₁ := nat.le_add_right b c,
+  have aux₂ := lt_of_lt_of_le h aux₁,
   rwa [add_comm] at aux₂
 end
 
 lemma nat.lt_one_add_of_lt {a b : nat} : a < b → a < 1 + b :=
 begin
   intro h,
-  note aux := lt.trans h (nat.lt_succ_self _),
+  have aux := lt.trans h (nat.lt_succ_self _),
   rwa [-nat.add_one_eq_succ, add_comm] at aux
 end
 
@@ -31,7 +31,7 @@ lemma sizeof_lt_sizeof_of_mem {α} [has_sizeof α] {a : α} : ∀ {l : list α},
     cases eq_or_mem_of_mem_cons h with h_1 h_2,
     subst h_1,
     {unfold_sizeof, cancel_nat_add_lt, trivial_nat_lt},
-    {note aux₁ := sizeof_lt_sizeof_of_mem h_2,
+    {have aux₁ := sizeof_lt_sizeof_of_mem h_2,
      unfold_sizeof,
      exact nat.lt_one_add_of_lt (nat.lt_add_of_lt aux₁)}
   end

@@ -94,7 +94,7 @@ namespace nat
   def binary_rec {C : nat → Sort u} (f : ∀ b n, C n → C (bit b n)) (z : C 0) : Π n, C n
   | n := if n0 : n = 0 then by rw n0; exact z else let n' := shiftr n 1 in
     have n' < n, from (div_lt_iff_lt_mul _ _ dec_trivial).2 $
-    by note := nat.mul_lt_mul_of_pos_left (dec_trivial : 1 < 2)
+    by have := nat.mul_lt_mul_of_pos_left (dec_trivial : 1 < 2)
          (lt_of_le_of_ne (zero_le _) (ne.symm n0));
        rwa mul_one at this,
     by rw [-show bit (bodd n) n' = n, from bit_decomp n]; exact 
@@ -126,7 +126,7 @@ namespace nat
     { generalize (binary_rec._main._pack._proof_2 (bit b n)) e,
       rw [bodd_bit, shiftr1_bit], intro e, refl },
     { generalize (binary_rec._main._pack._proof_1 (bit b n) b0) e,
-      note bf := bodd_bit b n, note n0 := shiftr1_bit b n,
+      have bf := bodd_bit b n, have n0 := shiftr1_bit b n,
       rw b0 at bf n0, rw [-show ff = b, from bf, -show 0 = n, from n0], intro e,
       exact h.symm },
   end

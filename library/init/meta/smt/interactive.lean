@@ -77,7 +77,7 @@ tactic.interactive.change q none (loc.ns [])
 meta def exact (q : parse texpr) : smt_tactic unit :=
 tactic.interactive.exact q
 
-meta def note (h : parse ident?) (q₁ : parse (tk ":" *> texpr)?) (q₂ : parse $ (tk ":=" *> texpr)?) : smt_tactic unit :=
+meta def have_tac (h : parse ident?) (q₁ : parse (tk ":" *> texpr)?) (q₂ : parse $ (tk ":=" *> texpr)?) : smt_tactic unit :=
 let h := h.get_or_else `this in
 match q₁, q₂ with
 | some e, some p := do
@@ -94,7 +94,7 @@ match q₁, q₂ with
   smt_tactic.assert h e
 end >> return ()
 
-meta def define (h : parse ident?) (q₁ : parse (tk ":" *> texpr)?) (q₂ : parse $ (tk ":=" *> texpr)?) : smt_tactic unit :=
+meta def let_tac (h : parse ident?) (q₁ : parse (tk ":" *> texpr)?) (q₂ : parse $ (tk ":=" *> texpr)?) : smt_tactic unit :=
 let h := h.get_or_else `this in
 match q₁, q₂ with
 | some e, some p := do

@@ -299,14 +299,14 @@ or.elim (le_total b 0)
     assume h4 : a < 0,
     have h5 : a + b < 0,
       begin
-        note aux := add_lt_add_of_lt_of_le h4 h2,
+        have aux := add_lt_add_of_lt_of_le h4 h2,
         rwa [add_zero] at aux
       end,
     not_lt_of_ge h1 h5,
   aux1 h1 (le_of_not_gt h3))
  (assume h2 : 0 ≤ b,
   begin
-    note h3 : abs (b + a) ≤ abs b + abs a,
+    have h3 : abs (b + a) ≤ abs b + abs a,
     begin
       rw add_comm at h1,
       exact aux1 h1 h2

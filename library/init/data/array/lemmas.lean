@@ -55,7 +55,7 @@ theorem mem_iff_rev_list_mem_core (a : array α n) (v : α) : Π i (h : i ≤ n)
 | (i+1) h := let IH := mem_iff_rev_list_mem_core i (le_of_lt h) in
   ⟨λ⟨j, ji1, e⟩, or.elim (lt_or_eq_of_le $ nat.le_of_succ_le_succ ji1)
     (λji, list.mem_cons_of_mem _ $ IH.1 ⟨j, ji, e⟩)
-    (λje, by simp[iterate_aux]; apply or.inl; note H : j = ⟨i, h⟩ := fin.eq_of_veq je; rwa [-H, e]),
+    (λje, by simp[iterate_aux]; apply or.inl; have H : j = ⟨i, h⟩ := fin.eq_of_veq je; rwa [-H, e]),
   λm, begin
     simp[iterate_aux, list.mem] at m,
     cases m with e m',

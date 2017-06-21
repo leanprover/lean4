@@ -313,7 +313,7 @@ lt_of_mul_lt_mul_left h3 nhc
 
 lemma zero_gt_neg_one : -1 < (0:α) :=
 begin
-  note this := neg_lt_neg (@zero_lt_one α _),
+  have this := neg_lt_neg (@zero_lt_one α _),
   rwa neg_zero at this
 end
 

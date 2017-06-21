@@ -26,8 +26,8 @@ meta instance i2 : has_to_format tactic_state :=
 example {α : Type u} {n : nat} (v : Vec α n) : f v ≠ 2 :=
 begin
   destruct v,
-  intros, intro, note h := fax1 α, cc,
-  -- intros n1 h t, intros, intro, note h := fax2 (Vec.cons h t), cc
+  intros, intro, have h := fax1 α, cc,
+  -- intros n1 h t, intros, intro, have h := fax2 (Vec.cons h t), cc
 end
 
 open nat
@@ -35,5 +35,5 @@ example : ∀ n, 0 < n → succ (pred n) = n :=
 begin
   intro n,
   destruct n,
-   dsimp, intros, note h := lt_irrefl 0, cc,
+   dsimp, intros, have h := lt_irrefl 0, cc,
 end

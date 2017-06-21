@@ -25,7 +25,7 @@ begin
      constructor applications. So, the following one should fail. -/
   try {cc},
   /- Complete it manually. TODO(Leo): we can automate it for inhabited types. -/
-  note h := congr_fun h1 [],
+  have h := congr_fun h1 [],
   cc
 end
 
@@ -39,7 +39,7 @@ begin
   /- In the current implementation, cc does not "complete" partially applied
      constructor applications. So, the following one should fail. -/
   try {cc},
-  note h := congr_fun h1 0,
+  have h := congr_fun h1 0,
   cc
 end
 

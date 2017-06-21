@@ -1,12 +1,12 @@
 example : true :=
 begin
-  note H : true := (by trivial),
+  have H : true := (by trivial),
   exact H
 end
 
 example : true :=
 begin
-  note H : true := (by tactic.triv),
+  have H : true := (by tactic.triv),
   exact H
 end
 
@@ -18,13 +18,13 @@ end
 
 example : false :=
 begin
-  note H : true := (by foo), -- ERROR
+  have H : true := (by foo), -- ERROR
   exact sorry
 end
 
 constant P : Prop
 example (p : P) : true :=
 begin
-  note H : P := by do { p ← tactic.get_local `p, tactic.exact p },
+  have H : P := by do { p ← tactic.get_local `p, tactic.exact p },
   trivial
 end

@@ -40,7 +40,7 @@ section
                 (λ (a : α) (b₁ b₂ : β a) (h : s a b₁ b₂) (eq₂ : a = xa) (eq₃ : b₂ == xb),
                   begin
                     subst eq₂,
-                    note new_eq₃ := eq_of_heq eq₃,
+                    have new_eq₃ := eq_of_heq eq₃,
                     subst new_eq₃,
                     exact ihb b₁ h
                   end),

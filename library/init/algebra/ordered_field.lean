@@ -329,8 +329,8 @@ calc
 lemma div_mul_le_div_mul_of_div_le_div_pos {a b c d e : α} (hb : b ≠ 0) (hd : d ≠ 0) (h : a / b ≤ c / d)
       (he : e > 0) : a / (b * e) ≤ c / (d * e) :=
 begin
-  note h₁ := field.div_mul_eq_div_mul_one_div a hb (ne_of_gt he),
-  note h₂ := field.div_mul_eq_div_mul_one_div c hd (ne_of_gt he),
+  have h₁ := field.div_mul_eq_div_mul_one_div a hb (ne_of_gt he),
+  have h₂ := field.div_mul_eq_div_mul_one_div c hd (ne_of_gt he),
   rw [h₁, h₂],
   apply mul_le_mul_of_nonneg_right h,
   apply le_of_lt,
@@ -341,13 +341,13 @@ lemma exists_add_lt_and_pos_of_lt {a b : α} (h : b < a) : ∃ c : α, b + c < a
 begin
   apply exists.intro ((a - b) / (1 + 1)),
   split,
-  {note h2 : a + a > (b + b) + (a - b),
+  {have h2 : a + a > (b + b) + (a - b),
     calc
       a + a > b + a             : add_lt_add_right h _
         ... = b + a + b - b     : by rw add_sub_cancel
         ... = b + b + a - b     : by simp
         ... = (b + b) + (a - b) : by rw add_sub,
-   note h3 : (a + a) / 2 > ((b + b) + (a - b)) / 2,
+   have h3 : (a + a) / 2 > ((b + b) + (a - b)) / 2,
      exact div_lt_div_of_lt_of_pos h2 two_pos,
    rw [one_add_one_eq_two, sub_eq_add_neg],
    rw [add_self_div_two, -div_add_div_same, add_self_div_two, sub_eq_add_neg] at h3,
@@ -360,7 +360,7 @@ begin
   apply le_of_not_gt,
   intro hb,
   cases exists_add_lt_and_pos_of_lt hb with c hc,
-  note  hc' := h c (and.right hc),
+  have  hc' := h c (and.right hc),
   apply (not_le_of_gt (and.left hc)) (le_add_of_sub_right_le hc')
 end
 

@@ -42,9 +42,9 @@ section shift
   bitvec.cong
     begin
       by_cases (i ≤ n),
-      { note h₁ := sub_le n i,
+      { have h₁ := sub_le n i,
         rw [min_eq_right h], rw [min_eq_left h₁, -nat.add_sub_assoc h, add_comm, nat.add_sub_cancel] },
-      { note h₁ := le_of_not_ge h,
+      { have h₁ := le_of_not_ge h,
         rw [min_eq_left h₁, sub_eq_zero_of_le h₁, min_zero_left, add_zero] }
     end $
     repeat fill (min n i) ++ₜ taken (n-i) x
@@ -165,7 +165,7 @@ section conversion
     simp [bits_to_nat_to_list], clear P,
     unfold bits_to_nat list.foldl,
       -- the next 4 lines generalize the accumulator of foldl
-    define x := 0,
+    let x := 0,
     change _ = add_lsb x b + _,
     generalize 0 y,
     revert x, simp,
@@ -192,7 +192,7 @@ section conversion
     revert n,
     induction k with k ; intro n,
     { unfold pow, simp [nat.mod_one], refl },
-    { note h : 0 < 2, { apply le_succ },
+    { have h : 0 < 2, { apply le_succ },
       rw [ of_nat_succ
          , to_nat_append
          , ih_1

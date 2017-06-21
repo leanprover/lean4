@@ -482,8 +482,8 @@ lemma take_lemma (s₁ s₂ : stream α) : (∀ (n : nat), approx n s₁ = appro
 begin
   intro h, apply stream.ext, intro n,
   induction n with n ih,
-  { note aux := h 1, unfold approx at aux, injection aux },
-  { note h₁ : some (nth (succ n) s₁) = some (nth (succ n) s₂),
+  { have aux := h 1, unfold approx at aux, injection aux },
+  { have h₁ : some (nth (succ n) s₁) = some (nth (succ n) s₂),
     { rw [-nth_approx, -nth_approx, h (succ (succ n))] },
     injection h₁ }
 end

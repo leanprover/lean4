@@ -146,9 +146,9 @@ theorem nth_ge_len : Π (l : list α) (n), n ≥ length l → nth l n = none
 
 theorem ext : Π {l₁ l₂ : list α}, (∀n, nth l₁ n = nth l₂ n) → l₁ = l₂
 | []      []       h := rfl
-| (a::l₁) []       h := by note h0 := h 0; contradiction
-| []      (a'::l₂) h := by note h0 := h 0; contradiction
-| (a::l₁) (a'::l₂) h := by note h0 : some a = some a' := h 0; injection h0 with aa; simph[ext $ λn, h (n+1)]
+| (a::l₁) []       h := by have h0 := h 0; contradiction
+| []      (a'::l₂) h := by have h0 := h 0; contradiction
+| (a::l₁) (a'::l₂) h := by have h0 : some a = some a' := h 0; injection h0 with aa; simph[ext $ λn, h (n+1)]
 
 theorem ext_le {l₁ l₂ : list α} (hl : length l₁ = length l₂) (h : ∀n h₁ h₂, nth_le l₁ n h₁ = nth_le l₂ n h₂) : l₁ = l₂ :=
 ext $ λn, if h₁ : n < length l₁
@@ -243,13 +243,13 @@ lemma nth_le_reverse_aux2 : Π (l r : list α) (i : nat) (h1) (h2),
   nth_le (reverse_core l r) (length l - 1 - i) h1 = nth_le l i h2
 | []       r i     h1 h2 := absurd h2 (not_lt_zero _)
 | (a :: l) r 0     h1 h2 := begin
-    note aux := nth_le_reverse_aux1 l (a :: r) 0,
+    have aux := nth_le_reverse_aux1 l (a :: r) 0,
     rw zero_add at aux,
     exact aux _ (zero_lt_succ _)
   end
 | (a :: l) r (i+1) h1 h2 := begin
-    note aux := nth_le_reverse_aux2 l (a :: r) i,
-    note heq := calc length (a :: l) - 1 - (i + 1)
+    have aux := nth_le_reverse_aux2 l (a :: r) i,
+    have heq := calc length (a :: l) - 1 - (i + 1)
           = length l - (1 + i) : by rw add_comm; refl
       ... = length l - 1 - i   : by rw nat.sub_sub,
     rw -heq at aux,
@@ -270,7 +270,7 @@ by {induction l; intros, contradiction, simph, reflexivity}
 @[simp] lemma last_append {a : α} (l : list α) (h : l ++ [a] ≠ []) : last (l ++ [a]) h = a :=
 begin
   induction l with hd tl ih; rsimp,
-  note haux : tl ++ [a] ≠ [],
+  have haux : tl ++ [a] ≠ [],
     {apply append_ne_nil_of_ne_nil_right, contradiction},
   simph
 end
@@ -735,7 +735,7 @@ by simp [sublists]; exact
       (sublist_of_cons_sublist sl) _ hs
   end,
 λsl, begin
-  note this : ∀ {a : α} {y t}, y ∈ t → y ∈ foldr (λ ys r, ys :: (a :: ys) :: r) nil t
+  have this : ∀ {a : α} {y t}, y ∈ t → y ∈ foldr (λ ys r, ys :: (a :: ys) :: r) nil t
                                   ∧ a :: y ∈ foldr (λ ys r, ys :: (a :: ys) :: r) nil t,
   { intros a y t yt, induction t with x t IH, exact absurd yt (not_mem_nil _),
     simp, simp at yt, cases yt with yx yt,

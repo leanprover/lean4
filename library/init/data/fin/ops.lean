@@ -38,7 +38,7 @@ private lemma modlt {a b n : nat} (h₁ : a < n) (h₂ : b < n) : a % b < n :=
 begin
   cases b with b,
   {simp [mod_zero], assumption},
-  {note h : a % (succ b) < succ b,
+  {have h : a % (succ b) < succ b,
    apply nat.mod_lt _ (nat.zero_lt_succ _),
    exact lt.trans h h₂}
 end
@@ -110,8 +110,8 @@ lemma val_zero : (0 : fin (succ n)).val = 0 := rfl
 def pred {n : nat} : ∀ i : fin (succ n), i ≠ 0 → fin n
 | ⟨a, h₁⟩ h₂ := ⟨a.pred,
   begin
-    note this : a ≠ 0,
-    { note aux₁ := vne_of_ne h₂,
+    have this : a ≠ 0,
+    { have aux₁ := vne_of_ne h₂,
       dsimp at aux₁, rw val_zero at aux₁, exact aux₁ },
     exact nat.pred_lt_pred this (nat.succ_ne_zero n) h₁
   end⟩

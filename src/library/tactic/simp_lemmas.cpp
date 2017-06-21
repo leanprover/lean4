@@ -1395,12 +1395,9 @@ static simp_result simp_lemma_rewrite(type_context & ctx, simp_lemma const & sl,
             return simp_result(e);
         }
     }
-    if (sl.is_refl()) {
-        return simp_result(new_rhs);
-    } else {
-        expr pf = ctx.instantiate_mvars(sl.get_proof());
-        return simp_result(new_rhs, pf);
-    }
+
+    expr pf = ctx.instantiate_mvars(sl.get_proof());
+    return simp_result(new_rhs, pf);
 }
 
 vm_obj simp_lemmas_rewrite_core(transparency_mode const & m, simp_lemmas const & sls, vm_obj const & prove_fn,

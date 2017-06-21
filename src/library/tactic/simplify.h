@@ -37,9 +37,6 @@ struct simp_config {
     bool                      m_beta;
     bool                      m_eta;
     bool                      m_proj;
-    /* The following option should be removed as soon as we
-       refactor the inductive compiler. */
-    bool                      m_use_matcher{true};
     simp_config();
     simp_config(vm_obj const & o);
 };

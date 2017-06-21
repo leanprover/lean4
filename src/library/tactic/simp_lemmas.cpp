@@ -38,6 +38,7 @@ struct simp_lemma_cell {
 
     expr                m_lhs;
     expr                m_rhs;
+    expr                m_proof;
     unsigned            m_priority;
     MK_LEAN_RC(); // Declare m_rc counter
     void dealloc();
@@ -45,38 +46,27 @@ struct simp_lemma_cell {
     simp_lemma_cell(simp_lemma_kind k,
                     name const & id, levels const & umetas, list<expr> const & emetas,
                     list<bool> const & instances, expr const & lhs, expr const & rhs,
-                    unsigned priority):
+                    expr const & proof, unsigned priority):
         m_kind(k), m_id(id), m_umetas(umetas), m_emetas(emetas), m_instances(instances),
-        m_lhs(lhs), m_rhs(rhs), m_priority(priority), m_rc(0) {}
+        m_lhs(lhs), m_rhs(rhs), m_proof(proof), m_priority(priority), m_rc(0) {}
 };
 
-struct simp_lemma_with_proof_cell : public simp_lemma_cell {
-    expr m_proof;
-    simp_lemma_with_proof_cell(simp_lemma_kind k,
-                               name const & id, levels const & umetas, list<expr> const & emetas,
-                               list<bool> const & instances, expr const & lhs, expr const & rhs,
-                               expr const & proof, unsigned priority):
-        simp_lemma_cell(k, id, umetas, emetas, instances, lhs, rhs, priority),
-        m_proof(proof) {
-    }
-};
-
-struct regular_simp_lemma_cell : public simp_lemma_with_proof_cell {
+struct regular_simp_lemma_cell : public simp_lemma_cell {
     bool m_is_permutation;
     regular_simp_lemma_cell(name const & id, levels const & umetas, list<expr> const & emetas,
                             list<bool> const & instances, expr const & lhs, expr const & rhs,
                             expr const & proof, bool is_perm, unsigned priority):
-        simp_lemma_with_proof_cell(simp_lemma_kind::Simp, id, umetas, emetas, instances, lhs, rhs, proof, priority),
+        simp_lemma_cell(simp_lemma_kind::Simp, id, umetas, emetas, instances, lhs, rhs, proof, priority),
         m_is_permutation(is_perm) {
     }
 };
 
-struct congr_lemma_cell : public simp_lemma_with_proof_cell {
+struct congr_lemma_cell : public simp_lemma_cell {
     list<expr> m_congr_hyps;
     congr_lemma_cell(name const & id, levels const & umetas, list<expr> const & emetas,
                      list<bool> const & instances, expr const & lhs, expr const & rhs,
                      expr const & proof, list<expr> const & congr_hyps, unsigned priority):
-        simp_lemma_with_proof_cell(simp_lemma_kind::Congr, id, umetas, emetas, instances, lhs, rhs, proof, priority),
+        simp_lemma_cell(simp_lemma_kind::Congr, id, umetas, emetas, instances, lhs, rhs, proof, priority),
         m_congr_hyps(congr_hyps) {
     }
 };
@@ -84,7 +74,7 @@ struct congr_lemma_cell : public simp_lemma_with_proof_cell {
 void simp_lemma_cell::dealloc() {
     switch (m_kind) {
     case simp_lemma_kind::Simp:
-        delete static_cast<simp_lemma_with_proof_cell*>(this);
+        delete static_cast<regular_simp_lemma_cell*>(this);
         break;
     case simp_lemma_kind::Congr:
         delete static_cast<congr_lemma_cell*>(this);
@@ -171,8 +161,7 @@ bool simp_lemma::is_permutation() const {
 }
 
 expr const & simp_lemma::get_proof() const {
-    lean_assert(kind() == simp_lemma_kind::Congr || kind() == simp_lemma_kind::Simp);
-    return static_cast<simp_lemma_with_proof_cell const *>(m_ptr)->m_proof;
+    return m_ptr->m_proof;
 }
 
 list<expr> const & simp_lemma::get_congr_hyps() const {
@@ -221,10 +210,10 @@ simp_lemma mk_simp_lemma(name const & id, levels const & umetas, list<expr> cons
 }
 
 simp_lemma mk_rfl_lemma(name const & id, levels const & umetas, list<expr> const & emetas,
-                        list<bool> const & instances, expr const & lhs, expr const & rhs,
+                        list<bool> const & instances, expr const & lhs, expr const & rhs, expr const & proof,
                         unsigned priority) {
     return simp_lemma(new simp_lemma_cell(simp_lemma_kind::Refl, id, umetas, emetas,
-                                          instances, lhs, rhs, priority));
+                                          instances, lhs, rhs, proof, priority));
 }
 
 simp_lemma mk_congr_lemma(name const & id, levels const & umetas, list<expr> const & emetas,
@@ -751,6 +740,7 @@ static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name cons
     declaration const & d = env.get(cname);
     levels ls = mk_tmp_levels_for(ctx, d);
     expr type = instantiate_type_univ_params(d, ls);
+    expr proof = mk_constant(cname, ls);
     if (is_rfl_lemma(env, cname)) {
         buffer<expr> emetas;
         buffer<bool> instances;
@@ -759,15 +749,15 @@ static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name cons
             emetas.push_back(mvar);
             instances.push_back(binding_info(type).is_inst_implicit());
             type = instantiate(binding_body(type), mvar);
+            proof = mk_app(proof, mvar);
         }
         expr lhs, rhs;
         lean_verify(is_eq(type, lhs, rhs));
         simp_lemmas new_s = s;
         new_s.insert(get_eq_name(), mk_rfl_lemma(cname, ls, to_list(emetas), to_list(instances),
-                                                 lhs, rhs, priority));
+                                                 lhs, rhs, proof, priority));
         return new_s;
     } else {
-        expr proof = mk_constant(cname, ls);
         return add_core(ctx, s, cname, ls, type, proof, priority);
     }
 }

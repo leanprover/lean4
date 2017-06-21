@@ -23,7 +23,7 @@ private:
                                     list<bool> const & instances, expr const & lhs, expr const & rhs,
                                     expr const & proof, bool is_perm, unsigned priority);
     friend simp_lemma mk_rfl_lemma(name const & id, levels const & umetas, list<expr> const & emetas,
-                                   list<bool> const & instances, expr const & lhs, expr const & rhs,
+                                   list<bool> const & instances, expr const & lhs, expr const & rhs, expr const & proof,
                                    unsigned priority);
     friend simp_lemma mk_congr_lemma(name const & id, levels const & umetas, list<expr> const & emetas,
                                      list<bool> const & instances, expr const & lhs, expr const & rhs,

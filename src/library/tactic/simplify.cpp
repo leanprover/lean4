@@ -591,12 +591,8 @@ simp_result simplify_core_fn::rewrite_core(expr const & e, simp_lemma const & sl
         }
     }
 
-    if (sl.is_refl()) {
-        return simp_result(new_rhs);
-    } else {
-        expr pf = tmp_ctx.instantiate_mvars(sl.get_proof());
-        return simp_result(new_rhs, pf);
-    }
+    expr pf = tmp_ctx.instantiate_mvars(sl.get_proof());
+    return simp_result(new_rhs, pf);
 }
 
 simp_result simplify_core_fn::rewrite(expr const & e, simp_lemma const & sl) {

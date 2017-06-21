@@ -119,6 +119,8 @@ static gtask compile_olean(std::shared_ptr<module_info const> const & mod, log_t
         exclusive_file_lock output_lock(olean_fn);
         std::ofstream out(olean_fn, std::ios_base::binary);
         write_module(*res.m_loaded_module, out);
+        out.close();
+        if (!out) throw exception("failed to write olean file");
         return unit();
     }).depends_on(mod_dep).depends_on(olean_deps).depends_on(errs), std::string("saving olean"));
 }

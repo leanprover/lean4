@@ -1,17 +1,15 @@
 master branch (aka work in progress branch)
 -------------
 
+*Features*
+
+* In addition to user-defined notation parsers introduced in Lean 3.2.0, users may now also define top-level commands in Lean. For an example, see the [`coinductive` command](https://github.com/leanprover/lean/blob/814a5edaf172c3835c000e3f631bddd85bd879ab/library/init/meta/coinductive_predicates.lean#L551-L552) that has been ported to the new model.
+
 *Changes*
 
 * We now have two type classes for converting to string: `has_to_string` and `has_repr`.
 The `has_to_string` type class in v3.2.0 is roughly equivalent to `has_repr`.
-For more details, see discussion at issue #1664.
-
-* The old `structure [class]` syntax is finally gone.
-
-* There may be some new combinations which previously had been illegal, e.g. private axiom, meta structures with attributes, etc.
-
-* Definition errors without location information are now shown at the command keyword instead of at its attributes/modifiers, which should help with the Next Error view.
+For more details, see discussion [here](https://github.com/leanprover/lean/pull/1664).
 
 v3.2.0 (18 June 2017)
 -------------

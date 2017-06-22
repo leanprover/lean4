@@ -166,6 +166,13 @@ have disj₂ : disjoint l₁ (a::l₂), from disjoint.comm (disjoint_cons_of_not
                                            (disjoint.comm disj)),
 nodup_append_of_nodup_of_nodup_of_disjoint d₂ d₄ disj₂
 
+instance nodup_decidable [decidable_eq α] : ∀ l : list α, decidable (nodup l)
+| [] := is_true ndnil
+| (a :: l) := if h : a ∈ l
+  then is_false (λ nd, not_mem_of_nodup_cons nd h)
+  else decidable_of_decidable_of_iff (nodup_decidable l)
+    ⟨nodup_cons h, nodup_of_nodup_cons⟩
+
 end nodup
 
 end list

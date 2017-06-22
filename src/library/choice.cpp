@@ -22,12 +22,12 @@ static std::string * g_choice_opcode = nullptr;
 // and have no semantic significance.
 class choice_macro_cell : public macro_definition_cell {
 public:
-    virtual name get_name() const { return *g_choice_name; }
+    virtual name get_name() const override { return *g_choice_name; }
     // Choice expressions must be replaced with metavariables before invoking the type checker.
     // Choice expressions cannot be exported. They are transient/auxiliary objects.
-    virtual expr check_type(expr const &, abstract_type_context &, bool) const { throw_ex(); }
-    virtual optional<expr> expand(expr const &, abstract_type_context &) const { throw_ex(); }
-    virtual void write(serializer & s) const {
+    virtual expr check_type(expr const &, abstract_type_context &, bool) const override { throw_ex(); }
+    virtual optional<expr> expand(expr const &, abstract_type_context &) const override { throw_ex(); }
+    virtual void write(serializer & s) const override {
         // we should be able to write choice expressions because of notation declarations
         s.write_string(*g_choice_opcode);
     }

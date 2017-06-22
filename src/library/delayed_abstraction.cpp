@@ -33,27 +33,27 @@ class delayed_abstraction_macro : public macro_definition_cell {
     list<name> m_value;
 public:
     delayed_abstraction_macro(list<name> const & v):m_value(v) {}
-    virtual bool lt(macro_definition_cell const & d) const {
+    virtual bool lt(macro_definition_cell const & d) const override {
         /** TODO(Leo): improve if needed */
         return length(m_value) < length(static_cast<delayed_abstraction_macro const &>(d).m_value);
     }
-    virtual name get_name() const { return *g_delayed_abstraction_macro; }
-    virtual expr check_type(expr const & e, abstract_type_context & ctx, bool) const {
+    virtual name get_name() const override { return *g_delayed_abstraction_macro; }
+    virtual expr check_type(expr const & e, abstract_type_context & ctx, bool) const override {
         return ctx.infer(macro_arg(e, macro_num_args(e) - 1));
     }
-    virtual optional<expr> expand(expr const &, abstract_type_context &) const {
+    virtual optional<expr> expand(expr const &, abstract_type_context &) const override {
         return none_expr();
     }
-    virtual unsigned trust_level() const { return 0; }
-    virtual bool operator==(macro_definition_cell const & other) const {
+    virtual unsigned trust_level() const override { return 0; }
+    virtual bool operator==(macro_definition_cell const & other) const override {
         delayed_abstraction_macro const * other_ptr = dynamic_cast<delayed_abstraction_macro const *>(&other);
         return other_ptr && m_value == other_ptr->m_value;
     }
-    virtual unsigned hash() const {
+    virtual unsigned hash() const override {
         /** TODO(Leo): improve if needed */
         return length(m_value);
     }
-    virtual void write(serializer &) const { lean_unreachable(); }
+    virtual void write(serializer &) const override { lean_unreachable(); }
     list<name> const & get_names() const { return m_value; }
 };
 

@@ -29,25 +29,25 @@ public:
     rec_fn_macro_definition_cell(name const & n):m_name(n) {}
 
     name const & get_rec_fn_name() const { return m_name; }
-    virtual name get_name() const { return get_rec_fn_macro_id(); }
+    virtual name get_name() const override { return get_rec_fn_macro_id(); }
 
-    virtual void display(std::ostream & out) const { out << m_name; }
+    virtual void display(std::ostream & out) const override { out << m_name; }
 
-    virtual expr check_type(expr const & m, abstract_type_context &, bool) const {
+    virtual expr check_type(expr const & m, abstract_type_context &, bool) const override {
         check_macro(m);
         return macro_arg(m, 0);
     }
 
-    virtual optional<expr> expand(expr const &, abstract_type_context &) const {
+    virtual optional<expr> expand(expr const &, abstract_type_context &) const override {
         return none_expr();
     }
 
-    virtual void write(serializer & s) const {
+    virtual void write(serializer & s) const override {
         s.write_string(get_rec_fn_opcode());
         s << m_name;
     }
 
-    virtual bool operator==(macro_definition_cell const & other) const {
+    virtual bool operator==(macro_definition_cell const & other) const override {
         if (auto other_ptr = dynamic_cast<rec_fn_macro_definition_cell const *>(&other)) {
             return m_name == other_ptr->m_name;
         } else {
@@ -55,7 +55,7 @@ public:
         }
     }
 
-    virtual unsigned hash() const {
+    virtual unsigned hash() const override {
         return ::lean::hash(m_name.hash(), get_rec_fn_macro_id().hash());
     }
 };

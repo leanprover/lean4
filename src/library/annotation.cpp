@@ -31,28 +31,28 @@ class annotation_macro_definition_cell : public macro_definition_cell {
 public:
     annotation_macro_definition_cell(name const & n):m_name(n) {}
     name const & get_annotation_kind() const { return m_name; }
-    virtual name get_name() const { return get_annotation_name(); }
-    virtual void display(std::ostream & out) const { out << m_name; }
-    virtual expr check_type(expr const & m, abstract_type_context & ctx, bool infer_only) const {
+    virtual name get_name() const override { return get_annotation_name(); }
+    virtual void display(std::ostream & out) const override { out << m_name; }
+    virtual expr check_type(expr const & m, abstract_type_context & ctx, bool infer_only) const override {
         check_macro(m);
         return ctx.check(macro_arg(m, 0), infer_only);
     }
-    virtual optional<expr> expand(expr const & m, abstract_type_context &) const {
+    virtual optional<expr> expand(expr const & m, abstract_type_context &) const override {
         check_macro(m);
         return some_expr(macro_arg(m, 0));
     }
-    virtual void write(serializer & s) const {
+    virtual void write(serializer & s) const override {
         s.write_string(get_annotation_opcode());
         s << m_name;
     }
-    virtual bool operator==(macro_definition_cell const & other) const {
+    virtual bool operator==(macro_definition_cell const & other) const override {
         if (auto other_ptr = dynamic_cast<annotation_macro_definition_cell const *>(&other)) {
             return m_name == other_ptr->m_name;
         } else {
             return false;
         }
     }
-    virtual unsigned hash() const {
+    virtual unsigned hash() const override {
         return ::lean::hash(m_name.hash(), g_annotation->hash());
     }
 };

@@ -31,11 +31,11 @@ class expr_quote_macro : public macro_definition_cell {
     bool m_reflected;
 public:
     expr_quote_macro(expr const & v, bool reflected):m_value(v), m_reflected(reflected) {}
-    virtual bool lt(macro_definition_cell const & d) const {
+    virtual bool lt(macro_definition_cell const & d) const override {
         return m_value < static_cast<expr_quote_macro const &>(d).m_value;
     }
-    virtual name get_name() const { return *g_expr_quote_macro; }
-    virtual expr check_type(expr const &, abstract_type_context & ctx, bool infer_only) const {
+    virtual name get_name() const override { return *g_expr_quote_macro; }
+    virtual expr check_type(expr const &, abstract_type_context & ctx, bool infer_only) const override {
         if (m_reflected) {
             expr ty = ctx.check(m_value, infer_only);
             return mk_app(mk_constant(get_reflected_name(), {get_level(ctx, ty)}), ty, m_value);
@@ -43,11 +43,11 @@ public:
             return *g_pexpr;
         }
     }
-    virtual optional<expr> expand(expr const &, abstract_type_context &) const {
+    virtual optional<expr> expand(expr const &, abstract_type_context &) const override {
         return optional<expr>();
     }
-    virtual unsigned trust_level() const { return 0; }
-    virtual bool operator==(macro_definition_cell const & other) const {
+    virtual unsigned trust_level() const override { return 0; }
+    virtual bool operator==(macro_definition_cell const & other) const override {
         /* Hack: we do *not* compare m_value's because quoted expressions may contain
            relevant position information that is ignored by the equality predicate for expressions.
         */
@@ -56,11 +56,11 @@ public:
     char const * prefix() const {
         return m_reflected ? "`(" : "``(";
     }
-    virtual void display(std::ostream & out) const {
+    virtual void display(std::ostream & out) const override {
         out << prefix() << m_value << ")";
     }
-    virtual unsigned hash() const { return m_value.hash(); }
-    virtual void write(serializer & s) const { s << *g_expr_quote_opcode << m_value << m_reflected; }
+    virtual unsigned hash() const override { return m_value.hash(); }
+    virtual void write(serializer & s) const override { s << *g_expr_quote_opcode << m_value << m_reflected; }
     expr const & get_value() const { return m_value; }
     bool const & is_reflected() const { return m_reflected; }
 };

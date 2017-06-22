@@ -22,12 +22,12 @@ class nat_value_macro : public macro_definition_cell {
     mpz m_value;
 public:
     nat_value_macro(mpz const & v):m_value(v) {}
-    virtual bool lt(macro_definition_cell const & d) const {
+    virtual bool lt(macro_definition_cell const & d) const override {
         return m_value < static_cast<nat_value_macro const &>(d).m_value;
     }
-    virtual name get_name() const { return *g_nat_macro; }
+    virtual name get_name() const override { return *g_nat_macro; }
 
-    virtual expr check_type(expr const &, abstract_type_context &, bool) const {
+    virtual expr check_type(expr const &, abstract_type_context &, bool) const override {
         return mk_nat_type();
     }
 
@@ -46,23 +46,23 @@ public:
         }
     }
 
-    virtual optional<expr> expand(expr const &, abstract_type_context &) const {
+    virtual optional<expr> expand(expr const &, abstract_type_context &) const override {
         expr one = mk_app(mk_constant(get_nat_succ_name()), mk_constant(get_nat_zero_name()));
         expr add = mk_constant(get_nat_add_name());
         expr r = convert(m_value, one, add);
         return optional<expr>(r);
     }
 
-    virtual unsigned trust_level() const { return 0; }
-    virtual bool operator==(macro_definition_cell const & other) const {
+    virtual unsigned trust_level() const override { return 0; }
+    virtual bool operator==(macro_definition_cell const & other) const override {
         nat_value_macro const * other_ptr = dynamic_cast<nat_value_macro const *>(&other);
         return other_ptr && m_value == other_ptr->m_value;
     }
-    virtual void display(std::ostream & out) const {
+    virtual void display(std::ostream & out) const override {
         out << m_value;
     }
-    virtual unsigned hash() const { return m_value.hash(); }
-    virtual void write(serializer & s) const {
+    virtual unsigned hash() const override { return m_value.hash(); }
+    virtual void write(serializer & s) const override {
         s << *g_nat_opcode << m_value;
     }
     mpz const & get_value() const { return m_value; }

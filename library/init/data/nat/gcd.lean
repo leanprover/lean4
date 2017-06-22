@@ -6,7 +6,7 @@ Authors: Jeremy Avigad, Leonardo de Moura, Mario Carneiro
 Definitions and properties of gcd, lcm, and coprime.
 -/
 prelude
-import init.data.nat.lemmas init.wf
+import init.data.nat.lemmas init.meta.well_founded_tactics
 
 open well_founded
 
@@ -14,35 +14,30 @@ namespace nat
 
 /- gcd -/
 
-def gcd.F : Π (y : ℕ), (Π (y' : ℕ), y' < y → nat → nat) → nat → nat
-| 0        f x := x
-| (succ y) f x := f (x % succ y) (mod_lt _ $ succ_pos _) (succ y)
+def gcd : nat → nat → nat
+| 0        y := y
+| (succ x) y := have y % succ x < succ x, from mod_lt _ $ succ_pos _,
+                gcd (y % succ x) (succ x)
 
-def gcd (x y : nat) := fix lt_wf gcd.F y x
 
-@[simp] theorem gcd_zero_right (x : nat) : gcd x 0 = x := congr_fun (fix_eq lt_wf gcd.F 0) x
+@[simp] theorem gcd_zero_left (x : nat) : gcd 0 x = x := by simp [gcd]
 
-@[simp] theorem gcd_succ (x y : nat) : gcd x (succ y) = gcd (succ y) (x % succ y) :=
-congr_fun (fix_eq lt_wf gcd.F (succ y)) x
+@[simp] theorem gcd_succ (x y : nat) : gcd (succ x) y = gcd (y % succ x) (succ x) :=
+by simp [gcd]
 
-theorem gcd_one_right (n : ℕ) : gcd n 1 = 1 :=
-eq.trans (gcd_succ n 0) (by rw [mod_one, gcd_zero_right])
+@[simp] theorem gcd_one_left (n : ℕ) : gcd 1 n = 1 := by simp [gcd]
 
-theorem gcd_def (x : ℕ) : Π (y : ℕ), gcd x y = if y = 0 then x else gcd y (x % y)
-| 0        := gcd_zero_right _
-| (succ y) := (gcd_succ x y).trans (if_neg (succ_ne_zero y)).symm
+theorem gcd_def (x y : ℕ) : gcd x y = if x = 0 then y else gcd (y % x) x :=
+by cases x; simp [gcd, succ_ne_zero]
 
-theorem gcd_self : Π (n : ℕ), gcd n n = n
-| 0         := gcd_zero_right _
-| (succ n₁) := (gcd_succ (succ n₁) n₁).trans (by rw [mod_self, gcd_zero_right])
+@[simp] theorem gcd_self (n : ℕ) : gcd n n = n :=
+by cases n; simp [gcd, mod_self]
 
-theorem gcd_zero_left : Π (n : ℕ), gcd 0 n = n
-| 0         := gcd_zero_right _
-| (succ n₁) := (gcd_succ 0 n₁).trans (by rw [zero_mod, gcd_zero_right])
+@[simp] theorem gcd_zero_right (n : ℕ) : gcd n 0 = n :=
+by cases n; simp [gcd]
 
-theorem gcd_rec (m : ℕ) : Π (n : ℕ), gcd m n = gcd n (m % n)
-| 0         := by rw [mod_zero, gcd_zero_left, gcd_zero_right]
-| (succ n₁) := gcd_succ _ _
+theorem gcd_rec (m n : ℕ) : gcd m n = gcd (n % m) m :=
+by cases m; simp [gcd]
 
 @[elab_as_eliminator]
 theorem gcd.induction {P : ℕ → ℕ → Prop}

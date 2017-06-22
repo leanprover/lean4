@@ -884,7 +884,7 @@ nat.strong_induction_on a $ λ n,
 lemma mod_def (x y : nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x :=
 by have h := mod_def_aux x y; rwa [dif_eq_if] at h
 
-lemma mod_zero (a : nat) : a % 0 = a :=
+@[simp] lemma mod_zero (a : nat) : a % 0 = a :=
 begin
   rw mod_def,
   have h : ¬ (0 < 0 ∧ 0 ≤ a),
@@ -951,10 +951,10 @@ by rw [-(zero_add (m*n)), add_mul_mod_self_left, zero_mod]
 @[simp] theorem mul_mod_left (m n : ℕ) : (m * n) % n = 0 :=
 by rw [mul_comm, mul_mod_right]
 
-theorem mod_self (n : nat) : n % n = 0 :=
+@[simp] theorem mod_self (n : nat) : n % n = 0 :=
 by rw [mod_eq_sub_mod (le_refl _), nat.sub_self, zero_mod]
 
-lemma mod_one (n : ℕ) : n % 1 = 0 :=
+@[simp] lemma mod_one (n : ℕ) : n % 1 = 0 :=
 have n % 1 < 1, from (mod_lt n) (succ_pos 0),
 eq_zero_of_le_zero (le_of_lt_succ this)
 

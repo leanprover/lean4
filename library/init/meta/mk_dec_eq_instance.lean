@@ -46,6 +46,11 @@ do lhs_type ← infer_type lhs,
      f ← pp dec_type,
      fail $ to_fmt "mk_dec_eq_instance failed, failed to generate instance for" ++ format.nest 2 (format.line ++ f) }
 
+private meta def apply_eq_of_heq (h : expr) : tactic unit :=
+do pr ← mk_app `eq_of_heq [h],
+   ty ← infer_type pr,
+   assertv `h' ty pr >> skip
+
 /- Target is of the form (decidable (C ... = C ...)) where C is a constructor -/
 private meta def dec_eq_same_constructor : name → name → nat → tactic unit
 | I_name F_name num_rec :=
@@ -72,7 +77,11 @@ do
     -- discharge second (negative) case by contradiction
     intro1, left, -- decidable.is_false
     intro1 >>= injection,
-    intros, contradiction,
+    intros,
+    contradiction <|> do {
+      lc ← local_context,
+      mfor' lc (λ h, try (apply_eq_of_heq h) <|> skip),
+      contradiction },
     return () }
 
 /- Easy case: target is of the form (decidable (C_1 ... = C_2 ...)) where C_1 and C_2 are distinct constructors -/

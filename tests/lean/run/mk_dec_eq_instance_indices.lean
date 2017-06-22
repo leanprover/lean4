@@ -31,3 +31,16 @@ inductive Foo : Pi (n : nat), C n -> Type
 noncomputable instance (n : nat) (c : C n) : decidable_eq (Foo n c) := by mk_dec_eq_instance
 
 end X3
+
+namespace X4
+
+inductive Foo
+| mk (n : nat) (val : fin n)
+
+def fin_decidable (n) : decidable_eq (fin n) :=
+by mk_dec_eq_instance
+
+def dep_decidable : decidable_eq Foo :=
+by mk_dec_eq_instance
+
+end X4

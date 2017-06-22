@@ -6,7 +6,7 @@ Authors: Jeremy Avigad, Leonardo de Moura
 Monad combinators, as in Haskell's Control.Monad.
 -/
 prelude
-import init.category.monad init.data.list.basic
+import init.category.monad init.category.alternative init.data.list.basic
 universes u v w
 
 def list.mmap {m : Type u → Type v} [monad m] {α : Type w} {β : Type u} (f : α → m β) : list α → m (list β)
@@ -47,6 +47,10 @@ def list.mfoldr {m : Type u → Type v} [monad m] {s : Type u} {α : Type w} : (
 | f s (h :: r) := do
   s' ← list.mfoldr f s r,
   f h s'
+
+def list.mfirst {m : Type u → Type v} [monad m] [alternative m] {α : Type w} {β : Type u} (f : α → m β) : list α → m β
+| []      := failure
+| (a::as) := f a <|> list.mfirst as
 
 def when {m : Type → Type} [monad m] (c : Prop) [h : decidable c] (t : m unit) : m unit :=
 ite c t (pure ())

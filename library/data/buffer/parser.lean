@@ -140,13 +140,25 @@ def eof : parser unit :=
 decorate_error "<end-of-file>" $
 do rem ← remaining, guard $ rem = 0
 
-def many_core (p : parser α) : ∀ (reps : ℕ), parser (list α)
+def foldr_core (f : α → β → β) (p : parser α) (b : β) : ∀ (reps : ℕ), parser β
 | 0 := failure
-| (reps+1) := (do x ← p, xs ← many_core reps, return (x::xs)) <|> return []
+| (reps+1) := (do x ← p, xs ← foldr_core reps, return (f x xs)) <|> return b
+
+/-- Matches zero or more occurrences of `p`, and folds the result. -/
+def foldr (f : α → β → β) (p : parser α) (b : β) : parser β :=
+λ input pos, foldr_core f p b (input.size - pos + 1) input pos
+
+def foldl_core (f : α → β → α) : ∀ (a : α) (p : parser β) (reps : ℕ), parser α
+| a p 0 := failure
+| a p (reps+1) := (do x ← p, foldl_core (f a x) p reps) <|> return a
+
+/-- Matches zero or more occurrences of `p`, and folds the result. -/
+def foldl (f : α → β → α) (a : α) (p : parser β) : parser α :=
+λ input pos, foldl_core f a p (input.size - pos + 1) input pos
 
 /-- Matches zero or more occurrences of `p`. -/
 def many (p : parser α) : parser (list α) :=
-λ input pos, many_core p (input.size - pos + 1) input pos
+foldr list.cons p []
 
 def many_char (p : parser char) : parser string :=
 list.as_string <$> many p

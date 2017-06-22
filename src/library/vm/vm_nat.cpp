@@ -165,7 +165,7 @@ vm_obj nat_shiftl(vm_obj const & a1, vm_obj const & a2) {
     if (LEAN_LIKELY(is_simple(a1) && is_simple(a2))) {
         unsigned v1 = cidx(a1);
         unsigned v2 = cidx(a2);
-        if (v1 >> (31 - v2) == 0) // LEAN_MAX_SMALL_NAT = 1 >> 31
+        if (v2 <= 31 && v1 >> (31 - v2) == 0) // LEAN_MAX_SMALL_NAT = 1 >> 31
             return mk_vm_nat(v1 << v2);
     }
     mpz v1 = to_mpz1(a1);

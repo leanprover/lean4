@@ -1,9 +1,3 @@
--- TODO(Leo): remove after we port reals to new stdlib and add int.has_div and int.has_mod
-constants (int.has_div : has_div int)
-constants (int.has_mod : has_mod int)
-
-attribute [instance] int.has_div int.has_mod
-
 constants (real : Type)
 
 constants (real.has_zero : has_zero real)

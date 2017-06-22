@@ -224,15 +224,37 @@ meta structure rw_rule :=
 meta instance rw_rule.reflect : has_reflect rw_rule :=
 λ ⟨p, s, r⟩, `(_)
 
+private meta def get_rule_eqn_lemmas (r : rw_rule) : tactic (list name) :=
+let aux (n : name) : tactic (list name) := do {
+  p ← resolve_name n,
+  -- unpack local refs
+  let e := p.erase_annotations.get_app_fn.erase_annotations,
+  match e with
+  | const n _ := get_eqn_lemmas_for tt n
+  | _         := return []
+  end } <|> return [] in
+match r.rule with
+| const n _           := aux n
+| local_const n _ _ _ := aux n
+| _                   := return []
+end
+
 private meta def rw_goal (m : transparency) (rs : list rw_rule) : tactic unit :=
-rs.mfor' $ λ r, save_info r.pos >> to_expr' r.rule >>= rewrite_core m tt tt occurrences.all r.symm
+rs.mfor' $ λ r, do
+ save_info r.pos,
+ (to_expr' r.rule >>= rewrite_core m tt tt occurrences.all r.symm)
+ <|>
+ (do eq_lemmas ← get_rule_eqn_lemmas r,
+     eq_lemmas.mfirst $ λ n, mk_const n >>= rewrite_core m tt tt occurrences.all r.symm)
 
 private meta def rw_hyp (m : transparency) (rs : list rw_rule) (hname : name) : tactic unit :=
 rs.mfor' $ λ r,
 do h ← get_local hname,
-    save_info r.pos,
-    e ← to_expr' r.rule,
-    rewrite_at_core m tt tt occurrences.all r.symm e h
+   save_info r.pos,
+   (do e ← to_expr' r.rule, rewrite_at_core m tt tt occurrences.all r.symm e h)
+   <|>
+   (do eq_lemmas ← get_rule_eqn_lemmas r,
+       eq_lemmas.mfirst $ λ n, do e ← mk_const n, rewrite_at_core m tt tt occurrences.all r.symm e h)
 
 private meta def rw_hyps (m : transparency) (rs : list rw_rule) (hs : list name) : tactic unit :=
 hs.mfor' (rw_hyp m rs)

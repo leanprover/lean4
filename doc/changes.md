@@ -8,6 +8,9 @@ master branch (aka work in progress branch)
 * Add new simplifier configuration option `simp_config.single_pass`. It is useful for simplification rules that may produce non-termination.
   Example: `simp {single_pass := tt}`
 
+* The rewrite tactic has support for equational lemmas. Example: Given a definition `f`, `rw [f]` will try to rewrite the goal using the equational lemmas for `f`.
+  The tactic fails if none of the equational lemmas can be used.
+
 *Changes*
 
 * We now have two type classes for converting to string: `has_to_string` and `has_repr`.

@@ -477,7 +477,7 @@ meta def step {α : Type u} (t : tactic α) : tactic unit :=
 t >>[tactic] cleanup
 
 meta def istep {α : Type u} (line0 col0 : ℕ) (line col : ℕ) (t : tactic α) : tactic unit :=
-λ s, (@scope_trace _ line col (step t s)).clamp_pos line0 line col
+λ s, (@scope_trace _ line col (λ _, step t s)).clamp_pos line0 line col
 
 meta def is_prop (e : expr) : tactic bool :=
 do t ← infer_type e,

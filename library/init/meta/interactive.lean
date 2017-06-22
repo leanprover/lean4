@@ -651,6 +651,16 @@ meta def simp (no_dflt : parse only_flag) (hs : parse opt_qexpr_list) (attr_name
               (cfg : simp_config := {}) : tactic unit :=
 simp_core cfg no_dflt [] hs attr_names ids locat
 
+/-- Simplify the whole context, and use simplified hypotheses to simplify other hypotheses. -/
+meta def simp_all (no_dflt : parse only_flag) (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list)
+                  (ids : parse without_ident_list) (cfg : simp_config := {}) : tactic unit :=
+do s ← mk_simp_set no_dflt attr_names hs ids,
+   ls ← local_context,
+   revert_lst ls,
+   let ns := ls.map expr.local_pp_name,
+   simp_intro_aux cfg tt s ff ns,
+   try tactic.triv, try (tactic.reflexivity reducible)
+
 /--
 Similar to the `simp` tactic, but adds all applicable hypotheses as simplification rules.
 -/

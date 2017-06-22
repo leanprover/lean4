@@ -480,6 +480,23 @@ theorem contains_iff (m : hash_map α β) (a : α) :
   m.contains a ↔ a ∈ m.keys :=
 m.is_valid.contains_aux_iff _ _
 
+theorem entries_empty (hash_fn : α → nat) (n) :
+  (@mk_hash_map α _ β hash_fn n).entries = [] :=
+by dsimp [entries, mk_hash_map]; rw mk_as_list hash_fn
+
+theorem keys_empty (hash_fn : α → nat) (n) :
+  (@mk_hash_map α _ β hash_fn n).keys = [] :=
+by dsimp [keys]; rw entries_empty; refl
+
+theorem find_empty (hash_fn : α → nat) (n a) :
+  (@mk_hash_map α _ β hash_fn n).find a = none :=
+by ginduction (@mk_hash_map α _ β hash_fn n).find a with h; [refl,
+   { have := (find_iff _ _ _).1 h, rw entries_empty at this, contradiction }]
+
+theorem not_contains_empty (hash_fn : α → nat) (n a) :
+  ¬ (@mk_hash_map α _ β hash_fn n).contains a :=
+by apply bool_iff_false.2; dsimp [contains]; rw [find_empty]; refl
+
 lemma insert_lemma (hash_fn : α → nat) {n n'}
   {bkts : bucket_array α β n} {sz} (v : valid hash_fn bkts sz) :
   valid hash_fn (bkts.foldl (mk_array _ [] : bucket_array α β n') (reinsert_aux hash_fn)) sz :=

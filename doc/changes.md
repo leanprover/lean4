@@ -21,6 +21,10 @@ master branch (aka work in progress branch)
 The `has_to_string` type class in v3.2.0 is roughly equivalent to `has_repr`.
 For more details, see discussion [here](https://github.com/leanprover/lean/pull/1664).
 
+* Merged `assert` and `note` tactics and renamed -> `have`.
+
+* Renamed `pose` tactic -> `let`
+
 v3.2.0 (18 June 2017)
 -------------
 

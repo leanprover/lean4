@@ -80,6 +80,82 @@ end semiring
 
 class comm_semiring (α : Type u) extends semiring α, comm_monoid α
 
+section comm_semiring
+  variables [comm_semiring α] (a b c : α)
+
+  instance comm_semiring_has_dvd : has_dvd α :=
+  has_dvd.mk (λ a b, ∃ c, b = a * c)
+
+  -- TODO: this used to not have c explicit, but that seems to be important
+  --       for use with tactics, similar to exist.intro
+  theorem dvd.intro {a b : α} (c : α) (h : a * c = b) : a ∣ b :=
+  exists.intro c h^.symm
+
+  def dvd_of_mul_right_eq := @dvd.intro
+
+  theorem dvd.intro_left {a b : α} (c : α) (h : c * a = b) : a ∣ b :=
+  dvd.intro _ (begin rewrite mul_comm at h, apply h end)
+
+  def dvd_of_mul_left_eq := @dvd.intro_left
+
+  theorem exists_eq_mul_right_of_dvd {a b : α} (h : a ∣ b) : ∃ c, b = a * c := h
+
+  theorem dvd.elim {P : Prop} {a b : α} (H₁ : a ∣ b) (H₂ : ∀ c, b = a * c → P) : P :=
+  exists.elim H₁ H₂
+
+  theorem exists_eq_mul_left_of_dvd {a b : α} (h : a ∣ b) : ∃ c, b = c * a :=
+  dvd.elim h (take c, assume H1 : b = a * c, exists.intro c (eq.trans H1 (mul_comm a c)))
+
+  theorem dvd.elim_left {P : Prop} {a b : α} (h₁ : a ∣ b) (h₂ : ∀ c, b = c * a → P) : P :=
+  exists.elim (exists_eq_mul_left_of_dvd h₁) (take c, assume h₃ : b = c * a, h₂ c h₃)
+
+  @[simp] theorem dvd_refl : a ∣ a :=
+  dvd.intro 1 (by simp)
+
+  theorem dvd_trans {a b c : α} (h₁ : a ∣ b) (h₂ : b ∣ c) : a ∣ c :=
+  match h₁, h₂ with
+  | ⟨d, (h₃ : b = a * d)⟩, ⟨e, (h₄ : c = b * e)⟩ :=
+    ⟨d * e, show c = a * (d * e), by simp [h₃, h₄]⟩
+  end
+
+  def dvd.trans := @dvd_trans
+
+  theorem eq_zero_of_zero_dvd {a : α} (h : 0 ∣ a) : a = 0 :=
+  dvd.elim h (take c, assume H' : a = 0 * c, eq.trans H' (zero_mul c))
+
+  @[simp] theorem dvd_zero : a ∣ 0 := dvd.intro 0 (by simp)
+
+  @[simp] theorem one_dvd : 1 ∣ a := dvd.intro a (by simp)
+
+  @[simp] theorem dvd_mul_right : a ∣ a * b := dvd.intro b rfl
+
+  @[simp] theorem dvd_mul_left : a ∣ b * a := dvd.intro b (by simp)
+
+  theorem dvd_mul_of_dvd_left {a b : α} (h : a ∣ b) (c : α) : a ∣ b * c :=
+  dvd.elim h (λ d h', begin rw [h', mul_assoc], apply dvd_mul_right end)
+
+  theorem dvd_mul_of_dvd_right {a b : α} (h : a ∣ b) (c : α) : a ∣ c * b :=
+  begin rw mul_comm, exact dvd_mul_of_dvd_left h _ end
+
+  theorem mul_dvd_mul : ∀ {a b c d : α}, a ∣ b → c ∣ d → a * c ∣ b * d
+  | a ._ c ._ ⟨e, rfl⟩ ⟨f, rfl⟩ := ⟨e * f, by simp⟩
+
+  theorem mul_dvd_mul_left (a : α) {b c : α} (h : b ∣ c) : a * b ∣ a * c :=
+  mul_dvd_mul (dvd_refl a) h
+
+  theorem mul_dvd_mul_right {a b : α} (h : a ∣ b) (c : α) : a * c ∣ b * c :=
+  mul_dvd_mul h (dvd_refl c)
+
+  theorem dvd_add {a b c : α} (h₁ : a ∣ b) (h₂ : a ∣ c) : a ∣ b + c :=
+  dvd.elim h₁ (λ d hd, dvd.elim h₂ (λ e he, dvd.intro (d + e) (by simp [left_distrib, hd, he])))
+
+  theorem dvd_of_mul_right_dvd {a b c : α} (h : a * b ∣ c) : a ∣ c :=
+  dvd.elim h (begin intros d h₁, rw [h₁, mul_assoc], apply dvd_mul_right end)
+
+  theorem dvd_of_mul_left_dvd {a b c : α} (h : a * b ∣ c) : b ∣ c :=
+  dvd.elim h (λ d ceq, dvd.intro (a * d) (by simp [ceq]))
+end comm_semiring
+
 /- ring -/
 
 class ring (α : Type u) extends add_comm_group α, monoid α, distrib α
@@ -157,6 +233,37 @@ section comm_ring
   lemma add_mul_self_eq (a b : α) : (a + b) * (a + b) = a*a + 2*a*b + b*b :=
   calc (a + b)*(a + b) = a*a + (1+1)*a*b + b*b : by simp [right_distrib, left_distrib]
                ...     = a*a + 2*a*b + b*b     : by rw one_add_one_eq_two
+
+  theorem dvd_neg_of_dvd {a b : α} (h : a ∣ b) : (a ∣ -b) :=
+  dvd.elim h
+    (take c, suppose b = a * c,
+      dvd.intro (-c) (by simp [this]))
+
+  theorem dvd_of_dvd_neg {a b : α} (h : a ∣ -b) : (a ∣ b) :=
+  let t := dvd_neg_of_dvd h in by rwa neg_neg at t
+
+  theorem dvd_neg_iff_dvd (a b : α) : (a ∣ -b) ↔ (a ∣ b) :=
+  ⟨dvd_of_dvd_neg, dvd_neg_of_dvd⟩
+
+  theorem neg_dvd_of_dvd {a b : α} (h : a ∣ b) : -a ∣ b :=
+  dvd.elim h
+    (take c, suppose b = a * c,
+      dvd.intro (-c) (by simp [this]))
+
+  theorem dvd_of_neg_dvd {a b : α} (h : -a ∣ b) : a ∣ b :=
+  let t := neg_dvd_of_dvd h in by rwa neg_neg at t
+
+  theorem neg_dvd_iff_dvd (a b : α) : (-a ∣ b) ↔ (a ∣ b) :=
+  ⟨dvd_of_neg_dvd, neg_dvd_of_dvd⟩
+
+  theorem dvd_sub {a b c : α} (h₁ : a ∣ b) (h₂ : a ∣ c) : a ∣ b - c :=
+  dvd_add h₁ (dvd_neg_of_dvd h₂)
+
+  theorem dvd_add_iff_left {a b c : α} (h : a ∣ c) : a ∣ b ↔ a ∣ b + c :=
+  ⟨λh₂, dvd_add h₂ h, λH, by have t := dvd_sub H h; rwa add_sub_cancel at t⟩
+
+  theorem dvd_add_iff_right {a b c : α} (h : a ∣ b) : a ∣ c ↔ a ∣ b + c :=
+  by rw add_comm; exact dvd_add_iff_left h
 end comm_ring
 
 class no_zero_divisors (α : Type u) extends has_mul α, has_zero α :=

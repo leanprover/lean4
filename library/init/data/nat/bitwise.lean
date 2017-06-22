@@ -27,17 +27,17 @@ namespace nat
   @[simp] lemma bodd_one : bodd 1 = tt := rfl
   @[simp] lemma bodd_two : bodd 2 = ff := rfl
 
-  @[simp] def bodd_succ (n : ℕ) : bodd (succ n) = bnot (bodd n) :=
+  @[simp] lemma bodd_succ (n : ℕ) : bodd (succ n) = bnot (bodd n) :=
   by unfold bodd bodd_div2; cases bodd_div2 n; cases fst; refl
 
-  @[simp] def bodd_add (m n : ℕ) : bodd (m + n) = bxor (bodd m) (bodd n) :=
+  @[simp] lemma bodd_add (m n : ℕ) : bodd (m + n) = bxor (bodd m) (bodd n) :=
   begin
     induction n with n IH,
     { simp, cases bodd m; refl },
     { simp [IH], cases bodd m; cases bodd n; refl }
   end
 
-  @[simp] def bodd_mul (m n : ℕ) : bodd (m * n) = bodd m && bodd n :=
+  @[simp] lemma bodd_mul (m n : ℕ) : bodd (m * n) = bodd m && bodd n :=
   begin
     induction n with n IH,
     { simp, cases bodd m; refl },
@@ -76,16 +76,6 @@ namespace nat
       (nat.add_left_cancel (eq.trans _ (mod_add_div n 2).symm));
      rw [mod_two_of_bodd, bodd_add_div2]
 
-  def shiftl : ℕ → ℕ → ℕ
-  | m 0     := m
-  | m (n+1) := 2 * shiftl m n
-
-  def shiftr : ℕ → ℕ → ℕ
-  | m 0     := m
-  | m (n+1) := div2 (shiftr m n)
-
-  def test_bit (m n : ℕ) : bool := bodd (shiftr m n)
-
   def bit (b : bool) : ℕ → ℕ := cond b bit1 bit0
 
   lemma bit0_val (n : nat) : bit0 n = 2 * n := (two_mul _).symm
@@ -98,7 +88,7 @@ namespace nat
   lemma bit_decomp (n : nat) : bit (bodd n) (div2 n) = n :=
   (bit_val _ _).trans $ (add_comm _ _).trans $ bodd_add_div2 _
 
-  lemma bit_cases_on {C : nat → Sort u} (n) (h : ∀ b n, C (bit b n)) : C n :=
+  def bit_cases_on {C : nat → Sort u} (n) (h : ∀ b n, C (bit b n)) : C n :=
   by rw -bit_decomp n; apply h
 
   @[simp] lemma bit_zero : bit ff 0 = 0 := rfl
@@ -108,19 +98,52 @@ namespace nat
 
   lemma div2_bit (b n) : div2 (bit b n) = n :=
   by rw [bit_val, div2_val, add_comm, add_mul_div_left, div_eq_of_lt, zero_add];
-    cases b; exact dec_trivial
+     cases b; exact dec_trivial
 
-  lemma shiftl_add (m n) : ∀ k, shiftl m (n + k) = shiftl (shiftl m n) k
+  def shiftl' (b : bool) (m : ℕ) : ℕ → ℕ
+  | 0     := m
+  | (n+1) := bit b (shiftl' n)
+
+  def shiftl : ℕ → ℕ → ℕ := shiftl' ff
+
+  def shiftr : ℕ → ℕ → ℕ
+  | m 0     := m
+  | m (n+1) := div2 (shiftr m n)
+
+  def test_bit (m n : ℕ) : bool := bodd (shiftr m n)
+
+  lemma shiftl'_add (b m n) : ∀ k, shiftl' b m (n + k) = shiftl' b (shiftl' b m n) k
   | 0     := rfl
-  | (k+1) := congr_arg ((*) 2) (shiftl_add k)
+  | (k+1) := congr_arg (bit b) (shiftl'_add k)
+
+  lemma shiftl_add : ∀ m n k, shiftl m (n + k) = shiftl (shiftl m n) k := shiftl'_add _
 
   lemma shiftr_add (m n) : ∀ k, shiftr m (n + k) = shiftr (shiftr m n) k
   | 0     := rfl
   | (k+1) := congr_arg div2 (shiftr_add k)
 
+  lemma shiftl'_sub (b m) : ∀ {n k}, k ≤ n → shiftl' b m (n - k) = shiftr (shiftl' b m n) k
+  | n     0     h := rfl
+  | (n+1) (k+1) h := begin
+    simp [shiftl'], rw [add_comm, shiftr_add],
+    simp [shiftr, div2_bit],
+    apply shiftl'_sub (nat.le_of_succ_le_succ h)
+  end
+
+  lemma shiftl_sub : ∀ m {n k}, k ≤ n → shiftl m (n - k) = shiftr (shiftl m n) k := shiftl'_sub _
+
   lemma shiftl_eq_mul_pow (m) : ∀ n, shiftl m n = m * 2 ^ n
   | 0     := (mul_one _).symm
-  | (k+1) := (congr_arg ((*) 2) (shiftl_eq_mul_pow k)).trans $ by simp [pow_succ]
+  | (k+1) := show bit0 (shiftl m k) = m * (2^k * 2), by rw [bit0_val, shiftl_eq_mul_pow]; simp
+
+  lemma shiftl'_tt_eq_mul_pow (m) : ∀ n, shiftl' tt m n + 1 = (m + 1) * 2 ^ n
+  | 0     := by simp [shiftl, shiftl']
+  | (k+1) := begin
+    change bit1 (shiftl' tt m k) + 1 = (m + 1) * (2^k * 2),
+    rw bit1_val,
+    change 2 * (shiftl' tt m k + 1) = _,
+    rw shiftl'_tt_eq_mul_pow; simp
+  end
 
   lemma one_shiftl (n) : shiftl 1 n = 2 ^ n :=
   (shiftl_eq_mul_pow _ _).trans (one_mul _)
@@ -252,7 +275,7 @@ namespace nat
   @[simp] lemma lxor_bit : ∀ (a m b n),
     lxor (bit a m) (bit b n) = bit (bxor a b) (lxor m n) := bitwise_bit rfl
 
-  def test_bit_bitwise {f : bool → bool → bool} (h : f ff ff = ff) (m n k) :
+  @[simp] lemma test_bit_bitwise {f : bool → bool → bool} (h : f ff ff = ff) (m n k) :
     test_bit (bitwise f m n) k = f (test_bit m k) (test_bit n k) :=
   begin
     revert m n; induction k with k IH; intros m n;
@@ -263,13 +286,13 @@ namespace nat
     { simp [test_bit_succ, IH] }
   end
 
-  lemma test_bit_lor : ∀ (m n k),
+  @[simp] lemma test_bit_lor : ∀ (m n k),
     test_bit (lor m n) k = test_bit m k || test_bit n k := test_bit_bitwise rfl
-  lemma test_bit_land : ∀ (m n k),
+  @[simp] lemma test_bit_land : ∀ (m n k),
     test_bit (land m n) k = test_bit m k && test_bit n k := test_bit_bitwise rfl
-  lemma test_bit_ldiff : ∀ (m n k),
+  @[simp] lemma test_bit_ldiff : ∀ (m n k),
     test_bit (ldiff m n) k = test_bit m k && bnot (test_bit n k) := test_bit_bitwise rfl
-  lemma test_bit_lxor : ∀ (m n k),
+  @[simp] lemma test_bit_lxor : ∀ (m n k),
     test_bit (lxor m n) k = bxor (test_bit m k) (test_bit n k) := test_bit_bitwise rfl
 
 end nat

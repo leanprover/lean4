@@ -179,6 +179,9 @@ lemma eq_zero_of_nat_abs_eq_zero : Π {a : ℤ}, nat_abs a = 0 → a = 0
 | (of_nat m) H := congr_arg of_nat H
 | -[1+ m']   H := absurd H (succ_ne_zero _)
 
+lemma nat_abs_pos_of_ne_zero {a : ℤ} (h : a ≠ 0) : nat_abs a > 0 :=
+(eq_zero_or_pos _).resolve_left $ mt eq_zero_of_nat_abs_eq_zero h
+
 lemma nat_abs_zero : nat_abs (0 : int) = (0 : nat) := rfl
 
 lemma nat_abs_one : nat_abs (1 : int) = (1 : nat) := rfl
@@ -195,6 +198,17 @@ lemma nat_abs_eq : Π (a : ℤ), a = nat_abs a ∨ a = -(nat_abs a)
 | -[1+ m']   := or.inr rfl
 
 lemma eq_coe_or_neg (a : ℤ) : ∃n : ℕ, a = n ∨ a = -n := ⟨_, nat_abs_eq a⟩
+
+/- sign -/
+
+def sign : ℤ → ℤ
+| (n+1:ℕ) := 1
+| 0       := 0
+| -[1+ n] := -1
+
+@[simp] theorem sign_zero : sign 0 = 0 := rfl
+@[simp] theorem sign_one : sign 1 = 1 := rfl
+@[simp] theorem sign_neg_one : sign (-1) = -1 := rfl
 
 /- Quotient and remainder -/
 
@@ -422,6 +436,9 @@ show of_nat (n - m) = of_nat n + neg_of_nat m, from match m, h with
   by delta sub_nat_nat; rw sub_eq_zero_of_le h; refl
 end
 
+lemma neg_succ_of_nat_coe' (n : ℕ) : -[1+ n] = -↑n - 1 :=
+by rw [sub_eq_add_neg, -neg_add]; refl
+
 protected lemma coe_nat_sub {n m : ℕ} : n ≤ m → (↑(m - n) : ℤ) = ↑m - ↑n := of_nat_sub
 
 protected lemma sub_nat_nat_eq_coe {m n : ℕ} : sub_nat_nat m n = ↑m - ↑n :=
@@ -442,5 +459,10 @@ by rw -int.sub_nat_nat_eq_coe; exact sub_nat_nat_elim m n
 
 -- Since mod x y is always nonnegative when y ≠ 0, we can make a nat version of it
 def nat_mod (m n : ℤ) : ℕ := (m % n).to_nat
+
+theorem sign_mul_nat_abs : ∀ (a : ℤ), sign a * nat_abs a = a
+| (n+1:ℕ) := one_mul _
+| 0       := rfl
+| -[1+ n] := (neg_eq_neg_one_mul _).symm
 
 end int

@@ -6,7 +6,7 @@ Authors: Jeremy Avigad
 The order relation on the integers.
 -/
 prelude
-import init.data.int.basic
+import init.data.int.basic init.data.nat.find
 
 namespace int
 
@@ -76,6 +76,10 @@ coe_nat_le_coe_nat_of_le n.zero_le
 
 lemma eq_coe_of_zero_le {a : ℤ} (h : 0 ≤ a) : ∃ n : ℕ, a = n :=
 by have t := le.dest_sub h; simp at t; exact t
+
+lemma eq_succ_of_zero_lt {a : ℤ} (h : 0 < a) : ∃ n : ℕ, a = n.succ :=
+let ⟨n, (h : ↑(1+n) = a)⟩ := le.dest h in
+⟨n, by rw add_comm at h; exact h.symm⟩
 
 lemma lt_add_succ (a : ℤ) (n : ℕ) : a < a + ↑(nat.succ n) :=
 le.intro (show a + 1 + n = a + nat.succ n, begin simp [int.coe_nat_eq], reflexivity end)
@@ -237,6 +241,120 @@ or.elim (le_total 0 a)
   (λh, by rw eq_nat_abs_of_zero_le h; refl)
   (λh, le_trans h (coe_zero_le _))
 
-end int
+lemma neg_succ_lt_zero (n : ℕ) : -[1+ n] < 0 :=
+lt_of_not_ge $ λ h, let ⟨m, h⟩ := eq_coe_of_zero_le h in by contradiction
 
--- TODO(Jeremy): add more facts specific to the integers
+lemma eq_neg_succ_of_lt_zero : ∀ {a : ℤ}, a < 0 → ∃ n : ℕ, a = -[1+ n]
+| (n : ℕ) h := absurd h (not_lt_of_ge (coe_zero_le _))
+| -[1+ n] h := ⟨n, rfl⟩
+
+/- more facts specific to int -/
+
+theorem of_nat_nonneg (n : ℕ) : 0 ≤ of_nat n := trivial
+
+theorem coe_succ_pos (n : nat) : (nat.succ n : ℤ) > 0 :=
+coe_nat_lt_coe_nat_of_lt (nat.succ_pos _)
+
+theorem exists_eq_neg_of_nat {a : ℤ} (H : a ≤ 0) : ∃n : ℕ, a = -n :=
+let ⟨n, h⟩ := eq_coe_of_zero_le (neg_nonneg_of_nonpos H) in
+⟨n, eq_neg_of_eq_neg h.symm⟩
+
+theorem nat_abs_of_nonneg {a : ℤ} (H : a ≥ 0) : (nat_abs a : ℤ) = a :=
+match a, eq_coe_of_zero_le H with ._, ⟨n, rfl⟩ := rfl end
+
+theorem of_nat_nat_abs_of_nonpos {a : ℤ} (H : a ≤ 0) : (nat_abs a : ℤ) = -a :=
+by rw [-nat_abs_neg, nat_abs_of_nonneg (neg_nonneg_of_nonpos H)]
+
+theorem abs_eq_nat_abs : ∀ a : ℤ, abs a = nat_abs a
+| (n : ℕ) := abs_of_nonneg $ coe_zero_le _
+| -[1+ n] := abs_of_nonpos $ le_of_lt $ neg_succ_lt_zero _
+
+theorem nat_abs_abs (a : ℤ) : nat_abs (abs a) = nat_abs a :=
+by rw [abs_eq_nat_abs]; refl
+
+theorem lt_of_add_one_le {a b : ℤ} (H : a + 1 ≤ b) : a < b := H
+
+theorem add_one_le_of_lt {a b : ℤ} (H : a < b) : a + 1 ≤ b := H
+
+theorem lt_add_one_of_le {a b : ℤ} (H : a ≤ b) : a < b + 1 :=
+add_le_add_right H 1
+
+theorem le_of_lt_add_one {a b : ℤ} (H : a < b + 1) : a ≤ b :=
+le_of_add_le_add_right H
+
+theorem sub_one_le_of_lt {a b : ℤ} (H : a ≤ b) : a - 1 < b :=
+sub_right_lt_of_lt_add $ lt_add_one_of_le H
+
+theorem lt_of_sub_one_le {a b : ℤ} (H : a - 1 < b) : a ≤ b :=
+le_of_lt_add_one $ lt_add_of_sub_right_lt H
+
+theorem le_sub_one_of_lt {a b : ℤ} (H : a < b) : a ≤ b - 1 :=
+le_sub_right_of_add_le H
+
+theorem lt_of_le_sub_one {a b : ℤ} (H : a ≤ b - 1) : a < b :=
+add_le_of_le_sub_right H
+
+theorem sign_of_succ (n : nat) : sign (nat.succ n) = 1 := rfl
+
+theorem sign_eq_one_of_pos {a : ℤ} (h : 0 < a) : sign a = 1 :=
+match a, eq_succ_of_zero_lt h with ._, ⟨n, rfl⟩ := rfl end
+
+theorem sign_eq_neg_one_of_neg {a : ℤ} (h : a < 0) : sign a = -1 :=
+match a, eq_neg_succ_of_lt_zero h with ._, ⟨n, rfl⟩ := rfl end
+
+lemma eq_zero_of_sign_eq_zero : Π {a : ℤ}, sign a = 0 → a = 0
+| 0 _ := rfl
+
+theorem pos_of_sign_eq_one : ∀ {a : ℤ}, sign a = 1 → 0 < a
+| (n+1:ℕ) _ := coe_nat_lt_coe_nat_of_lt (nat.succ_pos _)
+
+theorem neg_of_sign_eq_neg_one : ∀ {a : ℤ}, sign a = -1 → a < 0
+| (n+1:ℕ) h := match h with end
+| 0       h := match h with end
+| -[1+ n] _ := neg_succ_lt_zero _
+
+theorem sign_eq_one_iff_pos (a : ℤ) : sign a = 1 ↔ 0 < a :=
+⟨pos_of_sign_eq_one, sign_eq_one_of_pos⟩
+
+theorem sign_eq_neg_one_iff_neg (a : ℤ) : sign a = -1 ↔ a < 0 :=
+⟨neg_of_sign_eq_neg_one, sign_eq_neg_one_of_neg⟩
+
+theorem sign_eq_zero_iff_zero (a : ℤ) : sign a = 0 ↔ a = 0 :=
+⟨eq_zero_of_sign_eq_zero, λ h, by rw [h, sign_zero]⟩
+
+theorem sign_mul_abs (a : ℤ) : sign a * abs a = a :=
+by rw [abs_eq_nat_abs, sign_mul_nat_abs]
+
+theorem eq_one_of_mul_eq_self_left {a b : ℤ} (Hpos : a ≠ 0) (H : b * a = a) : b = 1 :=
+eq_of_mul_eq_mul_right Hpos (by rw [one_mul, H])
+
+theorem eq_one_of_mul_eq_self_right {a b : ℤ} (Hpos : b ≠ 0) (H : b * a = b) : a = 1 :=
+eq_of_mul_eq_mul_left Hpos (by rw [mul_one, H])
+
+theorem exists_least_of_bdd {P : ℤ → Prop} [HP : decidable_pred P]
+    (Hbdd : ∃ b : ℤ, ∀ z : ℤ, z < b → ¬ P z)
+        (Hinh : ∃ z : ℤ, P z) : ∃ lb : ℤ, P lb ∧ (∀ z : ℤ, z < lb → ¬ P z) :=
+let ⟨b, Hb⟩ := Hbdd in
+have EX : ∃ n : ℕ, P (b + n), from
+  let ⟨elt, Helt⟩ := Hinh in
+  match elt, le.dest (le_of_not_gt (λ h : elt < b, Hb _ h Helt)), Helt with
+  | ._, ⟨n, rfl⟩, Hn := ⟨n, Hn⟩
+  end,
+⟨b + (nat.find EX : ℤ), nat.find_spec EX, λ z h,
+  if zl : z < b then Hb _ zl else
+  match z, le.dest (le_of_not_gt zl), h with
+  | ._, ⟨n, rfl⟩, h := nat.find_min EX $
+    lt_of_coe_nat_lt_coe_nat $ lt_of_add_lt_add_left h
+  end⟩
+
+theorem exists_greatest_of_bdd {P : ℤ → Prop} [HP : decidable_pred P]
+    (Hbdd : ∃ b : ℤ, ∀ z : ℤ, z > b → ¬ P z)
+        (Hinh : ∃ z : ℤ, P z) : ∃ ub : ℤ, P ub ∧ (∀ z : ℤ, z > ub → ¬ P z) :=
+have Hbdd' : ∃ (b : ℤ), ∀ (z : ℤ), z < b → ¬P (-z), from
+let ⟨b, Hb⟩ := Hbdd in ⟨-b, λ z h, Hb _ (lt_neg_of_lt_neg h)⟩,
+have Hinh' : ∃ z : ℤ, P (-z), from
+let ⟨elt, Helt⟩ := Hinh in ⟨-elt, by rw [neg_neg]; exact Helt⟩,
+let ⟨lb, Plb, al⟩ := exists_least_of_bdd Hbdd' Hinh' in
+⟨-lb, Plb, λ z h, by rw [-neg_neg z]; exact al _ (neg_lt_of_neg_lt h)⟩
+
+end int

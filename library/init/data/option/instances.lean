@@ -13,8 +13,14 @@ universes u v
 | none     b := none
 | (some a) b := b a
 
+def option_map {α β} (f : α → β) (o : option α) : option β :=
+option_bind o (some ∘ f)
+
+@[simp] theorem option.map_id {α} : (option_map id : option α → option α) = id :=
+funext (λo, match o with | none := rfl | some x := rfl end)
+
 instance : monad option :=
-{pure := @some, bind := @option_bind,
+{pure := @some, bind := @option_bind, map := @option_map,
  id_map := λ α x, option.rec rfl (λ x, rfl) x,
  pure_bind := λ α β x f, rfl,
  bind_assoc := λ α β γ x f g, option.rec rfl (λ x, rfl) x}

@@ -114,6 +114,9 @@ meta instance [has_to_format α] : has_to_format (buffer α) :=
 meta instance [has_to_tactic_format α] : has_to_tactic_format (buffer α) :=
 ⟨tactic.pp ∘ to_list⟩
 
+instance (α) [decidable_eq α] : decidable_eq (buffer α) :=
+by tactic.mk_dec_eq_instance
+
 end buffer
 
 def list.to_buffer {α : Type u} (l : list α) : buffer α :=

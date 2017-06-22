@@ -72,14 +72,46 @@ iff.trans
 theorem mem_iff_list_mem (a : array α n) (v : α) : v ∈ a ↔ v ∈ a.to_list :=
 by rw [← rev_list_reverse]; simp[mem_iff_rev_list_mem]
 
-@[simp] def to_list_to_array (a : array α n) : a.to_list.to_array == a :=
+@[simp] theorem to_list_to_array (a : array α n) : a.to_list.to_array == a :=
 have array.mk (λ (v : fin n), list.nth_le (to_list a) (v.val) (eq.rec_on (eq.symm (to_list_length a)) (v.is_lt))) = a, from
 match a with ⟨f⟩ := congr_arg array.mk $ funext $ λ⟨i, h⟩, to_list_nth ⟨f⟩ i h _ end,
 heq_of_heq_of_eq
   (@eq.drec_on _ _ (λm (e : a.to_list.length = m), (array.mk (λv, a.to_list.nth_le v.1 v.2)) ==
     (@array.mk α m $ λv, a.to_list.nth_le v.1 (eq.rec_on (eq.symm e) v.2))) _ a.to_list_length (heq.refl _)) this
 
-@[simp] def to_array_to_list (l : list α) : l.to_array.to_list = l :=
+@[simp] theorem to_array_to_list (l : list α) : l.to_array.to_list = l :=
 list.ext_le (to_list_length _) $ λn h1 h2, to_list_nth _ _ _ _
+
+lemma push_back_rev_list_core (a : array α n) (v : α) :
+  ∀ i h h',
+    iterate_aux (a.push_back v) (λ_, list.cons) i h [] =
+    iterate_aux a (λ_, list.cons) i h' []
+| 0 h h' := rfl
+| (i+1) h h' := begin
+  simp [iterate_aux]; rw push_back_rev_list_core,
+  apply congr_fun, apply congr_arg,
+  dsimp [read, push_back],
+  rw [dif_neg], refl,
+  exact ne_of_lt h'
+end
+
+@[simp] theorem push_back_rev_list (a : array α n) (v : α) :
+  (a.push_back v).rev_list = v :: a.rev_list :=
+begin
+  unfold push_back rev_list foldl iterate, dsimp [iterate_aux, read, push_back],
+  rw [dif_pos (eq.refl n)], apply congr_arg,
+  apply push_back_rev_list_core
+end
+
+@[simp] theorem push_back_to_list (a : array α n) (v : α) :
+  (a.push_back v).to_list = a.to_list ++ [v] :=
+by rw [-rev_list_reverse, -rev_list_reverse, push_back_rev_list,
+       list.reverse_cons, list.concat_eq_append]
+
+instance [decidable_eq α] : decidable_eq (array α n) := λ a b,
+suffices to_list a = to_list b → a = b, from
+decidable_of_decidable_of_iff (by apply_instance) ⟨this, congr_arg to_list⟩,
+λ h, eq_of_heq $ a.to_list_to_array.symm.trans $
+match to_list a, h with ._, rfl := b.to_list_to_array end
 
 end array

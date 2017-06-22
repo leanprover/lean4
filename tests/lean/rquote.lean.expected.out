@@ -1,7 +1,7 @@
-rquote.lean:14:7: error: invalid resolved quoted symbol, it is ambiguous, possible interpretations: boo.f foo.f (solution: use fully qualified names)
+rquote.lean:13:7: error: invalid resolved quoted symbol, it is ambiguous, possible interpretations: boo.f foo.f (solution: use fully qualified names)
 name.mk_string "g" (name.mk_string "foo" name.anonymous) : name
 name.mk_string "add" (name.mk_string "has_add" name.anonymous) : name
 name.mk_string "gcd" (name.mk_string "nat" name.anonymous) : name
 name.mk_string "f" name.anonymous : name
 name.mk_string "f" (name.mk_string "foo" name.anonymous) : name
-rquote.lean:32:9: error: invalid quoted symbol, failed to resolve it (solution: use `<identifier> to bypass name resolution)
+rquote.lean:31:9: error: invalid quoted symbol, failed to resolve it (solution: use `<identifier> to bypass name resolution)

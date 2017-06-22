@@ -1,5 +1,4 @@
 --
-constant nat.gcd : nat → nat → nat
 namespace foo
  constant f : nat → nat
  constant g : nat → nat

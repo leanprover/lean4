@@ -242,19 +242,21 @@ end
 private meta def rw_goal (m : transparency) (rs : list rw_rule) : tactic unit :=
 rs.mfor' $ λ r, do
  save_info r.pos,
- (to_expr' r.rule >>= rewrite_core m tt tt occurrences.all r.symm)
- <|>
- (do eq_lemmas ← get_rule_eqn_lemmas r,
-     eq_lemmas.mfirst $ λ n, mk_const n >>= rewrite_core m tt tt occurrences.all r.symm)
+ eq_lemmas ← get_rule_eqn_lemmas r,
+ orelse'
+   (to_expr' r.rule >>= rewrite_core m tt tt occurrences.all r.symm)
+   (eq_lemmas.mfirst $ λ n, mk_const n >>= rewrite_core m tt tt occurrences.all r.symm)
+   (eq_lemmas.empty)
 
 private meta def rw_hyp (m : transparency) (rs : list rw_rule) (hname : name) : tactic unit :=
 rs.mfor' $ λ r,
 do h ← get_local hname,
    save_info r.pos,
-   (do e ← to_expr' r.rule, rewrite_at_core m tt tt occurrences.all r.symm e h)
-   <|>
-   (do eq_lemmas ← get_rule_eqn_lemmas r,
-       eq_lemmas.mfirst $ λ n, do e ← mk_const n, rewrite_at_core m tt tt occurrences.all r.symm e h)
+   eq_lemmas ← get_rule_eqn_lemmas r,
+   orelse'
+     (do e ← to_expr' r.rule, rewrite_at_core m tt tt occurrences.all r.symm e h)
+     (eq_lemmas.mfirst $ λ n, do e ← mk_const n, rewrite_at_core m tt tt occurrences.all r.symm e h)
+     (eq_lemmas.empty)
 
 private meta def rw_hyps (m : transparency) (rs : list rw_rule) (hs : list name) : tactic unit :=
 hs.mfor' (rw_hyp m rs)

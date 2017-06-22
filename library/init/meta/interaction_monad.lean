@@ -85,6 +85,15 @@ meta def interaction_monad.silent_fail {α : Type u} : m α :=
 meta def interaction_monad.failed {α : Type u} : m α :=
 interaction_monad.fail "failed"
 
+/- Alternative orelse operator that allows to select which exception should be used.
+   The default is to use the first exception since the standard `orelse` uses the second. -/
+meta def interaction_monad.orelse' {α : Type u} (t₁ t₂ : m α) (use_first_ex := tt) : m α :=
+λ s, interaction_monad.result.cases_on (t₁ s)
+  success
+  (λ e₁ ref₁ s₁', interaction_monad.result.cases_on (t₂ s)
+     success
+     (λ e₂ ref₂ s₂', if use_first_ex then (exception e₁ ref₁ s₁') else (exception e₂ ref₂ s₂')))
+
 meta instance interaction_monad.monad_fail : monad_fail m :=
 { interaction_monad.monad with fail := λ α s, interaction_monad.fail (to_fmt s) }
 

@@ -43,4 +43,6 @@ lemma option.eq_of_eq_some {α : Type u} : Π {x y : option α}, (∀z, x = some
 
 lemma option.eq_some_of_is_some {α : Type u} : Π {o : option α} (h : option.is_some o), o = some (option.get h)
 | (some x) h := rfl
-| none     h := false.rec _ $ bool.ff_ne_tt h
+
+lemma option.eq_none_of_is_none {α : Type u} : Π {o : option α}, o.is_none → o = none
+| none h := rfl

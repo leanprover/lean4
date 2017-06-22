@@ -45,6 +45,9 @@ struct equations_header {
     equations_header(unsigned num_fns):m_num_fns(num_fns) {}
 };
 
+bool operator==(equations_header const & h1, equations_header const & h2);
+inline bool operator!=(equations_header const & h1, equations_header const & h2) { return !(h1 == h2); }
+
 expr mk_equations(equations_header const & header, unsigned num_eqs, expr const * eqs, expr const & wf_tacs);
 expr mk_equations(equations_header const & header, unsigned num_eqs, expr const * eqs);
 expr update_equations(expr const & eqns, buffer<expr> const & new_eqs);

@@ -39,30 +39,49 @@ static std::string * g_equation_opcode         = nullptr;
 static std::string * g_no_equation_opcode      = nullptr;
 static std::string * g_equations_result_opcode = nullptr;
 
+bool operator==(equations_header const & h1, equations_header const & h2) {
+    return
+        h1.m_num_fns == h2.m_num_fns &&
+        h1.m_fn_names == h2.m_fn_names &&
+        h1.m_is_private == h2.m_is_private &&
+        h1.m_is_lemma == h2.m_is_lemma &&
+        h1.m_is_meta == h2.m_is_meta &&
+        h1.m_is_noncomputable == h2.m_is_noncomputable &&
+        h1.m_aux_lemmas == h2.m_aux_lemmas &&
+        h1.m_prev_errors == h2.m_prev_errors;
+}
+
 [[ noreturn ]] static void throw_eqs_ex() { throw exception("unexpected occurrence of 'equations' expression"); }
 
 class equations_macro_cell : public macro_definition_cell {
     equations_header m_header;
 public:
     equations_macro_cell(equations_header const & h):m_header(h) {}
-    virtual name get_name() const { return *g_equations_name; }
-    virtual expr check_type(expr const &, abstract_type_context &, bool) const { throw_eqs_ex(); }
-    virtual optional<expr> expand(expr const &, abstract_type_context &) const { throw_eqs_ex(); }
-    virtual void write(serializer & s) const {
+    virtual name get_name() const override { return *g_equations_name; }
+    virtual expr check_type(expr const &, abstract_type_context &, bool) const override { throw_eqs_ex(); }
+    virtual optional<expr> expand(expr const &, abstract_type_context &) const override { throw_eqs_ex(); }
+    virtual void write(serializer & s) const override {
         s << *g_equations_opcode << m_header.m_num_fns << m_header.m_is_private << m_header.m_is_meta
           << m_header.m_is_noncomputable << m_header.m_is_lemma << m_header.m_aux_lemmas;
         write_list(s, m_header.m_fn_names);
+    }
+    virtual bool operator==(macro_definition_cell const & other) const override {
+        if (auto other_ptr = dynamic_cast<equations_macro_cell const *>(&other)) {
+            return m_header == other_ptr->m_header;
+        } else {
+            return false;
+        }
     }
     equations_header const & get_header() const { return m_header; }
 };
 
 class equation_base_macro_cell : public macro_definition_cell {
 public:
-    virtual expr check_type(expr const &, abstract_type_context &, bool) const {
+    virtual expr check_type(expr const &, abstract_type_context &, bool) const override {
         expr dummy = mk_Prop();
         return dummy;
     }
-    virtual optional<expr> expand(expr const &, abstract_type_context &) const {
+    virtual optional<expr> expand(expr const &, abstract_type_context &) const override {
         expr dummy = mk_Type();
         return some_expr(dummy);
     }
@@ -72,10 +91,17 @@ class equation_macro_cell : public equation_base_macro_cell {
     bool m_ignore_if_unused;
 public:
     equation_macro_cell(bool ignore_if_unused):m_ignore_if_unused(ignore_if_unused) {}
-    virtual name get_name() const { return *g_equation_name; }
-    virtual void write(serializer & s) const {
+    virtual name get_name() const override { return *g_equation_name; }
+    virtual void write(serializer & s) const override {
         s.write_string(*g_equation_opcode);
         s.write_bool(m_ignore_if_unused);
+    }
+    virtual bool operator==(macro_definition_cell const & other) const override {
+        if (auto other_ptr = dynamic_cast<equation_macro_cell const *>(&other)) {
+            return m_ignore_if_unused == other_ptr->m_ignore_if_unused;
+        } else {
+            return false;
+        }
     }
     bool ignore_if_unused() const { return m_ignore_if_unused; }
 };
@@ -83,8 +109,8 @@ public:
 // This is just a placeholder to indicate no equations were provided
 class no_equation_macro_cell : public equation_base_macro_cell {
 public:
-    virtual name get_name() const { return *g_no_equation_name; }
-    virtual void write(serializer & s) const { s.write_string(*g_no_equation_opcode); }
+    virtual name get_name() const override { return *g_no_equation_name; }
+    virtual void write(serializer & s) const override { s.write_string(*g_no_equation_opcode); }
 };
 
 static macro_definition * g_equation                  = nullptr;

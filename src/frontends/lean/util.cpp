@@ -440,13 +440,20 @@ class field_notation_macro_cell : public macro_definition_cell {
 public:
     field_notation_macro_cell(name const & f):m_field(f), m_field_idx(0) {}
     field_notation_macro_cell(unsigned fidx):m_field_idx(fidx) {}
-    virtual name get_name() const { return *g_field_notation_name; }
-    virtual expr check_type(expr const &, abstract_type_context &, bool) const { throw_pn_ex(); }
-    virtual optional<expr> expand(expr const &, abstract_type_context &) const { throw_pn_ex(); }
-    virtual void write(serializer & s) const { s << *g_field_notation_opcode << m_field << m_field_idx; }
+    virtual name get_name() const override { return *g_field_notation_name; }
+    virtual expr check_type(expr const &, abstract_type_context &, bool) const override { throw_pn_ex(); }
+    virtual optional<expr> expand(expr const &, abstract_type_context &) const override { throw_pn_ex(); }
+    virtual void write(serializer & s) const override { s << *g_field_notation_opcode << m_field << m_field_idx; }
     bool is_anonymous() const { return m_field.is_anonymous(); }
     name const & get_field_name() const { lean_assert(!is_anonymous()); return m_field; }
     unsigned get_field_idx() const { lean_assert(is_anonymous()); return m_field_idx; }
+    virtual bool operator==(macro_definition_cell const & other) const override {
+        if (auto other_ptr = dynamic_cast<field_notation_macro_cell const *>(&other)) {
+            return m_field == other_ptr->m_field && m_field_idx == other_ptr->m_field_idx;
+        } else {
+            return false;
+        }
+    }
 };
 
 expr mk_field_notation(expr const & e, name const & field) {

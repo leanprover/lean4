@@ -33,15 +33,22 @@ class structure_instance_macro_cell : public macro_definition_cell {
 public:
     structure_instance_macro_cell(name const & s, list<name> const & fs):
         m_struct(s), m_fields(fs) {}
-    virtual name get_name() const { return *g_structure_instance_name; }
-    virtual expr check_type(expr const &, abstract_type_context &, bool) const { throw_se_ex(); }
-    virtual optional<expr> expand(expr const &, abstract_type_context &) const { throw_se_ex(); }
-    virtual void write(serializer & s) const {
+    virtual name get_name() const override { return *g_structure_instance_name; }
+    virtual expr check_type(expr const &, abstract_type_context &, bool) const override { throw_se_ex(); }
+    virtual optional<expr> expand(expr const &, abstract_type_context &) const override { throw_se_ex(); }
+    virtual void write(serializer & s) const override {
         s << *g_structure_instance_opcode << m_struct;
         write_list(s, m_fields);
     }
     name const & get_struct() const { return m_struct; }
     list<name> const & get_field_names() const { return m_fields; }
+    virtual bool operator==(macro_definition_cell const & other) const {
+        if (auto other_ptr = dynamic_cast<structure_instance_macro_cell const *>(&other)) {
+            return m_struct == other_ptr->m_struct && m_fields == other_ptr->m_fields;
+        } else {
+            return false;
+        }
+    }
 };
 
 static expr mk_structure_instance_core(name const & s, list<name> const & fs, unsigned num, expr const * args) {

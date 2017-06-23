@@ -102,8 +102,15 @@ double deserializer_core::read_double() {
     return r;
 }
 
-void deserializer_core::read(std::vector<char> & data) {
-    unsigned sz = data.size();
-    m_in.read(data.data(), sz);
+void serializer_core::write_blob(std::string const & s) {
+    write_unsigned(s.size());
+    m_out.write(&s[0], s.size());
+}
+
+std::string deserializer_core::read_blob() {
+    unsigned sz = read_unsigned();
+    std::string s(sz, '\0');
+    m_in.read(&s[0], sz);
+    return s;
 }
 }

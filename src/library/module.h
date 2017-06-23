@@ -94,11 +94,11 @@ std::shared_ptr<loaded_module const> cache_preimported_env(
 
 struct olean_data {
     std::vector<module_name> m_imports;
-    std::vector<char> m_serialized_modifications;
+    std::string m_serialized_modifications;
     bool m_uses_sorry;
 };
 olean_data parse_olean(std::istream & in, std::string const & file_name, bool check_hash = true);
-modification_list parse_olean_modifications(std::vector<char> const & serialized_modifications, std::string const & file_name);
+modification_list parse_olean_modifications(std::string const & serialized_modifications, std::string const & file_name);
 void import_module(modification_list const & modifications, std::string const & file_name, environment & env);
 
 struct modification {

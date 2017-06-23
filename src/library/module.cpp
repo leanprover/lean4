@@ -188,8 +188,8 @@ deserializer & operator>>(deserializer & d, module_name & r) {
     return d;
 }
 
-static unsigned olean_hash(const char * data, unsigned size) {
-    return hash(size, [&] (unsigned i) { return static_cast<unsigned char>(data[i]); });
+static unsigned olean_hash(std::string const & data) {
+    return hash(data.size(), [&] (unsigned i) { return static_cast<unsigned char>(data[i]); });
 }
 
 void write_module(loaded_module const & mod, std::ostream & out) {
@@ -203,20 +203,26 @@ void write_module(loaded_module const & mod, std::ostream & out) {
     }
     s1 << g_olean_end_file;
 
-    serializer s2(out);
+    if (!out1.good()) {
+        throw exception(sstream() << "error during serialization of '" << mod.m_module_name << "'");
+    }
+
     std::string r = out1.str();
-    unsigned h    = olean_hash(r.data(), r.size());
-    s2 << g_olean_header << LEAN_VERSION_MAJOR << LEAN_VERSION_MINOR << LEAN_VERSION_PATCH;
+    unsigned h    = olean_hash(r);
+
+    unsigned major = LEAN_VERSION_MAJOR, minor = LEAN_VERSION_MINOR, patch = LEAN_VERSION_PATCH;
+    bool uses_sorry = get(mod.m_uses_sorry);
+
+    serializer s2(out);
+    s2 << g_olean_header << major << minor << patch;
     s2 << h;
-    s2 << static_cast<bool>(get(mod.m_uses_sorry));
+    s2 << uses_sorry;
     // store imported files
     s2 << static_cast<unsigned>(mod.m_imports.size());
     for (auto m : mod.m_imports)
         s2 << m;
     // store object code
-    s2.write_unsigned(r.size());
-    for (unsigned i = 0; i < r.size(); i++)
-        s2.write_char(r[i]);
+    s2.write_blob(r);
 }
 
 static task<bool> has_sorry(modification_list const & mods) {
@@ -485,9 +491,7 @@ environment add_inductive(environment                       env,
 
 olean_data parse_olean(std::istream & in, std::string const & file_name, bool check_hash) {
     unsigned major, minor, patch, claimed_hash;
-    unsigned code_size;
     std::vector<module_name> imports;
-    std::vector<char> code;
     bool uses_sorry;
 
     deserializer d1(in, optional<std::string>(file_name));
@@ -507,9 +511,7 @@ olean_data parse_olean(std::istream & in, std::string const & file_name, bool ch
         imports.push_back(r);
     }
 
-    code_size = d1.read_unsigned();
-    code.resize(code_size);
-    d1.read(code);
+    auto code = d1.read_blob();
 
     if (!in.good()) {
         throw exception(sstream() << "file '" << file_name << "' has been corrupted");
@@ -517,7 +519,7 @@ olean_data parse_olean(std::istream & in, std::string const & file_name, bool ch
 
 //    if (m_senv.env().trust_lvl() <= LEAN_BELIEVER_TRUST_LEVEL) {
     if (check_hash) {
-        unsigned computed_hash = olean_hash(code.data(), code_size);
+        unsigned computed_hash = olean_hash(code);
         if (claimed_hash != computed_hash)
             throw exception(sstream() << "file '" << file_name << "' has been corrupted, checksum mismatch");
     }
@@ -597,10 +599,9 @@ std::shared_ptr<loaded_module const> cache_preimported_env(
     return lm;
 }
 
-modification_list parse_olean_modifications(std::vector<char> const & olean_code, std::string const & file_name) {
+modification_list parse_olean_modifications(std::string const & olean_code, std::string const & file_name) {
     modification_list ms;
-    std::string s(olean_code.data(), olean_code.size());
-    std::istringstream in(s, std::ios_base::binary);
+    std::istringstream in(olean_code, std::ios_base::binary);
     scoped_expr_caching enable_caching(false);
     deserializer d(in, optional<std::string>(file_name));
     object_readers & readers = get_object_readers();

@@ -27,13 +27,14 @@ class serializer_core {
 public:
     serializer_core(std::ostream & out):m_out(out) {}
     void write_string(char const * str) { m_out.write(str, strlen(str) + 1); }
-    void write_string(std::string const & str) { m_out.write(str.c_str(), str.size() + 1); }
+    void write_string(std::string const & str) { write_string(str.c_str()); }
     void write_unsigned(unsigned i);
     void write_uint64(uint64 i);
     void write_int(int i);
     void write_char(char c) { m_out.put(c); }
     void write_bool(bool b) { m_out.put(b ? 1 : 0); }
     void write_double(double b);
+    void write_blob(std::string const &);
 };
 
 typedef extensible_object<serializer_core> serializer;
@@ -70,8 +71,7 @@ public:
     char read_char() { return m_in.get(); }
     bool read_bool() { return m_in.get() != 0; }
     double read_double();
-    // read data.size() bytes from input stream and store it at data
-    void read(std::vector<char> & data);
+    std::string read_blob();
     optional<std::string> get_fname() const { return m_fname; }
 };
 

@@ -677,7 +677,6 @@ static expr elaborate_proof(
         bool is_rfl_lemma, expr const & final_type,
         metavar_context const & mctx, local_context const & lctx,
         parser_pos_provider pos_provider, bool use_info_manager, std::string const & file_name) {
-    scoped_expr_caching disable(false);  // FIXME: otherwise sigma.eq fails to elaborate
     auto tc = std::make_shared<type_context>(decl_env, opts, mctx, lctx);
     scope_trace_env scope2(decl_env, opts, *tc);
     scope_traces_as_messages scope2a(file_name, header_pos);
@@ -722,7 +721,6 @@ static void check_example(environment const & decl_env, options const & opts,
                           expr const & fn, expr const & val0,
                           metavar_context const & mctx, local_context const & lctx,
                           parser_pos_provider pos_provider, bool use_info_manager, std::string const & file_name) {
-    scoped_expr_caching disable(false);  // FIXME: otherwise sigma.eq fails to elaborate
     auto tc = std::make_shared<type_context>(decl_env, opts, mctx, lctx);
     scope_trace_env scope2(decl_env, opts, *tc);
     scope_pos_info_provider scope3(pos_provider);

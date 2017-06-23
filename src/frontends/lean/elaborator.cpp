@@ -3341,6 +3341,7 @@ void elaborator::invoke_tactic(expr const & mvar, expr const & tactic) {
     tactic_state s       = mk_tactic_state_for(mvar);
 
     try {
+        scoped_expr_caching scope(true);
         vm_obj r = tactic_evaluator(m_ctx, m_opts, ref)(tactic, s);
         if (auto new_s = tactic::is_success(r)) {
             metavar_context mctx = new_s->mctx();
@@ -3642,6 +3643,7 @@ static expr replace_with_simple_metavars(metavar_context mctx, name_map<expr> & 
 
 expr elaborator::elaborate(expr const & e) {
     scoped_info_manager scope_infom(&m_info);
+    scoped_expr_caching scope_no_caching(false);
     expr r = visit(e,  none_expr());
     trace_elab_detail(tout() << "result before final checkpoint\n" << r << "\n";);
     synthesize();
@@ -3683,6 +3685,8 @@ expr_pair elaborator::elaborate_with_type(expr const & e, expr const & e_type) {
 
 void elaborator::finalize_core(sanitize_param_names_fn & S, buffer<expr> & es,
                                bool check_unassigned, bool to_simple_metavar, bool collect_local_ctx) {
+    scoped_expr_caching scope(true);
+    flush_expr_cache();
     name_map<expr> to_simple_mvar_cache;
     for (expr & e : es) {
         e = instantiate_mvars(e);

@@ -117,7 +117,9 @@ static macro_definition * g_equation                  = nullptr;
 static macro_definition * g_equation_ignore_if_unused = nullptr;
 static macro_definition * g_no_equation               = nullptr;
 
-bool is_equation(expr const & e) { return is_macro(e) && macro_def(e) == *g_equation; }
+bool is_equation(expr const & e) {
+    return is_macro(e) && dynamic_cast<equation_macro_cell const *>(macro_def(e).raw());
+}
 
 bool ignore_equation_if_unused(expr const & e) {
     lean_assert(is_equation(e));

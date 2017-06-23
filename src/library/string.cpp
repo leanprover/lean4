@@ -27,7 +27,7 @@ static expr * g_fin_mk               = nullptr;
 
 expr from_string_core(std::string const & s);
 
-static void display_char_literal_core(std::ostream & out, char c, bool in_string) {
+static void display_char_literal_core(std::ostream & out, unsigned char c, bool in_string) {
     if (c == '\n') {
         out << "\\n";
     } else if (c == '\t') {
@@ -36,12 +36,12 @@ static void display_char_literal_core(std::ostream & out, char c, bool in_string
         out << "\\\"";
     } else if (!in_string && c == '\'') {
         out << "\\'";
-    } else if (0 <= c && c <= 31) {
+    } else if (32 <= c && c <= 126) {
+        out << c;
+    } else {
         out << "\\x";
         if (c < 16) out << "0";
-        out << std::hex << static_cast<int>(c);
-    } else {
-        out << c;
+        out << std::hex << static_cast<unsigned>(c);
     }
 }
 

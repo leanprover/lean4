@@ -476,7 +476,7 @@ theorem find_iff (m : hash_map α β) (a : α) (b : β a) :
   m.find a = some b ↔ sigma.mk a b ∈ m.entries :=
 m.is_valid.find_aux_iff _ _ _
 
-theorem contains_iff (m : hash_map α β) (a : α) (b : β a) :
+theorem contains_iff (m : hash_map α β) (a : α) :
   m.contains a ↔ a ∈ m.keys :=
 m.is_valid.contains_aux_iff _ _
 

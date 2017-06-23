@@ -42,7 +42,7 @@ public:
     }
     name const & get_struct() const { return m_struct; }
     list<name> const & get_field_names() const { return m_fields; }
-    virtual bool operator==(macro_definition_cell const & other) const {
+    virtual bool operator==(macro_definition_cell const & other) const override {
         if (auto other_ptr = dynamic_cast<structure_instance_macro_cell const *>(&other)) {
             return m_struct == other_ptr->m_struct && m_fields == other_ptr->m_fields;
         } else {

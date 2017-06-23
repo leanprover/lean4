@@ -67,7 +67,8 @@ protected:
     void set_is_arrow(bool flag);
     friend bool is_arrow(expr const & e);
 
-     static void dec_ref(expr & c, buffer<expr_cell*> & todelete);
+    static void dec_ref(expr & c, buffer<expr_cell*> & todelete);
+    expr_cell(expr_cell const & src); // for hash_consing
 public:
     expr_cell(expr_kind k, unsigned h, bool has_expr_mv, bool has_univ_mv, bool has_local, bool has_param_univ, tag g);
     expr_kind kind() const { return static_cast<expr_kind>(m_kind); }
@@ -94,6 +95,7 @@ private:
     expr_cell * m_ptr;
     explicit expr(expr_cell * ptr):m_ptr(ptr) { if (m_ptr) m_ptr->inc_ref(); }
     friend class expr_cell;
+    friend struct cache_expr_insert_fn;
     expr_cell * steal_ptr() { expr_cell * r = m_ptr; m_ptr = nullptr; return r; }
     friend class optional<expr>;
 public:
@@ -172,6 +174,8 @@ class expr_const : public expr_cell {
     levels     m_levels;
     friend expr_cell;
     void dealloc();
+    friend struct cache_expr_insert_fn;
+    expr_const(expr_const const &, levels const & new_levels); // for hash_consing
 public:
     expr_const(name const & n, levels const & ls, tag g);
     name const & get_name() const { return m_name; }
@@ -187,6 +191,7 @@ protected:
     friend unsigned get_weight(expr const & e);
     friend unsigned get_depth(expr const & e);
     friend unsigned get_free_var_range(expr const & e);
+    expr_composite(expr_composite const & src); // for hash_consing
 public:
     expr_composite(expr_kind k, unsigned h, bool has_expr_mv, bool has_univ_mv, bool has_local,
                    bool has_param_univ, unsigned w, unsigned fv_range, tag g);
@@ -199,6 +204,8 @@ protected:
     expr   m_type;
     friend expr_cell;
     void dealloc(buffer<expr_cell*> & todelete);
+    friend struct cache_expr_insert_fn;
+    expr_mlocal(expr_mlocal const &, expr const & new_type); // for hash_consing
 public:
     expr_mlocal(bool is_meta, name const & n, expr const & t, tag g);
     name const & get_name() const { return m_name; }
@@ -254,6 +261,8 @@ class expr_local : public expr_mlocal {
     binder_info m_bi;
     friend expr_cell;
     void dealloc(buffer<expr_cell*> & todelete);
+    friend struct cache_expr_insert_fn;
+    expr_local(expr_local const &, expr const & new_type); // for hash_consing
 public:
     expr_local(name const & n, name const & pp_name, expr const & t, binder_info const & bi, tag g);
     name const & get_pp_name() const { return m_pp_name; }
@@ -266,6 +275,8 @@ class expr_app : public expr_composite {
     expr     m_arg;
     friend expr_cell;
     void dealloc(buffer<expr_cell*> & todelete);
+    friend struct cache_expr_insert_fn;
+    expr_app(expr_app const &, expr const & new_fn, expr const & new_arg); // for hash_consing
 public:
     expr_app(expr const & fn, expr const & arg, tag g);
     expr const & get_fn() const { return m_fn; }
@@ -277,6 +288,8 @@ class binder {
     name             m_name;
     expr             m_type;
     binder_info      m_info;
+    binder(binder const & src, expr const & new_type): // for hash_consing
+        m_name(src.m_name), m_type(new_type), m_info(src.m_info) {}
 public:
     binder(name const & n, expr const & t, binder_info const & bi):
         m_name(n), m_type(t), m_info(bi) {}
@@ -292,6 +305,8 @@ class expr_binding : public expr_composite {
     expr             m_body;
     friend class expr_cell;
     void dealloc(buffer<expr_cell*> & todelete);
+    friend struct cache_expr_insert_fn;
+    expr_binding(expr_binding const &, expr const & new_domain, expr const & new_body); // for hash_consing
 public:
     expr_binding(expr_kind k, name const & n, expr const & t, expr const & e,
                  binder_info const & i, tag g);
@@ -310,6 +325,8 @@ class expr_let : public expr_composite {
     expr m_body;
     friend class expr_cell;
     void dealloc(buffer<expr_cell*> & todelete);
+    friend struct cache_expr_insert_fn;
+    expr_let(expr_let const &, expr const & new_type, expr const & new_value, expr const & new_body); // for hash_consing
 public:
     expr_let(name const & n, expr const & t, expr const & v, expr const & b, tag g);
     name const & get_name() const { return m_name; }
@@ -323,6 +340,8 @@ class expr_sort : public expr_cell {
     level    m_level;
     friend expr_cell;
     void dealloc();
+    friend struct cache_expr_insert_fn;
+    expr_sort(expr_sort const &, level const & new_level); // for hash_consing
 public:
     expr_sort(level const & l, tag g);
     ~expr_sort();
@@ -402,6 +421,8 @@ class expr_macro : public expr_composite {
     expr const * get_args_ptr() const {
         return reinterpret_cast<expr const *>(reinterpret_cast<char const *>(this)+sizeof(expr_macro));
     }
+    friend struct cache_expr_insert_fn;
+    expr_macro(expr_macro const & src, expr const * new_args); // for hash_consing
 public:
     expr_macro(macro_definition const & v, unsigned num, expr const * args, tag g);
     ~expr_macro();

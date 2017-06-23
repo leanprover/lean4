@@ -586,7 +586,8 @@ struct structural_rec_fn {
                       Reason: the rhs should not contain recursive equations.
                       But, we need to update the locals. */
                    expr new_rhs = replace_locals(ue.rhs(), from, to);
-                   expr new_eqn = copy_tag(ue.get_nested_src(), mk_equation(new_lhs, new_rhs));
+                   expr new_eqn = copy_tag(ue.get_nested_src(),
+                                           mk_equation(new_lhs, new_rhs, ue.ignore_if_unused()));
                    new_eqns.push_back(copy_tag(eqn, ctx.mk_lambda(new_vars, new_eqn)));
                 });
             } else {

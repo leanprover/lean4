@@ -179,7 +179,7 @@ expr unpack_eqn::repack() {
     if (!m_modified_vars &&
         equation_lhs(m_nested_src) == m_lhs &&
         equation_rhs(m_nested_src) == m_rhs) return m_src;
-    expr new_eq = copy_tag(m_nested_src, mk_equation(m_lhs, m_rhs));
+    expr new_eq = copy_tag(m_nested_src, mk_equation(m_lhs, m_rhs, m_ignore_if_unused));
     return copy_tag(m_src, m_locals.ctx().mk_lambda(m_vars, new_eq));
 }
 

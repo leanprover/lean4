@@ -62,21 +62,6 @@ show C j (if i = j then v else read a j), from
 if h : i = j then by rwa [if_pos h, ← h]
 else by rw [if_neg h]; exact Hj j h
 
-def foreach_aux (f : fin n → α → α) : Π (i : nat), i ≤ n → array α n → array α n
-| 0     h a := a
-| (j+1) h a :=
-  let i : fin n := ⟨n - 1 - j, nat.sub_one_sub_lt h⟩ in
-  foreach_aux j (le_of_lt h) (a.write i (f i (a.read i)))
-
-def foreach (a : array α n) (f : fin n → α → α) : array α n :=
-foreach_aux f n (le_refl _) a
-
-def map (f : α → α) (a : array α n) : array α n :=
-foreach a (λ _, f)
-
-def map₂ (f : α → α → α) (a b : array α n) : array α n :=
-foreach b (λ i, f (a.read i))
-
 def iterate_aux (a : array α n) (f : fin n → α → β → β) : Π (i : nat), i ≤ n → β → β
 | 0     h b := b
 | (j+1) h b :=
@@ -85,6 +70,15 @@ def iterate_aux (a : array α n) (f : fin n → α → β → β) : Π (i : nat)
 
 def iterate (a : array α n) (b : β) (fn : fin n → α → β → β) : β :=
 iterate_aux a fn n (le_refl _) b
+
+def foreach (a : array α n) (f : fin n → α → α) : array α n :=
+iterate a a (λ i v a', a'.write i (f i v))
+
+def map (f : α → α) (a : array α n) : array α n :=
+foreach a (λ _, f)
+
+def map₂ (f : α → α → α) (a b : array α n) : array α n :=
+foreach b (λ i, f (a.read i))
 
 def foldl (a : array α n) (b : β) (f : α → β → β) : β :=
 iterate a b (λ _, f)

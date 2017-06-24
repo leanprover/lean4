@@ -102,6 +102,10 @@ if h : n ≤ b.size then ⟨_, b.to_array.drop n h⟩ else b
 def reverse (b : buffer α) : buffer α :=
 ⟨b.size, b.to_array.reverse⟩
 
+protected def mem (v : α) (a : buffer α) : Prop := ∃i, read a i = v
+
+instance : has_mem α (buffer α) := ⟨buffer.mem⟩
+
 instance : has_append (buffer α) :=
 ⟨buffer.append⟩
 

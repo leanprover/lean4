@@ -33,9 +33,6 @@ end fin
 
 open fin
 
-instance (n : nat) : decidable_eq (fin n)
-| ⟨ival, ilt⟩ ⟨jval, jlt⟩ :=
-  match nat.decidable_eq ival jval with
-  | is_true  h₁ := is_true (eq_of_veq h₁)
-  | is_false h₁ := is_false (λ h₂, absurd (veq_of_eq h₂) h₁)
-  end
+instance (n : nat) : decidable_eq (fin n) :=
+λ i j, decidable_of_decidable_of_iff
+  (nat.decidable_eq i.val j.val) ⟨eq_of_veq, veq_of_eq⟩

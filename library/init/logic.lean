@@ -885,13 +885,13 @@ lemma if_simp_congr_prop {b c x y u v : Prop} [dec_b : decidable b]
         ite b x y ↔ (@ite c (decidable_of_decidable_of_iff dec_b h_c) Prop u v) :=
 @if_ctx_simp_congr_prop b c x y u v dec_b h_c (λ h, h_t) (λ h, h_e)
 
-lemma dif_pos {c : Prop} [h : decidable c] (hc : c) {α : Sort u} {t : c → α} {e : ¬ c → α} : dite c t e = t hc :=
+@[simp] lemma dif_pos {c : Prop} [h : decidable c] (hc : c) {α : Sort u} {t : c → α} {e : ¬ c → α} : dite c t e = t hc :=
 match h with
 | (is_true hc)   := rfl
 | (is_false hnc) := absurd hc hnc
 end
 
-lemma dif_neg {c : Prop} [h : decidable c] (hnc : ¬c) {α : Sort u} {t : c → α} {e : ¬ c → α} : dite c t e = e hnc :=
+@[simp] lemma dif_neg {c : Prop} [h : decidable c] (hnc : ¬c) {α : Sort u} {t : c → α} {e : ¬ c → α} : dite c t e = e hnc :=
 match h with
 | (is_true hc)   := absurd hc hnc
 | (is_false hnc) := rfl

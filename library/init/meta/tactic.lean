@@ -578,6 +578,12 @@ match (expr.is_or e) with
 | none     := fail "expression is not a disjunction"
 end
 
+meta def match_iff (e : expr) : tactic (expr × expr) :=
+match (expr.is_iff e) with
+| (some (lhs, rhs)) := return (lhs, rhs)
+| none              := fail "expression is not an iff"
+end
+
 meta def match_eq (e : expr) : tactic (expr × expr) :=
 match (expr.is_eq e) with
 | (some (lhs, rhs)) := return (lhs, rhs)

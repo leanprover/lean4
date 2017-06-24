@@ -286,6 +286,10 @@ meta def is_or : expr → option (expr × expr)
 | `(or %%α %%β) := some (α, β)
 | _             := none
 
+meta def is_iff : expr → option (expr × expr)
+| `((%%a : Prop) ↔ %%b) := some (a, b)
+| _                     := none
+
 meta def is_eq : expr → option (expr × expr)
 | `((%%a : %%_) = %%b) := some (a, b)
 | _                    := none

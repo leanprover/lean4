@@ -30,12 +30,17 @@ struct check_fn {
     }
 
     void ensure_type(expr const & e) {
-        if (!is_sort(m_ctx.relaxed_whnf(m_ctx.infer(e)))) {
-            lean_trace("check", scope_trace_env _(m_ctx.env(), m_ctx);
-                       tout() << "type expected at " << e << "\n";);
-            throw exception("check failed, type expected "
-                            "(use 'set_option trace.check true' for additional details)");
+        expr S = m_ctx.relaxed_whnf(m_ctx.infer(e));
+        if (is_sort(S)) return;
+        if (is_metavar(S)) {
+            level u = m_ctx.mk_univ_metavar_decl();
+            if (m_ctx.is_def_eq(S, mk_sort(u)))
+                return;
         }
+        lean_trace("check", scope_trace_env _(m_ctx.env(), m_ctx);
+                   tout() << "type expected at " << e << "\n";);
+        throw exception("check failed, type expected "
+                        "(use 'set_option trace.check true' for additional details)");
     }
 
     void visit_binding(expr const & e, bool is_pi) {

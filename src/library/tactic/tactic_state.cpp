@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/cache_helper.h"
 #include "library/module.h"
+#include "library/check.h"
 #include "library/documentation.h"
 #include "library/scoped_ext.h"
 #include "library/aux_definition.h"
@@ -854,6 +855,17 @@ vm_obj tactic_sleep(vm_obj const & msecs, vm_obj const & s0) {
     }
 }
 
+vm_obj tactic_type_check(vm_obj const & e, vm_obj const & m, vm_obj const & s0) {
+    tactic_state s = tactic::to_state(s0);
+    try {
+        type_context ctx = mk_type_context_for(s, to_transparency_mode(m));
+        check(ctx, to_expr(e));
+        return tactic::mk_success(s);
+    } catch (exception & ex) {
+        return tactic::mk_exception(ex, s);
+    }
+}
+
 void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic_state", "mk_empty"}),       tactic_state_mk_empty);
     DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),            tactic_state_env);
@@ -901,6 +913,7 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "read_ref"}),             tactic_read_ref);
     DECLARE_VM_BUILTIN(name({"tactic", "write_ref"}),            tactic_write_ref);
     DECLARE_VM_BUILTIN(name({"tactic", "sleep"}),                tactic_sleep);
+    DECLARE_VM_BUILTIN(name({"tactic", "type_check"}),           tactic_type_check);
 }
 
 void finalize_tactic_state() {

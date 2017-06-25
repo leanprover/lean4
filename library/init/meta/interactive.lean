@@ -857,6 +857,10 @@ tactic.by_contradiction >> return ()
 meta def by_contra : tactic unit :=
 tactic.by_contradiction >> return ()
 
+/-- Type check the given expression, and trace its type. -/
+meta def type_check (p : parse texpr) : tactic unit :=
+do e ← to_expr p, tactic.type_check e, infer_type e >>= trace
+
 /-- Fail if there are unsolved goals. -/
 meta def done : tactic unit :=
 tactic.done

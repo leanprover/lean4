@@ -1,0 +1,3 @@
+match_convoy_infer_type_failure.lean:5:0: error: invalid match/convoy expression, user did not provide type for the expression, lean tried to infer one using expected type information, but result is not type correct
+nested exception message:
+check failed, application type mismatch (use 'set_option trace.check true' for additional details)

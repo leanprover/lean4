@@ -43,6 +43,7 @@ Author: Leonardo de Moura
 #include "library/aliases.h"
 #include "library/inverse.h"
 #include "library/aux_definition.h"
+#include "library/check.h"
 #include "library/delayed_abstraction.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_expr.h"
@@ -2177,6 +2178,14 @@ expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_ty
             expr new_arg      = instantiate_mvars(new_args[i]);
             expr new_arg_type = instantiate_mvars(infer_type(new_arg));
             new_fn_type       = ::lean::mk_pi("_a", new_arg_type, kabstract(m_ctx, new_fn_type, new_arg));
+        }
+        try {
+            check(m_ctx, new_fn_type);
+        } catch (exception & ex) {
+            throw nested_exception("invalid match/convoy expression, "
+                                   "user did not provide type for the expression, "
+                                   "lean tried to infer one using expected type information, "
+                                   "but result is not type correct", ex);
         }
     } else {
         // User provided some typing information for the match

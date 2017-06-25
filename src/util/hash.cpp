@@ -48,11 +48,11 @@ unsigned hash_str(unsigned length, char const * str, unsigned init_value) {
     case 8 :  b+=((unsigned)str[7] << 24);   /* fall-thru */
     case 7 :  b+=((unsigned)str[6] << 16);   /* fall-thru */
     case 6 :  b+=((unsigned)str[5] << 8);    /* fall-thru */
-    case 5 :  b+=str[4];                     /* fall-thru */
+    case 5 :  b+=(unsigned)str[4];           /* fall-thru */
     case 4 :  a+=((unsigned)str[3] << 24);   /* fall-thru */
     case 3 :  a+=((unsigned)str[2] << 16);   /* fall-thru */
     case 2 :  a+=((unsigned)str[1] << 8);    /* fall-thru */
-    case 1 :  a+=str[0];
+    case 1 :  a+=(unsigned)str[0];
         /* case 0: nothing left to add */
     }
     mix(a, b, c);

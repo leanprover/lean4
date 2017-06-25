@@ -19,6 +19,9 @@ namespace lean {
 enum class token_kind {Keyword, CommandKeyword, Identifier, Numeral, Decimal,
         String, Char, QuotedSymbol,
         DocBlock, ModDocBlock, FieldNum, FieldName, Eof};
+
+using uchar = unsigned char;
+
 /**
     \brief Scanner. The behavior of the scanner is controlled using a token set.
 
@@ -38,7 +41,7 @@ protected:
     int                 m_upos;  // current position taking into account utf-8 encoding
     int                 m_uskip; // hack for decoding utf-8, it marks how many units to skip
     int                 m_sline; // current line
-    char                m_curr;  // current char;
+    uchar               m_curr;  // current char;
 
     int                 m_pos;   // start position of the token
     int                 m_line;  // line of the token
@@ -55,23 +58,23 @@ protected:
     [[ noreturn ]] void throw_exception(char const * msg);
     void next();
     void fetch_line();
-    char curr() const { return m_curr; }
-    char curr_next() { char c = curr(); next(); return c; }
+    uchar curr() const { return m_curr; }
+    uchar curr_next() { auto c = curr(); next(); return c; }
     void check_not_eof(char const * error_msg);
     bool is_next_digit();
     bool is_next_id_rest();
     void move_back(unsigned offset, unsigned u_offset);
     void read_single_line_comment();
     void read_comment_block();
-    void read_until(char const * end_str, char const * error_msg);
-    unsigned get_utf8_size(unsigned char c);
-    void next_utf_core(char c, buffer<char> & cs);
-    void next_utf(buffer<char> & cs);
+    void read_until(uchar const * end_str, char const * error_msg);
+    unsigned get_utf8_size(uchar c);
+    void next_utf_core(uchar c, buffer<uchar> & cs);
+    void next_utf(buffer<uchar> & cs);
 
-    optional<unsigned> try_hex_to_unsigned(char c);
-    optional<unsigned> try_digit_to_unsigned(int base, char c);
-    unsigned hex_to_unsigned(char c);
-    char read_quoted_char(char const * error_msg);
+    optional<unsigned> try_hex_to_unsigned(uchar c);
+    optional<unsigned> try_digit_to_unsigned(int base, uchar c);
+    unsigned hex_to_unsigned(uchar c);
+    uchar read_quoted_char(char const * error_msg);
     token_kind read_string();
     token_kind read_char();
     token_kind read_hex_number();
@@ -116,7 +119,11 @@ public:
     };
 };
 std::ostream & operator<<(std::ostream & out, token_kind k);
-bool is_id_rest(char const * begin, char const * end);
+bool is_id_rest(uchar const * begin, uchar const * end);
+inline bool is_id_rest(char const * begin, char const * end) {
+    return is_id_rest(reinterpret_cast<uchar const *>(begin),
+                      reinterpret_cast<uchar const *>(end));
+}
 
 class token {
     token_kind  m_kind;

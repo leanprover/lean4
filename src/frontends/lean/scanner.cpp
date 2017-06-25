@@ -16,23 +16,21 @@ Author: Leonardo de Moura
 
 namespace lean {
 
-constexpr char Eof = 0xFF;
+constexpr uchar Eof = 0xFF;
 
-unsigned scanner::get_utf8_size(unsigned char c) {
+unsigned scanner::get_utf8_size(uchar c) {
     unsigned r = ::lean::get_utf8_size(c);
     if (r == 0)
         throw_exception("invalid utf-8 head character");
     return r;
 }
 
-unsigned char to_uchar(char c) { return static_cast<unsigned char>(c); }
-
-unsigned utf8_to_unicode(char const * begin, char const * end) {
+static unsigned utf8_to_unicode(uchar const * begin, uchar const * end) {
     unsigned result = 0;
     if (begin == end)
         return result;
     auto it = begin;
-    unsigned c = to_uchar(*it);
+    unsigned c = *it;
     ++it;
     if (c < 128)
         return c;
@@ -126,7 +124,7 @@ void scanner::check_not_eof(char const * error_msg) {
 static char const * g_end_error_str_msg = "unexpected end of string";
 static char const * g_end_error_char_msg = "unexpected end of character";
 
-optional<unsigned> scanner::try_hex_to_unsigned(char c) {
+optional<unsigned> scanner::try_hex_to_unsigned(uchar c) {
     if ('0' <= c && c <= '9')
         return optional<unsigned>(c - '0');
     else if ('a' <= c && c <= 'f')
@@ -137,18 +135,18 @@ optional<unsigned> scanner::try_hex_to_unsigned(char c) {
         return optional<unsigned>();
 }
 
-unsigned scanner::hex_to_unsigned(char c) {
+unsigned scanner::hex_to_unsigned(uchar c) {
     if (auto r = try_hex_to_unsigned(c))
         return *r;
     else
         throw_exception("invalid hexadecimal digit");
 }
 
-char scanner::read_quoted_char(char const * error_msg) {
+uchar scanner::read_quoted_char(char const * error_msg) {
     lean_assert(curr() == '\\');
     next();
     check_not_eof(error_msg);
-    char c = curr();
+    uchar c = curr();
     if (c != '\\' && c != '\"' && c != 'n' && c != 't' && c != '\'' && c != 'x')
         throw_exception("invalid escape sequence");
     if (c == 'n') {
@@ -157,12 +155,12 @@ char scanner::read_quoted_char(char const * error_msg) {
         return '\t';
     } else if (c == 'x') {
         next();
-        char c = curr();
+        uchar c = curr();
         unsigned v = hex_to_unsigned(c);
         next();
         c = curr();
         v = 16*v + hex_to_unsigned(c);
-        return static_cast<char>(v);
+        return static_cast<uchar>(v);
     } else {
         return c;
     }
@@ -174,7 +172,7 @@ token_kind scanner::read_string() {
     m_buffer.clear();
     while (true) {
         check_not_eof(g_end_error_str_msg);
-        char c = curr();
+        uchar c = curr();
         if (c == '\"') {
             next();
             return token_kind::String;
@@ -187,7 +185,7 @@ token_kind scanner::read_string() {
 }
 
 auto scanner::read_char() -> token_kind {
-    char c = curr();
+    uchar c = curr();
     if (c == '\\')
         c = read_quoted_char(g_end_error_char_msg);
     next();
@@ -209,7 +207,7 @@ auto scanner::read_quoted_symbol() -> token_kind {
     bool trailing_space = false;
     while (true) {
         check_not_eof("unexpected quoted identifier");
-        char c = curr();
+        uchar c = curr();
         next();
         switch (c) {
             case '`':
@@ -249,7 +247,7 @@ auto scanner::read_hex_number() -> token_kind {
     m_num_val = 0;
     bool found = false;
     while (true) {
-        char c = curr();
+        uchar c = curr();
         if (auto d = try_hex_to_unsigned(c)) {
             found = true;
             m_num_val = 16 * m_num_val + *d;
@@ -263,7 +261,7 @@ auto scanner::read_hex_number() -> token_kind {
     return token_kind::Decimal;
 }
 
-optional<unsigned> scanner::try_digit_to_unsigned(int base, char c) {
+optional<unsigned> scanner::try_digit_to_unsigned(int base, uchar c) {
     lean_assert(base == 2 || base == 8 || base == 10 || base == 16);
     if ('0' <= c && c <= '9') {
         if (base == 2 && c >= '2')
@@ -282,7 +280,7 @@ optional<unsigned> scanner::try_digit_to_unsigned(int base, char c) {
 auto scanner::read_number() -> token_kind {
     lean_assert('0' <= curr() && curr() <= '9');
     mpq q(1);
-    char c = curr();
+    uchar c = curr();
     next();
     m_num_val = c - '0';
 
@@ -362,7 +360,7 @@ void scanner::read_doc_block_core() {
     m_buffer.clear();
     while (true) {
         check_not_eof("unexpected end of documentation block");
-        char c = curr();
+        uchar c = curr();
         next();
         if (c == '-') {
             if (curr() == '/') {
@@ -387,7 +385,7 @@ auto scanner::read_mod_doc_block() -> token_kind {
 void scanner::read_comment_block() {
     unsigned nesting = 1;
     while (true) {
-        char c = curr();
+        uchar c = curr();
         check_not_eof("unexpected end of comment block");
         next();
         if (c == '/') {
@@ -408,13 +406,13 @@ void scanner::read_comment_block() {
 
 // Read until the end_str is found, store all characters (not including end_str) in m_buffer.
 // Throw a parser exception error_msg if end of file is found before end_str.
-void scanner::read_until(char const * end_str, char const * error_msg) {
+void scanner::read_until(uchar const * end_str, char const * error_msg) {
     lean_assert(end_str);
     lean_assert(end_str[0]);
     m_buffer.clear();
     while (true) {
         check_not_eof(error_msg);
-        char c = curr_next();
+        uchar c = curr_next();
         if (c == end_str[0]) {
             m_aux_buffer.clear();
             m_aux_buffer += c;
@@ -454,7 +452,7 @@ void scanner::move_back(unsigned offset, unsigned u_offset) {
     }
 }
 
-void scanner::next_utf_core(char c, buffer<char> & cs) {
+void scanner::next_utf_core(uchar c, buffer<uchar> & cs) {
     cs.push_back(c);
     while (m_uskip > 0) {
         next();
@@ -462,19 +460,19 @@ void scanner::next_utf_core(char c, buffer<char> & cs) {
     }
 }
 
-void scanner::next_utf(buffer<char> & cs) {
+void scanner::next_utf(buffer<uchar> & cs) {
     next();
     next_utf_core(curr(), cs);
 }
 
-static bool is_id_first(buffer<char> const & cs, unsigned i) {
+static bool is_id_first(buffer<uchar> const & cs, unsigned i) {
     if (std::isalpha(cs[i]) || cs[i] == '_')
         return true;
     unsigned u = utf8_to_unicode(cs.begin() + i, cs.end());
     return is_letter_like_unicode(u);
 }
 
-bool is_id_rest(char const * begin, char const * end) {
+bool is_id_rest(uchar const * begin, uchar const * end) {
     if (std::isalnum(*begin) || *begin == '_' || *begin == '\'')
         return true;
     unsigned u = utf8_to_unicode(begin, end);
@@ -486,7 +484,7 @@ static char const * g_error_key_msg = "unexpected token";
 void scanner::read_field_idx() {
     lean_assert('0' <= curr() && curr() <= '9');
     mpz q(1);
-    char c = curr();
+    uchar c = curr();
     next();
     m_num_val = c - '0';
     while (true) {
@@ -501,7 +499,7 @@ void scanner::read_field_idx() {
 }
 
 auto scanner::read_key_cmd_id() -> token_kind {
-    buffer<char> cs;
+    buffer<uchar> cs;
     next_utf_core(curr(), cs);
     unsigned num_utfs  = 1;
     unsigned id_sz     = 0;
@@ -531,7 +529,7 @@ auto scanner::read_key_cmd_id() -> token_kind {
                 move_back(cs.size() - id_sz, 1);
                 cs.shrink(id_sz);
                 cs.push_back(0);
-                m_name_val = name(cs.data());
+                m_name_val = name(reinterpret_cast<const char *>(cs.data()));
                 return token_kind::FieldName;
             }
         }
@@ -638,7 +636,7 @@ void finalize_scanner() {
 auto scanner::scan(environment const & env) -> token_kind {
     m_tokens = &get_token_table(env);
     while (true) {
-        char c = curr();
+        uchar c = curr();
         m_pos  = m_upos;
         m_line = m_sline;
         switch (c) {
@@ -653,7 +651,7 @@ auto scanner::scan(environment const & env) -> token_kind {
             } else {
                 return read_key_cmd_id();
             }
-        case -1:
+        case Eof:
             return token_kind::Eof;
         default:
             if (std::isdigit(c)) {

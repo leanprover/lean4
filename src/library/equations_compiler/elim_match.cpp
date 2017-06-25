@@ -221,7 +221,8 @@ struct elim_match_fn {
     format pp_problem(problem const & P) {
         format r;
         auto pp = mk_pp_ctx(P);
-        r += format("match") + space() + format(P.m_fn_name) + space() + format(":") + space() + pp(P.m_goal);
+        type_context ctx = mk_type_context(P);
+        r += format("match") + space() + format(P.m_fn_name) + space() + format(":") + space() + pp(ctx.infer(P.m_goal));
         format v;
         bool first = true;
         for (expr const & x : P.m_var_stack) {

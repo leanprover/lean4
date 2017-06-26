@@ -268,7 +268,6 @@ simp_result simplify_core_fn::try_user_congr(expr const & e, simp_lemma const & 
     buffer<expr> congr_hyps;
     to_buffer(cl.get_congr_hyps(), congr_hyps);
 
-    buffer<simp_result> congr_hyp_results;
     buffer<type_context::tmp_locals> factories;
     buffer<name> relations;
     for (expr const & m : congr_hyps) {
@@ -292,15 +291,16 @@ simp_result simplify_core_fn::try_user_congr(expr const & e, simp_lemma const & 
             flet<simp_lemmas> set_slss(m_slss, m_cfg.m_contextual ? add_to_slss(m_slss, local_factory.as_buffer()) : m_slss);
 
             h_lhs = tmp_ctx.instantiate_mvars(h_lhs);
+            lean_assert(!has_idx_metavar(h_lhs));
 
+            simp_result r_congr_hyp;
             if (m_cfg.m_contextual || m_rel != const_name(h_rel)) {
                 flet<name> set_name(m_rel, const_name(h_rel));
                 freset<simplify_cache> reset_cache(m_cache);
-                congr_hyp_results.emplace_back(visit(h_lhs, some_expr(e)));
+                r_congr_hyp = visit(h_lhs, some_expr(e));
             } else {
-                congr_hyp_results.emplace_back(visit(h_lhs, some_expr(e)));
+                r_congr_hyp = visit(h_lhs, some_expr(e));
             }
-            simp_result const & r_congr_hyp = congr_hyp_results.back();
 
             if (r_congr_hyp.has_proof())
                 simplified = true;
@@ -311,24 +311,15 @@ simp_result simplify_core_fn::try_user_congr(expr const & e, simp_lemma const & 
             lean_assert(is_metavar(new_val_meta));
             expr new_val = tmp_ctx.mk_lambda(new_val_meta_args, r_congr_hyp.get_new());
             tmp_ctx.assign(new_val_meta, new_val);
+
+            expr pf_body = finalize(m_ctx, const_name(h_rel), r_congr_hyp).get_proof();
+            expr pf      = local_factory.mk_lambda(pf_body);
+            tmp_ctx.assign(m, pf);
         }
     }
 
     if (!simplified)
         return simp_result(e);
-
-    lean_assert(congr_hyps.size() == congr_hyp_results.size());
-    for (unsigned i = 0; i < congr_hyps.size(); ++i) {
-        expr const & pf_meta = congr_hyps[i];
-        simp_result const & r_congr_hyp = congr_hyp_results[i];
-        name const & rel = relations[i];
-        type_context::tmp_locals & local_factory = factories[i];
-        expr hyp = finalize(m_ctx, rel, r_congr_hyp).get_proof();
-        // This is the current bottleneck
-        // Can address somewhat by keeping the proofs as small as possible using macros
-        expr pf = local_factory.mk_lambda(hyp);
-        tmp_ctx.assign(pf_meta, pf);
-    }
 
     if (!instantiate_emetas(tmp_ctx, cl.get_num_emeta(), cl.get_emetas(), cl.get_instances()))
         return simp_result(e);

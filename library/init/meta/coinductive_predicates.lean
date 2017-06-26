@@ -164,7 +164,7 @@ private meta def mono_aux (ns : list name) (hs : list expr) : tactic unit := do
   intros,
   (do
     `(implies %%p %%q) ← target,
-    (do is_def_eq p q, applyc `monotone.const) <|>
+    (do is_def_eq p q, eapplyc `monotone.const) <|>
     (do
       (expr.pi pn pbi pd pb) ← return p,
       (expr.pi qn qbi qd qb) ← return q,
@@ -172,13 +172,13 @@ private meta def mono_aux (ns : list name) (hs : list expr) : tactic unit := do
       (do is_def_eq pd qd,
         let p' := expr.lam pn pbi pd pb,
         let q' := expr.lam qn qbi qd qb,
-        apply $ (const `monotonicity.pi [u] : expr) pd p' q') <|>
+        eapply $ (const `monotonicity.pi [u] : expr) pd p' q') <|>
       (do guard $ u = level.zero ∧ is_arrow p ∧ is_arrow q,
         let p' := pb.lower_vars 0 1,
         let q' := qb.lower_vars 0 1,
-        apply $ (const `monotonicity.imp []: expr) pd p' qd q'))) <|>
-  first (hs.map $ λh, apply_core h { md := transparency.none } >> skip) <|>
-  first (ns.map $ λn, do c ← mk_const n, apply_core c { md := transparency.none }, skip),
+        eapply $ (const `monotonicity.imp []: expr) pd p' qd q'))) <|>
+  first (hs.map $ λh, apply_core h {md := transparency.none, new_goals := new_goals.non_dep_only} >> skip) <|>
+  first (ns.map $ λn, do c ← mk_const n, apply_core c {md := transparency.none, new_goals := new_goals.non_dep_only}, skip),
   all_goals mono_aux
 
 meta def mono (e : expr) (hs : list expr) : tactic unit := do
@@ -401,10 +401,10 @@ meta def add_coinductive_predicate
           (ps.zip params).map $ λ⟨lv, p⟩, (p.local_uniq_name, lv),
         return (f₂, h')),
       m ← pd.rec',
-      apply $ m.app_of_list ps, -- somehow `induction` / `cases` doesn't work?
+      eapply $ m.app_of_list ps, -- somehow `induction` / `cases` doesn't work?
       func_intros.mmap' (λ⟨n, pp_n, t⟩, solve1 $ do
         bs ← intros,
-        ms ← apply_core ((const n u_params).app_of_list $ ps ++ fs.map prod.fst) { all := tt },
+        ms ← apply_core ((const n u_params).app_of_list $ ps ++ fs.map prod.fst) {new_goals := new_goals.all},
         params ← (ms.zip bs).enum.mfilter (λ⟨n, m, d⟩, is_assigned m),
         params.mmap' (λ⟨n, m, d⟩, mono d (fs.map prod.snd) <|>
           fail format! "failed to prove montonoicity of {n+1}. parameter of intro-rule {pp_n}")))),
@@ -430,7 +430,7 @@ meta def add_coinductive_predicate
       h ← intro `h,
       whnf_target,
       fs.mmap' existsi,
-      hs.mmap' (λf, constructor >> exact f),
+      hs.mmap' (λf, econstructor >> exact f),
       exact h)),
 
   let func_f := λpd : coind_pred, pd.func_g.app_of_list $ pds.map coind_pred.pred_g,
@@ -444,12 +444,12 @@ meta def add_coinductive_predicate
       h ← intro `h,
       (fs, h) ← elim_gen_prod pds.length h [],
       (hs, h) ← elim_gen_prod pds.length h [],
-      apply $ pd.mono.app_of_list ps,
+      eapply $ pd.mono.app_of_list ps,
       pds.mmap' (λpd:coind_pred, focus1 $ do
-        apply $ pd.corec_functional,
+        eapply $ pd.corec_functional,
         focus $ hs.map exact),
       some h' ← return $ hs.nth n,
-      apply h',
+      eapply h',
       exact h)),
 
   /- prove `construct` rules -/
@@ -459,10 +459,10 @@ meta def add_coinductive_predicate
       ps ← intro_lst $ params.map local_pp_name,
       let func_pred_g := λpd:coind_pred,
         pd.func.app_of_list $ ps ++ pds.map (λpd:coind_pred, pd.pred.app_of_list ps),
-      apply $ pd.corec_functional.app_of_list $ ps ++ pds.map func_pred_g,
+      eapply $ pd.corec_functional.app_of_list $ ps ++ pds.map func_pred_g,
       pds.mmap' (λpd:coind_pred, solve1 $ do
-        apply $ pd.mono.app_of_list ps,
-        pds.mmap' (λpd, solve1 $ apply $ pd.destruct.app_of_list ps)))),
+        eapply $ pd.mono.app_of_list ps,
+        pds.mmap' (λpd, solve1 $ eapply $ pd.destruct.app_of_list ps)))),
 
   /- prove `cases_on` rules -/
   pds.mmap' (λpd, do
@@ -479,8 +479,8 @@ meta def add_coinductive_predicate
         h  ← intro `h,
         rules  ← intro_lst $ rules.map local_pp_name,
         func_rec ← pd.rec',
-        apply $ func_rec.app_of_list $ ps ++ pds.map (λpd, pd.pred.app_of_list ps) ++ [C] ++ rules,
-        apply $ pd.destruct,
+        eapply $ func_rec.app_of_list $ ps ++ pds.map (λpd, pd.pred.app_of_list ps) ++ [C] ++ rules,
+        eapply $ pd.destruct,
         exact h),
     set_basic_attribute `elab_as_eliminator cases_on.const_name),
 
@@ -513,7 +513,7 @@ meta def add_coinductive_predicate
         ls ← intro_lst $ pd.locals.map local_pp_name,
         h  ← intro `h,
         rules  ← intro_lst $ rules.map local_pp_name,
-        apply $ pd.corec_functional.app_of_list $ ps ++ fs,
+        eapply $ pd.corec_functional.app_of_list $ ps ++ fs,
         (pds.zip $ rules.zip shape).mmap (λ⟨pd, hr, s⟩, solve1 $ do
           ls ← intro_lst $ pd.locals.map local_pp_name,
           h' ← intro `h,
@@ -528,7 +528,7 @@ meta def add_coinductive_predicate
                 (eqs, eq') ← elim_gen_prod (n_eqs - 1) h [],
                 (eqs ++ [eq']).mmap' subst
               else skip,
-              apply ((const r.func_nm u_params).app_of_list $ ps ++ fs),
+              eapply ((const r.func_nm u_params).app_of_list $ ps ++ fs),
               repeat assumption)
           end),
         exact h)),
@@ -538,7 +538,7 @@ meta def add_coinductive_predicate
     pd.add_theorem r.orig_nm (r.type.pis params) $ do
       ps ← intro_lst $ params.map local_pp_name,
       bs ← intros,
-      apply $ pd.construct,
+      eapply $ pd.construct,
       exact $ (const r.func_nm u_params).app_of_list $ ps ++ pds.map (λpd, pd.pred.app_of_list ps) ++ bs)),
 
   pds.mmap' (λpd:coind_pred, set_basic_attribute `irreducible pd.pd_name),
@@ -570,7 +570,7 @@ do
   -- TODO: why do we need to fix the type here?
   ctxts ← ctxts'.mmap (λv,
     local_const v.local_uniq_name v.local_pp_name v.local_binder_info <$> infer_type v),
-  mvars ← apply_core rule { approx := ff, all := tt },
+  mvars ← apply_core rule {approx := ff, new_goals := new_goals.all},
 
   -- analyse relation
   g ← list.head <$> get_goals,
@@ -591,7 +591,7 @@ do
   solve1 (do
     target >>= instantiate_mvars >>= change, -- TODO: bug in existsi & constructor when mvars in hyptohesis
     bs.mmap existsi,
-    repeat constructor),
+    repeat econstructor),
 
   -- clean up remaining coinduction steps
   all_goals (do

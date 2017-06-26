@@ -10,7 +10,7 @@ by do
 
 example (A : Type) (a : A) (p : A → Prop) (H : p a) : ∃ x, p x :=
 by do
-  constructor,
+  econstructor,
   tgt ← target,
   t   ← get_local `H >>= infer_type,
   is_def_eq tgt t, -- Fails at p a =?= p ?m_1

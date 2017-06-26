@@ -45,7 +45,7 @@ do
       pr     ← mk_mapp n_inj args,
       pr_type ← infer_type pr,
       pr_type ← whnf pr_type,
-      apply pr,
+      eapply pr,
       injection_intro (binding_domain pr_type) ns
     else fail "injection tactic failed, argument must be an equality proof where lhs and rhs are of the form (c ...), where c is a constructor"
   else do

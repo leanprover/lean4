@@ -351,12 +351,16 @@ meta constant definev_core  : name → expr → expr → tactic unit
 meta constant rotate_left   : nat → tactic unit
 meta constant get_goals     : tactic (list expr)
 meta constant set_goals     : list expr → tactic unit
+inductive new_goals
+| non_dep_first | non_dep_only | all
 /-- Configuration options for the `apply` tactic. -/
 structure apply_cfg :=
 (md            := semireducible)
 (approx        := tt)
-(all           := ff)
-(use_instances := tt)
+(new_goals     := new_goals.non_dep_first)
+(instances     := tt)
+(auto_param    := tt)
+(opt_param     := tt)
 /-- Apply the expression `e` to the main goal,
     the unification is performed using the transparency mode in `cfg`.
     If cfg.approx is `tt`, then fallback to first-order unification, and approximate context during unification.
@@ -810,7 +814,10 @@ meta def apply (e : expr) : tactic unit :=
 apply_core e >> return ()
 
 meta def fapply (e : expr) : tactic unit :=
-apply_core e {all := tt} >> return ()
+apply_core e {new_goals := new_goals.all} >> return ()
+
+meta def eapply (e : expr) : tactic unit :=
+apply_core e {new_goals := new_goals.non_dep_only} >> return ()
 
 /-- Try to solve the main goal using type class resolution. -/
 meta def apply_instance : tactic unit :=
@@ -838,6 +845,9 @@ do env  ← get_env,
 /-- Apply the constant `c` -/
 meta def applyc (c : name) : tactic unit :=
 mk_const c >>= apply
+
+meta def eapplyc (c : name) : tactic unit :=
+mk_const c >>= eapply
 
 meta def save_const_type_info (n : name) {elab : bool} (ref : expr elab) : tactic unit :=
 try (do c ← mk_const n, save_type_info c ref)
@@ -900,7 +910,7 @@ meta def by_contradiction (H : option name := none) : tactic expr :=
 do tgt : expr ← target,
    (match_not tgt >> return ())
    <|>
-   (mk_mapp `decidable.by_contradiction [some tgt, none] >>= apply)
+   (mk_mapp `decidable.by_contradiction [some tgt, none] >>= eapply)
    <|>
    fail "tactic by_contradiction failed, target is not a negation nor a decidable proposition (remark: when 'local attribute classical.prop_decidable [instance]' is used all propositions are decidable)",
    match H with

@@ -101,8 +101,9 @@ tactic.rename
 This tactic applies to any goal.
 The argument term is a term well-formed in the local context of the main goal.
 The tactic apply tries to match the current goal against the conclusion of the type of term.
-If it succeeds, then the tactic returns as many subgoals as the number of non-dependent premises
+If it succeeds, then the tactic returns as many subgoals as the number of premises
 that have not been fixed by type inference or type class resolution.
+Non dependent premises are added before dependent ones.
 
 The tactic `apply` uses higher-order pattern matching, type class resolution, and
 first-order unification with dependent types.
@@ -116,6 +117,13 @@ that have not been fixed by type inference or type class resolution.
 -/
 meta def fapply (q : parse texpr) : tactic unit :=
 i_to_expr q >>= tactic.fapply
+
+/--
+Similar to the `apply` tactic, but it only creates subgoals for non dependent premises
+that have not been fixed by type inference or type class resolution.
+-/
+meta def eapply (q : parse texpr) : tactic unit :=
+i_to_expr q >>= tactic.eapply
 
 /--
 This tactic tries to close the main goal `... |- U` using type class resolution.
@@ -525,6 +533,10 @@ It tries to apply each constructor of `I` until it succeeds.
 -/
 meta def constructor : tactic unit :=
 tactic.constructor
+
+/-- Similar to `constructor`, but only non dependent premises are added as new goals. -/
+meta def econstructor : tactic unit :=
+tactic.econstructor
 
 meta def left : tactic unit :=
 tactic.left

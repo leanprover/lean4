@@ -71,7 +71,7 @@ do
     else do {
       mk_dec_eq_for lhs_arg rhs_arg
     },
-    `[apply @decidable.by_cases _ _ %%inst],
+    `[eapply @decidable.by_cases _ _ %%inst],
     -- discharge first (positive) case by recursion
     intro1 >>= subst >> dec_eq_same_constructor I_name F_name (if rec then num_rec + 1 else num_rec),
     -- discharge second (negative) case by contradiction

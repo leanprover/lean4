@@ -4,7 +4,7 @@ def some_lets : ℕ → ℕ → ℕ
 
 def some_unfolded_lets (n : ℕ) : Σ' v : ℕ , v = some_lets 5 n :=
 begin
-  constructor; unfold some_lets; constructor
+  econstructor; unfold some_lets; econstructor
 end
 
 meta def foo : tactic unit :=
@@ -12,7 +12,7 @@ meta def foo : tactic unit :=
      tactic.to_expr (``(1)) >>= tactic.unify g
 def some_lifted_lets (n : ℕ) : Σ' (v : ℕ), v = psigma.fst (some_unfolded_lets n) :=
 begin
-  constructor; unfold some_unfolded_lets psigma.fst; symmetry; transitivity; symmetry;
+  econstructor; unfold some_unfolded_lets psigma.fst; symmetry; transitivity; symmetry;
   {
     foo -- unify_reify_rhs_to_let_in
   }

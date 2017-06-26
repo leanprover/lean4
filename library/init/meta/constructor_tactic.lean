@@ -14,12 +14,15 @@ do env ← get_env,
    when (¬env.is_inductive I) (fail "constructor tactic failed, target is not an inductive datatype"),
    return $ env.constructors_of I
 
-private meta def try_constructors : list name → tactic unit
+private meta def try_constructors (cfg : apply_cfg): list name → tactic unit
 | []      := fail "constructor tactic failed, none of the constructors is applicable"
-| (c::cs) := (mk_const c >>= apply) <|> try_constructors cs
+| (c::cs) := (mk_const c >>= λ e, apply_core e cfg >> return ()) <|> try_constructors cs
 
-meta def constructor : tactic unit :=
-target >>= instantiate_mvars >>= get_constructors_for >>= try_constructors
+meta def constructor (cfg : apply_cfg := {}): tactic unit :=
+target >>= instantiate_mvars >>= get_constructors_for >>= try_constructors cfg
+
+meta def econstructor : tactic unit :=
+constructor {new_goals := new_goals.non_dep_only}
 
 meta def left : tactic unit :=
 do tgt ← target,
@@ -58,7 +61,7 @@ do [c]     ← target >>= get_constructors_for | fail "existsi tactic failed, ta
    n       ← get_arity fn,
    when (n < 2) (fail "existsi tactic failed, constructor must have at least two arguments"),
    t       ← apply_num_metavars fn fn_type (n - 2),
-   apply (app t e),
+   eapply (app t e),
    t_type  ← infer_type t >>= whnf,
    e_type  ← infer_type e,
    (guard t_type.is_pi <|> fail "existsi tactic failed, failed to infer type"),

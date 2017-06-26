@@ -20,7 +20,7 @@ set_option pp.all false
 example (a b : nat) : a = 0 → a = b :=
 by do
   intro `H,
-  apply_core (expr.const `foo [level.of_nat 0]) {approx := ff, all := tt, use_instances := ff },
+  apply_core (expr.const `foo [level.of_nat 0]) {approx := ff, new_goals := new_goals.all, instances := ff },
   trace_state,
   a ← get_local `a,
   trace_state,
@@ -45,6 +45,6 @@ by do
 example (a b : nat) : a = 0 → a = b :=
 by do
   `[intro],
-  apply_core (expr.const `foo [level.of_nat 0]) {approx := ff, all := tt, use_instances := ff},
+  apply_core (expr.const `foo [level.of_nat 0]) {approx := ff, new_goals := new_goals.all, instances := ff},
   `[exact inhabited.mk a],
   reflexivity

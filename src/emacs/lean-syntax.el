@@ -18,7 +18,7 @@
     "end" "this" "suppose"
     "using" "using_well_founded" "namespace" "section" "fields"
     "attribute" "local" "set_option" "extends" "include" "omit" "classes" "class"
-    "instances" "attributes" "raw" "replacing"
+    "attributes" "raw" "replacing"
     "calc" "have" "show" "suffices" "by" "in" "at" "do" "let" "forall" "Pi" "fun"
     "exists" "if" "then" "else" "assume" "take" "from"
     "mutual" "def" "run_cmd")

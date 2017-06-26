@@ -166,6 +166,21 @@ have disj₂ : disjoint l₁ (a::l₂), from disjoint.comm (disjoint_cons_of_not
                                            (disjoint.comm disj)),
 nodup_append_of_nodup_of_nodup_of_disjoint d₂ d₄ disj₂
 
+theorem nodup_of_nodup_map (f : α → β) : ∀ {l : list α}, nodup (map f l) → nodup l
+| []     d := ndnil
+| (a::l) d := ndcons (mt (mem_map f) (not_mem_of_nodup_cons d))
+  (nodup_of_nodup_map (nodup_of_nodup_cons d))
+
+theorem nodup_map {f : α → β} (I : function.injective f) :
+  ∀ {l : list α}, nodup l → nodup (map f l)
+| []     d := ndnil
+| (b::l) d :=
+  have f b ∈ map f l → b ∈ l, from λ h,
+  let ⟨a, al, ab⟩ := exists_of_mem_map h in
+  match b, I ab with ._, rfl := al end,
+  ndcons (mt this (not_mem_of_nodup_cons d))
+    (nodup_map (nodup_of_nodup_cons d))
+
 instance nodup_decidable [decidable_eq α] : ∀ l : list α, decidable (nodup l)
 | [] := is_true ndnil
 | (a :: l) := if h : a ∈ l

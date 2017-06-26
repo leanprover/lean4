@@ -93,7 +93,8 @@ static expr parse_structure_instance_core(parser & p, optional<expr> const & src
 }
 
 /* Parse rest of the qualified structure instance prefix '{' S '.' ... */
-static expr parse_qualified_structure_instance(parser & p, name const & S) {
+static expr parse_qualified_structure_instance(parser & p, name S, pos_info const & S_pos) {
+    S = p.to_constant(S, "invalid structure name", S_pos);
     if (p.curr_is_token(get_rcurly_tk())) {
         p.next();
         buffer<name> fns;
@@ -154,7 +155,7 @@ expr parse_curly_bracket(parser & p, unsigned, expr const *, pos_info const & po
             }
         } else if (p.curr_is_token(get_period_tk())) {
             p.next();
-            return parse_qualified_structure_instance(p, id);
+            return parse_qualified_structure_instance(p, id, id_pos);
         } else if (p.curr_is_token(get_assign_tk()) || p.curr_is_token(get_fieldarrow_tk())) {
             return parse_structure_instance(p, id);
         } else if (p.curr_is_token(get_membership_tk()) || p.curr_is_token(get_in_tk())) {

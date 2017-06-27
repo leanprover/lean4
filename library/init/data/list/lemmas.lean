@@ -629,6 +629,59 @@ by simp [scanr]
 
 attribute [simp] repeat take drop
 
+/- filter -/
+@[simp] theorem filter_nil (p : α → Prop) [h : decidable_pred p] : filter p [] = [] := rfl
+
+@[simp] theorem filter_cons_of_pos {p : α → Prop} [h : decidable_pred p] {a : α} :
+   ∀ l, p a → filter p (a::l) = a :: filter p l :=
+λ l pa, if_pos pa
+
+@[simp] theorem filter_cons_of_neg {p : α → Prop} [h : decidable_pred p] {a : α} :
+  ∀ l, ¬ p a → filter p (a::l) = filter p l :=
+λ l pa, if_neg pa
+
+@[simp] theorem filter_append {p : α → Prop} [h : decidable_pred p] :
+  ∀ (l₁ l₂ : list α), filter p (l₁++l₂) = filter p l₁ ++ filter p l₂
+| []      l₂ := rfl
+| (a::l₁) l₂ := if pa : p a then by simp [pa, filter_append] else by simp [pa, filter_append]
+
+@[simp] theorem filter_sublist {p : α → Prop} [h : decidable_pred p] : Π (l : list α), filter p l <+ l
+| []     := sublist.slnil
+| (a::l) := if pa : p a
+  then by simp[pa]; apply sublist.cons2; apply filter_sublist l
+  else by simp[pa]; apply sublist.cons; apply filter_sublist l
+
+@[simp] theorem filter_subset {p : α → Prop} [h : decidable_pred p] (l : list α) : filter p l ⊆ l :=
+subset_of_sublist $ filter_sublist l
+
+theorem of_mem_filter {p : α → Prop} [h : decidable_pred p] {a : α} : ∀ {l}, a ∈ filter p l → p a
+| []     ain := absurd ain (not_mem_nil a)
+| (b::l) ain :=
+  if pb : p b then
+    have a ∈ b :: filter p l, begin simp [pb] at ain, assumption end,
+    or.elim (eq_or_mem_of_mem_cons this)
+      (suppose a = b, begin rw -this at pb, exact pb end)
+      (suppose a ∈ filter p l, of_mem_filter this)
+  else
+    begin simp [pb] at ain, exact (of_mem_filter ain) end
+
+theorem mem_of_mem_filter {p : α → Prop} [h : decidable_pred p] {a : α}
+  {l} (h : a ∈ filter p l) : a ∈ l :=
+filter_subset l h
+
+theorem mem_filter_of_mem {p : α → Prop} [h : decidable_pred p] {a : α} :
+  ∀ {l}, a ∈ l → p a → a ∈ filter p l
+| []     ain pa := absurd ain (not_mem_nil a)
+| (b::l) ain pa :=
+  if pb : p b then
+    or.elim (eq_or_mem_of_mem_cons ain)
+      (suppose a = b, by simp [pb, this])
+      (suppose a ∈ l, begin simp [pb], exact (mem_cons_of_mem _ (mem_filter_of_mem this pa)) end)
+  else
+    or.elim (eq_or_mem_of_mem_cons ain)
+      (suppose a = b, begin simp [this] at pa, contradiction end) --absurd (this ▸ pa) pb)
+      (suppose a ∈ l, by simp [pa, pb, mem_filter_of_mem this])
+
 @[simp] lemma partition_eq_filter_filter (p : α → Prop) [decidable_pred p] : ∀ (l : list α), partition p l = (filter p l, filter (not ∘ p) l)
 | []     := rfl
 | (a::l) := by { by_cases p a with pa; simp [partition, filter, pa, partition_eq_filter_filter l],

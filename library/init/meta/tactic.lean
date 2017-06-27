@@ -1100,6 +1100,8 @@ run_cmd do
 lemma id_locked_eq {α : Type u} (a : α) : id_locked α a = a :=
 rfl
 
+attribute [inline] id_locked
+
 /- Install monad laws tactic and use it to prove some instances. -/
 
 meta def control_laws_tac := whnf_target >> intros >> to_expr ``(rfl) >>= exact

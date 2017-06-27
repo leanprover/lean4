@@ -25,6 +25,8 @@ For more details, see discussion [here](https://github.com/leanprover/lean/pull/
 
 * Renamed `pose` tactic -> `let`
 
+* `assume` and `suppose` are now real tactics that do not exit tactic mode.
+
 v3.2.0 (18 June 2017)
 -------------
 

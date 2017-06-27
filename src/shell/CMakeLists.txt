@@ -8,8 +8,10 @@ target_link_libraries(lean_js leanstatic)
 add_library(shell_js OBJECT lean_js.cpp server.cpp leandoc.cpp)
 
 if(${EMSCRIPTEN})
+    set(NODE_JS "node --stack_size=8192")
+
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/lean_with_path
-            "#!/bin/sh\nLEAN_PATH=${CMAKE_CURRENT_SOURCE_DIR}/../../library node ${CMAKE_CURRENT_BINARY_DIR}/lean.js \"$@\"\n")
+            "#!/bin/sh\nLEAN_PATH=${CMAKE_CURRENT_SOURCE_DIR}/../../library ${NODE_JS} ${CMAKE_CURRENT_BINARY_DIR}/lean.js \"$@\"\n")
     execute_process(COMMAND chmod +x ${CMAKE_CURRENT_BINARY_DIR}/lean_with_path)
 
     ADD_CUSTOM_COMMAND(TARGET lean
@@ -19,7 +21,7 @@ if(${EMSCRIPTEN})
         )
 
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/lean
-            "#!/bin/sh\nnode ${CMAKE_CURRENT_BINARY_DIR}/lean.js \"$@\"\n")
+            "#!/bin/sh\n${NODE_JS} ${CMAKE_CURRENT_BINARY_DIR}/lean.js \"$@\"\n")
     execute_process(COMMAND chmod +x ${CMAKE_CURRENT_BINARY_DIR}/lean)
 
     # legacy code for mkleanbook

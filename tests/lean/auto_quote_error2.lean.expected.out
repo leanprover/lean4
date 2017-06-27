@@ -7,11 +7,6 @@ a b c : ℕ,
 a_1 : a = b,
 a_2 : b = c
 ⊢ a = c
-
-a b c : ℕ,
-a_1 : a = b,
-a_2 : b = c
-⊢ Sort ?
 hello world
 auto_quote_error2.lean:16:2: error: solve1 tactic failed, focused goal has not been solved
 state:

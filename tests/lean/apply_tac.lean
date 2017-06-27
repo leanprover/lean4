@@ -31,3 +31,10 @@ begin
   trace_state,
   refl
 end
+
+example {α : Type} [weak_order α] (a : α) : a = a :=
+begin
+  apply le_antisymm,
+  apply le_refl,
+  apply le_refl
+end

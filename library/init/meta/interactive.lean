@@ -23,6 +23,58 @@ to_expr q tt
 meta def i_to_expr_strict (q : pexpr) : tactic expr :=
 to_expr q ff
 
+/- Auxiliary version of i_to_expr for apply-like tactics.
+   This is a workaround for comment
+      https://github.com/leanprover/lean/issues/1342#issuecomment-307912291
+   at issue #1342.
+
+   In interactive mode, given a tactic
+
+        apply f
+
+   we want the apply tactic to create all metavariables. The following
+   definition will return `@f` for `f`. That is, it will **not** create
+   metavariables for implicit arguments.
+
+   Before we added `i_to_expr_for_apply`, the tactic
+
+       apply le_antisymm
+
+   would first elaborate `le_antisymm`, and create
+
+       @le_antisymm ?m_1 ?m_2 ?m_3 ?m_4
+
+   The type class resolution problem
+        ?m_2 : weak_order ?m_1
+   by the elaborator since ?m_1 is not assigned yet, and the problem is
+   discarded.
+
+   Then, we would invoke `apply_core`, which would create two
+   new metavariables for the explicit arguments, and try to unify the resulting
+   type with the current target. After the unification,
+   the metavariables ?m_1, ?m_3 and ?m_4 are assigned, but we lost
+   the information about the pending type class resolution problem.
+
+   With `i_to_expr_for_apply`, `le_antisymm` is elaborate into `@le_antisymm`,
+   the apply_core tactic creates all metavariables, and solves the ones that
+   can be solved by type class resolution.
+
+   Another possible fix: we modify the elaborator to return pending
+   type class resolution problems, and store them in the tactic_state.
+-/
+meta def i_to_expr_for_apply (q : pexpr) : tactic expr :=
+let aux (n : name) : tactic expr := do
+  p ← resolve_name n,
+  match p with
+  | (expr.const c []) := do r ← mk_const c, save_type_info r q, return r
+  | _                 := i_to_expr p
+  end
+in match q with
+| (expr.const c [])          := aux c
+| (expr.local_const c _ _ _) := aux c
+| _                          := i_to_expr q
+end
+
 namespace interactive
 open interactive interactive.types expr
 
@@ -109,21 +161,21 @@ The tactic `apply` uses higher-order pattern matching, type class resolution, an
 first-order unification with dependent types.
 -/
 meta def apply (q : parse texpr) : tactic unit :=
-i_to_expr q >>= tactic.apply
+i_to_expr_for_apply q >>= tactic.apply
 
 /--
 Similar to the `apply` tactic, but it also creates subgoals for dependent premises
 that have not been fixed by type inference or type class resolution.
 -/
 meta def fapply (q : parse texpr) : tactic unit :=
-i_to_expr q >>= tactic.fapply
+i_to_expr_for_apply q >>= tactic.fapply
 
 /--
 Similar to the `apply` tactic, but it only creates subgoals for non dependent premises
 that have not been fixed by type inference or type class resolution.
 -/
 meta def eapply (q : parse texpr) : tactic unit :=
-i_to_expr q >>= tactic.eapply
+i_to_expr_for_apply q >>= tactic.eapply
 
 /--
 This tactic tries to close the main goal `... |- U` using type class resolution.

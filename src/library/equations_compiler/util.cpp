@@ -358,9 +358,11 @@ static environment add_equation_lemma(environment const & env, options const & o
 }
 
 static expr whnf_ite(type_context & ctx, expr const & e) {
+    // tout() << "whnf_ite >> " << e << "\n";
     return ctx.whnf_head_pred(e, [&](expr const & e) {
             expr const & fn = get_app_fn(e);
-            return !is_constant(fn, get_ite_name());
+            // tout() << ">> pred: " << e << "\n";
+            return !is_constant(fn, get_ite_name()) && !is_constant(fn, get_id_rhs_name());
         });
 }
 
@@ -619,6 +621,7 @@ static expr prove_eqn_lemma_core(type_context & ctx, buffer<expr> const & Hs, ex
     }
 
     if (ctx.is_def_eq(lhs_body, rhs)) {
+        // tout() << "DONE\n";
         return mk_eq_refl(ctx, lhs_body);
     }
 

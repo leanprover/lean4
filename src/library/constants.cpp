@@ -122,6 +122,7 @@ name const * g_heq_trans = nullptr;
 name const * g_heq_of_eq = nullptr;
 name const * g_hole_command = nullptr;
 name const * g_id_locked = nullptr;
+name const * g_id_rhs = nullptr;
 name const * g_if_neg = nullptr;
 name const * g_if_pos = nullptr;
 name const * g_iff = nullptr;
@@ -495,6 +496,7 @@ void initialize_constants() {
     g_heq_of_eq = new name{"heq_of_eq"};
     g_hole_command = new name{"hole_command"};
     g_id_locked = new name{"id_locked"};
+    g_id_rhs = new name{"id_rhs"};
     g_if_neg = new name{"if_neg"};
     g_if_pos = new name{"if_pos"};
     g_iff = new name{"iff"};
@@ -869,6 +871,7 @@ void finalize_constants() {
     delete g_heq_of_eq;
     delete g_hole_command;
     delete g_id_locked;
+    delete g_id_rhs;
     delete g_if_neg;
     delete g_if_pos;
     delete g_iff;
@@ -1242,6 +1245,7 @@ name const & get_heq_trans_name() { return *g_heq_trans; }
 name const & get_heq_of_eq_name() { return *g_heq_of_eq; }
 name const & get_hole_command_name() { return *g_hole_command; }
 name const & get_id_locked_name() { return *g_id_locked; }
+name const & get_id_rhs_name() { return *g_id_rhs; }
 name const & get_if_neg_name() { return *g_if_neg; }
 name const & get_if_pos_name() { return *g_if_pos; }
 name const & get_iff_name() { return *g_iff; }

@@ -1102,6 +1102,24 @@ rfl
 
 attribute [inline] id_locked
 
+/-
+  Define id_rhs using meta-programming because we don't have
+  syntax for setting reducibility_hints.
+
+  See module init.meta.declaration.
+
+  Remark: id_rhs is used in the equation compiler to address performance
+  issues when proving equational lemmas.
+-/
+run_cmd do
+ let l  := level.param `l,
+ let Ty : pexpr := expr.sort l,
+ type ← to_expr ``(Π (α : %%Ty), α → α),
+ val  ← to_expr ``(λ (α : %%Ty) (a : α), a),
+ add_decl (declaration.defn `id_rhs [`l] type val reducibility_hints.abbrev tt)
+
+attribute [reducible, inline] id_rhs
+
 /- Install monad laws tactic and use it to prove some instances. -/
 
 meta def control_laws_tac := whnf_target >> intros >> to_expr ``(rfl) >>= exact

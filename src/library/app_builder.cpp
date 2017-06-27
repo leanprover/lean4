@@ -1130,6 +1130,12 @@ expr mk_id_locked(type_context & ctx, expr const & type, expr const & h) {
     return mk_app(mk_constant(get_id_locked_name(), {lvl}), type, h);
 }
 
+expr mk_id_rhs(type_context & ctx, expr const & h) {
+    expr type = ctx.infer(h);
+    level lvl = get_level(ctx, type);
+    return mk_app(mk_constant(get_id_rhs_name(), {lvl}), type, h);
+}
+
 static bool is_eq_trans(expr const & h, expr & h1, expr & h2) {
     if (is_app_of(h, get_eq_trans_name(), 6)) {
         h1 = app_arg(app_fn(h));

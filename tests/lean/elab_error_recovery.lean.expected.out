@@ -32,8 +32,10 @@ half_baked : ℕ → ℕ
 ⊢ ℕ
 def half_baked._main : ℕ → ℕ :=
 λ (a : ℕ),
-  ite (a = 3) 2
-    (ite (a = 0) (1 + ⁇) (ite (a = 5) (⁇ + 4) (ite (a = 42) (ite (2 ∈ 3) 3 ⁇) (ite (a = 7) ⁇ ⁇))))
+  ite (a = 3) (id_rhs ℕ 2)
+    (ite (a = 0) (id_rhs ℕ (1 + ⁇))
+       (ite (a = 5) (id_rhs ℕ (⁇ + 4))
+          (ite (a = 42) (id_rhs ℕ (ite (2 ∈ 3) 3 ⁇)) (ite (a = 7) (id_rhs ℕ ⁇) (id_rhs ℕ ⁇)))))
 2
 nat.succ (nat.succ (nat.succ (nat.succ ⁇)))
 2

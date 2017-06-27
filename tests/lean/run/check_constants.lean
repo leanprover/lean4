@@ -122,6 +122,7 @@ run_cmd script_check_id `heq.trans
 run_cmd script_check_id `heq_of_eq
 run_cmd script_check_id `hole_command
 run_cmd script_check_id `id_locked
+run_cmd script_check_id `id_rhs
 run_cmd script_check_id `if_neg
 run_cmd script_check_id `if_pos
 run_cmd script_check_id `iff
@@ -350,7 +351,6 @@ run_cmd script_check_id `psum.inr
 run_cmd script_check_id `tactic
 run_cmd script_check_id `tactic.try
 run_cmd script_check_id `tactic.triv
-run_cmd script_check_id `tactic.add_coinductive_predicate
 run_cmd script_check_id `thunk
 run_cmd script_check_id `to_fmt
 run_cmd script_check_id `trans_rel_left

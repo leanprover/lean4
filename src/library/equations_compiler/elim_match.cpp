@@ -1154,6 +1154,12 @@ struct elim_match_fn {
         equation const & eqn       = head(P.m_equations);
         m_used_eqns[eqn.m_eqn_idx] = true;
         expr rhs                   = apply(eqn.m_rhs, eqn.m_subst);
+        if (m_aux_lemmas && m_env.find(get_id_rhs_name())) {
+            /* We wrap the rhs with `id_rhs` to solve a performance problem related to whnf_ite when proving
+               the equational lemmas. */
+            type_context ctx = mk_type_context(P);
+            rhs              = mk_id_rhs(ctx, rhs);
+        }
         m_mctx.assign(P.m_goal, rhs);
         if (m_aux_lemmas) {
             lemma L;

@@ -1522,6 +1522,42 @@ struct to_pattern_fn {
         return false;
     }
 
+    /* (Try to) process a choice-expression.
+       Return "some" if all alternatives are constants. The result will contain only the alternatives
+       that can occur in patterns.
+    */
+    optional<expr> process_choice(expr const & e, expr const & ref) {
+        lean_assert(is_choice(e));
+        bool all_constant = true;
+        buffer<expr> pattern_constants;
+        for (unsigned i = 0; i < get_num_choices(e); i++) {
+            expr const & c = get_choice(e, i);
+            if (is_constant(c)) {
+                if (is_pattern_constant(const_name(c)))
+                    pattern_constants.push_back(c);
+            } else {
+                all_constant = false;
+            }
+        }
+        if (pattern_constants.size() == get_num_choices(e)) {
+            return some_expr(e);
+        } else if (!pattern_constants.empty()) {
+            if (all_constant) {
+                /* Filter overloads that cannot occur in patterns. */
+                return some_expr(copy_tag(e, mk_choice(pattern_constants.size(), pattern_constants.data())));
+            } else {
+                m_parser.maybe_throw_error({
+                        sstream() << "invalid pattern, '" << ref << "' is overloaded, "
+                                  << "and some interpretations may occur in patterns and others not "
+                                  << "(solution: use fully qualified names)",
+                            m_parser.pos_of(ref)});
+                return none_expr();
+            }
+        } else {
+            return none_expr();
+        }
+    }
+
     void collect_new_local(expr const & e) {
         name const & n = local_pp_name(e);
         bool resolve_only = true;
@@ -1536,24 +1572,9 @@ struct to_pattern_fn {
             m_locals_map.insert(n, new_e);
             return;
         } else if (is_choice(new_e)) {
-            bool all_pattern_constant = true;
-            bool has_pattern_constant = false;
-            for (unsigned i = 0; i < get_num_choices(new_e); i++) {
-                expr const & c = get_choice(new_e, i);
-                if (is_constant(c) && is_pattern_constant(const_name(c)))
-                    has_pattern_constant = true;
-                else
-                    all_pattern_constant = false;
-            }
-            if (all_pattern_constant) {
-                m_locals_map.insert(n, new_e);
+            if (auto r = process_choice(new_e, e)) {
+                m_locals_map.insert(n, *r);
                 return;
-            } else if (has_pattern_constant) {
-                return m_parser.maybe_throw_error({
-                    sstream() << "invalid pattern, '" << e << "' is overloaded, "
-                    << "and some interpretations may occur in patterns and others not "
-                    << "(solution: use fully qualified names)",
-                    m_parser.pos_of(e)});
             } else {
                 // assume e is a variable shadowing overloaded constants
             }
@@ -1587,15 +1608,11 @@ struct to_pattern_fn {
             collect_new_locals(app_fn(e), skip_main_fn);
             collect_new_locals(app_arg(e), false);
         } else if (is_choice(e)) {
-            for (unsigned i = 0; i < get_num_choices(e); i++) {
-                expr const & c = get_choice(e, i);
-                if (!is_constant(c) || !is_pattern_constant(const_name(c))) {
-                    return m_parser.maybe_throw_error({
+            if (!process_choice(e, e)) {
+                return m_parser.maybe_throw_error({
                         sstream() << "invalid pattern, '" << e << "' is overloaded, "
-                                  << "and some interpretations may occur in patterns and others not "
-                                  << "(solution: use fully qualified names)",
+                                  << "and this kind of overloading is not currently supported in patterns",
                         m_parser.pos_of(e)});
-                }
             }
         } else if (is_local(e)) {
             if (skip_main_fn) {
@@ -1653,10 +1670,16 @@ struct to_pattern_fn {
             expr new_a = visit(app_arg(e));
             return update_app(e, new_f, new_a);
         } else if (is_choice(e)) {
-            buffer<expr> new_args;
-            for (unsigned i = 0; i < macro_num_args(e); i++)
-                new_args.push_back(visit(macro_arg(e, i)));
-            return update_macro(e, new_args.size(), new_args.data());
+            auto new_e = process_choice(e, e);
+            lean_assert(new_e);
+            if (!is_eqp(*new_e, e)) {
+                return visit(*new_e);
+            } else {
+                buffer<expr> new_args;
+                for (unsigned i = 0; i < macro_num_args(e); i++)
+                    new_args.push_back(visit(macro_arg(e, i)));
+                return update_macro(e, new_args.size(), new_args.data());
+            }
         } else if (is_local(e)) {
             if (auto r = m_locals_map.find(local_pp_name(e)))
                 return *r;

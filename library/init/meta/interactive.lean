@@ -516,6 +516,26 @@ tactic.any_goals
 meta def focus (tac : itactic) : tactic unit :=
 tactic.focus [tac]
 
+meta def assume_tac (p : parse parse_binders) : tactic unit :=
+list.mfor' p $ λ b,
+  do t ← target,
+     when (not $ t.is_pi ∨ t.is_let) whnf_target,
+     when (not $ t.is_pi ∨ t.is_let) $
+       fail "assume tactic failed, Pi/let expression expected",
+     ty ← i_to_expr b.local_type,
+     unify ty t.binding_domain,
+     intro_core b.local_pp_name
+
+meta def suppose_tac (h : parse ident?) (q : parse (tk ":" *> texpr)?) : tactic unit :=
+let h := h.get_or_else `this in
+match q with
+| some e := do
+  uniq_name ← mk_fresh_name,
+  let l := expr.local_const uniq_name h binder_info.default e,
+  assume_tac [l]
+| none := intro h
+end
+
 /--
 This tactic applies to any goal.
 - `have h : T := p` adds the hypothesis `h : T` to the current goal if `p` a term of type `T`.

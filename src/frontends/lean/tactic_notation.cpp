@@ -116,14 +116,13 @@ name get_interactive_tactic_full_name(name const & tac_class, name const & tac) 
 }
 
 static bool is_curr_exact_shortcut(parser & p) {
-    return
-            p.curr_is_token(get_assume_tk()) ||
-            p.curr_is_token(get_calc_tk()) ||
-            p.curr_is_token(get_suppose_tk());
+    return p.curr_is_token(get_calc_tk());
 }
 
 static bool is_keyword_tactic(parser & p) {
     return
+            p.curr_is_token(get_assume_tk()) ||
+            p.curr_is_token(get_suppose_tk()) ||
             p.curr_is_token(get_let_tk()) ||
             p.curr_is_token(get_have_tk()) ||
             p.curr_is_token(get_show_tk());

@@ -1030,6 +1030,7 @@ parse_table init_nud_table() {
     parse_table r;
     r = r.add({transition("by", mk_ext_action_core(parse_by))}, x0);
     r = r.add({transition("have", mk_ext_action(parse_have))}, x0);
+    r = r.add({transition("assume", mk_ext_action(parse_lambda))}, x0);
     r = r.add({transition("suppose", mk_ext_action(parse_suppose))}, x0);
     r = r.add({transition("show", mk_ext_action(parse_show))}, x0);
     r = r.add({transition("suffices", mk_ext_action(parse_suffices))}, x0);

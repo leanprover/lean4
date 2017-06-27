@@ -289,6 +289,15 @@ static vm_obj interactive_inductive_decl_parse(vm_obj const & vm_meta, vm_obj co
     CATCH;
 }
 
+static vm_obj interactive_parse_binders(vm_obj const & vm_rbp, vm_obj const & vm_s) {
+    auto s = lean_parser::to_state(vm_s);
+    TRY;
+        buffer<expr> binders;
+        s.m_p->parse_binders(binders, to_unsigned(vm_rbp));
+        return lean_parser::mk_success(to_obj(binders), s);
+    CATCH;
+}
+
 void initialize_vm_parser() {
     DECLARE_VM_BUILTIN(name({"lean", "parser_state", "env"}),         vm_parser_state_env);
     DECLARE_VM_BUILTIN(name({"lean", "parser_state", "options"}),     vm_parser_state_options);
@@ -304,6 +313,7 @@ void initialize_vm_parser() {
 
     DECLARE_VM_BUILTIN(name({"interactive", "decl_attributes", "apply"}), interactive_decl_attributes_apply);
     DECLARE_VM_BUILTIN(name({"interactive", "inductive_decl", "parse"}),  interactive_inductive_decl_parse);
+    DECLARE_VM_BUILTIN(name({"interactive", "parse_binders"}),            interactive_parse_binders);
 }
 
 void finalize_vm_parser() {

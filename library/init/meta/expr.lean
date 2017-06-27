@@ -247,11 +247,11 @@ meta def local_uniq_name : expr → name
 | (local_const n m bi t) := n
 | e                      := name.anonymous
 
-meta def local_pp_name : expr → name
+meta def local_pp_name : expr elab → name
 | (local_const x n bi t) := n
 | e                      := name.anonymous
 
-meta def local_type : expr → expr
+meta def local_type : expr elab → expr elab
 | (local_const _ _ _ t) := t
 | e := e
 

@@ -77,6 +77,26 @@ tactic.interactive.change q none (loc.ns [])
 meta def exact (q : parse texpr) : smt_tactic unit :=
 tactic.interactive.exact q
 
+meta def assume_tac (p : parse parse_binders) : smt_tactic unit :=
+list.mfor' p $ λ b,
+  do t ← tactic.target,
+     when (not $ t.is_pi ∨ t.is_let) tactic.whnf_target,
+     when (not $ t.is_pi ∨ t.is_let) $
+       fail "assume tactic failed, Pi/let expression expected",
+     ty ← tactic.i_to_expr b.local_type,
+     tactic.unify ty t.binding_domain,
+     smt_tactic.intro_lst [b.local_pp_name]
+
+meta def suppose_tac (h : parse ident?) (q : parse (tk ":" *> texpr)?) : smt_tactic unit :=
+let h := h.get_or_else `this in
+match q with
+| some e := do
+  uniq_name ← tactic.mk_fresh_name,
+  let l := expr.local_const uniq_name h binder_info.default e,
+  assume_tac [l]
+| none := smt_tactic.intro_lst [h]
+end
+
 meta def have_tac (h : parse ident?) (q₁ : parse (tk ":" *> texpr)?) (q₂ : parse $ (tk ":=" *> texpr)?) : smt_tactic unit :=
 let h := h.get_or_else `this in
 match q₁, q₂ with

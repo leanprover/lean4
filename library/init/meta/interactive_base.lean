@@ -142,6 +142,9 @@ meta def param_desc : expr → tactic format
   else paren <$> pp e
 
 
+private meta constant parse_binders_core (rbp : ℕ) : parser (list pexpr)
+meta def parse_binders (rbp := std.prec.max) := with_desc "<binders>" (parse_binders_core rbp)
+
 meta constant decl_attributes : Type
 
 meta constant decl_attributes.apply : decl_attributes → name → parser unit

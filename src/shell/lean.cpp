@@ -228,6 +228,7 @@ class progress_message_stream {
     bool m_showing_task = false;
     std::ostream & m_out;
     bool m_use_json;
+    log_tree::node m_lt;
 
     bool m_show_progress;
     std::unique_ptr<single_timer> m_timer;
@@ -240,8 +241,8 @@ class progress_message_stream {
     }
 
 public:
-    progress_message_stream(std::ostream & out, bool use_json, bool show_progress) :
-            m_out(out), m_use_json(use_json), m_show_progress(show_progress) {
+    progress_message_stream(std::ostream & out, bool use_json, bool show_progress, log_tree::node const & lt) :
+            m_out(out), m_use_json(use_json), m_lt(lt), m_show_progress(show_progress) {
 #if defined(LEAN_MULTI_THREAD)
         if (show_progress) {
             m_timer.reset(new single_timer);
@@ -255,7 +256,7 @@ public:
     }
 
     void on_event(std::vector<log_tree::event> const & events) {
-        log_tree::event const * cur_task = nullptr;
+        bool refresh_task = false;
         for (auto & e : events) {
             switch (e.m_kind) {
                 case log_tree::event::EntryAdded:
@@ -275,43 +276,52 @@ public:
                 case log_tree::event::ProducerSet:
                     taskq().submit(e.m_node.get_producer());
                     break;
-                case log_tree::event::Finished:
-                    if (e.m_node.get_description().size())
-                        cur_task = &e;
+                case log_tree::event::StateChanged:
+                    refresh_task = true;
                     break;
             }
         }
-        if (m_show_progress && cur_task) {
-            std::ostringstream fmt;
-            fmt << cur_task->m_node.get_location().m_file_name << ": " << cur_task->m_node.get_description();
-            auto fmt_str = fmt.str();
+        if (m_show_progress && refresh_task) {
 #if defined(LEAN_MULTI_THREAD)
-            if (m_timer) {
-                m_timer->set(chrono::steady_clock::now() + chrono::milliseconds(100),
-                    [=] { show_current_task(fmt_str); }, false);
-            } else {
-                unique_lock<mutex> lock(m_mutex);
-                show_current_task_core(fmt_str);
-            }
+            lean_assert(m_timer);
+            m_timer->set(chrono::steady_clock::now() + chrono::milliseconds(100),
+                [=] { show_current_task(); }, false);
 #else
-            show_current_task_core(fmt_str);
+            show_current_task_core();
 #endif
         }
     }
 
-    void show_current_task(std::string const & desc) {
-        unique_lock<mutex> lock(m_mutex);
-        show_current_task_core(desc);
+    optional<std::string> find_current_task() {
+        optional<std::string> found_running;
+        m_lt.for_each([&] (log_tree::node const & lt) {
+            if (!found_running) {
+                if (lt.get_state() == log_tree::state::Running) {
+                    std::ostringstream fmt;
+                    fmt << lt.get_location().m_file_name << ": " << lt.get_description();
+                    found_running = fmt.str();
+                }
+            }
+            return !found_running;
+        });
+        return found_running;
     }
-    void show_current_task_core(std::string const & desc) {
+
+    void show_current_task() {
+        unique_lock<mutex> lock(m_mutex);
+        show_current_task_core();
+    }
+    void show_current_task_core() {
         if (m_use_json) return;
-        clear_shown_task();
+        if (auto desc = find_current_task()) {
+            clear_shown_task();
 #if defined(LEAN_EMSCRIPTEN)
-        m_out << desc << std::endl;
+            m_out << *desc << std::endl;
 #else
-        m_out << desc << std::flush;
-        m_showing_task = true;
+            m_out << *desc << std::flush;
+            m_showing_task = true;
 #endif
+        }
     }
 };
 
@@ -510,10 +520,11 @@ int main(int argc, char ** argv) {
     }
 #endif
 
-    progress_message_stream msg_stream(std::cout, json_output, make_mode);
+    log_tree lt;
+
+    progress_message_stream msg_stream(std::cout, json_output, make_mode, lt.get_root());
     if (json_output) ios.set_regular_channel(ios.get_diagnostic_channel_ptr());
 
-    log_tree lt;
     if (!test_suite)
         lt.add_listener([&] (std::vector<log_tree::event> const & evs) { msg_stream.on_event(evs); });
     auto lt_root = lt.get_root();

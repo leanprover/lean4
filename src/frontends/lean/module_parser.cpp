@@ -109,7 +109,9 @@ module_parser::parse_next_command_like(optional<std::vector<gtask>> const & depe
     auto ctok = mk_cancellation_token(global_cancellation_token());
     scope_cancellation_token scope_ctok(&ctok);
     auto lt = logtree().mk_child(
-            "_next", "parsing", {m_parser.m_file_name, {begin_pos, m_end_pos}},
+            "_next",
+            (sstream() << "parsing at line " << begin_pos.first).str(),
+            {m_parser.m_file_name, {begin_pos, m_end_pos}},
             log_tree::DefaultLevel, true);
     if (dependencies || m_separate_tasks) {
         auto task = task_builder<module_parser_result>(std::move(fn))

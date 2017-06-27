@@ -32,6 +32,8 @@ public:
     struct event;
     using listener = std::function<void(std::vector<event> const &)>;
 
+    enum class state { Created, Running, Cancelled, Finished };
+
     using detail_level = unsigned;
     constexpr static detail_level
         DefaultLevel = 100,
@@ -55,6 +57,7 @@ public:
         std::string m_description;
         gtask m_producer;
         detail_level m_detail_level = DefaultLevel;
+        state m_state = state::Created;
 
         node_cell() : m_rc(0) {}
     };
@@ -98,6 +101,8 @@ public:
         void finish() const;
 
         void set_producer(gtask const &);
+        void set_state(state, bool ignore_illegal_transition = false);
+        state get_state() const;
         detail_level get_detail_level() const { return m_ptr->m_detail_level; }
         location const & get_location() const { return m_ptr->m_location; }
         std::string const & get_description() const { return m_ptr->m_description; }
@@ -119,7 +124,7 @@ public:
     };
 
     struct event {
-        enum { ProducerSet, EntryAdded, EntryRemoved, Finished } m_kind;
+        enum { ProducerSet, EntryAdded, EntryRemoved, StateChanged } m_kind;
         node m_node;
         log_entry m_entry;
     };

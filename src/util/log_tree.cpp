@@ -60,7 +60,7 @@ void log_tree::node::detach_core(std::vector<log_tree::event> & events) const {
     m_ptr->m_detached = true;
     m_ptr->m_children.for_each([&] (name const &, node const & c) { c.detach_core(events); });
     for (auto & e : m_ptr->m_entries) events.push_back({ event::EntryRemoved, m_ptr, e });
-    if (m_ptr->m_producer) events.push_back({event::Finished, m_ptr, {}});
+    if (m_ptr->m_producer) events.push_back({event::StateChanged, m_ptr, {}});
     m_ptr->m_producer = nullptr;
 }
 
@@ -133,6 +133,21 @@ log_tree::node log_tree::node::mk_child(name n, std::string const & description,
     return child;
 }
 
+log_tree::state log_tree::node::get_state() const {
+    auto l = lock();
+    return m_ptr->m_state;
+}
+
+void log_tree::node::set_state(state s, bool ignore_illegal_trans) {
+    auto l = lock();
+    if (s >= m_ptr->m_state) {
+        m_ptr->m_state = s;
+        notify({{event::StateChanged, *this, {}}}, l);
+    } else {
+        lean_always_assert(ignore_illegal_trans);
+    }
+}
+
 void log_tree::node::set_producer(gtask const & prod) {
     auto l = lock();
     if (m_ptr->m_detached) return;
@@ -142,8 +157,11 @@ void log_tree::node::set_producer(gtask const & prod) {
 
 void log_tree::node::finish() const {
     auto l = lock();
+    lean_always_assert(m_ptr->m_state < state::Finished);
+
     std::vector<event> events;
     m_ptr->m_producer.reset();
+    m_ptr->m_state = state::Finished;
 
     buffer<pair<name, node>> to_delete;
     m_ptr->m_children.for_each([&] (name const & n, node const & c) {
@@ -156,7 +174,7 @@ void log_tree::node::finish() const {
         c.second.detach_core(events);
     }
 
-    events.push_back({event::Finished, *this, {}});
+    events.push_back({event::StateChanged, *this, {}});
     notify(events, l);
 }
 

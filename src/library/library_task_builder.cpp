@@ -22,7 +22,12 @@ struct library_scopes_imp : public delegating_task_imp {
     void execute(void * result) override {
         scope_global_ios scope1(m_ios);
         scope_log_tree scope2(m_lt);
-        delegating_task_imp::execute(result);
+        if (m_lt) m_lt.set_state(log_tree::state::Running);
+        try {
+            delegating_task_imp::execute(result);
+        } catch (interrupted) {
+            m_lt.set_state(log_tree::state::Cancelled);
+        }
     }
 };
 

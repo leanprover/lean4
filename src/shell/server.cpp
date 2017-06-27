@@ -270,7 +270,7 @@ public:
                         need_refresh = true;
                     }
                     break;
-                case log_tree::event::Finished:
+                case log_tree::event::StateChanged:
                     if (!roi) roi = m_srv->get_roi();
                     if (roi->get_priority(e.m_node))
                         need_refresh = true;

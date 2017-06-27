@@ -45,21 +45,6 @@ static unsigned get_expect_num_args(type_context & ctx, expr e) {
     }
 }
 
-void collect_metavars(expr const & e, buffer<expr> & result) {
-    if (!has_expr_metavar(e))
-        return;
-    name_set already_added;
-    for_each(e, [&](expr const & t, unsigned) {
-            if (!has_expr_metavar(t))
-                return false;
-            if (is_metavar(t) && !already_added.contains(mlocal_name(t))) {
-                result.push_back(t);
-                already_added.insert(mlocal_name(t));
-            }
-            return true;
-        });
-}
-
 bool try_instance(type_context & ctx, expr const & meta, tactic_state const & s, vm_obj * out_error_obj, char const * tac_name) {
     if (ctx.is_assigned(meta))
         return true;
@@ -154,8 +139,6 @@ static optional<tactic_state> apply(type_context & ctx, expr e, apply_cfg const 
                                     vm_obj * out_error_obj, list<expr> * new_metas) {
     optional<metavar_decl> g = s.get_main_goal_decl();
     lean_assert(g);
-    buffer<expr> e_metas;
-    collect_metavars(e, e_metas);
     local_context lctx   = g->get_context();
     expr target          = g->get_type();
     expr e_type          = ctx.infer(e);
@@ -211,21 +194,9 @@ static optional<tactic_state> apply(type_context & ctx, expr e, apply_cfg const 
             if (cfg.m_auto_param && !try_auto_param(ctx, metas[i], s, out_error_obj, "apply"))
                 return none_tactic_state();
         }
-        for (expr const & m : e_metas) {
-            if (cfg.m_opt_param && !try_opt_param(ctx, m, s, out_error_obj, "apply"))
-                return none_tactic_state();
-            if (cfg.m_auto_param && !try_auto_param(ctx, m, s, out_error_obj, "apply"))
-                return none_tactic_state();
-        }
     }
     /* Collect unassigned meta-variables */
     buffer<expr> new_goals;
-    for (auto m : e_metas) {
-        if (!ctx.is_assigned(m)) {
-            ctx.instantiate_mvars_at_type_of(m);
-            new_goals.push_back(m);
-        }
-    }
     for (auto m : metas) {
         if (!ctx.is_assigned(m)) {
             ctx.instantiate_mvars_at_type_of(m);

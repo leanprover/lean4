@@ -688,6 +688,16 @@ section
   else
     if hq : q then is_true $ or.inr ⟨hq, hp⟩
     else is_false (or.rec (λ ⟨h, _⟩, hp h : ¬(p ∧ ¬ q)) (λ ⟨h, _⟩, hq h : ¬(q ∧ ¬ p)))
+
+  instance exists_prop_decidable {p} (P : p → Prop)
+    [Dp : decidable p] [DP : ∀ h, decidable (P h)] : decidable (∃ h, P h) :=
+  if h : p then decidable_of_decidable_of_iff (DP h)
+    ⟨λ h2, ⟨h, h2⟩, λ⟨h', h2⟩, h2⟩ else is_false (mt (λ⟨h, _⟩, h) h)
+
+  instance forall_prop_decidable {p} (P : p → Prop)
+    [Dp : decidable p] [DP : ∀ h, decidable (P h)] : decidable (∀ h, P h) :=
+  if h : p then decidable_of_decidable_of_iff (DP h)
+    ⟨λ h2 _, h2, λal, al h⟩ else is_true (λ h2, absurd h2 h)
 end
 
 instance {α : Sort u} [decidable_eq α] (a b : α) : decidable (a ≠ b) :=

@@ -178,6 +178,12 @@ meta def eapply (q : parse texpr) : tactic unit :=
 i_to_expr_for_apply q >>= tactic.eapply
 
 /--
+Similar to the `apply` tactic, but allows the user to provide a `apply_cfg` configuration object.
+-/
+meta def apply_with (q : parse qexpr) (cfg : apply_cfg) : tactic unit :=
+do e ← i_to_expr_for_apply q, tactic.apply e cfg
+
+/--
 This tactic tries to close the main goal `... |- U` using type class resolution.
 It succeeds if it generates a term of type `U` using type class resolution.
 -/

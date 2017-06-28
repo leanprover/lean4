@@ -832,7 +832,9 @@ private meta def try_apply_opt_auto_param (cfg : apply_cfg) (ms : list expr) : t
 when (cfg.auto_param || cfg.opt_param) $
 mwhen (has_opt_auto_param ms) $ do
   gs ← get_goals,
-  ms.mfor' (λ m, set_goals [m] >> try apply_opt_param >> try apply_auto_param),
+  ms.mfor' (λ m, set_goals [m] >>
+                 when cfg.opt_param (try apply_opt_param) >>
+                 when cfg.auto_param (try apply_auto_param)),
   set_goals gs
 
 meta def apply (e : expr) (cfg : apply_cfg := {}) : tactic unit :=

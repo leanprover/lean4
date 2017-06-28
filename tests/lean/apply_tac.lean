@@ -56,7 +56,7 @@ eq.trans h₁ h₂
 
 example (a b c : nat) (h₁ : a = b) (h₂ : b = c) : a = c :=
 begin
-  apply foo h₁ -- uses auto_param for solving goal
+  apply @foo a b c h₁ -- uses auto_param for solving goal
 end
 
 lemma my_div_self (a : nat) (h : a ≠ 0 . assumption) : a / a = 1 :=
@@ -66,3 +66,29 @@ example (a : nat) (h : a ≠ 0) : a / a = 1 :=
 begin
   apply my_div_self -- uses auto_param for solving goal
 end
+
+example (a b c : nat) (h₁ : a = b) (h₂ : b = c) : a = c :=
+begin
+  apply_with (@foo a b c h₁) {auto_param := ff},
+  assumption
+end
+
+example (a : nat) (h : a ≠ 0) : a / a = 1 :=
+begin
+  apply_with my_div_self {auto_param := ff},
+  assumption
+end
+
+example (a : nat) (h : a ≠ 0) : a / a = 1 :=
+begin
+  apply_with my_div_self {opt_param := ff} -- uses auto_param for solving goal
+end
+
+def bla2 : nat :=
+begin
+  apply_with f {opt_param := ff},
+  exact 20
+end
+
+example : bla2 = 21 :=
+rfl

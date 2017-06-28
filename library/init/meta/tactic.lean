@@ -1077,6 +1077,19 @@ do h ← get_local curr,
    intro new,
    intron (n - 1)
 
+/--
+"Replace" hypothesis `h : type` with `h : new_type` where `eq_pr` is a proof
+that (type = new_type). The tactic actually creates a new hypothesis
+with the same user facing name, and (tries to) clear `h`.
+The `clear` step fails if `h` has forward dependencies. In this case, the old `h`
+will remain in the local context. The tactic returns the new hypothesis. -/
+meta def replace_hyp (h : expr) (new_type : expr) (eq_pr : expr) : tactic expr :=
+do h_type ← infer_type h,
+   new_h ← assert h.local_pp_name new_type,
+   mk_eq_mp eq_pr h >>= exact,
+   try $ clear h,
+   return new_h
+
 end tactic
 
 notation [parsing_only] `command`:max := tactic unit

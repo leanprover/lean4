@@ -26,7 +26,7 @@ struct library_scopes_imp : public delegating_task_imp {
         try {
             delegating_task_imp::execute(result);
         } catch (interrupted) {
-            m_lt.set_state(log_tree::state::Cancelled);
+            if (m_lt) m_lt.set_state(log_tree::state::Cancelled);
         }
     }
 };

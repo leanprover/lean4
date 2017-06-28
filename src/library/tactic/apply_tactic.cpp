@@ -77,18 +77,6 @@ bool try_instance(type_context & ctx, expr const & meta, tactic_state const & s,
     return true;
 }
 
-bool try_auto_param(type_context & /* ctx */, expr const & /* meta */,
-                    tactic_state const & /* s */, vm_obj * /* out_error_obj */, char const * /* tac_name */) {
-    // TODO(Leo)
-    return true;
-}
-
-bool try_opt_param(type_context & /* ctx */, expr const & /* meta */,
-                   tactic_state const & /* s */, vm_obj * /* out_error_obj */, char const * /* tac_name */) {
-    // TODO(Leo)
-    return true;
-}
-
 /** \brief Given a sequence metas/goals: <tt>(?m_1 ...) (?m_2 ... ) ... (?m_k ...)</tt>,
     we say ?m_i is "redundant" if it occurs in the type of some ?m_j.
     This procedure removes from metas any redundant element. */
@@ -181,17 +169,6 @@ static optional<tactic_state> apply(type_context & ctx, expr e, apply_cfg const 
             --i;
             if (!is_instance[i]) continue;
             if (!try_instance(ctx, metas[i], s, out_error_obj, "apply"))
-                return none_tactic_state();
-        }
-    }
-    /* Synthesize using auto_param and opt_param */
-    if (cfg.m_opt_param || cfg.m_auto_param) {
-        unsigned i = metas.size();
-        while (i > 0) {
-            --i;
-            if (cfg.m_opt_param && !try_opt_param(ctx, metas[i], s, out_error_obj, "apply"))
-                return none_tactic_state();
-            if (cfg.m_auto_param && !try_auto_param(ctx, metas[i], s, out_error_obj, "apply"))
                 return none_tactic_state();
         }
     }

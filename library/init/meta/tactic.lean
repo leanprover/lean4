@@ -363,9 +363,10 @@ structure apply_cfg :=
 (opt_param     := tt)
 /-- Apply the expression `e` to the main goal,
     the unification is performed using the transparency mode in `cfg`.
-    If cfg.approx is `tt`, then fallback to first-order unification, and approximate context during unification.
-    If cfg.all is `tt`, then all unassigned meta-variables are added as new goals.
-    If cfg.use_instances is `tt`, then use type class resolution to instantiate unassigned meta-variables.
+    If `cfg.approx` is `tt`, then fallback to first-order unification, and approximate context during unification.
+    `cfg.new_goals` specifies which unassigned metavariables become new goals, and their order.
+    If `cfg.instances` is `tt`, then use type class resolution to instantiate unassigned meta-variables.
+    The fields `cfg.auto_param` and `cfg.opt_param` are ignored by this tactic (See `tactic.apply`).
     It returns a list of all introduced meta variables, even the assigned ones. -/
 meta constant apply_core (e : expr) (cfg : apply_cfg := {}) : tactic (list expr)
 /- Create a fresh meta universe variable. -/
@@ -810,14 +811,38 @@ meta def done : tactic unit :=
 do n ← num_goals,
    when (n ≠ 0) (fail "done tactic failed, there are unsolved goals")
 
-meta def apply (e : expr) : tactic unit :=
-apply_core e >> return ()
+meta def apply_opt_param : tactic unit :=
+do `(opt_param %%t %%v) ← target,
+   exact v
+
+meta def apply_auto_param : tactic unit :=
+do `(auto_param %%type %%tac_name_expr) ← target,
+   change type,
+   tac_name ← eval_expr name tac_name_expr,
+   tac ← eval_expr (tactic unit) (expr.const tac_name []),
+   tac
+
+meta def has_opt_auto_param (ms : list expr) : tactic bool :=
+ms.mfoldl
+ (λ r m, do type ← infer_type m,
+            return $ r || type.is_napp_of `opt_param 2 || type.is_napp_of `auto_param 2)
+ ff
+
+private meta def try_apply_opt_auto_param (cfg : apply_cfg) (ms : list expr) : tactic unit :=
+when (cfg.auto_param || cfg.opt_param) $
+mwhen (has_opt_auto_param ms) $ do
+  gs ← get_goals,
+  ms.mfor' (λ m, set_goals [m] >> try apply_opt_param >> try apply_auto_param),
+  set_goals gs
+
+meta def apply (e : expr) (cfg : apply_cfg := {}) : tactic unit :=
+apply_core e cfg >>= try_apply_opt_auto_param cfg
 
 meta def fapply (e : expr) : tactic unit :=
-apply_core e {new_goals := new_goals.all} >> return ()
+apply e {new_goals := new_goals.all}
 
 meta def eapply (e : expr) : tactic unit :=
-apply_core e {new_goals := new_goals.non_dep_only} >> return ()
+apply e {new_goals := new_goals.non_dep_only}
 
 /-- Try to solve the main goal using type class resolution. -/
 meta def apply_instance : tactic unit :=
@@ -1043,17 +1068,6 @@ updateex_env $ λe, e.add_inductive n ls p ty is is_meta
 
 meta def add_meta_definition (n : name) (lvls : list name) (type value : expr) : tactic unit :=
 add_decl (declaration.defn n lvls type value reducibility_hints.abbrev ff)
-
-meta def apply_opt_param : tactic unit :=
-do `(opt_param %%t %%v) ← target,
-   exact v
-
-meta def apply_auto_param : tactic unit :=
-do `(auto_param %%type %%tac_name_expr) ← target,
-   change type,
-   tac_name ← eval_expr name tac_name_expr,
-   tac ← eval_expr (tactic unit) (expr.const tac_name []),
-   tac
 
 meta def rename (curr : name) (new : name) : tactic unit :=
 do h ← get_local curr,

@@ -6,7 +6,7 @@ a + b
 
 def val1 : nat :=
 begin
-  apply @p,
+  refine @p _ _,
   exact 2,
   apply_opt_param
 end

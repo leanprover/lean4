@@ -16,3 +16,4 @@ a : ℕ
 ⊢ ?m_1 = a
 a : ℕ
 ⊢ a = a
+apply_tac.lean:62:0: warning: declaration 'my_div_self' uses sorry

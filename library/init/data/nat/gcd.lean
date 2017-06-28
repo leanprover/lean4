@@ -42,12 +42,12 @@ by cases m; simp [gcd]
 @[elab_as_eliminator]
 theorem gcd.induction {P : ℕ → ℕ → Prop}
                    (m n : ℕ)
-                   (H0 : ∀m, P m 0)
-                   (H1 : ∀m n, 0 < n → P n (m % n) → P m n) :
+                   (H0 : ∀n, P 0 n)
+                   (H1 : ∀m n, 0 < m → P (n % m) m → P m n) :
                  P m n :=
-@induction _ _ lt_wf (λn, ∀m, P m n) n (λk IH,
+@induction _ _ lt_wf (λm, ∀n, P m n) m (λk IH,
   by {induction k with k ih, exact H0,
-      exact λm, H1 _ _ (succ_pos _) (IH _ (mod_lt _ (succ_pos _)) _)}) m
+      exact λn, H1 _ _ (succ_pos _) (IH _ (mod_lt _ (succ_pos _)) _)}) n
 
 def lcm (m n : ℕ) : ℕ := m * n / (gcd m n)
 

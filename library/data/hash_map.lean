@@ -670,6 +670,12 @@ if h : a = a' then by rw dif_pos h; exact
   match a', h with ._, rfl := find_insert_eq m a b end
 else by rw dif_neg h; exact find_insert_ne m a a' b h
 
+def insert_all (l : list (Σ a, β a)) (m : hash_map α β) : hash_map α β :=
+l.foldl (λ m ⟨a, b⟩, insert m a b) m
+
+def of_list (l : list (Σ a, β a)) (hash_fn): hash_map α β :=
+insert_all l (mk_hash_map hash_fn (2 * l.length))
+
 def erase (m : hash_map α β) (a : α) : hash_map α β :=
 match m with ⟨hash_fn, size, n, buckets, v⟩ :=
   if hc : contains_aux a (buckets.read hash_fn a) then

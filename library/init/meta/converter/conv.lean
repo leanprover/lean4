@@ -23,7 +23,8 @@ meta def lhs : conv expr :=
 
 meta def change (new_p : pexpr) : conv unit :=
 λ r e, do
-  new_e ← to_expr new_p,
+  e_type ← infer_type e,
+  new_e ← to_expr ``(%%new_p : %%e_type),
   unify e new_e,
   return ⟨(), new_e, none⟩
 
@@ -49,8 +50,11 @@ protected meta def seq {α β : Type} (c₁ : conv (α → β)) (c₂ : conv α)
   pr            ← join_proofs r pr₁ pr₂,
   return ⟨fn a, e₂, pr⟩
 
-protected meta def fail {α : Type} : conv α :=
-λ r e, failed
+protected meta def fail {α β : Type} [has_to_format β] (msg : β) : conv α :=
+λ r e, tactic.fail msg
+
+protected meta def failed {α : Type} : conv α :=
+λ r e, tactic.failed
 
 protected meta def orelse {α : Type} (c₁ : conv α) (c₂ : conv α) : conv α :=
 λ r e, c₁ r e <|> c₂ r e
@@ -76,7 +80,7 @@ meta instance : monad conv :=
 
 meta instance : alternative conv :=
 { conv.monad with
-  failure := @conv.fail,
+  failure := @conv.failed,
   orelse  := @conv.orelse }
 
 meta def whnf (md : transparency := reducible) : conv unit :=
@@ -154,7 +158,7 @@ meta def repeat : conv unit → conv unit
   <|> return ⟨(), lhs, none⟩
 
 meta def first {α : Type} : list (conv α) → conv α
-| []      := conv.fail
+| []      := conv.failed
 | (c::cs) := c <|> first cs
 
 meta def match_pattern (p : pattern) : conv unit :=

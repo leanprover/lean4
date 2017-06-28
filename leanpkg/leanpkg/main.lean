@@ -45,22 +45,21 @@ assg ← solve_deps d,
 path_file_cnts ← mk_path_file <$> construct_path assg,
 write_file "leanpkg.path" path_file_cnts
 
-
-def make : io unit := do
+def make (lean_args : list string) : io unit := do
 manifest ← read_manifest,
 exec_cmd {
   cmd := "lean",
   args := (match manifest.timeout with some t := ["-T", repr t] | none := [] end) ++
-    ["--make"] ++ manifest.effective_path,
+    ["--make"] ++ manifest.effective_path ++ lean_args,
   env := [("LEAN_PATH", none)]
 }
 
-def build := configure >> make
+def build (lean_args : list string) := configure >> make lean_args
 
-def make_test : io unit :=
-exec_cmd { cmd := "lean", args := ["--make", "test"], env := [("LEAN_PATH", none)] }
+def make_test (lean_args : list string) : io unit :=
+exec_cmd { cmd := "lean", args := ["--make", "test"] ++ lean_args, env := [("LEAN_PATH", none)] }
 
-def test := configure >> make_test
+def test (lean_args : list string) := configure >> make_test lean_args
 
 def init_gitignore_contents :=
 "*.olean
@@ -149,32 +148,32 @@ configure
 def usage := "
 Usage: leanpkg <command>
 
-configure       download dependencies
-build           download dependencies and build *.olean files
-test            download dependencies and run test files
+configure              download dependencies
+build [-- <lean-args>] download dependencies and build *.olean files
+test  [-- <lean-args>] download dependencies and run test files
 
-new <dir>       creates a lean package in the specified directory
-init <name>     adds a leanpkg.toml file to the current directory, and sets up .gitignore
+new <dir>              creates a lean package in the specified directory
+init <name>            adds a leanpkg.toml file to the current directory, and sets up .gitignore
 
-add <url>       adds a dependency from a git repository (uses current master revision)
-add <dir>       adds a local dependency
-upgrade         upgrades all git dependencies to the latest upstream version
+add <url>              adds a dependency from a git repository (uses current master revision)
+add <dir>              adds a local dependency
+upgrade                upgrades all git dependencies to the latest upstream version
 
-install <url>   installs a user-wide package from git
-install <dir>   installs a user-wide package from a local directory
+install <url>          installs a user-wide package from git
+install <dir>          installs a user-wide package from a local directory
 
-dump            prints the parsed leanpkg.toml file (for debugging)
+dump                   prints the parsed leanpkg.toml file (for debugging)
 "
 
-def main : ∀ (args : list string), io unit
-| ["configure"] := configure
-| ["build"] := build
-| ["test"] := test
-| ["new", dir] := new dir
-| ["init", name] := init name
-| ["add", dep] := add dep
-| ["upgrade"] := upgrade
-| ["install", dep] := do
+def main : ∀ (cmd : string) (leanpkg_args lean_args : list string), io unit
+| "configure" []     []        := configure
+| "build"     _      lean_args := build lean_args
+| "test"      _      lean_args := test lean_args
+| "new"       [dir]  []        := new dir
+| "init"      [name] []        := init name
+| "add"       [dep]  []        := add dep
+| "upgrade"   []     []        := upgrade
+| "install"   [dep]  []        := do
   dep ← absolutize_add_dep dep,
   dot_lean_dir ← get_dot_lean_dir,
   exec_cmd {cmd := "mkdir", args := ["-p", dot_lean_dir]},
@@ -185,9 +184,26 @@ def main : ∀ (args : list string), io unit
       version := "1"
     } user_toml_fn,
   exec_cmd {cmd := "leanpkg", args := ["add", dep], cwd := dot_lean_dir}
-| ["dump"] := read_manifest >>= io.print_ln ∘ repr
-| _ := io.fail usage
+| "dump"       []    []        := read_manifest >>= io.print_ln ∘ repr
+| _            _     _         := io.fail usage
 
+private def split_cmdline_args_core : list string → list string × list string
+| []           := ([], [])
+| (arg::args)  := if arg = "--"
+                  then ([], args)
+                  else match split_cmdline_args_core args with
+                       | (outer_args, inner_args) := (arg::outer_args, inner_args)
+                       end
+
+def split_cmdline_args : list string → io (string × list string × list string)
+| [] := io.fail usage
+| [cmd] := return (cmd, [], [])
+| (cmd::rest) := match split_cmdline_args_core rest with
+                 | (outer_args, inner_args) := return (cmd, outer_args, inner_args)
+                 end
 end leanpkg
 
-def main : io unit := io.cmdline_args >>= leanpkg.main
+
+def main : io unit :=
+do (cmd, outer_args, inner_args) ← io.cmdline_args >>= leanpkg.split_cmdline_args,
+   leanpkg.main cmd outer_args inner_args

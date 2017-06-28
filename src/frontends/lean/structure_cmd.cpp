@@ -327,7 +327,8 @@ struct structure_cmd_fn {
         if (!m_p.curr_is_token(get_extends_tk()) && !m_p.curr_is_token(get_assign_tk()) &&
             !m_p.curr_is_token(get_colon_tk())) {
             unsigned rbp = 0;
-            m_p.parse_binders(m_params, rbp);
+            bool allow_default = true;
+            m_p.parse_binders(m_params, rbp, allow_default);
         }
         for (expr const & l : m_params)
             m_p.add_local(l);

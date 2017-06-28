@@ -516,7 +516,7 @@ tactic.any_goals
 meta def focus (tac : itactic) : tactic unit :=
 tactic.focus [tac]
 
-meta def assume_tac (p : parse parse_binders) : tactic unit :=
+meta def «assume» (p : parse parse_binders) : tactic unit :=
 list.mfor' p $ λ b,
   do t ← target,
      when (not $ t.is_pi ∨ t.is_let) whnf_target,
@@ -526,13 +526,13 @@ list.mfor' p $ λ b,
      unify ty t.binding_domain,
      intro_core b.local_pp_name
 
-meta def suppose_tac (h : parse ident?) (q : parse (tk ":" *> texpr)?) : tactic unit :=
+meta def «suppose» (h : parse ident?) (q : parse (tk ":" *> texpr)?) : tactic unit :=
 let h := h.get_or_else `this in
 match q with
 | some e := do
   uniq_name ← mk_fresh_name,
   let l := expr.local_const uniq_name h binder_info.default e,
-  assume_tac [l]
+  «assume» [l]
 | none := intro h
 end
 
@@ -545,7 +545,7 @@ The new subgoal becomes the main goal. If `T` is omitted, it will be replaced by
 
 If `h` is omitted, it defaults to `this`.
 -/
-meta def have_tac (h : parse ident?) (q₁ : parse (tk ":" *> texpr)?) (q₂ : parse $ (tk ":=" *> texpr)?) : tactic unit :=
+meta def «have» (h : parse ident?) (q₁ : parse (tk ":" *> texpr)?) (q₂ : parse $ (tk ":=" *> texpr)?) : tactic unit :=
 let h := h.get_or_else `this in
 match q₁, q₂ with
 | some e, some p := do
@@ -571,7 +571,7 @@ The new subgoal becomes the main goal. If `T` is omitted, it will be replaced by
 
 If `h` is omitted, it defaults to `this`.
 -/
-meta def let_tac (h : parse ident?) (q₁ : parse (tk ":" *> texpr)?) (q₂ : parse $ (tk ":=" *> texpr)?) : tactic unit :=
+meta def «let» (h : parse ident?) (q₁ : parse (tk ":" *> texpr)?) (q₂ : parse $ (tk ":=" *> texpr)?) : tactic unit :=
 let h := h.get_or_else `this in
 match q₁, q₂ with
 | some e, some p := do
@@ -959,16 +959,16 @@ do e ← to_expr p, tactic.type_check e, infer_type e >>= trace
 meta def done : tactic unit :=
 tactic.done
 
-private meta def show_tac_aux (p : pexpr) : list expr → list expr → tactic unit
+private meta def show_aux (p : pexpr) : list expr → list expr → tactic unit
 | []      r := fail "show tactic failed"
 | (g::gs) r := do
   do {set_goals [g], g_ty ← target, ty ← i_to_expr p, unify g_ty ty, set_goals (g :: r.reverse ++ gs), tactic.change ty}
   <|>
-  show_tac_aux gs (g::r)
+  show_aux gs (g::r)
 
-meta def show_tac (q : parse texpr) : tactic unit :=
+meta def «show» (q : parse texpr) : tactic unit :=
 do gs ← get_goals,
-   show_tac_aux q gs []
+   show_aux q gs []
 
 end interactive
 end tactic

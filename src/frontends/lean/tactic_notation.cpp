@@ -119,15 +119,6 @@ static bool is_curr_exact_shortcut(parser & p) {
     return p.curr_is_token(get_calc_tk());
 }
 
-static bool is_keyword_tactic(parser & p) {
-    return
-            p.curr_is_token(get_assume_tk()) ||
-            p.curr_is_token(get_suppose_tk()) ||
-            p.curr_is_token(get_let_tk()) ||
-            p.curr_is_token(get_have_tk()) ||
-            p.curr_is_token(get_show_tk());
-}
-
 static optional<name> is_interactive_tactic(parser & p, name const & tac_class) {
     name id;
     switch (p.curr()) {
@@ -135,11 +126,8 @@ static optional<name> is_interactive_tactic(parser & p, name const & tac_class) 
             id = p.get_name_val();
             break;
         case token_kind::Keyword:
-            if (is_keyword_tactic(p)) {
-                id = p.get_token_info().value().append_after("_tac");
-                break;
-            }
-            /* fall through */
+            id = p.get_token_info().value();
+            break;
         default:
             return {};
     }

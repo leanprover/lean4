@@ -151,10 +151,25 @@ static expr parse_nested_interactive_tactic(parser & p, name const & tac_class, 
     }
 }
 
+static optional<name> is_itactic(expr const & type) {
+    if (!is_constant(type))
+        return optional<name>();
+    name const & n = const_name(type);
+    if (n.is_atomic() ||
+        !n.is_string() ||
+        strcmp(n.get_string(), "itactic") != 0)
+        return optional<name>();
+    name const & pre = n.get_prefix();
+    if (pre.is_atomic() ||
+        !pre.is_string() ||
+        strcmp(pre.get_string(), "interactive") != 0)
+        return optional<name>();
+    return optional<name>(pre.get_prefix());
+}
+
 static expr parse_interactive_tactic(parser & p, name const & decl_name, name const & tac_class, bool use_istep) {
     auto pos = p.pos();
     expr type     = p.env().get(decl_name).get_type();
-    name itactic  = get_interactive_tactic_full_name(tac_class, "itactic");
     buffer<expr> args;
     try {
         try {
@@ -165,8 +180,8 @@ static expr parse_interactive_tactic(parser & p, name const & decl_name, name co
                     expr arg_type = binding_domain(type);
                     if (is_app_of(arg_type, get_interactive_parse_name())) {
                         args.push_back(parse_interactive_param(p, arg_type));
-                    } else if (is_constant(arg_type, itactic)) {
-                        args.push_back(parse_nested_interactive_tactic(p, tac_class, use_istep));
+                    } else if (auto new_tac_class = is_itactic(arg_type)) {
+                        args.push_back(parse_nested_interactive_tactic(p, *new_tac_class, use_istep));
                     } else {
                         break;
                     }

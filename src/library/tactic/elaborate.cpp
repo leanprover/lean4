@@ -20,7 +20,7 @@ expr mk_by(expr const & e) { return mk_annotation(*g_by_name, e); }
 bool is_by(expr const & e) { return is_annotation(e, *g_by_name); }
 expr const & get_by_arg(expr const & e) { lean_assert(is_by(e)); return get_annotation_arg(e); }
 
-vm_obj tactic_to_expr_core(vm_obj const & qe, vm_obj const & relaxed, vm_obj const & _s) {
+vm_obj tactic_to_expr(vm_obj const & qe, vm_obj const & allow_mvars, vm_obj const & subgoals, vm_obj const & _s) {
     tactic_state const & s = tactic::to_state(_s);
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
@@ -31,13 +31,12 @@ vm_obj tactic_to_expr_core(vm_obj const & qe, vm_obj const & relaxed, vm_obj con
         bool recover_from_errors = false;
         elaborator elab(env, s.get_options(), s.decl_name(), mctx, g->get_context(), recover_from_errors);
         expr r = elab.elaborate(resolve_names(env, g->get_context(), e));
-        if (!to_bool(relaxed))
+        if (!to_bool(allow_mvars))
             elab.ensure_no_unassigned_metavars(r);
         mctx = elab.mctx();
         env  = elab.env();
-
         r = mctx.instantiate_mvars(r);
-        if (to_bool(relaxed) && has_expr_metavar(r)) {
+        if (to_bool(subgoals) && has_expr_metavar(r)) {
             buffer<expr> new_goals;
             name_set found;
             for_each(r, [&](expr const & e, unsigned) {
@@ -64,7 +63,7 @@ vm_obj tactic_to_expr_core(vm_obj const & qe, vm_obj const & relaxed, vm_obj con
 void initialize_elaborate() {
     g_by_name           = new name("by");
     register_annotation(*g_by_name);
-    DECLARE_VM_BUILTIN(name({"tactic", "to_expr"}), tactic_to_expr_core);
+    DECLARE_VM_BUILTIN(name({"tactic", "to_expr"}), tactic_to_expr);
 }
 
 void finalize_elaborate() {

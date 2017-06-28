@@ -326,9 +326,8 @@ meta constant subst         : expr → tactic unit
     the target type. -/
 meta constant exact (e : expr) (md := semireducible) : tactic unit
 /-- Elaborate the given quoted expression with respect to the current main goal.
-    If `allow_mvars` is tt, then metavariables are tolerated and become new goals.
-    If `report_errors` is ff, then errors are reported using position information from q. -/
-meta constant to_expr (q : pexpr) (allow_mvars := tt) : tactic expr
+    If `allow_mvars` is tt, then metavariables are tolerated and become new goals if `subgoals` is tt. -/
+meta constant to_expr (q : pexpr) (allow_mvars := tt) (subgoals := tt) : tactic expr
 /-- Return true if the given expression is a type class. -/
 meta constant is_class      : expr → tactic bool
 /-- Try to create an instance of the given type class. -/

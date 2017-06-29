@@ -10,20 +10,17 @@ import init.meta.interactive init.meta.converter.conv
 
 namespace conv
 meta def save_info (p : pos) : conv unit :=
-λ r lhs, do
-  ts ← tactic.read,
-  -- TODO(Leo): include context
-  tactic.save_info_thunk p (λ _, ts.format_expr lhs) >>
-  return ⟨(), lhs, none⟩
+do s ← tactic.read,
+   tactic.save_info_thunk p (λ _, s.to_format tt)
 
 meta def step {α : Type} (c : conv α) : conv unit :=
 c >> return ()
 
 meta def istep {α : Type} (line0 col0 line col : nat) (c : conv α) : conv unit :=
-λ r lhs ts, (@scope_trace _ line col (λ _, (c >> return ()) r lhs ts)).clamp_pos line0 line col
+tactic.istep line0 col0 line col c
 
 meta def execute (c : conv unit) : tactic unit :=
-conversion c
+c
 
 namespace interactive
 open lean.parser
@@ -33,52 +30,104 @@ open interactive.types
 meta def itactic : Type :=
 conv unit
 
+meta def skip : conv unit :=
+conv.skip
+
 meta def whnf : conv unit :=
 conv.whnf
 
 meta def dsimp : conv unit :=
 conv.dsimp
 
-meta def trace_state : conv unit :=
-conv.trace_lhs
+meta def trace_lhs : conv unit :=
+lhs >>= tactic.trace
 
 meta def change (p : parse texpr) : conv unit :=
-conv.change p
+tactic.i_to_expr p >>= conv.change
+
+meta def congr : conv unit :=
+conv.congr
+
+meta def funext : conv unit :=
+conv.funext
+
+private meta def is_relation : conv unit :=
+(lhs >>= tactic.relation_lhs_rhs >> return ())
+<|>
+tactic.fail "current expression is not a relation"
+
+meta def to_lhs : conv unit :=
+is_relation >> congr >> tactic.swap >> skip
+
+meta def to_rhs : conv unit :=
+is_relation >> congr >> skip
+
+meta def done : conv unit :=
+tactic.done
 
 meta def find (p : parse qexpr) (c : itactic) : conv unit :=
-λ r lhs, do
-  pat ← tactic.pexpr_to_pattern p,
-  s   ← simp_lemmas.mk_default, -- to be able to use congruence lemmas @[congr]
-  (found, new_lhs, pr) ←
-     tactic.ext_simplify_core ff {zeta := ff, beta := ff, single_pass := tt, eta := ff, proj := ff} s
+do (r, lhs, _) ← tactic.target_lhs_rhs,
+   pat ← tactic.pexpr_to_pattern p,
+   s   ← simp_lemmas.mk_default, -- to be able to use congruence lemmas @[congr]
+   (found, new_lhs, pr) ←
+     tactic.ext_simplify_core ff {zeta := ff, beta := ff, single_pass := tt, eta := ff,
+                                  proj := ff, fail_if_unchaged := ff} s
        (λ u, return u)
        (λ found s r p e, do
          guard (not found),
          matched ← (tactic.match_pattern_core reducible pat e >> return tt) <|> return ff,
          guard matched,
-         ⟨u, new_e, pr⟩ ← c r e,
+         ⟨new_e, pr⟩ ← c.convert e r,
          return (tt, new_e, pr, ff))
        (λ a s r p e, tactic.failed)
        r lhs,
-  if not found then tactic.fail "find converter failed, pattern was not found"
-  else return ⟨(), new_lhs, some pr⟩
+  when (not found) $ tactic.fail "find converter failed, pattern was not found",
+  update_lhs new_lhs pr
+
+meta def simp (no_dflt : parse only_flag) (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list)
+              (ids : parse without_ident_list) (cfg : tactic.simp_config := {}) : conv unit :=
+do s ← tactic.mk_simp_set no_dflt attr_names hs ids,
+   (r, lhs, rhs) ← tactic.target_lhs_rhs,
+   (new_lhs, pr) ← tactic.simplify_core cfg s r lhs,
+   update_lhs new_lhs pr,
+   return ()
 
 end interactive
 end conv
 
 namespace tactic
 namespace interactive
+open lean
 open lean.parser
 open interactive
 open interactive.types
+open tactic
+local postfix `?`:9001 := optional
 
-meta def conv (c : conv.interactive.itactic) : tactic unit :=
+private meta def conv_at (h_name : name) (c : conv unit) : tactic unit :=
+do h ← get_local h_name,
+   h_type ← infer_type h,
+   (new_h_type, pr) ← c.convert h_type,
+   replace_hyp h new_h_type pr,
+   return ()
+
+private meta def conv_target (c : conv unit) : tactic unit :=
 do t ← target,
-   (new_t, pr) ← c.to_tactic `eq t,
+   (new_t, pr) ← c.convert t,
    replace_target new_t pr
 
-meta def find (p : parse qexpr) (c : conv.interactive.itactic) : tactic unit :=
-conv $ conv.interactive.find p c
+meta def conv (loc : parse (tk "at" *> ident)?)
+              (p : parse (tk "in" *> qexpr)?)
+              (c : conv.interactive.itactic) : tactic unit :=
+do let c :=
+       match p with
+       | some p := _root_.conv.interactive.find p c
+       | none   := c
+       end,
+   match loc with
+   | some h := conv_at h c
+   | none   := conv_target c
+   end
 
 end interactive
 end tactic

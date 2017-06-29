@@ -56,7 +56,7 @@ private:
     friend class optional<tactic_state>;
     tactic_state():m_ptr(nullptr) {}
     explicit tactic_state(tactic_state_cell * ptr):m_ptr(ptr) { if (m_ptr) m_ptr->inc_ref(); }
-    format pp_goal(formatter_factory const & fmtf, expr const & g) const;
+    format pp_goal(formatter_factory const & fmtf, expr const & g, bool target_lhs_only = false) const;
 public:
     tactic_state(environment const & env, options const & o, name const & decl_name,
                  metavar_context const & ctx, list<expr> const & gs,
@@ -85,9 +85,9 @@ public:
     friend void swap(tactic_state & a, tactic_state & b) { std::swap(a.m_ptr, b.m_ptr); }
     friend bool is_eqp(tactic_state const & a, tactic_state const & b) { return a.m_ptr == b.m_ptr; }
 
-    format pp_core(formatter_factory const & fmtf) const;
+    format pp_core(formatter_factory const & fmtf, bool target_lhs_only = false) const;
     format pp_expr(formatter_factory const & fmtf, expr const & e) const;
-    format pp_core() const;
+    format pp_core(bool target_lhs_only = false) const;
     format pp() const;
     format pp_expr(expr const & e) const;
     format pp_goal(expr const & g) const;

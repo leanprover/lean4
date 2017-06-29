@@ -37,6 +37,7 @@ Author: Leonardo de Moura
 #include "library/vm/interaction_state_imp.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/tactic/tactic_state.h"
+#include "library/tactic/simp_lemmas.h"
 
 namespace lean {
 /* is_ts_safe is required by the interaction_state implementation. */
@@ -161,7 +162,7 @@ format tactic_state::pp_expr(formatter_factory const & fmtf, expr const & e) con
     return fmt(e);
 }
 
-format tactic_state::pp_goal(formatter_factory const & fmtf, expr const & g) const {
+format tactic_state::pp_goal(formatter_factory const & fmtf, expr const & g, bool target_lhs_only) const {
     options opts               = get_options().update_if_undef(get_pp_purify_locals_name(), false);
     bool inst_mvars            = get_pp_instantiate_mvars(opts);
     metavar_decl decl          = mctx().get_metavar_decl(g);
@@ -176,30 +177,35 @@ format tactic_state::pp_goal(formatter_factory const & fmtf, expr const & g) con
     bool unicode               = get_pp_unicode(get_options());
     if (!lctx.empty())
         r += line();
-    format turnstile           = unicode ? format("\u22A2") /* ⊢ */ : format("|-");
     expr type                  = decl.get_type();
     if (inst_mvars)
         type                   = mctx_tmp.instantiate_mvars(type);
-    r += turnstile + space() + nest(indent, fmt(type));
+    expr rel, lhs, rhs;
+    if (target_lhs_only && is_simp_relation(env(), type, rel, lhs, rhs)) {
+        r += format("|") + space() + nest(indent, fmt(lhs));
+    } else {
+        format turnstile           = unicode ? format("\u22A2") /* ⊢ */ : format("|-");
+        r += turnstile + space() + nest(indent, fmt(type));
+    }
     if (get_pp_goal_compact(get_options()))
         r = group(r);
     return r;
 }
 
-format tactic_state::pp_core(formatter_factory const & fmtf) const {
+format tactic_state::pp_core(formatter_factory const & fmtf, bool target_lhs_only) const {
     format r;
     bool first = true;
     for (auto const & g : goals()) {
         if (first) first = false; else r += line() + line();
-        r += pp_goal(fmtf, g);
+        r += pp_goal(fmtf, g, target_lhs_only);
     }
     if (first) r = format("no goals");
     return r;
 }
 
-format tactic_state::pp_core() const {
+format tactic_state::pp_core(bool target_lhs_only) const {
     formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
-    return pp_core(fmtf);
+    return pp_core(fmtf, target_lhs_only);
 }
 
 format tactic_state::pp_expr(expr const & e) const {
@@ -235,8 +241,8 @@ vm_obj tactic_state_env(vm_obj const & s) {
     return to_obj(tactic::to_state(s).env());
 }
 
-vm_obj tactic_state_to_format(vm_obj const & s) {
-    return to_obj(tactic::to_state(s).pp_core());
+vm_obj tactic_state_to_format(vm_obj const & s, vm_obj const & target_lhs_only) {
+    return to_obj(tactic::to_state(s).pp_core(to_bool(target_lhs_only)));
 }
 
 format pp_expr(tactic_state const & s, expr const & e) {

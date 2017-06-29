@@ -17,7 +17,13 @@ namespace tactic_state
 /-- Create a tactic state with an empty local context and a dummy goal. -/
 meta constant mk_empty    : environment → options → tactic_state
 meta constant env         : tactic_state → environment
-meta constant to_format   : tactic_state → format
+/-- Format the given tactic state. If `target_lhs_only` is true and the target
+    is of the form `lhs ~ rhs`, where `~` is a simplification relation,
+    then only the `lhs` is displayed.
+
+    Remark: the parameter `target_lhs_only` is a temporary hack used to implement
+    the `conv` monad. It will be removed in the future. -/
+meta constant to_format   (s : tactic_state) (target_lhs_only : bool := ff) : format
 /-- Format expression with respect to the main goal in the tactic state.
    If the tactic state does not contain any goals, then format expression
    using an empty local context. -/

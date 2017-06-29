@@ -204,6 +204,7 @@ structure simp_config :=
 (eta  : bool               := tt)
 (proj : bool               := tt) -- reduce projections
 (single_pass : bool        := ff)
+(fail_if_unchaged          := tt)
 
 meta constant simplify_core
   (c : simp_config)

@@ -72,7 +72,8 @@ simp_config::simp_config():
     m_beta(false),
     m_eta(true),
     m_proj(true),
-    m_single_pass(false) {
+    m_single_pass(false),
+    m_fail_if_unchanged(true) {
 }
 
 simp_config::simp_config(vm_obj const & obj) {
@@ -87,6 +88,7 @@ simp_config::simp_config(vm_obj const & obj) {
     m_eta                = to_bool(cfield(obj, 8));
     m_proj               = to_bool(cfield(obj, 9));
     m_single_pass        = to_bool(cfield(obj, 10));
+    m_fail_if_unchanged  = to_bool(cfield(obj, 11));
 }
 
 /* -----------------------------------
@@ -1163,7 +1165,7 @@ vm_obj tactic_simplify_core(vm_obj const & c, vm_obj const & slss, vm_obj const 
         defeq_can_state dcs  = s.dcs();
         simplify_fn simp(ctx, dcs, to_simp_lemmas(slss), cfg);
         simp_result result   = simp(to_name(rel), to_expr(e));
-        if (result.get_new() != to_expr(e)) {
+        if (!cfg.m_fail_if_unchanged || result.get_new() != to_expr(e)) {
             result = finalize(ctx, to_name(rel), result);
             tactic_state new_s = set_dcs(s, dcs);
             return tactic::mk_success(mk_vm_pair(to_obj(result.get_new()), to_obj(result.get_proof())), new_s);
@@ -1184,7 +1186,7 @@ static vm_obj ext_simplify_core(vm_obj const & a, vm_obj const & c, simp_lemmas 
         defeq_can_state dcs  = s.dcs();
         vm_simplify_fn simp(ctx, dcs, slss, cfg, prove, pre, post, s);
         pair<vm_obj, simp_result> p = simp(a, r, e);
-        if (p.second.get_new() != e) {
+        if (!cfg.m_fail_if_unchanged || p.second.get_new() != e) {
             vm_obj const & a   = p.first;
             simp_result result = finalize(ctx, r, p.second);
             tactic_state new_s = set_dcs(s, dcs);

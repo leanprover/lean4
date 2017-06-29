@@ -26,6 +26,7 @@ structure simp_config :=
 (eta  : bool)
 (proj : bool)
 (single_pass : bool)
+(fail_if_unchaged : bool)
 */
 struct simp_config {
     unsigned                  m_max_steps;
@@ -39,6 +40,7 @@ struct simp_config {
     bool                      m_eta;
     bool                      m_proj;
     bool                      m_single_pass;
+    bool                      m_fail_if_unchanged;
     simp_config();
     simp_config(vm_obj const & o);
 };

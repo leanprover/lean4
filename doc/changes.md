@@ -18,6 +18,8 @@ master branch (aka work in progress branch)
 * Add `«id»` notation that can be used to declare and refer to identifiers containing prohibited characters.
   For example, `a.«b.c»` is a two-part identifier with parts `a` and `b.c`.
 
+* `simp` tactic now handles lemmas with metavariables. Example `simp [add_comm _ b]`.
+
 *Changes*
 
 * We now have two type classes for converting to string: `has_to_string` and `has_repr`.

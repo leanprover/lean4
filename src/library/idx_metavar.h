@@ -32,6 +32,12 @@ bool has_idx_metavar(expr const & e);
 bool has_idx_expr_metavar(expr const & e);
 bool has_idx_metauniv(level const & l);
 
+class metavar_context;
+
+/** \brief Convert metavariables occurring in \c e into indexed/temporary metavariables.
+    New metavariables are added to new_us and new_ms. */
+expr to_idx_metavars(metavar_context const & mctx, expr const & e, buffer<level> & new_us, buffer<expr> & new_ms);
+
 void initialize_idx_metavar();
 void finalize_idx_metavar();
 }

@@ -15,11 +15,15 @@ local postfix `?`:9001 := optional
 local postfix *:9001 := many
 
 namespace tactic
-/- allows metavars and report errors -/
+/- allows metavars -/
 meta def i_to_expr (q : pexpr) : tactic expr :=
 to_expr q tt
 
-/- doesn't allows metavars and report errors -/
+/- allow metavars and no subgoals -/
+meta def i_to_expr_no_subgoals (q : pexpr) : tactic expr :=
+to_expr q tt ff
+
+/- doesn't allows metavars -/
 meta def i_to_expr_strict (q : pexpr) : tactic expr :=
 to_expr q ff
 
@@ -673,7 +677,7 @@ do
     <|>
     report_invalid_simp_lemma n
   | _ :=
-    (do e ← i_to_expr p, b ← is_valid_simp_lemma reducible e, guard b, try (save_type_info e ref), s.add e)
+    (do e ← i_to_expr_no_subgoals p, b ← is_valid_simp_lemma reducible e, guard b, try (save_type_info e ref), s.add e)
     <|>
     report_invalid_simp_lemma n
   end
@@ -682,7 +686,7 @@ private meta def simp_lemmas.add_pexpr (s : simp_lemmas) (p : pexpr) : tactic si
 match p with
 | (const c [])          := simp_lemmas.resolve_and_add s c p
 | (local_const c _ _ _) := simp_lemmas.resolve_and_add s c p
-| _                     := do new_e ← i_to_expr p, s.add new_e
+| _                     := do new_e ← i_to_expr_no_subgoals p, s.add new_e
 end
 
 private meta def simp_lemmas.append_pexprs : simp_lemmas → list pexpr → tactic simp_lemmas

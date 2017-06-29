@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/util.h"
 #include "library/reducible.h"
+#include "library/idx_metavar.h"
 #include "library/attribute_manager.h"
 #include "library/relation_manager.h"
 #include "library/vm/vm_expr.h"
@@ -536,11 +537,6 @@ static list<expr_pair> to_ceqvs(type_context & ctx, name const & id, expr const 
 }
 
 static bool is_ceqv(type_context & ctx, name const & id, expr e) {
-    if (has_expr_metavar(e)) {
-        lean_trace(name({"simp_lemmas", "invalid"}),
-                   tout() << "type of rule derived from '" << id << "' has metavar\n";);
-        return false;
-    }
     name_set to_find;
     // Define a procedure for removing arguments from to_find.
     auto visitor_fn = [&](expr const & e, unsigned) {
@@ -673,7 +669,8 @@ static void report_failure(sstream const & strm) {
     }
 }
 
-static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name const & id, levels const & univ_metas,
+static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name const & id,
+                            levels const & univ_metas, buffer<expr> const & _emetas,
                             expr const & e, expr const & h, unsigned priority) {
     lean_assert(ctx.in_tmp_mode());
     list<expr_pair> ceqvs   = to_ceqvs(ctx, id, e, h);
@@ -684,13 +681,14 @@ static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name cons
     environment const & env = ctx.env();
     simp_lemmas new_s = s;
     for (expr_pair const & p : ceqvs) {
-        /* We only clear the eassignment since we want to reuse the temporary universe metavariables associated
-           with the declaration. */
-        ctx.clear_tmp_eassignment();
+        /* Remark: we don't need to reset the universes since we don't create new temporary
+           universe metavariables in this loop. */
+        ctx.resize_tmp_mvars(_emetas.size());
         expr rule  = ctx.whnf(p.first);
         expr proof = ctx.whnf(p.second);
         bool is_perm = is_permutation_ceqv(env, rule);
         buffer<expr> emetas;
+        emetas.append(_emetas);
         buffer<bool> instances;
         while (is_pi(rule)) {
             expr mvar = ctx.mk_tmp_mvar(binding_domain(rule));
@@ -707,6 +705,18 @@ static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name cons
         }
     }
     return new_s;
+}
+
+static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name const & id,
+                            buffer<level> const & univ_metas, buffer<expr> const & emetas,
+                            expr const & e, expr const & h, unsigned priority) {
+    return add_core(ctx, s, id, to_list(univ_metas), emetas, e, h, priority);
+}
+
+static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name const & id, levels const & univ_metas,
+                            expr const & e, expr const & h, unsigned priority) {
+    buffer<expr> emetas;
+    return add_core(ctx, s, id, univ_metas, emetas, e, h, priority);
 }
 
 bool is_rfl_lemma(expr type, expr pf) {
@@ -1257,7 +1267,7 @@ vm_obj simp_lemmas_mk_default_core(vm_obj const & m, vm_obj const & s) {
 
 vm_obj simp_lemmas_add_core(vm_obj const & m, vm_obj const & lemmas, vm_obj const & lemma, vm_obj const & s) {
     LEAN_TACTIC_TRY;
-    type_context tctx = mk_type_context_for(s, m);
+    type_context ctx = mk_type_context_for(s, m);
     expr e = to_expr(lemma);
     name id;
     if (is_constant(e))
@@ -1265,10 +1275,16 @@ vm_obj simp_lemmas_add_core(vm_obj const & m, vm_obj const & lemmas, vm_obj cons
     else if (is_local(e))
         id = local_pp_name(e);
 
-    expr e_type = tctx.infer(e);
     // TODO(dhs): accept priority as an argument
     // Reason for postponing: better plumbing of numerals through the vm
-    simp_lemmas new_lemmas = add(tctx, to_simp_lemmas(lemmas), id, tctx.infer(e), e, LEAN_DEFAULT_PRIORITY);
+
+    buffer<level> umetas;
+    buffer<expr> emetas;
+    e = to_idx_metavars(ctx.mctx(), e, umetas, emetas);
+    type_context::tmp_mode_scope scope(ctx, umetas.size(), emetas.size());
+    expr e_type = ctx.infer(e);
+    simp_lemmas new_lemmas = add_core(ctx, to_simp_lemmas(lemmas), id, umetas, emetas,
+                                      e_type, e, LEAN_DEFAULT_PRIORITY);
     return tactic::mk_success(to_obj(new_lemmas), tactic::to_state(s));
     LEAN_TACTIC_CATCH(tactic::to_state(s));
 }

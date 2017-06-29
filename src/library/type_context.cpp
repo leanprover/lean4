@@ -1344,9 +1344,9 @@ expr type_context::mk_tmp_mvar(expr const & type) {
     return mk_idx_metavar(idx, type);
 }
 
-void type_context::clear_tmp_eassignment() {
+void type_context::resize_tmp_mvars(unsigned sz) {
     lean_assert(in_tmp_mode());
-    m_tmp_data->m_eassignment.clear();
+    m_tmp_data->m_eassignment.resize(sz, optional<expr>());
 }
 
 /* -----------------------------------

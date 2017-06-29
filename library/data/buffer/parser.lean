@@ -181,6 +181,7 @@ def fix (F : parser α → parser α) : parser α :=
 private def make_monospaced : char → char
 | '\n' := ' '
 | '\t' := ' '
+| '\x0d' := ' '
 | c := c
 
 def mk_error_msg (input : char_buffer) (pos : ℕ) (expected : dlist string) : char_buffer :=

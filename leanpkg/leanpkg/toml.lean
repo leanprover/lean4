@@ -78,7 +78,7 @@ ch '#' >> many' (sat (≠ '#')) >> optional (ch '\n') >> eps
 
 def Ws : parser unit :=
 decorate_error "<whitespace>" $
-many' $ one_of' " \t\n".to_list <|> Comment
+many' $ one_of' " \t\x0d\n".to_list <|> Comment
 
 def tok (s : string) := str s >> Ws
 

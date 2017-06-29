@@ -232,6 +232,7 @@ class progress_message_stream {
 
     bool m_show_progress;
     std::unique_ptr<single_timer> m_timer;
+    std::string m_last_task;
 
     void clear_shown_task() {
         if (m_showing_task) {
@@ -314,6 +315,8 @@ public:
     void show_current_task_core() {
         if (m_use_json) return;
         if (auto desc = find_current_task()) {
+            if (*desc == m_last_task && m_showing_task) return;
+            m_last_task = *desc;
             clear_shown_task();
 #if defined(LEAN_EMSCRIPTEN)
             m_out << *desc << std::endl;

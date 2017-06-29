@@ -461,7 +461,9 @@ void server::handle_request(server::cmd_req const & req) {
 void server::handle_async_response(server::cmd_req const & req, task<cmd_res> const & res) {
     taskq().submit(task_builder<unit>([this, req, res] {
         try {
-            send_msg(get(res));
+            auto msg = get(res);
+            msg.m_seq_num = req.m_seq_num;
+            send_msg(msg);
         } catch (throwable & ex) {
             send_msg(cmd_res(req.m_seq_num, std::string(ex.what())));
         } catch (...) {

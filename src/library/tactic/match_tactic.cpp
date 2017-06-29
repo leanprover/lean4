@@ -47,8 +47,8 @@ struct mk_pattern_fn {
         m_ctx(mk_type_context_for(s)) {
     }
 
-    void mk_level_uvars(list<level> const & ls) {
-        unsigned i = 0;
+    void mk_level_uvars(unsigned start_idx, list<level> const & ls) {
+        unsigned i = start_idx;
         for (level const & l : ls) {
             m_level2meta.insert(l, mk_idx_metauniv(i));
             i++;
@@ -84,8 +84,8 @@ struct mk_pattern_fn {
             });
     }
 
-    void mk_expr_mvars(list<expr> const & es) {
-        unsigned i = 0;
+    void mk_expr_mvars(unsigned start_idx, list<expr> const & es) {
+        unsigned i = start_idx;
         for (expr const & e : es) {
             expr e_type = convert(m_ctx.infer(e));
             m_expr2meta.insert(e, mk_idx_metavar(i, e_type));
@@ -111,15 +111,23 @@ struct mk_pattern_fn {
         }
     }
 
-  vm_obj mk(list<level> const & ls, list<expr> const & es, expr const & t, list<level> const & ous, list<expr> const & os) {
-        mk_level_uvars(ls);
-        mk_expr_mvars(es);
+    vm_obj mk(list<level> const & ls, list<expr> const & es, expr t, list<level> const & ous, list<expr> const & os) {
+        buffer<level> extra_ls;
+        buffer<expr>  extra_es;
+        t = to_idx_metavars(m_ctx.mctx(), t, extra_ls, extra_es);
+        mk_level_uvars(extra_ls.size(), ls);
+        mk_expr_mvars(extra_es.size(), es);
         expr target = convert(t);
         check_levels(ls);
         check_exprs(es);
-        list<expr> output = map(os, [&](expr const & e) { return convert(e); });
-        list<level> uoutput = map(ous, [&](level const & e) { return convert(e); });
-        return mk_pattern(target, uoutput, output, length(ls), length(es));
+        list<expr> output = map(os, [&](expr const & e) {
+                if (has_metavar(e)) throw exception("invalid pattern, output expression must not contain metavariables");
+                return convert(e);
+            });
+        list<level> uoutput = map(ous, [&](level const & e) {
+                if (has_meta(e)) throw exception("invalid pattern, output expression must not contain universe metavariables");
+                return convert(e); });
+        return mk_pattern(target, uoutput, output, extra_ls.size() + length(ls), extra_es.size() + length(es));
     }
 };
 

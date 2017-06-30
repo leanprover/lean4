@@ -333,6 +333,7 @@ struct inductive_modification : public modification {
     void perform(environment & env) const override {
         if (m_trust_lvl > env.trust_lvl()) {
             auto d = m_decl.get_decl();
+            d.m_type = unfold_untrusted_macros(env, d.m_type);
             d.m_intro_rules = map(d.m_intro_rules, [&](inductive::intro_rule const & r) {
                 return unfold_untrusted_macros(env, r);
             });

@@ -45,7 +45,7 @@ static unsigned get_expect_num_args(type_context & ctx, expr e) {
     }
 }
 
-bool try_instance(type_context & ctx, expr const & meta, tactic_state const & s, vm_obj * out_error_obj, char const * tac_name) {
+static bool try_instance(type_context & ctx, expr const & meta, tactic_state const & s, vm_obj * out_error_obj, char const * tac_name) {
     if (ctx.is_assigned(meta))
         return true;
     expr meta_type      = ctx.instantiate_mvars(ctx.infer(meta));
@@ -77,10 +77,22 @@ bool try_instance(type_context & ctx, expr const & meta, tactic_state const & s,
     return true;
 }
 
+bool synth_instances(type_context & ctx, buffer<expr> const & metas, buffer<bool> const & is_instance,
+                     tactic_state const & s, vm_obj * out_error_obj, char const * tac_name) {
+    unsigned i = is_instance.size();
+    while (i > 0) {
+        --i;
+        if (!is_instance[i]) continue;
+        if (!try_instance(ctx, metas[i], s, out_error_obj, tac_name))
+            return false;
+    }
+    return true;
+}
+
 /** \brief Given a sequence metas/goals: <tt>(?m_1 ...) (?m_2 ... ) ... (?m_k ...)</tt>,
     we say ?m_i is "redundant" if it occurs in the type of some ?m_j.
     This procedure removes from metas any redundant element. */
-void remove_dep_goals(type_context & ctx, buffer<expr> & metas) {
+static void remove_dep_goals(type_context & ctx, buffer<expr> & metas) {
     unsigned k = 0;
     for (unsigned i = 0; i < metas.size(); i++) {
         bool found = false;
@@ -100,7 +112,7 @@ void remove_dep_goals(type_context & ctx, buffer<expr> & metas) {
     metas.shrink(k);
 }
 
-void reorder_non_dep_first(type_context & ctx, buffer<expr> & metas) {
+static void reorder_non_dep_first(type_context & ctx, buffer<expr> & metas) {
     buffer<expr> non_dep, dep;
     for (unsigned i = 0; i < metas.size(); i++) {
         bool found = false;
@@ -121,6 +133,25 @@ void reorder_non_dep_first(type_context & ctx, buffer<expr> & metas) {
     metas.clear();
     metas.append(non_dep);
     metas.append(dep);
+}
+
+void collect_new_goals(type_context & ctx, new_goals_kind k, buffer<expr> const & metas, buffer<expr> & new_goals) {
+    for (auto m : metas) {
+        if (!ctx.is_assigned(m)) {
+            ctx.instantiate_mvars_at_type_of(m);
+            new_goals.push_back(m);
+        }
+    }
+    switch (k) {
+    case new_goals_kind::NonDepFirst:
+        reorder_non_dep_first(ctx, new_goals);
+        break;
+    case new_goals_kind::NonDepOnly:
+        remove_dep_goals(ctx, new_goals);
+        break;
+    case new_goals_kind::All:
+        break; /* do nothing */
+    }
 }
 
 static optional<tactic_state> apply(type_context & ctx, expr e, apply_cfg const & cfg, tactic_state const & s,
@@ -163,33 +194,11 @@ static optional<tactic_state> apply(type_context & ctx, expr e, apply_cfg const 
         return none_tactic_state();
     }
     /* Synthesize type class instances */
-    if (cfg.m_instances) {
-        unsigned i = is_instance.size();
-        while (i > 0) {
-            --i;
-            if (!is_instance[i]) continue;
-            if (!try_instance(ctx, metas[i], s, out_error_obj, "apply"))
-                return none_tactic_state();
-        }
-    }
+    if (cfg.m_instances && !synth_instances(ctx, metas, is_instance, s, out_error_obj, "apply"))
+        return none_tactic_state();
     /* Collect unassigned meta-variables */
     buffer<expr> new_goals;
-    for (auto m : metas) {
-        if (!ctx.is_assigned(m)) {
-            ctx.instantiate_mvars_at_type_of(m);
-            new_goals.push_back(m);
-        }
-    }
-    switch (cfg.m_new_goals) {
-    case new_goals_kind::NonDepFirst:
-        reorder_non_dep_first(ctx, new_goals);
-        break;
-    case new_goals_kind::NonDepOnly:
-        remove_dep_goals(ctx, new_goals);
-        break;
-    case new_goals_kind::All:
-        break; /* do nothing */
-    }
+    collect_new_goals(ctx, cfg.m_new_goals, metas, new_goals);
     metavar_context mctx = ctx.mctx();
     /* Assign, and create new tactic_state */
     e = mctx.instantiate_mvars(e);

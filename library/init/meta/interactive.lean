@@ -309,27 +309,26 @@ match r.rule with
 | _                   := return []
 end
 
-private meta def rw_goal (m : transparency) (rs : list rw_rule) : tactic unit :=
+private meta def rw_goal (cfg : rewrite_cfg) (rs : list rw_rule) : tactic unit :=
 rs.mfor' $ λ r, do
  save_info r.pos,
  eq_lemmas ← get_rule_eqn_lemmas r,
  orelse'
-   (to_expr' r.rule >>= rewrite_core m tt tt occurrences.all r.symm)
-   (eq_lemmas.mfirst $ λ n, mk_const n >>= rewrite_core m tt tt occurrences.all r.symm)
+   (do e ← to_expr' r.rule, rewrite_target e {cfg with symm := r.symm})
+   (eq_lemmas.mfirst $ λ n, do e ← mk_const n, rewrite_target e {cfg with symm := r.symm})
    (eq_lemmas.empty)
 
-private meta def rw_hyp (m : transparency) (rs : list rw_rule) (hname : name) : tactic unit :=
+private meta def rw_hyp (cfg : rewrite_cfg) (rs : list rw_rule) (hname : name) : tactic unit :=
 rs.mfor' $ λ r,
-do h ← get_local hname,
-   save_info r.pos,
+do save_info r.pos,
    eq_lemmas ← get_rule_eqn_lemmas r,
    orelse'
-     (do e ← to_expr' r.rule, rewrite_at_core m tt tt occurrences.all r.symm e h)
-     (eq_lemmas.mfirst $ λ n, do e ← mk_const n, rewrite_at_core m tt tt occurrences.all r.symm e h)
+     (do e ← to_expr' r.rule, rewrite_hyp e hname {cfg with symm := r.symm})
+     (eq_lemmas.mfirst $ λ n, do e ← mk_const n, rewrite_hyp e hname {cfg with symm := r.symm})
      (eq_lemmas.empty)
 
-private meta def rw_hyps (m : transparency) (rs : list rw_rule) (hs : list name) : tactic unit :=
-hs.mfor' (rw_hyp m rs)
+private meta def rw_hyps (cfg : rewrite_cfg) (rs : list rw_rule) (hs : list name) : tactic unit :=
+hs.mfor' (rw_hyp cfg rs)
 
 meta def rw_rule_p (ep : parser pexpr) : parser rw_rule :=
 rw_rule.mk <$> cur_pos <*> (option.is_some <$> (tk "-")?) <*> ep
@@ -348,29 +347,29 @@ meta def rw_rules : parser rw_rules_t :=
                <*> (some <$> cur_pos <* set_goal_info_pos (tk "]")))
 <|> rw_rules_t.mk <$> (list.ret <$> rw_rule_p texpr) <*> return none
 
-private meta def rw_core (m : transparency) (rs : parse rw_rules) (loca : parse location) : tactic unit :=
+private meta def rw_core (rs : parse rw_rules) (loca : parse location) (cfg : rewrite_cfg) : tactic unit :=
 match loca with
 | loc.wildcard := fail "wildcard not allowed with rewrite"
-| loc.ns []    := rw_goal m rs.rules
-| loc.ns hs    := rw_hyps m rs.rules hs
+| loc.ns []    := rw_goal cfg rs.rules
+| loc.ns hs    := rw_hyps cfg rs.rules hs
 end >> try (reflexivity reducible)
     >> (returnopt rs.end_pos >>= save_info <|> skip)
 
-meta def rewrite : parse rw_rules → parse location → tactic unit :=
-rw_core reducible
+meta def rewrite (q : parse rw_rules) (l : parse location) (cfg : rewrite_cfg := {}) : tactic unit :=
+rw_core q l cfg
 
-meta def rw : parse rw_rules → parse location → tactic unit :=
-rewrite
+meta def rw (q : parse rw_rules) (l : parse location) (cfg : rewrite_cfg := {}) : tactic unit :=
+rw_core q l cfg
 
 /- rewrite followed by assumption -/
-meta def rwa (q : parse rw_rules) (l : parse location) : tactic unit :=
-rewrite q l >> try assumption
+meta def rwa (q : parse rw_rules) (l : parse location) (cfg : rewrite_cfg := {}) : tactic unit :=
+rewrite q l cfg >> try assumption
 
-meta def erewrite : parse rw_rules → parse location → tactic unit :=
-rw_core semireducible
+meta def erewrite (q : parse rw_rules) (l : parse location) (cfg : rewrite_cfg := {md := semireducible}) : tactic unit :=
+rw_core q l cfg
 
-meta def erw : parse rw_rules → parse location → tactic unit :=
-erewrite
+meta def erw (q : parse rw_rules) (l : parse location) (cfg : rewrite_cfg := {md := semireducible}) : tactic unit :=
+rw_core q l cfg
 
 private meta def get_type_name (e : expr) : tactic name :=
 do e_type ← infer_type e >>= whnf,

@@ -38,7 +38,10 @@ For more details, see discussion [here](https://github.com/leanprover/lean/pull/
 
 * `assume` and `suppose` are now real tactics that do not exit tactic mode.
 
-* Modified `apply` tactic configuration object, and implemented [RFC #1342](https://github.com/leanprover/lean/issues/1342). It also has support for `auto_param` and `opt_param`. The new `eapply` tactic only creates subgoals for non dependent premises, and it simulates the behavior of the `apply` tactic in version 3.2.0.
+* Modified `apply` tactic configuration object, and implemented [RFC #1342](https://github.com/leanprover/lean/issues/1342). It now has support for `auto_param` and `opt_param`. The new `eapply` tactic only creates subgoals for non dependent premises, and it simulates the behavior of the `apply` tactic in version 3.2.0.
+
+* Add configuration object `rewrite_cfg` to `rw`/`rewrite` tactic. It now has support for `auto_param` and `opt_param`.
+  The new goals are ordered using the same strategies available for `apply`.
 
 v3.2.0 (18 June 2017)
 -------------

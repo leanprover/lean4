@@ -833,7 +833,7 @@ ms.mfoldl
             return $ r || type.is_napp_of `opt_param 2 || type.is_napp_of `auto_param 2)
  ff
 
-private meta def try_apply_opt_auto_param (cfg : apply_cfg) (ms : list expr) : tactic unit :=
+meta def try_apply_opt_auto_param (cfg : apply_cfg) (ms : list expr) : tactic unit :=
 when (cfg.auto_param || cfg.opt_param) $
 mwhen (has_opt_auto_param ms) $ do
   gs ← get_goals,
@@ -1168,3 +1168,14 @@ meta instance : monad task :=
 {map := @task.map, bind := @task.bind, pure := @task.pure,
  id_map := undefined, pure_bind := undefined, bind_assoc := undefined,
  bind_pure_comp_eq_map := undefined}
+
+namespace tactic
+meta def replace_target (new_target : expr) (pr : expr) : tactic unit :=
+do t ← target,
+   assert `htarget new_target, swap,
+   ht        ← get_local `htarget,
+   eq_type   ← mk_app `eq [t, new_target],
+   locked_pr ← return $ expr.app (expr.app (expr.const ``id_locked [level.zero]) eq_type) pr,
+   mk_eq_mpr locked_pr ht >>= exact
+
+end tactic

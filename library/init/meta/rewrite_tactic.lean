@@ -7,18 +7,38 @@ prelude
 import init.meta.relation_tactics init.meta.occurrences
 
 namespace tactic
-/- (rewrite_core m approx use_instances occs symm H) -/
-meta constant rewrite_core : transparency → bool → bool → occurrences → bool → expr → tactic unit
-meta constant rewrite_at_core : transparency → bool → bool → occurrences → bool → expr → expr → tactic unit
+/-- Configuration options for the `rewrite` tactic. -/
+structure rewrite_cfg extends apply_cfg :=
+(md            := reducible)
+(symm          := ff)
+(occs          := occurrences.all)
 
-meta def rewrite (th_name : name) : tactic unit :=
-do th ← mk_const th_name,
-   rewrite_core reducible tt tt occurrences.all ff th,
-   try (reflexivity reducible)
+/-- Rewrite the expression `e` using `h`.
+    The unification is performed using the transparency mode in `cfg`.
+    If `cfg.approx` is `tt`, then fallback to first-order unification, and approximate context during unification.
+    `cfg.new_goals` specifies which unassigned metavariables become new goals, and their order.
+    If `cfg.instances` is `tt`, then use type class resolution to instantiate unassigned meta-variables.
+    The fields `cfg.auto_param` and `cfg.opt_param` are ignored by this tactic (See `tactic.rewrite`).
+    It a triple `(new_e, prf, metas)` where `prf : e = new_e`, and `metas` is a list of all introduced meta variables,
+    even the assigned ones.
 
-meta def rewrite_at (th_name : name) (H_name : name) : tactic unit :=
-do th ← mk_const th_name,
-   H  ← get_local H_name,
-   rewrite_at_core reducible tt tt occurrences.all ff th H
+    TODO(Leo): improve documentation and explain symm/occs -/
+meta constant rewrite_core (h : expr) (e : expr) (cfg : rewrite_cfg := {}) : tactic (expr × expr × list expr)
+
+meta def rewrite (h : expr) (e : expr) (cfg : rewrite_cfg := {}) : tactic (expr × expr × list expr) :=
+do (new_t, prf, metas) ← rewrite_core h e cfg,
+   try_apply_opt_auto_param cfg.to_apply_cfg metas,
+   return (new_t, prf, metas)
+
+meta def rewrite_target (h : expr) (cfg : rewrite_cfg := {}) : tactic unit :=
+do t ← target,
+   (new_t, prf, _) ← rewrite h t cfg,
+   replace_target new_t prf
+
+meta def rewrite_hyp (h : expr) (hyp_name : name) (cfg : rewrite_cfg := {}) : tactic expr :=
+do hyp ← get_local hyp_name,
+   hyp_type ← infer_type hyp,
+   (new_hyp_type, prf, _) ← rewrite h hyp_type cfg,
+   replace_hyp hyp new_hyp_type prf
 
 end tactic

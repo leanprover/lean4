@@ -12,8 +12,7 @@ section
    rw h0
   end
 
-  theorem foo₂ : z = y + x := -- works
-  by do rewrite `h0
+
 
 
   theorem foo₃ : z = y + x := -- doesn't work

@@ -246,14 +246,6 @@ meta def simplify (S : simp_lemmas) (e : expr) (cfg : simp_config := {}) : tacti
 do e_type       ← infer_type e >>= whnf,
    simplify_core cfg S `eq e
 
-meta def replace_target (new_target : expr) (pr : expr) : tactic unit :=
-do t ← target,
-   assert `htarget new_target, swap,
-   ht        ← get_local `htarget,
-   eq_type   ← mk_app `eq [t, new_target],
-   locked_pr ← return $ expr.app (expr.app (expr.const ``id_locked [level.zero]) eq_type) pr,
-   mk_eq_mpr locked_pr ht >>= exact
-
 meta def simplify_goal (S : simp_lemmas) (cfg : simp_config := {}) : tactic unit :=
 do t ← target,
    (new_t, pr) ← simplify S t cfg,

@@ -3,7 +3,7 @@ constant zeroadd (a : nat) : 0 + a = a
 
 meta definition xrewrite (th_name : name) : tactic unit :=
 do th ← mk_const th_name,
-   rewrite_core semireducible tt tt occurrences.all ff th,
+   rewrite_target th,
    try reflexivity
 
 example (a : nat) : (0 + a) + (0 + a) + (0 + a) = a + a + a :=

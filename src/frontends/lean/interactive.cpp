@@ -128,7 +128,8 @@ void report_info(environment const & env, options const & opts, io_state const &
             case break_at_pos_exception::token_context::import: {
                 auto parsed = parse_import(tk.to_string());
                 try {
-                    auto f = find_file(path, m_mod_info.m_mod, parsed.first, string_to_name(parsed.second),
+                    auto base_dir = dirname(m_mod_info.m_mod);
+                    auto f = find_file(path, base_dir, parsed.first, string_to_name(parsed.second),
                                        ".lean");
                     record["source"]["file"] = f;
                     record["source"]["line"] = 1;

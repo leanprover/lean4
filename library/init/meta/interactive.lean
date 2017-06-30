@@ -279,7 +279,7 @@ do {
    This is not an optimization, by skipping the elaborator we make sure that no unwanted resolution is used.
    Example: the elaborator will force any unassigned ?A that must have be an instance of (has_one ?A) to nat.
    Remark: another benefit is that auxiliary temporary metavariables do not appear in error messages. -/
-private meta def to_expr' (p : pexpr) : tactic expr :=
+meta def to_expr' (p : pexpr) : tactic expr :=
 match p with
 | (const c [])          := do new_e ← resolve_name' c, save_type_info new_e p, return new_e
 | (local_const c _ _ _) := do new_e ← resolve_name' c, save_type_info new_e p, return new_e
@@ -294,7 +294,7 @@ meta structure rw_rule :=
 meta instance rw_rule.reflect : has_reflect rw_rule :=
 λ ⟨p, s, r⟩, `(_)
 
-private meta def get_rule_eqn_lemmas (r : rw_rule) : tactic (list name) :=
+meta def get_rule_eqn_lemmas (r : rw_rule) : tactic (list name) :=
 let aux (n : name) : tactic (list name) := do {
   p ← resolve_name n,
   -- unpack local refs

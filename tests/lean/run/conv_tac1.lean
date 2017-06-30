@@ -62,3 +62,16 @@ begin
   },
   assumption
 end
+
+example (x y : nat) (f : nat → nat) (h : f (0 + x + y) = 0 + y) : f (x + y) = 0 + y :=
+begin
+  -- use conv to rewrite subterm of a hypothesis
+  conv at h in (0 + _) { rw [zero_add] },
+  assumption
+end
+
+example (x : nat) (f : nat → nat) (h₁ : x = 0) (h₂ : ∀ x, f x = x + x) : f x = x :=
+begin
+  conv { to_rhs, rw [h₁, -add_zero 0, -h₁], },
+  exact h₂ x
+end

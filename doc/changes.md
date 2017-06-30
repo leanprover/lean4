@@ -25,6 +25,7 @@ master branch (aka work in progress branch)
   Examples:
   - `conv at h in (f _ _) { simp }` applies `simp` to first subterm matching `f _ _` at hypothesis `h`.
   - `conv in (_ = _) { to_lhs, whnf }` replace the left-hand-side of the equality in target with its weak-head-normal-form.
+  - `conv at h in (0 + _) { rw [zero_add] }`
 
 *Changes*
 

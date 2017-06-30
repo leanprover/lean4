@@ -98,6 +98,31 @@ do s ← tactic.mk_simp_set no_dflt attr_names hs ids,
 meta def guard_lhs (p : parse texpr) : tactic unit :=
 do t ← lhs, tactic.interactive.guard_expr_eq t p
 
+section rw
+open tactic.interactive (rw_rules rw_rule get_rule_eqn_lemmas to_expr')
+open tactic (rewrite_cfg)
+
+private meta def rw_lhs (h : expr) (cfg : rewrite_cfg) : conv unit :=
+do l ← conv.lhs,
+   (new_lhs, prf, _) ← tactic.rewrite h l cfg,
+   update_lhs new_lhs prf
+
+private meta def rw_core (rs : list rw_rule) (cfg : rewrite_cfg) : conv unit :=
+rs.mfor' $ λ r, do
+ save_info r.pos,
+ eq_lemmas ← get_rule_eqn_lemmas r,
+ orelse'
+   (do h ← to_expr' r.rule, rw_lhs h {cfg with symm := r.symm})
+   (eq_lemmas.mfirst $ λ n, do e ← tactic.mk_const n, rw_lhs e {cfg with symm := r.symm})
+   (eq_lemmas.empty)
+
+meta def rewrite (q : parse rw_rules) (cfg : rewrite_cfg := {}) : conv unit :=
+rw_core q.rules cfg
+
+meta def rw (q : parse rw_rules) (cfg : rewrite_cfg := {}) : conv unit :=
+rw_core q.rules cfg
+end rw
+
 end interactive
 end conv
 

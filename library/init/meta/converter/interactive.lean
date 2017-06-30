@@ -22,6 +22,9 @@ tactic.istep line0 col0 line col c
 meta def execute (c : conv unit) : tactic unit :=
 c
 
+meta def solve1 (c : conv unit) : conv unit :=
+tactic.solve1 $ c >> tactic.repeat tactic.reflexivity
+
 namespace interactive
 open lean.parser
 open interactive
@@ -91,6 +94,9 @@ do s ← tactic.mk_simp_set no_dflt attr_names hs ids,
    (new_lhs, pr) ← tactic.simplify_core cfg s r lhs,
    update_lhs new_lhs pr,
    return ()
+
+meta def guard_lhs (p : parse texpr) : tactic unit :=
+do t ← lhs, tactic.interactive.guard_expr_eq t p
 
 end interactive
 end conv

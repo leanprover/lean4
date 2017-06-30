@@ -20,6 +20,12 @@ master branch (aka work in progress branch)
 
 * `simp` tactic now handles lemmas with metavariables. Example `simp [add_comm _ b]`.
 
+* `conv { ... }` tactic for applying simplification and rewriting steps.
+  In the block `{...}`, we can use tactics from `conv.interactive`.
+  Examples:
+  - `conv at h in (f _ _) { simp }` applies `simp` to first subterm matching `f _ _` at hypothesis `h`.
+  - `conv in (_ = _) { to_lhs, whnf }` replace the left-hand-side of the equality in target with its weak-head-normal-form.
+
 *Changes*
 
 * We now have two type classes for converting to string: `has_to_string` and `has_repr`.

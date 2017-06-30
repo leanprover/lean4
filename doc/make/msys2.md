@@ -33,3 +33,9 @@ mkdir build && cd build
 cmake ../src -G Ninja
 ninja
 ```
+
+## Install lean
+
+You can use the `install` ninja/make target to install Lean into, by, default,
+`C:\\User Programs (x86)\\LEAN`. To change this, add `-DCMAKE_INSTALL_PREFIX=path/you/want`
+to your cmake invocation.

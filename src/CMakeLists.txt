@@ -483,6 +483,12 @@ add_custom_target(clean-std-lib
 add_custom_target(clean-olean
   DEPENDS clean-std-lib)
 
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  install(FILES "${CMAKE_SOURCE_DIR}/../bin/leanpkg.bat" "${CMAKE_SOURCE_DIR}/../bin/leanpkg.bat"
+    DESTINATION bin
+    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+endif()
+
 install(FILES "${CMAKE_SOURCE_DIR}/../bin/leanpkg"
   DESTINATION bin
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)

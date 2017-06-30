@@ -120,6 +120,19 @@ prefix `¬` := not
 inductive eq {α : Sort u} (a : α) : α → Prop
 | refl : eq a
 
+/-
+Initialize the quotient module, which effectively adds the following definitions:
+
+constant quot {α : Sort u} (r : α → α → Prop) : Sort u
+
+constant quot.mk {α : Sort u} (r : α → α → Prop) (a : α) : quot r
+
+constant quot.lift {α : Sort u} {r : α → α → Prop} {β : Sort v} (f : α → β) :
+  (∀ a b : α, r a b → eq (f a) (f b)) → quot r → β
+
+constant quot.ind {α : Sort u} {r : α → α → Prop} {β : quot r → Prop} :
+  (∀ a : α, β (quot.mk r a)) → ∀ q : quot r, β q
+-/
 init_quotient
 
 inductive heq {α : Sort u} (a : α) : Π {β : Sort u}, β → Prop

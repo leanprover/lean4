@@ -115,7 +115,9 @@ meta def dsimplify
 -/
 
 /-- If `e` is a projection application, try to unfold it, otherwise fail. -/
-meta constant unfold_projection (e : expr) (md : transparency := transparency.instances) : tactic expr
+meta constant unfold_projection (e : expr) (md := transparency.instances) : tactic expr
+
+meta constant dunfold_expr (e : expr) (md := transparency.instances) : tactic expr
 
 structure dunfold_config extends dsimp_config :=
 (md := transparency.instances)

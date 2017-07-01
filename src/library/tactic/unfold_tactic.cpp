@@ -133,9 +133,41 @@ vm_obj tactic_dunfold_core(vm_obj const & cs, vm_obj const & _e, vm_obj const & 
     }
 }
 
+
+vm_obj tactic_dunfold_expr(vm_obj const & _e, vm_obj const & m, vm_obj const & _s) {
+    expr const & e = to_expr(_e);
+    tactic_state const & s = tactic::to_state(_s);
+    try {
+        environment const & env = s.env();
+        expr const & fn = get_app_fn(e);
+        if (!is_constant(fn))
+            return tactic::mk_exception("dunfold_expr failed, expression is not a constant nor a constant application", s);
+        if (is_projection(s.env(), const_name(fn))) {
+            type_context ctx = mk_type_context_for(s, to_transparency_mode(m));
+            if (auto new_e = ctx.reduce_projection(e))
+                return tactic::mk_success(to_obj(*new_e), s);
+            return tactic::mk_exception("dunfold_expr failed, failed to unfold projection", s);
+        } else if (has_eqn_lemmas(env, const_name(fn))) {
+            type_context ctx = mk_type_context_for(s, to_transparency_mode(m));
+            if (auto new_e = dunfold(ctx, e)) {
+                return tactic::mk_success(to_obj(*new_e), s);
+            } else {
+                return tactic::mk_exception("dunfold_expr failed, none of the rfl lemmas is applicable", s);
+            }
+        } else if (auto new_e = unfold_term(env, e)) {
+            return tactic::mk_success(to_obj(*new_e), s);
+        } else {
+            return tactic::mk_exception("dunfold_expr failed, failed to unfold", s);
+        }
+    } catch (exception & ex) {
+        return tactic::mk_exception(ex, s);
+    }
+}
+
 void initialize_unfold_tactic() {
     DECLARE_VM_BUILTIN(name({"tactic", "unfold_projection"}),  tactic_unfold_projection);
     DECLARE_VM_BUILTIN(name({"tactic", "dunfold_core"}),       tactic_dunfold_core);
+    DECLARE_VM_BUILTIN(name({"tactic", "dunfold_expr"}),       tactic_dunfold_expr);
 }
 
 void finalize_unfold_tactic() {

@@ -24,23 +24,19 @@ meta constant simp_lemmas.add_congr : simp_lemmas → name → tactic simp_lemma
 meta def simp_lemmas.append (s : simp_lemmas) (hs : list expr) : tactic simp_lemmas :=
 hs.mfoldl simp_lemmas.add s
 
-/-- `simp_lemmas.rewrite_core m s prove R e` apply a simplification lemma from 's'
+/-- `simp_lemmas.rewrite_core s e prove R` apply a simplification lemma from 's'
 
-   - 'prove' is used to discharge proof obligations.
-   - 'R'     is the equivalence relation being used (e.g., 'eq', 'iff')
    - 'e'     is the expression to be "simplified"
+   - 'prove' is used to discharge proof obligations.
+   - 'r'     is the equivalence relation being used (e.g., 'eq', 'iff')
 
    Result (new_e, pr) is the new expression 'new_e' and a proof (pr : e R new_e) -/
-meta constant simp_lemmas.rewrite_core : transparency → simp_lemmas → tactic unit → name → expr → tactic (expr × expr)
-
-meta def simp_lemmas.rewrite : simp_lemmas → tactic unit → name → expr → tactic (expr × expr) :=
-simp_lemmas.rewrite_core reducible
+meta constant simp_lemmas.rewrite (s : simp_lemmas) (e : expr)
+                                  (prove : tactic unit := failed) (r : name := `eq) (md := reducible)
+                                  : tactic (expr × expr)
 
 /-- `simp_lemmas.drewrite s e` tries to rewrite 'e' using only refl lemmas in 's' -/
-meta constant simp_lemmas.drewrite_core : transparency → simp_lemmas → expr → tactic expr
-
-meta def simp_lemmas.drewrite : simp_lemmas → expr → tactic expr :=
-simp_lemmas.drewrite_core reducible
+meta constant simp_lemmas.drewrite (s : simp_lemmas) (e : expr) (md := reducible) : tactic expr
 
 meta constant is_valid_simp_lemma_cnst : name → tactic bool
 meta constant is_valid_simp_lemma : expr → tactic bool

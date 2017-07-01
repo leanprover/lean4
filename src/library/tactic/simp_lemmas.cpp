@@ -1384,7 +1384,8 @@ static bool instantiate_emetas(type_context & ctx, vm_obj const & prove_fn, unsi
 }
 
 
-static simp_result simp_lemma_rewrite(type_context & ctx, simp_lemma const & sl, vm_obj const & prove_fn, expr const & e, tactic_state const & s) {
+static simp_result simp_lemma_rewrite_core(type_context & ctx, simp_lemma const & sl, vm_obj const & prove_fn,
+                                           expr const & e, tactic_state const & s) {
     type_context::tmp_mode_scope scope(ctx, sl.get_num_umeta(), sl.get_num_emeta());
     if (!ctx.is_def_eq(sl.get_lhs(), e)) {
         lean_trace("simp_lemmas", tout() << "fail to unify: " << sl.get_id() << "\n";);
@@ -1426,7 +1427,7 @@ vm_obj simp_lemmas_rewrite_core(transparency_mode const & m, simp_lemmas const &
     type_context ctx = mk_type_context_for(s, m);
 
     for (simp_lemma const & lemma : *srs) {
-        simp_result r = simp_lemma_rewrite(ctx, lemma, prove_fn, e, s);
+        simp_result r = simp_lemma_rewrite_core(ctx, lemma, prove_fn, e, s);
         if (!is_eqp(r.get_new(), e)) {
             lean_trace("simp_lemmas", scope_trace_env scope(ctx.env(), ctx);
                        tout() << "[" << lemma.get_id() << "]: " << e << " ==> " << r.get_new() << "\n";);
@@ -1439,8 +1440,8 @@ vm_obj simp_lemmas_rewrite_core(transparency_mode const & m, simp_lemmas const &
     LEAN_TACTIC_CATCH(s);
 }
 
-vm_obj simp_lemmas_rewrite(vm_obj const & m, vm_obj const & sls, vm_obj const & prove_fn,
-                           vm_obj const & R, vm_obj const & e, vm_obj const & s) {
+vm_obj simp_lemmas_rewrite(vm_obj const & sls, vm_obj const & e, vm_obj const & prove_fn,
+                           vm_obj const & R, vm_obj const & m, vm_obj const & s) {
     return simp_lemmas_rewrite_core(to_transparency_mode(m), to_simp_lemmas(sls), prove_fn,
                                     to_name(R), to_expr(e), tactic::to_state(s));
 }
@@ -1466,7 +1467,7 @@ vm_obj simp_lemmas_drewrite_core(transparency_mode const & m, simp_lemmas const 
     LEAN_TACTIC_CATCH(s);
 }
 
-vm_obj simp_lemmas_drewrite(vm_obj const & m, vm_obj const & sls, vm_obj const & e, vm_obj const & s) {
+vm_obj simp_lemmas_drewrite(vm_obj const & sls, vm_obj const & e, vm_obj const & m, vm_obj const & s) {
     return simp_lemmas_drewrite_core(to_transparency_mode(m), to_simp_lemmas(sls), to_expr(e), tactic::to_state(s));
 }
 
@@ -1543,8 +1544,8 @@ void initialize_simp_lemmas() {
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "add"}),             simp_lemmas_add);
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "add_simp"}),        simp_lemmas_add_simp);
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "add_congr"}),       simp_lemmas_add_congr);
-    DECLARE_VM_BUILTIN(name({"simp_lemmas", "rewrite_core"}),    simp_lemmas_rewrite);
-    DECLARE_VM_BUILTIN(name({"simp_lemmas", "drewrite_core"}),   simp_lemmas_drewrite);
+    DECLARE_VM_BUILTIN(name({"simp_lemmas", "rewrite"}),         simp_lemmas_rewrite);
+    DECLARE_VM_BUILTIN(name({"simp_lemmas", "drewrite"}),        simp_lemmas_drewrite);
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "pp"}),              simp_lemmas_pp);
 
     DECLARE_VM_BUILTIN(name("is_valid_simp_lemma"), is_valid_simp_lemma);

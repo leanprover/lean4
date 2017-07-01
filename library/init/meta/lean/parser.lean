@@ -28,6 +28,8 @@ meta constant set_env : environment → parser unit
 /-- Make sure the next token is an identifier, consume it, and
     produce the quoted name `t, where t is the identifier. -/
 meta constant ident : parser name
+/-- Make sure the next token is a small nat, consume it, and produce it -/
+meta constant small_nat : parser nat
 /-- Check that the next token is `tk` and consume it. `tk` must be a registered token. -/
 meta constant tk (tk : string) : parser unit
 /-- Parse an unelaborated expression using the given right-binding power. -/

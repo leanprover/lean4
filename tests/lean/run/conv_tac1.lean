@@ -101,3 +101,16 @@ begin
              guard_lhs f x g = x},
   exact h,
 end
+
+def f (x y : nat) : nat :=
+x + y + 1
+
+example (x y : nat) : f x y + f x x + f y y = x + y + 1 + y + y + 1 + f x x :=
+begin
+  conv {
+    -- execute `rw [f]` for 1st and 3rd occurrences of f-applications
+    for (f _ _) [1, 3] { rw [f] },
+    guard_lhs (x + y + 1) + f x x + (y + y + 1) = x + y + 1 + y + y + 1 + f x x,
+    simp
+  }
+end

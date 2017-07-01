@@ -89,6 +89,25 @@ do (r, lhs, _) ← tactic.target_lhs_rhs,
   when (not found) $ tactic.fail "find converter failed, pattern was not found",
   update_lhs new_lhs pr
 
+meta def for (p : parse qexpr) (occs : parse (list_of small_nat)) (c : itactic) : conv unit :=
+do (r, lhs, _) ← tactic.target_lhs_rhs,
+   pat ← tactic.pexpr_to_pattern p,
+   s   ← simp_lemmas.mk_default, -- to be able to use congruence lemmas @[congr]
+   (found, new_lhs, pr) ←
+     tactic.ext_simplify_core 1 {zeta := ff, beta := ff, single_pass := tt, eta := ff,
+                                 proj := ff, fail_if_unchaged := ff} s
+       (λ u, return u)
+       (λ i s r p e, do
+         matched ← (tactic.match_pattern_core reducible pat e >> return tt) <|> return ff,
+         guard matched,
+         if i ∈ occs then do
+           ⟨new_e, pr⟩ ← c.convert e r,
+           return (i+1, new_e, some pr, tt)
+         else return (i+1, e, none, tt))
+       (λ a s r p e, tactic.failed)
+       r lhs,
+  update_lhs new_lhs pr
+
 meta def simp (no_dflt : parse only_flag) (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list)
               (ids : parse without_ident_list) (cfg : tactic.simp_config := {}) : conv unit :=
 do s ← tactic.mk_simp_set no_dflt attr_names hs ids,
@@ -147,7 +166,8 @@ do h ← get_local h_name,
 private meta def conv_target (c : conv unit) : tactic unit :=
 do t ← target,
    (new_t, pr) ← c.convert t,
-   replace_target new_t pr
+   replace_target new_t pr,
+   try tactic.triv, try (tactic.reflexivity reducible)
 
 meta def conv (loc : parse (tk "at" *> ident)?)
               (p : parse (tk "in" *> qexpr)?)

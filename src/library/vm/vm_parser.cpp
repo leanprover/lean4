@@ -174,6 +174,15 @@ vm_obj vm_parser_ident(vm_obj const & o) {
     CATCH;
 }
 
+vm_obj vm_parser_small_nat(vm_obj const & o) {
+    auto const & s = lean_parser::to_state(o);
+    TRY;
+        auto _ = s.m_p->no_error_recovery_scope();
+        unsigned n = s.m_p->parse_small_nat();
+        return lean_parser::mk_success(mk_vm_nat(n), s);
+    CATCH;
+}
+
 vm_obj vm_parser_tk(vm_obj const & vm_tk, vm_obj const & o) {
     auto const & s = lean_parser::to_state(o);
     TRY;
@@ -303,6 +312,7 @@ void initialize_vm_parser() {
     DECLARE_VM_BUILTIN(name({"lean", "parser_state", "options"}),     vm_parser_state_options);
     DECLARE_VM_BUILTIN(name({"lean", "parser_state", "cur_pos"}),     vm_parser_state_cur_pos);
     DECLARE_VM_BUILTIN(name({"lean", "parser", "ident"}),             vm_parser_ident);
+    DECLARE_VM_BUILTIN(name({"lean", "parser", "small_nat"}),         vm_parser_small_nat);
     DECLARE_VM_BUILTIN(name({"lean", "parser", "set_env"}),           vm_parser_set_env);
     DECLARE_VM_BUILTIN(get_lean_parser_tk_name(),                     vm_parser_tk);
     DECLARE_VM_BUILTIN(get_lean_parser_pexpr_name(),                  vm_parser_pexpr);

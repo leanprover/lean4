@@ -26,6 +26,8 @@ master branch (aka work in progress branch)
   - `conv at h in (f _ _) { simp }` applies `simp` to first subterm matching `f _ _` at hypothesis `h`.
   - `conv in (_ = _) { to_lhs, whnf }` replace the left-hand-side of the equality in target with its weak-head-normal-form.
   - `conv at h in (0 + _) { rw [zero_add] }`
+  - `conv { for (f _ _) [1, 3] {rw [h]}, simp }`, first execute `rw[h]` to the first and third occurrences of an `f`-application,
+     and then execute `simp`.
 
 * `simp` tactics in interactive mode have a new configuration parameter (`discharger : tactic unit`)
    a tactic for discharging subgoals created by the simplifier. If the tactic fails, the simplifier

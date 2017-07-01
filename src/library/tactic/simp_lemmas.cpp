@@ -473,6 +473,10 @@ class to_ceqvs_fn {
             expr new_e = mk_iff(arg1, mk_false());
             expr new_H = mk_app(mk_constant(get_iff_false_intro_name()), arg1, H);
             return mk_singleton(new_e, new_H);
+        } else if (is_app_of(e, get_ne_name(), 3)) {
+            buffer<expr> args;
+            expr const & fn = get_app_args(e, args);
+            return apply(mk_not(mk_app(mk_constant(get_eq_name(), const_levels(fn)), args)), H, restricted);
         } else if (is_and(e, arg1, arg2)) {
             // TODO(Leo): we can extend this trick to any type that has only one constructor
             expr H1 = mk_app(mk_constant(get_and_elim_left_name()), arg1, arg2, H);
@@ -505,7 +509,7 @@ class to_ceqvs_fn {
             auto r2    = lift(Hnc, apply(arg2, H2, restricted));
             return append(r1, r2);
         } else if (!restricted) {
-            expr new_e = m_ctx.whnf(e);
+            expr new_e = annotated_head_beta_reduce(e);
             if (new_e != e) {
                 if (auto r = apply(new_e, H, true))
                     return r;
@@ -684,7 +688,7 @@ static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name cons
         /* Remark: we don't need to reset the universes since we don't create new temporary
            universe metavariables in this loop. */
         ctx.resize_tmp_mvars(_emetas.size());
-        expr rule  = ctx.whnf(p.first);
+        expr rule  = p.first;
         expr proof = p.second;
         bool is_perm = is_permutation_ceqv(env, rule);
         buffer<expr> emetas;
@@ -694,7 +698,7 @@ static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name cons
             expr mvar = ctx.mk_tmp_mvar(binding_domain(rule));
             emetas.push_back(mvar);
             instances.push_back(binding_info(rule).is_inst_implicit());
-            rule = ctx.whnf(instantiate(binding_body(rule), mvar));
+            rule = instantiate(binding_body(rule), mvar);
             proof = mk_app(proof, mvar);
         }
         expr rel, lhs, rhs;
@@ -840,7 +844,7 @@ static simp_lemmas add_congr_core(type_context & ctx, simp_lemmas const & s, nam
         us.push_back(ctx.mk_tmp_univ_mvar());
     }
     levels ls = to_list(us);
-    expr rule    = ctx.whnf(instantiate_type_univ_params(d, ls));
+    expr rule    = instantiate_type_univ_params(d, ls);
     expr proof   = mk_constant(n, ls);
 
     buffer<expr> emetas;
@@ -851,7 +855,7 @@ static simp_lemmas add_congr_core(type_context & ctx, simp_lemmas const & s, nam
         emetas.push_back(mvar);
         explicits.push_back(is_explicit(binding_info(rule)));
         instances.push_back(binding_info(rule).is_inst_implicit());
-        rule  = ctx.whnf(instantiate(binding_body(rule), mvar));
+        rule  = instantiate(binding_body(rule), mvar);
         proof = mk_app(proof, mvar);
     }
     expr rel, lhs, rhs;

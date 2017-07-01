@@ -31,11 +31,8 @@ simp_lemmas.add_simp_core reducible
 meta def simp_lemmas.add_congr : simp_lemmas → name → tactic simp_lemmas :=
 simp_lemmas.add_congr_core reducible
 
-meta def simp_lemmas.append : simp_lemmas → list expr → tactic simp_lemmas
-| sls []      := return sls
-| sls (l::ls) := do
-  new_sls ← simp_lemmas.add sls l,
-  simp_lemmas.append new_sls ls
+meta def simp_lemmas.append (s : simp_lemmas) (hs : list expr) : tactic simp_lemmas :=
+hs.mfoldl simp_lemmas.add s
 
 /-- `simp_lemmas.rewrite_core m s prove R e` apply a simplification lemma from 's'
 

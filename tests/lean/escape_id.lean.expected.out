@@ -1,12 +1,13 @@
-def : ℕ
+«def» : ℕ
+def.equations._eqn_1 : «def» = 1
 «[ ]» : ℕ
-escape_id.lean:6:7: error: unknown identifier '«[»'
+escape_id.lean:7:7: error: unknown identifier '«[»'
 a.«b.c» : ℕ
-escape_id.lean:10:7: error: unknown identifier 'a.b.c'
-escape_id.lean:11:7: error: unknown identifier '«a.b.c»'
+escape_id.lean:11:7: error: unknown identifier 'a.b.c'
+escape_id.lean:12:7: error: unknown identifier '«a.b.c»'
 list.length [1] : ℕ
-escape_id.lean:15:8: error: illegal character in escaped identifier
-escape_id.lean:16:0: error: invalid expression, unexpected token
 escape_id.lean:16:8: error: illegal character in escaped identifier
-escape_id.lean:17:0: error: unexpected token
-escape_id.lean:17:1: error: invalid expression, unexpected token
+escape_id.lean:17:0: error: invalid expression, unexpected token
+escape_id.lean:17:8: error: illegal character in escaped identifier
+escape_id.lean:18:0: error: unexpected token
+escape_id.lean:18:1: error: invalid expression, unexpected token

@@ -669,7 +669,13 @@ optional<name> pretty_fn::is_aliased(name const & n) const {
     }
 }
 
-static format escape(name const & n) {
+format pretty_fn::escape(name const & n) {
+    // also escape keyword-like names
+    if (n.is_atomic() && n.is_string() && find(m_token_table, n.get_string())) {
+        sstream ss;
+        ss << "«" << n.get_string() << "»";
+        return format(ss.str());
+    }
     return format(n.escape());
 }
 

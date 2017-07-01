@@ -94,6 +94,8 @@ private:
     bool has_implicit_args(expr const & f);
     optional<name> is_aliased(name const & n) const;
 
+    format escape(name const & n);
+
     format pp_child(level const & l);
     format pp_max(level l);
     format pp_meta(level const & l);

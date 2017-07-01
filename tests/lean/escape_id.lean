@@ -1,5 +1,6 @@
 def «def» := 1
 #check «def»
+#check def.equations._eqn_1
 
 def «[ ]» := 1
 #check «[ ]»

@@ -82,3 +82,22 @@ begin
   conv { to_rhs, rw [h₁, -add_zero 0, -h₁], },
   exact h₂ x
 end
+
+lemma addz (x : nat) : x + 0 = x :=
+rfl
+
+example (x : nat) (g : nat → nat) (f : nat → (nat → nat) → nat) (h : f (x + 0) (λ x, g x) = x) : f x g = x :=
+begin
+  conv at h {dsimp [addz] {eta := ff}},
+  conv at h {dsimp},
+  exact h,
+end
+
+example (x : nat) (g : nat → nat) (f : nat → (nat → nat) → nat) (h : f (x + 0) (λ x, g x) = x) : f x g = x :=
+begin
+  conv at h {dsimp [addz] {eta := ff},
+             guard_lhs f x (λ x, g x) = x,
+             dsimp,
+             guard_lhs f x g = x},
+  exact h,
+end

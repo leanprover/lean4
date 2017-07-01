@@ -706,13 +706,13 @@ open interactive interactive.types expr
 
 private meta def simp_goal (cfg : simp_config) : simp_lemmas → tactic unit
 | s := do
-   (new_target, pr) ← target >>= simplify_core cfg s `eq,
+   (new_target, pr) ← target >>= λ t, simplify s t cfg `eq,
    replace_target new_target pr
 
 private meta def simp_hyp (cfg : simp_config) (s : simp_lemmas) (h_name : name) : tactic unit :=
 do h      ← get_local h_name,
    h_type ← infer_type h,
-   (h_new_type, pr) ← simplify_core cfg s `eq h_type,
+   (h_new_type, pr) ← simplify s h_type cfg `eq,
    replace_hyp h h_new_type pr,
    return ()
 

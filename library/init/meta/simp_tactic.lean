@@ -44,6 +44,20 @@ meta constant is_valid_simp_lemma : expr → tactic bool
 meta constant simp_lemmas.pp : simp_lemmas → tactic format
 
 namespace tactic
+meta def revert_and_transform (transform : expr → tactic expr) (h : expr) : tactic unit :=
+do num_reverted : ℕ ← revert h,
+   t ← target,
+   match t with
+   | expr.pi n bi d b  :=
+        do h_simp ← transform d,
+           unsafe_change $ expr.pi n bi h_simp b
+   | expr.elet n g e f :=
+        do h_simp ← transform g,
+           unsafe_change $ expr.elet n h_simp e f
+   | _ := fail "reverting hypothesis created neither a pi nor an elet expr (unreachable?)"
+   end,
+   intron num_reverted
+
 /-- `get_eqn_lemmas_for deps d` returns the automatically generated equational lemmas for definition d.
    If deps is tt, then lemmas for automatically generated auxiliary declarations used to define d are also included. -/
 meta constant get_eqn_lemmas_for : bool → name → tactic (list name)
@@ -92,6 +106,19 @@ meta def dsimplify
                        (λ u e, do r ← post e, return (u, r)) e,
         return new_e
 
+meta def dsimp_core (s : simp_lemmas) (cfg : dsimp_config := {}) : tactic unit :=
+do t ← target, s.dsimplify t cfg >>= unsafe_change
+
+meta def dsimp (cfg : dsimp_config := {}) : tactic unit :=
+do s ← simp_lemmas.mk_default, dsimp_core s cfg
+
+meta def dsimp_at_core (s : simp_lemmas) (h : expr) (cfg : dsimp_config := {}) : tactic unit :=
+revert_and_transform (λ e, s.dsimplify e cfg) h
+
+meta def dsimp_at (h : expr) (cfg : dsimp_config := {}) : tactic unit :=
+do s ← simp_lemmas.mk_default, dsimp_at_core s h cfg
+
+
 /- Remark: we use transparency.instances by default to make sure that we
    can unfold projections of type classes. Example:
 
@@ -110,20 +137,6 @@ meta constant dunfold_core (cs : list name) (e : expr) (cfg : dunfold_config := 
 
 meta def dunfold (cs : list name) (cfg : dunfold_config := {}) : tactic unit :=
 do t ← target, dunfold_core cs t cfg >>= unsafe_change
-
-meta def revert_and_transform (transform : expr → tactic expr) (h : expr) : tactic unit :=
-do num_reverted : ℕ ← revert h,
-   t ← target,
-   match t with
-   | expr.pi n bi d b  :=
-        do h_simp ← transform d,
-           unsafe_change $ expr.pi n bi h_simp b
-   | expr.elet n g e f :=
-        do h_simp ← transform g,
-           unsafe_change $ expr.elet n h_simp e f
-   | _ := fail "reverting hypothesis created neither a pi nor an elet expr (unreachable?)"
-   end,
-   intron num_reverted
 
 meta def dunfold_at (cs : list name) (h : expr) (cfg : dunfold_config := {}) : tactic unit :=
 revert_and_transform (λ e, dunfold_core cs e cfg) h
@@ -186,11 +199,21 @@ structure simp_config :=
 (fail_if_unchaged          := tt)
 (memoize                   := tt)
 
-meta constant simplify_core
-  (c : simp_config)
-  (s : simp_lemmas)
-  (r : name) :
-  expr → tactic (expr × expr)
+meta constant simplify (s : simp_lemmas) (e : expr) (cfg : simp_config := {}) (r : name := `eq) : tactic (expr × expr)
+
+meta def simplify_goal (S : simp_lemmas) (cfg : simp_config := {}) : tactic unit :=
+do t ← target,
+   (new_t, pr) ← simplify S t cfg,
+   replace_target new_t pr
+
+meta def simp (cfg : simp_config := {}) : tactic unit :=
+do S ← simp_lemmas.mk_default,
+simplify_goal S cfg >> try triv >> try (reflexivity reducible)
+
+meta def simp_using (hs : list expr) (cfg : simp_config := {}) : tactic unit :=
+do S ← simp_lemmas.mk_default,
+   S ← S.append hs,
+simplify_goal S cfg >> try triv
 
 meta constant ext_simplify_core
   /- The user state type. -/
@@ -221,36 +244,6 @@ meta constant ext_simplify_core
   /- simplification relation -/
   (r : name) :
   expr → tactic (α × expr × expr)
-
-meta def simplify (S : simp_lemmas) (e : expr) (cfg : simp_config := {}) : tactic (expr × expr) :=
-do e_type       ← infer_type e >>= whnf,
-   simplify_core cfg S `eq e
-
-meta def simplify_goal (S : simp_lemmas) (cfg : simp_config := {}) : tactic unit :=
-do t ← target,
-   (new_t, pr) ← simplify S t cfg,
-   replace_target new_t pr
-
-meta def simp (cfg : simp_config := {}) : tactic unit :=
-do S ← simp_lemmas.mk_default,
-simplify_goal S cfg >> try triv >> try (reflexivity reducible)
-
-meta def simp_using (hs : list expr) (cfg : simp_config := {}) : tactic unit :=
-do S ← simp_lemmas.mk_default,
-   S ← S.append hs,
-simplify_goal S cfg >> try triv
-
-meta def dsimp_core (s : simp_lemmas) (cfg : dsimp_config := {}) : tactic unit :=
-do t ← target, s.dsimplify t cfg >>= unsafe_change
-
-meta def dsimp (cfg : dsimp_config := {}) : tactic unit :=
-do s ← simp_lemmas.mk_default, dsimp_core s cfg
-
-meta def dsimp_at_core (s : simp_lemmas) (h : expr) (cfg : dsimp_config := {}) : tactic unit :=
-revert_and_transform (λ e, s.dsimplify e cfg) h
-
-meta def dsimp_at (h : expr) (cfg : dsimp_config := {}) : tactic unit :=
-do s ← simp_lemmas.mk_default, dsimp_at_core s h cfg
 
 private meta def is_equation : expr → bool
 | (expr.pi n bi d b) := is_equation b

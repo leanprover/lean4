@@ -112,7 +112,7 @@ meta def simp (no_dflt : parse only_flag) (hs : parse opt_qexpr_list) (attr_name
               (ids : parse without_ident_list) (cfg : tactic.simp_config := {}) : conv unit :=
 do s ← tactic.mk_simp_set no_dflt attr_names hs ids,
    (r, lhs, rhs) ← tactic.target_lhs_rhs,
-   (new_lhs, pr) ← tactic.simplify_core cfg s r lhs,
+   (new_lhs, pr) ← tactic.simplify s lhs cfg r,
    update_lhs new_lhs pr,
    return ()
 

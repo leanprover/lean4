@@ -1157,13 +1157,13 @@ public:
 };
 
 /*
-meta constant simplify_core
-  (c : simp_config)
+meta constant simplify
   (s : simp_lemmas)
-  (r : name) :
-  expr → tactic (expr × expr)
+  (e : expr)
+  (c : simp_config)
+  (r : name) : tactic (expr × expr)
 */
-vm_obj tactic_simplify_core(vm_obj const & c, vm_obj const & slss, vm_obj const & rel, vm_obj const & e, vm_obj const & _s) {
+vm_obj tactic_simplify(vm_obj const & slss, vm_obj const & e, vm_obj const & c, vm_obj const & rel, vm_obj const & _s) {
     tactic_state const & s   = tactic::to_state(_s);
     try {
         simp_config cfg(c);
@@ -1234,7 +1234,7 @@ void initialize_simplify() {
     register_trace_class(name({"simplify", "perm"}));
     register_trace_class(name({"debug", "simplify", "try_congruence"}));
 
-    DECLARE_VM_BUILTIN(name({"tactic", "simplify_core"}), tactic_simplify_core);
+    DECLARE_VM_BUILTIN(name({"tactic", "simplify"}), tactic_simplify);
     declare_vm_builtin(name({"tactic", "ext_simplify_core"}),
                        "tactic_ext_simplify_core", 10, tactic_ext_simplify_core);
 }

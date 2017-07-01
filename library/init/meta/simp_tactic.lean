@@ -10,6 +10,8 @@ import init.data.option.instances
 
 open tactic
 
+def simp.default_max_steps := 10000000
+
 meta constant simp_lemmas : Type
 meta constant simp_lemmas.mk : simp_lemmas
 meta constant simp_lemmas.join : simp_lemmas → simp_lemmas → simp_lemmas
@@ -43,8 +45,6 @@ simp_lemmas.drewrite_core reducible
 meta constant is_valid_simp_lemma_cnst : name → tactic bool
 meta constant is_valid_simp_lemma : expr → tactic bool
 
-def default_max_steps := 10000000
-
 meta constant simp_lemmas.pp : simp_lemmas → tactic format
 
 namespace tactic
@@ -54,7 +54,7 @@ meta constant get_eqn_lemmas_for : bool → name → tactic (list name)
 
 structure dsimp_config :=
 (md                        := reducible)
-(max_steps : nat           := default_max_steps)
+(max_steps : nat           := simp.default_max_steps)
 (canonize_instances : bool := tt)
 (single_pass : bool        := ff)
 (fail_if_unchaged          := tt)
@@ -133,7 +133,7 @@ meta def dunfold_at (cs : list name) (h : expr) (cfg : dunfold_config := {}) : t
 revert_and_transform (λ e, dunfold_core cs e cfg) h
 
 structure delta_config :=
-(max_steps       := default_max_steps)
+(max_steps       := simp.default_max_steps)
 (visit_instances := tt)
 
 private meta def is_delta_target (e : expr) (cs : list name) : bool :=
@@ -162,21 +162,21 @@ do t ← target, delta_expr cs t {} >>= unsafe_change
 meta def delta_at (cs : list name) : expr → tactic unit :=
 revert_and_transform (λ e, delta_expr cs e {})
 
-meta def unfold_projections_core (e : expr) (md := transparency.instances) (max_steps : nat := default_max_steps) : tactic expr :=
+meta def unfold_projections_core (e : expr) (md := transparency.instances) (max_steps : nat := simp.default_max_steps) : tactic expr :=
 let unfold (changed : bool) (e : expr) : tactic (bool × expr × bool) := do
   new_e ← unfold_projection e md,
   return (tt, new_e, tt)
 in do (tt, new_e) ← dsimplify_core ff (λ c e, failed) unfold e {max_steps := max_steps, md := md} | fail "no projections to unfold",
       return new_e
 
-meta def unfold_projections (md := transparency.instances) (max_steps : nat := default_max_steps) : tactic unit :=
+meta def unfold_projections (md := transparency.instances) (max_steps : nat := simp.default_max_steps) : tactic unit :=
 do t ← target, unfold_projections_core t md max_steps >>= unsafe_change
 
-meta def unfold_projections_at (h : expr) (md := transparency.instances) (max_steps : nat := default_max_steps) : tactic unit :=
+meta def unfold_projections_at (h : expr) (md := transparency.instances) (max_steps : nat := simp.default_max_steps) : tactic unit :=
 revert_and_transform (λ e, unfold_projections_core e md max_steps) h
 
 structure simp_config :=
-(max_steps : nat           := default_max_steps)
+(max_steps : nat           := simp.default_max_steps)
 (contextual : bool         := ff)
 (lift_eq : bool            := tt)
 (canonize_instances : bool := tt)

@@ -199,7 +199,12 @@ structure simp_config :=
 (fail_if_unchaged          := tt)
 (memoize                   := tt)
 
-meta constant simplify (s : simp_lemmas) (e : expr) (cfg : simp_config := {}) (r : name := `eq) : tactic (expr × expr)
+/--
+  `simplify s e cfg r prove` simplify `e` using `s` using bottom-up traversal.
+  `discharger` is a tactic for dischaging new subgoals created by the simplifier.
+  If it fails, the simplifier tries to discharge the subgoal by simplifying it to `true`. -/
+meta constant simplify (s : simp_lemmas) (e : expr) (cfg : simp_config := {}) (r : name := `eq)
+                       (discharger : tactic unit := failed) : tactic (expr × expr)
 
 meta def simplify_goal (S : simp_lemmas) (cfg : simp_config := {}) : tactic unit :=
 do t ← target,
@@ -227,7 +232,7 @@ meta constant ext_simplify_core
   (s : simp_lemmas)
   /- Tactic for dischaging hypothesis in conditional rewriting rules.
      The argument 'α' is the current user state. -/
-  (prove : α → tactic α)
+  (discharger : α → tactic α)
   /- (pre a S r s p e) is invoked before visiting the children of subterm 'e',
      'r' is the simplification relation being used, 's' is the updated set of lemmas if 'contextual' is tt,
      'p' is the "parent" expression (if there is one).

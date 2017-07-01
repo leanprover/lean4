@@ -27,6 +27,11 @@ master branch (aka work in progress branch)
   - `conv in (_ = _) { to_lhs, whnf }` replace the left-hand-side of the equality in target with its weak-head-normal-form.
   - `conv at h in (0 + _) { rw [zero_add] }`
 
+* `simp` tactics in interactive mode have a new configuration parameter (`discharger : tactic unit`)
+   a tactic for discharging subgoals created by the simplifier. If the tactic fails, the simplifier
+   tries to discharge the subgoal by reducing it to `true`.
+   Example: `simp {discharger := assumption}`.
+
 *Changes*
 
 * We now have two type classes for converting to string: `has_to_string` and `has_repr`.

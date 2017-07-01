@@ -1156,20 +1156,55 @@ public:
     }
 };
 
+class tactic_simplify_fn : public simplify_fn {
+    tactic_state m_s;
+    vm_obj       m_prove;
+
+    optional<expr> prove_core(expr const & e) {
+        auto s = mk_tactic_state_for(m_ctx.env(), m_ctx.get_options(), m_s.decl_name(), m_ctx.lctx(), e);
+        vm_obj r_obj = invoke(m_prove, to_obj(s));
+        optional<tactic_state> s_new = tactic::is_success(r_obj);
+        if (!s_new || s_new->goals()) return none_expr();
+        metavar_context mctx   = s_new->mctx();
+        expr result            = mctx.instantiate_mvars(s_new->main());
+        if (has_expr_metavar(result)) return none_expr();
+        m_ctx.set_mctx(mctx);
+        return some_expr(result);
+    }
+
+    virtual optional<expr> prove(expr const & e) override {
+        if (auto r = prove_core(e))
+            return r;
+        else
+            return simplify_fn::prove(e);
+    }
+
+public:
+    tactic_simplify_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss,
+                       simp_config const & cfg, tactic_state const & s, vm_obj const & prove):
+        simplify_fn(ctx, dcs, slss, cfg),
+        m_s(s),
+        m_prove(prove) {
+    }
+};
+
 /*
 meta constant simplify
   (s : simp_lemmas)
   (e : expr)
   (c : simp_config)
-  (r : name) : tactic (expr × expr)
+  (r : name)
+  (prove : tactic unit)
+  : tactic (expr × expr)
 */
-vm_obj tactic_simplify(vm_obj const & slss, vm_obj const & e, vm_obj const & c, vm_obj const & rel, vm_obj const & _s) {
+vm_obj tactic_simplify(vm_obj const & slss, vm_obj const & e, vm_obj const & c, vm_obj const & rel,
+                       vm_obj const & prove, vm_obj const & _s) {
     tactic_state const & s   = tactic::to_state(_s);
     try {
         simp_config cfg(c);
         type_context ctx     = mk_type_context_for(s, transparency_mode::Reducible);
         defeq_can_state dcs  = s.dcs();
-        simplify_fn simp(ctx, dcs, to_simp_lemmas(slss), cfg);
+        tactic_simplify_fn simp(ctx, dcs, to_simp_lemmas(slss), cfg, s, prove);
         simp_result result   = simp(to_name(rel), to_expr(e));
         if (!cfg.m_fail_if_unchanged || result.get_new() != to_expr(e)) {
             result = finalize(ctx, to_name(rel), result);

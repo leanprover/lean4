@@ -653,6 +653,9 @@ do tactic.injections_with hs, try assumption
 
 end interactive
 
+meta structure simp_config_ext extends simp_config :=
+(discharger : tactic unit := failed)
+
 section mk_simp_set
 open expr
 
@@ -704,34 +707,37 @@ end mk_simp_set
 namespace interactive
 open interactive interactive.types expr
 
-private meta def simp_goal (cfg : simp_config) : simp_lemmas → tactic unit
+private meta def simp_goal (cfg : simp_config) (discharger : tactic unit) : simp_lemmas → tactic unit
 | s := do
-   (new_target, pr) ← target >>= λ t, simplify s t cfg `eq,
+   (new_target, pr) ← target >>= λ t, simplify s t cfg `eq discharger,
    replace_target new_target pr
 
-private meta def simp_hyp (cfg : simp_config) (s : simp_lemmas) (h_name : name) : tactic unit :=
+private meta def simp_hyp (cfg : simp_config) (discharger : tactic unit) (s : simp_lemmas) (h_name : name) : tactic unit :=
 do h      ← get_local h_name,
    h_type ← infer_type h,
-   (h_new_type, pr) ← simplify s h_type cfg `eq,
+   (h_new_type, pr) ← simplify s h_type cfg `eq discharger,
    replace_hyp h h_new_type pr,
    return ()
 
-private meta def simp_hyps (cfg : simp_config) : simp_lemmas → list name → tactic unit
+private meta def simp_hyps (cfg : simp_config) (discharger : tactic unit) : simp_lemmas → list name → tactic unit
 | s []      := skip
-| s (h::hs) := simp_hyp cfg s h >> simp_hyps s hs
+| s (h::hs) := simp_hyp cfg discharger s h >> simp_hyps s hs
 
-private meta def simp_core (cfg : simp_config) (no_dflt : bool) (ctx : list expr) (hs : list pexpr) (attr_names : list name) (ids : list name) (locat : loc) : tactic unit :=
+private meta def simp_core (cfg : simp_config) (discharger : tactic unit)
+                           (no_dflt : bool) (ctx : list expr) (hs : list pexpr) (attr_names : list name) (ids : list name)
+                           (locat : loc) : tactic unit :=
 do s ← mk_simp_set no_dflt attr_names hs ids,
    s ← s.append ctx,
    match locat : _ → tactic unit with
    | loc.wildcard :=
+     -- TODO(Leo): fix
      do ls ← local_context,
         let loc_names := ls.map expr.local_pp_name,
         revert_lst ls,
         simp_intro_aux cfg ff s ff loc_names,
         return ()
-   | (loc.ns []) := simp_goal cfg s
-   | (loc.ns hs) := simp_hyps cfg s hs
+   | (loc.ns []) := simp_goal cfg discharger s
+   | (loc.ns hs) := simp_hyps cfg discharger s hs
    end,
    try tactic.triv, try (tactic.reflexivity reducible)
 
@@ -756,9 +762,10 @@ It has many variants.
 
 - `simp with attr_1 ... attr_n` simplifies the main goal target using the lemmas tagged with any of the attributes `[attr_1]`, ..., `[attr_n]` or `[simp]`.
 -/
-meta def simp (no_dflt : parse only_flag) (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list) (locat : parse location)
-              (cfg : simp_config := {}) : tactic unit :=
-simp_core cfg no_dflt [] hs attr_names ids locat
+meta def simp (no_dflt : parse only_flag) (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list)
+              (ids : parse without_ident_list) (locat : parse location)
+              (cfg : simp_config_ext := {}) : tactic unit :=
+simp_core cfg.to_simp_config cfg.discharger no_dflt [] hs attr_names ids locat
 
 /-- Simplify the whole context, and use simplified hypotheses to simplify other hypotheses. -/
 meta def simp_all (no_dflt : parse only_flag) (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list)
@@ -774,12 +781,12 @@ do s ← mk_simp_set no_dflt attr_names hs ids,
 Similar to the `simp` tactic, but adds all applicable hypotheses as simplification rules.
 -/
 meta def simp_using_hs (no_dflt : parse only_flag) (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list)
-                       (cfg : simp_config := {}) : tactic unit :=
+                       (cfg : simp_config_ext := {}) : tactic unit :=
 do ctx ← collect_ctx_simps,
-   simp_core cfg no_dflt ctx hs attr_names ids (loc.ns [])
+   simp_core cfg.to_simp_config cfg.discharger no_dflt ctx hs attr_names ids (loc.ns [])
 
 meta def simph (no_dflt : parse only_flag) (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list)
-               (cfg : simp_config := {}) : tactic unit :=
+               (cfg : simp_config_ext := {}) : tactic unit :=
 simp_using_hs no_dflt hs attr_names ids cfg
 
 meta def simp_intros (ids : parse ident_*) (no_dflt : parse only_flag) (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list)

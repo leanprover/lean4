@@ -71,6 +71,7 @@ structure dsimp_config :=
 (single_pass : bool        := ff)
 (fail_if_unchaged          := tt)
 (eta                       := tt)
+(memoize                   := tt)
 end tactic
 
 /-- (Definitional) Simplify the given expression using *only* reflexivity equality lemmas from the given set of lemmas.
@@ -197,6 +198,7 @@ structure simp_config :=
 (proj : bool               := tt) -- reduce projections
 (single_pass : bool        := ff)
 (fail_if_unchaged          := tt)
+(memoize                   := tt)
 
 meta constant simplify_core
   (c : simp_config)

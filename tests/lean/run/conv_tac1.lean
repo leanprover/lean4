@@ -114,3 +114,20 @@ begin
     simp
   }
 end
+
+example (x : nat) : f x x + f x x + f x x = f x x + x + x + x + x + 1 + 1 :=
+begin
+  conv {
+    -- execute `rw [f]` for 1st and 3rd occurrences of f-applications
+    for (f _ _) [1, 3] { rw [f] },
+    guard_lhs (x + x + 1) + f x x + (x + x + 1) = f x x + x + x + x + x + 1 + 1,
+    simp
+  }
+end
+
+example (x : nat) : f x x + f x x = f x x + x + x + 1 :=
+begin
+  conv in (f _ _) { rw [f] },
+  guard_target (x + x + 1) + f x x = f x x + x + x + 1,
+  simp
+end

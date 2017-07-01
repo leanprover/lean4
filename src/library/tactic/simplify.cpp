@@ -73,7 +73,8 @@ simp_config::simp_config():
     m_eta(true),
     m_proj(true),
     m_single_pass(false),
-    m_fail_if_unchanged(true) {
+    m_fail_if_unchanged(true),
+    m_memoize(true) {
 }
 
 simp_config::simp_config(vm_obj const & obj) {
@@ -89,6 +90,7 @@ simp_config::simp_config(vm_obj const & obj) {
     m_proj               = to_bool(cfield(obj, 9));
     m_single_pass        = to_bool(cfield(obj, 10));
     m_fail_if_unchanged  = to_bool(cfield(obj, 11));
+    m_memoize            = to_bool(cfield(obj, 12));
 }
 
 /* -----------------------------------
@@ -640,14 +642,17 @@ simp_result simplify_core_fn::visit(expr const & e, optional<expr> const & paren
     lean_trace_inc_depth("simplify");
     lean_simp_trace(m_ctx, "simplify", tout() << m_rel << ": " << e << "\n";);
 
-    auto it = m_cache.find(e);
-    if (it != m_cache.end())
-        return it->second;
+    if (m_cfg.m_memoize) {
+        auto it = m_cache.find(e);
+        if (it != m_cache.end())
+            return it->second;
+    }
 
     simp_result curr_result(e);
     if (auto r1 = pre(e, parent)) {
         if (!r1->second) {
-            m_cache.insert(mk_pair(e, r1->first));
+            if (m_cfg.m_memoize)
+                m_cache.insert(mk_pair(e, r1->first));
             return r1->first;
         }
         curr_result = r1->first;
@@ -715,7 +720,8 @@ simp_result simplify_core_fn::visit(expr const & e, optional<expr> const & paren
         }
     }
 
-    m_cache.insert(mk_pair(e, curr_result));
+    if (m_cfg.m_memoize)
+        m_cache.insert(mk_pair(e, curr_result));
     return curr_result;
 }
 

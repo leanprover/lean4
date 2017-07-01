@@ -30,7 +30,8 @@ dsimp_config::dsimp_config():
     m_canonize_instances(true),
     m_single_pass(false),
     m_fail_if_unchanged(true),
-    m_eta(false) {
+    m_eta(false),
+    m_memoize(true) {
 }
 dsimp_config::dsimp_config(vm_obj const & o) {
     m_md                 = to_transparency_mode(cfield(o, 0));
@@ -39,6 +40,7 @@ dsimp_config::dsimp_config(vm_obj const & o) {
     m_single_pass        = to_bool(cfield(o, 3));
     m_fail_if_unchanged  = to_bool(cfield(o, 4));
     m_eta                = to_bool(cfield(o, 5));
+    m_memoize            = to_bool(cfield(o, 6));
 }
 
 #define lean_dsimp_trace(CTX, N, CODE) lean_trace(N, scope_trace_env _scope1(CTX.env(), CTX); CODE)
@@ -151,14 +153,17 @@ expr dsimplify_core_fn::visit(expr const & e) {
     lean_trace_inc_depth("dsimplify");
     lean_dsimp_trace(m_ctx, "dsimplify", tout() << e << "\n";);
 
-    auto it = m_cache.find(e);
-    if (it != m_cache.end())
-        return it->second;
+    if (m_cfg.m_memoize) {
+        auto it = m_cache.find(e);
+        if (it != m_cache.end())
+            return it->second;
+    }
 
     expr curr_e = e;
     if (auto p1 = pre(curr_e)) {
         if (!p1->second) {
-            m_cache.insert(mk_pair(e, p1->first));
+            if (m_cfg.m_memoize)
+                m_cache.insert(mk_pair(e, p1->first));
             return p1->first;
         }
         curr_e = p1->first;
@@ -205,7 +210,8 @@ expr dsimplify_core_fn::visit(expr const & e) {
             break;
         }
     }
-    m_cache.insert(mk_pair(e, curr_e));
+    if (m_cfg.m_memoize)
+        m_cache.insert(mk_pair(e, curr_e));
     return curr_e;
 }
 

@@ -76,7 +76,7 @@ do (r, lhs, _) ← tactic.target_lhs_rhs,
    s   ← simp_lemmas.mk_default, -- to be able to use congruence lemmas @[congr]
    (found, new_lhs, pr) ←
      tactic.ext_simplify_core ff {zeta := ff, beta := ff, single_pass := tt, eta := ff,
-                                  proj := ff, fail_if_unchaged := ff} s
+                                  proj := ff, fail_if_unchaged := ff, memoize := ff} s
        (λ u, return u)
        (λ found s r p e, do
          guard (not found),
@@ -95,7 +95,7 @@ do (r, lhs, _) ← tactic.target_lhs_rhs,
    s   ← simp_lemmas.mk_default, -- to be able to use congruence lemmas @[congr]
    (found, new_lhs, pr) ←
      tactic.ext_simplify_core 1 {zeta := ff, beta := ff, single_pass := tt, eta := ff,
-                                 proj := ff, fail_if_unchaged := ff} s
+                                 proj := ff, fail_if_unchaged := ff, memoize := ff} s
        (λ u, return u)
        (λ i s r p e, do
          matched ← (tactic.match_pattern_core reducible pat e >> return tt) <|> return ff,

@@ -19,6 +19,7 @@ structure dsimp_config :=
 (single_pass : bool        := ff)
 (fail_if_unchaged          := tt)
 (eta                       := ff)
+(memoize                   := tt)
 */
 struct dsimp_config {
     transparency_mode         m_md;
@@ -27,6 +28,7 @@ struct dsimp_config {
     bool                      m_single_pass;
     bool                      m_fail_if_unchanged;
     bool                      m_eta;
+    bool                      m_memoize;
     dsimp_config();
     dsimp_config(vm_obj const & o);
 };

@@ -171,7 +171,7 @@ section conversion
     revert x, simp,
     induction xs with x xs ; intro y,
     { simp, unfold list.foldl add_lsb, simp [nat.mul_succ] },
-    { simp, unfold list.foldl, apply ih_1 }
+    { simp, apply ih_1 }
   end
 
   theorem bits_to_nat_to_bool (n : ℕ)

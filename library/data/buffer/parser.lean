@@ -40,8 +40,8 @@ begin
 apply funext, intro input,
 apply funext, intro pos,
 dunfold parser.bind,
-cases (p input pos); dunfold bind,
-cases (q result input pos_1); dunfold bind,
+cases (p input pos); try {dunfold bind},
+cases (q result input pos_1); try {dunfold bind},
 all_goals {refl}
 end
 

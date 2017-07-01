@@ -107,30 +107,22 @@ meta def dsimplify
                        (λ u e, do r ← post e, return (u, r)) e,
         return new_e
 
-meta constant dunfold_expr_core : transparency → expr → tactic expr
-
 /- Remark: we use transparency.instances by default to make sure that we
    can unfold projections of type classes. Example:
 
-          dunfold_expr (@has_add.add nat nat.has_add a b)
+          (@has_add.add nat nat.has_add a b)
 -/
 
-meta def dunfold_expr : expr → tactic expr :=
-dunfold_expr_core transparency.instances
+/-- If `e` is a projection application, try to unfold it, otherwise fail. -/
+meta constant unfold_projection (e : expr) (md : transparency := transparency.instances) : tactic expr
 
-meta constant unfold_projection_core : transparency → expr → tactic expr
+structure dunfold_config extends dsimp_config :=
+(md := transparency.instances)
 
-meta def unfold_projection : expr → tactic expr :=
-unfold_projection_core transparency.instances
+meta constant dunfold_core (cs : list name) (e : expr) (cfg : dunfold_config := {}) : tactic expr
 
-meta constant dunfold_occs_core (m : transparency) (max_steps : nat) (occs : occurrences) (cs : list name) (e : expr) : tactic expr
-meta constant dunfold_core (m : transparency) (max_steps : nat) (cs : list name) (e : expr) : tactic expr
-
-meta def dunfold : list name → tactic unit :=
-λ cs, target >>= dunfold_core transparency.instances default_max_steps cs >>= unsafe_change
-
-meta def dunfold_occs_of (occs : list nat) (c : name) : tactic unit :=
-target >>= dunfold_occs_core transparency.instances default_max_steps (occurrences.pos occs) [c] >>= unsafe_change
+meta def dunfold (cs : list name) (cfg : dunfold_config := {}) : tactic unit :=
+do t ← target, dunfold_core cs t cfg >>= unsafe_change
 
 meta def revert_and_transform (transform : expr → tactic expr) (h : expr) : tactic unit :=
 do num_reverted : ℕ ← revert h,
@@ -146,11 +138,8 @@ do num_reverted : ℕ ← revert h,
    end,
    intron num_reverted
 
-meta def dunfold_core_at (occs : occurrences) (cs : list name) : expr → tactic unit :=
-revert_and_transform (dunfold_occs_core transparency.instances default_max_steps occs cs)
-
-meta def dunfold_at (cs : list name) : expr → tactic unit :=
-revert_and_transform (dunfold_core transparency.instances default_max_steps cs)
+meta def dunfold_at (cs : list name) (h : expr) (cfg : dunfold_config := {}) : tactic unit :=
+revert_and_transform (λ e, dunfold_core cs e cfg) h
 
 structure delta_config :=
 (max_steps       := default_max_steps)
@@ -164,7 +153,7 @@ cs.any (λ c,
        f.is_constant && f.const_name.is_internal && (f.const_name.get_prefix = c))
 
 /-- Delta reduce the given constant names -/
-meta def delta_core (cfg : delta_config) (cs : list name) (e : expr) : tactic expr :=
+meta def delta_expr (cs : list name) (e : expr) (cfg : delta_config) : tactic expr :=
 let unfold (u : unit) (e : expr) : tactic (unit × expr × bool) := do
   guard (is_delta_target e cs),
   (expr.const f_name f_lvls) ← return e.get_app_fn,
@@ -177,23 +166,23 @@ in do (c, new_e) ← dsimplify_core () (λ c e, failed) unfold e {max_steps := c
       return new_e
 
 meta def delta (cs : list name) : tactic unit :=
-target >>= delta_core {} cs >>= unsafe_change
+do t ← target, delta_expr cs t {} >>= unsafe_change
 
 meta def delta_at (cs : list name) : expr → tactic unit :=
-revert_and_transform (delta_core {} cs)
+revert_and_transform (λ e, delta_expr cs e {})
 
-meta def unfold_projections_core (m : transparency) (max_steps : nat) (e : expr) : tactic expr :=
+meta def unfold_projections_core (e : expr) (md := transparency.instances) (max_steps : nat := default_max_steps) : tactic expr :=
 let unfold (changed : bool) (e : expr) : tactic (bool × expr × bool) := do
-  new_e ← unfold_projection_core m e,
+  new_e ← unfold_projection e md,
   return (tt, new_e, tt)
-in do (tt, new_e) ← dsimplify_core ff (λ c e, failed) unfold e | fail "no projections to unfold",
+in do (tt, new_e) ← dsimplify_core ff (λ c e, failed) unfold e {max_steps := max_steps, md := md} | fail "no projections to unfold",
       return new_e
 
-meta def unfold_projections : tactic unit :=
-target >>= unfold_projections_core semireducible default_max_steps >>= change
+meta def unfold_projections (md := transparency.instances) (max_steps : nat := default_max_steps) : tactic unit :=
+do t ← target, unfold_projections_core t md max_steps >>= unsafe_change
 
-meta def unfold_projections_at : expr → tactic unit :=
-revert_and_transform (unfold_projections_core semireducible default_max_steps)
+meta def unfold_projections_at (h : expr) (md := transparency.instances) (max_steps : nat := default_max_steps) : tactic unit :=
+revert_and_transform (λ e, unfold_projections_core e md max_steps) h
 
 structure simp_config :=
 (max_steps : nat           := default_max_steps)

@@ -183,7 +183,7 @@ namespace int
     all_goals {
       unfold cond, rw nat.bitwise_bit,
       repeat { rw bit_coe_nat <|> rw bit_neg_succ <|> rw bnot_bnot } },
-    all_goals { unfold bnot; rw h; refl }
+    all_goals { unfold bnot {fail_if_unchaged := ff}; rw h; refl }
   end
 
   @[simp] lemma lor_bit (a m b n) : lor (bit a m) (bit b n) = bit (a || b) (lor m n) :=

@@ -18,7 +18,7 @@ Author: Leonardo de Moura
 #include "library/tactic/dsimplify.h"
 
 namespace lean {
-vm_obj tactic_unfold_projection_core(vm_obj const & m, vm_obj const & _e, vm_obj const & _s) {
+vm_obj tactic_unfold_projection(vm_obj const & _e, vm_obj const & m, vm_obj const & _s) {
     expr const & e = to_expr(_e);
     tactic_state const & s = tactic::to_state(_s);
     try {
@@ -60,42 +60,6 @@ optional<expr> dunfold(type_context & ctx, expr const & e) {
     }
 }
 
-vm_obj tactic_dunfold_expr_core(vm_obj const & m, vm_obj const & _e, vm_obj const & _s) {
-    expr const & e = to_expr(_e);
-    tactic_state const & s = tactic::to_state(_s);
-    try {
-        environment const & env = s.env();
-        expr const & fn = get_app_fn(e);
-        if (!is_constant(fn))
-            return tactic::mk_exception("dunfold_expr failed, expression is not a constant nor a constant application", s);
-        if (is_projection(s.env(), const_name(fn))) {
-            type_context ctx = mk_type_context_for(s, to_transparency_mode(m));
-            if (auto new_e = ctx.reduce_projection(e))
-                return tactic::mk_success(to_obj(*new_e), s);
-            return tactic::mk_exception("dunfold_expr failed, failed to unfold projection", s);
-        } else if (has_eqn_lemmas(env, const_name(fn))) {
-            type_context ctx = mk_type_context_for(s, to_transparency_mode(m));
-            if (auto new_e = dunfold(ctx, e)) {
-                return tactic::mk_success(to_obj(*new_e), s);
-            } else {
-                return tactic::mk_exception("dunfold_expr failed, none of the rfl lemmas is applicable", s);
-            }
-        } else if (auto new_e = unfold_term(env, e)) {
-            return tactic::mk_success(to_obj(*new_e), s);
-        } else {
-            return tactic::mk_exception("dunfold_expr failed, failed to unfold", s);
-        }
-    } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
-    }
-}
-
-static dsimp_config mk_dsimp_cfg(unsigned max_steps) {
-    dsimp_config cfg;
-    cfg.m_max_steps = max_steps;
-    return cfg;
-}
-
 class unfold_core_fn : public dsimplify_core_fn {
 protected:
     name_set    m_cs;
@@ -125,12 +89,12 @@ protected:
             return none();
         if (!check_occ())
             return none();
-        return optional<pair<expr, bool>>(*new_e, true);
+        return optional<pair<expr, bool>>(*new_e, !m_cfg.m_single_pass);
     }
 
 public:
-    unfold_core_fn(type_context & ctx, defeq_canonizer::state & dcs, unsigned max_steps, list<name> const & cs):
-        dsimplify_core_fn(ctx, dcs, mk_dsimp_cfg(max_steps)),
+    unfold_core_fn(type_context & ctx, defeq_canonizer::state & dcs, list<name> const & cs, dsimp_config const & cfg):
+        dsimplify_core_fn(ctx, dcs, cfg),
         m_cs(to_name_set(cs)) {
     }
 };
@@ -140,69 +104,38 @@ class unfold_fn : public unfold_core_fn {
         return unfold_step(e);
     }
 public:
-    unfold_fn(type_context & ctx, defeq_canonizer::state & dcs, unsigned max_steps, list<name> const & cs):
-        unfold_core_fn(ctx, dcs, max_steps, cs) {
+    unfold_fn(type_context & ctx, defeq_canonizer::state & dcs, list<name> const & cs, dsimp_config const & cfg):
+        unfold_core_fn(ctx, dcs, cs, cfg) {
     }
 };
 
-class unfold_occs_fn : public unfold_core_fn {
-    occurrences m_occs;
-    unsigned    m_counter{1};
-
-    virtual bool check_occ() override {
-        bool r = m_occs.contains(m_counter);
-        m_counter++;
-        return r;
-    }
-
-    virtual optional<pair<expr, bool>> pre(expr const & e) override {
-        return unfold_step(e);
-    }
-
-public:
-    unfold_occs_fn(type_context & ctx, defeq_canonizer::state & dcs, unsigned max_steps,
-                   occurrences const & occs, list<name> const & cs):
-        unfold_core_fn(ctx, dcs, max_steps, cs),
-        m_occs(occs) {
-    }
-};
-
-vm_obj tactic_dunfold_core(vm_obj const & m, vm_obj const & max_steps, vm_obj const & cs, vm_obj const & _e, vm_obj const & _s) {
+vm_obj tactic_dunfold_core(vm_obj const & cs, vm_obj const & _e, vm_obj const & _cfg, vm_obj const & _s) {
     expr const & e         = to_expr(_e);
     tactic_state const & s = tactic::to_state(_s);
     defeq_can_state dcs    = s.dcs();
-    type_context ctx       = mk_type_context_for(s, to_transparency_mode(m));
-    unfold_fn F(ctx, dcs, force_to_unsigned(max_steps), to_list_name(cs));
+    /*
+       structure dunfold_config extends dsimp_config :=
+       (md := transparency.instances) -- this is not a new field.
+    */
+    dsimp_config cfg(_cfg);
+    type_context ctx       = mk_type_context_for(s, cfg.m_md);
+    unfold_fn F(ctx, dcs, to_list_name(cs), cfg);
     try {
         expr new_e         = F(e);
         tactic_state new_s = set_mctx_dcs(s, F.mctx(), dcs);
-        return tactic::mk_success(to_obj(new_e), new_s);
-    } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
-    }
-}
-
-vm_obj tactic_dunfold_occs_core(vm_obj const & m, vm_obj const & max_steps, vm_obj const & occs, vm_obj const & cs,
-                                vm_obj const & _e, vm_obj const & _s) {
-    expr const & e         = to_expr(_e);
-    tactic_state const & s = tactic::to_state(_s);
-    defeq_can_state dcs    = s.dcs();
-    type_context ctx       = mk_type_context_for(s, to_transparency_mode(m));
-    unfold_occs_fn F(ctx, dcs, force_to_unsigned(max_steps), to_occurrences(occs), to_list_name(cs));
-    try {
-        expr new_e         = F(e);
-        tactic_state new_s = set_mctx_dcs(s, F.mctx(), dcs);
-        return tactic::mk_success(to_obj(new_e), new_s);
+        if (cfg.m_fail_if_unchanged && e == new_e) {
+            return tactic::mk_exception("dunfold tactic failed to unfold", s);
+        } else {
+            return tactic::mk_success(to_obj(new_e), new_s);
+        }
     } catch (exception & ex) {
         return tactic::mk_exception(ex, s);
     }
 }
 
 void initialize_unfold_tactic() {
-    DECLARE_VM_BUILTIN(name({"tactic", "unfold_projection_core"}), tactic_unfold_projection_core);
-    DECLARE_VM_BUILTIN(name({"tactic", "dunfold_expr_core"}),      tactic_dunfold_expr_core);
-    DECLARE_VM_BUILTIN(name({"tactic", "dunfold_core"}),           tactic_dunfold_core);
-    DECLARE_VM_BUILTIN(name({"tactic", "dunfold_occs_core"}),      tactic_dunfold_occs_core);
+    DECLARE_VM_BUILTIN(name({"tactic", "unfold_projection"}),  tactic_unfold_projection);
+    DECLARE_VM_BUILTIN(name({"tactic", "dunfold_core"}),       tactic_dunfold_core);
 }
 
 void finalize_unfold_tactic() {

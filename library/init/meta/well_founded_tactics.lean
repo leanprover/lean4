@@ -36,7 +36,7 @@ meta def clear_internals : tactic unit :=
 local_context >>= clear_wf_rec_goal_aux
 
 meta def unfold_wf_rel : tactic unit :=
-dunfold [``has_well_founded.r]
+dunfold [``has_well_founded.r] {fail_if_unchaged := ff}
 
 meta def is_psigma_mk : expr → tactic (expr × expr)
 | `(psigma.mk %%a %%b) := return (a, b)
@@ -57,7 +57,7 @@ meta def process_lex : tactic unit → tactic unit
      tac
 
 private meta def unfold_sizeof_measure : tactic unit :=
-dunfold [``sizeof_measure, ``measure, ``inv_image]
+dunfold [``sizeof_measure, ``measure, ``inv_image] {fail_if_unchaged := ff}
 
 private meta def add_simps : simp_lemmas → list name → tactic simp_lemmas
 | s []      := return s
@@ -77,7 +77,7 @@ e.mfold simp_lemmas.mk $ λ c d s,
 
 private meta def unfold_sizeof_loop : tactic unit :=
 do
-  dunfold [``sizeof, ``has_sizeof.sizeof],
+  dunfold [``sizeof, ``has_sizeof.sizeof] {fail_if_unchaged := ff},
   S ← target >>= collect_sizeof_lemmas,
   (simplify_goal S >> unfold_sizeof_loop)
   <|>

@@ -874,39 +874,28 @@ private meta def to_qualified_names : list name → tactic (list name)
 | []      := return []
 | (c::cs) := do new_c ← to_qualified_name c, new_cs ← to_qualified_names cs, return (new_c::new_cs)
 
-private meta def dunfold_hyps : list name → list name → tactic unit
-| cs []      := skip
-| cs (h::hs) := get_local h >>= dunfold_at cs >> dunfold_hyps cs hs
+private meta def dunfold_hyps (cs : list name) (cfg : dunfold_config) : list name → tactic unit
+| []      := skip
+| (h::hs) := do h' ← get_local h, dunfold_at cs h' cfg,  dunfold_hyps hs
 
-meta def dunfold : parse ident* → parse location → tactic unit
-| cs (loc.ns [])    := do new_cs ← to_qualified_names cs, tactic.dunfold new_cs
-| cs (loc.ns hs)    := do new_cs ← to_qualified_names cs, dunfold_hyps new_cs hs
-| cs (loc.wildcard) := do ls ← tactic.local_context,
+meta def dunfold (cs : parse ident*) (l : parse location) (cfg : dunfold_config := {}) : tactic unit :=
+match l with
+| (loc.ns [])    := do new_cs ← to_qualified_names cs, tactic.dunfold new_cs cfg
+| (loc.ns hs)    := do new_cs ← to_qualified_names cs, dunfold_hyps new_cs cfg hs
+| (loc.wildcard) := do ls ← tactic.local_context,
                           n ← revert_lst ls,
                           new_cs ← to_qualified_names cs,
-                          tactic.dunfold new_cs,
+                          tactic.dunfold new_cs cfg,
                           intron n
+end
 
 /- TODO(Leo): add support for non-refl lemmas -/
-meta def unfold : parse ident* → parse location → tactic unit :=
-dunfold
-
-private meta def dunfold_hyps_occs : name → occurrences → list name → tactic unit
-| c occs []  := skip
-| c occs (h::hs) := get_local h >>= dunfold_core_at occs [c] >> dunfold_hyps_occs c occs hs
-
-meta def dunfold_occs : parse ident → parse location → list nat → tactic unit
-| c (loc.ns []) ps    := do new_c ← to_qualified_name c, tactic.dunfold_occs_of ps new_c
-| c (loc.ns hs) ps    := do new_c ← to_qualified_name c, dunfold_hyps_occs new_c (occurrences.pos ps) hs
-| c (loc.wildcard) ps := fail "wildcard not allowed when unfolding occurences"
-
-/- TODO(Leo): add support for non-refl lemmas -/
-meta def unfold_occs : parse ident → parse location → list nat → tactic unit :=
-dunfold_occs
+meta def unfold (cs : parse ident*) (l : parse location) (cfg : dunfold_config := {}) : tactic unit :=
+dunfold cs l cfg
 
 private meta def delta_hyps : list name → list name → tactic unit
 | cs []      := skip
-| cs (h::hs) := get_local h >>= delta_at cs >> dunfold_hyps cs hs
+| cs (h::hs) := get_local h >>= delta_at cs >> delta_hyps cs hs
 
 meta def delta : parse ident* → parse location → tactic unit
 | cs (loc.ns [])    := do new_cs ← to_qualified_names cs, tactic.delta new_cs

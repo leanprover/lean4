@@ -154,7 +154,7 @@ namespace nat
   lemma shiftr_eq_div_pow (m) : ∀ n, shiftr m n = m / 2 ^ n
   | 0     := (nat.div_one _).symm
   | (k+1) := (congr_arg div2 (shiftr_eq_div_pow k)).trans $
-             by dsimp; rw [div2_val, nat.div_div_eq_div_mul]; refl
+             by rw [div2_val, nat.div_div_eq_div_mul]; refl
 
   @[simp] lemma zero_shiftr (n) : shiftr 0 n = 0 :=
   (shiftr_eq_div_pow _ _).trans (nat.zero_div _)
@@ -175,7 +175,7 @@ namespace nat
         (lt_of_le_of_ne (zero_le _) (ne.symm n0)),
       rwa mul_one at this
     end,
-    by rw [-show bit (bodd n) n' = n, from bit_decomp n]; exact 
+    by rw [-show bit (bodd n) n' = n, from bit_decomp n]; exact
     f (bodd n) n' (binary_rec n')
 
   def size : ℕ → ℕ := binary_rec 0 (λ_ _, succ)

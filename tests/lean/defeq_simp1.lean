@@ -5,13 +5,12 @@ def nat_has_add2 : has_add nat :=
 set_option pp.all true
 
 open tactic
-
+local attribute [-simp] id.def
 example (a b : nat) (H : @has_add.add nat (id (id nat.has_add)) a b = @has_add.add nat nat_has_add2 a b) : true :=
 by do
   s ← simp_lemmas.mk_default,
   get_local `H >>= infer_type >>= s^.dsimplify >>= trace,
   constructor
-
 
 example (a b : nat) (H : (λ x : nat, @has_add.add nat (id (id nat.has_add)) a b) = (λ x : nat, @has_add.add nat nat_has_add2 a x)) : true :=
 by do

@@ -184,8 +184,9 @@ static pair<tactic_state, unsigned> revert_all(tactic_state const & s) {
 }
 
 static dsimplify_fn mk_dsimp(type_context & ctx, defeq_can_state & dcs, smt_pre_config const & cfg) {
-    unsigned max_steps       = cfg.m_max_steps;
-    bool visit_instances     = false;
+    dsimp_config dcfg;
+    dcfg.m_max_steps          = cfg.m_max_steps;
+    dcfg.m_canonize_instances = false;
     /* We use eta reduction to make sure terms such as (fun x, list x) are reduced to list.
 
        Given (a : nat) (l : list nat) (a ∈ a::l), the elaborator produces
@@ -202,11 +203,11 @@ static dsimplify_fn mk_dsimp(type_context & ctx, defeq_can_state & dcs, smt_pre_
 
        This is not an issue in this module since it assumes goals do not contain metavariables.
     */
-    bool use_eta             = true;
+    dcfg.m_eta               = true;
     simp_lemmas_for eq_lemmas;
     if (auto r = cfg.m_simp_lemmas.find(get_eq_name()))
         eq_lemmas = *r;
-    return dsimplify_fn(ctx, dcs, max_steps, visit_instances, eq_lemmas, use_eta);
+    return dsimplify_fn(ctx, dcs, eq_lemmas, dcfg);
 }
 
 static simplify_fn mk_simp(type_context & ctx, defeq_can_state & dcs, smt_pre_config const & cfg) {

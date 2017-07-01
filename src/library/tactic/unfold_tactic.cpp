@@ -90,6 +90,12 @@ vm_obj tactic_dunfold_expr_core(vm_obj const & m, vm_obj const & _e, vm_obj cons
     }
 }
 
+static dsimp_config mk_dsimp_cfg(unsigned max_steps) {
+    dsimp_config cfg;
+    cfg.m_max_steps = max_steps;
+    return cfg;
+}
+
 class unfold_core_fn : public dsimplify_core_fn {
 protected:
     name_set    m_cs;
@@ -123,9 +129,8 @@ protected:
     }
 
 public:
-    unfold_core_fn(type_context & ctx, defeq_canonizer::state & dcs, unsigned max_steps,
-                   list<name> const & cs):
-        dsimplify_core_fn(ctx, dcs, max_steps, true /* visit_instances */),
+    unfold_core_fn(type_context & ctx, defeq_canonizer::state & dcs, unsigned max_steps, list<name> const & cs):
+        dsimplify_core_fn(ctx, dcs, mk_dsimp_cfg(max_steps)),
         m_cs(to_name_set(cs)) {
     }
 };
@@ -135,8 +140,7 @@ class unfold_fn : public unfold_core_fn {
         return unfold_step(e);
     }
 public:
-    unfold_fn(type_context & ctx, defeq_canonizer::state & dcs, unsigned max_steps,
-              list<name> const & cs):
+    unfold_fn(type_context & ctx, defeq_canonizer::state & dcs, unsigned max_steps, list<name> const & cs):
         unfold_core_fn(ctx, dcs, max_steps, cs) {
     }
 };

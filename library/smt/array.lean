@@ -22,9 +22,9 @@ def store (a : array α β) (i : α) (v : β) : array α β :=
 λ j, if j = i then v else select a j
 
 @[simp] lemma select_store (a : array α β) (i : α) (v : β) : select (store a i v) i = v :=
-by unfold smt.store smt.select; dsimp; rewrite if_pos; reflexivity
+by unfold smt.store smt.select; rewrite if_pos; reflexivity
 
 @[simp] lemma select_store_ne (a : array α β) (i j : α) (v : β) : j ≠ i → select (store a i v) j = select a j :=
-by intros; unfold smt.store smt.select; dsimp; rewrite if_neg; assumption
+by intros; unfold smt.store smt.select; rewrite if_neg; assumption
 
 end smt

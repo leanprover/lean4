@@ -152,7 +152,7 @@ namespace int
     cases m with m m; cases n with n n; try {refl},
     all_goals {
       apply congr_arg of_nat <|> apply congr_arg neg_succ_of_nat,
-      dsimp [nat.land, nat.ldiff, nat.lor],
+      try {dsimp [nat.land, nat.ldiff, nat.lor]},
       try {rw [
         show nat.bitwise (λ a b, a && bnot b) n m =
              nat.bitwise (λ a b, b && bnot a) m n, from

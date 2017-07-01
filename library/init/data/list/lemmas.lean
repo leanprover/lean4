@@ -461,7 +461,7 @@ lemma exists_of_mem_join {a : α} {L : list (list α)} : a ∈ join L → ∃ l,
 mem_join_iff.1
 
 lemma mem_join {a : α} {L : list (list α)} {l} (lL : l ∈ L) (al : a ∈ l) : a ∈ join L :=
-mem_join_iff.2 ⟨l, lL, al⟩ 
+mem_join_iff.2 ⟨l, lL, al⟩
 
 /- list subset -/
 

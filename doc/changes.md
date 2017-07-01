@@ -44,6 +44,8 @@ For more details, see discussion [here](https://github.com/leanprover/lean/pull/
 * Add configuration object `rewrite_cfg` to `rw`/`rewrite` tactic. It now has support for `auto_param` and `opt_param`.
   The new goals are ordered using the same strategies available for `apply`.
 
+* All `dsimp` tactics fail if they did not change anything. We can simulate the v3.2.0 by using `dsimp {fail_if_unchaged := ff}`.
+
 v3.2.0 (18 June 2017)
 -------------
 

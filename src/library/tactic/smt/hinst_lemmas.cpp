@@ -251,10 +251,12 @@ static expr dsimp(type_context & ctx, transparency_mode md, expr const & e) {
        See discussion at ring.lean.
     */
     defeq_can_state dcs;
-    bool visit_instances = false;
-    unsigned max_steps   = 1000000; /* TODO(Leo): add parameter? */
-    bool use_eta         = true;
-    return dsimplify_fn(ctx, dcs, max_steps, visit_instances, simp_lemmas_for(), use_eta, md)(e);
+    dsimp_config cfg;
+    cfg.m_md                 = md;
+    cfg.m_canonize_instances = false;
+    cfg.m_max_steps          = 1000000; /* TODO(Leo): add parameter? */
+    cfg.m_eta                = true;
+    return dsimplify_fn(ctx, dcs, simp_lemmas_for(), cfg)(e);
 }
 
 struct mk_hinst_lemma_fn {

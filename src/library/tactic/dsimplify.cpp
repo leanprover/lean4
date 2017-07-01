@@ -19,7 +19,28 @@ Author: Leonardo de Moura
 #include "library/tactic/simp_lemmas.h"
 #include "library/tactic/tactic_state.h"
 
+#ifndef LEAN_DEFAULT_DSIMPLIFY_MAX_STEPS
+#define LEAN_DEFAULT_DSIMPLIFY_MAX_STEPS 1000000
+#endif
+
 namespace lean {
+dsimp_config::dsimp_config():
+    m_md(transparency_mode::Reducible),
+    m_max_steps(LEAN_DEFAULT_DSIMPLIFY_MAX_STEPS),
+    m_canonize_instances(true),
+    m_single_pass(false),
+    m_fail_if_unchanged(true),
+    m_eta(false) {
+}
+dsimp_config::dsimp_config(vm_obj const & o) {
+    m_md                 = to_transparency_mode(cfield(o, 0));
+    m_max_steps          = force_to_unsigned(cfield(o, 1));
+    m_canonize_instances = to_bool(cfield(o, 2));
+    m_single_pass        = to_bool(cfield(o, 3));
+    m_fail_if_unchanged  = to_bool(cfield(o, 4));
+    m_eta                = to_bool(cfield(o, 5));
+}
+
 #define lean_dsimp_trace(CTX, N, CODE) lean_trace(N, scope_trace_env _scope1(CTX.env(), CTX); CODE)
 
 optional<pair<expr, bool>> dsimplify_core_fn::pre(expr const &) {
@@ -85,7 +106,7 @@ expr dsimplify_core_fn::visit_app(expr const & e) {
     bool modified = false;
     expr f        = get_app_args(e, args);
     unsigned i    = 0;
-    if (!m_visit_instances) {
+    if (!m_cfg.m_canonize_instances) {
         fun_info info = get_fun_info(m_ctx, f, args.size());
         for (param_info const & pinfo : info.get_params_info()) {
             lean_assert(i < args.size());
@@ -119,7 +140,7 @@ expr dsimplify_core_fn::visit_meta(expr const & e) {
 
 void dsimplify_core_fn::inc_num_steps() {
     m_num_steps++;
-    if (m_num_steps > m_max_steps)
+    if (m_num_steps > m_cfg.m_max_steps)
         throw exception("dsimplify failed, maximum number of steps exceeded");
 }
 
@@ -177,6 +198,8 @@ expr dsimplify_core_fn::visit(expr const & e) {
                 break;
             }
             curr_e = p2->first;
+            if (m_cfg.m_single_pass)
+                break;
         } else {
             curr_e = new_e;
             break;
@@ -186,15 +209,14 @@ expr dsimplify_core_fn::visit(expr const & e) {
     return curr_e;
 }
 
-dsimplify_core_fn::dsimplify_core_fn(type_context & ctx, defeq_canonizer::state & dcs, unsigned max_steps, bool visit_instances):
-    m_ctx(ctx), m_defeq_canonizer(ctx, dcs), m_num_steps(0), m_need_restart(false),
-    m_max_steps(max_steps), m_visit_instances(visit_instances) {}
+dsimplify_core_fn::dsimplify_core_fn(type_context & ctx, defeq_canonizer::state & dcs, dsimp_config const & cfg):
+    m_ctx(ctx), m_defeq_canonizer(ctx, dcs), m_num_steps(0), m_need_restart(false), m_cfg(cfg) {}
 
 expr dsimplify_core_fn::operator()(expr e) {
     while (true) {
         m_need_restart = false;
         e = visit(e);
-        if (!m_need_restart)
+        if (!m_need_restart || m_cfg.m_single_pass)
             return e;
         m_cache.clear();
     }
@@ -206,13 +228,13 @@ metavar_context const & dsimplify_core_fn::mctx() const {
 
 expr dsimplify_fn::whnf(expr const & e) {
     expr new_e = m_ctx.whnf(e);
-    if (m_use_eta)
+    if (m_cfg.m_eta)
         new_e = try_eta(new_e);
     return new_e;
 }
 
 optional<pair<expr, bool>> dsimplify_fn::pre(expr const & e) {
-    type_context::transparency_scope s(m_ctx, m_md);
+    type_context::transparency_scope s(m_ctx, m_cfg.m_md);
     expr new_e = whnf(e);
     if (new_e != e) {
         lean_dsimp_trace(m_ctx, "dsimplify", tout() << "whnf\n" << e << "\n==>\n" << new_e << "\n";);
@@ -225,7 +247,7 @@ optional<pair<expr, bool>> dsimplify_fn::pre(expr const & e) {
 optional<pair<expr, bool>> dsimplify_fn::post(expr const & e) {
     expr curr_e;
     {
-        type_context::transparency_scope s(m_ctx, m_md);
+        type_context::transparency_scope s(m_ctx, m_cfg.m_md);
         curr_e = whnf(e);
         if (curr_e != e) {
             lean_dsimp_trace(m_ctx, "dsimplify", tout() << "whnf\n" << e << "\n==>\n" << curr_e << "\n";);
@@ -252,6 +274,8 @@ optional<pair<expr, bool>> dsimplify_fn::post(expr const & e) {
         if (new_e == curr_e) break;
         lean_dsimp_trace(m_ctx, "dsimplify", tout() << "rewrite\n" << curr_e << "\n==>\n" << new_e << "\n";);
         curr_e = new_e;
+        if (m_cfg.m_single_pass)
+            break;
     }
     if (curr_e == e)
         return optional<pair<expr, bool>>();
@@ -259,12 +283,9 @@ optional<pair<expr, bool>> dsimplify_fn::post(expr const & e) {
         return optional<pair<expr, bool>>(curr_e, true);
 }
 
-dsimplify_fn::dsimplify_fn(type_context & ctx, defeq_canonizer::state & dcs, unsigned max_steps, bool visit_instances, simp_lemmas_for const & lemmas,
-                           bool use_eta, transparency_mode md):
-    dsimplify_core_fn(ctx, dcs, max_steps, visit_instances),
-    m_simp_lemmas(lemmas),
-    m_use_eta(use_eta),
-    m_md(md) {
+dsimplify_fn::dsimplify_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas_for const & lemmas, dsimp_config const & cfg):
+    dsimplify_core_fn(ctx, dcs, cfg),
+    m_simp_lemmas(lemmas) {
 }
 
 class tactic_dsimplify_fn : public dsimplify_core_fn {
@@ -300,9 +321,10 @@ class tactic_dsimplify_fn : public dsimplify_core_fn {
     }
 
 public:
-    tactic_dsimplify_fn(type_context & ctx, defeq_canonizer::state & dcs, unsigned max_steps, bool visit_instances,
-                        vm_obj const & a, vm_obj const & pre, vm_obj const & post, tactic_state const & s):
-        dsimplify_core_fn(ctx, dcs, max_steps, visit_instances),
+    tactic_dsimplify_fn(type_context & ctx, defeq_canonizer::state & dcs,
+                        vm_obj const & a, vm_obj const & pre, vm_obj const & post,
+                        tactic_state const & s, dsimp_config const & cfg):
+        dsimplify_core_fn(ctx, dcs, cfg),
         m_a(a),
         m_pre(pre),
         m_post(post),
@@ -313,37 +335,43 @@ public:
 };
 
 vm_obj tactic_dsimplify_core(vm_obj const &, vm_obj const & a,
-                             vm_obj const & max_steps, vm_obj const & visit_instances,
-                             vm_obj const & pre, vm_obj const & post, vm_obj const & e, vm_obj const & _s) {
+                             vm_obj const & pre, vm_obj const & post, vm_obj const & e,
+                             vm_obj const & _cfg, vm_obj const & _s) {
     tactic_state const & s = tactic::to_state(_s);
+    dsimp_config cfg(_cfg);
     try {
-        type_context ctx = mk_type_context_for(s, transparency_mode::Reducible);
+        type_context ctx = mk_type_context_for(s, cfg.m_md);
         defeq_can_state dcs = s.dcs();
-        tactic_dsimplify_fn F(ctx, dcs, force_to_unsigned(max_steps, std::numeric_limits<unsigned>::max()),
-                              to_bool(visit_instances), a, pre, post, s);
+        tactic_dsimplify_fn F(ctx, dcs, a, pre, post, s, cfg);
         expr new_e = F(to_expr(e));
-        tactic_state new_s = set_mctx_dcs(s, F.mctx(), dcs);
-        return tactic::mk_success(mk_vm_pair(F.get_a(), to_obj(new_e)), new_s);
+        if (cfg.m_fail_if_unchanged && to_expr(e) == new_e) {
+            return tactic::mk_exception("dsimplify tactic failed to simplify", s);
+        } else {
+            tactic_state new_s = set_mctx_dcs(s, F.mctx(), dcs);
+            return tactic::mk_success(mk_vm_pair(F.get_a(), to_obj(new_e)), new_s);
+        }
     } catch (exception & ex) {
         return tactic::mk_exception(ex, s);
     }
 }
 
-vm_obj simp_lemmas_dsimplify_core(vm_obj const & max_steps, vm_obj const & visit_instances, vm_obj const & lemmas,
-                                  vm_obj const & e, vm_obj const & _s) {
+vm_obj simp_lemmas_dsimplify(vm_obj const & lemmas, vm_obj const & e, vm_obj const & _cfg, vm_obj const & _s) {
     tactic_state const & s = tactic::to_state(_s);
+    dsimp_config cfg(_cfg);
     try {
-        type_context ctx    = mk_type_context_for(s, transparency_mode::Reducible);
+        type_context ctx    = mk_type_context_for(s, cfg.m_md);
         defeq_can_state dcs = s.dcs();
         simp_lemmas_for dlemmas;
         if (auto * dls = to_simp_lemmas(lemmas).find(get_eq_name()))
             dlemmas = *dls;
-        bool use_eta = true; /* TODO(Leo): expose flag in the Lean API */
-        dsimplify_fn F(ctx, dcs, force_to_unsigned(max_steps, std::numeric_limits<unsigned>::max()),
-                       to_bool(visit_instances), dlemmas, use_eta);
+        dsimplify_fn F(ctx, dcs, dlemmas, cfg);
         expr new_e = F(to_expr(e));
-        tactic_state new_s = set_mctx_dcs(s, F.mctx(), dcs);
-        return tactic::mk_success(to_obj(new_e), new_s);
+        if (cfg.m_fail_if_unchanged && to_expr(e) == new_e) {
+            return tactic::mk_exception("dsimplify tactic failed to simplify", s);
+        } else {
+            tactic_state new_s = set_mctx_dcs(s, F.mctx(), dcs);
+            return tactic::mk_success(to_obj(new_e), new_s);
+        }
     } catch (exception & ex) {
         return tactic::mk_exception(ex, s);
     }
@@ -352,9 +380,8 @@ vm_obj simp_lemmas_dsimplify_core(vm_obj const & max_steps, vm_obj const & visit
 void initialize_dsimplify() {
     register_trace_class("dsimplify");
     register_trace_class(name{"debug", "dsimplify"});
-
     DECLARE_VM_BUILTIN(name({"tactic", "dsimplify_core"}), tactic_dsimplify_core);
-    DECLARE_VM_BUILTIN(name({"simp_lemmas", "dsimplify_core"}), simp_lemmas_dsimplify_core);
+    DECLARE_VM_BUILTIN(name({"simp_lemmas", "dsimplify"}), simp_lemmas_dsimplify);
 }
 
 void finalize_dsimplify() {

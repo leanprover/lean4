@@ -800,17 +800,20 @@ do s ← mk_simp_set no_dflt attr_names hs wo_ids,
    end,
    try triv >> try (reflexivity reducible)
 
-private meta def dsimp_hyps (s : simp_lemmas) (hs : list name) : tactic unit :=
-hs.mfor' (λ h, get_local h >>= dsimp_at_core s)
+private meta def dsimp_hyps (s : simp_lemmas) (hs : list name) (cfg : dsimp_config := {}) : tactic unit :=
+hs.mfor' (λ h_name, do h ← get_local h_name, dsimp_at_core s h cfg)
 
-meta def dsimp (no_dflt : parse only_flag) (es : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list) : parse location → tactic unit
-| (loc.ns [])    := do s ← mk_simp_set no_dflt attr_names es ids, tactic.dsimp_core s
-| (loc.ns hs)    := do s ← mk_simp_set no_dflt attr_names es ids, dsimp_hyps s hs
+meta def dsimp (no_dflt : parse only_flag) (es : parse opt_qexpr_list) (attr_names : parse with_ident_list)
+               (ids : parse without_ident_list) (l : parse location) (cfg : dsimp_config := {}) : tactic unit :=
+match l with
+| (loc.ns [])    := do s ← mk_simp_set no_dflt attr_names es ids, tactic.dsimp_core s cfg
+| (loc.ns hs)    := do s ← mk_simp_set no_dflt attr_names es ids, dsimp_hyps s hs cfg
 | (loc.wildcard) := do ls ← local_context,
                        n ← revert_lst ls,
                        s ← mk_simp_set no_dflt attr_names es ids,
-                       tactic.dsimp_core s,
+                       tactic.dsimp_core s cfg,
                        intron n
+end
 
 /--
 This tactic applies to a goal that has the form `t ~ u` where `~` is a reflexive relation.

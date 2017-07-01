@@ -10,6 +10,27 @@ Author: Leonardo de Moura
 #include "library/tactic/simp_lemmas.h"
 
 namespace lean {
+/*
+structure dsimp_config :=
+(md                        := reducible)
+(max_steps : nat           := default_max_steps)
+(canonize_instances : bool := tt)
+(canonize_proofs : bool    := ff)
+(single_pass : bool        := ff)
+(fail_if_unchaged          := tt)
+(eta                       := ff)
+*/
+struct dsimp_config {
+    transparency_mode         m_md;
+    unsigned                  m_max_steps;
+    bool                      m_canonize_instances;
+    bool                      m_single_pass;
+    bool                      m_fail_if_unchanged;
+    bool                      m_eta;
+    dsimp_config();
+    dsimp_config(vm_obj const & o);
+};
+
 class dsimplify_core_fn {
 protected:
     type_context &        m_ctx;
@@ -17,9 +38,7 @@ protected:
     expr_struct_map<expr> m_cache;
     unsigned              m_num_steps;
     bool                  m_need_restart;
-
-    unsigned              m_max_steps;
-    bool                  m_visit_instances;
+    dsimp_config          m_cfg;
 
     virtual optional<pair<expr, bool>> pre(expr const &);
     virtual optional<pair<expr, bool>> post(expr const &);
@@ -33,22 +52,19 @@ protected:
     expr visit(expr const & e);
 
 public:
-    dsimplify_core_fn(type_context & ctx, defeq_canonizer::state & s, unsigned max_steps, bool visit_instances);
+    dsimplify_core_fn(type_context & ctx, defeq_canonizer::state & s, dsimp_config const & cfg);
     expr operator()(expr e);
     metavar_context const & mctx() const;
 };
 
 class dsimplify_fn : public dsimplify_core_fn {
     simp_lemmas_for   m_simp_lemmas;
-    bool              m_use_eta;
-    transparency_mode m_md;
     expr whnf(expr const & e);
     virtual optional<pair<expr, bool>> pre(expr const & e) override;
     virtual optional<pair<expr, bool>> post(expr const & e) override;
 public:
     dsimplify_fn(type_context & ctx, defeq_canonizer::state & s,
-                 unsigned max_steps, bool visit_instances, simp_lemmas_for const & lemmas,
-                 bool use_eta, transparency_mode md = transparency_mode::Reducible);
+                 simp_lemmas_for const & lemmas, dsimp_config const & cfg);
 };
 
 void initialize_dsimplify();

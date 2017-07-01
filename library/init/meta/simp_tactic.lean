@@ -55,17 +55,10 @@ meta constant simp_lemmas.drewrite_core : transparency → simp_lemmas → expr 
 meta def simp_lemmas.drewrite : simp_lemmas → expr → tactic expr :=
 simp_lemmas.drewrite_core reducible
 
-/-- (Definitional) Simplify the given expression using *only* reflexivity equality lemmas from the given set of lemmas.
-   The resulting expression is definitionally equal to the input. -/
-meta constant simp_lemmas.dsimplify_core (max_steps : nat) (visit_instances : bool) : simp_lemmas → expr → tactic expr
-
 meta constant is_valid_simp_lemma_cnst : transparency → name → tactic bool
 meta constant is_valid_simp_lemma : transparency → expr → tactic bool
 
 def default_max_steps := 10000000
-
-meta def simp_lemmas.dsimplify : simp_lemmas → expr → tactic expr :=
-simp_lemmas.dsimplify_core default_max_steps ff
 
 meta constant simp_lemmas.pp : simp_lemmas → tactic format
 
@@ -74,15 +67,26 @@ namespace tactic
    If deps is tt, then lemmas for automatically generated auxiliary declarations used to define d are also included. -/
 meta constant get_eqn_lemmas_for : bool → name → tactic (list name)
 
+structure dsimp_config :=
+(md                        := reducible)
+(max_steps : nat           := default_max_steps)
+(canonize_instances : bool := tt)
+(single_pass : bool        := ff)
+(fail_if_unchaged          := tt)
+(eta                       := tt)
+end tactic
+
+/-- (Definitional) Simplify the given expression using *only* reflexivity equality lemmas from the given set of lemmas.
+   The resulting expression is definitionally equal to the input. -/
+meta constant simp_lemmas.dsimplify (s : simp_lemmas) (e : expr) (cfg : tactic.dsimp_config := {}) : tactic expr
+
+namespace tactic
+/- Remark: the configuration parameters `cfg.md` and `cfg.eta` are ignored by this tactic. -/
 meta constant dsimplify_core
   /- The user state type. -/
   {α : Type}
   /- Initial user data -/
   (a : α)
-  (max_steps       : nat)
-  /- If visit_instances = ff, then instance implicit arguments are not visited, but
-     tactic will canonize them. -/
-  (visit_instances : bool)
   /- (pre a e) is invoked before visiting the children of subterm 'e',
      if it succeeds the result (new_a, new_e, flag) where
        - 'new_a' is the new value for the user data
@@ -93,13 +97,15 @@ meta constant dsimplify_core
      The output is similar to (pre a e), but the 'flag' indicates whether
      the new expression should be revisited or not. -/
   (post            : α → expr → tactic (α × expr × bool))
-  : expr → tactic (α × expr)
+  (e               : expr)
+  (cfg             : dsimp_config := {})
+  : tactic (α × expr)
 
 meta def dsimplify
   (pre             : expr → tactic (expr × bool))
   (post            : expr → tactic (expr × bool))
   : expr → tactic expr :=
-λ e, do (a, new_e) ← dsimplify_core () default_max_steps ff
+λ e, do (a, new_e) ← dsimplify_core ()
                        (λ u e, do r ← pre e, return (u, r))
                        (λ u e, do r ← post e, return (u, r)) e,
         return new_e
@@ -170,7 +176,7 @@ let unfold (u : unit) (e : expr) : tactic (unit × expr × bool) := do
   new_f ← decl.instantiate_value_univ_params f_lvls,
   new_e ← head_beta (expr.mk_app new_f e.get_app_args),
   return (u, new_e, tt)
-in do (c, new_e) ← dsimplify_core () cfg.max_steps cfg.visit_instances (λ c e, failed) unfold e,
+in do (c, new_e) ← dsimplify_core () (λ c e, failed) unfold e {max_steps := cfg.max_steps, canonize_instances := cfg.visit_instances},
       return new_e
 
 meta def delta (cs : list name) : tactic unit :=
@@ -183,7 +189,7 @@ meta def unfold_projections_core (m : transparency) (max_steps : nat) (e : expr)
 let unfold (changed : bool) (e : expr) : tactic (bool × expr × bool) := do
   new_e ← unfold_projection_core m e,
   return (tt, new_e, tt)
-in do (tt, new_e) ← dsimplify_core ff default_max_steps tt (λ c e, failed) unfold e | fail "no projections to unfold",
+in do (tt, new_e) ← dsimplify_core ff (λ c e, failed) unfold e | fail "no projections to unfold",
       return new_e
 
 meta def unfold_projections : tactic unit :=
@@ -260,17 +266,17 @@ do S ← simp_lemmas.mk_default,
    S ← S.append hs,
 simplify_goal S cfg >> try triv
 
-meta def dsimp_core (s : simp_lemmas) : tactic unit :=
-target >>= s.dsimplify >>= unsafe_change
+meta def dsimp_core (s : simp_lemmas) (cfg : dsimp_config := {}) : tactic unit :=
+do t ← target, s.dsimplify t cfg >>= unsafe_change
 
-meta def dsimp : tactic unit :=
-simp_lemmas.mk_default >>= dsimp_core
+meta def dsimp (cfg : dsimp_config := {}) : tactic unit :=
+do s ← simp_lemmas.mk_default, dsimp_core s cfg
 
-meta def dsimp_at_core (s : simp_lemmas) : expr → tactic unit :=
-revert_and_transform s.dsimplify
+meta def dsimp_at_core (s : simp_lemmas) (h : expr) (cfg : dsimp_config := {}) : tactic unit :=
+revert_and_transform (λ e, s.dsimplify e cfg) h
 
-meta def dsimp_at (h : expr) : tactic unit :=
-do s ← simp_lemmas.mk_default, dsimp_at_core s h
+meta def dsimp_at (h : expr) (cfg : dsimp_config := {}) : tactic unit :=
+do s ← simp_lemmas.mk_default, dsimp_at_core s h cfg
 
 private meta def is_equation : expr → bool
 | (expr.pi n bi d b) := is_equation b

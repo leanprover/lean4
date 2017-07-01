@@ -685,7 +685,7 @@ static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name cons
            universe metavariables in this loop. */
         ctx.resize_tmp_mvars(_emetas.size());
         expr rule  = ctx.whnf(p.first);
-        expr proof = ctx.whnf(p.second);
+        expr proof = p.second;
         bool is_perm = is_permutation_ceqv(env, rule);
         buffer<expr> emetas;
         emetas.append(_emetas);

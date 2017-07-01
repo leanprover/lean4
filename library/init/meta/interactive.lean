@@ -670,13 +670,13 @@ do
   let e := p.erase_annotations.get_app_fn.erase_annotations,
   match e with
   | const n _           :=
-    (do b ← is_valid_simp_lemma_cnst reducible n, guard b, save_const_type_info n ref, s.add_simp n)
+    (do b ← is_valid_simp_lemma_cnst n, guard b, save_const_type_info n ref, s.add_simp n)
     <|>
     (do eqns ← get_eqn_lemmas_for tt n, guard (eqns.length > 0), save_const_type_info n ref, add_simps s eqns)
     <|>
     report_invalid_simp_lemma n
   | _ :=
-    (do e ← i_to_expr_no_subgoals p, b ← is_valid_simp_lemma reducible e, guard b, try (save_type_info e ref), s.add e)
+    (do e ← i_to_expr_no_subgoals p, b ← is_valid_simp_lemma e, guard b, try (save_type_info e ref), s.add e)
     <|>
     report_invalid_simp_lemma n
   end

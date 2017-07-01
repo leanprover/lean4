@@ -459,13 +459,13 @@ static void print_unification_hints(parser & p, message_builder & out) {
 
 static void print_simp_rules(parser & p, message_builder & out) {
     name attr = p.check_id_next("invalid '#print [simp]' command, identifier expected");
-    simp_lemmas slss = get_simp_lemmas(p.env(), transparency_mode::Reducible, attr);
+    simp_lemmas slss = get_simp_lemmas(p.env(), attr);
     out << slss.pp_simp(out.get_formatter());
 }
 
 static void print_congr_rules(parser & p, message_builder & out) {
     name attr = p.check_id_next("invalid '#print [congr]' command, identifier expected");
-    simp_lemmas slss = get_simp_lemmas(p.env(), transparency_mode::Reducible, attr);
+    simp_lemmas slss = get_simp_lemmas(p.env(), attr);
     out << slss.pp_congr(out.get_formatter());
 }
 

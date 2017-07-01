@@ -320,8 +320,8 @@ name simp_sizeof_attribute_name() {
     return *g_simp_sizeof;
 }
 
-simp_lemmas get_sizeof_simp_lemmas(environment const & env, transparency_mode m) {
-    return get_simp_lemmas(env, m, g_simp_sizeof_tk);
+simp_lemmas get_sizeof_simp_lemmas(environment const & env) {
+    return get_simp_lemmas(env, g_simp_sizeof_tk);
 }
 
 void initialize_has_sizeof() {

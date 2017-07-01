@@ -14,22 +14,10 @@ meta constant simp_lemmas : Type
 meta constant simp_lemmas.mk : simp_lemmas
 meta constant simp_lemmas.join : simp_lemmas → simp_lemmas → simp_lemmas
 meta constant simp_lemmas.erase : simp_lemmas → list name → simp_lemmas
-meta constant simp_lemmas.mk_default_core : transparency → tactic simp_lemmas
-meta constant simp_lemmas.add_core : transparency → simp_lemmas → expr → tactic simp_lemmas
-meta constant simp_lemmas.add_simp_core : transparency → simp_lemmas → name → tactic simp_lemmas
-meta constant simp_lemmas.add_congr_core : transparency → simp_lemmas → name → tactic simp_lemmas
-
-meta def simp_lemmas.mk_default : tactic simp_lemmas :=
-simp_lemmas.mk_default_core reducible
-
-meta def simp_lemmas.add : simp_lemmas → expr → tactic simp_lemmas :=
-simp_lemmas.add_core reducible
-
-meta def simp_lemmas.add_simp : simp_lemmas → name → tactic simp_lemmas :=
-simp_lemmas.add_simp_core reducible
-
-meta def simp_lemmas.add_congr : simp_lemmas → name → tactic simp_lemmas :=
-simp_lemmas.add_congr_core reducible
+meta constant simp_lemmas.mk_default : tactic simp_lemmas
+meta constant simp_lemmas.add : simp_lemmas → expr → tactic simp_lemmas
+meta constant simp_lemmas.add_simp : simp_lemmas → name → tactic simp_lemmas
+meta constant simp_lemmas.add_congr : simp_lemmas → name → tactic simp_lemmas
 
 meta def simp_lemmas.append (s : simp_lemmas) (hs : list expr) : tactic simp_lemmas :=
 hs.mfoldl simp_lemmas.add s
@@ -52,8 +40,8 @@ meta constant simp_lemmas.drewrite_core : transparency → simp_lemmas → expr 
 meta def simp_lemmas.drewrite : simp_lemmas → expr → tactic expr :=
 simp_lemmas.drewrite_core reducible
 
-meta constant is_valid_simp_lemma_cnst : transparency → name → tactic bool
-meta constant is_valid_simp_lemma : transparency → expr → tactic bool
+meta constant is_valid_simp_lemma_cnst : name → tactic bool
+meta constant is_valid_simp_lemma : expr → tactic bool
 
 def default_max_steps := 10000000
 

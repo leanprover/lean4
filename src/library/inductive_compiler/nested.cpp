@@ -2308,7 +2308,7 @@ public:
         if (m_inner_decl.has_sizeof_lemmas()) {
             m_nested_decl.set_sizeof_lemmas(m_inner_decl.get_sizeof_lemmas());
         } else {
-            m_nested_decl.set_sizeof_lemmas(get_sizeof_simp_lemmas(m_tctx.env(), m_tctx.mode()));
+            m_nested_decl.set_sizeof_lemmas(get_sizeof_simp_lemmas(m_tctx.env()));
         }
 
         check_elim_to_type();

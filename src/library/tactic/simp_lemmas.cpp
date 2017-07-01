@@ -1057,27 +1057,25 @@ class simp_lemmas_cache {
     struct entry {
         environment           m_env;
         std::vector<unsigned> m_fingerprints;
-        unsigned              m_reducibility_fingerprint;
         optional<simp_lemmas> m_lemmas;
         entry(environment const & env):
-            m_env(env), m_reducibility_fingerprint(0) {}
+            m_env(env) {}
     };
-    std::vector<entry>        m_entries[LEAN_NUM_TRANSPARENCY_MODES];
+    std::vector<entry>        m_entries;
 
 public:
-    void expand(environment const & env, transparency_mode m, unsigned new_sz) {
-        unsigned midx = static_cast<unsigned>(m);
-        for (unsigned tk = m_entries[midx].size(); tk < new_sz; tk++) {
+    void expand(environment const & env, unsigned new_sz) {
+        for (unsigned tk = m_entries.size(); tk < new_sz; tk++) {
             auto & cfg   = get_simp_lemmas_config(tk);
-            m_entries[midx].emplace_back(env);
-            auto & entry = m_entries[midx].back();
+            m_entries.emplace_back(env);
+            auto & entry = m_entries.back();
             entry.m_fingerprints.resize(cfg.m_simp_attrs.size() + cfg.m_congr_attrs.size());
         }
     }
 
-    simp_lemmas mk_lemmas(environment const & env, transparency_mode m, entry & C, simp_lemmas_token tk) {
+    simp_lemmas mk_lemmas(environment const & env, entry & C, simp_lemmas_token tk) {
         lean_trace("simp_lemmas_cache", tout() << "make simp lemmas [" << tk << "]\n";);
-        type_context ctx(env, m);
+        type_context ctx(env);
         C.m_env = env;
         auto & cfg = get_simp_lemmas_config(tk);
         simp_lemmas lemmas;
@@ -1093,7 +1091,6 @@ public:
             i++;
         }
         C.m_lemmas = lemmas;
-        C.m_reducibility_fingerprint = get_reducibility_fingerprint(env);
         return lemmas;
     }
 
@@ -1104,8 +1101,6 @@ public:
 
     bool is_compatible(entry const & C, environment const & env, simp_lemmas_token tk) {
         if (!env.is_descendant(C.m_env))
-            return false;
-        if (get_reducibility_fingerprint(env) != C.m_reducibility_fingerprint)
             return false;
         auto & cfg = get_simp_lemmas_config(tk);
         unsigned i = 0;
@@ -1122,17 +1117,16 @@ public:
         return true;
     }
 
-    simp_lemmas get(environment const & env, transparency_mode m, simp_lemmas_token tk) {
+    simp_lemmas get(environment const & env, simp_lemmas_token tk) {
         lean_assert(tk < g_simp_lemmas_configs->size());
-        unsigned midx = static_cast<unsigned>(m);
-        if (tk >= m_entries[midx].size()) expand(env, m, tk+1);
-        lean_assert(tk < m_entries[midx].size());
-        entry & C = m_entries[midx][tk];
-        if (!C.m_lemmas) return mk_lemmas(env, m, C, tk);
+        if (tk >= m_entries.size()) expand(env, tk+1);
+        lean_assert(tk < m_entries.size());
+        entry & C = m_entries[tk];
+        if (!C.m_lemmas) return mk_lemmas(env, C, tk);
         if (is_eqp(env, C.m_env)) return lemmas_of(C, tk);
         if (!is_compatible(C, env, tk)) {
             lean_trace("simp_lemmas_cache", tout() << "creating new cache\n";);
-            return mk_lemmas(env, m, C, tk);
+            return mk_lemmas(env, C, tk);
         }
         return lemmas_of(C, tk);
     }
@@ -1140,17 +1134,17 @@ public:
 
 MK_THREAD_LOCAL_GET_DEF(simp_lemmas_cache, get_cache);
 
-simp_lemmas get_simp_lemmas(environment const & env, transparency_mode m, simp_lemmas_token tk) {
-    return get_cache().get(env, m, tk);
+simp_lemmas get_simp_lemmas(environment const & env, simp_lemmas_token tk) {
+    return get_cache().get(env, tk);
 }
 
-simp_lemmas get_default_simp_lemmas(environment const & env, transparency_mode m) {
-    return get_simp_lemmas(env, m, g_default_token);
+simp_lemmas get_default_simp_lemmas(environment const & env) {
+    return get_simp_lemmas(env, g_default_token);
 }
 
-simp_lemmas get_simp_lemmas(environment const & env, transparency_mode m, name const & tk_name) {
+simp_lemmas get_simp_lemmas(environment const & env, name const & tk_name) {
     if (simp_lemmas_token const * tk = g_name2simp_token->find(tk_name))
-        return get_simp_lemmas(env, m, *tk);
+        return get_simp_lemmas(env, *tk);
     else
         throw exception(sstream() << "unknown simp_lemmas collection '" << tk_name << "'");
 }
@@ -1261,17 +1255,17 @@ vm_obj to_obj(simp_lemmas const & idx) {
     return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_simp_lemmas))) vm_simp_lemmas(idx));
 }
 
-vm_obj simp_lemmas_mk_default_core(vm_obj const & m, vm_obj const & s) {
+vm_obj simp_lemmas_mk_default(vm_obj const & s) {
     LEAN_TACTIC_TRY;
     environment const & env = tactic::to_state(s).env();
-    simp_lemmas r = get_default_simp_lemmas(env, to_transparency_mode(m));
+    simp_lemmas r = get_default_simp_lemmas(env);
     return tactic::mk_success(to_obj(r), tactic::to_state(s));
     LEAN_TACTIC_CATCH(tactic::to_state(s));
 }
 
-vm_obj simp_lemmas_add_core(vm_obj const & m, vm_obj const & lemmas, vm_obj const & lemma, vm_obj const & s) {
+vm_obj simp_lemmas_add(vm_obj const & lemmas, vm_obj const & lemma, vm_obj const & s) {
     LEAN_TACTIC_TRY;
-    type_context ctx = mk_type_context_for(s, m);
+    type_context ctx = mk_type_context_for(s);
     expr e = to_expr(lemma);
     name id;
     if (is_constant(e))
@@ -1293,17 +1287,17 @@ vm_obj simp_lemmas_add_core(vm_obj const & m, vm_obj const & lemmas, vm_obj cons
     LEAN_TACTIC_CATCH(tactic::to_state(s));
 }
 
-vm_obj simp_lemmas_add_simp(vm_obj const & m, vm_obj const & lemmas, vm_obj const & lemma_name, vm_obj const & s) {
+vm_obj simp_lemmas_add_simp(vm_obj const & lemmas, vm_obj const & lemma_name, vm_obj const & s) {
     LEAN_TACTIC_TRY;
-    type_context ctx = mk_type_context_for(s, m);
+    type_context ctx = mk_type_context_for(s);
     simp_lemmas new_lemmas = add(ctx, to_simp_lemmas(lemmas), to_name(lemma_name), LEAN_DEFAULT_PRIORITY);
     return tactic::mk_success(to_obj(new_lemmas), tactic::to_state(s));
     LEAN_TACTIC_CATCH(tactic::to_state(s));
 }
 
-vm_obj simp_lemmas_add_congr(vm_obj const & m, vm_obj const & lemmas, vm_obj const & lemma_name, vm_obj const & s) {
+vm_obj simp_lemmas_add_congr(vm_obj const & lemmas, vm_obj const & lemma_name, vm_obj const & s) {
     LEAN_TACTIC_TRY;
-    type_context ctx = mk_type_context_for(s, m);
+    type_context ctx = mk_type_context_for(s);
     simp_lemmas new_lemmas = add_congr(ctx, to_simp_lemmas(lemmas), to_name(lemma_name), LEAN_DEFAULT_PRIORITY);
     return tactic::mk_success(to_obj(new_lemmas), tactic::to_state(s));
     LEAN_TACTIC_CATCH(tactic::to_state(s));
@@ -1476,9 +1470,9 @@ vm_obj simp_lemmas_drewrite(vm_obj const & m, vm_obj const & sls, vm_obj const &
     return simp_lemmas_drewrite_core(to_transparency_mode(m), to_simp_lemmas(sls), to_expr(e), tactic::to_state(s));
 }
 
-static bool is_valid_simp_lemma_cnst_core(transparency_mode const & m, name const & cname, tactic_state const & s) {
+static bool is_valid_simp_lemma_cnst(name const & cname, tactic_state const & s) {
     try {
-        type_context ctx = mk_type_context_for(s, m);
+        type_context ctx = mk_type_context_for(s);
         type_context::tmp_mode_scope scope(ctx);
         declaration const & d = ctx.env().get(cname);
         levels ls  = mk_tmp_levels_for(ctx, d);
@@ -1490,14 +1484,14 @@ static bool is_valid_simp_lemma_cnst_core(transparency_mode const & m, name cons
     }
 }
 
-vm_obj is_valid_simp_lemma_cnst(vm_obj const & m, vm_obj const & n, vm_obj const & s) {
-    return tactic::mk_success(mk_vm_bool(is_valid_simp_lemma_cnst_core(to_transparency_mode(m), to_name(n), tactic::to_state(s))),
+vm_obj is_valid_simp_lemma_cnst(vm_obj const & n, vm_obj const & s) {
+    return tactic::mk_success(mk_vm_bool(is_valid_simp_lemma_cnst(to_name(n), tactic::to_state(s))),
                              tactic::to_state(s));
 }
 
-static bool is_valid_simp_lemma_core(transparency_mode const & m, expr const & e, tactic_state const & s) {
+static bool is_valid_simp_lemma(expr const & e, tactic_state const & s) {
     try {
-        type_context ctx = mk_type_context_for(s, m);
+        type_context ctx = mk_type_context_for(s);
         expr type = ctx.infer(e);
         return !is_nil(to_ceqvs(ctx, name(), type, e));
     } catch (exception &) {
@@ -1505,8 +1499,8 @@ static bool is_valid_simp_lemma_core(transparency_mode const & m, expr const & e
     }
 }
 
-vm_obj is_valid_simp_lemma(vm_obj const & m, vm_obj const & e, vm_obj const & s) {
-    return tactic::mk_success(mk_vm_bool(is_valid_simp_lemma_core(to_transparency_mode(m), to_expr(e), tactic::to_state(s))),
+vm_obj is_valid_simp_lemma(vm_obj const & e, vm_obj const & s) {
+    return tactic::mk_success(mk_vm_bool(is_valid_simp_lemma(to_expr(e), tactic::to_state(s))),
                              tactic::to_state(s));
 }
 
@@ -1545,10 +1539,10 @@ void initialize_simp_lemmas() {
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "mk"}), simp_lemmas_mk);
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "join"}), simp_lemmas_join);
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "erase"}), simp_lemmas_erase);
-    DECLARE_VM_BUILTIN(name({"simp_lemmas", "mk_default_core"}), simp_lemmas_mk_default_core);
-    DECLARE_VM_BUILTIN(name({"simp_lemmas", "add_core"}),        simp_lemmas_add_core);
-    DECLARE_VM_BUILTIN(name({"simp_lemmas", "add_simp_core"}),   simp_lemmas_add_simp);
-    DECLARE_VM_BUILTIN(name({"simp_lemmas", "add_congr_core"}),  simp_lemmas_add_congr);
+    DECLARE_VM_BUILTIN(name({"simp_lemmas", "mk_default"}),      simp_lemmas_mk_default);
+    DECLARE_VM_BUILTIN(name({"simp_lemmas", "add"}),             simp_lemmas_add);
+    DECLARE_VM_BUILTIN(name({"simp_lemmas", "add_simp"}),        simp_lemmas_add_simp);
+    DECLARE_VM_BUILTIN(name({"simp_lemmas", "add_congr"}),       simp_lemmas_add_congr);
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "rewrite_core"}),    simp_lemmas_rewrite);
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "drewrite_core"}),   simp_lemmas_drewrite);
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "pp"}),              simp_lemmas_pp);

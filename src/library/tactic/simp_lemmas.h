@@ -129,9 +129,9 @@ simp_lemmas_token register_simp_attribute(name const & user_name,
                                           std::initializer_list<name> const & simp_attrs,
                                           std::initializer_list<name> const & congr_attrs);
 
-simp_lemmas get_simp_lemmas(environment const & env, transparency_mode m, simp_lemmas_token tk);
-simp_lemmas get_default_simp_lemmas(environment const & env, transparency_mode m);
-simp_lemmas get_simp_lemmas(environment const & env, transparency_mode m, name const & tk_name);
+simp_lemmas get_simp_lemmas(environment const & env, simp_lemmas_token tk);
+simp_lemmas get_default_simp_lemmas(environment const & env);
+simp_lemmas get_simp_lemmas(environment const & env, name const & tk_name);
 
 simp_lemmas add(type_context & ctx, simp_lemmas const & s, name const & id, unsigned priority);
 simp_lemmas add(type_context & ctx, simp_lemmas const & s, name const & id, expr const & e, expr const & h, unsigned priority);

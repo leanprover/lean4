@@ -227,7 +227,7 @@ meta constant ext_simplify_core
   (a : α)
   (c : simp_config)
   /- Congruence and simplification lemmas.
-     Remark: the simplification lemmas at not applied automatically like in the simplify_core tactic.
+     Remark: the simplification lemmas at not applied automatically like in the simplify tactic.
      the caller must use them at pre/post. -/
   (s : simp_lemmas)
   /- Tactic for dischaging hypothesis in conditional rewriting rules.

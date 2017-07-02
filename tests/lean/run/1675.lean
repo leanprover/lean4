@@ -24,3 +24,10 @@ begin
   do {e₁ ← get_local `h₃ >>= infer_type, e₂ ← to_expr ```(p 0), guard (e₁ = e₂)},
   apply q_lemma
 end
+
+example (p : nat → Prop) (a b : nat) : a = 0 ∧ b = 0 → p (a + b) → p 0 :=
+begin
+  intros h₁ h₂,
+  simp [h₁] at *,
+  assumption
+end

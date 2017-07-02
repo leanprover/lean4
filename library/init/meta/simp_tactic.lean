@@ -67,7 +67,7 @@ structure dsimp_config :=
 (max_steps : nat           := simp.default_max_steps)
 (canonize_instances : bool := tt)
 (single_pass : bool        := ff)
-(fail_if_unchaged          := tt)
+(fail_if_unchanged         := tt)
 (eta                       := tt)
 (memoize                   := tt)
 end tactic
@@ -196,7 +196,7 @@ structure simp_config :=
 (eta  : bool               := tt)
 (proj : bool               := tt) -- reduce projections
 (single_pass : bool        := ff)
-(fail_if_unchaged          := tt)
+(fail_if_unchanged         := tt)
 (memoize                   := tt)
 
 /--
@@ -497,7 +497,7 @@ private meta def loop (cfg : simp_config) (discharger : tactic unit)
 
 meta def simp_all (s : simp_lemmas) (cfg : simp_config := {}) (discharger : tactic unit := failed) : tactic unit :=
 do hs      ← non_dep_prop_hyps,
-   let cfg := {cfg with fail_if_unchaged := ff},
+   let cfg := {cfg with fail_if_unchanged := ff},
    (s, es) ← init s hs,
    loop cfg discharger es [] s ff
 

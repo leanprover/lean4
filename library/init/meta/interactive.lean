@@ -730,11 +730,17 @@ do s ← mk_simp_set no_dflt attr_names hs ids,
    s ← s.append ctx,
    match locat : _ → tactic unit with
    | loc.wildcard :=
-     -- TODO(Leo): fix
-     do ls ← local_context,
-        let loc_names := ls.map expr.local_pp_name,
-        revert_lst ls,
-        simp_intro_aux cfg ff s ff loc_names,
+     do hs ← non_dep_prop_hyps,
+        to_remove ← hs.mfilter $ λ h, do {
+            h_type ← infer_type h,
+            (do (new_h_type, pr) ← simplify s h_type cfg `eq discharger,
+                assert h.local_pp_name new_h_type,
+                mk_eq_mp pr h >>= tactic.exact >> return tt)
+            <|>
+            (return ff) },
+        goal_simplified ← (simp_goal cfg discharger s >> return tt) <|> (return ff),
+        guard (cfg.fail_if_unchanged = ff ∨ to_remove.length > 0 ∨ goal_simplified) <|> fail "simplify tactic failed to simplify",
+        to_remove.mfor' (λ h, try (clear h)),
         return ()
    | (loc.ns []) := simp_goal cfg discharger s
    | (loc.ns hs) := simp_hyps cfg discharger s hs

@@ -92,6 +92,10 @@ vm_obj rb_map_size(vm_obj const &, vm_obj const &, vm_obj const & m) {
     return mk_vm_nat(to_map(m).size());
 }
 
+vm_obj rb_map_empty(vm_obj const &, vm_obj const &, vm_obj const & m) {
+    return mk_vm_bool(to_map(m).empty());
+}
+
 vm_obj rb_map_insert(vm_obj const &, vm_obj const &, vm_obj const & m, vm_obj const & k, vm_obj const & d) {
     return to_obj(insert(to_map(m), k, d));
 }
@@ -163,6 +167,10 @@ vm_obj name_set_size(vm_obj const & m) {
     return mk_vm_nat(to_name_set(m).size());
 }
 
+vm_obj name_set_empty(vm_obj const & m) {
+    return mk_vm_bool(to_name_set(m).empty());
+}
+
 vm_obj name_set_insert(vm_obj const & m, vm_obj const & k) {
     return to_obj(insert(to_name_set(m), to_name(k)));
 }
@@ -186,6 +194,7 @@ vm_obj name_set_fold(vm_obj const &, vm_obj const & m, vm_obj const & a, vm_obj 
 void initialize_vm_rb_map() {
     DECLARE_VM_BUILTIN(name({"rb_map", "mk_core"}),        rb_map_mk_core);
     DECLARE_VM_BUILTIN(name({"rb_map", "size"}),           rb_map_size);
+    DECLARE_VM_BUILTIN(name({"rb_map", "empty"}),          rb_map_empty);
     DECLARE_VM_BUILTIN(name({"rb_map", "insert"}),         rb_map_insert);
     DECLARE_VM_BUILTIN(name({"rb_map", "erase"}),          rb_map_erase);
     DECLARE_VM_BUILTIN(name({"rb_map", "contains"}),       rb_map_contains);
@@ -196,6 +205,7 @@ void initialize_vm_rb_map() {
 
     DECLARE_VM_BUILTIN(name({"mk_name_set"}),              mk_name_set);
     DECLARE_VM_BUILTIN(name({"name_set", "size"}),         name_set_size);
+    DECLARE_VM_BUILTIN(name({"name_set", "empty"}),        name_set_empty);
     DECLARE_VM_BUILTIN(name({"name_set", "insert"}),       name_set_insert);
     DECLARE_VM_BUILTIN(name({"name_set", "erase"}),        name_set_erase);
     DECLARE_VM_BUILTIN(name({"name_set", "contains"}),     name_set_contains);

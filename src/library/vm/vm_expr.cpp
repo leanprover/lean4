@@ -32,6 +32,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_string.h"
 #include "library/vm/vm_pos_info.h"
+#include "library/vm/vm_rb_map.h"
 #include "library/compiler/simp_inductive.h"
 #include "library/compiler/nat_value.h"
 
@@ -465,6 +466,10 @@ vm_obj expr_pos(vm_obj const &, vm_obj const & e) {
     return mk_vm_none();
 }
 
+vm_obj expr_has_local_in(vm_obj const & e, vm_obj const & s) {
+    return mk_vm_bool(contains_local(to_expr(e), to_name_set(s)));
+}
+
 void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "var"}),              expr_var);
     DECLARE_VM_BUILTIN(name({"expr", "sort"}),             expr_sort);
@@ -501,6 +506,8 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "copy_pos_info"}),    expr_copy_pos_info);
     DECLARE_VM_BUILTIN(name({"expr", "occurs"}),           expr_occurs);
     DECLARE_VM_BUILTIN(name({"expr", "collect_univ_params"}), expr_collect_univ_params);
+    DECLARE_VM_BUILTIN(name({"expr", "has_local_in"}),     expr_has_local_in);
+
     DECLARE_VM_CASES_BUILTIN(name({"expr", "cases_on"}),   expr_cases_on);
 
     DECLARE_VM_BUILTIN(name("string", "reflect"),           reflect_string);

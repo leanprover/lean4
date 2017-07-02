@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.level init.category.monad
+import init.meta.level init.category.monad init.meta.rb_map
 universes u v
 
 structure pos :=
@@ -127,6 +127,8 @@ meta constant expr.get_nat_value : expr → option nat
 meta constant expr.collect_univ_params : expr → list name
 /-- `occurs e t` returns `tt` iff `e` occurs in `t` -/
 meta constant expr.occurs        : expr → expr → bool
+
+meta constant expr.has_local_in : expr → name_set → bool
 
 /-- (reflected a) is a special opaque container for a closed `expr` representing `a`.
     It can only be obtained via type class inference, which will use the representation
@@ -391,3 +393,16 @@ meta def mfold {α : Type} {m : Type → Type} [monad m] (e : expr) (a : α) (fn
 fold e (return a) (λ e n a, a >>= fn e n)
 
 end expr
+
+@[reducible] meta def expr_map (data : Type) := rb_map expr data
+namespace expr_map
+export rb_map (hiding mk)
+
+meta def mk (data : Type) : expr_map data := rb_map.mk expr data
+end expr_map
+
+meta def mk_expr_map {data : Type} : expr_map data :=
+expr_map.mk data
+
+@[reducible] meta def expr_set := rb_set expr
+meta def mk_expr_set : expr_set := mk_rb_set

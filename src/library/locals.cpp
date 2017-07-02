@@ -146,6 +146,23 @@ bool contains_local(expr const & e, name const & n) {
     return result;
 }
 
+bool contains_local(expr const & e, name_set const & s) {
+    if (!has_local(e))
+        return false;
+    bool result = false;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (result || !has_local(e))  {
+                return false;
+            } else if (is_local(e) && s.contains(mlocal_name(e))) {
+                result = true;
+                return false;
+            } else {
+                return true;
+            }
+        });
+    return result;
+}
+
 optional<expr> depends_on(unsigned sz, expr const * es, expr const & h) {
     for (unsigned i = 0; i < sz; i++)
         if (depends_on(es[i], h))

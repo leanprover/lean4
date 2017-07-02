@@ -45,6 +45,9 @@ bool contains_local(expr const & l, T const & locals) {
                        [&](expr const & l1) { return mlocal_name(l1) == mlocal_name(l); });
 }
 
+/** \brief Return true iff \c e contains a local constant \c h s.t. mlocal_name(h) in s */
+bool contains_local(expr const & e, name_set const & s);
+
 /** \brief Return true iff \c e contains a local constant named \c n (it uses mlocal_name) */
 bool contains_local(expr const & e, name const & n);
 

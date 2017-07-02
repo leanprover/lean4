@@ -4,13 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jeremy Avigad
 -/
 prelude
-import init.data.ordering init.function init.meta.name init.meta.format init.meta.expr
+import init.data.ordering init.function init.meta.name init.meta.format init.category.monad
 
 meta constant {u₁ u₂} rb_map : Type u₁ → Type u₂ → Type (max u₁ u₂)
 
 namespace rb_map
 meta constant mk_core {key : Type} (data : Type)        : (key → key → ordering) → rb_map key data
 meta constant size {key : Type} {data : Type}           : rb_map key data → nat
+meta constant empty {key : Type} {data : Type}          : rb_map key data → bool
 meta constant insert {key : Type} {data : Type}         : rb_map key data → key → data → rb_map key data
 meta constant erase  {key : Type} {data : Type}         : rb_map key data → key → rb_map key data
 meta constant contains {key : Type} {data : Type}       : rb_map key data → key → bool
@@ -77,16 +78,6 @@ end name_map
 
 meta def mk_name_map {data : Type} : name_map data :=
 name_map.mk data
-
-@[reducible] meta def expr_map (data : Type) := rb_map expr data
-namespace expr_map
-export rb_map (hiding mk)
-
-meta def mk (data : Type) : expr_map data := rb_map.mk expr data
-end expr_map
-
-meta def mk_expr_map {data : Type} : expr_map data :=
-expr_map.mk data
 
 open rb_map prod
 section
@@ -162,6 +153,9 @@ s.contains k
 meta def size {key} (s : rb_set key) : nat :=
 s.size
 
+meta def empty {key : Type} (s : rb_set key) : bool :=
+s.empty
+
 meta def fold {key α : Type} (s : rb_set key) (a : α) (fn : key → α → α) : α :=
 s.fold a (λ k _ a, fn k a)
 
@@ -176,9 +170,6 @@ meta instance {key} [has_to_format key] : has_to_format (rb_set key) :=
               to_fmt "}"⟩
 end rb_set
 
-@[reducible] meta def expr_set := rb_set expr
-meta def mk_expr_set : expr_set := mk_rb_set
-
 meta constant name_set : Type
 meta constant mk_name_set : name_set
 
@@ -187,6 +178,7 @@ meta constant insert         : name_set → name → name_set
 meta constant erase          : name_set → name → name_set
 meta constant contains       : name_set → name → bool
 meta constant size           : name_set → nat
+meta constant empty          : name_set → bool
 meta constant fold {α :Type} : name_set → α → (name → α → α) → α
 
 meta def to_list (s : name_set) : list name :=

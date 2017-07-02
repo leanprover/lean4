@@ -38,3 +38,11 @@ begin
   simp_all {fail_if_unchanged := ff}, -- should work
   admit
 end
+
+example (p : Prop) : let h : 0 = 0 := rfl in p :=
+begin
+  intro h,
+  simp_all,
+  do {e₁ ← get_local `h >>= infer_type, e₂ ← to_expr ```(true), guard (e₁ = e₂)},
+  admit
+end

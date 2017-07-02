@@ -16,10 +16,10 @@ set_option pp.all true
 example (a b : nat) (H : (λ x : nat, @has_add.add nat (nat_has_add3 x) a b) = (λ x : nat, @has_add.add nat nat_has_add2 a x)) : true :=
 by do
   s ← simp_lemmas.mk_default,
-  e ← get_local `H >>= infer_type, s^.dsimplify e {fail_if_unchaged := ff} >>= trace,
+  e ← get_local `H >>= infer_type, s^.dsimplify e {fail_if_unchanged := ff} >>= trace,
   trace "---------",
   -- The following should work
   e ← get_local `H >>= infer_type,
-  e ← s^.dsimplify e {fail_if_unchaged := ff},
-  s^.dsimplify e {fail_if_unchaged := ff} >>= trace,
+  e ← s^.dsimplify e {fail_if_unchanged := ff},
+  s^.dsimplify e {fail_if_unchanged := ff} >>= trace,
   constructor

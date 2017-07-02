@@ -10,7 +10,7 @@ axiom foo3 (n : nat) : n ≥ 0
 example (a b : nat) (H : f a (foo1 a) = f a (foo2 a)) : true :=
 by do
   s ← simp_lemmas.mk_default,
-  e ← get_local `H >>= infer_type, s^.dsimplify e {fail_if_unchaged := ff} >>= trace,
+  e ← get_local `H >>= infer_type, s^.dsimplify e {fail_if_unchanged := ff} >>= trace,
   constructor
 
 constant x1 : nat -- update the environment to force defeq_canonize cache to be reset
@@ -18,7 +18,7 @@ constant x1 : nat -- update the environment to force defeq_canonize cache to be 
 example (a b : nat) (H : f a (foo1 a) = f a (foo2 a)) : true :=
 by do
   s ← simp_lemmas.mk_default,
-  e ← get_local `H >>= infer_type, s^.dsimplify e {fail_if_unchaged := ff} >>= trace,
+  e ← get_local `H >>= infer_type, s^.dsimplify e {fail_if_unchanged := ff} >>= trace,
   constructor
 
 constant x2 : nat -- update the environment to force defeq_canonize cache to be reset

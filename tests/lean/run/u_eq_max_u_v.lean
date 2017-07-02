@@ -44,7 +44,7 @@ definition semigroup_morphism_product
     begin
       -- cf https://groups.google.com/d/msg/lean-user/bVs5FdjClp4/tfHiVjLIBAAJ
       intros,
-      unfold has_mul.mul,
+      dunfold has_mul.mul,
       dsimp,
       simp
     end

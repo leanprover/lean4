@@ -59,7 +59,7 @@ section semiring
   variables [semiring α]
 
   lemma one_add_one_eq_two : 1 + 1 = (2 : α) :=
-  begin unfold bit0, reflexivity end
+  by unfold bit0
 
   theorem two_mul (n : α) : 2 * n = n + n :=
   eq.trans (right_distrib 1 1 n) (by simp)

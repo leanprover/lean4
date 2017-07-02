@@ -16,13 +16,13 @@ meta def conv (α : Type u) :=
 tactic α
 
 meta instance : monad conv :=
-by unfold conv; apply_instance
+by dunfold conv; apply_instance
 
 meta instance : monad_fail conv :=
-by unfold conv; apply_instance
+by dunfold conv; apply_instance
 
 meta instance : alternative conv :=
-by unfold conv; apply_instance
+by dunfold conv; apply_instance
 
 namespace conv
 meta def convert (c : conv unit) (lhs : expr) (rel : name := `eq) : tactic (expr × expr) :=

@@ -31,14 +31,14 @@ namespace int
   by cases n; simp; refl
 
   @[simp] lemma bodd_neg (n : ℤ) : bodd (-n) = bodd n :=
-  by cases n; unfold has_neg.neg; simp [int.coe_nat_eq, int.neg, bodd]
+  by cases n; dunfold has_neg.neg; simp [int.coe_nat_eq, int.neg, bodd]
 
   @[simp] lemma bodd_add (m n : ℤ) : bodd (m + n) = bxor (bodd m) (bodd n) :=
-  by cases m with m m; cases n with n n; unfold has_add.add; simp [int.add, bodd];
+  by cases m with m m; cases n with n n; dunfold has_add.add; simp [int.add, bodd];
      cases m.bodd; cases n.bodd; refl
 
   @[simp] lemma bodd_mul (m n : ℤ) : bodd (m * n) = bodd m && bodd n :=
-  by cases m with m m; cases n with n n; unfold has_mul.mul; simp [int.mul, bodd];
+  by cases m with m m; cases n with n n; dunfold has_mul.mul; simp [int.mul, bodd];
      cases m.bodd; cases n.bodd; refl
 
   theorem bodd_add_div2 : ∀ n, cond (bodd n) 1 0 + 2 * div2 n = n

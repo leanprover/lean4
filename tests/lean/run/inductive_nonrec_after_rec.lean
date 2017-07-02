@@ -63,7 +63,7 @@ lemma ex7 {α : Type u} (t : tree α) : t ≠ leaf → tree.size t > 0 :=
 begin
   induction t,
   {intros, contradiction},
-  {intros, unfold size, apply nat.zero_lt_succ }
+  {intros, unfold tree.size, apply nat.zero_lt_succ }
 end
 
 inductive tree_list (α : Type u) : Type u

@@ -233,11 +233,11 @@ meta def ith_arg_aux : expr → nat → expr
 meta def ith_arg (e : expr) (i : nat) : expr :=
 ith_arg_aux e (get_app_num_args e - i - 1)
 
-meta def const_name : expr → name
+meta def const_name : expr elab → name
 | (const n ls) := n
 | e            := name.anonymous
 
-meta def is_constant : expr → bool
+meta def is_constant : expr elab → bool
 | (const n ls) := tt
 | e            := ff
 

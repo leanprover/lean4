@@ -4,6 +4,6 @@ def some_lets : ℕ → ℕ → ℕ
 
 def some_unfolded_lets (n : ℕ) : ∃ v : ℕ , v = some_lets 5 n :=
 begin
-  unfold some_lets,
+  dunfold some_lets,
   -- admit
 end

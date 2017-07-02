@@ -60,8 +60,7 @@ do 0  ::= 1,
 lemma size_write (b : buffer nat) (i : nat) (h : i < b.size) (v : nat) : (b.write ⟨i, h⟩ v).size = b.size :=
 begin
   cases b,
-  unfold buffer.write buffer.size,
-  simp
+  unfold buffer.write buffer.size
 end
 
 open nat
@@ -75,7 +74,7 @@ lemma init_mem_inv : ∀ n (b : buffer nat), n < b.size → (init_mem n).pre b
 | (nat.succ n) b h :=
   have n < b.size, from nat.lt_of_succ_lt h,
   begin
-    unfold init_mem has_bind.and_then bind has_bind.bind hoare_state.bind, simp,
+    dunfold init_mem has_bind.and_then bind has_bind.bind hoare_state.bind, simp,
     split,
     {unfold hoare_state.assign, simp, exact h},
     {intros _ _,

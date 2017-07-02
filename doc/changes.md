@@ -59,6 +59,12 @@ For more details, see discussion [here](https://github.com/leanprover/lean/pull/
 
 * `dunfold_occs` was deleted, the new `conv` tactical should be used instead.
 
+* `unfold` tactic is now implemented on top of the `simp` tactics. So, we can use it to unfold
+   declarations defined using well founded recursion. The `unfold1` variant does not unfold recursively,
+   and it is shorthand for `unfold f {single_pass := tt}`.
+   Remark: in v3.2.0, `unfold` was just an alias for the `dunfold` tactic.
+
+
 v3.2.0 (18 June 2017)
 -------------
 

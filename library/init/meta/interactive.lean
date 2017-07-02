@@ -723,9 +723,9 @@ private meta def simp_hyps (cfg : simp_config) (discharger : tactic unit) : simp
 | s []      := skip
 | s (h::hs) := simp_hyp cfg discharger s h >> simp_hyps s hs
 
-private meta def simp_core (cfg : simp_config) (discharger : tactic unit)
-                           (no_dflt : bool) (ctx : list expr) (hs : list pexpr) (attr_names : list name) (ids : list name)
-                           (locat : loc) : tactic unit :=
+meta def simp_core (cfg : simp_config) (discharger : tactic unit)
+                   (no_dflt : bool) (ctx : list expr) (hs : list pexpr) (attr_names : list name) (ids : list name)
+                   (locat : loc) : tactic unit :=
 do s ← mk_simp_set no_dflt attr_names hs ids,
    s ← s.append ctx,
    match locat : _ → tactic unit with
@@ -899,10 +899,6 @@ match l with
                           intron n
 end
 
-/- TODO(Leo): add support for non-refl lemmas -/
-meta def unfold (cs : parse ident*) (l : parse location) (cfg : dunfold_config := {}) : tactic unit :=
-dunfold cs l cfg
-
 private meta def delta_hyps : list name → list name → tactic unit
 | cs []      := skip
 | cs (h::hs) := get_local h >>= delta_at cs >> delta_hyps cs hs
@@ -927,6 +923,34 @@ meta def unfold_projections : parse location → tactic unit
 | (loc.ns [])    := tactic.unfold_projections
 | (loc.ns hs)    := unfold_projections_hyps hs
 | (loc.wildcard) := do ls ← local_context, unfold_projections_hyps (ls.map expr.local_pp_name)
+
+end interactive
+
+meta def ids_to_pexprs (tac_name : name) (cs : list name) : tactic (list pexpr) :=
+cs.mmap $ λ c, do
+  n   ← resolve_name c,
+  hs  ← get_eqn_lemmas_for ff n.const_name,
+  env ← get_env,
+  let p := env.is_projection n.const_name,
+  when (hs.empty ∧ p.is_none) (fail (sformat! "{tac_name} tactic failed, {c} does not have equational lemmas nor is a projection")),
+  return (expr.const c [])
+
+structure unfold_config extends simp_config :=
+(zeta               := ff)
+(proj               := ff)
+(eta                := ff)
+(canonize_instances := ff)
+
+namespace interactive
+open interactive interactive.types expr
+
+meta def unfold (cs : parse ident*) (locat : parse location) (cfg : unfold_config := {}) : tactic unit :=
+do es ← ids_to_pexprs "unfold" cs,
+   let no_dflt := tt,
+   simp_core cfg.to_simp_config failed no_dflt [] es [] [] locat
+
+meta def unfold1 (cs : parse ident*) (locat : parse location) (cfg : unfold_config := {single_pass := tt}) : tactic unit :=
+unfold cs locat cfg
 
 meta def apply_opt_param : tactic unit :=
 tactic.apply_opt_param

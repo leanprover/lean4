@@ -709,13 +709,13 @@ open interactive interactive.types expr
 
 private meta def simp_goal (cfg : simp_config) (discharger : tactic unit) : simp_lemmas → tactic unit
 | s := do
-   (new_target, pr) ← target >>= λ t, simplify s t cfg `eq discharger,
+   (new_target, pr) ← target >>= λ t, simplify s [] t cfg `eq discharger,
    replace_target new_target pr
 
 private meta def simp_hyp (cfg : simp_config) (discharger : tactic unit) (s : simp_lemmas) (h_name : name) : tactic unit :=
 do h      ← get_local h_name,
    h_type ← infer_type h,
-   (h_new_type, pr) ← simplify s h_type cfg `eq discharger,
+   (h_new_type, pr) ← simplify s [] h_type cfg `eq discharger,
    replace_hyp h h_new_type pr,
    return ()
 
@@ -733,7 +733,7 @@ do s ← mk_simp_set no_dflt attr_names hs ids,
      do hs ← non_dep_prop_hyps,
         to_remove ← hs.mfilter $ λ h, do {
             h_type ← infer_type h,
-            (do (new_h_type, pr) ← simplify s h_type cfg `eq discharger,
+            (do (new_h_type, pr) ← simplify s [] h_type cfg `eq discharger,
                 assert h.local_pp_name new_h_type,
                 mk_eq_mp pr h >>= tactic.exact >> return tt)
             <|>
@@ -777,7 +777,7 @@ simp_core cfg.to_simp_config cfg.discharger no_dflt [] hs attr_names ids locat
 meta def simp_all (no_dflt : parse only_flag) (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list)
                   (ids : parse without_ident_list) (cfg : simp_config_ext := {}) : tactic unit :=
 do s ← mk_simp_set no_dflt attr_names hs ids,
-   tactic.simp_all s cfg.to_simp_config cfg.discharger,
+   tactic.simp_all s [] cfg.to_simp_config cfg.discharger,
    try tactic.triv, try (tactic.reflexivity reducible)
 
 /--

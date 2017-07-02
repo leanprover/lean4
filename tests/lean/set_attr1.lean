@@ -8,9 +8,9 @@ definition ex1 (n : nat) : f n + 0 = n + 1 :=
 by do
   set_basic_attribute `simp `foo ff,
   set_basic_attribute `simp `addz ff,
-  simp
+  `[simp]
 
 definition ex2 (n : nat) : f n + 0 = n + 1 :=
 by do
   unset_attribute `simp `foo,
-  simp -- should fail since we remove [simp] attribute from `foo`
+  `[simp] -- should fail since we remove [simp] attribute from `foo`

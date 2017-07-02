@@ -203,22 +203,13 @@ structure simp_config :=
   `simplify s e cfg r prove` simplify `e` using `s` using bottom-up traversal.
   `discharger` is a tactic for dischaging new subgoals created by the simplifier.
   If it fails, the simplifier tries to discharge the subgoal by simplifying it to `true`. -/
-meta constant simplify (s : simp_lemmas) (e : expr) (cfg : simp_config := {}) (r : name := `eq)
+meta constant simplify (s : simp_lemmas) (to_unfold : list name) (e : expr) (cfg : simp_config := {}) (r : name := `eq)
                        (discharger : tactic unit := failed) : tactic (expr × expr)
 
-meta def simplify_goal (S : simp_lemmas) (cfg : simp_config := {}) (discharger : tactic unit := failed) : tactic unit :=
+meta def simplify_goal (S : simp_lemmas) (to_unfold : list name := []) (cfg : simp_config := {}) (discharger : tactic unit := failed) : tactic unit :=
 do t ← target,
-   (new_t, pr) ← simplify S t cfg `eq discharger,
+   (new_t, pr) ← simplify S to_unfold t cfg `eq discharger,
    replace_target new_t pr
-
-meta def simp (cfg : simp_config := {}) : tactic unit :=
-do S ← simp_lemmas.mk_default,
-simplify_goal S cfg >> try triv >> try (reflexivity reducible)
-
-meta def simp_using (hs : list expr) (cfg : simp_config := {}) : tactic unit :=
-do S ← simp_lemmas.mk_default,
-   S ← S.append hs,
-simplify_goal S cfg >> try triv
 
 meta constant ext_simplify_core
   /- The user state type. -/
@@ -268,20 +259,13 @@ private meta def collect_simps : list expr → tactic (list expr)
 meta def collect_ctx_simps : tactic (list expr) :=
 local_context >>= collect_simps
 
-/-- Simplify target using all hypotheses in the local context. -/
-meta def simp_using_hs (cfg : simp_config := {}) : tactic unit :=
-do es ← collect_ctx_simps, simp_using es cfg
-
-meta def simph (cfg : simp_config := {}) :=
-simp_using_hs cfg
-
 meta def intro1_aux : bool → list name → tactic expr
 | ff _       := intro1
 | tt (n::ns) := intro n
 | _  _       := failed
 
 meta def simp_intro_aux (cfg : simp_config) (updt : bool) : simp_lemmas → bool → list name → tactic simp_lemmas
-| S tt     [] := try (simplify_goal S cfg) >> return S
+| S tt     [] := try (simplify_goal S [] cfg) >> return S
 | S use_ns ns := do
   t ← target,
   if t.is_napp_of `not 1 then
@@ -289,7 +273,7 @@ meta def simp_intro_aux (cfg : simp_config) (updt : bool) : simp_lemmas → bool
   else if t.is_arrow then
     do {
       d ← return t.binding_domain,
-      (new_d, h_d_eq_new_d) ← simplify S d cfg,
+      (new_d, h_d_eq_new_d) ← simplify S [] d cfg,
       h_d ← intro1_aux use_ns ns,
       h_new_d ← mk_eq_mp h_d_eq_new_d h_d,
       assertv_core h_d.local_pp_name new_d h_new_d,
@@ -308,7 +292,7 @@ meta def simp_intro_aux (cfg : simp_config) (updt : bool) : simp_lemmas → bool
     new_t ← whnf t reducible,
     if new_t.is_pi then unsafe_change new_t >> simp_intro_aux S use_ns ns
     else
-      try (simplify_goal S cfg) >>
+      try (simplify_goal S [] cfg) >>
       mcond (expr.is_pi <$> target)
         (simp_intro_aux S use_ns ns)
         (if use_ns ∧ ¬ns.empty then failed else return S)
@@ -334,7 +318,7 @@ do when (expr.is_local_constant h = ff) (fail "tactic simp_at failed, the given 
    htype ← infer_type h,
    S     ← simp_lemmas.mk_default,
    S     ← S.append extra_lemmas,
-   (h_new_type, pr) ← simplify S htype cfg,
+   (h_new_type, pr) ← simplify S [] htype cfg,
    replace_hyp h h_new_type pr
 
 meta def simp_at_using_hs (h : expr) (extra_lemmas : list expr := []) (cfg : simp_config := {}) : tactic expr :=
@@ -472,18 +456,18 @@ private meta def join_pr : option expr → expr → tactic expr
 | none       pr₂ := return pr₂
 | (some pr₁) pr₂ := mk_eq_trans pr₁ pr₂
 
-private meta def loop (cfg : simp_config) (discharger : tactic unit)
+private meta def loop (cfg : simp_config) (discharger : tactic unit) (to_unfold : list name)
                       : list simp_all_entry → list simp_all_entry → simp_lemmas → bool → tactic unit
 | []      r  s m :=
   if m then loop r [] s ff
   else do
     add_new_hyps r,
-    target_changed ← (simplify_goal s cfg discharger >> return tt) <|> return ff,
+    target_changed ← (simplify_goal s to_unfold cfg discharger >> return tt) <|> return ff,
     guard (cfg.fail_if_unchanged = ff ∨ target_changed ∨ r.any (λ e, e.pr ≠ none)) <|> fail "simp_all tactic failed to simplify",
     clear_old_hyps r
 | (e::es) r  s m := do
    let ⟨h, h_type, h_pr, s'⟩ := e,
-   (new_h_type, new_pr) ← simplify s' h_type {cfg with fail_if_unchanged := ff} `eq discharger,
+   (new_h_type, new_pr) ← simplify s' to_unfold h_type {cfg with fail_if_unchanged := ff} `eq discharger,
    if h_type =ₐ new_h_type then loop es (e::r) s m
    else do
      new_pr      ← join_pr h_pr new_pr,
@@ -496,10 +480,10 @@ private meta def loop (cfg : simp_config) (discharger : tactic unit)
      new_s       ← s.add new_fact_pr,
      loop new_es new_r new_s tt
 
-meta def simp_all (s : simp_lemmas) (cfg : simp_config := {}) (discharger : tactic unit := failed) : tactic unit :=
+meta def simp_all (s : simp_lemmas) (to_unfold : list name) (cfg : simp_config := {}) (discharger : tactic unit := failed) : tactic unit :=
 do hs      ← non_dep_prop_hyps,
    (s, es) ← init s hs,
-   loop cfg discharger es [] s ff
+   loop cfg discharger to_unfold es [] s ff
 
 end simp_all
 

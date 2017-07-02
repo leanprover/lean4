@@ -8,4 +8,4 @@ definition ex1 (n : nat) : 0 + f n = n + 1 :=
 by do
   set_basic_attribute `simp `foo ff,
   set_basic_attribute `simp `zadd ff,
-  simp
+  `[simp]

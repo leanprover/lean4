@@ -81,7 +81,7 @@ do
   S ← target >>= collect_sizeof_lemmas,
   (simplify_goal S >> unfold_sizeof_loop)
   <|>
-  try simp
+  try `[simp]
 
 meta def unfold_sizeof : tactic unit :=
 unfold_sizeof_measure >> unfold_sizeof_loop

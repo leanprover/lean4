@@ -26,7 +26,7 @@ attribute [congr] Hf Hg Hh
 meta definition relsimp_core (e : expr) : tactic (expr × expr) :=
 do S         ← simp_lemmas.mk_default,
    e_type    ← infer_type e >>= whnf,
-   simplify S e {} `rel
+   simplify S [] e {} `rel
 
 example : rel (h (f x)) z :=
 by do e₁ ← to_expr ```(h (f x)),

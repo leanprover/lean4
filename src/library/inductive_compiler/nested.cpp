@@ -1542,7 +1542,7 @@ class add_nested_inductive_decl_fn {
         }
     public:
         sizeof_simplify_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss, simp_config const & cfg):
-        simplify_fn(ctx, dcs, slss, cfg) {}
+            simplify_fn(ctx, dcs, slss, list<name>(), cfg) {}
     };
 
     simp_config get_simp_config() {
@@ -2081,7 +2081,7 @@ class add_nested_inductive_decl_fn {
         }
     public:
         assumption_simplify_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss, simp_config const & cfg):
-            simplify_fn(ctx, dcs, slss, cfg) {}
+            simplify_fn(ctx, dcs, slss, list<name>(), cfg) {}
     };
 
     expr intros_simp_prove_conjuncts(type_context & tctx, simp_lemmas const & slss, expr const & tgt) {
@@ -2200,7 +2200,7 @@ class add_nested_inductive_decl_fn {
         defeq_can_state dcs;
         simp_lemmas slss;
         slss = add(tctx, slss, hyp_decl.get_name(), hyp_decl.get_type(), hyp_decl.mk_ref(), LEAN_DEFAULT_PRIORITY);
-        simp_result r = finalize(tctx, get_eq_name(), simplify_fn(tctx, dcs, slss, cfg)(get_eq_name(), s.get_main_goal_decl()->get_type()));
+        simp_result r = finalize(tctx, get_eq_name(), simplify_fn(tctx, dcs, slss, list<name>(), cfg)(get_eq_name(), s.get_main_goal_decl()->get_type()));
         lean_verify(is_eq(r.get_new(), lhs, rhs));
         lean_assert(tctx.is_def_eq(lhs, rhs));
         s = *apply(tctx, false, false, mk_eq_mpr(tctx, r.get_proof(), mk_eq_refl(tctx, lhs)), s);
@@ -2211,7 +2211,7 @@ class add_nested_inductive_decl_fn {
 
         slss = simp_lemmas();
         slss = add(tctx, slss, unpack_pack_name, LEAN_DEFAULT_PRIORITY);
-        r = finalize(tctx, get_eq_name(), simplify_fn(tctx, dcs, slss, cfg)(get_eq_name(), H_unpack_decl.get_type()));
+        r = finalize(tctx, get_eq_name(), simplify_fn(tctx, dcs, slss, list<name>(), cfg)(get_eq_name(), H_unpack_decl.get_type()));
         s = *apply(tctx, false, false, mk_eq_mp(tctx, r.get_proof(), H_unpack_decl.mk_ref()), s);
         return s;
     }
@@ -2237,7 +2237,7 @@ class add_nested_inductive_decl_fn {
         defeq_can_state dcs;
         simp_lemmas slss;
         slss = add(tctx, slss, hyp_decl.get_name(), hyp_decl.get_type(), hyp_decl.mk_ref(), LEAN_DEFAULT_PRIORITY);
-        simp_result r = finalize(tctx, get_eq_name(), simplify_fn(tctx, dcs, slss, cfg)(get_eq_name(), goal_type));
+        simp_result r = finalize(tctx, get_eq_name(), simplify_fn(tctx, dcs, slss, list<name>(), cfg)(get_eq_name(), goal_type));
         expr pf;
 
         if (is_eq(r.get_new(), lhs, rhs)) {

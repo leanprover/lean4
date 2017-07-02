@@ -219,7 +219,7 @@ static simplify_fn mk_simp(type_context & ctx, defeq_can_state & dcs, smt_pre_co
     scfg.m_canonize_proofs    = false;
     scfg.m_use_axioms         = true;
     scfg.m_zeta               = cfg.m_zeta;
-    return simplify_fn(ctx, dcs, cfg.m_simp_lemmas, scfg);
+    return simplify_fn(ctx, dcs, cfg.m_simp_lemmas, list<name>(), scfg);
 }
 
 static simp_result preprocess(type_context & ctx, defeq_can_state & dcs, smt_pre_config const & cfg, expr const & e) {

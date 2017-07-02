@@ -13,6 +13,6 @@ meta def prove : tactic unit :=
 do local_context >>= collect_props >>= revert_lst,
    trace "SMT state, after reverting propositions:",
    trace_state,
-   simp { contextual := tt }
+   `[simp { contextual := tt }]
 
 end smt

@@ -1180,9 +1180,9 @@ class tactic_simplify_fn : public simplify_fn {
     }
 
 public:
-    tactic_simplify_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss,
+    tactic_simplify_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss, list<name> const & to_unfold,
                        simp_config const & cfg, tactic_state const & s, vm_obj const & prove):
-        simplify_fn(ctx, dcs, slss, cfg),
+        simplify_fn(ctx, dcs, slss, to_unfold, cfg),
         m_s(s),
         m_prove(prove) {
     }
@@ -1191,20 +1191,21 @@ public:
 /*
 meta constant simplify
   (s : simp_lemmas)
+  (u : list name)
   (e : expr)
   (c : simp_config)
   (r : name)
   (prove : tactic unit)
   : tactic (expr × expr)
 */
-vm_obj tactic_simplify(vm_obj const & slss, vm_obj const & e, vm_obj const & c, vm_obj const & rel,
+vm_obj tactic_simplify(vm_obj const & slss, vm_obj const & u, vm_obj const & e, vm_obj const & c, vm_obj const & rel,
                        vm_obj const & prove, vm_obj const & _s) {
     tactic_state const & s   = tactic::to_state(_s);
     try {
         simp_config cfg(c);
         type_context ctx     = mk_type_context_for(s, transparency_mode::Reducible);
         defeq_can_state dcs  = s.dcs();
-        tactic_simplify_fn simp(ctx, dcs, to_simp_lemmas(slss), cfg, s, prove);
+        tactic_simplify_fn simp(ctx, dcs, to_simp_lemmas(slss), to_list_name(u), cfg, s, prove);
         simp_result result   = simp(to_name(rel), to_expr(e));
         if (!cfg.m_fail_if_unchanged || result.get_new() != to_expr(e)) {
             result = finalize(ctx, to_name(rel), result);

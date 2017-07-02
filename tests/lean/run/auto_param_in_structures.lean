@@ -1,6 +1,6 @@
 namespace test
 open tactic
-meta def my_tac : tactic unit := abstract (intros >> simp)
+meta def my_tac : tactic unit := abstract (intros >> `[simp])
 
 structure monoid (α : Type) :=
 (op    : α → α → α)

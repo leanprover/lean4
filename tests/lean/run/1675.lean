@@ -31,3 +31,10 @@ begin
   simp [h₁] at *,
   assumption
 end
+
+example (p : Prop) : p :=
+begin
+  fail_if_success {simp_all}, -- simp_all should fail if nothing was simplified
+  simp_all {fail_if_unchanged := ff}, -- should work
+  admit
+end

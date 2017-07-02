@@ -478,11 +478,12 @@ private meta def loop (cfg : simp_config) (discharger : tactic unit)
   if m then loop r [] s ff
   else do
     add_new_hyps r,
-    simplify_goal s cfg discharger,
+    target_changed ← (simplify_goal s cfg discharger >> return tt) <|> return ff,
+    guard (cfg.fail_if_unchanged = ff ∨ target_changed ∨ r.any (λ e, e.pr ≠ none)) <|> fail "simp_all tactic failed to simplify",
     clear_old_hyps r
 | (e::es) r  s m := do
    let ⟨h, h_type, h_pr, s'⟩ := e,
-   (new_h_type, new_pr) ← simplify s' h_type cfg `eq discharger,
+   (new_h_type, new_pr) ← simplify s' h_type {cfg with fail_if_unchanged := ff} `eq discharger,
    if h_type =ₐ new_h_type then loop es (e::r) s m
    else do
      new_pr      ← join_pr h_pr new_pr,
@@ -497,7 +498,6 @@ private meta def loop (cfg : simp_config) (discharger : tactic unit)
 
 meta def simp_all (s : simp_lemmas) (cfg : simp_config := {}) (discharger : tactic unit := failed) : tactic unit :=
 do hs      ← non_dep_prop_hyps,
-   let cfg := {cfg with fail_if_unchanged := ff},
    (s, es) ← init s hs,
    loop cfg discharger es [] s ff
 

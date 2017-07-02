@@ -34,6 +34,8 @@ master branch (aka work in progress branch)
    tries to discharge the subgoal by reducing it to `true`.
    Example: `simp {discharger := assumption}`.
 
+* `simp` can be used to unfold projection applications. Example: `simp [has_add.add]`.
+
 *Changes*
 
 * We now have two type classes for converting to string: `has_to_string` and `has_repr`.

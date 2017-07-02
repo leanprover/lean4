@@ -168,7 +168,8 @@ public:
    and use itself to discharge hypotheses. */
 class simplify_fn : public simplify_ext_core_fn {
 protected:
-    list<name> m_to_unfold;
+    name_set m_to_unfold;
+    optional<simp_result> unfold_step(expr const & e);
     virtual optional<pair<simp_result, bool>> pre(expr const & e, optional<expr> const & parent) override;
     virtual optional<pair<simp_result, bool>> post(expr const & e, optional<expr> const & parent) override;
     virtual optional<expr> prove(expr const & e) override;
@@ -176,7 +177,7 @@ public:
     simplify_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss, list<name> const & to_unfold,
                 simp_config const & cfg):
         simplify_ext_core_fn(ctx, dcs, slss, cfg),
-        m_to_unfold(to_unfold) {}
+        m_to_unfold(to_name_set(to_unfold)) {}
 };
 
 void initialize_simplify();

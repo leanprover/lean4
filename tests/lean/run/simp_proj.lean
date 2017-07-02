@@ -29,3 +29,38 @@ begin
   guard_target (λ x, x) a = b,
   exact h
 end
+
+example (a b : nat) : a + b = b + a :=
+begin
+  simp only [has_add.add],
+  guard_target nat.add a b = nat.add b a,
+  apply nat.add_comm
+end
+
+example (a b : nat) : a + b = b + a :=
+begin
+  unfold has_add.add,
+  guard_target nat.add a b = nat.add b a,
+  apply nat.add_comm
+end
+
+example (a b : nat) : a + b = b + a :=
+begin
+  simp_all only [has_add.add],
+  guard_target nat.add a b = nat.add b a,
+  apply nat.add_comm
+end
+
+example (a b : nat) : a + b = b + a :=
+begin
+  simph only [has_add.add],
+  guard_target nat.add a b = nat.add b a,
+  apply nat.add_comm
+end
+
+example (a b : nat) : a + b = b + a :=
+begin
+  conv { simp only [has_add.add] },
+  guard_target nat.add a b = nat.add b a,
+  apply nat.add_comm
+end

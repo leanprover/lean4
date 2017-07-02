@@ -202,7 +202,11 @@ structure simp_config :=
 /--
   `simplify s e cfg r prove` simplify `e` using `s` using bottom-up traversal.
   `discharger` is a tactic for dischaging new subgoals created by the simplifier.
-  If it fails, the simplifier tries to discharge the subgoal by simplifying it to `true`. -/
+   If it fails, the simplifier tries to discharge the subgoal by simplifying it to `true`.
+
+   The parameter `to_unfold` specifies definitions that should be delta-reduced,
+   and projection applications that should be unfolded.
+-/
 meta constant simplify (s : simp_lemmas) (to_unfold : list name) (e : expr) (cfg : simp_config := {}) (r : name := `eq)
                        (discharger : tactic unit := failed) : tactic (expr × expr)
 

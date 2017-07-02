@@ -133,7 +133,6 @@ vm_obj tactic_dunfold_core(vm_obj const & cs, vm_obj const & _e, vm_obj const & 
     }
 }
 
-
 vm_obj tactic_dunfold_expr(vm_obj const & _e, vm_obj const & m, vm_obj const & _s) {
     expr const & e = to_expr(_e);
     tactic_state const & s = tactic::to_state(_s);

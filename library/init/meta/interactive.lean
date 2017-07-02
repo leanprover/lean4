@@ -769,12 +769,9 @@ simp_core cfg.to_simp_config cfg.discharger no_dflt [] hs attr_names ids locat
 
 /-- Simplify the whole context, and use simplified hypotheses to simplify other hypotheses. -/
 meta def simp_all (no_dflt : parse only_flag) (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list)
-                  (ids : parse without_ident_list) (cfg : simp_config := {}) : tactic unit :=
+                  (ids : parse without_ident_list) (cfg : simp_config_ext := {}) : tactic unit :=
 do s ← mk_simp_set no_dflt attr_names hs ids,
-   ls ← local_context,
-   revert_lst ls,
-   let ns := ls.map expr.local_pp_name,
-   simp_intro_aux cfg tt s ff ns,
+   tactic.simp_all s cfg.to_simp_config cfg.discharger,
    try tactic.triv, try (tactic.reflexivity reducible)
 
 /--

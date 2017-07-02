@@ -206,9 +206,9 @@ structure simp_config :=
 meta constant simplify (s : simp_lemmas) (e : expr) (cfg : simp_config := {}) (r : name := `eq)
                        (discharger : tactic unit := failed) : tactic (expr × expr)
 
-meta def simplify_goal (S : simp_lemmas) (cfg : simp_config := {}) : tactic unit :=
+meta def simplify_goal (S : simp_lemmas) (cfg : simp_config := {}) (discharger : tactic unit := failed) : tactic unit :=
 do t ← target,
-   (new_t, pr) ← simplify S t cfg,
+   (new_t, pr) ← simplify S t cfg `eq discharger,
    replace_target new_t pr
 
 meta def simp (cfg : simp_config := {}) : tactic unit :=
@@ -408,6 +408,100 @@ meta def simp_bottom_up (post : expr → tactic (expr × expr)) (cfg : simp_conf
 do t                   ← target,
    (_, new_target, pr) ← simplify_bottom_up () (λ _ e, do (new_e, pr) ← post e, return ((), new_e, pr)) t cfg,
    replace_target new_target pr
+
+private meta def remove_deps (s : name_set) (h : expr) : name_set :=
+if s.empty then s
+else h.fold s (λ e o s, if e.is_local_constant then s.erase e.local_uniq_name else s)
+
+/- Return the list of hypothesis that are propositions and do not have
+   forward dependencies. -/
+meta def non_dep_prop_hyps : tactic (list expr) :=
+do
+  ctx ← local_context,
+  s   ← ctx.mfoldl (λ s h, do
+           h_type ← infer_type h,
+           let s := remove_deps s h_type,
+           h_val  ← head_zeta h,
+           let s := if h_val =ₐ h then s else remove_deps s h_val,
+           mcond (is_prop h_type)
+             (return $ s.insert h.local_uniq_name)
+             (return s)) mk_name_set,
+  t   ← target,
+  let s := remove_deps s t,
+  return $ ctx.filter (λ h, s.contains h.local_uniq_name)
+
+
+section simp_all
+
+meta structure simp_all_entry :=
+(h        : expr) -- hypothesis
+(new_type : expr) -- new type
+(pr       : option expr) -- proof that type of h is equal to new_type
+(s        : simp_lemmas) -- simplification lemmas for simplifying new_type
+
+private meta def update_simp_lemmas (es : list simp_all_entry) (h : expr) : tactic (list simp_all_entry) :=
+es.mmap $ λ e, do new_s ← e.s.add h, return {e with s := new_s}
+
+/- Helper tactic for `init`.
+   Remark: the following tactic is quadratic on the length of list expr (the list of non dependent propositions).
+   We can make it more efficient as soon as we have an efficient simp_lemmas.erase. -/
+private meta def init_aux : list expr → simp_lemmas → list simp_all_entry → tactic (simp_lemmas × list simp_all_entry)
+| []      s r := return (s, r)
+| (h::hs) s r := do
+  new_r  ← update_simp_lemmas r h,
+  new_s  ← s.add h,
+  h_type ← infer_type h,
+  init_aux hs new_s (⟨h, h_type, none, s⟩::new_r)
+
+private meta def init (s : simp_lemmas) (hs : list expr) : tactic (simp_lemmas × list simp_all_entry) :=
+init_aux hs s []
+
+private meta def add_new_hyps (es : list simp_all_entry) : tactic unit :=
+list.mfor' es $ λ e,
+   match e.pr with
+   | none    := return ()
+   | some pr :=
+      assert e.h.local_pp_name e.new_type >>
+      mk_eq_mp pr e.h >>= exact
+   end
+
+private meta def clear_old_hyps (es : list simp_all_entry) : tactic unit :=
+list.mfor' es $ λ e, when (e.pr ≠ none) (try (clear e.h))
+
+private meta def join_pr : option expr → expr → tactic expr
+| none       pr₂ := return pr₂
+| (some pr₁) pr₂ := mk_eq_trans pr₁ pr₂
+
+private meta def loop (cfg : simp_config) (discharger : tactic unit)
+                      : list simp_all_entry → list simp_all_entry → simp_lemmas → bool → tactic unit
+| []      r  s m :=
+  if m then loop r [] s ff
+  else do
+    add_new_hyps r,
+    simplify_goal s cfg discharger,
+    clear_old_hyps r
+| (e::es) r  s m := do
+   let ⟨h, h_type, h_pr, s'⟩ := e,
+   (new_h_type, new_pr) ← simplify s' h_type cfg `eq discharger,
+   if h_type =ₐ new_h_type then loop es (e::r) s m
+   else do
+     new_pr      ← join_pr h_pr new_pr,
+     new_fact_pr ← mk_eq_mp new_pr h,
+     h0_type     ← infer_type h,
+     let new_fact_pr := mk_id_locked_proof new_h_type new_fact_pr,
+     new_es      ← update_simp_lemmas es new_fact_pr,
+     new_r       ← update_simp_lemmas r new_fact_pr,
+     let new_r := {e with new_type := new_h_type, pr := new_pr} :: new_r,
+     new_s       ← s.add new_fact_pr,
+     loop new_es new_r new_s tt
+
+meta def simp_all (s : simp_lemmas) (cfg : simp_config := {}) (discharger : tactic unit := failed) : tactic unit :=
+do hs      ← non_dep_prop_hyps,
+   let cfg := {cfg with fail_if_unchaged := ff},
+   (s, es) ← init s hs,
+   loop cfg discharger es [] s ff
+
+end simp_all
 
 /- debugging support for algebraic normalizer -/
 

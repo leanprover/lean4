@@ -1170,12 +1170,18 @@ meta instance : monad task :=
  bind_pure_comp_eq_map := undefined}
 
 namespace tactic
+meta def mk_id_locked_proof (prop : expr) (pr : expr) : expr :=
+expr.app (expr.app (expr.const ``id_locked [level.zero]) prop) pr
+
+meta def mk_id_locked_eq (lhs : expr) (rhs : expr) (pr : expr) : tactic expr :=
+do prop ← mk_app `eq [lhs, rhs],
+   return $ mk_id_locked_proof prop pr
+
 meta def replace_target (new_target : expr) (pr : expr) : tactic unit :=
 do t ← target,
    assert `htarget new_target, swap,
    ht        ← get_local `htarget,
-   eq_type   ← mk_app `eq [t, new_target],
-   locked_pr ← return $ expr.app (expr.app (expr.const ``id_locked [level.zero]) eq_type) pr,
+   locked_pr ← mk_id_locked_eq t new_target pr,
    mk_eq_mpr locked_pr ht >>= exact
 
 end tactic

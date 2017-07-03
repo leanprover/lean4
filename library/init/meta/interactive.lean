@@ -794,24 +794,15 @@ meta def simph (no_dflt : parse only_flag) (hs : parse opt_qexpr_list) (attr_nam
 simp_using_hs no_dflt hs attr_names ids cfg
 
 meta def simp_intros (ids : parse ident_*) (no_dflt : parse only_flag) (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list)
-                     (wo_ids : parse without_ident_list) (cfg : simp_config := {}) : tactic unit :=
+                     (wo_ids : parse without_ident_list) (cfg : simp_intros_config := {}) : tactic unit :=
 do (s, u) ← mk_simp_set no_dflt attr_names hs wo_ids,
    when (¬u.empty) (fail (sformat! "simp_intros tactic does not support {u}")),
-   match ids with
-   | [] := simp_intros_using s cfg
-   | ns := simp_intro_lst_using ns s cfg
-   end,
+   tactic.simp_intros s u ids cfg,
    try triv >> try (reflexivity reducible)
 
 meta def simph_intros (ids : parse ident_*) (no_dflt : parse only_flag) (hs : parse opt_qexpr_list) (attr_names : parse with_ident_list)
-                     (wo_ids : parse without_ident_list) (cfg : simp_config := {}) : tactic unit :=
-do (s, u) ← mk_simp_set no_dflt attr_names hs wo_ids,
-   when (¬u.empty) (fail (sformat! "simph_intros tactic does not support {u}")),
-   match ids with
-   | [] := simph_intros_using s cfg
-   | ns := simph_intro_lst_using ns s cfg
-   end,
-   try triv >> try (reflexivity reducible)
+                     (wo_ids : parse without_ident_list) (cfg : simp_intros_config := {}) : tactic unit :=
+simp_intros ids no_dflt hs attr_names wo_ids {cfg with use_hyps := tt}
 
 private meta def dsimp_hyps (s : simp_lemmas) (u : list name) (hs : list name) (cfg : dsimp_config := {}) : tactic unit :=
 hs.mfor' (λ h_name, do h ← get_local h_name, dsimp_hyp h s u cfg)

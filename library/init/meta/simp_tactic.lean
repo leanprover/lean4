@@ -271,59 +271,53 @@ private meta def collect_simps : list expr → tactic (list expr)
 meta def collect_ctx_simps : tactic (list expr) :=
 local_context >>= collect_simps
 
+section simp_intros
+
 meta def intro1_aux : bool → list name → tactic expr
 | ff _       := intro1
 | tt (n::ns) := intro n
 | _  _       := failed
 
-meta def simp_intro_aux (cfg : simp_config) (updt : bool) : simp_lemmas → bool → list name → tactic simp_lemmas
-| S tt     [] := try (simp_target S [] cfg) >> return S
+structure simp_intros_config extends simp_config :=
+(use_hyps := ff)
+
+meta def simp_intros_aux (cfg : simp_config) (use_hyps : bool) (to_unfold : list name) : simp_lemmas → bool → list name → tactic simp_lemmas
+| S tt     [] := try (simp_target S to_unfold cfg) >> return S
 | S use_ns ns := do
   t ← target,
   if t.is_napp_of `not 1 then
-    intro1_aux use_ns ns >> simp_intro_aux S use_ns ns.tail
+    intro1_aux use_ns ns >> simp_intros_aux S use_ns ns.tail
   else if t.is_arrow then
     do {
       d ← return t.binding_domain,
-      (new_d, h_d_eq_new_d) ← simplify S [] d cfg,
+      (new_d, h_d_eq_new_d) ← simplify S to_unfold d cfg,
       h_d ← intro1_aux use_ns ns,
       h_new_d ← mk_eq_mp h_d_eq_new_d h_d,
       assertv_core h_d.local_pp_name new_d h_new_d,
       clear h_d,
       h_new   ← intro1,
-      new_S ← if updt then mcond (is_prop new_d) (S.add h_new) (return S)
+      new_S ← if use_hyps then mcond (is_prop new_d) (S.add h_new) (return S)
               else return S,
-      simp_intro_aux new_S use_ns ns.tail
+      simp_intros_aux new_S use_ns ns.tail
     }
     <|>
     -- failed to simplify... we just introduce and continue
-    (intro1_aux use_ns ns >> simp_intro_aux S use_ns ns.tail)
+    (intro1_aux use_ns ns >> simp_intros_aux S use_ns ns.tail)
   else if t.is_pi || t.is_let then
-    intro1_aux use_ns ns >> simp_intro_aux S use_ns ns.tail
+    intro1_aux use_ns ns >> simp_intros_aux S use_ns ns.tail
   else do
     new_t ← whnf t reducible,
-    if new_t.is_pi then unsafe_change new_t >> simp_intro_aux S use_ns ns
+    if new_t.is_pi then unsafe_change new_t >> simp_intros_aux S use_ns ns
     else
-      try (simp_target S [] cfg) >>
+      try (simp_target S to_unfold cfg) >>
       mcond (expr.is_pi <$> target)
-        (simp_intro_aux S use_ns ns)
+        (simp_intros_aux S use_ns ns)
         (if use_ns ∧ ¬ns.empty then failed else return S)
 
-meta def simp_intros_using (s : simp_lemmas) (cfg : simp_config := {}) : tactic unit :=
-step $ simp_intro_aux cfg ff s ff []
+meta def simp_intros (s : simp_lemmas) (to_unfold : list name := []) (ids : list name := []) (cfg : simp_intros_config := {}) : tactic unit :=
+step $ simp_intros_aux cfg.to_simp_config cfg.use_hyps to_unfold s (bnot ids.empty) ids
 
-meta def simph_intros_using (s : simp_lemmas) (cfg : simp_config := {}) : tactic unit :=
-step $
-do s ← collect_ctx_simps >>= s.append,
-   simp_intro_aux cfg tt s ff []
-
-meta def simp_intro_lst_using (ns : list name) (s : simp_lemmas) (cfg : simp_config := {}) : tactic unit :=
-step $ simp_intro_aux cfg ff s tt ns
-
-meta def simph_intro_lst_using (ns : list name) (s : simp_lemmas) (cfg : simp_config := {}) : tactic unit :=
-step $
-do s ← collect_ctx_simps >>= s.append,
-   simp_intro_aux cfg tt s tt ns
+end simp_intros
 
 meta def simp_at (h : expr) (extra_lemmas : list expr := []) (cfg : simp_config := {}) : tactic expr :=
 do when (expr.is_local_constant h = ff) (fail "tactic simp_at failed, the given expression is not a hypothesis"),

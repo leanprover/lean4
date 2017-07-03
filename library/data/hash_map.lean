@@ -270,7 +270,7 @@ section
         have array.read bkts' bidx = f L, from
           show ite (bidx = bidx) _ _ = _, by rw if_pos rfl,
         begin
-          simp[array.iterate_aux] without add_comm,
+          simp[array.iterate_aux, -add_comm],
           rw -(show bidx = ⟨bidx.1, h⟩, from fin.eq_of_veq rfl),
           refine ⟨array.iterate_aux bkts (λ_ bkt r, r ++ bkt) bidx.1 (le_of_lt h) [] ++ u, w, _⟩,
           rw -valid.modify_aux1 _ _ (le_refl _),
@@ -312,7 +312,7 @@ section
         have array.read bkts' bidx = f L, from
           show ite (bidx = bidx) _ _ = _, by rw if_pos rfl,
         begin
-          simp[array.iterate_aux] without add_comm,
+          simp[array.iterate_aux, -add_comm],
           rw [-(show bidx = ⟨bidx.1, h⟩, from fin.eq_of_veq rfl),
               -valid.modify_aux1 _ _ (le_refl _),
               this, hfl, hl],
@@ -365,7 +365,7 @@ theorem valid.replace_aux (a : α) (b : β a) : Π (l : list (Σ a, β a)), a �
 | []           Hc := false.elim Hc
 | (⟨a', b'⟩::t) Hc := begin
   simp at Hc,
-  simp [replace_aux] without and.comm,
+  simp [replace_aux, -and.comm],
   exact match (by apply_instance : decidable (a' = a)) with
   | is_true e := match a', b', e with ._, b', rfl := ⟨[], t, b', rfl, rfl, by simp⟩ end
   | is_false ne :=

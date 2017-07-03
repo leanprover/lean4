@@ -110,7 +110,7 @@ by induction l; intros; contradiction
 
 lemma length_remove_nth : ∀ (l : list α) (i : ℕ), i < length l → length (remove_nth l i) = length l - 1
 | []      _     h := rfl
-| (x::xs) 0     h := by simp [remove_nth] without add_comm
+| (x::xs) 0     h := by simp [remove_nth, -add_comm]
 | (x::xs) (i+1) h := have i < length xs, from lt_of_succ_lt_succ h,
   by dsimp [remove_nth]; rw [length_remove_nth xs i this, nat.sub_add_cancel (lt_of_le_of_lt (nat.zero_le _) this)]; refl
 

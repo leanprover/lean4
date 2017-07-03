@@ -41,8 +41,8 @@ attribute [simp] boo bla
 example (a b : nat) : a = b → h 0 a = b :=
 begin
   intro h,
-  simp [h] without bla -- should fail if bla is used
+  simp [h, -bla] -- should fail if bla is used
 end
 open tactic
 example (a b : nat) : a = b → h 0 a = b :=
-by simp without bla {contextual := tt}
+by simp [-bla] {contextual := tt}

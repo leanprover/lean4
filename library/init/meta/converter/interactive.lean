@@ -40,8 +40,8 @@ meta def whnf : conv unit :=
 conv.whnf
 
 meta def dsimp (no_dflt : parse only_flag) (es : parse tactic.simp_arg_list) (attr_names : parse with_ident_list)
-               (ids : parse without_ident_list) (cfg : tactic.dsimp_config := {}) : conv unit :=
-do (s, u) ← tactic.mk_simp_set no_dflt attr_names es ids,
+               (cfg : tactic.dsimp_config := {}) : conv unit :=
+do (s, u) ← tactic.mk_simp_set no_dflt attr_names es,
    conv.dsimp (some s) u cfg
 
 meta def trace_lhs : conv unit :=
@@ -109,9 +109,9 @@ do (r, lhs, _) ← tactic.target_lhs_rhs,
   update_lhs new_lhs pr
 
 meta def simp (no_dflt : parse only_flag) (hs : parse tactic.simp_arg_list) (attr_names : parse with_ident_list)
-              (ids : parse without_ident_list) (cfg : tactic.simp_config_ext := {})
+              (cfg : tactic.simp_config_ext := {})
               : conv unit :=
-do (s, u) ← tactic.mk_simp_set no_dflt attr_names hs ids,
+do (s, u) ← tactic.mk_simp_set no_dflt attr_names hs,
    (r, lhs, rhs) ← tactic.target_lhs_rhs,
    (new_lhs, pr) ← tactic.simplify s u lhs cfg.to_simp_config r cfg.discharger,
    update_lhs new_lhs pr,

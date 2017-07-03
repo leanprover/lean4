@@ -77,6 +77,10 @@ For more details, see discussion [here](https://github.com/leanprover/lean/pull/
 
 * Deleted `simph` and `simp_using_hs` tactics. We should use `simp [*]` instead.
 
+* Use `simp [-h]` and `dsimp [-h]` instead of `simp without h` and `dsimp without h`.
+  Moreover, `simp [*, -h]` if `h` is a hypothesis, we are adding all hypotheses but `h`
+  as additional simplification lemmas.
+
 *API name changes*
 
 * `tactic.dsimp` and `tactic.dsimp_core` => `tactic.dsimp_target`

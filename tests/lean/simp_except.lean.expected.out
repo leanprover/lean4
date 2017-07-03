@@ -1,0 +1,22 @@
+simp_except.lean:13:3: error: unknown identifier 'fax'
+state:
+a : ℕ
+⊢ f a = a
+simp_except.lean:16:3: error: simplify tactic failed to simplify
+state:
+a : ℕ
+⊢ f a = a
+simp_except.lean:21:3: error: simplify tactic failed to simplify
+state:
+a : ℕ
+⊢ f a = a
+simp_except.lean:25:3: error: invalid local exception h, '*' was not used
+state:
+a : ℕ,
+h : a = 0
+⊢ a = 0
+simp_except.lean:28:3: error: simplify tactic failed to simplify
+state:
+a : ℕ,
+h : a = 0
+⊢ a = 0

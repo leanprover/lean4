@@ -252,12 +252,12 @@ slift (tactic.interactive.induction p rec_name ids revert)
 open tactic
 
 /-- Simplify the target type of the main goal. -/
-meta def simp (no_dflt : parse only_flag) (hs : parse simp_arg_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list)
+meta def simp (no_dflt : parse only_flag) (hs : parse simp_arg_list) (attr_names : parse with_ident_list)
               (cfg : simp_config_ext := {}) : smt_tactic unit :=
-tactic.interactive.simp no_dflt hs attr_names ids (loc.ns []) cfg
+tactic.interactive.simp no_dflt hs attr_names (loc.ns []) cfg
 
-meta def dsimp (no_dflt : parse only_flag) (es : parse opt_qexpr_list) (attr_names : parse with_ident_list) (ids : parse without_ident_list) : smt_tactic unit :=
-tactic.interactive.dsimp no_dflt es attr_names ids (loc.ns [])
+meta def dsimp (no_dflt : parse only_flag) (es : parse simp_arg_list) (attr_names : parse with_ident_list) : smt_tactic unit :=
+tactic.interactive.dsimp no_dflt es attr_names (loc.ns [])
 
 meta def rsimp : smt_tactic unit :=
 do ccs ← to_cc_state, _root_.rsimp.rsimplify_goal ccs

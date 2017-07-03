@@ -52,7 +52,7 @@ end
 
 example (a b c : nat) : g (f 1, f 2) = 41 :=
 begin
-  dsimp [f] without gax,
+  dsimp [f, -gax],
   guard_target g (20 + 0, 20 + 1) = 41,
   dsimp [g],
   guard_target 20 + 0 + (20 + 1) = 41,

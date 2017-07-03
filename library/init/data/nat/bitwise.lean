@@ -203,13 +203,15 @@ namespace nat
     binary_rec z f (bit b n) = f b n (binary_rec z f n) :=
   begin
     rw [binary_rec.equations._eqn_1],
-    cases (by apply_instance : decidable (bit b n = 0)) with b0 b0; dsimp [dite],
-    { generalize (binary_rec._main._pack._proof_2 (bit b n)) e,
-      rw [bodd_bit, div2_bit], intro e, refl },
-    { generalize (binary_rec._main._pack._proof_1 (bit b n) b0) e,
-      have bf := bodd_bit b n, have n0 := div2_bit b n,
-      rw b0 at bf n0, simp at bf n0, rw [-bf, -n0, binary_rec_zero],
-      exact λe, h.symm },
+    cases (by apply_instance : decidable (bit b n = 0)) with b0 b0,
+    {rw [dif_neg],
+     generalize (binary_rec._main._pack._proof_2 (bit b n)) e,
+     rw [bodd_bit, div2_bit], intro e, refl, assumption},
+    {rw [dif_pos],
+     generalize (binary_rec._main._pack._proof_1 (bit b n) b0) e,
+     have bf := bodd_bit b n, have n0 := div2_bit b n,
+     rw b0 at bf n0, simp at bf n0, rw [-bf, -n0, binary_rec_zero],
+     exact λe, h.symm }
   end
 
   lemma bitwise_bit_aux {f : bool → bool → bool} (h : f ff ff = ff) :

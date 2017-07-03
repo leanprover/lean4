@@ -34,7 +34,10 @@ master branch (aka work in progress branch)
    tries to discharge the subgoal by reducing it to `true`.
    Example: `simp {discharger := assumption}`.
 
-* `simp` can be used to unfold projection applications. Example: `simp [has_add.add]`.
+* `simp` can be used to unfold projection applications when the argument is a type class instance.
+   Example: `simp [has_add.add]` will replace `@has_add.add nat nat.has_add a b` with `nat.add a b`
+
+* `dsimp` has several new configuration options to control reduction (e.g., `iota`, `beta`, `zeta`, ...).
 
 *Changes*
 
@@ -55,6 +58,10 @@ For more details, see discussion [here](https://github.com/leanprover/lean/pull/
 
 * All `dsimp` tactics fail if they did not change anything.
   We can simulate the v3.2.0 using `dsimp {fail_if_unchaged := ff}` or `try dsimp`.
+
+* `dsimp` does not unfold reducible definitions by default anymore.
+  Example: `function.comp` applications will not be unfolded by default.
+  We should use `dsimp [f]` if we want to reduce a reducible definition `f`.
 
 * All `dunfold` and `unfold` tactics fail if they did not unfold anything.
   We can simulate the v3.2.0 using `unfold f {fail_if_unchaged := ff}` or `try {unfold f}`.

@@ -96,6 +96,7 @@ public:
     unfold_core_fn(type_context & ctx, defeq_canonizer::state & dcs, list<name> const & cs, dsimp_config const & cfg):
         dsimplify_core_fn(ctx, dcs, cfg),
         m_cs(to_name_set(cs)) {
+        m_cfg.m_zeta = false;
     }
 };
 

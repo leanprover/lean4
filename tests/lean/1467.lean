@@ -4,7 +4,7 @@ axiom H_f_g : ∀ n, f (g n) = n
 example (m : ℕ) : h m = h m :=
 begin
 let n : ℕ := g m,
-have H : f n = m := begin dsimp, rw H_f_g end,
+have H : f n = m := begin rw H_f_g end,
 subst H, -- Error here
 end
 
@@ -14,14 +14,14 @@ example (m : ℕ) : h m = h m :=
 begin
 let n : ℕ, -- add metavar
 exact g m,
-have H : f n = m := begin dsimp, rw H_f_g end,
+have H : f n = m := begin rw H_f_g end,
 subst H, -- Error here
 end
 
 example (m : ℕ) : h m = h m :=
 begin
 let n : ℕ := g m,
-have H : f n = m := begin dsimp, rw H_f_g end,
+have H : f n = m := begin rw H_f_g end,
 subst m, -- Error here
 end
 
@@ -31,7 +31,7 @@ example (m : ℕ) : h m = h m :=
 begin
 let n : ℕ, -- add metavar
 exact g m,
-have H : f n = m := begin dsimp, rw H_f_g end,
+have H : f n = m := begin rw H_f_g end,
 subst m, -- Error here
 end
 

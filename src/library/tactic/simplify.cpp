@@ -44,6 +44,7 @@ Author: Daniel Selsam, Leonardo de Moura
 #include "library/tactic/app_builder_tactics.h"
 #include "library/tactic/simp_lemmas.h"
 #include "library/tactic/simplify.h"
+#include "library/tactic/dsimplify.h"
 
 #ifndef LEAN_DEFAULT_SIMPLIFY_MAX_STEPS
 #define LEAN_DEFAULT_SIMPLIFY_MAX_STEPS 1000000
@@ -73,6 +74,7 @@ simp_config::simp_config():
     m_beta(false),
     m_eta(true),
     m_proj(true),
+    m_iota(true),
     m_single_pass(false),
     m_fail_if_unchanged(true),
     m_memoize(true) {
@@ -89,9 +91,10 @@ simp_config::simp_config(vm_obj const & obj) {
     m_beta               = to_bool(cfield(obj, 7));
     m_eta                = to_bool(cfield(obj, 8));
     m_proj               = to_bool(cfield(obj, 9));
-    m_single_pass        = to_bool(cfield(obj, 10));
-    m_fail_if_unchanged  = to_bool(cfield(obj, 11));
-    m_memoize            = to_bool(cfield(obj, 12));
+    m_iota               = to_bool(cfield(obj, 10));
+    m_single_pass        = to_bool(cfield(obj, 11));
+    m_fail_if_unchanged  = to_bool(cfield(obj, 12));
+    m_memoize            = to_bool(cfield(obj, 13));
 }
 
 /* -----------------------------------
@@ -736,31 +739,7 @@ simp_result simplify_core_fn::visit_fn(expr const & e) {
 }
 
 expr simplify_core_fn::reduce(expr e) {
-    bool p;
-    do {
-        p = false;
-        if (m_cfg.m_beta) {
-            expr new_e = head_beta_reduce(e);
-            if (!is_eqp(new_e, e)) {
-                e = new_e;
-                p = true;
-            }
-        }
-        if (m_cfg.m_proj) {
-            if (auto v = m_ctx.reduce_projection(e)) {
-                e = *v;
-                p = true;
-            }
-        }
-        if (m_cfg.m_eta) {
-            expr new_e = try_eta(e);
-            if (!is_eqp(new_e, e)) {
-                e = new_e;
-                p = true;
-            }
-        }
-    } while (p);
-    return e;
+    return reduce_beta_eta_proj_iota(m_ctx, e, m_cfg.m_beta, m_cfg.m_eta, m_cfg.m_proj, m_cfg.m_iota);
 }
 
 simp_result simplify_core_fn::reduce(simp_result r) {

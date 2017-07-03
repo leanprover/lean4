@@ -90,7 +90,7 @@ instance : functor set :=
  end,
  map_comp := begin
    intros, apply funext, intro c,
-   dsimp [image, set_of],
+   dsimp [image, set_of, function.comp],
    exact propext ⟨λ ⟨a, ⟨h₁, h₂⟩⟩, ⟨g a, ⟨⟨a, ⟨h₁, rfl⟩⟩, h₂⟩⟩,
                   λ ⟨b, ⟨⟨a, ⟨h₁, h₂⟩⟩, h₃⟩⟩, ⟨a, ⟨h₁, h₂.symm ▸ h₃⟩⟩⟩
  end}

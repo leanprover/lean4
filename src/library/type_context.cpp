@@ -794,6 +794,16 @@ bool type_context::use_zeta() const {
     return m_zeta;
 }
 
+optional<expr> type_context::reduce_recursor(expr const & e) {
+    if (auto r = norm_ext(e))
+        return r;
+    if (auto r = reduce_aux_recursor(e))
+        return r;
+    if (auto r = reduce_large_elim_recursor(e))
+        return r;
+    return none_expr();
+}
+
 /*
   Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
   unfold macros, expand let-expressions, expand assigned meta-variables.

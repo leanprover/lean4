@@ -25,6 +25,7 @@ structure simp_config :=
 (beta : bool)
 (eta  : bool)
 (proj : bool)
+(iota : bool)
 (single_pass : bool)
 (fail_if_unchaged : bool)
 (memoize : bool)
@@ -40,6 +41,7 @@ struct simp_config {
     bool                      m_beta;
     bool                      m_eta;
     bool                      m_proj;
+    bool                      m_iota;
     bool                      m_single_pass;
     bool                      m_fail_if_unchanged;
     bool                      m_memoize;

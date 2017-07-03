@@ -12,7 +12,7 @@ lemma ex3 (p q r : Prop) : p → q → ¬p → r :=
 by using_smt intros
 
 lemma ex4 (a b c : nat) : a > nat.zero → 0 < a :=
-by using_smt intros
+by simp [(>)]; using_smt intros
 
 lemma ex5 (a b c d : nat) : a ≠ d → a = b ∧ b = c → a = c :=
 by using_smt intros

@@ -445,7 +445,7 @@ structure hash_map (α : Type u) [decidable_eq α] (β : α → Type v) :=
 
 def mk_hash_map {α : Type u} [decidable_eq α] {β : α → Type v} (hash_fn : α → nat) (nbuckets := 8) : hash_map α β :=
 let n := if nbuckets = 0 then 8 else nbuckets in
-let nz : n > 0 := by abstract {dsimp, cases nbuckets, {simp, tactic.comp_val}, simp [if_pos, nat.succ_ne_zero], apply nat.zero_lt_succ} in
+let nz : n > 0 := by abstract { cases nbuckets, {simp, tactic.comp_val}, simp [if_pos, nat.succ_ne_zero], apply nat.zero_lt_succ} in
 { hash_fn  := hash_fn,
   size     := 0,
   nbuckets := ⟨n, nz⟩,

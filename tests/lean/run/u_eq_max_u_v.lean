@@ -23,7 +23,7 @@ attribute [simp] semigroup_morphism.multiplicative
   ( f: semigroup_morphism s t ) ( g: semigroup_morphism t u ) : semigroup_morphism s u :=
 {
   map := λ x, g (f x),
-  multiplicative := begin blast, simp end
+  multiplicative := begin intros, simp [coe_fn] end
 }
 
 @[reducible] definition semigroup_product { α β : Type u } ( s : semigroup α ) ( t: semigroup β ) : semigroup (α × β) := {
@@ -45,7 +45,7 @@ definition semigroup_morphism_product
       -- cf https://groups.google.com/d/msg/lean-user/bVs5FdjClp4/tfHiVjLIBAAJ
       intros,
       unfold has_mul.mul,
-      dsimp,
+      dsimp [coe_fn],
       simp
     end
 }

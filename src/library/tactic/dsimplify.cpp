@@ -24,6 +24,40 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
+expr reduce_beta_eta_proj_iota(type_context & ctx, expr e, bool beta, bool eta, bool proj, bool iota) {
+    bool p;
+    do {
+        p = false;
+        if (beta) {
+            expr new_e = head_beta_reduce(e);
+            if (!is_eqp(new_e, e)) {
+                e = new_e;
+                p = true;
+            }
+        }
+        if (proj) {
+            if (auto v = ctx.reduce_projection(e)) {
+                e = *v;
+                p = true;
+            }
+        }
+        if (eta) {
+            expr new_e = try_eta(e);
+            if (!is_eqp(new_e, e)) {
+                e = new_e;
+                p = true;
+            }
+        }
+        if (iota) {
+            if (auto v = ctx.reduce_recursor(e)) {
+                e = *v;
+                p = true;
+            }
+        }
+    } while (p);
+    return e;
+}
+
 dsimp_config::dsimp_config():
     m_md(transparency_mode::Reducible),
     m_max_steps(LEAN_DEFAULT_DSIMPLIFY_MAX_STEPS),
@@ -31,6 +65,10 @@ dsimp_config::dsimp_config():
     m_single_pass(false),
     m_fail_if_unchanged(true),
     m_eta(false),
+    m_zeta(false),
+    m_beta(true),
+    m_proj(true),
+    m_iota(true),
     m_memoize(true) {
 }
 dsimp_config::dsimp_config(vm_obj const & o) {
@@ -40,7 +78,11 @@ dsimp_config::dsimp_config(vm_obj const & o) {
     m_single_pass        = to_bool(cfield(o, 3));
     m_fail_if_unchanged  = to_bool(cfield(o, 4));
     m_eta                = to_bool(cfield(o, 5));
-    m_memoize            = to_bool(cfield(o, 6));
+    m_zeta               = to_bool(cfield(o, 6));
+    m_beta               = to_bool(cfield(o, 7));
+    m_proj               = to_bool(cfield(o, 8));
+    m_iota               = to_bool(cfield(o, 9));
+    m_memoize            = to_bool(cfield(o, 10));
 }
 
 #define lean_dsimp_trace(CTX, N, CODE) lean_trace(N, scope_trace_env _scope1(CTX.env(), CTX); CODE)
@@ -82,25 +124,29 @@ expr dsimplify_core_fn::visit_binding(expr const & e) {
 }
 
 expr dsimplify_core_fn::visit_let(expr const & e) {
-    type_context::tmp_locals locals(m_ctx);
-    expr b = e;
-    bool modified = false;
-    while (is_let(b)) {
-        expr t     = instantiate_rev(let_type(b), locals.size(), locals.data());
-        expr v     = instantiate_rev(let_value(b), locals.size(), locals.data());
-        expr new_t = visit(t);
-        expr new_v = visit(v);
-        if (!is_eqp(t, new_t) || !is_eqp(v, new_v)) modified = true;
-        locals.push_let(let_name(b), new_t, new_v);
-        b = let_body(b);
+    if (m_cfg.m_zeta) {
+        return visit(instantiate(let_body(e), let_value(e)));
+    } else {
+        type_context::tmp_locals locals(m_ctx);
+        expr b = e;
+        bool modified = false;
+        while (is_let(b)) {
+            expr t     = instantiate_rev(let_type(b), locals.size(), locals.data());
+            expr v     = instantiate_rev(let_value(b), locals.size(), locals.data());
+            expr new_t = visit(t);
+            expr new_v = visit(v);
+            if (!is_eqp(t, new_t) || !is_eqp(v, new_v)) modified = true;
+            locals.push_let(let_name(b), new_t, new_v);
+            b = let_body(b);
+        }
+        b = instantiate_rev(b, locals.size(), locals.data());
+        expr new_b = visit(b);
+        if (!is_eqp(b, new_b)) modified = true;
+        if (modified)
+            return locals.mk_lambda(new_b);
+        else
+            return e;
     }
-    b = instantiate_rev(b, locals.size(), locals.data());
-    expr new_b = visit(b);
-    if (!is_eqp(b, new_b)) modified = true;
-    if (modified)
-        return locals.mk_lambda(new_b);
-    else
-        return e;
 }
 
 expr dsimplify_core_fn::visit_app(expr const & e) {
@@ -232,18 +278,15 @@ metavar_context const & dsimplify_core_fn::mctx() const {
     return m_ctx.mctx();
 }
 
-expr dsimplify_fn::whnf(expr const & e) {
-    expr new_e = m_ctx.whnf(e);
-    if (m_cfg.m_eta)
-        new_e = try_eta(new_e);
-    return new_e;
+expr dsimplify_fn::reduce(expr const & e) {
+    return reduce_beta_eta_proj_iota(m_ctx, e, m_cfg.m_beta, m_cfg.m_eta, m_cfg.m_proj, m_cfg.m_iota);
 }
 
 optional<pair<expr, bool>> dsimplify_fn::pre(expr const & e) {
     type_context::transparency_scope s(m_ctx, m_cfg.m_md);
-    expr new_e = whnf(e);
+    expr new_e = reduce(e);
     if (new_e != e) {
-        lean_dsimp_trace(m_ctx, "dsimplify", tout() << "whnf\n" << e << "\n==>\n" << new_e << "\n";);
+        lean_dsimp_trace(m_ctx, "dsimplify", tout() << "reduce\n" << e << "\n==>\n" << new_e << "\n";);
         return optional<pair<expr, bool>>(new_e, true);
     } else {
         return optional<pair<expr, bool>>();
@@ -254,9 +297,9 @@ optional<pair<expr, bool>> dsimplify_fn::post(expr const & e) {
     expr curr_e;
     {
         type_context::transparency_scope s(m_ctx, m_cfg.m_md);
-        curr_e = whnf(e);
+        curr_e = reduce(e);
         if (curr_e != e) {
-            lean_dsimp_trace(m_ctx, "dsimplify", tout() << "whnf\n" << e << "\n==>\n" << curr_e << "\n";);
+            lean_dsimp_trace(m_ctx, "dsimplify", tout() << "reduce\n" << e << "\n==>\n" << curr_e << "\n";);
         }
     }
     while (true) {

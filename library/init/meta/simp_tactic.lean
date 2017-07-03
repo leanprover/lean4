@@ -69,6 +69,10 @@ structure dsimp_config :=
 (single_pass : bool        := ff)
 (fail_if_unchanged         := tt)
 (eta                       := tt)
+(zeta : bool               := tt)
+(beta : bool               := tt)
+(proj : bool               := tt) -- reduce projections
+(iota : bool               := tt)
 (memoize                   := tt)
 end tactic
 
@@ -195,6 +199,7 @@ structure simp_config :=
 (beta : bool               := tt)
 (eta  : bool               := tt)
 (proj : bool               := tt) -- reduce projections
+(iota : bool               := tt)
 (single_pass : bool        := ff)
 (fail_if_unchanged         := tt)
 (memoize                   := tt)

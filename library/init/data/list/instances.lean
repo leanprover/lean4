@@ -36,7 +36,7 @@ instance : monad list :=
  id_map := begin
    intros _ xs, induction xs with x xs ih,
    { refl },
-   { dsimp at ih, dsimp, simph }
+   { dsimp [function.comp] at ih, dsimp [function.comp], simph }
  end,
  pure_bind := by simp_intros,
  bind_assoc := begin

@@ -42,7 +42,7 @@ conv.whnf
 meta def dsimp (no_dflt : parse only_flag) (es : parse opt_qexpr_list) (attr_names : parse with_ident_list)
                (ids : parse without_ident_list) (cfg : tactic.dsimp_config := {}) : conv unit :=
 do (s, u) ← tactic.mk_simp_set no_dflt attr_names es ids,
-   conv.dsimp (some s) cfg
+   conv.dsimp (some s) u cfg
 
 meta def trace_lhs : conv unit :=
 lhs >>= tactic.trace

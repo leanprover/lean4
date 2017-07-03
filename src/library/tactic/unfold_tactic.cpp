@@ -165,7 +165,7 @@ vm_obj tactic_dunfold_expr(vm_obj const & _e, vm_obj const & m, vm_obj const & _
 }
 
 void initialize_unfold_tactic() {
-    DECLARE_VM_BUILTIN(name({"tactic", "unfold_projection"}),  tactic_unfold_projection);
+    DECLARE_VM_BUILTIN(name({"tactic", "unfold_proj"}),  tactic_unfold_projection);
     DECLARE_VM_BUILTIN(name({"tactic", "dunfold_core"}),       tactic_dunfold_core);
     DECLARE_VM_BUILTIN(name({"tactic", "dunfold_expr"}),       tactic_dunfold_expr);
 }

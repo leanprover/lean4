@@ -171,7 +171,6 @@ public:
 class simplify_fn : public simplify_ext_core_fn {
 protected:
     name_set m_to_unfold;
-    optional<simp_result> unfold_step(expr const & e);
     virtual optional<pair<simp_result, bool>> pre(expr const & e, optional<expr> const & parent) override;
     virtual optional<pair<simp_result, bool>> post(expr const & e, optional<expr> const & parent) override;
     virtual optional<expr> prove(expr const & e) override;

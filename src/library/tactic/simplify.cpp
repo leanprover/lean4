@@ -1050,31 +1050,9 @@ optional<pair<simp_result, bool>> simplify_fn::pre(expr const &, optional<expr> 
     return no_ext_result();
 }
 
-static optional<simp_result> to_opt_simp_result(optional<expr> const & e) {
-    if (!e) return optional<simp_result>();
-    return optional<simp_result>(*e);
-}
-
-optional<simp_result> simplify_fn::unfold_step(expr const & e) {
-    if (m_to_unfold.empty())
-        return optional<simp_result>();
-    if (!is_app(e) && !is_constant(e))
-        return optional<simp_result>();
-    expr const & fn = get_app_fn(e);
-    if (!is_constant(fn) || !m_to_unfold.contains(const_name(fn)))
-        return optional<simp_result>();
-    type_context::transparency_scope scope(m_ctx, transparency_mode::Instances);
-    optional<expr> new_e;
-    if (is_projection(m_ctx.env(), const_name(fn))) {
-        return to_opt_simp_result(m_ctx.reduce_projection(e));
-    } else {
-        return to_opt_simp_result(unfold_term(m_ctx.env(), e));
-    }
-}
-
 optional<pair<simp_result, bool>> simplify_fn::post(expr const & e, optional<expr> const &) {
-    if (auto r = unfold_step(e))
-        return to_ext_result(*r);
+    if (auto r = unfold_step(m_ctx, e, m_to_unfold, false))
+        return to_ext_result(simp_result(*r));
     simp_result r = rewrite(e);
     if (r.get_new() != e) {
         return to_ext_result(r);

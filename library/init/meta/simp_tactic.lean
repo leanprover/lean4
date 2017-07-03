@@ -73,12 +73,15 @@ structure dsimp_config :=
 (beta : bool               := tt)
 (proj : bool               := tt) -- reduce projections
 (iota : bool               := tt)
+(unfold_reducible          := ff) -- if tt, reducible definitions will be unfolded (delta-reduced)
 (memoize                   := tt)
 end tactic
 
 /-- (Definitional) Simplify the given expression using *only* reflexivity equality lemmas from the given set of lemmas.
-   The resulting expression is definitionally equal to the input. -/
-meta constant simp_lemmas.dsimplify (s : simp_lemmas) (e : expr) (cfg : tactic.dsimp_config := {}) : tactic expr
+   The resulting expression is definitionally equal to the input.
+
+   The list `u` contains defintions to be delta-reduced, and projections to be reduced.-/
+meta constant simp_lemmas.dsimplify (s : simp_lemmas) (u : list name := []) (e : expr) (cfg : tactic.dsimp_config := {}) : tactic expr
 
 namespace tactic
 /- Remark: the configuration parameters `cfg.md` and `cfg.eta` are ignored by this tactic. -/
@@ -110,18 +113,15 @@ meta def dsimplify
                        (λ u e, do r ← post e, return (u, r)) e,
         return new_e
 
-meta def dsimp_core (s : simp_lemmas) (cfg : dsimp_config := {}) : tactic unit :=
-do t ← target, s.dsimplify t cfg >>= unsafe_change
+meta def get_simp_lemmas_or_default : option simp_lemmas → tactic simp_lemmas
+| none     := simp_lemmas.mk_default
+| (some s) := return s
 
-meta def dsimp (cfg : dsimp_config := {}) : tactic unit :=
-do s ← simp_lemmas.mk_default, dsimp_core s cfg
+meta def dsimp_target (s : option simp_lemmas := none) (u : list name := []) (cfg : dsimp_config := {}) : tactic unit :=
+do s ← get_simp_lemmas_or_default s, t ← target, s.dsimplify u t cfg >>= unsafe_change
 
-meta def dsimp_at_core (s : simp_lemmas) (h : expr) (cfg : dsimp_config := {}) : tactic unit :=
-revert_and_transform (λ e, s.dsimplify e cfg) h
-
-meta def dsimp_at (h : expr) (cfg : dsimp_config := {}) : tactic unit :=
-do s ← simp_lemmas.mk_default, dsimp_at_core s h cfg
-
+meta def dsimp_hyp (h : expr) (s : option simp_lemmas := none) (u : list name := []) (cfg : dsimp_config := {}) : tactic unit :=
+do s ← get_simp_lemmas_or_default s, revert_and_transform (λ e, s.dsimplify u e cfg) h
 
 /- Remark: we use transparency.instances by default to make sure that we
    can unfold projections of type classes. Example:
@@ -130,8 +130,6 @@ do s ← simp_lemmas.mk_default, dsimp_at_core s h cfg
 -/
 
 /-- If `e` is a projection application, try to unfold it, otherwise fail. -/
-meta constant unfold_projection (e : expr) (md := transparency.instances) : tactic expr
-
 meta constant dunfold_expr (e : expr) (md := transparency.instances) : tactic expr
 
 structure dunfold_config extends dsimp_config :=
@@ -157,7 +155,7 @@ cs.any (λ c,
        f.is_constant && f.const_name.is_internal && (f.const_name.get_prefix = c))
 
 /-- Delta reduce the given constant names -/
-meta def delta_expr (cs : list name) (e : expr) (cfg : delta_config) : tactic expr :=
+meta def delta (cs : list name) (e : expr) (cfg : delta_config := {}) : tactic expr :=
 let unfold (u : unit) (e : expr) : tactic (unit × expr × bool) := do
   guard (is_delta_target e cs),
   (expr.const f_name f_lvls) ← return e.get_app_fn,
@@ -169,24 +167,29 @@ let unfold (u : unit) (e : expr) : tactic (unit × expr × bool) := do
 in do (c, new_e) ← dsimplify_core () (λ c e, failed) unfold e {max_steps := cfg.max_steps, canonize_instances := cfg.visit_instances},
       return new_e
 
-meta def delta (cs : list name) : tactic unit :=
-do t ← target, delta_expr cs t {} >>= unsafe_change
+meta def delta_target (cs : list name) (cfg : delta_config := {}) : tactic unit :=
+do t ← target, delta cs t cfg >>= unsafe_change
 
-meta def delta_at (cs : list name) : expr → tactic unit :=
-revert_and_transform (λ e, delta_expr cs e {})
+meta def delta_hyp (cs : list name) (h : expr) (cfg : delta_config := {}) :tactic unit :=
+revert_and_transform (λ e, delta cs e cfg) h
 
-meta def unfold_projections_core (e : expr) (md := transparency.instances) (max_steps : nat := simp.default_max_steps) : tactic expr :=
+structure unfold_proj_config extends dsimp_config :=
+(md := transparency.instances)
+
+meta constant unfold_proj (e : expr) (md := transparency.instances) : tactic expr
+
+meta def unfold_projs (e : expr) (cfg : unfold_proj_config := {}) : tactic expr :=
 let unfold (changed : bool) (e : expr) : tactic (bool × expr × bool) := do
-  new_e ← unfold_projection e md,
+  new_e ← unfold_proj e cfg.md,
   return (tt, new_e, tt)
-in do (tt, new_e) ← dsimplify_core ff (λ c e, failed) unfold e {max_steps := max_steps, md := md} | fail "no projections to unfold",
+in do (tt, new_e) ← dsimplify_core ff (λ c e, failed) unfold e cfg.to_dsimp_config | fail "no projections to unfold",
       return new_e
 
-meta def unfold_projections (md := transparency.instances) (max_steps : nat := simp.default_max_steps) : tactic unit :=
-do t ← target, unfold_projections_core t md max_steps >>= unsafe_change
+meta def unfold_projs_target (cfg : unfold_proj_config := {}) : tactic unit :=
+do t ← target, unfold_projs t cfg >>= unsafe_change
 
-meta def unfold_projections_at (h : expr) (md := transparency.instances) (max_steps : nat := simp.default_max_steps) : tactic unit :=
-revert_and_transform (λ e, unfold_projections_core e md max_steps) h
+meta def unfold_projs_hyp (h : expr) (cfg : unfold_proj_config := {}) : tactic unit :=
+revert_and_transform (λ e, unfold_projs e cfg) h
 
 structure simp_config :=
 (max_steps : nat           := simp.default_max_steps)
@@ -215,7 +218,7 @@ structure simp_config :=
 meta constant simplify (s : simp_lemmas) (to_unfold : list name) (e : expr) (cfg : simp_config := {}) (r : name := `eq)
                        (discharger : tactic unit := failed) : tactic (expr × expr)
 
-meta def simplify_goal (S : simp_lemmas) (to_unfold : list name := []) (cfg : simp_config := {}) (discharger : tactic unit := failed) : tactic unit :=
+meta def simp_target (S : simp_lemmas) (to_unfold : list name := []) (cfg : simp_config := {}) (discharger : tactic unit := failed) : tactic unit :=
 do t ← target,
    (new_t, pr) ← simplify S to_unfold t cfg `eq discharger,
    replace_target new_t pr
@@ -274,7 +277,7 @@ meta def intro1_aux : bool → list name → tactic expr
 | _  _       := failed
 
 meta def simp_intro_aux (cfg : simp_config) (updt : bool) : simp_lemmas → bool → list name → tactic simp_lemmas
-| S tt     [] := try (simplify_goal S [] cfg) >> return S
+| S tt     [] := try (simp_target S [] cfg) >> return S
 | S use_ns ns := do
   t ← target,
   if t.is_napp_of `not 1 then
@@ -301,7 +304,7 @@ meta def simp_intro_aux (cfg : simp_config) (updt : bool) : simp_lemmas → bool
     new_t ← whnf t reducible,
     if new_t.is_pi then unsafe_change new_t >> simp_intro_aux S use_ns ns
     else
-      try (simplify_goal S [] cfg) >>
+      try (simp_target S [] cfg) >>
       mcond (expr.is_pi <$> target)
         (simp_intro_aux S use_ns ns)
         (if use_ns ∧ ¬ns.empty then failed else return S)
@@ -423,7 +426,6 @@ do
   let s := remove_deps s t,
   return $ ctx.filter (λ h, s.contains h.local_uniq_name)
 
-
 section simp_all
 
 meta structure simp_all_entry :=
@@ -471,7 +473,7 @@ private meta def loop (cfg : simp_config) (discharger : tactic unit) (to_unfold 
   if m then loop r [] s ff
   else do
     add_new_hyps r,
-    target_changed ← (simplify_goal s to_unfold cfg discharger >> return tt) <|> return ff,
+    target_changed ← (simp_target s to_unfold cfg discharger >> return tt) <|> return ff,
     guard (cfg.fail_if_unchanged = ff ∨ target_changed ∨ r.any (λ e, e.pr ≠ none)) <|> fail "simp_all tactic failed to simplify",
     clear_old_hyps r
 | (e::es) r  s m := do

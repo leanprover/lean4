@@ -207,7 +207,7 @@ static dsimplify_fn mk_dsimp(type_context & ctx, defeq_can_state & dcs, smt_pre_
     simp_lemmas_for eq_lemmas;
     if (auto r = cfg.m_simp_lemmas.find(get_eq_name()))
         eq_lemmas = *r;
-    return dsimplify_fn(ctx, dcs, eq_lemmas, dcfg);
+    return dsimplify_fn(ctx, dcs, eq_lemmas, list<name>(), dcfg);
 }
 
 static simplify_fn mk_simp(type_context & ctx, defeq_can_state & dcs, smt_pre_config const & cfg) {

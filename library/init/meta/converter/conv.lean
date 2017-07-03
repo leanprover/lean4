@@ -67,13 +67,13 @@ reflexivity
 meta def whnf : conv unit :=
 lhs >>= tactic.whnf >>= change
 
-meta def dsimp (s : option simp_lemmas := none) (cfg : dsimp_config := {}) : conv unit :=
+meta def dsimp (s : option simp_lemmas := none) (u : list name := []) (cfg : dsimp_config := {}) : conv unit :=
 do s ← match s with
        | some s := return s
        | none   := simp_lemmas.mk_default
        end,
    l ← lhs,
-   s.dsimplify l cfg >>= change
+   s.dsimplify u l cfg >>= change
 
 private meta def congr_aux : list congr_arg_kind → list expr → tactic (list expr × list expr)
 | []      []      := return ([], [])

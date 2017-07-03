@@ -256,7 +256,7 @@ static expr dsimp(type_context & ctx, transparency_mode md, expr const & e) {
     cfg.m_canonize_instances = false;
     cfg.m_max_steps          = 1000000; /* TODO(Leo): add parameter? */
     cfg.m_eta                = true;
-    return dsimplify_fn(ctx, dcs, simp_lemmas_for(), cfg)(e);
+    return dsimplify_fn(ctx, dcs, simp_lemmas_for(), list<name>(), cfg)(e);
 }
 
 struct mk_hinst_lemma_fn {

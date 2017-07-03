@@ -9,6 +9,6 @@ example (n m : nat) (H : succ (succ n) = succ m) : true :=
 by do H  ← get_local `H,
       t  ← infer_type H,
       s  ← simp_lemmas.mk_default,
-      t' ← s^.dsimplify t,
+      t' ← s^.dsimplify [] t,
       trace t',
       exact (expr.const `trivial [])

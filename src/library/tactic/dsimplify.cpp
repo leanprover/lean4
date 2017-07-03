@@ -12,8 +12,10 @@ Author: Leonardo de Moura
 #include "library/fun_info.h"
 #include "library/util.h"
 #include "library/trace.h"
+#include "library/reducible.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_nat.h"
+#include "library/vm/vm_list.h"
 #include "library/vm/vm_expr.h"
 #include "library/tactic/dsimplify.h"
 #include "library/tactic/simp_lemmas.h"
@@ -58,6 +60,26 @@ expr reduce_beta_eta_proj_iota(type_context & ctx, expr e, bool beta, bool eta, 
     return e;
 }
 
+optional<expr> unfold_step(type_context & ctx, expr const & e, name_set const & to_unfold, bool unfold_reducible) {
+    if (!unfold_reducible && to_unfold.empty())
+        return none_expr();
+    if (!is_app(e) && !is_constant(e))
+        return none_expr();
+    expr const & fn = get_app_fn(e);
+    if (!is_constant(fn))
+        return none_expr();
+    name const & fn_name = const_name(fn);
+    if (!to_unfold.contains(const_name(fn)) && (!unfold_reducible || !is_reducible(ctx.env(), fn_name)))
+        return none_expr();
+    type_context::transparency_scope scope(ctx, transparency_mode::Instances);
+    optional<expr> new_e;
+    if (is_projection(ctx.env(), const_name(fn))) {
+        return ctx.reduce_projection(e);
+    } else {
+        return unfold_term(ctx.env(), e);
+    }
+}
+
 dsimp_config::dsimp_config():
     m_md(transparency_mode::Reducible),
     m_max_steps(LEAN_DEFAULT_DSIMPLIFY_MAX_STEPS),
@@ -69,6 +91,7 @@ dsimp_config::dsimp_config():
     m_beta(true),
     m_proj(true),
     m_iota(true),
+    m_unfold_reducible(false),
     m_memoize(true) {
 }
 dsimp_config::dsimp_config(vm_obj const & o) {
@@ -82,7 +105,8 @@ dsimp_config::dsimp_config(vm_obj const & o) {
     m_beta               = to_bool(cfield(o, 7));
     m_proj               = to_bool(cfield(o, 8));
     m_iota               = to_bool(cfield(o, 9));
-    m_memoize            = to_bool(cfield(o, 10));
+    m_unfold_reducible   = to_bool(cfield(o, 10));
+    m_memoize            = to_bool(cfield(o, 11));
 }
 
 #define lean_dsimp_trace(CTX, N, CODE) lean_trace(N, scope_trace_env _scope1(CTX.env(), CTX); CODE)
@@ -294,6 +318,8 @@ optional<pair<expr, bool>> dsimplify_fn::pre(expr const & e) {
 }
 
 optional<pair<expr, bool>> dsimplify_fn::post(expr const & e) {
+    if (auto r = unfold_step(m_ctx, e, m_to_unfold, m_cfg.m_unfold_reducible))
+        return optional<pair<expr, bool>>(*r, true);
     expr curr_e;
     {
         type_context::transparency_scope s(m_ctx, m_cfg.m_md);
@@ -332,9 +358,11 @@ optional<pair<expr, bool>> dsimplify_fn::post(expr const & e) {
         return optional<pair<expr, bool>>(curr_e, true);
 }
 
-dsimplify_fn::dsimplify_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas_for const & lemmas, dsimp_config const & cfg):
+dsimplify_fn::dsimplify_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas_for const & lemmas,
+                           list<name> const & to_unfold, dsimp_config const & cfg):
     dsimplify_core_fn(ctx, dcs, cfg),
-    m_simp_lemmas(lemmas) {
+    m_simp_lemmas(lemmas),
+    m_to_unfold(to_name_set(to_unfold)) {
 }
 
 class tactic_dsimplify_fn : public dsimplify_core_fn {
@@ -404,16 +432,17 @@ vm_obj tactic_dsimplify_core(vm_obj const &, vm_obj const & a,
     }
 }
 
-vm_obj simp_lemmas_dsimplify(vm_obj const & lemmas, vm_obj const & e, vm_obj const & _cfg, vm_obj const & _s) {
+vm_obj simp_lemmas_dsimplify(vm_obj const & lemmas, vm_obj const & u, vm_obj const & e, vm_obj const & _cfg, vm_obj const & _s) {
     tactic_state const & s = tactic::to_state(_s);
     dsimp_config cfg(_cfg);
     try {
-        type_context ctx    = mk_type_context_for(s, cfg.m_md);
-        defeq_can_state dcs = s.dcs();
+        type_context ctx     = mk_type_context_for(s, cfg.m_md);
+        defeq_can_state dcs  = s.dcs();
+        list<name> to_unfold = to_list_name(u);
         simp_lemmas_for dlemmas;
         if (auto * dls = to_simp_lemmas(lemmas).find(get_eq_name()))
             dlemmas = *dls;
-        dsimplify_fn F(ctx, dcs, dlemmas, cfg);
+        dsimplify_fn F(ctx, dcs, dlemmas, to_unfold, cfg);
         expr new_e = F(to_expr(e));
         if (cfg.m_fail_if_unchanged && to_expr(e) == new_e) {
             return tactic::mk_exception("dsimplify tactic failed to simplify", s);

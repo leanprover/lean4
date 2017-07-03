@@ -41,5 +41,4 @@ simp_result join(type_context & tctx, name const & rel, simp_result const & r1, 
 
 simp_result finalize_eq(abstract_type_context & tctx, simp_result const & r);
 simp_result join_eq(abstract_type_context & tctx, simp_result const & r1, simp_result const & r2);
-
 }

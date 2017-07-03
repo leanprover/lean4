@@ -34,7 +34,7 @@ master branch (aka work in progress branch)
    tries to discharge the subgoal by reducing it to `true`.
    Example: `simp {discharger := assumption}`.
 
-* `simp` can be used to unfold projection applications when the argument is a type class instance.
+* `simp` and `dsimp` can be used to unfold projection applications when the argument is a type class instance.
    Example: `simp [has_add.add]` will replace `@has_add.add nat nat.has_add a b` with `nat.add a b`
 
 * `dsimp` has several new configuration options to control reduction (e.g., `iota`, `beta`, `zeta`, ...).
@@ -62,6 +62,8 @@ For more details, see discussion [here](https://github.com/leanprover/lean/pull/
 * `dsimp` does not unfold reducible definitions by default anymore.
   Example: `function.comp` applications will not be unfolded by default.
   We should use `dsimp [f]` if we want to reduce a reducible definition `f`.
+  Another option is to use the new configuration parameter `unfold_reducible`.
+  Example `dsimp {unfold_reducible := tt}`
 
 * All `dunfold` and `unfold` tactics fail if they did not unfold anything.
   We can simulate the v3.2.0 using `unfold f {fail_if_unchaged := ff}` or `try {unfold f}`.
@@ -73,6 +75,18 @@ For more details, see discussion [here](https://github.com/leanprover/lean/pull/
    and it is shorthand for `unfold f {single_pass := tt}`.
    Remark: in v3.2.0, `unfold` was just an alias for the `dunfold` tactic.
 
+*API name changes*
+
+* `tactic.dsimp` and `tactic.dsimp_core` => `tactic.dsimp_target`
+* `tactic.dsimp_at_core` and `tactic.dsimp_at` => `tactic.dsimp_hyp`
+* `tactic.delta_expr` => `tactic.delta`
+* `tactic.delta` => `tactic.delta_target`
+* `tactic.delta_at` => `tactic.delta_hyp`
+* `tactic.simplify_goal` => `tactic.simp_target`
+* `tactic.unfold_projection` => `tactic.unfold_proj`
+* `tactic.unfold_projections_core` => `tactic.unfold_projs`
+* `tactic.unfold_projections` => `tactic.unfold_projs_target`
+* `tactic.unfold_projections_at` => `tactic.unfold_projs_hyp`
 
 v3.2.0 (18 June 2017)
 -------------

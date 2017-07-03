@@ -813,18 +813,18 @@ do (s, u) ← mk_simp_set no_dflt attr_names hs wo_ids,
    end,
    try triv >> try (reflexivity reducible)
 
-private meta def dsimp_hyps (s : simp_lemmas) (hs : list name) (cfg : dsimp_config := {}) : tactic unit :=
-hs.mfor' (λ h_name, do h ← get_local h_name, dsimp_at_core s h cfg)
+private meta def dsimp_hyps (s : simp_lemmas) (u : list name) (hs : list name) (cfg : dsimp_config := {}) : tactic unit :=
+hs.mfor' (λ h_name, do h ← get_local h_name, dsimp_hyp h s u cfg)
 
 meta def dsimp (no_dflt : parse only_flag) (es : parse opt_qexpr_list) (attr_names : parse with_ident_list)
                (ids : parse without_ident_list) (l : parse location) (cfg : dsimp_config := {}) : tactic unit :=
 match l with
-| (loc.ns [])    := do (s, u) ← mk_simp_set no_dflt attr_names es ids, tactic.dsimp_core s cfg
-| (loc.ns hs)    := do (s, u) ← mk_simp_set no_dflt attr_names es ids, dsimp_hyps s hs cfg
+| (loc.ns [])    := do (s, u) ← mk_simp_set no_dflt attr_names es ids, dsimp_target s u cfg
+| (loc.ns hs)    := do (s, u) ← mk_simp_set no_dflt attr_names es ids, dsimp_hyps s u hs cfg
 | (loc.wildcard) := do ls ← local_context,
                        n ← revert_lst ls,
                        (s, u) ← mk_simp_set no_dflt attr_names es ids,
-                       tactic.dsimp_core s cfg,
+                       dsimp_target s u cfg,
                        intron n
 end
 
@@ -904,28 +904,28 @@ end
 
 private meta def delta_hyps : list name → list name → tactic unit
 | cs []      := skip
-| cs (h::hs) := get_local h >>= delta_at cs >> delta_hyps cs hs
+| cs (h::hs) := get_local h >>= delta_hyp cs >> delta_hyps cs hs
 
 meta def delta : parse ident* → parse location → tactic unit
-| cs (loc.ns [])    := do new_cs ← to_qualified_names cs, tactic.delta new_cs
+| cs (loc.ns [])    := do new_cs ← to_qualified_names cs, delta_target new_cs
 | cs (loc.ns hs)    := do new_cs ← to_qualified_names cs, delta_hyps new_cs hs
 | cs (loc.wildcard) := do ls ← tactic.local_context,
                           n ← revert_lst ls,
                           new_cs ← to_qualified_names cs,
-                          tactic.delta new_cs,
+                          delta_target new_cs,
                           intron n
 
-private meta def unfold_projections_hyps : list name → tactic unit
+private meta def unfold_projs_hyps : list name → tactic unit
 | []      := skip
-| (h::hs) := get_local h >>= unfold_projections_at >> unfold_projections_hyps hs
+| (h::hs) := get_local h >>= unfold_projs_hyp >> unfold_projs_hyps hs
 
 /--
 This tactic unfolds all structure projections.
 -/
-meta def unfold_projections : parse location → tactic unit
-| (loc.ns [])    := tactic.unfold_projections
-| (loc.ns hs)    := unfold_projections_hyps hs
-| (loc.wildcard) := do ls ← local_context, unfold_projections_hyps (ls.map expr.local_pp_name)
+meta def unfold_projs : parse location → tactic unit
+| (loc.ns [])    := tactic.unfold_projs_target
+| (loc.ns hs)    := unfold_projs_hyps hs
+| (loc.wildcard) := do ls ← local_context, unfold_projs_hyps (ls.map expr.local_pp_name)
 
 end interactive
 

@@ -6,10 +6,9 @@ rfl
 
 example (a b : nat) : a = b → succ (succ a) = succ (b + 1) :=
 by do intro `Heq,
-      t  ← target,
       trace_state,
       s ← simp_lemmas.mk_default,
-      t' ← s^.dsimplify t,
+      t' ← target >>= s^.dsimplify,
       change t',
       trace "---- after change ----",
       trace_state,

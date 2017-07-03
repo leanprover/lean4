@@ -79,7 +79,7 @@ private meta def unfold_sizeof_loop : tactic unit :=
 do
   dunfold [``sizeof, ``has_sizeof.sizeof] {fail_if_unchanged := ff},
   S ← target >>= collect_sizeof_lemmas,
-  (simplify_goal S >> unfold_sizeof_loop)
+  (simp_target S >> unfold_sizeof_loop)
   <|>
   try `[simp]
 

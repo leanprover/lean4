@@ -1004,8 +1004,8 @@ do tgt : expr ← target,
 meta def by_cases (e : expr) (h : name) : tactic unit :=
 do dec_e ← (mk_app `decidable [e] <|> fail "by_cases tactic failed, type is not a proposition"),
    inst  ← (mk_instance dec_e <|> fail "by_cases tactic failed, type of given expression is not decidable"),
-   cases inst [h, h],
-   swap
+   em    ← mk_app `decidable.em [e, inst],
+   cases em [h, h]
 
 private meta def get_undeclared_const (env : environment) (base : name) : ℕ → name | i :=
 let n := base <.> ("_aux_" ++ repr i) in

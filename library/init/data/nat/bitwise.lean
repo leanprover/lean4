@@ -202,16 +202,20 @@ namespace nat
     (h : f ff 0 z = z) (b n) :
     binary_rec z f (bit b n) = f b n (binary_rec z f n) :=
   begin
-    rw [binary_rec.equations._eqn_1],
-    cases (by apply_instance : decidable (bit b n = 0)) with b0 b0,
-    {rw [dif_neg],
+    rw [binary_rec],
+    by_cases (bit b n = 0) with h',
+    {simp [dif_pos h'],
+     generalize (binary_rec._main._pack._proof_1 (bit b n) h') e,
+     have bf := bodd_bit b n,
+     have n0 := div2_bit b n,
+     rw h' at bf n0,
+     simp at bf n0,
+     rw [-bf, -n0, binary_rec_zero],
+     intros, exact h.symm },
+    {simp [dif_neg h'],
      generalize (binary_rec._main._pack._proof_2 (bit b n)) e,
-     rw [bodd_bit, div2_bit], intro e, refl, assumption},
-    {rw [dif_pos],
-     generalize (binary_rec._main._pack._proof_1 (bit b n) b0) e,
-     have bf := bodd_bit b n, have n0 := div2_bit b n,
-     rw b0 at bf n0, simp at bf n0, rw [-bf, -n0, binary_rec_zero],
-     exact λe, h.symm }
+     rw [bodd_bit, div2_bit],
+     intros, refl}
   end
 
   lemma bitwise_bit_aux {f : bool → bool → bool} (h : f ff ff = ff) :
@@ -222,7 +226,7 @@ namespace nat
   begin
     apply funext, intro n,
     apply bit_cases_on n, intros b n, rw [binary_rec_eq],
-    { cases b; try {rw h}; ginduction f ff tt with fft; dsimp [cond]; refl },
+    { cases b; try {rw h}; ginduction f ff tt with fft; simp [cond]; refl },
     { rw [h, show cond (f ff tt) 0 0 = 0, by cases f ff tt; refl,
              show cond (f tt ff) (bit ff 0) 0 = 0, by cases f tt ff; refl]; refl }
   end

@@ -88,6 +88,9 @@ For more details, see discussion [here](https://github.com/leanprover/lean/pull/
 * `tactic.unfold_projections` => `tactic.unfold_projs_target`
 * `tactic.unfold_projections_at` => `tactic.unfold_projs_hyp`
 * `tactic.simp_intros_using`, `tactic.simph_intros_using`, `tactic.simp_intro_lst_using`, `tactic.simph_intro_lst_using` => `tactic.simp_intros`
+* `tactic.simp_at` => `tactic.simp_hyp`
+* deleted `tactic.simp_at_using`
+* deleted `tactic.simph_at`
 
 v3.2.0 (18 June 2017)
 -------------

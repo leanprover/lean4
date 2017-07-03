@@ -709,20 +709,9 @@ end mk_simp_set
 namespace interactive
 open interactive interactive.types expr
 
-private meta def simp_goal (cfg : simp_config) (discharger : tactic unit) (s : simp_lemmas) (u : list name) : tactic unit :=
-do (new_target, pr) ← target >>= λ t, simplify s u t cfg `eq discharger,
-   replace_target new_target pr
-
-private meta def simp_hyp (cfg : simp_config) (discharger : tactic unit) (s : simp_lemmas) (u : list name) (h_name : name) : tactic unit :=
-do h      ← get_local h_name,
-   h_type ← infer_type h,
-   (h_new_type, pr) ← simplify s u h_type cfg `eq discharger,
-   replace_hyp h h_new_type pr,
-   return ()
-
 private meta def simp_hyps (cfg : simp_config) (discharger : tactic unit) (s : simp_lemmas) (u : list name) : list name → tactic unit
 | []      := skip
-| (h::hs) := simp_hyp cfg discharger s u h >> simp_hyps hs
+| (h::hs) := do h ← get_local h, simp_hyp s u h cfg discharger, simp_hyps hs
 
 meta def simp_core (cfg : simp_config) (discharger : tactic unit)
                    (no_dflt : bool) (ctx : list expr) (hs : list pexpr) (attr_names : list name) (ids : list name)
@@ -739,11 +728,11 @@ do (s, u) ← mk_simp_set no_dflt attr_names hs ids,
                 mk_eq_mp pr h >>= tactic.exact >> return tt)
             <|>
             (return ff) },
-        goal_simplified ← (simp_goal cfg discharger s u >> return tt) <|> (return ff),
+        goal_simplified ← (simp_target s u cfg discharger >> return tt) <|> (return ff),
         guard (cfg.fail_if_unchanged = ff ∨ to_remove.length > 0 ∨ goal_simplified) <|> fail "simplify tactic failed to simplify",
         to_remove.mfor' (λ h, try (clear h)),
         return ()
-   | (loc.ns []) := simp_goal cfg discharger s u
+   | (loc.ns []) := simp_target s u cfg discharger
    | (loc.ns hs) := simp_hyps cfg discharger s u hs
    end,
    try tactic.triv, try (tactic.reflexivity reducible)

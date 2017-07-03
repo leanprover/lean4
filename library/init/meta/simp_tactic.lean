@@ -215,13 +215,19 @@ structure simp_config :=
    The parameter `to_unfold` specifies definitions that should be delta-reduced,
    and projection applications that should be unfolded.
 -/
-meta constant simplify (s : simp_lemmas) (to_unfold : list name) (e : expr) (cfg : simp_config := {}) (r : name := `eq)
+meta constant simplify (s : simp_lemmas) (to_unfold : list name := []) (e : expr) (cfg : simp_config := {}) (r : name := `eq)
                        (discharger : tactic unit := failed) : tactic (expr × expr)
 
-meta def simp_target (S : simp_lemmas) (to_unfold : list name := []) (cfg : simp_config := {}) (discharger : tactic unit := failed) : tactic unit :=
+meta def simp_target (s : simp_lemmas) (to_unfold : list name := []) (cfg : simp_config := {}) (discharger : tactic unit := failed) : tactic unit :=
 do t ← target,
-   (new_t, pr) ← simplify S to_unfold t cfg `eq discharger,
+   (new_t, pr) ← simplify s to_unfold t cfg `eq discharger,
    replace_target new_t pr
+
+meta def simp_hyp (s : simp_lemmas) (to_unfold : list name := []) (h : expr) (cfg : simp_config := {}) (discharger : tactic unit := failed) : tactic expr :=
+do when (expr.is_local_constant h = ff) (fail "tactic simp_at failed, the given expression is not a hypothesis"),
+   htype ← infer_type h,
+   (h_new_type, pr) ← simplify s to_unfold htype cfg `eq discharger,
+   replace_hyp h h_new_type pr
 
 meta constant ext_simplify_core
   /- The user state type. -/
@@ -318,21 +324,6 @@ meta def simp_intros (s : simp_lemmas) (to_unfold : list name := []) (ids : list
 step $ simp_intros_aux cfg.to_simp_config cfg.use_hyps to_unfold s (bnot ids.empty) ids
 
 end simp_intros
-
-meta def simp_at (h : expr) (extra_lemmas : list expr := []) (cfg : simp_config := {}) : tactic expr :=
-do when (expr.is_local_constant h = ff) (fail "tactic simp_at failed, the given expression is not a hypothesis"),
-   htype ← infer_type h,
-   S     ← simp_lemmas.mk_default,
-   S     ← S.append extra_lemmas,
-   (h_new_type, pr) ← simplify S [] htype cfg,
-   replace_hyp h h_new_type pr
-
-meta def simp_at_using_hs (h : expr) (extra_lemmas : list expr := []) (cfg : simp_config := {}) : tactic expr :=
-do hs ← collect_ctx_simps,
-   simp_at h (list.filter (≠ h) hs ++ extra_lemmas) cfg
-
-meta def simph_at (h : expr) (extra_lemmas : list expr := []) (cfg : simp_config := {}) : tactic expr :=
-simp_at_using_hs h extra_lemmas cfg
 
 meta def mk_eq_simp_ext (simp_ext : expr → tactic (expr × expr)) : tactic unit :=
 do (lhs, rhs)     ← target >>= match_eq,

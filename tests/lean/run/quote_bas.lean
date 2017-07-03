@@ -46,7 +46,7 @@ begin
   induction e,
   reflexivity,
   reflexivity,
-  simp_using_hs
+  simp [*]
 end
 
 @[simp] lemma eval_map_var_sum_assoc {A : Type u} {B : Type v} {C : Type w} (v : Env A) (v' : Env B) (v'' : Env C) (e : Expr (sum (sum A B) C)) :
@@ -55,7 +55,7 @@ begin
   induction e,
   reflexivity,
   { cases v_1 with v₁, cases v₁, all_goals {simp} },
-  { simp_using_hs }
+  { simp [*] }
 end
 
 class Quote {V : inout Type u} (l : inout Env V) (n : Value) {V' : inout Type v} (r : inout Env V') :=

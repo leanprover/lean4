@@ -19,7 +19,7 @@ variables {α : Type u} [decidable_linear_order α]
 private meta def min_tac_step : tactic unit :=
 solve1 $ intros
 >> `[unfold min max]
->> try `[simp_using_hs [if_pos, if_neg]]
+>> try `[simp [*, if_pos, if_neg]]
 >> try `[apply le_refl]
 >> try `[apply le_of_not_le, assumption]
 

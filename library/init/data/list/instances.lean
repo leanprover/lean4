@@ -25,7 +25,7 @@ private lemma append_bind : list.bind (xs ++ ys) f = list.bind xs f ++ list.bind
 begin
   induction xs,
   { refl },
-  { simph [cons_bind] }
+  { simp [*, cons_bind] }
 end
 end
 
@@ -36,13 +36,13 @@ instance : monad list :=
  id_map := begin
    intros _ xs, induction xs with x xs ih,
    { refl },
-   { dsimp [function.comp] at ih, dsimp [function.comp], simph }
+   { dsimp [function.comp] at ih, dsimp [function.comp], simp [*] }
  end,
  pure_bind := by simp_intros,
  bind_assoc := begin
    intros _ _ _ xs _ _, induction xs,
    { refl },
-   { simph }
+   { simp [*] }
  end}
 
 instance : alternative list :=

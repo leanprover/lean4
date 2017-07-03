@@ -27,7 +27,7 @@ calc n - (n - m) = (n - m) + m - (n - m) : by rw nat.sub_add_cancel; assumption
              ... = m : nat.add_sub_cancel_left _ _
 
 def taken_right (a : array α n) (m : nat) (h : m ≤ n) : array α m :=
-cast (by simph [sub_sub_cancel]) $ a.dropn (n - m) (nat.sub_le _ _)
+cast (by simp [*, sub_sub_cancel]) $ a.dropn (n - m) (nat.sub_le _ _)
 
 def reverse (a : array α n) : array α n :=
 ⟨ λ ⟨ i, hi ⟩, a.read ⟨ n - (i + 1),

@@ -53,7 +53,7 @@ end
 
 example (a b : nat) : a + b = b + a :=
 begin
-  simph only [has_add.add],
+  simp only [*, has_add.add],
   guard_target nat.add a b = nat.add b a,
   apply nat.add_comm
 end

@@ -256,13 +256,13 @@ begin intro ha, apply h, apply neg_inj, rwa neg_zero end
 
 lemma sub_nat_zero_helper {a b c d: ℕ} (hac : a = c) (hbd : b = d) (hcd : c < d) : a - b = 0 :=
 begin
- simp_using_hs, apply nat.sub_eq_zero_of_le, apply le_of_lt, assumption
+ simp [*], apply nat.sub_eq_zero_of_le, apply le_of_lt, assumption
 end
 
 lemma sub_nat_pos_helper {a b c d e : ℕ} (hac : a = c) (hbd : b = d) (hced : e + d = c) :
   a - b = e :=
 begin
-simp_using_hs, rw [-hced, nat.add_sub_cancel]
+simp [*], rw [-hced, nat.add_sub_cancel]
 end
 
 end norm_num

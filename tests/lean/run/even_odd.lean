@@ -16,5 +16,5 @@ lemma even_eq_not_odd : ∀ a, even a = bnot (odd a) :=
 begin
   intro a, induction a,
   simp [even, odd],
-  simph [even, odd]
+  simp [*, even, odd]
 end

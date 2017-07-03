@@ -22,10 +22,10 @@ rfl
 rfl
 
 @[simp] lemma append_nil (t : list α) : t ++ [] = t :=
-by induction t; simph
+by induction t; simp [*]
 
 @[simp] lemma append_assoc (s t u : list α) : s ++ t ++ u = s ++ (t ++ u) :=
-by induction s; simph
+by induction s; simp [*]
 
 lemma append_ne_nil_of_ne_nil_left (s t : list α) : s ≠ [] → s ++ t ≠ [] :=
 by induction s; intros; contradiction
@@ -42,7 +42,7 @@ by {revert a, induction s with b s H, exact λ_, rfl, intros, simp [foldr], rw H
 /- concat -/
 
 @[simp] lemma concat_eq_append (a : α) (l : list α) : concat l a = l ++ [a] :=
-by induction l; simph [concat]
+by induction l; simp [*, concat]
 
 /- head & tail -/
 
@@ -79,13 +79,13 @@ lemma length_cons (a : α) (l : list α) : length (a :: l) = length l + 1 :=
 rfl
 
 @[simp] lemma length_append (s t : list α) : length (s ++ t) = length s + length t :=
-by induction s; simph
+by induction s; simp [*]
 
 lemma length_concat (a : α) (l : list α) : length (concat l a) = succ (length l) :=
 by simp [succ_eq_add_one]
 
 @[simp] lemma length_repeat (a : α) (n : ℕ) : length (repeat a n) = n :=
-by induction n; simph; refl
+by induction n; simp [*]; refl
 
 lemma eq_nil_of_length_eq_zero {l : list α} : length l = 0 → l = [] :=
 by {induction l; intros, refl, contradiction}
@@ -97,7 +97,7 @@ by induction l; intros; contradiction
 @[simp] lemma length_taken : ∀ (i : ℕ) (l : list α), length (taken i l) = min i (length l)
 | 0        l      := by simp
 | (succ n) []     := by simp
-| (succ n) (a::l) := begin simph [nat.min_succ_succ, add_one_eq_succ] end
+| (succ n) (a::l) := begin simp [*, nat.min_succ_succ, add_one_eq_succ] end
 
 -- TODO(Leo): cleanup proof after arith dec proc
 @[simp] lemma length_dropn : ∀ (i : ℕ) (l : list α), length (dropn i l) = length l - i
@@ -148,7 +148,7 @@ theorem ext : Π {l₁ l₂ : list α}, (∀n, nth l₁ n = nth l₂ n) → l₁
 | []      []       h := rfl
 | (a::l₁) []       h := by have h0 := h 0; contradiction
 | []      (a'::l₂) h := by have h0 := h 0; contradiction
-| (a::l₁) (a'::l₂) h := by have h0 : some a = some a' := h 0; injection h0 with aa; simph[ext $ λn, h (n+1)]
+| (a::l₁) (a'::l₂) h := by have h0 : some a = some a' := h 0; injection h0 with aa; simp [*, ext (λn, h (n+1))]
 
 theorem ext_le {l₁ l₂ : list α} (hl : length l₁ = length l₂) (h : ∀n h₁ h₂, nth_le l₁ n h₁ = nth_le l₂ n h₂) : l₁ = l₂ :=
 ext $ λn, if h₁ : n < length l₁
@@ -163,46 +163,46 @@ lemma map_cons (f : α → β) (a l) : map f (a::l) = f a :: map f l :=
 rfl
 
 @[simp] lemma map_append (f : α → β) : ∀ l₁ l₂, map f (l₁ ++ l₂) = (map f l₁) ++ (map f l₂) :=
-by intro l₁; induction l₁; intros; simph
+by intro l₁; induction l₁; intros; simp [*]
 
 lemma map_singleton (f : α → β) (a : α) : map f [a] = [f a] :=
 rfl
 
 lemma map_concat (f : α → β) (a : α) (l : list α) : map f (concat l a) = concat (map f l) (f a) :=
-by induction l; simph
+by induction l; simp [*]
 
 @[simp] lemma map_id (l : list α) : map id l = l :=
-by induction l; simph
+by induction l; simp [*]
 
 lemma map_id' {f : α → α} (h : ∀ x, f x = x) (l : list α) : map f l = l :=
-by induction l; simph
+by induction l; simp [*]
 
 @[simp] lemma map_map (g : β → γ) (f : α → β) (l : list α) : map g (map f l) = map (g ∘ f) l :=
-by induction l; simph
+by induction l; simp [*]
 
 @[simp] lemma length_map (f : α → β) (l : list α) : length (map f l) = length l :=
-by induction l; simph
+by induction l; simp [*]
 
 @[simp] lemma foldl_map (g : β → γ) (f : α → γ → α) (a : α) (l : list β) : foldl f a (map g l) = foldl (λx y, f x (g y)) a l :=
-by revert a; induction l; intros; simph[foldl]
+by revert a; induction l; intros; simp [*, foldl]
 
 @[simp] lemma foldr_map (g : β → γ) (f : γ → α → α) (a : α) (l : list β) : foldr f a (map g l) = foldr (f ∘ g) a l :=
-by revert a; induction l; intros; simph[foldr]
+by revert a; induction l; intros; simp [*, foldr]
 
 theorem foldl_hom (f : α → β) (g : α → γ → α) (g' : β → γ → β) (a : α)
   (h : ∀a x, f (g a x) = g' (f a) x) (l : list γ) : f (foldl g a l) = foldl g' (f a) l :=
-by revert a; induction l; intros; simph[foldl]
+by revert a; induction l; intros; simp [*, foldl]
 
 theorem foldr_hom (f : α → β) (g : γ → α → α) (g' : γ → β → β) (a : α)
   (h : ∀x a, f (g x a) = g' x (f a)) (l : list γ) : f (foldr g a l) = foldr g' (f a) l :=
-by revert a; induction l; intros; simph[foldr]
+by revert a; induction l; intros; simp [*, foldr]
 
 /- map₂ -/
 
 attribute [simp] map₂
 
 @[simp] lemma length_map₂ (f : α → β → γ) (l₁) : ∀ l₂, length (map₂ f l₁ l₂) = min (length l₁) (length l₂) :=
-by {induction l₁; intro l₂; cases l₂; simph [add_one_eq_succ, min_succ_succ]}
+by {induction l₁; intro l₂; cases l₂; simp [*, add_one_eq_succ, min_succ_succ]}
 
 /- reverse -/
 
@@ -220,19 +220,19 @@ aux l nil
 rfl
 
 @[simp] lemma reverse_append (s t : list α) : reverse (s ++ t) = (reverse t) ++ (reverse s) :=
-by induction s; simph
+by induction s; simp [*]
 
 @[simp] lemma reverse_reverse (l : list α) : reverse (reverse l) = l :=
-by induction l; simph
+by induction l; simp [*]
 
 lemma concat_eq_reverse_cons (a : α) (l : list α) : concat l a = reverse (a :: reverse l) :=
-by induction l; simph
+by induction l; simp [*]
 
 @[simp] lemma length_reverse (l : list α) : length (reverse l) = length l :=
-by induction l; simph
+by induction l; simp [*]
 
 @[simp] lemma map_reverse (f : α → β) (l : list α) : map f (reverse l) = reverse (map f l) :=
-by induction l; simph
+by induction l; simp [*]
 
 lemma nth_le_reverse_aux1 : Π (l r : list α) (i h1 h2), nth_le (reverse_core l r) (i + length l) h1 = nth_le r i h2
 | []       r i := λh1 h2, rfl
@@ -265,18 +265,18 @@ nth_le_reverse_aux2 _ _ _ _ _
 attribute [simp] last
 
 @[simp] lemma last_cons {a : α} {l : list α} : ∀ (h₁ : a :: l ≠ nil) (h₂ : l ≠ nil), last (a :: l) h₁ = last l h₂ :=
-by {induction l; intros, contradiction, simph, reflexivity}
+by {induction l; intros, contradiction, simp [*], reflexivity}
 
 @[simp] lemma last_append {a : α} (l : list α) (h : l ++ [a] ≠ []) : last (l ++ [a]) h = a :=
 begin
   induction l with hd tl ih; rsimp,
   have haux : tl ++ [a] ≠ [],
     {apply append_ne_nil_of_ne_nil_right, contradiction},
-  simph
+  simp [*]
 end
 
 lemma last_concat {a : α} (l : list α) (h : concat l a ≠ []) : last (concat l a) h = a :=
-by simph
+by simp [*]
 
 /- nth -/
 
@@ -408,7 +408,7 @@ lemma ne_and_not_mem_of_not_mem_cons {a y : α} {l : list α} : a ∉ y::l → a
 assume p, and.intro (ne_of_not_mem_cons p) (not_mem_of_not_mem_cons p)
 
 @[simp] lemma mem_reverse (a : α) (l : list α) : a ∈ reverse l ↔ a ∈ l :=
-by induction l; simph; rw mem_append_eq
+by induction l; simp [*]; rw mem_append_eq
 
 @[simp] lemma bex_nil_iff_false (p : α → Prop) : (∃ x ∈ @nil α, p x) ↔ false :=
 iff_false_intro $ λ⟨x, hx, px⟩, hx
@@ -431,7 +431,7 @@ begin
   induction l with b l' ih,
   {simp at h, contradiction },
   {simp, simp at h, cases h with h h,
-    {simph},
+    {simp [*]},
     {exact or.inr (ih h)}}
 end
 
@@ -442,7 +442,7 @@ begin
   {cases (eq_or_mem_of_mem_cons h) with h h,
     {existsi c, simp [h]},
     {cases ih h with a ha, cases ha with ha₁ ha₂,
-      existsi a, simph }}
+      existsi a, simp [*] }}
 end
 
 lemma mem_map_iff {f : α → β} {b : β} {l : list α} : b ∈ map f l ↔ ∃ a, a ∈ l ∧ f a = b :=

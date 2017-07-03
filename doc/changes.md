@@ -75,6 +75,8 @@ For more details, see discussion [here](https://github.com/leanprover/lean/pull/
    and it is shorthand for `unfold f {single_pass := tt}`.
    Remark: in v3.2.0, `unfold` was just an alias for the `dunfold` tactic.
 
+* Deleted `simph` and `simp_using_hs` tactics. We should use `simp [*]` instead.
+
 *API name changes*
 
 * `tactic.dsimp` and `tactic.dsimp_core` => `tactic.dsimp_target`

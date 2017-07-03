@@ -28,7 +28,7 @@ theorem to_list_reverse (a : array α n) : a.to_list.reverse = a.rev_list :=
 by rw [-rev_list_reverse, list.reverse_reverse]
 
 theorem rev_list_length_aux (a : array α n) (i h) : (a.iterate_aux (λ _ v l, v :: l) i h []).length = i :=
-by induction i; simph[iterate_aux]
+by induction i; simp [*, iterate_aux]
 
 theorem rev_list_length (a : array α n) : a.rev_list.length = n :=
 rev_list_length_aux a _ _
@@ -43,7 +43,7 @@ theorem to_list_nth_core (a : array α n) (i : ℕ) (ih : i < n) : Π (j) {jh t 
   show list.nth_le (a.read ⟨j, jh⟩ :: t) k tl = a.read ⟨i, ih⟩, from
   match k, hjk, tl with
   | 0,    e, tl := match i, e, ih with ._, rfl, _ := rfl end
-  | k'+1, _, tl := by simp[list.nth_le]; exact al _ _ (by simph)
+  | k'+1, _, tl := by simp[list.nth_le]; exact al _ _ (by simp [*])
   end
 
 theorem to_list_nth (a : array α n) (i : ℕ) (h h') : list.nth_le a.to_list i h' = a.read ⟨i, h⟩ :=

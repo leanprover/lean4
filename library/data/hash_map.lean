@@ -160,9 +160,9 @@ theorem valid.nodup {n} {bkts : bucket_array α β n} {sz : nat} : valid bkts sz
 theorem valid.eq {n} {bkts : bucket_array α β n} {sz : nat} (v : valid bkts sz)
  {i h a b} (el : sigma.mk a b ∈ array.read bkts ⟨i, h⟩) : (mk_idx n (hash_fn a)).1 = i :=
 have h1 : list.length (array.to_list bkts) - 1 - i < list.length (list.reverse (array.to_list bkts)),
-  by simph[array.to_list_length, nat.sub_one_sub_lt],
+  by simp [*, array.to_list_length, nat.sub_one_sub_lt],
   have _, from nat.sub_eq_sub_min,
-have sigma.mk a b ∈ list.nth_le (array.to_list bkts) i (by simph[array.to_list_length]), by {rw array.to_list_nth, exact el},
+have sigma.mk a b ∈ list.nth_le (array.to_list bkts) i (by simp [*, array.to_list_length]), by {rw array.to_list_nth, exact el},
 begin
   rw -list.nth_le_reverse at this,
   have v : valid_aux (λa, (mk_idx n (hash_fn a)).1) (array.to_list bkts).reverse sz,

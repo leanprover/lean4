@@ -37,7 +37,7 @@ def reassoc : exp → exp
 attribute [simp] mul_add times reassoc eeval
 
 theorem eeval_times (k e) : eeval (times k e) = k * eeval e :=
-by induction e; simph
+by induction e; simp [*]
 
 theorem reassoc_correct (e) : eeval (reassoc e) = eeval e :=
-by induction e; simph; cases (reassoc e2); rsimp
+by induction e; simp [*]; cases (reassoc e2); rsimp

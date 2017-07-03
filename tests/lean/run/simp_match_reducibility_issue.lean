@@ -10,7 +10,7 @@ namespace vector
   def nil : vector α 0 := ⟨[], rfl⟩
 
   def append {m n : ℕ} : vector α m → vector α n → vector α (m + n)
-  | ⟨v, _⟩ ⟨w, _⟩ := ⟨v ++ w, by abstract {simph}⟩
+  | ⟨v, _⟩ ⟨w, _⟩ := ⟨v ++ w, by abstract {simp [*]}⟩
 
 end vector
 

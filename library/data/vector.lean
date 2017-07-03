@@ -54,7 +54,7 @@ def to_list (v : vector α n) : list α := v.1
 def nth : Π (v : vector α n), fin n → α | ⟨ l, h ⟩ i := l.nth_le i.1 (by rw h; exact i.2)
 
 def append {n m : nat} : vector α n → vector α m → vector α (n + m)
-| ⟨ l₁, h₁ ⟩ ⟨ l₂, h₂ ⟩ := ⟨ l₁ ++ l₂, by simp_using_hs ⟩
+| ⟨ l₁, h₁ ⟩ ⟨ l₂, h₂ ⟩ := ⟨ l₁ ++ l₂, by simp [*] ⟩
 
 @[elab_as_eliminator] def elim {α} {C : Π {n}, vector α n → Sort u} (H : ∀l : list α, C ⟨l, rfl⟩)
   {n : nat} : Π (v : vector α n), C v
@@ -63,7 +63,7 @@ def append {n m : nat} : vector α n → vector α m → vector α (n + m)
 /- map -/
 
 def map (f : α → β) : vector α n → vector β n
-| ⟨ l, h ⟩  := ⟨ list.map f l, by simp_using_hs ⟩
+| ⟨ l, h ⟩  := ⟨ list.map f l, by simp [*] ⟩
 
 @[simp] lemma map_nil (f : α → β) : map f nil = nil := rfl
 
@@ -71,16 +71,16 @@ lemma map_cons (f : α → β) (a : α) : Π (v : vector α n), map f (a::v) = f
 | ⟨l,h⟩ := rfl
 
 def map₂ (f : α → β → φ) : vector α n → vector β n → vector φ n
-| ⟨ x, _ ⟩ ⟨ y, _ ⟩ := ⟨ list.map₂ f x y, by simp_using_hs ⟩
+| ⟨ x, _ ⟩ ⟨ y, _ ⟩ := ⟨ list.map₂ f x y, by simp [*] ⟩
 
 def repeat (a : α) (n : ℕ) : vector α n :=
 ⟨ list.repeat a n, list.length_repeat a n ⟩
 
 def dropn (i : ℕ) : vector α n → vector α (n - i)
-| ⟨l, p⟩ := ⟨ list.dropn i l, by simp_using_hs ⟩
+| ⟨l, p⟩ := ⟨ list.dropn i l, by simp [*] ⟩
 
 def taken (i : ℕ) : vector α n → vector α (min i n)
-| ⟨l, p⟩ := ⟨ list.taken i l, by simp_using_hs ⟩
+| ⟨l, p⟩ := ⟨ list.taken i l, by simp [*] ⟩
 
 def remove_nth (i : fin n) : vector α n → vector α (n - 1)
 | ⟨l, p⟩ := ⟨ list.remove_nth l i.1, by rw[l.length_remove_nth i.1]; rw p; exact i.2 ⟩
@@ -96,13 +96,13 @@ section accum
   def map_accumr (f : α → σ → σ × β) : vector α n → σ → σ × vector β n
   | ⟨ x, px ⟩ c :=
     let res := list.map_accumr f x c in
-    ⟨ res.1, res.2, by simp_using_hs ⟩
+    ⟨ res.1, res.2, by simp [*] ⟩
 
   def map_accumr₂ {α β σ φ : Type} (f : α → β → σ → σ × φ)
    : vector α n → vector β n → σ → σ × vector φ n
   | ⟨ x, px ⟩ ⟨ y, py ⟩ c :=
     let res := list.map_accumr₂ f x y c in
-    ⟨ res.1, res.2, by simp_using_hs ⟩
+    ⟨ res.1, res.2, by simp [*] ⟩
 
 end accum
 

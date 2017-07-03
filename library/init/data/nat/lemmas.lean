@@ -1163,7 +1163,7 @@ by rw [div_eq_sub_div H (nat.le_add_left _ _), nat.add_sub_cancel]
 by rw [add_comm, add_div_right x H]
 
 @[simp] theorem mul_div_right (n : ℕ) {m : ℕ} (H : m > 0) : m * n / m = n :=
-by {induction n; simph[mul_succ] without mul_comm}
+by {induction n; simp [*, mul_succ] without mul_comm}
 
 @[simp] theorem mul_div_left (m : ℕ) {n : ℕ} (H : n > 0) : m * n / n = m :=
 by rw [mul_comm, mul_div_right _ H]

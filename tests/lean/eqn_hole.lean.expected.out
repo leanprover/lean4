@@ -2,7 +2,8 @@ eqn_hole.lean:3:7: error: don't know how to synthesize placeholder
 context:
 f : ℕ → ℕ
 ⊢ ℕ
-eqn_hole.lean:2:11: error: invalid non-exhaustive set of equations (use 'set_option trace.eqn_compiler.elim_match true' for additional details)
+eqn_hole.lean:2:11: error: non-exhaustive set of equations, the following cases are missing:
+ (nat.succ a_1)
 eqn_hole.lean:8:13: error: don't know how to synthesize placeholder
 context:
 g : ℕ → ℕ,

@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"
 #include "kernel/abstract.h"
+#include "library/placeholder.h"
 #include "kernel/inductive/inductive.h"
 #include "library/trace.h"
 #include "library/num.h"
@@ -1304,11 +1305,20 @@ struct elim_match_fn {
         format msg;
         msg += format("non-exhaustive set of equations, the following cases are missing:");
         for (auto & P : m_unsolved) {
+            auto underscore = mk_expr_placeholder();
+            auto locals_to_underscore = [&] (expr const & e) {
+                return replace(e, [&](expr const & e, unsigned) {
+                    if (!has_local(e)) return some_expr(e);
+                    if (is_local(e)) return some_expr(underscore);
+                    return none_expr();
+                });
+            };
+
             auto pp_fn = mk_pp_ctx(P);
             msg += line();
             for (auto & t : P.m_example) {
                 msg += space();
-                msg += paren(pp_fn(t));
+                msg += paren(pp_fn(locals_to_underscore(t)));
             }
         }
 

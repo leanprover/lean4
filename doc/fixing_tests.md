@@ -30,6 +30,8 @@ When the `yes` option is provided, `meld` is automatically invoked
 whenever there is discrepancy between the produced and expected
 outputs. `meld` can also be used to repair the problems.
 
+In Emacs, we can also execute `M-x lean-diff-test-file` to check/diff the file of the current buffer.
+
 Here is the list of directories where produced output is compared with
 the expected output (stored in a `*.expected.out` file).
 
@@ -37,5 +39,5 @@ the expected output (stored in a `*.expected.out` file).
 - [`tests/lean/interactive`](../tests/lean/interactive)
 
 Remark: in the directory `tests/lean/interactive`, the input test files have extension `.input`.
-They simulate commands sent from Emacs to Lean.
+They simulate commands sent from editors to Lean.
 The `.lean` files in this directory are used to simulate files opened by the user.

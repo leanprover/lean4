@@ -33,6 +33,7 @@
 (require 'lean-type)
 (require 'lean-message-boxes)
 (require 'lean-right-click)
+(require 'lean-dev)
 
 (defun lean-compile-string (exe-name args file-name)
   "Concatenate exe-name, args, and file-name"

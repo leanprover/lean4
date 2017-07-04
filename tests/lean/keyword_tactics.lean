@@ -10,6 +10,12 @@ begin
   apply n
 end
 
+example : ¬false :=
+begin
+  assume contr,
+  apply contr
+end
+
 example : ℕ → ℕ → ℕ :=
 begin
   assume n m : bool,

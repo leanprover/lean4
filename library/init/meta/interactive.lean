@@ -523,6 +523,7 @@ meta def «assume» (p : parse parse_binders) : tactic unit :=
 list.mfor' p $ λ b,
   do t ← target,
      when (not $ t.is_pi ∨ t.is_let) whnf_target,
+     t ← target,
      when (not $ t.is_pi ∨ t.is_let) $
        fail "assume tactic failed, Pi/let expression expected",
      ty ← i_to_expr b.local_type,

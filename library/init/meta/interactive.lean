@@ -674,7 +674,7 @@ meta def simp_arg : parser simp_arg_type :=
 (tk "*" *> return simp_arg_type.all_hyps) <|> (tk "-" *> simp_arg_type.except <$> ident) <|> (simp_arg_type.expr <$> texpr)
 
 meta def simp_arg_list : parser (list simp_arg_type) :=
-list_of simp_arg <|> return []
+(tk "*" *> return [simp_arg_type.all_hyps]) <|> list_of simp_arg <|> return []
 
 private meta def resolve_exception_ids (all_hyps : bool) : list name → list name → list name → tactic (list name × list name)
 | []        gex hex := return (gex.reverse, hex.reverse)
@@ -800,7 +800,7 @@ It has many variants.
 
 - `simp at h_1 ... h_n` simplifies the non dependent hypotheses `h_1 : T_1` ... `h_n : T : n`. The tactic fails if the target or another hypothesis depends on one of them.
 
-- `simp at *` simplifies all the hypotheses and the goal.
+- `simp at *` simplifies all the hypotheses and the target.
 
 - `simp with attr_1 ... attr_n` simplifies the main goal target using the lemmas tagged with any of the attributes `[attr_1]`, ..., `[attr_n]` or `[simp]`.
 -/

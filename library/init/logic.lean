@@ -58,6 +58,7 @@ eq.rec_on
 @[inline] def eq.mpr {α β : Sort u} : (α = β) → β → α :=
 λ h₁ h₂, eq.rec_on (eq.symm h₁) h₂
 
+@[elab_as_eliminator]
 lemma eq.substr {α : Sort u} {p : α → Prop} {a b : α} (h₁ : b = a) : p a → p b :=
 eq.subst (eq.symm h₁)
 

@@ -758,30 +758,26 @@ end mk_simp_set
 namespace interactive
 open interactive interactive.types expr
 
-private meta def simp_hyps (cfg : simp_config) (discharger : tactic unit) (s : simp_lemmas) (u : list name) : list name → tactic unit
-| []      := skip
-| (h::hs) := do h ← get_local h, simp_hyp s u h cfg discharger, simp_hyps hs
+meta def simp_core_aux (cfg : simp_config) (discharger : tactic unit) (s : simp_lemmas) (u : list name) (hs : list expr) (tgt : bool) : tactic unit :=
+do to_remove ← hs.mfilter $ λ h, do {
+         h_type ← infer_type h,
+         (do (new_h_type, pr) ← simplify s u h_type cfg `eq discharger,
+             assert h.local_pp_name new_h_type,
+             mk_eq_mp pr h >>= tactic.exact >> return tt)
+         <|>
+         (return ff) },
+   goal_simplified ← if tgt then (simp_target s u cfg discharger >> return tt) <|> (return ff) else return ff,
+   guard (cfg.fail_if_unchanged = ff ∨ to_remove.length > 0 ∨ goal_simplified) <|> fail "simplify tactic failed to simplify",
+   to_remove.mfor' (λ h, try (clear h))
 
 meta def simp_core (cfg : simp_config) (discharger : tactic unit)
                    (no_dflt : bool) (hs : list simp_arg_type) (attr_names : list name)
                    (locat : loc) : tactic unit :=
 do (s, u) ← mk_simp_set no_dflt attr_names hs,
    match locat : _ → tactic unit with
-   | loc.wildcard :=
-     do hs ← non_dep_prop_hyps,
-        to_remove ← hs.mfilter $ λ h, do {
-            h_type ← infer_type h,
-            (do (new_h_type, pr) ← simplify s u h_type cfg `eq discharger,
-                assert h.local_pp_name new_h_type,
-                mk_eq_mp pr h >>= tactic.exact >> return tt)
-            <|>
-            (return ff) },
-        goal_simplified ← (simp_target s u cfg discharger >> return tt) <|> (return ff),
-        guard (cfg.fail_if_unchanged = ff ∨ to_remove.length > 0 ∨ goal_simplified) <|> fail "simplify tactic failed to simplify",
-        to_remove.mfor' (λ h, try (clear h)),
-        return ()
-   | (loc.ns []) := simp_target s u cfg discharger
-   | (loc.ns hs) := simp_hyps cfg discharger s u hs
+   | loc.wildcard := do hs ← non_dep_prop_hyps, simp_core_aux cfg discharger s u hs tt
+   | (loc.ns [])  := simp_target s u cfg discharger
+   | (loc.ns hs)  := do hs ← hs.mmap get_local, simp_core_aux cfg discharger s u hs ff
    end,
    try tactic.triv, try (tactic.reflexivity reducible)
 

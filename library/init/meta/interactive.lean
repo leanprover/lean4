@@ -740,19 +740,23 @@ private meta def simp_lemmas.append_pexprs : simp_lemmas → list name → list 
 | s u []      := return (s, u)
 | s u (l::ls) := do (s, u) ← simp_lemmas.add_pexpr s u l, simp_lemmas.append_pexprs s u ls
 
-meta def mk_simp_set (no_dflt : bool) (attr_names : list name) (hs : list simp_arg_type) : tactic (simp_lemmas × list name) :=
-do (hs, gex, hex, add_hyps) ← decode_simp_arg_list hs,
+meta def mk_simp_set_core (no_dflt : bool) (attr_names : list name) (hs : list simp_arg_type) (at_star : bool)
+                          : tactic (bool × simp_lemmas × list name) :=
+do (hs, gex, hex, all_hyps) ← decode_simp_arg_list hs,
+   when (all_hyps ∧ at_star ∧ not hex.empty) $ fail "A tactic of the form `simp [*, -h] at *` is currently not supported",
    s      ← join_user_simp_lemmas no_dflt attr_names,
    (s, u) ← simp_lemmas.append_pexprs s [] hs,
-   s      ← if add_hyps then do
+   s      ← if not at_star ∧ all_hyps then do
               ctx ← collect_ctx_simps,
               let ctx := ctx.filter (λ h, h.local_uniq_name ∉ hex), -- remove local exceptions
               s.append ctx
             else return s,
    -- add equational lemmas, if any
    gex ← gex.mfor (λ n, list.cons n <$> get_eqn_lemmas_for tt n),
-   return (simp_lemmas.erase s $ gex.join, u)
+   return (all_hyps, simp_lemmas.erase s $ gex.join, u)
 
+meta def mk_simp_set (no_dflt : bool) (attr_names : list name) (hs : list simp_arg_type) : tactic (simp_lemmas × list name) :=
+prod.snd <$> (mk_simp_set_core no_dflt attr_names hs ff)
 end mk_simp_set
 
 namespace interactive
@@ -773,13 +777,17 @@ do to_remove ← hs.mfilter $ λ h, do {
 meta def simp_core (cfg : simp_config) (discharger : tactic unit)
                    (no_dflt : bool) (hs : list simp_arg_type) (attr_names : list name)
                    (locat : loc) : tactic unit :=
-do (s, u) ← mk_simp_set no_dflt attr_names hs,
-   match locat : _ → tactic unit with
-   | loc.wildcard := do hs ← non_dep_prop_hyps, simp_core_aux cfg discharger s u hs tt
-   | (loc.ns [])  := simp_target s u cfg discharger
-   | (loc.ns hs)  := do hs ← hs.mmap get_local, simp_core_aux cfg discharger s u hs ff
-   end,
-   try tactic.triv, try (tactic.reflexivity reducible)
+match locat with
+| loc.wildcard := do (all_hyps, s, u) ← mk_simp_set_core no_dflt attr_names hs tt,
+                     if all_hyps then tactic.simp_all s u cfg discharger
+                     else do hyps ← non_dep_prop_hyps, simp_core_aux cfg discharger s u hyps tt
+| (loc.ns [])  := do (s, u) ← mk_simp_set no_dflt attr_names hs,
+                     simp_target s u cfg discharger
+| (loc.ns ns)  := do (s, u) ← mk_simp_set no_dflt attr_names hs,
+                     ns ← ns.mmap get_local,
+                     simp_core_aux cfg discharger s u ns ff
+end
+>> try tactic.triv >> try (tactic.reflexivity reducible)
 
 /--
 This tactic uses lemmas and hypotheses to simplify the main goal target or non-dependent hypotheses.
@@ -792,6 +800,7 @@ It has many variants.
    This is a convenient way to "unfold" `f`.
 
 - `simp [*]` simplifies the main goal target using the lemmas tagged with the attribute `[simp]` and all hypotheses.
+  Remark: `simp *` is a shorthand for `simp [*]`.
 
 - `simp only [h_1, ..., h_n]` is like `simp [h_1, ..., h_n]` but does not use `[simp]` lemmas
 
@@ -801,6 +810,8 @@ It has many variants.
 - `simp at h_1 ... h_n` simplifies the non dependent hypotheses `h_1 : T_1` ... `h_n : T : n`. The tactic fails if the target or another hypothesis depends on one of them.
 
 - `simp at *` simplifies all the hypotheses and the target.
+
+- `simp * at *` simplifies target and all (non-dependent propositional) hypotheses using the other hypotheses.
 
 - `simp with attr_1 ... attr_n` simplifies the main goal target using the lemmas tagged with any of the attributes `[attr_1]`, ..., `[attr_n]` or `[simp]`.
 -/
@@ -812,12 +823,6 @@ simp_core cfg.to_simp_config cfg.discharger no_dflt hs attr_names locat
 meta def trace_simp_set (no_dflt : parse only_flag) (hs : parse simp_arg_list) (attr_names : parse with_ident_list) : tactic unit :=
 do (s, _) ← mk_simp_set no_dflt attr_names hs,
    s.pp >>= trace
-
-/-- Simplify the whole context, and use simplified hypotheses to simplify other hypotheses. -/
-meta def simp_all (no_dflt : parse only_flag) (hs : parse simp_arg_list) (attr_names : parse with_ident_list) (cfg : simp_config_ext := {}) : tactic unit :=
-do (s, u) ← mk_simp_set no_dflt attr_names hs,
-   tactic.simp_all s u cfg.to_simp_config cfg.discharger,
-   try tactic.triv, try (tactic.reflexivity reducible)
 
 meta def simp_intros (ids : parse ident_*) (no_dflt : parse only_flag) (hs : parse simp_arg_list) (attr_names : parse with_ident_list)
                      (cfg : simp_intros_config := {}) : tactic unit :=

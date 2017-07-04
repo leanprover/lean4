@@ -11,7 +11,7 @@ master branch (aka work in progress branch)
 * The rewrite tactic has support for equational lemmas. Example: Given a definition `f`, `rw [f]` will try to rewrite the goal using the equational lemmas for `f`.
   The tactic fails if none of the equational lemmas can be used.
 
-* Add `simp_all` tactic. It is similar to `simp`, but acts on all hypotheses.
+* Add `simp * at *` variant. It acts on all (non dependent propositional) hypotheses.
   Simplified hypotheses are automatically inserted into the simplification set
   as additional simplification rules.
 

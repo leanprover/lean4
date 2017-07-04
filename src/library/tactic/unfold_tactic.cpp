@@ -110,7 +110,7 @@ public:
     }
 };
 
-vm_obj tactic_dunfold_core(vm_obj const & cs, vm_obj const & _e, vm_obj const & _cfg, vm_obj const & _s) {
+vm_obj tactic_dunfold(vm_obj const & cs, vm_obj const & _e, vm_obj const & _cfg, vm_obj const & _s) {
     expr const & e         = to_expr(_e);
     tactic_state const & s = tactic::to_state(_s);
     defeq_can_state dcs    = s.dcs();
@@ -134,7 +134,7 @@ vm_obj tactic_dunfold_core(vm_obj const & cs, vm_obj const & _e, vm_obj const & 
     }
 }
 
-vm_obj tactic_dunfold_expr(vm_obj const & _e, vm_obj const & m, vm_obj const & _s) {
+vm_obj tactic_dunfold_head(vm_obj const & _e, vm_obj const & m, vm_obj const & _s) {
     expr const & e = to_expr(_e);
     tactic_state const & s = tactic::to_state(_s);
     try {
@@ -166,8 +166,8 @@ vm_obj tactic_dunfold_expr(vm_obj const & _e, vm_obj const & m, vm_obj const & _
 
 void initialize_unfold_tactic() {
     DECLARE_VM_BUILTIN(name({"tactic", "unfold_proj"}),  tactic_unfold_projection);
-    DECLARE_VM_BUILTIN(name({"tactic", "dunfold_core"}),       tactic_dunfold_core);
-    DECLARE_VM_BUILTIN(name({"tactic", "dunfold_expr"}),       tactic_dunfold_expr);
+    DECLARE_VM_BUILTIN(name({"tactic", "dunfold"}),      tactic_dunfold);
+    DECLARE_VM_BUILTIN(name({"tactic", "dunfold_head"}), tactic_dunfold_head);
 }
 
 void finalize_unfold_tactic() {

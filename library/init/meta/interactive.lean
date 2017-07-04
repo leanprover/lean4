@@ -906,16 +906,16 @@ private meta def to_qualified_names : list name → tactic (list name)
 
 private meta def dunfold_hyps (cs : list name) (cfg : dunfold_config) : list name → tactic unit
 | []      := skip
-| (h::hs) := do h' ← get_local h, dunfold_at cs h' cfg,  dunfold_hyps hs
+| (h::hs) := do h' ← get_local h, dunfold_hyp cs h' cfg,  dunfold_hyps hs
 
 meta def dunfold (cs : parse ident*) (l : parse location) (cfg : dunfold_config := {}) : tactic unit :=
 match l with
-| (loc.ns [])    := do new_cs ← to_qualified_names cs, tactic.dunfold new_cs cfg
+| (loc.ns [])    := do new_cs ← to_qualified_names cs, dunfold_target new_cs cfg
 | (loc.ns hs)    := do new_cs ← to_qualified_names cs, dunfold_hyps new_cs cfg hs
 | (loc.wildcard) := do ls ← tactic.local_context,
                           n ← revert_lst ls,
                           new_cs ← to_qualified_names cs,
-                          tactic.dunfold new_cs cfg,
+                          dunfold_target new_cs cfg,
                           intron n
 end
 

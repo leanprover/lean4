@@ -129,19 +129,23 @@ do s ← get_simp_lemmas_or_default s, revert_and_transform (λ e, s.dsimplify u
           (@has_add.add nat nat.has_add a b)
 -/
 
-/-- If `e` is a projection application, try to unfold it, otherwise fail. -/
-meta constant dunfold_expr (e : expr) (md := transparency.instances) : tactic expr
+/-- Tries to unfold `e` if it is a constant or a constant application.
+    Remark: this is not a recursive procedure. -/
+meta constant dunfold_head (e : expr) (md := transparency.instances) : tactic expr
 
 structure dunfold_config extends dsimp_config :=
 (md := transparency.instances)
 
-meta constant dunfold_core (cs : list name) (e : expr) (cfg : dunfold_config := {}) : tactic expr
+/- Remark: in principle, dunfold can be implemented on top of dsimp. We don't do it for
+   performance reasons. -/
 
-meta def dunfold (cs : list name) (cfg : dunfold_config := {}) : tactic unit :=
-do t ← target, dunfold_core cs t cfg >>= unsafe_change
+meta constant dunfold (cs : list name) (e : expr) (cfg : dunfold_config := {}) : tactic expr
 
-meta def dunfold_at (cs : list name) (h : expr) (cfg : dunfold_config := {}) : tactic unit :=
-revert_and_transform (λ e, dunfold_core cs e cfg) h
+meta def dunfold_target (cs : list name) (cfg : dunfold_config := {}) : tactic unit :=
+do t ← target, dunfold cs t cfg >>= unsafe_change
+
+meta def dunfold_hyp (cs : list name) (h : expr) (cfg : dunfold_config := {}) : tactic unit :=
+revert_and_transform (λ e, dunfold cs e cfg) h
 
 structure delta_config :=
 (max_steps       := simp.default_max_steps)
@@ -176,6 +180,7 @@ revert_and_transform (λ e, delta cs e cfg) h
 structure unfold_proj_config extends dsimp_config :=
 (md := transparency.instances)
 
+/-- If `e` is a projection application, try to unfold it, otherwise fail. -/
 meta constant unfold_proj (e : expr) (md := transparency.instances) : tactic expr
 
 meta def unfold_projs (e : expr) (cfg : unfold_proj_config := {}) : tactic expr :=

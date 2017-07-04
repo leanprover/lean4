@@ -121,6 +121,10 @@ meta def to_definition : declaration → declaration
 | (ax n ls t)      := thm n ls t (task.pure (default expr))
 | d                := d
 
+meta def is_definition : declaration → bool
+| (defn _ _ _ _ _ _) := tt
+| _                  := ff
+
 /-- Instantiate a universe polymorphic declaration type with the given universes. -/
 meta constant instantiate_type_univ_params : declaration → list level → option expr
 

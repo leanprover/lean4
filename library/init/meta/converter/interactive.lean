@@ -26,6 +26,7 @@ meta def solve1 (c : conv unit) : conv unit :=
 tactic.solve1 $ c >> tactic.repeat tactic.reflexivity
 
 namespace interactive
+open lean
 open lean.parser
 open interactive
 open interactive.types
@@ -70,7 +71,7 @@ is_relation >> congr >> skip
 meta def done : conv unit :=
 tactic.done
 
-meta def find (p : parse qexpr) (c : itactic) : conv unit :=
+meta def find (p : parse parser.pexpr) (c : itactic) : conv unit :=
 do (r, lhs, _) ← tactic.target_lhs_rhs,
    pat ← tactic.pexpr_to_pattern p,
    s   ← simp_lemmas.mk_default, -- to be able to use congruence lemmas @[congr]
@@ -89,7 +90,7 @@ do (r, lhs, _) ← tactic.target_lhs_rhs,
   when (not found) $ tactic.fail "find converter failed, pattern was not found",
   update_lhs new_lhs pr
 
-meta def for (p : parse qexpr) (occs : parse (list_of small_nat)) (c : itactic) : conv unit :=
+meta def for (p : parse parser.pexpr) (occs : parse (list_of small_nat)) (c : itactic) : conv unit :=
 do (r, lhs, _) ← tactic.target_lhs_rhs,
    pat ← tactic.pexpr_to_pattern p,
    s   ← simp_lemmas.mk_default, -- to be able to use congruence lemmas @[congr]
@@ -171,7 +172,7 @@ do t ← target,
    try tactic.triv, try (tactic.reflexivity reducible)
 
 meta def conv (loc : parse (tk "at" *> ident)?)
-              (p : parse (tk "in" *> qexpr)?)
+              (p : parse (tk "in" *> parser.pexpr)?)
               (c : conv.interactive.itactic) : tactic unit :=
 do let c :=
        match p with

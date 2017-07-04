@@ -34,9 +34,6 @@ meta constant small_nat : parser nat
 meta constant tk (tk : string) : parser unit
 /-- Parse an unelaborated expression using the given right-binding power. -/
 protected meta constant pexpr (rbp := std.prec.max) : parser pexpr
-/-- Parse an unelaborated expression using the given right-binding power. The expression
-    may contain antiquotations (`%%e`). -/
-meta constant qexpr (rbp := std.prec.max) : parser pexpr
 
 /-- Do not report info from content parsed by `p`. -/
 meta constant skip_info (p : parser α) : parser α

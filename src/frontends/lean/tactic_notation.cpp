@@ -179,6 +179,7 @@ static expr parse_interactive_tactic(parser & p, name const & decl_name, name co
                 if (is_explicit(binding_info(type))) {
                     expr arg_type = binding_domain(type);
                     if (is_app_of(arg_type, get_interactive_parse_name())) {
+                        parser::quote_scope scope(p, true);
                         args.push_back(parse_interactive_param(p, arg_type));
                     } else if (auto new_tac_class = is_itactic(arg_type)) {
                         args.push_back(parse_nested_interactive_tactic(p, *new_tac_class, use_istep));

@@ -1,4 +1,4 @@
-keyword_tactics.lean:21:2: error: unify tactic failed, failed to unify
+keyword_tactics.lean:28:2: error: unify tactic failed, failed to unify
   bool : Type
 and
   ℕ : Type

@@ -47,16 +47,16 @@ meta def list_of (p : parser α) := brackets "[" "]" $ sep_by (skip_info (tk ","
 /-- A 'tactic expression', which uses right-binding power 2 so that it is terminated by
     '<|>' (rbp 2), ';' (rbp 1), and ',' (rbp 0). It should be used for any (potentially)
     trailing expression parameters. -/
-meta def texpr := qexpr 2
+meta def texpr := parser.pexpr 2
 /-- Parse an identifier or a '_' -/
 meta def ident_ : parser name := ident <|> tk "_" *> return `_
 meta def using_ident := (tk "using" *> ident)?
 meta def with_ident_list := (tk "with" *> ident_*) <|> return []
 meta def without_ident_list := (tk "without" *> ident*) <|> return []
 meta def location := (tk "at" *> (tk "*" *> return loc.wildcard <|> (loc.ns <$> ident*))) <|> return (loc.ns [])
-meta def qexpr_list := list_of (qexpr 0)
-meta def opt_qexpr_list := qexpr_list <|> return []
-meta def qexpr_list_or_texpr := qexpr_list <|> list.ret <$> texpr
+meta def pexpr_list := list_of (parser.pexpr 0)
+meta def opt_pexpr_list := pexpr_list <|> return []
+meta def pexpr_list_or_texpr := pexpr_list <|> list.ret <$> texpr
 meta def only_flag : parser bool := (tk "only" *> return tt) <|> return ff
 end types
 
@@ -84,7 +84,7 @@ if f₁.empty then f₂ else if f₂.empty then f₁ else f₁ ++ [" "] ++ f₂
 private meta def parser_desc_aux : expr → tactic (list format)
 | `(ident)  := return ["id"]
 | `(ident_) := return ["id"]
-| `(qexpr) := return ["expr"]
+| `(parser.pexpr) := return ["expr"]
 | `(tk %%c) := list.ret <$> to_fmt <$> eval_expr string c
 | `(cur_pos) := return []
 | `(pure ._) := return []

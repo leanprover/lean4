@@ -184,7 +184,7 @@ i_to_expr_for_apply q >>= tactic.eapply
 /--
 Similar to the `apply` tactic, but allows the user to provide a `apply_cfg` configuration object.
 -/
-meta def apply_with (q : parse qexpr) (cfg : apply_cfg) : tactic unit :=
+meta def apply_with (q : parse parser.pexpr) (cfg : apply_cfg) : tactic unit :=
 do e ← i_to_expr_for_apply q, tactic.apply e cfg
 
 /--
@@ -254,7 +254,7 @@ do tgt : expr ← target,
 Like `exact`, but takes a list of terms and checks that all goals
 are discharged after the tactic.
 -/
-meta def exacts : parse qexpr_list_or_texpr → tactic unit
+meta def exacts : parse pexpr_list_or_texpr → tactic unit
 | [] := done
 | (t :: ts) := exact t >> exacts ts
 
@@ -340,10 +340,10 @@ meta structure rw_rules_t :=
 meta instance rw_rules_t.reflect : has_reflect rw_rules_t :=
 λ ⟨rs, p⟩, `(_)
 
--- accepts the same content as `qexpr_list_or_texpr`, but with correct goal info pos annotations
+-- accepts the same content as `pexpr_list_or_texpr`, but with correct goal info pos annotations
 meta def rw_rules : parser rw_rules_t :=
 (tk "[" *>
- rw_rules_t.mk <$> sep_by (skip_info (tk ",")) (set_goal_info_pos $ rw_rule_p (qexpr 0))
+ rw_rules_t.mk <$> sep_by (skip_info (tk ",")) (set_goal_info_pos $ rw_rule_p (parser.pexpr 0))
                <*> (some <$> cur_pos <* set_goal_info_pos (tk "]")))
 <|> rw_rules_t.mk <$> (list.ret <$> rw_rule_p texpr) <*> return none
 
@@ -452,11 +452,11 @@ do r   ← result,
 meta def destruct (p : parse texpr) : tactic unit :=
 i_to_expr p >>= tactic.destruct
 
-meta def generalize (p : parse qexpr) (x : parse ident) : tactic unit :=
+meta def generalize (p : parse parser.pexpr) (x : parse ident) : tactic unit :=
 do e ← i_to_expr p,
    tactic.generalize e x
 
-meta def generalize2 (p : parse qexpr) (x : parse ident) (h : parse ident) : tactic unit :=
+meta def generalize2 (p : parse parser.pexpr) (x : parse ident) (h : parse ident) : tactic unit :=
 do tgt ← target,
    e ← to_expr p,
    let e' := tgt.replace $ λa n, if a = e then some (var n.succ) else none,
@@ -605,7 +605,7 @@ tactic.trace_state
 meta def trace {α : Type} [has_to_tactic_format α] (a : α) : tactic unit :=
 tactic.trace a
 
-meta def existsi : parse qexpr_list_or_texpr → tactic unit
+meta def existsi : parse pexpr_list_or_texpr → tactic unit
 | []      := return ()
 | (p::ps) := i_to_expr p >>= tactic.existsi >> existsi ps
 

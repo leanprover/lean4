@@ -23,7 +23,7 @@ solve1 $ intros
 >> try `[apply le_refl]
 >> try `[apply le_of_not_le, assumption]
 
-meta def tactic.interactive.min_tac (a b : interactive.parse lean.parser.qexpr) : tactic unit :=
+meta def tactic.interactive.min_tac (a b : interactive.parse lean.parser.pexpr) : tactic unit :=
 `[by_cases (%%a ≤ %%b), repeat {min_tac_step}]
 
 lemma min_le_left (a b : α) : min a b ≤ a :=

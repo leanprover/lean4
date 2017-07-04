@@ -16,6 +16,13 @@ begin
   apply contr
 end
 
+example : Π α : Type, α → α :=
+begin
+  assume α,
+  assume a : α,
+  apply a
+end
+
 example : ℕ → ℕ → ℕ :=
 begin
   assume n m : bool,

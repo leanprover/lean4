@@ -174,10 +174,10 @@ private meta def add_lemma_pexprs (md : transparency) (lhs_lemma : bool) : list 
 | []      := return ()
 | (p::ps) := add_lemma_pexpr md lhs_lemma p >> add_lemma_pexprs ps
 
-meta def add_lemma (l : parse qexpr_list_or_texpr) : smt_tactic unit :=
+meta def add_lemma (l : parse pexpr_list_or_texpr) : smt_tactic unit :=
 add_lemma_pexprs reducible ff l
 
-meta def add_lhs_lemma (l : parse qexpr_list_or_texpr) : smt_tactic unit :=
+meta def add_lhs_lemma (l : parse pexpr_list_or_texpr) : smt_tactic unit :=
 add_lemma_pexprs reducible tt l
 
 private meta def add_eqn_lemmas_for_core (md : transparency) : list name → smt_tactic unit
@@ -222,7 +222,7 @@ private meta def add_hinst_lemmas_from_pexprs (md : transparency) (lhs_lemma : b
 | []      hs := return hs
 | (p::ps) hs := do hs₁ ← add_hinst_lemma_from_pexpr md lhs_lemma p hs, add_hinst_lemmas_from_pexprs ps hs₁
 
-meta def ematch_using (l : parse qexpr_list_or_texpr) : smt_tactic unit :=
+meta def ematch_using (l : parse pexpr_list_or_texpr) : smt_tactic unit :=
 do hs ← add_hinst_lemmas_from_pexprs reducible ff l hinst_lemmas.mk,
    smt_tactic.ematch_using hs
 
@@ -263,7 +263,7 @@ meta def eblast : smt_tactic unit :=
 smt_tactic.eblast
 
 /-- Keep applying heuristic instantiation using the given lemmas until the current goal is solved, or it fails. -/
-meta def eblast_using (l : parse qexpr_list_or_texpr) : smt_tactic unit :=
+meta def eblast_using (l : parse pexpr_list_or_texpr) : smt_tactic unit :=
 do hs ← add_hinst_lemmas_from_pexprs reducible ff l hinst_lemmas.mk,
    smt_tactic.repeat (smt_tactic.ematch_using hs >> smt_tactic.try smt_tactic.close)
 

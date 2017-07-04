@@ -53,16 +53,16 @@ class LeanExprPrinter:
     """Print a lean::expr object."""
 
     expr_kinds = [
-        ('lean::expr_var', ['m_vidx']),
-        ('lean::expr_sort', ['m_level']),
-        ('lean::expr_const', ['m_name', 'm_levels']),
-        ('lean::expr_mlocal', ['m_name', 'm_type']),
-        ('lean::expr_local', ['m_pp_name', 'm_name', 'm_bi', 'm_type']),
-        ('lean::expr_app', ['m_fn', 'm_arg']),
-        ('lean::expr_binding', ['m_binder', 'm_body']),
-        ('lean::expr_binding', ['m_binder', 'm_body']),
-        ('lean::expr_let', ['m_name', 'm_type', 'm_value', 'm_body']),
-        ('lean::expr_macro', ['m_definition']),
+        ('lean::expr_var', 'Var', ['m_vidx']),
+        ('lean::expr_sort', 'Sort', ['m_level']),
+        ('lean::expr_const', 'Constant', ['m_name', 'm_levels']),
+        ('lean::expr_mlocal', 'Meta', ['m_name', 'm_type']),
+        ('lean::expr_local', 'Local', ['m_pp_name', 'm_name', 'm_bi', 'm_type']),
+        ('lean::expr_app', 'App', ['m_fn', 'm_arg']),
+        ('lean::expr_binding', 'Lambda', ['m_binder', 'm_body']),
+        ('lean::expr_binding', 'Pi', ['m_binder', 'm_body']),
+        ('lean::expr_let', 'Let', ['m_name', 'm_type', 'm_value', 'm_body']),
+        ('lean::expr_macro', 'Macro', ['m_definition']),
     ]
 
 
@@ -72,10 +72,10 @@ class LeanExprPrinter:
         self.val = val['m_ptr'].cast(subtype.pointer()).dereference()
 
     def to_string(self):
-        return str(self.val.type)
+        return 'lean::expr[{}]'.format(LeanExprPrinter.expr_kinds[self.kind][1])
 
     def children(self):
-        kind, fields = LeanExprPrinter.expr_kinds[self.kind]
+        kind, _, fields = LeanExprPrinter.expr_kinds[self.kind]
         for f in fields:
             yield (f, self.val[f])
         if kind == 'lean::expr_macro':

@@ -48,7 +48,7 @@ def pop_back : string → string
 | ⟨s⟩ := ⟨s.tail⟩
 
 def popn_back : string → nat → string
-| ⟨s⟩ n := ⟨s.dropn n⟩
+| ⟨s⟩ n := ⟨s.drop n⟩
 
 def intercalate (s : string) (ss : list string) : string :=
 (list.intercalate s.to_list (ss.map to_list)).as_string
@@ -64,7 +64,7 @@ def back : string → char
 | ⟨c::cs⟩ := c
 
 def backn : string → nat → string
-| ⟨s⟩ n := ⟨s.taken n⟩
+| ⟨s⟩ n := ⟨s.take n⟩
 
 def join (l : list string) : string :=
 l.foldl (λ r s, r ++ s) ""

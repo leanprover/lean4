@@ -182,15 +182,15 @@ def index_of [decidable_eq α] (a : α) : list α → nat := find_index (eq a)
 
 def indexes_of [decidable_eq α] (a : α) : list α → list nat := find_indexes (eq a)
 
-def dropn : ℕ → list α → list α
+def drop : ℕ → list α → list α
 | 0        a      := a
 | (succ n) []     := []
-| (succ n) (x::r) := dropn n r
+| (succ n) (x::r) := drop n r
 
-def taken : ℕ → list α → list α
+def take : ℕ → list α → list α
 | 0        a        := []
 | (succ n) []       := []
-| (succ n) (x :: r) := x :: taken n r
+| (succ n) (x :: r) := x :: take n r
 
 def split_at : ℕ → list α → list α × list α
 | 0        a         := ([], a)

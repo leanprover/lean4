@@ -185,8 +185,8 @@ private def make_monospaced : char → char
 | c := c
 
 def mk_error_msg (input : char_buffer) (pos : ℕ) (expected : dlist string) : char_buffer :=
-let left_ctx := (input.taken pos).taken_right 10,
-    right_ctx := (input.dropn pos).taken 10 in
+let left_ctx := (input.take pos).take_right 10,
+    right_ctx := (input.drop pos).take 10 in
 left_ctx.map make_monospaced ++ right_ctx.map make_monospaced ++ "\n".to_char_buffer ++
 left_ctx.map (λ _, ' ') ++ "^\n".to_char_buffer ++
 "\n".to_char_buffer ++

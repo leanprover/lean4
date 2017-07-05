@@ -113,13 +113,13 @@ instance decidable_suffix [decidable_eq α] : ∀ (l₁ l₂ : list α), decidab
                 append_ne_nil_of_ne_nil_right _ _ $ λh, list.no_confusion h
 | l₁      l₂ := let len1 := length l₁, len2 := length l₂ in
   if hl : len1 ≤ len2 then
-    if he : dropn (len2 - len1) l₂ = l₁ then is_true $
-      ⟨taken (len2 - len1) l₂, by rw [-he, taken_append_dropn]⟩
+    if he : drop (len2 - len1) l₂ = l₁ then is_true $
+      ⟨take (len2 - len1) l₂, by rw [-he, take_append_drop]⟩
     else is_false $
-      suffices length l₁ ≤ length l₂ → l₁ <:+ l₂ → dropn (length l₂ - length l₁) l₂ = l₁,
+      suffices length l₁ ≤ length l₂ → l₁ <:+ l₂ → drop (length l₂ - length l₁) l₂ = l₁,
         from λsuf, he (this hl suf),
       λ hl ⟨t, te⟩, and.right $
-        append_right_inj (eq.trans (taken_append_dropn (length l₂ - length l₁) l₂) te.symm) $
+        append_right_inj (eq.trans (take_append_drop (length l₂ - length l₁) l₂) te.symm) $
         by simp; exact nat.sub_sub_self hl
   else is_false $ λ⟨t, te⟩, hl $
     show length l₁ ≤ length l₂, by rw [-te, length_append]; apply nat.le_add_left

@@ -36,7 +36,7 @@ section shift
 
   def shl (x : bitvec n) (i : ℕ) : bitvec n :=
   bitvec.cong (by simp) $
-    dropn i x ++ₜ repeat ff (min n i)
+    drop i x ++ₜ repeat ff (min n i)
 
   def fill_shr (x : bitvec n) (i : ℕ) (fill : bool) : bitvec n :=
   bitvec.cong
@@ -47,7 +47,7 @@ section shift
       { have h₁ := le_of_not_ge h,
         rw [min_eq_left h₁, sub_eq_zero_of_le h₁, min_zero_left, add_zero] }
     end $
-    repeat fill (min n i) ++ₜ taken (n-i) x
+    repeat fill (min n i) ++ₜ take (n-i) x
 
   -- unsigned shift right
   def ushr (x : bitvec n) (i : ℕ) : bitvec n :=

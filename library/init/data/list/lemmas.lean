@@ -57,19 +57,19 @@ by {induction l, contradiction, simp}
 @[simp] lemma length_tail (l : list α) : length (tail l) = length l - 1 :=
 by cases l; refl
 
-/- repeat taken dropn -/
+/- repeat take drop -/
 
-attribute [simp] repeat taken dropn
+attribute [simp] repeat take drop
 
-@[simp] lemma split_at_eq_taken_dropn : ∀ (n : ℕ) (l : list α), split_at n l = (taken n l, dropn n l)
+@[simp] lemma split_at_eq_take_drop : ∀ (n : ℕ) (l : list α), split_at n l = (take n l, drop n l)
 | 0        a         := rfl
 | (succ n) []        := rfl
-| (succ n) (x :: xs) := by simp [split_at, split_at_eq_taken_dropn n xs]
+| (succ n) (x :: xs) := by simp [split_at, split_at_eq_take_drop n xs]
 
-@[simp] lemma taken_append_dropn : ∀ (n : ℕ) (l : list α), taken n l ++ dropn n l = l
+@[simp] lemma take_append_drop : ∀ (n : ℕ) (l : list α), take n l ++ drop n l = l
 | 0        a         := rfl
 | (succ n) []        := rfl
-| (succ n) (x :: xs) := by simp [taken_append_dropn n xs]
+| (succ n) (x :: xs) := by simp [take_append_drop n xs]
 
 /- length -/
 
@@ -94,18 +94,18 @@ lemma ne_nil_of_length_eq_succ {l : list α} : ∀ {n : nat}, length l = succ n 
 by induction l; intros; contradiction
 
 -- TODO(Leo): cleanup proof after arith dec proc
-@[simp] lemma length_taken : ∀ (i : ℕ) (l : list α), length (taken i l) = min i (length l)
+@[simp] lemma length_take : ∀ (i : ℕ) (l : list α), length (take i l) = min i (length l)
 | 0        l      := by simp
 | (succ n) []     := by simp
 | (succ n) (a::l) := begin simp [*, nat.min_succ_succ, add_one_eq_succ] end
 
 -- TODO(Leo): cleanup proof after arith dec proc
-@[simp] lemma length_dropn : ∀ (i : ℕ) (l : list α), length (dropn i l) = length l - i
+@[simp] lemma length_drop : ∀ (i : ℕ) (l : list α), length (drop i l) = length l - i
 | 0 l         := rfl
 | (succ i) [] := eq.symm (nat.zero_sub_eq_zero (succ i))
 | (succ i) (x::l) := calc
-  length (dropn (succ i) (x::l))
-          = length l - i             : length_dropn i l
+  length (drop (succ i) (x::l))
+          = length l - i             : length_drop i l
       ... = succ (length l) - succ i : nat.sub_eq_succ_sub_succ (length l) i
 
 lemma length_remove_nth : ∀ (l : list α) (i : ℕ), i < length l → length (remove_nth l i) = length l - 1
@@ -627,7 +627,7 @@ by simp [scanr]
 
 /- filter, partition, take_while, drop_while, span -/
 
-attribute [simp] repeat taken dropn
+attribute [simp] repeat take drop
 
 @[simp] lemma partition_eq_filter_filter (p : α → Prop) [decidable_pred p] : ∀ (l : list α), partition p l = (filter p l, filter (not ∘ p) l)
 | []     := rfl

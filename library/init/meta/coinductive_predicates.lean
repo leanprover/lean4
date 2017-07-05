@@ -106,7 +106,7 @@ private meta def elim_gen_sum_aux : nat → expr → list expr → tactic (list 
 meta def elim_gen_sum (n : nat) (e : expr) : tactic (list expr) := do
   (hs, h') ← elim_gen_sum_aux n e [],
   gs ← get_goals,
-  set_goals $ (gs.taken (n+1)).reverse ++ gs.dropn (n+1),
+  set_goals $ (gs.take (n+1)).reverse ++ gs.drop (n+1),
   return $ hs.reverse ++ [h']
 
 end tactic

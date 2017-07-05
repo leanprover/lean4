@@ -215,7 +215,7 @@ meta def compile_call (head : name) (arity : nat) (args : list ir.expr) : ir_com
   then mk_call head args
   else if list.length args < arity
   then mk_under_sat_call head args
-  else mk_over_sat_call head (list.taken arity args) (list.dropn arity args)
+  else mk_over_sat_call head (list.take arity args) (list.drop arity args)
 
 meta def mk_object (arity : unsigned) (args : list ir.expr) : ir_compiler ir.expr :=
   let args'' := list.map assert_name args

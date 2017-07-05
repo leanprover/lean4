@@ -76,11 +76,11 @@ def map₂ (f : α → β → φ) : vector α n → vector β n → vector φ n
 def repeat (a : α) (n : ℕ) : vector α n :=
 ⟨ list.repeat a n, list.length_repeat a n ⟩
 
-def dropn (i : ℕ) : vector α n → vector α (n - i)
-| ⟨l, p⟩ := ⟨ list.dropn i l, by simp * ⟩
+def drop (i : ℕ) : vector α n → vector α (n - i)
+| ⟨l, p⟩ := ⟨ list.drop i l, by simp * ⟩
 
-def taken (i : ℕ) : vector α n → vector α (min i n)
-| ⟨l, p⟩ := ⟨ list.taken i l, by simp * ⟩
+def take (i : ℕ) : vector α n → vector α (min i n)
+| ⟨l, p⟩ := ⟨ list.take i l, by simp * ⟩
 
 def remove_nth (i : fin n) : vector α n → vector α (n - 1)
 | ⟨l, p⟩ := ⟨ list.remove_nth l i.1, by rw[l.length_remove_nth i.1]; rw p; exact i.2 ⟩
@@ -126,10 +126,10 @@ begin cases v, reflexivity end
 @[simp] lemma to_list_append {n m : nat} (v : vector α n) (w : vector α m) : to_list (append v w) = to_list v ++ to_list w :=
 begin cases v, cases w, reflexivity end
 
-@[simp] lemma to_list_dropn {n m : ℕ} (v : vector α m) : to_list (dropn n v) = list.dropn n (to_list v) :=
+@[simp] lemma to_list_drop {n m : ℕ} (v : vector α m) : to_list (drop n v) = list.drop n (to_list v) :=
 begin cases v, reflexivity end
 
-@[simp] lemma to_list_taken {n m : ℕ} (v : vector α m) : to_list (taken n v) = list.taken n (to_list v) :=
+@[simp] lemma to_list_take {n m : ℕ} (v : vector α m) : to_list (take n v) = list.take n (to_list v) :=
 begin cases v, reflexivity end
 
 end vector

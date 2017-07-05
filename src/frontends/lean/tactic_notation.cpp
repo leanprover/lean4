@@ -320,7 +320,22 @@ struct parse_tactic_fn {
             r = m_p.save_pos(mk_typed_expr(type, r), pos);
             return r;
         } else {
-            return parse_elem_core(save_info);
+            if (m_p.curr_is_token(get_by_tk())) {
+                // `by tac` ~> `solve1 { tac }`
+                m_p.next();
+                auto pos = m_p.pos();
+                expr tac = parse_elem_core(save_info);
+                auto end_pos = m_p.pos_of(tac);
+                tac = mk_tactic_solve1(m_p, tac, pos, end_pos, m_tac_class, m_use_istep && save_info);
+                if (save_info) {
+                    expr info_tac = mk_tactic_save_info(m_p, pos, m_tac_class);
+                    return concat(info_tac, tac, pos);
+                } else {
+                    return tac;
+                }
+            } else {
+                return parse_elem_core(save_info);
+            }
         }
     }
 

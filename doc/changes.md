@@ -39,6 +39,8 @@ master branch (aka work in progress branch)
 
 * `dsimp` has several new configuration options to control reduction (e.g., `iota`, `beta`, `zeta`, ...).
 
+* Non-exhaustive pattern matches now show missing cases.
+
 *Changes*
 
 * We now have two type classes for converting to string: `has_to_string` and `has_repr`.

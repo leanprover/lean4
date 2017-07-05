@@ -53,7 +53,7 @@ set(EMACS_LISP_DIR        "share/emacs/site-lisp/lean" CACHE STRING "emacs site-
 # library dir
 set(LIBRARY_DIR           "lib/lean"                   CACHE STRING "library dir")
 set(LEAN_EXT_INCLUDE_DIR  "include/lean_ext"           CACHE STRING "include dir for building Lean extensions")
-set(LEAN_EXTRA_MAKE_OPTS  ""                           CACHE STRING "extra options to lean --make")
+set(LEAN_EXTRA_MAKE_OPTS  " "                          CACHE STRING "extra options to lean --make")
 
 if (NOT("${FREE_VAR_RANGE_OPT}" MATCHES "ON"))
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_NO_FREE_VAR_RANGE_OPT")
@@ -455,16 +455,22 @@ add_style_check_target(style "${LEAN_SOURCES}")
 add_test(NAME style_check COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py" ${LEAN_SOURCES})
 endif()
 
+# OSX default thread stack size is very small. Moreover, in Debug mode, each new stack frame consumes a lot of extra memory.
+# See issue #1721
+if ((${MULTI_THREAD} MATCHES "ON") AND (${CMAKE_SYSTEM_NAME} MATCHES "Darwin"))
+  set(LEAN_EXTRA_MAKE_OPTS -s40000 ${LEAN_EXTRA_MAKE_OPTS})
+endif ()
+
 add_custom_target(
     standard_lib ALL
-    COMMAND "${LEAN_SOURCE_DIR}/../bin/lean" --make ${LEAN_EXTRA_MAKE_OPTS}
+    COMMAND "${LEAN_SOURCE_DIR}/../bin/lean" --make "${LEAN_EXTRA_MAKE_OPTS}"
     DEPENDS "${CMAKE_BINARY_DIR}/shell/lean"
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
     )
 
 add_custom_target(
     leanpkg ALL
-    COMMAND "${LEAN_SOURCE_DIR}/../bin/lean" --make ${LEAN_EXTRA_MAKE_OPTS}
+    COMMAND "${LEAN_SOURCE_DIR}/../bin/lean" --make "${LEAN_EXTRA_MAKE_OPTS}"
     DEPENDS standard_lib
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../leanpkg"
 )

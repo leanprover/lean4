@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/abstract_type_context.h"
 #include "library/replace_visitor.h"
+#include "library/metavar_context.h"
 
 namespace lean {
 static name * g_delayed_abstraction_macro = nullptr;
@@ -99,9 +100,11 @@ expr const & get_delayed_abstraction_expr(expr const & e) {
 }
 
 struct push_delayed_abstraction_fn : public replace_visitor {
-    buffer<name>     m_ns;
-    buffer<expr>     m_vs;
-    buffer<unsigned> m_deltas;
+    buffer<name>            m_ns;
+    buffer<expr>            m_vs;
+    buffer<unsigned>        m_deltas;
+    /* If m_mctx is not nullptr we use it to filter unnecessary delayed abstractions. */
+    metavar_context const * m_mctx{nullptr};
 
     void add_vidxs(int v) {
         for (unsigned & d : m_deltas)
@@ -182,6 +185,25 @@ struct push_delayed_abstraction_fn : public replace_visitor {
     }
 
     expr visit_meta(expr const & e) override {
+        if (m_mctx && is_metavar_decl_ref(e)) {
+            if (optional<metavar_decl> decl = m_mctx->find_metavar_decl(e)) {
+                /* We only include delayed substitutions that are in the scope of `e` */
+                local_context const & lctx = decl->get_context();
+                buffer<name> new_ns;
+                buffer<expr> new_vs;
+                for (unsigned i = 0; i < m_vs.size(); i++) {
+                    if (lctx.find_local_decl(m_ns[i])) {
+                        new_ns.push_back(m_ns[i]);
+                        new_vs.push_back(lift_free_vars(m_vs[i], m_deltas[i]));
+                    }
+                }
+                if (new_vs.empty())
+                    return e;
+                else
+                    return mk_delayed_abstraction_core(e, new_ns, new_vs);
+            }
+        }
+        /* Otherwise include all delayed substitutions */
         buffer<expr> new_vs;
         for (unsigned i = 0; i < m_vs.size(); i++) {
             new_vs.push_back(lift_free_vars(m_vs[i], m_deltas[i]));
@@ -194,6 +216,11 @@ struct push_delayed_abstraction_fn : public replace_visitor {
         m_ns.append(ns);
         m_vs.append(vs);
         m_deltas.resize(vs.size(), 0);
+    }
+
+    push_delayed_abstraction_fn(buffer<name> const & ns, buffer<expr> const & vs, metavar_context const & mctx):
+        push_delayed_abstraction_fn(ns, vs) {
+        m_mctx = &mctx;
     }
 };
 
@@ -253,7 +280,7 @@ expr mk_delayed_abstraction(expr const & e, buffer<name> const & ns, buffer<expr
     }
 }
 
-expr delayed_abstract_locals(expr const & e, unsigned nlocals, expr const * locals) {
+expr delayed_abstract_locals(metavar_context const & mctx, expr const & e, unsigned nlocals, expr const * locals) {
     lean_assert(std::all_of(locals, locals + nlocals, is_local));
     if (!has_expr_metavar(e))
         return abstract_locals(e, nlocals, locals);
@@ -263,7 +290,7 @@ expr delayed_abstract_locals(expr const & e, unsigned nlocals, expr const * loca
         ns.push_back(mlocal_name(locals[i]));
         vs.push_back(mk_var(nlocals - i - 1));
     }
-    return push_delayed_abstraction_fn(ns, vs)(e);
+    return push_delayed_abstraction_fn(ns, vs, mctx)(e);
 }
 
 void initialize_delayed_abstraction() {

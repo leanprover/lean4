@@ -574,7 +574,7 @@ expr type_context::abstract_locals(expr const & e, unsigned num_locals, expr con
         return ::lean::abstract_locals(e, num_locals, locals);
     }
     expr new_e = instantiate_mvars(e);
-    return delayed_abstract_locals(new_e, num_locals, locals);
+    return delayed_abstract_locals(m_mctx, new_e, num_locals, locals);
 }
 
 expr type_context::mk_binding(bool is_pi, local_context const & lctx, unsigned num_locals, expr const * locals, expr const & e) {

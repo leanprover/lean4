@@ -54,7 +54,6 @@ name const & get_show_tk();
 name const & get_have_tk();
 name const & get_assume_tk();
 name const & get_suppose_tk();
-name const & get_take_tk();
 name const & get_fun_tk();
 name const & get_match_tk();
 name const & get_ellipsis_tk();

@@ -1,7 +1,7 @@
 open tactic list
 
 #check
-take c : name,
+assume c : name,
 (
 do {
    env  ← get_env,

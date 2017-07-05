@@ -1,7 +1,7 @@
 section
   parameter A : Type
   definition foo : ∀ ⦃ a b : A ⦄, a = b → a = b :=
-  take a b H, H
+  assume a b H, H
 
   variable a : A
   set_option pp.implicit true
@@ -15,7 +15,7 @@ end
 section
   variable A : Type
   definition foo2 : ∀ ⦃ a b : A ⦄, a = b → a = b :=
-  take a b H, H
+  assume a b H, H
 
   variable a : A
   set_option pp.implicit true

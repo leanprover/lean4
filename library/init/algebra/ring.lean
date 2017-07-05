@@ -49,7 +49,7 @@ lemma zero_ne_one [s: zero_ne_one_class α] : 0 ≠ (1:α) :=
 
 @[simp]
 lemma one_ne_zero [s: zero_ne_one_class α] : (1:α) ≠ 0 :=
-take h, @zero_ne_one_class.zero_ne_one α s h.symm
+assume h, @zero_ne_one_class.zero_ne_one α s h.symm
 
 /- semiring -/
 
@@ -104,10 +104,10 @@ section comm_semiring
   exists.elim H₁ H₂
 
   theorem exists_eq_mul_left_of_dvd {a b : α} (h : a ∣ b) : ∃ c, b = c * a :=
-  dvd.elim h (take c, assume H1 : b = a * c, exists.intro c (eq.trans H1 (mul_comm a c)))
+  dvd.elim h (assume c, assume H1 : b = a * c, exists.intro c (eq.trans H1 (mul_comm a c)))
 
   theorem dvd.elim_left {P : Prop} {a b : α} (h₁ : a ∣ b) (h₂ : ∀ c, b = c * a → P) : P :=
-  exists.elim (exists_eq_mul_left_of_dvd h₁) (take c, assume h₃ : b = c * a, h₂ c h₃)
+  exists.elim (exists_eq_mul_left_of_dvd h₁) (assume c, assume h₃ : b = c * a, h₂ c h₃)
 
   @[simp] theorem dvd_refl : a ∣ a :=
   dvd.intro 1 (by simp)
@@ -121,7 +121,7 @@ section comm_semiring
   def dvd.trans := @dvd_trans
 
   theorem eq_zero_of_zero_dvd {a : α} (h : 0 ∣ a) : a = 0 :=
-  dvd.elim h (take c, assume H' : a = 0 * c, eq.trans H' (zero_mul c))
+  dvd.elim h (assume c, assume H' : a = 0 * c, eq.trans H' (zero_mul c))
 
   @[simp] theorem dvd_zero : a ∣ 0 := dvd.intro 0 (by simp)
 
@@ -236,7 +236,7 @@ section comm_ring
 
   theorem dvd_neg_of_dvd {a b : α} (h : a ∣ b) : (a ∣ -b) :=
   dvd.elim h
-    (take c, suppose b = a * c,
+    (assume c, suppose b = a * c,
       dvd.intro (-c) (by simp [this]))
 
   theorem dvd_of_dvd_neg {a b : α} (h : a ∣ -b) : (a ∣ b) :=
@@ -247,7 +247,7 @@ section comm_ring
 
   theorem neg_dvd_of_dvd {a b : α} (h : a ∣ b) : -a ∣ b :=
   dvd.elim h
-    (take c, suppose b = a * c,
+    (assume c, suppose b = a * c,
       dvd.intro (-c) (by simp [this]))
 
   theorem dvd_of_neg_dvd {a b : α} (h : -a ∣ b) : a ∣ b :=

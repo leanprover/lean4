@@ -119,7 +119,7 @@ lemma neg_succ_of_nat_inj {m n : ℕ} (h : neg_succ_of_nat m = neg_succ_of_nat n
 int.no_confusion h id
 
 lemma neg_succ_of_nat_inj_iff {m n : ℕ} : neg_succ_of_nat m = neg_succ_of_nat n ↔ m = n :=
-⟨neg_succ_of_nat_inj, take H, by simp [H]⟩
+⟨neg_succ_of_nat_inj, assume H, by simp [H]⟩
 
 lemma neg_succ_of_nat_eq (n : ℕ) : -[1+ n] = -(n + 1) := rfl
 
@@ -164,9 +164,9 @@ calc sub_nat_nat._match_1 m (m + n + 1) (m + n + 1 - m) =
 
 private lemma sub_nat_nat_add_add (m n k : ℕ) : sub_nat_nat (m + k) (n + k) = sub_nat_nat m n :=
 sub_nat_nat_elim m n (λm n i, sub_nat_nat (m + k) (n + k) = i)
-  (take i n, have n + i + k = (n + k) + i, by simp,
+  (assume i n, have n + i + k = (n + k) + i, by simp,
     begin rw [this], exact sub_nat_nat_add_left end)
-  (take i m, have m + i + 1 + k = (m + k) + i + 1, by simp,
+  (assume i m, have m + i + 1 + k = (m + k) + i + 1, by simp,
     begin rw [this], exact sub_nat_nat_add_right end)
 
 /- nat_abs -/
@@ -273,7 +273,7 @@ inductive rel_int_nat_nat : ℤ → ℕ × ℕ → Prop
 
 protected lemma rel_sub_nat_nat {a b : ℕ} : rel_int_nat_nat (sub_nat_nat a b) (a, b) :=
 sub_nat_nat_elim a b (λa b i, rel_int_nat_nat i (a, b))
-  (take i n, rel_int_nat_nat.pos) (take i n, rel_int_nat_nat.neg)
+  (assume i n, rel_int_nat_nat.pos) (assume i n, rel_int_nat_nat.neg)
 
 instance right_total_rel_int_nat_nat : relator.right_total rel_int_nat_nat
 | (n, m) := ⟨_, int.rel_sub_nat_nat⟩

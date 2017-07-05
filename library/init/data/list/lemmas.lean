@@ -341,8 +341,8 @@ lemma mem_or_mem_of_mem_append {a : α} : ∀ {s t : list α}, a ∈ s ++ t → 
 
 lemma mem_append_of_mem_or_mem {a : α} {s t : list α} : a ∈ s ∨ a ∈ t → a ∈ s ++ t :=
 list.rec_on s
-  (take h, or.elim h false.elim id)
-  (take b s,
+  (assume h, or.elim h false.elim id)
+  (assume b s,
     assume ih : a ∈ s ∨ a ∈ t → a ∈ s ++ t,
     suppose a ∈ b::s ∨ a ∈ t,
       or.elim this
@@ -376,7 +376,7 @@ lemma length_pos_of_mem {a : α} : ∀ {l : list α}, a ∈ l → 0 < length l
 lemma mem_split {a : α} {l : list α} : a ∈ l → ∃ s t : list α, l = s ++ (a::t) :=
 list.rec_on l
   (suppose a ∈ [], begin simp at this, contradiction end)
-  (take b l,
+  (assume b l,
     assume ih : a ∈ l → ∃ s t : list α, l = s ++ (a::t),
     suppose a ∈ b::l,
     or.elim (eq_or_mem_of_mem_cons this)
@@ -510,14 +510,14 @@ lemma subset_app_of_subset_right (l l₁ l₂ : list α) : l ⊆ l₂ → l ⊆ 
 
 lemma cons_subset_of_subset_of_mem {a : α} {l m : list α} (ainm : a ∈ m) (lsubm : l ⊆ m) :
   a::l ⊆ m :=
-take b, suppose b ∈ a::l,
+assume b, suppose b ∈ a::l,
 or.elim (eq_or_mem_of_mem_cons this)
   (suppose b = a, begin subst b, exact ainm end)
   (suppose b ∈ l, lsubm this)
 
 lemma app_subset_of_subset_of_subset {l₁ l₂ l : list α} (l₁subl : l₁ ⊆ l) (l₂subl : l₂ ⊆ l) :
   l₁ ++ l₂ ⊆ l :=
-take a, suppose a ∈ l₁ ++ l₂,
+assume a, suppose a ∈ l₁ ++ l₂,
 or.elim (mem_or_mem_of_mem_append this)
   (suppose a ∈ l₁, l₁subl this)
   (suppose a ∈ l₂, l₂subl this)

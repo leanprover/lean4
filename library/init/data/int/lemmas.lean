@@ -339,7 +339,7 @@ theorem dvd_iff_mod_eq_zero (a b : ℤ) : a ∣ b ↔ b % a = 0 :=
 ⟨mod_eq_zero_of_dvd, dvd_of_mod_eq_zero⟩
 
 instance decidable_dvd : @decidable_rel ℤ (∣) :=
-take a n, decidable_of_decidable_of_iff (by apply_instance) (dvd_iff_mod_eq_zero _ _).symm
+assume a n, decidable_of_decidable_of_iff (by apply_instance) (dvd_iff_mod_eq_zero _ _).symm
 
 protected theorem div_mul_cancel {a b : ℤ} (H : b ∣ a) : a / b * b = a :=
 div_mul_cancel_of_mod_eq_zero (mod_eq_zero_of_dvd H)

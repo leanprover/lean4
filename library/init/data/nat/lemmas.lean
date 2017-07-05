@@ -339,7 +339,7 @@ begin
 end
 
 protected lemma add_le_add_iff_le_right (k n m : ℕ) : n + k ≤ m + k ↔ n ≤ m :=
-  ⟨ nat.le_of_add_le_add_right , take h, nat.add_le_add_right h _ ⟩
+  ⟨ nat.le_of_add_le_add_right , assume h, nat.add_le_add_right h _ ⟩
 
 protected lemma lt_of_le_and_ne {m n : ℕ} (h1 : m ≤ n) : m ≠ n → m < n :=
 or.resolve_right (or.swap (nat.eq_or_lt_of_le h1))
@@ -415,8 +415,8 @@ instance : decidable_linear_ordered_semiring nat :=
   add_le_add_left            := @nat.add_le_add_left,
   le_of_add_le_add_left      := @nat.le_of_add_le_add_left,
   zero_lt_one                := zero_lt_succ 0,
-  mul_le_mul_of_nonneg_left  := (take a b c h₁ h₂, nat.mul_le_mul_left c h₁),
-  mul_le_mul_of_nonneg_right := (take a b c h₁ h₂, nat.mul_le_mul_right c h₁),
+  mul_le_mul_of_nonneg_left  := (assume a b c h₁ h₂, nat.mul_le_mul_left c h₁),
+  mul_le_mul_of_nonneg_right := (assume a b c h₁ h₂, nat.mul_le_mul_right c h₁),
   mul_lt_mul_of_pos_left     := @nat.mul_lt_mul_of_pos_left,
   mul_lt_mul_of_pos_right    := @nat.mul_lt_mul_of_pos_right,
   decidable_lt               := nat.decidable_lt,
@@ -761,7 +761,7 @@ begin rw [-add_one_eq_succ, -add_one_eq_succ], simp [right_distrib, left_distrib
 
 theorem sub_eq_zero_of_le {n m : ℕ} (h : n ≤ m) : n - m = 0 :=
 exists.elim (nat.le.dest h)
-  (take k, assume hk : n + k = m, by rw [-hk, sub_self_add])
+  (assume k, assume hk : n + k = m, by rw [-hk, sub_self_add])
 
 protected theorem le_of_sub_eq_zero : ∀{n m : ℕ}, n - m = 0 → n ≤ m
 | n 0 H := begin rw [nat.sub_zero] at H, simp [H] end
@@ -774,12 +774,12 @@ protected theorem sub_eq_zero_iff_le {n m : ℕ} : n - m = 0 ↔ n ≤ m :=
 
 theorem succ_sub {m n : ℕ} (h : m ≥ n) : succ m - n  = succ (m - n) :=
 exists.elim (nat.le.dest h)
-  (take k, assume hk : n + k = m,
+  (assume k, assume hk : n + k = m,
     by rw [-hk, nat.add_sub_cancel_left, -add_succ, nat.add_sub_cancel_left])
 
 theorem add_sub_of_le {n m : ℕ} (h : n ≤ m) : n + (m - n) = m :=
 exists.elim (nat.le.dest h)
-  (take k, assume hk : n + k = m,
+  (assume k, assume hk : n + k = m,
     by rw [-hk, nat.add_sub_cancel_left])
 
 protected theorem sub_add_cancel {n m : ℕ} (h : n ≥ m) : n - m + m = n :=
@@ -791,12 +791,12 @@ lt_of_add_lt_add_right this
 
 protected theorem add_sub_assoc {m k : ℕ} (h : k ≤ m) (n : ℕ) : n + m - k = n + (m - k) :=
 exists.elim (nat.le.dest h)
-  (take l, assume hl : k + l = m,
+  (assume l, assume hl : k + l = m,
     by rw [-hl, nat.add_sub_cancel_left, add_comm k, -add_assoc, nat.add_sub_cancel])
 
 protected lemma sub_eq_iff_eq_add {a b c : ℕ} (ab : b ≤ a) : a - b = c ↔ a = c + b :=
-⟨take c_eq, begin rw [c_eq.symm, nat.sub_add_cancel ab] end,
-  take a_eq, begin rw [a_eq, nat.add_sub_cancel] end⟩
+⟨assume c_eq, begin rw [c_eq.symm, nat.sub_add_cancel ab] end,
+  assume a_eq, begin rw [a_eq, nat.add_sub_cancel] end⟩
 
 protected theorem sub_sub_self {n m : ℕ} (h : m ≤ n) : n - (n - m) = m :=
 (nat.sub_eq_iff_eq_add (nat.sub_le _ _)).2 (eq.symm (add_sub_of_le h))
@@ -807,7 +807,7 @@ protected theorem sub_add_comm {n m k : ℕ} (h : k ≤ n) : n + m - k = n - k +
 
 protected lemma lt_of_sub_eq_succ {m n l : ℕ} (H : m - n = nat.succ l) : n < m :=
 lt_of_not_ge
-  (take (H' : n ≥ m), begin simp [nat.sub_eq_zero_of_le H'] at H, contradiction end)
+  (assume (H' : n ≥ m), begin simp [nat.sub_eq_zero_of_le H'] at H, contradiction end)
 
 lemma sub_one_sub_lt {n i} (h : i < n) : n - 1 - i < n := begin
   rw nat.sub_sub,

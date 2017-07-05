@@ -55,7 +55,7 @@ or.elim u_def
 private lemma p_implies_uv : p → u = v :=
 assume hp : p,
 have hpred : U = V, from
-  funext (take x : Prop,
+  funext (assume x : Prop,
     have hl : (x = true ∨ p) → (x = false ∨ p), from
       assume a, or.inr hp,
     have hr : (x = false ∨ p) → (x = true ∨ p), from
@@ -75,7 +75,7 @@ have h : ¬(u = v) → ¬p, from mt p_implies_uv,
 end diaconescu
 
 theorem exists_true_of_nonempty {α : Sort u} (h : nonempty α) : ∃ x : α, true :=
-nonempty.elim h (take x, ⟨x, trivial⟩)
+nonempty.elim h (assume x, ⟨x, trivial⟩)
 
 noncomputable def inhabited_of_nonempty {α : Sort u} (h : nonempty α) : inhabited α :=
 ⟨(indefinite_description _ (exists_true_of_nonempty h)).val⟩
@@ -135,7 +135,7 @@ theorem epsilon_singleton {α : Sort u} (x : α) : @epsilon α ⟨x⟩ (λ y, y 
 
 theorem axiom_of_choice {α : Sort u} {β : α → Sort v} {r : Π x, β x → Prop} (h : ∀ x, ∃ y, r x y) :
   ∃ (f : Π x, β x), ∀ x, r x (f x) :=
-have h : ∀ x, r x (some (h x)), from take x, some_spec (h x),
+have h : ∀ x, r x (some (h x)), from assume x, some_spec (h x),
 ⟨_, h⟩
 
 theorem skolem {α : Sort u} {b : α → Sort v} {p : Π x, b x → Prop} :
@@ -143,7 +143,7 @@ theorem skolem {α : Sort u} {b : α → Sort v} {p : Π x, b x → Prop} :
 iff.intro
   (assume h : (∀ x, ∃ y, p x y), axiom_of_choice h)
   (assume h : (∃ (f : Π x, b x), (∀ x, p x (f x))),
-    take x, exists.elim h (λ (fw : ∀ x, b x) (hw : ∀ x, p x (fw x)),
+    assume x, exists.elim h (λ (fw : ∀ x, b x) (hw : ∀ x, p x (fw x)),
       ⟨fw x, hw x⟩))
 
 theorem prop_complete (a : Prop) : a = true ∨ a = false :=

@@ -119,17 +119,17 @@ def monotonicity := { user_attribute . name := `monotonicity, descr := "Monotoni
 
 lemma monotonicity.pi {α : Sort u} {p q : α → Prop} (h : ∀a, implies (p a) (q a)) :
   implies (Πa, p a) (Πa, q a) :=
-take h' a, h a (h' a)
+assume h' a, h a (h' a)
 
 lemma monotonicity.imp {p p' q q' : Prop} (h₁ : implies p' q') (h₂ : implies q p) :
   implies (p → p') (q → q') :=
-take h, h₁ ∘ h ∘ h₂
+assume h, h₁ ∘ h ∘ h₂
 
 @[monotonicity]
 lemma monotonicity.const (p : Prop) : implies p p := id
 
 @[monotonicity]
-lemma monotonicity.true (p : Prop) : implies p true := take _, trivial
+lemma monotonicity.true (p : Prop) : implies p true := assume _, trivial
 
 @[monotonicity]
 lemma monotonicity.false (p : Prop) : implies false p := false.elim

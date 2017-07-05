@@ -8,12 +8,12 @@ universes u
 variable {α : Type u}
 
 lemma ext {a b : set α} (h : ∀ x, x ∈ a ↔ x ∈ b) : a = b :=
-funext (take x, propext (h x))
+funext (assume x, propext (h x))
 
-lemma subset.refl (a : set α) : a ⊆ a := take x, assume H, H
+lemma subset.refl (a : set α) : a ⊆ a := assume x, assume H, H
 
 lemma subset.trans {a b c : set α} (subab : a ⊆ b) (subbc : b ⊆ c) : a ⊆ c :=
-take x, assume ax, subbc (subab ax)
+assume x, assume ax, subbc (subab ax)
 
 lemma subset.antisymm {a b : set α} (h₁ : a ⊆ b) (h₂ : b ⊆ a) : a = b :=
 ext (λ x, iff.intro (λ ina, h₁ ina) (λ inb, h₂ inb))
@@ -32,7 +32,7 @@ lemma mem_empty_eq (x : α) : x ∈ (∅ : set α) = false :=
 rfl
 
 lemma eq_empty_of_forall_not_mem {s : set α} (h : ∀ x, x ∉ s) : s = ∅ :=
-ext (take x, iff.intro
+ext (assume x, iff.intro
   (assume xs, absurd xs (h x))
   (assume xe, absurd xe (not_mem_empty _)))
 
@@ -40,16 +40,16 @@ lemma ne_empty_of_mem {s : set α} {x : α} (h : x ∈ s) : s ≠ ∅ :=
   begin intro hs, rewrite hs at h, apply not_mem_empty _ h end
 
 lemma empty_subset (s : set α) : ∅ ⊆ s :=
-take x, assume h, false.elim h
+assume x, assume h, false.elim h
 
 lemma eq_empty_of_subset_empty {s : set α} (h : s ⊆ ∅) : s = ∅ :=
 subset.antisymm h (empty_subset s)
 
 lemma union_comm (a b : set α) : a ∪ b = b ∪ a :=
-ext (take x, or.comm)
+ext (assume x, or.comm)
 
 lemma union_assoc (a b c : set α) : (a ∪ b) ∪ c = a ∪ (b ∪ c) :=
-ext (take x, or.assoc)
+ext (assume x, or.assoc)
 
 instance union_is_assoc : is_associative (set α) (∪) :=
 ⟨union_assoc⟩
@@ -58,19 +58,19 @@ instance union_is_comm : is_commutative (set α) (∪) :=
 ⟨union_comm⟩
 
 lemma union_self (a : set α) : a ∪ a = a :=
-ext (take x, or_self _)
+ext (assume x, or_self _)
 
 lemma union_empty (a : set α) : a ∪ ∅ = a :=
-ext (take x, or_false _)
+ext (assume x, or_false _)
 
 lemma empty_union (a : set α) : ∅ ∪ a = a :=
-ext (take x, false_or _)
+ext (assume x, false_or _)
 
 lemma inter_comm (a b : set α) : a ∩ b = b ∩ a :=
-ext (take x, and.comm)
+ext (assume x, and.comm)
 
 lemma inter_assoc (a b c : set α) : (a ∩ b) ∩ c = a ∩ (b ∩ c) :=
-ext (take x, and.assoc)
+ext (assume x, and.assoc)
 
 instance inter_is_assoc : is_associative (set α) (∩) :=
 ⟨inter_assoc⟩
@@ -79,12 +79,12 @@ instance inter_is_comm : is_commutative (set α) (∩) :=
 ⟨inter_comm⟩
 
 lemma inter_self (a : set α) : a ∩ a = a :=
-ext (take x, and_self _)
+ext (assume x, and_self _)
 
 lemma inter_empty (a : set α) : a ∩ ∅ = ∅ :=
-ext (take x, and_false _)
+ext (assume x, and_false _)
 
 lemma empty_inter (a : set α) : ∅ ∩ a = ∅ :=
-ext (take x, false_and _)
+ext (assume x, false_and _)
 
 end set

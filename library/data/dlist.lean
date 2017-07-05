@@ -95,7 +95,7 @@ protected def rel_dlist_list (d : dlist α) (l : list α) : Prop :=
 to_list d = l
 
 instance bi_total_rel_dlist_list : @relator.bi_total (dlist α) (list α) dlist.rel_dlist_list :=
-⟨take d, ⟨to_list d, rfl⟩, take l, ⟨of_list l, to_list_of_list l⟩⟩
+⟨assume d, ⟨to_list d, rfl⟩, assume l, ⟨of_list l, to_list_of_list l⟩⟩
 
 protected lemma rel_eq :
   (dlist.rel_dlist_list ⇒ dlist.rel_dlist_list ⇒ iff) (@eq (dlist α)) eq

@@ -217,7 +217,7 @@ do fmt ← pp a,
    return $ _root_.trace_fmt fmt (λ u, ())
 
 meta def trace_call_stack : tactic unit :=
-take state, _root_.trace_call_stack (success () state)
+assume state, _root_.trace_call_stack (success () state)
 
 meta def timetac {α : Type u} (desc : string) (t : thunk (tactic α)) : tactic α :=
 λ s, timeit desc (t () s)

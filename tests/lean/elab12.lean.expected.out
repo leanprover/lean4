@@ -1,22 +1,22 @@
-elab12.lean:1:31: error: type expected at
+elab12.lean:1:33: error: type expected at
   0
-elab12.lean:1:39: error: function expected at
+elab12.lean:1:41: error: function expected at
   rfl
 Additional information:
-elab12.lean:1:39: context: switched to simple application elaboration procedure because failed to use expected type to elaborate it, error message
+elab12.lean:1:41: context: switched to simple application elaboration procedure because failed to use expected type to elaborate it, error message
   too many arguments
 elab12.lean:2:2: error: function expected at
   H
 λ (a : ℕ), have H : ⁇, from ⁇, ⁇ : ∀ (a : ℕ), a = a
-elab12.lean:4:43: error: function expected at
+elab12.lean:4:45: error: function expected at
   rfl
 Additional information:
-elab12.lean:4:43: context: switched to simple application elaboration procedure because failed to use expected type to elaborate it, error message
+elab12.lean:4:45: context: switched to simple application elaboration procedure because failed to use expected type to elaborate it, error message
   too many arguments
 elab12.lean:5:2: error: function expected at
   H
 λ (a : ℕ), have H : a = a, from ⁇, ⁇ : ∀ (a : ℕ), a = a
-elab12.lean:7:45: error: invalid have-expression, expression
+elab12.lean:7:47: error: invalid have-expression, expression
   a + 0
 has type
   ℕ

@@ -10,7 +10,7 @@ import init.data.int.basic init.data.nat.find
 
 namespace int
 
-private def nonneg (a : ℤ) : Prop := int.cases_on a (take n, true) (take n, false)
+private def nonneg (a : ℤ) : Prop := int.cases_on a (assume n, true) (assume n, false)
 
 protected def le (a b : ℤ) : Prop := nonneg (b - a)
 
@@ -21,7 +21,7 @@ protected def lt (a b : ℤ) : Prop := (a + 1) ≤ b
 instance : has_lt int := ⟨int.lt⟩
 
 private def decidable_nonneg (a : ℤ) : decidable (nonneg a) :=
-int.cases_on a (take a, decidable.true) (take a, decidable.false)
+int.cases_on a (assume a, decidable.true) (assume a, decidable.false)
 
 instance decidable_le (a b : ℤ) : decidable (a ≤ b) := decidable_nonneg _
 
@@ -30,10 +30,10 @@ instance decidable_lt (a b : ℤ) : decidable (a < b) := decidable_nonneg _
 lemma lt_iff_add_one_le (a b : ℤ) : a < b ↔ a + 1 ≤ b := iff.refl _
 
 private lemma nonneg.elim {a : ℤ} : nonneg a → ∃ n : ℕ, a = n :=
-int.cases_on a (take n H, exists.intro n rfl) (take n', false.elim)
+int.cases_on a (assume n H, exists.intro n rfl) (assume n', false.elim)
 
 private lemma nonneg_or_nonneg_neg (a : ℤ) : nonneg a ∨ nonneg (-a) :=
-int.cases_on a (take n, or.inl trivial) (take n, or.inr trivial)
+int.cases_on a (assume n, or.inl trivial) (assume n, or.inr trivial)
 
 lemma le.intro_sub {a b : ℤ} {n : ℕ} (h : b - a = n) : a ≤ b :=
 show nonneg (b - a), by rw h; trivial
@@ -64,7 +64,7 @@ match nat.le.dest h with
 end
 
 lemma le_of_coe_nat_le_coe_nat {m n : ℕ} (h : (↑m : ℤ) ≤ ↑n) : m ≤ n :=
-le.elim h (take k, assume hk : ↑m + ↑k = ↑n,
+le.elim h (assume k, assume hk : ↑m + ↑k = ↑n,
   have m + k = n, from int.coe_nat_inj ((int.coe_nat_add m k).trans hk),
   nat.le.intro this)
 
@@ -88,7 +88,7 @@ lemma lt.intro {a b : ℤ} {n : ℕ} (h : a + nat.succ n = b) : a < b :=
 h ▸ lt_add_succ a n
 
 lemma lt.dest {a b : ℤ} (h : a < b) : ∃ n : ℕ, a + ↑(nat.succ n) = b :=
-le.elim h (take n, assume hn : a + 1 + n = b,
+le.elim h (assume n, assume hn : a + 1 + n = b,
     exists.intro n begin rw [-hn, add_assoc, add_comm (1 : int)], reflexivity end)
 
 lemma lt.elim {a b : ℤ} (h : a < b) {P : Prop} (h' : ∀ n : ℕ, a + ↑(nat.succ n) = b → P) : P :=
@@ -109,13 +109,13 @@ protected lemma le_refl (a : ℤ) : a ≤ a :=
 le.intro (add_zero a)
 
 protected lemma le_trans {a b c : ℤ} (h₁ : a ≤ b) (h₂ : b ≤ c) : a ≤ c :=
-le.elim h₁ (take n, assume hn : a + n = b,
-le.elim h₂ (take m, assume hm : b + m = c,
+le.elim h₁ (assume n, assume hn : a + n = b,
+le.elim h₂ (assume m, assume hm : b + m = c,
 begin apply le.intro, rw [-hm, -hn, add_assoc], reflexivity end))
 
 protected lemma le_antisymm {a b : ℤ} (h₁ : a ≤ b) (h₂ : b ≤ a) : a = b :=
-le.elim h₁ (take n, assume hn : a + n = b,
-le.elim h₂ (take m, assume hm : b + m = a,
+le.elim h₁ (assume n, assume hn : a + n = b,
+le.elim h₂ (assume m, assume hm : b + m = a,
   have a + ↑(n + m) = a + 0, by rw [int.coe_nat_add, -add_assoc, hn, hm, add_zero a],
   have (↑(n + m) : ℤ) = 0, from add_left_cancel this,
   have n + m = 0, from int.coe_nat_inj this,
@@ -124,7 +124,7 @@ le.elim h₂ (take m, assume hm : b + m = a,
 
 protected lemma lt_irrefl (a : ℤ) : ¬ a < a :=
 suppose a < a,
-lt.elim this (take n, assume hn : a + nat.succ n = a,
+lt.elim this (assume n, assume hn : a + nat.succ n = a,
   have a + nat.succ n = a + 0, by rw [hn, add_zero],
   have nat.succ n = 0, from int.coe_nat_inj (add_left_cancel this),
   show false, from nat.succ_ne_zero _ this)
@@ -133,13 +133,13 @@ protected lemma ne_of_lt {a b : ℤ} (h : a < b) : a ≠ b :=
 (suppose a = b, absurd (begin rewrite this at h, exact h end) (int.lt_irrefl b))
 
 lemma le_of_lt {a b : ℤ} (h : a < b) : a ≤ b :=
-lt.elim h (take n, assume hn : a + nat.succ n = b, le.intro hn)
+lt.elim h (assume n, assume hn : a + nat.succ n = b, le.intro hn)
 
 protected lemma lt_iff_le_and_ne (a b : ℤ) : a < b ↔ (a ≤ b ∧ a ≠ b) :=
 iff.intro
   (assume h, ⟨le_of_lt h, int.ne_of_lt h⟩)
   (assume ⟨aleb, aneb⟩,
-    le.elim aleb (take n, assume hn : a + n = b,
+    le.elim aleb (assume n, assume hn : a + n = b,
       have n ≠ 0,
         from (suppose n = 0, aneb begin rw [-hn, this, int.coe_nat_zero, add_zero] end),
       have n = nat.succ (nat.pred n),
@@ -152,7 +152,7 @@ iff.intro
     decidable.by_cases
       (suppose a = b, or.inr this)
       (suppose a ≠ b,
-        le.elim h (take n, assume hn : a + n = b,
+        le.elim h (assume n, assume hn : a + n = b,
           have n ≠ 0, from
             (suppose n = 0, ‹a ≠ b› begin rw [-hn, this, int.coe_nat_zero, add_zero] end),
           have n = nat.succ (nat.pred n),
@@ -167,23 +167,23 @@ lemma lt_succ (a : ℤ) : a < a + 1 :=
 int.le_refl (a + 1)
 
 protected lemma add_le_add_left {a b : ℤ} (h : a ≤ b) (c : ℤ) : c + a ≤ c + b :=
-le.elim h (take n, assume hn : a + n = b,
+le.elim h (assume n, assume hn : a + n = b,
   le.intro (show c + a + n = c + b, begin rw [add_assoc, hn] end))
 
 protected lemma add_lt_add_left {a b : ℤ} (h : a < b) (c : ℤ) : c + a < c + b :=
 iff.mpr (int.lt_iff_le_and_ne _ _)
   (and.intro
     (int.add_le_add_left (le_of_lt h) _)
-    (take heq, int.lt_irrefl b begin rw add_left_cancel heq at h, exact h end))
+    (assume heq, int.lt_irrefl b begin rw add_left_cancel heq at h, exact h end))
 
 protected lemma mul_nonneg {a b : ℤ} (ha : 0 ≤ a) (hb : 0 ≤ b) : 0 ≤ a * b :=
-le.elim ha (take n, assume hn,
-le.elim hb (take m, assume hm,
+le.elim ha (assume n, assume hn,
+le.elim hb (assume m, assume hm,
   le.intro (show 0 + ↑n * ↑m = a * b, begin rw [-hn, -hm], repeat {rw zero_add} end)))
 
 protected lemma mul_pos {a b : ℤ} (ha : 0 < a) (hb : 0 < b) : 0 < a * b :=
-lt.elim ha (take n, assume hn,
-lt.elim hb (take m, assume hm,
+lt.elim ha (assume n, assume hn,
+lt.elim hb (assume m, assume hm,
   lt.intro (show 0 + ↑(nat.succ (nat.succ n * m + n)) = a * b,
     begin rw [-hn, -hm], repeat {rw int.coe_nat_zero}, simp,
           rw [-int.coe_nat_mul], simp [nat.mul_succ, nat.succ_add] end)))

@@ -27,7 +27,7 @@ class has_well_founded (α : Sort u) : Type u :=
 
 namespace well_founded
 def apply {α : Sort u} {r : α → α → Prop} (wf : well_founded r) : ∀ a, acc r a :=
-take a, well_founded.rec_on wf (λ p, p) a
+assume a, well_founded.rec_on wf (λ p, p) a
 
 section
 parameters {α : Sort u} {r : α → α → Prop}

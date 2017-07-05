@@ -137,7 +137,7 @@ lemma min_add_add_left (a b c : α) : min (a + b) (a + c) = a + min b c :=
 eq.symm (eq_min
   (show a + min b c ≤ a + b, from add_le_add_left (min_le_left _ _)  _)
   (show a + min b c ≤ a + c, from add_le_add_left (min_le_right _ _)  _)
-  (take d,
+  (assume d,
     suppose d ≤ a + b,
     suppose d ≤ a + c,
     decidable.by_cases
@@ -151,7 +151,7 @@ lemma max_add_add_left (a b c : α) : max (a + b) (a + c) = a + max b c :=
 eq.symm (eq_max
   (add_le_add_left (le_max_left _ _)  _)
   (add_le_add_left (le_max_right _ _) _)
-  (take d,
+  (assume d,
     suppose a + b ≤ d,
     suppose a + c ≤ d,
     decidable.by_cases
@@ -169,7 +169,7 @@ lemma max_neg_neg (a b : α) : max (-a) (-b) = - min a b  :=
 eq.symm (eq_max
   (show -a ≤ -(min a b), from neg_le_neg $ min_le_left a b)
   (show -b ≤ -(min a b), from neg_le_neg $ min_le_right a b)
-  (take d,
+  (assume d,
     assume H₁ : -a ≤ d,
     assume H₂ : -b ≤ d,
     have H : -d ≤ min a b,

@@ -40,7 +40,7 @@ end monad
 namespace state_t
 
 def state_t_monad_lift (S) (m) [monad m] (α) (f : m α) : state_t S m α :=
-take state, do res ← f, return (res, state)
+assume state, do res ← f, return (res, state)
 
 instance (S) : monad.monad_transformer (state_t S) :=
 ⟨ state_t.monad S, state_t_monad_lift S ⟩

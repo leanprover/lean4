@@ -13,13 +13,13 @@ theorem pred_succ (n : nat) : pred (succ n) = n := refl _
 theorem zero_or_succ (n : nat) : n = zero ∨ n = succ (pred n)
 := nat.rec_on n
     (or.intro_left _ (refl zero))
-    (take m IH, or.intro_right _
+    (assume m IH, or.intro_right _
       (show succ m = succ (pred (succ m)), from congr_arg succ (symm (pred_succ m))))
 
 theorem zero_or_succ2 (n : nat) : n = zero ∨ n = succ (pred n)
 := nat.rec_on n
     (or.intro_left _ (refl zero))
-    (take m IH, or.intro_right _
+    (assume m IH, or.intro_right _
       (show succ m = succ (pred (succ m)), from congr_arg succ (symm (pred_succ m))))
 end nat
 end experiment

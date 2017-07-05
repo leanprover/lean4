@@ -316,8 +316,8 @@ iff.mpr (h₂ hc) hd)
 
 lemma imp_congr_right (h : a → (b ↔ c)) : (a → b) ↔ (a → c) :=
 iff.intro
-  (take hab ha, iff.elim_left (h ha) (hab ha))
-  (take hab ha, iff.elim_right (h ha) (hab ha))
+  (assume hab ha, iff.elim_left (h ha) (hab ha))
+  (assume hab ha, iff.elim_right (h ha) (hab ha))
 
 lemma not_not_intro (ha : a) : ¬¬a :=
 assume hna : ¬a, hna ha
@@ -562,7 +562,7 @@ exists.elim h₂ (λ w hw, h₁ w (and.left hw) (and.right hw))
 
 lemma exists_unique_of_exists_of_unique {α : Type u} {p : α → Prop}
     (hex : ∃ x, p x) (hunique : ∀ y₁ y₂, p y₁ → p y₂ → y₁ = y₂) :  ∃! x, p x :=
-exists.elim hex (λ x px, exists_unique.intro x px (take y, suppose p y, hunique y x this px))
+exists.elim hex (λ x px, exists_unique.intro x px (assume y, suppose p y, hunique y x this px))
 
 lemma exists_of_exists_unique {α : Sort u} {p : α → Prop} (h : ∃! x, p x) : ∃ x, p x :=
 exists.elim h (λ x hx, ⟨x, and.left hx⟩)
@@ -570,7 +570,7 @@ exists.elim h (λ x hx, ⟨x, and.left hx⟩)
 lemma unique_of_exists_unique {α : Sort u} {p : α → Prop}
     (h : ∃! x, p x) {y₁ y₂ : α} (py₁ : p y₁) (py₂ : p y₂) : y₁ = y₂ :=
 exists_unique.elim h
-  (take x, suppose p x,
+  (assume x, suppose p x,
     assume unique : ∀ y, p y → y = x,
     show y₁ = y₂, from eq.trans (unique _ py₁) (eq.symm (unique _ py₂)))
 
@@ -707,7 +707,7 @@ instance : decidable_eq bool
 | tt tt := is_true rfl
 
 def decidable_eq_of_bool_pred {α : Sort u} {p : α → α → bool} (h₁ : is_dec_eq p) (h₂ : is_dec_refl p) : decidable_eq α :=
-take x y : α,
+assume x y : α,
  if hp : p x y = tt then is_true (h₁ hp)
  else is_false (assume hxy : x = y, absurd (h₂ y) (@eq.rec_on _ _ (λ z, ¬p z y = tt) _ hxy hp))
 
@@ -1054,13 +1054,13 @@ def right_commutative (h : β → α → β) := ∀ b a₁ a₂, h (h b a₁) a�
 def left_commutative  (h : α → β → β) := ∀ a₁ a₂ b, h a₁ (h a₂ b) = h a₂ (h a₁ b)
 
 lemma left_comm : commutative f → associative f → left_commutative f :=
-assume hcomm hassoc, take a b c, calc
+assume hcomm hassoc, assume a b c, calc
   a*(b*c) = (a*b)*c  : eq.symm (hassoc a b c)
     ...   = (b*a)*c  : hcomm a b ▸ rfl
     ...   = b*(a*c)  : hassoc b a c
 
 lemma right_comm : commutative f → associative f → right_commutative f :=
-assume hcomm hassoc, take a b c, calc
+assume hcomm hassoc, assume a b c, calc
   (a*b)*c = a*(b*c) : hassoc a b c
     ...   = a*(c*b) : hcomm b c ▸ rfl
     ...   = (a*c)*b : eq.symm (hassoc a c b)

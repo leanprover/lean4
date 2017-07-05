@@ -47,7 +47,6 @@ show         show
 have         have
 assume       assume
 suppose      suppose
-take         take
 fun          fun
 match        match
 ellipsis     ...

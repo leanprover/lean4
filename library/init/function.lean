@@ -62,7 +62,7 @@ lemma comp_const_right (f : β → φ) (b : β) : f ∘ (const α b) = const α 
 @[reducible] def injective (f : α → β) : Prop := ∀ ⦃a₁ a₂⦄, f a₁ = f a₂ → a₁ = a₂
 
 lemma injective_comp {g : β → φ} {f : α → β} (hg : injective g) (hf : injective f) : injective (g ∘ f) :=
-take a₁ a₂, assume h, hf (hg h)
+assume a₁ a₂, assume h, hf (hg h)
 
 @[reducible] def surjective (f : α → β) : Prop := ∀ b, ∃ a, f a = b
 
@@ -86,7 +86,7 @@ def right_inverse (g : β → α) (f : α → β) : Prop := left_inverse f g
 def has_right_inverse (f : α → β) : Prop := ∃ finv : β → α, right_inverse finv f
 
 lemma injective_of_left_inverse {g : β → α} {f : α → β} : left_inverse g f → injective f :=
-assume h, take a b, assume faeqfb,
+assume h, assume a b, assume faeqfb,
 have h₁ : a = g (f a),       from eq.symm (h a),
 have h₂ : g (f b) = b,       from h b,
 have h₃ : g (f a) = g (f b), from congr_arg g faeqfb,
@@ -98,7 +98,7 @@ assume h, exists.elim h (λ finv inv, injective_of_left_inverse inv)
 lemma right_inverse_of_injective_of_left_inverse {f : α → β} {g : β → α}
     (injf : injective f) (lfg : left_inverse f g) :
   right_inverse f g :=
-take x,
+assume x,
 have h : f (g (f x)) = f x, from lfg (f x),
 injf h
 
@@ -108,14 +108,14 @@ lemma surjective_of_has_right_inverse {f : α → β} : has_right_inverse f → 
 lemma left_inverse_of_surjective_of_right_inverse {f : α → β} {g : β → α}
     (surjf : surjective f) (rfg : right_inverse f g) :
   left_inverse f g :=
-take y, exists.elim (surjf y) (λ x hx, calc
+assume y, exists.elim (surjf y) (λ x hx, calc
   f (g y) = f (g (f x)) : hx ▸ rfl
       ... = f x         : eq.symm (rfg x) ▸ rfl
       ... = y           : hx)
 
-lemma injective_id : injective (@id α) := take a₁ a₂ h, h
+lemma injective_id : injective (@id α) := assume a₁ a₂ h, h
 
-lemma surjective_id : surjective (@id α) := take a, ⟨a, rfl⟩
+lemma surjective_id : surjective (@id α) := assume a, ⟨a, rfl⟩
 
 lemma bijective_id : bijective (@id α) := ⟨injective_id, surjective_id⟩
 

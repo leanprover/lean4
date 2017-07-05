@@ -17,7 +17,7 @@ protected def equiv (f₁ f₂ : Π x : α, β x) : Prop := ∀ x, f₁ x = f₂
 
 local infix `~` := function.equiv
 
-protected theorem equiv.refl (f : Π x : α, β x) : f ~ f := take x, rfl
+protected theorem equiv.refl (f : Π x : α, β x) : f ~ f := assume x, rfl
 
 protected theorem equiv.symm {f₁ f₂ : Π x: α, β x} : f₁ ~ f₂ → f₂ ~ f₁ :=
 λ h x, eq.symm (h x)
@@ -43,7 +43,7 @@ quotient (fun_setoid α β)
 private def fun_to_extfun (f : Π x : α, β x) : extfun α β :=
 ⟦f⟧
 private def extfun_app (f : extfun α β) : Π x : α, β x :=
-take x,
+assume x,
 quot.lift_on f
   (λ f : Π x : α, β x, f x)
   (λ f₁ f₂ h, h x)

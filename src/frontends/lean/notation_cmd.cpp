@@ -495,9 +495,9 @@ static notation_entry parse_notation_core(parser & p, bool overload, notation_en
         if (grp != notation_entry_group::Reserve)
             reserved_pt = get_reserved_nud_table(p.env());
     }
-    bool used_default = false;
     while ((grp != notation_entry_group::Reserve && !p.curr_is_token(get_assign_tk())) ||
            (grp == notation_entry_group::Reserve && !p.curr_is_command() && !p.curr_is_eof())) {
+        bool used_default = false;
         name pp_tk = parse_quoted_symbol_or_token(p, new_tokens, used_default).to_string();
         name tk = utf8_trim(pp_tk.to_string());
         if (auto at = find_next(reserved_pt, tk)) {
@@ -575,12 +575,12 @@ static notation_entry parse_notation_core(parser & p, bool overload, notation_en
             reserved_pt = optional<parse_table>();
             ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, pp_tk));
         }
+        // for leading tokens where binding power was not set, we set it to max
+        if (is_nud && used_default && ts.size() == 1) {
+            lean_assert(!new_tokens.empty());
+            new_tokens.back().m_prec = get_max_prec();
+        }
         pt = find_match(pt, ts.back());
-    }
-    // for atomic notation where binding power was not set, we set it to max
-    if (used_default && ts.size() == 1 && ts.back().get_action().kind() == notation::action_kind::Skip) {
-        lean_assert(!new_tokens.empty());
-        new_tokens.back().m_prec = get_max_prec();
     }
     expr n;
     if (grp == notation_entry_group::Reserve) {

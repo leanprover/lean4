@@ -3,3 +3,4 @@ inductive List (T : Type) : Type | nil {} : List | cons   : T → List → List 
 infixr `::` := cons
 #check (1:nat) :: 2 :: nil
 #check (1:nat) :: 2 :: 3 :: 4 :: 5 :: nil
+#print ]

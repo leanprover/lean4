@@ -1387,7 +1387,7 @@ expr parser::parse_notation(parse_table t, expr * left) {
         sstream msg;
         msg << "invalid expression";
         if (p != pos()) {
-            msg << "starting at " << p.first << ":" << p.second;
+            msg << " starting at " << p.first << ":" << p.second;
         }
         return parser_error_or_expr({msg, pos()});
     }

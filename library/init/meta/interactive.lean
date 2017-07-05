@@ -258,6 +258,9 @@ meta def exacts : parse pexpr_list_or_texpr → tactic unit
 | [] := done
 | (t :: ts) := exact t >> exacts ts
 
+/-- A synonym for `exact` that allows writing `have/show ..., from ...` in tactic mode. -/
+meta def «from» := exact
+
 /--
 `revert h₁ ... hₙ` applies to any goal with hypotheses `h₁` ... `hₙ`.
 It moves the hypotheses and its dependencies to the goal target.

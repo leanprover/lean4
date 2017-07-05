@@ -77,6 +77,8 @@ tactic.interactive.change q none (loc.ns [])
 meta def exact (q : parse texpr) : smt_tactic unit :=
 tactic.interactive.exact q
 
+meta def «from» := exact
+
 meta def «assume» (p : parse parse_binders) : smt_tactic unit :=
 tactic.interactive.assume p
 

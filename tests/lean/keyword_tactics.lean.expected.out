@@ -4,3 +4,7 @@ and
   ℕ : Type
 state:
 ⊢ ℕ → ℕ → ℕ
+keyword_tactics.lean:45:15: error: solve1 tactic failed, focused goal has not been solved
+state:
+f : ℕ → ℕ
+⊢ ℕ

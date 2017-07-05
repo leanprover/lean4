@@ -117,10 +117,10 @@ theorem disjoint_of_nodup_append : ∀ {l₁ l₂ : list α}, nodup (l₁++l₂)
   have nodup (x::(xs++l₂)),    from d,
   have x ∉ xs++l₂,             from not_mem_of_nodup_cons this,
   have nxinl₂ : x ∉ l₂,        from not_mem_of_not_mem_append_right this,
-  assume a, suppose a ∈ x::xs,
+  assume a, assume : a ∈ x::xs,
     or.elim (eq_or_mem_of_mem_cons this)
-      (suppose a = x, eq.symm this ▸ nxinl₂)
-      (suppose ainxs : a ∈ xs,
+      (assume : a = x, eq.symm this ▸ nxinl₂)
+      (assume ainxs : a ∈ xs,
         have nodup (x::(xs++l₂)), from d,
         have nodup (xs++l₂),      from nodup_of_nodup_cons this,
         have disjoint xs l₂,      from disjoint_of_nodup_append this,

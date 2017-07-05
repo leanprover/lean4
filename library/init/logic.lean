@@ -562,7 +562,7 @@ exists.elim h₂ (λ w hw, h₁ w (and.left hw) (and.right hw))
 
 lemma exists_unique_of_exists_of_unique {α : Type u} {p : α → Prop}
     (hex : ∃ x, p x) (hunique : ∀ y₁ y₂, p y₁ → p y₂ → y₁ = y₂) :  ∃! x, p x :=
-exists.elim hex (λ x px, exists_unique.intro x px (assume y, suppose p y, hunique y x this px))
+exists.elim hex (λ x px, exists_unique.intro x px (assume y, assume : p y, hunique y x this px))
 
 lemma exists_of_exists_unique {α : Sort u} {p : α → Prop} (h : ∃! x, p x) : ∃ x, p x :=
 exists.elim h (λ x hx, ⟨x, and.left hx⟩)
@@ -570,7 +570,7 @@ exists.elim h (λ x hx, ⟨x, and.left hx⟩)
 lemma unique_of_exists_unique {α : Sort u} {p : α → Prop}
     (h : ∃! x, p x) {y₁ y₂ : α} (py₁ : p y₁) (py₂ : p y₂) : y₁ = y₂ :=
 exists_unique.elim h
-  (assume x, suppose p x,
+  (assume x, assume : p x,
     assume unique : ∀ y, p y → y = x,
     show y₁ = y₂, from eq.trans (unique _ py₁) (eq.symm (unique _ py₂)))
 

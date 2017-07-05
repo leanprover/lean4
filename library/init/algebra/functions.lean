@@ -138,11 +138,11 @@ eq.symm (eq_min
   (show a + min b c ≤ a + b, from add_le_add_left (min_le_left _ _)  _)
   (show a + min b c ≤ a + c, from add_le_add_left (min_le_right _ _)  _)
   (assume d,
-    suppose d ≤ a + b,
-    suppose d ≤ a + c,
+    assume : d ≤ a + b,
+    assume : d ≤ a + c,
     decidable.by_cases
-      (suppose b ≤ c, by rwa [min_eq_left this])
-      (suppose ¬ b ≤ c, by rwa [min_eq_right (le_of_lt (lt_of_not_ge this))])))
+      (assume : b ≤ c, by rwa [min_eq_left this])
+      (assume : ¬ b ≤ c, by rwa [min_eq_right (le_of_lt (lt_of_not_ge this))])))
 
 lemma min_add_add_right (a b c : α) : min (a + c) (b + c) = min a b + c :=
 begin rw [add_comm a c, add_comm b c, add_comm _ c], apply min_add_add_left end
@@ -152,11 +152,11 @@ eq.symm (eq_max
   (add_le_add_left (le_max_left _ _)  _)
   (add_le_add_left (le_max_right _ _) _)
   (assume d,
-    suppose a + b ≤ d,
-    suppose a + c ≤ d,
+    assume : a + b ≤ d,
+    assume : a + c ≤ d,
     decidable.by_cases
-      (suppose b ≤ c, by rwa [max_eq_right this])
-      (suppose ¬ b ≤ c, by rwa [max_eq_left (le_of_lt (lt_of_not_ge this))])))
+      (assume : b ≤ c, by rwa [max_eq_right this])
+      (assume : ¬ b ≤ c, by rwa [max_eq_left (le_of_lt (lt_of_not_ge this))])))
 
 lemma max_add_add_right (a b c : α) : max (a + c) (b + c) = max a b + c :=
 begin rw [add_comm a c, add_comm b c, add_comm _ c], apply max_add_add_left end
@@ -472,8 +472,8 @@ variables {α : Type u} [discrete_linear_ordered_field α]
 
 lemma abs_div (a b : α) : abs (a / b) = abs a / abs b :=
 decidable.by_cases
-  (suppose h : b = 0, by rw [h, abs_zero, div_zero, div_zero, abs_zero])
-  (suppose h : b ≠ 0,
+  (assume h : b = 0, by rw [h, abs_zero, div_zero, div_zero, abs_zero])
+  (assume h : b ≠ 0,
    have h₁ : abs b ≠ 0, from
      assume h₂, h (eq_zero_of_abs_eq_zero h₂),
    eq_div_of_mul_eq _ _ h₁

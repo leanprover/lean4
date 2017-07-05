@@ -458,37 +458,6 @@ static expr parse_have(parser_state & p, unsigned, expr const *, pos_info const 
     return p.mk_app(r, proof, pos);
 }
 
-static expr parse_suppose(parser_state & p, unsigned, expr const *, pos_info const & pos) {
-    auto id_pos = p.pos();
-    name id;
-    expr prop;
-    if (p.curr_is_identifier()) {
-        id = p.get_name_val();
-        p.next();
-        if (p.curr_is_token(get_colon_tk())) {
-            p.next();
-            prop      = p.parse_expr();
-        } else {
-            expr left = p.id_to_expr(id, id_pos);
-            id        = get_this_tk();
-            unsigned rbp = 0;
-            while (rbp < p.curr_lbp()) {
-                left = p.parse_led(left);
-            }
-            prop      = left;
-        }
-    } else {
-        id    = get_this_tk();
-        prop  = p.parse_expr();
-    }
-    p.check_token_next(get_comma_tk(), "invalid 'suppose', ',' expected");
-    parser_state::local_scope scope(p);
-    expr l = p.save_pos(mk_local(id, prop), id_pos);
-    p.add_local(l);
-    expr body = p.parse_expr();
-    return p.save_pos(Fun(l, body, p), pos);
-}
-
 static expr parse_show(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     expr prop  = p.parse_expr();
     p.check_token_next(get_comma_tk(), "invalid 'show' declaration, ',' expected");
@@ -816,6 +785,22 @@ static expr parse_lambda(parser_state & p, unsigned, expr const *, pos_info cons
     return parse_lambda_core(p, pos);
 }
 
+static expr parse_assume(parser_state & p, unsigned, expr const *, pos_info const & pos) {
+    if (p.curr_is_token(get_colon_tk())) {
+        // anonymous `assume`
+        p.next();
+        expr prop = p.parse_expr();
+        p.check_token_next(get_comma_tk(), "invalid 'assume', ',' expected");
+        parser_state::local_scope scope(p);
+        expr l = p.save_pos(mk_local(get_this_tk(), prop), pos);
+        p.add_local(l);
+        expr body = p.parse_expr();
+        return p.save_pos(Fun(l, body, p), pos);
+    } else {
+        return parse_lambda_core(p, pos);
+    }
+}
+
 static void consume_rparen(parser_state & p) {
     p.check_token_next(get_rparen_tk(), "invalid expression, `)` expected");
 }
@@ -1022,8 +1007,7 @@ parse_table init_nud_table() {
     parse_table r;
     r = r.add({transition("by", mk_ext_action_core(parse_by))}, x0);
     r = r.add({transition("have", mk_ext_action(parse_have))}, x0);
-    r = r.add({transition("assume", mk_ext_action(parse_lambda))}, x0);
-    r = r.add({transition("suppose", mk_ext_action(parse_suppose))}, x0);
+    r = r.add({transition("assume", mk_ext_action(parse_assume))}, x0);
     r = r.add({transition("show", mk_ext_action(parse_show))}, x0);
     r = r.add({transition("suffices", mk_ext_action(parse_suffices))}, x0);
     r = r.add({transition("if", mk_ext_action(parse_if_then_else))}, x0);

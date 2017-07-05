@@ -72,7 +72,7 @@ lemma mul_div_assoc (a b c : α) : (a * b) / c = a * (b / c) :=
 by simp
 
 lemma one_div_ne_zero {a : α} (h : a ≠ 0) : 1 / a ≠ 0 :=
-suppose 1 / a = 0,
+assume : 1 / a = 0,
 have 0 = (1:α), from eq.symm (by rw [-(mul_one_div_cancel h), this, mul_zero]),
 absurd this zero_ne_one
 
@@ -91,7 +91,7 @@ by simp
 -- note: integral domain has a "mul_ne_zero". α commutative division ring is an integral
 -- domain, but let's not define that class for now.
 lemma division_ring.mul_ne_zero {a b : α} (ha : a ≠ 0) (hb : b ≠ 0) : a * b ≠ 0 :=
-suppose a * b = 0,
+assume : a * b = 0,
 have   a * 1 = 0, by rw [-(mul_one_div_cancel hb), -mul_assoc, this, zero_mul],
 have   a = 0, by rwa mul_one at this,
 absurd this ha
@@ -103,7 +103,7 @@ division_ring.mul_ne_zero h₂ h₁
 
 lemma eq_one_div_of_mul_eq_one {a b : α} (h : a * b = 1) : b = 1 / a :=
 have a ≠ 0, from
-   suppose a = 0,
+   assume : a = 0,
    have 0 = (1:α), by rwa [this, zero_mul] at h,
       absurd this zero_ne_one,
 have b = (1 / a) * a * b, by rw [one_div_mul_cancel this, one_mul],
@@ -111,7 +111,7 @@ show b = 1 / a, by rwa [mul_assoc, h, mul_one] at this
 
 lemma eq_one_div_of_mul_eq_one_left {a b : α} (h : b * a = 1) : b = 1 / a :=
 have a ≠ 0, from
-  suppose a = 0,
+  assume : a = 0,
   have 0 = (1:α), by rwa [this, mul_zero] at h,
     absurd this zero_ne_one,
 by rw [-h, mul_div_assoc, div_self this, mul_one]
@@ -127,7 +127,7 @@ eq.symm (eq_one_div_of_mul_eq_one this)
 
 lemma division_ring.one_div_neg_eq_neg_one_div {a : α} (h : a ≠ 0) : 1 / (- a) = - (1 / a) :=
 have -1 ≠ (0:α), from
-  (suppose -1 = 0, absurd (eq.symm (calc
+  (assume : -1 = 0, absurd (eq.symm (calc
             1 = -(-1)  : (neg_neg (1:α)).symm
           ... = -0     : by rw this
           ... = (0:α)  : neg_zero)) zero_ne_one),
@@ -186,19 +186,19 @@ by rw [(mul_sub_left_distrib (1 / a)), (one_div_mul_cancel ha), mul_sub_right_di
 
 lemma div_eq_one_iff_eq (a : α) {b : α} (hb : b ≠ 0) : a / b = 1 ↔ a = b :=
 iff.intro
- (suppose a / b = 1, calc
+ (assume : a / b = 1, calc
       a   = a / b * b : by simp [hb]
       ... = 1 * b     : by rw this
       ... = b         : by simp)
- (suppose a = b, by simp [this, hb])
+ (assume : a = b, by simp [this, hb])
 
 lemma eq_of_div_eq_one (a : α) {b : α} (Hb : b ≠ 0) : a / b = 1 → a = b :=
 iff.mp $ div_eq_one_iff_eq a Hb
 
 lemma eq_div_iff_mul_eq (a b : α) {c : α} (hc : c ≠ 0) : a = b / c ↔ a * c = b :=
 iff.intro
-  (suppose a = b / c, by rw [this, (div_mul_cancel _ hc)])
-  (suppose a * c = b, by rw [-this, mul_div_cancel _ hc])
+  (assume : a = b / c, by rw [this, (div_mul_cancel _ hc)])
+  (assume : a * c = b, by rw [-this, mul_div_cancel _ hc])
 
 lemma eq_div_of_mul_eq (a b : α) {c : α} (hc : c ≠ 0) : a * c = b → a = b / c :=
 iff.mpr $ eq_div_iff_mul_eq a b hc
@@ -330,8 +330,8 @@ variable [discrete_field α]
 lemma discrete_field.eq_zero_or_eq_zero_of_mul_eq_zero
     (a b : α) (h : a * b = 0) : a = 0 ∨ b = 0 :=
 decidable.by_cases
-  (suppose a = 0, or.inl this)
-  (suppose a ≠ 0,
+  (assume : a = 0, or.inl this)
+  (assume : a ≠ 0,
      or.inr (by rw [-(one_mul b), -(inv_mul_cancel this), mul_assoc, h, mul_zero]))
 
 instance discrete_field.to_integral_domain [s : discrete_field α] : integral_domain α :=
@@ -360,18 +360,18 @@ decidable.by_cases
 
 lemma one_div_mul_one_div' (a b : α) : (1 / a) * (1 / b) = 1 / (b * a) :=
 decidable.by_cases
- (suppose a = 0,
+ (assume : a = 0,
    by rw [this, div_zero, zero_mul, mul_zero, div_zero])
  (assume ha : a ≠ 0,
    decidable.by_cases
-     (suppose b = 0,
+     (assume : b = 0,
        by rw [this, div_zero, mul_zero, zero_mul, div_zero])
-     (suppose b ≠ 0, division_ring.one_div_mul_one_div ha this))
+     (assume : b ≠ 0, division_ring.one_div_mul_one_div ha this))
 
 lemma one_div_neg_eq_neg_one_div (a : α) : 1 / (- a) = - (1 / a) :=
 decidable.by_cases
-  (suppose a = 0, by rw [this, neg_zero, div_zero, neg_zero])
-  (suppose a ≠ 0, division_ring.one_div_neg_eq_neg_one_div this)
+  (assume : a = 0, by rw [this, neg_zero, div_zero, neg_zero])
+  (assume : a ≠ 0, division_ring.one_div_neg_eq_neg_one_div this)
 
 lemma neg_div_neg_eq (a b : α) : (-a) / (-b) = a / b :=
 decidable.by_cases

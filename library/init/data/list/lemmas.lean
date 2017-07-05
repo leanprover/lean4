@@ -313,17 +313,17 @@ lemma eq_or_mem_of_mem_cons {a y : α} {l : list α} : a ∈ y::l → a = y ∨ 
 assume h, h
 
 lemma mem_singleton {a b : α} : a ∈ [b] → a = b :=
-suppose a ∈ [b], or.elim (eq_or_mem_of_mem_cons this)
-  (suppose a = b, this)
-  (suppose a ∈ [], absurd this (not_mem_nil a))
+assume : a ∈ [b], or.elim (eq_or_mem_of_mem_cons this)
+  (assume : a = b, this)
+  (assume : a ∈ [], absurd this (not_mem_nil a))
 
 @[simp] lemma mem_singleton_iff (a b : α) : a ∈ [b] ↔ a = b :=
 iff.intro mem_singleton (begin intro h, simp [h] end)
 
 lemma mem_of_mem_cons_of_mem {a b : α} {l : list α} : a ∈ b::l → b ∈ l → a ∈ l :=
 assume ainbl binl, or.elim (eq_or_mem_of_mem_cons ainbl)
-  (suppose a = b, begin subst a, exact binl end)
-  (suppose a ∈ l, this)
+  (assume : a = b, begin subst a, exact binl end)
+  (assume : a ∈ l, this)
 
 lemma mem_or_mem_of_mem_append {a : α} : ∀ {s t : list α}, a ∈ s ++ t → a ∈ s ∨ a ∈ t
 | []     t h := or.inr h
@@ -344,13 +344,13 @@ list.rec_on s
   (assume h, or.elim h false.elim id)
   (assume b s,
     assume ih : a ∈ s ∨ a ∈ t → a ∈ s ++ t,
-    suppose a ∈ b::s ∨ a ∈ t,
+    assume : a ∈ b::s ∨ a ∈ t,
       or.elim this
-        (suppose a ∈ b::s,
+        (assume : a ∈ b::s,
           or.elim (eq_or_mem_of_mem_cons this)
-            (suppose a = b, or.inl this)
-            (suppose a ∈ s, or.inr (ih (or.inl this))))
-        (suppose a ∈ t, or.inr (ih (or.inr this))))
+            (assume : a = b, or.inl this)
+            (assume : a ∈ s, or.inr (ih (or.inl this))))
+        (assume : a ∈ t, or.inr (ih (or.inr this))))
 
 @[simp] lemma mem_append_iff (a : α) (s t : list α) : a ∈ s ++ t ↔ a ∈ s ∨ a ∈ t :=
 iff.intro mem_or_mem_of_mem_append mem_append_of_mem_or_mem
@@ -370,18 +370,18 @@ lemma not_mem_append {a : α} {s t : list α} : a ∉ s → a ∉ t → a ∉ s+
   (λ aint, by contradiction)
 
 lemma length_pos_of_mem {a : α} : ∀ {l : list α}, a ∈ l → 0 < length l
-| []     := suppose a ∈ [], begin simp at this, contradiction end
-| (b::l) := suppose a ∈ b::l, nat.zero_lt_succ _
+| []     := assume : a ∈ [], begin simp at this, contradiction end
+| (b::l) := assume : a ∈ b::l, nat.zero_lt_succ _
 
 lemma mem_split {a : α} {l : list α} : a ∈ l → ∃ s t : list α, l = s ++ (a::t) :=
 list.rec_on l
-  (suppose a ∈ [], begin simp at this, contradiction end)
+  (assume : a ∈ [], begin simp at this, contradiction end)
   (assume b l,
     assume ih : a ∈ l → ∃ s t : list α, l = s ++ (a::t),
-    suppose a ∈ b::l,
+    assume : a ∈ b::l,
     or.elim (eq_or_mem_of_mem_cons this)
-      (suppose a = b, ⟨[], l, begin rw this, reflexivity end⟩)
-      (suppose a ∈ l,
+      (assume : a = b, ⟨[], l, begin rw this, reflexivity end⟩)
+      (assume : a ∈ l,
         match (ih this) with
         | ⟨s, t, (h : l = s ++ (a::t))⟩ := ⟨b::s, t, begin rw h, reflexivity end⟩
         end))
@@ -510,17 +510,17 @@ lemma subset_app_of_subset_right (l l₁ l₂ : list α) : l ⊆ l₂ → l ⊆ 
 
 lemma cons_subset_of_subset_of_mem {a : α} {l m : list α} (ainm : a ∈ m) (lsubm : l ⊆ m) :
   a::l ⊆ m :=
-assume b, suppose b ∈ a::l,
+assume b, assume : b ∈ a::l,
 or.elim (eq_or_mem_of_mem_cons this)
-  (suppose b = a, begin subst b, exact ainm end)
-  (suppose b ∈ l, lsubm this)
+  (assume : b = a, begin subst b, exact ainm end)
+  (assume : b ∈ l, lsubm this)
 
 lemma app_subset_of_subset_of_subset {l₁ l₂ l : list α} (l₁subl : l₁ ⊆ l) (l₂subl : l₂ ⊆ l) :
   l₁ ++ l₂ ⊆ l :=
-assume a, suppose a ∈ l₁ ++ l₂,
+assume a, assume : a ∈ l₁ ++ l₂,
 or.elim (mem_or_mem_of_mem_append this)
-  (suppose a ∈ l₁, l₁subl this)
-  (suppose a ∈ l₂, l₂subl this)
+  (assume : a ∈ l₁, l₁subl this)
+  (assume : a ∈ l₂, l₂subl this)
 
 lemma eq_nil_of_subset_nil : ∀ {l : list α}, l ⊆ [] → l = []
 | []     s := rfl

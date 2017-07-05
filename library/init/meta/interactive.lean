@@ -522,26 +522,20 @@ tactic.any_goals
 meta def focus (tac : itactic) : tactic unit :=
 tactic.focus [tac]
 
-meta def «assume» (p : parse parse_binders) : tactic unit :=
-list.mfor' p $ λ b,
-  do t ← target,
-     when (not $ t.is_pi ∨ t.is_let) whnf_target,
-     t ← target,
-     when (not $ t.is_pi ∨ t.is_let) $
-       fail "assume tactic failed, Pi/let expression expected",
-     ty ← i_to_expr b.local_type,
-     unify ty t.binding_domain,
-     intro_core b.local_pp_name
+private meta def assume_core (n : name) (ty : pexpr) :=
+do t ← target,
+    when (not $ t.is_pi ∨ t.is_let) whnf_target,
+    t ← target,
+    when (not $ t.is_pi ∨ t.is_let) $
+      fail "assume tactic failed, Pi/let expression expected",
+    ty ← i_to_expr ty,
+    unify ty t.binding_domain,
+    intro_core n >> skip
 
-meta def «suppose» (h : parse ident?) (q : parse (tk ":" *> texpr)?) : tactic unit :=
-let h := h.get_or_else `this in
-match q with
-| some e := do
-  uniq_name ← mk_fresh_name,
-  let l := expr.local_const uniq_name h binder_info.default e,
-  «assume» [l]
-| none := intro h
-end
+meta def «assume» : parse (sum.inl <$> (tk ":" *> texpr) <|> sum.inr <$> parse_binders) → tactic unit
+| (sum.inl ty)      := assume_core `this ty
+| (sum.inr binders) :=
+  list.mfor' binders $ λ b, assume_core b.local_pp_name b.local_type
 
 /--
 This tactic applies to any goal.

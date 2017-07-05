@@ -35,11 +35,3 @@ begin
   { assume m : ℕ, apply m },
   { assume n, apply this },
 end
-
-
-example : ℕ → ℕ → ℕ :=
-begin
-  suppose: ℕ,
-  suppose m,
-  apply this
-end

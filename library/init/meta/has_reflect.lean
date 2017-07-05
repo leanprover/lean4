@@ -48,3 +48,9 @@ meta instance prod.reflect {α β : Type} [has_reflect α] [reflected α] [has_r
 
 meta instance pos.reflect : has_reflect pos
 | ⟨l, c⟩ := `(_)
+
+meta instance sum.reflect {α β : Type} [has_reflect α] [reflected α] [has_reflect β] [reflected β]
+  : has_reflect (sum α β)
+| (sum.inl _) := `(_)
+| (sum.inr _) := `(_)
+

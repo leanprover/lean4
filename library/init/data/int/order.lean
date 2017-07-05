@@ -123,14 +123,14 @@ le.elim h₂ (assume m, assume hm : b + m = a,
   show a = b, begin rw [-hn, this, int.coe_nat_zero, add_zero a] end))
 
 protected lemma lt_irrefl (a : ℤ) : ¬ a < a :=
-suppose a < a,
+assume : a < a,
 lt.elim this (assume n, assume hn : a + nat.succ n = a,
   have a + nat.succ n = a + 0, by rw [hn, add_zero],
   have nat.succ n = 0, from int.coe_nat_inj (add_left_cancel this),
   show false, from nat.succ_ne_zero _ this)
 
 protected lemma ne_of_lt {a b : ℤ} (h : a < b) : a ≠ b :=
-(suppose a = b, absurd (begin rewrite this at h, exact h end) (int.lt_irrefl b))
+(assume : a = b, absurd (begin rewrite this at h, exact h end) (int.lt_irrefl b))
 
 lemma le_of_lt {a b : ℤ} (h : a < b) : a ≤ b :=
 lt.elim h (assume n, assume hn : a + nat.succ n = b, le.intro hn)
@@ -141,7 +141,7 @@ iff.intro
   (assume ⟨aleb, aneb⟩,
     le.elim aleb (assume n, assume hn : a + n = b,
       have n ≠ 0,
-        from (suppose n = 0, aneb begin rw [-hn, this, int.coe_nat_zero, add_zero] end),
+        from (assume : n = 0, aneb begin rw [-hn, this, int.coe_nat_zero, add_zero] end),
       have n = nat.succ (nat.pred n),
         from eq.symm (nat.succ_pred_eq_of_pos (nat.pos_of_ne_zero this)),
       lt.intro (begin rewrite this at hn, exact hn end)))
@@ -150,11 +150,11 @@ protected lemma le_iff_lt_or_eq (a b : ℤ) : a ≤ b ↔ (a < b ∨ a = b) :=
 iff.intro
   (assume h,
     decidable.by_cases
-      (suppose a = b, or.inr this)
-      (suppose a ≠ b,
+      (assume : a = b, or.inr this)
+      (assume : a ≠ b,
         le.elim h (assume n, assume hn : a + n = b,
           have n ≠ 0, from
-            (suppose n = 0, ‹a ≠ b› begin rw [-hn, this, int.coe_nat_zero, add_zero] end),
+            (assume : n = 0, ‹a ≠ b› begin rw [-hn, this, int.coe_nat_zero, add_zero] end),
           have n = nat.succ (nat.pred n),
             from eq.symm (nat.succ_pred_eq_of_pos (nat.pos_of_ne_zero this)),
           or.inl (lt.intro (begin rewrite this at hn, exact hn end)))))

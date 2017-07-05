@@ -79,18 +79,7 @@ tactic.interactive.exact q
 
 meta def «from» := exact
 
-meta def «assume» (p : parse parse_binders) : smt_tactic unit :=
-tactic.interactive.assume p
-
-meta def «suppose» (h : parse ident?) (q : parse (tk ":" *> texpr)?) : smt_tactic unit :=
-let h := h.get_or_else `this in
-match q with
-| some e := do
-  uniq_name ← tactic.mk_fresh_name,
-  let l := expr.local_const uniq_name h binder_info.default e,
-  «assume» [l]
-| none := smt_tactic.intro_lst [h]
-end
+meta def «assume» := tactic.interactive.assume
 
 meta def «have» (h : parse ident?) (q₁ : parse (tk ":" *> texpr)?) (q₂ : parse $ (tk ":=" *> texpr)?) : smt_tactic unit :=
 let h := h.get_or_else `this in

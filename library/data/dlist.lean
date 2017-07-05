@@ -100,7 +100,7 @@ instance bi_total_rel_dlist_list : @relator.bi_total (dlist α) (list α) dlist.
 protected lemma rel_eq :
   (dlist.rel_dlist_list ⇒ dlist.rel_dlist_list ⇒ iff) (@eq (dlist α)) eq
 | l₁ ._ rfl l₂ ._ rfl := ⟨congr_arg to_list,
-  suppose to_list l₁ = to_list l₂,
+  assume : to_list l₁ = to_list l₂,
   have of_list (to_list l₁) = of_list (to_list l₂), from congr_arg of_list this,
   by simp [of_list_to_list] at this; assumption⟩
 

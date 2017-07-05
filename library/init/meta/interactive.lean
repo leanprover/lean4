@@ -931,17 +931,19 @@ meta def delta : parse ident* → parse location → tactic unit
                           delta_target new_cs,
                           intron n
 
-private meta def unfold_projs_hyps : list name → tactic unit
+private meta def unfold_projs_hyps (cfg : unfold_proj_config := {}) : list name → tactic unit
 | []      := skip
 | (h::hs) := get_local h >>= unfold_projs_hyp >> unfold_projs_hyps hs
 
 /--
 This tactic unfolds all structure projections.
 -/
-meta def unfold_projs : parse location → tactic unit
-| (loc.ns [])    := tactic.unfold_projs_target
-| (loc.ns hs)    := unfold_projs_hyps hs
-| (loc.wildcard) := do ls ← local_context, unfold_projs_hyps (ls.map expr.local_pp_name)
+meta def unfold_projs (l : parse location) (cfg : unfold_proj_config := {}) : tactic unit :=
+match l with
+| (loc.ns [])    := tactic.unfold_projs_target cfg
+| (loc.ns hs)    := unfold_projs_hyps cfg hs
+| (loc.wildcard) := do ls ← local_context, unfold_projs_hyps cfg (ls.map expr.local_pp_name)
+end
 
 end interactive
 

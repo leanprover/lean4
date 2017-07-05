@@ -415,7 +415,7 @@ static expr parse_proof(parser_state & p) {
     }
 }
 
-static expr parse_have_core(parser_state & p, pos_info const & pos, optional<expr> const & prev_local) {
+static expr parse_have(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     auto id_pos       = p.pos();
     name id;
     expr prop;
@@ -440,16 +440,7 @@ static expr parse_have_core(parser_state & p, pos_info const & pos, optional<exp
     }
     expr proof;
     p.check_token_next(get_comma_tk(), "invalid 'have' declaration, ',' expected");
-    if (prev_local) {
-        parser_state::local_scope scope(p);
-        p.add_local(*prev_local);
-        auto proof_pos = p.pos();
-        proof = parse_proof(p);
-        proof = Fun(*prev_local, proof, p);
-        proof = p.save_pos(mk_app(proof, *prev_local), proof_pos);
-    } else {
-        proof = parse_proof(p);
-    }
+    proof = parse_proof(p);
     p.check_token_next(get_comma_tk(), "invalid 'have' declaration, ',' expected");
     parser_state::local_scope scope(p);
     expr l = p.save_pos(mk_local(id, prop), pos);
@@ -460,10 +451,6 @@ static expr parse_have_core(parser_state & p, pos_info const & pos, optional<exp
         body = mk_checkpoint_annotation(body);
     expr r = p.save_pos(mk_have_annotation(p.save_pos(mk_lambda(id, prop, body), pos)), pos);
     return p.mk_app(r, proof, pos);
-}
-
-static expr parse_have(parser_state & p, unsigned, expr const *, pos_info const & pos) {
-    return parse_have_core(p, pos, none_expr());
 }
 
 static expr parse_suppose(parser_state & p, unsigned, expr const *, pos_info const & pos) {

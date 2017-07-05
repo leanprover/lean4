@@ -526,6 +526,9 @@ iff.intro (λ h, trivial) (λ ha h, trivial)
 @[simp] lemma false_implies_iff (a : Prop) : (false → a) ↔ true :=
 iff.intro (λ h, trivial) (λ ha h, false.elim h)
 
+@[simp] theorem true_implies_iff (α : Prop) : (true → α) ↔ α :=
+iff.intro (λ h, h trivial) (λ h h', h)
+
 /- exists -/
 
 inductive Exists {α : Sort u} (p : α → Prop) : Prop

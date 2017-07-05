@@ -439,8 +439,13 @@ static expr parse_have(parser_state & p, unsigned, expr const *, pos_info const 
         prop          = p.parse_expr();
     }
     expr proof;
-    p.check_token_next(get_comma_tk(), "invalid 'have' declaration, ',' expected");
-    proof = parse_proof(p);
+    if (p.curr_is_token(get_assign_tk())) {
+        p.next();
+        proof = p.parse_expr();
+    } else {
+        p.check_token_next(get_comma_tk(), "invalid 'have' declaration, ',' expected");
+        proof = parse_proof(p);
+    }
     p.check_token_next(get_comma_tk(), "invalid 'have' declaration, ',' expected");
     parser_state::local_scope scope(p);
     expr l = p.save_pos(mk_local(id, prop), pos);

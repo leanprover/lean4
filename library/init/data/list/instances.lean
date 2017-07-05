@@ -100,8 +100,8 @@ instance decidable_prefix [decidable_eq α] : ∀ (l₁ l₂ : list α), decidab
 | (a::l₁) [] := is_false $ λ⟨t, te⟩, list.no_confusion te
 | (a::l₁) (b::l₂) :=
   if h : a = b then
-    decidable_of_decidable_of_iff (decidable_prefix l₁ l₂) $ by rw -h; exact
-      ⟨λ⟨t, te⟩, ⟨t, by rw -te; refl⟩,
+    decidable_of_decidable_of_iff (decidable_prefix l₁ l₂) $ by rw [← h]; exact
+      ⟨λ⟨t, te⟩, ⟨t, by rw [← te]; refl⟩,
        λ⟨t, te⟩, list.no_confusion te (λ_ te, ⟨t, te⟩)⟩
   else
     is_false $ λ⟨t, te⟩, list.no_confusion te $ λh', absurd h' h
@@ -114,7 +114,7 @@ instance decidable_suffix [decidable_eq α] : ∀ (l₁ l₂ : list α), decidab
 | l₁      l₂ := let len1 := length l₁, len2 := length l₂ in
   if hl : len1 ≤ len2 then
     if he : drop (len2 - len1) l₂ = l₁ then is_true $
-      ⟨take (len2 - len1) l₂, by rw [-he, take_append_drop]⟩
+      ⟨take (len2 - len1) l₂, by rw [← he, take_append_drop]⟩
     else is_false $
       suffices length l₁ ≤ length l₂ → l₁ <:+ l₂ → drop (length l₂ - length l₁) l₂ = l₁,
         from λsuf, he (this hl suf),
@@ -122,7 +122,7 @@ instance decidable_suffix [decidable_eq α] : ∀ (l₁ l₂ : list α), decidab
         append_right_inj (eq.trans (take_append_drop (length l₂ - length l₁) l₂) te.symm) $
         by simp; exact nat.sub_sub_self hl
   else is_false $ λ⟨t, te⟩, hl $
-    show length l₁ ≤ length l₂, by rw [-te, length_append]; apply nat.le_add_left
+    show length l₁ ≤ length l₂, by rw [← te, length_append]; apply nat.le_add_left
 
 instance decidable_infix [decidable_eq α] : ∀ (l₁ l₂ : list α), decidable (l₁ <:+: l₂)
 | []      l₂ := is_true ⟨[], l₂, rfl⟩
@@ -138,7 +138,7 @@ instance decidable_sublist [decidable_eq α] : ∀ (l₁ l₂ : list α), decida
 | (a::l₁) (b::l₂) :=
   if h : a = b then
     decidable_of_decidable_of_iff (decidable_sublist l₁ l₂) $
-      by rw -h; exact ⟨cons_sublist_cons _, sublist_of_cons_sublist_cons⟩
+      by rw [← h]; exact ⟨cons_sublist_cons _, sublist_of_cons_sublist_cons⟩
   else decidable_of_decidable_of_iff (decidable_sublist (a::l₁) l₂)
     ⟨sublist_cons_of_sublist _, λs, match a, l₁, s, h with
     | a, l₁, sublist.cons ._ ._ ._ s', h := s'

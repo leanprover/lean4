@@ -347,7 +347,7 @@ end
 lemma add_le_of_le_sub_left {a b c : α} (h : b ≤ c - a) : a + b ≤ c :=
 begin
   have h := add_le_add_left h a,
-  rwa [-add_sub_assoc, add_comm a c, add_sub_cancel] at h
+  rwa [← add_sub_assoc, add_comm a c, add_sub_cancel] at h
 end
 
 lemma le_sub_left_of_add_le {a b c : α} (h : a + b ≤ c) : b ≤ c - a :=
@@ -470,7 +470,7 @@ end
 lemma add_lt_of_lt_sub_left {a b c : α} (h : b < c - a) : a + b < c :=
 begin
   have h := add_lt_add_left h a,
-  rwa [-add_sub_assoc, add_comm a c, add_sub_cancel] at h
+  rwa [← add_sub_assoc, add_comm a c, add_sub_cancel] at h
 end
 
 lemma lt_sub_left_of_add_lt {a b c : α} (h : a + b < c) : b < c - a :=

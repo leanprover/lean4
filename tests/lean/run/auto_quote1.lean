@@ -42,7 +42,7 @@ end
 example (a b c : nat) : 0 = b → 0 + a + b + c = c + a :=
 begin
   intro h,
-  rewrite -h, -- single rewrite using symmetry
+  rewrite [<- h], -- single rewrite using symmetry
   rw [zadd, @addc a 0, zadd, addc] -- rw is shorthand for rewrite
 end
 
@@ -62,7 +62,7 @@ end
 example (a b c : nat) : 0 = b → 0 + a + b + c = c + a :=
 by do
   tactic.intro `h,
-  `[rewrite -h, rw zadd, rw @addc a 0, rw zadd, rw addc]
+  `[rewrite ←h, rw zadd, rw @addc a 0, rw zadd, rw addc]
 
 example : ∀ n m : ℕ, n + m = m + n :=
 begin

@@ -18,8 +18,8 @@ def trees_of_size : Π s, list {bt : bin_tree // size bt = s}
 | 0     := [⟨leaf, rfl⟩]
 | (n+1) :=
   do ⟨(s1, s2), (h : s1 + s2 = n)⟩ ← pairs_with_sum n,
-     ⟨t1, sz1⟩ ← have s1 < n+1, by apply nat.lt_succ_of_le; rw -h; apply nat.le_add_right,
+     ⟨t1, sz1⟩ ← have s1 < n+1, by apply nat.lt_succ_of_le; rw ←h; apply nat.le_add_right,
                 trees_of_size s1,
-     ⟨t2, sz2⟩ ← have s2 < n+1, by apply nat.lt_succ_of_le; rw -h; apply nat.le_add_left,
+     ⟨t2, sz2⟩ ← have s2 < n+1, by apply nat.lt_succ_of_le; rw ←h; apply nat.le_add_left,
                 trees_of_size s2,
-     return ⟨branch t1 t2, by rw [-h, -sz1, -sz2]; refl⟩
+     return ⟨branch t1 t2, by rw [←h, ←sz1, ←sz2]; refl⟩

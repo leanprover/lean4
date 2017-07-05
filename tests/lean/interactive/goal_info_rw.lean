@@ -1,9 +1,9 @@
 example (p q r : Prop) (h₁ : p = q) (h₂ : q = r) : p = r :=
 by rw [h₁,
        --^ "command": "info"
-       -h₂,
+       ←h₂,
      --^ "command": "info"
-       -h₁
+       ←h₁
        --^ "command": "info"
     --^ "command": "info"
       ]

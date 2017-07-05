@@ -25,7 +25,7 @@ theorem rev_list_reverse (a : array α n) : a.rev_list.reverse = a.to_list :=
 rev_list_reverse_core a _ _ _
 
 theorem to_list_reverse (a : array α n) : a.to_list.reverse = a.rev_list :=
-by rw [-rev_list_reverse, list.reverse_reverse]
+by rw [← rev_list_reverse, list.reverse_reverse]
 
 theorem rev_list_length_aux (a : array α n) (i h) : (a.iterate_aux (λ _ v l, v :: l) i h []).length = i :=
 by induction i; simp [*, iterate_aux]
@@ -34,7 +34,7 @@ theorem rev_list_length (a : array α n) : a.rev_list.length = n :=
 rev_list_length_aux a _ _
 
 theorem to_list_length (a : array α n) : a.to_list.length = n :=
-by rw[-rev_list_reverse, list.length_reverse, rev_list_length]
+by rw[← rev_list_reverse, list.length_reverse, rev_list_length]
 
 theorem to_list_nth_core (a : array α n) (i : ℕ) (ih : i < n) : Π (j) {jh t h'},
   (∀k tl, j + k = i → list.nth_le t k tl = a.read ⟨i, ih⟩) → (a.rev_iterate_aux (λ _ v l, v :: l) j jh t).nth_le i h' = a.read ⟨i, ih⟩
@@ -55,7 +55,7 @@ theorem mem_iff_rev_list_mem_core (a : array α n) (v : α) : Π i (h : i ≤ n)
 | (i+1) h := let IH := mem_iff_rev_list_mem_core i (le_of_lt h) in
   ⟨λ⟨j, ji1, e⟩, or.elim (lt_or_eq_of_le $ nat.le_of_succ_le_succ ji1)
     (λji, list.mem_cons_of_mem _ $ IH.1 ⟨j, ji, e⟩)
-    (λje, by simp[iterate_aux]; apply or.inl; have H : j = ⟨i, h⟩ := fin.eq_of_veq je; rwa [-H, e]),
+    (λje, by simp[iterate_aux]; apply or.inl; have H : j = ⟨i, h⟩ := fin.eq_of_veq je; rwa [← H, e]),
   λm, begin
     simp[iterate_aux, list.mem] at m,
     cases m with e m',
@@ -70,7 +70,7 @@ iff.trans
   (mem_iff_rev_list_mem_core a v _ _)
 
 theorem mem_iff_list_mem (a : array α n) (v : α) : v ∈ a ↔ v ∈ a.to_list :=
-by rw -rev_list_reverse; simp[mem_iff_rev_list_mem]
+by rw [← rev_list_reverse]; simp[mem_iff_rev_list_mem]
 
 @[simp] def to_list_to_array (a : array α n) : a.to_list.to_array == a :=
 have array.mk (λ (v : fin n), list.nth_le (to_list a) (v.val) (eq.rec_on (eq.symm (to_list_length a)) (v.is_lt))) = a, from

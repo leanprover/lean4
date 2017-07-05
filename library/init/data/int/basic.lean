@@ -437,7 +437,7 @@ show of_nat (n - m) = of_nat n + neg_of_nat m, from match m, h with
 end
 
 lemma neg_succ_of_nat_coe' (n : ℕ) : -[1+ n] = -↑n - 1 :=
-by rw [sub_eq_add_neg, -neg_add]; refl
+by rw [sub_eq_add_neg, ← neg_add]; refl
 
 protected lemma coe_nat_sub {n m : ℕ} : n ≤ m → (↑(m - n) : ℤ) = ↑m - ↑n := of_nat_sub
 
@@ -452,7 +452,7 @@ def to_nat : ℤ → ℕ
 | -[1+ n] := 0
 
 theorem to_nat_sub (m n : ℕ) : to_nat (m - n) = m - n :=
-by rw -int.sub_nat_nat_eq_coe; exact sub_nat_nat_elim m n
+by rw [← int.sub_nat_nat_eq_coe]; exact sub_nat_nat_elim m n
   (λm n i, to_nat i = m - n)
   (λi n, by rw [nat.add_sub_cancel_left]; refl)
   (λi n, by rw [add_assoc, nat.sub_eq_zero_of_le (nat.le_add_right _ _)]; refl)

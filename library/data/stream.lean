@@ -118,10 +118,10 @@ lemma head_map (s : stream α) : head (map f s) = f (head s) :=
 rfl
 
 lemma map_eq (s : stream α) : map f s = f (head s) :: map f (tail s) :=
-by rw [-stream.eta (map f s), tail_map, head_map]
+by rw [← stream.eta (map f s), tail_map, head_map]
 
 lemma map_cons (a : α) (s : stream α) : map f (a :: s) = f a :: map f s :=
-begin rw [-stream.eta (map f (a :: s)), map_eq], reflexivity end
+begin rw [← stream.eta (map f (a :: s)), map_eq], reflexivity end
 
 lemma map_id (s : stream α) : map id s = s :=
 rfl
@@ -153,7 +153,7 @@ lemma tail_zip (s₁ : stream α) (s₂ : stream β) : tail (zip f s₁ s₂) = 
 rfl
 
 lemma zip_eq (s₁ : stream α) (s₂ : stream β) : zip f s₁ s₂ = f (head s₁) (head s₂) :: zip f (tail s₁) (tail s₂) :=
-begin rw [-stream.eta (zip f s₁ s₂)], reflexivity end
+begin rw [← stream.eta (zip f s₁ s₂)], reflexivity end
 
 end zip
 
@@ -170,7 +170,7 @@ begin
 end
 
 lemma tail_const (a : α) : tail (const a) = const a :=
-suffices tail (a :: const a) = const a, by rwa -const_eq at this,
+suffices tail (a :: const a) = const a, by rwa [← const_eq] at this,
 rfl
 
 lemma map_const (f : α → β) (a : α) : map f (const a) = const (f a) :=
@@ -201,7 +201,7 @@ end
 
 lemma iterate_eq (f : α → α) (a : α) : iterate f a = a :: iterate f (f a) :=
 begin
-  rw [-stream.eta (iterate f a)],
+  rw [← stream.eta (iterate f a)],
   rw tail_iterate, reflexivity
 end
 
@@ -234,7 +234,7 @@ assume hh ht₁ ht₂, eq_of_bisim
   (λ s₁ s₂, head s₁ = head s₂ ∧ s₁ = tail s₁ ∧ s₂ = tail s₂)
   (λ s₁ s₂ ⟨h₁, h₂, h₃⟩,
     begin
-      constructor, exact h₁, rw [-h₂, -h₃], repeat {constructor, repeat {assumption}}
+      constructor, exact h₁, rw [← h₂, ← h₃], repeat {constructor, repeat {assumption}}
     end)
   (and.intro hh (and.intro ht₁ ht₂))
 
@@ -484,7 +484,7 @@ begin
   induction n with n ih,
   { have aux := h 1, unfold approx at aux, injection aux },
   { have h₁ : some (nth (succ n) s₁) = some (nth (succ n) s₂),
-    { rw [-nth_approx, -nth_approx, h (succ (succ n))] },
+    { rw [← nth_approx, ← nth_approx, h (succ (succ n))] },
     injection h₁ }
 end
 
@@ -572,7 +572,7 @@ lemma nth_inits : ∀ (n : nat) (s : stream α), nth n (inits s) = approx (succ 
 begin
   intro n, induction n with n' ih,
     {intros, reflexivity},
-    {intros, rw [nth_succ, approx_succ, -ih, tail_inits, inits_tail, cons_nth_inits_core]}
+    {intros, rw [nth_succ, approx_succ, ← ih, tail_inits, inits_tail, cons_nth_inits_core]}
 end
 
 lemma inits_eq (s : stream α) : inits s = [head s] :: map (list.cons (head s)) (inits (tail s)) :=

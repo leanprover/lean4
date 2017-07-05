@@ -12,7 +12,7 @@ def g  : ℕ → ℕ
   (match n, rfl : ∀ m, m = n → ℕ with
   | 0,     h := 0
   | (m+1), h :=
-    have m < n, begin rw [-h], apply nat.lt_succ_self end,
+    have m < n, begin rw [←h], apply nat.lt_succ_self end,
     g m
   end) + 1
 

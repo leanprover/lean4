@@ -216,7 +216,7 @@ lemma abs_pos_of_neg {a : α} (h : a < 0) : abs a > 0 :=
 abs_neg a ▸ abs_pos_of_pos (neg_pos_of_neg h)
 
 lemma abs_sub (a b : α) : abs (a - b) = abs (b - a) :=
-by rw [-neg_sub, abs_neg]
+by rw [← neg_sub, abs_neg]
 
 lemma ne_zero_of_abs_ne_zero {a : α} (h : abs a ≠ 0) : a ≠ 0 :=
 assume ha, h (eq.symm ha ▸ abs_zero)
@@ -321,9 +321,9 @@ or.elim (le_total 0 (a + b))
   (assume h2 : a + b ≤ 0,
    have h3 : -a + -b = -(a + b), by rw neg_add,
    have h4 : -(a + b) ≥ 0, from neg_nonneg_of_nonpos h2,
-   have h5   : -a + -b ≥ 0, begin rw -h3 at h4, exact h4 end,
+   have h5   : -a + -b ≥ 0, begin rw [← h3] at h4, exact h4 end,
    calc
-      abs (a + b) = abs (-a + -b)   : by rw [-abs_neg, neg_add]
+      abs (a + b) = abs (-a + -b)   : by rw [← abs_neg, neg_add]
               ... ≤ abs (-a) + abs (-b) : aux2 h5
               ... = abs a + abs b       : by rw [abs_neg, abs_neg])
 
@@ -457,7 +457,7 @@ begin
    apply sub_le_sub_left,
    repeat {rw mul_assoc},
    apply mul_le_mul_of_nonneg_left,
-   rw -abs_mul,
+   rw [← abs_mul],
    apply le_abs_self,
    apply le_of_lt,
    apply add_pos,
@@ -477,7 +477,7 @@ decidable.by_cases
    have h₁ : abs b ≠ 0, from
      assume h₂, h (eq_zero_of_abs_eq_zero h₂),
    eq_div_of_mul_eq _ _ h₁
-   (show abs (a / b) * abs b = abs a, by rw [-abs_mul, div_mul_cancel _ h]))
+   (show abs (a / b) * abs b = abs a, by rw [← abs_mul, div_mul_cancel _ h]))
 
 lemma abs_one_div (a : α) : abs (1 / a) = 1 / abs a :=
 by rw [abs_div, abs_of_nonneg (zero_le_one : 1 ≥ (0 : α))]

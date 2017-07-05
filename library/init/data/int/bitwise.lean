@@ -69,7 +69,7 @@ namespace int
   (bit_val _ _).trans $ (add_comm _ _).trans $ bodd_add_div2 _
 
   def bit_cases_on {C : ℤ → Sort u} (n) (h : ∀ b n, C (bit b n)) : C n :=
-  by rw -bit_decomp n; apply h
+  by rw [← bit_decomp n]; apply h
 
   @[simp] lemma bit_zero : bit ff 0 = 0 := rfl
 
@@ -174,7 +174,7 @@ namespace int
     bitwise f (bit a m) (bit b n) = bit (f a b) (bitwise f m n) :=
   begin
     cases m with m m; cases n with n n;
-    repeat { rw -int.coe_nat_eq <|> rw bit_coe_nat <|> rw bit_neg_succ };
+    repeat { rw [← int.coe_nat_eq] <|> rw bit_coe_nat <|> rw bit_neg_succ };
     unfold bitwise nat_bitwise bnot;
     [ ginduction f ff ff with h,
       ginduction f ff tt with h,
@@ -187,16 +187,16 @@ namespace int
   end
 
   @[simp] lemma lor_bit (a m b n) : lor (bit a m) (bit b n) = bit (a || b) (lor m n) :=
-  by rw [-bitwise_or, bitwise_bit]
+  by rw [← bitwise_or, bitwise_bit]
 
   @[simp] lemma land_bit (a m b n) : land (bit a m) (bit b n) = bit (a && b) (land m n) :=
-  by rw [-bitwise_and, bitwise_bit]
+  by rw [← bitwise_and, bitwise_bit]
 
   @[simp] lemma ldiff_bit (a m b n) : ldiff (bit a m) (bit b n) = bit (a && bnot b) (ldiff m n) :=
-  by rw [-bitwise_diff, bitwise_bit]
+  by rw [← bitwise_diff, bitwise_bit]
 
   @[simp] lemma lxor_bit (a m b n) : lxor (bit a m) (bit b n) = bit (bxor a b) (lxor m n) :=
-  by rw [-bitwise_xor, bitwise_bit]
+  by rw [← bitwise_xor, bitwise_bit]
 
   @[simp] lemma lnot_bit (b) : ∀ n, lnot (bit b n) = bit (bnot b) (lnot n)
   | (n : ℕ) := by simp [lnot]
@@ -214,16 +214,16 @@ namespace int
   end
 
   @[simp] lemma test_bit_lor (m n k) : test_bit (lor m n) k = test_bit m k || test_bit n k :=
-  by rw [-bitwise_or, test_bit_bitwise]
+  by rw [← bitwise_or, test_bit_bitwise]
 
   @[simp] lemma test_bit_land (m n k) : test_bit (land m n) k = test_bit m k && test_bit n k :=
-  by rw [-bitwise_and, test_bit_bitwise]
+  by rw [← bitwise_and, test_bit_bitwise]
 
   @[simp] lemma test_bit_ldiff (m n k) : test_bit (ldiff m n) k = test_bit m k && bnot (test_bit n k) :=
-  by rw [-bitwise_diff, test_bit_bitwise]
+  by rw [← bitwise_diff, test_bit_bitwise]
 
   @[simp] lemma test_bit_lxor (m n k) : test_bit (lxor m n) k = bxor (test_bit m k) (test_bit n k) :=
-  by rw [-bitwise_xor, test_bit_bitwise]
+  by rw [← bitwise_xor, test_bit_bitwise]
 
   @[simp] lemma test_bit_lnot : ∀ n k, test_bit (lnot n) k = bnot (test_bit n k)
   | (n : ℕ) k := by simp [lnot, test_bit]
@@ -235,21 +235,21 @@ namespace int
   | (m : ℕ) n -[1+k] := sub_nat_nat_elim n k.succ
       (λ n k i, shiftl ↑m i = nat.shiftr (nat.shiftl m n) k)
       (λ i n, congr_arg coe $
-        by rw [-nat.shiftl_sub, nat.add_sub_cancel_left]; apply nat.le_add_right)
+        by rw [← nat.shiftl_sub, nat.add_sub_cancel_left]; apply nat.le_add_right)
       (λ i n, congr_arg coe $
-        by rw [add_assoc, nat.shiftr_add, -nat.shiftl_sub, nat.sub_self]; refl)
+        by rw [add_assoc, nat.shiftr_add, ← nat.shiftl_sub, nat.sub_self]; refl)
   | -[1+ m] n -[1+k] := sub_nat_nat_elim n k.succ
       (λ n k i, shiftl -[1+ m] i = -[1+ nat.shiftr (nat.shiftl' tt m n) k])
       (λ i n, congr_arg neg_succ_of_nat $
-        by rw [-nat.shiftl'_sub, nat.add_sub_cancel_left]; apply nat.le_add_right)
+        by rw [← nat.shiftl'_sub, nat.add_sub_cancel_left]; apply nat.le_add_right)
       (λ i n, congr_arg neg_succ_of_nat $
-        by rw [add_assoc, nat.shiftr_add, -nat.shiftl'_sub, nat.sub_self]; refl)
+        by rw [add_assoc, nat.shiftr_add, ← nat.shiftl'_sub, nat.sub_self]; refl)
 
   lemma shiftl_sub (m : ℤ) (n : ℕ) (k : ℤ) : shiftl m (n - k) = shiftr (shiftl m n) k :=
   shiftl_add _ _ _
 
   @[simp] lemma shiftl_neg (m n : ℤ) : shiftl m (-n) = shiftr m n := rfl
-  @[simp] lemma shiftr_neg (m n : ℤ) : shiftr m (-n) = shiftl m n := by rw [-shiftl_neg, neg_neg]
+  @[simp] lemma shiftr_neg (m n : ℤ) : shiftr m (-n) = shiftl m n := by rw [← shiftl_neg, neg_neg]
 
   @[simp] lemma shiftl_coe_nat (m n : ℕ) : shiftl m n = nat.shiftl m n := rfl
   @[simp] lemma shiftr_coe_nat (m n : ℕ) : shiftr m n = nat.shiftr m n := by cases n; refl
@@ -259,9 +259,9 @@ namespace int
 
   lemma shiftr_add : ∀ (m : ℤ) (n k : ℕ), shiftr m (n + k) = shiftr (shiftr m n) k
   | (m : ℕ) n k := by rw [shiftr_coe_nat, shiftr_coe_nat,
-                          -int.coe_nat_add, shiftr_coe_nat, nat.shiftr_add]
+                          ← int.coe_nat_add, shiftr_coe_nat, nat.shiftr_add]
   | -[1+ m] n k := by rw [shiftr_neg_succ, shiftr_neg_succ,
-                          -int.coe_nat_add, shiftr_neg_succ, nat.shiftr_add]
+                          ← int.coe_nat_add, shiftr_neg_succ, nat.shiftr_add]
 
   lemma shiftl_eq_mul_pow : ∀ (m : ℤ) (n : ℕ), shiftl m n = m * 2 ^ n
   | (m : ℕ) n := congr_arg coe (nat.shiftl_eq_mul_pow _ _)

@@ -28,7 +28,7 @@ ne.symm (int.neg_ne_zero_of_ne (ne.symm h))
 protected lemma neg_ne_of_pos {a b : ℤ} : a > 0 → b > 0 → -a ≠ b :=
 λ h₁ h₂ h,
 begin
-  rw [-h] at h₂,
+  rw [← h] at h₂,
   exact absurd (le_of_lt h₁) (not_le_of_gt (neg_of_neg_pos h₂))
 end
 
@@ -108,13 +108,13 @@ protected lemma nat_abs_bit0 : ∀ (a : int), nat_abs (bit0 a) = bit0 (nat_abs a
 | (neg_succ_of_nat n) := int.nat_abs_add_neg (neg_succ_of_nat_lt_zero n) (neg_succ_of_nat_lt_zero n)
 
 protected lemma nat_abs_bit0_step {a : int} {n : nat} (h : nat_abs a = n) : nat_abs (bit0 a) = bit0 n :=
-begin rw [-h], apply int.nat_abs_bit0 end
+begin rw [← h], apply int.nat_abs_bit0 end
 
 protected lemma nat_abs_bit1_nonneg {a : int} (h : a ≥ 0) : nat_abs (bit1 a) = bit1 (nat_abs a) :=
 show nat_abs (bit0 a + 1) = bit0 (nat_abs a) + nat_abs 1, from
 by rw [int.nat_abs_add_nonneg (int.bit0_nonneg h) (le_of_lt (zero_lt_one)), int.nat_abs_bit0]
 
 protected lemma nat_abs_bit1_nonneg_step {a : int} {n : nat} (h₁ : a ≥ 0) (h₂ : nat_abs a = n) : nat_abs (bit1 a) = bit1 n :=
-begin rw [-h₂], apply int.nat_abs_bit1_nonneg h₁ end
+begin rw [← h₂], apply int.nat_abs_bit1_nonneg h₁ end
 
 end int

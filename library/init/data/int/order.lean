@@ -39,13 +39,13 @@ lemma le.intro_sub {a b : ℤ} {n : ℕ} (h : b - a = n) : a ≤ b :=
 show nonneg (b - a), by rw h; trivial
 
 lemma le.intro {a b : ℤ} {n : ℕ} (h : a + n = b) : a ≤ b :=
-le.intro_sub (by rw -h; simp)
+le.intro_sub (by rw [← h]; simp)
 
 lemma le.dest_sub {a b : ℤ} (h : a ≤ b) : ∃ n : ℕ, b - a = n := nonneg.elim h
 
 lemma le.dest {a b : ℤ} (h : a ≤ b) : ∃ n : ℕ, a + n = b :=
 match (le.dest_sub h) with
-| ⟨n, h₁⟩ := exists.intro n begin rw [-h₁, add_comm], simp end
+| ⟨n, h₁⟩ := exists.intro n begin rw [← h₁, add_comm], simp end
 end
 
 lemma le.elim {a b : ℤ} (h : a ≤ b) {P : Prop} (h' : ∀ n : ℕ, a + ↑n = b → P) : P :=
@@ -60,7 +60,7 @@ or.imp_right
 
 lemma coe_nat_le_coe_nat_of_le {m n : ℕ} (h : m ≤ n) : (↑m : ℤ) ≤ ↑n :=
 match nat.le.dest h with
-| ⟨k, (hk : m + k = n)⟩ := le.intro (begin rw [-hk], reflexivity end)
+| ⟨k, (hk : m + k = n)⟩ := le.intro (begin rw [← hk], reflexivity end)
 end
 
 lemma le_of_coe_nat_le_coe_nat {m n : ℕ} (h : (↑m : ℤ) ≤ ↑n) : m ≤ n :=
@@ -89,13 +89,13 @@ h ▸ lt_add_succ a n
 
 lemma lt.dest {a b : ℤ} (h : a < b) : ∃ n : ℕ, a + ↑(nat.succ n) = b :=
 le.elim h (assume n, assume hn : a + 1 + n = b,
-    exists.intro n begin rw [-hn, add_assoc, add_comm (1 : int)], reflexivity end)
+    exists.intro n begin rw [← hn, add_assoc, add_comm (1 : int)], reflexivity end)
 
 lemma lt.elim {a b : ℤ} (h : a < b) {P : Prop} (h' : ∀ n : ℕ, a + ↑(nat.succ n) = b → P) : P :=
 exists.elim (lt.dest h) h'
 
 lemma coe_nat_lt_coe_nat_iff (n m : ℕ) : (↑n : ℤ) < ↑m ↔ n < m :=
-begin rw [lt_iff_add_one_le, -int.coe_nat_succ, coe_nat_le_coe_nat_iff], reflexivity end
+begin rw [lt_iff_add_one_le, ← int.coe_nat_succ, coe_nat_le_coe_nat_iff], reflexivity end
 
 lemma lt_of_coe_nat_lt_coe_nat {m n : ℕ} (h : (↑m : ℤ) < ↑n) : m < n :=
 (coe_nat_lt_coe_nat_iff  _ _).mp h
@@ -111,16 +111,16 @@ le.intro (add_zero a)
 protected lemma le_trans {a b c : ℤ} (h₁ : a ≤ b) (h₂ : b ≤ c) : a ≤ c :=
 le.elim h₁ (assume n, assume hn : a + n = b,
 le.elim h₂ (assume m, assume hm : b + m = c,
-begin apply le.intro, rw [-hm, -hn, add_assoc], reflexivity end))
+begin apply le.intro, rw [← hm, ← hn, add_assoc], reflexivity end))
 
 protected lemma le_antisymm {a b : ℤ} (h₁ : a ≤ b) (h₂ : b ≤ a) : a = b :=
 le.elim h₁ (assume n, assume hn : a + n = b,
 le.elim h₂ (assume m, assume hm : b + m = a,
-  have a + ↑(n + m) = a + 0, by rw [int.coe_nat_add, -add_assoc, hn, hm, add_zero a],
+  have a + ↑(n + m) = a + 0, by rw [int.coe_nat_add, ← add_assoc, hn, hm, add_zero a],
   have (↑(n + m) : ℤ) = 0, from add_left_cancel this,
   have n + m = 0, from int.coe_nat_inj this,
   have n = 0, from nat.eq_zero_of_add_eq_zero_right this,
-  show a = b, begin rw [-hn, this, int.coe_nat_zero, add_zero a] end))
+  show a = b, begin rw [← hn, this, int.coe_nat_zero, add_zero a] end))
 
 protected lemma lt_irrefl (a : ℤ) : ¬ a < a :=
 assume : a < a,
@@ -141,7 +141,7 @@ iff.intro
   (assume ⟨aleb, aneb⟩,
     le.elim aleb (assume n, assume hn : a + n = b,
       have n ≠ 0,
-        from (assume : n = 0, aneb begin rw [-hn, this, int.coe_nat_zero, add_zero] end),
+        from (assume : n = 0, aneb begin rw [← hn, this, int.coe_nat_zero, add_zero] end),
       have n = nat.succ (nat.pred n),
         from eq.symm (nat.succ_pred_eq_of_pos (nat.pos_of_ne_zero this)),
       lt.intro (begin rewrite this at hn, exact hn end)))
@@ -154,7 +154,7 @@ iff.intro
       (assume : a ≠ b,
         le.elim h (assume n, assume hn : a + n = b,
           have n ≠ 0, from
-            (assume : n = 0, ‹a ≠ b› begin rw [-hn, this, int.coe_nat_zero, add_zero] end),
+            (assume : n = 0, ‹a ≠ b› begin rw [← hn, this, int.coe_nat_zero, add_zero] end),
           have n = nat.succ (nat.pred n),
             from eq.symm (nat.succ_pred_eq_of_pos (nat.pos_of_ne_zero this)),
           or.inl (lt.intro (begin rewrite this at hn, exact hn end)))))
@@ -179,14 +179,14 @@ iff.mpr (int.lt_iff_le_and_ne _ _)
 protected lemma mul_nonneg {a b : ℤ} (ha : 0 ≤ a) (hb : 0 ≤ b) : 0 ≤ a * b :=
 le.elim ha (assume n, assume hn,
 le.elim hb (assume m, assume hm,
-  le.intro (show 0 + ↑n * ↑m = a * b, begin rw [-hn, -hm], repeat {rw zero_add} end)))
+  le.intro (show 0 + ↑n * ↑m = a * b, begin rw [← hn, ← hm], repeat {rw zero_add} end)))
 
 protected lemma mul_pos {a b : ℤ} (ha : 0 < a) (hb : 0 < b) : 0 < a * b :=
 lt.elim ha (assume n, assume hn,
 lt.elim hb (assume m, assume hm,
   lt.intro (show 0 + ↑(nat.succ (nat.succ n * m + n)) = a * b,
-    begin rw [-hn, -hm], repeat {rw int.coe_nat_zero}, simp,
-          rw [-int.coe_nat_mul], simp [nat.mul_succ, nat.succ_add] end)))
+    begin rw [← hn, ← hm], repeat {rw int.coe_nat_zero}, simp,
+          rw [← int.coe_nat_mul], simp [nat.mul_succ, nat.succ_add] end)))
 
 protected lemma zero_lt_one : (0 : ℤ) < 1 := trivial
 
@@ -199,7 +199,7 @@ protected lemma lt_of_lt_of_le {a b c : ℤ} (hab : a < b) (hbc : b ≤ c) : a <
 have hac : a ≤ c, from int.le_trans (le_of_lt hab) hbc,
 iff.mpr
   (int.lt_iff_le_and_ne _ _)
-  (and.intro hac (assume heq, int.not_le_of_gt begin rw -heq, assumption end hbc))
+  (and.intro hac (assume heq, int.not_le_of_gt (by rwa [← heq]) hbc))
 
 protected lemma lt_of_le_of_lt  {a b c : ℤ} (hab : a ≤ b) (hbc : b < c) : a < c :=
 have hac : a ≤ c, from int.le_trans hab (le_of_lt hbc),
@@ -263,7 +263,7 @@ theorem nat_abs_of_nonneg {a : ℤ} (H : a ≥ 0) : (nat_abs a : ℤ) = a :=
 match a, eq_coe_of_zero_le H with ._, ⟨n, rfl⟩ := rfl end
 
 theorem of_nat_nat_abs_of_nonpos {a : ℤ} (H : a ≤ 0) : (nat_abs a : ℤ) = -a :=
-by rw [-nat_abs_neg, nat_abs_of_nonneg (neg_nonneg_of_nonpos H)]
+by rw [← nat_abs_neg, nat_abs_of_nonneg (neg_nonneg_of_nonpos H)]
 
 theorem abs_eq_nat_abs : ∀ a : ℤ, abs a = nat_abs a
 | (n : ℕ) := abs_of_nonneg $ coe_zero_le _
@@ -355,6 +355,6 @@ let ⟨b, Hb⟩ := Hbdd in ⟨-b, λ z h, Hb _ (lt_neg_of_lt_neg h)⟩,
 have Hinh' : ∃ z : ℤ, P (-z), from
 let ⟨elt, Helt⟩ := Hinh in ⟨-elt, by rw [neg_neg]; exact Helt⟩,
 let ⟨lb, Plb, al⟩ := exists_least_of_bdd Hbdd' Hinh' in
-⟨-lb, Plb, λ z h, by rw [-neg_neg z]; exact al _ (neg_lt_of_neg_lt h)⟩
+⟨-lb, Plb, λ z h, by rw [← neg_neg z]; exact al _ (neg_lt_of_neg_lt h)⟩
 
 end int

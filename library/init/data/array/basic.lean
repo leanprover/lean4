@@ -59,7 +59,7 @@ lt_of_le_of_lt (nat.sub_le _ _) this
 theorem write_ind (a : array α n) (i : fin n) (v : α) (C : fin n → α → Sort w)
   (Hi : C i v) (Hj : ∀j, i ≠ j → C j (a.read j)) (j) : C j ((a.write i v).read j) :=
 show C j (if i = j then v else read a j), from
-if h : i = j then by rwa [if_pos h, -h]
+if h : i = j then by rwa [if_pos h, ← h]
 else by rw [if_neg h]; exact Hj j h
 
 def foreach_aux (f : fin n → α → α) : Π (i : nat), i ≤ n → array α n → array α n

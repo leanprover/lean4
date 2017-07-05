@@ -48,7 +48,7 @@ begin
     (λm, let ⟨i, il, im⟩ := IH.1 m in ⟨i, nat.le_succ_of_le il, im⟩),
   λ⟨i, le, m⟩, or.elim (lt_or_eq_of_le (nat.le_of_succ_le_succ le))
     (λl, or.inr (IH.2 ⟨i, l, m⟩))
-    (λe, or.inl $ by rwa -(show i = ⟨j, h⟩, from fin.eq_of_veq e))⟩
+    (λe, or.inl $ by rwa [← show i = ⟨j, h⟩, from fin.eq_of_veq e])⟩
 end
 
 def foldl {δ : Type w} (d : δ) (f : δ → Π a, β a → δ) : δ :=
@@ -88,7 +88,7 @@ theorem find_aux_iff (a : α) (b : β a) : Π (l : list Σ a, β a), (l.map sigm
 | (⟨a',b'⟩::t) nd := by simp[find_aux]; exact
   if h : a' = a then by rw dif_pos h; exact
     match a', b', h with ._, b', rfl :=
-      ⟨λe, by injection e with e; rw -e; exact or.inl rfl,
+      ⟨λe, by injection e with e; rw ← e; exact or.inl rfl,
        λo, or.elim o
          (λe, by injection e with _ e; rw eq_of_heq e)
          (λm, have a' ∉ t.map sigma.fst, from list.not_mem_of_nodup_cons nd,
@@ -164,7 +164,7 @@ have h1 : list.length (array.to_list bkts) - 1 - i < list.length (list.reverse (
   have _, from nat.sub_eq_sub_min,
 have sigma.mk a b ∈ list.nth_le (array.to_list bkts) i (by simp [*, array.to_list_length]), by {rw array.to_list_nth, exact el},
 begin
-  rw -list.nth_le_reverse at this,
+  rw [← list.nth_le_reverse] at this,
   have v : valid_aux (λa, (mk_idx n (hash_fn a)).1) (array.to_list bkts).reverse sz,
   rw array.to_list_reverse,
   exact v,
@@ -200,7 +200,7 @@ end
 theorem valid.as_list_length {n} {bkts : bucket_array α β n} {sz : nat} (v : valid bkts sz) : bkts.as_list.length = sz :=
 have ∀l sz, valid_aux (λ (a : α), (mk_idx n (hash_fn a)).val) l sz → ∀t, (l.foldr (λbkt r, r ++ bkt) t).length = sz + t.length,
 by {intros, induction a, simp[list.foldr], simp[list.foldr, ih_1]},
-by have h := this _ _ v []; rwa -array.foldl_eq at h
+by have h := this _ _ v []; rwa [← array.foldl_eq] at h
 
 theorem valid.mk (n : ℕ+) : @valid n (mk_array n.1 []) 0 :=
 let bkts : bucket_array α β n := mk_array n.1 [] in
@@ -212,7 +212,7 @@ show valid_aux (λa, (mk_idx n (hash_fn a)).1) (array.iterate_aux bkts (λ_ v l,
 theorem valid.find_aux_iff {n} {bkts : bucket_array α β n} {sz : nat} (v : valid bkts sz) (a : α) (b : β a) :
  find_aux a (bkts.read hash_fn a) = some b ↔ sigma.mk a b ∈ bkts.as_list :=
 iff.trans (find_aux_iff _ _ _ (v.nodup _ _))
-  $ iff.trans (by exact ⟨λm, ⟨_, m⟩, λ⟨⟨i, h⟩, m⟩, by rwa -(v.eq' _ m) at m⟩)
+  $ iff.trans (by exact ⟨λm, ⟨_, m⟩, λ⟨⟨i, h⟩, m⟩, by rwa [← v.eq' _ m] at m⟩)
    (iff.symm (bkts.mem_as_list _))
 
 theorem valid.contains_aux_iff {n} {bkts : bucket_array α β n} {sz : nat} (v : valid bkts sz) (a : α) :
@@ -262,7 +262,7 @@ section
       have bn : bidx ≠ ⟨i, h⟩, from λhh, ne_of_gt hl $ fin.veq_of_eq $ eq.symm hh,
       have he : array.read bkts ⟨i, h⟩ = array.read bkts' ⟨i, h⟩, from
        (show _ = ite (bidx = ⟨i, h⟩) (f _) _, by rw if_neg bn),
-      by simp[array.iterate_aux]; rw -he; exact
+      by simp[array.iterate_aux]; rw [← he]; exact
       let ⟨u', w', hb, hb'⟩ := append_of_modify_aux i (le_of_lt h) hl in
       ⟨u', w' ++ array.read bkts ⟨i, h⟩, by simp[hb], by simp[hb']⟩
     | or.inr e :=
@@ -271,9 +271,9 @@ section
           show ite (bidx = bidx) _ _ = _, by rw if_pos rfl,
         begin
           simp[array.iterate_aux, -add_comm],
-          rw -(show bidx = ⟨bidx.1, h⟩, from fin.eq_of_veq rfl),
+          rw [← show bidx = ⟨bidx.1, h⟩, from fin.eq_of_veq rfl],
           refine ⟨array.iterate_aux bkts (λ_ bkt r, r ++ bkt) bidx.1 (le_of_lt h) [] ++ u, w, _⟩,
-          rw -valid.modify_aux1 _ _ (le_refl _),
+          rw [← valid.modify_aux1 _ _ (le_refl _)],
           rw [this, hfl, hl],
           simp
         end
@@ -299,7 +299,7 @@ section
       have bn : bidx ≠ ⟨i, h⟩, from λhh, ne_of_gt hl $ fin.veq_of_eq $ eq.symm hh,
       have he : array.read bkts ⟨i, h⟩ = array.read bkts' ⟨i, h⟩, from
        (show _ = ite (bidx = ⟨i, h⟩) (f _) _, by rw if_neg bn),
-      by simp[array.iterate_aux]; rw -he; exact λvv,
+      by simp[array.iterate_aux]; rw [← he]; exact λvv,
       let ⟨s, v, nd, al, e⟩ := _root_.hash_map.valid_aux.unfold_cons vv in
       let ⟨hsz, v'⟩ := valid.modify_aux2 i (le_of_lt h) hl v in
       by rw [e, calc (s + (array.read bkts ⟨i, h⟩).length) + v2.length - v1.length
@@ -313,8 +313,8 @@ section
           show ite (bidx = bidx) _ _ = _, by rw if_pos rfl,
         begin
           simp[array.iterate_aux, -add_comm],
-          rw [-(show bidx = ⟨bidx.1, h⟩, from fin.eq_of_veq rfl),
-              -valid.modify_aux1 _ _ (le_refl _),
+          rw [← show bidx = ⟨bidx.1, h⟩, from fin.eq_of_veq rfl,
+              ← valid.modify_aux1 _ _ (le_refl _),
               this, hfl, hl],
           exact λvv,
           let ⟨s, v, nd, al, e⟩ := _root_.hash_map.valid_aux.unfold_cons vv in
@@ -520,7 +520,7 @@ end,
       list.disjoint_of_nodup_append nd' (list.mem_map sigma.fst m1) this,
     if h : mk_idx n' (hash_fn c.1) = i
     then by simp[h] at im; exact or.elim im
-      (λe, nc $ list.mem_append_left _ (by rwa -(show a = c.fst, from congr_arg sigma.fst e)))
+      (λe, nc $ list.mem_append_left _ (by rwa [← show a = c.fst, from congr_arg sigma.fst e]))
       this
     else by simp[h] at im; exact this im
   end
@@ -624,10 +624,10 @@ match (by apply_instance : decidable (contains_aux a bkt)) with
       from h.trans $ (list.mem_reverse _ _).trans this,
     have h : bkts'' = bkts'.as_list.foldl _ _, from bkts'.foldl_eq _ _,
     begin
-      rw -list.foldr_reverse at h, rw h,
+      rw [← list.foldr_reverse] at h, rw h,
       generalize bkts'.as_list.reverse l, intro l, induction l with a l IH,
       { simp, rw[mk_as_list hash_fn n'], simp },
-      { cases a with a'' b'', simp, rw -IH, exact
+      { cases a with a'' b'', simp, rw [← IH], exact
         let B := l.foldr (λ y (x : bucket_array α β n'),
               reinsert_aux hash_fn x y.1 y.2) (mk_array n'.1 []),
             ⟨u, w, hl, hfl⟩ := show ∃ u' w', B.as_list = _ ∧
@@ -680,7 +680,7 @@ match (by apply_instance : decidable (contains_aux a bkt)) with
         append_of_modify u' [⟨a, b⟩] [] _ hl' hfl', v.as_list_nodup _ with
   | ._, ._, ⟨u, w, rfl, rfl⟩, nd' := by simp; simp at nd'; exact
     ⟨λhm, ⟨λe, match a', e, b', hm with ._, rfl, b', hm := by {
-      rw -list.mem_append_iff at hm;
+      rw [← list.mem_append_iff] at hm;
       have hm := list.mem_map sigma.fst hm;
       rw list.map_append at hm;
       exact list.not_mem_of_nodup_cons (list.nodup_head nd') hm }

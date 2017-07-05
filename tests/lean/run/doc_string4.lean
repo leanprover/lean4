@@ -82,7 +82,7 @@ begin
   induction a with n x a₁ a₂ ih₁ ih₂,
   repeat {reflexivity},
   {unfold asimp_const aval,
-   rewrite [-ih₁, -ih₂],
+   rewrite [←ih₁, ←ih₂],
    cases (asimp_const a₁),
    repeat {cases (asimp_const a₂), repeat {reflexivity}}}
 end
@@ -126,7 +126,7 @@ lemma aval_asimp_const₃ : ∀ (a : aexp) (s : state), aval (asimp_const a) s =
    have h₁ := aval_asimp_const₃ a₁ s,
    have h₂ := aval_asimp_const₃ a₂ s,
    unfold asimp_const aval,
-   rewrite [-h₁, -h₂],
+   rewrite [←h₁, ←h₂],
    cases (asimp_const a₁); cases (asimp_const a₂); repeat {reflexivity}
   end
 

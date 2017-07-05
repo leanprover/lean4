@@ -36,7 +36,7 @@ lemma mul_bit0 [distrib α] (a b : α) : a * (bit0 b) = bit0 (a * b) :=
 by simp
 
 lemma mul_bit0_helper [distrib α] (a b t : α) (h : a * b = t) : a * (bit0 b) = bit0 t :=
-begin rw [-h], simp end
+begin rw [← h], simp end
 
 lemma mul_bit1 [semiring α] (a b : α) : a * (bit1 b) = bit0 (a * b) + a :=
 by simp
@@ -71,7 +71,7 @@ lemma neg_add_pos_helper2 [add_comm_group α] (a b c : α) (h : a + c = b) : -a 
 begin apply neg_add_eq_of_eq_add, rw h end
 
 lemma pos_add_neg_helper [add_comm_group α] (a b c : α) (h : b + a = c) : a + b = c :=
-by rw [-h, add_comm a b]
+by rw [← h, add_comm a b]
 
 lemma subst_into_subtr [add_group α] (l r t : α) (h : l + -r = t) : l - r = t :=
 by simp [h]
@@ -92,23 +92,23 @@ lemma div_add_helper [field α] (n d b c val : α) (hd : d ≠ 0) (h : n + b * d
         (h2 : c * d = val) : n / d + b = c :=
 begin
   apply eq_of_mul_eq_mul_of_nonzero_right hd,
-  rw [h2, -h, right_distrib, div_mul_cancel _ hd]
+  rw [h2, ← h, right_distrib, div_mul_cancel _ hd]
 end
 
 lemma add_div_helper [field α] (n d b c val : α) (hd : d ≠ 0) (h : d * b + n = val)
         (h2 : d * c = val) : b + n / d = c :=
 begin
   apply eq_of_mul_eq_mul_of_nonzero_left hd,
-  rw [h2, -h, left_distrib, mul_div_cancel' _ hd]
+  rw [h2, ← h, left_distrib, mul_div_cancel' _ hd]
 end
 
 lemma div_mul_helper [field α] (n d c v : α) (hd : d ≠ 0) (h : (n * c) / d = v) :
         (n / d) * c = v :=
-by rw [-h, field.div_mul_eq_mul_div_comm _ _ hd, mul_div_assoc]
+by rw [← h, field.div_mul_eq_mul_div_comm _ _ hd, mul_div_assoc]
 
 lemma mul_div_helper [field α] (a n d v : α) (hd : d ≠ 0) (h : (a * n) / d = v) :
         a * (n / d) = v :=
-by rw [-h, mul_div_assoc]
+by rw [← h, mul_div_assoc]
 
 lemma nonzero_of_div_helper [field α] (a b : α) (ha : a ≠ 0) (hb : b ≠ 0) : a / b ≠ 0 :=
 begin
@@ -153,14 +153,14 @@ by usimp
 
 lemma bit0_add_bit0_helper [add_comm_semigroup α] (a b t : α) (h : a + b = t) :
         bit0 a + bit0 b = bit0 t :=
-begin rw -h, usimp end
+begin rw [← h], usimp end
 
 lemma bit1_add_bit0 [add_comm_semigroup α] [has_one α] (a b : α) : bit1 a + bit0 b = bit1 (a + b) :=
 by usimp
 
 lemma bit1_add_bit0_helper [add_comm_semigroup α] [has_one α] (a b t : α)
         (h : a + b = t) : bit1 a + bit0 b = bit1 t :=
-begin rw -h, usimp end
+begin rw [← h], usimp end
 
 lemma bit0_add_bit1 [add_comm_semigroup α] [has_one α] (a b : α) :
         bit0 a + bit1 b = bit1 (a + b) :=
@@ -168,7 +168,7 @@ by usimp
 
 lemma bit0_add_bit1_helper [add_comm_semigroup α] [has_one α] (a b t : α)
         (h : a + b = t) : bit0 a + bit1 b = bit1 t :=
-begin rw -h, usimp end
+begin rw [← h], usimp end
 
 lemma bit1_add_bit1 [add_comm_semigroup α] [has_one α] (a b : α) :
         bit1 a + bit1 b = bit0 (add1 (a + b)) :=
@@ -176,7 +176,7 @@ by usimp
 
 lemma bit1_add_bit1_helper [add_comm_semigroup α] [has_one α] (a b t s : α)
         (h : (a + b) = t) (h2 : add1 t = s) : bit1 a + bit1 b = bit0 s :=
-begin rw -h at h2, rw -h2, usimp end
+begin rw [← h] at h2, rw [← h2], usimp end
 
 lemma bin_add_zero [add_monoid α] (a : α) : a + 0 = a :=
 by simp
@@ -195,14 +195,14 @@ rfl
 
 lemma bit1_add_one_helper [has_add α] [has_one α] (a t : α) (h : add1 (bit1 a) = t) :
         bit1 a + 1 = t :=
-by rw -h
+by rw [← h]
 
 lemma one_add_bit1 [add_comm_semigroup α] [has_one α] (a : α) : 1 + bit1 a = add1 (bit1 a) :=
 begin unfold bit0 bit1 add1, simp end
 
 lemma one_add_bit1_helper [add_comm_semigroup α] [has_one α] (a t : α)
         (h : add1 (bit1 a) = t) : 1 + bit1 a = t :=
-begin rw -h, usimp end
+begin rw [← h], usimp end
 
 lemma add1_bit0 [has_add α] [has_one α] (a : α) : add1 (bit0 a) = bit1 a :=
 rfl
@@ -213,7 +213,7 @@ by usimp
 
 lemma add1_bit1_helper [add_comm_semigroup α] [has_one α] (a t : α) (h : add1 a = t) :
         add1 (bit1 a) = bit0 t :=
-begin rw -h, usimp end
+begin rw [← h], usimp end
 
 lemma add1_one [has_add α] [has_one α] : add1 (1 : α) = bit0 1 :=
 rfl
@@ -226,7 +226,7 @@ rfl
 
 lemma subst_into_sum [has_add α] (l r tl tr t : α) (prl : l = tl) (prr : r = tr)
         (prt : tl + tr = t) : l + r = t :=
-by rw [-prt, prr, prl]
+by rw [← prt, prr, prl]
 
 lemma neg_zero_helper [add_group α] (a : α) (h : a = 0) : - a = 0 :=
 begin rw h, simp end
@@ -256,13 +256,13 @@ begin intro ha, apply h, apply neg_inj, rwa neg_zero end
 
 lemma sub_nat_zero_helper {a b c d: ℕ} (hac : a = c) (hbd : b = d) (hcd : c < d) : a - b = 0 :=
 begin
- simp [*], apply nat.sub_eq_zero_of_le, apply le_of_lt, assumption
+ simp *, apply nat.sub_eq_zero_of_le, apply le_of_lt, assumption
 end
 
 lemma sub_nat_pos_helper {a b c d e : ℕ} (hac : a = c) (hbd : b = d) (hced : e + d = c) :
   a - b = e :=
 begin
-simp [*], rw [-hced, nat.add_sub_cancel]
+simp *, rw [← hced, nat.add_sub_cancel]
 end
 
 end norm_num

@@ -287,7 +287,7 @@ by rw [add_sub_cancel]
 
 lemma add_midpoint {a b : α} (h : a < b) : a + (b - a) / 2 < b :=
 begin
-  rw [-div_sub_div_same, sub_eq_add_neg, add_comm (b/2), -add_assoc, -sub_eq_add_neg],
+  rw [← div_sub_div_same, sub_eq_add_neg, add_comm (b/2), ← add_assoc, ← sub_eq_add_neg],
   apply add_lt_of_lt_sub_right,
   rw [sub_self_div_two, sub_self_div_two],
   apply div_lt_div_of_lt_of_pos h two_pos
@@ -315,7 +315,7 @@ add_pos two_pos two_pos
 
 lemma mul_le_mul_of_mul_div_le {a b c d : α} (h : a * (b / c) ≤ d) (hc : c > 0) : b * a ≤ d * c :=
 begin
-  rw [-mul_div_assoc] at h, rw [mul_comm b],
+  rw [← mul_div_assoc] at h, rw [mul_comm b],
   apply le_mul_of_div_le hc h
 end
 
@@ -350,7 +350,7 @@ begin
    have h3 : (a + a) / 2 > ((b + b) + (a - b)) / 2,
      exact div_lt_div_of_lt_of_pos h2 two_pos,
    rw [one_add_one_eq_two, sub_eq_add_neg],
-   rw [add_self_div_two, -div_add_div_same, add_self_div_two, sub_eq_add_neg] at h3,
+   rw [add_self_div_two, ← div_add_div_same, add_self_div_two, sub_eq_add_neg] at h3,
    exact h3},
   exact div_pos_of_pos_of_pos (sub_pos_of_lt h) two_pos
 end
@@ -459,7 +459,7 @@ le_of_not_gt
 
 lemma one_div_le_of_one_div_le_of_pos {a b : α} (ha : a > 0) (h : 1 / a ≤ b) : 1 / b ≤ a :=
 begin
-  rw -(one_div_one_div a),
+  rw [← one_div_one_div a],
   apply one_div_le_one_div_of_le,
   apply one_div_pos_of_pos,
   repeat {assumption}
@@ -467,7 +467,7 @@ end
 
 lemma one_div_le_of_one_div_le_of_neg {a b : α} (ha : b < 0) (h : 1 / a ≤ b) : 1 / b ≤ a :=
 begin
-  rw -(one_div_one_div a),
+  rw [← one_div_one_div a],
   apply one_div_le_one_div_of_le_of_neg,
   repeat {assumption}
 end
@@ -491,7 +491,7 @@ one_div_le_one_div_of_le_of_neg h1 h2
 lemma div_lt_div_of_pos_of_lt_of_pos {a b c : α} (hb : 0 < b) (h : b < a) (hc : 0 < c) : c / a < c / b :=
 begin
   apply lt_of_sub_neg,
-  rw [div_eq_mul_one_div, div_eq_mul_one_div c b, -mul_sub_left_distrib],
+  rw [div_eq_mul_one_div, div_eq_mul_one_div c b, ← mul_sub_left_distrib],
   apply mul_neg_of_pos_of_neg,
   exact hc,
   apply sub_neg_of_lt,

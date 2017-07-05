@@ -179,11 +179,11 @@ instance ring.to_semiring [s : ring α] : semiring α :=
 
 lemma neg_mul_eq_neg_mul [s : ring α] (a b : α) : -(a * b) = -a * b :=
 neg_eq_of_add_eq_zero
-  begin rw [-right_distrib, add_right_neg, zero_mul] end
+  begin rw [← right_distrib, add_right_neg, zero_mul] end
 
 lemma neg_mul_eq_mul_neg [s : ring α] (a b : α) : -(a * b) = a * -b :=
 neg_eq_of_add_eq_zero
-  begin rw [-left_distrib, add_right_neg, mul_zero] end
+  begin rw [← left_distrib, add_right_neg, mul_zero] end
 
 @[simp] lemma neg_mul_eq_neg_mul_symm [s : ring α] (a b : α) : - a * b = - (a * b) :=
 eq.symm (neg_mul_eq_neg_mul a b)
@@ -316,7 +316,7 @@ section integral_domain
   iff.intro
     (assume : a * a = b * b,
       have (a - b) * (a + b) = 0,
-        by rewrite [mul_comm, -mul_self_sub_mul_self_eq, this, sub_self],
+        by rewrite [mul_comm, ← mul_self_sub_mul_self_eq, this, sub_self],
       have a - b = 0 ∨ a + b = 0, from eq_zero_or_eq_zero_of_mul_eq_zero this,
       or.elim this
         (assume : a - b = 0, or.inl (eq_of_sub_eq_zero this))

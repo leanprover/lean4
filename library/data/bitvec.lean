@@ -43,7 +43,7 @@ section shift
     begin
       by_cases (i ≤ n),
       { have h₁ := sub_le n i,
-        rw [min_eq_right h], rw [min_eq_left h₁, -nat.add_sub_assoc h, add_comm, nat.add_sub_cancel] },
+        rw [min_eq_right h], rw [min_eq_left h₁, ← nat.add_sub_assoc h, add_comm, nat.add_sub_cancel] },
       { have h₁ := le_of_not_ge h,
         rw [min_eq_left h₁, sub_eq_zero_of_le h₁, min_zero_left, add_zero] }
     end $

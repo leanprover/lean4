@@ -50,7 +50,7 @@ namespace nat
     simp [bnot] at this,
     rw [show ∀ b, ff && b = ff, by intros; cases b; refl,
         show ∀ b, bxor b ff = b, by intros; cases b; refl] at this,
-    rw -this,
+    rw [← this],
     cases mod_two_eq_zero_or_one n; rw a; refl
   end
 
@@ -89,7 +89,7 @@ namespace nat
   (bit_val _ _).trans $ (add_comm _ _).trans $ bodd_add_div2 _
 
   def bit_cases_on {C : nat → Sort u} (n) (h : ∀ b n, C (bit b n)) : C n :=
-  by rw -bit_decomp n; apply h
+  by rw [← bit_decomp n]; apply h
 
   @[simp] lemma bit_zero : bit ff 0 = 0 := rfl
 
@@ -164,7 +164,7 @@ namespace nat
   lemma test_bit_succ (m b n) : test_bit (bit b n) (succ m) = test_bit n m :=
   have bodd (shiftr (shiftr (bit b n) 1) m) = bodd (shiftr n m),
     by dsimp [shiftr]; rw div2_bit,
-  by rw [-shiftr_add, add_comm] at this; exact this
+  by rw [← shiftr_add, add_comm] at this; exact this
 
   def binary_rec {C : nat → Sort u} (z : C 0) (f : ∀ b n, C n → C (bit b n)) : Π n, C n
   | n := if n0 : n = 0 then by rw n0; exact z else let n' := div2 n in
@@ -175,7 +175,7 @@ namespace nat
         (lt_of_le_of_ne (zero_le _) (ne.symm n0)),
       rwa mul_one at this
     end,
-    by rw [-show bit (bodd n) n' = n, from bit_decomp n]; exact
+    by rw [← show bit (bodd n) n' = n, from bit_decomp n]; exact
     f (bodd n) n' (binary_rec n')
 
   def size : ℕ → ℕ := binary_rec 0 (λ_ _, succ)
@@ -210,7 +210,7 @@ namespace nat
      have n0 := div2_bit b n,
      rw h' at bf n0,
      simp at bf n0,
-     rw [-bf, -n0, binary_rec_zero],
+     rw [← bf, ← n0, binary_rec_zero],
      intros, exact h.symm },
     {simp [dif_neg h'],
      generalize (binary_rec._main._pack._proof_2 (bit b n)) e,
@@ -257,7 +257,7 @@ namespace nat
       all_goals {
         apply bit_cases_on m, intros a m,
         rw [binary_rec_eq, binary_rec_zero],
-        rw [-bitwise_bit_aux h, ftf], refl } },
+        rw [← bitwise_bit_aux h, ftf], refl } },
     { exact bitwise_bit_aux h }
   end
 

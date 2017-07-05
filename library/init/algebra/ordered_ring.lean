@@ -227,13 +227,13 @@ variable [ordered_ring α]
 lemma mul_le_mul_of_nonpos_left {a b c : α} (h : b ≤ a) (hc : c ≤ 0) : c * a ≤ c * b :=
 have -c ≥ 0,              from neg_nonneg_of_nonpos hc,
 have -c * b ≤ -c * a,     from mul_le_mul_of_nonneg_left h this,
-have -(c * b) ≤ -(c * a), by rwa [-neg_mul_eq_neg_mul, -neg_mul_eq_neg_mul] at this,
+have -(c * b) ≤ -(c * a), by rwa [← neg_mul_eq_neg_mul, ← neg_mul_eq_neg_mul] at this,
 le_of_neg_le_neg this
 
 lemma mul_le_mul_of_nonpos_right {a b c : α} (h : b ≤ a) (hc : c ≤ 0) : a * c ≤ b * c :=
 have -c ≥ 0,              from neg_nonneg_of_nonpos hc,
 have b * -c ≤ a * -c,     from mul_le_mul_of_nonneg_right h this,
-have -(b * c) ≤ -(a * c), by rwa [-neg_mul_eq_mul_neg, -neg_mul_eq_mul_neg] at this,
+have -(b * c) ≤ -(a * c), by rwa [← neg_mul_eq_mul_neg, ← neg_mul_eq_mul_neg] at this,
 le_of_neg_le_neg this
 
 lemma mul_nonneg_of_nonpos_of_nonpos {a b : α} (ha : a ≤ 0) (hb : b ≤ 0) : 0 ≤ a * b :=
@@ -243,13 +243,13 @@ by rwa zero_mul at this
 lemma mul_lt_mul_of_neg_left {a b c : α} (h : b < a) (hc : c < 0) : c * a < c * b :=
 have -c > 0,              from neg_pos_of_neg hc,
 have -c * b < -c * a,     from mul_lt_mul_of_pos_left h this,
-have -(c * b) < -(c * a), by rwa [-neg_mul_eq_neg_mul, -neg_mul_eq_neg_mul] at this,
+have -(c * b) < -(c * a), by rwa [← neg_mul_eq_neg_mul, ← neg_mul_eq_neg_mul] at this,
 lt_of_neg_lt_neg this
 
 lemma mul_lt_mul_of_neg_right {a b c : α} (h : b < a) (hc : c < 0) : a * c < b * c :=
 have -c > 0,              from neg_pos_of_neg hc,
 have b * -c < a * -c,     from mul_lt_mul_of_pos_right h this,
-have -(b * c) < -(a * c), by rwa [-neg_mul_eq_mul_neg, -neg_mul_eq_mul_neg] at this,
+have -(b * c) < -(a * c), by rwa [← neg_mul_eq_mul_neg, ← neg_mul_eq_mul_neg] at this,
 lt_of_neg_lt_neg this
 
 lemma mul_pos_of_neg_of_neg {a b : α} (ha : a < 0) (hb : b < 0) : 0 < a * b :=
@@ -289,14 +289,14 @@ match lt_trichotomy 0 a with
 | or.inl hlt₁          :=
   match lt_trichotomy 0 b with
   | or.inl hlt₂          := or.inl ⟨hlt₁, hlt₂⟩
-  | or.inr (or.inl heq₂) := begin rw [-heq₂, mul_zero] at hab, exact absurd hab (lt_irrefl _) end
+  | or.inr (or.inl heq₂) := begin rw [← heq₂, mul_zero] at hab, exact absurd hab (lt_irrefl _) end
   | or.inr (or.inr hgt₂) := absurd hab (lt_asymm (mul_neg_of_pos_of_neg hlt₁ hgt₂))
   end
-| or.inr (or.inl heq₁) := begin rw [-heq₁, zero_mul] at hab, exact absurd hab (lt_irrefl _) end
+| or.inr (or.inl heq₁) := begin rw [← heq₁, zero_mul] at hab, exact absurd hab (lt_irrefl _) end
 | or.inr (or.inr hgt₁) :=
   match lt_trichotomy 0 b with
   | or.inl hlt₂          := absurd hab (lt_asymm (mul_neg_of_neg_of_pos hgt₁ hlt₂))
-  | or.inr (or.inl heq₂) := begin rw [-heq₂, mul_zero] at hab, exact absurd hab (lt_irrefl _) end
+  | or.inr (or.inl heq₂) := begin rw [← heq₂, mul_zero] at hab, exact absurd hab (lt_irrefl _) end
   | or.inr (or.inr hgt₂) := or.inr ⟨hgt₁, hgt₂⟩
   end
 end

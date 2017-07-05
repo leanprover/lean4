@@ -130,7 +130,7 @@ lemma append_inj_right {s₁ s₂ t₁ t₂ : list α} (h : s₁ ++ t₁ = s₂ 
 
 lemma append_right_inj {s₁ s₂ t₁ t₂ : list α} (h : s₁ ++ t₁ = s₂ ++ t₂) (hl : length t₁ = length t₂) : s₁ = s₂ ∧ t₁ = t₂ :=
 append_inj h $ @nat.add_right_cancel _ (length t₁) _ $
-let hap := congr_arg length h in by simp at hap; rwa -hl at hap
+let hap := congr_arg length h in by simp at hap; rwa [← hl] at hap
 
 /- nth -/
 
@@ -152,8 +152,8 @@ theorem ext : Π {l₁ l₂ : list α}, (∀n, nth l₁ n = nth l₂ n) → l₁
 
 theorem ext_le {l₁ l₂ : list α} (hl : length l₁ = length l₂) (h : ∀n h₁ h₂, nth_le l₁ n h₁ = nth_le l₂ n h₂) : l₁ = l₂ :=
 ext $ λn, if h₁ : n < length l₁
-  then by rw [nth_le_nth, nth_le_nth, h n h₁ (by rwa -hl)]
-  else let h₁ := le_of_not_gt h₁ in by rw [nth_ge_len _ _ h₁, nth_ge_len _ _ (by rwa -hl)]
+  then by rw [nth_le_nth, nth_le_nth, h n h₁ (by rwa [← hl])]
+  else let h₁ := le_of_not_gt h₁ in by rw [nth_ge_len _ _ h₁, nth_ge_len _ _ (by rwa [← hl])]
 
 /- map -/
 
@@ -252,7 +252,7 @@ lemma nth_le_reverse_aux2 : Π (l r : list α) (i : nat) (h1) (h2),
     have heq := calc length (a :: l) - 1 - (i + 1)
           = length l - (1 + i) : by rw add_comm; refl
       ... = length l - 1 - i   : by rw nat.sub_sub,
-    rw -heq at aux,
+    rw [← heq] at aux,
     apply aux
   end
 
@@ -446,7 +446,7 @@ begin
 end
 
 lemma mem_map_iff {f : α → β} {b : β} {l : list α} : b ∈ map f l ↔ ∃ a, a ∈ l ∧ f a = b :=
-⟨exists_of_mem_map, λ ⟨a, la, h⟩, by rw -h; exact mem_map f la⟩
+⟨exists_of_mem_map, λ ⟨a, la, h⟩, by rw [← h]; exact mem_map f la⟩
 
 lemma mem_join_iff {a : α} : ∀ {L : list (list α)}, a ∈ join L ↔ ∃ l, l ∈ L ∧ a ∈ l
 | []       := ⟨false.elim, λ⟨_, h, _⟩, false.elim h⟩
@@ -600,7 +600,7 @@ lemma eq_nil_of_sublist_nil {l : list α} (s : l <+ []) : l = [] :=
 eq_nil_of_subset_nil $ subset_of_sublist s
 
 lemma eq_nil_of_map_eq_nil {f : α → β} {l :list α} (h : map f l = nil) : l = nil :=
-eq_nil_of_length_eq_zero (begin rw -(length_map f l), simp [h] end)
+eq_nil_of_length_eq_zero (begin rw [← length_map f l], simp [h] end)
 
 lemma eq_of_map_const {b₁ b₂ : β} {l : list α} (h : b₁ ∈ map (function.const α b₂) l) : b₁ = b₂ :=
 let ⟨a, _, e⟩ := exists_of_mem_map h in e.symm
@@ -667,7 +667,7 @@ lemma infix_of_suffix {l₁ l₂ : list α} : l₁ <:+ l₂ → l₁ <:+: l₂ :
 lemma infix_refl (l : list α) : l <:+: l := infix_of_prefix $ prefix_refl l
 
 lemma sublist_of_infix {l₁ l₂ : list α} : l₁ <:+: l₂ → l₁ <+ l₂ :=
-λ⟨s, t, h⟩, by rw -h; exact (sublist_append_right _ _).trans (sublist_append_left _ _)
+λ⟨s, t, h⟩, by rw [← h]; exact (sublist_append_right _ _).trans (sublist_append_left _ _)
 
 lemma length_le_of_infix {l₁ l₂ : list α} (s : l₁ <:+: l₂) : length l₁ ≤ length l₂ :=
 length_le_of_sublist $ sublist_of_infix s
@@ -682,7 +682,7 @@ lemma eq_nil_of_suffix_nil {l : list α} (s : l <:+ []) : l = [] :=
 eq_nil_of_infix_nil $ infix_of_suffix s
 
 lemma infix_iff_prefix_suffix (l₁ l₂ : list α) : l₁ <:+: l₂ ↔ ∃ t, l₁ <+: t ∧ t <:+ l₂ :=
-⟨λ⟨s, t, e⟩, ⟨l₁ ++ t, ⟨_, rfl⟩, by rw [-e, append_assoc]; exact ⟨_, rfl⟩⟩,
+⟨λ⟨s, t, e⟩, ⟨l₁ ++ t, ⟨_, rfl⟩, by rw [← e, append_assoc]; exact ⟨_, rfl⟩⟩,
 λ⟨._, ⟨t, rfl⟩, ⟨s, e⟩⟩, ⟨s, t, by rw append_assoc; exact e⟩⟩
 
 @[simp] lemma mem_inits : ∀ (s t : list α), s ∈ inits t ↔ s <+: t
@@ -690,7 +690,7 @@ lemma infix_iff_prefix_suffix (l₁ l₂ : list α) : l₁ <:+: l₂ ↔ ∃ t, 
 | s (a::t) := by simp; exact ⟨λo, match s, o with
   | ._, or.inl rfl := ⟨_, rfl⟩
   | s, or.inr mm := let ⟨r, hr, hs⟩ := exists_of_mem_map mm, ⟨s, ht⟩ := (mem_inits _ _).1 hr in
-    by rw [-hs, -ht]; exact ⟨s, rfl⟩
+    by rw [← hs, ← ht]; exact ⟨s, rfl⟩
   end, λmi, match s, mi with
   | [], ⟨._, rfl⟩ := or.inl rfl
   | (b::s), ⟨r, hr⟩ := list.no_confusion hr $ λba st, or.inr $
@@ -718,7 +718,7 @@ by simp [sublists_aux]; rw [sublists_aux_eq_foldl l, sublists_aux_eq_foldl l (λ
 
 lemma sublists_aux_cons_cons (l : list α) (a : α) :
   sublists_aux (a::l) cons = [a] :: foldr (λys r, ys :: (a :: ys) :: r) [] (sublists_aux l cons) :=
-by rw -sublists_aux_eq_foldl; refl
+by rw [← sublists_aux_eq_foldl]; refl
 
 @[simp] lemma mem_sublists (s t : list α) : s ∈ sublists t ↔ s <+ t :=
 by simp [sublists]; exact

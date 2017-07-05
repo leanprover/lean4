@@ -79,7 +79,7 @@ end
 
 example (x : nat) (f : nat → nat) (h₁ : x = 0) (h₂ : ∀ x, f x = x + x) : f x = x :=
 begin
-  conv { to_rhs, rw [h₁, -add_zero 0, -h₁], },
+  conv { to_rhs, rw [h₁, <- add_zero 0, <- h₁], },
   exact h₂ x
 end
 

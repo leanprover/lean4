@@ -81,6 +81,9 @@ For more details, see discussion [here](https://github.com/leanprover/lean/pull/
   Moreover, `simp [*, -h]` if `h` is a hypothesis, we are adding all hypotheses but `h`
   as additional simplification lemmas.
 
+* Changed notation `rw [-h]` to `rw [← h]` to avoid confusion with the new `simp [-h]` notation.
+  The ASCII version `rw [<- h]` is also supported.
+
 *API name changes*
 
 * `tactic.dsimp` and `tactic.dsimp_core` => `tactic.dsimp_target`

@@ -1139,7 +1139,7 @@ expr type_context::infer_macro(expr const & e) {
         get_delayed_abstraction_info(e, ns, es);
         auto d = m_mctx.find_metavar_decl(mvar);
         if (!d) throw_unknown_metavar(mvar);
-        return push_delayed_abstraction(d->get_type(), ns, es);
+        return append_delayed_abstraction(d->get_type(), ns, es);
     }
     auto def = macro_def(e);
     bool infer_only = true;

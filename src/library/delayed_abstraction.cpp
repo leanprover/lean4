@@ -210,7 +210,7 @@ expr push_delayed_abstraction(expr const & e) {
     }
 }
 
-expr push_delayed_abstraction(expr const & e, buffer<name> const & ns, buffer<expr> const & vs) {
+expr append_delayed_abstraction(expr const & e, buffer<name> const & ns, buffer<expr> const & vs) {
     return push_delayed_abstraction_fn(ns, vs)(e);
 }
 

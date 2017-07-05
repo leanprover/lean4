@@ -3619,7 +3619,7 @@ static expr replace_with_simple_metavars(metavar_context mctx, name_map<expr> & 
                         buffer<name> ns; buffer<expr> es;
                         get_delayed_abstraction_info(e, ns, es);
                         expr mvar_type = mctx.instantiate_mvars(decl->get_type());
-                        mvar_type      = push_delayed_abstraction(mvar_type, ns, es);
+                        mvar_type      = append_delayed_abstraction(mvar_type, ns, es);
                         expr new_type  = replace_with_simple_metavars(mctx, cache, mvar_type);
                         expr new_mvar  = mk_metavar(mlocal_name(mvar), new_type);
                         return some_expr(new_mvar);

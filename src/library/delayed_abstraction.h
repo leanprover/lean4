@@ -13,8 +13,15 @@ expr mk_delayed_abstraction(expr const & e, name const & n);
 bool is_delayed_abstraction(expr const & e);
 expr const & get_delayed_abstraction_expr(expr const & e);
 void get_delayed_abstraction_info(expr const & e, buffer<name> & ns, buffer<expr> & es);
+/* Given a delayed abstraction `[delayed t, h_1 := e_1, ..., h_n := e_n]`, push
+   the delayed substitutions `h_i := e_i` to the metavariables occurring in `t`.
+
+   Remark: if `t` is a metavariable, then we just return `e`. */
 expr push_delayed_abstraction(expr const & e);
-expr push_delayed_abstraction(expr const & e, buffer<name> const & ns, buffer<expr> const & es);
+/* Append the new delayed substitutions `ns[i] := es[i]` to the metavariables occurring in `e`.
+
+   \pre ns.size() == es.size() */
+expr append_delayed_abstraction(expr const & e, buffer<name> const & ns, buffer<expr> const & es);
 
 /* Create e{ls[0] := ls[0], ..., ls[n-1] := ls[n-1]}
    \pre is_metavar(e)

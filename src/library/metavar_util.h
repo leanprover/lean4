@@ -24,6 +24,8 @@ bool is_assigned(expr const & e) const;
 optional<expr> get_assignment(expr const & e) const;
 void assign(expr const & m, expr const & v);
 
+push_delayed_abstraction
+
 bool in_tmp_mode() const;
 */
 
@@ -205,7 +207,7 @@ public:
         expr r = visit(e);
         if (m_found_delayed_abstraction) {
             buffer<name> ns; buffer<expr> es;
-            r = push_delayed_abstraction(r, ns, es);
+            r = append_delayed_abstraction(r, ns, es);
         }
         return r;
     }

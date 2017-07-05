@@ -119,7 +119,7 @@ end
 
 @[simp] theorem push_back_to_list (a : array α n) (v : α) :
   (a.push_back v).to_list = a.to_list ++ [v] :=
-by rw [-rev_list_reverse, -rev_list_reverse, push_back_rev_list,
+by rw [← rev_list_reverse, ← rev_list_reverse, push_back_rev_list,
        list.reverse_cons, list.concat_eq_append]
 
 def read_foreach_aux (f : fin n → α → α) (ai : array α n) :
@@ -129,9 +129,10 @@ def read_foreach_aux (f : fin n → α → α) (ai : array α n) :
 | (i+1) hi a ⟨j, hj⟩ ji := begin
   dsimp [iterate_aux], dsimp at ji,
   change ite _ _ _ = _,
-  by_cases (⟨i, hi⟩ : fin _) = ⟨j, hj⟩ with e; dsimp [ite],
-  { rw e },
-  { rw [read_foreach_aux _ _ _ ⟨j, hj⟩],
+  by_cases (⟨i, hi⟩ : fin _) = ⟨j, hj⟩ with e,
+  { simp [e, if_pos] },
+  { simp [if_neg e],
+    rw [read_foreach_aux _ _ _ ⟨j, hj⟩],
     exact (lt_or_eq_of_le (nat.le_of_lt_succ ji)).resolve_right
       (ne.symm $ mt (@fin.eq_of_veq _ ⟨i, hi⟩ ⟨j, hj⟩) e) }
 end

@@ -660,8 +660,8 @@ theorem of_mem_filter {p : α → Prop} [h : decidable_pred p] {a : α} : ∀ {l
   if pb : p b then
     have a ∈ b :: filter p l, begin simp [pb] at ain, assumption end,
     or.elim (eq_or_mem_of_mem_cons this)
-      (suppose a = b, begin rw -this at pb, exact pb end)
-      (suppose a ∈ filter p l, of_mem_filter this)
+      (assume : a = b, begin rw [← this] at pb, exact pb end)
+      (assume : a ∈ filter p l, of_mem_filter this)
   else
     begin simp [pb] at ain, exact (of_mem_filter ain) end
 
@@ -675,12 +675,12 @@ theorem mem_filter_of_mem {p : α → Prop} [h : decidable_pred p] {a : α} :
 | (b::l) ain pa :=
   if pb : p b then
     or.elim (eq_or_mem_of_mem_cons ain)
-      (suppose a = b, by simp [pb, this])
-      (suppose a ∈ l, begin simp [pb], exact (mem_cons_of_mem _ (mem_filter_of_mem this pa)) end)
+      (assume : a = b, by simp [pb, this])
+      (assume : a ∈ l, begin simp [pb], exact (mem_cons_of_mem _ (mem_filter_of_mem this pa)) end)
   else
     or.elim (eq_or_mem_of_mem_cons ain)
-      (suppose a = b, begin simp [this] at pa, contradiction end) --absurd (this ▸ pa) pb)
-      (suppose a ∈ l, by simp [pa, pb, mem_filter_of_mem this])
+      (assume : a = b, begin simp [this] at pa, contradiction end) --absurd (this ▸ pa) pb)
+      (assume : a ∈ l, by simp [pa, pb, mem_filter_of_mem this])
 
 @[simp] lemma partition_eq_filter_filter (p : α → Prop) [decidable_pred p] : ∀ (l : list α), partition p l = (filter p l, filter (not ∘ p) l)
 | []     := rfl

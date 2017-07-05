@@ -39,7 +39,7 @@ by rw [qsort, well_founded.fix_eq, qsort.F]
 begin
   rw [qsort, well_founded.fix_eq, qsort.F],
   ginduction partition (λ x, lt h x = tt) t with e large small,
-  simp [e], dsimp, rw [e]
+  simp [e], rw [e]
 end
 
 end list

@@ -470,6 +470,12 @@ private meta def loop (cfg : simp_config) (discharger : tactic unit) (to_unfold 
    let ⟨h, h_type, h_pr, s'⟩ := e,
    (new_h_type, new_pr) ← simplify s' to_unfold h_type {cfg with fail_if_unchanged := ff} `eq discharger,
    if h_type =ₐ new_h_type then loop es (e::r) s m
+   else if new_h_type = `(false) then do
+     new_pr      ← join_pr h_pr new_pr,
+     new_fact_pr ← mk_eq_mp new_pr h,
+     tgt         ← target,
+     pr          ← mk_app `false.rec [tgt, new_fact_pr],
+     exact pr
    else do
      new_pr      ← join_pr h_pr new_pr,
      new_fact_pr ← mk_eq_mp new_pr h,

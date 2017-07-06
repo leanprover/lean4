@@ -16,3 +16,6 @@ f (nat.succ _) _
 g 0 (nat.succ _)
 g (nat.succ _) _
 non_exhaustive_error.lean:17:0: warning: declaration '_mutual.f.g' uses sorry
+non_exhaustive_error.lean:27:4: error: non-exhaustive match, the following cases are missing:
+const_name (term.mk _ (term.mk _ _ :: _))
+non_exhaustive_error.lean:27:0: warning: declaration 'const_name' uses sorry

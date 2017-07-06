@@ -682,8 +682,7 @@ struct elim_match_fn {
         for (equation const & eqn : eqns) {
             lean_assert(eqn.m_patterns);
             type_context ctx = mk_type_context(eqn.m_lctx);
-            /* We use ctx.relaxed_whnf to make sure we expose the kernel constructor */
-            expr pattern     = ctx.relaxed_whnf(head(eqn.m_patterns));
+            expr pattern     = whnf_constructor(ctx, head(eqn.m_patterns));
             if (!is_constructor_app(ctx, pattern)) {
                 throw_error("equation compiler failed, pattern is not a constructor "
                             "(use 'set_option trace.eqn_compiler.elim_match true' for additional details)");
@@ -741,7 +740,7 @@ struct elim_match_fn {
         lean_assert(is_constructor_transition(P));
         type_context ctx   = mk_type_context(P);
         expr x             = head(P.m_var_stack);
-        expr x_type        = ctx.relaxed_whnf(whnf_inductive(ctx, ctx.infer(x)));
+        expr x_type        = whnf_inductive(ctx, ctx.infer(x));
         lean_assert(is_inductive_app(x_type));
         buffer<expr> x_type_args;
         auto x_type_const  = get_app_args(x_type, x_type_args);
@@ -753,7 +752,7 @@ struct elim_match_fn {
         list<expr> new_goals;
         list<name> new_goal_cnames;
         try {
-            bool unfold_ginductive = true;
+            bool unfold_ginductive = false;
             list<name> ids;
             std::tie(new_goals, new_goal_cnames) =
                 cases(m_env, m_opts, transparency_mode::Semireducible, m_mctx,

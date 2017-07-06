@@ -21,3 +21,8 @@ with g : nat → nat → nat
 | 0 0 := 1
 
 end other
+
+inductive term | mk : ℕ → list term → term
+
+def const_name : term → ℕ
+| (term.mk n []) := n

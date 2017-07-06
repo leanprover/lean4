@@ -541,12 +541,17 @@ struct elim_match_fn {
         return r && has_variable && has_constructor;
     }
 
-    /* Return true iff the next pattern of every equation is a value or variable,
+    /* Return true if the next pattern of every equation is a value or variable,
        and there are at least one equation where it is a variable and another where it is a
-       value. */
+       value.
+
+       We also perform a value transition if one of the next patterns is a
+       string literal.
+    */
     bool is_value_transition(problem const & P) {
         bool has_value    = false;
         bool has_variable = false;
+        bool has_string   = false;
         bool r = all_equations(P, [&](equation const & eqn) {
                 expr const & p = head(eqn.m_patterns);
                 if (is_local(p)) {
@@ -554,12 +559,18 @@ struct elim_match_fn {
                 } else {
                     type_context ctx = mk_type_context(eqn.m_lctx);
                     if (is_value(ctx, p)) {
-                        has_value    = true; return true;
+                        has_value    = true;
+                        if (is_string_value(p)) {
+                            has_string = true;
+                        }
+                        return true;
                     } else {
                         return false;
                     }
                 }
             });
+        if (has_string)
+            return true;
         if (!r || !has_value || !has_variable)
             return false;
         type_context ctx  = mk_type_context(P);

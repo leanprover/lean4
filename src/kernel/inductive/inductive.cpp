@@ -286,12 +286,13 @@ struct add_inductive_fn {
     /** \brief Check if the type of datatype is well typed,
         and the number of parameters match the argument num_params.
 
-        This method also populates the fields m_param_consts, m_it_level, m_it_const. */
+        This method also populates the fields m_param_consts, m_elim_info.m_indices, m_it_level, m_it_const. */
     void check_inductive_type() {
         expr t       = m_decl.m_type;
         tc().check(t, m_decl.m_level_params);
         unsigned i    = 0;
         m_it_num_args = 0;
+        t = whnf(t);
         while (is_pi(t)) {
             if (i < m_decl.m_num_params) {
                 expr l = mk_local_for(t);
@@ -299,8 +300,11 @@ struct add_inductive_fn {
                 t = instantiate(binding_body(t), l);
                 i++;
             } else {
-                t = binding_body(t);
+                expr c = mk_local_for(t);
+                m_elim_info.m_indices.push_back(c);
+                t = instantiate(binding_body(t), c);
             }
+            t = whnf(t);
             m_it_num_args++;
         }
         if (i != m_decl.m_num_params)
@@ -530,19 +534,7 @@ struct add_inductive_fn {
 
     /** \brief Populate m_elim_info. */
     void mk_elim_info() {
-        // First, populate the fields, m_C, m_indices, m_major_premise
-        expr t     = m_decl.m_type;
-        unsigned i = 0;
-        while (is_pi(t)) {
-            if (i < m_decl.m_num_params) {
-                t = instantiate(binding_body(t), m_param_consts[i]);
-            } else {
-                expr c = mk_local_for(t);
-                m_elim_info.m_indices.push_back(c);
-                t = instantiate(binding_body(t), c);
-            }
-            i++;
-        }
+        // First, populate the fields m_C and m_major_premise
         m_elim_info.m_major_premise = mk_local(mk_fresh_name(), "n",
                                                mk_app(mk_app(m_it_const, m_param_consts), m_elim_info.m_indices), binder_info());
         expr C_ty = mk_sort(m_elim_level);

@@ -466,6 +466,8 @@ void server::handle_async_response(server::cmd_req const & req, task<cmd_res> co
             send_msg(msg);
         } catch (throwable & ex) {
             send_msg(cmd_res(req.m_seq_num, std::string(ex.what())));
+        } catch (interrupted) {
+            send_msg(cmd_res(req.m_seq_num, std::string("interrupted")));
         } catch (...) {
             send_msg(cmd_res(req.m_seq_num, std::string("unknown exception")));
         }

@@ -122,11 +122,11 @@ unpack_eqns::unpack_eqns(type_context & ctx, expr const & e):
             }
         } else {
             /* noequation, guess arity using type of function */
-            expr type = ctx.infer(m_fns[fidx]);
+            expr type = ctx.relaxed_whnf(ctx.infer(m_fns[fidx]));
             unsigned arity = 0;
             while (is_pi(type)) {
                 arity++;
-                type = binding_body(type);
+                type = ctx.relaxed_whnf(binding_body(type));
             }
             if (arity == 0) throw_ill_formed_eqns();
             m_arity.push_back(arity);

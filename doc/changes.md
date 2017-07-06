@@ -49,7 +49,7 @@ For more details, see discussion [here](https://github.com/leanprover/lean/pull/
 
 * Renamed `pose` tactic -> `let`
 
-* `assume` and `suppose` are now real tactics that do not exit tactic mode.
+* `assume` is now a real tactic that does not exit tactic mode.
 
 * Modified `apply` tactic configuration object, and implemented [RFC #1342](https://github.com/leanprover/lean/issues/1342). It now has support for `auto_param` and `opt_param`. The new `eapply` tactic only creates subgoals for non dependent premises, and it simulates the behavior of the `apply` tactic in version 3.2.0.
 
@@ -84,8 +84,12 @@ For more details, see discussion [here](https://github.com/leanprover/lean/pull/
 * Changed notation `rw [-h]` to `rw [← h]` to avoid confusion with the new `simp [-h]` notation.
   The ASCII version `rw [<- h]` is also supported.
 
+* Removed the redundant keywords `take` (replace with `assume`) and `suppose` (replace with the new anonymous `assume :`)
+
 *API name changes*
 
+* `list.dropn` => `list.drop`
+* `list.taken` => `list.take`
 * `tactic.dsimp` and `tactic.dsimp_core` => `tactic.dsimp_target`
 * `tactic.dsimp_at_core` and `tactic.dsimp_at` => `tactic.dsimp_hyp`
 * `tactic.delta_expr` => `tactic.delta`

@@ -1,105 +1,171 @@
-non_exhaustive_error.lean:2:4: error: non-exhaustive set of equations, the following cases are missing:
- ((1, _))
- ((nat.succ (nat.succ _), nat.succ _))
-non_exhaustive_error.lean:6:11: error: non-exhaustive set of equations, the following cases are missing:
- ({data := list.nil char}) (_)
- ({data := ⟨0, _⟩ :: _}) (_)
- ({data := ⟨1, _⟩ :: _}) (_)
- ({data := ⟨2, _⟩ :: _}) (_)
- ({data := ⟨3, _⟩ :: _}) (_)
- ({data := ⟨4, _⟩ :: _}) (_)
- ({data := ⟨5, _⟩ :: _}) (_)
- ({data := ⟨6, _⟩ :: _}) (_)
- ({data := ⟨7, _⟩ :: _}) (_)
- ({data := ⟨8, _⟩ :: _}) (_)
- ({data := ⟨9, _⟩ :: _}) (_)
- ({data := ⟨10, _⟩ :: _}) (_)
- ({data := ⟨11, _⟩ :: _}) (_)
- ({data := ⟨12, _⟩ :: _}) (_)
- ({data := ⟨13, _⟩ :: _}) (_)
- ({data := ⟨14, _⟩ :: _}) (_)
- ({data := ⟨15, _⟩ :: _}) (_)
- ({data := ⟨16, _⟩ :: _}) (_)
- ({data := ⟨17, _⟩ :: _}) (_)
- ({data := ⟨18, _⟩ :: _}) (_)
- ({data := ⟨19, _⟩ :: _}) (_)
- ({data := ⟨20, _⟩ :: _}) (_)
- ({data := ⟨21, _⟩ :: _}) (_)
- ({data := ⟨22, _⟩ :: _}) (_)
- ({data := ⟨23, _⟩ :: _}) (_)
- ({data := ⟨24, _⟩ :: _}) (_)
- ({data := ⟨25, _⟩ :: _}) (_)
- ({data := ⟨26, _⟩ :: _}) (_)
- ({data := ⟨27, _⟩ :: _}) (_)
- ({data := ⟨28, _⟩ :: _}) (_)
- ({data := ⟨29, _⟩ :: _}) (_)
- ({data := ⟨30, _⟩ :: _}) (_)
- ({data := ⟨31, _⟩ :: _}) (_)
- ({data := ⟨32, _⟩ :: _}) (_)
- ({data := ⟨33, _⟩ :: _}) (_)
- ({data := ⟨34, _⟩ :: _}) (_)
- ({data := ⟨35, _⟩ :: _}) (_)
- ({data := ⟨36, _⟩ :: _}) (_)
- ({data := ⟨37, _⟩ :: _}) (_)
- ({data := ⟨38, _⟩ :: _}) (_)
- ({data := ⟨39, _⟩ :: _}) (_)
- ({data := ⟨40, _⟩ :: _}) (_)
- ({data := ⟨41, _⟩ :: _}) (_)
- ({data := ⟨42, _⟩ :: _}) (_)
- ({data := ⟨43, _⟩ :: _}) (_)
- ({data := ⟨44, _⟩ :: _}) (_)
- ({data := ⟨45, _⟩ :: _}) (_)
- ({data := ⟨46, _⟩ :: _}) (_)
- ({data := ⟨47, _⟩ :: _}) (_)
- ({data := ⟨48, _⟩ :: _}) (_)
- ({data := ⟨49, _⟩ :: _}) (_)
- ({data := ⟨50, _⟩ :: _}) (_)
- ({data := ⟨51, _⟩ :: _}) (_)
- ({data := ⟨52, _⟩ :: _}) (_)
- ({data := ⟨53, _⟩ :: _}) (_)
- ({data := ⟨54, _⟩ :: _}) (_)
- ({data := ⟨55, _⟩ :: _}) (_)
- ({data := ⟨56, _⟩ :: _}) (_)
- ({data := ⟨57, _⟩ :: _}) (_)
- ({data := ⟨58, _⟩ :: _}) (_)
- ({data := ⟨59, _⟩ :: _}) (_)
- ({data := ⟨60, _⟩ :: _}) (_)
- ({data := ⟨61, _⟩ :: _}) (_)
- ({data := ⟨62, _⟩ :: _}) (_)
- ({data := ⟨63, _⟩ :: _}) (_)
- ({data := ⟨64, _⟩ :: _}) (_)
- ({data := ⟨65, _⟩ :: _}) (_)
- ({data := ⟨66, _⟩ :: _}) (_)
- ({data := ⟨67, _⟩ :: _}) (_)
- ({data := ⟨68, _⟩ :: _}) (_)
- ({data := ⟨69, _⟩ :: _}) (_)
- ({data := ⟨70, _⟩ :: _}) (_)
- ({data := ⟨71, _⟩ :: _}) (_)
- ({data := ⟨72, _⟩ :: _}) (_)
- ({data := ⟨73, _⟩ :: _}) (_)
- ({data := ⟨74, _⟩ :: _}) (_)
- ({data := ⟨75, _⟩ :: _}) (_)
- ({data := ⟨76, _⟩ :: _}) (_)
- ({data := ⟨77, _⟩ :: _}) (_)
- ({data := ⟨78, _⟩ :: _}) (_)
- ({data := ⟨79, _⟩ :: _}) (_)
- ({data := ⟨80, _⟩ :: _}) (_)
- ({data := ⟨81, _⟩ :: _}) (_)
- ({data := ⟨82, _⟩ :: _}) (_)
- ({data := ⟨83, _⟩ :: _}) (_)
- ({data := ⟨84, _⟩ :: _}) (_)
- ({data := ⟨85, _⟩ :: _}) (_)
- ({data := ⟨86, _⟩ :: _}) (_)
- ({data := ⟨87, _⟩ :: _}) (_)
- ({data := ⟨88, _⟩ :: _}) (_)
- ({data := ⟨89, _⟩ :: _}) (_)
- ({data := ⟨90, _⟩ :: _}) (_)
- ({data := ⟨91, _⟩ :: _}) (_)
- ({data := ⟨92, _⟩ :: _}) (_)
- ({data := ⟨93, _⟩ :: _}) (_)
- ({data := ⟨94, _⟩ :: _}) (_)
- ({data := ⟨95, _⟩ :: _}) (_)
- ({data := ⟨96, _⟩ :: _}) (_)
- ({data := ⟨97, _⟩ :: _}) (_)
- ({data := ⟨98, _⟩ :: _}) (_)
- ({data := ⟨99, _⟩ :: _}) (_)
+non_exhaustive_error.lean:2:4: error: non-exhaustive match, the following cases are missing:
+g (1, _)
+g (nat.succ (nat.succ _), nat.succ _)
+non_exhaustive_error.lean:2:0: warning: declaration 'g' uses sorry
+non_exhaustive_error.lean:6:11: error: non-exhaustive match, the following cases are missing:
+f {data := list.nil char} _
+f {data := ⟨0, _⟩ :: _} _
+f {data := ⟨1, _⟩ :: _} _
+f {data := ⟨2, _⟩ :: _} _
+f {data := ⟨3, _⟩ :: _} _
+f {data := ⟨4, _⟩ :: _} _
+f {data := ⟨5, _⟩ :: _} _
+f {data := ⟨6, _⟩ :: _} _
+f {data := ⟨7, _⟩ :: _} _
+f {data := ⟨8, _⟩ :: _} _
+f {data := ⟨9, _⟩ :: _} _
+f {data := ⟨10, _⟩ :: _} _
+f {data := ⟨11, _⟩ :: _} _
+f {data := ⟨12, _⟩ :: _} _
+f {data := ⟨13, _⟩ :: _} _
+f {data := ⟨14, _⟩ :: _} _
+f {data := ⟨15, _⟩ :: _} _
+f {data := ⟨16, _⟩ :: _} _
+f {data := ⟨17, _⟩ :: _} _
+f {data := ⟨18, _⟩ :: _} _
+f {data := ⟨19, _⟩ :: _} _
+f {data := ⟨20, _⟩ :: _} _
+f {data := ⟨21, _⟩ :: _} _
+f {data := ⟨22, _⟩ :: _} _
+f {data := ⟨23, _⟩ :: _} _
+f {data := ⟨24, _⟩ :: _} _
+f {data := ⟨25, _⟩ :: _} _
+f {data := ⟨26, _⟩ :: _} _
+f {data := ⟨27, _⟩ :: _} _
+f {data := ⟨28, _⟩ :: _} _
+f {data := ⟨29, _⟩ :: _} _
+f {data := ⟨30, _⟩ :: _} _
+f {data := ⟨31, _⟩ :: _} _
+f {data := ⟨32, _⟩ :: _} _
+f {data := ⟨33, _⟩ :: _} _
+f {data := ⟨34, _⟩ :: _} _
+f {data := ⟨35, _⟩ :: _} _
+f {data := ⟨36, _⟩ :: _} _
+f {data := ⟨37, _⟩ :: _} _
+f {data := ⟨38, _⟩ :: _} _
+f {data := ⟨39, _⟩ :: _} _
+f {data := ⟨40, _⟩ :: _} _
+f {data := ⟨41, _⟩ :: _} _
+f {data := ⟨42, _⟩ :: _} _
+f {data := ⟨43, _⟩ :: _} _
+f {data := ⟨44, _⟩ :: _} _
+f {data := ⟨45, _⟩ :: _} _
+f {data := ⟨46, _⟩ :: _} _
+f {data := ⟨47, _⟩ :: _} _
+f {data := ⟨48, _⟩ :: _} _
+f {data := ⟨49, _⟩ :: _} _
+f {data := ⟨50, _⟩ :: _} _
+f {data := ⟨51, _⟩ :: _} _
+f {data := ⟨52, _⟩ :: _} _
+f {data := ⟨53, _⟩ :: _} _
+f {data := ⟨54, _⟩ :: _} _
+f {data := ⟨55, _⟩ :: _} _
+f {data := ⟨56, _⟩ :: _} _
+f {data := ⟨57, _⟩ :: _} _
+f {data := ⟨58, _⟩ :: _} _
+f {data := ⟨59, _⟩ :: _} _
+f {data := ⟨60, _⟩ :: _} _
+f {data := ⟨61, _⟩ :: _} _
+f {data := ⟨62, _⟩ :: _} _
+f {data := ⟨63, _⟩ :: _} _
+f {data := ⟨64, _⟩ :: _} _
+f {data := ⟨65, _⟩ :: _} _
+f {data := ⟨66, _⟩ :: _} _
+f {data := ⟨67, _⟩ :: _} _
+f {data := ⟨68, _⟩ :: _} _
+f {data := ⟨69, _⟩ :: _} _
+f {data := ⟨70, _⟩ :: _} _
+f {data := ⟨71, _⟩ :: _} _
+f {data := ⟨72, _⟩ :: _} _
+f {data := ⟨73, _⟩ :: _} _
+f {data := ⟨74, _⟩ :: _} _
+f {data := ⟨75, _⟩ :: _} _
+f {data := ⟨76, _⟩ :: _} _
+f {data := ⟨77, _⟩ :: _} _
+f {data := ⟨78, _⟩ :: _} _
+f {data := ⟨79, _⟩ :: _} _
+f {data := ⟨80, _⟩ :: _} _
+f {data := ⟨81, _⟩ :: _} _
+f {data := ⟨82, _⟩ :: _} _
+f {data := ⟨83, _⟩ :: _} _
+f {data := ⟨84, _⟩ :: _} _
+f {data := ⟨85, _⟩ :: _} _
+f {data := ⟨86, _⟩ :: _} _
+f {data := ⟨87, _⟩ :: _} _
+f {data := ⟨88, _⟩ :: _} _
+f {data := ⟨89, _⟩ :: _} _
+f {data := ⟨90, _⟩ :: _} _
+f {data := ⟨91, _⟩ :: _} _
+f {data := ⟨92, _⟩ :: _} _
+f {data := ⟨93, _⟩ :: _} _
+f {data := ⟨94, _⟩ :: _} _
+f {data := ⟨95, _⟩ :: _} _
+f {data := ⟨96, _⟩ :: _} _
+f {data := ⟨97, _⟩ :: _} _
+f {data := ⟨98, _⟩ :: _} _
+f {data := ⟨99, _⟩ :: _} _
+f
+  {data := ⟨nat.succ
+                (nat.succ
+                   (nat.succ
+                      (nat.succ
+                         (nat.succ
+                            (nat.succ
+                               (nat.succ
+                                  (nat.succ
+                                     (nat.succ
+                                        (nat.succ
+                                           (nat.succ
+                                              (nat.succ
+                                                 (nat.succ
+                                                    (nat.succ
+                                                       (nat.succ
+                                                          (nat.succ
+                                                             (nat.succ
+                                                                (nat.succ
+                                                                   (nat.succ
+                                                                      (nat.succ
+                                                                         (nat.succ
+                                                                            (nat.succ
+                                                                               (nat.succ
+                                                                                  (nat.succ
+                                                                                     (nat.succ
+                                                                                        (nat.succ
+                                                                                           (nat.succ
+                                                                                              (nat.succ
+                                                                                                 (nat.succ
+                                                                                                    (nat.succ
+                                                                                                       (nat.succ
+                                                                                                          (nat.succ
+                                                                                                             (nat.succ
+                                                                                                                (nat.succ
+                                                                                                                   (nat.succ
+                                                                                                                      (nat.succ
+                                                                                                                         (nat.succ
+                                                                                                                            (nat.succ
+                                                                                                                               (nat.succ
+                                                                                                                                  (nat.succ
+                                                                                                                                     (nat.succ
+                                                                                                                                        (nat.succ
+                                                                                                                                           (nat.succ
+                                                                                                                                              (nat.succ
+                                                                                                                                                 (nat.succ
+                                                                                                                                                    (nat.succ
+                                                                                                                                                       (nat.succ
+                                                                                                                                                          (nat.succ
+                                                                                                                                                             (nat.succ
+                                                                                                                                                                (nat.succ
+                                                                                                                                                                   (nat.succ
+                                                                                                                                                                      (nat.succ
+                                                                                                                                                                         (nat.succ
+                                                                                                                                                                            (nat.succ
+                                                                                                                                                                               (nat.succ
+                                                                                                                                                                                  (nat.succ
+                                                                                                                                                                                     (nat.succ
+                                                                                                                                                                                        (nat.succ
+                                                                                                                                                                                           (nat.succ
+                                                                                                                                                                                              …)))))))))))))))))))))))))))))))))))))))))))))))))))))))))),
+              _⟩ ::
+             _}
+  _
+non_exhaustive_error.lean:6:0: warning: declaration 'f' uses sorry

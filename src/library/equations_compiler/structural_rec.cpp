@@ -957,22 +957,26 @@ struct structural_rec_fn {
         }
     }
 
-    optional<expr> operator()(expr const & eqns) {
+    optional<eqn_compiler_result> operator()(expr const & eqns) {
         m_ref    = eqns;
         m_header = get_equations_header(eqns);
         auto new_eqns = elim_recursion(eqns);
-        if (!new_eqns) return none_expr();
+        if (!new_eqns) return {};
         elim_match_result R = elim_match(m_env, m_opts, m_mctx, m_lctx, *new_eqns);
         expr fn = mk_function(R.m_fn);
         if (m_header.m_aux_lemmas) {
             lean_assert(!m_header.m_is_meta);
             mk_lemmas(fn, R.m_lemmas);
         }
-        return some_expr(fn);
+        list<expr> counter_examples = map2<expr>(R.m_counter_examples, [&] (list<expr> const & es_) {
+            buffer<expr> es; to_buffer(es_, es);
+            return mk_app(fn, es.size()-1, es.data());
+        });
+        return optional<eqn_compiler_result>({ {fn}, counter_examples });
     }
 };
 
-optional<expr> try_structural_rec(environment & env, options const & opts, metavar_context & mctx,
+optional<eqn_compiler_result> try_structural_rec(environment & env, options const & opts, metavar_context & mctx,
                                   local_context const & lctx, expr const & eqns) {
     structural_rec_fn F(env, opts, mctx, lctx);
     if (auto r = F(eqns)) {
@@ -980,7 +984,7 @@ optional<expr> try_structural_rec(environment & env, options const & opts, metav
         mctx = F.mctx();
         return r;
     } else {
-        return none_expr();
+        return {};
     }
 }
 

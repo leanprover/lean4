@@ -34,11 +34,21 @@ static expr replace_rec_apps(type_context & ctx, expr const & e) {
     return r;
 }
 
-expr unbounded_rec(environment & env, options const & opts,
+eqn_compiler_result unbounded_rec(environment & env, options const & opts,
                    metavar_context & mctx, local_context const & lctx,
                    expr const & e) {
     type_context ctx(env, opts, mctx, lctx, transparency_mode::Semireducible);
     expr e1 = replace_rec_apps(ctx, e);
-    return elim_match(env, opts, mctx, lctx, e1).m_fn;
+    auto R = elim_match(env, opts, mctx, lctx, e1);
+
+    list<expr> counter_examples;
+    if (R.m_counter_examples) {
+        unpack_eqns ues(ctx, e);
+        counter_examples = map2<expr>(R.m_counter_examples, [&] (list<expr> const & es) {
+            return mk_app(ues.get_fn(0), es);
+        });
+    }
+
+    return { {R.m_fn}, counter_examples };
 }
 }

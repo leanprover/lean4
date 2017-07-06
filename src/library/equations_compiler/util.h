@@ -129,6 +129,11 @@ void update_telescope(type_context & ctx, buffer<expr> const & vars, expr const 
                       expr const & t, buffer<expr> const & t_vars,  buffer<expr> & new_vars,
                       buffer<expr> & from, buffer<expr> & to);
 
+struct eqn_compiler_result {
+    list<expr> m_fns;
+    list<expr> m_counter_examples;
+};
+
 void initialize_eqn_compiler_util();
 void finalize_eqn_compiler_util();
 }

@@ -6,8 +6,9 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "library/type_context.h"
+#include "library/equations_compiler/util.h"
 namespace lean {
-expr wf_rec(environment & env, options const & opts,
+eqn_compiler_result wf_rec(environment & env, options const & opts,
             metavar_context & mctx, local_context const & lctx,
             expr const & eqns);
 void initialize_wf_rec();

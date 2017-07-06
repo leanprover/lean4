@@ -1,2 +1,2 @@
-eqn_compiler_loop.lean:3:8: error: non-exhaustive set of equations, the following cases are missing:
- (succ _) (_)
+eqn_compiler_loop.lean:3:8: error: non-exhaustive match, the following cases are missing:
+succ_ne_self (succ _) _

@@ -6,14 +6,15 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "library/type_context.h"
+#include "library/equations_compiler/util.h"
 namespace lean {
 struct elim_match_result {
     expr       m_fn;
     list<expr> m_lemmas;
-    elim_match_result(expr const & fn, list<expr> const & lemmas):m_fn(fn), m_lemmas(lemmas) {}
+    list<list<expr>> m_counter_examples;
 };
 elim_match_result elim_match(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx, expr const & eqns);
-expr mk_nonrec(environment & env, options const & opts, metavar_context & mctx,
+eqn_compiler_result mk_nonrec(environment & env, options const & opts, metavar_context & mctx,
                local_context const & lctx, expr const & eqns);
 void initialize_elim_match();
 void finalize_elim_match();

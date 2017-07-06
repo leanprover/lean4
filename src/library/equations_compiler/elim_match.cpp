@@ -1239,8 +1239,12 @@ struct elim_match_fn {
             } else if (is_inaccessible_transition(P)) {
                 return process_inaccessible(P);
             } else {
-                check_exhaustive(); // TODO(gabriel): not sure why we fail here in some non-exhaustive matches
                 trace_match(tout() << "compilation failed at\n" << pp_problem(P) << "\n";);
+                if (!m_unsolved.empty()) {
+                    // report non-exhaustive match
+                    m_mctx.assign(P.m_goal, mk_sorry(m_mctx.get_metavar_decl(P.m_goal).get_type(), true));
+                    return list<lemma>();
+                }
                 throw_error("equation compiler failed (use 'set_option trace.eqn_compiler.elim_match true' "
                             "for additional details)");
             }
@@ -1299,30 +1303,21 @@ struct elim_match_fn {
         }
     }
 
-    void check_exhaustive() {
-        if (m_unsolved.empty()) return;
+    list<list<expr>> get_counter_examples() {
+        buffer<list<expr>> counter_examples;
 
-        format msg;
-        msg += format("non-exhaustive set of equations, the following cases are missing:");
+        auto underscore = mk_expr_placeholder();
         for (auto & P : m_unsolved) {
-            auto underscore = mk_expr_placeholder();
-            auto locals_to_underscore = [&] (expr const & e) {
-                return replace(e, [&](expr const & e, unsigned) {
+            counter_examples.push_back(map(P.m_example, [&] (expr const & e) {
+                return replace(e, [&] (expr const & e, unsigned) {
                     if (!has_local(e)) return some_expr(e);
                     if (is_local(e)) return some_expr(underscore);
                     return none_expr();
                 });
-            };
-
-            auto pp_fn = mk_pp_ctx(P);
-            msg += line();
-            for (auto & t : P.m_example) {
-                msg += space();
-                msg += paren(pp_fn(locals_to_underscore(t)));
-            }
+            }));
         }
 
-        throw formatted_exception(m_ref, msg);
+        return to_list(counter_examples);
     }
 
     elim_match_result operator()(local_context const & lctx, expr const & eqns) {
@@ -1337,12 +1332,12 @@ struct elim_match_fn {
         std::tie(P, fn)          = mk_problem(lctx, eqns);
         lean_assert(check_problem(P));
         list<lemma> pre_Ls       = process(P);
-        check_exhaustive();
-        check_no_unused_eqns(eqns);
+        auto counter_examples    = get_counter_examples();
+        if (!counter_examples) check_no_unused_eqns(eqns);
         fn                       = m_mctx.instantiate_mvars(fn);
         trace_match_debug(tout() << "code:\n" << fn << "\n";);
         list<expr> Ls            = finalize_lemmas(fn, pre_Ls);
-        return elim_match_result(fn, Ls);
+        return { fn, Ls, counter_examples };
     }
 };
 
@@ -1361,13 +1356,15 @@ static expr get_fn_type_from_eqns(expr const & eqns) {
     return binding_domain(eqn_buffer[0]);
 }
 
-expr mk_nonrec(environment & env, options const & opts, metavar_context & mctx,
+eqn_compiler_result mk_nonrec(environment & env, options const & opts, metavar_context & mctx,
                local_context const & lctx, expr const & eqns) {
     equations_header header = get_equations_header(eqns);
     auto R = elim_match(env, opts, mctx, lctx, eqns);
     if (header.m_is_meta || header.m_is_lemma) {
         /* Do not generate auxiliary equation or equational lemmas */
-        return R.m_fn;
+        auto fn = mk_constant(head(header.m_fn_names));
+        auto counter_examples = map2<expr>(R.m_counter_examples, [&] (list<expr> const & e) { return mk_app(fn, e); });
+        return { {R.m_fn}, counter_examples };
     }
     type_context ctx1(env, opts, mctx, lctx, transparency_mode::Semireducible);
     /*
@@ -1402,7 +1399,8 @@ expr mk_nonrec(environment & env, options const & opts, metavar_context & mctx,
                                 eqn_idx, header.m_is_private, locals.as_buffer(), new_lhs, rhs);
         eqn_idx++;
     }
-    return fn;
+    auto counter_examples = map2<expr>(R.m_counter_examples, [&] (list<expr> const & e) { return mk_app(fn, e); });
+    return { {fn}, counter_examples };
 }
 
 void initialize_elim_match() {

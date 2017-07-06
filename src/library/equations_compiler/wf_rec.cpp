@@ -395,7 +395,8 @@ struct wf_rec_fn {
         }
     };
 
-    expr unpack(expr const & packed_fn, expr const & eqns_before_pack) {
+    eqn_compiler_result unpack(expr const & packed_fn, expr const & eqns_before_pack,
+                               list<list<expr>> const & counter_example_args) {
         equations_header const & header = get_equations_header(eqns_before_pack);
         list<name> fn_names = header.m_fn_names;
         type_context ctx = mk_type_context();
@@ -426,10 +427,10 @@ struct wf_rec_fn {
             result_fns.push_back(r);
         }
         ctx.set_env(m_env);
+        name const & packed_name   = const_name(get_app_fn(packed_fn));
+        unsigned packed_num_params = get_app_num_args(packed_fn);
         /* unpack equations */
         if (m_header.m_aux_lemmas) {
-            name const & packed_name   = const_name(get_app_fn(packed_fn));
-            unsigned packed_num_params = get_app_num_args(packed_fn);
             unsigned i = 1;
             unsigned next_eqn_idx = 1;
             bool has_prev_fn_name = false;
@@ -476,10 +477,17 @@ struct wf_rec_fn {
                 i++;
             }
         }
-        return mk_equations_result(result_fns.size(), result_fns.data());
+
+        list<expr> counter_examples = map2<expr>(counter_example_args,
+            [&] (list<expr> const & es) {
+                auto packed_e = mk_app(packed_fn, es);
+                auto unpacked_e = unpack_app(packed_e, packed_name, packed_num_params, ues, result_fns);
+                return unpacked_e ? *unpacked_e : packed_e;
+            });
+        return {to_list(result_fns), counter_examples};
     }
 
-    expr operator()(expr eqns) {
+    eqn_compiler_result operator()(expr eqns) {
         m_ref    = eqns;
         m_header = get_equations_header(eqns);
         /* Make sure all functions are unary */
@@ -551,17 +559,17 @@ struct wf_rec_fn {
             mk_lemmas(fn, r.m_lemmas);
         }
 
-        return unpack(fn, before_pack);
+        return unpack(fn, before_pack, r.m_counter_examples);
     }
 };
 
 /** \brief (Try to) eliminate "recursive calls" in the equations \c eqns by using well founded recursion.
     If successful, elim_match is used to compile pattern matching. */
-expr wf_rec(environment & env, options const & opts,
+eqn_compiler_result wf_rec(environment & env, options const & opts,
             metavar_context & mctx, local_context const & lctx,
             expr const & eqns) {
     wf_rec_fn proc(env, opts, mctx, lctx);
-    expr r = proc(eqns);
+    auto r = proc(eqns);
     env    = proc.m_env;
     mctx   = proc.m_mctx;
     return r;

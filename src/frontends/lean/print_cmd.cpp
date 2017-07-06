@@ -340,7 +340,7 @@ static bool print_constant(parser const & p, message_builder & out, char const *
     return true;
 }
 
-bool print_id_info(parser & p, message_builder & out, name const & id, bool show_value, pos_info const & pos) {
+void print_id_info(parser & p, message_builder & out, name const & id, bool show_value, pos_info const & pos) {
     environment const & env = p.env();
     bool found = false;
 
@@ -393,7 +393,7 @@ bool print_id_info(parser & p, message_builder & out, name const & id, bool show
                 infom->add_const_info(p.env(), pos, *c);
             }
 
-    if (found) return true;
+    if (found) return;
 
     // variables and parameters
     if (expr const * type = p.get_local(id)) {
@@ -403,7 +403,7 @@ bool print_id_info(parser & p, message_builder & out, name const & id, bool show
             } else {
                 out << "parameter " << id << " : " << mlocal_type(*type) << "\n";
             }
-            return true;
+            return;
         }
     }
 
@@ -417,7 +417,7 @@ bool print_id_info(parser & p, message_builder & out, name const & id, bool show
             }
         });
 
-    return found;
+    if (!found) throw parser_error(sstream() << "unknown identifier " << id, p.pos());
 }
 
 bool print_token_info(parser const & p, message_builder & out, name const & tk) {
@@ -433,24 +433,21 @@ bool print_token_info(parser const & p, message_builder & out, name const & tk) 
     return found;
 }
 
-bool print_polymorphic(parser & p, message_builder & out) {
+void print_polymorphic(parser & p, message_builder & out) {
     auto pos = p.pos();
-    try {
-        name id = p.check_id_next("", break_at_pos_exception::token_context::expr);
-        bool show_value = true;
-        if (print_id_info(p, out, id, show_value, pos))
-            return true;
-    } catch (exception &) {}
 
     // notation
     if (p.curr_is_keyword()) {
         name tk = p.get_token_info().token();
         if (print_token_info(p, out, tk)) {
             p.next();
-            return true;
+            return;
         }
     }
-    return false;
+
+    name id = p.check_id_next("invalid #print command", break_at_pos_exception::token_context::expr);
+    bool show_value = true;
+    print_id_info(p, out, id, show_value, pos);
 }
 
 static void print_unification_hints(parser & p, message_builder & out) {
@@ -618,9 +615,8 @@ environment print_cmd(parser & p) {
             auto const & attr = get_attribute(p.env(), name);
             print_attribute(p, out, attr);
         }
-    } else if (print_polymorphic(p, out)) {
     } else {
-        throw parser_error("invalid '#print' command", p.pos());
+        print_polymorphic(p, out);
     }
     out.set_end_pos(p.pos());
     out.report();

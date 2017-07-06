@@ -5,3 +5,5 @@ constant boo : nat
 #print 2
 
 #print fields nat
+
+#print nat.addd

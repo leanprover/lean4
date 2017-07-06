@@ -15,12 +15,11 @@
     "structure" "universe" "universes"
     "precedence" "reserve" "declare_trace" "add_key_equivalence"
     "match" "infix" "infixl" "infixr" "notation" "postfix" "prefix" "instance"
-    "end" "this" "suppose"
-    "using" "using_well_founded" "namespace" "section" "fields"
+    "end" "this" "using" "using_well_founded" "namespace" "section"
     "attribute" "local" "set_option" "extends" "include" "omit" "classes" "class"
     "attributes" "raw" "replacing"
     "calc" "have" "show" "suffices" "by" "in" "at" "do" "let" "forall" "Pi" "fun"
-    "exists" "if" "then" "else" "assume" "take" "from"
+    "exists" "if" "then" "else" "assume" "from"
     "mutual" "def" "run_cmd")
   "lean keywords ending with 'word' (not symbol)")
 (defconst lean-keywords1-regexp

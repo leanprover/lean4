@@ -569,9 +569,7 @@ struct elim_match_fn {
                     }
                 }
             });
-        if (has_string)
-            return true;
-        if (!r || !has_value || !has_variable)
+        if (!has_string && (!r || !has_value || !has_variable))
             return false;
         type_context ctx  = mk_type_context(P);
         /* Check whether other variables on the variable stack depend on the head. */

@@ -334,7 +334,7 @@ private meta def rw_hyps (cfg : rewrite_cfg) (rs : list rw_rule) (hs : list name
 hs.mfor' (rw_hyp cfg rs)
 
 meta def rw_rule_p (ep : parser pexpr) : parser rw_rule :=
-rw_rule.mk <$> cur_pos <*> (option.is_some <$> (tk "←" <|> tk "<-")?) <*> ep
+rw_rule.mk <$> cur_pos <*> (option.is_some <$> (with_desc "←" (tk "←" <|> tk "<-"))?) <*> ep
 
 meta structure rw_rules_t :=
 (rules   : list rw_rule)

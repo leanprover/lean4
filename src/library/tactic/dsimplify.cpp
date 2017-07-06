@@ -69,14 +69,26 @@ optional<expr> unfold_step(type_context & ctx, expr const & e, name_set const & 
     if (!is_constant(fn))
         return none_expr();
     name const & fn_name = const_name(fn);
-    if (!to_unfold.contains(const_name(fn)) && (!unfold_reducible || !is_reducible(ctx.env(), fn_name)))
+
+    bool in_to_unfold = to_unfold.contains(const_name(fn));
+
+    if (!in_to_unfold && !unfold_reducible)
         return none_expr();
-    type_context::transparency_scope scope(ctx, transparency_mode::Instances);
-    optional<expr> new_e;
+
     if (is_projection(ctx.env(), const_name(fn))) {
-        return ctx.reduce_projection(e);
-    } else {
+        if (in_to_unfold) {
+            type_context::transparency_scope scope(ctx, transparency_mode::Instances);
+            return ctx.reduce_projection(e);
+        } else {
+            return none_expr();
+        }
+    } else if (in_to_unfold) {
         return unfold_term(ctx.env(), e);
+    } else if (unfold_reducible && is_reducible(ctx.env(), fn_name)) {
+        type_context::transparency_scope scope(ctx, transparency_mode::Reducible);
+        return unfold_term(ctx.env(), e);
+    } else {
+        return none_expr();
     }
 }
 

@@ -461,16 +461,15 @@ do e ← i_to_expr p,
 
 meta def generalize2 (p : parse parser.pexpr) (x : parse ident) (h : parse ident) : tactic unit :=
 do tgt ← target,
-   e ← to_expr p,
-   let e' := tgt.replace $ λa n, if a = e then some (var n.succ) else none,
-   tgt' ← (do
-     tgt' ← to_expr ``(Π x, %%e = x → %%e'),
-     type_check tgt',
-     return tgt') <|> to_expr ``(Π x, %%e = x → %%tgt),
-   assert h tgt',
+   e ← i_to_expr p,
+   -- if generalizing fails, fall back to not replacing anything
+   tgt' ← do {
+     ⟨tgt', _⟩ ← solve_aux tgt (tactic.generalize e `_ >> target),
+     to_expr ``(Π x, %%e = x → %%(tgt'.binding_body.lift_vars 0 1))
+   } <|> to_expr ``(Π x, %%e = x → %%tgt),
+   t ← assert h tgt',
    swap,
-   t ← get_local h,
-   exact ``(%%t %%p rfl),
+   exact ``(%%t %%e rfl),
    intro x,
    intro h
 

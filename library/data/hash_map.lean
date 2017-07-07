@@ -104,7 +104,6 @@ theorem contains_aux_iff (a : α) (l : list Σ a, β a) (nd : (l.map sigma.fst).
 begin
   delta contains_aux,
   ginduction find_aux a l with h b,
-  all_goals {rw h},
   refine ⟨λn, by contradiction, λm, _⟩,
   exact
     let ⟨⟨a', b⟩, m, e⟩ := list.exists_of_mem_map m in
@@ -220,7 +219,6 @@ theorem valid.contains_aux_iff {n} {bkts : bucket_array α β n} {sz : nat} (v :
 begin
   delta contains_aux,
   ginduction find_aux a (bkts.read hash_fn a) with h b,
-  all_goals {rw h},
   refine ⟨λn, by contradiction, λm, _⟩,
   exact
     let ⟨⟨a', b⟩, m, e⟩ := list.exists_of_mem_map m in

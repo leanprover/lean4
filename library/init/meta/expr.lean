@@ -111,12 +111,16 @@ meta constant expr.instantiate_vars        : expr → list expr → expr
 
 protected meta constant expr.subst : expr elab → expr elab → expr elab
 
+/-- `has_var e` returns true iff e has free variables. -/
 meta constant expr.has_var       : expr → bool
 meta constant expr.has_var_idx   : expr → nat → bool
 meta constant expr.has_local     : expr → bool
 meta constant expr.has_meta_var  : expr → bool
-meta constant expr.lift_vars     : expr → nat → nat → expr
+/-- `lower_vars e s d` lowers the free variables >= s in `e` by `d`. That is, a free variable `var i` s.t.
+   `i >= s` is mapped to `var (i-d)`. -/
 meta constant expr.lower_vars    : expr → nat → nat → expr
+/-- Lifts free variables. See `expr.lower_vars` for details. -/
+meta constant expr.lift_vars     : expr → nat → nat → expr
 protected meta constant expr.pos : expr elab → option pos
 /-- `copy_pos_info src tgt` copies position information from `src` to `tgt`. -/
 meta constant expr.copy_pos_info : expr → expr → expr

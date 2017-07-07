@@ -690,7 +690,7 @@ level parser::parse_max_imax(bool is_max) {
     next();
     buffer<level> lvls;
     while (curr_is_identifier() || curr_is_numeral() || curr_is_token(get_lparen_tk())) {
-        lvls.push_back(parse_level());
+        lvls.push_back(parse_level(get_max_prec()));
     }
     if (lvls.size() < 2) {
         return parser_error_or_level(

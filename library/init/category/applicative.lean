@@ -15,17 +15,17 @@ class has_pure (f : Type u → Type v) :=
 @[reducible, inline] def pure {f : Type u → Type v} [has_pure f] {α : Type u} : α → f α :=
 has_pure.pure f
 
-class has_seq (f : Type u → Type v) : Type (max u+1 v) :=
+class has_seq (f : Type u → Type v) : Type (max (u+1) v) :=
 (seq  : Π {α β : Type u}, f (α → β) → f α → f β)
 
 infixl ` <*> `:60 := has_seq.seq
 
-class has_seq_left (f : Type u → Type v) : Type (max u+1 v) :=
+class has_seq_left (f : Type u → Type v) : Type (max (u+1) v) :=
 (seq_left : Π {α β : Type u}, f α → f β → f α)
 
 infixl ` <* `:60  := has_seq_left.seq_left
 
-class has_seq_right (f : Type u → Type v) : Type (max u+1 v) :=
+class has_seq_right (f : Type u → Type v) : Type (max (u+1) v) :=
 (seq_right : Π {α β : Type u}, f α → f β → f β)
 
 infixl ` *> `:60  := has_seq_right.seq_right

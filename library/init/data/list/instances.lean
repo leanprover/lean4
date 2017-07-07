@@ -72,7 +72,7 @@ lemma mem_bind {b : β} {l : list α} {f : α → list β} {a} (al : a ∈ l) (h
 mem_bind_iff.2 ⟨a, al, h⟩
 
 instance decidable_bex : ∀ (l : list α), decidable (∃ x ∈ l, p x)
-| [] := is_false (by intro; cases a; cases a_2; cases a)
+| [] := is_false (by intro; cases a; cases a_1; cases a_1)
 | (x::xs) :=
   if hx : p x then
     is_true ⟨x, or.inl rfl, hx⟩

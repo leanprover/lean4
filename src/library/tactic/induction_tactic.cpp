@@ -272,9 +272,11 @@ list<expr> induction(environment const & env, options const & opts, transparency
                 unsigned nextra  = to_revert.size() - indices.size() - 1; /* extra dependencies that have been reverted */
                 expr new_M       = ctx2.mk_metavar_decl(ctx2.lctx(), annotated_head_beta_reduce(new_type));
                 expr aux_M;
+                /* Clear hypothesis in the new goal. */
+                set_clear(aux_M, ctx2, new_M, H2);
                 buffer<name> param_names; buffer<name> extra_names;
                 /* Introduce constructor parameter for new goal associated with minor premise. */
-                set_intron(aux_M, ctx2, new_M, nparams, ns, param_names, true);
+                set_intron(aux_M, ctx2, aux_M, nparams, ns, param_names, true);
                 /* Introduce hypothesis that had to be reverted because they depended on indices and/or major premise. */
                 set_intron(aux_M, ctx2, aux_M, nextra, extra_names, false);
                 local_context aux_M_lctx = ctx2.mctx().get_metavar_decl(aux_M).get_context();
@@ -294,8 +296,6 @@ list<expr> induction(environment const & env, options const & opts, transparency
                     }
                     subst_buffer.push_back(S);
                 }
-                /* Clear hypothesis in the new goal. */
-                set_clear(aux_M, ctx2, aux_M, H2);
                 new_goals.push_back(aux_M);
                 rec_arg = new_M;
             }

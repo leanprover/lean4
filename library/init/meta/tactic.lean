@@ -652,7 +652,7 @@ meta def save_info (p : pos) : tactic unit :=
 do s ← read,
    tactic.save_info_thunk p (λ _, tactic_state.to_format s)
 
-notation `‹` p `›` := show p, by assumption
+notation `‹` p `›` := (by assumption : p)
 
 /-- Swap first two goals, do nothing if tactic state does not have at least two goals. -/
 meta def swap : tactic unit :=

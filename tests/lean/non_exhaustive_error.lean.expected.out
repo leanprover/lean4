@@ -1,10 +1,9 @@
 non_exhaustive_error.lean:2:4: error: non-exhaustive match, the following cases are missing:
 g (1, _)
-g (nat.succ (nat.succ _), nat.succ _)
+g (nat.succ (nat.succ _), _)
 non_exhaustive_error.lean:2:0: warning: declaration 'g' uses sorry
 non_exhaustive_error.lean:6:11: error: non-exhaustive match, the following cases are missing:
-f "hello world" 0
-f "hello world" (nat.succ (nat.succ _))
+f "hello world" _
 f _ _
 non_exhaustive_error.lean:6:0: warning: declaration 'f' uses sorry
 non_exhaustive_error.lean:10:4: error: non-exhaustive match, the following cases are missing:
@@ -19,3 +18,14 @@ non_exhaustive_error.lean:17:0: warning: declaration '_mutual.f.g' uses sorry
 non_exhaustive_error.lean:27:4: error: non-exhaustive match, the following cases are missing:
 const_name (term.mk _ (term.mk _ _ :: _))
 non_exhaustive_error.lean:27:0: warning: declaration 'const_name' uses sorry
+non_exhaustive_error.lean:31:4: error: non-exhaustive match, the following cases are missing:
+f _
+non_exhaustive_error.lean:31:0: warning: declaration 'other2.f' uses sorry
+non_exhaustive_error.lean:34:4: error: non-exhaustive match, the following cases are missing:
+g _
+non_exhaustive_error.lean:34:0: warning: declaration 'other2.g' uses sorry
+non_exhaustive_error.lean:37:9: error: non-exhaustive match, the following cases are missing:
+h _
+non_exhaustive_error.lean:40:4: error: non-exhaustive match, the following cases are missing:
+r _
+non_exhaustive_error.lean:40:0: warning: declaration 'other2.r' uses sorry

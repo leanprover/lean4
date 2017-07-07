@@ -326,6 +326,11 @@ struct elim_match_fn {
         }
     }
 
+    bool is_finite_value(type_context & ctx, expr const & e) {
+        lean_assert(is_value(ctx, e));
+        return is_char_value(ctx, e);
+    }
+
     bool is_transport_app(expr const & e) {
         if (!is_app(e)) return false;
         expr const & fn = get_app_fn(e);
@@ -549,9 +554,9 @@ struct elim_match_fn {
        string literal.
     */
     bool is_value_transition(problem const & P) {
-        bool has_value    = false;
-        bool has_variable = false;
-        bool has_string   = false;
+        bool has_value        = false;
+        bool has_variable     = false;
+        bool has_finite_value = false;
         bool r = all_equations(P, [&](equation const & eqn) {
                 expr const & p = head(eqn.m_patterns);
                 if (is_local(p)) {
@@ -560,16 +565,17 @@ struct elim_match_fn {
                     type_context ctx = mk_type_context(eqn.m_lctx);
                     if (is_value(ctx, p)) {
                         has_value    = true;
-                        if (is_string_value(p)) {
-                            has_string = true;
-                        }
+                        if (is_finite_value(ctx, p))
+                            has_finite_value = true;
                         return true;
                     } else {
                         return false;
                     }
                 }
             });
-        if (!has_string && (!r || !has_value || !has_variable))
+        if (!r || !has_value)
+            return false;
+        if (!has_variable && has_finite_value)
             return false;
         type_context ctx  = mk_type_context(P);
         /* Check whether other variables on the variable stack depend on the head. */

@@ -1,15 +1,22 @@
 open tactic
 
+open lean.parser
+open interactive
+open interactive.types
+
+meta def fooo (p : parse $ optional $ pexpr_list_or_texpr) : tactic unit := skip
+run_cmd add_interactive [`fooo]
+
 example : false :=
 begin
-  simp,
+  fooo,
    --^ "command": "info"
-  simp ,
+  fooo ,
     --^ "command": "info"
-  simp [ ],
+  fooo [ ],
       --^ "command": "info"
-  simp [d] ,
+  fooo [d] ,
         --^ "command": "info"
-  get_env
+  _root_.fooo none
 --^ "command": "info"
 end

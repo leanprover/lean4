@@ -423,6 +423,11 @@ instance : decidable_linear_ordered_semiring nat :=
   decidable_le               := nat.decidable_le,
   decidable_eq               := nat.decidable_eq }
 
+-- all the fields are already included in the decidable_linear_ordered_semiring instance
+instance : decidable_linear_ordered_cancel_comm_monoid ℕ :=
+{ nat.decidable_linear_ordered_semiring with
+  add_left_cancel := @nat.add_left_cancel }
+
 lemma le_of_lt_succ {m n : nat} : m < succ n → m ≤ n :=
 le_of_succ_le_succ
 

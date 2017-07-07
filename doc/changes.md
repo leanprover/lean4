@@ -88,6 +88,8 @@ For more details, see discussion [here](https://github.com/leanprover/lean/pull/
 
 * Removed the redundant keywords `take` (replace with `assume`) and `suppose` (replace with the new anonymous `assume :`)
 
+* Universes `max u v + 1` and `imax u v + 1` are now parsed as `(max u v) + 1` and `(imax u v) + 1`.
+
 *API name changes*
 
 * `list.dropn` => `list.drop`

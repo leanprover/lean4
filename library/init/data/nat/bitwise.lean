@@ -196,7 +196,7 @@ namespace nat
 
   @[simp] lemma binary_rec_zero {C : nat → Sort u} (z : C 0) (f : ∀ b n, C n → C (bit b n)) :
     binary_rec z f 0 = z :=
-  by {rw [binary_rec.equations._eqn_1], refl}
+  by {rw [binary_rec], refl}
 
   lemma binary_rec_eq {C : nat → Sort u} {z : C 0} {f : ∀ b n, C n → C (bit b n)}
     (h : f ff 0 z = z) (b n) :

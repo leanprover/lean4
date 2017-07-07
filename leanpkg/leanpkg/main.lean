@@ -183,7 +183,8 @@ def main : ∀ (cmd : string) (leanpkg_args lean_args : list string), io unit
       name := "_user_local_packages",
       version := "1"
     } user_toml_fn,
-  exec_cmd {cmd := "leanpkg", args := ["add", dep], cwd := dot_lean_dir}
+  exec_cmd {cmd := "leanpkg", args := ["add", dep], cwd := dot_lean_dir},
+  exec_cmd {cmd := "leanpkg", args := ["build"], cwd := dot_lean_dir}
 | "dump"       []    []        := read_manifest >>= io.print_ln ∘ repr
 | _            _     _         := io.fail usage
 

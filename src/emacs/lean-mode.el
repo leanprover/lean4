@@ -48,14 +48,17 @@
   (interactive)
   (when (called-interactively-p 'any)
     (setq arg (read-string "arg: " arg)))
-  (let ((target-file-name
+  (let ((cc compile-command)
+        (target-file-name
          (or
           (buffer-file-name)
           (flymake-init-create-temp-buffer-copy 'lean-create-temp-in-system-tempdir))))
     (compile (lean-compile-string
               (shell-quote-argument (f-full (lean-get-executable lean-executable-name)))
               (or arg "")
-              (shell-quote-argument (f-full target-file-name))))))
+              (shell-quote-argument (f-full target-file-name))))
+    ;; restore old value
+    (setq compile-command cc)))
 
 (defun lean-std-exe ()
   (interactive)

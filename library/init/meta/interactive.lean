@@ -931,9 +931,8 @@ meta def delta : parse ident* → parse location → tactic unit
                           delta_target new_cs,
                           intron n
 
-private meta def unfold_projs_hyps (cfg : unfold_proj_config := {}) : list name → tactic unit
-| []      := skip
-| (h::hs) := get_local h >>= unfold_projs_hyp >> unfold_projs_hyps hs
+private meta def unfold_projs_hyps (cfg : unfold_proj_config := {}) (hs : list name) : tactic bool :=
+hs.mfoldl (λ r h, do h ← get_local h, (unfold_projs_hyp h cfg >> return tt) <|> return r) ff
 
 /--
 This tactic unfolds all structure projections.
@@ -941,8 +940,12 @@ This tactic unfolds all structure projections.
 meta def unfold_projs (l : parse location) (cfg : unfold_proj_config := {}) : tactic unit :=
 match l with
 | (loc.ns [])    := tactic.unfold_projs_target cfg
-| (loc.ns hs)    := unfold_projs_hyps cfg hs
-| (loc.wildcard) := do ls ← local_context, unfold_projs_hyps cfg (ls.map expr.local_pp_name)
+| (loc.ns hs)    := do b ← unfold_projs_hyps cfg hs,
+                       when (not b) (fail "unfold_projs failed to simplify")
+| (loc.wildcard) := do ls ← local_context,
+                       b₁ ← unfold_projs_hyps cfg (ls.map expr.local_pp_name),
+                       b₂ ← (tactic.unfold_projs_target cfg >> return tt) <|> return ff,
+                       when (not b₁ ∧ not b₂) (fail "unfold_projs failed to simplify")
 end
 
 end interactive

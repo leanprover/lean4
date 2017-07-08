@@ -172,10 +172,12 @@ vm_obj int_shiftl(vm_obj const & a1, vm_obj const & a2) {
     }
     mpz v1 = to_mpz1(a1);
     int v2 = to_int(a2);
-    if (v2 >= 0)
+    if (v2 >= 0) {
         mul2k(v1, v1, v2);
-    else
-        div2k(v1, v1, v2);
+    } else {
+        div2k(v1, v1 + 1, -v2);
+        v1--;
+    }
     return mk_vm_int(v1);
 }
 

@@ -164,14 +164,14 @@ section conversion
     cases xs with xs P,
     simp [bits_to_nat_to_list], clear P,
     unfold bits_to_nat list.foldl,
-      -- the next 4 lines generalize the accumulator of foldl
-    let x := 0,
-    change _ = add_lsb x b + _,
-    generalize 0 y,
-    revert x, simp,
-    induction xs with x xs ; intro y,
-    { simp, unfold list.foldl add_lsb, simp [nat.mul_succ] },
-    { simp, apply ih_1 }
+    -- generalize the accumulator of foldl
+    have : ∀ x, list.foldl add_lsb x (xs ++ [b]) = add_lsb 0 b + list.foldl add_lsb x xs * 2, {
+      simp,
+      induction xs with x xs ; intro y,
+      { simp, unfold list.foldl add_lsb, simp [nat.mul_succ] },
+      { simp, apply ih_1 }
+    },
+    apply this
   end
 
   theorem bits_to_nat_to_bool (n : ℕ)

@@ -90,6 +90,8 @@ For more details, see discussion [here](https://github.com/leanprover/lean/pull/
 
 * Universes `max u v + 1` and `imax u v + 1` are now parsed as `(max u v) + 1` and `(imax u v) + 1`.
 
+* Merged `generalize` and `generalize2` tactics into new `generalize id? : expr = id` tactic
+
 *API name changes*
 
 * `list.dropn` => `list.drop`

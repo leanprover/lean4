@@ -455,16 +455,20 @@ do r   ← result,
 meta def destruct (p : parse texpr) : tactic unit :=
 i_to_expr p >>= tactic.destruct
 
-meta def generalize (p : parse parser.pexpr) (x : parse ident) : tactic unit :=
-do e ← i_to_expr p,
-   tactic.generalize e x
+private meta def generalize_arg_p : pexpr → parser (pexpr × name)
+| (app (app (macro _ [const `eq _ ]) h) (local_const x _ _ _)) := pure (h, x)
+| _ := fail "parse error"
 
-meta def generalize2 (p : parse parser.pexpr) (x : parse ident) (h : parse ident) : tactic unit :=
-do tgt ← target,
+/-- `generalize : e = x` replaces all occurrences of `e` in the target with a new hypothesis `x` of the same type.
+    `generalize h : e = x` in addition registers the hypothesis `h : e = x`. -/
+meta def generalize (h : parse ident?) (p : parse $ tk ":" *> with_desc "expr = id" (parser.pexpr 0 >>= generalize_arg_p)) : tactic unit :=
+do let (p, x) := p,
    e ← i_to_expr p,
+   some h ← pure h | tactic.generalize e x >> intro1 >> skip,
+   tgt ← target,
    -- if generalizing fails, fall back to not replacing anything
    tgt' ← do {
-     ⟨tgt', _⟩ ← solve_aux tgt (tactic.generalize e `_ >> target),
+     ⟨tgt', _⟩ ← solve_aux tgt (tactic.generalize e x >> target),
      to_expr ``(Π x, %%e = x → %%(tgt'.binding_body.lift_vars 0 1))
    } <|> to_expr ``(Π x, %%e = x → %%tgt),
    t ← assert h tgt',
@@ -479,7 +483,7 @@ do x ← mk_fresh_name,
    | []        := (`_h, [])
    | (h :: hs) := (h, hs)
    end : name × list name),
-   generalize2 p x h,
+   generalize h (p, x),
    t ← get_local x,
    induction (to_pexpr t) rec_name hs ([] : list name)
 

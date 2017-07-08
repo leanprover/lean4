@@ -640,7 +640,7 @@ match (by apply_instance : decidable (contains_aux a bkt)) with
     have h : bkts'' = bkts'.as_list.foldl _ _, from bkts'.foldl_eq _ _,
     begin
       rw [← list.foldr_reverse] at h, rw h,
-      generalize bkts'.as_list.reverse l, intro l, induction l with a l IH,
+      generalize : bkts'.as_list.reverse = l, induction l with a l IH,
       { simp, rw[mk_as_list hash_fn n'], simp },
       { cases a with a'' b'', simp, rw [← IH], exact
         let B := l.foldr (λ y (x : bucket_array α β n'),

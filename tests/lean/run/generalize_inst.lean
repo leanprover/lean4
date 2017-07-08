@@ -5,6 +5,6 @@ begin
   apply exists.intro,
   apply and.intro,
   apply rfl,
-  generalize 1 z,
-  exact nat.zero_le
+  generalize : 1 = z,
+  apply nat.zero_le
 end

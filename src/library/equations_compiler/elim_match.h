@@ -8,14 +8,17 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 #include "library/equations_compiler/util.h"
 namespace lean {
+class elaborator;
 struct elim_match_result {
     expr       m_fn;
     list<expr> m_lemmas;
     list<list<expr>> m_counter_examples;
 };
-elim_match_result elim_match(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx, expr const & eqns);
+elim_match_result elim_match(environment & env, options const & opts, metavar_context & mctx,
+                local_context const & lctx, expr const & eqns, elaborator & elab);
 eqn_compiler_result mk_nonrec(environment & env, options const & opts, metavar_context & mctx,
-               local_context const & lctx, expr const & eqns);
+               local_context const & lctx, expr const & eqns,
+               elaborator & elab);
 void initialize_elim_match();
 void finalize_elim_match();
 }

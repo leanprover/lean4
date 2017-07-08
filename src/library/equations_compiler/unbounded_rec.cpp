@@ -36,10 +36,10 @@ static expr replace_rec_apps(type_context & ctx, expr const & e) {
 
 eqn_compiler_result unbounded_rec(environment & env, options const & opts,
                    metavar_context & mctx, local_context const & lctx,
-                   expr const & e) {
+                   expr const & e, elaborator & elab) {
     type_context ctx(env, opts, mctx, lctx, transparency_mode::Semireducible);
     expr e1 = replace_rec_apps(ctx, e);
-    auto R = elim_match(env, opts, mctx, lctx, e1);
+    auto R = elim_match(env, opts, mctx, lctx, e1, elab);
 
     list<expr> counter_examples;
     if (R.m_counter_examples) {

@@ -9,7 +9,8 @@ def half_baked : ℕ → ℕ
 -- exceptions during tactic evaluation
 | 7  := by do undefined
 -- nested elaboration errors
-| _  := begin exact [] end
+| 10 := begin exact [] end
+-- missing cases
 
 #print half_baked._main
 

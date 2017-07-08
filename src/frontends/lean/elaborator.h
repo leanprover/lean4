@@ -157,6 +157,8 @@ private:
 
     bool has_synth_sorry(expr const & e) { return has_synth_sorry({e}); }
     bool has_synth_sorry(std::initializer_list<expr> && es);
+
+public:
     bool try_report(std::exception const & ex);
     bool try_report(std::exception const & ex, optional<expr> const & ref);
     void report_or_throw(elaborator_exception const & ex);
@@ -165,6 +167,7 @@ private:
     expr recoverable_error(optional<expr> const & expected_type, expr const & ref, elaborator_exception const & ex);
     template <class Fn> expr recover_expr_from_exception(optional<expr> const & expected_type, expr const & ref, Fn &&);
 
+private:
     expr ensure_type(expr const & e, expr const & ref);
     expr ensure_function(expr const & e, expr const & ref);
     optional<expr> ensure_has_type(expr const & e, expr const & e_type, expr const & type, expr const & ref);
@@ -342,6 +345,19 @@ public:
 
     bool has_errors() const { return m_has_errors; }
 };
+
+template <class Fn>
+expr elaborator::recover_expr_from_exception(optional<expr> const & expected_type, expr const & ref, Fn && fn) {
+    try {
+        return fn();
+    } catch (std::exception & ex) {
+        if (!try_report(ex, some_expr(ref))) {
+            throw;
+        } else {
+            return mk_sorry(expected_type, ref);
+        }
+    }
+}
 
 pair<expr, level_param_names> elaborate(environment & env, options const & opts, name const & decl_name,
                                         metavar_context & mctx, local_context const & lctx,

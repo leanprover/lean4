@@ -8,8 +8,9 @@ Author: Leonardo de Moura
 #include "library/metavar_context.h"
 #include "library/equations_compiler/equations.h"
 namespace lean {
+class elaborator;
 expr compile_equations(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx,
-                       expr const & eqns);
+                       expr const & eqns, elaborator & elab);
 void initialize_compiler();
 void finalize_compiler();
 }

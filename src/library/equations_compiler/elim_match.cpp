@@ -38,6 +38,7 @@ Author: Leonardo de Moura
 #include "library/equations_compiler/equations.h"
 #include "library/equations_compiler/util.h"
 #include "library/equations_compiler/elim_match.h"
+#include "frontends/lean/elaborator.h"
 
 #ifndef LEAN_DEFAULT_EQN_COMPILER_ITE
 #define LEAN_DEFAULT_EQN_COMPILER_ITE true
@@ -66,12 +67,15 @@ struct elim_match_fn {
     environment     m_env;
     options         m_opts;
     metavar_context m_mctx;
+    elaborator &    m_elab;
 
     expr            m_ref;
     unsigned        m_depth{0};
     buffer<bool>    m_used_eqns;
     bool            m_aux_lemmas;
     unsigned        m_num_steps{0};
+
+    bool m_error_during_process = false;
 
     /* configuration options */
     bool            m_use_ite;
@@ -82,8 +86,8 @@ struct elim_match_fn {
     name_map<bool>  m_enum;
 
     elim_match_fn(environment const & env, options const & opts,
-                  metavar_context const & mctx):
-        m_env(env), m_opts(opts), m_mctx(mctx) {
+                  metavar_context const & mctx, elaborator & elab):
+        m_env(env), m_opts(opts), m_mctx(mctx), m_elab(elab) {
         m_use_ite   = get_eqn_compiler_ite(opts);
         m_max_steps = get_eqn_compiler_max_steps(opts);
     }
@@ -1237,41 +1241,43 @@ struct elim_match_fn {
         trace_match(tout() << "depth [" << m_depth << "]\n" << pp_problem(P) << "\n";);
         lean_assert(check_problem(P));
         m_num_steps++;
-        if (m_num_steps > m_max_steps) {
-            throw_error(sstream() << "equation compiler failed, maximum number of steps (" << m_max_steps << ") exceeded"
-                        << " (possible solution: use 'set_option eqn_compiler.max_steps <new-threshold>')"
-                        << " (use 'set_option trace.eqn_compiler.elim_match true' for additional details)");
-        }
-        if (P.m_var_stack) {
-            if (!P.m_equations) {
-                return process_no_equation(P);
-            } else if (!is_next_var(P)) {
-                return process_non_variable(P);
-            } else if (is_variable_transition(P)) {
-                return process_variable(P);
-            } else if (is_value_transition(P)) {
-                return process_value(P);
-            } else if (is_complete_transition(P)) {
-                return process_complete(P);
-            } else if (is_constructor_transition(P)) {
-                return process_constructor(P);
-            } else if (is_transport_transition(P)) {
-                return process_transport(P);
-            } else if (is_inaccessible_transition(P)) {
-                return process_inaccessible(P);
-            } else {
-                trace_match(tout() << "compilation failed at\n" << pp_problem(P) << "\n";);
-                if (!m_unsolved.empty()) {
-                    // report non-exhaustive match
-                    m_mctx.assign(P.m_goal, mk_sorry(m_mctx.get_metavar_decl(P.m_goal).get_type(), true));
-                    return list<lemma>();
-                }
-                throw_error("equation compiler failed (use 'set_option trace.eqn_compiler.elim_match true' "
-                            "for additional details)");
+        try {
+            if (m_num_steps > m_max_steps) {
+                throw_error(sstream() << "equation compiler failed, maximum number of steps (" << m_max_steps << ") exceeded"
+                            << " (possible solution: use 'set_option eqn_compiler.max_steps <new-threshold>')"
+                            << " (use 'set_option trace.eqn_compiler.elim_match true' for additional details)");
             }
-        } else {
-            return process_leaf(P);
+            if (P.m_var_stack) {
+                if (!P.m_equations) {
+                    return process_no_equation(P);
+                } else if (!is_next_var(P)) {
+                    return process_non_variable(P);
+                } else if (is_variable_transition(P)) {
+                    return process_variable(P);
+                } else if (is_value_transition(P)) {
+                    return process_value(P);
+                } else if (is_complete_transition(P)) {
+                    return process_complete(P);
+                } else if (is_constructor_transition(P)) {
+                    return process_constructor(P);
+                } else if (is_transport_transition(P)) {
+                    return process_transport(P);
+                } else if (is_inaccessible_transition(P)) {
+                    return process_inaccessible(P);
+                } else {
+                    trace_match(tout() << "compilation failed at\n" << pp_problem(P) << "\n";);
+                    throw_error("equation compiler failed (use 'set_option trace.eqn_compiler.elim_match true' "
+                                "for additional details)");
+                }
+            } else {
+                return process_leaf(P);
+            }
+        } catch (exception & ex) {
+            if (!m_elab.try_report(ex, some_expr(m_ref))) throw;
+            m_error_during_process = true;
+            m_mctx.assign(P.m_goal, mk_sorry(m_mctx.get_metavar_decl(P.m_goal).get_type(), true));
         }
+        return list<lemma>();
     }
 
     expr finalize_lemma(expr const & fn, lemma const & L) {
@@ -1313,12 +1319,14 @@ struct elim_match_fn {
                 expr ref = eqns_buffer[i];
                 while (is_lambda(ref)) ref = binding_body(ref);
                 if (j != i) {
-                    throw generic_exception(ref, sstream() << "equation compiler error, equation #" << (i+1)
+                    m_elab.report_or_throw(elaborator_exception(ref,
+                                  sstream() << "equation compiler error, equation #" << (i+1)
                                             << " has not been used in the compilation, note that the left-hand-side of equation #" << (j+1)
-                                            << " is a variable");
+                                            << " is a variable"));
                 } else {
-                    throw generic_exception(ref, sstream() << "equation compiler error, equation #" << (i+1)
-                                            << " has not been used in the compilation (possible solution: delete equation)");
+                    m_elab.report_or_throw(elaborator_exception(ref,
+                                  sstream() << "equation compiler error, equation #" << (i+1)
+                                            << " has not been used in the compilation (possible solution: delete equation)"));
                 }
             }
         }
@@ -1354,7 +1362,8 @@ struct elim_match_fn {
         lean_assert(check_problem(P));
         list<lemma> pre_Ls       = process(P);
         auto counter_examples    = get_counter_examples();
-        if (!counter_examples) check_no_unused_eqns(eqns);
+        if (!counter_examples && !m_error_during_process)
+            check_no_unused_eqns(eqns);
         fn                       = m_mctx.instantiate_mvars(fn);
         trace_match_debug(tout() << "code:\n" << fn << "\n";);
         list<expr> Ls            = finalize_lemmas(fn, pre_Ls);
@@ -1363,8 +1372,8 @@ struct elim_match_fn {
 };
 
 elim_match_result elim_match(environment & env, options const & opts, metavar_context & mctx,
-                             local_context const & lctx, expr const & eqns) {
-    elim_match_fn elim(env, opts, mctx);
+                             local_context const & lctx, expr const & eqns, elaborator & elab) {
+    elim_match_fn elim(env, opts, mctx, elab);
     auto r = elim(lctx, eqns);
     env = elim.m_env;
     return r;
@@ -1378,9 +1387,9 @@ static expr get_fn_type_from_eqns(expr const & eqns) {
 }
 
 eqn_compiler_result mk_nonrec(environment & env, options const & opts, metavar_context & mctx,
-               local_context const & lctx, expr const & eqns) {
+               local_context const & lctx, expr const & eqns, elaborator & elab) {
     equations_header header = get_equations_header(eqns);
-    auto R = elim_match(env, opts, mctx, lctx, eqns);
+    auto R = elim_match(env, opts, mctx, lctx, eqns, elab);
     if (header.m_is_meta || header.m_is_lemma) {
         /* Do not generate auxiliary equation or equational lemmas */
         auto fn = mk_constant(head(header.m_fn_names));

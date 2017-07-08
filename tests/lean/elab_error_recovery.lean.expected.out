@@ -19,8 +19,7 @@ elab_error_recovery.lean:12:20: error: invalid type ascription, expression has t
 but is expected to have type
   ℕ
 state:
-half_baked : ℕ → ℕ,
-_x : ℕ
+half_baked : ℕ → ℕ
 ⊢ ℕ
 elab_error_recovery.lean:6:8: error: don't know how to synthesize placeholder
 context:
@@ -30,15 +29,18 @@ elab_error_recovery.lean:8:29: error: don't know how to synthesize placeholder
 context:
 half_baked : ℕ → ℕ
 ⊢ ℕ
+elab_error_recovery.lean:1:4: error: non-exhaustive match, the following cases are missing:
+half_baked _
 def half_baked._main : ℕ → ℕ :=
 λ (a : ℕ),
   ite (a = 3) (id_rhs ℕ 2)
     (ite (a = 0) (id_rhs ℕ (1 + ⁇))
        (ite (a = 5) (id_rhs ℕ (⁇ + 4))
-          (ite (a = 42) (id_rhs ℕ (ite (2 ∈ 3) 3 ⁇)) (ite (a = 7) (id_rhs ℕ ⁇) (id_rhs ℕ ⁇)))))
+          (ite (a = 42) (id_rhs ℕ (ite (2 ∈ 3) 3 ⁇))
+             (ite (a = 7) (id_rhs ℕ ⁇) (ite (a = 10) (id_rhs ℕ ⁇) ⁇)))))
 2
 nat.succ (nat.succ (nat.succ (nat.succ ⁇)))
 2
-elab_error_recovery.lean:21:13: error: type expected at
+elab_error_recovery.lean:22:13: error: type expected at
   0
 ∀ (x : ⁇), x = x : Prop

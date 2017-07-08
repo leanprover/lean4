@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 #include "library/equations_compiler/util.h"
 namespace lean {
+class elaborator;
 /** \brief Try to eliminate "recursive calls" in the equations \c eqns by using brec_on's below.
     If successful, elim_match is used to compile pattern matching.
 
@@ -17,7 +18,7 @@ namespace lean {
        construction, where every recursive call is structurally smaller. */
 optional<eqn_compiler_result> try_structural_rec(environment & env, options const & opts,
                                   metavar_context & mctx, local_context const & lctx,
-                                  expr const & eqns);
+                                  expr const & eqns, elaborator & elab);
 
 void initialize_structural_rec();
 void finalize_structural_rec();

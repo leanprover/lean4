@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/pp_options.h"
 #include "library/app_builder.h"
 #include "library/aux_definition.h"
+#include "frontends/lean/elaborator.h"
 #include "library/replace_visitor_with_tc.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_list.h"
@@ -33,6 +34,7 @@ struct wf_rec_fn {
     options          m_opts;
     metavar_context  m_mctx;
     local_context    m_lctx;
+    elaborator &     m_elab;
 
     expr             m_ref;
     equations_header m_header;
@@ -43,8 +45,9 @@ struct wf_rec_fn {
     expr             m_dec_tac;
 
     wf_rec_fn(environment const & env, options const & opts,
-              metavar_context const & mctx, local_context const & lctx):
-        m_env(env), m_opts(opts), m_mctx(mctx), m_lctx(lctx) {
+              metavar_context const & mctx, local_context const & lctx,
+              elaborator & elab):
+        m_env(env), m_opts(opts), m_mctx(mctx), m_lctx(lctx), m_elab(elab) {
     }
 
     type_context mk_type_context(local_context const & lctx) {
@@ -154,18 +157,48 @@ struct wf_rec_fn {
             metavar_context mctx = m_ctx.mctx();
             tactic_state s = mk_tactic_state_for(m_parent.m_env, m_parent.m_opts,
                                                  name(m_fn_name, "_wf_rec_mk_dec_tactic"), mctx, m_ctx.lctx(), y_R_x);
-            vm_obj r = tactic_evaluator(m_ctx, m_parent.m_opts, ref)(m_parent.m_dec_tac, s);
-            if (auto new_s = tactic::is_success(r)) {
-                mctx = new_s->mctx();
-                bool postpone_push_delayed = true;
-                expr r = mctx.instantiate_mvars(new_s->main(), postpone_push_delayed);
-                m_parent.m_env = new_s->env();
-                m_ctx.set_env(new_s->env());
-                m_ctx.set_mctx(mctx);
-                return r;
+            try {
+                vm_obj r = tactic_evaluator(m_ctx, m_parent.m_opts, ref)(m_parent.m_dec_tac, s);
+                if (auto new_s = tactic::is_success(r)) {
+                    mctx = new_s->mctx();
+                    bool postpone_push_delayed = true;
+                    expr r = mctx.instantiate_mvars(new_s->main(), postpone_push_delayed);
+                    m_parent.m_env = new_s->env();
+                    m_ctx.set_env(new_s->env());
+                    m_ctx.set_mctx(mctx);
+                    return r;
+                }
+            } catch (elaborator_exception & ex) {
+                bool using_well_founded = is_wf_equations(m_parent.m_ref);
+                auto R = m_parent.m_R;
+                nested_exception ex2(
+                    ex.get_pos(),
+                    [=](formatter const & fmt) {
+                        format r;
+                        formatter _fmt = fmt;
+                        if (is_app_of(R, get_has_well_founded_r_name())) {
+                            options o = fmt.get_options();
+                            o         = o.update_if_undef(get_pp_implicit_name(), true);
+                            _fmt      = fmt.update_options(o);
+                        }
+                        r += format("failed to prove recursive application is decreasing, well founded relation");
+                        r += pp_indent_expr(_fmt, R);
+                        if (!using_well_founded) {
+                            r += line() + format("Possible solutions: ");
+                            r += line() + format("  - Use 'using_well_founded' keyword in the end of your definition "
+                                                "to specify tactics for synthesizing well founded relations and "
+                                                "decreasing proofs.");
+                            r += line() + format("  - The default decreasing tactic uses the 'assumption' tactic, "
+                                                "thus hints (aka local proofs) can be provided using 'have'-expressions.");
+                        }
+                        r += line() + format("The nested exception contains the failure state for the decreasing tactic.");
+                        return r;
+                    },
+                    ex);
+                if (!m_parent.m_elab.try_report(ex2)) throw ex2;
             }
 
-            throw generic_exception(ref, "failed to show recursive call is descreasing");
+            return m_parent.m_elab.mk_sorry(y_R_x);
         }
 
         virtual expr visit_app(expr const & e) {
@@ -517,40 +550,11 @@ struct wf_rec_fn {
         init(eqns, wf_tacs);
 
         /* Eliminate recursion using functional. */
-        try {
-            eqns = elim_recursion(eqns);
-        } catch (exception_with_pos & ex) {
-            expr R = m_R;
-            bool using_well_founded = is_wf_equations(eqns);
-            throw nested_exception(
-                ex.get_pos(),
-                [=](formatter const & fmt) {
-                    format r;
-                    formatter _fmt = fmt;
-                    if (is_app_of(R, get_has_well_founded_r_name())) {
-                        options o = fmt.get_options();
-                        o         = o.update_if_undef(get_pp_implicit_name(), true);
-                        _fmt      = fmt.update_options(o);
-                    }
-                    r += format("failed to prove recursive application is decreasing, well founded relation");
-                    r += pp_indent_expr(_fmt, R);
-                    if (!using_well_founded) {
-                        r += line() + format("Possible solutions: ");
-                        r += line() + format("  - Use 'using_well_founded' keyword in the end of your definition "
-                                             "to specify tactics for synthesizing well founded relations and "
-                                             "decreasing proofs.");
-                        r += line() + format("  - The default decreasing tactic uses the 'assumption' tactic, "
-                                             "thus hints (aka local proofs) can be provided using 'have'-expressions.");
-                    }
-                    r += line() + format("The nested exception contains the failure state for the decreasing tactic.");
-                    return r;
-                },
-                ex);
-        }
+        eqns = elim_recursion(eqns);
         trace_debug_wf(tout() << "after elim_recursion\n" << eqns << "\n";);
 
         /* Eliminate pattern matching */
-        elim_match_result r = elim_match(m_env, m_opts, m_mctx, m_lctx, eqns);
+        elim_match_result r = elim_match(m_env, m_opts, m_mctx, m_lctx, eqns, m_elab);
         expr fn = mk_fix_aux_function(get_equations_header(eqns), r.m_fn);
 
         trace_debug_wf(tout() << "after mk_fix\n" << fn << " :\n  " << mk_type_context().infer(fn) << "\n";);
@@ -567,8 +571,8 @@ struct wf_rec_fn {
     If successful, elim_match is used to compile pattern matching. */
 eqn_compiler_result wf_rec(environment & env, options const & opts,
             metavar_context & mctx, local_context const & lctx,
-            expr const & eqns) {
-    wf_rec_fn proc(env, opts, mctx, lctx);
+            expr const & eqns, elaborator & elab) {
+    wf_rec_fn proc(env, opts, mctx, lctx, elab);
     auto r = proc(eqns);
     env    = proc.m_env;
     mctx   = proc.m_mctx;

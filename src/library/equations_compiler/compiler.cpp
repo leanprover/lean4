@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/equations_compiler/unbounded_rec.h"
 #include "library/equations_compiler/wf_rec.h"
 #include "library/equations_compiler/elim_match.h"
+#include "frontends/lean/elaborator.h"
 
 namespace lean {
 #define trace_compiler(Code) lean_trace("eqn_compiler", scope_trace_env _scope1(ctx.env(), ctx); Code)
@@ -29,7 +30,7 @@ static bool has_nested_rec(expr const & eqns) {
 
 static eqn_compiler_result compile_equations_core(environment & env, options const & opts,
                                    metavar_context & mctx, local_context const & lctx,
-                                   expr const & eqns) {
+                                   expr const & eqns, elaborator & elab) {
     type_context ctx(env, opts, mctx, lctx, transparency_mode::Semireducible);
     trace_compiler(tout() << "compiling\n" << eqns << "\n";);
     trace_compiler(tout() << "recursive:          " << is_recursive_eqns(ctx, eqns) << "\n";);
@@ -42,22 +43,22 @@ static eqn_compiler_result compile_equations_core(environment & env, options con
         if (is_wf_equations(eqns)) {
             throw exception("invalid use of 'using_well_founded', we do not need to use well founded recursion for meta definitions, since they can use unbounded recursion");
         }
-        return unbounded_rec(env, opts, mctx, lctx, eqns);
+        return unbounded_rec(env, opts, mctx, lctx, eqns, elab);
     }
 
     if (is_wf_equations(eqns)) {
-        return wf_rec(env, opts, mctx, lctx, eqns);
+        return wf_rec(env, opts, mctx, lctx, eqns, elab);
     }
 
     if (header.m_num_fns == 1) {
         if (!is_recursive_eqns(ctx, eqns)) {
-            return mk_nonrec(env, opts, mctx, lctx, eqns);
-        } else if (auto r = try_structural_rec(env, opts, mctx, lctx, eqns)) {
+            return mk_nonrec(env, opts, mctx, lctx, eqns, elab);
+        } else if (auto r = try_structural_rec(env, opts, mctx, lctx, eqns, elab)) {
             return *r;
         }
     }
 
-    return wf_rec(env, opts, mctx, lctx, eqns);
+    return wf_rec(env, opts, mctx, lctx, eqns, elab);
 }
 
 /** Auxiliary class for pulling nested recursive calls.
@@ -276,11 +277,11 @@ struct pull_nested_rec_fn : public replace_visitor {
         }
     }
 
-    eqn_compiler_result operator()(expr const & e) {
+    eqn_compiler_result operator()(expr const & e, elaborator & elab) {
         expr new_e             = visit(e);
         lean_assert(m_lctx_stack.size() == 1);
         local_context new_lctx = m_lctx_stack[0];
-        auto r                 = compile_equations_core(m_env, m_opts, m_mctx, new_lctx, new_e);
+        auto r                 = compile_equations_core(m_env, m_opts, m_mctx, new_lctx, new_e, elab);
         type_context ctx       = mk_type_context(new_lctx);
         r.m_fns = map(r.m_fns, [&] (expr const & fn) { return replace_locals(fn, m_new_locals, m_new_values); });
         m_mctx                 = ctx.mctx();
@@ -302,14 +303,14 @@ static expr remove_aux_main_name(expr const & e) {
 }
 
 expr compile_equations(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx,
-                       expr const & _eqns) {
+                       expr const & _eqns, elaborator & elab) {
     expr eqns = _eqns;
     equations_header const & header = get_equations_header(eqns);
     eqn_compiler_result r;
     if (!header.m_is_meta && has_nested_rec(eqns)) {
-        r = pull_nested_rec_fn(env, opts, mctx, lctx)(eqns);
+        r = pull_nested_rec_fn(env, opts, mctx, lctx)(eqns, elab);
     } else {
-        r = compile_equations_core(env, opts, mctx, lctx, eqns);
+        r = compile_equations_core(env, opts, mctx, lctx, eqns, elab);
     }
 
     if (r.m_counter_examples) {
@@ -318,7 +319,7 @@ expr compile_equations(environment & env, options const & opts, metavar_context 
         for (auto & ce : r.m_counter_examples) {
             fmt += line() + pp(remove_aux_main_name(ce));
         }
-        throw formatted_exception(_eqns, fmt);
+        elab.report_or_throw({_eqns, fmt});
     }
 
     buffer<expr> fns; to_buffer(r.m_fns, fns);

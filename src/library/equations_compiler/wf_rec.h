@@ -8,9 +8,10 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 #include "library/equations_compiler/util.h"
 namespace lean {
+class elaborator;
 eqn_compiler_result wf_rec(environment & env, options const & opts,
             metavar_context & mctx, local_context const & lctx,
-            expr const & eqns);
+            expr const & eqns, elaborator & elab);
 void initialize_wf_rec();
 void finalize_wf_rec();
 }

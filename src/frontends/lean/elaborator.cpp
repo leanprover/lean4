@@ -245,18 +245,6 @@ expr elaborator::recoverable_error(optional<expr> const & expected_type, expr co
     return mk_sorry(expected_type, ref);
 }
 
-template <class Fn>
-expr elaborator::recover_expr_from_exception(optional<expr> const & expected_type, expr const & ref, Fn && fn) {
-    try {
-        return fn();
-    } catch (std::exception & ex) {
-        if (!try_report(ex, some_expr(ref))) {
-            throw;
-        } else {
-            return mk_sorry(expected_type, ref);
-        }
-    }
-}
 
 level elaborator::mk_univ_metavar() {
     return m_ctx.mk_univ_metavar_decl();
@@ -2372,7 +2360,7 @@ expr elaborator::visit_equations(expr const & e) {
     new_e = instantiate_mvars(new_e);
     ensure_no_unassigned_metavars(new_e);
     metavar_context mctx = m_ctx.mctx();
-    expr r = compile_equations(m_env, m_opts, mctx, m_ctx.lctx(), new_e);
+    expr r = compile_equations(m_env, m_opts, mctx, m_ctx.lctx(), new_e, *this);
     m_ctx.set_env(m_env);
     m_ctx.set_mctx(mctx);
     return r;

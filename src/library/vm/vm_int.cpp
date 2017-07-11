@@ -165,20 +165,27 @@ vm_obj int_shiftl(vm_obj const & a1, vm_obj const & a2) {
             if (v2 >= 0) {
                 if (v2 <= 30 && v1 >> (30 - v2) == 0) // LEAN_MAX_SMALL_INT = 1 >> 30
                     return mk_vm_int(v1 << v2);
-            } else {
+            } else if (-v2 < 32) {
                 return mk_vm_int(v1 >> -v2);
+            } else {
+                return mk_vm_int(0);
             }
         }
     }
     mpz v1 = to_mpz1(a1);
-    int v2 = to_int(a2);
-    if (v2 >= 0) {
-        mul2k(v1, v1, v2);
+    if (auto v2 = try_to_int(a2)) {
+        if (*v2 >= 0) {
+            mul2k(v1, v1, *v2);
+        } else if (v1 < 0) {
+            div2k(v1, v1 + 1, -*v2);
+            v1--;
+        } else {
+            div2k(v1, v1, -*v2);
+        }
+        return mk_vm_int(v1);
     } else {
-        div2k(v1, v1 + 1, -v2);
-        v1--;
+        throw exception("int.shiftl: second argument is larger than 2^31");
     }
-    return mk_vm_int(v1);
 }
 
 vm_obj int_land(vm_obj const & a1, vm_obj const & a2) {

@@ -16,7 +16,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 static vm_obj eval(expr const & A, expr a, tactic_state const & s) {
-    LEAN_TACTIC_TRY;
     metavar_context mctx = s.mctx();
     a = mctx.instantiate_mvars(a);
     if (has_local(a) || !closed(a))
@@ -57,10 +56,12 @@ static vm_obj eval(expr const & A, expr a, tactic_state const & s) {
             return tactic::mk_exception(nested_exception_without_pos("eval_expr failed to compile given expression into bytecode", ex), s);
         }
         S.update_env(aux_env);
+        /*
+         * We can't catch exceptions here unless we restore the vm_state to a valid state.
+         */
         vm_obj r = S.get_constant(eval_aux_name);
         return tactic::mk_success(r, s);
     }
-    LEAN_TACTIC_CATCH(s);
 }
 
 static vm_obj tactic_eval_expr(vm_obj const &, vm_obj const & A, vm_obj const & a, vm_obj const & s) {

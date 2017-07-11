@@ -146,7 +146,7 @@ vm_obj int_rem(vm_obj const & a1, vm_obj const & a2) {
         if (v2 == 0)
             return a1;
         else
-            return mk_vm_int(v1 % v2);
+            return mk_vm_int(rem(v1, v2));
     }
 }
 

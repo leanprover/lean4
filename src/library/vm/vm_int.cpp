@@ -27,7 +27,7 @@ inline unsigned to_unsigned(int n) {
 }
 
 inline  int of_unsigned(unsigned n) {
-    return static_cast<int>(n << 1) >> 1;
+    return static_cast<int>(n << 1) / 2;
 }
 
 vm_obj mk_vm_int(int n) {
@@ -100,7 +100,7 @@ vm_obj int_add(vm_obj const & a1, vm_obj const & a2) {
     if (is_simple(a1) && is_simple(a2)) {
         return mk_vm_int(to_small_int(a1) + to_small_int(a2));
     } else {
-        return mk_vm_mpz(to_mpz1(a1) + to_mpz2(a2));
+        return mk_vm_int(to_mpz1(a1) + to_mpz2(a2));
     }
 }
 
@@ -111,7 +111,7 @@ vm_obj int_mul(vm_obj const & a1, vm_obj const & a2) {
             return mk_vm_simple(to_unsigned(r));
         }
     }
-    return mk_vm_mpz(to_mpz1(a1) * to_mpz2(a2));
+    return mk_vm_int(to_mpz1(a1) * to_mpz2(a2));
 }
 
 vm_obj int_quot(vm_obj const & a1, vm_obj const & a2) {
@@ -185,7 +185,7 @@ vm_obj int_land(vm_obj const & a1, vm_obj const & a2) {
     if (LEAN_LIKELY(is_simple(a1) && is_simple(a2))) {
         return mk_vm_int(to_small_int(a1) & to_small_int(a2));
     } else {
-        return mk_vm_mpz(to_mpz1(a1) & to_mpz2(a2));
+        return mk_vm_int(to_mpz1(a1) & to_mpz2(a2));
     }
 }
 
@@ -193,7 +193,7 @@ vm_obj int_lor(vm_obj const & a1, vm_obj const & a2) {
     if (LEAN_LIKELY(is_simple(a1) && is_simple(a2))) {
         return mk_vm_int(to_small_int(a1) | to_small_int(a2));
     } else {
-        return mk_vm_mpz(to_mpz1(a1) | to_mpz2(a2));
+        return mk_vm_int(to_mpz1(a1) | to_mpz2(a2));
     }
 }
 
@@ -201,7 +201,7 @@ vm_obj int_lxor(vm_obj const & a1, vm_obj const & a2) {
     if (LEAN_LIKELY(is_simple(a1) && is_simple(a2))) {
         return mk_vm_int(to_small_int(a1) ^ to_small_int(a2));
     } else {
-        return mk_vm_mpz(to_mpz1(a1) ^ to_mpz2(a2));
+        return mk_vm_int(to_mpz1(a1) ^ to_mpz2(a2));
     }
 }
 
@@ -209,7 +209,7 @@ vm_obj int_lnot(vm_obj const & a) {
     if (LEAN_LIKELY(is_simple(a))) {
         return mk_vm_int(~to_small_int(a));
     } else {
-        return mk_vm_mpz(~to_mpz1(a));
+        return mk_vm_int(~to_mpz1(a));
     }
 }
 
@@ -217,7 +217,7 @@ vm_obj int_ldiff(vm_obj const & a1, vm_obj const & a2) {
     if (LEAN_LIKELY(is_simple(a1) && is_simple(a2))) {
         return mk_vm_int(to_small_int(a1) & ~to_small_int(a2));
     } else {
-        return mk_vm_mpz(to_mpz1(a1) & ~to_mpz2(a2));
+        return mk_vm_int(to_mpz1(a1) & ~to_mpz2(a2));
     }
 }
 

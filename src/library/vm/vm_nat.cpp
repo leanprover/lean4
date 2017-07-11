@@ -175,7 +175,8 @@ vm_obj nat_shiftl(vm_obj const & a1, vm_obj const & a2) {
 
 vm_obj nat_shiftr(vm_obj const & a1, vm_obj const & a2) {
     if (LEAN_LIKELY(is_simple(a1) && is_simple(a2))) {
-        return mk_vm_nat(cidx(a1) >> cidx(a2));
+        int v2 = cidx(a2);
+        return v2 < 32 ? mk_vm_nat(cidx(a1) >> v2) : mk_vm_simple(0);
     } else {
         mpz v1 = to_mpz1(a1);
         div2k(v1, v1, to_unsigned(a2));

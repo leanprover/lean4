@@ -510,6 +510,7 @@ static environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, cmd
         name c_real_name;
         std::tie(env, c_real_name) = declare_definition(p, env, kind, lp_names, c_name,
                                                         curr_type, some_expr(curr), {}, meta, header_pos);
+        env = add_local_ref(p, env, c_name, c_real_name, lp_names, params);
         new_d_names.push_back(c_real_name);
         elab.set_env(env);
     }

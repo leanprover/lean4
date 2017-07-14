@@ -110,6 +110,14 @@ int main(int argc, char ** argv) {
         }
     } initer;
 
+    set_print_fn([] (std::ostream & out, expr const & e) {
+        try {
+            out << simple_pp(environment(), e, lowlevel_notations());
+        } catch (throwable & e) {
+            out << "!!!" << e.what() << "!!!";
+        }
+    });
+
     try {
         std::ifstream in(argv[1]);
         if (!in) throw exception(sstream() << "file not found: " << argv[1]);

@@ -329,17 +329,23 @@ class exporter {
 public:
     exporter(std::ostream & out, environment const & env) : m_out(out), m_env(env) {}
 
-    void operator()() {
+    void operator()(optional<list<name>> const & decls) {
         m_name2idx[{}] = 0;
         m_level2idx[{}] = 0;
         if (has_quotient(m_env))
             export_quotient();
-        export_declarations();
+        if (decls) {
+            for (auto & d : *decls)
+                export_declaration(d);
+        } else {
+            export_declarations();
+        }
         export_notation();
     }
 };
 
-void export_all_as_lowtext(std::ostream & out, environment const & env) {
-    exporter(out, env)();
+void export_as_lowtext(std::ostream & out, environment const & env,
+        optional<list<name>> const & decls) {
+    exporter(out, env)(decls);
 }
 }

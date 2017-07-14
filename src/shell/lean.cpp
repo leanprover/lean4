@@ -124,6 +124,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  -D name=value      set a configuration option (see set_option command)\n";
     std::cout << "Exporting data:\n";
     std::cout << "  --export=file -E   export final environment as textual low-level file\n";
+    std::cout << "  --only-export=decl_name   only export the specified declaration (+ dependencies)";
     std::cout << "  --test-suite       capture output and status code from each input file $f in $f.produced and $f.status, respectively\n";
 }
 
@@ -136,6 +137,7 @@ static struct option g_long_options[] = {
     {"make",         no_argument,       0, 'm'},
     {"recursive",    no_argument,       0, 'R'},
     {"export",       required_argument, 0, 'E'},
+    {"only-export",  required_argument, 0, 'o'},
     {"memory",       required_argument, 0, 'M'},
     {"trust",        required_argument, 0, 't'},
     {"profile",      no_argument,       0, 'P'},
@@ -368,6 +370,7 @@ int main(int argc, char ** argv) {
 
     options opts;
     optional<std::string> export_txt;
+    buffer<name> only_export;
     optional<std::string> doc;
     optional<std::string> server_in;
     optional<std::string> run_arg;
@@ -467,6 +470,9 @@ int main(int argc, char ** argv) {
             break;
         case 'E':
             export_txt = std::string(optarg);
+            break;
+        case 'o':
+            only_export.push_back(string_to_name(optarg));
             break;
         case 'e':
             test_suite = true;
@@ -701,7 +707,11 @@ int main(int argc, char ** argv) {
 
             exclusive_file_lock export_lock(*export_txt);
             std::ofstream out(*export_txt);
-            export_all_as_lowtext(out, combined_env);
+            optional<list<name>> decls;
+            if (!only_export.empty()) {
+                decls = to_list(only_export);
+            }
+            export_as_lowtext(out, combined_env, decls);
         }
 
         if (doc) {

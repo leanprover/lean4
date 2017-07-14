@@ -662,6 +662,9 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
         if (r != l_undef) return r == l_true;
     }
 
+    if (is_def_eq_proof_irrel(t_n, s_n))
+        return true;
+
     r = lazy_delta_reduction(t_n, s_n);
     if (r != l_undef) return r == l_true;
 
@@ -687,9 +690,6 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
         return true;
 
     if (try_eta_expansion(t_n, s_n))
-        return true;
-
-    if (is_def_eq_proof_irrel(t, s))
         return true;
 
     return false;

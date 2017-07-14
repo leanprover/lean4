@@ -2,7 +2,7 @@
 
 * [ ] Put an X between the brackets on this line if you have done all of the following:
     * Checked that your issue isn't already [filed](https://github.com/leanprover/lean/issues).
-        * Specifially, check out the [wishlist](https://github.com/leanprover/lean/issues?q=is%3Aissue+is%3Aopen+label%3AI-wishlist), open [RFCs](https://github.com/leanprover/lean/issues?q=is%3Aissue+is%3Aopen+label%3ARFC),
+        * Specifically, check out the [wishlist](https://github.com/leanprover/lean/issues?q=is%3Aissue+is%3Aopen+label%3AI-wishlist), open [RFCs](https://github.com/leanprover/lean/issues?q=is%3Aissue+is%3Aopen+label%3ARFC),
         or [feature requests](https://github.com/leanprover/lean/issues?q=is%3Aissue+is%3Aopen+label%3AFeature).
     * Reduced the issue to a self-contained, reproducible test case.
 

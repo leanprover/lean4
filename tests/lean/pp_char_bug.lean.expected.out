@@ -1,5 +1,5 @@
-⟨2, of_as_true trivial⟩ : fin 5
-⟨1, of_as_true trivial⟩ : fin 3
+⟨2, _⟩ : fin 5
+⟨1, _⟩ : fin 3
 'a' : char
 to_string 'a' : string
 "a"

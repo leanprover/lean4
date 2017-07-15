@@ -89,7 +89,6 @@ private:
     expr purify(expr const & e);
     bool is_implicit(expr const & f);
     bool is_default_arg_app(expr const & e);
-    optional<expr> is_proof(expr const & f);
     bool is_prop(expr const & e);
     bool has_implicit_args(expr const & f);
     optional<name> is_aliased(name const & n) const;
@@ -146,7 +145,6 @@ private:
     result pp_let(expr e);
     result pp_num(mpz const & n);
     result pp_prod(expr const & e);
-    result pp_proof_type(expr const & t);
     void set_options_core(options const & o);
 
     expr infer_type(expr const & e);

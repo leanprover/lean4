@@ -1,4 +1,4 @@
-f a (foo1 a) = f a (foo2 a)
-f a (foo1 a) = f a (foo2 a)
-f a (foo1 a) = f a (foo2 a)
-(λ (x : ℕ), f x (foo1 x)) = λ (x : ℕ), f x (foo2 x)
+f a _ = f a _
+f a _ = f a _
+f a _ = f a _
+(λ (x : ℕ), f x _) = λ (x : ℕ), f x _

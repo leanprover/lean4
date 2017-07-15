@@ -1,4 +1,4 @@
-f (Ps (Ps (Ps (Ps (Ps (Ps P0))))))
-f ⌞P 6⌟
-@f 6 ⌞@P ⌞true⌟ 6⌟
+f _
+f _
+@f 6 _
 @f 6 (@Ps 5 (@Ps 4 (@Ps 3 (@Ps 2 (@Ps 1 (@Ps 0 P0))))))

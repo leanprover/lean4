@@ -1608,30 +1608,6 @@ static bool is_pp_atomic(expr const & e) {
     }
 }
 
-/* Returns the theorem type if `e` is a proof and `m_proofs` is set to false. */
-optional<expr> pretty_fn::is_proof(expr const & e) {
-    if (m_proofs)
-        return none_expr(); // showing proof terms
-    if (!closed(e))
-        // the Lean type checker assumes expressions are closed.
-        return none_expr();
-    try {
-        expr t = m_ctx.infer(e);
-        if (is_prop(t))
-            return some_expr(head_beta_reduce(t));
-        else
-            return none_expr();
-    } catch (exception &) {
-        return none_expr();
-    }
-}
-
-auto pretty_fn::pp_proof_type(expr const & t) -> result {
-    format li = m_unicode ? format("⌞") : format("[proof ");
-    format ri = m_unicode ? format("⌟") : format("]");
-    return result(group(nest(1, li + pp(t).fmt() + ri)));
-}
-
 static bool is_subtype(expr const & e) {
     return
         is_constant(get_app_fn(e), get_subtype_name()) &&
@@ -1771,9 +1747,11 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
         if (auto r = to_string(e))      return pp_string_literal(*r);
         if (auto r = to_char(m_ctx, e)) return pp_char_literal(*r);
     }
-    if (auto t = is_proof(e)) {
-        return pp_proof_type(*t);
-    }
+    try {
+        if (!m_proofs && !is_constant(e) && !is_mlocal(e) && closed(e) && is_prop(m_ctx.infer(e))) {
+            return result(format("_"));
+        }
+    } catch (exception) {}
 
     if (auto r = pp_notation(e))
         return *r;
@@ -1896,12 +1874,18 @@ std::pair<bool, token_table const *> pretty_fn::needs_space_sep(token_table cons
 }
 
 format pretty_fn::operator()(expr const & e) {
+    auto purified = purify(m_beta ? pp_beta_reduce_fn()(e) : e);
+
+    if (!m_options.contains(get_pp_proofs_name()) && !get_pp_all(m_options)) {
+        try {
+            m_proofs = !closed(purified) || is_prop(m_ctx.infer(purified));
+        } catch (exception) {
+            m_proofs = true;
+        }
+    }
+
     m_depth = 0; m_num_steps = 0;
-    result r;
-    if (m_beta)
-        r = pp_child(purify(pp_beta_reduce_fn()(e)), 0);
-    else
-        r = pp_child(purify(e), 0);
+    result r = pp_child(purified, 0);
 
     // insert spaces so that lexing the result round-trips
     std::function<bool(sexpr const &, sexpr const &)> sep; // NOLINT

@@ -17,17 +17,17 @@ lemma succ_add : ∀ n m : ℕ, (succ n) + m = succ (n + m)
 | n 0     := rfl
 | n (m+1) := congr_arg succ (succ_add n m)
 
-lemma add_succ : ∀ n m : ℕ, n + succ m = succ (n + m) :=
-λ n m, rfl
+lemma add_succ (n m : ℕ) : n + succ m = succ (n + m) :=
+rfl
 
-protected lemma add_zero : ∀ n : ℕ, n + 0 = n :=
-λ n, rfl
+protected lemma add_zero (n : ℕ) : n + 0 = n :=
+rfl
 
-lemma add_one_eq_succ : ∀ n : ℕ, n + 1 = succ n :=
-λ n, rfl
+lemma add_one_eq_succ (n : ℕ) : n + 1 = succ n :=
+rfl
 
-lemma succ_eq_add_one : ∀ n : ℕ, succ n = n + 1 :=
-λ n, rfl
+lemma succ_eq_add_one (n : ℕ) : succ n = n + 1 :=
+rfl
 
 protected lemma add_comm : ∀ n m : ℕ, n + m = m + n
 | n 0     := eq.symm (nat.zero_add n)

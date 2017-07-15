@@ -45,6 +45,7 @@ Miscellaneous
 - [Git Commit Conventions](doc/commit_convention.md)
 - [Automatic Builds](doc/make/travis.md)
 - [Syntax Highlight Lean Code in LaTeX](doc/syntax_highlight_in_latex.md)
+- [Exporting, and reference type-checkers](doc/export_format.md)
 
 Roadmap
 -------------

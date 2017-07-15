@@ -11,6 +11,11 @@ cd lean/library
 lean --export=export.out --recursive
 ```
 
+There are several checkers available that can read these files:
+* [trepplein](https://github.com/gebner/trepplein), a type-checker written in Scala.
+* [tc](https://github.com/dselsam/tc), a type-checker written in Haskell.
+* [leanchecker](https://github.com/leanprover/lean/tree/master/src/checker), a bare-bones version of the Lean kernel.
+
 Hierarchical names
 ------------------
 

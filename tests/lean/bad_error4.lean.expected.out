@@ -1,6 +1,6 @@
 bad_error4.lean:5:7: error: type mismatch at field 'f'
-  λ (a : unit) (b : delayed[?m_1]), delayed[?m_3]
+  λ (a : unit) (b : ?m_1[a]), ?m_3[a, b]
 has type
-  Π (a : unit) (b : delayed[?m_1]), delayed[?m_2]
+  Π (a : unit) (b : ?m_1[a]), ?m_2[a, b]
 but is expected to have type
   unit → unit

@@ -1,9 +1,9 @@
 elab_error_msgs.lean:2:0: error: type mismatch at application
-  and.rec (λ (ha : ?m_1) (hb : ?m_2) (hb : delayed[?m_3]), ha)
+  and.rec (λ (ha : ?m_1) (hb : ?m_2) (hb : ?m_3[ha, hb]), ha)
 term
-  λ (ha : ?m_1) (hb : ?m_2) (hb : delayed[?m_3]), ha
+  λ (ha : ?m_1) (hb : ?m_2) (hb : ?m_3[ha, hb]), ha
 has type
-  Π (ha : ?m_1) (hb : ?m_2), delayed[?m_3] → ?m_1
+  Π (ha : ?m_1) (hb : ?m_2), ?m_3[ha, hb] → ?m_1
 but is expected to have type
   ?m_1 → ?m_2 → ?m_4
 Additional information:

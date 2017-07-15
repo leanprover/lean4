@@ -1050,10 +1050,18 @@ auto pretty_fn::pp_delayed_abstraction(expr const & e) -> result {
     if (m_use_holes) {
         return pp_hole();
     } else if (m_delayed_abstraction) {
-        format r = format("delayed[");
-        r += pp(get_delayed_abstraction_expr(e)).fmt();
+        format r;
+        r += format("[");
+        buffer<name> ns; buffer<expr> es;
+        get_delayed_abstraction_info(e, ns, es);
+        for (unsigned i = 0; i < ns.size(); i++) {
+            format r2;
+            if (i) r2 += format(",") + line();
+            r2 += pp(es[i]).fmt();
+            r += group(r2);
+        }
         r += format("]");
-        return result(r);
+        return result(pp(get_delayed_abstraction_expr(e)).fmt() + nest(m_indent, r));
     } else {
         return pp(get_delayed_abstraction_expr(e));
     }

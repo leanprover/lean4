@@ -1,4 +1,4 @@
 structure_elab_segfault.lean:1:0: error: infer type failed, sort expected
-  delayed[?m_1]
+  ?m_1[A]
 structure_elab_segfault.lean:2:0: error: infer type failed, sort expected
-  delayed[?m_1]
+  ?m_1[x]

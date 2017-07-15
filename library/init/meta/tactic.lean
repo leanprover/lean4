@@ -1127,11 +1127,11 @@ end list
 run_cmd do
  let l  := level.param `l,
  let Ty : pexpr := expr.sort l,
- type ← to_expr ``(Π (α : %%Ty), α → α),
- val  ← to_expr ``(λ (α : %%Ty) (a : α), a),
+ type ← to_expr ``(Π {α : %%Ty}, α → α),
+ val  ← to_expr ``(λ {α : %%Ty} (a : α), a),
  add_decl (declaration.defn `id_locked [`l] type val reducibility_hints.opaque tt)
 
-lemma id_locked_eq {α : Type u} (a : α) : id_locked α a = a :=
+lemma id_locked_eq {α : Type u} (a : α) : id_locked a = a :=
 rfl
 
 attribute [inline] id_locked

@@ -9,6 +9,6 @@
 "}"
 λ (α : ?M_1), to_fmt "" ++ to_fmt α ++ to_fmt "" : ?M_1 → format
 format_macro.lean:13:6: error: invalid expression, unexpected token
-format_macro.lean:14:6: error: invalid expression
+format_macro.lean:14:6: error: expression expected
 format_macro.lean:15:6: error: invalid expression
 "abc"

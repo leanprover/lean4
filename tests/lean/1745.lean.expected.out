@@ -1,0 +1,2 @@
+1745.lean:1:28: error: invalid expression
+1745.lean:1:0: warning: declaration 'foo' uses sorry

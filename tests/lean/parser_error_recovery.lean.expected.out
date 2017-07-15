@@ -14,7 +14,13 @@ context:
 ⊢ Type ?
 []
 parser_error_recovery.lean:36:4: error: unknown identifier 'simmp'
+parser_error_recovery.lean:36:10: error: invalid expression
+parser_error_recovery.lean:36:11: error: invalid expression
+parser_error_recovery.lean:36:12: error: invalid expression
+parser_error_recovery.lean:36:13: error: invalid expression
 parser_error_recovery.lean:37:9: error: unknown identifier 'a'
+parser_error_recovery.lean:37:11: error: invalid expression
+parser_error_recovery.lean:37:12: error: invalid expression
 parser_error_recovery.lean:37:13: error: invalid expression, unexpected token
 parser_error_recovery.lean:36:4: error: don't know how to synthesize placeholder
 context:

@@ -1379,10 +1379,7 @@ expr parser::parse_notation(parse_table t, expr * left) {
     }
     list<notation::accepting> const & as = t.is_accepting();
     if (is_nil(as)) {
-        if (!left && p == pos() && has_error_recovery()) {
-            // Empty input
-            return mk_sorry(pos(), true);
-        }
+        if (m_backtracking_pos && !consumed_input()) throw backtracking_exception();
         // TODO(gabriel): search children of t for accepting states
         sstream msg;
         msg << "invalid expression";
@@ -1906,9 +1903,11 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only, 
         next();
         explicit_levels = true;
         while (!curr_is_token(get_rcurly_tk())) {
-            auto pos0 = pos();
-            lvl_buffer.push_back(parse_level());
-            if (pos() == pos0) break;
+            auto _ = backtracking_scope();
+            try {
+                lvl_buffer.push_back(parse_level());
+            } catch (backtracking_exception) {}
+            if (!consumed_input()) break;
         }
         next();
         ls = to_list(lvl_buffer.begin(), lvl_buffer.end());
@@ -2205,25 +2204,22 @@ unsigned parser::curr_lbp() const {
 
 expr parser::parse_led_loop(expr left, unsigned rbp) {
     while (rbp < curr_lbp()) {
-        auto pos0 = pos();
-        left = parse_led(left);
+        auto _ = backtracking_scope();
+        try { left = parse_led(left); } catch (backtracking_exception) {}
 
-        if (pos() == pos0) {
-            // We did not consume any input, this can happen if we fail inside parse_notation.
-            break;
-        }
+        // We did not consume any input, this can happen if we fail inside parse_notation.
+        if (!consumed_input()) break;
     }
     return left;
 }
 
 optional<expr> parser::maybe_parse_expr(unsigned rbp) {
-    auto pos0 = pos();
-    auto res = parse_expr(rbp);
-    if (pos() == pos0) {
-        return none_expr();
-    } else {
-        return some_expr(res);
-    }
+    auto _ = backtracking_scope();
+    try {
+        auto res = parse_expr(rbp);
+        if (consumed_input()) return some_expr(res);
+    } catch (backtracking_exception) {}
+    return none_expr();
 }
 
 expr parser::parse_expr(unsigned rbp) {

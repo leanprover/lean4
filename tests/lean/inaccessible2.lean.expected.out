@@ -3,7 +3,7 @@ inaccessible2.lean:8:10: error: invalid pattern, must be an application, constan
 inaccessible2.lean:8:45: error: unknown identifier 'a'
 inaccessible2.lean:8:4: error: invalid use of inaccessible term, it is not fixed by other arguments
 inaccessible2.lean:11:39: error: inaccesible pattern notation `.(t)` can only be used in patterns
-inaccessible2.lean:11:46: error: invalid pattern, must be an application, constant, variable, type ascription or inaccessible term
+inaccessible2.lean:11:46: error: invalid expression
 inaccessible2.lean:11:4: error: function expected at
   f
 inaccessible2.lean:11:11: error: function expected at

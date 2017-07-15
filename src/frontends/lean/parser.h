@@ -73,6 +73,7 @@ class parser : public abstract_parser {
     bool                   m_error_recovery = true;
     bool                   m_error_since_last_cmd = false;
     pos_info               m_last_recovered_error_pos {0, 0};
+    optional<pos_info>     m_backtracking_pos;
 
     // curr command token
     name                   m_cmd_token;
@@ -167,6 +168,14 @@ class parser : public abstract_parser {
 
     friend class module_parser;
     friend class patexpr_to_expr_fn;
+
+    struct backtracking_exception {};
+    flet<optional<pos_info>> backtracking_scope() {
+        return flet<optional<pos_info>>(m_backtracking_pos, optional<pos_info>(pos()));
+    }
+    bool consumed_input() {
+        return *m_backtracking_pos != pos();
+    }
 
 public:
     parser(environment const & env, io_state const & ios,

@@ -1023,11 +1023,11 @@ meta def by_cases (q : parse texpr) (n : parse (tk "with" *> ident)?): tactic un
 do p ← tactic.to_expr_strict q,
    tactic.by_cases p (n.get_or_else `h)
 
-meta def by_contradiction : tactic unit :=
-tactic.by_contradiction >> return ()
+meta def by_contradiction (n : parse ident?) : tactic unit :=
+tactic.by_contradiction n >> return ()
 
-meta def by_contra : tactic unit :=
-tactic.by_contradiction >> return ()
+meta def by_contra (n : parse ident?) : tactic unit :=
+tactic.by_contradiction n >> return ()
 
 /-- Type check the given expression, and trace its type. -/
 meta def type_check (p : parse texpr) : tactic unit :=

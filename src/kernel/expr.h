@@ -135,7 +135,7 @@ public:
     friend expr mk_var(unsigned idx, tag g);
     friend expr mk_sort(level const & l, tag g);
     friend expr mk_constant(name const & n, levels const & ls, tag g);
-    friend expr mk_metavar(name const & n, expr const & t, tag g);
+    friend expr mk_metavar(name const & n, name const & pp_n, expr const & t, tag g);
     friend expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi,
                          tag g);
     friend expr mk_app(expr const & f, expr const & a, tag g);
@@ -201,14 +201,16 @@ public:
 class expr_mlocal : public expr_composite {
 protected:
     name   m_name;
+    name   m_pp_name; // user facing name
     expr   m_type;
     friend expr_cell;
     void dealloc(buffer<expr_cell*> & todelete);
     friend struct cache_expr_insert_fn;
     expr_mlocal(expr_mlocal const &, expr const & new_type); // for hash_consing
 public:
-    expr_mlocal(bool is_meta, name const & n, expr const & t, tag g);
+    expr_mlocal(bool is_meta, name const & n, name const & pp_n, expr const & t, tag g);
     name const & get_name() const { return m_name; }
+    name const & get_pp_name() const { return m_pp_name; }
     expr const & get_type() const { return m_type; }
 };
 
@@ -254,10 +256,6 @@ unsigned hash_bi(expr const & e);
 
 /** \brief expr_mlocal subclass for local constants. */
 class expr_local : public expr_mlocal {
-    // The name used in the binder that generate this local,
-    // it is only used for pretty printing. This field is ignored
-    // when comparing expressions.
-    name        m_pp_name;
     binder_info m_bi;
     friend expr_cell;
     void dealloc(buffer<expr_cell*> & todelete);
@@ -265,7 +263,6 @@ class expr_local : public expr_mlocal {
     expr_local(expr_local const &, expr const & new_type); // for hash_consing
 public:
     expr_local(name const & n, name const & pp_name, expr const & t, binder_info const & bi, tag g);
-    name const & get_pp_name() const { return m_pp_name; }
     binder_info const & get_info() const { return m_bi; }
 };
 
@@ -463,6 +460,7 @@ inline expr mk_constant(name const & n) { return mk_constant(n, levels()); }
 inline expr Const(name const & n) { return mk_constant(n); }
 expr mk_macro(macro_definition const & m, unsigned num = 0, expr const * args = nullptr, tag g = nulltag);
 expr mk_metavar(name const & n, expr const & t, tag g = nulltag);
+expr mk_metavar(name const & n, name const & pp_n, expr const & t, tag g = nulltag);
 expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi, tag g = nulltag);
 inline expr mk_local(name const & n, expr const & t, tag g = nulltag) { return mk_local(n, n, t, binder_info(), g); }
 inline expr mk_local(name const & n, expr const & t, binder_info const & bi, tag g = nulltag) {
@@ -572,7 +570,7 @@ inline binder const & binding_binder(expr_ptr e)        { return to_binding(e)->
 inline level const &  sort_level(expr_ptr e)            { return to_sort(e)->get_level(); }
 inline name const &   mlocal_name(expr_ptr e)           { return to_mlocal(e)->get_name(); }
 inline expr const &   mlocal_type(expr_ptr e)           { return to_mlocal(e)->get_type(); }
-inline name const &   local_pp_name(expr_ptr e)         { return to_local(e)->get_pp_name(); }
+inline name const &   mlocal_pp_name(expr_ptr e)        { return to_mlocal(e)->get_pp_name(); }
 inline binder_info const & local_info(expr_ptr e)       { return to_local(e)->get_info(); }
 inline name const &   let_name(expr_ptr e)              { return to_let(e)->get_name(); }
 inline expr const &   let_type(expr_ptr e)              { return to_let(e)->get_type(); }

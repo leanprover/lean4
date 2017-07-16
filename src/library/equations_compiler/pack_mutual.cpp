@@ -153,7 +153,7 @@ struct pack_mutual_fn {
         name         new_fn_name("_mutual");
         for (unsigned fidx = 0; fidx < ues.get_num_fns(); fidx++) {
             expr const & fn = ues.get_fn(fidx);
-            new_fn_name = new_fn_name + local_pp_name(fn);
+            new_fn_name = new_fn_name + mlocal_pp_name(fn);
             lean_assert(ues.get_arity_of(fidx) == 1);
             expr fn_type    = m_ctx.relaxed_whnf(m_ctx.infer(fn));
             lean_assert(is_pi(fn_type));

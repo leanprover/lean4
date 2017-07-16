@@ -214,7 +214,7 @@ static expr fix_do_action_lhs(parser_state & p, expr const & lhs, expr const & t
         } else if (is_constant(lhs)) {
             new_lhs = mk_local(name(const_name(lhs).get_string()), type);
         } else {
-            new_lhs = mk_local(local_pp_name(lhs), type);
+            new_lhs = mk_local(mlocal_pp_name(lhs), type);
         }
         new_lhs = p.save_pos(new_lhs, lhs_pos);
         new_locals.clear();
@@ -564,7 +564,7 @@ static expr parse_explicit_core(parser_state & p, pos_info const & pos, bool par
             if (is_constant(c))
                 s << const_name(c);
             else if (is_local(c))
-                s << local_pp_name(c);
+                s << mlocal_pp_name(c);
             else
                 s << "[other]";
         }
@@ -675,7 +675,7 @@ static expr parse_quoted_name(parser_state & p, unsigned, expr const *, pos_info
         if (is_constant(e)) {
             id = const_name(e);
         } else if (is_local(e)) {
-            id = local_pp_name(e);
+            id = mlocal_pp_name(e);
         } else if (is_choice(e)) {
             sstream ss;
             ss << "invalid resolved quoted symbol, it is ambiguous, possible interpretations:";

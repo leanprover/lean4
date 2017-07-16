@@ -1556,7 +1556,7 @@ struct to_pattern_fn {
     }
 
     void collect_new_local(expr const & e) {
-        name const & n = local_pp_name(e);
+        name const & n = mlocal_pp_name(e);
         bool resolve_only = true;
         expr new_e = m_parser.id_to_expr(n, m_parser.pos_of(e), resolve_only);
         if (is_as_atomic(new_e)) {
@@ -1637,7 +1637,7 @@ struct to_pattern_fn {
     expr to_expr(expr const & e) {
         return replace(e, [&](expr const & e, unsigned) {
                 if (is_local(e)) {
-                    if (auto r = m_locals_map.find(local_pp_name(e)))
+                    if (auto r = m_locals_map.find(mlocal_pp_name(e)))
                         return some_expr(*r);
                     else
                         return some_expr(m_parser.patexpr_to_expr(e));
@@ -1678,7 +1678,7 @@ struct to_pattern_fn {
                 return update_macro(e, new_args.size(), new_args.data());
             }
         } else if (is_local(e)) {
-            if (auto r = m_locals_map.find(local_pp_name(e)))
+            if (auto r = m_locals_map.find(mlocal_pp_name(e)))
                 return *r;
             else
                 return e;
@@ -1722,7 +1722,7 @@ static expr quote(expr const & e) {
             return mk_expr_placeholder();
         case expr_kind::Local:
             throw elaborator_exception(e, sstream() << "invalid quotation, unexpected local constant '"
-                                                    << local_pp_name(e) << "'");
+                                                    << mlocal_pp_name(e) << "'");
         case expr_kind::App:
             return mk_app(mk_constant({"expr", "app"}), quote(app_fn(e)), quote(app_arg(e)));
         case expr_kind::Lambda:
@@ -1845,7 +1845,7 @@ class patexpr_to_expr_fn : public replace_visitor {
     }
 
     virtual expr visit_local(expr const & e) override {
-        return m_p.id_to_expr(local_pp_name(e), m_p.pos_of(e), true, true, m_locals);
+        return m_p.id_to_expr(mlocal_pp_name(e), m_p.pos_of(e), true, true, m_locals);
     }
 
 public:

@@ -173,11 +173,12 @@ unsigned binder_info::hash() const {
 
 // Expr metavariables and local variables
 DEF_THREAD_MEMORY_POOL(get_mlocal_allocator, sizeof(expr_mlocal));
-expr_mlocal::expr_mlocal(bool is_meta, name const & n, expr const & t, tag g):
+expr_mlocal::expr_mlocal(bool is_meta, name const & n, name const & pp_n, expr const & t, tag g):
     expr_composite(is_meta ? expr_kind::Meta : expr_kind::Local, n.hash(), is_meta || t.has_expr_metavar(), t.has_univ_metavar(),
                    !is_meta || t.has_local(), t.has_param_univ(),
                    1, get_free_var_range(t), g),
     m_name(n),
+    m_pp_name(pp_n),
     m_type(t) {}
 
 void expr_mlocal::dealloc(buffer<expr_cell*> & todelete) {
@@ -187,14 +188,14 @@ void expr_mlocal::dealloc(buffer<expr_cell*> & todelete) {
 }
 
 expr_mlocal::expr_mlocal(expr_mlocal const & src, expr const & new_type):
-    expr_composite(src), m_name(src.m_name), m_type(new_type) {}
+    expr_composite(src), m_name(src.m_name), m_pp_name(src.m_pp_name), m_type(new_type) {}
 
 DEF_THREAD_MEMORY_POOL(get_local_allocator, sizeof(expr_local));
-expr_local::expr_local(name const & n, name const & pp_name, expr const & t, binder_info const & bi, tag g):
-    expr_mlocal(false, n, t, g), m_pp_name(pp_name), m_bi(bi) {}
+expr_local::expr_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi, tag g):
+    expr_mlocal(false, n, pp_n, t, g), m_bi(bi) {}
 
 expr_local::expr_local(expr_local const & src, expr const & new_type):
-    expr_mlocal(src, new_type), m_pp_name(src.m_pp_name), m_bi(src.m_bi) {}
+    expr_mlocal(src, new_type), m_bi(src.m_bi) {}
 
 void expr_local::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_type, todelete);
@@ -553,8 +554,11 @@ expr mk_macro(macro_definition const & m, unsigned num, expr const * args, tag g
     char * mem = new char[sizeof(expr_macro) + num*sizeof(expr const *)];
     return cache(expr(new (mem) expr_macro(m, num, args, g)));
 }
+expr mk_metavar(name const & n, name const & pp_n, expr const & t, tag g) {
+    return cache(expr(new (get_mlocal_allocator().allocate()) expr_mlocal(true, n, pp_n, t, g)));
+}
 expr mk_metavar(name const & n, expr const & t, tag g) {
-    return cache(expr(new (get_mlocal_allocator().allocate()) expr_mlocal(true, n, t, g)));
+    return mk_metavar(n, n, t, g);
 }
 expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi, tag g) {
     return cache(expr(new (get_local_allocator().allocate()) expr_local(n, pp_n, t, bi, g)));
@@ -771,16 +775,16 @@ expr update_mlocal(expr const & e, expr const & new_type) {
     if (is_eqp(mlocal_type(e), new_type))
         return e;
     else if (is_metavar(e))
-        return mk_metavar(mlocal_name(e), new_type, e.get_tag());
+        return mk_metavar(mlocal_name(e), mlocal_pp_name(e), new_type, e.get_tag());
     else
-        return mk_local(mlocal_name(e), local_pp_name(e), new_type, local_info(e), e.get_tag());
+        return mk_local(mlocal_name(e), mlocal_pp_name(e), new_type, local_info(e), e.get_tag());
 }
 
 expr update_local(expr const & e, expr const & new_type, binder_info const & bi) {
     if (is_eqp(mlocal_type(e), new_type) && local_info(e) == bi)
         return e;
     else
-        return mk_local(mlocal_name(e), local_pp_name(e), new_type, bi, e.get_tag());
+        return mk_local(mlocal_name(e), mlocal_pp_name(e), new_type, bi, e.get_tag());
 }
 
 expr update_local(expr const & e, binder_info const & bi) {

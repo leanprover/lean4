@@ -394,7 +394,7 @@ do e ← i_to_expr p,
 
 private meta def find_case (goals : list expr) (ty : name) (idx : nat) (num_indices : nat) : option expr → expr → option (expr × expr)
 | case e := if e.has_meta_var then match e with
-  | (mvar _ _)    :=
+  | (mvar _ _ _)    :=
     do case ← case,
        guard $ e ∈ goals,
        pure (case, e)

@@ -648,7 +648,7 @@ hinst_lemma mk_hinst_lemma(type_context & ctx, transparency_mode md_norm, expr c
     unsigned max_steps = get_hinst_lemma_max_steps(ctx.get_options());
     name id;
     if (is_local(H))
-        id = local_pp_name(H);
+        id = mlocal_pp_name(H);
     return mk_hinst_lemma_core(ctx, md_norm, H, 0, max_steps, simp, id);
 }
 

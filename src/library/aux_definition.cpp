@@ -120,7 +120,7 @@ struct mk_aux_definition_fn {
             expr x         = m_params[i];
             expr type      = *new_types.find(mlocal_name(x));
             expr new_type  = replace_locals(type, i, m_params.data(), norm_params.data());
-            expr new_param = m_ctx.push_local(local_pp_name(x), new_type, local_info(x));
+            expr new_param = m_ctx.push_local(mlocal_pp_name(x), new_type, local_info(x));
             norm_params.push_back(new_param);
         }
     }

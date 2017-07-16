@@ -39,7 +39,7 @@ meta inductive expr (elaborated : bool := tt)
 | var      {} : nat → expr
 | sort     {} : level → expr
 | const    {} : name → list level → expr
-| mvar        : name → expr → expr
+| mvar        : name → name → expr → expr
 | local_const : name → name → binder_info → expr → expr
 | app         : expr → expr → expr
 | lam         : name → binder_info → expr → expr → expr
@@ -381,7 +381,7 @@ meta def to_raw_fmt : expr elab → format
 | (var n) := p ["var", to_fmt n]
 | (sort l) := p ["sort", to_fmt l]
 | (const n ls) := p ["const", to_fmt n, to_fmt ls]
-| (mvar n t)   := p ["mvar", to_fmt n, to_raw_fmt t]
+| (mvar n m t)   := p ["mvar", to_fmt n, to_fmt m, to_raw_fmt t]
 | (local_const n m bi t) := p ["local_const", to_fmt n, to_fmt m, to_raw_fmt t]
 | (app e f) := p ["app", to_raw_fmt e, to_raw_fmt f]
 | (lam n bi e t) := p ["lam", to_fmt n, repr bi, to_raw_fmt e, to_raw_fmt t]

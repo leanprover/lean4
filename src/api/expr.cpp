@@ -283,7 +283,7 @@ lean_bool lean_expr_get_mlocal_type(lean_expr e, lean_expr * t, lean_exception *
 lean_bool lean_expr_get_local_pp_name(lean_expr e, lean_name * n, lean_exception * ex) {
     LEAN_TRY;
     check_local(e);
-    *n = of_name(new name(local_pp_name(to_expr_ref(e))));
+    *n = of_name(new name(mlocal_pp_name(to_expr_ref(e))));
     LEAN_CATCH;
 }
 

@@ -128,7 +128,7 @@ vm_obj tactic_subst(expr const & l, tactic_state const & s) {
         return tactic::mk_exception(sstream() << "subst tactic failed, given expression is not a local constant", s);
     optional<local_decl> d     = lctx.find_local_decl(l);
     if (!d)
-        return tactic::mk_exception(sstream() << "subst tactic failed, unknown '" << local_pp_name(l) << "' hypothesis", s);
+        return tactic::mk_exception(sstream() << "subst tactic failed, unknown '" << mlocal_pp_name(l) << "' hypothesis", s);
     expr const & type = d->get_type();
     expr lhs, rhs;
     if (is_eq(type, lhs, rhs)) {
@@ -138,7 +138,7 @@ vm_obj tactic_subst(expr const & l, tactic_state const & s) {
             return tactic_subst_core(d->get_name(), false, s);
         } else {
             return tactic::mk_exception(sstream() << "subst tactic failed, hypothesis '"
-                                       << local_pp_name(l) << "' is not of the form (x = t) or (t = x)", s);
+                                       << mlocal_pp_name(l) << "' is not of the form (x = t) or (t = x)", s);
         }
     } else {
         bool found = false;
@@ -160,7 +160,7 @@ vm_obj tactic_subst(expr const & l, tactic_state const & s) {
             return r;
         } else {
             return tactic::mk_exception(sstream() << "subst tactic failed, hypothesis '"
-                                       << local_pp_name(l) << "' is not a variable nor an equation of the form (x = t) or (t = x)", s);
+                                       << mlocal_pp_name(l) << "' is not a variable nor an equation of the form (x = t) or (t = x)", s);
         }
     }
 }

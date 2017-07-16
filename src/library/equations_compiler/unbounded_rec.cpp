@@ -18,7 +18,7 @@ static expr replace_rec_apps(type_context & ctx, expr const & e) {
     for (unsigned fidx = 0; fidx < ues.get_num_fns(); fidx++) {
         expr const & fn = ues.get_fn(fidx);
         fns.push_back(fn);
-        macro_fns.push_back(mk_rec_fn_macro(local_pp_name(fn), ctx.infer(fn)));
+        macro_fns.push_back(mk_rec_fn_macro(mlocal_pp_name(fn), ctx.infer(fn)));
     }
     for (unsigned fidx = 0; fidx < ues.get_num_fns(); fidx++) {
         buffer<expr> & eqns = ues.get_eqns_of(fidx);

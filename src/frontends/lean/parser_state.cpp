@@ -369,7 +369,7 @@ void parser_state::add_local_expr(name const & n, expr const & p, bool is_variab
     m_context->m_local_decls.insert(n, p);
     if (is_variable) {
         lean_assert(is_local(p));
-        m_context->m_variables.insert(local_pp_name(p));
+        m_context->m_variables.insert(mlocal_pp_name(p));
     }
 }
 

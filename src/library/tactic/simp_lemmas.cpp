@@ -1271,7 +1271,7 @@ vm_obj simp_lemmas_add(vm_obj const & lemmas, vm_obj const & lemma, vm_obj const
     if (is_constant(e))
         id = const_name(e);
     else if (is_local(e))
-        id = local_pp_name(e);
+        id = mlocal_pp_name(e);
 
     // TODO(dhs): accept priority as an argument
     // Reason for postponing: better plumbing of numerals through the vm

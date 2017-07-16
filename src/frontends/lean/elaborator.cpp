@@ -920,7 +920,7 @@ expr elaborator::visit_const_core(expr const & e) {
 void elaborator::save_identifier_info(expr const & f) {
     if (!m_no_info && m_uses_infom && get_pos_info_provider() && (is_constant(f) || is_local(f))) {
         if (auto p = get_pos_info_provider()->get_pos_info(f)) {
-            m_info.add_identifier_info(*p, is_constant(f) ? const_name(f) : local_pp_name(f));
+            m_info.add_identifier_info(*p, is_constant(f) ? const_name(f) : mlocal_pp_name(f));
             m_info.add_type_info(*p, infer_type(f));
         }
     }
@@ -3768,7 +3768,7 @@ static optional<expr> resolve_local_name_core(environment const & env, local_con
         /* ref may contain local references that have new names at lctx. */
         return some_expr(copy_tag(src, replace(*ref, [&](expr const & e, unsigned) {
                         if (is_local(e)) {
-                            if (auto decl = lctx.find_local_decl_from_user_name(local_pp_name(e))) {
+                            if (auto decl = lctx.find_local_decl_from_user_name(mlocal_pp_name(e))) {
                                 return some_expr(decl->mk_ref());
                             }
                         }
@@ -3882,7 +3882,7 @@ struct resolve_names_fn : public replace_visitor {
     }
 
     expr visit_local(expr const & e, bool ignore_aliases) {
-        return copy_tag(e, resolve_local_name(m_env, m_lctx, local_pp_name(e), e, ignore_aliases, m_locals));
+        return copy_tag(e, resolve_local_name(m_env, m_lctx, mlocal_pp_name(e), e, ignore_aliases, m_locals));
     }
 
     virtual expr visit_local(expr const & e) override {
@@ -3960,7 +3960,7 @@ static vm_obj tactic_save_type_info(vm_obj const &, vm_obj const & _e, vm_obj co
         if (is_constant(e))
             get_global_info_manager()->add_identifier_info(*pos, const_name(e));
         else if (is_local(e))
-            get_global_info_manager()->add_identifier_info(*pos, local_pp_name(e));
+            get_global_info_manager()->add_identifier_info(*pos, mlocal_pp_name(e));
     } catch (exception & ex) {
         return tactic::mk_exception(ex, s);
     }

@@ -129,8 +129,8 @@ class inductive_cmd_fn {
         for (unsigned i = 0; i < params.size(); i++) {
             expr const & param = params[i];
             if (m_p.is_local_decl_user_name(param) &&
-                !m_p.is_local_variable_user_name(local_pp_name(param))) {
-                expr const * klocal = m_p.get_local(local_pp_name(param));
+                !m_p.is_local_variable_user_name(mlocal_pp_name(param))) {
+                expr const * klocal = m_p.get_local(mlocal_pp_name(param));
                 lean_assert(klocal);
                 params[j] = *klocal;
                 j++;
@@ -411,7 +411,7 @@ class inductive_cmd_fn {
                                    buffer<expr> & new_params, buffer<expr> & new_inds, buffer<buffer<expr> > & new_intro_rules) {
         options opts = m_p.get_options();
         bool recover_from_errors = true;
-        elaborator elab(m_env, opts, local_pp_name(inds[0]), metavar_context(), local_context(), recover_from_errors);
+        elaborator elab(m_env, opts, mlocal_pp_name(inds[0]), metavar_context(), local_context(), recover_from_errors);
 
         buffer<expr> params_no_inds;
         for (expr const & p : params) {
@@ -568,7 +568,7 @@ class inductive_cmd_fn {
 
         for (expr const & e : all_exprs) {
             lean_trace(name({"inductive", "finalize"}),
-                       tout() << mlocal_name(e) << " (" << local_pp_name(e) << ") : " << mlocal_type(e) << "\n";);
+                       tout() << mlocal_name(e) << " (" << mlocal_pp_name(e) << ") : " << mlocal_type(e) << "\n";);
         }
     }
 
@@ -599,7 +599,7 @@ class inductive_cmd_fn {
 
         for (expr const & e : params) {
             lean_trace(name({"inductive", "params"}),
-                       tout() << mlocal_name(e) << " (" << local_pp_name(e) << ") : " << mlocal_type(e) << "\n";);
+                       tout() << mlocal_name(e) << " (" << mlocal_pp_name(e) << ") : " << mlocal_type(e) << "\n";);
         }
 
         return ind;
@@ -616,7 +616,7 @@ class inductive_cmd_fn {
         for (expr const & pre_ind : pre_inds) {
             m_pos = m_p.pos();
             expr ind_type; decl_attributes attrs;
-            std::tie(ind_type, attrs) = parse_inner_header(m_p, local_pp_name(pre_ind));
+            std::tie(ind_type, attrs) = parse_inner_header(m_p, mlocal_pp_name(pre_ind));
             check_attrs(attrs);
             m_mut_attrs.push_back(attrs);
             lean_trace(name({"inductive", "parse"}), tout() << mlocal_name(pre_ind) << " : " << ind_type << "\n";);

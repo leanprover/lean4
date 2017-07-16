@@ -879,7 +879,7 @@ struct elim_match_fn {
                             if (curr_type == new_curr_type) {
                                 new_vars.push_back(curr);
                             } else {
-                                expr new_curr = ctx.push_local(local_pp_name(curr), new_curr_type);
+                                expr new_curr = ctx.push_local(mlocal_pp_name(curr), new_curr_type);
                                 from.push_back(curr);
                                 to.push_back(new_curr);
                                 new_vars.push_back(new_curr);

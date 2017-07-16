@@ -52,7 +52,7 @@ list<list<name>> collect_choice_symbols(expr const & e) {
                     if (is_constant(c))
                         cs.push_back(const_name(c));
                     else if (is_local(c))
-                        cs.push_back(local_pp_name(c));
+                        cs.push_back(mlocal_pp_name(c));
                 }
                 if (cs.size() > 1)
                     r.push_back(to_list(cs));

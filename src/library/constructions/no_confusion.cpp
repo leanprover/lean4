@@ -107,7 +107,7 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
                         } else {
                             h_type = mk_app(mk_constant(get_heq_name(), to_list(l)), lhs_type, lhs, rhs_type, rhs);
                         }
-                        rtype_hyp.push_back(mk_local(mk_fresh_name(), local_pp_name(lhs).append_after("_eq"), h_type, binder_info()));
+                        rtype_hyp.push_back(mk_local(mk_fresh_name(), mlocal_pp_name(lhs).append_after("_eq"), h_type, binder_info()));
                     }
                 }
                 inner_cases_on_args.push_back(Fun(minor2_args, mk_arrow(Pi(rtype_hyp, P), Pres)));

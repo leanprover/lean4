@@ -182,12 +182,12 @@ class expr_serializer : public object_serializer<expr, expr_hash, is_bi_equal_pr
                     break;
                 case expr_kind::Meta:
                     lean_assert(!mlocal_name(a).is_anonymous());
-                    s << mlocal_name(a); write_core(mlocal_type(a));
+                    s << mlocal_name(a) << mlocal_pp_name(a); write_core(mlocal_type(a));
                     break;
                 case expr_kind::Local:
                     lean_assert(!mlocal_name(a).is_anonymous());
                     lean_assert(!local_pp_name(a).is_anonymous());
-                    s << mlocal_name(a) << local_pp_name(a) << local_info(a); write_core(mlocal_type(a));
+                    s << mlocal_name(a) << mlocal_pp_name(a) << local_info(a); write_core(mlocal_type(a));
                     break;
                 }
             });
@@ -244,8 +244,9 @@ public:
                     return mk_let(n, t, v, read());
                 }
                 case expr_kind::Meta: {
-                    name n = read_name(d);
-                    return mk_metavar(n, read());
+                    name n    = read_name(d);
+                    name pp_n = read_name(d);
+                    return mk_metavar(n, pp_n, read());
                 }
                 case expr_kind::Local: {
                     name n         = read_name(d);

@@ -123,8 +123,8 @@ expr parse_mutual_definition(parser & p, buffer<name> & lp_names, buffer<expr> &
     buffer<name> full_names;
     for (expr const & pre_fn : pre_fns) {
         // TODO(leo, dhs): make use of attributes
-        expr fn_type = parse_inner_header(p, local_pp_name(pre_fn)).first;
-        declaration_name_scope scope2(local_pp_name(pre_fn));
+        expr fn_type = parse_inner_header(p, mlocal_pp_name(pre_fn)).first;
+        declaration_name_scope scope2(mlocal_pp_name(pre_fn));
         declaration_name_scope scope3("_main");
         full_names.push_back(scope3.get_name());
         if (p.curr_is_token(get_period_tk())) {
@@ -137,7 +137,7 @@ expr parse_mutual_definition(parser & p, buffer<name> & lp_names, buffer<expr> &
             }
             check_valid_end_of_equations(p);
         }
-        expr fn      = mk_local(mlocal_name(pre_fn), local_pp_name(pre_fn), fn_type, mk_rec_info(true));
+        expr fn      = mk_local(mlocal_name(pre_fn), mlocal_pp_name(pre_fn), fn_type, mk_rec_info(true));
         fns.push_back(fn);
     }
     if (p.curr_is_token(get_with_tk()))
@@ -487,7 +487,7 @@ static environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, cmd
         return p.env();
 
     bool recover_from_errors = true;
-    elaborator elab(p.env(), p.get_options(), get_namespace(p.env()) + local_pp_name(fns[0]), metavar_context(), local_context(), recover_from_errors);
+    elaborator elab(p.env(), p.get_options(), get_namespace(p.env()) + mlocal_pp_name(fns[0]), metavar_context(), local_context(), recover_from_errors);
     buffer<expr> new_params;
     elaborate_params(elab, params, new_params);
     val = replace_locals_preserving_pos_info(val, params, new_params);
@@ -529,7 +529,7 @@ static expr_pair parse_definition(parser & p, buffer<name> & lp_names, buffer<ex
         p.next();
         if (is_meta) {
             declaration_name_scope scope2("_main");
-            fn = mk_local(mlocal_name(fn), local_pp_name(fn), mlocal_type(fn), mk_rec_info(true));
+            fn = mk_local(mlocal_name(fn), mlocal_pp_name(fn), mlocal_type(fn), mk_rec_info(true));
             p.add_local(fn);
             val = p.parse_expr();
             /* add fake equation */
@@ -542,7 +542,7 @@ static expr_pair parse_definition(parser & p, buffer<name> & lp_names, buffer<ex
         }
     } else if (p.curr_is_token(get_bar_tk()) || p.curr_is_token(get_period_tk())) {
         declaration_name_scope scope2("_main");
-        fn = mk_local(mlocal_name(fn), local_pp_name(fn), mlocal_type(fn), mk_rec_info(true));
+        fn = mk_local(mlocal_name(fn), mlocal_pp_name(fn), mlocal_type(fn), mk_rec_info(true));
         p.add_local(fn);
         buffer<expr> eqns;
         if (p.curr_is_token(get_period_tk())) {
@@ -686,14 +686,14 @@ static expr elaborate_proof(
 
     try {
         bool recover_from_errors = true;
-        elaborator elab(decl_env, opts, get_namespace(decl_env) + local_pp_name(fn), mctx, lctx, recover_from_errors);
+        elaborator elab(decl_env, opts, get_namespace(decl_env) + mlocal_pp_name(fn), mctx, lctx, recover_from_errors);
 
         expr val, type;
         if (get_profiler(opts)) {
             xtimeit timer(get_profiling_threshold(opts), [&](second_duration duration) {
                 auto msg = message_builder(decl_env, get_global_ios(), file_name, header_pos, INFORMATION);
                 msg.get_text_stream().get_stream()
-                        << "elaboration of " << local_pp_name(fn) << " took " << display_profiling_time{duration} << "\n";
+                        << "elaboration of " << mlocal_pp_name(fn) << " took " << display_profiling_time{duration} << "\n";
                 msg.report();
             });
             std::tie(val, type) = elab.elaborate_with_type(val0, mk_as_is(mlocal_type(fn)));
@@ -707,7 +707,7 @@ static expr elaborate_proof(
         finalize_theorem_proof(elab, params, val, finfo);
         if (is_rfl_lemma && !lean::is_rfl_lemma(final_type, val))
             throw exception("not a rfl-lemma, even though marked as rfl");
-        return inline_new_defs(decl_env, elab.env(), local_pp_name(fn), val);
+        return inline_new_defs(decl_env, elab.env(), mlocal_pp_name(fn), val);
     } catch (exception & ex) {
         /* Remark: we need the catch to be able to produce correct line information */
         message_builder(tc, decl_env, get_global_ios(), file_name, header_pos, ERROR)
@@ -782,7 +782,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, cmd_meta m
 
     auto begin_pos = p.cmd_pos();
     auto end_pos = p.pos();
-    scope_log_tree lt(logtree().mk_child({}, (get_namespace(p.env()) + local_pp_name(fn)).to_string(),
+    scope_log_tree lt(logtree().mk_child({}, (get_namespace(p.env()) + mlocal_pp_name(fn)).to_string(),
                                          {logtree().get_location().m_file_name, {begin_pos, end_pos}}));
 
     // skip elaboration of definitions during reparsing
@@ -790,7 +790,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, cmd_meta m
         return p.env();
 
     bool recover_from_errors = true;
-    elaborator elab(p.env(), p.get_options(), get_namespace(p.env()) + local_pp_name(fn), metavar_context(), local_context(), recover_from_errors);
+    elaborator elab(p.env(), p.get_options(), get_namespace(p.env()) + mlocal_pp_name(fn), metavar_context(), local_context(), recover_from_errors);
     buffer<expr> new_params;
     elaborate_params(elab, params, new_params);
     elab.set_instance_fingerprint();

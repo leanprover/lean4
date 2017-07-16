@@ -479,7 +479,7 @@ meta def compile_expr_to_ir_expr (action : expr â†’ ir_compiler ir.stmt): expr â
   end
 | (expr.var i) := mk_error "there should be no bound variables in compiled terms"
 | (expr.sort _) := mk_error "found sort"
-| (expr.mvar _ _) := mk_error "unexpected meta-variable in expr"
+| (expr.mvar _ _ _) := mk_error "unexpected meta-variable in expr"
 | (expr.local_const n _ _ _) := ir.expr.locl <$> compile_local n
 | (expr.app f x) :=
   let head := expr.get_app_fn (expr.app f x),

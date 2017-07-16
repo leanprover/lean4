@@ -108,9 +108,9 @@ expr mk_binding(unsigned num, expr const * locals, expr const & b, bool use_cach
         expr const & l = locals[i];
         expr t = cache.get_abstract_type(i);
         if (is_lambda)
-            r = mk_lambda(local_pp_name(l), t, r, local_info(l));
+            r = mk_lambda(mlocal_pp_name(l), t, r, local_info(l));
         else
-            r = mk_pi(local_pp_name(l), t, r, local_info(l));
+            r = mk_pi(mlocal_pp_name(l), t, r, local_info(l));
     }
     return r;
 }

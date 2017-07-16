@@ -134,7 +134,7 @@ class mk_has_sizeof_fn {
             // 2. Add extra [has_sizeof] locals for parameters returning sorts
             for (expr const & param : params) {
                 if (auto inst_arg_type = build_has_sizeof_argument_type(param)) {
-                    expr param_inst = locals.push_local(local_pp_name(param).append_after("_inst"), *inst_arg_type, mk_inst_implicit_binder_info());
+                    expr param_inst = locals.push_local(mlocal_pp_name(param).append_after("_inst"), *inst_arg_type, mk_inst_implicit_binder_info());
                     param_insts.push_back(param_inst);
                 }
             }

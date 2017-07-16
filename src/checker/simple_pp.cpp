@@ -112,7 +112,7 @@ struct simple_pp_fn {
     }
 
     result pp_local(expr const & e) {
-        return pp_name(local_pp_name(e));
+        return pp_name(mlocal_pp_name(e));
     }
 
     bool is_implicit(expr const & f) {

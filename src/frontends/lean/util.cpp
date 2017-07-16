@@ -244,9 +244,9 @@ static expr mk_binding_as_is(unsigned num, expr const * locals, expr const & b) 
         expr const & l = locals[i];
         expr t = abstract_locals(mlocal_type(l), i, locals);
         if (is_lambda)
-            r = mk_lambda(local_pp_name(l), mk_as_is(t), r, local_info(l));
+            r = mk_lambda(mlocal_pp_name(l), mk_as_is(t), r, local_info(l));
         else
-            r = mk_pi(local_pp_name(l), mk_as_is(t), r, local_info(l));
+            r = mk_pi(mlocal_pp_name(l), mk_as_is(t), r, local_info(l));
     }
     return r;
 }

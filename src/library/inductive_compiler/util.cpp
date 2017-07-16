@@ -59,7 +59,7 @@ void assert_no_locals(name const & n, expr const & e) {
     lean_trace(name({"debug", "inductive_compiler"}),
                tout() << "\n\nerror: found locals in '" << n << "'\n" << e << "\n";
                for (expr const & l : ls.get_collected()) {
-                   tout() << mlocal_name(l) << "." << local_pp_name(l) << " : " << mlocal_type(l) << "\n";
+                   tout() << mlocal_name(l) << "." << mlocal_pp_name(l) << " : " << mlocal_type(l) << "\n";
                });
     lean_assert(false);
 }

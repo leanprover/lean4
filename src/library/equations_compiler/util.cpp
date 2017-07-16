@@ -140,7 +140,7 @@ unpack_eqns::unpack_eqns(type_context & ctx, expr const & e):
 }
 
 expr unpack_eqns::update_fn_type(unsigned fidx, expr const & type) {
-    expr new_fn = m_locals.push_local(local_pp_name(m_fns[fidx]), type, mk_rec_info(true));
+    expr new_fn = m_locals.push_local(mlocal_pp_name(m_fns[fidx]), type, mk_rec_info(true));
     m_fns[fidx] = new_fn;
     return new_fn;
 }
@@ -863,7 +863,7 @@ void update_telescope(type_context & ctx, buffer<expr> const & vars, expr const 
             if (curr_type == new_curr_type) {
                 new_vars.push_back(curr);
             } else {
-                expr new_curr = ctx.push_local(local_pp_name(curr), new_curr_type);
+                expr new_curr = ctx.push_local(mlocal_pp_name(curr), new_curr_type);
                 from.push_back(curr);
                 to.push_back(new_curr);
                 new_vars.push_back(new_curr);

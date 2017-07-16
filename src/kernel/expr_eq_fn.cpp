@@ -78,12 +78,13 @@ class expr_eq_fn {
         case expr_kind::Meta:
             return
                 mlocal_name(a) == mlocal_name(b) &&
-                apply(mlocal_type(a), mlocal_type(b));
+                apply(mlocal_type(a), mlocal_type(b)) &&
+                (!CompareBinderInfo || mlocal_pp_name(a) == mlocal_pp_name(b));
         case expr_kind::Local:
             return
                 mlocal_name(a) == mlocal_name(b) &&
                 apply(mlocal_type(a), mlocal_type(b)) &&
-                (!CompareBinderInfo || local_pp_name(a) == local_pp_name(b)) &&
+                (!CompareBinderInfo || mlocal_pp_name(a) == mlocal_pp_name(b)) &&
                 (!CompareBinderInfo || local_info(a) == local_info(b));
         case expr_kind::App:
             check_system();

@@ -37,7 +37,7 @@ vm_obj revert(list<expr> const & ls, tactic_state const & s, bool preserve_local
             locals.push_back(l);
         } else {
             return tactic::mk_exception(sstream() << "revert tactic failed, unknown '"
-                                       << local_pp_name(l) << "' hypothesis", s);
+                                       << mlocal_pp_name(l) << "' hypothesis", s);
         }
     }
     tactic_state new_s = revert(locals, s, preserve_locals_order);

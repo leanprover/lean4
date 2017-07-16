@@ -186,7 +186,7 @@ class expr_serializer : public object_serializer<expr, expr_hash, is_bi_equal_pr
                     break;
                 case expr_kind::Local:
                     lean_assert(!mlocal_name(a).is_anonymous());
-                    lean_assert(!local_pp_name(a).is_anonymous());
+                    lean_assert(!mlocal_pp_name(a).is_anonymous());
                     s << mlocal_name(a) << mlocal_pp_name(a) << local_info(a); write_core(mlocal_type(a));
                     break;
                 }

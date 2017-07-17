@@ -1668,8 +1668,9 @@ struct to_pattern_fn {
             return update_app(e, new_f, new_a);
         } else if (is_choice(e)) {
             auto new_e = process_choice(e, e);
-            lean_assert(new_e);
-            if (!is_eqp(*new_e, e)) {
+            if (!new_e) {
+                return m_parser.mk_sorry(m_parser.pos_of(e), true);
+            } else if (!is_eqp(*new_e, e)) {
                 return visit(*new_e);
             } else {
                 buffer<expr> new_args;

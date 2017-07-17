@@ -1,0 +1,2 @@
+1749.lean:5:4: error: invalid pattern, 'choice (vector.cons u1 (vector.cons u2 vector.nil)) (list.cons u1 (list.cons u2 list.nil))' is overloaded, and this kind of overloading is not currently supported in patterns
+1749.lean:5:0: error: equation compiler failed (use 'set_option trace.eqn_compiler.elim_match true' for additional details)

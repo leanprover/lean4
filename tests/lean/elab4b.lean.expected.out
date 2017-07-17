@@ -6,10 +6,14 @@ failed to synthesize type class instance for
 error for foo.f
 function expected at
   f 0 1
+term has type
+  ?m_1
 
 error for boo.f
 function expected at
   f 0 1 2
+term has type
+  ℕ
 Additional information:
 elab4b.lean:9:7: context: switched to basic overload resolution where arguments are elaborated without any information about the expected type because expected type was not available
 elab4b.lean:11:7: error: ambiguous overload, possible interpretations

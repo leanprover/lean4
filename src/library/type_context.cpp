@@ -1238,9 +1238,7 @@ expr type_context::infer_app(expr const & e) {
             f_type = whnf(instantiate_rev(f_type, i-j, args.data()+j));
             if (!is_pi(f_type)) {
                 throw generic_exception(e, [=](formatter const & fmt) {
-                        return format("infer type failed, function expected at") + pp_indent_expr(fmt, e)
-                            + line() + format("term") + pp_indent_expr(fmt, f)
-                            + line() + format("has type") + pp_indent_expr(fmt, f_type);
+                        return format("infer type failed, ") + pp_function_expected(fmt, e, f, f_type);
                     });
             }
             f_type = binding_body(f_type);

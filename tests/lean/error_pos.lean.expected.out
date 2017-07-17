@@ -1,16 +1,26 @@
 error_pos.lean:1:39: error: type expected at
   B
+term has type
+  A → Type
 error_pos.lean:1:0: warning: declaration '[anonymous]' uses sorry
 error_pos.lean:4:43: error: type expected at
   B
+term has type
+  A → Type
 error_pos.lean:9:40: error: type expected at
   B
+term has type
+  A → Type
 λ (A : Type) (B : A → Type) (b : ⁇), true : Π (A : Type), (A → Type) → ⁇ → Prop
 error_pos.lean:11:36: error: type expected at
   B
+term has type
+  A → Type
 λ (A : Type) (B : A → Type), ⁇ → true : Π (A : Type), (A → Type) → Prop
 error_pos.lean:13:43: error: type expected at
   B
+term has type
+  A → Type
 λ (A : Type) (B : A → Type) (b : ⁇), b : Π (A : Type), (A → Type) → ⁇ → ⁇
 error_pos.lean:15:105: error: invalid let-expression, expression
   a₁

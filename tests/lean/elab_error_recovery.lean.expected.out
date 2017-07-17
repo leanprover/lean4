@@ -43,4 +43,6 @@ nat.succ (nat.succ (nat.succ (nat.succ ⁇)))
 2
 elab_error_recovery.lean:22:13: error: type expected at
   0
+term has type
+  ℕ
 ∀ (x : ⁇), x = x : Prop

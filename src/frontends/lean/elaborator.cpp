@@ -153,6 +153,11 @@ auto elaborator::mk_pp_ctx() -> pp_fn {
     return ::lean::mk_pp_ctx(m_ctx.env(), m_opts, m_ctx.mctx(), m_ctx.lctx());
 }
 
+formatter elaborator::mk_fmt_ctx() {
+    auto pp_fn = mk_pp_ctx();
+    return formatter(m_opts, [=](expr const & e, options const &) { return pp_fn(e); });
+}
+
 format elaborator::pp_indent(pp_fn const & pp_fn, expr const & e) {
     unsigned i = get_pp_indent(m_opts);
     return nest(i, line() + pp_fn(e));
@@ -344,7 +349,7 @@ level elaborator::get_level(expr const & A, expr const & ref) {
     }
 
     auto pp_fn = mk_pp_ctx();
-    throw elaborator_exception(ref, format("type expected at") + pp_indent(pp_fn, A));
+    throw elaborator_exception(ref, pp_type_expected(mk_fmt_ctx(), A, &A_type));
 }
 
 level elaborator::replace_univ_placeholder(level const & l) {
@@ -776,8 +781,7 @@ expr elaborator::ensure_function(expr const & e, expr const & ref) {
     if (auto r = mk_coercion_to_fn(e, e_type, ref)) {
         return *r;
     }
-    auto pp_fn = mk_pp_ctx();
-    throw elaborator_exception(ref, format("function expected at") + pp_indent(pp_fn, e));
+    throw elaborator_exception(ref, pp_function_expected(mk_fmt_ctx(), e, e_type));
 }
 
 expr elaborator::ensure_type(expr const & e, expr const & ref) {
@@ -794,8 +798,7 @@ expr elaborator::ensure_type(expr const & e, expr const & ref) {
         return *r;
     }
 
-    auto pp_fn = mk_pp_ctx();
-    report_or_throw(elaborator_exception(ref, format("type expected at") + pp_indent(pp_fn, e)));
+    report_or_throw(elaborator_exception(ref, pp_type_expected(mk_fmt_ctx(), e, &e_type)));
     // only create the metavar if can actually recover from the error
     return mk_sorry(some_expr(mk_sort(mk_univ_metavar())), ref);
 }

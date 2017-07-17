@@ -50,7 +50,7 @@ expr type_checker::ensure_sort_core(expr e, expr const & s) {
     if (is_sort(new_e)) {
         return new_e;
     } else {
-        throw_kernel_exception(m_env, s, [=](formatter const & fmt) { return pp_type_expected(fmt, s); });
+        throw_kernel_exception(m_env, s, [=](formatter const & fmt) { return pp_type_expected(fmt, s, &e); });
     }
 }
 

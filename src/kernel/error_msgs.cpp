@@ -13,12 +13,27 @@ format pp_indent_expr(formatter const & fmt, expr const & e) {
     return nest(get_pp_indent(fmt.get_options()), compose(line(), fmt(e)));
 }
 
-format pp_type_expected(formatter const & fmt, expr const & e) {
-    return compose(format("type expected at"), pp_indent_expr(fmt, e));
+format pp_type_expected(formatter const & fmt, expr const & e, expr const * e_type) {
+    format f = format("type expected at") + pp_indent_expr(fmt, e);
+    if (e_type) {
+        f += line() + format("term has type") + pp_indent_expr(fmt, *e_type);
+    }
+    return f;
 }
 
-format pp_function_expected(formatter const & fmt, expr const & e) {
-    return compose(format("function expected at"), pp_indent_expr(fmt, e));
+format pp_function_expected(formatter const & fmt, expr const & fn) {
+    return format("function expected at") + pp_indent_expr(fmt, fn);
+}
+
+format pp_function_expected(formatter const & fmt, expr const & fn, expr const & fn_type) {
+    return pp_function_expected(fmt, fn) +
+           line() + format("term has type") + pp_indent_expr(fmt, fn_type);
+}
+
+format pp_function_expected(formatter const & fmt, expr const & app, expr const & fn, expr const & fn_type) {
+    return pp_function_expected(fmt, app) +
+            line() + format("term") + pp_indent_expr(fmt, get_app_fn(fn)) +
+            line() + format("has type") + pp_indent_expr(fmt, fn_type);
 }
 
 static list<options> * g_distinguishing_pp_options = nullptr;

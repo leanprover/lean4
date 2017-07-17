@@ -105,6 +105,7 @@ private:
 
     typedef std::function<format(expr const &)> pp_fn;
     pp_fn mk_pp_ctx();
+    formatter mk_fmt_ctx();
     format pp_indent(pp_fn const & pp_fn, expr const & e);
     format pp_indent(expr const & e);
     format pp(expr const & e);

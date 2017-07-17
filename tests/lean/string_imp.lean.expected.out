@@ -3,7 +3,11 @@ string_imp.lean:1:4: error: equation compiler failed (use 'set_option trace.eqn_
 string_imp.lean:5:3: error: invalid pattern: variable, constructor or constant tagged as pattern expected
 string_imp.lean:5:3: error: function expected at
   string_imp.mk
+term has type
+  _
 string_imp.lean:4:4: error: equation compiler failed (use 'set_option trace.eqn_compiler.elim_match true' for additional details)
 string_imp.lean:8:0: error: unknown identifier 'string_imp.cases_on'
 string_imp.lean:8:0: error: function expected at
   ⁇
+term has type
+  ?m_1

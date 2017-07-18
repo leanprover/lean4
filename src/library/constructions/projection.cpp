@@ -114,7 +114,7 @@ public:
             expr s_type = ctx.whnf(ctx.infer(s));
             buffer<expr> args;
             expr const & I = get_app_args(s_type, args);
-            if (!is_constant(I) || length(m_ps) != length(const_levels(I)))
+            if (!is_constant(I) || length(m_ps) != length(const_levels(I)) || const_name(I) != m_I_name)
                 return none_expr();
             expr r = instantiate_univ_params(m_val, m_ps, const_levels(I));
             args.push_back(new_s);

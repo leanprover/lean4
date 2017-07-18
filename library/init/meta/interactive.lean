@@ -383,12 +383,44 @@ precedence `generalizing` : 0
 meta def induction (p : parse texpr) (rec_name : parse using_ident) (ids : parse with_ident_list)
   (revert : parse $ (tk "generalizing" *> ident*)?) : tactic unit :=
 do e ← i_to_expr p,
+
+   -- generalize major premise
    e ← if e.is_local_constant then pure e
    else generalize e >> intro1,
+
+   -- generalize major premise args
+   (e, newvars) ← do {
+      none ← pure rec_name | pure (e, []),
+      t ← infer_type e,
+      -- TODO(Kha): `t ← whnf_ginductive t,`
+      const n _ ← pure t.get_app_fn | pure (e, []),
+      env ← get_env,
+      tt ← pure $ env.is_inductive n | pure (e, []),
+      let nonlocals := (t.get_app_args.drop (env.inductive_num_params n)).filter (λ arg, not arg.is_local_constant),
+      _ :: _ ← pure nonlocals | pure (e, []),
+
+      n ← tactic.revert e,
+      newvars ← nonlocals.mmap $ λ arg, do {
+        n ← revert_kdeps arg,
+        tactic.generalize arg,
+        h ← intro1,
+        intron n,
+        -- now try to clear hypotheses that may have been abstracted away
+        let locals := arg.fold list.nil (λ e _ acc, if e.is_local_constant then e::acc else acc),
+        locals.mfor' (try ∘ clear),
+        pure h
+      },
+      intron (n-1),
+      e ← intro1,
+      pure (e, newvars)
+   },
+
+   -- revert `generalizing` params
    locals ← mmap tactic.get_local $ revert.get_or_else [],
    n ← revert_lst locals,
+
    tactic.induction e ids rec_name,
-   all_goals (intron n)
+   all_goals (intron n; clear_lst (newvars.map local_pp_name))
 
 meta def cases (p : parse texpr) (ids : parse with_ident_list) : tactic unit :=
 do e ← i_to_expr p,

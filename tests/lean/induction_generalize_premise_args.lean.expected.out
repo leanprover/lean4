@@ -1,0 +1,12 @@
+induction_generalize_premise_args.lean:12:2: error: tactic failed, there are unsolved goals
+state:
+c₁ c₂ : com,
+σ : state,
+c₁' : com,
+σ' : state,
+a : smallstep (c₁, σ) (c₂, σ'),
+ih_1 : ∀ (c'₂ : com) (σ'₂ : state), smallstep (c₁, σ) (c'₂, σ'₂) → (c₂, σ') = (c'₂, σ'₂),
+c'₂ : com,
+σ'₂ : state,
+h₂ : smallstep (com.seq c₁ c₂, σ) (c'₂, σ'₂)
+⊢ (com.seq c₁' c₂, σ') = (c'₂, σ'₂)

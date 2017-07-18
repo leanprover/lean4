@@ -165,13 +165,11 @@ section conversion
     simp [bits_to_nat_to_list], clear P,
     unfold bits_to_nat list.foldl,
     -- generalize the accumulator of foldl
-    have : ∀ x, list.foldl add_lsb x (xs ++ [b]) = add_lsb 0 b + list.foldl add_lsb x xs * 2, {
-      simp,
-      induction xs with x xs ; intro y,
-      { simp, unfold list.foldl add_lsb, simp [nat.mul_succ] },
-      { simp, apply ih_1 }
-    },
-    apply this
+    generalize h : 0 = x, conv in (add_lsb x b) { rw ←h }, clear h,
+    simp,
+    induction xs with x xs generalizing x,
+    { simp, unfold list.foldl add_lsb, simp [nat.mul_succ] },
+    { simp, apply ih_1 }
   end
 
   theorem bits_to_nat_to_bool (n : ℕ)
@@ -189,8 +187,7 @@ section conversion
   theorem to_nat_of_nat {k n : ℕ}
   : bitvec.to_nat (bitvec.of_nat k n) = n % 2^k :=
   begin
-    revert n,
-    induction k with k ; intro n,
+    induction k with k generalizing n,
     { unfold pow, simp [nat.mod_one], refl },
     { have h : 0 < 2, { apply le_succ },
       rw [ of_nat_succ

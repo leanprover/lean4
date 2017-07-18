@@ -41,6 +41,8 @@ master branch (aka work in progress branch)
 
 * Non-exhaustive pattern matches now show missing cases.
 
+* `induction e` now also works on non-variable `e`. Unlike `ginduction`, it will not introduce equalities relating `e` to the inductive cases.
+
 *Changes*
 
 * We now have two type classes for converting to string: `has_to_string` and `has_repr`.

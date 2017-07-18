@@ -383,6 +383,8 @@ precedence `generalizing` : 0
 meta def induction (p : parse texpr) (rec_name : parse using_ident) (ids : parse with_ident_list)
   (revert : parse $ (tk "generalizing" *> ident*)?) : tactic unit :=
 do e ← i_to_expr p,
+   e ← if e.is_local_constant then pure e
+   else generalize e >> intro1,
    locals ← mmap tactic.get_local $ revert.get_or_else [],
    n ← revert_lst locals,
    tactic.induction e ids rec_name,

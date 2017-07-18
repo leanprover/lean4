@@ -440,9 +440,8 @@ struct cases_tactic_fn {
                 auto s = mk_tactic_state(mvar);
                 throw cases_tactic_exception {
                     tactic::mk_exception([=] () {
-                        return format("cases tactic failed, unsupported equality") + line()
-                            + format("(only equalities between constructors and/or variables are") + line()
-                            + format("supported, try cases on the indices):") + line()
+                        return format("cases tactic failed, unsupported equality between type and constructor indices") + line()
+                            + format("(only equalities between constructors and/or variables are supported, try cases on the indices):") + line()
                             + s.pp_expr(H_type) + line();
                     }, s)
                 };

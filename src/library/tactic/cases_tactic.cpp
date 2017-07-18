@@ -24,9 +24,8 @@ Author: Leonardo de Moura
 #include "library/tactic/subst_tactic.h"
 
 namespace lean {
-struct cases_tactic_exception : public exception {
-    tactic_state m_state;
-    cases_tactic_exception(tactic_state const & s, char const * msg):exception(msg), m_state(s) {}
+struct cases_tactic_exception {
+    vm_obj m_tactic_exception;
 };
 
 struct cases_tactic_fn {
@@ -60,9 +59,13 @@ struct cases_tactic_fn {
         throw exception("tactic cases failed, unexpected inductive datatype type");
     }
 
+    tactic_state mk_tactic_state(expr const & mvar) {
+        return mk_tactic_state_for_metavar(m_env, m_opts, "cases", m_mctx, mvar);
+    }
+
     /* throw exception that stores the intermediate state */
     [[ noreturn ]] void throw_exception(expr const & mvar, char const * msg) {
-        throw cases_tactic_exception(mk_tactic_state_for_metavar(m_env, m_opts, "cases", m_mctx, mvar), msg);
+        throw cases_tactic_exception { tactic::mk_exception(msg, mk_tactic_state(mvar)) };
     }
 
     #define lean_cases_trace(MVAR, CODE) lean_trace(name({"tactic", "cases"}), type_context TMP_CTX = mk_type_context_for(MVAR); scope_trace_env _scope1(m_env, TMP_CTX); CODE)
@@ -238,8 +241,7 @@ struct cases_tactic_fn {
     }
 
     format pp_goal(expr const & mvar) {
-        tactic_state tmp = mk_tactic_state_for_metavar(m_env, m_opts, "cases", m_mctx, mvar);
-        return tmp.pp_goal(mvar);
+        return mk_tactic_state(mvar).pp_goal(mvar);
     }
 
     list<expr> elim_aux_indices(list<expr> const & goals, buffer<name> const & aux_indices_H, hsubstitution_list & slist) {
@@ -435,7 +437,15 @@ struct cases_tactic_fn {
                         return none_expr();
                     }
                 }
-                throw_exception(mvar, "cases tactic failed, unsupported equality");
+                auto s = mk_tactic_state(mvar);
+                throw cases_tactic_exception {
+                    tactic::mk_exception([=] () {
+                        return format("cases tactic failed, unsupported equality") + line()
+                            + format("(only equalities between constructors and/or variables are") + line()
+                            + format("supported, try cases on the indices):") + line()
+                            + s.pp_expr(H_type) + line();
+                    }, s)
+                };
             }
         } else {
             throw_exception(mvar, "cases tactic failed, equality expected");
@@ -500,7 +510,7 @@ struct cases_tactic_fn {
         lean_assert(is_metavar(mvar));
         lean_assert(m_mctx.find_metavar_decl(mvar));
         if (!is_local(H))
-            throw exception("cases tactic failed, argumen must be a hypothesis");
+            throw exception("cases tactic failed, argument must be a hypothesis");
         if (!is_cases_applicable(mvar, H))
             throw exception("cases tactic failed, it is not applicable to the given hypothesis");
         list<name> cname_list = get_ginductive_intro_rules(m_env, m_I_decl.get_name());
@@ -573,7 +583,7 @@ vm_obj tactic_cases_core(vm_obj const & H, vm_obj const & ns, vm_obj const & m, 
         }
         return tactic::mk_success(to_obj(info_objs), set_mctx_goals(s, mctx, append(info.first, tail(s.goals()))));
     } catch (cases_tactic_exception & ex) {
-        return tactic::mk_exception(ex.what(), ex.m_state);
+        return ex.m_tactic_exception;
     } catch (exception & ex) {
         return tactic::mk_exception(ex, s);
     }

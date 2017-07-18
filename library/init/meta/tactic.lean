@@ -1005,8 +1005,7 @@ meta def by_cases (e : expr) (h : name) : tactic unit :=
 do dec_e ← (mk_app `decidable [e] <|> fail "by_cases tactic failed, type is not a proposition"),
    inst  ← (mk_instance dec_e <|> fail "by_cases tactic failed, type of given expression is not decidable"),
    t     ← target,
-   tm    ← (mk_mapp `dite [some e, some inst, some t] <|>
-     fail "by_cases tactic failed, type of given expression is not decidable"),
+   tm    ← mk_mapp `dite [some e, some inst, some t],
    seq (apply tm) (intro h >> skip)
 
 private meta def get_undeclared_const (env : environment) (base : name) : ℕ → name | i :=

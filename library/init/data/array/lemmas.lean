@@ -129,12 +129,10 @@ def read_foreach_aux (f : fin n → α → α) (ai : array α n) :
 | (i+1) hi a ⟨j, hj⟩ ji := begin
   dsimp [iterate_aux], dsimp at ji,
   change ite _ _ _ = _,
-  by_cases (⟨i, hi⟩ : fin _) = ⟨j, hj⟩ with e,
-  { simp [e, if_pos] },
-  { simp [if_neg e],
-    rw [read_foreach_aux _ _ _ ⟨j, hj⟩],
-    exact (lt_or_eq_of_le (nat.le_of_lt_succ ji)).resolve_right
-      (ne.symm $ mt (@fin.eq_of_veq _ ⟨i, hi⟩ ⟨j, hj⟩) e) }
+  by_cases (⟨i, hi⟩ : fin _) = ⟨j, hj⟩ with e; simp [e],
+  rw [read_foreach_aux _ _ _ ⟨j, hj⟩],
+  exact (lt_or_eq_of_le (nat.le_of_lt_succ ji)).resolve_right
+    (ne.symm $ mt (@fin.eq_of_veq _ ⟨i, hi⟩ ⟨j, hj⟩) e)
 end
 
 def read_foreach (a : array α n) (f : fin n → α → α) (i : fin n) :

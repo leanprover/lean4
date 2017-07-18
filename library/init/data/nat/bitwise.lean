@@ -5,7 +5,7 @@ Author: Mario Carneiro
 -/
 
 prelude
-import .lemmas init.meta.well_founded_tactics
+import init.data.nat.lemmas init.meta.well_founded_tactics
 
 universe u
 
@@ -203,19 +203,17 @@ namespace nat
     binary_rec z f (bit b n) = f b n (binary_rec z f n) :=
   begin
     rw [binary_rec],
-    by_cases (bit b n = 0) with h',
-    {simp [dif_pos h'],
-     generalize (binary_rec._main._pack._proof_1 (bit b n) h') e,
-     have bf := bodd_bit b n,
-     have n0 := div2_bit b n,
-     rw h' at bf n0,
-     simp at bf n0,
-     rw [← bf, ← n0, binary_rec_zero],
-     intros, exact h.symm },
-    {simp [dif_neg h'],
-     generalize (binary_rec._main._pack._proof_2 (bit b n)) e,
-     rw [bodd_bit, div2_bit],
-     intros, refl}
+    by_cases bit b n = 0 with h'; simp [h'],
+    { generalize (binary_rec._main._pack._proof_1 (bit b n) h') e,
+      have bf := bodd_bit b n,
+      have n0 := div2_bit b n,
+      rw h' at bf n0,
+      simp at bf n0,
+      rw [← bf, ← n0, binary_rec_zero],
+      intros, exact h.symm },
+    { generalize (binary_rec._main._pack._proof_2 (bit b n)) e,
+      rw [bodd_bit, div2_bit],
+      intros, refl }
   end
 
   lemma bitwise_bit_aux {f : bool → bool → bool} (h : f ff ff = ff) :

@@ -13,8 +13,11 @@ format pp_type_expected(formatter const & fmt, expr const & e, expr const * fn_t
 format pp_function_expected(formatter const & fmt, expr const & fn);
 format pp_function_expected(formatter const & fmt, expr const & fn, expr const & fn_type);
 format pp_function_expected(formatter const & fmt, expr const & app, expr const & fn, expr const & fn_type);
-format pp_app_type_mismatch(formatter const & fmt, expr const & app, expr const & fn_type, expr const & arg, expr const & given_type, bool as_error);
-format pp_def_type_mismatch(formatter const & fmt, name const & n, expr const & expected_type, expr const & given_type, bool as_error);
+format pp_type_mismatch(formatter const & fmt, expr const & given_type, expr const & expected_type);
+format pp_type_mismatch(formatter const & fmt, expr const & e, expr const & e_type, expr const & expected_type);
+format pp_app_type_mismatch(formatter const & fmt, expr const & app, expr const & fn_type, expr const & arg,
+                            expr const & given_type);
+format pp_def_type_mismatch(formatter const & fmt, name const & n, expr const & expected_type, expr const & given_type);
 format pp_decl_has_metavars(formatter const & fmt, name const & n, expr const & e, bool is_type);
 
 /** \brief Set a list extra configuration options that are used to try to distinguish error such as given/expected type mismatch
@@ -27,7 +30,7 @@ list<options> const & get_distinguishing_pp_options();
 
 expr erase_binder_info(expr const & e);
 
-std::tuple<format, format> pp_until_different(formatter const & fmt, expr const & e1, expr const & e2);
+std::tuple<formatter, format, format> pp_until_different(formatter const & fmt, expr const & e1, expr const & e2);
 format pp_until_meta_visible(formatter const & fmt, expr const & e);
 
 void initialize_error_msgs();

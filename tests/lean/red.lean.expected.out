@@ -1,4 +1,4 @@
-red.lean:9:19: error: type mismatch, expression
+red.lean:9:19: error: type mismatch, term
   rfl
 has type
   ?m_2 = ?m_2

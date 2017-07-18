@@ -1,4 +1,4 @@
-crash.lean:9:17: error: invalid have-expression, expression
+crash.lean:9:17: error: invalid have-expression, term
   H
 has type
   P

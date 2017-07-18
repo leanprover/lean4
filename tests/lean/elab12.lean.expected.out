@@ -26,7 +26,7 @@ elab12.lean:5:2: error: function expected at
 term has type
   a = a
 λ (a : ℕ), have H : a = a, from ⁇, ⁇ : ∀ (a : ℕ), a = a
-elab12.lean:7:47: error: invalid have-expression, expression
+elab12.lean:7:47: error: invalid have-expression, term
   a + 0
 has type
   ℕ

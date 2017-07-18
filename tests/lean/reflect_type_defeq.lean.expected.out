@@ -1,4 +1,4 @@
-reflect_type_defeq.lean:2:0: error: equation type mismatch, expression
+reflect_type_defeq.lean:2:0: error: equation type mismatch, term
   x
 has type
   reflected 3

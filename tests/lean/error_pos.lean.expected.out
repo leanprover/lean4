@@ -22,13 +22,13 @@ error_pos.lean:13:43: error: type expected at
 term has type
   A → Type
 λ (A : Type) (B : A → Type) (b : ⁇), b : Π (A : Type), (A → Type) → ⁇ → ⁇
-error_pos.lean:15:105: error: invalid let-expression, expression
+error_pos.lean:15:105: error: invalid let-expression, term
   a₁
 has type
   B
 but is expected to have type
   A
-error_pos.lean:15:133: error: invalid let-expression, expression
+error_pos.lean:15:133: error: invalid let-expression, term
   a₂
 has type
   B

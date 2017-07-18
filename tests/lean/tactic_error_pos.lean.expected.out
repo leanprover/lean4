@@ -1,4 +1,4 @@
-tactic_error_pos.lean:3:9: error: invalid type ascription, expression has type
+tactic_error_pos.lean:3:9: error: invalid type ascription, term has type
   ?m_1 ∨ ?m_2
 but is expected to have type
   p ∧ q

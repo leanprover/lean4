@@ -896,18 +896,6 @@ expr mk_nary_app(expr const & op, unsigned num_nary_args, expr const * nary_args
     return e;
 }
 
-format pp_type_mismatch(formatter const & fmt, expr const & v, expr const & v_type, expr const & t) {
-    format expected_fmt, given_fmt;
-    std::tie(expected_fmt, given_fmt) = pp_until_different(fmt, t, v_type);
-    format r("type mismatch at term");
-    r += pp_indent_expr(fmt, v);
-    r += compose(line(), format("has type"));
-    r += given_fmt;
-    r += compose(line(), format("but is expected to have type"));
-    r += expected_fmt;
-    return r;
-}
-
 bool is_annotated_lamba(expr const & e) {
     return
         is_lambda(e) ||

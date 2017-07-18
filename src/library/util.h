@@ -154,11 +154,6 @@ expr update_result_sort(expr t, level const & l);
 
 expr instantiate_univ_param (expr const & e, name const & p, level const & l);
 
-/** \brief Create a format object for a type mismatch where typeof(v) (i.e., v_type) does not match
-    expected type \c t. */
-format pp_type_mismatch(formatter const & fmt, expr const & v, expr const & v_type, expr const & t);
-
-
 expr mk_true();
 bool is_true(expr const & e);
 expr mk_true_intro();

@@ -1,5 +1,5 @@
 ff_byte.lean:1:0: error: unexpected token
-ff_byte.lean:5:19: error: type mismatch, expression
+ff_byte.lean:5:19: error: type mismatch, term
   trivial
 has type
   true

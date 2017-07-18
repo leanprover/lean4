@@ -38,12 +38,7 @@ static vm_obj eval(expr const & A, expr a, tactic_state const & s) {
             return tactic::mk_exception([=]() {
                 io_state_stream ios = tout();
                 formatter fmt = ios.get_formatter();
-
-                format expected_fmt, given_fmt;
-                std::tie(expected_fmt, given_fmt) = pp_until_different(fmt, A, given_type);
-                return format("type error at eval_expr, argument has type '") + given_fmt +
-                    compose(line(), format("but is expected to have type")) +
-                    expected_fmt;
+                return format("type error at eval_expr, argument ") + pp_type_mismatch(fmt, given_type, A);
             }, s);
         } catch (kernel_exception & ex) {
             /* We use nested_exception_without_pos to make sure old position information nested in 'a' is not used

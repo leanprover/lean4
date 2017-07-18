@@ -7,7 +7,7 @@ bla.f 1 : ℕ
 boo.f 1 : bool
 elab11.lean:16:8: error: none of the overloads are applicable
 error for bla.f
-invalid overload, expression
+invalid overload, term
   f 1
 has type
   ℕ
@@ -15,7 +15,7 @@ but is expected to have type
   string
 
 error for boo.f
-invalid overload, expression
+invalid overload, term
   f 1
 has type
   bool
@@ -27,7 +27,7 @@ elab11.lean:16:8: context: switched to basic overload resolution where arguments
 this can happen because, for example, coercions were not considered in the process
 none of the overloads are applicable
 error for bla.f
-type mismatch
+type mismatch, term
   f ?m_1
 has type
   ℕ
@@ -35,7 +35,7 @@ but is expected to have type
   string
 
 error for boo.f
-type mismatch
+type mismatch, term
   f ?m_1
 has type
   bool

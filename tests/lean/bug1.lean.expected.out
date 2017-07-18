@@ -1,16 +1,16 @@
-bug1.lean:9:3: error: type mismatch, expression
+bug1.lean:9:3: error: type mismatch, term
   λ (c : bool) (H : p → q → c), H H1 H2
 has type
   ∀ (c : bool), (p → q → c) → c
 but is expected to have type
   a
-bug1.lean:13:3: error: type mismatch, expression
+bug1.lean:13:3: error: type mismatch, term
   λ (c : bool) (H : p → q → c), H H1 H2
 has type
   ∀ (c : bool), (p → q → c) → c
 but is expected to have type
   p ∧ p
-bug1.lean:17:3: error: type mismatch, expression
+bug1.lean:17:3: error: type mismatch, term
   λ (c : bool) (H : p → q → c), H H1 H2
 has type
   ∀ (c : bool), (p → q → c) → c

@@ -1,4 +1,4 @@
-minimize_errors.lean:2:0: error: type mismatch, expression
+minimize_errors.lean:2:0: error: type mismatch, term
   λ (a : ℕ), a
 has type
   ℕ → ℕ

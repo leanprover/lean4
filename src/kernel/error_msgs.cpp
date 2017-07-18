@@ -59,34 +59,51 @@ expr erase_binder_info(expr const & e) {
         });
 }
 
-static std::tuple<format, format> pp_until_different(formatter const & fmt, expr const & e1, expr const & e2, list<options> extra) {
-    formatter fmt1 = fmt;
+static std::tuple<formatter, format, format> pp_until_different(formatter const & _fmt, expr const & e1, expr const & e2, list<options> extra) {
+    formatter fmt(_fmt);
     expr n_e1 = erase_binder_info(e1);
     expr n_e2 = erase_binder_info(e2);
     while (true) {
-        format r1 = pp_indent_expr(fmt1, n_e1);
-        format r2 = pp_indent_expr(fmt1, n_e2);
-        if (!format_pp_eq(r1, r2, fmt1.get_options()))
-            return mk_pair(pp_indent_expr(fmt1, e1), pp_indent_expr(fmt1, e2));
+        format r1 = pp_indent_expr(fmt, n_e1);
+        format r2 = pp_indent_expr(fmt, n_e2);
+        if (!format_pp_eq(r1, r2, fmt.get_options()))
+            return std::make_tuple(fmt, pp_indent_expr(fmt, e1), pp_indent_expr(fmt, e2));
         if (!extra)
-            return mk_pair(pp_indent_expr(fmt, e1), pp_indent_expr(fmt, e2));
+            return std::make_tuple(_fmt, pp_indent_expr(_fmt, e1), pp_indent_expr(_fmt, e2));
         options o = join(head(extra), fmt.get_options());
-        fmt1  = fmt.update_options(o);
+        fmt   = fmt.update_options(o);
         extra = tail(extra);
     }
 }
 
-std::tuple<format, format> pp_until_different(formatter const & fmt, expr const & e1, expr const & e2) {
+std::tuple<formatter, format, format> pp_until_different(formatter const & fmt, expr const & e1, expr const & e2) {
     return pp_until_different(fmt, e1, e2, *g_distinguishing_pp_options);
 }
 
-format pp_app_type_mismatch(formatter const & _fmt, expr const & app, expr const & fn_type, expr const & arg, expr const & given_type, bool as_error) {
+format pp_type_mismatch(formatter const & _fmt, expr const & given_type, expr const & expected_type) {
     formatter fmt(_fmt);
-    format r;
     format expected_fmt, given_fmt;
+    std::tie(fmt, expected_fmt, given_fmt) = pp_until_different(fmt, expected_type, given_type);
+    format r;
+    r += format("has type");
+    r += given_fmt;
+    r += compose(line(), format("but is expected to have type"));
+    r += expected_fmt;
+    return r;
+}
+
+format pp_type_mismatch(formatter const & fmt, expr const & e, expr const & e_type, expr const & expected_type) {
+    format r;
+    r += pp_indent_expr(fmt, e);
+    r += line() + pp_type_mismatch(fmt, e_type, expected_type);
+    return r;
+}
+
+format pp_app_type_mismatch(formatter const & _fmt, expr const & app, expr const & fn_type, expr const & arg, expr const & given_type) {
+    formatter fmt(_fmt);
     lean_assert(is_pi(fn_type));
     if (!is_explicit(binding_info(fn_type))) {
-        // For implicit arguments to be shown if argument is implicit
+        // Force implicit arguments to be shown if argument is implicit
         options opts = fmt.get_options();
         // TODO(Leo): this is hackish, the option is defined in the folder library
         opts = opts.update_if_undef(name{"pp", "implicit"}, true);
@@ -101,38 +118,19 @@ format pp_app_type_mismatch(formatter const & _fmt, expr const & app, expr const
         fmt = fmt.update_options(opts);
     }
     expr expected_type = binding_domain(fn_type);
-    std::tie(expected_fmt, given_fmt) = pp_until_different(fmt, expected_type, given_type);
-    if (as_error)
-        r += format("type mismatch at application");
-    else
-        r += format("application type constraint");
+    format r;
+    r += format("type mismatch at application");
     r += pp_indent_expr(fmt, app);
-    r += compose(line(), format("term"));
-    r += pp_indent_expr(fmt, arg);
-    r += compose(line(), format("has type"));
-    r += given_fmt;
-    if (as_error) {
-        r += compose(line(), format("but is expected to have type"));
-        r += expected_fmt;
-    }
+    r += line () + format("term") + pp_type_mismatch(fmt, arg, given_type, expected_type);
     return r;
 }
 
-format pp_def_type_mismatch(formatter const & fmt, name const & n, expr const & expected_type, expr const & given_type, bool as_error) {
-    format expected_fmt, given_fmt;
-    std::tie(expected_fmt, given_fmt) = pp_until_different(fmt, expected_type, given_type);
+format pp_def_type_mismatch(formatter const & fmt, name const & n, expr const & expected_type, expr const & given_type) {
     format r;
-    if (as_error)
-        r += format("type mismatch at definition '");
-    else
-        r += format("definition type constraint '");
+    r += format("type mismatch at definition '");
     r += format(n);
-    r += format("', has type");
-    r += given_fmt;
-    if (as_error) {
-        r += compose(line(), format("but is expected to have type"));
-        r += expected_fmt;
-    }
+    r += format("', ");
+    r += pp_type_mismatch(fmt, given_type, expected_type);
     return r;
 }
 

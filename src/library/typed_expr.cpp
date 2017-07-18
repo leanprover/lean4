@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include "kernel/error_msgs.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/abstract_type_context.h"
 #include "library/util.h"
@@ -44,10 +45,9 @@ public:
             ctx.check(given_type, infer_only);
             expr inferred_type = ctx.check(macro_arg(m, 1), infer_only);
             if (!ctx.is_def_eq(inferred_type, given_type)) {
-                throw_kernel_exception(ctx.env(), m,
-                                       [=](formatter const & fmt) {
-                                           return pp_type_mismatch(fmt, macro_arg(m, 1), inferred_type, given_type);
-                                       });
+                throw_kernel_exception(ctx.env(), m, [=](formatter const & fmt) {
+                    return format("type mismatch at term") + pp_type_mismatch(fmt, macro_arg(m, 1), inferred_type, given_type);
+                });
             }
         }
         return given_type;

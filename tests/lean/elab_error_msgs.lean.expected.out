@@ -1,5 +1,5 @@
 elab_error_msgs.lean:2:0: error: type mismatch at application
-  and.rec (λ (ha : ?m_1) (hb : ?m_2) (hb : ?m_3[ha, hb]), ha)
+  and.rec (λ (ha : ?m_1) (hb : ?m_2) (hb : ?m_4[ha, hb]), ha)
 term
   λ (ha : ?m_1) (hb : ?m_2) (hb : ?m_3[ha, hb]), ha
 has type

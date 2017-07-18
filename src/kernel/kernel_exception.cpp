@@ -15,7 +15,7 @@ namespace lean {
 format kernel_exception::pp(formatter const &) const { return format(what()); }
 
 format definition_type_mismatch_exception::pp(formatter const & fmt) const {
-    return pp_def_type_mismatch(fmt, m_decl.get_name(), m_decl.get_type(), m_given_type, true);
+    return pp_def_type_mismatch(fmt, m_decl.get_name(), m_decl.get_type(), m_given_type);
 }
 
 class generic_kernel_exception : public kernel_exception {

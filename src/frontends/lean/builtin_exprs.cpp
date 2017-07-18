@@ -202,29 +202,6 @@ static expr parse_let_expr(parser_state & p, unsigned, expr const *, pos_info co
 
 static name * g_do_match_name = nullptr;
 
-static expr fix_do_action_lhs(parser_state & p, expr const & lhs, expr const & type, pos_info const & lhs_pos,
-                              buffer<expr> & new_locals) {
-    // Hack
-    if ((is_placeholder(lhs)) ||
-        (is_constant(lhs) && !inductive::is_intro_rule(p.env(), const_name(lhs))) ||
-        (is_local(lhs))) {
-        expr new_lhs;
-        if (is_placeholder(lhs)) {
-            new_lhs = mk_local("_x", type);
-        } else if (is_constant(lhs)) {
-            new_lhs = mk_local(name(const_name(lhs).get_string()), type);
-        } else {
-            new_lhs = mk_local(mlocal_pp_name(lhs), type);
-        }
-        new_lhs = p.save_pos(new_lhs, lhs_pos);
-        new_locals.clear();
-        new_locals.push_back(new_lhs);
-        return new_lhs;
-    } else {
-        return lhs;
-    }
-}
-
 static std::tuple<optional<expr>, expr, expr, optional<expr>> parse_do_action(parser_state & p, buffer<expr> & new_locals) {
     auto lhs_pos = p.pos();
     optional<expr> lhs = some(p.parse_pattern_or_expr());
@@ -233,20 +210,22 @@ static std::tuple<optional<expr>, expr, expr, optional<expr>> parse_do_action(pa
     if (p.curr_is_token(get_colon_tk())) {
         p.next();
         type = p.parse_expr();
-        lhs  = fix_do_action_lhs(p, *lhs, type, lhs_pos, new_locals);
+        if (is_placeholder(*lhs)) {
+            lhs = mk_local("_x", type);
+        }
         if (!is_local(*lhs)) {
             p.maybe_throw_error({"invalid 'do' block, unexpected ':' the left hand side is a pattern", lhs_pos});
         }
+        lhs = p.save_pos(mk_local(mlocal_pp_name(*lhs), type), lhs_pos);
+        new_locals.clear();
+        new_locals.push_back(*lhs);
         p.check_token_next(get_larrow_tk(), "invalid 'do' block, '←' expected");
         curr = p.parse_expr();
     } else if (p.curr_is_token(get_larrow_tk())) {
         p.next();
         type = p.save_pos(mk_expr_placeholder(), lhs_pos);
-        lhs  = fix_do_action_lhs(p, *lhs, type, lhs_pos, new_locals);
-        if (!is_local(*lhs)) {
-            bool skip_main_fn = false;
-            lhs = p.patexpr_to_pattern(*lhs, skip_main_fn, new_locals);
-        }
+        bool skip_main_fn = false;
+        lhs = p.patexpr_to_pattern(*lhs, skip_main_fn, new_locals);
         curr = p.parse_expr();
         if (p.curr_is_token(get_bar_tk())) {
             p.next();

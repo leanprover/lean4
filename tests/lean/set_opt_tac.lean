@@ -8,8 +8,8 @@ by do
   set_bool_option `pp.all tt,
   trace "after pp.all true",
   trace t,
-  rfl ← mk_const `rfl,
-  apply rfl
+  rfl_e ← mk_const `rfl,
+  apply rfl_e
 
 #print "set_bool_option tactic does not affect other commands"
 #check (0:nat) + 1

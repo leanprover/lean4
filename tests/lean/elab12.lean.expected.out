@@ -9,10 +9,6 @@ term has type
 Additional information:
 elab12.lean:1:41: context: switched to simple application elaboration procedure because failed to use expected type to elaborate it, error message
   too many arguments
-elab12.lean:2:2: error: function expected at
-  H
-term has type
-  ⁇
 λ (a : ℕ), have H : ⁇, from ⁇, ⁇ : ∀ (a : ℕ), a = a
 elab12.lean:4:45: error: function expected at
   rfl

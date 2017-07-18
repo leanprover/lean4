@@ -8,9 +8,3 @@ context:
 A : Type u,
 x : A
 ⊢ Type ?
-emptyc_errors.lean:5:0: error: type mismatch, term
-  λ (h : x ∈ ∅), h
-has type
-  x ∈ ∅ → x ∈ ∅
-but is expected to have type
-  x ∉ ∅

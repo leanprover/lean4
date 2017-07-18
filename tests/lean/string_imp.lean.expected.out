@@ -7,7 +7,4 @@ term has type
   _
 string_imp.lean:4:4: error: equation compiler failed (use 'set_option trace.eqn_compiler.elim_match true' for additional details)
 string_imp.lean:8:0: error: unknown identifier 'string_imp.cases_on'
-string_imp.lean:8:0: error: function expected at
-  ⁇
-term has type
-  ?m_1
+string_imp.lean:7:0: warning: declaration 'h' uses sorry

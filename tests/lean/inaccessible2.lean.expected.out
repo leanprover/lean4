@@ -8,14 +8,6 @@ inaccessible2.lean:11:4: error: function expected at
   f
 term has type
   ?m_1
-inaccessible2.lean:11:11: error: function expected at
-  ⁇
-term has type
-  ?m_1
-inaccessible2.lean:11:2: error: function expected at
-  inv_3 .?m_1 ⁇
-term has type
-  A
 inaccessible2.lean:11:46: error: ill-formed match/equations expression
 inaccessible2.lean:11:46: error: command expected
 inaccessible2.lean:14:13: error: invalid pattern, in a constructor application, the parameters of the inductive datatype must be marked as inaccessible

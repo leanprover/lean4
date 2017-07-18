@@ -703,9 +703,10 @@ expr elaborator::enforce_type(expr const & e, expr const & expected_type, char c
     if (auto r = ensure_has_type(e, e_type, expected_type, ref)) {
         return *r;
     } else {
-        return recoverable_error(some(expected_type), ref,
-                                 elaborator_exception(ref, format(header) + format(", term") +
-                                         pp_type_mismatch(mk_fmt_ctx(), e, e_type, expected_type)));
+        auto exc = elaborator_exception(ref, format(header) + format(", term") +
+                pp_type_mismatch(mk_fmt_ctx(), e, e_type, expected_type))
+                .ignore_if(has_synth_sorry({e, e_type, expected_type}));
+        return recoverable_error(some(expected_type), ref, exc);
     }
 }
 
@@ -761,7 +762,8 @@ expr elaborator::ensure_function(expr const & e, expr const & ref) {
     if (auto r = mk_coercion_to_fn(e, e_type, ref)) {
         return *r;
     }
-    throw elaborator_exception(ref, pp_function_expected(mk_fmt_ctx(), e, e_type));
+    throw elaborator_exception(ref, pp_function_expected(mk_fmt_ctx(), e, e_type))
+            .ignore_if(has_synth_sorry({e, e_type}));
 }
 
 expr elaborator::ensure_type(expr const & e, expr const & ref) {

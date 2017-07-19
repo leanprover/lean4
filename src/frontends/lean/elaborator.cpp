@@ -926,7 +926,7 @@ void elaborator::save_identifier_info(expr const & f) {
     }
 }
 
-expr elaborator::visit_function(expr const & fn, bool has_args, expr const & ref) {
+expr elaborator::visit_function(expr const & fn, bool has_args, optional<expr> const & expected_type, expr const & ref) {
     if (is_placeholder(fn)) {
         throw elaborator_exception(ref, "placeholders '_' cannot be used where a function is expected");
     }
@@ -940,12 +940,12 @@ expr elaborator::visit_function(expr const & fn, bool has_args, expr const & ref
     case expr_kind::Sort:
         throw elaborator_exception(ref, "invalid application, function expected");
     // The expr_kind::App case can only happen when nary notation is used
-    case expr_kind::App:       r = visit(fn, none_expr()); break;
+    case expr_kind::App:       r = visit(fn, expected_type); break;
     case expr_kind::Local:     r = fn; break;
     case expr_kind::Constant:  r = visit_const_core(fn); break;
-    case expr_kind::Macro:     r = visit_macro(fn, none_expr(), true); break;
-    case expr_kind::Lambda:    r = visit_lambda(fn, none_expr()); break;
-    case expr_kind::Let:       r = visit_let(fn, none_expr()); break;
+    case expr_kind::Macro:     r = visit_macro(fn, expected_type, true); break;
+    case expr_kind::Lambda:    r = visit_lambda(fn, expected_type); break;
+    case expr_kind::Let:       r = visit_let(fn, expected_type); break;
     }
     save_identifier_info(r);
     if (has_args)
@@ -1670,7 +1670,7 @@ expr elaborator::visit_overloaded_app_core(buffer<expr> const & fns, buffer<expr
             // Restore state
             S.restore(*this);
             bool has_args = !args.empty();
-            expr new_fn   = visit_function(fn, has_args, ref);
+            expr new_fn   = visit_function(fn, has_args, has_args ? none_expr() : expected_type, ref);
             expr c        = visit_overload_candidate(new_fn, new_args, expected_type, ref);
             synthesize_type_class_instances();
 
@@ -1730,7 +1730,7 @@ expr elaborator::visit_overloaded_app_with_expected(buffer<expr> const & fns, bu
             // Restore state
             S.restore(*this);
             bool has_args = !args.empty();
-            expr new_fn   = visit_function(fn, has_args, ref);
+            expr new_fn   = visit_function(fn, has_args, has_args ? none_expr() : some(expected_type), ref);
             first_pass_info info;
             first_pass(new_fn, args, expected_type, ref, info);
             candidates.emplace_back(new_fn, snapshot(*this), info);
@@ -1914,7 +1914,7 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
                     new_args.push_back(copy_tag(fn, std::move(coerced_s)));
                     for (; i < args.size(); i++)
                         new_args.push_back(args[i]);
-                    expr new_proj = visit_function(proj, has_args, ref);
+                    expr new_proj = visit_function(proj, has_args, has_args ? none_expr() : expected_type, ref);
                     return visit_base_app(new_proj, amask, new_args, expected_type, ref);
                 } else {
                     if (i >= args.size()) {
@@ -1931,7 +1931,7 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
                                    << field_res.get_full_fname() << "' does not have explicit argument with type ("
                                    << field_res.m_base_S_name << " ...)");
     } else {
-        expr new_fn = visit_function(fn, has_args, ref);
+        expr new_fn = visit_function(fn, has_args, has_args ? none_expr() : expected_type, ref);
         /* Check if we should use a custom elaboration procedure for this application. */
         if (is_constant(new_fn) && amask == arg_mask::Default) {
             if (auto info = use_elim_elab(const_name(new_fn))) {

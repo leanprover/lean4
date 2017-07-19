@@ -1726,6 +1726,7 @@ expr elaborator::visit_overloaded_app_with_expected(buffer<expr> const & fns, bu
     buffer<elaborator_exception> error_msgs;
     for (expr const & fn : fns) {
         try {
+            flet<bool> dont_recover(m_recover_from_errors, false);
             // Restore state
             S.restore(*this);
             bool has_args = !args.empty();

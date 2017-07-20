@@ -547,7 +547,7 @@ tactic.skip
 meta def solve1 : itactic → tactic unit :=
 tactic.solve1
 
-meta def abstract (id : parse ident? ) (tac : itactic) : tactic unit :=
+meta def abstract (id : parse ident?) (tac : itactic) : tactic unit :=
 tactic.abstract tac id
 
 meta def all_goals : itactic → tactic unit :=

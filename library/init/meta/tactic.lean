@@ -730,11 +730,14 @@ first $ map solve1 ts
 
  private meta def focus_aux : list (tactic unit) → list expr → list expr → tactic unit
 | []       []      rs := set_goals rs
-| []       gs      rs := fail "focus tactic failed, insufficient number of tactics"
-| (t::ts)  (g::gs) rs := do
-  set_goals [g], t, rs' ← get_goals,
-  focus_aux ts gs (rs ++ rs')
 | (t::ts)  []      rs := fail "focus tactic failed, insufficient number of goals"
+| tts      (g::gs) rs :=
+do set_goals [g],
+   _::_ ← get_goals | focus_aux tts gs rs,
+   t::ts ← pure tts | fail "focus tactic failed, insufficient number of tactics",
+   t,
+   rs' ← get_goals,
+   focus_aux ts gs (rs ++ rs')
 
 /-- `focus [t_1, ..., t_n]` applies t_i to the i-th goal. Fails if the number of goals is not n. -/
 meta def focus (ts : list (tactic unit)) : tactic unit :=
@@ -756,6 +759,7 @@ private meta def all_goals_core (tac : tactic unit) : list expr → list expr �
 | []        ac := set_goals ac
 | (g :: gs) ac :=
   do set_goals [g],
+     _::_ ← get_goals | all_goals_core gs ac,
      tac,
      new_gs ← get_goals,
      all_goals_core gs (ac ++ new_gs)
@@ -769,6 +773,7 @@ private meta def any_goals_core (tac : tactic unit) : list expr → list expr �
 | []        ac progress := guard progress >> set_goals ac
 | (g :: gs) ac progress :=
   do set_goals [g],
+     _::_ ← get_goals | any_goals_core gs ac progress,
      succeeded ← try_core tac,
      new_gs    ← get_goals,
      any_goals_core gs (ac ++ new_gs) (succeeded.is_some || progress)

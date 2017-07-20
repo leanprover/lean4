@@ -1,5 +1,9 @@
-import data.set
+--import data.set.basic
 open tactic
+
+constant union_is_assoc {α} : is_associative (set α) (∪)
+constant union_is_comm {α} : is_commutative (set α) (∪)
+attribute [instance] union_is_assoc union_is_comm
 
 section
   universe variable u

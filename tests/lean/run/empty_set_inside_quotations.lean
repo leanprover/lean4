@@ -1,4 +1,5 @@
-import data.set
+constant union_is_assoc {α} : is_associative (set α) (∪)
+attribute [instance] union_is_assoc
 
 #check ({} : set nat)
 

@@ -1,7 +1,11 @@
 /- test cases for coinductive predicates -/
-import data.stream
-
 universe u
+
+def stream (α : Type u) := nat → α
+constant stream.cons {α} : α → stream α → stream α
+constant stream.head {α} : stream α → α
+constant stream.tail {α} : stream α → stream α
+notation h :: t := stream.cons h t
 
 coinductive all_stream {α : Type u} (s : set α) : stream α → Prop
 | step {} : ∀{a : α} {ω : stream α}, a ∈ s → all_stream ω → all_stream (a :: ω)

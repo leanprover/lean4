@@ -1,5 +1,3 @@
-import data.stream
-
 inductive term
 | var : ℕ → term
 | app : term → term → term

@@ -1,3 +1,3 @@
-import data.bitvec 0b311
+import data.buffer 0b311
 
-#print bitvec
+#print buffer

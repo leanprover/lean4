@@ -171,7 +171,7 @@ vm_obj cc_state_inc_gmt(vm_obj const & ccs) {
 vm_obj cc_state_add(vm_obj const & ccs, vm_obj const & H, vm_obj const & _s) {
     cc_state_updt_proc({
             expr type                   = ctx.infer(to_expr(H));
-            if (ctx.is_prop(type))
+            if (!ctx.is_prop(type))
                 return tactic::mk_exception("cc_state.add failed, given expression is not a proof term", s);
             cc.add(type, to_expr(H), 0);
     });

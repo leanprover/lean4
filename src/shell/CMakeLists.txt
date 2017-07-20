@@ -48,11 +48,18 @@ if(${EMSCRIPTEN})
     set_target_properties(lean_js_wasm PROPERTIES LINK_FLAGS "-s WASM=1 ${LEAN_JS_OPTS} -s \"BINARYEN_METHOD='native-wasm'\"")
     set_target_properties(lean_js_js PROPERTIES LINK_FLAGS "${LEAN_JS_OPTS}")
 else()
-  ADD_CUSTOM_COMMAND(TARGET lean
-    POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E make_directory "${LEAN_SOURCE_DIR}/../bin"
-    COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_BINARY_DIR}/lean${CMAKE_EXECUTABLE_SUFFIX}" "${LEAN_SOURCE_DIR}/../bin/"
+  if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    ADD_CUSTOM_COMMAND(TARGET lean
+      POST_BUILD
+      COMMAND "${CMAKE_COMMAND}" -E remove "${LEAN_SOURCE_DIR}/../bin/lean${CMAKE_EXECUTABLE_SUFFIX}"
+      COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_BINARY_DIR}/lean${CMAKE_EXECUTABLE_SUFFIX}" "${LEAN_SOURCE_DIR}/../bin/"
     )
+  else()
+    ADD_CUSTOM_COMMAND(TARGET lean
+      POST_BUILD
+      COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_BINARY_DIR}/lean${CMAKE_EXECUTABLE_SUFFIX}" "${LEAN_SOURCE_DIR}/../bin/"
+    )
+  endif()
 endif()
 
 add_test(NAME leanchecker

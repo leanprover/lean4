@@ -54,6 +54,7 @@ set(EMACS_LISP_DIR        "share/emacs/site-lisp/lean" CACHE STRING "emacs site-
 set(LIBRARY_DIR           "lib/lean"                   CACHE STRING "library dir")
 set(LEAN_EXT_INCLUDE_DIR  "include/lean_ext"           CACHE STRING "include dir for building Lean extensions")
 set(LEAN_EXTRA_MAKE_OPTS  ""                           CACHE STRING "extra options to lean --make")
+set(MINGW_LOCAL_DIR       "C:/msys64/mingw64/bin"      CACHE STRING "where to find MSYS2 required DLLs and binaries")
 
 if (NOT("${FREE_VAR_RANGE_OPT}" MATCHES "ON"))
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_NO_FREE_VAR_RANGE_OPT")
@@ -527,7 +528,6 @@ install(FILES "${CMAKE_SOURCE_DIR}/../src/emacs/lean.pgm"
 if("${INCLUDE_MSYS2_DLLS}" MATCHES "ON")
   # TODO(Leo): do not use hardlinks to required DLLs.
   # For example, we can try to use ldd to retrieve the list of required DLLs.
-  set(MINGW_LOCAL_DIR C:/msys64/mingw64/bin)
   set(RUNTIME_LIBRARIES
          ${MINGW_LOCAL_DIR}/libgmp-10.dll
          ${MINGW_LOCAL_DIR}/libwinpthread-1.dll

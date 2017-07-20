@@ -3,14 +3,31 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Gabriel Ebner
 -/
-import leanpkg.manifest system.io data.hash_map leanpkg.proc
+import leanpkg.manifest system.io leanpkg.proc
 variable [io.interface]
 
 namespace leanpkg
 
-def assignment := hash_map string (λ _, string)
--- TODO(gabriel): hash function for strings
-def assignment.empty : assignment := mk_hash_map string.length
+def assignment := list (string × string)
+
+namespace assignment
+def empty : assignment := []
+
+def find : assignment → string → option string
+| []              s := none
+| ((k, v) :: kvs) s :=
+  if k = s then some v else find kvs s
+
+def contains (a : assignment) (s : string) : bool :=
+(a.find s).is_some
+
+def insert (a : assignment) (k v : string) : assignment :=
+if a.contains k then a else (k, v) :: a
+
+def fold {α} (i : α) (f : α → string → string → α) : assignment → α :=
+list.foldl (λ a ⟨k, v⟩, f a k v) i
+
+end assignment
 
 @[reducible] def solver := state_t assignment io
 instance {α : Type} : has_coe (io α) (solver α) := ⟨state_t.lift⟩

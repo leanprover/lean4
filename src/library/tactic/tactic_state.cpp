@@ -601,11 +601,20 @@ vm_obj tactic_get_assignment(vm_obj const & e, vm_obj const & s0) {
     tactic_state const & s   = tactic::to_state(s0);
     metavar_context mctx     = s.mctx();
     if (!is_metavar(to_expr(e))) {
-        return tactic::mk_exception("get_assignment tactic failed, argument is not an universe metavariable", s);
+        return tactic::mk_exception("get_assignment tactic failed, argument is not a metavariable", s);
     } else if (auto r = mctx.get_assignment(to_expr(e))) {
         return tactic::mk_success(to_obj(*r), s);
     } else {
         return tactic::mk_exception("get_assignment tactic failed, metavariable is not assigned", s);
+    }
+}
+
+vm_obj tactic_is_assigned(vm_obj const & g, vm_obj const & s0) {
+    tactic_state const & s   = tactic::to_state(s0);
+    if (!is_metavar(to_expr(g))) {
+        return tactic::mk_exception("is_assigned tactic failed, argument is not a metavariable", s);
+    } else {
+        return tactic::mk_success(mk_vm_bool(s.mctx().is_assigned(to_expr(g))), s);
     }
 }
 
@@ -881,6 +890,7 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic_state", "set_options"}),    tactic_state_set_options);
     DECLARE_VM_BUILTIN(name({"tactic", "target"}),               tactic_target);
     DECLARE_VM_BUILTIN(name({"tactic", "result"}),               tactic_result);
+    DECLARE_VM_BUILTIN(name({"tactic", "is_assigned"}),          tactic_is_assigned);
     DECLARE_VM_BUILTIN(name({"tactic", "format_result"}),        tactic_format_result);
     DECLARE_VM_BUILTIN(name({"tactic", "infer_type"}),           tactic_infer_type);
     DECLARE_VM_BUILTIN(name({"tactic", "whnf"}),                 tactic_whnf);

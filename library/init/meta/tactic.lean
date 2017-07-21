@@ -385,6 +385,9 @@ meta constant get_univ_assignment : level → tactic level
 /-- Return the value assigned to the given meta-variable.
    Fail if argument is not a meta-variable or if it is not assigned. -/
 meta constant get_assignment : expr → tactic expr
+/-- Return the value assigned to the given meta-variable.
+    Fail if argument is not a meta-variable. -/
+meta constant is_assigned : expr → tactic bool
 meta constant mk_fresh_name : tactic name
 /-- Return a hash code for expr that ignores inst_implicit arguments,
    and proofs. -/
@@ -728,16 +731,16 @@ do gs ← get_goals,
 meta def solve (ts : list (tactic unit)) : tactic unit :=
 first $ map solve1 ts
 
- private meta def focus_aux : list (tactic unit) → list expr → list expr → tactic unit
+private meta def focus_aux : list (tactic unit) → list expr → list expr → tactic unit
 | []       []      rs := set_goals rs
 | (t::ts)  []      rs := fail "focus tactic failed, insufficient number of goals"
 | tts      (g::gs) rs :=
-do set_goals [g],
-   _::_ ← get_goals | focus_aux tts gs rs,
-   t::ts ← pure tts | fail "focus tactic failed, insufficient number of tactics",
-   t,
-   rs' ← get_goals,
-   focus_aux ts gs (rs ++ rs')
+  mcond (is_assigned g) (focus_aux tts gs rs) $
+    do set_goals [g],
+       t::ts ← pure tts | fail "focus tactic failed, insufficient number of tactics",
+       t,
+       rs' ← get_goals,
+       focus_aux ts gs (rs ++ rs')
 
 /-- `focus [t_1, ..., t_n]` applies t_i to the i-th goal. Fails if the number of goals is not n. -/
 meta def focus (ts : list (tactic unit)) : tactic unit :=
@@ -758,11 +761,11 @@ do g::gs ← get_goals,
 private meta def all_goals_core (tac : tactic unit) : list expr → list expr → tactic unit
 | []        ac := set_goals ac
 | (g :: gs) ac :=
-  do set_goals [g],
-     _::_ ← get_goals | all_goals_core gs ac,
-     tac,
-     new_gs ← get_goals,
-     all_goals_core gs (ac ++ new_gs)
+  mcond (is_assigned g) (all_goals_core gs ac) $
+    do set_goals [g],
+       tac,
+       new_gs ← get_goals,
+       all_goals_core gs (ac ++ new_gs)
 
 /-- Apply the given tactic to all goals. -/
 meta def all_goals (tac : tactic unit) : tactic unit :=
@@ -772,11 +775,11 @@ do gs ← get_goals,
 private meta def any_goals_core (tac : tactic unit) : list expr → list expr → bool → tactic unit
 | []        ac progress := guard progress >> set_goals ac
 | (g :: gs) ac progress :=
-  do set_goals [g],
-     _::_ ← get_goals | any_goals_core gs ac progress,
-     succeeded ← try_core tac,
-     new_gs    ← get_goals,
-     any_goals_core gs (ac ++ new_gs) (succeeded.is_some || progress)
+  mcond (is_assigned g) (any_goals_core gs ac progress) $
+    do set_goals [g],
+       succeeded ← try_core tac,
+       new_gs    ← get_goals,
+       any_goals_core gs (ac ++ new_gs) (succeeded.is_some || progress)
 
 /-- Apply the given tactic to any goal where it succeeds. The tactic succeeds only if
    tac succeeds for at least one goal. -/

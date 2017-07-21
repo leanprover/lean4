@@ -69,9 +69,6 @@ meta def add_theorem_by (n : name) (ls : list name) (type : expr) (tac : tactic 
   add_decl $ mk_theorem n ls type body,
   return $ const n $ ls.map param
 
-meta def is_assigned (m : expr): tactic bool :=
-((get_assignment m >> return ff) <|> return tt)
-
 meta def mk_exists_lst (args : list expr) (inner : expr) : tactic expr :=
 args.mfoldr (λarg i:expr, do
     t ← infer_type arg,
@@ -405,7 +402,7 @@ meta def add_coinductive_predicate
       func_intros.mmap' (λ⟨n, pp_n, t⟩, solve1 $ do
         bs ← intros,
         ms ← apply_core ((const n u_params).app_of_list $ ps ++ fs.map prod.fst) {new_goals := new_goals.all},
-        params ← (ms.zip bs).enum.mfilter (λ⟨n, m, d⟩, is_assigned m),
+        params ← (ms.zip bs).enum.mfilter (λ⟨n, m, d⟩, bnot <$> is_assigned m),
         params.mmap' (λ⟨n, m, d⟩, mono d (fs.map prod.snd) <|>
           fail format! "failed to prove montonoicity of {n+1}. parameter of intro-rule {pp_n}")))),
 

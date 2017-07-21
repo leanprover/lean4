@@ -332,3 +332,13 @@ infix ` <:+ `:50 := is_suffix
 infix ` <:+: `:50 := is_infix
 
 end list
+
+namespace bin_tree
+private def to_list_aux : bin_tree α → list α → list α
+| empty      as := as
+| (leaf a)   as := a::as
+| (node l r) as := to_list_aux l (to_list_aux r as)
+
+def to_list (t : bin_tree α) : list α :=
+to_list_aux t []
+end bin_tree

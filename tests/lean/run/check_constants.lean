@@ -20,6 +20,9 @@ run_cmd script_check_id `and.cases_on
 run_cmd script_check_id `auto_param
 run_cmd script_check_id `bit0
 run_cmd script_check_id `bit1
+run_cmd script_check_id `bin_tree.empty
+run_cmd script_check_id `bin_tree.leaf
+run_cmd script_check_id `bin_tree.node
 run_cmd script_check_id `bool
 run_cmd script_check_id `bool.ff
 run_cmd script_check_id `bool.tt

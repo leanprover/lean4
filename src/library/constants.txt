@@ -15,6 +15,9 @@ and.cases_on
 auto_param
 bit0
 bit1
+bin_tree.empty
+bin_tree.leaf
+bin_tree.node
 bool
 bool.ff
 bool.tt

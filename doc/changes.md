@@ -43,6 +43,10 @@ master branch (aka work in progress branch)
 
 * `induction e` now also works on non-variable `e`. Unlike `ginduction`, it will not introduce equalities relating `e` to the inductive cases.
 
+* Add notation `#[a, b, c, d]` for `bin_tree.node (bin_tree.node (bin_tree.leaf a) (bin_tree.leaf b)) (bin_tree.node (bin_tree.leaf c) (bin_tree.leaf d))`.
+  There is a coercion from `bin_tree` to `list`. The new notation allows to input long sequences efficiently.
+  It also prevents system stack overflows.
+
 *Changes*
 
 * We now have two type classes for converting to string: `has_to_string` and `has_repr`.

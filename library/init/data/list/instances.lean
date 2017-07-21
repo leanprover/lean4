@@ -60,6 +60,9 @@ namespace list
 
 variables {α β : Type u} (p : α → Prop) [decidable_pred p]
 
+instance bin_tree_to_list : has_coe (bin_tree α) (list α) :=
+⟨bin_tree.to_list⟩
+
 lemma mem_bind_iff {b : β} {l : list α} {f : α → list β} : b ∈ l >>= f ↔ ∃ a ∈ l, b ∈ f a :=
 iff.trans mem_join_iff
   ⟨λ ⟨l', h1, h2⟩, let ⟨a, al, fa⟩ := exists_of_mem_map h1 in ⟨a, al, fa.symm ▸ h2⟩,

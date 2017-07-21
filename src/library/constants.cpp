@@ -20,6 +20,9 @@ name const * g_and_cases_on = nullptr;
 name const * g_auto_param = nullptr;
 name const * g_bit0 = nullptr;
 name const * g_bit1 = nullptr;
+name const * g_bin_tree_empty = nullptr;
+name const * g_bin_tree_leaf = nullptr;
+name const * g_bin_tree_node = nullptr;
 name const * g_bool = nullptr;
 name const * g_bool_ff = nullptr;
 name const * g_bool_tt = nullptr;
@@ -394,6 +397,9 @@ void initialize_constants() {
     g_auto_param = new name{"auto_param"};
     g_bit0 = new name{"bit0"};
     g_bit1 = new name{"bit1"};
+    g_bin_tree_empty = new name{"bin_tree", "empty"};
+    g_bin_tree_leaf = new name{"bin_tree", "leaf"};
+    g_bin_tree_node = new name{"bin_tree", "node"};
     g_bool = new name{"bool"};
     g_bool_ff = new name{"bool", "ff"};
     g_bool_tt = new name{"bool", "tt"};
@@ -769,6 +775,9 @@ void finalize_constants() {
     delete g_auto_param;
     delete g_bit0;
     delete g_bit1;
+    delete g_bin_tree_empty;
+    delete g_bin_tree_leaf;
+    delete g_bin_tree_node;
     delete g_bool;
     delete g_bool_ff;
     delete g_bool_tt;
@@ -1143,6 +1152,9 @@ name const & get_and_cases_on_name() { return *g_and_cases_on; }
 name const & get_auto_param_name() { return *g_auto_param; }
 name const & get_bit0_name() { return *g_bit0; }
 name const & get_bit1_name() { return *g_bit1; }
+name const & get_bin_tree_empty_name() { return *g_bin_tree_empty; }
+name const & get_bin_tree_leaf_name() { return *g_bin_tree_leaf; }
+name const & get_bin_tree_node_name() { return *g_bin_tree_node; }
 name const & get_bool_name() { return *g_bool; }
 name const & get_bool_ff_name() { return *g_bool_ff; }
 name const & get_bool_tt_name() { return *g_bool_tt; }

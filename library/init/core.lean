@@ -520,6 +520,23 @@ def K {α : Type u₁} {β : Type u₂} (a : α) (b : β) := a
 def S {α : Type u₁} {β : Type u₂} {γ : Type u₃} (x : α → β → γ) (y : α → β) (z : α) := x z (y z)
 end combinator
 
+/-- Auxiliary datatype for #[ ... ] notation.
+    #[1, 2, 3, 4] is notation for
+
+    bin_tree.node
+      (bin_tree.node (bin_tree.leaf 1) (bin_tree.leaf 2))
+      (bin_tree.node (bin_tree.leaf 3) (bin_tree.leaf 4))
+
+    We use this notation to input long sequences without exhausting the system stack space.
+    Later, we define a coercion from `bin_tree` into `list`.
+-/
+inductive bin_tree (α : Type u)
+| empty {}       : bin_tree
+| leaf (val : α) : bin_tree
+| node (left right : bin_tree) : bin_tree
+
+attribute [elab_simple] bin_tree.node bin_tree.leaf
+
 /- Basic unification hints -/
 @[unify] def add_succ_defeq_succ_add_hint (x y z : nat) : unification_hint :=
 { pattern     := x + nat.succ y ≟ nat.succ z,

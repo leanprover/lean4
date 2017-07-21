@@ -211,7 +211,17 @@ copy_decl_using dict src tgt
 >> copy_attribute `simp src tt tgt
 >> copy_attribute `instance src tt tgt
 
-meta def multiplicative_to_additive_pairs : list (name × name) :=
+/- Transport multiplicative to additive -/
+meta def transport_multiplicative_to_additive (ls : list (name × name)) : command :=
+let dict := rb_map.of_list ls in
+ls.foldl (λ t ⟨src, tgt⟩, do
+  env ← get_env,
+  if (env.get tgt).to_bool = ff
+  then t >> transport_with_dict dict src tgt
+  else t)
+skip
+
+run_cmd transport_multiplicative_to_additive
   [/- map operations -/
    (`has_mul.mul, `has_add.add), (`has_one.one, `has_zero.zero), (`has_inv.inv, `has_neg.neg),
    (`has_mul, `has_add), (`has_one, `has_zero), (`has_inv, `has_neg),
@@ -289,18 +299,6 @@ meta def multiplicative_to_additive_pairs : list (name × name) :=
    (`mul_eq_of_eq_mul_inv, `add_eq_of_eq_add_neg),
    (`one_inv, `neg_zero)
 ]
-
-/- Transport multiplicative to additive -/
-meta def transport_multiplicative_to_additive : command :=
-let dict := rb_map.of_list multiplicative_to_additive_pairs in
-multiplicative_to_additive_pairs.foldl (λ t ⟨src, tgt⟩, do
-  env ← get_env,
-  if (env.get tgt).to_bool = ff
-  then t >> transport_with_dict dict src tgt
-  else t)
-skip
-
-run_cmd transport_multiplicative_to_additive
 
 instance add_semigroup_to_is_eq_associative [add_semigroup α] : is_associative α (+) :=
 ⟨add_assoc⟩

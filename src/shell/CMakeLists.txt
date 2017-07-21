@@ -51,7 +51,7 @@ else()
   if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     ADD_CUSTOM_COMMAND(TARGET lean
       POST_BUILD
-      COMMAND "${CMAKE_COMMAND}" -E remove -f "${LEAN_SOURCE_DIR}/../bin/lean${CMAKE_EXECUTABLE_SUFFIX}"
+      COMMAND rm -f "${LEAN_SOURCE_DIR}/../bin/lean${CMAKE_EXECUTABLE_SUFFIX}"
       COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_BINARY_DIR}/lean${CMAKE_EXECUTABLE_SUFFIX}" "${LEAN_SOURCE_DIR}/../bin/"
     )
   else()

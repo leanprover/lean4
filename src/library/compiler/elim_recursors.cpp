@@ -89,7 +89,7 @@ protected:
                 expr local = locals.push_local_from_binding(e);
                 e = instantiate(binding_body(e), local);
             } else {
-                return beta_reduce(e);
+                return head_beta_reduce(e);
             }
         }
     }
@@ -218,7 +218,7 @@ protected:
                 }
                 /* Keep consuming lambda */
                 minor = consume_lambdas(minor_locals, minor);
-                minor = visit(beta_reduce(minor));
+                minor = visit(head_beta_reduce(minor));
                 minor = minor_locals.mk_lambda(minor);
                 cases_on_args.push_back(minor);
             }
@@ -250,7 +250,7 @@ protected:
                 return visit_recursor_app(e);
             }
         }
-        return compiler_step_visitor::visit_app(beta_reduce(e));
+        return compiler_step_visitor::visit_app(head_beta_reduce(e));
     }
 
 public:

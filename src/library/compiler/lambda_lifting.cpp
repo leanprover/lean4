@@ -189,7 +189,7 @@ class lambda_lifting_fn : public compiler_step_visitor {
         if (is_constant(fn) && is_cases_on_recursor(env(), const_name(fn))) {
             return visit_cases_on_app(e);
         } else {
-            return compiler_step_visitor::visit_app(beta_reduce(e));
+            return compiler_step_visitor::visit_app(head_beta_reduce(e));
         }
     }
 

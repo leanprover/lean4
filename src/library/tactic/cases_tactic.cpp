@@ -24,8 +24,16 @@ Author: Leonardo de Moura
 #include "library/tactic/subst_tactic.h"
 
 namespace lean {
-struct cases_tactic_exception {
-    vm_obj m_tactic_exception;
+struct cases_tactic_exception : public ext_exception {
+    tactic_state m_s;
+    std::function<format()> m_msg;
+
+    cases_tactic_exception(tactic_state const & s, std::function<format()> const & msg) :
+        m_s(s), m_msg(msg) {}
+
+    virtual format pp(formatter const &) const override { return m_msg(); }
+    virtual throwable * clone() const override { return new cases_tactic_exception(m_s, m_msg); }
+    virtual void rethrow() const override { throw cases_tactic_exception(m_s, m_msg); }
 };
 
 struct cases_tactic_fn {
@@ -65,7 +73,7 @@ struct cases_tactic_fn {
 
     /* throw exception that stores the intermediate state */
     [[ noreturn ]] void throw_exception(expr const & mvar, char const * msg) {
-        throw cases_tactic_exception { tactic::mk_exception(msg, mk_tactic_state(mvar)) };
+        throw cases_tactic_exception { mk_tactic_state(mvar), [=] { return format(msg); } };
     }
 
     #define lean_cases_trace(MVAR, CODE) lean_trace(name({"tactic", "cases"}), type_context TMP_CTX = mk_type_context_for(MVAR); scope_trace_env _scope1(m_env, TMP_CTX); CODE)
@@ -438,13 +446,11 @@ struct cases_tactic_fn {
                     }
                 }
                 auto s = mk_tactic_state(mvar);
-                throw cases_tactic_exception {
-                    tactic::mk_exception([=] () {
+                throw cases_tactic_exception { s, [=] {
                         return format("cases tactic failed, unsupported equality between type and constructor indices") + line()
                             + format("(only equalities between constructors and/or variables are supported, try cases on the indices):") + line()
                             + s.pp_expr(H_type) + line();
-                    }, s)
-                };
+                    }};
             }
         } else {
             throw_exception(mvar, "cases tactic failed, equality expected");
@@ -582,7 +588,7 @@ vm_obj tactic_cases_core(vm_obj const & H, vm_obj const & ns, vm_obj const & m, 
         }
         return tactic::mk_success(to_obj(info_objs), set_mctx_goals(s, mctx, append(info.first, tail(s.goals()))));
     } catch (cases_tactic_exception & ex) {
-        return ex.m_tactic_exception;
+        return tactic::mk_exception(ex, ex.m_s);
     } catch (exception & ex) {
         return tactic::mk_exception(ex, s);
     }

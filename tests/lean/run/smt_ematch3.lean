@@ -39,7 +39,7 @@ begin
   intros,
   induction v₁,
   {[smt] repeat {ematch_using [app, rev, zero_add, add_zero, add_comm, app_nil_right]}},
-  {[smt] repeat {ematch_using [app, rev, zero_add, add_zero, add_comm, app_assoc, add_one_eq_succ]} }
+  {[smt] repeat {ematch_using [app, rev, zero_add, add_zero, add_comm, app_assoc, add_one]} }
 end
 
 end vector

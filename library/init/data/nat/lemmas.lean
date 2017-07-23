@@ -23,7 +23,7 @@ rfl
 protected lemma add_zero (n : ℕ) : n + 0 = n :=
 rfl
 
-lemma add_one_eq_succ (n : ℕ) : n + 1 = succ n :=
+lemma add_one (n : ℕ) : n + 1 = succ n :=
 rfl
 
 lemma succ_eq_add_one (n : ℕ) : succ n = n + 1 :=
@@ -74,7 +74,7 @@ lemma eq_zero_of_add_eq_zero_right : ∀ {n m : ℕ}, n + m = 0 → n = 0
 | (n+1) m := λ h,
   begin
     exfalso,
-    rw [add_one_eq_succ, succ_add] at h,
+    rw [add_one, succ_add] at h,
     apply succ_ne_zero _ h
   end
 
@@ -432,7 +432,7 @@ protected lemma bit0_inj : ∀ {n m : ℕ}, bit0 n = bit0 m → n = m
 | (n+1) 0     h := by contradiction
 | (n+1) (m+1) h :=
   have succ (succ (n + n)) = succ (succ (m + m)),
-  begin unfold bit0 at h, simp [add_one_eq_succ, add_succ, succ_add] at h, exact h end,
+  begin unfold bit0 at h, simp [add_one, add_succ, succ_add] at h, exact h end,
   have n + n = m + m, by repeat {injection this with this},
   have n = m, from bit0_inj this,
   by rw this
@@ -847,10 +847,10 @@ begin
     { simp [zero_mul, zero_le] },
     { have Hlt : y - k < y,
       { apply sub_lt_of_pos_le ; assumption },
-      rw [ ← add_one_eq_succ
+      rw [ ← add_one
          , nat.add_le_add_iff_le_right
          , IH (y - k) Hlt x
-         , add_one_eq_succ
+         , add_one
          , succ_mul, add_le_to_le_sub _ h ]
      } }
 end

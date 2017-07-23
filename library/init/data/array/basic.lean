@@ -31,6 +31,12 @@ def write (a : array α n) (i : fin n) (v : α) : array α n :=
 def write' (a : array α n) (i : nat) (v : α) : array α n :=
 if h : i < n then a.write ⟨i, h⟩ v else a
 
+lemma read_eq_read' [inhabited α] (a : array α n) (i : nat) (h : i < n) : read a ⟨i, h⟩ = read' a i :=
+by unfold read'; rw [dif_pos h]
+
+lemma write_eq_write' (a : array α n) (i : nat) (h : i < n) (v : α) : write a ⟨i, h⟩ v = write' a i v :=
+by unfold write'; rw [dif_pos h]
+
 lemma push_back_idx {j n} (h₁ : j < n + 1) (h₂ : j ≠ n) : j < n :=
 nat.lt_of_le_and_ne (nat.le_of_lt_succ h₁) h₂
 

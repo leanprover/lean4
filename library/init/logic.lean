@@ -47,8 +47,7 @@ false.rec c h
 /- eq -/
 
 -- proof irrelevance is built in
-lemma proof_irrel {a : Prop} (h₁ h₂ : a) : h₁ = h₂ :=
-rfl
+lemma proof_irrel {a : Prop} (h₁ h₂ : a) : h₁ = h₂ := rfl
 
 @[simp] lemma id.def {α : Sort u} (a : α) : id a = a := rfl
 
@@ -86,19 +85,16 @@ assume hp, h ▸ hp
 @[inline] def cast {α β : Sort u} (h : α = β) (a : α) : β :=
 eq.rec a h
 
-lemma cast_proof_irrel {α β : Sort u} (h₁ h₂ : α = β) (a : α) : cast h₁ a = cast h₂ a :=
-rfl
+lemma cast_proof_irrel {α β : Sort u} (h₁ h₂ : α = β) (a : α) : cast h₁ a = cast h₂ a := rfl
 
-lemma cast_eq {α : Sort u} (h : α = α) (a : α) : cast h a = a :=
-rfl
+lemma cast_eq {α : Sort u} (h : α = α) (a : α) : cast h a = a := rfl
 
 /- ne -/
 
 @[reducible] def ne {α : Sort u} (a b : α) := ¬(a = b)
 notation a ≠ b := ne a b
 
-@[simp] lemma ne.def {α : Sort u} (a b : α) : a ≠ b = ¬ (a = b) :=
-rfl
+@[simp] lemma ne.def {α : Sort u} (a b : α) : a ≠ b = ¬ (a = b) := rfl
 
 namespace ne
   variable {α : Sort u}
@@ -757,8 +753,9 @@ inhabited.rec_on h (λ b, ⟨λ a, b⟩)
 instance pi.inhabited (α : Sort u) {β : α → Sort v} [Π x, inhabited (β x)] : inhabited (Π x, β x) :=
 ⟨λ a, default (β a)⟩
 
-instance : inhabited bool :=
-⟨ff⟩
+instance : inhabited bool := ⟨ff⟩
+
+instance : inhabited true := ⟨trivial⟩
 
 class inductive nonempty (α : Sort u) : Prop
 | intro : α → nonempty
@@ -971,8 +968,7 @@ namespace ulift
 lemma up_down {α : Type u} : ∀ (b : ulift.{v} α), up (down b) = b
 | (up a) := rfl
 
-lemma down_up {α : Type u} (a : α) : down (up.{v} a) = a :=
-rfl
+lemma down_up {α : Type u} (a : α) : down (up.{v} a) = a := rfl
 end ulift
 
 /-- Universe lifting operation from Sort to Type -/
@@ -984,8 +980,7 @@ namespace plift
 lemma up_down {α : Sort u} : ∀ (b : plift α), up (down b) = b
 | (up a) := rfl
 
-lemma down_up {α : Sort u} (a : α) : down (up a) = a :=
-rfl
+lemma down_up {α : Sort u} (a : α) : down (up a) = a := rfl
 end plift
 
 /- Equalities for rewriting let-expressions -/

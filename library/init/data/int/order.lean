@@ -6,7 +6,7 @@ Authors: Jeremy Avigad
 The order relation on the integers.
 -/
 prelude
-import init.data.int.basic init.data.nat.find
+import init.data.int.basic
 
 namespace int
 
@@ -330,31 +330,5 @@ eq_of_mul_eq_mul_right Hpos (by rw [one_mul, H])
 
 theorem eq_one_of_mul_eq_self_right {a b : ℤ} (Hpos : b ≠ 0) (H : b * a = b) : a = 1 :=
 eq_of_mul_eq_mul_left Hpos (by rw [mul_one, H])
-
-theorem exists_least_of_bdd {P : ℤ → Prop} [HP : decidable_pred P]
-    (Hbdd : ∃ b : ℤ, ∀ z : ℤ, z < b → ¬ P z)
-        (Hinh : ∃ z : ℤ, P z) : ∃ lb : ℤ, P lb ∧ (∀ z : ℤ, z < lb → ¬ P z) :=
-let ⟨b, Hb⟩ := Hbdd in
-have EX : ∃ n : ℕ, P (b + n), from
-  let ⟨elt, Helt⟩ := Hinh in
-  match elt, le.dest (le_of_not_gt (λ h : elt < b, Hb _ h Helt)), Helt with
-  | ._, ⟨n, rfl⟩, Hn := ⟨n, Hn⟩
-  end,
-⟨b + (nat.find EX : ℤ), nat.find_spec EX, λ z h,
-  if zl : z < b then Hb _ zl else
-  match z, le.dest (le_of_not_gt zl), h with
-  | ._, ⟨n, rfl⟩, h := nat.find_min EX $
-    lt_of_coe_nat_lt_coe_nat $ lt_of_add_lt_add_left h
-  end⟩
-
-theorem exists_greatest_of_bdd {P : ℤ → Prop} [HP : decidable_pred P]
-    (Hbdd : ∃ b : ℤ, ∀ z : ℤ, z > b → ¬ P z)
-        (Hinh : ∃ z : ℤ, P z) : ∃ ub : ℤ, P ub ∧ (∀ z : ℤ, z > ub → ¬ P z) :=
-have Hbdd' : ∃ (b : ℤ), ∀ (z : ℤ), z < b → ¬P (-z), from
-let ⟨b, Hb⟩ := Hbdd in ⟨-b, λ z h, Hb _ (lt_neg_of_lt_neg h)⟩,
-have Hinh' : ∃ z : ℤ, P (-z), from
-let ⟨elt, Helt⟩ := Hinh in ⟨-elt, by rw [neg_neg]; exact Helt⟩,
-let ⟨lb, Plb, al⟩ := exists_least_of_bdd Hbdd' Hinh' in
-⟨-lb, Plb, λ z h, by rw [← neg_neg z]; exact al _ (neg_lt_of_neg_lt h)⟩
 
 end int

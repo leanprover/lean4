@@ -96,6 +96,8 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
         args.push_back(ref_args[i]);
         typeformer_names.push_back(mlocal_name(ref_args[i]));
     }
+    // make motive explicit
+    args[0] = update_local(args[0], {});
     // we ignore minor premises in below/ibelow
     for (unsigned i = nparams + ntypeformers + nminors; i < ref_args.size(); i++)
         args.push_back(ref_args[i]);

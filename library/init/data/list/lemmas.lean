@@ -54,7 +54,7 @@ by cases l; refl
 -- TODO(Leo): cleanup proof after arith dec proc
 @[simp] lemma length_drop : ∀ (i : ℕ) (l : list α), length (drop i l) = length l - i
 | 0 l         := rfl
-| (succ i) [] := eq.symm (nat.zero_sub_eq_zero (succ i))
+| (succ i) [] := eq.symm (nat.zero_sub (succ i))
 | (succ i) (x::l) := calc
   length (drop (succ i) (x::l))
           = length l - i             : length_drop i l
@@ -82,6 +82,17 @@ by induction l; simp [*]
 
 @[simp] lemma length_map (f : α → β) (l : list α) : length (map f l) = length l :=
 by induction l; simp [*]
+
+/- bind -/
+
+@[simp] lemma nil_bind (f : α → list β) : bind [] f = [] :=
+by simp [join, bind]
+
+@[simp] lemma cons_bind (x xs) (f : α → list β) : bind (x :: xs) f = f x ++ bind xs f :=
+by simp [join, bind]
+
+@[simp] lemma append_bind (xs ys) (f : α → list β) : bind (xs ++ ys) f = bind xs f ++ bind ys f :=
+by induction xs; [refl, simp [*, cons_bind]]
 
 /- mem -/
 

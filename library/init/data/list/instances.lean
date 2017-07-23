@@ -10,26 +10,7 @@ open list
 
 universes u v
 
-local attribute [simp] map join ret list.append append_nil
-
-section
-variables {α : Type u} {β : Type v} (x : α) (xs ys : list α) (f : α → list β)
-
-private lemma nil_bind : list.bind nil f = nil :=
-by simp [list.bind]
-
-private lemma cons_bind : list.bind (x :: xs) f = f x ++ list.bind xs f :=
-by simp [list.bind]
-
-private lemma append_bind : list.bind (xs ++ ys) f = list.bind xs f ++ list.bind ys f :=
-begin
-  induction xs,
-  { refl },
-  { simp [*, cons_bind] }
-end
-end
-
-local attribute [simp] nil_bind cons_bind append_bind
+local attribute [simp] join ret
 
 instance : monad list :=
 {pure := @list.ret, bind := @list.bind,

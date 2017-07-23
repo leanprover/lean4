@@ -331,7 +331,7 @@ infix ` <+: `:50 := is_prefix
 infix ` <:+ `:50 := is_suffix
 infix ` <:+: `:50 := is_infix
 
-attribute [simp] head tail repeat take drop length map map₂ reverse_core
+attribute [simp] list.append head tail repeat take drop length map map₂
   last nth foldl foldr inits tails
 
 end list

@@ -287,6 +287,9 @@ nat.add_comm k m ▸ nat.add_comm k n ▸ nat.add_lt_add_left h k
 protected lemma lt_add_of_pos_right {n k : ℕ} (h : k > 0) : n < n + k :=
 nat.add_lt_add_left h n
 
+protected lemma lt_add_of_pos_left {n k : ℕ} (h : k > 0) : n < k + n :=
+by rw add_comm; exact nat.lt_add_of_pos_right h
+
 protected lemma zero_lt_one : 0 < (1:nat) :=
 zero_lt_succ 0
 
@@ -363,9 +366,9 @@ by rw [mul_comm n m, mul_comm k m] at H; exact eq_of_mul_eq_mul_left Hm H
 
 /- sub properties -/
 
-lemma zero_sub_eq_zero : ∀ a : ℕ, 0 - a = 0
+@[simp] protected lemma zero_sub : ∀ a : ℕ, 0 - a = 0
 | 0     := rfl
-| (a+1) := congr_arg pred (zero_sub_eq_zero a)
+| (a+1) := congr_arg pred (zero_sub a)
 
 lemma sub_lt_succ (a b : ℕ) : a - b < succ a :=
 lt_succ_of_le (sub_le a b)
@@ -539,10 +542,6 @@ rfl
 theorem sub_succ (n m : ℕ) : n - succ m = pred (n - m) :=
 rfl
 
-protected theorem zero_sub : ∀ (n : ℕ), 0 - n = 0
-| 0        := by rw nat.sub_zero
-| (succ n) := by rw [nat.sub_succ, zero_sub n, pred_zero]
-
 theorem succ_sub_succ (n m : ℕ) : succ n - succ m = n - m :=
 succ_sub_succ_eq_sub n m
 
@@ -659,10 +658,10 @@ protected lemma lt_of_sub_eq_succ {m n l : ℕ} (H : m - n = nat.succ l) : n < m
 lt_of_not_ge
   (assume (H' : n ≥ m), begin simp [nat.sub_eq_zero_of_le H'] at H, contradiction end)
 
-@[simp] lemma min_zero_left (a : ℕ) : min 0 a = 0 :=
+@[simp] lemma zero_min (a : ℕ) : min 0 a = 0 :=
 min_eq_left (zero_le a)
 
-@[simp] lemma min_zero_right (a : ℕ) : min a 0 = 0 :=
+@[simp] lemma min_zero (a : ℕ) : min a 0 = 0 :=
 min_eq_right (zero_le a)
 
 /- TODO(Leo): sub + inequalities -/

@@ -385,7 +385,7 @@ meta constant get_univ_assignment : level → tactic level
 /-- Return the value assigned to the given meta-variable.
    Fail if argument is not a meta-variable or if it is not assigned. -/
 meta constant get_assignment : expr → tactic expr
-/-- Return the value assigned to the given meta-variable.
+/-- Return true if the given meta-variable is assigned.
     Fail if argument is not a meta-variable. -/
 meta constant is_assigned : expr → tactic bool
 meta constant mk_fresh_name : tactic name

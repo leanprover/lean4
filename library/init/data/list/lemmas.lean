@@ -27,11 +27,6 @@ by induction t; simp [*]
 @[simp] lemma append_assoc (s t u : list α) : s ++ t ++ u = s ++ (t ++ u) :=
 by induction s; simp [*]
 
-/- concat -/
-
-@[simp] lemma concat_eq_append (a : α) (l : list α) : concat l a = l ++ [a] :=
-by induction l; simp [*, concat]
-
 /- length -/
 
 attribute [simp] length
@@ -41,9 +36,6 @@ rfl
 
 @[simp] lemma length_append (s t : list α) : length (s ++ t) = length s + length t :=
 by induction s; simp [*]
-
-lemma length_concat (a : α) (l : list α) : length (concat l a) = succ (length l) :=
-by simp [succ_eq_add_one]
 
 @[simp] lemma length_repeat (a : α) (n : ℕ) : length (repeat a n) = n :=
 by induction n; simp [*]; refl
@@ -70,9 +62,6 @@ by intro l₁; induction l₁; intros; simp [*]
 
 lemma map_singleton (f : α → β) (a : α) : map f [a] = [f a] :=
 rfl
-
-lemma map_concat (f : α → β) (a : α) (l : list α) : map f (concat l a) = concat (map f l) (f a) :=
-by induction l; simp [*]
 
 @[simp] lemma map_id (l : list α) : map id l = l :=
 by induction l; simp [*]

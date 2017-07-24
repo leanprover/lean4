@@ -2,25 +2,23 @@ open tactic
 
 set_option trace.smt.ematch true
 
-example (a : list nat) (f : nat → nat) : a = [1, 2] → a^.for f = [f 1, f 2] :=
+example (a : list nat) (f : nat → nat) : a = [1, 2] → a^.map f = [f 1, f 2] :=
 begin [smt]
   intros,
-  ematch_using [list.for],
-  ematch_using [flip],
   ematch_using [list.map],
   ematch_using [list.map],
   ematch_using [list.map]
 end
 
-example (a : list nat) (f : nat → nat) : a = [1, 2] → a^.for f = [f 1, f 2] :=
+example (a : list nat) (f : nat → nat) : a = [1, 2] → a^.map f = [f 1, f 2] :=
 begin [smt]
   intros,
-  repeat {ematch_using [list.for, flip, list.map], try { close }},
+  repeat {ematch_using [list.map], try { close }},
 end
 
-attribute [ematch] list.map flip list.for
+attribute [ematch] list.map
 
-example (a : list nat) (f : nat → nat) : a = [1, 2] → a^.for f = [f 1, f 2] :=
+example (a : list nat) (f : nat → nat) : a = [1, 2] → a^.map f = [f 1, f 2] :=
 begin [smt]
   intros, eblast
 end

@@ -128,6 +128,3 @@ meta instance [has_to_tactic_format α] : has_to_tactic_format (array α n) :=
 ⟨tactic.pp ∘ to_list⟩
 
 end array
-
-def list.to_array {α} (l : list α) : array α l.length :=
-{data := λ v, l.nth_le v.1 v.2}

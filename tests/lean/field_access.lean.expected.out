@@ -7,7 +7,7 @@ field_access.lean:7:13: error: invalid projection, structure has only 2 field(s)
   (1, 2)
 which has type
   ?m_1 × ?m_2
-field_access.lean:10:1: error: invalid field notation, 'forr' is not a valid "field" because environment does not contain 'list.forr'
+field_access.lean:10:1: error: invalid field notation, 'mapp' is not a valid "field" because environment does not contain 'list.mapp'
   l
 which has type
   list ℕ

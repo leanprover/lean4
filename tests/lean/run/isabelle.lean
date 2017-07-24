@@ -69,7 +69,7 @@ meta instance : alternative lazy_tactic :=
   orelse  := @lazy_tactic.orelse }
 
 meta def choose {α} (xs : list α) : lazy_tactic α :=
-λ s, of_list $ xs^.for (λ a, (a, s))
+λ s, of_list $ xs^.map (λ a, (a, s))
 
 meta def run {α} (t : lazy_tactic α) : tactic α :=
 λ s, match t s with

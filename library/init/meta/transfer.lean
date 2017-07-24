@@ -88,22 +88,22 @@ private meta def analyse_rule (u' : list name) (pr : expr) : tactic rule_data :=
   t ← infer_type pr,
   (params, app (app r f) g) ← mk_local_pis t,
   (arg_rels, R) ← get_lift_fun r,
-  args    ← monad.for (enum arg_rels) (λ⟨n, a⟩,
-    prod.mk <$> mk_local_def (mk_simple_name ("a_" ++ repr n)) a.in_type <*> pure a),
+  args    ← (enum arg_rels).mmap $ λ⟨n, a⟩,
+    prod.mk <$> mk_local_def (mk_simple_name ("a_" ++ repr n)) a.in_type <*> pure a,
   a_vars  ← return $ prod.fst <$> args,
   p       ← head_beta (app_of_list f a_vars),
   p_data  ← return $ mark_occurences (app R p) params,
-  p_vars  ← return $ list.map prod.fst (list.filter (λx, ↑x.2) p_data),
+  p_vars  ← return $ list.map prod.fst (p_data.filter (λx, ↑x.2)),
   u       ← return $ collect_univ_params (app R p) ∩ u',
   pat     ← mk_pattern (level.param <$> u) (p_vars ++ a_vars) (app R p) (level.param <$> u) (p_vars ++ a_vars),
-  return $ rule_data.mk pr (list.remove_all u' u) p_data u args pat g
+  return $ rule_data.mk pr (u'.remove_all u) p_data u args pat g
 
 private meta def analyse_decls : list name → tactic (list rule_data) :=
-  monad.mapm (λn, do
-    d ← get_decl n,
-    c ← return d.univ_params.length,
-    ls ← monad.for (range c) (λ_, mk_fresh_name),
-    analyse_rule ls (const n (ls.map level.param)))
+mmap (λn, do
+  d ← get_decl n,
+  c ← return d.univ_params.length,
+  ls ← monad.for (range c) (λ_, mk_fresh_name),
+  analyse_rule ls (const n (ls.map level.param)))
 
 private meta def split_params_args : list (expr × bool) → list expr → list (expr × option expr) × list expr
 | ((lc, tt) :: ps) (e :: es) := let (ps', es') := split_params_args ps es in ((lc, some e) :: ps', es')
@@ -127,7 +127,7 @@ private meta def param_substitutions (ctxt : list expr) :
       return (app_of_list mv ctxt', [mv])
   end,
   sb ← return $ instantiate_local n e,
-  ps ← return $ (prod.map sb (has_map.map sb)) <$> ps,
+  ps ← return $ prod.map sb ((<$>) sb) <$> ps,
   (ms, vs) ← param_substitutions ps,
   return ((n, e) :: ms, m ++ vs)
 | _ := return ([], [])
@@ -137,11 +137,11 @@ It return (`a`, pr : `R a b`) -/
 meta def compute_transfer : list rule_data → list expr → expr → tactic (expr × expr × list expr)
 | rds ctxt e := do
   -- Select matching rule
-  (i, ps, args, ms, rd) ← first (rds.for (λrd, do
+  (i, ps, args, ms, rd) ← first (rds.map (λrd, do
     (l, m)     ← match_pattern_core semireducible rd.pat e,
-    level_map  ← monad.for rd.uparams (λl, prod.mk l <$> mk_meta_univ),
-    inst_univ  ← return $ (λe, instantiate_univ_params e (level_map ++ zip rd.uargs l)),
-    (ps, args) ← return $ split_params_args (list.map (prod.map inst_univ id) rd.params) m,
+    level_map  ← rd.uparams.mmap $ λl, prod.mk l <$> mk_meta_univ,
+    inst_univ  ← return $ λe, instantiate_univ_params e (level_map ++ zip rd.uargs l),
+    (ps, args) ← return $ split_params_args (rd.params.map (prod.map inst_univ id)) m,
     (ps, ms)   ← param_substitutions ctxt ps, /- this checks type class parameters -/
     return (instantiate_locals ps ∘ inst_univ, ps, args, ms, rd))) <|>
   (do trace e, fail "no matching rule"),
@@ -149,12 +149,12 @@ meta def compute_transfer : list rule_data → list expr → expr → tactic (ex
   (bs, hs, mss) ← monad.for (zip rd.args args) (λ⟨⟨_, d⟩, e⟩, do
     -- Argument has function type
     (args, r) ← get_lift_fun (i d.relation),
-    ((a_vars, b_vars), (R_vars, bnds)) ← monad.for (enum args) (λ⟨n, arg⟩, do
+    ((a_vars, b_vars), (R_vars, bnds)) ← (enum args).mmap (λ⟨n, arg⟩, do
       a ← mk_local_def sformat!"a{n}" arg.in_type,
       b ← mk_local_def sformat!"b{n}" arg.out_type,
       R ← mk_local_def sformat!"R{n}" (arg.relation a b),
       return ((a, b), (R, [a, b, R]))) >>= (return ∘ prod.map unzip unzip ∘ unzip),
-    rds'      ← monad.for R_vars (analyse_rule []),
+    rds'      ← R_vars.mmap (analyse_rule []),
 
     -- Transfer argument
     a           ← return $ i e,
@@ -166,7 +166,7 @@ meta def compute_transfer : list rule_data → list expr → expr → tactic (ex
   -- Combine
   b  ← head_beta (app_of_list (i rd.out) bs),
   pr ← return $ app_of_list (i rd.pr) (prod.snd <$> ps ++ list.join hs),
-  return (b, pr, ms ++ list.join mss)
+  return (b, pr, ms ++ mss.join)
 
 meta def transfer (ds : list name) : tactic unit := do
   rds ← analyse_decls ds,
@@ -180,8 +180,8 @@ meta def transfer (ds : list name) : tactic unit := do
 
   /- Setup final tactic state -/
   exact ((const `iff.mpr [] : expr) tgt new_tgt pr new_pr),
-  ms ← monad.for ms (λm, (get_assignment m >> return []) <|> return [m]),
+  ms ← ms.mmap (λm, (get_assignment m >> return []) <|> return [m]),
   gs ← get_goals,
-  set_goals (list.join ms ++ new_pr :: gs)
+  set_goals (ms.join ++ new_pr :: gs)
 
 end transfer

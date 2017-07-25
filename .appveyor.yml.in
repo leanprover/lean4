@@ -22,7 +22,7 @@ test_script:
   - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER/build && ctest -j4 --output-on-failure"
 
 artifacts:
-  - path: $TARGET
+  - path: '%TARGET%'
     name: binary
 
 deploy:

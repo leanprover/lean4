@@ -124,7 +124,7 @@ script:
   - make -j2 || exit
   - if [[ $TEST != OFF ]]; then yes "A" | ctest -j2 --output-on-failure; fi
   - if [[ $UPLOAD == ON ]]; then cpack; fi
-  - if [[ $UPLOAD == ON && $GH_TOKEN && $TRAVIS_PULL_REQUEST == false && $TRAVIS_BRANCH == master ]]; then bash script/deploy_gh_pages.sh; fi
+  - if [[ $UPLOAD == ON && $GH_TOKEN && $TRAVIS_PULL_REQUEST == false && $TRAVIS_BRANCH == master ]]; then (cd ..; bash script/deploy_gh_pages.sh); fi
   - if [[ $TEST_LEANPKG_REGISTRY == ON ]]; then ../script/test_registry.py; fi
   - cd ..
 

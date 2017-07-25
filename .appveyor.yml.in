@@ -1,6 +1,8 @@
 environment:
   matrix:
   - MSYSTEM: MINGW64
+  TARGET: build\lean-@LEAN_VERSION_MAJOR@.@LEAN_VERSION_MINOR@.@LEAN_VERSION_PATCH@-windows.zip
+  NIGHTLY_TARGET: build\lean-nightly-windows.zip
 
 install:
   - C:\msys64\usr\bin\bash -lc "pacman --noconfirm -Syu" # update core
@@ -11,13 +13,16 @@ install:
 build_script:
   - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER && mkdir build && cd build && cmake ../src -DINCLUDE_MSYS2_DLLS=ON -DCMAKE_BUILD_TYPE=Release -G Ninja"
   - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER/build && ninja && cpack"
+  - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER && cp $TARGET $NIGHTLY_TARGET"
 
 test_script:
   - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER/build && ctest -j4 --output-on-failure"
 
 artifacts:
-  - path: build\lean-@LEAN_VERSION_MAJOR@.@LEAN_VERSION_MINOR@.@LEAN_VERSION_PATCH@-windows.zip
+  - path: $TARGET
     name: binary
+  - path: $NIGHTLY_TARGET
+    name: nightly
 
 deploy:
   description: 'Lean release'

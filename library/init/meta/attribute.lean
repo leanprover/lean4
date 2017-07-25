@@ -9,9 +9,17 @@ import init.meta.tactic init.meta.rb_map init.meta.has_reflect
 meta constant attribute.get_instances : name → tactic (list name)
 meta constant attribute.fingerprint : name → tactic nat
 
-structure user_attribute :=
-(name  : name)
-(descr : string)
+meta structure user_attribute :=
+(name         : name)
+(descr        : string)
+/- Optional handler that will be called after the attribute has been applied to a declaration.
+   Failing the tactic will fail the entire `attribute/def/...` command, i.e. the attribute will
+   not be applied after all.
+   Declaring an `after_set` handler without a `before_unset` handler will make the attribute
+   non-removable. -/
+(after_set    : option (Π (decl : _root_.name) (prio : nat) (persistent : bool), command) := none)
+/- Optional handler that will be called before the attribute is removed from a declaration. -/
+(before_unset : option (Π (decl : _root_.name) (persistent : bool), command) := none)
 
 /- Registers a new user-defined attribute. The argument must be the name of a definition of type
    `user_attribute` or a sub-structure. -/

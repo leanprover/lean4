@@ -167,7 +167,7 @@ environment attribute::set_core(environment const & env, io_state const & ios, n
 
 environment attribute::unset(environment env, io_state const & ios, name const & n, bool persistent) const {
     if (m_before_unset) {
-        env = m_before_unset(env, n, persistent);
+        env = m_before_unset(env, ios, n, persistent);
     } else {
         if (m_after_set)
             throw exception(sstream() << "cannot remove attribute [" << get_name() << "]");

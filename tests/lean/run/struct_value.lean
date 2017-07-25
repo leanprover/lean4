@@ -7,7 +7,7 @@ definition p : nat × nat :=
 
 #print p
 
-definition attr : user_attribute :=
+meta def attr : user_attribute :=
 { name := `foo, descr := "hello world" }
 
 #print attr

@@ -50,6 +50,8 @@ master branch (aka work in progress branch)
 * Tactics that accept a location parameter, like `rw thm at h`, may now use `⊢` or the ASCII version `|-`
   to select the goal as well as any hypotheses, for example `rw thm at h1 h2 ⊢`.
 
+* Add `user_attribute.after_set/before_unset` handlers that can be used for validation as well as side-effecting attributes.
+
 *Changes*
 
 * We now have two type classes for converting to string: `has_to_string` and `has_repr`.

@@ -57,9 +57,37 @@ static environment add_user_attr(environment const & env, name const & d) {
     if (is_attribute(env, n))
         throw exception(sstream() << "an attribute named [" << n << "] has already been registered");
     std::string descr = to_string(cfield(o, 1));
+    after_set_proc after_set;
+    if (!is_none(cfield(o, 2))) {
+        after_set = [=](environment const & env, io_state const & ios, name const & n, unsigned prio, bool persistent) {
+            vm_state vm(env, ios.get_options());
+            scope_vm_state scope(vm);
+            vm_obj o = vm.invoke(d, {});
+            if (is_constant(get_app_fn(ty), get_caching_user_attribute_name()))
+                o = cfield(o, 0);
+            tactic_state s = mk_tactic_state_for(env, options(), {}, local_context(), mk_true());
+            auto vm_r = vm.invoke(get_some_value(cfield(o, 2)), to_obj(n), to_obj(prio), mk_vm_bool(persistent), to_obj(s));
+            tactic::report_exception(vm, vm_r);
+            return tactic::to_state(tactic::get_result_state(vm_r)).env();
+        };
+    }
+    before_unset_proc before_unset;
+    if (!is_none(cfield(o, 3))) {
+        before_unset = [=](environment const & env, io_state const & ios, name const & n, bool persistent) {
+            vm_state vm(env, ios.get_options());
+            scope_vm_state scope(vm);
+            vm_obj o = vm.invoke(d, {});
+            if (is_constant(get_app_fn(ty), get_caching_user_attribute_name()))
+                o = cfield(o, 0);
+            tactic_state s = mk_tactic_state_for(env, options(), {}, local_context(), mk_true());
+            auto vm_r = vm.invoke(get_some_value(cfield(o, 3)), to_obj(n), mk_vm_bool(persistent), to_obj(s));
+            tactic::report_exception(vm, vm_r);
+            return tactic::to_state(tactic::get_result_state(vm_r)).env();
+        };
+    }
 
     user_attr_ext ext = get_extension(env);
-    ext.m_attrs.insert(n, attribute_ptr(new basic_attribute(n, descr.c_str())));
+    ext.m_attrs.insert(n, attribute_ptr(new basic_attribute(n, descr.c_str(), after_set, before_unset)));
     return update(env, ext);
 }
 

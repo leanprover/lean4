@@ -10,6 +10,6 @@ import init.util init.coe init.wf init.meta init.meta.well_founded_tactics init.
 import init.native
 
 @[user_attribute]
-def debugger.attr : user_attribute :=
+meta def debugger.attr : user_attribute :=
 { name  := `breakpoint,
   descr := "breakpoint for debugger" }

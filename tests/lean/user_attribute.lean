@@ -1,5 +1,5 @@
 @[user_attribute]
-definition foo_attr : user_attribute := { name := `foo, descr := "bar" }
+meta def foo_attr : user_attribute := { name := `foo, descr := "bar" }
 
 attribute [foo] eq.refl
 
@@ -10,7 +10,7 @@ run_cmd attribute.get_instances `foo >>= tactic.pp >>= tactic.trace
 
 -- compound names
 @[user_attribute]
-definition foo_baz_attr : user_attribute := ⟨`foo.baz, "bar"⟩
+meta def foo_baz_attr : user_attribute := { name := `foo.baz, descr := "bar" }
 
 attribute [foo.baz] eq.refl
 
@@ -20,16 +20,16 @@ run_cmd attribute.get_instances `foo.baz >>= tactic.pp >>= tactic.trace
 
 -- can't redeclare attributes
 @[user_attribute]
-definition duplicate : user_attribute := ⟨`reducible, "bar"⟩
+meta def duplicate : user_attribute := { name := `reducible, descr := "bar" }
 
 
 -- wrong type
 @[user_attribute]
-definition bar := "bar"
+meta def bar := "bar"
 
 section
   variable x : string
 
   @[user_attribute]
-  definition baz_attr : user_attribute := ⟨`baz, x⟩
+  meta def baz_attr : user_attribute := { name := `baz, descr := x }
 end

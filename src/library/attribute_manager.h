@@ -34,7 +34,7 @@ attr_data_ptr get_default_attr_data();
 
 typedef std::function<environment(environment const &, io_state const &, name const &, unsigned, bool)> after_set_proc;
 typedef std::function<void(environment const &, name const &, bool)> after_set_check_proc;
-typedef std::function<environment(environment const &, name const &, bool)> before_unset_proc;
+typedef std::function<environment(environment const &, io_state const &, name const &, bool)> before_unset_proc;
 
 class attribute {
     friend struct attr_config;
@@ -93,7 +93,7 @@ public:
                     after_set(env, n, persistent);
                     return env;
                 },
-                [](environment const & env, name const &, bool) {
+                [](environment const & env, io_state const &, name const &, bool) {
                     return env;
                 });
     }

@@ -17,7 +17,6 @@ build_script:
       if [[ $APPVEYOR_REPO_BRANCH == master ]]; then OPTIONS+=' -DLEAN_VERSION_STRING=nightly'; export TARGET=build/lean-nightly-windows.zip; fi;
       cmake ../src -DINCLUDE_MSYS2_DLLS=ON -DCMAKE_BUILD_TYPE=Release $OPTIONS -G Ninja"
   - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER/build && ninja && cpack"
-  - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER && cp $TARGET $NIGHTLY_TARGET"
 
 test_script:
   - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER/build && ctest -j4 --output-on-failure"

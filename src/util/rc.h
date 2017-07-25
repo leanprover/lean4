@@ -14,12 +14,11 @@ Author: Leonardo de Moura
 private:                                                                \
 atomic<unsigned> m_rc;                                                  \
 public:                                                                 \
-unsigned get_rc() const { return atomic_load(&m_rc); }                  \
+unsigned get_rc() const { return atomic_load_explicit(&m_rc, memory_order_acquire); } \
 void inc_ref() { atomic_fetch_add_explicit(&m_rc, 1u, memory_order_relaxed); } \
 bool dec_ref_core() {                                                   \
     lean_assert(get_rc() > 0);                                          \
-    if (atomic_fetch_sub_explicit(&m_rc, 1u, memory_order_release) == 1u) { \
-        atomic_thread_fence(memory_order_acquire);                      \
+    if (atomic_fetch_sub_explicit(&m_rc, 1u, memory_order_acq_rel) == 1u) { \
         return true;                                                    \
     } else {                                                            \
         return false;                                                   \

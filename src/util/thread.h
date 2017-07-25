@@ -37,11 +37,13 @@ using std::condition_variable;
 using std::lock_guard;
 using std::unique_lock;
 using std::atomic_load;
+using std::atomic_load_explicit;
 using std::atomic_fetch_add_explicit;
 using std::atomic_fetch_sub_explicit;
 using std::memory_order_relaxed;
 using std::memory_order_release;
 using std::memory_order_acquire;
+using std::memory_order_acq_rel;
 using std::memory_order_seq_cst;
 using std::atomic_thread_fence;
 namespace this_thread = std::this_thread;
@@ -70,6 +72,7 @@ namespace lean {
 constexpr int memory_order_relaxed = 0;
 constexpr int memory_order_release = 0;
 constexpr int memory_order_acquire = 0;
+constexpr int memory_order_acq_rel = 0;
 constexpr int memory_order_seq_cst = 0;
 inline void atomic_thread_fence(int ) {}
 template<typename T>
@@ -95,6 +98,7 @@ public:
     atomic & operator--() { --m_value; return *this; }
     atomic   operator--(int ) { atomic tmp(*this); --m_value; return tmp; }
     friend T atomic_load(atomic const * a) { return a->m_value; }
+    friend T atomic_load_explicit(atomic const * a, int) { return a->m_value; }
     friend T atomic_fetch_add_explicit(atomic * a, T const & v, int ) { T r(a->m_value); a->m_value += v; return r; }
     friend T atomic_fetch_sub_explicit(atomic * a, T const & v, int ) { T r(a->m_value); a->m_value -= v; return r; }
     T exchange(T desired) { T old = m_value; m_value = desired; return old; }

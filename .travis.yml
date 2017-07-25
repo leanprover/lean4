@@ -113,6 +113,8 @@ script:
   - if [[ $TCMALLOC != ON ]]; then TCMALLOC=OFF; fi
   - if [[ $STATIC != ON ]]; then STATIC=OFF; fi
   - if [[ $MULTI_THREAD != OFF ]]; then MULTI_THREAD=ON; fi
+  - OPTIONS=""
+  - if [[ $TRAVIS_BRANCH == master ]]; then OPTIONS+=" -DLEAN_VERSION_STRING=nightly"; fi
   - cmake -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE
           -DCMAKE_CXX_COMPILER=$CMAKE_CXX_COMPILER
           -DTESTCOV=$TESTCOV
@@ -120,6 +122,7 @@ script:
           -DMULTI_THREAD=$MULTI_THREAD
           -DSTATIC=$STATIC
           -DLEAN_EXTRA_MAKE_OPTS=$LEAN_EXTRA_MAKE_OPTS
+          $OPTIONS
           ../src || exit
   - make -j2 || exit
   - if [[ $TEST != OFF ]]; then yes "A" | ctest -j2 --output-on-failure; fi

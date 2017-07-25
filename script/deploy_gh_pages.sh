@@ -12,7 +12,7 @@ cd gh-pages
 # "build/lean-3.2.0-linux.tar.gz" ~> "build/lean-nightly-linux.tar.gz"
 NIGHTLY_TARGET=${TARGET/-*-/-nightly-}
 mkdir -p build
-ln ../$TARGET $NIGHTLY_TARGET
+ln -f ../$NIGHTLY_TARGET $NIGHTLY_TARGET
 
 git config user.name "Bot Botson"
 git config user.email "bot@bot.bot"

@@ -106,17 +106,17 @@ assume H, or.inr H
 lemma eq_or_mem_of_mem_cons {a y : α} {l : list α} : a ∈ y::l → a = y ∨ a ∈ l :=
 assume h, h
 
-@[simp] lemma mem_append_iff (a : α) (s t : list α) : a ∈ s ++ t ↔ a ∈ s ∨ a ∈ t :=
+@[simp] lemma mem_append {a : α} {s t : list α} : a ∈ s ++ t ↔ a ∈ s ∨ a ∈ t :=
 by induction s; simp *
 
 @[rsimp] lemma mem_append_eq (a : α) (s t : list α) : (a ∈ s ++ t) = (a ∈ s ∨ a ∈ t) :=
-propext $ mem_append_iff a s t
+propext mem_append
 
 lemma mem_append_left {a : α} {l₁ : list α} (l₂ : list α) (h : a ∈ l₁) : a ∈ l₁ ++ l₂ :=
-(mem_append_iff _ _ _).2 (or.inl h)
+mem_append.2 (or.inl h)
 
 lemma mem_append_right {a : α} (l₁ : list α) {l₂ : list α} (h : a ∈ l₂) : a ∈ l₁ ++ l₂ :=
-(mem_append_iff _ _ _).2 (or.inr h)
+mem_append.2 (or.inr h)
 
 @[simp] lemma not_bex_nil (p : α → Prop) : ¬ (∃ x ∈ @nil α, p x) :=
 λ⟨x, hx, px⟩, hx
@@ -143,10 +143,10 @@ instance : has_subset (list α) := ⟨list.subset⟩
 @[simp] lemma nil_subset (l : list α) : [] ⊆ l :=
 λ b i, false.elim (iff.mp (mem_nil_iff b) i)
 
-@[simp] lemma subset.refl (l : list α) : l ⊆ l :=
+@[refl, simp] lemma subset.refl (l : list α) : l ⊆ l :=
 λ b i, i
 
-lemma subset.trans {l₁ l₂ l₃ : list α} (h₁ : l₁ ⊆ l₂) (h₂ : l₂ ⊆ l₃) : l₁ ⊆ l₃ :=
+@[trans] lemma subset.trans {l₁ l₂ l₃ : list α} (h₁ : l₁ ⊆ l₂) (h₂ : l₂ ⊆ l₃) : l₁ ⊆ l₃ :=
 λ b i, h₂ (h₁ i)
 
 @[simp] lemma subset_cons (a : α) (l : list α) : l ⊆ a::l :=
@@ -155,16 +155,16 @@ lemma subset.trans {l₁ l₂ l₃ : list α} (h₁ : l₁ ⊆ l₂) (h₂ : l�
 lemma subset_of_cons_subset {a : α} {l₁ l₂ : list α} : a::l₁ ⊆ l₂ → l₁ ⊆ l₂ :=
 λ s b i, s (mem_cons_of_mem _ i)
 
-lemma cons_subset_cons  {l₁ l₂ : list α} (a : α) (s : l₁ ⊆ l₂) : (a::l₁) ⊆ (a::l₂) :=
+lemma cons_subset_cons {l₁ l₂ : list α} (a : α) (s : l₁ ⊆ l₂) : (a::l₁) ⊆ (a::l₂) :=
 λ b hin, or.elim (eq_or_mem_of_mem_cons hin)
   (λ e : b = a,  or.inl e)
   (λ i : b ∈ l₁, or.inr (s i))
 
 @[simp] lemma subset_append_left (l₁ l₂ : list α) : l₁ ⊆ l₁++l₂ :=
-λ b i, iff.mpr (mem_append_iff b l₁ l₂) (or.inl i)
+λ b, mem_append_left _
 
 @[simp] lemma subset_append_right (l₁ l₂ : list α) : l₂ ⊆ l₁++l₂ :=
-λ b i, iff.mpr (mem_append_iff b l₁ l₂) (or.inr i)
+λ b, mem_append_right _
 
 lemma subset_cons_of_subset (a : α) {l₁ l₂ : list α} : l₁ ⊆ l₂ → l₁ ⊆ (a::l₂) :=
 λ (s : l₁ ⊆ l₂) (a : α) (i : a ∈ l₁), or.inr (s i)

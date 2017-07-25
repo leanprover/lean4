@@ -131,7 +131,7 @@ do l ← conv.lhs,
    update_lhs new_lhs prf
 
 private meta def rw_core (rs : list rw_rule) (cfg : rewrite_cfg) : conv unit :=
-rs.mfor' $ λ r, do
+rs.mmap' $ λ r, do
  save_info r.pos,
  eq_lemmas ← get_rule_eqn_lemmas r,
  orelse'

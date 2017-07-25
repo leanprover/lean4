@@ -80,7 +80,7 @@ do
     intros,
     contradiction <|> do {
       lc ← local_context,
-      mfor' lc (λ h, try (apply_eq_of_heq h) <|> skip),
+      lc.mmap' (λ h, try (apply_eq_of_heq h) <|> skip),
       contradiction },
     return () }
 

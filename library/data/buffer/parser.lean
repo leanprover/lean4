@@ -117,7 +117,7 @@ decorate_error c.to_string $ sat (= c) >> eps
 
 /-- Matches a whole char_buffer.  Does not consume input in case of failure. -/
 def char_buf (s : char_buffer) : parser unit :=
-decorate_error s.to_string $ monad.for' s.to_list ch
+decorate_error s.to_string $ s.to_list.mmap' ch
 
 /-- Matches one out of a list of characters. -/
 def one_of (cs : list char) : parser char :=
@@ -129,7 +129,7 @@ one_of cs >> eps
 
 /-- Matches a string.  Does not consume input in case of failure. -/
 def str (s : string) : parser unit :=
-decorate_error s $ monad.for' s.to_list ch
+decorate_error s $ s.to_list.mmap' ch
 
 /-- Number of remaining input characters. -/
 def remaining : parser ℕ :=

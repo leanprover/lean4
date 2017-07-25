@@ -313,7 +313,7 @@ match r.rule with
 end
 
 private meta def rw_goal (cfg : rewrite_cfg) (rs : list rw_rule) : tactic unit :=
-rs.mfor' $ λ r, do
+rs.mmap' $ λ r, do
  save_info r.pos,
  eq_lemmas ← get_rule_eqn_lemmas r,
  orelse'
@@ -322,7 +322,7 @@ rs.mfor' $ λ r, do
    (eq_lemmas.empty)
 
 private meta def rw_hyp (cfg : rewrite_cfg) (rs : list rw_rule) (hname : name) : tactic unit :=
-rs.mfor' $ λ r,
+rs.mmap' $ λ r,
 do save_info r.pos,
    eq_lemmas ← get_rule_eqn_lemmas r,
    orelse'
@@ -331,7 +331,7 @@ do save_info r.pos,
      (eq_lemmas.empty)
 
 private meta def rw_hyps (cfg : rewrite_cfg) (rs : list rw_rule) (hs : list name) : tactic unit :=
-hs.mfor' (rw_hyp cfg rs)
+hs.mmap' (rw_hyp cfg rs)
 
 meta def rw_rule_p (ep : parser pexpr) : parser rw_rule :=
 rw_rule.mk <$> cur_pos <*> (option.is_some <$> (with_desc "←" (tk "←" <|> tk "<-"))?) <*> ep
@@ -389,15 +389,16 @@ do e ← i_to_expr p,
    else generalize e >> intro1,
 
    -- generalize major premise args
-   (e, newvars) ← do {
-      none ← pure rec_name | pure (e, []),
+   (e, newvars, locals) ← do {
+      none ← pure rec_name | pure (e, [], []),
       t ← infer_type e,
       -- TODO(Kha): `t ← whnf_ginductive t,`
-      const n _ ← pure t.get_app_fn | pure (e, []),
+      const n _ ← pure t.get_app_fn | pure (e, [], []),
       env ← get_env,
-      tt ← pure $ env.is_inductive n | pure (e, []),
-      let nonlocals := (t.get_app_args.drop (env.inductive_num_params n)).filter (λ arg, not arg.is_local_constant),
-      _ :: _ ← pure nonlocals | pure (e, []),
+      tt ← pure $ env.is_inductive n | pure (e, [], []),
+      let (locals, nonlocals) := (t.get_app_args.drop $ env.inductive_num_params n).partition
+        (λ arg : expr, arg.is_local_constant),
+      _ :: _ ← pure nonlocals | pure (e, [], []),
 
       n ← tactic.revert e,
       newvars ← nonlocals.mmap $ λ arg, do {
@@ -406,21 +407,23 @@ do e ← i_to_expr p,
         h ← intro1,
         intron n,
         -- now try to clear hypotheses that may have been abstracted away
-        let locals := arg.fold list.nil (λ e _ acc, if e.is_local_constant then e::acc else acc),
-        locals.mfor' (try ∘ clear),
+        let locals := arg.fold [] (λ e _ acc, if e.is_local_constant then e::acc else acc),
+        locals.mmap' (try ∘ clear),
         pure h
       },
       intron (n-1),
       e ← intro1,
-      pure (e, newvars)
+      pure (e, newvars, locals)
    },
 
    -- revert `generalizing` params
-   locals ← mmap tactic.get_local $ revert.get_or_else [],
-   n ← revert_lst locals,
+   n ← mmap tactic.get_local (revert.get_or_else []) >>= revert_lst,
 
    tactic.induction e ids rec_name,
-   all_goals (intron n; clear_lst (newvars.map local_pp_name))
+   all_goals $ do {
+     intron n,
+     clear_lst (newvars.map local_pp_name),
+     (e::locals).mmap' (try ∘ clear) }
 
 meta def cases (p : parse texpr) (ids : parse with_ident_list) : tactic unit :=
 do e ← i_to_expr p,
@@ -572,7 +575,7 @@ do t ← target,
 meta def «assume» : parse (sum.inl <$> (tk ":" *> texpr) <|> sum.inr <$> parse_binders) → tactic unit
 | (sum.inl ty)      := assume_core `this ty
 | (sum.inr binders) :=
-  list.mfor' binders $ λ b, assume_core b.local_pp_name b.local_type
+  binders.mmap' $ λ b, assume_core b.local_pp_name b.local_type
 
 /--
 This tactic applies to any goal.
@@ -787,7 +790,7 @@ do (hs, gex, hex, all_hyps) ← decode_simp_arg_list hs,
               s.append ctx
             else return s,
    -- add equational lemmas, if any
-   gex ← gex.mfor (λ n, list.cons n <$> get_eqn_lemmas_for tt n),
+   gex ← gex.mmap (λ n, list.cons n <$> get_eqn_lemmas_for tt n),
    return (all_hyps, simp_lemmas.erase s $ gex.join, u)
 
 meta def mk_simp_set (no_dflt : bool) (attr_names : list name) (hs : list simp_arg_type) : tactic (simp_lemmas × list name) :=
@@ -807,7 +810,7 @@ do to_remove ← hs.mfilter $ λ h, do {
          (return ff) },
    goal_simplified ← if tgt then (simp_target s u cfg discharger >> return tt) <|> (return ff) else return ff,
    guard (cfg.fail_if_unchanged = ff ∨ to_remove.length > 0 ∨ goal_simplified) <|> fail "simplify tactic failed to simplify",
-   to_remove.mfor' (λ h, try (clear h))
+   to_remove.mmap' (λ h, try (clear h))
 
 meta def simp_core (cfg : simp_config) (discharger : tactic unit)
                    (no_dflt : bool) (hs : list simp_arg_type) (attr_names : list name)
@@ -867,7 +870,7 @@ do (s, u) ← mk_simp_set no_dflt attr_names hs,
    try triv >> try (reflexivity reducible)
 
 private meta def dsimp_hyps (s : simp_lemmas) (u : list name) (hs : list name) (cfg : dsimp_config := {}) : tactic unit :=
-hs.mfor' (λ h_name, do h ← get_local h_name, dsimp_hyp h s u cfg)
+hs.mmap' (λ h_name, do h ← get_local h_name, dsimp_hyp h s u cfg)
 
 private meta def to_simp_arg_list (es : list pexpr) : list simp_arg_type :=
 es.map simp_arg_type.expr

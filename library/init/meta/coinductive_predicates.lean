@@ -549,7 +549,7 @@ open interactive
 meta def coinductive_predicate (meta_info : decl_meta_info) (_ : parse $ tk "coinductive") : lean.parser unit := do
   decl ← inductive_decl.parse meta_info,
   add_coinductive_predicate decl.u_names decl.params $ decl.decls.map $ λ d, (d.sig, d.intros),
-  decl.decls.mfor' $ λ d, do {
+  decl.decls.mmap' $ λ d, do {
     get_env >>= λ env, set_env $ env.add_namespace d.name,
     meta_info.attrs.apply d.name,
     d.attrs.apply d.name,

@@ -72,7 +72,7 @@ meta def hoist
   (kont : list name → anf_monad expr) : list expr → anf_monad expr
 | [] := kont []
 | es := do
-     ns ← monad.for es $ (fun x, do
+     ns ← es.mmap $ (fun x, do
        value ← anf x,
        fresh ← fresh_name,
        let_bind fresh mk_neutral_expr value,

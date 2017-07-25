@@ -442,7 +442,7 @@ private meta def init (s : simp_lemmas) (hs : list expr) : tactic (simp_lemmas �
 init_aux hs s []
 
 private meta def add_new_hyps (es : list simp_all_entry) : tactic unit :=
-list.mfor' es $ λ e,
+es.mmap' $ λ e,
    match e.pr with
    | none    := return ()
    | some pr :=
@@ -451,7 +451,7 @@ list.mfor' es $ λ e,
    end
 
 private meta def clear_old_hyps (es : list simp_all_entry) : tactic unit :=
-list.mfor' es $ λ e, when (e.pr ≠ none) (try (clear e.h))
+es.mmap' $ λ e, when (e.pr ≠ none) (try (clear e.h))
 
 private meta def join_pr : option expr → expr → tactic expr
 | none       pr₂ := return pr₂

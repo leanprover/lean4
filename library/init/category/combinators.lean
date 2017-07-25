@@ -17,12 +17,6 @@ def list.mmap' {m : Type → Type v} [monad m] {α : Type u} {β : Type} (f : α
 | []       := return ()
 | (h :: t) := f h >> list.mmap' t
 
-def list.mfor {m : Type u → Type v} [monad m] {α : Type w} {β : Type u} (l : list α) (f : α → m β) : m (list β) :=
-list.mmap f l
-
-def list.mfor' {m : Type → Type v} [monad m] {α : Type u} {β : Type} (l : list α) (f : α → m β) : m unit :=
-list.mmap' f l
-
 infix ` =<< `:2 := λ u v, v >>= u
 
 infix ` >=> `:2 := λ s t a, s a >>= t
@@ -61,13 +55,11 @@ do b ← mbool, cond b tm fm
 def mwhen {m : Type → Type} [monad m] (c : m bool) (t : m unit) : m unit :=
 mcond c t (return ())
 
-export list (mmap mmap' mfor mfor' mfilter mfoldl)
+export list (mmap mmap' mfilter mfoldl)
 
 namespace monad
 def mapm   := @mmap
 def mapm'  := @mmap'
-def for    := @mfor
-def for'   := @mfor'
 def join   := @mjoin
 def filter := @mfilter
 def foldl  := @mfoldl

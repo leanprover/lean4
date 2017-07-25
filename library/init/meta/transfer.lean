@@ -102,7 +102,7 @@ private meta def analyse_decls : list name → tactic (list rule_data) :=
 mmap (λn, do
   d ← get_decl n,
   c ← return d.univ_params.length,
-  ls ← monad.for (range c) (λ_, mk_fresh_name),
+  ls ← (repeat () c).mmap (λ_, mk_fresh_name),
   analyse_rule ls (const n (ls.map level.param)))
 
 private meta def split_params_args : list (expr × bool) → list expr → list (expr × option expr) × list expr
@@ -146,7 +146,7 @@ meta def compute_transfer : list rule_data → list expr → expr → tactic (ex
     return (instantiate_locals ps ∘ inst_univ, ps, args, ms, rd))) <|>
   (do trace e, fail "no matching rule"),
 
-  (bs, hs, mss) ← monad.for (zip rd.args args) (λ⟨⟨_, d⟩, e⟩, do
+  (bs, hs, mss) ← (zip rd.args args).mmap (λ⟨⟨_, d⟩, e⟩, do
     -- Argument has function type
     (args, r) ← get_lift_fun (i d.relation),
     ((a_vars, b_vars), (R_vars, bnds)) ← (enum args).mmap (λ⟨n, arg⟩, do

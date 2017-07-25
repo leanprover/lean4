@@ -24,6 +24,9 @@ target >>= instantiate_mvars >>= whnf >>= get_constructors_for >>= try_construct
 meta def econstructor : tactic unit :=
 constructor {new_goals := new_goals.non_dep_only}
 
+meta def fconstructor : tactic unit :=
+constructor {new_goals := new_goals.all}
+
 meta def left : tactic unit :=
 do tgt ← target,
    [c₁, c₂] ← get_constructors_for tgt | fail "left tactic failed, target is not an inductive datatype with two constructors",

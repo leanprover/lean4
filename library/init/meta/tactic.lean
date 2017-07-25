@@ -845,7 +845,7 @@ meta def try_apply_opt_auto_param (cfg : apply_cfg) (ms : list expr) : tactic un
 when (cfg.auto_param || cfg.opt_param) $
 mwhen (has_opt_auto_param ms) $ do
   gs ← get_goals,
-  ms.mfor' (λ m, set_goals [m] >>
+  ms.mmap' (λ m, set_goals [m] >>
                  when cfg.opt_param (try apply_opt_param) >>
                  when cfg.auto_param (try apply_auto_param)),
   set_goals gs

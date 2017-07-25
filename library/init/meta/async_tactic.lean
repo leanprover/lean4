@@ -37,7 +37,7 @@ lemma_name ← new_aux_decl_name,
 proof ← run_async (do
   goal_meta ← mk_meta_var tgt,
   set_goals [goal_meta],
-  monad.for' ctx (λc, intro c.local_pp_name),
+  ctx.mmap' (λc, intro c.local_pp_name),
   tac,
   proof ← instantiate_mvars goal_meta,
   proof ← return $ env.unfold_untrusted_macros proof,

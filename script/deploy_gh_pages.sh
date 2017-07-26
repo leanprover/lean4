@@ -6,7 +6,7 @@ set -eu
 rev=$(git rev-parse --short HEAD)
 
 
-git clone -b gh-pages "https://$GH_TOKEN@github.com/$TRAVIS_REPO_SLUG.git" gh-pages
+git clone -b gh-pages "https://$GH_TOKEN@github.com/leanprover/lean-nightly.git" gh-pages
 cd gh-pages
 
 mkdir -p build

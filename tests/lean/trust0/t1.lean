@@ -1,2 +1,2 @@
-import standard
+import system.io
 #print trust

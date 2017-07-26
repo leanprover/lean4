@@ -1,4 +1,3 @@
-import standard
 namespace int
 
 private lemma sub_nat_nat_elim (m n : ℕ) (P : ℕ → ℕ → ℤ → Prop)

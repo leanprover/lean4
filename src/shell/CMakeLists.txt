@@ -80,7 +80,6 @@ add_test(lean_ghash1   "${CMAKE_CURRENT_BINARY_DIR}/lean" -g)
 add_test(lean_ghash2   "${CMAKE_CURRENT_BINARY_DIR}/lean" --githash)
 add_test(lean_path1    "${CMAKE_CURRENT_BINARY_DIR}/lean" -p)
 add_test(lean_path2    "${CMAKE_CURRENT_BINARY_DIR}/lean" --path)
-add_test(export_all    env "LEAN_PATH=${LEAN_SOURCE_DIR}/../library" "${CMAKE_CURRENT_BINARY_DIR}/lean" --export=all.out "${LEAN_SOURCE_DIR}/../library/standard.lean")
 add_test(lean_unknown_option bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "-z")
 add_test(lean_unknown_file1 bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "boofoo.lean")
 # The following test needs new elaborator to support match

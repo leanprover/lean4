@@ -1,4 +1,3 @@
-import standard
 inductive F2 : Type
 | O : F2
 | I : F2

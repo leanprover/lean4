@@ -1,5 +1,3 @@
-import standard
-
 example : ∃(b : nat), b = 1 ∧ 0 ≤ b :=
 begin
   apply exists.intro,

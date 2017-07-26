@@ -44,7 +44,7 @@ lean_env mk_env() {
 void test_import() {
     lean_exception ex;
     lean_env  env     = mk_env();
-    lean_name std     = mk_name("standard");
+    lean_name std     = mk_name("init");
     lean_list_name ms = mk_unary_name_list(std);
     lean_options o;
     lean_ios ios;

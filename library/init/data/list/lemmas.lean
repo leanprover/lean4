@@ -7,7 +7,7 @@ prelude
 import init.data.list.basic init.function init.meta init.data.nat.lemmas
 import init.meta.interactive init.meta.smt.rsimp
 
-universes u v w
+universes u v w w₁ w₂
 variables {α : Type u} {β : Type v} {γ : Type w}
 
 namespace list
@@ -169,7 +169,28 @@ lemma cons_subset_cons {l₁ l₂ : list α} (a : α) (s : l₁ ⊆ l₂) : (a::
 lemma subset_cons_of_subset (a : α) {l₁ l₂ : list α} : l₁ ⊆ l₂ → l₁ ⊆ (a::l₂) :=
 λ (s : l₁ ⊆ l₂) (a : α) (i : a ∈ l₁), or.inr (s i)
 
-/- filter, partition, take_while, drop_while, span -/
+theorem eq_nil_of_length_eq_zero {l : list α} : length l = 0 → l = [] :=
+by {induction l; intros, refl, contradiction}
+
+theorem ne_nil_of_length_eq_succ {l : list α} : ∀ {n : nat}, length l = succ n → l ≠ [] :=
+by induction l; intros; contradiction
+
+@[simp] theorem length_map₂ (f : α → β → γ) (l₁) : ∀ l₂, length (map₂ f l₁ l₂) = min (length l₁) (length l₂) :=
+by {induction l₁; intro l₂; cases l₂; simp [*, add_one, min_succ_succ]}
+
+@[simp] theorem length_take : ∀ (i : ℕ) (l : list α), length (take i l) = min i (length l)
+| 0        l      := by simp
+| (succ n) []     := by simp
+| (succ n) (a::l) := by simp [*, nat.min_succ_succ, add_one]
+
+theorem length_take_le (n) (l : list α) : length (take n l) ≤ n :=
+by simp [min_le_left]
+
+theorem length_remove_nth : ∀ (l : list α) (i : ℕ), i < length l → length (remove_nth l i) = length l - 1
+| []      _     h := rfl
+| (x::xs) 0     h := by simp [remove_nth, -add_comm]
+| (x::xs) (i+1) h := have i < length xs, from lt_of_succ_lt_succ h,
+  by dsimp [remove_nth]; rw [length_remove_nth xs i this, nat.sub_add_cancel (lt_of_le_of_lt (nat.zero_le _) this)]; refl
 
 @[simp] lemma partition_eq_filter_filter (p : α → Prop) [decidable_pred p] : ∀ (l : list α), partition p l = (filter p l, filter (not ∘ p) l)
 | []     := rfl
@@ -211,5 +232,52 @@ lemma length_le_of_sublist : ∀ {l₁ l₂ : list α}, l₁ <+ l₂ → length 
 | (a::l) := if pa : p a
   then by simp [pa]; apply sublist.cons2; apply filter_sublist l
   else by simp [pa]; apply sublist.cons; apply filter_sublist l
+
+/- map_accumr -/
+section map_accumr
+variables {φ : Type w₁} {σ : Type w₂}
+
+-- This runs a function over a list returning the intermediate results and a
+-- a final result.
+def map_accumr (f : α → σ → σ × β) : list α → σ → (σ × list β)
+| [] c := (c, [])
+| (y::yr) c :=
+  let r := map_accumr yr c in
+  let z := f y r.1 in
+  (z.1, z.2 :: r.2)
+
+@[simp] theorem length_map_accumr
+: ∀ (f : α → σ → σ × β) (x : list α) (s : σ),
+  length (map_accumr f x s).2 = length x
+| f (a::x) s := congr_arg succ (length_map_accumr f x s)
+| f [] s := rfl
+
+end map_accumr
+
+section map_accumr₂
+variables {φ : Type w₁} {σ : Type w₂}
+-- This runs a function over two lists returning the intermediate results and a
+-- a final result.
+def map_accumr₂ (f : α → β → σ → σ × φ)
+  : list α → list β → σ → σ × list φ
+| [] _ c := (c,[])
+| _ [] c := (c,[])
+| (x::xr) (y::yr) c :=
+  let r := map_accumr₂ xr yr c in
+  let q := f x y r.1 in
+  (q.1, q.2 :: r.2)
+
+@[simp] theorem length_map_accumr₂ : ∀ (f : α → β → σ → σ × φ) x y c,
+  length (map_accumr₂ f x y c).2 = min (length x) (length y)
+| f (a::x) (b::y) c := calc
+    succ (length (map_accumr₂ f x y c).2)
+              = succ (min (length x) (length y))
+              : congr_arg succ (length_map_accumr₂ f x y c)
+          ... = min (succ (length x)) (succ (length y))
+              : eq.symm (min_succ_succ (length x) (length y))
+| f (a::x) [] c := rfl
+| f [] (b::y) c := rfl
+| f [] []     c := rfl
+end map_accumr₂
 
 end list

@@ -72,6 +72,12 @@ def nth : list α → nat → option α
 | (a :: l) (n+1) := nth l n
 attribute [simp] nth
 
+def nth_le : Π (l : list α) (n), n < l.length → α
+| []       n     h := absurd h (not_lt_zero n)
+| (a :: l) 0     h := a
+| (a :: l) (n+1) h := nth_le l n (le_of_succ_le_succ h)
+attribute [simp] nth_le
+
 def head [inhabited α] : list α → α
 | []       := default α
 | (a :: l) := a
@@ -93,6 +99,12 @@ def map (f : α → β) : list α → list β
 | []       := []
 | (a :: l) := f a :: map l
 attribute [simp] map
+
+def map₂ (f : α → β → γ) : list α → list β → list γ
+| []      _       := []
+| _       []      := []
+| (x::xs) (y::ys) := f x y :: map₂ xs ys
+attribute [simp] map₂
 
 def join : list (list α) → list α
 | []        := []
@@ -122,6 +134,16 @@ def index_of [decidable_eq α] (a : α) : list α → nat := find_index (eq a)
 
 def remove_all [decidable_eq α] (xs ys : list α) : list α :=
 filter (∉ ys) xs
+
+def update_nth : list α → ℕ → α → list α
+| (x::xs) 0     a := a :: xs
+| (x::xs) (i+1) a := x :: update_nth xs i a
+| []      _     _ := []
+
+def remove_nth : list α → ℕ → list α
+| []      _     := []
+| (x::xs) 0     := xs
+| (x::xs) (i+1) := x :: remove_nth xs i
 
 def drop : ℕ → list α → list α
 | 0        a      := a
@@ -230,6 +252,8 @@ def intersperse (sep : α) : list α → list α
 
 def intercalate (sep : list α) (xs : list (list α)) : list α :=
 join (intersperse sep xs)
+
+
 
 @[inline] def bind {α : Type u} {β : Type v} (a : list α) (b : α → list β) : list β :=
 join (map b a)

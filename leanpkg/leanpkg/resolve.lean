@@ -82,8 +82,8 @@ def solve_deps_core : ∀ (rel_path : string) (d : manifest) (max_depth : ℕ), 
 | _ _ 0 := io.fail "maximum dependency resolution depth reached"
 | relpath d (max_depth + 1) := do
 deps ← monad.filter (not_yet_assigned ∘ dependency.name) d.dependencies,
-monad.for' deps (materialize relpath),
-monad.for' deps $ λ dep, do
+deps.mmap' (materialize relpath),
+deps.mmap' $ λ dep, do
   p ← resolved_path dep.name,
   d ← manifest.from_file $ p ++ "/" ++ "leanpkg.toml",
   when (d.name ≠ dep.name) $
@@ -101,6 +101,6 @@ manifest.effective_path <$> (manifest.from_file $ dirname ++ "/" ++ leanpkg_toml
 
 def construct_path (assg : assignment) : io (list string) := do
 let assg := assg.fold [] (λ xs depname dirname, (depname, dirname) :: xs),
-list.join <$> (list.mfor assg $ λ ⟨depname, dirname⟩, construct_path_core depname dirname)
+list.join <$> (assg.mmap $ λ ⟨depname, dirname⟩, construct_path_core depname dirname)
 
 end leanpkg

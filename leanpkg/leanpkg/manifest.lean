@@ -70,15 +70,15 @@ path ← match pkg.lookup "path" with
        | _ := none
        end,
 toml.value.table deps ← t.lookup "dependencies" <|> some (toml.value.table []) | none,
-deps ← monad.for deps (λ ⟨n, src⟩, do src ← source.from_toml src,
-                                      return $ dependency.mk n src),
+deps ← deps.mmap (λ ⟨n, src⟩, do src ← source.from_toml src,
+                                       return $ dependency.mk n src),
 return { name := n, version := ver, path := path, dependencies := deps, timeout := tm }
 
 def to_toml (d : manifest) : toml.value :=
 let pkg := [("name", toml.value.str d.name), ("version", toml.value.str d.version)],
     pkg := match d.path with some p := pkg ++ [("path", toml.value.str p)] | none := pkg end,
     pkg := match d.timeout with some t := pkg ++ [("timeout", toml.value.nat t)] | none := pkg end,
-    deps := toml.value.table $ d.dependencies.for $ λ dep, (dep.name, dep.src.to_toml) in
+    deps := toml.value.table $ d.dependencies.map $ λ dep, (dep.name, dep.src.to_toml) in
 toml.value.table [("package", toml.value.table pkg), ("dependencies", deps)]
 
 instance : has_repr manifest :=

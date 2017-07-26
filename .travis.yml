@@ -24,7 +24,6 @@ matrix:
      env:
        CMAKE_CXX_COMPILER=g++-4.9
        CMAKE_BUILD_TYPE=Release
-       TARGET=build/lean-3.2.1-linux.tar.gz
        UPLOAD=ON
        STATIC=ON
 
@@ -91,7 +90,6 @@ matrix:
      env:
        CMAKE_CXX_COMPILER=clang++
        CMAKE_BUILD_TYPE=Release
-       TARGET=build/lean-3.2.1-darwin.zip
        UPLOAD=ON
 
    - os: osx
@@ -144,7 +142,8 @@ notifications:
 deploy:
   provider: releases
   api_key: $GH_TOKEN
-  file: $TARGET
+  file_glob: true
+  file: build/lean-*
   skip_cleanup: true
   overwrite: true
   on:

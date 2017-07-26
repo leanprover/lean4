@@ -350,8 +350,6 @@ configure_file("${LEAN_SOURCE_DIR}/githash.h.in" "${LEAN_BINARY_DIR}/githash.h")
 
 # Version
 configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
-configure_file("${LEAN_SOURCE_DIR}/../.travis.yml.in" "${LEAN_SOURCE_DIR}/../.travis.yml")
-configure_file("${LEAN_SOURCE_DIR}/../.appveyor.yml.in" "${LEAN_SOURCE_DIR}/../.appveyor.yml")
 
 # leanemacs file
 configure_file("${LEAN_SOURCE_DIR}/../bin/leanemacs.in" "${LEAN_SOURCE_DIR}/../bin/leanemacs")

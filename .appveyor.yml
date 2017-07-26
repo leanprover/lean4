@@ -1,7 +1,6 @@
 environment:
   matrix:
   - MSYSTEM: MINGW64
-  TARGET: build\lean-3.2.1-windows.zip
 
 install:
   - C:\msys64\usr\bin\bash -lc "pacman --noconfirm -Syu" # update core
@@ -14,7 +13,7 @@ build_script:
       cd $APPVEYOR_BUILD_FOLDER;
       mkdir build && cd build;
       OPTIONS='';
-      if [[ $APPVEYOR_REPO_BRANCH == master ]]; then OPTIONS+=' -DLEAN_VERSION_STRING=nightly'; export TARGET=build/lean-nightly-windows.zip; fi;
+      if [[ $APPVEYOR_REPO_BRANCH == master ]]; then OPTIONS+=' -DLEAN_VERSION_STRING=nightly'; fi;
       cmake ../src -DINCLUDE_MSYS2_DLLS=ON -DCMAKE_BUILD_TYPE=Release $OPTIONS -G Ninja"
   - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER/build && ninja && cpack"
 
@@ -22,7 +21,7 @@ test_script:
   - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER/build && ctest -j4 --output-on-failure"
 
 artifacts:
-  - path: '%TARGET%'
+  - path: build\lean-*-windows.zip
     name: binary
 
 deploy:

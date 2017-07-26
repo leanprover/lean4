@@ -157,8 +157,6 @@ auto scanner::read_char() -> token_kind {
 auto scanner::read_quoted_symbol() -> token_kind {
     lean_assert(curr() == '`');
     next();
-    if (std::isdigit(curr()))
-        throw_exception("first character of a quoted symbols cannot be a digit");
     m_buffer.clear();
     bool start = true;
     bool trailing_space = false;
@@ -182,6 +180,8 @@ auto scanner::read_quoted_symbol() -> token_kind {
                 m_buffer += c;
                 break;
             default:
+                if (start && std::isdigit(c))
+                    throw_exception("first character of a quoted symbols cannot be a digit");
                 start = false;
                 if (trailing_space)
                     throw_exception("unexpected space inside of quoted symbol");

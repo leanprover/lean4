@@ -6,4 +6,4 @@ Authors: Leonardo de Moura
 prelude
 import init.data.basic init.data.sigma init.data.nat init.data.char init.data.string
 import init.data.list init.data.sum init.data.subtype init.data.int init.data.array
-import init.data.bool init.data.fin init.data.unsigned
+import init.data.bool init.data.fin init.data.unsigned init.data.vector init.data.bitvec

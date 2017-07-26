@@ -28,12 +28,11 @@ begin unfold vector, apply_instance end
 @[reducible] def length (v : vector α n) : ℕ := n
 
 notation a :: b := cons a b
-notation `[` l:(foldr `, ` (h t, cons h t) nil `]`) := l
 
 open nat
 
 def head : vector α (nat.succ n) → α
-| ⟨ [],     h ⟩ := by contradiction
+| ⟨ [],    h ⟩ := by contradiction
 | ⟨ a :: v, h ⟩ := a
 
 theorem head_cons (a : α) : Π (v : vector α n), head (a :: v) = a
@@ -87,7 +86,7 @@ def remove_nth (i : fin n) : vector α n → vector α (n - 1)
 | ⟨l, p⟩ := ⟨ list.remove_nth l i.1, by rw [l.length_remove_nth i.1]; rw p; exact i.2 ⟩
 
 def of_fn : Π {n}, (fin n → α) → vector α n
-| 0 f := []
+| 0 f := nil
 | (n+1) f := f 0 :: of_fn (λi, f i.succ)
 
 section accum
@@ -110,13 +109,13 @@ end accum
 protected theorem eq {n : ℕ} : ∀ (a1 a2 : vector α n), to_list a1 = to_list a2 → a1 = a2
 | ⟨x, h1⟩ ⟨._, h2⟩ rfl := rfl
 
-protected theorem eq_nil (v : vector α 0) : v = [] :=
-v.eq [] (list.eq_nil_of_length_eq_zero v.2)
+protected theorem eq_nil (v : vector α 0) : v = nil :=
+v.eq nil (list.eq_nil_of_length_eq_zero v.2)
 
 @[simp] theorem to_list_mk (v : list α) (P : list.length v = n) : to_list (subtype.mk v P) = v :=
 rfl
 
-@[simp] theorem to_list_nil : to_list [] = @list.nil α :=
+@[simp] theorem to_list_nil : to_list nil = @list.nil α :=
 rfl
 
 @[simp] theorem to_list_length (v : vector α n) : (to_list v).length = n := v.2

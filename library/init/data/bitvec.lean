@@ -23,8 +23,8 @@ local infix `++ₜ`:65 := vector.append
 
 -- Create a bitvector with the constant one.
 @[reducible] protected def one : Π (n : ℕ), bitvec n
-| 0        := []
-| (succ n) := repeat ff n ++ₜ [tt]
+| 0        := nil
+| (succ n) := repeat ff n ++ₜ tt::nil
 
 protected def cong {a b : ℕ} (h : a = b) : bitvec a → bitvec b
 | ⟨x, p⟩ := ⟨x, h ▸ p⟩
@@ -56,7 +56,7 @@ section shift
 
   -- signed shift right
   def sshr : Π {m : ℕ}, bitvec m → ℕ → bitvec m
-  | 0        _ _ := []
+  | 0        _ _ := nil
   | (succ m) x i := head x :: fill_shr (tail x) i (head x)
 
 end shift
@@ -142,7 +142,7 @@ section conversion
 
   protected def of_nat : Π (n : ℕ), nat → bitvec n
   | 0        x := nil
-  | (succ n) x := of_nat n (x / 2) ++ₜ [to_bool (x % 2 = 1)]
+  | (succ n) x := of_nat n (x / 2) ++ₜ to_bool (x % 2 = 1) :: nil
 
   protected def of_int : Π (n : ℕ), int → bitvec (succ n)
   | n (int.of_nat m)          := ff :: bitvec.of_nat n m
@@ -160,7 +160,7 @@ section conversion
   : bitvec.to_nat x = bits_to_nat (vector.to_list x)  := rfl
 
   theorem to_nat_append {m : ℕ} (xs : bitvec m) (b : bool)
-  : bitvec.to_nat (xs ++ₜ[b]) = bitvec.to_nat xs * 2 + bitvec.to_nat [b] :=
+  : bitvec.to_nat (xs ++ₜ b::nil) = bitvec.to_nat xs * 2 + bitvec.to_nat (b::nil) :=
   begin
     cases xs with xs P,
     simp [bits_to_nat_to_list], clear P,
@@ -174,7 +174,7 @@ section conversion
   end
 
   theorem bits_to_nat_to_bool (n : ℕ)
-  : bitvec.to_nat [to_bool (n % 2 = 1)] = n % 2 :=
+  : bitvec.to_nat (to_bool (n % 2 = 1) :: nil) = n % 2 :=
   begin
     simp [bits_to_nat_to_list],
     unfold bits_to_nat add_lsb list.foldl cond,
@@ -182,7 +182,7 @@ section conversion
   end
 
   theorem of_nat_succ {k n : ℕ}
-  :  bitvec.of_nat (succ k) n = bitvec.of_nat k (n / 2) ++ₜ[to_bool (n % 2 = 1)] :=
+  :  bitvec.of_nat (succ k) n = bitvec.of_nat k (n / 2) ++ₜ to_bool (n % 2 = 1) :: nil :=
   rfl
 
   theorem to_nat_of_nat {k n : ℕ}

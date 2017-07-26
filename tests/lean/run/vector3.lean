@@ -1,3 +1,4 @@
+namespace Ex
 open nat
 
 inductive vector (A : Type) : nat → Type
@@ -11,3 +12,4 @@ namespace vector
   theorem vcons.inj₂ {A : Type} {n : nat} (a₁ a₂ : A) (v₁ v₂ : vector A n) : vcons a₁ v₁ = vcons a₂ v₂ → v₁ == v₂ :=
   assume h, vector.no_confusion h (λ n h t, t)
 end vector
+end Ex

@@ -2,7 +2,6 @@ open tactic
 
 universe variables u
 
-constant vector : Type u → nat → Type (max 1 u)
 axiom app : Π {α : Type u} {n m : nat}, vector α m → vector α n → vector α (m+n)
 
 example (n1 n2 n3 : nat) (v1 w1 : vector nat n1) (w1' : vector nat n3) (v2 w2 : vector nat n2) :

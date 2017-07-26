@@ -1,3 +1,4 @@
+namespace Ex
 open nat
 notation `⟦`:max a `⟧`:0 := cast (by simp) a
 
@@ -43,3 +44,4 @@ begin
 end
 
 end vector
+end Ex

@@ -1,3 +1,4 @@
+namespace Ex
 open nat
 
 inductive vector (A : Type) : nat → Type
@@ -9,3 +10,4 @@ namespace vector
   assume h, vector.no_confusion h (λ n h t, h)
 
 end vector
+end Ex

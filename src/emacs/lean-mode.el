@@ -92,6 +92,9 @@
   (local-set-key lean-keybinding-lean-toggle-show-goal     'lean-toggle-show-goal)
   (local-set-key lean-keybinding-lean-toggle-next-error    'lean-toggle-next-error)
   (local-set-key lean-keybinding-lean-message-boxes-toggle 'lean-message-boxes-toggle)
+  (local-set-key lean-keybinding-leanpkg-configure         'leanpkg-configure)
+  (local-set-key lean-keybinding-leanpkg-build             'leanpkg-build)
+  (local-set-key lean-keybinding-leanpkg-test              'leanpkg-test)
   ;; This only works as a mouse binding due to the event, so it is not abstracted
   ;; to avoid user confusion.
   (local-set-key (kbd "<mouse-3>")                         'lean-right-click-show-menu)

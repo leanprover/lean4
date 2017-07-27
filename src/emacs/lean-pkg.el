@@ -29,9 +29,8 @@
 (defvar leanpkg-running nil)
 (defvar-local leanpkg-configure-prompt-shown nil)
 
-(defun leanpkg-configure ()
-  "Call leanpkg configure"
-  (interactive)
+(defun leanpkg-run (cmd &optional restart-lean-server)
+  "Call `leanpkg $cmd`"
   (let ((dir (file-name-as-directory (leanpkg-find-dir-safe)))
         (orig-buf (current-buffer)))
     (with-current-buffer (get-buffer-create "*leanpkg*")
@@ -39,19 +38,35 @@
       (erase-buffer)
       (switch-to-buffer-other-window (current-buffer))
       (redisplay)
-      (insert "> leanpkg configure\n")
+      (insert (format "> leanpkg %s\n" cmd))
       (setq leanpkg-running t)
       (let* ((default-directory dir)
              (out-buf (current-buffer))
              (proc (start-process "leanpkg" (current-buffer)
-                                  (leanpkg-executable) "configure")))
+                                  (leanpkg-executable) cmd)))
         (set-process-sentinel
          proc (lambda (p e)
                 (setq leanpkg-running nil)
-                (with-current-buffer out-buf
-                  (insert "; restarting lean server\n"))
-                (with-current-buffer orig-buf
-                  (lean-server-restart))))))))
+                (when restart-lean-server
+                  (with-current-buffer out-buf
+                    (insert "; restarting lean server\n"))
+                  (with-current-buffer orig-buf
+                    (lean-server-restart)))))))))
+
+(defun leanpkg-configure ()
+  "Call leanpkg configure"
+  (interactive)
+  (leanpkg-run "configure" 't))
+
+(defun leanpkg-build ()
+  "Call leanpkg build"
+  (interactive)
+  (leanpkg-run "build"))
+
+(defun leanpkg-test ()
+  "Call leanpkg test"
+  (interactive)
+  (leanpkg-run "test"))
 
 (defun leanpkg-find-path-file ()
   (let* ((json-object-type 'plist) (json-array-type 'list) (json-false nil)

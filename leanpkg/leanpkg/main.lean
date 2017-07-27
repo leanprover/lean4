@@ -59,7 +59,7 @@ def build (lean_args : list string) := configure >> make lean_args
 def make_test (lean_args : list string) : io unit :=
 exec_cmd { cmd := "lean", args := ["--make", "test"] ++ lean_args, env := [("LEAN_PATH", none)] }
 
-def test (lean_args : list string) := configure >> make_test lean_args
+def test (lean_args : list string) := build lean_args >> make_test lean_args
 
 def init_gitignore_contents :=
 "*.olean
@@ -150,7 +150,7 @@ Usage: leanpkg <command>
 
 configure              download dependencies
 build [-- <lean-args>] download dependencies and build *.olean files
-test  [-- <lean-args>] download dependencies and run test files
+test  [-- <lean-args>] download dependencies, build *.olean files, and run test files
 
 new <dir>              creates a lean package in the specified directory
 init <name>            adds a leanpkg.toml file to the current directory, and sets up .gitignore

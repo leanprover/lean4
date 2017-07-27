@@ -110,6 +110,14 @@ def join : list (list α) → list α
 | []        := []
 | (l :: ls) := l ++ join ls
 
+def filter_map (f : α → option β) : list α → list β
+| []     := []
+| (a::l) :=
+  match f a with
+  | none   := filter_map l
+  | some b := b :: filter_map l
+  end
+
 def filter (p : α → Prop) [decidable_pred p] : list α → list α
 | []     := []
 | (a::l) := if p a then a :: filter l else filter l

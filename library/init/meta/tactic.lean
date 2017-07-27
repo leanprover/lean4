@@ -89,6 +89,18 @@ success ()
 meta def try (t : tactic α) : tactic unit :=
 try_core t >>[tactic] skip
 
+meta def try_lst : list (tactic unit) → tactic unit
+| []            := failed
+| (tac :: tacs) := λ s,
+  match tac s with
+  | result.success _ s' := try (try_lst tacs) s'
+  | result.exception e p s' :=
+    match try_lst tacs s' with
+    | result.exception _ _ _ := result.exception e p s'
+    | r := r
+    end
+  end
+
 meta def fail_if_success {α : Type u} (t : tactic α) : tactic unit :=
 λ s, result.cases_on (t s)
  (λ a s, mk_exception "fail_if_success combinator failed, given tactic succeeded" none s)

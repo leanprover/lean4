@@ -35,9 +35,8 @@ do t ← target,
    (new_t, prf, _) ← rewrite h t cfg,
    replace_target new_t prf
 
-meta def rewrite_hyp (h : expr) (hyp_name : name) (cfg : rewrite_cfg := {}) : tactic expr :=
-do hyp ← get_local hyp_name,
-   hyp_type ← infer_type hyp,
+meta def rewrite_hyp (h : expr) (hyp : expr) (cfg : rewrite_cfg := {}) : tactic expr :=
+do hyp_type ← infer_type hyp,
    (new_hyp_type, prf, _) ← rewrite h hyp_type cfg,
    replace_hyp hyp new_hyp_type prf
 

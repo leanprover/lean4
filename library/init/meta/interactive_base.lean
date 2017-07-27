@@ -21,7 +21,7 @@ namespace interactive
 
 inductive loc : Type
 | wildcard : loc
-| ns       : list name → loc
+| ns       : list (option name) → loc
 
 meta instance : has_reflect loc
 | loc.wildcard := `(_)
@@ -29,12 +29,24 @@ meta instance : has_reflect loc
 
 meta def loc.include_goal : loc → bool
 | loc.wildcard := tt
-| (loc.ns [])  := tt
-| _            := ff
+| (loc.ns ls)  := (ls.map option.is_none).bor
 
 meta def loc.get_locals : loc → tactic (list expr)
 | loc.wildcard := tactic.local_context
-| (loc.ns xs)  := mmap tactic.get_local xs
+| (loc.ns xs)  := xs.mfoldl (λ ls n, match n with
+  | none := pure ls
+  | some n := do l ← tactic.get_local n, pure $ l :: ls
+  end) []
+
+meta def loc.apply (hyp_tac : expr → tactic unit) (goal_tac : tactic unit) (l : loc) : tactic unit :=
+do hs ← l.get_locals,
+   hs.mmap' hyp_tac,
+   if l.include_goal then goal_tac else pure ()
+
+meta def loc.try_apply (hyp_tac : expr → tactic unit) (goal_tac : tactic unit) (l : loc) : tactic unit :=
+do hs ← l.get_locals,
+   let hts := hs.map hyp_tac,
+   tactic.try_lst $ if l.include_goal then hts ++ [goal_tac] else hts
 
 namespace types
 variables {α β : Type}
@@ -53,7 +65,8 @@ meta def ident_ : parser name := ident <|> tk "_" *> return `_
 meta def using_ident := (tk "using" *> ident)?
 meta def with_ident_list := (tk "with" *> ident_*) <|> return []
 meta def without_ident_list := (tk "without" *> ident*) <|> return []
-meta def location := (tk "at" *> (tk "*" *> return loc.wildcard <|> (loc.ns <$> ident*))) <|> return (loc.ns [])
+meta def location := (tk "at" *> (tk "*" *> return loc.wildcard <|>
+  (loc.ns <$> (((tk "⊢" <|> tk "|-") *> return none) <|> some <$> ident)*))) <|> return (loc.ns [none])
 meta def pexpr_list := list_of (parser.pexpr 0)
 meta def opt_pexpr_list := pexpr_list <|> return []
 meta def pexpr_list_or_texpr := pexpr_list <|> list.ret <$> texpr

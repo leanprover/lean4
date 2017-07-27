@@ -213,7 +213,7 @@ meta def assumption : tactic unit :=
 tactic.assumption
 
 private meta def change_core (e : expr) : option expr → tactic unit
-| none := tactic.change e
+| none     := tactic.change e
 | (some h) :=
   do num_reverted : ℕ ← revert h,
      expr.pi n bi d b ← target,
@@ -229,9 +229,9 @@ hypotheses (or `*`), or in the goal if no `at` clause is specified, provided tha
 `A` and `B` are definitionally equal.
 -/
 meta def change (q : parse texpr) : parse (tk "with" *> texpr)? → parse location → tactic unit
-| none (loc.ns []) := do e ← i_to_expr q, change_core e none
-| none (loc.ns [h]) := do eq ← i_to_expr q, eh ← get_local h, change_core eq (some eh)
-| none _ := fail "change-at does not support multiple locations"
+| none     l :=
+  do e ← i_to_expr q,
+     l.try_apply (change_core e ∘ some) (change_core e none)
 | (some w) l :=
   do hs ← l.get_locals,
      u ← mk_meta_univ,
@@ -239,8 +239,9 @@ meta def change (q : parse texpr) : parse (tk "with" *> texpr)? → parse locati
      eq ← i_to_expr ``(%%q : %%ty),
      ew ← i_to_expr ``(%%w : %%ty),
      let repl := λe : expr, e.replace (λ a n, if a = eq then some ew else none),
-     hs.mmap' (λh, do e ← infer_type h, change_core (repl e) (some h)),
-     if l.include_goal then do g ← target, change_core (repl g) none else skip
+     l.try_apply
+       (λh, do e ← infer_type h, change_core (repl e) (some h))
+       (do g ← target, change_core (repl g) none)
 
 /--
 This tactic applies to any goal. It gives directly the exact proof
@@ -321,17 +322,15 @@ rs.mmap' $ λ r, do
    (eq_lemmas.mfirst $ λ n, do e ← mk_const n, rewrite_target e {cfg with symm := r.symm})
    (eq_lemmas.empty)
 
-private meta def rw_hyp (cfg : rewrite_cfg) (rs : list rw_rule) (hname : name) : tactic unit :=
-rs.mmap' $ λ r,
-do save_info r.pos,
-   eq_lemmas ← get_rule_eqn_lemmas r,
-   orelse'
-     (do e ← to_expr' r.rule, rewrite_hyp e hname {cfg with symm := r.symm})
-     (eq_lemmas.mfirst $ λ n, do e ← mk_const n, rewrite_hyp e hname {cfg with symm := r.symm})
-     (eq_lemmas.empty)
-
-private meta def rw_hyps (cfg : rewrite_cfg) (rs : list rw_rule) (hs : list name) : tactic unit :=
-hs.mmap' (rw_hyp cfg rs)
+private meta def rw_hyp (cfg : rewrite_cfg) : list rw_rule → expr → tactic unit
+| []      hyp := skip
+| (r::rs) hyp := do
+  save_info r.pos,
+  eq_lemmas ← get_rule_eqn_lemmas r,
+  orelse'
+    (do e ← to_expr' r.rule, rewrite_hyp e hyp {cfg with symm := r.symm} >>= rw_hyp rs)
+    (eq_lemmas.mfirst $ λ n, do e ← mk_const n, rewrite_hyp e hyp {cfg with symm := r.symm} >>= rw_hyp rs)
+    (eq_lemmas.empty)
 
 meta def rw_rule_p (ep : parser pexpr) : parser rw_rule :=
 rw_rule.mk <$> cur_pos <*> (option.is_some <$> (with_desc "←" (tk "←" <|> tk "<-"))?) <*> ep
@@ -352,9 +351,8 @@ meta def rw_rules : parser rw_rules_t :=
 
 private meta def rw_core (rs : parse rw_rules) (loca : parse location) (cfg : rewrite_cfg) : tactic unit :=
 match loca with
-| loc.wildcard := fail "wildcard not allowed with rewrite"
-| loc.ns []    := rw_goal cfg rs.rules
-| loc.ns hs    := rw_hyps cfg rs.rules hs
+| loc.wildcard := loca.try_apply (rw_hyp cfg rs.rules) (rw_goal cfg rs.rules)
+| _            := loca.apply (rw_hyp cfg rs.rules) (rw_goal cfg rs.rules)
 end >> try (reflexivity reducible)
     >> (returnopt rs.end_pos >>= save_info <|> skip)
 
@@ -819,11 +817,9 @@ match locat with
 | loc.wildcard := do (all_hyps, s, u) ← mk_simp_set_core no_dflt attr_names hs tt,
                      if all_hyps then tactic.simp_all s u cfg discharger
                      else do hyps ← non_dep_prop_hyps, simp_core_aux cfg discharger s u hyps tt
-| (loc.ns [])  := do (s, u) ← mk_simp_set no_dflt attr_names hs,
-                     simp_target s u cfg discharger
-| (loc.ns ns)  := do (s, u) ← mk_simp_set no_dflt attr_names hs,
-                     ns ← ns.mmap get_local,
-                     simp_core_aux cfg discharger s u ns ff
+| _            := do (s, u) ← mk_simp_set no_dflt attr_names hs,
+                     ns ← locat.get_locals,
+                     simp_core_aux cfg discharger s u ns locat.include_goal
 end
 >> try tactic.triv >> try (tactic.reflexivity reducible)
 
@@ -869,9 +865,6 @@ do (s, u) ← mk_simp_set no_dflt attr_names hs,
    tactic.simp_intros s u ids cfg,
    try triv >> try (reflexivity reducible)
 
-private meta def dsimp_hyps (s : simp_lemmas) (u : list name) (hs : list name) (cfg : dsimp_config := {}) : tactic unit :=
-hs.mmap' (λ h_name, do h ← get_local h_name, dsimp_hyp h s u cfg)
-
 private meta def to_simp_arg_list (es : list pexpr) : list simp_arg_type :=
 es.map simp_arg_type.expr
 
@@ -879,9 +872,8 @@ meta def dsimp (no_dflt : parse only_flag) (es : parse simp_arg_list) (attr_name
                (l : parse location) (cfg : dsimp_config := {}) : tactic unit :=
 do (s, u) ← mk_simp_set no_dflt attr_names es,
 match l with
-| (loc.ns [])    := dsimp_target s u cfg
-| (loc.ns hs)    := dsimp_hyps s u hs cfg
-| (loc.wildcard) := do ls ← local_context, n ← revert_lst ls, dsimp_target s u cfg, intron n
+| loc.wildcard := do ls ← local_context, n ← revert_lst ls, dsimp_target s u cfg, intron n
+| _            := l.apply (λ h, dsimp_hyp h s u cfg) (dsimp_target s u cfg)
 end
 
 /--
@@ -943,19 +935,14 @@ private meta def to_qualified_names : list name → tactic (list name)
 | []      := return []
 | (c::cs) := do new_c ← to_qualified_name c, new_cs ← to_qualified_names cs, return (new_c::new_cs)
 
-private meta def dunfold_hyps (cs : list name) (cfg : dunfold_config) : list name → tactic unit
-| []      := skip
-| (h::hs) := do h' ← get_local h, dunfold_hyp cs h' cfg,  dunfold_hyps hs
-
 meta def dunfold (cs : parse ident*) (l : parse location) (cfg : dunfold_config := {}) : tactic unit :=
 match l with
-| (loc.ns [])    := do new_cs ← to_qualified_names cs, dunfold_target new_cs cfg
-| (loc.ns hs)    := do new_cs ← to_qualified_names cs, dunfold_hyps new_cs cfg hs
 | (loc.wildcard) := do ls ← tactic.local_context,
                           n ← revert_lst ls,
                           new_cs ← to_qualified_names cs,
                           dunfold_target new_cs cfg,
                           intron n
+| _              := do new_cs ← to_qualified_names cs, l.apply (λ h, dunfold_hyp cs h cfg) (dunfold_target new_cs cfg)
 end
 
 private meta def delta_hyps : list name → list name → tactic unit
@@ -963,13 +950,12 @@ private meta def delta_hyps : list name → list name → tactic unit
 | cs (h::hs) := get_local h >>= delta_hyp cs >> delta_hyps cs hs
 
 meta def delta : parse ident* → parse location → tactic unit
-| cs (loc.ns [])    := do new_cs ← to_qualified_names cs, delta_target new_cs
-| cs (loc.ns hs)    := do new_cs ← to_qualified_names cs, delta_hyps new_cs hs
 | cs (loc.wildcard) := do ls ← tactic.local_context,
                           n ← revert_lst ls,
                           new_cs ← to_qualified_names cs,
                           delta_target new_cs,
                           intron n
+| cs l              := do new_cs ← to_qualified_names cs, l.apply (delta_hyp new_cs) (delta_target new_cs)
 
 private meta def unfold_projs_hyps (cfg : unfold_proj_config := {}) (hs : list name) : tactic bool :=
 hs.mfoldl (λ r h, do h ← get_local h, (unfold_projs_hyp h cfg >> return tt) <|> return r) ff
@@ -979,13 +965,13 @@ This tactic unfolds all structure projections.
 -/
 meta def unfold_projs (l : parse location) (cfg : unfold_proj_config := {}) : tactic unit :=
 match l with
-| (loc.ns [])    := tactic.unfold_projs_target cfg
-| (loc.ns hs)    := do b ← unfold_projs_hyps cfg hs,
-                       when (not b) (fail "unfold_projs failed to simplify")
-| (loc.wildcard) := do ls ← local_context,
-                       b₁ ← unfold_projs_hyps cfg (ls.map expr.local_pp_name),
-                       b₂ ← (tactic.unfold_projs_target cfg >> return tt) <|> return ff,
-                       when (not b₁ ∧ not b₂) (fail "unfold_projs failed to simplify")
+| loc.wildcard := do ls ← local_context,
+                     b₁ ← unfold_projs_hyps cfg (ls.map expr.local_pp_name),
+                     b₂ ← (tactic.unfold_projs_target cfg >> return tt) <|> return ff,
+                     when (not b₁ ∧ not b₂) (fail "unfold_projs failed to simplify")
+| _            :=
+  l.try_apply (λ h, unfold_projs_hyp h cfg)
+    (tactic.unfold_projs_target cfg) <|> fail "unfold_projs failed to simplify"
 end
 
 end interactive

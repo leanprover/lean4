@@ -72,7 +72,7 @@ meta def apply_instance : smt_tactic unit :=
 tactic.apply_instance
 
 meta def change (q : parse texpr) : smt_tactic unit :=
-tactic.interactive.change q none (loc.ns [])
+tactic.interactive.change q none (loc.ns [none])
 
 meta def exact (q : parse texpr) : smt_tactic unit :=
 tactic.interactive.exact q
@@ -238,10 +238,10 @@ open tactic
 /-- Simplify the target type of the main goal. -/
 meta def simp (no_dflt : parse only_flag) (hs : parse simp_arg_list) (attr_names : parse with_ident_list)
               (cfg : simp_config_ext := {}) : smt_tactic unit :=
-tactic.interactive.simp no_dflt hs attr_names (loc.ns []) cfg
+tactic.interactive.simp no_dflt hs attr_names (loc.ns [none]) cfg
 
 meta def dsimp (no_dflt : parse only_flag) (es : parse simp_arg_list) (attr_names : parse with_ident_list) : smt_tactic unit :=
-tactic.interactive.dsimp no_dflt es attr_names (loc.ns [])
+tactic.interactive.dsimp no_dflt es attr_names (loc.ns [none])
 
 meta def rsimp : smt_tactic unit :=
 do ccs ← to_cc_state, _root_.rsimp.rsimplify_goal ccs

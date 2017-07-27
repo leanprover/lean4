@@ -51,9 +51,9 @@ do tgt ← target,
    <|> fail "rel_congr tactic failed"
 
 meta def congr : tactic unit :=
-do focus1 (congr_core >> all_goals (try reflexivity >> try congr))
+do focus1 (try assumption >> congr_core >> all_goals (try reflexivity >> try congr))
 
 meta def rel_congr : tactic unit :=
-do focus1 (rel_congr_core >> all_goals (try reflexivity))
+do focus1 (try assumption >> rel_congr_core >> all_goals (try reflexivity))
 
 end tactic

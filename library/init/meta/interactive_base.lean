@@ -48,6 +48,9 @@ do hs ← l.get_locals,
    let hts := hs.map hyp_tac,
    tactic.try_lst $ if l.include_goal then hts ++ [goal_tac] else hts
 
+/-- Use `desc` as the interactive description of `p`. -/
+meta def with_desc {α : Type} (desc : format) (p : parser α) : parser α := p
+
 namespace types
 variables {α β : Type}
 
@@ -66,7 +69,7 @@ meta def using_ident := (tk "using" *> ident)?
 meta def with_ident_list := (tk "with" *> ident_*) <|> return []
 meta def without_ident_list := (tk "without" *> ident*) <|> return []
 meta def location := (tk "at" *> (tk "*" *> return loc.wildcard <|>
-  (loc.ns <$> (((tk "⊢" <|> tk "|-") *> return none) <|> some <$> ident)*))) <|> return (loc.ns [none])
+  (loc.ns <$> (((with_desc "⊢" $ tk "⊢" <|> tk "|-") *> return none) <|> some <$> ident)*))) <|> return (loc.ns [none])
 meta def pexpr_list := list_of (parser.pexpr 0)
 meta def opt_pexpr_list := pexpr_list <|> return []
 meta def pexpr_list_or_texpr := pexpr_list <|> list.ret <$> texpr
@@ -74,9 +77,6 @@ meta def only_flag : parser bool := (tk "only" *> return tt) <|> return ff
 end types
 
 precedence only:0
-
-/-- Use `desc` as the interactive description of `p`. -/
-meta def with_desc {α : Type} (desc : format) (p : parser α) : parser α := p
 
 open expr format tactic types
 private meta def maybe_paren : list format → format

@@ -793,11 +793,11 @@ end
 
 /- div -/
 
-protected lemma div_one (n : ℕ) : n / 1 = n :=
+@[simp] protected lemma div_one (n : ℕ) : n / 1 = n :=
 have n % 1 + 1 * (n / 1) = n, from mod_add_div _ _,
 by simp [mod_one] at this; assumption
 
-protected lemma div_zero (n : ℕ) : n / 0 = 0 :=
+@[simp] protected lemma div_zero (n : ℕ) : n / 0 = 0 :=
 begin rw [div_def], simp [lt_irrefl] end
 
 @[simp] protected lemma zero_div (b : ℕ) : 0 / b = 0 :=

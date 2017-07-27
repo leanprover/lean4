@@ -171,7 +171,10 @@ sub_nat_nat_elim m n (λm n i, sub_nat_nat (m + k) (n + k) = i)
 
 /- nat_abs -/
 
-def nat_abs (a : ℤ) : ℕ := int.cases_on a id succ
+def nat_abs : ℤ → ℕ
+| (of_nat m) := m
+| -[1+ m]    := succ m
+attribute [simp] nat_abs
 
 lemma nat_abs_of_nat (n : ℕ) : nat_abs ↑n = n := rfl
 
@@ -190,7 +193,7 @@ lemma nat_abs_mul_self : Π {a : ℤ}, ↑(nat_abs a * nat_abs a) = a * a
 | (of_nat m) := rfl
 | -[1+ m']   := rfl
 
-lemma nat_abs_neg (a : ℤ) : nat_abs (-a) = nat_abs a :=
+@[simp] lemma nat_abs_neg (a : ℤ) : nat_abs (-a) = nat_abs a :=
 by {cases a with n n, cases n; refl, refl}
 
 lemma nat_abs_eq : Π (a : ℤ), a = nat_abs a ∨ a = -(nat_abs a)

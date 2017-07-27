@@ -32,7 +32,7 @@
 (defun leanpkg-configure ()
   "Call leanpkg configure"
   (interactive)
-  (let ((dir (leanpkg-find-dir-safe))
+  (let ((dir (file-name-as-directory (leanpkg-find-dir-safe)))
         (orig-buf (current-buffer)))
     (with-current-buffer (get-buffer-create "*leanpkg*")
       (setq buffer-read-only nil)

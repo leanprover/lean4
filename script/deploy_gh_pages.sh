@@ -16,5 +16,5 @@ git config user.name "Bot Botson"
 git config user.email "bot@bot.bot"
 
 git add -A .
-git commit --amend -m "nightly build at ${rev}"
+git commit --amend --reset-author -m "nightly build at ${rev}"
 git push -fq

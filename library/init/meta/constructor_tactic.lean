@@ -8,6 +8,10 @@ import init.meta.tactic init.function
 
 namespace tactic
 
+/- Return target after instantiating metavars and whnf -/
+private meta def target' : tactic expr :=
+target >>= instantiate_mvars >>= whnf
+
 meta def get_constructors_for (e : expr) : tactic (list name) :=
 do env ← get_env,
    I   ← return e.get_app_fn.const_name,
@@ -19,7 +23,7 @@ private meta def try_constructors (cfg : apply_cfg): list name → tactic unit
 | (c::cs) := (mk_const c >>= λ e, apply_core e cfg >> return ()) <|> try_constructors cs
 
 meta def constructor (cfg : apply_cfg := {}): tactic unit :=
-target >>= instantiate_mvars >>= whnf >>= get_constructors_for >>= try_constructors cfg
+target' >>= get_constructors_for >>= try_constructors cfg
 
 meta def econstructor : tactic unit :=
 constructor {new_goals := new_goals.non_dep_only}
@@ -28,22 +32,22 @@ meta def fconstructor : tactic unit :=
 constructor {new_goals := new_goals.all}
 
 meta def left : tactic unit :=
-do tgt ← target,
+do tgt ← target',
    [c₁, c₂] ← get_constructors_for tgt | fail "left tactic failed, target is not an inductive datatype with two constructors",
    mk_const c₁ >>= apply
 
 meta def right : tactic unit :=
-do tgt ← target,
+do tgt ← target',
    [c₁, c₂] ← get_constructors_for tgt | fail "left tactic failed, target is not an inductive datatype with two constructors",
    mk_const c₂ >>= apply
 
 meta def constructor_idx (idx : nat) : tactic unit :=
-do cs     ← target >>= get_constructors_for,
+do cs     ← target' >>= get_constructors_for,
    some c ← return $ cs.nth (idx - 1) | fail "constructor_idx tactic failed, target is an inductive datatype, but it does not have sufficient constructors",
    mk_const c >>= apply
 
 meta def split : tactic unit :=
-do [c] ← target >>= get_constructors_for | fail "split tactic failed, target is not an inductive datatype with only one constructor",
+do [c] ← target' >>= get_constructors_for | fail "split tactic failed, target is not an inductive datatype with only one constructor",
    mk_const c >>= apply
 
 open expr
@@ -58,7 +62,7 @@ private meta def apply_num_metavars : expr → expr → nat → tactic expr
   apply_num_metavars new_f new_ftype n
 
 meta def existsi (e : expr) : tactic unit :=
-do [c]     ← target >>= get_constructors_for | fail "existsi tactic failed, target is not an inductive datatype with only one constructor",
+do [c]     ← target' >>= get_constructors_for | fail "existsi tactic failed, target is not an inductive datatype with only one constructor",
    fn      ← mk_const c,
    fn_type ← infer_type fn,
    n       ← get_arity fn,

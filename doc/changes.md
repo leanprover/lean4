@@ -47,6 +47,9 @@ master branch (aka work in progress branch)
   There is a coercion from `bin_tree` to `list`. The new notation allows to input long sequences efficiently.
   It also prevents system stack overflows.
 
+* Tactics that accept a location parameter, like `rw thm at h`, may now use `⊢` or the ASCII version `|-`
+  to select the goal as well as any hypotheses, for example `rw thm at h1 h2 ⊢`.
+
 *Changes*
 
 * We now have two type classes for converting to string: `has_to_string` and `has_repr`.
@@ -97,6 +100,9 @@ For more details, see discussion [here](https://github.com/leanprover/lean/pull/
 * Universes `max u v + 1` and `imax u v + 1` are now parsed as `(max u v) + 1` and `(imax u v) + 1`.
 
 * Merged `generalize` and `generalize2` tactics into new `generalize id? : expr = id` tactic
+
+* `standard.lean` has been removed. Any files that `import standard` can simply remove the line as
+  most things that were once imported by this are now imported by default.
 
 *API name changes*
 

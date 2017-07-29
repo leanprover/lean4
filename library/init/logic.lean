@@ -41,8 +41,8 @@ assume hna : ¬a, absurd ha hna
 
 /- false -/
 
-lemma false.elim {c : Prop} (h : false) : c :=
-false.rec c h
+@[inline] def false.elim {C : Sort u} (h : false) : C :=
+false.rec C h
 
 /- eq -/
 

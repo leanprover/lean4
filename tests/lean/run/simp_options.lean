@@ -48,3 +48,10 @@ by simp [fab] at h; assumption
 
 example (h : p (f a)) : p (f b) :=
 by simp only [fab] at h; assumption
+
+example (h₁ : p (f a)) (h₂ : p (f a)) : p (f a) :=
+begin
+  simp only [fab] at h₁ ⊢,
+  tactic.fail_if_success `[exact h₂],
+  exact h₁
+end

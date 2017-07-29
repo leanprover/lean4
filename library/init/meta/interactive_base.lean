@@ -59,6 +59,9 @@ meta def brackets (l r : string) (p : parser α) := tk l *> p <* tk r
 
 meta def list_of (p : parser α) := brackets "[" "]" $ sep_by (skip_info (tk ",")) p
 
+precedence `⊢` : 0
+precedence `|-` : 0
+
 /-- A 'tactic expression', which uses right-binding power 2 so that it is terminated by
     '<|>' (rbp 2), ';' (rbp 1), and ',' (rbp 0). It should be used for any (potentially)
     trailing expression parameters. -/

@@ -75,7 +75,7 @@ void name::imp::display_core(std::ostream & out, imp * p, bool escape, char cons
                 }
             }
         }
-        if (must_escape)
+        if (must_escape || sz == 0)
             out << "«" << p->m_str << "»";
         else
             out << p->m_str;

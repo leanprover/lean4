@@ -1,0 +1,4 @@
+def «» : Prop → Prop :=
+not
+theorem thm : «» false :=
+id

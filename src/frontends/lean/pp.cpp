@@ -1842,7 +1842,7 @@ std::string sexpr_to_string(sexpr const & s) {
 // check whether a space must be inserted between the strings so that lexing them would
 // produce separate tokens
 std::pair<bool, token_table const *> pretty_fn::needs_space_sep(token_table const * last, std::string const & s1, std::string const & s2) const {
-    if (is_id_rest(get_utf8_last_char(s1.data()), s1.data() + s1.size()) && is_id_rest(s2.data(), s2.data() + s2.size()))
+    if (s1.size() == 0 || (is_id_rest(get_utf8_last_char(s1.data()), s1.data() + s1.size()) && is_id_rest(s2.data(), s2.data() + s2.size())))
         return mk_pair(true, nullptr); // would be lexed as a single identifier without space
 
     if (last) {

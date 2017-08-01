@@ -187,8 +187,36 @@ lemma lt_succ_self (n : ℕ) : n < succ n := lt.base n
 protected lemma le_antisymm {n m : ℕ} (h₁ : n ≤ m) : m ≤ n → n = m :=
 less_than_or_equal.cases_on h₁ (λ a, rfl) (λ a b c, absurd (nat.lt_of_le_of_lt b c) (nat.lt_irrefl n))
 
-instance : weak_order ℕ :=
-⟨@nat.less_than_or_equal, @nat.le_refl, @nat.le_trans, @nat.le_antisymm⟩
+protected lemma lt_or_ge : ∀ (a b : ℕ), a < b ∨ a ≥ b
+| a 0     := or.inr (zero_le a)
+| a (b+1) :=
+  match lt_or_ge a b with
+  | or.inl h := or.inl (le_succ_of_le h)
+  | or.inr h :=
+    match nat.eq_or_lt_of_le h with
+    | or.inl h1 := or.inl (h1 ▸ lt_succ_self b)
+    | or.inr h1 := or.inr h1
+    end
+  end
+
+protected lemma le_total {m n : ℕ} : m ≤ n ∨ n ≤ m :=
+or.imp_left nat.le_of_lt (nat.lt_or_ge m n)
+
+protected lemma lt_of_le_and_ne {m n : ℕ} (h1 : m ≤ n) : m ≠ n → m < n :=
+or.resolve_right (or.swap (nat.eq_or_lt_of_le h1))
+
+protected lemma lt_iff_le_not_le {m n : ℕ} : m < n ↔ (m ≤ n ∧ ¬ n ≤ m) :=
+⟨λ hmn, ⟨nat.le_of_lt hmn, λ hnm, nat.lt_irrefl _ (nat.lt_of_le_of_lt hnm hmn)⟩,
+ λ ⟨hmn, hnm⟩, nat.lt_of_le_and_ne hmn (λ heq, hnm (heq ▸ nat.le_refl _))⟩
+
+instance : linear_order ℕ :=
+{ le := nat.less_than_or_equal,
+  le_refl := @nat.le_refl,
+  le_trans := @nat.le_trans,
+  le_antisymm := @nat.le_antisymm,
+  le_total := @nat.le_total,
+  lt := nat.lt,
+  lt_iff_le_not_le := @nat.lt_iff_le_not_le }
 
 lemma eq_zero_of_le_zero {n : nat} (h : n ≤ 0) : n = 0 :=
 le_antisymm h (zero_le _)
@@ -209,18 +237,6 @@ lemma pred_lt_pred : ∀ {n m : ℕ}, n ≠ 0 → m ≠ 0 → n < m → pred n <
 | 0         _       h₁ h₂ h := absurd rfl h₁
 | _         0       h₁ h₂ h := absurd rfl h₂
 | (succ n) (succ m) _  _  h := lt_of_succ_lt_succ h
-
-protected lemma lt_or_ge : ∀ (a b : ℕ), a < b ∨ a ≥ b
-| a 0     := or.inr (zero_le a)
-| a (b+1) :=
-  match lt_or_ge a b with
-  | or.inl h := or.inl (le_succ_of_le h)
-  | or.inr h :=
-    match nat.eq_or_lt_of_le h with
-    | or.inl h1 := or.inl (h1 ▸ lt_succ_self b)
-    | or.inr h1 := or.inr h1
-    end
-  end
 
 lemma lt_of_succ_le {a b : ℕ} (h : succ a ≤ b) : a < b := h
 
@@ -270,9 +286,6 @@ end
 protected lemma add_le_add_iff_le_right (k n m : ℕ) : n + k ≤ m + k ↔ n ≤ m :=
   ⟨ nat.le_of_add_le_add_right , assume h, nat.add_le_add_right h _ ⟩
 
-protected lemma lt_of_le_and_ne {m n : ℕ} (h1 : m ≤ n) : m ≠ n → m < n :=
-or.resolve_right (or.swap (nat.eq_or_lt_of_le h1))
-
 protected theorem lt_of_add_lt_add_left {k n m : ℕ} (h : k + n < k + m) : n < m :=
 let h' := nat.le_of_lt h in
 nat.lt_of_le_and_ne
@@ -293,9 +306,6 @@ by rw add_comm; exact nat.lt_add_of_pos_right h
 
 protected lemma zero_lt_one : 0 < (1:nat) :=
 zero_lt_succ 0
-
-protected lemma le_total {m n : ℕ} : m ≤ n ∨ n ≤ m :=
-or.imp_left nat.le_of_lt (nat.lt_or_ge m n)
 
 protected lemma le_of_lt_or_eq {m n : ℕ} (h : m < n ∨ m = n) : m ≤ n :=
 nat.le_of_eq_or_lt (or.swap h)
@@ -332,12 +342,8 @@ instance : decidable_linear_ordered_semiring nat :=
   le_trans                   := @nat.le_trans,
   le_antisymm                := @nat.le_antisymm,
   le_total                   := @nat.le_total,
-  le_iff_lt_or_eq            := @nat.le_iff_lt_or_eq,
-  le_of_lt                   := @nat.le_of_lt,
-  lt_irrefl                  := @nat.lt_irrefl,
-  lt_of_lt_of_le             := @nat.lt_of_lt_of_le,
-  lt_of_le_of_lt             := @nat.lt_of_le_of_lt,
   lt_of_add_lt_add_left      := @nat.lt_of_add_lt_add_left,
+  lt_iff_le_not_le           := pre_order.lt_iff_le_not_le,
   add_lt_add_left            := @nat.add_lt_add_left,
   add_le_add_left            := @nat.add_le_add_left,
   le_of_add_le_add_left      := @nat.le_of_add_le_add_left,

@@ -16,7 +16,7 @@ universe u
 
 class ordered_cancel_comm_monoid (α : Type u)
       extends add_comm_monoid α, add_left_cancel_semigroup α,
-              add_right_cancel_semigroup α, order_pair α :=
+              add_right_cancel_semigroup α, partial_order α :=
 (add_le_add_left       : ∀ a b : α, a ≤ b → ∀ c : α, c + a ≤ c + b)
 (le_of_add_le_add_left : ∀ a b c : α, a + b ≤ a + c → b ≤ c)
 (add_lt_add_left       : ∀ a b : α, a < b → ∀ c : α, c + a < c + b)
@@ -183,7 +183,7 @@ add_zero c ▸ add_lt_add hbc ha
 
 end ordered_cancel_comm_monoid
 
-class ordered_comm_group (α : Type u) extends add_comm_group α, order_pair α :=
+class ordered_comm_group (α : Type u) extends add_comm_group α, partial_order α :=
 (add_le_add_left : ∀ a b : α, a ≤ b → ∀ c : α, c + a ≤ c + b)
 (add_lt_add_left : ∀ a b : α, a < b → ∀ c : α, c + a < c + b)
 
@@ -615,10 +615,7 @@ class decidable_linear_ordered_comm_group (α : Type u)
 
 instance decidable_linear_ordered_comm_group.to_ordered_comm_group (α : Type u)
   [s : decidable_linear_ordered_comm_group α] : ordered_comm_group α :=
-{s with
- le_of_lt := @le_of_lt α _,
- lt_of_le_of_lt := @lt_of_le_of_lt α _,
- lt_of_lt_of_le := @lt_of_lt_of_le α _ }
+{ s with add := s.add }
 
 class decidable_linear_ordered_cancel_comm_monoid (α : Type u)
       extends ordered_cancel_comm_monoid α, decidable_linear_order α

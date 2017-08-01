@@ -52,7 +52,7 @@ class norm_num_context {
     expr mk_field() { return m_ainst.mk_field(); }
     expr mk_lin_ord_semiring() { return m_ainst.mk_linear_ordered_semiring(); }
     expr mk_lin_ord_ring() { return m_ainst.mk_linear_ordered_ring(); }
-    expr mk_wk_order() { return m_ainst.mk_weark_order(); }
+    expr mk_partial_order() { return m_ainst.mk_partial_order(); }
 
     expr mk_num(mpq const & q) { return m_ainst.mk_num(q); }
 

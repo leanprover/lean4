@@ -370,7 +370,7 @@ name const & get_unit_star_name();
 name const & get_unsafe_monad_from_pure_bind_name();
 name const & get_user_attribute_name();
 name const & get_vm_monitor_name();
-name const & get_weak_order_name();
+name const & get_partial_order_name();
 name const & get_well_founded_fix_name();
 name const & get_well_founded_fix_eq_name();
 name const & get_well_founded_tactics_name();

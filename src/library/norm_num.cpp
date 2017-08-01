@@ -371,7 +371,7 @@ expr norm_num_context::mk_nonneg_prf(expr const & e) {
     } else if (is_one(e)) {
         return mk_app({mk_const(get_zero_le_one_name()), type, mk_lin_ord_semiring()});
     } else if (is_zero(e)) {
-        return mk_app({mk_const(get_le_refl_name()), type, mk_wk_order(), mk_zero()});
+        return mk_app({mk_const(get_le_refl_name()), type, mk_partial_order(), mk_zero()});
     } else {
         throw exception("mk_nonneg_proof called on zero or non_numeral");
     }

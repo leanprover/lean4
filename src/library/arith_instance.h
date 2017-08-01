@@ -22,7 +22,7 @@ class arith_instance_info {
     optional<expr> m_bit0, m_bit1;
 
     /* Structures */
-    optional<expr> m_weak_order;
+    optional<expr> m_partial_order;
     optional<expr> m_add_comm_semigroup;
     optional<expr> m_monoid, m_add_monoid;
     optional<expr> m_add_group, m_add_comm_group;
@@ -86,7 +86,7 @@ public:
     expr mk_has_lt() { return app_arg(mk_lt()); }
     expr mk_has_le() { return app_arg(mk_le()); }
 
-    expr mk_weark_order();
+    expr mk_partial_order();
     expr mk_add_comm_semigroup();
     expr mk_monoid();
     expr mk_add_monoid();

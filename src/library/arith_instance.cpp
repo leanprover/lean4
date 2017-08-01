@@ -75,7 +75,7 @@ expr arith_instance::mk_le() { return mk_op(get_has_le_le_name(), get_has_le_nam
 
 expr arith_instance::mk_bit0() { return mk_op(get_bit0_name(), get_has_add_name(), m_info->m_bit0); }
 
-expr arith_instance::mk_weark_order() { return mk_structure(get_weak_order_name(), m_info->m_weak_order); }
+expr arith_instance::mk_partial_order() { return mk_structure(get_partial_order_name(), m_info->m_partial_order); }
 expr arith_instance::mk_add_comm_semigroup() { return mk_structure(get_add_comm_semigroup_name(), m_info->m_add_comm_semigroup); }
 expr arith_instance::mk_monoid() { return mk_structure(get_monoid_name(), m_info->m_monoid); }
 expr arith_instance::mk_add_monoid() { return mk_structure(get_add_monoid_name(), m_info->m_add_monoid); }

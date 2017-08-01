@@ -247,7 +247,7 @@ abs_of_nonneg $ abs_nonneg a
 lemma le_abs_self (a : α) : a ≤ abs a :=
 or.elim (le_total 0 a)
   (assume h : 0 ≤ a,
-   begin rw [abs_of_nonneg h], apply le_refl end)
+   begin rw [abs_of_nonneg h] end)
   (assume h : a ≤ 0, le_trans h $ abs_nonneg a)
 
 lemma neg_le_abs_self (a : α) : -a ≤ abs a :=

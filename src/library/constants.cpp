@@ -368,7 +368,7 @@ name const * g_unit_star = nullptr;
 name const * g_unsafe_monad_from_pure_bind = nullptr;
 name const * g_user_attribute = nullptr;
 name const * g_vm_monitor = nullptr;
-name const * g_weak_order = nullptr;
+name const * g_partial_order = nullptr;
 name const * g_well_founded_fix = nullptr;
 name const * g_well_founded_fix_eq = nullptr;
 name const * g_well_founded_tactics = nullptr;
@@ -745,7 +745,7 @@ void initialize_constants() {
     g_unsafe_monad_from_pure_bind = new name{"unsafe_monad_from_pure_bind"};
     g_user_attribute = new name{"user_attribute"};
     g_vm_monitor = new name{"vm_monitor"};
-    g_weak_order = new name{"weak_order"};
+    g_partial_order = new name{"partial_order"};
     g_well_founded_fix = new name{"well_founded", "fix"};
     g_well_founded_fix_eq = new name{"well_founded", "fix_eq"};
     g_well_founded_tactics = new name{"well_founded_tactics"};
@@ -1123,7 +1123,7 @@ void finalize_constants() {
     delete g_unsafe_monad_from_pure_bind;
     delete g_user_attribute;
     delete g_vm_monitor;
-    delete g_weak_order;
+    delete g_partial_order;
     delete g_well_founded_fix;
     delete g_well_founded_fix_eq;
     delete g_well_founded_tactics;
@@ -1500,7 +1500,7 @@ name const & get_unit_star_name() { return *g_unit_star; }
 name const & get_unsafe_monad_from_pure_bind_name() { return *g_unsafe_monad_from_pure_bind; }
 name const & get_user_attribute_name() { return *g_user_attribute; }
 name const & get_vm_monitor_name() { return *g_vm_monitor; }
-name const & get_weak_order_name() { return *g_weak_order; }
+name const & get_partial_order_name() { return *g_partial_order; }
 name const & get_well_founded_fix_name() { return *g_well_founded_fix; }
 name const & get_well_founded_fix_eq_name() { return *g_well_founded_fix_eq; }
 name const & get_well_founded_tactics_name() { return *g_well_founded_tactics; }

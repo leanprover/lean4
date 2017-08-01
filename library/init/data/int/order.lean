@@ -207,6 +207,13 @@ iff.mpr
   (int.lt_iff_le_and_ne _ _)
   (and.intro hac (assume heq, int.not_le_of_gt begin rw heq, exact hbc end hab))
 
+protected lemma lt_iff_le_not_le {a b : ℤ} : a < b ↔ (a ≤ b ∧ ¬ b ≤ a) :=
+begin
+simp [int.lt_iff_le_and_ne], split; intro h; cases h with hneq hab; split,
+{assumption}, {intro hba, apply hneq, apply int.le_antisymm; assumption},
+{intro heq, apply hab, subst heq, apply int.le_refl}, {assumption}
+end
+
 instance : decidable_linear_ordered_comm_ring int :=
 { int.comm_ring with
   le              := int.le,
@@ -214,16 +221,12 @@ instance : decidable_linear_ordered_comm_ring int :=
   le_trans        := @int.le_trans,
   le_antisymm     := @int.le_antisymm,
   lt              := int.lt,
-  le_of_lt        := @int.le_of_lt,
-  lt_of_lt_of_le  := @int.lt_of_lt_of_le,
-  lt_of_le_of_lt  := @int.lt_of_le_of_lt,
-  lt_irrefl       := int.lt_irrefl,
+  lt_iff_le_not_le := @int.lt_iff_le_not_le,
   add_le_add_left := @int.add_le_add_left,
   add_lt_add_left := @int.add_lt_add_left,
   zero_ne_one     := zero_ne_one,
   mul_nonneg      := @int.mul_nonneg,
   mul_pos         := @int.mul_pos,
-  le_iff_lt_or_eq := int.le_iff_lt_or_eq,
   le_total        := int.le_total,
   zero_lt_one     := int.zero_lt_one,
   decidable_eq    := int.decidable_eq,

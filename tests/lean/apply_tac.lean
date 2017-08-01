@@ -32,7 +32,7 @@ begin
   refl
 end
 
-example {α : Type} [weak_order α] (a : α) : a = a :=
+example {α : Type} [partial_order α] (a : α) : a = a :=
 begin
   apply le_antisymm,
   apply le_refl,

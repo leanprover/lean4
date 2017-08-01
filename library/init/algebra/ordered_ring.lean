@@ -86,7 +86,7 @@ lemma mul_self_lt_mul_self {a b : α} (h1 : 0 ≤ a) (h2 : a < b) : a * a < b * 
 mul_lt_mul' (le_of_lt h2) h2 h1 (lt_of_le_of_lt h1 h2)
 end ordered_semiring
 
-class linear_ordered_semiring (α : Type u) extends ordered_semiring α, linear_strong_order_pair α :=
+class linear_ordered_semiring (α : Type u) extends ordered_semiring α, linear_order α :=
 (zero_lt_one : zero < one)
 
 section linear_ordered_semiring
@@ -258,8 +258,8 @@ by rwa zero_mul at this
 
 end ordered_ring
 
-class linear_ordered_ring (α : Type u) extends ordered_ring α, linear_strong_order_pair α :=
-(zero_lt_one : lt zero one)
+class linear_ordered_ring (α : Type u) extends ordered_ring α, linear_order α :=
+(zero_lt_one : zero < one)
 
 instance linear_ordered_ring.to_linear_ordered_semiring [s : linear_ordered_ring α] : linear_ordered_semiring α :=
 { s with

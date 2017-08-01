@@ -363,7 +363,7 @@ unit.star
 unsafe_monad_from_pure_bind
 user_attribute
 vm_monitor
-weak_order
+partial_order
 well_founded.fix
 well_founded.fix_eq
 well_founded_tactics

@@ -42,7 +42,7 @@ lemma le_not_le_of_lt [pre_order α] : ∀ {a b : α}, a < b → a ≤ b ∧ ¬ 
 lemma le_antisymm [partial_order α] : ∀ {a b : α}, a ≤ b → b ≤ a → a = b :=
 partial_order.le_antisymm
 
-lemma le_of_eq [partial_order α] {a b : α} : a = b → a ≤ b :=
+lemma le_of_eq [pre_order α] {a b : α} : a = b → a ≤ b :=
 λ h, h ▸ le_refl a
 
 lemma le_antisymm_iff [partial_order α] {a b : α} : a = b ↔ a ≤ b ∧ b ≤ a :=
@@ -190,6 +190,9 @@ match lt_trichotomy a b with
 | or.inr (or.inl heq) := absurd heq h
 | or.inr (or.inr hgt) := or.inr hgt
 end
+
+lemma le_of_eq_or_lt [pre_order α] {a b : α} (h : a = b ∨ a < b) : a ≤ b :=
+or.elim h le_of_eq le_of_lt
 
 lemma ne_iff_lt_or_gt [linear_order α] {a b : α} : a ≠ b ↔ a < b ∨ a > b :=
 ⟨lt_or_gt_of_ne, λo, or.elim o ne_of_lt ne_of_gt⟩

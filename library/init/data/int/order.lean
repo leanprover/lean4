@@ -146,23 +146,6 @@ iff.intro
         from eq.symm (nat.succ_pred_eq_of_pos (nat.pos_of_ne_zero this)),
       lt.intro (begin rewrite this at hn, exact hn end)))
 
-protected lemma le_iff_lt_or_eq (a b : ℤ) : a ≤ b ↔ (a < b ∨ a = b) :=
-iff.intro
-  (assume h,
-    decidable.by_cases
-      (assume : a = b, or.inr this)
-      (assume : a ≠ b,
-        le.elim h (assume n, assume hn : a + n = b,
-          have n ≠ 0, from
-            (assume : n = 0, ‹a ≠ b› begin rw [← hn, this, int.coe_nat_zero, add_zero] end),
-          have n = nat.succ (nat.pred n),
-            from eq.symm (nat.succ_pred_eq_of_pos (nat.pos_of_ne_zero this)),
-          or.inl (lt.intro (begin rewrite this at hn, exact hn end)))))
-  (assume h,
-    or.elim h
-      (assume h', le_of_lt h')
-      (assume h', h' ▸ int.le_refl a))
-
 lemma lt_succ (a : ℤ) : a < a + 1 :=
 int.le_refl (a + 1)
 
@@ -189,23 +172,6 @@ lt.elim hb (assume m, assume hm,
           rw [← int.coe_nat_mul], simp [nat.mul_succ, nat.succ_add] end)))
 
 protected lemma zero_lt_one : (0 : ℤ) < 1 := trivial
-
-protected lemma not_le_of_gt {a b : ℤ} (h : a < b) : ¬ b ≤ a :=
-assume hba : b ≤ a,
-have a = b, from int.le_antisymm (le_of_lt h) hba,
-show false, from int.lt_irrefl b (begin rw this at h, exact h end)
-
-protected lemma lt_of_lt_of_le {a b c : ℤ} (hab : a < b) (hbc : b ≤ c) : a < c :=
-have hac : a ≤ c, from int.le_trans (le_of_lt hab) hbc,
-iff.mpr
-  (int.lt_iff_le_and_ne _ _)
-  (and.intro hac (assume heq, int.not_le_of_gt (by rwa [← heq]) hbc))
-
-protected lemma lt_of_le_of_lt  {a b c : ℤ} (hab : a ≤ b) (hbc : b < c) : a < c :=
-have hac : a ≤ c, from int.le_trans hab (le_of_lt hbc),
-iff.mpr
-  (int.lt_iff_le_and_ne _ _)
-  (and.intro hac (assume heq, int.not_le_of_gt begin rw heq, exact hbc end hab))
 
 protected lemma lt_iff_le_not_le {a b : ℤ} : a < b ↔ (a ≤ b ∧ ¬ b ≤ a) :=
 begin

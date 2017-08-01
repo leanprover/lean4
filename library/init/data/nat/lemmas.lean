@@ -221,9 +221,6 @@ instance : linear_order ℕ :=
 lemma eq_zero_of_le_zero {n : nat} (h : n ≤ 0) : n = 0 :=
 le_antisymm h (zero_le _)
 
-protected lemma le_of_eq_or_lt {a b : ℕ} (h : a = b ∨ a < b) : a ≤ b :=
-or.elim h nat.le_of_eq nat.le_of_lt
-
 lemma succ_lt_succ {a b : ℕ} : a < b → succ a < succ b :=
 succ_le_succ
 
@@ -306,15 +303,6 @@ by rw add_comm; exact nat.lt_add_of_pos_right h
 
 protected lemma zero_lt_one : 0 < (1:nat) :=
 zero_lt_succ 0
-
-protected lemma le_of_lt_or_eq {m n : ℕ} (h : m < n ∨ m = n) : m ≤ n :=
-nat.le_of_eq_or_lt (or.swap h)
-
-protected lemma lt_or_eq_of_le {m n : ℕ} (h : m ≤ n) : m < n ∨ m = n :=
-or.swap (nat.eq_or_lt_of_le h)
-
-protected lemma le_iff_lt_or_eq (m n : ℕ) : m ≤ n ↔ m < n ∨ m = n :=
-iff.intro nat.lt_or_eq_of_le nat.le_of_lt_or_eq
 
 lemma mul_le_mul_left {n m : ℕ} (k : ℕ) (h : n ≤ m) : k * n ≤ k * m :=
 match le.dest h with

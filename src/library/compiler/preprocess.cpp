@@ -74,15 +74,6 @@ class expand_aux_fn : public compiler_step_visitor {
         return compiler_step_visitor::visit_app(e);
     }
 
-    // Throw an exception is 'e' is the application of a noncomputable function
-    void check_computable(expr const & e) {
-        expr const & fn = get_app_fn(e);
-        if (is_constant(fn) && is_noncomputable(env(), const_name(fn))) {
-            throw exception(sstream() << "failed to generate bytecode, expression depends on noncomputable definition '"
-                            << const_name(fn) << "'\n");
-        }
-    }
-
     bool is_not_vm_function(expr const & e) {
         expr const & fn = get_app_fn(e);
         if (!is_constant(fn))
@@ -99,12 +90,15 @@ class expand_aux_fn : public compiler_step_visitor {
         return ::lean::is_pack_unpack(m_env, e);
     }
 
+    bool is_noncomputable_const(expr const & e) {
+        return is_constant(e) && is_noncomputable(env(), const_name(e));
+    }
+
     bool should_unfold(expr const & e) {
-        return is_not_vm_function(e) && !ctx().is_proof(e) && !is_pack_unpack(e);
+        return is_not_vm_function(e) && !ctx().is_proof(e) && !is_pack_unpack(e) && !is_noncomputable_const(e);
     }
 
     expr unfold(expr const & e) {
-        check_computable(e);
         if (auto r = unfold_term(env(), e)) {
             return visit(*r);
         } else {

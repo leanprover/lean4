@@ -215,6 +215,7 @@ static std::tuple<optional<expr>, expr, expr, optional<expr>> parse_do_action(pa
         }
         if (!is_local(*lhs)) {
             p.maybe_throw_error({"invalid 'do' block, unexpected ':' the left hand side is a pattern", lhs_pos});
+            lhs = mk_local("_x", type);
         }
         lhs = p.save_pos(mk_local(mlocal_pp_name(*lhs), type), lhs_pos);
         new_locals.clear();

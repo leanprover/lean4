@@ -60,7 +60,8 @@ void report_completions(environment const & env, options const & opts, pos_info 
                         search_path const & path, char const * mod_path, break_at_pos_exception const & e, json & j) {
     g_context = e.m_token_info.m_context;
     unsigned offset = pos.second - e.m_token_info.m_pos.second;
-    std::string prefix = e.m_token_info.m_token.to_string();
+    // TODO(gabriel): this is broken with french quotes
+    std::string prefix = e.m_token_info.m_token == name("") ? "" : e.m_token_info.m_token.to_string();
     if (auto stop = utf8_char_pos(prefix.c_str(), offset))
         prefix = prefix.substr(0, *stop);
     switch (e.m_token_info.m_context) {

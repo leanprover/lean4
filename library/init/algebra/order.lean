@@ -136,24 +136,6 @@ lemma le_iff_lt_or_eq [partial_order α] : ∀ {a b : α}, a ≤ b ↔ a < b ∨
 lemma lt_of_le_of_ne [partial_order α] {a b : α} : a ≤ b → a ≠ b → a < b :=
 λ h₁ h₂, or.resolve_right (lt_or_eq_of_le h₁) h₂
 
--- private lemma lt_of_lt_of_le' [strong_order_pair α] (a b c : α) (h₁ : a < b) (h₂ : b ≤ c) : a < c :=
--- have a ≤ c, from le_trans (le_of_lt' h₁) h₂,
--- or.elim (lt_or_eq_of_le this)
---   (λ h : a < c, h)
---   (λ h : a = c,
---     have b ≤ a, from h.symm ▸ h₂,
---     have a = b, from le_antisymm (le_of_lt' h₁) this,
---     absurd h₁ (this ▸ lt_irrefl' a))
-
--- private lemma lt_of_le_of_lt' [strong_order_pair α] (a b c : α) (h₁ : a ≤ b) (h₂ : b < c) : a < c :=
--- have a ≤ c, from le_trans h₁ (le_of_lt' h₂),
--- or.elim (lt_or_eq_of_le this)
---   (λ h : a < c, h)
---   (λ h : a = c,
---     have c ≤ b, from h ▸ h₁,
---     have c = b, from le_antisymm this (le_of_lt' h₂),
---     absurd h₂ (this ▸ lt_irrefl' c))
-
 lemma lt_trichotomy [linear_order α] (a b : α) : a < b ∨ a = b ∨ b < a :=
 or.elim (le_total a b)
   (λ h : a ≤ b, or.elim (lt_or_eq_of_le h)

@@ -370,26 +370,22 @@ struct wf_rec_fn {
         expr arg = app_arg(e);
         unsigned num_fns = ues.get_num_fns();
         expr result_fn;
-        unsigned fn_idx  = 0;
+        unsigned fn_idx = 0;
+        /* Recall that if we have 4 mutually recursive functions, we encode them as
+
+           f_1 a = _mutual (inl a)
+           f_2 b = _mutual (inr (inl b))
+           f_3 c = _mutual (inr (inr (inl c)))
+           f_4 d = _mutual (inr (inr (inr c)))
+         */
         if (num_fns > 1) {
-            if (is_app_of(arg, get_psum_inr_name())) {
-                for (unsigned i = 0; i < num_fns - 1; i++) {
-                    lean_assert(is_app_of(arg, get_psum_inr_name()));
-                    arg = app_arg(arg);
-                }
-                result_fn = result_fns.back();
-                fn_idx    = num_fns - 1;
-            } else {
-                lean_assert(is_app_of(arg, get_psum_inl_name()));
+            while (is_app_of(arg, get_psum_inr_name())) {
+                fn_idx++;
                 arg = app_arg(arg);
-                while (is_app_of(arg, get_psum_inr_name())) {
-                    fn_idx++;
-                    arg = app_arg(arg);
-                }
-                lean_assert(fn_idx < num_fns);
             }
-        } else {
-            fn_idx = 0;
+            if (is_app_of(arg, get_psum_inl_name())) {
+                arg = app_arg(arg);
+            }
         }
         result_fn = result_fns[fn_idx];
         unsigned arity = ues.get_arity_of(fn_idx);

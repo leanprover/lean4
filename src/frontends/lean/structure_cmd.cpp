@@ -619,7 +619,11 @@ struct structure_cmd_fn {
                     // type `Pi (ps : Ps) (x : base_S_name ps), A` for some `A`. We don't know `ps`, but we can obtain `x`
                     // by projecting our new subobject field and then obtain `A` as
                     // `(fun {ps : Ps} (x : base_S_name ps), A) x`.
-                    expr base_obj = *mk_base_projections(m_env, parent_name, base_S_name, field);
+                    auto base_obj_opt = mk_base_projections(m_env, parent_name, base_S_name, field);
+                    if (!base_obj_opt) {
+                        throw elaborator_exception(parent, "cannot make base projection");
+                    }
+                    expr base_obj = *base_obj_opt;
                     level_param_names lparams; unsigned nparams; inductive::intro_rule intro;
                     std::tie(lparams, nparams, intro) = get_parent_info(base_S_name);
                     levels meta_ls = map2<level>(lparams, [&](name const &) { return m_ctx.mk_univ_metavar_decl(); });

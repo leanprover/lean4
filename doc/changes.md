@@ -106,6 +106,12 @@ For more details, see discussion [here](https://github.com/leanprover/lean/pull/
 * `standard.lean` has been removed. Any files that `import standard` can simply remove the line as
   most things that were once imported by this are now imported by default.
 
+* The type classes for orders have been refactored to combine both the `(<)`
+  and `(≤)` operations.  The new classes are `pre_order`, `partial_order`, and
+  `linear_order`.  The `partial_order` class corresponds to `weak_order`,
+  `strict_order`, `order_pair`, and `strong_order_pair`.  The `linear_order`
+  class corresponds to `linear_order_pair`, and `linear_strong_order_pair`.
+
 *API name changes*
 
 * `list.dropn` => `list.drop`

@@ -1048,6 +1048,20 @@ meta def «show» (q : parse texpr) : tactic unit :=
 do gs ← get_goals,
    show_aux q gs []
 
+/--
+  The tactic `specialize (h a_1 ... a_n)` works on local hypothesis `h`.
+  The premises of this hypothesis (either universal quantifications or non-dependent implications)
+  are instantiated by concrete terms coming either from arguments `a_1` ... `a_n`.
+  It adds a new hypothesis with the same name `h := h a_1 ... a_n`, and (tries to) clear
+  the previous one.
+-/
+meta def specialize (p : parse texpr) : tactic unit :=
+do e ← i_to_expr p,
+   let h := expr.get_app_fn e,
+   if h.is_local_constant
+   then tactic.note h.local_pp_name none e >> try (tactic.clear h)
+   else tactic.fail "specialize requires a term of the form `h x_1 .. x_n` where `h` appears in the local context"
+
 end interactive
 end tactic
 

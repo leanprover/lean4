@@ -688,6 +688,9 @@ struct structure_cmd_fn {
                         expr fdefault = mk_field_default_value(full_fname);
                         if (!field.m_default_val) {
                             field.m_default_val = fdefault;
+                        }
+                        // TODO(gabriel): the defeq check below is completely broken because it compares pre-expressions
+                        /*
                         } else if (field.m_default_val && !m_ctx.is_def_eq(*field.m_default_val, fdefault)) {
                             expr prev_default = *field.m_default_val;
                             throw generic_exception(parent, [=](formatter const &fmt) {
@@ -702,6 +705,7 @@ struct structure_cmd_fn {
                                 return r;
                             });
                         }
+                        */
                     }
                     fmap_start++;
                 }

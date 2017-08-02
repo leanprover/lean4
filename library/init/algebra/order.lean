@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.logic init.classical
+import init.logic init.classical init.meta.name
 /- Make sure instances defined in this file have lower priority than the ones
    defined for concrete structures -/
 set_option default_priority 100
@@ -14,12 +14,12 @@ set_option old_structure_cmd true
 universe u
 variables {α : Type u}
 
+set_option auto_param.check_exists false
 class pre_order (α : Type u) extends has_le α, has_lt α :=
 (le_refl : ∀ a : α, a ≤ a)
 (le_trans : ∀ a b c : α, a ≤ b → b ≤ c → a ≤ c)
 (lt := λ a b, a ≤ b ∧ ¬ b ≤ a)
-(lt_iff_le_not_le : ∀ a b : α, a < b ↔ (a ≤ b ∧ ¬ b ≤ a))
--- TODO(gabriel): default lt_spec to λ a b, iff.refl _
+(lt_iff_le_not_le : ∀ a b : α, a < b ↔ (a ≤ b ∧ ¬ b ≤ a) . order_laws_tac)
 
 class partial_order (α : Type u) extends pre_order α :=
 (le_antisymm : ∀ a b : α, a ≤ b → b ≤ a → a = b)
@@ -33,11 +33,14 @@ pre_order.le_refl
 @[trans] lemma le_trans [pre_order α] : ∀ {a b c : α}, a ≤ b → b ≤ c → a ≤ c :=
 pre_order.le_trans
 
+lemma lt_iff_le_not_le [pre_order α] : ∀ {a b : α}, a < b ↔ (a ≤ b ∧ ¬ b ≤ a) :=
+pre_order.lt_iff_le_not_le _
+
 lemma lt_of_le_not_le [pre_order α] : ∀ {a b : α}, a ≤ b → ¬ b ≤ a → a < b
-| a b hab hba := (pre_order.lt_iff_le_not_le _ _).mpr ⟨hab, hba⟩
+| a b hab hba := lt_iff_le_not_le.mpr ⟨hab, hba⟩
 
 lemma le_not_le_of_lt [pre_order α] : ∀ {a b : α}, a < b → a ≤ b ∧ ¬ b ≤ a
-| a b hab := (pre_order.lt_iff_le_not_le _ _).mp hab
+| a b hab := lt_iff_le_not_le.mp hab
 
 lemma le_antisymm [partial_order α] : ∀ {a b : α}, a ≤ b → b ≤ a → a = b :=
 partial_order.le_antisymm
@@ -224,11 +227,11 @@ instance decidable_eq_of_decidable_le [partial_order α]
   else
     is_false (λ heq, hab (heq ▸ le_refl _))
 
--- TODO(leo,gabriel): add default values
 class decidable_linear_order (α : Type u) extends linear_order α :=
-(decidable_le : decidable_rel le)
-(decidable_eq : decidable_eq α)
-(decidable_lt : decidable_rel ((<) : α → α → Prop))
+(decidable_le : decidable_rel (≤))
+(decidable_eq : decidable_eq α := @decidable_eq_of_decidable_le _ _ decidable_le)
+(decidable_lt : decidable_rel ((<) : α → α → Prop) :=
+    @decidable_lt_of_decidable_le _ _ decidable_le)
 
 instance [decidable_linear_order α] (a b : α) : decidable (a < b) :=
 decidable_linear_order.decidable_lt α a b

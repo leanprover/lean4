@@ -1178,6 +1178,7 @@ attribute [reducible, inline] id_rhs
 /- Install monad laws tactic and use it to prove some instances. -/
 
 meta def control_laws_tac := whnf_target >> intros >> to_expr ``(rfl) >>= exact
+meta def order_laws_tac := whnf_target >> intros >> to_expr ``(iff.refl _) >>= exact
 
 meta def unsafe_monad_from_pure_bind {m : Type u → Type v}
   (pure : Π {α : Type u}, α → m α)

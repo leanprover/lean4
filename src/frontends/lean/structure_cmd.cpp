@@ -837,13 +837,12 @@ struct structure_cmd_fn {
         parser::local_scope scope(m_p);
         add_locals();
         while (!m_p.curr_is_command_like()) {
-            if (m_p.curr_is_identifier()) {
-                parse_field_block(binder_info());
-            } else {
-                binder_info bi = m_p.parse_binder_info();
+            if (auto bi = m_p.parse_optional_binder_info()) {
                 if (!m_p.parse_local_notation_decl())
-                    parse_field_block(bi);
-                m_p.parse_close_binder_info(bi);
+                    parse_field_block(*bi);
+                m_p.parse_close_binder_info(*bi);
+            } else {
+                break;
             }
         }
     }

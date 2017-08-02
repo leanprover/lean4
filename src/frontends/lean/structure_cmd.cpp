@@ -1064,7 +1064,7 @@ struct structure_cmd_fn {
 
     void declare_defaults() {
         for (field_decl const & field : m_fields) {
-            if (field.m_has_new_default) {
+            if (field.m_has_new_default || (!m_subobjects && field.m_default_val)) {
                 expr val = *field.m_default_val;
                 expr type = field.get_type();
                 collected_locals used_locals;

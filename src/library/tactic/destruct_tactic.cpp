@@ -57,10 +57,15 @@ tactic_state destruct(transparency_mode md, expr const & e, tactic_state const &
 
     expr cases;
     levels lvls;
-    if (env.get(name(I_name, "rec")).get_num_univ_params() != length(I_lvls))
+    if (env.get(name(I_name, "rec")).get_num_univ_params() != length(I_lvls)) {
         lvls = cons(target_lvl, I_lvls);
-    else
+    } else {
+        if (!is_zero(target_lvl)) {
+            throw exception(sstream() << "destruct tactic failed, recursor '" << cases_on_decl.get_name()
+                            << "' can only eliminate into Prop");
+        }
         lvls = I_lvls;
+    }
 
     /* cases will contain the cases_on application that we will assing to the main goal */
     cases                     = mk_constant(cases_on_decl.get_name(), lvls);

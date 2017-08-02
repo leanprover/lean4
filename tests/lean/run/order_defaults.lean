@@ -1,4 +1,4 @@
-example : pre_order unit := {
+example : preorder unit := {
     le := λ _ _, true,
     le_refl := λ _, trivial,
     le_trans := λ _ _ _ _ _, trivial,

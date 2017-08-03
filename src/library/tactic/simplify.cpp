@@ -322,7 +322,11 @@ simp_result simplify_core_fn::try_user_congr(expr const & e, simp_lemma const & 
 
             expr pf_body = finalize(m_ctx, const_name(h_rel), r_congr_hyp).get_proof();
             expr pf      = local_factory.mk_lambda(pf_body);
-            tmp_ctx.assign(m, pf);
+            if (!tmp_ctx.is_def_eq(m, pf)) {
+                lean_simp_trace(tmp_ctx, name({"simplify", "congruence"}),
+                    tout() << "failed to unify proof " << pf << " of " << tmp_ctx.infer(pf););
+                return simp_result(e);
+            }
         }
     }
 

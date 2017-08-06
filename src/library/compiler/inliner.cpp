@@ -17,7 +17,15 @@ Author: Leonardo de Moura
 
 namespace lean {
 bool is_inline(environment const & env, name const & n) {
-    return has_attribute(env, "inline", n);
+    // declaration is marked with [inline]
+    if (has_attribute(env, "inline", n)) {
+        return true;
+    }
+    // decl._main is an auxiliary declaration, check decl instead
+    if (n.is_string() && n.get_string()[0] == '_') {
+        return is_inline(env, n.get_prefix());
+    }
+    return false;
 }
 
 void initialize_inliner() {

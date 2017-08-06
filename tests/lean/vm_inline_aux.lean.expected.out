@@ -1,0 +1,24 @@
+[compiler.optimize_bytecode]  hide.cond._main 4
+0: move 2
+1: cases2 4
+2: move 0
+3: ret
+4: move 1
+5: ret
+[compiler.optimize_bytecode]  hide.cond 1
+0: scnstr #0
+1: closure hide.cond._main 1
+2: ret
+[compiler.optimize_bytecode]  hide.foo 1
+0: move 0
+1: cases2 6
+2: scnstr #20
+3: scnstr #20
+4: cfun nat.mul
+5: goto 9
+6: scnstr #10
+7: scnstr #10
+8: cfun nat.mul
+9: scnstr #100
+10: cfun nat.add
+11: ret

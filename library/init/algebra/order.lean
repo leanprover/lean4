@@ -126,7 +126,7 @@ lemma lt_or_eq_of_le [partial_order α] : ∀ {a b : α}, a ≤ b → a < b ∨ 
   (λ hba : b ≤ a, or.inr (le_antisymm hab hba))
   (λ hba, or.inl (lt_of_le_not_le hab hba))
 
-lemma le_of_lt_or_eq [partial_order α] : ∀ {a b : α}, (a < b ∨ a = b) → a ≤ b
+lemma le_of_lt_or_eq [preorder α] : ∀ {a b : α}, (a < b ∨ a = b) → a ≤ b
 | a b (or.inl hab) := le_of_lt hab
 | a b (or.inr hab) := hab ▸ le_refl _
 

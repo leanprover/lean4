@@ -1,2 +1,0 @@
-print_ax2.lean:1:13: error: invalid namespace name 'print'
-print_ax2.lean:1:25: error: invalid variables/constants/axioms declaration, ':' expected

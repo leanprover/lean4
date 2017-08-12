@@ -213,11 +213,23 @@ vm_obj tactic_kdepends_on(vm_obj const & e, vm_obj const & t, vm_obj const & md,
     }
 }
 
+vm_obj tactic_kabstract(vm_obj const & e, vm_obj const & t, vm_obj const & md, vm_obj const & s0) {
+    tactic_state s = tactic::to_state(s0);
+    try {
+        type_context ctx = mk_type_context_for(s, to_transparency_mode(md));
+        auto a = kabstract(ctx, to_expr(e), to_expr(t), occurrences());
+        return tactic::mk_success(to_obj(a), set_mctx(s, ctx.mctx()));
+    } catch (exception & ex) {
+        return tactic::mk_exception(ex, s);
+    }
+}
+
 void initialize_kabstract() {
     register_trace_class("kabstract");
     g_ext           = new key_equivalence_ext_reg();
     key_equivalence_modification::init();
     DECLARE_VM_BUILTIN(name({"tactic", "kdepends_on"}), tactic_kdepends_on);
+    DECLARE_VM_BUILTIN(name("tactic", "kabstract"),     tactic_kabstract);
 }
 
 void finalize_kabstract() {

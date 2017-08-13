@@ -258,6 +258,14 @@ vm_obj vm_parser_with_input(vm_obj const &, vm_obj const & vm_p, vm_obj const & 
     vm_res = mk_vm_pair(vm_res, to_obj(input.substr(spos)));
     return lean_parser::mk_result(vm_res, lean_parser::get_result_state(vm_state));
 }
+static vm_obj vm_parser_command_like(vm_obj const & vm_s) {
+    auto s = lean_parser::to_state(vm_s);
+    TRY;
+        s.m_p->parse_command_like();
+        return lean_parser::mk_success(s);
+    CATCH;
+}
+
 
 static vm_obj interactive_decl_attributes_apply(vm_obj const & vm_attrs, vm_obj const & vm_n, vm_obj const & vm_s) {
     auto s = lean_parser::to_state(vm_s);
@@ -299,6 +307,7 @@ void initialize_vm_parser() {
     DECLARE_VM_BUILTIN(name({"lean", "parser_state", "options"}),     vm_parser_state_options);
     DECLARE_VM_BUILTIN(name({"lean", "parser_state", "cur_pos"}),     vm_parser_state_cur_pos);
     DECLARE_VM_BUILTIN(name({"lean", "parser", "ident"}),             vm_parser_ident);
+    DECLARE_VM_BUILTIN(name({"lean", "parser", "command_like"}),   vm_parser_command_like);
     DECLARE_VM_BUILTIN(name({"lean", "parser", "small_nat"}),         vm_parser_small_nat);
     DECLARE_VM_BUILTIN(name({"lean", "parser", "set_env"}),           vm_parser_set_env);
     DECLARE_VM_BUILTIN(get_lean_parser_tk_name(),                     vm_parser_tk);

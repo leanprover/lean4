@@ -99,7 +99,6 @@ class parser : public abstract_parser {
     void parse_mod_doc_block();
 
     void process_imports();
-    bool parse_command_like();
     void process_postponed(buffer<expr> const & args, bool is_left, buffer<notation::action_kind> const & kinds,
                            buffer<list<expr>> const & nargs, buffer<expr> const & ps, buffer<pair<unsigned, pos_info>> const & scoped_info,
                            list<notation::action> const & postponed, pos_info const & p, buffer<expr> & new_args);
@@ -416,6 +415,7 @@ public:
     expr parse_scoped_expr(buffer<expr> const & ps, unsigned rbp = 0) { return parse_scoped_expr(ps.size(), ps.data(), rbp); }
     expr parse_expr_with_env(local_environment const & lenv, unsigned rbp = 0);
 
+    bool parse_command_like();
     void parse_command(cmd_meta const & meta);
     void parse_imports(unsigned & fingerprint, std::vector<module_name> &);
 

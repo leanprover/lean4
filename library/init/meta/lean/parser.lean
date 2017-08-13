@@ -46,6 +46,9 @@ meta def cur_pos : parser pos := λ s, success (parser_state.cur_pos s) s
 /-- Temporarily replace input of the parser state, run `p`, and return remaining input. -/
 meta constant with_input (p : parser α) (input : string) : parser (α × string)
 
+/-- Parse a top-level command. -/
+meta constant command_like : parser unit
+
 meta def parser_orelse (p₁ p₂ : parser α) : parser α :=
 λ s,
 let pos₁ := parser_state.cur_pos s in

@@ -41,7 +41,7 @@ void initialize_vm_pexpr() {
     DECLARE_VM_BUILTIN(name("pexpr", "mk_explicit"),      pexpr_mk_explicit);
     DECLARE_VM_BUILTIN(name("pexpr", "mk_field_macro"),   pexpr_mk_field_macro);
 
-    DECLARE_VM_BUILTIN(name("expr", "is_choice_macro"),   pexpr_is_choice_macro);
+    DECLARE_VM_BUILTIN(name("pexpr", "is_choice_macro"),  pexpr_is_choice_macro);
 }
 
 void finalize_vm_pexpr() {

@@ -1,0 +1,6 @@
+1786.lean:4:30: error: ambiguous overload, possible interpretations
+    nil_subset
+    list.nil_subset
+state:
+x : ℕ
+⊢ x = x

@@ -742,11 +742,21 @@ private meta def add_simps : simp_lemmas → list name → tactic simp_lemmas
 | s (n::ns) := do s' ← s.add_simp n, add_simps s' ns
 
 private meta def report_invalid_simp_lemma {α : Type} (n : name): tactic α :=
-fail ("invalid simplification lemma '" ++ to_string n ++ "' (use command 'set_option trace.simp_lemmas true' for more details)")
+fail format!"invalid simplification lemma '{n}' (use command 'set_option trace.simp_lemmas true' for more details)"
+
+private meta def check_no_overload (p : pexpr) : tactic unit :=
+when p.is_choice_macro $
+  match p with
+  | macro _ ps :=
+    fail $ to_fmt "ambiguous overload, possible interpretations" ++
+           format.join (ps.map (λ p, (to_fmt p).indent 4))
+  | _ := failed
+  end
 
 private meta def simp_lemmas.resolve_and_add (s : simp_lemmas) (u : list name) (n : name) (ref : pexpr) : tactic (simp_lemmas × list name) :=
 do
   p ← resolve_name n,
+  check_no_overload p,
   -- unpack local refs
   let e := p.erase_annotations.get_app_fn.erase_annotations,
   match e with

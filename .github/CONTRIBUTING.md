@@ -22,8 +22,13 @@ for you (the contributors) and us (the maintainers).
 
 # Opening Pull Requests
 
+The core developers have to maintain Lean. Thus, they need to read all PRs, and make sure they can maintain them.
+So, here are some guidelines for submitting PRs:
+- Small bug fixes are always welcome.
+- Before implementing a major feature or refactoring the code, please ask whether the change is welcome or not.
+  The worst kind of PR is the "unwanted one". That is, we don’t want it, but we have to explain why we will not merge it.
+- Ensure all test suite works before submitting a PR.
 - Ensure your Pull Request meets the coding and commit conventions documented above.
 - Ensure your Pull Request contains tests for the behavior, for both features or
   bug fixes.
-
-
+- If you are not proficient in C++, do not submit PRs with C++ code.

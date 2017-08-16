@@ -391,8 +391,7 @@ static environment copy_equation_lemmas(environment const & env, buffer<name> co
         buffer<expr> args;
         expr const & fn = get_app_args(val, args);
         if (!is_constant(fn) ||
-            !std::all_of(args.begin(), args.end(), is_local) ||
-            length(const_levels(fn)) != length(ls)) {
+            !std::all_of(args.begin(), args.end(), is_local)) {
             throw_unexpected_error_at_copy_lemmas();
         }
         vals.push_back(val);
@@ -411,9 +410,6 @@ static environment copy_equation_lemmas(environment const & env, buffer<name> co
             name eqn_name = mk_equation_name(const_name(fn), i);
             optional<declaration> eqn_decl = env.find(eqn_name);
             if (!eqn_decl) break;
-            unsigned num_eqn_levels = eqn_decl->get_num_univ_params();
-            if (num_eqn_levels != length(ls))
-                throw_unexpected_error_at_copy_lemmas();
             expr lhs; unsigned num_eqn_params;
             std::tie(lhs, num_eqn_params) = get_lemma_lhs(eqn_decl->get_type());
             buffer<expr> lhs_args;

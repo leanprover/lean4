@@ -1,20 +1,12 @@
-The Lean Standard Library
+The Lean Core Library
 =========================
-(This documentation is partially out-of-date.)
 
-The Lean standard library is contained in the following files and directories:
+The Lean core library is contained in the following files and directories:
 
 * [init](init/) : constants and theorems needed for low-level system operations
 * [init/logic.lean](init/logic.lean) : logical constructs and axioms
 * [init/data](init/data/) : concrete datatypes and type constructors
 * [init/algebra](init/algebra/) : algebraic structures
-* [tools](tools/) : additional tools
-
-The files in `init` are loaded by default, and hence do not need to be
-imported manually.  Other files can be imported individually, but the
-following is designed to load most of the standard library:
-
-* [standard](standard.lean) : constructive logic and datatypes
 
 Lean's default logical framework is a version of the Calculus of
 Constructions with:
@@ -25,7 +17,7 @@ Constructions with:
 * inductively defined types
 * quotient types
 
-Most of the `standard` library does not rely on any axioms beyond this
+Most of the `core` library does not rely on any axioms beyond this
 framework, and is hence fully constructive.
 
 The following additional axioms are defined in `init`:
@@ -38,12 +30,5 @@ excluded middle is derived from Hilbert choice. For Hilbert choice and
 excluded middle, use `open classical`. The additional axioms are used
 sparingly. For example:
 
-* The constructions of finite sets and the rationals use quotients.
-* The set library uses propext and funext, as well as excluded middle to prove
-  some classical identities.
-* Hilbert choice is used to define the multiplicative inverse on the reals, and
-  also to define function inverses classically.
-
 You can use `#print axioms foo` to see which axioms `foo` depends
-on. Many of the theories in the `theories` folder are unreservedly
-classical.
+on.

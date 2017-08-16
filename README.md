@@ -17,7 +17,7 @@ About
 
 - [Homepage](http://leanprover.github.io)
 - [Theorem Proving in Lean](https://leanprover.github.io/theorem_proving_in_lean/index.html)
-- [Standard Library](library/library.md)
+- [Core library](library/library.md)
 - [Emacs Mode](src/emacs/README.md)
 - [Change Log](doc/changes.md)
 - For HoTT mode, please use [Lean2](https://github.com/leanprover/lean2).

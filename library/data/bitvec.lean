@@ -7,8 +7,7 @@ Basic operations on bitvectors.
 
 This is a work-in-progress, and contains additions to other theories.
 -/
-prelude
-import init.data.nat init.data.int init.data.vector init.meta.interactive
+import data.vector
 
 @[reducible] def bitvec (n : ℕ) := vector bool n
 

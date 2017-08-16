@@ -1,4 +1,4 @@
-namespace Ex
+import data.vector namespace Ex
 universe u
 -- def vector (α : Type u) (n : ℕ) := { l : list α // l.length = n }
 namespace vector

@@ -1,4 +1,4 @@
-namespace test
+import data.vector namespace test
 universes u v
 
 section

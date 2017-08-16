@@ -1,4 +1,4 @@
-open nat
+import data.vector open nat
 universe variables u
 variable {α : Type u}
 

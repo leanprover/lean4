@@ -1,4 +1,4 @@
-open tactic
+import data.vector open tactic
 
 universe variables u
 

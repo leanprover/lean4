@@ -1265,6 +1265,7 @@ static pair<notation::transition, parse_table> const * get_non_skip(list<pair<no
 }
 
 expr parser::parse_notation(parse_table t, expr * left) {
+    check_system("parse_notation");
     lean_assert(curr() == token_kind::Keyword);
     auto p = pos();
     auto first_token = get_token_info().value();

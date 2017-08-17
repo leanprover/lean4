@@ -2290,9 +2290,6 @@ expr elaborator::visit_equations(expr const & e) {
     optional<expr> first_eq;
     for (expr const & eq : eqs) {
         expr new_eq;
-        buffer<expr> fns_locals;
-        fun_to_telescope(eq, fns_locals, optional<binder_info>());
-        list<expr> locals = to_list(fns_locals.begin() + num_fns, fns_locals.end());
         if (first_eq) {
             if (is_do_failure_eq(eq) && !keep_do_failure_eq(*first_eq)) {
                 /* skip equation since it doesn't implement the monad_fail interface */

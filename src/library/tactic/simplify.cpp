@@ -252,14 +252,22 @@ simp_result simplify_core_fn::try_user_congrs(expr const & e) {
     simp_lemmas_for const * sls = m_slss.find(m_rel);
     if (!sls) return simp_result(e);
 
-    list<simp_lemma> const * cls = sls->find_congr(e);
-    if (!cls) return simp_result(e);
-
-    for (simp_lemma const & cl : *cls) {
-        simp_result r = try_user_congr(e, cl);
-        if (r.get_new() != e)
-            return r;
+    if (auto cls = sls->find_congr(e)) {
+        for (simp_lemma const & cl : *cls) {
+            simp_result r = try_user_congr(e, cl);
+            if (r.get_new() != e)
+                return r;
+        }
     }
+
+    if (auto cls = sls->find_congr(head_index(expr_kind::Meta))) {
+        for (simp_lemma const & cl : *cls) {
+            simp_result r = try_user_congr(e, cl);
+            if (r.get_new() != e)
+                return r;
+        }
+    }
+
     return simp_result(e);
 }
 

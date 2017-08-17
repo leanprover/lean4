@@ -815,9 +815,19 @@ static bool is_valid_congr_rule_binding_lhs(expr const & lhs, name_set & found_m
 
 /* Return true iff all metavariables in e are in found_mvars */
 static bool only_found_mvars(expr const & e, name_set const & found_mvars) {
-    return !find(e, [&](expr const & m, unsigned) {
-            return is_metavar(m) && !found_mvars.contains(mlocal_name(m));
-        });
+    bool contains_non_found_mvar = false;
+    for_each(e, [&](expr const & m, unsigned) {
+        if (is_metavar(m)) {
+            if (!found_mvars.contains(mlocal_name(m))) {
+                contains_non_found_mvar = true;
+            } else {
+                // ignore metavariables in types of metavariables
+                return false;
+            }
+        }
+        return !contains_non_found_mvar;
+    });
+    return !contains_non_found_mvar;
 }
 
 /* Check whether rhs is of the form (mvar l_1 ... l_n) where mvar is a metavariable,
@@ -893,6 +903,18 @@ static simp_lemmas add_congr_core(type_context & ctx, simp_lemmas const & s, nam
             report_failure(sstream() << "invalid congruence lemma, '" << n
                            << "' left-hand-side of the congruence resulting type must "
                            << "be of the form (fun/Pi (x : A), B x)");
+        }
+    } else if (is_metavar(lhs_fn)) {
+        found_mvars.insert(mlocal_name(lhs_fn));
+        for (expr const & lhs_arg : lhs_args) {
+            if (is_sort(lhs_arg))
+                continue;
+            if (!is_metavar(lhs_arg) || found_mvars.contains(mlocal_name(lhs_arg))) {
+                report_failure(sstream() << "invalid congruence lemma, '" << n
+                               << "' the left-hand-side of the congruence resulting type must be of the form ("
+                               << "x_1 ... x_n), where each x_i is a distinct variable or a sort");
+            }
+            found_mvars.insert(mlocal_name(lhs_arg));
         }
     } else {
         report_failure(sstream() << "invalid congruence lemma, '" << n

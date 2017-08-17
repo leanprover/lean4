@@ -425,10 +425,6 @@ do e ← i_to_expr p,
      clear_lst (newvars.map local_pp_name),
      (e::locals).mmap' (try ∘ clear) }
 
-meta def cases (p : parse texpr) (ids : parse with_ident_list) : tactic unit :=
-do e ← i_to_expr p,
-   tactic.cases e ids
-
 private meta def find_case (goals : list expr) (ty : name) (idx : nat) (num_indices : nat) : option expr → expr → option (expr × expr)
 | case e := if e.has_meta_var then match e with
   | (mvar _ _ _)    :=
@@ -523,6 +519,25 @@ do x ← mk_fresh_name,
    generalize h (p, x),
    t ← get_local x,
    induction (to_pexpr t) rec_name hs ([] : list name)
+
+private meta def cases_arg_p : parser (option name × pexpr) :=
+with_desc "(id :)? expr" $ do
+  t ← texpr,
+  match t with
+  | (local_const x _ _ _) :=
+    (tk ":" *> do t ← texpr, pure (some x, t)) <|> pure (none, t)
+  | _ := pure (none, t)
+  end
+
+meta def cases : parse cases_arg_p → parse with_ident_list → tactic unit
+| (none,   p) ids := do
+  e ← i_to_expr p,
+  tactic.cases e ids
+| (some h, p) ids := do
+  x   ← mk_fresh_name,
+  generalize h (p, x),
+  hx  ← get_local x,
+  tactic.cases hx ids
 
 meta def trivial : tactic unit :=
 tactic.triv <|> tactic.reflexivity <|> tactic.contradiction <|> fail "trivial tactic failed"

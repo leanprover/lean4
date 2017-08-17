@@ -678,10 +678,6 @@ static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name cons
                             expr const & e, expr const & h, unsigned priority) {
     lean_assert(ctx.in_tmp_mode());
     list<expr_pair> ceqvs   = to_ceqvs(ctx, id, e, h);
-    if (is_nil(ceqvs)) {
-        report_failure(sstream() << "invalid simplification lemma '" << id << "' : " << e);
-        return s;
-    }
     environment const & env = ctx.env();
     simp_lemmas new_s = s;
     for (expr_pair const & p : ceqvs) {
@@ -779,16 +775,20 @@ static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name cons
 /* Extended version. If cname is a definition with equational lemmas associated to it, then
    add the equational lemmas. */
 static simp_lemmas ext_add_core(type_context & ctx, simp_lemmas const & s, name const & cname, unsigned priority) {
+    simp_lemmas r = s;
+
+    // equational lemmas
     buffer<name> eqn_lemmas;
     get_ext_eqn_lemmas_for(ctx.env(), cname, eqn_lemmas);
-    if (eqn_lemmas.empty())
-        return add_core(ctx, s, cname, priority);
-    expr type = ctx.env().get(cname).get_type();
-    if (ctx.is_prop(type))
-        return add_core(ctx, s, cname, priority);
-    simp_lemmas r = s;
     for (name const & eqn_lemma : eqn_lemmas)
         r = add_core(ctx, r, eqn_lemma, priority);
+
+    // the definition itself
+    r = add_core(ctx, r, cname, priority);
+
+    if (is_eqp(r, s)) {
+        report_failure(sstream() << "invalid simplification lemma '" << cname << "'");
+    }
     return r;
 }
 

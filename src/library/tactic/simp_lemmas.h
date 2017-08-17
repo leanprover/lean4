@@ -119,6 +119,10 @@ public:
     format pp_simp(formatter const & fmt) const;
     format pp_congr(formatter const & fmt) const;
     format pp(formatter const & fmt) const;
+
+    friend bool is_eqp(simp_lemmas const & a, simp_lemmas const & b) {
+        return is_eqp(a.m_sets, b.m_sets);
+    }
 };
 
 typedef unsigned simp_lemmas_token;

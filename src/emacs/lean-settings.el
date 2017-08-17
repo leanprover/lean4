@@ -141,4 +141,7 @@ false (nil)."
 (defcustom lean-keybinding-leanpkg-test (kbd "C-c C-p C-t")
   "Lean Keybinding for lean-pkg-test"
   :group 'lean-keybinding :type 'key-sequence)
+(defcustom lean-keybinding-lean-helm-definitions (kbd "C-c C-d")
+  "Lean Keybinding for lean-helm-definitions"
+  :group 'lean-keybinding :type 'key-sequence)
 (provide 'lean-settings)

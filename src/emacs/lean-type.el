@@ -143,4 +143,30 @@
   (lean-toggle-info-buffer lean-show-goal-buffer-name)
   (lean-show-goal--handler))
 
+(defun lean-helm-definitions-format-candidate (c)
+  `(,(format "%s : %s %s"
+             (propertize (plist-get c :text) 'face font-lock-variable-name-face)
+             (plist-get c :type)
+             (propertize (plist-get (plist-get c :source) :file) 'face font-lock-comment-face))
+    . ,c))
+
+(defun lean-helm-definitions-candidates ()
+  (with-helm-current-buffer
+    (let* ((response (lean-server-send-synchronous-command 'search (list :query helm-pattern)))
+           (results (plist-get response :results))
+           (results (-filter (lambda (c) (plist-get c :source)) results))
+           (candidates (-map 'lean-helm-definitions-format-candidate results)))
+      candidates)))
+
+(defun lean-helm-definitions ()
+  "Open a 'helm' interface for searching Lean definitions."
+  (interactive)
+  (require 'helm)
+  (helm :sources (helm-build-sync-source "helm-source-lean-definitions"
+                   :requires-pattern t
+                   :candidates 'lean-helm-definitions-candidates
+                   :action '(("Go to" . (lambda (c) (with-helm-current-buffer
+                                                      (apply 'lean-find-definition-cont (plist-get c :source)))))))
+        :buffer "*helm Lean definitions*"))
+
 (provide 'lean-type)

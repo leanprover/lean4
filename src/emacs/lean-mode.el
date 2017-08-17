@@ -95,6 +95,7 @@
   (local-set-key lean-keybinding-leanpkg-configure         'leanpkg-configure)
   (local-set-key lean-keybinding-leanpkg-build             'leanpkg-build)
   (local-set-key lean-keybinding-leanpkg-test              'leanpkg-test)
+  (local-set-key lean-keybinding-lean-helm-definitions     'lean-helm-definitions)
   ;; This only works as a mouse binding due to the event, so it is not abstracted
   ;; to avoid user confusion.
   (local-set-key (kbd "<mouse-3>")                         'lean-right-click-show-menu)

@@ -13,12 +13,15 @@ namespace lean {
 static name *       g_meta_prefix;
 static expr *       g_dummy_type;
 
-name mk_meta_decl_name() {
+static name mk_meta_decl_name() {
     return mk_tagged_fresh_name(*g_meta_prefix);
 }
 
-expr mk_meta_ref(name const & n) {
-    return mk_metavar(n, *g_dummy_type);
+static expr mk_meta_ref(name const & n, optional<name> const & pp_n) {
+    if (pp_n)
+        return mk_metavar(n, *pp_n, *g_dummy_type);
+    else
+        return mk_metavar(n, *g_dummy_type);
 }
 
 bool is_metavar_decl_ref(level const & u) {
@@ -46,10 +49,10 @@ level metavar_context::mk_univ_metavar_decl() {
     return mk_meta_univ(mk_meta_decl_name());
 }
 
-expr metavar_context::mk_metavar_decl(local_context const & ctx, expr const & type) {
+expr metavar_context::mk_metavar_decl(optional<name> const & pp_n, local_context const & ctx, expr const & type) {
     name n = mk_meta_decl_name();
     m_decls.insert(n, metavar_decl(ctx, head_beta_reduce(type)));
-    return mk_meta_ref(n);
+    return mk_meta_ref(n, pp_n);
 }
 
 optional<metavar_decl> metavar_context::find_metavar_decl(expr const & e) const {

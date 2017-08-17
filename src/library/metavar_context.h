@@ -31,9 +31,15 @@ class metavar_context {
     name_map<expr>         m_eassignment;
     struct interface_impl;
     friend struct interface_impl;
+    expr mk_metavar_decl(optional<name> const & pp_n, local_context const & ctx, expr const & type);
 public:
     level mk_univ_metavar_decl();
-    expr mk_metavar_decl(local_context const & ctx, expr const & type);
+    expr mk_metavar_decl(local_context const & ctx, expr const & type) {
+        return mk_metavar_decl(optional<name>(), ctx, type);
+    }
+    expr mk_metavar_decl(name const & pp_name, local_context const & ctx, expr const & type) {
+        return mk_metavar_decl(optional<name>(pp_name), ctx, type);
+    }
 
     optional<metavar_decl> find_metavar_decl(expr const & mvar) const;
 

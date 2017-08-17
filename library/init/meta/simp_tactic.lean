@@ -43,6 +43,9 @@ meta constant is_valid_simp_lemma : expr → tactic bool
 
 meta constant simp_lemmas.pp : simp_lemmas → tactic format
 
+meta instance : has_to_tactic_format simp_lemmas :=
+⟨simp_lemmas.pp⟩
+
 namespace tactic
 meta def revert_and_transform (transform : expr → tactic expr) (h : expr) : tactic unit :=
 do num_reverted : ℕ ← revert h,

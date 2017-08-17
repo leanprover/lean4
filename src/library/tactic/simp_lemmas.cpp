@@ -373,7 +373,7 @@ format simp_lemmas::pp(formatter const & fmt, format const & header, bool simp, 
         name prev_eqv;
         for_each_congr([&](name const & eqv, simp_lemma const & cr) {
                 if (prev_eqv != eqv) {
-                    r += format("congruencec rules for ") + format(eqv) + line();
+                    r += format("congruence rules for ") + format(eqv) + line();
                     prev_eqv = eqv;
                 }
                 r += cr.pp(fmt) + line();

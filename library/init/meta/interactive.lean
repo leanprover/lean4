@@ -229,9 +229,9 @@ hypotheses (or `*`), or in the goal if no `at` clause is specified, provided tha
 `A` and `B` are definitionally equal.
 -/
 meta def change (q : parse texpr) : parse (tk "with" *> texpr)? → parse location → tactic unit
-| none (loc.ns [none]) := do e ← i_to_expr q, change_core e none 
-| none (loc.ns [some h]) := do eq ← i_to_expr q, eh ← get_local h, change_core eq (some eh) 
-| none _ := fail "change-at does not support multiple locations" 
+| none (loc.ns [none]) := do e ← i_to_expr q, change_core e none
+| none (loc.ns [some h]) := do eq ← i_to_expr q, eh ← get_local h, change_core eq (some eh)
+| none _ := fail "change-at does not support multiple locations"
 | (some w) l :=
   do u ← mk_meta_univ,
      ty ← mk_meta_var (sort u),

@@ -28,7 +28,7 @@ class elaborator {
 public:
     class checkpoint;
 private:
-    friend class validate_equation_lhs_fn;
+    friend class validate_and_collect_lhs_mvars;
     typedef std::vector<pair<expr, expr>> to_check_sorts;
     enum class arg_mask {
         AllExplicit /* @ annotation */,
@@ -48,7 +48,6 @@ private:
     list<expr>        m_numeral_types;
     list<expr_pair>   m_tactics;
     list<expr_pair>   m_holes;
-    list<expr_pair>   m_inaccessible_stack;
 
     /* m_depth is only used for tracing */
     unsigned          m_depth{0};
@@ -63,7 +62,6 @@ private:
         list<expr>             m_saved_numeral_types;
         list<expr_pair>        m_saved_tactics;
         list<expr_pair>        m_saved_holes;
-        list<expr_pair>        m_saved_inaccessible_stack;
 
         snapshot(elaborator const & elab);
         void restore(elaborator & elab);
@@ -238,7 +236,7 @@ private:
     expr visit_equations(expr const & e);
     void check_pattern_inaccessible_annotations(expr const & p);
     void check_inaccessible_annotations(expr const & lhs);
-    expr visit_equation(expr const & eq);
+    expr visit_equation(expr const & eq, unsigned num_fns);
     expr visit_inaccessible(expr const & e, optional<expr> const & expected_type);
 
     struct field_resolution {
@@ -281,7 +279,6 @@ private:
     void synthesize_using_tactics();
     void synthesize_no_tactics();
     void synthesize();
-    void check_inaccessible(list<expr_pair> const & old_stack);
 
     void finalize_core(sanitize_param_names_fn & S, buffer<expr> & es,
                        bool check_unassigned, bool to_simple_metavar, bool collect_local_ctx);

@@ -156,13 +156,13 @@ heq.rec_on h (eq.refl α)
 end
 
 lemma eq_rec_heq {α : Sort u} {φ : α → Sort v} : ∀ {a a' : α} (h : a = a') (p : φ a), (eq.rec_on h p : φ a') == p
-| a ._ rfl p := heq.refl p
+| a _ rfl p := heq.refl p
 
 lemma heq_of_eq_rec_left {α : Sort u} {φ : α → Sort v} : ∀ {a a' : α} {p₁ : φ a} {p₂ : φ a'} (e : a = a') (h₂ : (eq.rec_on e p₁ : φ a') = p₂), p₁ == p₂
-| a ._ p₁ p₂ (eq.refl ._) h := eq.rec_on h (heq.refl p₁)
+| a _ p₁ p₂ rfl h := eq.rec_on h (heq.refl p₁)
 
 lemma heq_of_eq_rec_right {α : Sort u} {φ : α → Sort v} : ∀ {a a' : α} {p₁ : φ a} {p₂ : φ a'} (e : a' = a) (h₂ : p₁ = eq.rec_on e p₂), p₁ == p₂
-| a ._ p₁ p₂ (eq.refl ._) h :=
+| a _ p₁ p₂ rfl h :=
   have p₁ = p₂, from h,
   this ▸ heq.refl p₁
 
@@ -170,19 +170,10 @@ lemma of_heq_true {a : Prop} (h : a == true) : a :=
 of_eq_true (eq_of_heq h)
 
 lemma eq_rec_compose : ∀ {α β φ : Sort u} (p₁ : β = φ) (p₂ : α = β) (a : α), (eq.rec_on p₁ (eq.rec_on p₂ a : β) : φ) = eq.rec_on (eq.trans p₂ p₁) a
-| α ._ ._ (eq.refl ._) (eq.refl ._) a := rfl
-
-lemma eq_rec_eq_eq_rec : ∀ {α₁ α₂ : Sort u} {p : α₁ = α₂} {a₁ : α₁} {a₂ : α₂}, (eq.rec_on p a₁ : α₂) = a₂ → a₁ = eq.rec_on (eq.symm p) a₂
-| α ._ rfl a ._ rfl := rfl
-
-lemma eq_rec_of_heq_left : ∀ {α₁ α₂ : Sort u} {a₁ : α₁} {a₂ : α₂} (h : a₁ == a₂), (eq.rec_on (type_eq_of_heq h) a₁ : α₂) = a₂
-| α ._ a ._ (heq.refl ._) := rfl
-
-lemma eq_rec_of_heq_right {α₁ α₂ : Sort u} {a₁ : α₁} {a₂ : α₂} (h : a₁ == a₂) : a₁ = eq.rec_on (eq.symm (type_eq_of_heq h)) a₂ :=
-eq_rec_eq_eq_rec (eq_rec_of_heq_left h)
+| α _ _ rfl rfl a := rfl
 
 lemma cast_heq : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a == a
-| α ._ (eq.refl ._) a := heq.refl a
+| α _ rfl a := heq.refl a
 
 /- and -/
 

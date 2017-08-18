@@ -62,7 +62,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/structure_cmd.h"
 #include "frontends/lean/structure_instance.h"
-#include "frontends/lean/equations_validator.h"
 #include "frontends/lean/elaborator.h"
 
 #ifndef LEAN_DEFAULT_ELABORATOR_COERCIONS
@@ -1223,9 +1222,6 @@ optional<expr> elaborator::process_optional_and_auto_params(expr type, expr cons
             new_arg = mk_local(mk_fresh_name(), binding_name(type), d, binding_info(type));
             eta_args.push_back(new_arg);
         }
-        // implicit arguments are tagged as inaccessible in patterns
-        if (found && m_in_pattern)
-            new_arg = copy_tag(ref, mk_inaccessible(new_arg));
         new_args.push_back(new_arg);
         type = instantiate(binding_body(type), new_arg);
         if (found) {
@@ -1268,9 +1264,6 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
             new_arg = mk_metavar(d, ref);
             if (bi.is_inst_implicit())
                 info.new_instances.push_back(new_arg);
-            // implicit arguments are tagged as inaccessible in patterns
-            if (m_in_pattern)
-                new_arg = copy_tag(ref, mk_inaccessible(new_arg));
         } else if (i < args.size()) {
             // explicit argument
             expr const & arg_ref = args[i];
@@ -1282,11 +1275,11 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
 
                    This is important when we are elaborating terms such as
 
-                   l^.map (λ ⟨a, b⟩, a + b)
+                   l.map (λ ⟨a, b⟩, a + b)
 
                    where (l : list (nat × nat))
 
-                   We elaborate l when we process l^.map, and convert it into
+                   We elaborate l when we process l.map, and convert it into
 
                    list.map (λ ⟨a, b⟩, a + b) (as-is l)
 
@@ -2203,6 +2196,10 @@ static expr copy_domain(unsigned num, expr const & source, expr const & target) 
     }
 }
 
+static void throw_ill_formed_equation(expr const & ref) {
+    throw elaborator_exception(ref, "ill-formed match/equation expression");
+}
+
 static void check_equations_arity(buffer<expr> const & eqns) {
     buffer<optional<unsigned>> fidx2arity;
     for (expr eqn : eqns) {
@@ -2217,7 +2214,7 @@ static void check_equations_arity(buffer<expr> const & eqns) {
             expr const & fn  = get_app_fn(lhs);
             unsigned arity   = get_app_num_args(lhs);
             if (!is_var(fn) || var_idx(fn) >= nbinders)
-                throw elaborator_exception(eqn, "ill-formed match/equations expression");
+                throw_ill_formed_equation(eqn);
             unsigned fidx    = nbinders - var_idx(fn) - 1;
             if (fidx >= fidx2arity.size())
                 fidx2arity.resize(fidx+1, optional<unsigned>());
@@ -2232,7 +2229,7 @@ static void check_equations_arity(buffer<expr> const & eqns) {
         } else if (is_no_equation(eqn)) {
             /* do nothing */
         } else {
-            throw elaborator_exception(curr, "ill-formed match/equations expression");
+            throw_ill_formed_equation(curr);
         }
     }
 }
@@ -2266,13 +2263,307 @@ expr elaborator::mk_aux_meta_def(expr const & e, expr const & ref) {
     return new_c;
 }
 
+static void mvar_dep_sort_aux(type_context & ctx, expr const & m,
+                              name_set const & mvar_names, name_set & visited, buffer<expr> & result) {
+    if (visited.contains(mlocal_name(m)))
+        return;
+    for_each(ctx.instantiate_mvars(ctx.infer(m)), [&](expr const & e, unsigned) {
+            if (is_metavar(e) && mvar_names.contains(mlocal_name(e))) {
+                mvar_dep_sort_aux(ctx, e, mvar_names, visited, result);
+                return false; // do not visit types
+            }
+            if (is_local(e)) {
+                return false; // do not visit types
+            }
+            return true;
+        });
+    visited.insert(mlocal_name(m));
+    result.push_back(m);
+}
+
+/* Topological sort based on dependencies. */
+static void mvar_dep_sort(type_context & ctx, buffer<expr> & mvars) {
+    name_set visited;
+    buffer<expr> result;
+    name_set mvar_names;
+    for (expr const & m : mvars)
+        mvar_names.insert(mlocal_name(m));
+    for (expr const & m : mvars)
+        mvar_dep_sort_aux(ctx, m, mvar_names, visited, result);
+    mvars.clear();
+    mvars.append(result);
+}
+
+/* We preprocess the equation left-hand-side by first elaborating it using metavariables.
+   This process allows us to refine pattern variables whose value is fixed by type inference.
+   Before processing the right-hand-side, we must convert back these metavariables into
+   pattern variables (i.e., local constants).
+   This visitor collects metavariables that must be converted into pattern variables, and
+   validates the equation left-hand-side. */
+class validate_and_collect_lhs_mvars : public replace_visitor {
+    elaborator &    m_elab;
+    bool            m_has_invalid_pattern = false;
+    expr            m_ref;
+    /* m_mctx0 is the metavariable context before processing the equation.
+       Only metavariables created when processing the equation can be
+       converted into pattern variables. */
+    metavar_context m_mctx0;
+    buffer<expr> &  m_unassigned_mvars;
+    name_set        m_collected;
+
+    type_context & ctx() { return m_elab.m_ctx; }
+
+    environment const & env() { return m_elab.env(); }
+
+    optional<expr> expand(expr const & e) {
+        /* We don't simply use whnf because we want to avoid exposing the internal implementation
+           of definitions compiled using the equation compiler */
+        {
+            /* Try without use delta reduction */
+            type_context::transparency_scope scope(ctx(), transparency_mode::None);
+            expr new_e = ctx().whnf(e);
+            if (new_e != e) return some_expr(new_e);
+        }
+        if (auto new_e = ctx().reduce_projection(e))
+            return new_e;
+        /* Try to unfold using refl equations */
+        if (auto new_e = dunfold(ctx(), e))
+            return new_e;
+        /* Last resort, whnf using current setting */
+        expr new_e = ctx().whnf(e);
+        if (new_e != e) return some_expr(new_e);
+        return none_expr();
+    }
+
+    void throw_invalid_pattern(char const * msg, expr const & e) {
+        m_elab.report_or_throw(
+            elaborator_exception(m_ref, format(msg)
+                + format(" (possible solution, mark term as inaccessible using '.( )')")
+                + m_elab.pp_indent(e))
+            .ignore_if(m_elab.has_synth_sorry(e)));
+        m_has_invalid_pattern = true;
+    }
+
+    virtual expr visit_local(expr const & e) override {
+        return e;
+    }
+
+    virtual expr visit_lambda(expr const & e) override {
+        throw_invalid_pattern("invalid occurrence of lambda expression in pattern", e);
+        return e;
+    }
+
+    virtual expr visit_pi(expr const & e) override {
+        throw_invalid_pattern("invalid occurrence of pi/forall expression in pattern", e);
+        return e;
+    }
+
+    virtual expr visit_let(expr const & e) override {
+        return visit(instantiate(let_body(e), let_value(e)));
+    }
+
+    virtual expr visit_sort(expr const & e) override {
+        throw_invalid_pattern("invalid occurrence of sort in pattern", e);
+        return e;
+    }
+
+    virtual expr visit_meta(expr const & m) override {
+        if (is_metavar_decl_ref(m) && !m_mctx0.find_metavar_decl(m)) {
+            if (!m_collected.contains(mlocal_name(m))) {
+                m_unassigned_mvars.push_back(m);
+                m_collected.insert(mlocal_name(m));
+            }
+            return m;
+        } else {
+            throw_invalid_pattern("invalid occurrence of metavariable in pattern", m);
+            return m;
+        }
+    }
+
+    void throw_invalid_app(expr const & e) {
+        if (is_constant(e))
+            throw_invalid_pattern("invalid constant in pattern, it cannot be reduced to a constructor", e);
+        else
+            throw_invalid_pattern("invalid function application in pattern, it cannot be reduced to a constructor", e);
+    }
+
+    virtual expr visit_app(expr const & e) override {
+        expr it = e;
+        while (true) {
+            if (is_nat_int_char_string_name_value(ctx(), it))
+                return e;
+            if (!is_app(it) && !is_constant(it))
+                return visit(it);
+            buffer<expr> args;
+            expr const & fn = get_app_args(it, args);
+            if (!is_constant(fn)) {
+                throw_invalid_app(e);
+                return e;
+            }
+
+            if (optional<name> I = is_ginductive_intro_rule(env(), const_name(fn))) {
+                unsigned num_params = get_ginductive_num_params(env(), *I);
+                for (unsigned i = num_params; i < args.size(); i++) {
+                    visit(args[i]);
+                }
+                return e;
+            } else if (optional<inverse_info> info = has_inverse(env(), const_name(fn))) {
+                visit(args.back());
+                return e;
+            } else {
+                if (auto r = expand(it)) {
+                    it = *r;
+                } else {
+                    throw_invalid_app(e);
+                    return e;
+                }
+            }
+        }
+    }
+
+    virtual expr visit_constant(expr const & e) override {
+        return visit_app(e);
+    }
+
+    virtual expr visit_macro(expr const & e) override {
+        if (is_inaccessible(e)) {
+            return e;
+        } else if (auto r = ctx().expand_macro(e)) {
+            return visit(*r);
+        } else if (is_synthetic_sorry(e)) {
+            return e;
+        } else {
+            throw_invalid_pattern("invalid occurrence of macro expression in pattern", e);
+            return e;
+        }
+    }
+
+public:
+    validate_and_collect_lhs_mvars(elaborator & elab, expr const & ref, metavar_context const & mctx0,
+                                   buffer<expr> & unassigned_mvars):
+        m_elab(elab),
+        m_ref(ref),
+        m_mctx0(mctx0),
+        m_unassigned_mvars(unassigned_mvars) {
+    }
+
+    bool operator()(expr const & lhs) {
+        buffer<expr> args;
+        get_app_args(lhs, args);
+        for (expr & arg : args)
+            visit(arg);
+        return m_has_invalid_pattern;
+    }
+};
+
+expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
+    expr const & ref = e;
+    type_context::tmp_locals fns(m_ctx);
+    expr it = e;
+    for (unsigned i = 0; i < num_fns; i++) {
+        if (!is_lambda(it))
+            throw_ill_formed_equation(ref);
+        expr d     = instantiate_rev_locals(binding_domain(it), fns);
+        expr new_d = visit(d, none_expr());
+        expr ref_d = get_ref_for_child(binding_domain(it), it);
+        expr fn    = copy_tag(binding_domain(it), push_local(fns, binding_name(it), new_d, binding_info(it), ref_d));
+        save_identifier_info(fn);
+        it = binding_body(it);
+    }
+    if (is_no_equation(it)) {
+        return fns.mk_lambda(it);
+    } else {
+        metavar_context mctx0 = m_ctx.mctx();
+        it = instantiate_rev_locals(it, fns);
+        buffer<expr> local_mvars;
+        buffer<expr> type_mvars;
+        while (is_lambda(it)) {
+            expr type = mk_type_metavar(it);
+            type_mvars.push_back(type);
+            expr mvar = copy_tag(binding_domain(it), m_ctx.mk_metavar_decl(binding_name(it), m_ctx.lctx(), type));
+            local_mvars.push_back(mvar);
+            it = binding_body(it);
+        }
+        if (!is_equation(it))
+            throw_ill_formed_equation(ref);
+        expr lhs    = instantiate_rev(equation_lhs(it), local_mvars);
+        expr lhs_fn = get_app_fn(lhs);
+        if (is_explicit_or_partial_explicit(lhs_fn))
+            lhs_fn = get_explicit_or_partial_explicit_arg(lhs_fn);
+        if (!is_local(lhs_fn))
+            throw_ill_formed_equation(ref);
+        expr new_lhs;
+        {
+            flet<bool> set(m_in_pattern, true);
+            new_lhs = visit(lhs, none_expr());
+            synthesize_no_tactics();
+        }
+        new_lhs = instantiate_mvars(new_lhs);
+        // tout() << "LHS: " << new_lhs << "\n";
+        // collect unassigned metavariables not in mctx0
+        buffer<expr> unassigned_mvars;
+        validate_and_collect_lhs_mvars(*this, ref, mctx0, unassigned_mvars)(new_lhs);
+        // sort using dependencies
+        mvar_dep_sort(m_ctx, unassigned_mvars);
+        // create local variables for each unassigned metavar
+        type_context::tmp_locals new_locals(m_ctx);
+        for (expr & m : unassigned_mvars) {
+            expr type      = instantiate_mvars(m_ctx.infer(m));
+            expr new_local = new_locals.push_local(mlocal_pp_name(m), type, binder_info());
+            m_ctx.assign(m, new_local);
+            // tout() << "new local >> " << m << ", " << mlocal_name(m) << " : " << type << "\n";
+        }
+        // replace metavariables with new locals
+        new_lhs           = instantiate_mvars(new_lhs);
+        expr new_lhs_type = instantiate_mvars(infer_type(new_lhs));
+        // process rhs
+        buffer<expr> rhs_subst;
+        for (expr const & local_mvar : local_mvars) {
+            expr s = instantiate_mvars(local_mvar);
+            if (!is_local(s)) {
+                /* The `as_is` macro affects how applications are elaborated.
+                   See comment at first_pass method.
+                   So, we only use it if it is really needed. That is,
+                   the metavariable was fixed to a non trivial term by type inference rules.
+                   For example, in the following definition
+
+                   ```
+                   inductive Vec (A : Type) : nat → Type
+                   | nil {} : Vec 0
+                   | cons   : Π {n}, A → Vec n → Vec (succ n)
+
+                   open Vec
+
+                   def append1 {A : Type} : Π {m n : nat}, Vec A m -> Vec A n -> Vec A (n + m)
+                   | n m nil         ys := ys
+                   | n m (cons x xs) ys := cons x (append1 xs ys)
+                   ```
+
+                   The variable n is refined to 0 and (succ n') in the first and second equations.
+                */
+                s = mk_as_is(s);
+            }
+            rhs_subst.push_back(s);
+        }
+        expr rhs     = instantiate_rev(equation_rhs(it), rhs_subst);
+        expr new_rhs = visit(rhs, some_expr(new_lhs_type));
+        // synthesize_no_tactics();
+        // new_rhs       = instantiate_mvars(new_rhs);
+        new_rhs       = enforce_type(new_rhs, new_lhs_type, "equation type mismatch", it);
+        // tout() << "lhs: " << new_lhs << "\n";
+        // tout() << "rhs: " << new_rhs << "\n";
+        expr new_eq = copy_tag(it, mk_equation(new_lhs, new_rhs, ignore_equation_if_unused(it)));
+        expr r = copy_tag(ref, fns.mk_lambda(new_locals.mk_lambda(new_eq)));
+        // tout() << "r:   " << r << "\n";
+        return r;
+    }
+}
+
 expr elaborator::visit_equations(expr const & e) {
     expr const & ref = e;
     buffer<expr> eqs;
     buffer<expr> new_eqs;
     optional<expr> new_tacs;
-    flet<list<expr_pair>> save_stack(m_inaccessible_stack, m_inaccessible_stack);
-    list<expr_pair> saved_inaccessible_stack = m_inaccessible_stack;
     equations_header const & header = get_equations_header(e);
     unsigned num_fns = header.m_num_fns;
     to_equations(e, eqs);
@@ -2297,18 +2588,17 @@ expr elaborator::visit_equations(expr const & e) {
                 /* Replace first num_fns domains of eq with the ones in first_eq.
                    This is a trick/hack to ensure the fns in each equation have
                    the same elaborated type. */
-                new_eq   = copy_tag(eq, visit(copy_domain(num_fns, *first_eq, eq), none_expr()));
+                new_eq   = copy_tag(eq, visit_equation(copy_domain(num_fns, *first_eq, eq), num_fns));
                 new_eqs.push_back(new_eq);
             }
         } else {
-            new_eq   = copy_tag(eq, visit(eq, none_expr()));
+            new_eq   = copy_tag(eq, visit_equation(eq, num_fns));
             first_eq = new_eq;
             new_eqs.push_back(new_eq);
         }
     }
     check_equations_arity(new_eqs);
     synthesize();
-    check_inaccessible(saved_inaccessible_stack);
     expr new_e;
     if (new_tacs) {
         new_e = copy_tag(e, mk_equations(header, new_eqs.size(), new_eqs.data(), *new_tacs));
@@ -2358,42 +2648,17 @@ void elaborator::check_inaccessible_annotations(expr const & lhs) {
     }
 }
 
-expr elaborator::visit_equation(expr const & eq) {
-    expr const & lhs = equation_lhs(eq);
-    expr const & rhs = equation_rhs(eq);
-    expr lhs_fn = get_app_fn(lhs);
-    if (is_explicit_or_partial_explicit(lhs_fn))
-        lhs_fn = get_explicit_or_partial_explicit_arg(lhs_fn);
-    if (!is_local(lhs_fn))
-        throw exception("ill-formed equation");
-    expr new_lhs;
-    {
-        flet<bool> set(m_in_pattern, true);
-        new_lhs = visit(lhs, none_expr());
-        check_inaccessible_annotations(new_lhs);
-        synthesize_no_tactics();
-    }
-    expr new_lhs_type = instantiate_mvars(infer_type(new_lhs));
-    expr new_rhs      = visit(rhs, some_expr(new_lhs_type));
-    new_rhs = enforce_type(new_rhs, new_lhs_type, "equation type mismatch", eq);
-    validate_equation_lhs(*this, new_lhs, lhs);
-    return copy_tag(eq, mk_equation(new_lhs, new_rhs, ignore_equation_if_unused(eq)));
-}
-
 expr elaborator::visit_inaccessible(expr const & e, optional<expr> const & expected_type) {
     if (!m_in_pattern)
         throw elaborator_exception(e, "invalid occurrence of 'inaccessible' annotation, "
                                    "it must only occur in patterns");
-    expr const & ref = e;
-    expr m = mk_metavar(expected_type, ref);
     expr a = get_annotation_arg(e);
     expr new_a;
     {
         flet<bool> set(m_in_pattern, false);
         new_a = visit(a, expected_type);
     }
-    m_inaccessible_stack = cons(mk_pair(m, new_a), m_inaccessible_stack);
-    return copy_tag(e, mk_inaccessible(m));
+    return copy_tag(e, mk_inaccessible(new_a));
 }
 
 elaborator::field_resolution elaborator::field_to_decl(expr const & e, expr const & s, expr const & s_type) {
@@ -2913,8 +3178,7 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
         lean_assert(!is_app_fn); // visit_convoy is used in this case
         return visit_equations(e);
     } else if (is_equation(e)) {
-        lean_assert(!is_app_fn);
-        return visit_equation(e);
+        throw elaborator_exception(e, "unexpected occurrence of equation");
     } else if (is_field_notation(e)) {
         return visit_field(e, expected_type);
     } else if (is_expr_quote(e)) {
@@ -3362,41 +3626,6 @@ void elaborator::synthesize() {
     process_holes();
 }
 
-void elaborator::check_inaccessible(list<expr_pair> const & old_stack) {
-    buffer<expr_pair> to_process;
-    while (!is_eqp(m_inaccessible_stack, old_stack)) {
-        to_process.push_back(head(m_inaccessible_stack));
-        m_inaccessible_stack = tail(m_inaccessible_stack);
-    }
-    if (to_process.empty()) return;
-
-    unsigned i = to_process.size();
-    while (i > 0) {
-        --i;
-        expr_pair const & p = to_process[i];
-        expr const & m = p.first;
-        lean_assert(is_metavar(m));
-        if (!m_ctx.is_assigned(m)) {
-            throw elaborator_exception(m, "invalid use of inaccessible term, it is not fixed by other arguments");
-        }
-        expr v = instantiate_mvars(m);
-        if (has_expr_metavar(v)) {
-            throw elaborator_exception(m, format("invalid use of inaccessible term, "
-                                                 "it is not completely fixed by other arguments") +
-                                       pp_indent(v))
-                .ignore_if(has_synth_sorry({v}));
-        }
-        if (!is_def_eq(v, p.second)) {
-            auto pp_fn = mk_pp_ctx();
-            throw elaborator_exception(m, format("invalid use of inaccessible term, the provided term is") +
-                                       pp_indent(pp_fn, p.second) +
-                                       line() + format("but is expected to be") +
-                                       pp_indent(pp_fn, v))
-                .ignore_if(has_synth_sorry({v, p.second}));
-        }
-    }
-}
-
 void elaborator::report_error(tactic_state const & s, char const * state_header,
                               char const * msg, expr const & ref) {
     auto tc = std::make_shared<type_context>(m_env, m_opts, m_ctx.mctx(), m_ctx.lctx());
@@ -3441,7 +3670,6 @@ elaborator::snapshot::snapshot(elaborator const & e) {
     m_saved_numeral_types      = e.m_numeral_types;
     m_saved_tactics            = e.m_tactics;
     m_saved_holes              = e.m_holes;
-    m_saved_inaccessible_stack = e.m_inaccessible_stack;
 }
 
 void elaborator::snapshot::restore(elaborator & e) {
@@ -3451,7 +3679,6 @@ void elaborator::snapshot::restore(elaborator & e) {
     e.m_numeral_types      = m_saved_numeral_types;
     e.m_tactics            = m_saved_tactics;
     e.m_holes              = m_saved_holes;
-    e.m_inaccessible_stack = m_saved_inaccessible_stack;
 }
 
 /**
@@ -3859,8 +4086,6 @@ struct resolve_names_fn : public replace_visitor {
         }
         return mk_choice(new_args.size(), new_args.data());
     }
-
-
 
     virtual expr visit(expr const & e) override {
         if (is_placeholder(e) || is_by(e) || is_hole(e) || is_as_is(e) || is_emptyc_or_emptys(e) || is_as_atomic(e)) {

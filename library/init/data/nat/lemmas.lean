@@ -268,7 +268,6 @@ protected lemma le_of_add_le_add_left {k n m : ℕ} (h : k + n ≤ k + m) : n �
 match le.dest h with
 | ⟨w, hw⟩ := @le.intro _ _ w
   begin
-    dsimp at hw,
     rw [nat.add_assoc] at hw,
     apply nat.add_left_cancel hw
   end

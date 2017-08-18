@@ -971,7 +971,11 @@ simp_lemmas add(type_context & ctx, simp_lemmas const & s, name const & id, unsi
 
 simp_lemmas add(type_context & ctx, simp_lemmas const & s, name const & id, expr const & e, expr const & h, unsigned priority) {
     type_context::tmp_mode_scope scope(ctx);
-    return add_core(ctx, s, id, list<level>(), e, h, priority);
+    auto r = add_core(ctx, s, id, list<level>(), e, h, priority);
+    if (is_eqp(r, s)) {
+        report_failure(sstream() << "invalid simplification lemma '" << id << "': " << e);
+    }
+    return r;
 }
 
 simp_lemmas add_congr(type_context & ctx, simp_lemmas const & s, name const & id, unsigned priority) {

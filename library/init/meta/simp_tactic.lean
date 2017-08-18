@@ -121,7 +121,7 @@ meta def get_simp_lemmas_or_default : option simp_lemmas → tactic simp_lemmas
 | (some s) := return s
 
 meta def dsimp_target (s : option simp_lemmas := none) (u : list name := []) (cfg : dsimp_config := {}) : tactic unit :=
-do s ← get_simp_lemmas_or_default s, t ← target, s.dsimplify u t cfg >>= unsafe_change
+do s ← get_simp_lemmas_or_default s, t ← target >>= instantiate_mvars, s.dsimplify u t cfg >>= unsafe_change
 
 meta def dsimp_hyp (h : expr) (s : option simp_lemmas := none) (u : list name := []) (cfg : dsimp_config := {}) : tactic unit :=
 do s ← get_simp_lemmas_or_default s, revert_and_transform (λ e, s.dsimplify u e cfg) h

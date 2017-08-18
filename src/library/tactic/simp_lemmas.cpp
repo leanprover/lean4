@@ -777,6 +777,10 @@ static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name cons
 static simp_lemmas ext_add_core(type_context & ctx, simp_lemmas const & s, name const & cname, unsigned priority) {
     simp_lemmas r = s;
 
+    // Note: for relations that are not in Prop, the definition will be both
+    // 1) a simplification lemma, and 2) have associated equational lemmas.
+    // In this case we need to make sure that we add both 1) and 2).
+
     // equational lemmas
     buffer<name> eqn_lemmas;
     get_ext_eqn_lemmas_for(ctx.env(), cname, eqn_lemmas);

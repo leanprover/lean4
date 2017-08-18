@@ -21,16 +21,23 @@ def mp {α β : Type u} (h : path α β) : α → β :=
 by intro; induction h; assumption
 
 open tactic expr
-lemma nat_zero_add_step (n : ℕ) (h : path (0 + n) n) : path (0 + n).succ n.succ := by do
+
+meta def path_simp_target (sls : simp_lemmas) := do
 tgt ← target,
-
-let sls := simp_lemmas.mk,
-sls ← sls.add_congr `path.congr,
-sls ← get_local `h >>= sls.add,
 (tgt', prf) ← simplify sls [] tgt {lift_eq:=ff} `path,
-
 prf ← mk_mapp `path.symm [none, tgt, tgt', prf],
-mk_mapp `path.mp [tgt', tgt, prf] >>= apply,
-reflexivity
+mk_mapp `path.mp [tgt', tgt, prf] >>= apply
+
+def nat_zero_add (n : ℕ) : path (0 + n) n := sorry
+
+def foo (n : ℕ) : path (0 + (0 + n)) n := by do
+let sls := simp_lemmas.mk,
+-- path.congr can be used as a congruence lemma
+sls ← sls.add_congr ``path.congr,
+-- nat_zero_add can be used as a simplification lemma even though it has
+-- associated equational lemmas
+sls ← sls.add_simp ``nat_zero_add,
+trace sls,
+path_simp_target sls, reflexivity
 
 end path

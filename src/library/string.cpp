@@ -195,7 +195,12 @@ optional<char> to_char(abstract_type_context & ctx, expr const & e) {
 }
 
 bool is_char_value(abstract_type_context & ctx, expr const & e) {
-    return is_char_value_core(e) && ctx.is_def_eq(ctx.infer(e), mk_char_type());
+    if (!is_char_value_core(e))
+        return false;
+    expr type = ctx.infer(e);
+    if (has_expr_metavar(type))
+        return false;
+    return ctx.is_def_eq(type, mk_char_type());
 }
 
 static bool append_char(expr const & e, std::string & r) {

@@ -2456,6 +2456,22 @@ public:
     }
 };
 
+/* Similar to instantiate_mvars, but add an inaccessible pattern annotation around metavariables
+   whose value has been fixed by type inference. */
+static expr instantiate_pattern_mvars(type_context & ctx, expr const & lhs) {
+    return replace(lhs, [&](expr const & e, unsigned) {
+            if (is_metavar_decl_ref(e) && ctx.is_assigned(e)) {
+                expr v = ctx.instantiate_mvars(e);
+                if (!is_local(v) && !is_metavar(v))
+                    return some_expr(copy_tag(e, mk_inaccessible(v)));
+                else
+                    return some_expr(v);
+            } else {
+                return none_expr();
+            }
+        });
+}
+
 expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
     expr const & ref = e;
     type_context::tmp_locals fns(m_ctx);
@@ -2498,7 +2514,7 @@ expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
             new_lhs = visit(lhs, none_expr());
             synthesize_no_tactics();
         }
-        new_lhs = instantiate_mvars(new_lhs);
+        new_lhs = instantiate_pattern_mvars(m_ctx, new_lhs);
         // tout() << "LHS: " << new_lhs << "\n";
         // collect unassigned metavariables not in mctx0
         buffer<expr> unassigned_mvars;

@@ -2515,7 +2515,6 @@ expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
             synthesize_no_tactics();
         }
         new_lhs = instantiate_pattern_mvars(m_ctx, new_lhs);
-        // tout() << "LHS: " << new_lhs << "\n";
         // collect unassigned metavariables not in mctx0
         buffer<expr> unassigned_mvars;
         validate_and_collect_lhs_mvars(*this, ref, mctx0, unassigned_mvars)(new_lhs);
@@ -2527,7 +2526,6 @@ expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
             expr type      = instantiate_mvars(m_ctx.infer(m));
             expr new_local = new_locals.push_local(mlocal_pp_name(m), type, binder_info());
             m_ctx.assign(m, new_local);
-            // tout() << "new local >> " << m << ", " << mlocal_name(m) << " : " << type << "\n";
         }
         // replace metavariables with new locals
         new_lhs           = instantiate_mvars(new_lhs);
@@ -2566,11 +2564,8 @@ expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
         // synthesize_no_tactics();
         // new_rhs       = instantiate_mvars(new_rhs);
         new_rhs       = enforce_type(new_rhs, new_lhs_type, "equation type mismatch", it);
-        // tout() << "lhs: " << new_lhs << "\n";
-        // tout() << "rhs: " << new_rhs << "\n";
         expr new_eq = copy_tag(it, mk_equation(new_lhs, new_rhs, ignore_equation_if_unused(it)));
         expr r = copy_tag(ref, fns.mk_lambda(new_locals.mk_lambda(new_eq)));
-        // tout() << "r:   " << r << "\n";
         return r;
     }
 }

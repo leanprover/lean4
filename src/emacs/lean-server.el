@@ -226,11 +226,11 @@ least the following keys:
             (let ((beg (point)))
               (forward-line 1)
               (cons beg (point))))
-        (forward-char bc)
+        (ignore-errors (forward-char bc))
         (let ((beg (point)))
           (goto-char (point-min))
           (forward-line el)
-          (forward-char ec)
+          (ignore-errors (forward-char ec))
           (cons beg (point)))))))
 
 (defface lean-server-task-face

@@ -1,9 +1,0 @@
-bad_inaccessible2.lean:31:2: error: type mismatch at application
-  map_head (cons a va) (cons b vb)
-term
-  cons b vb
-has type
-  vec .?m_1 (n + 1)
-but is expected to have type
-  vec A . (.?m_1 + 1)
-bad_inaccessible2.lean:31:52: error: ill-formed match/equations expression

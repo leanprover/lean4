@@ -1,4 +1,5 @@
 expr_quote.lean:1:30: error: invalid quotation, contains universe metavariable
+expr_quote.lean:1:9: error: type of sorry macro is not a sort
 expr_quote.lean:1:9: error: don't know how to synthesize placeholder
 context:
 α a : expr

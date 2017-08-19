@@ -3,12 +3,12 @@ lift.equations._eqn_2 : ∀ {m k : ℕ} (f : fi m → fi k) (n : ℕ), @lift m k
 lift.equations._eqn_3 :
   ∀ {m k : ℕ} (f : fi m → fi k) (n : ℕ) (i : fi (m + n)),
     @lift m k f (succ n) (@fs (m + n) i) = @fs (k + n) (@lift m k f n i)
-to_nat.equations._eqn_1 : ∀ (n : ℕ), @to_nat (succ n) (@f0 n) = 0
-to_nat.equations._eqn_2 : ∀ (n : ℕ) (i : fi n), @to_nat (succ n) (@fs n i) = succ (@to_nat n i)
-inject.equations._eqn_1 : ∀ (n : ℕ) (i : fi n), @inject (succ n) (@fs n i) (@f0 (@to_nat n i)) = @f0 n
+to_nat.equations._eqn_1 : ∀ (x : ℕ), @to_nat (succ x) (@f0 x) = 0
+to_nat.equations._eqn_2 : ∀ (x : ℕ) (i : fi x), @to_nat (succ x) (@fs x i) = succ (@to_nat x i)
+inject.equations._eqn_1 : ∀ (x : ℕ) (i : fi x), @inject (succ x) (@fs x i) (@f0 (@to_nat x i)) = @f0 x
 inject.equations._eqn_2 :
-  ∀ (n : ℕ) (i : fi n) (j : fi (@to_nat n i)),
-    @inject (succ n) (@fs n i) (@fs (@to_nat n i) j) = @fs n (@inject n i j)
+  ∀ (x : ℕ) (i : fi x) (j : fi (@to_nat x i)),
+    @inject (succ x) (@fs x i) (@fs (@to_nat x i) j) = @fs x (@inject x i j)
 inject'.equations._eqn_1 : ∀ (n : ℕ) (i : fi n), @inject' (succ n) (@fs n i) (@f0 (@to_nat n i)) = @f0 n
 inject'.equations._eqn_2 :
   ∀ (n : ℕ) (i : fi n) (j : fi (@to_nat n i)),
@@ -16,10 +16,10 @@ inject'.equations._eqn_2 :
 raise.equations._eqn_1 : ∀ {m : ℕ} (i : fi m), @raise m 0 i = i
 raise.equations._eqn_2 : ∀ {m : ℕ} (n : ℕ) (i : fi m), @raise m (succ n) i = @fs (m + n) (@raise m n i)
 deg.equations._eqn_1 : ∀ (n : ℕ) (j : fi (succ n)), @deg (succ n) (@f0 (succ n)) j = @fs (succ n) j
-deg.equations._eqn_2 : ∀ (n : ℕ) (i : fi (succ n)), @deg (succ n) (@fs (succ n) i) (@f0 n) = @f0 (succ n)
+deg.equations._eqn_2 : ∀ (x : ℕ) (i : fi (succ x)), @deg (succ x) (@fs (succ x) i) (@f0 x) = @f0 (succ x)
 deg.equations._eqn_3 :
-  ∀ (n : ℕ) (i : fi (succ n)) (j : fi n), @deg (succ n) (@fs (succ n) i) (@fs n j) = @fs (succ n) (@deg n i j)
+  ∀ (x : ℕ) (i : fi (succ x)) (j : fi x), @deg (succ x) (@fs (succ x) i) (@fs x j) = @fs (succ x) (@deg x i j)
 deg'.equations._eqn_1 : ∀ (n : ℕ) (j : fi (succ n)), @deg' (succ n) (@f0 (succ n)) j = @fs (succ n) j
-deg'.equations._eqn_2 : ∀ (n : ℕ) (i : fi (succ n)), @deg' (succ n) (@fs (succ n) i) (@f0 n) = @f0 (succ n)
+deg'.equations._eqn_2 : ∀ (x : ℕ) (i : fi (succ x)), @deg' (succ x) (@fs (succ x) i) (@f0 x) = @f0 (succ x)
 deg'.equations._eqn_3 :
-  ∀ (n : ℕ) (i : fi (succ n)) (j : fi n), @deg' (succ n) (@fs (succ n) i) (@fs n j) = @fs (succ n) (@deg' n i j)
+  ∀ (x : ℕ) (i : fi (succ x)) (j : fi x), @deg' (succ x) (@fs (succ x) i) (@fs x j) = @fs (succ x) (@deg' x i j)

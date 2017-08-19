@@ -8,24 +8,14 @@ open vec
 variables {A : Type u}
 variables f : A → A → A
 
-/- The following definition fails because the pattern variables are
-   introduced in the following order:
-         a va n b vb
-   However, the type of va must be (vec A n). That is, it depends
-   on a variable introduced after va.
-
-   The error message is confusing.
-
-   Alternatives:
-   1- Ignore the problem since this is a very obscure use of inaccessible terms.
-   2- Reorder variables based on their occurrence in inaccessible terms.
-      If we do that, the variables in the pattern will be ordered as:
-            n a va b vb
-      and this example will work. This is not fully satisfactor since
-      we can create another declaration where this heuristic is not the right
-      solution.
-   3- Produce a better error message.
+/- The new equation compiler can process this example.
+   So, this is not a test about error messages anymore.
 -/
-definition map_head : ∀ {n}, vec A n → vec A n → vec A n
+def map_head : ∀ {n}, vec A n → vec A n → vec A n
 | .(0)     nil nil                       := nil
 | .(n+1) (@cons .(A) .(n) a va) (@cons .(A) n b vb) := cons (f a b) va
+
+/- The following shorter version is also accepted. -/
+def map_head2 : ∀ {n}, vec A n → vec A n → vec A n
+| _ nil         nil         := nil
+| _ (cons a va) (cons b vb) := cons (f a b) va

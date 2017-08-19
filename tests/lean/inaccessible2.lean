@@ -12,3 +12,6 @@ definition inv_3 {A B : Sort*} (f : A → B) : ∀ (b : B), imf f b → A
 
 definition symm {A : Sort*} : ∀ a b : A, a = b → b = a
 | .(a) .(a) (eq.refl a) := rfl -- Error `a` in eq.refl must be marked as inaccessible since it is an inductive datatype parameter
+
+definition symm2 {A : Sort*} : ∀ a b : A, a = b → b = a
+| _ _ rfl := rfl -- correct version

@@ -1,3 +1,4 @@
+-- These definitions can be processed by the new equation compiler without producing errors.
 universe variables u
 definition f1 : nat → nat → nat
 | a .(a) := a

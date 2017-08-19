@@ -1,3 +1,3 @@
-eqn_compiler_error_msg.lean:5:2: error: invalid function application in pattern, it cannot be reduced to a constructor (possible solution, mark term as inaccessible using '.( )')
-  .p + .n
+eqn_compiler_error_msg.lean:5:28: error: invalid function application in pattern, it cannot be reduced to a constructor (possible solution, mark term as inaccessible using '.( )')
+  .?m_1 + .?m_2
 eqn_compiler_error_msg.lean:4:6: error: equation compiler failed (use 'set_option trace.eqn_compiler.elim_match true' for additional details)

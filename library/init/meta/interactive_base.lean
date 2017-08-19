@@ -100,7 +100,7 @@ if f₁.empty then f₂ else if f₂.empty then f₁ else f₁ ++ [" "] ++ f₂
 private meta def parser_desc_aux : expr → tactic (list format)
 | `(ident)  := return ["id"]
 | `(ident_) := return ["id"]
-| `(parser.pexpr) := return ["expr"]
+| `(parser.pexpr %%v) := return ["expr"]
 | `(tk %%c) := list.ret <$> to_fmt <$> eval_expr string c
 | `(cur_pos) := return []
 | `(pure ._) := return []

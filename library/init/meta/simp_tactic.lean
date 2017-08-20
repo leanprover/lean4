@@ -250,7 +250,7 @@ meta constant ext_simplify_core
   /- Tactic for dischaging hypothesis in conditional rewriting rules.
      The argument 'α' is the current user state. -/
   (discharger : α → tactic α)
-  /- (pre a S r s p e) is invoked before visiting the children of subterm 'e',
+  /- (pre a s r p e) is invoked before visiting the children of subterm 'e',
      'r' is the simplification relation being used, 's' is the updated set of lemmas if 'contextual' is tt,
      'p' is the "parent" expression (if there is one).
      if it succeeds the result is (new_a, new_e, new_pr, flag) where
@@ -259,7 +259,7 @@ meta constant ext_simplify_core
        - 'new_pr' is a proof for 'e r new_e', If it is none, the proof is assumed to be by reflexivity
        - 'flag'  if tt 'new_e' children should be visited, and 'post' invoked. -/
   (pre : α → simp_lemmas → name → option expr → expr → tactic (α × expr × option expr × bool))
-  /- (post a r s p e) is invoked after visiting the children of subterm 'e',
+  /- (post a s r p e) is invoked after visiting the children of subterm 'e',
      The output is similar to (pre a r s p e), but the 'flag' indicates whether
      the new expression should be revisited or not. -/
   (post : α → simp_lemmas  → name → option expr → expr → tactic (α × expr × option expr × bool))

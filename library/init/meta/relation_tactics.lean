@@ -10,7 +10,7 @@ namespace tactic
 open expr
 
 private meta def relation_tactic (md : transparency) (op_for : environment → name → option name) (tac_name : string) : tactic unit :=
-do tgt   ← target,
+do tgt   ← target >>= instantiate_mvars,
    env   ← get_env,
    let r := get_app_fn tgt,
    match (op_for env (const_name r)) with

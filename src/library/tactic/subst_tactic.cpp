@@ -40,7 +40,7 @@ expr subst(environment const & env, options const & opts, transparency_mode cons
     lean_assert(mctx.find_metavar_decl(mvar));
     metavar_decl g      = mctx.get_metavar_decl(mvar);
     type_context ctx    = mk_type_context_for(env, opts, mctx, g.get_context(), m);
-    expr H_type         = ctx.infer(H);
+    expr H_type         = ctx.instantiate_mvars(ctx.infer(H));
     expr lhs, rhs;
     lean_verify(is_eq(H_type, lhs, rhs));
     if (symm) std::swap(lhs, rhs);
@@ -129,7 +129,7 @@ vm_obj tactic_subst(expr const & l, tactic_state const & s) {
     optional<local_decl> d     = lctx.find_local_decl(l);
     if (!d)
         return tactic::mk_exception(sstream() << "subst tactic failed, unknown '" << mlocal_pp_name(l) << "' hypothesis", s);
-    expr const & type = d->get_type();
+    expr type = mctx.instantiate_mvars(d->get_type());
     expr lhs, rhs;
     if (is_eq(type, lhs, rhs)) {
         if (is_local(rhs) && !depends_on(lhs, mctx, lctx, rhs)) {
@@ -138,7 +138,7 @@ vm_obj tactic_subst(expr const & l, tactic_state const & s) {
             return tactic_subst_core(d->get_name(), false, s);
         } else {
             return tactic::mk_exception(sstream() << "subst tactic failed, hypothesis '"
-                                       << mlocal_pp_name(l) << "' is not of the form (x = t) or (t = x)", s);
+                                        << mlocal_pp_name(l) << "' is not of the form (x = t) or (t = x)", s);
         }
     } else {
         bool found = false;
@@ -146,7 +146,8 @@ vm_obj tactic_subst(expr const & l, tactic_state const & s) {
         lctx.for_each_after(*d, [&](local_decl const & d2) {
                 if (found) return;
                 expr lhs, rhs;
-                if (is_eq(d2.get_type(), lhs, rhs)) {
+                expr type = mctx.instantiate_mvars(d2.get_type());
+                if (is_eq(type, lhs, rhs)) {
                     if (is_local(lhs) && mlocal_name(lhs) == d->get_name() && !depends_on(rhs, mctx, lctx, lhs)) {
                         found = true;
                         r     = tactic_subst_core(d2.get_name(), false, s);

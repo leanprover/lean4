@@ -4,18 +4,18 @@ def4.lean:9:9: error: type mismatch at application
 term
   0
 has type
-  ℕ
+  ℕ : Type
 but is expected to have type
-  A
+  A : Type u
 g : A → A
 def4.lean:17:9: error: type mismatch at application
   g 0
 term
   0
 has type
-  ℕ
+  ℕ : Type
 but is expected to have type
-  A
+  A : Type u
 f : Π (A : Type u_1), A → A
 f ℕ 0 : ℕ
 g 0 : ℕ

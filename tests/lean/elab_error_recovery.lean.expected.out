@@ -15,9 +15,9 @@ half_baked : ℕ → ℕ
 ⊢ Type ?
 elab_error_recovery.lean:10:11: error: undefined
 elab_error_recovery.lean:12:20: error: invalid type ascription, term has type
-  list ?m_1
+  list ?m_1 : Type ?
 but is expected to have type
-  ℕ
+  ℕ : Type
 state:
 half_baked : ℕ → ℕ
 ⊢ ℕ

@@ -25,9 +25,9 @@ term has type
 elab12.lean:7:47: error: invalid have-expression, term
   a + 0
 has type
-  ℕ
+  ℕ : Type
 but is expected to have type
-  a = a
+  a = a : Prop
 elab12.lean:8:2: error: function expected at
   H
 term has type

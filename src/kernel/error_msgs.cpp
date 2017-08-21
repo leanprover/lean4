@@ -80,26 +80,40 @@ std::tuple<formatter, format, format> pp_until_different(formatter const & fmt, 
     return pp_until_different(fmt, e1, e2, *g_distinguishing_pp_options);
 }
 
-format pp_type_mismatch(formatter const & _fmt, expr const & given_type, expr const & expected_type) {
+format pp_type_mismatch(formatter const & _fmt, expr const & given_type, expr const & expected_type,
+                        optional<expr> const & given_type_type,
+                        optional<expr> const & expected_type_type) {
     formatter fmt(_fmt);
     format expected_fmt, given_fmt;
     std::tie(fmt, expected_fmt, given_fmt) = pp_until_different(fmt, expected_type, given_type);
     format r;
     r += format("has type");
-    r += given_fmt;
-    r += compose(line(), format("but is expected to have type"));
-    r += expected_fmt;
+    if (given_type_type && expected_type_type &&
+        is_sort(*given_type_type) &&
+        is_sort(*expected_type_type) &&
+        !is_equivalent(sort_level(*given_type_type), sort_level(*expected_type_type))) {
+        r += given_fmt + format(" : ") + fmt(*given_type_type);
+        r += compose(line(), format("but is expected to have type"));
+        r += expected_fmt + format(" : ") + fmt(*expected_type_type);
+    } else {
+        r += given_fmt;
+        r += compose(line(), format("but is expected to have type"));
+        r += expected_fmt;
+    }
     return r;
 }
 
-format pp_type_mismatch(formatter const & fmt, expr const & e, expr const & e_type, expr const & expected_type) {
+format pp_type_mismatch(formatter const & fmt, expr const & e, expr const & e_type, expr const & expected_type,
+                        optional<expr> const & e_type_type,
+                        optional<expr> const & expected_type_type) {
     format r;
     r += pp_indent_expr(fmt, e);
-    r += line() + pp_type_mismatch(fmt, e_type, expected_type);
+    r += line() + pp_type_mismatch(fmt, e_type, expected_type, e_type_type, expected_type_type);
     return r;
 }
 
-format pp_app_type_mismatch(formatter const & _fmt, expr const & app, expr const & fn_type, expr const & arg, expr const & given_type) {
+format pp_app_type_mismatch(formatter const & _fmt, expr const & app, expr const & fn_type, expr const & arg, expr const & given_type,
+                            optional<expr> const & given_type_type, optional<expr> const & domain_type_type) {
     formatter fmt(_fmt);
     lean_assert(is_pi(fn_type));
     if (!is_explicit(binding_info(fn_type))) {
@@ -121,16 +135,17 @@ format pp_app_type_mismatch(formatter const & _fmt, expr const & app, expr const
     format r;
     r += format("type mismatch at application");
     r += pp_indent_expr(fmt, app);
-    r += line () + format("term") + pp_type_mismatch(fmt, arg, given_type, expected_type);
+    r += line () + format("term") + pp_type_mismatch(fmt, arg, given_type, expected_type, given_type_type, domain_type_type);
     return r;
 }
 
-format pp_def_type_mismatch(formatter const & fmt, name const & n, expr const & expected_type, expr const & given_type) {
+format pp_def_type_mismatch(formatter const & fmt, name const & n, expr const & given_type, expr const & expected_type,
+                            optional<expr> const & given_type_type, optional<expr> const & expected_type_type) {
     format r;
     r += format("type mismatch at definition '");
     r += format(n);
     r += format("', ");
-    r += pp_type_mismatch(fmt, given_type, expected_type);
+    r += pp_type_mismatch(fmt, given_type, expected_type, given_type_type, expected_type_type);
     return r;
 }
 

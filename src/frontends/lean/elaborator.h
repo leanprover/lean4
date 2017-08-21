@@ -109,7 +109,8 @@ private:
     format pp(expr const & e);
     format pp_overload(pp_fn const & pp_fn, expr const & fn);
     format pp_overloads(pp_fn const & pp_fn, buffer<expr> const & fns);
-
+    format pp_type_mismatch(expr const & e, expr const & e_type, expr const & expected_type);
+    format pp_type_mismatch(expr const & e_type, expr const & expected_type);
     expr whnf(expr const & e) { return m_ctx.whnf(e); }
     expr try_to_pi(expr const & e) { return m_ctx.try_to_pi(e); }
     bool is_def_eq(expr const & e1, expr const & e2);

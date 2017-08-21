@@ -196,7 +196,7 @@ expr type_checker::infer_let(expr const & e, bool infer_only) {
         if (!is_def_eq(v_type, let_type(e))) {
             throw_kernel_exception(m_env, e,
                                    [=](formatter const & fmt) {
-                                       return pp_def_type_mismatch(fmt, let_name(e), let_type(e), v_type);
+                                       return pp_def_type_mismatch(fmt, let_name(e), v_type, let_type(e));
                                    });
         }
     }

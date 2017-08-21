@@ -187,6 +187,26 @@ format elaborator::pp_overloads(pp_fn const & pp_fn, buffer<expr> const & fns) {
     return paren(r);
 }
 
+format elaborator::pp_type_mismatch(expr const & e, expr const & e_type, expr const & expected_type) {
+    try {
+        expr e_type_type = instantiate_mvars(whnf(infer_type(e_type)));
+        expr expected_type_type = instantiate_mvars(whnf(infer_type(expected_type)));
+        return ::lean::pp_type_mismatch(mk_fmt_ctx(), e, e_type, expected_type, some_expr(e_type_type), some_expr(expected_type_type));
+    } catch (exception &) {
+        return ::lean::pp_type_mismatch(mk_fmt_ctx(), e, e_type, expected_type);
+    }
+}
+
+format elaborator::pp_type_mismatch(expr const & e_type, expr const & expected_type) {
+    try {
+        expr e_type_type = instantiate_mvars(whnf(infer_type(e_type)));
+        expr expected_type_type = instantiate_mvars(whnf(infer_type(expected_type)));
+        return ::lean::pp_type_mismatch(mk_fmt_ctx(), e_type, expected_type, some_expr(e_type_type), some_expr(expected_type_type));
+    } catch (exception &) {
+        return ::lean::pp_type_mismatch(mk_fmt_ctx(), e_type, expected_type);
+    }
+}
+
 bool elaborator::try_report(std::exception const & ex) {
     return try_report(ex, none_expr());
 }
@@ -703,7 +723,7 @@ expr elaborator::enforce_type(expr const & e, expr const & expected_type, char c
         return *r;
     } else {
         auto exc = elaborator_exception(ref, format(header) + format(", term") +
-                pp_type_mismatch(mk_fmt_ctx(), e, e_type, expected_type))
+                pp_type_mismatch(e, e_type, expected_type))
                 .ignore_if(has_synth_sorry({e, e_type, expected_type}));
         return recoverable_error(some(expected_type), ref, exc);
     }
@@ -807,7 +827,7 @@ expr elaborator::visit_typed_expr(expr const & e) {
         return *r;
 
     return recoverable_error(some_expr(new_type), ref, elaborator_exception(ref, format("invalid type ascription, term ") +
-            pp_type_mismatch(mk_fmt_ctx(), new_val_type, new_type)));
+            pp_type_mismatch(new_val_type, new_type)));
 }
 
 level elaborator::dec_level(level const & l, expr const & ref) {
@@ -954,7 +974,7 @@ format elaborator::mk_app_type_mismatch_error(expr const & t, expr const & arg, 
                                               expr const & expected_type) {
     format msg   = format("type mismatch at application");
     msg += pp_indent(mk_pp_ctx(), t);
-    msg += line() + format("term") + pp_type_mismatch(mk_fmt_ctx(), arg, arg_type, expected_type);
+    msg += line() + format("term") + pp_type_mismatch(arg, arg_type, expected_type);
     return msg;
 }
 
@@ -1108,7 +1128,7 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
                 expr new_arg      = visit(*arg, some_expr(new_arg_type));
                 if (!is_def_eq(new_args[i], new_arg)) {
                     throw elaborator_exception(ref, format("\"eliminator\" elaborator type mismatch, term") +
-                            pp_type_mismatch(mk_fmt_ctx(), new_arg, infer_type(new_arg), new_arg_type));
+                            pp_type_mismatch(new_arg, infer_type(new_arg), new_arg_type));
                 } else {
                     new_args[i] = new_arg;
                 }
@@ -1346,7 +1366,7 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
     lean_assert(args.size() == info.new_instances_size.size());
     if (!is_def_eq(expected_type, type)) {
         expr e = mk_app(fn, info.new_args);
-        throw elaborator_exception(ref, format("type mismatch, term") + pp_type_mismatch(mk_fmt_ctx(), e, type, expected_type))
+        throw elaborator_exception(ref, format("type mismatch, term") + pp_type_mismatch(e, type, expected_type))
                 .ignore_if(has_synth_sorry({type, expected_type, e}));
     }
 }
@@ -1637,7 +1657,7 @@ expr elaborator::visit_overloaded_app_core(buffer<expr> const & fns, buffer<expr
                     candidates.emplace_back(c, snapshot(*this));
                 } else {
                     throw elaborator_exception(ref, format("invalid overload, term") +
-                            pp_type_mismatch(mk_fmt_ctx(), c, c_type, *expected_type));
+                            pp_type_mismatch(c, c_type, *expected_type));
                 }
             } else {
                 candidates.emplace_back(c, snapshot(*this));
@@ -2770,7 +2790,7 @@ void elaborator::assign_field_mvar(name const & S_fname, expr const & mvar,
                                    expr const & expected_type, expr const & ref) {
     if (!new_new_fval) {
         format msg   = format("type mismatch at field '") + format(S_fname) + format("'");
-        msg += pp_type_mismatch(mk_fmt_ctx(), new_fval, new_fval_type, expected_type);
+        msg += pp_type_mismatch(new_fval, new_fval_type, expected_type);
         throw elaborator_exception(ref, msg);
     }
     if (!is_def_eq(mvar, *new_new_fval)) {
@@ -2928,7 +2948,7 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                                 format msg =
                                         format("type mismatch at field '") + format(S_fname) + format("' from source");
                                 msg += pp_indent(mk_pp_ctx(), c_arg);
-                                msg += line() + pp_type_mismatch(mk_fmt_ctx(), c_arg_type, d);
+                                msg += line() + pp_type_mismatch(c_arg_type, d);
                                 report_or_throw(elaborator_exception(ref, msg));
                                 c_arg = mk_sorry(some_expr(d), ref);
                             }
@@ -3116,7 +3136,7 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
     /* Check expected type */
     if (!type_def_eq) {
         throw elaborator_exception(ref, format("type mismatch as structure instance") +
-                pp_type_mismatch(mk_fmt_ctx(), e2, c_type, *expected_type));
+                pp_type_mismatch(e2, c_type, *expected_type));
     }
 
     return e2;

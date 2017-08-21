@@ -1,0 +1,8 @@
+1760.lean:6:18: error: type mismatch at application
+  f x
+term
+  x
+has type
+  big_type : Type 1
+but is expected to have type
+  ?m_1 : Type

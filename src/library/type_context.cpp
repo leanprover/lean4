@@ -2543,6 +2543,11 @@ expr type_context::elim_delayed_abstraction(expr const & e) {
     return r;
 }
 
+static bool mvar_has_user_facing_name(expr const & m) {
+    lean_assert(is_metavar(m));
+    return mlocal_name(m) != mlocal_pp_name(m);
+}
+
 lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
     if (e1 == e2)
         return l_true;
@@ -2572,24 +2577,38 @@ lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
             optional<metavar_decl> m2_decl = m_mctx.find_metavar_decl(f2);
             if (m1_decl && m2_decl) {
                 if (m2_decl->get_context().is_subset_of(m1_decl->get_context())) {
-                    if (!is_app(e1) || is_app(e2)) {
+                    /* Remark:
+                       It is easier to solve the assignment
+                          ?m2 := ?m1 a_1 ... a_n
+                       than
+                          ?m1 a_1 ... a_n := ?m2
+
+                       Reason: the first one is precise. For example,
+                       consider the following constraint:
+
+                          ?m1 ?m =?= ?m2
+                    */
+                    if (!is_app(e1) && is_app(e2)) {
+                        /* ?m1 := ?m2 a_1 ... a_n */
                         return to_lbool(process_assignment(e1, e2));
                     } else if (m1_decl->get_context().is_subset_of(m2_decl->get_context())) {
-                        lean_assert(is_app(e1) && !is_app(e2));
-                        /* It is easier to solve the assignment
-                                 ?m2 := ?m1 a_1 ... a_n
-                           than
-                                 ?m1 a_1 ... a_n := ?m2
-                           Reason: the first one is precise. For example,
-                           consider the following constraint:
-
-                                 ?m1 ?m =?= ?m2
-                        */
-                        return to_lbool(process_assignment(e2, e1));
+                        lean_assert(is_app(e1) || !is_app(e2));
+                        if ((is_app(e1) && !is_app(e2)) || /* ?m2 := ?m1 a_1 ... a_n */
+                            (!mvar_has_user_facing_name(f2) && mvar_has_user_facing_name(f1)) /* ?m2 does not have a user facing name, but ?m1 has */
+                            ) {
+                            /* Remark: the second case (?m2 has user facing name but ?m1 doesn't) is particularly for
+                               the equation preprocessor. See issue #1801. */
+                            return to_lbool(process_assignment(e2, e1));
+                        } else {
+                            return to_lbool(process_assignment(e1, e2));
+                        }
                     } else {
+                        lean_assert(m2_decl->get_context().is_subset_of(m1_decl->get_context()));
+                        lean_assert(!m1_decl->get_context().is_subset_of(m2_decl->get_context()));
                         return to_lbool(process_assignment(e1, e2));
                     }
                 } else {
+                    lean_assert(!m2_decl->get_context().is_subset_of(m1_decl->get_context()));
                     return to_lbool(process_assignment(e2, e1));
                 }
             } else {

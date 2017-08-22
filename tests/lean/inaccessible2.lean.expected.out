@@ -7,7 +7,7 @@ inaccessible2.lean:11:46: error: invalid expression
 inaccessible2.lean:11:4: error: invalid application, function expected
 inaccessible2.lean:11:46: error: ill-formed match/equation expression
 inaccessible2.lean:11:46: error: command expected
-inaccessible2.lean:14:27: error: don't know how to synthesize placeholder
+inaccessible2.lean:14:21: error: don't know how to synthesize placeholder
 context:
 A : Sort ?,
 symm : ∀ (a b : A), a = b → b = a

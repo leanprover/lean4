@@ -52,6 +52,14 @@ master branch (aka work in progress branch)
 
 * Add `user_attribute.after_set/before_unset` handlers that can be used for validation as well as side-effecting attributes.
 
+* Field notation can now be used to make recursive calls.
+
+```
+def list.append : list α → list α → list α
+| []       l := l
+| (h :: s) t := h :: s.append t
+```
+
 *Changes*
 
 * We now have two type classes for converting to string: `has_to_string` and `has_repr`.

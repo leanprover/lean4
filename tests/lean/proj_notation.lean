@@ -37,3 +37,9 @@ structure car :=
 #check p.1
 #check p.2
 #check λ c : car, c.1.2
+
+namespace nat
+  def myadd : nat → nat → nat
+  | 0 m := m
+  | (n+1) m := n.myadd m + 1
+end nat

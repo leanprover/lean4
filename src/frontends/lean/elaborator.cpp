@@ -1875,8 +1875,15 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
         expr s           = visit(macro_arg(fn, 0), none_expr());
         expr s_type      = head_beta_reduce(instantiate_mvars(infer_type(s)));
         auto field_res   = find_field_fn(fn, s, s_type);
-        expr proj        = copy_tag(fn, mk_constant(field_res.get_full_fname()));
-        expr proj_type   = m_env.get(field_res.get_full_fname()).get_type();
+        expr proj, proj_type;
+        if (field_res.m_ldecl) {
+            proj      = field_res.m_ldecl->mk_ref();
+            proj_type = field_res.m_ldecl->get_type();
+        } else {
+            proj      = mk_constant(field_res.get_full_fname());
+            proj_type = m_env.get(field_res.get_full_fname()).get_type();
+        }
+        proj = copy_tag(fn, std::move(proj));
         buffer<expr> new_args;
         unsigned i       = 0;
         while (is_pi(proj_type)) {
@@ -2742,8 +2749,11 @@ elaborator::field_resolution elaborator::field_to_decl(expr const & e, expr cons
         if (is_structure_like(m_env, const_name(I)))
             if (auto p = find_field(m_env, const_name(I), fname))
                 return {const_name(I), *p, fname};
-        // TODO(sullrich): respect inheritance for extended field notation too?
         name full_fname = const_name(I) + fname;
+        if (auto ldecl = m_ctx.lctx().find_local_decl_from_user_name(full_fname.replace_prefix(get_namespace(env()), {}))) {
+            // recursive call
+            return {full_fname, ldecl};
+        }
         if (!m_env.find(full_fname)) {
             auto pp_fn = mk_pp_ctx();
             throw elaborator_exception(e, format("invalid field notation, '") + format(fname) + format("'") +
@@ -2780,8 +2790,13 @@ expr elaborator::visit_field(expr const & e, optional<expr> const & expected_typ
     expr s         = visit(macro_arg(e, 0), none_expr());
     expr s_type    = head_beta_reduce(instantiate_mvars(infer_type(s)));
     auto field_res = find_field_fn(e, s, s_type);
-    expr new_e     = *mk_base_projections(m_env, field_res.m_S_name, field_res.m_base_S_name, mk_as_is(s));
-    expr proj_app  = mk_proj_app(m_env, field_res.m_base_S_name, field_res.m_fname, new_e, e);
+    expr proj_app;
+    if (field_res.m_ldecl) {
+        proj_app   = copy_tag(e, mk_app(field_res.m_ldecl->mk_ref(), mk_as_is(s)));
+    } else {
+        expr new_e = *mk_base_projections(m_env, field_res.m_S_name, field_res.m_base_S_name, mk_as_is(s));
+        proj_app   = mk_proj_app(m_env, field_res.m_base_S_name, field_res.m_fname, new_e, e);
+    }
     return visit(proj_app, expected_type);
 }
 

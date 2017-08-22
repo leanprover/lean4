@@ -142,22 +142,22 @@ private meta def format_key {key} [has_to_format key] (k : key) (first : bool) :
 
 namespace rb_set
 meta def insert {key} (s : rb_set key) (k : key) : rb_set key :=
-s.insert k ()
+rb_map.insert s k ()
 
 meta def erase {key} (s : rb_set key) (k : key) : rb_set key :=
-s.erase k
+rb_map.erase s k
 
 meta def contains {key} (s : rb_set key) (k : key) : bool :=
-s.contains k
+rb_map.contains s k
 
 meta def size {key} (s : rb_set key) : nat :=
-s.size
+rb_map.size s
 
 meta def empty {key : Type} (s : rb_set key) : bool :=
-s.empty
+rb_map.empty s
 
 meta def fold {key α : Type} (s : rb_set key) (a : α) (fn : key → α → α) : α :=
-s.fold a (λ k _ a, fn k a)
+rb_map.fold s a (λ k _ a, fn k a)
 
 meta def mfold {key α :Type} {m : Type → Type} [monad m] (s : rb_set key) (a : α) (fn : key → α → m α) : m α :=
 s.fold (return a) (λ k act, act >>= fn k)

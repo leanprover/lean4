@@ -244,10 +244,11 @@ private:
         name m_S_name; // structure name of field expression type
         name m_base_S_name; // structure name of field
         name m_fname;
+        optional<local_decl> m_ldecl; // projection is a local constant: recursive call
 
-        field_resolution(name const & full_fname):
-                m_S_name(full_fname.get_prefix()), m_base_S_name(full_fname.get_prefix()), m_fname(full_fname.get_string())
-        {}
+        field_resolution(name const & full_fname, optional<local_decl> ldecl = {}):
+                m_S_name(full_fname.get_prefix()), m_base_S_name(full_fname.get_prefix()),
+                m_fname(full_fname.get_string()), m_ldecl(ldecl) {}
         field_resolution(const name & S_name, const name & base_S_name, const name & fname):
                 m_S_name(S_name), m_base_S_name(base_S_name), m_fname(fname) {}
 

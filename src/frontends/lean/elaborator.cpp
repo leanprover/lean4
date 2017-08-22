@@ -1877,13 +1877,12 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
         auto field_res   = find_field_fn(fn, s, s_type);
         expr proj, proj_type;
         if (field_res.m_ldecl) {
-            proj      = field_res.m_ldecl->mk_ref();
+            proj      = copy_tag(fn, field_res.m_ldecl->mk_ref());
             proj_type = field_res.m_ldecl->get_type();
         } else {
-            proj      = mk_constant(field_res.get_full_fname());
+            proj      = copy_tag(fn, mk_constant(field_res.get_full_fname()));
             proj_type = m_env.get(field_res.get_full_fname()).get_type();
         }
-        proj = copy_tag(fn, std::move(proj));
         buffer<expr> new_args;
         unsigned i       = 0;
         while (is_pi(proj_type)) {
@@ -2748,11 +2747,11 @@ elaborator::field_resolution elaborator::field_to_decl(expr const & e, expr cons
         // search for "true" fields first, including in parent structures
         if (is_structure_like(m_env, const_name(I)))
             if (auto p = find_field(m_env, const_name(I), fname))
-                return {const_name(I), *p, fname};
+                return field_resolution(const_name(I), *p, fname);
         name full_fname = const_name(I) + fname;
         if (auto ldecl = m_ctx.lctx().find_local_decl_from_user_name(full_fname.replace_prefix(get_namespace(env()), {}))) {
             // recursive call
-            return {full_fname, ldecl};
+            return field_resolution(full_fname, ldecl);
         }
         if (!m_env.find(full_fname)) {
             auto pp_fn = mk_pp_ctx();

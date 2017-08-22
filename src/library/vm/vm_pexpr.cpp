@@ -11,7 +11,10 @@ Author: Leonardo de Moura
 #include "library/vm/vm.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_name.h"
+#include "library/vm/vm_list.h"
+#include "library/vm/vm_option.h"
 #include "frontends/lean/util.h"
+#include "frontends/lean/structure_instance.h"
 
 namespace lean {
 vm_obj pexpr_of_expr(vm_obj const & e) {
@@ -34,6 +37,19 @@ vm_obj pexpr_is_choice_macro(vm_obj const & e) {
     return mk_vm_bool(is_choice(to_expr(e)));
 }
 
+vm_obj pexpr_get_structure_instance_info(vm_obj const & e) {
+    if (!is_structure_instance(to_expr(e))) {
+        return mk_vm_none();
+    }
+    name struct_name;
+    optional<expr> source;
+    buffer<name> field_names;
+    buffer<expr> field_values;
+
+    get_structure_instance_info(to_expr(e), struct_name, source, field_names, field_values);
+    return mk_vm_some(mk_vm_constructor(0, to_obj(struct_name), to_obj(source), to_obj(field_names), to_obj(field_values)));
+}
+
 void initialize_vm_pexpr() {
     DECLARE_VM_BUILTIN(name({"pexpr", "of_expr"}),        pexpr_of_expr);
     DECLARE_VM_BUILTIN(name({"pexpr", "mk_placeholder"}), pexpr_mk_placeholder);
@@ -42,6 +58,7 @@ void initialize_vm_pexpr() {
     DECLARE_VM_BUILTIN(name("pexpr", "mk_field_macro"),   pexpr_mk_field_macro);
 
     DECLARE_VM_BUILTIN(name("pexpr", "is_choice_macro"),  pexpr_is_choice_macro);
+    DECLARE_VM_BUILTIN(name("pexpr", "get_structure_instance_info"), pexpr_get_structure_instance_info);
 }
 
 void finalize_vm_pexpr() {

@@ -319,7 +319,7 @@ begin
   apply le_mul_of_div_le hc h
 end
 
-lemma div_two_lt_of_pos {a b : α} (h : a > 0) : a / 2 < a :=
+lemma div_two_lt_of_pos {a : α} (h : a > 0) : a / 2 < a :=
 suffices a / (1 + 1) < a, begin unfold bit0, assumption end,
 have ha : a / 2 > 0, from div_pos_of_pos_of_pos h (add_pos zero_lt_one zero_lt_one),
 calc

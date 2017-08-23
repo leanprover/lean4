@@ -124,7 +124,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  -D name=value      set a configuration option (see set_option command)\n";
     std::cout << "Exporting data:\n";
     std::cout << "  --export=file -E   export final environment as textual low-level file\n";
-    std::cout << "  --only-export=decl_name   only export the specified declaration (+ dependencies)";
+    std::cout << "  --only-export=decl_name   only export the specified declaration (+ dependencies)\n";
     std::cout << "  --test-suite       capture output and status code from each input file $f in $f.produced and $f.status, respectively\n";
 }
 

@@ -165,6 +165,8 @@
   (helm :sources (helm-build-sync-source "helm-source-lean-definitions"
                    :requires-pattern t
                    :candidates 'lean-helm-definitions-candidates
+                   :volatile t
+                   :match 'identity
                    :action '(("Go to" . (lambda (c) (with-helm-current-buffer
                                                       (apply 'lean-find-definition-cont (plist-get c :source)))))))
         :buffer "*helm Lean definitions*"))

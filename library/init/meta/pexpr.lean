@@ -11,6 +11,7 @@ universe u
 @[reducible] meta def pexpr := expr ff
 protected meta constant pexpr.of_expr  : expr → pexpr
 
+meta constant pexpr.is_placeholder : pexpr → bool
 meta constant pexpr.mk_placeholder : pexpr
 meta constant pexpr.mk_field_macro : pexpr → name → pexpr
 meta constant pexpr.mk_explicit : pexpr → pexpr

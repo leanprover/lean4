@@ -21,6 +21,10 @@ vm_obj pexpr_of_expr(vm_obj const & e) {
     return to_obj(mk_as_is(to_expr(e)));
 }
 
+vm_obj pexpr_is_placeholder(vm_obj const & e) {
+    return mk_vm_bool(is_placeholder(to_expr(e)));
+}
+
 vm_obj pexpr_mk_placeholder() {
     return to_obj(mk_expr_placeholder());
 }
@@ -52,6 +56,7 @@ vm_obj pexpr_get_structure_instance_info(vm_obj const & e) {
 
 void initialize_vm_pexpr() {
     DECLARE_VM_BUILTIN(name({"pexpr", "of_expr"}),        pexpr_of_expr);
+    DECLARE_VM_BUILTIN(name({"pexpr", "is_placeholder"}), pexpr_is_placeholder);
     DECLARE_VM_BUILTIN(name({"pexpr", "mk_placeholder"}), pexpr_mk_placeholder);
 
     DECLARE_VM_BUILTIN(name("pexpr", "mk_explicit"),      pexpr_mk_explicit);

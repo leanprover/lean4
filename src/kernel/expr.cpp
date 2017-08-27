@@ -881,7 +881,7 @@ expr infer_implicit(expr const & t, unsigned num_params, bool strict) {
         return t;
     } else if (is_pi(t)) {
         expr new_body = infer_implicit(binding_body(t), num_params-1, strict);
-        if (binding_info(t).is_implicit() || binding_info(t).is_strict_implicit()) {
+        if (binding_info(t).is_implicit() || binding_info(t).is_strict_implicit() || binding_info(t).is_inst_implicit()) {
             // argument is already marked as implicit
             return update_binding(t, binding_domain(t), new_body);
         } else if (has_free_var_in_domain(new_body, 0, strict)) {

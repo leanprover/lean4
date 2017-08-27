@@ -190,7 +190,8 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
     for (unsigned i = 0; i < nparams; i++) {
         if (!is_pi(intro_type))
             throw_ill_formed(n);
-        expr param = mk_local(mk_fresh_name(), binding_name(intro_type), binding_domain(intro_type), binder_info());
+        expr param = mk_local(mk_fresh_name(), binding_name(intro_type), binding_domain(intro_type),
+            binding_info(intro_type).is_inst_implicit() ? mk_inst_implicit_binder_info() : binder_info());
         intro_type = instantiate(binding_body(intro_type), param);
         params.push_back(param);
     }

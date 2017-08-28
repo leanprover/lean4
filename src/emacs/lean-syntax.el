@@ -130,7 +130,7 @@
       (1 'font-lock-doc-face))
      (,(rx (group "#" (or "eval" "print" "reduce" "help" "check")))
       (1 'font-lock-keyword-face))
-     ;; mutal definitions "names"
+     ;; mutual definitions "names"
      (,(rx word-start
            "mutual"
            word-end

@@ -559,7 +559,7 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("constants",       "declare new constants (aka top-level variables)", constants_cmd));
     add_cmd(r, cmd_info("axioms",          "declare new axioms", axioms_cmd));
     add_cmd(r, cmd_info("meta",            "add new meta declaration", modifiers_cmd, false));
-    add_cmd(r, cmd_info("mutual",          "add new mutal declaration", modifiers_cmd, false));
+    add_cmd(r, cmd_info("mutual",          "add new mutual declaration", modifiers_cmd, false));
     add_cmd(r, cmd_info("noncomputable",   "add new noncomputable definition", modifiers_cmd, false));
     add_cmd(r, cmd_info("private",         "add new private declaration", modifiers_cmd, false));
     add_cmd(r, cmd_info("protected",       "add new protected declaration", modifiers_cmd, false));

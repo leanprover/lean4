@@ -56,4 +56,11 @@ do focus1 (try assumption >> congr_core >> all_goals (try reflexivity >> try con
 meta def rel_congr : tactic unit :=
 do focus1 (try assumption >> rel_congr_core >> all_goals (try reflexivity))
 
+namespace interactive
+
+meta def congr := tactic.congr
+meta def rel_congr := tactic.rel_congr
+
+end interactive
+
 end tactic

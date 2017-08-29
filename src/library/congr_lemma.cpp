@@ -543,12 +543,7 @@ struct congr_lemma_manager {
             }
             expr lhs = mk_app(fn, lhss);
             expr rhs = mk_app(fn, rhss);
-            expr eq_type;
-            if (fn_type_lhs == fn_type_rhs) {
-                eq_type = mk_eq(m_ctx, lhs, rhs);
-            } else {
-                eq_type = mk_heq(m_ctx, lhs, rhs);
-            }
+            expr eq_type = mk_heq(m_ctx, lhs, rhs);
             expr result_type  = m_ctx.mk_pi(hyps, eq_type);
             expr result_proof = mk_hcongr_proof(result_type);
             return optional<result>(result_type, result_proof, to_list(kinds));

@@ -100,3 +100,16 @@ exact H₂
 end
 
 end test6
+
+namespace test7
+
+variables (A : Type) (B : A → Type) (a a' : A) (b : B a) (b' : B a')
+
+example : (⟨a, b⟩ : Σ a : A, B a) = ⟨a', b'⟩ :=
+begin
+  congr,
+  show a = a', from sorry,
+  show b == b', from sorry,
+end
+
+end test7

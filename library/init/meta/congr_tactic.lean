@@ -12,7 +12,9 @@ meta def apply_congr_core (clemma : congr_lemma) : tactic unit :=
 do assert `H_congr_lemma clemma.type,
    exact clemma.proof,
    get_local `H_congr_lemma >>= apply,
-   all_goals $ get_local `H_congr_lemma >>= clear
+   all_goals $ do
+     try (applyc `heq_of_eq),
+     get_local `H_congr_lemma >>= clear
 
 meta def apply_eq_congr_core (tgt : expr) : tactic unit :=
 do (lhs, rhs) ← match_eq tgt,
@@ -20,8 +22,9 @@ do (lhs, rhs) ← match_eq tgt,
    clemma ← mk_specialized_congr_lemma lhs,
    apply_congr_core clemma
 
-meta def apply_heq_congr_core (tgt : expr) : tactic unit :=
-do (lhs, rhs) ← (match_eq tgt <|> do (α, lhs, β, rhs) ← match_heq tgt, return (lhs, rhs)),
+meta def apply_heq_congr_core : tactic unit :=
+do try (applyc `eq_of_heq),
+   (α, lhs, β, rhs) ← target >>= match_heq,
    guard lhs.is_app,
    clemma ← mk_hcongr_lemma lhs.get_app_fn lhs.get_app_num_args,
    apply_congr_core clemma
@@ -41,7 +44,7 @@ do (lhs, rhs) ← match_eq tgt,
 meta def congr_core : tactic unit :=
 do tgt ← target,
    apply_eq_congr_core tgt
-   <|> apply_heq_congr_core tgt
+   <|> apply_heq_congr_core
    <|> fail "congr tactic failed"
 
 meta def rel_congr_core : tactic unit :=

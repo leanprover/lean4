@@ -11,6 +11,7 @@ open nat
 
 /- the type, coercions, and notation -/
 
+@[derive decidable_eq]
 inductive int : Type
 | of_nat : nat → int
 | neg_succ_of_nat : nat → int
@@ -20,9 +21,6 @@ notation `ℤ` := int
 instance : has_coe nat int := ⟨int.of_nat⟩
 
 notation `-[1+ ` n `]` := int.neg_succ_of_nat n
-
-instance : decidable_eq int :=
-by tactic.mk_dec_eq_instance
 
 protected def int.repr : int → string
 | (int.of_nat n)          := repr n

@@ -9,11 +9,9 @@ import tools.debugger.util
 
 namespace debugger
 
+@[derive decidable_eq]
 inductive mode
 | init | step | run | done
-
-instance : decidable_eq mode :=
-by tactic.mk_dec_eq_instance
 
 structure state :=
 (md         : mode)

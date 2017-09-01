@@ -3,7 +3,7 @@ Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 
-Helper tactic for showing that a type has decidable equality.
+Helper tactic for showing that a type is inhabited.
 -/
 prelude
 import init.meta.interactive_base

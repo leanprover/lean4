@@ -5,18 +5,16 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.meta.tactic init.data.option_t
-import init.meta.mk_dec_eq_instance
+import init.meta.derive
 
 meta constant vm_obj : Type
 
+@[derive decidable_eq]
 inductive vm_obj_kind
 | simple | constructor | closure | native_closure | mpz
 | name | level | expr | declaration
 | environment | tactic_state | format
 | options | other
-
-instance vm_obj_kind_dec_eq : decidable_eq vm_obj_kind :=
-by tactic.mk_dec_eq_instance
 
 namespace vm_obj
 meta constant kind            : vm_obj → vm_obj_kind

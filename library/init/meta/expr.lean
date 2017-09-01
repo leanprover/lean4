@@ -265,7 +265,7 @@ meta def is_aux_decl : expr → bool
 | (local_const _ _ binder_info.aux_decl _) := tt
 | _                                        := ff
 
-meta def is_constant_of : expr → name → bool
+meta def is_constant_of : expr elab → name → bool
 | (const n₁ ls) n₂ := n₁ = n₂
 | e             n  := ff
 

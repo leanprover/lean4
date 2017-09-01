@@ -6,18 +6,20 @@ Author: Sebastian Ullrich
 */
 #include <string>
 #include <limits>
+#include "library/app_builder.h"
+#include "library/kernel_serializer.h"
 #include "library/attribute_manager.h"
 #include "library/constants.h"
-#include "library/util.h"
 #include "library/scoped_ext.h"
 #include "library/vm/vm_declaration.h"
 #include "library/vm/vm_environment.h"
+#include "library/vm/vm_expr.h"
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_option.h"
+#include "library/vm/vm_parser.h"
 #include "library/vm/vm_string.h"
-#include "library/tactic/tactic_state.h"
 #include "library/cache_helper.h"
 #include "library/trace.h"
 #include "util/name_hash_map.h"
@@ -40,6 +42,55 @@ static user_attr_ext const & get_extension(environment const & env) {
 }
 static environment update(environment const & env, user_attr_ext const & ext) {
     return env.update(g_ext->m_ext_id, std::make_shared<user_attr_ext>(ext));
+}
+
+struct user_attribute_data : public attr_data {
+    expr m_param;
+    user_attribute_data() {}
+    user_attribute_data(expr const & param) : m_param(param) {}
+
+    virtual unsigned hash() const override { return m_param.hash(); }
+    void write(serializer & s) const { s << m_param; }
+    void read(deserializer & d) { d >> m_param; }
+    virtual void print(std::ostream & out) override {
+        // TODO(sullrich): use parser-reversing pretty printer as soon as that exists
+        if (!is_constant(m_param, get_unit_star_name())) {
+            out << " " << m_param;
+        }
+    }
+};
+
+class user_attribute : public typed_attribute<user_attribute_data> {
+    name m_decl;
+public:
+    user_attribute(name const & id, name const & d, char const * descr, after_set_proc const & after_set,
+                   before_unset_proc const & before_unset) : typed_attribute(id, descr, after_set, before_unset), m_decl(d) {}
+
+    attr_data_ptr parse_data(abstract_parser & p) const override final {
+        lean_assert(dynamic_cast<parser *>(&p));
+        auto & p2 = *static_cast<parser *>(&p);
+        type_context ctx(p2.env(), p2.get_options());
+        expr parser = mk_app(ctx, get_user_attribute_parse_reflect_name(), 3, mk_constant(m_decl));
+        expr param = to_expr(run_parser(p2, parser));
+        return attr_data_ptr(new user_attribute_data(param));
+    }
+};
+
+vm_obj user_attribute_get_param_untyped(vm_obj const &, vm_obj const &, vm_obj const & vm_attr, vm_obj const & vm_n, vm_obj const & vm_s) {
+    name const & attr_n    = to_name(cfield(vm_attr, 0));
+    name const & n         = to_name(vm_n);
+    tactic_state const & s = tactic::to_state(vm_s);
+    LEAN_TACTIC_TRY;
+        attribute const & attr = get_attribute(s.env(), attr_n);
+        auto uattr = dynamic_cast<user_attribute const *>(&attr);
+        lean_always_assert(uattr);
+        auto const & data = uattr->get(s.env(), n);
+        if (!data) {
+            return tactic::mk_exception(sstream() << "failed to retrieve parameter data of attribute '"
+                                                  << attr_n << "' on declaration '" << n << "'", s);
+        }
+        return tactic::mk_success(to_obj(data->m_param), s);
+    LEAN_TACTIC_CATCH(s);
 }
 
 static environment add_user_attr(environment const & env, name const & d) {
@@ -81,7 +132,7 @@ static environment add_user_attr(environment const & env, name const & d) {
     }
 
     user_attr_ext ext = get_extension(env);
-    ext.m_attrs.insert(attr_name, attribute_ptr(new basic_attribute(attr_name, descr.c_str(), after_set, before_unset)));
+    ext.m_attrs.insert(attr_name, attribute_ptr(new user_attribute(attr_name, d, descr.c_str(), after_set, before_unset)));
     return update(env, ext);
 }
 
@@ -274,6 +325,7 @@ void initialize_user_attribute() {
     DECLARE_VM_BUILTIN(name({"attribute", "get_instances"}),            attribute_get_instances);
     DECLARE_VM_BUILTIN(name({"attribute", "fingerprint"}),              attribute_fingerprint);
     DECLARE_VM_BUILTIN(name({"user_attribute", "get_cache"}),           user_attribute_get_cache_core);
+    DECLARE_VM_BUILTIN(name({"user_attribute", "get_param_untyped"}),   user_attribute_get_param_untyped);
     DECLARE_VM_BUILTIN(name({"tactic",    "set_basic_attribute"}),      set_basic_attribute);
     DECLARE_VM_BUILTIN(name({"tactic",    "unset_attribute"}),          unset_attribute);
     DECLARE_VM_BUILTIN(name({"tactic",    "has_attribute"}),            has_attribute);

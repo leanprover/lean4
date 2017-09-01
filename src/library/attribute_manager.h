@@ -126,7 +126,7 @@ public:
     typed_attribute(name const & id, char const * descr, after_set_proc after_set = {}, before_unset_proc before_unset = {}) :
             attribute(id, descr, after_set, before_unset) {}
 
-    virtual attr_data_ptr parse_data(abstract_parser & p) const final override {
+    virtual attr_data_ptr parse_data(abstract_parser & p) const override {
         auto data = new Data;
         data->parse(p);
         return attr_data_ptr(data);

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
 prelude
-import init.meta.tactic init.meta.rb_map init.meta.has_reflect
+import init.meta.tactic init.meta.rb_map init.meta.has_reflect init.meta.lean.parser
 
 meta constant attribute.get_instances : name → tactic (list name)
 meta constant attribute.fingerprint : name → tactic nat
@@ -15,8 +15,10 @@ meta structure user_attribute_cache_cfg (cache_ty : Type) :=
 
 meta def user_attribute.dflt_cache_cfg : tactic unit :=
 tactic.exact `(⟨λ _, pure (), []⟩ : user_attribute_cache_cfg unit)
+meta def user_attribute.dflt_parser : tactic unit :=
+tactic.exact `(pure () : lean.parser unit)
 
-meta structure user_attribute (cache_ty : Type := unit) :=
+meta structure user_attribute (cache_ty : Type := unit) (param_ty : Type := unit) :=
 (name          : name)
 (descr         : string)
 /- Optional handler that will be called after the attribute has been applied to a declaration.
@@ -28,14 +30,25 @@ meta structure user_attribute (cache_ty : Type := unit) :=
 /- Optional handler that will be called before the attribute is removed from a declaration. -/
 (before_unset : option (Π (decl : _root_.name) (persistent : bool), command) := none)
 (cache_cfg     : user_attribute_cache_cfg cache_ty . user_attribute.dflt_cache_cfg)
+[reflect_param : has_reflect param_ty]
+/- Parser that will be invoked after parsing the attribute's name. The parse result will be reflected
+   and stored and can be retrieved with `user_attribute.get_param`. -/
+(parser        : lean.parser param_ty . user_attribute.dflt_parser)
 
 /- Registers a new user-defined attribute. The argument must be the name of a definition of type
-   `user_attribute` or a sub-structure. -/
+   `user_attribute`. -/
 meta def attribute.register (decl : name) : command :=
 tactic.set_basic_attribute ``user_attribute decl tt
 
 meta constant user_attribute.get_cache {α β : Type} (attr : user_attribute α β) : tactic α
 
+meta def user_attribute.parse_reflect {α β : Type} (attr : user_attribute α β) : lean.parser expr :=
+(λ a, attr.reflect_param a) <$> attr.parser
+
+meta constant user_attribute.get_param_untyped {α β : Type} : user_attribute α β → name → tactic expr
+
+meta def user_attribute.get_param {α β : Type} [reflected β] (attr : user_attribute α β) (n : name) : tactic β :=
+attr.get_param_untyped n >>= tactic.eval_expr β
 
 open tactic
 

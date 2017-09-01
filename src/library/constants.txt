@@ -361,6 +361,7 @@ unit.cases_on
 unit.star
 unsafe_monad_from_pure_bind
 user_attribute
+user_attribute.parse_reflect
 vm_monitor
 partial_order
 well_founded.fix

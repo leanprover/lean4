@@ -2996,7 +2996,7 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                         report_or_throw(elaborator_exception(e, sstream() << "invalid structure value {...}, field '"
                                                                 << S_fname << "' is implicit and must not be provided"));
                     }
-                    c_arg = mk_metavar(d, ref);
+                    c_arg = binding_info(c_type).is_inst_implicit() ? mk_instance(d, ref) : mk_metavar(d, ref);
                 }
             }
             c_args.push_back(c_arg);

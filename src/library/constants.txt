@@ -22,7 +22,6 @@ bool
 bool.ff
 bool.tt
 combinator.K
-caching_user_attribute
 cast
 cast_heq
 char

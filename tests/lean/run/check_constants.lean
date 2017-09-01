@@ -27,7 +27,6 @@ run_cmd script_check_id `bool
 run_cmd script_check_id `bool.ff
 run_cmd script_check_id `bool.tt
 run_cmd script_check_id `combinator.K
-run_cmd script_check_id `caching_user_attribute
 run_cmd script_check_id `cast
 run_cmd script_check_id `cast_heq
 run_cmd script_check_id `char

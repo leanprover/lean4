@@ -79,7 +79,7 @@ meta def to_hinst_lemmas_core (m : transparency) : bool → list name → hinst_
   end
 
 meta def mk_hinst_lemma_attr_core (attr_name : name) (as_simp : bool) : command :=
-do let t := `(caching_user_attribute hinst_lemmas),
+do let t := `(user_attribute hinst_lemmas),
    let v := `({name     := attr_name,
                descr    := "hinst_lemma attribute",
                after_set := some $ λ n _ _,
@@ -87,8 +87,9 @@ do let t := `(caching_user_attribute hinst_lemmas),
                  fail format!"invalid ematch lemma '{n}'",
                -- allow unsetting
                before_unset := some $ λ _ _, skip,
-               mk_cache := λ ns, to_hinst_lemmas_core reducible as_simp ns hinst_lemmas.mk,
-               dependencies := [`reducibility] } : caching_user_attribute hinst_lemmas),
+               cache_cfg := {
+                 mk_cache := λ ns, to_hinst_lemmas_core reducible as_simp ns hinst_lemmas.mk,
+                 dependencies := [`reducibility]}} : user_attribute hinst_lemmas),
    add_decl (declaration.defn attr_name [] t v reducibility_hints.abbrev ff),
    attribute.register attr_name
 
@@ -98,7 +99,7 @@ meta def mk_hinst_lemma_attrs_core (as_simp : bool) : list name → command
   (mk_hinst_lemma_attr_core n as_simp >> mk_hinst_lemma_attrs_core ns)
   <|>
   (do type ← infer_type (expr.const n []),
-      let expected := `(caching_user_attribute hinst_lemmas),
+      let expected := `(user_attribute),
       (is_def_eq type expected
        <|> fail format!"failed to create hinst_lemma attribute '{n}', declaration already exists and has different type."),
       mk_hinst_lemma_attrs_core ns)
@@ -111,7 +112,7 @@ meta def merge_hinst_lemma_attrs (m : transparency) (as_simp : bool) : list name
   merge_hinst_lemma_attrs attrs new_hs
 
 /--
-Create a new "cached" attribute (attr_name : caching_user_attribute hinst_lemmas).
+Create a new "cached" attribute (attr_name : user_attribute hinst_lemmas).
 It also creates "cached" attributes for each attr_names and simp_attr_names if they have not been defined
 yet. Moreover, the hinst_lemmas for attr_name will be the union of the lemmas tagged with
     attr_name, attrs_name, and simp_attr_names.
@@ -120,7 +121,7 @@ For the ones in simp_attr_names, we use the left-hand-side of the conclusion as 
 meta def mk_hinst_lemma_attr_set (attr_name : name) (attr_names : list name) (simp_attr_names : list name) : command :=
 do mk_hinst_lemma_attrs_core ff attr_names,
    mk_hinst_lemma_attrs_core tt simp_attr_names,
-   let t  := `(caching_user_attribute hinst_lemmas),
+   let t  := `(user_attribute hinst_lemmas),
    let v  := `({name     := attr_name,
                 descr    := "hinst_lemma attribute set",
                 after_set := some $ λ n _ _,
@@ -128,19 +129,17 @@ do mk_hinst_lemma_attrs_core ff attr_names,
                   fail format!"invalid ematch lemma '{n}'",
                 -- allow unsetting
                 before_unset := some $ λ _ _, skip,
-                mk_cache := λ ns, do {
-                   hs₁ ← to_hinst_lemmas_core reducible ff ns hinst_lemmas.mk,
-                   hs₂ ← merge_hinst_lemma_attrs reducible ff attr_names hs₁,
-                   merge_hinst_lemma_attrs reducible tt simp_attr_names hs₂},
-                dependencies := [`reducibility] ++ attr_names ++ simp_attr_names } : caching_user_attribute hinst_lemmas),
+                cache_cfg := {
+                  mk_cache := λ ns, do {
+                    hs₁ ← to_hinst_lemmas_core reducible ff ns hinst_lemmas.mk,
+                    hs₂ ← merge_hinst_lemma_attrs reducible ff attr_names hs₁,
+                    merge_hinst_lemma_attrs reducible tt simp_attr_names hs₂},
+                  dependencies := [`reducibility] ++ attr_names ++ simp_attr_names}} : user_attribute hinst_lemmas),
    add_decl (declaration.defn attr_name [] t v reducibility_hints.abbrev ff),
    attribute.register attr_name
 
 meta def get_hinst_lemmas_for_attr (attr_name : name) : tactic hinst_lemmas :=
-do
-  cnst   ← return (expr.const attr_name []),
-  attr   ← eval_expr (caching_user_attribute hinst_lemmas) cnst,
-  caching_user_attribute.get_cache attr
+get_attribute_cache_dyn attr_name
 
 structure ematch_config :=
 (max_instances  : nat := 10000)

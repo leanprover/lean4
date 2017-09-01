@@ -423,10 +423,9 @@ vm_obj mk_smt_state(tactic_state s, smt_config const & cfg) {
 
 static hinst_lemmas get_hinst_lemmas(name const & attr_name, tactic_state const & s) {
     auto & S      = get_vm_state();
-    vm_obj attr   = S.get_constant(attr_name);
-    vm_obj r      = caching_user_attribute_get_cache(mk_vm_unit(), attr, to_obj(s));
+    vm_obj r      = user_attribute_get_cache(S, s, attr_name);
     if (tactic::is_result_exception(r))
-        throw exception(sstream() << "failed to initialize sm_state, failed to retrieve attribute '" << attr_name << "'");
+        throw exception(sstream() << "failed to initialize smt_state, failed to retrieve attribute '" << attr_name << "'");
     vm_obj lemmas = tactic::get_result_value(r);
     if (!is_hinst_lemmas(lemmas))
         throw exception(sstream() << "failed to initialize smt_state, attribute '" << attr_name << "' is not a hinst_lemmas");
@@ -436,9 +435,9 @@ static hinst_lemmas get_hinst_lemmas(name const & attr_name, tactic_state const 
 static simp_lemmas get_simp_lemmas(name const & attr_name, tactic_state const & s) {
     auto & S      = get_vm_state();
     vm_obj attr   = S.get_constant(attr_name);
-    vm_obj r      = caching_user_attribute_get_cache(mk_vm_unit(), attr, to_obj(s));
+    vm_obj r      = user_attribute_get_cache(S, s, attr_name);
     if (tactic::is_result_exception(r))
-        throw exception(sstream() << "failed to initialize sm_state, failed to retrieve attribute '" << attr_name << "'");
+        throw exception(sstream() << "failed to initialize smt_state, failed to retrieve attribute '" << attr_name << "'");
     vm_obj lemmas = tactic::get_result_value(r);
     if (!is_simp_lemmas(lemmas))
         throw exception(sstream() << "failed to initialize smt_state, attribute '" << attr_name << "' is not a simp_lemmas");

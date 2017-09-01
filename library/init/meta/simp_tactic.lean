@@ -335,20 +335,18 @@ meta def to_simp_lemmas : simp_lemmas → list name → tactic simp_lemmas
 | S (n::ns) := do S' ← S.add_simp n, to_simp_lemmas S' ns
 
 meta def mk_simp_attr (attr_name : name) : command :=
-do let t := `(caching_user_attribute simp_lemmas),
+do let t := `(user_attribute simp_lemmas),
    let v := `({name     := attr_name,
-                 descr    := "simplifier attribute",
+               descr    := "simplifier attribute",
+               cache_cfg := {
                  mk_cache := λ ns, do {tactic.to_simp_lemmas simp_lemmas.mk ns},
-                 dependencies := [`reducibility] } : caching_user_attribute simp_lemmas),
+                 dependencies := [`reducibility]}} : user_attribute simp_lemmas),
    add_decl (declaration.defn attr_name [] t v reducibility_hints.abbrev ff),
    attribute.register attr_name
 
 meta def get_user_simp_lemmas (attr_name : name) : tactic simp_lemmas :=
 if attr_name = `default then simp_lemmas.mk_default
-else do
-  cnst   ← return (expr.const attr_name []),
-  attr   ← eval_expr (caching_user_attribute simp_lemmas) cnst,
-  caching_user_attribute.get_cache attr
+else get_attribute_cache_dyn attr_name
 
 meta def join_user_simp_lemmas_core : simp_lemmas → list name → tactic simp_lemmas
 | S []             := return S

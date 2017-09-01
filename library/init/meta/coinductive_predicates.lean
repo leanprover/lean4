@@ -112,7 +112,7 @@ section
 universe u
 
 @[user_attribute]
-meta def monotonicity := { user_attribute . name := `monotonicity, descr := "Monotonicity rules for predicates" }
+meta def monotonicity : user_attribute := { name := `monotonicity, descr := "Monotonicity rules for predicates" }
 
 lemma monotonicity.pi {α : Sort u} {p q : α → Prop} (h : ∀a, implies (p a) (q a)) :
   implies (Πa, p a) (Πa, q a) :=

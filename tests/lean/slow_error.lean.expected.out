@@ -5,4 +5,4 @@ term
 has type
   string
 but is expected to have type
-  caching_user_attribute string
+  (user_attribute string)

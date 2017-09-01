@@ -2920,7 +2920,7 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
             expr c_arg;
             expr d = binding_domain(c_type);
             if (i < nparams) {
-                if (is_explicit(binding_info(c_type))) {
+                if (is_explicit(binding_info(c_type)) && !expected_type) {
                     report_or_throw(elaborator_exception(e, sstream() << "invalid structure value {...}, structure parameter '" <<
                                                             binding_name(c_type)
                                                             << "' is explicit in the structure constructor '" <<

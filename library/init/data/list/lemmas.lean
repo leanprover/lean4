@@ -29,8 +29,6 @@ by induction s; simp [*]
 
 /- length -/
 
-attribute [simp] length
-
 lemma length_cons (a : α) (l : list α) : length (a :: l) = length l + 1 :=
 rfl
 

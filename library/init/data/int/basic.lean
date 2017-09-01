@@ -171,10 +171,9 @@ sub_nat_nat_elim m n (λm n i, sub_nat_nat (m + k) (n + k) = i)
 
 /- nat_abs -/
 
-def nat_abs : ℤ → ℕ
+@[simp] def nat_abs : ℤ → ℕ
 | (of_nat m) := m
 | -[1+ m]    := succ m
-attribute [simp] nat_abs
 
 lemma nat_abs_of_nat (n : ℕ) : nat_abs ↑n = n := rfl
 

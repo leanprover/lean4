@@ -15,10 +15,9 @@ instance (α : Type u) : inhabited (list α) :=
 variables {α : Type u} {β : Type v} {γ : Type w}
 
 namespace list
-protected def append : list α → list α → list α
+@[simp] protected def append : list α → list α → list α
 | []       l := l
 | (h :: s) t := h :: (append s t)
-attribute [simp] list.append
 
 instance : has_append (list α) :=
 ⟨list.append⟩
@@ -55,10 +54,9 @@ protected def diff {α} [decidable_eq α] : list α → list α → list α
 | l      []      := l
 | l₁     (a::l₂) := if a ∈ l₁ then diff (l₁.erase a) l₂ else diff l₁ l₂
 
-def length : list α → nat
+@[simp] def length : list α → nat
 | []       := 0
 | (a :: l) := length l + 1
-attribute [simp] length
 
 def empty : list α → bool
 | []       := tt
@@ -66,27 +64,23 @@ def empty : list α → bool
 
 open option nat
 
-def nth : list α → nat → option α
+@[simp] def nth : list α → nat → option α
 | []       n     := none
 | (a :: l) 0     := some a
 | (a :: l) (n+1) := nth l n
-attribute [simp] nth
 
-def nth_le : Π (l : list α) (n), n < l.length → α
+@[simp] def nth_le : Π (l : list α) (n), n < l.length → α
 | []       n     h := absurd h (not_lt_zero n)
 | (a :: l) 0     h := a
 | (a :: l) (n+1) h := nth_le l n (le_of_succ_le_succ h)
-attribute [simp] nth_le
 
-def head [inhabited α] : list α → α
+@[simp] def head [inhabited α] : list α → α
 | []       := default α
 | (a :: l) := a
-attribute [simp] head
 
-def tail : list α → list α
+@[simp] def tail : list α → list α
 | []       := []
 | (a :: l) := l
-attribute [simp] tail
 
 def reverse_core : list α → list α → list α
 | []     r := r
@@ -95,16 +89,14 @@ def reverse_core : list α → list α → list α
 def reverse : list α → list α :=
 λ l, reverse_core l []
 
-def map (f : α → β) : list α → list β
+@[simp] def map (f : α → β) : list α → list β
 | []       := []
 | (a :: l) := f a :: map l
-attribute [simp] map
 
-def map₂ (f : α → β → γ) : list α → list β → list γ
+@[simp] def map₂ (f : α → β → γ) : list α → list β → list γ
 | []      _       := []
 | _       []      := []
 | (x::xs) (y::ys) := f x y :: map₂ xs ys
-attribute [simp] map₂
 
 def join : list (list α) → list α
 | []        := []
@@ -153,27 +145,23 @@ def remove_nth : list α → ℕ → list α
 | (x::xs) 0     := xs
 | (x::xs) (i+1) := x :: remove_nth xs i
 
-def drop : ℕ → list α → list α
+@[simp] def drop : ℕ → list α → list α
 | 0        a      := a
 | (succ n) []     := []
 | (succ n) (x::r) := drop n r
-attribute [simp] drop
 
-def take : ℕ → list α → list α
+@[simp] def take : ℕ → list α → list α
 | 0        a        := []
 | (succ n) []       := []
 | (succ n) (x :: r) := x :: take n r
-attribute [simp] take
 
-def foldl (f : α → β → α) : α → list β → α
+@[simp] def foldl (f : α → β → α) : α → list β → α
 | a []       := a
 | a (b :: l) := foldl (f a b) l
-attribute [simp] foldl
 
-def foldr (f : α → β → β) (b : β) : list α → β
+@[simp] def foldr (f : α → β → β) (b : β) : list α → β
 | []       := b
 | (a :: l) := f a (foldr l)
-attribute [simp] foldr
 
 def any (l : list α) (p : α → bool) : bool :=
 foldr (λ a r, p a || r) ff l
@@ -214,10 +202,9 @@ filter (∈ l₂) l₁
 instance [decidable_eq α] : has_inter (list α) :=
 ⟨list.inter⟩
 
-def repeat (a : α) : ℕ → list α
+@[simp] def repeat (a : α) : ℕ → list α
 | 0 := []
 | (succ n) := a :: repeat n
-attribute [simp] repeat
 
 def range_core : ℕ → list ℕ → list ℕ
 | 0        l := l
@@ -236,11 +223,10 @@ def enum_from : ℕ → list α → list (ℕ × α)
 
 def enum : list α → list (ℕ × α) := enum_from 0
 
-def last : Π l : list α, l ≠ [] → α
+@[simp] def last : Π l : list α, l ≠ [] → α
 | []        h := absurd rfl h
 | [a]       h := a
 | (a::b::l) h := last (b::l) (λ h, list.no_confusion h)
-attribute [simp] last
 
 def ilast [inhabited α] : list α → α
 | []        := arbitrary α

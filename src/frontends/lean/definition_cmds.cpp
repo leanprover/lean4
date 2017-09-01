@@ -281,8 +281,6 @@ declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffe
     if (meta.m_doc_string) {
         new_env = add_doc_string(new_env, c_real_name, *meta.m_doc_string);
     }
-    // note: some attribute handlers rely on the new definition being compiled already
-    new_env = meta.m_attrs.apply(new_env, p.ios(), c_real_name);
     return mk_pair(new_env, c_real_name);
 }
 
@@ -511,7 +509,12 @@ static environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, cmd
         elab.set_env(env);
     }
     /* Add lemmas */
-    return copy_equation_lemmas(elab.env(), new_d_names);
+    elab.set_env(copy_equation_lemmas(elab.env(), new_d_names));
+    /* Apply attributes last */
+    for (auto const & c_real_name : new_d_names) {
+        elab.set_env(meta.m_attrs.apply(elab.env(), p.ios(), c_real_name));
+    }
+    return elab.env();
 }
 
 static expr_pair parse_definition(parser & p, buffer<name> & lp_names, buffer<expr> & params,
@@ -864,7 +867,8 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, cmd_meta m
             unsigned arity = new_params.size();
             new_env = mk_simple_equation_lemma_for(new_env, p.get_options(), meta.m_modifiers.m_is_private, c_real_name, arity);
         }
-        return new_env;
+        /* Apply attributes last */
+        return meta.m_attrs.apply(new_env, p.ios(), c_real_name);
     };
 
     try {

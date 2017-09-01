@@ -3196,6 +3196,7 @@ expr elaborator::visit_expr_quote(expr const & e, optional<expr> const & expecte
         } else {
             new_s = visit(s, none_expr());
         }
+        synthesize(); // try to instantiate all metavars in `new_s`, otherwise reflection will fail
         expr cls = mk_app(m_ctx, get_reflected_name(), new_s);
         return mk_instance(cls, e);
     }

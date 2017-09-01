@@ -3,7 +3,7 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Gabriel Ebner
 -/
-import leanpkg.resolve
+import leanpkg.resolve leanpkg.git
 variable [io.interface]
 
 namespace leanpkg
@@ -13,8 +13,12 @@ h ← io.mk_file_handle fn io.mode.write,
 io.fs.write h cnts.to_char_buffer,
 io.fs.close h
 
-def read_manifest : io manifest :=
-manifest.from_file leanpkg_toml_fn
+def read_manifest : io manifest := do
+m ← manifest.from_file leanpkg_toml_fn,
+when (m.lean_version ≠ lean_version_string) $
+  io.print_ln $ "\nWARNING: Lean version mismatch: installed version is " ++ lean_version_string
+     ++ ", but package requires " ++ m.lean_version ++ "\n",
+return m
 
 def write_manifest (d : manifest) (fn := leanpkg_toml_fn) : io unit :=
 write_file fn (repr d)
@@ -95,18 +99,9 @@ else resolve_dir dep <$> get_current_directory
 
 def parse_add_dep (dep : string) : dependency :=
 if looks_like_git_url dep then
-  { name := basename (strip_dot_git dep), src := source.git dep "master" }
+  { name := basename (strip_dot_git dep), src := source.git dep upstream_git_branch }
 else
   { name := basename dep, src := source.path dep }
-
-def git_head_revision (git_repo_dir : string) : io string := do
-rev ← io.cmd {cmd := "git", args := ["rev-parse", "HEAD"], cwd := git_repo_dir},
-return rev.pop_back -- remove newline at end
-
-def git_latest_origin_revision (git_repo_dir : string) : io string := do
-io.cmd {cmd := "git", args := ["fetch"], cwd := git_repo_dir},
-rev ← io.cmd {cmd := "git", args := ["rev-parse", "origin/master"], cwd := git_repo_dir},
-return rev.pop_back -- remove newline at end
 
 def fixup_git_version (dir : string) : ∀ (src : source), io source
 | (source.git url _) := source.git url <$> git_head_revision dir
@@ -145,7 +140,9 @@ ds' ← m.dependencies.mmap (upgrade_dep assg),
 write_manifest {m with dependencies := ds'},
 configure
 
-def usage := "
+def usage :=
+"Lean package manager, version " ++ ui_lean_version_string ++ "
+
 Usage: leanpkg <command>
 
 configure              download dependencies
@@ -155,7 +152,7 @@ test  [-- <lean-args>] download dependencies, build *.olean files, and run test 
 new <dir>              creates a lean package in the specified directory
 init <name>            adds a leanpkg.toml file to the current directory, and sets up .gitignore
 
-add <url>              adds a dependency from a git repository (uses current master revision)
+add <url>              adds a dependency from a git repository (uses latest upstream revision)
 add <dir>              adds a local dependency
 upgrade                upgrades all git dependencies to the latest upstream version
 

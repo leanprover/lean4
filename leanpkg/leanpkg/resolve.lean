@@ -3,7 +3,7 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Gabriel Ebner
 -/
-import leanpkg.manifest system.io leanpkg.proc
+import leanpkg.manifest system.io leanpkg.proc leanpkg.git
 variable [io.interface]
 
 namespace leanpkg
@@ -63,7 +63,9 @@ match dep.src with
 | (source.git url rev) := do
   let depdir := "_target/deps/" ++ dep.name,
   already_there ← dir_exists depdir,
-  let checkout_action := exec_cmd {cmd := "git", args := ["checkout", "--detach", rev], cwd := depdir},
+  let checkout_action := (do
+    hash ← git_parse_origin_revision depdir rev,
+    exec_cmd {cmd := "git", args := ["checkout", "--detach", hash], cwd := depdir}),
   (do guard already_there,
       io.put_str_ln $ dep.name ++ ": trying to update " ++ depdir ++ " to revision " ++ rev,
       checkout_action) <|>
@@ -74,7 +76,7 @@ match dep.src with
       exec_cmd {cmd := "rm", args := ["-rf", depdir]},
       exec_cmd {cmd := "mkdir", args := ["-p", depdir]},
       exec_cmd {cmd := "git", args := ["clone", url, depdir]},
-      exec_cmd {cmd := "git", args := ["checkout", "--detach", rev], cwd := depdir}),
+      checkout_action),
   state_t.modify $ λ assg, assg.insert dep.name depdir
 end
 

@@ -60,6 +60,8 @@ def list.append : list α → list α → list α
 | (h :: s) t := h :: s.append t
 ```
 
+* leanpkg now stores the intended Lean version in the `leanpkg.toml` file and reports a warning if the version does not match the installed Lean version.
+
 *Changes*
 
 * We now have two type classes for converting to string: `has_to_string` and `has_repr`.

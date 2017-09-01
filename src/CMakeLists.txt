@@ -3,6 +3,7 @@ project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 3)
 set(LEAN_VERSION_MINOR 2)
 set(LEAN_VERSION_PATCH 1)
+set(LEAN_VERSION_IS_RELEASE 0)  # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_VERSION_STRING "${LEAN_VERSION_MAJOR}.${LEAN_VERSION_MINOR}.${LEAN_VERSION_PATCH}" CACHE STRING "Lean version string")
 
 set(LEAN_EXTRA_LINKER_FLAGS "")
@@ -467,6 +468,7 @@ add_custom_target(
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
     )
 
+configure_file("${LEAN_SOURCE_DIR}/../leanpkg/leanpkg/config_vars.lean.in" "${LEAN_SOURCE_DIR}/../leanpkg/leanpkg/config_vars.lean")
 add_custom_target(
     leanpkg ALL
     COMMAND "${LEAN_SOURCE_DIR}/../bin/lean" --make ${LEAN_EXTRA_MAKE_OPTS}

@@ -134,8 +134,10 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
 bool decl_attributes::ok_for_inductive_type() const {
     for (entry const & e : m_entries) {
         name const & n = e.m_attr->get_name();
-        if ((n != "class" && !is_class_symbol_tracking_attribute(n)) || e.deleted())
-            return false;
+        if (is_system_attribute(n)) {
+            if ((n != "class" && !is_class_symbol_tracking_attribute(n)) || e.deleted())
+                return false;
+        }
     }
     return true;
 }

@@ -64,6 +64,8 @@ def list.append : list α → list α → list α
 
 * `simp` and `dsimp` can now unfold let-bindings in the local context.  Use `dsimp [x]` or `simp [x]` to unfold the let-binding `x : nat := 3`.
 
+* User-defined attributes can now take parameters parsed by a `lean.parser`. A `[derive]` attribute that can derive typeclasses such as `decidable_eq` and `inhabited` has been implemented on top of this.
+
 *Changes*
 
 * We now have two type classes for converting to string: `has_to_string` and `has_repr`.

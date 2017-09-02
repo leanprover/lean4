@@ -93,6 +93,30 @@ vm_obj user_attribute_get_param_untyped(vm_obj const &, vm_obj const &, vm_obj c
     LEAN_TACTIC_CATCH(s);
 }
 
+vm_obj user_attribute_set_param_untyped(expr const & beta, name const & attr_n, name const & n, expr const & val,
+                                        bool persistent, unsigned prio, tactic_state const & s) {
+    type_context ctx(s.env(), s.get_options());
+    if (!ctx.is_def_eq(beta, ctx.infer(val))) {
+        return tactic::mk_exception(sstream() << "set_param_untyped failed, '" << val << "' is not of type '" << beta << "'", s);
+    }
+    LEAN_TACTIC_TRY;
+        attribute const & attr = get_attribute(s.env(), attr_n);
+        if (user_attribute const * user_attr = dynamic_cast<user_attribute const *>(&attr)) {
+            environment new_env = user_attr->set(s.env(), get_global_ios(), n, prio, user_attribute_data(val), persistent);
+            return tactic::mk_success(set_env(s, new_env));
+        } else {
+            return tactic::mk_exception(sstream() << "set_param_untyped failed, '" << attr_n << "' is not a user attribute", s);
+        }
+    LEAN_TACTIC_CATCH(s);
+}
+
+vm_obj user_attribute_set_param_untyped(unsigned DEBUG_CODE(num), vm_obj const * args) {
+    lean_assert(num == 9);
+    unsigned prio = is_none(args[7]) ? LEAN_DEFAULT_PRIORITY : to_unsigned(get_some_value(args[7]));
+    return user_attribute_set_param_untyped(to_expr(args[2]), to_name(cfield(args[3], 0)), to_name(args[4]),
+                                            to_expr(args[5]), to_bool(args[6]), prio, tactic::to_state(args[8]));
+}
+
 static environment add_user_attr(environment const & env, name const & d) {
     auto const & ty = env.get(d).get_type();
     if (!is_app_of(ty, get_user_attribute_name(), 2))
@@ -326,6 +350,8 @@ void initialize_user_attribute() {
     DECLARE_VM_BUILTIN(name({"attribute", "fingerprint"}),              attribute_fingerprint);
     DECLARE_VM_BUILTIN(name({"user_attribute", "get_cache"}),           user_attribute_get_cache_core);
     DECLARE_VM_BUILTIN(name({"user_attribute", "get_param_untyped"}),   user_attribute_get_param_untyped);
+    declare_vm_builtin(name({"user_attribute", "set_param_untyped"}), "user_attribute_set_param_untyped",
+                       9, user_attribute_set_param_untyped);
     DECLARE_VM_BUILTIN(name({"tactic",    "set_basic_attribute"}),      set_basic_attribute);
     DECLARE_VM_BUILTIN(name({"tactic",    "unset_attribute"}),          unset_attribute);
     DECLARE_VM_BUILTIN(name({"tactic",    "has_attribute"}),            has_attribute);

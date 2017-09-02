@@ -13,11 +13,8 @@ run_cmd do
   s : string ← foo_attr.get_cache,
   tactic.trace s,
   s : string ← foo_attr.get_cache,
-  tactic.trace s
-
-attribute [foo] eq.mpr
-
-run_cmd do
+  tactic.trace s,
+  foo_attr.set_param `eq.mpr () tt,
   s : string ← foo_attr.get_cache,
   tactic.trace s,
   tactic.set_basic_attribute `reducible ``eq.mp, -- should not affect [foo] cache

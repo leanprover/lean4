@@ -101,3 +101,6 @@ begin
       a' = a' ∧ n + 1 = a_1 + 1,
   admit
 end
+
+coinductive foo : list ℕ → Prop
+| mk : ∀ xs, (∀ k l m, foo (k::l::m::xs)) → foo xs

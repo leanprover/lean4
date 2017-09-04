@@ -163,8 +163,8 @@ private meta def mono_aux (ns : list name) (hs : list expr) : tactic unit := do
     `(implies %%p %%q) ← target,
     (do is_def_eq p q, eapplyc `monotone.const) <|>
     (do
-      (expr.pi pn pbi pd pb) ← return p,
-      (expr.pi qn qbi qd qb) ← return q,
+      (expr.pi pn pbi pd pb) ← whnf p,
+      (expr.pi qn qbi qd qb) ← whnf q,
       sort u ← infer_type pd,
       (do is_def_eq pd qd,
         let p' := expr.lam pn pbi pd pb,

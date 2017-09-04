@@ -44,3 +44,8 @@ example (f : ℕ → ℕ) : bool :=
 begin
   have : ℕ, by apply f,
 end
+
+example (f : ℕ → ℕ) : bool :=
+begin
+  suffices: ℕ → bool, from this 0,
+end

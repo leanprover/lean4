@@ -644,6 +644,14 @@ match q₁, q₂ with
   tactic.define h e
 end >> skip
 
+/--
+This tactic applies to any goal. `suffices h : T` is the same as `have h : T, tactic.swap`.
+It mirrors the `suffices` term in term mode. This tactic can be followed by `from P` to
+prove the subgoal.
+-/
+meta def «suffices» (h : parse ident?) (t : parse (tk ":" *> texpr)?) : tactic unit :=
+«have» h t none >> tactic.swap
+
 
 /--
 This tactic displays the current state in the tracing buffer.

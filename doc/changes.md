@@ -131,6 +131,12 @@ For more details, see discussion [here](https://github.com/leanprover/lean/pull/
 * `injection` and `injections` tactics generate fresh names when user does not provide names.
   The fresh names are of the form `h_<idx>`. See discussion [here](https://github.com/leanprover/lean/issues/1805).
 
+* Use `structure` to declare `and`. This change allows us to use `h.1` and `h.2` as shorthand for `h.left` and `h.right`.
+
+* Add attribute `[pp_using_anonymous_constructor]` to `and`. Now, `and.intro h1 h2` is pretty printed as
+  `⟨h1, h2⟩`. This change is motivated by the previous one. Without it, `and.intro h1 h2` would be
+  pretty printed as `{left := h1, right := h2}`.
+
 *API name changes*
 
 * `list.dropn` => `list.drop`

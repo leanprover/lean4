@@ -47,6 +47,7 @@ Author: Leonardo de Moura
 #include "library/constructions/projection.h"
 #include "library/constructions/no_confusion.h"
 #include "library/constructions/injective.h"
+#include "library/constructions/drec.h"
 #include "library/equations_compiler/util.h"
 #include "library/inductive_compiler/add_decl.h"
 #include "library/tactic/elaborator_exception.h"
@@ -1128,6 +1129,8 @@ struct structure_cmd_fn {
         name cases_on_name(m_name, "cases_on");
         add_rec_on_alias(cases_on_name);
         m_env = add_aux_recursor(m_env, cases_on_name);
+        if (is_inductive_predicate(m_env, m_name))
+            m_env = mk_drec(m_env, m_name);
     }
 
     // Return the parent names without namespace prefix

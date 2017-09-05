@@ -146,18 +146,12 @@ structure prod (α : Type u) (β : Type v) :=
 structure pprod (α : Sort u) (β : Sort v) :=
 (fst : α) (snd : β)
 
-inductive and (a b : Prop) : Prop
-| intro : a → b → and
+structure and (a b : Prop) : Prop :=
+intro :: (left : a) (right : b)
 
-def and.elim_left {a b : Prop} (h : and a b) : a :=
-and.rec (λ ha hb, ha) h
+def and.elim_left {a b : Prop} (h : and a b) : a := h.1
 
-def and.left := @and.elim_left
-
-def and.elim_right {a b : Prop} (h : and a b) : b :=
-and.rec (λ ha hb, hb) h
-
-def and.right := @and.elim_right
+def and.elim_right {a b : Prop} (h : and a b) : b := h.2
 
 /- eq basic support -/
 
@@ -239,7 +233,7 @@ inductive bool : Type
 structure subtype {α : Sort u} (p : α → Prop) :=
 (val : α) (property : p val)
 
-attribute [pp_using_anonymous_constructor] sigma psigma subtype pprod
+attribute [pp_using_anonymous_constructor] sigma psigma subtype pprod and
 
 class inductive decidable (p : Prop)
 | is_false : ¬p → decidable

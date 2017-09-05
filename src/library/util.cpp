@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "library/pp_options.h"
 #include "library/projection.h"
 #include "library/replace_visitor.h"
+#include "library/type_context.h"
 
 namespace lean {
 /** \brief Return the "arity" of the given type. The arity is the number of nested pi-expressions. */
@@ -326,23 +327,23 @@ unsigned get_num_inductive_hypotheses_for(environment const & env, name const & 
     lean_assert(rec_mask.empty());
     name I_name = *inductive::is_intro_rule(env, n);
     inductive::inductive_decl decl = *inductive::is_inductive_decl(env, I_name);
-    expr type   = env.get(n).get_type();
+    type_context tc(env);
+    type_context::tmp_locals locals(tc);
+    expr type   = tc.whnf(env.get(n).get_type());
     unsigned r  = 0;
     while (is_pi(type)) {
-        if (find(binding_domain(type), [&](expr const & e, unsigned) {
-                    if (is_constant(e)) {
-                        name const & c = const_name(e);
-                        if (decl.m_name == c)
-                            return true;
-                    }
-                    return false;
-                })) {
-            r++;
+        auto dom = tc.whnf(binding_domain(type));
+        while (is_pi(dom)) {
+            dom = tc.whnf(instantiate(binding_body(dom), locals.push_local_from_binding(dom)));
+        }
+        auto fn = get_app_fn(dom);
+        if (is_constant(fn) && const_name(fn) == decl.m_name) {
             rec_mask.push_back(true);
+            r++;
         } else {
             rec_mask.push_back(false);
         }
-        type = binding_body(type);
+        type = tc.whnf(instantiate(binding_body(type), locals.push_local_from_binding(type)));
     }
     return r;
 }

@@ -1,0 +1,20 @@
+1814.lean:4:8: error: invalid type ascription, term has type
+  p
+but is expected to have type
+  p
+types contain aliased name(s): p
+remark: the tactic `dedup` can be used to rename aliases
+state:
+p p : Prop,
+h1 : p,
+h2 : p
+⊢ p
+1814.lean:11:8: error: invalid type ascription, term has type
+  p_1
+but is expected to have type
+  p
+state:
+p p_1 : Prop,
+h1 : p,
+h2 : p_1
+⊢ p

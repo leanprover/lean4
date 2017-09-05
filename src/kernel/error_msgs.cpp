@@ -5,7 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include "util/name_map.h"
+#include "util/name_set.h"
 #include "kernel/replace_fn.h"
+#include "kernel/for_each_fn.h"
 #include "kernel/error_msgs.h"
 
 namespace lean {
@@ -80,10 +83,34 @@ std::tuple<formatter, format, format> pp_until_different(formatter const & fmt, 
     return pp_until_different(fmt, e1, e2, *g_distinguishing_pp_options);
 }
 
+static void check_alias(name const & n, name const & id, name_map<name> & name_to_id, name_set & aliased) {
+    if (name const * old_id = name_to_id.find(n)) {
+        if (id != *old_id) {
+            aliased.insert(n);
+        }
+    } else {
+        name_to_id.insert(n, id);
+    }
+}
+
+static void collect_aliased_locals(expr const & e, name_map<name> & name_to_id, name_set & aliased) {
+    for_each(e, [&](expr const & t, unsigned) {
+            if (is_local(t) || is_metavar(t)) {
+                check_alias(mlocal_pp_name(t), mlocal_name(t), name_to_id, aliased);
+            } else if (is_constant(t)) {
+                check_alias(const_name(t), const_name(t), name_to_id, aliased);
+            }
+            return true;
+        });
+}
+
 format pp_type_mismatch(formatter const & _fmt, expr const & given_type, expr const & expected_type,
                         optional<expr> const & given_type_type,
                         optional<expr> const & expected_type_type) {
     formatter fmt(_fmt);
+    name_map<name> name_to_id; name_set aliased;
+    collect_aliased_locals(given_type, name_to_id, aliased);
+    collect_aliased_locals(expected_type, name_to_id, aliased);
     format expected_fmt, given_fmt;
     std::tie(fmt, expected_fmt, given_fmt) = pp_until_different(fmt, expected_type, given_type);
     format r;
@@ -99,6 +126,13 @@ format pp_type_mismatch(formatter const & _fmt, expr const & given_type, expr co
         r += given_fmt;
         r += compose(line(), format("but is expected to have type"));
         r += expected_fmt;
+    }
+    if (!aliased.empty()) {
+        r += line() + format("types contain aliased name(s):");
+        aliased.for_each([&](name const & n) {
+                r += space() + format(n);
+            });
+        r += line() + format("remark: the tactic `dedup` can be used to rename aliases");
     }
     return r;
 }

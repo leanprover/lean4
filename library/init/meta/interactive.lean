@@ -1121,4 +1121,21 @@ private meta def add_interactive_aux (new_namespace : name) : list name → comm
 meta def add_interactive (ns : list name) (p : name := `tactic.interactive) : command :=
 add_interactive_aux p ns
 
+meta def has_dup : tactic bool :=
+do ctx ← local_context,
+   let p : name_set × bool :=
+       ctx.foldl (λ ⟨s, r⟩ h,
+          if r then (s, r)
+          else if s.contains h.local_pp_name then (s, tt)
+          else (s.insert h.local_pp_name, ff))
+        (mk_name_set, ff),
+   return p.2
+
+/-- Rename hypotheses with the same name. -/
+meta def dedup : tactic unit :=
+mwhen has_dup $ do
+  ctx ← local_context,
+  n   ← revert_lst ctx,
+  intron n
+
 end add_interactive

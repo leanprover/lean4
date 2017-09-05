@@ -62,6 +62,8 @@ def list.append : list α → list α → list α
 
 * leanpkg now stores the intended Lean version in the `leanpkg.toml` file and reports a warning if the version does not match the installed Lean version.
 
+* `simp` and `dsimp` can now unfold let-bindings in the local context.  Use `dsimp [x]` or `simp [x]` to unfold the let-binding `x : nat := 3`.
+
 *Changes*
 
 * We now have two type classes for converting to string: `has_to_string` and `has_repr`.

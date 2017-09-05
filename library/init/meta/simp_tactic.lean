@@ -271,19 +271,8 @@ private meta def is_equation : expr → bool
 | (expr.pi n bi d b) := is_equation b
 | e                  := match (expr.is_eq e) with (some a) := tt | none := ff end
 
-private meta def collect_simps : list expr → tactic (list expr)
-| []        := return []
-| (h :: hs) := do
-  result ← collect_simps hs,
-  htype  ← infer_type h >>= whnf,
-  if is_equation htype
-  then return (h :: result)
-  else do
-    pr ← is_prop htype,
-    return $ if pr then (h :: result) else result
-
 meta def collect_ctx_simps : tactic (list expr) :=
-local_context >>= collect_simps
+local_context
 
 section simp_intros
 

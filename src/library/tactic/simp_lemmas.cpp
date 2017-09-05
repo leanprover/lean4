@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/idx_metavar.h"
 #include "library/attribute_manager.h"
 #include "library/relation_manager.h"
+#include "library/app_builder.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_option.h"
@@ -526,12 +527,25 @@ class to_ceqvs_fn {
         }
     }
 
+    list<expr_pair> get_zeta(expr const & H) {
+        if (!is_local_decl_ref(H)) return list<expr_pair>();
+        if (auto decl = m_ctx.lctx().find_local_decl(H)) {
+            if (auto val = decl->get_value()) {
+                auto ty = mk_app(m_ctx, get_eq_name(), H, *val);
+                auto pr = mk_app(m_ctx, get_eq_refl_name(), H);
+                return mk_singleton(ty, pr);
+            }
+        }
+        return list<expr_pair>();
+    }
+
 public:
     to_ceqvs_fn(type_context & ctx):m_env(ctx.env()), m_ctx(ctx) {}
 
     list<expr_pair> operator()(name const & id, expr const & e, expr const & H) {
         bool restricted = false;
         list<expr_pair> lst = apply(e, H, restricted);
+        lst = append(get_zeta(H), lst);
         return filter(lst, [&](expr_pair const & p) { return is_ceqv(m_ctx, id, p.first); });
     }
 };
@@ -673,6 +687,11 @@ static void report_failure(sstream const & strm) {
     }
 }
 
+static bool is_refl_app(expr const & pr) {
+    auto & fn = get_app_fn(pr);
+    return is_constant(fn) && const_name(fn) == get_eq_refl_name();
+}
+
 static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name const & id,
                             levels const & univ_metas, buffer<expr> const & _emetas,
                             expr const & e, expr const & h, unsigned priority) {
@@ -699,9 +718,16 @@ static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name cons
         }
         expr rel, lhs, rhs;
         if (is_simp_relation(env, rule, rel, lhs, rhs) && is_constant(rel)) {
-            new_s.insert(const_name(rel), mk_simp_lemma(id, univ_metas, reverse_to_list(emetas),
-                                                        reverse_to_list(instances), lhs, rhs,
-                                                        proof, is_perm, priority));
+            if (is_refl_app(proof)) {
+                // This case is for zeta-reduction, regular rfl-lemmas are already handled in add_core(name, ...)
+                new_s.insert(const_name(rel), mk_rfl_lemma(id, univ_metas, reverse_to_list(emetas),
+                                                           reverse_to_list(instances), lhs, rhs,
+                                                           proof, priority));
+            } else {
+                new_s.insert(const_name(rel), mk_simp_lemma(id, univ_metas, reverse_to_list(emetas),
+                                                            reverse_to_list(instances), lhs, rhs,
+                                                            proof, is_perm, priority));
+            }
         }
     }
     return new_s;

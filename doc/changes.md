@@ -224,6 +224,8 @@ The available commands can be found [here](https://github.com/leanprover/lean/bl
 
 - `state` and `state_t` are universe polymorphic.
 
+* `option_map` and `option_bind` have been renamed to `option.map` and `option.bind`, respectively.
+
 * GCC 7 compatibility
 
 * Use single quotes for character literals (e.g., 'a').

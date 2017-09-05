@@ -321,13 +321,16 @@ rs.mmap' $ λ r, do
    (eq_lemmas.mfirst $ λ n, do e ← mk_const n, rewrite_target e {cfg with symm := r.symm})
    (eq_lemmas.empty)
 
+private meta def uses_hyp (e : expr) (h : expr) : bool :=
+e.fold ff $ λ t _ r, r || to_bool (t = h)
+
 private meta def rw_hyp (cfg : rewrite_cfg) : list rw_rule → expr → tactic unit
 | []      hyp := skip
 | (r::rs) hyp := do
   save_info r.pos,
   eq_lemmas ← get_rule_eqn_lemmas r,
   orelse'
-    (do e ← to_expr' r.rule, rewrite_hyp e hyp {cfg with symm := r.symm} >>= rw_hyp rs)
+    (do e ← to_expr' r.rule, when (not (uses_hyp e hyp)) $ rewrite_hyp e hyp {cfg with symm := r.symm} >>= rw_hyp rs)
     (eq_lemmas.mfirst $ λ n, do e ← mk_const n, rewrite_hyp e hyp {cfg with symm := r.symm} >>= rw_hyp rs)
     (eq_lemmas.empty)
 
@@ -1028,6 +1031,9 @@ do e ← to_expr p, guard (alpha_eqv t e)
 
 meta def guard_target (p : parse texpr) : tactic unit :=
 do t ← target, guard_expr_eq t p
+
+meta def guard_hyp (n : parse ident) (p : parse $ tk ":=" *> texpr) : tactic unit :=
+do h ← get_local n >>= infer_type, guard_expr_eq h p
 
 meta def by_cases (q : parse texpr) (n : parse (tk "with" *> ident)?): tactic unit :=
 do p ← tactic.to_expr_strict q,

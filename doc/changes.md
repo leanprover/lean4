@@ -109,6 +109,8 @@ For more details, see discussion [here](https://github.com/leanprover/lean/pull/
 * Changed notation `rw [-h]` to `rw [← h]` to avoid confusion with the new `simp [-h]` notation.
   The ASCII version `rw [<- h]` is also supported.
 
+* `rw [t] at *` now skips any hypothesis used by `t`. See discussion [here](https://github.com/leanprover/lean/issues/1813).
+
 * Removed the redundant keywords `take` (replace with `assume`) and `suppose` (replace with the new anonymous `assume :`)
 
 * Universes `max u v + 1` and `imax u v + 1` are now parsed as `(max u v) + 1` and `(imax u v) + 1`.

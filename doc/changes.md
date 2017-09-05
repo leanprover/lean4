@@ -128,6 +128,9 @@ For more details, see discussion [here](https://github.com/leanprover/lean/pull/
   `strict_order`, `order_pair`, and `strong_order_pair`.  The `linear_order`
   class corresponds to `linear_order_pair`, and `linear_strong_order_pair`.
 
+* `injection` and `injections` tactics generate fresh names when user does not provide names.
+  The fresh names are of the form `h_<idx>`. See discussion [here](https://github.com/leanprover/lean/issues/1805).
+
 *API name changes*
 
 * `list.dropn` => `list.drop`

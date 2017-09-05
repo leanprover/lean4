@@ -14,18 +14,25 @@ private meta def at_end₂ (e₁ e₂ : expr) : ℕ → tactic (list (option exp
 | (n+3) :=  (λ xs, none :: xs) <$> at_end₂ (n+2)
 | _ := fail "at_end expected arity > 1"
 
--- Auxiliary function for introducing the new equalities produced by the
--- injection tactic
-private meta def injection_intro : expr → list name → tactic (list expr × list name)
-| (pi n bi b d) ns := do
-  let hname := @head _ ⟨`h⟩ ns,
-  h ← intro hname,
-  (l, ns') ← injection_intro d (tail ns),
-  return (h :: l, ns')
-| e  ns           := return ([], ns)
+private meta def mk_next_name : name → nat → tactic (name × nat)
+| n i := do
+  let n' := n.append_after i,
+  (get_local n' >> mk_next_name n (i+1))
+  <|>
+  (return (n', i+1))
 
--- Tries to decompose the given expression by constructor injectivity.
--- Returns the list of new hypotheses, and the remaining names from the given list.
+/- Auxiliary function for introducing the new equalities produced by the
+   injection tactic. -/
+private meta def injection_intro : expr → nat → list name → tactic (list expr × list name)
+| (pi n bi b d) i ns := do
+  (hname, i) ← if ns.empty then mk_next_name `h i else return (head ns, i),
+  h ← intro hname,
+  (l, ns') ← injection_intro d i (tail ns),
+  return (h :: l, ns')
+| e  i ns            := return ([], ns)
+
+/- Tries to decompose the given expression by constructor injectivity.
+   Returns the list of new hypotheses, and the remaining names from the given list. -/
 meta def injection_with (h : expr) (ns : list name) : tactic (list expr × list name) :=
 do
   ht ← infer_type h,
@@ -46,7 +53,7 @@ do
       pr_type ← infer_type pr,
       pr_type ← whnf pr_type,
       eapply pr,
-      injection_intro (binding_domain pr_type) ns
+      injection_intro (binding_domain pr_type) 1 ns
     else fail "injection tactic failed, argument must be an equality proof where lhs and rhs are of the form (c ...), where c is a constructor"
   else do
     tgt ← target,

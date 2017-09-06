@@ -1,1 +1,1 @@
-example_false.lean:3:8: error: failed to add declaration to environment, it contains local constants
+example_false.lean:3:0: error: failed to add declaration to environment, it contains local constants

@@ -723,6 +723,7 @@ static void check_example(environment const & decl_env, options const & opts,
                           parser_pos_provider pos_provider, bool use_info_manager, std::string const & file_name) {
     auto tc = std::make_shared<type_context>(decl_env, opts, mctx, lctx);
     scope_trace_env scope2(decl_env, opts, *tc);
+    scope_traces_as_messages scope2a(file_name, pos_provider.get_some_pos());
     scope_pos_info_provider scope3(pos_provider);
     auto_reporting_info_manager_scope scope4(file_name, use_info_manager);
     module::scope_pos_info scope_pos(pos_provider.get_some_pos());
@@ -830,7 +831,7 @@ environment single_definition_cmd_core(parser & p, def_cmd_kind kind, cmd_meta m
             auto new_params_list = to_list(new_params);
             auto mctx = elab.mctx();
             auto lctx = elab.lctx();
-            auto pos_provider = p.get_parser_pos_provider(header_pos);
+            auto pos_provider = p.get_parser_pos_provider(p.cmd_pos());
             bool use_info_manager = get_global_info_manager() != nullptr;
             bool noncomputable_theory = p.ignore_noncomputable();
             std::string file_name = p.get_file_name();

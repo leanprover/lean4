@@ -1,4 +1,4 @@
-ite ↑tt 1 0 : ℕ
+ite ↥tt 1 0 : ℕ
 no_coe.lean:5:7: error: type mismatch at application
   ite tt
 term

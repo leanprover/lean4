@@ -1,4 +1,4 @@
-ite tt "a" "b" : string
+ite ↥tt "a" "b" : string
 sine x : real
 sine n : real
 sine i : real

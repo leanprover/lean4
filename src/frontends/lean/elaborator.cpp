@@ -678,6 +678,11 @@ optional<expr> elaborator::mk_coercion(expr const & e, expr e_type, expr type, e
     synthesize_type_class_instances();
     e_type = instantiate_mvars(e_type);
     type   = instantiate_mvars(type);
+    if (!has_expr_metavar(e_type) && is_pi(whnf(type))) {
+        if (auto r = mk_coercion_to_fn(e, e_type, ref)) {
+            return r;
+        }
+    }
     if (!has_expr_metavar(e_type) && !has_expr_metavar(type)) {
         return mk_coercion_core(e, e_type, type, ref);
     } else if (auto r = try_monad_coercion(e, e_type, type, ref)) {

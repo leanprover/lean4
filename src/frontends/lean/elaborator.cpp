@@ -678,20 +678,28 @@ optional<expr> elaborator::mk_coercion(expr const & e, expr e_type, expr type, e
     synthesize_type_class_instances();
     e_type = instantiate_mvars(e_type);
     type   = instantiate_mvars(type);
-    if (!has_expr_metavar(e_type) && is_pi(whnf(type))) {
-        if (auto r = mk_coercion_to_fn(e, e_type, ref)) {
-            return r;
+    if (auto r = try_monad_coercion(e, e_type, type, ref)) {
+        return r;
+    }
+    if (!has_expr_metavar(e_type)) {
+        auto whnf_type = whnf(type);
+        if (is_pi(whnf_type)) {
+            if (auto r = mk_coercion_to_fn(e, e_type, ref)) {
+                return r;
+            }
+        }
+        if (is_sort(whnf_type)) {
+            if (auto r = mk_coercion_to_sort(e, e_type, ref)) {
+                return r;
+            }
+        }
+        if (!has_expr_metavar(type)) {
+            return mk_coercion_core(e, e_type, type, ref);
         }
     }
-    if (!has_expr_metavar(e_type) && !has_expr_metavar(type)) {
-        return mk_coercion_core(e, e_type, type, ref);
-    } else if (auto r = try_monad_coercion(e, e_type, type, ref)) {
-        return r;
-    } else {
-        trace_coercion_failure(e_type, type, ref,
-                               "was not considered because types contain metavariables");
-        return none_expr();
-    }
+    trace_coercion_failure(e_type, type, ref,
+                            "was not considered because types contain metavariables");
+    return none_expr();
 }
 
 bool elaborator::is_def_eq(expr const & e1, expr const & e2) {

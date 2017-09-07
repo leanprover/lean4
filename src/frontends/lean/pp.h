@@ -143,7 +143,7 @@ private:
     result pp_explicit(expr const & e);
     result pp_delayed_abstraction(expr const & e);
     result pp_let(expr e);
-    result pp_num(mpz const & n);
+    result pp_num(mpz const & n, unsigned bp);
     result pp_prod(expr const & e);
     void set_options_core(options const & o);
 

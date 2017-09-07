@@ -624,7 +624,7 @@ auto pretty_fn::pp_child(expr const & e, unsigned bp, bool ignore_hide) -> resul
         if (auto r = pp_local_ref(e))
             return add_paren_if_needed(*r, bp);
         if (m_numerals) {
-            if (auto n = to_num(e)) return pp_num(*n);
+            if (auto n = to_num(e)) return pp_num(*n, bp);
         }
         if (m_strings) {
             if (auto r = to_string(e)) return pp_string_literal(*r);
@@ -1241,7 +1241,13 @@ auto pretty_fn::pp_let(expr e) -> result {
     return result(0, r);
 }
 
-auto pretty_fn::pp_num(mpz const & n) -> result {
+auto pretty_fn::pp_num(mpz const & n, unsigned bp) -> result {
+    if (n.is_neg()) {
+        auto prec = get_expr_precedence(m_token_table, "-");
+        if (!prec || bp > *prec) {
+            return result(paren(format(n.to_string())));
+        }
+    }
     return result(format(n.to_string()));
 }
 
@@ -1371,7 +1377,7 @@ static unsigned get_some_precedence(token_table const & t, name const & tk) {
 auto pretty_fn::pp_notation_child(expr const & e, unsigned lbp, unsigned rbp) -> result {
     if (is_app(e)) {
         if (m_numerals) {
-            if (auto n = to_num(e)) return pp_num(*n);
+            if (auto n = to_num(e)) return pp_num(*n, lbp);
         }
         if (m_strings) {
             if (auto r = to_string(e)) return pp_string_literal(*r);
@@ -1747,7 +1753,7 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
     m_num_steps++;
 
     if (m_numerals) {
-        if (auto n = to_num(e)) return pp_num(*n);
+        if (auto n = to_num(e)) return pp_num(*n, 0);
     }
     if (m_strings) {
         if (auto r = to_string(e))      return pp_string_literal(*r);

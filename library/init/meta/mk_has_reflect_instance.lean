@@ -3,7 +3,7 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 
-Helper tactic for constructing has_reflect instance.
+Helper tactic for constructing a has_reflect instance.
 -/
 prelude
 import init.meta.rec_util
@@ -33,6 +33,7 @@ do t    ← infer_type a,
      fail (to_fmt "mk_has_reflect_instance failed, failed to generate instance for" ++ format.nest 2 (format.line ++ f)) },
      mk_app `reflect [a, inst] }
 
+/- Synthesize (recursive) instances of `reflected` for all fields -/
 private meta def mk_reflect : name → name → list name → nat → tactic (list expr)
 | I_name F_name []              num_rec := return []
 | I_name F_name (fname::fnames) num_rec := do
@@ -42,11 +43,16 @@ private meta def mk_reflect : name → name → list name → nat → tactic (li
   quotes   ← mk_reflect I_name F_name fnames (if rec then num_rec + 1 else num_rec),
   return (quote :: quotes)
 
+/- Solve the subgoal for constructor `F_name` -/
 private meta def has_reflect_case (I_name F_name : name) (field_names : list name) : tactic unit :=
 do field_quotes ← mk_reflect I_name F_name field_names 0,
+   -- fn should be of the form `F_name ps fs`, where ps are the inductive parameter arguments,
+   -- and `fs.length = field_names.length`
    `(reflected %%fn) ← target,
+   -- `reflected (F_name ps)` should be synthesizable directly, using instances from the context
    let fn := field_names.foldl (λ fn _, expr.app_fn fn) fn,
    quote ← mk_app `reflected [fn] >>= mk_instance,
+   -- now extend to an instance of `reflected (F_name ps fs)`
    quote ← field_quotes.mfoldl (λ quote fquote, to_expr ``(reflected.subst %%quote %%fquote)) quote,
    exact quote
 
@@ -56,6 +62,9 @@ private meta def for_each_has_reflect_goal : name → name → list (list name) 
   solve1 (has_reflect_case I_name F_name ns),
   for_each_has_reflect_goal I_name F_name nss
 
+/-- Solves a goal of the form `has_reflect α` where α is an inductive type.
+    Needs to synthesize a `reflected` instance for each inductive parameter type of α
+    and for each constructor parameter of α. -/
 meta def mk_has_reflect_instance : tactic unit :=
 do I_name ← get_has_reflect_type_name,
    env ← get_env,

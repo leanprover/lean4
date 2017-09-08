@@ -131,11 +131,11 @@ elaborator_strategy get_elaborator_strategy(environment const & env, name const 
 
 elaborator::elaborator(environment const & env, options const & opts, name const & decl_name,
                        metavar_context const & mctx, local_context const & lctx, bool recover_from_errors,
-                       bool in_pattern, bool in_quote):
+                       bool in_pattern):
     m_env(env), m_opts(opts), m_decl_name(decl_name),
     m_ctx(env, opts, mctx, lctx, get_tcm(), transparency_mode::Semireducible),
     m_recover_from_errors(recover_from_errors),
-    m_uses_infom(get_global_info_manager() != nullptr), m_in_pattern(in_pattern), m_in_quote(in_quote) {
+    m_uses_infom(get_global_info_manager() != nullptr), m_in_pattern(in_pattern) {
     m_coercions = get_elaborator_coercions(opts);
 }
 
@@ -320,9 +320,7 @@ bool elaborator::ready_to_synthesize(expr inst_type) {
 }
 
 expr elaborator::mk_instance(expr const & C, expr const & ref) {
-    if (m_in_pattern && m_in_quote) {
-        return mk_expr_placeholder(some(C));
-    } else if (!ready_to_synthesize(C)) {
+    if (!ready_to_synthesize(C)) {
         expr inst = mk_metavar(C, ref);
         m_instances = cons(inst, m_instances);
         return inst;
@@ -3699,7 +3697,6 @@ void elaborator::report_error(tactic_state const & s, char const * state_header,
 
 void elaborator::ensure_no_unassigned_metavars(expr & e) {
     // TODO(gabriel): this needs to change e
-    if (!has_expr_metavar(e) || (m_in_pattern && m_in_quote)) return;
     for_each(e, [&](expr const & e, unsigned) {
             if (!has_expr_metavar(e)) return false;
             if (is_metavar_decl_ref(e) && !m_ctx.is_assigned(e)) {

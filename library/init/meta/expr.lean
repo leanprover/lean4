@@ -149,7 +149,10 @@ id
 
 @[inline] meta def reflected.subst {α : Sort v} {β : α → Sort u} {f : Π a : α, β a} {a : α} :
   reflected f → reflected a → reflected (f a) :=
-expr.subst
+λ ef ea, match ef with
+| (expr.lam _ _ _ _) := expr.subst ef ea
+| _                  := expr.app   ef ea
+end
 
 meta constant expr.reflect (e : expr elab) : reflected e
 meta constant string.reflect (s : string) : reflected s

@@ -1045,8 +1045,6 @@ struct structure_cmd_fn {
         add_alias(m_given_name, m_name);
         add_alias(m_mk);
         add_rec_alias(rec_name);
-        m_env = m_meta_info.m_attrs.apply(m_env, m_p.ios(), m_name);
-
         m_env = add_structure_declaration_aux(m_env, m_p.get_options(), m_level_names, m_params,
                                               mk_local(m_name, mk_structure_type_no_params()),
                                               mk_local(m_mk, mk_intro_type_no_params()), is_trusted);
@@ -1296,6 +1294,7 @@ struct structure_cmd_fn {
             declare_no_confusion();
             declare_injective_lemmas();
         }
+        m_env = m_meta_info.m_attrs.apply(m_env, m_p.ios(), m_name);
         return m_env;
     }
 };

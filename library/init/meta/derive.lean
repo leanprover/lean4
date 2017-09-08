@@ -8,7 +8,7 @@ Attribute that can automatically derive typeclass instances.
 prelude
 import init.meta.attribute
 import init.meta.interactive_base
-import init.meta.mk_dec_eq_instance
+import init.meta.mk_has_reflect_instance
 import init.meta.mk_has_sizeof_instance
 import init.meta.mk_inhabited_instance
 
@@ -41,18 +41,21 @@ do success ← h p n,
      handlers ← handlers.mmap (λ n, eval_expr derive_handler (expr.const n [])),
      ps.mmap' (λ p, try_handlers p n handlers)) }
 
-meta def instance_derive_handler (cls : name) (tac : tactic unit) : derive_handler :=
+meta def instance_derive_handler (cls : name) (tac : tactic unit) (univ_poly := tt)
+  (modify_target : name → list expr → expr → tactic expr := λ _ _, pure) : derive_handler :=
 λ p n,
 if p.is_constant_of cls then
 do decl ← get_decl n,
    cls_decl ← get_decl cls,
    env ← get_env,
    guard (env.is_inductive n) <|> fail format!"failed to derive '{cls}', '{n}' is not an inductive type",
-   let tgt : expr := expr.const n (decl.univ_params.map level.param),
-   ⟨params, _⟩ ← mk_local_pis decl.type,
+   let ls := decl.univ_params.map $ λ n, if univ_poly then level.param n else level.zero,
+   let tgt : expr := expr.const n ls,
+   ⟨params, _⟩ ← mk_local_pis (decl.type.instantiate_univ_params (decl.univ_params.zip ls)),
    let params := params.take (env.inductive_num_params n),
    let tgt := tgt.mk_app params,
    tgt ← mk_app cls [tgt],
+   tgt ← modify_target n params tgt,
    tgt ← params.mfoldr (λ param tgt,
    do param_cls ← mk_app cls [param],
       -- TODO(sullrich): omit some typeclass parameters based on usage of `param`?
@@ -62,16 +65,26 @@ do decl ← get_decl n,
    (_, val) ← tactic.solve_aux tgt (intros >> tac),
    val ← instantiate_mvars val,
    let trusted := decl.is_trusted ∧ cls_decl.is_trusted,
-   add_decl (declaration.defn (n ++ cls) decl.univ_params tgt val reducibility_hints.abbrev trusted),
+   add_decl (declaration.defn (n ++ cls)
+             (if univ_poly then decl.univ_params else [])
+             tgt val reducibility_hints.abbrev trusted),
    set_basic_attribute `instance (n ++ cls) tt,
    pure true
 else pure false
 
-@[derive_handler] meta def decidable_eq_derive_handler :=
-instance_derive_handler ``decidable_eq mk_dec_eq_instance
+@[derive_handler] meta def has_reflect_derive_handler :=
+instance_derive_handler ``has_reflect mk_has_reflect_instance ff (λ n params tgt,
+-- add additional `reflected` assumption for each parameter
+params.mfoldr (λ param tgt,
+do param_cls ← mk_app `reflected [param],
+   let tgt := expr.pi `a binder_info.inst_implicit param_cls tgt,
+   pure $ tgt
+) tgt)
 
 @[derive_handler] meta def has_sizeof_derive_handler :=
 instance_derive_handler ``has_sizeof mk_has_sizeof_instance
 
 @[derive_handler] meta def inhabited_derive_handler :=
 instance_derive_handler ``inhabited mk_inhabited_instance
+
+attribute [derive has_reflect] bool prod sum option interactive.loc pos

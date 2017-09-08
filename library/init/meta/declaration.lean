@@ -89,6 +89,11 @@ meta def value_task : declaration → task expr
 | (thm _ _ _ v)      := v
 | _                  := task.pure (default expr)
 
+meta def is_trusted : declaration → bool
+| (defn _ _ _ _ _ t) := t
+| (cnst _ _ _ t)     := t
+| _                  := tt
+
 meta def update_type : declaration → expr → declaration
 | (defn n ls t v h tr) new_t := defn n ls new_t v h tr
 | (thm n ls t v)       new_t := thm n ls new_t v

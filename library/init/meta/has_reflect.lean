@@ -8,10 +8,6 @@ import init.meta.expr init.util
 
 @[reducible] meta def {u} has_reflect (α : Sort u) := Π a : α, reflected a
 
-meta instance bool.reflect : has_reflect bool
-| tt := `(tt)
-| ff := `(ff)
-
 section
 local attribute [semireducible] reflected
 
@@ -26,6 +22,9 @@ meta instance unsigned.reflect : has_reflect unsigned
 
 end
 
+/- Instances that [derive] depends on. All other basic instances are defined at the end of
+   derive.lean. -/
+
 meta instance name.reflect : has_reflect name
 | name.anonymous        := `(name.anonymous)
 | (name.mk_string  s n) := `(λ n, name.mk_string  s n).subst (name.reflect n)
@@ -35,22 +34,6 @@ meta instance list.reflect {α : Type} [has_reflect α] [reflected α] : has_ref
 | []     := `([])
 | (h::t) := `(λ t, h :: t).subst (list.reflect t)
 
-meta instance option.reflect {α : Type} [has_reflect α] [reflected α] : has_reflect (option α)
-| (some x) := `(_)
-| none     := `(_)
-
 meta instance unit.reflect : has_reflect unit
 | () := `(_)
-
-meta instance prod.reflect {α β : Type} [has_reflect α] [reflected α] [has_reflect β] [reflected β]
-  : has_reflect (α × β)
-| ⟨x, y⟩ := `(_)
-
-meta instance pos.reflect : has_reflect pos
-| ⟨l, c⟩ := `(_)
-
-meta instance sum.reflect {α β : Type} [has_reflect α] [reflected α] [has_reflect β] [reflected β]
-  : has_reflect (sum α β)
-| (sum.inl _) := `(_)
-| (sum.inr _) := `(_)
 

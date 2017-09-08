@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.meta.tactic init.data.option_t
-import init.meta.derive
+import init.meta.mk_dec_eq_instance
 
 meta constant vm_obj : Type
 

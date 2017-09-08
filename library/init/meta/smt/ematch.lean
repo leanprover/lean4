@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.meta.smt.congruence_closure
 import init.meta.attribute init.meta.simp_tactic
-import init.meta.interactive_base
+import init.meta.interactive_base init.meta.derive
 open tactic
 
 /-- Heuristic instantiation lemma -/

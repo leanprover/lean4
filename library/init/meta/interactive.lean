@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.meta.tactic init.meta.rewrite_tactic init.meta.simp_tactic
 import init.meta.smt.congruence_closure init.category.combinators
-import init.meta.interactive_base
+import init.meta.interactive_base init.meta.derive
 
 open lean
 open lean.parser
@@ -289,13 +289,11 @@ match p with
 | _                     := i_to_expr p
 end
 
+@[derive has_reflect]
 meta structure rw_rule :=
 (pos  : pos)
 (symm : bool)
 (rule : pexpr)
-
-meta instance rw_rule.reflect : has_reflect rw_rule :=
-λ ⟨p, s, r⟩, `(_)
 
 meta def get_rule_eqn_lemmas (r : rw_rule) : tactic (list name) :=
 let aux (n : name) : tactic (list name) := do {
@@ -337,12 +335,10 @@ private meta def rw_hyp (cfg : rewrite_cfg) : list rw_rule → expr → tactic u
 meta def rw_rule_p (ep : parser pexpr) : parser rw_rule :=
 rw_rule.mk <$> cur_pos <*> (option.is_some <$> (with_desc "←" (tk "←" <|> tk "<-"))?) <*> ep
 
+@[derive has_reflect]
 meta structure rw_rules_t :=
 (rules   : list rw_rule)
 (end_pos : option pos)
-
-meta instance rw_rules_t.reflect : has_reflect rw_rules_t :=
-λ ⟨rs, p⟩, `(_)
 
 -- accepts the same content as `pexpr_list_or_texpr`, but with correct goal info pos annotations
 meta def rw_rules : parser rw_rules_t :=
@@ -720,16 +716,11 @@ meta structure simp_config_ext extends simp_config :=
 section mk_simp_set
 open expr interactive.types
 
+@[derive has_reflect]
 meta inductive simp_arg_type : Type
 | all_hyps : simp_arg_type
 | except   : name  → simp_arg_type
 | expr     : pexpr → simp_arg_type
-
-
-meta instance : has_reflect simp_arg_type
-| simp_arg_type.all_hyps   := `(_)
-| (simp_arg_type.except _) := `(_)
-| (simp_arg_type.expr _)   := `(_)
 
 meta def simp_arg : parser simp_arg_type :=
 (tk "*" *> return simp_arg_type.all_hyps) <|> (tk "-" *> simp_arg_type.except <$> ident) <|> (simp_arg_type.expr <$> texpr)

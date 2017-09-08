@@ -137,6 +137,9 @@ do env ← get_env,
 meta instance binder_info.has_decidable_eq : decidable_eq binder_info :=
 by mk_dec_eq_instance
 
+@[derive_handler] meta def decidable_eq_derive_handler :=
+instance_derive_handler ``decidable_eq tactic.mk_dec_eq_instance
+
 end tactic
 
 /- instances of types in dependent files -/

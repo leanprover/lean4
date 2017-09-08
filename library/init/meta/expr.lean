@@ -141,7 +141,7 @@ meta constant expr.has_local_in : expr → name_set → bool
 
     The quotation expression `(a) (outside of patterns) is equivalent to `reflect a`
     and thus can be used as an explicit way of inferring an instance of `reflected a`. -/
-meta def reflected {α : Sort u} : α → Type :=
+@[class] meta def reflected {α : Sort u} : α → Type :=
 λ _, expr
 
 @[inline] meta def reflected.to_expr {α : Sort u} {a : α} : reflected a → expr :=
@@ -154,17 +154,15 @@ id
 | _                  := expr.app   ef ea
 end
 
-meta constant expr.reflect (e : expr elab) : reflected e
-meta constant string.reflect (s : string) : reflected s
-
-attribute [class] reflected
-attribute [instance] expr.reflect string.reflect
 attribute [irreducible] reflected reflected.subst reflected.to_expr
+
+@[instance] protected meta constant expr.reflect (e : expr elab) : reflected e
+@[instance] protected meta constant string.reflect (s : string) : reflected s
 
 @[inline] meta instance {α : Sort u} (a : α) : has_coe (reflected a) expr :=
 ⟨reflected.to_expr⟩
 
-meta def reflect {α : Sort u} (a : α) [h : reflected a] : reflected a := h
+protected meta def reflect {α : Sort u} (a : α) [h : reflected a] : reflected a := h
 
 meta instance {α} (a : α) : has_to_format (reflected a) :=
 ⟨λ h, to_fmt h.to_expr⟩
@@ -231,6 +229,15 @@ get_app_args_aux []
 meta def mk_app : expr → list expr → expr
 | e []      := e
 | e (x::xs) := mk_app (e x) xs
+
+meta def mk_binding (ctor : name → binder_info → expr → expr → expr) (e : expr) : Π (l : expr), expr
+| (local_const n pp_n bi ty) := ctor pp_n bi ty (e.abstract_local n)
+| _                          := e
+
+/-- (bind_pi e l) abstracts and pi-binds the local `l` in `e` -/
+meta def bind_pi := mk_binding pi
+/-- (bind_lambda e l) abstracts and lambda-binds the local `l` in `e` -/
+meta def bind_lambda := mk_binding lam
 
 meta def ith_arg_aux : expr → nat → expr
 | (app f a) 0     := a

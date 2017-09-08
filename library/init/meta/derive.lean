@@ -45,11 +45,24 @@ meta def instance_derive_handler (cls : name) (tac : tactic unit) : derive_handl
 λ p n,
 if p.is_constant_of cls then
 do decl ← get_decl n,
-   -- TODO: parameters, parameter instances, universes
-   ty ← mk_app cls [expr.const n []],
-   (_, val) ← tactic.solve_aux ty tac,
+   cls_decl ← get_decl cls,
+   env ← get_env,
+   guard (env.is_inductive n) <|> fail format!"failed to derive '{cls}', '{n}' is not an inductive type",
+   let tgt : expr := expr.const n (decl.univ_params.map level.param),
+   ⟨params, _⟩ ← mk_local_pis decl.type,
+   let params := params.take (env.inductive_num_params n),
+   let tgt := tgt.mk_app params,
+   tgt ← mk_app cls [tgt],
+   tgt ← params.mfoldr (λ param tgt,
+   do param_cls ← mk_app cls [param],
+      -- TODO(sullrich): omit some typeclass parameters based on usage of `param`?
+      let tgt := expr.pi `a binder_info.inst_implicit param_cls tgt,
+      pure $ tgt.bind_pi param
+   ) tgt,
+   (_, val) ← tactic.solve_aux tgt (intros >> tac),
    val ← instantiate_mvars val,
-   add_decl (declaration.defn (n ++ cls) [] ty val reducibility_hints.abbrev tt),
+   let trusted := decl.is_trusted ∧ cls_decl.is_trusted,
+   add_decl (declaration.defn (n ++ cls) decl.univ_params tgt val reducibility_hints.abbrev trusted),
    set_basic_attribute `instance (n ++ cls) tt,
    pure true
 else pure false

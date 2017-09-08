@@ -35,7 +35,6 @@ begin
   apply vector.eq,
   unfold mk_byte,
   unfold get_data,
-  simp [to_list'_drop],
-  simp [to_list'_cons]
+  simp
 end
 end Ex

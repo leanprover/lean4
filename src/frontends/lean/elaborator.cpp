@@ -131,11 +131,11 @@ elaborator_strategy get_elaborator_strategy(environment const & env, name const 
 
 elaborator::elaborator(environment const & env, options const & opts, name const & decl_name,
                        metavar_context const & mctx, local_context const & lctx, bool recover_from_errors,
-                       bool in_pattern):
+                       bool in_pattern, bool in_quote):
     m_env(env), m_opts(opts), m_decl_name(decl_name),
     m_ctx(env, opts, mctx, lctx, get_tcm(), transparency_mode::Semireducible),
     m_recover_from_errors(recover_from_errors),
-    m_uses_infom(get_global_info_manager() != nullptr), m_in_pattern(in_pattern) {
+    m_uses_infom(get_global_info_manager() != nullptr), m_in_pattern(in_pattern), m_in_quote(in_quote) {
     m_coercions = get_elaborator_coercions(opts);
 }
 
@@ -1269,6 +1269,20 @@ optional<expr> elaborator::process_optional_and_auto_params(expr type, expr cons
         return result_type;
 }
 
+expr elaborator::post_process_implicit_arg(expr const & arg, expr const & ref) {
+    if (m_in_pattern && m_in_quote) {
+        // We ignore implicit arguments in quote patterns so that
+        // only explicitly given syntax is matched. Note that most
+        // implicit arguments in standard patterns are ignore via a
+        // different mechanism in instantiate_pattern_mvars. We cannot
+        // use the same mechanism for quote patterns because inst-implicit
+        // arguments are usually not inferable there.
+        return copy_tag(ref, mk_inaccessible(arg));
+    } else {
+        return arg;
+    }
+}
+
 /* Check if fn args resulting type matches the expected type, and fill
    first_pass_info & info with information collected in this first pass.
    Return true iff the types match.
@@ -1295,6 +1309,7 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
             new_arg = mk_metavar(d, ref);
             if (bi.is_inst_implicit())
                 info.new_instances.push_back(new_arg);
+            new_arg = post_process_implicit_arg(new_arg, ref);
         } else if (i < args.size()) {
             // explicit argument
             expr const & arg_ref = args[i];
@@ -1487,9 +1502,7 @@ expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<
                     new_arg = mk_instance(d, ref);
                 else
                     new_arg = mk_metavar(d, ref);
-                // implicit arguments are tagged as inaccessible in patterns
-                if (m_in_pattern)
-                    new_arg = copy_tag(ref, mk_inaccessible(new_arg));
+                new_arg = post_process_implicit_arg(new_arg, ref);
             } else if (i < args.size()) {
                 expr expected_type = d;
                 optional<expr> thunk_of;
@@ -3697,6 +3710,7 @@ void elaborator::report_error(tactic_state const & s, char const * state_header,
 
 void elaborator::ensure_no_unassigned_metavars(expr & e) {
     // TODO(gabriel): this needs to change e
+    if (!has_expr_metavar(e)) return;
     for_each(e, [&](expr const & e, unsigned) {
             if (!has_expr_metavar(e)) return false;
             if (is_metavar_decl_ref(e) && !m_ctx.is_assigned(e)) {

@@ -1772,7 +1772,8 @@ expr elaborate_quote(expr e, environment const & env, options const & opts) {
 
     metavar_context ctx;
     local_context lctx;
-    elaborator elab(env, opts, "_elab_quote", ctx, lctx, /* recover_from_errors */ false, /* in_pattern */ true);
+    elaborator elab(env, opts, "_elab_quote", ctx, lctx, /* recover_from_errors */ false,
+                    /* in_pattern */ true, /* in_quote */ true);
     e = elab.elaborate(e);
     e = elab.finalize(e, /* check_unassigned */ false, /* to_simple_metavar */ true).first;
 

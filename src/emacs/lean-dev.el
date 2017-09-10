@@ -11,6 +11,6 @@
   (interactive)
   (message (shell-command-to-string (format "yes | ./test_single.sh \"%s\" \"%s\" yes"
                                             (lean-get-executable "lean")
-                                            (buffer-file-name)))))
+                                            (f-filename (buffer-file-name))))))
 
 (provide 'lean-dev)

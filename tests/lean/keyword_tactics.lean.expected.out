@@ -1,14 +1,14 @@
-keyword_tactics.lean:28:2: error: unify tactic failed, failed to unify
+keyword_tactics.lean:34:2: error: unify tactic failed, failed to unify
   bool : Type
 and
   ℕ : Type
 state:
 ⊢ ℕ → ℕ → ℕ
-keyword_tactics.lean:45:15: error: solve1 tactic failed, focused goal has not been solved
+keyword_tactics.lean:51:15: error: solve1 tactic failed, focused goal has not been solved
 state:
 f : ℕ → ℕ
 ⊢ ℕ
-keyword_tactics.lean:51:0: error: tactic failed, there are unsolved goals
+keyword_tactics.lean:57:0: error: tactic failed, there are unsolved goals
 state:
 f : ℕ → ℕ
 ⊢ ℕ → bool

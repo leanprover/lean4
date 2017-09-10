@@ -587,7 +587,7 @@ do t ← target,
     unify ty t.binding_domain,
     intro_core n >> skip
 
-meta def «assume» : parse (sum.inl <$> (tk ":" *> texpr) <|> sum.inr <$> parse_binders) → tactic unit
+meta def «assume» : parse (sum.inl <$> (tk ":" *> texpr) <|> sum.inr <$> parse_binders tac_rbp) → tactic unit
 | (sum.inl ty)      := assume_core `this ty
 | (sum.inr binders) :=
   binders.mmap' $ λ b, assume_core b.local_pp_name b.local_type

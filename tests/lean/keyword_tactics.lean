@@ -10,6 +10,12 @@ begin
   apply n
 end
 
+example : ℕ → ℕ → ℕ :=
+begin
+  assume n : ℕ × ℕ <|> assume n m : ℕ,
+  apply n
+end
+
 example : ¬false :=
 begin
   assume contr,

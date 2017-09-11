@@ -43,6 +43,7 @@ bool operator==(equations_header const & h1, equations_header const & h2) {
     return
         h1.m_num_fns == h2.m_num_fns &&
         h1.m_fn_names == h2.m_fn_names &&
+        h1.m_fn_actual_names == h2.m_fn_actual_names &&
         h1.m_is_private == h2.m_is_private &&
         h1.m_is_lemma == h2.m_is_lemma &&
         h1.m_is_meta == h2.m_is_meta &&
@@ -64,6 +65,7 @@ public:
         s << *g_equations_opcode << m_header.m_num_fns << m_header.m_is_private << m_header.m_is_meta
           << m_header.m_is_noncomputable << m_header.m_is_lemma << m_header.m_aux_lemmas;
         write_list(s, m_header.m_fn_names);
+        write_list(s, m_header.m_fn_actual_names);
     }
     virtual bool operator==(macro_definition_cell const & other) const override {
         if (auto other_ptr = dynamic_cast<equations_macro_cell const *>(&other)) {
@@ -272,6 +274,7 @@ void initialize_equations() {
                                     d >> h.m_num_fns >> h.m_is_private >> h.m_is_meta >> h.m_is_noncomputable
                                       >> h.m_is_lemma >> h.m_aux_lemmas;
                                     h.m_fn_names = read_list<name>(d);
+                                    h.m_fn_actual_names = read_list<name>(d);
                                     if (num == 0 || h.m_num_fns == 0)
                                         throw corrupted_stream_exception();
                                     if (!is_lambda_equation(args[num-1]) && !is_lambda_no_equation(args[num-1])) {

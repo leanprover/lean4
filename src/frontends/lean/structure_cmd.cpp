@@ -274,6 +274,7 @@ struct structure_cmd_fn {
     buffer<bool>                m_private_parents;
     name                        m_mk;
     name                        m_mk_short;
+    name                        m_private_prefix;
     pos_info                    m_mk_pos;
     implicit_infer_kind         m_mk_infer;
     buffer<field_decl>          m_fields;
@@ -302,6 +303,8 @@ struct structure_cmd_fn {
             throw exception("only attribute [class] accepted for structures");
     }
 
+    bool is_private() const { return m_meta_info.m_modifiers.m_is_private; }
+
     /** \brief Parse structure name and (optional) universe parameters */
     void parse_decl_name() {
         m_name_pos = m_p.pos();
@@ -313,11 +316,10 @@ struct structure_cmd_fn {
             m_explicit_universe_params = false;
         }
         m_given_name = m_p.check_decl_id_next("invalid 'structure', identifier expected");
-        if (m_meta_info.m_modifiers.m_is_private) {
-            unsigned h   = hash(m_name_pos.first, m_name_pos.second);
-            auto env_n   = add_private_name(m_env, m_given_name, optional<unsigned>(h));
-            m_env        = env_n.first;
-            m_name  = env_n.second;
+        if (is_private()) {
+            std::tie(m_env, m_private_prefix) = mk_private_prefix(m_env);
+            m_name = m_private_prefix + m_given_name;
+            m_env  = register_private_name(m_env, m_given_name, m_name);
         } else {
             m_name = m_namespace + m_given_name;
         }
@@ -1019,7 +1021,7 @@ struct structure_cmd_fn {
         levels rec_ctx_levels;
         if (!is_nil(m_ctx_levels))
             rec_ctx_levels = levels(mk_level_placeholder(), m_ctx_levels);
-        if (m_meta_info.m_modifiers.m_is_private) {
+        if (is_private()) {
             name given_rec_name = name(m_given_name, n.get_string());
             m_env = ::lean::add_alias(m_p, m_env, given_rec_name, n, rec_ctx_levels, m_ctx_locals);
         } else {
@@ -1091,6 +1093,12 @@ struct structure_cmd_fn {
                         args.push_back(local);
                 }
                 name decl_name  = name(m_name + field.get_name(), "_default");
+                name decl_prv_name;
+                if (is_private()) {
+                    decl_prv_name = name(m_private_prefix + m_given_name + field.get_name(), "_default");
+                } else {
+                    decl_prv_name = decl_name;
+                }
                 /* TODO(Leo): add helper function for adding definition.
                    It should unfold_untrusted_macros */
                 expr decl_type  = unfold_untrusted_macros(m_env, Pi(args, type));
@@ -1103,8 +1111,7 @@ struct structure_cmd_fn {
                 declaration new_decl = mk_definition_inferring_trusted(m_env, decl_name, decl_lvls,
                                                                        decl_type, decl_value, reducibility_hints::mk_abbreviation());
                 m_env = module::add(m_env, check(m_env, new_decl));
-                m_env = mk_simple_equation_lemma_for(m_env, m_p.get_options(),
-                                                     m_meta_info.m_modifiers.m_is_private, decl_name, args.size());
+                m_env = mk_simple_equation_lemma_for(m_env, m_p.get_options(), is_private(), decl_name, decl_prv_name, args.size());
                 m_env = set_reducible(m_env, decl_name, reducible_status::Reducible, true);
             }
         }

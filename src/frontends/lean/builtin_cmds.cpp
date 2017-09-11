@@ -179,8 +179,21 @@ environment end_scoped_cmd(parser & p) {
     }
 }
 
+/* Auxiliary class to setup private naming scope for transient commands such as #check/#reduce/#eval and run_cmd */
+class transient_cmd_scope {
+    environment            m_env;
+    private_name_scope     m_prv_scope;
+public:
+    transient_cmd_scope(parser & p):
+        m_env(p.env()),
+        m_prv_scope(true, m_env) {
+        p.set_env(m_env);
+    }
+};
+
 environment check_cmd(parser & p) {
     expr e; level_param_names ls;
+    transient_cmd_scope cmd_scope(p);
     std::tie(e, ls) = parse_local_expr(p, "_check");
     type_checker tc(p.env(), true, false);
     expr type = tc.check(e, ls);
@@ -200,6 +213,7 @@ environment check_cmd(parser & p) {
 }
 
 environment reduce_cmd(parser & p) {
+    transient_cmd_scope cmd_scope(p);
     bool whnf   = false;
     if (p.curr_is_token(get_whnf_tk())) {
         p.next();
@@ -401,6 +415,7 @@ static expr convert_metavars(metavar_context & ctx, expr const & e) {
 }
 
 static environment unify_cmd(parser & p) {
+    transient_cmd_scope cmd_scope(p);
     environment const & env = p.env();
     expr e1; level_param_names ls1;
     std::tie(e1, ls1) = parse_local_expr(p, "_unify");
@@ -432,6 +447,7 @@ static environment compile_cmd(parser & p) {
 }
 
 static environment eval_cmd(parser & p) {
+    transient_cmd_scope cmd_scope(p);
     auto pos = p.pos();
     expr e; level_param_names ls;
     std::tie(e, ls) = parse_local_expr(p, "_eval", /* relaxed */ false);
@@ -536,7 +552,7 @@ environment add_key_equivalence_cmd(parser & p) {
 }
 
 static environment run_command_cmd(parser & p) {
-    /* initial state for executing the tactic */
+    transient_cmd_scope cmd_scope(p);
     module::scope_pos_info scope_pos(p.pos());
     environment env      = p.env();
     options opts         = p.get_options();

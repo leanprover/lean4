@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/placeholder.h"
 #include "library/protected.h"
+#include "library/private.h"
 #include "library/aliases.h"
 #include "library/explicit.h"
 #include "library/reducible.h"
@@ -121,6 +122,8 @@ pair<expr, decl_attributes> parse_inner_header(parser & p, name const & c_expect
     if (c_expected != n)
         throw parser_error(sstream() << "invalid mutual declaration, '" << c_expected << "' expected",
                            id_pos);
+    /* Remark: if this is a private definition, the private prefix must have been set
+       before invoking this procedure. */
     declaration_name_scope scope(n);
     p.check_token_next(get_colon_tk(), "invalid mutual declaration, ':' expected");
     return mk_pair(p.parse_expr(), attrs);
@@ -356,7 +359,8 @@ environment add_alias(environment const & env, bool is_protected, name const & c
 }
 
 struct definition_info {
-    name     m_prefix;
+    name     m_prefix; // prefix for local names
+    name     m_actual_prefix; // actual prefix used to create kernel declaration names. m_prefix and m_actual_prefix are different for scoped/private declarations.
     bool     m_is_private{true}; // pattern matching outside of definitions should generate private names
     bool     m_is_meta{false};
     bool     m_is_noncomputable{false};
@@ -367,19 +371,23 @@ struct definition_info {
 
 MK_THREAD_LOCAL_GET_DEF(definition_info, get_definition_info);
 
-declaration_info_scope::declaration_info_scope(name const & ns, def_cmd_kind kind, decl_modifiers const & modifiers) {
+declaration_info_scope::declaration_info_scope(name const & ns, decl_cmd_kind kind, decl_modifiers const & modifiers) {
     definition_info & info = get_definition_info();
     lean_assert(info.m_prefix.is_anonymous());
-    info.m_prefix           = modifiers.m_is_private ? name() : ns;
+    info.m_prefix           = name(); // prefix is used to create local name
+    /* Remark: if info.m_actual_prefix is not `anonymous`, then it has already been set using private_name_scope */
+    if (info.m_actual_prefix.is_anonymous()) {
+        info.m_actual_prefix = ns;
+    }
     info.m_is_private       = modifiers.m_is_private;
     info.m_is_meta          = modifiers.m_is_meta;
     info.m_is_noncomputable = modifiers.m_is_noncomputable;
-    info.m_is_lemma         = kind == Theorem;
-    info.m_aux_lemmas       = kind != Theorem && !modifiers.m_is_meta;
+    info.m_is_lemma         = kind == decl_cmd_kind::Theorem;
+    info.m_aux_lemmas       = kind != decl_cmd_kind::Theorem && !modifiers.m_is_meta;
     info.m_next_match_idx = 1;
 }
 
-declaration_info_scope::declaration_info_scope(parser const & p, def_cmd_kind kind, decl_modifiers const & modifiers):
+declaration_info_scope::declaration_info_scope(parser const & p, decl_cmd_kind kind, decl_modifiers const & modifiers):
     declaration_info_scope(get_namespace(p.env()), kind, modifiers) {}
 
 declaration_info_scope::~declaration_info_scope() {
@@ -390,10 +398,11 @@ bool declaration_info_scope::gen_aux_lemmas() const {
     return get_definition_info().m_aux_lemmas;
 }
 
-equations_header mk_equations_header(list<name> const & ns) {
+equations_header mk_equations_header(list<name> const & ns, list<name> const & actual_ns) {
     equations_header h;
     h.m_num_fns          = length(ns);
     h.m_fn_names         = ns;
+    h.m_fn_actual_names  = actual_ns;
     h.m_is_private       = get_definition_info().m_is_private;
     h.m_is_meta          = get_definition_info().m_is_meta;
     h.m_is_noncomputable = get_definition_info().m_is_noncomputable;
@@ -402,8 +411,8 @@ equations_header mk_equations_header(list<name> const & ns) {
     return h;
 }
 
-equations_header mk_equations_header(name const & n) {
-    return mk_equations_header(to_list(n));
+equations_header mk_equations_header(name const & n, name const & actual_n) {
+    return mk_equations_header(to_list(n), to_list(actual_n));
 }
 
 /* Auxiliary function for creating names for auxiliary declarations.
@@ -424,35 +433,73 @@ bool used_match_idx() {
 declaration_name_scope::declaration_name_scope() {
     definition_info & info = get_definition_info();
     m_old_prefix          = info.m_prefix;
+    m_old_actual_prefix   = info.m_actual_prefix;
     m_old_next_match_idx  = info.m_next_match_idx;
     info.m_next_match_idx = 1;
 }
 
 void declaration_name_scope::set_name(name const & n) {
     lean_assert(m_name.is_anonymous());
-    definition_info & info = get_definition_info();
-    info.m_prefix          = mk_decl_name(info.m_prefix, n);
-    m_name                = info.m_prefix;
+    definition_info & info    = get_definition_info();
+    info.m_prefix             = mk_decl_name(info.m_prefix, n);
+    info.m_actual_prefix      = mk_decl_name(info.m_actual_prefix, n);
+    m_name                    = info.m_prefix;
+    m_actual_name             = info.m_actual_prefix;
 }
 
 declaration_name_scope::declaration_name_scope(name const & n) {
     definition_info & info = get_definition_info();
     m_old_prefix          = info.m_prefix;
+    m_old_actual_prefix   = info.m_actual_prefix;
     m_old_next_match_idx  = info.m_next_match_idx;
     info.m_prefix         = mk_decl_name(info.m_prefix, n);
+    info.m_actual_prefix  = mk_decl_name(info.m_actual_prefix, n);
     info.m_next_match_idx = 1;
     m_name                = info.m_prefix;
+    m_actual_name         = info.m_actual_prefix;
 }
 
 declaration_name_scope::~declaration_name_scope() {
     definition_info & info = get_definition_info();
     info.m_prefix          = m_old_prefix;
+    info.m_actual_prefix  = m_old_actual_prefix;
     info.m_next_match_idx  = m_old_next_match_idx;
 }
 
-match_definition_scope::match_definition_scope() {
+private_name_scope::private_name_scope(bool is_private, environment & env) {
     definition_info & info = get_definition_info();
-    m_name = mk_decl_name(info.m_prefix, name("_match").append_after(info.m_next_match_idx));
-    info.m_next_match_idx++;
+    m_old_actual_prefix    = info.m_prefix;
+    m_old_is_private       = info.m_is_private;
+    if (is_private) {
+        name prv_prefix;
+        std::tie(env, prv_prefix) = mk_private_prefix(env);
+        info.m_is_private     = true;
+        info.m_actual_prefix = prv_prefix;
+    }
+}
+
+private_name_scope::~private_name_scope() {
+    definition_info & info = get_definition_info();
+    info.m_actual_prefix   = m_old_actual_prefix;
+    info.m_is_private      = m_old_is_private;
+}
+
+match_definition_scope::match_definition_scope(environment const & env) {
+    definition_info & info = get_definition_info();
+    while (true) {
+        m_name        = mk_decl_name(info.m_prefix, name("_match").append_after(info.m_next_match_idx));
+        m_actual_name = mk_decl_name(info.m_actual_prefix, name("_match").append_after(info.m_next_match_idx));
+        info.m_next_match_idx++;
+        if (empty(get_expr_aliases(env, m_name))) {
+            /* Make sure we don't introduce aliases.
+               This is important when match-expressions are used in several parameters in a section.
+               Example:
+
+                  parameter P : match ... end
+                  parameter Q : match ... end
+            */
+            break;
+        }
+    }
 }
 }

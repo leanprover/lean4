@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/decl_util.h"
 namespace lean {
 
-environment definition_cmd_core(parser & p, def_cmd_kind k, cmd_meta const & meta);
+environment definition_cmd_core(parser & p, decl_cmd_kind k, cmd_meta const & meta);
 
 environment ensure_decl_namespaces(environment const & env, name const & full_n);
 }

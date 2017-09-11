@@ -32,7 +32,8 @@ bool is_inaccessible(expr const & e);
 
 struct equations_header {
     unsigned   m_num_fns{0};              /* number of functions being defined */
-    list<name> m_fn_names;                /* names for functions */
+    list<name> m_fn_names;                /* local names for functions */
+    list<name> m_fn_actual_names;         /* Full qualified name and/or private name */
     bool       m_is_private{false};       /* if true, it must be a private definition */
     bool       m_is_lemma{false};         /* if true, equations are defining a lemma */
     bool       m_is_meta{false};          /* the auxiliary declarations should be tagged as meta */

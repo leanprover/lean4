@@ -1406,10 +1406,12 @@ eqn_compiler_result mk_nonrec(environment & env, options const & opts, metavar_c
        congruence closure modules make them "believe" that this is
        a dependent function.
     */
-    expr fn_type = get_fn_type_from_eqns(eqns);
+    expr fn_type        = get_fn_type_from_eqns(eqns);
+    name fn_name        = head(header.m_fn_names);
+    name fn_actual_name = head(header.m_fn_actual_names);
     expr fn;
-    std::tie(env, fn) = mk_aux_definition(env, opts, mctx, lctx, header, head(header.m_fn_names), fn_type, R.m_fn);
-    name fn_name = const_name(get_app_fn(fn));
+    std::tie(env, fn) = mk_aux_definition(env, opts, mctx, lctx, header,
+                                          fn_name, fn_actual_name, fn_type, R.m_fn);
     unsigned eqn_idx     = 1;
     type_context ctx2(env, opts, mctx, lctx, transparency_mode::Semireducible);
     for (expr type : R.m_lemmas) {
@@ -1425,7 +1427,7 @@ eqn_compiler_result mk_nonrec(environment & env, options const & opts, metavar_c
         buffer<expr> lhs_args;
         get_app_args(lhs, lhs_args);
         expr new_lhs = mk_app(fn, lhs_args);
-        env = mk_equation_lemma(env, opts, mctx, ctx2.lctx(), fn_name,
+        env = mk_equation_lemma(env, opts, mctx, ctx2.lctx(), fn_name, fn_actual_name,
                                 eqn_idx, header.m_is_private, locals.as_buffer(), new_lhs, rhs);
         eqn_idx++;
     }

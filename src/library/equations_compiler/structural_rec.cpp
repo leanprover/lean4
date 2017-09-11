@@ -708,7 +708,9 @@ struct structural_rec_fn {
         } else {
             expr r;
             std::tie(m_env, r) = mk_aux_definition(m_env, m_opts, m_mctx, m_lctx, m_header,
-                                                   head(m_header.m_fn_names), m_fn_type, new_fn);
+                                                   head(m_header.m_fn_names),
+                                                   head(m_header.m_fn_actual_names),
+                                                   m_fn_type, new_fn);
             return r;
         }
     }
@@ -926,7 +928,6 @@ struct structural_rec_fn {
     }
 
     void mk_lemmas(expr const & fn, list<expr> const & lemmas) {
-        name const & fn_name = const_name(get_app_fn(fn));
         unsigned eqn_idx     = 1;
         type_context ctx     = mk_type_context();
         for (expr type : lemmas) {
@@ -951,7 +952,9 @@ struct structural_rec_fn {
                 if (local != F)
                     new_locals.push_back(local);
             }
-            m_env = mk_equation_lemma(m_env, m_opts, m_mctx, ctx.lctx(), fn_name,
+            name const & fn_name        = head(m_header.m_fn_names);
+            name const & fn_actual_name = head(m_header.m_fn_actual_names);
+            m_env = mk_equation_lemma(m_env, m_opts, m_mctx, ctx.lctx(), fn_name, fn_actual_name,
                                       eqn_idx, m_header.m_is_private, new_locals, new_lhs, new_rhs);
             eqn_idx++;
         }

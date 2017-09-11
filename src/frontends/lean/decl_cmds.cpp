@@ -190,6 +190,25 @@ static bool curr_is_binder_annotation(parser & p) {
            p.curr_is_token(get_ldcurly_tk()) || p.curr_is_token(get_lbracket_tk());
 }
 
+/* Auxiliary class to setup naming scopes for a variable/parameter/constant/axiom command.
+
+   We need the private_name_scope because the type may contain match-expressions.
+   These match expressions produce private definitions, and we need to make sure
+   they use the same infrastructure we use for definitions/theorems.
+*/
+class var_decl_scope {
+    environment m_env;
+    declaration_info_scope m_info_scope;
+    private_name_scope     m_prv_scope;
+public:
+    var_decl_scope(parser & p, decl_modifiers const & mods):
+        m_env(p.env()),
+        m_info_scope(p, decl_cmd_kind::Var, mods),
+        m_prv_scope(true, m_env) {
+        p.set_env(m_env);
+    }
+};
+
 static environment variable_cmd_core(parser & p, variable_kind k, cmd_meta const & meta) {
     check_variable_kind(p, k);
     auto pos = p.pos();
@@ -202,6 +221,7 @@ static environment variable_cmd_core(parser & p, variable_kind k, cmd_meta const
     expr type;
     buffer<name> ls_buffer;
     if (bi && bi->is_inst_implicit() && (k == variable_kind::Parameter || k == variable_kind::Variable)) {
+        var_decl_scope var_scope(p, meta.m_modifiers);
         /* instance implicit */
         if (p.curr_is_identifier()) {
             auto n_pos = p.pos();
@@ -244,6 +264,7 @@ static environment variable_cmd_core(parser & p, variable_kind k, cmd_meta const
             type = p.parse_expr();
         }
     } else {
+        var_decl_scope var_scope(p, meta.m_modifiers);
         /* non instance implicit cases */
         if (p.curr_is_token(get_lcurly_tk()) && (k == variable_kind::Parameter || k == variable_kind::Variable))
             throw parser_error("invalid declaration, only constants/axioms can be universe polymorphic", p.pos());
@@ -301,12 +322,30 @@ static environment parameter_cmd(parser & p, cmd_meta const & meta)    {
     return variable_cmd_core(p, variable_kind::Parameter, meta);
 }
 
+/*
+Remark: we currently do not support declarations such as:
+
+  parameters P Q : match ... end
+
+User should use
+
+  parameter P : match ... end
+  parameter Q : match ... end
+
+instead.
+*/
+static void ensure_no_match_in_variables_cmd(pos_info const & pos) {
+    if (used_match_idx()) {
+        throw parser_error("match-expressions are not supported in `parameters/variables/constants` commands "
+                           "(solution use `parameter/variable/constant` commands)", pos);
+    }
+}
+
 static environment variables_cmd_core(parser & p, variable_kind k, cmd_meta const & meta) {
     check_variable_kind(p, k);
     auto pos = p.pos();
     module::scope_pos_info scope_pos(pos);
-    environment env = p.env();
-
+    declaration_info_scope d_scope(p, decl_cmd_kind::Var, meta.m_modifiers);
     optional<binder_info> bi = parse_binder_info(p, k);
     buffer<name> ids;
     optional<parser::local_scope> scope1;
@@ -322,6 +361,7 @@ static environment variables_cmd_core(parser & p, variable_kind k, cmd_meta cons
                 p.next();
                 ids.push_back(id);
                 type = p.parse_expr();
+                ensure_no_match_in_variables_cmd(pos);
             } else if (p.curr_is_token(get_rbracket_tk())) {
                 /* annotation update: variables [decA] */
                 p.parse_close_binder_info(bi);
@@ -329,7 +369,7 @@ static environment variables_cmd_core(parser & p, variable_kind k, cmd_meta cons
                 if (curr_is_binder_annotation(p))
                     return variables_cmd_core(p, k, meta);
                 else
-                    return env;
+                    return p.env();
             } else {
                 /* anonymous : variables [decidable A] */
                 expr left    = p.id_to_expr(id, id_pos);
@@ -340,12 +380,14 @@ static environment variables_cmd_core(parser & p, variable_kind k, cmd_meta cons
                 }
                 ids.push_back(id);
                 type = left;
+                ensure_no_match_in_variables_cmd(pos);
             }
         } else {
             /* anonymous : variables [forall x y, decidable (x = y)] */
             name id = p.mk_anonymous_inst_name();
             ids.push_back(id);
             type = p.parse_expr();
+            ensure_no_match_in_variables_cmd(pos);
         }
     } else {
         /* non instance implicit cases */
@@ -367,7 +409,7 @@ static environment variables_cmd_core(parser & p, variable_kind k, cmd_meta cons
                 if (curr_is_binder_annotation(p))
                     return variables_cmd_core(p, k, meta);
                 else
-                    return env;
+                    return p.env();
             } else {
                 throw parser_error("invalid variables/constants/axioms declaration, ':' expected", pos);
             }
@@ -375,9 +417,10 @@ static environment variables_cmd_core(parser & p, variable_kind k, cmd_meta cons
         if (k == variable_kind::Constant || k == variable_kind::Axiom)
             scope1.emplace(p);
         type = p.parse_expr();
+        ensure_no_match_in_variables_cmd(pos);
     }
     p.parse_close_binder_info(bi);
-
+    environment env = p.env();
     level_param_names ls = to_level_param_names(collect_univ_params(type));
     list<expr> ctx = p.locals_to_context();
     for (auto id : ids) {
@@ -419,13 +462,13 @@ static environment axioms_cmd(parser & p, cmd_meta const & meta) {
 }
 
 static environment definition_cmd(parser & p, cmd_meta const & meta) {
-    return definition_cmd_core(p, def_cmd_kind::Definition, meta);
+    return definition_cmd_core(p, decl_cmd_kind::Definition, meta);
 }
 static environment theorem_cmd(parser & p, cmd_meta const & meta) {
-    return definition_cmd_core(p, def_cmd_kind::Theorem, meta);
+    return definition_cmd_core(p, decl_cmd_kind::Theorem, meta);
 }
 static environment example_cmd(parser & p, cmd_meta const & meta) {
-    return definition_cmd_core(p, def_cmd_kind::Example, meta);
+    return definition_cmd_core(p, decl_cmd_kind::Example, meta);
 }
 static environment instance_cmd(parser & p, cmd_meta const & _meta) {
     auto meta = _meta;
@@ -436,7 +479,7 @@ static environment instance_cmd(parser & p, cmd_meta const & _meta) {
     if (meta.m_modifiers.m_is_mutual)
         throw exception("invalid 'mutual' modifier for instance command");
     meta.m_modifiers.m_is_protected = true;
-    return definition_cmd_core(p, def_cmd_kind::Instance, meta);
+    return definition_cmd_core(p, decl_cmd_kind::Instance, meta);
 }
 
 static environment modifiers_cmd(parser & p, cmd_meta const & _meta) {

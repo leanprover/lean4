@@ -1,4 +1,3 @@
-
 definition p1 := (10, 20, 30)
 
 definition v1 : nat :=
@@ -44,3 +43,9 @@ in c + d
 
 example : v3 = 50 :=
 rfl
+
+#check
+(let (a, b, c) := p1 in a + b : nat) -- We have to provide the type.
+
+#reduce
+(let (a, b, c) := p1 in a + b : nat) -- We have to provide the type.

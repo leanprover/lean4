@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/scope_pos_info_provider.h"
 #include "kernel/free_vars.h"
 #include "library/util.h"
+#include "library/aliases.h"
 #include "library/trace.h"
 #include "library/app_builder.h"
 #include "library/private.h"
@@ -256,14 +257,6 @@ local_context erase_inaccessible_annotations(local_context const & lctx) {
     return r;
 }
 
-static pair<environment, name> mk_def_name(environment const & env, bool is_private, name const & c) {
-    if (is_private) {
-        return mk_private_name(env, c);
-    } else {
-        return mk_pair(env, c);
-    }
-}
-
 static void throw_mk_aux_definition_error(local_context const & lctx, name const & c, expr const & type, expr const & value, exception & ex) {
     sstream strm;
     strm << "equation compiler failed to create auxiliary declaration '" << c << "'";
@@ -274,7 +267,7 @@ static void throw_mk_aux_definition_error(local_context const & lctx, name const
 }
 
 pair<environment, expr> mk_aux_definition(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
-                                          equations_header const & header, name const & c, expr const & type, expr const & value) {
+                                          equations_header const & header, name const & c, name const & actual_c, expr const & type, expr const & value) {
     lean_trace("eqn_compiler", tout() << "declaring auxiliary definition\n" << c << " : " << type << "\n";);
     environment new_env = env;
     expr new_type       = type;
@@ -284,8 +277,11 @@ pair<environment, expr> mk_aux_definition(environment const & env, options const
         new_type  = zeta_expand(lctx, new_type);
         new_value = zeta_expand(lctx, new_value);
     }
-    name new_c;
-    std::tie(new_env, new_c) = mk_def_name(env, header.m_is_private, c);
+    name new_c          = actual_c;
+    if (header.m_is_private) {
+        new_env = register_private_name(env, c, actual_c);
+        new_env = add_expr_alias(new_env, c, actual_c);
+    }
     expr r;
     try {
         std::tie(new_env, r) = header.m_is_lemma ?
@@ -330,10 +326,12 @@ static pair<environment, expr> abstract_rhs_nested_proofs(environment const & en
 }
 
 static environment add_equation_lemma(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
-                                      bool is_private, name const & f_name, name const & eqn_name, expr const & type, expr const & value) {
+                                      bool is_private, name const & f_name, name const & eqn_name, name const & eqn_actual_name, expr const & type, expr const & value) {
     environment new_env = env;
-    name new_eqn_name;
-    std::tie(new_env, new_eqn_name) = mk_def_name(env, is_private, eqn_name);
+    name new_eqn_name   = eqn_actual_name;
+    if (is_private) {
+        new_env = register_private_name(env, eqn_name, eqn_actual_name);
+    }
     expr r;
     expr new_type  = erase_inaccessible_annotations(type);
     expr new_value = value;
@@ -701,25 +699,26 @@ static expr cleanup_equation_rhs(expr const & rhs) {
 }
 
 environment mk_equation_lemma(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
-                              name const & f_name, unsigned eqn_idx, bool is_private,
+                              name const & f_name, name const & f_actual_name, unsigned eqn_idx, bool is_private,
                               buffer<expr> const & Hs, expr const & lhs, expr const & rhs) {
     if (!get_eqn_compiler_lemmas(opts)) return env;
     type_context ctx(env, opts, mctx, lctx, transparency_mode::Semireducible);
-    expr proof    = prove_eqn_lemma(ctx, Hs, lhs, rhs);
-    expr new_rhs  = cleanup_equation_rhs(rhs);
-    expr type     = ctx.mk_pi(Hs, mk_eq(ctx, lhs, new_rhs));
-    name eqn_name = mk_equation_name(f_name, eqn_idx);
-    return add_equation_lemma(env, opts, mctx, lctx, is_private, f_name, eqn_name, type, proof);
+    expr proof        = prove_eqn_lemma(ctx, Hs, lhs, rhs);
+    expr new_rhs      = cleanup_equation_rhs(rhs);
+    expr type         = ctx.mk_pi(Hs, mk_eq(ctx, lhs, new_rhs));
+    name eqn_name     = mk_equation_name(f_name, eqn_idx);
+    name eqn_actual_name = mk_equation_name(f_actual_name, eqn_idx);
+    return add_equation_lemma(env, opts, mctx, lctx, is_private, f_name, eqn_name, eqn_actual_name, type, proof);
 }
 
-environment mk_simple_equation_lemma_for(environment const & env, options const & opts, bool is_private, name const & c, unsigned arity) {
+environment mk_simple_equation_lemma_for(environment const & env, options const & opts, bool is_private, name const & c, name const & c_actual, unsigned arity) {
     if (!env.find(get_eq_name())) return env;
     if (!get_eqn_compiler_lemmas(opts)) return env;
-    declaration d = env.get(c);
+    declaration d = env.get(c_actual);
     type_context ctx(env, transparency_mode::All);
     expr type  = d.get_type();
     expr value = d.get_value();
-    expr lhs   = mk_constant(c, param_names_to_levels(d.get_univ_params()));
+    expr lhs   = mk_constant(c_actual, param_names_to_levels(d.get_univ_params()));
     type_context::tmp_locals locals(ctx);
     for (unsigned i = 0; i < arity; i++) {
         type  = ctx.relaxed_whnf(type);
@@ -731,10 +730,11 @@ environment mk_simple_equation_lemma_for(environment const & env, options const 
         type   = instantiate(binding_body(type), x);
         value  = instantiate(binding_body(value), x);
     }
-    name eqn_name  = mk_equation_name(c, 1);
-    expr eqn_type  = locals.mk_pi(mk_eq(ctx, lhs, value));
-    expr eqn_proof = locals.mk_lambda(mk_eq_refl(ctx, lhs));
-    return add_equation_lemma(env, opts, metavar_context(), ctx.lctx(), is_private, c, eqn_name, eqn_type, eqn_proof);
+    name eqn_name        = mk_equation_name(c, 1);
+    name eqn_actual_name = mk_equation_name(c_actual, 1);
+    expr eqn_type        = locals.mk_pi(mk_eq(ctx, lhs, value));
+    expr eqn_proof       = locals.mk_lambda(mk_eq_refl(ctx, lhs));
+    return add_equation_lemma(env, opts, metavar_context(), ctx.lctx(), is_private, c_actual, eqn_name, eqn_actual_name, eqn_type, eqn_proof);
 }
 
 bool is_name_value(expr const & e) {

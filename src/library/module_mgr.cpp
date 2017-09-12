@@ -141,17 +141,17 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
     if (auto & existing_mod = m_modules[id])
         if (!existing_mod->m_out_of_date) return;
 
+    auto orig_module_stack = module_stack;
+    if (module_stack.contains(id)) {
+        throw exception(sstream() << "cyclic import: " << id);
+    }
+    module_stack.insert(id);
+
     scope_global_ios scope_ios(m_ios);
     scope_log_tree lt(m_lt.mk_child(id, {}, { id, {{1, 0}, {static_cast<unsigned>(-1), 0}} }, log_tree::DefaultLevel, true));
     scope_traces_as_messages scope_trace_msgs(id, {1, 0});
 
     try {
-        auto orig_module_stack = module_stack;
-        if (module_stack.contains(id)) {
-            throw exception(sstream() << "cyclic import: " << id);
-        }
-        module_stack.insert(id);
-
         bool already_have_lean_version = m_modules[id] && m_modules[id]->m_source == module_src::LEAN;
 
         std::string contents;

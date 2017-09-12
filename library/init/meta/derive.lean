@@ -41,6 +41,8 @@ do success ← h p n,
      handlers ← handlers.mmap (λ n, eval_expr derive_handler (expr.const n [])),
      ps.mmap' (λ p, try_handlers p n handlers)) }
 
+/-- Given a tactic `tac` that can solve an application of `cls` in the right context,
+    `instance_derive_handler` uses it to build an instance declaration of `cls n`. -/
 meta def instance_derive_handler (cls : name) (tac : tactic unit) (univ_poly := tt)
   (modify_target : name → list expr → expr → tactic expr := λ _ _, pure) : derive_handler :=
 λ p n,
@@ -50,6 +52,8 @@ do decl ← get_decl n,
    env ← get_env,
    guard (env.is_inductive n) <|> fail format!"failed to derive '{cls}', '{n}' is not an inductive type",
    let ls := decl.univ_params.map $ λ n, if univ_poly then level.param n else level.zero,
+   -- incrementally build up target expression `Π (hp : p) [cls hp] ..., cls (n.{ls} hp ...)`
+   -- where `p ...` are the inductive parameter types of `n`
    let tgt : expr := expr.const n ls,
    ⟨params, _⟩ ← mk_local_pis (decl.type.instantiate_univ_params (decl.univ_params.zip ls)),
    let params := params.take (env.inductive_num_params n),
@@ -74,12 +78,11 @@ else pure false
 
 @[derive_handler] meta def has_reflect_derive_handler :=
 instance_derive_handler ``has_reflect mk_has_reflect_instance ff (λ n params tgt,
--- add additional `reflected` assumption for each parameter
-params.mfoldr (λ param tgt,
-do param_cls ← mk_app `reflected [param],
-   let tgt := expr.pi `a binder_info.inst_implicit param_cls tgt,
-   pure $ tgt
-) tgt)
+  -- add additional `reflected` assumption for each parameter
+  params.mfoldr (λ param tgt,
+  do param_cls ← mk_app `reflected [param],
+    pure $ expr.pi `a binder_info.inst_implicit param_cls tgt
+  ) tgt)
 
 @[derive_handler] meta def has_sizeof_derive_handler :=
 instance_derive_handler ``has_sizeof mk_has_sizeof_instance

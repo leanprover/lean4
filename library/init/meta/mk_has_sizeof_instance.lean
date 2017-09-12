@@ -64,10 +64,13 @@ do I_name ← get_has_sizeof_type_name,
    env ← get_env,
    v_name : name ← return `_v,
    F_name : name ← return `_F,
+   let num_indices := inductive_num_indices env I_name,
+   let idx_names := list.map (λ (p : name × nat), mk_num_name p.fst p.snd)
+                             (list.zip (list.repeat `idx num_indices) (list.iota num_indices)),
    -- Use brec_on if type is recursive.
    -- We store the functional in the variable F.
    if is_recursive env I_name
-   then intro `_v >>= (λ x, induction x [v_name, F_name] (some $ I_name <.> "brec_on") >> return ())
+   then intro `_v >>= (λ x, induction x (idx_names ++ [v_name, F_name]) (some $ I_name <.> "brec_on") >> return ())
    else intro v_name >> return (),
    arg_names : list (list name) ← mk_constructors_arg_names I_name `_p,
    get_local v_name >>= λ v, cases v (join arg_names),

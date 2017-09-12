@@ -665,12 +665,13 @@ public:
         add_aliases(new_params, new_inds, new_intro_rules);
         add_namespaces(new_inds);
         for (expr const & ind : new_inds) {
-            m_env = m_meta_info.m_attrs.apply(m_env, m_p.ios(), mlocal_name(ind));
             /* TODO(Leo): add support for doc-strings in mutual inductive definitions.
                We are currently using the same doc string for all elements.
             */
             if (m_meta_info.m_doc_string)
                 m_env = add_doc_string(m_env, mlocal_name(ind), *m_meta_info.m_doc_string);
+            /* Apply attributes last so that they may access any information on the new decl */
+            m_env = m_meta_info.m_attrs.apply(m_env, m_p.ios(), mlocal_name(ind));
         }
         lean_assert(new_inds.size() == m_mut_attrs.size());
         for (unsigned i = 0; i < new_inds.size(); ++i)

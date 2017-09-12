@@ -525,7 +525,7 @@ static environment mutual_definition_cmd_core(parser & p, decl_cmd_kind kind, cm
     }
     /* Add lemmas */
     elab.set_env(copy_equation_lemmas(elab.env(), new_d_names));
-    /* Apply attributes last */
+    /* Apply attributes last so that they may access any information on the new decl */
     for (auto const & c_real_name : new_d_names) {
         elab.set_env(meta.m_attrs.apply(elab.env(), p.ios(), c_real_name));
     }
@@ -893,7 +893,7 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
             unsigned arity = new_params.size();
             new_env = mk_simple_equation_lemma_for(new_env, p.get_options(), meta.m_modifiers.m_is_private, c_name, c_real_name, arity);
         }
-        /* Apply attributes last */
+        /* Apply attributes last so that they may access any information on the new decl */
         return meta.m_attrs.apply(new_env, p.ios(), c_real_name);
     };
 

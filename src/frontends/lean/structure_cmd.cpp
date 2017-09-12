@@ -1304,6 +1304,7 @@ struct structure_cmd_fn {
             declare_no_confusion();
             declare_injective_lemmas();
         }
+        /* Apply attributes last so that they may access any information on the new decl */
         m_env = m_meta_info.m_attrs.apply(m_env, m_p.ios(), m_name);
         return m_env;
     }

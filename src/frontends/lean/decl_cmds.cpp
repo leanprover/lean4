@@ -139,6 +139,7 @@ static environment declare_var(parser & p, environment env,
         if (meta.m_modifiers.m_is_protected)
             env = add_protected(env, full_n);
         env = ensure_decl_namespaces(env, full_n);
+        /* Apply attributes last so that they may access any information on the new decl */
         env = meta.m_attrs.apply(env, p.ios(), full_n);
         return env;
     }

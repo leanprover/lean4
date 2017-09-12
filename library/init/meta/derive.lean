@@ -56,14 +56,17 @@ do decl ← get_decl n,
    -- where `p ...` are the inductive parameter types of `n`
    let tgt : expr := expr.const n ls,
    ⟨params, _⟩ ← mk_local_pis (decl.type.instantiate_univ_params (decl.univ_params.zip ls)),
-   let params := params.take (env.inductive_num_params n),
    let tgt := tgt.mk_app params,
    tgt ← mk_app cls [tgt],
    tgt ← modify_target n params tgt,
-   tgt ← params.mfoldr (λ param tgt,
-   do param_cls ← mk_app cls [param],
-      -- TODO(sullrich): omit some typeclass parameters based on usage of `param`?
-      let tgt := expr.pi `a binder_info.inst_implicit param_cls tgt,
+   tgt ← params.enum.mfoldr (λ ⟨i, param⟩ tgt,
+   do -- add typeclass hypothesis for each inductive parameter
+      tgt ← do {
+        guard $ i < env.inductive_num_params n,
+        param_cls ← mk_app cls [param],
+        -- TODO(sullrich): omit some typeclass parameters based on usage of `param`?
+        pure $ expr.pi `a binder_info.inst_implicit param_cls tgt
+      } <|> pure tgt,
       pure $ tgt.bind_pi param
    ) tgt,
    (_, val) ← tactic.solve_aux tgt (intros >> tac),

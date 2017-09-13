@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "kernel/declaration.h"
 #include "kernel/instantiate.h"
 #include "kernel/replace_fn.h"
+#include "kernel/kernel_exception.h"
 #include "library/trace.h"
 #include "library/constants.h"
 #include "library/explicit.h"
@@ -186,16 +187,30 @@ static expr fix_rec_fn_name(expr const & e, name const & c_name, name const & c_
 }
 
 static certified_declaration check(parser & p, environment const & env, name const & c_name, declaration const & d, pos_info const & pos) {
-    if (p.profiling()) {
-        xtimeit timer(get_profiling_threshold(p.get_options()), [&](second_duration duration) {
-                auto msg = p.mk_message(pos, INFORMATION);
-                msg.get_text_stream().get_stream()
-                    << "type checking time of " << c_name << " took " << display_profiling_time{duration} << "\n";
-                msg.report();
-            });
-        return ::lean::check(env, d);
-    } else {
-        return ::lean::check(env, d);
+    try {
+        if (p.profiling()) {
+            xtimeit timer(get_profiling_threshold(p.get_options()), [&](second_duration duration) {
+                    auto msg = p.mk_message(pos, INFORMATION);
+                    msg.get_text_stream().get_stream()
+                        << "type checking time of " << c_name << " took " << display_profiling_time{duration} << "\n";
+                    msg.report();
+                });
+            return ::lean::check(env, d);
+        } else {
+            return ::lean::check(env, d);
+        }
+    } catch (kernel_exception & ex) {
+        unsigned i = get_pp_indent(p.get_options());
+        auto pp_fn = ::lean::mk_pp_ctx(env, p.get_options(), metavar_context(), local_context());
+        format msg = format("kernel failed to type check declaration '") + format(c_name) + format("' ") +
+            format("this is usually due to a buggy tactic or a bug in the builtin elaborator");
+        msg += line() + format("elaborated type:");
+        msg += nest(i, line() + pp_fn(d.get_type()));
+        if (d.is_definition()) {
+            msg += line() + format("elaborated value:");
+            msg += nest(i, line() + pp_fn(d.get_value()));
+        }
+        throw nested_exception(msg, ex);
     }
 }
 

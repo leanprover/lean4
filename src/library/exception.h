@@ -52,6 +52,8 @@ public:
         generic_exception(m, strm), m_exception(std::shared_ptr<throwable>(ex.clone())) {}
     explicit nested_exception(char const * msg, throwable const & ex):
         nested_exception(none_expr(), msg, ex) {}
+    explicit nested_exception(format const & fmt, throwable const & ex):
+        nested_exception(none_expr(), [=](formatter const &) { return fmt; }, ex) {}
     explicit nested_exception(sstream const & strm, throwable const & ex):
         nested_exception(none_expr(), strm, ex) {}
     virtual ~nested_exception() noexcept {}

@@ -1,0 +1,15 @@
+kernel_ex.lean:7:4: error: kernel failed to type check declaration 't' this is usually due to a buggy tactic or a bug in the builtin elaborator
+elaborated type:
+  ℕ → ℕ
+elaborated value:
+  λ (y : ℕ), let x : ℕ := 1 + y in I tt
+nested exception message:
+type mismatch at application
+  I tt
+term
+  tt
+has type
+  bool
+but is expected to have type
+  ℕ
+kernel_ex.lean:7:0: warning: declaration 't' uses sorry

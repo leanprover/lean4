@@ -230,10 +230,10 @@ le_of_succ_le
 lemma lt_of_succ_lt_succ {a b : ℕ} : succ a < succ b → a < b :=
 le_of_succ_le_succ
 
-lemma pred_lt_pred : ∀ {n m : ℕ}, n ≠ 0 → m ≠ 0 → n < m → pred n < pred m
-| 0         _       h₁ h₂ h := absurd rfl h₁
-| _         0       h₁ h₂ h := absurd rfl h₂
-| (succ n) (succ m) _  _  h := lt_of_succ_lt_succ h
+lemma pred_lt_pred : ∀ {n m : ℕ}, n ≠ 0 → n < m → pred n < pred m
+| 0         _       h₁ h := absurd rfl h₁
+| _         0       h₁ h := absurd h (not_lt_zero _)
+| (succ n) (succ m) _  h := lt_of_succ_lt_succ h
 
 lemma lt_of_succ_le {a b : ℕ} (h : succ a ≤ b) : a < b := h
 

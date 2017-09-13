@@ -112,7 +112,7 @@ def pred {n : nat} : ∀ i : fin (succ n), i ≠ 0 → fin n
     have this : a ≠ 0,
     { have aux₁ := vne_of_ne h₂,
       dsimp at aux₁, rw val_zero at aux₁, exact aux₁ },
-    exact nat.pred_lt_pred this (nat.succ_ne_zero n) h₁
+    exact nat.pred_lt_pred this h₁
   end⟩
 
 end fin

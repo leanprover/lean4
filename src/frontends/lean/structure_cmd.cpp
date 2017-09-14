@@ -350,6 +350,15 @@ struct structure_cmd_fn {
             throw parser_error(sstream() << "invalid 'structure' extends, '" << S << "' is not a structure", pos);
     }
 
+    void check_parent(expr const & parent) {
+        expr const & fn = get_app_fn(parent);
+        if (!is_constant(fn))
+            throw elaborator_exception(parent, "invalid 'structure', expression must be a 'parent' structure");
+        name const & S = const_name(fn);
+        if (!is_structure_like(m_env, S))
+            throw elaborator_exception(parent, sstream() << "invalid 'structure' extends, '" << S << "' is not a structure");
+    }
+
     /** \brief Return the universe parameters, number of parameters and introduction rule for the given parent structure */
     std::tuple<level_param_names, unsigned, inductive::intro_rule> get_parent_info(name const & parent) {
         return get_structure_info(m_env, parent);
@@ -589,6 +598,7 @@ struct structure_cmd_fn {
 
         for (unsigned i = 0; i < m_parents.size(); i++) {
             expr const & parent = m_parents[i];
+            check_parent(parent);
             rename_vector const & renames = m_renames[i];
             m_field_maps.push_back(field_map());
             field_map & fmap = m_field_maps.back();

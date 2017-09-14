@@ -324,7 +324,7 @@ struct parse_tactic_fn {
                 // `by tac` ~> `solve1 { tac }`
                 m_p.next();
                 auto pos = m_p.pos();
-                expr tac = parse_elem_core(save_info);
+                expr tac = operator()(save_info);
                 auto end_pos = m_p.pos_of(tac);
                 tac = mk_tactic_solve1(m_p, tac, pos, end_pos, m_tac_class, m_use_istep && save_info);
                 if (save_info) {
@@ -363,8 +363,8 @@ struct parse_tactic_fn {
         return r;
     }
 
-    expr operator()() {
-        expr r = parse_elem(true);
+    expr operator()(bool save_info = true) {
+        expr r = parse_elem(save_info);
         if (m_p.curr_is_token(get_semicolon_tk()))
             return parse_andthen(r);
         else if (m_p.curr_is_token(get_orelse_tk()))

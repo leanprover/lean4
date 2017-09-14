@@ -48,7 +48,7 @@ end
 
 example (f : ℕ → ℕ) : bool :=
 begin
-  have : ℕ, by apply f,
+  have : ℕ, by skip; apply f 0,
 end
 
 example (f : ℕ → ℕ) : bool :=

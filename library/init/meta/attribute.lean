@@ -47,15 +47,15 @@ meta def user_attribute.parse_reflect {α β : Type} (attr : user_attribute α �
 
 meta constant user_attribute.get_param_untyped {α β : Type} (attr : user_attribute α β) (decl : name)
   : tactic expr
-meta constant user_attribute.set_param_untyped {α β : Type} [reflected β] (attr : user_attribute α β) (decl : name)
+meta constant user_attribute.set_untyped {α β : Type} [reflected β] (attr : user_attribute α β) (decl : name)
   (val : expr) (persistent : bool) (prio : option nat := none) : tactic unit
 
 meta def user_attribute.get_param {α β : Type} [reflected β] (attr : user_attribute α β) (n : name) : tactic β :=
 attr.get_param_untyped n >>= tactic.eval_expr β
 
-meta def user_attribute.set_param {α β : Type} [reflected β] (attr : user_attribute α β) (n : name)
+meta def user_attribute.set {α β : Type} [reflected β] (attr : user_attribute α β) (n : name)
   (val : β) (persistent : bool) (prio : option nat := none) : tactic unit :=
-attr.set_param_untyped n (attr.reflect_param val) persistent prio
+attr.set_untyped n (attr.reflect_param val) persistent prio
 
 open tactic
 

@@ -137,7 +137,7 @@ For more details, see discussion [here](https://github.com/leanprover/lean/pull/
   `⟨h1, h2⟩`. This change is motivated by the previous one. Without it, `and.intro h1 h2` would be
   pretty printed as `{left := h1, right := h2}`.
 
-* User attributes can no longer be set with `set_basic_attribute`.  You need to use `user_attribute.set_param` now.
+* User attributes can no longer be set with `set_basic_attribute`.  You need to use `user_attribute.set` now.
 
 *API name changes*
 

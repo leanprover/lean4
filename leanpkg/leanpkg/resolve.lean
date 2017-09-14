@@ -87,11 +87,11 @@ deps ← monad.filter (not_yet_assigned ∘ dependency.name) d.dependencies,
 deps.mmap' (materialize relpath),
 deps.mmap' $ λ dep, do
   p ← resolved_path dep.name,
-  d ← manifest.from_file $ p ++ "/" ++ "leanpkg.toml",
-  when (d.name ≠ dep.name) $
-    io.fail $ d.name ++ " (in " ++ relpath ++ ") depends on " ++ d.name ++
+  d' ← manifest.from_file $ p ++ "/" ++ "leanpkg.toml",
+  when (d'.name ≠ dep.name) $
+    io.fail $ d.name ++ " (in " ++ relpath ++ ") depends on " ++ d'.name ++
       ", but resolved dependency has name " ++ dep.name ++ " (in " ++ p ++ ")",
-  solve_deps_core p d max_depth
+  solve_deps_core p d' max_depth
 
 def solve_deps (d : manifest) : io assignment := do
 (_, assg) ← solve_deps_core "." d 1024 $ assignment.empty.insert d.name ".",

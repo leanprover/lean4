@@ -1,6 +1,12 @@
 master branch (aka work in progress branch)
 -------------
 
+*Features*
+
+*Changes*
+
+*API name changes*
+
 v3.3.0 (14 September 2017)
 -------------
 

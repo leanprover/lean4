@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 2.8.7)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 3)
 set(LEAN_VERSION_MINOR 3)
-set(LEAN_VERSION_PATCH 0)
-set(LEAN_VERSION_IS_RELEASE 1)  # This number is 1 in the release revision, and 0 otherwise.
+set(LEAN_VERSION_PATCH 1)
+set(LEAN_VERSION_IS_RELEASE 0)  # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_VERSION_STRING "${LEAN_VERSION_MAJOR}.${LEAN_VERSION_MINOR}.${LEAN_VERSION_PATCH}" CACHE STRING "Lean version string")
 
 set(LEAN_EXTRA_LINKER_FLAGS "")

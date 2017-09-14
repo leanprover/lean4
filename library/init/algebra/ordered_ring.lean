@@ -334,11 +334,7 @@ lemma mul_self_lt_mul_self_iff {a b : α} (h1 : 0 ≤ a) (h2 : 0 ≤ b) : a < b 
 iff.trans (lt_iff_not_ge _ _) $ iff.trans (not_iff_not_of_iff $ mul_self_le_mul_self_iff h2 h1) $
   iff.symm (lt_iff_not_ge _ _)
 
-end linear_ordered_ring
-
-class linear_ordered_comm_ring (α : Type u) extends linear_ordered_ring α, comm_monoid α
-
-lemma linear_ordered_comm_ring.eq_zero_or_eq_zero_of_mul_eq_zero [s : linear_ordered_comm_ring α]
+lemma linear_ordered_ring.eq_zero_or_eq_zero_of_mul_eq_zero [s : linear_ordered_ring α]
         {a b : α} (h : a * b = 0) : a = 0 ∨ b = 0 :=
 match lt_trichotomy 0 a with
 | or.inl hlt₁          :=
@@ -364,9 +360,13 @@ match lt_trichotomy 0 a with
   end
 end
 
+end linear_ordered_ring
+
+class linear_ordered_comm_ring (α : Type u) extends linear_ordered_ring α, comm_monoid α
+
 instance linear_ordered_comm_ring.to_integral_domain [s: linear_ordered_comm_ring α] : integral_domain α :=
 {s with
- eq_zero_or_eq_zero_of_mul_eq_zero := @linear_ordered_comm_ring.eq_zero_or_eq_zero_of_mul_eq_zero α s }
+ eq_zero_or_eq_zero_of_mul_eq_zero := @linear_ordered_ring.eq_zero_or_eq_zero_of_mul_eq_zero α _ _ }
 
 class decidable_linear_ordered_comm_ring (α : Type u) extends linear_ordered_comm_ring α,
     decidable_linear_ordered_comm_group α

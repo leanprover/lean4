@@ -368,6 +368,9 @@ by simp
 lemma sub_add_eq_sub_sub_swap [add_group α] (a b c : α) : a - (b + c) = a - c - b :=
 by simp
 
+lemma add_sub_add_right_eq_sub [add_group α] (a b c : α) : (a + c) - (b + c) = a - b :=
+by rw [sub_add_eq_sub_sub_swap]; simp
+
 lemma eq_sub_of_add_eq [add_group α] {a b c : α} (h : a + c = b) : a = b - c :=
 by simp [h.symm]
 
@@ -396,9 +399,6 @@ lemma sub_add [add_comm_group α] (a b c : α) : a - b + c = a - (b - c) :=
 by simp
 
 lemma add_sub_add_left_eq_sub [add_comm_group α] (a b c : α) : (c + a) - (c + b) = a - b :=
-by simp
-
-lemma add_sub_add_right_eq_sub [add_comm_group α] (a b c : α) : (a + c) - (b + c) = a - b :=
 by simp
 
 lemma eq_sub_of_add_eq' [add_comm_group α] {a b c : α} (h : c + a = b) : a = b - c :=

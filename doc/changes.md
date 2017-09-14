@@ -1,6 +1,9 @@
 master branch (aka work in progress branch)
 -------------
 
+v3.3.0 (14 September 2017)
+-------------
+
 *Features*
 
 * In addition to user-defined notation parsers introduced in Lean 3.2.0, users may now also define top-level commands in Lean. For an example, see the [`coinductive` command](https://github.com/leanprover/lean/blob/814a5edaf172c3835c000e3f631bddd85bd879ab/library/init/meta/coinductive_predicates.lean#L551-L552) that has been ported to the new model.

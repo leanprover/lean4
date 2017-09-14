@@ -27,10 +27,10 @@ do t    ← infer_type a,
    do {
      m    ← mk_app `reflected [a],
      inst ← mk_instance m
-   <|>
-   do {
-     f ← pp t,
-     fail (to_fmt "mk_has_reflect_instance failed, failed to generate instance for" ++ format.nest 2 (format.line ++ f)) },
+     <|> do {
+       f ← pp t,
+       fail (to_fmt "mk_has_reflect_instance failed, failed to generate instance for" ++ format.nest 2 (format.line ++ f))
+     },
      mk_app `reflect [a, inst] }
 
 /- Synthesize (recursive) instances of `reflected` for all fields -/
@@ -70,6 +70,8 @@ do I_name ← get_has_reflect_type_name,
    env ← get_env,
    v_name : name ← return `_v,
    F_name : name ← return `_F,
+   guard (env.inductive_num_indices I_name = 0) <|>
+     fail "mk_has_reflect_instance failed, indexed families are currently not supported",
    -- Use brec_on if type is recursive.
    -- We store the functional in the variable F.
    if is_recursive env I_name

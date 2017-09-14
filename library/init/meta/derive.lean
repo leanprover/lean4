@@ -90,7 +90,4 @@ instance_derive_handler ``has_reflect mk_has_reflect_instance ff (λ n params tg
 @[derive_handler] meta def has_sizeof_derive_handler :=
 instance_derive_handler ``has_sizeof mk_has_sizeof_instance
 
-@[derive_handler] meta def inhabited_derive_handler :=
-instance_derive_handler ``inhabited mk_inhabited_instance
-
 attribute [derive has_reflect] bool prod sum option interactive.loc pos

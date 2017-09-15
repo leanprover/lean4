@@ -113,8 +113,16 @@ static expr parse_structure_instance(parser & p, name const & fname) {
 
 /* Parse rest of the structure instance update '{' expr 'with' ... */
 static expr parse_structure_instance_update(parser & p, expr const & e) {
-    name fname = p.check_id_next("invalid structure update, identifier expected");
-    return parse_structure_instance_core(p, some_expr(e), name(), fname);
+    if (p.curr_is_token(get_rcurly_tk())) {
+        // '{' expr 'with' '}'
+        p.next();
+        buffer<name> fns;
+        buffer<expr> fvs;
+        return mk_structure_instance(e, fns, fvs);
+    } else {
+        name fname = p.check_id_next("invalid structure update, identifier expected");
+        return parse_structure_instance_core(p, some_expr(e), name(), fname);
+    }
 }
 
 static name * g_emptyc_or_emptys = nullptr;

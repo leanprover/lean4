@@ -3,6 +3,8 @@ master branch (aka work in progress branch)
 
 *Features*
 
+- Implemented [RFC #1820](https://github.com/leanprover/lean/issues/1820)
+
 *Changes*
 
 *API name changes*

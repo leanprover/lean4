@@ -30,12 +30,12 @@ namespace PropF
   local infixr `⇒`:27    := Impl
   notation `⊥`           := Bot
 
-  def Neg A       := A ⇒ ⊥
-  notation ~ A    := Neg A
-  def Top         := ~⊥
-  notation `⊤`    := Top
-  def BiImpl A B  := A ⇒ B ∧ B ⇒ A
-  infixr `⇔`:27   := BiImpl
+  def Neg (A)      := A ⇒ ⊥
+  notation ~ A     := Neg A
+  def Top          := ~⊥
+  notation `⊤`     := Top
+  def BiImpl (A B) := A ⇒ B ∧ B ⇒ A
+  infixr `⇔`:27    := BiImpl
 
   def valuation   := PropVar → bool
 
@@ -51,12 +51,12 @@ namespace PropF
 
   -- the valuation v satisfies a list of PropF, if forall (A : PropF) in Γ,
   -- (TrueQ v A) is tt (the Boolean true)
-  def Satisfies v (Γ : list PropF) := ∀ A, A ∈ Γ → is_true (TrueQ v A)
-  def Models Γ A                   := ∀ v, Satisfies v Γ → is_true (TrueQ v A)
+  def Satisfies (v) (Γ : list PropF) := ∀ A, A ∈ Γ → is_true (TrueQ v A)
+  def Models (Γ A)                   := ∀ v, Satisfies v Γ → is_true (TrueQ v A)
 
   infix `⊨`:80 := Models
 
-  def Valid p := [] ⊨ p
+  def Valid (p) := [] ⊨ p
   reserve infix ` ⊢ `:26
 
   /- Provability -/
@@ -76,7 +76,7 @@ namespace PropF
 
   infix ⊢ := Nc
 
-  def Provable A := [] ⊢ A
+  def Provable (A) := [] ⊢ A
 
   def Prop_Soundness := ∀ A, Provable A → Valid A
 

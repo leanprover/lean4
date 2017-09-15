@@ -1053,6 +1053,10 @@ void parser::parse_binders_core(buffer<expr> & r, parse_binders_config & cfg) {
     bool first = true;
     while (true) {
         if (curr_is_identifier() || curr_is_token(get_placeholder_tk())) {
+            if (cfg.m_explicit_delimiters) {
+                throw parser_error("invalid binder declaration, delimiter/bracket expected (i.e., '(', '{', '[', '{{')",
+                                   pos());
+            }
             /* We only allow the default parameter value syntax for declarations with
                surrounded by () */
             bool new_allow_default = false;

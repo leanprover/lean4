@@ -68,11 +68,11 @@ Quote.quote l n r
 @[simp] lemma eval_quote {V : Type u} {l : Env V} (n : nat) {V' : Type v} {r : Env V'} [Quote l n r] : evalExpr (merge l r) (quote n) = n :=
 Quote.eval_quote l n r
 
-instance quote_one V (v : Env V) : Quote v 1 novars :=
+instance quote_one (V) (v : Env V) : Quote v 1 novars :=
 { quote      := One,
   eval_quote := rfl }
 
-instance quote_mul {V : Type u} (v : Env V) n {V' : Type v} (v' : Env V') m {V'' : Type w} (v'' : Env V'')
+instance quote_mul {V : Type u} (v : Env V) (n) {V' : Type v} (v' : Env V') (m) {V'' : Type w} (v'' : Env V'')
                    [Quote v n v'] [Quote (merge v v') m v''] :
                    Quote v (n * m) (merge v' v'') :=
 { quote      := Mult (map_var sum_assoc (map_var inl (quote n))) (map_var sum_assoc (quote m)),

@@ -20,7 +20,7 @@ end var
 
 open term
 
-definition Term t := Π (var : type → Type), @term var t
+definition Term (t) := Π (var : type → Type), @term var t
 open unit
 
 definition count_vars : Π {t : type}, @term (λ x, unit) t -> nat

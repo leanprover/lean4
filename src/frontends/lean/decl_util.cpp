@@ -60,7 +60,7 @@ expr parse_single_header(parser & p, declaration_name_scope & scope, buffer <nam
             scope.set_name(c_name);
         }
     }
-    p.parse_optional_binders(params, /* allow_default */ true);
+    p.parse_optional_binders(params, /* allow_default */ true, /* explicit delimiters */ true);
     for (expr const & param : params)
         p.add_local(param);
     expr type;
@@ -106,7 +106,7 @@ void parse_mutual_header(parser & p, buffer <name> & lp_names, buffer <expr> & c
     if (cs.size() < 2) {
         throw parser_error("invalid mutual declaration, must provide more than one identifier (separated by commas)", p.pos());
     }
-    p.parse_optional_binders(params, /* allow_default */ true);
+    p.parse_optional_binders(params, /* allow_default */ true, /* explicit delimiters */ true);
     for (expr const & param : params)
         p.add_local(param);
     for (expr const & c : cs)

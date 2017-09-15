@@ -129,6 +129,34 @@ class parser : public abstract_parser {
         /* (input) If true, it will allow binders of the form (x : T := v), and they will be converted
            into (x : opt_param T v) */
         bool     m_allow_default{false};
+        /* (input) If true, then all binders must be surrounded with some kind of bracket. (e.g., '()', '{}', '[]').
+           We use this feature when parsing examples/definitions/theorems. The goal is to avoid counter-intuitive
+           declarations such as:
+
+              example p : false := trivial
+              def main proof : false := trivial
+
+           which would be parsed as
+
+              example (p : false) : _ := trivial
+
+              def main (proof : false) : _ := trivial
+
+           where `_` in both cases is elaborated into `true`. This issue was raised by @gebner in the slack channel.
+
+
+           Remark: we still want implicit delimiters for lambda/pi expressions. That is, we want to
+           write
+
+               fun x : t, s
+           or
+               fun x, s
+
+           instead of
+
+               fun (x : t), s
+        */
+        bool     m_explicit_delimiters{false};
         /* (input and output)
           If m_infer_kind != nullptr, then a sequence of binders can be prefixed with '{}' or '()'
           Moreover, *m_infer_kind will be updated with
@@ -343,10 +371,11 @@ public:
         parse_binders(r, cfg);
     }
 
-    local_environment parse_optional_binders(buffer<expr> & r, bool allow_default = false) {
+    local_environment parse_optional_binders(buffer<expr> & r, bool allow_default = false, bool explicit_delimiters = false) {
         parse_binders_config cfg;
-        cfg.m_allow_empty   = true;
-        cfg.m_allow_default = allow_default;
+        cfg.m_allow_empty         = true;
+        cfg.m_allow_default       = allow_default;
+        cfg.m_explicit_delimiters = explicit_delimiters;
         return parse_binders(r, cfg);
     }
 

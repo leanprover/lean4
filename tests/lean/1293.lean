@@ -10,6 +10,6 @@ example : true := by unify (var 0) (var 0) >> return ()
 
 example : true := by is_def_eq (var 0) (var 0) >> return ()
 
-example foo trivial := by do
+example (foo trivial) := by do
 t ← infer_type (var 0),
 to_expr ``(trivial) >>= apply

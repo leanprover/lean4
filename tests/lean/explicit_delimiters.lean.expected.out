@@ -1,0 +1,2 @@
+explicit_delimiters.lean:1:8: error: invalid binder declaration, delimiter/bracket expected (i.e., '(', '{', '[', '{{')
+explicit_delimiters.lean:3:9: error: invalid binder declaration, delimiter/bracket expected (i.e., '(', '{', '[', '{{')

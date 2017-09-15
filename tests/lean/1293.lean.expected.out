@@ -13,15 +13,15 @@ state:
 1293.lean:11:21: error: tactic 'is_def_eq' failed, given expression should not contain de-Bruijn variables, they should be replaced with local constants before using this tactic
 state:
 ⊢ true
-1293.lean:13:26: error: tactic 'infer_type' failed, given expression should not contain de-Bruijn variables, they should be replaced with local constants before using this tactic
+1293.lean:13:28: error: tactic 'infer_type' failed, given expression should not contain de-Bruijn variables, they should be replaced with local constants before using this tactic
 state:
 foo : ?m_1,
 trivial : ?m_2
 ⊢ ?m_3
-1293.lean:13:8: error: don't know how to synthesize placeholder
+1293.lean:13:9: error: don't know how to synthesize placeholder
 context:
 ⊢ Sort ?
-1293.lean:13:12: error: don't know how to synthesize placeholder
+1293.lean:13:13: error: don't know how to synthesize placeholder
 context:
 foo : ⁇
 ⊢ Sort ?

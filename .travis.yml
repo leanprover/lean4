@@ -2,6 +2,7 @@ language: cpp
 sudo: true
 cache: apt
 dist: trusty
+group: deprecated-2017Q3
 addons:
   apt:
     sources: &apt_sources

@@ -55,7 +55,7 @@
                         (propertize expr 'face 'font-lock-variable-name-face)
                         type))))
       (when type
-        (setq type-str type))
+        (setq type-str (lean-highlight-string type)))
       (when tactic_params
         (setq tactic_params (-map-indexed (lambda (i param)
                                             (if (eq i tactic_param_idx)

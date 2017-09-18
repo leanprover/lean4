@@ -56,6 +56,14 @@
    ;; current window of current buffer is selected (i.e., in focus)
    (eq (current-buffer) (window-buffer))))
 
+(defun lean-highlight-string (str)
+  "Returns 'str' highlighted in lean-info-mode"
+  (lean-ensure-info-buffer " Lean tmp buffer")
+  (lean-with-info-output-to-buffer (get-buffer " Lean tmp buffer")
+    (princ str)
+    (font-lock-fontify-buffer)
+    (buffer-string)))
+
 (defun lean-get-info-record-at-point (cont)
   "Get info-record at the current point"
   (with-demoted-errors "lean get info: %s"

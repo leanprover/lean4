@@ -57,7 +57,7 @@
                            ("warning" 'warning)
                            ("information" 'info)
                            (_ 'info))
-                         text
+                         (lean-highlight-string text)
                          :filename file_name
                          :checker checker :buffer buffer))
 

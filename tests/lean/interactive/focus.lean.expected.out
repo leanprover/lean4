@@ -1,5 +1,5 @@
 {"msgs":[{"caption":"","file_name":"f","pos_col":2,"pos_line":4,"severity":"error","text":"focus tactic failed, insufficient number of tactics\nstate:\na b c : ℕ,\na_1 : a = b,\na_2 : b = 0\n⊢ b = a"}],"response":"all_messages"}
 {"message":"file invalidated","response":"ok","seq_num":0}
-{"record":{"source":,"state":"a b c : ℕ,\na_1 : a = b,\na_2 : b = 0\n⊢ a = 0","tactic_param_idx":0,"tactic_params":["{ tactic }"],"text":"focus","type":"tactic.interactive.itactic → tactic unit"},"response":"ok","seq_num":5}
-{"record":{"source":,"state":"b c : ℕ,\na_2 : b = 0\n⊢ b = 0","tactic_param_idx":0,"tactic_params":["{ tactic }"],"text":"focus","type":"tactic.interactive.itactic → tactic unit"},"response":"ok","seq_num":7}
+{"record":{"doc":"`focus { t }` temporarily hides all goals other than the first, applies `t`, and then restores the other goals. It fails if there are no goals.","source":,"state":"a b c : ℕ,\na_1 : a = b,\na_2 : b = 0\n⊢ a = 0","tactic_param_idx":0,"tactic_params":["{ tactic }"],"text":"focus","type":"tactic.interactive.itactic → tactic unit"},"response":"ok","seq_num":5}
+{"record":{"doc":"`focus { t }` temporarily hides all goals other than the first, applies `t`, and then restores the other goals. It fails if there are no goals.","source":,"state":"b c : ℕ,\na_2 : b = 0\n⊢ b = 0","tactic_param_idx":0,"tactic_params":["{ tactic }"],"text":"focus","type":"tactic.interactive.itactic → tactic unit"},"response":"ok","seq_num":7}
 {"response":"ok","seq_num":9}

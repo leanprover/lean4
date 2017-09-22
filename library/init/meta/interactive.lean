@@ -160,7 +160,7 @@ meta def apply (q : parse texpr) : tactic unit :=
 i_to_expr_for_apply q >>= tactic.apply
 
 /--
-Similar to the `apply` tactic, but also creates subgoals for dependent premises that have not been fixed by type inference or type class resolution.
+Similar to the `apply` tactic, but does not reorder goals.
 -/
 meta def fapply (q : parse texpr) : tactic unit :=
 i_to_expr_for_apply q >>= tactic.fapply
@@ -227,7 +227,7 @@ meta def change (q : parse texpr) : parse (tk "with" *> texpr)? → parse locati
        (do g ← target, change_core (repl g) none)
 
 /--
-This tactic provides an exact proof term to solve the main goal. If `t` is the goal and `p` is a term of type `u` then `exact p` succeeds if and only if `t` and ``u`` can be unified.
+This tactic provides an exact proof term to solve the main goal. If `t` is the goal and `p` is a term of type `u` then `exact p` succeeds if and only if `t` and `u` can be unified.
 -/
 meta def exact (q : parse texpr) : tactic unit :=
 do tgt : expr ← target,
@@ -383,7 +383,7 @@ For example, given `n : nat` and a goal with a hypothesis `h : P n` and target `
 
 `induction e`, where `e` is an expression instead of a variable, generalizes `e` in the goal, and then performs induction on the resulting variable.
 
-`induction e with y₁ ... yₙ`, where `e` is a variable or an expression, specifies that the sequence of names `y₁ ... yₙ` should be used for the arguments to the constructors and inductive hypotheses, including implicit arguments. If the list does not include enough names for all of the arguments, additional names are generated automatically. If too many names are given, the extra ones are ignored. Underscores can be used in the list, in which case the corresponding names are generated automatically.
+`induction e with y₁ ... yₙ`, where `e` is a variable or an expression, specifies that the sequence of names `y₁ ... yₙ` should be used for the arguments to the constructors and inductive hypotheses, including implicit arguments. If the list does not include enough names for all of the arguments, additional names are generated automatically. If too many names are given, the extra ones are ignored. Underscores can be used in the list, in which case the corresponding names are generated automatically. Note that for long sequences of names, the `case` tactic provides a more convenient naming mechanism.
 
 `induction e using r` allows the user to specify the principle of induction that should be used. Here `r` should be a theorem whose result type must be of the form `C t`, where `C` is a bound variable and `t` is a (possibly empty) sequence of bound variables
 
@@ -656,7 +656,8 @@ do t ← target,
 Assuming the target of the goal is a Pi or a let, `assume h : t` unifies the type of the binder with `t` and introduces it with name `h`, just like `intro h`. If `h` is absent, the tactic uses the name `this`. If `t` is omitted, it will be inferred. 
 
 `assume (h₁ : t₁) ... (hₙ : tₙ)` introduces multiple hypotheses. Any of the types may be omitted, but the names must be present.
--/meta def «assume» : parse (sum.inl <$> (tk ":" *> texpr) <|> sum.inr <$> parse_binders tac_rbp) → tactic unit
+-/
+meta def «assume» : parse (sum.inl <$> (tk ":" *> texpr) <|> sum.inr <$> parse_binders tac_rbp) → tactic unit
 | (sum.inl ty)      := assume_core `this ty
 | (sum.inr binders) :=
   binders.mmap' $ λ b, assume_core b.local_pp_name b.local_type
@@ -777,13 +778,13 @@ The `injection` tactic is based on the fact that constructors of inductive data 
 
 If `q` is a proof of a statement of conclusion `t₁ = t₂`, then injection applies injectivity to derive the equality of all arguments of `t₁` and `t₂` placed in the same positions. For example, from `(a::b) = (c::d)` we derive `a=c` and `b=d`. To use this tactic `t₁` and `t₂` should be constructor applications of the same constructor.
 
-Given `h : a::b = c::d`, the tactic `injection h` adds to new hypothesis with types `a = c` and `b = d` to the main goal. The tactic `injection h with h₁ h₂` uses the names `h₁` an `h₂` to name the new hypotheses.
+Given `h : a::b = c::d`, the tactic `injection h` adds two new hypothesis with types `a = c` and `b = d` to the main goal. The tactic `injection h with h₁ h₂` uses the names `h₁` and `h₂` to name the new hypotheses.
 -/
 meta def injection (q : parse texpr) (hs : parse with_ident_list) : tactic unit :=
 do e ← i_to_expr q, tactic.injection_with e hs, try assumption
 
 /--
-`injections h₁ ... hₙ` iteratively applies `injection` to hypotheses using the names `h₁ ... hₙ`.
+`injections with h₁ ... hₙ` iteratively applies `injection` to hypotheses using the names `h₁ ... hₙ`.
 -/
 meta def injections (hs : parse with_ident_list) : tactic unit :=
 do tactic.injections_with hs, try assumption
@@ -944,7 +945,7 @@ The `simp` tactic uses lemmas and hypotheses to simplify the main goal target or
 
 `simp [-id_1, ... -id_n]` simplifies the main goal target using the lemmas tagged with the attribute `[simp]`, but removes the ones named `idᵢ`.
 
-`simp at h₁ h₂ ... hₙ` simplifies the non-dependent hypotheses `h₁ : T₁` ... `hₙ : Tₙ`. The tactic fails if the target or another hypothesis depends on one of them. The token ``⊢`` or ``|-`` can be added to the list to include the target.
+`simp at h₁ h₂ ... hₙ` simplifies the non-dependent hypotheses `h₁ : T₁` ... `hₙ : Tₙ`. The tactic fails if the target or another hypothesis depends on one of them. The token `⊢` or `|-` can be added to the list to include the target.
 
 `simp at *` simplifies all the hypotheses and the target.
 
@@ -1135,9 +1136,9 @@ namespace interactive
 open interactive interactive.types expr
 
 /--
-Given defined constants ``e₁ ... eₙ``, ``unfold e₁ ... eₙ`` iteratively unfolds all occurrences in the target of the main goal, using equational lemmas associated with the definitions.
+Given defined constants `e₁ ... eₙ`, `unfold e₁ ... eₙ` iteratively unfolds all occurrences in the target of the main goal, using equational lemmas associated with the definitions.
 
-As with ``simp``, the ``at`` modifier can be used to specify locations for the unfolding.
+As with `simp`, the `at` modifier can be used to specify locations for the unfolding.
 -/
 meta def unfold (cs : parse ident*) (locat : parse location) (cfg : unfold_config := {}) : tactic unit :=
 do es ← ids_to_simp_arg_list "unfold" cs,
@@ -1145,7 +1146,7 @@ do es ← ids_to_simp_arg_list "unfold" cs,
    simp_core cfg.to_simp_config failed no_dflt es [] locat
 
 /--
-Similar to ``unfold``, but does not iterate the unfolding.
+Similar to `unfold`, but does not iterate the unfolding.
 -/
 meta def unfold1 (cs : parse ident*) (locat : parse location) (cfg : unfold_config := {single_pass := tt}) : tactic unit :=
 unfold cs locat cfg
@@ -1199,7 +1200,7 @@ do p ← tactic.to_expr_strict q,
    tactic.by_cases p (n.get_or_else `h)
 
 /--
-If the target of the main goal is a proposition `p`, `by_contradiction h` reduces to goal to proving `false` using the additional hypothesis `h : ¬ p`. If `h` is omitted, a name is generated automatically.
+If the target of the main goal is a proposition `p`, `by_contradiction h` reduces the goal to proving `false` using the additional hypothesis `h : ¬ p`. If `h` is omitted, a name is generated automatically.
 
 This tactic requires that `p` is decidable. To ensure that all propositions are decidable via classical reasoning, use  `local attribute classical.prop_decidable [instance]`.
 -/

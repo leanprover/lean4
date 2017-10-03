@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-# Script for testing load-lean.el without installing Lean
-MY_PATH="`dirname \"$0\"`"              # relative
-MY_PATH="`( cd \"$MY_PATH\" && pwd )`"  # absolutized and normalized
-
-export LEAN_ROOTDIR="$MY_PATH/.."
-export LEAN_EMACS_PATH="$MY_PATH/../src/emacs"
-
-emacs -load $LEAN_EMACS_PATH/load-lean.el -debug-init $*

@@ -50,8 +50,6 @@ option(CUSTOM_ALLOCATORS   "CUSTOM_ALLOCATORS" ON)
 option(SAVE_SNAPSHOT       "SAVE_SNAPSHOT" ON)
 option(SAVE_INFO           "SAVE_INFO" ON)
 
-# emacs site-lisp dir
-set(EMACS_LISP_DIR        "share/emacs/site-lisp/lean" CACHE STRING "emacs site-lisp dir")
 # library dir
 set(LIBRARY_DIR           "lib/lean"                   CACHE STRING "library dir")
 set(LEAN_EXT_INCLUDE_DIR  "include/lean_ext"           CACHE STRING "include dir for building Lean extensions")
@@ -102,8 +100,6 @@ if (NOT("${SAVE_INFO}" MATCHES "ON"))
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_NO_INFO")
 endif()
 
-message(STATUS "Lean emacs-mode will be installed at "
-  "${CMAKE_INSTALL_PREFIX}/${EMACS_LISP_DIR}")
 message(STATUS "Lean library will be installed at "
   "${CMAKE_INSTALL_PREFIX}/${LIBRARY_DIR}")
 
@@ -192,7 +188,6 @@ set(CMAKE_CXX_FLAGS_GPROF          "-O2 -g -pg")
 set(CPACK_DMG_BACKGROUND_IMAGE "${LEAN_SOURCE_DIR}/../images/lean.png")
 set(CPACK_DMG_VOLUME_NAME "Lean-${LEAN_VERSION_STRING}")
 set(CPACK_BUNDLE_NAME "Lean-${LEAN_VERSION_STRING}")
-set(CPACK_BUNDLE_STARTUP_COMMAND "bin/leanemacs")
 set(CPACK_PACKAGE_ICON "${LEAN_SOURCE_DIR}/../images/lean.png")
 ##################
 
@@ -352,10 +347,6 @@ configure_file("${LEAN_SOURCE_DIR}/githash.h.in" "${LEAN_BINARY_DIR}/githash.h")
 # Version
 configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
 
-# leanemacs file
-configure_file("${LEAN_SOURCE_DIR}/../bin/leanemacs.in" "${LEAN_SOURCE_DIR}/../bin/leanemacs")
-configure_file("${LEAN_SOURCE_DIR}/../bin/leanemacs.bat.in" "${LEAN_SOURCE_DIR}/../bin/leanemacs.bat")
-
 include_directories("${LEAN_BINARY_DIR}")
 add_subdirectory(util)
 set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:util>)
@@ -419,7 +410,6 @@ if (NOT("${CROSS_COMPILE}" MATCHES "ON"))
 endif()
 
 add_subdirectory(shell)
-add_subdirectory(emacs)
 
 function(add_exec_test name tgt)
     if(${EMSCRIPTEN})
@@ -494,16 +484,6 @@ install(FILES "${CMAKE_SOURCE_DIR}/../bin/leanpkg"
   DESTINATION bin
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  install(FILES "${CMAKE_SOURCE_DIR}/../bin/leanemacs.bat" "${CMAKE_SOURCE_DIR}/../bin/leanemacs.bat"
-    DESTINATION bin
-    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-else()
-  install(FILES "${CMAKE_SOURCE_DIR}/../bin/leanemacs" "${CMAKE_SOURCE_DIR}/../bin/leanemacs"
-    DESTINATION bin
-    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-endif()
-
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/../library" DESTINATION "${LIBRARY_DIR}"
         FILES_MATCHING
         PATTERN "*.lean"
@@ -521,9 +501,6 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/../leanpkg" DESTINATION "${LIBRARY_DIR}"
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/" DESTINATION "${LEAN_EXT_INCLUDE_DIR}"
         FILES_MATCHING
         PATTERN "*.h")
-
-install(FILES "${CMAKE_SOURCE_DIR}/../src/emacs/lean.pgm"
-        DESTINATION "${EMACS_LISP_DIR}")
 
 if("${INCLUDE_MSYS2_DLLS}" MATCHES "ON")
   # TODO(Leo): do not use hardlinks to required DLLs.

@@ -150,6 +150,8 @@ For more details, see discussion [here](https://github.com/leanprover/lean/pull/
 
 * User attributes can no longer be set with `set_basic_attribute`.  You need to use `user_attribute.set` now.
 
+* The Emacs mode has been moved into its own repository and MELPA packages: https://github.com/leanprover/lean-mode
+
 *API name changes*
 
 * `list.dropn` => `list.drop`

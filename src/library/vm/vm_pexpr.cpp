@@ -41,6 +41,27 @@ vm_obj pexpr_is_choice_macro(vm_obj const & e) {
     return mk_vm_bool(is_choice(to_expr(e)));
 }
 
+vm_obj pexpr_mk_structure_instance(vm_obj const & info) {
+    name struct_name;
+    if (!is_none(cfield(info, 0))) {
+        struct_name = to_name(get_some_value(cfield(info, 0)));
+    }
+    optional<expr> source;
+    if (!is_none(cfield(info, 1))) {
+        source = to_expr(get_some_value(cfield(info, 1)));
+    }
+    buffer<name> field_names;
+    to_buffer_name(cfield(info, 2), field_names);
+    buffer<expr> field_values;
+    to_buffer_expr(cfield(info, 3), field_values);
+
+    if (source) {
+        return to_obj(mk_structure_instance(*source, field_names, field_values));
+    } else {
+        return to_obj(mk_structure_instance(struct_name, field_names, field_values));
+    }
+}
+
 vm_obj pexpr_get_structure_instance_info(vm_obj const & e) {
     if (!is_structure_instance(to_expr(e))) {
         return mk_vm_none();
@@ -51,7 +72,11 @@ vm_obj pexpr_get_structure_instance_info(vm_obj const & e) {
     buffer<expr> field_values;
 
     get_structure_instance_info(to_expr(e), struct_name, source, field_names, field_values);
-    return mk_vm_some(mk_vm_constructor(0, to_obj(struct_name), to_obj(source), to_obj(field_names), to_obj(field_values)));
+    optional<name> opt_struct_name;
+    if (struct_name) {
+        opt_struct_name = struct_name;
+    }
+    return mk_vm_some(mk_vm_constructor(0, to_obj(opt_struct_name), to_obj(source), to_obj(field_names), to_obj(field_values)));
 }
 
 void initialize_vm_pexpr() {
@@ -63,6 +88,8 @@ void initialize_vm_pexpr() {
     DECLARE_VM_BUILTIN(name("pexpr", "mk_field_macro"),   pexpr_mk_field_macro);
 
     DECLARE_VM_BUILTIN(name("pexpr", "is_choice_macro"),  pexpr_is_choice_macro);
+
+    DECLARE_VM_BUILTIN(name("pexpr", "mk_structure_instance"), pexpr_mk_structure_instance);
     DECLARE_VM_BUILTIN(name("pexpr", "get_structure_instance_info"), pexpr_get_structure_instance_info);
 }
 

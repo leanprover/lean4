@@ -218,8 +218,7 @@ instance ordered_ring.to_ordered_semiring [s : ordered_ring α] : ordered_semiri
   mul_le_mul_of_nonneg_left  := @ordered_ring.mul_le_mul_of_nonneg_left α _,
   mul_le_mul_of_nonneg_right := @ordered_ring.mul_le_mul_of_nonneg_right α _,
   mul_lt_mul_of_pos_left     := @ordered_ring.mul_lt_mul_of_pos_left α _,
-  mul_lt_mul_of_pos_right    := @ordered_ring.mul_lt_mul_of_pos_right α _,
-  lt_of_add_lt_add_left      := @lt_of_add_lt_add_left α _}
+  mul_lt_mul_of_pos_right    := @ordered_ring.mul_lt_mul_of_pos_right α _}
 
 section ordered_ring
 variable [ordered_ring α]
@@ -272,8 +271,7 @@ instance linear_ordered_ring.to_linear_ordered_semiring [s : linear_ordered_ring
   mul_le_mul_of_nonneg_right := @mul_le_mul_of_nonneg_right α _,
   mul_lt_mul_of_pos_left     := @mul_lt_mul_of_pos_left α _,
   mul_lt_mul_of_pos_right    := @mul_lt_mul_of_pos_right α _,
-  le_total                   := linear_ordered_ring.le_total,
-  lt_of_add_lt_add_left      := @lt_of_add_lt_add_left α _ }
+  le_total                   := linear_ordered_ring.le_total }
 
 section linear_ordered_ring
 variable [linear_ordered_ring α]
@@ -380,7 +378,6 @@ let s : linear_ordered_semiring α := @linear_ordered_ring.to_linear_ordered_sem
  add_left_cancel            := @linear_ordered_semiring.add_left_cancel α s,
  add_right_cancel           := @linear_ordered_semiring.add_right_cancel α s,
  le_of_add_le_add_left      := @linear_ordered_semiring.le_of_add_le_add_left α s,
- lt_of_add_lt_add_left      := @linear_ordered_semiring.lt_of_add_lt_add_left α s,
  mul_le_mul_of_nonneg_left  := @linear_ordered_semiring.mul_le_mul_of_nonneg_left α s,
  mul_le_mul_of_nonneg_right := @linear_ordered_semiring.mul_le_mul_of_nonneg_right α s,
  mul_lt_mul_of_pos_left     := @linear_ordered_semiring.mul_lt_mul_of_pos_left α s,

@@ -19,8 +19,6 @@ class ordered_cancel_comm_monoid (α : Type u)
               add_right_cancel_semigroup α, partial_order α :=
 (add_le_add_left       : ∀ a b : α, a ≤ b → ∀ c : α, c + a ≤ c + b)
 (le_of_add_le_add_left : ∀ a b c : α, a + b ≤ a + c → b ≤ c)
-(add_lt_add_left       : ∀ a b : α, a < b → ∀ c : α, c + a < c + b)
-(lt_of_add_lt_add_left : ∀ a b c : α, a + b < a + c → b < c)
 
 section ordered_cancel_comm_monoid
 variable {α : Type u}
@@ -31,17 +29,19 @@ lemma add_le_add_left {a b : α} (h : a ≤ b) (c : α) : c + a ≤ c + b :=
 
 lemma le_of_add_le_add_left {a b c : α} (h : a + b ≤ a + c) : b ≤ c :=
 @ordered_cancel_comm_monoid.le_of_add_le_add_left α s a b c h
-
-lemma add_lt_add_left {a b : α} (h : a < b) (c : α) : c + a < c + b :=
-@ordered_cancel_comm_monoid.add_lt_add_left α s a b h c
-
-lemma lt_of_add_lt_add_left {a b c : α} (h : a + b < a + c) : b < c :=
-@ordered_cancel_comm_monoid.lt_of_add_lt_add_left α s a b c h
 end ordered_cancel_comm_monoid
 
 section ordered_cancel_comm_monoid
 variable {α : Type u}
 variable [ordered_cancel_comm_monoid α]
+
+lemma add_lt_add_left {a b : α} (h : a < b) (c : α) : c + a < c + b :=
+lt_of_le_not_le (add_le_add_left (le_of_lt h) _) $
+  mt le_of_add_le_add_left (not_le_of_gt h)
+
+lemma lt_of_add_lt_add_left {a b c : α} (h : a + b < a + c) : b < c :=
+lt_of_le_not_le (le_of_add_le_add_left (le_of_lt h)) $
+  mt (λ h, add_le_add_left h _) (not_le_of_gt h)
 
 lemma add_le_add_right {a b : α} (h : a ≤ b) (c : α) : a + c ≤ b + c :=
 add_comm c a ▸ add_comm c b ▸ add_le_add_left h c
@@ -204,8 +204,7 @@ instance ordered_comm_group.to_ordered_cancel_comm_monoid (α : Type u) [s : ord
 { s with
   add_left_cancel       := @add_left_cancel α _,
   add_right_cancel      := @add_right_cancel α _,
-  le_of_add_le_add_left := @ordered_comm_group.le_of_add_le_add_left α _,
-  lt_of_add_lt_add_left := @ordered_comm_group.lt_of_add_lt_add_left α _ }
+  le_of_add_le_add_left := @ordered_comm_group.le_of_add_le_add_left α _ }
 
 section ordered_comm_group
 variables {α : Type u} [ordered_comm_group α]

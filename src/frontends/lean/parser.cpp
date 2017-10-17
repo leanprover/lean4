@@ -2124,6 +2124,7 @@ expr parser::parse_string_expr() {
 
 expr parser::parse_char_expr() {
     auto p = pos();
+    // TODO(Leo): Fix UTF-8
     std::string v = get_str_val();
     lean_assert(v.size() == 1);
     next();

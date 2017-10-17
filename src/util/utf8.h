@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <string>
+#include "util/buffer.h"
 #include "util/optional.h"
 
 namespace lean {
@@ -22,4 +23,10 @@ inline unsigned utf8_to_unicode(char const * begin, char const * end) {
     return utf8_to_unicode(reinterpret_cast<uchar const *>(begin),
                            reinterpret_cast<uchar const *>(end));
 }
+
+/* Decode a UTF-8 encoded string `str` into unicode scalar values */
+void utf8_decode(std::string const & str, buffer<unsigned> & out);
+
+/* Push a unicode scalar value into a utf-8 encoded string */
+void push_unicode_scalar(std::string & s, unsigned code);
 }

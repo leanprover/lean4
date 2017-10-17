@@ -126,7 +126,7 @@ meta instance {α : Type u} {p : α → Prop} [has_to_format α] : has_to_format
 ⟨λ s, to_fmt (val s)⟩
 
 meta def format.bracket : string → string → format → format
-| o c f := to_fmt o ++ nest (utf8_length o) f ++ to_fmt c
+| o c f := to_fmt o ++ nest o.length f ++ to_fmt c
 
 meta def format.paren (f : format) : format :=
 format.bracket "(" ")" f

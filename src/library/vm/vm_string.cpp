@@ -6,14 +6,15 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "util/interrupt.h"
+#include "util/utf8.h"
 #include "library/vm/vm_string.h"
 
 namespace lean {
-static void to_string(vm_obj const & o, std::string & s) {
+static void to_string(vm_obj o, std::string & s) {
     check_system("to_string");
-    if (!is_simple(o)) {
-        to_string(cfield(o, 1), s);
-        s += static_cast<unsigned char>(cidx(cfield(o, 0)));
+    while (!is_simple(o)) {
+        push_unicode_scalar(s, cidx(cfield(o, 0)));
+        o  = cfield(o, 1);
     }
 }
 
@@ -24,9 +25,13 @@ std::string to_string(vm_obj const & o) {
 }
 
 vm_obj to_obj(std::string const & str) {
-    vm_obj r = mk_vm_simple(0);
-    for (unsigned i = 0; i < str.size(); i++) {
-        vm_obj args[2] = { mk_vm_simple(static_cast<unsigned char>(str[i])), r };
+    buffer<unsigned> tmp;
+    utf8_decode(str, tmp);
+    vm_obj   r = mk_vm_simple(0);
+    unsigned i = tmp.size();
+    while (i > 0) {
+        --i;
+        vm_obj args[2] = { mk_vm_simple(tmp[i]), r };
         r = mk_vm_constructor(1, 2, args);
     }
     return r;

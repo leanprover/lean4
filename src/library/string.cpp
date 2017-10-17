@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include <algorithm>
+#include "util/utf8.h"
 #include "kernel/type_checker.h"
 #include "library/kernel_serializer.h"
 #include "library/string.h"
@@ -19,6 +20,7 @@ static name * g_string_macro         = nullptr;
 static std::string * g_string_opcode = nullptr;
 static expr * g_nat                  = nullptr;
 static expr * g_char                 = nullptr;
+static expr * g_char_mk              = nullptr;
 static expr * g_char_of_nat          = nullptr;
 static expr * g_string               = nullptr;
 static expr * g_empty                = nullptr;
@@ -117,6 +119,7 @@ void initialize_string() {
     g_string_opcode   = new std::string("Str");
     g_nat             = new expr(Const(get_nat_name()));
     g_char            = new expr(Const(get_char_name()));
+    g_char_mk         = new expr(Const(get_char_mk_name()));
     g_char_of_nat     = new expr(Const(get_char_of_nat_name()));
     g_string          = new expr(Const(get_string_name()));
     g_empty           = new expr(Const(get_string_empty_name()));
@@ -143,15 +146,18 @@ void finalize_string() {
     delete g_string;
     delete g_char_of_nat;
     delete g_char;
+    delete g_char_mk;
     delete g_string_opcode;
     delete g_string_macro;
     delete g_fin_mk;
 }
 
 expr from_string_core(std::string const & s) {
+    buffer<unsigned> tmp;
+    utf8_decode(s, tmp);
     expr r = *g_empty;
-    for (unsigned i = 0; i < s.size(); i++) {
-        expr n = to_nat_expr(mpz(static_cast<unsigned char>(s[i])));
+    for (unsigned i = 0; i < tmp.size(); i++) {
+        expr n = to_nat_expr(mpz(tmp[i]));
         expr c = mk_app(*g_char_of_nat, n);
         r = mk_app(*g_str, r, c);
     }
@@ -162,23 +168,23 @@ expr from_string(std::string const & s) {
     return mk_string_macro(s);
 }
 
-optional<char> to_char_core(expr const & e) {
+optional<unsigned> to_char_core(expr const & e) {
     buffer<expr> args;
     expr const & fn = get_app_args(e, args);
-    if (fn == *g_fin_mk && args.size() == 3) {
-        if (auto n = to_num(args[1])) {
-            return optional<char>(n->get_unsigned_int());
+    if (fn == *g_char_mk && args.size() == 2) {
+        if (auto n = to_num(args[0])) {
+            return optional<unsigned>(n->get_unsigned_int());
         } else {
-            return optional<char>();
+            return optional<unsigned>();
         }
     } else if (fn == *g_char_of_nat && args.size() == 1) {
         if (auto n = to_num(args[0])) {
-            return optional<char>(n->get_unsigned_int());
+            return optional<unsigned>(n->get_unsigned_int());
         } else {
-            return optional<char>();
+            return optional<unsigned>();
         }
     } else {
-        return optional<char>();
+        return optional<unsigned>();
     }
 }
 
@@ -186,12 +192,12 @@ bool is_char_value_core(expr const & e) {
     return static_cast<bool>(to_char_core(e));
 }
 
-optional<char> to_char(abstract_type_context & ctx, expr const & e) {
+optional<unsigned> to_char(abstract_type_context & ctx, expr const & e) {
     if (auto v = to_char_core(e)) {
         if (ctx.is_def_eq(ctx.infer(e), mk_char_type()))
             return v;
     }
-    return optional<char>();
+    return optional<unsigned>();
 }
 
 bool is_char_value(abstract_type_context & ctx, expr const & e) {
@@ -205,7 +211,7 @@ bool is_char_value(abstract_type_context & ctx, expr const & e) {
 
 static bool append_char(expr const & e, std::string & r) {
     if (auto c = to_char_core(e)) {
-        r.push_back(*c);
+        push_unicode_scalar(r, *c);
         return true;
     } else {
         return false;

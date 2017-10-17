@@ -16,7 +16,7 @@ structure param_info :=
 open format list decidable
 
 private meta def ppfield {α : Type} [has_to_format α] (fname : string) (v : α) : format :=
-group $ to_fmt fname ++ space ++ to_fmt ":=" ++ space ++ nest (fname.utf8_length + 4) (to_fmt v)
+group $ to_fmt fname ++ space ++ to_fmt ":=" ++ space ++ nest (fname.length + 4) (to_fmt v)
 
 private meta def concat_fields (f₁ f₂ : format) : format :=
 if       is_nil f₁ then f₂

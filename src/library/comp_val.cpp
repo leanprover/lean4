@@ -125,7 +125,33 @@ optional<expr> mk_fin_val_ne_proof(expr const & a, expr const & b) {
     return some_expr(mk_app(mk_constant(get_fin_ne_of_vne_name()), n, a, b, *pr));
 }
 
-static expr * g_char_sz = nullptr;
+optional<expr> mk_char_mk_ne_proof(expr const & a, expr const & b) {
+    if (!is_app_of(a, get_char_mk_name(), 2) ||
+        !is_app_of(a, get_char_mk_name(), 2))
+        return none_expr();
+    expr const & v_a = app_arg(app_fn(a));
+    expr const & v_b = app_arg(app_fn(b));
+    auto pr = mk_nat_val_ne_proof(v_a, v_b);
+    if (!pr) return none_expr();
+    return some_expr(mk_app(mk_constant(get_char_ne_of_vne_name()), a, b, *pr));
+}
+
+static expr * g_d800   = nullptr;
+static expr * g_dfff   = nullptr;
+static expr * g_110000 = nullptr;
+
+optional<expr> mk_is_valid_char_proof(expr const & v) {
+    if (auto h = mk_nat_val_lt_proof(v, *g_d800)) {
+        return some_expr(mk_app(mk_constant(get_is_valid_char_range_1_name()), v, *h));
+    }
+
+    if (auto h_1 = mk_nat_val_lt_proof(*g_dfff, v)) {
+    if (auto h_2 = mk_nat_val_lt_proof(v, *g_110000)) {
+        return some_expr(mk_app(mk_constant(get_is_valid_char_range_2_name()), v, *h_1, *h_2));
+    }}
+
+    return none_expr();
+}
 
 optional<expr> mk_char_val_ne_proof(expr const & a, expr const & b) {
     if (is_app_of(a, get_char_of_nat_name(), 1) &&
@@ -133,12 +159,12 @@ optional<expr> mk_char_val_ne_proof(expr const & a, expr const & b) {
         expr const & v_a = app_arg(a);
         expr const & v_b = app_arg(b);
         if (auto h_1 = mk_nat_val_ne_proof(v_a, v_b)) {
-        if (auto h_2 = mk_nat_val_lt_proof(v_a, *g_char_sz)) {
-        if (auto h_3 = mk_nat_val_lt_proof(v_b, *g_char_sz)) {
+        if (auto h_2 = mk_is_valid_char_proof(v_a)) {
+        if (auto h_3 = mk_is_valid_char_proof(v_b)) {
             return some_expr(mk_app({mk_constant(get_char_of_nat_ne_of_ne_name()), v_a, v_b, *h_1, *h_2, *h_3}));
         }}}
     }
-    return mk_fin_val_ne_proof(a, b);
+    return mk_char_mk_ne_proof(a, b);
 }
 
 /* Remark: this function assumes 'e' has type string */
@@ -299,10 +325,14 @@ optional<expr> mk_val_ne_proof(type_context & ctx, expr const & a, expr const & 
 }
 
 void initialize_comp_val() {
-    g_char_sz = new expr(to_nat_expr(mpz(256)));
+    g_d800   = new expr(to_nat_expr(mpz(0xd800)));
+    g_dfff   = new expr(to_nat_expr(mpz(0xdfff)));
+    g_110000 = new expr(to_nat_expr(mpz(0xd110000)));
 }
 
 void finalize_comp_val() {
-    delete g_char_sz;
+    delete g_d800;
+    delete g_dfff;
+    delete g_110000;
 }
 }

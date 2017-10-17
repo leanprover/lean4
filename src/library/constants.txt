@@ -25,8 +25,12 @@ combinator.K
 cast
 cast_heq
 char
+char.mk
+char.ne_of_vne
 char.of_nat
 char.of_nat_ne_of_ne
+is_valid_char_range_1
+is_valid_char_range_2
 classical.prop_decidable
 classical.type_decidable_eq
 coe

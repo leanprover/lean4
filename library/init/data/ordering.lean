@@ -45,10 +45,10 @@ instance : has_ordering nat :=
 ⟨nat.cmp⟩
 
 instance (n) : has_ordering (fin n) :=
-⟨λ a b, nat.cmp a.1 b.1⟩
+⟨λ a b, nat.cmp a.val b.val⟩
 
 instance : has_ordering char :=
-fin.has_ordering _
+⟨λ c d, nat.cmp c.val d.val⟩
 
 instance : has_ordering unsigned :=
 fin.has_ordering _

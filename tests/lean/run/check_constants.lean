@@ -30,8 +30,12 @@ run_cmd script_check_id `combinator.K
 run_cmd script_check_id `cast
 run_cmd script_check_id `cast_heq
 run_cmd script_check_id `char
+run_cmd script_check_id `char.mk
+run_cmd script_check_id `char.ne_of_vne
 run_cmd script_check_id `char.of_nat
 run_cmd script_check_id `char.of_nat_ne_of_ne
+run_cmd script_check_id `is_valid_char_range_1
+run_cmd script_check_id `is_valid_char_range_2
 run_cmd script_check_id `classical.prop_decidable
 run_cmd script_check_id `classical.type_decidable_eq
 run_cmd script_check_id `coe

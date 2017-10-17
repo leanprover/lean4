@@ -30,8 +30,12 @@ name const * g_combinator_K = nullptr;
 name const * g_cast = nullptr;
 name const * g_cast_heq = nullptr;
 name const * g_char = nullptr;
+name const * g_char_mk = nullptr;
+name const * g_char_ne_of_vne = nullptr;
 name const * g_char_of_nat = nullptr;
 name const * g_char_of_nat_ne_of_ne = nullptr;
+name const * g_is_valid_char_range_1 = nullptr;
+name const * g_is_valid_char_range_2 = nullptr;
 name const * g_classical_prop_decidable = nullptr;
 name const * g_classical_type_decidable_eq = nullptr;
 name const * g_coe = nullptr;
@@ -407,8 +411,12 @@ void initialize_constants() {
     g_cast = new name{"cast"};
     g_cast_heq = new name{"cast_heq"};
     g_char = new name{"char"};
+    g_char_mk = new name{"char", "mk"};
+    g_char_ne_of_vne = new name{"char", "ne_of_vne"};
     g_char_of_nat = new name{"char", "of_nat"};
     g_char_of_nat_ne_of_ne = new name{"char", "of_nat_ne_of_ne"};
+    g_is_valid_char_range_1 = new name{"is_valid_char_range_1"};
+    g_is_valid_char_range_2 = new name{"is_valid_char_range_2"};
     g_classical_prop_decidable = new name{"classical", "prop_decidable"};
     g_classical_type_decidable_eq = new name{"classical", "type_decidable_eq"};
     g_coe = new name{"coe"};
@@ -785,8 +793,12 @@ void finalize_constants() {
     delete g_cast;
     delete g_cast_heq;
     delete g_char;
+    delete g_char_mk;
+    delete g_char_ne_of_vne;
     delete g_char_of_nat;
     delete g_char_of_nat_ne_of_ne;
+    delete g_is_valid_char_range_1;
+    delete g_is_valid_char_range_2;
     delete g_classical_prop_decidable;
     delete g_classical_type_decidable_eq;
     delete g_coe;
@@ -1162,8 +1174,12 @@ name const & get_combinator_K_name() { return *g_combinator_K; }
 name const & get_cast_name() { return *g_cast; }
 name const & get_cast_heq_name() { return *g_cast_heq; }
 name const & get_char_name() { return *g_char; }
+name const & get_char_mk_name() { return *g_char_mk; }
+name const & get_char_ne_of_vne_name() { return *g_char_ne_of_vne; }
 name const & get_char_of_nat_name() { return *g_char_of_nat; }
 name const & get_char_of_nat_ne_of_ne_name() { return *g_char_of_nat_ne_of_ne; }
+name const & get_is_valid_char_range_1_name() { return *g_is_valid_char_range_1; }
+name const & get_is_valid_char_range_2_name() { return *g_is_valid_char_range_2; }
 name const & get_classical_prop_decidable_name() { return *g_classical_prop_decidable; }
 name const & get_classical_type_decidable_eq_name() { return *g_classical_type_decidable_eq; }
 name const & get_coe_name() { return *g_coe; }

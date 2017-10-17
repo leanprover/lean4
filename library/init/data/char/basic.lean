@@ -4,31 +4,54 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.data.fin.basic
+import init.data.nat.basic
 
 open nat
-def char_sz : nat := succ 255
+@[reducible] def is_valid_char (n : nat) : Prop :=
+n < 0xd800 ∨ (0xdfff < n ∧ n < 0x110000)
 
-def char := fin char_sz
+lemma is_valid_char_range_1 (n : nat) (h : n < 0xd800) : is_valid_char n :=
+or.inl h
+
+lemma is_valid_char_range_2 (n : nat) (h₁ : 0xdfff < n) (h₂ : n < 0x110000) : is_valid_char n :=
+or.inr ⟨h₁, h₂⟩
+
+/-- The `char` type represents an unicode scalar value.
+    See http://www.unicode.org/glossary/#unicode_scalar_value). -/
+structure char :=
+(val : nat) (valid : is_valid_char val)
 
 instance : has_sizeof char :=
-⟨fin.sizeof _⟩
+⟨λ c, c.val⟩
 
 namespace char
 /- We cannot use tactic dec_trivial here because the tactic framework has not been defined yet. -/
-lemma zero_lt_char_sz : 0 < char_sz :=
+lemma zero_lt_d800 : 0 < 0xd800 :=
 zero_lt_succ _
 
 @[pattern] def of_nat (n : nat) : char :=
-if h : n < char_sz then fin.mk n h else fin.mk 0 zero_lt_char_sz
+if h : is_valid_char n then {val := n, valid := h} else {val := 0, valid := or.inl zero_lt_d800}
 
 def to_nat (c : char) : nat :=
-fin.val c
+c.val
+
+lemma eq_of_veq : ∀ {c d : char}, c.val = d.val → c = d
+| ⟨v, h⟩ ⟨_, _⟩ rfl := rfl
+
+lemma veq_of_eq : ∀ {c d : char}, c = d → c.val = d.val
+| _ _ rfl := rfl
+
+lemma ne_of_vne {c d : char} (h : c.val ≠ d.val) : c ≠ d :=
+λ h', absurd (veq_of_eq h') h
+
+lemma vne_of_ne {c d : char} (h : c ≠ d) : c.val ≠ d.val :=
+λ h', absurd (eq_of_veq h') h
+
 end char
 
 instance : decidable_eq char :=
-have decidable_eq (fin char_sz), from fin.decidable_eq _,
-this
+λ i j, decidable_of_decidable_of_iff
+  (nat.decidable_eq i.val j.val) ⟨char.eq_of_veq, char.veq_of_eq⟩
 
 instance : inhabited char :=
 ⟨'A'⟩

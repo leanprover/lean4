@@ -164,8 +164,6 @@ bool is_local_ref(expr const & e) {
     if (!is_as_atomic(e))
         return false;
     expr const & imp_arg = get_as_atomic_arg(e);
-    if (!is_app(imp_arg))
-        return false;
     buffer<expr> locals;
     expr const & f = get_app_args(imp_arg, locals);
     return

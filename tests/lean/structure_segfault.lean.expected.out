@@ -2,4 +2,4 @@ structure_segfault.lean:7:17: error: invalid expression
 structure_segfault.lean:7:25: error: invalid 'structure', expression must be a 'parent' structure
 structure_segfault.lean:11:33: error: unknown identifier 'x'
 structure_segfault.lean:11:28: error: invalid 'structure', expression must be a 'parent' structure
-structure_segfault.lean:13:28: error: invalid 'structure', expression must be a 'parent' structure
+structure_segfault.lean:13:30: error: invalid 'structure', expression must be a 'parent' structure

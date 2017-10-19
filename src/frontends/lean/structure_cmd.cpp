@@ -339,24 +339,19 @@ struct structure_cmd_fn {
 
     /** \brief Check whether \c parent is really an inductive datatype declaration that can be viewed as a "record".
         That is, it is not part of a mutually recursive declaration, it has only one constructor,
-        and it does not have indicies.
+        and it does not have indices.
+        Returns the structure's name if successful.
     */
-    void check_parent(expr const & parent, pos_info const & pos) {
-        expr const & fn = get_app_fn(parent);
-        if (!is_constant(fn))
-            throw parser_error("invalid 'structure', expression must be a 'parent' structure", pos);
-        name const & S = const_name(fn);
-        if (!is_structure_like(m_env, S))
-            throw parser_error(sstream() << "invalid 'structure' extends, '" << S << "' is not a structure", pos);
-    }
-
-    void check_parent(expr const & parent) {
-        expr const & fn = get_app_fn(parent);
+    name const & check_parent(expr const & parent) {
+        expr fn = get_app_fn(parent);
+        if (m_subobjects && is_local_ref(fn))
+            fn = get_explicit_arg(get_app_fn(get_as_atomic_arg(fn)));
         if (!is_constant(fn))
             throw elaborator_exception(parent, "invalid 'structure', expression must be a 'parent' structure");
         name const & S = const_name(fn);
         if (!is_structure_like(m_env, S))
             throw elaborator_exception(parent, sstream() << "invalid 'structure' extends, '" << S << "' is not a structure");
+        return S;
     }
 
     /** \brief Return the universe parameters, number of parameters and introduction rule for the given parent structure */
@@ -391,8 +386,7 @@ struct structure_cmd_fn {
                 expr const & parent = qparent.second;
                 m_parents.push_back(parent);
                 m_private_parents.push_back(is_private_parent);
-                check_parent(parent, pos);
-                name const & parent_name = const_name(get_app_fn(parent));
+                name const & parent_name = check_parent(parent);
                 auto parent_info         = get_parent_info(parent_name);
                 unsigned nparams         = std::get<1>(parent_info);
                 inductive::intro_rule intro = std::get<2>(parent_info);
@@ -598,13 +592,12 @@ struct structure_cmd_fn {
 
         for (unsigned i = 0; i < m_parents.size(); i++) {
             expr const & parent = m_parents[i];
-            check_parent(parent);
+            name const & parent_name = check_parent(parent);
             rename_vector const & renames = m_renames[i];
             m_field_maps.push_back(field_map());
             field_map & fmap = m_field_maps.back();
             buffer<expr> args;
-            expr const & parent_fn = get_app_args(parent, args);
-            name const & parent_name = const_name(parent_fn);
+            expr parent_fn = get_app_args(parent, args);
             if (m_subobjects) {
                 name fname;
                 if (auto const & ref = m_parent_refs[i])

@@ -5,7 +5,13 @@ master branch (aka work in progress branch)
 
 - Implemented [RFC #1820](https://github.com/leanprover/lean/issues/1820)
 
+- Added `string.iterator` abstraction for traversing strings.
+  The VM contains an efficient implementation of this type.
+
 *Changes*
+
+- `string` is now a list of unicode scalar values. Moreover, in the VM,
+  strings are implemented as an UTF-8 encoded array of bytes.
 
 *API name changes*
 

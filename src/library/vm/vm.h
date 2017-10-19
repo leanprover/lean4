@@ -222,6 +222,8 @@ vm_obj mk_vm_constructor(unsigned cidx, vm_obj const &, vm_obj const &);
 vm_obj mk_vm_constructor(unsigned cidx, vm_obj const &, vm_obj const &, vm_obj const &);
 vm_obj mk_vm_constructor(unsigned cidx, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &);
 vm_obj mk_vm_constructor(unsigned cidx, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &);
+vm_obj update_vm_constructor(vm_obj const & o, unsigned i, vm_obj const & v);
+vm_obj update_vm_pair(vm_obj const & o, vm_obj const & v_1, vm_obj const & v_2);
 /* TODO(Leo, Jared): delete native closures that take environment as argument */
 vm_obj mk_native_closure(environment const & env, name const & n, unsigned sz, vm_obj const * args);
 vm_obj mk_native_closure(environment const & env, name const & n, std::initializer_list<vm_obj const> args);

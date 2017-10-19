@@ -1,18 +1,15 @@
-string_imp.lean:2:2: error: invalid constructor ⟨...⟩, type is a private inductive datatype
-string_imp.lean:2:3: error: don't know how to synthesize placeholder
-context:
-f : string → list char
-⊢ list char
-string_imp.lean:1:4: error: equation compiler failed (use 'set_option trace.eqn_compiler.elim_match true' for additional details)
-string_imp.lean:5:3: error: invalid pattern: variable, constructor or constant tagged as pattern expected
-string_imp.lean:5:3: error: function expected at
-  string_imp.mk
-term has type
-  _
-string_imp.lean:5:17: error: don't know how to synthesize placeholder
-context:
-g : string → list char
-⊢ list char
-string_imp.lean:4:4: error: equation compiler failed (use 'set_option trace.eqn_compiler.elim_match true' for additional details)
-string_imp.lean:8:0: error: unknown identifier 'string_imp.cases_on'
-string_imp.lean:7:0: warning: declaration 'h' uses sorry
+6
+"ab"
+""
+"abc"
+"cd"
+"ab"
+""
+"abcd"
+"foo"
+".lean"
+"αβ"
+2
+"α_foo_βcc"
+"αβ_foo_cc"
+"α_foo_βcc"

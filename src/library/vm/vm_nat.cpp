@@ -52,6 +52,14 @@ unsigned force_to_unsigned(vm_obj const & o, unsigned def) {
         return def;
 }
 
+size_t force_to_size_t(vm_obj const & o, size_t def) {
+    // TODO(Leo): fix size_t is 8 bytes in 64-bit machines
+    if (auto r = try_to_unsigned(o))
+        return *r;
+    else
+        return def;
+}
+
 MK_THREAD_LOCAL_GET_DEF(mpz, get_mpz1);
 MK_THREAD_LOCAL_GET_DEF(mpz, get_mpz2);
 

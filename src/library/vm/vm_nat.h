@@ -12,6 +12,7 @@ namespace lean {
 unsigned to_unsigned(vm_obj const & o);
 optional<unsigned> try_to_unsigned(vm_obj const & o);
 unsigned force_to_unsigned(vm_obj const & o, unsigned def = std::numeric_limits<unsigned>::max());
+size_t force_to_size_t(vm_obj const & o, size_t def = std::numeric_limits<size_t>::max());
 void initialize_vm_nat();
 void finalize_vm_nat();
 }

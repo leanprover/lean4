@@ -24,6 +24,15 @@ inline unsigned utf8_to_unicode(char const * begin, char const * end) {
                            reinterpret_cast<uchar const *>(end));
 }
 
+/* If `c` is the first byte of an utf-8 encoded unicode scalar value,
+   then return `some(n)` where `n` is the number of bytes needed to encode
+   the unicode scalar value. Otherwise, return `none` */
+optional<unsigned> is_utf8_first_byte(unsigned char c);
+
+/* "Read" next unicode character starting at position i in a string using UTF-8 encoding.
+   Return the unicode character and update i. */
+unsigned next_utf8(std::string const & str, size_t & i);
+
 /* Decode a UTF-8 encoded string `str` into unicode scalar values */
 void utf8_decode(std::string const & str, buffer<unsigned> & out);
 

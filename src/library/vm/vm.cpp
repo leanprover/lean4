@@ -105,6 +105,32 @@ vm_obj mk_vm_constructor(unsigned cidx, vm_obj const & o1, vm_obj const & o2, vm
     return mk_vm_constructor(cidx, 5, args);
 }
 
+vm_obj update_vm_constructor(vm_obj const & o, unsigned i, vm_obj const & v) {
+    lean_vm_check(i < csize(o));
+    if (o.raw()->get_rc() == 1) {
+        vm_obj * fs = const_cast<vm_obj*>(cfields(o));
+        fs[i]       = v;
+        return o;
+    } else {
+        vm_obj r    = mk_vm_constructor(cidx(o), csize(o), cfields(o));
+        vm_obj * fs = const_cast<vm_obj*>(cfields(o));
+        fs[i]       = v;
+        return r;
+    }
+}
+
+vm_obj update_vm_pair(vm_obj const & o, vm_obj const & v_1, vm_obj const & v_2) {
+    lean_vm_check(csize(o) == 2);
+    if (o.raw()->get_rc() == 1) {
+        vm_obj * fs = const_cast<vm_obj*>(cfields(o));
+        fs[0]       = v_1;
+        fs[1]       = v_2;
+        return o;
+    } else {
+        return mk_vm_pair(v_1, v_2);
+    }
+}
+
 vm_obj mk_vm_closure(unsigned fn_idx, unsigned sz, vm_obj const * data) {
     return mk_vm_composite(vm_obj_kind::Closure, fn_idx, sz, data);
 }

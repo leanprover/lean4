@@ -7,8 +7,12 @@ prelude
 import init.data.list.basic
 import init.data.char.basic
 
-/- In the VM, strings are implemented using a dynamic array and UTF-8 encoding. -/
-private structure string_imp :=
+/- In the VM, strings are implemented using a dynamic array and UTF-8 encoding.
+
+   TODO: we currently cannot mark string_imp as private because
+   we need to bind string_imp.mk and string_imp.cases_on in the VM.
+-/
+structure string_imp :=
 (data : list char)
 
 def string := string_imp
@@ -40,8 +44,12 @@ def to_list : string → list char
 def fold {α} (a : α) (f : α → char → α) (s : string) : α :=
 s.to_list.foldl f a
 
-/- In the VM, the string iterator is implemented as a pointer to the string being iterated + index -/
-private structure iterator_imp :=
+/- In the VM, the string iterator is implemented as a pointer to the string being iterated + index.
+
+   TODO: we currently cannot mark interator_imp as private because
+   we need to bind string_imp.mk and string_imp.cases_on in the VM.
+-/
+structure iterator_imp :=
 (fst : list char) (snd : list char)
 
 def iterator := iterator_imp
@@ -137,7 +145,7 @@ def nextn : iterator → nat → iterator
 
 def prevn : iterator → nat → iterator
 | it 0     := it
-| it (i+1) := prevn it.next i
+| it (i+1) := prevn it.prev i
 end iterator
 
 def pop_back (s : string) : string :=

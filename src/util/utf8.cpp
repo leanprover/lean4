@@ -112,56 +112,83 @@ unsigned utf8_to_unicode(uchar const * begin, uchar const * end) {
     return result;
 }
 
-void utf8_decode(std::string const & str, buffer<unsigned> & out) {
-    unsigned i = 0;
-    while (i < str.size()) {
-        unsigned c = static_cast<unsigned char>(str[i]);
-        /* zero continuation (0 to 127) */
-        if ((c & 0x80) == 0) {
-            out.push_back(c);
-            i++;
-            continue;
-        }
+/*
+Table 3-6. UTF-8 Bit Distribution
+Scalar Value               | First Byte | Second Byte | Third Byte | Fourth Byte
+00000000 0xxxxxxx          | 0xxxxxxx   |             |            |
+00000yyy yyxxxxxx          | 110yyyyy   | 10xxxxxx    |            |
+zzzzyyyy yyxxxxxx          | 1110zzzz   | 10yyyyyy    | 10xxxxxx   |
+000uuuuu zzzzyyyy yyxxxxxx | 11110uuu   | 10uuzzzz    | 10yyyyyy   | 10xxxxxx
+*/
 
-        /* one continuation (128 to 2047) */
-        if ((c & 0xe0) == 0xc0 && i + 1 < str.size()) {
-            unsigned c1 = static_cast<unsigned char>(str[i+1]);
-            unsigned r = ((c & 0x1f) << 6) | c1;
-            if (r >= 128) {
-                out.push_back(r);
-                i += 2;
-                continue;
-            }
-        }
+optional<unsigned> is_utf8_first_byte(unsigned char c) {
+    if ((c & 0x80) == 0) {
+        /* 0xxxxxxx */
+        return optional<unsigned>(1);
+    } else if ((c & 0xe0) == 0xc0) {
+        /* 110yyyyy */
+        return optional<unsigned>(2);
+    } else if ((c & 0xf0) == 0xe0) {
+        /* 1110zzzz */
+        return optional<unsigned>(3);
+    } else if ((c & 0xf8) == 0xf0) {
+        /* 11110uuu */
+        return optional<unsigned>(4);
+    } else {
+        return optional<unsigned>();
+    }
+}
 
-        /* two continuations (2048 to 55295 and 57344 to 65535) */
-        if ((c & 0xf0) == 0xe0 && i + 2 < str.size()) {
-            unsigned c1 = static_cast<unsigned char>(str[i+1]);
-            unsigned c2 = static_cast<unsigned char>(str[i+2]);
-            unsigned r = ((c & 0x0f) << 12) | (c1 << 6) | c2;
-            if (r >= 2048 && (r < 55296 || r > 57343)) {
-                out.push_back(r);
-                i += 3;
-                continue;
-            }
-        }
-
-        /* three continuations (65536 to 1114111) */
-        if ((c & 0xf8) == 0xf0 && i + 3 < str.size()) {
-            unsigned c1 = static_cast<unsigned char>(str[i+1]);
-            unsigned c2 = static_cast<unsigned char>(str[i+2]);
-            unsigned c3 = static_cast<unsigned char>(str[i+3]);
-            unsigned r  = ((c & 0x07) << 18) | (c1 << 12) | (c2 << 6) | c3;
-            if (r >= 65536 && r <= 1114111) {
-                out.push_back(r);
-                i += 4;
-                continue;
-            }
-        }
-
-        /* invalid UTF-8 encoded string */
-        out.push_back(c);
+unsigned next_utf8(std::string const & str, size_t & i) {
+    unsigned c = static_cast<unsigned char>(str[i]);
+    /* zero continuation (0 to 127) */
+    if ((c & 0x80) == 0) {
         i++;
+        return c;
+    }
+
+    /* one continuation (128 to 2047) */
+    if ((c & 0xe0) == 0xc0 && i + 1 < str.size()) {
+        unsigned c1 = static_cast<unsigned char>(str[i+1]);
+        unsigned r = ((c & 0x1f) << 6) | c1;
+        if (r >= 128) {
+            i += 2;
+            return r;
+        }
+    }
+
+    /* two continuations (2048 to 55295 and 57344 to 65535) */
+    if ((c & 0xf0) == 0xe0 && i + 2 < str.size()) {
+        unsigned c1 = static_cast<unsigned char>(str[i+1]);
+        unsigned c2 = static_cast<unsigned char>(str[i+2]);
+        unsigned r = ((c & 0x0f) << 12) | (c1 << 6) | c2;
+        if (r >= 2048 && (r < 55296 || r > 57343)) {
+            i += 3;
+            return r;
+        }
+    }
+
+    /* three continuations (65536 to 1114111) */
+    if ((c & 0xf8) == 0xf0 && i + 3 < str.size()) {
+        unsigned c1 = static_cast<unsigned char>(str[i+1]);
+        unsigned c2 = static_cast<unsigned char>(str[i+2]);
+        unsigned c3 = static_cast<unsigned char>(str[i+3]);
+        unsigned r  = ((c & 0x07) << 18) | (c1 << 12) | (c2 << 6) | c3;
+        if (r >= 65536 && r <= 1114111) {
+            i += 4;
+            return r;
+        }
+    }
+
+    /* invalid UTF-8 encoded string */
+    i++;
+    return c;
+}
+
+void utf8_decode(std::string const & str, buffer<unsigned> & out) {
+    size_t i = 0;
+    while (i < str.size()) {
+        out.push_back(next_utf8(str, i));
     }
 }
 

@@ -15,3 +15,4 @@ s ++ " " ++ s
 #eval "αβγ".mk_iterator.next.1
 #eval "αβγ".mk_iterator.next.next.1
 #eval "αβγ".mk_iterator.next.2
+#eval "αβ".1

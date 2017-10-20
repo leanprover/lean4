@@ -120,6 +120,10 @@ unsigned string_imp_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
     return 0;
 }
 
+vm_obj string_imp_data(vm_obj const & s) {
+    return string_to_list(s);
+}
+
 vm_obj string_fold(vm_obj const &, vm_obj const & a, vm_obj const & f, vm_obj const & s) {
     vm_string const & vs = to_vm_string(s);
     vm_obj r    = a;
@@ -407,6 +411,7 @@ vm_obj string_iterator_imp_snd(vm_obj const & o) {
 
 void initialize_vm_string() {
     DECLARE_VM_BUILTIN(name({"string_imp", "mk"}),             string_imp_mk);
+    DECLARE_VM_BUILTIN(name({"string_imp", "data"}),           string_imp_data);
     DECLARE_VM_CASES_BUILTIN(name({"string_imp", "cases_on"}), string_imp_cases_on);
 
     DECLARE_VM_BUILTIN(name({"string", "length"}),            string_length);
@@ -430,10 +435,10 @@ void initialize_vm_string() {
     DECLARE_VM_BUILTIN(name({"string", "iterator", "next_to_string"}), string_iterator_next_to_string);
     DECLARE_VM_BUILTIN(name({"string", "iterator", "prev_to_string"}), string_iterator_prev_to_string);
 
-    DECLARE_VM_BUILTIN(name({"string", "iterator_imp", "mk"}),             string_iterator_imp_mk);
+    DECLARE_VM_BUILTIN(name({"string", "iterator_imp", "mk"}),              string_iterator_imp_mk);
     DECLARE_VM_BUILTIN(name({"string", "iterator_imp", "fst"}),             string_iterator_imp_fst);
     DECLARE_VM_BUILTIN(name({"string", "iterator_imp", "snd"}),             string_iterator_imp_snd);
-    DECLARE_VM_CASES_BUILTIN(name({"string", "iterator_imp", "cases_on"}), string_iterator_imp_cases_on);
+    DECLARE_VM_CASES_BUILTIN(name({"string", "iterator_imp", "cases_on"}),  string_iterator_imp_cases_on);
 }
 
 void finalize_vm_string() {

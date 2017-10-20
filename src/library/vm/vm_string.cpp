@@ -395,6 +395,16 @@ unsigned string_iterator_imp_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
     return 0;
 }
 
+vm_obj string_iterator_imp_fst(vm_obj const & o) {
+    vm_obj p = string_iterator_prev_to_string(o);
+    return string_to_list_core(to_vm_string(p).m_value, true /* reverse */);
+}
+
+vm_obj string_iterator_imp_snd(vm_obj const & o) {
+    vm_obj n = string_iterator_next_to_string(o);
+    return string_to_list_core(to_vm_string(n).m_value);
+}
+
 void initialize_vm_string() {
     DECLARE_VM_BUILTIN(name({"string_imp", "mk"}),             string_imp_mk);
     DECLARE_VM_CASES_BUILTIN(name({"string_imp", "cases_on"}), string_imp_cases_on);
@@ -421,6 +431,8 @@ void initialize_vm_string() {
     DECLARE_VM_BUILTIN(name({"string", "iterator", "prev_to_string"}), string_iterator_prev_to_string);
 
     DECLARE_VM_BUILTIN(name({"string", "iterator_imp", "mk"}),             string_iterator_imp_mk);
+    DECLARE_VM_BUILTIN(name({"string", "iterator_imp", "fst"}),             string_iterator_imp_fst);
+    DECLARE_VM_BUILTIN(name({"string", "iterator_imp", "snd"}),             string_iterator_imp_snd);
     DECLARE_VM_CASES_BUILTIN(name({"string", "iterator_imp", "cases_on"}), string_iterator_imp_cases_on);
 }
 

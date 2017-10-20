@@ -113,7 +113,7 @@ vm_obj update_vm_constructor(vm_obj const & o, unsigned i, vm_obj const & v) {
         return o;
     } else {
         vm_obj r    = mk_vm_constructor(cidx(o), csize(o), cfields(o));
-        vm_obj * fs = const_cast<vm_obj*>(cfields(o));
+        vm_obj * fs = const_cast<vm_obj*>(cfields(r));
         fs[i]       = v;
         return r;
     }

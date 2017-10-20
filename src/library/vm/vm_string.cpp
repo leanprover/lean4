@@ -124,7 +124,7 @@ vm_obj string_fold(vm_obj const &, vm_obj const & a, vm_obj const & f, vm_obj co
     vm_string const & vs = to_vm_string(s);
     vm_obj r    = a;
     size_t i    = 0;
-    size_t len  = vs.m_length;
+    size_t len  = vs.m_value.size();
     while (i < len) {
         unsigned c = next_utf8(vs.m_value, i);
         r          = invoke(f, r, mk_vm_nat(c));

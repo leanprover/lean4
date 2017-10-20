@@ -14,6 +14,11 @@ let it₁ := s.mk_iterator.to_end in
 let it₂ := it₁.prev in
 it₁.prev_to_string ++ "-" ++ it₂.prev_to_string
 
+def s (s : string) : string :=
+let it₁ := s.mk_iterator.to_end in
+let it₂ := it₁.prev in
+(it₁.insert "abc").to_string ++ (it₂.insert "de").to_string
+
 #eval "hello" ++ "hello"
 #eval f "hello"
 #eval (f "αβ").length
@@ -48,3 +53,13 @@ it₁.prev_to_string ++ "-" ++ it₂.prev_to_string
 #eval (("a".push (char.of_nat 0)) ++ "αb").length
 #eval r "abc"
 #eval "abc".mk_iterator.to_end.prev_to_string
+#eval "".mk_iterator.has_next
+#eval "a".mk_iterator.has_next
+#eval "a".mk_iterator.next.has_next
+#eval "".mk_iterator.has_prev
+#eval "a".mk_iterator.next.has_prev
+#eval "αβ".mk_iterator.next.has_prev
+#eval "αβ".mk_iterator.next.prev.has_prev
+#eval ("αβ".mk_iterator.to_end.insert "abc").to_string
+#eval ("αβ".mk_iterator.next.insert "abc").to_string
+#eval s "αβ"

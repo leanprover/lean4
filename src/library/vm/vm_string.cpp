@@ -291,7 +291,7 @@ vm_obj string_iterator_insert(vm_obj const & it, vm_obj const & s) {
             return it;
         } else {
             std::string new_s = s_0.m_value;
-            new_s.insert(1, s_1.m_value);
+            new_s.insert(i, s_1.m_value);
             return mk_vm_pair(to_obj(new_s, s_0.m_length + s_1.m_length), mk_vm_nat(i));
         }
     }

@@ -69,3 +69,5 @@ let it₂ := it₁.prev in
 #eval (("abcdef".mk_iterator.next.next.next.remove 100).prev.set_curr 'a').to_string
 #eval ("abcdef".mk_iterator.next.next.next.remove 100).has_next
 #eval ("abcdef".mk_iterator.next.next.next.remove 100).prev.has_next
+#eval to_bool $ "abc" = "abc"
+#eval to_bool $ "abc" = "abd"

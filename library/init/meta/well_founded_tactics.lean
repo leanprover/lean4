@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.meta init.data.sigma.lex init.data.nat.lemmas init.data.list.instances
-import init.data.list.qsort
+import init.data.list.qsort init.data.string.instances
 
 /- TODO(Leo): move this lemma, or delete it after we add algebraic normalizer. -/
 lemma nat.lt_add_of_zero_lt_left (a b : nat) (h : 0 < b) : a < a + b :=

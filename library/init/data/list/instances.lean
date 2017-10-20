@@ -34,9 +34,6 @@ instance : alternative list :=
 instance {α : Type u} [decidable_eq α] : decidable_eq (list α) :=
 by tactic.mk_dec_eq_instance
 
-instance : decidable_eq string :=
-by tactic.mk_dec_eq_instance
-
 namespace list
 
 variables {α β : Type u} (p : α → Prop) [decidable_pred p]

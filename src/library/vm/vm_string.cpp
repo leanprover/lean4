@@ -413,6 +413,33 @@ vm_obj string_has_decidable_eq(vm_obj const & s1, vm_obj const & s2) {
     return mk_vm_bool(to_vm_string(s1).m_value == to_vm_string(s2).m_value);
 }
 
+/*
+inductive ordering
+| lt | eq | gt
+*/
+vm_obj string_cmp(vm_obj const & s1, vm_obj const & s2) {
+    vm_string const & vs1 = to_vm_string(s1);
+    vm_string const & vs2 = to_vm_string(s2);
+    size_t sz1 = vs1.m_value.size();
+    size_t sz2 = vs2.m_value.size();
+    size_t i1  = 0;
+    size_t i2  = 0;
+    while (i1 < sz1 && i2 < sz2) {
+        unsigned c1 = next_utf8(vs1.m_value, i1);
+        unsigned c2 = next_utf8(vs2.m_value, i2);
+        if (c1 < c2)
+            return mk_vm_simple(0); /* lt */
+        if (c1 > c2)
+            return mk_vm_simple(2); /* gt */
+    }
+    if (i1 < sz1)
+        return mk_vm_simple(2); /* gt */
+    else if (i2 < sz2)
+        return mk_vm_simple(0); /* lt */
+    else
+        return mk_vm_simple(1); /* eq */
+}
+
 void initialize_vm_string() {
     DECLARE_VM_BUILTIN(name({"string_imp", "mk"}),             string_imp_mk);
     DECLARE_VM_BUILTIN(name({"string_imp", "data"}),           string_imp_data);
@@ -426,6 +453,7 @@ void initialize_vm_string() {
     DECLARE_VM_BUILTIN(name({"string", "fold"}),              string_fold);
     DECLARE_VM_BUILTIN(name({"string", "mk_iterator"}),       string_mk_iterator);
     DECLARE_VM_BUILTIN(name({"string", "has_decidable_eq"}),  string_has_decidable_eq);
+    DECLARE_VM_BUILTIN(name({"string", "cmp"}),               string_cmp);
 
     DECLARE_VM_BUILTIN(name({"string", "iterator", "curr"}),           string_iterator_curr);
     DECLARE_VM_BUILTIN(name({"string", "iterator", "set_curr"}),       string_iterator_set_curr);

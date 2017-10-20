@@ -62,6 +62,7 @@ def list.cmp {α : Type u} [has_ordering α] : list α → list α → ordering
 instance {α : Type u} [has_ordering α] : has_ordering (list α) :=
 ⟨list.cmp⟩
 
+/- Remark: this function has a VM builtin efficient implementation. -/
 def string.cmp (s1 s2 : string) : ordering :=
 list.cmp s1.to_list s2.to_list
 

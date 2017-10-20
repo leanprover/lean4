@@ -302,23 +302,23 @@ def remove : iterator → nat → iterator
 */
 vm_obj string_iterator_remove(vm_obj const & it, vm_obj const & _n) {
     vm_string const & s = it_string(it);
-    size_t len          = s.m_length;
+    size_t sz           = s.m_value.size();
     size_t i            = it_pos(it);
-    size_t begin        = i;
+    size_t j            = i;
     size_t n            = force_to_size_t(_n);
-    size_t end          = begin;
     size_t new_len      = s.m_length;
-    for (size_t k = 0; k < n && end < len; k++) {
-        next_utf8(s.m_value, end);
+    for (size_t k = 0; k < n && j < sz; k++) {
+        next_utf8(s.m_value, j);
         new_len--;
     }
+    size_t count        = j - i;
     if (is_unshared_it_vm_string(it)) {
-        const_cast<vm_string&>(s).m_value.erase(begin, end);
+        const_cast<vm_string&>(s).m_value.erase(i, count);
         const_cast<vm_string&>(s).m_length = new_len;
         return it;
     } else {
         std::string new_s = s.m_value;
-        new_s.erase(begin, end);
+        new_s.erase(i, count);
         return mk_vm_pair(to_obj(new_s, new_len), mk_vm_nat(i));
     }
 }

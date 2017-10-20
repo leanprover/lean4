@@ -63,3 +63,9 @@ let it₂ := it₁.prev in
 #eval ("αβ".mk_iterator.to_end.insert "abc").to_string
 #eval ("αβ".mk_iterator.next.insert "abc").to_string
 #eval s "αβ"
+#eval ("abcdef".mk_iterator.next.remove 2).to_string
+#eval ("abcdef".mk_iterator.next.next.remove 2).to_string
+#eval ("abcdef".mk_iterator.next.remove 3).to_string
+#eval (("abcdef".mk_iterator.next.next.next.remove 100).prev.set_curr 'a').to_string
+#eval ("abcdef".mk_iterator.next.next.next.remove 100).has_next
+#eval ("abcdef".mk_iterator.next.next.next.remove 100).prev.has_next

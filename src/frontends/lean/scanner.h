@@ -73,7 +73,7 @@ protected:
     optional<unsigned> try_hex_to_unsigned(uchar c);
     optional<unsigned> try_digit_to_unsigned(int base, uchar c);
     unsigned hex_to_unsigned(uchar c);
-    uchar read_quoted_char(char const * error_msg);
+    void read_quoted_char(char const * error_msg, std::string & r);
     token_kind read_string();
     token_kind read_char();
     token_kind read_hex_number();

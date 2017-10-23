@@ -99,27 +99,52 @@ unsigned scanner::hex_to_unsigned(uchar c) {
         throw_exception("invalid hexadecimal digit");
 }
 
-uchar scanner::read_quoted_char(char const * error_msg) {
+void scanner::read_quoted_char(char const * error_msg, std::string & r) {
     lean_assert(curr() == '\\');
     next();
     check_not_eof(error_msg);
     uchar c = curr();
-    if (c != '\\' && c != '\"' && c != 'n' && c != 't' && c != '\'' && c != 'x')
+    if (c != '\\' && c != '\"' && c != 'n' && c != 't' && c != '\'' && c != 'x' && c != 'u')
         throw_exception("invalid escape sequence");
     if (c == 'n') {
-        return '\n';
+        next();
+        r += '\n';
+        return;
     } else if (c == 't') {
-        return '\t';
+        next();
+        r += '\t';
+        return;
     } else if (c == 'x') {
         next();
-        uchar c = curr();
+        c = curr();
         unsigned v = hex_to_unsigned(c);
         next();
         c = curr();
         v = 16*v + hex_to_unsigned(c);
-        return static_cast<uchar>(v);
+        next();
+        /* TODO(Leo): should we sign an error if v >= 128 */
+        push_unicode_scalar(r, v);
+        return;
+    } else if (c == 'u') {
+        next();
+        c = curr();
+        unsigned v = hex_to_unsigned(c);
+        next();
+        c = curr();
+        v = 16*v + hex_to_unsigned(c);
+        next();
+        c = curr();
+        v = 16*v + hex_to_unsigned(c);
+        next();
+        c = curr();
+        v = 16*v + hex_to_unsigned(c);
+        next();
+        push_unicode_scalar(r, v);
+        return;
     } else {
-        return c;
+        next();
+        r += c;
+        return;
     }
 }
 
@@ -134,24 +159,37 @@ token_kind scanner::read_string() {
             next();
             return token_kind::String;
         } else if (c == '\\') {
-            c = read_quoted_char(g_end_error_str_msg);
+            read_quoted_char(g_end_error_str_msg, m_buffer);
+        } else {
+            m_buffer += c;
+            next();
         }
-        m_buffer += c;
-        next();
     }
 }
 
 auto scanner::read_char() -> token_kind {
     uchar c = curr();
-    if (c == '\\')
-        c = read_quoted_char(g_end_error_char_msg);
-    next();
-    if (curr() != '\'')
-        throw_exception("invalid character, ' expected");
-    next();
-    m_buffer.clear();
-    m_buffer += c;
-    return token_kind::Char;
+    if (c == '\\') {
+        m_buffer.clear();
+        read_quoted_char(g_end_error_char_msg, m_buffer);
+        if (curr() != '\'')
+            throw_exception("invalid character, ' expected");
+        next();
+        return token_kind::Char;
+    }
+    if (optional<unsigned> sz = is_utf8_first_byte(c)) {
+        m_buffer.clear();
+        for (unsigned i = 0; i < *sz; i++) {
+            m_buffer += c;
+            next();
+            c = curr();
+        }
+        if (curr() != '\'')
+            throw_exception("invalid character, ' expected");
+        next();
+        return token_kind::Char;
+    }
+    throw_exception("invalid character, input stream is not encoded using UTF-8");
 }
 
 auto scanner::read_quoted_symbol() -> token_kind {

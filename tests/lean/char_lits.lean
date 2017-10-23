@@ -13,3 +13,8 @@ variable [io.interface]
 
 #check ['\x7f', '\x00', '\x11', '\xff']
 -- ^^ all characters should be pretty-printed using \x escapes
+
+#eval 'α'
+#eval 'β'
+#eval '\u03B1'
+#eval '\u03B2'

@@ -2124,12 +2124,13 @@ expr parser::parse_string_expr() {
 
 expr parser::parse_char_expr() {
     auto p = pos();
-    // TODO(Leo): Fix UTF-8
     std::string v = get_str_val();
-    lean_assert(v.size() == 1);
+    buffer<unsigned> tmp;
+    utf8_decode(v, tmp);
+    lean_assert(tmp.size() == 1);
     next();
     return mk_app(save_pos(mk_constant(get_char_of_nat_name()), p),
-                  save_pos(mk_prenum(mpz(static_cast<unsigned>(v[0]))), p),
+                  save_pos(mk_prenum(mpz(tmp[0])), p),
                   p);
 }
 

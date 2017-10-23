@@ -3,10 +3,14 @@ master branch (aka work in progress branch)
 
 *Features*
 
-- Implemented [RFC #1820](https://github.com/leanprover/lean/issues/1820)
+- Implement [RFC #1820](https://github.com/leanprover/lean/issues/1820)
 
-- Added `string.iterator` abstraction for traversing strings.
+- Add `string.iterator` abstraction for traversing strings.
   The VM contains an efficient implementation of this type.
+
+- Add support for non-ASCII char literals. Example: `'α'`.
+
+- Unicode escape characters in string and char literals. For example, `'\u03B1'` is equivalent to `'α'`.
 
 *Changes*
 

@@ -2773,8 +2773,11 @@ elaborator::field_resolution elaborator::field_to_decl(expr const & e, expr cons
             if (auto p = find_field(m_env, const_name(I), fname))
                 return field_resolution(const_name(I), *p, fname);
         name full_fname = const_name(I) + fname;
-        if (auto ldecl = m_ctx.lctx().find_local_decl_from_user_name(full_fname.replace_prefix(get_namespace(env()), {}))) {
-            // recursive call
+        name local_name = full_fname.replace_prefix(get_namespace(env()), {});
+        if (auto ldecl = m_ctx.lctx().find_if([&](local_decl const & ldecl) {
+            return ldecl.get_info().is_rec() && ldecl.get_pp_name() == local_name;
+        })) {
+            // projection is recursive call
             return field_resolution(full_fname, ldecl);
         }
         if (!m_env.find(full_fname)) {

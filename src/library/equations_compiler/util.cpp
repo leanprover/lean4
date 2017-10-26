@@ -326,7 +326,7 @@ static pair<environment, expr> abstract_rhs_nested_proofs(environment const & en
 }
 
 static environment add_equation_lemma(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
-                                      bool is_private, name const & f_name, name const & eqn_name, name const & eqn_actual_name, expr const & type, expr const & value) {
+                                      bool is_private, name const & f_actual_name, name const & eqn_name, name const & eqn_actual_name, expr const & type, expr const & value) {
     environment new_env = env;
     name new_eqn_name   = eqn_actual_name;
     if (is_private) {
@@ -344,7 +344,7 @@ static environment add_equation_lemma(environment const & env, options const & o
         /* We do not abstract for private equation lemmas because:
            1- It is not clear how to name them.
            2- Their scope is limited to the current file. */
-        std::tie(new_env, new_type) = abstract_rhs_nested_proofs(new_env, mctx, lctx, f_name, new_type);
+        std::tie(new_env, new_type) = abstract_rhs_nested_proofs(new_env, mctx, lctx, f_actual_name, new_type);
     }
     try {
         std::tie(new_env, r) = mk_aux_definition(new_env, mctx, lctx, new_eqn_name, new_type, new_value);
@@ -708,7 +708,7 @@ environment mk_equation_lemma(environment const & env, options const & opts, met
     expr type         = ctx.mk_pi(Hs, mk_eq(ctx, lhs, new_rhs));
     name eqn_name     = mk_equation_name(f_name, eqn_idx);
     name eqn_actual_name = mk_equation_name(f_actual_name, eqn_idx);
-    return add_equation_lemma(env, opts, mctx, lctx, is_private, f_name, eqn_name, eqn_actual_name, type, proof);
+    return add_equation_lemma(env, opts, mctx, lctx, is_private, f_actual_name, eqn_name, eqn_actual_name, type, proof);
 }
 
 environment mk_simple_equation_lemma_for(environment const & env, options const & opts, bool is_private, name const & c, name const & c_actual, unsigned arity) {

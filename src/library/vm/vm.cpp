@@ -1009,23 +1009,28 @@ static vm_instr read_vm_instr(deserializer & d) {
     lean_unreachable();
 }
 
+static unsigned get_num_lambdas(expr const & e) {
+    unsigned r = 0;
+    expr it = e;
+    while (is_lambda(it)) {
+        r++;
+        it = binding_body(it);
+    }
+    return r;
+}
+
 vm_decl_cell::vm_decl_cell(name const & n, unsigned idx, unsigned arity, vm_function fn):
     m_rc(0), m_kind(vm_decl_kind::Builtin), m_name(n), m_idx(idx), m_arity(arity), m_fn(fn) {}
 
 vm_decl_cell::vm_decl_cell(name const & n, unsigned idx, unsigned arity, vm_cfunction fn):
     m_rc(0), m_kind(vm_decl_kind::CFun), m_name(n), m_idx(idx), m_arity(arity), m_cfn(fn) {}
 
-vm_decl_cell::vm_decl_cell(name const & n, unsigned idx, expr const & e, unsigned code_sz, vm_instr const * code,
+vm_decl_cell::vm_decl_cell(name const & n, unsigned idx, unsigned arity, unsigned code_sz, vm_instr const * code,
                            list<vm_local_info> const & args_info, optional<pos_info> const & pos,
                            optional<std::string> const & olean):
-    m_rc(0), m_kind(vm_decl_kind::Bytecode), m_name(n), m_idx(idx), m_expr(e), m_arity(0),
+    m_rc(0), m_kind(vm_decl_kind::Bytecode), m_name(n), m_idx(idx), m_arity(arity),
     m_args_info(args_info), m_pos(pos), m_olean(olean),
     m_code_size(code_sz) {
-    expr it = e;
-    while (is_lambda(it)) {
-        m_arity++;
-        it = binding_body(it);
-    }
     m_code = new vm_instr[code_sz];
     for (unsigned i = 0; i < code_sz; i++)
         m_code[i] = code[i];
@@ -1146,7 +1151,7 @@ struct vm_decls : public environment_extension {
         unsigned idx = get_vm_index(n);
         if (m_decls.contains(idx))
             throw exception(sstream() << "VM already contains code for '" << n << "'");
-        m_decls.insert(idx, vm_decl(n, idx, e, 0, nullptr, list<vm_local_info>(), optional<pos_info>()));
+        m_decls.insert(idx, vm_decl(n, idx, get_num_lambdas(e), 0, nullptr, list<vm_local_info>(), optional<pos_info>()));
         return idx;
     }
 
@@ -1284,7 +1289,7 @@ struct vm_code_modification : public modification {
 
     void serialize(serializer & s) const override {
         unsigned code_sz = m_decl.get_code_size();
-        s << m_decl.get_name() << m_decl.get_expr() << code_sz << m_decl.get_pos_info();
+        s << m_decl.get_name() << m_decl.get_arity() << code_sz << m_decl.get_pos_info();
         write_list(s, m_decl.get_args_info());
         auto c = m_decl.get_code();
         for (unsigned i = 0; i < code_sz; i++)
@@ -1292,15 +1297,15 @@ struct vm_code_modification : public modification {
     }
 
     static std::shared_ptr<modification const> deserialize(deserializer & d) {
-        name fn; unsigned code_sz; expr e; optional<pos_info> pos;
-        d >> fn >> e >> code_sz >> pos;
+        name fn; unsigned arity; unsigned code_sz; optional<pos_info> pos;
+        d >> fn >> arity >> code_sz >> pos;
         auto args_info = read_list<vm_local_info>(d);
         buffer<vm_instr> code;
         for (unsigned i = 0; i < code_sz; i++)
             code.emplace_back(read_vm_instr(d));
         optional<std::string> file_name; // TODO(gabriel)
         return std::make_shared<vm_code_modification>(
-                vm_decl(fn, get_vm_index(fn), e, code_sz, code.data(), args_info, pos, file_name));
+                vm_decl(fn, get_vm_index(fn), arity, code_sz, code.data(), args_info, pos, file_name));
     }
 };
 
@@ -1335,7 +1340,7 @@ environment reserve_vm_index(environment const & env, name const & fn, expr cons
 
 environment update_vm_code(environment const & env, name const & fn, unsigned code_sz, vm_instr const * code,
                            list<vm_local_info> const & args_info, optional<pos_info> const & pos) {
-    vm_decl decl(fn, get_vm_index(fn), get_vm_decl(env, fn)->get_expr(), code_sz, code, args_info, pos);
+    vm_decl decl(fn, get_vm_index(fn), get_vm_decl(env, fn)->get_arity(), code_sz, code, args_info, pos);
     return module::add_and_perform(env, std::make_shared<vm_code_modification>(decl));
 }
 

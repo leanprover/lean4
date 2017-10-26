@@ -53,6 +53,7 @@ expr mk_equations(equations_header const & header, unsigned num_eqs, expr const 
 expr mk_equations(equations_header const & header, unsigned num_eqs, expr const * eqs);
 expr update_equations(expr const & eqns, buffer<expr> const & new_eqs);
 expr update_equations(expr const & eqns, equations_header const & header);
+expr remove_wf_annotation_from_equations(expr const & eqns);
 
 bool is_equations(expr const & e);
 bool is_wf_equations(expr const & e);

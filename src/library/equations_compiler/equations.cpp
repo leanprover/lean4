@@ -229,6 +229,16 @@ expr update_equations(expr const & eqns, equations_header const & header) {
     }
 }
 
+expr remove_wf_annotation_from_equations(expr const & eqns) {
+    if (is_wf_equations(eqns)) {
+        buffer<expr> eqs;
+        to_equations(eqns, eqs);
+        return copy_tag(eqns, mk_equations(get_equations_header(eqns), eqs.size(), eqs.data()));
+    } else {
+        return eqns;
+    }
+}
+
 // Auxiliary macro used to store the result of a set of equations defining a mutually recursive
 // definition.
 class equations_result_macro_cell : public macro_definition_cell {

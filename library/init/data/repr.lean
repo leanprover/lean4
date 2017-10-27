@@ -108,7 +108,7 @@ if       c = '\n' then "\\n"
 else if  c = '\t' then "\\t"
 else if  c = '\\' then "\\\\"
 else if  c = '\"' then "\\\""
-else if  char.to_nat c <= 31 then "\\x" ++ char_to_hex c
+else if  c.to_nat <= 31 ∨ c = '\x7f' then "\\x" ++ char_to_hex c
 else string.singleton c
 
 instance : has_repr char :=

@@ -1,4 +1,6 @@
 'a' : char
+'\\' : char
+'α' : char
 'a'
 '\n'
 '\\'
@@ -6,7 +8,7 @@ aaa\
 '\n'
 
 aaa'
-['\x7f', '\x00', '\x11', '\xff'] : list char
+['\x7f', '\x00', '\x11'] : list char
 'α'
 'β'
 'α'

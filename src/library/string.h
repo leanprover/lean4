@@ -29,7 +29,7 @@ optional<unsigned> to_char(abstract_type_context & ctx, expr const & e);
 bool is_char_value(abstract_type_context & ctx, expr const & e);
 
 format pp_string_literal(std::string const & s);
-format pp_char_literal(char c);
+format pp_char_literal(unsigned c);
 
 void initialize_string();
 void finalize_string();

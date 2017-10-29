@@ -640,7 +640,7 @@ tactic.any_goals
 `focus { t }` temporarily hides all goals other than the first, applies `t`, and then restores the other goals. It fails if there are no goals.
 -/
 meta def focus (tac : itactic) : tactic unit :=
-tactic.focus [tac]
+tactic.focus1 tac
 
 private meta def assume_core (n : name) (ty : pexpr) :=
 do t ← target,

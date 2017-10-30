@@ -177,15 +177,6 @@ static void finalize_definition(elaborator & elab, buffer<expr> const & params, 
     lp_names.append(implicit_lp_names);
 }
 
-static expr fix_rec_fn_name(expr const & e, name const & c_name, name const & c_real_name) {
-    return replace(e, [&](expr const & m, unsigned) {
-            if (is_rec_fn_macro(m) && get_rec_fn_name(m) == c_name) {
-                return some_expr(mk_rec_fn_macro(c_real_name, get_rec_fn_type(m)));
-            }
-            return none_expr();
-        });
-}
-
 static certified_declaration check(parser & p, environment const & env, name const & c_name, declaration const & d, pos_info const & pos) {
     try {
         if (p.profiling()) {
@@ -257,11 +248,6 @@ declare_definition(parser & p, environment const & env, decl_cmd_kind kind, buff
         c_real_name = prv_name;
     } else {
         c_real_name = get_namespace(env) + c_name;
-    }
-    if (val && meta.m_modifiers.m_is_meta) {
-        /* TODO(Leo): fix fix_rec_fn_name for mutual definitions.
-           We currently do not support meta mutual definitions. Thus, this is not currently an issue. */
-        *val = fix_rec_fn_name(*val, c_name, c_real_name);
     }
     if (val && !meta.m_modifiers.m_is_meta && !type_checker(env).is_prop(type)) {
         /* We only abstract nested proofs if the type of the definition is not a proposition */
@@ -636,37 +622,6 @@ static void finalize_theorem_proof(elaborator & elab, buffer<expr> const & param
     val = unfold_untrusted_macros(elab.env(), val);
 }
 
-struct fix_rec_fn_macro_args_fn : public replace_visitor {
-    buffer<expr> const &             m_params;
-    buffer<pair<name, expr>> const & m_fns;
-
-    fix_rec_fn_macro_args_fn(buffer<expr> const & params, buffer<pair<name, expr>> const & fns):
-        m_params(params), m_fns(fns) {
-    }
-
-    expr fix_rec_fn_macro(name const & fn, expr const & type) {
-        return mk_app(mk_rec_fn_macro(fn, type), m_params);
-    }
-
-    virtual expr visit_macro(expr const & e) override {
-        if (is_rec_fn_macro(e)) {
-            name n = get_rec_fn_name(e);
-            for (unsigned i = 0; i < m_fns.size(); i++) {
-                if (n == m_fns[i].first)
-                    return fix_rec_fn_macro(m_fns[i].first, m_fns[i].second);
-            }
-        }
-        return replace_visitor::visit_macro(e);
-    }
-};
-
-static expr fix_rec_fn_macro_args(elaborator & elab, name const & fn, buffer<expr> const & params, expr const & type, expr const & val) {
-    expr fn_new_type = elab.mk_pi(params, type);
-    buffer<pair<name, expr>> fns;
-    fns.emplace_back(fn, fn_new_type);
-    return fix_rec_fn_macro_args_fn(params, fns)(val);
-}
-
 static expr inline_new_defs(environment const & old_env, environment const & new_env, name const & n, expr const & e) {
     return replace(e, [=] (expr const & e, unsigned) -> optional<expr> {
         if (is_sorry(e)) {
@@ -755,9 +710,6 @@ static void check_example(environment const & decl_env, options const & opts,
         expr val, type;
         std::tie(val, type) = elab.elaborate_with_type(val0, mlocal_type(fn));
         buffer<expr> params_buf; for (auto & p : params) params_buf.push_back(p);
-        if (modifiers.m_is_meta) {
-            val = fix_rec_fn_macro_args(elab, mlocal_name(fn), params_buf, type, val);
-        }
         buffer<name> univ_params_buf; to_buffer(univ_params, univ_params_buf);
         finalize_definition(elab, params_buf, type, val, univ_params_buf, modifiers.m_is_meta);
 
@@ -865,9 +817,6 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
             return p.env();
         } else {
             std::tie(val, type) = elaborate_definition(p, elab, kind, fn, val, header_pos);
-            if (meta.m_modifiers.m_is_meta) {
-                val = fix_rec_fn_macro_args(elab, mlocal_name(fn), new_params, type, val);
-            }
             eqns = is_equations_result(val);
             if (eqns) {
                 lean_assert(is_equations_result(val));

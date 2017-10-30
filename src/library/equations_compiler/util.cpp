@@ -48,7 +48,7 @@ static bool get_eqn_compiler_lemmas(options const & o) {
     return o.get_bool(*g_eqn_compiler_lemmas, LEAN_DEFAULT_EQN_COMPILER_LEMMAS);
 }
 
-static bool get_eqn_compiler_zeta(options const & o) {
+bool get_eqn_compiler_zeta(options const & o) {
     return o.get_bool(*g_eqn_compiler_zeta, LEAN_DEFAULT_EQN_COMPILER_ZETA);
 }
 
@@ -266,6 +266,17 @@ static void throw_mk_aux_definition_error(local_context const & lctx, name const
     throw nested_exception(strm, ex);
 }
 
+void compile_aux_definition(environment & env, equations_header const & header, name const & user_name, name const & actual_name) {
+    try {
+        env = vm_compile(env, env.get(actual_name));
+    } catch (exception & ex) {
+        if (!header.m_prev_errors) {
+            throw nested_exception(sstream() << "equation compiler failed to generate bytecode for "
+                                   << "auxiliary declaration '" << user_name << "'", ex);
+        }
+    }
+}
+
 pair<environment, expr> mk_aux_definition(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
                                           equations_header const & header, name const & c, name const & actual_c, expr const & type, expr const & value) {
     lean_trace("eqn_compiler", tout() << "declaring auxiliary definition\n" << c << " : " << type << "\n";);
@@ -290,14 +301,7 @@ pair<environment, expr> mk_aux_definition(environment const & env, options const
     } catch (exception & ex) {
         throw_mk_aux_definition_error(lctx, c, new_type, new_value, ex);
     }
-    try {
-        new_env = vm_compile(new_env, new_env.get(new_c));
-    } catch (exception & ex) {
-        if (!header.m_prev_errors) {
-            throw nested_exception(sstream() << "equation compiler failed to generate bytecode for "
-                                   << "auxiliary declaration '" << c << "'", ex);
-        }
-    }
+    compile_aux_definition(new_env, header, c, new_c);
     return mk_pair(new_env, r);
 }
 

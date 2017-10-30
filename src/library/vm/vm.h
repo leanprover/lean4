@@ -887,9 +887,14 @@ name get_vm_name(unsigned idx);
 optional<name> find_vm_name(unsigned idx);
 
 /** \brief Reserve an index for the given function in the VM, the expression
-    \c e is the value of \c fn after preprocessing.
+    \c e is the value of \c fn after preprocessing. \c e is used to compute the arity of fn.
     See library/compiler/pre_proprocess_rec.cpp for details. */
 environment reserve_vm_index(environment const & env, name const & fn, expr const & e);
+
+/** Lower level version of the previous function. */
+environment reserve_vm_index(environment const & env, name const & fn, unsigned arity);
+
+unsigned get_num_nested_lambdas(expr const & e);
 
 /** \brief Add bytcode for the function named \c fn in \c env.
     \remark The index for \c fn must have been reserved using reserve_vm_index. */

@@ -10,6 +10,8 @@ Author: Leonardo de Moura
 namespace lean {
 [[ noreturn ]] void throw_ill_formed_eqns();
 
+bool get_eqn_compiler_zeta(options const & o);
+
 /** \brief Helper class for modifying/updating an equations-expression.
 
     \remark The equations macro is awkward to use since it is a leftover
@@ -81,6 +83,8 @@ list<expr> erase_inaccessible_annotations(list<expr> const & es);
 bool has_inaccessible_annotation(expr const & e);
 /* See comment at library/local_context.h */
 local_context erase_inaccessible_annotations(local_context const & lctx);
+
+void compile_aux_definition(environment & env, equations_header const & header, name const & user_name, name const & actual_name);
 
 /* Create an auxiliary definition.
 

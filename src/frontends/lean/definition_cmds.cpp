@@ -486,10 +486,6 @@ static environment mutual_definition_cmd_core(parser & p, decl_cmd_kind kind, cm
     buffer<name> prv_names;
     expr val = parse_mutual_definition(p, lp_names, fns, prv_names, params);
 
-    if (meta.m_modifiers.m_is_meta) {
-        throw exception("support for mutual meta definitions has not been implemented yet");
-    }
-
     // skip elaboration of definitions during reparsing
     if (p.get_break_at_pos())
         return p.env();

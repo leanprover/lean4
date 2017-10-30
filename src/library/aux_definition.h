@@ -87,6 +87,11 @@ public:
       \pre finalize_collection has been invoked */
     void get_expr_closure(buffer<expr> & ps);
 
+    /* Return the normalized paramaters created by this helper object.
+
+       \pre finalize_collection has been invoked */
+    buffer<expr> const & get_norm_closure_params() const;
+
     /* Return the name of normalized parameters. That is, it includes the collected
        level parameters and new parameters created for universe meta-variables.
 

@@ -406,13 +406,18 @@ static environment vm_compile(environment const & env, buffer<procedure> const &
     return new_env;
 }
 
+environment vm_compile(environment const & env, buffer<declaration> const & ds, bool optimize_bytecode) {
+    buffer<procedure> procs;
+    preprocess(env, ds, procs);
+    return vm_compile(env, procs, optimize_bytecode);
+}
+
 environment vm_compile(environment const & env, declaration const & d, bool optimize_bytecode) {
     if (!d.is_definition() || d.is_theorem() || is_noncomputable(env, d.get_name()) || is_vm_builtin_function(d.get_name()))
         return env;
-
-    buffer<procedure> procs;
-    preprocess(env, d, procs);
-    return vm_compile(env, procs, optimize_bytecode);
+    buffer<declaration> ds;
+    ds.push_back(d);
+    return vm_compile(env, ds, optimize_bytecode);
 }
 
 void initialize_vm_compiler() {

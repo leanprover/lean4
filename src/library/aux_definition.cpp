@@ -143,6 +143,11 @@ void closure_helper::get_expr_closure(buffer<expr> & ps) {
     }
 }
 
+buffer<expr> const & closure_helper::get_norm_closure_params() const {
+    lean_assert(m_finalized_collection);
+    return m_norm_params;
+}
+
 struct mk_aux_definition_fn : public closure_helper {
     mk_aux_definition_fn(type_context & ctx):closure_helper(ctx) {}
 

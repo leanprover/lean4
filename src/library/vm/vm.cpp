@@ -1009,16 +1009,6 @@ static vm_instr read_vm_instr(deserializer & d) {
     lean_unreachable();
 }
 
-static unsigned get_num_lambdas(expr const & e) {
-    unsigned r = 0;
-    expr it = e;
-    while (is_lambda(it)) {
-        r++;
-        it = binding_body(it);
-    }
-    return r;
-}
-
 vm_decl_cell::vm_decl_cell(name const & n, unsigned idx, unsigned arity, vm_function fn):
     m_rc(0), m_kind(vm_decl_kind::Builtin), m_name(n), m_idx(idx), m_arity(arity), m_fn(fn) {}
 
@@ -1147,11 +1137,11 @@ struct vm_decls : public environment_extension {
         m_decls.insert(idx, vm_decl(n, idx, arity, fn));
     }
 
-    unsigned reserve(name const & n, expr const & e) {
+    unsigned reserve(name const & n, unsigned arity) {
         unsigned idx = get_vm_index(n);
         if (m_decls.contains(idx))
             throw exception(sstream() << "VM already contains code for '" << n << "'");
-        m_decls.insert(idx, vm_decl(n, idx, get_num_lambdas(e), 0, nullptr, list<vm_local_info>(), optional<pos_info>()));
+        m_decls.insert(idx, vm_decl(n, idx, arity, 0, nullptr, list<vm_local_info>(), optional<pos_info>()));
         return idx;
     }
 
@@ -1251,25 +1241,25 @@ optional<unsigned> get_vm_builtin_idx(name const & n) {
 struct vm_reserve_modification : public modification {
     LEAN_MODIFICATION("VMR")
 
-    name m_fn;
-    expr m_e;
+    name     m_fn;
+    unsigned m_arity;
 
-    vm_reserve_modification(name const & fn, expr const & e) : m_fn(fn), m_e(e) {}
+    vm_reserve_modification(name const & fn, unsigned arity): m_fn(fn), m_arity(arity) {}
 
     void perform(environment & env) const override {
         vm_decls ext = get_extension(env);
-        ext.reserve(m_fn, m_e);
+        ext.reserve(m_fn, m_arity);
         env = update(env, ext);
     }
 
     void serialize(serializer & s) const override {
-        s << m_fn << m_e;
+        s << m_fn << m_arity;
     }
 
     static std::shared_ptr<modification const> deserialize(deserializer & d) {
-        name fn; expr e;
-        d >> fn >> e;
-        return std::make_shared<vm_reserve_modification>(fn, e);
+        name fn; unsigned arity;
+        d >> fn >> arity;
+        return std::make_shared<vm_reserve_modification>(fn, arity);
     }
 };
 
@@ -1334,8 +1324,22 @@ struct vm_monitor_modification : public modification {
     }
 };
 
+environment reserve_vm_index(environment const & env, name const & fn, unsigned arity) {
+    return module::add_and_perform(env, std::make_shared<vm_reserve_modification>(fn, arity));
+}
+
+unsigned get_num_nested_lambdas(expr const & e) {
+    unsigned r = 0;
+    expr it = e;
+    while (is_lambda(it)) {
+        r++;
+        it = binding_body(it);
+    }
+    return r;
+}
+
 environment reserve_vm_index(environment const & env, name const & fn, expr const & e) {
-    return module::add_and_perform(env, std::make_shared<vm_reserve_modification>(fn, e));
+    return reserve_vm_index(env, fn, get_num_nested_lambdas(e));
 }
 
 environment update_vm_code(environment const & env, name const & fn, unsigned code_sz, vm_instr const * code,

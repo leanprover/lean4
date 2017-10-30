@@ -273,6 +273,14 @@ void preprocess(environment const & env, declaration const & d, buffer<procedure
     return preprocess_fn(env)(d, result);
 }
 
+void preprocess(environment const & env, buffer<declaration> const & ds, buffer<procedure> & result) {
+    for (declaration const & d : ds) {
+        buffer<procedure> procs;
+        preprocess(env, d, procs);
+        result.append(procs);
+    }
+}
+
 void initialize_preprocess() {
     register_trace_class("compiler");
     register_trace_class({"compiler", "input"});

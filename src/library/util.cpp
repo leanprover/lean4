@@ -1056,6 +1056,20 @@ name get_dep_cases_on(environment const & env, name const & n) {
         return name(n, "cases_on");
 }
 
+static char const * g_aux_meta_rec_prefix = "_meta_aux";
+
+name mk_aux_meta_rec_name(name const & n) {
+    return name(n, g_aux_meta_rec_prefix);
+}
+
+optional<name> is_aux_meta_rec_name(name const & n) {
+    if (!n.is_atomic() && n.is_string() && strcmp(n.get_string(), g_aux_meta_rec_prefix) == 0) {
+        return optional<name>(n.get_prefix());
+    } else {
+        return optional<name>();
+    }
+}
+
 void initialize_library_util() {
     g_true           = new expr(mk_constant(get_true_name()));
     g_true_intro     = new expr(mk_constant(get_true_intro_name()));

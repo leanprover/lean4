@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "library/trace.h"
 #include "library/locals.h"
+#include "library/util.h"
 #include "library/replace_visitor.h"
 #include "library/equations_compiler/compiler.h"
 #include "library/equations_compiler/util.h"
@@ -302,8 +303,8 @@ static expr remove_aux_main_name(expr const & e) {
     return e;
 }
 
-expr compile_equations(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx,
-                       expr const & _eqns, elaborator & elab) {
+expr compile_equations_main(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx,
+                            expr const & _eqns, elaborator & elab) {
     expr eqns = _eqns;
     equations_header const & header = get_equations_header(eqns);
     eqn_compiler_result r;
@@ -326,8 +327,32 @@ expr compile_equations(environment & env, options const & opts, metavar_context 
     return mk_equations_result(fns.size(), fns.data());
 }
 
+expr compile_equations(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx,
+                       expr const & eqns, elaborator & elab) {
+    equations_header const & header = get_equations_header(eqns);
+    type_context ctx(env, opts, mctx, lctx, transparency_mode::Semireducible);
+    if (!header.m_is_meta &&
+        !header.m_is_lemma &&
+        /* Remark: we don't need special compilation scheme for non recursive equations */
+        is_recursive_eqns(ctx, eqns)) {
+        /* We compile non-meta recursive definitions as meta definitions first.
+           The motivations are:
+           - Clear execution cost semantics for recursive functions.
+           - Auxiliary meta definition may assist recursive definition unfolding in the type_context object.
+        */
+        equations_header aux_header = header;
+        aux_header.m_is_meta    = true;
+        aux_header.m_aux_lemmas = false;
+        aux_header.m_fn_actual_names = map(header.m_fn_actual_names, mk_aux_meta_rec_name);
+        expr aux_eqns = remove_wf_annotation_from_equations(update_equations(eqns, aux_header));
+        compile_equations_main(env, opts, mctx, lctx, aux_eqns, elab);
+    }
+    return compile_equations_main(env, opts, mctx, lctx, eqns, elab);
+}
+
 void initialize_compiler() {
 }
+
 void finalize_compiler() {
 }
 }

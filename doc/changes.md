@@ -12,6 +12,12 @@ master branch (aka work in progress branch)
 
 - Unicode escape characters in string and char literals. For example, `'\u03B1'` is equivalent to `'α'`.
 
+- Predictable runtime cost model for recursive functions. The equation compiler uses
+  different techniques for converting recursive equations into recursors and/or
+  well-founded fixed points. The new approach used in the code generator ignores
+  these encoding tricks when producing byte code. So, the runtime cost model
+  is identical to the one in regular strict functional languages.
+
 *Changes*
 
 - `string` is now a list of unicode scalar values. Moreover, in the VM,

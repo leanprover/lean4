@@ -303,8 +303,8 @@ static expr remove_aux_main_name(expr const & e) {
     return e;
 }
 
-expr compile_equations_main(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx,
-                            expr const & _eqns, elaborator & elab) {
+static expr compile_equations_main(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx,
+                                   expr const & _eqns, elaborator & elab, bool report_cexs) {
     expr eqns = _eqns;
     equations_header const & header = get_equations_header(eqns);
     eqn_compiler_result r;
@@ -314,7 +314,7 @@ expr compile_equations_main(environment & env, options const & opts, metavar_con
         r = compile_equations_core(env, opts, mctx, lctx, eqns, elab);
     }
 
-    if (r.m_counter_examples) {
+    if (report_cexs && r.m_counter_examples) {
         auto pp = mk_pp_ctx(env, opts, mctx, lctx);
         auto fmt = format("non-exhaustive match, the following cases are missing:");
         for (auto & ce : r.m_counter_examples) {
@@ -345,9 +345,9 @@ expr compile_equations(environment & env, options const & opts, metavar_context 
         aux_header.m_aux_lemmas = false;
         aux_header.m_fn_actual_names = map(header.m_fn_actual_names, mk_aux_meta_rec_name);
         expr aux_eqns = remove_wf_annotation_from_equations(update_equations(eqns, aux_header));
-        compile_equations_main(env, opts, mctx, lctx, aux_eqns, elab);
+        compile_equations_main(env, opts, mctx, lctx, aux_eqns, elab, false);
     }
-    return compile_equations_main(env, opts, mctx, lctx, eqns, elab);
+    return compile_equations_main(env, opts, mctx, lctx, eqns, elab, true);
 }
 
 void initialize_compiler() {

@@ -904,6 +904,8 @@ environment update_vm_code(environment const & env, name const & fn, unsigned co
 /** \brief Combines reserve_vm_index and update_vm_code */
 environment add_vm_code(environment const & env, name const & fn, expr const & e, unsigned code_sz, vm_instr const * code,
                         list<vm_local_info> const & args_info, optional<pos_info> const & pos);
+environment add_vm_code(environment const & env, name const & fn, unsigned arity, unsigned code_sz, vm_instr const * code,
+                        list<vm_local_info> const & args_info, optional<pos_info> const & pos);
 
 /** \brief Return the internal idx for the given constant. Return none
     if the constant is not builtin nor it has code associated with it. */

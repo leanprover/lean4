@@ -1354,6 +1354,12 @@ environment add_vm_code(environment const & env, name const & fn, expr const & e
     return update_vm_code(new_env, fn, code_sz, code, args_info, pos);
 }
 
+environment add_vm_code(environment const & env, name const & fn, unsigned arity, unsigned code_sz, vm_instr const * code,
+                        list<vm_local_info> const & args_info, optional<pos_info> const & pos) {
+    environment new_env = reserve_vm_index(env, fn, arity);
+    return update_vm_code(new_env, fn, code_sz, code, args_info, pos);
+}
+
 optional<vm_decl> get_vm_decl(environment const & env, name const & n) {
     vm_decls const & ext = get_extension(env);
     if (auto decl = ext.m_decls.find(get_vm_index(n)))

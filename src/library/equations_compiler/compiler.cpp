@@ -333,6 +333,7 @@ expr compile_equations(environment & env, options const & opts, metavar_context 
     type_context ctx(env, opts, mctx, lctx, transparency_mode::Semireducible);
     if (!header.m_is_meta &&
         !header.m_is_lemma &&
+        !header.m_is_noncomputable &&
         /* Remark: we don't need special compilation scheme for non recursive equations */
         is_recursive_eqns(ctx, eqns)) {
         /* We compile non-meta recursive definitions as meta definitions first.

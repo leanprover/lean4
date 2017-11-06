@@ -3003,9 +3003,13 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                                 field2mvar.insert(S_fname, c_arg);
                                 mvar2field.insert(mlocal_name(c_arg), S_fname);
                                 if (p) {
-                                    auto nested = create_field_mvars(*p).first;
-                                    lean_always_assert(is_def_eq(c_arg, nested));
-                                    field2value.insert(S_fname, nested);
+                                    auto nested = create_field_mvars(*p);
+                                    if (!is_def_eq(c_arg, nested.first)) {
+                                        format msg = format("type mismatch at field '") + format(S_fname) + format("'");
+                                        msg += pp_type_mismatch(nested.first, nested.second, d);
+                                        throw elaborator_exception(ref, msg);
+                                    }
+                                    field2value.insert(S_fname, nested.first);
                                 }
                             } else {
                                 report_or_throw(elaborator_exception(e, sstream() << "invalid structure value { ... }, field '" <<

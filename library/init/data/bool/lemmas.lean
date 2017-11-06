@@ -71,6 +71,12 @@ by cases b; simp
 @[simp] lemma eq_tt_eq_not_eq_ff (b : bool) : (¬(b = ff)) = (b = tt) :=
 by cases b; simp
 
+lemma eq_ff_of_not_eq_tt {b : bool} : (¬(b = tt)) → (b = ff) :=
+eq.mp (eq_ff_eq_not_eq_tt b)
+
+lemma eq_tt_of_not_eq_ff {b : bool} : (¬(b = ff)) → (b = tt) :=
+eq.mp (eq_tt_eq_not_eq_ff b)
+
 @[simp] lemma band_eq_true_eq_eq_tt_and_eq_tt (a b : bool) : (a && b = tt) = (a = tt ∧ b = tt) :=
 by cases a; cases b; simp
 
@@ -122,7 +128,7 @@ theorem to_bool_congr {p q : Prop} [decidable p] [decidable q] (h : p ↔ q) : t
 begin
   ginduction to_bool q with h',
   exact to_bool_ff (mt h.1 $ of_to_bool_ff h'),
-  exact to_bool_true (h.2 $ of_to_bool_true h') 
+  exact to_bool_true (h.2 $ of_to_bool_true h')
 end
 
 @[simp] theorem bor_coe_iff (a b : bool) : a || b ↔ a ∨ b :=
@@ -133,3 +139,9 @@ by cases a; cases b; exact dec_trivial
 
 @[simp] theorem bxor_coe_iff (a b : bool) : bxor a b ↔ xor a b :=
 by cases a; cases b; exact dec_trivial
+
+@[simp] theorem ite_eq_tt_distrib (c : Prop) [decidable c] (a b : bool) : ((if c then a else b) = tt) = (if c then a = tt else b = tt) :=
+by by_cases c with h; simp [h]
+
+@[simp] theorem ite_eq_ff_distrib (c : Prop) [decidable c] (a b : bool) : ((if c then a else b) = ff) = (if c then a = ff else b = ff) :=
+by by_cases c with h; simp [h]

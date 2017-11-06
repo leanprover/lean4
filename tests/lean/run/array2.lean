@@ -1,4 +1,4 @@
-#check @array.mk
+#check @d_array.mk
 
 local infix ` << `:20 := array.push_back
 

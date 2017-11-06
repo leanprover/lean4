@@ -63,7 +63,7 @@ vm_obj to_obj(parray<vm_obj> const & a) {
     return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_array))) vm_array(a));
 }
 
-vm_obj array_read(vm_obj const &, vm_obj const &, vm_obj const & a, vm_obj const & i) {
+vm_obj d_array_read(vm_obj const &, vm_obj const &, vm_obj const & a, vm_obj const & i) {
     /* TODO(Leo): handle case where n is too big */
     unsigned idx = force_to_unsigned(i);
     lean_vm_check(idx < to_array(a).size());
@@ -71,7 +71,7 @@ vm_obj array_read(vm_obj const &, vm_obj const &, vm_obj const & a, vm_obj const
     return _a[idx];
 }
 
-vm_obj array_write(vm_obj const &, vm_obj const &, vm_obj const & a, vm_obj const & i, vm_obj const & v) {
+vm_obj d_array_write(vm_obj const &, vm_obj const &, vm_obj const & a, vm_obj const & i, vm_obj const & v) {
     /* TODO(Leo): handle case where n is too big */
     unsigned idx = force_to_unsigned(i);
     parray<vm_obj> const & p = to_array(a);
@@ -110,14 +110,14 @@ vm_obj array_pop_back(vm_obj const &, vm_obj const &, vm_obj const & a) {
     }
 }
 
-vm_obj mk_array(vm_obj const &, vm_obj const & n, vm_obj const & v) {
+vm_obj mk_array(vm_obj const & /* alpha */, vm_obj const & n, vm_obj const & v) {
     /* TODO(Leo): handle case where n is too big */
     unsigned _n = force_to_unsigned(n);
     parray<vm_obj> a(_n, v);
     return to_obj(a);
 }
 
-vm_obj array_mk(vm_obj const &, vm_obj const & n, vm_obj const & fn) {
+vm_obj d_array_mk(vm_obj const & n, vm_obj const & /* alpha */, vm_obj const & fn) {
     /* TODO(Leo): handle case where n is too big */
     unsigned _n = force_to_unsigned(n);
     parray<vm_obj> a;
@@ -127,7 +127,7 @@ vm_obj array_mk(vm_obj const &, vm_obj const & n, vm_obj const & fn) {
     return to_obj(a);
 }
 
-vm_obj array_foreach(vm_obj const &, vm_obj const & n, vm_obj const & a, vm_obj const & fn) {
+vm_obj d_array_foreach(vm_obj const & n, vm_obj const & /* alpha */, vm_obj const & a, vm_obj const & fn) {
     /* TODO(Leo): handle case where n is too big */
     unsigned _n = force_to_unsigned(n);
     parray<vm_obj> const & p = to_array(a);
@@ -145,8 +145,8 @@ vm_obj array_foreach(vm_obj const &, vm_obj const & n, vm_obj const & a, vm_obj 
     }
 }
 
-vm_obj array_iterate(vm_obj const &, vm_obj const &, vm_obj const & n,
-                     vm_obj const & a, vm_obj const & b, vm_obj const & fn) {
+vm_obj d_array_iterate(vm_obj const & n, vm_obj const & /* alpha */, vm_obj const & /* beta */,
+                       vm_obj const & a, vm_obj const & b, vm_obj const & fn) {
     /* TODO(Leo): handle case where n is too big */
     unsigned _n = force_to_unsigned(n);
     parray<vm_obj> const & p = to_array(a);
@@ -158,7 +158,7 @@ vm_obj array_iterate(vm_obj const &, vm_obj const &, vm_obj const & n,
 
 static unsigned g_array_read_idx = -1;
 
-unsigned array_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
+unsigned d_array_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
     vm_obj d[3] = {o, mk_vm_unit(), mk_vm_unit()};
     vm_obj fn = mk_vm_closure(g_array_read_idx, 3, d);
     data.push_back(fn);
@@ -166,22 +166,22 @@ unsigned array_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
 }
 
 void initialize_vm_array() {
-    DECLARE_VM_BUILTIN(name({"array", "mk"}),               array_mk);
+    DECLARE_VM_BUILTIN(name({"d_array", "mk"}),             d_array_mk);
     DECLARE_VM_BUILTIN(name({"mk_array"}),                  mk_array);
-    DECLARE_VM_BUILTIN(name({"array", "data"}),             array_read);
-    DECLARE_VM_BUILTIN(name({"array", "read"}),             array_read);
-    DECLARE_VM_BUILTIN(name({"array", "write"}),            array_write);
+    DECLARE_VM_BUILTIN(name({"d_array", "data"}),           d_array_read);
+    DECLARE_VM_BUILTIN(name({"d_array", "read"}),           d_array_read);
+    DECLARE_VM_BUILTIN(name({"d_array", "write"}),          d_array_write);
     DECLARE_VM_BUILTIN(name({"array", "push_back"}),        array_push_back);
     DECLARE_VM_BUILTIN(name({"array", "pop_back"}),         array_pop_back);
-    DECLARE_VM_BUILTIN(name({"array", "foreach"}),          array_foreach);
-    DECLARE_VM_BUILTIN(name({"array", "iterate"}),          array_iterate);
-    DECLARE_VM_CASES_BUILTIN(name({"array", "cases_on"}),   array_cases_on);
+    DECLARE_VM_BUILTIN(name({"d_array", "foreach"}),        d_array_foreach);
+    DECLARE_VM_BUILTIN(name({"d_array", "iterate"}),        d_array_iterate);
+    DECLARE_VM_CASES_BUILTIN(name({"d_array", "cases_on"}), d_array_cases_on);
 }
 
 void finalize_vm_array() {
 }
 
 void initialize_vm_array_builtin_idxs() {
-    g_array_read_idx = *get_vm_builtin_idx(name({"array", "read"}));
+    g_array_read_idx = *get_vm_builtin_idx(name({"d_array", "read"}));
 }
 }

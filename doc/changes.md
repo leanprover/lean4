@@ -18,10 +18,19 @@ master branch (aka work in progress branch)
   these encoding tricks when producing byte code. So, the runtime cost model
   is identical to the one in regular strict functional languages.
 
+- Add `d_array n α` (array type where value type may depend on index),
+  where (α : fin n → Type u).
+
+- Add instance for `decidable_eq (d_array n α)` and `decidable_eq (array n α)`.
+  The new instance is more efficient than the one in mathlib because it doesn't
+  convert the array into a list.
+
 *Changes*
 
 - `string` is now a list of unicode scalar values. Moreover, in the VM,
   strings are implemented as an UTF-8 encoded array of bytes.
+
+- `array α n` is now written `array n α`. Motivation: consistency `d_array n α`.
 
 *API name changes*
 

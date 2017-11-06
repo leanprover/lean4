@@ -2,4 +2,4 @@ missing_import.lean:1:0: error: file 'does/not/exist' not found in the LEAN_PATH
 missing_import.lean:1:0: error: invalid import: does.not.exist
 could not resolve import: does.not.exist
 def buffer : Type u → Type u :=
-λ (α : Type u), Σ (n : ℕ), array α n
+λ (α : Type u), Σ (n : ℕ), array n α

@@ -192,16 +192,16 @@ vm_obj name_set_fold(vm_obj const &, vm_obj const & m, vm_obj const & a, vm_obj 
 }
 
 void initialize_vm_rb_map() {
-    DECLARE_VM_BUILTIN(name({"rb_map", "mk_core"}),        rb_map_mk_core);
-    DECLARE_VM_BUILTIN(name({"rb_map", "size"}),           rb_map_size);
-    DECLARE_VM_BUILTIN(name({"rb_map", "empty"}),          rb_map_empty);
-    DECLARE_VM_BUILTIN(name({"rb_map", "insert"}),         rb_map_insert);
-    DECLARE_VM_BUILTIN(name({"rb_map", "erase"}),          rb_map_erase);
-    DECLARE_VM_BUILTIN(name({"rb_map", "contains"}),       rb_map_contains);
-    DECLARE_VM_BUILTIN(name({"rb_map", "find"}),           rb_map_find);
-    DECLARE_VM_BUILTIN(name({"rb_map", "min"}),            rb_map_min);
-    DECLARE_VM_BUILTIN(name({"rb_map", "max"}),            rb_map_max);
-    DECLARE_VM_BUILTIN(name({"rb_map", "fold"}),           rb_map_fold);
+    DECLARE_VM_BUILTIN(name({"native", "rb_map", "mk_core"}),        rb_map_mk_core);
+    DECLARE_VM_BUILTIN(name({"native", "rb_map", "size"}),           rb_map_size);
+    DECLARE_VM_BUILTIN(name({"native", "rb_map", "empty"}),          rb_map_empty);
+    DECLARE_VM_BUILTIN(name({"native", "rb_map", "insert"}),         rb_map_insert);
+    DECLARE_VM_BUILTIN(name({"native", "rb_map", "erase"}),          rb_map_erase);
+    DECLARE_VM_BUILTIN(name({"native", "rb_map", "contains"}),       rb_map_contains);
+    DECLARE_VM_BUILTIN(name({"native", "rb_map", "find"}),           rb_map_find);
+    DECLARE_VM_BUILTIN(name({"native", "rb_map", "min"}),            rb_map_min);
+    DECLARE_VM_BUILTIN(name({"native", "rb_map", "max"}),            rb_map_max);
+    DECLARE_VM_BUILTIN(name({"native", "rb_map", "fold"}),           rb_map_fold);
 
     DECLARE_VM_BUILTIN(name({"mk_name_set"}),              mk_name_set);
     DECLARE_VM_BUILTIN(name({"name_set", "size"}),         name_set_size);

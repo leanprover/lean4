@@ -32,6 +32,9 @@ master branch (aka work in progress branch)
 
 - `array α n` is now written `array n α`. Motivation: consistency `d_array n α`.
 
+- Move `rb_map` and `rb_tree` to the `native` namespace. We will later add
+  pure Lean implementations. Use `open native` to port files.
+
 *API name changes*
 
 v3.3.0 (14 September 2017)

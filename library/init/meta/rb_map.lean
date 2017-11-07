@@ -6,6 +6,12 @@ Authors: Leonardo de Moura, Jeremy Avigad
 prelude
 import init.data.ordering init.function init.meta.name init.meta.format init.category.monad
 
+open format
+
+private meta def format_key {key} [has_to_format key] (k : key) (first : bool) : format :=
+(if first then to_fmt "" else to_fmt "," ++ line) ++ to_fmt k
+
+namespace native
 meta constant {u₁ u₂} rb_map : Type u₁ → Type u₂ → Type (max u₁ u₂)
 
 namespace rb_map
@@ -69,19 +75,8 @@ end nat_map
 meta def mk_nat_map {data : Type} : nat_map data :=
 nat_map.mk data
 
-@[reducible] meta def name_map (data : Type) := rb_map name data
-namespace name_map
-export rb_map (hiding mk)
-
-meta def mk (data : Type) : name_map data := rb_map.mk name data
-end name_map
-
-meta def mk_name_map {data : Type} : name_map data :=
-name_map.mk data
-
 open rb_map prod
 section
-open format
 variables {key : Type} {data : Type} [has_to_format key] [has_to_format data]
 private meta def format_key_data (k : key) (d : data) (first : bool) : format :=
 (if first then to_fmt "" else to_fmt "," ++ line) ++ to_fmt k ++ space ++ to_fmt "←" ++ space ++ to_fmt d
@@ -135,11 +130,6 @@ meta def rb_set (key) := rb_map key unit
 meta def mk_rb_set {key} [has_ordering key] : rb_set key :=
 mk_rb_map
 
-open format
-
-private meta def format_key {key} [has_to_format key] (k : key) (first : bool) : format :=
-(if first then to_fmt "" else to_fmt "," ++ line) ++ to_fmt k
-
 namespace rb_set
 meta def insert {key} (s : rb_set key) (k : key) : rb_set key :=
 rb_map.insert s k ()
@@ -169,6 +159,18 @@ meta instance {key} [has_to_format key] : has_to_format (rb_set key) :=
 ⟨λ m, group $ to_fmt "{" ++ nest 1 (fst (fold m (to_fmt "", tt) (λ k p, (fst p ++ format_key k (snd p), ff)))) ++
               to_fmt "}"⟩
 end rb_set
+end native
+
+open native
+@[reducible] meta def name_map (data : Type) := rb_map name data
+namespace name_map
+export native.rb_map (hiding mk)
+
+meta def mk (data : Type) : name_map data := rb_map.mk name data
+end name_map
+
+meta def mk_name_map {data : Type} : name_map data :=
+name_map.mk data
 
 meta constant name_set : Type
 meta constant mk_name_set : name_set
@@ -185,7 +187,7 @@ meta def to_list (s : name_set) : list name :=
 s.fold [] list.cons
 
 meta instance : has_to_format name_set :=
-⟨λ m, group $ to_fmt "{" ++ nest 1 (fst (fold m (to_fmt "", tt) (λ k p, (fst p ++ format_key k (snd p), ff)))) ++
+⟨λ m, group $ to_fmt "{" ++ nest 1 (fold m (to_fmt "", tt) (λ k p, (p.1 ++ format_key k p.2, ff))).1 ++
               to_fmt "}"⟩
 
 meta def of_list (l : list name) : name_set :=

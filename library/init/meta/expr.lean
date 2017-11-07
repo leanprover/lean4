@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.meta.level init.category.monad init.meta.rb_map
 universes u v
-
+open native
 structure pos :=
 (line   : nat)
 (column : nat)
@@ -410,7 +410,7 @@ end expr
 
 @[reducible] meta def expr_map (data : Type) := rb_map expr data
 namespace expr_map
-export rb_map (hiding mk)
+export native.rb_map (hiding mk)
 
 meta def mk (data : Type) : expr_map data := rb_map.mk expr data
 end expr_map

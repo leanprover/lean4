@@ -1,7 +1,7 @@
 import system.io
 open io
 section
-open nat_map
+open native.nat_map
 
 #eval size (insert (insert (mk nat) 10 20) 10 21)
 
@@ -31,7 +31,7 @@ end
 end
 
 section
-open rb_map
+open native.rb_map
 -- Mapping from (nat × nat) → nat
 meta definition m3 := insert (insert (mk (nat × nat) nat) (1, 2) 3) (2, 2) 4
 

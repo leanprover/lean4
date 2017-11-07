@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.meta.tactic init.meta.rb_map
 open tactic
-
+open native
 private meta def apply_replacement (replacements : name_map name) (e : expr) : expr :=
 e.replace (λ e d,
   match e with

@@ -213,7 +213,7 @@ copy_decl_using dict src tgt
 
 /- Transport multiplicative to additive -/
 meta def transport_multiplicative_to_additive (ls : list (name × name)) : command :=
-let dict := rb_map.of_list ls in
+let dict := native.rb_map.of_list ls in
 ls.foldl (λ t ⟨src, tgt⟩, do
   env ← get_env,
   if (env.get tgt).to_bool = ff

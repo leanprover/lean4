@@ -304,7 +304,7 @@ void vm_obj_cell::dealloc() {
 
 void display(std::ostream & out, vm_obj const & o) {
     if (is_simple(o)) {
-        out << cidx(o);
+        out << "#" << cidx(o);
     } else if (is_constructor(o)) {
         out << "(#" << cidx(o);
         for (unsigned i = 0; i < csize(o); i++) {

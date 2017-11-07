@@ -456,6 +456,7 @@ static environment eval_cmd(parser & p) {
 
     type_context tc(p.env(), transparency_mode::All);
     auto type = tc.infer(e);
+    bool has_repr_inst = false;
 
     /* Check if resultant type has an instance of has_repr */
     try {
@@ -463,8 +464,9 @@ static environment eval_cmd(parser & p) {
         optional<expr> repr_instance = tc.mk_class_instance(has_repr_type);
         if (repr_instance) {
             /* Modify the 'program' to (repr e) */
-            e         = mk_app(tc, get_repr_name(), type, *repr_instance, e);
-            type      = tc.infer(e);
+            e             = mk_app(tc, get_repr_name(), type, *repr_instance, e);
+            type          = tc.infer(e);
+            has_repr_inst = true;
         }
     } catch (exception &) {}
 
@@ -490,6 +492,9 @@ static environment eval_cmd(parser & p) {
             if (!fn.try_exec()) {
                 auto r = fn.invoke_fn();
                 should_report = true;
+                if (!has_repr_inst) {
+                    (p.mk_message(p.cmd_pos(), WARNING) << "result type does not have an instance of type class 'has_repr', dumping internal representation").report();
+                }
                 if (is_constant(fn.get_type(), get_string_name())) {
                     out << to_string(r);
                 } else {

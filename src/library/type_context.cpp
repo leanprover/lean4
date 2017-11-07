@@ -3623,6 +3623,7 @@ struct instance_synthesizer {
             if (is_local(r))
                 return false;
             // recursively look up reflected instances for locals in r and substitute them into the quotation of r
+            r = zeta_expand(m_ctx.m_lctx, r);
             collected_locals r_locals;
             collect_locals(r, r_locals);
             r = m_ctx.mk_lambda(r_locals.get_collected(), r);

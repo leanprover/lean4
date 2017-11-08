@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "library/normalize.h"
 #include "library/util.h"
+#include "library/trace.h"
 #include "kernel/scope_pos_info_provider.h"
 #include "library/module.h"
 #include "library/vm/vm.h"
@@ -38,24 +39,6 @@ class lambda_lifting_fn : public compiler_step_visitor {
             e = binding_body(e);
         }
         return get_decl_pos_info(m_ctx.env(), m_prefix);
-    }
-
-    expr declare_aux_def(expr const & value) {
-        /* Try to avoid unnecessary aux decl by
-           1- Apply eta-reduction (unless there is a sorry)
-           2- Check if the result is of the form (f ...) where f is
-              a) VM builtin functions OR
-              b) A function without builtin support (i.e., it is not a constructor, cases_on or projection) */
-        expr new_value  = m_saw_sorry && has_sorry(value) ? value : try_eta(value);
-        expr const & fn = get_app_fn(new_value);
-        if (is_constant(fn)) {
-            name const & n = const_name(fn);
-            if (!inductive::is_intro_rule(env(), n) && !is_cases_on_recursor(env(), n) && !is_projection(env(), n))
-                return new_value;
-        }
-        name aux_name = mk_fresh_name(env(), m_prefix, "_lambda", m_idx);
-        m_new_procs.emplace_back(aux_name, get_pos_info(value), value);
-        return mk_constant(aux_name);
     }
 
     typedef rb_map<unsigned, local_decl, unsigned_rev_cmp> idx2decls;
@@ -114,12 +97,41 @@ class lambda_lifting_fn : public compiler_step_visitor {
         }
     }
 
+    /* Auxiliary function for visit_lambda. It is used to avoid unnecessary aux decl by
+       1- Apply eta-reduction (unless there is a sorry)
+       2- Check if the result is of the form (f ...) where f is
+         a) not VM builtin functions NOR
+         b) A function without builtin support (i.e., it is not a constructor, cases_on or projection) */
+    optional<expr> try_eta(expr const & value) {
+        if (m_saw_sorry && has_sorry(value))
+            return none_expr();
+
+        expr new_value = ::lean::try_eta(value);
+        expr const & fn = get_app_fn(new_value);
+
+        if (is_local(fn))
+            return some_expr(new_value);
+
+        if (is_constant(fn)) {
+            name const & n = const_name(fn);
+            if (!inductive::is_intro_rule(env(), n) && !is_cases_on_recursor(env(), n) && !is_projection(env(), n))
+                return some_expr(new_value);
+        }
+
+        return none_expr();
+    }
+
     virtual expr visit_lambda(expr const & e) override {
         expr new_e = visit_lambda_core(e);
+
+        if (auto r = try_eta(new_e))
+            return *r;
+
         buffer<expr> locals;
-        new_e  = abstract_locals(new_e, locals);
-        expr c = declare_aux_def(new_e);
-        return mk_rev_app(c, locals);
+        new_e = abstract_locals(new_e, locals);
+        name aux_name = mk_fresh_name(env(), m_prefix, "_lambda", m_idx);
+        m_new_procs.emplace_back(aux_name, get_pos_info(e), new_e);
+        return mk_rev_app(mk_constant(aux_name), locals);
     }
 
     virtual expr visit_let(expr const & e) override {

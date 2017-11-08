@@ -874,9 +874,9 @@ begin
   apply le_div_iff_mul_le _ _ Hk
 end
 
-def iterate {A : Type} (op : A → A) : ℕ → A → A
- | 0 := λ a, a
- | (succ k) := λ a, op (iterate k a)
+def iterate {α : Type} (op : α → α) : ℕ → α → α
+ | 0        a := a
+ | (succ k) a := iterate k (op a)
 
 notation f`^[`n`]` := iterate f n
 

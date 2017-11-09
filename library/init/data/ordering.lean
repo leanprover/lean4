@@ -36,7 +36,7 @@ instance : has_repr ordering :=
 class has_ordering (α : Type u) :=
 (cmp : α → α → ordering)
 
-def nat.cmp (a b : nat) : ordering :=
+protected def nat.cmp (a b : nat) : ordering :=
 if a < b      then ordering.lt
 else if a = b then ordering.eq
 else               ordering.gt
@@ -53,7 +53,7 @@ instance : has_ordering char :=
 instance : has_ordering unsigned :=
 fin.has_ordering _
 
-def list.cmp {α : Type u} [has_ordering α] : list α → list α → ordering
+protected def list.cmp {α : Type u} [has_ordering α] : list α → list α → ordering
 | []     []      := ordering.eq
 | []     (b::l') := ordering.lt
 | (a::l) []      := ordering.gt
@@ -63,7 +63,7 @@ instance {α : Type u} [has_ordering α] : has_ordering (list α) :=
 ⟨list.cmp⟩
 
 /- Remark: this function has a VM builtin efficient implementation. -/
-def string.cmp (s1 s2 : string) : ordering :=
+protected def string.cmp (s1 s2 : string) : ordering :=
 list.cmp s1.to_list s2.to_list
 
 instance : has_ordering string :=
@@ -74,7 +74,7 @@ open prod
 
 variables {α : Type u} {β : Type v} [has_ordering α] [has_ordering β]
 
-def prod.cmp : α × β → α × β → ordering
+protected def prod.cmp : α × β → α × β → ordering
 | (a₁, b₁) (a₂, b₂) := (has_ordering.cmp a₁ a₂).or_else (has_ordering.cmp b₁ b₂)
 
 instance {α : Type u} {β : Type v} [has_ordering α] [has_ordering β] : has_ordering (α × β) :=
@@ -86,7 +86,7 @@ open sum
 
 variables {α : Type u} {β : Type v} [has_ordering α] [has_ordering β]
 
-def sum.cmp : α ⊕ β → α ⊕ β → ordering
+protected def sum.cmp : α ⊕ β → α ⊕ β → ordering
 | (inl a₁) (inl a₂) := has_ordering.cmp a₁ a₂
 | (inr b₁) (inr b₂) := has_ordering.cmp b₁ b₂
 | (inl a₁) (inr b₂) := lt
@@ -101,7 +101,7 @@ open option
 
 variables {α : Type u} [has_ordering α]
 
-def option.cmp : option α → option α → ordering
+protected def option.cmp : option α → option α → ordering
 | (some a₁) (some a₂) := has_ordering.cmp a₁ a₂
 | (some a₁) none      := gt
 | none      (some a₂) := lt
@@ -110,3 +110,5 @@ def option.cmp : option α → option α → ordering
 instance {α : Type u} [has_ordering α] : has_ordering (option α) :=
 ⟨option.cmp⟩
 end
+
+export has_ordering (cmp)

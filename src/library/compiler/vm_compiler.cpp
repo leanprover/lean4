@@ -114,20 +114,7 @@ class vm_compiler_fn {
         expr fn = get_app_args(e, args);
         lean_assert(is_constant(fn));
         name const & fn_name = const_name(fn);
-        unsigned num;
-        optional<unsigned> builtin_cases_idx;
-        if (fn_name == get_nat_cases_on_name()) {
-            num = 2;
-        } else {
-            builtin_cases_idx = get_vm_builtin_cases_idx(m_env, fn_name);
-            if (builtin_cases_idx) {
-                name const & I_name = fn_name.get_prefix();
-                num = *inductive::get_num_intro_rules(m_env, I_name);
-            } else {
-                lean_assert(is_internal_cases(fn));
-                num = *is_internal_cases(fn);
-            }
-        }
+        unsigned num = get_vm_supported_cases_num_minors(m_env, fn);
         lean_assert(args.size() == num + 1);
         lean_assert(num >= 1);
         /** compile major premise */
@@ -138,7 +125,7 @@ class vm_compiler_fn {
         cases_args.resize(num, 0);
         if (fn_name == get_nat_cases_on_name()) {
             emit(mk_nat_cases_instr(0, 0));
-        } else if (builtin_cases_idx) {
+        } else if (optional<unsigned> builtin_cases_idx = get_vm_builtin_cases_idx(m_env, fn_name)) {
             #if defined(__GNUC__) && !defined(__CLANG__)
             #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
             #endif
@@ -174,7 +161,7 @@ class vm_compiler_fn {
             }
         }
         /* Fix cases instruction pc's */
-        if (num >= 2 || builtin_cases_idx) {
+        if (num >= 2 || get_vm_builtin_cases_idx(m_env, fn_name)) {
             for (unsigned i = 0; i < cases_args.size(); i++)
                 m_code[cases_pos].set_pc(i, cases_args[i]);
         }

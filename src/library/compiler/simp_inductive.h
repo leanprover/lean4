@@ -26,6 +26,9 @@ optional<unsigned> is_internal_cases(expr const & e);
     that produce branching during code generation. */
 bool is_vm_supported_cases(environment const & env, expr const & e);
 
+/** \brief Return the number of minor premises for a vm supported cases construct. */
+unsigned get_vm_supported_cases_num_minors(environment const & env, expr const & fn);
+
 void initialize_simp_inductive();
 void finalize_simp_inductive();
 }

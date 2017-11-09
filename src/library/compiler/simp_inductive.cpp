@@ -66,6 +66,22 @@ bool is_vm_supported_cases(environment const & env, expr const & e) {
         (is_constant(e) && get_vm_builtin_cases_idx(env, const_name(e)));
 }
 
+unsigned get_vm_supported_cases_num_minors(environment const & env, expr const & fn) {
+    name const & fn_name = const_name(fn);
+    if (fn_name == get_nat_cases_on_name()) {
+        return 2;
+    } else {
+        optional<unsigned> builtin_cases_idx = get_vm_builtin_cases_idx(env, fn_name);
+        if (builtin_cases_idx) {
+            name const & I_name = fn_name.get_prefix();
+            return *inductive::get_num_intro_rules(env, I_name);
+        } else {
+            lean_assert(is_internal_cases(fn));
+            return *is_internal_cases(fn);
+        }
+    }
+}
+
 class simp_inductive_fn : public compiler_step_visitor {
     name_map<list<bool>> m_constructor_info;
 

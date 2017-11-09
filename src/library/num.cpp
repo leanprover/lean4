@@ -98,9 +98,11 @@ static optional<mpz> to_num(expr const & e, bool first) {
     } else if (auto a = is_bit1(e)) {
         if (auto r = to_num(*a, false))
             return some(2*(*r)+1);
-    } else if (auto a = is_neg(e)) {
-        if (auto r = to_num(*a, false))
-            return some(neg(*r));
+    } else if (first) {
+        if (auto a = is_neg(e)) {
+            if (auto r = to_num(*a, false))
+                return some(neg(*r));
+        }
     }
     return optional<mpz>();
 }

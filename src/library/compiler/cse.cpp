@@ -149,6 +149,11 @@ class cse_fn : public compiler_step_visitor {
         }
     }
 
+    void collect_common_subexprs(expr const & e, expr_struct_set & r) {
+        buffer<expr> tmp;
+        collect_common_subexprs(tmp, e, r);
+    }
+
     /* Helper functor for converting common subexpressions into fresh let-decls */
     struct cse_processor {
         unsigned &               m_counter;
@@ -262,6 +267,38 @@ class cse_fn : public compiler_step_visitor {
 
     virtual expr visit_let(expr const & e) override {
         return visit_lambda_let(e);
+    }
+
+    expr visit_cases_on(expr const & e) {
+        buffer<expr> args;
+        expr const & fn = get_app_args(e, args);
+        args[0] = visit(args[0]); // major premise
+        for (unsigned i = 1; i < args.size(); i++) {
+            expr m = args[i];
+            if (is_lambda(m)) {
+                args[i] = visit(m);
+            } else {
+                m = visit(m);
+                expr_struct_set common_subexprs;
+                collect_common_subexprs(m, common_subexprs);
+                if (!common_subexprs.empty()) {
+                    cse_processor proc(m_counter, m_ctx, common_subexprs);
+                    m = proc.process(m);
+                    m = copy_tag(args[i], proc.m_all_locals.mk_lambda(m));
+                }
+                args[i] = m;
+            }
+        }
+        return mk_app(fn, args);
+    }
+
+    virtual expr visit_app(expr const & e) override {
+        expr const & fn = get_app_fn(e);
+        if (is_vm_supported_cases(m_env, fn)) {
+            return visit_cases_on(e);
+        } else {
+            return compiler_step_visitor::visit_app(e);
+        }
     }
 
 public:

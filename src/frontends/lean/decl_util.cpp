@@ -415,6 +415,12 @@ equations_header mk_equations_header(name const & n, name const & actual_n) {
     return mk_equations_header(to_list(n), to_list(actual_n));
 }
 
+equations_header mk_match_header(name const & n, name const & actual_n) {
+    equations_header h = mk_equations_header(to_list(n), to_list(actual_n));
+    h.m_gen_code = false;
+    return h;
+}
+
 /* Auxiliary function for creating names for auxiliary declarations.
    We avoid propagating the suffix `_main` used by the top-level equations
    to the nested declarations. */

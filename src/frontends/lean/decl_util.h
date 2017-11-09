@@ -155,6 +155,7 @@ environment add_alias(environment const & env, bool is_protected, name const & c
     It uses the information set using declaration_info_scope */
 equations_header mk_equations_header(list<name> const & fn_names, list<name> const & fn_actual_names);
 equations_header mk_equations_header(name const & fn_name, name const & fn_actual_name);
+equations_header mk_match_header(name const & n, name const & actual_n);
 
 expr replace_locals_preserving_pos_info(expr const & e, buffer<expr> const & from, buffer<expr> const & to);
 expr replace_local_preserving_pos_info(expr const & e, expr const & from, expr const & to);

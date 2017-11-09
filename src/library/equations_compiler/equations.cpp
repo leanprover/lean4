@@ -49,7 +49,8 @@ bool operator==(equations_header const & h1, equations_header const & h2) {
         h1.m_is_meta == h2.m_is_meta &&
         h1.m_is_noncomputable == h2.m_is_noncomputable &&
         h1.m_aux_lemmas == h2.m_aux_lemmas &&
-        h1.m_prev_errors == h2.m_prev_errors;
+        h1.m_prev_errors == h2.m_prev_errors &&
+        h1.m_gen_code == h2.m_gen_code;
 }
 
 [[ noreturn ]] static void throw_eqs_ex() { throw exception("unexpected occurrence of 'equations' expression"); }
@@ -63,7 +64,7 @@ public:
     virtual optional<expr> expand(expr const &, abstract_type_context &) const override { throw_eqs_ex(); }
     virtual void write(serializer & s) const override {
         s << *g_equations_opcode << m_header.m_num_fns << m_header.m_is_private << m_header.m_is_meta
-          << m_header.m_is_noncomputable << m_header.m_is_lemma << m_header.m_aux_lemmas;
+          << m_header.m_is_noncomputable << m_header.m_is_lemma << m_header.m_aux_lemmas << m_header.m_prev_errors << m_header.m_gen_code;
         write_list(s, m_header.m_fn_names);
         write_list(s, m_header.m_fn_actual_names);
     }
@@ -282,7 +283,7 @@ void initialize_equations() {
                                 [](deserializer & d, unsigned num, expr const * args) {
                                     equations_header h;
                                     d >> h.m_num_fns >> h.m_is_private >> h.m_is_meta >> h.m_is_noncomputable
-                                      >> h.m_is_lemma >> h.m_aux_lemmas;
+                                      >> h.m_is_lemma >> h.m_aux_lemmas >> h.m_prev_errors >> h.m_gen_code;
                                     h.m_fn_names = read_list<name>(d);
                                     h.m_fn_actual_names = read_list<name>(d);
                                     if (num == 0 || h.m_num_fns == 0)

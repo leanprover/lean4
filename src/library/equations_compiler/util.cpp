@@ -267,12 +267,14 @@ static void throw_mk_aux_definition_error(local_context const & lctx, name const
 }
 
 void compile_aux_definition(environment & env, equations_header const & header, name const & user_name, name const & actual_name) {
-    try {
-        env = vm_compile(env, env.get(actual_name));
-    } catch (exception & ex) {
-        if (!header.m_prev_errors) {
-            throw nested_exception(sstream() << "equation compiler failed to generate bytecode for "
-                                   << "auxiliary declaration '" << user_name << "'", ex);
+    if (header.m_gen_code) {
+        try {
+            env = vm_compile(env, env.get(actual_name));
+        } catch (exception & ex) {
+            if (!header.m_prev_errors) {
+                throw nested_exception(sstream() << "equation compiler failed to generate bytecode for "
+                                       << "auxiliary declaration '" << user_name << "'", ex);
+            }
         }
     }
 }

@@ -94,8 +94,14 @@ class expand_aux_fn : public compiler_step_visitor {
         return is_constant(e) && is_noncomputable(env(), const_name(e));
     }
 
+    bool is_inline(expr const & e) {
+        return is_constant(e) && ::lean::is_inline(env(), const_name(e));
+    }
+
     bool should_unfold(expr const & e) {
-        return is_not_vm_function(e) && !ctx().is_proof(e) && !is_pack_unpack(e) && !is_noncomputable_const(e);
+        return
+            (is_not_vm_function(e) && !ctx().is_proof(e) && !is_pack_unpack(e) && !is_noncomputable_const(e)) ||
+            (is_inline(e));
     }
 
     expr unfold(expr const & e) {

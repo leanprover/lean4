@@ -42,6 +42,7 @@ struct equations_header {
     /* m_prev_errors is true when errors have already being found processing the file,
        and we should minimize error reporting */
     bool       m_prev_errors{false};
+    bool       m_gen_code{true};          /* if true, generate byte code for recursive equations */
     equations_header() {}
     equations_header(unsigned num_fns):m_num_fns(num_fns) {}
 };

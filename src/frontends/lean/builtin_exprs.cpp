@@ -189,7 +189,7 @@ static expr parse_let(parser_state & p, pos_info const & pos, bool in_do_block) 
         match_definition_scope match_scope(p.env());
         expr fn = p.save_pos(mk_local(mk_fresh_name(), *g_let_match_name, mk_expr_placeholder(), mk_rec_info(true)), pos);
         expr eqn = Fun(fn, Fun(new_locals, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, lhs), pos), body), pos), p), p);
-        equations_header h = mk_equations_header(match_scope.get_name(), match_scope.get_actual_name());
+        equations_header h = mk_match_header(match_scope.get_name(), match_scope.get_actual_name());
         expr eqns  = p.save_pos(mk_equations(h, 1, &eqn), pos);
         return p.save_pos(mk_app(eqns, value), pos);
     }
@@ -342,7 +342,7 @@ static expr parse_do(parser_state & p, bool has_braces) {
                                                                      ignore_if_unused),
                                                          pos), p), p);
                 eqs.push_back(else_eq);
-                equations_header h = mk_equations_header(match_scope.get_name(), match_scope.get_actual_name());
+                equations_header h = mk_match_header(match_scope.get_name(), match_scope.get_actual_name());
                 expr eqns  = p.save_pos(mk_equations(h, eqs.size(), eqs.data()), pos);
                 expr local = mk_local("_p", mk_expr_placeholder());
                 expr match = p.mk_app(eqns, local, pos);
@@ -747,7 +747,7 @@ static expr parse_lambda_constructor(parser_state & p, pos_info const & ini_pos)
     match_definition_scope match_scope(p.env());
     expr fn  = p.save_pos(mk_local(mk_fresh_name(), *g_lambda_match_name, mk_expr_placeholder(), mk_rec_info(true)), pos);
     expr eqn = Fun(fn, Fun(locals, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, pattern), pos), body), pos), p), p);
-    equations_header h = mk_equations_header(match_scope.get_name(), match_scope.get_actual_name());
+    equations_header h = mk_match_header(match_scope.get_name(), match_scope.get_actual_name());
     expr x = p.rec_save_pos(mk_local(mk_fresh_name(), "_x", mk_expr_placeholder(), binder_info()), pos);
     bool use_cache = false;
     return p.rec_save_pos(Fun(x, mk_app(mk_equations(h, 1, &eqn), x), use_cache), pos);

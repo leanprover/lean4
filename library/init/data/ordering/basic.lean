@@ -12,20 +12,20 @@ inductive ordering
 | lt | eq | gt
 
 namespace ordering
-  def swap : ordering → ordering
-  | lt := gt
-  | eq := eq
-  | gt := lt
+def swap : ordering → ordering
+| lt := gt
+| eq := eq
+| gt := lt
 
-  def or_else : ordering → thunk ordering → ordering
-  | lt _ := lt
-  | eq f := f ()
-  | gt _ := gt
+@[inline] def or_else : ordering → ordering → ordering
+| lt _ := lt
+| eq o := o
+| gt _ := gt
 
-  theorem swap_swap : ∀ (o : ordering), o.swap.swap = o
-  | lt := rfl
-  | eq := rfl
-  | gt := rfl
+theorem swap_swap : ∀ (o : ordering), o.swap.swap = o
+| lt := rfl
+| eq := rfl
+| gt := rfl
 end ordering
 
 open ordering

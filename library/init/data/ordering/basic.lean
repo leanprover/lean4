@@ -112,3 +112,21 @@ instance {α : Type u} [has_ordering α] : has_ordering (option α) :=
 end
 
 export has_ordering (cmp)
+
+section cmp_relations
+variables {α : Type u} [has_ordering α]
+
+@[reducible] def cmp_lt (a b : α) : Prop :=
+cmp a b = ordering.lt
+
+@[reducible] def cmp_eq (a b : α) : Prop :=
+cmp a b = ordering.eq
+
+@[reducible] def cmp_gt (a b : α) : Prop :=
+cmp a b = ordering.gt
+
+infix ` <_cmp `:50 := cmp_lt
+infix ` =_cmp `:50 := cmp_eq
+infix ` >_cmp `:50 := cmp_gt
+
+end cmp_relations

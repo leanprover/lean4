@@ -6,7 +6,7 @@ Authors: Jeremy Avigad
 The order relation on the integers.
 -/
 prelude
-import init.data.int.basic init.data.ordering
+import init.data.int.basic init.data.ordering.basic
 
 namespace int
 

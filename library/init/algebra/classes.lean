@@ -64,3 +64,122 @@ class is_inv (α : Type u) (β : Type v) (f : α → β) (g : inout β → α) :
 class is_idempotent (α : Type u) (f : α → α) : Prop :=
 (idempotent : ∀ a, f (f a) = f a)
 -/
+
+@[algebra] class is_irrefl (α : Type u) (r : α → α → Prop) : Prop :=
+(irrefl : ∀ a, ¬ r a a)
+
+@[algebra] class is_refl (α : Type u) (r : α → α → Prop) : Prop :=
+(refl : ∀ a, r a a)
+
+@[algebra] class is_symm (α : Type u) (r : α → α → Prop) : Prop :=
+(symm : ∀ a b, r a b → r b a)
+
+@[algebra] class is_asymm (α : Type u) (r : α → α → Prop) : Prop :=
+(asymm : ∀ a b, r a b → ¬ r b a)
+
+@[algebra] class is_antisymm (α : Type u) (r : α → α → Prop) : Prop :=
+(antisymm : ∀ a b, r a b → r b a → a = b)
+
+@[algebra] class is_trans (α : Type u) (r : α → α → Prop) : Prop :=
+(trans  : ∀ a b c, r a b → r b c → r a c)
+
+@[algebra] class is_total (α : Type u) (r : α → α → Prop) : Prop :=
+(total : ∀ a b, r a b ∨ r b a)
+
+@[algebra] class is_preorder (α : Type u) (r : α → α → Prop) extends is_refl α r, is_trans α r : Prop.
+
+@[algebra] class is_partial_order (α : Type u) (r : α → α → Prop) extends is_preorder α r, is_antisymm α r : Prop.
+
+@[algebra] class is_linear_order (α : Type u) (r : α → α → Prop) extends is_partial_order α r, is_total α r : Prop.
+
+@[algebra] class is_equiv (α : Type u) (r : α → α → Prop) extends is_preorder α r, is_symm α r : Prop.
+
+@[algebra] class is_per (α : Type u) (r : α → α → Prop) extends is_symm α r, is_trans α r : Prop.
+
+@[algebra] class is_strict_order (α : Type u) (r : α → α → Prop) extends is_irrefl α r, is_trans α r : Prop.
+
+@[algebra] class is_strict_weak_order (α : Type u) (lt : α → α → Prop) extends is_strict_order α lt : Prop :=
+(incomp_trans : ∀ a b c, (¬ lt a b ∧ ¬ lt b a) → (¬ lt b c ∧ ¬ lt c b) → (¬ lt a c ∧ ¬ lt c a))
+
+instance eq_is_equiv (α : Type u) : is_equiv α (=) :=
+{symm := @eq.symm _, trans := @eq.trans _, refl := eq.refl}
+
+section
+variables {α : Type u} {r : α → α → Prop}
+local infix `≺`:50 := r
+
+lemma irrefl [is_irrefl α r] (a : α) : ¬ a ≺ a :=
+is_irrefl.irrefl _ a
+
+lemma refl [is_refl α r] (a : α) : a ≺ a :=
+is_refl.refl _ a
+
+lemma trans [is_trans α r] {a b c : α} : a ≺ b → b ≺ c → a ≺ c :=
+is_trans.trans _ _ _
+
+lemma symm [is_symm α r] {a b : α} : a ≺ b → b ≺ a :=
+is_symm.symm _ _
+
+lemma antisymm [is_antisymm α r] {a b : α} : a ≺ b → b ≺ a → a = b :=
+is_antisymm.antisymm _ _
+
+lemma asymm [is_asymm α r] {a b : α} : a ≺ b → ¬ b ≺ a :=
+is_asymm.asymm _ _
+
+instance is_asymm_of_is_trans_of_is_irrefl [is_trans α r] [is_irrefl α r] : is_asymm α r :=
+⟨λ a b h₁ h₂, absurd (trans h₁ h₂) (irrefl a)⟩
+
+section explicit_relation_variants
+variable (r)
+
+@[elab_simple]
+lemma irrefl_of [is_irrefl α r] (a : α) : ¬ a ≺ a := irrefl a
+
+@[elab_simple]
+lemma refl_of [is_refl α r] (a : α) : a ≺ a := refl a
+
+@[elab_simple]
+lemma trans_of [is_trans α r] {a b c : α} : a ≺ b → b ≺ c → a ≺ c := trans
+
+@[elab_simple]
+lemma symm_of [is_symm α r] {a b : α} : a ≺ b → b ≺ a := symm
+
+@[elab_simple]
+lemma asymm_of [is_asymm α r] {a b : α} : a ≺ b → ¬ b ≺ a := asymm
+
+end explicit_relation_variants
+
+end
+
+namespace strict_weak_order
+section
+parameters {α : Type u} {r : α → α → Prop} [is_strict_weak_order α r]
+local infix `≺`:50 := r
+
+def equiv (a b : α) : Prop :=
+¬ a ≺ b ∧ ¬ b ≺ a
+
+local infix ` ≈ `:50 := equiv
+
+lemma erefl (a : α) : a ≈ a :=
+⟨irrefl a, irrefl a⟩
+
+lemma esymm {a b : α} : a ≈ b → b ≈ a :=
+λ ⟨h₁, h₂⟩, ⟨h₂, h₁⟩
+
+lemma etrans {a b c : α} : a ≈ b → b ≈ c → a ≈ c :=
+is_strict_weak_order.incomp_trans _ _ _
+
+lemma not_lt_of_equiv {a b : α} : a ≈ b → ¬ a ≺ b :=
+λ h, h.1
+
+lemma not_lt_of_equiv' {a b : α} : a ≈ b → ¬ b ≺ a :=
+λ h, h.2
+
+instance : is_equiv α equiv :=
+{refl := erefl, trans := @etrans, symm := @esymm}
+end
+
+/- Notation for the equivalence relation induced by lt -/
+notation a ` ≈[`:50 lt `]` b:50 := @equiv _ lt _ a b
+end strict_weak_order

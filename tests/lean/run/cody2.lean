@@ -1,4 +1,3 @@
-open eq
 definition subsets (P : Type) := P → Prop.
 
 section
@@ -17,7 +16,7 @@ local notation `δ` := delta.
 
 theorem delta_aux : ¬ (δ (i delta))
          := assume H : δ (i delta),
-            H (subst (symm (@retract delta (i delta))) H)
+            H (eq.subst (symm (@retract delta (i delta))) H)
 
 #check delta_aux.
 

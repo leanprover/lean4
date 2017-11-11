@@ -1,4 +1,3 @@
-open eq
 section
   variable {A : Type}
   theorem T {a b : A} (H : a = b) : b = a

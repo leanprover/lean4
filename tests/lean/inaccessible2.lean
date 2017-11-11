@@ -10,7 +10,7 @@ definition inv_2 {A B : Sort*} (f : A → B) : ∀ (b : B), imf f b → A
 definition inv_3 {A B : Sort*} (f : A → B) : ∀ (b : B), imf f b → A
 | .(f a) ((λ (x : imf f b), x) (imf.mk .(f) a)) := a  -- Error invalid occurrence of 'lambda' expression
 
-definition symm {A : Sort*} : ∀ a b : A, a = b → b = a
+definition sym {A : Sort*} : ∀ a b : A, a = b → b = a
 | .(a) .(a) (eq.refl a) := rfl -- Error `a` in eq.refl must be marked as inaccessible since it is an inductive datatype parameter
 
 definition symm2 {A : Sort*} : ∀ a b : A, a = b → b = a

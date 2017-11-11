@@ -1,4 +1,4 @@
-open decidable open eq
+open decidable
 namespace experiment
 inductive nat : Type
 | zero : nat

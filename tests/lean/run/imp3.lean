@@ -1,3 +1,4 @@
+namespace old
 class is_equiv {A B : Type} (f : A → B) :=
   (inv : B → A)
 
@@ -10,3 +11,4 @@ section
    #check inv f
 end
 end is_equiv
+end old

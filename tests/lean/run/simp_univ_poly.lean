@@ -1,3 +1,4 @@
+namespace test
 universes u v
 
 def equinumerous (α : Type u) (β : Type v) :=
@@ -21,3 +22,4 @@ local infix ` ≈ ` := equinumerous
 
 -- rewriting `ulift empty` ==> `empty` changes the universe level
 example {α : Type u} : (α ⊕ ulift empty) ≈ α := by simp
+end test

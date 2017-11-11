@@ -10,9 +10,9 @@ inaccessible2.lean:11:46: error: command expected
 inaccessible2.lean:14:21: error: don't know how to synthesize placeholder
 context:
 A : Sort ?,
-symm : ∀ (a b : A), a = b → b = a
+sym : ∀ (a b : A), a = b → b = a
 ⊢ A
-inaccessible2.lean:13:11: error: equation compiler failed to create auxiliary declaration 'symm._main'
+inaccessible2.lean:13:11: error: equation compiler failed to create auxiliary declaration 'sym._main'
 nested exception message:
 type mismatch at application
   eq.rec (λ (a_1 : a = a) (H_2 : a_1 == eq.refl a), id_rhs (⁇ = ⁇) rfl)

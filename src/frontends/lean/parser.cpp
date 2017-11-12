@@ -1560,6 +1560,22 @@ struct to_pattern_fn {
         }
     }
 
+    void add_new_local(expr const & l) {
+        name const & n = mlocal_pp_name(l);
+        if (!n.is_atomic()) {
+            return m_parser.maybe_throw_error({
+                "invalid pattern: variable, constructor or constant tagged as pattern expected",
+                m_parser.pos_of(l)});
+        }
+        if (m_locals_map.contains(n)) {
+            return m_parser.maybe_throw_error({
+                sstream() << "invalid pattern, '" << n << "' already appeared in this pattern",
+                m_parser.pos_of(l)});
+        }
+        m_locals_map.insert(n, l);
+        m_new_locals.push_back(l);
+    }
+
     void collect_new_local(expr const & e) {
         name const & n = mlocal_pp_name(e);
         bool resolve_only = true;
@@ -1581,18 +1597,7 @@ struct to_pattern_fn {
                 // assume e is a variable shadowing overloaded constants
             }
         }
-        if (!n.is_atomic()) {
-            return m_parser.maybe_throw_error({
-                "invalid pattern: variable, constructor or constant tagged as pattern expected",
-                m_parser.pos_of(e)});
-        }
-        if (m_locals_map.contains(n)) {
-            return m_parser.maybe_throw_error({
-                sstream() << "invalid pattern, '" << n << "' already appeared in this pattern",
-                m_parser.pos_of(e)});
-        }
-        m_locals_map.insert(n, e);
-        m_new_locals.push_back(e);
+        add_new_local(e);
     }
 
     void collect_new_locals(expr const & e, bool skip_main_fn) {
@@ -1606,6 +1611,10 @@ struct to_pattern_fn {
             expr r = copy_tag(e, mk_local(mk_fresh_name(), "_x", copy_tag(e, mk_expr_placeholder()), binder_info()));
             m_new_locals.push_back(r);
             m_anonymous_vars.insert(mk_pair(e, r));
+        } else if (is_as_pattern(e)) {
+            // skip `collect_new_local`: we assume the lhs to always be a new local
+            add_new_local(get_as_pattern_lhs(e));
+            collect_new_locals(get_as_pattern_rhs(e), false);
         } else if (is_app(e)) {
             collect_new_locals(app_fn(e), skip_main_fn);
             collect_new_locals(app_arg(e), false);
@@ -1634,7 +1643,7 @@ struct to_pattern_fn {
         } else {
             return m_parser.maybe_throw_error({
                 "invalid pattern, must be an application, "
-                "constant, variable, type ascription or inaccessible term",
+                "constant, variable, type ascription, aliasing pattern or inaccessible term",
                 m_parser.pos_of(e)});
         }
     }
@@ -1662,6 +1671,9 @@ struct to_pattern_fn {
             return to_expr(e);
         } else if (is_placeholder(e)) {
             return m_anonymous_vars.find(e)->second;
+        } else if (is_as_pattern(e)) {
+            auto new_rhs = visit(get_as_pattern_rhs(e));
+            return copy_tag(e, mk_as_pattern(get_as_pattern_lhs(e), new_rhs));
         } else if (is_app(e)) {
             if (is_inaccessible(app_fn(e))) {
                 return m_parser.parser_error_or_expr({
@@ -2141,7 +2153,23 @@ expr parser::parse_nud() {
             return parse_placeholder();
         else
             return parse_nud_notation();
-    case token_kind::Identifier:  return parse_id();
+    case token_kind::Identifier: {
+        auto id_pos = pos();
+        auto id = get_name_val();
+        expr e = parse_id();
+        // if `id` is immediately followed by `@`, parse an as pattern `id@pat`
+        if (in_pattern() && id.is_atomic() && curr_is_token(get_explicit_tk())) {
+            lean_assert(is_local(e));
+            auto id_len = id.to_string().length();
+            auto p = pos();
+            if (p.first == id_pos.first && p.second == id_pos.second + id_len) {
+                next();
+                auto pat = parse_expr(get_max_prec());
+                return save_pos(mk_as_pattern(e, pat), id_pos);
+            }
+        }
+        return e;
+    }
     case token_kind::Numeral:     return parse_numeral_expr();
     case token_kind::Decimal:     return parse_decimal_expr();
     case token_kind::String:      return parse_string_expr();

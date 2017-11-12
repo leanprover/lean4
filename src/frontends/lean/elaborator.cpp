@@ -2378,7 +2378,8 @@ static void mvar_dep_sort(type_context & ctx, buffer<expr> & mvars) {
    Before processing the right-hand-side, we must convert back these metavariables into
    pattern variables (i.e., local constants).
    This visitor collects metavariables that must be converted into pattern variables, and
-   validates the equation left-hand-side. */
+   validates the equation left-hand-side. It returns the input expression expanded to
+   expose its primitive patterns. */
 class validate_and_collect_lhs_mvars : public replace_visitor {
     elaborator &    m_elab;
     bool            m_has_invalid_pattern = false;
@@ -2507,6 +2508,10 @@ class validate_and_collect_lhs_mvars : public replace_visitor {
     virtual expr visit_macro(expr const & e) override {
         if (is_inaccessible(e)) {
             return e;
+        } else if (is_as_pattern(e)) {
+            expr new_lhs = visit(get_as_pattern_lhs(e));
+            expr new_rhs = visit(get_as_pattern_rhs(e));
+            return mk_as_pattern(new_lhs, new_rhs);
         } else if (auto r = ctx().expand_macro(e)) {
             return visit(*r);
         } else if (is_synthetic_sorry(e)) {
@@ -3285,6 +3290,14 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
         return visit_equations(e);
     } else if (is_equation(e)) {
         throw elaborator_exception(e, "unexpected occurrence of equation");
+    } else if (is_as_pattern(e)) {
+        if (!m_in_pattern)
+            throw elaborator_exception(e, "invalid occurrence of aliasing pattern, it must only occur in patterns");
+        expr new_rhs = visit(get_as_pattern_rhs(e), expected_type);
+        expr lhs = get_as_pattern_lhs(e);
+        if (!is_def_eq(lhs, new_rhs))
+            throw elaborator_exception(e, "cannot unify terms of aliasing pattern");
+        return new_rhs;
     } else if (is_field_notation(e)) {
         return visit_field(e, expected_type);
     } else if (is_expr_quote(e)) {

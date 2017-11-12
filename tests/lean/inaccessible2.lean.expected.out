@@ -1,5 +1,5 @@
 inaccessible2.lean:5:8: error: invalid occurrence of 'inaccessible' annotation, it must only occur in patterns
-inaccessible2.lean:8:10: error: invalid pattern, must be an application, constant, variable, type ascription or inaccessible term
+inaccessible2.lean:8:10: error: invalid pattern, must be an application, constant, variable, type ascription, aliasing pattern or inaccessible term
 inaccessible2.lean:8:45: error: unknown identifier 'a'
 inaccessible2.lean:7:11: error: equation compiler failed (use 'set_option trace.eqn_compiler.elim_match true' for additional details)
 inaccessible2.lean:11:39: error: inaccesible pattern notation `.(t)` can only be used in patterns

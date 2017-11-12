@@ -30,6 +30,13 @@ bool is_lambda_no_equation(expr const & e);
 expr mk_inaccessible(expr const & e);
 bool is_inaccessible(expr const & e);
 
+/** \brief Construct the "as pattern" <tt>lhs@rhs</tt> */
+expr mk_as_pattern(expr const & lhs, expr const & rhs);
+bool is_as_pattern(expr const & e);
+expr get_as_pattern_lhs(expr const & e);
+expr get_as_pattern_rhs(expr const & e);
+
+
 struct equations_header {
     unsigned   m_num_fns{0};              /* number of functions being defined */
     list<name> m_fn_names;                /* local names for functions */

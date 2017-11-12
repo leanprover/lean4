@@ -490,9 +490,24 @@ struct structure_cmd_fn {
         } else {
             expr new_tmp = elab(mk_arrow(in_header ? parent : mk_as_is(parent), tmp));
             parent       = copy_tag(parent, expr(binding_domain(new_tmp)));
+            unsigned i   = static_cast<unsigned>(&parent - &m_parents[0]);
+
+            if (m_subobjects) {
+                // immediately register parent field so that we can use it in `mk_parent_expr` below
+                name const & parent_name = check_parent(parent);
+                name fname;
+                if (auto const & ref = m_parent_refs[i])
+                    fname = *ref;
+                else
+                    fname = name(parent_name.get_string()).append_before("to_");
+                expr field = mk_local(fname, mk_as_is(parent));
+                m_fields.emplace_back(field, none_expr(), field_kind::subobject);
+            }
+
             new_tmp      = binding_body(new_tmp);
-            if (!in_header)
-                new_tmp    = instantiate(new_tmp, mk_parent_expr(static_cast<unsigned>(&parent - &m_parents[0])));
+            if (!in_header || m_subobjects) {
+                new_tmp = instantiate(new_tmp, mk_parent_expr(i));
+            }
             return new_tmp;
         }
     }
@@ -585,10 +600,9 @@ struct structure_cmd_fn {
     /** \brief Process extends clauses.
         This method also populates the vector m_field_maps and m_fields. */
     void process_extends() {
-        lean_assert(m_fields.empty());
+        // We have already pushed subobjects in `elaborate_parent`
+        lean_assert(m_fields.size() == (m_subobjects ? m_parents.size() : 0));
         lean_assert(m_field_maps.empty());
-        // add subfields to `m_fields` only at the end so that `m_parents[i]` corresponds to `m_fields[i]`
-        buffer<field_decl> subfields;
 
         for (unsigned i = 0; i < m_parents.size(); i++) {
             expr const & parent = m_parents[i];
@@ -599,21 +613,14 @@ struct structure_cmd_fn {
             buffer<expr> args;
             expr parent_fn = get_app_args(parent, args);
             if (m_subobjects) {
-                name fname;
-                if (auto const & ref = m_parent_refs[i])
-                    fname = *ref;
-                else
-                    fname = name(parent_name.get_string()).append_before("to_");
-                expr field = mk_local(fname, mk_as_is(parent));
-                m_fields.emplace_back(field, none_expr(), field_kind::subobject);
                 buffer<name> subfield_names;
                 get_structure_fields_flattened(m_env, parent_name, subfield_names);
-                // also register inherited fields via projections of the subobject field
+                // register inherited fields via projections of the subobject field
                 for (name const & full_fname : subfield_names) {
                     name base_S_name = full_fname.get_prefix();
                     name fname = full_fname.get_string();
-                    for (auto const & subfield : subfields) {
-                        if (subfield.get_name() == fname) {
+                    for (auto const & field : m_fields) {
+                        if (field.get_name() == fname) {
                             throw elaborator_exception(
                                     parent, sstream() << "invalid 'structure' header, field '" << fname
                                                       << "' from '" << parent_name
@@ -625,7 +632,7 @@ struct structure_cmd_fn {
                     // type `Pi (ps : Ps) (x : base_S_name ps), A` for some `A`. We don't know `ps`, but we can obtain `x`
                     // by projecting our new subobject field and then obtain `A` as
                     // `(fun {ps : Ps} (x : base_S_name ps), A) x`.
-                    auto base_obj_opt = mk_base_projections(m_env, parent_name, base_S_name, field);
+                    auto base_obj_opt = mk_base_projections(m_env, parent_name, base_S_name, m_fields[i].m_local);
                     if (!base_obj_opt) {
                         throw elaborator_exception(parent, "cannot make base projection");
                     }
@@ -645,7 +652,7 @@ struct structure_cmd_fn {
 
                     expr proj = mk_proj_app(m_env, full_fname.get_prefix(), full_fname.get_string(), base_obj);
                     expr subfield = mk_local(full_fname.get_string(), type);
-                    subfields.emplace_back(subfield, some_expr(proj), field_kind::from_parent);
+                    m_fields.emplace_back(subfield, some_expr(proj), field_kind::from_parent);
                 }
             } else {
                 level_param_names lparams; unsigned nparams; inductive::intro_rule intro;
@@ -717,7 +724,6 @@ struct structure_cmd_fn {
                 }
             }
         }
-        m_fields.append(subfields);
         lean_assert(m_parents.size() == m_field_maps.size());
     }
 

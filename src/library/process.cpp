@@ -324,7 +324,7 @@ struct unix_child : public child {
     unsigned wait() override {
         int status;
         waitpid(m_pid, &status, 0);
-        return static_cast<unsigned>(WEXITSTATUS(status));
+        return static_cast<unsigned>(status);
     }
 };
 

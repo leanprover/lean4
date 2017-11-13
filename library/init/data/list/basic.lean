@@ -247,13 +247,34 @@ def intersperse (sep : α) : list α → list α
 def intercalate (sep : list α) (xs : list (list α)) : list α :=
 join (intersperse sep xs)
 
-
-
 @[inline] def bind {α : Type u} {β : Type v} (a : list α) (b : α → list β) : list β :=
 join (map b a)
 
 @[inline] def ret {α : Type u} (a : α) : list α :=
 [a]
+
+protected def lt [has_lt α] : list α → list α → Prop
+| []      []      := false
+| []      (b::bs) := true
+| (a::as) []      := false
+| (a::as) (b::bs) := a < b ∨ lt as bs
+
+instance [has_lt α] : has_lt (list α) :=
+⟨list.lt⟩
+
+instance has_decidable_lt [has_lt α] [h : decidable_rel ((<) : α → α → Prop)] : Π l₁ l₂ : list α, decidable (l₁ < l₂)
+| []      []      := is_false not_false
+| []      (b::bs) := is_true trivial
+| (a::as) []      := is_false not_false
+| (a::as) (b::bs) :=
+  match h a b with
+  | is_true h₁  := is_true (or.inl h₁)
+  | is_false h₁ :=
+    match has_decidable_lt as bs with
+    | is_true h₂  := is_true (or.inr h₂)
+    | is_false h₂ := is_false (λ hd, or.elim hd (λ n₁, absurd n₁ h₁) (λ n₂, absurd n₂ h₂))
+    end
+  end
 
 end list
 

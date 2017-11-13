@@ -21,6 +21,13 @@ def list.as_string (s : list char) : string :=
 ⟨s⟩
 
 namespace string
+instance : has_lt string :=
+⟨λ s₁ s₂, s₁.data < s₂.data⟩
+
+/- Remark: this function has a VM builtin efficient implementation. -/
+instance has_decidable_lt (s₁ s₂ : string) : decidable (s₁ < s₂) :=
+list.has_decidable_lt s₁.data s₂.data
+
 def empty : string :=
 ⟨[]⟩
 

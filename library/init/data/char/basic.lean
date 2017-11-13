@@ -25,6 +25,18 @@ instance : has_sizeof char :=
 ⟨λ c, c.val⟩
 
 namespace char
+protected def lt (a b : char) : Prop := a.val < b.val
+protected def le (a b : char) : Prop := a.val ≤ b.val
+
+instance : has_lt char := ⟨char.lt⟩
+instance : has_le char := ⟨char.le⟩
+
+instance decidable_lt (a b : char) :  decidable (a < b) :=
+nat.decidable_lt _ _
+
+instance decidable_le (a b : char) : decidable (a ≤ b) :=
+nat.decidable_le _ _
+
 /- We cannot use tactic dec_trivial here because the tactic framework has not been defined yet. -/
 lemma zero_lt_d800 : 0 < 0xd800 :=
 zero_lt_succ _

@@ -12,6 +12,21 @@ attribute [pp_using_anonymous_constructor] fin
 
 namespace fin
 
+protected def lt {n} (a b : fin n) : Prop :=
+a.val < b.val
+
+protected def le {n} (a b : fin n) : Prop :=
+a.val ≤ b.val
+
+instance {n} : has_lt (fin n)  := ⟨fin.lt⟩
+instance {n} : has_le (fin n)  := ⟨fin.le⟩
+
+instance decidable_lt {n} (a b : fin n) :  decidable (a < b) :=
+nat.decidable_lt _ _
+
+instance decidable_le {n} (a b : fin n) : decidable (a ≤ b) :=
+nat.decidable_le _ _
+
 def {u} elim0 {α : Sort u} : fin 0 → α
 | ⟨_, h⟩ := absurd h (not_lt_zero _)
 

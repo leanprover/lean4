@@ -47,7 +47,7 @@ meta instance : has_to_string level :=
 meta instance : has_to_format level :=
 ⟨λ l, level.to_format l options.mk⟩
 
-meta instance : has_ordering level :=
+meta instance : has_cmp level :=
 ⟨level.cmp⟩
 
 meta def level.of_nat : nat → level

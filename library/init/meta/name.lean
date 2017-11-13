@@ -83,7 +83,7 @@ meta constant name.is_internal : name → bool
 
 attribute [instance] name.has_decidable_eq
 
-meta instance : has_ordering name :=
+meta instance : has_cmp name :=
 ⟨name.cmp⟩
 
 meta instance : has_append name :=

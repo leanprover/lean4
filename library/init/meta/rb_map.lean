@@ -27,11 +27,11 @@ meta constant max {key : Type} {data : Type}            : rb_map key data → op
 meta constant fold {key : Type} {data : Type} {α :Type} : rb_map key data → α → (key → data → α → α) → α
 
 attribute [inline]
-meta def mk (key : Type) [has_ordering key] (data : Type) : rb_map key data :=
-mk_core data has_ordering.cmp
+meta def mk (key : Type) [has_cmp key] (data : Type) : rb_map key data :=
+mk_core data has_cmp.cmp
 
 open list
-meta def of_list {key : Type} {data : Type} [has_ordering key] : list (key × data) → rb_map key data
+meta def of_list {key : Type} {data : Type} [has_cmp key] : list (key × data) → rb_map key data
 | []           := mk key data
 | ((k, v)::ls) := insert (of_list ls) k v
 
@@ -44,17 +44,17 @@ fold m [] (λk v vs, v :: vs)
 meta def to_list {key : Type} {data : Type} (m : rb_map key data) : list (key × data) :=
 fold m [] (λk v res, (k, v) :: res)
 
-meta def set_of_list {A} [has_ordering A] : list A → rb_map A unit
+meta def set_of_list {A} [has_cmp A] : list A → rb_map A unit
 | []      := mk _ _
 | (x::xs) := insert (set_of_list xs) x ()
 
-meta def map {A B C} [has_ordering A] (f : B → C) (m : rb_map A B) : rb_map A C :=
+meta def map {A B C} [has_cmp A] (f : B → C) (m : rb_map A B) : rb_map A C :=
 fold m (mk _ _) (λk v res, insert res k (f v))
 
-meta def for {A B C} [has_ordering A] (m : rb_map A B) (f : B → C) : rb_map A C :=
+meta def for {A B C} [has_cmp A] (m : rb_map A B) (f : B → C) : rb_map A C :=
 map f m
 
-meta def filter {A B} [has_ordering A] (m : rb_map A B) (f : B → Prop) [decidable_pred f] :=
+meta def filter {A B} [has_cmp A] (m : rb_map A B) (f : B → Prop) [decidable_pred f] :=
 fold m (mk _ _) $ λa b m', if f b then insert m' a b else m'
 
 meta def mfold {key data α :Type} {m : Type → Type} [monad m] (mp : rb_map key data) (a : α) (fn : key → data → α → m α) : m α :=
@@ -62,7 +62,7 @@ mp.fold (return a) (λ k d act, act >>= fn k d)
 
 end rb_map
 
-meta def mk_rb_map {key data : Type} [has_ordering key] : rb_map key data :=
+meta def mk_rb_map {key data : Type} [has_cmp key] : rb_map key data :=
 rb_map.mk key data
 
 @[reducible] meta def nat_map (data : Type) := rb_map nat data
@@ -101,7 +101,7 @@ meta def rb_lmap (key : Type) (data : Type) : Type := rb_map key (list data)
 
 namespace rb_lmap
 
-protected meta def mk (key : Type) [has_ordering key] (data : Type) : rb_lmap key data :=
+protected meta def mk (key : Type) [has_cmp key] (data : Type) : rb_lmap key data :=
 rb_map.mk key (list data)
 
 meta def insert {key : Type} {data : Type} (rbl : rb_lmap key data) (k : key) (d : data) :
@@ -127,7 +127,7 @@ end
 end rb_lmap
 
 meta def rb_set (key) := rb_map key unit
-meta def mk_rb_set {key} [has_ordering key] : rb_set key :=
+meta def mk_rb_set {key} [has_cmp key] : rb_set key :=
 mk_rb_map
 
 namespace rb_set

@@ -33,7 +33,7 @@ open ordering
 instance : has_repr ordering :=
 ⟨(λ s, match s with | ordering.lt := "lt" | ordering.eq := "eq" | ordering.gt := "gt" end)⟩
 
-class has_ordering (α : Type u) :=
+class has_cmp (α : Type u) :=
 (cmp : α → α → ordering)
 
 protected def nat.cmp (a b : nat) : ordering :=
@@ -41,80 +41,80 @@ if a < b      then ordering.lt
 else if a = b then ordering.eq
 else               ordering.gt
 
-instance : has_ordering nat :=
+instance : has_cmp nat :=
 ⟨nat.cmp⟩
 
-instance (n) : has_ordering (fin n) :=
+instance (n) : has_cmp (fin n) :=
 ⟨λ a b, nat.cmp a.val b.val⟩
 
-instance : has_ordering char :=
+instance : has_cmp char :=
 ⟨λ c d, nat.cmp c.val d.val⟩
 
-instance : has_ordering unsigned :=
-fin.has_ordering _
+instance : has_cmp unsigned :=
+fin.has_cmp _
 
-protected def list.cmp {α : Type u} [has_ordering α] : list α → list α → ordering
+protected def list.cmp {α : Type u} [has_cmp α] : list α → list α → ordering
 | []     []      := ordering.eq
 | []     (b::l') := ordering.lt
 | (a::l) []      := ordering.gt
-| (a::l) (b::l') := (has_ordering.cmp a b).or_else (list.cmp l l')
+| (a::l) (b::l') := (has_cmp.cmp a b).or_else (list.cmp l l')
 
-instance {α : Type u} [has_ordering α] : has_ordering (list α) :=
+instance {α : Type u} [has_cmp α] : has_cmp (list α) :=
 ⟨list.cmp⟩
 
 /- Remark: this function has a VM builtin efficient implementation. -/
 protected def string.cmp (s1 s2 : string) : ordering :=
 list.cmp s1.to_list s2.to_list
 
-instance : has_ordering string :=
+instance : has_cmp string :=
 ⟨string.cmp⟩
 
 section
 open prod
 
-variables {α : Type u} {β : Type v} [has_ordering α] [has_ordering β]
+variables {α : Type u} {β : Type v} [has_cmp α] [has_cmp β]
 
 protected def prod.cmp : α × β → α × β → ordering
-| (a₁, b₁) (a₂, b₂) := (has_ordering.cmp a₁ a₂).or_else (has_ordering.cmp b₁ b₂)
+| (a₁, b₁) (a₂, b₂) := (has_cmp.cmp a₁ a₂).or_else (has_cmp.cmp b₁ b₂)
 
-instance {α : Type u} {β : Type v} [has_ordering α] [has_ordering β] : has_ordering (α × β) :=
+instance {α : Type u} {β : Type v} [has_cmp α] [has_cmp β] : has_cmp (α × β) :=
 ⟨prod.cmp⟩
 end
 
 section
 open sum
 
-variables {α : Type u} {β : Type v} [has_ordering α] [has_ordering β]
+variables {α : Type u} {β : Type v} [has_cmp α] [has_cmp β]
 
 protected def sum.cmp : α ⊕ β → α ⊕ β → ordering
-| (inl a₁) (inl a₂) := has_ordering.cmp a₁ a₂
-| (inr b₁) (inr b₂) := has_ordering.cmp b₁ b₂
+| (inl a₁) (inl a₂) := has_cmp.cmp a₁ a₂
+| (inr b₁) (inr b₂) := has_cmp.cmp b₁ b₂
 | (inl a₁) (inr b₂) := lt
 | (inr b₁) (inl a₂) := gt
 
-instance {α : Type u} {β : Type v} [has_ordering α] [has_ordering β] : has_ordering (α ⊕ β) :=
+instance {α : Type u} {β : Type v} [has_cmp α] [has_cmp β] : has_cmp (α ⊕ β) :=
 ⟨sum.cmp⟩
 end
 
 section
 open option
 
-variables {α : Type u} [has_ordering α]
+variables {α : Type u} [has_cmp α]
 
 protected def option.cmp : option α → option α → ordering
-| (some a₁) (some a₂) := has_ordering.cmp a₁ a₂
+| (some a₁) (some a₂) := has_cmp.cmp a₁ a₂
 | (some a₁) none      := gt
 | none      (some a₂) := lt
 | none      none      := eq
 
-instance {α : Type u} [has_ordering α] : has_ordering (option α) :=
+instance {α : Type u} [has_cmp α] : has_cmp (option α) :=
 ⟨option.cmp⟩
 end
 
-export has_ordering (cmp)
+export has_cmp (cmp)
 
 section cmp_relations
-variables {α : Type u} [has_ordering α]
+variables {α : Type u} [has_cmp α]
 
 @[reducible] def cmp_lt (a b : α) : Prop :=
 cmp a b = ordering.lt

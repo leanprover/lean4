@@ -171,7 +171,7 @@ namespace expr
 open decidable
 
 /-- Compares expressions, ignoring binder names, and sorting by hash. -/
-meta instance : has_ordering expr :=
+meta instance : has_cmp expr :=
 ⟨ expr.cmp ⟩
 
 meta def mk_true : expr :=

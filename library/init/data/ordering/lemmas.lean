@@ -41,7 +41,7 @@ by by_cases c with h; simp [h]
 /- ------------------------------------------------------------------ -/
 end ordering
 
-class has_strict_weak_ordering (α : Type u) extends has_ordering α, is_strict_weak_order α (<_cmp) :=
+class has_strict_weak_ordering (α : Type u) extends has_cmp α, is_strict_weak_order α (<_cmp) :=
 (lt_iff_gt     : ∀ a b : α, a <_cmp b     ↔ b >_cmp a)
 (incomp_iff_eq : ∀ a b : α, a ≈[cmp_lt] b ↔ a =_cmp b)
 

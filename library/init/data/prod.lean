@@ -7,10 +7,12 @@ prelude
 import init.logic
 universes u v
 
-instance {α : Type u} {β : Type v} [inhabited α] [inhabited β] : inhabited (prod α β) :=
+section
+variables {α : Type u} {β : Type v}
+instance [inhabited α] [inhabited β] : inhabited (prod α β) :=
 ⟨(default α, default β)⟩
 
-instance {α : Type u} {β : Type v} [h₁ : decidable_eq α] [h₂ : decidable_eq β] : decidable_eq (α × β)
+instance [h₁ : decidable_eq α] [h₂ : decidable_eq β] : decidable_eq (α × β)
 | (a, b) (a', b') :=
   match (h₁ a a') with
   | (is_true e₁) :=
@@ -21,10 +23,21 @@ instance {α : Type u} {β : Type v} [h₁ : decidable_eq α] [h₂ : decidable_
   | (is_false n₁) := is_false (assume h, prod.no_confusion h (λ e₁' e₂', absurd e₁' n₁))
   end
 
-namespace prod
+instance [has_lt α] [has_lt β] : has_lt (α × β) :=
+⟨λ s t, s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)⟩
 
-def {u₁ u₂ v₁ v₂} map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ : Type v₂}
+instance prod_has_decidable_lt
+         [has_lt α] [has_lt β]
+         [decidable_eq α] [decidable_eq β]
+         [decidable_rel ((<) : α → α → Prop)]
+         [decidable_rel ((<) : β → β → Prop)] : Π s t : α × β, decidable (s < t) :=
+λ t s, or.decidable
+
+lemma prod.lt_def [has_lt α] [has_lt β] (s t : α × β) : (s < t) = (s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)) :=
+rfl
+
+end
+
+def {u₁ u₂ v₁ v₂} prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ : Type v₂}
   (f : α₁ → α₂) (g : β₁ → β₂) : α₁ × β₁ → α₂ × β₂
 | (a, b) := (f a, g b)
-
-end prod

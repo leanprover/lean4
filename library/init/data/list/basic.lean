@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.logic init.data.nat.basic init.data.bool.basic
+import init.logic init.data.nat.basic init.data.bool.basic init.propext
 open decidable list
 
 universes u v w
@@ -275,6 +275,23 @@ instance has_decidable_lt [has_lt α] [h : decidable_rel ((<) : α → α → Pr
     | is_false h₂ := is_false (λ hd, or.elim hd (λ n₁, absurd n₁ h₁) (λ n₂, absurd n₂ h₂))
     end
   end
+
+@[reducible] protected def le [has_lt α] (a b : list α) : Prop :=
+¬ b < a
+
+instance [has_lt α] : has_le (list α) :=
+⟨list.le⟩
+
+instance has_decidable_le [has_lt α] [h : decidable_rel ((<) : α → α → Prop)] : Π l₁ l₂ : list α, decidable (l₁ ≤ l₂) :=
+λ a b, not.decidable
+
+lemma le_eq_not_gt [has_lt α] : ∀ l₁ l₂ : list α, (l₁ ≤ l₂) = ¬ (l₂ < l₁) :=
+λ l₁ l₂, rfl
+
+lemma lt_eq_not_ge [has_lt α] [decidable_rel ((<) : α → α → Prop)] : ∀ l₁ l₂ : list α, (l₁ < l₂) = ¬ (l₂ ≤ l₁) :=
+λ l₁ l₂,
+  show (l₁ < l₂) = ¬ ¬ (l₁ < l₂), from
+  eq.subst (propext (not_not_iff (l₁ < l₂))).symm rfl
 
 end list
 

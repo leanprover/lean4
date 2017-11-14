@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.logic init.classical init.meta.name
+import init.logic init.classical init.meta.name init.algebra.classes
 /- Make sure instances defined in this file have lower priority than the ones
    defined for concrete structures -/
 set_option default_priority 100
@@ -227,3 +227,10 @@ decidable_linear_order.decidable_eq α a b
 lemma eq_or_lt_of_not_lt [decidable_linear_order α] {a b : α} (h : ¬ a < b) : a = b ∨ b < a :=
 if h₁ : a = b then or.inl h₁
 else or.inr (lt_of_not_ge (λ hge, h (lt_of_le_of_ne hge h₁)))
+
+instance [decidable_linear_order α] : is_total_preorder α (≤) :=
+{trans := @le_trans _ _, total := le_total}
+
+/- TODO(Leo): decide whether we should keep this instance or not -/
+instance is_strict_weak_order_of_decidable_linear_order [decidable_linear_order α] : is_strict_weak_order α (<) :=
+is_strict_weak_order_of_is_total_preorder lt_iff_not_ge

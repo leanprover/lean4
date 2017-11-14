@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.logic
+import init.logic init.data.ordering.basic
 universes u
 
 @[algebra] class is_commutative (α : Type u) (op : α → α → α) : Prop :=
@@ -88,6 +88,12 @@ class is_idempotent (α : Type u) (f : α → α) : Prop :=
 
 @[algebra] class is_preorder (α : Type u) (r : α → α → Prop) extends is_refl α r, is_trans α r : Prop.
 
+@[algebra] class is_total_preorder (α : Type u) (r : α → α → Prop) extends is_trans α r, is_total α r : Prop.
+
+instance is_total_preorder_is_preorder (α : Type u) (r : α → α → Prop) [s : is_total_preorder α r] : is_preorder α r :=
+{trans := s.trans,
+ refl  := λ a, or.elim (is_total.total r a a) id id}
+
 @[algebra] class is_partial_order (α : Type u) (r : α → α → Prop) extends is_preorder α r, is_antisymm α r : Prop.
 
 @[algebra] class is_linear_order (α : Type u) (r : α → α → Prop) extends is_partial_order α r, is_total α r : Prop.
@@ -100,6 +106,10 @@ class is_idempotent (α : Type u) (f : α → α) : Prop :=
 
 @[algebra] class is_strict_weak_order (α : Type u) (lt : α → α → Prop) extends is_strict_order α lt : Prop :=
 (incomp_trans : ∀ a b c, (¬ lt a b ∧ ¬ lt b a) → (¬ lt b c ∧ ¬ lt c b) → (¬ lt a c ∧ ¬ lt c a))
+
+@[algebra] class is_ordering (α : Type u) (cmp : α → α → ordering) extends is_strict_weak_order α (λ a b, cmp a b = ordering.lt): Prop :=
+(gt_iff_lt     : ∀ a b, (cmp a b = ordering.gt) ↔ (cmp b a = ordering.lt))
+(eq_iff_incomp : ∀ a b, (cmp a b = ordering.eq) ↔ (¬ cmp a b = ordering.lt ∧ ¬ cmp b a = ordering.lt))
 
 instance eq_is_equiv (α : Type u) : is_equiv α (=) :=
 {symm := @eq.symm _, trans := @eq.trans _, refl := eq.refl}
@@ -147,6 +157,10 @@ lemma symm_of [is_symm α r] {a b : α} : a ≺ b → b ≺ a := symm
 @[elab_simple]
 lemma asymm_of [is_asymm α r] {a b : α} : a ≺ b → ¬ b ≺ a := asymm
 
+@[elab_simple]
+lemma total_of [is_total α r] (a b : α) : a ≺ b ∨ b ≺ a :=
+is_total.total _ _ _
+
 end explicit_relation_variants
 
 end
@@ -183,3 +197,30 @@ end
 /- Notation for the equivalence relation induced by lt -/
 notation a ` ≈[`:50 lt `]` b:50 := @equiv _ lt _ a b
 end strict_weak_order
+
+lemma is_strict_weak_order_of_is_total_preorder {α : Type u} {le : α → α → Prop} {lt : α → α → Prop} [decidable_rel le] [s : is_total_preorder α le]
+                                                (h : ∀ a b, lt a b ↔ ¬ le b a) : is_strict_weak_order α lt :=
+{
+ trans        :=
+  λ a b c hab hbc,
+    have nba : ¬ le b a, from iff.mp (h _ _) hab,
+    have ncb : ¬ le c b, from iff.mp (h _ _) hbc,
+    have hab : le a b,   from or.resolve_left (total_of le b a) nba,
+    have nca : ¬ le c a, from λ hca : le c a,
+       have hcb : le c b, from trans_of le hca hab,
+       absurd hcb ncb,
+    iff.mpr (h _ _) nca,
+
+ irrefl       := λ a hlt, absurd (refl_of le a) (iff.mp (h _ _) hlt),
+
+ incomp_trans := λ a b c ⟨nab, nba⟩ ⟨nbc, ncb⟩,
+    have hba : le b a, from decidable.of_not_not (iff.mp (not_iff_not_of_iff (h _ _)) nab),
+    have hab : le a b, from decidable.of_not_not (iff.mp (not_iff_not_of_iff (h _ _)) nba),
+    have hcb : le c b, from decidable.of_not_not (iff.mp (not_iff_not_of_iff (h _ _)) nbc),
+    have hbc : le b c, from decidable.of_not_not (iff.mp (not_iff_not_of_iff (h _ _)) ncb),
+    have hac : le a c, from trans_of le hab hbc,
+    have hca : le c a, from trans_of le hcb hba,
+    and.intro
+      (λ n, absurd hca (iff.mp (h _ _) n))
+      (λ n, absurd hac (iff.mp (h _ _) n))
+}

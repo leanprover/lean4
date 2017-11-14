@@ -622,6 +622,12 @@ namespace decidable
 
   lemma by_contradiction [decidable p] (h : ¬p → false) : p :=
   if h₁ : p then h₁ else false.rec _ (h h₁)
+
+  lemma of_not_not [decidable p] : ¬ ¬ p → p :=
+  λ hnn, by_contradiction (λ hn, absurd hn hnn)
+
+  lemma not_not_iff (p) [decidable p] : (¬ ¬ p) ↔ p :=
+  iff.intro of_not_not not_not_intro
 end decidable
 
 section

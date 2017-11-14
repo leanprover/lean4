@@ -473,24 +473,27 @@ struct structure_cmd_fn {
      *  `elaborate_header` will build the telescope `Pi (A : Type) (B : Type), s' A B -> Type`. */
 
     using tele_elab = std::function<expr(expr)>;
+
+    // `elaborate_for_each(buf, tmp, f, elab)` maps to
+    // `f(buf[buf.size()-1], buf.size()-1, tmp, f(buf[buf.size()-2], buf.size()-2, tmp, ... f(buf[0], 0, tmp, elab(tmp)) ...))`
     template <class T>
-    expr elaborate_for_each(buffer<T> & buf, expr const & tmp, std::function<expr(T &, expr const &, tele_elab)> f,
+    expr elaborate_for_each(buffer<T> & buf, expr const & tmp, std::function<expr(T &, unsigned, expr const &, tele_elab)> f,
                             tele_elab elab, unsigned i = 0) {
         if (i == buf.size())
             return elab(tmp);
         elab = [&, elab](expr const & tmp) {
             return elaborate_for_each(buf, tmp, f, elab, i + 1);
         };
-        return f(buf[buf.size() - 1 - i], tmp, elab);
+        unsigned idx = buf.size() - 1 - i;
+        return f(buf[idx], idx, tmp, elab);
     }
 
-    expr elaborate_parent(bool in_header, expr & parent, expr const & tmp, tele_elab elab) {
+    expr elaborate_parent(bool in_header, expr & parent, unsigned i, expr const & tmp, tele_elab elab) {
         if (!in_header && m_subobjects) {
             return elab(tmp);
         } else {
             expr new_tmp = elab(mk_arrow(in_header ? parent : mk_as_is(parent), tmp));
             parent       = copy_tag(parent, expr(binding_domain(new_tmp)));
-            unsigned i   = static_cast<unsigned>(&parent - &m_parents[0]);
 
             if (m_subobjects) {
                 // immediately register parent field so that we can use it in `mk_parent_expr` below
@@ -512,7 +515,7 @@ struct structure_cmd_fn {
         }
     }
 
-    expr elaborate_local(bool as_is, expr & local, expr const & tmp, tele_elab elab) {
+    expr elaborate_local(bool as_is, expr & local, unsigned, expr const & tmp, tele_elab elab) {
         expr new_tmp   = elab(as_is ? Pi_as_is(local, tmp) : Pi(local, tmp));
         expr new_local = update_mlocal(local, binding_domain(new_tmp));
         local          = new_local;
@@ -526,12 +529,12 @@ struct structure_cmd_fn {
         using namespace std::placeholders; // NOLINT
         // NB: telescope is built inside-out, i.e. ctx -> params -> parents -> type
         expr tmp = m_type;
-        m_type = elaborate_for_each<expr>(m_parents, tmp, std::bind(&structure_cmd_fn::elaborate_parent, this, true, _1, _2, _3), [&](expr tmp) {
-            return elaborate_for_each<expr>(m_params, tmp, std::bind(&structure_cmd_fn::elaborate_local, this, false, _1, _2, _3), [&](expr tmp) {
+        m_type = elaborate_for_each<expr>(m_parents, tmp, std::bind(&structure_cmd_fn::elaborate_parent, this, true, _1, _2, _3, _4), [&](expr tmp) {
+            return elaborate_for_each<expr>(m_params, tmp, std::bind(&structure_cmd_fn::elaborate_local, this, false, _1, _2, _3, _4), [&](expr tmp) {
                 buffer<name> lp_names;
                 buffer<expr> ctx;
                 collect_implicit_locals(m_p, lp_names, ctx, tmp);
-                return elaborate_for_each<expr>(ctx, tmp, std::bind(&structure_cmd_fn::elaborate_local, this, true, _1, _2, _3), [&](expr tmp) {
+                return elaborate_for_each<expr>(ctx, tmp, std::bind(&structure_cmd_fn::elaborate_local, this, true, _1, _2, _3, _4), [&](expr tmp) {
                     level_param_names new_ls;
                     expr new_tmp;
                     std::tie(new_tmp, new_ls) = m_p.elaborate_type(m_name, list<expr>(), tmp);
@@ -865,7 +868,7 @@ struct structure_cmd_fn {
 
     /* Elaborate `Pi n : T, tmp` for each field, or `let n : T := d in tmp` for each defaulted field that will not be
      * handled by `elaborate_new_typed_default` */
-    expr elaborate_field(field_decl & decl, expr const & tmp, tele_elab elab) {
+    expr elaborate_field(field_decl & decl, unsigned, expr const & tmp, tele_elab elab) {
         expr new_tmp;
         expr type  = decl.get_type();
         auto const & value = decl.m_default_val;
@@ -897,7 +900,7 @@ struct structure_cmd_fn {
      *   let _fresh2 : α → α → Prop := ¬eq a b in
      *   Prop
      */
-    expr elaborate_new_typed_default(field_decl & decl, expr const & tmp, tele_elab elab) {
+    expr elaborate_new_typed_default(field_decl & decl, unsigned, expr const & tmp, tele_elab elab) {
         if (!decl.m_has_new_default || is_placeholder(decl.get_type()))
             return elab(tmp);
         expr type  = decl.get_type();
@@ -915,12 +918,12 @@ struct structure_cmd_fn {
         using namespace std::placeholders; // NOLINT
         // NB: telescope is built inside-out, i.e. params -> parents -> fields -> typed defaults -> Prop
         expr tmp = mk_Prop();
-        expr new_tmp = elaborate_for_each<field_decl>(m_fields, tmp, std::bind(&structure_cmd_fn::elaborate_new_typed_default, this, _1, _2, _3), [&](expr tmp) {
-            return elaborate_for_each<field_decl>(m_fields, tmp, std::bind(&structure_cmd_fn::elaborate_field, this, _1, _2, _3), [&](expr tmp) {
-                return elaborate_for_each<expr>(m_parents, tmp, std::bind(&structure_cmd_fn::elaborate_parent, this, false, _1, _2, _3), [&](expr tmp) {
-                    return elaborate_for_each<expr>(m_params, tmp, std::bind(&structure_cmd_fn::elaborate_local, this, true, _1, _2, _3), [&](expr tmp) {
+        expr new_tmp = elaborate_for_each<field_decl>(m_fields, tmp, std::bind(&structure_cmd_fn::elaborate_new_typed_default, this, _1, _2, _3, _4), [&](expr tmp) {
+            return elaborate_for_each<field_decl>(m_fields, tmp, std::bind(&structure_cmd_fn::elaborate_field, this, _1, _2, _3, _4), [&](expr tmp) {
+                return elaborate_for_each<expr>(m_parents, tmp, std::bind(&structure_cmd_fn::elaborate_parent, this, false, _1, _2, _3, _4), [&](expr tmp) {
+                    return elaborate_for_each<expr>(m_params, tmp, std::bind(&structure_cmd_fn::elaborate_local, this, true, _1, _2, _3, _4), [&](expr tmp) {
                         collect_implicit_locals(m_p, m_level_names, m_ctx_locals, tmp);
-                        return elaborate_for_each<expr>(m_ctx_locals, tmp, std::bind(&structure_cmd_fn::elaborate_local, this, true, _1, _2, _3), [&](expr tmp) {
+                        return elaborate_for_each<expr>(m_ctx_locals, tmp, std::bind(&structure_cmd_fn::elaborate_local, this, true, _1, _2, _3, _4), [&](expr tmp) {
                             level_param_names new_ls;
                             expr new_tmp;
                             metavar_context mctx = m_ctx.mctx();

@@ -35,6 +35,9 @@ master branch (aka work in progress branch)
   which will replace any missing fields with a placeholder.
   The old notation will be removed in the future.
 
+- Add support for structure instance notation `{...}` in patterns. Use `..` to ignore
+  unmatched fields.
+
 *Changes*
 
 - `string` is now a list of unicode scalar values. Moreover, in the VM,

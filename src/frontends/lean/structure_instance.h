@@ -7,9 +7,6 @@ Author: Leonardo de Moura
 #pragma once
 #include "frontends/lean/parse_table.h"
 namespace lean {
-expr mk_structure_instance(name const & s = {}, buffer<name> const & fns = {}, buffer<expr> const & fvs = {},
-                           buffer<expr> const & sources = {}, bool catchall = false);
-bool is_structure_instance(expr const & e);
 struct structure_instance_info {
     name m_struct_name; // empty if omitted
     buffer<name> m_field_names;
@@ -17,6 +14,10 @@ struct structure_instance_info {
     buffer<expr> m_sources;
     bool m_catchall; // "..." syntax: fill in placeholders for remaining fields
 };
+expr mk_structure_instance(name const & s = {}, buffer<name> const & fns = {}, buffer<expr> const & fvs = {},
+                           buffer<expr> const & sources = {}, bool catchall = false);
+expr mk_structure_instance(structure_instance_info const & info);
+bool is_structure_instance(expr const & e);
 structure_instance_info get_structure_instance_info(expr const & e);
 void initialize_structure_instance();
 void finalize_structure_instance();

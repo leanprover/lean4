@@ -2512,6 +2512,13 @@ class validate_and_collect_lhs_mvars : public replace_visitor {
             expr new_lhs = visit(get_as_pattern_lhs(e));
             expr new_rhs = visit(get_as_pattern_rhs(e));
             return mk_as_pattern(new_lhs, new_rhs);
+        } else if (is_structure_instance(e)) {
+            auto info = get_structure_instance_info(e);
+            if (info.m_sources.size())
+                throw elaborator_exception(info.m_sources[0], "invalid occurrence of structure notation source in pattern");
+            for (expr & val : info.m_field_values)
+                val = visit(val);
+            return mk_structure_instance(info);
         } else if (auto r = ctx().expand_macro(e)) {
             return visit(*r);
         } else if (is_synthetic_sorry(e)) {
@@ -2595,6 +2602,9 @@ expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
         expr new_lhs;
         {
             flet<bool> set(m_in_pattern, true);
+            /* Note that pattern elaboration is more sensitive than standard elaboration:
+             * mvars in `new_lhs` will be turned into pattern variables below, so care must be taken when instantiating
+             * or introducing them. See the very end of `visit_structure_instance` for an example. */
             new_lhs = visit(lhs, none_expr());
             synthesize_no_tactics();
         }
@@ -2895,6 +2905,17 @@ public:
     unfold_projections_visitor(const type_context & ctx): m_ctx(ctx) {}
 };
 
+/* Predicated variant of `lean::instantiate_mvars`. It does not support delayed abstractions or universe mvars. */
+expr elaborator::instantiate_mvars(expr const & e, std::function<bool(expr const &)> pred) { // NOLINT
+    return replace(e, [&](expr const & e) {
+        lean_assert(!is_delayed_abstraction(e));
+        if (m_ctx.is_mvar_core(e) && pred(e))
+            if (auto asn = m_ctx.get_assignment(e))
+                return some_expr(instantiate_mvars(*asn, pred));
+        return none_expr();
+    });
+}
+
 expr elaborator::visit_structure_instance(expr const & e, optional<expr> const & _expected_type) {
     optional<expr> expected_type;
     if (_expected_type) {
@@ -2917,6 +2938,7 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
     struct source { expr m_e; name m_S_name; };
     buffer<source> sources;
     for (expr src : info.m_sources) {
+        lean_assert(!m_in_pattern);
         src = visit(src, none_expr());
         synthesize_type_class_instances();
         expr type  = instantiate_mvars(whnf(infer_type(src)));
@@ -3035,16 +3057,21 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                                 (p = is_subobject_field(m_env, nested_S_name, S_fname))) {
                                 /* default/auto/subobject field: postpone */
                                 c_arg = mk_metavar(d, ref);
-                                field2mvar.insert(S_fname, c_arg);
-                                mvar2field.insert(mlocal_name(c_arg), S_fname);
-                                if (p) {
-                                    auto nested = create_field_mvars(*p);
-                                    if (!is_def_eq(c_arg, nested.first)) {
-                                        format msg = format("type mismatch at field '") + format(S_fname) + format("'");
-                                        msg += pp_type_mismatch(nested.first, nested.second, d);
-                                        throw elaborator_exception(ref, msg);
+                                if (m_in_pattern) {
+                                    // do nothing during pattern elaboration
+                                    field2value.insert(S_fname, c_arg);
+                                } else {
+                                    field2mvar.insert(S_fname, c_arg);
+                                    mvar2field.insert(mlocal_name(c_arg), S_fname);
+                                    if (p) {
+                                        auto nested = create_field_mvars(*p);
+                                        if (!is_def_eq(c_arg, nested.first)) {
+                                            format msg = format("type mismatch at field '") + format(S_fname) + format("'");
+                                            msg += pp_type_mismatch(nested.first, nested.second, d);
+                                            throw elaborator_exception(ref, msg);
+                                        }
+                                        field2value.insert(S_fname, nested.first);
                                     }
-                                    field2value.insert(S_fname, nested.first);
                                 }
                             } else if (catchall) {
                                 /* catchall: insert placeholder */
@@ -3223,7 +3250,12 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                 pp_type_mismatch(e2, c_type, *expected_type));
     }
 
-    return e2;
+    /* Instantiate all helper mvars introduced by this function. This is important when elaborating patterns because
+     * all mvars left in the final expression are turned into pattern variables by `visit_equation` (see there).
+     * For example, the pattern `{a := a}` will result in the argument `e = {a := ?a}` and `e2 = foo.mk ?m` with
+     * the assignment `?m := ?a` from field elaboration. We want the return value to be `foo.mk ?a` regardless of
+     * whether ?a has an assignment (from a dependent pattern) or not. */
+    return instantiate_mvars(e2, [&](expr const & e) { return mvar2field.contains(mlocal_name(e)); });
 }
 
 expr elaborator::visit_expr_quote(expr const & e, optional<expr> const & expected_type) {

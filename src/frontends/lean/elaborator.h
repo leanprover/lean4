@@ -262,6 +262,7 @@ private:
     void assign_field_mvar(name const & S_fname, expr const & mvar,
                            optional<expr> const & new_new_fval, expr const & new_fval, expr const & new_fval_type,
                            expr const & expected_type, expr const & ref);
+    expr instantiate_mvars(expr const & e, std::function<bool(expr const &)> pred); // NOLINT
     expr visit_structure_instance(expr const & e, optional<expr> const & expected_type);
     expr visit_expr_quote(expr const & e, optional<expr> const & expected_type);
     expr visit(expr const & e, optional<expr> const & expected_type);

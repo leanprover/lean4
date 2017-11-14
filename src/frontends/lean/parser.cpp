@@ -63,6 +63,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/local_context_adapter.h"
+#include "frontends/lean/structure_instance.h"
 
 #ifndef LEAN_DEFAULT_PARSER_SHOW_ERRORS
 #define LEAN_DEFAULT_PARSER_SHOW_ERRORS true
@@ -1636,6 +1637,14 @@ struct to_pattern_fn {
             get_app_args(get_annotation_arg(e), args);
             for (expr const & arg : args)
                 collect_new_locals(arg, skip_main_fn);
+        } else if (is_structure_instance(e)) {
+            auto info = get_structure_instance_info(e);
+            if (info.m_sources.size()) {
+                return m_parser.maybe_throw_error(parser_error("invalid occurrence of structure notation source in pattern",
+                                                               *get_pos_info(info.m_sources[0])));
+            }
+            for (expr const & val : info.m_field_values)
+                collect_new_locals(val, false);
         } else if (is_annotation(e)) {
             collect_new_locals(get_annotation_arg(e), skip_main_fn);
         } else if (is_constant(e) && is_pattern_constant(const_name(e))) {
@@ -1709,6 +1718,12 @@ struct to_pattern_fn {
                 arg = visit(arg);
             expr r = copy_tag(a, mk_app(fn, args));
             return copy_tag(e, mk_anonymous_constructor(r));
+        } else if (is_structure_instance(e)) {
+            auto info = get_structure_instance_info(e);
+            lean_assert(info.m_sources.empty());
+            for (expr & val : info.m_field_values)
+                val = visit(val);
+            return copy_tag(e, mk_structure_instance(info));
         } else if (is_annotation(e)) {
             return copy_tag(e, mk_annotation(get_annotation_kind(e), visit(get_annotation_arg(e))));
         } else if (is_constant(e) && is_pattern_constant(const_name(e))) {

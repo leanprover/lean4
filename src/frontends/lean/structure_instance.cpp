@@ -69,6 +69,11 @@ expr mk_structure_instance(name const & s, buffer<name> const & fns, buffer<expr
     return mk_structure_instance_core(s, catchall, to_list(fns), aux.size(), aux.data());
 }
 
+expr mk_structure_instance(structure_instance_info const & info) {
+    return mk_structure_instance(info.m_struct_name, info.m_field_names, info.m_field_values, info.m_sources,
+                                 info.m_catchall);
+}
+
 bool is_structure_instance(expr const & e) {
     return is_macro(e) && macro_def(e).get_name() == *g_structure_instance_name;
 }

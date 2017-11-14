@@ -205,9 +205,9 @@ inductive sublist : list α → list α → Prop
 infix ` <+ `:50 := sublist
 
 lemma length_le_of_sublist : ∀ {l₁ l₂ : list α}, l₁ <+ l₂ → length l₁ ≤ length l₂
-| ._ ._ sublist.slnil             := le_refl 0
-| ._ ._ (sublist.cons  l₁ l₂ a s) := le_succ_of_le (length_le_of_sublist s)
-| ._ ._ (sublist.cons2 l₁ l₂ a s) := succ_le_succ (length_le_of_sublist s)
+| _ _ sublist.slnil             := le_refl 0
+| _ _ (sublist.cons  l₁ l₂ a s) := le_succ_of_le (length_le_of_sublist s)
+| _ _ (sublist.cons2 l₁ l₂ a s) := succ_le_succ (length_le_of_sublist s)
 
 /- filter -/
 @[simp] theorem filter_nil (p : α → Prop) [h : decidable_pred p] : filter p [] = [] := rfl

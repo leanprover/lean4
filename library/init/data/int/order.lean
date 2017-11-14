@@ -27,11 +27,6 @@ instance decidable_le (a b : ℤ) : decidable (a ≤ b) := decidable_nonneg _
 
 instance decidable_lt (a b : ℤ) : decidable (a < b) := decidable_nonneg _
 
-protected def int.cmp (a b : int) : ordering :=
-if a < b      then ordering.lt
-else if a = b then ordering.eq
-else               ordering.gt
-
 lemma lt_iff_add_one_le (a b : ℤ) : a < b ↔ a + 1 ≤ b := iff.refl _
 
 private lemma nonneg.elim {a : ℤ} : nonneg a → ∃ n : ℕ, a = n :=

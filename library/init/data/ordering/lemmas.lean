@@ -41,20 +41,28 @@ by by_cases c with h; simp [h]
 /- ------------------------------------------------------------------ -/
 end ordering
 
-instance cmp_of_lt_is_ordering {α : Type u} [has_lt α] [decidable_rel ((<) : α → α → Prop)] [h : is_strict_weak_order α ((<) : α → α → Prop)] : is_ordering α cmp_of_lt :=
-{ trans         := by simp [cmp_of_lt]; exact h.trans,
-  irrefl        := by simp [cmp_of_lt]; exact h.irrefl,
-  incomp_trans  := by simp [cmp_of_lt]; exact h.incomp_trans,
-  gt_iff_lt     :=
-  begin
-    simp [cmp_of_lt], intros, apply iff.intro,
-    { intro h, exact h.1 },
-    { intro h, split,
-       { assumption },
-       { intro h₁, apply irrefl _ (trans h h₁) } }
-  end,
-  eq_iff_incomp := by simp [cmp_of_lt]; intros; trivial
-}
+section
+variables {α : Type u} [has_lt α] [decidable_rel ((<) : α → α → Prop)]
 
-instance default_cmp_is_ordering {α : Type u} [has_lt α] [decidable_rel ((<) : α → α → Prop)] [is_strict_weak_order α ((<) : α → α → Prop)] : is_ordering α (@cmp α has_cmp_of_lt) :=
-cmp_of_lt_is_ordering
+@[simp] lemma cmp_eq_lt (a b : α) : (cmp a b = ordering.lt) = (a < b) :=
+by simp [cmp]
+
+@[simp] lemma cmp_eq_gt [is_strict_order α ((<) : α → α → Prop)] (a b : α) : (cmp a b = ordering.gt) = (b < a) :=
+begin
+  simp [cmp], apply propext, apply iff.intro,
+  { exact λ h, h.1 },
+  { intro hba, split, assumption, intro hab, exact absurd (trans hab hba) (irrefl a) }
+end
+
+@[simp] lemma cmp_eq_eq (a b : α) : (cmp a b = ordering.eq) = (¬ a < b ∧ ¬ b < a) :=
+by simp [cmp]
+
+lemma lt_of_cmp_eq_lt (a b : α) : cmp a b = ordering.lt → a < b :=
+eq.mp (cmp_eq_lt a b)
+
+lemma gt_of_cmp_eq_gt (a b : α) : cmp a b = ordering.gt → b < a :=
+begin simp [cmp], intro h, exact h.1 end
+
+lemma incomp_of_cmp_eq_eq (a b : α) : cmp a b = ordering.eq → ¬ a < b ∧ ¬ b < a :=
+eq.mp (cmp_eq_eq a b)
+end

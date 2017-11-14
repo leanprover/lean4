@@ -89,11 +89,6 @@ meta constant expr.hash : expr → nat
 meta constant expr.lt : expr → expr → bool
 /-- Compares expressions, ignoring binder names. -/
 meta constant expr.lex_lt : expr → expr → bool
-/-- Compares expressions, ignoring binder names, and sorting by hash. -/
-meta def expr.cmp (a b : expr) : ordering :=
-if expr.lt a b then ordering.lt
-else if a =ₐ b then ordering.eq
-else ordering.gt
 
 meta constant expr.fold {α : Type} : expr → α → (expr → nat → α → α) → α
 meta constant expr.replace : expr → (expr → nat → option expr) → expr
@@ -170,9 +165,15 @@ meta instance {α} (a : α) : has_to_format (reflected a) :=
 namespace expr
 open decidable
 
+meta def expr.lt_prop (a b : expr) : Prop :=
+expr.lt a b = tt
+
+meta instance : decidable_rel expr.lt_prop :=
+λ a b, bool.decidable_eq _ _
+
 /-- Compares expressions, ignoring binder names, and sorting by hash. -/
-meta instance : has_cmp expr :=
-⟨ expr.cmp ⟩
+meta instance : has_lt expr :=
+⟨ expr.lt_prop ⟩
 
 meta def mk_true : expr :=
 const `true []

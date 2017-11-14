@@ -141,7 +141,3 @@ by mk_dec_eq_instance
 instance_derive_handler ``decidable_eq tactic.mk_dec_eq_instance
 
 end tactic
-
-/- instances of types in dependent files -/
-instance : decidable_eq ordering :=
-by tactic.mk_dec_eq_instance

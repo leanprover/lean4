@@ -107,10 +107,6 @@ instance is_total_preorder_is_preorder (α : Type u) (r : α → α → Prop) [s
 @[algebra] class is_strict_weak_order (α : Type u) (lt : α → α → Prop) extends is_strict_order α lt : Prop :=
 (incomp_trans : ∀ a b c, (¬ lt a b ∧ ¬ lt b a) → (¬ lt b c ∧ ¬ lt c b) → (¬ lt a c ∧ ¬ lt c a))
 
-@[algebra] class is_ordering (α : Type u) (cmp : α → α → ordering) extends is_strict_weak_order α (λ a b, cmp a b = ordering.lt): Prop :=
-(gt_iff_lt     : ∀ a b, (cmp a b = ordering.gt) ↔ (cmp b a = ordering.lt))
-(eq_iff_incomp : ∀ a b, (cmp a b = ordering.eq) ↔ (¬ cmp a b = ordering.lt ∧ ¬ cmp b a = ordering.lt))
-
 instance eq_is_equiv (α : Type u) : is_equiv α (=) :=
 {symm := @eq.symm _, trans := @eq.trans _, refl := eq.refl}
 

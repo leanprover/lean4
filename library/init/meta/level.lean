@@ -36,19 +36,11 @@ meta constant level.instantiate : level → list (name × level) → list level
 meta constant level.to_format : level → options → format
 meta constant level.to_string : level → string
 
-meta def level.cmp (a b : level) : ordering :=
-if level.lt a b then ordering.lt
-else if a = b then ordering.eq
-else ordering.gt
-
 meta instance : has_to_string level :=
 ⟨level.to_string⟩
 
 meta instance : has_to_format level :=
 ⟨λ l, level.to_format l options.mk⟩
-
-meta instance : has_cmp level :=
-⟨level.cmp⟩
 
 meta def level.of_nat : nat → level
 | 0            := level.zero

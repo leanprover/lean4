@@ -324,31 +324,6 @@ vm_obj nat_repeat(vm_obj const &, vm_obj const & f, vm_obj const & n, vm_obj con
     }
 }
 
-/*
-inductive ordering
-| lt | eq | gt
-
-protected def nat.cmp (a b : nat) : ordering :=
-if a < b      then ordering.lt
-else if a = b then ordering.eq
-else               ordering.gt
-*/
-vm_obj nat_cmp(vm_obj const & a, vm_obj const & b) {
-    if (is_simple(a) && is_simple(b)) {
-        unsigned v1 = cidx(a);
-        unsigned v2 = cidx(b);
-        if (v1 < v2)       return mk_vm_simple(0);
-        else if (v1 == v2) return mk_vm_simple(1);
-        else               return mk_vm_simple(2);
-    } else {
-        mpz const & v1 = to_mpz1(a);
-        mpz const & v2 = to_mpz2(b);
-        if (v1 < v2)       return mk_vm_simple(0);
-        else if (v1 == v2) return mk_vm_simple(1);
-        else               return mk_vm_simple(2);
-    }
-}
-
 void initialize_vm_nat() {
     DECLARE_VM_BUILTIN(name({"nat", "succ"}),             nat_succ);
     DECLARE_VM_BUILTIN(name({"nat", "add"}),              nat_add);
@@ -372,7 +347,6 @@ void initialize_vm_nat() {
     DECLARE_VM_BUILTIN(name({"nat", "ldiff"}),            nat_ldiff);
     DECLARE_VM_BUILTIN(name({"nat", "lxor"}),             nat_lxor);
     DECLARE_VM_BUILTIN(name({"nat", "test_bit"}),         nat_test_bit);
-    DECLARE_VM_BUILTIN(name({"nat", "cmp"}),              nat_cmp);
 
     declare_vm_builtin(name({"nat", "cases_on"}),          "nat_rec",          4, nat_rec);
     declare_vm_builtin(name({"nat", "rec_on"}),            "nat_rec",          4, nat_rec);

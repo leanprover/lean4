@@ -417,8 +417,10 @@ vm_obj string_has_decidable_eq(vm_obj const & s1, vm_obj const & s2) {
 /*
 inductive ordering
 | lt | eq | gt
+
+Remark: we may decide to expose this function in the future.
 */
-vm_obj string_cmp(vm_obj const & s1, vm_obj const & s2) {
+static vm_obj string_cmp(vm_obj const & s1, vm_obj const & s2) {
     vm_string const & vs1 = to_vm_string(s1);
     vm_string const & vs2 = to_vm_string(s2);
     size_t sz1 = vs1.m_value.size();
@@ -460,7 +462,7 @@ void initialize_vm_string() {
     DECLARE_VM_BUILTIN(name({"string", "fold"}),              string_fold);
     DECLARE_VM_BUILTIN(name({"string", "mk_iterator"}),       string_mk_iterator);
     DECLARE_VM_BUILTIN(name({"string", "has_decidable_eq"}),  string_has_decidable_eq);
-    DECLARE_VM_BUILTIN(name({"string", "cmp"}),               string_cmp);
+    // DECLARE_VM_BUILTIN(name({"string", "cmp"}),               string_cmp);
     DECLARE_VM_BUILTIN(name({"string", "has_decidable_lt"}),  string_has_decidable_lt);
 
     DECLARE_VM_BUILTIN(name({"string", "iterator", "curr"}),           string_iterator_curr);

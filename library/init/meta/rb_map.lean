@@ -27,15 +27,15 @@ meta constant max {key : Type} {data : Type}            : rb_map key data → op
 meta constant fold {key : Type} {data : Type} {α :Type} : rb_map key data → α → (key → data → α → α) → α
 
 attribute [inline]
-meta def mk (key : Type) [has_cmp key] (data : Type) : rb_map key data :=
-mk_core data has_cmp.cmp
+meta def mk (key : Type) [has_lt key] [decidable_rel ((<) : key → key → Prop)] (data : Type) : rb_map key data :=
+mk_core data cmp
 
 open list
-meta def of_list {key : Type} {data : Type} [has_cmp key] : list (key × data) → rb_map key data
-| []           := mk key data
-| ((k, v)::ls) := insert (of_list ls) k v
 
-meta def keys {key : Type} {data : Type} (m : rb_map key data) : list key :=
+section
+variables {key data : Type}
+
+meta def keys (m : rb_map key data) : list key :=
 fold m [] (λk v ks, k :: ks)
 
 meta def values {key : Type} {data : Type} (m : rb_map key data) : list data :=
@@ -44,25 +44,37 @@ fold m [] (λk v vs, v :: vs)
 meta def to_list {key : Type} {data : Type} (m : rb_map key data) : list (key × data) :=
 fold m [] (λk v res, (k, v) :: res)
 
-meta def set_of_list {A} [has_cmp A] : list A → rb_map A unit
+meta def mfold {key data α :Type} {m : Type → Type} [monad m] (mp : rb_map key data) (a : α) (fn : key → data → α → m α) : m α :=
+mp.fold (return a) (λ k d act, act >>= fn k d)
+end
+
+section
+
+variables {key data data' : Type} [has_lt key] [decidable_rel ((<) : key → key → Prop)]
+
+meta def of_list : list (key × data) → rb_map key data
+| []           := mk key data
+| ((k, v)::ls) := insert (of_list ls) k v
+
+
+meta def set_of_list : list key → rb_map key unit
 | []      := mk _ _
 | (x::xs) := insert (set_of_list xs) x ()
 
-meta def map {A B C} [has_cmp A] (f : B → C) (m : rb_map A B) : rb_map A C :=
+meta def map (f : data → data') (m : rb_map key data) : rb_map key data' :=
 fold m (mk _ _) (λk v res, insert res k (f v))
 
-meta def for {A B C} [has_cmp A] (m : rb_map A B) (f : B → C) : rb_map A C :=
+meta def for (m : rb_map key data) (f : data → data') : rb_map key data' :=
 map f m
 
-meta def filter {A B} [has_cmp A] (m : rb_map A B) (f : B → Prop) [decidable_pred f] :=
+meta def filter (m : rb_map key data) (f : data → Prop) [decidable_pred f] :=
 fold m (mk _ _) $ λa b m', if f b then insert m' a b else m'
 
-meta def mfold {key data α :Type} {m : Type → Type} [monad m] (mp : rb_map key data) (a : α) (fn : key → data → α → m α) : m α :=
-mp.fold (return a) (λ k d act, act >>= fn k d)
+end
 
 end rb_map
 
-meta def mk_rb_map {key data : Type} [has_cmp key] : rb_map key data :=
+meta def mk_rb_map {key data : Type} [has_lt key] [decidable_rel ((<) : key → key → Prop)] : rb_map key data :=
 rb_map.mk key data
 
 @[reducible] meta def nat_map (data : Type) := rb_map nat data
@@ -101,7 +113,7 @@ meta def rb_lmap (key : Type) (data : Type) : Type := rb_map key (list data)
 
 namespace rb_lmap
 
-protected meta def mk (key : Type) [has_cmp key] (data : Type) : rb_lmap key data :=
+protected meta def mk (key : Type) [has_lt key] [decidable_rel ((<) : key → key → Prop)] (data : Type) : rb_lmap key data :=
 rb_map.mk key (list data)
 
 meta def insert {key : Type} {data : Type} (rbl : rb_lmap key data) (k : key) (d : data) :
@@ -127,7 +139,7 @@ end
 end rb_lmap
 
 meta def rb_set (key) := rb_map key unit
-meta def mk_rb_set {key} [has_cmp key] : rb_set key :=
+meta def mk_rb_set {key} [has_lt key] [decidable_rel ((<) : key → key → Prop)] : rb_set key :=
 mk_rb_map
 
 namespace rb_set
@@ -166,7 +178,7 @@ open native
 namespace name_map
 export native.rb_map (hiding mk)
 
-meta def mk (data : Type) : name_map data := rb_map.mk name data
+meta def mk (data : Type) : name_map data := rb_map.mk_core data name.cmp
 end name_map
 
 meta def mk_name_map {data : Type} : name_map data :=

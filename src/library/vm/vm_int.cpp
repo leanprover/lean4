@@ -322,22 +322,6 @@ unsigned int_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
     }
 }
 
-vm_obj int_cmp(vm_obj const & a, vm_obj const & b) {
-    if (is_simple(a) && is_simple(b)) {
-        int v1 = to_small_int(a);
-        int v2 = to_small_int(b);
-        if (v1 < v2)       return mk_vm_simple(0);
-        else if (v1 == v2) return mk_vm_simple(1);
-        else               return mk_vm_simple(2);
-    } else {
-        mpz const & v1 = to_mpz1(a);
-        mpz const & v2 = to_mpz2(b);
-        if (v1 < v2)       return mk_vm_simple(0);
-        else if (v1 == v2) return mk_vm_simple(1);
-        else               return mk_vm_simple(2);
-    }
-}
-
 void initialize_vm_int() {
     DECLARE_VM_BUILTIN(name({"int", "of_nat"}),           int_of_nat);
     DECLARE_VM_BUILTIN(name({"int", "neg_succ_of_nat"}),  int_neg_succ_of_nat);
@@ -357,7 +341,6 @@ void initialize_vm_int() {
     DECLARE_VM_BUILTIN(name({"int", "lnot"}),             int_lnot);
     DECLARE_VM_BUILTIN(name({"int", "lxor"}),             int_lxor);
     DECLARE_VM_BUILTIN(name({"int", "test_bit"}),         int_test_bit);
-    DECLARE_VM_BUILTIN(name({"int", "cmp"}),              int_cmp);
 
     DECLARE_VM_CASES_BUILTIN(name({"int", "cases_on"}),   int_cases_on);
 

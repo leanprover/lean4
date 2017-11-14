@@ -81,10 +81,16 @@ meta constant name.lex_cmp : name → name → ordering
 meta constant name.append : name → name → name
 meta constant name.is_internal : name → bool
 
-attribute [instance] name.has_decidable_eq
+protected meta def name.lt (a b : name) : Prop :=
+name.cmp a b = ordering.lt
 
-meta instance : has_cmp name :=
-⟨name.cmp⟩
+meta instance : decidable_rel name.lt :=
+λ a b, ordering.decidable_eq _ _
+
+meta instance : has_lt name :=
+⟨name.lt⟩
+
+attribute [instance] name.has_decidable_eq
 
 meta instance : has_append name :=
 ⟨name.append⟩

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.ordering.basic init.meta init.algebra.classes
+import init.data.ordering.basic init.meta init.algebra.classes init.ite_simp
 set_option default_priority 100
 
 universes u
@@ -41,28 +41,20 @@ by by_cases c with h; simp [h]
 /- ------------------------------------------------------------------ -/
 end ordering
 
-class has_strict_weak_ordering (α : Type u) extends has_cmp α, is_strict_weak_order α (<_cmp) :=
-(lt_iff_gt     : ∀ a b : α, a <_cmp b     ↔ b >_cmp a)
-(incomp_iff_eq : ∀ a b : α, a ≈[cmp_lt] b ↔ a =_cmp b)
+instance cmp_of_lt_is_ordering {α : Type u} [has_lt α] [decidable_rel ((<) : α → α → Prop)] [h : is_strict_weak_order α ((<) : α → α → Prop)] : is_ordering α cmp_of_lt :=
+{ trans         := by simp [cmp_of_lt]; exact h.trans,
+  irrefl        := by simp [cmp_of_lt]; exact h.irrefl,
+  incomp_trans  := by simp [cmp_of_lt]; exact h.incomp_trans,
+  gt_iff_lt     :=
+  begin
+    simp [cmp_of_lt], intros, apply iff.intro,
+    { intro h, exact h.1 },
+    { intro h, split,
+       { assumption },
+       { intro h₁, apply irrefl _ (trans h h₁) } }
+  end,
+  eq_iff_incomp := by simp [cmp_of_lt]; intros; trivial
+}
 
-namespace ordering
-variables {α : Type u} [has_strict_weak_ordering α]
-open strict_weak_order
-
-lemma cmp_lt_of_cmp_gt {a b : α} : a >_cmp b → b <_cmp a :=
-λ h, iff.mpr (has_strict_weak_ordering.lt_iff_gt b a) h
-
-private lemma to_eq {a b : α} : a ≈[cmp_lt] b → a =_cmp b :=
-iff.mp (has_strict_weak_ordering.incomp_iff_eq a b)
-
-private lemma to_eqv {a b : α} : a =_cmp b → a ≈[cmp_lt] b :=
-iff.mpr (has_strict_weak_ordering.incomp_iff_eq a b)
-
-instance : is_equiv α (=_cmp) :=
-{refl  := λ a, to_eq (erefl a),
- symm  := λ a b h, to_eq (esymm (to_eqv h)),
- trans := λ a c c h₁ h₂, to_eq (etrans (to_eqv h₁) (to_eqv h₂))}
-
-lemma eqv_of_incomparable {a b : α} : ¬ a <_cmp b → ¬ b <_cmp a → a ≈[cmp_lt] b :=
-λ h₁ h₂, ⟨h₁, h₂⟩
-end ordering
+instance default_cmp_is_ordering {α : Type u} [has_lt α] [decidable_rel ((<) : α → α → Prop)] [is_strict_weak_order α ((<) : α → α → Prop)] : is_ordering α (@cmp α has_cmp_of_lt) :=
+cmp_of_lt_is_ordering

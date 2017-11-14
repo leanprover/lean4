@@ -144,22 +144,24 @@ begin
   case black_node { simp [balance2_node], apply balance2_ne_leaf }
 end
 
-variables [has_ordering α]
-
 def get_color : rbnode α → color
 | (red_node _ _ _) := red
 | _                := black
 
+section insert
+
+variables (lt : α → α → Prop) [decidable_rel lt]
+
 def ins : rbnode α → α → rbnode α
 | leaf             x  := red_node leaf x leaf
 | (red_node a y b) x  :=
-   match cmp x y with
+   match cmp_using lt x y with
    | ordering.lt := red_node (ins a x) y b
    | ordering.eq := red_node a x b
    | ordering.gt := red_node a y (ins b x)
    end
 | (black_node a y b) x :=
-    match cmp x y with
+    match cmp_using lt x y with
     | ordering.lt :=
       if a.get_color = red then balance1_node (ins a x) y b
       else black_node (ins a x) y b
@@ -173,27 +175,27 @@ def ins : rbnode α → α → rbnode α
 lemma ins.induction_on {p : rbnode α → Prop}
   (t x)
   (h₁ : p leaf)
-  (h₂ : ∀ a y b, cmp x y = ordering.lt → p a → p (red_node a y b))
-  (h₃ : ∀ a y b, cmp x y = ordering.eq → p (red_node a y b))
-  (h₄ : ∀ a y b, cmp x y = ordering.gt → p b → p (red_node a y b))
-  (h₅ : ∀ a y b, cmp x y = ordering.lt → get_color a = red → p a → p (black_node a y b))
-  (h₆ : ∀ a y b, cmp x y = ordering.lt → get_color a ≠ red → p a → p (black_node a y b))
-  (h₇ : ∀ a y b, cmp x y = ordering.eq → p (black_node a y b))
-  (h₈ : ∀ a y b, cmp x y = ordering.gt → get_color b = red → p b → p (black_node a y b))
-  (h₉ : ∀ a y b, cmp x y = ordering.gt → get_color b ≠ red → p b → p (black_node a y b))
+  (h₂ : ∀ a y b, cmp_using lt x y = ordering.lt → p a → p (red_node a y b))
+  (h₃ : ∀ a y b, cmp_using lt x y = ordering.eq → p (red_node a y b))
+  (h₄ : ∀ a y b, cmp_using lt x y = ordering.gt → p b → p (red_node a y b))
+  (h₅ : ∀ a y b, cmp_using lt x y = ordering.lt → get_color a = red → p a → p (black_node a y b))
+  (h₆ : ∀ a y b, cmp_using lt x y = ordering.lt → get_color a ≠ red → p a → p (black_node a y b))
+  (h₇ : ∀ a y b, cmp_using lt x y = ordering.eq → p (black_node a y b))
+  (h₈ : ∀ a y b, cmp_using lt x y = ordering.gt → get_color b = red → p b → p (black_node a y b))
+  (h₉ : ∀ a y b, cmp_using lt x y = ordering.gt → get_color b ≠ red → p b → p (black_node a y b))
   : p t :=
 begin
   induction t,
   case leaf { apply h₁ },
   case red_node a y b {
-     generalize h : cmp x y = c,
+     generalize h : cmp_using lt x y = c,
      cases c,
      case ordering.lt { apply h₂, assumption, assumption },
      case ordering.eq { apply h₃, assumption },
      case ordering.gt { apply h₄, assumption, assumption },
    },
   case black_node a y b {
-     generalize h : cmp x y = c,
+     generalize h : cmp_using lt x y = c,
      cases c,
      case ordering.lt {
        by_cases get_color a = red,
@@ -210,22 +212,28 @@ begin
 end
 
 def insert (t : rbnode α) (x : α) : rbnode α :=
-let r := ins t x in
+let r := ins lt t x in
 match r with
 | red_node l v r := black_node l v r
 | _              := r
 end
 
+end insert
+
+section membership
+
+variables (lt : α → α → Prop) [decidable_rel lt]
+
 def contains : rbnode α → α → bool
 | leaf             x := ff
 | (red_node a y b) x :=
-  match cmp x y with
+  match cmp_using lt x y with
   | ordering.lt := contains a x
   | ordering.eq := tt
   | ordering.gt := contains b x
   end
 | (black_node a y b) x :=
-  match cmp x y with
+  match cmp_using lt x y with
   | ordering.lt := contains a x
   | ordering.eq := tt
   | ordering.gt := contains b x
@@ -233,20 +241,25 @@ def contains : rbnode α → α → bool
 
 protected def mem : α → rbnode α → Prop
 | a leaf               := false
-| a (red_node l v r)   := mem a l ∨ cmp a v = ordering.eq  ∨ mem a r
-| a (black_node l v r) := mem a l ∨ cmp a v = ordering.eq  ∨ mem a r
+| a (red_node l v r)   := mem a l ∨ cmp_using lt a v = ordering.eq  ∨ mem a r
+| a (black_node l v r) := mem a l ∨ cmp_using lt a v = ordering.eq  ∨ mem a r
 
-instance : has_mem α (rbnode α) :=
-⟨rbnode.mem⟩
+end membership
 
+end rbnode
+
+namespace rbnode
+
+section membership_lemmas
+parameters {α : Type u} (lt : α → α → Prop) [decidable_rel lt]
+
+local infix `∈` := rbnode.mem lt
+
+/- TODO(Leo): remove after we cleanup stdlib simp lemmas -/
 local attribute [-simp] or.comm or.left_comm or.assoc
-
-/- TODO (Leo): create type class for cmp properties. -/
-axiom cmp_refl (a : α) : cmp a a = ordering.eq
 
 lemma mem_balance1_node {x s} (v) (t : rbnode α) : x ∈ s → x ∈ balance1_node s v t :=
 begin
-  unfold has_mem.mem,
   cases s,
   case leaf { simp [rbnode.mem] },
   case red_node l v r {
@@ -267,7 +280,6 @@ end
 
 lemma mem_balance2_node {x s} (v) (t : rbnode α) : x ∈ s → x ∈ balance2_node s v t :=
 begin
-  unfold has_mem.mem,
   cases s,
   case leaf { simp [rbnode.mem] },
   case red_node l v r {
@@ -286,20 +298,20 @@ begin
   }
 end
 
-lemma ins_ne_leaf (t : rbnode α) (x : α) : t.ins x ≠ leaf :=
+lemma ins_ne_leaf (t : rbnode α) (x : α) : t.ins lt x ≠ leaf :=
 begin
-  refine ins.induction_on t x _ _ _ _ _ _ _ _ _,
+  refine ins.induction_on lt t x _ _ _ _ _ _ _ _ _,
   any_goals { intros, simp [ins, *], contradiction},
   { intros, simp [ins, *], apply balance1_node_ne_leaf, assumption },
   { intros, simp [ins, *], apply balance2_node_ne_leaf, assumption },
 end
 
-lemma mem_ins (t : rbnode α) (x : α) : x ∈ t.ins x :=
+lemma mem_ins [is_irrefl α lt] (t : rbnode α) (x : α) : x ∈ t.ins lt x :=
 begin
-  unfold has_mem.mem,
-  refine ins.induction_on t x _ _ _ _ _ _ _ _ _,
-  { simp [ins, rbnode.mem], apply cmp_refl },
-  any_goals { intros, simp [ins, rbnode.mem, cmp_refl, *] },
+  refine ins.induction_on lt t x _ _ _ _ _ _ _ _ _,
+  { simp [ins, rbnode.mem], apply irrefl },
+  any_goals { intros, simp [ins, rbnode.mem, *] },
+  any_goals { right, left, apply irrefl },
   { apply mem_balance1_node, assumption },
   { apply mem_balance2_node, assumption }
 end
@@ -307,55 +319,65 @@ end
 lemma mem_black_node_of_mem_red_node {l r : rbnode α} {v a : α} : a ∈ red_node l v r → a ∈ black_node l v r :=
 λ h, h
 
-lemma mem_insert : ∀ (a : α) (t : rbnode α), a ∈ t.insert a :=
+lemma mem_insert [is_irrefl α lt] : ∀ (a : α) (t : rbnode α), a ∈ t.insert lt a :=
 begin
   intros a t,
   simp [insert],
-  have h : ins t a ≠ leaf, { apply ins_ne_leaf },
-  generalize he : ins t a = r,
+  have h : ins lt t a ≠ leaf, { apply ins_ne_leaf },
+  generalize he : ins lt t a = r,
   cases r; simp [insert],
   case leaf { contradiction },
   case black_node { rw [←he], apply mem_ins },
   case red_node {
     have : a ∈ red_node lchild val rchild, { rw [←he], apply mem_ins },
-    apply mem_black_node_of_mem_red_node this
+    apply mem_black_node_of_mem_red_node, assumption
   }
 end
+
+end membership_lemmas
 
 end rbnode
 
 open rbnode
 
-def rbtree (α : Type u) : Type u := {t : rbnode α // true } /- TODO(Leo): add wff condition -/
+meta def rbtree.default_lt : tactic unit :=
+`[apply has_lt.lt]
 
-def mk_rbtree {α : Type u} : rbtree α :=
+def rbtree (α : Type u) (lt : α → α → Prop . rbtree.default_lt) [decidable_rel lt] : Type u :=
+{t : rbnode α // true } /- TODO(Leo): add wff condition -/
+
+def mk_rbtree (α : Type u) (lt : α → α → Prop . rbtree.default_lt) [decidable_rel lt] : rbtree α lt :=
 ⟨leaf, trivial⟩
 
 namespace rbtree
-variables {α : Type u}
+variables {α : Type u} {lt : α → α → Prop} [decidable_rel lt]
 
-def to_list : rbtree α → list α
+def to_list : rbtree α lt → list α
 | ⟨t, _⟩ := t.rev_fold (::) []
 
-section
-variables [has_ordering α]
-def insert : rbtree α → α → rbtree α
-| ⟨t, _⟩   x := ⟨t.insert x, trivial⟩
+def insert : rbtree α lt → α → rbtree α lt
+| ⟨t, _⟩   x := ⟨t.insert lt x, trivial⟩
 
-def contains : rbtree α → α → bool
-| ⟨t, _⟩ x := t.contains x
+def contains : rbtree α lt → α → bool
+| ⟨t, _⟩ x := t.contains lt x
 
-def from_list (l : list α) : rbtree α :=
-l.foldl insert mk_rbtree
+def from_list (l : list α) (lt : α → α → Prop . rbtree.default_lt) [decidable_rel lt] : rbtree α lt :=
+l.foldl insert (mk_rbtree α lt)
 
-protected def mem : α → rbtree α → Prop
-| x ⟨t, _⟩  := x ∈ t
+protected def mem (a : α) (t : rbtree α lt) : Prop :=
+rbnode.mem lt a t.val
 
-instance : has_mem α (rbtree α) :=
+instance : has_mem α (rbtree α lt) :=
 ⟨rbtree.mem⟩
 
-lemma mem_insert : ∀ (a : α) (t : rbtree α), a ∈ t.insert a
-| a ⟨t, _⟩ := t.mem_insert a
-end
+lemma mem_insert [is_irrefl α lt] : ∀ (a : α) (t : rbtree α lt), a ∈ t.insert a
+| a ⟨t, _⟩ := t.mem_insert lt a
 
 end rbtree
+
+#eval (rbtree.from_list [3, 4, 2, 5, 1] (<)).to_list
+#eval (rbtree.from_list [3, 4, 2, 5, 1] (>)).to_list
+
+/- TODO(Leo): the following doesn't work because the elaborator is not currently consuming arguments
+   occurring after auto-params. -/
+-- #eval (rbtree.from_list [3, 4, 2, 5, 1]).to_list

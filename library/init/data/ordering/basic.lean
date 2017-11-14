@@ -31,10 +31,13 @@ theorem swap_swap : ∀ (o : ordering), o.swap.swap = o
 | gt := rfl
 end ordering
 
+def cmp_using {α : Type u} (lt : α → α → Prop) [decidable_rel lt] (a b : α) : ordering :=
+if lt a b      then ordering.lt
+else if lt b a then ordering.gt
+else                ordering.eq
+
 def cmp {α : Type u} [has_lt α] [decidable_rel ((<) : α → α → Prop)] (a b : α) : ordering :=
-if a < b then ordering.lt
-else if b < a then ordering.gt
-else ordering.eq
+cmp_using (<) a b
 
 instance : decidable_eq ordering :=
 λ a b,

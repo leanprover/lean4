@@ -1298,90 +1298,105 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
     unsigned i   = 0;
     /* First pass: compute type for an fn-application, and unify it with expected_type.
        We don't visit expelicit arguments at this point. */
-    while (is_pi(type)) {
-        binder_info const & bi = binding_info(type);
-        expr const & d = binding_domain(type);
-        if (bi.is_strict_implicit() && i == args.size())
-            break;
-        expr new_arg;
-        if (!is_explicit(bi)) {
-            // implicit argument
-            new_arg = mk_metavar(d, ref);
-            if (bi.is_inst_implicit())
-                info.new_instances.push_back(new_arg);
-            new_arg = post_process_implicit_arg(new_arg, ref);
-        } else if (i < args.size()) {
-            // explicit argument
-            expr const & arg_ref = args[i];
-            info.args_expected_types.push_back(d);
-            if (is_as_is(args[i])) {
-                /* We check the type of as-is arguments eagerly, and
-                   we don't create a metavariable for them since they
-                   have already been elaborated.
 
-                   This is important when we are elaborating terms such as
+    /* Outer loop is used to make sure we consume implicit arguments occurring after auto/option params. */
+    while (true) {
+        while (is_pi(type)) {
+            binder_info const & bi = binding_info(type);
+            expr const & d = binding_domain(type);
+            if (bi.is_strict_implicit() && i == args.size())
+                break;
+            expr new_arg;
+            if (!is_explicit(bi)) {
+                // implicit argument
+                new_arg = mk_metavar(d, ref);
+                if (bi.is_inst_implicit())
+                    info.new_instances.push_back(new_arg);
+                new_arg = post_process_implicit_arg(new_arg, ref);
+            } else if (i < args.size()) {
+                // explicit argument
+                expr const & arg_ref = args[i];
+                info.args_expected_types.push_back(d);
+                if (is_as_is(args[i])) {
+                    /* We check the type of as-is arguments eagerly, and
+                       we don't create a metavariable for them since they
+                       have already been elaborated.
 
-                   l.map (λ ⟨a, b⟩, a + b)
+                       This is important when we are elaborating terms such as
 
-                   where (l : list (nat × nat))
+                       l.map (λ ⟨a, b⟩, a + b)
 
-                   We elaborate l when we process l.map, and convert it into
+                       where (l : list (nat × nat))
 
-                   list.map (λ ⟨a, b⟩, a + b) (as-is l)
+                       We elaborate l when we process l.map, and convert it into
 
-                   By checking the type of l here, we make sure that the
-                   domain of the function (λ ⟨a, b⟩, a + b) is known when
-                   we elaborate it.
+                       list.map (λ ⟨a, b⟩, a + b) (as-is l)
 
-                   Note that if the user types
+                       By checking the type of l here, we make sure that the
+                       domain of the function (λ ⟨a, b⟩, a + b) is known when
+                       we elaborate it.
 
-                   list.map (λ ⟨a, b⟩, a + b) l
-                             --^ fails here
+                       Note that if the user types
 
-                   It will fail because we elaborate from left to right, and
-                   we don't have the type of l.
+                       list.map (λ ⟨a, b⟩, a + b) l
+                                 --^ fails here
 
-                   See discussion at #1403
-                */
-                new_arg = get_as_is_arg(args[i]);
-                optional<expr> thunk_of;
-                if (!m_in_pattern) thunk_of = is_thunk(d);
-                expr arg_expected_type;
-                if (thunk_of)
-                    arg_expected_type = *thunk_of;
-                else
-                    arg_expected_type = d;
-                new_arg = mk_thunk_if_needed(new_arg, thunk_of);
-                expr new_arg_type = infer_type(new_arg);
-                optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, arg_expected_type, arg_ref);
-                if (!new_new_arg) {
-                    buffer<expr> tmp_args;
-                    tmp_args.append(info.new_args);
-                    tmp_args.push_back(new_arg);
-                    format msg = mk_app_type_mismatch_error(mk_app(fn, tmp_args),
-                                                            new_arg, new_arg_type, arg_expected_type);
-                    throw elaborator_exception(ref, msg).
-                        ignore_if(has_synth_sorry({new_arg_type, arg_expected_type}));
+                       It will fail because we elaborate from left to right, and
+                       we don't have the type of l.
+
+                       See discussion at #1403
+                    */
+                    new_arg = get_as_is_arg(args[i]);
+                    optional<expr> thunk_of;
+                    if (!m_in_pattern) thunk_of = is_thunk(d);
+                    expr arg_expected_type;
+                    if (thunk_of)
+                        arg_expected_type = *thunk_of;
+                    else
+                        arg_expected_type = d;
+                    new_arg = mk_thunk_if_needed(new_arg, thunk_of);
+                    expr new_arg_type = infer_type(new_arg);
+                    optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, arg_expected_type, arg_ref);
+                    if (!new_new_arg) {
+                        buffer<expr> tmp_args;
+                        tmp_args.append(info.new_args);
+                        tmp_args.push_back(new_arg);
+                        format msg = mk_app_type_mismatch_error(mk_app(fn, tmp_args),
+                                                                new_arg, new_arg_type, arg_expected_type);
+                        throw elaborator_exception(ref, msg).
+                            ignore_if(has_synth_sorry({new_arg_type, arg_expected_type}));
+                    }
+                    new_arg = *new_new_arg;
+                } else {
+                    new_arg = mk_metavar(d, arg_ref);
                 }
-                new_arg = *new_new_arg;
+                i++;
+                info.args_mvars.push_back(new_arg);
+                info.new_args_size.push_back(info.new_args.size());
+                info.new_instances_size.push_back(info.new_instances.size());
             } else {
-                new_arg = mk_metavar(d, arg_ref);
+                break;
             }
-            i++;
-            info.args_mvars.push_back(new_arg);
-            info.new_args_size.push_back(info.new_args.size());
-            info.new_instances_size.push_back(info.new_instances.size());
+            info.new_args.push_back(new_arg);
+            /* See comment above at visit_base_app_core */
+            type_before_whnf = instantiate(binding_body(type), new_arg);
+            type             = whnf(type_before_whnf);
+        }
+        type = type_before_whnf;
+        if (optional<expr> new_type = process_optional_and_auto_params(type, ref, info.eta_args, info.new_args)) {
+            type = *new_type;
+            /* If next argument is implicit, then keep consuming */
+            type_before_whnf = *new_type;
+            type             = whnf(type_before_whnf);
+            if (!is_pi(type) || is_explicit(binding_info(type))) {
+                type = type_before_whnf;
+                break;
+            }
         } else {
             break;
         }
-        info.new_args.push_back(new_arg);
-        /* See comment above at visit_base_app_core */
-        type_before_whnf = instantiate(binding_body(type), new_arg);
-        type             = whnf(type_before_whnf);
     }
-    type = type_before_whnf;
-    if (optional<expr> new_type = process_optional_and_auto_params(type, ref, info.eta_args, info.new_args))
-        type = *new_type;
+
     if (i != args.size()) {
         /* failed to consume all explicit arguments, use base elaboration for applications */
         throw elaborator_exception(ref, "too many arguments");
@@ -1390,10 +1405,11 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
     lean_assert(args.size() == info.args_mvars.size());
     lean_assert(args.size() == info.new_args_size.size());
     lean_assert(args.size() == info.new_instances_size.size());
+
     if (!is_def_eq(expected_type, type)) {
         expr e = mk_app(fn, info.new_args);
         throw elaborator_exception(ref, format("type mismatch, term") + pp_type_mismatch(e, type, expected_type))
-                .ignore_if(has_synth_sorry({type, expected_type, e}));
+            .ignore_if(has_synth_sorry({type, expected_type, e}));
     }
 }
 
@@ -1488,74 +1504,87 @@ expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<
        also does not work because (tactic expr) unfolds into a type. */
     expr type_before_whnf = fn_type;
     expr type             = whnf(fn_type);
+    buffer<expr> eta_args;
+    /* Outer loop is used to make sure we consume implicit arguments occurring after auto/option params. */
     while (true) {
-        if (is_pi(type)) {
-            binder_info const & bi = binding_info(type);
-            expr const & d = binding_domain(type);
-            expr new_arg;
-            if (amask == arg_mask::Default && bi.is_strict_implicit() && i == args.size())
-                break;
-            if ((amask == arg_mask::Default && !is_explicit(bi)) ||
-                (amask == arg_mask::InstHoExplicit && !is_explicit(bi) && !bi.is_inst_implicit() && !is_pi(d))) {
-                // implicit argument
-                if (bi.is_inst_implicit())
-                    new_arg = mk_instance(d, ref);
-                else
-                    new_arg = mk_metavar(d, ref);
-                new_arg = post_process_implicit_arg(new_arg, ref);
-            } else if (i < args.size()) {
-                expr expected_type = d;
-                optional<expr> thunk_of;
-                if (!m_in_pattern && amask == arg_mask::Default) thunk_of = is_thunk(d);
-                if (thunk_of) expected_type = *thunk_of;
-                // explicit argument
-                expr ref_arg = get_ref_for_child(args[i], ref);
-                if (args_already_visited) {
-                    new_arg = mk_thunk_if_needed(args[i], thunk_of);
-                } else if (bi.is_inst_implicit() && is_placeholder(args[i])) {
-                    lean_assert(amask != arg_mask::Default);
+        while (true) {
+            if (is_pi(type)) {
+                binder_info const & bi = binding_info(type);
+                expr const & d = binding_domain(type);
+                expr new_arg;
+                if (amask == arg_mask::Default && bi.is_strict_implicit() && i == args.size())
+                    break;
+                if ((amask == arg_mask::Default && !is_explicit(bi)) ||
+                    (amask == arg_mask::InstHoExplicit && !is_explicit(bi) && !bi.is_inst_implicit() && !is_pi(d))) {
+                    // implicit argument
+                    if (bi.is_inst_implicit())
+                        new_arg = mk_instance(d, ref);
+                    else
+                        new_arg = mk_metavar(d, ref);
+                    new_arg = post_process_implicit_arg(new_arg, ref);
+                } else if (i < args.size()) {
+                    expr expected_type = d;
+                    optional<expr> thunk_of;
+                    if (!m_in_pattern && amask == arg_mask::Default) thunk_of = is_thunk(d);
+                    if (thunk_of) expected_type = *thunk_of;
+                    // explicit argument
+                    expr ref_arg = get_ref_for_child(args[i], ref);
+                    if (args_already_visited) {
+                        new_arg = mk_thunk_if_needed(args[i], thunk_of);
+                    } else if (bi.is_inst_implicit() && is_placeholder(args[i])) {
+                        lean_assert(amask != arg_mask::Default);
                     /* If '@' or '@@' have been used, and the argument is '_', then
                        we use type class resolution. */
-                    new_arg = mk_instance(d, ref);
+                        new_arg = mk_instance(d, ref);
+                    } else {
+                        new_arg = visit(args[i], some_expr(expected_type));
+                        new_arg = mk_thunk_if_needed(new_arg, thunk_of);
+                    }
+                    expr new_arg_type = infer_type(new_arg);
+                    if (optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, d, ref_arg)) {
+                        new_arg = *new_new_arg;
+                    } else {
+                        new_args.push_back(new_arg);
+                        format msg = mk_app_type_mismatch_error(mk_app(fn, new_args.size(), new_args.data()),
+                                                                new_arg, new_arg_type, d);
+                        throw elaborator_exception(ref, msg).ignore_if(has_synth_sorry({new_arg_type, d}));
+                    }
+                    i++;
                 } else {
-                    new_arg = visit(args[i], some_expr(expected_type));
-                    new_arg = mk_thunk_if_needed(new_arg, thunk_of);
+                    break;
                 }
-                expr new_arg_type = infer_type(new_arg);
-                if (optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, d, ref_arg)) {
-                    new_arg = *new_new_arg;
-                } else {
-                    new_args.push_back(new_arg);
-                    format msg = mk_app_type_mismatch_error(mk_app(fn, new_args.size(), new_args.data()),
-                                                            new_arg, new_arg_type, d);
-                    throw elaborator_exception(ref, msg).ignore_if(has_synth_sorry({new_arg_type, d}));
-                }
-                i++;
+                new_args.push_back(new_arg);
+                /* See comment above at first type_before_whnf assignment */
+                type_before_whnf = instantiate(binding_body(type), new_arg);
+                type             = whnf(type_before_whnf);
+            } else if (i < args.size()) {
+                expr new_fn = mk_app(fn, new_args.size(), new_args.data());
+                new_args.clear();
+                fn = ensure_function(new_fn, ref);
+                type_before_whnf = infer_type(fn);
+                type = whnf(type_before_whnf);
             } else {
+                lean_assert(i == args.size());
                 break;
             }
-            new_args.push_back(new_arg);
-            /* See comment above at first type_before_whnf assignment */
-            type_before_whnf = instantiate(binding_body(type), new_arg);
+        }
+        type = instantiate_mvars(type_before_whnf);
+
+        /* We ignore optional/auto params when `@` is used */
+        if (amask != arg_mask::Default)
+            break;
+
+        if (optional<expr> new_type = process_optional_and_auto_params(type, ref, eta_args, new_args)) {
+            /* If next argument is implicit, then keep consuming */
+            type_before_whnf = *new_type;
             type             = whnf(type_before_whnf);
-        } else if (i < args.size()) {
-            expr new_fn = mk_app(fn, new_args.size(), new_args.data());
-            new_args.clear();
-            fn = ensure_function(new_fn, ref);
-            type_before_whnf = infer_type(fn);
-            type = whnf(type_before_whnf);
+            if (!is_pi(type) || is_explicit(binding_info(type))) {
+                type = type_before_whnf;
+                break;
+            }
         } else {
-            lean_assert(i == args.size());
             break;
         }
-    }
-    type = instantiate_mvars(type_before_whnf);
-
-    buffer<expr> eta_args;
-    if (amask == arg_mask::Default) {
-        /* We ignore optional/auto params when `@` is used */
-        if (optional<expr> new_type = process_optional_and_auto_params(type, ref, eta_args, new_args))
-            type = *new_type;
     }
 
     expr r = Fun(eta_args, mk_app(fn, new_args.size(), new_args.data()));
@@ -3623,21 +3652,31 @@ void elaborator::invoke_tactic(expr const & mvar, expr const & tactic) {
     try {
         scoped_expr_caching scope(true);
         vm_obj r = tactic_evaluator(m_ctx, m_opts, ref)(tactic, s);
+        expr val;
         if (auto new_s = tactic::is_success(r)) {
             metavar_context mctx = new_s->mctx();
             bool postpone_push_delayed = true;
-            expr val = mctx.instantiate_mvars(new_s->main(), postpone_push_delayed);
+            val = mctx.instantiate_mvars(new_s->main(), postpone_push_delayed);
             if (has_expr_metavar(val)) {
                 val = recoverable_error(some_expr(type), ref,
                                         unsolved_tactic_state(*new_s, "tactic failed, result contains meta-variables", ref));
             }
-            mctx.assign(mvar, val);
             m_env = new_s->env();
             m_ctx.set_env(m_env);
             m_ctx.set_mctx(mctx);
         } else {
-            m_ctx.assign(mvar, mk_sorry(some_expr(type), ref));
+            val = mk_sorry(some_expr(type), ref);
             m_has_errors = true;
+        }
+
+        /* assign mvar := val */
+        expr mvar1 = instantiate_mvars(mvar);
+        if (is_metavar(mvar1)) {
+            /* small optimization: avoid is_def_eq because it infer types and checks whether they are def-eq */
+            m_ctx.assign(mvar1, val);
+        } else if (!m_ctx.is_def_eq(mvar1, val)) {
+            /* TODO(Leo): improve following error message. It should not happen very often. */
+            throw exception("tactic failed, type mismatch");
         }
     } catch (std::exception & ex) {
         if (try_report(ex, some_expr(ref))) {
@@ -3700,6 +3739,10 @@ void elaborator::synthesize() {
     synthesize_numeral_types();
     synthesize_type_class_instances();
     synthesize_using_tactics();
+    /* After we execute tactics we may be able to solve more type class resolution problems.
+       We don't need a loop here because synthesize_using_tactics resets m_tactics.
+    */
+    synthesize_type_class_instances();
     process_holes();
 }
 

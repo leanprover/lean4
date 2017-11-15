@@ -1,0 +1,7 @@
+f ℕ has_lt.lt : Type
+id (f ℕ has_lt.lt) : Type
+mk 1 has_lt.lt : f ℕ has_lt.lt
+f.to_val (mk 1 has_lt.lt) : ℕ
+1
+1
+1

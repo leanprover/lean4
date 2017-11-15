@@ -350,34 +350,36 @@ def mk_rbtree (α : Type u) (lt : α → α → Prop . rbtree.default_lt) [decid
 ⟨leaf, trivial⟩
 
 namespace rbtree
-variables {α : Type u} {lt : α → α → Prop} [decidable_rel lt]
+variables {α : Type u} {lt : α → α → Prop} {h : decidable_rel lt}
 
-def to_list : rbtree α lt → list α
+def to_list : @rbtree α lt h → list α
 | ⟨t, _⟩ := t.rev_fold (::) []
 
-def insert : rbtree α lt → α → rbtree α lt
+def insert : @rbtree α lt h → α → @rbtree α lt h
 | ⟨t, _⟩   x := ⟨t.insert lt x, trivial⟩
 
-def contains : rbtree α lt → α → bool
+def contains : @rbtree α lt h → α → bool
 | ⟨t, _⟩ x := t.contains lt x
+
+protected def mem (a : α) (t : @rbtree α lt h) : Prop :=
+rbnode.mem lt a t.val
+
+instance : has_mem α (@rbtree α lt h) :=
+⟨rbtree.mem⟩
 
 def from_list (l : list α) (lt : α → α → Prop . rbtree.default_lt) [decidable_rel lt] : rbtree α lt :=
 l.foldl insert (mk_rbtree α lt)
 
-protected def mem (a : α) (t : rbtree α lt) : Prop :=
-rbnode.mem lt a t.val
-
-instance : has_mem α (rbtree α lt) :=
-⟨rbtree.mem⟩
-
-lemma mem_insert [is_irrefl α lt] : ∀ (a : α) (t : rbtree α lt), a ∈ t.insert a
+lemma mem_insert [is_irrefl α lt] : ∀ (a : α) (t : @rbtree α lt h), a ∈ t.insert a
 | a ⟨t, _⟩ := t.mem_insert lt a
+
+instance [has_repr α] : has_repr (@rbtree α lt h) :=
+⟨λ t, repr t.to_list⟩
 
 end rbtree
 
 #eval (rbtree.from_list [3, 4, 2, 5, 1] (<)).to_list
 #eval (rbtree.from_list [3, 4, 2, 5, 1] (>)).to_list
-
-/- TODO(Leo): the following doesn't work because the elaborator is not currently consuming arguments
-   occurring after auto-params. -/
--- #eval (rbtree.from_list [3, 4, 2, 5, 1]).to_list
+#eval (rbtree.from_list [3, 4, 2, 5]).to_list
+#eval rbtree.from_list [3, 4, 2, 5]
+#eval rbtree.to_list $ rbtree.from_list [3, 4, 2, 5]

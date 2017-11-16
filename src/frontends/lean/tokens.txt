@@ -49,6 +49,7 @@ assume       assume
 suppose      suppose
 fun          fun
 match        match
+dotdot       ..
 ellipsis     ...
 raw          raw
 true         true

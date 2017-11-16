@@ -2395,23 +2395,16 @@ void parser::parse_imports(unsigned & fingerprint, std::vector<module_name> & im
             try {
                 unsigned h = 0;
                 while (true) {
-                    if (curr_is_token(get_period_tk())) {
+                    if (curr_is_token(get_period_tk()) || curr_is_token(get_dotdot_tk()) ||
+                        curr_is_token(get_ellipsis_tk())) {
+                        unsigned d = get_token_info().token().size();
                         if (!k_init) {
-                            k = 0;
+                            k = d - 1;
                             k_init = true;
+                            h = d - 1;
                         } else {
-                            k = k + 1;
-                            h++;
-                        }
-                        next();
-                    } else if (curr_is_token(get_ellipsis_tk())) {
-                        if (!k_init) {
-                            k = 2;
-                            k_init = true;
-                            h = 2;
-                        } else {
-                            k = k + 3;
-                            h += 3;
+                            k = d;
+                            h = d;
                         }
                         next();
                     } else {

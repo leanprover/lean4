@@ -72,57 +72,58 @@ static expr parse_sep(parser & p, pos_info const & pos, name const & id) {
     return p.rec_save_pos(mk_app(mk_constant(get_has_sep_sep_name()), pred, s), pos);
 }
 
-static expr parse_structure_instance_core(parser & p, optional<expr> const & src, name const & S, name const & fname) {
-    buffer<name> fns;
-    buffer<expr> fvs;
-    fns.push_back(fname);
-    p.check_token_next(get_assign_tk(), "invalid structure instance, ':=' expected");
-    fvs.push_back(p.parse_expr());
-    while (p.curr_is_token(get_comma_tk())) {
-        p.next();
-        if (p.curr_is_token(get_rcurly_tk())) break;
-        fns.push_back(p.check_id_next("invalid structure instance, identifier expected"));
-        p.check_token_next(get_assign_tk(), "invalid structure instance, ':=' expected");
-        fvs.push_back(p.parse_expr());
+static expr parse_structure_instance_core(parser & p, optional<expr> const & src = {}, name const & S = {},
+                                          buffer<name> fns = {}, buffer<expr> fvs = {}) {
+    buffer<expr> sources;
+    bool catchall = false;
+    if (src)
+        sources.push_back(*src);
+    bool read_source = false;
+    while (!p.curr_is_token(get_rcurly_tk())) {
+        if (p.curr_is_token(get_dotdot_tk())) {
+            p.next();
+            if (p.curr_is_token(get_rcurly_tk())) {
+                // ", ...}"
+                catchall = true;
+                break;
+            }
+            // ", ...src"
+            sources.push_back(p.parse_expr());
+            read_source = true;
+        } else if (!read_source) {
+            fns.push_back(p.check_id_next("invalid structure instance, identifier expected"));
+            p.check_token_next(get_assign_tk(), "invalid structure instance, ':=' expected");
+            fvs.push_back(p.parse_expr());
+        } else {
+            break;
+        }
+        // note: allows trailing ','
+        if (p.curr_is_token(get_comma_tk())) {
+            p.next();
+        } else {
+            break;
+        }
     }
     p.check_token_next(get_rcurly_tk(), "invalid structure instance, '}' expected");
-    if (src)
-        return mk_structure_instance(*src, fns, fvs);
-    else
-        return mk_structure_instance(S, fns, fvs);
+    return mk_structure_instance(S, fns, fvs, sources, catchall);
 }
 
 /* Parse rest of the qualified structure instance prefix '{' S '.' ... */
 static expr parse_qualified_structure_instance(parser & p, name S, pos_info const & S_pos) {
     S = p.to_constant(S, "invalid structure name", S_pos);
-    if (p.curr_is_token(get_rcurly_tk())) {
-        p.next();
-        buffer<name> fns;
-        buffer<expr> fvs;
-        return mk_structure_instance(S, fns, fvs);
-    } else {
-        name fname = p.check_id_next("invalid structure instance, identifier expected");
-        return parse_structure_instance_core(p, none_expr(), S, fname);
-    }
+    return parse_structure_instance_core(p, none_expr(), S);
 }
 
 /* Parse rest of the structure instance prefix '{' fname ... */
 static expr parse_structure_instance(parser & p, name const & fname) {
-    return parse_structure_instance_core(p, none_expr(), name(), fname);
-}
-
-/* Parse rest of the structure instance update '{' expr 'with' ... */
-static expr parse_structure_instance_update(parser & p, expr const & e) {
-    if (p.curr_is_token(get_rcurly_tk())) {
-        // '{' expr 'with' '}'
+    buffer<name> fns;
+    buffer<expr> fvs;
+    fns.push_back(fname);
+    p.check_token_next(get_assign_tk(), "invalid structure instance, ':=' expected");
+    fvs.push_back(p.parse_expr());
+    if (p.curr_is_token(get_comma_tk()))
         p.next();
-        buffer<name> fns;
-        buffer<expr> fvs;
-        return mk_structure_instance(e, fns, fvs);
-    } else {
-        name fname = p.check_id_next("invalid structure update, identifier expected");
-        return parse_structure_instance_core(p, some_expr(e), name(), fname);
-    }
+    return parse_structure_instance_core(p, none_expr(), name(), fns, fvs);
 }
 
 static name * g_emptyc_or_emptys = nullptr;
@@ -180,7 +181,9 @@ expr parse_curly_bracket(parser & p, unsigned, expr const *, pos_info const & po
     } else if (p.curr_is_token(get_period_tk())) {
         p.next();
         p.check_token_next(get_rcurly_tk(), "invalid empty structure instance, '}' expected");
-        return p.save_pos(mk_structure_instance(name(), buffer<name>(), buffer<expr>()), pos);
+        return p.save_pos(mk_structure_instance(), pos);
+    } else if (p.curr_is_token(get_dotdot_tk())) {
+        return parse_structure_instance_core(p);
     } else {
         e = p.parse_expr();
     }
@@ -191,9 +194,9 @@ expr parse_curly_bracket(parser & p, unsigned, expr const *, pos_info const & po
         return parse_fin_set(p, pos, e);
     } else if (p.curr_is_token(get_with_tk())) {
         p.next();
-        return parse_structure_instance_update(p, e);
+        return parse_structure_instance_core(p, some_expr(e));
     } else {
-        return p.parser_error_or_expr({"invalid '{' expression, ',', '}', 'with', `//` or `|` expected", p.pos()});
+        return p.parser_error_or_expr({"invalid '{' expression, ',', '}', '..', `//` or `|` expected", p.pos()});
     }
 }
 

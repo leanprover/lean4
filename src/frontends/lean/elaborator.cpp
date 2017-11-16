@@ -2896,10 +2896,6 @@ public:
 };
 
 expr elaborator::visit_structure_instance(expr const & e, optional<expr> const & _expected_type) {
-    name S_name;
-    optional<expr> src;
-    buffer<name> fnames;
-    buffer<expr> fvalues;
     optional<expr> expected_type;
     if (_expected_type) {
         synthesize_type_class_instances();
@@ -2908,27 +2904,32 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
             expected_type = none_expr();
     }
     bool use_subobjects = !m_opts.get_bool("old_structure_cmd", false);
-    get_structure_instance_info(e, S_name, src, fnames, fvalues);
+    auto info = get_structure_instance_info(e);
+    name & S_name = info.m_struct_name;
+    buffer<name> & fnames = info.m_field_names;
+    buffer<expr> & fvalues = info.m_field_values;
+    bool catchall = info.m_catchall;
+
     if (!S_name.is_anonymous() && !is_structure(env(), S_name))
         throw elaborator_exception(e, sstream() << "invalid structure instance, '" <<
                                    S_name << "' is not the name of a structure type");
     lean_assert(fnames.size() == fvalues.size());
-    name src_S_name;
-    if (src) {
-        src = visit(*src, none_expr());
+    struct source { expr m_e; name m_S_name; };
+    buffer<source> sources;
+    for (expr src : info.m_sources) {
+        src = visit(src, none_expr());
         synthesize_type_class_instances();
-        expr type  = instantiate_mvars(whnf(infer_type(*src)));
+        expr type  = instantiate_mvars(whnf(infer_type(src)));
         expr src_S = get_app_fn(type);
         if (!is_constant(src_S) || !is_structure(m_env, const_name(src_S))) {
             auto pp_fn = mk_pp_ctx();
             report_or_throw(elaborator_exception(e,
-                                       format("invalid structure update { src with ...}, source is not a structure") +
-                                       pp_indent(pp_fn, *src) +
+                                       format("invalid structure notation source, not a structure") +
+                                       pp_indent(pp_fn, src) +
                                        line() + format("which has type") +
                                        pp_indent(pp_fn, type)));
-            src = none_expr();
         } else {
-            src_S_name          = const_name(src_S);
+            sources.push_back(source {copy_tag(src, mk_as_is(src)), const_name(src_S)});
         }
     }
     if (S_name.is_anonymous()) {
@@ -2942,8 +2943,8 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                                                   "but it is not a structure") + pp_indent(pp_fn, *expected_type));
             }
             S_name = const_name(S);
-        } else if (src) {
-            S_name = src_S_name;
+        } else if (sources.size() == 1 && !catchall) {
+            S_name = sources[0].m_S_name;
         } else {
             throw elaborator_exception(e, "invalid structure value {...}, expected type is not known"
                                        "(solution: use qualified structure instance { struct_id . ... }");
@@ -2953,7 +2954,6 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
         throw elaborator_exception(e, "invalid structure instance, type is a private structure");
     buffer<bool> used;
     used.resize(fnames.size(), false);
-    if (src) src = copy_tag(*src, mk_as_is(*src));
 
     // field -> elaborated value
     name_map<expr> field2value;
@@ -2981,6 +2981,7 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
             expr c_arg;
             expr d = binding_domain(c_type);
             if (i < nparams) {
+                /* struct type parameter */
                 if (is_explicit(binding_info(c_type)) && !expected_type) {
                     report_or_throw(elaborator_exception(e, sstream() << "invalid structure value {...}, structure parameter '" <<
                                                             binding_name(c_type)
@@ -2989,6 +2990,7 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                 }
                 c_arg = mk_metavar(d, ref);
             } else {
+                /* struct field */
                 name S_fname = deinternalize_field_name(binding_name(c_type));
                 if (is_explicit(binding_info(c_type))) {
                     unsigned j = 0;
@@ -3003,36 +3005,35 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                         }
                     }
                     if (j == fnames.size()) {
-                        if (src && !is_subobject_field(m_env, nested_S_name, S_fname)) {
-                            optional<name> opt_base_S_name = find_field(m_env, src_S_name, S_fname);
-                            if (!opt_base_S_name) {
-                                report_or_throw(elaborator_exception(ref,
-                                                           sstream() << "invalid structure update { src with ... }, field '"
-                                                                     << S_fname << "'"
-                                                                     << " was not provided, nor was it found in the source of type '"
-                                                                     << src_S_name << "'."));
-                                c_arg = mk_sorry(some_expr(d), ref);
-                            } else {
-                                name base_S_name = *opt_base_S_name;
-                                expr base_src = *mk_base_projections(m_env, src_S_name, base_S_name, *src);
-                                expr f = mk_proj_app(m_env, base_S_name, S_fname, base_src);
-                                c_arg = visit(f, none_expr());
+                        if (!is_subobject_field(m_env, nested_S_name, S_fname)) {
+                            for (source const & src : sources) {
+                                if (optional<name> opt_base_S_name = find_field(m_env, src.m_S_name, S_fname)) {
+                                    /* field from source */
+                                    name base_S_name = *opt_base_S_name;
+                                    expr base_src = *mk_base_projections(m_env, src.m_S_name, base_S_name, src.m_e);
+                                    expr f = mk_proj_app(m_env, base_S_name, S_fname, base_src);
+                                    c_arg = visit(f, none_expr());
+                                    expr c_arg_type = infer_type(c_arg);
+                                    if (!is_def_eq(c_arg_type, d)) {
+                                        format msg =
+                                                format("type mismatch at field '") + format(S_fname) +
+                                                format("' from source '") + pp(src.m_e) + format("'");
+                                        msg += pp_indent(mk_pp_ctx(), c_arg);
+                                        msg += line() + pp_type_mismatch(c_arg_type, d);
+                                        report_or_throw(elaborator_exception(ref, msg));
+                                        c_arg = mk_sorry(some_expr(d), ref);
+                                    }
+                                    field2value.insert(S_fname, c_arg);
+                                    break;
+                                }
                             }
-                            expr c_arg_type = infer_type(c_arg);
-                            if (!is_def_eq(c_arg_type, d)) {
-                                format msg =
-                                        format("type mismatch at field '") + format(S_fname) + format("' from source");
-                                msg += pp_indent(mk_pp_ctx(), c_arg);
-                                msg += line() + pp_type_mismatch(c_arg_type, d);
-                                report_or_throw(elaborator_exception(ref, msg));
-                                c_arg = mk_sorry(some_expr(d), ref);
-                            }
-                            field2value.insert(S_fname, c_arg);
-                        } else {
+                        }
+                        if (!field2value.contains(S_fname)) { // "field from source" failed
                             optional<name> p;
                             // note: S_name instead of nested_S_name
                             if (has_default_value(m_env, S_name, S_fname) || is_auto_param(d) ||
                                 (p = is_subobject_field(m_env, nested_S_name, S_fname))) {
+                                /* default/auto/subobject field: postpone */
                                 c_arg = mk_metavar(d, ref);
                                 field2mvar.insert(S_fname, c_arg);
                                 mvar2field.insert(mlocal_name(c_arg), S_fname);
@@ -3045,6 +3046,10 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                                     }
                                     field2value.insert(S_fname, nested.first);
                                 }
+                            } else if (catchall) {
+                                /* catchall: insert placeholder */
+                                c_arg = mk_metavar(none_expr(), ref);
+                                field2value.insert(S_fname, c_arg);
                             } else {
                                 report_or_throw(elaborator_exception(e, sstream() << "invalid structure value { ... }, field '" <<
                                                                         S_fname << "' was not provided"));

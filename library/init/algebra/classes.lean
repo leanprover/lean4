@@ -132,6 +132,9 @@ is_antisymm.antisymm _ _
 lemma asymm [is_asymm α r] {a b : α} : a ≺ b → ¬ b ≺ a :=
 is_asymm.asymm _ _
 
+lemma incomp_trans [is_strict_weak_order α r] {a b c : α} : ¬ a ≺ b → ¬ b ≺ a → ¬ b ≺ c → ¬ c ≺ b → (¬ a ≺ c ∧ ¬ c ≺ a) :=
+λ h₁ h₂ h₃ h₄, is_strict_weak_order.incomp_trans _ _ _ ⟨h₁, h₂⟩ ⟨h₃, h₄⟩
+
 instance is_asymm_of_is_trans_of_is_irrefl [is_trans α r] [is_irrefl α r] : is_asymm α r :=
 ⟨λ a b h₁ h₂, absurd (trans h₁ h₂) (irrefl a)⟩
 
@@ -156,6 +159,9 @@ lemma asymm_of [is_asymm α r] {a b : α} : a ≺ b → ¬ b ≺ a := asymm
 @[elab_simple]
 lemma total_of [is_total α r] (a b : α) : a ≺ b ∨ b ≺ a :=
 is_total.total _ _ _
+
+@[elab_simple]
+lemma incomp_trans_of [is_strict_weak_order α r] {a b c : α} : ¬ a ≺ b → ¬ b ≺ a → ¬ b ≺ c → ¬ c ≺ b → (¬ a ≺ c ∧ ¬ c ≺ a) := incomp_trans
 
 end explicit_relation_variants
 
@@ -220,3 +226,21 @@ lemma is_strict_weak_order_of_is_total_preorder {α : Type u} {le : α → α �
       (λ n, absurd hca (iff.mp (h _ _) n))
       (λ n, absurd hac (iff.mp (h _ _) n))
 }
+
+lemma lt_of_lt_of_incomp {α : Type u} {lt : α → α → Prop} [is_strict_weak_order α lt] [decidable_rel lt]
+                         : ∀ {a b c}, lt a b → (¬ lt b c ∧ ¬ lt c b) → lt a c :=
+λ a b c hab ⟨nbc, ncb⟩,
+  have nca : ¬ lt c a, from λ hca, absurd (trans_of lt hca hab) ncb,
+  decidable.by_contradiction $
+    λ nac : ¬ lt a c,
+      have ¬ lt a b ∧ ¬ lt b a, from incomp_trans_of lt nac nca ncb nbc,
+      absurd hab this.1
+
+lemma lt_of_incomp_of_lt {α : Type u} {lt : α → α → Prop} [is_strict_weak_order α lt] [decidable_rel lt]
+                         : ∀ {a b c}, (¬ lt a b ∧ ¬ lt b a) → lt b c → lt a c :=
+λ a b c ⟨nab, nba⟩ hbc,
+  have nca : ¬ lt c a, from λ hca, absurd (trans_of lt hbc hca) nba,
+  decidable.by_contradiction $
+    λ nac : ¬ lt a c,
+      have ¬ lt b c ∧ ¬ lt c b, from incomp_trans_of lt nba nab nac nca,
+      absurd hbc this.1

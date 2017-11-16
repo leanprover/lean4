@@ -104,8 +104,10 @@ instance is_total_preorder_is_preorder (α : Type u) (r : α → α → Prop) [s
 
 @[algebra] class is_strict_order (α : Type u) (r : α → α → Prop) extends is_irrefl α r, is_trans α r : Prop.
 
-@[algebra] class is_strict_weak_order (α : Type u) (lt : α → α → Prop) extends is_strict_order α lt : Prop :=
+@[algebra] class is_incomp_trans (α : Type u) (lt : α → α → Prop) : Prop :=
 (incomp_trans : ∀ a b c, (¬ lt a b ∧ ¬ lt b a) → (¬ lt b c ∧ ¬ lt c b) → (¬ lt a c ∧ ¬ lt c a))
+
+@[algebra] class is_strict_weak_order (α : Type u) (lt : α → α → Prop) extends is_strict_order α lt, is_incomp_trans α lt : Prop.
 
 instance eq_is_equiv (α : Type u) : is_equiv α (=) :=
 {symm := @eq.symm _, trans := @eq.trans _, refl := eq.refl}
@@ -132,8 +134,8 @@ is_antisymm.antisymm _ _
 lemma asymm [is_asymm α r] {a b : α} : a ≺ b → ¬ b ≺ a :=
 is_asymm.asymm _ _
 
-lemma incomp_trans [is_strict_weak_order α r] {a b c : α} : ¬ a ≺ b → ¬ b ≺ a → ¬ b ≺ c → ¬ c ≺ b → (¬ a ≺ c ∧ ¬ c ≺ a) :=
-λ h₁ h₂ h₃ h₄, is_strict_weak_order.incomp_trans _ _ _ ⟨h₁, h₂⟩ ⟨h₃, h₄⟩
+lemma incomp_trans [is_incomp_trans α r] {a b c : α} : (¬ a ≺ b ∧ ¬ b ≺ a) → (¬ b ≺ c ∧ ¬ c ≺ b) → (¬ a ≺ c ∧ ¬ c ≺ a) :=
+is_incomp_trans.incomp_trans _ _ _
 
 instance is_asymm_of_is_trans_of_is_irrefl [is_trans α r] [is_irrefl α r] : is_asymm α r :=
 ⟨λ a b h₁ h₂, absurd (trans h₁ h₂) (irrefl a)⟩
@@ -161,7 +163,7 @@ lemma total_of [is_total α r] (a b : α) : a ≺ b ∨ b ≺ a :=
 is_total.total _ _ _
 
 @[elab_simple]
-lemma incomp_trans_of [is_strict_weak_order α r] {a b c : α} : ¬ a ≺ b → ¬ b ≺ a → ¬ b ≺ c → ¬ c ≺ b → (¬ a ≺ c ∧ ¬ c ≺ a) := incomp_trans
+lemma incomp_trans_of [is_incomp_trans α r] {a b c : α} : (¬ a ≺ b ∧ ¬ b ≺ a) → (¬ b ≺ c ∧ ¬ c ≺ b) → (¬ a ≺ c ∧ ¬ c ≺ a) := incomp_trans
 
 end explicit_relation_variants
 
@@ -184,7 +186,7 @@ lemma esymm {a b : α} : a ≈ b → b ≈ a :=
 λ ⟨h₁, h₂⟩, ⟨h₂, h₁⟩
 
 lemma etrans {a b c : α} : a ≈ b → b ≈ c → a ≈ c :=
-is_strict_weak_order.incomp_trans _ _ _
+incomp_trans
 
 lemma not_lt_of_equiv {a b : α} : a ≈ b → ¬ a ≺ b :=
 λ h, h.1
@@ -233,7 +235,7 @@ lemma lt_of_lt_of_incomp {α : Type u} {lt : α → α → Prop} [is_strict_weak
   have nca : ¬ lt c a, from λ hca, absurd (trans_of lt hca hab) ncb,
   decidable.by_contradiction $
     λ nac : ¬ lt a c,
-      have ¬ lt a b ∧ ¬ lt b a, from incomp_trans_of lt nac nca ncb nbc,
+      have ¬ lt a b ∧ ¬ lt b a, from incomp_trans_of lt ⟨nac, nca⟩ ⟨ncb, nbc⟩,
       absurd hab this.1
 
 lemma lt_of_incomp_of_lt {α : Type u} {lt : α → α → Prop} [is_strict_weak_order α lt] [decidable_rel lt]
@@ -242,5 +244,5 @@ lemma lt_of_incomp_of_lt {α : Type u} {lt : α → α → Prop} [is_strict_weak
   have nca : ¬ lt c a, from λ hca, absurd (trans_of lt hbc hca) nba,
   decidable.by_contradiction $
     λ nac : ¬ lt a c,
-      have ¬ lt b c ∧ ¬ lt c b, from incomp_trans_of lt nba nab nac nca,
+      have ¬ lt b c ∧ ¬ lt c b, from incomp_trans_of lt ⟨nba, nab⟩ ⟨nac, nca⟩,
       absurd hbc this.1

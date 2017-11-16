@@ -8,10 +8,114 @@ import init.data.rbtree.basic init.meta init.data.nat
 
 universes u v
 
+/- TODO(Leo): remove after we cleanup stdlib simp lemmas -/
+local attribute [-simp] or.comm or.left_comm or.assoc
+
 namespace rbnode
 variables {α : Type u} {β : Type v}
 
 open color nat
+
+def lift (lt : α → α → Prop) : option α → option α → Prop
+| (some a) (some b) := lt a b
+| none     (some b) := true
+| _         _       := false
+
+instance lift_lt_trans (lt : α → α → Prop) [is_trans α lt] : is_trans (option α) (lift lt) :=
+begin
+  constructor,
+  intros a b c,
+  cases a with a; cases b with b; cases c with c; simp [lift],
+  apply trans_of lt
+end
+
+instance lift_lt_irrefl (lt : α → α → Prop) [is_irrefl α lt] : is_irrefl (option α) (lift lt) :=
+begin
+  constructor,
+  intros a, cases a; simp [lift],
+  apply irrefl_of lt
+end
+
+instance lift_lt_incomp_trans (lt : α → α → Prop) [is_incomp_trans α lt] : is_incomp_trans (option α) (lift lt) :=
+begin
+  constructor,
+  intros a b c, cases a; cases b; cases c; simp [lift],
+  apply incomp_trans_of lt
+end
+
+instance (lt : α → α → Prop) [is_strict_weak_order α lt] : is_strict_weak_order (option α) (lift lt) :=
+{ trans        := λ a b c, trans_of (lift lt),
+  irrefl       := irrefl_of (lift lt),
+  incomp_trans := λ a b c, incomp_trans_of (lift lt) }
+
+instance (lt : α → α → Prop) [h : decidable_rel lt] : decidable_rel (lift lt)
+| none     none     := is_false not_false
+| none     (some b) := is_true trivial
+| (some a) none     := is_false not_false
+| (some a) (some b) := h a b
+
+lemma lift_lt_of_lt (lt : α → α → Prop) : ∀ {a b}, lt a b → lift lt (some a) (some b) :=
+begin simp [lift], intros, assumption end
+
+lemma not_lift_lt_of_not_lt (lt : α → α → Prop) : ∀ {a b}, ¬ lt a b → ¬ lift lt (some a) (some b) :=
+begin simp [lift], intros, assumption end
+
+inductive is_searchable (lt : α → α → Prop) : rbnode α → option α → option α → Prop
+| leaf_s  {lo hi}       : lift lt lo hi → is_searchable leaf lo hi
+| red_s   {l r v lo hi} : is_searchable l lo (some v) → is_searchable r (some v) hi → is_searchable (red_node l v r) lo hi
+| black_s {l r v lo hi} : is_searchable l lo (some v) → is_searchable r (some v) hi → is_searchable (black_node l v r) lo hi
+
+open rbnode (mem)
+open is_searchable
+
+lemma lo_lt_hi {t : rbnode α} {lt} [is_trans α lt] : ∀ {lo hi}, is_searchable lt t lo hi → lift lt lo hi :=
+begin
+  induction t; intros lo hi h,
+  case leaf { cases h, assumption },
+  all_goals {
+    cases h,
+    have h₁ := ih_1 ‹is_searchable lt lchild lo (some val)›,
+    have h₂ := ih_2 ‹is_searchable lt rchild (some val) hi›,
+    apply trans_of (lift lt) h₁ h₂
+  }
+end
+
+lemma range {t : rbnode α} {lt x} [decidable_rel lt] [is_strict_weak_order α lt] : ∀ {lo hi}, is_searchable lt t lo hi → mem lt x t → lift lt lo (some x) ∧ lift lt (some x) hi :=
+begin
+  induction t,
+  case leaf f{ simp [mem], intros, trivial },
+  all_goals { -- red_node and black_node are identical
+    intros lo hi h₁ h₂, cases h₁,
+    simp only [mem] at h₂,
+    have val_hi : lift lt (some val) hi, { apply lo_lt_hi, assumption },
+    have lo_val : lift lt lo (some val), { apply lo_lt_hi, assumption },
+    -- blast disjuctions
+    repeat { any_goals { cases h₂ with h₂ h₂ } },
+    {
+      have h₃ : lift lt lo (some x) ∧ lift lt (some x) (some val), { apply ih_1, assumption, assumption },
+      cases h₃ with lo_x x_val,
+      split,
+      show lift lt lo (some x), { assumption },
+      show lift lt (some x ) hi, { apply trans_of (lift lt) x_val val_hi },
+    },
+    {
+      simp at h₂, cases h₂,
+      split,
+      { apply lt_of_lt_of_incomp lo_val, split, repeat { assumption } },
+      { apply lt_of_incomp_of_lt _ val_hi, split, repeat { assumption }  }
+    },
+    {
+      have h₃ : lift lt (some val) (some x) ∧ lift lt (some x) hi, { apply ih_2, assumption, assumption },
+      cases h₃ with val_x x_hi,
+      split,
+      show lift lt lo (some x), { apply trans_of (lift lt) lo_val val_x },
+      show lift lt (some x) hi, { assumption }
+    }
+  }
+end
+
+-- TODO(Leo)
+-- lemma contains_correct {t : rbnode α} {lt} [decidable_rel lt] [is_strict_weak_order α lt] : ∀ {lo hi x}, is_searchable lt t lo hi → (mem lt x t ↔ contains lt t x = tt) :=
 
 inductive is_red_black : rbnode α → color → nat → Prop
 | leaf_rb  : is_red_black leaf black 0
@@ -163,9 +267,6 @@ section membership_lemmas
 parameters {α : Type u} (lt : α → α → Prop) [decidable_rel lt]
 
 local infix `∈` := rbnode.mem lt
-
-/- TODO(Leo): remove after we cleanup stdlib simp lemmas -/
-local attribute [-simp] or.comm or.left_comm or.assoc
 
 lemma mem_balance1_node {x s} (v) (t : rbnode α) : x ∈ s → x ∈ balance1_node s v t :=
 begin

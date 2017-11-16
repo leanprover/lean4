@@ -648,6 +648,13 @@ format_result >>= trace
 meta def rexact (e : expr) : tactic unit :=
 exact e reducible
 
+meta def any_hyp_aux {α : Type} (f : expr → tactic α) : list expr → tactic α
+| []        := failed
+| (h :: hs) := f h <|> any_hyp_aux hs
+
+meta def any_hyp {α : Type} (f : expr → tactic α) : tactic α :=
+local_context >>= any_hyp_aux f
+
 /-- `find_same_type t es` tries to find in es an expression with type definitionally equal to t -/
 meta def find_same_type : expr → list expr → tactic expr
 | e []         := failed

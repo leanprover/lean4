@@ -35,6 +35,10 @@ master branch (aka work in progress branch)
 - Move `rb_map` and `rb_tree` to the `native` namespace. We will later add
   pure Lean implementations. Use `open native` to port files.
 
+- `apply t` behavior changed when type of `t` is of the form `forall (a_1 : A_1) ... (a_n : A_n), ?m ...`, where `?m` is an unassigned metavariable.
+  In this case, `apply t` behaves as `apply t _ ... _` where `n` `_` have been added, independently of the goal target type.
+  The new behavior is useful when using `apply` with eliminator-like definitions.
+
 *API name changes*
 
 v3.3.0 (14 September 2017)

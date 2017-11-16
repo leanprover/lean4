@@ -31,18 +31,29 @@ apply_cfg::apply_cfg(vm_obj const & cfg):
     m_opt_param(to_bool(cfield(cfg, 5))) {
 }
 
-static unsigned get_expect_num_args(type_context & ctx, expr e) {
+/*
+  Compute the number of expected arguments and whether the result type is of the form
+  (?m ...) where ?m is an unassigned metavariable.
+*/
+static pair<unsigned, bool> get_expected_num_args_ho_result(type_context & ctx, expr e) {
     type_context::tmp_locals locals(ctx);
     unsigned r = 0;
     while (true) {
         e = ctx.relaxed_whnf(e);
-        if (!is_pi(e))
-            return r;
+        if (!is_pi(e)) {
+            expr fn = get_app_fn(e);
+            bool ho_result = is_metavar(fn) && !ctx.is_assigned(fn);
+            return mk_pair(r, ho_result);
+        }
         // TODO(Leo): try to avoid the following instantiate.
         expr local = locals.push_local(binding_name(e), binding_domain(e), binding_info(e));
         e = instantiate(binding_body(e), local);
         r++;
     }
+}
+
+static unsigned get_expected_num_args(type_context & ctx, expr e) {
+    return get_expected_num_args_ho_result(ctx, e).first;
 }
 
 static bool try_instance(type_context & ctx, expr const & meta, tactic_state const & s, vm_obj * out_error_obj, char const * tac_name) {
@@ -161,12 +172,16 @@ static optional<tactic_state> apply(type_context & ctx, expr e, apply_cfg const 
     local_context lctx   = g->get_context();
     expr target          = g->get_type();
     expr e_type          = ctx.infer(e);
-    unsigned num_e_t     = get_expect_num_args(ctx, e_type);
-    unsigned num_t       = get_expect_num_args(ctx, target);
-    if (num_t <= num_e_t)
-        num_e_t -= num_t;
-    else
-        num_e_t = 0;
+    unsigned num_e_t; bool ho_result;
+    std::tie(num_e_t, ho_result) = get_expected_num_args_ho_result(ctx, e_type);
+    if (!ho_result) {
+        /* Result type is not of the form `(?m ...)` */
+        unsigned num_t = get_expected_num_args(ctx, target);
+        if (num_t <= num_e_t)
+            num_e_t -= num_t;
+        else
+            num_e_t = 0;
+    }
     /* Generate meta-variables for arguments */
     buffer<expr> metas;
     buffer<bool> is_instance;

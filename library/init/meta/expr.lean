@@ -336,6 +336,10 @@ meta def is_heq : expr → option (expr × expr × expr × expr)
 | `(@heq %%α %%a %%β %%b) := some (α, a, β, b)
 | _                       := none
 
+meta def is_lambda : expr → bool
+| (lam _ _ _ _) := tt
+| e             := ff
+
 meta def is_pi : expr → bool
 | (pi _ _ _ _) := tt
 | e            := ff
@@ -367,6 +371,10 @@ meta def binding_body : expr → expr
 | (pi _ _ _ b)  := b
 | (lam _ _ _ b) := b
 | e             := e
+
+meta def is_macro : expr → bool
+| (macro d a) := tt
+| e           := ff
 
 meta def is_numeral : expr → bool
 | `(@has_zero.zero %%α %%s)  := tt

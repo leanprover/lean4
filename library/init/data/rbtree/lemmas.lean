@@ -11,6 +11,25 @@ universes u v
 /- TODO(Leo): remove after we cleanup stdlib simp lemmas -/
 local attribute [-simp] or.comm or.left_comm or.assoc
 
+namespace tactic
+/- TODO(Leo): move blast_disjs to another file. -/
+private meta def blast_disjs_aux : list expr → tactic unit
+| []      := failed
+| (h::hs) := do
+  t ← infer_type h,
+  if t.is_or = none then blast_disjs_aux hs
+  else do
+    cases h [h.local_pp_name, h.local_pp_name],
+    return ()
+
+namespace interactive
+
+meta def blast_disjs : tactic unit :=
+focus1 $ repeat $ any_goals $ local_context >>= blast_disjs_aux
+
+end interactive
+end tactic
+
 namespace rbnode
 variables {α : Type u} {β : Type v}
 
@@ -62,8 +81,8 @@ begin simp [lift], intros, assumption end
 
 inductive is_searchable (lt : α → α → Prop) : rbnode α → option α → option α → Prop
 | leaf_s  {lo hi}       : lift lt lo hi → is_searchable leaf lo hi
-| red_s   {l r v lo hi} : is_searchable l lo (some v) → is_searchable r (some v) hi → is_searchable (red_node l v r) lo hi
-| black_s {l r v lo hi} : is_searchable l lo (some v) → is_searchable r (some v) hi → is_searchable (black_node l v r) lo hi
+| red_s   {l r v lo hi} (hs₁ : is_searchable l lo (some v)) (hs₂ : is_searchable r (some v) hi) : is_searchable (red_node l v r) lo hi
+| black_s {l r v lo hi} (hs₁ : is_searchable l lo (some v)) (hs₂ : is_searchable r (some v) hi) : is_searchable (black_node l v r) lo hi
 
 open rbnode (mem)
 open is_searchable
@@ -89,8 +108,7 @@ begin
     simp only [mem] at h₂,
     have val_hi : lift lt (some val) hi, { apply lo_lt_hi, assumption },
     have lo_val : lift lt lo (some val), { apply lo_lt_hi, assumption },
-    -- blast disjuctions
-    repeat { any_goals { cases h₂ with h₂ h₂ } },
+    blast_disjs,
     {
       have h₃ : lift lt lo (some x) ∧ lift lt (some x) (some val), { apply ih_1, assumption, assumption },
       cases h₃ with lo_x x_val,
@@ -114,8 +132,81 @@ begin
   }
 end
 
--- TODO(Leo)
--- lemma contains_correct {t : rbnode α} {lt} [decidable_rel lt] [is_strict_weak_order α lt] : ∀ {lo hi x}, is_searchable lt t lo hi → (mem lt x t ↔ contains lt t x = tt) :=
+@[elab_simple]
+lemma contains.induction {p : rbnode α → Prop} (lt) [decidable_rel lt]
+   (t x)
+   (h₁ : p leaf)
+   (h₂ : ∀ l y r (h : cmp_using lt x y = ordering.lt) (ih : p l), p (red_node l y r))
+   (h₃ : ∀ l y r (h : cmp_using lt x y = ordering.eq),            p (red_node l y r))
+   (h₄ : ∀ l y r (h : cmp_using lt x y = ordering.gt) (ih : p r), p (red_node l y r))
+   (h₅ : ∀ l y r (h : cmp_using lt x y = ordering.lt) (ih : p l), p (black_node l y r))
+   (h₆ : ∀ l y r (h : cmp_using lt x y = ordering.eq),            p (black_node l y r))
+   (h₇ : ∀ l y r (h : cmp_using lt x y = ordering.gt) (ih : p r), p (black_node l y r))
+   : p t :=
+begin
+  induction t,
+  case leaf {assumption},
+  case red_node l y r {
+     generalize h : cmp_using lt x y = c,
+     cases c,
+     case ordering.lt { apply h₂, assumption, assumption },
+     case ordering.eq { apply h₃, assumption },
+     case ordering.gt { apply h₄, assumption, assumption },
+  },
+  case black_node l y r {
+     generalize h : cmp_using lt x y = c,
+     cases c,
+     case ordering.lt { apply h₅, assumption, assumption },
+     case ordering.eq { apply h₆, assumption },
+     case ordering.gt { apply h₇, assumption, assumption },
+  }
+end
+
+lemma contains_correct {t : rbnode α} {lt x} [decidable_rel lt] [is_strict_weak_order α lt] : ∀ {lo hi} (hs : is_searchable lt t lo hi), mem lt x t ↔ contains lt t x = tt :=
+begin
+  apply contains.induction lt t x; intros; simp only [mem, contains, *],
+  { simp },
+  any_goals {
+    /- Solve minor premises h₂ and h₅ -/
+    cases hs,
+    apply iff.intro,
+    {
+      intro hm, blast_disjs,
+      { exact iff.mp (ih hs₁) hm },
+      { contradiction },
+      {
+        have hyx : lift lt (some y) (some x) := (range hs₂ hm).1,
+        simp [lift] at hyx,
+        have hxy : lt x y, { simp [cmp_using] at h, assumption },
+        exact absurd (trans_of lt hxy hyx) (irrefl_of lt x)
+      }
+    },
+    { intro hc, left, exact iff.mpr (ih hs₁) hc },
+    done
+ },
+ any_goals {
+    /- Solve minor premises h₃ and h₆ -/
+    simp, done
+ },
+ any_goals {
+   /- Solve minor premises h₄ and h₇ -/
+   cases hs,
+   apply iff.intro,
+   {
+     intro hm, blast_disjs,
+     {
+       have hxy : lift lt (some x) (some y) := (range hs₁ hm).2,
+       simp [lift] at hxy,
+       have hyx : lt y x, { simp [cmp_using] at h, exact h.1 },
+       exact absurd (trans_of lt hxy hyx) (irrefl_of lt x)
+     },
+     { contradiction },
+     { exact iff.mp (ih hs₂) hm }
+   },
+   { intro hc, right, right, exact iff.mpr (ih hs₂) hc },
+   done
+ }
+end
 
 inductive is_red_black : rbnode α → color → nat → Prop
 | leaf_rb  : is_red_black leaf black 0
@@ -218,7 +309,7 @@ section insert
 variables (lt : α → α → Prop) [decidable_rel lt]
 
 @[elab_as_eliminator]
-lemma ins.induction_on {p : rbnode α → Prop}
+lemma ins.induction {p : rbnode α → Prop}
   (t x)
   (h₁ : p leaf)
   (h₂ : ∀ a y b, cmp_using lt x y = ordering.lt → p a → p (red_node a y b))
@@ -276,15 +367,13 @@ begin
     intro h,
     simp [balance1_node], cases l; cases r,
     any_goals { simp [*, rbnode.mem, balance1] at * },
-    repeat { any_goals {cases h with h h} },
-    any_goals { simp [*] }
+    all_goals { blast_disjs; simp [*] }
   },
   case black_node l v r {
     intro h,
     simp [balance1_node], cases l; cases r,
     any_goals { simp [*, rbnode.mem, balance1] at * },
-    repeat { any_goals {cases h with h h} },
-    any_goals { simp [*] }
+    all_goals { blast_disjs; simp [*] }
   }
 end
 
@@ -296,21 +385,19 @@ begin
     intro h,
     simp [balance2_node], cases l; cases r,
     any_goals { simp [*, rbnode.mem, balance2] at * },
-    repeat { any_goals {cases h with h h} },
-    any_goals { simp [*] }
+    all_goals { blast_disjs; simp [*] }
   },
   case black_node l v r {
     intro h,
     simp [balance2_node], cases l; cases r,
     any_goals { simp [*, rbnode.mem, balance2] at * },
-    repeat { any_goals {cases h with h h} },
-    any_goals { simp [*] }
+    all_goals { blast_disjs; simp [*] }
   }
 end
 
 lemma ins_ne_leaf (t : rbnode α) (x : α) : t.ins lt x ≠ leaf :=
 begin
-  refine ins.induction_on lt t x _ _ _ _ _ _ _ _ _,
+  apply ins.induction lt t x,
   any_goals { intros, simp [ins, *], contradiction},
   { intros, simp [ins, *], apply balance1_node_ne_leaf, assumption },
   { intros, simp [ins, *], apply balance2_node_ne_leaf, assumption },
@@ -318,7 +405,7 @@ end
 
 lemma mem_ins [is_irrefl α lt] (t : rbnode α) (x : α) : x ∈ t.ins lt x :=
 begin
-  refine ins.induction_on lt t x _ _ _ _ _ _ _ _ _,
+  apply ins.induction lt t x,
   { simp [ins, rbnode.mem], apply irrefl },
   any_goals { intros, simp [ins, rbnode.mem, *] },
   any_goals { right, left, apply irrefl },

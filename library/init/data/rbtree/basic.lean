@@ -111,7 +111,7 @@ def contains : rbnode α → α → bool
   | ordering.gt := contains b x
   end
 
-protected def mem : α → rbnode α → Prop
+def mem : α → rbnode α → Prop
 | a leaf               := false
 | a (red_node l v r)   := mem a l ∨ cmp_using lt a v = ordering.eq  ∨ mem a r
 | a (black_node l v r) := mem a l ∨ cmp_using lt a v = ordering.eq  ∨ mem a r

@@ -352,42 +352,42 @@ lemma is_searchable_of_is_searchable_of_incomp [is_strict_weak_order α lt] {t} 
 begin
   induction t; intros; is_searchable_tactic,
   { cases lo; simp [lift, *] at *, apply lt_of_lt_of_incomp, assumption, assumption },
-  twice { apply ih_2 hc hs₂ }
+  all_goals { apply ih_2 hc hs₂ }
 end
 
 lemma is_searchable_of_incomp_of_is_searchable [is_strict_weak_order α lt] {t} : ∀ {lo lo' hi} (hc : ¬ lt lo' lo ∧ ¬ lt lo lo') (hs : is_searchable lt t (some lo) hi), is_searchable lt t (some lo') hi :=
 begin
   induction t; intros; is_searchable_tactic,
   { cases hi; simp [lift, *] at *, cases hc, apply lt_of_incomp_of_lt, split, assumption, assumption, assumption },
-  twice { apply ih_1 hc hs₁ }
+  all_goals { apply ih_1 hc hs₁ }
 end
 
 lemma is_searchable_some_low_of_is_searchable_of_lt {t} [is_trans α lt] : ∀ {lo hi lo'} (hlt : lt lo' lo) (hs : is_searchable lt t (some lo) hi), is_searchable lt t (some lo') hi :=
 begin
   induction t; intros; is_searchable_tactic,
   { cases hi; simp [lift, *] at *, apply trans_of lt hlt, assumption },
-  twice { apply ih_1 hlt hs₁ }
+  all_goals { apply ih_1 hlt hs₁ }
 end
 
 lemma is_searchable_none_low_of_is_searchable_some_low {t} : ∀ {y hi} (hlt : is_searchable lt t (some y) hi), is_searchable lt t none hi :=
 begin
   induction t; intros; is_searchable_tactic,
   { simp [lift] },
-  twice { apply ih_1 hs₁ }
+  all_goals { apply ih_1 hs₁ }
 end
 
 lemma is_searchable_some_high_of_is_searchable_of_lt {t} [is_trans α lt] : ∀ {lo hi hi'} (hlt : lt hi hi') (hs : is_searchable lt t lo (some hi)), is_searchable lt t lo (some hi') :=
 begin
   induction t; intros; is_searchable_tactic,
   { cases lo; simp [lift, *] at *, apply trans_of lt, assumption, assumption},
-  twice { apply ih_2 hlt hs₂ }
+  all_goals { apply ih_2 hlt hs₂ }
 end
 
 lemma is_searchable_none_high_of_is_searchable_some_high {t} : ∀ {lo y} (hlt : is_searchable lt t lo (some y)), is_searchable lt t lo none :=
 begin
   induction t; intros; is_searchable_tactic,
   { cases lo; simp [lift] },
-  twice { apply ih_2 hs₂ }
+  all_goals { apply ih_2 hs₂ }
 end
 
 lemma is_searchable_balance1 {l y r v t lo hi} (hl : is_searchable lt l lo (some y)) (hr : is_searchable lt r (some y) (some v)) (ht : is_searchable lt t (some v) hi) : is_searchable lt (balance1 l y r v t) lo hi :=
@@ -399,7 +399,7 @@ begin
   { cases lo,
     { apply is_searchable_none_low_of_is_searchable_some_low, assumption },
     { simp [lift] at *, apply is_searchable_some_low_of_is_searchable_of_lt, assumption, assumption } },
-  twice { apply is_searchable_balance1, repeat { assumption } }
+  all_goals { apply is_searchable_balance1, repeat { assumption } }
 end
 
 lemma is_searchable_balance2 {l y r v t lo hi} (ht : is_searchable lt t lo (some v)) (hl : is_searchable lt l (some v) (some y)) (hr : is_searchable lt r (some y) hi) : is_searchable lt (balance2 l y r v t) lo hi :=
@@ -411,7 +411,7 @@ begin
   { cases hi,
     { apply is_searchable_none_high_of_is_searchable_some_high, assumption },
     { simp [lift] at *, apply is_searchable_some_high_of_is_searchable_of_lt, assumption, assumption } },
-  twice { apply is_searchable_balance2, repeat { assumption } }
+  all_goals { apply is_searchable_balance2, repeat { assumption } }
 end
 
 lemma is_searchable_ins {t x} [is_strict_weak_order α lt] : ∀ {lo hi} (h : is_searchable lt t lo hi), lift lt lo (some x) → lift lt (some x) hi → is_searchable lt (ins lt t x) lo hi :=
@@ -457,42 +457,58 @@ namespace rbnode
 section membership_lemmas
 parameters {α : Type u} (lt : α → α → Prop) [decidable_rel lt]
 
-local infix `∈` := rbnode.mem lt
+local infix `∈` := mem lt
 
-lemma mem_balance1_node {x s} (v) (t : rbnode α) : x ∈ s → x ∈ balance1_node s v t :=
+lemma mem_balance1_node_of_mem_left {x s} (v) (t : rbnode α) : x ∈ s → x ∈ balance1_node s v t :=
 begin
   cases s,
-  case leaf { simp [rbnode.mem] },
-  case red_node l v r {
+  { simp [mem] },
+  all_goals {
     intro h,
-    simp [balance1_node], cases l; cases r,
-    any_goals { simp [*, rbnode.mem, balance1] at * },
-    all_goals { blast_disjs; simp [*] }
-  },
-  case black_node l v r {
-    intro h,
-    simp [balance1_node], cases l; cases r,
-    any_goals { simp [*, rbnode.mem, balance1] at * },
+    simp [balance1_node], cases lchild; cases rchild,
+    any_goals { simp [*, mem, balance1] at * },
     all_goals { blast_disjs; simp [*] }
   }
 end
 
-lemma mem_balance2_node {x s} (v) (t : rbnode α) : x ∈ s → x ∈ balance2_node s v t :=
+lemma mem_balance2_node_of_mem_left {x s} (v) (t : rbnode α) : x ∈ s → x ∈ balance2_node s v t :=
 begin
   cases s,
-  case leaf { simp [rbnode.mem] },
-  case red_node l v r {
+  { simp [mem] },
+  all_goals {
     intro h,
-    simp [balance2_node], cases l; cases r,
-    any_goals { simp [*, rbnode.mem, balance2] at * },
-    all_goals { blast_disjs; simp [*] }
-  },
-  case black_node l v r {
-    intro h,
-    simp [balance2_node], cases l; cases r,
-    any_goals { simp [*, rbnode.mem, balance2] at * },
+    simp [balance2_node], cases lchild; cases rchild,
+    any_goals { simp [*, mem, balance2] at * },
     all_goals { blast_disjs; simp [*] }
   }
+end
+
+lemma mem_balance1_node_of_mem_right {x t} (v) (s : rbnode α) : x ∈ t → x ∈ balance1_node s v t :=
+begin
+  intros, cases s,
+  { simp [mem, balance1_node, *] },
+  all_goals { simp [balance1_node], cases lchild; cases rchild; simp [*, mem, balance1] }
+end
+
+lemma mem_balance2_node_of_mem_right {x t} (v) (s : rbnode α) : x ∈ t → x ∈ balance2_node s v t :=
+begin
+  intros, cases s,
+  { simp [mem, balance2_node, *] },
+  all_goals { simp [balance2_node], cases lchild; cases rchild; simp [*, mem, balance2] }
+end
+
+lemma mem_balance1_node_of_incomp {x v} (s t) : (¬ lt x v ∧ ¬ lt v x) → s ≠ leaf → x ∈ balance1_node s v t :=
+begin
+  intros, cases s,
+  case leaf { contradiction },
+  all_goals { simp [balance1_node], cases lchild; cases rchild; simp [*, mem, balance1] }
+end
+
+lemma mem_balance2_node_of_incomp {x v} (s t) : (¬ lt v x ∧ ¬ lt x v) → s ≠ leaf → x ∈ balance2_node s v t :=
+begin
+  intros, cases s,
+  case leaf { contradiction },
+  all_goals { simp [balance2_node], cases lchild; cases rchild; simp [*, mem, balance2] }
 end
 
 lemma ins_ne_leaf (t : rbnode α) (x : α) : t.ins lt x ≠ leaf :=
@@ -506,30 +522,38 @@ end
 lemma mem_ins [is_irrefl α lt] (t : rbnode α) (x : α) : x ∈ t.ins lt x :=
 begin
   apply ins.induction lt t x,
-  { simp [ins, rbnode.mem], apply irrefl },
-  any_goals { intros, simp [ins, rbnode.mem, *] },
-  any_goals { right, left, apply irrefl },
-  { apply mem_balance1_node, assumption },
-  { apply mem_balance2_node, assumption }
+  { simp [ins, mem], apply irrefl },
+  any_goals { intros, simp [ins, mem, *] },
+  any_goals { simp [irrefl_of lt x] },
+  { apply mem_balance1_node_of_mem_left, assumption },
+  { apply mem_balance2_node_of_mem_left, assumption }
 end
 
-lemma mem_black_node_of_mem_red_node {l r : rbnode α} {v a : α} : a ∈ red_node l v r → a ∈ black_node l v r :=
-λ h, h
+lemma mem_ins_of_mem [is_strict_weak_order α lt] {t : rbnode α} (z : α) : ∀ {x} (h : x ∈ t), x ∈ t.ins lt z :=
+begin
+  apply ins.induction lt t z; intros,
+  { simp [mem, ins] at h, contradiction },
+  all_goals { simp [ins, mem, *] at *, blast_disjs },
+  any_goals { simp [h] },
+  any_goals { simp [ih h] },
+  { have := incomp_trans_of lt hc h, simp [this] },
+  { apply mem_balance1_node_of_mem_left, apply ih h },
+  { have := ins_ne_leaf lt a z, apply mem_balance1_node_of_incomp, cases h, all_goals { simp [*] } },
+  { apply mem_balance1_node_of_mem_right, assumption },
+  { have := incomp_trans_of lt hc h, simp [this] },
+  { apply mem_balance2_node_of_mem_right, assumption },
+  { have := ins_ne_leaf lt a z, apply mem_balance2_node_of_incomp, cases h, simp [*], apply ins_ne_leaf },
+  { apply mem_balance2_node_of_mem_left, apply ih h }
+end
+
+lemma mem_flip_red {a t} : mem lt a t → mem lt a (flip_red t) :=
+by intros; cases t; simp [flip_red, mem, *] at *
 
 lemma mem_insert [is_irrefl α lt] : ∀ (a : α) (t : rbnode α), a ∈ t.insert lt a :=
-begin
-  intros a t,
-  simp [insert],
-  have h : ins lt t a ≠ leaf, { apply ins_ne_leaf },
-  generalize he : ins lt t a = r,
-  cases r; simp [flip_red, insert],
-  case leaf { contradiction },
-  case black_node { rw [←he], apply mem_ins },
-  case red_node {
-    have : a ∈ red_node lchild val rchild, { rw [←he], apply mem_ins },
-    apply mem_black_node_of_mem_red_node, assumption
-  }
-end
+by intros; apply mem_flip_red; apply mem_ins
+
+lemma mem_insert_of_mem [is_strict_weak_order α lt] {t x} (z) : x ∈ t → x ∈ t.insert lt z :=
+by intros; apply mem_flip_red; apply mem_ins_of_mem; assumption
 
 end membership_lemmas
 
@@ -538,8 +562,18 @@ end rbnode
 namespace rbtree
 variables {α : Type u} {lt : α → α → Prop} [decidable_rel lt]
 
+lemma not_mem_mk_rbtree : ∀ (a : α), a ∉ mk_rbtree α lt :=
+by simp [has_mem.mem, rbtree.mem, rbnode.mem, mk_rbtree]
+
 lemma mem_insert [is_irrefl α lt] : ∀ (a : α) (t : rbtree α lt), a ∈ t.insert a
 | a ⟨t, _⟩ := t.mem_insert lt a
+
+lemma mem_insert_of_mem [is_strict_weak_order α lt] {a : α} {t : rbtree α lt} (b : α) : a ∈ t → a ∈ t.insert b :=
+begin
+  cases t,
+  simp [has_mem.mem, rbtree.mem, contains],
+  apply rbnode.mem_insert_of_mem
+end
 
 lemma contains_correct [is_strict_weak_order α lt] (a : α) (t : rbtree α lt) : a ∈ t ↔ (t.contains a = tt) :=
 begin

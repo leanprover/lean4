@@ -273,12 +273,12 @@ end
 
 lemma balance1_rb {l r t : rbnode α} {y v : α} {c_l c_r c_t n} : is_red_black l c_l n → is_red_black r c_r n → is_red_black t c_t n → ∃ c, is_red_black (balance1 l y r v t) c (succ n) :=
 begin
-  intros h₁ h₂ h₃, cases h₁; cases h₂; repeat {assumption <|> constructor},
+  intros h₁ h₂ h₃, cases h₁; cases h₂; repeat { assumption <|> constructor },
 end
 
 lemma balance2_rb {l r t : rbnode α} {y v : α} {c_l c_r c_t n} : is_red_black l c_l n → is_red_black r c_r n → is_red_black t c_t n → ∃ c, is_red_black (balance2 l y r v t) c (succ n) :=
 begin
-  intros h₁ h₂ h₃, cases h₁; cases h₂; repeat {assumption <|> constructor},
+  intros h₁ h₂ h₃, cases h₁; cases h₂; repeat { assumption <|> constructor },
 end
 
 lemma balance1_ne_leaf (l : rbnode α) (x r v t) : balance1 l x r v t ≠ leaf :=
@@ -286,11 +286,9 @@ by cases l; cases r; simp [balance1]; intro; contradiction
 
 lemma balance1_node_ne_leaf {s : rbnode α} (a : α) (t : rbnode α) : s ≠ leaf → balance1_node s a t ≠ leaf :=
 begin
-  intro h,
-  induction s,
-  case leaf       { contradiction},
-  case red_node   { simp [balance1_node], apply balance1_ne_leaf },
-  case black_node { simp [balance1_node], apply balance1_ne_leaf }
+  intro h, cases s,
+  { contradiction },
+  all_goals { simp [balance1_node], apply balance1_ne_leaf }
 end
 
 lemma balance2_ne_leaf (l : rbnode α) (x r v t) : balance2 l x r v t ≠ leaf :=
@@ -298,11 +296,9 @@ by cases l; cases r; simp [balance2]; intro; contradiction
 
 lemma balance2_node_ne_leaf {s : rbnode α} (a : α) (t : rbnode α) : s ≠ leaf → balance2_node s a t ≠ leaf :=
 begin
-  intro h,
-  induction s,
-  case leaf       { contradiction},
-  case red_node   { simp [balance2_node], apply balance2_ne_leaf },
-  case black_node { simp [balance2_node], apply balance2_ne_leaf }
+  intro h, cases s,
+  { contradiction },
+  all_goals { simp [balance2_node], apply balance2_ne_leaf }
 end
 
 section insert
@@ -549,11 +545,42 @@ end
 lemma mem_flip_red {a t} : mem lt a t → mem lt a (flip_red t) :=
 by intros; cases t; simp [flip_red, mem, *] at *
 
+lemma mem_of_mem_flip_red {a t} : mem lt a (flip_red t) → mem lt a t :=
+by cases t; simp [flip_red, mem]; intros; assumption
+
 lemma mem_insert [is_irrefl α lt] : ∀ (a : α) (t : rbnode α), a ∈ t.insert lt a :=
 by intros; apply mem_flip_red; apply mem_ins
 
 lemma mem_insert_of_mem [is_strict_weak_order α lt] {t x} (z) : x ∈ t → x ∈ t.insert lt z :=
 by intros; apply mem_flip_red; apply mem_ins_of_mem; assumption
+
+lemma of_mem_balance1_node [is_strict_weak_order α lt] {x s v t} : x ∈ balance1_node s v t → x ∈ s ∨ (¬ lt x v ∧ ¬ lt v x) ∨ x ∈ t :=
+begin
+  cases s,
+  { simp [mem, balance1_node], intros, simp [*] },
+  all_goals { cases lchild; cases rchild; simp [mem, balance1, balance1_node]; intros; blast_disjs; simp [*] }
+end
+
+lemma of_mem_balance2_node [is_strict_weak_order α lt] {x s v t} : x ∈ balance2_node s v t → x ∈ s ∨ (¬ lt x v ∧ ¬ lt v x) ∨ x ∈ t :=
+begin
+  cases s,
+  { simp [mem, balance2_node], intros, simp [*] },
+  all_goals { cases lchild; cases rchild; simp [mem, balance2, balance2_node]; intros; blast_disjs; simp [*] }
+end
+
+lemma equiv_or_mem_of_mem_ins [is_strict_weak_order α lt] {t : rbnode α} {x z} : ∀ (h : x ∈ t.ins lt z), x ≈[lt] z ∨ x ∈ t :=
+begin
+  apply ins.induction lt t z; intros; simp [mem, ins, strict_weak_order.equiv, *] at *; blast_disjs,
+  any_goals { simp [h] },
+  any_goals { have ih := ih h, cases ih; simp [*], done },
+  { have h := of_mem_balance1_node lt h, blast_disjs, have ih := ih h, blast_disjs, all_goals { simp [*] } },
+  { have h := of_mem_balance2_node lt h, blast_disjs, have ih := ih h, blast_disjs, all_goals { simp [*] } }
+end
+
+lemma equiv_or_mem_of_mem_insert [is_strict_weak_order α lt] {t : rbnode α} {x z} : ∀ (h : x ∈ t.insert lt z), x ≈[lt] z ∨ x ∈ t :=
+begin
+  simp [insert], intros, apply equiv_or_mem_of_mem_ins, have h := mem_of_mem_flip_red lt h, assumption
+end
 
 end membership_lemmas
 
@@ -573,6 +600,26 @@ begin
   cases t,
   simp [has_mem.mem, rbtree.mem, contains],
   apply rbnode.mem_insert_of_mem
+end
+
+lemma equiv_or_mem_of_mem_insert [is_strict_weak_order α lt] {a b : α} {t : rbtree α lt} : a ∈ t.insert b → a ≈[lt] b ∨ a ∈ t :=
+begin
+  cases t,
+  simp [has_mem.mem, rbtree.mem, insert, contains],
+  apply rbnode.equiv_or_mem_of_mem_insert
+end
+
+lemma incomp_or_mem_of_mem_ins [is_strict_weak_order α lt] {a b : α} {t : rbtree α lt} : a ∈ t.insert b → (¬ lt a b ∧ ¬ lt b a) ∨ a ∈ t :=
+equiv_or_mem_of_mem_insert
+
+lemma eq_or_mem_of_mem_ins [is_strict_weak_order α lt] [is_trichotomous α lt] {a b : α} {t : rbtree α lt} : a ∈ t.insert b → a = b ∨ a ∈ t :=
+begin
+  intro h,
+  have h₁ := incomp_or_mem_of_mem_ins h,
+  have h₂ := trichotomous_of lt a b,
+  blast_disjs,
+  any_goals { simp [*] },
+  all_goals { cases h₁, contradiction }
 end
 
 lemma contains_correct [is_strict_weak_order α lt] (a : α) (t : rbtree α lt) : a ∈ t ↔ (t.contains a = tt) :=

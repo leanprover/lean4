@@ -83,12 +83,12 @@ def ins : rbnode α → α → rbnode α
       else black_node a y (ins b x)
     end
 
+def flip_red : rbnode α → rbnode α
+| (red_node l v r) := black_node l v r
+| t                := t
+
 def insert (t : rbnode α) (x : α) : rbnode α :=
-let r := ins lt t x in
-match r with
-| red_node l v r := black_node l v r
-| _              := r
-end
+flip_red (ins lt t x)
 
 end insert
 
@@ -120,7 +120,7 @@ end membership
 
 inductive well_formed (lt : α → α → Prop) : rbnode α → Prop
 | leaf_wff : well_formed leaf
-| insert_wff {n : rbnode α} (x : α) [decidable_rel lt] : well_formed n → well_formed (insert lt n x)
+| insert_wff {n n' : rbnode α} {x : α} [decidable_rel lt] : well_formed n → n' = insert lt n x → well_formed n'
 
 end rbnode
 
@@ -141,7 +141,7 @@ def to_list : rbtree α lt → list α
 | ⟨t, _⟩ := t.rev_fold (::) []
 
 def insert : rbtree α lt → α → rbtree α lt
-| ⟨t, w⟩   x := ⟨t.insert lt x, well_formed.insert_wff x w⟩
+| ⟨t, w⟩   x := ⟨t.insert lt x, well_formed.insert_wff w rfl⟩
 
 def contains : rbtree α lt → α → bool
 | ⟨t, _⟩ x := t.contains lt x

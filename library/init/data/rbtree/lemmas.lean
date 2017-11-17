@@ -612,7 +612,7 @@ end
 lemma incomp_or_mem_of_mem_ins [is_strict_weak_order α lt] {a b : α} {t : rbtree α lt} : a ∈ t.insert b → (¬ lt a b ∧ ¬ lt b a) ∨ a ∈ t :=
 equiv_or_mem_of_mem_insert
 
-lemma eq_or_mem_of_mem_ins [is_strict_weak_order α lt] [is_trichotomous α lt] {a b : α} {t : rbtree α lt} : a ∈ t.insert b → a = b ∨ a ∈ t :=
+lemma eq_or_mem_of_mem_ins [is_strict_total_order α lt] {a b : α} {t : rbtree α lt} : a ∈ t.insert b → a = b ∨ a ∈ t :=
 begin
   intro h,
   have h₁ := incomp_or_mem_of_mem_ins h,

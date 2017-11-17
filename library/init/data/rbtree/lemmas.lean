@@ -541,4 +541,13 @@ variables {α : Type u} {lt : α → α → Prop} [decidable_rel lt]
 lemma mem_insert [is_irrefl α lt] : ∀ (a : α) (t : rbtree α lt), a ∈ t.insert a
 | a ⟨t, _⟩ := t.mem_insert lt a
 
+lemma contains_correct [is_strict_weak_order α lt] (a : α) (t : rbtree α lt) : a ∈ t ↔ (t.contains a = tt) :=
+begin
+  cases t,
+  simp [has_mem.mem, rbtree.mem, contains],
+  apply rbnode.contains_correct,
+  apply rbnode.is_searchable_of_well_formed,
+  assumption
+end
+
 end rbtree

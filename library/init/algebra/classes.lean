@@ -109,6 +109,9 @@ instance is_total_preorder_is_preorder (α : Type u) (r : α → α → Prop) [s
 
 @[algebra] class is_strict_weak_order (α : Type u) (lt : α → α → Prop) extends is_strict_order α lt, is_incomp_trans α lt : Prop.
 
+@[algebra] class is_trichotomous (α : Type u) (lt : α → α → Prop) : Prop :=
+(trichotomous : ∀ a b, lt a b ∨ a = b ∨ lt b a)
+
 instance eq_is_equiv (α : Type u) : is_equiv α (=) :=
 {symm := @eq.symm _, trans := @eq.trans _, refl := eq.refl}
 
@@ -133,6 +136,9 @@ is_antisymm.antisymm _ _
 
 lemma asymm [is_asymm α r] {a b : α} : a ≺ b → ¬ b ≺ a :=
 is_asymm.asymm _ _
+
+lemma trichotomous [is_trichotomous α r] : ∀ (a b : α), a ≺ b ∨ a = b ∨ b ≺ a :=
+is_trichotomous.trichotomous r
 
 lemma incomp_trans [is_incomp_trans α r] {a b c : α} : (¬ a ≺ b ∧ ¬ b ≺ a) → (¬ b ≺ c ∧ ¬ c ≺ b) → (¬ a ≺ c ∧ ¬ c ≺ a) :=
 is_incomp_trans.incomp_trans _ _ _
@@ -161,6 +167,9 @@ lemma asymm_of [is_asymm α r] {a b : α} : a ≺ b → ¬ b ≺ a := asymm
 @[elab_simple]
 lemma total_of [is_total α r] (a b : α) : a ≺ b ∨ b ≺ a :=
 is_total.total _ _ _
+
+@[elab_simple]
+lemma trichotomous_of [is_trichotomous α r] : ∀ (a b : α), a ≺ b ∨ a = b ∨ b ≺ a := trichotomous
 
 @[elab_simple]
 lemma incomp_trans_of [is_incomp_trans α r] {a b c : α} : (¬ a ≺ b ∧ ¬ b ≺ a) → (¬ b ≺ c ∧ ¬ c ≺ b) → (¬ a ≺ c ∧ ¬ c ≺ a) := incomp_trans

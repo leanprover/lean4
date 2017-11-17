@@ -9,7 +9,7 @@ import init.data.rbtree.basic init.meta init.data.nat
 universes u v
 
 /- TODO(Leo): remove after we cleanup stdlib simp lemmas -/
-local attribute [-simp] or.comm or.left_comm or.assoc
+local attribute [-simp] or.comm or.left_comm or.assoc and.comm and.left_comm and.assoc
 
 namespace tactic
 /- TODO(Leo): move blast_disjs and twice to another file. -/
@@ -51,8 +51,8 @@ begin
   case leaf { cases h, assumption },
   all_goals {
     cases h,
-    have h₁ := ih_1 ‹is_searchable lt lchild lo (some val)›,
-    have h₂ := ih_2 ‹is_searchable lt rchild (some val) hi›,
+    have h₁ := ih_1 hs₁,
+    have h₂ := ih_2 hs₂,
     cases lo with lo; cases hi with hi; simp [lift] at *,
     apply trans_of lt h₁ h₂,
   }
@@ -84,8 +84,8 @@ begin
       { apply lt_of_incomp_of_lt _ val_hi, simp [*] },
       { apply lt_of_lt_of_incomp lo_val, simp [*] },
       split,
-      { apply lt_of_incomp_of_lt _ val_hi, simp [*] },
-      { apply lt_of_lt_of_incomp lo_val, simp [*] }
+      { apply lt_of_lt_of_incomp lo_val, simp [*] },
+      { apply lt_of_incomp_of_lt _ val_hi, simp [*] }
     },
     {
       have h₃ : lift lt (some val) (some x) ∧ lift lt (some x) hi, { apply ih_2, assumption, assumption },
@@ -94,8 +94,8 @@ begin
       { assumption },
       { apply trans_of lt lo_val val_x },
       split,
-      { assumption },
-      { apply trans_of lt lo_val val_x, }
+      { apply trans_of lt lo_val val_x, },
+      { assumption }
     }
   }
 end
@@ -160,7 +160,7 @@ begin
         {
           have hxy : lift lt (some x) (some y) := (range hs₁ hm).2,
           simp [lift] at hxy,
-          have hyx : lt y x, { simp [cmp_using] at h, exact h.1 },
+          have hyx : lt y x, { simp [cmp_using] at h, exact h.2 },
           exact absurd (trans_of lt hxy hyx) (irrefl_of lt x)
         },
         { contradiction },
@@ -342,14 +342,14 @@ end
 lemma is_searchable_of_is_searchable_of_incomp [is_strict_weak_order α lt] {t} : ∀ {lo hi hi'} (hc : ¬ lt hi' hi ∧ ¬ lt hi hi') (hs : is_searchable lt t lo (some hi)), is_searchable lt t lo (some hi') :=
 begin
   induction t; intros; is_searchable_tactic,
-  { cases lo; simp [lift, *] at *, apply lt_of_lt_of_incomp, assumption, assumption },
+  { cases lo; simp [lift, *] at *, apply lt_of_lt_of_incomp, assumption, exact ⟨hc.2, hc.1⟩ },
   all_goals { apply ih_2 hc hs₂ }
 end
 
 lemma is_searchable_of_incomp_of_is_searchable [is_strict_weak_order α lt] {t} : ∀ {lo lo' hi} (hc : ¬ lt lo' lo ∧ ¬ lt lo lo') (hs : is_searchable lt t (some lo) hi), is_searchable lt t (some lo') hi :=
 begin
   induction t; intros; is_searchable_tactic,
-  { cases hi; simp [lift, *] at *, cases hc, apply lt_of_incomp_of_lt, split, assumption, assumption, assumption },
+  { cases hi; simp [lift, *] at *, apply lt_of_incomp_of_lt, assumption, assumption },
   all_goals { apply ih_1 hc hs₁ }
 end
 
@@ -527,11 +527,11 @@ begin
   all_goals { simp [ins, mem, *] at *, blast_disjs },
   any_goals { simp [h] },
   any_goals { simp [ih h] },
-  { have := incomp_trans_of lt hc h, simp [this] },
+  { have := incomp_trans_of lt h ⟨hc.2, hc.1⟩, simp [this] },
   { apply mem_balance1_node_of_mem_left, apply ih h },
   { have := ins_ne_leaf lt a z, apply mem_balance1_node_of_incomp, cases h, all_goals { simp [*] } },
   { apply mem_balance1_node_of_mem_right, assumption },
-  { have := incomp_trans_of lt hc h, simp [this] },
+  { have := incomp_trans_of lt hc ⟨h.2, h.1⟩, simp [this] },
   { apply mem_balance2_node_of_mem_right, assumption },
   { have := ins_ne_leaf lt a z, apply mem_balance2_node_of_incomp, cases h, simp [*], apply ins_ne_leaf },
   { apply mem_balance2_node_of_mem_left, apply ih h }
@@ -568,13 +568,13 @@ begin
   apply ins.induction lt t z; intros; simp [mem, ins, strict_weak_order.equiv, *] at *; blast_disjs,
   any_goals { simp [h] },
   any_goals { have ih := ih h, cases ih; simp [*], done },
-  { have h := of_mem_balance1_node lt h, blast_disjs, have ih := ih h, blast_disjs, all_goals { simp [*] } },
-  { have h := of_mem_balance2_node lt h, blast_disjs, have ih := ih h, blast_disjs, all_goals { simp [*] } }
+  { have h := of_mem_balance1_node lt h, blast_disjs, have := ih h, blast_disjs, all_goals { simp [*] } },
+  { have h := of_mem_balance2_node lt h, blast_disjs, have := ih h, blast_disjs, all_goals { simp [*] } }
 end
 
 lemma equiv_or_mem_of_mem_insert [is_strict_weak_order α lt] {t : rbnode α} {x z} : ∀ (h : x ∈ t.insert lt z), x ≈[lt] z ∨ x ∈ t :=
 begin
-  simp [insert], intros, apply equiv_or_mem_of_mem_ins, have h := mem_of_mem_flip_red lt h, assumption
+  simp [insert], intros, apply equiv_or_mem_of_mem_ins, exact mem_of_mem_flip_red lt h
 end
 
 end membership_lemmas
@@ -611,7 +611,7 @@ lemma eq_or_mem_of_mem_ins [is_strict_total_order α lt] {a b : α} {t : rbtree 
 begin
   intro h,
   have h₁ := incomp_or_mem_of_mem_ins h,
-  have h₂ := trichotomous_of lt a b,
+  have := trichotomous_of lt a b,
   blast_disjs,
   any_goals { simp [*] },
   all_goals { cases h₁, contradiction }

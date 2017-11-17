@@ -13,19 +13,14 @@ local attribute [-simp] or.comm or.left_comm or.assoc
 
 namespace tactic
 /- TODO(Leo): move blast_disjs and twice to another file. -/
-private meta def blast_disjs_aux : list expr → tactic unit
-| []      := failed
-| (h::hs) := do
-  t ← infer_type h,
-  if t.is_or = none then blast_disjs_aux hs
-  else do
-    cases h [h.local_pp_name, h.local_pp_name],
-    return ()
 
 namespace interactive
 
 meta def blast_disjs : tactic unit :=
-focus1 $ repeat $ any_goals $ local_context >>= blast_disjs_aux
+focus1 $ repeat $ any_goals $ any_hyp $ λ h, do
+  t ← infer_type h,
+  guard (t.is_or ≠ none),
+  tactic.cases h [h.local_pp_name, h.local_pp_name]
 
 meta def twice (t : itactic) : tactic unit :=
 t >> t

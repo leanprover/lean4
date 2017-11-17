@@ -1000,26 +1000,26 @@ simp_result simplify_ext_core_fn::imp_congr(expr const & e) {
         if (r_a.get_new() == a && r_b.get_new() == b) {
             return e;
         } else if (!r_a.has_proof() && !r_b.has_proof()) {
-            return simp_result(mk_arrow(r_a.get_new(), r_b.get_new()));
+            return simp_result(update_binding(e, r_a.get_new(), r_b.get_new()));
         } else {
             expr fn   = mk_constant(m_rel == get_eq_name() ? get_imp_congr_ctx_eq_name() : get_imp_congr_ctx_name());
             expr pr_a = finalize(m_ctx, m_rel, r_a).get_proof();
             expr pr_b = locals.mk_lambda(finalize(m_ctx, m_rel, r_b).get_proof());
             expr pr = mk_app({fn, a, b, r_a.get_new(), r_b.get_new(), pr_a, pr_b});
-            return simp_result(mk_arrow(r_a.get_new(), r_b.get_new()), pr);
+            return simp_result(update_binding(e, r_a.get_new(), r_b.get_new()), pr);
         }
     } else {
         simp_result r_b = visit(b, some_expr(e));
         if (r_a.get_new() == a && r_b.get_new() == b) {
             return e;
         } else if (!r_a.has_proof() && !r_b.has_proof()) {
-            return simp_result(mk_arrow(r_a.get_new(), r_b.get_new()));
+            return simp_result(update_binding(e, r_a.get_new(), r_b.get_new()));
         } else {
             expr fn   = mk_constant(m_rel == get_eq_name() ? get_imp_congr_eq_name() : get_imp_congr_name());
             expr pr_a = finalize(m_ctx, m_rel, r_a).get_proof();
             expr pr_b = finalize(m_ctx, m_rel, r_b).get_proof();
             expr pr = mk_app({fn, a, b, r_a.get_new(), r_b.get_new(), pr_a, pr_b});
-            return simp_result(mk_arrow(r_a.get_new(), r_b.get_new()), pr);
+            return simp_result(update_binding(e, r_a.get_new(), r_b.get_new()), pr);
         }
     }
 }

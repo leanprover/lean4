@@ -507,14 +507,13 @@ begin
   { intros, simp [ins, *], apply balance2_node_ne_leaf, assumption },
 end
 
-lemma mem_ins [is_irrefl α lt] (t : rbnode α) (x : α) : x ∈ t.ins lt x :=
+lemma mem_ins_of_incomp (t : rbnode α) {x y : α} : ∀ h : ¬ lt x y ∧ ¬ lt y x, x ∈ t.ins lt y :=
 begin
-  apply ins.induction lt t x,
-  { simp [ins, mem], apply irrefl },
+  apply ins.induction lt t y,
+  { simp [ins, mem], apply id },
   any_goals { intros, simp [ins, mem, *] },
-  any_goals { simp [irrefl_of lt x] },
-  { apply mem_balance1_node_of_mem_left, assumption },
-  { apply mem_balance2_node_of_mem_left, assumption }
+  { have := ih h, apply mem_balance1_node_of_mem_left, assumption },
+  { have := ih h, apply mem_balance2_node_of_mem_left, assumption }
 end
 
 lemma mem_ins_of_mem [is_strict_weak_order α lt] {t : rbnode α} (z : α) : ∀ {x} (h : x ∈ t), x ∈ t.ins lt z :=
@@ -540,8 +539,8 @@ by intros; cases t; simp [flip_red, mem, *] at *
 lemma mem_of_mem_flip_red {a t} : mem lt a (flip_red t) → mem lt a t :=
 by cases t; simp [flip_red, mem]; intros; assumption
 
-lemma mem_insert [is_irrefl α lt] : ∀ (a : α) (t : rbnode α), a ∈ t.insert lt a :=
-by intros; apply mem_flip_red; apply mem_ins
+lemma mem_insert_of_incomp (t : rbnode α) {x y : α} : ∀ h : ¬ lt x y ∧ ¬ lt y x, x ∈ t.insert lt y :=
+by intros; unfold insert; apply mem_flip_red; apply mem_ins_of_incomp; assumption
 
 lemma mem_insert_of_mem [is_strict_weak_order α lt] {t x} (z) : x ∈ t → x ∈ t.insert lt z :=
 by intros; apply mem_flip_red; apply mem_ins_of_mem; assumption
@@ -584,8 +583,25 @@ variables {α : Type u} {lt : α → α → Prop} [decidable_rel lt]
 lemma not_mem_mk_rbtree : ∀ (a : α), a ∉ mk_rbtree α lt :=
 by simp [has_mem.mem, rbtree.mem, rbnode.mem, mk_rbtree]
 
-lemma mem_insert [is_irrefl α lt] : ∀ (a : α) (t : rbtree α lt), a ∈ t.insert a
-| a ⟨t, _⟩ := t.mem_insert lt a
+lemma mem_insert_of_incomp {a b : α} (t : rbtree α lt) : (¬ lt a b ∧ ¬ lt b a) → a ∈ t.insert b :=
+begin
+  cases t,
+  simp [has_mem.mem, rbtree.mem, contains, insert],
+  apply rbnode.mem_insert_of_incomp
+end
+
+lemma mem_insert [is_irrefl α lt] : ∀ (a : α) (t : rbtree α lt), a ∈ t.insert a :=
+begin
+  intros, apply mem_insert_of_incomp, split; apply irrefl_of lt
+end
+
+lemma mem_insert_of_equiv {a b : α} (t : rbtree α lt) : a ≈[lt] b → a ∈ t.insert b :=
+begin
+  cases t,
+  simp [has_mem.mem, rbtree.mem, contains, insert, strict_weak_order.equiv],
+  apply rbnode.mem_insert_of_incomp
+end
+
 
 lemma mem_insert_of_mem [is_strict_weak_order α lt] {a : α} {t : rbtree α lt} (b : α) : a ∈ t → a ∈ t.insert b :=
 begin

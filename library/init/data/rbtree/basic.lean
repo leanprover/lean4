@@ -94,7 +94,14 @@ end insert
 
 section membership
 
-variables (lt : α → α → Prop) [decidable_rel lt]
+variable (lt : α → α → Prop)
+
+def mem : α → rbnode α → Prop
+| a leaf               := false
+| a (red_node l v r)   := mem a l ∨ (¬ lt a v ∧ ¬ lt v a) ∨ mem a r
+| a (black_node l v r) := mem a l ∨ (¬ lt a v ∧ ¬ lt v a) ∨ mem a r
+
+variable [decidable_rel lt]
 
 def contains : rbnode α → α → bool
 | leaf             x := ff
@@ -111,11 +118,6 @@ def contains : rbnode α → α → bool
   | ordering.gt := contains b x
   end
 
-def mem : α → rbnode α → Prop
-| a leaf               := false
-| a (red_node l v r)   := mem a l ∨ cmp_using lt a v = ordering.eq  ∨ mem a r
-| a (black_node l v r) := mem a l ∨ cmp_using lt a v = ordering.eq  ∨ mem a r
-
 end membership
 
 inductive well_formed (lt : α → α → Prop) : rbnode α → Prop
@@ -128,23 +130,14 @@ open rbnode
 
 set_option auto_param.check_exists false
 
-def rbtree (α : Type u) (lt : α → α → Prop . rbtree.default_lt) [decidable_rel lt] : Type u :=
+def rbtree (α : Type u) (lt : α → α → Prop . rbtree.default_lt) : Type u :=
 {t : rbnode α // t.well_formed lt }
 
-def mk_rbtree (α : Type u) (lt : α → α → Prop . rbtree.default_lt) [decidable_rel lt] : rbtree α lt :=
+def mk_rbtree (α : Type u) (lt : α → α → Prop . rbtree.default_lt) : rbtree α lt :=
 ⟨leaf, well_formed.leaf_wff lt⟩
 
 namespace rbtree
-variables {α : Type u} {lt : α → α → Prop} [decidable_rel lt]
-
-def to_list : rbtree α lt → list α
-| ⟨t, _⟩ := t.rev_fold (::) []
-
-def insert : rbtree α lt → α → rbtree α lt
-| ⟨t, w⟩   x := ⟨t.insert lt x, well_formed.insert_wff w rfl⟩
-
-def contains : rbtree α lt → α → bool
-| ⟨t, _⟩ x := t.contains lt x
+variables {α : Type u} {lt : α → α → Prop}
 
 protected def mem (a : α) (t : rbtree α lt) : Prop :=
 rbnode.mem lt a t.val
@@ -152,11 +145,22 @@ rbnode.mem lt a t.val
 instance : has_mem α (rbtree α lt) :=
 ⟨rbtree.mem⟩
 
-def from_list (l : list α) (lt : α → α → Prop . rbtree.default_lt) [decidable_rel lt] : rbtree α lt :=
-l.foldl insert (mk_rbtree α lt)
+def to_list : rbtree α lt → list α
+| ⟨t, _⟩ := t.rev_fold (::) []
 
 instance [has_repr α] : has_repr (rbtree α lt) :=
 ⟨λ t, "rbtree_of " ++ repr t.to_list⟩
+
+variables [decidable_rel lt]
+
+def insert : rbtree α lt → α → rbtree α lt
+| ⟨t, w⟩   x := ⟨t.insert lt x, well_formed.insert_wff w rfl⟩
+
+def contains : rbtree α lt → α → bool
+| ⟨t, _⟩ x := t.contains lt x
+
+def from_list (l : list α) (lt : α → α → Prop . rbtree.default_lt) [decidable_rel lt] : rbtree α lt :=
+l.foldl insert (mk_rbtree α lt)
 
 end rbtree
 

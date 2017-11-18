@@ -76,7 +76,7 @@ begin
       }
     },
     {
-      simp at h₂, cases h₂,
+      cases h₂,
       cases lo with lo; cases hi with hi; simp [lift] at *,
       { apply lt_of_incomp_of_lt _ val_hi, simp [*] },
       { apply lt_of_lt_of_incomp lo_val, simp [*] },
@@ -138,7 +138,7 @@ begin
       {
         intro hm, blast_disjs,
         { exact iff.mp (ih hs₁) hm },
-        { contradiction },
+        { simp at h, cases hm, contradiction },
         {
           have hyx : lift lt (some y) (some x) := (range hs₂ hm).1,
           simp [lift] at hyx,
@@ -148,7 +148,7 @@ begin
       },
       { intro hc, left, exact iff.mpr (ih hs₁) hc },
     },
-    { simp, done },
+    { simp at h, simp [h] },
     {
       cases hs,
       apply iff.intro,
@@ -160,7 +160,7 @@ begin
           have hyx : lt y x, { simp [cmp_using] at h, exact h.2 },
           exact absurd (trans_of lt hxy hyx) (irrefl_of lt x)
         },
-        { contradiction },
+        { simp at h, cases hm, contradiction },
         { exact iff.mp (ih hs₂) hm }
       },
       { intro hc, right, right, exact iff.mpr (ih hs₂) hc },
@@ -578,10 +578,12 @@ end membership_lemmas
 end rbnode
 
 namespace rbtree
-variables {α : Type u} {lt : α → α → Prop} [decidable_rel lt]
+variables {α : Type u} {lt : α → α → Prop}
 
 lemma not_mem_mk_rbtree : ∀ (a : α), a ∉ mk_rbtree α lt :=
 by simp [has_mem.mem, rbtree.mem, rbnode.mem, mk_rbtree]
+
+variables [decidable_rel lt]
 
 lemma mem_insert_of_incomp {a b : α} (t : rbtree α lt) : (¬ lt a b ∧ ¬ lt b a) → a ∈ t.insert b :=
 begin

@@ -182,11 +182,13 @@ end
 
 namespace strict_weak_order
 section
-parameters {α : Type u} {r : α → α → Prop} [is_strict_weak_order α r]
+parameters {α : Type u} {r : α → α → Prop}
 local infix `≺`:50 := r
 
 def equiv (a b : α) : Prop :=
 ¬ a ≺ b ∧ ¬ b ≺ a
+
+parameter [is_strict_weak_order α r]
 
 local infix ` ≈ `:50 := equiv
 
@@ -210,7 +212,7 @@ instance : is_equiv α equiv :=
 end
 
 /- Notation for the equivalence relation induced by lt -/
-notation a ` ≈[`:50 lt `]` b:50 := @equiv _ lt _ a b
+notation a ` ≈[`:50 lt `]` b:50 := @equiv _ lt a b
 end strict_weak_order
 
 lemma is_strict_weak_order_of_is_total_preorder {α : Type u} {le : α → α → Prop} {lt : α → α → Prop} [decidable_rel le] [s : is_total_preorder α le]

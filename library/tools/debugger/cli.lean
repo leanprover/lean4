@@ -47,7 +47,7 @@ match args with
   fn ← return $ to_qualified_name arg,
   ok ← is_valid_fn_prefix fn,
   if ok then
-    return {s with fn_bps := fn :: list.filter (λ fn', fn ≠ fn') s.fn_bps}
+    return { fn_bps := fn :: list.filter (λ fn', fn ≠ fn') s.fn_bps, ..s }
   else
     vm.put_str "invalid 'break' command, given name is not the prefix for any function\n" >>
     return s
@@ -60,7 +60,7 @@ meta def remove_breakpoint (s : state) (args : list string) : vm state :=
 match args with
 | [arg] := do
   fn ← return $ to_qualified_name arg,
-  return {s with fn_bps := list.filter (λ fn', fn ≠ fn') s.fn_bps}
+  return { fn_bps := list.filter (λ fn', fn ≠ fn') s.fn_bps, ..s }
 | _     :=
   vm.put_str "invalid 'rbreak <fn>' command, incorrect number of arguments\n" >>
   return s
@@ -128,7 +128,7 @@ meta def cmd_loop_core : state → nat → list string → vm state
   is_eof ← vm.eof,
   if is_eof then do
     vm.put_str "stopping debugger... 'end of file' has been found\n",
-    return {s with md := mode.done }
+    return { md := mode.done, ..s }
   else do
     vm.put_str "% ",
     l ← vm.get_line,
@@ -138,9 +138,9 @@ meta def cmd_loop_core : state → nat → list string → vm state
     | []          := cmd_loop_core s frame default_cmd
     | (cmd::args) :=
       if cmd = "help" ∨ cmd = "h" then show_help >> cmd_loop_core s frame []
-      else if cmd = "exit" then return {s with md := mode.done }
-      else if cmd = "run" ∨ cmd = "r" then return {s with md := mode.run }
-      else if cmd = "step" ∨ cmd = "s" then return {s with md := mode.step }
+      else if cmd = "exit" then return { md := mode.done, ..s }
+      else if cmd = "run" ∨ cmd = "r" then return { md := mode.run, ..s }
+      else if cmd = "step" ∨ cmd = "s" then return { md := mode.step, ..s }
       else if cmd = "break" ∨ cmd = "b" then do new_s ← add_breakpoint s args, cmd_loop_core new_s frame []
       else if cmd = "rbreak" then do new_s ← remove_breakpoint s args, cmd_loop_core new_s frame []
       else if cmd = "bs" then do
@@ -166,20 +166,20 @@ def prune_active_bps_core (csz : nat) : list (nat × name) → list (nat × name
 
 meta def prune_active_bps (s : state) : vm state :=
 do sz ← vm.call_stack_size,
-   return {s with active_bps := prune_active_bps_core sz s.active_bps}
+   return { active_bps := prune_active_bps_core sz s.active_bps, ..s }
 
 meta def updt_csz (s : state) : vm state :=
 do sz ← vm.call_stack_size,
-   return {s with csz := sz}
+   return { csz := sz, ..s }
 
 meta def init_transition (s : state) : vm state :=
 do opts ← vm.get_options,
-   if opts.get_bool `server ff then return {s with md := mode.done}
+   if opts.get_bool `server ff then return { md := mode.done, ..s }
    else do
      bps   ← vm.get_attribute `breakpoint,
-     new_s ← return {s with fn_bps := bps},
+     new_s ← return { fn_bps := bps, ..s },
      if opts.get_bool `debugger.autorun ff then
-       return {new_s with md := mode.run}
+       return { md := mode.run, ..new_s }
      else do
        vm.put_str "Lean debugger\n",
        show_curr_fn "debugging",
@@ -215,7 +215,7 @@ do b1 ← in_active_bps s,
      show_curr_fn "breakpoint",
      fn    ← vm.curr_fn,
      sz    ← vm.call_stack_size,
-     new_s ← return $ {s with active_bps := (sz, fn) :: s.active_bps},
+     new_s ← return $ { active_bps := (sz, fn) :: s.active_bps, ..s },
      cmd_loop new_s ["r"]
 
 meta def step_fn (s : state) : vm state :=

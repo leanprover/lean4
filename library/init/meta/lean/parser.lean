@@ -63,9 +63,9 @@ result.cases_on (p₁ s)
      exception)
 
 meta instance : alternative parser :=
-{ interaction_monad.monad with
-  failure := @interaction_monad.failed _,
-  orelse  := @parser_orelse }
+{ failure := @interaction_monad.failed _,
+  orelse  := @parser_orelse,
+  ..interaction_monad.monad }
 
 
 -- TODO: move

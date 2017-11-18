@@ -173,9 +173,7 @@ have 0 * a + 0 = 0 * a + 0 * a, from calc
 show 0 * a = 0, from  (add_left_cancel this).symm
 
 instance ring.to_semiring [s : ring α] : semiring α :=
-{ s with
-  mul_zero := ring.mul_zero,
-  zero_mul := ring.zero_mul }
+{ mul_zero := ring.mul_zero, zero_mul := ring.zero_mul, ..s }
 
 lemma neg_mul_eq_neg_mul [s : ring α] (a b : α) : -(a * b) = -a * b :=
 neg_eq_of_add_eq_zero
@@ -217,9 +215,7 @@ def sub_mul := @mul_sub_right_distrib
 class comm_ring (α : Type u) extends ring α, comm_semigroup α
 
 instance comm_ring.to_comm_semiring [s : comm_ring α] : comm_semiring α :=
-{ s with
-  mul_zero := mul_zero,
-  zero_mul := zero_mul }
+{ mul_zero := mul_zero, zero_mul := zero_mul, ..s }
 
 section comm_ring
   variable [comm_ring α]

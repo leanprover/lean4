@@ -374,8 +374,8 @@ section discrete_linear_ordered_field
 variables {α : Type u}
 
 instance discrete_linear_ordered_field.to_discrete_field [s : discrete_linear_ordered_field α] : discrete_field α :=
-{s with
- has_decidable_eq := @decidable_linear_ordered_comm_ring.decidable_eq α (@discrete_linear_ordered_field.to_decidable_linear_ordered_comm_ring α s) }
+{ has_decidable_eq := @decidable_linear_ordered_comm_ring.decidable_eq α (@discrete_linear_ordered_field.to_decidable_linear_ordered_comm_ring α s),
+  ..s }
 
 variables [discrete_linear_ordered_field α]
 

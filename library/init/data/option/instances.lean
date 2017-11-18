@@ -31,9 +31,9 @@ def option.orelse {α : Type u} : option α → option α → option α
 | none     none      := none
 
 instance : alternative option :=
-{ option.monad with
-  failure := @none,
-  orelse  := @option.orelse }
+{ failure := @none,
+  orelse  := @option.orelse,
+  ..option.monad }
 
 lemma option.eq_of_eq_some {α : Type u} : Π {x y : option α}, (∀z, x = some z ↔ y = some z) → x = y
 | none     none     h := rfl

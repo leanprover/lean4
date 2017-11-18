@@ -320,8 +320,7 @@ protected lemma mul_lt_mul_of_pos_right {n m k : ℕ} (h : n < m) (hk : k > 0) :
 mul_comm k m ▸ mul_comm k n ▸ nat.mul_lt_mul_of_pos_left h hk
 
 instance : decidable_linear_ordered_semiring nat :=
-{ nat.comm_semiring with
-  add_left_cancel            := @nat.add_left_cancel,
+{ add_left_cancel            := @nat.add_left_cancel,
   add_right_cancel           := @nat.add_right_cancel,
   lt                         := nat.lt,
   le                         := nat.le,
@@ -339,12 +338,13 @@ instance : decidable_linear_ordered_semiring nat :=
   mul_lt_mul_of_pos_right    := @nat.mul_lt_mul_of_pos_right,
   decidable_lt               := nat.decidable_lt,
   decidable_le               := nat.decidable_le,
-  decidable_eq               := nat.decidable_eq }
+  decidable_eq               := nat.decidable_eq,
+  ..nat.comm_semiring }
 
 -- all the fields are already included in the decidable_linear_ordered_semiring instance
 instance : decidable_linear_ordered_cancel_comm_monoid ℕ :=
-{ nat.decidable_linear_ordered_semiring with
-  add_left_cancel := @nat.add_left_cancel }
+{ add_left_cancel := @nat.add_left_cancel,
+  ..nat.decidable_linear_ordered_semiring }
 
 lemma le_of_lt_succ {m n : nat} : m < succ n → m ≤ n :=
 le_of_succ_le_succ

@@ -181,8 +181,7 @@ simp [int.lt_iff_le_and_ne], split; intro h; cases h with hneq hab; split,
 end
 
 instance : decidable_linear_ordered_comm_ring int :=
-{ int.comm_ring with
-  le              := int.le,
+{ le              := int.le,
   le_refl         := int.le_refl,
   le_trans        := @int.le_trans,
   le_antisymm     := @int.le_antisymm,
@@ -197,7 +196,8 @@ instance : decidable_linear_ordered_comm_ring int :=
   zero_lt_one     := int.zero_lt_one,
   decidable_eq    := int.decidable_eq,
   decidable_le    := int.decidable_le,
-  decidable_lt    := int.decidable_lt }
+  decidable_lt    := int.decidable_lt,
+  ..int.comm_ring }
 
 instance : decidable_linear_ordered_comm_group int :=
 by apply_instance

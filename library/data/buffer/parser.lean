@@ -77,9 +77,9 @@ protected def orelse (p q : parser α) : parser α :=
 end
 
 instance : alternative parser :=
-{ parser.monad_fail with
-  failure := @parser.failure,
-  orelse := @parser.orelse }
+{ failure := @parser.failure,
+  orelse := @parser.orelse,
+  ..parser.monad_fail }
 
 instance : inhabited (parser α) :=
 ⟨parser.failure⟩

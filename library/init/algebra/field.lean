@@ -338,8 +338,8 @@ decidable.by_cases
      or.inr (by rw [← one_mul b, ← inv_mul_cancel this, mul_assoc, h, mul_zero]))
 
 instance discrete_field.to_integral_domain [s : discrete_field α] : integral_domain α :=
-{s with
- eq_zero_or_eq_zero_of_mul_eq_zero := discrete_field.eq_zero_or_eq_zero_of_mul_eq_zero}
+{ eq_zero_or_eq_zero_of_mul_eq_zero := discrete_field.eq_zero_or_eq_zero_of_mul_eq_zero,
+  ..s }
 
 lemma inv_zero : 0⁻¹ = (0:α) :=
 discrete_field.inv_zero α

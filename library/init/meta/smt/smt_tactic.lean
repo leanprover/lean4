@@ -43,7 +43,7 @@ structure smt_config :=
 (em_attr       : name           := `ematch)
 
 meta def smt_config.set_classical (c : smt_config) (b : bool) : smt_config :=
-{c with cc_cfg := { (c.cc_cfg) with em := b}}
+{ cc_cfg := { em := b, ..c.cc_cfg }, ..c }
 
 meta constant smt_goal                  : Type
 meta def smt_state :=
@@ -80,12 +80,12 @@ meta def smt_tactic_orelse {α : Type} (t₁ t₂ : smt_tactic α) : smt_tactic 
      result.exception)
 
 meta instance : monad_fail smt_tactic :=
-{ smt_tactic.monad with fail := λ α s, (tactic.fail (to_fmt s) : smt_tactic α) }
+{ fail := λ α s, (tactic.fail (to_fmt s) : smt_tactic α), ..smt_tactic.monad }
 
 meta instance : alternative smt_tactic :=
-{ smt_tactic.monad with
-  failure := λ α, @tactic.failed α,
-  orelse  := @smt_tactic_orelse }
+{ failure := λ α, @tactic.failed α,
+  orelse  := @smt_tactic_orelse,
+  ..smt_tactic.monad }
 
 namespace smt_tactic
 open tactic (transparency)

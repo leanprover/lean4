@@ -95,7 +95,7 @@ meta def interaction_monad.orelse' {α : Type u} (t₁ t₂ : m α) (use_first_e
      (λ e₂ ref₂ s₂', if use_first_ex then (exception e₁ ref₁ s₁') else (exception e₂ ref₂ s₂')))
 
 meta instance interaction_monad.monad_fail : monad_fail m :=
-{ interaction_monad.monad with fail := λ α s, interaction_monad.fail (to_fmt s) }
+{ fail := λ α s, interaction_monad.fail (to_fmt s), ..interaction_monad.monad }
 
 -- TODO: unify `parser` and `tactic` behavior?
 -- meta instance interaction_monad.alternative : alternative m :=

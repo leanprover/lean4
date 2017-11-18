@@ -99,9 +99,9 @@ section
 end
 
 instance (σ : Type u) (m : Type u → Type v) [alternative m] [monad m] : alternative (state_t σ m) :=
-{ state_t.monad σ m with
-  failure := @state_t_failure σ m _ _,
-  orelse  := @state_t_orelse σ m _ _ }
+{ failure := @state_t_failure σ m _ _,
+  orelse  := @state_t_orelse σ m _ _,
+  ..state_t.monad σ m }
 
 namespace state_t
 def read {σ : Type u} {m : Type u → Type v} [monad m] : state_t σ m σ :=

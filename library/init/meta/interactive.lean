@@ -206,9 +206,9 @@ private meta def change_core (e : expr) : option expr → tactic unit
      intron num_reverted
 
 /--
-`change u` replaces the target `t` of the main goal to `u` provided that `t` is well formed with respect to the local context of the main goal and `t` and `u` are definitionally equal. 
+`change u` replaces the target `t` of the main goal to `u` provided that `t` is well formed with respect to the local context of the main goal and `t` and `u` are definitionally equal.
 
-`change u at h` will change a local hypothesis to `u`. 
+`change u at h` will change a local hypothesis to `u`.
 
 `change t with u at h1 h2 ...` will replace `t` with `u` in all the supplied hypotheses (or `*`), or in the goal if no `at` clause is specified, provided that `t` and `u` are definitionally equal.
 -/
@@ -239,8 +239,8 @@ meta def exacts : parse pexpr_list_or_texpr → tactic unit
 | [] := done
 | (t :: ts) := exact t >> exacts ts
 
-/-- 
-A synonym for `exact` that allows writing `have/suffices/show ..., from ...` in tactic mode. 
+/--
+A synonym for `exact` that allows writing `have/suffices/show ..., from ...` in tactic mode.
 -/
 meta def «from» := exact
 
@@ -296,8 +296,8 @@ rs.mmap' $ λ r, do
  save_info r.pos,
  eq_lemmas ← get_rule_eqn_lemmas r,
  orelse'
-   (do e ← to_expr' r.rule, rewrite_target e {cfg with symm := r.symm})
-   (eq_lemmas.mfirst $ λ n, do e ← mk_const n, rewrite_target e {cfg with symm := r.symm})
+   (do e ← to_expr' r.rule, rewrite_target e {symm := r.symm, ..cfg})
+   (eq_lemmas.mfirst $ λ n, do e ← mk_const n, rewrite_target e {symm := r.symm, ..cfg})
    (eq_lemmas.empty)
 
 private meta def uses_hyp (e : expr) (h : expr) : bool :=
@@ -309,8 +309,8 @@ private meta def rw_hyp (cfg : rewrite_cfg) : list rw_rule → expr → tactic u
   save_info r.pos,
   eq_lemmas ← get_rule_eqn_lemmas r,
   orelse'
-    (do e ← to_expr' r.rule, when (not (uses_hyp e hyp)) $ rewrite_hyp e hyp {cfg with symm := r.symm} >>= rw_hyp rs)
-    (eq_lemmas.mfirst $ λ n, do e ← mk_const n, rewrite_hyp e hyp {cfg with symm := r.symm} >>= rw_hyp rs)
+    (do e ← to_expr' r.rule, when (not (uses_hyp e hyp)) $ rewrite_hyp e hyp {symm := r.symm, ..cfg} >>= rw_hyp rs)
+    (eq_lemmas.mfirst $ λ n, do e ← mk_const n, rewrite_hyp e hyp {symm := r.symm, ..cfg} >>= rw_hyp rs)
     (eq_lemmas.empty)
 
 meta def rw_rule_p (ep : parser pexpr) : parser rw_rule :=
@@ -340,7 +340,7 @@ end >> try (reflexivity reducible)
 
 `rewrite [e₁, ..., eₙ]` applies the given rules sequentially.
 
-`rewrite e at l` rewrites `e` at location(s) `l`, where `l` is either `*` or a list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `|-` can also be used, to signify the target of the goal. 
+`rewrite e at l` rewrites `e` at location(s) `l`, where `l` is either `*` or a list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `|-` can also be used, to signify the target of the goal.
 -/
 meta def rewrite (q : parse rw_rules) (l : parse location) (cfg : rewrite_cfg := {}) : tactic unit :=
 rw_core q l cfg
@@ -352,7 +352,7 @@ meta def rw (q : parse rw_rules) (l : parse location) (cfg : rewrite_cfg := {}) 
 rw_core q l cfg
 
 /--
-`rewrite` followed by `assumption`. 
+`rewrite` followed by `assumption`.
 -/
 meta def rwa (q : parse rw_rules) (l : parse location) (cfg : rewrite_cfg := {}) : tactic unit :=
 rewrite q l cfg >> try assumption
@@ -475,7 +475,7 @@ private meta def rename_lams : expr → list name → tactic unit
 | (lam n _ _ e) (n'::ns) := (rename n n' >> rename_lams e ns) <|> rename_lams e (n'::ns)
 | _             _        := skip
 
-/-- 
+/--
 Focuses on the `induction`/`cases` subgoal corresponding to the given introduction rule, optionally renaming introduced locals.
 
 ```
@@ -516,10 +516,10 @@ private meta def generalize_arg_p : pexpr → parser (pexpr × name)
 | (app (app (macro _ [const `eq _ ]) h) (local_const x _ _ _)) := pure (h, x)
 | _ := fail "parse error"
 
-/-- 
+/--
 `generalize : e = x` replaces all occurrences of `e` in the target with a new hypothesis `x` of the same type.
 
-`generalize h : e = x` in addition registers the hypothesis `h : e = x`. 
+`generalize h : e = x` in addition registers the hypothesis `h : e = x`.
 -/
 meta def generalize (h : parse ident?) (p : parse $ tk ":" *> with_desc "expr = id" (parser.pexpr 0 >>= generalize_arg_p)) : tactic unit :=
 do let (p, x) := p,
@@ -578,13 +578,13 @@ meta def cases : parse cases_arg_p → parse with_ident_list → tactic unit
   tactic.cases hx ids
 
 /--
-Tries to solve the current goal using a canonical proof of `true`, or the `reflexivity` tactic, or the `contradiction` tactic. 
+Tries to solve the current goal using a canonical proof of `true`, or the `reflexivity` tactic, or the `contradiction` tactic.
 -/
 meta def trivial : tactic unit :=
 tactic.triv <|> tactic.reflexivity <|> tactic.contradiction <|> fail "trivial tactic failed"
 
-/-- 
-Closes the main goal using `sorry`. 
+/--
+Closes the main goal using `sorry`.
 -/
 meta def admit : tactic unit := tactic.admit
 
@@ -613,7 +613,7 @@ meta def skip : tactic unit :=
 tactic.skip
 
 /--
-`solve1 { t }` applies the tactic `t` to the main goal and fails if it is not solved. 
+`solve1 { t }` applies the tactic `t` to the main goal and fails if it is not solved.
 -/
 meta def solve1 : itactic → tactic unit :=
 tactic.solve1
@@ -653,7 +653,7 @@ do t ← target,
     intro_core n >> skip
 
 /--
-Assuming the target of the goal is a Pi or a let, `assume h : t` unifies the type of the binder with `t` and introduces it with name `h`, just like `intro h`. If `h` is absent, the tactic uses the name `this`. If `t` is omitted, it will be inferred. 
+Assuming the target of the goal is a Pi or a let, `assume h : t` unifies the type of the binder with `t` and introduces it with name `h`, just like `intro h`. If `h` is absent, the tactic uses the name `this`. If `t` is omitted, it will be inferred.
 
 `assume (h₁ : t₁) ... (hₙ : tₙ)` introduces multiple hypotheses. Any of the types may be omitted, but the names must be present.
 -/
@@ -663,7 +663,7 @@ meta def «assume» : parse (sum.inl <$> (tk ":" *> texpr) <|> sum.inr <$> parse
   binders.mmap' $ λ b, assume_core b.local_pp_name b.local_type
 
 /--
-`have h : t := p` adds the hypothesis `h : t` to the current goal if `p` a term of type `t`. If `t` is omitted, it will be inferred. 
+`have h : t := p` adds the hypothesis `h : t` to the current goal if `p` a term of type `t`. If `t` is omitted, it will be inferred.
 
 `have h : t` adds the hypothesis `h : t` to the current goal and opens a new subgoal with target `t`. The new subgoal becomes the main goal. If `t` is omitted, it will be replaced by a fresh metavariable.
 
@@ -743,8 +743,8 @@ This tactic applies to a goal such that its conclusion is an inductive type (say
 meta def constructor : tactic unit :=
 tactic.constructor
 
-/-- 
-Similar to `constructor`, but only non-dependent premises are added as new goals. 
+/--
+Similar to `constructor`, but only non-dependent premises are added as new goals.
 -/
 meta def econstructor : tactic unit :=
 tactic.econstructor
@@ -938,7 +938,7 @@ The `simp` tactic uses lemmas and hypotheses to simplify the main goal target or
 `simp [h₁ h₂ ... hₙ]` simplifies the main goal target using the lemmas tagged with the attribute `[simp]` and the given `hᵢ`'s, where the `hᵢ`'s are expressions. If an `hᵢ` is a defined constant `f`, then the equational lemmas associated with `f` are used. This provides a convenient way to unfold `f`.
 
 `simp [*]` simplifies the main goal target using the lemmas tagged with the attribute `[simp]` and all hypotheses.
-  
+
 `simp *` is a shorthand for `simp [*]`.
 
 `simp only [h₁ h₂ ... hₙ]` is like `simp [h₁ h₂ ... hₙ]` but does not use `[simp]` lemmas
@@ -957,7 +957,7 @@ meta def simp (no_dflt : parse only_flag) (hs : parse simp_arg_list) (attr_names
               (locat : parse location) (cfg : simp_config_ext := {}) : tactic unit :=
 simp_core cfg.to_simp_config cfg.discharger no_dflt hs attr_names locat
 
-/-- 
+/--
 Just construct the simp set and trace it. Used for debugging.
 -/
 meta def trace_simp_set (no_dflt : parse only_flag) (hs : parse simp_arg_list) (attr_names : parse with_ident_list) : tactic unit :=
@@ -965,7 +965,7 @@ do (s, _) ← mk_simp_set no_dflt attr_names hs,
    s.pp >>= trace
 
 /--
-`simp_intros h₁ h₂ ... hₙ` is similar to `intros h₁ h₂ ... hₙ` except that each hypothesis is simplified as it is introduced, and each introduced hypothesis is used to simplify later ones and the final target. 
+`simp_intros h₁ h₂ ... hₙ` is similar to `intros h₁ h₂ ... hₙ` except that each hypothesis is simplified as it is introduced, and each introduced hypothesis is used to simplify later ones and the final target.
 
 As with `simp`, a list of simplification lemmas can be provided. The modifiers `only` and `with` behave as with `simp`.
 -/
@@ -1213,14 +1213,14 @@ An abbreviation for `by_contradiction`.
 meta def by_contra (n : parse ident?) : tactic unit :=
 tactic.by_contradiction n >> return ()
 
-/-- 
-Type check the given expression, and trace its type. 
+/--
+Type check the given expression, and trace its type.
 -/
 meta def type_check (p : parse texpr) : tactic unit :=
 do e ← to_expr p, tactic.type_check e, infer_type e >>= trace
 
-/-- 
-Fail if there are unsolved goals. 
+/--
+Fail if there are unsolved goals.
 -/
 meta def done : tactic unit :=
 tactic.done
@@ -1232,8 +1232,8 @@ private meta def show_aux (p : pexpr) : list expr → list expr → tactic unit
   <|>
   show_aux gs (g::r)
 
-/-- 
-`show t` finds the first goal whose target unifies with `t`. It makes that the main goal, performs the unification, and replaces the target with the unified version of `t`. 
+/--
+`show t` finds the first goal whose target unifies with `t`. It makes that the main goal, performs the unification, and replaces the target with the unified version of `t`.
 -/
 meta def «show» (q : parse texpr) : tactic unit :=
 do gs ← get_goals,
@@ -1285,8 +1285,8 @@ do ctx ← local_context,
         (mk_name_set, ff),
    return p.2
 
-/-- 
-Renames hypotheses with the same name. 
+/--
+Renames hypotheses with the same name.
 -/
 meta def dedup : tactic unit :=
 mwhen has_dup $ do

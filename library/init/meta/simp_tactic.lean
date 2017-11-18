@@ -415,7 +415,7 @@ meta structure simp_all_entry :=
 (s        : simp_lemmas) -- simplification lemmas for simplifying new_type
 
 private meta def update_simp_lemmas (es : list simp_all_entry) (h : expr) : tactic (list simp_all_entry) :=
-es.mmap $ λ e, do new_s ← e.s.add h, return {e with s := new_s}
+es.mmap $ λ e, do new_s ← e.s.add h, return {s := new_s, ..e}
 
 /- Helper tactic for `init`.
    Remark: the following tactic is quadratic on the length of list expr (the list of non dependent propositions).
@@ -458,7 +458,7 @@ private meta def loop (cfg : simp_config) (discharger : tactic unit) (to_unfold 
     clear_old_hyps r
 | (e::es) r  s m := do
    let ⟨h, h_type, h_pr, s'⟩ := e,
-   (new_h_type, new_pr) ← simplify s' to_unfold h_type {cfg with fail_if_unchanged := ff} `eq discharger,
+   (new_h_type, new_pr) ← simplify s' to_unfold h_type {fail_if_unchanged := ff, ..cfg} `eq discharger,
    if h_type =ₐ new_h_type then loop es (e::r) s m
    else do
      new_pr      ← join_pr h_pr new_pr,
@@ -471,7 +471,7 @@ private meta def loop (cfg : simp_config) (discharger : tactic unit) (to_unfold 
        let new_fact_pr := mk_id_locked_proof new_h_type new_fact_pr,
        new_es      ← update_simp_lemmas es new_fact_pr,
        new_r       ← update_simp_lemmas r new_fact_pr,
-       let new_r := {e with new_type := new_h_type, pr := new_pr} :: new_r,
+       let new_r := {new_type := new_h_type, pr := new_pr, ..e} :: new_r,
        new_s       ← s.add new_fact_pr,
        loop new_es new_r new_s tt
 

@@ -90,8 +90,7 @@ protected def io.fail {α : Type} (s : string) : io α :=
 io.interface.fail io.error α (io.error.other s)
 
 instance : monad_fail io :=
-{ io_core_is_monad io.error with
-  fail := @io.fail _ }
+{ fail := @io.fail _, ..io_core_is_monad io.error }
 
 namespace io
 def iterate {e α} (a : α) (f : α → io_core e (option α)) : io_core e α :=
@@ -112,9 +111,9 @@ match res with
 end
 
 instance : alternative io :=
-{ interface.monad _ with
-  orelse := λ _ a b, catch a (λ _, b),
-  failure := λ _, io.fail "failure" }
+{ orelse := λ _ a b, catch a (λ _, b),
+  failure := λ _, io.fail "failure",
+  ..interface.monad _ }
 
 def put_str : string → io unit :=
 interface.term.put_str
@@ -232,7 +231,7 @@ format.print (to_fmt a)
     read into `string` which is then returned.
 -/
 def io.cmd (args : io.process.spawn_args) : io string :=
-do child ← io.proc.spawn { args with stdout := io.process.stdio.piped },
+do child ← io.proc.spawn { stdout := io.process.stdio.piped, ..args },
   buf ← io.fs.read_to_end child.stdout,
   exitv ← io.proc.wait child,
   when (exitv ≠ 0) $ io.fail $ "process exited with status " ++ repr exitv,

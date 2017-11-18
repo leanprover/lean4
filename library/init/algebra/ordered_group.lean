@@ -201,10 +201,10 @@ begin simp [neg_add_cancel_left] at this, assumption end
 end ordered_comm_group
 
 instance ordered_comm_group.to_ordered_cancel_comm_monoid (α : Type u) [s : ordered_comm_group α] : ordered_cancel_comm_monoid α :=
-{ s with
-  add_left_cancel       := @add_left_cancel α _,
+{ add_left_cancel       := @add_left_cancel α _,
   add_right_cancel      := @add_right_cancel α _,
-  le_of_add_le_add_left := @ordered_comm_group.le_of_add_le_add_left α _ }
+  le_of_add_le_add_left := @ordered_comm_group.le_of_add_le_add_left α _,
+  ..s }
 
 section ordered_comm_group
 variables {α : Type u} [ordered_comm_group α]
@@ -614,7 +614,7 @@ class decidable_linear_ordered_comm_group (α : Type u)
 
 instance decidable_linear_ordered_comm_group.to_ordered_comm_group (α : Type u)
   [s : decidable_linear_ordered_comm_group α] : ordered_comm_group α :=
-{ s with add := s.add }
+{ add := s.add, ..s }
 
 class decidable_linear_ordered_cancel_comm_monoid (α : Type u)
       extends ordered_cancel_comm_monoid α, decidable_linear_order α

@@ -27,9 +27,9 @@ instance : monad list :=
  end}
 
 instance : alternative list :=
-{ list.monad with
-  failure := @list.nil,
-  orelse  := @list.append }
+{ failure := @list.nil,
+  orelse  := @list.append,
+  ..list.monad }
 
 instance {α : Type u} [decidable_eq α] : decidable_eq (list α) :=
 by tactic.mk_dec_eq_instance

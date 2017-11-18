@@ -112,10 +112,10 @@ have a * b * b⁻¹ = a, by simp,
 begin simp [h] at this, rw this end
 
 instance group.to_left_cancel_semigroup [s : group α] : left_cancel_semigroup α :=
-{ s with mul_left_cancel := @group.mul_left_cancel α s }
+{ mul_left_cancel := @group.mul_left_cancel α s, ..s }
 
 instance group.to_right_cancel_semigroup [s : group α] : right_cancel_semigroup α :=
-{ s with mul_right_cancel := @group.mul_right_cancel α s }
+{ mul_right_cancel := @group.mul_right_cancel α s, ..s }
 
 lemma mul_inv_cancel_left [group α] (a b : α) : a * (a⁻¹ * b) = b :=
 by rw [← mul_assoc, mul_right_inv, one_mul]

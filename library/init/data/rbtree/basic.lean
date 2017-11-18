@@ -26,6 +26,25 @@ instance color.decidable_eq : decidable_eq color :=
   (color.cases_on b (is_true rfl) (is_false (λ h, color.no_confusion h)))
   (color.cases_on b (is_false (λ h, color.no_confusion h)) (is_true rfl))
 
+def depth (f : nat → nat → nat) : rbnode α → nat
+| leaf               := 0
+| (red_node l _ r)   := succ (f (depth l) (depth r))
+| (black_node l _ r) := succ (f (depth l) (depth r))
+
+protected def min : rbnode α → option α
+| leaf                  := none
+| (red_node leaf v _)   := some v
+| (black_node leaf v _) := some v
+| (red_node l v _)      := min l
+| (black_node l v _)    := min l
+
+protected def max : rbnode α → option α
+| leaf                  := none
+| (red_node _ v leaf)   := some v
+| (black_node _ v leaf) := some v
+| (red_node _ v r)      := max r
+| (black_node _ v r)    := max r
+
 def fold (f : α → β → β) : rbnode α → β → β
 | leaf b               := b
 | (red_node l v r)   b := fold r (f v (fold l b))
@@ -147,6 +166,12 @@ instance : has_mem α (rbtree α lt) :=
 
 def to_list : rbtree α lt → list α
 | ⟨t, _⟩ := t.rev_fold (::) []
+
+protected def min : rbtree α lt → option α
+| ⟨t, _⟩ := t.min
+
+protected def max : rbtree α lt → option α
+| ⟨t, _⟩ := t.max
 
 instance [has_repr α] : has_repr (rbtree α lt) :=
 ⟨λ t, "rbtree_of " ++ repr t.to_list⟩

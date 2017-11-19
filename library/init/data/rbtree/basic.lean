@@ -156,13 +156,23 @@ def mk_rbtree (α : Type u) (lt : α → α → Prop . rbtree.default_lt) : rbtr
 ⟨leaf, well_formed.leaf_wff lt⟩
 
 namespace rbtree
-variables {α : Type u} {lt : α → α → Prop}
+variables {α : Type u} {β : Type v} {lt : α → α → Prop}
 
 protected def mem (a : α) (t : rbtree α lt) : Prop :=
 rbnode.mem lt a t.val
 
 instance : has_mem α (rbtree α lt) :=
 ⟨rbtree.mem⟩
+
+def fold (f : α → β → β) : rbtree α lt → β →  β
+| ⟨t, _⟩ b := t.fold f b
+
+def rev_fold (f : α → β → β) : rbtree α lt → β →  β
+| ⟨t, _⟩ b := t.rev_fold f b
+
+def empty : rbtree α lt → bool
+| ⟨leaf, _⟩ := tt
+| _         := ff
 
 def to_list : rbtree α lt → list α
 | ⟨t, _⟩ := t.rev_fold (::) []

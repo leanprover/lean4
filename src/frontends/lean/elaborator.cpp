@@ -3048,7 +3048,7 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                                 }
                             } else if (catchall) {
                                 /* catchall: insert placeholder */
-                                c_arg = mk_metavar(none_expr(), ref);
+                                c_arg = mk_metavar(d, ref);
                                 field2value.insert(S_fname, c_arg);
                             } else {
                                 report_or_throw(elaborator_exception(e, sstream() << "invalid structure value { ... }, field '" <<

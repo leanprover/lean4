@@ -1,0 +1,9 @@
+1870.lean:2:18: error: tactic failed, there are unsolved goals
+state:
+⊢ ℕ
+1870.lean:3:18: error: tactic failed, there are unsolved goals
+state:
+⊢ ℕ
+1870.lean:4:15: error: don't know how to synthesize placeholder
+context:
+⊢ ℕ

@@ -3,7 +3,7 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import data.rbtree.contains data.rbtree.insert data.rbtree.min_max
+import data.rbtree.find data.rbtree.insert data.rbtree.min_max
 universes u
 
 /- TODO(Leo): remove after we cleanup stdlib simp lemmas -/
@@ -29,8 +29,21 @@ by simp [has_mem.mem, rbtree.mem, rbnode.mem, mk_rbtree]
 
 variables [decidable_rel lt]
 
+lemma find_correct [is_strict_weak_order α lt] (a : α) (t : rbtree α lt) : a ∈ t ↔ (∃ b, t.find a = some b ∧ a ≈[lt] b) :=
+begin cases t, apply rbnode.find_correct, apply rbnode.is_searchable_of_well_formed, assumption end
+
+lemma eqv_of_find_some [is_strict_weak_order α lt] {a b : α} {t : rbtree α lt} : t.find a = some b → a ≈[lt] b :=
+begin cases t, apply rbnode.eqv_of_find_some, apply rbnode.is_searchable_of_well_formed, assumption end
+
 lemma contains_correct [is_strict_weak_order α lt] (a : α) (t : rbtree α lt) : a ∈ t ↔ (t.contains a = tt) :=
-begin cases t, apply rbnode.contains_correct, apply rbnode.is_searchable_of_well_formed, assumption end
+begin
+  have h := find_correct a t,
+  simp [h, contains], apply iff.intro,
+  { intro h', cases h' with _ h', cases h', simp [*], simp [option.is_some] },
+  { intro h',
+    generalize heq : find t a = s, cases s with v, simp [heq, option.is_some] at h', contradiction,
+    existsi v, simp, apply eqv_of_find_some heq }
+end
 
 lemma mem_insert_of_incomp {a b : α} (t : rbtree α lt) : (¬ lt a b ∧ ¬ lt b a) → a ∈ t.insert b :=
 begin cases t, apply rbnode.mem_insert_of_incomp end

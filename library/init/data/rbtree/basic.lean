@@ -122,19 +122,19 @@ def mem : α → rbnode α → Prop
 
 variable [decidable_rel lt]
 
-def contains : rbnode α → α → bool
-| leaf             x := ff
+def find : rbnode α → α → option α
+| leaf             x := none
 | (red_node a y b) x :=
   match cmp_using lt x y with
-  | ordering.lt := contains a x
-  | ordering.eq := tt
-  | ordering.gt := contains b x
+  | ordering.lt := find a x
+  | ordering.eq := some y
+  | ordering.gt := find b x
   end
 | (black_node a y b) x :=
   match cmp_using lt x y with
-  | ordering.lt := contains a x
-  | ordering.eq := tt
-  | ordering.gt := contains b x
+  | ordering.lt := find a x
+  | ordering.eq := some y
+  | ordering.gt := find b x
   end
 
 end membership
@@ -181,8 +181,11 @@ variables [decidable_rel lt]
 def insert : rbtree α lt → α → rbtree α lt
 | ⟨t, w⟩   x := ⟨t.insert lt x, well_formed.insert_wff w rfl⟩
 
-def contains : rbtree α lt → α → bool
-| ⟨t, _⟩ x := t.contains lt x
+def find : rbtree α lt → α → option α
+| ⟨t, _⟩ x := t.find lt x
+
+def contains (t : rbtree α lt) (a : α) : bool :=
+(t.find a).is_some
 
 def from_list (l : list α) (lt : α → α → Prop . rbtree.default_lt) [decidable_rel lt] : rbtree α lt :=
 l.foldl insert (mk_rbtree α lt)

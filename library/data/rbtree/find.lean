@@ -13,7 +13,7 @@ namespace rbnode
 variables {α : Type u}
 
 @[elab_simple]
-lemma contains.induction {p : rbnode α → Prop} (lt) [decidable_rel lt]
+lemma find.induction {p : rbnode α → Prop} (lt) [decidable_rel lt]
    (t x)
    (h₁ : p leaf)
    (h₂ : ∀ l y r (h : cmp_using lt x y = ordering.lt) (ih : p l), p (red_node l y r))
@@ -42,10 +42,10 @@ begin
   }
 end
 
-lemma contains_correct {t : rbnode α} {lt x} [decidable_rel lt] [is_strict_weak_order α lt] : ∀ {lo hi} (hs : is_searchable lt t lo hi), mem lt x t ↔ contains lt t x = tt :=
+lemma find_correct {t : rbnode α} {lt x} [decidable_rel lt] [is_strict_weak_order α lt] : ∀ {lo hi} (hs : is_searchable lt t lo hi), mem lt x t ↔ ∃ y, find lt t x = some y ∧ x ≈[lt] y :=
 begin
-  apply contains.induction lt t x; intros; simp only [mem, contains, *],
-  { simp },
+  apply find.induction lt t x; intros; simp only [mem, find, *],
+  { simp, intro h, cases h with _ h, cases h, contradiction },
   twice { -- red and black cases are identical
     {
       cases hs,
@@ -63,7 +63,7 @@ begin
       },
       { intro hc, left, exact iff.mpr (ih hs₁) hc },
     },
-    { simp at h, simp [h] },
+    { simp at h, simp [h, strict_weak_order.equiv], existsi y, split, refl, assumption },
     {
       cases hs,
       apply iff.intro,
@@ -80,6 +80,16 @@ begin
       },
       { intro hc, right, right, exact iff.mpr (ih hs₂) hc },
     } }
+end
+
+lemma eqv_of_find_some {t : rbnode α} {lt x y} [decidable_rel lt] [is_strict_weak_order α lt] : ∀ {lo hi} (hs : is_searchable lt t lo hi) (he : find lt t x = some y), x ≈[lt] y :=
+begin
+  apply find.induction lt t x; intros; simp only [mem, find, *] at *,
+  { contradiction },
+  twice {
+    { cases hs, exact ih hs₁ rfl },
+    { injection he, subst y, simp at h, exact h },
+    { cases hs, exact ih hs₂ rfl } }
 end
 
 end rbnode

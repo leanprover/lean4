@@ -259,3 +259,20 @@ lemma lt_of_incomp_of_lt {α : Type u} {lt : α → α → Prop} [is_strict_weak
     λ nac : ¬ lt a c,
       have ¬ lt b c ∧ ¬ lt c b, from incomp_trans_of lt ⟨nba, nab⟩ ⟨nac, nca⟩,
       absurd hbc this.1
+
+lemma eq_of_incomp {α : Type u} {lt : α → α → Prop} [is_trichotomous α lt] {a b} : (¬ lt a b ∧ ¬ lt b a) → a = b :=
+λ ⟨nab, nba⟩,
+  match trichotomous_of lt a b with
+  | or.inl hab          := absurd hab nab
+  | or.inr (or.inl hab) := hab
+  | or.inr (or.inr hba) := absurd hba nba
+  end
+
+lemma eq_of_eqv_lt {α : Type u} {lt : α → α → Prop} [is_trichotomous α lt] {a b} : a ≈[lt] b → a = b :=
+eq_of_incomp
+
+lemma incomp_iff_eq {α : Type u} {lt : α → α → Prop} [is_trichotomous α lt] [is_irrefl α lt] (a b) : (¬ lt a b ∧ ¬ lt b a) ↔ a = b :=
+iff.intro eq_of_incomp (λ hab, eq.subst hab (and.intro (irrefl_of lt a) (irrefl_of lt a)))
+
+lemma eqv_lt_iff_eq {α : Type u} {lt : α → α → Prop} [is_trichotomous α lt] [is_irrefl α lt] (a b) : a ≈[lt] b ↔ a = b :=
+incomp_iff_eq a b

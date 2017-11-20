@@ -75,11 +75,12 @@ match m.val with
 | rbnode.black_node _ e _ := @rbtree.find _ _ rbmap_lt_dec m (k, e.2)
 end
 
+def to_value : option (α × β) → option β
+| none     := none
+| (some e) := some e.2
+
 def find (m : rbmap α β lt) (k : α) : option β :=
-match m.find_entry k with
-| none   := none
-| some e := some e.2
-end
+to_value (m.find_entry k)
 
 def contains (m : rbmap α β lt) (k : α) : bool :=
 (find_entry m k).is_some

@@ -69,7 +69,7 @@ lemma eq_of_find_some [is_strict_total_order α lt] {a b : α} {t : rbtree α lt
 lemma mem_of_find_some [is_strict_weak_order α lt] {a b : α} {t : rbtree α lt} : t.find a = some b → a ∈ t :=
 λ h, iff.mpr (find_correct a t) ⟨b, ⟨h, eqv_of_find_some h⟩⟩
 
-lemma find_eq_find_of_eqv [is_strict_weak_order α lt] {t : rbtree α lt} {a b : α} : a ≈[lt] b → t.find a = t.find b :=
+lemma find_eq_find_of_eqv [is_strict_weak_order α lt] {a b : α} (t : rbtree α lt) : a ≈[lt] b → t.find a = t.find b :=
 begin
   cases t, apply rbnode.find_eq_find_of_eqv,
   apply rbnode.is_searchable_of_well_formed, assumption

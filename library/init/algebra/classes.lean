@@ -276,3 +276,6 @@ iff.intro eq_of_incomp (λ hab, eq.subst hab (and.intro (irrefl_of lt a) (irrefl
 
 lemma eqv_lt_iff_eq {α : Type u} {lt : α → α → Prop} [is_trichotomous α lt] [is_irrefl α lt] (a b) : a ≈[lt] b ↔ a = b :=
 incomp_iff_eq a b
+
+lemma not_lt_of_lt {α : Type u} {lt : α → α → Prop} [is_strict_order α lt] {a b} : lt a b → ¬ lt b a :=
+λ h₁ h₂, absurd (trans_of lt h₁ h₂) (irrefl_of lt _)

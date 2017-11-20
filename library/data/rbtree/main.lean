@@ -27,10 +27,37 @@ variables {α : Type u} {lt : α → α → Prop}
 lemma not_mem_mk_rbtree : ∀ (a : α), a ∉ mk_rbtree α lt :=
 by simp [has_mem.mem, rbtree.mem, rbnode.mem, mk_rbtree]
 
+lemma not_mem_of_empty {t : rbtree α lt} (a : α) : t.empty = tt → a ∉ t :=
+by cases t with n p; cases n; simp [empty, has_mem.mem, rbtree.mem, rbnode.mem]
+
+lemma mem_of_mem_of_eqv [is_strict_weak_order α lt] {t : rbtree α lt} {a b : α} : a ∈ t → a ≈[lt] b → b ∈ t :=
+begin
+  cases t with n p; simp [has_mem.mem, rbtree.mem]; clear p; induction n; simp [rbnode.mem, strict_weak_order.equiv]; intros h₁ h₂; blast_disjs,
+  twice {
+    { have : rbnode.mem lt b lchild := ih_1 h₁ h₂, simp [this] },
+    { simp [incomp_trans_of lt h₂.swap h₁] },
+    { have : rbnode.mem lt b rchild := ih_2 h₁ h₂, simp [this] } }
+end
+
 variables [decidable_rel lt]
 
 lemma find_correct [is_strict_weak_order α lt] (a : α) (t : rbtree α lt) : a ∈ t ↔ (∃ b, t.find a = some b ∧ a ≈[lt] b) :=
 begin cases t, apply rbnode.find_correct, apply rbnode.is_searchable_of_well_formed, assumption end
+
+lemma find_correct_of_total [is_strict_total_order α lt] (a : α) (t : rbtree α lt) : a ∈ t ↔ t.find a = some a :=
+iff.intro
+  (λ h, match iff.mp (find_correct a t) h with
+        | ⟨b, heq, heqv⟩ := by simp [heq, (eq_of_eqv_lt heqv).symm]
+        end)
+  (λ h, iff.mpr (find_correct a t) ⟨a, ⟨h, refl a⟩⟩)
+
+lemma not_mem_of_find_none [is_strict_weak_order α lt] {a : α} {t : rbtree α lt} : t.find a = none → a ∉ t :=
+λ h, iff.mpr (not_iff_not_of_iff (find_correct a t)) $
+  begin
+    intro h,
+    cases h with _ h, cases h with h₁ h₂,
+    rw [h] at h₁, contradiction
+  end
 
 lemma eqv_of_find_some [is_strict_weak_order α lt] {a b : α} {t : rbtree α lt} : t.find a = some b → a ≈[lt] b :=
 begin cases t, apply rbnode.eqv_of_find_some, apply rbnode.is_searchable_of_well_formed, assumption end
@@ -39,12 +66,14 @@ lemma eq_of_find_some [is_strict_total_order α lt] {a b : α} {t : rbtree α lt
 λ h, suffices a ≈[lt] b, from eq_of_eqv_lt this,
      eqv_of_find_some h
 
-lemma find_correct_of_total [is_strict_total_order α lt] (a : α) (t : rbtree α lt) : a ∈ t ↔ t.find a = some a :=
-iff.intro
-  (λ h, match iff.mp (find_correct a t) h with
-        | ⟨b, heq, heqv⟩ := by simp [heq, (eq_of_eqv_lt heqv).symm]
-        end)
-  (λ h, iff.mpr (find_correct a t) ⟨a, ⟨h, refl a⟩⟩)
+lemma mem_of_find_some [is_strict_weak_order α lt] {a b : α} {t : rbtree α lt} : t.find a = some b → a ∈ t :=
+λ h, iff.mpr (find_correct a t) ⟨b, ⟨h, eqv_of_find_some h⟩⟩
+
+lemma find_eq_find_of_eqv [is_strict_weak_order α lt] {t : rbtree α lt} {a b : α} : a ≈[lt] b → t.find a = t.find b :=
+begin
+  cases t, apply rbnode.find_eq_find_of_eqv,
+  apply rbnode.is_searchable_of_well_formed, assumption
+end
 
 lemma contains_correct [is_strict_weak_order α lt] (a : α) (t : rbtree α lt) : a ∈ t ↔ (t.contains a = tt) :=
 begin

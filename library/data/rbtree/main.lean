@@ -51,6 +51,15 @@ iff.intro
         end)
   (λ h, iff.mpr (find_correct a t) ⟨a, ⟨h, refl a⟩⟩)
 
+lemma find_correct_exact [is_strict_total_order α lt] (a : α) (t : rbtree α lt) : mem_exact a t ↔ t.find a = some a :=
+begin cases t, apply rbnode.find_correct_exact, apply rbnode.is_searchable_of_well_formed, assumption end
+
+lemma find_insert_of_eqv [is_strict_weak_order α lt] (t : rbtree α lt) {x y} : x ≈[lt] y → (t.insert x).find y = some x :=
+begin cases t, intro h, apply rbnode.find_insert_of_eqv lt h, apply rbnode.is_searchable_of_well_formed, assumption end
+
+lemma find_insert [is_strict_weak_order α lt] (t : rbtree α lt) (x) : (t.insert x).find x = some x :=
+find_insert_of_eqv t (refl x)
+
 lemma not_mem_of_find_none [is_strict_weak_order α lt] {a : α} {t : rbtree α lt} : t.find a = none → a ∉ t :=
 λ h, iff.mpr (not_iff_not_of_iff (find_correct a t)) $
   begin

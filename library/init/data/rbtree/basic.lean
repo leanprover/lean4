@@ -120,6 +120,11 @@ def mem : α → rbnode α → Prop
 | a (red_node l v r)   := mem a l ∨ (¬ lt a v ∧ ¬ lt v a) ∨ mem a r
 | a (black_node l v r) := mem a l ∨ (¬ lt a v ∧ ¬ lt v a) ∨ mem a r
 
+def mem_exact : α → rbnode α → Prop
+| a leaf               := false
+| a (red_node l v r)   := mem_exact a l ∨ a = v ∨ mem_exact a r
+| a (black_node l v r) := mem_exact a l ∨ a = v ∨ mem_exact a r
+
 variable [decidable_rel lt]
 
 def find : rbnode α → α → option α
@@ -163,6 +168,9 @@ rbnode.mem lt a t.val
 
 instance : has_mem α (rbtree α lt) :=
 ⟨rbtree.mem⟩
+
+def mem_exact (a : α) (t : rbtree α lt) : Prop :=
+rbnode.mem_exact a t.val
 
 def fold (f : α → β → β) : rbtree α lt → β →  β
 | ⟨t, _⟩ b := t.fold f b

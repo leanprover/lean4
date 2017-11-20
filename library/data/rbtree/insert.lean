@@ -3,7 +3,7 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import data.rbtree.basic
+import data.rbtree.find
 universe u
 
 /- TODO(Leo): remove after we cleanup stdlib simp lemmas -/
@@ -260,6 +260,100 @@ end
 lemma equiv_or_mem_of_mem_insert [is_strict_weak_order α lt] {t : rbnode α} {x z} : ∀ (h : x ∈ t.insert lt z), x ≈[lt] z ∨ x ∈ t :=
 begin
   simp [insert], intros, apply equiv_or_mem_of_mem_ins, exact mem_of_mem_flip_red lt h
+end
+
+lemma mem_exact_balance1_node_of_mem_exact {x s} (v) (t : rbnode α) : mem_exact x s → mem_exact x (balance1_node s v t) :=
+begin
+  cases s,
+  { simp [mem_exact] },
+  all_goals {
+    intro h,
+    simp [balance1_node], cases lchild; cases rchild,
+    any_goals { simp [*, mem_exact, balance1] at * },
+    all_goals { blast_disjs; simp [*] }
+  }
+end
+
+lemma mem_exact_balance2_node_of_mem_exact {x s} (v) (t : rbnode α) : mem_exact x s → mem_exact x (balance2_node s v t) :=
+begin
+  cases s,
+  { simp [mem_exact] },
+  all_goals {
+    intro h,
+    simp [balance2_node], cases lchild; cases rchild,
+    any_goals { simp [*, mem_exact, balance2] at * },
+    all_goals { blast_disjs; simp [*] }
+  }
+end
+
+lemma find_balance1_node [is_strict_weak_order α lt] {x y z t s} : ∀ {lo hi}, is_searchable lt t lo (some z) → is_searchable lt s (some z) hi → find lt t y = some x → y ≈[lt] x → find lt (balance1_node t z s) y = some x :=
+begin
+  intros _ _ hs₁ hs₂ heq heqv,
+  have hs := is_searchable_balance1_node lt hs₁ hs₂,
+  have := eq.trans (find_eq_find_of_eqv hs₁ heqv.symm) heq,
+  have := iff.mpr (find_correct_exact hs₁) this,
+  have := mem_exact_balance1_node_of_mem_exact z s this,
+  have := iff.mp (find_correct_exact hs) this,
+  exact eq.trans (find_eq_find_of_eqv hs heqv) this
+end
+
+lemma find_balance2_node [is_strict_weak_order α lt] {x y z s t} [is_trans α lt] : ∀ {lo hi}, is_searchable lt s lo (some z) → is_searchable lt t (some z) hi → find lt t y = some x → y ≈[lt] x → find lt (balance2_node t z s) y = some x :=
+begin
+  intros _ _ hs₁ hs₂ heq heqv,
+  have hs := is_searchable_balance2_node lt hs₁ hs₂,
+  have := eq.trans (find_eq_find_of_eqv hs₂ heqv.symm) heq,
+  have := iff.mpr (find_correct_exact hs₂) this,
+  have := mem_exact_balance2_node_of_mem_exact z s this,
+  have := iff.mp (find_correct_exact hs) this,
+  exact eq.trans (find_eq_find_of_eqv hs heqv) this
+end
+
+lemma find_ins_of_eqv [is_strict_weak_order α lt] {x y : α} {t : rbnode α} (he : x ≈[lt] y) : ∀ {lo hi} (hs : is_searchable lt t lo hi) (hlt₁ : lift lt lo (some x)) (hlt₂ : lift lt (some x) hi), find lt (ins lt t x) y = some x :=
+begin
+  simp [strict_weak_order.equiv] at he,
+  apply ins.induction lt t x; intros,
+  { simp [find, ins, cmp_using, *] },
+  { simp at hc, cases hs,
+    have := lt_of_incomp_of_lt he.swap hc,
+    have := ih hs₁ hlt₁ hc,
+    simp [find, ins, cmp_using, *] },
+  { simp [find, ins, cmp_using, *] },
+  { simp at hc, cases hs,
+    have := not_lt_of_lt hc,
+    have := lt_of_lt_of_incomp hc he,
+    have := not_lt_of_lt this,
+    have := ih hs₂ hc hlt₂,
+    simp [find, ins, cmp_using, *] },
+  { simp [find, ins, cmp_using, *], simp at hc, cases hs,
+    have hsf : is_searchable lt (ins lt a x) lo (some y_1) := is_searchable_ins lt hs₁ hlt₁ hc,
+    apply find_balance1_node lt hsf hs₂ (ih hs₁ hlt₁ hc) he.symm },
+  { simp at hc, cases hs,
+    have := lt_of_incomp_of_lt he.swap hc,
+    have := ih hs₁ hlt₁ hc,
+    simp [find, ins, cmp_using, *], },
+  { simp [find, ins, cmp_using, *] },
+  { simp [find, ins, cmp_using, *], simp at hc, cases hs,
+    have hsf : is_searchable lt (ins lt b x) (some y_1) hi := is_searchable_ins lt hs₂ hc hlt₂,
+    apply find_balance2_node lt hs₁ hsf (ih hs₂ hc hlt₂) he.symm },
+  { simp at hc, cases hs,
+    have := not_lt_of_lt hc,
+    have := lt_of_lt_of_incomp hc he,
+    have := not_lt_of_lt this,
+    have := ih hs₂ hc hlt₂,
+    simp [find, ins, cmp_using, *] }
+end
+
+lemma find_flip_red (t : rbnode α) (x : α) : find lt (flip_red t) x = find lt t x :=
+begin
+  cases t; simp [flip_red],
+  { simp [find], cases cmp_using lt x val; simp [find] }
+end
+
+lemma find_insert_of_eqv [is_strict_weak_order α lt] {x y : α} {t : rbnode α} (he : x ≈[lt] y) : is_searchable lt t none none → find lt (insert lt t x) y = some x :=
+begin
+  intro hs,
+  simp [insert, find_flip_red],
+  apply find_ins_of_eqv lt he hs; simp [lift]
 end
 
 end membership_lemmas

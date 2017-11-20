@@ -82,6 +82,62 @@ begin
     } }
 end
 
+lemma mem_of_mem_exact {lt} [is_irrefl α lt] {x t} : mem_exact x t → mem lt x t :=
+begin
+  induction t; simp [mem_exact, mem]; intro h,
+  all_goals { blast_disjs, simp [ih_1 h], simp [h, irrefl_of lt val], simp [ih_2 h] }
+end
+
+lemma find_correct_exact {t : rbnode α} {lt x} [decidable_rel lt] [is_strict_weak_order α lt] : ∀ {lo hi} (hs : is_searchable lt t lo hi), mem_exact x t ↔ find lt t x = some x :=
+begin
+  apply find.induction lt t x; intros; simp only [mem_exact, find, *],
+  { simp, intro h, contradiction },
+  twice {
+    {
+      cases hs,
+      apply iff.intro,
+      {
+        intro hm, blast_disjs,
+        { exact iff.mp (ih hs₁) hm },
+        { simp at h, subst x, exact absurd h (irrefl y) },
+        { have hyx : lift lt (some y) (some x) := (range hs₂ (mem_of_mem_exact hm)).1,
+          simp [lift] at hyx,
+          have hxy : lt x y, { simp [cmp_using] at h, assumption },
+          exact absurd (trans_of lt hxy hyx) (irrefl_of lt x)
+        }
+      },
+      { intro hc, left, exact iff.mpr (ih hs₁) hc },
+    },
+    { simp at h,
+      cases hs,
+      apply iff.intro,
+      {
+        intro hm, blast_disjs,
+        { have hxy : lift lt (some x) (some y) := (range hs₁ (mem_of_mem_exact hm)).2,
+          simp [lift] at hxy,
+          exact absurd hxy h.1 },
+        { subst hm },
+        { have hyx : lift lt (some y) (some x) := (range hs₂ (mem_of_mem_exact hm)).1,
+          simp [lift] at hyx,
+          exact absurd hyx h.2 } },
+      { intro hm, injection hm, simp [*] } },
+    {
+      cases hs,
+      apply iff.intro,
+      {
+        intro hm, blast_disjs,
+        {
+          have hxy : lift lt (some x) (some y) := (range hs₁ (mem_of_mem_exact hm)).2,
+          simp [lift] at hxy,
+          have hyx : lt y x, { simp [cmp_using] at h, exact h.2 },
+          exact absurd (trans_of lt hxy hyx) (irrefl_of lt x)
+        },
+        { simp at h, subst x, exact absurd h (irrefl y) },
+        { exact iff.mp (ih hs₂) hm }
+      },
+      { intro hc, right, right, exact iff.mpr (ih hs₂) hc } } }
+end
+
 lemma eqv_of_find_some {t : rbnode α} {lt x y} [decidable_rel lt] [is_strict_weak_order α lt] : ∀ {lo hi} (hs : is_searchable lt t lo hi) (he : find lt t x = some y), x ≈[lt] y :=
 begin
   apply find.induction lt t x; intros; simp only [mem, find, *] at *,

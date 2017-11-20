@@ -213,6 +213,28 @@ lemma eq_or_mem_of_mem_ins [is_strict_total_order α lt] {k₁ k₂ : α} {v : �
 λ h, suffices k₁ ≈[lt] k₂ ∨ k₁ ∈ m, by simp [eqv_lt_iff_eq] at this; assumption,
   incomp_or_mem_of_mem_ins h
 
+lemma find_entry_insert_of_eqv [is_strict_weak_order α lt] (m : rbmap α β lt) {k₁ k₂ : α} (v : β) : k₁ ≈[lt] k₂ → (m.insert k₁ v).find_entry k₂ = some (k₁, v) :=
+begin
+  intro h,
+  generalize h₁ : m.insert k₁ v = m',
+  cases m' with t p, cases t,
+  { have := mem_insert k₁ m v, rw [h₁] at this, apply absurd this, apply not_mem_mk_rbmap },
+  all_goals { simp [find_entry], rw [←h₁, insert], apply rbtree.find_insert_of_eqv, apply eqv_entries_of_eqv_keys _ _ h }
+end
+
+lemma find_entry_insert [is_strict_weak_order α lt] (m : rbmap α β lt) (k : α) (v : β) : (m.insert k v).find_entry k = some (k, v) :=
+find_entry_insert_of_eqv m v (refl k)
+
+lemma find_insert_of_eqv [is_strict_weak_order α lt] (m : rbmap α β lt) {k₁ k₂ : α} (v : β) : k₁ ≈[lt] k₂ → (m.insert k₁ v).find k₂ = some v :=
+begin
+  intro h,
+  have := find_entry_insert_of_eqv m v h,
+  simp [find, this, to_value]
+end
+
+lemma find_insert [is_strict_weak_order α lt] (m : rbmap α β lt) (k : α) (v : β) : (m.insert k v).find k = some v :=
+find_insert_of_eqv m v (refl k)
+
 lemma mem_of_min_eq [is_strict_total_order α lt] {k : α} {v : β} {m : rbmap α β lt} : m.min = some (k, v) → k ∈ m :=
 λ h, to_rbmap_mem (rbtree.mem_of_min_eq h)
 

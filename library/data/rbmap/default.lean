@@ -235,6 +235,52 @@ end
 lemma find_insert [is_strict_weak_order α lt] (m : rbmap α β lt) (k : α) (v : β) : (m.insert k v).find k = some v :=
 find_insert_of_eqv m v (refl k)
 
+lemma find_entry_insert_of_disj [is_strict_weak_order α lt] {k₁ k₂ : α} (m : rbmap α β lt) (v : β) : lt k₁ k₂ ∨ lt k₂ k₁ → (m.insert k₁ v).find_entry k₂ = m.find_entry k₂ :=
+begin
+  intro h,
+  have h' : ∀ {v₁ v₂ : β}, (rbmap_lt lt) (k₁, v₁) (k₂, v₂) ∨ (rbmap_lt lt) (k₂, v₂) (k₁, v₁) := λ _ _, h,
+  generalize h₁ : m = m₁,
+  generalize h₂ : insert m₁ k₁ v = m₂,
+  rw [←h₁] at h₂ ⊢, rw [←h₂],
+  cases m₁ with t₁ p₁; cases t₁; cases m₂ with t₂ p₂; cases t₂,
+  { rw [h₂, h₁] },
+  twice {
+    rw [h₂],
+    conv { to_lhs, simp [find_entry] },
+    rw [←h₂, insert, rbtree.find_insert_of_disj _ h', h₁],
+    refl },
+  any_goals { simp [insert] at h₂,
+    exact absurd h₂ (rbtree.insert_ne_mk_rbtree m (k₁, v)) },
+  any_goals {
+    rw [h₂, h₁], simp [find_entry], rw [←h₂, ←h₁, insert, rbtree.find_insert_of_disj _ h'],
+    apply rbtree.find_eq_find_of_eqv, apply eqv_entries }
+end
+
+lemma find_entry_insert_of_not_eqv [is_strict_weak_order α lt] {k₁ k₂ : α} (m : rbmap α β lt) (v : β) : ¬ k₁ ≈[lt] k₂ → (m.insert k₁ v).find_entry k₂ = m.find_entry k₂ :=
+begin
+  intro hn,
+  have he : lt k₁ k₂ ∨ lt k₂ k₁, {
+    simp [strict_weak_order.equiv, decidable.not_and_iff_or_not, decidable.not_not_iff] at hn,
+    assumption },
+  apply find_entry_insert_of_disj _ _ he
+end
+
+lemma find_entry_insert_of_ne [is_strict_total_order α lt] {k₁ k₂ : α} (m : rbmap α β lt) (v : β) : k₁ ≠ k₂ → (m.insert k₁ v).find_entry k₂ = m.find_entry k₂ :=
+begin
+  intro h,
+  have : ¬ k₁ ≈[lt] k₂ := λ h', h (eq_of_eqv_lt h'),
+  apply find_entry_insert_of_not_eqv _ _ this
+end
+
+lemma find_insert_of_disj [is_strict_weak_order α lt] {k₁ k₂ : α} (m : rbmap α β lt) (v : β) : lt k₁ k₂ ∨ lt k₂ k₁ → (m.insert k₁ v).find k₂ = m.find k₂ :=
+begin intro h, have := find_entry_insert_of_disj m v h, simp [find, this] end
+
+lemma find_insert_of_not_eqv [is_strict_weak_order α lt] {k₁ k₂ : α} (m : rbmap α β lt) (v : β) : ¬ k₁ ≈[lt] k₂ → (m.insert k₁ v).find k₂ = m.find k₂ :=
+begin intro h, have := find_entry_insert_of_not_eqv m v h, simp [find, this] end
+
+lemma find_insert_of_ne [is_strict_total_order α lt] {k₁ k₂ : α} (m : rbmap α β lt) (v : β) : k₁ ≠ k₂ → (m.insert k₁ v).find k₂ = m.find k₂ :=
+begin intro h, have := find_entry_insert_of_ne m v h, simp [find, this] end
+
 lemma mem_of_min_eq [is_strict_total_order α lt] {k : α} {v : β} {m : rbmap α β lt} : m.min = some (k, v) → k ∈ m :=
 λ h, to_rbmap_mem (rbtree.mem_of_min_eq h)
 

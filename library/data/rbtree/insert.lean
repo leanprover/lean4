@@ -129,7 +129,6 @@ end
 
 end rbnode
 
-
 namespace rbnode
 section membership_lemmas
 parameters {α : Type u} (lt : α → α → Prop) [decidable_rel lt]
@@ -194,6 +193,15 @@ begin
   any_goals { intros, simp [ins, *], contradiction},
   { intros, simp [ins, *], apply balance1_node_ne_leaf, assumption },
   { intros, simp [ins, *], apply balance2_node_ne_leaf, assumption },
+end
+
+lemma insert_ne_leaf (t : rbnode α) (x : α) : insert lt t x ≠ leaf :=
+begin
+  simp [insert],
+  generalize he : ins lt t x = t',
+  cases t'; simp [flip_red],
+  { have := ins_ne_leaf lt t x, contradiction },
+  all_goals { contradiction }
 end
 
 lemma mem_ins_of_incomp (t : rbnode α) {x y : α} : ∀ h : ¬ lt x y ∧ ¬ lt y x, x ∈ t.ins lt y :=

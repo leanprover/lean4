@@ -41,6 +41,9 @@ end
 
 variables [decidable_rel lt]
 
+lemma insert_ne_mk_rbtree (t : rbtree α lt) (a : α) : t.insert a ≠ mk_rbtree α lt :=
+begin cases t with n p, simp [insert, mk_rbtree], intro h, injection h with h', apply rbnode.insert_ne_leaf lt n a h' end
+
 lemma find_correct [is_strict_weak_order α lt] (a : α) (t : rbtree α lt) : a ∈ t ↔ (∃ b, t.find a = some b ∧ a ≈[lt] b) :=
 begin cases t, apply rbnode.find_correct, apply rbnode.is_searchable_of_well_formed, assumption end
 
@@ -60,13 +63,13 @@ begin cases t, intro h, apply rbnode.find_insert_of_eqv lt h, apply rbnode.is_se
 lemma find_insert [is_strict_weak_order α lt] (t : rbtree α lt) (x) : (t.insert x).find x = some x :=
 find_insert_of_eqv t (refl x)
 
-lemma find_insert_of_disj [is_strict_weak_order α lt] {x y : α} {t : rbtree α lt} : lt x y ∨ lt y x → (t.insert x).find y = t.find y :=
+lemma find_insert_of_disj [is_strict_weak_order α lt] {x y : α} (t : rbtree α lt) : lt x y ∨ lt y x → (t.insert x).find y = t.find y :=
 begin cases t, intro h, apply rbnode.find_insert_of_disj lt h, apply rbnode.is_searchable_of_well_formed, assumption end
 
-lemma find_insert_of_not_eqv [is_strict_weak_order α lt] {x y : α} {t : rbtree α lt} : ¬ x ≈[lt] y → (t.insert x).find y = t.find y :=
+lemma find_insert_of_not_eqv [is_strict_weak_order α lt] {x y : α} (t : rbtree α lt) : ¬ x ≈[lt] y → (t.insert x).find y = t.find y :=
 begin cases t, intro h, apply rbnode.find_insert_of_not_eqv lt h, apply rbnode.is_searchable_of_well_formed, assumption end
 
-lemma find_insert_of_not_eq [is_strict_total_order α lt] {x y : α} {t : rbtree α lt} : ¬ x = y → (t.insert x).find y = t.find y :=
+lemma find_insert_of_ne [is_strict_total_order α lt] {x y : α} (t : rbtree α lt) : x ≠ y → (t.insert x).find y = t.find y :=
 begin
   cases t, intro h,
   have : ¬ x ≈[lt] y := λ h', h (eq_of_eqv_lt h'),

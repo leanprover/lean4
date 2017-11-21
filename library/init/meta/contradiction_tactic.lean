@@ -13,7 +13,7 @@ open expr tactic decidable environment
 private meta def contra_p_not_p : list expr → list expr → tactic unit
 | []         Hs := failed
 | (H1 :: Rs) Hs :=
-  do t ← infer_type H1 >>= whnf,
+  do t ← (extract_opt_auto_param <$> infer_type H1) >>= whnf,
      (do a   ← match_not t,
          H2  ← find_same_type a Hs,
          tgt ← target,
@@ -24,7 +24,7 @@ private meta def contra_p_not_p : list expr → list expr → tactic unit
 private meta def contra_false : list expr → tactic unit
 | []        := failed
 | (H :: Hs) :=
-  do t ← infer_type H,
+  do t ← extract_opt_auto_param <$> infer_type H,
      if is_false t
      then do tgt ← target,
              pr  ← mk_app `false.rec [tgt, H],
@@ -34,7 +34,7 @@ private meta def contra_false : list expr → tactic unit
 private meta def contra_not_a_refl_rel_a : list expr → tactic unit
 | []        := failed
 | (H :: Hs) :=
-  do t ← infer_type H >>= head_beta,
+  do t ← (extract_opt_auto_param <$> infer_type H) >>= head_beta,
      (do (lhs, rhs) ← match_ne t,
          unify lhs rhs,
          tgt ← target,
@@ -53,7 +53,7 @@ private meta def contra_not_a_refl_rel_a : list expr → tactic unit
 private meta def contra_constructor_eq : list expr → tactic unit
 | []        := failed
 | (H :: Hs) :=
-  do t ← infer_type H >>= whnf,
+  do t ← (extract_opt_auto_param <$> infer_type H) >>= whnf,
      match t with
      | `((%%lhs_0 : %%α) = %%rhs_0) :=
        do env ← get_env,

@@ -14,7 +14,7 @@ target >>= instantiate_mvars >>= whnf
 
 meta def get_constructors_for (e : expr) : tactic (list name) :=
 do env ← get_env,
-   I   ← return e.get_app_fn.const_name,
+   I   ← return e.extract_opt_auto_param.get_app_fn.const_name,
    when (¬env.is_inductive I) (fail "constructor tactic failed, target is not an inductive datatype"),
    return $ env.constructors_of I
 

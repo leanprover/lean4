@@ -396,6 +396,11 @@ meta def pis : list expr → expr → expr
   pi pp info t (abstract_local (pis es f) uniq)
 | _ f := f
 
+meta def extract_opt_auto_param : expr → expr
+| `(@opt_param %%t _)  := extract_opt_auto_param t
+| `(@auto_param %%t _) := extract_opt_auto_param t
+| e                    := e
+
 open format
 
 private meta def p := λ xs, paren (format.join (list.intersperse " " xs))

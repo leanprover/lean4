@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import data.rbtree.find
-universe u
+universes u v
 
 /- TODO(Leo): remove after we cleanup stdlib simp lemmas -/
 local attribute [-simp] or.comm or.left_comm or.assoc and.comm and.left_comm and.assoc
@@ -308,39 +308,42 @@ begin
   exact eq.trans (find_eq_find_of_eqv hs heqv) this
 end
 
+/- Auxiliary lemma -/
+
+lemma ite_eq_of_not_lt [is_strict_order α lt] {a b} {β : Type v} (t s : β) (h : lt b a) : (if lt a b then t else s) = s :=
+begin have := not_lt_of_lt h, simp [*] end
+
+local attribute [simp] ite_eq_of_not_lt
+
+private meta def simp_fi : tactic unit :=
+`[simp [find, ins, *, cmp_using]]
+
 lemma find_ins_of_eqv [is_strict_weak_order α lt] {x y : α} {t : rbnode α} (he : x ≈[lt] y) : ∀ {lo hi} (hs : is_searchable lt t lo hi) (hlt₁ : lift lt lo (some x)) (hlt₂ : lift lt (some x) hi), find lt (ins lt t x) y = some x :=
 begin
   simp [strict_weak_order.equiv] at he,
   apply ins.induction lt t x; intros,
-  { simp [find, ins, cmp_using, *] },
-  { simp at hc, cases hs,
-    have := lt_of_incomp_of_lt he.swap hc,
+  { simp_fi },
+  all_goals { simp at hc, cases hs },
+  { have := lt_of_incomp_of_lt he.swap hc,
     have := ih hs₁ hlt₁ hc,
-    simp [find, ins, cmp_using, *] },
-  { simp [find, ins, cmp_using, *] },
-  { simp at hc, cases hs,
-    have := not_lt_of_lt hc,
-    have := lt_of_lt_of_incomp hc he,
-    have := not_lt_of_lt this,
+    simp_fi },
+  { simp_fi },
+  { have := lt_of_lt_of_incomp hc he,
     have := ih hs₂ hc hlt₂,
-    simp [find, ins, cmp_using, *] },
-  { simp [find, ins, cmp_using, *], simp at hc, cases hs,
-    have hsf : is_searchable lt (ins lt a x) lo (some y_1) := is_searchable_ins lt hs₁ hlt₁ hc,
-    apply find_balance1_node lt hsf hs₂ (ih hs₁ hlt₁ hc) he.symm },
-  { simp at hc, cases hs,
-    have := lt_of_incomp_of_lt he.swap hc,
+    simp_fi },
+  { simp_fi,
+    have := is_searchable_ins lt hs₁ hlt₁ hc,
+    apply find_balance1_node lt this hs₂ (ih hs₁ hlt₁ hc) he.symm },
+  { have := lt_of_incomp_of_lt he.swap hc,
     have := ih hs₁ hlt₁ hc,
-    simp [find, ins, cmp_using, *], },
-  { simp [find, ins, cmp_using, *] },
-  { simp [find, ins, cmp_using, *], simp at hc, cases hs,
-    have hsf : is_searchable lt (ins lt b x) (some y_1) hi := is_searchable_ins lt hs₂ hc hlt₂,
-    apply find_balance2_node lt hs₁ hsf (ih hs₂ hc hlt₂) he.symm },
-  { simp at hc, cases hs,
-    have := not_lt_of_lt hc,
-    have := lt_of_lt_of_incomp hc he,
-    have := not_lt_of_lt this,
+    simp_fi },
+  { simp_fi },
+  { simp_fi,
+    have := is_searchable_ins lt hs₂ hc hlt₂,
+    apply find_balance2_node lt hs₁ this (ih hs₂ hc hlt₂) he.symm },
+  { have := lt_of_lt_of_incomp hc he,
     have := ih hs₂ hc hlt₂,
-    simp [find, ins, cmp_using, *] }
+    simp_fi }
 end
 
 lemma find_flip_red (t : rbnode α) (x : α) : find lt (flip_red t) x = find lt t x :=
@@ -361,20 +364,23 @@ by by_cases lt x y; by_cases lt y x; simp [*]
 
 section find_ins_of_not_eqv
 
-@[simp] lemma find_black_eq_find_red {l y r x} : find lt (black_node l y r) x = find lt (red_node l y r) x :=
-begin
-  simp [find],
-  all_goals { cases cmp_using lt x y; simp [find] },
-end
+/- More auxiliary lemmas -/
 
-@[simp] lemma find_red_of_lt {l y r x} (h : lt x y) : find lt (red_node l y r) x = find lt l x :=
+lemma find_black_eq_find_red {l y r x} : find lt (black_node l y r) x = find lt (red_node l y r) x :=
+begin simp [find], all_goals { cases cmp_using lt x y; simp [find] } end
+
+lemma find_red_of_lt {l y r x} (h : lt x y) : find lt (red_node l y r) x = find lt l x :=
 by simp [find, cmp_using, *]
 
-@[simp] lemma find_red_of_gt [is_strict_order α lt] {l y r x} (h : lt y x) : find lt (red_node l y r) x = find lt r x :=
+lemma find_red_of_gt [is_strict_order α lt] {l y r x} (h : lt y x) : find lt (red_node l y r) x = find lt r x :=
 begin have := not_lt_of_lt h, simp [find, cmp_using, *]  end
 
-@[simp] lemma find_red_of_incomp {l y r x} (h : ¬ lt x y ∧ ¬ lt y x) : find lt (red_node l y r) x = some y :=
+lemma find_red_of_incomp {l y r x} (h : ¬ lt x y ∧ ¬ lt y x) : find lt (red_node l y r) x = some y :=
 by simp [find, cmp_using, *]
+
+local attribute [simp]
+  find_black_eq_find_red find_red_of_lt find_red_of_lt find_red_of_gt
+  find_red_of_incomp
 
 lemma find_balance1_lt [is_strict_weak_order α lt] {l r t v x y lo hi}
                        (h : lt x y)
@@ -478,74 +484,50 @@ lemma find_ins_of_disj [is_strict_weak_order α lt] {x y : α} {t : rbnode α} (
 begin
   apply ins.induction lt t x; intros,
   { cases hn with hn hn,
-    all_goals { have := not_lt_of_lt hn, simp [find, ins, cmp_using, *] } },
-  { simp at hc, cases hs,
-    have := ih hs₁ hlt₁ hc,
-    simp [find, ins, cmp_using, *] },
-  { simp at hc,
+    all_goals { simp [find, ins, cmp_using, *] } },
+  all_goals { simp at hc, cases hs },
+  { have := ih hs₁ hlt₁ hc, simp_fi },
+  { cases hn with hn hn,
+    { have := lt_of_incomp_of_lt hc.symm hn,
+      simp_fi },
+    { have := lt_of_lt_of_incomp hn hc,
+      simp_fi } },
+  { have := ih hs₂ hc hlt₂,
     cases hn with hn hn,
-    { have := not_lt_of_lt hn,
-      have := lt_of_incomp_of_lt hc.symm hn,
-      have := not_lt_of_lt this,
-      simp [find, ins, cmp_using, *] },
-    { have := not_lt_of_lt hn,
-      have := lt_of_lt_of_incomp hn hc,
-      have := not_lt_of_lt this,
-      simp [find, ins, cmp_using, *] } },
-  { simp at hc, cases hs,
-    have := ih hs₂ hc hlt₂,
-    have := not_lt_of_lt hc,
-    cases hn with hn hn,
-    { have := trans hc hn,
-      have := not_lt_of_lt this,
-      simp [find, ins, cmp_using, *] },
-    { simp [find, ins, cmp_using, *] } },
-  { simp at hc, cases hs,
-    have ih := ih hs₁ hlt₁ hc,
+    { have := trans hc hn, simp_fi },
+    { simp_fi } },
+  { have ih := ih hs₁ hlt₁ hc,
     cases hn with hn hn,
     { generalize hc' : cmp_using lt y y_1 = cyy_1,
       cases cyy_1; simp at hc',
-      { have hlt := trans hn hc',
-        have hsi := is_searchable_ins lt hs₁ hlt₁ hlt,
+      { have hsi := is_searchable_ins lt hs₁ hlt₁ (trans_of lt hn hc'),
         have := find_balance1_node_lt lt hc' (ins_ne_leaf lt _ _) hsi hs₂,
-        simp [find, *, ins, cmp_using] },
+        simp_fi },
       { have hlt := lt_of_lt_of_incomp hn hc',
         have hsi := is_searchable_ins lt hs₁ hlt₁ hlt,
         have := find_balance1_node_eqv lt hc' (ins_ne_leaf lt _ _) hsi hs₂,
-        simp [find, *, ins, cmp_using] },
+        simp_fi },
       { have hsi := is_searchable_ins lt hs₁ hlt₁ hc,
         have := find_balance1_node_gt lt hc' (ins_ne_leaf lt _ _) hsi hs₂,
-        simp [*],
-        simp [find, *, ins, cmp_using] } },
+        simp [*], simp_fi } },
     { have hlt := trans hn hc,
       have hsi := is_searchable_ins lt hs₁ hlt₁ hc,
       have := find_balance1_node_lt lt hlt (ins_ne_leaf lt _ _) hsi hs₂,
-      simp [find, *, ins, cmp_using] } },
-  { simp at hc, cases hs,
-    have := ih hs₁ hlt₁ hc,
-    simp [find, ins, cmp_using, *] },
-  { simp at hc, cases hs,
-    cases hn with hn hn,
-    { have := not_lt_of_lt hn,
-      have := lt_of_incomp_of_lt hc.swap hn,
-      have := not_lt_of_lt this,
-      simp [find, ins, cmp_using, *] },
-    { have := lt_of_lt_of_incomp hn hc,
-      simp [find, ins, cmp_using, *] } },
-  { simp [find, ins, cmp_using, *], simp at hc, cases hs,
+      simp_fi } },
+  { have := ih hs₁ hlt₁ hc, simp_fi },
+  { cases hn with hn hn,
+    { have := lt_of_incomp_of_lt hc.swap hn, simp_fi },
+    { have := lt_of_lt_of_incomp hn hc, simp_fi } },
+  { simp_fi,
     have hsf : is_searchable lt (ins lt b x) (some y_1) hi := is_searchable_ins lt hs₂ hc hlt₂,
     /- TODO(Leo): balance2 case :-( -/
     admit },
-  { simp at hc, cases hs,
-    cases hn with hn hn,
+  { cases hn with hn hn,
     { have := trans hc hn,
-      have := not_lt_of_lt this,
-      have := not_lt_of_lt hc,
       have := ih hs₂ hc hlt₂,
-      simp [find, ins, cmp_using, *] },
+      simp_fi },
     { have ih := ih hs₂ hc hlt₂,
-      have := not_lt_of_lt hc,
-      simp [find, ins, cmp_using, *] } }
+      simp_fi } }
 end
 
 end find_ins_of_not_eqv

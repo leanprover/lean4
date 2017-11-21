@@ -628,6 +628,30 @@ namespace decidable
 
   lemma not_not_iff (p) [decidable p] : (¬ ¬ p) ↔ p :=
   iff.intro of_not_not not_not_intro
+
+  lemma not_and_iff_or_not (p q : Prop) [d₁ : decidable p] [d₂ : decidable q] : ¬ (p ∧ q) ↔ ¬ p ∨ ¬ q :=
+  iff.intro
+  (λ h, match d₁ with
+        | is_true h₁  :=
+          match d₂ with
+          | is_true h₂  := absurd (and.intro h₁ h₂) h
+          | is_false h₂ := or.inr h₂
+          end
+        | is_false h₁ := or.inl h₁
+        end)
+  (λ h ⟨hp, hq⟩, or.elim h (λ h, h hp) (λ h, h hq))
+
+  lemma not_or_iff_and_not (p q) [d₁ : decidable p] [d₂ : decidable q] : ¬ (p ∨ q) ↔ ¬ p ∧ ¬ q :=
+  iff.intro
+    (λ h, match d₁ with
+          | is_true h₁  := false.elim $ h (or.inl h₁)
+          | is_false h₁ :=
+            match d₂ with
+            | is_true h₂  := false.elim $ h (or.inr h₂)
+            | is_false h₂ := ⟨h₁, h₂⟩
+            end
+          end)
+    (λ ⟨np, nq⟩ h, or.elim h np nq)
 end decidable
 
 section

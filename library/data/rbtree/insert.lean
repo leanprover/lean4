@@ -356,6 +356,217 @@ begin
   apply find_ins_of_eqv lt he hs; simp [lift]
 end
 
+lemma weak_trichotomous (x y) : lt x y ∨ (¬ lt x y ∧ ¬ lt y x) ∨ lt y x :=
+by by_cases lt x y; by_cases lt y x; simp [*]
+
+section find_ins_of_not_eqv
+
+@[simp] lemma find_black_eq_find_red {l y r x} : find lt (black_node l y r) x = find lt (red_node l y r) x :=
+begin
+  simp [find],
+  all_goals { cases cmp_using lt x y; simp [find] },
+end
+
+@[simp] lemma find_red_of_lt {l y r x} (h : lt x y) : find lt (red_node l y r) x = find lt l x :=
+by simp [find, cmp_using, *]
+
+@[simp] lemma find_red_of_gt [is_strict_order α lt] {l y r x} (h : lt y x) : find lt (red_node l y r) x = find lt r x :=
+begin have := not_lt_of_lt h, simp [find, cmp_using, *]  end
+
+@[simp] lemma find_red_of_incomp {l y r x} (h : ¬ lt x y ∧ ¬ lt y x) : find lt (red_node l y r) x = some y :=
+by simp [find, cmp_using, *]
+
+lemma find_balance1_lt [is_strict_weak_order α lt] {l r t v x y lo hi}
+                       (h : lt x y)
+                       (hl : is_searchable lt l lo (some v))
+                       (hr : is_searchable lt r (some v) (some y))
+                       (ht : is_searchable lt t (some y) hi)
+                       : find lt (balance1 l v r y t) x = find lt (red_node l v r) x :=
+begin
+  cases l; cases r; simp [balance1, *]; is_searchable_tactic,
+  { have h₁ := weak_trichotomous lt x v, blast_disjs,
+    { have := trans h₁ (lo_lt_hi hs₁), simp [*] },
+    { have : lt x val := lt_of_incomp_of_lt h₁ (lo_lt_hi hs₁),
+      simp [*] },
+    { have h := weak_trichotomous lt x val, blast_disjs; simp [*] } },
+  { have := weak_trichotomous lt x v, blast_disjs; simp [*] },
+  { have := weak_trichotomous lt x v, blast_disjs; simp [*] },
+  { have := weak_trichotomous lt x v, blast_disjs; simp [*] },
+  { have hvv   := lo_lt_hi hs₂,
+    have hvv_1 := lo_lt_hi hs₁_1,
+    have h₁ := weak_trichotomous lt x v, blast_disjs,
+    { have := trans h₁ hvv_1, simp [*] },
+    { have : lt x val_1 := lt_of_incomp_of_lt h₁ (lo_lt_hi hs₁_1),
+      simp [*] },
+    { have h₂ := weak_trichotomous lt x val_1, blast_disjs; simp [*] } }
+end
+
+lemma find_balance1_node_lt [is_strict_weak_order α lt] {t s x y} (hlt : lt y x) (hne : t ≠ leaf) {lo hi}
+                            (ht : is_searchable lt t lo (some x))
+                            (hs : is_searchable lt s (some x) hi)
+                            : find lt (balance1_node t x s) y = find lt t y :=
+begin
+  cases t; simp [balance1_node],
+  { contradiction },
+  all_goals { intros,
+    is_searchable_tactic,
+    apply find_balance1_lt lt hlt hs₁ hs₂ hs }
+end
+
+lemma find_balance1_gt [is_strict_weak_order α lt] {l r t v x y lo hi}
+                       (h : lt y x)
+                       (hl : is_searchable lt l lo (some v))
+                       (hr : is_searchable lt r (some v) (some y))
+                       (ht : is_searchable lt t (some y) hi)
+                       : find lt (balance1 l v r y t) x = find lt t x :=
+begin
+  cases l; cases r; simp [balance1, *]; is_searchable_tactic,
+  { have : lt val x := trans (lo_lt_hi hs₂) h,
+    simp [*] },
+  { have : lt v x := trans a h,
+    simp [*] },
+  twice {
+    have : lt v x := trans (trans (lo_lt_hi hs₁_1) (lo_lt_hi hs₂_1)) h,
+    simp [*] },
+  { have : lt val_1 x := trans (lo_lt_hi hs₂_1) h,
+    simp [*] }
+end
+
+lemma find_balance1_node_gt [is_strict_weak_order α lt] {t s x y} (h : lt x y) (hne : t ≠ leaf) {lo hi}
+                            (ht : is_searchable lt t lo (some x))
+                            (hs : is_searchable lt s (some x) hi)
+                            : find lt (balance1_node t x s) y = find lt s y :=
+begin
+  cases t; simp [balance1_node],
+  all_goals { intros,
+    is_searchable_tactic,
+    apply find_balance1_gt lt h hs₁ hs₂ hs }
+end
+
+lemma find_balance1_eqv [is_strict_weak_order α lt] {l r t v x y lo hi}
+                        (h : ¬ lt x y ∧ ¬ lt y x)
+                        (hl : is_searchable lt l lo (some v))
+                        (hr : is_searchable lt r (some v) (some y))
+                        (ht : is_searchable lt t (some y) hi)
+                        : find lt (balance1 l v r y t) x = some y :=
+begin
+  cases l; cases r; simp [balance1, *]; is_searchable_tactic,
+  { have : lt val x := lt_of_lt_of_incomp (lo_lt_hi hs₂) h.swap,
+    simp [*] },
+  { have : lt v x := lt_of_lt_of_incomp a h.swap,
+    simp [*] },
+  twice { have : lt v x := lt_of_lt_of_incomp (trans (lo_lt_hi hs₁_1) (lo_lt_hi hs₂_1)) h.swap,
+    simp [*] },
+  { have : lt val_1 x := lt_of_lt_of_incomp (lo_lt_hi hs₂_1) h.swap,
+    simp [*] }
+end
+
+lemma find_balance1_node_eqv [is_strict_weak_order α lt] {t s x y}
+                             (h : ¬ lt x y ∧ ¬ lt y x) (hne : t ≠ leaf) {lo hi}
+                             (ht : is_searchable lt t lo (some y))
+                             (hs : is_searchable lt s (some y) hi)
+                             : find lt (balance1_node t y s) x = some y :=
+begin
+  cases t; simp [balance1_node],
+  { contradiction },
+  all_goals { intros,
+    is_searchable_tactic,
+    apply find_balance1_eqv lt h hs₁ hs₂ hs }
+end
+
+lemma find_ins_of_disj [is_strict_weak_order α lt] {x y : α} {t : rbnode α} (hn : lt x y ∨ lt y x) : ∀ {lo hi} (hs : is_searchable lt t lo hi) (hlt₁ : lift lt lo (some x)) (hlt₂ : lift lt (some x) hi), find lt (ins lt t x) y = find lt t y :=
+begin
+  apply ins.induction lt t x; intros,
+  { cases hn with hn hn,
+    all_goals { have := not_lt_of_lt hn, simp [find, ins, cmp_using, *] } },
+  { simp at hc, cases hs,
+    have := ih hs₁ hlt₁ hc,
+    simp [find, ins, cmp_using, *] },
+  { simp at hc,
+    cases hn with hn hn,
+    { have := not_lt_of_lt hn,
+      have := lt_of_incomp_of_lt hc.symm hn,
+      have := not_lt_of_lt this,
+      simp [find, ins, cmp_using, *] },
+    { have := not_lt_of_lt hn,
+      have := lt_of_lt_of_incomp hn hc,
+      have := not_lt_of_lt this,
+      simp [find, ins, cmp_using, *] } },
+  { simp at hc, cases hs,
+    have := ih hs₂ hc hlt₂,
+    have := not_lt_of_lt hc,
+    cases hn with hn hn,
+    { have := trans hc hn,
+      have := not_lt_of_lt this,
+      simp [find, ins, cmp_using, *] },
+    { simp [find, ins, cmp_using, *] } },
+  { simp at hc, cases hs,
+    have ih := ih hs₁ hlt₁ hc,
+    cases hn with hn hn,
+    { generalize hc' : cmp_using lt y y_1 = cyy_1,
+      cases cyy_1; simp at hc',
+      { have hlt := trans hn hc',
+        have hsi := is_searchable_ins lt hs₁ hlt₁ hlt,
+        have := find_balance1_node_lt lt hc' (ins_ne_leaf lt _ _) hsi hs₂,
+        simp [find, *, ins, cmp_using] },
+      { have hlt := lt_of_lt_of_incomp hn hc',
+        have hsi := is_searchable_ins lt hs₁ hlt₁ hlt,
+        have := find_balance1_node_eqv lt hc' (ins_ne_leaf lt _ _) hsi hs₂,
+        simp [find, *, ins, cmp_using] },
+      { have hsi := is_searchable_ins lt hs₁ hlt₁ hc,
+        have := find_balance1_node_gt lt hc' (ins_ne_leaf lt _ _) hsi hs₂,
+        simp [*],
+        simp [find, *, ins, cmp_using] } },
+    { have hlt := trans hn hc,
+      have hsi := is_searchable_ins lt hs₁ hlt₁ hc,
+      have := find_balance1_node_lt lt hlt (ins_ne_leaf lt _ _) hsi hs₂,
+      simp [find, *, ins, cmp_using] } },
+  { simp at hc, cases hs,
+    have := ih hs₁ hlt₁ hc,
+    simp [find, ins, cmp_using, *] },
+  { simp at hc, cases hs,
+    cases hn with hn hn,
+    { have := not_lt_of_lt hn,
+      have := lt_of_incomp_of_lt hc.swap hn,
+      have := not_lt_of_lt this,
+      simp [find, ins, cmp_using, *] },
+    { have := lt_of_lt_of_incomp hn hc,
+      simp [find, ins, cmp_using, *] } },
+  { simp [find, ins, cmp_using, *], simp at hc, cases hs,
+    have hsf : is_searchable lt (ins lt b x) (some y_1) hi := is_searchable_ins lt hs₂ hc hlt₂,
+    /- TODO(Leo): balance2 case :-( -/
+    admit },
+  { simp at hc, cases hs,
+    cases hn with hn hn,
+    { have := trans hc hn,
+      have := not_lt_of_lt this,
+      have := not_lt_of_lt hc,
+      have := ih hs₂ hc hlt₂,
+      simp [find, ins, cmp_using, *] },
+    { have ih := ih hs₂ hc hlt₂,
+      have := not_lt_of_lt hc,
+      simp [find, ins, cmp_using, *] } }
+end
+
+end find_ins_of_not_eqv
+
+lemma find_insert_of_disj [is_strict_weak_order α lt] {x y : α} {t : rbnode α} (hd : lt x y ∨ lt y x) : is_searchable lt t none none → find lt (insert lt t x) y = find lt t y :=
+begin
+  intro hs,
+  simp [insert, find_flip_red],
+  apply find_ins_of_disj lt hd hs; simp [lift]
+end
+
+lemma find_insert_of_not_eqv [is_strict_weak_order α lt] {x y : α} {t : rbnode α} (hn : ¬ x ≈[lt] y) : is_searchable lt t none none → find lt (insert lt t x) y = find lt t y :=
+begin
+  intro hs,
+  simp [insert, find_flip_red],
+  have he : lt x y ∨ lt y x, {
+    simp [strict_weak_order.equiv, decidable.not_and_iff_or_not, decidable.not_not_iff] at hn,
+    assumption },
+  apply find_ins_of_disj lt he hs; simp [lift]
+end
+
 end membership_lemmas
 
 end rbnode

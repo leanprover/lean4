@@ -197,6 +197,10 @@ This tactic looks in the local context for a hypothesis whose type is equal to t
 meta def assumption : tactic unit :=
 tactic.assumption
 
+/-- Try to apply `assumption` to all goals. -/
+meta def assumption' : tactic unit :=
+tactic.any_goals tactic.assumption
+
 private meta def change_core (e : expr) : option expr → tactic unit
 | none     := tactic.change e
 | (some h) :=

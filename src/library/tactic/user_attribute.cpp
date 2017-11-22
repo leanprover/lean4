@@ -166,6 +166,17 @@ public:
     virtual name_map<attribute_ptr> get_attributes(environment const & env) override {
         return get_extension(env).m_attrs;
     }
+
+    void write_entry(serializer & s, attr_data const & data) override {
+        lean_assert(dynamic_cast<user_attribute_data const *>(&data));
+        static_cast<user_attribute_data const *>(&data)->write(s);
+    }
+
+    attr_data_ptr read_entry(deserializer & d) override {
+        auto data = new user_attribute_data;
+        data->read(d);
+        return attr_data_ptr(data);
+    }
 };
 
 struct user_attr_modification : public modification {

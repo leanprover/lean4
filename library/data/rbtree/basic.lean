@@ -201,8 +201,8 @@ end is_searchable_lemmas
 
 inductive is_red_black : rbnode α → color → nat → Prop
 | leaf_rb  : is_red_black leaf black 0
-| red_rb   : ∀ {v l r n}, is_red_black l black n → is_red_black r black n → is_red_black (red_node l v r) red n
-| black_rb : ∀ {v l r n c₁ c₂}, is_red_black l c₁ n → is_red_black r c₂ n → is_red_black (black_node l v r) black (succ n)
+| red_rb   {v l r n} (rb_l : is_red_black l black n) (rb_r : is_red_black r black n) : is_red_black (red_node l v r) red n
+| black_rb {v l r n c₁ c₂} (rb_l : is_red_black l c₁ n) (rb_r : is_red_black r c₂ n) : is_red_black (black_node l v r) black (succ n)
 
 open is_red_black
 

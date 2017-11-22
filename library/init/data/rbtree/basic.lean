@@ -102,12 +102,13 @@ def ins : rbnode α → α → rbnode α
       else black_node a y (ins b x)
     end
 
-def flip_red : rbnode α → rbnode α
-| (red_node l v r) := black_node l v r
-| t                := t
+def mk_insert_result : color → rbnode α → rbnode α
+| red (red_node l v r)   := black_node l v r
+| red (black_node l v r) := black_node l v r
+| _   t                  := t
 
 def insert (t : rbnode α) (x : α) : rbnode α :=
-flip_red (ins lt t x)
+mk_insert_result (get_color t) (ins lt t x)
 
 end insert
 

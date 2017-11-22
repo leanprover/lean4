@@ -47,7 +47,7 @@ lemma ins.induction {p : rbnode α → Prop}
   (h₆ : ∀ a y b (hc : cmp_using lt x y = ordering.lt) (hnr : get_color a ≠ red) (ih : p a), p (black_node a y b))
   (h₇ : ∀ a y b (hc : cmp_using lt x y = ordering.eq), p (black_node a y b))
   (h₈ : ∀ a y b (hc : cmp_using lt x y = ordering.gt) (hr : get_color b = red) (ih : p b), p (black_node a y b))
-  (h₉ : ∀ a y b (hc : cmp_using lt x y = ordering.gt) (hr : get_color b ≠ red) (ih : p b), p (black_node a y b))
+  (h₉ : ∀ a y b (hc : cmp_using lt x y = ordering.gt) (hnr : get_color b ≠ red) (ih : p b), p (black_node a y b))
   : p t :=
 begin
   induction t,
@@ -115,16 +115,16 @@ begin
   { apply ih hs₂, assumption, simp [lift, *] }
 end
 
-lemma is_searchable_flip_red {t} : is_searchable lt t none none → is_searchable lt (flip_red t) none none :=
+lemma is_searchable_mk_insert_result {c t} : is_searchable lt t none none → is_searchable lt (mk_insert_result c t) none none :=
 begin
-  cases t; simp [flip_red],
+  cases c; cases t; simp [mk_insert_result],
   any_goals { exact id },
   { intro h, is_searchable_tactic }
 end
 
 lemma is_searchable_insert {t x} [is_strict_weak_order α lt] : is_searchable lt t none none → is_searchable lt (insert lt t x) none none :=
 begin
-  intro h, simp [insert], apply is_searchable_flip_red, apply is_searchable_ins, assumption, simp [lift], simp [lift]
+  intro h, simp [insert], apply is_searchable_mk_insert_result, apply is_searchable_ins, assumption, simp [lift], simp [lift]
 end
 
 end rbnode
@@ -199,9 +199,10 @@ lemma insert_ne_leaf (t : rbnode α) (x : α) : insert lt t x ≠ leaf :=
 begin
   simp [insert],
   generalize he : ins lt t x = t',
-  cases t'; simp [flip_red],
+  cases t'; cases get_color t; simp [mk_insert_result],
   { have := ins_ne_leaf lt t x, contradiction },
-  all_goals { contradiction }
+  any_goals { contradiction },
+  { exact absurd he (ins_ne_leaf _ _ _) }
 end
 
 lemma mem_ins_of_incomp (t : rbnode α) {x y : α} : ∀ h : ¬ lt x y ∧ ¬ lt y x, x ∈ t.ins lt y :=
@@ -230,17 +231,17 @@ begin
   { apply mem_balance2_node_of_mem_left, apply ih h }
 end
 
-lemma mem_flip_red {a t} : mem lt a t → mem lt a (flip_red t) :=
-by intros; cases t; simp [flip_red, mem, *] at *
+lemma mem_mk_insert_result {a t} (c) : mem lt a t → mem lt a (mk_insert_result c t) :=
+by intros; cases c; cases t; simp [mk_insert_result, mem, *] at *
 
-lemma mem_of_mem_flip_red {a t} : mem lt a (flip_red t) → mem lt a t :=
-by cases t; simp [flip_red, mem]; intros; assumption
+lemma mem_of_mem_mk_insert_result {a t c} : mem lt a (mk_insert_result c t) → mem lt a t :=
+by cases t; cases c; simp [mk_insert_result, mem]; intros; assumption
 
 lemma mem_insert_of_incomp (t : rbnode α) {x y : α} : ∀ h : ¬ lt x y ∧ ¬ lt y x, x ∈ t.insert lt y :=
-by intros; unfold insert; apply mem_flip_red; apply mem_ins_of_incomp; assumption
+by intros; unfold insert; apply mem_mk_insert_result; apply mem_ins_of_incomp; assumption
 
 lemma mem_insert_of_mem [is_strict_weak_order α lt] {t x} (z) : x ∈ t → x ∈ t.insert lt z :=
-by intros; apply mem_flip_red; apply mem_ins_of_mem; assumption
+by intros; apply mem_mk_insert_result; apply mem_ins_of_mem; assumption
 
 lemma of_mem_balance1_node [is_strict_weak_order α lt] {x s v t} : x ∈ balance1_node s v t → x ∈ s ∨ (¬ lt x v ∧ ¬ lt v x) ∨ x ∈ t :=
 begin
@@ -267,7 +268,7 @@ end
 
 lemma equiv_or_mem_of_mem_insert [is_strict_weak_order α lt] {t : rbnode α} {x z} : ∀ (h : x ∈ t.insert lt z), x ≈[lt] z ∨ x ∈ t :=
 begin
-  simp [insert], intros, apply equiv_or_mem_of_mem_ins, exact mem_of_mem_flip_red lt h
+  simp [insert], intros, apply equiv_or_mem_of_mem_ins, exact mem_of_mem_mk_insert_result lt h
 end
 
 lemma mem_exact_balance1_node_of_mem_exact {x s} (v) (t : rbnode α) : mem_exact x s → mem_exact x (balance1_node s v t) :=
@@ -354,16 +355,16 @@ begin
     simp_fi }
 end
 
-lemma find_flip_red (t : rbnode α) (x : α) : find lt (flip_red t) x = find lt t x :=
+lemma find_mk_insert_result (c : color) (t : rbnode α) (x : α) : find lt (mk_insert_result c t) x = find lt t x :=
 begin
-  cases t; simp [flip_red],
+  cases t; cases c; simp [mk_insert_result],
   { simp [find], cases cmp_using lt x val; simp [find] }
 end
 
 lemma find_insert_of_eqv [is_strict_weak_order α lt] {x y : α} {t : rbnode α} (he : x ≈[lt] y) : is_searchable lt t none none → find lt (insert lt t x) y = some x :=
 begin
   intro hs,
-  simp [insert, find_flip_red],
+  simp [insert, find_mk_insert_result],
   apply find_ins_of_eqv lt he hs; simp [lift]
 end
 
@@ -635,14 +636,14 @@ end find_ins_of_not_eqv
 lemma find_insert_of_disj [is_strict_weak_order α lt] {x y : α} {t : rbnode α} (hd : lt x y ∨ lt y x) : is_searchable lt t none none → find lt (insert lt t x) y = find lt t y :=
 begin
   intro hs,
-  simp [insert, find_flip_red],
+  simp [insert, find_mk_insert_result],
   apply find_ins_of_disj lt hd hs; simp [lift]
 end
 
 lemma find_insert_of_not_eqv [is_strict_weak_order α lt] {x y : α} {t : rbnode α} (hn : ¬ x ≈[lt] y) : is_searchable lt t none none → find lt (insert lt t x) y = find lt t y :=
 begin
   intro hs,
-  simp [insert, find_flip_red],
+  simp [insert, find_mk_insert_result],
   have he : lt x y ∨ lt y x, {
     simp [strict_weak_order.equiv, decidable.not_and_iff_or_not, decidable.not_not_iff] at hn,
     assumption },
@@ -650,5 +651,90 @@ begin
 end
 
 end membership_lemmas
+
+section is_red_black
+variables {α : Type u}
+open nat color
+
+inductive is_bad_red_black : rbnode α → nat → Prop
+| bad_red   {c₁ c₂ n l r v} (rb_l : is_red_black l c₁ n) (rb_r : is_red_black r c₂ n) : is_bad_red_black (red_node l v r) n
+
+lemma balance1_rb {l r t : rbnode α} {y v : α} {c_l c_r c_t n} : is_red_black l c_l n → is_red_black r c_r n → is_red_black t c_t n → ∃ c, is_red_black (balance1 l y r v t) c (succ n) :=
+by intros h₁ h₂ h₃; cases h₁; cases h₂; repeat {assumption <|> constructor}
+
+lemma balance2_rb {l r t : rbnode α} {y v : α} {c_l c_r c_t n} : is_red_black l c_l n → is_red_black r c_r n → is_red_black t c_t n → ∃ c, is_red_black (balance2 l y r v t) c (succ n) :=
+by intros h₁ h₂ h₃; cases h₁; cases h₂; repeat {assumption <|> constructor}
+
+lemma balance1_node_rb {t s : rbnode α} {y : α} {c n} : is_bad_red_black t n → is_red_black s c n → ∃ c, is_red_black (balance1_node t y s) c (succ n) :=
+by intros h _; cases h; simp [balance1_node]; apply balance1_rb; assumption'
+
+lemma balance2_node_rb {t s : rbnode α} {y : α} {c n} : is_bad_red_black t n → is_red_black s c n → ∃ c, is_red_black (balance2_node t y s) c (succ n) :=
+by intros h _; cases h; simp [balance2_node]; apply balance2_rb; assumption'
+
+def ins_rb_result : rbnode α → color → nat → Prop
+| t red   n := is_bad_red_black t n
+| t black n := ∃ c, is_red_black t c n
+
+variables {lt : α → α → Prop} [decidable_rel lt]
+
+lemma of_get_color_eq_red {t : rbnode α} {c n} : get_color t = red → is_red_black t c n → c = red :=
+begin intros h₁ h₂, cases h₂; simp [get_color] at h₁; contradiction end
+
+lemma of_get_color_ne_red {t : rbnode α} {c n} : get_color t ≠ red → is_red_black t c n → c = black :=
+begin intros h₁ h₂, cases h₂; simp [get_color] at h₁; contradiction end
+
+variable (lt)
+
+lemma ins_rb {t : rbnode α} (x) : ∀ {c n} (h : is_red_black t c n), ins_rb_result (ins lt t x) c n :=
+begin
+  apply ins.induction lt t x; intros; cases h; simp [ins, *, ins_rb_result],
+  { repeat { constructor } },
+  { specialize ih rb_l, cases ih, constructor, assumption' },
+  { constructor, assumption' },
+  { specialize ih rb_r, cases ih, constructor, assumption' },
+  { specialize ih rb_l,
+    have := of_get_color_eq_red hr rb_l, subst c₁,
+    simp [ins_rb_result] at ih,
+    apply balance1_node_rb, assumption' },
+  { specialize ih rb_l,
+    have := of_get_color_ne_red hnr rb_l, subst c₁,
+    simp [ins_rb_result] at ih, cases ih,
+    constructor, constructor, assumption' },
+  { constructor, constructor, assumption' },
+  { specialize ih rb_r,
+    have := of_get_color_eq_red hr rb_r, subst c₂,
+    simp [ins_rb_result] at ih,
+    apply balance2_node_rb, assumption' },
+  { specialize ih rb_r,
+    have := of_get_color_ne_red hnr rb_r, subst c₂,
+    simp [ins_rb_result] at ih, cases ih,
+    constructor, constructor, assumption' }
+end
+
+def insert_rb_result : rbnode α → color → nat → Prop
+| t red n   := is_red_black t black (succ n)
+| t black n := ∃ c, is_red_black t c n
+
+lemma insert_rb {t : rbnode α} (x) {c n} (h : is_red_black t c n) : insert_rb_result (insert lt t x) c n :=
+begin
+  simp [insert],
+  have hi := ins_rb lt x h,
+  generalize he : ins lt t x = r,
+  simp [he] at hi, clear he,
+  cases h; simp [get_color, ins_rb_result, insert_rb_result, mk_insert_result] at *,
+  assumption',
+  { cases hi, simp [mk_insert_result], constructor; assumption }
+end
+
+lemma insert_is_red_black {t : rbnode α} {c n} (x) : is_red_black t c n → ∃ c n, is_red_black (insert lt t x) c n :=
+begin
+  intro h,
+  have := insert_rb lt x h,
+  cases c; simp [insert_rb_result] at this,
+  { constructor, constructor, assumption },
+  { cases this, constructor, constructor, assumption }
+end
+
+end is_red_black
 
 end rbnode

@@ -5,3 +5,7 @@ expensive n
 
 #print foo
 #print foo._main
+
+def bla : ℕ → ℕ
+| 100 := expensive 0
+| _   := expensive 1

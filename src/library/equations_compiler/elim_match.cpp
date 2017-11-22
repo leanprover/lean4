@@ -1217,7 +1217,17 @@ struct elim_match_fn {
         expr rhs                   = apply(eqn.m_rhs, eqn.m_subst);
         if (m_aux_lemmas && m_env.find(get_id_rhs_name())) {
             /* We wrap the rhs with `id_rhs` to solve a performance problem related to whnf_ite when proving
-               the equational lemmas. */
+               the equational lemmas.
+
+               We use `id_rhs` as a marker at whnf_ite. The goal is to stop whnf computation as soon as we find
+               an `id_rhs` application at whnf_ite.
+
+               Remark: `id_rhs` is defined using `abbrev` hint. So, the is_def_eq procedure in the kernel
+               is not affected by it. That is, a problem
+                       t =?= id_rhs s
+               is reduced to
+                       t =?= s
+            */
             type_context ctx = mk_type_context(P);
             rhs              = mk_id_rhs(ctx, rhs);
         }

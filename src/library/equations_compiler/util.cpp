@@ -364,10 +364,9 @@ static environment add_equation_lemma(environment const & env, options const & o
 }
 
 static expr whnf_ite(type_context & ctx, expr const & e) {
-    // tout() << "whnf_ite >> " << e << "\n";
+    /* We use id_rhs as a "marker" to decide when to stop the whnf computation. */
     return ctx.whnf_head_pred(e, [&](expr const & e) {
             expr const & fn = get_app_fn(e);
-            // tout() << ">> pred: " << e << "\n";
             return !is_constant(fn, get_ite_name()) && !is_constant(fn, get_id_rhs_name());
         });
 }

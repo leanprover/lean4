@@ -353,7 +353,7 @@ static environment add_equation_lemma(environment const & env, options const & o
         std::tie(new_env, new_type) = abstract_rhs_nested_proofs(new_env, mctx, lctx, f_actual_name, new_type);
     }
     try {
-        std::tie(new_env, r) = mk_aux_definition(new_env, mctx, lctx, new_eqn_name, new_type, new_value);
+        std::tie(new_env, r) = mk_aux_lemma(new_env, mctx, lctx, new_eqn_name, new_type, new_value);
         if (is_rfl_lemma(new_type, new_value))
             new_env = mark_rfl_lemma(new_env, new_eqn_name);
         new_env = add_eqn_lemma(new_env, new_eqn_name);

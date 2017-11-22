@@ -445,7 +445,7 @@ static vm_obj string_cmp(vm_obj const & s1, vm_obj const & s2) {
 
 vm_obj string_has_decidable_lt(vm_obj const & s1, vm_obj const & s2) {
     vm_obj r = string_cmp(s1, s2);
-    if (cidx(r) == 1) return r;
+    if (cidx(r) == 0) return mk_vm_simple(1);
     else return mk_vm_simple(0);
 }
 

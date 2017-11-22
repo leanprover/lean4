@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/tactic_notation.h"
 #include "frontends/lean/elaborator.h"
+#include "frontends/lean/decl_util.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/builtin_exprs.h"
 
@@ -522,7 +523,8 @@ static expr parse_begin_end_block(parser & p, pos_info const & start_pos, name c
 }
 
 expr parse_begin_end_expr_core(parser & p, pos_info const & pos, name const & end_token) {
-    parser::local_scope _(p);
+    parser::local_scope scope1(p);
+    meta_definition_scope scope2;
     p.clear_expr_locals();
     bool use_istep = true;
     expr tac = parse_begin_end_block(p, pos, end_token, get_tactic_name(), use_istep);
@@ -543,7 +545,8 @@ expr parse_begin_end(parser & p, unsigned, expr const *, pos_info const & pos) {
 
 expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
     p.next();
-    parser::local_scope _(p);
+    parser::local_scope scope1(p);
+    meta_definition_scope scope2;
     p.clear_expr_locals();
     auto tac_pos = p.pos();
     try {

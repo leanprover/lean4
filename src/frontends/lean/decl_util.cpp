@@ -508,4 +508,16 @@ match_definition_scope::match_definition_scope(environment const & env) {
         }
     }
 }
+
+meta_definition_scope::meta_definition_scope() {
+    definition_info & info = get_definition_info();
+    m_old_is_meta  = info.m_is_meta;
+    info.m_is_meta = true;
+}
+
+meta_definition_scope::~meta_definition_scope() {
+    definition_info & info = get_definition_info();
+    info.m_is_meta = m_old_is_meta;
+}
+
 }

@@ -86,6 +86,17 @@ public:
     name const & get_actual_name() const { return m_actual_name; }
 };
 
+/** \brief Auxiliary scope to switch to `meta` mode when processing a
+    `by tac` in a regular definition.
+    We need this because we may have a match expression nested
+    in `tac`, and we should not create equation lemmas for it. */
+class meta_definition_scope {
+    bool m_old_is_meta;
+public:
+    meta_definition_scope();
+    ~meta_definition_scope();
+};
+
 /** \brief Return true if the current scope used match-expressions */
 bool used_match_idx();
 

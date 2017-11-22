@@ -173,6 +173,9 @@ instance : has_mem α (rbtree α lt) :=
 def mem_exact (a : α) (t : rbtree α lt) : Prop :=
 rbnode.mem_exact a t.val
 
+def depth (f : nat → nat → nat) (t : rbtree α lt) : nat :=
+t.val.depth f
+
 def fold (f : α → β → β) : rbtree α lt → β →  β
 | ⟨t, _⟩ b := t.fold f b
 

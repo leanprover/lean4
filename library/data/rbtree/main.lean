@@ -19,10 +19,27 @@ begin
   { subst n', apply is_searchable_insert, assumption }
 end
 
+open color
+
+lemma is_red_black_of_well_formed {t : rbnode α} : t.well_formed lt → ∃ c n, is_red_black t c n :=
+begin
+  intro h, induction h,
+  { existsi black, existsi 0, constructor },
+  { cases ih_1 with c ih, cases ih with n ih, subst n', apply insert_is_red_black, assumption }
+end
+
 end rbnode
 
 namespace rbtree
 variables {α : Type u} {lt : α → α → Prop}
+
+lemma balanced (t : rbtree α lt) : 2 * t.depth min + 1 ≥ t.depth max :=
+begin
+  cases t with n p, simp only [depth],
+  have := rbnode.is_red_black_of_well_formed p,
+  cases this with _ this, cases this with _ this,
+  apply rbnode.balanced, assumption
+end
 
 lemma not_mem_mk_rbtree : ∀ (a : α), a ∉ mk_rbtree α lt :=
 by simp [has_mem.mem, rbtree.mem, rbnode.mem, mk_rbtree]

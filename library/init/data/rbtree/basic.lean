@@ -104,7 +104,6 @@ def ins : rbnode α → α → rbnode α
 
 def mk_insert_result : color → rbnode α → rbnode α
 | red (red_node l v r)   := black_node l v r
-| red (black_node l v r) := black_node l v r
 | _   t                  := t
 
 def insert (t : rbnode α) (x : α) : rbnode α :=

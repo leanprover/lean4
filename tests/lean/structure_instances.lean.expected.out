@@ -1,0 +1,22 @@
+{a := 1, b := 1, c := 1} : foo ℕ
+{a := 1, b := 1, c := 1} : foo ℕ
+{a := ?M_1, b := ?M_1, c := 1} : foo ℕ
+{a := ?M_1, b := ?M_1, c := 1} : foo ℕ
+{a := f.a, b := f.b, c := 1} : foo ℕ
+{a := f.a, b := f.b, c := f.c} : foo ℕ
+structure_instances.lean:16:10: error: invalid expression
+structure_instances.lean:16:12: error: invalid structure instance, '}' expected
+structure_instances.lean:16:7: error: invalid structure notation source, not a structure
+  ⁇
+which has type
+  ?m_1
+structure_instances.lean:16:7: error: invalid structure value {...}, expected type is not known(solution: use qualified structure instance { struct_id . ... }
+structure_instances.lean:16:14: error: command expected
+structure_instances.lean:17:13: error: invalid structure instance, '}' expected
+structure_instances.lean:17:7: error: function expected at
+  {a := f.a, b := f.b, c := f.c}
+term has type
+  foo ℕ
+structure_instances.lean:17:15: error: command expected
+{a := 0, b := 0} : bar
+{a := 1, b := {a := 0, b := 0}.b, c := {b := 2, c := 2}.c} : foo ℕ

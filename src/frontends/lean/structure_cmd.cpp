@@ -1121,7 +1121,8 @@ struct structure_cmd_fn {
                 declaration new_decl = mk_definition_inferring_trusted(m_env, decl_name, decl_lvls,
                                                                        decl_type, decl_value, reducibility_hints::mk_abbreviation());
                 m_env = module::add(m_env, check(m_env, new_decl));
-                m_env = mk_simple_equation_lemma_for(m_env, m_p.get_options(), is_private(), decl_name, decl_prv_name, args.size());
+                if (!m_meta_info.m_modifiers.m_is_meta)
+                    m_env = mk_simple_equation_lemma_for(m_env, m_p.get_options(), is_private(), decl_name, decl_prv_name, args.size());
                 m_env = set_reducible(m_env, decl_name, reducible_status::Reducible, true);
             }
         }

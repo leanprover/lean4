@@ -49,7 +49,6 @@ name const * g_decidable = nullptr;
 name const * g_decidable_to_bool = nullptr;
 name const * g_distrib = nullptr;
 name const * g_dite = nullptr;
-name const * g_id = nullptr;
 name const * g_empty = nullptr;
 name const * g_Exists = nullptr;
 name const * g_eq = nullptr;
@@ -127,7 +126,7 @@ name const * g_heq_symm = nullptr;
 name const * g_heq_trans = nullptr;
 name const * g_heq_of_eq = nullptr;
 name const * g_hole_command = nullptr;
-name const * g_id_locked = nullptr;
+name const * g_id = nullptr;
 name const * g_id_rhs = nullptr;
 name const * g_id_delta = nullptr;
 name const * g_if_neg = nullptr;
@@ -431,7 +430,6 @@ void initialize_constants() {
     g_decidable_to_bool = new name{"decidable", "to_bool"};
     g_distrib = new name{"distrib"};
     g_dite = new name{"dite"};
-    g_id = new name{"id"};
     g_empty = new name{"empty"};
     g_Exists = new name{"Exists"};
     g_eq = new name{"eq"};
@@ -509,7 +507,7 @@ void initialize_constants() {
     g_heq_trans = new name{"heq", "trans"};
     g_heq_of_eq = new name{"heq_of_eq"};
     g_hole_command = new name{"hole_command"};
-    g_id_locked = new name{"id_locked"};
+    g_id = new name{"id"};
     g_id_rhs = new name{"id_rhs"};
     g_id_delta = new name{"id_delta"};
     g_if_neg = new name{"if_neg"};
@@ -814,7 +812,6 @@ void finalize_constants() {
     delete g_decidable_to_bool;
     delete g_distrib;
     delete g_dite;
-    delete g_id;
     delete g_empty;
     delete g_Exists;
     delete g_eq;
@@ -892,7 +889,7 @@ void finalize_constants() {
     delete g_heq_trans;
     delete g_heq_of_eq;
     delete g_hole_command;
-    delete g_id_locked;
+    delete g_id;
     delete g_id_rhs;
     delete g_id_delta;
     delete g_if_neg;
@@ -1196,7 +1193,6 @@ name const & get_decidable_name() { return *g_decidable; }
 name const & get_decidable_to_bool_name() { return *g_decidable_to_bool; }
 name const & get_distrib_name() { return *g_distrib; }
 name const & get_dite_name() { return *g_dite; }
-name const & get_id_name() { return *g_id; }
 name const & get_empty_name() { return *g_empty; }
 name const & get_Exists_name() { return *g_Exists; }
 name const & get_eq_name() { return *g_eq; }
@@ -1274,7 +1270,7 @@ name const & get_heq_symm_name() { return *g_heq_symm; }
 name const & get_heq_trans_name() { return *g_heq_trans; }
 name const & get_heq_of_eq_name() { return *g_heq_of_eq; }
 name const & get_hole_command_name() { return *g_hole_command; }
-name const & get_id_locked_name() { return *g_id_locked; }
+name const & get_id_name() { return *g_id; }
 name const & get_id_rhs_name() { return *g_id_rhs; }
 name const & get_id_delta_name() { return *g_id_delta; }
 name const & get_if_neg_name() { return *g_if_neg; }

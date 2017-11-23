@@ -44,7 +44,6 @@ decidable
 decidable.to_bool
 distrib
 dite
-id
 empty
 Exists
 eq
@@ -122,7 +121,7 @@ heq.symm
 heq.trans
 heq_of_eq
 hole_command
-id_locked
+id
 id_rhs
 id_delta
 if_neg

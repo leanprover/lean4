@@ -180,8 +180,10 @@ expr mk_false_rec(type_context & ctx, expr const & c, expr const & H);
 /* (if c then t else e) */
 expr mk_ite(type_context & ctx, expr const & c, expr const & t, expr const & e);
 
-/* (id_locked type h) */
-expr mk_id_locked(type_context & ctx, expr const & type, expr const & h);
+/* (@id type h) */
+expr mk_id(type_context & ctx, expr const & type, expr const & h);
+/* (id h) */
+expr mk_id(type_context & ctx, expr const & h);
 
 /* (id_rhs h) */
 expr mk_id_rhs(type_context & ctx, expr const & h);

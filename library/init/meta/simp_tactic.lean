@@ -468,7 +468,7 @@ private meta def loop (cfg : simp_config) (discharger : tactic unit) (to_unfold 
        to_expr ``(@false.rec %%tgt %%new_fact_pr) >>= exact
      else do
        h0_type     ← infer_type h,
-       let new_fact_pr := mk_id_locked_proof new_h_type new_fact_pr,
+       let new_fact_pr := mk_id_proof new_h_type new_fact_pr,
        new_es      ← update_simp_lemmas es new_fact_pr,
        new_r       ← update_simp_lemmas r new_fact_pr,
        let new_r := {new_type := new_h_type, pr := new_pr, ..e} :: new_r,

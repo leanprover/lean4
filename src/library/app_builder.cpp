@@ -1125,9 +1125,13 @@ expr mk_ite(type_context & ctx, expr const & c, expr const & t, expr const & e) 
     return mk_app(ctx, get_ite_name(), 5, mask, args);
 }
 
-expr mk_id_locked(type_context & ctx, expr const & type, expr const & h) {
+expr mk_id(type_context & ctx, expr const & type, expr const & h) {
     level lvl = get_level(ctx, type);
-    return mk_app(mk_constant(get_id_locked_name(), {lvl}), type, h);
+    return mk_app(mk_constant(get_id_name(), {lvl}), type, h);
+}
+
+expr mk_id(type_context & ctx, expr const & h) {
+    return mk_id(ctx, ctx.infer(h), h);
 }
 
 expr mk_id_rhs(type_context & ctx, expr const & h) {

@@ -1147,26 +1147,6 @@ meta def any_of {α β} : list α → (α → tactic β) → tactic β
 end list
 
 /-
-  Define id_locked using meta-programming because we don't have
-  syntax for setting reducibility_hints.
-
-  See module init.meta.declaration.
-
-  Remark: id_locked is used in the builtin implementation of tactic.change
--/
-run_cmd do
- let l  := level.param `l,
- let Ty : pexpr := expr.sort l,
- type ← to_expr ``(Π {α : %%Ty}, α → α),
- val  ← to_expr ``(λ {α : %%Ty} (a : α), a),
- add_decl (declaration.defn `id_locked [`l] type val reducibility_hints.opaque tt)
-
-lemma id_locked_eq {α : Type u} (a : α) : id_locked a = a :=
-rfl
-
-attribute [inline] id_locked
-
-/-
   Define id_rhs using meta-programming because we don't have
   syntax for setting reducibility_hints.
 
@@ -1201,18 +1181,18 @@ meta instance : monad task :=
  bind_pure_comp_eq_map := undefined}
 
 namespace tactic
-meta def mk_id_locked_proof (prop : expr) (pr : expr) : expr :=
-expr.app (expr.app (expr.const ``id_locked [level.zero]) prop) pr
+meta def mk_id_proof (prop : expr) (pr : expr) : expr :=
+expr.app (expr.app (expr.const ``id [level.zero]) prop) pr
 
-meta def mk_id_locked_eq (lhs : expr) (rhs : expr) (pr : expr) : tactic expr :=
+meta def mk_id_eq (lhs : expr) (rhs : expr) (pr : expr) : tactic expr :=
 do prop ← mk_app `eq [lhs, rhs],
-   return $ mk_id_locked_proof prop pr
+   return $ mk_id_proof prop pr
 
 meta def replace_target (new_target : expr) (pr : expr) : tactic unit :=
 do t ← target,
    assert `htarget new_target, swap,
    ht        ← get_local `htarget,
-   locked_pr ← mk_id_locked_eq t new_target pr,
+   locked_pr ← mk_id_eq t new_target pr,
    mk_eq_mpr locked_pr ht >>= exact
 
 end tactic

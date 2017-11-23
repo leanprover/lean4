@@ -1149,7 +1149,7 @@ expr congruence_closure::mk_proof(expr const & lhs, expr const & rhs, expr const
     } else if (H == *g_refl_mark) {
         expr type  = heq_proofs ? mk_heq(m_ctx, lhs, rhs) : mk_eq(m_ctx, lhs, rhs);
         expr proof = heq_proofs ? mk_heq_refl(m_ctx, lhs) : mk_eq_refl(m_ctx, lhs);
-        return mk_app(mk_constant(get_id_locked_name(), {mk_level_zero()}), type, proof);
+        return mk_app(mk_constant(get_id_name(), {mk_level_zero()}), type, proof);
     } else if (is_cc_theory_proof(H)) {
         return expand_delayed_cc_proofs(*this, get_cc_theory_proof_arg(H));
     } else {

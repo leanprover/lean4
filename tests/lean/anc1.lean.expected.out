@@ -3,7 +3,7 @@
 anc1.lean:5:0: warning: declaration '[anonymous]' uses sorry
 ⟨1, _⟩ : Σ' (x : ℕ), x > 0
 show true, from true.intro : true
-Exists.intro 1 (id_locked (λ (a : 1 = 0), nat.no_confusion a)) : ∃ (x : ℕ), 1 ≠ 0
+Exists.intro 1 (id (λ (a : 1 = 0), nat.no_confusion a)) : ∃ (x : ℕ), 1 ≠ 0
 λ (A B C : Prop) (Ha : A) (Hb : B) (Hc : C), show B ∧ A, from ⟨Hb, Ha⟩ :
   ∀ (A B C : Prop), A → B → C → B ∧ A
 λ (A B C : Prop) (Ha : A) (Hb : B) (Hc : C), show B ∧ A ∧ C ∧ A, from ⟨Hb, ⟨Ha, ⟨Hc, Ha⟩⟩⟩ :

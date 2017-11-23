@@ -24,11 +24,11 @@ vm_obj change_core(expr const & e, bool check, tactic_state const & s) {
             /*
                We use the proof term
 
-                  (@id_locked (g->get_type()) new_M)
+                  (@id (g->get_type()) new_M)
 
                to create a "checkpoint". See discussion at issue #1260
             */
-            expr  pr  = mk_id_locked(ctx, g->get_type(), new_M);
+            expr  pr  = mk_id(ctx, g->get_type(), new_M);
             mctx.assign(head(s.goals()), pr);
             list<expr> new_gs(new_M, tail(s.goals()));
             return tactic::mk_success(set_mctx_goals(s, mctx, new_gs));

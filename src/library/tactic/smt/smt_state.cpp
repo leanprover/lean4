@@ -260,7 +260,7 @@ static expr_pair preprocess_forward(type_context & ctx, defeq_can_state & dcs, s
     } else if (r.get_new() == type) {
         return mk_pair(type, h);
     } else {
-        return mk_pair(r.get_new(), mk_id_locked(ctx, r.get_new(), h));
+        return mk_pair(r.get_new(), mk_id(ctx, r.get_new(), h));
     }
 }
 

@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "library/placeholder.h"
 #include "kernel/inductive/inductive.h"
+#include "library/max_sharing.h"
 #include "library/trace.h"
 #include "library/num.h"
 #include "library/constants.h"
@@ -1374,7 +1375,33 @@ struct elim_match_fn {
         auto counter_examples    = get_counter_examples();
         if (!counter_examples && !m_error_during_process)
             check_no_unused_eqns(eqns);
-        fn                       = m_mctx.instantiate_mvars(fn);
+        /* The method `process` may create many common subexpressions because of wildcards occurring in patterns.
+           We reduce this redundancy and improve the performance with the function max_sharing.
+           The performace improvement can be observed in the following example:
+           ```
+           universes u
+
+           inductive node (α : Type u)
+           | leaf : node
+           | red_node : node → α → node → node
+           | black_node : node → α → node → node
+
+           namespace node
+           variable {α : Type u}
+
+           def balance : node α → α → node α → node α
+           | (red_node (red_node a x b) y c) k d := red_node (black_node a x b) y (black_node c k d)
+           | (red_node a x (red_node b y c)) k d := red_node (black_node a x b) y (black_node c k d)
+           | l k r                               := black_node l k r
+
+           end node
+           ```
+           It produces 121 equations.
+           At commit 47994fe14ec7982d5b727c4f8a4f29ae9abce95c, `balance` takes 781 ms to be elaborated
+           on Leo's office desktop. Most of the time is spent proving equation lemmas.
+           The runtime is reduced to 479 ms after we added max_sharing.
+        */
+        fn                       = max_sharing(m_mctx.instantiate_mvars(fn));
         trace_match_debug(tout() << "code:\n" << fn << "\n";);
         list<expr> Ls            = finalize_lemmas(fn, pre_Ls);
         return { fn, Ls, counter_examples };

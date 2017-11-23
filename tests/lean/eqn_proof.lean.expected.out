@@ -1,0 +1,3 @@
+@[_refl_lemma]
+theorem node.balance._main.equations._eqn_1 : ∀ {α : Type u} (k : α) (r : node α), balance._main (leaf α) k r = black_node (leaf α) k r :=
+λ {α : Type u} (k : α) (r : node α), eq.refl (id_delta (balance._main (leaf α) k r))

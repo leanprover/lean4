@@ -186,6 +186,9 @@ expr mk_id_locked(type_context & ctx, expr const & type, expr const & h);
 /* (id_rhs h) */
 expr mk_id_rhs(type_context & ctx, expr const & h);
 
+/* (id_delta h) */
+expr mk_id_delta(type_context & ctx, expr const & h);
+
 expr mk_iff_mp(type_context & ctx, expr const & h1, expr const & h2);
 expr mk_iff_mpr(type_context & ctx, expr const & h1, expr const & h2);
 expr mk_eq_mp(type_context & ctx, expr const & h1, expr const & h2);

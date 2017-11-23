@@ -619,15 +619,107 @@ static expr prove_eqn_lemma_core(type_context & ctx, buffer<expr> const & Hs, ex
         return mk_eq_trans(ctx, H1, H2);
     }
 
-    expr lhs_body = lhs;
+    /* Check if lhs =?= rhs, and create a reflexivity proof if this is the case.
+
+       We have to be careful to avoid performace problems when checking this proof in the kernel.
+       We considered different options.
+
+       Option 1) (refl rhs) or (refl lhs)
+       It will perform poorly in one of the following examples:
+
+
+          | f x 0     := 1
+          | f x (y+1) := f complex_term y
+
+          | g 0     y    := 1
+          | g (x+1) y    := g x complex_term
+
+      If we use (refl rhs), we will generate the proofs
+
+         eq.refl (f complex_term y)
+         eq.refl (g x complex_term)
+
+      These proofs trigger the following definitionally equality tests:
+
+             f x     (y+1)  =?= f complex_term y
+             g (x+1) y      =?= g x complex_term
+
+      Since, we have f/g on both sides, the type checker will try
+      first to unify the arguments, and may timeout trying to solve
+
+               x  =?= complex_term
+               y  =?= complex_term
+
+      since it may take a long time to reduce `complex_term`.
+
+      We have a similar problem if we use (refl lhs)
+
+      Commit 7ebf16ca26da82b3d0e458dbcf32cda374ec785d tried to address this issue
+      by using Option 2).
+
+      Option 2) (refl (unfold_of lhs))
+      This option fixes the performance problem above, but it is still
+      inefficient for definitions that produce many equations.
+      For example, the following definition produces 121 equations.
+
+      ```
+        universes u
+
+        inductive node (α : Type u)
+        | leaf : node
+        | red_node : node → α → node → node
+        | black_node : node → α → node → node
+
+        namespace node
+        variable {α : Type u}
+
+        def balance : node α → α → node α → node α
+        | (red_node (red_node a x b) y c) k d := red_node (black_node a x b) y (black_node c k d)
+        | (red_node a x (red_node b y c)) k d := red_node (black_node a x b) y (black_node c k d)
+        | l k r                               := black_node l k r
+
+        end node
+      ```
+
+      In each equation we will have a big (unfold_of lhs) term. This increases the size of .olean
+      files, and introduces an overhead in the mk_aux_lemma procedure.
+
+      Option 3) (refl (id_delta lhs))
+      We are currently using this option.
+      This approach relies on the fact that the kernel type checker has special support for id_delta.
+      The kernel implements the following is_def_eq rules for id_delta.
+
+          1)   (id_delta t) =?= t
+          2)   t =?= (id_delta t)
+          3)   (id_delta t) =?= s  IF (unfold_of t) =?= s
+          4)   t =?= id_delta s    IF t =?= (unfold_of s)
+
+      We can view it as a "lazy" version of Option 2. The .olean file contains `id_delta t`
+      instead of the result of delta-reducing t. Similarly, no overhead is introduced to mk_aux_lemma
+      since the proof is quite small in this case.
+
+      Finally, note that this optimization is only use when root = true.
+      That is, it is not use if the equation compiler used if-then-else compilation trick for
+      pattern matching scalar values, and/or the pack/unpack auxiliary definitions introduced
+      for nested inductive datatype declarations.
+      The problem described in Option 1 does not happen in this case since we unfold the left-hand-side
+      while building the proof. However, the performance problem described in Option 2 may happen.
+    */
     if (root) {
+        /* Remark: type_context currently does not have support for id_delta.
+           So, we unfold lhs before invoking ctx.is_def_eq. */
+        expr lhs_body = lhs;
         if (auto b = unfold_term(ctx.env(), lhs))
             lhs_body = *b;
-    }
-
-    if (ctx.is_def_eq(lhs_body, rhs)) {
-        // tout() << "DONE\n";
-        return mk_eq_refl(ctx, lhs_body);
+        if (ctx.is_def_eq(lhs_body, rhs)) {
+            if (ctx.env().find(get_id_delta_name()))
+                return mk_eq_refl(ctx, mk_id_delta(ctx, lhs));
+            else
+                return mk_eq_refl(ctx, lhs);
+        }
+    } else {
+        if (ctx.is_def_eq(lhs, rhs))
+            return mk_eq_refl(ctx, lhs);
     }
 
     throw exception("equation compiler failed to prove equation lemma (workaround: "

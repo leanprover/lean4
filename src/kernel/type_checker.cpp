@@ -578,6 +578,8 @@ void type_checker::cache_failure(expr const & t, expr const & s) {
         m_failure_cache.insert(mk_pair(s, t));
 }
 
+static name * g_id_delta = nullptr;
+
 /** \brief Perform one lazy delta-reduction step.
      Return
      - l_true if t_n and s_n are definitionally equal.
@@ -590,6 +592,20 @@ auto type_checker::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> reductio
     auto d_s = is_delta(s_n);
     if (!d_t && !d_s) {
         return reduction_status::DefUnknown;
+    } else if (d_t && d_t->get_name() == *g_id_delta) {
+        t_n = whnf_core(*unfold_definition(t_n));
+        if (t_n == s_n)
+            return reduction_status::DefEqual; /* id_delta t =?= t */
+        if (auto u = unfold_definition(t_n))   /* id_delta t =?= s  ===>  unfold(t) =?= s */
+            t_n = whnf_core(*u);
+        return reduction_status::Continue;
+    } else if (d_s && d_s->get_name() == *g_id_delta) {
+        s_n = whnf_core(*unfold_definition(s_n));
+        if (t_n == s_n)
+            return reduction_status::DefEqual; /* t =?= id_delta t */
+        if (auto u = unfold_definition(s_n))   /* t =?= id_delta s ===>  t =?= unfold(s) */
+            s_n = whnf_core(*u);
+        return reduction_status::Continue;
     } else if (d_t && !d_s) {
         t_n = whnf_core(*unfold_definition(t_n));
     } else if (!d_t && d_s) {
@@ -790,10 +806,12 @@ certified_declaration certify_unchecked::certify_or_check(environment const & en
 }
 
 void initialize_type_checker() {
+    g_id_delta  = new name("id_delta");
     g_dont_care = new expr(Const("dontcare"));
 }
 
 void finalize_type_checker() {
     delete g_dont_care;
+    delete g_id_delta;
 }
 }

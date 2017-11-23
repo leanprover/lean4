@@ -129,6 +129,7 @@ run_cmd script_check_id `heq_of_eq
 run_cmd script_check_id `hole_command
 run_cmd script_check_id `id_locked
 run_cmd script_check_id `id_rhs
+run_cmd script_check_id `id_delta
 run_cmd script_check_id `if_neg
 run_cmd script_check_id `if_pos
 run_cmd script_check_id `iff

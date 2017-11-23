@@ -124,6 +124,7 @@ heq_of_eq
 hole_command
 id_locked
 id_rhs
+id_delta
 if_neg
 if_pos
 iff

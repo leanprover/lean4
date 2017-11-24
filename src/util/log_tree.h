@@ -150,6 +150,7 @@ public:
     void for_each(std::function<bool(node const & n)> const &) const; // NOLINT
 };
 
+bool has_logtree();
 log_tree::node & logtree();
 struct scope_log_tree_core : flet<log_tree::node *> {
     scope_log_tree_core(log_tree::node * lt);

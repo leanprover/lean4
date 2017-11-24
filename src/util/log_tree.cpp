@@ -357,6 +357,10 @@ task<bool> log_tree::node::has_entry(std::function<bool(log_entry const &)> cons
 LEAN_THREAD_PTR(log_tree::node, g_log_tree);
 scope_log_tree_core::scope_log_tree_core(log_tree::node * lt) : flet<log_tree::node *>(g_log_tree, lt) {}
 
+bool has_logtree() {
+    return g_log_tree;
+}
+
 log_tree::node & logtree() {
     if (g_log_tree) {
         return *g_log_tree;

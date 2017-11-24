@@ -3250,12 +3250,15 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                 pp_type_mismatch(e2, c_type, *expected_type));
     }
 
-    /* Instantiate all helper mvars introduced by this function. This is important when elaborating patterns because
-     * all mvars left in the final expression are turned into pattern variables by `visit_equation` (see there).
-     * For example, the pattern `{a := a}` will result in the argument `e = {a := ?a}` and `e2 = foo.mk ?m` with
-     * the assignment `?m := ?a` from field elaboration. We want the return value to be `foo.mk ?a` regardless of
-     * whether ?a has an assignment (from a dependent pattern) or not. */
-    return instantiate_mvars(e2, [&](expr const & e) { return mvar2field.contains(mlocal_name(e)); });
+    if (m_in_pattern) {
+        /* Instantiate all helper mvars introduced by this function. This is important when elaborating patterns because
+         * all mvars left in the final expression are turned into pattern variables by `visit_equation` (see there).
+         * For example, the pattern `{a := a}` will result in the argument `e = {a := ?a}` and `e2 = foo.mk ?m` with
+         * the assignment `?m := ?a` from field elaboration. We want the return value to be `foo.mk ?a` regardless of
+         * whether ?a has an assignment (from a dependent pattern) or not. */
+        e2 = instantiate_mvars(e2, [&](expr const & e) { return mvar2field.contains(mlocal_name(e)); });
+    }
+    return e2;
 }
 
 expr elaborator::visit_expr_quote(expr const & e, optional<expr> const & expected_type) {

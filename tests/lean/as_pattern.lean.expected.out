@@ -1,18 +1,18 @@
-basic.equations._eqn_1 : basic list.nil = list.nil
-basic.equations._eqn_2 : ∀ (_x : foo), basic [_x] = [_x]
-basic.equations._eqn_3 : ∀ (a a_1 : foo) (a_2 : list foo), basic (a :: a_1 :: a_2) = a :: a_1 :: a_2
-nested.equations._eqn_1 : nested list.nil = list.nil
-nested.equations._eqn_2 : ∀ (a : list foo), nested (foo.a :: a) = foo.a :: a
-nested.equations._eqn_3 : ∀ (_x : list foo), nested (foo.b :: _x) = [foo.b]
-nested.equations._eqn_4 : ∀ (a : list foo), nested (foo.c :: a) = foo.c :: a
-value.equations._eqn_1 : value none = none
-value.equations._eqn_2 : value (some 2) = some 2
-value.equations._eqn_3 : ∀ (a : ℕ), ¬a = 2 → value (some a) = some a
-weird_but_ok.equations._eqn_1 : ∀ (z : ℕ), weird_but_ok z = z + z + z
-as_pattern.lean:29:6: error: equation compiler error, equation #2 has not been used in the compilation, note that the left-hand-side of equation #1 is a variable
-as_pattern.lean:30:6: error: equation compiler error, equation #3 has not been used in the compilation, note that the left-hand-side of equation #1 is a variable
-as_pattern.lean:31:6: error: equation compiler error, equation #4 has not been used in the compilation, note that the left-hand-side of equation #1 is a variable
-as_pattern.lean:34:4: error: invalid pattern, 'x' already appeared in this pattern
+as_pattern.basic.equations._eqn_1 : basic list.nil = list.nil
+as_pattern.basic.equations._eqn_2 : ∀ (_x : foo), basic [_x] = [_x]
+as_pattern.basic.equations._eqn_3 : ∀ (a a_1 : foo) (a_2 : list foo), basic (a :: a_1 :: a_2) = a :: a_1 :: a_2
+as_pattern.nested.equations._eqn_1 : nested list.nil = list.nil
+as_pattern.nested.equations._eqn_2 : ∀ (a : list foo), nested (foo.a :: a) = foo.a :: a
+as_pattern.nested.equations._eqn_3 : ∀ (_x : list foo), nested (foo.b :: _x) = [foo.b]
+as_pattern.nested.equations._eqn_4 : ∀ (a : list foo), nested (foo.c :: a) = foo.c :: a
+as_pattern.value.equations._eqn_1 : value none = none
+as_pattern.value.equations._eqn_2 : value (some 2) = some 2
+as_pattern.value.equations._eqn_3 : ∀ (a : ℕ), ¬a = 2 → value (some a) = some a
+as_pattern.weird_but_ok.equations._eqn_1 : ∀ (z : ℕ), weird_but_ok z = z + z + z
+as_pattern.lean:30:6: error: equation compiler error, equation #2 has not been used in the compilation, note that the left-hand-side of equation #1 is a variable
+as_pattern.lean:31:6: error: equation compiler error, equation #3 has not been used in the compilation, note that the left-hand-side of equation #1 is a variable
+as_pattern.lean:32:6: error: equation compiler error, equation #4 has not been used in the compilation, note that the left-hand-side of equation #1 is a variable
 as_pattern.lean:35:4: error: invalid pattern, 'x' already appeared in this pattern
-dependent.equations._eqn_1 : dependent foo.a bar.a = foo.a
-dependent.equations._eqn_2 : dependent foo.b bar.b = foo.b
+as_pattern.lean:36:4: error: invalid pattern, 'x' already appeared in this pattern
+as_pattern.dependent.equations._eqn_1 : dependent foo.a bar.a = foo.a
+as_pattern.dependent.equations._eqn_2 : dependent foo.b bar.b = foo.b

@@ -2175,7 +2175,9 @@ expr parser::parse_nud() {
         // if `id` is immediately followed by `@`, parse an as pattern `id@pat`
         if (in_pattern() && id.is_atomic() && curr_is_token(get_explicit_tk())) {
             lean_assert(is_local(e));
-            auto id_len = id.to_string().length();
+            // note: This number is not accurate for an escaped identifier. We should be able to do a better job
+            // in the new backtracking parser.
+            auto id_len = utf8_strlen(id.to_string().c_str());
             auto p = pos();
             if (p.first == id_pos.first && p.second == id_pos.second + id_len) {
                 next();

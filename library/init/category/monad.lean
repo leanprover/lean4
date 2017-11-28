@@ -72,5 +72,5 @@ def has_bind.seq {α β : Type u} {m : Type u → Type v} [has_bind m] (x : m α
 do x, y
 
 -- monad "law" derivable from other laws
-theorem monad.bind_pure {α β : Type u} {m : Type u → Type v} [monad m] (x : m α) : x >>= pure = x :=
+theorem monad.bind_pure {α : Type u} {m : Type u → Type v} [monad m] (x : m α) : x >>= pure = x :=
 eq.trans (monad.bind_pure_comp_eq_map _ _ _) (functor.id_map _)

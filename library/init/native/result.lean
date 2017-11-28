@@ -21,11 +21,12 @@ def result.and_then {E T U : Type} : result E T → (T → result E U) → resul
 | (result.err e) _ := result.err e
 | (result.ok t) f := f t
 
+local attribute [simp] result.and_then
 instance result_monad (E : Type) : monad (result E) :=
 {pure := @result.ok E, bind := @result.and_then E,
- id_map := by intros; cases x; dsimp [result.and_then]; apply rfl,
+ id_map := by intros; cases x; simp; refl,
  pure_bind := by intros; apply rfl,
- bind_assoc := by intros; cases x; simp [result.and_then]}
+ bind_assoc := by intros; cases x; simp}
 
 inductive resultT (M : Type → Type) (E : Type) (A : Type) : Type
 | run : M (result E A) → resultT
@@ -34,41 +35,42 @@ section resultT
   variable {M : Type → Type}
 
   def resultT.pure [monad : monad M] {E A : Type} (x : A) : resultT M E A :=
-    resultT.run $ return (result.ok x)
+    resultT.run $ pure (result.ok x)
 
   def resultT.and_then [monad : monad M] {E A B : Type} : resultT M E A → (A → resultT M E B) → resultT M E B
   | (resultT.run action) f := resultT.run (do
   res_a ← action,
   -- a little ugly with this match
   match res_a with
-  | result.err e := return (result.err e)
+  | result.err e := pure (result.err e)
   | result.ok a := let (resultT.run actionB) := f a in actionB
   end)
+
+  local attribute [simp] resultT.and_then monad.bind_pure monad.pure_bind
 
   instance resultT_monad [m : monad M] (E : Type) : monad (resultT M E) :=
   {pure := @resultT.pure M m E, bind := @resultT.and_then M m E,
    id_map := begin
      intros, cases x,
-     dsimp [resultT.and_then, function.comp],
-     have h : @resultT.and_then._match_1 _ m E α _ resultT.pure = pure,
+     simp [function.comp],
+     have : @resultT.and_then._match_1 _ m E α _ resultT.pure = pure,
      { apply funext, intro x,
-       cases x; simp [resultT.and_then, resultT.pure, resultT.and_then] },
-     { rw [h, @monad.bind_pure _ (result E α) _] },
+       cases x; simp [resultT.pure] },
+     simp [this]
    end,
    pure_bind := begin
      intros,
-     dsimp [resultT.pure, resultT.and_then],
-     rw [monad.pure_bind], dsimp [resultT.and_then],
-     cases f x, dsimp [resultT.and_then], apply rfl,
+     simp [resultT.pure],
+     cases f x,
+     simp [resultT.and_then]
    end,
    bind_assoc := begin
      intros,
-     cases x, dsimp [resultT.and_then],
+     cases x, simp,
      apply congr_arg, rw [monad.bind_assoc],
      apply congr_arg, apply funext, intro,
-     cases x with e a; dsimp [resultT.and_then],
-     { rw [monad.pure_bind], apply rfl },
-     { cases f a, apply rfl },
+     cases x with e a; simp,
+     { cases f a, refl },
    end}
 end resultT
 

@@ -3811,15 +3811,65 @@ static bool depends_on_mvar(expr const & e, buffer<expr> const & mvars) {
 Type class parameters can be annotated with inout_param annotations.
 
 Given (C a_1 ... a_n), we replace a_i with a temporary metavariable ?m_i IF
-1- a_i is an inout_param and it contains metavariables.
-2- a_i depends on a_j for j < i, and a_j was replaced with a temporary metavariable ?m_j.
+- Case 1
+   a_i is an inout_param and it contains metavariables
+OR
+- Case 2
+   a_i depends on a_j for j < i, and a_j was replaced with a temporary metavariable ?m_j.
    This case is needed to make sure the new C-application is type correct.
+   It may be counterintuitive to some users.
+   @kha and @leodemoura have discussed a different approach
+   where a type class declaration is rejected IF
+   it contains a non inout paramater X that depends on an inout parameter Y.
+   If we reject this kind of declaration, then we don't need
+   this extra case which may artificially treat regular parameters
+   as inout (**).
 
 Then, we execute type class resolution as usual.
 If it succeeds, and metavariables ?m_i have been assigned, we solve the unification
 constraints ?m_i =?= a_i. If we succeed, we return the result. Otherwise, we fail.
 
 We store the pairs (a_i, m_i) in the buffer expr_replacements.
+
+Remark: @kha and @leodemoura have considered a different design
+where nested metavariables occurring in a_i are replaced with
+temporary metavariables. For example, suppose we have
+
+```
+class foo (α : inout Type) := (a : α)
+instance foo2 : foo (set ℕ) := ⟨{1}⟩
+instance foo1 : foo ℕ := ⟨0⟩
+
+#check foo.a (set _)
+```
+
+When we preprocesses `foo (set ?m)`, we obtain `foo ?x_0`. Then, we produce
+the solution s with `?x_0 := nat`, which fails at `?x_0 =?= set ?m`.
+To obtain the correct solution, we need to backtrack and try other instances.
+Remark: the backtracking has not been implemented yet.
+
+Alternatively, if we replace nested metavariables with temporary ones,
+we would obtain `foo (set ?x_0)` after preprocessing `foo (set ?m)`,
+and we would find the right instance.
+
+This approach has been discarded because it is tricky to produce
+a type correct. We don't have a simple trick like the case 2 above,
+or a simple syntactic restriction (see ** comment above)
+to prevent the type correctness issue. Here is a problematic scenario:
+
+- Suppose we have `f (A : Type), A -> A -> A`, `a : ?m_1`, and `?m_2 : ?m_1`,
+  and we want to process `bla (f ?m_1 a ?m_2)'`. The resulting term
+  `bla (f ?x_1 a ?x_2)` where `?x_1 : Type`, `?x_2 : ?x_1` are fresh
+  tmp metavars is type incorrect.
+
+Another problem is that regular metavariables may be created in different contexts.
+However, we assume all temporary metavars share the same local context (this is reasonable since they are temporary after all: that is, we create them in a local context; use them; and discard).
+This may be an issue when mapping multiple regular metavariables to temporary metavariables.
+
+Finally, there is a potential performance issue because we would have to traverse
+terms searching for unassigned metavariables for implementing this translation.
+
+For all these reasons, we have discarded this alternative design.
 */
 expr type_context::preprocess_class(expr const & type,
                                     buffer<level_pair> & u_replacements,
@@ -3858,9 +3908,12 @@ expr type_context::preprocess_class(expr const & type,
         if (!is_pi(it2))
             return type; /* failed */
         expr const & d = binding_domain(it2);
-        if ((is_class_inout_param(d) && has_expr_metavar(C_arg)) ||
+        if (/* Case 1 */
+            (is_class_inout_param(d) && has_expr_metavar(C_arg)) ||
+            /* Cases 2 */
             (depends_on_mvar(d, new_mvars))) {
             expr new_mvar = mk_tmp_mvar(locals.mk_pi(d));
+            new_mvars.push_back(new_mvar);
             expr new_arg  = mk_app(new_mvar, locals.as_buffer());
             e_replacements.emplace_back(C_arg, new_arg);
             C_arg = new_arg;

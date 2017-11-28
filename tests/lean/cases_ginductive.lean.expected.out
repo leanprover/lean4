@@ -1,0 +1,37 @@
+t₁ : term,
+c₁ c₂ : string,
+h₁ h₂ : is_rename (term.const c₁) c₁ c₂ (term.const c₂)
+⊢ term.const c₂ = term.const c₂
+t₁ : term,
+c₁ c₂ : string,
+h₁ : is_rename (term.const c₁) c₁ c₂ (term.const c₂),
+hne : c₁ ≠ c₁,
+h₂ : is_rename (term.const c₁) c₁ c₂ (term.const c₁)
+⊢ term.const c₂ = term.const c₁
+t₁ : term,
+c₁ c₂ : string,
+hne : c₁ ≠ c₁,
+h₁ : is_rename (term.const c₁) c₁ c₂ (term.const c₁),
+h₂ : is_rename (term.const c₁) c₁ c₂ (term.const c₂)
+⊢ term.const c₁ = term.const c₂
+t₁ : term,
+c₁ c₁' c₂ : string,
+hne : c₁ ≠ c₁',
+h₁ : is_rename (term.const c₁) c₁' c₂ (term.const c₁),
+hne_1 : c₁ ≠ c₁',
+h₂ : is_rename (term.const c₁) c₁' c₂ (term.const c₁)
+⊢ term.const c₁ = term.const c₁
+t₁ : term,
+fn : string,
+ts : list term,
+ih :
+  ∀ (ts₂ ts₂' : list term) (c₁ c₂ : string),
+    is_rename_lst ts c₁ c₂ ts₂ → is_rename_lst ts c₁ c₂ ts₂' → ts₂ = ts₂',
+c₁ c₂ : string,
+ts₂ : list term,
+h₁_1 : is_rename_lst ts c₁ c₂ ts₂,
+h₁ : is_rename (term.app fn ts) c₁ c₂ (term.app fn ts₂),
+ts₂_1 : list term,
+h₁_2 : is_rename_lst ts c₁ c₂ ts₂_1,
+h₂ : is_rename (term.app fn ts) c₁ c₂ (term.app fn ts₂_1)
+⊢ term.app fn ts₂ = term.app fn ts₂_1

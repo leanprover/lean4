@@ -15,12 +15,26 @@ Author: Daniel Selsam
 #include "library/kernel_serializer.h"
 
 namespace lean {
+optional<name> is_gintro_rule_app(environment const & env, expr const & e) {
+    expr const & fn = get_app_fn(e);
+    if (!is_constant(fn)) return optional<name>();
+    if (!is_ginductive_intro_rule(env, const_name(fn))) return optional<name>();
+    return optional<name>(const_name(fn));
+}
+
 expr whnf_ginductive(type_context & ctx, expr const & e) {
     return ctx.whnf_head_pred(e, [&](expr const & e) {
             if (is_macro(e)) return true;
             expr const & fn = get_app_fn(e);
             if (!is_constant(fn)) return true;
             return !is_ginductive(ctx.env(), const_name(fn));
+        });
+}
+
+expr whnf_gintro_rule(type_context & ctx, expr const & e) {
+    return ctx.whnf_head_pred(e, [&](expr const & e) {
+            if (is_macro(e)) return true;
+            return !is_gintro_rule_app(ctx.env(), e);
         });
 }
 

@@ -3954,14 +3954,20 @@ optional<expr> type_context::mk_class_instance(expr const & type) {
     }
     if (result) {
         for (level_pair & p : u_replacements) {
-            if (has_meta(p.second))
+            /* If p.second still contains temporary universe metavariables,
+               we fail since it is not safe to execute `is_def_eq` and
+               have the temporary universe metavariable leak into p.first. */
+            if (has_idx_metauniv(p.second))
                 return none_expr();
             if (!is_def_eq(p.first, p.second)) {
                 return none_expr();
             }
         }
         for (expr_pair & p : e_replacements) {
-            if (has_expr_metavar(p.second))
+            /* If p.second still contains temporary universe metavariables,
+               we fail since it is not safe to execute `is_def_eq` and
+               have the temporary universe metavariable leak into p.first. */
+            if (has_idx_metavar(p.second))
                 return none_expr();
             if (!is_def_eq_core(p.first, p.second)) {
                 return none_expr();

@@ -85,6 +85,28 @@ class LeanExprPrinter:
             for i in range(self.val['m_num_args']):
                 yield ('[%s]' % i, (p + i).dereference())
 
+class LeanLevelPrinter:
+    """Print a lean::level object."""
+
+    level_kinds = [
+        ('lean::level_cell', 'zero', []),
+        ('lean::level_succ', 'succ', ['m_l']),
+        ('lean::level_max_core', 'max', ['m_lhs', 'm_rhs']),
+        ('lean::level_max_core', 'imax', ['m_lhs', 'm_rhs']),
+        ('lean::level_param_core', 'param', ['m_id']),
+        ('lean::level_param_core', 'meta', ['m_id']),
+    ]
+
+    def __init__(self, val):
+        self.val = val
+
+    def to_string(self):
+        kind = int(self.val['m_ptr']['m_kind'])
+        (subtype, name, fields) = LeanLevelPrinter.level_kinds[kind]
+        subtype = gdb.lookup_type(subtype)
+        val = self.val['m_ptr'].cast(subtype.pointer()).dereference()
+        return "({})".format(" ".join([name] + [str(val[field]) for field in fields]))
+
 class LeanListPrinter:
     """Print a lean::list object."""
 
@@ -167,6 +189,7 @@ def build_pretty_printer():
     pp.add_printer('optional', '^lean::optional', LeanOptionalPrinter)
     pp.add_printer('name', '^lean::name$', LeanNamePrinter)
     pp.add_printer('expr', '^lean::expr$', LeanExprPrinter)
+    pp.add_printer('level', '^lean::level$', LeanLevelPrinter)
     pp.add_printer('list', '^lean::list', LeanListPrinter)
     pp.add_printer('buffer', '^lean::buffer', LeanBufferPrinter)
     pp.add_printer('rb_tree', '^lean::rb_tree', LeanRBTreePrinter)

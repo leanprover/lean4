@@ -3877,7 +3877,7 @@ For all these reasons, we have discarded this alternative design.
 expr type_context::preprocess_class(expr const & type,
                                     buffer<level_pair> & u_replacements,
                                     buffer<expr_pair> &  e_replacements) {
-    if (!has_expr_metavar(type))
+    if (!has_metavar(type))
         return type;
     type_context::tmp_locals locals(*this);
     expr it = type;

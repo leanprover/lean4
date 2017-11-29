@@ -488,8 +488,8 @@ struct cases_tactic_fn {
                       lhs and rhs are kernel constructor applications.
                       We use no_confusion to perform dependent elimination.
                     */
-                    lean_assert(is_constructor_app(lhs));
-                    lean_assert(is_constructor_app(rhs));
+                    lean_assert(is_constructor_app(m_env, lhs));
+                    lean_assert(is_constructor_app(m_env, rhs));
                     A = ctx.whnf(A);
                     buffer<expr> A_args;
                     expr const & A_fn   = get_app_args(A, A_args);

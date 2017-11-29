@@ -236,6 +236,8 @@ master branch (aka work in progress branch)
 
 *API name changes*
 
+* `monad.{monad_transformer,has_monad_lift(_t)}` ~> `{monad_transformer,has_monad_lift(_t)}`
+
 v3.3.0 (14 September 2017)
 -------------
 

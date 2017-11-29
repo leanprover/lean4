@@ -66,11 +66,11 @@ state_t.monad _ _
    tactics that do not change hypotheses can be automatically lifted to smt_tactic. -/
 meta constant tactic_to_smt_tactic (α : Type) : tactic α → smt_tactic α
 
-meta instance : monad.has_monad_lift tactic smt_tactic :=
+meta instance : has_monad_lift tactic smt_tactic :=
 ⟨tactic_to_smt_tactic⟩
 
 meta instance (α : Type) : has_coe (tactic α) (smt_tactic α) :=
-⟨monad.monad_lift⟩
+⟨monad_lift⟩
 
 meta def smt_tactic_orelse {α : Type} (t₁ t₂ : smt_tactic α) : smt_tactic α :=
 λ ss ts, result.cases_on (t₁ ss ts)

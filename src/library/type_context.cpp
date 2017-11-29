@@ -3738,8 +3738,11 @@ struct instance_synthesizer {
                     r = m_ctx.instantiate_mvars(*r);
                 }
                 if (!has_idx_metavar(*r)) {
-                    /* We only cache the result if it does not contain universe tmp metavars. */
-                    cache_result(m_ctx.infer(m_main_mvar), some_expr(m_ctx.instantiate_mvars(*r)));
+                    expr type = m_ctx.infer(m_main_mvar);
+                    if (!has_idx_metavar(type)) {
+                        /* We only cache the result if it does not contain universe tmp metavars. */
+                        cache_result(type, some_expr(m_ctx.instantiate_mvars(*r)));
+                    }
                     return r;
                 }
             }

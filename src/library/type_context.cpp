@@ -3938,7 +3938,8 @@ static void instantiate_replacements(type_context & ctx,
     }
 }
 
-optional<expr> type_context::mk_class_instance(expr const & type) {
+optional<expr> type_context::mk_class_instance(expr const & type_0) {
+    expr type = instantiate_mvars(type_0);
     scope S(*this);
     optional<expr> result;
     buffer<level_pair> u_replacements;

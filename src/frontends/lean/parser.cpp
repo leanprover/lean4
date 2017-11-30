@@ -1640,8 +1640,8 @@ struct to_pattern_fn {
         } else if (is_structure_instance(e)) {
             auto info = get_structure_instance_info(e);
             if (info.m_sources.size()) {
-                return m_parser.maybe_throw_error(parser_error("invalid occurrence of structure notation source in pattern",
-                                                               *get_pos_info(info.m_sources[0])));
+                throw parser_error("invalid occurrence of structure notation source in pattern",
+                                   *get_pos_info(info.m_sources[0]));
             }
             for (expr const & val : info.m_field_values)
                 collect_new_locals(val, false);

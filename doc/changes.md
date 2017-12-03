@@ -38,6 +38,8 @@ master branch (aka work in progress branch)
 - Add support for structure instance notation `{...}` in patterns. Use `..` to ignore
   unmatched fields.
 
+- Type class has_equiv for `≈` notation.
+
 *Changes*
 
 - `string` is now a list of unicode scalar values. Moreover, in the VM,

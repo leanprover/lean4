@@ -5,6 +5,7 @@ has_append : Type u → Type u
 has_div : Type u → Type u
 has_dvd : Type u → Type u
 has_emptyc : Type u → Type u
+has_equiv : Sort u → Sort (max 1 u)
 has_insert : (inout Type u) → Type v → Type (max u v)
 has_inter : Type u → Type u
 has_inv : Type u → Type u
@@ -31,6 +32,7 @@ has_append : Type u → Type u
 has_div : Type u → Type u
 has_dvd : Type u → Type u
 has_emptyc : Type u → Type u
+has_equiv : Sort u → Sort (max 1 u)
 has_insert : (inout Type u) → Type v → Type (max u v)
 has_inter : Type u → Type u
 has_inv : Type u → Type u

@@ -315,6 +315,7 @@ class has_andthen  (α : Type u) (β : Type v) (σ : inout Type w) := (andthen :
 class has_union    (α : Type u) := (union : α → α → α)
 class has_inter    (α : Type u) := (inter : α → α → α)
 class has_sdiff    (α : Type u) := (sdiff : α → α → α)
+class has_equiv    (α : Sort u) := (equiv : α → α → Prop)
 class has_subset   (α : Type u) := (subset : α → α → Prop)
 class has_ssubset  (α : Type u) := (ssubset : α → α → Prop)
 /- Type classes has_emptyc and has_insert are
@@ -351,6 +352,7 @@ infix ∩        := has_inter.inter
 infix ⊆        := has_subset.subset
 infix ⊂        := has_ssubset.ssubset
 infix \        := has_sdiff.sdiff
+infix ≈        := has_equiv.equiv
 
 export has_append (append)
 

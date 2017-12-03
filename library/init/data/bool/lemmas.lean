@@ -101,7 +101,7 @@ show (ff = tt) = false, by simp
 @[simp] lemma coe_tt : ↑tt = true :=
 show (tt = tt) = true, by simp
 
-theorem to_bool_iff (p : Prop) [d : decidable p] : to_bool p ↔ p :=
+@[simp] theorem to_bool_iff (p : Prop) [d : decidable p] : (to_bool p = tt) ↔ p :=
 match d with
 | is_true hp := ⟨λh, hp, λ_, rfl⟩
 | is_false hnp := ⟨λh, bool.no_confusion h, λhp, absurd hp hnp⟩
@@ -117,7 +117,7 @@ theorem bool_iff_false {b : bool} : ¬ b ↔ b = ff := by cases b; exact dec_tri
 
 theorem bool_eq_false {b : bool} : ¬ b → b = ff := bool_iff_false.1
 
-theorem to_bool_ff_iff (p : Prop) [decidable p] : to_bool p = ff ↔ ¬p :=
+@[simp] theorem to_bool_ff_iff (p : Prop) [decidable p] : to_bool p = ff ↔ ¬p :=
 bool_iff_false.symm.trans (not_congr (to_bool_iff _))
 
 theorem to_bool_ff {p : Prop} [decidable p] : ¬p → to_bool p = ff := (to_bool_ff_iff p).2

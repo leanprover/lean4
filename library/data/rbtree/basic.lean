@@ -5,9 +5,6 @@ Authors: Leonardo de Moura
 -/
 universe u
 
-/- TODO(Leo): remove after we cleanup stdlib simp lemmas -/
-local attribute [-simp] or.comm or.left_comm or.assoc and.comm and.left_comm and.assoc
-
 namespace tactic
 /- TODO(Leo): move blast_disjs and twice to another file. -/
 

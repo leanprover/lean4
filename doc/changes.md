@@ -42,6 +42,10 @@ master branch (aka work in progress branch)
 
 *Changes*
 
+- Remove `[simp]` attribute from lemmas `or.assoc`, `or.comm`, `or.left_comm`, `and.assoc`, `and.comm`, `and.left_comm`, `add_assoc`, `add_comm`, `add_left_com`, `mul_assoc`, `mul_comm` and `mul_left_comm`.
+  These lemmas were being used to "sort" arguments of AC operators: and, or, (+) and (*).
+  This was producing unstable proofs. The old behavior can be retrieved by using the commands `local attribute [simp] ...` or `attribute [simp] ...` in the affected files.
+
 - `string` is now a list of unicode scalar values. Moreover, in the VM,
   strings are implemented as an UTF-8 encoded array of bytes.
 

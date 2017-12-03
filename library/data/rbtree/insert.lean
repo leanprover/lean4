@@ -6,9 +6,6 @@ Authors: Leonardo de Moura
 import data.rbtree.find
 universes u v
 
-/- TODO(Leo): remove after we cleanup stdlib simp lemmas -/
-local attribute [-simp] or.comm or.left_comm or.assoc and.comm and.left_comm and.assoc
-
 namespace rbnode
 variables {α : Type u}
 

@@ -61,6 +61,8 @@ end
 @[simp] lemma div2_succ (n : ℕ) : div2 (succ n) = cond (bodd n) (succ (div2 n)) (div2 n) :=
 by unfold bodd div2 bodd_div2; cases bodd_div2 n; cases fst; refl
 
+local attribute [simp] add_comm add_assoc add_left_comm mul_comm mul_assoc mul_left_comm
+
 theorem bodd_add_div2 : ∀ n, cond (bodd n) 1 0 + 2 * div2 n = n
 | 0        := rfl
 | (succ n) := begin

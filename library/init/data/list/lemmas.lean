@@ -105,7 +105,7 @@ lemma eq_or_mem_of_mem_cons {a y : α} {l : list α} : a ∈ y::l → a = y ∨ 
 assume h, h
 
 @[simp] lemma mem_append {a : α} {s t : list α} : a ∈ s ++ t ↔ a ∈ s ∨ a ∈ t :=
-by induction s; simp *
+by induction s; simp [*, or_assoc]
 
 @[rsimp] lemma mem_append_eq (a : α) (s t : list α) : (a ∈ s ++ t) = (a ∈ s ∨ a ∈ t) :=
 propext mem_append

@@ -37,20 +37,22 @@ class group (α : Type u) extends monoid α, has_inv α :=
 
 class comm_group (α : Type u) extends group α, comm_monoid α
 
-@[simp] lemma mul_assoc [semigroup α] : ∀ a b c : α, a * b * c = a * (b * c) :=
+lemma mul_assoc [semigroup α] : ∀ a b c : α, a * b * c = a * (b * c) :=
 semigroup.mul_assoc
 
 instance semigroup_to_is_associative [semigroup α] : is_associative α (*) :=
 ⟨mul_assoc⟩
 
-@[simp] lemma mul_comm [comm_semigroup α] : ∀ a b : α, a * b = b * a :=
+lemma mul_comm [comm_semigroup α] : ∀ a b : α, a * b = b * a :=
 comm_semigroup.mul_comm
 
 instance comm_semigroup_to_is_commutative [comm_semigroup α] : is_commutative α (*) :=
 ⟨mul_comm⟩
 
-@[simp] lemma mul_left_comm [comm_semigroup α] : ∀ a b c : α, a * (b * c) = b * (a * c) :=
+lemma mul_left_comm [comm_semigroup α] : ∀ a b c : α, a * (b * c) = b * (a * c) :=
 left_comm has_mul.mul mul_comm mul_assoc
+
+local attribute [simp] mul_comm mul_assoc mul_left_comm
 
 lemma mul_right_comm [comm_semigroup α] : ∀ a b c : α, a * b * c = a * c * b :=
 right_comm has_mul.mul mul_comm mul_assoc
@@ -306,6 +308,8 @@ instance add_semigroup_to_is_eq_associative [add_semigroup α] : is_associative 
 instance add_comm_semigroup_to_is_eq_commutative [add_comm_semigroup α] : is_commutative α (+) :=
 ⟨add_comm⟩
 
+local attribute [simp] add_assoc add_comm add_left_comm
+
 def neg_add_self := @add_left_neg
 def add_neg_self := @add_right_neg
 def eq_of_add_eq_add_left := @add_left_cancel
@@ -405,7 +409,7 @@ lemma eq_sub_of_add_eq' [add_comm_group α] {a b c : α} (h : c + a = b) : a = b
 by simp [h.symm]
 
 lemma sub_eq_of_eq_add' [add_comm_group α] {a b c : α} (h : a = b + c) : a - b = c :=
-by simp [h]
+begin simp [h], rw [add_left_comm], simp end
 
 lemma eq_add_of_sub_eq' [add_comm_group α] {a b c : α} (h : a - b = c) : a = b + c :=
 by simp [h.symm]
@@ -420,7 +424,7 @@ lemma add_sub_comm [add_comm_group α] (a b c d : α) : a + b - (c + d) = (a - c
 by simp
 
 lemma sub_eq_sub_add_sub [add_comm_group α] (a b c : α) : a - b = c - b + (a - c) :=
-by simp
+begin simp, rw [add_left_comm c], simp end
 
 lemma neg_neg_sub_neg [add_comm_group α] (a b : α) : - (-a - -b) = a - b :=
 by simp

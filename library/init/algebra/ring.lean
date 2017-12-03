@@ -112,6 +112,8 @@ section comm_semiring
   @[simp] theorem dvd_refl : a ∣ a :=
   dvd.intro 1 (by simp)
 
+  local attribute [simp] mul_assoc mul_comm mul_left_comm
+
   theorem dvd_trans {a b c : α} (h₁ : a ∣ b) (h₂ : b ∣ c) : a ∣ c :=
   match h₁, h₂ with
   | ⟨d, (h₃ : b = a * d)⟩, ⟨e, (h₄ : c = b * e)⟩ :=
@@ -220,11 +222,13 @@ instance comm_ring.to_comm_semiring [s : comm_ring α] : comm_semiring α :=
 section comm_ring
   variable [comm_ring α]
 
+  local attribute [simp] add_assoc add_comm add_left_comm mul_comm
+
   lemma mul_self_sub_mul_self_eq (a b : α) : a * a - b * b = (a + b) * (a - b) :=
-  by simp [right_distrib, left_distrib]
+  begin simp [right_distrib, left_distrib], rw [add_comm (-(a*b)), add_left_comm (a*b)], simp end
 
   lemma mul_self_sub_one_eq (a : α) : a * a - 1 = (a + 1) * (a - 1) :=
-  by simp [right_distrib, left_distrib]
+  begin simp [right_distrib, left_distrib], rw [add_left_comm, add_comm (-a), add_left_comm a], simp end
 
   lemma add_mul_self_eq (a b : α) : (a + b) * (a + b) = a*a + 2*a*b + b*b :=
   calc (a + b)*(a + b) = a*a + (1+1)*a*b + b*b : by simp [right_distrib, left_distrib]

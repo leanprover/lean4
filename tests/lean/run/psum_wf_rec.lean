@@ -6,6 +6,7 @@ def sum_has_sizeof_2 {α β} [has_sizeof α] [has_sizeof β] : has_sizeof (psum 
 ⟨psum.alt.sizeof⟩
 
 local attribute [instance] sum_has_sizeof_2
+local attribute [simp] add_comm add_left_comm add_assoc mul_assoc mul_comm mul_left_comm
 
 mutual def f, g
 with f : ℕ → ℕ

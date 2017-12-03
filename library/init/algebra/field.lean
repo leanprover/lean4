@@ -256,6 +256,8 @@ have a * b ≠ 0, from (division_ring.mul_ne_zero ha hb),
 by rw [add_comm, ← field.div_mul_left ha this, ← field.div_mul_right hb this,
        division_def, division_def, division_def, ← right_distrib]
 
+local attribute [simp] mul_assoc mul_comm mul_left_comm
+
 lemma field.div_mul_div (a : α) {b : α} (c : α) {d : α} (hb : b ≠ 0) (hd : d ≠ 0) :
       (a / b) * (c / d) = (a * c) / (b * d) :=
 begin simp [division_def], rw [mul_inv_eq hd hb, mul_comm d⁻¹] end

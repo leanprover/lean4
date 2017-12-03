@@ -158,6 +158,8 @@ section conversion
   theorem bits_to_nat_to_list {n : ℕ} (x : bitvec n)
   : bitvec.to_nat x = bits_to_nat (vector.to_list x)  := rfl
 
+  local attribute [simp] add_comm add_assoc add_left_comm mul_comm mul_assoc mul_left_comm
+
   theorem to_nat_append {m : ℕ} (xs : bitvec m) (b : bool)
   : bitvec.to_nat (xs ++ₜ b::nil) = bitvec.to_nat xs * 2 + bitvec.to_nat (b::nil) :=
   begin

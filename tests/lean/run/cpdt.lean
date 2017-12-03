@@ -34,7 +34,7 @@ def reassoc : exp → exp
   | _              := Mult e1' e2'
   end
 
-attribute [simp] mul_add times reassoc eeval
+attribute [simp] mul_add times reassoc eeval mul_comm mul_assoc mul_left_comm
 
 theorem eeval_times (k e) : eeval (times k e) = k * eeval e :=
 by induction e; simp [*]

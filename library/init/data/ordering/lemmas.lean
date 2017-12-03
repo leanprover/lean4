@@ -52,8 +52,8 @@ by simp
 @[simp] lemma cmp_using_eq_gt [is_strict_order α lt] (a b : α) : (cmp_using lt a b = ordering.gt) = lt b a :=
 begin
   simp, apply propext, apply iff.intro,
-  { exact λ h, h.1 },
-  { intro hba, split, assumption, intro hab, exact absurd (trans hab hba) (irrefl a) }
+  { exact λ h, h.2 },
+  { intro hba, split, { intro hab, exact absurd (trans hab hba) (irrefl a) }, { assumption } }
 end
 
 @[simp] lemma cmp_using_eq_eq (a b : α) : (cmp_using lt a b = ordering.eq) = (¬ lt a b ∧ ¬ lt b a) :=

@@ -1359,6 +1359,8 @@ end
 
 /- mod / div / pow -/
 
+local attribute [simp] mul_comm
+
 theorem mod_pow_succ {b : ℕ} (b_pos : b > 0) (w m : ℕ)
 : m % (b^succ w) = b * (m/b % b^w) + m % b :=
 begin

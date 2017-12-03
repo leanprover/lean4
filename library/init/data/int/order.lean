@@ -175,9 +175,13 @@ protected lemma zero_lt_one : (0 : ℤ) < 1 := trivial
 
 protected lemma lt_iff_le_not_le {a b : ℤ} : a < b ↔ (a ≤ b ∧ ¬ b ≤ a) :=
 begin
-simp [int.lt_iff_le_and_ne], split; intro h; cases h with hneq hab; split,
-{assumption}, {intro hba, apply hneq, apply int.le_antisymm; assumption},
-{intro heq, apply hab, subst heq, apply int.le_refl}, {assumption}
+simp [int.lt_iff_le_and_ne], split; intro h,
+{ cases h with hab hn, split,
+  { assumption },
+  { intro hba, simp [int.le_antisymm hab hba] at *, contradiction } },
+{ cases h with hab hn, split,
+  { assumption },
+  { intro h, simp [*] at * } }
 end
 
 instance : decidable_linear_ordered_comm_ring int :=

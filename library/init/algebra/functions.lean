@@ -438,7 +438,7 @@ sub_lt_of_abs_sub_lt_left (abs_sub a b ▸ h)
 lemma abs_sub_square (a b : α) : abs (a - b) * abs (a - b) = a * a + b * b - (1 + 1) * a * b :=
 begin
   rw abs_mul_abs_self,
-  simp [left_distrib, right_distrib]
+  simp [left_distrib, right_distrib, add_assoc, add_comm, add_left_comm, mul_comm]
 end
 
 lemma eq_zero_of_mul_self_add_mul_self_eq_zero {x y : α} (h : x * x + y * y = 0) : x = 0 :=

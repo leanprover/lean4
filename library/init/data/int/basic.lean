@@ -393,6 +393,8 @@ protected meta def transfer (distrib := tt) : tactic unit :=
 if distrib then `[int.transfer_core, simp [add_mul, mul_add]]
 else `[int.transfer_core, simp]
 
+local attribute [simp] mul_assoc mul_comm mul_left_comm
+
 instance : comm_ring int :=
 { add            := int.add,
   add_assoc      := by int.transfer,

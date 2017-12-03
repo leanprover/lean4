@@ -234,3 +234,11 @@ instance [decidable_linear_order α] : is_total_preorder α (≤) :=
 /- TODO(Leo): decide whether we should keep this instance or not -/
 instance is_strict_weak_order_of_decidable_linear_order [decidable_linear_order α] : is_strict_weak_order α (<) :=
 is_strict_weak_order_of_is_total_preorder lt_iff_not_ge
+
+/- TODO(Leo): decide whether we should keep this instance or not -/
+instance is_strict_total_order_of_decidable_linear_order [decidable_linear_order α] : is_strict_total_order α (<) :=
+{ trichotomous := lt_trichotomy,
+  /- TODO: use ..is_strict_weak_order_of_decidable_linear_order -/
+  trans        := λ _ _ _, trans_of (<),
+  irrefl       := irrefl_of (<),
+  incomp_trans := λ _ _ _, incomp_trans_of (<) }

@@ -601,7 +601,7 @@ begin
   apply le_trans,
   apply add_le_add,
   apply add_le_add,
-  repeat {assumption},
+  assumption',
   apply le_refl
 end
 

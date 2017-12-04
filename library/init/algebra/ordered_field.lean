@@ -462,14 +462,13 @@ begin
   rw [← one_div_one_div a],
   apply one_div_le_one_div_of_le,
   apply one_div_pos_of_pos,
-  repeat {assumption}
+  assumption'
 end
 
 lemma one_div_le_of_one_div_le_of_neg {a b : α} (ha : b < 0) (h : 1 / a ≤ b) : 1 / b ≤ a :=
 begin
   rw [← one_div_one_div a],
-  apply one_div_le_one_div_of_le_of_neg,
-  repeat {assumption}
+  apply one_div_le_one_div_of_le_of_neg; assumption
 end
 
 lemma one_lt_one_div {a : α} (h1 : 0 < a) (h2 : a < 1) : 1 < 1 / a :=
@@ -495,8 +494,7 @@ begin
   apply mul_neg_of_pos_of_neg,
   exact hc,
   apply sub_neg_of_lt,
-  apply one_div_lt_one_div_of_lt,
-  repeat {assumption}
+  apply one_div_lt_one_div_of_lt; assumption,
 end
 
 lemma div_mul_le_div_mul_of_div_le_div_pos' {a b c d e : α} (h : a / b ≤ c / d)

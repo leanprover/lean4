@@ -297,11 +297,11 @@ protected lemma rel_eq : (rel_int_nat_nat ⇒ (rel_int_nat_nat ⇒ iff))
     ... ↔ (m + p) + m' = (m' + p') + m : by simp
 | ._ ._ (@rel_int_nat_nat.pos m p) ._ ._ (@rel_int_nat_nat.neg m' n') :=
   calc of_nat p = -[1+ n'] ↔ (m' + m) + (n' + p + 1) = (m' + m) + 0 :
-     begin rw [add_left_cancel_iff], apply iff.intro, repeat {intro, contradiction} end
+     begin rw [add_left_cancel_iff], apply iff.intro; intro; contradiction end
    ... ↔ (m + p) + (m' + n' + 1) = m' + m : by simp
 | ._ ._ (@rel_int_nat_nat.neg m n) ._ ._ (@rel_int_nat_nat.pos m' p') :=
   calc -[1+ n] = of_nat p' ↔ (m + m') + 0 = (m + m') + (n + p' + 1) :
-     begin rw [add_left_cancel_iff], apply iff.intro, repeat {intro, contradiction} end
+     begin rw [add_left_cancel_iff], apply iff.intro; intro; contradiction end
    ... ↔ m + m' = m' + p' + (m + n + 1) : by simp
 | ._ ._ (@rel_int_nat_nat.neg m n) ._ ._ (@rel_int_nat_nat.neg m' n') :=
   calc -[1+ n] = -[1+ n'] ↔ (m + m' + 1) + n' = (m + m' + 1) + n :

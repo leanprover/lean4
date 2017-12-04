@@ -23,7 +23,7 @@ meta def execute (c : conv unit) : tactic unit :=
 c
 
 meta def solve1 (c : conv unit) : conv unit :=
-tactic.solve1 $ c >> tactic.repeat tactic.reflexivity
+tactic.solve1 $ c >> tactic.try (tactic.any_goals tactic.reflexivity)
 
 namespace interactive
 open lean

@@ -450,9 +450,8 @@ eq_zero_of_mul_self_eq_zero (le_antisymm this (mul_self_nonneg x))
 lemma abs_abs_sub_abs_le_abs_sub (a b : α) : abs (abs a - abs b) ≤ abs (a - b) :=
 begin
    apply nonneg_le_nonneg_of_squares_le,
-   repeat {apply abs_nonneg},
+   apply abs_nonneg,
    repeat {rw abs_sub_square},
-   repeat {rw abs_abs},
    repeat {rw abs_mul_abs_self},
    apply sub_le_sub_left,
    repeat {rw mul_assoc},

@@ -210,11 +210,11 @@ begin
   case leaf_rb {apply le_refl},
   case red_rb { simp [depth],
     have : min (depth min l) (depth min r) ≥ n,
-    { apply le_min, repeat {assumption}},
+    { apply le_min; assumption },
     apply le_succ_of_le, assumption },
   case black_rb { simp [depth],
     apply succ_le_succ,
-    apply le_min, repeat {assumption} }
+    apply le_min; assumption }
 end
 
 private def upper : color → nat → nat
@@ -234,13 +234,13 @@ begin
     suffices : succ (max (depth max l) (depth max r)) ≤ 2 * n + 1,
     { simp [depth, upper, *] at * },
     apply succ_le_succ,
-    apply max_le, repeat {assumption}},
+    apply max_le; assumption },
   case black_rb {
     have : depth max l ≤ 2*n + 1, from le_trans ih_1 (upper_le _ _),
     have : depth max r ≤ 2*n + 1, from le_trans ih_2 (upper_le _ _),
     suffices new : max (depth max l) (depth max r) + 1 ≤ 2 * n + 2*1,
     { simp [depth, upper, succ_eq_add_one, left_distrib, *] at * },
-    apply succ_le_succ, apply max_le, repeat {assumption}
+    apply succ_le_succ, apply max_le; assumption
   }
 end
 

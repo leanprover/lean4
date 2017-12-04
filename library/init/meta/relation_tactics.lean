@@ -42,6 +42,6 @@ target >>= relation_lhs_rhs
 
 /-- Try to apply subst exhaustively -/
 meta def subst_vars : tactic unit :=
-focus1 $ repeat (any_hyp subst) >> try (reflexivity reducible)
+focus1 $ iterate (any_hyp subst) >> try (reflexivity reducible)
 
 end tactic

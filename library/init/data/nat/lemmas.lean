@@ -428,7 +428,7 @@ protected lemma bit0_inj : ∀ {n m : ℕ}, bit0 n = bit0 m → n = m
 | (n+1) (m+1) h :=
   have succ (succ (n + n)) = succ (succ (m + m)),
   begin unfold bit0 at h, simp [add_one, add_succ, succ_add] at h, exact h end,
-  have n + n = m + m, by repeat {injection this with this},
+  have n + n = m + m, by iterate { injection this with this },
   have n = m, from bit0_inj this,
   by rw this
 

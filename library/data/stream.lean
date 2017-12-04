@@ -33,7 +33,7 @@ def drop (n : nat) (s : stream α) : stream α :=
 s n
 
 protected theorem eta (s : stream α) : head s :: tail s = s :=
-funext (λ i, begin cases i, repeat {refl} end)
+funext (λ i, begin cases i; refl end)
 
 theorem nth_zero_cons (a : α) (s : stream α) : nth 0 (a :: s) = a := rfl
 
@@ -154,7 +154,7 @@ exists.intro 0 rfl
 theorem const_eq (a : α) : const a = a :: const a :=
 begin
   apply stream.ext, intro n,
-  cases n, repeat {refl}
+  cases n; refl
 end
 
 theorem tail_const (a : α) : tail (const a) = const a :=
@@ -217,7 +217,7 @@ assume hh ht₁ ht₂, eq_of_bisim
   (λ s₁ s₂, head s₁ = head s₂ ∧ s₁ = tail s₁ ∧ s₂ = tail s₂)
   (λ s₁ s₂ ⟨h₁, h₂, h₃⟩,
     begin
-      constructor, exact h₁, rw [← h₂, ← h₃], repeat {constructor, repeat {assumption}}
+      constructor, exact h₁, rw [← h₂, ← h₃], iterate { constructor, iterate { assumption } }
     end)
   (and.intro hh (and.intro ht₁ ht₂))
 

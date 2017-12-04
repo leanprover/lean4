@@ -155,21 +155,21 @@ meta def try {α : Type} (t : smt_tactic α) : smt_tactic unit :=
  (λ ⟨a, new_ss⟩, result.success ((), new_ss))
  (λ e ref s', result.success ((), ss) ts)
 
-/-- `repeat_at_most n t`: repeat the given tactic at most n times or until t fails -/
-meta def repeat_at_most : nat → smt_tactic unit → smt_tactic unit
+/-- `iterate_at_most n t`: repeat the given tactic at most n times or until t fails -/
+meta def iterate_at_most : nat → smt_tactic unit → smt_tactic unit
 | 0     t := return ()
-| (n+1) t := (do t, repeat_at_most n t) <|> return ()
+| (n+1) t := (do t, iterate_at_most n t) <|> return ()
 
-/-- `repeat_exactly n t` : execute t n times -/
-meta def repeat_exactly : nat → smt_tactic unit → smt_tactic unit
+/-- `iterate_exactly n t` : execute t n times -/
+meta def iterate_exactly : nat → smt_tactic unit → smt_tactic unit
 | 0     t := return ()
-| (n+1) t := do t, repeat_exactly n t
+| (n+1) t := do t, iterate_exactly n t
 
-meta def repeat : smt_tactic unit → smt_tactic unit :=
-repeat_at_most 100000
+meta def iterate : smt_tactic unit → smt_tactic unit :=
+iterate_at_most 100000
 
 meta def eblast : smt_tactic unit :=
-repeat (ematch >> try close)
+iterate (ematch >> try close)
 
 open tactic
 
@@ -404,7 +404,7 @@ open smt_tactic
 
 meta def using_smt {α} (t : smt_tactic α) (cfg : smt_config := {}) : tactic α :=
 do ss ← smt_state.mk cfg,
-   (a, _) ← (do a ← t, repeat close, return a) ss,
+   (a, _) ← (do a ← t, iterate close, return a) ss,
    return a
 
 meta def using_smt_with {α} (cfg : smt_config) (t : smt_tactic α) : tactic α :=

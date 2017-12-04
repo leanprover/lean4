@@ -657,10 +657,10 @@ inductive is_bad_red_black : rbnode α → nat → Prop
 | bad_red   {c₁ c₂ n l r v} (rb_l : is_red_black l c₁ n) (rb_r : is_red_black r c₂ n) : is_bad_red_black (red_node l v r) n
 
 lemma balance1_rb {l r t : rbnode α} {y v : α} {c_l c_r c_t n} : is_red_black l c_l n → is_red_black r c_r n → is_red_black t c_t n → ∃ c, is_red_black (balance1 l y r v t) c (succ n) :=
-by intros h₁ h₂ h₃; cases h₁; cases h₂; repeat {assumption <|> constructor}
+by intros h₁ h₂ h₃; cases h₁; cases h₂; iterate {assumption <|> constructor}
 
 lemma balance2_rb {l r t : rbnode α} {y v : α} {c_l c_r c_t n} : is_red_black l c_l n → is_red_black r c_r n → is_red_black t c_t n → ∃ c, is_red_black (balance2 l y r v t) c (succ n) :=
-by intros h₁ h₂ h₃; cases h₁; cases h₂; repeat {assumption <|> constructor}
+by intros h₁ h₂ h₃; cases h₁; cases h₂; iterate {assumption <|> constructor}
 
 lemma balance1_node_rb {t s : rbnode α} {y : α} {c n} : is_bad_red_black t n → is_red_black s c n → ∃ c, is_red_black (balance1_node t y s) c (succ n) :=
 by intros h _; cases h; simp [balance1_node]; apply balance1_rb; assumption'
@@ -685,7 +685,7 @@ variable (lt)
 lemma ins_rb {t : rbnode α} (x) : ∀ {c n} (h : is_red_black t c n), ins_rb_result (ins lt t x) c n :=
 begin
   apply ins.induction lt t x; intros; cases h; simp [ins, *, ins_rb_result],
-  { repeat { constructor } },
+  { iterate { constructor } },
   { specialize ih rb_l, cases ih, constructor, assumption' },
   { constructor, assumption' },
   { specialize ih rb_r, cases ih, constructor, assumption' },

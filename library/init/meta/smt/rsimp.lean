@@ -124,7 +124,7 @@ do focus1 $ using_smt_with {em_attr := cfg.attr_name} $
    do
      add_lemmas_from_facts,
      add_lemmas extra,
-     repeat_at_most cfg.max_rounds (ematch >> try smt_tactic.close),
+     iterate_at_most cfg.max_rounds (ematch >> try smt_tactic.close),
      (done >> return cc_state.mk)
      <|>
      to_cc_state

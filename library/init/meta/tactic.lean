@@ -114,18 +114,18 @@ meta def success_if_fail {α : Type u} (t : tactic α) : tactic unit :=
 end
 
 open nat
-/-- (repeat_at_most n t): repeat the given tactic at most n times or until t fails -/
-meta def repeat_at_most : nat → tactic unit → tactic unit
+/-- (iterate_at_most n t): repeat the given tactic at most n times or until t fails -/
+meta def iterate_at_most : nat → tactic unit → tactic unit
 | 0        t := skip
-| (succ n) t := (do t, repeat_at_most n t) <|> skip
+| (succ n) t := (do t, iterate_at_most n t) <|> skip
 
-/-- (repeat_exactly n t) : execute t n times -/
-meta def repeat_exactly : nat → tactic unit → tactic unit
+/-- (iterate_exactly n t) : execute t n times -/
+meta def iterate_exactly : nat → tactic unit → tactic unit
 | 0        t := skip
-| (succ n) t := do t, repeat_exactly n t
+| (succ n) t := do t, iterate_exactly n t
 
-meta def repeat : tactic unit → tactic unit :=
-repeat_at_most 100000
+meta def iterate : tactic unit → tactic unit :=
+iterate_at_most 100000
 
 meta def returnopt (e : option α) : tactic α :=
 λ s, match e with

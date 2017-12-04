@@ -526,7 +526,7 @@ meta def add_coinductive_predicate
                 (eqs ++ [eq']).mmap' subst
               else skip,
               eapply ((const r.func_nm u_params).app_of_list $ ps ++ fs),
-              repeat assumption)
+              iterate assumption)
           end),
         exact h)),
 
@@ -588,7 +588,7 @@ do
   solve1 (do
     target >>= instantiate_mvars >>= change, -- TODO: bug in existsi & constructor when mvars in hyptohesis
     bs.mmap existsi,
-    repeat econstructor),
+    iterate econstructor),
 
   -- clean up remaining coinduction steps
   all_goals (do

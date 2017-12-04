@@ -107,7 +107,7 @@ do (r, lhs, rhs) ← target_lhs_rhs,
    return ()
 
 meta def funext : conv unit :=
-repeat $ do
+iterate $ do
   (r, lhs, rhs) ← target_lhs_rhs,
   guard (r = `eq),
   (expr.lam n _ _ _) ← return lhs,

@@ -11,7 +11,7 @@ namespace tactic
 namespace interactive
 
 meta def blast_disjs : tactic unit :=
-focus1 $ repeat $ any_goals $ any_hyp $ λ h, do
+focus1 $ iterate $ any_goals $ any_hyp $ λ h, do
   t ← infer_type h,
   guard (t.is_or ≠ none),
   tactic.cases h [h.local_pp_name, h.local_pp_name]
@@ -50,13 +50,13 @@ meta def is_searchable_constructor_app : expr → bool
 | _                                         := ff
 
 meta def apply_is_searchable_constructors : tactic unit :=
-repeat $ any_goals $ do
+iterate $ any_goals $ do
   t ← target,
   guard $ is_searchable_constructor_app t,
   constructor
 
 meta def destruct_is_searchable_hyps : tactic unit :=
-repeat $ any_goals $ any_hyp $ λ h, do
+iterate $ any_goals $ any_hyp $ λ h, do
   t ← infer_type h,
   guard $ is_searchable_constructor_app t,
   cases h,

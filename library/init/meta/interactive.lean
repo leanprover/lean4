@@ -599,10 +599,10 @@ meta def contradiction : tactic unit :=
 tactic.contradiction
 
 /--
-`repeat { t }` repeatedly applies tactic `t` until `t` fails. The compound tactic always succeeds.
+`iterate { t }` repeatedly applies tactic `t` until `t` fails. The compound tactic always succeeds.
 -/
-meta def repeat : itactic → tactic unit :=
-tactic.repeat
+meta def iterate : itactic → tactic unit :=
+tactic.iterate
 
 /--
 `try { t }` tries to apply tactic `t`, but succeeds whether or not `t` succeeds.

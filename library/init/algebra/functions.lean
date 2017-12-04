@@ -24,7 +24,7 @@ solve1 $ intros
 >> try `[apply le_of_not_le, assumption]
 
 meta def tactic.interactive.min_tac (a b : interactive.parse lean.parser.pexpr) : tactic unit :=
-`[by_cases (%%a ≤ %%b), repeat {min_tac_step}]
+`[by_cases (%%a ≤ %%b), iterate {min_tac_step}]
 
 lemma min_le_left (a b : α) : min a b ≤ a :=
 by min_tac a b
@@ -451,10 +451,10 @@ lemma abs_abs_sub_abs_le_abs_sub (a b : α) : abs (abs a - abs b) ≤ abs (a - b
 begin
    apply nonneg_le_nonneg_of_squares_le,
    apply abs_nonneg,
-   repeat {rw abs_sub_square},
-   repeat {rw abs_mul_abs_self},
+   iterate {rw abs_sub_square},
+   iterate {rw abs_mul_abs_self},
    apply sub_le_sub_left,
-   repeat {rw mul_assoc},
+   iterate {rw mul_assoc},
    apply mul_le_mul_of_nonneg_left,
    rw [← abs_mul],
    apply le_abs_self,

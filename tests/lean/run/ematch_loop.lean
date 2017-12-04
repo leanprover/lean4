@@ -10,7 +10,7 @@ set_option trace.smt.ematch true
 
 lemma ex1 (a b c : nat) : f a = b → p a :=
 begin [smt]
-  intros, repeat {ematch},
+  intros, iterate {ematch},
   ematch_using [px]
 end
 

@@ -59,5 +59,5 @@ lemma ex2 (a b c : nat) (l₁ l₂ : list nat) : a ∈ l₁ → a ∈ b::b::c::l
 begin [smt]
   intros,
   add_lemma [in_left, in_right, in_head, in_tail],
-  repeat {ematch} -- It will loop if there is a matching loop
+  iterate {ematch} -- It will loop if there is a matching loop
 end

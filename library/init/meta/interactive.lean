@@ -605,6 +605,15 @@ meta def iterate : itactic → tactic unit :=
 tactic.iterate
 
 /--
+`repeat { t }` applies `t` to each goal. If the application succeeds,
+the tactic is applied recursively to all the generated subgoals until it eventually fails.
+The recursion stops in a subgoal when the tactic has failed to make progress.
+The tactic `repeat { t }` never fails.
+-/
+meta def repeat : itactic → tactic unit :=
+tactic.repeat
+
+/--
 `try { t }` tries to apply tactic `t`, but succeeds whether or not `t` succeeds.
 -/
 meta def try : itactic → tactic unit :=

@@ -13,7 +13,7 @@ lemma in_right {α : Type u} {a : α}   (l : list α) {r : list α} : a ∈ r �
 example (a b c : nat) (l₁ l₂ : list nat) : a ∈ l₁ → a ∈ b::b::c::l₂ ++ b::c::l₁ ++ [c, c, b] :=
 begin [smt]
   intros,
-  repeat {ematch_using [in_left, in_right, in_head, in_tail], try {close}}
+  iterate { ematch_using [in_left, in_right, in_head, in_tail], try {close} }
 end
 
 /- We mark lemmas for ematching. -/
@@ -22,7 +22,7 @@ attribute [ematch] in_left in_right in_head in_tail
 example (a b c : nat) (l₁ l₂ : list nat) : a ∈ l₁ → a ∈ b::b::c::l₂ ++ b::c::l₁ ++ [c, c, b] :=
 begin [smt]
   intros,
-  repeat {ematch, try {close}}
+  iterate {ematch, try {close}}
 end
 
 example (a b c : nat) (l₁ l₂ : list nat) : a ∈ l₁ → a ∈ b::b::c::l₂ ++ b::c::l₁ ++ [c, c, b] :=
@@ -34,6 +34,6 @@ end
 example (a b c : nat) (l₁ l₂ : list nat) : a ∈ b::b::c::l₂ ++ b::c::l₁ ++ [c, c, b] :=
 begin [smt]
   intros,
-  repeat {ematch, try {close}},
+  iterate {ematch, try {close}},
   admit /- finish the proof admiting the goal -/
 end

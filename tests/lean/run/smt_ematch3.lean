@@ -27,7 +27,7 @@ begin
   intros,
   induction v₁,
   {[smt] ematch_using [app, zero_add] },
-  {[smt] with smt_cfg, repeat { ematch_using [app, add_succ, succ_add, add_comm, add_assoc] }}
+  {[smt] with smt_cfg, iterate { ematch_using [app, add_succ, succ_add, add_comm, add_assoc] }}
 end
 
 def rev : Π {n : nat}, vector α n → vector α n
@@ -39,8 +39,8 @@ lemma rev_app : ∀ {n₁ n₂ : nat} (v₁ : vector α n₁) (v₂ : vector α 
 begin
   intros,
   induction v₁,
-  {[smt] repeat {ematch_using [app, rev, zero_add, add_zero, add_comm, app_nil_right]}},
-  {[smt] repeat {ematch_using [app, rev, zero_add, add_zero, add_comm, app_assoc, add_one]} }
+  {[smt] iterate {ematch_using [app, rev, zero_add, add_zero, add_comm, app_nil_right]}},
+  {[smt] iterate {ematch_using [app, rev, zero_add, add_zero, add_comm, app_assoc, add_one]} }
 end
 
 end vector

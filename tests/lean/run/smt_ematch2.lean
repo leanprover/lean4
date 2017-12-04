@@ -7,7 +7,7 @@ meta def no_ac : smt_config :=
 { cc_cfg := { ac := ff }}
 
 meta def blast : tactic unit :=
-using_smt_with no_ac $ intros >> repeat (ematch >> try close)
+using_smt_with no_ac $ intros >> iterate (ematch >> try close)
 
 section add_comm_monoid
 variables [add_comm_monoid α]

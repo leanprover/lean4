@@ -13,7 +13,7 @@ end
 example (a : list nat) (f : nat → nat) : a = [1, 2] → a^.map f = [f 1, f 2] :=
 begin [smt]
   intros,
-  repeat {ematch_using [list.map], try { close }},
+  iterate {ematch_using [list.map], try { close }},
 end
 
 attribute [ematch] list.map

@@ -15,7 +15,7 @@ lemma ex2  (a : nat) : f a ≠ 0 :=
 begin [smt]
   induction a,
   { intros, ematch_using [f] },
-  { repeat {ematch_using [f, nat.add_one, nat.succ_ne_zero]}}
+  { iterate { ematch_using [f, nat.add_one, nat.succ_ne_zero] }}
 end
 
 lemma ex3 (a : nat) : f (a+1) = f a + 1 :=

@@ -727,6 +727,24 @@ do ng ← num_goals,
 meta def rotate : nat → tactic unit :=
 rotate_left
 
+private meta def repeat_aux (t : tactic unit) : list expr → list expr → tactic unit
+| []      r := set_goals r.reverse
+| (g::gs) r := do
+  ok ← try_core (set_goals [g] >> t),
+  match ok with
+  | none := repeat_aux gs (g::r)
+  | _    := do
+    gs' ← get_goals,
+    repeat_aux (gs' ++ gs) r
+  end
+
+/-- This tactic is applied to each goal. If the application succeeds,
+    the tactic is applied recursively to all the generated subgoals until it eventually fails.
+    The recursion stops in a subgoal when the tactic has failed to make progress.
+    The tactic `repeat` never fails. -/
+meta def repeat (t : tactic unit) : tactic unit :=
+do gs ← get_goals, repeat_aux t gs []
+
 /-- `first [t_1, ..., t_n]` applies the first tactic that doesn't fail.
    The tactic fails if all t_i's fail. -/
 meta def first {α : Type u} : list (tactic α) → tactic α

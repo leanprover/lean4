@@ -28,5 +28,5 @@ lemma ex
 begin [smt]
   intros,
   smt_tactic.add_lemmas_from_facts,
-  repeat {ematch}
+  iterate { ematch }
 end

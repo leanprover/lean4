@@ -83,13 +83,13 @@ def image (f : α → β) (s : set α) : set β :=
 instance : functor set :=
 {map := @set.image,
  id_map := begin
-   intros _ s, apply funext, intro b,
+   intros _ s, funext b,
    dsimp [image, set_of],
    exact propext ⟨λ ⟨b', ⟨_, _⟩⟩, ‹b' = b› ▸ ‹s b'›,
                   λ _, ⟨b, ⟨‹s b›, rfl⟩⟩⟩,
  end,
  map_comp := begin
-   intros, apply funext, intro c,
+   intros, funext c,
    dsimp [image, set_of, function.comp],
    exact propext ⟨λ ⟨a, ⟨h₁, h₂⟩⟩, ⟨g a, ⟨⟨a, ⟨h₁, rfl⟩⟩, h₂⟩⟩,
                   λ ⟨b, ⟨⟨a, ⟨h₁, h₂⟩⟩, h₃⟩⟩, ⟨a, ⟨h₁, h₂.symm ▸ h₃⟩⟩⟩

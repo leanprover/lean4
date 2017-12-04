@@ -1213,6 +1213,18 @@ do p ← tactic.to_expr_strict q,
    tactic.by_cases p (n.get_or_else `h)
 
 /--
+Apply function extensionality and introduce new hypotheses.
+The tactic `funext` will keep applying new the `funext` lemma until the goal target is not reducible to
+```
+  |-  ((fun x, ...) = (fun x, ...))
+```
+The variant `funext h₁ ... hₙ` applies `funext` `n` times, and uses the given identifiers to name the new hypotheses.
+-/
+meta def funext : parse ident_* → tactic unit
+| [] := tactic.funext >> skip
+| hs := funext_lst hs >> skip
+
+/--
 If the target of the main goal is a proposition `p`, `by_contradiction h` reduces the goal to proving `false` using the additional hypothesis `h : ¬ p`. If `h` is omitted, a name is generated automatically.
 
 This tactic requires that `p` is decidable. To ensure that all propositions are decidable via classical reasoning, use  `local attribute classical.prop_decidable [instance]`.

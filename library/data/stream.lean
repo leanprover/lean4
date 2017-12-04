@@ -174,7 +174,7 @@ theorem head_iterate (f : α → α) (a : α) : head (iterate f a) = a := rfl
 
 theorem tail_iterate (f : α → α) (a : α) : tail (iterate f a) = iterate f (f a) :=
 begin
-  apply funext, intro n,
+  funext n,
   induction n with n' ih,
     {refl},
     {unfold tail iterate,
@@ -242,7 +242,7 @@ coinduction
 local attribute [reducible] stream
 theorem map_iterate (f : α → α) (a : α) : iterate f (f a) = map f (iterate f a) :=
 begin
-  apply funext, intro n,
+  funext n,
   induction n with n' ih,
     {refl},
     { unfold map iterate nth, dsimp,

@@ -30,7 +30,7 @@ instance {m : Type u → Type v} [monad m] : monad (option_t m) :=
    intros,
    simp [option_t_bind, function.comp],
    have h : option_t_bind._match_1 option_t_return = @pure m _ (option α),
-   { apply funext, intro s, cases s; refl },
+   { funext s, cases s; refl },
    { simp [h, monad.bind_pure] },
  end,
  pure_bind := begin
@@ -41,7 +41,7 @@ instance {m : Type u → Type v} [monad m] : monad (option_t m) :=
  begin
    intros,
    simp [option_t_bind, option_t_return, monad.bind_assoc],
-   apply congr_arg, apply funext, intro x,
+   apply congr_arg, funext x,
    cases x,
    { simp [option_t_bind, monad.pure_bind] },
    { refl }

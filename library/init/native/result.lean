@@ -54,7 +54,7 @@ section resultT
      intros, cases x,
      simp [function.comp],
      have : @resultT.and_then._match_1 _ m E α _ resultT.pure = pure,
-     { apply funext, intro x,
+     { funext x,
        cases x; simp [resultT.pure] },
      simp [this]
    end,
@@ -68,7 +68,7 @@ section resultT
      intros,
      cases x, simp,
      apply congr_arg, rw [monad.bind_assoc],
-     apply congr_arg, apply funext, intro,
+     apply congr_arg, funext,
      cases x with e a; simp,
      { cases f a, refl },
    end}

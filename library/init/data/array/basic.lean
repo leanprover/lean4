@@ -67,7 +67,7 @@ protected lemma ext {a b : d_array n α} (h : ∀ i, read a i = read b i) : a = 
 by cases a; cases b; congr; exact funext h
 
 protected lemma ext' {a b : d_array n α} (h : ∀ (i : nat) (h : i < n), read a ⟨i, h⟩ = read b ⟨i, h⟩) : a = b :=
-begin cases a, cases b, congr, apply funext, intro i, cases i, apply h end
+begin cases a, cases b, congr, funext i, cases i, apply h end
 
 protected def beq_aux [∀ i, decidable_eq (α i)] (a b : d_array n α) : Π (i : nat), i ≤ n → bool
 | 0     h := tt

@@ -40,6 +40,8 @@ master branch (aka work in progress branch)
 
 - Type class has_equiv for `≈` notation.
 
+- Add `funext ids*` tactic for applying the funext lemma.
+
 *Changes*
 
 - `repeat { t }` behavior changed. Now, it applies `t` to each goal. If the application succeeds,

@@ -233,7 +233,7 @@ lemma bitwise_bit_aux {f : bool → bool → bool} (h : f ff ff = ff) :
     (λ b n _, bit (f ff b) (cond (f ff tt) n 0)) =
   λ (n : ℕ), cond (f ff tt) n 0 :=
 begin
-  apply funext, intro n,
+  funext n,
   apply bit_cases_on n, intros b n, rw [binary_rec_eq],
   { cases b; try {rw h}; ginduction f ff tt with fft; simp [cond]; refl },
   { rw [h, show cond (f ff tt) 0 0 = 0, by cases f ff tt; refl,
@@ -273,7 +273,7 @@ end
 theorem bitwise_swap {f : bool → bool → bool} (h : f ff ff = ff) :
   bitwise (function.swap f) = function.swap (bitwise f) :=
 begin
-  apply funext, intro m, apply funext,
+  funext m n, revert n,
   dsimp [function.swap],
   apply binary_rec _ (λ a m' IH, _) m; intro n,
   { rw [bitwise_zero_left, bitwise_zero_right], exact h },

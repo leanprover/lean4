@@ -678,10 +678,17 @@ public:
             m_env = m_mut_attrs[i].apply(m_env, m_p.ios(), mlocal_name(new_inds[i]));
     }
 
-    environment inductive_cmd() {
-        buffer<expr> params;
-        buffer<expr> inds;
+    struct parse_result {
+        buffer<expr>          m_params;
+        buffer<expr>          m_inds;
+        buffer<buffer<expr> > m_intro_rules;
+    };
+
+    void parse(parse_result & result) {
+        buffer<expr>          params;
+        buffer<expr>          inds;
         buffer<buffer<expr> > intro_rules;
+
         if (m_meta_info.m_modifiers.m_is_mutual) {
             parse_mutual_inductive(params, inds, intro_rules);
         } else {
@@ -689,42 +696,30 @@ public:
             inds.push_back(parse_inductive(params, intro_rules.back()));
         }
 
-        buffer<expr> new_params;
-        buffer<expr> new_inds;
-        buffer<buffer<expr> > new_intro_rules;
         if (!m_explicit_levels) {
             m_explicit_levels = has_explicit_level(intro_rules);
         }
-        elaborate_inductive_decls(params, inds, intro_rules, new_params, new_inds, new_intro_rules);
-        m_env = add_inductive_declaration(m_p.env(), m_p.get_options(), m_implicit_infer_map, m_lp_names, new_params,
-                                          new_inds, new_intro_rules, !m_meta_info.m_modifiers.m_is_meta);
-        post_process(new_params, new_inds, new_intro_rules);
+
+        elaborate_inductive_decls(params, inds, intro_rules, result.m_params, result.m_inds, result.m_intro_rules);
+    }
+
+    environment inductive_cmd() {
+        parse_result r;
+        parse(r);
+        m_env = add_inductive_declaration(m_p.env(), m_p.get_options(), m_implicit_infer_map, m_lp_names, r.m_params,
+                                          r.m_inds, r.m_intro_rules, !m_meta_info.m_modifiers.m_is_meta);
+        post_process(r.m_params, r.m_inds, r.m_intro_rules);
         return m_env;
     }
 
     inductive_decl parse_and_elaborate() {
-        buffer<expr> params;
-        buffer<expr> inds;
-        buffer<buffer<expr> > intro_rules;
-        if (m_meta_info.m_modifiers.m_is_mutual) {
-            parse_mutual_inductive(params, inds, intro_rules);
-        } else {
-            intro_rules.emplace_back();
-            inds.push_back(parse_inductive(params, intro_rules.back()));
-        }
-        buffer<expr> new_params;
-        buffer<expr> new_inds;
-        buffer<buffer<expr> > new_intro_rules;
-        if (!m_explicit_levels) {
-            m_explicit_levels = has_explicit_level(intro_rules);
-        }
-        elaborate_inductive_decls(params, inds, intro_rules, new_params, new_inds, new_intro_rules);
-
+        parse_result r;
+        parse(r);
         buffer<single_inductive_decl> decls;
-        for (unsigned i = 0; i < new_inds.size(); i++) {
-            decls.push_back({m_mut_attrs[i], new_inds[i], new_intro_rules[i]});
+        for (unsigned i = 0; i < r.m_inds.size(); i++) {
+            decls.push_back({m_mut_attrs[i], r.m_inds[i], r.m_intro_rules[i]});
         }
-        return { m_lp_names, new_params, decls };
+        return { m_lp_names, r.m_params, decls };
     }
 };
 

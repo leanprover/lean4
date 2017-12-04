@@ -217,7 +217,7 @@ assume hh ht₁ ht₂, eq_of_bisim
   (λ s₁ s₂, head s₁ = head s₂ ∧ s₁ = tail s₁ ∧ s₂ = tail s₂)
   (λ s₁ s₂ ⟨h₁, h₂, h₃⟩,
     begin
-      constructor, exact h₁, rw [← h₂, ← h₃], iterate { constructor, iterate { assumption } }
+      constructor, exact h₁, rw [← h₂, ← h₃], repeat { constructor }; assumption
     end)
   (and.intro hh (and.intro ht₁ ht₂))
 

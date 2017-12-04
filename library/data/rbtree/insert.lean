@@ -52,23 +52,23 @@ begin
   case red_node a y b {
      generalize h : cmp_using lt x y = c,
      cases c,
-     case ordering.lt { apply h₂, assumption' },
-     case ordering.eq { apply h₃, assumption' },
-     case ordering.gt { apply h₄, assumption' },
+     case ordering.lt { apply h₂; assumption },
+     case ordering.eq { apply h₃; assumption },
+     case ordering.gt { apply h₄; assumption },
    },
   case black_node a y b {
      generalize h : cmp_using lt x y = c,
      cases c,
      case ordering.lt {
        by_cases get_color a = red,
-       { apply h₅, assumption' },
-       { apply h₆, assumption' },
+       { apply h₅; assumption },
+       { apply h₆; assumption },
      },
-     case ordering.eq { apply h₇, assumption' },
+     case ordering.eq { apply h₇; assumption },
      case ordering.gt {
        by_cases get_color b = red,
-       { apply h₈, assumption' },
-       { apply h₉, assumption' },
+       { apply h₈; assumption },
+       { apply h₉; assumption },
      }
   }
 end
@@ -81,8 +81,8 @@ begin
   cases t; simp [balance1_node]; intros; is_searchable_tactic,
   { cases lo,
     { apply is_searchable_none_low_of_is_searchable_some_low, assumption },
-    { simp [lift] at *, apply is_searchable_some_low_of_is_searchable_of_lt, assumption' } },
-  all_goals { apply is_searchable_balance1, assumption' }
+    { simp [lift] at *, apply is_searchable_some_low_of_is_searchable_of_lt; assumption } },
+  all_goals { apply is_searchable_balance1; assumption }
 end
 
 lemma is_searchable_balance2 {l y r v t lo hi} (ht : is_searchable lt t lo (some v)) (hl : is_searchable lt l (some v) (some y)) (hr : is_searchable lt r (some y) hi) : is_searchable lt (balance2 l y r v t) lo hi :=
@@ -657,10 +657,10 @@ inductive is_bad_red_black : rbnode α → nat → Prop
 | bad_red   {c₁ c₂ n l r v} (rb_l : is_red_black l c₁ n) (rb_r : is_red_black r c₂ n) : is_bad_red_black (red_node l v r) n
 
 lemma balance1_rb {l r t : rbnode α} {y v : α} {c_l c_r c_t n} : is_red_black l c_l n → is_red_black r c_r n → is_red_black t c_t n → ∃ c, is_red_black (balance1 l y r v t) c (succ n) :=
-by intros h₁ h₂ h₃; cases h₁; cases h₂; iterate {assumption <|> constructor}
+by intros h₁ h₂ h₃; cases h₁; cases h₂; repeat { assumption <|> constructor }
 
 lemma balance2_rb {l r t : rbnode α} {y v : α} {c_l c_r c_t n} : is_red_black l c_l n → is_red_black r c_r n → is_red_black t c_t n → ∃ c, is_red_black (balance2 l y r v t) c (succ n) :=
-by intros h₁ h₂ h₃; cases h₁; cases h₂; iterate {assumption <|> constructor}
+by intros h₁ h₂ h₃; cases h₁; cases h₂; repeat { assumption <|> constructor }
 
 lemma balance1_node_rb {t s : rbnode α} {y : α} {c n} : is_bad_red_black t n → is_red_black s c n → ∃ c, is_red_black (balance1_node t y s) c (succ n) :=
 by intros h _; cases h; simp [balance1_node]; apply balance1_rb; assumption'
@@ -685,27 +685,27 @@ variable (lt)
 lemma ins_rb {t : rbnode α} (x) : ∀ {c n} (h : is_red_black t c n), ins_rb_result (ins lt t x) c n :=
 begin
   apply ins.induction lt t x; intros; cases h; simp [ins, *, ins_rb_result],
-  { iterate { constructor } },
-  { specialize ih rb_l, cases ih, constructor, assumption' },
+  { repeat { constructor } },
+  { specialize ih rb_l, cases ih, constructor; assumption },
   { constructor, assumption' },
-  { specialize ih rb_r, cases ih, constructor, assumption' },
+  { specialize ih rb_r, cases ih, constructor; assumption },
   { specialize ih rb_l,
     have := of_get_color_eq_red hr rb_l, subst c₁,
     simp [ins_rb_result] at ih,
-    apply balance1_node_rb, assumption' },
+    apply balance1_node_rb; assumption },
   { specialize ih rb_l,
     have := of_get_color_ne_red hnr rb_l, subst c₁,
     simp [ins_rb_result] at ih, cases ih,
-    constructor, constructor, assumption' },
-  { constructor, constructor, assumption' },
+    constructor, constructor; assumption },
+  { constructor, constructor; assumption },
   { specialize ih rb_r,
     have := of_get_color_eq_red hr rb_r, subst c₂,
     simp [ins_rb_result] at ih,
-    apply balance2_node_rb, assumption' },
+    apply balance2_node_rb; assumption },
   { specialize ih rb_r,
     have := of_get_color_ne_red hnr rb_r, subst c₂,
     simp [ins_rb_result] at ih, cases ih,
-    constructor, constructor, assumption' }
+    constructor, constructor; assumption }
 end
 
 def insert_rb_result : rbnode α → color → nat → Prop

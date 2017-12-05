@@ -54,7 +54,7 @@ end
 begin
   induction e,
   reflexivity,
-  { cases v_1 with v₁, cases v₁, all_goals {simp} },
+  { cases e with v₁, cases v₁, all_goals {simp} },
   { simp [*] }
 end
 

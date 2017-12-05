@@ -2,6 +2,6 @@
 l r : tree α,
 lo v hi : α,
 lt : α → α → Prop,
-hs₁ : is_searchable lt l lo v,
-hs₂ : is_searchable lt r v hi
+h_hs₁ : is_searchable lt l lo v,
+h_hs₂ : is_searchable lt r v hi
 ⊢ true

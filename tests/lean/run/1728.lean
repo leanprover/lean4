@@ -19,7 +19,7 @@ instance empty_is_Finite : Finite empty := {
                  intros,
                  induction v,
                  trace_state,
-                 cases is_lt,
+                 cases v_is_lt,
                  repeat {admit}
               end
 }

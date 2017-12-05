@@ -4,7 +4,7 @@ nat.succ
        ⟨(λ (a : ℕ) (_F : nat.below (λ (a : ℕ), ℕ → ℕ) a) (a_1 : ℕ),
            (λ (a a_1 : ℕ) (_F : nat.below (λ (a : ℕ), ℕ → ℕ) a_1),
               nat.cases_on a_1 (λ (_F : nat.below (λ (a : ℕ), ℕ → ℕ) 0), a)
-                (λ (n : ℕ) (_F : nat.below (λ (a : ℕ), ℕ → ℕ) (nat.succ n)), nat.succ ((_F.fst).fst a))
+                (λ (a_1 : ℕ) (_F : nat.below (λ (a : ℕ), ℕ → ℕ) (nat.succ a_1)), nat.succ ((_F.fst).fst a))
                 _F)
              a_1
              a
@@ -16,7 +16,8 @@ nat.succ
           ⟨(λ (a : ℕ) (_F : nat.below (λ (a : ℕ), ℕ → ℕ) a) (a_1 : ℕ),
               (λ (a a_1 : ℕ) (_F : nat.below (λ (a : ℕ), ℕ → ℕ) a_1),
                  nat.cases_on a_1 (λ (_F : nat.below (λ (a : ℕ), ℕ → ℕ) 0), a)
-                   (λ (n : ℕ) (_F : nat.below (λ (a : ℕ), ℕ → ℕ) (nat.succ n)), nat.succ ((_F.fst).fst a))
+                   (λ (a_1 : ℕ) (_F : nat.below (λ (a : ℕ), ℕ → ℕ) (nat.succ a_1)),
+                      nat.succ ((_F.fst).fst a))
                    _F)
                 a_1
                 a

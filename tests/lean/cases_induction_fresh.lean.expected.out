@@ -1,25 +1,25 @@
 p q r s : Prop,
-left : p,
-right : q,
-left_1 : r,
-right_1 : s
+h1_left : p,
+h1_right : q,
+h2_left : r,
+h2_right : s
 ⊢ s ∧ q
 p q r s : Prop,
-left : p,
-right : q,
-left_1 : r,
-right_1 : s
+a_left : p,
+a_right : q,
+a_1_left : r,
+a_1_right : s
 ⊢ s ∧ q
 ------------
 p q r s : Prop,
-left : p,
-right : q,
-left_1 : r,
-right_1 : s
+h1_left : p,
+h1_right : q,
+h2_left : r,
+h2_right : s
 ⊢ s ∧ q
 p q r s : Prop,
-left : p,
-right : q,
-left_1 : r,
-right_1 : s
+a_left : p,
+a_right : q,
+a_1_left : r,
+a_1_right : s
 ⊢ s ∧ q

@@ -7,7 +7,7 @@ begin
   induction a,
   dsimp [f], intro x, contradiction,
   dsimp [f],
-  change nat.succ (f n) ≠ 0,
+  change nat.succ (f a_n) ≠ 0,
   apply nat.succ_ne_zero
 end
 

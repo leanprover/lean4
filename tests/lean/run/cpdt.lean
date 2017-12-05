@@ -40,4 +40,4 @@ theorem eeval_times (k e) : eeval (times k e) = k * eeval e :=
 by induction e; simp [*]
 
 theorem reassoc_correct (e) : eeval (reassoc e) = eeval e :=
-by induction e; simp [*]; cases (reassoc e2); rsimp
+by induction e; simp [*]; cases (reassoc e_e2); rsimp

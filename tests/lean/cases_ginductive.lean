@@ -43,14 +43,14 @@ begin
   { intros c₁ t₂ t₂' c₁' c₂ h₁ h₂,
     cases h₁; cases h₂; trace_state; { refl <|> contradiction }  },
   { intros fn ts ih t₂ t₂' c₁ c₂ h₁ h₂, cases h₁; cases h₂, trace_state,
-    have := ih _ _ _ _ h₁_1 h₁_2,
+    have := ih _ _ _ _ h₁_h₁ h₂_h₁,
     simp [*] },
   { intros ts₂ ts₂' c₁ c₂ h₁ h₂,
     cases h₁; cases h₂; refl },
   { intros t ts ih₁ ih₂ ts₂ ts₂' c₁ c₂ h₁ h₂,
     cases h₁; cases h₂,
-    have := ih₁ _ _ _ _ h₁_1 h₁_2,
-    have := ih₂ _ _ _ _ h₂_1 h₂_2,
+    have := ih₁ _ _ _ _ h₁_h₁ h₂_h₁,
+    have := ih₂ _ _ _ _ h₁_h₂ h₂_h₂,
     simp [*] }
 end
 
@@ -90,7 +90,7 @@ with is_rename_lst.ind  : ∀ (ts₁ c₁ c₂ ts₂) (h : is_rename_lst ts₁ c
   begin
     intros c₁ c₂ ts₂ hr,
     cases ts₂; cases hr,
-    fapply h₅, exact h₁_1, exact h₂_1,
-    exact ih₁ _ _ _ h₁_1,
-    exact ih₂ _ _ _ h₂_1
+    fapply h₅, exact hr_h₁, exact hr_h₂,
+    exact ih₁ _ _ _ hr_h₁,
+    exact ih₂ _ _ _ hr_h₂
   end

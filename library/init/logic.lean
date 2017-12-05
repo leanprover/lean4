@@ -519,7 +519,7 @@ iff.intro (λ h, h trivial) (λ h h', h)
 /- exists -/
 
 inductive Exists {α : Sort u} (p : α → Prop) : Prop
-| intro : ∀ (a : α), p a → Exists
+| intro (w : α) (h : p w) : Exists
 
 attribute [intro] Exists.intro
 
@@ -785,7 +785,7 @@ instance : inhabited bool := ⟨ff⟩
 instance : inhabited true := ⟨trivial⟩
 
 class inductive nonempty (α : Sort u) : Prop
-| intro : α → nonempty
+| intro (val : α) : nonempty
 
 protected def nonempty.elim {α : Sort u} {p : Prop} (h₁ : nonempty α) (h₂ : α → p) : p :=
 nonempty.rec h₂ h₁
@@ -799,7 +799,7 @@ lemma nonempty_of_exists {α : Sort u} {p : α → Prop} : (∃ x, p x) → none
 /- subsingleton -/
 
 class inductive subsingleton (α : Sort u) : Prop
-| intro : (∀ a b : α, a = b) → subsingleton
+| intro (h : ∀ a b : α, a = b) : subsingleton
 
 protected def subsingleton.elim {α : Sort u} [h : subsingleton α] : ∀ (a b : α), a = b :=
 subsingleton.rec (λ p, p) h

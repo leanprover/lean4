@@ -6,7 +6,7 @@ by do
   trace ns, -- [[fst_2, snd]]
   constructor
 
-example (a : nat) : a = a :=
+example (h : nat) : h = h :=
 by do
   ns ← mk_constructors_fresh_names `acc,
   trace ns, -- [[x, a_1]

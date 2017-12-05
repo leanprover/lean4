@@ -7,7 +7,7 @@ universes u v w
 
 inductive lazy_list (α : Type u) : Type u
 | nil {} : lazy_list
-| cons   : α → thunk (lazy_list) → lazy_list
+| cons (hd : α) (tl : thunk lazy_list) : lazy_list
 
 namespace lazy_list
 variables {α : Type u} {β : Type v} {δ : Type w}

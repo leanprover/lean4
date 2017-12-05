@@ -51,7 +51,7 @@ begin
     rw [show ∀ b, ff && b = ff, by intros; cases b; refl,
         show ∀ b, bxor b ff = b, by intros; cases b; refl] at this,
     rw [← this],
-    cases mod_two_eq_zero_or_one n; rw a; refl
+    cases mod_two_eq_zero_or_one n with h h; rw h; refl
 end
 
 @[simp] lemma div2_zero : div2 0 = 0 := rfl

@@ -6,4 +6,4 @@ Goal: ∀ {n_1 : ℕ} (a : α) (a_1 : Vec α n_1),
 tactic_state_pp.lean:39:0: error: tactic failed, there are unsolved goals
 state:
 My custom goal visualizer
-Goal: ∀ (a : ℕ), (λ (w : ℕ), n = w → 0 < n → succ (pred n) = n) (succ a)
+Goal: ∀ (n_1 : ℕ), (λ (w : ℕ), n = w → 0 < n → succ (pred n) = n) (succ n_1)

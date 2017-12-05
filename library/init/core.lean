@@ -219,16 +219,16 @@ lemma pprod.mk.inj_arrow {α : Type u} {β : Type v} {x₁ : α} {y₁ : β} {x�
 λ h₁ _ h₂, prod.no_confusion h₁ h₂
 
 inductive sum (α : Type u) (β : Type v)
-| inl {} : α → sum
-| inr {} : β → sum
+| inl {} (val : α) : sum
+| inr {} (val : β) : sum
 
 inductive psum (α : Sort u) (β : Sort v)
-| inl {} : α → psum
-| inr {} : β → psum
+| inl {} (val : α) : psum
+| inr {} (val : β) : psum
 
 inductive or (a b : Prop) : Prop
-| inl {} : a → or
-| inr {} : b → or
+| inl {} (h : a) : or
+| inr {} (h : b) : or
 
 def or.intro_left {a : Prop} (b : Prop) (ha : a) : or a b :=
 or.inl ha
@@ -253,8 +253,8 @@ structure subtype {α : Sort u} (p : α → Prop) :=
 attribute [pp_using_anonymous_constructor] sigma psigma subtype pprod and
 
 class inductive decidable (p : Prop)
-| is_false : ¬p → decidable
-| is_true :  p → decidable
+| is_false (h : ¬p) : decidable
+| is_true  (h : p) : decidable
 
 @[reducible]
 def decidable_pred {α : Sort u} (r : α → Prop) :=
@@ -270,21 +270,21 @@ decidable_rel (@eq α)
 
 inductive option (α : Type u)
 | none {} : option
-| some    : α → option
+| some (val : α) : option
 
 export option (none some)
 export bool (ff tt)
 
 inductive list (T : Type u)
 | nil {} : list
-| cons   : T → list → list
+| cons (hd : T) (tl : list) : list
 
 notation h :: t  := list.cons h t
 notation `[` l:(foldr `, ` (h t, list.cons h t) list.nil `]`) := l
 
 inductive nat
 | zero : nat
-| succ : nat → nat
+| succ (n : nat) : nat
 
 structure unification_constraint :=
 {α : Type u} (lhs : α) (rhs : α)

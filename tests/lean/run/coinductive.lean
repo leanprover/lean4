@@ -98,7 +98,7 @@ begin
   coinduction walk_list.corec_on generalizing a n,
   show ∃ (n : ℕ),
     all_list (λ (a : ℕ), ∃ {n_1 : ℕ} {a_1 : fin n_1}, n_1 + 1 = n ∧ a' = a) (f a') ∧
-      a' = a' ∧ n + 1 = a_1 + 1,
+      a' = a' ∧ n + 1 = w + 1,
   admit
 end
 

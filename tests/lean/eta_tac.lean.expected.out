@@ -1,5 +1,5 @@
 λ {α : Type ?} [c : has_add α] (a a_1 : α), @has_add.add α c a a_1
-λ (a : nat), nat.succ a
+λ (n : nat), nat.succ n
 λ (a_1 : nat), @has_add.add nat nat.has_add a a_1
 λ (x a : nat), @has_add.add nat nat.has_add x a
 @has_add.add nat nat.has_add

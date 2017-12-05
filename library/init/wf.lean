@@ -9,7 +9,7 @@ import init.data.nat.basic init.data.prod
 universes u v
 
 inductive acc {α : Sort u} (r : α → α → Prop) : α → Prop
-| intro : ∀ x, (∀ y, r y x → acc y) → acc x
+| intro (x : α) (h : ∀ y, r y x → acc y) : acc x
 
 namespace acc
 variables {α : Sort u} {r : α → α → Prop}
@@ -20,7 +20,7 @@ acc.rec_on h₁ (λ x₁ ac₁ ih h₂, ac₁ y h₂) h₂
 end acc
 
 inductive well_founded {α : Sort u} (r : α → α → Prop) : Prop
-| intro : (∀ a, acc r a) → well_founded
+| intro (h : ∀ a, acc r a) : well_founded
 
 class has_well_founded (α : Sort u) : Type u :=
 (r : α → α → Prop) (wf : well_founded r)
@@ -158,12 +158,12 @@ section
 
   -- Lexicographical order based on ra and rb
   inductive lex : α × β → α × β → Prop
-  | left  : ∀ {a₁} b₁ {a₂} b₂, ra a₁ a₂ → lex (a₁, b₁) (a₂, b₂)
-  | right : ∀ a {b₁ b₂},       rb b₁ b₂ → lex (a, b₁)  (a, b₂)
+  | left  {a₁} (b₁) {a₂} (b₂) (h : ra a₁ a₂) : lex (a₁, b₁) (a₂, b₂)
+  | right (a) {b₁ b₂} (h : rb b₁ b₂)         : lex (a, b₁)  (a, b₂)
 
   -- relational product based on ra and rb
   inductive rprod : α × β → α × β → Prop
-  | intro : ∀ {a₁ b₁ a₂ b₂}, ra a₁ a₂ → rb b₁ b₂ → rprod (a₁, b₁) (a₂, b₂)
+  | intro {a₁ b₁ a₂ b₂} (h₁ : ra a₁ a₂) (h₂ : rb b₁ b₂) : rprod (a₁, b₁) (a₂, b₂)
   end
 
   section

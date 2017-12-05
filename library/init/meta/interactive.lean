@@ -599,10 +599,15 @@ meta def contradiction : tactic unit :=
 tactic.contradiction
 
 /--
-`iterate { t }` repeatedly applies tactic `t` until `t` fails. The compound tactic always succeeds.
+`iterate { t }` repeatedly applies tactic `t` until `t` fails. `iterate { t }` always succeeds.
+
+`iterate n { t }` applies `t` `n` times.
 -/
-meta def iterate : itactic → tactic unit :=
-tactic.iterate
+meta def iterate (n : parse small_nat?) (t : itactic) : tactic unit :=
+match n with
+| none   := tactic.iterate t
+| some n := iterate_exactly n t
+end
 
 /--
 `repeat { t }` applies `t` to each goal. If the application succeeds,

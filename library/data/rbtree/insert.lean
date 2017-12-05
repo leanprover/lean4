@@ -436,7 +436,7 @@ begin
   cases l; cases r; simp [balance1, *]; is_searchable_tactic,
   { have := trans_of lt (lo_lt_hi hs₂) h, simp [*] },
   { have := trans_of lt a h, simp [*] },
-  twice { have := trans_of lt (trans (lo_lt_hi hs₁_1) (lo_lt_hi hs₂_1)) h, simp [*] },
+  iterate 2 { have := trans_of lt (trans (lo_lt_hi hs₁_1) (lo_lt_hi hs₂_1)) h, simp [*] },
   { have := trans_of lt (lo_lt_hi hs₂_1) h, simp [*] }
 end
 
@@ -460,7 +460,8 @@ begin
   cases l; cases r; simp [balance1, *]; is_searchable_tactic,
   { have : lt val x := lt_of_lt_of_incomp (lo_lt_hi hs₂) h.swap, simp [*] },
   { have : lt v x := lt_of_lt_of_incomp a h.swap, simp [*] },
-  twice { have : lt v x := lt_of_lt_of_incomp (trans (lo_lt_hi hs₁_1) (lo_lt_hi hs₂_1)) h.swap,
+  iterate 2 {
+    have : lt v x := lt_of_lt_of_incomp (trans (lo_lt_hi hs₁_1) (lo_lt_hi hs₂_1)) h.swap,
     simp [*] },
   { have : lt val_1 x := lt_of_lt_of_incomp (lo_lt_hi hs₂_1) h.swap, simp [*] }
 end
@@ -487,7 +488,7 @@ begin
   cases l; cases r; simp [balance2, *]; is_searchable_tactic,
   { have := trans h a, simp [*] },
   { have := trans h (lo_lt_hi hs₁), simp [*] },
-  twice { have := trans h (lo_lt_hi hs₁), simp [*] },
+  iterate 2 { have := trans h (lo_lt_hi hs₁), simp [*] },
   { have := trans h (trans (lo_lt_hi hs₁) (lo_lt_hi hs₂)), simp [*] }
 end
 

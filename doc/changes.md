@@ -42,6 +42,9 @@ master branch (aka work in progress branch)
 
 - Add `funext ids*` tactic for applying the funext lemma.
 
+- Add `iterate n { t }` for applying tactic `t` `n` times.
+  Remark: `iterate { t }` applies `t` until it fails.
+
 *Changes*
 
 - `cases h` now also tries to clear `h` when performing dependent elimination.

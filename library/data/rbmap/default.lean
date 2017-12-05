@@ -244,7 +244,7 @@ begin
   rw [←h₁] at h₂ ⊢, rw [←h₂],
   cases m₁ with t₁ p₁; cases t₁; cases m₂ with t₂ p₂; cases t₂,
   { rw [h₂, h₁] },
-  twice {
+  iterate 2 {
     rw [h₂],
     conv { to_lhs, simp [find_entry] },
     rw [←h₂, insert, rbtree.find_insert_of_disj _ h', h₁],

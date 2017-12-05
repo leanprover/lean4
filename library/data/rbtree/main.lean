@@ -47,7 +47,7 @@ by cases t with n p; cases n; simp [empty, has_mem.mem, rbtree.mem, rbnode.mem]
 lemma mem_of_mem_of_eqv [is_strict_weak_order α lt] {t : rbtree α lt} {a b : α} : a ∈ t → a ≈[lt] b → b ∈ t :=
 begin
   cases t with n p; simp [has_mem.mem, rbtree.mem]; clear p; induction n; simp [rbnode.mem, strict_weak_order.equiv]; intros h₁ h₂; blast_disjs,
-  twice {
+  iterate 2 {
     { have : rbnode.mem lt b lchild := ih_1 h₁ h₂, simp [this] },
     { simp [incomp_trans_of lt h₂.swap h₁] },
     { have : rbnode.mem lt b rchild := ih_2 h₁ h₂, simp [this] } }

@@ -41,7 +41,7 @@ lemma find_correct {t : rbnode α} {lt x} [decidable_rel lt] [is_strict_weak_ord
 begin
   apply find.induction lt t x; intros; simp only [mem, find, *],
   { simp, intro h, cases h with _ h, cases h, contradiction },
-  twice { -- red and black cases are identical
+  iterate 2 { -- red and black cases are identical
     {
       cases hs,
       apply iff.intro,
@@ -87,7 +87,7 @@ lemma find_correct_exact {t : rbnode α} {lt x} [decidable_rel lt] [is_strict_we
 begin
   apply find.induction lt t x; intros; simp only [mem_exact, find, *],
   { simp, intro h, contradiction },
-  twice {
+  iterate 2 {
     {
       cases hs,
       apply iff.intro,
@@ -137,7 +137,7 @@ lemma eqv_of_find_some {t : rbnode α} {lt x y} [decidable_rel lt] [is_strict_we
 begin
   apply find.induction lt t x; intros; simp only [mem, find, *] at *,
   { contradiction },
-  twice {
+  iterate 2 {
     { cases hs, exact ih hs₁ rfl },
     { injection he, subst y, simp at h, exact h },
     { cases hs, exact ih hs₂ rfl } }
@@ -146,7 +146,7 @@ end
 lemma find_eq_find_of_eqv {lt a b} [decidable_rel lt] [is_strict_weak_order α lt] {t : rbnode α} : ∀ {lo hi} (hs : is_searchable lt t lo hi) (heqv : a ≈[lt] b), find lt t a = find lt t b :=
 begin
   apply find.induction lt t a; intros; simp [mem, find, strict_weak_order.equiv, *] at *,
-  twice {
+  iterate 2 {
     { have : lt b y := lt_of_incomp_of_lt heqv.swap h,
       simp [cmp_using, find, *], cases hs, apply ih hs₁ },
     { have := incomp_trans_of lt heqv.swap h, simp [cmp_using, find, *] },

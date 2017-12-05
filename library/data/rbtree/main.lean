@@ -22,7 +22,7 @@ lemma is_red_black_of_well_formed {t : rbnode α} : t.well_formed lt → ∃ c n
 begin
   intro h, induction h,
   { existsi black, existsi 0, constructor },
-  { cases ih_1 with c ih, cases ih with n ih, subst n', apply insert_is_red_black, assumption }
+  { cases ih with c ih, cases ih with n ih, subst n', apply insert_is_red_black, assumption }
 end
 
 end rbnode

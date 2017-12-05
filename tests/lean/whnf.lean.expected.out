@@ -11,7 +11,7 @@ succ
           0
           punit.star,
         punit.star⟩
-       (λ (n : ℕ) (ih_1 : pprod ((λ (a : ℕ), ℕ → ℕ) n) (nat.below (λ (a : ℕ), ℕ → ℕ) n)),
+       (λ (n : ℕ) (ih : pprod ((λ (a : ℕ), ℕ → ℕ) n) (nat.below (λ (a : ℕ), ℕ → ℕ) n)),
           ⟨(λ (a : ℕ) (_F : nat.below (λ (a : ℕ), ℕ → ℕ) a) (a_1 : ℕ),
               (λ (a a_1 : ℕ) (_F : nat.below (λ (a : ℕ), ℕ → ℕ) a_1),
                  nat.cases_on a_1 (λ (_F : nat.below (λ (a : ℕ), ℕ → ℕ) 0), a)
@@ -21,8 +21,8 @@ succ
                 a
                 _F)
              (succ n)
-             ⟨ih_1, punit.star⟩,
-           ⟨ih_1, punit.star⟩⟩)
+             ⟨ih, punit.star⟩,
+           ⟨ih, punit.star⟩⟩)
        0,
      punit.star⟩.fst).fst
      2)
@@ -40,7 +40,7 @@ succ
           0
           punit.star,
         punit.star⟩
-       (λ (n : ℕ) (ih_1 : pprod ((λ (a : ℕ), ℕ → ℕ) n) (nat.below (λ (a : ℕ), ℕ → ℕ) n)),
+       (λ (n : ℕ) (ih : pprod ((λ (a : ℕ), ℕ → ℕ) n) (nat.below (λ (a : ℕ), ℕ → ℕ) n)),
           ⟨(λ (a : ℕ) (_F : nat.below (λ (a : ℕ), ℕ → ℕ) a) (a_1 : ℕ),
               (λ (a a_1 : ℕ) (_F : nat.below (λ (a : ℕ), ℕ → ℕ) a_1),
                  nat.cases_on a_1 (λ (_F : nat.below (λ (a : ℕ), ℕ → ℕ) 0), a)
@@ -50,8 +50,8 @@ succ
                 a
                 _F)
              (succ n)
-             ⟨ih_1, punit.star⟩,
-           ⟨ih_1, punit.star⟩⟩)
+             ⟨ih, punit.star⟩,
+           ⟨ih, punit.star⟩⟩)
        0,
      punit.star⟩.fst).fst
      a)

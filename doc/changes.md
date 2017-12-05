@@ -47,6 +47,11 @@ master branch (aka work in progress branch)
 
 *Changes*
 
+- The automatically generated recursor `C.rec` for an inductive datatype
+  now uses `ih` to name induction hypotheses instead of `ih_1` if there is only one.
+  This change only affects tactical proofs where explicit names are not provided
+  to `induction` and `cases` tactics.
+
 - `cases h` now also tries to clear `h` when performing dependent elimination.
 
 - `repeat { t }` behavior changed. Now, it applies `t` to each goal. If the application succeeds,

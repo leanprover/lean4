@@ -171,7 +171,7 @@ section conversion
     simp,
     induction xs with x xs generalizing x,
     { simp, unfold list.foldl add_lsb, simp [nat.mul_succ] },
-    { simp, apply ih_1 }
+    { simp, apply ih }
   end
 
   theorem bits_to_nat_to_bool (n : ℕ)
@@ -194,7 +194,7 @@ section conversion
     { have h : 0 < 2, { apply le_succ },
       rw [ of_nat_succ
          , to_nat_append
-         , ih_1
+         , ih
          , bits_to_nat_to_bool
          , mod_pow_succ h],
       ac_refl, }

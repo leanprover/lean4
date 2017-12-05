@@ -598,7 +598,10 @@ struct add_inductive_fn {
                     C_app = mk_app(C_app, u_app);
                 }
                 expr v_i_ty = Pi(xs, C_app);
-                expr v_i    = mk_local(mk_fresh_name(), name("ih").append_after(i+1), v_i_ty, binder_info());
+                name ih("ih");
+                if (u.size() > 1)
+                    ih = ih.append_after(i+1);
+                expr v_i    = mk_local(mk_fresh_name(), ih, v_i_ty, binder_info());
                 v.push_back(v_i);
             }
             expr minor_ty = Pi(b_u, Pi(v, C_app));

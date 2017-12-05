@@ -16,6 +16,6 @@ H : 0 ≠ 0
 ⊢ 0 > 0 → 0 = succ (pred 0)
 
 n : ℕ,
-ih_1 : n ≠ 0 → n > 0 → n = succ (pred n),
+ih : n ≠ 0 → n > 0 → n = succ (pred n),
 H : succ n ≠ 0
 ⊢ succ n > 0 → succ n = succ (pred (succ n))

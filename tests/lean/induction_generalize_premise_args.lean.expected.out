@@ -5,7 +5,7 @@ c₁ c₂ : com,
 c₁' : com,
 σ' : state,
 a : smallstep (c₁, σ) (c₂, σ'),
-ih_1 : ∀ (c'₂ : com) (σ'₂ : state), smallstep (c₁, σ) (c'₂, σ'₂) → (c₂, σ') = (c'₂, σ'₂),
+ih : ∀ (c'₂ : com) (σ'₂ : state), smallstep (c₁, σ) (c'₂, σ'₂) → (c₂, σ') = (c'₂, σ'₂),
 c'₂ : com,
 σ'₂ : state,
 h₂ : smallstep (com.seq c₁ c₂, σ) (c'₂, σ'₂)

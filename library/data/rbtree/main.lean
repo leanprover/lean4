@@ -121,7 +121,7 @@ begin
   simp [h, contains], apply iff.intro,
   { intro h', cases h' with _ h', cases h', simp [*], simp [option.is_some] },
   { intro h',
-    generalize heq : find t a = s, cases s with v, simp [heq, option.is_some] at h', contradiction,
+    cases heq : find t a with v, simp [heq, option.is_some] at h', contradiction,
     existsi v, simp, apply eqv_of_find_some heq }
 end
 

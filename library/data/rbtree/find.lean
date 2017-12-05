@@ -24,15 +24,13 @@ begin
   induction t,
   case leaf {assumption},
   case red_node l y r {
-     generalize h : cmp_using lt x y = c,
-     cases c,
+     cases h : cmp_using lt x y,
      case ordering.lt { apply h₂, assumption, assumption },
      case ordering.eq { apply h₃, assumption },
      case ordering.gt { apply h₄, assumption, assumption },
   },
   case black_node l y r {
-     generalize h : cmp_using lt x y = c,
-     cases c,
+     cases h : cmp_using lt x y,
      case ordering.lt { apply h₅, assumption, assumption },
      case ordering.eq { apply h₆, assumption },
      case ordering.gt { apply h₇, assumption, assumption },

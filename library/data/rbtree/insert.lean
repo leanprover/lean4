@@ -50,15 +50,13 @@ begin
   induction t,
   case leaf { apply h₁ },
   case red_node a y b {
-     generalize h : cmp_using lt x y = c,
-     cases c,
+     cases h : cmp_using lt x y,
      case ordering.lt { apply h₂; assumption },
      case ordering.eq { apply h₃; assumption },
      case ordering.gt { apply h₄; assumption },
    },
   case black_node a y b {
-     generalize h : cmp_using lt x y = c,
-     cases c,
+     cases h : cmp_using lt x y,
      case ordering.lt {
        by_cases get_color a = red,
        { apply h₅; assumption },
@@ -195,8 +193,7 @@ end
 lemma insert_ne_leaf (t : rbnode α) (x : α) : insert lt t x ≠ leaf :=
 begin
   simp [insert],
-  generalize he : ins lt t x = t',
-  cases t'; cases get_color t; simp [mk_insert_result],
+  cases he : ins lt t x; cases get_color t; simp [mk_insert_result],
   { have := ins_ne_leaf lt t x, contradiction },
   any_goals { contradiction },
   { exact absurd he (ins_ne_leaf _ _ _) }
@@ -581,8 +578,7 @@ begin
     { simp_fi } },
   { have ih := ih hs₁ hlt₁ hc,
     cases hn with hn hn,
-    { generalize hc' : cmp_using lt y y_1 = cyy,
-      cases cyy; simp at hc',
+    { cases hc' : cmp_using lt y y_1; simp at hc',
       { have hsi := is_searchable_ins lt hs₁ hlt₁ (trans_of lt hn hc'),
         have := find_balance1_node_lt lt hc' hsi hs₂,
         simp_fi },
@@ -608,8 +604,7 @@ begin
       have := find_balance2_node_gt lt hlt hsi hs₁,
       simp_fi },
     { simp_fi,
-      generalize hc' : cmp_using lt y y_1 = cyy,
-      cases cyy; simp at hc',
+      cases hc' : cmp_using lt y y_1; simp at hc',
       { have hsi := is_searchable_ins lt hs₂ hc hlt₂,
         have := find_balance2_node_lt lt hc' hsi hs₁,
         simp_fi },

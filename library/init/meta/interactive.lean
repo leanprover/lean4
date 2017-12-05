@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.meta.tactic init.meta.rewrite_tactic init.meta.simp_tactic
 import init.meta.smt.congruence_closure init.category.combinators
-import init.meta.interactive_base init.meta.derive
+import init.meta.interactive_base init.meta.derive init.meta.match_tactic
 
 open lean
 open lean.parser
@@ -1204,6 +1204,12 @@ We use this tactic for writing tests.
 -/
 meta def guard_hyp (n : parse ident) (p : parse $ tk ":=" *> texpr) : tactic unit :=
 do h ← get_local n >>= infer_type, guard_expr_eq h p
+
+/--
+`match_target t` fails if target does not match pattern `t`.
+-/
+meta def match_target (t : parse texpr) : tactic unit :=
+tactic.match_target t >> skip
 
 /--
 `by_cases p with h` splits the main goal into two cases, assuming `h : p` in the first branch, and `h : ¬ p` in the second branch.

@@ -44,6 +44,8 @@ master branch (aka work in progress branch)
 
 *Changes*
 
+- `cases h` now also tries to clear `h` when performing dependent elimination.
+
 - `repeat { t }` behavior changed. Now, it applies `t` to each goal. If the application succeeds,
   the tactic is applied recursively to all the generated subgoals until it eventually fails.
   The recursion stops in a subgoal when the tactic has failed to make progress.

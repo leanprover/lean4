@@ -16,7 +16,7 @@ begin
    all_goals {
      cases t_lchild; simp [rbnode.min]; intro h,
      { injection h, subst t_val, simp [mem, irrefl_of lt a] },
-     all_goals { rw [mem], simp [t_ih_1 h] } }
+     all_goals { rw [mem], simp [t_ih_lchild h] } }
 end
 
 lemma mem_of_max_eq (lt : α → α → Prop) [is_irrefl α lt] {a : α} {t : rbnode α} : t.max = some a → mem lt a t :=
@@ -26,7 +26,7 @@ begin
    all_goals {
      cases t_rchild; simp [rbnode.max]; intro h,
      { injection h, subst t_val, simp [mem, irrefl_of lt a] },
-     all_goals { rw [mem], simp [t_ih_2 h] } }
+     all_goals { rw [mem], simp [t_ih_rchild h] } }
 end
 
 variables [decidable_rel lt] [is_strict_weak_order α lt]
@@ -38,7 +38,7 @@ begin
   all_goals {
     cases t_lchild; simp [rbnode.min]; intro h,
     { contradiction },
-    all_goals { have := t_ih_1 h, contradiction } }
+    all_goals { have := t_ih_lchild h, contradiction } }
 end
 
 lemma eq_leaf_of_max_eq_none {t : rbnode α} : t.max = none → t = leaf :=
@@ -48,7 +48,7 @@ begin
   all_goals {
     cases t_rchild; simp [rbnode.max]; intro h,
     { contradiction },
-    all_goals { have := t_ih_2 h, contradiction } }
+    all_goals { have := t_ih_rchild h, contradiction } }
 end
 
 lemma min_is_minimal {a : α} {t : rbnode α} : ∀ {lo hi}, is_searchable lt t lo hi → t.min = some a → ∀ {b}, mem lt b t → a ≈[lt] b ∨ lt a b :=
@@ -66,7 +66,7 @@ begin
       have hs' := hs,
       cases hs, simp [rbnode.min] at hmin,
       rw [mem] at hmem, blast_disjs,
-      { exact t_ih_1 hs_hs₁ hmin hmem },
+      { exact t_ih_lchild hs_hs₁ hmin hmem },
       { have hmm       := mem_of_min_eq lt hmin,
         have a_lt_val  := lt_of_mem_left hs' (by constructor) hmm,
         have a_lt_b    := lt_of_lt_of_incomp a_lt_val hmem.swap,
@@ -98,7 +98,7 @@ begin
         have val_lt_a  := lt_of_mem_right hs' (by constructor) hmm,
         have a_lt_b    := lt_of_incomp_of_lt hmem val_lt_a,
         right, assumption },
-      { exact t_ih_2 hs_hs₂ hmax hmem } } }
+      { exact t_ih_rchild hs_hs₂ hmax hmem } } }
 end
 
 end rbnode

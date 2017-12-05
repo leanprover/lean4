@@ -75,8 +75,8 @@ begin
   case leaf { cases hs, assumption },
   all_goals {
     cases hs,
-    have h₁ := t_ih_1 hs_hs₁,
-    have h₂ := t_ih_2 hs_hs₂,
+    have h₁ := t_ih_lchild hs_hs₁,
+    have h₂ := t_ih_rchild hs_hs₂,
     cases lo with lo; cases hi with hi; simp [lift] at *,
     apply trans_of lt h₁ h₂,
   }
@@ -88,42 +88,42 @@ lemma is_searchable_of_is_searchable_of_incomp [is_strict_weak_order α lt] {t} 
 begin
   induction t; intros; is_searchable_tactic,
   { cases lo; simp [lift, *] at *, apply lt_of_lt_of_incomp, assumption, exact ⟨hc.2, hc.1⟩ },
-  all_goals { apply t_ih_2 hc hs_hs₂ }
+  all_goals { apply t_ih_rchild hc hs_hs₂ }
 end
 
 lemma is_searchable_of_incomp_of_is_searchable [is_strict_weak_order α lt] {t} : ∀ {lo lo' hi} (hc : ¬ lt lo' lo ∧ ¬ lt lo lo') (hs : is_searchable lt t (some lo) hi), is_searchable lt t (some lo') hi :=
 begin
   induction t; intros; is_searchable_tactic,
   { cases hi; simp [lift, *] at *, apply lt_of_incomp_of_lt, assumption, assumption },
-  all_goals { apply t_ih_1 hc hs_hs₁ }
+  all_goals { apply t_ih_lchild hc hs_hs₁ }
 end
 
 lemma is_searchable_some_low_of_is_searchable_of_lt {t} [is_trans α lt] : ∀ {lo hi lo'} (hlt : lt lo' lo) (hs : is_searchable lt t (some lo) hi), is_searchable lt t (some lo') hi :=
 begin
   induction t; intros; is_searchable_tactic,
   { cases hi; simp [lift, *] at *, apply trans_of lt hlt, assumption },
-  all_goals { apply t_ih_1 hlt hs_hs₁ }
+  all_goals { apply t_ih_lchild hlt hs_hs₁ }
 end
 
 lemma is_searchable_none_low_of_is_searchable_some_low {t} : ∀ {y hi} (hlt : is_searchable lt t (some y) hi), is_searchable lt t none hi :=
 begin
   induction t; intros; is_searchable_tactic,
   { simp [lift] },
-  all_goals { apply t_ih_1 hlt_hs₁ }
+  all_goals { apply t_ih_lchild hlt_hs₁ }
 end
 
 lemma is_searchable_some_high_of_is_searchable_of_lt {t} [is_trans α lt] : ∀ {lo hi hi'} (hlt : lt hi hi') (hs : is_searchable lt t lo (some hi)), is_searchable lt t lo (some hi') :=
 begin
   induction t; intros; is_searchable_tactic,
   { cases lo; simp [lift, *] at *, apply trans_of lt, assumption, assumption},
-  all_goals { apply t_ih_2 hlt hs_hs₂ }
+  all_goals { apply t_ih_rchild hlt hs_hs₂ }
 end
 
 lemma is_searchable_none_high_of_is_searchable_some_high {t} : ∀ {lo y} (hlt : is_searchable lt t lo (some y)), is_searchable lt t lo none :=
 begin
   induction t; intros; is_searchable_tactic,
   { cases lo; simp [lift] },
-  all_goals { apply t_ih_2 hlt_hs₂ }
+  all_goals { apply t_ih_rchild hlt_hs₂ }
 end
 
 lemma range [is_strict_weak_order α lt] {t : rbnode α} {x} : ∀ {lo hi}, is_searchable lt t lo hi → mem lt x t → lift lt lo (some x) ∧ lift lt (some x) hi :=
@@ -137,7 +137,7 @@ begin
     have lo_val : lift lt lo (some t_val), { apply lo_lt_hi, assumption },
     blast_disjs,
     {
-      have h₃ : lift lt lo (some x) ∧ lift lt (some x) (some t_val), { apply t_ih_1, assumption, assumption },
+      have h₃ : lift lt lo (some x) ∧ lift lt (some x) (some t_val), { apply t_ih_lchild, assumption, assumption },
       cases h₃ with lo_x x_val,
       split,
       show lift lt lo (some x), { assumption },
@@ -156,7 +156,7 @@ begin
       { apply lt_of_incomp_of_lt _ val_hi, simp [*] }
     },
     {
-      have h₃ : lift lt (some t_val) (some x) ∧ lift lt (some x) hi, { apply t_ih_2, assumption, assumption },
+      have h₃ : lift lt (some t_val) (some x) ∧ lift lt (some x) hi, { apply t_ih_rchild, assumption, assumption },
       cases h₃ with val_x x_hi,
       cases lo with lo; cases hi with hi; simp [lift] at *,
       { assumption },
@@ -232,8 +232,8 @@ begin
     apply succ_le_succ,
     apply max_le; assumption },
   case black_rb {
-    have : depth max h_l ≤ 2*h_n + 1, from le_trans h_ih_1 (upper_le _ _),
-    have : depth max h_r ≤ 2*h_n + 1, from le_trans h_ih_2 (upper_le _ _),
+    have : depth max h_l ≤ 2*h_n + 1, from le_trans h_ih_rb_l (upper_le _ _),
+    have : depth max h_r ≤ 2*h_n + 1, from le_trans h_ih_rb_r (upper_le _ _),
     suffices new : max (depth max h_l) (depth max h_r) + 1 ≤ 2 * h_n + 2*1,
     { simp [depth, upper, succ_eq_add_one, left_distrib, *] at * },
     apply succ_le_succ, apply max_le; assumption

@@ -80,7 +80,7 @@ end
 lemma mem_of_mem_exact {lt} [is_irrefl α lt] {x t} : mem_exact x t → mem lt x t :=
 begin
   induction t; simp [mem_exact, mem]; intro h,
-  all_goals { blast_disjs, simp [t_ih_1 h], simp [h, irrefl_of lt t_val], simp [t_ih_2 h] }
+  all_goals { blast_disjs, simp [t_ih_lchild h], simp [h, irrefl_of lt t_val], simp [t_ih_rchild h] }
 end
 
 lemma find_correct_exact {t : rbnode α} {lt x} [decidable_rel lt] [is_strict_weak_order α lt] : ∀ {lo hi} (hs : is_searchable lt t lo hi), mem_exact x t ↔ find lt t x = some x :=

@@ -599,8 +599,14 @@ struct add_inductive_fn {
                 }
                 expr v_i_ty = Pi(xs, C_app);
                 name ih("ih");
-                if (u.size() > 1)
-                    ih = ih.append_after(i+1);
+                if (u.size() > 1) {
+                    name const & u_i_name = mlocal_pp_name(u_i);
+                    if (u_i_name.is_atomic() && u_i_name.is_string()) {
+                        ih = ih.append_after("_").append_after(u_i_name.get_string());
+                    } else {
+                        ih = ih.append_after(i+1);
+                    }
+                }
                 expr v_i    = mk_local(mk_fresh_name(), ih, v_i_ty, binder_info());
                 v.push_back(v_i);
             }

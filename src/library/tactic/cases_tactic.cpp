@@ -317,10 +317,16 @@ struct cases_tactic_fn {
         return mk_app(ctx, inv.m_inv, mask.size(), mask.data(), &x);
     }
 
-    optional<expr> unify_eqs(expr mvar, unsigned num_eqs, bool updating,
+    optional<expr> unify_eqs(expr const & input_H, expr mvar, unsigned num_eqs, bool updating,
                              list<expr> & new_intros, hsubstitution & subst) {
         if (num_eqs == 0) {
-            lean_cases_trace(mvar, tout() << "solved equalities\n" << pp_goal(mvar) << "\n";);
+            lean_cases_trace(mvar,
+                             tout() << "solved equalities\n" << pp_goal(mvar) << "\n";
+                             tout() << "input hypothesis: " << input_H << "\n";);
+            /* clear input hypothesis */
+            try {
+                mvar = clear(m_mctx, mvar, input_H);
+            } catch (exception&) { /* ignore failure */ }
             return some_expr(mvar);
         }
         expr A, B, lhs, rhs;
@@ -362,12 +368,12 @@ struct cases_tactic_fn {
             expr val        = mk_app(mvar2, mk_eq_of_heq(ctx, H));
             m_mctx.assign(*mvar1, val);
             lean_cases_trace(mvar, tout() << "converted heq => eq\n";);
-            return unify_eqs(mvar2, num_eqs, updating, new_intros, subst);
+            return unify_eqs(input_H, mvar2, num_eqs, updating, new_intros, subst);
         } else if (is_eq(H_type, A, lhs, rhs)) {
             if (ctx.is_def_eq(lhs, rhs)) {
                 lean_cases_trace(mvar, tout() << "skip\n";);
                 expr mvar2 = clear(m_mctx, *mvar1, H);
-                return unify_eqs(mvar2, num_eqs - 1, updating, new_intros, subst);
+                return unify_eqs(input_H, mvar2, num_eqs - 1, updating, new_intros, subst);
             } else if (is_local(rhs) || is_local(lhs)) {
                 lean_cases_trace(mvar, tout() << "substitute\n";);
                 hsubstitution extra_subst;
@@ -382,7 +388,7 @@ struct cases_tactic_fn {
                                            updating ? &extra_subst : nullptr);
                 new_intros = apply(new_intros, extra_subst);
                 subst      = merge(apply(subst, extra_subst), extra_subst);
-                return unify_eqs(mvar2, num_eqs - 1, updating, new_intros, subst);
+                return unify_eqs(input_H, mvar2, num_eqs - 1, updating, new_intros, subst);
             } else if (auto info = invertible(lhs, rhs)) {
                 lean_cases_trace(mvar, tout() << "invertible\n";);
                 /* This branch is mainly used for equalities of the form
@@ -406,7 +412,7 @@ struct cases_tactic_fn {
                     expr mvar2              = m_mctx.mk_metavar_decl(lctx, new_target);
                     expr val                = mk_app(mvar2, lhs_arg_eq_rhs_arg);
                     m_mctx.assign(*mvar1, val);
-                    return unify_eqs(mvar2, num_eqs, updating, new_intros, subst);
+                    return unify_eqs(input_H, mvar2, num_eqs, updating, new_intros, subst);
                 } catch (app_builder_exception & ex) {
                     throw_exception(mvar, "cases tactic failed, unexpected failure when using inverse");
                 }
@@ -465,7 +471,7 @@ struct cases_tactic_fn {
                         m_mctx.assign(*mvar1, val);
                         unsigned A_nparams = get_ginductive_num_params(m_env, const_name(A_fn));
                         lean_assert(get_app_num_args(lhs) >= A_nparams);
-                        return unify_eqs(mvar2, num_eqs - 1 + get_app_num_args(lhs) - A_nparams,
+                        return unify_eqs(input_H, mvar2, num_eqs - 1 + get_app_num_args(lhs) - A_nparams,
                                          updating, new_intros, subst);
                     } else {
                         lean_assert(*c1 != *c2);
@@ -481,7 +487,7 @@ struct cases_tactic_fn {
                         expr new_mvar   = m_mctx.mk_metavar_decl(lctx, new_target);
                         m_mctx.assign(mvar, new_mvar);
                         lean_cases_trace(mvar, tout() << "normalize generalized constructors at lhs/rhs:\n" << pp_goal(mvar) << "\n";);
-                        return unify_eqs(new_mvar, num_eqs, updating, new_intros, subst);
+                        return unify_eqs(input_H, new_mvar, num_eqs, updating, new_intros, subst);
                     }
                 } else {
                     /*
@@ -512,7 +518,7 @@ struct cases_tactic_fn {
                         m_mctx.assign(*mvar1, val);
                         unsigned A_nparams = *inductive::get_num_params(m_env, const_name(A_fn));
                         lean_assert(get_app_num_args(lhs) >= A_nparams);
-                        return unify_eqs(mvar2, num_eqs - 1 + get_app_num_args(lhs) - A_nparams,
+                        return unify_eqs(input_H, mvar2, num_eqs - 1 + get_app_num_args(lhs) - A_nparams,
                                          updating, new_intros, subst);
                     } else {
                         lean_assert(*c1 != *c2);
@@ -526,7 +532,7 @@ struct cases_tactic_fn {
         }
     }
 
-    pair<list<expr>, list<name>> unify_eqs(list<expr> const & mvars, list<name> const & cnames, unsigned num_eqs,
+    pair<list<expr>, list<name>> unify_eqs(expr const & input_H, list<expr> const & mvars, list<name> const & cnames, unsigned num_eqs,
                                            intros_list * ilist, hsubstitution_list * slist) {
         lean_assert((ilist == nullptr) == (slist == nullptr));
         buffer<expr>              new_goals;
@@ -545,7 +551,7 @@ struct cases_tactic_fn {
                 subst      = head(*it3);
             }
             bool updating = ilist != nullptr;
-            optional<expr> new_mvar = unify_eqs(head(it1), num_eqs, updating, new_intros, subst);
+            optional<expr> new_mvar = unify_eqs(input_H, head(it1), num_eqs, updating, new_intros, subst);
             if (new_mvar) {
                 new_goals.push_back(*new_mvar);
                 new_cnames.push_back(head(itn));
@@ -617,7 +623,7 @@ struct cases_tactic_fn {
             }
             lean_cases_trace(mvar1, tout() << "after eliminating auxiliary indices:";
                              for (auto g : new_goals2) tout() << "\n" << pp_goal(g) << "\n";);
-            return unify_eqs(new_goals2, cname_list, num_eqs, ilist, slist);
+            return unify_eqs(H, new_goals2, cname_list, num_eqs, ilist, slist);
         }
     }
 };

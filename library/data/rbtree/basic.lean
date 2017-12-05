@@ -59,8 +59,7 @@ meta def destruct_is_searchable_hyps : tactic unit :=
 repeat $ any_hyp $ λ h, do
   t ← infer_type h,
   guard $ is_searchable_constructor_app t,
-  cases h,
-  clear h
+  cases h
 
 meta def is_searchable_tactic : tactic unit :=
 destruct_is_searchable_hyps; apply_is_searchable_constructors; try assumption

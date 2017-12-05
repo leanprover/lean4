@@ -63,15 +63,16 @@ begin
       { have := lt_of_mem_right hs (by constructor) hmem,
         right, assumption } },
     all_goals {
+      have hs' := hs,
       cases hs, simp [rbnode.min] at hmin,
       rw [mem] at hmem, blast_disjs,
       { exact ih_1 hs₁ hmin hmem },
       { have hmm       := mem_of_min_eq lt hmin,
-        have a_lt_val  := lt_of_mem_left hs (by constructor) hmm,
+        have a_lt_val  := lt_of_mem_left hs' (by constructor) hmm,
         have a_lt_b    := lt_of_lt_of_incomp a_lt_val hmem.swap,
         right, assumption },
       { have hmm       := mem_of_min_eq lt hmin,
-        have a_lt_b    := lt_of_mem_left_right hs (by constructor) hmm hmem,
+        have a_lt_b    := lt_of_mem_left_right hs' (by constructor) hmm hmem,
         right, assumption } } }
 end
 
@@ -87,13 +88,14 @@ begin
         right, assumption },
       { left, exact heqv.swap } },
     all_goals {
+      have hs' := hs,
       cases hs, simp [rbnode.max] at hmax,
       rw [mem] at hmem, blast_disjs,
       { have hmm       := mem_of_max_eq lt hmax,
-        have a_lt_b    := lt_of_mem_left_right hs (by constructor) hmem hmm,
+        have a_lt_b    := lt_of_mem_left_right hs' (by constructor) hmem hmm,
         right, assumption },
       { have hmm       := mem_of_max_eq lt hmax,
-        have val_lt_a  := lt_of_mem_right hs (by constructor) hmm,
+        have val_lt_a  := lt_of_mem_right hs' (by constructor) hmm,
         have a_lt_b    := lt_of_incomp_of_lt hmem val_lt_a,
         right, assumption },
       { exact ih_2 hs₂ hmax hmem } } }

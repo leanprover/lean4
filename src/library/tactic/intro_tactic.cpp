@@ -14,20 +14,9 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic_state.h"
 
 namespace lean {
-static name mk_aux_name(local_context const & lctx, list<name> & given_names, name const & default_name,
-                        bool use_unused_names) {
-    if (given_names) {
-        name r      = head(given_names);
-        given_names = tail(given_names);
-        return r == "_" ? lctx.get_unused_name(default_name) : r;
-    } else {
-        return use_unused_names ? lctx.get_unused_name(default_name) : default_name;
-    }
-}
-
-optional<expr> intron(environment const & env, options const & opts, metavar_context & mctx,
-                      expr const & mvar, unsigned n, list<name> & given_names, buffer<name> & new_Hns,
-                      bool use_unused_names) {
+optional<expr> intron_core(environment const & env, options const & opts, metavar_context & mctx,
+                           expr const & mvar, unsigned n, buffer<name> & new_Hns,
+                           std::function<name(local_context const & lctx, name const & n)> const & mk_name) {
     lean_assert(is_metavar(mvar));
     optional<metavar_decl> g = mctx.find_metavar_decl(mvar);
     if (!g) return none_expr();
@@ -43,7 +32,7 @@ optional<expr> intron(environment const & env, options const & opts, metavar_con
         }
         lean_assert(is_pi(type) || is_let(type));
         if (is_pi(type)) {
-            name H_name = mk_aux_name(ctx.lctx(), given_names, binding_name(type), use_unused_names);
+            name H_name = mk_name(ctx.lctx(), binding_name(type));
             expr H      = new_locals.push_local(H_name, annotated_head_beta_reduce(binding_domain(type)),
                                                 binding_info(type));
             type        = instantiate(binding_body(type), H);
@@ -52,7 +41,7 @@ optional<expr> intron(environment const & env, options const & opts, metavar_con
 
         } else {
             lean_assert(is_let(type));
-            name H_name = mk_aux_name(ctx.lctx(), given_names, let_name(type), use_unused_names);
+            name H_name = mk_name(ctx.lctx(), let_name(type));
             expr H      = new_locals.push_let(H_name, annotated_head_beta_reduce(let_type(type)), let_value(type));
             type        = instantiate(let_body(type), H);
             new_Hs.push_back(H);
@@ -78,6 +67,26 @@ optional<expr> intron(environment const & env, options const & opts, metavar_con
     mctx = ctx.mctx();
     mctx.assign(mvar, new_val);
     return some_expr(new_M);
+}
+
+static name mk_aux_name(local_context const & lctx, list<name> & given_names, name const & default_name,
+                        bool use_unused_names) {
+    if (given_names) {
+        name r      = head(given_names);
+        given_names = tail(given_names);
+        return r == "_" ? lctx.get_unused_name(default_name) : r;
+    } else {
+        return use_unused_names ? lctx.get_unused_name(default_name) : default_name;
+    }
+}
+
+optional<expr> intron(environment const & env, options const & opts, metavar_context & mctx,
+                      expr const & mvar, unsigned n, list<name> & given_names, buffer<name> & new_Hns,
+                      bool use_unused_names) {
+    return intron_core(env, opts, mctx, mvar, n, new_Hns,
+                       [&](local_context const & lctx, name const & n) {
+                           return mk_aux_name(lctx, given_names, n, use_unused_names);
+                       });
 }
 
 optional<expr> intron(environment const & env, options const & opts, metavar_context & mctx,

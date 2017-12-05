@@ -27,7 +27,7 @@ private lemma to_rbtree_mem {k : α} {m : rbmap α β lt} : k ∈ m → ∃ v : 
 begin
   cases m with n p; cases n; intros h,
   { exact false.elim h },
-  all_goals { existsi val.2, exact h }
+  all_goals { existsi n_val.2, exact h }
 end
 
 private lemma eqv_entries_of_eqv_keys {k₁ k₂ : α} (v₁ v₂ : β) : k₁ ≈[lt] k₂ → (k₁, v₁) ≈[rbmap_lt lt] (k₂, v₂) :=
@@ -44,9 +44,9 @@ begin
   cases m with n p; cases n; intros h,
   { exact false.elim h },
   { simp [has_mem.mem, rbmap.mem],
-    exact @rbtree.mem_of_mem_of_eqv _ _ _ ⟨rbnode.red_node lchild val rchild, p⟩ _ _ h (eqv_entries _ _ _) },
+    exact @rbtree.mem_of_mem_of_eqv _ _ _ ⟨rbnode.red_node n_lchild n_val n_rchild, p⟩ _ _ h (eqv_entries _ _ _) },
   { simp [has_mem.mem, rbmap.mem],
-    exact @rbtree.mem_of_mem_of_eqv _ _ _ ⟨rbnode.black_node lchild val rchild, p⟩ _ _ h (eqv_entries _ _ _) }
+    exact @rbtree.mem_of_mem_of_eqv _ _ _ ⟨rbnode.black_node n_lchild n_val n_rchild, p⟩ _ _ h (eqv_entries _ _ _) }
 end
 
 private lemma to_rbtree_mem' [is_strict_weak_order α lt] {k : α} {m : rbmap α β lt} (v : β) : k ∈ m → rbtree.mem (k, v) m :=
@@ -61,7 +61,7 @@ lemma eq_some_of_to_value_eq_some {e : option (α × β)} {v : β} : to_value e 
 begin
   cases e with val; simp [to_value],
     { contradiction },
-    { cases val, simp, intro h, injection h, subst v, existsi fst, refl }
+    { cases val, simp, intro h, injection h, subst v, constructor, refl }
 end
 
 lemma eq_none_of_to_value_eq_none {e : option (α × β)} : to_value e = none → e = none :=
@@ -127,11 +127,11 @@ begin
     existsi e, cases t; simp [find_entry] at ⊢ h₂,
     { simp [rbtree.find, rbnode.find] at h₂, cases h₂, contradiction },
     { cases h₂ with h₂₁ h₂₂, split,
-      { have := rbtree.find_eq_find_of_eqv ⟨rbnode.red_node lchild val rchild, p⟩ (eqv_entries k v val.snd),
+      { have := rbtree.find_eq_find_of_eqv ⟨rbnode.red_node t_lchild t_val t_rchild, p⟩ (eqv_entries k v t_val.2),
         rw [←this], exact h₂₁ },
       { cases e, apply eqv_keys_of_eqv_entries h₂₂ } },
     { cases h₂ with h₂₁ h₂₂, split,
-      { have := rbtree.find_eq_find_of_eqv ⟨rbnode.black_node lchild val rchild, p⟩ (eqv_entries k v val.snd),
+      { have := rbtree.find_eq_find_of_eqv ⟨rbnode.black_node t_lchild t_val t_rchild, p⟩ (eqv_entries k v t_val.2),
         rw [←this], exact h₂₁ },
       { cases e, apply eqv_keys_of_eqv_entries h₂₂ } } },
   { intro h, cases h with e h,

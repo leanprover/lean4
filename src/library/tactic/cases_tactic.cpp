@@ -233,7 +233,7 @@ struct cases_tactic_fn {
             expr const & index = I_args[i];
             add_eq(index, t);
         }
-        name h_new_name = ctx.lctx().get_unused_name(mlocal_pp_name(h));
+        name h_new_name = mlocal_pp_name(h);
         expr h_new      = ctx.push_local(h_new_name, h_new_type);
         add_eq(h, h_new);
         /* aux_type is  Pi (j' : J) (h' : I A j'), j == j' -> h == h' -> T */

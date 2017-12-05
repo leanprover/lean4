@@ -29,6 +29,12 @@ optional<expr> intron(environment const & env, options const & opts, metavar_con
 optional<expr> intron(environment const & env, options const & opts, metavar_context & mctx,
                       expr const & mvar, unsigned n, bool use_unused_names);
 
+/* Low-level version of `intron` where a procedure for generating names is provided by the user.
+   The argument `n` in `mk_name` is the name in the binder (i.e., Pi/let-expr). */
+optional<expr> intron_core(environment const & env, options const & opts, metavar_context & mctx,
+                           expr const & mvar, unsigned n, buffer<name> & new_Hns,
+                           std::function<name(local_context const & lctx, name const & n)> const & mk_name);
+
 vm_obj intro(name const & n, tactic_state const & s);
 
 void initialize_intro_tactic();

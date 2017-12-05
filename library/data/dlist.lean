@@ -69,7 +69,7 @@ lemma of_list_to_list (l : dlist α) : of_list (to_list l) = l :=
 begin
    cases l with xs,
    have h : append (xs []) = xs,
-   { intros, funext x, simp [invariant x] },
+   { intros, funext x, simp [l_invariant x] },
    simp [h]
 end
 

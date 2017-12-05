@@ -581,7 +581,7 @@ begin
     { cases not_succ_le_zero _ h₀ },
     { simp [succ_sub_succ] at h₁,
       apply succ_le_succ,
-      apply ih _ h₁,
+      apply n_ih _ h₁,
       apply le_of_succ_le_succ h₀ }, }
 end
 
@@ -985,7 +985,7 @@ theorem le_mul_self : Π (n : ℕ), n ≤ n * n
 /- subtraction -/
 
 protected theorem sub_le_sub_left {n m : ℕ} (k) (h : n ≤ m) : k - m ≤ k - n :=
-by induction h; [refl, exact le_trans (pred_le _) ih]
+by induction h; [refl, exact le_trans (pred_le _) h_ih]
 
 theorem succ_sub_sub_succ (n m k : ℕ) : succ n - m - succ k = n - m - k :=
 by rw [nat.sub_sub, nat.sub_sub, add_succ, succ_sub_succ]
@@ -1146,7 +1146,7 @@ begin
     { apply @nat.le_of_add_le_add_right (n*k),
       rw [nat.sub_add_cancel h₂],
       simp [mul_succ] at h₁, simp [h₁] },
-    rw [mul_succ, ← nat.sub_sub, ← mod_eq_sub_mod h₄, ih h₂] }
+    rw [mul_succ, ← nat.sub_sub, ← mod_eq_sub_mod h₄, k_ih h₂] }
 end
 
 /- div -/
@@ -1166,7 +1166,7 @@ begin
         rw [nat.sub_add_cancel h₂, add_comm],
         rw [mul_succ] at h₁,
         apply h₁ },
-      rw [sub_succ, ← ih h₂],
+      rw [sub_succ, ← p_ih h₂],
       rw [@div_eq_sub_div (x - n*p) _ h₀ h₃],
       simp [add_one, pred_succ, mul_succ, nat.sub_sub] } }
 end

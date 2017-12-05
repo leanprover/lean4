@@ -13,7 +13,7 @@ lemma is_searchable_of_well_formed {t : rbnode α} [is_strict_weak_order α lt] 
 begin
   intro h, induction h,
   { constructor, simp [lift] },
-  { subst n', apply is_searchable_insert, assumption }
+  { subst h_n', apply is_searchable_insert, assumption }
 end
 
 open color
@@ -22,7 +22,7 @@ lemma is_red_black_of_well_formed {t : rbnode α} : t.well_formed lt → ∃ c n
 begin
   intro h, induction h,
   { existsi black, existsi 0, constructor },
-  { cases ih with c ih, cases ih with n ih, subst n', apply insert_is_red_black, assumption }
+  { cases h_ih with c ih, cases ih with n ih, subst h_n', apply insert_is_red_black, assumption }
 end
 
 end rbnode
@@ -48,9 +48,9 @@ lemma mem_of_mem_of_eqv [is_strict_weak_order α lt] {t : rbtree α lt} {a b : �
 begin
   cases t with n p; simp [has_mem.mem, rbtree.mem]; clear p; induction n; simp [rbnode.mem, strict_weak_order.equiv]; intros h₁ h₂; blast_disjs,
   iterate 2 {
-    { have : rbnode.mem lt b lchild := ih_1 h₁ h₂, simp [this] },
+    { have : rbnode.mem lt b n_lchild := n_ih_1 h₁ h₂, simp [this] },
     { simp [incomp_trans_of lt h₂.swap h₁] },
-    { have : rbnode.mem lt b rchild := ih_2 h₁ h₂, simp [this] } }
+    { have : rbnode.mem lt b n_rchild := n_ih_2 h₁ h₂, simp [this] } }
 end
 
 variables [decidable_rel lt]

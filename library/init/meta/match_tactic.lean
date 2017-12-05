@@ -53,7 +53,7 @@ private meta def to_pattern_core : expr → tactic (expr × list expr)
 /-- Given a pre-term of the form `λ x_1 ... x_n, t[x_1, ..., x_n]`, converts it
    into the pattern `t[?x_1, ..., ?x_n]` -/
 meta def pexpr_to_pattern (p : pexpr) : tactic pattern :=
-do /- Remark: in the following to_expr, we allow metavars but we do create new goals for them.
+do /- Remark: in the following to_expr, we allow metavars but we do *not* create new goals for them.
       mk_pattern will convert them into temporary metavars. -/
    e ← to_expr p tt ff,
    (new_p, xs) ← to_pattern_core e,

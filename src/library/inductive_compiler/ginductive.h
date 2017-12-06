@@ -38,6 +38,10 @@ expr whnf_ginductive(type_context & ctx, expr const & e);
 /* Normalize \c e until it is in weak head normal form OR the head is a ginductive intro rule (aka constructor) */
 expr whnf_gintro_rule(type_context & ctx, expr const & e);
 
+/* Normalize \c e until it is in weak head normal form OR the head is a ginductive intro rule (aka constructor)
+   or generalized inductive datatype. */
+expr whnf_ginductive_gintro_rule(type_context & ctx, expr const & e);
+
 /* Similar to is_constructor_app, but takes generalized introduction rules into account. */
 optional<name> is_gintro_rule_app(environment const & env, expr const & e);
 

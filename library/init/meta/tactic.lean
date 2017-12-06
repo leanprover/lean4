@@ -260,8 +260,11 @@ meta constant intron        : nat → tactic unit
 /-- Clear the given local constant. The tactic fails if the given expression is not a local constant. -/
 meta constant clear         : expr → tactic unit
 meta constant revert_lst    : list expr → tactic nat
-/-- Return `e` in weak head normal form with respect to the given transparency setting. -/
-meta constant whnf (e : expr) (md := semireducible) : tactic expr
+/-- Return `e` in weak head normal form with respect to the given transparency setting.
+    If `unfold_ginductive` is `tt`, then nested and/or mutually recursive inductive datatype constructors
+    and types are unfolded. Recall that nested and mutually recursive inductive datatype declarations
+    are compiled into primitive datatypes accepted by the Kernel. -/
+meta constant whnf (e : expr) (md := semireducible) (unfold_ginductive := tt) : tactic expr
 /-- (head) eta expand the given expression -/
 meta constant head_eta_expand : expr → tactic expr
 /-- (head) beta reduction -/
@@ -526,6 +529,11 @@ infer_type e >>= is_prop
 
 meta def whnf_no_delta (e : expr) : tactic expr :=
 whnf e transparency.none
+
+/-- Return `e` in weak head normal form with respect to the given transparency setting,
+    or `e` head is a generalized constructor or inductive datatype. -/
+meta def whnf_ginductive (e : expr) (md := semireducible) : tactic expr :=
+whnf e md ff
 
 meta def whnf_target : tactic unit :=
 target >>= whnf >>= change

@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/aux_definition.h"
 #include "library/unfold_macros.h"
+#include "library/inductive_compiler/ginductive.h"
 #include "library/vm/vm_environment.h"
 #include "library/vm/vm_exceptional.h"
 #include "library/vm/vm_format.h"
@@ -334,12 +335,16 @@ vm_obj tactic_infer_type(vm_obj const & e, vm_obj const & s0) {
     }
 }
 
-vm_obj tactic_whnf(vm_obj const & e, vm_obj const & t, vm_obj const & s0) {
+vm_obj tactic_whnf(vm_obj const & e, vm_obj const & t, vm_obj const & unfold_ginductive, vm_obj const & s0) {
     tactic_state const & s = tactic::to_state(s0);
     type_context ctx       = mk_type_context_for(s, to_transparency_mode(t));
     try {
         check_closed("whnf", to_expr(e));
-        return tactic::mk_success(to_obj(ctx.whnf(to_expr(e))), s);
+        if (to_bool(unfold_ginductive)) {
+            return tactic::mk_success(to_obj(ctx.whnf(to_expr(e))), s);
+        } else {
+            return tactic::mk_success(to_obj(whnf_ginductive_gintro_rule(ctx, to_expr(e))), s);
+        }
     } catch (exception & ex) {
         return tactic::mk_exception(ex, s);
     }

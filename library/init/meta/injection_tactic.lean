@@ -38,8 +38,8 @@ do
   ht ← infer_type h,
   (lhs0, rhs0) ← match_eq ht,
   env ← get_env,
-  lhs ← whnf lhs0,
-  rhs ← whnf rhs0,
+  lhs ← whnf_ginductive lhs0,
+  rhs ← whnf_ginductive rhs0,
   let n_fl := const_name (get_app_fn lhs),
   let n_fr := const_name (get_app_fn rhs),
   if n_fl = n_fr then do

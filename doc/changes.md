@@ -52,6 +52,8 @@ master branch (aka work in progress branch)
   `t` matches the pattern `p`. Alternative versions: `cases_matching * p` and `cases_matching [p_1, ..., p_n]`.
   Example: `cases_matching * [_ ∨ _, _ ∧ _]` destructs all conjunctions and disjunctions in the main goal.
 
+- `injection h` now supports nested and mutually recursive datatypes.
+
 *Changes*
 
 - `cases h` now also tries to clear `h` when performing dependent elimination.

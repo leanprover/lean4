@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 universe u
 
 meta def tactic.interactive.blast_disjs : tactic unit :=
-`[cases_matching* _ ∨ _]
+`[cases_type* or]
 
 namespace rbnode
 variables {α : Type u}
@@ -26,31 +26,18 @@ inductive is_searchable (lt : α → α → Prop) : rbnode α → option α → 
 | red_s   {l r v lo hi} (hs₁ : is_searchable l lo (some v)) (hs₂ : is_searchable r (some v) hi) : is_searchable (red_node l v r) lo hi
 | black_s {l r v lo hi} (hs₁ : is_searchable l lo (some v)) (hs₂ : is_searchable r (some v) hi) : is_searchable (black_node l v r) lo hi
 
-section helper_tactics
-
-open tactic
-meta def is_searchable_constructor_app : expr → bool
-| `(is_searchable _ leaf _ _)               := tt
-| `(is_searchable _ (red_node _ _ _) _ _)   := tt
-| `(is_searchable _ (black_node _ _ _) _ _) := tt
-| _                                         := ff
-
-meta def apply_is_searchable_constructors : tactic unit :=
-repeat $ do
-  t ← target,
-  guard $ is_searchable_constructor_app t,
-  constructor
-
-meta def destruct_is_searchable_hyps : tactic unit :=
-repeat $ any_hyp $ λ h, do
-  t ← infer_type h,
-  guard $ is_searchable_constructor_app t,
-  cases h
-
 meta def is_searchable_tactic : tactic unit :=
-destruct_is_searchable_hyps; apply_is_searchable_constructors; try assumption
-
-end helper_tactics
+`[
+   constructor_matching*
+     [is_searchable _ leaf _ _,
+      is_searchable _ (red_node _ _ _) _ _,
+      is_searchable _ (black_node _ _ _) _ _];
+   cases_matching*
+     [is_searchable _ leaf _ _,
+      is_searchable _ (red_node _ _ _) _ _,
+      is_searchable _ (black_node _ _ _) _ _];
+   try { assumption }
+]
 
 open rbnode (mem)
 open is_searchable

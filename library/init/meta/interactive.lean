@@ -600,21 +600,20 @@ meta def cases : parse cases_arg_p → parse with_ident_list → tactic unit
   tactic.cases hx ids
 
 private meta def find_matching_hyp (ps : list pattern) : tactic expr :=
-do ctx ← local_context,
-   ctx.mfirst $ λ h, do
-     type ← infer_type h,
-     ps.mfirst $ λ p, do
-       match_pattern_core reducible p type,
-       return h
+any_hyp $ λ h, do
+  type ← infer_type h,
+  ps.mfirst $ λ p, do
+  match_pattern p type,
+  return h
 
 /--
 `cases_matching p` applies the `cases` tactic to a hypothesis `h : type` if `type` matches the pattern `p`.
 `cases_matching [p_1, ..., p_n]` applies the `cases` tactic to a hypothesis `h : type` if `type` matches one of the given patterns.
-`cases_matching * p` more efficient and compact version of `focus1 { repeat { cases_matching p } }`. It is more efficient because the pattern is compiled once.
+`cases_matching* p` more efficient and compact version of `focus1 { repeat { cases_matching p } }`. It is more efficient because the pattern is compiled once.
 
 Example: The following tactic destructs all conjunctions and disjunctions in the current goal.
 ```
-cases_matching * [_ ∨ _, _ ∧ _]
+cases_matching* [_ ∨ _, _ ∧ _]
 ```
 -/
 meta def cases_matching (rec : parse $ (tk "*")?) (ps : parse pexpr_list_or_texpr) : tactic unit :=
@@ -1255,8 +1254,8 @@ do h ← get_local n >>= infer_type, guard_expr_eq h p
 /--
 `match_target t` fails if target does not match pattern `t`.
 -/
-meta def match_target (t : parse texpr) : tactic unit :=
-tactic.match_target t >> skip
+meta def match_target (t : parse texpr) (m := reducible) : tactic unit :=
+tactic.match_target t m >> skip
 
 /--
 `by_cases p with h` splits the main goal into two cases, assuming `h : p` in the first branch, and `h : ¬ p` in the second branch.

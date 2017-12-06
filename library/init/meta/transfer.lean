@@ -138,7 +138,7 @@ meta def compute_transfer : list rule_data → list expr → expr → tactic (ex
 | rds ctxt e := do
   -- Select matching rule
   (i, ps, args, ms, rd) ← first (rds.map (λrd, do
-    (l, m)     ← match_pattern_core semireducible rd.pat e,
+    (l, m)     ← match_pattern rd.pat e semireducible,
     level_map  ← rd.uparams.mmap $ λl, prod.mk l <$> mk_meta_univ,
     inst_univ  ← return $ λe, instantiate_univ_params e (level_map ++ zip rd.uargs l),
     (ps, args) ← return $ split_params_args (rd.params.map (prod.map inst_univ id)) m,

@@ -145,9 +145,9 @@ vm_obj tactic_mk_pattern(vm_obj const & ls, vm_obj const & es, vm_obj const & t,
 }
 
 /*
-meta_constant match_pattern_core : transparency → pattern → expr → tactic (list expr)
+meta_constant match_pattern : pattern → expr → transparency → tactic (list expr)
 */
-vm_obj tactic_match_pattern_core(vm_obj const & m, vm_obj const & p, vm_obj const & e, vm_obj const & s) {
+vm_obj tactic_match_pattern(vm_obj const & p, vm_obj const & e, vm_obj const & m, vm_obj const & s) {
     TRY;
     expr t; list<level> uos; list<expr> os; unsigned nuvars, nmvars;
     get_pattern_fields(p, t, uos, os, nuvars, nmvars);
@@ -178,8 +178,8 @@ vm_obj tactic_match_pattern_core(vm_obj const & m, vm_obj const & p, vm_obj cons
 }
 
 void initialize_match_tactic() {
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_pattern"}),         tactic_mk_pattern);
-    DECLARE_VM_BUILTIN(name({"tactic", "match_pattern_core"}), tactic_match_pattern_core);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_pattern"}),    tactic_mk_pattern);
+    DECLARE_VM_BUILTIN(name({"tactic", "match_pattern"}), tactic_match_pattern);
 }
 
 void finalize_match_tactic() {

@@ -81,7 +81,7 @@ do (r, lhs, _) ← tactic.target_lhs_rhs,
        (λ u, return u)
        (λ found s r p e, do
          guard (not found),
-         matched ← (tactic.match_pattern_core reducible pat e >> return tt) <|> return ff,
+         matched ← (tactic.match_pattern pat e >> return tt) <|> return ff,
          guard matched,
          ⟨new_e, pr⟩ ← c.convert e r,
          return (tt, new_e, pr, ff))
@@ -99,7 +99,7 @@ do (r, lhs, _) ← tactic.target_lhs_rhs,
                                  proj := ff, fail_if_unchanged := ff, memoize := ff} s
        (λ u, return u)
        (λ i s r p e, do
-         matched ← (tactic.match_pattern_core reducible pat e >> return tt) <|> return ff,
+         matched ← (tactic.match_pattern pat e >> return tt) <|> return ff,
          guard matched,
          if i ∈ occs then do
            ⟨new_e, pr⟩ ← c.convert e r,

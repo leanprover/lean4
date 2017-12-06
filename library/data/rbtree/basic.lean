@@ -5,15 +5,8 @@ Authors: Leonardo de Moura
 -/
 universe u
 
-namespace tactic
-
-namespace interactive
-
-meta def blast_disjs : tactic unit :=
-`[cases_matching * _ ∨ _]
-
-end interactive
-end tactic
+meta def tactic.interactive.blast_disjs : tactic unit :=
+`[cases_matching* _ ∨ _]
 
 namespace rbnode
 variables {α : Type u}
@@ -73,7 +66,7 @@ begin
     cases hs,
     have h₁ := t_ih_lchild hs_hs₁,
     have h₂ := t_ih_rchild hs_hs₂,
-    cases lo with lo; cases hi with hi; simp [lift] at *,
+    cases lo; cases hi; simp [lift] at *,
     apply trans_of lt h₁ h₂,
   }
 end

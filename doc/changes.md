@@ -25,7 +25,6 @@ master branch (aka work in progress branch)
   The new instance is more efficient than the one in mathlib because it doesn't
   convert the array into a list.
 
-
 - Add aliasing pattern syntax `id@pat`, which introduces the name `id` for the value matched by
   the pattern `pat`.
 
@@ -38,7 +37,7 @@ master branch (aka work in progress branch)
 - Add support for structure instance notation `{...}` in patterns. Use `..` to ignore
   unmatched fields.
 
-- Type class has_equiv for `≈` notation.
+- Type class `has_equiv` for `≈` notation.
 
 - Add `funext ids*` tactic for applying the funext lemma.
 

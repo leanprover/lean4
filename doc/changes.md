@@ -48,8 +48,13 @@ master branch (aka work in progress branch)
   and reverts any new hypothesis in the resulting subgoals.
 
 - Add `cases_matching p` tactic for applying the `cases` tactic to a hypothesis `h : t` s.t.
-  `t` matches the pattern `p`. Alternative versions: `cases_matching * p` and `cases_matching [p_1, ..., p_n]`.
-  Example: `cases_matching * [_ ∨ _, _ ∧ _]` destructs all conjunctions and disjunctions in the main goal.
+  `t` matches the pattern `p`. Alternative versions: `cases_matching* p` and `cases_matching [p_1, ..., p_n]`.
+  Example: `cases_matching* [_ ∨ _, _ ∧ _]` destructs all conjunctions and disjunctions in the main goal.
+
+- Add `cases_type I` tactic for applying the `cases` tactic to a hypothesis `h : I ...`.
+  `cases_type! I` only succeeds when the number of resulting goals is <= 1.
+  Alternative versions: `cases_type I_1 ... I_n`, `cases_type* I`, `cases_type!* I`.
+  Example: `cases_type* and or` destructs all conjunctions and disjunctions in the main goal.
 
 - `injection h` now supports nested and mutually recursive datatypes.
 

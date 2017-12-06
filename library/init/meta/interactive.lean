@@ -622,6 +622,34 @@ do ps ← ps.mmap pexpr_to_pattern,
    then find_matching_hyp ps >>= tactic.cases
    else tactic.focus1 $ tactic.repeat $ find_matching_hyp ps >>= tactic.cases
 
+/-- Shorthand for `cases_matching` -/
+meta def casesm (rec : parse $ (tk "*")?) (ps : parse pexpr_list_or_texpr) : tactic unit :=
+cases_matching rec ps
+
+private meta def try_cases_for_types (type_names : list name) (at_most_one : bool) : tactic unit :=
+any_hyp $ λ h, do
+  I ← expr.get_app_fn <$> (infer_type h >>= head_beta),
+  guard I.is_constant,
+  guard (I.const_name ∈ type_names),
+  tactic.focus1 (tactic.cases h >> if at_most_one then do n ← num_goals, guard (n <= 1) else skip)
+
+/--
+`cases_type I` applies the `cases` tactic to a hypothesis `h : (I ...)`
+`cases_type I_1 ... I_n` applies the `cases` tactic to a hypothesis `h : (I_1 ...)` or ... or `h : (I_n ...)`
+`cases_type* I` is shorthand for `focus1 { repeat { cases_type I } }`
+`cases_type! I` only applies `cases` if the number of resulting subgoals is <= 1.
+
+Example: The following tactic destructs all conjunctions and disjunctions in the current goal.
+```
+cases_type* or and
+```
+-/
+meta def cases_type (one : parse $ (tk "!")?) (rec : parse $ (tk "*")?) (type_names : parse ident*) : tactic unit :=
+do type_names ← type_names.mmap resolve_constant,
+   if rec.is_none
+   then try_cases_for_types type_names (bnot one.is_none)
+   else tactic.focus1 $ tactic.repeat $ try_cases_for_types type_names (bnot one.is_none)
+
 /--
 Tries to solve the current goal using a canonical proof of `true`, or the `reflexivity` tactic, or the `contradiction` tactic.
 -/

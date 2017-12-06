@@ -45,6 +45,9 @@ master branch (aka work in progress branch)
 - Add `iterate n { t }` for applying tactic `t` `n` times.
   Remark: `iterate { t }` applies `t` until it fails.
 
+- Add `guard_names { t }`. This tactic applies `t` to the main goal,
+  and reverts any new hypothesis in the resulting subgoals.
+
 *Changes*
 
 - `cases h` now also tries to clear `h` when performing dependent elimination.
@@ -79,6 +82,8 @@ master branch (aka work in progress branch)
    This change was suggested by Tahina Ramananandro. The idea is to have more
    robust tactic scripts when helper tactics that destruct many hypotheses automatically
    are used.
+   Remark: The new `guard_names { t }` tactical can be used to generate
+   robust tactic scripts that are not sensitive to naming generation strategies used by `t`.
 
 - Remove `[simp]` attribute from lemmas `or.assoc`, `or.comm`, `or.left_comm`, `and.assoc`, `and.comm`, `and.left_comm`, `add_assoc`, `add_comm`, `add_left_com`, `mul_assoc`, `mul_comm` and `mul_left_comm`.
   These lemmas were being used to "sort" arguments of AC operators: and, or, (+) and (*).

@@ -509,6 +509,24 @@ do r   ← result,
    solve1 tac
 
 /--
+Apply `t` to main goal, and revert any new hypothesis in the generated goals.
+
+This tactic is useful for writing robust proof scripts that are not sensitive
+to the name generation strategy used by `t`.
+
+```
+example (n : ℕ) : n = n :=
+begin
+  guard_names { induction n },
+  { reflexivity },
+  { intros n' ih, reflexivity }
+end
+```
+-/
+meta def guard_names : itactic → tactic unit :=
+tactic.guard_names
+
+/--
 Assuming `x` is a variable in the local context with an inductive type, `destruct x` splits the main goal, producing one goal for each constructor of the inductive type, in which `x` is assumed to be a general instance of that constructor. In contrast to `cases`, the local context is unchanged, i.e. no elements are reverted or introduced.
 
 For example, given `n : nat` and a goal with a hypothesis `h : P n` and target `Q n`, `destruct n` produces one goal with target `n = 0 → Q n`, and one goal with target `∀ (a : ℕ), (λ (w : ℕ), n = w → Q n) (nat.succ a)`. Here the name `a` is chosen automatically.

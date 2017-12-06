@@ -1161,6 +1161,25 @@ do h_type ← infer_type h,
    try $ clear h,
    return new_h
 
+private meta def collect_hyps_uids : tactic name_set :=
+do ctx ← local_context,
+   return $ ctx.foldl (λ r h, r.insert h.local_uniq_name) mk_name_set
+
+private meta def revert_new_hyps (input_hyp_uids : name_set) : tactic unit :=
+do ctx ← local_context,
+   let to_revert := ctx.foldl (λ r h, if input_hyp_uids.contains h.local_uniq_name then r else h::r) [],
+   revert_lst to_revert,
+   skip
+
+/--
+Apply `t` to main goal, and revert any new hypothesis in the generated goals.
+-/
+meta def guard_names (t : tactic unit) : tactic unit :=
+focus1 $ do
+  input_hyp_uids ← collect_hyps_uids,
+  t,
+  all_goals (revert_new_hyps input_hyp_uids)
+
 end tactic
 
 notation [parsing_only] `command`:max := tactic unit

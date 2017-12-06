@@ -1,0 +1,8 @@
+α : Type,
+b l : tree α,
+v : α,
+r : tree α,
+ih_l : foo l = l,
+ih_r : foo r = r
+⊢ foo (tree.node l v r) = tree.node l v r
+guard_names.lean:7:0: warning: declaration '[anonymous]' uses sorry

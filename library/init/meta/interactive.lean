@@ -854,6 +854,14 @@ Applies the constructor when the type of the target is an inductive data type wi
 meta def split : tactic unit :=
 tactic.split
 
+private meta def constructor_matching_aux (ps : list pattern) : tactic unit :=
+do t ← target, ps.mfirst (λ p, match_pattern p t), constructor
+
+meta def constructor_matching (rec : parse $ (tk "*")?) (ps : parse pexpr_list_or_texpr) : tactic unit :=
+do ps ← ps.mmap pexpr_to_pattern,
+   if rec.is_none then constructor_matching_aux ps
+   else tactic.focus1 $ tactic.repeat $ constructor_matching_aux ps
+
 /--
 Replaces the target of the main goal by `false`.
 -/

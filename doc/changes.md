@@ -56,6 +56,10 @@ master branch (aka work in progress branch)
   Alternative versions: `cases_type I_1 ... I_n`, `cases_type* I`, `cases_type!* I`.
   Example: `cases_type* and or` destructs all conjunctions and disjunctions in the main goal.
 
+- Add `constructor_matching p` tactic. It is syntax sugar for `match_target p; constructor`.
+  The variant `constructor_matching* p` is more efficient than `focus1 { repeat { match_target p; constructor } }`
+  because the patterns are compiled only once.
+
 - `injection h` now supports nested and mutually recursive datatypes.
 
 - Display number of goals in the `*Lean Goal*` buffer (if number of goals > 1).

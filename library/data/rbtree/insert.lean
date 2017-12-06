@@ -11,8 +11,42 @@ local attribute [simp] rbnode.lift
 namespace rbnode
 variables {α : Type u}
 
+open color
+
+@[simp] lemma balance1_eq₁ (l : rbnode α) (x r₁ y r₂ v t) : balance1 (red_node l x r₁) y r₂ v t = red_node (black_node l x r₁) y (black_node r₂ v t) :=
+begin cases r₂; refl end
+
+@[simp] lemma balance1_eq₂ (l₁ : rbnode α) (y l₂ x r v t) : get_color l₁ ≠ red → balance1 l₁ y (red_node l₂ x r)  v t = red_node (black_node l₁ y l₂) x (black_node r v t) :=
+begin cases l₁; simp [get_color, balance1] end
+
+@[simp] lemma balance1_eq₃ (l : rbnode α) (y r v t) : get_color l ≠ red → get_color r ≠ red → balance1 l y r v t = black_node (red_node l y r) v t :=
+begin cases l; cases r; simp [get_color, balance1] end
+
+@[simp] lemma balance2_eq₁ (l : rbnode α) (x₁ r₁ y r₂ v t) : balance2 (red_node l x₁ r₁) y r₂  v t = red_node (black_node t v l) x₁ (black_node r₁ y r₂) :=
+by cases r₂; refl
+
+@[simp] lemma balance2_eq₂ (l₁ : rbnode α) (y l₂ x₂ r₂ v t) : get_color l₁ ≠ red → balance2 l₁ y (red_node l₂ x₂ r₂) v t = red_node (black_node t v l₁) y (black_node l₂ x₂ r₂) :=
+begin cases l₁; simp [get_color, balance2] end
+
+@[simp] lemma balance2_eq₃ (l : rbnode α) (y r v t) : get_color l ≠ red → get_color r ≠ red → balance2 l  y r  v t = black_node t v (red_node l y r) :=
+begin cases l; cases r; simp [get_color, balance2] end
+
+/- We can use the same induction principle for balance1 and balance2 -/
+lemma balance.cases {p : rbnode α → α → rbnode α → Prop}
+  (l y r)
+  (h₁ : ∀ l x r₁ y r₂, p (red_node l x r₁) y r₂)
+  (h₂ : ∀ l₁ y l₂ x r, get_color l₁ ≠ red → p l₁ y (red_node l₂ x r))
+  (h₃ : ∀ l y r, get_color l ≠ red → get_color r ≠ red → p l y r)
+  : p l y r :=
+begin
+  cases l; cases r,
+  any_goals { apply h₁ },
+  any_goals { apply h₂; simp [get_color]; contradiction; done },
+  any_goals { apply h₃; simp [get_color]; contradiction; done },
+end
+
 lemma balance1_ne_leaf (l : rbnode α) (x r v t) : balance1 l x r v t ≠ leaf :=
-by cases l; cases r; simp [balance1]; intro; contradiction
+by apply balance.cases l x r; intros; simp [*]; contradiction
 
 lemma balance1_node_ne_leaf {s : rbnode α} (a : α) (t : rbnode α) : s ≠ leaf → balance1_node s a t ≠ leaf :=
 begin
@@ -22,7 +56,7 @@ begin
 end
 
 lemma balance2_ne_leaf (l : rbnode α) (x r v t) : balance2 l x r v t ≠ leaf :=
-by cases l; cases r; simp [balance2]; intro; contradiction
+by apply balance.cases l x r; intros; simp [*]; contradiction
 
 lemma balance2_node_ne_leaf {s : rbnode α} (a : α) (t : rbnode α) : s ≠ leaf → balance2_node s a t ≠ leaf :=
 begin
@@ -32,8 +66,6 @@ begin
 end
 
 variables (lt : α → α → Prop) [decidable_rel lt]
-
-open color
 
 @[elab_as_eliminator]
 lemma ins.induction {p : rbnode α → Prop}
@@ -73,8 +105,8 @@ begin
   }
 end
 
-lemma is_searchable_balance1 {l y r v t lo hi} (hl : is_searchable lt l lo (some y)) (hr : is_searchable lt r (some y) (some v)) (ht : is_searchable lt t (some v) hi) : is_searchable lt (balance1 l y r v t) lo hi :=
-by cases l; cases r; simp [balance1]; is_searchable_tactic
+lemma is_searchable_balance1 {l y r v t lo hi} : is_searchable lt l lo (some y) →  is_searchable lt r (some y) (some v) → is_searchable lt t (some v) hi → is_searchable lt (balance1 l y r v t) lo hi :=
+by apply balance.cases l y r; intros; simp [*]; is_searchable_tactic
 
 lemma is_searchable_balance1_node {t} [is_trans α lt] : ∀ {y s lo hi}, is_searchable lt t lo (some y) → is_searchable lt s (some y) hi → is_searchable lt (balance1_node t y s) lo hi :=
 begin
@@ -85,8 +117,8 @@ begin
   all_goals { apply is_searchable_balance1; assumption }
 end
 
-lemma is_searchable_balance2 {l y r v t lo hi} (ht : is_searchable lt t lo (some v)) (hl : is_searchable lt l (some v) (some y)) (hr : is_searchable lt r (some y) hi) : is_searchable lt (balance2 l y r v t) lo hi :=
-by cases l; cases r; simp [balance2]; is_searchable_tactic
+lemma is_searchable_balance2 {l y r v t lo hi} : is_searchable lt t lo (some v) → is_searchable lt l (some v) (some y) → is_searchable lt r (some y) hi → is_searchable lt (balance2 l y r v t) lo hi :=
+by apply balance.cases l y r; intros; simp [*]; is_searchable_tactic
 
 lemma is_searchable_balance2_node {t} [is_trans α lt] : ∀ {y s lo hi}, is_searchable lt s lo (some y) → is_searchable lt t (some y) hi → is_searchable lt (balance2_node t y s) lo hi :=
 begin
@@ -130,59 +162,46 @@ namespace rbnode
 section membership_lemmas
 parameters {α : Type u} (lt : α → α → Prop) [decidable_rel lt]
 
+local attribute [simp] mem balance1_node balance2_node
+
 local infix `∈` := mem lt
-local attribute [simp] mem balance1 balance2 balance1_node balance2_node
 
 lemma mem_balance1_node_of_mem_left {x s} (v) (t : rbnode α) : x ∈ s → x ∈ balance1_node s v t :=
 begin
-  cases s,
-  { simp [mem] },
-  all_goals {
-    intro h,
-    simp, cases s_lchild; cases s_rchild,
-    any_goals { simp [*] at * },
-    all_goals { blast_disjs; simp [*] }
-  }
+  cases s; simp,
+  all_goals { apply balance.cases s_lchild s_val s_rchild; intros; simp at *; blast_disjs; simp [*] }
 end
 
 lemma mem_balance2_node_of_mem_left {x s} (v) (t : rbnode α) : x ∈ s → x ∈ balance2_node s v t :=
 begin
-  cases s,
-  { simp [mem] },
-  all_goals {
-    intro h,
-    simp, cases s_lchild; cases s_rchild,
-    any_goals { simp [*] at * },
-    all_goals { blast_disjs; simp [*] }
-  }
+  cases s; simp,
+  all_goals { apply balance.cases s_lchild s_val s_rchild; intros; simp at *; blast_disjs; simp [*] }
 end
 
 lemma mem_balance1_node_of_mem_right {x t} (v) (s : rbnode α) : x ∈ t → x ∈ balance1_node s v t :=
 begin
-  intros, cases s,
-  { simp [*] },
-  all_goals { simp, cases s_lchild; cases s_rchild; simp [*] }
+  intros, cases s; simp [*],
+  all_goals { apply balance.cases s_lchild s_val s_rchild; intros; simp [*] }
 end
 
 lemma mem_balance2_node_of_mem_right {x t} (v) (s : rbnode α) : x ∈ t → x ∈ balance2_node s v t :=
 begin
-  intros, cases s,
-  { simp [*] },
-  all_goals { simp, cases s_lchild; cases s_rchild; simp [*] }
+  intros, cases s; simp [*],
+  all_goals { apply balance.cases s_lchild s_val s_rchild; intros; simp [*] }
 end
 
 lemma mem_balance1_node_of_incomp {x v} (s t) : (¬ lt x v ∧ ¬ lt v x) → s ≠ leaf → x ∈ balance1_node s v t :=
 begin
-  intros, cases s,
-  case leaf { contradiction },
-  all_goals { simp, cases s_lchild; cases s_rchild; simp [*] }
+  intros, cases s; simp,
+  { contradiction },
+  all_goals { apply balance.cases s_lchild s_val s_rchild; intros; simp [*] }
 end
 
 lemma mem_balance2_node_of_incomp {x v} (s t) : (¬ lt v x ∧ ¬ lt x v) → s ≠ leaf → x ∈ balance2_node s v t :=
 begin
-  intros, cases s,
-  case leaf { contradiction },
-  all_goals { simp, cases s_lchild; cases s_rchild; simp [*] }
+  intros, cases s; simp,
+  { contradiction },
+  all_goals { apply balance.cases s_lchild s_val s_rchild; intros; simp [*] }
 end
 
 lemma ins_ne_leaf (t : rbnode α) (x : α) : t.ins lt x ≠ leaf :=
@@ -242,16 +261,16 @@ by intros; apply mem_mk_insert_result; apply mem_ins_of_mem; assumption
 
 lemma of_mem_balance1_node [is_strict_weak_order α lt] {x s v t} : x ∈ balance1_node s v t → x ∈ s ∨ (¬ lt x v ∧ ¬ lt v x) ∨ x ∈ t :=
 begin
-  cases s,
-  { simp, intros, simp [*] },
-  all_goals { cases s_lchild; cases s_rchild; simp; intros; blast_disjs; simp [*] },
+  cases s; simp,
+  { intros, simp [*] },
+  all_goals { apply balance.cases s_lchild s_val s_rchild; intros; simp [*] at *; blast_disjs; simp [*] }
 end
 
 lemma of_mem_balance2_node [is_strict_weak_order α lt] {x s v t} : x ∈ balance2_node s v t → x ∈ s ∨ (¬ lt x v ∧ ¬ lt v x) ∨ x ∈ t :=
 begin
-  cases s,
-  { simp, intros, simp [*] },
-  all_goals { cases s_lchild; cases s_rchild; simp; intros; blast_disjs; simp [*] }
+  cases s; simp,
+  { intros, simp [*] },
+  all_goals { apply balance.cases s_lchild s_val s_rchild; intros; simp [*] at *; blast_disjs; simp [*] }
 end
 
 lemma equiv_or_mem_of_mem_ins [is_strict_weak_order α lt] {t : rbnode α} {x z} : ∀ (h : x ∈ t.ins lt z), x ≈[lt] z ∨ x ∈ t :=
@@ -268,28 +287,18 @@ begin
   simp [insert], intros, apply equiv_or_mem_of_mem_ins, exact mem_of_mem_mk_insert_result lt h
 end
 
+local attribute [simp] mem_exact
+
 lemma mem_exact_balance1_node_of_mem_exact {x s} (v) (t : rbnode α) : mem_exact x s → mem_exact x (balance1_node s v t) :=
 begin
-  cases s,
-  { simp [mem_exact] },
-  all_goals {
-    intro h,
-    simp [balance1_node], cases s_lchild; cases s_rchild,
-    any_goals { simp [*, mem_exact] at * },
-    all_goals { blast_disjs; simp [*] }
-  }
+  cases s; simp,
+  all_goals { apply balance.cases s_lchild s_val s_rchild; intros; simp [*] at *; blast_disjs; simp [*] }
 end
 
 lemma mem_exact_balance2_node_of_mem_exact {x s} (v) (t : rbnode α) : mem_exact x s → mem_exact x (balance2_node s v t) :=
 begin
-  cases s,
-  { simp [mem_exact] },
-  all_goals {
-    intro h,
-    simp [balance2_node], cases s_lchild; cases s_rchild,
-    any_goals { simp [*, mem_exact] at * },
-    all_goals { blast_disjs; simp [*] }
-  }
+  cases s; simp,
+  all_goals { apply balance.cases s_lchild s_val s_rchild; intros; simp [*] at *; blast_disjs; simp [*] }
 end
 
 lemma find_balance1_node [is_strict_weak_order α lt] {x y z t s} : ∀ {lo hi}, is_searchable lt t lo (some z) → is_searchable lt s (some z) hi → find lt t y = some x → y ≈[lt] x → find lt (balance1_node t z s) y = some x :=
@@ -394,26 +403,19 @@ variable [is_strict_weak_order α lt]
 
 lemma find_balance1_lt {l r t v x y lo hi}
                        (h : lt x y)
-                       (hl : is_searchable lt l lo (some v))
-                       (hr : is_searchable lt r (some v) (some y))
-                       (ht : is_searchable lt t (some y) hi)
-                       : find lt (balance1 l v r y t) x = find lt (red_node l v r) x :=
+                       : ∀ (hl : is_searchable lt l lo (some v))
+                           (hr : is_searchable lt r (some v) (some y))
+                           (ht : is_searchable lt t (some y) hi),
+                           find lt (balance1 l v r y t) x = find lt (red_node l v r) x :=
 begin
-  cases l; cases r; simp [balance1, *]; is_searchable_tactic,
-  { have h₁ := weak_trichotomous lt x v, blast_disjs,
-    { have := trans h₁ (lo_lt_hi hr_hs₁), simp [*] },
-    { have := lt_of_incomp_of_lt h₁ (lo_lt_hi hr_hs₁),
-      simp [*] },
-    { have h := weak_trichotomous lt x r_val, blast_disjs; simp [*] } },
-  { have := weak_trichotomous lt x v, blast_disjs; simp [*] },
-  { have := weak_trichotomous lt x v, blast_disjs; simp [*] },
-  { have := weak_trichotomous lt x v, blast_disjs; simp [*] },
-  { have hvv_1 := lo_lt_hi hr_hs₁,
-    have h₁ := weak_trichotomous lt x v, blast_disjs,
-    { have := trans h₁ hvv_1, simp [*] },
-    { have := lt_of_incomp_of_lt h₁ (lo_lt_hi hr_hs₁),
-      simp [*] },
-    { have h₂ := weak_trichotomous lt x r_val, blast_disjs; simp [*] } }
+  guard_names { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
+  { intros l_left l_val l_right z r; intros,
+    have := weak_trichotomous lt z x, blast_disjs; simp [*] },
+  { intros l_left l_val l_right z r; intros,
+    have := weak_trichotomous lt z x, blast_disjs,
+    { have := trans_of lt (lo_lt_hi hr_hs₁) this, simp [*] },
+    { have : lt l_val x := lt_of_lt_of_incomp (lo_lt_hi hr_hs₁) this, simp [*] },
+    { have := weak_trichotomous lt l_val x; blast_disjs; simp [*] } }
 end
 
 meta def ins_ne_leaf_tac := `[apply ins_ne_leaf]
@@ -431,16 +433,16 @@ end
 
 lemma find_balance1_gt {l r t v x y lo hi}
                        (h : lt y x)
-                       (hl : is_searchable lt l lo (some v))
-                       (hr : is_searchable lt r (some v) (some y))
-                       (ht : is_searchable lt t (some y) hi)
-                       : find lt (balance1 l v r y t) x = find lt t x :=
+                       : ∀ (hl : is_searchable lt l lo (some v))
+                           (hr : is_searchable lt r (some v) (some y))
+                           (ht : is_searchable lt t (some y) hi),
+                           find lt (balance1 l v r y t) x = find lt t x :=
 begin
-  cases l; cases r; simp [balance1, *]; is_searchable_tactic,
-  { have := trans_of lt (lo_lt_hi hr_hs₂) h, simp [*] },
-  { have := trans_of lt hr_hlt h, simp [*] },
-  iterate 2 { have := trans_of lt (trans (lo_lt_hi hr_hs₁) (lo_lt_hi hr_hs₂)) h, simp [*] },
-  { have := trans_of lt (lo_lt_hi hr_hs₂) h, simp [*] }
+  guard_names { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
+  { intros l_left l_val l_right z r, intros,
+    have := trans_of lt (lo_lt_hi hr) h, simp [*] },
+  { intros l_left l_val l_right z r hr, intros,
+    have := trans_of lt (lo_lt_hi hr_hs₂) h, simp [*] }
 end
 
 lemma find_balance1_node_gt {t s x y lo hi} (h : lt x y)
@@ -454,19 +456,19 @@ begin
 end
 
 lemma find_balance1_eqv {l r t v x y lo hi}
-                        (h : ¬ lt x y ∧ ¬ lt y x)
-                        (hl : is_searchable lt l lo (some v))
-                        (hr : is_searchable lt r (some v) (some y))
-                        (ht : is_searchable lt t (some y) hi)
-                        : find lt (balance1 l v r y t) x = some y :=
+                        (h : ¬ lt x y ∧ ¬ lt y x) :
+                        ∀ (hl : is_searchable lt l lo (some v))
+                          (hr : is_searchable lt r (some v) (some y))
+                          (ht : is_searchable lt t (some y) hi),
+                          find lt (balance1 l v r y t) x = some y :=
 begin
-  cases l; cases r; simp [balance1, *]; is_searchable_tactic,
-  { have : lt r_val x := lt_of_lt_of_incomp (lo_lt_hi hr_hs₂) h.swap, simp [*] },
-  { have : lt v x := lt_of_lt_of_incomp hr_hlt h.swap, simp [*] },
-  iterate 2 {
-    have : lt v x := lt_of_lt_of_incomp (trans (lo_lt_hi hr_hs₁) (lo_lt_hi hr_hs₂)) h.swap,
+  guard_names { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
+  { intros l_left l_val l_right z r, intros,
+    have : lt z x := lt_of_lt_of_incomp (lo_lt_hi hr) h.swap,
     simp [*] },
-  { have : lt r_val x := lt_of_lt_of_incomp (lo_lt_hi hr_hs₂) h.swap, simp [*] }
+  { intros l_left l_val l_right z r hr, intros,
+    have : lt z x := lt_of_lt_of_incomp (lo_lt_hi hr_hs₂) h.swap,
+    simp [*] }
 end
 
 lemma find_balance1_node_eqv {t s x y lo hi}
@@ -483,16 +485,16 @@ end
 
 lemma find_balance2_lt {l v r t x y lo hi}
                        (h :  lt x y)
-                       (hl : is_searchable lt l (some y) (some v))
-                       (hr : is_searchable lt r (some v) hi)
-                       (ht : is_searchable lt t lo (some y))
-                       : find lt (balance2 l v r y t) x = find lt t x :=
+                       : ∀ (hl : is_searchable lt l (some y) (some v))
+                           (hr : is_searchable lt r (some v) hi)
+                           (ht : is_searchable lt t lo (some y)),
+                           find lt (balance2 l v r y t) x = find lt t x :=
 begin
-  cases l; cases r; simp [balance2, *]; is_searchable_tactic,
-  { have := trans h hl_hlt, simp [*] },
-  { have := trans h (lo_lt_hi hl_hs₁), simp [*] },
-  iterate 2 { have := trans h (lo_lt_hi hl_hs₁), simp [*] },
-  { have := trans h (trans (lo_lt_hi hl_hs₁) (lo_lt_hi hl_hs₂)), simp [*] }
+  guard_names { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
+  { intros l₁ val l₂ z r, intros,
+    have := trans h (lo_lt_hi hl_hs₁), simp [*] },
+  { intros l₁ val l₂ z r hr, intros,
+    have := trans h (lo_lt_hi hl), simp [*] }
 end
 
 lemma find_balance2_node_lt {s t x y lo hi}
@@ -507,19 +509,20 @@ begin
 end
 
 lemma find_balance2_gt {l v r t x y lo hi}
-                       (h :  lt y x)
-                       (hl : is_searchable lt l (some y) (some v))
-                       (hr : is_searchable lt r (some v) hi)
-                       (ht : is_searchable lt t lo (some y))
-                       : find lt (balance2 l v r y t) x = find lt (red_node l v r) x :=
+                       (h :  lt y x) :
+                       ∀ (hl : is_searchable lt l (some y) (some v))
+                         (hr : is_searchable lt r (some v) hi)
+                         (ht : is_searchable lt t lo (some y)),
+                         find lt (balance2 l v r y t) x = find lt (red_node l v r) x :=
 begin
-  cases l; cases r; simp [balance2, *]; is_searchable_tactic,
-  { have := weak_trichotomous lt x v, blast_disjs; simp [*] },
-  all_goals {
-    have h₁ := weak_trichotomous lt x l_val, blast_disjs,
-    { have := trans h₁ (lo_lt_hi hl_hs₂), simp [*] },
-    { have := lt_of_incomp_of_lt h₁ (lo_lt_hi hl_hs₂), simp [*] },
-    { have := weak_trichotomous lt x v, blast_disjs; simp [*] } }
+  guard_names { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
+  { intros l₁ val l₂ z r, intros,
+    have := weak_trichotomous lt val x, blast_disjs; simp [*],
+    { have := weak_trichotomous lt z x, blast_disjs; simp [*] },
+    { have : lt x z := lt_of_incomp_of_lt this.swap (lo_lt_hi hl_hs₂), simp [*] },
+    { have := trans this (lo_lt_hi hl_hs₂), simp [*] } },
+  { intros l₁ val l₂ z r hr, intros,
+    have := weak_trichotomous lt val x, blast_disjs; simp [*] }
 end
 
 lemma find_balance2_node_gt {s t x y lo hi}
@@ -535,16 +538,17 @@ begin
 end
 
 lemma find_balance2_eqv {l v r t x y lo hi}
-                        (h : ¬ lt x y ∧ ¬ lt y x)
-                        (hl : is_searchable lt l (some y) (some v))
-                        (hr : is_searchable lt r (some v) hi)
-                        (ht : is_searchable lt t lo (some y))
-                        : find lt (balance2 l v r y t) x = some y :=
+                        (h : ¬ lt x y ∧ ¬ lt y x) :
+                        ∀ (hl : is_searchable lt l (some y) (some v))
+                          (hr : is_searchable lt r (some v) hi)
+                          (ht : is_searchable lt t lo (some y)),
+                          find lt (balance2 l v r y t) x = some y :=
 begin
-  cases l; cases r; simp [balance2, *]; is_searchable_tactic,
-  { have : lt x v := lt_of_incomp_of_lt h hl_hlt, simp [*] },
-  any_goals { have : lt x l_val := lt_of_incomp_of_lt h (lo_lt_hi hl_hs₁), simp [*] },
-  { have : lt x v := lt_of_incomp_of_lt h (trans (lo_lt_hi hl_hs₁) (lo_lt_hi hl_hs₂)), simp [*] }
+  guard_names { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
+  { intros l₁ val l₂ z r, intros,
+    have := lt_of_incomp_of_lt h (lo_lt_hi hl_hs₁), simp [*] },
+  { intros l₁ val l₂ z r hr, intros,
+    have := lt_of_incomp_of_lt h (lo_lt_hi hl), simp [*] }
 end
 
 lemma find_balance2_node_eqv {t s x y lo hi}

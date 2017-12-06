@@ -39,6 +39,7 @@ h2 : b = 0
 ⊢ 0 = b
 auto_quote_error2.lean:51:25: error: solve1 tactic failed, focused goal has not been solved
 state:
+3 goals
 h' : ?m_2 = ?m_2
 ⊢ true
 

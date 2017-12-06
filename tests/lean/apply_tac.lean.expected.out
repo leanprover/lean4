@@ -2,6 +2,7 @@ a b c : ℕ,
 h₁ : a = b,
 h₂ : b = c
 ⊢ a = b
+2 goals
 a : ℕ
 ⊢ ?m_1 = a
 
@@ -9,6 +10,7 @@ a : ℕ
 ⊢ ℕ
 a : ℕ
 ⊢ ?m_1 = a
+2 goals
 a : ℕ
 ⊢ ℕ
 

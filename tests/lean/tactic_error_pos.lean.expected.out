@@ -31,6 +31,7 @@ h2 : q
 ⊢ p ∧ q
 tactic_error_pos.lean:23:0: error: tactic failed, there are unsolved goals
 state:
+2 goals
 p q : Prop,
 h1 : p,
 h2 : q
@@ -57,6 +58,7 @@ tactic_error_pos.lean:43:2: error: invalid apply tactic, failed to unify
 with
   ?m_1 ∨ ?m_2
 state:
+4 goals
 p q : Prop,
 h1 : p,
 h2 : q

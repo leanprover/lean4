@@ -196,6 +196,9 @@ format tactic_state::pp_goal(formatter_factory const & fmtf, expr const & g, boo
 format tactic_state::pp_core(formatter_factory const & fmtf, bool target_lhs_only) const {
     format r;
     bool first = true;
+    unsigned num_goals = length(goals());
+    if (length(goals()) > 1)
+        r += format(num_goals) + space() + format("goals") + line();
     for (auto const & g : goals()) {
         if (first) first = false; else r += line() + line();
         r += pp_goal(fmtf, g, target_lhs_only);

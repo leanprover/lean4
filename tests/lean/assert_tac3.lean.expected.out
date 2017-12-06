@@ -1,3 +1,4 @@
+2 goals
 a : ℕ,
 x : ℕ := ?m_1
 ⊢ a = a
@@ -6,6 +7,7 @@ a : ℕ
 ⊢ ℕ
 def tst2 : ∀ (a : ℕ), a = a :=
 λ (a : ℕ), let x : ℕ := a in eq.refl a
+2 goals
 a b : ℕ,
 x : ℕ := ?m_1
 ⊢ a = a

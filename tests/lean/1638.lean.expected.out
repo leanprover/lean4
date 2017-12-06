@@ -1,5 +1,6 @@
 1638.lean:6:3: error: invalid exact tactic, trying to solve goal using itself
 state:
+2 goals
 ⊢ true
 
 ⊢ true
@@ -10,6 +11,7 @@ state:
   id ?m_1
 to metavariable ?m_1 (possible cause: occurs check failed)
 state:
+2 goals
 ⊢ true
 
 ⊢ true

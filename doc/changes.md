@@ -53,6 +53,8 @@ master branch (aka work in progress branch)
 
 - `injection h` now supports nested and mutually recursive datatypes.
 
+- Display number of goals in the `*Lean Goal*` buffer (if number of goals > 1).
+
 *Changes*
 
 - `cases h` now also tries to clear `h` when performing dependent elimination.

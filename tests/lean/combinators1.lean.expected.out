@@ -9,6 +9,7 @@ a : p,
 a_1 : q
 ⊢ q
 --- After
+2 goals
 p q : Prop,
 a : p,
 a_1 : q

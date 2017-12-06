@@ -1,3 +1,4 @@
+2 goals
 p q : Prop,
 Hp : p
 ⊢ q ∨ p
@@ -6,12 +7,14 @@ p q : Prop,
 Hq : q
 ⊢ q ∨ p
 -----
+2 goals
 ⊢ 0 = 0 ∨ 0 = succ (pred 0)
 
 n' : ℕ,
 Hind : n' = 0 ∨ n' = succ (pred n')
 ⊢ succ n' = 0 ∨ succ n' = succ (pred (succ n'))
 -----
+2 goals
 H : 0 ≠ 0
 ⊢ 0 > 0 → 0 = succ (pred 0)
 

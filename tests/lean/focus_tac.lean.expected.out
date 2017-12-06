@@ -1,4 +1,5 @@
 ---- after assert ----
+2 goals
 a : ℕ
 ⊢ ℕ
 
@@ -13,6 +14,7 @@ state:
 a : ℕ
 ⊢ ℕ
 ---- after assert ----
+2 goals
 a : ℕ
 ⊢ ℕ
 

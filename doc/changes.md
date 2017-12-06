@@ -48,6 +48,10 @@ master branch (aka work in progress branch)
 - Add `guard_names { t }`. This tactic applies `t` to the main goal,
   and reverts any new hypothesis in the resulting subgoals.
 
+- Add `cases_matching p` tactic for applying the `cases` tactic to a hypothesis `h : t` s.t.
+  `t` matches the pattern `p`. Alternative versions: `cases_matching * p` and `cases_matching [p_1, ..., p_n]`.
+  Example: `cases_matching * [_ ∨ _, _ ∧ _]` destructs all conjunctions and disjunctions in the main goal.
+
 *Changes*
 
 - `cases h` now also tries to clear `h` when performing dependent elimination.

@@ -599,6 +599,30 @@ meta def cases : parse cases_arg_p → parse with_ident_list → tactic unit
   hx  ← get_local x,
   tactic.cases hx ids
 
+private meta def find_matching_hyp (ps : list pattern) : tactic expr :=
+do ctx ← local_context,
+   ctx.mfirst $ λ h, do
+     type ← infer_type h,
+     ps.mfirst $ λ p, do
+       match_pattern_core reducible p type,
+       return h
+
+/--
+`cases_matching p` applies the `cases` tactic to a hypothesis `h : type` if `type` matches the pattern `p`.
+`cases_matching [p_1, ..., p_n]` applies the `cases` tactic to a hypothesis `h : type` if `type` matches one of the given patterns.
+`cases_matching * p` more efficient and compact version of `focus1 { repeat { cases_matching p } }`. It is more efficient because the pattern is compiled once.
+
+Example: The following tactic destructs all conjunctions and disjunctions in the current goal.
+```
+cases_matching * [_ ∨ _, _ ∧ _]
+```
+-/
+meta def cases_matching (rec : parse $ (tk "*")?) (ps : parse pexpr_list_or_texpr) : tactic unit :=
+do ps ← ps.mmap pexpr_to_pattern,
+   if rec.is_none
+   then find_matching_hyp ps >>= tactic.cases
+   else tactic.focus1 $ tactic.repeat $ find_matching_hyp ps >>= tactic.cases
+
 /--
 Tries to solve the current goal using a canonical proof of `true`, or the `reflexivity` tactic, or the `contradiction` tactic.
 -/

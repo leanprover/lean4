@@ -6,15 +6,11 @@ Authors: Leonardo de Moura
 universe u
 
 namespace tactic
-/- TODO(Leo): move blast_disjs to another file. -/
 
 namespace interactive
 
 meta def blast_disjs : tactic unit :=
-focus1 $ repeat $ any_hyp $ λ h, do
-  t ← infer_type h,
-  guard (t.is_or ≠ none),
-  tactic.cases h [h.local_pp_name, h.local_pp_name]
+`[cases_matching * _ ∨ _]
 
 end interactive
 end tactic

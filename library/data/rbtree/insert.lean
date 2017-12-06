@@ -256,8 +256,8 @@ begin
   apply ins.induction lt t z; intros; simp [mem, ins, strict_weak_order.equiv, *] at *; blast_disjs,
   any_goals { simp [h] },
   any_goals { have ih := ih h, cases ih; simp [*], done },
-  { have h := of_mem_balance1_node lt h, blast_disjs, have := ih h, blast_disjs, all_goals { simp [*] } },
-  { have h := of_mem_balance2_node lt h, blast_disjs, have := ih h, blast_disjs, all_goals { simp [*] } }
+  { have h' := of_mem_balance1_node lt h, blast_disjs, have := ih h', blast_disjs, all_goals { simp [*] } },
+  { have h' := of_mem_balance2_node lt h, blast_disjs, have := ih h', blast_disjs, all_goals { simp [*] } }
 end
 
 lemma equiv_or_mem_of_mem_insert [is_strict_weak_order α lt] {t : rbnode α} {x z} : ∀ (h : x ∈ t.insert lt z), x ≈[lt] z ∨ x ∈ t :=

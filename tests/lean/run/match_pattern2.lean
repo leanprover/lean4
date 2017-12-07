@@ -31,7 +31,7 @@ by do
   H ← get_local `H >>= infer_type,
   (lhs, rhs) ← match_eq H,
   p ← mk_pattern_for_constant $ `add.comm,
-  [rhs_inst, prf] ← match_pattern p lhs | failed,
+  (_, [rhs_inst, prf]) ← match_pattern p lhs | failed,
   trace "match rhs",
   trace rhs_inst,
   trace "proof lhs = rhs",

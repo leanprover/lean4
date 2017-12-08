@@ -894,7 +894,7 @@ theorem succ_inj {n m : ℕ} (H : succ n = succ m) : n = m :=
 nat.succ.inj_arrow H id
 
 theorem discriminate {B : Sort u} {n : ℕ} (H1: n = 0 → B) (H2 : ∀m, n = succ m → B) : B :=
-by ginduction n with h; [exact H1 h, exact H2 _ h]
+by induction h : n; [exact H1 h, exact H2 _ h]
 
 theorem one_succ_zero : 1 = succ 0 := rfl
 

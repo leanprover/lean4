@@ -14,7 +14,7 @@ def qsort.F {α} (lt : α → α → bool) : Π (x : list α),
   (Π (y : list α), length y < length x → list α) → list α
 | []     IH := []
 | (h::t) IH := begin
-    ginduction partition (λ x, lt h x = tt) t with e large small,
+    induction e : partition (λ x, lt h x = tt) t with large small,
     have : length small < length (h::t) ∧ length large < length (h::t),
     { rw partition_eq_filter_filter at e,
       injection e,
@@ -38,7 +38,7 @@ by rw [qsort, well_founded.fix_eq, qsort.F]
   qsort lt small ++ h :: qsort lt large :=
 begin
   rw [qsort, well_founded.fix_eq, qsort.F],
-  ginduction partition (λ x, lt h x = tt) t with e large small,
+  induction e : partition (λ x, lt h x = tt) t with large small,
   simp [e], rw [e]
 end
 

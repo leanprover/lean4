@@ -235,7 +235,7 @@ lemma bitwise_bit_aux {f : bool → bool → bool} (h : f ff ff = ff) :
 begin
   funext n,
   apply bit_cases_on n, intros b n, rw [binary_rec_eq],
-  { cases b; try {rw h}; ginduction f ff tt with fft; simp [cond]; refl },
+  { cases b; try {rw h}; induction fft : f ff tt; simp [cond]; refl },
   { rw [h, show cond (f ff tt) 0 0 = 0, by cases f ff tt; refl,
            show cond (f tt ff) (bit ff 0) 0 = 0, by cases f tt ff; refl]; refl }
 end
@@ -258,7 +258,7 @@ by rw bitwise_zero_left; cases f ff tt; refl
 begin
   unfold bitwise,
   rw [binary_rec_eq, binary_rec_eq],
-  { ginduction f tt ff with ftf; dsimp [cond],
+  { induction ftf : f tt ff; dsimp [cond],
     rw [show f a ff = ff, by cases a; assumption],
     apply @congr_arg _ _ _ 0 (bit ff), tactic.swap,
     rw [show f a ff = a, by cases a; assumption],

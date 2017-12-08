@@ -126,7 +126,7 @@ theorem of_to_bool_ff {p : Prop} [decidable p] : to_bool p = ff → ¬p := (to_b
 
 theorem to_bool_congr {p q : Prop} [decidable p] [decidable q] (h : p ↔ q) : to_bool p = to_bool q :=
 begin
-  ginduction to_bool q with h',
+  induction h' : to_bool q,
   exact to_bool_ff (mt h.1 $ of_to_bool_ff h'),
   exact to_bool_true (h.2 $ of_to_bool_true h')
 end

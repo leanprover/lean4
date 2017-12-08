@@ -117,6 +117,8 @@ master branch (aka work in progress branch)
   In this case, `apply t` behaves as `apply t _ ... _` where `n` `_` have been added, independently of the goal target type.
   The new behavior is useful when using `apply` with eliminator-like definitions.
 
+- `ginduction t with h h1 h2` is now `induction h : t with h1 h2`.
+
 *API name changes*
 
 v3.3.0 (14 September 2017)

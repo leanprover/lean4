@@ -229,7 +229,7 @@ smt_tactic.iterate t
 meta def all_goals (t : itactic) : smt_tactic unit :=
 smt_tactic.all_goals t
 
-meta def induction (p : parse texpr) (rec_name : parse using_ident) (ids : parse with_ident_list)
+meta def induction (p : parse tactic.interactive.cases_arg_p) (rec_name : parse using_ident) (ids : parse with_ident_list)
   (revert : parse $ (tk "generalizing" *> ident*)?) : smt_tactic unit :=
 slift (tactic.interactive.induction p rec_name ids revert)
 

@@ -374,8 +374,13 @@ begin
   apply find_ins_of_eqv lt he hs; simp
 end
 
-lemma weak_trichotomous (x y) : lt x y ∨ (¬ lt x y ∧ ¬ lt y x) ∨ lt y x :=
-by by_cases lt x y; by_cases lt y x; simp [*]
+lemma weak_trichotomous (x y) {p : Prop} (h₁ : ∀ h : lt x y, p) (h₂ : ∀ h : ¬ lt x y ∧ ¬ lt y x, p) (h₃ : ∀ h : lt y x, p) : p :=
+begin
+  by_cases lt x y; by_cases lt y x,
+  any_goals { apply h₁; assumption },
+  any_goals { apply h₃; assumption },
+  any_goals { apply h₂, constructor; assumption }
+end
 
 section find_ins_of_not_eqv
 
@@ -410,12 +415,12 @@ lemma find_balance1_lt {l r t v x y lo hi}
 begin
   guard_names { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
   { intros l_left l_val l_right z r; intros,
-    have := weak_trichotomous lt z x, blast_disjs; simp [*] },
+    apply weak_trichotomous lt z x; intros; simp [*] },
   { intros l_left l_val l_right z r; intros,
-    have := weak_trichotomous lt z x, blast_disjs,
-    { have := trans_of lt (lo_lt_hi hr_hs₁) this, simp [*] },
-    { have : lt l_val x := lt_of_lt_of_incomp (lo_lt_hi hr_hs₁) this, simp [*] },
-    { have := weak_trichotomous lt l_val x; blast_disjs; simp [*] } }
+    apply weak_trichotomous lt z x; intro h',
+    { have := trans_of lt (lo_lt_hi hr_hs₁) h', simp [*] },
+    { have : lt l_val x := lt_of_lt_of_incomp (lo_lt_hi hr_hs₁) h', simp [*] },
+    { apply weak_trichotomous lt l_val x; intros; simp [*] } }
 end
 
 meta def ins_ne_leaf_tac := `[apply ins_ne_leaf]
@@ -517,12 +522,12 @@ lemma find_balance2_gt {l v r t x y lo hi}
 begin
   guard_names { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
   { intros l₁ val l₂ z r, intros,
-    have := weak_trichotomous lt val x, blast_disjs; simp [*],
-    { have := weak_trichotomous lt z x, blast_disjs; simp [*] },
-    { have : lt x z := lt_of_incomp_of_lt this.swap (lo_lt_hi hl_hs₂), simp [*] },
-    { have := trans this (lo_lt_hi hl_hs₂), simp [*] } },
+    apply weak_trichotomous lt val x; intro h'; simp [*],
+    { apply weak_trichotomous lt z x; intros; simp [*] },
+    { have : lt x z := lt_of_incomp_of_lt h'.swap (lo_lt_hi hl_hs₂), simp [*] },
+    { have := trans h' (lo_lt_hi hl_hs₂), simp [*] } },
   { intros l₁ val l₂ z r hr, intros,
-    have := weak_trichotomous lt val x, blast_disjs; simp [*] }
+    apply weak_trichotomous lt val x; intros; simp [*] }
 end
 
 lemma find_balance2_node_gt {s t x y lo hi}

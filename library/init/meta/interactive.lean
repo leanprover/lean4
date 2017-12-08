@@ -453,7 +453,7 @@ do
    (e, newvars, locals) ← do {
       none ← pure rec_name | pure (e, [], []),
       t ← infer_type e,
-      -- TODO(Kha): `t ← whnf_ginductive t,`
+      t ← whnf_ginductive t,
       const n _ ← pure t.get_app_fn | pure (e, [], []),
       env ← get_env,
       tt ← pure $ env.is_inductive n | pure (e, [], []),

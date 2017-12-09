@@ -423,7 +423,11 @@ bool is_simp_relation(environment const & env, expr const & e, expr & lhs, expr 
 
 static bool is_ceqv(type_context & ctx, name const & id, expr e);
 
-/** \brief Auxiliary functional object for creating "conditional equations" */
+/** \brief Auxiliary functional object for creating "conditional equations"
+
+    TODO(Leo): add support for users providing their own procedures for
+    pre-processing lemmas.
+*/
 class to_ceqvs_fn {
     environment const & m_env;
     type_context &      m_ctx;
@@ -485,6 +489,8 @@ class to_ceqvs_fn {
             auto r1 = apply(arg1, H1, restricted);
             auto r2 = apply(arg2, H2, restricted);
             return append(r1, r2);
+        } else if (auto arg = is_auto_param(e)) {
+            return apply(arg->first, H, restricted);
         } else if (is_pi(e)) {
             type_context::tmp_locals locals(m_ctx);
             expr local = locals.push_local_from_binding(e);

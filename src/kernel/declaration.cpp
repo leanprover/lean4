@@ -100,6 +100,7 @@ declaration mk_theorem(name const & n, level_param_names const & params, expr co
     return declaration(new declaration::cell(n, params, t, v));
 }
 declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v) {
+    // return mk_axiom(n, params, t);
     return mk_theorem(n, params, t, mk_pure_task(v));
 }
 declaration mk_axiom(name const & n, level_param_names const & params, expr const & t) {

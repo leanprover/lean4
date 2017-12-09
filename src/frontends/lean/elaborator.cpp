@@ -1172,22 +1172,6 @@ struct elaborator::first_pass_info {
     buffer<expr>     eta_args;
 };
 
-static optional<expr> is_optional_param(expr const & e) {
-    if (is_app_of(e, get_opt_param_name(), 2)) {
-        return some_expr(app_arg(e));
-    } else {
-        return none_expr();
-    }
-}
-
-static optional<expr_pair> is_auto_param(expr const & e) {
-    if (is_app_of(e, get_auto_param_name(), 2)) {
-        return optional<expr_pair>(app_arg(app_fn(e)), app_arg(e));
-    } else {
-        return optional<expr_pair>();
-    }
-}
-
 static optional<expr> is_thunk(expr const & e) {
     if (is_app_of(e, get_thunk_name(), 1)) {
         return some_expr(app_arg(e));

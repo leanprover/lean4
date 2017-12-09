@@ -45,6 +45,22 @@ bool is_internal_name(name const & n) {
     return false;
 }
 
+optional<expr> is_optional_param(expr const & e) {
+    if (is_app_of(e, get_opt_param_name(), 2)) {
+        return some_expr(app_arg(e));
+    } else {
+        return none_expr();
+    }
+}
+
+optional<expr_pair> is_auto_param(expr const & e) {
+    if (is_app_of(e, get_auto_param_name(), 2)) {
+        return optional<expr_pair>(app_arg(app_fn(e)), app_arg(e));
+    } else {
+        return optional<expr_pair>();
+    }
+}
+
 level get_level(abstract_type_context & ctx, expr const & A) {
     expr S = ctx.whnf(ctx.infer(A));
     if (!is_sort(S))

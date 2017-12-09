@@ -1293,19 +1293,15 @@ end list
 
 /- Install monad laws tactic and use it to prove some instances. -/
 
-meta def control_laws_tac := whnf_target >> intros >> to_expr ``(rfl) >>= exact
 meta def order_laws_tac := whnf_target >> intros >> to_expr ``(iff.refl _) >>= exact
 
-meta def unsafe_monad_from_pure_bind {m : Type u → Type v}
+meta def monad_from_pure_bind {m : Type u → Type v}
   (pure : Π {α : Type u}, α → m α)
   (bind : Π {α β : Type u}, m α → (α → m β) → m β) : monad m :=
-{pure := @pure, bind := @bind,
- id_map := undefined, pure_bind := undefined, bind_assoc := undefined}
+{pure := @pure, bind := @bind}
 
 meta instance : monad task :=
-{map := @task.map, bind := @task.bind, pure := @task.pure,
- id_map := undefined, pure_bind := undefined, bind_assoc := undefined,
- bind_pure_comp_eq_map := undefined}
+{map := @task.map, bind := @task.bind, pure := @task.pure}
 
 namespace tactic
 meta def mk_id_proof (prop : expr) (pr : expr) : expr :=

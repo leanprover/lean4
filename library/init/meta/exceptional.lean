@@ -50,7 +50,4 @@ exception α (λ u, f)
 end exceptional
 
 meta instance : monad exceptional :=
-{pure := @exceptional.return, bind := @exceptional.bind,
- map_const_eq := undefined, seq_left_eq := undefined, seq_right_eq := undefined,
- id_map := undefined, pure_bind := undefined, bind_assoc := undefined,
- bind_pure_comp_eq_map := undefined, bind_map_eq_seq := undefined}
+{pure := @exceptional.return, bind := @exceptional.bind}

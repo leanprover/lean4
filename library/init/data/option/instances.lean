@@ -6,34 +6,15 @@ Authors: Leonardo de Moura
 prelude
 import init.data.option.basic
 import init.meta.tactic
+import init.category.lawful
 
 universes u v
 
-@[inline] def option.bind {α : Type u} {β : Type v} : option α → (α → option β) → option β
-| none     b := none
-| (some a) b := b a
-
-def option.map {α β} (f : α → β) (o : option α) : option β :=
-option.bind o (some ∘ f)
-
-@[simp] theorem option.map_id {α} : (option.map id : option α → option α) = id :=
-funext (λo, match o with | none := rfl | some x := rfl end)
-
-instance : monad option :=
+instance : lawful_monad option :=
 {pure := @some, bind := @option.bind, map := @option.map,
  id_map := λ α x, option.rec rfl (λ x, rfl) x,
  pure_bind := λ α β x f, rfl,
  bind_assoc := λ α β γ x f g, option.rec rfl (λ x, rfl) x}
-
-def option.orelse {α : Type u} : option α → option α → option α
-| (some a) o         := some a
-| none     (some a)  := some a
-| none     none      := none
-
-instance : alternative option :=
-{ failure := @none,
-  orelse  := @option.orelse,
-  ..option.monad }
 
 lemma option.eq_of_eq_some {α : Type u} : Π {x y : option α}, (∀z, x = some z ↔ y = some z) → x = y
 | none     none     h := rfl

@@ -1,1 +1,1 @@
-example : monad set := {}
+example : lawful_monad set := {}

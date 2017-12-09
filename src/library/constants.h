@@ -347,7 +347,7 @@ name const & get_unification_hint_mk_name();
 name const & get_unit_name();
 name const & get_unit_cases_on_name();
 name const & get_unit_star_name();
-name const & get_unsafe_monad_from_pure_bind_name();
+name const & get_monad_from_pure_bind_name();
 name const & get_user_attribute_name();
 name const & get_user_attribute_parse_reflect_name();
 name const & get_vm_monitor_name();

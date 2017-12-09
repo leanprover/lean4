@@ -1,1 +1,1 @@
-instance : monad list := { .. }
+instance : lawful_monad list := { .. }

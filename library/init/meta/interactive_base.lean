@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.option.instances
+import init.data.option.basic
 import init.meta.lean.parser init.meta.tactic init.meta.has_reflect
 
 open lean

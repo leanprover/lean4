@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.meta.interactive
+import init.category.lawful
 universes u v
 
 def state (σ α : Type u) : Type u :=
@@ -19,7 +20,7 @@ variables {σ α β : Type u}
 @[inline] def state_bind (a : state σ α) (b : α → state σ β) : state σ β :=
 λ s, match (a s) with (a', s') := b a' s' end
 
-instance (σ : Type u) : monad (state σ) :=
+instance (σ : Type u) : lawful_monad (state σ) :=
 {pure := @state_return σ, bind := @state_bind σ,
  id_map := begin
    intros, funext,
@@ -65,21 +66,24 @@ section
 end
 
 instance (σ : Type u) (m : Type u → Type v) [monad m] : monad (state_t σ m) :=
+{pure := @state_t_return σ m _, bind := @state_t_bind σ m _}
+
+instance (σ : Type u) (m : Type u → Type v) [lawful_monad m] : lawful_monad (state_t σ m) :=
 {pure := @state_t_return σ m _, bind := @state_t_bind σ m _,
  id_map := begin
    intros, funext,
    simp [state_t_bind, state_t_return, function.comp, return],
    have h : state_t_bind._match_1 (λ (x : α) (s : σ), @pure m _ _ (x, s)) = pure,
    { funext s, cases s, apply rfl },
-   { simp [h, monad.bind_pure] },
+   { simp [h, bind_pure] },
  end,
  pure_bind := begin
    intros, funext,
-   simp [state_t_bind, state_t_return, monad.pure_bind]
+   simp [state_t_bind, state_t_return, pure_bind]
  end,
  bind_assoc := begin
    intros, funext,
-   simp [state_t_bind, state_t_return, monad.bind_assoc],
+   simp [state_t_bind, state_t_return, bind_assoc],
    apply congr_arg, funext r,
    cases r, refl
  end}

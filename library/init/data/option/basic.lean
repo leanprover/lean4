@@ -42,6 +42,29 @@ def lhoare {α : Type u} : α → option α → α
 infixr `|>`:1 := rhoare
 infixr `<|`:1 := lhoare
 
+@[inline] protected def bind {α : Type u} {β : Type v} : option α → (α → option β) → option β
+| none     b := none
+| (some a) b := b a
+
+protected def map {α β} (f : α → β) (o : option α) : option β :=
+option.bind o (some ∘ f)
+
+theorem map_id {α} : (option.map id : option α → option α) = id :=
+funext (λo, match o with | none := rfl | some x := rfl end)
+
+instance : monad option :=
+{pure := @some, bind := @option.bind, map := @option.map}
+
+protected def orelse {α : Type u} : option α → option α → option α
+| (some a) o         := some a
+| none     (some a)  := some a
+| none     none      := none
+
+instance : alternative option :=
+{ failure := @none,
+  orelse  := @option.orelse,
+  ..option.monad }
+
 end option
 
 instance (α : Type u) : inhabited (option α) :=
@@ -56,4 +79,3 @@ instance {α : Type u} [d : decidable_eq α] : decidable_eq (option α)
   | (is_true e)  := is_true (congr_arg (@some α) e)
   | (is_false n) := is_false (λ h, option.no_confusion h (λ e, absurd e n))
   end
-

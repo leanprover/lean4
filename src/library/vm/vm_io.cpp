@@ -391,8 +391,8 @@ static vm_obj io_bind(vm_obj const & /* α */, vm_obj const & /* β */, vm_obj c
 
 static vm_obj io_monad(vm_obj const &) {
     vm_state & S = get_vm_state();
-    vm_obj const & mk_unsafe_monad = S.get_constant(get_unsafe_monad_from_pure_bind_name());
-    return invoke(mk_unsafe_monad, mk_vm_simple(0), mk_native_closure(io_return), mk_native_closure(io_bind));
+    vm_obj const & mk_monad = S.get_constant(get_monad_from_pure_bind_name());
+    return invoke(mk_monad, mk_vm_simple(0), mk_native_closure(io_return), mk_native_closure(io_bind));
 }
 
 static vm_obj io_catch(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const & a, vm_obj const & b, vm_obj const &) {

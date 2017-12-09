@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.meta.interactive
+import init.category.lawful
 
 universes u v
 def set (α : Type u) := α → Prop
@@ -80,7 +81,7 @@ prefix `⋃₀`:110 := sUnion
 def image (f : α → β) (s : set α) : set β :=
 {b | ∃ a, a ∈ s ∧ f a = b}
 
-instance : functor set :=
+instance : lawful_functor set :=
 {map := @set.image,
  id_map := begin
    intros _ s, funext b,
@@ -88,7 +89,7 @@ instance : functor set :=
    exact propext ⟨λ ⟨b', ⟨_, _⟩⟩, ‹b' = b› ▸ ‹s b'›,
                   λ _, ⟨b, ⟨‹s b›, rfl⟩⟩⟩,
  end,
- map_comp := begin
+ comp_map := begin
    intros, funext c,
    dsimp [image, set_of, function.comp],
    exact propext ⟨λ ⟨a, ⟨h₁, h₂⟩⟩, ⟨g a, ⟨⟨a, ⟨h₁, rfl⟩⟩, h₂⟩⟩,

@@ -5,14 +5,14 @@ Author: Leonardo de Moura
 -/
 prelude
 import init.data.list.lemmas
-import init.meta.mk_dec_eq_instance
+import init.meta.mk_dec_eq_instance init.category.lawful
 open list
 
 universes u v
 
 local attribute [simp] join list.ret
 
-instance : monad list :=
+instance : lawful_monad list :=
 {pure := @list.ret, bind := @list.bind,
  id_map := begin
    intros _ xs, induction xs with x xs ih,
@@ -29,7 +29,7 @@ instance : monad list :=
 instance : alternative list :=
 { failure := @list.nil,
   orelse  := @list.append,
-  ..list.monad }
+  ..list.lawful_monad }
 
 namespace list
 

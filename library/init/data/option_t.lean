@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.interactive init.category.transformers
+import init.meta.interactive init.category.transformers init.category.lawful
 
 universes u v
 
@@ -25,25 +25,28 @@ show m (option α), from
 return (some a)
 
 instance {m : Type u → Type v} [monad m] : monad (option_t m) :=
+{pure := @option_t_return m _, bind := @option_t_bind m _}
+
+instance {m : Type u → Type v} [lawful_monad m] : lawful_monad (option_t m) :=
 {pure := @option_t_return m _, bind := @option_t_bind m _,
  id_map := begin
    intros,
    simp [option_t_bind, function.comp],
    have h : option_t_bind._match_1 option_t_return = @pure m _ (option α),
    { funext s, cases s; refl },
-   { simp [h, monad.bind_pure] },
+   { simp [h, bind_pure] },
  end,
  pure_bind := begin
    intros,
-   simp [option_t_bind, option_t_return, monad.pure_bind]
+   simp [option_t_bind, option_t_return, pure_bind]
  end,
  bind_assoc :=
  begin
    intros,
-   simp [option_t_bind, option_t_return, monad.bind_assoc],
+   simp [option_t_bind, option_t_return, bind_assoc],
    apply congr_arg, funext x,
    cases x,
-   { simp [option_t_bind, monad.pure_bind] },
+   { simp [option_t_bind, pure_bind] },
    { refl }
  end}
 

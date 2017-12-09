@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.meta.tactic init.meta.attribute init.meta.constructor_tactic
 import init.meta.relation_tactics init.meta.occurrences
-import init.data.option.instances
+import init.data.option.basic
 
 open tactic
 

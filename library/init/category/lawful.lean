@@ -65,6 +65,9 @@ attribute [simp] pure_bind
 @[simp] theorem bind_pure {α : Type u} {m : Type u → Type v} [lawful_monad m] (x : m α) : x >>= pure = x :=
 show x >>= pure ∘ id = x, by rw bind_pure_comp_eq_map; simp [lawful_monad.id_map]
 
+theorem bind_bind_pure_comp_eq_seq (m) [lawful_monad m] : ∀ {α β : Type u} (f : m (α → β)) (x : m α), (f >>= λ f, x >>= pure ∘ f) = f <*> x :=
+by intros; rw ←bind_map_eq_seq; simp [(bind_pure_comp_eq_map _ _ _).symm]
+
 -- all applicative laws are derivable from the monad laws + id_map
 instance lawful_monad.lawful_applicative (m : Type u → Type v) [i : lawful_monad m] : lawful_applicative m :=
 have map_pure : ∀ {α β : Type u} (g : α → β) (x : α), g <$> (pure x : m _) = pure (g x),
@@ -72,24 +75,6 @@ by intros; rw ←bind_pure_comp_eq_map; simp [pure_bind],
 { pure_seq_eq_map := by intros; rw ←bind_map_eq_seq; simp,
   map_pure := @map_pure,
   seq_pure := by intros; rw ←bind_map_eq_seq; simp [map_pure, bind_pure_comp_eq_map],
-  seq_assoc :=  λ α β γ x g h, calc
-  h <*> (g <*> x)
-      = h >>= (<$> g <*> x) : by rw bind_map_eq_seq
-  ... = h >>= λ h, pure (@comp α β γ h) >>= (<$> g) >>= (<$> x) : congr_arg _ $ funext $ λ h, (calc
-    h <$> (g <*> x)
-        = g <*> x >>= pure ∘ h : by rw bind_pure_comp_eq_map
-    ... = g >>= (<$> x) >>= pure ∘ h : by rw bind_map_eq_seq
-    ... = g >>= λ g, g <$> x >>= pure ∘ h : by rw bind_assoc
-    ... = g >>= λ g, pure (h ∘ g) >>= (<$> x)        : congr_arg _ $ funext $ λ g, (calc
-      g <$> x >>= pure ∘ h
-          = x >>= pure ∘ g >>= pure ∘ h        : by simp [bind_pure_comp_eq_map]
-      ... = x >>= λ x, pure (g x) >>= pure ∘ h : by rw bind_assoc
-      ... = x >>= λ x, pure (h (g x)) : by simp
-      ... = (h ∘ g) <$> x : by rw bind_pure_comp_eq_map
-      ... = pure (h ∘ g) >>= (<$> x) : by simp)
-    ... = g >>= pure ∘ (@comp α β γ h) >>= (<$> x) : by rw bind_assoc
-    ... = pure (@comp α β γ h) >>= (<$> g) >>= (<$> x) : by simp [bind_pure_comp_eq_map])
-  ... = h >>= pure ∘ @comp α β γ >>= (<$> g) >>= (<$> x) : by simp [bind_assoc]
-  ... = (@comp α β γ <$> h) >>= (<$> g) >>= (<$> x) : by simp [bind_pure_comp_eq_map]
-  ... = (@comp α β γ <$> h) <*> g <*> x : by simp [bind_map_eq_seq],
+  seq_assoc := by intros; simp [(bind_pure_comp_eq_map _ _ _).symm,
+                                (bind_bind_pure_comp_eq_seq _ _ _).symm, bind_assoc],
   ..i }

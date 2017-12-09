@@ -8,6 +8,9 @@ import init.core
 
 universes u v w
 
+@[simp] lemma opt_param_eq (α : Sort u) (default : α) : opt_param α default = α :=
+rfl
+
 @[inline] def id {α : Sort u} (a : α) : α := a
 
 def flip {α : Sort u} {β : Sort v} {φ : Sort w} (f : α → β → φ) : β → α → φ :=

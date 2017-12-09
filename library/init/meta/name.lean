@@ -19,6 +19,9 @@ inductive name
 @[reducible] def {u} auto_param (α : Sort u) (tac_name : name) : Sort u :=
 α
 
+@[simp] lemma {u} auto_param_eq (α : Sort u) (n : name) : auto_param α n = α :=
+rfl
+
 instance : inhabited name :=
 ⟨name.anonymous⟩
 

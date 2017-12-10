@@ -28,6 +28,11 @@ public:
     void write(unsigned ref, vm_obj const & o);
 };
 
+struct tag_info {
+    bool                    m_tags_enabled{false};
+    rb_expr_map<list<name>> m_tags;
+};
+
 class tactic_state_cell {
     MK_LEAN_RC();
     environment       m_env;
@@ -38,15 +43,18 @@ class tactic_state_cell {
     expr              m_main;
     defeq_can_state   m_defeq_can_state;
     tactic_user_state m_tactic_user_state;
+    tag_info          m_tag_info;
+
     friend class tactic_state;
     void dealloc();
 public:
     tactic_state_cell(environment const & env, options const & o, name const & decl_name,
                       metavar_context const & ctx, list<expr> const & gs,
-                      expr const & main, defeq_can_state const & s, tactic_user_state const & us):
+                      expr const & main, defeq_can_state const & s, tactic_user_state const & us,
+                      tag_info const & tinfo):
         m_rc(0), m_env(env), m_options(o), m_decl_name(decl_name),
         m_mctx(ctx), m_goals(gs), m_main(main), m_defeq_can_state(s),
-        m_tactic_user_state(us) {}
+        m_tactic_user_state(us), m_tag_info(tinfo) {}
 };
 
 class tactic_state {
@@ -60,7 +68,8 @@ private:
 public:
     tactic_state(environment const & env, options const & o, name const & decl_name,
                  metavar_context const & ctx, list<expr> const & gs,
-                 expr const & main, defeq_can_state const & s, tactic_user_state const & us);
+                 expr const & main, defeq_can_state const & s, tactic_user_state const & us,
+                 tag_info const & tinfo);
     tactic_state(tactic_state const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
     tactic_state(tactic_state && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     ~tactic_state() { if (m_ptr) m_ptr->dec_ref(); }
@@ -78,6 +87,8 @@ public:
     defeq_can_state const & dcs() const { return get_defeq_canonizer_state(); }
     tactic_user_state const & get_user_state() const { return m_ptr->m_tactic_user_state; }
     tactic_user_state const & us() const { return get_user_state(); }
+    tag_info const & get_tag_info() const { return m_ptr->m_tag_info; }
+    tag_info const & tinfo() const { return get_tag_info(); }
 
     tactic_state & operator=(tactic_state const & s) { LEAN_COPY_REF(s); }
     tactic_state & operator=(tactic_state && s) { LEAN_MOVE_REF(s); }

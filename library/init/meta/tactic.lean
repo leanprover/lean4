@@ -499,6 +499,19 @@ meta constant sleep (msecs : nat) : tactic unit
 meta constant type_check (e : expr) (md := semireducible) : tactic unit
 open list nat
 
+/-- Goals can be tagged using a list of names. -/
+def tag : Type := list name
+
+/-- Enable/disable goal tagging -/
+meta constant enable_tags (b : bool) : tactic unit
+/-- Return tt iff goal tagging is enabled. -/
+meta constant tags_enabled : tactic bool
+/-- Tag goal `g` with tag `t`. It does nothing is goal tagging is disabled.
+    Remark: `set_goal g []` removes the tag -/
+meta constant set_tag (g : expr) (t : tag) : tactic unit
+/-- Return tag associated with `g`. Return `[]` if there is no tag. -/
+meta constant get_tag (g : expr) : tactic tag
+
 meta def induction' (h : expr) (ns : list name := []) (rec : option name := none) (md := semireducible) : tactic unit :=
 induction h ns rec md >> return ()
 

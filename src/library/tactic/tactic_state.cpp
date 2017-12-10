@@ -51,8 +51,8 @@ void tactic_state_cell::dealloc() {
 
 tactic_state::tactic_state(environment const & env, options const & o, name const & decl_name, metavar_context const & ctx,
                            list<expr> const & gs, expr const & main, defeq_canonizer::state const & dcs,
-                           tactic_user_state const & us) {
-    m_ptr = new tactic_state_cell(env, o, decl_name, ctx, gs, main, dcs, us);
+                           tactic_user_state const & us, tag_info const & tinfo) {
+    m_ptr = new tactic_state_cell(env, o, decl_name, ctx, gs, main, dcs, us, tinfo);
     m_ptr->inc_ref();
 }
 
@@ -69,7 +69,7 @@ optional<metavar_decl> tactic_state::get_main_goal_decl() const {
 tactic_state mk_tactic_state_for(environment const & env, options const & o, name const & decl_name,
                                  metavar_context mctx, local_context const & lctx, expr const & type) {
     expr main = mctx.mk_metavar_decl(lctx, type);
-    return tactic_state(env, o, decl_name, mctx, list<expr>(main), main, defeq_canonizer::state(), tactic_user_state());
+    return tactic_state(env, o, decl_name, mctx, list<expr>(main), main, defeq_canonizer::state(), tactic_user_state(), tag_info());
 }
 
 tactic_state mk_tactic_state_for(environment const & env, options const & o, name const & decl_name,
@@ -79,29 +79,29 @@ tactic_state mk_tactic_state_for(environment const & env, options const & o, nam
 
 tactic_state mk_tactic_state_for_metavar(environment const & env, options const & opts, name const & decl_name,
                                          metavar_context const & mctx, expr const & mvar) {
-    return tactic_state(env, opts, decl_name, mctx, list<expr>(mvar), mvar, defeq_canonizer::state(), tactic_user_state());
+    return tactic_state(env, opts, decl_name, mctx, list<expr>(mvar), mvar, defeq_canonizer::state(), tactic_user_state(), tag_info());
 }
 
 tactic_state set_options(tactic_state const & s, options const & o) {
-    return tactic_state(s.env(), o, s.decl_name(), s.mctx(), s.goals(), s.main(), s.dcs(), s.us());
+    return tactic_state(s.env(), o, s.decl_name(), s.mctx(), s.goals(), s.main(), s.dcs(), s.us(), s.tinfo());
 }
 
 tactic_state set_env(tactic_state const & s, environment const & env) {
-    return tactic_state(env, s.get_options(), s.decl_name(), s.mctx(), s.goals(), s.main(), s.dcs(), s.us());
+    return tactic_state(env, s.get_options(), s.decl_name(), s.mctx(), s.goals(), s.main(), s.dcs(), s.us(), s.tinfo());
 }
 
 tactic_state set_mctx(tactic_state const & s, metavar_context const & mctx) {
     if (is_eqp(s.mctx(), mctx)) return s;
-    return tactic_state(s.env(), s.get_options(), s.decl_name(), mctx, s.goals(), s.main(), s.dcs(), s.us());
+    return tactic_state(s.env(), s.get_options(), s.decl_name(), mctx, s.goals(), s.main(), s.dcs(), s.us(), s.tinfo());
 }
 
 tactic_state set_mctx_dcs(tactic_state const & s, metavar_context const & mctx, defeq_can_state const & dcs) {
     if (is_eqp(s.mctx(), mctx) && is_eqp(s.dcs(), dcs)) return s;
-    return tactic_state(s.env(), s.get_options(), s.decl_name(), mctx, s.goals(), s.main(), dcs, s.us());
+    return tactic_state(s.env(), s.get_options(), s.decl_name(), mctx, s.goals(), s.main(), dcs, s.us(), s.tinfo());
 }
 
 tactic_state set_env_mctx(tactic_state const & s, environment const & env, metavar_context const & mctx) {
-    return tactic_state(env, s.get_options(), s.decl_name(), mctx, s.goals(), s.main(), s.dcs(), s.us());
+    return tactic_state(env, s.get_options(), s.decl_name(), mctx, s.goals(), s.main(), s.dcs(), s.us(), s.tinfo());
 }
 
 static list<expr> consume_solved_prefix(metavar_context const & mctx, list<expr> const & gs) {
@@ -115,12 +115,12 @@ static list<expr> consume_solved_prefix(metavar_context const & mctx, list<expr>
 
 tactic_state set_goals(tactic_state const & s, list<expr> const & gs) {
     return tactic_state(s.env(), s.get_options(), s.decl_name(), s.mctx(), consume_solved_prefix(s.mctx(), gs),
-                        s.main(), s.dcs(), s.us());
+                        s.main(), s.dcs(), s.us(), s.tinfo());
 }
 
 tactic_state set_mctx_goals_dcs(tactic_state const & s, metavar_context const & mctx, list<expr> const & gs, defeq_can_state const & dcs) {
     return tactic_state(s.env(), s.get_options(), s.decl_name(), mctx, consume_solved_prefix(mctx, gs), s.main(), dcs,
-                        s.us());
+                        s.us(), s.tinfo());
 }
 
 tactic_state set_mctx_goals(tactic_state const & s, metavar_context const & mctx, list<expr> const & gs) {
@@ -130,7 +130,7 @@ tactic_state set_mctx_goals(tactic_state const & s, metavar_context const & mctx
 tactic_state set_env_mctx_goals(tactic_state const & s, environment const & env,
                                 metavar_context const & mctx, list<expr> const & gs) {
     return tactic_state(env, s.get_options(), s.decl_name(), mctx, consume_solved_prefix(mctx, gs),
-                        s.main(), s.dcs(), s.us());
+                        s.main(), s.dcs(), s.us(), s.tinfo());
 }
 
 tactic_state set_mctx_lctx_dcs(tactic_state const & s, metavar_context const & mctx, local_context const & lctx, defeq_can_state const & dcs) {
@@ -141,7 +141,7 @@ tactic_state set_mctx_lctx_dcs(tactic_state const & s, metavar_context const & m
     }
     metavar_context new_mctx = mctx;
     expr mvar = new_mctx.mk_metavar_decl(lctx, mk_true());
-    return tactic_state(s.env(), s.get_options(), s.decl_name(), new_mctx, to_list(mvar), mvar, s.dcs(), s.us());
+    return tactic_state(s.env(), s.get_options(), s.decl_name(), new_mctx, to_list(mvar), mvar, s.dcs(), s.us(), s.tinfo());
 }
 
 tactic_state set_mctx_lctx(tactic_state const & s, metavar_context const & mctx, local_context const & lctx) {
@@ -150,17 +150,35 @@ tactic_state set_mctx_lctx(tactic_state const & s, metavar_context const & mctx,
 
 tactic_state set_defeq_can_state(tactic_state const & s, defeq_can_state const & dcs) {
     if (is_eqp(s.dcs(), dcs)) return s;
-    return tactic_state(s.env(), s.get_options(), s.decl_name(), s.mctx(), s.goals(), s.main(), dcs, s.us());
+    return tactic_state(s.env(), s.get_options(), s.decl_name(), s.mctx(), s.goals(), s.main(), dcs, s.us(), s.tinfo());
 }
 
 tactic_state set_user_state(tactic_state const & s, tactic_user_state const & us) {
-    return tactic_state(s.env(), s.get_options(), s.decl_name(), s.mctx(), s.goals(), s.main(), s.dcs(), us);
+    return tactic_state(s.env(), s.get_options(), s.decl_name(), s.mctx(), s.goals(), s.main(), s.dcs(), us, s.tinfo());
+}
+
+tactic_state set_tag_info(tactic_state const & s, tag_info const & tinfo) {
+    return tactic_state(s.env(), s.get_options(), s.decl_name(), s.mctx(), s.goals(), s.main(), s.dcs(), s.us(), tinfo);
 }
 
 format tactic_state::pp_expr(formatter_factory const & fmtf, expr const & e) const {
     type_context ctx = mk_type_context_for(*this, transparency_mode::All);
     formatter fmt = fmtf(env(), get_options(), ctx);
     return fmt(e);
+}
+
+static format pp_tag(list<name> const & tag) {
+    buffer<name> tmp;
+    to_buffer(tag, tmp);
+    unsigned i = tmp.size();
+    format r;
+    while (i > 0) {
+        --i;
+        r += format(tmp[i]);
+        if (i > 0)
+            r += comma() + space();
+    }
+    return format("case") + space() + r + line();
 }
 
 format tactic_state::pp_goal(formatter_factory const & fmtf, expr const & g, bool target_lhs_only) const {
@@ -173,7 +191,11 @@ format tactic_state::pp_goal(formatter_factory const & fmtf, expr const & g, boo
     formatter fmt              = fmtf(env(), opts, ctx);
     if (inst_mvars)
         lctx                   = lctx.instantiate_mvars(mctx_tmp);
-    format r                   = lctx.pp(fmt);
+    format r;
+    if (auto tag = get_tag_info().m_tags.find(g)) {
+        r                    += pp_tag(*tag);
+    }
+    r                         += lctx.pp(fmt);
     unsigned indent            = get_pp_indent(get_options());
     bool unicode               = get_pp_unicode(get_options());
     if (!lctx.empty())
@@ -889,6 +911,41 @@ vm_obj tactic_type_check(vm_obj const & e, vm_obj const & m, vm_obj const & s0) 
     }
 }
 
+vm_obj tactic_enable_tags(vm_obj const & b, vm_obj const & s0) {
+    tactic_state s = tactic::to_state(s0);
+    tag_info tinfo = s.tinfo();
+    tinfo.m_tags_enabled = to_bool(b);
+    return tactic::mk_success(set_tag_info(s, tinfo));
+}
+
+vm_obj tactic_tags_enabled(vm_obj const & s0) {
+    tactic_state s = tactic::to_state(s0);
+    return tactic::mk_success(mk_vm_bool(s.tinfo().m_tags_enabled), s);
+}
+
+vm_obj tactic_set_tag(vm_obj const & g, vm_obj const & t, vm_obj const & s0) {
+    tactic_state s = tactic::to_state(s0);
+    tag_info tinfo = s.tinfo();
+    if (!tinfo.m_tags_enabled)
+        return tactic::mk_success(s);
+    if (is_nil(t)) {
+        tinfo.m_tags.erase(to_expr(g));
+    } else {
+        tinfo.m_tags.insert(to_expr(g), to_list_name(t));
+    }
+    return tactic::mk_success(set_tag_info(s, tinfo));
+}
+
+vm_obj tactic_get_tag(vm_obj const & g, vm_obj const & s0) {
+    tactic_state s = tactic::to_state(s0);
+    tag_info const & tinfo = s.tinfo();
+    if (auto t = tinfo.m_tags.find(to_expr(g))) {
+        return tactic::mk_success(to_obj(*t), s);
+    } else {
+        return tactic::mk_success(mk_vm_nil(), s);
+    }
+}
+
 void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic_state", "mk_empty"}),       tactic_state_mk_empty);
     DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),            tactic_state_env);
@@ -938,6 +995,10 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "write_ref"}),            tactic_write_ref);
     DECLARE_VM_BUILTIN(name({"tactic", "sleep"}),                tactic_sleep);
     DECLARE_VM_BUILTIN(name({"tactic", "type_check"}),           tactic_type_check);
+    DECLARE_VM_BUILTIN(name({"tactic", "enable_tags"}),          tactic_enable_tags);
+    DECLARE_VM_BUILTIN(name({"tactic", "tags_enabled"}),         tactic_tags_enabled);
+    DECLARE_VM_BUILTIN(name({"tactic", "set_tag"}),              tactic_set_tag);
+    DECLARE_VM_BUILTIN(name({"tactic", "get_tag"}),              tactic_get_tag);
 }
 
 void finalize_tactic_state() {

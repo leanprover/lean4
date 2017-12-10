@@ -90,13 +90,13 @@ meta def mk_or_lst : list expr → expr := mk_op_lst `(or) `(false)
 meta def elim_gen_prod : nat → expr → list expr → tactic (list expr × expr)
 | 0       e hs := return (hs, e)
 | (n + 1) e hs := do
-  [([h, h'], _)] ← induction e [],
+  [(_, [h, h'], _)] ← induction e [],
   elim_gen_prod n h' (hs ++ [h])
 
 private meta def elim_gen_sum_aux : nat → expr → list expr → tactic (list expr × expr)
 | 0       e hs := return (hs, e)
 | (n + 1) e hs := do
-  [([h], _), ([h'], _)] ← induction e [],
+  [(_, [h], _), (_, [h'], _)] ← induction e [],
   swap,
   elim_gen_sum_aux n h' (h::hs)
 

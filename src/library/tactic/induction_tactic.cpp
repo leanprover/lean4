@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/util.h"
 #include "library/user_recursors.h"
+#include "library/aux_recursors.h"
 #include "library/locals.h"
 #include "library/app_builder.h"
 #include "library/vm/vm_expr.h"
@@ -123,10 +124,11 @@ static expr whnf_until(type_context & ctx, name const & n, expr const & e) {
 
 list<expr> induction(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
                      expr const & mvar, expr const & H, name const & rec_name, list<name> & ns,
-                     intros_list * ilist, hsubstitution_list * slist) {
+                     intros_list * ilist, hsubstitution_list * slist, buffer<name> & minor_names) {
     lean_assert(is_metavar(mvar));
     lean_assert(is_local(H));
     lean_assert((ilist == nullptr) == (slist == nullptr));
+
     optional<metavar_decl> g = mctx.find_metavar_decl(mvar);
     lean_assert(g);
     optional<name> H_name;
@@ -287,6 +289,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
         } else {
             if (!produce_motive)
                 throw_ill_formed_recursor_exception(rec_info);
+            name b_name    = binding_name(rec_type);
             expr new_type  = annotated_head_beta_reduce(binding_domain(rec_type));
             expr rec_arg;
             if (binding_info(rec_type).is_inst_implicit()) {
@@ -296,6 +299,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
                     /* Add new goal if type class inference failed */
                     expr new_goal = ctx2.mk_metavar_decl(lctx2, new_type);
                     new_goals.push_back(new_goal);
+                    minor_names.push_back(b_name);
                     rec_arg = new_goal;
                 }
             } else {
@@ -330,6 +334,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
                     subst_buffer.push_back(S);
                 }
                 new_goals.push_back(aux_M);
+                minor_names.push_back(b_name);
                 rec_arg = new_M;
             }
             produce_motive = tail(produce_motive);
@@ -351,6 +356,27 @@ list<expr> induction(environment const & env, options const & opts, transparency
     return to_list(new_goals);
 }
 
+list<expr> induction(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
+                     expr const & mvar, expr const & H, name const & rec_name, list<name> & ns,
+                     intros_list * ilist, hsubstitution_list * slist) {
+    buffer<name> tmp;
+    return induction(env, opts, m, mctx, mvar, H, rec_name, ns, ilist, slist, tmp);
+}
+
+static bool has_one_minor_per_constructor(environment const & env, name const & rec_name) {
+    if (rec_name.is_atomic() || !rec_name.is_string())
+        return false;
+    // kernel recursor and/or generalized inductive
+    if (strcmp(rec_name.get_string(), "rec") == 0 &&
+        is_ginductive(env, rec_name.get_prefix()))
+        return true;
+    // cases_on, dcases_on, rec_on, drec_on
+    if (is_aux_recursor(env, rec_name) &&
+        strcmp(rec_name.get_string(), "brec_on") != 0)
+        return true;
+    return false;
+}
+
 vm_obj induction_tactic_core(transparency_mode const & m, expr const & H, name const & rec_name, list<name> const & ns,
                              tactic_state const & s) {
     if (!s.goals()) return mk_no_goals_exception(s);
@@ -359,12 +385,20 @@ vm_obj induction_tactic_core(transparency_mode const & m, expr const & H, name c
         metavar_context mctx = s.mctx();
         list<name> tmp_ns = ns;
         list<list<expr>> hyps;
+        buffer<name> minor_names;
         hsubstitution_list substs;
         list<expr> new_goals = induction(s.env(), s.get_options(), m, mctx, head(s.goals()), H, rec_name, tmp_ns,
-                                         &hyps, &substs);
+                                         &hyps, &substs, minor_names);
+        if (has_one_minor_per_constructor(s.env(), rec_name)) {
+            /* constructor names to tag new goals */
+            minor_names.clear();
+            to_buffer(get_ginductive_intro_rules(s.env(), rec_name.get_prefix()), minor_names);
+            lean_assert(minor_names.size() == length(new_goals));
+        }
         tactic_state new_s   = set_mctx_goals(s, mctx, append(new_goals, tail(s.goals())));
 
         buffer<vm_obj> info;
+        unsigned i = 0;
         while (!is_nil(hyps)) {
             vm_obj hyps_obj = to_obj(head(hyps));
             buffer<vm_obj> substs_objs;
@@ -372,9 +406,10 @@ vm_obj induction_tactic_core(transparency_mode const & m, expr const & H, name c
                     substs_objs.push_back(mk_vm_pair(to_obj(from), to_obj(to)));
                 });
 
-            info.push_back(mk_vm_pair(hyps_obj, to_obj(substs_objs)));
+            info.push_back(mk_vm_pair(to_obj(minor_names[i]), mk_vm_pair(hyps_obj, to_obj(substs_objs))));
             hyps = tail(hyps);
             substs = tail(substs);
+            i++;
         }
         return tactic::mk_success(to_obj(info), new_s);
     } catch (exception & ex) {

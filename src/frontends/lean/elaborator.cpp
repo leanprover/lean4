@@ -2876,18 +2876,14 @@ class visit_structure_instance_fn {
     name_map<expr> m_field2mvar;
     name_map<name> m_mvar2field;
 
-    void insert_field_preterm(name const & S_fname, expr const & p) {
-        m_field2elab.insert(S_fname, [=](expr const & d) {
-            return m_elab.visit(p, some_expr(d));
-        });
-    }
-
     bool field_from_source(name const & S_fname) {
         for (source const & src : m_sources) {
             if (optional<name> base_S_name = find_field(m_env, src.m_S_name, S_fname)) {
                 expr base_src = *mk_base_projections(m_env, src.m_S_name, *base_S_name, src.m_e);
                 expr f = mk_proj_app(m_env, *base_S_name, S_fname, base_src);
-                insert_field_preterm(S_fname, f);
+                m_field2elab.insert(S_fname, [=](expr const & d) {
+                    return m_elab.visit(f, some_expr(d));
+                });
                 return true;
             }
         }
@@ -2983,7 +2979,10 @@ class visit_structure_instance_fn {
                 if (it != m_fnames.end()) {
                     /* explicitly passed field */
                     m_fnames_used.insert(S_fname);
-                    insert_field_preterm(S_fname, m_fvalues[it - m_fnames.begin()]);
+                    const expr & p = m_fvalues[it - m_fnames.begin()];
+                    m_field2elab.insert(S_fname, [=](expr const & d) {
+                        return m_elab.visit(p, some_expr(consume_auto_opt_param(d)));
+                    });
                 } else if (auto p = is_subobject_field(m_env, nested_S_name, S_fname)) {
                     /* subobject field */
                     auto num_used = m_fnames_used.size();

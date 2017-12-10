@@ -98,7 +98,7 @@ static list<unsigned> get_core(type_context & ctx,
     while (is_pi(type)) {
         if (i == max_args)
             break;
-        expr local_type = consume_opt_param(binding_domain(type));
+        expr local_type = consume_auto_opt_param(binding_domain(type));
         expr local      = locals.push_local(binding_name(type), local_type, binding_info(type));
         expr new_type   = ctx.relaxed_try_to_pi(instantiate(binding_body(type), local));
         bool is_prop    = ctx.is_prop(local_type);

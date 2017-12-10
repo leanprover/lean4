@@ -525,8 +525,8 @@ struct congr_lemma_manager {
                 expr rhs = locals.push_local(binding_name(fn_type_rhs).append_after("'"), binding_domain(fn_type_rhs));
                 rhss.push_back(rhs); hyps.push_back(rhs);
                 expr eq_type;
-                expr domain_lhs = consume_opt_param(binding_domain(fn_type_lhs));
-                expr domain_rhs = consume_opt_param(binding_domain(fn_type_rhs));
+                expr domain_lhs = consume_auto_opt_param(binding_domain(fn_type_lhs));
+                expr domain_rhs = consume_auto_opt_param(binding_domain(fn_type_rhs));
                 if (domain_lhs == domain_rhs) {
                     eq_type = mk_eq(m_ctx, lhs, rhs);
                     kinds.push_back(congr_arg_kind::Eq);

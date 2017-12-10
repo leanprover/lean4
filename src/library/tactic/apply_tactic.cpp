@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/trace.h"
 #include "library/vm/vm_list.h"
+#include "library/vm/vm_name.h"
 #include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/apply_tactic.h"
@@ -166,7 +167,7 @@ void collect_new_goals(type_context & ctx, new_goals_kind k, buffer<expr> const 
 }
 
 static optional<tactic_state> apply(type_context & ctx, expr e, apply_cfg const & cfg, tactic_state const & s,
-                                    vm_obj * out_error_obj, list<expr> * new_metas) {
+                                    vm_obj * out_error_obj, vm_obj * new_metas) {
     optional<metavar_decl> g = s.get_main_goal_decl();
     lean_assert(g);
     local_context lctx   = g->get_context();
@@ -184,12 +185,14 @@ static optional<tactic_state> apply(type_context & ctx, expr e, apply_cfg const 
     }
     /* Generate meta-variables for arguments */
     buffer<expr> metas;
+    buffer<name> meta_names;
     buffer<bool> is_instance;
     for (unsigned i = 0; i < num_e_t; i++) {
         e_type    = ctx.relaxed_whnf(e_type);
         expr meta = ctx.mk_metavar_decl(lctx, binding_domain(e_type));
         is_instance.push_back(binding_info(e_type).is_inst_implicit());
         metas.push_back(meta);
+        meta_names.push_back(binding_name(e_type));
         e          = mk_app(e, meta);
         e_type     = instantiate(binding_body(e_type), meta);
     }
@@ -218,7 +221,15 @@ static optional<tactic_state> apply(type_context & ctx, expr e, apply_cfg const 
     /* Assign, and create new tactic_state */
     e = mctx.instantiate_mvars(e);
     mctx.assign(head(s.goals()), e);
-    if (new_metas) *new_metas = to_list(metas);
+    if (new_metas) {
+        lean_assert(metas.size() == meta_names.size());
+        *new_metas = mk_vm_nil();
+        unsigned i = meta_names.size();
+        while (i > 0) {
+            --i;
+            *new_metas = mk_vm_cons(mk_vm_pair(to_obj(meta_names[i]), to_obj(metas[i])), *new_metas);
+        }
+    }
     return some_tactic_state(set_mctx_goals(s, mctx,
                                             to_list(new_goals.begin(), new_goals.end(), tail(s.goals()))));
 }
@@ -243,11 +254,11 @@ vm_obj tactic_apply_core(vm_obj const & e, vm_obj const & cfg0, vm_obj const & s
     type_context::approximate_scope _(ctx, cfg.m_approx);
     try {
         vm_obj error_obj;
-        list<expr> new_metas;
+        vm_obj new_metas;
         optional<tactic_state> new_s = apply(ctx, to_expr(e), cfg, s, &error_obj, &new_metas);
         if (!new_s)
             return error_obj;
-        return tactic::mk_success(to_obj(new_metas), *new_s);
+        return tactic::mk_success(new_metas, *new_s);
     } catch(exception & ex) {
         return tactic::mk_exception(ex, s);
     }

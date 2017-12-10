@@ -81,7 +81,7 @@ open tactic
 
 private meta def try_constructors : list name → lazy_tactic unit
 | []      := failure
-| (c::cs) := (mk_const c >>= apply : tactic unit) <|> try_constructors cs
+| (c::cs) := (mk_const c >>= apply >> skip : tactic unit) <|> try_constructors cs
 
 /- Backtracking version of constructor -/
 meta def constructor : lazy_tactic unit :=

@@ -9,4 +9,4 @@ by do a ← intro `a, cases a,
       b ← intro `b, cases b,
       right >> reflexivity,
       try (do left, h ← intro `H, cases h),
-      repeat $ intros >> mk_const `Sorry >>= apply
+      repeat $ intros >> mk_const `Sorry >>= apply >> skip

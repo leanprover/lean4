@@ -119,6 +119,10 @@ master branch (aka work in progress branch)
 
 - `ginduction t with h h1 h2` is now `induction h : t with h1 h2`.
 
+- `apply_core` now also returns the parameter name associated with new metavariables.
+
+- `apply` now also returns the new metavariables (and the parameter name associated with them). Even the assigned metavariables are returned.
+
 *API name changes*
 
 v3.3.0 (14 September 2017)

@@ -34,21 +34,21 @@ constructor {new_goals := new_goals.all}
 meta def left : tactic unit :=
 do tgt ← target',
    [c₁, c₂] ← get_constructors_for tgt | fail "left tactic failed, target is not an inductive datatype with two constructors",
-   mk_const c₁ >>= apply
+   mk_const c₁ >>= apply >> skip
 
 meta def right : tactic unit :=
 do tgt ← target',
    [c₁, c₂] ← get_constructors_for tgt | fail "left tactic failed, target is not an inductive datatype with two constructors",
-   mk_const c₂ >>= apply
+   mk_const c₂ >>= apply >> skip
 
 meta def constructor_idx (idx : nat) : tactic unit :=
 do cs     ← target' >>= get_constructors_for,
    some c ← return $ cs.nth (idx - 1) | fail "constructor_idx tactic failed, target is an inductive datatype, but it does not have sufficient constructors",
-   mk_const c >>= apply
+   mk_const c >>= apply >> skip
 
 meta def split : tactic unit :=
 do [c] ← target' >>= get_constructors_for | fail "split tactic failed, target is not an inductive datatype with only one constructor",
-   mk_const c >>= apply
+   mk_const c >>= apply >> skip
 
 open expr
 

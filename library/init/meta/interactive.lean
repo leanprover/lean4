@@ -157,7 +157,7 @@ The `apply` tactic tries to match the current goal against the conclusion of the
 The `apply` tactic uses higher-order pattern matching, type class resolution, and first-order unification with dependent types.
 -/
 meta def apply (q : parse texpr) : tactic unit :=
-i_to_expr_for_apply q >>= tactic.apply
+do h ← i_to_expr_for_apply q, tactic.apply h, skip
 
 /--
 Similar to the `apply` tactic, but does not reorder goals.
@@ -175,7 +175,7 @@ i_to_expr_for_apply q >>= tactic.eapply
 Similar to the `apply` tactic, but allows the user to provide a `apply_cfg` configuration object.
 -/
 meta def apply_with (q : parse parser.pexpr) (cfg : apply_cfg) : tactic unit :=
-do e ← i_to_expr_for_apply q, tactic.apply e cfg
+do e ← i_to_expr_for_apply q, tactic.apply e cfg, skip
 
 /--
 This tactic tries to close the main goal `... ⊢ t` by generating a term of type `t` using type class resolution.
@@ -596,12 +596,14 @@ For example, given `n : nat` and a goal with a hypothesis `h : P n` and target `
 meta def cases : parse cases_arg_p → parse with_ident_list → tactic unit
 | (none,   p) ids := do
   e ← i_to_expr p,
-  tactic.cases e ids
+  tactic.cases e ids,
+  return ()
 | (some h, p) ids := do
   x   ← mk_fresh_name,
   generalize h () (p, x),
   hx  ← get_local x,
-  tactic.cases hx ids
+  tactic.cases hx ids,
+  return ()
 
 private meta def find_matching_hyp (ps : list pattern) : tactic expr :=
 any_hyp $ λ h, do
@@ -623,8 +625,8 @@ cases_matching* [_ ∨ _, _ ∧ _]
 meta def cases_matching (rec : parse $ (tk "*")?) (ps : parse pexpr_list_or_texpr) : tactic unit :=
 do ps ← ps.mmap pexpr_to_pattern,
    if rec.is_none
-   then find_matching_hyp ps >>= tactic.cases
-   else tactic.focus1 $ tactic.repeat $ find_matching_hyp ps >>= tactic.cases
+   then find_matching_hyp ps >>= tactic.cases >> skip
+   else tactic.focus1 $ tactic.repeat $ find_matching_hyp ps >>= tactic.cases >> skip
 
 /-- Shorthand for `cases_matching` -/
 meta def casesm (rec : parse $ (tk "*")?) (ps : parse pexpr_list_or_texpr) : tactic unit :=

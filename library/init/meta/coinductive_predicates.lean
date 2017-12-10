@@ -402,7 +402,7 @@ meta def add_coinductive_predicate
       func_intros.mmap' (λ⟨n, pp_n, t⟩, solve1 $ do
         bs ← intros,
         ms ← apply_core ((const n u_params).app_of_list $ ps ++ fs.map prod.fst) {new_goals := new_goals.all},
-        params ← (ms.zip bs).enum.mfilter (λ⟨n, m, d⟩, bnot <$> is_assigned m),
+        params ← (ms.zip bs).enum.mfilter (λ⟨n, m, d⟩, bnot <$> is_assigned m.2),
         params.mmap' (λ⟨n, m, d⟩, mono d (fs.map prod.snd) <|>
           fail format! "failed to prove montonoicity of {n+1}. parameter of intro-rule {pp_n}")))),
 
@@ -568,16 +568,15 @@ do
   ctxts ← ctxts'.mmap (λv,
     local_const v.local_uniq_name v.local_pp_name v.local_binder_info <$> infer_type v),
   mvars ← apply_core rule {approx := ff, new_goals := new_goals.all},
-
   -- analyse relation
   g ← list.head <$> get_goals,
-  (list.cons _ m_is) ← return $ mvars.drop_while (λv, v ≠ g),
+  (list.cons _ m_is) ← return $ mvars.drop_while (λv, v.2 ≠ g),
   tgt ← target,
   (is, ty) ← mk_local_pis tgt,
 
   -- construct coinduction predicate
   (bs, eqs) ← compact_relation ctxts <$>
-    ((is.zip m_is).mmap (λ⟨i, m⟩, prod.mk i <$> instantiate_mvars m)),
+    ((is.zip m_is).mmap (λ⟨i, m⟩, prod.mk i <$> instantiate_mvars m.2)),
 
   solve1 (do
     eqs ← mk_and_lst <$> eqs.mmap (λ⟨i, m⟩, mk_app `eq [m, i] >>= instantiate_mvars),

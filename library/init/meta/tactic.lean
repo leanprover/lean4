@@ -387,8 +387,8 @@ structure apply_cfg :=
     `cfg.new_goals` specifies which unassigned metavariables become new goals, and their order.
     If `cfg.instances` is `tt`, then use type class resolution to instantiate unassigned meta-variables.
     The fields `cfg.auto_param` and `cfg.opt_param` are ignored by this tactic (See `tactic.apply`).
-    It returns a list of all introduced meta variables, even the assigned ones. -/
-meta constant apply_core (e : expr) (cfg : apply_cfg := {}) : tactic (list expr)
+    It returns a list of all introduced meta variables and the parameter name associated with them, even the assigned ones. -/
+meta constant apply_core (e : expr) (cfg : apply_cfg := {}) : tactic (list (name × expr))
 /- Create a fresh meta universe variable. -/
 meta constant mk_meta_univ  : tactic level
 /- Create a fresh meta-variable with the given type.
@@ -908,19 +908,37 @@ meta def try_apply_opt_auto_param (cfg : apply_cfg) (ms : list expr) : tactic un
 when (cfg.auto_param || cfg.opt_param) $
 mwhen (has_opt_auto_param ms) $ do
   gs ← get_goals,
-  ms.mmap' (λ m, set_goals [m] >>
-                 when cfg.opt_param (try apply_opt_param) >>
-                 when cfg.auto_param (try apply_auto_param)),
+  ms.mmap' (λ m, mwhen (bnot <$> is_assigned m) $
+                   set_goals [m] >>
+                   when cfg.opt_param (try apply_opt_param) >>
+                   when cfg.auto_param (try apply_auto_param)),
   set_goals gs
 
-meta def apply (e : expr) (cfg : apply_cfg := {}) : tactic unit :=
-apply_core e cfg >>= try_apply_opt_auto_param cfg
+meta def has_opt_auto_param_for_apply (ms : list (name × expr)) : tactic bool :=
+ms.mfoldl
+ (λ r m, do type ← infer_type m.2,
+            return $ r || type.is_napp_of `opt_param 2 || type.is_napp_of `auto_param 2)
+ ff
+
+meta def try_apply_opt_auto_param_for_apply (cfg : apply_cfg) (ms : list (name × expr)) : tactic unit :=
+mwhen (has_opt_auto_param_for_apply ms) $ do
+  gs ← get_goals,
+  ms.mmap' (λ m, mwhen (bnot <$> (is_assigned m.2)) $
+                   set_goals [m.2] >>
+                   when cfg.opt_param (try apply_opt_param) >>
+                   when cfg.auto_param (try apply_auto_param)),
+  set_goals gs
+
+meta def apply (e : expr) (cfg : apply_cfg := {}) : tactic (list (name × expr)) :=
+do r ← apply_core e cfg,
+   try_apply_opt_auto_param_for_apply cfg r,
+   return r
 
 meta def fapply (e : expr) : tactic unit :=
-apply e {new_goals := new_goals.all}
+apply e {new_goals := new_goals.all} >> skip
 
 meta def eapply (e : expr) : tactic unit :=
-apply e {new_goals := new_goals.non_dep_only}
+apply e {new_goals := new_goals.non_dep_only} >> skip
 
 /-- Try to solve the main goal using type class resolution. -/
 meta def apply_instance : tactic unit :=
@@ -947,10 +965,10 @@ do env  ← get_env,
 
 /-- Apply the constant `c` -/
 meta def applyc (c : name) : tactic unit :=
-mk_const c >>= apply
+do c ← mk_const c, apply c, skip
 
 meta def eapplyc (c : name) : tactic unit :=
-mk_const c >>= eapply
+do c ← mk_const c, eapply c, skip
 
 meta def save_const_type_info (n : name) {elab : bool} (ref : expr elab) : tactic unit :=
 try (do c ← mk_const n, save_type_info c ref)
@@ -1052,10 +1070,12 @@ revert_kdependencies e md
     Remark, it reverts dependencies using `revert_kdeps`.
 
     Two different transparency modes are used `md` and `dmd`.
-    The mode `md` is used with `cases_core` and `dmd` with `generalize` and `revert_kdeps`. -/
-meta def cases (e : expr) (ids : list name := []) (md := semireducible) (dmd := semireducible) : tactic unit :=
+    The mode `md` is used with `cases_core` and `dmd` with `generalize` and `revert_kdeps`.
+
+    It returns the constructor names associated with each new goal. -/
+meta def cases (e : expr) (ids : list name := []) (md := semireducible) (dmd := semireducible) : tactic (list name) :=
 if e.is_local_constant then
-  cases_core e ids md >> return ()
+  do r ← cases_core e ids md, return $ r.map (λ t, t.1)
 else do
   x ← mk_fresh_name,
   n ← revert_kdependencies e dmd,
@@ -1066,7 +1086,7 @@ else do
       get_local x >>= tactic.revert,
       return ()),
   h ← tactic.intro1,
-  (step (cases_core h ids md); intron n)
+  focus1 (do r ← cases_core h ids md, all_goals (intron n), return $ r.map (λ t, t.1))
 
 meta def refine (e : pexpr) : tactic unit :=
 do tgt : expr ← target,
@@ -1077,7 +1097,7 @@ do dec_e ← (mk_app `decidable [e] <|> fail "by_cases tactic failed, type is no
    inst  ← (mk_instance dec_e <|> fail "by_cases tactic failed, type of given expression is not decidable"),
    t     ← target,
    tm    ← mk_mapp `dite [some e, some inst, some t],
-   seq (apply tm) (intro h >> skip)
+   seq (apply tm >> skip) (intro h >> skip)
 
 meta def funext_core : list name → bool → tactic unit
 | []  tt       := return ()

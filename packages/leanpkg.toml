@@ -1,0 +1,8 @@
+[package]
+name = "test_registry"
+version = "0.1"
+lean_version = "master"
+
+[dependencies]
+super = { git = "https://github.com/leanprover/super", rev = "master" }
+mini_crush = { git = "https://github.com/leanprover/mini_crush", rev = "master" }

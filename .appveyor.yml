@@ -19,6 +19,9 @@ build_script:
 
 test_script:
   - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER/build && ctest -j4 --output-on-failure"
+  - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER/packages &&
+      ../bin/leanpkg configure &&
+      for d in _target/deps/*; do (cd $d; ../../../../bin/leanpkg test || exit 1); done"
 
 artifacts:
   - path: build\lean-*-windows.zip

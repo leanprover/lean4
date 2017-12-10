@@ -1,7 +1,0 @@
-{
-    "packages": [
-        "https://github.com/leanprover/smt2_interface",
-        "https://github.com/leanprover/super",
-        "https://github.com/leanprover/mini_crush"
-    ]
-}

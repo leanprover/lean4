@@ -237,8 +237,8 @@ static std::tuple<optional<expr>, expr, expr, optional<expr>> parse_do_action(pa
     return std::make_tuple(lhs, type, curr, else_case);
 }
 
-static expr mk_bind_fn() {
-    return mk_no_info(mk_constant(get_has_bind_bind_name()));
+static expr mk_bind_fn(parser & p) {
+    return mk_no_info(p.id_to_expr("bind", pos_info {}, /* resolve_only */ true));
 }
 
 static name * g_do_failure_eq = nullptr;
@@ -312,7 +312,7 @@ static expr parse_do(parser & p, bool has_braces) {
         --i;
         if (auto lhs = lhss[i]) {
             if (is_local(*lhs)) {
-                r = p.rec_save_pos(mk_app(p.save_pos(mk_bind_fn(), ps[i]), es[i], Fun(*lhs, r, p)), ps[i]);
+                r = p.rec_save_pos(mk_app(p.save_pos(mk_bind_fn(p), ps[i]), es[i], Fun(*lhs, r, p)), ps[i]);
             } else {
                 // must introduce a "fake" match
                 auto pos   = ps[i];
@@ -343,13 +343,13 @@ static expr parse_do(parser & p, bool has_braces) {
                 expr eqns  = p.save_pos(mk_equations(h, eqs.size(), eqs.data()), pos);
                 expr local = mk_local("_p", mk_expr_placeholder());
                 expr match = p.mk_app(eqns, local, pos);
-                r = p.rec_save_pos(mk_app(p.save_pos(mk_bind_fn(), ps[i]),
+                r = p.rec_save_pos(mk_app(p.save_pos(mk_bind_fn(p), ps[i]),
                                           es[i],
                                           p.save_pos(Fun(local, match, p), pos)),
                                    pos);
             }
         } else {
-            r = p.rec_save_pos(mk_app(p.save_pos(mk_bind_fn(), ps[i]),
+            r = p.rec_save_pos(mk_app(p.save_pos(mk_bind_fn(p), ps[i]),
                                       es[i],
                                       p.save_pos(mk_lambda("_x", mk_expr_placeholder(), r), p.pos_of(r))),
                                ps[i]);

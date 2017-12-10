@@ -265,10 +265,10 @@ def intersperse (sep : α) : list α → list α
 def intercalate (sep : list α) (xs : list (list α)) : list α :=
 join (intersperse sep xs)
 
-@[inline] def bind {α : Type u} {β : Type v} (a : list α) (b : α → list β) : list β :=
+@[inline] protected def bind {α : Type u} {β : Type v} (a : list α) (b : α → list β) : list β :=
 join (map b a)
 
-@[inline] def ret {α : Type u} (a : α) : list α :=
+@[inline] protected def ret {α : Type u} (a : α) : list α :=
 [a]
 
 protected def lt [has_lt α] : list α → list α → Prop

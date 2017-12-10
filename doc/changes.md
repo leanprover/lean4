@@ -135,6 +135,9 @@ master branch (aka work in progress branch)
 
 * The `--profile` flag will now print cumulative profiling times at the end of execution
 
+* do notation now uses the top-level, overloadable `bind` function instead of `has_bind.bind`, 
+  allowing binds with different type signatures
+
 *Changes*
 
 * Command `variable [io.interface]` is not needed anymore to use the `io` monad.

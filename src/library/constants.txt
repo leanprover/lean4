@@ -77,7 +77,6 @@ has_add
 has_add.add
 has_andthen.andthen
 has_bind.and_then
-has_bind.bind
 has_bind.seq
 has_div
 has_div.div

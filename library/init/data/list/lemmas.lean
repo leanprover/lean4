@@ -72,13 +72,13 @@ by induction l; simp [*]
 
 /- bind -/
 
-@[simp] lemma nil_bind (f : α → list β) : bind [] f = [] :=
-by simp [join, bind]
+@[simp] lemma nil_bind (f : α → list β) : list.bind [] f = [] :=
+by simp [join, list.bind]
 
-@[simp] lemma cons_bind (x xs) (f : α → list β) : bind (x :: xs) f = f x ++ bind xs f :=
-by simp [join, bind]
+@[simp] lemma cons_bind (x xs) (f : α → list β) : list.bind (x :: xs) f = f x ++ list.bind xs f :=
+by simp [join, list.bind]
 
-@[simp] lemma append_bind (xs ys) (f : α → list β) : bind (xs ++ ys) f = bind xs f ++ bind ys f :=
+@[simp] lemma append_bind (xs ys) (f : α → list β) : list.bind (xs ++ ys) f = list.bind xs f ++ list.bind ys f :=
 by induction xs; [refl, simp [*, cons_bind]]
 
 /- mem -/

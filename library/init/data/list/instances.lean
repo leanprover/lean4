@@ -10,7 +10,7 @@ open list
 
 universes u v
 
-local attribute [simp] join ret
+local attribute [simp] join list.ret
 
 instance : monad list :=
 {pure := @list.ret, bind := @list.bind,

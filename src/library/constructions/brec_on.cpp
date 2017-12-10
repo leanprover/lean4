@@ -257,7 +257,7 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
         expr F_below  = mk_app(belows[j], F_args);
         F_args.push_back(mk_local(mk_fresh_name(), "f", F_below, binder_info()));
         expr F_type   = Pi(F_args, F_result);
-        expr F        = mk_local(mk_fresh_name(), F_name.append_after(j+1), F_type, binder_info());
+        expr F        = mk_local(mk_fresh_name(), F_name, F_type, binder_info());
         Fs.push_back(F);
         args.push_back(F);
     }

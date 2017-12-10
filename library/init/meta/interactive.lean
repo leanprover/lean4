@@ -435,7 +435,7 @@ For example, given `n : nat` and a goal with a hypothesis `h : P n` and target `
 -/
 meta def induction (hp : parse cases_arg_p) (rec_name : parse using_ident) (ids : parse with_ident_list)
   (revert : parse $ (tk "generalizing" *> ident*)?) : tactic unit :=
-do
+focus1 $ do {
     -- process `h : t` case
     e ← match hp with
        | (some h, p) := do
@@ -484,7 +484,7 @@ do
    all_goals $ do {
      intron n,
      clear_lst (newvars.map local_pp_name),
-     (e::locals).mmap' (try ∘ clear) }
+     (e::locals).mmap' (try ∘ clear) } }
 
 private meta def find_case (goals : list expr) (ty : name) (idx : nat) (num_indices : nat) : option expr → expr → option (expr × expr)
 | case e := if e.has_meta_var then match e with

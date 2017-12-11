@@ -101,10 +101,14 @@ do tag ← get_main_tag,
 
 meta def concat_tags (tac : tactic (list (name × expr))) : tactic unit :=
 mcond tags_enabled
-  (do tag ← get_main_tag,
+  (do in_tag ← get_main_tag,
       r ← tac,
-      r.mmap' (λ ⟨n, m⟩, mwhen (bnot <$> is_assigned m) (set_tag m (n::tag))),
-      skip)
+      /- remove assigned metavars -/
+      r ← r.mfilter $ λ ⟨n, m⟩, bnot <$> is_assigned m,
+      match r with
+      | [(_, m)] := set_tag m in_tag /- if there is only new subgoal, we just propagate `in_tag` -/
+      | _        := r.mmap' (λ ⟨n, m⟩, set_tag m (n::in_tag))
+      end)
   (tac >> skip)
 
 /--

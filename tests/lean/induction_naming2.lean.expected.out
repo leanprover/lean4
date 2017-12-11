@@ -1,6 +1,8 @@
 2 goals
+case tree.leaf
 ⊢ foo tree.leaf = tree.leaf
 
+case tree.node
 a_left : tree,
 a_val : ℕ,
 a_right : tree,

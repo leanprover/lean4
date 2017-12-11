@@ -1,19 +1,23 @@
+case is_rename.const_eq
 t₁ : term,
 c₁ c₂ : string,
 h₁ h₂ : is_rename (term.const c₁) c₁ c₂ (term.const c₂)
 ⊢ term.const c₂ = term.const c₂
+case is_rename.const_ne
 t₁ : term,
 c₁ c₂ : string,
 h₁ : is_rename (term.const c₁) c₁ c₂ (term.const c₂),
 h₂_hne : c₁ ≠ c₁,
 h₂ : is_rename (term.const c₁) c₁ c₂ (term.const c₁)
 ⊢ term.const c₂ = term.const c₁
+case is_rename.const_eq
 t₁ : term,
 c₁ c₂ : string,
 h₁_hne : c₁ ≠ c₁,
 h₁ : is_rename (term.const c₁) c₁ c₂ (term.const c₁),
 h₂ : is_rename (term.const c₁) c₁ c₂ (term.const c₂)
 ⊢ term.const c₁ = term.const c₂
+case is_rename.const_ne
 t₁ : term,
 c₁ c₁' c₂ : string,
 h₁_hne : c₁ ≠ c₁',
@@ -21,6 +25,7 @@ h₁ : is_rename (term.const c₁) c₁' c₂ (term.const c₁),
 h₂_hne : c₁ ≠ c₁',
 h₂ : is_rename (term.const c₁) c₁' c₂ (term.const c₁)
 ⊢ term.const c₁ = term.const c₁
+case is_rename.app
 t₁ : term,
 fn : string,
 ts : list term,

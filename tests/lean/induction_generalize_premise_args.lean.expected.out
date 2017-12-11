@@ -1,5 +1,6 @@
 induction_generalize_premise_args.lean:12:2: error: tactic failed, there are unsolved goals
 state:
+case semantics.smallstep.seq1
 h₁_c₁ h₁_c₂ : com,
 h₁_σ : state,
 h₁_c₁' : com,

@@ -1,3 +1,4 @@
+case tree.is_searchable.node_s
 α : Type u,
 l r : tree α,
 lo v hi : α,

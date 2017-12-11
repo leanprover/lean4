@@ -1,11 +1,9 @@
-case and.intro
 p q r s : Prop,
 h1_left : p,
 h1_right : q,
 h2_left : r,
 h2_right : s
 ⊢ s ∧ q
-case and.intro
 p q r s : Prop,
 a_left : p,
 a_right : q,
@@ -13,14 +11,12 @@ a_1_left : r,
 a_1_right : s
 ⊢ s ∧ q
 ------------
-case and.intro
 p q r s : Prop,
 h1_left : p,
 h1_right : q,
 h2_left : r,
 h2_right : s
 ⊢ s ∧ q
-case and.intro
 p q r s : Prop,
 a_left : p,
 a_right : q,

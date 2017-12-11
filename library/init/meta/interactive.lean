@@ -89,6 +89,25 @@ itactic: parse a nested "interactive" tactic. That is, parse
 meta def itactic : Type :=
 tactic unit
 
+meta def propagate_tags (tac : tactic unit) : tactic unit :=
+focus1 $
+mcond tags_enabled
+  (do tag ← get_main_tag,
+      tac,
+      gs ← get_goals,
+      when (bnot gs.empty) $ do
+        new_tag ← get_main_tag,
+        when new_tag.empty $ set_main_tag tag)
+  tac
+
+meta def concat_tags (tac : tactic (list (name × expr))) : tactic unit :=
+mcond tags_enabled
+  (do tag ← get_main_tag,
+      r ← tac,
+      r.mmap' (λ ⟨n, m⟩, mwhen (bnot <$> is_assigned m) (set_tag m (n::tag))),
+      skip)
+  (tac >> skip)
+
 /--
 If the current goal is a Pi/forall `∀ x : t, u` (resp. `let x := t in u`) then `intro` puts `x : t` (resp. `x := t`) in the local context. The new subgoal target is `u`.
 
@@ -97,8 +116,8 @@ If the goal is an arrow `t → u`, then it puts `h : t` in the local context and
 If the goal is neither a Pi/forall nor begins with a let binder, the tactic `intro` applies the tactic `whnf` until an introduction can be applied or the goal is not head reducible. In the latter case, the tactic fails.
 -/
 meta def intro : parse ident_? → tactic unit
-| none     := intro1 >> skip
-| (some h) := tactic.intro h >> skip
+| none     := propagate_tags (intro1 >> skip)
+| (some h) := propagate_tags (tactic.intro h >> skip)
 
 /--
 Similar to `intro` tactic. The tactic `intros` will keep introducing new hypotheses until the goal target is not a Pi/forall or let binder.
@@ -106,8 +125,8 @@ Similar to `intro` tactic. The tactic `intros` will keep introducing new hypothe
 The variant `intros h₁ ... hₙ` introduces `n` new hypotheses using the given identifiers to name them.
 -/
 meta def intros : parse ident_* → tactic unit
-| [] := tactic.intros >> skip
-| hs := intro_lst hs >> skip
+| [] := propagate_tags (tactic.intros >> skip)
+| hs := propagate_tags (intro_lst hs >> skip)
 
 /--
 The tactic `introv` allows the user to automatically introduce the variables of a theorem and explicitly name the hypotheses involved. The given names are used to name non-dependent hypotheses.
@@ -143,13 +162,13 @@ h₂ : b = c
 ```
 -/
 meta def introv (ns : parse ident_*) : tactic unit :=
-tactic.introv ns >> return ()
+propagate_tags (tactic.introv ns >> return ())
 
 /--
 The tactic `rename h₁ h₂` renames hypothesis `h₁` to `h₂` in the current local context.
 -/
-meta def rename : parse ident → parse ident → tactic unit :=
-tactic.rename
+meta def rename (h₁ h₂ : parse ident) : tactic unit :=
+propagate_tags (tactic.rename h₁ h₂)
 
 /--
 The `apply` tactic tries to match the current goal against the conclusion of the type of term. The argument term should be a term well-formed in the local context of the main goal. If it succeeds, then the tactic returns as many subgoals as the number of premises that have not been fixed by type inference or type class resolution. Non-dependent premises are added before dependent ones.
@@ -157,25 +176,25 @@ The `apply` tactic tries to match the current goal against the conclusion of the
 The `apply` tactic uses higher-order pattern matching, type class resolution, and first-order unification with dependent types.
 -/
 meta def apply (q : parse texpr) : tactic unit :=
-do h ← i_to_expr_for_apply q, tactic.apply h, skip
+concat_tags (do h ← i_to_expr_for_apply q, tactic.apply h)
 
 /--
 Similar to the `apply` tactic, but does not reorder goals.
 -/
 meta def fapply (q : parse texpr) : tactic unit :=
-i_to_expr_for_apply q >>= tactic.fapply
+concat_tags (i_to_expr_for_apply q >>= tactic.fapply)
 
 /--
 Similar to the `apply` tactic, but only creates subgoals for non-dependent premises that have not been fixed by type inference or type class resolution.
 -/
 meta def eapply (q : parse texpr) : tactic unit :=
-i_to_expr_for_apply q >>= tactic.eapply
+concat_tags (i_to_expr_for_apply q >>= tactic.eapply)
 
 /--
 Similar to the `apply` tactic, but allows the user to provide a `apply_cfg` configuration object.
 -/
 meta def apply_with (q : parse parser.pexpr) (cfg : apply_cfg) : tactic unit :=
-do e ← i_to_expr_for_apply q, tactic.apply e cfg, skip
+concat_tags (do e ← i_to_expr_for_apply q, tactic.apply e cfg)
 
 /--
 This tactic tries to close the main goal `... ⊢ t` by generating a term of type `t` using type class resolution.
@@ -252,7 +271,7 @@ meta def «from» := exact
 `revert h₁ ... hₙ` applies to any goal with hypotheses `h₁` ... `hₙ`. It moves the hypotheses and their dependencies to the target of the goal. This tactic is the inverse of `intro`.
 -/
 meta def revert (ids : parse ident*) : tactic unit :=
-do hs ← mmap tactic.get_local ids, revert_lst hs, skip
+propagate_tags (do hs ← mmap tactic.get_local ids, revert_lst hs, skip)
 
 private meta def resolve_name' (n : name) : tactic expr :=
 do {
@@ -347,13 +366,13 @@ end >> try (reflexivity reducible)
 `rewrite e at l` rewrites `e` at location(s) `l`, where `l` is either `*` or a list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `|-` can also be used, to signify the target of the goal.
 -/
 meta def rewrite (q : parse rw_rules) (l : parse location) (cfg : rewrite_cfg := {}) : tactic unit :=
-rw_core q l cfg
+propagate_tags (rw_core q l cfg)
 
 /--
 An abbreviation for `rewrite`.
 -/
 meta def rw (q : parse rw_rules) (l : parse location) (cfg : rewrite_cfg := {}) : tactic unit :=
-rw_core q l cfg
+propagate_tags (rw_core q l cfg)
 
 /--
 `rewrite` followed by `assumption`.
@@ -365,13 +384,52 @@ rewrite q l cfg >> try assumption
 A variant of `rewrite` that uses the unifier more aggressively, unfolding semireducible definitions.
 -/
 meta def erewrite (q : parse rw_rules) (l : parse location) (cfg : rewrite_cfg := {md := semireducible}) : tactic unit :=
-rw_core q l cfg
+propagate_tags (rw_core q l cfg)
 
 /--
 An abbreviation for `erewrite`.
 -/
 meta def erw (q : parse rw_rules) (l : parse location) (cfg : rewrite_cfg := {md := semireducible}) : tactic unit :=
-rw_core q l cfg
+propagate_tags (rw_core q l cfg)
+
+precedence `generalizing` : 0
+
+private meta def collect_hyps_uids : tactic name_set :=
+do ctx ← local_context,
+   return $ ctx.foldl (λ r h, r.insert h.local_uniq_name) mk_name_set
+
+private meta def revert_new_hyps (num_reverted : nat) (input_hyp_uids : name_set) : tactic unit :=
+do ctx ← local_context,
+   let to_revert := ctx.foldr (λ h r, if input_hyp_uids.contains h.local_uniq_name then r else h::r) [],
+   tag ← get_main_tag,
+   m   ← revert_lst to_revert,
+   set_main_tag (mk_num_name `_case (m + num_reverted) :: tag)
+
+/--
+Apply `t` to main goal, and revert any new hypothesis in the generated goals,
+and tag generated goals when using supported tactics such as: `induction`, `apply`, ...
+
+This tactic is useful for writing robust proof scripts that are not sensitive
+to the name generation strategy used by `t`.
+
+```
+example (n : ℕ) : n = n :=
+begin
+  with_cases { induction n },
+  case nat.zero { reflexivity },
+  case nat.succ n' ih { reflexivity }
+end
+```
+
+TODO(Leo): improve docstring
+-/
+meta def with_cases (revert : parse $ (tk "generalizing" *> ident*)?) (t : itactic) : tactic unit :=
+do -- revert `generalizing` params
+   n ← mmap tactic.get_local (revert.get_or_else []) >>= revert_lst,
+   with_enable_tags $ focus1 $ do
+     input_hyp_uids ← collect_hyps_uids,
+     t,
+     all_goals (revert_new_hyps n input_hyp_uids)
 
 private meta def get_type_name (e : expr) : tactic name :=
 do e_type ← infer_type e >>= whnf,
@@ -392,6 +450,7 @@ with_desc "expr = id" $ parser.pexpr 0 >>= generalize_arg_p_aux
 `generalize h : e = x` in addition registers the hypothesis `h : e = x`.
 -/
 meta def generalize (h : parse ident?) (_ : parse $ tk ":") (p : parse generalize_arg_p) : tactic unit :=
+propagate_tags $
 do let (p, x) := p,
    e ← i_to_expr p,
    some h ← pure h | tactic.generalize e x >> intro1 >> skip,
@@ -416,7 +475,27 @@ with_desc "(id :)? expr" $ do
   | _ := pure (none, t)
   end
 
-precedence `generalizing` : 0
+/--
+  Given the initial tag `in_tag` and the cases names produced by `induction` or `cases` tactic,
+  update the tag of the new subgoals.
+-/
+private meta def set_cases_tags (in_tag : tag) (rs : list name) : tactic unit :=
+do te ← tags_enabled,
+   gs ← get_goals,
+   let tgs : list (name × expr) := rs.map₂ (λ n g, (n, g)) gs,
+   if te
+   then tgs.mmap' (λ ⟨n, g⟩, set_tag g (n::in_tag))
+     /- If `induction/cases` is not in a `with_cases` block, we still set tags using `_case_simple` to make
+        sure we can use the `case` notation.
+        ```
+        induction h,
+        case c { ... }
+        ```
+     -/
+    else tgs.mmap' (λ ⟨n, g⟩, with_enable_tags (set_tag g (`_case_simple::n::[])))
+
+private meta def set_induction_tags (in_tag : tag) (rs : list (name × list expr × list (name × expr))) : tactic unit :=
+set_cases_tags in_tag (rs.map (λ e, e.1))
 
 /--
 Assuming `x` is a variable in the local context with an inductive type, `induction x` applies induction on `x` to the main goal, producing one goal for each constructor of the inductive type, in which the target is replaced by a general instance of that constructor and an inductive hypothesis is added for each recursive argument to the constructor. If the type of an element in the local context depends on `x`, that element is reverted and reintroduced afterward, so that the inductive hypothesis incorporates that hypothesis as well.
@@ -435,6 +514,7 @@ For example, given `n : nat` and a goal with a hypothesis `h : P n` and target `
 -/
 meta def induction (hp : parse cases_arg_p) (rec_name : parse using_ident) (ids : parse with_ident_list)
   (revert : parse $ (tk "generalizing" *> ident*)?) : tactic unit :=
+do in_tag ← get_main_tag,
 focus1 $ do {
     -- process `h : t` case
     e ← match hp with
@@ -480,11 +560,13 @@ focus1 $ do {
    -- revert `generalizing` params
    n ← mmap tactic.get_local (revert.get_or_else []) >>= revert_lst,
 
-   tactic.induction e ids rec_name,
+   rs ← tactic.induction e ids rec_name,
    all_goals $ do {
      intron n,
      clear_lst (newvars.map local_pp_name),
-     (e::locals).mmap' (try ∘ clear) } }
+     (e::locals).mmap' (try ∘ clear) },
+
+   set_induction_tags in_tag rs }
 
 private meta def find_case (goals : list expr) (ty : name) (idx : nat) (num_indices : nat) : option expr → expr → option (expr × expr)
 | case e := if e.has_meta_var then match e with
@@ -557,30 +639,18 @@ do r   ← result,
    solve1 tac
 
 /--
-Apply `t` to main goal, and revert any new hypothesis in the generated goals.
-
-This tactic is useful for writing robust proof scripts that are not sensitive
-to the name generation strategy used by `t`.
-
-```
-example (n : ℕ) : n = n :=
-begin
-  guard_names { induction n },
-  { reflexivity },
-  { intros n' ih, reflexivity }
-end
-```
--/
-meta def guard_names : itactic → tactic unit :=
-tactic.guard_names
-
-/--
 Assuming `x` is a variable in the local context with an inductive type, `destruct x` splits the main goal, producing one goal for each constructor of the inductive type, in which `x` is assumed to be a general instance of that constructor. In contrast to `cases`, the local context is unchanged, i.e. no elements are reverted or introduced.
 
 For example, given `n : nat` and a goal with a hypothesis `h : P n` and target `Q n`, `destruct n` produces one goal with target `n = 0 → Q n`, and one goal with target `∀ (a : ℕ), (λ (w : ℕ), n = w → Q n) (nat.succ a)`. Here the name `a` is chosen automatically.
 -/
 meta def destruct (p : parse texpr) : tactic unit :=
 i_to_expr p >>= tactic.destruct
+
+meta def cases_core (e : expr) (ids : list name := []) : tactic unit :=
+do in_tag ← get_main_tag,
+focus1 $ do
+ rs ← tactic.cases e ids,
+ set_cases_tags in_tag rs
 
 /--
 Assuming `x` is a variable in the local context with an inductive type, `cases x` splits the main goal, producing one goal for each constructor of the inductive type, in which the target is replaced by a general instance of that constructor. If the type of an element in the local context depends on `x`, that element is reverted and reintroduced afterward, so that the case split affects that hypothesis as well.
@@ -596,14 +666,12 @@ For example, given `n : nat` and a goal with a hypothesis `h : P n` and target `
 meta def cases : parse cases_arg_p → parse with_ident_list → tactic unit
 | (none,   p) ids := do
   e ← i_to_expr p,
-  tactic.cases e ids,
-  return ()
+  cases_core e ids
 | (some h, p) ids := do
   x   ← mk_fresh_name,
   generalize h () (p, x),
   hx  ← get_local x,
-  tactic.cases hx ids,
-  return ()
+  cases_core hx ids
 
 private meta def find_matching_hyp (ps : list pattern) : tactic expr :=
 any_hyp $ λ h, do
@@ -625,8 +693,8 @@ cases_matching* [_ ∨ _, _ ∧ _]
 meta def cases_matching (rec : parse $ (tk "*")?) (ps : parse pexpr_list_or_texpr) : tactic unit :=
 do ps ← ps.mmap pexpr_to_pattern,
    if rec.is_none
-   then find_matching_hyp ps >>= tactic.cases >> skip
-   else tactic.focus1 $ tactic.repeat $ find_matching_hyp ps >>= tactic.cases >> skip
+   then find_matching_hyp ps >>= cases_core
+   else tactic.focus1 $ tactic.repeat $ find_matching_hyp ps >>= cases_core
 
 /-- Shorthand for `cases_matching` -/
 meta def casesm (rec : parse $ (tk "*")?) (ps : parse pexpr_list_or_texpr) : tactic unit :=
@@ -637,7 +705,7 @@ any_hyp $ λ h, do
   I ← expr.get_app_fn <$> (infer_type h >>= head_beta),
   guard I.is_constant,
   guard (I.const_name ∈ type_names),
-  tactic.focus1 (tactic.cases h >> if at_most_one then do n ← num_goals, guard (n <= 1) else skip)
+  tactic.focus1 (cases_core h >> if at_most_one then do n ← num_goals, guard (n <= 1) else skip)
 
 /--
 `cases_type I` applies the `cases` tactic to a hypothesis `h : (I ...)`
@@ -1056,7 +1124,7 @@ The `simp` tactic uses lemmas and hypotheses to simplify the main goal target or
 -/
 meta def simp (no_dflt : parse only_flag) (hs : parse simp_arg_list) (attr_names : parse with_ident_list)
               (locat : parse location) (cfg : simp_config_ext := {}) : tactic unit :=
-simp_core cfg.to_simp_config cfg.discharger no_dflt hs attr_names locat
+propagate_tags (simp_core cfg.to_simp_config cfg.discharger no_dflt hs attr_names locat)
 
 /--
 Just construct the simp set and trace it. Used for debugging.

@@ -169,11 +169,13 @@ private meta def mono_aux (ns : list name) (hs : list expr) : tactic unit := do
       (do is_def_eq pd qd,
         let p' := expr.lam pn pbi pd pb,
         let q' := expr.lam qn qbi qd qb,
-        eapply $ (const `monotonicity.pi [u] : expr) pd p' q') <|>
+        eapply ((const `monotonicity.pi [u] : expr) pd p' q'),
+        skip) <|>
       (do guard $ u = level.zero ∧ is_arrow p ∧ is_arrow q,
         let p' := pb.lower_vars 0 1,
         let q' := qb.lower_vars 0 1,
-        eapply $ (const `monotonicity.imp []: expr) pd p' qd q'))) <|>
+        eapply ((const `monotonicity.imp []: expr) pd p' qd q'),
+        skip))) <|>
   first (hs.map $ λh, apply_core h {md := transparency.none, new_goals := new_goals.non_dep_only} >> skip) <|>
   first (ns.map $ λn, do c ← mk_const n, apply_core c {md := transparency.none, new_goals := new_goals.non_dep_only}, skip),
   all_goals mono_aux
@@ -459,7 +461,7 @@ meta def add_coinductive_predicate
       eapply $ pd.corec_functional.app_of_list $ ps ++ pds.map func_pred_g,
       pds.mmap' (λpd:coind_pred, solve1 $ do
         eapply $ pd.mono.app_of_list ps,
-        pds.mmap' (λpd, solve1 $ eapply $ pd.destruct.app_of_list ps)))),
+        pds.mmap' (λpd, solve1 $ eapply (pd.destruct.app_of_list ps) >> skip)))),
 
   /- prove `cases_on` rules -/
   pds.mmap' (λpd, do

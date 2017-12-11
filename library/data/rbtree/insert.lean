@@ -413,7 +413,7 @@ lemma find_balance1_lt {l r t v x y lo hi}
                            (ht : is_searchable lt t (some y) hi),
                            find lt (balance1 l v r y t) x = find lt (red_node l v r) x :=
 begin
-  guard_names { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
+  with_cases { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
   { intros l_left l_val l_right z r; intros,
     apply weak_trichotomous lt z x; intros; simp [*] },
   { intros l_left l_val l_right z r; intros,
@@ -443,7 +443,7 @@ lemma find_balance1_gt {l r t v x y lo hi}
                            (ht : is_searchable lt t (some y) hi),
                            find lt (balance1 l v r y t) x = find lt t x :=
 begin
-  guard_names { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
+  with_cases { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
   { intros l_left l_val l_right z r, intros,
     have := trans_of lt (lo_lt_hi hr) h, simp [*] },
   { intros l_left l_val l_right z r hr, intros,
@@ -467,7 +467,7 @@ lemma find_balance1_eqv {l r t v x y lo hi}
                           (ht : is_searchable lt t (some y) hi),
                           find lt (balance1 l v r y t) x = some y :=
 begin
-  guard_names { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
+  with_cases { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
   { intros l_left l_val l_right z r, intros,
     have : lt z x := lt_of_lt_of_incomp (lo_lt_hi hr) h.swap,
     simp [*] },
@@ -495,7 +495,7 @@ lemma find_balance2_lt {l v r t x y lo hi}
                            (ht : is_searchable lt t lo (some y)),
                            find lt (balance2 l v r y t) x = find lt t x :=
 begin
-  guard_names { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
+  with_cases { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
   { intros l₁ val l₂ z r, intros,
     have := trans h (lo_lt_hi hl_hs₁), simp [*] },
   { intros l₁ val l₂ z r hr, intros,
@@ -520,7 +520,7 @@ lemma find_balance2_gt {l v r t x y lo hi}
                          (ht : is_searchable lt t lo (some y)),
                          find lt (balance2 l v r y t) x = find lt (red_node l v r) x :=
 begin
-  guard_names { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
+  with_cases { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
   { intros l₁ val l₂ z r, intros,
     apply weak_trichotomous lt val x; intro h'; simp [*],
     { apply weak_trichotomous lt z x; intros; simp [*] },
@@ -549,7 +549,7 @@ lemma find_balance2_eqv {l v r t x y lo hi}
                           (ht : is_searchable lt t lo (some y)),
                           find lt (balance2 l v r y t) x = some y :=
 begin
-  guard_names { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
+  with_cases { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
   { intros l₁ val l₂ z r, intros,
     have := lt_of_incomp_of_lt h (lo_lt_hi hl_hs₁), simp [*] },
   { intros l₁ val l₂ z r hr, intros,

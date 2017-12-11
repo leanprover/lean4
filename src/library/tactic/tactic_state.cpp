@@ -169,7 +169,10 @@ format tactic_state::pp_expr(formatter_factory const & fmtf, expr const & e) con
 
 static format pp_tag(list<name> const & tag) {
     buffer<name> tmp;
-    to_buffer(tag, tmp);
+    for (auto n : tag) {
+        if (!is_internal_name(n))
+            tmp.push_back(n);
+    }
     unsigned i = tmp.size();
     format r;
     while (i > 0) {

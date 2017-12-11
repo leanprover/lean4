@@ -934,11 +934,11 @@ do r ← apply_core e cfg,
    try_apply_opt_auto_param_for_apply cfg r,
    return r
 
-meta def fapply (e : expr) : tactic unit :=
-apply e {new_goals := new_goals.all} >> skip
+meta def fapply (e : expr) : tactic (list (name × expr)) :=
+apply e {new_goals := new_goals.all}
 
-meta def eapply (e : expr) : tactic unit :=
-apply e {new_goals := new_goals.non_dep_only} >> skip
+meta def eapply (e : expr) : tactic (list (name × expr)) :=
+apply e {new_goals := new_goals.non_dep_only}
 
 /-- Try to solve the main goal using type class resolution. -/
 meta def apply_instance : tactic unit :=
@@ -1031,7 +1031,7 @@ meta def by_contradiction (H : option name := none) : tactic expr :=
 do tgt : expr ← target,
    (match_not tgt >> return ())
    <|>
-   (mk_mapp `decidable.by_contradiction [some tgt, none] >>= eapply)
+   (mk_mapp `decidable.by_contradiction [some tgt, none] >>= eapply >> skip)
    <|>
    fail "tactic by_contradiction failed, target is not a negation nor a decidable proposition (remark: when 'local attribute classical.prop_decidable [instance]' is used all propositions are decidable)",
    match H with
@@ -1205,24 +1205,22 @@ do h_type ← infer_type h,
    try $ clear h,
    return new_h
 
-private meta def collect_hyps_uids : tactic name_set :=
-do ctx ← local_context,
-   return $ ctx.foldl (λ r h, r.insert h.local_uniq_name) mk_name_set
+meta def main_goal : tactic expr :=
+do g::gs ← get_goals, return g
 
-private meta def revert_new_hyps (input_hyp_uids : name_set) : tactic unit :=
-do ctx ← local_context,
-   let to_revert := ctx.foldl (λ r h, if input_hyp_uids.contains h.local_uniq_name then r else h::r) [],
-   revert_lst to_revert,
-   skip
+/- Goal tagging support -/
+meta def with_enable_tags {α : Type} (t : tactic α) (b := tt) : tactic α :=
+do old ← tags_enabled,
+   enable_tags b,
+   r ← t,
+   enable_tags old,
+   return r
 
-/--
-Apply `t` to main goal, and revert any new hypothesis in the generated goals.
--/
-meta def guard_names (t : tactic unit) : tactic unit :=
-focus1 $ do
-  input_hyp_uids ← collect_hyps_uids,
-  t,
-  all_goals (revert_new_hyps input_hyp_uids)
+meta def get_main_tag : tactic tag :=
+main_goal >>= get_tag
+
+meta def set_main_tag (t : tag) : tactic unit :=
+do g ← main_goal, set_tag g t
 
 end tactic
 

@@ -44,7 +44,7 @@ master branch (aka work in progress branch)
 - Add `iterate n { t }` for applying tactic `t` `n` times.
   Remark: `iterate { t }` applies `t` until it fails.
 
-- Add `guard_names { t }`. This tactic applies `t` to the main goal,
+- Add `with_cases { t }`. This tactic applies `t` to the main goal,
   and reverts any new hypothesis in the resulting subgoals.
 
 - Add `cases_matching p` tactic for applying the `cases` tactic to a hypothesis `h : t` s.t.

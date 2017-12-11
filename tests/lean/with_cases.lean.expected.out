@@ -1,0 +1,40 @@
+4 goals
+case decidable.is_false, decidable.is_false
+p q : Prop
+⊢ ¬p → ¬q → true
+
+case decidable.is_false, decidable.is_true
+p q : Prop
+⊢ ¬p → q → true
+
+case decidable.is_true, decidable.is_false
+p q : Prop
+⊢ p → ¬q → true
+
+case decidable.is_true, decidable.is_true
+p q : Prop
+⊢ p → q → true
+4 goals
+case pos, pos
+p q : Prop,
+_inst_1 : decidable p,
+_inst_2 : decidable q
+⊢ q → p → true
+
+case pos, neg
+p q : Prop,
+_inst_1 : decidable p,
+_inst_2 : decidable q
+⊢ ¬q → p → true
+
+case neg, pos
+p q : Prop,
+_inst_1 : decidable p,
+_inst_2 : decidable q
+⊢ q → ¬p → true
+
+case neg, neg
+p q : Prop,
+_inst_1 : decidable p,
+_inst_2 : decidable q
+⊢ ¬q → ¬p → true

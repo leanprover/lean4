@@ -174,6 +174,7 @@ static format pp_tag(list<name> const & tag) {
             tmp.push_back(n);
     }
     unsigned i = tmp.size();
+    if (i == 0) return format();
     format r;
     while (i > 0) {
         --i;

@@ -15,6 +15,24 @@ instance (α : Type u) : inhabited (list α) :=
 variables {α : Type u} {β : Type v} {γ : Type w}
 
 namespace list
+
+protected def has_dec_eq [s : decidable_eq α] : decidable_eq (list α)
+| []      []      := is_true rfl
+| (a::as) []      := is_false (λ h, list.no_confusion h)
+| []      (b::bs) := is_false (λ h, list.no_confusion h)
+| (a::as) (b::bs) :=
+  match s a b with
+  | is_true hab  :=
+    match has_dec_eq as bs with
+    | is_true habs  := is_true (eq.subst hab (eq.subst habs rfl))
+    | is_false nabs := is_false (λ h, list.no_confusion h (λ _ habs, absurd habs nabs))
+    end
+  | is_false nab := is_false (λ h, list.no_confusion h (λ hab _, absurd hab nab))
+  end
+
+instance [decidable_eq α] : decidable_eq (list α) :=
+list.has_dec_eq
+
 @[simp] protected def append : list α → list α → list α
 | []       l := l
 | (h :: s) t := h :: (append s t)

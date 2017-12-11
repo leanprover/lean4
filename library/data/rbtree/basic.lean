@@ -105,7 +105,7 @@ end
 lemma range [is_strict_weak_order α lt] {t : rbnode α} {x} : ∀ {lo hi}, is_searchable lt t lo hi → mem lt x t → lift lt lo (some x) ∧ lift lt (some x) hi :=
 begin
   induction t,
-  case leaf f{ simp [mem], intros, trivial },
+  case leaf { simp [mem], intros, trivial },
   all_goals { -- red_node and black_node are identical
     intros lo hi h₁ h₂, cases h₁,
     simp only [mem] at h₂,

@@ -22,14 +22,14 @@ lemma find.induction {p : rbnode α → Prop} (lt) [decidable_rel lt]
    : p t :=
 begin
   induction t,
-  case leaf {assumption},
-  case red_node l y r {
+  case leaf { assumption },
+  case red_node : l y r {
      cases h : cmp_using lt x y,
      case ordering.lt { apply h₂, assumption, assumption },
      case ordering.eq { apply h₃, assumption },
      case ordering.gt { apply h₄, assumption, assumption },
   },
-  case black_node l y r {
+  case black_node : l y r {
      cases h : cmp_using lt x y,
      case ordering.lt { apply h₅, assumption, assumption },
      case ordering.eq { apply h₆, assumption },

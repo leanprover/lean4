@@ -8,5 +8,5 @@ example {α : Type} (a b : tree α) : foo a = a :=
 begin
   with_cases { induction a },
   { admit },
-  { intros l v r ih_l ih_r, trace_state, admit },
+  case : l v r ih_l ih_r { trace_state, admit },
 end

@@ -83,13 +83,13 @@ lemma ins.induction {p : rbnode α → Prop}
 begin
   induction t,
   case leaf { apply h₁ },
-  case red_node a y b {
+  case red_node : a y b {
      cases h : cmp_using lt x y,
      case ordering.lt { apply h₂; assumption },
      case ordering.eq { apply h₃; assumption },
      case ordering.gt { apply h₄; assumption },
    },
-  case black_node a y b {
+  case black_node : a y b {
      cases h : cmp_using lt x y,
      case ordering.lt {
        by_cases get_color a = red,

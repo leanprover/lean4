@@ -13,9 +13,9 @@ end
 example (xs : list ℕ) : ℕ :=
 begin
   induction xs,
-  case list.cons x xs {
+  case list.cons : x xs {
     cases xs,
-    case list.cons x xs {}
+    case list.cons : x xs {}
   }
 end
 
@@ -29,6 +29,6 @@ end
 example (xs : list ℕ) : ℕ :=
 begin
   induction xs,
-  case list.cons x xs ih { apply ih },
+  case list.cons : x xs ih { apply ih },
   case list.nil { apply 0 }
 end

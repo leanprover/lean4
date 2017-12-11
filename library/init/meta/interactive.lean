@@ -90,15 +90,14 @@ meta def itactic : Type :=
 tactic unit
 
 meta def propagate_tags (tac : tactic unit) : tactic unit :=
-focus1 $
-mcond tags_enabled
-  (do tag ← get_main_tag,
-      tac,
-      gs ← get_goals,
-      when (bnot gs.empty) $ do
-        new_tag ← get_main_tag,
-        when new_tag.empty $ set_main_tag tag)
-  tac
+do tag ← get_main_tag,
+   if tag = [] then tac
+   else focus1 $ do
+     tac,
+     gs ← get_goals,
+     when (bnot gs.empty) $ do
+       new_tag ← get_main_tag,
+       when new_tag.empty $ with_enable_tags (set_main_tag tag)
 
 meta def concat_tags (tac : tactic (list (name × expr))) : tactic unit :=
 mcond tags_enabled
@@ -568,6 +567,51 @@ focus1 $ do {
 
    set_induction_tags in_tag rs }
 
+private meta def is_case_simple_tag : tag → bool
+| (`_case_simple :: _) := tt
+| _                    := ff
+
+private meta def is_case_tag : tag → option nat
+| (name.mk_numeral n `_case :: _) := some n.val
+| _                               := none
+
+private meta def tag_match (t : tag) (pre : list name) : bool :=
+pre.is_prefix_of t.reverse &&
+((is_case_tag t).is_some || is_case_simple_tag t)
+
+private meta def collect_tagged_goals (pre : list name) : tactic (list expr) :=
+do gs ← get_goals,
+   gs.mfoldr (λ g r, do
+      t ← get_tag g,
+      if tag_match t pre then return (g::r) else return r)
+      []
+
+private meta def find_tagged_goal_aux (pre : list name) : tactic expr :=
+do gs ← collect_tagged_goals pre,
+   match gs with
+   | []  := fail ("invalid `case`, there is no goal tagged with prefix " ++ to_string pre)
+   | [g] := return g
+   | gs  := do
+     tags : list (list name) ← gs.mmap get_tag,
+     fail ("invalid `case`, there is more than one goal tagged with prefix " ++ to_string pre ++ ", matching tags: " ++ to_string tags)
+   end
+
+private meta def find_tagged_goal (pre : list name) : tactic expr :=
+match pre with
+| [] := do g::gs ← get_goals, return g
+| _  :=
+  find_tagged_goal_aux pre
+  <|>
+  -- try to resolve constructor names, and try again
+  do env ← get_env,
+     pre ← pre.mmap (λ id,
+           (do r_id ← resolve_constant id,
+               if (env.inductive_type_of r_id).is_none then return id
+               else return r_id)
+            <|> return id),
+     find_tagged_goal_aux pre
+end
+
 private meta def find_case (goals : list expr) (ty : name) (idx : nat) (num_indices : nat) : option expr → expr → option (expr × expr)
 | case e := if e.has_meta_var then match e with
   | (mvar _ _ _)    :=
@@ -610,33 +654,54 @@ private meta def rename_lams : expr → list name → tactic unit
 | _             _        := skip
 
 /--
-Focuses on the `induction`/`cases` subgoal corresponding to the given introduction rule, optionally renaming introduced locals.
+Focuses on the `induction`/`cases`/`with_cases` subgoal corresponding to the given tag prefix, optionally renaming introduced locals.
 
 ```
 example (n : ℕ) : n = n :=
 begin
   induction n,
   case nat.zero { reflexivity },
-  case nat.succ a ih { reflexivity }
+  case nat.succ : a ih { reflexivity }
 end
 ```
 -/
-meta def case (ctor : parse ident) (ids : parse ident_*) (tac : itactic) : tactic unit :=
-do r   ← result,
-   env ← get_env,
-   ctor ← resolve_constant ctor
-       <|> fail ("'" ++ to_string ctor ++ "' is not a constructor"),
-   ty  ← (env.inductive_type_of ctor).to_monad
-       <|> fail ("'" ++ to_string ctor ++ "' is not a constructor"),
-   let ctors := env.constructors_of ty,
-   let idx   := env.inductive_num_params ty + /- motive -/ 1 +
-     list.index_of ctor ctors,
-   gs        ← get_goals,
-   (case, g) ← (find_case gs ty idx (env.inductive_num_indices ty) none r ).to_monad
-             <|> fail "could not find open goal of given case",
-   set_goals $ g :: gs.filter (≠ g),
-   rename_lams case ids,
-   solve1 tac
+meta def case (pre : parse ident_*) (ids : parse $ (tk ":" *> ident_*)?) (tac : itactic) : tactic unit :=
+do g   ← find_tagged_goal pre,
+   tag ← get_tag g,
+   let ids := ids.get_or_else [],
+   match is_case_tag tag with
+   | some n := do
+      gs ← get_goals,
+      set_goals $ g :: gs.filter (≠ g),
+      intro_lst ids,
+      let m := ids.length,
+      when (m < n) $ intron (n - m),
+      solve1 tac
+   | none   :=
+     match is_case_simple_tag tag with
+     | tt :=
+       /- Use the old `case` implementation -/
+       do r         ← result,
+          env       ← get_env,
+          [ctor_id] ← return pre,
+          ctor      ← resolve_constant ctor_id
+                      <|> fail ("'" ++ to_string ctor_id ++ "' is not a constructor"),
+          ty        ← (env.inductive_type_of ctor).to_monad
+                      <|> fail ("'" ++ to_string ctor ++ "' is not a constructor"),
+          let ctors := env.constructors_of ty,
+          let idx   := env.inductive_num_params ty + /- motive -/ 1 +
+                       list.index_of ctor ctors,
+          /- Remark: we now use `find_case` just to locate the `lambda` used in `rename_lams`.
+             The goal is now located using tags. -/
+          (case, _) ← (find_case [g] ty idx (env.inductive_num_indices ty) none r ).to_monad
+                      <|> fail "could not find open goal of given case",
+          gs        ← get_goals,
+          set_goals $ g :: gs.filter (≠ g),
+          rename_lams case ids,
+          solve1 tac
+     | ff := failed
+     end
+   end
 
 /--
 Assuming `x` is a variable in the local context with an inductive type, `destruct x` splits the main goal, producing one goal for each constructor of the inductive type, in which `x` is assumed to be a general instance of that constructor. In contrast to `cases`, the local context is unchanged, i.e. no elements are reverted or introduced.

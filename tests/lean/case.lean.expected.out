@@ -13,6 +13,7 @@ xs_tl : list ℕ
 ⊢ ℕ
 case.lean:18:4: error: solve1 tactic failed, focused goal has not been solved
 state:
+case list.cons
 xs_ih x x : ℕ,
 xs : list ℕ
 ⊢ ℕ

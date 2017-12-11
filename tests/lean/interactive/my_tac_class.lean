@@ -40,7 +40,7 @@ meta def intros : mytac unit :=
 tactic.intros >> return ()
 
 meta def constructor : mytac unit :=
-tactic.constructor
+tactic.constructor >> return ()
 
 meta def trace (s : string) : mytac unit :=
 tactic.trace s

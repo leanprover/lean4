@@ -971,31 +971,31 @@ meta def existsi : parse pexpr_list_or_texpr → tactic unit
 This tactic applies to a goal such that its conclusion is an inductive type (say `I`). It tries to apply each constructor of `I` until it succeeds.
 -/
 meta def constructor : tactic unit :=
-tactic.constructor
+concat_tags tactic.constructor
 
 /--
 Similar to `constructor`, but only non-dependent premises are added as new goals.
 -/
 meta def econstructor : tactic unit :=
-tactic.econstructor
+concat_tags tactic.econstructor
 
 /--
 Applies the first constructor when the type of the target is an inductive data type with two constructors.
 -/
 meta def left : tactic unit :=
-tactic.left
+concat_tags tactic.left
 
 /--
 Applies the second constructor when the type of the target is an inductive data type with two constructors.
 -/
 meta def right : tactic unit :=
-tactic.right
+concat_tags tactic.right
 
 /--
 Applies the constructor when the type of the target is an inductive data type with one constructor.
 -/
 meta def split : tactic unit :=
-tactic.split
+concat_tags tactic.split
 
 private meta def constructor_matching_aux (ps : list pattern) : tactic unit :=
 do t ← target, ps.mfirst (λ p, match_pattern p t), constructor

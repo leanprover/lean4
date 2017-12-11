@@ -19,4 +19,4 @@ example : true ∧ true :=
 by do
   t ← target,
   let f := t^.get_app_fn in
-  constructor; triv
+  constructor >> skip; triv

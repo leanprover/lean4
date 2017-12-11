@@ -589,7 +589,7 @@ do
   solve1 (do
     target >>= instantiate_mvars >>= change, -- TODO: bug in existsi & constructor when mvars in hyptohesis
     bs.mmap existsi,
-    iterate econstructor),
+    iterate (econstructor >> skip)),
 
   -- clean up remaining coinduction steps
   all_goals (do

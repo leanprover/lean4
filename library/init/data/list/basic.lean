@@ -311,6 +311,16 @@ lemma lt_eq_not_ge [has_lt α] [decidable_rel ((<) : α → α → Prop)] : ∀ 
   show (l₁ < l₂) = ¬ ¬ (l₁ < l₂), from
   eq.subst (propext (not_not_iff (l₁ < l₂))).symm rfl
 
+/--  `is_prefix_of l₁ l₂` returns `tt` iff `l₁` is a prefix of `l₂`. -/
+def is_prefix_of [decidable_eq α] : list α → list α → bool
+| []      _       := tt
+| _       []      := ff
+| (a::as) (b::bs) := to_bool (a = b) && is_prefix_of as bs
+
+/--  `is_suffix_of l₁ l₂` returns `tt` iff `l₁` is a suffix of `l₂`. -/
+def is_suffix_of [decidable_eq α] (l₁ l₂ : list α) : bool :=
+is_prefix_of l₁.reverse l₂.reverse
+
 end list
 
 namespace bin_tree

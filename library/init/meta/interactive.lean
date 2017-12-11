@@ -481,17 +481,21 @@ with_desc "(id :)? expr" $ do
 private meta def set_cases_tags (in_tag : tag) (rs : list name) : tactic unit :=
 do te ← tags_enabled,
    gs ← get_goals,
-   let tgs : list (name × expr) := rs.map₂ (λ n g, (n, g)) gs,
-   if te
-   then tgs.mmap' (λ ⟨n, g⟩, set_tag g (n::in_tag))
-     /- If `induction/cases` is not in a `with_cases` block, we still set tags using `_case_simple` to make
-        sure we can use the `case` notation.
-        ```
-        induction h,
-        case c { ... }
-        ```
-     -/
-    else tgs.mmap' (λ ⟨n, g⟩, with_enable_tags (set_tag g (`_case_simple::n::[])))
+   match gs with
+   | [g] := when te (set_tag g in_tag) -- if only one goal was produced, we should not make the tag longer
+   | _   := do
+     let tgs : list (name × expr) := rs.map₂ (λ n g, (n, g)) gs,
+     if te
+     then tgs.mmap' (λ ⟨n, g⟩, set_tag g (n::in_tag))
+          /- If `induction/cases` is not in a `with_cases` block, we still set tags using `_case_simple` to make
+             sure we can use the `case` notation.
+             ```
+             induction h,
+             case c { ... }
+             ```
+          -/
+     else tgs.mmap' (λ ⟨n, g⟩, with_enable_tags (set_tag g (`_case_simple::n::[])))
+   end
 
 private meta def set_induction_tags (in_tag : tag) (rs : list (name × list expr × list (name × expr))) : tactic unit :=
 set_cases_tags in_tag (rs.map (λ e, e.1))

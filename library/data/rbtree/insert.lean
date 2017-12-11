@@ -34,15 +34,15 @@ begin cases l; cases r; simp [get_color, balance2] end
 /- We can use the same induction principle for balance1 and balance2 -/
 lemma balance.cases {p : rbnode α → α → rbnode α → Prop}
   (l y r)
-  (h₁ : ∀ l x r₁ y r₂, p (red_node l x r₁) y r₂)
-  (h₂ : ∀ l₁ y l₂ x r, get_color l₁ ≠ red → p l₁ y (red_node l₂ x r))
-  (h₃ : ∀ l y r, get_color l ≠ red → get_color r ≠ red → p l y r)
+  (red_left : ∀ l x r₁ y r₂, p (red_node l x r₁) y r₂)
+  (red_right : ∀ l₁ y l₂ x r, get_color l₁ ≠ red → p l₁ y (red_node l₂ x r))
+  (other : ∀ l y r, get_color l ≠ red → get_color r ≠ red → p l y r)
   : p l y r :=
 begin
   cases l; cases r,
-  any_goals { apply h₁ },
-  any_goals { apply h₂; simp [get_color]; contradiction; done },
-  any_goals { apply h₃; simp [get_color]; contradiction; done },
+  any_goals { apply red_left },
+  any_goals { apply red_right; simp [get_color]; contradiction; done },
+  any_goals { apply other; simp [get_color]; contradiction; done },
 end
 
 lemma balance1_ne_leaf (l : rbnode α) (x r v t) : balance1 l x r v t ≠ leaf :=
@@ -374,12 +374,12 @@ begin
   apply find_ins_of_eqv lt he hs; simp
 end
 
-lemma weak_trichotomous (x y) {p : Prop} (h₁ : ∀ h : lt x y, p) (h₂ : ∀ h : ¬ lt x y ∧ ¬ lt y x, p) (h₃ : ∀ h : lt y x, p) : p :=
+lemma weak_trichotomous (x y) {p : Prop} (is_lt : ∀ h : lt x y, p) (is_eqv : ∀ h : ¬ lt x y ∧ ¬ lt y x, p) (is_gt : ∀ h : lt y x, p) : p :=
 begin
   by_cases lt x y; by_cases lt y x,
-  any_goals { apply h₁; assumption },
-  any_goals { apply h₃; assumption },
-  any_goals { apply h₂, constructor; assumption }
+  any_goals { apply is_lt; assumption },
+  any_goals { apply is_gt; assumption },
+  any_goals { apply is_eqv, constructor; assumption }
 end
 
 section find_ins_of_not_eqv
@@ -414,13 +414,12 @@ lemma find_balance1_lt {l r t v x y lo hi}
                            find lt (balance1 l v r y t) x = find lt (red_node l v r) x :=
 begin
   with_cases { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
-  { intros l_left l_val l_right z r; intros,
-    apply weak_trichotomous lt z x; intros; simp [*] },
-  { intros l_left l_val l_right z r; intros,
-    apply weak_trichotomous lt z x; intro h',
-    { have := trans_of lt (lo_lt_hi hr_hs₁) h', simp [*] },
-    { have : lt l_val x := lt_of_lt_of_incomp (lo_lt_hi hr_hs₁) h', simp [*] },
-    { apply weak_trichotomous lt l_val x; intros; simp [*] } }
+  case red_left : _ _ _ z r { apply weak_trichotomous lt z x; intros; simp [*] },
+  case red_right : l_left l_val l_right z r {
+    with_cases { apply weak_trichotomous lt z x; intro h' },
+    case is_lt  { have := trans_of lt (lo_lt_hi hr_hs₁) h', simp [*] },
+    case is_eqv { have : lt l_val x := lt_of_lt_of_incomp (lo_lt_hi hr_hs₁) h', simp [*] },
+    case is_gt  { apply weak_trichotomous lt l_val x; intros; simp [*] } }
 end
 
 meta def ins_ne_leaf_tac := `[apply ins_ne_leaf]
@@ -444,9 +443,9 @@ lemma find_balance1_gt {l r t v x y lo hi}
                            find lt (balance1 l v r y t) x = find lt t x :=
 begin
   with_cases { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
-  { intros l_left l_val l_right z r, intros,
+  case red_left : _ _ _ z {
     have := trans_of lt (lo_lt_hi hr) h, simp [*] },
-  { intros l_left l_val l_right z r hr, intros,
+  case red_right : _ _ _ z {
     have := trans_of lt (lo_lt_hi hr_hs₂) h, simp [*] }
 end
 
@@ -468,10 +467,10 @@ lemma find_balance1_eqv {l r t v x y lo hi}
                           find lt (balance1 l v r y t) x = some y :=
 begin
   with_cases { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
-  { intros l_left l_val l_right z r, intros,
+  case red_left : _ _ _ z {
     have : lt z x := lt_of_lt_of_incomp (lo_lt_hi hr) h.swap,
     simp [*] },
-  { intros l_left l_val l_right z r hr, intros,
+  case red_right : _ _ _ z {
     have : lt z x := lt_of_lt_of_incomp (lo_lt_hi hr_hs₂) h.swap,
     simp [*] }
 end
@@ -496,10 +495,8 @@ lemma find_balance2_lt {l v r t x y lo hi}
                            find lt (balance2 l v r y t) x = find lt t x :=
 begin
   with_cases { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
-  { intros l₁ val l₂ z r, intros,
-    have := trans h (lo_lt_hi hl_hs₁), simp [*] },
-  { intros l₁ val l₂ z r hr, intros,
-    have := trans h (lo_lt_hi hl), simp [*] }
+  case red_left { have := trans h (lo_lt_hi hl_hs₁), simp [*] },
+  case red_right { have := trans h (lo_lt_hi hl), simp [*] }
 end
 
 lemma find_balance2_node_lt {s t x y lo hi}
@@ -521,12 +518,12 @@ lemma find_balance2_gt {l v r t x y lo hi}
                          find lt (balance2 l v r y t) x = find lt (red_node l v r) x :=
 begin
   with_cases { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
-  { intros l₁ val l₂ z r, intros,
-    apply weak_trichotomous lt val x; intro h'; simp [*],
-    { apply weak_trichotomous lt z x; intros; simp [*] },
-    { have : lt x z := lt_of_incomp_of_lt h'.swap (lo_lt_hi hl_hs₂), simp [*] },
-    { have := trans h' (lo_lt_hi hl_hs₂), simp [*] } },
-  { intros l₁ val l₂ z r hr, intros,
+  case red_left : _ val _ z {
+    with_cases { apply weak_trichotomous lt val x; intro h'; simp [*] },
+    case is_lt { apply weak_trichotomous lt z x; intros; simp [*] },
+    case is_eqv { have : lt x z := lt_of_incomp_of_lt h'.swap (lo_lt_hi hl_hs₂), simp [*] },
+    case is_gt  { have := trans h' (lo_lt_hi hl_hs₂), simp [*] } },
+  case red_right : _ val {
     apply weak_trichotomous lt val x; intros; simp [*] }
 end
 
@@ -550,10 +547,8 @@ lemma find_balance2_eqv {l v r t x y lo hi}
                           find lt (balance2 l v r y t) x = some y :=
 begin
   with_cases { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
-  { intros l₁ val l₂ z r, intros,
-    have := lt_of_incomp_of_lt h (lo_lt_hi hl_hs₁), simp [*] },
-  { intros l₁ val l₂ z r hr, intros,
-    have := lt_of_incomp_of_lt h (lo_lt_hi hl), simp [*] }
+  case red_left { have := lt_of_incomp_of_lt h (lo_lt_hi hl_hs₁), simp [*] },
+  case red_right { have := lt_of_incomp_of_lt h (lo_lt_hi hl), simp [*] }
 end
 
 lemma find_balance2_node_eqv {t s x y lo hi}

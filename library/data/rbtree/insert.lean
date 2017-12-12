@@ -408,12 +408,12 @@ variable [is_strict_weak_order α lt]
 
 lemma find_balance1_lt {l r t v x y lo hi}
                        (h : lt x y)
-                       : ∀ (hl : is_searchable lt l lo (some v))
-                           (hr : is_searchable lt r (some v) (some y))
-                           (ht : is_searchable lt t (some y) hi),
-                           find lt (balance1 l v r y t) x = find lt (red_node l v r) x :=
+                       (hl : is_searchable lt l lo (some v))
+                       (hr : is_searchable lt r (some v) (some y))
+                       (ht : is_searchable lt t (some y) hi)
+                       : find lt (balance1 l v r y t) x = find lt (red_node l v r) x :=
 begin
-  with_cases { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
+  with_cases { revert hl hr ht, apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
   case red_left : _ _ _ z r { apply weak_trichotomous lt z x; intros; simp [*] },
   case red_right : l_left l_val l_right z r {
     with_cases { apply weak_trichotomous lt z x; intro h' },
@@ -437,12 +437,12 @@ end
 
 lemma find_balance1_gt {l r t v x y lo hi}
                        (h : lt y x)
-                       : ∀ (hl : is_searchable lt l lo (some v))
-                           (hr : is_searchable lt r (some v) (some y))
-                           (ht : is_searchable lt t (some y) hi),
-                           find lt (balance1 l v r y t) x = find lt t x :=
+                       (hl : is_searchable lt l lo (some v))
+                       (hr : is_searchable lt r (some v) (some y))
+                       (ht : is_searchable lt t (some y) hi)
+                       : find lt (balance1 l v r y t) x = find lt t x :=
 begin
-  with_cases { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
+  with_cases { revert hl hr ht, apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
   case red_left : _ _ _ z {
     have := trans_of lt (lo_lt_hi hr) h, simp [*] },
   case red_right : _ _ _ z {
@@ -460,13 +460,13 @@ begin
 end
 
 lemma find_balance1_eqv {l r t v x y lo hi}
-                        (h : ¬ lt x y ∧ ¬ lt y x) :
-                        ∀ (hl : is_searchable lt l lo (some v))
-                          (hr : is_searchable lt r (some v) (some y))
-                          (ht : is_searchable lt t (some y) hi),
-                          find lt (balance1 l v r y t) x = some y :=
+                        (h : ¬ lt x y ∧ ¬ lt y x)
+                        (hl : is_searchable lt l lo (some v))
+                        (hr : is_searchable lt r (some v) (some y))
+                        (ht : is_searchable lt t (some y) hi)
+                        : find lt (balance1 l v r y t) x = some y :=
 begin
-  with_cases { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
+  with_cases { revert hl hr ht, apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
   case red_left : _ _ _ z {
     have : lt z x := lt_of_lt_of_incomp (lo_lt_hi hr) h.swap,
     simp [*] },
@@ -489,12 +489,12 @@ end
 
 lemma find_balance2_lt {l v r t x y lo hi}
                        (h :  lt x y)
-                       : ∀ (hl : is_searchable lt l (some y) (some v))
-                           (hr : is_searchable lt r (some v) hi)
-                           (ht : is_searchable lt t lo (some y)),
-                           find lt (balance2 l v r y t) x = find lt t x :=
+                       (hl : is_searchable lt l (some y) (some v))
+                       (hr : is_searchable lt r (some v) hi)
+                       (ht : is_searchable lt t lo (some y))
+                       : find lt (balance2 l v r y t) x = find lt t x :=
 begin
-  with_cases { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
+  with_cases { revert hl hr ht, apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
   case red_left { have := trans h (lo_lt_hi hl_hs₁), simp [*] },
   case red_right { have := trans h (lo_lt_hi hl), simp [*] }
 end
@@ -511,13 +511,13 @@ begin
 end
 
 lemma find_balance2_gt {l v r t x y lo hi}
-                       (h :  lt y x) :
-                       ∀ (hl : is_searchable lt l (some y) (some v))
-                         (hr : is_searchable lt r (some v) hi)
-                         (ht : is_searchable lt t lo (some y)),
-                         find lt (balance2 l v r y t) x = find lt (red_node l v r) x :=
+                       (h :  lt y x)
+                       (hl : is_searchable lt l (some y) (some v))
+                       (hr : is_searchable lt r (some v) hi)
+                       (ht : is_searchable lt t lo (some y))
+                       : find lt (balance2 l v r y t) x = find lt (red_node l v r) x :=
 begin
-  with_cases { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
+  with_cases { revert hl hr ht, apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
   case red_left : _ val _ z {
     with_cases { apply weak_trichotomous lt val x; intro h'; simp [*] },
     case is_lt { apply weak_trichotomous lt z x; intros; simp [*] },
@@ -540,13 +540,13 @@ begin
 end
 
 lemma find_balance2_eqv {l v r t x y lo hi}
-                        (h : ¬ lt x y ∧ ¬ lt y x) :
-                        ∀ (hl : is_searchable lt l (some y) (some v))
-                          (hr : is_searchable lt r (some v) hi)
-                          (ht : is_searchable lt t lo (some y)),
-                          find lt (balance2 l v r y t) x = some y :=
+                        (h : ¬ lt x y ∧ ¬ lt y x)
+                        (hl : is_searchable lt l (some y) (some v))
+                        (hr : is_searchable lt r (some v) hi)
+                        (ht : is_searchable lt t lo (some y))
+                        : find lt (balance2 l v r y t) x = some y :=
 begin
-  with_cases { apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
+  with_cases { revert hl hr ht, apply balance.cases l v r; intros; simp [*]; is_searchable_tactic },
   case red_left { have := lt_of_incomp_of_lt h (lo_lt_hi hl_hs₁), simp [*] },
   case red_right { have := lt_of_incomp_of_lt h (lo_lt_hi hl), simp [*] }
 end

@@ -401,16 +401,16 @@ private meta def collect_hyps_uids : tactic name_set :=
 do ctx ← local_context,
    return $ ctx.foldl (λ r h, r.insert h.local_uniq_name) mk_name_set
 
-private meta def revert_new_hyps (num_reverted : nat) (input_hyp_uids : name_set) : tactic unit :=
+private meta def revert_new_hyps (input_hyp_uids : name_set) : tactic unit :=
 do ctx ← local_context,
    let to_revert := ctx.foldr (λ h r, if input_hyp_uids.contains h.local_uniq_name then r else h::r) [],
    tag ← get_main_tag,
    m   ← revert_lst to_revert,
-   set_main_tag (mk_num_name `_case (m + num_reverted) :: tag)
+   set_main_tag (mk_num_name `_case m :: tag)
 
 /--
 Apply `t` to main goal, and revert any new hypothesis in the generated goals,
-and tag generated goals when using supported tactics such as: `induction`, `apply`, ...
+and tag generated goals when using supported tactics such as: `induction`, `apply`, `cases`, `constructor`, ...
 
 This tactic is useful for writing robust proof scripts that are not sensitive
 to the name generation strategy used by `t`.
@@ -426,13 +426,11 @@ end
 
 TODO(Leo): improve docstring
 -/
-meta def with_cases (revert : parse $ (tk "generalizing" *> ident*)?) (t : itactic) : tactic unit :=
-do -- revert `generalizing` params
-   n ← mmap tactic.get_local (revert.get_or_else []) >>= revert_lst,
-   with_enable_tags $ focus1 $ do
-     input_hyp_uids ← collect_hyps_uids,
-     t,
-     all_goals (revert_new_hyps n input_hyp_uids)
+meta def with_cases (t : itactic) : tactic unit :=
+with_enable_tags $ focus1 $ do
+  input_hyp_uids ← collect_hyps_uids,
+  t,
+  all_goals (revert_new_hyps input_hyp_uids)
 
 private meta def get_type_name (e : expr) : tactic name :=
 do e_type ← infer_type e >>= whnf,
@@ -679,10 +677,10 @@ do g   ← find_tagged_goal pre,
    let ids := ids.get_or_else [],
    match is_case_tag tag with
    | some n := do
+      let m := ids.length,
       gs ← get_goals,
       set_goals $ g :: gs.filter (≠ g),
       intro_lst ids,
-      let m := ids.length,
       when (m < n) $ intron (n - m),
       solve1 tac
    | none   :=

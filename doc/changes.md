@@ -48,8 +48,6 @@ master branch (aka work in progress branch)
   and reverts any new hypothesis in the resulting subgoals. `with_cases` also enable "goal tagging".
   Remark: `induction` and `cases` tag goals using constructor names. `apply` and `constructor` tag goals
   using parameter names. The `case` tactic can select goals using tags.
-  `with_cases generalizing id_1 ... id_n { t }` reverts hypotheses `id_1` ... `id_n` before executing `t`.
-  The hypotheses are automatically re-introduced by `case`. The user can optionally rename them at each `case`.
 
 * Add `cases_matching p` tactic for applying the `cases` tactic to a hypothesis `h : t` s.t.
   `t` matches the pattern `p`. Alternative versions: `cases_matching* p` and `cases_matching [p_1, ..., p_n]`.

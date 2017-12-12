@@ -13,6 +13,9 @@ variable {n : nat}
 protected def succ : fin n → fin (succ n)
 | ⟨a, h⟩ := ⟨nat.succ a, succ_lt_succ h⟩
 
+protected theorem succ.inj (p : fin.succ a = fin.succ b) : a = b :=
+by cases a; cases b; exact eq_of_veq (nat.succ.inj (veq_of_eq p))
+
 def of_nat {n : nat} (a : nat) : fin (succ n) :=
 ⟨a % succ n, nat.mod_lt _ (nat.zero_lt_succ _)⟩
 

@@ -420,7 +420,7 @@ example (n : ℕ) : n = n :=
 begin
   with_cases { induction n },
   case nat.zero { reflexivity },
-  case nat.succ n' ih { reflexivity }
+  case nat.succ : n' ih { reflexivity }
 end
 ```
 

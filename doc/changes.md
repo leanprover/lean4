@@ -3,77 +3,88 @@ master branch (aka work in progress branch)
 
 *Features*
 
-- Implement [RFC #1820](https://github.com/leanprover/lean/issues/1820)
+* Implement [RFC #1820](https://github.com/leanprover/lean/issues/1820)
 
-- Add `string.iterator` abstraction for traversing strings.
+* Add `string.iterator` abstraction for traversing strings.
   The VM contains an efficient implementation of this type.
 
-- Add support for non-ASCII char literals. Example: `'α'`.
+* Add support for non-ASCII char literals. Example: `'α'`.
 
-- Unicode escape characters in string and char literals. For example, `'\u03B1'` is equivalent to `'α'`.
+* Unicode escape characters in string and char literals. For example, `'\u03B1'` is equivalent to `'α'`.
 
-- Predictable runtime cost model for recursive functions. The equation compiler uses
+* Predictable runtime cost model for recursive functions. The equation compiler uses
   different techniques for converting recursive equations into recursors and/or
   well-founded fixed points. The new approach used in the code generator ignores
   these encoding tricks when producing byte code. So, the runtime cost model
   is identical to the one in regular strict functional languages.
 
-- Add `d_array n α` (array type where value type may depend on index),
+* Add `d_array n α` (array type where value type may depend on index),
   where (α : fin n → Type u).
 
-- Add instance for `decidable_eq (d_array n α)` and `decidable_eq (array n α)`.
+* Add instance for `decidable_eq (d_array n α)` and `decidable_eq (array n α)`.
   The new instance is more efficient than the one in mathlib because it doesn't
   convert the array into a list.
 
-- Add aliasing pattern syntax `id@pat`, which introduces the name `id` for the value matched by
+* Add aliasing pattern syntax `id@pat`, which introduces the name `id` for the value matched by
   the pattern `pat`.
 
-- Add alternative syntax `{..., ..s}` for the structure update `{s with ...}`.
+* Add alternative syntax `{..., ..s}` for the structure update `{s with ...}`.
   Multiple fallback sources can be given: `{..., ..s, ..t}` will fall back to
   searching a field in `s`, then in `t`. The last component can also be `..`,
   which will replace any missing fields with a placeholder.
   The old notation will be removed in the future.
 
-- Add support for structure instance notation `{...}` in patterns. Use `..` to ignore
+* Add support for structure instance notation `{...}` in patterns. Use `..` to ignore
   unmatched fields.
 
-- Type class `has_equiv` for `≈` notation.
+* Type class `has_equiv` for `≈` notation.
 
-- Add `funext ids*` tactic for applying the funext lemma.
+* Add `funext ids*` tactic for applying the funext lemma.
 
-- Add `iterate n { t }` for applying tactic `t` `n` times.
+* Add `iterate n { t }` for applying tactic `t` `n` times.
   Remark: `iterate { t }` applies `t` until it fails.
 
-- Add `with_cases { t }`. This tactic applies `t` to the main goal,
-  and reverts any new hypothesis in the resulting subgoals.
+* Add `with_cases { t }`. This tactic applies `t` to the main goal,
+  and reverts any new hypothesis in the resulting subgoals. `with_cases` also enable "goal tagging".
+  Remark: `induction` and `cases` tag goals using constructor names. `apply` and `constructor` tag goals
+  using parameter names. The `case` tactic can select goals using tags.
+  `with_cases generalizing id_1 ... id_n { t }` reverts hypotheses `id_1` ... `id_n` before executing `t`.
+  The hypotheses are automatically re-introduced by `case`. The user can optionally rename them at each `case`.
 
-- Add `cases_matching p` tactic for applying the `cases` tactic to a hypothesis `h : t` s.t.
+* Add `cases_matching p` tactic for applying the `cases` tactic to a hypothesis `h : t` s.t.
   `t` matches the pattern `p`. Alternative versions: `cases_matching* p` and `cases_matching [p_1, ..., p_n]`.
   Example: `cases_matching* [_ ∨ _, _ ∧ _]` destructs all conjunctions and disjunctions in the main goal.
 
-- Add `cases_type I` tactic for applying the `cases` tactic to a hypothesis `h : I ...`.
+* Add `cases_type I` tactic for applying the `cases` tactic to a hypothesis `h : I ...`.
   `cases_type! I` only succeeds when the number of resulting goals is <= 1.
   Alternative versions: `cases_type I_1 ... I_n`, `cases_type* I`, `cases_type!* I`.
   Example: `cases_type* and or` destructs all conjunctions and disjunctions in the main goal.
 
-- Add `constructor_matching p` tactic. It is syntax sugar for `match_target p; constructor`.
+* Add `constructor_matching p` tactic. It is syntax sugar for `match_target p; constructor`.
   The variant `constructor_matching* p` is more efficient than `focus1 { repeat { match_target p; constructor } }`
   because the patterns are compiled only once.
 
-- `injection h` now supports nested and mutually recursive datatypes.
+* `injection h` now supports nested and mutually recursive datatypes.
 
-- Display number of goals in the `*Lean Goal*` buffer (if number of goals > 1).
+* Display number of goals in the `*Lean Goal*` buffer (if number of goals > 1).
 
 *Changes*
 
-- `cases h` now also tries to clear `h` when performing dependent elimination.
+* `case` tactic now supports the `with_cases { t }` tactic. See entry above about `with_cases`.
+  The tag and new hypotheses are now separated with `:`. Example:
+  - `case pos { t }`: execute tactic `t` to goal tagged `pos`
+  - `case pos neg { t }`: execute tactic `t` to goal tagged `pos neg`
+  - `case : x y { t }`: execute tactic `t` to main goal after renaming the first two hypotheses produced by preceding `with_case { t' }`.
+  - `case pos neg : x y { t }` : execute tactic `t` to goal tagged `pos neg` after renaming the first two hypotheses produced by preceding `with_case { t' }`.
 
-- `repeat { t }` behavior changed. Now, it applies `t` to each goal. If the application succeeds,
+* `cases h` now also tries to clear `h` when performing dependent elimination.
+
+* `repeat { t }` behavior changed. Now, it applies `t` to each goal. If the application succeeds,
   the tactic is applied recursively to all the generated subgoals until it eventually fails.
   The recursion stops in a subgoal when the tactic has failed to make progress.
   The previous `repeat` tactic was renamed to `iterate`.
 
-- The automatically generated recursor `C.rec` for an inductive datatype
+* The automatically generated recursor `C.rec` for an inductive datatype
   now uses `ih` to name induction hypotheses instead of `ih_1` if there is only one.
   If there is more than one induction hypotheses, the name is generated by concatenating `ih_`
   before the constructor field name. For example, for the constructor
@@ -84,7 +95,7 @@ master branch (aka work in progress branch)
   This change only affects tactical proofs where explicit names are not provided
   to `induction` and `cases` tactics.
 
-- `induction h` and `cases h` tactic use a new approach for naming new hypotheses.
+* `induction h` and `cases h` tactic use a new approach for naming new hypotheses.
    If names are not provided by the user, these tactics will create a "base" name
    by concatenating the input hypothesis name with the constructor field name.
    If there is only one field, the tactic simply reuses the hypothesis name.
@@ -101,27 +112,27 @@ master branch (aka work in progress branch)
    Remark: The new `guard_names { t }` tactical can be used to generate
    robust tactic scripts that are not sensitive to naming generation strategies used by `t`.
 
-- Remove `[simp]` attribute from lemmas `or.assoc`, `or.comm`, `or.left_comm`, `and.assoc`, `and.comm`, `and.left_comm`, `add_assoc`, `add_comm`, `add_left_com`, `mul_assoc`, `mul_comm` and `mul_left_comm`.
+* Remove `[simp]` attribute from lemmas `or.assoc`, `or.comm`, `or.left_comm`, `and.assoc`, `and.comm`, `and.left_comm`, `add_assoc`, `add_comm`, `add_left_com`, `mul_assoc`, `mul_comm` and `mul_left_comm`.
   These lemmas were being used to "sort" arguments of AC operators: and, or, (+) and (*).
   This was producing unstable proofs. The old behavior can be retrieved by using the commands `local attribute [simp] ...` or `attribute [simp] ...` in the affected files.
 
-- `string` is now a list of unicode scalar values. Moreover, in the VM,
+* `string` is now a list of unicode scalar values. Moreover, in the VM,
   strings are implemented as an UTF-8 encoded array of bytes.
 
-- `array α n` is now written `array n α`. Motivation: consistency `d_array n α`.
+* `array α n` is now written `array n α`. Motivation: consistency `d_array n α`.
 
-- Move `rb_map` and `rb_tree` to the `native` namespace. We will later add
+* Move `rb_map` and `rb_tree` to the `native` namespace. We will later add
   pure Lean implementations. Use `open native` to port files.
 
-- `apply t` behavior changed when type of `t` is of the form `forall (a_1 : A_1) ... (a_n : A_n), ?m ...`, where `?m` is an unassigned metavariable.
+* `apply t` behavior changed when type of `t` is of the form `forall (a_1 : A_1) ... (a_n : A_n), ?m ...`, where `?m` is an unassigned metavariable.
   In this case, `apply t` behaves as `apply t _ ... _` where `n` `_` have been added, independently of the goal target type.
   The new behavior is useful when using `apply` with eliminator-like definitions.
 
-- `ginduction t with h h1 h2` is now `induction h : t with h1 h2`.
+* `ginduction t with h h1 h2` is now `induction h : t with h1 h2`.
 
-- `apply_core` now also returns the parameter name associated with new metavariables.
+* `apply_core` now also returns the parameter name associated with new metavariables.
 
-- `apply` now also returns the new metavariables (and the parameter name associated with them). Even the assigned metavariables are returned.
+* `apply` now also returns the new metavariables (and the parameter name associated with them). Even the assigned metavariables are returned.
 
 *API name changes*
 

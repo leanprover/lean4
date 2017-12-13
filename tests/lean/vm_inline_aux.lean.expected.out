@@ -1,15 +1,15 @@
-[compiler.optimize_bytecode]  hide.cond._main 4
+[compiler.optimize_bytecode]  ex.cond._main 4
 0: move 2
 1: cases2 4
 2: move 0
 3: ret
 4: move 1
 5: ret
-[compiler.optimize_bytecode]  hide.cond 1
+[compiler.optimize_bytecode]  ex.cond 1
 0: scnstr #0
-1: closure hide.cond._main 1
+1: closure ex.cond._main 1
 2: ret
-[compiler.optimize_bytecode]  hide.foo 1
+[compiler.optimize_bytecode]  ex.foo 1
 0: move 0
 1: cases2 6
 2: scnstr #20

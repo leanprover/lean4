@@ -154,6 +154,12 @@ list<name> get_expr_aliases(environment const & env, name const & n) {
     return ptr_to_list(get_extension(env).m_state.m_aliases.find(n));
 }
 
+environment erase_expr_aliases(environment const & env, name const & n) {
+    aliases_ext ext = get_extension(env);
+    ext.m_state.m_aliases.erase(n);
+    return update(env, ext);
+}
+
 environment add_local_ref(environment const & env, name const & a, expr const & ref) {
     aliases_ext ext = get_extension(env);
     ext.add_local_ref(a, ref);

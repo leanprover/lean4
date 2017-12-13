@@ -100,7 +100,7 @@ void init_token_table(token_table & t) {
          {"renaming", 0}, {"extends", 0}, {nullptr, 0}};
 
     char const * commands[] =
-        {"theorem", "axiom", "axioms", "variable", "protected", "private",
+        {"theorem", "axiom", "axioms", "variable", "protected", "private", "hide",
          "definition", "meta", "mutual", "example", "noncomputable",
          "variables", "parameter", "parameters", "constant", "constants",
          "using_well_founded", "[whnf]",

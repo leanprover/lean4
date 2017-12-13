@@ -1,0 +1,21 @@
+succ : ℕ → ℕ
+hide_cmd1.lean:5:7: error: unknown identifier 'succ'
+succ : bool
+hide_cmd1.lean:19:7: error: unknown identifier 'zero'
+0 : ℕ
+hide_cmd1.lean:28:7: error: unknown identifier 'zero'
+0 : ℕ
+hide_cmd1.lean:34:0: error: invalid 'hide' command, 'nat.succ' is not an alias
+is_true : Π {p : Prop}, p → decidable p
+hide_cmd1.lean:40:8: error: unknown identifier 'is_true'
+is_true : Π {p : Prop}, p → decidable p
+hide_cmd1.lean:45:7: error: ambiguous overload, possible interpretations
+  is_true
+  decidable.is_true
+Additional information:
+hide_cmd1.lean:45:7: context: switched to basic overload resolution where arguments are elaborated without any information about the expected type because expected type was not available
+is_true : bool
+map : (?M_1 → ?M_2) → list ?M_1 → list ?M_2
+foldl : (?M_1 → ?M_2 → ?M_1) → ?M_1 → list ?M_2 → ?M_1
+hide_cmd1.lean:54:7: error: unknown identifier 'map'
+hide_cmd1.lean:55:7: error: unknown identifier 'foldl'

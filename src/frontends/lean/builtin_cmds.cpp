@@ -576,6 +576,28 @@ environment import_cmd(parser & p) {
     throw parser_error("invalid 'import' command, it must be used in the beginning of the file", p.cmd_pos());
 }
 
+environment hide_cmd(parser & p) {
+    buffer<name> ids;
+    while (p.curr_is_identifier()) {
+        name id = p.get_name_val();
+        p.next();
+        ids.push_back(id);
+    }
+    if (ids.empty())
+        throw parser_error("invalid 'hide' command, identifier expected", p.cmd_pos());
+    environment new_env = p.env();
+    for (name id : ids) {
+        if (get_expr_aliases(new_env, id)) {
+            new_env = erase_expr_aliases(new_env, id);
+        } else {
+            /* TODO(Leo): check if `id` is a declaration and hide it too. */
+            throw parser_error(sstream() << "invalid 'hide' command, '" << id << "' is not an alias",
+                               p.cmd_pos());
+        }
+    }
+    return new_env;
+}
+
 void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("open",              "create aliases for declarations, and use objects defined in other namespaces",
                         open_cmd));
@@ -596,6 +618,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("add_key_equivalence", "register that to symbols are equivalence for key-matching", add_key_equivalence_cmd));
     add_cmd(r, cmd_info("run_cmd",           "execute an user defined command at top-level", run_command_cmd));
     add_cmd(r, cmd_info("import",            "import module(s)", import_cmd));
+    add_cmd(r, cmd_info("hide",              "hide aliases in the current scope", hide_cmd));
     add_cmd(r, cmd_info("#unify",            "(for debugging purposes)", unify_cmd));
     add_cmd(r, cmd_info("#compile",          "(for debugging purposes)", compile_cmd));
 

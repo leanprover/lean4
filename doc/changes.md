@@ -66,6 +66,12 @@ master branch (aka work in progress branch)
 
 * Display number of goals in the `*Lean Goal*` buffer (if number of goals > 1).
 
+* `hide id*` command for hiding aliases.
+  The following command  hides the alias `is_true` for `decidable.is_true`.
+  ```
+  hide is_true
+  ```
+
 *Changes*
 
 * `case` tactic now supports the `with_cases { t }` tactic. See entry above about `with_cases`.

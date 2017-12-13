@@ -1,4 +1,4 @@
-namespace hide
+namespace ex
 constant array : Type
 constant read : array → nat → nat
 constant write : array → nat → nat → array
@@ -18,4 +18,4 @@ begin [smt]
   intros, eblast
 end
 
-end hide
+end ex

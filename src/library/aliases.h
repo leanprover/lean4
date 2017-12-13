@@ -23,6 +23,9 @@ optional<name> is_expr_aliased(environment const & env, name const & t);
 /** \brief Return expressions associated with the given alias. */
 list<name> get_expr_aliases(environment const & env, name const & n);
 
+/** \brief Remove aliases for `n`, the effect affects the current scope only. */
+environment erase_expr_aliases(environment const & env, name const & n);
+
 /**
     \brief Add the alias \c a for level \c l. An error is generated if the new alias shadows
     existing aliases and/or declarations. We don't have "choice" construct for universe

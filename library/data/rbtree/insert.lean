@@ -70,37 +70,37 @@ variables (lt : α → α → Prop) [decidable_rel lt]
 @[elab_as_eliminator]
 lemma ins.induction {p : rbnode α → Prop}
   (t x)
-  (h₁ : p leaf)
-  (h₂ : ∀ a y b (hc : cmp_using lt x y = ordering.lt) (ih : p a), p (red_node a y b))
-  (h₃ : ∀ a y b (hc : cmp_using lt x y = ordering.eq), p (red_node a y b))
-  (h₄ : ∀ a y b (hc : cmp_using lt x y = ordering.gt) (ih : p b), p (red_node a y b))
-  (h₅ : ∀ a y b (hc : cmp_using lt x y = ordering.lt) (hr : get_color a = red) (ih : p a), p (black_node a y b))
-  (h₆ : ∀ a y b (hc : cmp_using lt x y = ordering.lt) (hnr : get_color a ≠ red) (ih : p a), p (black_node a y b))
-  (h₇ : ∀ a y b (hc : cmp_using lt x y = ordering.eq), p (black_node a y b))
-  (h₈ : ∀ a y b (hc : cmp_using lt x y = ordering.gt) (hr : get_color b = red) (ih : p b), p (black_node a y b))
-  (h₉ : ∀ a y b (hc : cmp_using lt x y = ordering.gt) (hnr : get_color b ≠ red) (ih : p b), p (black_node a y b))
+  (is_leaf : p leaf)
+  (is_red_lt : ∀ a y b (hc : cmp_using lt x y = ordering.lt) (ih : p a), p (red_node a y b))
+  (is_red_eq : ∀ a y b (hc : cmp_using lt x y = ordering.eq), p (red_node a y b))
+  (is_red_gt : ∀ a y b (hc : cmp_using lt x y = ordering.gt) (ih : p b), p (red_node a y b))
+  (is_black_lt_red : ∀ a y b (hc : cmp_using lt x y = ordering.lt) (hr : get_color a = red) (ih : p a), p (black_node a y b))
+  (is_black_lt_not_red : ∀ a y b (hc : cmp_using lt x y = ordering.lt) (hnr : get_color a ≠ red) (ih : p a), p (black_node a y b))
+  (is_black_eq : ∀ a y b (hc : cmp_using lt x y = ordering.eq), p (black_node a y b))
+  (is_black_gt_red : ∀ a y b (hc : cmp_using lt x y = ordering.gt) (hr : get_color b = red) (ih : p b), p (black_node a y b))
+  (is_black_gt_not_red : ∀ a y b (hc : cmp_using lt x y = ordering.gt) (hnr : get_color b ≠ red) (ih : p b), p (black_node a y b))
   : p t :=
 begin
   induction t,
-  case leaf { apply h₁ },
+  case leaf { apply is_leaf },
   case red_node : a y b {
      cases h : cmp_using lt x y,
-     case ordering.lt { apply h₂; assumption },
-     case ordering.eq { apply h₃; assumption },
-     case ordering.gt { apply h₄; assumption },
+     case ordering.lt { apply is_red_lt; assumption },
+     case ordering.eq { apply is_red_eq; assumption },
+     case ordering.gt { apply is_red_gt; assumption },
    },
   case black_node : a y b {
      cases h : cmp_using lt x y,
      case ordering.lt {
        by_cases get_color a = red,
-       { apply h₅; assumption },
-       { apply h₆; assumption },
+       { apply is_black_lt_red; assumption },
+       { apply is_black_lt_not_red; assumption },
      },
-     case ordering.eq { apply h₇; assumption },
+     case ordering.eq { apply is_black_eq; assumption },
      case ordering.gt {
        by_cases get_color b = red,
-       { apply h₈; assumption },
-       { apply h₉; assumption },
+       { apply is_black_gt_red; assumption },
+       { apply is_black_gt_not_red; assumption },
      }
   }
 end
@@ -131,17 +131,17 @@ end
 
 lemma is_searchable_ins {t x} [is_strict_weak_order α lt] : ∀ {lo hi} (h : is_searchable lt t lo hi), lift lt lo (some x) → lift lt (some x) hi → is_searchable lt (ins lt t x) lo hi :=
 begin
-  apply ins.induction lt t x; intros; simp [ins, *] at * {eta := ff}; is_searchable_tactic,
-  { apply ih h_hs₁, assumption, simp [*] },
-  { apply is_searchable_of_is_searchable_of_incomp hc, assumption },
-  { apply is_searchable_of_incomp_of_is_searchable hc, assumption },
-  { apply ih h_hs₂, cases hi; simp [*], assumption },
-  { apply is_searchable_balance1_node, apply ih h_hs₁, assumption, simp [*], assumption },
-  { apply ih h_hs₁, assumption, simp [*] },
-  { apply is_searchable_of_is_searchable_of_incomp hc, assumption },
-  { apply is_searchable_of_incomp_of_is_searchable hc, assumption },
-  { apply is_searchable_balance2_node, assumption, apply ih h_hs₂, simp [*], assumption },
-  { apply ih h_hs₂, assumption, simp [*] }
+  with_cases { apply ins.induction lt t x; intros; simp [ins, *] at * {eta := ff}; is_searchable_tactic },
+  case is_red_lt { apply ih h_hs₁, assumption, simp [*] },
+  case is_red_eq hs₁ { apply is_searchable_of_is_searchable_of_incomp hc, assumption },
+  case is_red_eq hs₂ { apply is_searchable_of_incomp_of_is_searchable hc, assumption },
+  case is_red_gt { apply ih h_hs₂, cases hi; simp [*], assumption },
+  case is_black_lt_red { apply is_searchable_balance1_node, apply ih h_hs₁, assumption, simp [*], assumption },
+  case is_black_lt_not_red { apply ih h_hs₁, assumption, simp [*] },
+  case is_black_eq hs₁ { apply is_searchable_of_is_searchable_of_incomp hc, assumption },
+  case is_black_eq hs₂ { apply is_searchable_of_incomp_of_is_searchable hc, assumption },
+  case is_black_gt_red { apply is_searchable_balance2_node, assumption, apply ih h_hs₂, simp [*], assumption },
+  case is_black_gt_not_red { apply ih h_hs₂, assumption, simp [*] }
 end
 
 lemma is_searchable_mk_insert_result {c t} : is_searchable lt t none none → is_searchable lt (mk_insert_result c t) none none :=
@@ -223,28 +223,33 @@ end
 
 lemma mem_ins_of_incomp (t : rbnode α) {x y : α} : ∀ h : ¬ lt x y ∧ ¬ lt y x, x ∈ t.ins lt y :=
 begin
-  apply ins.induction lt t y,
-  { simp [ins], apply id },
-  any_goals { intros, simp [ins, *] },
-  { have := ih h, apply mem_balance1_node_of_mem_left, assumption },
-  { have := ih h, apply mem_balance2_node_of_mem_left, assumption }
+  with_cases { apply ins.induction lt t y; intros; simp [ins, *] },
+  case is_black_lt_red { have := ih h, apply mem_balance1_node_of_mem_left, assumption },
+  case is_black_gt_red { have := ih h, apply mem_balance2_node_of_mem_left, assumption }
 end
 
 lemma mem_ins_of_mem [is_strict_weak_order α lt] {t : rbnode α} (z : α) : ∀ {x} (h : x ∈ t), x ∈ t.ins lt z :=
 begin
-  apply ins.induction lt t z; intros,
-  { simp [mem, ins] at h, contradiction },
-  all_goals { simp [ins, *] at *, blast_disjs },
-  any_goals { simp [h] },
-  any_goals { simp [ih h] },
-  { have := incomp_trans_of lt h ⟨hc.2, hc.1⟩, simp [this] },
-  { apply mem_balance1_node_of_mem_left, apply ih h },
-  { have := ins_ne_leaf lt a z, apply mem_balance1_node_of_incomp, cases h, all_goals { simp [*] } },
-  { apply mem_balance1_node_of_mem_right, assumption },
-  { have := incomp_trans_of lt hc ⟨h.2, h.1⟩, simp [this] },
-  { apply mem_balance2_node_of_mem_right, assumption },
-  { have := ins_ne_leaf lt a z, apply mem_balance2_node_of_incomp, cases h, simp [*], apply ins_ne_leaf },
-  { apply mem_balance2_node_of_mem_left, apply ih h }
+  with_cases { apply ins.induction lt t z; intros; simp [ins, *] at *; try { contradiction }; blast_disjs },
+  case is_red_eq or.inr or.inl {
+    have := incomp_trans_of lt h ⟨hc.2, hc.1⟩, simp [this] },
+  case is_black_lt_red or.inl {
+    apply mem_balance1_node_of_mem_left, apply ih h },
+  case is_black_lt_red or.inr or.inl {
+    have := ins_ne_leaf lt a z, apply mem_balance1_node_of_incomp, cases h, all_goals { simp [*] } },
+  case is_black_lt_red or.inr or.inr {
+    apply mem_balance1_node_of_mem_right, assumption },
+  case is_black_eq or.inr or.inl {
+    have := incomp_trans_of lt hc ⟨h.2, h.1⟩, simp [this] },
+  case is_black_gt_red or.inl {
+    apply mem_balance2_node_of_mem_right, assumption },
+  case is_black_gt_red or.inr or.inl {
+    have := ins_ne_leaf lt a z, apply mem_balance2_node_of_incomp, cases h, simp [*], apply ins_ne_leaf },
+  case is_black_gt_red or.inr or.inr {
+    apply mem_balance2_node_of_mem_left, apply ih h },
+  -- remaining cases are easy
+  any_goals { intros, simp [h], done },
+  all_goals { intros, simp [ih h], done },
 end
 
 lemma mem_mk_insert_result {a t} (c) : mem lt a t → mem lt a (mk_insert_result c t) :=
@@ -275,11 +280,18 @@ end
 
 lemma equiv_or_mem_of_mem_ins [is_strict_weak_order α lt] {t : rbnode α} {x z} : ∀ (h : x ∈ t.ins lt z), x ≈[lt] z ∨ x ∈ t :=
 begin
-  apply ins.induction lt t z; intros; simp [ins, strict_weak_order.equiv, *] at *; blast_disjs,
-  any_goals { simp [h] },
-  any_goals { have ih := ih h, cases ih; simp [*], done },
-  { have h' := of_mem_balance1_node lt h, blast_disjs, have := ih h', blast_disjs, all_goals { simp [*] } },
-  { have h' := of_mem_balance2_node lt h, blast_disjs, have := ih h', blast_disjs, all_goals { simp [*] } }
+  with_cases { apply ins.induction lt t z; intros; simp [ins, strict_weak_order.equiv, *] at *; blast_disjs },
+  case is_black_lt_red {
+     have h' := of_mem_balance1_node lt h, blast_disjs,
+     have := ih h', blast_disjs,
+     all_goals { simp [h, *] } },
+  case is_black_gt_red {
+     have h' := of_mem_balance2_node lt h, blast_disjs,
+     have := ih h', blast_disjs,
+     all_goals { simp [h, *] }},
+  -- All other goals can be solved by the following tactics
+  any_goals { intros, simp [h] },
+  all_goals { intros, have ih := ih h, cases ih; simp [*], done },
 end
 
 lemma equiv_or_mem_of_mem_insert [is_strict_weak_order α lt] {t : rbnode α} {x z} : ∀ (h : x ∈ t.insert lt z), x ≈[lt] z ∨ x ∈ t :=

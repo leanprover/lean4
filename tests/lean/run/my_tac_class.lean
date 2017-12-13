@@ -2,7 +2,10 @@ meta def mytac :=
 state_t nat tactic
 
 meta instance : monad mytac :=
-state_t.monad _ _
+state_t.monad
+
+meta instance : monad_state nat mytac :=
+state_t.monad_state
 
 meta instance : has_monad_lift tactic mytac :=
 monad_transformer_lift (state_t nat) tactic
@@ -30,7 +33,7 @@ meta def execute (tac : mytac unit) : tactic unit :=
 tac 0 >> return ()
 
 meta def save_info (p : pos) : mytac unit :=
-do v ← state_t.read,
+do v ← get,
    s ← tactic.read,
    tactic.save_info_thunk p
       (λ _, to_fmt "Custom state: " ++ to_fmt v ++ format.line ++
@@ -50,7 +53,7 @@ meta def assumption : mytac unit :=
 tactic.assumption
 
 meta def inc : mytac unit :=
-do v ← state_t.read, state_t.write (v+1)
+modify (+1)
 
 end interactive
 end mytac

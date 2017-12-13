@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner
 -/
 prelude
-import init.category.state init.function init.coe
+import init.function init.coe
+import init.category.monad
 
 universes u v w
 
@@ -35,13 +36,3 @@ instance has_monad_lift_t_trans (m n o) [has_monad_lift n o] [has_monad_lift_t m
 
 instance has_monad_lift_t_refl (m) [monad m] : has_monad_lift_t m m :=
 ⟨λ α, id⟩
-
-namespace state_t
-
-def state_t_monad_lift (S) (m) [monad m] (α) (f : m α) : state_t S m α :=
-assume state, do res ← f, return (res, state)
-
-instance (S) : monad_transformer (state_t S) :=
-⟨state_t.monad S, state_t_monad_lift S⟩
-
-end state_t

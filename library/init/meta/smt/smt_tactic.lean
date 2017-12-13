@@ -60,7 +60,10 @@ meta instance : has_append smt_state :=
 list.has_append
 
 meta instance : monad smt_tactic :=
-state_t.monad _ _
+state_t.monad
+
+meta instance : monad_state smt_state smt_tactic :=
+state_t.monad_state
 
 /- We don't use the default state_t lift operation because only
    tactics that do not change hypotheses can be automatically lifted to smt_tactic. -/
@@ -174,7 +177,7 @@ iterate (ematch >> try close)
 open tactic
 
 protected meta def read : smt_tactic (smt_state × tactic_state) :=
-do s₁ ← state_t.read,
+do s₁ ← get,
    s₂ ← tactic.read,
    return (s₁, s₂)
 
@@ -218,7 +221,7 @@ meta def to_expr (q : pexpr) (allow_mvars := tt) : smt_tactic expr :=
 tactic.to_expr q allow_mvars
 
 meta def classical : smt_tactic bool :=
-do s ← state_t.read,
+do s ← get,
    return s.classical
 
 meta def num_goals : smt_tactic nat :=

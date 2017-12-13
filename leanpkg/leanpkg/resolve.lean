@@ -32,11 +32,11 @@ end assignment
 instance {α : Type} : has_coe (io α) (solver α) := ⟨state_t.lift⟩
 
 def not_yet_assigned (d : string) : solver bool := do
-assg ← state_t.read,
+assg ← get,
 return $ ¬ assg.contains d
 
 def resolved_path (d : string) : solver string := do
-assg ← state_t.read,
+assg ← get,
 some path ← return (assg.find d) | io.fail "",
 return path
 
@@ -58,7 +58,7 @@ match dep.src with
 | (source.path dir) := do
   let depdir := resolve_dir dir relpath,
   io.put_str_ln $ dep.name ++ ": using local path " ++ depdir,
-  state_t.modify $ λ assg, assg.insert dep.name depdir
+  modify $ λ assg, assg.insert dep.name depdir
 | (source.git url rev) := do
   let depdir := "_target/deps/" ++ dep.name,
   already_there ← dir_exists depdir,
@@ -75,7 +75,7 @@ match dep.src with
   },
   hash ← git_parse_origin_revision depdir rev,
   exec_cmd {cmd := "git", args := ["checkout", "--detach", hash], cwd := depdir},
-  state_t.modify $ λ assg, assg.insert dep.name depdir
+  modify $ λ assg, assg.insert dep.name depdir
 end
 
 def solve_deps_core : ∀ (rel_path : string) (d : manifest) (max_depth : ℕ), solver unit

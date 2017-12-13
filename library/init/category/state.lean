@@ -4,9 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
-import init.meta.interactive
+import init.category.alternative
 import init.category.id
-import init.category.lawful
 import init.category.transformers
 universes u v
 
@@ -58,25 +57,6 @@ section
 
   instance : monad (state_t σ m) :=
   { pure := @state_t.return σ m _, bind := @state_t.bind σ m _ }
-
-  instance (m : Type u → Type v) [lawful_monad m] : lawful_monad (state_t σ m) :=
-  {id_map := begin
-    intros, funext,
-    simp [(<$>), state_t.bind, state_t.return, function.comp, return],
-    have h : state_t.bind._match_1 (λ (x : α) (s : σ), @pure m _ _ (x, s)) = pure,
-    { funext s, cases s; refl },
-    { simp [h, bind_pure] },
-  end,
-  pure_bind := begin
-    intros, funext,
-    simp [bind, has_pure.pure, state_t.bind, state_t.return, pure_bind]
-  end,
-  bind_assoc := begin
-    intros, funext,
-    simp [bind, state_t.bind, state_t.return, bind_assoc],
-    apply congr_arg, funext r,
-    cases r, refl
-  end, ..state_t.monad}
 
   protected def orelse [alternative m] (α : Type u) (act₁ act₂ : state_t σ m α) : state_t σ m α :=
   λ s, act₁ s <|> act₂ s

@@ -5,6 +5,7 @@ Authors: Sebastian Ullrich
 -/
 prelude
 import init.category.monad init.meta.interactive
+import init.category.state
 universes u v
 
 open function
@@ -78,3 +79,25 @@ by intros; rw ←bind_pure_comp_eq_map; simp [pure_bind],
   seq_assoc := by intros; simp [(bind_pure_comp_eq_map _ _ _).symm,
                                 (bind_bind_pure_comp_eq_seq _ _ _).symm, bind_assoc],
   ..i }
+
+
+-- instances of previously defined monads
+
+instance (m : Type u → Type v) [lawful_monad m] (σ : Type u) : lawful_monad (state_t σ m) :=
+{ id_map := begin
+    intros, funext,
+    simp [(<$>), state_t.bind, state_t.return, function.comp, return],
+    have h : state_t.bind._match_1 (λ (x : α) (s : σ), @pure m _ _ (x, s)) = pure,
+    { funext s, cases s; refl },
+    { simp [h, bind_pure] },
+  end,
+  pure_bind := begin
+    intros, funext,
+    simp [bind, has_pure.pure, state_t.bind, state_t.return, pure_bind]
+  end,
+  bind_assoc := begin
+    intros, funext,
+    simp [bind, state_t.bind, state_t.return, bind_assoc],
+    apply congr_arg, funext r,
+    cases r, refl
+  end, ..state_t.monad }

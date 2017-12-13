@@ -1439,13 +1439,16 @@ meta def match_target (t : parse texpr) (m := reducible) : tactic unit :=
 tactic.match_target t m >> skip
 
 /--
-`by_cases p with h` splits the main goal into two cases, assuming `h : p` in the first branch, and `h : ¬ p` in the second branch.
+`by_cases (h :)? p` splits the main goal into two cases, assuming `h : p` in the first branch, and `h : ¬ p` in the second branch.
 
 This tactic requires that `p` is decidable. To ensure that all propositions are decidable via classical reasoning, use  `local attribute classical.prop_decidable [instance]`.
 -/
-meta def by_cases (q : parse texpr) (n : parse (tk "with" *> ident)?): tactic unit :=
-do p ← tactic.to_expr_strict q,
-   tactic.by_cases p (n.get_or_else `h)
+meta def by_cases : parse cases_arg_p → tactic unit
+| (n, q) := concat_tags $ do
+  p ← tactic.to_expr_strict q,
+  tactic.by_cases p (n.get_or_else `h),
+  pos_g :: neg_g :: rest ← get_goals,
+  return [(`pos, pos_g), (`neg, neg_g)]
 
 /--
 Apply function extensionality and introduce new hypotheses.
@@ -1471,7 +1474,7 @@ tactic.by_contradiction n >> return ()
 An abbreviation for `by_contradiction`.
 -/
 meta def by_contra (n : parse ident?) : tactic unit :=
-tactic.by_contradiction n >> return ()
+by_contradiction n
 
 /--
 Type check the given expression, and trace its type.

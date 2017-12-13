@@ -30,13 +30,13 @@ by contradiction
 by contradiction
 
 @[simp] theorem ite_eq_lt_distrib (c : Prop) [decidable c] (a b : ordering) : ((if c then a else b) = ordering.lt) = (if c then a = ordering.lt else b = ordering.lt) :=
-by by_cases c with h; simp [h]
+by by_cases c; simp [*]
 
 @[simp] theorem ite_eq_eq_distrib (c : Prop) [decidable c] (a b : ordering) : ((if c then a else b) = ordering.eq) = (if c then a = ordering.eq else b = ordering.eq) :=
-by by_cases c with h; simp [h]
+by by_cases c; simp [*]
 
 @[simp] theorem ite_eq_gt_distrib (c : Prop) [decidable c] (a b : ordering) : ((if c then a else b) = ordering.gt) = (if c then a = ordering.gt else b = ordering.gt) :=
-by by_cases c with h; simp [h]
+by by_cases c; simp [*]
 
 /- ------------------------------------------------------------------ -/
 end ordering

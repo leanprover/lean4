@@ -141,7 +141,7 @@ by cases a; cases b; exact dec_trivial
 by cases a; cases b; exact dec_trivial
 
 @[simp] theorem ite_eq_tt_distrib (c : Prop) [decidable c] (a b : bool) : ((if c then a else b) = tt) = (if c then a = tt else b = tt) :=
-by by_cases c with h; simp [h]
+by by_cases c; simp [*]
 
 @[simp] theorem ite_eq_ff_distrib (c : Prop) [decidable c] (a b : bool) : ((if c then a else b) = ff) = (if c then a = ff else b = ff) :=
-by by_cases c with h; simp [h]
+by by_cases c; simp [*]

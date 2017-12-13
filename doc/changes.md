@@ -138,6 +138,8 @@ master branch (aka work in progress branch)
 
 * `apply` now also returns the new metavariables (and the parameter name associated with them). Even the assigned metavariables are returned.
 
+* `by_cases p with h` ==> `by_cases h : p`
+
 *API name changes*
 
 v3.3.0 (14 September 2017)

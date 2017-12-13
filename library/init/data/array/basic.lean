@@ -84,7 +84,7 @@ lemma of_beq_aux_eq_tt [∀ i, decidable_eq (α i)] {a b : d_array n α} : ∀ (
     have h₂' : read a ⟨i, h₁⟩ = read b ⟨i, h₁⟩ ∧ d_array.beq_aux a b i _ = tt, {simp [d_array.beq_aux] at h₂, assumption},
     have h₁' : i ≤ n, from le_of_lt h₁,
     have ih  : ∀ (j : nat) (h' : j < i), a.read ⟨j, lt_of_lt_of_le h' h₁'⟩ = b.read ⟨j, lt_of_lt_of_le h' h₁'⟩, from of_beq_aux_eq_tt i h₁' h₂'.2,
-    by_cases j = i with hji,
+    by_cases hji : j = i,
     { subst hji, exact h₂'.1 },
     { have j_lt_i : j < i, from lt_of_le_of_ne (nat.le_of_lt_succ h₃) hji,
       exact ih j j_lt_i }

@@ -24,7 +24,7 @@ solve1 $ intros
 >> try `[apply le_of_not_le, assumption]
 
 meta def tactic.interactive.min_tac (a b : interactive.parse lean.parser.pexpr) : tactic unit :=
-`[by_cases (%%a ≤ %%b), iterate {min_tac_step}]
+interactive.by_cases (none, ``(%%a ≤ %%b)); min_tac_step
 
 lemma min_le_left (a b : α) : min a b ≤ a :=
 by min_tac a b

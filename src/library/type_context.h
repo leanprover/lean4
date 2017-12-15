@@ -197,6 +197,267 @@ class type_context : public abstract_type_context {
             m_mctx(mctx), m_tmp_uassignment_sz(usz), m_tmp_eassignment_sz(esz), m_tmp_trail_sz(tsz) {}
     };
 public:
+    /*
+      NEW DESIGN notes. (This is work in progress)
+
+      Two kinds of metavariables are supported: regular and temporary.
+
+      *** Regular metavariables ***
+
+      The regular metavariable declarations are stored in the metavariable
+      context object defined at `metavar_context`. Each declaration
+      contain the local context and the type of the metavariable.
+      We use the notation
+
+          ?m : ctx |- type
+
+      to represent a metavariable `?m` with local context `ctx` and
+      type `type`. In the tactic framework, each goal is represented
+      as a regular metavariable. We also have regular universe metavariables.
+      We assign (universe) terms to (universe) metavariables. The assignments
+      are stored in the `metavar_context` object. The context is used
+      to decide whether an assignment is valid or not. For example,
+      given the metavariable
+
+          ?m : (n m : nat) (h : m = n) |- n = m
+
+      The assignment
+
+          ?m := h'
+
+      is not valid since `h'` is not part of the local context, but
+
+          ?m := @eq.symm nat m n h
+
+      is a valid assignment because all locals are in the local context,
+      and the type of the term being assigned to `?m` is definitionally
+      equal to the type of `?m`.
+
+      Regular metavariables are also use to represent `_` holes in
+      during the elaboration process.
+
+      *** Temporary metavariables ***
+
+      Several procedures (e.g., type class resolution, simplifier) need
+      to create metavariables that are needed for a short period of time.
+      For example, when applying a simplification lemma such as
+
+         forall x, f x x = x
+
+      to a subterm `t`, we need need to check whether the term
+      `t` is an instance of `f ?x ?x`, where `?x` is a fresh metavariable.
+      That is, we need to find an assignment for `?x` such that `t`
+      and `f ?x ?x` become definitionally equal. If the assignment is found,
+      we replace the term `t` with the term assigned to `?x`. After that,
+      we don't need the metavariable `?x` anymore. We don't want to
+      use regular metavariables for this operation since we don't want
+      to waste time declaring them (i.e., updating `metavar_context`),
+      then creating the term `f ?x ?x` with the newly created metavariable,
+      and then performing the matching operation, and finally deleting `?x`.
+      We avoid this overhead by using temporary metavariables.
+      All temporary metavariables used to solve a particular problem (e.g., matching)
+      share the same local context, the type of a metavariable is stored in
+      the metavariable itself, finally the metavariable has an unique
+      (usually) small integer as its identifier. The raw API for creating
+      temporary metavariables is defined in the file idx_metavar.h.
+      Since, the identifiers of temporary metavariables are small integers,
+      we implement the temporary metavariable assignment using arrays.
+      This is much more efficient than using a map datastructure.
+
+      *** Temporary metavariable Offsets ***
+
+      When trying to apply a simplification such as `forall x, f x x = x` to a term `t`,
+      we don't want to create a fresh metavariable `?x` and a new term `f ?x ?x` (called pattern)
+      every single time. This would be too inefficient.  We create the temporary
+      metavariables and the pattern once for each simplification lemma
+      and use them multiple times. However, sometimes we need to solve a subproblem S that
+      requires temporary metavariables while solve a problem P that
+      also requires temporary metavariables. If both S and P use
+      pre-allocated temporary metavariables and patterns, the small
+      integers used to identify temporary metavariables may overlap.
+      We address this issue  by using `offsets`. The operation
+      `lift k t`, where `k` is an offset and `t` is a term, returns
+      the term `t'` where each temporary metavariable with index `i` in `t`
+      is replaced with one with index `i+k`. To avoid the explicit construction of
+      term `t'`, the `is_def_eq` predicate takes offsets as parameters.
+      That is, `is_def_eq(k_1, t_1, k_2, t_2)` checks whether
+      the terms `lift k_1 t_1` and `lift k_2 t_2` are definitionally equal
+      without constructing these terms explicitly.
+
+      *** Backtracking and scopes ***
+
+      The type context performs "local backtracking".
+      When backtracking, assignments have to be undone.
+      This feature is used to implement heuristics for the `is_def_eq` predicate.
+      For example, when checking `f a =?= f b` (i.e., `f a` is definitionally equal
+      fo `f b`), we first check `a =?= b`, if it fails, we backtrack and try
+      to unfold the `f`-applications. We say the backtracking is local
+      because if `a =?= b` succeeds, we commit to this choice.
+
+      The backtracking support is implemeted using a "scope" objects.
+      It saves the current state of `metavar_context` and sice of the
+      trail stack (aka undo stack) for temporary metavariables. Whenever a temporary
+      metavariable is assigned a new entry is inserted into the trail stack.
+
+      *** Unification vs Matching vs pure definitional equality ***
+
+      Suppose we have a simplification lemma `forall x, f x 0 = x`,
+      and a term `f a ?m`, where `?m` is a metavariable, from our goal.
+      We don't want to solve the constraint `f ?x 0 =?= f a ?m` by assigning
+      `?x := a` and `?m := 0`. That is, we don't want to restrict the
+      possible interpretations for `?m` based on a simplification rule
+      that is being applied automatically. In this kind of scenario,
+      we want to treat `?m` as a constant instead of a metavariable.
+      We say `f ?x 0 =?= f a ?m` is a matching problem when only the
+      metavariables occurring on the left-hand-side can be assigned.
+
+      If metavariables on both sides can be assigned, we say it is
+      a unification problem.
+
+      If metavariables on both sides cannot be assigned, we say it is
+      a pure definitional equality problem. This mode is used to implement
+      the tactic `tactic.is_def_eq t s` that should only succeed if
+      `t` and `s` are definitionally equal without assigining any
+      metavariables occurring in them.
+
+      The three kinds of problems are implemeted using the `is_def_eq`
+      method. It uses two flags to track whether metavariables
+      occurring on the right and left hand side can be assigned or not.
+
+      There is a special case where a metavariable can be assigned even
+      if the flg indicates no matching varible can be assigned in the corresponding
+      side. Suppose we are trying to solve the following matching problem:
+
+          nat.add ?x_0 (nat.succ ?x_1) =?= nat.add n (@one nat ?m)
+
+      The term `@one nat ?m` cannot be reduced to `nat.succ nat.zero`
+      because the type class instance has not been synthesized yet.
+      This kind of problem occurs in practice. We have considered two
+      solutions
+
+      a) Make sure we solve any pending type class resolution problem
+         before trying to match. Unfortunately, this is too expensive.
+
+      b) Allow metavariables on the right hand side to be assigned
+         by type class resolution during the matching.
+         We use this option. We say this design decision is fine
+         because we are not changing the meaning of the right hand
+         side, we are just solving a pending type class resolution
+         problem that would be solved anyway later.
+         This also forces us to have an offset for the right hand side
+         even if we are solving a matching problem.
+
+         Corner case: we may synthesize `?m`, but the result is backtracked.
+         In principle, this is not a problem if `inout` parameters are not used.
+         In this case, we should produce the same solution again when we
+         try to synthesize `?m` again. Here, we are assuming that the same
+         set of local type class instances will be used. If `inout` parameters
+         are used, we may be in a situation that when we try again we have
+         more information about this parameter and a different instance is
+         selected. We ignore this problem for now, we say the user is misusing
+         the `inout` parameters in this case. Another option: we replace `inout`
+         with `out` parameters. Then, the result of the type class resolution
+         procedure will not depend on partial information available on `inout`
+         parameters.
+
+      *** TMP mode ***
+
+      To be able to use temporary metavariables, the type_context must
+      be put into TMP mode. We have an auxiliary object to set/unset
+      TMP mode.
+
+      *** Cache ***
+
+      We only cache results for `is_def_eq` if the terms do not contain
+      metavariables. hus, the cached results do not depend
+      on whether metavariable assignments are allowed on
+      the left/right hand sides or not.
+
+      Possible improvement: cache results if metavariable assignments
+      did not occur.
+      We use this approach for the infer and whnf caches.
+
+      *** is_def_eq usage assumptions ***
+
+      When checking `t =?= s` using `is_def_eq`, we assume that
+      `t` (`s`) contains only regular metavariables OR only temporary metavariables.
+
+      If `t` or `s` contain temporary metavariables, then the type_context must
+      be in TMP mode.
+
+      If `t` (`s`) contains temporary metavariables, then :
+      1- `s` (`t`) contains only temporary metavariables OR
+      2- `s` (`t`) contains only regular metavariables, but metavariable assignments are disable for `s` (`t`).
+
+      If `t` (`s`) contains temporary metavariables, and metavariable assignments are enabled, then
+      - All temporary metavariables occurring in `s` (`t`) should share the same local context
+        assumed for `t` (`s`). That is, the local context for the metavariables in `t` (`s`)
+        is an extension of the local context for the metavariables in `s` (`t`).
+
+      If `t` (`s`) contains regular metavariables, then :
+      1- `s` (`t`) contains only regular metavariables OR
+      2- metavariable assignments are disabled for `t` (`s`)
+
+      The assumptions above make sure we cannot assign a term `t` to a regular
+      metavariable `?m` if `t` contains temporary metavariables.
+      This is important because the scope of temporary metavariable is
+      defined by the problem that created it.
+      Moreover, the same metavariable id may be used by different
+      modules. So, we should make sure a temporary metavariable should not
+      leak into a goal. More generally, the temporary metavariables used to solve
+      a problem P should not leak outside of P.
+
+      It is the user responsability to make sure we do not mix temporary
+      metavariables created for solving different problems.
+
+      *** Applications ***
+
+      - Elaboration and tactics such as `apply`.
+      We use regular metavariables and unification (i.e., metavariables on
+      the left and right hand side can be assigned).
+
+      - We also want to support a version of `apply` where metavariables
+      in the goal cannot be assigned. This variant does not exist
+      in versions <= 3.3. For this variant, we use regular metavariables and matching.
+
+      - `rewrite` tactic, we use regular metavariables and unification.
+      We also have the a variant (not available in versions <= 3.3) where
+      we use regular metavariables and matching.
+
+      - app_builder: a helper procedure for creating applications
+      where missing arguments and universes levels are inferred using type inference.
+      We use temporary metavariables and unification.
+
+      - tactic.is_def_eq: we use regular metavariables and pure definitionally
+      equality.
+
+      - Simplification lemmas: temporary metavariables and matching.
+
+      - Ematching lemmas: similar to simplification lemmas.
+
+      - (Internal) Type class resolution: we use temporary metavariables and unification.
+
+      - (Internal) Recursive function unfolding during `is_def_eq`.
+      (This feature is also not available in versions <= 3.3).
+      When unfolding recursive functions during `is_def_eq`,
+      we don't want to expose the internal recursors used when
+      compiling recursive applications. Thus, we use "refl"
+      equational lemmas produced by the equation compiler.
+      We are essentially using the equational lemma to
+      perform a delta reduction while we are solvind a
+      unification/matching problem.
+      Here again we use temporary metavariables and matching.
+
+      - (Internal) Unification hints. For versions <= 3.3, we used a
+      custom and very basic matching procedure to implement
+      this feature. This created several stability problems
+      and counterintuitive behavior. We use temporary
+      metavariables and matching.
+
+      The applications tagged with `(Internal)` are considered part of the
+      type_context implementation.
+    */
+
     /* This class supports temporary meta-variables "mode". In this "tmp" mode,
        is_metavar_decl_ref and is_univ_metavar_decl_ref are treated as opaque constants,
        and temporary metavariables (idx_metavar) are treated as metavariables,
@@ -237,7 +498,12 @@ private:
     scopes             m_scopes;
     tmp_data *         m_tmp_data;
     /* If m_approximate == true, then enable approximate higher-order unification
-       even if we are not in tmp_mode */
+       even if we are not in tmp_mode
+
+       Users:
+       - elaborator
+       - apply and rewrite tactics use it by default (it can be disabled).
+    */
     bool               m_approximate;
 
     /* If m_zeta, then use zeta-reduction (i.e., expand let-expressions at whnf) */

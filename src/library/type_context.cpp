@@ -1908,20 +1908,11 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
                The code is slightly different for tmp mode because the metavariables
                do not store their local context. */
             if (in_tmp_mode()) {
-                #if 0
-                /* By disabling the following test, we are assuming we are always performing
-                   this approximation when we are handling problems containing temporary
-                   metavariables. This seems to be a reasonable simplification.
-
-                   We want this simplification because we don't want to track m_mvar_lctx
-                   in the new type_context design.
-                */
                 if (m_tmp_data->m_mvar_lctx.find_local_decl(arg)) {
                     /* m is of the form (?M@C ... l ...) where l is a local constant in C */
                     if (!approximate())
                         return false;
                 }
-                #endif
             } else {
                 if (mvar_decl->get_context().find_local_decl(arg)) {
                     /* m is of the form (?M@C ... l ...) where l is a local constant in C. */
@@ -2096,18 +2087,7 @@ struct check_assignment_fn : public replace_visitor {
 
         bool in_ctx;
         if (m_ctx.in_tmp_mode()) {
-            in_ctx = true;
-            /*
-              We disabled the following line because we don't want to track m_mvar_lctx
-              in the new type_context design.
-
-              This code assumes this check is only needed when processing problems
-              with regular metavariables that have been created in different local contexts.
-
-              Recall that we assume that temporary metavariables used in a problem share
-              the same local context.
-            */
-            // in_ctx = static_cast<bool>(m_ctx.m_tmp_data->m_mvar_lctx.find_local_decl(e));
+            in_ctx = static_cast<bool>(m_ctx.m_tmp_data->m_mvar_lctx.find_local_decl(e));
         } else {
             in_ctx = static_cast<bool>(m_mvar_decl->get_context().find_local_decl(e));
         }

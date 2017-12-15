@@ -101,7 +101,7 @@ matrix:
 before_install:
   - if [[ $TRAVIS_OS_NAME == osx ]]; then
       brew update &&
-      brew install gcc &&
+      (brew install gcc || brew link --overwrite gcc) &&
       brew install gmp;
     fi
 

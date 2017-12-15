@@ -58,7 +58,7 @@ begin
   { simp [*] }
 end
 
-class Quote {V : inout Type u} (l : inout Env V) (n : Value) {V' : inout Type v} (r : inout Env V') :=
+class Quote {V : out Type u} (l : out Env V) (n : Value) {V' : out Type v} (r : out Env V') :=
 (quote      : Expr (sum V V'))
 (eval_quote : evalExpr (merge l r) quote = n)
 

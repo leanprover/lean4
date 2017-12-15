@@ -293,7 +293,7 @@ run_cmd script_check_id `of_eq_true
 run_cmd script_check_id `of_iff_true
 run_cmd script_check_id `opt_param
 run_cmd script_check_id `or
-run_cmd script_check_id `inout_param
+run_cmd script_check_id `out_param
 run_cmd script_check_id `punit
 run_cmd script_check_id `punit.star
 run_cmd script_check_id `prod.mk

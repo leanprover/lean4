@@ -295,7 +295,7 @@ name const & get_of_eq_true_name();
 name const & get_of_iff_true_name();
 name const & get_opt_param_name();
 name const & get_or_name();
-name const & get_inout_param_name();
+name const & get_out_param_name();
 name const & get_punit_name();
 name const & get_punit_star_name();
 name const & get_prod_mk_name();

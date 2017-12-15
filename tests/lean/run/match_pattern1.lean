@@ -10,6 +10,6 @@ by do
   trace (pattern.moutput p),
   H ← get_local `H >>= infer_type,
   lhs_rhs ← match_eq H,
-  out     ← match_pattern p (prod.fst lhs_rhs),
-  trace out,
+  r     ← match_pattern p (prod.fst lhs_rhs),
+  trace r,
   constructor

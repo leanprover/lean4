@@ -33,8 +33,11 @@ name const & get_anonymous_instance_prefix();
 name mk_anonymous_inst_name(unsigned idx);
 bool is_anonymous_inst_name(name const & n);
 
-/** \brief Return true iff e is of the form (inout_param a) */
-bool is_class_inout_param(expr const & e);
+/** \brief Return true iff e is of the form `out_param a` */
+bool is_class_out_param(expr const & e);
+
+/** \brief Return true iff c is a type class that contains an `out_param` */
+bool has_class_out_params(environment const & env, name const & c);
 
 /** \brief Add a new attribute for tracking symbols occurring in instances of type classes.
 

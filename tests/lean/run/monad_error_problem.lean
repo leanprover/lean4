@@ -1,6 +1,6 @@
 namespace issue
 universes u v w
-class monad_error (ε : inout Type u) (m : Type w → Type v) :=
+class monad_error (ε : out Type u) (m : Type w → Type v) :=
 [monad_m : monad m]
 (fail : Π {α : Type w}, ε → m α)
 
@@ -14,7 +14,7 @@ end issue
 
 namespace original_issue
 universes u v
-class monad_error (ε : inout Type u) (m : Type u → Type v) :=
+class monad_error (ε : out Type u) (m : Type u → Type v) :=
 [monad_m : monad m]
 (fail : Π {α : Type u}, ε → m α)
 

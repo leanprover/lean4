@@ -293,7 +293,7 @@ name const * g_of_eq_true = nullptr;
 name const * g_of_iff_true = nullptr;
 name const * g_opt_param = nullptr;
 name const * g_or = nullptr;
-name const * g_inout_param = nullptr;
+name const * g_out_param = nullptr;
 name const * g_punit = nullptr;
 name const * g_punit_star = nullptr;
 name const * g_prod_mk = nullptr;
@@ -674,7 +674,7 @@ void initialize_constants() {
     g_of_iff_true = new name{"of_iff_true"};
     g_opt_param = new name{"opt_param"};
     g_or = new name{"or"};
-    g_inout_param = new name{"inout_param"};
+    g_out_param = new name{"out_param"};
     g_punit = new name{"punit"};
     g_punit_star = new name{"punit", "star"};
     g_prod_mk = new name{"prod", "mk"};
@@ -1056,7 +1056,7 @@ void finalize_constants() {
     delete g_of_iff_true;
     delete g_opt_param;
     delete g_or;
-    delete g_inout_param;
+    delete g_out_param;
     delete g_punit;
     delete g_punit_star;
     delete g_prod_mk;
@@ -1437,7 +1437,7 @@ name const & get_of_eq_true_name() { return *g_of_eq_true; }
 name const & get_of_iff_true_name() { return *g_of_iff_true; }
 name const & get_opt_param_name() { return *g_opt_param; }
 name const & get_or_name() { return *g_or; }
-name const & get_inout_param_name() { return *g_inout_param; }
+name const & get_out_param_name() { return *g_out_param; }
 name const & get_punit_name() { return *g_punit; }
 name const & get_punit_star_name() { return *g_punit_star; }
 name const & get_prod_mk_name() { return *g_prod_mk; }

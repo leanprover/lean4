@@ -17,7 +17,7 @@ We also fail if ?m_i is not assigned.
 Remark: we do not cache results when temporary metavariables ?m_i are used.
 -/
 
-class is_monoid (α : Type) (op : inout α → α → α) (e : inout α) :=
+class is_monoid (α : Type) (op : out α → α → α) (e : out α) :=
 (op_assoc      : associative op)
 (left_neutral  : ∀ a : α, op e a = a)
 (right_neutral : ∀ a : α, op a e = a)
@@ -58,7 +58,7 @@ assoc a b c
 end
 
 section
-class has_mem2 (α : inout Type u) (γ : Type v) :=
+class has_mem2 (α : out Type u) (γ : Type v) :=
 (mem : α → γ → Prop)
 
 def mem2 {α : Type u} {γ : Type v} [has_mem2 α γ] : α → γ → Prop :=

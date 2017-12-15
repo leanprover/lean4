@@ -74,6 +74,11 @@ master branch (aka work in progress branch)
 
 *Changes*
 
+* Replace `inout` modifier in type class declarations with `out` modifier.
+  Reason: counterintuitive behavior in the type class resolution procedure.
+  The result could depend on partial information available in the `inout`
+  parameter.
+
 * `case` tactic now supports the `with_cases { t }` tactic. See entry above about `with_cases`.
   The tag and new hypotheses are now separated with `:`. Example:
   - `case pos { t }`: execute tactic `t` to goal tagged `pos`

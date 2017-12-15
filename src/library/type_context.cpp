@@ -3812,35 +3812,36 @@ static bool depends_on_mvar(expr const & e, buffer<expr> const & mvars) {
 }
 
 /*
-Type class parameters can be annotated with inout_param annotations.
+Type class parameters can be annotated with out_param annotations.
 
-Given (C a_1 ... a_n), we replace a_i with a temporary metavariable ?m_i IF
+Given (C a_1 ... a_n), we replace a_i with a temporary metavariable ?x_i IF
 - Case 1
-   a_i is an inout_param and it contains metavariables
+   a_i is an out_param
 OR
 - Case 2
-   a_i depends on a_j for j < i, and a_j was replaced with a temporary metavariable ?m_j.
+   a_i depends on a_j for j < i, and a_j was replaced with a temporary metavariable ?x_j.
    This case is needed to make sure the new C-application is type correct.
    It may be counterintuitive to some users.
    @kha and @leodemoura have discussed a different approach
    where a type class declaration is rejected IF
-   it contains a non inout paramater X that depends on an inout parameter Y.
+   it contains a regular parameter X that depends on an `out` parameter Y.
    If we reject this kind of declaration, then we don't need
    this extra case which may artificially treat regular parameters
-   as inout (**).
+   as `out` (**).
 
 Then, we execute type class resolution as usual.
-If it succeeds, and metavariables ?m_i have been assigned, we solve the unification
-constraints ?m_i =?= a_i. If we succeed, we return the result. Otherwise, we fail.
+If it succeeds, and metavariables ?x_i have been assigned, we solve the unification
+constraints ?x_i =?= a_i. If we succeed, we return the result. Otherwise, we fail.
 
-We store the pairs (a_i, m_i) in the buffer expr_replacements.
+We store the pairs (a_i, ?x_i) in the buffer expr_replacements.
 
-Remark: @kha and @leodemoura have considered a different design
+Remark: when we still had inout params in type classes (versions <= 3.3),
+@kha and @leodemoura have considered a different design
 where nested metavariables occurring in a_i are replaced with
 temporary metavariables. For example, suppose we have
 
 ```
-class foo (α : inout Type) := (a : α)
+class foo (α : out Type) := (a : α)
 instance foo2 : foo (set ℕ) := ⟨{1}⟩
 instance foo1 : foo ℕ := ⟨0⟩
 
@@ -3850,7 +3851,9 @@ instance foo1 : foo ℕ := ⟨0⟩
 When we preprocesses `foo (set ?m)`, we obtain `foo ?x_0`. Then, we produce
 the solution s with `?x_0 := nat`, which fails at `?x_0 =?= set ?m`.
 To obtain the correct solution, we need to backtrack and try other instances.
-Remark: the backtracking has not been implemented yet.
+Remark: backtracking is a nasty feature since it would be an indirect way
+of influencing the result of the type class resolution procedure based on
+(partial) information available in the `inout` parameter.
 
 Alternatively, if we replace nested metavariables with temporary ones,
 we would obtain `foo (set ?x_0)` after preprocessing `foo (set ?m)`,
@@ -3878,8 +3881,11 @@ For all these reasons, we have discarded this alternative design.
 expr type_context::preprocess_class(expr const & type,
                                     buffer<level_pair> & u_replacements,
                                     buffer<expr_pair> &  e_replacements) {
-    if (!has_metavar(type))
-        return type;
+    if (!has_metavar(type)) {
+        expr const & C = get_app_fn(type);
+        if (is_constant(C) && !has_class_out_params(env(), const_name(C)))
+            return type;
+    }
     type_context::tmp_locals locals(*this);
     expr it = type;
     while (true) {
@@ -3913,7 +3919,7 @@ expr type_context::preprocess_class(expr const & type,
             return type; /* failed */
         expr const & d = binding_domain(it2);
         if (/* Case 1 */
-            (is_class_inout_param(d) && has_expr_metavar(C_arg)) ||
+            (is_class_out_param(d) && has_expr_metavar(C_arg)) ||
             /* Case 2 */
             (depends_on_mvar(d, new_mvars))) {
             expr new_mvar = mk_tmp_mvar(locals.mk_pi(d));

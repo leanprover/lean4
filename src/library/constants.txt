@@ -288,7 +288,7 @@ of_eq_true
 of_iff_true
 opt_param
 or
-inout_param
+out_param
 punit
 punit.star
 prod.mk

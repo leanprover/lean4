@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 #include "library/class.h"
 #include "library/attribute_manager.h"
+#include "library/trace.h"
 
 namespace lean {
 enum class class_entry_kind { Class, Instance, Tracker };
@@ -47,6 +48,7 @@ struct class_state {
     instance_priorities   m_priorities;
     class_track_attrs     m_class_track_attrs;
     attr_symbols          m_attr_symbols;
+    name_set              m_has_out_params;
 
     unsigned get_priority(name const & i) const {
         if (auto it = m_priorities.find(i))
@@ -68,10 +70,21 @@ struct class_state {
             return list<name>(head(insts), insert(inst, priority, tail(insts)));
     }
 
-    void add_class(name const & c) {
+    void add_class(environment const & env, name const & c) {
         auto it = m_instances.find(c);
         if (!it)
             m_instances.insert(c, list<name>());
+        expr type = env.get(c).get_type();
+        bool has_out_param = false;
+        while (is_pi(type)) {
+            if (is_class_out_param(binding_domain(type))) {
+                has_out_param = true;
+                break;
+            }
+            type = binding_body(type);
+        }
+        if (has_out_param)
+            m_has_out_params.insert(c);
     }
 
     void collect_symbols(type_checker & tc, name const & inst, name const & attr) {
@@ -132,7 +145,7 @@ struct class_config {
     static void add_entry(environment const & env, io_state const &, state & s, entry const & e) {
         switch (e.m_kind) {
         case class_entry_kind::Class:
-            s.add_class(e.m_class);
+            s.add_class(env, e.m_class);
             break;
         case class_entry_kind::Instance:
             s.add_instance(env, e.m_class, e.m_instance, e.m_priority);
@@ -233,6 +246,11 @@ bool is_class(environment const & env, name const & c) {
     return s.m_instances.contains(c);
 }
 
+bool has_class_out_params(environment const & env, name const & c) {
+    class_state const & s = class_ext::get_state(env);
+    return s.m_has_out_params.contains(c);
+}
+
 environment add_instance_core(environment const & env, name const & n, unsigned priority, bool persistent) {
     declaration d = env.get(n);
     expr type = d.get_type();
@@ -321,8 +339,8 @@ bool is_anonymous_inst_name(name const & n) {
                    strlen(g_anonymous_inst_name_prefix->get_string())) == 0;
 }
 
-bool is_class_inout_param(expr const & e) {
-    return is_app_of(e, get_inout_param_name(), 1);
+bool is_class_out_param(expr const & e) {
+    return is_app_of(e, get_out_param_name(), 1);
 }
 
 static name_set * g_tracking_attributes = nullptr;

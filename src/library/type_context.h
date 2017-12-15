@@ -354,19 +354,18 @@ public:
          This also forces us to have an offset for the right hand side
          even if we are solving a matching problem.
 
-         Corner case: we may synthesize `?m`, but the assignment is undone during
-         backtracking.
-         In principle, this is not a problem if `inout` parameters are not used.
+         Corner case: we could synthesize `?m`,
+         but the assignment is undone during backtracking.
+         In versions <= 3.3, this would not be a problem if `inout` parameters were not used.
          In this case, we should produce the same solution again when we
          try to synthesize `?m` again. Here, we are assuming that the same
          set of local type class instances will be used. If `inout` parameters
-         are used, we may be in a situation that when we try again we have
+         were used, we may be in a situation that when we try again we have
          more information about this parameter and a different instance is
-         selected. We ignore this problem for now, we say the user is misusing
-         the `inout` parameters in this case. Another option: we replace `inout`
-         with `out` parameters. Then, the result of the type class resolution
-         procedure will not depend on partial information available on `inout`
-         parameters.
+         selected.
+         We addressed this issue by replacing `inout` parameters with `out` parameters.
+         Then, the result of the type class resolution procedure will not depend on
+         partial information available on `out` parameters.
 
       *** TMP mode ***
 

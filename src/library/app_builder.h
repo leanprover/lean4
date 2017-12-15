@@ -196,8 +196,6 @@ expr mk_iff_mpr(type_context & ctx, expr const & h1, expr const & h2);
 expr mk_eq_mp(type_context & ctx, expr const & h1, expr const & h2);
 expr mk_eq_mpr(type_context & ctx, expr const & h1, expr const & h2);
 
-level get_level(type_context & ctx, expr const & A);
-
 void initialize_app_builder();
 void finalize_app_builder();
 }

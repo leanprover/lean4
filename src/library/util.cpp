@@ -62,7 +62,7 @@ optional<expr_pair> is_auto_param(expr const & e) {
 }
 
 level get_level(abstract_type_context & ctx, expr const & A) {
-    expr S = ctx.whnf(ctx.infer(A));
+    expr S = ctx.relaxed_whnf(ctx.infer(A));
     if (!is_sort(S))
         throw exception("invalid expression, sort expected");
     return sort_level(S);

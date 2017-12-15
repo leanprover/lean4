@@ -130,15 +130,14 @@ app_builder_cache & get_app_builder_cache_for(type_context const & ctx) {
     return get_abch().get_cache_for(ctx);
 }
 
-level get_level(type_context & ctx, expr const & A) {
-    expr Type = ctx.relaxed_whnf(ctx.infer(A));
-    if (!is_sort(Type)) {
+static level get_level_ap(type_context & ctx, expr const & A) {
+    try {
+        return get_level(ctx, A);
+    } catch (exception &) {
         lean_app_builder_trace_core(ctx, tout() << "failed to infer universe level for type " << A << "\n";);
         throw app_builder_exception();
     }
-    return sort_level(Type);
 }
-
 
 /** \brief Helper for creating simple applications where some arguments are inferred using
     type inference.
@@ -316,7 +315,7 @@ public:
     app_builder(type_context & ctx):m_ctx(ctx), m_cache(get_app_builder_cache_for(ctx)) {}
 
     level get_level(expr const & A) {
-        return ::lean::get_level(m_ctx, A);
+        return get_level_ap(m_ctx, A);
     }
 
     expr mk_app(name const & c, unsigned nargs, expr const * args) {
@@ -957,8 +956,8 @@ expr mk_congr_arg(type_context & ctx, expr const & f, expr const & H, bool skip_
     } else {
         B = binding_body(pi);
     }
-    level lvl_1  = get_level(ctx, A);
-    level lvl_2  = get_level(ctx, B);
+    level lvl_1  = get_level_ap(ctx, A);
+    level lvl_2  = get_level_ap(ctx, B);
     return mk_app({mk_constant(get_congr_arg_name(), {lvl_1, lvl_2}), A, B, lhs, rhs, f, H});
 }
 
@@ -976,8 +975,8 @@ expr mk_congr_fun(type_context & ctx, expr const & H, expr const & a) {
     }
     expr A       = binding_domain(pi);
     expr B       = mk_lambda(binding_name(pi), binding_domain(pi), binding_body(pi), binding_info(pi));
-    level lvl_1  = get_level(ctx, A);
-    level lvl_2  = get_level(ctx, mk_app(B, a));
+    level lvl_1  = get_level_ap(ctx, A);
+    level lvl_2  = get_level_ap(ctx, mk_app(B, a));
     return mk_app({mk_constant(get_congr_fun_name(), {lvl_1, lvl_2}), A, B, lhs, rhs, H, a});
 }
 
@@ -1007,8 +1006,8 @@ expr mk_congr(type_context & ctx, expr const & H1, expr const & H2, bool skip_ar
         B = binding_body(pi);
     }
     A            = binding_domain(pi);
-    level lvl_1  = get_level(ctx, A);
-    level lvl_2  = get_level(ctx, B);
+    level lvl_1  = get_level_ap(ctx, A);
+    level lvl_2  = get_level_ap(ctx, B);
     return mk_app({mk_constant(get_congr_name(), {lvl_1, lvl_2}), A, B, lhs1, rhs1, lhs2, rhs2, H1, H2});
 }
 
@@ -1128,7 +1127,7 @@ expr mk_ite(type_context & ctx, expr const & c, expr const & t, expr const & e) 
 }
 
 expr mk_id(type_context & ctx, expr const & type, expr const & h) {
-    level lvl = get_level(ctx, type);
+    level lvl = get_level_ap(ctx, type);
     return mk_app(mk_constant(get_id_name(), {lvl}), type, h);
 }
 
@@ -1138,13 +1137,13 @@ expr mk_id(type_context & ctx, expr const & h) {
 
 expr mk_id_rhs(type_context & ctx, expr const & h) {
     expr type = ctx.infer(h);
-    level lvl = get_level(ctx, type);
+    level lvl = get_level_ap(ctx, type);
     return mk_app(mk_constant(get_id_rhs_name(), {lvl}), type, h);
 }
 
 expr mk_id_delta(type_context & ctx, expr const & h) {
     expr type = ctx.infer(h);
-    level lvl = get_level(ctx, type);
+    level lvl = get_level_ap(ctx, type);
     return mk_app(mk_constant(get_id_delta_name(), {lvl}), type, h);
 }
 

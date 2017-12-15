@@ -104,8 +104,6 @@ a
 /-- Gadget for marking output parameters in type classes. -/
 @[reducible] def out_param (α : Sort u) : Sort u := α
 
-notation `out`:1024 a:0 := out_param a
-
 inductive punit : Sort u
 | star : punit
 
@@ -311,7 +309,7 @@ class has_mod      (α : Type u) := (mod : α → α → α)
 class has_le       (α : Type u) := (le : α → α → Prop)
 class has_lt       (α : Type u) := (lt : α → α → Prop)
 class has_append   (α : Type u) := (append : α → α → α)
-class has_andthen  (α : Type u) (β : Type v) (σ : out Type w) := (andthen : α → β → σ)
+class has_andthen  (α : Type u) (β : Type v) (σ : out_param $ Type w) := (andthen : α → β → σ)
 class has_union    (α : Type u) := (union : α → α → α)
 class has_inter    (α : Type u) := (inter : α → α → α)
 class has_sdiff    (α : Type u) := (sdiff : α → α → α)
@@ -322,12 +320,12 @@ class has_ssubset  (α : Type u) := (ssubset : α → α → Prop)
    used to implement polymorphic notation for collections.
    Example: {a, b, c}. -/
 class has_emptyc   (α : Type u) := (emptyc : α)
-class has_insert   (α : out Type u) (γ : Type v) := (insert : α → γ → γ)
+class has_insert   (α : out_param $ Type u) (γ : Type v) := (insert : α → γ → γ)
 /- Type class used to implement the notation { a ∈ c | p a } -/
-class has_sep (α : out Type u) (γ : Type v) :=
+class has_sep (α : out_param $ Type u) (γ : Type v) :=
 (sep : (α → Prop) → γ → γ)
 /- Type class for set-like membership -/
-class has_mem (α : out Type u) (γ : Type v) := (mem : α → γ → Prop)
+class has_mem (α : out_param $ Type u) (γ : Type v) := (mem : α → γ → Prop)
 
 def andthen {α : Type u} {β : Type v} {σ : Type w} [has_andthen α β σ] : α → β → σ :=
 has_andthen.andthen σ

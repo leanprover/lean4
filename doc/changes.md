@@ -74,10 +74,18 @@ master branch (aka work in progress branch)
 
 *Changes*
 
-* Replace `inout` modifier in type class declarations with `out` modifier.
+* Replace `inout` modifier in type class declarations with `out_param` modifier.
   Reason: counterintuitive behavior in the type class resolution procedure.
   The result could depend on partial information available in the `inout`
-  parameter.
+  parameter. Now a parameter `(R : inout α → β → Prop)` should be written
+  as `(R : out_param (α → β → Prop))` or `(R : out_param $ α → β → Prop)`.
+  Remark: users may define their own notation for declaring `out_param`s.
+  Example:
+  ```
+  notation `out`:1024 a:0 := out_param a
+  ```
+  We did not include this notation in core lib because `out` is frequently used to
+  name parameters, local variables, etc.
 
 * `case` tactic now supports the `with_cases { t }` tactic. See entry above about `with_cases`.
   The tag and new hypotheses are now separated with `:`. Example:

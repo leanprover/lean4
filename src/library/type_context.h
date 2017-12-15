@@ -233,7 +233,7 @@ public:
       and the type of the term being assigned to `?m` is definitionally
       equal to the type of `?m`.
 
-      Regular metavariables are also use to represent `_` holes in
+      Regular metavariables are also used to represent `_` holes
       during the elaboration process.
 
       *** Temporary metavariables ***
@@ -257,7 +257,7 @@ public:
       We avoid this overhead by using temporary metavariables.
       All temporary metavariables used to solve a particular problem (e.g., matching)
       share the same local context, the type of a metavariable is stored in
-      the metavariable itself, finally the metavariable has an unique
+      the metavariable itself, finally the metavariable uses an unique
       (usually) small integer as its identifier. The raw API for creating
       temporary metavariables is defined in the file idx_metavar.h.
       Since, the identifiers of temporary metavariables are small integers,
@@ -271,7 +271,7 @@ public:
       every single time. This would be too inefficient.  We create the temporary
       metavariables and the pattern once for each simplification lemma
       and use them multiple times. However, sometimes we need to solve a subproblem S that
-      requires temporary metavariables while solve a problem P that
+      requires temporary metavariables while solving a problem P that
       also requires temporary metavariables. If both S and P use
       pre-allocated temporary metavariables and patterns, the small
       integers used to identify temporary metavariables may overlap.
@@ -284,25 +284,31 @@ public:
       the terms `lift k_1 t_1` and `lift k_2 t_2` are definitionally equal
       without constructing these terms explicitly.
 
+      Remark: when assigning `(k_1, ?x) := (k_2, t)` where `?x` is a temporary metavariable
+      and `k_1` and `k_2` are offsets, we update the array entry `idx(?x) + k_1` with
+      `(lift k_2 t)`.
+
       *** Backtracking and scopes ***
 
       The type context performs "local backtracking".
       When backtracking, assignments have to be undone.
-      This feature is used to implement heuristics for the `is_def_eq` predicate.
+      This feature is used to implement heuristics for the `is_def_eq` predicate, and
+      to undo any assignment performed by failed `is_def_eq t s` tests.
+
       For example, when checking `f a =?= f b` (i.e., `f a` is definitionally equal
       fo `f b`), we first check `a =?= b`, if it fails, we backtrack and try
       to unfold the `f`-applications. We say the backtracking is local
       because if `a =?= b` succeeds, we commit to this choice.
 
-      The backtracking support is implemeted using a "scope" objects.
-      It saves the current state of `metavar_context` and sice of the
+      The backtracking support is implemeted using "scope" objects.
+      It saves the current state of `metavar_context` and the size of the
       trail stack (aka undo stack) for temporary metavariables. Whenever a temporary
       metavariable is assigned a new entry is inserted into the trail stack.
 
       *** Unification vs Matching vs pure definitional equality ***
 
       Suppose we have a simplification lemma `forall x, f x 0 = x`,
-      and a term `f a ?m`, where `?m` is a metavariable, from our goal.
+      and a term `f a ?m`, where `?m` is a regular metavariable, from our goal.
       We don't want to solve the constraint `f ?x 0 =?= f a ?m` by assigning
       `?x := a` and `?m := 0`. That is, we don't want to restrict the
       possible interpretations for `?m` based on a simplification rule
@@ -311,7 +317,7 @@ public:
       We say `f ?x 0 =?= f a ?m` is a matching problem when only the
       metavariables occurring on the left-hand-side can be assigned.
 
-      If metavariables on both sides can be assigned, we say it is
+      If metavariables occurring on both sides can be assigned, we say it is
       a unification problem.
 
       If metavariables on both sides cannot be assigned, we say it is
@@ -320,13 +326,13 @@ public:
       `t` and `s` are definitionally equal without assigining any
       metavariables occurring in them.
 
-      The three kinds of problems are implemeted using the `is_def_eq`
-      method. It uses two flags to track whether metavariables
-      occurring on the right and left hand side can be assigned or not.
+      The three kinds of problems described above are implemented using the `is_def_eq`
+      method. It uses two flags to track whether metavariables occurring on the
+      right and left hand side can be assigned or not.
 
       There is a special case where a metavariable can be assigned even
-      if the flg indicates no matching varible can be assigned in the corresponding
-      side. Suppose we are trying to solve the following matching problem:
+      if the flag indicates no metavariable can be assigned.
+      Suppose we are trying to solve the following matching problem:
 
           nat.add ?x_0 (nat.succ ?x_1) =?= nat.add n (@one nat ?m)
 
@@ -343,11 +349,12 @@ public:
          We use this option. We say this design decision is fine
          because we are not changing the meaning of the right hand
          side, we are just solving a pending type class resolution
-         problem that would be solved anyway later.
+         problem that would be solved later anyway.
          This also forces us to have an offset for the right hand side
          even if we are solving a matching problem.
 
-         Corner case: we may synthesize `?m`, but the result is backtracked.
+         Corner case: we may synthesize `?m`, but the assignment is undone during
+         backtracking.
          In principle, this is not a problem if `inout` parameters are not used.
          In this case, we should produce the same solution again when we
          try to synthesize `?m` again. Here, we are assuming that the same
@@ -369,12 +376,12 @@ public:
       *** Cache ***
 
       We only cache results for `is_def_eq` if the terms do not contain
-      metavariables. hus, the cached results do not depend
+      metavariables. Thus, the cached results do not depend
       on whether metavariable assignments are allowed on
       the left/right hand sides or not.
 
       Possible improvement: cache results if metavariable assignments
-      did not occur.
+      did not occur AND we are not in TMP mode.
       We use this approach for the infer and whnf caches.
 
       *** is_def_eq usage assumptions ***
@@ -424,11 +431,11 @@ public:
       We also have the a variant (not available in versions <= 3.3) where
       we use regular metavariables and matching.
 
-      - app_builder: a helper procedure for creating applications
+      - `app_builder`: a helper procedure for creating applications
       where missing arguments and universes levels are inferred using type inference.
       We use temporary metavariables and unification.
 
-      - tactic.is_def_eq: we use regular metavariables and pure definitionally
+      - `tactic.is_def_eq`: we use regular metavariables and pure definitionally
       equality.
 
       - Simplification lemmas: temporary metavariables and matching.

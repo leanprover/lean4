@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/name_map.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
+#include "library/idx_metavar.h"
 #include "library/util.h"
 #include "library/trace.h"
 #include "library/constants.h"
@@ -319,6 +320,7 @@ public:
     }
 
     expr mk_app(name const & c, unsigned nargs, expr const * args) {
+        lean_assert(std::all_of(args, args + nargs, [](expr const & arg) { return !has_idx_metavar(arg); }))
         type_context::tmp_mode_scope scope(m_ctx);
         optional<entry> e = get_entry(c, nargs);
         if (!e) {

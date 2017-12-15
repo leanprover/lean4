@@ -28,7 +28,6 @@ Authors: Daniel Selsam, Leonardo de Moura
 #include "library/reducible.h"
 #include "library/class.h"
 #include "library/trace.h"
-#include "library/app_builder.h"
 #include "library/type_context.h"
 #include "library/documentation.h"
 #include "library/constants.h"

@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/util.h"
 #include "library/constants.h"
-#include "library/app_builder.h"
 #include "library/fun_info.h"
 #include "library/idx_metavar.h"
 #include "library/vm/vm.h"

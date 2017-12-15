@@ -290,20 +290,21 @@ public:
 
       *** Backtracking and scopes ***
 
-      The type context performs "local backtracking".
+      The type context performs "local backtracking" when deciding whether two terms
+      are definitionally equal or not (i.e., at the `is_def_eq` method).
       When backtracking, assignments have to be undone.
-      This feature is used to implement heuristics for the `is_def_eq` predicate, and
-      to undo any assignment performed by failed `is_def_eq t s` tests.
-
       For example, when checking `f a =?= f b` (i.e., `f a` is definitionally equal
       fo `f b`), we first check `a =?= b`, if it fails, we backtrack and try
       to unfold the `f`-applications. We say the backtracking is local
       because if `a =?= b` succeeds, we commit to this choice.
 
-      The backtracking support is implemeted using "scope" objects.
+      This kind of local backtracking is implemeted using "scope" objects.
       It saves the current state of `metavar_context` and the size of the
       trail stack (aka undo stack) for temporary metavariables. Whenever a temporary
       metavariable is assigned a new entry is inserted into the trail stack.
+
+      Remark: tyhe type class resolution procedure uses "global backtracking",
+      and can be viewed as a (very) basic lambda prolog interpreter.
 
       *** Unification vs Matching vs pure definitional equality ***
 
@@ -418,31 +419,58 @@ public:
       metavariables created for solving different problems.
 
       *** Applications ***
+      Here we assume the `is_def_eq` general form is
 
-      - Elaboration and tactics such as `apply`.
-      We use regular metavariables and unification (i.e., metavariables on
-      the left and right hand side can be assigned).
+      lctx | (a_1, k_1, t_1) =?= (a_2, k_2, t_2)
+
+      where `lctx` is the local context for the temporary metavariables occurring in `t_i`;
+      `a_i` is a flag indicating whether metavariables occurring in `t_i` can be assigned or not;
+      `k_i` is the offset for the metavariables occurring in `t_i`.
+      The local context `lctx` is only relevant for `t_i` is `a_i` is set to true.
+      `lctx`, `k_i` are only relevant if we are in TMP mode. We use `lctx` to validate
+      whether an assignment to a temporary metavariable is valid or not.
+
+      We use the following shorthands
+
+      `(unify) t =?= s` denotes `_ | (true, 0, t) =?= (true, 0, s)`
+      `(match) t =?= s` denotes `_ | (true, 0, t) =?= (false, 0, s)`
+      `(pure) t =?= s` denotes `_ | (false, 0, t) =?= (false, 0, s)`
+      `(tmp-match) lctx | (k, t) =?= s` denotes `lctx | (true, k, t) =?= (false, 0, s)`
+      `(nested-tmp-match) lctx | (k', t) =?= (k, s)` denotes `lctx | (true, k', t) =?= (false, k, s)`
+      `(tmp-unify) lctx | t =?= s` denotes `lctx | (true, 0, t) =?= (true, 0, s)`
+
+      - Elaboration and tactics such as `apply`. We use `(unify) t =?= s`
 
       - We also want to support a version of `apply` where metavariables
       in the goal cannot be assigned. This variant does not exist
-      in versions <= 3.3. For this variant, we use regular metavariables and matching.
+      in versions <= 3.3. We use `(match) t =?= s`
 
-      - `rewrite` tactic, we use regular metavariables and unification.
+      - `rewrite` tactic, we use `(unify) t =?= s`.
       We also have the a variant (not available in versions <= 3.3) where
-      we use regular metavariables and matching.
+      we use regular metavariables and matching. In this case, we use `(match) t =?= s`
+
+      - `tactic.is_def_eq`: we use `(pure) t =?= s`
 
       - `app_builder`: a helper procedure for creating applications
       where missing arguments and universes levels are inferred using type inference.
-      We use temporary metavariables and unification.
+      It takes a `type_context` `ctx` as argument.
+      We use `(tmp-match) lctx | (k, t) =?= s` where `k` is the number of
+      temporary metavariables in `ctx` when invoked the `app_builder`, and the `lctx` is
+      `ctx.lctx()`
 
-      - `tactic.is_def_eq`: we use regular metavariables and pure definitionally
-      equality.
-
-      - Simplification lemmas: temporary metavariables and matching.
-
-      - Ematching lemmas: similar to simplification lemmas.
+      - Simplifier and Ematcher. They solve nested matching problems.
+      In versions <= 3.3, we use the `tmp_type_context` hack to be able
+      to use multiple temporary assignments. Now, we use a single tmp assignment
+      and offsets. We set `k` as the number of temporary metavariables we had
+      before we create a new matching problem. Thus, we use `(tmp-match) lctx | (k, t) =?= s`.
+      Note that, `s` does not contain temporary metavariables. It is a term from the current goal.
 
       - (Internal) Type class resolution: we use temporary metavariables and unification.
+      Before trying to synthesize `?m : C a_1 ... a_n`,
+      we use a preprocessing step that creates `C a_1' ... a_n'` where `a_i'` contains
+      only fresh new temporary metavariables. So, no offsets are needed since
+      we don't use pre-allocated temporary metavars. Thus, we use
+      `(tmp-unify) lctx | t =?= s` where `lctx` is the local context for `?m`.
 
       - (Internal) Recursive function unfolding during `is_def_eq`.
       (This feature is also not available in versions <= 3.3).
@@ -453,16 +481,20 @@ public:
       We are essentially using the equational lemma to
       perform a delta reduction while we are solvind a
       unification/matching problem.
-      Here again we use temporary metavariables and matching.
+      We use `(nested-tmp-match) lctx | (k', t) =?= (k, s)`
+      where `lctx` is `this.lctx()`, `k'` is the number of temporary metavariable in `this`,
+      `t` is the left-hand-side of the "refl" equational lemma,
+      and `k` is the current offset associated with `s`.
+      If `s` is on the left (right) hand side of the
+      current `is_def_eq` call, then we use the current left (right) offset.
 
       - (Internal) Unification hints. For versions <= 3.3, we used a
       custom and very basic matching procedure to implement
       this feature. This created several stability problems
       and counterintuitive behavior. We use temporary
       metavariables and matching.
-
-      The applications tagged with `(Internal)` are considered part of the
-      type_context implementation.
+      We also use `(nested-tmp-match) lctx | (k', t) =?= (k, s)`.
+      This case is very similar to the previous one.
     */
 
     /* This class supports temporary meta-variables "mode". In this "tmp" mode,

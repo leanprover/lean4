@@ -384,38 +384,44 @@ public:
       did not occur AND we are not in TMP mode.
       We use this approach for the infer and whnf caches.
 
-      *** is_def_eq usage assumptions ***
+      *** Temporary metavariable leaks ***
 
-      When checking `t =?= s` using `is_def_eq`, we assume that
-      `t` (`s`) contains only regular metavariables OR only temporary metavariables.
-
-      If `t` or `s` contain temporary metavariables, then the type_context must
-      be in TMP mode.
-
-      If `t` (`s`) contains temporary metavariables, then :
-      1- `s` (`t`) contains only temporary metavariables OR
-      2- `s` (`t`) contains only regular metavariables, but metavariable assignments are disable for `s` (`t`).
-
-      If `t` (`s`) contains temporary metavariables, and metavariable assignments are enabled, then
-      - All temporary metavariables occurring in `s` (`t`) should share the same local context
-        assumed for `t` (`s`). That is, the local context for the metavariables in `t` (`s`)
-        is an extension of the local context for the metavariables in `s` (`t`).
-
-      If `t` (`s`) contains regular metavariables, then :
-      1- `s` (`t`) contains only regular metavariables OR
-      2- metavariable assignments are disabled for `t` (`s`)
-
-      The assumptions above make sure we cannot assign a term `t` to a regular
-      metavariable `?m` if `t` contains temporary metavariables.
-      This is important because the scope of temporary metavariable is
+      When checking `t =?= s` using `is_def_eq`, we want to make sure we
+      cannot assign a term `t` to a regular metavariable `?m` IF `t` contains temporary
+      metavariables. This is important because the scope of temporary metavariable is
       defined by the problem that created it.
       Moreover, the same metavariable id may be used by different
       modules. So, we should make sure a temporary metavariable should not
       leak into a goal. More generally, the temporary metavariables used to solve
       a problem P should not leak outside of P.
 
-      It is the user responsability to make sure we do not mix temporary
-      metavariables created for solving different problems.
+      Ideally, when checking `t =?= s` we would like to assume that
+      `t` (`s`) contains only regular metavariables OR only temporary metavariables.
+      That is, it cannot mix both.
+      Unfortunately, this property is not true. For example, a local type class instance
+      may contain assigned regular metavariables. So, if we use this local instance
+      during type class resolution, we would have create a term containing regular and temporary
+      metavariables. The refinement
+
+          `t` (`s`) contains only regular metavariables OR (temporary metavariables and assigned regular metavariables)
+
+      is also not sufficient. The problem is universe metavariables. Again, local type class instances
+      and local simplification lemmas may contain regular metavariables. When using them during
+      type class resolution or simplification, we would create terms containing both kinds of
+      metavariables. Here is an example that exposes this problem:
+      ```
+      protected def erase {α} [decidable_eq α] : list α → α → list α
+      | []     b := []
+      | (a::l) b := if a = b then l else a :: erase l b
+      ```
+      We could avoid this particular instances IF we convert unassigned universe metavariables occurring
+      in the type into local universe parameters before we process the body of this definition.
+      However, this is not a general solution because the local instance may be used to resolve type
+      class resolution problems in the type itself.
+
+      Thus, to avoid these problems, when the `type_context` is in TMP mode, we do not
+      assign regular metavariables. In TMP mode, regular metavariables are always treated
+      as opaque constants.
 
       *** Applications ***
       Here we assume the `is_def_eq` general form is

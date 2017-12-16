@@ -346,6 +346,7 @@ configure_file("${LEAN_SOURCE_DIR}/githash.h.in" "${LEAN_BINARY_DIR}/githash.h")
 
 # Version
 configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
+configure_file("${LEAN_SOURCE_DIR}/../library/init/version.lean.in" "${LEAN_SOURCE_DIR}/../library/init/version.lean")
 
 include_directories("${LEAN_BINARY_DIR}")
 add_subdirectory(util)

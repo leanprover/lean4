@@ -1,0 +1,5 @@
+prelude
+import init.data.nat.basic
+
+def lean.version : nat × nat × nat :=
+(@LEAN_VERSION_MAJOR@, @LEAN_VERSION_MINOR@, @LEAN_VERSION_PATCH@)

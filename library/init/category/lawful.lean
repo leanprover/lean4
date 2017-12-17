@@ -13,77 +13,59 @@ open tactic
 
 meta def control_laws_tac := whnf_target >> intros >> to_expr ``(rfl) >>= exact
 
-class lawful_functor (f : Type u → Type v) extends functor f : Type (max (u+1) v) :=
-(map_const_eq : ∀ {α β : Type u}, @map_const α β = map ∘ const β . control_laws_tac)
+class is_lawful_functor (f : Type u → Type v) [functor f] : Prop :=
+(map_const_eq : ∀ {α β : Type u}, @has_map.map_const f _ α β = (<$>) ∘ const β . control_laws_tac)
 -- `functor` is indeed a categorical functor
 (id_map       : Π {α : Type u} (x : f α), id <$> x = x)
 (comp_map     : Π {α β γ : Type u} (g : α → β) (h : β → γ) (x : f α), (h ∘ g) <$> x = h <$> g <$> x)
 
-export lawful_functor (map_const_eq id_map comp_map)
+export is_lawful_functor (map_const_eq id_map comp_map)
 attribute [simp] id_map
 -- `comp_map` does not make a good simp lemma
 
-class lawful_applicative (f : Type u → Type v) extends applicative f :=
+class is_lawful_applicative (f : Type u → Type v) [applicative f] extends is_lawful_functor f : Prop :=
 (seq_left_eq  : ∀ {α β : Type u} (a : f α) (b : f β), a <* b = const β <$> a <*> b . control_laws_tac)
 (seq_right_eq : ∀ {α β : Type u} (a : f α) (b : f β), a *> b = const α id <$> a <*> b . control_laws_tac)
--- from `lawful_functor`
-(map_const_eq : ∀ {α β : Type u}, @map_const α β = map ∘ const β . control_laws_tac)
-(id_map       : Π {α : Type u} (x : f α), id <$> x = x)
 -- applicative laws
-(pure_seq_eq_map : ∀ {α β : Type u} (g : α → β) (x : f α), pure g <*> x = g <$> x) -- . control_laws_tac)
-(map_pure        : ∀ {α β : Type u} (g : α → β) (x : α), g <$> pure x = pure (g x))
+(pure_seq_eq_map : ∀ {α β : Type u} (g : α → β) (x : f α), pure g <*> x = g <$> x)
+(map_pure        : ∀ {α β : Type u} (g : α → β) (x : α), g <$> (pure x : f α) = pure (g x))
 (seq_pure        : ∀ {α β : Type u} (g : f (α → β)) (x : α), g <*> pure x = (λ g : α → β, g x) <$> g)
 (seq_assoc       : ∀ {α β γ : Type u} (x : f α) (g : f (α → β)) (h : f (β → γ)), h <*> (g <*> x) = (@comp α β γ <$> h) <*> g <*> x)
+-- default functor law
+(comp_map := begin intros; simp [(pure_seq_eq_map _ _).symm, seq_assoc, map_pure, seq_pure] end)
 
-export lawful_applicative (seq_left_eq seq_right_eq pure_seq_eq_map map_pure seq_pure seq_assoc)
+export is_lawful_applicative (seq_left_eq seq_right_eq pure_seq_eq_map map_pure seq_pure seq_assoc)
 attribute [simp] map_pure seq_pure
 
-instance lawful_applicative.lawful_functor (f : Type u → Type v) [i : lawful_applicative f] : lawful_functor f :=
-{ comp_map := by intros; simp [(pure_seq_eq_map _ _).symm, seq_assoc, map_pure], ..i }
-
 -- applicative "law" derivable from other laws
-@[simp] theorem pure_id_seq {α : Type u} {f : Type u → Type v} [lawful_applicative f] (x : f α) : pure id <*> x = x :=
+@[simp] theorem pure_id_seq {α : Type u} {f : Type u → Type v} [applicative f] [is_lawful_applicative f] (x : f α) : pure id <*> x = x :=
 by simp [pure_seq_eq_map]
 
-class lawful_monad (m : Type u → Type v) extends monad m : Type (max (u+1) v) :=
+class is_lawful_monad (m : Type u → Type v) [monad m] extends is_lawful_applicative m : Prop :=
 (bind_pure_comp_eq_map : ∀ {α β : Type u} (f : α → β) (x : m α), x >>= pure ∘ f = f <$> x  . control_laws_tac)
 (bind_map_eq_seq : ∀ {α β : Type u} (f : m (α → β)) (x : m α), f >>= (<$> x) = f <*> x  . control_laws_tac)
--- from `lawful_functor`
-(map_const_eq : ∀ {α β : Type u}, @map_const α β = map ∘ const β . control_laws_tac)
-(id_map       : Π {α : Type u} (x : m α), id <$> x = x)
--- from `lawful_applicative`
-(seq_left_eq  : ∀ {α β : Type u} (a : m α) (b : m β), a <* b = const β <$> a <*> b . control_laws_tac)
-(seq_right_eq : ∀ {α β : Type u} (a : m α) (b : m β), a *> b = const α id <$> a <*> b . control_laws_tac)
 -- monad laws
 (pure_bind : ∀ {α β : Type u} (x : α) (f : α → m β), pure x >>= f = f x)
 (bind_assoc : ∀ {α β γ : Type u} (x : m α) (f : α → m β) (g : β → m γ),
   x >>= f >>= g = x >>= λ x, f x >>= g)
+(pure_seq_eq_map := by intros; rw ←bind_map_eq_seq; simp [pure_bind])
+(map_pure := by intros; rw ←bind_pure_comp_eq_map; simp [pure_bind])
+(seq_pure := by intros; rw ←bind_map_eq_seq; simp [map_pure, bind_pure_comp_eq_map])
+(seq_assoc := by intros; simp [(bind_pure_comp_eq_map _ _).symm,
+                               (bind_map_eq_seq _ _).symm,
+                               bind_assoc, pure_bind])
 
-export lawful_monad (bind_pure_comp_eq_map bind_map_eq_seq pure_bind bind_assoc)
+export is_lawful_monad (bind_pure_comp_eq_map bind_map_eq_seq pure_bind bind_assoc)
 attribute [simp] pure_bind
 
 -- monad "law" derivable from other laws
-@[simp] theorem bind_pure {α : Type u} {m : Type u → Type v} [lawful_monad m] (x : m α) : x >>= pure = x :=
-show x >>= pure ∘ id = x, by rw bind_pure_comp_eq_map; simp [lawful_monad.id_map]
-
-theorem bind_bind_pure_comp_eq_seq (m) [lawful_monad m] : ∀ {α β : Type u} (f : m (α → β)) (x : m α), (f >>= λ f, x >>= pure ∘ f) = f <*> x :=
-by intros; rw ←bind_map_eq_seq; simp [(bind_pure_comp_eq_map _ _ _).symm]
-
--- all applicative laws are derivable from the monad laws + id_map
-instance lawful_monad.lawful_applicative (m : Type u → Type v) [i : lawful_monad m] : lawful_applicative m :=
-have map_pure : ∀ {α β : Type u} (g : α → β) (x : α), g <$> (pure x : m _) = pure (g x),
-by intros; rw ←bind_pure_comp_eq_map; simp [pure_bind],
-{ pure_seq_eq_map := by intros; rw ←bind_map_eq_seq; simp,
-  map_pure := @map_pure,
-  seq_pure := by intros; rw ←bind_map_eq_seq; simp [map_pure, bind_pure_comp_eq_map],
-  seq_assoc := by intros; simp [(bind_pure_comp_eq_map _ _ _).symm,
-                                (bind_bind_pure_comp_eq_seq _ _ _).symm, bind_assoc],
-  ..i }
+@[simp] theorem bind_pure {α : Type u} {m : Type u → Type v} [monad m] [is_lawful_monad m] (x : m α) : x >>= pure = x :=
+show x >>= pure ∘ id = x, by rw bind_pure_comp_eq_map; simp [id_map]
 
 
 -- instances of previously defined monads
 
-instance (m : Type u → Type v) [lawful_monad m] (σ : Type u) : lawful_monad (state_t σ m) :=
+instance (m : Type u → Type v) [monad m] [is_lawful_monad m] (σ : Type u) : is_lawful_monad (state_t σ m) :=
 { id_map := begin
     intros, funext,
     simp [(<$>), state_t.bind, state_t.return, function.comp, return],
@@ -93,7 +75,7 @@ instance (m : Type u → Type v) [lawful_monad m] (σ : Type u) : lawful_monad (
   end,
   pure_bind := begin
     intros, funext,
-    simp [bind, has_pure.pure, state_t.bind, state_t.return, pure_bind]
+    simp [bind, pure, has_pure.pure, state_t.bind, state_t.return, pure_bind],
   end,
   bind_assoc := begin
     intros, funext,

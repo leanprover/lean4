@@ -234,7 +234,7 @@ master branch (aka work in progress branch)
 * Structure constructor parameters representing superclasses are now marked as instance implicit.
   Note: Instances using the {...} structure notation should not be affected by this change.
 
-* The monad laws have been separated into new type classes `lawful_{functor,applicative,monad}`.
+* The monad laws have been separated into new type classes `is_lawful_{functor,applicative,monad}`.
 
 *API name changes*
 

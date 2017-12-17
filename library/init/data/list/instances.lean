@@ -12,24 +12,19 @@ universes u v
 
 local attribute [simp] join list.ret
 
-instance : lawful_monad list :=
-{pure := @list.ret, bind := @list.bind,
- id_map := begin
-   intros _ xs, induction xs with x xs ih,
-   { refl },
-   { dsimp [function.comp] at ih, dsimp [function.comp], simp [*] }
- end,
- pure_bind := by simp_intros,
- bind_assoc := begin
-   intros _ _ _ xs _ _, induction xs,
-   { refl },
-   { simp [*] }
- end}
+instance : monad list :=
+{ pure := @list.ret, map := @list.map, bind := @list.bind }
+
+instance : is_lawful_monad list :=
+{ bind_pure_comp_eq_map := by intros; induction x; simp [*, (<$>), pure] at *,
+  id_map := @list.map_id,
+  pure_bind := by intros; simp [pure],
+  bind_assoc := by intros; induction x; simp * }
 
 instance : alternative list :=
 { failure := @list.nil,
   orelse  := @list.append,
-  ..list.lawful_monad }
+  ..list.monad }
 
 namespace list
 

@@ -10,11 +10,10 @@ import init.category.lawful
 
 universes u v
 
-instance : lawful_monad option :=
-{pure := @some, bind := @option.bind, map := @option.map,
- id_map := λ α x, option.rec rfl (λ x, rfl) x,
- pure_bind := λ α β x f, rfl,
- bind_assoc := λ α β γ x f g, option.rec rfl (λ x, rfl) x}
+instance : is_lawful_monad option :=
+{ id_map := λ α x, option.rec rfl (λ x, rfl) x,
+  pure_bind := λ α β x f, rfl,
+  bind_assoc := λ α β γ x f g, option.rec rfl (λ x, rfl) x }
 
 lemma option.eq_of_eq_some {α : Type u} : Π {x y : option α}, (∀z, x = some z ↔ y = some z) → x = y
 | none     none     h := rfl

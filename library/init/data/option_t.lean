@@ -25,30 +25,29 @@ show m (option α), from
 return (some a)
 
 instance {m : Type u → Type v} [monad m] : monad (option_t m) :=
-{pure := @option_t_return m _, bind := @option_t_bind m _}
+{ pure := @option_t_return m _, bind := @option_t_bind m _ }
 
-instance {m : Type u → Type v} [lawful_monad m] : lawful_monad (option_t m) :=
-{pure := @option_t_return m _, bind := @option_t_bind m _,
- id_map := begin
-   intros,
-   simp [option_t_bind, function.comp],
-   have h : option_t_bind._match_1 option_t_return = @pure m _ (option α),
-   { funext s, cases s; refl },
-   { simp [h, bind_pure] },
- end,
- pure_bind := begin
-   intros,
-   simp [option_t_bind, option_t_return, pure_bind]
- end,
- bind_assoc :=
- begin
-   intros,
-   simp [option_t_bind, option_t_return, bind_assoc],
-   apply congr_arg, funext x,
-   cases x,
-   { simp [option_t_bind, pure_bind] },
-   { refl }
- end}
+instance {m : Type u → Type v} [monad m] [is_lawful_monad m] : is_lawful_monad (option_t m) :=
+{ id_map := begin
+    intros,
+    simp [has_map.map, option_t_bind, function.comp],
+    have h : option_t_bind._match_1 option_t_return = @pure m _ (option α),
+    { funext s, cases s; refl },
+    { simp [h, bind_pure] },
+  end,
+  pure_bind := begin
+    intros,
+    simp [bind, pure, has_pure.pure, option_t_bind, option_t_return, pure_bind]
+  end,
+  bind_assoc :=
+  begin
+    intros,
+    simp [bind, option_t_bind, option_t_return, bind_assoc],
+    apply congr_arg, funext x,
+    cases x,
+    { simp [option_t_bind, pure_bind] },
+    { refl }
+  end }
 
 def option_t_orelse {m : Type u → Type v} [monad m] {α : Type u} (a : option_t m α) (b : option_t m α) : option_t m α :=
 show m (option α), from

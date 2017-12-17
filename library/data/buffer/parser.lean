@@ -48,15 +48,16 @@ end
 protected def fail (msg : string) : parser α :=
 λ _ pos, parse_result.fail α pos (dlist.singleton msg)
 
-instance : lawful_monad parser :=
-{ pure := @parser.pure,
-  bind := @parser.bind,
-  id_map := @parser.id_map,
+instance : monad parser :=
+{ pure := @parser.pure, bind := @parser.bind }
+
+instance : is_lawful_monad parser.{0} :=
+{ id_map := @parser.id_map,
   pure_bind := λ _ _ _ _, rfl,
   bind_assoc := @parser.bind_assoc }
 
 instance : monad_fail parser :=
-{ fail := @parser.fail, ..parser.lawful_monad }
+{ fail := @parser.fail, ..parser.monad }
 
 protected def failure : parser α :=
 λ _ pos, parse_result.fail α pos dlist.empty

@@ -249,6 +249,9 @@ declare_definition(parser & p, environment const & env, decl_cmd_kind kind, buff
     } else {
         c_real_name = get_namespace(env) + c_name;
     }
+    if (env.find(c_real_name)) {
+        throw exception(sstream() << "invalid definition, a declaration named '" << c_real_name << "' has already been declared");
+    }
     if (val && !meta.m_modifiers.m_is_meta && !type_checker(env).is_prop(type)) {
         /* We only abstract nested proofs if the type of the definition is not a proposition */
         std::tie(new_env, type) = abstract_nested_proofs(new_env, c_real_name, type);

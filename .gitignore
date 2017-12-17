@@ -18,3 +18,4 @@ settings.json
 .gdb_history
 .vscode
 /*.nix
+/library/init/version.lean

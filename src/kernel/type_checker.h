@@ -98,7 +98,7 @@ public:
     expr check_ignore_undefined_universes(expr const & e);
     virtual expr check(expr const & t) { return check_ignore_undefined_universes(t); }
 
-    bool is_trusted_only() const override { return m_trusted_only; }
+    virtual bool is_trusted_only() const { return m_trusted_only; }
 
     /** \brief Return true iff t is definitionally equal to s. */
     virtual bool is_def_eq(expr const & t, expr const & s);

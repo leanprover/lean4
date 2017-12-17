@@ -207,7 +207,6 @@ vm_obj vm_parser_pexpr(vm_obj const & vm_rbp, vm_obj const & o) {
            The auxiliary class `restore_decl_meta_scope` is used to restore it.
 
            Remark: I realize this is hackish, but it addresses the issue raised at #1890.
-           It is better to catch the problem the final type checking step in the kernel.
         */
         restore_decl_meta_scope scope;
         auto rbp = to_unsigned(vm_rbp);

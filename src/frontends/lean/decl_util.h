@@ -97,6 +97,16 @@ public:
     ~meta_definition_scope();
 };
 
+/** \brief Auxiliary scope to switch to the mode specified by the user.
+    That is, meta if the `meta` keyword was used, and regular otherwise.
+    We need this because of quoted expressions used in tactics. */
+class restore_decl_meta_scope {
+    bool m_old_is_meta;
+public:
+    restore_decl_meta_scope();
+    ~restore_decl_meta_scope();
+};
+
 /** \brief Return true if the current scope used match-expressions */
 bool used_match_idx();
 

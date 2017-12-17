@@ -24,6 +24,7 @@ Author: Sebastian Ullrich
 #include "library/vm/vm_pos_info.h"
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/elaborator.h"
+#include "frontends/lean/decl_util.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/inductive_cmds.h"
 #include "util/utf8.h"
@@ -197,6 +198,18 @@ vm_obj vm_parser_tk(vm_obj const & vm_tk, vm_obj const & o) {
 vm_obj vm_parser_pexpr(vm_obj const & vm_rbp, vm_obj const & o) {
     auto const & s = lean_parser::to_state(o);
     TRY;
+        /* The macro used to encode pattern matching and recursive equations
+           currently stores whether it is meta or not.
+           This information is retrieved from a thread local object.
+           In tactic blocks, we allow untrusted code even if the surrounding declaration is non meta.
+           We use the auxiliary class `meta_definition_scope` to temporarily update the thread local object.
+           A quoted expression occurring in a tactic should use the original flag.
+           The auxiliary class `restore_decl_meta_scope` is used to restore it.
+
+           Remark: I realize this is hackish, but it addresses the issue raised at #1890.
+           It is better to catch the problem the final type checking step in the kernel.
+        */
+        restore_decl_meta_scope scope;
         auto rbp = to_unsigned(vm_rbp);
         if (auto e = s.m_p->maybe_parse_expr(rbp)) {
             return lean_parser::mk_success(to_obj(*e), s);

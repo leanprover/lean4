@@ -238,7 +238,8 @@ struct parse_tactic_fn {
 
     expr parse_qexpr(unsigned rbp = 0) {
         auto p = m_p.pos();
-        parser::quote_scope scope(m_p, true);
+        parser::quote_scope scope1(m_p, true);
+        restore_decl_meta_scope scope2;
         expr e = m_p.parse_expr(rbp);
         return m_p.save_pos(mk_pexpr_quote_and_substs(e, /* is_strict */ false), p);
     }

@@ -362,7 +362,12 @@ struct definition_info {
     name     m_prefix; // prefix for local names
     name     m_actual_prefix; // actual prefix used to create kernel declaration names. m_prefix and m_actual_prefix are different for scoped/private declarations.
     bool     m_is_private{true}; // pattern matching outside of definitions should generate private names
-    bool     m_is_meta{false};
+    /* m_is_meta_decl == true iff declaration uses `meta` keyword */
+    bool     m_is_meta_decl{false};
+    /* m_is_meta == true iff the current subexpression can use meta declarations and code.
+       Remark: a regular (i.e., non meta) declaration provided by the user may contain a meta subexpression (e.g., tactic).
+    */
+    bool     m_is_meta{false};      // true iff current block
     bool     m_is_noncomputable{false};
     bool     m_is_lemma{false};
     bool     m_aux_lemmas{false};
@@ -380,6 +385,7 @@ declaration_info_scope::declaration_info_scope(name const & ns, decl_cmd_kind ki
         info.m_actual_prefix = ns;
     }
     info.m_is_private       = modifiers.m_is_private;
+    info.m_is_meta_decl     = modifiers.m_is_meta;
     info.m_is_meta          = modifiers.m_is_meta;
     info.m_is_noncomputable = modifiers.m_is_noncomputable;
     info.m_is_lemma         = kind == decl_cmd_kind::Theorem;
@@ -520,4 +526,14 @@ meta_definition_scope::~meta_definition_scope() {
     info.m_is_meta = m_old_is_meta;
 }
 
+restore_decl_meta_scope::restore_decl_meta_scope() {
+    definition_info & info = get_definition_info();
+    m_old_is_meta  = info.m_is_meta;
+    info.m_is_meta = info.m_is_meta_decl;
+}
+
+restore_decl_meta_scope::~restore_decl_meta_scope() {
+    definition_info & info = get_definition_info();
+    info.m_is_meta = m_old_is_meta;
+}
 }

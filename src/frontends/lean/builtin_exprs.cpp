@@ -578,7 +578,8 @@ static expr parse_pattern(parser_state & p, unsigned, expr const * args, pos_inf
 static expr parse_lazy_quoted_pexpr(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     if (p.in_quote())
         return p.parser_error_or_expr({"invalid nested quoted expression", pos});
-    parser_state::quote_scope scope(p, true);
+    parser_state::quote_scope scope1(p, true);
+    restore_decl_meta_scope scope2;
     expr e = p.parse_expr();
     if (p.curr_is_token(get_colon_tk())) {
         p.next();
@@ -592,7 +593,8 @@ static expr parse_lazy_quoted_pexpr(parser_state & p, unsigned, expr const *, po
 static expr parse_quoted_pexpr(parser_state & p, unsigned, expr const *, pos_info const & pos) {
     if (p.in_quote())
         return p.parser_error_or_expr({"invalid nested quoted expression", pos});
-    parser_state::quote_scope scope(p, true, id_behavior::ErrorIfUndef);
+    parser_state::quote_scope scope1(p, true, id_behavior::ErrorIfUndef);
+    restore_decl_meta_scope scope2;
     expr e = p.parse_expr();
     if (p.curr_is_token(get_colon_tk())) {
         p.next();
@@ -608,7 +610,8 @@ static expr parse_quoted_expr(parser_state & p, unsigned, expr const *, pos_info
         return p.parser_error_or_expr({"invalid nested quoted expression", pos});
     expr e;
     {
-        parser_state::quote_scope scope(p, true, id_behavior::ErrorIfUndef);
+        parser_state::quote_scope scope1(p, true, id_behavior::ErrorIfUndef);
+        restore_decl_meta_scope scope2;
         e = p.parse_expr();
         if (p.curr_is_token(get_colon_tk())) {
             p.next();

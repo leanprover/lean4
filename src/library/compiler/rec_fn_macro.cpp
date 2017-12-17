@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "library/kernel_serializer.h"
 #include "library/compiler/rec_fn_macro.h"
+#include "kernel/abstract_type_context.h"
 
 namespace lean {
 static name * g_rec_fn_macro_id = nullptr;
@@ -33,7 +34,10 @@ public:
 
     virtual void display(std::ostream & out) const override { out << m_name; }
 
-    virtual expr check_type(expr const & m, abstract_type_context &, bool) const override {
+    virtual expr check_type(expr const & m, abstract_type_context & tc, bool) const override {
+        if (tc.is_trusted_only()) {
+            throw exception("rec_fn_macro only allowed in meta definitions");
+        }
         check_macro(m);
         return macro_arg(m, 0);
     }

@@ -1,0 +1,1 @@
+non_meta_rec_fn.lean:1:0: error: rec_fn_macro only allowed in meta definitions

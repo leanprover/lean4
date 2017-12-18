@@ -138,6 +138,13 @@ master branch (aka work in progress branch)
 * do notation now uses the top-level, overloadable `bind` function instead of `has_bind.bind`, 
   allowing binds with different type signatures
 
+* Structures fields can now be defined with an implicitness infer annotation and parameters.
+  ```
+  class has_pure (f : Type u → Type v) :=
+  -- make f implicit
+  (pure {} {α : Type u} : α → f α)
+  ```
+
 *Changes*
 
 * Command `variable [io.interface]` is not needed anymore to use the `io` monad.

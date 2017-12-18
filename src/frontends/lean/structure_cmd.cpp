@@ -240,13 +240,15 @@ struct structure_cmd_fn {
     typedef std::vector<unsigned>         field_map;
     enum class field_kind { new_field, from_parent, subobject };
     struct field_decl {
-        expr           m_local; // name, type, and pos as an expr::local
-        optional<expr> m_default_val;
-        field_kind     m_kind;
-        bool           m_has_new_default; // if true, (re-)declare default value in this structure
+        expr                m_local; // name, type, and pos as an expr::local
+        optional<expr>      m_default_val;
+        field_kind          m_kind;
+        implicit_infer_kind m_infer_kind;
+        bool                m_has_new_default; // if true, (re-)declare default value in this structure
 
-        field_decl(const expr & local, const optional<expr> & default_val, field_kind kind):
-                m_local(local), m_default_val(default_val), m_kind(kind),
+        field_decl(expr const & local, optional<expr> const & default_val, field_kind kind,
+                   implicit_infer_kind infer_kind = implicit_infer_kind::Implicit):
+                m_local(local), m_default_val(default_val), m_kind(kind), m_infer_kind(infer_kind),
                 m_has_new_default(default_val && kind == field_kind::new_field) {}
 
         name const & get_name() const { return mlocal_name(m_local); }
@@ -800,20 +802,35 @@ struct structure_cmd_fn {
 
         expr type;
         optional<expr> default_value;
-        if (m_p.curr_is_token(get_assign_tk())) {
-            type = m_p.save_pos(mk_expr_placeholder(), m_p.pos());
-            m_p.next();
-            default_value = m_p.parse_expr();
-        } else {
-            m_p.check_token_next(get_colon_tk(), "invalid field, ':' expected");
-            type = m_p.parse_expr();
+        implicit_infer_kind kind = implicit_infer_kind::Implicit;
+        {
+            parser::local_scope scope(m_p);
+            buffer<expr> params;
+            if (names.size() == 1) {
+                m_p.parse_optional_binders(params, kind);
+                for (expr const & param : params)
+                    m_p.add_local(param);
+            }
+
             if (m_p.curr_is_token(get_assign_tk())) {
+                type = m_p.save_pos(mk_expr_placeholder(), m_p.pos());
                 m_p.next();
                 default_value = m_p.parse_expr();
-            } else if (m_p.curr_is_token(get_period_tk())) {
-                type = parse_auto_param(m_p, type);
+            } else {
+                m_p.check_token_next(get_colon_tk(), "invalid field, ':' expected");
+                type = m_p.parse_expr();
+                if (m_p.curr_is_token(get_assign_tk())) {
+                    m_p.next();
+                    default_value = m_p.parse_expr();
+                } else if (m_p.curr_is_token(get_period_tk())) {
+                    type = parse_auto_param(m_p, type);
+                }
             }
+            type = Pi(params, type);
+            if (default_value)
+                *default_value = Fun(params, *default_value);
         }
+
         if (default_value && !is_explicit(bi)) {
             throw parser_error("invalid field, it is not explicit, but it has a default value", start_pos);
         }
@@ -843,7 +860,7 @@ struct structure_cmd_fn {
             } else {
                 expr local = m_p.save_pos(mk_local(p.second, type, bi), p.first);
                 m_p.add_local(local);
-                m_fields.emplace_back(local, default_value, field_kind::new_field);
+                m_fields.emplace_back(local, default_value, field_kind::new_field, kind);
             }
         }
     }
@@ -1060,10 +1077,16 @@ struct structure_cmd_fn {
     }
 
     void declare_projections() {
-        buffer<name> proj_names = get_structure_fields(m_env, m_name);
-        for (auto & n : proj_names)
-            n = m_name + n;
-        m_env = mk_projections(m_env, m_name, proj_names, m_mk_infer, m_meta_info.m_attrs.has_class());
+        buffer<name> proj_names;
+        buffer<implicit_infer_kind> infer_kinds;
+        for (field_decl const & field : m_fields) {
+            if (!m_subobjects || field.m_kind != field_kind::from_parent) {
+                proj_names.push_back(m_name + mlocal_name(field.m_local));
+                infer_kinds.push_back(
+                        field.m_infer_kind != implicit_infer_kind::Implicit ? field.m_infer_kind : m_mk_infer);
+            }
+        }
+        m_env = mk_projections(m_env, m_name, proj_names, infer_kinds, m_meta_info.m_attrs.has_class());
         for (auto const & n : proj_names)
             add_alias(n);
     }

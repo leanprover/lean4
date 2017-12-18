@@ -9,11 +9,9 @@ open function
 universes u v
 
 class has_pure (f : Type u → Type v) :=
-(pure : Π {α : Type u}, α → f α)
+(pure {} {α : Type u} : α → f α)
 
--- make `f` implicit, like in Haskell
-@[reducible, inline] def pure {f : Type u → Type v} [has_pure f] {α : Type u} : α → f α :=
-has_pure.pure f
+export has_pure (pure)
 
 class has_seq (f : Type u → Type v) : Type (max (u+1) v) :=
 (seq  : Π {α β : Type u}, f (α → β) → f α → f β)

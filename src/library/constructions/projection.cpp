@@ -169,13 +169,14 @@ void finalize_def_projection() {
 }
 
 environment mk_projections(environment const & env, name const & n, buffer<name> const & proj_names,
-                           implicit_infer_kind infer_k, bool inst_implicit) {
+                           buffer<implicit_infer_kind> const & infer_kinds, bool inst_implicit) {
     // Given an inductive datatype C A (where A represent parameters)
     //   intro : Pi A (x_1 : B_1[A]) (x_2 : B_2[A, x_1]) ..., C A
     //
     // we generate projections of the form
     //   proj_i A (c : C A) : B_i[A, (proj_1 A n), ..., (proj_{i-1} A n)]
     //     C.rec A (fun (x : C A), B_i[A, ...]) (fun (x_1 ... x_n), x_i) c
+    lean_assert(proj_names.size() == infer_kinds.size());
     name_generator ngen = mk_constructions_name_generator();
     auto p = get_nparam_intro_rule(env, n);
     unsigned nparams             = p.first;
@@ -218,7 +219,6 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
         intro_type_args.push_back(local);
         it = instantiate(binding_body(it), local);
     }
-    buffer<expr> projs; // projections generated so far
     unsigned i = 0;
     environment new_env = env;
     for (name const & proj_name : proj_names) {
@@ -247,7 +247,7 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
         rec_args.push_back(major_premise);
         expr rec_app      = mk_app(rec, rec_args);
         expr proj_type    = Pi(proj_args, result_type);
-        proj_type         = infer_implicit_params(proj_type, nparams, infer_k);
+        proj_type         = infer_implicit_params(proj_type, nparams, infer_kinds[i]);
         expr proj_val     = Fun(proj_args, rec_app);
         if (new_env.trust_lvl() > 0) {
             // use macros

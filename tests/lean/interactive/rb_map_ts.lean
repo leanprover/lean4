@@ -56,7 +56,7 @@ open lean.parser
 open interactive
 open interactive.types
 
-meta def add (n : parse ident) (v : nat) : mytac unit :=
+meta def add (n : parse ident) (v : nat) : mytac punit :=
 modify (λ m, m.insert n v)
 
 end interactive

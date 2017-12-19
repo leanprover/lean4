@@ -12,23 +12,17 @@ universes u v
 class monad_state (σ : out_param (Type u)) (m : Type u → Type v) [monad m] :=
 (state {} {α : Type u} : (σ → (α × σ)) → m α)
 (get {} : m σ := state (λ s, (s, s)))
-(put' {} (s : σ) : m punit := state (λ _, (punit.star, s)))
-(state := λ α f, do p ← f <$> get, put' p.2, pure p.1)
+(put {} (s : σ) : m punit := state (λ _, (punit.star, s)))
+(state := λ α f, do p ← f <$> get, put p.2, pure p.1)
 
-export monad_state (get put')
+export monad_state (get put)
 
-@[inline] def modify' {σ : Type u} {m : Type u → Type v} [monad m] [monad_state σ m] (f : σ → σ) :
+@[inline] def modify {σ : Type u} {m : Type u → Type v} [monad m] [monad_state σ m] (f : σ → σ) :
   m punit := monad_state.state (λ s, (punit.star, f s))
-
-section
-variables {σ : Type} {m : Type → Type v} [monad m] [monad_state σ m]
-@[inline] def put : σ → m unit := λ s, put' s $> ()
-@[inline] def modify (f : σ → σ) : m unit := modify' f $> ()
-end
 
 instance monad_state_lift (s m m') [has_monad_lift m m'] [monad m] [monad_state s m] [monad m'] : monad_state s m' :=
 { get  := monad_lift (@get _ m _ _),
-  put' := monad_lift ∘ @put' _ m _ _,
+  put := monad_lift ∘ @put _ m _ _,
   state := λ α, monad_lift ∘ @monad_state.state _ m _ _ _ }
 
 
@@ -68,7 +62,7 @@ section
   protected def get : state_t σ m σ :=
   λ s, return (s, s)
 
-  protected def put' : σ → state_t σ m punit :=
+  protected def put : σ → state_t σ m punit :=
   λ s' s, return (punit.star, s')
 
   protected def state {α : Type u} (f : σ → (α × σ)) : state_t σ m α :=
@@ -78,7 +72,7 @@ section
   λ s, do a ← t, return (a, s)
 
   instance : monad_state σ (state_t σ m) :=
-  { get := state_t.get, put' := state_t.put',
+  { get := state_t.get, put := state_t.put,
     state := @state_t.state _ _ _ }
 
   instance : monad_transformer (state_t σ) :=

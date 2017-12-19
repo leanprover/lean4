@@ -53,7 +53,7 @@ if abs_or_rel.front = '/' then
 else
   base ++ "/" ++ abs_or_rel
 
-def materialize (relpath : string) (dep : dependency) : solver unit :=
+def materialize (relpath : string) (dep : dependency) : solver punit :=
 match dep.src with
 | (source.path dir) := do
   let depdir := resolve_dir dir relpath,

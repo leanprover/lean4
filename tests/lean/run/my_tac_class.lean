@@ -52,7 +52,7 @@ tactic.trace s
 meta def assumption : mytac unit :=
 tactic.assumption
 
-meta def inc : mytac unit :=
+meta def inc : mytac punit :=
 modify (+1)
 
 end interactive

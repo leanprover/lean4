@@ -192,8 +192,7 @@ theorem length_remove_nth : ∀ (l : list α) (i : ℕ), i < length l → length
 
 @[simp] lemma partition_eq_filter_filter (p : α → Prop) [decidable_pred p] : ∀ (l : list α), partition p l = (filter p l, filter (not ∘ p) l)
 | []     := rfl
-| (a::l) := by { by_cases pa : p a; simp [partition, filter, pa, partition_eq_filter_filter l],
-                 rw [if_neg (not_not_intro pa)], rw [if_pos pa] }
+| (a::l) := by { by_cases pa : p a; simp [partition, filter, pa, partition_eq_filter_filter l] }
 
 /- sublists -/
 

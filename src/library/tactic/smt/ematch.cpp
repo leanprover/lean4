@@ -298,7 +298,7 @@ class ematch_fn {
         return r;
     }
 
-    bool is_metavar(expr const & e) { return m_ctx.is_mvar(e); }
+    bool is_metavar(expr const & e) { return m_ctx.is_tmp_mvar(e); }
     bool is_meta(expr const & e) { return is_metavar(get_app_fn(e)); }
     bool has_expr_metavar(expr const & e) { return has_idx_expr_metavar(e); }
     optional<expr> is_ac(expr const & /* e */) {
@@ -330,7 +330,7 @@ class ematch_fn {
     bool is_partially_solved(expr const & e) {
         lean_assert(is_metavar(e));
         if (auto v = m_ctx.get_assignment(e)) {
-            return is_ac(*v) && m_ctx.is_mvar(app_arg(app_fn(*v)));
+            return is_ac(*v) && m_ctx.is_tmp_mvar(app_arg(app_fn(*v)));
         } else {
             return false;
         }
@@ -657,7 +657,7 @@ class ematch_fn {
         }
         buffer<expr> p_args;
         expr const & fn = get_app_args(p, p_args);
-        if (m_ctx.is_mvar(fn)) {
+        if (m_ctx.is_tmp_mvar(fn)) {
             return match_leaf(p, t);
         }
         buffer<pair<expr, unsigned>> candidates;

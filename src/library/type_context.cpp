@@ -835,7 +835,7 @@ expr type_context::whnf_core(expr const & e0, bool proj_reduce) {
         }
         return e;
     case expr_kind::Meta:
-        if (is_metavar_decl_ref(e)) {
+        if (is_regular_mvar(e)) {
             if (m_mctx.is_assigned(e)) {
                 m_used_assignment = true;
                 e = m_mctx.instantiate_mvars(e);
@@ -1177,12 +1177,19 @@ optional<level> type_context::get_level_core(expr const & A) {
         } else if (is_mvar(A_type)) {
             if (auto v = get_assignment(A_type)) {
                 A_type = *v;
-            } else if (!in_tmp_mode() && is_metavar_decl_ref(A_type)) {
-                /* We should only assign A_type IF we are not in tmp mode. */
+            } else if (is_regular_mvar(A_type)) {
+                /* It is safe to assign A_type if it is a regular metavariable
+                   and we are not in tmp mode.
+                   We are not restricting A_type interpretations because of unification
+                   constraints, but by explicit typing constraints.
+                   Remark: This assignment can be undone during backtracking. */
                 level r = m_mctx.mk_univ_metavar_decl();
                 assign(A_type, mk_sort(r));
                 return some_level(r);
-            } else if (in_tmp_mode() && is_idx_metavar(A_type)) {
+            } else if (is_tmp_mvar(A_type) && in_tmp_mode()) {
+                /* The condition `in_tmp_mode()` may seem unnecessary, but we
+                   include it since `type_context` often has to process
+                   ill-formed expressions produced by error recovery. */
                 level r = mk_tmp_univ_mvar();
                 assign(A_type, mk_sort(r));
                 return some_level(r);
@@ -1361,22 +1368,22 @@ void type_context::resize_tmp_mvars(unsigned sz) {
 /* -----------------------------------
    Uniform interface to temporary & regular metavariables
    ----------------------------------- */
-bool type_context::is_mvar_core(level const & l) const {
+bool type_context::is_mvar(level const & l) const {
     return (in_tmp_mode() && is_idx_metauniv(l)) || is_metavar_decl_ref(l);
 }
 
-bool type_context::is_mvar_core(expr const & e) const {
+bool type_context::is_mvar(expr const & e) const {
     return (in_tmp_mode() && is_idx_metavar(e)) || is_metavar_decl_ref(e);
 }
 
-bool type_context::is_mvar(level const & l) const {
+bool type_context::is_mode_mvar(level const & l) const {
     if (in_tmp_mode())
         return is_idx_metauniv(l);
     else
         return is_metavar_decl_ref(l);
 }
 
-bool type_context::is_mvar(expr const & e) const {
+bool type_context::is_mode_mvar(expr const & e) const {
     if (in_tmp_mode())
         return is_idx_metavar(e);
     else
@@ -1560,7 +1567,7 @@ lbool type_context::is_def_eq_core(level const & l1, level const & l2, bool part
     if (l1 != new_l1 || l2 != new_l2)
         return is_def_eq_core(new_l1, new_l2, partial);
 
-    if (m_update && is_mvar(l1)) {
+    if (m_update && is_mode_mvar(l1)) {
         lean_assert(!is_assigned(l1));
         if (!occurs(l1, l2)) {
             assign(l1, l2);
@@ -1570,7 +1577,7 @@ lbool type_context::is_def_eq_core(level const & l1, level const & l2, bool part
         }
     }
 
-    if (m_update && is_mvar(l2)) {
+    if (m_update && is_mode_mvar(l2)) {
         lean_assert(!is_assigned(l2));
         if (!occurs(l2, l1)) {
             assign(l2, l1);
@@ -1855,7 +1862,7 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
        However, any ?m can be used.
     */
     if (approximate() && args.size() == 1 && is_app(v) &&
-        is_mvar(app_arg(v)) && !is_assigned(app_arg(v))) {
+        is_mode_mvar(app_arg(v)) && !is_assigned(app_arg(v))) {
         expr arg = args[0];
         if (is_meta(arg))
             arg = instantiate_mvars(arg);
@@ -2123,8 +2130,9 @@ struct check_assignment_fn : public replace_visitor {
     }
 
     expr visit_meta_core(expr const & e, buffer<name> const & delayed_locals) {
-        if (!m_ctx.is_mvar(e)) return replace_visitor::visit_meta(e);
         if (auto v = m_ctx.get_assignment(e)) return visit(*v);
+
+        if (!m_ctx.is_mode_mvar(e)) return replace_visitor::visit_meta(e);
 
         if (m_mvar == e) {
             /* mvar occurs in m_value */
@@ -2337,7 +2345,7 @@ expr type_context::complete_instance(expr const & e) {
             while (is_annotation(new_arg)) {
                 new_arg = get_annotation_arg(new_arg);
             }
-            if (is_mvar(new_arg) && pinfo.is_inst_implicit() && !is_assigned(new_arg)) {
+            if (is_mode_mvar(new_arg) && pinfo.is_inst_implicit() && !is_assigned(new_arg)) {
                 /* If new_arg is an unassigned metavariable that in an instance-implicit slot,
                    then try to synthesize it */
                 expr const & m = new_arg;
@@ -2392,8 +2400,8 @@ bool type_context::is_def_eq_args(expr const & e1, expr const & e2) {
     */
     for (param_info const & pinfo : finfo.get_params_info()) {
         if (pinfo.is_inst_implicit() || pinfo.is_implicit()) {
-            if ((is_mvar(args1[i]) && !is_assigned(args1[i])) ||
-                (is_mvar(args2[i]) && !is_assigned(args2[i]))) {
+            if ((is_mode_mvar(args1[i]) && !is_assigned(args1[i])) ||
+                (is_mode_mvar(args2[i]) && !is_assigned(args2[i]))) {
                 if (!is_def_eq_core(args1[i], args2[i])) {
                     return false;
                 }
@@ -2469,7 +2477,7 @@ bool type_context::is_def_eq_proof_irrel(expr const & e1, expr const & e2) {
    If `t` is not a metavariable, then we just "push" the delayed
    abstraction.
 
-   If `t` is a metavariable ?m, then we first substitute the `x_i`s
+   If `t` is a metavariable ?m AND we are not in tmp mode, then we first substitute the `x_i`s
    that are not in the local context of ?m, and we obtain
 
          `delayed ?m {y_1 := w_1, ..., y_m := w_m}`
@@ -2487,13 +2495,20 @@ bool type_context::is_def_eq_proof_irrel(expr const & e1, expr const & e2) {
 
         ?m1 z_1' .... z_s' a_1 ... a_k
 */
-expr type_context::elim_delayed_abstraction(expr const & e) {
+optional<expr> type_context::elim_delayed_abstraction(expr const & e) {
     buffer<expr> args;
     expr f = get_app_args(e, args);
     lean_assert(is_delayed_abstraction(f));
     expr new_f = push_delayed_abstraction(f);
     if (new_f != f)
-        return mk_app(new_f, args);
+        return some_expr(mk_app(new_f, args));
+    if (in_tmp_mode()) {
+        /* Remark: in tmp mode we treat regular metavariables
+           as black boxes. So, there is no point in eliminating
+           the delayed abstraction. We will not make progress in
+           the is_def_eq method. */
+        return none_expr();
+    }
     buffer<name> hns;
     buffer<expr> vs;
     get_delayed_abstraction_info(f, hns, vs);
@@ -2541,7 +2556,7 @@ expr type_context::elim_delayed_abstraction(expr const & e) {
                scope_trace_env scope(env(), *this);
                tout() << "eliminated delayed abstraction:\n"
                << e << "\n====>\n" << r << "\n";);
-    return r;
+    return some_expr(r);
 }
 
 static bool mvar_has_user_facing_name(expr const & m) {
@@ -2562,15 +2577,26 @@ lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
     expr const & f1 = get_app_fn(e1);
     expr const & f2 = get_app_fn(e2);
 
-    if (is_mvar(f1)) {
-        if (is_assigned(f1)) {
-            return to_lbool(is_def_eq_core(instantiate_mvars(e1), e2));
-        } else if (m_update && !in_tmp_mode() && is_delayed_abstraction(f2)) {
-            return to_lbool(is_def_eq_core(e1, elim_delayed_abstraction(e2)));
-        } else if (m_update && !is_mvar(f2)) {
+    if (is_mvar(f1) && is_assigned(f1)) {
+        return to_lbool(is_def_eq_core(instantiate_mvars(e1), e2));
+    } else if (is_mvar(f2) && is_assigned(f2)) {
+        return to_lbool(is_def_eq_core(e1, instantiate_mvars(e2)));
+    }
+
+    if (is_delayed_abstraction(f1)) {
+        if (auto new_e1 = elim_delayed_abstraction(e1))
+            return to_lbool(is_def_eq_core(*new_e1, e2));
+    }
+
+    if (is_delayed_abstraction(f2)) {
+        if (auto new_e2 = elim_delayed_abstraction(e2))
+            return to_lbool(is_def_eq_core(e1, *new_e2));
+    }
+
+    if (is_mode_mvar(f1)) {
+        lean_assert(!is_assigned(f1));
+        if (m_update && !is_mode_mvar(f2)) {
             return to_lbool(process_assignment(e1, e2));
-        } else if (is_assigned(f2)) {
-            return to_lbool(is_def_eq_core(e1, instantiate_mvars(e2)));
         } else if (m_update && in_tmp_mode()) {
             return to_lbool(process_assignment(e1, e2));
         } else if (m_update) {
@@ -2620,23 +2646,13 @@ lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
         }
     }
 
-    if (is_mvar(f2)) {
-        if (is_assigned(f2)) {
-            return to_lbool(is_def_eq_core(e1, instantiate_mvars(e2)));
-        } else if (m_update && !in_tmp_mode() && is_delayed_abstraction(f1)) {
-            return to_lbool(is_def_eq_core(elim_delayed_abstraction(e1), e2));
-        } else if (m_update) {
+    if (is_mode_mvar(f2)) {
+        lean_assert(!is_assigned(f2));
+        if (m_update) {
             return to_lbool(process_assignment(e2, e1));
         } else {
             return l_false;
         }
-    }
-
-    if (m_update && !in_tmp_mode()) {
-        if (is_delayed_abstraction(f1))
-            return to_lbool(is_def_eq_core(elim_delayed_abstraction(e1), e2));
-        if (is_delayed_abstraction(f2))
-            return to_lbool(is_def_eq_core(e1, elim_delayed_abstraction(e2)));
     }
 
     if (e1.kind() == e2.kind()) {

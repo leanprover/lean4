@@ -2895,7 +2895,7 @@ public:
 expr elaborator::instantiate_mvars(expr const & e, std::function<bool(expr const &)> pred) { // NOLINT
     return replace(e, [&](expr const & e) {
         lean_assert(!is_delayed_abstraction(e));
-        if (m_ctx.is_mvar_core(e) && pred(e))
+        if (m_ctx.is_mvar(e) && pred(e))
             if (auto asn = m_ctx.get_assignment(e))
                 return some_expr(instantiate_mvars(*asn, pred));
         return none_expr();

@@ -14,12 +14,12 @@ Helper functions for metavariable assignments.
 The template parameter CTX must be an object that
 provides the following API:
 
-bool is_mvar_core(level const & l) const;
+bool is_mvar(level const & l) const;
 bool is_assigned(level const & l) const;
 optional<level> get_assignment(level const & l) const;
 void assign(level const & u, level const & v);
 
-bool is_mvar_core(expr const & e) const;
+bool is_mvar(expr const & e) const;
 bool is_assigned(expr const & e) const;
 optional<expr> get_assignment(expr const & e) const;
 void assign(expr const & m, expr const & v);
@@ -39,7 +39,7 @@ bool has_assigned(CTX const & ctx, level const & l) {
                 return false; // stop search
             if (found)
                 return false;  // stop search
-            if (ctx.is_mvar_core(l) && ctx.is_assigned(l)) {
+            if (ctx.is_mvar(l) && ctx.is_assigned(l)) {
                 found = true;
                 return false; // stop search
             }
@@ -67,7 +67,7 @@ bool has_assigned(CTX const & ctx, expr const & e) {
                 return false; // stop search
             if (found)
                 return false; // stop search
-            if ((ctx.is_mvar_core(e) && ctx.is_assigned(e)) ||
+            if ((ctx.is_mvar(e) && ctx.is_assigned(e)) ||
                 (is_constant(e) && has_assigned(ctx, const_levels(e))) ||
                 (is_sort(e) && has_assigned(ctx, sort_level(e)))) {
                 found = true;
@@ -87,7 +87,7 @@ level instantiate_mvars(CTX & ctx, level const & l) {
     return replace(l, [&](level const & l) {
             if (!has_meta(l)) {
                 return some_level(l);
-            } else if (ctx.is_mvar_core(l)) {
+            } else if (ctx.is_mvar(l)) {
                 if (auto v1 = ctx.get_assignment(l)) {
                     level v2 = instantiate_mvars(ctx, *v1);
                     if (*v1 != v2) {
@@ -133,7 +133,7 @@ class instantiate_mvars_fn : public replace_visitor {
     }
 
     virtual expr visit_meta(expr const & m) override {
-        if (m_ctx.is_mvar_core(m)) {
+        if (m_ctx.is_mvar(m)) {
             if (auto v1 = m_ctx.get_assignment(m)) {
                 if (!has_metavar(*v1)) {
                     return *v1;
@@ -154,7 +154,7 @@ class instantiate_mvars_fn : public replace_visitor {
     virtual expr visit_app(expr const & e) override {
         buffer<expr> args;
         expr const & f = get_app_rev_args(e, args);
-        if (m_ctx.is_mvar_core(f)) {
+        if (m_ctx.is_mvar(f)) {
             if (auto v = m_ctx.get_assignment(f)) {
                 expr new_app = apply_beta(*v, args.size(), args.data());
                 if (has_metavar(new_app))

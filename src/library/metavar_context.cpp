@@ -112,12 +112,12 @@ struct metavar_context::interface_impl {
     metavar_context & m_ctx;
     interface_impl(metavar_context const & ctx):m_ctx(const_cast<metavar_context&>(ctx)) {}
 
-    static bool is_mvar_core(level const & l) { return is_metavar_decl_ref(l); }
+    static bool is_mvar(level const & l) { return is_metavar_decl_ref(l); }
     bool is_assigned(level const & l) const { return m_ctx.is_assigned(l); }
     optional<level> get_assignment(level const & l) const { return m_ctx.get_assignment(l); }
     void assign(level const & u, level const & v) { m_ctx.assign(u, v); }
 
-    static bool is_mvar_core(expr const & e) { return is_metavar_decl_ref(e); }
+    static bool is_mvar(expr const & e) { return is_metavar_decl_ref(e); }
     bool is_assigned(expr const & e) const { return m_ctx.is_assigned(e); }
     optional<expr> get_assignment(expr const & e) const { return m_ctx.get_assignment(e); }
     void assign(expr const & m, expr const & v) { m_ctx.assign(m, v); }

@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "kernel/expr_maps.h"
 #include "kernel/equiv_manager.h"
 #include "kernel/pos_info_provider.h"
+#include "library/idx_metavar.h"
 #include "library/projection.h"
 #include "library/metavar_context.h"
 #include "library/expr_pair_maps.h"
@@ -897,14 +898,23 @@ private:
 
     /* ------------
        Uniform interface to tmp/regular metavariables
-       That is, in tmp mode they access m_tmp_eassignment and m_tmp_uassignment,
-       and in regular mode they access m_mctx.
        ------------ */
 public:
-    bool is_mvar_core(level const & l) const;
-    bool is_mvar_core(expr const & e) const;
     bool is_mvar(level const & l) const;
+    /* Return true iff `e` is a regular or temporary metavar */
     bool is_mvar(expr const & e) const;
+    bool is_regular_mvar(expr const & e) const { return is_metavar_decl_ref(e); }
+    bool is_tmp_mvar(level const & l) const { return is_idx_metauniv(l); }
+    bool is_tmp_mvar(expr const & e) const { return is_idx_metavar(e); }
+    /* Return true iff
+       1- `l` is a temporary universe metavariable and type_context is in tmp mode, OR
+       2- `l` is a regular universe metavariable an type_context is not in tmp_mode. */
+    bool is_mode_mvar(level const & l) const;
+    /* Return true iff
+       1- `e` is a temporary metavariable and type_context is in tmp mode, OR
+       2- `e` is a regular metavariable an type_context is not in tmp_mode. */
+    bool is_mode_mvar(expr const & e) const;
+
     bool is_assigned(level const & l) const;
     bool is_assigned(expr const & e) const;
     optional<level> get_assignment(level const & l) const;
@@ -979,7 +989,7 @@ private:
     bool is_def_eq_args(expr const & e1, expr const & e2);
     bool is_def_eq_eta(expr const & e1, expr const & e2);
     bool is_def_eq_proof_irrel(expr const & e1, expr const & e2);
-    expr elim_delayed_abstraction(expr const & e);
+    optional<expr> elim_delayed_abstraction(expr const & e);
     lbool quick_is_def_eq(expr const & e1, expr const & e2);
     bool try_unification_hint(unification_hint const & h, expr const & e1, expr const & e2);
     bool try_unification_hints(expr const & e1, expr const & e2);

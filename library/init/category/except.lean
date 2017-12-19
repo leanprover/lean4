@@ -6,11 +6,17 @@ Authors: Jared Roesch, Sebastian Ullrich
 
 prelude
 import init.category.transformers
-universes u v
+universes u v w
 
 inductive except (ε α : Type u)
 | error {} : ε → except
 | ok {} : α → except
+
+class monad_except (ε : out_param (Type u)) (m : Type v → Type w) [monad m] :=
+(throw {} {α : Type v} : ε → m α)
+(catch {} {α : Type v} : m α → (ε → m α) → m α)
+
+export monad_except (throw catch)
 
 namespace except
 section
@@ -58,6 +64,12 @@ section
   protected def lift {α : Type u} (t : m α) : except_t ε m α :=
   ⟨except.ok <$> t⟩
 
+  protected def catch {α : Type u} (ma : except_t ε m α) (handle : ε → except_t ε m α) : except_t ε m α :=
+  ⟨ma.run >>= λ res, match res with
+   | except.ok a    := pure (except.ok a)
+   | except.error e := (handle e).run
+   end⟩
+
   instance : monad (except_t ε m) :=
   { pure := @return, map := @map, bind := @bind }
 end
@@ -65,3 +77,6 @@ end
 instance (ε : Type u) : monad_transformer (except_t ε) :=
 { is_monad := @except_t.monad ε, monad_lift := @except_t.lift ε }
 end except_t
+
+instance (m ε) [monad m] : monad_except ε (except_t ε m) :=
+{ throw := λ α, except_t.mk ∘ pure ∘ except.error, catch := @except_t.catch ε _ _ }

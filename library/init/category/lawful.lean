@@ -5,7 +5,7 @@ Authors: Sebastian Ullrich
 -/
 prelude
 import init.category.monad init.meta.interactive
-import init.category.state
+import init.category.state init.category.except
 universes u v
 
 open function
@@ -62,6 +62,17 @@ attribute [simp] pure_bind
 @[simp] theorem bind_pure {α : Type u} {m : Type u → Type v} [monad m] [is_lawful_monad m] (x : m α) : x >>= pure = x :=
 show x >>= pure ∘ id = x, by rw bind_pure_comp_eq_map; simp [id_map]
 
+lemma bind_ext_congr {α β} {m : Type u → Type v} [has_bind m] {x : m α} {f : α → m β} (g : α → m β) :
+  (∀ a, f a = g a) →
+  x >>= f = x >>= g :=
+λ h, have f = g, from funext h,
+     by simp [this]
+
+lemma map_ext_congr {α β} {m : Type u → Type v} [has_map m] {x : m α} {f : α → β} (g : α → β) :
+  (∀ a, f a = g a) →
+  (f <$> x : m β) = g <$> x :=
+λ h, have f = g, from funext h,
+     by simp [this]
 
 -- instances of previously defined monads
 
@@ -69,9 +80,9 @@ instance (m : Type u → Type v) [monad m] [is_lawful_monad m] (σ : Type u) : i
 { id_map := begin
     intros, funext,
     simp [(<$>), state_t.bind, state_t.return, function.comp, return],
-    have h : state_t.bind._match_1 (λ (x : α) (s : σ), @pure m _ _ (x, s)) = pure,
-    { funext s, cases s; refl },
-    { simp [h, bind_pure] },
+    rw [bind_ext_congr pure], swap,
+    { intros, cases a, refl },
+    { simp [bind_pure] }
   end,
   pure_bind := begin
     intros, funext,
@@ -82,4 +93,33 @@ instance (m : Type u → Type v) [monad m] [is_lawful_monad m] (σ : Type u) : i
     simp [bind, state_t.bind, state_t.return, bind_assoc],
     apply congr_arg, funext r,
     cases r, refl
-  end, ..state_t.monad }
+  end }
+
+instance (ε : Type u) : is_lawful_monad (except ε) :=
+{ id_map := begin intros, cases x; refl, end,
+  pure_bind := begin intros; refl end,
+  bind_pure_comp_eq_map := begin intros, cases x; refl end,
+  bind_assoc := begin intros, cases x; reflexivity end }
+
+local attribute [simp] except_t.map except_t.bind except_t.return except_t.monad
+
+instance (m : Type u → Type v) [monad m] [is_lawful_monad m] (ε : Type u) : is_lawful_monad (except_t ε m) :=
+{ id_map := begin
+    intros, cases x, dsimp,
+    rw map_ext_congr id; simp
+  end,
+  bind_pure_comp_eq_map := begin
+    intros, cases x, dsimp,
+    rw [bind_ext_congr, bind_pure_comp_eq_map],
+    intro a, cases a; dsimp [except.monad, except.map]; refl
+  end,
+  bind_assoc := begin
+    intros, cases x, dsimp, simp [bind_assoc],
+    rw [bind_ext_congr],
+    { intro a, cases a; simp }
+  end,
+  pure_bind := begin
+    intros, dsimp, simp,
+    cases f x, refl
+  end,
+  ..except_t.monad }

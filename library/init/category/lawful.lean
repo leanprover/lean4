@@ -5,7 +5,7 @@ Authors: Sebastian Ullrich
 -/
 prelude
 import init.category.monad init.meta.interactive
-import init.category.state init.category.except
+import init.category.state init.category.except init.category.reader
 universes u v
 
 open function
@@ -95,6 +95,7 @@ instance (m : Type u → Type v) [monad m] [is_lawful_monad m] (σ : Type u) : i
     cases r, refl
   end }
 
+
 instance (ε : Type u) : is_lawful_monad (except ε) :=
 { id_map := begin intros, cases x; refl, end,
   pure_bind := begin intros; refl end,
@@ -123,3 +124,11 @@ instance (m : Type u → Type v) [monad m] [is_lawful_monad m] (ε : Type u) : i
     cases f x, refl
   end,
   ..except_t.monad }
+
+
+local attribute [simp] reader_t.bind reader_t.pure
+
+instance (r : Type u) (m : Type u → Type v) [monad m] [is_lawful_monad m] : is_lawful_monad (reader_t r m) :=
+{ id_map := by intros; dsimp [reader_t.monad]; simp,
+  pure_bind := by intros; dsimp [reader_t.monad]; simp,
+  bind_assoc := by intros; dsimp [reader_t.monad]; simp [bind_assoc] }

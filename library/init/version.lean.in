@@ -1,5 +1,8 @@
 prelude
-import init.data.nat.basic
+import init.data.nat.basic init.data.string.basic
 
 def lean.version : nat × nat × nat :=
 (@LEAN_VERSION_MAJOR@, @LEAN_VERSION_MINOR@, @LEAN_VERSION_PATCH@)
+
+def lean.githash : string :=
+"@GIT_SHA1@"

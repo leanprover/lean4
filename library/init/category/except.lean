@@ -80,3 +80,6 @@ end except_t
 
 instance (m ε) [monad m] : monad_except ε (except_t ε m) :=
 { throw := λ α, except_t.mk ∘ pure ∘ except.error, catch := @except_t.catch ε _ _ }
+
+def map_except_t {ε m m'} [monad m] [monad m'] {α β} (f : m (except ε α) → m' (except ε β)) : except_t ε m α → except_t ε m' β :=
+λ x, ⟨f x.run⟩

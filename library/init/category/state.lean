@@ -84,3 +84,8 @@ instance monad_state_lift (s m m') [has_monad_lift m m'] [monad m] [monad_state 
 { get  := monad_lift (get : m _),
   put := monad_lift ∘ (put : _ → m _),
   embed := λ α, monad_lift ∘ (monad_state.embed : _ → m α) }
+
+
+-- TODO(Sebastian): replace with https://hackage.haskell.org/package/lens-4.15.4/docs/Control-Lens-Zoom.html#t:Zoom
+def with_state_t {σ σ' α : Type u} {m : Type u → Type u} [monad m] (f : σ → σ') : state_t σ' m α → state_t σ m α :=
+λ x st, (λ p : α × σ', (p.fst, st)) <$> x (f st)

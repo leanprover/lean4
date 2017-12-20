@@ -1000,7 +1000,7 @@ expr mk_congr(type_context & ctx, expr const & H1, expr const & H2, bool skip_ar
             lean_app_builder_trace_core(ctx, tout() << "failed to build congr, non-dependent function expected:\n" << pi << "\n";);
             throw app_builder_exception();
         } else {
-            B = instantiate(binding_body(pi), lhs1);
+            B = instantiate(binding_body(pi), lhs2);
         }
     } else {
         B = binding_body(pi);

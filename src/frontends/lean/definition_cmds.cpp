@@ -863,12 +863,19 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
     } catch (throwable & ex) {
         // Even though we catch exceptions during elaboration, there can still be other exceptions,
         // e.g. when adding a declaration to the environment.
-        try {
-            auto res = process(p.mk_sorry(header_pos, true));
+
+        // If we have already logged an error during elaboration, don't
+        // bother showing the less helpful kernel exception
+        if (!lt.get().has_entry_now(is_error_message))
             p.mk_message(header_pos, ERROR).set_exception(ex).report();
-            return res;
-        } catch (...) {}
-        throw;
+        // As a last resort, try replacing the definition body with `sorry`.
+        // If that doesn't work either, just silently give up since we have
+        // already logged at least one error.
+        try {
+            return process(p.mk_sorry(header_pos, true));
+        } catch (...) {
+            return env;
+        }
     }
 }
 

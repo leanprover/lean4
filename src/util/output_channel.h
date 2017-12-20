@@ -53,9 +53,10 @@ public:
     std::string str() const { return m_out.str(); }
 };
 class null_output_channel : public output_channel {
-    null_ostream m_out;
+    null_streambuf m_buffer;
+    std::ostream   m_out;
 public:
-    null_output_channel() {}
+    null_output_channel():m_out(&m_buffer) {}
     virtual ~null_output_channel() {}
     virtual std::ostream & get_stream() { return m_out; }
 };

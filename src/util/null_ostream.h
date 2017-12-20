@@ -11,13 +11,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 class null_streambuf : public std::streambuf {
-    char                m_buffer[LEAN_NULL_AUX_BUFFER_SIZE];
 protected:
-    virtual int overflow(int c) override;
-};
-
-class null_ostream : public std::ostream {
-public:
-    null_streambuf * rdbuf() const;
+    virtual int overflow(int c) override { return c; }
 };
 }

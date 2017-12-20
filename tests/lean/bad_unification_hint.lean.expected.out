@@ -1,4 +1,2 @@
-bad_unification_hint.lean:7:9: error: invalid unification hint, failed to unify pattern after unifying constraints
-bad_unification_hint.lean:7:9: warning: declaration 'append_cons_hint' uses sorry
-bad_unification_hint.lean:12:9: error: invalid unification hint, failed to unify constraint #1
-bad_unification_hint.lean:12:9: warning: declaration 'cons_append_hint'' uses sorry
+bad_unification_hint.lean:7:13: error: invalid unification hint, failed to unify pattern after unifying constraints
+bad_unification_hint.lean:12:13: error: invalid unification hint, failed to unify constraint #1

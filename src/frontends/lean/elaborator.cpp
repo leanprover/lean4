@@ -982,12 +982,13 @@ void elaborator::validate_overloads(buffer<expr> const & fns, expr const & ref) 
     }
 }
 
-format elaborator::mk_app_type_mismatch_error(expr const & t, expr const & arg, expr const & arg_type,
-                                              expr const & expected_type) {
+void elaborator::throw_app_type_mismatch_error(expr const & t, expr const & arg, expr const & arg_type,
+                                               expr const & expected_type, expr const & ref) {
     format msg   = format("type mismatch at application");
     msg += pp_indent(mk_pp_ctx(), t);
     msg += line() + format("term") + pp_type_mismatch(arg, arg_type, expected_type);
-    return msg;
+    throw elaborator_exception(ref, msg).
+            ignore_if(has_synth_sorry({arg, arg_type, expected_type}));
 }
 
 format elaborator::mk_app_arg_mismatch_error(expr const & t, expr const & arg, expr const & expected_arg) {
@@ -1068,9 +1069,7 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
                 expr new_arg_type = infer_type(new_arg);
                 if (!is_def_eq(new_arg_type, d)) {
                     new_args.push_back(new_arg);
-                    throw elaborator_exception(ref, mk_app_type_mismatch_error(mk_app(fn, new_args),
-                                                                               new_arg, new_arg_type, d))
-                            .ignore_if(has_synth_sorry({new_arg_type, d}));
+                    throw_app_type_mismatch_error(mk_app(fn, new_args), new_arg, new_arg_type, d, ref);
                 }
             } else if (is_explicit(bi)) {
                 expr arg_ref = args[j];
@@ -1335,10 +1334,7 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
                         buffer<expr> tmp_args;
                         tmp_args.append(info.new_args);
                         tmp_args.push_back(new_arg);
-                        format msg = mk_app_type_mismatch_error(mk_app(fn, tmp_args),
-                                                                new_arg, new_arg_type, arg_expected_type);
-                        throw elaborator_exception(ref, msg).
-                            ignore_if(has_synth_sorry({new_arg_type, arg_expected_type}));
+                        throw_app_type_mismatch_error(mk_app(fn, tmp_args), new_arg, new_arg_type, arg_expected_type, ref);
                     }
                     new_arg = *new_new_arg;
                 } else {
@@ -1421,10 +1417,8 @@ expr elaborator::second_pass(expr const & fn, buffer<expr> const & args,
                     buffer<expr> tmp_args;
                     tmp_args.append(info.new_args_size[i], info.new_args.data());
                     tmp_args.push_back(new_arg);
-                    format msg = mk_app_type_mismatch_error(mk_app(fn, tmp_args),
-                                                            new_arg, new_arg_type, info.args_expected_types[i]);
-                    throw elaborator_exception(ref, msg).
-                        ignore_if(has_synth_sorry({new_arg_type, info.args_expected_types[i]}));
+                    throw_app_type_mismatch_error(mk_app(fn, tmp_args), new_arg, new_arg_type,
+                                                  info.args_expected_types[i], ref);
                 }
                 if (!is_def_eq(info.args_mvars[i], *new_new_arg)) {
                     buffer<expr> tmp_args;
@@ -1519,9 +1513,8 @@ expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<
                         new_arg = *new_new_arg;
                     } else {
                         new_args.push_back(new_arg);
-                        format msg = mk_app_type_mismatch_error(mk_app(fn, new_args.size(), new_args.data()),
-                                                                new_arg, new_arg_type, d);
-                        throw elaborator_exception(ref, msg).ignore_if(has_synth_sorry({new_arg_type, d}));
+                        throw_app_type_mismatch_error(mk_app(fn, new_args.size(), new_args.data()),
+                                                      new_arg, new_arg_type, d, ref);
                     }
                     i++;
                 } else {

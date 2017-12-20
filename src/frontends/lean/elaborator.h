@@ -195,7 +195,8 @@ private:
     expr visit_const_core(expr const & e);
     void save_identifier_info(expr const & f);
     expr visit_function(expr const & fn, bool has_args, optional<expr> const & expected_type, expr const & ref);
-    format mk_app_type_mismatch_error(expr const & t, expr const & arg, expr const & arg_type, expr const & expected_type);
+    [[noreturn]] void throw_app_type_mismatch_error(expr const & t, expr const & arg, expr const & arg_type,
+                                                    expr const & expected_type, expr const & ref);
     format mk_app_arg_mismatch_error(expr const & t, expr const & arg, expr const & expected_arg);
 
     bool is_with_expected_candidate(expr const & fn);

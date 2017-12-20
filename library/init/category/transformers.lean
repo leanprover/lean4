@@ -36,3 +36,21 @@ instance has_monad_lift_t_trans (m n o) [has_monad_lift n o] [has_monad_lift_t m
 
 instance has_monad_lift_t_refl (m) [monad m] : has_monad_lift_t m m :=
 ⟨λ α, id⟩
+
+/-- A functor in the category of monads. Can be used to lift monad-transforming functions.
+    Based on https://hackage.haskell.org/package/pipes-2.4.0/docs/Control-MFunctor.html,
+    but not restricted to monad transformers. -/
+class monad_functor (m m' : Type u → Type v) (n n' : Type u → Type w) :=
+(monad_map {} {α : Type u} : (∀ {α}, m α → m' α) → n α → n' α)
+
+/-- The reflexive-transitive closure of `monad_functor` instances. -/
+class monad_functor_t (m m' : Type u → Type v) (n n' : Type u → Type w) :=
+(monad_map {} {α : Type u} : (∀ {α}, m α → m' α) → n α → n' α)
+
+export monad_functor_t (monad_map)
+
+instance monad_functor_t_trans (m m' n n' o o') [monad_functor n n' o o'] [monad_functor_t m m' n n'] : monad_functor_t m m' o o' :=
+⟨λ α f, monad_functor.monad_map (λ α, (monad_map @f : n α → n' α))⟩
+
+instance monad_functor_t_refl (m m') : monad_functor_t m m' m m' :=
+⟨λ α f, f⟩

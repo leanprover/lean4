@@ -7,9 +7,9 @@ prelude
 import init.category.alternative
 import init.category.id
 import init.category.transformers
-universes u v
+universes u v w
 
-def state_t (σ : Type u) (m : Type u → Type v) [monad m] (α : Type u) : Type (max u v) :=
+def state_t (σ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
 σ → m (α × σ)
 
 @[reducible] def state (σ α : Type u) : Type u := state_t σ id α
@@ -59,9 +59,8 @@ section
   protected def lift {α : Type u} (t : m α) : state_t σ m α :=
   λ s, do a ← t, return (a, s)
 
-  instance : monad_transformer (state_t σ) :=
-  { is_monad := @state_t.monad σ,
-    monad_lift := @state_t.lift σ }
+  instance (m) [monad m] : has_monad_lift m (state_t σ m) :=
+  ⟨@state_t.lift σ m _⟩
 end
 end state_t
 
@@ -86,6 +85,21 @@ instance monad_state_lift (s m m') [has_monad_lift m m'] [monad m] [monad_state 
   embed := λ α, monad_lift ∘ (monad_state.embed : _ → m α) }
 
 
--- TODO(Sebastian): replace with https://hackage.haskell.org/package/lens-4.15.4/docs/Control-Lens-Zoom.html#t:Zoom
-def with_state_t {σ σ' α : Type u} {m : Type u → Type u} [monad m] (f : σ → σ') : state_t σ' m α → state_t σ m α :=
+-- TODO(Sebastian): replace with https://hackage.haskell.org/package/lens-4.15.4/docs/Control-Lens-Zoom.html#t:Zoom ?
+def with_state_t {σ σ' α : Type u} {m : Type u → Type v} [monad m] (f : σ → σ') : state_t σ' m α → state_t σ m α :=
 λ x st, (λ p : α × σ', (p.fst, st)) <$> x (f st)
+
+class monad_state_functor (σ σ' : out_param (Type u)) (m : out_param (Type u → Type v)) (n n' : Type u → Type w) :=
+[functor {} : monad_functor_t (state_t σ m) (state_t σ' m) n n']
+
+attribute [instance] monad_state_functor.mk
+local attribute [instance] monad_state_functor.functor
+
+def with_state {σ σ'} {m n n'} [monad m] {α : Type u} (f : σ → σ') [monad_state_functor σ' σ m n n'] : n α → n' α :=
+monad_map $ λ α, (with_state_t f : state_t σ' m α → state_t σ m α)
+
+def map_state_t {σ m m'} [monad m] [monad m'] {α} (f : Π {α}, m α → m' α) : state_t σ m α → state_t σ m' α :=
+λ x st, f (x st)
+
+instance (σ m m') [monad m] [monad m'] : monad_functor m m' (state_t σ m) (state_t σ m') :=
+⟨@map_state_t σ m m' _ _⟩

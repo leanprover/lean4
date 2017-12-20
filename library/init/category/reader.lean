@@ -6,20 +6,17 @@ Authors: Sebastian Ullrich
 
 prelude
 import init.category.transformers init.category.id
-universes u v
+universes u v w
 
 class monad_reader (r : out_param (Type u)) (m : Type u → Type v) [monad m] :=
 (reader {} {α : Type u} : (r → α) → m α)
 (read {} : m r := reader id)
 (reader := λ α f, f <$> read)
--- TODO(Sebastian): It's not clear to me how useful this operation is since it cannot change the
--- type of the environment, and we would need something like
--- https://hackage.haskell.org/package/pipes-2.4.0/docs/Control-MFunctor.html to lift it
---(with_reader {} {α : Type u} : (r → r) → m α → m α)
+
 
 export monad_reader (read)
 
-def reader_t (r : Type u) (m : Type u → Type v) [monad m] (α : Type u) : Type (max u v) :=
+def reader_t (r : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
 r → m α
 
 @[reducible] def reader (r : Type u) := reader_t r id
@@ -50,19 +47,31 @@ section
   protected def lift (a : m α) : reader_t r m α :=
   λ r, a
 
-  instance : monad_transformer (reader_t r) :=
-  { is_monad := @reader_t.monad r, monad_lift := @reader_t.lift r }
+  instance (m) [monad m] : has_monad_lift m (reader_t r m) :=
+  ⟨@reader_t.lift r m _⟩
 end
 end reader_t
 
 def with_reader_t {r r' m} [monad m] {α} (f : r' → r) : reader_t r m α → reader_t r' m α :=
 λ x r, x (f r)
 
-def map_reader_t {r m m'} [monad m] [monad m'] {α β} (f : m α → m' β) : reader_t r m α → reader_t r m' β :=
+class monad_reader_functor (r r' : out_param (Type u)) (m : out_param (Type u → Type v)) (n n' : Type u → Type w) :=
+[functor {} : monad_functor_t (reader_t r m) (reader_t r' m) n n']
+
+attribute [instance] monad_reader_functor.mk
+local attribute [instance] monad_reader_functor.functor
+
+def with_reader {r r'} {m n n'} [monad m] [monad_reader_functor r r' m n n'] {α : Type u} (f : r' → r) : n α → n' α :=
+monad_map $ λ α, (with_reader_t f : reader_t r m α → reader_t r' m α)
+
+def map_reader_t {r m m'} [monad m] [monad m'] {α} (f : Π {α}, m α → m' α) : reader_t r m α → reader_t r m' α :=
 λ x r, f (x r)
 
+instance (r m m') [monad m] [monad m'] : monad_functor m m' (reader_t r m) (reader_t r m') :=
+⟨@map_reader_t r m m' _ _⟩
+
 instance (r m) [monad m] : monad_reader r (reader_t r m) :=
-{ reader := λ α f, pure ∘ f } --, with_reader := @with_reader_t _ _ _ _ }
+{ reader := λ α f, pure ∘ f }
 
 instance monad_reader_lift (r m m') [has_monad_lift m m'] [monad m] [monad_reader r m] [monad m'] : monad_reader r m' :=
 { reader := λ α, monad_lift ∘ (monad_reader.reader : _ → m α) }

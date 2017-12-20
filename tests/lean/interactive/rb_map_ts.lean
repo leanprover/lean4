@@ -8,7 +8,7 @@ meta instance : monad_state (name_map nat) mytac :=
 state_t.monad_state
 
 meta instance : has_monad_lift tactic mytac :=
-monad_transformer_lift (state_t (name_map nat)) tactic
+state_t.has_monad_lift _
 
 meta instance (α : Type) : has_coe (tactic α) (mytac α) :=
 ⟨monad_lift⟩

@@ -713,8 +713,12 @@ static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name cons
         expr proof = p.second;
         bool is_perm = is_permutation_ceqv(env, rule);
         buffer<expr> emetas;
-        emetas.append(_emetas);
         buffer<bool> instances;
+        for (expr const & m : _emetas) {
+            emetas.push_back(m);
+            expr m_type = ctx.infer(m);
+            instances.push_back(static_cast<bool>(ctx.is_class(m_type)));
+        }
         while (is_pi(rule)) {
             expr mvar = ctx.mk_tmp_mvar(binding_domain(rule));
             emetas.push_back(mvar);

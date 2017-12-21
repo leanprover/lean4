@@ -100,10 +100,14 @@ matrix:
        CMAKE_BUILD_TYPE=Debug
 
 before_install:
-  - if [[ $TRAVIS_OS_NAME == osx ]]; then
+  - |
+    if [[ $TRAVIS_OS_NAME == osx ]]; then
       brew update &&
       (brew install gcc || brew link --overwrite gcc) &&
-      brew install gmp;
+      brew install gmp &&
+      # workaround for https://github.com/travis-ci/travis-ci/issues/6307
+      command curl -sSL https://rvm.io/mpapis.asc | gpg --import -
+      rvm get head || true
     fi
 
 script:
@@ -127,11 +131,12 @@ script:
           ../src
   - make -j2
   - if [[ $TEST != OFF ]]; then yes "A" | ctest -j2 --output-on-failure; fi
-  - if [[ $TEST_LEANPKG_REGISTRY == ON ]]; then
-      cd ../packages;
-      if [[ $TRAVIS_OS_NAME == linux ]]; then ../bin/leanpkg add "https://github.com/leanprover/smt2_interface"; fi;
-      ../bin/leanpkg configure;
-      for d in _target/deps/*; do (cd $d; ../../../../bin/leanpkg test); done;
+  - |
+    if [[ $TEST_LEANPKG_REGISTRY == ON ]]; then
+      cd ../packages
+      if [[ $TRAVIS_OS_NAME == linux ]]; then ../bin/leanpkg add "https://github.com/leanprover/smt2_interface"; fi
+      ../bin/leanpkg configure
+      for d in _target/deps/*; do (cd $d; ../../../../bin/leanpkg test); done
     fi
   - if [[ $UPLOAD == ON ]]; then cpack; fi
   - if [[ $UPLOAD == ON && $GH_TOKEN && $TRAVIS_PULL_REQUEST == false && $TRAVIS_BRANCH == master ]]; then (cd ..; bash script/deploy_gh_pages.sh); fi

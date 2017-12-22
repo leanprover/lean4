@@ -482,6 +482,7 @@ static environment eval_cmd(parser & p) {
     auto new_env = compile_expr(p.env(), fn_name, ls, type, e, pos);
 
     auto out = p.mk_message(p.cmd_pos(), p.pos(), INFORMATION);
+    out.set_caption("eval result");
     scope_traces_as_messages scope_traces(p.get_stream_name(), p.cmd_pos());
     bool should_report = false;
 

@@ -133,10 +133,10 @@ script:
   - if [[ $TEST != OFF ]]; then yes "A" | ctest -j2 --output-on-failure; fi
   - |
     if [[ $TEST_LEANPKG_REGISTRY == ON ]]; then
-      cd ../packages
-      if [[ $TRAVIS_OS_NAME == linux ]]; then ../bin/leanpkg add "https://github.com/leanprover/smt2_interface"; fi
-      ../bin/leanpkg configure
-      for d in _target/deps/*; do (cd $d; ../../../../bin/leanpkg test); done
+      (cd ../packages
+       if [[ $TRAVIS_OS_NAME == linux ]]; then ../bin/leanpkg add "https://github.com/leanprover/smt2_interface"; fi
+       ../bin/leanpkg configure
+       for d in _target/deps/*; do (cd $d; ../../../../bin/leanpkg test); done)
     fi
   - if [[ $UPLOAD == ON ]]; then cpack; fi
   - if [[ $UPLOAD == ON && $GH_TOKEN && $TRAVIS_PULL_REQUEST == false && $TRAVIS_BRANCH == master ]]; then (cd ..; bash script/deploy_gh_pages.sh); fi

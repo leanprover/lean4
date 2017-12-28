@@ -104,19 +104,27 @@ static HANDLE create_child_process(std::string cmd_name, optional<std::string> c
     HANDLE hstdin, HANDLE hstdout, HANDLE hstderr);
 
 // TODO(@jroesch): unify this code between platforms better.
-static optional<pipe> setup_stdio(SECURITY_ATTRIBUTES * saAttr, optional<stdio> cfg) {
+static optional<pipe> setup_stdio(SECURITY_ATTRIBUTES * saAttr, HANDLE * handle, optional<stdio> cfg) {
     /* Setup stdio based on process configuration. */
     if (cfg) {
         switch (*cfg) {
-        /* We should need to do nothing in this case */
         case stdio::INHERIT:
+            lean_always_assert(DuplicateHandle(GetCurrentProcess(), *handle,
+                                               GetCurrentProcess(), handle,
+                                               0, TRUE, DUPLICATE_SAME_ACCESS));
             return optional<pipe>();
         case stdio::PIPED: {
             HANDLE readh;
             HANDLE writeh;
             if (!CreatePipe(&readh, &writeh, saAttr, 0))
                 throw new exception("unable to create pipe");
-            return optional<pipe>(lean::pipe(readh, writeh));
+            auto pipe = lean::pipe(readh, writeh);
+            auto ours = *handle == GetStdHandle(STD_INPUT_HANDLE) ? pipe.m_write_fd : pipe.m_read_fd;
+            auto theirs = *handle == GetStdHandle(STD_INPUT_HANDLE) ? pipe.m_read_fd : pipe.m_write_fd;
+
+            lean_always_assert(SetHandleInformation(ours, HANDLE_FLAG_INHERIT, 0));
+            *handle = theirs;
+            return optional<lean::pipe>(pipe);
         }
         case stdio::NUL: {
             /* We should map /dev/null. */
@@ -132,9 +140,9 @@ static optional<pipe> setup_stdio(SECURITY_ATTRIBUTES * saAttr, optional<stdio> 
 
 // This code is adapted from: https://msdn.microsoft.com/en-us/library/windows/desktop/ms682499(v=vs.85).aspx
 std::shared_ptr<child> process::spawn() {
-    HANDLE child_stdin = stdin;
-    HANDLE child_stdout = stdout;
-    HANDLE child_stderr = stderr;
+    HANDLE child_stdin = GetStdHandle(STD_INPUT_HANDLE);
+    HANDLE child_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
+    HANDLE child_stderr = GetStdHandle(STD_ERROR_HANDLE);
     HANDLE parent_stdin = stdin;
     HANDLE parent_stdout = stdout;
     HANDLE parent_stderr = stderr;
@@ -146,31 +154,9 @@ std::shared_ptr<child> process::spawn() {
     saAttr.bInheritHandle = TRUE;
     saAttr.lpSecurityDescriptor = NULL;
 
-    auto stdin_pipe = setup_stdio(&saAttr, m_stdin);
-    auto stdout_pipe = setup_stdio(&saAttr, m_stdout);
-    auto stderr_pipe = setup_stdio(&saAttr, m_stderr);
-
-    if (stdin_pipe) {
-        // Ensure the write handle to the pipe for STDIN is not inherited.
-        if (!SetHandleInformation(stdin_pipe->m_write_fd, HANDLE_FLAG_INHERIT, 0))
-            throw new exception("unable to configure stdin pipe");
-        child_stdin = stdin_pipe->m_read_fd;
-    }
-
-    // Create a pipe for the child process's STDOUT.
-    if (stdout_pipe) {
-        // Ensure the read handle to the pipe for STDOUT is not inherited.
-        if (!SetHandleInformation(stdout_pipe->m_read_fd, HANDLE_FLAG_INHERIT, 0))
-            throw new exception("unable to configure stdout pipe");
-        child_stdout = stdout_pipe->m_write_fd;
-    }
-
-    if (stderr_pipe) {
-        // Ensure the read handle to the pipe for STDOUT is not inherited.
-        if (!SetHandleInformation(stderr_pipe->m_read_fd, HANDLE_FLAG_INHERIT, 0))
-            throw new exception("unable to configure stdout pipe");
-        child_stderr = stderr_pipe->m_write_fd;
-    }
+    auto stdin_pipe = setup_stdio(&saAttr, &child_stdin, m_stdin);
+    auto stdout_pipe = setup_stdio(&saAttr, &child_stdout, m_stdout);
+    auto stderr_pipe = setup_stdio(&saAttr, &child_stderr, m_stderr);
 
     std::string command;
 

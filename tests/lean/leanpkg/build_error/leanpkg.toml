@@ -1,0 +1,6 @@
+[package]
+name = "build_error"
+version = "0.1"
+lean_version = "master"
+
+[dependencies]

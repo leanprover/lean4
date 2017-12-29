@@ -440,16 +440,44 @@ static vm_obj io_iterate(vm_obj const &, vm_obj const &, vm_obj const & a, vm_ob
     }
 }
 
+static vm_obj io_get_env(vm_obj const & k, vm_obj const &) {
+    if (auto v = getenv(to_string(k).c_str())) {
+        return mk_io_result(mk_vm_some(to_obj(std::string(v))));
+    } else {
+        return mk_io_result(mk_vm_none());
+    }
+}
+
+static vm_obj io_get_cwd(vm_obj const &) {
+    auto cwd = getcwd(nullptr, 0);
+    if (cwd) {
+        return mk_io_result(mk_vm_some(to_obj(std::string(cwd))));
+    } else {
+        return mk_io_failure("get_cwd failed");
+    }
+}
+
+static vm_obj io_set_cwd(vm_obj const & cwd, vm_obj const &) {
+    if (chdir(to_string(cwd).c_str()) == 0) {
+        return mk_io_result(mk_vm_unit());
+    } else {
+        return mk_io_failure("set_cwd failed");
+    }
+}
+
+/*
+structure io.environment (m : Type → Type → Type) :=
+(get_env : string → m io.error (option string))
+-- we don't provide set_env as it is (thread-)unsafe (at least with glibc)
+(get_cwd : m io.error string)
+(set_cwd : string → m io.error unit)
+*/
 static vm_obj mk_io_env() {
-    return
-        // get_env
-        mk_native_closure([] (vm_obj const & k, vm_obj const &) {
-            if (auto v = getenv(to_string(k).c_str())) {
-                return mk_io_result(mk_vm_some(to_obj(std::string(v))));
-            } else {
-                return mk_io_result(mk_vm_none());
-            }
-        });
+    return mk_vm_constructor(0, {
+            mk_native_closure(io_get_env),
+            mk_native_closure(io_get_cwd),
+            mk_native_closure(io_set_cwd),
+    });
 }
 
 /*

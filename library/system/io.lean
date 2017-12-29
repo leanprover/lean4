@@ -33,6 +33,8 @@ structure io.file_system (handle : Type) (m : Type → Type → Type) :=
 structure io.environment (m : Type → Type → Type) :=
 (get_env : string → m io.error (option string))
 -- we don't provide set_env as it is (thread-)unsafe (at least with glibc)
+(get_cwd : m io.error string)
+(set_cwd : string → m io.error unit)
 
 inductive io.process.stdio
 | piped
@@ -152,6 +154,14 @@ namespace env
 
 def get (env_var : string) : io (option string) :=
 interface.env.get_env env_var
+
+/-- get the current working directory -/
+def get_cwd : io string :=
+interface.env.get_cwd
+
+/-- set the current working directory -/
+def set_cwd (cwd : string) : io unit :=
+interface.env.set_cwd cwd
 
 end env
 

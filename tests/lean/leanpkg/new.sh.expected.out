@@ -1,0 +1,6 @@
+> mkdir -p new
+> cd new
+configuring new 0.1
+leanpkg.path
+leanpkg.toml
+0

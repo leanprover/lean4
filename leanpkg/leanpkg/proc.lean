@@ -21,4 +21,8 @@ exitv ← wait ch,
 when (exitv ≠ 0) $ io.fail $
   "external command exited with status " ++ repr exitv
 
+def change_dir (dir : string) : io unit := do
+io.put_str_ln sformat!"> cd {dir}",
+io.env.set_cwd dir
+
 end leanpkg

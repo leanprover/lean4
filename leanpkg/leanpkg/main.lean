@@ -34,10 +34,6 @@ ch ← io.proc.spawn { cmd := "test", args := ["-f", f] },
 ev ← io.proc.wait ch,
 return $ ev = 0
 
--- TODO(gabriel): io.env.get_current_directory
-def get_current_directory : io string :=
-do cwd ← io.cmd { cmd := "pwd" }, return cwd.pop_back -- remove final newline
-
 def mk_path_file : ∀ (paths : list string), string
 | [] := "builtin_path\n"
 | (x :: xs) := mk_path_file xs ++ "path " ++ x ++ "\n"
@@ -72,9 +68,10 @@ def init_gitignore_contents :=
 "
 
 def init_pkg (n : string) (dir : string) : io unit := do
-write_manifest { name := n, version := "0.1" } (dir ++ "/" ++ leanpkg_toml_fn),
-write_file (dir ++ "/.gitignore") init_gitignore_contents io.mode.append,
-exec_cmd {cmd := "leanpkg", args := ["configure"], cwd := dir}
+change_dir dir,
+write_manifest { name := n, version := "0.1" } leanpkg_toml_fn,
+write_file ".gitignore" init_gitignore_contents io.mode.append,
+configure
 
 def init (n : string) := init_pkg n "."
 
@@ -95,7 +92,7 @@ def looks_like_git_url (dep : string) : bool :=
 
 def absolutize_add_dep (dep : string) : io string :=
 if looks_like_git_url dep then return dep
-else resolve_dir dep <$> get_current_directory
+else resolve_dir dep <$> io.env.get_cwd
 
 def parse_add_dep (dep : string) : dependency :=
 if looks_like_git_url dep then
@@ -180,8 +177,9 @@ def main : ∀ (cmd : string) (leanpkg_args lean_args : list string), io unit
       name := "_user_local_packages",
       version := "1"
     } user_toml_fn,
-  exec_cmd {cmd := "leanpkg", args := ["add", dep], cwd := dot_lean_dir},
-  exec_cmd {cmd := "leanpkg", args := ["build"], cwd := dot_lean_dir}
+  change_dir dot_lean_dir,
+  add dep,
+  build []
 | "dump"       []    []        := read_manifest >>= io.print_ln ∘ repr
 | _            _     _         := io.fail usage
 

@@ -139,7 +139,7 @@ static optional<pipe> setup_stdio(SECURITY_ATTRIBUTES * saAttr, HANDLE * handle,
 }
 
 // This code is adapted from: https://msdn.microsoft.com/en-us/library/windows/desktop/ms682499(v=vs.85).aspx
-std::shared_ptr<child> process::spawn() {
+std::shared_ptr<child> process::spawn_core() {
     HANDLE child_stdin = GetStdHandle(STD_INPUT_HANDLE);
     HANDLE child_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
     HANDLE child_stderr = GetStdHandle(STD_ERROR_HANDLE);
@@ -314,7 +314,7 @@ struct unix_child : public child {
     }
 };
 
-std::shared_ptr<child> process::spawn() {
+std::shared_ptr<child> process::spawn_core() {
     /* Setup stdio based on process configuration. */
     auto stdin_pipe = setup_stdio(m_stdin);
     auto stdout_pipe = setup_stdio(m_stdout);
@@ -391,6 +391,13 @@ std::shared_ptr<child> process::spawn() {
 }
 
 #endif
+
+std::shared_ptr<child> process::spawn() {
+    if (m_stdout && *m_stdout == stdio::INHERIT) {
+        std::cout.flush();
+    }
+    return spawn_core();
+}
 
 void process::run() {
     spawn()->wait();

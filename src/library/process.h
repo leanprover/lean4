@@ -37,6 +37,7 @@ class process {
     optional<stdio> m_stderr;
     optional<std::string> m_cwd;
     std::unordered_map<std::string, optional<std::string>> m_env;
+    std::shared_ptr<child> spawn_core();
 public:
     process(process const & proc) = default;
     process(std::string exe_name);

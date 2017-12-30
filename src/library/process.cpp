@@ -310,7 +310,13 @@ struct unix_child : public child {
     unsigned wait() override {
         int status;
         waitpid(m_pid, &status, 0);
-        return static_cast<unsigned>(status);
+        if (WIFEXITED(status)) {
+            return static_cast<unsigned>(WEXITSTATUS(status));
+        } else {
+            lean_assert(WIFSIGNALED(status));
+            // use bash's convention
+            return 128 + static_cast<unsigned>(WTERMSIG(status));
+        }
     }
 };
 

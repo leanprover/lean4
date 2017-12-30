@@ -1,5 +1,5 @@
 configuring build_error 0.1
 > lean --make .
 err.lean:1:0: error: command expected
-external command exited with status 256
+external command exited with status 1
 1

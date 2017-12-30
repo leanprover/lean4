@@ -531,7 +531,8 @@ int main(int argc, char ** argv) {
 
     log_tree lt;
 
-    progress_message_stream msg_stream(std::cout, json_output, make_mode, lt.get_root());
+    bool show_progress = make_mode && isatty(STDOUT_FILENO);
+    progress_message_stream msg_stream(std::cout, json_output, show_progress, lt.get_root());
     if (json_output) ios.set_regular_channel(ios.get_diagnostic_channel_ptr());
 
     if (!test_suite)

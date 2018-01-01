@@ -41,6 +41,7 @@ def mk_path_file : ∀ (paths : list string), string
 def configure : io unit := do
 d ← read_manifest,
 io.put_str_ln $ "configuring " ++ d.name ++ " " ++ d.version,
+when (d.path ≠ some "src") $ io.put_str_ln "WARNING: leanpkg configurations not specifying `path = \"src\"` are deprecated.",
 assg ← solve_deps d,
 path_file_cnts ← mk_path_file <$> construct_path assg,
 write_file "leanpkg.path" path_file_cnts
@@ -67,13 +68,17 @@ def init_gitignore_contents :=
 /leanpkg.path
 "
 
-def init_pkg (n : string) (dir : string) : io unit := do
+def init_pkg (n : string) (dir : string) (from_new : bool) : io unit := do
 change_dir dir,
-write_manifest { name := n, version := "0.1" } leanpkg_toml_fn,
+write_manifest { name := n, path := "src", version := "0.1" } leanpkg_toml_fn,
+src_ex ← dir_exists "src",
+when (¬src_ex) (do
+  when ¬from_new $ io.put_str_ln "Move existing .lean files into the 'src' folder.",
+  exec_cmd {cmd := "mkdir", args := ["src"]}),
 write_file ".gitignore" init_gitignore_contents io.mode.append,
 configure
 
-def init (n : string) := init_pkg n "."
+def init (n : string) := init_pkg n "." false
 
 -- TODO(gabriel): windows
 def basename (s : string) : string :=
@@ -118,7 +123,7 @@ def new (dir : string) := do
 ex ← dir_exists dir,
 when ex $ io.fail $ "directory already exists: " ++ dir,
 exec_cmd {cmd := "mkdir", args := ["-p", dir]},
-init_pkg (basename dir) dir
+init_pkg (basename dir) dir true
 
 def upgrade_dep (assg : assignment) (d : dependency) : io dependency :=
 match d.src with

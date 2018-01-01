@@ -186,6 +186,8 @@ master branch (aka work in progress branch)
 
 * `by_cases p with h` ==> `by_cases h : p`
 
+* leanpkg now always stores .lean package files in a separate `src` directory.
+
 *API name changes*
 
 v3.3.0 (14 September 2017)

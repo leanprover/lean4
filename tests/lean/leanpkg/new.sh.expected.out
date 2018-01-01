@@ -1,6 +1,8 @@
 > mkdir -p new
 > cd new
+> mkdir src
 configuring new 0.1
 leanpkg.path
 leanpkg.toml
+src
 0

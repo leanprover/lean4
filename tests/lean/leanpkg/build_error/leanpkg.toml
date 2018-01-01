@@ -1,5 +1,6 @@
 [package]
 name = "build_error"
+path = "src"
 version = "0.1"
 lean_version = "master"
 

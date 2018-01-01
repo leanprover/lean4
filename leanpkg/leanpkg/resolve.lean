@@ -63,20 +63,19 @@ match dep.src with
 | (source.git url rev) := do
   let depdir := "_target/deps/" ++ dep.name,
   already_there ← dir_exists depdir,
-  let checkout_action := (do
+  if already_there then do {
+    io.put_str_ln $ dep.name ++ ": trying to update " ++ depdir ++ " to revision " ++ rev,
     hash ← git_parse_origin_revision depdir rev,
-    exec_cmd {cmd := "git", args := ["checkout", "--detach", hash], cwd := depdir}),
-  (do guard already_there,
-      io.put_str_ln $ dep.name ++ ": trying to update " ++ depdir ++ " to revision " ++ rev,
-      checkout_action) <|>
-  (do guard already_there,
-      exec_cmd {cmd := "git", args := ["fetch"], cwd := depdir},
-      checkout_action) <|>
-  (do io.put_str_ln $ dep.name ++ ": cloning " ++ url ++ " to " ++ depdir,
-      exec_cmd {cmd := "rm", args := ["-rf", depdir]},
-      exec_cmd {cmd := "mkdir", args := ["-p", depdir]},
-      exec_cmd {cmd := "git", args := ["clone", url, depdir]},
-      checkout_action),
+    rev_ex ← git_revision_exists depdir hash,
+    when (¬rev_ex) $
+      exec_cmd {cmd := "git", args := ["fetch"], cwd := depdir}
+  } else do {
+    io.put_str_ln $ dep.name ++ ": cloning " ++ url ++ " to " ++ depdir,
+    exec_cmd {cmd := "mkdir", args := ["-p", depdir]},
+    exec_cmd {cmd := "git", args := ["clone", url, depdir]}
+  },
+  hash ← git_parse_origin_revision depdir rev,
+  exec_cmd {cmd := "git", args := ["checkout", "--detach", hash], cwd := depdir},
   state_t.modify $ λ assg, assg.insert dep.name depdir
 end
 

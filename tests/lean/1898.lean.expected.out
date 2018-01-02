@@ -1,0 +1,6 @@
+1898.lean:1:39: error: invalid projection, index must be greater than 0
+1898.lean:1:4: error: don't know how to synthesize placeholder
+context:
+R : Type,
+H : comm_ring R
+⊢ Sort ?

@@ -2784,7 +2784,9 @@ elaborator::field_resolution elaborator::field_to_decl(expr const & e, expr cons
         }
         auto fnames = get_structure_fields(m_env, const_name(I));
         unsigned fidx = get_field_notation_field_idx(e);
-        lean_assert(fidx > 0);
+        if (fidx  == 0) {
+            throw elaborator_exception(e, "invalid projection, index must be greater than 0");
+        }
         if (fidx > fnames.size()) {
             auto pp_fn = mk_pp_ctx();
             throw elaborator_exception(e, format("invalid projection, structure has only ") +

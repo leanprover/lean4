@@ -1061,10 +1061,7 @@ parse_table init_nud_table() {
 static expr parse_field(parser_state & p, unsigned, expr const * args, pos_info const & pos) {
     try {
         if (p.curr_is_numeral()) {
-            pos_info num_pos = p.pos();
             unsigned fidx = p.parse_small_nat();
-            if (fidx == 0)
-                return p.parser_error_or_expr({"invalid projection, index must be greater than 0", num_pos});
             return p.save_pos(mk_field_notation(args[0], fidx), pos);
         } else {
             name field = p.check_id_next("identifier or numeral expected");

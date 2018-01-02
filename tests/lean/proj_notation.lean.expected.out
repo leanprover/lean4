@@ -10,7 +10,7 @@ proj_notation.lean:29:19: error: invalid field notation, 'fst' is not a valid "f
 which has type
   car
 λ (c : car), ⁇ : car → ?M_1
-proj_notation.lean:31:21: error: invalid projection, index must be greater than 0
+proj_notation.lean:31:19: error: invalid projection, index must be greater than 0
 λ (c : car), ⁇ : car → ?M_1
 proj_notation.lean:33:19: error: invalid projection, structure has only 2 field(s)
   c

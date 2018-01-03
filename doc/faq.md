@@ -21,7 +21,7 @@ ideas and tweaking the system.  It is a research project and not a product.
 Things change rapidly, and we constantly break backward compatibility.
 Lean comes "as is", you should not expect we will fix bugs and/or add new features for your project.
 We have our own priorities, and will not change them to accommodate your needs.
-Even if you implement a new feature or fixes a bug, we may not want to merge it because
+Even if you implement a new feature or fix a bug, we may not want to merge it because
 it may conflict with our plans for Lean, it may not be performant, we may not want to maintain it,
 we may be busy, etc. If you really need this new feature or bug fix, we suggest you create your own fork and maintain it yourself.
 

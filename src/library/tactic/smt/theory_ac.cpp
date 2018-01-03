@@ -145,7 +145,7 @@ optional<expr> theory_ac::is_ac(expr const & e) {
         return some_expr(*it);
     optional<expr> found_op;
     m_state.m_op_info.for_each([&](expr const & c_op, expr_pair const &) {
-            if (!found_op && m_ctx.nd_relaxed_is_def_eq(op, c_op))
+            if (!found_op && m_ctx.pure_relaxed_is_def_eq(op, c_op))
                 found_op = c_op;
         });
     if (found_op) {

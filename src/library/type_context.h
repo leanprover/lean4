@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include <algorithm>
 #include "util/flet.h"
 #include "util/lbool.h"
 #include "kernel/environment.h"
@@ -554,9 +555,24 @@ private:
     /* If m_zeta, then use zeta-reduction (i.e., expand let-expressions at whnf) */
     bool               m_zeta{true};
 
-    /* If m_update, then metavariables can be assigned by is_def_eq and similar methods.
-       This is used to implement nd_is_def_eq (non-destructive is_def_eq predicate. */
-    bool               m_update{true};
+    /* If m_update_left, then when processing `is_def_eq(t, s)`, metavariables
+       occurring in `t` can be assigned. */
+    bool               m_update_left{true};
+    /* If m_update_right, then when processing `is_def_eq(t, s)`, metavariables
+       occurring in `t` can be assigned. */
+    bool               m_update_right{true};
+
+    /* Auxiliary object used to temporarily swap `m_update_left` and `m_update_right`.
+       We use it before invoking methods where we swap left/right. */
+    struct swap_update_flags_scope {
+        type_context & m_ctx;
+        swap_update_flags_scope(type_context & ctx):m_ctx(ctx) {
+            std::swap(m_ctx.m_update_left, m_ctx.m_update_right);
+        }
+        ~swap_update_flags_scope() {
+            std::swap(m_ctx.m_update_left, m_ctx.m_update_right);
+        }
+    };
 
     /* Postponed universe constraints.
        We postpone universe constraints containing max/imax. Examples:
@@ -674,24 +690,39 @@ public:
     virtual expr check(expr const & e) override;
     virtual bool is_def_eq(expr const & e1, expr const & e2) override;
 
+    bool match(expr const & e1, expr const & e2) {
+        flet<bool> update_left(m_update_left, true);
+        flet<bool> no_update_right(m_update_right, false);
+        return is_def_eq(e1, e2);
+    }
+
+    bool unify(expr const & e1, expr const & e2) {
+        flet<bool> update_left(m_update_left, true);
+        flet<bool> update_right(m_update_right, true);
+        return is_def_eq(e1, e2);
+    }
+
     virtual expr relaxed_whnf(expr const & e) override;
     virtual bool relaxed_is_def_eq(expr const & e1, expr const & e2) override;
 
     /** Non destructive is_def_eq (i.e., metavariables cannot be assigned) */
-    bool nd_is_def_eq(level const & l1, level const & l2) {
-        flet<bool> no_update(m_update, false);
+    bool pure_is_def_eq(level const & l1, level const & l2) {
+        flet<bool> no_update_left(m_update_left, false);
+        flet<bool> no_update_right(m_update_right, false);
         return is_def_eq(l1, l2);
     }
 
     /** Non destructive is_def_eq (i.e., metavariables cannot be assigned) */
-    bool nd_is_def_eq(expr const & e1, expr const & e2) {
-        flet<bool> no_update(m_update, false);
+    bool pure_is_def_eq(expr const & e1, expr const & e2) {
+        flet<bool> no_update_left(m_update_left, false);
+        flet<bool> no_update_right(m_update_right, false);
         return is_def_eq(e1, e2);
     }
 
     /** Non destructive relaxed_is_def_eq (i.e., metavariables cannot be assigned) */
-    bool nd_relaxed_is_def_eq(expr const & e1, expr const & e2) {
-        flet<bool> no_update(m_update, false);
+    bool pure_relaxed_is_def_eq(expr const & e1, expr const & e2) {
+        flet<bool> no_update_left(m_update_left, false);
+        flet<bool> no_update_right(m_update_right, false);
         return relaxed_is_def_eq(e1, e2);
     }
 
@@ -1082,6 +1113,8 @@ public:
     virtual expr infer(expr const & e) override;
     virtual expr whnf(expr const & e) override;
     virtual bool is_def_eq(expr const & e1, expr const & e2) override;
+
+    bool match(expr const & e1, expr const & e2);
 
     expr mk_lambda(buffer<expr> const & locals, expr const & e);
     expr mk_pi(buffer<expr> const & locals, expr const & e);

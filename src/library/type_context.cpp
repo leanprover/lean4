@@ -1567,7 +1567,7 @@ lbool type_context::is_def_eq_core(level const & l1, level const & l2, bool part
     if (l1 != new_l1 || l2 != new_l2)
         return is_def_eq_core(new_l1, new_l2, partial);
 
-    if (m_update && is_mode_mvar(l1)) {
+    if (m_update_left && is_mode_mvar(l1)) {
         lean_assert(!is_assigned(l1));
         if (!occurs(l1, l2)) {
             assign(l1, l2);
@@ -1577,7 +1577,7 @@ lbool type_context::is_def_eq_core(level const & l1, level const & l2, bool part
         }
     }
 
-    if (m_update && is_mode_mvar(l2)) {
+    if (m_update_right && is_mode_mvar(l2)) {
         lean_assert(!is_assigned(l2));
         if (!occurs(l2, l1)) {
             assign(l2, l1);
@@ -1872,7 +1872,7 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
         if (is_local_decl_ref(arg) && (is_local(fn) || is_constant(fn))) {
             return
                 is_def_eq_core(mvar, app_fn(v)) &&
-                is_def_eq_core(app_arg(v), args[0]);
+                is_def_eq_core(args[0], app_arg(v));
         }
     }
 
@@ -2265,7 +2265,7 @@ bool type_context::is_def_eq_binding(expr e1, expr e2) {
         if (binding_domain(e1) != binding_domain(e2)) {
             var_e1_type = instantiate_rev(binding_domain(e1), subst.size(), subst.data());
             expr var_e2_type = instantiate_rev(binding_domain(e2), subst.size(), subst.data());
-            if (!is_def_eq_core(var_e2_type, *var_e1_type))
+            if (!is_def_eq_core(*var_e1_type, var_e2_type))
                 return false;
         }
         if (!closed(binding_body(e1)) || !closed(binding_body(e2))) {
@@ -2595,11 +2595,11 @@ lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
 
     if (is_mode_mvar(f1)) {
         lean_assert(!is_assigned(f1));
-        if (m_update && !is_mode_mvar(f2)) {
+        if (m_update_left && !is_mode_mvar(f2)) {
             return to_lbool(process_assignment(e1, e2));
-        } else if (m_update && in_tmp_mode()) {
+        } else if (m_update_left && in_tmp_mode()) {
             return to_lbool(process_assignment(e1, e2));
-        } else if (m_update) {
+        } else if (m_update_left) {
             optional<metavar_decl> m1_decl = m_mctx.find_metavar_decl(f1);
             optional<metavar_decl> m2_decl = m_mctx.find_metavar_decl(f2);
             if (m1_decl && m2_decl) {
@@ -2620,11 +2620,13 @@ lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
                         return to_lbool(process_assignment(e1, e2));
                     } else if (m1_decl->get_context().is_subset_of(m2_decl->get_context())) {
                         lean_assert(is_app(e1) || !is_app(e2));
-                        if ((is_app(e1) && !is_app(e2)) || /* ?m2 := ?m1 a_1 ... a_n */
-                            (!mvar_has_user_facing_name(f2) && mvar_has_user_facing_name(f1)) /* ?m2 does not have a user facing name, but ?m1 has */
-                            ) {
+                        if (m_update_right &&
+                            ((is_app(e1) && !is_app(e2)) || /* ?m2 := ?m1 a_1 ... a_n */
+                             (!mvar_has_user_facing_name(f2) && mvar_has_user_facing_name(f1)))) { /* ?m2 does not have a user facing name, but ?m1 has */
                             /* Remark: the second case (?m2 has user facing name but ?m1 doesn't) is particularly for
                                the equation preprocessor. See issue #1801. */
+                            swap_update_flags_scope scope(*this);
+                            /* We need to swap `m_update_left` and `m_update_right` because `process_assignment` uses `is_def_eq` */
                             return to_lbool(process_assignment(e2, e1));
                         } else {
                             return to_lbool(process_assignment(e1, e2));
@@ -2636,7 +2638,13 @@ lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
                     }
                 } else {
                     lean_assert(!m2_decl->get_context().is_subset_of(m1_decl->get_context()));
-                    return to_lbool(process_assignment(e2, e1));
+                    if (m_update_right) {
+                        swap_update_flags_scope scope(*this);
+                        /* We need to swap `m_update_left` and `m_update_right` because `process_assignment` uses `is_def_eq` */
+                        return to_lbool(process_assignment(e2, e1));
+                    } else {
+                        return l_false;
+                    }
                 }
             } else {
                 return l_false;
@@ -2648,7 +2656,9 @@ lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
 
     if (is_mode_mvar(f2)) {
         lean_assert(!is_assigned(f2));
-        if (m_update) {
+        if (m_update_right) {
+            swap_update_flags_scope scope(*this);
+            /* We need to swap `m_update_left` and `m_update_right` because `process_assignment` uses `is_def_eq` */
             return to_lbool(process_assignment(e2, e1));
         } else {
             return l_false;
@@ -3006,8 +3016,11 @@ lbool type_context::try_nat_offset_cnstrs(expr const & t, expr const & s) {
     if (r != l_undef) return r;
     r = try_offset_eq_numeral(t, s);
     if (r != l_undef) return r;
-    r = try_offset_eq_numeral(s, t);
-    if (r != l_undef) return r;
+    {
+        swap_update_flags_scope scope(*this);
+        r = try_offset_eq_numeral(s, t);
+        if (r != l_undef) return r;
+    }
     return try_numeral_eq_numeral(t, s);
 }
 
@@ -3807,6 +3820,8 @@ struct instance_synthesizer {
     }
 
     optional<expr> operator()(expr const & type) {
+        flet<bool> scope_left(m_ctx.m_update_left, true);
+        flet<bool> scope_right(m_ctx.m_update_right, true);
         if (is_trace_enabled() && !is_trace_class_enabled("class_instances")) {
             scope_trace_silent scope(true);
             return main(type);
@@ -4056,6 +4071,11 @@ tmp_type_context::tmp_type_context(type_context & ctx, unsigned num_umeta, unsig
 bool tmp_type_context::is_def_eq(expr const & e1, expr const & e2) {
     type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.is_def_eq(e1, e2);
+}
+
+bool tmp_type_context::match(expr const & e1, expr const & e2) {
+    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
+    return m_ctx.match(e1, e2);
 }
 
 expr tmp_type_context::infer(expr const & e) {

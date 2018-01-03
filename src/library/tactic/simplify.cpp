@@ -537,7 +537,7 @@ simp_result simplify_core_fn::rewrite(expr const & e) {
 }
 
 bool simplify_core_fn::match(tmp_type_context & ctx, simp_lemma const & sl, expr const & t) {
-    return ctx.is_def_eq(sl.get_lhs(), t);
+    return ctx.match(sl.get_lhs(), t);
 }
 
 /* If both e and sl.get_lhs() are of the form (f ...),

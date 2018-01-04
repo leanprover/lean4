@@ -105,6 +105,10 @@ master branch (aka work in progress branch)
 
 * Add interactive `subst_vars` tactic.
 
+* Add `leanpkg add foo/bar` as a shorthand for `leanpkg add https://github.com/foo/bar`.
+
+* Add `leanpkg help <command>`.
+
 *Changes*
 
 * Replace `inout` modifier in type class declarations with `out_param` modifier.

@@ -95,22 +95,31 @@ if url.backn 4 = ".git" then url.popn_back 4 else url
 def looks_like_git_url (dep : string) : bool :=
 ':' ∈ dep.to_list
 
-def absolutize_add_dep (dep : string) : io string :=
-if looks_like_git_url dep then return dep
-else resolve_dir dep <$> io.env.get_cwd
-
-def parse_add_dep (dep : string) : dependency :=
+def parse_add_dep (dep : string) : io dependency :=
 if looks_like_git_url dep then
-  { name := basename (strip_dot_git dep), src := source.git dep upstream_git_branch }
-else
-  { name := basename dep, src := source.path dep }
+  pure { name := basename (strip_dot_git dep), src := source.git dep upstream_git_branch }
+else do
+  ex ← dir_exists dep,
+  if ex then
+    pure { name := basename dep, src := source.path dep }
+  else do
+    [user, repo] ← pure $ dep.split (= '/')
+      | io.fail sformat!"path '{dep}' does not exist",
+    pure { name := repo, src := source.git sformat!"https://github.com/{user}/{repo}" upstream_git_branch }
+
+def absolutize_dep (dep : dependency) : io dependency :=
+match dep.src with
+| source.path p := do
+  cwd ← io.env.get_cwd,
+  pure {src := source.path (resolve_dir p cwd), ..dep}
+| _ := pure dep
+end
 
 def fixup_git_version (dir : string) : ∀ (src : source), io source
 | (source.git url _) := source.git url <$> git_head_revision dir
 | src := return src
 
-def add (dep : string) : io unit := do
-let dep := parse_add_dep dep,
+def add (dep : dependency) : io unit := do
 (_, assg) ← materialize "." dep assignment.empty,
 some downloaded_path ← return (assg.find dep.name),
 manif ← manifest.from_file (downloaded_path ++ "/" ++ leanpkg_toml_fn),
@@ -170,10 +179,11 @@ def main : ∀ (cmd : string) (leanpkg_args lean_args : list string), io unit
 | "test"      _      lean_args := test lean_args
 | "new"       [dir]  []        := new dir
 | "init"      [name] []        := init name
-| "add"       [dep]  []        := add dep
+| "add"       [dep]  []        := parse_add_dep dep >>= add
 | "upgrade"   []     []        := upgrade
 | "install"   [dep]  []        := do
-  dep ← absolutize_add_dep dep,
+  dep ← parse_add_dep dep,
+  dep ← absolutize_dep dep,
   dot_lean_dir ← get_dot_lean_dir,
   exec_cmd {cmd := "mkdir", args := ["-p", dot_lean_dir]},
   let user_toml_fn := dot_lean_dir ++ "/" ++ leanpkg_toml_fn,

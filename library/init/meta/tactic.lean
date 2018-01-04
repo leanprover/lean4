@@ -373,7 +373,17 @@ meta constant get_goals     : tactic (list expr)
 meta constant set_goals     : list expr → tactic unit
 inductive new_goals
 | non_dep_first | non_dep_only | all
-/-- Configuration options for the `apply` tactic. -/
+/-- Configuration options for the `apply` tactic.
+
+- `new_goals` is the strategy for ordering new goals.
+- `instances` if `tt`, then `apply` tries to synthesize unresolved `[...]` arguments using type class resolution.
+- `auto_param` if `tt`, then `apply` tries to synthesize unresolved `(h : p . tac_id)` arguments using tactic `tac_id`.
+- `opt_param` if `tt`, then `apply` tries to synthesize unresolved `(a : t := v)` arguments by setting them to `v`.
+- `unify` if `tt`, then `apply` is free to assign existing metavariables in the goal when solving unification constraints.
+   For example, in the goal `|- ?x < succ 0`, the tactic `apply succ_lt_succ` succeeds with the default configuration,
+   but `apply_with succ_lt_succ {unify := ff}` doesn't since it would require Lean to assign `?x` to `succ ?y` where
+   `?y` is a fresh metavariable.
+-/
 structure apply_cfg :=
 (md            := semireducible)
 (approx        := tt)
@@ -381,6 +391,7 @@ structure apply_cfg :=
 (instances     := tt)
 (auto_param    := tt)
 (opt_param     := tt)
+(unify         := tt)
 /-- Apply the expression `e` to the main goal,
     the unification is performed using the transparency mode in `cfg`.
     If `cfg.approx` is `tt`, then fallback to first-order unification, and approximate context during unification.

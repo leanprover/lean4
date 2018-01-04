@@ -20,6 +20,7 @@ structure apply_cfg :=
 (instances     := tt)
 (auto_param    := tt)
 (opt_param     := tt)
+(unify         := tt)
 */
 struct apply_cfg {
     transparency_mode m_mode{transparency_mode::Semireducible};
@@ -28,6 +29,7 @@ struct apply_cfg {
     bool              m_instances{true};
     bool              m_auto_param{true};
     bool              m_opt_param{true};
+    bool              m_unify{true};
     apply_cfg() {}
     apply_cfg(vm_obj const & cfg);
 };

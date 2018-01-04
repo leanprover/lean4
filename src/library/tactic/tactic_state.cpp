@@ -513,11 +513,10 @@ vm_obj tactic_unify(vm_obj const & e1, vm_obj const & e2, vm_obj const & t, vm_o
 vm_obj tactic_is_def_eq(vm_obj const & e1, vm_obj const & e2, vm_obj const & t, vm_obj const & s0) {
     tactic_state const & s = tactic::to_state(s0);
     type_context ctx       = mk_type_context_for(s, to_transparency_mode(t));
-    type_context::tmp_mode_scope scope(ctx);
     try {
         check_closed("is_def_eq", to_expr(e1));
         check_closed("is_def_eq", to_expr(e2));
-        bool r = ctx.is_def_eq(to_expr(e1), to_expr(e2));
+        bool r = ctx.pure_is_def_eq(to_expr(e1), to_expr(e2));
         if (r) {
             return tactic::mk_success(s);
         } else {

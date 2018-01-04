@@ -200,6 +200,13 @@ meta def apply_with (q : parse parser.pexpr) (cfg : apply_cfg) : tactic unit :=
 concat_tags (do e ← i_to_expr_for_apply q, tactic.apply e cfg)
 
 /--
+Similar to the `apply` tactic, but uses matching instead of unification.
+`apply_match t` is equivalent to `apply_with t {unify := ff}`
+-/
+meta def mapply (q : parse texpr) : tactic unit :=
+concat_tags (do e ← i_to_expr_for_apply q, tactic.apply e {unify := ff})
+
+/--
 This tactic tries to close the main goal `... ⊢ t` by generating a term of type `t` using type class resolution.
 -/
 meta def apply_instance : tactic unit :=

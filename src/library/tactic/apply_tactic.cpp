@@ -29,7 +29,8 @@ apply_cfg::apply_cfg(vm_obj const & cfg):
     m_new_goals(to_new_goals_kind(cfield(cfg, 2))),
     m_instances(to_bool(cfield(cfg, 3))),
     m_auto_param(to_bool(cfield(cfg, 4))),
-    m_opt_param(to_bool(cfield(cfg, 5))) {
+    m_opt_param(to_bool(cfield(cfg, 5))),
+    m_unify(to_bool(cfield(cfg, 6))) {
 }
 
 /*
@@ -198,13 +199,21 @@ static optional<tactic_state> apply(type_context & ctx, expr e, apply_cfg const 
     }
     /* Unify */
     lean_assert(metas.size() == is_instance.size());
-    if (!ctx.is_def_eq(e_type, target)) {
+
+    if ((cfg.m_unify && !ctx.unify(e_type, target)) ||
+        (!cfg.m_unify && !ctx.match(e_type, target))) {
         if (out_error_obj) {
             auto thunk = [=]() {
-                format msg = format("invalid apply tactic, failed to unify");
-                msg += pp_indented_expr(s, target);
+                auto pp_ctx = ::lean::mk_pp_ctx(ctx.env(), s.get_options(), ctx.mctx(), ctx.lctx());
+                format msg = format("invalid apply tactic, failed to ");
+                if (cfg.m_unify)
+                    msg += format("unify");
+                else
+                    msg += format("match");
+                unsigned i = get_pp_indent(s.get_options());
+                msg += nest(i, line() + pp_ctx(target));
                 msg += line() + format("with");
-                msg += pp_indented_expr(s, e_type);
+                msg += nest(i, line() + pp_ctx(e_type));
                 return msg;
             };
             *out_error_obj = tactic::mk_exception(thunk, s);

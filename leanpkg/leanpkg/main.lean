@@ -68,17 +68,22 @@ def init_gitignore_contents :=
 /leanpkg.path
 "
 
-def init_pkg (n : string) (dir : string) (from_new : bool) : io unit := do
-change_dir dir,
+def init_pkg (n : string) (from_new : bool) : io unit := do
 write_manifest { name := n, path := "src", version := "0.1" } leanpkg_toml_fn,
 src_ex ← dir_exists "src",
 when (¬src_ex) (do
   when ¬from_new $ io.put_str_ln "Move existing .lean files into the 'src' folder.",
   exec_cmd {cmd := "mkdir", args := ["src"]}),
 write_file ".gitignore" init_gitignore_contents io.mode.append,
+git_ex ← dir_exists ".git",
+when (¬git_ex) (do {
+  exec_cmd {cmd := "git", args := ["init", "-q"]},
+  when (upstream_git_branch ≠ "master") $
+    exec_cmd {cmd := "git", args := ["checkout", "-b", upstream_git_branch]}
+} <|> io.print_ln "WARNING: failed to initialize git repository"),
 configure
 
-def init (n : string) := init_pkg n "." false
+def init (n : string) := init_pkg n false
 
 -- TODO(gabriel): windows
 def basename (s : string) : string :=
@@ -132,7 +137,8 @@ def new (dir : string) := do
 ex ← dir_exists dir,
 when ex $ io.fail $ "directory already exists: " ++ dir,
 exec_cmd {cmd := "mkdir", args := ["-p", dir]},
-init_pkg (basename dir) dir true
+change_dir dir,
+init_pkg (basename dir) true
 
 def upgrade_dep (assg : assignment) (d : dependency) : io dependency :=
 match d.src with

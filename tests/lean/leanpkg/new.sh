@@ -1,4 +1,4 @@
 rm -rf new
 leanpkg new new
-ls new
+ls -a new
 rm -rf new

@@ -266,7 +266,11 @@ public:
       we implement the temporary metavariable assignment using arrays.
       This is much more efficient than using a map datastructure.
 
-      *** Temporary metavariable Offsets ***
+      *** Temporary metavariable Offsets (discarded) ***
+
+      Remark: this is a feature we considered using, but discarded.
+      We briefly describe it here, and then describe the problems that made
+      us discard it.
 
       When trying to apply a simplification such as `forall x, f x x = x` to a term `t`,
       we don't want to create a fresh metavariable `?x` and a new term `f ?x ?x` (called pattern)
@@ -281,7 +285,7 @@ public:
       `lift k t`, where `k` is an offset and `t` is a term, returns
       the term `t'` where each temporary metavariable with index `i` in `t`
       is replaced with one with index `i+k`. To avoid the explicit construction of
-      term `t'`, the `is_def_eq` predicate takes offsets as parameters.
+      term `t'`, we considered using an `is_def_eq` predicate that takes offsets as parameters.
       That is, `is_def_eq(k_1, t_1, k_2, t_2)` checks whether
       the terms `lift k_1 t_1` and `lift k_2 t_2` are definitionally equal
       without constructing these terms explicitly.
@@ -289,6 +293,27 @@ public:
       Remark: when assigning `(k_1, ?x) := (k_2, t)` where `?x` is a temporary metavariable
       and `k_1` and `k_2` are offsets, we update the array entry `idx(?x) + k_1` with
       `(lift k_2 t)`.
+
+      Remark: when solving `(k_1, ?x) =?= (k_2, t)` where `?x` is an assigned temporary metavariable,
+      i.e., `assignment[idx(?x) + k_1] := s`, we reduce the constraint to
+      `(0, s) =?= (k_2, t)`.
+
+      This approach is used in several automated first-order theorem provers.
+      However, we found several complications when trying to use it
+      in Lean. Some of the problems affect any prover based on
+      dependent type theory. The main problem is reduction, that is,
+      `is_def_eq` can reduce a constraint `t =?= s` into `t' =?= s`,
+      if `t` reduces to `t'`. Reduction modulo offsets is messy.
+      The problem is that reduction may need to access the assignment, and invoke `is_def_eq` recursively.
+      If reduction tries to substitute a metavar with its assignment, we are in trouble since the offset
+      would not be the same for all subterms. For example, if we have a term `C.rec_on ?x_i h` and offset `k`.
+      If we replace `x_i` with its assignment `v`, the offset for `v` is 0. We would need to have a macro
+      to mark the offset of subterms, but then this macro would have to interact with reduction.
+      Another problem is that `type_context` invokes many auxiliary functions and modules.
+      Most of them would have to be offset aware.
+
+      So, we decide to use a different and simpler approach, where we simply cache the
+      result of the lift operation.
 
       *** Backtracking and scopes ***
 
@@ -426,25 +451,25 @@ public:
       as opaque constants.
 
       *** Applications ***
+
       Here we assume the `is_def_eq` general form is
 
-      lctx | (a_1, k_1, t_1) =?= (a_2, k_2, t_2)
+      lctx | (a_1, t_1) =?= (a_2, t_2)
 
       where `lctx` is the local context for the temporary metavariables occurring in `t_i`;
-      `a_i` is a flag indicating whether metavariables occurring in `t_i` can be assigned or not;
-      `k_i` is the offset for the metavariables occurring in `t_i`.
+      `a_i` is a flag indicating whether metavariables occurring in `t_i` can be assigned or not.
       The local context `lctx` is only relevant for `t_i` is `a_i` is set to true.
-      `lctx`, `k_i` are only relevant if we are in TMP mode. We use `lctx` to validate
+      `lctx` is only relevant if we are in TMP mode. We use `lctx` to validate
       whether an assignment to a temporary metavariable is valid or not.
 
       We use the following shorthands
 
-      `(unify) t =?= s` denotes `_ | (true, 0, t) =?= (true, 0, s)`
-      `(match) t =?= s` denotes `_ | (true, 0, t) =?= (false, 0, s)`
-      `(pure) t =?= s` denotes `_ | (false, 0, t) =?= (false, 0, s)`
-      `(tmp-match) lctx | (k, t) =?= s` denotes `lctx | (true, k, t) =?= (false, 0, s)`
-      `(nested-tmp-match) lctx | (k', t) =?= (k, s)` denotes `lctx | (true, k', t) =?= (false, k, s)`
-      `(tmp-unify) lctx | t =?= s` denotes `lctx | (true, 0, t) =?= (true, 0, s)`
+      `(unify) t =?= s` denotes `_ | (true, t) =?= (true, s)`
+      `(match) t =?= s` denotes `_ | (true, t) =?= (false, s)`
+      `(pure) t =?= s` denotes `_ | (false, t) =?= (false, s)`
+      `(tmp-match) lctx | t =?= s` denotes `lctx | (true, t) =?= (false, s)`
+      `(nested-tmp-match) lctx | (k', t) =?= s` denotes `lctx | (true, lift k' t) =?= (false, s)`
+      `(tmp-unify) lctx | t =?= s` denotes `lctx | (true, t) =?= (true, s)`
 
       - Elaboration and tactics such as `apply`. We use `(unify) t =?= s`
 
@@ -461,15 +486,12 @@ public:
       - `app_builder`: a helper procedure for creating applications
       where missing arguments and universes levels are inferred using type inference.
       It takes a `type_context` `ctx` as argument.
-      We use `(tmp-match) lctx | (k, t) =?= s` where `k` is the number of
-      temporary metavariables in `ctx` when invoked the `app_builder`, and the `lctx` is
-      `ctx.lctx()`
+      We use `(tmp-match) lctx | t =?= s` where `lctx` is `ctx.lctx()`
 
       - Simplifier and Ematcher. They solve nested matching problems.
-      In versions <= 3.3, we use the `tmp_type_context` hack to be able
-      to use multiple temporary assignments. Now, we use a single tmp assignment
-      and offsets. We set `k` as the number of temporary metavariables we had
-      before we create a new matching problem. Thus, we use `(tmp-match) lctx | (k, t) =?= s`.
+      We use the `tmp_type_context` trick to be able to use multiple temporary assignments,
+      and avoiding an explicit `lift` operation. This trick works because the nested
+      problems are independent. So, we use `(tmp-match) lctx | t =?= s`.
       Note that, `s` does not contain temporary metavariables. It is a term from the current goal.
 
       - (Internal) Type class resolution: we use temporary metavariables and unification.
@@ -488,10 +510,9 @@ public:
       We are essentially using the equational lemma to
       perform a delta reduction while we are solvind a
       unification/matching problem.
-      We use `(nested-tmp-match) lctx | (k', t) =?= (k, s)`
-      where `lctx` is `this.lctx()`, `k'` is the number of temporary metavariable in `this`,
-      `t` is the left-hand-side of the "refl" equational lemma,
-      and `k` is the current offset associated with `s`.
+      We use `(nested-tmp-match) lctx | (k, t) =?= s`
+      where `lctx` is `this.lctx()`, `k` is the number of temporary metavariable in `this`,
+      `t` is the left-hand-side of the "refl" equational lemma.
       If `s` is on the left (right) hand side of the
       current `is_def_eq` call, then we use the current left (right) offset.
 
@@ -500,8 +521,11 @@ public:
       this feature. This created several stability problems
       and counterintuitive behavior. We use temporary
       metavariables and matching.
-      We also use `(nested-tmp-match) lctx | (k', t) =?= (k, s)`.
+      We also use `(nested-tmp-match) lctx | (k, t) =?= s`.
       This case is very similar to the previous one.
+
+      Remark: only the two last applications require offsets. Moreover, `k` is `0` if
+      the `type_context` is not already in TMP mode.
     */
 
     /* This class supports temporary meta-variables "mode". In this "tmp" mode,

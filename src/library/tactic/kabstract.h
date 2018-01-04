@@ -15,9 +15,11 @@ void for_each_key_equivalence(environment const & env, std::function<void(buffer
 
 /** \brief Abstract occurrences of \c t in \c s. We detect subterms equivalent to \c t using key-matching.
     That is, only perform is_def_eq tests when the head symbol of substerm is equivalent to head symbol of \c t.
-    New equivalent head symbols can be declared using \c add_key_alias. */
-expr kabstract(type_context & ctx, expr const & e, expr const & t, occurrences const & occs);
-inline expr kabstract(type_context & ctx, expr const & e, expr const & t) { return kabstract(ctx, e, t, occurrences()); }
+    New equivalent head symbols can be declared using \c add_key_alias.
+    If \c unify is false, then matching is used instead of unification. That is, metavariables occurring in `s` are
+    not assigned. */
+expr kabstract(type_context & ctx, expr const & s, expr const & t, occurrences const & occs, bool unify);
+inline expr kabstract(type_context & ctx, expr const & s, expr const & t) { return kabstract(ctx, s, t, occurrences(), true); }
 
 void initialize_kabstract();
 void finalize_kabstract();

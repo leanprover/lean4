@@ -501,8 +501,10 @@ meta constant open_namespaces : tactic (list name)
     The main idea is to minimize the number of `is_def_eq` checks
     performed. -/
 meta constant kdepends_on (e t : expr) (md := reducible) : tactic bool
-/-- Abstracts all occurrences of the term `t` in `e` using keyed matching. -/
-meta constant kabstract (e t : expr) (md := reducible) : tactic expr
+/-- Abstracts all occurrences of the term `t` in `e` using keyed matching.
+    If `unify` is `ff`, then matching is used instead of unification.
+    That is, metavariables occurring in `e` are not assigned. -/
+meta constant kabstract (e t : expr) (md := reducible) (unify := tt) : tactic expr
 
 /-- Blocks the execution of the current thread for at least `msecs` milliseconds.
     This tactic is used mainly for debugging purposes. -/

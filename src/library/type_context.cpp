@@ -3253,11 +3253,12 @@ bool type_context::is_def_eq_core_core(expr t, expr s) {
 }
 
 bool type_context::is_def_eq_core(expr const & t, expr const & s) {
-    unsigned postponed_sz = m_postponed.size();
+    CACHE_CODE(unsigned postponed_sz = m_postponed.size(););
     bool r = is_def_eq_core_core(t, s);
-    if (r && postponed_sz == m_postponed.size()) {
-        cache_equiv(t, s);
-    }
+    CACHE_CODE(
+        if (r && postponed_sz == m_postponed.size()) {
+            cache_equiv(t, s);
+        });
     return r;
 }
 

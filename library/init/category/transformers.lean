@@ -16,13 +16,13 @@ class monad_transformer (transformer : ∀ (m : Type u → Type v) [monad m], Ty
 instance transformed_monad (m t) [monad_transformer t] [monad m] : monad (t m) :=
 monad_transformer.is_monad t m
 
-class has_monad_lift (m n : Type u → Type v) :=
+class has_monad_lift (m : Type u → Type v) (n : Type u → Type w) :=
 (monad_lift : ∀ α, m α → n α)
 
 instance monad_transformer_lift (t m) [monad_transformer t] [monad m] : has_monad_lift m (t m) :=
 ⟨monad_transformer.monad_lift t m⟩
 
-class has_monad_lift_t (m n : Type u → Type v) :=
+class has_monad_lift_t (m : Type u → Type v) (n : Type u → Type w) :=
 (monad_lift : ∀ α, m α → n α)
 
 def monad_lift {m n} [has_monad_lift_t m n] {α} : m α → n α :=

@@ -21,6 +21,9 @@ section
   variable  [monad m]
   variables {α β : Type u}
 
+  protected def run (st : σ) (x : state_t σ m α) : m (α × σ) :=
+  x st
+
   protected def return (a : α) : state_t σ m α :=
   λ s, show m (α × σ), from
     return (a, s)
@@ -61,8 +64,15 @@ section
 
   instance (m) [monad m] : has_monad_lift m (state_t σ m) :=
   ⟨@state_t.lift σ m _⟩
+
+  -- TODO(Sebastian): uses lenses as in https://hackage.haskell.org/package/lens-4.15.4/docs/Control-Lens-Zoom.html#t:Zoom ?
+  protected def zoom {σ σ' α : Type u} {m : Type u → Type v} [monad m] (f : σ → σ') (f' : σ' → σ) (x : state_t σ' m α) : state_t σ m α :=
+  λ st, (λ p : α × σ', (p.fst, f' p.snd)) <$> x.run (f st)
 end
 end state_t
+
+@[reducible] protected def state.run {σ α : Type u} (st : σ) (x : state σ α) : α × σ :=
+state_t.run st x
 
 class monad_state (σ : out_param (Type u)) (m : Type u → Type v) [monad m] :=
 (embed {} {α : Type u} : state σ α → m α)
@@ -84,19 +94,14 @@ instance monad_state_lift (s m m') [has_monad_lift m m'] [monad m] [monad_state 
   put := monad_lift ∘ (put : _ → m _),
   embed := λ α, monad_lift ∘ (monad_state.embed : _ → m α) }
 
-
--- TODO(Sebastian): replace with https://hackage.haskell.org/package/lens-4.15.4/docs/Control-Lens-Zoom.html#t:Zoom ?
-def with_state_t {σ σ' α : Type u} {m : Type u → Type v} [monad m] (f : σ → σ') : state_t σ' m α → state_t σ m α :=
-λ x st, (λ p : α × σ', (p.fst, st)) <$> x (f st)
-
 class monad_state_functor (σ σ' : out_param (Type u)) (m : out_param (Type u → Type v)) (n n' : Type u → Type w) :=
 [functor {} : monad_functor_t (state_t σ m) (state_t σ' m) n n']
 
 attribute [instance] monad_state_functor.mk
 local attribute [instance] monad_state_functor.functor
 
-def with_state {σ σ'} {m n n'} [monad m] {α : Type u} (f : σ → σ') [monad_state_functor σ' σ m n n'] : n α → n' α :=
-monad_map $ λ α, (with_state_t f : state_t σ' m α → state_t σ m α)
+def zoom {σ σ'} {m n n'} [monad m] {α : Type u} (f : σ → σ') (f' : σ' → σ) [monad_state_functor σ' σ m n n'] : n α → n' α :=
+monad_map $ λ α, (state_t.zoom f f' : state_t σ' m α → state_t σ m α)
 
 def map_state_t {σ m m'} [monad m] [monad m'] {α} (f : Π {α}, m α → m' α) : state_t σ m α → state_t σ m' α :=
 λ x st, f (x st)

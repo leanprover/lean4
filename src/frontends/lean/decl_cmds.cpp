@@ -469,6 +469,9 @@ static environment definition_cmd(parser & p, cmd_meta const & meta) {
 static environment theorem_cmd(parser & p, cmd_meta const & meta) {
     return definition_cmd_core(p, decl_cmd_kind::Theorem, meta);
 }
+static environment abbreviation_cmd(parser & p, cmd_meta const & meta) {
+    return definition_cmd_core(p, decl_cmd_kind::Abbreviation, meta);
+}
 static environment example_cmd(parser & p, cmd_meta const & meta) {
     return definition_cmd_core(p, decl_cmd_kind::Example, meta);
 }
@@ -611,6 +614,7 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("definition",      "add new definition", definition_cmd));
     add_cmd(r, cmd_info("theorem",         "add new theorem", theorem_cmd));
     add_cmd(r, cmd_info("instance",        "add new instance", instance_cmd));
+    add_cmd(r, cmd_info("abbreviation",    "add new abbreviation", abbreviation_cmd));
     add_cmd(r, cmd_info("example",         "add new example", example_cmd));
     add_cmd(r, cmd_info("include",         "force section parameter/variable to be included", include_cmd));
     add_cmd(r, cmd_info("attribute",       "set declaration attributes", attribute_cmd));

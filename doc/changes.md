@@ -72,6 +72,12 @@ master branch (aka work in progress branch)
   hide is_true
   ```
 
+* Add `abbreviation` declaration command. `abbreviation d : t := v` is equivalent to
+  `@[reducible, inline] def d : t := v` and a kernel reducibility hint.
+  Before this command, we had to use meta programming for setting the kernel reducibility hint.
+  This was problematic because we could only define abbreviations after the meta programming
+  framework was defined.
+
 *Changes*
 
 * Replace `inout` modifier in type class declarations with `out_param` modifier.

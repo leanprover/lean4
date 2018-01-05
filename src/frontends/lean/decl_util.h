@@ -13,7 +13,7 @@ namespace lean {
 class parser;
 class elaborator;
 
-enum class decl_cmd_kind { Theorem, Definition, Example, Instance, Var };
+enum class decl_cmd_kind { Theorem, Definition, Example, Instance, Var, Abbreviation };
 
 struct decl_modifiers {
     bool m_is_private{false};

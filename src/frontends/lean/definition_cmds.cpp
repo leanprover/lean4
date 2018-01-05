@@ -240,7 +240,7 @@ static environment compile_decl(parser & p, environment const & env,
 static pair<environment, name>
 declare_definition(parser & p, environment const & env, decl_cmd_kind kind, buffer<name> const & lp_names,
                    name const & c_name, name const & prv_name, expr type, optional<expr> val, task<expr> const & proof, cmd_meta const & meta,
-                   pos_info const & pos) {
+                   bool is_abbrev, pos_info const & pos) {
     name c_real_name;
     environment new_env = env;
     if (has_private_prefix(new_env, prv_name)) {
@@ -257,9 +257,11 @@ declare_definition(parser & p, environment const & env, decl_cmd_kind kind, buff
     bool use_conv_opt = true;
     bool is_trusted   = !meta.m_modifiers.m_is_meta;
     auto def          =
-        !val ? mk_theorem(c_real_name, to_list(lp_names), type, proof) : (kind == decl_cmd_kind::Theorem ?
-        mk_theorem(c_real_name, to_list(lp_names), type, *val) :
-        mk_definition(new_env, c_real_name, to_list(lp_names), type, *val, use_conv_opt, is_trusted));
+        !val ? mk_theorem(c_real_name, to_list(lp_names), type, proof) :
+        (kind == decl_cmd_kind::Theorem ?
+         mk_theorem(c_real_name, to_list(lp_names), type, *val) :
+         (is_abbrev ? mk_definition(c_real_name, to_list(lp_names), type, *val, reducibility_hints::mk_abbreviation(), is_trusted) :
+          mk_definition(new_env, c_real_name, to_list(lp_names), type, *val, use_conv_opt, is_trusted)));
     auto cdef         = check(p, new_env, c_name, def, pos);
     new_env           = module::add(new_env, cdef);
 
@@ -499,8 +501,9 @@ static environment mutual_definition_cmd_core(parser & p, decl_cmd_kind kind, cm
         environment env = elab.env();
         name c_name = mlocal_name(fns[i]);
         name c_real_name;
+        bool is_abbrev = false;
         std::tie(env, c_real_name) = declare_definition(p, env, kind, lp_names, c_name, prv_names[i],
-                                                        curr_type, some_expr(curr), {}, meta, header_pos);
+                                                        curr_type, some_expr(curr), {}, meta, is_abbrev, header_pos);
         env = add_local_ref(p, env, c_name, c_real_name, lp_names, params);
         new_d_names.push_back(c_real_name);
         elab.set_env(env);
@@ -522,7 +525,7 @@ static environment mutual_definition_cmd_core(parser & p, decl_cmd_kind kind, cm
      Note that mlocal_pp_name(fn) and actual_name are different for scoped/private declarations.
 */
 static std::tuple<expr, expr, name> parse_definition(parser & p, buffer<name> & lp_names, buffer<expr> & params,
-                                                     bool is_example, bool is_instance, bool is_meta) {
+                                                     bool is_example, bool is_instance, bool is_meta, bool is_abbrev) {
     parser::local_scope scope1(p);
     auto header_pos = p.pos();
     declaration_name_scope scope2;
@@ -544,6 +547,8 @@ static std::tuple<expr, expr, name> parse_definition(parser & p, buffer<name> & 
             val = p.parse_expr();
         }
     } else if (p.curr_is_token(get_bar_tk()) || p.curr_is_token(get_period_tk())) {
+        if (is_abbrev)
+            throw exception("invalid abbreviation, abbreviations should not be defined using pattern matching");
         declaration_name_scope scope2("_main");
         fn = mk_local(mlocal_name(fn), mlocal_pp_name(fn), mlocal_type(fn), mk_rec_info(true));
         p.add_local(fn);
@@ -746,12 +751,17 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
     private_name_scope prv_scope(meta.m_modifiers.m_is_private, env);
     bool is_example   = (kind == decl_cmd_kind::Example);
     bool is_instance  = (kind == decl_cmd_kind::Instance);
+    bool is_abbrev    = (kind == decl_cmd_kind::Abbreviation);
     bool aux_lemmas   = scope.gen_aux_lemmas();
     bool is_rfl       = false;
     if (is_instance)
         meta.m_attrs.set_attribute(env, "instance");
+    if (is_abbrev) {
+        meta.m_attrs.set_attribute(env, "inline");
+        meta.m_attrs.set_attribute(env, "reducible");
+    }
     name prv_name;
-    std::tie(fn, val, prv_name) = parse_definition(p, lp_names, params, is_example, is_instance, meta.m_modifiers.m_is_meta);
+    std::tie(fn, val, prv_name) = parse_definition(p, lp_names, params, is_example, is_instance, meta.m_modifiers.m_is_meta, is_abbrev);
 
     auto begin_pos = p.cmd_pos();
     auto end_pos = p.pos();
@@ -796,7 +806,7 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
                                        new_fn, val, thm_finfo, is_rfl, type,
                                        mctx, lctx, pos_provider, use_info_manager, file_name);
             }), log_tree::ElaborationLevel);
-            env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, prv_name, type, opt_val, proof, meta, header_pos);
+            env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, prv_name, type, opt_val, proof, meta, is_abbrev, header_pos);
         } else if (kind == decl_cmd_kind::Example) {
             auto env = p.env();
             auto opts = p.get_options();
@@ -824,8 +834,7 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
                 val = get_equations_result(val, 0);
             }
             finalize_definition(elab, new_params, type, val, lp_names, meta.m_modifiers.m_is_meta);
-            env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, prv_name, type, some_expr(val),
-                                       {}, meta, header_pos);
+            env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, prv_name, type, some_expr(val), {}, meta, is_abbrev, header_pos);
         }
         environment new_env = env_n.first;
         name c_real_name    = env_n.second;

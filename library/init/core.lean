@@ -104,6 +104,12 @@ a
 /-- Gadget for marking output parameters in type classes. -/
 @[reducible] def out_param (α : Sort u) : Sort u := α
 
+/-
+  id_rhs is an auxiliary declaration used in the equation compiler to address performance
+  issues when proving equational lemmas. The equation compiler uses it as a marker.
+-/
+abbreviation id_rhs (α : Sort u) (a : α) : α := a
+
 inductive punit : Sort u
 | star : punit
 

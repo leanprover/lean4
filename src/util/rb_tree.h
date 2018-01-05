@@ -446,18 +446,28 @@ public:
     bool contains(T const & v) const { return find(v) != nullptr; }
 
     template<typename F>
-    void for_each(F && f) const { for_each(f, m_root.m_ptr); }
+    void for_each(F && f) const {
+        node r = m_root;
+        for_each(f, r.m_ptr);
+    }
 
     template<typename F>
-    optional<T> find_if(F && f) const { return find_if(f, m_root.m_ptr); }
+    optional<T> find_if(F && f) const {
+        node r = m_root;
+        return find_if(f, r.m_ptr);
+    }
 
     /* Similar to find_if, but searches keys backwards from greatest to least */
     template<typename F>
-    optional<T> back_find_if(F && f) const { return back_find_if(f, m_root.m_ptr); }
+    optional<T> back_find_if(F && f) const {
+        node r = m_root;
+        return back_find_if(f, r.m_ptr);
+    }
 
     template<typename F>
     void for_each_greater(T const & v, F && f) const {
-        for_each_greater(v, f, m_root.m_ptr);
+        node r = m_root.m_ptr;
+        for_each_greater(v, f, r.m_ptr);
     }
 
     T const * find_next_greater_or_equal(T const & v) const {

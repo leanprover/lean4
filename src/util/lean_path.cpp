@@ -169,21 +169,27 @@ std::string name_to_file(name const & fname) {
     return fname.to_string(get_dir_sep());
 }
 
-std::string find_file(search_path const & paths, std::string fname, std::initializer_list<char const *> const & extensions) {
+static std::string find_file(search_path const & paths, std::string fname, std::initializer_list<char const *> const & extensions) {
     bool is_known = is_known_file_ext(fname);
     fname = normalize_path(fname);
+    buffer<std::string> results;
     for (auto & path : paths) {
         if (is_known) {
             if (auto r = check_file(path, fname))
-                return *r;
+                results.push_back(*r);
         } else {
             for (auto ext : extensions) {
                 if (auto r = check_file(path, fname, ext))
-                    return *r;
+                    results.push_back(*r);
             }
         }
     }
-    throw lean_file_not_found_exception(fname);
+    if (results.size() == 0)
+        throw lean_file_not_found_exception(fname);
+    else if (results.size() > 1)
+        throw exception(sstream() << "ambiguous import, it can be '" << results[0] << "' or '" << results[1] << "'");
+    else
+        return results[0];
 }
 
 std::string find_file(search_path const & paths, std::string const & base, optional<unsigned> const & rel, name const & fname,

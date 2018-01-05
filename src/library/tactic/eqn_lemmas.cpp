@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 namespace lean {
 struct eqn_lemmas_ext : public environment_extension {
     name_map<list<simp_lemma>> m_lemmas;
+    name_set                   m_has_simple_eqn_lemma;
     eqn_lemmas_ext() {}
 };
 
@@ -140,14 +141,53 @@ bool has_eqn_lemmas(environment const & env, name const & cname) {
     return ext.m_lemmas.contains(cname);
 }
 
+environment mark_has_simple_eqn_lemma_core(environment const & env, name const & decl_name) {
+    eqn_lemmas_ext ext = get_extension(env);
+    lean_assert(ext.m_lemmas.contains(decl_name) && length(*ext.m_lemmas.find(decl_name)) == 1);
+    ext.m_has_simple_eqn_lemma.insert(decl_name);
+    return update(env, ext);
+}
+
+struct mark_has_simple_eqn_lemma_modification : public modification {
+    LEAN_MODIFICATION("SEqnL")
+
+    name m_decl_name;
+
+    mark_has_simple_eqn_lemma_modification() {}
+    mark_has_simple_eqn_lemma_modification(name const & decl_name) : m_decl_name(decl_name) {}
+
+    void perform(environment & env) const override {
+        env = mark_has_simple_eqn_lemma_core(env, m_decl_name);
+    }
+
+    void serialize(serializer & s) const override {
+        s << m_decl_name;
+    }
+
+    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+        return std::make_shared<mark_has_simple_eqn_lemma_modification>(read_name(d));
+    }
+};
+
+environment mark_has_simple_eqn_lemma(environment const & env, name const & decl_name) {
+    return module::add_and_perform(env, std::make_shared<mark_has_simple_eqn_lemma_modification>(decl_name));
+}
+
+bool has_simple_eqn_lemma(environment const & env, name const & cname) {
+    eqn_lemmas_ext const & ext = get_extension(env);
+    return ext.m_has_simple_eqn_lemma.contains(cname);
+}
+
 void initialize_eqn_lemmas() {
     g_ext            = new eqn_lemmas_ext_reg();
     eqn_lemmas_modification::init();
+    mark_has_simple_eqn_lemma_modification::init();
     DECLARE_VM_BUILTIN(name({"tactic", "get_eqn_lemmas_for"}), tactic_get_eqn_lemmas_for);
 }
 
 void finalize_eqn_lemmas() {
     eqn_lemmas_modification::finalize();
+    mark_has_simple_eqn_lemma_modification::finalize();
     delete g_ext;
 }
 }

@@ -837,7 +837,8 @@ environment mk_simple_equation_lemma_for(environment const & env, options const 
     name eqn_actual_name = mk_equation_name(c_actual, 1);
     expr eqn_type        = locals.mk_pi(mk_eq(ctx, lhs, value));
     expr eqn_proof       = locals.mk_lambda(mk_eq_refl(ctx, lhs));
-    return add_equation_lemma(env, opts, metavar_context(), ctx.lctx(), is_private, c_actual, eqn_name, eqn_actual_name, eqn_type, eqn_proof);
+    environment new_env  = add_equation_lemma(env, opts, metavar_context(), ctx.lctx(), is_private, c_actual, eqn_name, eqn_actual_name, eqn_type, eqn_proof);
+    return mark_has_simple_eqn_lemma(new_env, c_actual);
 }
 
 bool is_name_value(expr const & e) {

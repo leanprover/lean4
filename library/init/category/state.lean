@@ -74,25 +74,21 @@ end state_t
 @[reducible] protected def state.run {σ α : Type u} (st : σ) (x : state σ α) : α × σ :=
 state_t.run st x
 
-class monad_state (σ : out_param (Type u)) (m : Type u → Type v) [monad m] :=
-(embed {} {α : Type u} : state σ α → m α)
-(get {} : m σ := embed state_t.get)
-(put {} (s : σ) : m punit := embed (state_t.put s))
-(embed := λ α x, do p ← x <$> get, put p.2, pure p.1)
+@[reducible] def monad_state (σ : out_param (Type u)) (m : Type u → Type u) [monad m] :=
+has_monad_lift_t (state σ) m
 
-export monad_state (get put)
+section
+variables {σ : Type u} {m : Type u → Type u} [monad m] [monad_state σ m]
 
-@[inline] def modify {σ : Type u} {m : Type u → Type v} [monad m] [monad_state σ m] (f : σ → σ) :
-  m punit := monad_state.embed (state_t.modify f)
+@[inline] def get : m σ :=
+@monad_lift _ _ _ _ (state_t.get : state σ _)
 
-instance {σ m} [monad m] : monad_state σ (state_t σ m) :=
-{ get := state_t.get, put := state_t.put,
-  embed := @state_t.embed _ _ _ }
+@[inline] def put (st : σ) : m punit :=
+monad_lift (state_t.put st : state σ _)
 
-instance monad_state_lift (s m m') [has_monad_lift m m'] [monad m] [monad_state s m] [monad m'] : monad_state s m' :=
-{ get  := monad_lift (get : m _),
-  put := monad_lift ∘ (put : _ → m _),
-  embed := λ α, monad_lift ∘ (monad_state.embed : _ → m α) }
+@[inline] def modify (f : σ → σ) : m punit :=
+monad_lift (state_t.modify f : state σ _)
+end
 
 class monad_state_functor (σ σ' : out_param (Type u)) (m : out_param (Type u → Type v)) (n n' : Type u → Type w) :=
 [functor {} : monad_functor_t (state_t σ m) (state_t σ' m) n n']

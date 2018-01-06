@@ -240,7 +240,7 @@ master branch (aka work in progress branch)
 
 * `monad.{monad_transformer,has_monad_lift(_t)}` ~> `{monad_transformer,has_monad_lift(_t)}`
 * `monad.map_comp` ~> `comp_map`
-* `state(_t).{read,write}` ~> `{get,put}` (general operations defined on any `monad_state`)
+* `state(_t).{read,write}` ~> `{get,put}` (general operations defined on any `monad_state_lift`)
 
 v3.3.0 (14 September 2017)
 -------------

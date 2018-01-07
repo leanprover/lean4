@@ -30,7 +30,8 @@ bool is_letter_like_unicode(unsigned u) {
             (0x391  <= u && u <= 0x3A9 && u != 0x3A0 && u != 0x3A3) || // Upper greek, but Pi and Sigma
             (0x3ca  <= u && u <= 0x3fb) ||               // Coptic letters
             (0x1f00 <= u && u <= 0x1ffe) ||              // Polytonic Greek Extended Character Set
-            (0x2100 <= u && u <= 0x214f);                // Letter like block
+            (0x2100 <= u && u <= 0x214f) ||              // Letter like block
+            (0x1d49c <= u && u <= 0x1d59f);              // Latin letters, Script, Double-struck, Fractur
 }
 bool is_sub_script_alnum_unicode(unsigned u) {
     return

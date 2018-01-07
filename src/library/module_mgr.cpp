@@ -451,7 +451,8 @@ std::tuple<std::string, module_src, time_t> fs_module_vfs::load_module(module_id
         auto olean_mtime = get_mtime(olean_fn);
         if (olean_mtime != -1 && olean_mtime >= lean_mtime &&
             can_use_olean &&
-            !m_modules_to_load_from_source.count(id)) {
+            !m_modules_to_load_from_source.count(id) &&
+            is_candidate_olean_file(olean_fn)) {
             return std::make_tuple(read_file(olean_fn, std::ios_base::binary), module_src::OLEAN, olean_mtime);
         }
     } catch (exception) {}

@@ -44,6 +44,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/dependencies.h"
 #include "frontends/smt2/parser.h"
 #include "frontends/lean/json.h"
+#include "frontends/lean/util.h"
 #include "library/native_compiler/options.h"
 #include "library/native_compiler/native_compiler.h"
 #include "library/trace.h"
@@ -56,7 +57,6 @@ Author: Leonardo de Moura
 #if defined(LEAN_EMSCRIPTEN)
 #include <emscripten.h>
 #endif
-#include "version.h"
 #include "githash.h" // NOLINT
 
 using namespace lean; // NOLINT
@@ -75,16 +75,7 @@ using namespace lean; // NOLINT
 #endif
 
 static void display_header(std::ostream & out) {
-    out << "Lean (version " << LEAN_VERSION_MAJOR << "."
-        << LEAN_VERSION_MINOR << "." << LEAN_VERSION_PATCH;
-    if (std::strcmp(g_githash, "GITDIR-NOTFOUND") == 0) {
-        if (std::strcmp(LEAN_PACKAGE_VERSION, "NOT-FOUND") != 0) {
-            out << ", package " << LEAN_PACKAGE_VERSION;
-        }
-    } else {
-        out << ", commit " << std::string(g_githash).substr(0, 12);
-    }
-    out << ", " << LEAN_STR(LEAN_BUILD_TYPE) << ")\n";
+    out << "Lean (version " << get_version_string() << ", " << LEAN_STR(LEAN_BUILD_TYPE) << ")\n";
 }
 
 static void display_help(std::ostream & out) {
@@ -387,7 +378,7 @@ int main(int argc, char ** argv) {
             display_header(std::cout);
             return 0;
         case 'g':
-            std::cout << g_githash << "\n";
+            std::cout << LEAN_GITHASH << "\n";
             return 0;
         case 'h':
             display_help(std::cout);

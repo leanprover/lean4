@@ -30,7 +30,6 @@ Author: Leonardo de Moura
 #include "library/unfold_macros.h"
 #include "library/module_mgr.h"
 #include "library/library_task_builder.h"
-#include "version.h"
 
 namespace lean {
 corrupted_file_exception::corrupted_file_exception(std::string const & fname):
@@ -210,11 +209,10 @@ void write_module(loaded_module const & mod, std::ostream & out) {
     std::string r = out1.str();
     unsigned h    = olean_hash(r);
 
-    unsigned major = LEAN_VERSION_MAJOR, minor = LEAN_VERSION_MINOR, patch = LEAN_VERSION_PATCH;
     bool uses_sorry = get(mod.m_uses_sorry);
 
     serializer s2(out);
-    s2 << g_olean_header << major << minor << patch;
+    s2 << g_olean_header << get_version_string();
     s2 << h;
     s2 << uses_sorry;
     // store imported files
@@ -490,18 +488,33 @@ environment add_inductive(environment                       env,
 }
 } // end of namespace module
 
+bool is_candidate_olean_file(std::string const & file_name) {
+    std::ifstream in(file_name);
+    deserializer d1(in, optional<std::string>(file_name));
+    std::string header, version;
+    d1 >> header;
+    if (header != g_olean_header)
+        return false;
+    d1 >> version;
+#ifndef LEAN_IGNORE_OLEAN_VERSION
+    if (version != get_version_string())
+        return false;
+#endif
+    return true;
+}
+
 olean_data parse_olean(std::istream & in, std::string const & file_name, bool check_hash) {
-    unsigned major, minor, patch, claimed_hash;
     std::vector<module_name> imports;
     bool uses_sorry;
 
     deserializer d1(in, optional<std::string>(file_name));
-    std::string header;
+    std::string header, version;
+    unsigned claimed_hash;
     d1 >> header;
     if (header != g_olean_header)
         throw exception(sstream() << "file '" << file_name << "' does not seem to be a valid object Lean file, invalid header");
-    d1 >> major >> minor >> patch >> claimed_hash;
-    // Enforce version?
+    d1 >> version >> claimed_hash;
+    // version has already been checked in `is_candidate_olean_file`
 
     d1 >> uses_sorry;
 

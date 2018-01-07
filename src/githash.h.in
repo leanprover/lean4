@@ -1,2 +1,2 @@
 // Automatically generated file, DO NOT EDIT
-char const * g_githash = "@GIT_SHA1@";
+#define LEAN_GITHASH "@GIT_SHA1@"

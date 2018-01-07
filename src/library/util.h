@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <string>
 #include "kernel/environment.h"
 #include "library/expr_pair.h"
 
@@ -321,6 +322,8 @@ optional<name> name_lit_to_name(expr const & name_lit);
 
 /** Return (tactic unit) type */
 expr mk_tactic_unit();
+
+std::string const & get_version_string();
 
 void initialize_library_util();
 void finalize_library_util();

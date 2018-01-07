@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <algorithm>
+#include <string>
 #include "util/fresh_name.h"
 #include "kernel/find_fn.h"
 #include "kernel/free_vars.h"
@@ -24,6 +25,8 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/type_context.h"
 #include "library/string.h"
+#include "version.h"
+#include "githash.h" // NOLINT
 
 namespace lean {
 /** \brief Return the "arity" of the given type. The arity is the number of nested pi-expressions. */
@@ -1104,6 +1107,9 @@ expr mk_tactic_unit() {
     return *g_tactic_unit;
 }
 
+static std::string * g_version_string = nullptr;
+std::string const & get_version_string() { return *g_version_string; }
+
 void initialize_library_util() {
     g_true           = new expr(mk_constant(get_true_name()));
     g_true_intro     = new expr(mk_constant(get_true_intro_name()));
@@ -1116,9 +1122,23 @@ void initialize_library_util() {
     initialize_int();
     initialize_char();
     initialize_bool();
+
+    sstream out;
+
+    out << LEAN_VERSION_MAJOR << "."
+        << LEAN_VERSION_MINOR << "." << LEAN_VERSION_PATCH;
+    if (std::strcmp(LEAN_GITHASH, "GITDIR-NOTFOUND") == 0) {
+        if (std::strcmp(LEAN_PACKAGE_VERSION, "NOT-FOUND") != 0) {
+            out << ", package " << LEAN_PACKAGE_VERSION;
+        }
+    } else {
+        out << ", commit " << std::string(LEAN_GITHASH).substr(0, 12);
+    }
+    g_version_string = new std::string(out.str());
 }
 
 void finalize_library_util() {
+    delete g_version_string;
     finalize_bool();
     finalize_int();
     finalize_nat();

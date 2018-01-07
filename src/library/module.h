@@ -92,6 +92,9 @@ std::shared_ptr<loaded_module const> cache_preimported_env(
         loaded_module &&, environment const & initial_env,
         std::function<module_loader()> const & mk_mod_ldr);
 
+/** \brief Check whether we should try to load the given .olean file according to its header and Lean version. */
+bool is_candidate_olean_file(std::string const & file_name);
+
 struct olean_data {
     std::vector<module_name> m_imports;
     std::string m_serialized_modifications;

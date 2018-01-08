@@ -68,12 +68,12 @@ static module_loader mk_loader(module_id const & cur_mod, std::vector<module_inf
     while (!to_process.empty()) {
         module_info const & m = *to_process.back();
         to_process.pop_back();
-        if (deps_per_mod.count(m.m_mod)) continue;
+        if (deps_per_mod.count(m.m_id)) continue;
 
         for (auto & d : m.m_deps) {
             if (d.m_mod_info) {
-                deps_per_mod[m.m_mod].push_back(d);
-                if (!deps_per_mod.count(d.m_mod_info->m_mod))
+                deps_per_mod[m.m_id].push_back(d);
+                if (!deps_per_mod.count(d.m_mod_info->m_id))
                     to_process.push_back(d.m_mod_info.get());
             }
         }
@@ -115,7 +115,7 @@ static gtask compile_olean(std::shared_ptr<module_info const> const & mod, log_t
 
         if (get(errs)) throw exception("not creating olean file because of errors");
 
-        auto olean_fn = olean_of_lean(mod->m_mod);
+        auto olean_fn = olean_of_lean(mod->m_id);
         exclusive_file_lock output_lock(olean_fn);
         std::ofstream out(olean_fn, std::ios_base::binary);
         write_module(*res.m_loaded_module, out);
@@ -154,31 +154,26 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
     try {
         bool already_have_lean_version = m_modules[id] && m_modules[id]->m_source == module_src::LEAN;
 
-        std::string contents;
-        module_src src;
-        time_t mtime;
-        std::tie(contents, src, mtime) = m_vfs->load_module(id, !already_have_lean_version && can_use_olean);
+        auto mod = m_vfs->load_module(id, !already_have_lean_version && can_use_olean);
 
-        if (src == module_src::OLEAN) {
-            auto obj_code = contents;
-
-            std::istringstream in2(obj_code, std::ios_base::binary);
+        if (mod->m_source == module_src::OLEAN) {
+            std::istringstream in2(mod->m_contents, std::ios_base::binary);
             auto olean_fn = olean_of_lean(id);
             bool check_hash = false;
             auto parsed_olean = parse_olean(in2, olean_fn, check_hash);
-
-            auto mod = std::make_shared<module_info>();
+            // we never need to re-parse .olean files, so discard content
+            mod->m_contents.clear();
 
             if (m_server_mode) {
+                // In server mode, we keep the .lean contents instead of the .olean contents around. This can
+                // reduce rebuilds in `module_mgr::invalidate`.
                 try {
-                    mod->m_lean_contents = std::get<0>(m_vfs->load_module(id, false));
+                    mod->m_contents = m_vfs->load_module(id, false)->m_contents;
                 } catch (...) {}
             }
 
-            mod->m_mod = id;
             mod->m_lt = lt.get();
-            mod->m_source = module_src::OLEAN;
-            mod->m_trans_mtime = mod->m_mtime = mtime;
+            mod->m_trans_mtime = mod->m_mtime;
 
             for (auto & d : parsed_olean.m_imports) {
                 auto d_id = resolve(m_path, id, d);
@@ -206,8 +201,8 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
             if (auto & old_mod = m_modules[id])
                 cancel(old_mod->m_cancel);
             m_modules[id] = mod;
-        } else if (src == module_src::LEAN) {
-            auto mod = build_lean(id, contents, mtime, module_stack);
+        } else if (mod->m_source == module_src::LEAN) {
+            build_lean(mod, module_stack);
             m_modules[id] = mod;
         } else {
             throw exception("unknown module source");
@@ -220,30 +215,25 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
     }
 }
 
-std::shared_ptr<module_info>
-module_mgr::build_lean(module_id const & id, std::string const & contents, time_t mtime, name_set const & module_stack) {
+void module_mgr::build_lean(std::shared_ptr<module_info> const & mod, name_set const & module_stack) {
     auto & lt = logtree();
-    auto end_pos = find_end_pos(contents);
-    scope_log_tree lt2(lt.mk_child({}, {}, { id, {{1, 0}, end_pos} }));
+    auto end_pos = find_end_pos(mod->m_contents);
+    scope_log_tree lt2(lt.mk_child({}, {}, { mod->m_id, {{1, 0}, end_pos} }));
 
-    auto imports = get_direct_imports(id, contents);
+    auto imports = get_direct_imports(mod->m_id, mod->m_contents);
 
-    auto mod = std::make_shared<module_info>();
     mod->m_lt = logtree();
-    mod->m_mod = id;
-    mod->m_source = module_src::LEAN;
-    mod->m_trans_mtime = mod->m_mtime = mtime;
-    mod->m_lean_contents = contents;
+    mod->m_trans_mtime = mod->m_mtime;
     for (auto & d : imports) {
         module_id d_id;
         std::shared_ptr<module_info const> d_mod;
         try {
-            d_id = resolve(m_path, id, d);
+            d_id = resolve(m_path, mod->m_id, d);
             build_module(d_id, true, module_stack);
             d_mod = m_modules[d_id];
             mod->m_trans_mtime = std::max(mod->m_trans_mtime, d_mod->m_trans_mtime);
         } catch (throwable & ex) {
-            message_builder(m_initial_env, m_ios, id, {1, 0}, ERROR).set_exception(ex).report();
+            message_builder(m_initial_env, m_ios, mod->m_id, {1, 0}, ERROR).set_exception(ex).report();
         }
         mod->m_deps.push_back({ d_id, d, d_mod });
     }
@@ -262,13 +252,13 @@ module_mgr::build_lean(module_id const & id, std::string const & contents, time_
         }
     }
 
-    auto ldr = mk_loader(id, mod->m_deps);
-    auto mod_parser_fn = std::make_shared<module_parser>(id, contents, m_initial_env, ldr);
+    auto ldr = mk_loader(mod->m_id, mod->m_deps);
+    auto mod_parser_fn = std::make_shared<module_parser>(mod->m_id, mod->m_contents, m_initial_env, ldr);
     mod_parser_fn->save_info(m_server_mode);
 
     module_parser_result snapshots;
     std::tie(mod->m_cancel, snapshots) = build_lean_snapshots(
-            mod_parser_fn, m_modules[id], deps, contents);
+            mod_parser_fn, m_modules[mod->m_id], deps, mod->m_contents);
     lean_assert(!mod->m_cancel->is_cancelled());
     scope_cancellation_token scope_cancel(mod->m_cancel);
 
@@ -286,7 +276,7 @@ module_mgr::build_lean(module_id const & id, std::string const & contents, time_
 
             lean_always_assert(res.m_snapshot_at_end);
             parse_res.m_loaded_module = cache_preimported_env(
-                    export_module(res.m_snapshot_at_end->m_env, id),
+                    export_module(res.m_snapshot_at_end->m_env, mod->m_id),
                     initial_env, [=] { return ldr; });
 
             parse_res.m_opts = res.m_snapshot_at_end->m_options;
@@ -298,8 +288,6 @@ module_mgr::build_lean(module_id const & id, std::string const & contents, time_
         scope_log_tree_core lt3(&lt);
         mod->m_olean_task = compile_olean(mod, lt2.get());
     }
-
-    return mod;
 }
 
 static optional<pos_info> get_first_diff_pos(std::string const & as, std::string const & bs) {
@@ -350,11 +338,11 @@ module_mgr::build_lean_snapshots(std::shared_ptr<module_parser> const & mod_pars
         return rebuild();
     }
 
-    if (!old_mod->m_lean_contents || !old_mod->m_snapshots) return rebuild();
+    if (!old_mod->m_snapshots) return rebuild();
 
     auto snap = *old_mod->m_snapshots;
     logtree().reuse("_next"); // TODO(gabriel): this needs to be the same name as in module_parser...
-    if (auto diff_pos = get_first_diff_pos(contents, *old_mod->m_lean_contents)) {
+    if (auto diff_pos = get_first_diff_pos(contents, old_mod->m_contents)) {
         return std::make_pair(old_mod->m_cancel,
                               mod_parser->resume_from_start(snap, old_mod->m_cancel,
                                                             *diff_pos, optional<std::vector<gtask>>(deps)));
@@ -376,14 +364,12 @@ void module_mgr::invalidate(module_id const & id) {
 
     bool rebuild_rdeps = true;
     if (auto & mod = m_modules[id]) {
-        if (mod->m_lean_contents) {
-            try {
-                if (std::get<0>(m_vfs->load_module(id, false)) == *mod->m_lean_contents) {
-                    // content unchanged
-                    rebuild_rdeps = false;
-                }
-            } catch (...) {}
-        }
+        try {
+            if (m_vfs->load_module(id, false)->m_contents == mod->m_contents) {
+                // content unchanged
+                rebuild_rdeps = false;
+            }
+        } catch (...) {}
 
         mod->m_out_of_date = true;
     }
@@ -441,7 +427,7 @@ void module_mgr::cancel_all() {
     }
 }
 
-std::tuple<std::string, module_src, time_t> fs_module_vfs::load_module(module_id const & id, bool can_use_olean) {
+std::shared_ptr<module_info> fs_module_vfs::load_module(module_id const & id, bool can_use_olean) {
     auto lean_fn = id;
     auto lean_mtime = get_mtime(lean_fn);
 
@@ -453,11 +439,11 @@ std::tuple<std::string, module_src, time_t> fs_module_vfs::load_module(module_id
             can_use_olean &&
             !m_modules_to_load_from_source.count(id) &&
             is_candidate_olean_file(olean_fn)) {
-            return std::make_tuple(read_file(olean_fn, std::ios_base::binary), module_src::OLEAN, olean_mtime);
+            return std::make_shared<module_info>(id, read_file(olean_fn, std::ios_base::binary), module_src::OLEAN, olean_mtime);
         }
     } catch (exception) {}
 
-    return std::make_tuple(read_file(lean_fn), module_src::LEAN, lean_mtime);
+    return std::make_shared<module_info>(id, read_file(lean_fn), module_src::LEAN, lean_mtime);
 }
 
 environment get_combined_environment(environment const & env,
@@ -468,8 +454,8 @@ environment get_combined_environment(environment const & env,
     std::vector<module_name> refs;
     for (auto & mod : mods) {
         // TODO(gabriel): switch module_ids to names, then we don't need this hack
-        module_name ref { name(mod->m_mod), {} };
-        deps.push_back({ mod->m_mod, ref, mod });
+        module_name ref { name(mod->m_id), {} };
+        deps.push_back({ mod->m_id, ref, mod });
         refs.push_back(ref);
     }
 

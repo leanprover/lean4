@@ -111,7 +111,7 @@ public:
     server(unsigned num_threads, search_path const & path, environment const & intial_env, io_state const & ios);
     ~server();
 
-    std::tuple<std::string, module_src, time_t> load_module(module_id const & id, bool can_use_olean) override;
+    std::shared_ptr<module_info> load_module(module_id const & id, bool can_use_olean) override;
 
     void run();
     void handle_request(json const & req);

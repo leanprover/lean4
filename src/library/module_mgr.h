@@ -29,7 +29,8 @@ enum class module_src {
 struct module_info {
     bool m_out_of_date = false;
 
-    module_id m_mod;
+    module_id m_id;
+    std::string m_contents;
     module_src m_source = module_src::LEAN;
     time_t m_mtime = -1, m_trans_mtime = -1;
 
@@ -39,8 +40,6 @@ struct module_info {
         std::shared_ptr<module_info const> m_mod_info;
     };
     std::vector<dependency> m_deps;
-
-    optional<std::string> m_lean_contents;
 
     struct parse_result {
         options               m_opts;
@@ -60,6 +59,11 @@ struct module_info {
     }
 
     environment get_latest_env() const;
+
+    module_info() {}
+
+    module_info(module_id const & id, std::string const & contents, module_src src, time_t mtime)
+            : m_id(id), m_contents(contents), m_source(src), m_mtime(mtime) {}
 };
 
 class module_vfs {
@@ -67,13 +71,13 @@ public:
     virtual ~module_vfs() {}
     // need to support changed lean dependencies of olean files
     // need to support changed editor dependencies of olean files
-    virtual std::tuple<std::string, module_src, time_t> load_module(module_id const &, bool can_use_olean) = 0;
+    virtual std::shared_ptr<module_info> load_module(module_id const &, bool can_use_olean) = 0;
 };
 
 class fs_module_vfs : public module_vfs {
 public:
     std::unordered_set<module_id> m_modules_to_load_from_source;
-    std::tuple<std::string, module_src, time_t> load_module(module_id const & id, bool can_use_olean) override;
+    std::shared_ptr<module_info> load_module(module_id const & id, bool can_use_olean) override;
 };
 
 class module_mgr {
@@ -93,7 +97,7 @@ class module_mgr {
     void build_module(module_id const & id, bool can_use_olean, name_set module_stack);
 
     std::vector<module_name> get_direct_imports(module_id const & id, std::string const & contents);
-    std::shared_ptr<module_info> build_lean(module_id const & id, std::string const & contents, time_t mtime, name_set const & module_stack);
+    void build_lean(std::shared_ptr<module_info> const & mod, name_set const & module_stack);
     std::pair<cancellation_token, module_parser_result>
     build_lean_snapshots(std::shared_ptr<module_parser> const & mod_parser,
                          std::shared_ptr<module_info> const & old_mod, std::vector<gtask> const & deps,

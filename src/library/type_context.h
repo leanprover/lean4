@@ -645,7 +645,6 @@ private:
     bool                       m_full_postponed{true};
     unification_hints          m_uhints;
 
-    std::function<bool(expr const & e)> const * m_unfold_pred; // NOLINT
     std::function<bool(name const & e)> const * m_transparency_pred; // NOLINT
 
     static bool is_equiv_cache_target(expr const & e1, expr const & e2) {
@@ -932,7 +931,6 @@ private:
     void init_core(transparency_mode m);
     optional<expr> unfold_definition_core(expr const & e);
     optional<expr> unfold_definition(expr const & e);
-    optional<expr> try_unfold_definition(expr const & e);
     bool should_unfold_macro(expr const & e);
     expr whnf_core(expr const & e, bool iota_proj_reduce);
     optional<declaration> is_transparent(transparency_mode m, name const & n);

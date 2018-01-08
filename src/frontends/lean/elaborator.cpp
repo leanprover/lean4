@@ -2830,7 +2830,7 @@ elaborator::field_resolution elaborator::find_field_fn(expr const & e, expr cons
         expr new_s_type = s_type;
         if (auto d = unfold_term(env(), new_s_type))
             new_s_type = *d;
-        new_s_type = m_ctx.whnf_head_pred(new_s_type, [](expr const & e) { return is_macro(e); });
+        new_s_type = m_ctx.whnf_head_pred(new_s_type, [](expr const &) { return false; });
         if (new_s_type == s_type)
             throw;
         try {

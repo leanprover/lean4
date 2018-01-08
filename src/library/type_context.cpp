@@ -316,7 +316,6 @@ void type_context::init_core(transparency_mode m) {
     m_in_is_def_eq                = false;
     m_is_def_eq_depth             = 0;
     m_tmp_data                    = nullptr;
-    m_unfold_pred                 = nullptr;
     m_transparency_pred           = nullptr;
     m_approximate                 = false;
     if (auto instance_fingerprint = m_lctx.get_instance_fingerprint()) {
@@ -701,12 +700,6 @@ optional<expr> type_context::unfold_definition(expr const & e) {
     }
 }
 
-optional<expr> type_context::try_unfold_definition(expr const & e) {
-    if (m_unfold_pred && !(*m_unfold_pred)(e))
-        return none_expr();
-    return unfold_definition(e);
-}
-
 projection_info const * type_context::is_projection(expr const & e) {
     expr const & f = get_app_fn(e);
     if (!is_constant(f))
@@ -751,7 +744,7 @@ optional<expr> type_context::reduce_aux_recursor(expr const & e) {
     if (!is_constant(f))
         return none_expr();
     if (m_cache->is_aux_recursor(const_name(f)))
-        return try_unfold_definition(e);
+        return unfold_definition(e);
     else
         return none_expr();
 }
@@ -768,14 +761,12 @@ optional<expr> type_context::reduce_large_elim_recursor(expr const & e) {
     return none_expr();
 }
 
-bool type_context::should_unfold_macro(expr const & e) {
+bool type_context::should_unfold_macro(expr const &) {
     /* If m_transparency_mode is set to ALL, then we unfold all
        macros. In this way, we make sure type inference does not fail.
        We also unfold macros when reducing inside of is_def_eq. */
     if (m_transparency_mode == transparency_mode::All || m_in_is_def_eq) {
         return true;
-    } else if (m_unfold_pred) {
-        return (*m_unfold_pred)(e);
     } else {
         return true;
     }
@@ -928,7 +919,7 @@ expr type_context::whnf(expr const & e) {
     }
     CACHE_CODE(
         auto & cache = m_cache->m_whnf_cache[static_cast<unsigned>(m_transparency_mode)];
-        if (!m_transparency_pred && !m_unfold_pred) {
+        if (!m_transparency_pred) {
             auto it = cache.find(e);
             if (it != cache.end())
                 return it->second;
@@ -943,7 +934,7 @@ expr type_context::whnf(expr const & e) {
         } else {
             if ((!in_tmp_mode() || !has_expr_metavar(t1)) &&
                 !m_used_assignment && !is_stuck(t1) &&
-                postponed_sz == m_postponed.size() && !m_transparency_pred && !m_unfold_pred) {
+                postponed_sz == m_postponed.size() && !m_transparency_pred) {
                 CACHE_CODE(cache.insert(mk_pair(e, t1)););
             }
             return t1;
@@ -952,11 +943,12 @@ expr type_context::whnf(expr const & e) {
 }
 
 expr type_context::whnf_head_pred(expr const & e, std::function<bool(expr const &)> const & pred) { // NOLINT
-    flet<std::function<bool(expr const &)> const *>set_unfold_pred(m_unfold_pred, &pred); // NOLINT
     expr t = e;
     while (true) {
         expr t1 = whnf_core(t, true);
-        if (auto next_t = try_unfold_definition(t1)) {
+        if (!pred(t1)) {
+            return t1;
+        } else if (auto next_t = unfold_definition(t1)) {
             t = *next_t;
         } else {
             return t1;

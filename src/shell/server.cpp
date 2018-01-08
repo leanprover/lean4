@@ -477,7 +477,12 @@ void server::handle_async_response(server::cmd_req const & req, task<cmd_res> co
 
 server::cmd_res server::handle_sync(server::cmd_req const & req) {
     std::string new_file_name = req.m_payload.at("file_name");
-    std::string new_content = req.m_payload.at("content");
+    std::string new_content;
+    if (req.m_payload.count("content")) {
+        new_content = req.m_payload.at("content");
+    } else {
+        new_content = load_module(new_file_name, /* can_use_olean */ false)->m_contents;
+    }
 
     auto mtime = time(nullptr);
 

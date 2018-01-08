@@ -1,4 +1,4 @@
-{"msgs":[{"caption":"","file_name":"f","pos_col":0,"pos_line":1,"severity":"warning","text":"declaration 'x' uses sorry"}],"response":"all_messages"}
+{"msgs":[{"caption":"","file_name":"hole3.lean","pos_col":0,"pos_line":1,"severity":"warning","text":"declaration 'x' uses sorry"}],"response":"all_messages"}
 {"message":"file invalidated","response":"ok","seq_num":0}
 {"message":"Prop\n","response":"ok","seq_num":5}
 {"message":"Prop\n","response":"ok","seq_num":8}

@@ -22,9 +22,10 @@ else
 fi
 export LEAN_PATH=$ROOT_PATH/library:.
 f=$2
-INPUT="$(cat "$f")"
 if [[ "$f" == *.lean ]]; then
-    INPUT="$(./mk_input.sh <<< "$INPUT")"
+    INPUT="$(./mk_input.sh "$f")"
+else
+    INPUT="$(cat "$f")"
 fi
 OUTPUT="$(echo "$INPUT" | "$LEAN" -j0 -D pp.unicode=true --server 2>&1)"
 # make paths system-independent

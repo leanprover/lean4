@@ -1,3 +1,3 @@
-{"msgs":[{"caption":"","file_name":"f","pos_col":0,"pos_line":1,"severity":"warning","text":"declaration 'x' uses sorry"}],"response":"all_messages"}
+{"msgs":[{"caption":"","file_name":"hole1.lean","pos_col":0,"pos_line":1,"severity":"warning","text":"declaration 'x' uses sorry"}],"response":"all_messages"}
 {"message":"file invalidated","response":"ok","seq_num":0}
-{"replacements":{"alternatives":[{"code":"a + a","description":""}],"end":{"column":16,"line":2},"file":"f","start":{"column":5,"line":2}},"response":"ok","seq_num":3}
+{"replacements":{"alternatives":[{"code":"a + a","description":""}],"end":{"column":16,"line":2},"file":"hole1.lean","start":{"column":5,"line":2}},"response":"ok","seq_num":3}

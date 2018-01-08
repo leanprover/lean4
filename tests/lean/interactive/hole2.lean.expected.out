@@ -1,3 +1,3 @@
-{"msgs":[{"caption":"","file_name":"f","pos_col":0,"pos_line":1,"severity":"warning","text":"declaration 'x' uses sorry"}],"response":"all_messages"}
+{"msgs":[{"caption":"","file_name":"hole2.lean","pos_col":0,"pos_line":1,"severity":"warning","text":"declaration 'x' uses sorry"}],"response":"all_messages"}
 {"message":"file invalidated","response":"ok","seq_num":0}
-{"end":{"column":16,"line":2},"file":"f","response":"ok","results":[{"description":"Infer type of the expression in the hole","name":"Infer"},{"description":"Show the current goal","name":"Show"},{"description":"Try to fill the hole using the given argument","name":"Use"}],"seq_num":3,"start":{"column":5,"line":2}}
+{"end":{"column":16,"line":2},"file":"hole2.lean","response":"ok","results":[{"description":"Infer type of the expression in the hole","name":"Infer"},{"description":"Show the current goal","name":"Show"},{"description":"Try to fill the hole using the given argument","name":"Use"}],"seq_num":3,"start":{"column":5,"line":2}}

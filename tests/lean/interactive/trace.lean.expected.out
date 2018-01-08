@@ -1,3 +1,3 @@
-{"msgs":[{"caption":"trace output","file_name":"f","pos_col":2,"pos_line":3,"severity":"information","text":"foo\n"}],"response":"all_messages"}
-{"msgs":[{"caption":"trace output","file_name":"f","pos_col":2,"pos_line":3,"severity":"information","text":"foo\n"},{"caption":"trace output","file_name":"f","pos_col":2,"pos_line":5,"severity":"information","text":"hello world\n"}],"response":"all_messages"}
+{"msgs":[{"caption":"trace output","file_name":"trace.lean","pos_col":2,"pos_line":3,"severity":"information","text":"foo\n"}],"response":"all_messages"}
+{"msgs":[{"caption":"trace output","file_name":"trace.lean","pos_col":2,"pos_line":3,"severity":"information","text":"foo\n"},{"caption":"trace output","file_name":"trace.lean","pos_col":2,"pos_line":5,"severity":"information","text":"hello world\n"}],"response":"all_messages"}
 {"message":"file invalidated","response":"ok","seq_num":0}

@@ -1,4 +1,4 @@
-{"msgs":[{"caption":"print result","end_pos_col":0,"end_pos_line":22,"file_name":"f","pos_col":0,"pos_line":19,"severity":"information","text":"inductive foo : Type\nconstructors:"}],"response":"all_messages"}
+{"msgs":[{"caption":"print result","end_pos_col":0,"end_pos_line":22,"file_name":"complete.lean","pos_col":0,"pos_line":19,"severity":"information","text":"inductive foo : Type\nconstructors:"}],"response":"all_messages"}
 {"message":"file invalidated","response":"ok","seq_num":0}
 {"completions":[{"source":,"text":"foo","type":"Type"},{"source":{"column":10,"line":3},"text":"foo.rec","type":"Π (C : foo → Sort l) (n : foo), C n"},{"source":{"column":10,"line":3},"text":"foo.rec_on","type":"Π (C : foo → Sort l) (n : foo), C n"}],"prefix":"fo","response":"ok","seq_num":6}
 {"response":"ok","seq_num":10}

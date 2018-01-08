@@ -152,12 +152,10 @@ struct pack_mutual_fn {
         buffer<expr> codomains;
         level        codomains_lvl;
         equations_header header = get_equations_header(e);
-        name         new_fn_name("_mutual");
+        name         new_fn_name;
         name         new_fn_actual_name;
         if (header.m_is_private) {
-            new_fn_actual_name = name(*get_private_prefix(m_ctx.env(), head(header.m_fn_actual_names)), "_mutual");
-        } else {
-            new_fn_actual_name = "_mutual";
+            new_fn_actual_name = *get_private_prefix(m_ctx.env(), head(header.m_fn_actual_names));
         }
         for (unsigned fidx = 0; fidx < ues.get_num_fns(); fidx++) {
             expr const & fn = ues.get_fn(fidx);
@@ -177,6 +175,9 @@ struct pack_mutual_fn {
             }
             codomains.push_back(binding_body(fn_type));
         }
+
+        new_fn_name = name(new_fn_name, "_mutual");
+        new_fn_actual_name = name(new_fn_actual_name, "_mutual");
 
         expr new_domain   = mk_new_domain(domains);
         expr x            = locals.push_local("_x", new_domain);

@@ -140,6 +140,7 @@ begin
       rw [nat.sub_eq_iff_eq_add h] at heq,
       rw [heq, add_comm],
       apply hn } },
+  delta sub_nat_nat,
   exact H _ rfl
 end
 

@@ -1216,7 +1216,7 @@ struct elim_match_fn {
         equation const & eqn       = head(P.m_equations);
         m_used_eqns[eqn.m_eqn_idx] = true;
         expr rhs                   = apply(eqn.m_rhs, eqn.m_subst);
-        if (m_aux_lemmas && m_env.find(get_id_rhs_name())) {
+        if (m_env.find(get_id_rhs_name())) {
             /* We wrap the rhs with `id_rhs` to solve a performance problem related to whnf_ite when proving
                the equational lemmas.
 
@@ -1228,6 +1228,9 @@ struct elim_match_fn {
                        t =?= id_rhs s
                is reduced to
                        t =?= s
+
+
+               Remark: we also use `id_rhs` to implement "smart reduction" at type_context.
             */
             type_context ctx = mk_type_context(P);
             rhs              = mk_id_rhs(ctx, rhs);

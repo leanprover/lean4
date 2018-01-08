@@ -740,6 +740,116 @@ static bool is_rfl_preexpr(expr const & e) {
     return is_constant(e, get_rfl_name());
 }
 
+static bool uses_well_founded_recursion(environment const & env, name const & n) {
+    if (!n.is_atomic() && n.is_string() &&
+        (strcmp(n.get_string(), "_mutual") == 0 || strcmp(n.get_string(), "_pack") == 0)) {
+        return true;
+    }
+    declaration d = env.get(n);
+    expr val = d.get_value();
+    while (is_lambda(val))
+        val = binding_body(val);
+    expr const & fn = get_app_fn(val);
+    if (!is_constant(fn))
+        return false;
+    name const & fn_name = const_name(fn);
+    if (!fn_name.is_string() || fn_name.get_string()[0] != '_')
+        return false;
+    return uses_well_founded_recursion(env, fn_name);
+}
+
+struct replace_rec_fn_macro_fn : public replace_visitor {
+    name const & m_fn_aux_name;
+    expr const & m_new_fn;
+    unsigned     m_nargs_to_skip;
+    bool         m_found{false};
+
+    virtual expr visit_app(expr const & e) override {
+        buffer<expr> args;
+        expr const & fn = get_app_args(e, args);
+        if (is_rec_fn_macro(fn)) {
+            if (args.size() >= m_nargs_to_skip && get_rec_fn_name(fn) == m_fn_aux_name) {
+                m_found = true;
+                for (unsigned i = m_nargs_to_skip; i < args.size(); i++) {
+                    expr & arg   = args[i];
+                    arg          = visit(arg);
+                }
+                return mk_app(m_new_fn, args.size() - m_nargs_to_skip, args.data() + m_nargs_to_skip);
+            } else {
+                throw exception("failed to generate helper declaration for smart unfolding, unexpected occurrence of recursive application");
+            }
+        } else {
+            expr new_fn   = visit(fn);
+            bool modified = !is_eqp(fn, new_fn);
+            for (expr & arg : args) {
+                expr new_arg = visit(arg);
+                if (!is_eqp(new_arg, arg))
+                    modified = true;
+                arg = new_arg;
+            }
+            if (!modified)
+                return e;
+            else
+                return mk_app(new_fn, args);
+        }
+    }
+
+    replace_rec_fn_macro_fn(name const & fn_aux_name, expr const & new_fn, unsigned nargs_to_skip):
+        m_fn_aux_name(fn_aux_name),
+        m_new_fn(new_fn),
+        m_nargs_to_skip(nargs_to_skip) {
+    }
+};
+
+static environment mk_smart_unfolding_helper_definition(environment const & env, options const & o, name const & n) {
+    type_context ctx(env, o, metavar_context(), local_context());
+    declaration const & d = env.get(n);
+    expr val  = d.get_value();
+    levels ls = param_names_to_levels(d.get_univ_params());
+    type_context::tmp_locals locals(ctx);
+    while (is_lambda(val)) {
+        val = instantiate(binding_body(val), locals.push_local_from_binding(val));
+    }
+    expr const & fn      = get_app_fn(val);
+    buffer<expr> args;
+    get_app_rev_args(val, args);
+
+    if (!is_constant(fn) || const_name(fn) != name(n, "_main")) {
+        return env;
+    }
+
+    name const & fn_name = const_name(fn);
+
+    if (uses_well_founded_recursion(env, fn_name)) {
+        return env;
+    }
+
+    name meta_aux_fn_name(fn_name, "_meta_aux");
+
+    expr helper_value;
+    if (optional<declaration> aux_d = env.find(meta_aux_fn_name)) {
+        expr new_fn  = mk_app(mk_constant(n, ls), locals.size(), locals.data());
+        helper_value = instantiate_value_univ_params(*aux_d, const_levels(fn));
+        helper_value = apply_beta(helper_value, args.size(), args.data());
+        replace_rec_fn_macro_fn proc(meta_aux_fn_name, new_fn, args.size());
+        helper_value = proc(helper_value);
+        if (!proc.m_found)
+            throw exception("failed to generate helper declaration for smart unfolding, auxiliary meta declaration does not contain recursive application");
+    } else {
+        helper_value = instantiate_value_univ_params(env.get(fn_name), const_levels(fn));
+        helper_value = apply_beta(helper_value, args.size(), args.data());
+    }
+
+    helper_value = locals.mk_lambda(helper_value);
+    try {
+        declaration def = mk_definition(env, name(n, "_sunfold"), d.get_univ_params(), d.get_type(), helper_value, true, true);
+        auto cdef       = check(env, def);
+        return module::add(env, cdef);
+    } catch (exception & ex) {
+        throw nested_exception("failed to generate helper declaration for smart unfolding, type error", ex);
+    }
+}
+
 environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta meta) {
     buffer<name> lp_names;
     buffer<expr> params;
@@ -843,9 +953,13 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
         if (eqns && aux_lemmas) {
             new_env = copy_equation_lemmas(new_env, c_real_name);
         }
-        if (!eqns && !meta.m_modifiers.m_is_meta && (kind == decl_cmd_kind::Definition || kind == decl_cmd_kind::Instance)) {
-            unsigned arity = new_params.size();
-            new_env = mk_simple_equation_lemma_for(new_env, p.get_options(), meta.m_modifiers.m_is_private, c_name, c_real_name, arity);
+        if (!meta.m_modifiers.m_is_meta && (kind == decl_cmd_kind::Definition || kind == decl_cmd_kind::Instance)) {
+            if (!eqns) {
+                unsigned arity = new_params.size();
+                new_env = mk_simple_equation_lemma_for(new_env, p.get_options(), meta.m_modifiers.m_is_private, c_name, c_real_name, arity);
+            } else {
+                new_env = mk_smart_unfolding_helper_definition(new_env, p.get_options(), c_real_name);
+            }
         }
         /* Apply attributes last so that they may access any information on the new decl */
         return meta.m_attrs.apply(new_env, p.ios(), c_real_name);

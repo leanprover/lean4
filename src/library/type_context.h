@@ -586,6 +586,8 @@ private:
        occurring in `t` can be assigned. */
     bool               m_update_right{true};
 
+    bool               m_smart_unfolding{true};
+
     /* Auxiliary object used to temporarily swap `m_update_left` and `m_update_right`.
        We use it before invoking methods where we swap left/right. */
     struct swap_update_flags_scope {
@@ -854,6 +856,11 @@ public:
     struct full_postponed_scope : public flet<bool> {
         full_postponed_scope(type_context & ctx, bool full = true):
             flet<bool>(ctx.m_full_postponed, full) {}
+    };
+
+    struct smart_unfolding_scope : public flet<bool> {
+        smart_unfolding_scope(type_context & ctx, bool enable = true):
+            flet<bool>(ctx.m_smart_unfolding, enable) {}
     };
 
     struct relaxed_scope {

@@ -727,6 +727,7 @@ static expr prove_eqn_lemma_core(type_context & ctx, buffer<expr> const & Hs, ex
 }
 
 static expr prove_eqn_lemma(type_context & ctx, buffer<expr> const & Hs, expr const & lhs, expr const & rhs) {
+    type_context::smart_unfolding_scope S(ctx, false);
     if (auto new_lhs = unfold_app(ctx.env(), lhs)) {
         buffer<expr> args;
         expr fn = get_app_args(*new_lhs, args);

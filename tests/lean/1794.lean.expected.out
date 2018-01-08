@@ -1,0 +1,7 @@
+case test.cons
+n m h_n h_i : ℕ,
+h_is : list ℕ,
+h_a : test h_n h_is,
+h : test (nat.succ (nat.add h_n (nat.add 2 0))) (h_i :: h_is)
+⊢ n + n = nat.succ (nat.add h_n (nat.add 2 0)) → [m] = h_i :: h_is → false
+1794.lean:8:0: warning: declaration 'example3' uses sorry

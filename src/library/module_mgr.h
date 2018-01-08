@@ -27,7 +27,14 @@ enum class module_src {
 };
 
 struct module_info {
+    // true if the module needs to be rebuilt. A non-dirty module can
+    // be out of date since on the first visit we need to re-calculate
+    // information not stored in the .olean file.
     bool m_out_of_date = false;
+    // true if m_contents differs from the on-disk contents
+    bool m_dirty = false;
+    // true if the module and all of its dependencies are not dirty
+    bool m_save_olean = true;
 
     module_id m_id;
     std::string m_contents;

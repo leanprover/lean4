@@ -224,6 +224,7 @@ void module_mgr::build_lean(std::shared_ptr<module_info> const & mod, name_set c
 
     mod->m_lt = logtree();
     mod->m_trans_mtime = mod->m_mtime;
+    mod->m_save_olean = !mod->m_dirty;
     for (auto & d : imports) {
         module_id d_id;
         std::shared_ptr<module_info const> d_mod;
@@ -232,6 +233,7 @@ void module_mgr::build_lean(std::shared_ptr<module_info> const & mod, name_set c
             build_module(d_id, true, module_stack);
             d_mod = m_modules[d_id];
             mod->m_trans_mtime = std::max(mod->m_trans_mtime, d_mod->m_trans_mtime);
+            mod->m_save_olean &= d_mod->m_save_olean;
         } catch (throwable & ex) {
             message_builder(m_initial_env, m_ios, mod->m_id, {1, 0}, ERROR).set_exception(ex).report();
         }
@@ -284,7 +286,7 @@ void module_mgr::build_lean(std::shared_ptr<module_info> const & mod, name_set c
             return parse_res;
         }).build();
 
-    if (m_save_olean) {
+    if (m_save_olean && mod->m_save_olean) {
         scope_log_tree_core lt3(&lt);
         mod->m_olean_task = compile_olean(mod, lt2.get());
     }

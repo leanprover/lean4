@@ -3187,9 +3187,17 @@ lbool type_context::is_def_eq_delta(expr const & t, expr const & s) {
                 }
             }
 
-            if (auto new_t = unfold_definition(t))
+            auto new_t = unfold_definition(t);
+            if (new_t && same_head_symbol(*new_t, s))
                 return to_lbool(is_def_eq_core_core(*new_t, s));
-            else if (auto new_s = unfold_definition(s))
+            auto new_s = unfold_definition(s);
+            if (new_s && same_head_symbol(*new_s, t))
+                return to_lbool(is_def_eq_core_core(t, *new_s));
+            if (new_t && new_s)
+                return to_lbool(is_def_eq_core_core(*new_t, *new_s));
+            if (new_t)
+                return to_lbool(is_def_eq_core_core(*new_t, s));
+            if (new_s)
                 return to_lbool(is_def_eq_core_core(t, *new_s));
         }
     }

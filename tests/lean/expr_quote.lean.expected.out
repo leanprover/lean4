@@ -5,4 +5,4 @@ context:
 α a : expr
 ⊢ Sort ?
 meta def g : expr → expr → expr :=
-λ (α a : expr), expr.subst (expr.subst ↑`(λ (_x_1 : Type 2) (_x_2 : _x_1), id.{3} _x_2) α) a
+λ (α a : expr), id_rhs.{1} expr (expr.subst (expr.subst ↑`(λ (_x_1 : Type 2) (_x_2 : _x_1), id.{3} _x_2) α) a)

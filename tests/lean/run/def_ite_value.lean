@@ -16,4 +16,4 @@ set_option pp.binder_types true
 #check @f._main.equations._eqn_3
 
 example (n : nat) (b : bool) (v : bv n) (x : nat) : x ≠ 1000000 → f (n+1) (cons n b v) x = f n v (x + 1) :=
-assume H, f._main.equations._eqn_3 n b v x H
+assume H, f.equations._eqn_3 n b v x H

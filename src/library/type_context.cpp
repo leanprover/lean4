@@ -32,8 +32,6 @@ Author: Leonardo de Moura
 #include "library/fun_info.h"
 #include "library/num.h"
 #include "library/quote.h"
-// TODO(Leo): move rec_fn_macro to library
-#include "library/compiler/rec_fn_macro.h"
 
 #ifndef LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH
 #define LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH 32

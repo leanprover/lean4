@@ -475,8 +475,13 @@ add_custom_target(clean-std-lib
   COMMAND "${CMAKE_COMMAND}" -P "${CMAKE_MODULE_PATH}/CleanOlean.cmake"
   )
 
+add_custom_target(clean-leanpkg
+  WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../leanpkg"
+  COMMAND "${CMAKE_COMMAND}" -P "${CMAKE_MODULE_PATH}/CleanOlean.cmake"
+  )
+
 add_custom_target(clean-olean
-  DEPENDS clean-std-lib)
+  DEPENDS clean-std-lib clean-leanpkg)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   install(FILES "${CMAKE_SOURCE_DIR}/../bin/leanpkg.bat" "${CMAKE_SOURCE_DIR}/../bin/leanpkg.bat"

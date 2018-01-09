@@ -91,6 +91,7 @@ expr closure_helper::collect(expr const & e) {
 
 void closure_helper::finalize_collection() {
     lean_assert(!m_finalized_collection);
+    std::sort(m_level_params.begin(), m_level_params.end());
     name_map<expr> new_types;
     for (unsigned i = 0; i < m_params.size(); i++) {
         expr x = m_params[i];

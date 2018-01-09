@@ -705,12 +705,9 @@ optional<expr> type_context::unfold_definition_core(expr const & e) {
 
 // TODO(Leo): add option for disabling smart reduction
 
-static unsigned DEPTH = 0; // TODO(Leo): delete or create field
-
 /* Unfold head(e) if it is a constant */
 optional<expr> type_context::unfold_definition(expr const & e) {
-    flet<unsigned> IncDepth(DEPTH, DEPTH+1);
-    // tout() << ">> [" << DEPTH << "] " << e << "\n";
+    flet<unsigned> inc_depth(m_unfold_depth, m_unfold_depth+1);
     if (is_app(e)) {
         expr f0 = get_app_fn(e);
         if (!is_constant(f0))
@@ -721,17 +718,17 @@ optional<expr> type_context::unfold_definition(expr const & e) {
         if (m_smart_unfolding && is_smart_unfolding_target(env(), const_name(f0))) {
             expr it = e;
             while (true) {
-                lean_trace(name({"type_context", "smart_unfolding"}), tout() << "[" << DEPTH << "] " << it << "\n";);
+                lean_trace(name({"type_context", "smart_unfolding"}), tout() << "[" << m_unfold_depth << "] " << it << "\n";);
                 expr const & it_fn = get_app_fn(it);
                 expr new_fn        = ext_unfold_fn(env(), it_fn);
                 buffer<expr> args;
                 get_app_rev_args(it, args);
                 expr new_it        = apply_beta(new_fn, args.size(), args.data());
-                lean_trace(name({"type_context", "smart_unfolding"}), tout() << "before whnf_core [" << DEPTH << "] " << new_it << "\n";);
+                lean_trace(name({"type_context", "smart_unfolding"}), tout() << "before whnf_core [" << m_unfold_depth << "] " << new_it << "\n";);
                 /* whnf_core + unstuck loop */
                 while (true) {
                     new_it             = whnf_core(new_it, true);
-                    lean_trace(name({"type_context", "smart_unfolding"}), tout() << "after whnf_core [" << DEPTH << "] " << new_it << "\n";);
+                    lean_trace(name({"type_context", "smart_unfolding"}), tout() << "after whnf_core [" << m_unfold_depth << "] " << new_it << "\n";);
                     if (is_stuck(new_it)) {
                         expr new_new_it = try_to_unstuck_using_complete_instance(new_it);
                         if (!is_eqp(new_new_it, new_it)) {
@@ -743,25 +740,23 @@ optional<expr> type_context::unfold_definition(expr const & e) {
                         break;
                     }
                 }
-                // TODO(Leo): check whether new_it is stuck or not.
                 if (is_app_of(new_it, get_id_rhs_name())) {
                     /* found RHS */
                     buffer<expr> new_it_args;
                     get_app_args(new_it, new_it_args);
                     if (new_it_args.size() < 2) return none_expr();
                     expr r = mk_app(new_it_args[1], new_it_args.size() - 2, new_it_args.begin() + 2);
-                    lean_trace(name({"type_context", "smart_unfolding"}), tout() << "result [" << DEPTH << "]: " << r << "\n";);
+                    lean_trace(name({"type_context", "smart_unfolding"}), tout() << "result [" << m_unfold_depth << "]: " << r << "\n";);
                     return some_expr(r);
                 } else {
-                    // std::cout << ">>> " << new_it << "\n";
                     expr const & new_it_fn = get_app_fn(new_it);
                     if (!is_constant(new_it_fn)) {
-                        lean_trace(name({"type_context", "smart_unfolding"}), tout() << "fail 1 [" << DEPTH << "]\n";);
+                        lean_trace(name({"type_context", "smart_unfolding"}), tout() << "fail 1 [" << m_unfold_depth << "]\n";);
                         return none_expr();
                     }
                     optional<declaration> new_it_d = env().find(const_name(new_it_fn));
                     if (!new_it_d || !new_it_d->is_definition() || length(const_levels(new_it_fn)) != new_it_d->get_num_univ_params()) {
-                        lean_trace(name({"type_context", "smart_unfolding"}), tout() << "fail 2 [" << DEPTH << "] " << whnf_core(new_it, true) << "\n";);
+                        lean_trace(name({"type_context", "smart_unfolding"}), tout() << "fail 2 [" << m_unfold_depth << "] " << whnf_core(new_it, true) << "\n";);
                         return none_expr();
                     }
                     it = new_it;
@@ -769,7 +764,7 @@ optional<expr> type_context::unfold_definition(expr const & e) {
             }
         } else {
             /* TODO(Leo): should we block unfolding of constants defined using well founded recursion? */
-            lean_trace(name({"type_context", "smart_unfolding"}), tout() << "using simple unfolding [" << DEPTH << "]\n" << e << "\n";);
+            lean_trace(name({"type_context", "smart_unfolding"}), tout() << "using simple unfolding [" << m_unfold_depth << "]\n" << e << "\n";);
             expr f = instantiate_value_univ_params(*d, const_levels(f0));
             buffer<expr> args;
             get_app_rev_args(e, args);

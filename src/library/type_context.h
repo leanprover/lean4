@@ -587,6 +587,7 @@ private:
     bool               m_update_right{true};
 
     bool               m_smart_unfolding{true};
+    unsigned           m_unfold_depth{0}; // used in tracing messages
 
     /* Auxiliary object used to temporarily swap `m_update_left` and `m_update_right`.
        We use it before invoking methods where we swap left/right. */

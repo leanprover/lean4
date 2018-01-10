@@ -78,6 +78,14 @@ master branch (aka work in progress branch)
   This was problematic because we could only define abbreviations after the meta programming
   framework was defined.
 
+* Add "smart unfolding". The idea is to prevent internal compilation details
+  used by the equation compiler to "leak" during unification, tactic execution and
+  reduction. With "smart unfolding", the term `nat.add a (nat.succ b)` reduces
+  to `nat.succ (nat.add a b)` instead of `nat.succ (... incomprehensible mess ...)`.
+  This feature addresses a problem reported by many users.
+  See [issue #1794](https://github.com/leanprover/lean/issues/1794).
+  The command `set_option type_context.smart_unfolding false` disables this feature.
+
 *Changes*
 
 * Replace `inout` modifier in type class declarations with `out_param` modifier.

@@ -462,7 +462,6 @@ add_custom_target(
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
     )
 
-configure_file("${LEAN_SOURCE_DIR}/../leanpkg/leanpkg/config_vars.lean.in" "${LEAN_SOURCE_DIR}/../leanpkg/leanpkg/config_vars.lean")
 add_custom_target(
     leanpkg ALL
     COMMAND "${LEAN_SOURCE_DIR}/../bin/lean" --make ${LEAN_EXTRA_MAKE_OPTS}

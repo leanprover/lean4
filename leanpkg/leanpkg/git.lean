@@ -9,7 +9,7 @@ variable [io.interface]
 namespace leanpkg
 
 def upstream_git_branch :=
-if lean_version.is_release then
+if lean.is_release then
     "lean-" ++ lean_version_string_core
 else
     "master"

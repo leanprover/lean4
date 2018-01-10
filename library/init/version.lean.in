@@ -6,3 +6,6 @@ def lean.version : nat × nat × nat :=
 
 def lean.githash : string :=
 "@GIT_SHA1@"
+
+def lean.is_release : bool :=
+@LEAN_VERSION_IS_RELEASE@ ≠ 0

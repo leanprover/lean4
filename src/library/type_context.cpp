@@ -45,6 +45,10 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_UNFOLD_LEMMAS false
 #endif
 
+#ifndef LEAN_DEFAULT_SMART_UNFOLDING
+#define LEAN_DEFAULT_SMART_UNFOLDING true
+#endif
+
 /* Comment the following line for disabling the thread local caches.
    This is useful for debugging cache management bugs. */
 #define LEAN_TYPE_CONTEXT_CACHE_RESULTS
@@ -59,6 +63,7 @@ namespace lean {
 static name * g_class_instance_max_depth = nullptr;
 static name * g_nat_offset_threshold     = nullptr;
 static name * g_unfold_lemmas            = nullptr;
+static name * g_smart_unfolding          = nullptr;
 
 unsigned get_class_instance_max_depth(options const & o) {
     return o.get_unsigned(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH);
@@ -70,6 +75,10 @@ unsigned get_nat_offset_cnstr_threshold(options const & o) {
 
 bool get_unfold_lemmas(options const & o) {
     return o.get_bool(*g_unfold_lemmas, LEAN_DEFAULT_UNFOLD_LEMMAS);
+}
+
+bool get_smart_unfolding(options const & o) {
+    return o.get_bool(*g_smart_unfolding, LEAN_DEFAULT_SMART_UNFOLDING);
 }
 
 bool is_at_least_semireducible(transparency_mode m) {
@@ -318,6 +327,7 @@ void type_context::init_core(transparency_mode m) {
     m_tmp_data                    = nullptr;
     m_transparency_pred           = nullptr;
     m_approximate                 = false;
+    m_smart_unfolding             = get_smart_unfolding(get_options());
     if (auto instance_fingerprint = m_lctx.get_instance_fingerprint()) {
         if (m_cache->m_instance_fingerprint == instance_fingerprint) {
             lean_trace("type_context_cache", tout() << "reusing instance cache, fingerprint: " << *instance_fingerprint << "\n";);
@@ -702,8 +712,6 @@ optional<expr> type_context::unfold_definition_core(expr const & e) {
     }
     return none_expr();
 }
-
-// TODO(Leo): add option for disabling smart reduction
 
 /* Unfold head(e) if it is a constant */
 optional<expr> type_context::unfold_definition(expr const & e) {
@@ -4287,7 +4295,10 @@ void initialize_type_context() {
                              "the offset constraint solver is used if k_1 and k_2 are smaller than the given threshold");
     g_unfold_lemmas = new name{"type_context", "unfold_lemmas"};
     register_bool_option(*g_unfold_lemmas, LEAN_DEFAULT_UNFOLD_LEMMAS,
-        "(type-context) whether to unfold lemmas (e.g., during elaboration)");
+                         "(type-context) whether to unfold lemmas (e.g., during elaboration)");
+    g_smart_unfolding = new name{"type_context", "smart_unfolding"};
+    register_bool_option(*g_smart_unfolding, LEAN_DEFAULT_SMART_UNFOLDING,
+                         "(type-context) enable/disable smart unfolding (e.g., during elaboration)");
 }
 
 void finalize_type_context() {

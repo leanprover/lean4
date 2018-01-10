@@ -607,8 +607,9 @@ private:
       Given an application `f a_1 ... a_n`, the type_context only assumes that
       if `f._sunfold a_1 ... a_n` can be reduced to `id_rhs _ t`, then `f a_1 ... a_n` and
       `t` are definitionally equal.
-    */
 
+      Remark: type_context also uses smart unfolding for definitions `f._match_<idx>`
+    */
 
     bool               m_smart_unfolding{true};
     unsigned           m_unfold_depth{0}; // used in tracing messages

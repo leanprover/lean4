@@ -40,16 +40,16 @@ universes u
 @[algebra] class is_right_distrib (α : Type u) (op₁ : α → α → α) (op₂ : out_param $ α → α → α) : Prop :=
 (right_distrib : ∀ a b c, op₁ (op₂ a b) c = op₂ (op₁ a c) (op₁ b c))
 
-@[algebra] class is_left_inv (α : Type u) (op : α → α → α) (inv : out_param α → α) (o : out_param $ α) : Prop :=
+@[algebra] class is_left_inv (α : Type u) (op : α → α → α) (inv : out_param $ α → α) (o : out_param α) : Prop :=
 (left_inv : ∀ a, op (inv a) a = o)
 
-@[algebra] class is_right_inv (α : Type u) (op : α → α → α) (inv : out_param $ α → α) (o : out_param $ α) : Prop :=
+@[algebra] class is_right_inv (α : Type u) (op : α → α → α) (inv : out_param $ α → α) (o : out_param α) : Prop :=
 (right_inv : ∀ a, op a (inv a) = o)
 
-@[algebra] class is_cond_left_inv (α : Type u) (op : α → α → α) (inv : out_param $ α → α) (o : out_param $ α) (p : out_param $ α → Prop) : Prop :=
+@[algebra] class is_cond_left_inv (α : Type u) (op : α → α → α) (inv : out_param $ α → α) (o : out_param α) (p : out_param $ α → Prop) : Prop :=
 (left_inv : ∀ a, p a → op (inv a) a = o)
 
-@[algebra] class is_cond_right_inv (α : Type u) (op : α → α → α) (inv : out_param $ α → α) (o : out_param $ α) (p : out_param $ α → Prop) : Prop :=
+@[algebra] class is_cond_right_inv (α : Type u) (op : α → α → α) (inv : out_param $ α → α) (o : out_param α) (p : out_param $ α → Prop) : Prop :=
 (right_inv : ∀ a, p a → op a (inv a) = o)
 
 @[algebra] class is_distinct (α : Type u) (a : α) (b : α) : Prop :=

@@ -3145,7 +3145,7 @@ lbool type_context::is_def_eq_delta(expr const & t, expr const & s) {
                 lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold left&right: " << d_t->get_name() << "\n";);
                 auto new_t = unfold_definition(t);
                 auto new_s = unfold_definition(s);
-                if (*new_s && *new_t)
+                if (new_s && new_t)
                     return to_lbool(is_def_eq_core_core(*new_t, *new_s));
                 else if (new_t)
                     return to_lbool(is_def_eq_core_core(*new_t, s));

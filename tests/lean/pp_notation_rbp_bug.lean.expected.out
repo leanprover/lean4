@@ -1,0 +1,2 @@
+def foo : Prop :=
+((λ (a : ℕ), a) = λ (a : ℕ), a) ↔ true

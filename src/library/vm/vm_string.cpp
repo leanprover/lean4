@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "util/utf8.h"
 #include "library/vm/vm_string.h"
 #include "library/vm/vm_nat.h"
+#include "library/vm/vm_option.h"
 
 namespace lean {
 struct vm_string : public vm_external {
@@ -413,7 +414,6 @@ vm_obj string_has_decidable_eq(vm_obj const & s1, vm_obj const & s2) {
     return mk_vm_bool(to_vm_string(s1).m_value == to_vm_string(s2).m_value);
 }
 
-
 /*
 inductive ordering
 | lt | eq | gt
@@ -449,6 +449,18 @@ vm_obj string_has_decidable_lt(vm_obj const & s1, vm_obj const & s2) {
     else return mk_vm_simple(0);
 }
 
+vm_obj string_iterator_extract(vm_obj const & it1, vm_obj const & it2) {
+    vm_string const & s1 = it_string(it1);
+    vm_string const & s2 = it_string(it2);
+    if (&s1 != &s2 && s1.m_value != s2.m_value)
+        return mk_vm_none();
+    size_t pos1 = it_pos(it1);
+    size_t pos2 = it_pos(it2);
+    if (pos2 < pos1)
+        return mk_vm_none();
+    return mk_vm_some(to_obj(s1.m_value.substr(pos1, pos2 - pos1), pos2 - pos1));
+}
+
 void initialize_vm_string() {
     DECLARE_VM_BUILTIN(name({"string_imp", "mk"}),             string_imp_mk);
     DECLARE_VM_BUILTIN(name({"string_imp", "data"}),           string_imp_data);
@@ -477,6 +489,7 @@ void initialize_vm_string() {
     DECLARE_VM_BUILTIN(name({"string", "iterator", "to_end"}),         string_iterator_to_end);
     DECLARE_VM_BUILTIN(name({"string", "iterator", "next_to_string"}), string_iterator_next_to_string);
     DECLARE_VM_BUILTIN(name({"string", "iterator", "prev_to_string"}), string_iterator_prev_to_string);
+    DECLARE_VM_BUILTIN(name({"string", "iterator", "extract"}),        string_iterator_extract);
 
     DECLARE_VM_BUILTIN(name({"string", "iterator_imp", "mk"}),              string_iterator_imp_mk);
     DECLARE_VM_BUILTIN(name({"string", "iterator_imp", "fst"}),             string_iterator_imp_fst);

@@ -110,6 +110,24 @@ def next_to_string : iterator → string
 def prev_to_string : iterator → string
 | ⟨p, n⟩ := ⟨p.reverse⟩
 
+protected def extract_core : list char → list char → option (list char)
+| []       cs  := none
+| (c::cs₁) cs₂ :=
+  if cs₁ = cs₂ then some [c] else
+  match extract_core cs₁ cs₂ with
+  | none   := none
+  | some r := some (c::r)
+  end
+
+def extract : iterator → iterator → option string
+| ⟨p₁, n₁⟩ ⟨p₂, n₂⟩ :=
+  if p₁.reverse ++ n₁ ≠ p₂.reverse ++ n₂ then none
+  else if n₁ = n₂ then some ""
+  else match iterator.extract_core n₁ n₂ with
+       | none := none
+       | some r := some ⟨r⟩
+       end
+
 end iterator
 end string
 

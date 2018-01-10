@@ -1,0 +1,8 @@
+nat.succ (nat.add n n)
+nat.succ
+  ((nat.rec ⟨λ (a : ℕ), a, punit.star⟩
+      (λ (n : ℕ)
+       (ih : pprod (ℕ → ℕ) (nat.rec punit (λ (n : ℕ) (ih : Type), pprod (pprod (ℕ → ℕ) ih) punit) n)),
+         ⟨λ (a : ℕ), nat.succ (ih.fst a), ⟨ih, punit.star⟩⟩)
+      n).fst
+     n)

@@ -112,7 +112,6 @@ class normalize_fn {
     }
 
     expr normalize(expr e) {
-        // TODO(Leo): smart_reduction doesn't seem to work with normalize
         check_system("normalize");
         if (!m_pred(e))
             return e;

@@ -222,13 +222,12 @@ environment reduce_cmd(parser & p) {
     expr e; level_param_names ls;
     std::tie(e, ls) = parse_local_expr(p, "_reduce");
     expr r;
+    type_context ctx(p.env(), p.get_options(), metavar_context(), local_context(), transparency_mode::All);
     if (whnf) {
-        type_checker tc(p.env(), true, false);
-        r = tc.whnf(e);
+        r = ctx.whnf(e);
     } else {
-        type_checker tc(p.env(), true, false);
         bool eta = false;
-        r = normalize(tc, e, eta);
+        r = normalize(ctx, e, eta);
     }
     auto out = p.mk_message(p.cmd_pos(), p.pos(), INFORMATION);
     out.set_caption("reduce result") << r;

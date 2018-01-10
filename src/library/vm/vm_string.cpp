@@ -208,7 +208,7 @@ vm_obj string_iterator_set_curr(vm_obj const & it, vm_obj const & c) {
         push_unicode_scalar(tmp, code);
         std::string new_s = s.m_value;
         new_s.replace(i, get_utf8_char_size_at(new_s, i), tmp);
-        return to_obj(new_s, s.m_length);
+        return mk_vm_pair(to_obj(new_s, s.m_length), cfield(it, 1));;
     }
 }
 

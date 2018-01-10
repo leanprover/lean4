@@ -12,6 +12,11 @@ class elaborator;
 eqn_compiler_result wf_rec(environment & env, options const & opts,
             metavar_context & mctx, local_context const & lctx,
             expr const & eqns, elaborator & elab);
+
+/* Return true if definition `n` was compiled by equation compiler using
+   well_founded recursion. */
+bool uses_well_founded_recursion(environment const & env, name const & n);
+
 void initialize_wf_rec();
 void finalize_wf_rec();
 }

@@ -583,6 +583,24 @@ eqn_compiler_result wf_rec(environment & env, options const & opts,
     return r;
 }
 
+bool uses_well_founded_recursion(environment const & env, name const & n) {
+    if (!n.is_atomic() && n.is_string() &&
+        (strcmp(n.get_string(), "_mutual") == 0 || strcmp(n.get_string(), "_pack") == 0)) {
+        return true;
+    }
+    declaration d = env.get(n);
+    expr val = d.get_value();
+    while (is_lambda(val))
+        val = binding_body(val);
+    expr const & fn = get_app_fn(val);
+    if (!is_constant(fn))
+        return false;
+    name const & fn_name = const_name(fn);
+    if (!fn_name.is_string() || fn_name.get_string()[0] != '_')
+        return false;
+    return uses_well_founded_recursion(env, fn_name);
+}
+
 void initialize_wf_rec() {
     register_trace_class({"eqn_compiler", "wf_rec"});
     register_trace_class({"debug", "eqn_compiler", "wf_rec"});

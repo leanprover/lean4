@@ -11,7 +11,9 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "kernel/scope_pos_info_provider.h"
 #include "kernel/free_vars.h"
+#include "kernel/type_checker.h"
 #include "library/util.h"
+#include "library/module.h"
 #include "library/aliases.h"
 #include "library/trace.h"
 #include "library/app_builder.h"
@@ -26,11 +28,13 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/aux_definition.h"
 #include "library/comp_val.h"
+#include "library/compiler/rec_fn_macro.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/tactic/eqn_lemmas.h"
 #include "library/inductive_compiler/ginductive.h"
 #include "library/equations_compiler/equations.h"
 #include "library/equations_compiler/util.h"
+#include "library/equations_compiler/wf_rec.h"
 
 #ifndef LEAN_DEFAULT_EQN_COMPILER_LEMMAS
 #define LEAN_DEFAULT_EQN_COMPILER_LEMMAS true
@@ -967,6 +971,99 @@ void update_telescope(type_context & ctx, buffer<expr> const & vars, expr const 
                 new_vars.push_back(new_curr);
             }
         }
+    }
+}
+
+/* Helper functor for mk_smart_unfolding_definition */
+struct replace_rec_fn_macro_fn : public replace_visitor {
+    name const & m_fn_aux_name;
+    expr const & m_new_fn;
+    unsigned     m_nargs_to_skip;
+    bool         m_found{false};
+
+    virtual expr visit_app(expr const & e) override {
+        buffer<expr> args;
+        expr const & fn = get_app_args(e, args);
+        if (is_rec_fn_macro(fn)) {
+            if (args.size() >= m_nargs_to_skip && get_rec_fn_name(fn) == m_fn_aux_name) {
+                m_found = true;
+                for (unsigned i = m_nargs_to_skip; i < args.size(); i++) {
+                    expr & arg   = args[i];
+                    arg          = visit(arg);
+                }
+                return mk_app(m_new_fn, args.size() - m_nargs_to_skip, args.data() + m_nargs_to_skip);
+            } else {
+                throw exception("failed to generate helper declaration for smart unfolding, unexpected occurrence of recursive application");
+            }
+        } else {
+            expr new_fn   = visit(fn);
+            bool modified = !is_eqp(fn, new_fn);
+            for (expr & arg : args) {
+                expr new_arg = visit(arg);
+                if (!is_eqp(new_arg, arg))
+                    modified = true;
+                arg = new_arg;
+            }
+            if (!modified)
+                return e;
+            else
+                return mk_app(new_fn, args);
+        }
+    }
+
+    replace_rec_fn_macro_fn(name const & fn_aux_name, expr const & new_fn, unsigned nargs_to_skip):
+        m_fn_aux_name(fn_aux_name),
+        m_new_fn(new_fn),
+        m_nargs_to_skip(nargs_to_skip) {
+    }
+};
+
+environment mk_smart_unfolding_definition(environment const & env, options const & o, name const & n) {
+    type_context ctx(env, o, metavar_context(), local_context());
+    declaration const & d = env.get(n);
+    expr val  = d.get_value();
+    levels ls = param_names_to_levels(d.get_univ_params());
+    type_context::tmp_locals locals(ctx);
+    while (is_lambda(val)) {
+        val = instantiate(binding_body(val), locals.push_local_from_binding(val));
+    }
+    expr const & fn      = get_app_fn(val);
+    buffer<expr> args;
+    get_app_rev_args(val, args);
+
+    if (!is_constant(fn) || const_name(fn) != name(n, "_main")) {
+        return env;
+    }
+
+    name const & fn_name = const_name(fn);
+
+    if (uses_well_founded_recursion(env, fn_name)) {
+        return env;
+    }
+
+    name meta_aux_fn_name = mk_aux_meta_rec_name(fn_name);
+
+    expr helper_value;
+    if (optional<declaration> aux_d = env.find(meta_aux_fn_name)) {
+        expr new_fn  = mk_app(mk_constant(n, ls), locals.size(), locals.data());
+        helper_value = instantiate_value_univ_params(*aux_d, const_levels(fn));
+        helper_value = apply_beta(helper_value, args.size(), args.data());
+        replace_rec_fn_macro_fn proc(meta_aux_fn_name, new_fn, args.size());
+        helper_value = proc(helper_value);
+        if (!proc.m_found)
+            throw exception("failed to generate helper declaration for smart unfolding, auxiliary meta declaration does not contain recursive application");
+    } else {
+        helper_value = instantiate_value_univ_params(env.get(fn_name), const_levels(fn));
+        helper_value = apply_beta(helper_value, args.size(), args.data());
+    }
+
+    helper_value = locals.mk_lambda(helper_value);
+    try {
+        declaration def = mk_definition(env, mk_smart_unfolding_name_for(n), d.get_univ_params(), d.get_type(), helper_value, true, true);
+        auto cdef       = check(env, def);
+        return module::add(env, cdef);
+    } catch (exception & ex) {
+        throw nested_exception("failed to generate helper declaration for smart unfolding, type error", ex);
     }
 }
 

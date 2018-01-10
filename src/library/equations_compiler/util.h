@@ -144,6 +144,10 @@ void update_telescope(type_context & ctx, buffer<expr> const & vars, expr const 
                       expr const & t, buffer<expr> const & t_vars,  buffer<expr> & new_vars,
                       buffer<expr> & from, buffer<expr> & to);
 
+/* Create auxiliary definition for unfolding declaration `n`.
+   See smart unfolding comment at type_context. */
+environment mk_smart_unfolding_definition(environment const & env, options const & o, name const & n);
+
 struct eqn_compiler_result {
     list<expr> m_fns;
     list<expr> m_counter_examples;

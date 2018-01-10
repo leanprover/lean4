@@ -683,17 +683,20 @@ optional<declaration> type_context::is_transparent(name const & n) {
     return is_transparent(m_transparency_mode, n);
 }
 
+name mk_smart_unfolding_name_for(name const & n) {
+    return name(n, "_sunfold");
+}
+
 static bool is_smart_unfolding_target(environment const & env, name const & fn_name) {
     if (!fn_name.is_atomic() && fn_name.is_string() && strncmp(fn_name.get_string(), "_match", 6) == 0)
         return true;
-    bool r = static_cast<bool>(env.find(name(fn_name, "_sunfold")));
+    bool r = static_cast<bool>(env.find(mk_smart_unfolding_name_for(fn_name)));
     return r;
 }
 
 static expr ext_unfold_fn(environment const & env, expr const & fn) {
     lean_assert(is_constant(fn));
-    name aux(const_name(fn), "_sunfold");
-    if (optional<declaration> meta_d = env.find(aux)) {
+    if (optional<declaration> meta_d = env.find(mk_smart_unfolding_name_for(const_name(fn)))) {
         return instantiate_value_univ_params(*meta_d, const_levels(fn));
     } else if (optional<declaration> d = env.find(const_name(fn))) {
         return instantiate_value_univ_params(*d, const_levels(fn));

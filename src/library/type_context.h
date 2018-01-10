@@ -24,6 +24,9 @@ Author: Leonardo de Moura
 #include "library/unification_hint.h"
 
 namespace lean {
+/* Return `f._sunfold` */
+name mk_smart_unfolding_name_for(name const & f);
+
 class class_exception : public generic_exception {
 public:
     class_exception(expr const & m, char const * msg):generic_exception(m, msg) {}
@@ -31,7 +34,6 @@ public:
 
 #define LEAN_NUM_TRANSPARENCY_MODES 5
 enum class transparency_mode { All = 0, Semireducible, Instances, Reducible, None };
-
 
 bool is_at_least_semireducible(transparency_mode m);
 bool is_at_least_instances(transparency_mode m);

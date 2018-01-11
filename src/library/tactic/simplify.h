@@ -123,6 +123,7 @@ protected:
     virtual optional<pair<simp_result, bool>> post(expr const & e, optional<expr> const & parent);
 
     virtual optional<expr> prove(expr const & goal);
+    friend class simp_prover;
 
     simp_result visit_fn(expr const & e);
     virtual simp_result visit_lambda(expr const & e);

@@ -25,6 +25,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_format.h"
 #include "library/tactic/eqn_lemmas.h"
 #include "library/tactic/simp_result.h"
+#include "library/tactic/simp_util.h"
 #include "library/tactic/simp_lemmas.h"
 #include "library/tactic/tactic_state.h"
 
@@ -1386,67 +1387,30 @@ vm_obj simp_lemmas_erase(vm_obj const & lemmas, vm_obj const & lemma_list) {
     return to_obj(new_lemmas);
 }
 
-static optional<expr> prove(type_context & ctx, vm_obj const & prove_fn, expr const & e, tactic_state s) {
-    s                      = mk_tactic_state_for(s.env(), s.get_options(), s.decl_name(), ctx.lctx(), e);
-    vm_obj r_obj           = invoke(prove_fn, to_obj(s));
-    optional<tactic_state> s_new = tactic::is_success(r_obj);
-    if (!s_new || s_new->goals()) return none_expr();
-    metavar_context mctx   = s_new->mctx();
-    expr result            = mctx.instantiate_mvars(s_new->main());
-    if (has_expr_metavar(result)) return none_expr();
-    ctx.set_mctx(mctx);
-    return some_expr(result);
-}
+class simp_aux_prover {
+    vm_obj         m_prove_fn;
+    tactic_state   m_state;
+
+public:
+    simp_aux_prover(vm_obj const & prove_fn, tactic_state const & s):
+        m_prove_fn(prove_fn), m_state(s) {}
+
+    optional<expr> operator()(tmp_type_context & tmp_ctx, expr const & e) {
+        tactic_state s     = mk_tactic_state_for(m_state.env(), m_state.get_options(), m_state.decl_name(), tmp_ctx.ctx().lctx(), e);
+        vm_obj r_obj       = invoke(m_prove_fn, to_obj(s));
+        optional<tactic_state> s_new = tactic::is_success(r_obj);
+        if (!s_new || s_new->goals()) return none_expr();
+        metavar_context mctx   = s_new->mctx();
+        expr result            = mctx.instantiate_mvars(s_new->main());
+        if (has_expr_metavar(result)) return none_expr();
+        tmp_ctx.ctx().set_mctx(mctx);
+        return some_expr(result);
+    }
+};
 
 static bool instantiate_emetas(tmp_type_context & tmp_ctx, vm_obj const & prove_fn, unsigned num_emeta, list<expr> const & emetas, list<bool> const & instances, tactic_state const & s) {
-    environment const & env = tmp_ctx.env();
-    bool failed = false;
-    unsigned i  = num_emeta;
-    for_each2(emetas, instances, [&](expr const & m, bool const & is_instance) {
-            i--;
-            if (failed) return;
-            expr m_type = tmp_ctx.instantiate_mvars(tmp_ctx.infer(m));
-            if (has_idx_metavar(m_type)) {
-                failed = true;
-                return;
-            }
-
-            if (tmp_ctx.is_eassigned(i)) return;
-
-            if (is_instance) {
-                if (auto v = tmp_ctx.ctx().mk_class_instance(m_type)) {
-                    if (!tmp_ctx.is_def_eq(m, *v)) {
-                        lean_trace("simp_lemmas", scope_trace_env scope(env, tmp_ctx);
-                                   tout() << "unable to assign instance for: " << m_type << "\n";);
-                        failed = true;
-                        return;
-                    }
-                } else {
-                    lean_trace("simp_lemmas", scope_trace_env scope(env, tmp_ctx);
-                               tout() << "unable to synthesize instance for: " << m_type << "\n";);
-                    failed = true;
-                    return;
-                }
-            }
-
-            if (tmp_ctx.is_eassigned(i)) return;
-
-            // Note: m_type has no metavars
-            if (tmp_ctx.is_prop(m_type)) {
-                if (auto pf = prove(tmp_ctx.ctx(), prove_fn, m_type, s)) {
-                    lean_verify(tmp_ctx.is_def_eq(m, *pf));
-                    return;
-                }
-            }
-
-            lean_trace("simp_lemmas", scope_trace_env scope(env, tmp_ctx);
-                       tout() << "failed to assign: " << m << " : " << m_type << "\n";);
-
-            failed = true;
-            return;
-        });
-
-    return !failed;
+    simp_aux_prover prover(prove_fn, s);
+    return instantiate_emetas_fn<simp_aux_prover>(prover)(tmp_ctx, num_emeta, emetas, instances);
 }
 
 

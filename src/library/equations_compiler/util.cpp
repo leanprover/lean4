@@ -28,6 +28,7 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/aux_definition.h"
 #include "library/comp_val.h"
+#include "library/unfold_macros.h"
 #include "library/compiler/rec_fn_macro.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/tactic/eqn_lemmas.h"
@@ -1057,7 +1058,7 @@ environment mk_smart_unfolding_definition(environment const & env, options const
         helper_value = apply_beta(helper_value, args.size(), args.data());
     }
 
-    helper_value = locals.mk_lambda(helper_value);
+    helper_value = unfold_untrusted_macros(env, locals.mk_lambda(helper_value));
     try {
         declaration def = mk_definition(env, mk_smart_unfolding_name_for(n), d.get_univ_params(), d.get_type(), helper_value, true, true);
         auto cdef       = check(env, def);

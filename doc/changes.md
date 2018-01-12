@@ -100,6 +100,8 @@ master branch (aka work in progress branch)
 * `subst` and `subst_vars` now support heterogeneous equalities that are actually homogeneous
    (i.e., `@heq α a β b` where `α` and `β` are definitionally equal).
 
+* Add interactive `subst_vars` tactic.
+
 *Changes*
 
 * Replace `inout` modifier in type class declarations with `out_param` modifier.

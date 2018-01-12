@@ -1298,6 +1298,12 @@ meta def subst (q : parse texpr) : tactic unit :=
 i_to_expr q >>= tactic.subst >> try (tactic.reflexivity reducible)
 
 /--
+Apply `subst` to all hypotheses of the form `h : x = t` or `h : t = x`.
+-/
+meta def subst_vars : tactic unit :=
+tactic.subst_vars
+
+/--
 `clear h₁ ... hₙ` tries to clear each hypothesis `hᵢ` from the local context.
 -/
 meta def clear : parse ident* → tactic unit :=

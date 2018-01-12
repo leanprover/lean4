@@ -97,6 +97,9 @@ master branch (aka work in progress branch)
 * `simp` now reduces equalities `c_1 ... = c_2 ...` to `false` if `c_1` and `c_2` are distinct
    constructors. This feature can be disabled using `simp {constructor_eq := ff}`.
 
+* `subst` and `subst_vars` now support heterogeneous equalities that are actually homogeneous
+   (i.e., `@heq α a β b` where `α` and `β` are definitionally equal).
+
 *Changes*
 
 * Replace `inout` modifier in type class declarations with `out_param` modifier.

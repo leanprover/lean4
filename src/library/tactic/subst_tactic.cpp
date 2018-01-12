@@ -171,7 +171,7 @@ vm_obj tactic_subst(vm_obj const & e, vm_obj const & s) {
 }
 
 void initialize_subst_tactic() {
-    DECLARE_VM_BUILTIN(name({"tactic", "subst"}), tactic_subst);
+    DECLARE_VM_BUILTIN(name({"tactic", "subst_core"}), tactic_subst);
     register_trace_class(name{"tactic", "subst"});
 }
 

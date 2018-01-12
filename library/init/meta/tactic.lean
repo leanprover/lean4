@@ -342,7 +342,7 @@ meta constant mk_eq_mpr      : expr → expr → tactic expr
 /- Given a local constant t, if t has type (lhs = rhs) apply substitution.
    Otherwise, try to find a local constant that has type of the form (t = t') or (t' = t).
    The tactic fails if the given expression is not a local constant. -/
-meta constant subst         : expr → tactic unit
+meta constant subst_core     : expr → tactic unit
 /-- Close the current goal using `e`. Fail is the type of `e` is not definitionally equal to
     the target type. -/
 meta constant exact (e : expr) (md := semireducible) : tactic unit
@@ -1235,6 +1235,16 @@ main_goal >>= get_tag
 meta def set_main_tag (t : tag) : tactic unit :=
 do g ← main_goal, set_tag g t
 
+meta def subst (h : expr) : tactic unit :=
+(do guard h.is_local_constant,
+    some (α, lhs, β, rhs) ← expr.is_heq <$> infer_type h,
+    is_def_eq α β,
+    new_h_type ← mk_app `eq [lhs, rhs],
+    new_h_pr   ← mk_app `eq_of_heq [h],
+    new_h ← assertv h.local_pp_name new_h_type new_h_pr,
+    try (clear h),
+    subst_core new_h)
+<|> subst_core h
 end tactic
 
 notation [parsing_only] `command`:max := tactic unit

@@ -14,4 +14,4 @@ do x ← get,
    print_ln y,
    put_str "end of program"
 
-#eval tst 5
+#eval tst.run 5

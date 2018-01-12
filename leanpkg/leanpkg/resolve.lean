@@ -92,7 +92,7 @@ deps.mmap' $ λ dep, do
   solve_deps_core p d' max_depth
 
 def solve_deps (d : manifest) : io assignment := do
-(_, assg) ← solve_deps_core "." d 1024 $ assignment.empty.insert d.name ".",
+(_, assg) ← (solve_deps_core "." d 1024).run $ assignment.empty.insert d.name ".",
 return assg
 
 def construct_path_core (depname : string) (dirname : string) : io (list string) :=

@@ -34,7 +34,7 @@ has_monad_lift_t.monad_lift n α
 instance has_monad_lift_t_trans (m n o) [has_monad_lift n o] [has_monad_lift_t m n] : has_monad_lift_t m o :=
 ⟨λ α (ma : m α), has_monad_lift.monad_lift o α $ has_monad_lift_t.monad_lift n α ma⟩
 
-instance has_monad_lift_t_refl (m) [monad m] : has_monad_lift_t m m :=
+instance has_monad_lift_t_refl (m) : has_monad_lift_t m m :=
 ⟨λ α, id⟩
 
 /-- A functor in the category of monads. Can be used to lift monad-transforming functions.
@@ -48,6 +48,9 @@ class monad_functor_t (m m' : Type u → Type v) (n n' : Type u → Type w) :=
 (monad_map {} {α : Type u} : (∀ {α}, m α → m' α) → n α → n' α)
 
 export monad_functor_t (monad_map)
+
+def monad_map' {α : Type u} (m m' : Type u → Type v) (n n' : Type u → Type w) [monad_functor_t (λ (α : Type u), m α) (λ (α : Type u), m' punit) n (λ {α : Type u}, n' punit)] : (∀ {α}, m α → m' punit) → n α → n' punit :=
+monad_map
 
 instance monad_functor_t_trans (m m' n n' o o') [monad_functor n n' o o'] [monad_functor_t m m' n n'] : monad_functor_t m m' o o' :=
 ⟨λ α f, monad_functor.monad_map (λ α, (monad_map @f : n α → n' α))⟩

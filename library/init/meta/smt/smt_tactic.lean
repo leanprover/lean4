@@ -59,11 +59,12 @@ state_t smt_state tactic
 meta instance : has_append smt_state :=
 list.has_append
 
-meta instance : monad smt_tactic :=
-state_t.monad
-
-meta instance : monad_state smt_state smt_tactic :=
-state_t.monad_state
+section
+local attribute [reducible] smt_tactic
+meta instance : monad smt_tactic := by apply_instance
+meta instance : alternative smt_tactic := by apply_instance
+meta instance : monad_state_lift smt_state tactic smt_tactic := by apply_instance
+end
 
 /- We don't use the default state_t lift operation because only
    tactics that do not change hypotheses can be automatically lifted to smt_tactic. -/
@@ -75,20 +76,8 @@ meta instance : has_monad_lift tactic smt_tactic :=
 meta instance (α : Type) : has_coe (tactic α) (smt_tactic α) :=
 ⟨monad_lift⟩
 
-meta def smt_tactic_orelse {α : Type} (t₁ t₂ : smt_tactic α) : smt_tactic α :=
-λ ss ts, result.cases_on (t₁ ss ts)
-  result.success
-  (λ e₁ ref₁ s', result.cases_on (t₂ ss ts)
-     result.success
-     result.exception)
-
 meta instance : monad_fail smt_tactic :=
 { fail := λ α s, (tactic.fail (to_fmt s) : smt_tactic α), ..smt_tactic.monad }
-
-meta instance : alternative smt_tactic :=
-{ failure := λ α, @tactic.failed α,
-  orelse  := @smt_tactic_orelse,
-  ..smt_tactic.monad }
 
 namespace smt_tactic
 open tactic (transparency)
@@ -154,9 +143,9 @@ meta def fail {α : Type} {β : Type u} [has_to_format β] (msg : β) : smt_tact
 tactic.fail msg
 
 meta def try {α : Type} (t : smt_tactic α) : smt_tactic unit :=
-λ ss ts, result.cases_on (t ss ts)
+⟨λ ss ts, result.cases_on (t.run ss ts)
  (λ ⟨a, new_ss⟩, result.success ((), new_ss))
- (λ e ref s', result.success ((), ss) ts)
+ (λ e ref s', result.success ((), ss) ts)⟩
 
 /-- `iterate_at_most n t`: repeat the given tactic at most n times or until t fails -/
 meta def iterate_at_most : nat → smt_tactic unit → smt_tactic unit
@@ -182,7 +171,7 @@ do s₁ ← get,
    return (s₁, s₂)
 
 protected meta def write : smt_state × tactic_state → smt_tactic unit :=
-λ ⟨ss, ts⟩ _ _, result.success ((), ss) ts
+λ ⟨ss, ts⟩, ⟨λ _ _, result.success ((), ss) ts⟩
 
 private meta def mk_smt_goals_for (cfg : smt_config) : list expr → list smt_goal → list expr
                                   → tactic (list smt_goal × list expr)
@@ -195,14 +184,14 @@ private meta def mk_smt_goals_for (cfg : smt_config) : list expr → list smt_go
 
 /- See slift -/
 meta def slift_aux {α : Type} (t : tactic α) (cfg : smt_config) : smt_tactic α :=
-λ ss, do
+⟨λ ss, do
    _::sgs  ← return ss | tactic.fail "slift tactic failed, there no smt goals to be solved",
    tg::tgs ← tactic.get_goals | tactic.failed,
    tactic.set_goals [tg], a ← t,
    new_tgs ← tactic.get_goals,
    (new_sgs, new_tgs) ← mk_smt_goals_for cfg new_tgs [] [],
    tactic.set_goals (new_tgs ++ tgs),
-   return (a, new_sgs ++ sgs)
+   return (a, new_sgs ++ sgs)⟩
 
 /--
   This lift operation will restart the SMT state.
@@ -225,7 +214,7 @@ do s ← get,
    return s.classical
 
 meta def num_goals : smt_tactic nat :=
-λ ss, return (ss.length, ss)
+list.length <$> get
 
 /- Low level primitives for managing set of goals -/
 meta def get_goals : smt_tactic (list smt_goal × list expr) :=
@@ -234,7 +223,7 @@ do (g₁, _) ← smt_tactic.read,
    return (g₁, g₂)
 
 meta def set_goals : list smt_goal → list expr → smt_tactic unit :=
-λ g₁ g₂ ss, tactic.set_goals g₂ >> return ((), g₁)
+λ g₁ g₂, ⟨λ ss, tactic.set_goals g₂ >> return ((), g₁)⟩
 
 private meta def all_goals_core (tac : smt_tactic unit) : list smt_goal → list expr → list smt_goal → list expr → smt_tactic unit
 | []        ts        acs act := set_goals acs (ts ++ act)
@@ -407,7 +396,7 @@ open smt_tactic
 
 meta def using_smt {α} (t : smt_tactic α) (cfg : smt_config := {}) : tactic α :=
 do ss ← smt_state.mk cfg,
-   (a, _) ← (do a ← t, iterate close, return a) ss,
+   (a, _) ← (do a ← t, iterate close, return a).run ss,
    return a
 
 meta def using_smt_with {α} (cfg : smt_config) (t : smt_tactic α) : tactic α :=

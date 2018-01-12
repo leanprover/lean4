@@ -9,8 +9,8 @@ import init.category.id
 import init.category.transformers
 universes u v w
 
-def state_t (σ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
-σ → m (α × σ)
+structure state_t (σ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
+(run' : σ → m (α × σ))
 
 @[reducible] def state (σ α : Type u) : Type u := state_t σ id α
 
@@ -22,25 +22,23 @@ section
   variables {α β : Type u}
 
   protected def run (st : σ) (x : state_t σ m α) : m (α × σ) :=
-  x st
+  state_t.run' x st
 
-  protected def return (a : α) : state_t σ m α :=
-  λ s, show m (α × σ), from
-    return (a, s)
+  protected def pure (a : α) : state_t σ m α :=
+  ⟨λ s, pure (a, s)⟩
 
   protected def bind (act₁ : state_t σ m α) (act₂ : α → state_t σ m β) : state_t σ m β :=
-  λ s, show m (β × σ), from
-     do (a, new_s) ← act₁ s,
-        act₂ a new_s
+  ⟨λ s, do (a, new_s) ← act₁.run s,
+           (act₂ a).run new_s⟩
 
   instance : monad (state_t σ m) :=
-  { pure := @state_t.return σ m _, bind := @state_t.bind σ m _ }
+  { pure := @state_t.pure σ m _, bind := @state_t.bind σ m _ }
 
   protected def orelse [alternative m] (α : Type u) (act₁ act₂ : state_t σ m α) : state_t σ m α :=
-  λ s, act₁ s <|> act₂ s
+  ⟨λ s, act₁.run s <|> act₂.run s⟩
 
   protected def failure [alternative m] (α : Type u) : state_t σ m α :=
-  λ s, failure
+  ⟨λ s, failure⟩
 
   instance [alternative m] : alternative (state_t σ m) :=
   { failure := @state_t.failure σ m _ _,
@@ -48,46 +46,52 @@ section
     ..state_t.monad }
 
   protected def get : state_t σ m σ :=
-  λ s, return (s, s)
+  ⟨λ s, return (s, s)⟩
 
   protected def put : σ → state_t σ m punit :=
-  λ s' s, return (punit.star, s')
+  λ s', ⟨λ s, return (punit.star, s')⟩
 
   protected def modify (f : σ → σ) : state_t σ m punit :=
-  λ s, return (punit.star, f s)
-
-  protected def embed {α : Type u} (x : state σ α) : state_t σ m α :=
-  pure ∘ x
+  ⟨λ s, return (punit.star, f s)⟩
 
   protected def lift {α : Type u} (t : m α) : state_t σ m α :=
-  λ s, do a ← t, return (a, s)
+  ⟨λ s, do a ← t, return (a, s)⟩
 
-  instance (m) [monad m] : has_monad_lift m (state_t σ m) :=
+  instance has_monad_lift_lift (m) [monad m] : has_monad_lift m (state_t σ m) :=
   ⟨@state_t.lift σ m _⟩
+
+  protected def map {σ m m'} [monad m] [monad m'] {α} (f : Π {α}, m α → m' α) : state_t σ m α → state_t σ m' α :=
+  λ x, ⟨λ st, f (x.run st)⟩
+
+  instance (σ m m') [monad m] [monad m'] : monad_functor m m' (state_t σ m) (state_t σ m') :=
+  ⟨@state_t.map σ m m' _ _⟩
 
   -- TODO(Sebastian): uses lenses as in https://hackage.haskell.org/package/lens-4.15.4/docs/Control-Lens-Zoom.html#t:Zoom ?
   protected def zoom {σ σ' α : Type u} {m : Type u → Type v} [monad m] (f : σ → σ') (f' : σ' → σ) (x : state_t σ' m α) : state_t σ m α :=
-  λ st, (λ p : α × σ', (p.fst, f' p.snd)) <$> x.run (f st)
+  ⟨λ st, (λ p : α × σ', (p.fst, f' p.snd)) <$> x.run (f st)⟩
 end
 end state_t
 
 @[reducible] protected def state.run {σ α : Type u} (st : σ) (x : state σ α) : α × σ :=
 state_t.run st x
 
-@[reducible] def monad_state (σ : out_param (Type u)) (m : Type u → Type u) [monad m] :=
-has_monad_lift_t (state σ) m
+class monad_state_lift (σ : out_param (Type u)) (m : out_param (Type u → Type v)) (n : Type u → Type w) :=
+[has_lift : has_monad_lift_t (state_t σ m) n]
+
+attribute [instance] monad_state_lift.mk
+local attribute [instance] monad_state_lift.has_lift
 
 section
-variables {σ : Type u} {m : Type u → Type u} [monad m] [monad_state σ m]
+variables {σ : Type u} {m : Type u → Type v} {n : Type u → Type w} [monad m] [monad_state_lift σ m n]
 
-@[inline] def get : m σ :=
-@monad_lift _ _ _ _ (state_t.get : state σ _)
+@[inline] def get : n σ :=
+@monad_lift _ _ _ _ (state_t.get : state_t σ m _)
 
-@[inline] def put (st : σ) : m punit :=
-monad_lift (state_t.put st : state σ _)
+@[inline] def put (st : σ) : n punit :=
+monad_lift (state_t.put st : state_t σ m _)
 
-@[inline] def modify (f : σ → σ) : m punit :=
-monad_lift (state_t.modify f : state σ _)
+@[inline] def modify (f : σ → σ) : n punit :=
+monad_lift (state_t.modify f : state_t σ m _)
 end
 
 class monad_state_functor (σ σ' : out_param (Type u)) (m : out_param (Type u → Type v)) (n n' : Type u → Type w) :=
@@ -98,9 +102,3 @@ local attribute [instance] monad_state_functor.functor
 
 def zoom {σ σ'} {m n n'} [monad m] {α : Type u} (f : σ → σ') (f' : σ' → σ) [monad_state_functor σ' σ m n n'] : n α → n' α :=
 monad_map $ λ α, (state_t.zoom f f' : state_t σ' m α → state_t σ m α)
-
-def map_state_t {σ m m'} [monad m] [monad m'] {α} (f : Π {α}, m α → m' α) : state_t σ m α → state_t σ m' α :=
-λ x st, f (x st)
-
-instance (σ m m') [monad m] [monad m'] : monad_functor m m' (state_t σ m) (state_t σ m') :=
-⟨@map_state_t σ m m' _ _⟩

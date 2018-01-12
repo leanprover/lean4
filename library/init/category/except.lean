@@ -34,9 +34,6 @@ section
   | (except.error err) := except.error err
   | (except.ok v) := f v
   end
-
-  instance monad : monad (except ε) :=
-  { map := @map, pure := @return, bind := @bind }
 end
 end except
 
@@ -52,14 +49,12 @@ section
   protected def return {α : Type u} (a : α) : except_t ε m α :=
   ⟨pure $ except.ok a⟩
 
-  protected def map {α β : Type u} (f : α → β) (ma : except_t ε m α) : except_t ε m β :=
-  ⟨has_map.map f <$> ma.run⟩
+  protected def bind_cont {α β : Type u} (f : α → except_t ε m β) : except ε α → m (except ε β)
+  | (except.ok a)    := (f a).run
+  | (except.error e) := pure (except.error e)
 
   protected def bind {α β : Type u} (ma : except_t ε m α) (f : α → except_t ε m β) : except_t ε m β :=
-  ⟨ma.run >>= λ res, match res with
-   | except.ok a    := (f a).run
-   | except.error e := pure (except.error e)
-   end⟩
+  ⟨ma.run >>= bind_cont f⟩
 
   protected def lift {α : Type u} (t : m α) : except_t ε m α :=
   ⟨except.ok <$> t⟩
@@ -71,7 +66,7 @@ section
    end⟩
 
   instance : monad (except_t ε m) :=
-  { pure := @return, map := @map, bind := @bind }
+  { pure := @return, bind := @bind }
 end
 
 instance (ε : Type u) : monad_transformer (except_t ε) :=

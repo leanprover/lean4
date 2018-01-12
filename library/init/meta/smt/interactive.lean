@@ -22,7 +22,7 @@ meta def step {α : Type} (tac : smt_tactic α) : smt_tactic unit :=
 tac >> solve_goals
 
 meta def istep {α : Type} (line0 col0 line col : nat) (tac : smt_tactic α) : smt_tactic unit :=
-λ ss ts, (@scope_trace _ line col (λ _, (tac >> solve_goals) ss ts)).clamp_pos line0 line col
+⟨λ ss ts, (@scope_trace _ line col (λ _, (tac >> solve_goals).run ss ts)).clamp_pos line0 line col⟩
 
 meta def execute (tac : smt_tactic unit) : tactic unit :=
 using_smt tac

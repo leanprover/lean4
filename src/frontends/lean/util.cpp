@@ -351,10 +351,6 @@ pair<name, option_kind> parse_option_name(parser & p, char const * error_msg) {
     return mk_pair(id, it->kind());
 }
 
-expr mk_tactic_unit() {
-    return mk_app(mk_constant(get_tactic_name(), {mk_level_zero()}), mk_constant(get_unit_name()));
-}
-
 expr quote(unsigned u) {
     return mk_prenum(mpz(u));
 }

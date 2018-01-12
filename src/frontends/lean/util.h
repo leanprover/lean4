@@ -104,9 +104,6 @@ char const * close_binder_string(binder_info const & bi, bool unicode);
 /** \brief Parse option name */
 pair<name, option_kind> parse_option_name(parser & p, char const * error_msg);
 
-/** Create (tactic unit) type */
-expr mk_tactic_unit();
-
 expr quote(unsigned u);
 expr quote(char const * str);
 expr quote(name const & n);

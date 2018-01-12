@@ -1187,17 +1187,6 @@ static expr mk_thunk_if_needed(expr const & e, optional<expr> const & is_thunk) 
         return e;
 }
 
-static optional<name> name_lit_to_name(expr const & name_lit) {
-    if (is_constant(name_lit, get_name_anonymous_name()))
-        return optional<name>(name());
-    if (is_app_of(name_lit, get_name_mk_string_name(), 2)) {
-        if (auto str = to_string(app_arg(app_fn(name_lit))))
-        if (auto p   = name_lit_to_name(app_arg(name_lit)))
-            return optional<name>(name(*p, str->c_str()));
-    }
-    return optional<name>();
-}
-
 expr elaborator::mk_auto_param(expr const & name_lit, expr const & expected_type, expr const & ref) {
     auto c = name_lit_to_name(name_lit);
     if (!c)

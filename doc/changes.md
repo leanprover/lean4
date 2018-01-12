@@ -86,6 +86,12 @@ master branch (aka work in progress branch)
   See [issue #1794](https://github.com/leanprover/lean/issues/1794).
   The command `set_option type_context.smart_unfolding false` disables this feature.
 
+* Add support for "auto params" at `simp` tactic. Example: given
+  ```
+  @[simp] lemma fprop1 (x : nat) (h : x > 0 . tactic.assumption) : f x = x := ...
+  ```
+  The simplifier will try to use tactic `assumption` to synthesize parameter `h`.
+
 *Changes*
 
 * Replace `inout` modifier in type class declarations with `out_param` modifier.

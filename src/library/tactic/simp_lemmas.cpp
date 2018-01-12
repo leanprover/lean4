@@ -24,10 +24,10 @@ Author: Leonardo de Moura
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_format.h"
 #include "library/tactic/eqn_lemmas.h"
-#include "library/tactic/simp_result.h"
-#include "library/tactic/simp_util.h"
-#include "library/tactic/simp_lemmas.h"
 #include "library/tactic/tactic_state.h"
+#include "library/tactic/simp_result.h"
+#include "library/tactic/simp_lemmas.h"
+#include "library/tactic/simp_util.h"
 
 namespace lean {
 LEAN_THREAD_VALUE(bool, g_throw_ex, false);

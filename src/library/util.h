@@ -316,6 +316,12 @@ name mk_aux_meta_rec_name(name const & n);
 /** Return some(n') if \c n is a name created using mk_aux_meta_rec_name(n') */
 optional<name> is_aux_meta_rec_name(name const & n);
 
+/** Convert an expression representing a `name` literal into a `name` object. */
+optional<name> name_lit_to_name(expr const & name_lit);
+
+/** Return (tactic unit) type */
+expr mk_tactic_unit();
+
 void initialize_library_util();
 void finalize_library_util();
 }

@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "library/projection.h"
 #include "library/replace_visitor.h"
 #include "library/type_context.h"
+#include "library/string.h"
 
 namespace lean {
 /** \brief Return the "arity" of the given type. The arity is the number of nested pi-expressions. */
@@ -1086,6 +1087,23 @@ optional<name> is_aux_meta_rec_name(name const & n) {
     }
 }
 
+optional<name> name_lit_to_name(expr const & name_lit) {
+    if (is_constant(name_lit, get_name_anonymous_name()))
+        return optional<name>(name());
+    if (is_app_of(name_lit, get_name_mk_string_name(), 2)) {
+        if (auto str = to_string(app_arg(app_fn(name_lit))))
+        if (auto p   = name_lit_to_name(app_arg(name_lit)))
+            return optional<name>(name(*p, str->c_str()));
+    }
+    return optional<name>();
+}
+
+static expr * g_tactic_unit = nullptr;
+
+expr mk_tactic_unit() {
+    return *g_tactic_unit;
+}
+
 void initialize_library_util() {
     g_true           = new expr(mk_constant(get_true_name()));
     g_true_intro     = new expr(mk_constant(get_true_intro_name()));
@@ -1093,6 +1111,7 @@ void initialize_library_util() {
     g_and_intro      = new expr(mk_constant(get_and_intro_name()));
     g_and_elim_left  = new expr(mk_constant(get_and_elim_left_name()));
     g_and_elim_right = new expr(mk_constant(get_and_elim_right_name()));
+    g_tactic_unit    = new expr(mk_app(mk_constant(get_tactic_name(), {mk_level_zero()}), mk_constant(get_unit_name())));
     initialize_nat();
     initialize_int();
     initialize_char();
@@ -1110,5 +1129,6 @@ void finalize_library_util() {
     delete g_and_intro;
     delete g_and_elim_left;
     delete g_and_elim_right;
+    delete g_tactic_unit;
 }
 }

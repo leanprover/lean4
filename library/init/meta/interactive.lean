@@ -814,6 +814,11 @@ Closes the main goal using `sorry`.
 meta def admit : tactic unit := tactic.admit
 
 /--
+Closes the main goal using `sorry`.
+-/
+meta def «sorry» : tactic unit := tactic.admit
+
+/--
 The contradiction tactic attempts to find in the current local context a hypothesis that is equivalent to an empty inductive type (e.g. `false`), a hypothesis of the form `c_1 ... = c_2 ...` where `c_1` and `c_2` are distinct constructors, or two contradictory hypotheses.
 -/
 meta def contradiction : tactic unit :=

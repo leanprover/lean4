@@ -6,3 +6,4 @@ vm_sorry.lean:12:0: error: undefined
 vm_sorry.lean:18:0: warning: declaration '[anonymous]' uses sorry
 vm_sorry.lean:19:0: warning: declaration '[anonymous]' uses sorry
 vm_sorry.lean:20:0: warning: declaration '[anonymous]' uses sorry
+vm_sorry.lean:21:0: warning: declaration '[anonymous]' uses sorry

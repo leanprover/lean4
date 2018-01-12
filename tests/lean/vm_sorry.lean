@@ -18,3 +18,4 @@ run_cmd (do v ← to_expr ``(half_baked ff) >>= whnf,
 example : 0 = 1 := by admit
 example : 0 = 1 := by mk_sorry >>= exact
 example : 0 = 1 := by exact sorry
+example : 0 = 1 := by sorry

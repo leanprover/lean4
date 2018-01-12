@@ -92,6 +92,8 @@ master branch (aka work in progress branch)
   ```
   The simplifier will try to use tactic `assumption` to synthesize parameter `h`.
 
+* Add interactive `sorry` tactic (alias for `admit`).
+
 *Changes*
 
 * Replace `inout` modifier in type class declarations with `out_param` modifier.

@@ -1,5 +1,1 @@
-bad_error5.lean:13:10: error: don't know how to synthesize placeholder
-context:
-c : S
-⊢ Type ?
-bad_error5.lean:13:10: error: _interaction._lambda_3: trying to evaluate sorry
+bad_error5.lean:9:0: warning: declaration 'V' uses sorry

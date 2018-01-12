@@ -8,14 +8,14 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "library/app_builder.h"
 #include "library/trace.h"
+#include "library/inductive_compiler/ginductive.h"
 
 namespace lean {
 optional<expr> mk_constructor_eq_constructor_inconsistency_proof(type_context & ctx, expr const & e1, expr const & e2, expr const & h) {
-    // TODO(Leo, Daniel): add support for generalized inductive datatypes
     environment const & env = ctx.env();
-    optional<name> c1 = is_constructor_app(env, e1);
+    optional<name> c1 = is_gintro_rule_app(env, e1);
     if (!c1) return none_expr();
-    optional<name> c2 = is_constructor_app(env, e2);
+    optional<name> c2 = is_gintro_rule_app(env, e2);
     if (!c2) return none_expr();
     if (*c1 == *c2) return none_expr();
     expr A = ctx.relaxed_whnf(ctx.infer(e1));

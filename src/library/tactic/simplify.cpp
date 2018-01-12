@@ -34,6 +34,7 @@ Author: Daniel Selsam, Leonardo de Moura
 #include "library/congr_lemma.h"
 #include "library/fun_info.h"
 #include "library/constructions/constructor.h"
+#include "library/inductive_compiler/ginductive.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_option.h"
 #include "library/vm/vm_list.h"
@@ -775,9 +776,9 @@ simp_result simplify_core_fn::simplify_constructor_eq_constructor(simp_result co
     expr lhs, rhs;
     if (!is_eq(r.get_new(), lhs, rhs))
         return r;
-    optional<name> c1 = is_constructor_app(m_ctx.env(), lhs);
+    optional<name> c1 = is_gintro_rule_app(m_ctx.env(), lhs);
     if (!c1) return r;
-    optional<name> c2 = is_constructor_app(m_ctx.env(), rhs);
+    optional<name> c2 = is_gintro_rule_app(m_ctx.env(), rhs);
     if (!c2) return r;
 
     if (*c1 != *c2) {

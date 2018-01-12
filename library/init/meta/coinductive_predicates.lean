@@ -566,7 +566,6 @@ Current version: do not support mutual inductive rules (i.e. only a since C -/
 meta def coinduction (rule : expr) : tactic unit := focus1 $
 do
   ctxts' ← intros,
-  -- TODO: why do we need to fix the type here?
   ctxts ← ctxts'.mmap (λv,
     local_const v.local_uniq_name v.local_pp_name v.local_binder_info <$> infer_type v),
   mvars ← apply_core rule {approx := ff, new_goals := new_goals.all},

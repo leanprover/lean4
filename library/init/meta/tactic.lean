@@ -1142,7 +1142,8 @@ meta def funext_core : list name → bool → tactic unit
    do some (lhs, rhs) ← expr.is_eq <$> (target >>= whnf),
       applyc `funext,
       id ← if ids.empty ∨ ids.head = `_ then do
-             (expr.lam n _ _ _) ← whnf lhs,
+             (expr.lam n _ _ _) ← whnf lhs
+               | pure `_,
              return n
            else return ids.head,
       intro id,

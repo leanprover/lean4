@@ -60,15 +60,11 @@ end
 lemma eq_some_of_to_value_eq_some {e : option (α × β)} {v : β} : to_value e = some v → ∃ k, e = some (k, v) :=
 begin
   cases e with val; simp [to_value],
-    { contradiction },
     { cases val, simp, intro h, injection h, subst v, constructor, refl }
 end
 
 lemma eq_none_of_to_value_eq_none {e : option (α × β)} : to_value e = none → e = none :=
-begin
-  cases e; simp [to_value],
-  { contradiction }
-end
+by cases e; simp [to_value]
 
 /- Lemmas -/
 
@@ -97,7 +93,6 @@ end
 lemma mem_of_find_entry_some [is_strict_weak_order α lt] {k₁ : α} {e : α × β} {m : rbmap α β lt} : m.find_entry k₁ = some e → k₁ ∈ m :=
 begin
   cases m with t p, cases t; simp [find_entry],
-  { intros, contradiction },
   all_goals { intro h, exact rbtree.mem_of_find_some h }
 end
 
@@ -125,7 +120,7 @@ begin
     have h   := to_rbtree_mem h, cases h with v h₁,
     have hex := iff.mp (rbtree.find_correct _ _) h₁, cases hex with e h₂,
     existsi e, cases t; simp [find_entry] at ⊢ h₂,
-    { simp [rbtree.find, rbnode.find] at h₂, cases h₂, contradiction },
+    { simp [rbtree.find, rbnode.find] at h₂, cases h₂ },
     { cases h₂ with h₂₁ h₂₂, split,
       { have := rbtree.find_eq_find_of_eqv ⟨rbnode.red_node t_lchild t_val t_rchild, p⟩ (eqv_entries k v t_val.2),
         rw [←this], exact h₂₁ },
@@ -143,7 +138,6 @@ end
 lemma eqv_of_find_entry_some [is_strict_weak_order α lt] {k₁ k₂ : α} {v : β} {m : rbmap α β lt} : m.find_entry k₁ = some (k₂, v) → k₁ ≈[lt] k₂ :=
 begin
   cases m with t p, cases t; simp [find_entry],
-  { contradiction },
   all_goals { intro h, exact eqv_keys_of_eqv_entries (rbtree.eqv_of_find_some h) }
 end
 

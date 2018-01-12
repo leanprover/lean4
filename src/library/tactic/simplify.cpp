@@ -33,6 +33,7 @@ Author: Daniel Selsam, Leonardo de Moura
 #include "library/app_builder.h"
 #include "library/congr_lemma.h"
 #include "library/fun_info.h"
+#include "library/constructions/constructor.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_option.h"
 #include "library/vm/vm_list.h"
@@ -74,6 +75,7 @@ simp_config::simp_config():
     m_eta(true),
     m_proj(true),
     m_iota(true),
+    m_constructor_eq(true),
     m_single_pass(false),
     m_fail_if_unchanged(true),
     m_memoize(true) {
@@ -91,9 +93,10 @@ simp_config::simp_config(vm_obj const & obj) {
     m_eta                = to_bool(cfield(obj, 8));
     m_proj               = to_bool(cfield(obj, 9));
     m_iota               = to_bool(cfield(obj, 10));
-    m_single_pass        = to_bool(cfield(obj, 11));
-    m_fail_if_unchanged  = to_bool(cfield(obj, 12));
-    m_memoize            = to_bool(cfield(obj, 13));
+    m_constructor_eq     = to_bool(cfield(obj, 11));
+    m_single_pass        = to_bool(cfield(obj, 12));
+    m_fail_if_unchanged  = to_bool(cfield(obj, 13));
+    m_memoize            = to_bool(cfield(obj, 14));
 }
 
 /* -----------------------------------
@@ -667,6 +670,9 @@ simp_result simplify_core_fn::visit(expr const & e, optional<expr> const & paren
             break;
         }
 
+        if (m_cfg.m_constructor_eq)
+            new_result = simplify_constructor_eq_constructor(new_result);
+
         if (auto r2 = post(new_result.get_new(), parent)) {
             if (!r2->second) {
                 curr_result = join(new_result, r2->first);
@@ -761,6 +767,31 @@ simp_result simplify_core_fn::visit_app(expr const & _e) {
     }
 
     return simp_result(e);
+}
+
+simp_result simplify_core_fn::simplify_constructor_eq_constructor(simp_result const & r) {
+    if (m_rel != get_eq_name())
+        return r; /* TODO(Leo): we can add support for <-> */
+    expr lhs, rhs;
+    if (!is_eq(r.get_new(), lhs, rhs))
+        return r;
+    optional<name> c1 = is_constructor_app(m_ctx.env(), lhs);
+    if (!c1) return r;
+    optional<name> c2 = is_constructor_app(m_ctx.env(), rhs);
+    if (!c2) return r;
+
+    if (*c1 != *c2) {
+        if (optional<expr> not_eq_prf = mk_constructor_ne_constructor_proof(m_ctx, lhs, rhs)) {
+            expr eq_false_prf = mk_app(m_ctx, get_eq_false_intro_name(), *not_eq_prf);
+            simp_result new_r(mk_false(), eq_false_prf);
+            return join_eq(m_ctx, r, new_r);
+        } else {
+            return r;
+        }
+    } else {
+        /* TODO(Leo) */
+        return r;
+    }
 }
 
 optional<expr> simplify_core_fn::prove(expr const &) {

@@ -207,9 +207,9 @@ end
 lemma ins_ne_leaf (t : rbnode α) (x : α) : t.ins lt x ≠ leaf :=
 begin
   apply ins.induction lt t x,
-  any_goals { intros, simp [ins, *], contradiction},
-  { intros, simp [ins, *], apply balance1_node_ne_leaf, assumption },
-  { intros, simp [ins, *], apply balance2_node_ne_leaf, assumption },
+  any_goals { intros, simp [ins, *] },
+  { intros, apply balance1_node_ne_leaf, assumption },
+  { intros, apply balance2_node_ne_leaf, assumption },
 end
 
 lemma insert_ne_leaf (t : rbnode α) (x : α) : insert lt t x ≠ leaf :=
@@ -217,7 +217,6 @@ begin
   simp [insert],
   cases he : ins lt t x; cases get_color t; simp [mk_insert_result],
   { have := ins_ne_leaf lt t x, contradiction },
-  any_goals { contradiction },
   { exact absurd he (ins_ne_leaf _ _ _) }
 end
 

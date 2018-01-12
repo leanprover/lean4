@@ -10,25 +10,6 @@ set_option default_priority 100
 universes u
 
 namespace ordering
-/- Delete the following simp lemmas as soon as we improve the simplifier. -/
-@[simp] lemma lt_ne_eq : ordering.lt ≠ ordering.eq :=
-by contradiction
-
-@[simp] lemma lt_ne_gt : ordering.lt ≠ ordering.gt :=
-by contradiction
-
-@[simp] lemma eq_ne_lt : ordering.eq ≠ ordering.lt :=
-by contradiction
-
-@[simp] lemma eq_ne_gt : ordering.eq ≠ ordering.gt :=
-by contradiction
-
-@[simp] lemma gt_ne_lt : ordering.gt ≠ ordering.lt :=
-by contradiction
-
-@[simp] lemma gt_ne_eq : ordering.gt ≠ ordering.eq :=
-by contradiction
-
 @[simp] theorem ite_eq_lt_distrib (c : Prop) [decidable c] (a b : ordering) : ((if c then a else b) = ordering.lt) = (if c then a = ordering.lt else b = ordering.lt) :=
 by by_cases c; simp [*]
 

@@ -26,6 +26,7 @@ structure simp_config :=
 (eta  : bool)
 (proj : bool)
 (iota : bool)
+(constructor_eq : bool)
 (single_pass : bool)
 (fail_if_unchaged : bool)
 (memoize : bool)
@@ -42,6 +43,7 @@ struct simp_config {
     bool                      m_eta;
     bool                      m_proj;
     bool                      m_iota;
+    bool                      m_constructor_eq;
     bool                      m_single_pass;
     bool                      m_fail_if_unchanged;
     bool                      m_memoize;
@@ -117,6 +119,10 @@ protected:
     simp_result rewrite(expr const & e, simp_lemma const & sl);
     simp_result rewrite_core(expr const & e, simp_lemma const & sl);
     simp_result propext_rewrite(expr const & e);
+
+    /* Simplify equalities of the form (c ... = c' ...) where `c` and `c'` are
+       constructors. */
+    simp_result simplify_constructor_eq_constructor(simp_result const & r);
 
     /* Visitors */
     virtual optional<pair<simp_result, bool>> pre(expr const & e, optional<expr> const & parent);

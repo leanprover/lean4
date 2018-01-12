@@ -94,6 +94,9 @@ master branch (aka work in progress branch)
 
 * Add interactive `sorry` tactic (alias for `admit`).
 
+* `simp` now reduces equalities `c_1 ... = c_2 ...` to `false` if `c_1` and `c_2` are distinct
+   constructors. This feature can be disabled using `simp {constructor_eq := ff}`.
+
 *Changes*
 
 * Replace `inout` modifier in type class declarations with `out_param` modifier.

@@ -211,6 +211,7 @@ structure simp_config :=
 (eta  : bool               := tt)
 (proj : bool               := tt) -- reduce projections
 (iota : bool               := tt)
+(constructor_eq : bool     := tt)
 (single_pass : bool        := ff)
 (fail_if_unchanged         := tt)
 (memoize                   := tt)

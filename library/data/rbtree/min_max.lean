@@ -37,7 +37,6 @@ begin
   { intros, refl },
   all_goals {
     cases t_lchild; simp [rbnode.min]; intro h,
-    { contradiction },
     all_goals { have := t_ih_lchild h, contradiction } }
 end
 
@@ -47,7 +46,6 @@ begin
   { intros, refl },
   all_goals {
     cases t_rchild; simp [rbnode.max]; intro h,
-    { contradiction },
     all_goals { have := t_ih_rchild h, contradiction } }
 end
 

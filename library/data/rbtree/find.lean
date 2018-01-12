@@ -40,7 +40,7 @@ end
 lemma find_correct {t : rbnode α} {lt x} [decidable_rel lt] [is_strict_weak_order α lt] : ∀ {lo hi} (hs : is_searchable lt t lo hi), mem lt x t ↔ ∃ y, find lt t x = some y ∧ x ≈[lt] y :=
 begin
   apply find.induction lt t x; intros; simp only [mem, find, *],
-  { simp, intro h, cases h with _ h, cases h, contradiction },
+  { simp, intro h, cases h with _ h, cases h },
   iterate 2 { -- red and black cases are identical
     {
       cases hs,
@@ -86,7 +86,6 @@ end
 lemma find_correct_exact {t : rbnode α} {lt x} [decidable_rel lt] [is_strict_weak_order α lt] : ∀ {lo hi} (hs : is_searchable lt t lo hi), mem_exact x t ↔ find lt t x = some x :=
 begin
   apply find.induction lt t x; intros; simp only [mem_exact, find, *],
-  { simp, intro h, contradiction },
   iterate 2 {
     {
       cases hs,
@@ -136,7 +135,6 @@ end
 lemma eqv_of_find_some {t : rbnode α} {lt x y} [decidable_rel lt] [is_strict_weak_order α lt] : ∀ {lo hi} (hs : is_searchable lt t lo hi) (he : find lt t x = some y), x ≈[lt] y :=
 begin
   apply find.induction lt t x; intros; simp only [mem, find, *] at *,
-  { contradiction },
   iterate 2 {
     { cases hs, exact ih hs_hs₁ rfl },
     { injection he, subst y, simp at h, exact h },

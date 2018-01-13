@@ -34,6 +34,7 @@ Author: Daniel Selsam, Leonardo de Moura
 #include "library/congr_lemma.h"
 #include "library/fun_info.h"
 #include "library/constructions/constructor.h"
+#include "library/constructions/injective.h"
 #include "library/inductive_compiler/ginductive.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_option.h"
@@ -671,10 +672,10 @@ simp_result simplify_core_fn::visit(expr const & e, optional<expr> const & paren
             break;
         }
 
-        if (m_cfg.m_constructor_eq)
-            new_result = simplify_constructor_eq_constructor(new_result);
-
-        if (auto r2 = post(new_result.get_new(), parent)) {
+        if (m_cfg.m_constructor_eq && simplify_constructor_eq_constructor(new_result)) {
+            curr_result = new_result;
+            /* continue simplifying */
+        } else if (auto r2 = post(new_result.get_new(), parent)) {
             if (!r2->second) {
                 curr_result = join(new_result, r2->first);
                 break;
@@ -770,28 +771,60 @@ simp_result simplify_core_fn::visit_app(expr const & _e) {
     return simp_result(e);
 }
 
-simp_result simplify_core_fn::simplify_constructor_eq_constructor(simp_result const & r) {
+bool simplify_core_fn::simplify_constructor_eq_constructor(simp_result & r) {
     if (m_rel != get_eq_name())
-        return r; /* TODO(Leo): we can add support for <-> */
-    expr lhs, rhs;
-    if (!is_eq(r.get_new(), lhs, rhs))
-        return r;
+        return false; /* TODO(Leo): we can add support for <-> */
+    expr A, lhs, rhs;
+    if (!is_eq(r.get_new(), A, lhs, rhs))
+        return false;
     optional<name> c1 = is_gintro_rule_app(m_ctx.env(), lhs);
-    if (!c1) return r;
+    if (!c1) return false;
     optional<name> c2 = is_gintro_rule_app(m_ctx.env(), rhs);
-    if (!c2) return r;
+    if (!c2) return false;
 
     if (*c1 != *c2) {
         if (optional<expr> not_eq_prf = mk_constructor_ne_constructor_proof(m_ctx, lhs, rhs)) {
             expr eq_false_prf = mk_app(m_ctx, get_eq_false_intro_name(), *not_eq_prf);
             simp_result new_r(mk_false(), eq_false_prf);
-            return join_eq(m_ctx, r, new_r);
+            r = join_eq(m_ctx, r, new_r);
+            return true;
         } else {
-            return r;
+            return false;
         }
     } else {
-        /* TODO(Leo) */
-        return r;
+        A = whnf_ginductive(m_ctx, A);
+        expr const & A_fn   = get_app_fn(A);
+        if (!is_constant(A_fn) || !is_ginductive(m_ctx.env(), const_name(A_fn)))
+            return false;
+        unsigned A_nparams = get_ginductive_num_params(m_ctx.env(), const_name(A_fn));
+        if (get_app_num_args(lhs) <= A_nparams)
+            return false;
+        name inj_eq_name = mk_injective_eq_name(*c1);
+        optional<declaration> inj_eq_decl = m_ctx.env().find(inj_eq_name);
+        if (!inj_eq_decl)
+            return false;
+        /* We use the `*.inj` lemma for computing the arguments for `*.inj_eq` lemma. */
+        try {
+            name inj_name = mk_injective_name(*c1);
+            optional<declaration> inj_decl = m_ctx.env().find(inj_name);
+            if (!inj_decl)
+                return false;
+            unsigned inj_arity = get_arity(inj_decl->get_type());
+            type_context::tmp_locals locals(m_ctx);
+            expr H   = locals.push_local("_h", r.get_new());
+            expr inj = mk_app(m_ctx, inj_name, inj_arity, H);
+            buffer<expr> inj_args;
+            expr const & inj_fn = get_app_args(inj, inj_args);
+            expr inj_eq_pr = mk_app(mk_constant(inj_eq_name, const_levels(inj_fn)), inj_args.size() - 1, inj_args.data());
+            expr inj_eq    = m_ctx.infer(inj_eq_pr);
+            expr new_lhs, new_rhs;
+            lean_verify(is_eq(inj_eq, new_lhs, new_rhs));
+            simp_result new_r(new_rhs, inj_eq_pr);
+            r = join_eq(m_ctx, r, new_r);
+            return true;
+        } catch (exception &) {
+            return false;
+        }
     }
 }
 

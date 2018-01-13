@@ -1554,6 +1554,7 @@ class add_nested_inductive_decl_fn {
         cfg.m_canonize_proofs    = false;
         cfg.m_use_axioms         = false;
         cfg.m_zeta               = false;
+        cfg.m_constructor_eq     = false;
         return cfg;
     }
 

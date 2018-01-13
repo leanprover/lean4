@@ -15,7 +15,7 @@ begin
    { intros, contradiction },
    all_goals {
      cases t_lchild; simp [rbnode.min]; intro h,
-     { injection h, subst t_val, simp [mem, irrefl_of lt a] },
+     { subst t_val, simp [mem, irrefl_of lt a] },
      all_goals { rw [mem], simp [t_ih_lchild h] } }
 end
 
@@ -25,7 +25,7 @@ begin
    { intros, contradiction },
    all_goals {
      cases t_rchild; simp [rbnode.max]; intro h,
-     { injection h, subst t_val, simp [mem, irrefl_of lt a] },
+     { subst t_val, simp [mem, irrefl_of lt a] },
      all_goals { rw [mem], simp [t_ih_rchild h] } }
 end
 
@@ -55,7 +55,7 @@ begin
   { simp [strict_weak_order.equiv], intros _ _ hs hmin b, contradiction },
   all_goals {
     cases t_lchild; intros lo hi hs hmin b hmem,
-    { simp [rbnode.min] at hmin, injection hmin, subst t_val,
+    { simp [rbnode.min] at hmin, subst t_val,
       simp [mem] at hmem, cases hmem with heqv hmem,
       { left, exact heqv.swap },
       { have := lt_of_mem_right hs (by constructor) hmem,
@@ -80,7 +80,7 @@ begin
   { simp [strict_weak_order.equiv], intros _ _ hs hmax b, contradiction },
   all_goals {
     cases t_rchild; intros lo hi hs hmax b hmem,
-    { simp [rbnode.max] at hmax, injection hmax, subst t_val,
+    { simp [rbnode.max] at hmax, subst t_val,
       simp [mem] at hmem, cases hmem with hmem heqv,
       { have := lt_of_mem_left hs (by constructor) hmem,
         right, assumption },

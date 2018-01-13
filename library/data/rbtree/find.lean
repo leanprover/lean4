@@ -114,7 +114,7 @@ begin
         { have hyx : lift lt (some y) (some x) := (range hs_hs₂ (mem_of_mem_exact hm)).1,
           simp [lift] at hyx,
           exact absurd hyx h.2 } },
-      { intro hm, injection hm, simp [*] } },
+      { intro hm, simp [*] } },
     {
       cases hs,
       apply iff.intro,
@@ -137,7 +137,7 @@ begin
   apply find.induction lt t x; intros; simp only [mem, find, *] at *,
   iterate 2 {
     { cases hs, exact ih hs_hs₁ rfl },
-    { injection he, subst y, simp at h, exact h },
+    { subst y, simp at h, exact h },
     { cases hs, exact ih hs_hs₂ rfl } }
 end
 

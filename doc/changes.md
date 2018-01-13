@@ -97,6 +97,9 @@ master branch (aka work in progress branch)
 * `simp` now reduces equalities `c_1 ... = c_2 ...` to `false` if `c_1` and `c_2` are distinct
    constructors. This feature can be disabled using `simp {constructor_eq := ff}`.
 
+* `simp` now reduces equalities `c a_1 ... a_n = c b_1 ... b_n` to `a_1 = b_1 /\ ... /\ a_n = b_n` if `c` is a constructor.
+   This feature can be disabled using `simp {constructor_eq := ff}`.
+
 * `subst` and `subst_vars` now support heterogeneous equalities that are actually homogeneous
    (i.e., `@heq α a β b` where `α` and `β` are definitionally equal).
 

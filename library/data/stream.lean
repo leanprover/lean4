@@ -464,7 +464,7 @@ theorem take_theorem (s₁ s₂ : stream α) : (∀ (n : nat), approx n s₁ = a
 begin
   intro h, apply stream.ext, intro n,
   induction n with n ih,
-  { have aux := h 1, unfold approx at aux, injection aux },
+  { have aux := h 1, simp [approx] at aux, exact aux },
   { have h₁ : some (nth (succ n) s₁) = some (nth (succ n) s₂),
     { rw [← nth_approx, ← nth_approx, h (succ (succ n))] },
     injection h₁ }

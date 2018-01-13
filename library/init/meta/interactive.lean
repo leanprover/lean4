@@ -1390,6 +1390,7 @@ structure unfold_config extends simp_config :=
 (proj               := ff)
 (eta                := ff)
 (canonize_instances := ff)
+(constructor_eq     := ff)
 
 namespace interactive
 open interactive interactive.types expr
@@ -1630,7 +1631,7 @@ by tactic.mk_inj_eq
 lemma psigma.mk.inj_eq {α : Sort u} {β : α → Sort v} (a₁ : α) (b₁ : β a₁) (a₂ : α) (b₂ : β a₂) : (psigma.mk a₁ b₁ = psigma.mk a₂ b₂) = (a₁ = a₂ ∧ b₁ == b₂) :=
 by tactic.mk_inj_eq
 
-lemma subtype.mk.inj_eq {α : Type u} {p : α → Prop} (a₁ : α) (h₁ : p a₁) (a₂ : α) (h₂ : p a₂) : (subtype.mk a₁ h₁ = subtype.mk a₂ h₂) = (a₁ = a₂) :=
+lemma subtype.mk.inj_eq {α : Sort u} {p : α → Prop} (a₁ : α) (h₁ : p a₁) (a₂ : α) (h₂ : p a₂) : (subtype.mk a₁ h₁ = subtype.mk a₂ h₂) = (a₁ = a₂) :=
 by tactic.mk_inj_eq
 
 lemma option.some.inj_eq {α : Type u} (a₁ a₂ : α) : (some a₁ = some a₂) = (a₁ = a₂) :=

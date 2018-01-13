@@ -11,8 +11,6 @@ end
 example : ¬ term.var "a" = term.app "f" [] :=
 by simp
 
-#check @term.app.inj_eq
-
 universes u
 
 inductive vec (α : Type u) : nat → Type u
@@ -35,3 +33,21 @@ with Expr_list : Type
 | cons : Expr → Expr_list → Expr_list
 
 #check @Expr.app.inj_eq
+
+example {α : Type u} (n : nat) (a₁ a₂ : α) (t : vec α n) (h : vec.cons a₁ t = vec.cons a₂ t) : a₁ = a₂ :=
+begin
+  simp at h,
+  exact h
+end
+
+example (a₁ a₂ : nat) (h₁ : a₁ > 0) (h₂ : a₂ > 0) (h : a₁ = a₂) : subtype.mk a₁ h₁ = subtype.mk a₂ h₂ :=
+begin
+  simp,
+  exact h
+end
+
+example (a₁ a₂ : nat) (h₁ : a₁ > 0) (h₂ : a₂ > 0) (h : subtype.mk a₁ h₁ = subtype.mk a₂ h₂) : a₁ = a₂ :=
+begin
+  simp at h,
+  exact h
+end

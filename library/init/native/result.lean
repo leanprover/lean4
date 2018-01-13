@@ -67,7 +67,7 @@ section resultT
    bind_assoc := begin
      intros,
      cases x, simp,
-     apply congr_arg, rw [monad.bind_assoc],
+     rw [monad.bind_assoc],
      apply congr_arg, funext,
      cases x with e a; simp,
      { cases f a, refl },

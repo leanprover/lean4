@@ -121,8 +121,10 @@ protected:
     simp_result propext_rewrite(expr const & e);
 
     /* Simplify equalities of the form (c ... = c' ...) where `c` and `c'` are
-       constructors. */
-    simp_result simplify_constructor_eq_constructor(simp_result const & r);
+       constructors.
+
+       Return true if `r` was simplified. */
+    bool simplify_constructor_eq_constructor(simp_result & r);
 
     /* Visitors */
     virtual optional<pair<simp_result, bool>> pre(expr const & e, optional<expr> const & parent);

@@ -461,11 +461,23 @@ class add_mutual_inductive_decl_fn {
                 if (!static_cast<bool>(m_env.find(mk_injective_name(mlocal_name(m_basic_decl.get_intro_rule(0, basic_ir_idx)))))) {
                     return;
                 }
-                expr inj_and_type = mk_injective_type(m_env, mlocal_name(ir), Pi(m_mut_decl.get_params(), mlocal_type(ir)), m_mut_decl.get_num_params(), to_list(m_mut_decl.get_lp_names()));
+                level_param_names lp_names = to_list(m_mut_decl.get_lp_names());
+                unsigned num_params = m_mut_decl.get_num_params();
+                name ir_name  = mlocal_name(ir);
+                expr ir_type  = Pi(m_mut_decl.get_params(), mlocal_type(ir));
+                expr inj_and_type = mk_injective_type(m_env, ir_name, ir_type, num_params, lp_names);
                 expr inj_and_val = mk_constant(mk_injective_name(mlocal_name(m_basic_decl.get_intro_rule(0, basic_ir_idx))), m_mut_decl.get_levels());
-                lean_trace(name({"inductive_compiler", "mutual", "injective"}), tout() << mk_injective_name(mlocal_name(ir)) << " : " << inj_and_type << " :=\n  " << inj_and_val << "\n";);
-                m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, mk_injective_name(mlocal_name(ir)), to_list(m_mut_decl.get_lp_names()), inj_and_type, inj_and_val, true)));
-                m_env = mk_injective_arrow(m_env, mlocal_name(ir));
+                lean_trace(name({"inductive_compiler", "mutual", "injective"}), tout() << mk_injective_name(ir_name) << " : " << inj_and_type << " :=\n  " << inj_and_val << "\n";);
+                m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, mk_injective_name(ir_name), lp_names, inj_and_type, inj_and_val, true)));
+                m_env = mk_injective_arrow(m_env, ir_name);
+
+                if (m_env.find(get_tactic_mk_inj_eq_name())) {
+                    name inj_eq_name  = mk_injective_eq_name(ir_name);
+                    expr inj_eq_type  = mk_injective_eq_type(m_env, ir_name, ir_type, num_params, lp_names);
+                    expr inj_eq_value = prove_injective_eq(m_env, inj_eq_type, inj_eq_name);
+                    m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, inj_eq_name, lp_names, inj_eq_type, inj_eq_value, true)));
+                }
+
                 m_tctx.set_env(m_env);
                 basic_ir_idx++;
             }

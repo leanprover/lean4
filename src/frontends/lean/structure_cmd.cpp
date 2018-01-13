@@ -1258,7 +1258,10 @@ struct structure_cmd_fn {
             return;
         if (!has_and_decls(m_env))
             return;
-        m_env = mk_injective_lemmas(m_env, m_name);
+        /* We do not generate `*.inj_eq` lemmas for classes since they can be quite expensive to
+           generate for big classes, and they don't seem to be useful in this case. */
+        bool gen_inj_eq = !m_meta_info.m_attrs.has_class();
+        m_env = mk_injective_lemmas(m_env, m_name, gen_inj_eq);
         add_alias(mk_injective_name(m_name));
         add_alias(mk_injective_arrow_name(m_name));
     }

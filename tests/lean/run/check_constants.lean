@@ -357,6 +357,7 @@ run_cmd script_check_id `psum.inr
 run_cmd script_check_id `tactic
 run_cmd script_check_id `tactic.try
 run_cmd script_check_id `tactic.triv
+run_cmd script_check_id `tactic.mk_inj_eq
 run_cmd script_check_id `thunk
 run_cmd script_check_id `to_fmt
 run_cmd script_check_id `trans_rel_left

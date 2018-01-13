@@ -2272,17 +2272,25 @@ class add_nested_inductive_decl_fn {
         for (unsigned ind_idx = 0; ind_idx < m_nested_decl.get_num_inds(); ++ind_idx) {
             for (unsigned ir_idx = 0; ir_idx < m_nested_decl.get_num_intro_rules(ind_idx); ++ir_idx) {
                 expr const & ir = m_nested_decl.get_intro_rule(ind_idx, ir_idx);
+                level_param_names lp_names = to_list(m_nested_decl.get_lp_names());
+                name ir_name  = mlocal_name(ir);
+                expr ir_type  = Pi(m_nested_decl.get_params(), mlocal_type(ir));
+                unsigned num_params = m_nested_decl.get_num_params();
                 name inj_name = mk_injective_name(mlocal_name(ir));
-                expr inj_type = mk_injective_type(m_env, mlocal_name(ir), Pi(m_nested_decl.get_params(), mlocal_type(ir)),
-                                                      m_nested_decl.get_num_params(), to_list(m_nested_decl.get_lp_names()));
-
+                expr inj_type = mk_injective_type(m_env, ir_name, ir_type, num_params, lp_names);
                 name inj_arrow_name = mk_injective_arrow_name(mlocal_name(m_inner_decl.get_intro_rule(ind_idx, ir_idx)));
 
                 expr inj_val = prove_nested_injective(inj_type, m_inj_lemmas, inj_arrow_name);
                 m_env = module::add(m_env,
                                     check(m_env,
-                                          mk_definition_inferring_trusted(m_env, inj_name, to_list(m_nested_decl.get_lp_names()), inj_type, inj_val, true)));
-                m_env = mk_injective_arrow(m_env, mlocal_name(ir));
+                                          mk_definition_inferring_trusted(m_env, inj_name, lp_names, inj_type, inj_val, true)));
+                m_env = mk_injective_arrow(m_env, ir_name);
+                if (m_env.find(get_tactic_mk_inj_eq_name())) {
+                    name inj_eq_name  = mk_injective_eq_name(ir_name);
+                    expr inj_eq_type  = mk_injective_eq_type(m_env, ir_name, ir_type, num_params, lp_names);
+                    expr inj_eq_value = prove_injective_eq(m_env, inj_eq_type, inj_eq_name);
+                    m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, inj_eq_name, lp_names, inj_eq_type, inj_eq_value, true)));
+                }
             }
         }
         m_tctx.set_env(m_env);

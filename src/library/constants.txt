@@ -352,6 +352,7 @@ psum.inr
 tactic
 tactic.try
 tactic.triv
+tactic.mk_inj_eq
 thunk
 to_fmt
 trans_rel_left

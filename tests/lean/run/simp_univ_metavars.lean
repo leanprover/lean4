@@ -7,6 +7,8 @@ structure { u v } Category :=
   (compose  : Π ⦃X Y Z : Obj⦄, Hom X Y → Hom Y Z → Hom X Z)
   (left_identity  : ∀ ⦃X Y : Obj⦄ (f : Hom X Y), compose (identity _) f = f)
 
+#check @Category.mk.inj_eq
+
 structure Functor (C : Category) (D : Category) :=
   (onObjects   : C^.Obj → D^.Obj)
   (onMorphisms : Π ⦃X Y : C^.Obj⦄,

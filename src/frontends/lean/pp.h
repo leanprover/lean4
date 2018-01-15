@@ -25,6 +25,14 @@ class pretty_fn {
 public:
     static unsigned max_bp() { return get_max_prec(); }
     static unsigned inf_bp() { return std::numeric_limits<unsigned>::max(); }
+    /** \brief A pretty-printed format together with its left- and right-binding power
+     *
+     * The lbp is the binding power of its leftmost token. The invariant is that
+     * for `bp < m_rbp`, `parse_expr(m_fmt, bp) == parse_expr(m_fmt, 0)`, i.e. the whole input is parsed.
+     *
+     * The rbp is (roughly) the binding power of its trailing parse_expr call, if any. The invariant is that
+     * appending a token with binding power >= rbp should still parse no more than m_fmt.
+     */
     class result {
         unsigned m_lbp;
         unsigned m_rbp;
@@ -59,7 +67,7 @@ private:
     bool                    m_proofs;           //!< if true show proof terms
     bool                    m_unicode;          //!< if true use unicode chars
     bool                    m_coercion;         //!< if true show coercions
-    bool                    m_num_nat_coe;      //!< truen when !m_coercion && env has coercion from num -> nat
+    bool                    m_num_nat_coe;      //!< true when !m_coercion && env has coercion from num -> nat
     bool                    m_notation;
     bool                    m_universes;
     bool                    m_full_names;
@@ -107,7 +115,8 @@ private:
 
     bool match(level const & p, level const & l);
     bool match(expr const & p, expr const & e, buffer<optional<expr>> & args);
-    result pp_notation_child(expr const & e, unsigned lbp, unsigned rbp);
+    /** \brief pretty-print e parsed with rbp, terminated by a token with lbp */
+    result pp_notation_child(expr const & e, unsigned rbp, unsigned lbp);
     optional<result> pp_notation(notation_entry const & entry, buffer<optional<expr>> & args);
     optional<result> pp_notation(expr const & e);
 

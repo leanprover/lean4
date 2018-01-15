@@ -1382,7 +1382,7 @@ static unsigned get_some_precedence(token_table const & t, name const & tk) {
     return 0;
 }
 
-auto pretty_fn::pp_notation_child(expr const & e, unsigned lbp, unsigned rbp) -> result {
+auto pretty_fn::pp_notation_child(expr const & e, unsigned rbp, unsigned lbp) -> result {
     if (is_app(e)) {
         if (m_numerals) {
             if (auto n = to_num(e)) return pp_num(*n, lbp);
@@ -1393,7 +1393,7 @@ auto pretty_fn::pp_notation_child(expr const & e, unsigned lbp, unsigned rbp) ->
         }
         expr const & f = app_fn(e);
         if (is_implicit(f)) {
-            return pp_notation_child(f, lbp, rbp);
+            return pp_notation_child(f, rbp, lbp);
         } else if (!m_coercion && is_coercion(e)) {
             return pp_hide_coercion(e, rbp);
         } else if (!m_coercion && is_coercion_fn(e)) {
@@ -1401,10 +1401,13 @@ auto pretty_fn::pp_notation_child(expr const & e, unsigned lbp, unsigned rbp) ->
         }
     }
     result r = pp(e);
-    if (r.rbp() < lbp || r.lbp() <= rbp) {
-        return result(paren(r.fmt()));
-    } else {
+    /* see invariants of `pretty_fn::result`: Check that the surrounding notation would parse at least r
+     * by the first invariant, and at most r (instead of the following token with binding power lbp) by the
+     * second invariant. */
+    if (rbp < r.lbp() && r.rbp() >= lbp) {
         return r;
+    } else {
+        return result(paren(r.fmt()));
     }
 }
 
@@ -1440,7 +1443,9 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
         to_buffer(entry.get_transitions(), ts);
         format fmt;
         unsigned i         = ts.size();
+        // bp of the last action
         unsigned last_rbp  = inf_bp()-1;
+        // bp of the token immediately to the right of the action
         unsigned token_lbp = 0;
         bool last          = true;
         while (i > 0) {
@@ -1453,6 +1458,7 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
             case notation::action_kind::Skip:
                 curr = tk_fmt;
                 if (last)
+                    // invariant fulfilled: Skip action will never parse a trailing token
                     last_rbp = inf_bp();
                 break;
             case notation::action_kind::Expr:
@@ -1461,9 +1467,14 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
                 } else {
                     expr e = *args.back();
                     args.pop_back();
-                    result e_r   = pp_notation_child(e, token_lbp, a.rbp());
+                    result e_r   = pp_notation_child(e, a.rbp(), token_lbp);
                     curr = tk_fmt + e_r.fmt();
                     if (last)
+                        /* last_rbp can be no more than `a.rbp()`, since this is the bp used during parsing.
+                         * However, `e_r.rbp()` may actually be smaller since it may be missing parentheses
+                         * compared to the original input. For example, when re-printing `x >>= (fun y, z) = ...`,
+                         * `e_r.fmt()` will be `fun y, z`. If we used the rbp of the `>>=` instead of
+                         * `e_r.rbp()` (0), we would get the wrong output `x >>= fun y, z = ...`. */
                         last_rbp = std::min(a.rbp(), e_r.rbp());
                     break;
                 }
@@ -1514,7 +1525,7 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
                     unsigned sep_lbp = get_some_precedence(m_token_table, a.get_sep());
                     while (j > 0) {
                         --j;
-                        result arg_res = pp_notation_child(rec_args[j], curr_lbp, a.rbp());
+                        result arg_res = pp_notation_child(rec_args[j], a.rbp(), curr_lbp);
                         if (j == 0) {
                             curr = tk_fmt + arg_res.fmt() + curr;
                         } else {
@@ -1565,9 +1576,10 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
                     }
                     if (locals.empty())
                         return optional<result>();
-                    result e_r   = pp_notation_child(e, token_lbp, a.rbp());
+                    result e_r   = pp_notation_child(e, a.rbp(), token_lbp);
                     curr = tk_fmt + e_r.fmt();
                     if (last)
+                        // see Expr action
                         last_rbp = std::min(a.rbp(), e_r.rbp());
                     break;
                 }
@@ -1590,7 +1602,7 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
                 return optional<result>();
             expr e = *args.back();
             args.pop_back();
-            format e_fmt = pp_notation_child(e, token_lbp, 0).fmt();
+            format e_fmt = pp_notation_child(e, 0, token_lbp).fmt();
             fmt = e_fmt + fmt;
         }
         return optional<result>(result(first_lbp, last_rbp, group(nest(m_indent, fmt))));

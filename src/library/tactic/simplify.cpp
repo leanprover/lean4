@@ -77,6 +77,7 @@ simp_config::simp_config():
     m_eta(true),
     m_proj(true),
     m_iota(true),
+    m_iota_eqn(false),
     m_constructor_eq(true),
     m_single_pass(false),
     m_fail_if_unchanged(true),
@@ -95,10 +96,11 @@ simp_config::simp_config(vm_obj const & obj) {
     m_eta                = to_bool(cfield(obj, 8));
     m_proj               = to_bool(cfield(obj, 9));
     m_iota               = to_bool(cfield(obj, 10));
-    m_constructor_eq     = to_bool(cfield(obj, 11));
-    m_single_pass        = to_bool(cfield(obj, 12));
-    m_fail_if_unchanged  = to_bool(cfield(obj, 13));
-    m_memoize            = to_bool(cfield(obj, 14));
+    m_iota_eqn           = to_bool(cfield(obj, 11));
+    m_constructor_eq     = to_bool(cfield(obj, 12));
+    m_single_pass        = to_bool(cfield(obj, 13));
+    m_fail_if_unchanged  = to_bool(cfield(obj, 14));
+    m_memoize            = to_bool(cfield(obj, 15));
 }
 
 /* -----------------------------------
@@ -1089,9 +1091,23 @@ optional<pair<simp_result, bool>> simplify_fn::pre(expr const &, optional<expr> 
     return no_ext_result();
 }
 
+// TODO(Leo): move to a different file
+static optional<expr> unfold_using_nontrivial_eqns(type_context & ctx, expr const & e) {
+    if (!is_app(e)) return none_expr();
+    expr const & f = get_app_fn(e);
+    if (!is_constant(f)) return none_expr();
+    if (has_simple_eqn_lemma(ctx.env(), const_name(f))) return none_expr();
+    type_context::transparency_scope scope(ctx, transparency_mode::Semireducible);
+    return ctx.unfold_definition(e);
+}
+
 optional<pair<simp_result, bool>> simplify_fn::post(expr const & e, optional<expr> const &) {
     if (auto r = unfold_step(m_ctx, e, m_to_unfold, false))
         return to_ext_result(simp_result(*r));
+    if (m_cfg.m_iota_eqn) {
+        if (auto r = unfold_using_nontrivial_eqns(m_ctx, e))
+            return to_ext_result(simp_result(*r));
+    }
     simp_result r = rewrite(e);
     if (r.get_new() != e) {
         return to_ext_result(r);

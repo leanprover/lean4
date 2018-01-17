@@ -758,6 +758,8 @@ public:
     virtual expr relaxed_whnf(expr const & e) override;
     virtual bool relaxed_is_def_eq(expr const & e1, expr const & e2) override;
 
+    optional<expr> unfold_definition(expr const & e);
+
     /** Non destructive is_def_eq (i.e., metavariables cannot be assigned) */
     bool pure_is_def_eq(level const & l1, level const & l2) {
         flet<bool> no_update_left(m_update_left, false);
@@ -965,7 +967,6 @@ public:
 private:
     void init_core(transparency_mode m);
     optional<expr> unfold_definition_core(expr const & e);
-    optional<expr> unfold_definition(expr const & e);
     bool should_unfold_macro(expr const & e);
     expr whnf_core(expr const & e, bool iota_proj_reduce);
     optional<declaration> is_transparent(transparency_mode m, name const & n);

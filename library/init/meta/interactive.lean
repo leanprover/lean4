@@ -1206,8 +1206,9 @@ The `simp` tactic uses lemmas and hypotheses to simplify the main goal target or
 
 `simp with attr₁ ... attrₙ` simplifies the main goal target using the lemmas tagged with any of the attributes `[attr₁]`, ..., `[attrₙ]` or `[simp]`.
 -/
-meta def simp (no_dflt : parse only_flag) (hs : parse simp_arg_list) (attr_names : parse with_ident_list)
+meta def simp (use_iota_eqn : parse $ (tk "!")?) (no_dflt : parse only_flag) (hs : parse simp_arg_list) (attr_names : parse with_ident_list)
               (locat : parse location) (cfg : simp_config_ext := {}) : tactic unit :=
+let cfg := if use_iota_eqn.is_none then cfg else {iota_eqn := tt, ..cfg} in
 propagate_tags (simp_core cfg.to_simp_config cfg.discharger no_dflt hs attr_names locat)
 
 /--

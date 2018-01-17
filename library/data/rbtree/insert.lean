@@ -110,7 +110,7 @@ by apply balance.cases l y r; intros; simp [*]; is_searchable_tactic
 
 lemma is_searchable_balance1_node {t} [is_trans α lt] : ∀ {y s lo hi}, is_searchable lt t lo (some y) → is_searchable lt s (some y) hi → is_searchable lt (balance1_node t y s) lo hi :=
 begin
-  cases t; simp [balance1_node]; intros; is_searchable_tactic,
+  cases t; simp!; intros; is_searchable_tactic,
   { cases lo,
     { apply is_searchable_none_low_of_is_searchable_some_low, assumption },
     { simp at *, apply is_searchable_some_low_of_is_searchable_of_lt; assumption } },
@@ -122,7 +122,7 @@ by apply balance.cases l y r; intros; simp [*]; is_searchable_tactic
 
 lemma is_searchable_balance2_node {t} [is_trans α lt] : ∀ {y s lo hi}, is_searchable lt s lo (some y) → is_searchable lt t (some y) hi → is_searchable lt (balance2_node t y s) lo hi :=
 begin
-  induction t; simp [balance2_node]; intros; is_searchable_tactic,
+  induction t; simp!; intros; is_searchable_tactic,
   { cases hi,
     { apply is_searchable_none_high_of_is_searchable_some_high, assumption },
     { simp at *, apply is_searchable_some_high_of_is_searchable_of_lt, assumption' } },
@@ -131,7 +131,7 @@ end
 
 lemma is_searchable_ins {t x} [is_strict_weak_order α lt] : ∀ {lo hi} (h : is_searchable lt t lo hi), lift lt lo (some x) → lift lt (some x) hi → is_searchable lt (ins lt t x) lo hi :=
 begin
-  with_cases { apply ins.induction lt t x; intros; simp [ins, *] at * {eta := ff}; is_searchable_tactic },
+  with_cases { apply ins.induction lt t x; intros; simp! [*] at * {eta := ff}; is_searchable_tactic },
   case is_red_lt { apply ih h_hs₁, assumption, simp [*] },
   case is_red_eq hs₁ { apply is_searchable_of_is_searchable_of_incomp hc, assumption },
   case is_red_eq hs₂ { apply is_searchable_of_incomp_of_is_searchable hc, assumption },

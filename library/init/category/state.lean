@@ -4,9 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
-import init.category.alternative
-import init.category.id
-import init.category.transformers
+import init.category.alternative init.category.transformers
+import init.category.id init.category.except
 universes u v w
 
 structure state_t (σ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
@@ -69,6 +68,10 @@ section
   -- TODO(Sebastian): uses lenses as in https://hackage.haskell.org/package/lens-4.15.4/docs/Control-Lens-Zoom.html#t:Zoom ?
   protected def zoom {σ σ' α : Type u} {m : Type u → Type v} [monad m] (f : σ → σ') (f' : σ' → σ) (x : state_t σ' m α) : state_t σ m α :=
   ⟨λ st, (λ p : α × σ', (p.fst, f' p.snd)) <$> x.run (f st)⟩
+
+  instance (ε) [monad_except ε m] : monad_except ε (state_t σ m) :=
+  { throw := λ α, state_t.lift ∘ throw,
+    catch := λ α x c, ⟨λ s, catch (x.run s) (state_t.run s ∘ c)⟩ }
 end
 end state_t
 

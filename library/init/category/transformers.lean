@@ -57,3 +57,10 @@ instance monad_functor_t_trans (m m' n n' o o') [monad_functor n n' o o'] [monad
 
 instance monad_functor_t_refl (m m') : monad_functor_t m m' m m' :=
 ⟨λ α f, f⟩
+
+/-- Run a monad stack to completion. -/
+class monad_run (out : out_param $ Type u → Type v) (m : Type u → Type v) :=
+(run {} {α : Type u} : m α → out α)
+(unrun {} {α : Type u} : out α → m α)
+
+export monad_run (run unrun)

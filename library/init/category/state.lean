@@ -102,3 +102,6 @@ local attribute [instance] monad_state_functor.functor
 
 def zoom {σ σ'} {m n n'} [monad m] {α : Type u} (f : σ → σ') (f' : σ' → σ) [monad_state_functor σ' σ m n n'] : n α → n' α :=
 monad_map $ λ α, (state_t.zoom f f' : state_t σ' m α → state_t σ m α)
+
+instance (σ m out) [monad_run out m] : monad_run (λ α, σ → out (α × σ)) (state_t σ m) :=
+⟨λ α x, run ∘ x.run', λ α a, state_t.mk (unrun ∘ a)⟩

@@ -4,8 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
 prelude
-import init.category.monad
+import init.category.transformers
 universe u
 
-instance : monad.{u u} id :=
-{ pure := @id, bind := λ _ _ x f, f x }
+@[inline] def id_bind {α β : Type u} (x : α) (f : α → id β) : id β := f x
+
+@[inline] instance : monad.{u u} id :=
+{ pure := @id, bind := @id_bind }
+
+@[inline] instance : monad_run id id :=
+⟨@id, @id⟩

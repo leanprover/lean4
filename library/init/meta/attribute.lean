@@ -61,8 +61,8 @@ open tactic
 
 meta def register_attribute := attribute.register
 
-meta def get_attribute_cache_dyn {α : Type} [reflected α] (name : name) : tactic α :=
-let attr : pexpr := expr.const name [] in
+meta def get_attribute_cache_dyn {α : Type} [reflected α] (attr_decl_name : name) : tactic α :=
+let attr : pexpr := expr.const attr_decl_name [] in
 do e ← to_expr ``(user_attribute.get_cache %%attr),
    t ← eval_expr (tactic α) e,
    t

@@ -1554,6 +1554,14 @@ vm_obj simp_lemmas_pp(vm_obj const & S, vm_obj const & _s) {
     return tactic::mk_success(to_obj(r), s);
 }
 
+name mk_simp_attr_decl_name(name const & attr_name) {
+    return name("simp_attr") + attr_name;
+}
+
+vm_obj vm_mk_simp_attr_decl_name(vm_obj const & n) {
+    return to_obj(mk_simp_attr_decl_name(to_name(n)));
+}
+
 void initialize_simp_lemmas() {
     g_dummy               = new simp_lemma_cell();
     g_simp_lemmas_configs = new std::vector<simp_lemmas_config>();
@@ -1578,8 +1586,10 @@ void initialize_simp_lemmas() {
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "drewrite"}),        simp_lemmas_drewrite);
     DECLARE_VM_BUILTIN(name({"simp_lemmas", "pp"}),              simp_lemmas_pp);
 
-    DECLARE_VM_BUILTIN(name("is_valid_simp_lemma"), is_valid_simp_lemma);
+    DECLARE_VM_BUILTIN(name("is_valid_simp_lemma"),      is_valid_simp_lemma);
     DECLARE_VM_BUILTIN(name("is_valid_simp_lemma_cnst"), is_valid_simp_lemma_cnst);
+
+    DECLARE_VM_BUILTIN(name("mk_simp_attr_decl_name"),   vm_mk_simp_attr_decl_name);
 }
 
 void finalize_simp_lemmas() {

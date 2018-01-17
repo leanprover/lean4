@@ -303,8 +303,8 @@ vm_obj user_attribute_get_cache_core(vm_obj const &, vm_obj const &, vm_obj cons
     LEAN_TACTIC_CATCH(s);
 }
 
-vm_obj user_attribute_get_cache(vm_state & S, tactic_state const & s, name const & attr_name) {
-    vm_obj attr   = S.get_constant(attr_name);
+vm_obj user_attribute_get_cache(vm_state & S, tactic_state const & s, name const & attr_decl_name) {
+    vm_obj attr   = S.get_constant(attr_decl_name);
     return user_attribute_get_cache_core(mk_vm_unit(), mk_vm_unit(), attr, to_obj(s));
 }
 

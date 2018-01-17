@@ -421,6 +421,8 @@ vm_obj mk_smt_state(tactic_state s, smt_config const & cfg) {
     return tactic::mk_success(mk_vm_cons(to_obj(new_goal), mk_vm_nil()), s);
 }
 
+/* TODO(Leo): for hinst_lemma sets, the attribute name and declaration name should be the same. */
+
 static hinst_lemmas get_hinst_lemmas(name const & attr_name, tactic_state const & s) {
     auto & S      = get_vm_state();
     vm_obj r      = user_attribute_get_cache(S, s, attr_name);
@@ -434,8 +436,7 @@ static hinst_lemmas get_hinst_lemmas(name const & attr_name, tactic_state const 
 
 static simp_lemmas get_simp_lemmas(name const & attr_name, tactic_state const & s) {
     auto & S      = get_vm_state();
-    vm_obj attr   = S.get_constant(attr_name);
-    vm_obj r      = user_attribute_get_cache(S, s, attr_name);
+    vm_obj r      = user_attribute_get_cache(S, s, mk_simp_attr_decl_name(attr_name));
     if (tactic::is_result_exception(r))
         throw exception(sstream() << "failed to initialize smt_state, failed to retrieve attribute '" << attr_name << "'");
     vm_obj lemmas = tactic::get_result_value(r);

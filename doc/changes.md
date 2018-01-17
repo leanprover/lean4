@@ -109,6 +109,12 @@ master branch (aka work in progress branch)
 
 * Add `leanpkg help <command>`.
 
+* Add `[norm]` simp set. It contains all lemmas tagged with `[simp]` plus any
+  lemma tagged with `[norm]`.
+  These rules are used to produce normal forms and/or reduce the
+  number of constants used in a goal. For example, we plan to
+  add the lemma `f <$> x = x >>= pure ∘ f` to `[norm]`.
+
 *Changes*
 
 * Replace `inout` modifier in type class declarations with `out_param` modifier.

@@ -12,6 +12,8 @@ open tactic
 
 def simp.default_max_steps := 10000000
 
+meta constant mk_simp_attr_decl_name (attr_name : name) : name
+
 meta constant simp_lemmas : Type
 meta constant simp_lemmas.mk : simp_lemmas
 meta constant simp_lemmas.join : simp_lemmas → simp_lemmas → simp_lemmas
@@ -335,19 +337,27 @@ meta def to_simp_lemmas : simp_lemmas → list name → tactic simp_lemmas
 | S []      := return S
 | S (n::ns) := do S' ← S.add_simp n, to_simp_lemmas S' ns
 
-meta def mk_simp_attr (attr_name : name) : command :=
+meta def mk_simp_attr (attr_name : name) (attr_deps : list name := []) : command :=
 do let t := `(user_attribute simp_lemmas),
    let v := `({name     := attr_name,
                descr    := "simplifier attribute",
                cache_cfg := {
-                 mk_cache := λ ns, do {tactic.to_simp_lemmas simp_lemmas.mk ns},
-                 dependencies := [`reducibility]}} : user_attribute simp_lemmas),
-   add_decl (declaration.defn attr_name [] t v reducibility_hints.abbrev ff),
-   attribute.register attr_name
+                 mk_cache := λ ns, do {
+                          s ← tactic.to_simp_lemmas simp_lemmas.mk ns,
+                          s ← attr_deps.mfoldl
+                                (λ s attr_name, do
+                                   ns ← attribute.get_instances attr_name,
+                                   to_simp_lemmas s ns)
+                                s,
+                          return s },
+                 dependencies := `reducibility :: attr_deps}} : user_attribute simp_lemmas),
+   let n := mk_simp_attr_decl_name attr_name,
+   add_decl (declaration.defn n [] t v reducibility_hints.abbrev ff),
+   attribute.register n
 
 meta def get_user_simp_lemmas (attr_name : name) : tactic simp_lemmas :=
 if attr_name = `default then simp_lemmas.mk_default
-else get_attribute_cache_dyn attr_name
+else get_attribute_cache_dyn (mk_simp_attr_decl_name attr_name)
 
 meta def join_user_simp_lemmas_core : simp_lemmas → list name → tactic simp_lemmas
 | S []             := return S
@@ -490,3 +500,5 @@ meta constant trace_algebra_info : expr → tactic unit
 end tactic
 
 export tactic (mk_simp_attr)
+
+run_cmd mk_simp_attr `norm [`simp]

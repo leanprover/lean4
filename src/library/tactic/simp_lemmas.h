@@ -159,6 +159,9 @@ bool is_rfl_lemma(expr type, expr pf);
 bool is_rfl_lemma(environment const & env, name const & cname);
 environment mark_rfl_lemma(environment const & env, name const & cname);
 
+/* Return the declaration name for the simp attribute `attr_name` */
+name mk_simp_attr_decl_name(name const & attr_name);
+
 void initialize_simp_lemmas();
 void finalize_simp_lemmas();
 }

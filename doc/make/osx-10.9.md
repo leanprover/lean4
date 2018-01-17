@@ -40,17 +40,7 @@ Required Packages: CMake, GMP
     brew install gmp
 
 
-Optional Packages: tcmalloc and ninja
--------------------------------------
+Optional Packages: ninja
+------------------------
 
-    brew install gperftools
     brew install ninja
-
-# Build
-```bash
-cd lean
-mkdir -p build/release
-cd build/release
-cmake ../../src
-make
-```

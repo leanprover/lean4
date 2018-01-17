@@ -22,19 +22,10 @@ About
 - [FAQ](doc/faq.md)
 - For HoTT mode, please use [Lean2](https://github.com/leanprover/lean2).
 
-Requirements
+Installation
 ------------
 
-- C++11 compatible compiler
-- [CMake](http://www.cmake.org)
-- [GMP (GNU multiprecision library)](http://gmplib.org/)
-
-Build Instructions
-------------------
-
-- [Linux (Ubuntu)](doc/make/ubuntu-16.04.md)
-- [Windows (msys2)](doc/make/msys2.md)
-- [macOS](doc/make/osx-10.9.md)
+Stable and nightly binary releases of Lean are available on the [homepage](http://leanprover.github.io/downloads). For building Lean from source, see the [build instructions](doc/make/index.md).
 
 Miscellaneous
 -------------

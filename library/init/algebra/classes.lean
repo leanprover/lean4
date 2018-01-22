@@ -5,10 +5,16 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.logic init.data.ordering.basic
-universes u
+universes u v
+
+@[algebra] class is_symm_op (α : Type u) (β : out_param (Type v)) (op : α → α → β) : Prop :=
+(symm_op : ∀ a b, op a b = op b a)
 
 @[algebra] class is_commutative (α : Type u) (op : α → α → α) : Prop :=
 (comm : ∀ a b, op a b = op b a)
+
+instance is_symm_op_of_is_commutative (α : Type u) (op : α → α → α) [is_commutative α op] : is_symm_op α α op :=
+{symm_op := is_commutative.comm op}
 
 @[algebra] class is_associative (α : Type u) (op : α → α → α) : Prop :=
 (assoc : ∀ a b c, op (op a b) c = op a (op b c))
@@ -73,6 +79,9 @@ class is_idempotent (α : Type u) (f : α → α) : Prop :=
 
 @[algebra] class is_symm (α : Type u) (r : α → α → Prop) : Prop :=
 (symm : ∀ a b, r a b → r b a)
+
+instance is_symm_op_of_is_symm (α : Type u) (r : α → α → Prop) [is_symm α r] : is_symm_op α Prop r :=
+{symm_op := λ a b, propext $ iff.intro (is_symm.symm a b) (is_symm.symm b a)}
 
 @[algebra] class is_asymm (α : Type u) (r : α → α → Prop) : Prop :=
 (asymm : ∀ a b, r a b → ¬ r b a)

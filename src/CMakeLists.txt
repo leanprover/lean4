@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 2.8.7)
+cmake_policy(SET CMP0054 NEW)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 3)
 set(LEAN_VERSION_MINOR 3)
@@ -135,7 +136,7 @@ if((${CYGWIN} EQUAL "1") OR (${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
 endif()
 
 if("${CYGWIN}" EQUAL "1")
-  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_CYGWIN")
+  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_CYGWIN -D _GNU_SOURCE")
 endif()
 
 if(JSON)

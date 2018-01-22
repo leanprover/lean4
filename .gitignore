@@ -10,6 +10,7 @@ GSYMS
 GTAGS
 .projectile
 .lean_options
+.vs
 src/emacs/dependencies
 compile_commands.json
 *.idea

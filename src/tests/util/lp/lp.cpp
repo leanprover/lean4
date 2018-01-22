@@ -1513,7 +1513,7 @@ void test_out_dir(string out_dir) {
     DIR *out_dir_p = opendir(out_dir.c_str());
     if (out_dir_p == nullptr) {
         cout << "creating directory " << out_dir << std::endl;
-#ifdef LEAN_WINDOWS
+#if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
         int res = mkdir(out_dir.c_str());
 #else
         int res = mkdir(out_dir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);

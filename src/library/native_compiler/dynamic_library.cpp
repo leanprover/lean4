@@ -8,7 +8,7 @@ Author: Jared Roesch
 #include <string>
 // Interacting with dynamic linking is *not* cross-platform, this is my first
 // attempt at supporting all platforms.
-#if !defined (LEAN_WINDOWS)
+#if !defined (LEAN_WINDOWS) || defined(LEAN_CYGWIN)
 #include <dlfcn.h>
 #endif
 #include "util/exception.h"

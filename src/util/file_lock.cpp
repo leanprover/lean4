@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "util/file_lock.h"
 
-#ifdef LEAN_WINDOWS
+#if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
 #include <windows.h>
 #include <io.h>
 #define   LOCK_SH   1    /* shared lock */
@@ -96,13 +96,13 @@ file_lock::file_lock(char const * fname, bool exclusive):
 file_lock::~file_lock() {
 #if !defined(LEAN_EMSCRIPTEN)
     if (m_fd != -1) {
-#if !defined(LEAN_WINDOWS)
+#if !defined(LEAN_WINDOWS) || defined(LEAN_CYGWIN)
         /* On Windows, we cannot remove the file if it is locked. */
         std::remove(m_fname.c_str());
 #endif
         flock(m_fd, LOCK_UN);
         close(m_fd);
-#if defined(LEAN_WINDOWS)
+#if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
         /* On Windows, we (to) to remove the file after we released the lock. The operation will fail if another
            process has a handle to it. However, this is better than always keeping all .lock files. */
         std::remove(m_fname.c_str());

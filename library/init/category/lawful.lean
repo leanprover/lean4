@@ -76,6 +76,17 @@ lemma map_ext_congr {α β} {m : Type u → Type v} [has_map m] {x : m α} {f : 
 
 -- instances of previously defined monads
 
+namespace id
+variables {α β : Type}
+@[simp] lemma map_eq (x : id α) (f : α → β) : f <$> x = f x := rfl
+@[simp] lemma bind_eq (x : id α) (f : α → id β) : x >>= f = f x := rfl
+@[simp] lemma pure_eq (a : α) : (pure a : id α) = a := rfl
+end id
+
+instance : is_lawful_monad id :=
+by refine { id_map := _, bind_assoc := _, pure_bind := _ };
+   intros; refl
+
 namespace state_t
 section
   variable  {σ : Type u}
@@ -96,6 +107,11 @@ section
     change (x >>= pure ∘ f).run st = _,
     simp
   end
+  @[simp] lemma run_monad_lift {n} [has_monad_lift_t n m] (x : n α) : (monad_lift x : state_t σ m α).run st = do a ← (monad_lift x : m α), pure (a, st) := rfl
+  @[simp] lemma run_monad_map {m' n n'} [monad m'] [monad_functor_t n n' m m'] (f : ∀ {α}, n α → n' α) : (monad_map @f x : state_t σ m' α).run st = monad_map @f (x.run st) := rfl
+  @[simp] lemma run_zoom {σ'} (st get set) : (state_t.zoom get set x : state_t σ' m α).run st = (λ p : α × σ, (p.1, set p.2 st)) <$> x.run (get st) := rfl
+  @[simp] lemma run_get : (state_t.get : state_t σ m σ).run st = pure (st, st) := rfl
+  @[simp] lemma run_put (st') : (state_t.put st' : state_t σ m _).run st = pure (punit.star, st') := rfl
 end
 end state_t
 
@@ -121,6 +137,8 @@ namespace except_t
     rw [bind_ext_congr],
     intro a; cases a; simp [except_t.bind_cont, except.map]
   end
+  @[simp] lemma run_monad_lift {n} [has_monad_lift_t n m] (x : n α) : (@monad_lift _ _ _ _ x : except_t ε m α).run = except.ok <$> (monad_lift x : m α) := rfl
+  @[simp] lemma run_monad_map {m' n n'} [monad m'] [monad_functor_t n n' m m'] (f : ∀ {α}, n α → n' α) : (monad_map @f x : except_t ε m' α).run = monad_map @f x.run := rfl
 end except_t
 
 instance (m : Type u → Type v) [monad m] [is_lawful_monad m] (ε : Type u) : is_lawful_monad (except_t ε m) :=
@@ -157,6 +175,9 @@ section
   @[simp] lemma run_bind (f : α → reader_t r m β) : (x >>= f).run cfg = x.run cfg >>= λ a, (f a).run cfg := rfl
   @[simp] lemma run_map (f : α → β) [is_lawful_monad m] : (f <$> x).run cfg = f <$> x.run cfg :=
   by rw ←bind_pure_comp_eq_map m; refl
+  @[simp] lemma run_monad_lift {n} [has_monad_lift_t n m] (x : n α) : (@monad_lift _ _ _ _ x : reader_t r m α).run cfg = (monad_lift x : m α) := rfl
+  @[simp] lemma run_monad_map {m' n n'} [monad m'] [monad_functor_t n n' m m'] (f : ∀ {α}, n α → n' α) : (monad_map @f x : reader_t r m' α).run cfg = monad_map @f (x.run cfg) := rfl
+  @[simp] lemma run_read : (reader_t.read : reader_t r m r).run cfg = pure cfg := rfl
 end
 end reader_t
 

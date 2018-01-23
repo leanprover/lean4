@@ -39,11 +39,11 @@ section
   instance (m) [monad m] : has_monad_lift m (reader_t r m) :=
   ⟨@reader_t.lift r m _⟩
 
-  protected def map {r m m'} [monad m] [monad m'] {α} (f : Π {α}, m α → m' α) : reader_t r m α → reader_t r m' α :=
+  protected def monad_map {r m m'} [monad m] [monad m'] {α} (f : Π {α}, m α → m' α) : reader_t r m α → reader_t r m' α :=
   λ x, ⟨λ r, f (x.run r)⟩
 
   instance (r m m') [monad m] [monad m'] : monad_functor m m' (reader_t r m) (reader_t r m') :=
-  ⟨@reader_t.map r m m' _ _⟩
+  ⟨@reader_t.monad_map r m m' _ _⟩
 end
 end reader_t
 
@@ -68,3 +68,6 @@ def with_reader_t {r r' m} [monad m] {α} (f : r' → r) : reader_t r m α → r
 
 def with_reader {r r'} {m n n'} [monad m] [monad_reader_functor r r' m n n'] {α : Type u} (f : r' → r) : n α → n' α :=
 monad_map $ λ α, (with_reader_t f : reader_t r m α → reader_t r' m α)
+
+instance (r : Type u) (m out) [monad_run out m] : monad_run (λ α, r → out α) (reader_t r m) :=
+⟨λ α x, run ∘ x.run, λ α a, reader_t.mk (unrun ∘ a)⟩

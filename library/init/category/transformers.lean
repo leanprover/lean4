@@ -23,19 +23,21 @@ instance monad_transformer_lift (t m) [monad_transformer t] [monad m] : has_mona
 ⟨monad_transformer.monad_lift t m⟩
 
 class has_monad_lift_t (m : Type u → Type v) (n : Type u → Type w) :=
-(monad_lift : ∀ α, m α → n α)
+(monad_lift {} : ∀ {α}, m α → n α)
 
-def monad_lift {m n} [has_monad_lift_t m n] {α} : m α → n α :=
-has_monad_lift_t.monad_lift n α
+export has_monad_lift_t (monad_lift)
 
 @[reducible] def has_monad_lift_to_has_coe {m n} [has_monad_lift_t m n] {α} : has_coe (m α) (n α) :=
 ⟨monad_lift⟩
 
 instance has_monad_lift_t_trans (m n o) [has_monad_lift n o] [has_monad_lift_t m n] : has_monad_lift_t m o :=
-⟨λ α (ma : m α), has_monad_lift.monad_lift o α $ has_monad_lift_t.monad_lift n α ma⟩
+⟨λ α (ma : m α), has_monad_lift.monad_lift o α $ @monad_lift m n _ _ ma⟩
 
 instance has_monad_lift_t_refl (m) : has_monad_lift_t m m :=
 ⟨λ α, id⟩
+
+@[simp] lemma monad_lift_refl {m : Type u → Type v} {α} : (monad_lift : m α → m α) = id := rfl
+
 
 /-- A functor in the category of monads. Can be used to lift monad-transforming functions.
     Based on https://hackage.haskell.org/package/pipes-2.4.0/docs/Control-MFunctor.html,
@@ -57,6 +59,9 @@ instance monad_functor_t_trans (m m' n n' o o') [monad_functor n n' o o'] [monad
 
 instance monad_functor_t_refl (m m') : monad_functor_t m m' m m' :=
 ⟨λ α f, f⟩
+
+@[simp] lemma monad_map_refl {m m' : Type u → Type v} (f : ∀ {α}, m α → m' α) {α} : (monad_map @f : m α → m' α) = f := rfl
+
 
 /-- Run a monad stack to completion. -/
 class monad_run (out : out_param $ Type u → Type v) (m : Type u → Type v) :=

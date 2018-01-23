@@ -17,11 +17,12 @@ namespace state_t
 section
   variable  {σ : Type u}
   variable  {m : Type u → Type v}
+
+  @[inline] protected def run {α : Type u} (st : σ) (x : state_t σ m α) : m (α × σ) :=
+  state_t.run' x st
+
   variable  [monad m]
   variables {α β : Type u}
-
-  @[inline] protected def run (st : σ) (x : state_t σ m α) : m (α × σ) :=
-  state_t.run' x st
 
   protected def pure (a : α) : state_t σ m α :=
   ⟨λ s, pure (a, s)⟩
@@ -56,18 +57,18 @@ section
   protected def lift {α : Type u} (t : m α) : state_t σ m α :=
   ⟨λ s, do a ← t, return (a, s)⟩
 
-  instance (m) [monad m] : has_monad_lift m (state_t σ m) :=
+  instance : has_monad_lift m (state_t σ m) :=
   ⟨@state_t.lift σ m _⟩
 
-  protected def map {σ m m'} [monad m] [monad m'] {α} (f : Π {α}, m α → m' α) : state_t σ m α → state_t σ m' α :=
+  protected def monad_map {σ m m'} [monad m] [monad m'] {α} (f : Π {α}, m α → m' α) : state_t σ m α → state_t σ m' α :=
   λ x, ⟨λ st, f (x.run st)⟩
 
   instance (σ m m') [monad m] [monad m'] : monad_functor m m' (state_t σ m) (state_t σ m') :=
-  ⟨@state_t.map σ m m' _ _⟩
+  ⟨@state_t.monad_map σ m m' _ _⟩
 
   -- TODO(Sebastian): uses lenses as in https://hackage.haskell.org/package/lens-4.15.4/docs/Control-Lens-Zoom.html#t:Zoom ?
-  protected def zoom {σ σ' α : Type u} {m : Type u → Type v} [monad m] (f : σ → σ') (f' : σ' → σ) (x : state_t σ' m α) : state_t σ m α :=
-  ⟨λ st, (λ p : α × σ', (p.fst, f' p.snd)) <$> x.run (f st)⟩
+  protected def zoom {σ σ' α : Type u} {m : Type u → Type v} [monad m] (get : σ → σ') (set : σ' → σ → σ) (x : state_t σ' m α) : state_t σ m α :=
+  ⟨λ st, (λ p : α × σ', (p.fst, set p.snd st)) <$> x.run (get st)⟩
 
   instance (ε) [monad_except ε m] : monad_except ε (state_t σ m) :=
   { throw := λ α, state_t.lift ∘ throw,
@@ -106,8 +107,8 @@ class monad_state_functor (σ σ' : out_param (Type u)) (m : out_param (Type u �
 attribute [instance] monad_state_functor.mk
 local attribute [instance] monad_state_functor.functor
 
-def zoom {σ σ'} {m n n'} [monad m] {α : Type u} (f : σ → σ') (f' : σ' → σ) [monad_state_functor σ' σ m n n'] : n α → n' α :=
-monad_map $ λ α, (state_t.zoom f f' : state_t σ' m α → state_t σ m α)
+def zoom {σ σ'} {m n n'} [monad m] {α : Type u} (get : σ → σ') (set : σ' → σ → σ) [monad_state_functor σ' σ m n n'] : n α → n' α :=
+monad_map $ λ α, (state_t.zoom get set : state_t σ' m α → state_t σ m α)
 
 instance (σ m out) [monad_run out m] : monad_run (λ α, σ → out (α × σ)) (state_t σ m) :=
-⟨λ α x, run ∘ x.run', λ α a, state_t.mk (unrun ∘ a)⟩
+⟨λ α x, run ∘ (λ σ, x.run σ), λ α a, state_t.mk (unrun ∘ a)⟩

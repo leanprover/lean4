@@ -95,6 +95,12 @@ section
    | except.error e := (handle e).run
    end⟩
 
+  protected def monad_map {m'} [monad m'] {α} (f : ∀ {α}, m α → m' α) : except_t ε m α → except_t ε m' α :=
+  λ x, ⟨f x.run⟩
+
+  instance (m') [monad m'] : monad_functor m m' (except_t ε m) (except_t ε m') :=
+  ⟨@monad_map m' _⟩
+
   instance : monad (except_t ε m) :=
   { pure := @return, bind := @bind }
 end
@@ -102,12 +108,6 @@ end except_t
 
 instance (m ε) [monad m] : monad_except ε (except_t ε m) :=
 { throw := λ α, except_t.mk ∘ pure ∘ except.error, catch := @except_t.catch ε _ _ }
-
-def map_except_t {ε m m'} [monad m] [monad m'] {α} (f : ∀ {α}, m α → m' α) : except_t ε m α → except_t ε m' α :=
-λ x, ⟨f x.run⟩
-
-instance (ε m m') [monad m] [monad m'] : monad_functor m m' (except_t ε m) (except_t ε m') :=
-⟨@map_except_t ε m m' _ _⟩
 
 instance (ε m out) [monad_run out m] : monad_run (λ α, out (except ε α)) (except_t ε m) :=
 ⟨λ α, run ∘ except_t.run, λ α, except_t.mk ∘ unrun⟩

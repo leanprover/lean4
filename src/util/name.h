@@ -18,8 +18,14 @@ Author: Leonardo de Moura
 
 namespace lean {
 constexpr char const * lean_name_separator = ".";
+#ifdef _MSC_VER
+constexpr char16_t id_begin_escape = L'«';
+constexpr char16_t id_end_escape = L'»';
+
+#else
 constexpr char16_t id_begin_escape = u'Â«';
 constexpr char16_t id_end_escape = u'Â»';
+#endif
 
 bool is_id_first(char const * begin, char const * end);
 inline bool is_id_first(unsigned char const * begin, unsigned char const * end) {

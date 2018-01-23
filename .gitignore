@@ -20,3 +20,4 @@ settings.json
 .vscode
 /*.nix
 /library/init/version.lean
+CMakeSettings.json

@@ -1,7 +1,7 @@
 import system.io
 
 section
-variable [io.interface]
+
 
 def tst_io : io string :=
 do b ← io.fs.read_file "tactic_io.lean",

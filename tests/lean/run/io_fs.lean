@@ -1,6 +1,6 @@
 import system.io
 open io
-variable [io.interface]
+
 
 def mk_test_file : io unit :=
 do h ← mk_file_handle "io_fs.txt" io.mode.write,

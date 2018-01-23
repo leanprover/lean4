@@ -7,7 +7,7 @@ open io
 #eval 'a'
 #eval '\n'
 #eval '\\'
-variable [io.interface]
+
 #eval put_str ("aaa".str '\\')
 #eval put_str $ repr '\n'
 #eval put_str $ string.singleton '\n'

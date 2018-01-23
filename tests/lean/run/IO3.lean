@@ -1,6 +1,6 @@
 import system.io
 open io
-variable [io.interface]
+
 def main : io unit :=
 do { l ← get_line,
      if l = "hello" then

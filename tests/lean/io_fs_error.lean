@@ -1,6 +1,6 @@
 import system.io
 open io
-variable [io.interface]
+
 
 def tst1 : io unit :=
 do o ← stdout,

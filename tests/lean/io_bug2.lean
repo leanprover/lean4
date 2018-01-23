@@ -1,6 +1,6 @@
 import system.io
 open io
-variable [io.interface]
+
 def main : io unit := do
   print_ln "t1",
   (x, y) ← return ((1 : nat), (2 : ℕ)),

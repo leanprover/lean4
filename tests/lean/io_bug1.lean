@@ -1,6 +1,6 @@
 import system.io
 open io
-variable [io.interface]
+
 def bar : io unit :=
 do put_str "one", put_str "two", put_str "three"
 

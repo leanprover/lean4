@@ -1,6 +1,6 @@
 import system.io
 open io state_t
-variable [io.interface]
+
 @[reducible] def my_io := state_t nat io
 
 instance lift_io {α} : has_coe (io α) (my_io α) :=

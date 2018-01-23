@@ -15,27 +15,18 @@ Author: Gabriel Ebner
 namespace lean {
 
 class eval_helper {
-    environment m_env;
-    options m_opts;
-
-    type_context m_tc;
-
-    std::vector<std::string> m_cmdline_args;
-
-    buffer<vm_obj> m_args;
-    vm_state m_vms;
+    environment        m_env;
+    options            m_opts;
+    type_context       m_tc;
+    buffer<vm_obj>     m_args;
+    vm_state           m_vms;
     vm_state::profiler m_prof;
-
-    name m_fn;
-    expr m_ty;
-    unsigned m_arity;
+    name               m_fn;
+    expr               m_ty;
+    unsigned           m_arity;
 
 public:
     eval_helper(environment const & env, options const & opts, name const & fn);
-
-    void set_cmdline_args(std::vector<std::string> const & cmdline_args) {
-        m_cmdline_args = cmdline_args;
-    }
 
     vm_obj invoke_fn();
 

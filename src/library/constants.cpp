@@ -183,7 +183,6 @@ name const * g_monad_io_file_system_impl = nullptr;
 name const * g_monad_io_environment_impl = nullptr;
 name const * g_monad_io_process_impl = nullptr;
 name const * g_io = nullptr;
-name const * g_io_interface = nullptr;
 name const * g_is_associative = nullptr;
 name const * g_is_associative_assoc = nullptr;
 name const * g_is_commutative = nullptr;
@@ -571,7 +570,6 @@ void initialize_constants() {
     g_monad_io_environment_impl = new name{"monad_io_environment_impl"};
     g_monad_io_process_impl = new name{"monad_io_process_impl"};
     g_io = new name{"io"};
-    g_io_interface = new name{"io", "interface"};
     g_is_associative = new name{"is_associative"};
     g_is_associative_assoc = new name{"is_associative", "assoc"};
     g_is_commutative = new name{"is_commutative"};
@@ -960,7 +958,6 @@ void finalize_constants() {
     delete g_monad_io_environment_impl;
     delete g_monad_io_process_impl;
     delete g_io;
-    delete g_io_interface;
     delete g_is_associative;
     delete g_is_associative_assoc;
     delete g_is_commutative;
@@ -1348,7 +1345,6 @@ name const & get_monad_io_file_system_impl_name() { return *g_monad_io_file_syst
 name const & get_monad_io_environment_impl_name() { return *g_monad_io_environment_impl; }
 name const & get_monad_io_process_impl_name() { return *g_monad_io_process_impl; }
 name const & get_io_name() { return *g_io; }
-name const & get_io_interface_name() { return *g_io_interface; }
 name const & get_is_associative_name() { return *g_is_associative; }
 name const & get_is_associative_assoc_name() { return *g_is_associative_assoc; }
 name const & get_is_commutative_name() { return *g_is_commutative; }

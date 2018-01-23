@@ -6,6 +6,6 @@ meta definition foo : nat → nat
 
 #eval (foo 10)
 
-variable [io.interface]
+
 meta definition loop : nat → io unit
 | a := do put_str ">> ", print a, put_str "\n", loop (a+1)

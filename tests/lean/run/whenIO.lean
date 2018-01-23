@@ -1,6 +1,6 @@
 import system.io
 open io
-variable [io.interface]
+
 def iowhen (b : bool) (a : io unit) : io unit :=
 if b = tt then a else return ()
 

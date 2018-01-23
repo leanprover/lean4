@@ -573,8 +573,8 @@ int main(int argc, char ** argv) {
 
             auto main_env = get(get(mod->m_result).m_loaded_module->m_env);
             auto main_opts = get(mod->m_result).m_opts;
+            set_io_cmdline_args({argv + optind, argv + argc});
             eval_helper fn(main_env, main_opts, "main");
-            fn.set_cmdline_args({argv + optind, argv + argc});
 
             type_context tc(main_env, main_opts);
             scope_trace_env scope2(main_env, main_opts, tc);

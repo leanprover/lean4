@@ -25,6 +25,8 @@ bool is_handle(vm_obj const & o);
 handle_ref const & to_handle(vm_obj const & o);
 vm_obj to_obj(handle_ref const & h);
 
+void set_io_cmdline_args(std::vector<std::string> const & args);
+
 void initialize_vm_io();
 void finalize_vm_io();
 }

@@ -1,6 +1,6 @@
 import system.io
 open io
-variable [io.interface]
+
 #eval do pp (level.max (level.succ level.zero) (level.param `foo)), put_str "\n"
 
 #eval level.normalize (level.succ (level.max (level.max level.zero (level.succ level.zero)) (level.param `l₁)))

@@ -489,6 +489,10 @@ vm_obj monad_io_impl() {
 
 static std::vector<std::string> * g_cmdline_args = nullptr;
 
+void set_io_cmdline_args(std::vector<std::string> const & args) {
+    *g_cmdline_args = args;
+}
+
 /*
 class monad_io_terminal (m : Type → Type → Type) :=
 (put_str      : string → m io.error unit)

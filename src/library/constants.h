@@ -185,7 +185,6 @@ name const & get_monad_io_file_system_impl_name();
 name const & get_monad_io_environment_impl_name();
 name const & get_monad_io_process_impl_name();
 name const & get_io_name();
-name const & get_io_interface_name();
 name const & get_is_associative_name();
 name const & get_is_associative_assoc_name();
 name const & get_is_commutative_name();

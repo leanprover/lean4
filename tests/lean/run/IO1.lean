@@ -1,7 +1,7 @@
 import system.io
 open list
 open io
-variable [io.interface]
+
 -- set_option pp.all true
 
 definition main : io unit :=

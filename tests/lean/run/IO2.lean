@@ -1,6 +1,6 @@
 import system.io
 open list io
-variable [io.interface]
+
 /- B and unit must be in the same universe
    So, we must put B at Type₁ or use poly_unit
    since unit is at Type₁

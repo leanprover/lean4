@@ -1,6 +1,6 @@
 import system.io
 open io
-variable [io.interface]
+
 set_option trace.compiler.code_gen true
 
 definition main : io unit :=

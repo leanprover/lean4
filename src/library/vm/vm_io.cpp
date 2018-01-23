@@ -24,6 +24,10 @@ Author: Leonardo de Moura
 #include "library/vm/vm_list.h"
 
 namespace lean {
+vm_obj io_core(vm_obj const &, vm_obj const &) {
+    return mk_vm_unit();
+}
+
 vm_obj mk_io_result(vm_obj const & r) {
     return mk_vm_constructor(0, 1, &r);
 }
@@ -57,22 +61,6 @@ static vm_obj cmdline_args_to_obj(std::vector<std::string> const & ss) {
     buffer<vm_obj> objs;
     for (auto & s : ss) objs.push_back(to_obj(s));
     return to_obj(objs);
-}
-
-/*
-structure io.terminal (m : Type → Type → Type) :=
-(put_str     : string → m io.error unit)
-(get_line    : m io.error string)
-(cmdline_args : list string)
-*/
-static vm_obj mk_terminal(std::vector<std::string> const & cmdline_args) {
-    constexpr size_t num_fields = 3;
-    vm_obj fields[num_fields] = {
-        mk_native_closure(io_put_str),
-        mk_native_closure(io_get_line),
-        cmdline_args_to_obj(cmdline_args),
-    };
-    return mk_vm_constructor(0, num_fields, fields);
 }
 
 struct vm_handle : public vm_external {
@@ -272,19 +260,21 @@ static vm_obj fs_stderr(vm_obj const &) {
 }
 
 /*
-(mk_file_handle : string → io.mode → bool → m io.error handle)
-(is_eof         : handle → m io.error bool)
-(flush          : handle → m io.error unit)
-(close          : handle → m io.error unit)
-(read           : handle → nat → m io.error char_buffer)
-(write          : handle → char_buffer → m io.error unit)
-(get_line       : handle → m io.error char_buffer)
-(stdin          : m io.error handle)
-(stdout         : m io.error handle)
-(stderr         : m io.error handle)
+class monad_io_file_system (m : Type → Type → Type) [monad_io m] :=
+/- Remark: in Haskell, they also provide  (Maybe TextEncoding) and  NewlineMode -/
+(mk_file_handle : string → io.mode → bool → m io.error (handle m))
+(is_eof         : (handle m) → m io.error bool)
+(flush          : (handle m) → m io.error unit)
+(close          : (handle m) → m io.error unit)
+(read           : (handle m) → nat → m io.error string)
+(write          : (handle m) → string → m io.error unit)
+(get_line       : (handle m) → m io.error string)
+(stdin          : m io.error (handle m))
+(stdout         : m io.error (handle m))
+(stderr         : m io.error (handle m))
 */
-static vm_obj mk_fs() {
-    vm_obj fields[11] = {
+static vm_obj monad_io_file_system_impl () {
+    return mk_vm_constructor(0, {
         mk_native_closure(fs_mk_file_handle),
         mk_native_closure(fs_is_eof),
         mk_native_closure(fs_flush),
@@ -294,9 +284,7 @@ static vm_obj mk_fs() {
         mk_native_closure(fs_get_line),
         mk_native_closure(fs_stdin),
         mk_native_closure(fs_stdout),
-        mk_native_closure(fs_stderr)
-    };
-    return mk_vm_constructor(0, 11, fields);
+        mk_native_closure(fs_stderr)});
 }
 
 stdio to_stdio(vm_obj const & o) {
@@ -370,15 +358,15 @@ static vm_obj io_process_wait(vm_obj const & ch, vm_obj const &) {
 }
 
 /*
-structure io.process (Err : Type) (handle : Type) (m : Type → Type → Type) :=
-  (child        : Type)
-  (stdin        : child -> handle)
-  (stdout       : child -> handle)
-  (stderr       : child -> handle)
-  (spawn        : process → m Err child)
-  (wait         : child -> m Err nat)
+class monad_io_process (m : Type → Type → Type) [monad_io m] :=
+(child  : Type)
+(stdin  : child → (handle m))
+(stdout : child → (handle m))
+(stderr : child → (handle m))
+(spawn  : io.process.spawn_args → m io.error child)
+(wait   : child → m io.error nat)
 */
-static vm_obj mk_process() {
+static vm_obj monad_io_process_impl() {
     return mk_vm_constructor(0, {
         mk_native_closure([] (vm_obj const & c) { return to_obj(to_child(c)->get_stdin()); }),
         mk_native_closure([] (vm_obj const & c) { return to_obj(to_child(c)->get_stdout()); }),
@@ -466,13 +454,13 @@ static vm_obj io_set_cwd(vm_obj const & cwd, vm_obj const &) {
 }
 
 /*
-structure io.environment (m : Type → Type → Type) :=
+class monad_io_environment (m : Type → Type → Type) :=
 (get_env : string → m io.error (option string))
 -- we don't provide set_env as it is (thread-)unsafe (at least with glibc)
 (get_cwd : m io.error string)
 (set_cwd : string → m io.error unit)
 */
-static vm_obj mk_io_env() {
+vm_obj monad_io_environment_impl() {
     return mk_vm_constructor(0, {
             mk_native_closure(io_get_env),
             mk_native_closure(io_get_cwd),
@@ -481,35 +469,37 @@ static vm_obj mk_io_env() {
 }
 
 /*
-class io.interface :=
-(m        : Type → Type → Type)
-(monad    : Π e, monad (m e))
+class monad_io (m : Type → Type → Type) :=
+[monad    : Π e, monad (m e)]
+-- TODO(Leo): use monad_except after it is merged
 (catch    : Π e₁ e₂ α, m e₁ α → (e₁ → m e₂ α) → m e₂ α)
 (fail     : Π e α, e → m e α)
 (iterate  : Π e α, α → (α → m e (option α)) → m e α)
 -- Primitive Types
 (handle   : Type)
--- Interface Extensions
-(term     : io.terminal m)
-(fs       : io.file_system handle m)
-(process  : io.process io.error handle m)
-(env      : io.environment _)
 */
-vm_obj mk_io_interface(std::vector<std::string> const & cmdline_args) {
+vm_obj monad_io_impl() {
     return mk_vm_constructor(0, {
         mk_native_closure(io_monad),
         mk_native_closure(io_catch),
         mk_native_closure(io_fail),
-        mk_native_closure(io_iterate),
-        mk_terminal(cmdline_args),
-        mk_fs(),
-        mk_process(),
-        mk_io_env(),
-    });
+        mk_native_closure(io_iterate)});
+    /* field handle is erased */
 }
 
-vm_obj mk_io_interface() {
-    return mk_io_interface({});
+static std::vector<std::string> * g_cmdline_args = nullptr;
+
+/*
+class monad_io_terminal (m : Type → Type → Type) :=
+(put_str      : string → m io.error unit)
+(get_line     : m io.error string)
+(cmdline_args : list string)
+*/
+static vm_obj monad_io_terminal_impl() {
+    return mk_vm_constructor(0, {
+            mk_native_closure(io_put_str),
+            mk_native_closure(io_get_line),
+            cmdline_args_to_obj(*g_cmdline_args)});
 }
 
 optional<vm_obj> is_io_result(vm_obj const & o) {
@@ -542,8 +532,16 @@ std::string io_error_to_string(vm_obj const & o) {
 }
 
 void initialize_vm_io() {
+    DECLARE_VM_BUILTIN(name("io_core"), io_core);
+    DECLARE_VM_BUILTIN(name("monad_io_impl"), monad_io_impl);
+    DECLARE_VM_BUILTIN(name("monad_io_terminal_impl"), monad_io_terminal_impl);
+    DECLARE_VM_BUILTIN(name("monad_io_file_system_impl"), monad_io_file_system_impl);
+    DECLARE_VM_BUILTIN(name("monad_io_environment_impl"), monad_io_environment_impl);
+    DECLARE_VM_BUILTIN(name("monad_io_process_impl"), monad_io_process_impl);
+    g_cmdline_args = new std::vector<std::string>();
 }
 
 void finalize_vm_io() {
+    delete g_cmdline_args;
 }
 }

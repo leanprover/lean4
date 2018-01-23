@@ -171,6 +171,12 @@ int.zero_ne_neg_of_ne
 int.decidable_linear_ordered_comm_group
 interactive.param_desc
 interactive.parse
+io_core
+monad_io_impl
+monad_io_terminal_impl
+monad_io_file_system_impl
+monad_io_environment_impl
+monad_io_process_impl
 io
 io.interface
 is_associative

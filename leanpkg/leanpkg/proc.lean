@@ -5,7 +5,6 @@ Author: Gabriel Ebner
 -/
 import system.io leanpkg.toml
 open io io.proc
-variable [io.interface]
 
 namespace leanpkg
 

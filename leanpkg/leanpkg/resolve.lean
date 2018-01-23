@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Gabriel Ebner
 -/
 import leanpkg.manifest system.io leanpkg.proc leanpkg.git
-variable [io.interface]
 
 namespace leanpkg
 

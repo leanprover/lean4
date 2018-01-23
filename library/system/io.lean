@@ -3,131 +3,65 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luke Nelson, Jared Roesch and Leonardo de Moura
 -/
-import data.buffer
+import system.io_interface
 
-inductive io.error
-| other     : string → io.error
-| sys       : nat → io.error
+/- The following constants have a builtin implementation -/
+constant io_core : Type → Type → Type
+@[instance] constant monad_io_impl             : monad_io io_core
+@[instance] constant monad_io_terminal_impl    : monad_io_terminal io_core
+@[instance] constant monad_io_file_system_impl : monad_io_file_system io_core
+@[instance] constant monad_io_environment_impl : monad_io_environment io_core
+@[instance] constant monad_io_process_impl     : monad_io_process io_core
 
-structure io.terminal (m : Type → Type → Type) :=
-(put_str     : string → m io.error unit)
-(get_line    : m io.error string)
-(cmdline_args : list string)
+instance io_core_is_monad (e : Type) : monad (io_core e) :=
+monad_io_is_monad io_core e
 
-inductive io.mode
-| read | write | read_write | append
+instance io_core_is_monad_fail : monad_fail (io_core io.error) :=
+monad_io_is_monad_fail io_core
 
-structure io.file_system (handle : Type) (m : Type → Type → Type) :=
-/- Remark: in Haskell, they also provide  (Maybe TextEncoding) and  NewlineMode -/
-(mk_file_handle : string → io.mode → bool → m io.error handle)
-(is_eof         : handle → m io.error bool)
-(flush          : handle → m io.error unit)
-(close          : handle → m io.error unit)
-(read           : handle → nat → m io.error char_buffer)
-(write          : handle → char_buffer → m io.error unit)
-(get_line       : handle → m io.error char_buffer)
-(stdin          : m io.error handle)
-(stdout         : m io.error handle)
-(stderr         : m io.error handle)
-
-structure io.environment (m : Type → Type → Type) :=
-(get_env : string → m io.error (option string))
--- we don't provide set_env as it is (thread-)unsafe (at least with glibc)
-(get_cwd : m io.error string)
-(set_cwd : string → m io.error unit)
-
-inductive io.process.stdio
-| piped
-| inherit
-| null
-
-structure io.process.spawn_args :=
-/- Command name. -/
-(cmd : string)
-/- Arguments for the process -/
-(args : list string := [])
-/- Configuration for the process' stdin handle. -/
-(stdin := stdio.inherit)
-/- Configuration for the process' stdout handle. -/
-(stdout := stdio.inherit)
-/- Configuration for the process' stderr handle. -/
-(stderr := stdio.inherit)
-/- Working directory for the process. -/
-(cwd : option string := none)
-/- Environment variables for the process. -/
-(env : list (string × option string) := [])
-
-structure io.process (handle : Type) (m : Type → Type → Type) :=
-(child : Type) (stdin : child → handle) (stdout : child → handle) (stderr : child → handle)
-(spawn : io.process.spawn_args → m io.error child)
-(wait : child → m io.error nat)
-
-class io.interface :=
-(m        : Type → Type → Type)
-(monad    : Π e, monad (m e))
-(catch    : Π e₁ e₂ α, m e₁ α → (e₁ → m e₂ α) → m e₂ α)
-(fail     : Π e α, e → m e α)
-(iterate  : Π e α, α → (α → m e (option α)) → m e α)
--- Primitive Types
-(handle   : Type)
--- Interface Extensions
-(term     : io.terminal m)
-(fs       : io.file_system handle m)
-(process  : io.process handle m)
-(env      : io.environment m)
-
-variable [ioi : io.interface]
-include ioi
-
-def io_core (e : Type) (α : Type) :=
-io.interface.m e α
+instance io_core_is_alternative : alternative (io_core io.error) :=
+monad_io_is_alternative io_core
 
 @[reducible] def io (α : Type) :=
 io_core io.error α
 
-instance io_core_is_monad (e : Type) : monad (io_core e) :=
-io.interface.monad e
-
-protected def io.fail {α : Type} (s : string) : io α :=
-io.interface.fail io.error α (io.error.other s)
-
-instance : monad_fail io :=
-{ fail := @io.fail _, ..io_core_is_monad io.error }
-
 namespace io
+/- Remark: the following definitions can be generalized and defined for any (m : Type -> Type -> Type)
+   that implements the required type classes. However, the generalized versions are very inconvenient to use,
+   (example: `#eval io.put_str "hello world"` does not work because we don't have enough information to infer `m`.).
+-/
 def iterate {e α} (a : α) (f : α → io_core e (option α)) : io_core e α :=
-interface.iterate e α a f
+monad_io.iterate e α a f
 
 def forever {e} (a : io_core e unit) : io_core e unit :=
 iterate () $ λ _, a >> return (some ())
 
+-- TODO(Leo): delete after we merge #1881
 def catch {e₁ e₂ α} (a : io_core e₁ α) (b : e₁ → io_core e₂ α) : io_core e₂ α :=
-interface.catch e₁ e₂ α a b
+monad_io.catch e₁ e₂ α a b
 
 def finally {α e} (a : io_core e α) (cleanup : io_core e unit) : io_core e α := do
 res ← catch (sum.inr <$> a) (return ∘ sum.inl),
 cleanup,
 match res with
 | sum.inr res := return res
-| sum.inl error := io.interface.fail _ _ error
+| sum.inl error := monad_io.fail _ _ _ error
 end
 
-instance : alternative io :=
-{ orelse := λ _ a b, catch a (λ _, b),
-  failure := λ _, io.fail "failure",
-  ..interface.monad _ }
+protected def fail {α : Type} (s : string) : io α :=
+monad_io.fail io_core _ _ (io.error.other s)
 
 def put_str : string → io unit :=
-interface.term.put_str
+monad_io_terminal.put_str io_core
 
 def put_str_ln (s : string) : io unit :=
 put_str s >> put_str "\n"
 
 def get_line : io string :=
-interface.term.get_line
+monad_io_terminal.get_line io_core
 
 def cmdline_args : io (list string) :=
-return interface.term.cmdline_args
+return (monad_io_terminal.cmdline_args io_core)
 
 def print {α} [has_to_string α] (s : α) : io unit :=
 put_str ∘ to_string $ s
@@ -136,50 +70,50 @@ def print_ln {α} [has_to_string α] (s : α) : io unit :=
 print s >> put_str "\n"
 
 def handle : Type :=
-interface.handle
+monad_io.handle io_core
 
 def mk_file_handle (s : string) (m : mode) (bin : bool := ff) : io handle :=
-interface.fs.mk_file_handle s m bin
+monad_io_file_system.mk_file_handle io_core s m bin
 
 def stdin : io handle :=
-interface.fs.stdin
+monad_io_file_system.stdin io_core
 
 def stderr : io handle :=
-interface.fs.stderr
+monad_io_file_system.stderr io_core
 
 def stdout : io handle :=
-interface.fs.stdout
+monad_io_file_system.stdout io_core
 
 namespace env
 
 def get (env_var : string) : io (option string) :=
-interface.env.get_env env_var
+monad_io_environment.get_env io_core env_var
 
 /-- get the current working directory -/
 def get_cwd : io string :=
-interface.env.get_cwd
+monad_io_environment.get_cwd io_core
 
 /-- set the current working directory -/
 def set_cwd (cwd : string) : io unit :=
-interface.env.set_cwd cwd
+monad_io_environment.set_cwd io_core cwd
 
 end env
 
 namespace fs
 def is_eof : handle → io bool :=
-interface.fs.is_eof
+monad_io_file_system.is_eof
 
 def flush : handle → io unit :=
-interface.fs.flush
+monad_io_file_system.flush
 
 def close : handle → io unit :=
-interface.fs.close
+monad_io_file_system.close
 
 def read : handle → nat → io char_buffer :=
-interface.fs.read
+monad_io_file_system.read
 
 def write : handle → char_buffer → io unit :=
-interface.fs.write
+monad_io_file_system.write
 
 def get_char (h : handle) : io char :=
 do b ← read h 1,
@@ -187,7 +121,7 @@ do b ← read h 1,
    else io.fail "get_char failed"
 
 def get_line : handle → io char_buffer :=
-interface.fs.get_line
+monad_io_file_system.get_line
 
 def put_char (h : handle) (c : char) : io unit :=
 write h (mk_buffer.push_back c)
@@ -214,12 +148,24 @@ do h ← mk_file_handle s io.mode.read bin,
 end fs
 
 namespace proc
-def child : Type := interface.process.child
-def child.stdin : child → handle := interface.process.stdin
-def child.stdout : child → handle := interface.process.stdout
-def child.stderr : child → handle := interface.process.stderr
-def spawn (p : io.process.spawn_args) : io child := interface.process.spawn p
-def wait (c : child) : io nat := interface.process.wait c
+def child : Type :=
+monad_io_process.child io_core
+
+def child.stdin : child → handle :=
+monad_io_process.stdin
+
+def child.stdout : child → handle :=
+monad_io_process.stdout
+
+def child.stderr : child → handle :=
+monad_io_process.stderr
+
+def spawn (p : io.process.spawn_args) : io child :=
+monad_io_process.spawn io_core p
+
+def wait (c : child) : io nat :=
+monad_io_process.wait c
+
 end proc
 
 end io
@@ -238,8 +184,7 @@ format.print (to_fmt a)
 /-- Run the external process specified by `args`.
 
     The process will run to completion with its output captured by a pipe, and
-    read into `string` which is then returned.
--/
+    read into `string` which is then returned. -/
 def io.cmd (args : io.process.spawn_args) : io string :=
 do child ← io.proc.spawn { stdout := io.process.stdio.piped, ..args },
   buf ← io.fs.read_to_end child.stdout,
@@ -247,6 +192,5 @@ do child ← io.proc.spawn { stdout := io.process.stdio.piped, ..args },
   when (exitv ≠ 0) $ io.fail $ "process exited with status " ++ repr exitv,
   return buf.to_string
 
-omit ioi
 /-- Lift a monadic `io` action into the `tactic` monad. -/
-meta constant tactic.run_io {α : Type} : (Π ioi : io.interface, @io ioi α) → tactic α
+meta constant tactic.run_io {α : Type} : io α → tactic α

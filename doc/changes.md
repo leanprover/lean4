@@ -128,6 +128,9 @@ master branch (aka work in progress branch)
 
 *Changes*
 
+* Command `variable [io.interface]` is not needed anymore to use the `io` monad.
+  It is also easier to add new io primitives.
+
 * Replace `inout` modifier in type class declarations with `out_param` modifier.
   Reason: counterintuitive behavior in the type class resolution procedure.
   The result could depend on partial information available in the `inout`

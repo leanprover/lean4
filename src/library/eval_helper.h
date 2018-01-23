@@ -30,8 +30,6 @@ class eval_helper {
     expr m_ty;
     unsigned m_arity;
 
-    expr m_io_iface;
-
 public:
     eval_helper(environment const & env, options const & opts, name const & fn);
 
@@ -39,7 +37,6 @@ public:
         m_cmdline_args = cmdline_args;
     }
 
-    void dependency_injection();
     vm_obj invoke_fn();
 
     expr const & get_type() const { return m_ty; }

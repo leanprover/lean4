@@ -487,7 +487,6 @@ static environment eval_cmd(parser & p) {
 
     auto run = [&] {
         eval_helper fn(new_env, p.get_options(), fn_name);
-        fn.dependency_injection();
         try {
             if (!fn.try_exec()) {
                 auto r = fn.invoke_fn();

@@ -95,7 +95,7 @@ match parser.run_string toml.File s with
 | sum.inl _ := none
 end
 
-def from_file [io.interface] (fn : string) : io manifest := do
+def from_file (fn : string) : io manifest := do
 cnts ← io.fs.read_file fn,
 toml ←
   (match parser.run toml.File cnts with

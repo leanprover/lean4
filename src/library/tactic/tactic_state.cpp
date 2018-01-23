@@ -791,7 +791,7 @@ vm_obj tactic_add_aux_decl(vm_obj const & n, vm_obj const & type, vm_obj const &
 }
 
 vm_obj tactic_run_io(vm_obj const &, vm_obj const & a, vm_obj const & s) {
-    vm_obj r = invoke(a, mk_io_interface(), mk_vm_unit());
+    vm_obj r = invoke(a, mk_vm_unit());
     if (optional<vm_obj> a = is_io_result(r)) {
         return tactic::mk_success(*a, tactic::to_state(s));
     } else {

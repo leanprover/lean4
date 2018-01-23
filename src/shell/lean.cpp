@@ -580,7 +580,6 @@ int main(int argc, char ** argv) {
             scope_trace_env scope2(main_env, main_opts, tc);
 
             try {
-                fn.dependency_injection();
                 if (fn.try_exec()) {
                     return 0;
                 } else {

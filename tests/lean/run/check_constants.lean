@@ -176,6 +176,12 @@ run_cmd script_check_id `int.zero_ne_neg_of_ne
 run_cmd script_check_id `int.decidable_linear_ordered_comm_group
 run_cmd script_check_id `interactive.param_desc
 run_cmd script_check_id `interactive.parse
+run_cmd script_check_id `io_core
+run_cmd script_check_id `monad_io_impl
+run_cmd script_check_id `monad_io_terminal_impl
+run_cmd script_check_id `monad_io_file_system_impl
+run_cmd script_check_id `monad_io_environment_impl
+run_cmd script_check_id `monad_io_process_impl
 run_cmd script_check_id `io
 run_cmd script_check_id `io.interface
 run_cmd script_check_id `is_associative

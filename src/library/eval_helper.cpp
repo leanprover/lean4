@@ -22,28 +22,6 @@ eval_helper::eval_helper(environment const & env, options const & opts, name con
     } else {
         throw exception(sstream() << "no vm declaration found for " << m_fn);
     }
-
-    m_io_iface = m_tc.push_local(
-            "_vm_io_iface", mk_constant(get_io_interface_name(), {}),
-            mk_inst_implicit_binder_info());
-}
-
-void eval_helper::dependency_injection() {
-    while (is_pi(m_ty)) {
-        auto arg_ty = m_tc.whnf(binding_domain(m_ty));
-        optional<expr> arg;
-
-        if (is_constant(get_app_fn(arg_ty), get_io_interface_name())) {
-            m_args.push_back(mk_io_interface(m_cmdline_args));
-            arg = m_io_iface;
-        }
-
-        if (arg) {
-            m_ty = m_tc.whnf(instantiate(binding_body(m_ty), *arg));
-        } else {
-            break;
-        }
-    }
 }
 
 vm_obj eval_helper::invoke_fn() {
@@ -57,7 +35,7 @@ vm_obj eval_helper::invoke_fn() {
 }
 
 optional<vm_obj> eval_helper::try_exec_io() {
-    if (is_constant(get_app_fn(m_ty), get_io_name()) && app_arg(app_fn(m_ty)) == m_io_iface) {
+    if (is_app_of(m_ty, get_io_name(), 1)) {
         m_args.push_back(mk_vm_simple(0)); // "world state"
         auto r = invoke_fn();
         if (auto error = is_io_error(r)) {

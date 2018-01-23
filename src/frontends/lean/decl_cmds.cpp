@@ -31,6 +31,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/structure_cmd.h"
 #include "frontends/lean/definition_cmds.h"
 #include "frontends/lean/inductive_cmds.h"
+#include "frontends/lean/info_manager.h"
 
 namespace lean {
 // TODO(Leo): delete
@@ -540,7 +541,11 @@ static environment attribute_cmd_core(parser & p, bool persistent) {
     name d          = p.check_constant_next("invalid 'attribute' command, constant expected");
     ds.push_back(d);
     while (p.curr_is_identifier()) {
-        ds.push_back(p.check_constant_next("invalid 'attribute' command, constant expected"));
+        auto pos = p.pos();
+        name d = p.check_constant_next("invalid 'attribute' command, constant expected");
+        ds.push_back(d);
+        if (get_global_info_manager())
+            get_global_info_manager()->add_const_info(p.env(), pos, d);
     }
     if (attributes.is_parsing_only())
         throw exception(sstream() << "invalid [parsing_only] attribute, can only be applied at declaration time");

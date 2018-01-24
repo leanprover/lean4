@@ -43,7 +43,6 @@ Author: Daniel Selsam, Leonardo de Moura
 #include "library/vm/vm_name.h"
 #include "library/tactic/eqn_lemmas.h"
 #include "library/tactic/tactic_state.h"
-#include "library/tactic/ac_tactics.h"
 #include "library/tactic/app_builder_tactics.h"
 #include "library/tactic/simp_lemmas.h"
 #include "library/tactic/simplify.h"

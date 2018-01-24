@@ -26,14 +26,14 @@ namespace lean {
      `field`, `linerar_ordered_field`. Moreover, we want to use the unbundled approach for structures
      such as `monoid` and `group`.
 
-   - mpq_macro (which is used only by the SMT2 frontend)
+   - It was also used by mpq_macro (which is used only by the SMT2 frontend)
      Remark: the SMT2 frontend was originally built to test the performance of
      a blast tactic that Leo and Daniel were developing. This tactic does not
      exist anymore. Moreover, SMT2 benchmarks are far from ideal for testing
-     a system like Lean. AFAICT, nobody uses the SMT2 frontend
+     a system like Lean. AFAICT, nobody uses the SMT2 frontend.
+     So, we have deleted `mpq_macro` and the SMT2 frontend. Motivation: less stuff to maintain.
 
    Plan:
-   - Delete `mpq_macro` and the SMT2 frontend. Motivation: less stuff to maintain.
 
    - Reduce the number of structures used by `norm_num`. We just need to change
      the lemmas used by `norm_num` and adjust the C++ code. An additional motivation

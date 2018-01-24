@@ -43,7 +43,6 @@ Author: Leonardo de Moura
 #include "library/delayed_abstraction.h"
 #include "library/app_builder.h"
 #include "library/fun_info.h"
-#include "library/mpq_macro.h"
 #include "library/inverse.h"
 #include "library/pattern_attribute.h"
 #include "library/comp_val.h"
@@ -108,7 +107,6 @@ void initialize_library_module() {
     initialize_unification_hint();
     initialize_type_context();
     initialize_delayed_abstraction();
-    initialize_mpq_macro();
     initialize_inverse();
     initialize_pattern_attribute();
     initialize_comp_val();
@@ -128,7 +126,6 @@ void finalize_library_module() {
     finalize_comp_val();
     finalize_pattern_attribute();
     finalize_inverse();
-    finalize_mpq_macro();
     finalize_delayed_abstraction();
     finalize_type_context();
     finalize_unification_hint();

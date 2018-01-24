@@ -13,8 +13,7 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   attribute_manager.cpp unification_hint.cpp
   local_context.cpp metavar_context.cpp type_context.cpp export_decl.cpp delayed_abstraction.cpp
   fun_info.cpp congr_lemma.cpp defeq_canonizer.cpp
-  mpq_macro.cpp replace_visitor_with_tc.cpp
-  aux_definition.cpp inverse.cpp pattern_attribute.cpp choice.cpp
+  replace_visitor_with_tc.cpp aux_definition.cpp inverse.cpp pattern_attribute.cpp choice.cpp
   locals.cpp normalize.cpp discr_tree.cpp
   mt_task_queue.cpp st_task_queue.cpp
   library_task_builder.cpp

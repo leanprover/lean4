@@ -790,7 +790,7 @@ vm_obj tactic_add_aux_decl(vm_obj const & n, vm_obj const & type, vm_obj const &
     }
 }
 
-vm_obj tactic_run_io(vm_obj const &, vm_obj const & a, vm_obj const & s) {
+vm_obj tactic_unsafe_run_io(vm_obj const &, vm_obj const & a, vm_obj const & s) {
     vm_obj r = invoke(a, mk_vm_unit());
     if (optional<vm_obj> a = is_io_result(r)) {
         return tactic::mk_success(*a, tactic::to_state(s));
@@ -992,7 +992,7 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "open_namespaces"}),      tactic_open_namespaces);
     DECLARE_VM_BUILTIN(name({"tactic", "decl_name"}),            tactic_decl_name);
     DECLARE_VM_BUILTIN(name({"tactic", "add_aux_decl"}),         tactic_add_aux_decl);
-    DECLARE_VM_BUILTIN(name({"tactic", "run_io"}),               tactic_run_io);
+    DECLARE_VM_BUILTIN(name({"tactic", "unsafe_run_io"}),        tactic_unsafe_run_io);
     DECLARE_VM_BUILTIN(name({"tactic", "using_new_ref"}),        tactic_using_new_ref);
     DECLARE_VM_BUILTIN(name({"tactic", "read_ref"}),             tactic_read_ref);
     DECLARE_VM_BUILTIN(name({"tactic", "write_ref"}),            tactic_write_ref);

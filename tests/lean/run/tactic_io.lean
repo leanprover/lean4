@@ -10,7 +10,7 @@ end
 
 open tactic
 meta def tac : tactic unit :=
-do s ← tactic.run_io @tst_io,
+do s ← tactic.unsafe_run_io tst_io,
    trace s
 
 run_cmd tac

@@ -192,5 +192,24 @@ do child ← io.proc.spawn { stdout := io.process.stdio.piped, ..args },
   when (exitv ≠ 0) $ io.fail $ "process exited with status " ++ repr exitv,
   return buf.to_string
 
-/-- Lift a monadic `io` action into the `tactic` monad. -/
-meta constant tactic.run_io {α : Type} : io α → tactic α
+/--
+This is the "back door" into the `io` monad, allowing IO computation to be performed during tactic execution.
+For this to be safe, the IO computation should be ideally free of side effects and independent of its environment.
+This primitive is used to invoke external tools (e.g., SAT and SMT solvers) from a tactic.
+
+IMPORTANT: this primitive can be used to implement `unsafe_perform_io {α : Type} : io α → option α`
+or `unsafe_perform_io {α : Type} [inhabited α] : io α → α`. This can be accomplished by executing
+the resulting tactic using an empty `tactic_state` (we have `tactic_state.mk_empty`).
+If `unsafe_perform_io` is defined, and used to perform side-effects, users need to take the following
+precautions:
+
+- Use `@[noinline]` attribute in any function to invokes `tactic.unsafe_perform_io`.
+  Reason: if the call is inlined, the IO may be performed more than once.
+
+- Set `set_option compiler.cse false` before any function that invokes `tactic.unsafe_perform_io`.
+  This option disables common subexpression elimination. Common subexpression elimination
+  might combine two side effects that were meant to be separate.
+
+TODO[Leo]: add `[noinline]` attribute and option `compiler.cse`.
+-/
+meta constant tactic.unsafe_run_io {α : Type} : io α → tactic α

@@ -226,7 +226,7 @@ struct parse_tactic_fn {
     }
 
     expr andthen(expr const & tac1, expr const & tac2, pos_info const & pos) {
-        expr r = m_p.save_pos(mk_app(mk_constant(get_andthen_name()), tac1, tac2), pos);
+        expr r = m_p.save_pos(mk_app(mk_constant(get_has_andthen_andthen_name()), tac1, tac2), pos);
         if (m_use_istep)
             r = mk_tactic_istep(m_p, r, pos, pos, m_tac_class);
         return r;

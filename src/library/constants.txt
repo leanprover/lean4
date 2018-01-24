@@ -80,7 +80,7 @@ ge
 gt
 has_add
 has_add.add
-andthen
+has_andthen.andthen
 has_bind.and_then
 has_bind.bind
 has_bind.seq

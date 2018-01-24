@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/kernel_serializer.h"
 #include "library/constructions/projection.h"
+#include "library/class.h"
 
 namespace lean {
 [[ noreturn ]] static void throw_ill_formed(name const & n) {
@@ -190,8 +191,14 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
     for (unsigned i = 0; i < nparams; i++) {
         if (!is_pi(intro_type))
             throw_ill_formed(n);
-        expr param = mk_local(mk_fresh_name(), binding_name(intro_type), binding_domain(intro_type),
-            binding_info(intro_type).is_inst_implicit() ? mk_inst_implicit_binder_info() : binder_info());
+        auto bi = binding_info(intro_type);
+        if (!bi.is_inst_implicit())
+            // We reset implicit binders in favor of having them inferred by `infer_implicit_params` later
+            bi = binder_info();
+        if (is_class_out_param(binding_domain(intro_type)))
+            // out_params should always be implicit since they can be inferred from the later `c` argument
+            bi = mk_implicit_binder_info();
+        expr param = mk_local(mk_fresh_name(), binding_name(intro_type), binding_domain(intro_type), bi);
         intro_type = instantiate(binding_body(intro_type), param);
         params.push_back(param);
     }

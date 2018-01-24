@@ -62,11 +62,8 @@ class Quote {V : out_param $ Type u} (l : out_param $ Env V) (n : Value) {V' : o
 (quote      : Expr (sum V V'))
 (eval_quote : evalExpr (merge l r) quote = n)
 
-def quote {V : Type u} {l : Env V} (n : nat) {V' : Type v} {r : Env V'} [Quote l n r] : Expr (sum V V') :=
-Quote.quote l n r
-
-@[simp] lemma eval_quote {V : Type u} {l : Env V} (n : nat) {V' : Type v} {r : Env V'} [Quote l n r] : evalExpr (merge l r) (quote n) = n :=
-Quote.eval_quote l n r
+export Quote (quote eval_quote)
+attribute [simp] eval_quote
 
 instance quote_one (V) (v : Env V) : Quote v 1 novars :=
 { quote      := One,

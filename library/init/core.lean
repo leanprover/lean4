@@ -333,8 +333,7 @@ class has_sep (α : out_param $ Type u) (γ : Type v) :=
 /- Type class for set-like membership -/
 class has_mem (α : out_param $ Type u) (γ : Type v) := (mem : α → γ → Prop)
 
-def andthen {α : Type u} {β : Type v} {σ : Type w} [has_andthen α β σ] : α → β → σ :=
-has_andthen.andthen σ
+export has_andthen (andthen)
 
 infix ∈        := has_mem.mem
 notation a ∉ s := ¬ has_mem.mem a s

@@ -87,7 +87,7 @@ name const & get_ge_name();
 name const & get_gt_name();
 name const & get_has_add_name();
 name const & get_has_add_add_name();
-name const & get_andthen_name();
+name const & get_has_andthen_andthen_name();
 name const & get_has_bind_and_then_name();
 name const & get_has_bind_bind_name();
 name const & get_has_bind_seq_name();

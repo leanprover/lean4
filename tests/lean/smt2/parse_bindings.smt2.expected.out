@@ -1,9 +1,0 @@
-[assert] Pi (x : int), (eq.{1} int x x)
-[assert] Pi (x : int) (y : int), (eq.{1} int x y)
-[assert] Pi (x : int) (y : int) (z : int), (and (eq.{1} int x y) (eq.{1} int y z))
-[assert] Exists.{1} int (fun (x : int), (eq.{1} int x x))
-[assert] Exists.{1} int (fun (x : int), (Exists.{1} int (fun (y : int), (eq.{1} int x y))))
-[assert] Exists.{1} int (fun (x : int), (Exists.{1} int (fun (y : int), (Exists.{1} int (fun (z : int), (and (eq.{1} int x y) (eq.{1} int y z)))))))
-[assert] let x : int := mpq int in eq.{1} int #0 #0
-[assert] let x : int := mpq int in let y : int := mpq int in eq.{1} int #1 #0
-[assert] let x : int := mpq int in let y : int := mpq int in let z : int := mpq int in and (eq.{1} int #2 #1) (eq.{1} int #1 #0)

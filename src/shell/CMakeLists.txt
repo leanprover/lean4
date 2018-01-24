@@ -143,15 +143,6 @@ FOREACH(T ${LEANTESTS})
   endif()
 ENDFOREACH(T)
 
-# SMT2 TESTS
-# file(GLOB SMT2TESTS "${LEAN_SOURCE_DIR}/../tests/lean/smt2/*.smt2")
-# FOREACH(T ${SMT2TESTS})
-#   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-#   add_test(NAME "smt2test_${T_NAME}"
-#            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/smt2/"
-#            COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
-# ENDFOREACH(T)
-
 # LEAN RUN TESTS
 file(GLOB LEANRUNTESTS "${LEAN_SOURCE_DIR}/../tests/lean/run/*.lean")
 add_test(NAME leanruntest_clear_all
@@ -204,15 +195,6 @@ FOREACH(T ${LEANFAILTESTS})
         set_tests_properties("leanfailtest2_${T_NAME}" PROPERTIES DEPENDS "leanfailtest_${T_NAME};leanfailtest_all;leanfailtest_clear_all"
                 FIXTURES_REQUIRED AllFiles)
     endif()
-ENDFOREACH(T)
-
-# SMT2 RUN TESTS
-file(GLOB SMT2RUNTESTS "${LEAN_SOURCE_DIR}/../tests/lean/smt2/run/*.smt2")
-FOREACH(T ${SMT2RUNTESTS})
-  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-  add_test(NAME "smt2runtest_${T_NAME}"
-           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/smt2/run/"
-           COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
 ENDFOREACH(T)
 
 # LEANPKG TESTS

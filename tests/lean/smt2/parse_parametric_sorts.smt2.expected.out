@@ -1,9 +1,0 @@
-[declare_sort] F : Type -> Type
-[declare_sort] X : Type
-[declare_sort] Y : Type
-[declare_const] x : X
-[declare_const] x1 : X
-[declare_const] x2 : X
-[declare_const] y : Y
-[declare_fun] f : X -> (F X)
-[assert] and (eq.{1} (F X) (f x) (f x1)) (eq.{1} (F X) (f x1) (f x2))

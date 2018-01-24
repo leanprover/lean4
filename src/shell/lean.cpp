@@ -42,7 +42,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/dependencies.h"
-#include "frontends/smt2/parser.h"
 #include "frontends/lean/json.h"
 #include "frontends/lean/util.h"
 #include "library/native_compiler/options.h"
@@ -80,8 +79,6 @@ static void display_header(std::ostream & out) {
 
 static void display_help(std::ostream & out) {
     display_header(out);
-    std::cout << "Input format:\n";
-    std::cout << "  --smt2             interpret files as SMT-Lib2 files\n";
     std::cout << "Miscellaneous:\n";
     std::cout << "  --help -h          display this message\n";
     std::cout << "  --version -v       display version number\n";
@@ -123,7 +120,6 @@ static struct option g_long_options[] = {
     {"version",      no_argument,       0, 'v'},
     {"help",         no_argument,       0, 'h'},
     {"run",          required_argument, 0, 'a'},
-    {"smt2",         no_argument,       0, 'Y'},
     {"githash",      no_argument,       0, 'g'},
     {"make",         no_argument,       0, 'm'},
     {"recursive",    no_argument,       0, 'R'},
@@ -345,7 +341,6 @@ int main(int argc, char ** argv) {
     bool make_mode          = false;
     bool recursive          = false;
     unsigned trust_lvl      = LEAN_BELIEVER_TRUST_LEVEL+1;
-    bool smt2               = false;
     bool compile            = false;
     bool only_deps          = false;
     bool test_suite         = false;
@@ -385,9 +380,6 @@ int main(int argc, char ** argv) {
             return 0;
         case 'a':
             run_arg = optarg;
-            break;
-        case 'Y':
-            smt2 = true;
             break;
         case 's':
             lean::lthread::set_thread_stack_size(static_cast<size_t>((atoi(optarg)/4)*4)*static_cast<size_t>(1024));
@@ -532,24 +524,6 @@ int main(int argc, char ** argv) {
     scope_log_tree_core scope_lt(&lt_root);
 
     scope_global_ios scope_ios(ios);
-
-    if (smt2) {
-        // Note: the smt2 flag may override other flags
-        bool ok = true;
-        for (int i = optind; i < argc; i++) {
-            try {
-                if (doc) throw lean::exception("leandoc does not support .smt2 files");
-                ok = smt2::parse_commands(path.get_path(), env, ios, argv[i]);
-            } catch (lean::exception & ex) {
-                ok = false;
-                type_context tc(env, ios.get_options());
-                lean::message_builder(std::make_shared<type_context>(env, ios.get_options()),
-                                      env, ios, argv[i], pos_info(1, 1), lean::ERROR)
-                        .set_exception(ex).report();
-            }
-        }
-        return ok ? 0 : 1;
-    }
 
     try {
         std::shared_ptr<task_queue> tq;

@@ -10,7 +10,53 @@ Author: Leonardo de Moura
 /* TODO(Leo): reduce after testing */
 #define LEAN_AC_MACROS_TRUST_LEVEL 10000000
 
+/* Remark: this module is currently used by tactic/smt/theory_ac.cpp.
+
+   It provides infrastructure for:
+   1- Representing AC applications `op a_1 (op a_2 ...)` more compactly using a macro `ac_macro op a_1 ... a_n`
+   2- Helper functions for performing operations such as diff/append/lt/... on these terms.
+   3- A macro for creating compact proofs for equalities of the form `(ac_macro op a_1 ... a_n) = (ac_macro op b_1 ... b_n)`
+      where `[a_1, ..., a_n]` is a permutation of `[b_1, ..., b_n]`
+   4- Helper class for detecting whether `op` is associative or commutative.
+
+   TODO(Leo): move this class or implement a similar one in `library/` because the `ac_match`
+   module needs this functionality. Here, we only need to keep the code for exposing this functionality
+   as Lean tactics.
+*/
+
 namespace lean {
+/*
+   This helper class is used to "efficiently" decide whether `op` in an application `(op a b)` is
+   associative/commutative or not. The type classes `is_associative` and `is_commutative` are parametrized
+   by the operator `op`. We don't want to try to synthesize `is_associative _ op` and `is_commutative _ op`
+   for each subterm `op a b`. In the current implementation we use a cache, mappings from `op` to
+   the `optional<expr>` (`none` if there is no instance, and `some(inst)` if we manage to synthesize `inst`.
+
+   This class does not yet use the `[algebra]` attribute to speedup the process.
+   It does not use `get_class_attribute_symbols(env, "algebra")` to retrieve all symbols that
+   appear in instances of type classes marked with the `algebra` attribute.
+   The idea is the following, given `(op a b)`, if `get_app_fn(op)` is a constant, we can assume
+   that `op` is not associative nor commutative if `const_name(get_app_fn(op))` is not in the set
+   retrieved by `get_class_attribute_symbols`. This is an approximation because it does not take reduction into
+   account, but it seems good enough in practice. Here is an example where this approach would fail: we have an
+   AC operator `boo`, and we define
+   ```
+   @[reducible] def bla := boo
+   ```
+   `boo` is in the set returned by `get_class_attribute_symbols(env, "algebra")`, but `bla` is not.
+   One possible workaround is to create an instance of "algebraic type" class using `bla`.
+   We can even have a "fake" type class for this purpose.
+   Another possibility is to tell users they should unfold `bla` in this kind of situation.
+   The main question is: should we implement this optimization or not?
+
+   Remark: we can also extend the optimization above to local constants. We create a set for local constants
+   occurring in local instances of type classes tagged with the `[algebra]` attribute.
+
+   Remark: for the ac_match module we also need to track the instances of the type class `is_symm_op`.
+   For the future algebraic normalizer, we need to track many more instances.
+
+   Summary: we need to move this module to `library/`, we need to extend it, and add missing optimizations.
+*/
 class ac_manager {
 public:
     struct cache;

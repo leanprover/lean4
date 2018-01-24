@@ -192,13 +192,17 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
         if (!is_pi(intro_type))
             throw_ill_formed(n);
         auto bi = binding_info(intro_type);
+        auto type = binding_domain(intro_type);
         if (!bi.is_inst_implicit())
             // We reset implicit binders in favor of having them inferred by `infer_implicit_params` later
             bi = binder_info();
-        if (is_class_out_param(binding_domain(intro_type)))
+        if (is_class_out_param(type)) {
+            // hide `out_param`
+            type = app_arg(type);
             // out_params should always be implicit since they can be inferred from the later `c` argument
             bi = mk_implicit_binder_info();
-        expr param = mk_local(mk_fresh_name(), binding_name(intro_type), binding_domain(intro_type), bi);
+        }
+        expr param = mk_local(mk_fresh_name(), binding_name(intro_type), type, bi);
         intro_type = instantiate(binding_body(intro_type), param);
         params.push_back(param);
     }

@@ -1,4 +1,3 @@
 @[instance, reducible]
-def module.to_add_comm_group : Π {α : out_param (Type u)} (β : Type v) {_inst_1 : out_param (ring α)} [c : module α β], add_comm_group β :=
-λ {α : out_param (Type u)} (β : Type v) {_inst_1 : out_param (ring α)} [c : module α β],
-  [module.to_add_comm_group c]
+def module.to_add_comm_group : Π {α : Type u} (β : Type v) {_inst_1 : ring α} [c : module α β], add_comm_group β :=
+λ {α : Type u} (β : Type v) {_inst_1 : ring α} [c : module α β], [module.to_add_comm_group c]

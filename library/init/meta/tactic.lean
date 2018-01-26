@@ -276,9 +276,9 @@ meta constant zeta            : expr → tactic expr
 /-- (head) eta reduction -/
 meta constant head_eta        : expr → tactic expr
 /-- Succeeds if `t` and `s` can be unified using the given transparency setting. -/
-meta constant unify (t s : expr) (md := semireducible) : tactic unit
+meta constant unify (t s : expr) (md := semireducible) (approx := ff) : tactic unit
 /-- Similar to `unify`, but it treats metavariables as constants. -/
-meta constant is_def_eq (t s : expr) (md := semireducible) : tactic unit
+meta constant is_def_eq (t s : expr) (md := semireducible) (approx := ff) : tactic unit
 /-- Infer the type of the given expression.
    Remark: transparency does not affect type inference -/
 meta constant infer_type    : expr → tactic expr

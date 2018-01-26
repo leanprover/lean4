@@ -35,5 +35,5 @@ public:
 std::unique_ptr<normalizer_extension> mk_id_normalizer_extension();
 
 /** \brief Create the composition of two normalizer extensions */
-std::unique_ptr<normalizer_extension> compose(std::unique_ptr<normalizer_extension> && ext1, std::unique_ptr<normalizer_extension> && ext2);
+std::unique_ptr<normalizer_extension> compose_ext(std::unique_ptr<normalizer_extension> && ext1, std::unique_ptr<normalizer_extension> && ext2);
 }

@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
-#include <sys/file.h>
 #include <errno.h>
 #include "util/exception.h"
 #include "util/sstream.h"
@@ -14,10 +13,12 @@ Author: Leonardo de Moura
 #if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
 #include <windows.h>
 #include <io.h>
+#include <fcntl.h>
 #define   LOCK_SH   1    /* shared lock */
 #define   LOCK_EX   2    /* exclusive lock */
 #define   LOCK_NB   4    /* don't block when locking */
 #define   LOCK_UN   8    /* unlock */
+#define   O_CREAT  _O_CREAT
 
 static BOOL lock(HANDLE h, int non_blocking, int exclusive) {
     DWORD lower, upper;
@@ -68,6 +69,7 @@ int flock(int fd, int op) {
     return !res ? -1 : 0;
 }
 #else
+#include <sys/file.h>
 #include <unistd.h>
 #include <fcntl.h>
 #endif

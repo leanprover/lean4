@@ -521,13 +521,13 @@ environment add_inductive(environment                       env,
                           inductive::inductive_decl const & decl,
                           bool                              is_trusted) {
     pair<environment, certified_inductive_decl> r = inductive::add_inductive(env, decl, is_trusted);
-    environment new_env            = r.first;
-    certified_inductive_decl cdecl = r.second;
+    environment new_env             = r.first;
+    certified_inductive_decl cidecl = r.second;
     module_ext ext = get_extension(env);
     ext.m_module_decls = cons(decl.m_name, ext.m_module_decls);
     new_env = update(new_env, ext);
     new_env = add_decl_pos_info(new_env, decl.m_name);
-    return add(new_env, std::make_shared<inductive_modification>(cdecl, env.trust_lvl()));
+    return add(new_env, std::make_shared<inductive_modification>(cidecl, env.trust_lvl()));
 }
 } // end of namespace module
 

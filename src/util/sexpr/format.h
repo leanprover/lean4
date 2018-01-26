@@ -302,7 +302,6 @@ bool get_pp_unicode(options const & o);
 format pp(name const & n);
 
 /** \brief Format a S-expression */
-format pp(sexpr const & s, options const & o);
 format pp(sexpr const & s);
 
 /** \brief Return true iff \c f1 and \c f2 are equal when formatted with options \c o */

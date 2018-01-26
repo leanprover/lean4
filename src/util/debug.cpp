@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #if defined(LEAN_EMSCRIPTEN)
 #include <emscripten.h>
 #endif
-#ifndef _WINDOWS
+#if !defined(LEAN_WINDOWS) || defined(LEAN_CYGWIN)
 // Support for pid
 #include<unistd.h>
 #endif
@@ -93,11 +93,11 @@ void invoke_debugger() {
     for (;;) {
         if (std::cin.eof())
             debuggable_exit();
-        #ifdef _WINDOWS
+#if !defined(LEAN_WINDOWS) || defined(LEAN_CYGWIN)
         std::cerr << "(C)ontinue, (A)bort/exit, (S)top/trap\n";
-        #else
+#else
         std::cerr << "(C)ontinue, (A)bort/exit, (S)top/trap, Invoke (G)DB\n";
-        #endif
+#endif
         char result;
         std::cin >> result;
         if (std::cin.eof())
@@ -113,7 +113,7 @@ void invoke_debugger() {
         case 's':
             // force seg fault...
             debuggable_exit();
-        #ifndef _WINDOWS
+#if !defined(LEAN_WINDOWS) || defined(LEAN_CYGWIN)
         case 'G':
         case 'g': {
             std::cerr << "INVOKING GDB...\n";
@@ -128,7 +128,7 @@ void invoke_debugger() {
             }
             return;
         }
-        #endif
+#endif
         default:
             std::cerr << "INVALID COMMAND\n";
         }

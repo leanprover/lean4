@@ -105,7 +105,7 @@ private:
     void erase_R_rhs_occs(expr const & e, expr const & lhs) { erase_R_occs(e, lhs, false); }
     void insert_R_occs(expr const & lhs, expr const & rhs);
     void erase_R_occs(expr const & lhs, expr const & rhs);
-    void compose(expr const & lhs, expr const & rhs, expr const & H);
+    void compose_expr(expr const & lhs, expr const & rhs, expr const & H);
     void collapse(expr const & lhs, expr const & rhs, expr const & H);
     void superpose(expr const & lhs, expr const & rhs, expr const & H);
     expr_pair simplify_core(expr const & e, expr const & lhs, expr const & rhs, expr const & H);

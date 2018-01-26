@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <algorithm>
 #include <functional>
+#include <cctype>
 #include "util/sstream.h"
 #include "library/module.h"
 #include "library/documentation.h"

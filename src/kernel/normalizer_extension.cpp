@@ -54,7 +54,7 @@ public:
     }
 };
 
-std::unique_ptr<normalizer_extension> compose(std::unique_ptr<normalizer_extension> && ext1, std::unique_ptr<normalizer_extension> && ext2) {
+std::unique_ptr<normalizer_extension> compose_ext(std::unique_ptr<normalizer_extension> && ext1, std::unique_ptr<normalizer_extension> && ext2) {
     return std::unique_ptr<normalizer_extension>(new comp_normalizer_extension(std::move(ext1), std::move(ext2)));
 }
 }

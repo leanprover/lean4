@@ -14,7 +14,7 @@ using inductive::inductive_normalizer_extension;
 environment mk_environment(unsigned trust_lvl) {
     return environment(trust_lvl,
                        /* builtin support for inductive */
-                       compose(std::unique_ptr<normalizer_extension>(new inductive_normalizer_extension()),
-                               std::unique_ptr<normalizer_extension>(new quotient_normalizer_extension())));
+                       compose_ext(std::unique_ptr<normalizer_extension>(new inductive_normalizer_extension()),
+                                   std::unique_ptr<normalizer_extension>(new quotient_normalizer_extension())));
 }
 }

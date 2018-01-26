@@ -5,11 +5,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <utility>
-#include <pthread.h>
 #include <vector>
 #include <iostream>
-#if defined(LEAN_WINDOWS)
+#ifdef LEAN_WINDOWS
 #include <windows.h>
+#else
+#include <pthread.h>
 #endif
 #include "util/thread.h"
 #include "util/interrupt.h"

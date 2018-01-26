@@ -384,12 +384,12 @@ std::ostream & format::pretty(std::ostream & out, unsigned w, bool colors, forma
         case format_kind::COLOR_BEGIN:
             if (colors) {
                 format::format_color c = static_cast<format::format_color>(to_int(cdr(s)));
-                out << "\e[" << (31 + c % 7) << "m";
+                out << "\x1b[" << (31 + c % 7) << "m";
             }
             break;
         case format_kind::COLOR_END:
             if (colors) {
-                out << "\e[0m";
+                out << "\x1b[0m";
             }
             break;
         case format_kind::COMPOSE:

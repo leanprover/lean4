@@ -352,7 +352,7 @@ expr theory_ac::state::get_var_with_least_occs(expr const & e, bool in_lhs) cons
     }
 }
 
-void theory_ac::compose(expr const & lhs, expr const & rhs, expr const & H) {
+void theory_ac::compose_expr(expr const & lhs, expr const & rhs, expr const & H) {
     expr x           = m_state.get_var_with_least_rhs_occs(lhs);
     occurrences occs = m_state.m_entries.find(x)->get_R_rhs_occs();
     occs.for_each([&](expr const & R_lhs) {
@@ -488,7 +488,7 @@ void theory_ac::process() {
         }
 
         /* Backward simplification */
-        compose(lhs, rhs, H);
+        compose_expr(lhs, rhs, H);
         collapse(lhs, rhs, H);
 
         /* Superposition */

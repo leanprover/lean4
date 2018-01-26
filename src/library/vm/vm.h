@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <vector>
 #include <string>
+#include <cstdint>
 #include "util/debug.h"
 #include "util/compiler_hints.h"
 #include "util/rc.h"
@@ -48,7 +49,7 @@ public:
 };
 
 #define LEAN_VM_IS_PTR(obj) ((reinterpret_cast<size_t>(obj) & 1) == 0)
-#define LEAN_VM_BOX(num)    (reinterpret_cast<vm_obj_cell*>((num << 1) | 1))
+#define LEAN_VM_BOX(num)    (reinterpret_cast<vm_obj_cell*>((uintptr_t)((num << 1) | 1)))
 #define LEAN_VM_UNBOX(obj)  (reinterpret_cast<size_t>(obj) >> 1)
 
 [[noreturn]] void vm_check_failed(char const * condition);

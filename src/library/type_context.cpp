@@ -2020,74 +2020,8 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
         use_fo = true;
     }
 
-    if (use_fo) {
-        /* Use first-order unification.
-           Workaround A5. */
-        buffer<expr> new_v_args;
-        expr new_v_fn = get_app_args(new_v, new_v_args);
-        if (new_v_args.empty()) {
-            /*
-                ?M a_1 ... a_k =?= t,  where t is not an application
-            */
-            return false;
-        }
-        expr new_mvar = mvar;
-        unsigned i = 0;
-        unsigned j = 0;
-        if (args.size() > new_v_args.size()) {
-            /*
-               ?M a_1 ... a_i a_{i+1} ... a_{i+k} =?= f b_1 ... b_k
-
-               reduces to
-
-               ?M a_1 ... a_i =?= f
-               a_{i+1}        =?= b_1
-               ...
-               a_{i+k}        =?= b_k
-            */
-            new_mvar = mk_app(mvar, args.size() - new_v_args.size(), args.data());
-            i        = args.size() - new_v_args.size();
-        } else if (args.size() < new_v_args.size()) {
-            /*
-               ?M a_1 ... a_k =?= f b_1 ... b_i b_{i+1} ... b_{i+k}
-
-               reduces to
-
-               ?M  =?= f b_1 ... b_i
-               a_1 =?= b_{i+1}
-               ...
-               a_k =?= b_{i+k}
-            */
-            new_v_fn = mk_app(new_v_fn, new_v_args.size() - args.size(), new_v_args.data());
-            j        = new_v_args.size() - args.size();
-        } else {
-            /*
-               ?M a_1 ... a_k =?= f b_1 ... b_k
-
-               reduces to
-               ?M  =?= f
-               a_1 =?= b_1
-               ...
-               a_k =?= b_k
-            */
-            lean_assert(new_v_args.size() == args.size());
-        }
-        /* We try to unify arguments before we try to unify the functions.
-           This heuristic is consistently used in the is_def_eq procedure.
-           See is_def_eq_args invocations.
-           The motivation is the following: the universe constraints in
-           the arguments propagate to the function. */
-        for (; j < new_v_args.size(); i++, j++) {
-            lean_assert(i < args.size());
-            if (!is_def_eq_core(args[i], new_v_args[j]))
-                return false;
-        }
-        if (!is_def_eq_core(new_mvar, new_v_fn))
-            return false;
-        lean_assert(i == args.size());
-        lean_assert(j == new_v_args.size());
-        return true;
-    }
+    if (use_fo)
+        return process_assignment_fo_approx(mvar, args, new_v);
 
     if (optional<expr> new_new_v = check_assignment(locals, mvar, new_v))
         new_v = *new_new_v;
@@ -2150,6 +2084,80 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
     lean_trace(name({"type_context", "is_def_eq_detail"}),
                scope_trace_env scope(env(), *this);
                tout() << "assign: " << mvar << " := " << new_v << "\n";);
+    return true;
+}
+
+/* Auxiliary method for applying first-order unification. See: workaround A5 at \c process_assignment.
+
+   Remark: this method is trying to solve the unification constraint:
+
+      mvar args[0] ... args[args.size()-1] =?= new_v
+*/
+bool type_context::process_assignment_fo_approx(expr const & mvar, buffer<expr> const & args, expr const & new_v) {
+    lean_assert(is_mvar(mvar));
+    buffer<expr> new_v_args;
+    expr new_v_fn = get_app_args(new_v, new_v_args);
+    if (new_v_args.empty()) {
+        /*
+          ?M a_1 ... a_k =?= t,  where t is not an application
+        */
+        return false;
+    }
+    expr new_mvar = mvar;
+    unsigned i = 0;
+    unsigned j = 0;
+    if (args.size() > new_v_args.size()) {
+        /*
+          ?M a_1 ... a_i a_{i+1} ... a_{i+k} =?= f b_1 ... b_k
+
+          reduces to
+
+          ?M a_1 ... a_i =?= f
+          a_{i+1}        =?= b_1
+          ...
+          a_{i+k}        =?= b_k
+        */
+        new_mvar = mk_app(mvar, args.size() - new_v_args.size(), args.data());
+        i        = args.size() - new_v_args.size();
+    } else if (args.size() < new_v_args.size()) {
+        /*
+          ?M a_1 ... a_k =?= f b_1 ... b_i b_{i+1} ... b_{i+k}
+
+          reduces to
+
+          ?M  =?= f b_1 ... b_i
+          a_1 =?= b_{i+1}
+          ...
+          a_k =?= b_{i+k}
+        */
+        new_v_fn = mk_app(new_v_fn, new_v_args.size() - args.size(), new_v_args.data());
+        j        = new_v_args.size() - args.size();
+    } else {
+        /*
+          ?M a_1 ... a_k =?= f b_1 ... b_k
+
+          reduces to
+          ?M  =?= f
+          a_1 =?= b_1
+          ...
+          a_k =?= b_k
+        */
+        lean_assert(new_v_args.size() == args.size());
+    }
+    /* We try to unify arguments before we try to unify the functions.
+       This heuristic is consistently used in the is_def_eq procedure.
+       See is_def_eq_args invocations.
+       The motivation is the following: the universe constraints in
+       the arguments propagate to the function. */
+    for (; j < new_v_args.size(); i++, j++) {
+        lean_assert(i < args.size());
+        if (!is_def_eq_core(args[i], new_v_args[j]))
+            return false;
+    }
+    if (!is_def_eq_core(new_mvar, new_v_fn))
+        return false;
+    lean_assert(i == args.size());
+    lean_assert(j == new_v_args.size());
     return true;
 }
 

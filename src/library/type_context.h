@@ -1062,6 +1062,7 @@ private:
     friend struct check_assignment_fn;
     optional<expr> check_assignment(buffer<expr> const & locals, expr const & mvar, expr v);
     bool process_assignment(expr const & m, expr const & v);
+    bool process_assignment_fo_approx(expr const & mvar, buffer<expr> const & args, expr const & new_v);
 
     optional<declaration> is_delta(expr const & e);
     enum class reduction_status { Continue, DefUnknown, DefEqual, DefDiff };

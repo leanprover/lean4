@@ -50,6 +50,9 @@ Author: Leonardo de Moura
 #include "init/init.h"
 #include "shell/simple_pos_info_provider.h"
 #include "shell/leandoc.h"
+#ifndef _MSC_VER
+#include <unistd.h>
+#endif
 #if defined(LEAN_JSON)
 #include "shell/server.h"
 #endif

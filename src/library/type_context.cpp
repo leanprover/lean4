@@ -1880,6 +1880,62 @@ Now, we consider some workarounds/approximations.
          ?M := fun x, x
    when we apply this solution to the second one we get a failure.
 
+   IMPORTANT: When applying this approximation we need to make sure the
+   abstracted term `fun a_1 ... a_n, t` is type correct. The check
+   can only be skipped in the pattern case described above. Consider
+   the following example. Given the local context
+
+      (α : Type) (a : α)
+
+   we try to solve
+
+     ?m α =?= @id α a
+
+   If we use the approximation above we obtain:
+
+     ?m := (fun α', @id α' a)
+
+   which is a type incorrect term. `a` has type `α` but it is expected to have
+   type `α'`.
+
+   The problem occurs because the right hand side contains a local constant
+   `a` that depends on the local constant `α` being abstracted. Note that
+   this dependency cannot occur in patterns.
+
+   Here is another example in the same local context
+
+      ?m_1 α =?= id ?m_2
+
+   If we use the approximation above we obtain:
+
+      ?m_1 := (fun α'. id ?m_2[α := α'])
+
+   where `?m_2[α := α']` denotes a delayed substitution that indicates
+   that whenever we instantiate `?m_2`, we must replace the local constant
+   α with the bound variable `α'`.
+   Now, suppose we assign `?m_2`.
+
+     ?m_2 := @id α a
+
+   Then, we have
+
+      ?m_1 := (fun α'. id (@id α' a))
+
+   which is again type incorrect.
+
+   TODO(Leo): we address this issue by type checking the term after
+   abstraction AND for each metavariable that may contain a local constant
+   that depends on a term being abstracted, we create a fresh metavariable
+   with a smaller local context. In the example above, when we perform
+   the assignment
+
+       ?m_1 := (fun α'. id ?m_2[α := α'])
+
+   we would also create a fresh ?m_3 with local context containing only (α : Type),
+   and assign
+
+       ?m_2 := ?m_3
+
  A3) `a_1 ... a_n` are not pairwise distinct (failed condition 1).
    We can approximate again, but the limitations are very similar to the previous one.
 
@@ -1965,6 +2021,10 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
     buffer<expr> locals;
     bool use_fo     = false; /* if true, we use first-order unification */
     bool add_locals = true;  /* while true we copy args to locals */
+    /* in_ctx_locals is a subset of the local constants in `locals`.
+       See workaround A2. We use these locals to shrink the local context
+       of metavariables occuring in `v`.  */
+    buffer<expr> in_ctx_locals;
     for (unsigned i = 0; i < args.size(); i++) {
         expr arg = args[i];
         /* try to instantiate */
@@ -2000,12 +2060,16 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
                     /* m is of the form (?M@C ... l ...) where l is a local constant in C */
                     if (!approximate())
                         return false;
+                    if (add_locals)
+                        in_ctx_locals.push_back(arg);
                 }
             } else {
                 if (mvar_decl->get_context().find_local_decl(arg)) {
                     /* m is of the form (?M@C ... l ...) where l is a local constant in C. */
                     if (!approximate())
                         return false;
+                    if (add_locals)
+                        in_ctx_locals.push_back(arg);
                 }
             }
         }

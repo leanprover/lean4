@@ -8,6 +8,13 @@ Author: Leonardo de Moura
 #include <vector>
 #include <cstdio>
 #include <iostream>
+#ifdef _MSC_VER
+#include <direct.h>
+#define getcwd _getcwd
+#define PATH_MAX _MAX_PATH
+#else
+#include <unistd.h>
+#endif
 #include <util/unit.h>
 #include "util/sstream.h"
 #include "library/handle.h"
@@ -437,7 +444,8 @@ static vm_obj io_get_env(vm_obj const & k, vm_obj const &) {
 }
 
 static vm_obj io_get_cwd(vm_obj const &) {
-    auto cwd = getcwd(nullptr, 0);
+    char buffer[PATH_MAX];
+    auto cwd = getcwd(buffer, sizeof(buffer));
     if (cwd) {
         return mk_io_result(mk_vm_some(to_obj(std::string(cwd))));
     } else {

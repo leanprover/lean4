@@ -7,7 +7,6 @@ Author: Jared Roesch
 #pragma once
 #include <string>
 #include <iostream>
-#include <unistd.h>
 #include "kernel/environment.h"
 #include "kernel/expr.h"
 

@@ -6,9 +6,8 @@ Author:  Leonardo de Moura & Jared Roesch
 */
 #pragma once
 
-#include <iostream>
 #include <string>
-#include <unistd.h>
+#include <stdio.h>
 #include "util/buffer.h"
 #include "library/pipe.h"
 
@@ -29,7 +28,6 @@ public:
     ~handle();
 
     void write(buffer<char> & data);
-    void read(buffer<char> & data);
     void flush();
 
     bool is_stdin();

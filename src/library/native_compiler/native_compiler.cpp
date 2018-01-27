@@ -8,7 +8,6 @@ Author: Jared Roesch and Leonardo de Moura
 #include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string>
 #include <vector>
 #include "util/fresh_name.h"

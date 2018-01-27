@@ -18,8 +18,8 @@ Author: Jared Roesch
 #include <stdio.h>
 #include <strsafe.h>
 #else
+#include <unistd.h>
 #include <sys/wait.h>
-
 #endif
 
 #include "library/process.h"

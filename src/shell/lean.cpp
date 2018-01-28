@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <fstream>
 #include <signal.h>
+#include <cctype>
 #include <cstdlib>
-#include <getopt.h>
 #include <string>
 #include <utility>
 #include <vector>
@@ -50,7 +50,11 @@ Author: Leonardo de Moura
 #include "init/init.h"
 #include "shell/simple_pos_info_provider.h"
 #include "shell/leandoc.h"
-#ifndef _MSC_VER
+#ifdef _MSC_VER
+#include <io.h>
+#define STDOUT_FILENO 1
+#else
+#include <getopt.h>
 #include <unistd.h>
 #endif
 #if defined(LEAN_JSON)
@@ -60,6 +64,103 @@ Author: Leonardo de Moura
 #include <emscripten.h>
 #endif
 #include "githash.h" // NOLINT
+
+#ifdef _MSC_VER
+// extremely simple implementation of getopt.h
+enum arg_opt { no_argument, required_argument, optional_argument };
+
+struct option {
+    const char name[12];
+    arg_opt has_arg;
+    int *flag;
+    char val;
+};
+
+static char *optarg;
+static int optind = 1;
+
+int getopt_long(int argc, char *in_argv[], const char *optstring, const option *opts, int *index) {
+    optarg = nullptr;
+    if (optind >= argc)
+        return -1;
+
+    char *argv = in_argv[optind];
+    if (argv[0] != '-') {
+        // find first -opt if any
+        int i = optind;
+        bool found = false;
+        for (; i < argc; ++i) {
+            if (in_argv[i][0] == '-') {
+                found = true;
+                break;
+            }
+        }
+        if (!found)
+            return -1;
+        auto next = in_argv[i];
+        // FIXME: this doesn't account for long options with arguments like --foo arg
+        memmove(&in_argv[optind + 1], &in_argv[optind], (i - optind) * sizeof(argv));
+        argv = in_argv[optind] = next;
+    }
+    ++optind;
+
+    // long option
+    if (argv[1] == '-') {
+        auto eq = strchr(argv, '=');
+        size_t sz = (eq ? (eq - argv) : strlen(argv)) - 2;
+        for (auto I = opts; *I->name; ++I) {
+            if (!strncmp(I->name, argv + 2, sz) && I->name[sz] == '\0') {
+                assert(!I->flag);
+                switch (I->has_arg) {
+                case no_argument:
+                    if (eq) {
+                        std::cerr << in_argv[0] << ": option doesn't take an argument -- " << I->name << std::endl;
+                        return '?';
+                    }
+                    break;
+                case required_argument:
+                    if (eq) {
+                        optarg = eq + 1;
+                    } else {
+                        if (optind >= argc) {
+                            std::cerr << in_argv[0] << ": option requires an argument -- " << I->name << std::endl;
+                            return '?';
+                        }
+                        optarg = in_argv[optind++];
+                    }
+                    break;
+                case optional_argument:
+                    if (eq) {
+                        optarg = eq + 1;
+                    }
+                    break;
+                }
+                *index = I - opts;
+                return I->val;
+            }
+        }
+        return '?';
+    } else {
+        auto opt = strchr(optstring, argv[1]);
+        if (!opt)
+            return '?';
+
+        if (opt[1] == ':') {
+            if (argv[2] == '\0') {
+                if (optind < argc) {
+                    optarg = in_argv[optind++];
+                } else {
+                    std::cerr << in_argv[0] << ": option requires an argument -- " << *opt << std::endl;
+                    return '?';
+                }
+            } else {
+                optarg = argv + 2;
+            }
+        }
+        return *opt;
+    }
+}
+#endif
 
 using namespace lean; // NOLINT
 

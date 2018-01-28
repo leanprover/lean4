@@ -70,7 +70,6 @@ std::string get_exe_location() {
 bool is_path_sep(char c) { return c == g_path_sep; }
 #else
 // Linux version
-#include <dirent.h>
 #include <unistd.h>
 #include <string.h>
 #include <limits.h> // NOLINT

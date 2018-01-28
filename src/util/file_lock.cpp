@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include <errno.h>
+#include <fcntl.h>
 #include "util/exception.h"
 #include "util/sstream.h"
 #include "util/file_lock.h"
@@ -13,7 +14,6 @@ Author: Leonardo de Moura
 #if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
 #include <windows.h>
 #include <io.h>
-#include <fcntl.h>
 #define   LOCK_SH   1    /* shared lock */
 #define   LOCK_EX   2    /* exclusive lock */
 #define   LOCK_NB   4    /* don't block when locking */
@@ -71,7 +71,6 @@ int flock(int fd, int op) {
 #else
 #include <sys/file.h>
 #include <unistd.h>
-#include <fcntl.h>
 #endif
 
 namespace lean {

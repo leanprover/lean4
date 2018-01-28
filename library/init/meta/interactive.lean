@@ -1603,8 +1603,20 @@ do h ← intro `h,
 meta def mk_inj_eq : tactic unit :=
 `[
   intros,
-  apply propext,
-  apply iff.intro,
+  /-
+     We use `_root_.*` in the following tactics because
+     names are resolved at tactic execution time in interactive mode.
+     See PR #1913
+
+     TODO(Leo): This is probably not the only instance of this problem.
+     `[ ... ] blocks are convenient to use because they allow us to use the interactive
+     mode to write non interactive tactics.
+     One potential fix for this issue is to resolve names in `[ ... ] at tactic
+     compilation time.
+     After this issue is fixed, we should remove the `_root_.*` workaround.
+  -/
+  apply _root_.propext,
+  apply _root_.iff.intro,
   { tactic.apply_inj_lemma },
   { intro _, try { cases_matching* _ ∧ _ }, refl <|> { congr; { assumption <|> subst_vars } } }
 ]

@@ -14,11 +14,9 @@ instance setoid_has_equiv {α : Sort u} [setoid α] : has_equiv α :=
 ⟨setoid.r⟩
 
 namespace setoid
-variable {α : Sort u}
-variable [s : setoid α]
-include s
+variables {α : Sort u} [setoid α]
 
-@[refl] lemma refl [setoid α] (a : α) : a ≈ a :=
+@[refl] lemma refl (a : α) : a ≈ a :=
 match setoid.iseqv α with
 | ⟨h_refl, h_symm, h_trans⟩ := h_refl a
 end

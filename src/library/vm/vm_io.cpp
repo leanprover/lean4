@@ -15,6 +15,9 @@ Author: Leonardo de Moura
 #else
 #include <unistd.h>
 #endif
+#ifdef __linux__
+#include <linux/limits.h>
+#endif
 #include <util/unit.h>
 #include "util/sstream.h"
 #include "library/handle.h"

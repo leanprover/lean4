@@ -21,6 +21,8 @@ Author: Leonardo de Moura, Gabriel Ebner
 
 #ifdef _MSC_VER
 #define S_ISDIR(mode) ((mode & _S_IFDIR) != 0)
+#else
+#include <dirent.h>
 #endif
 
 namespace lean {

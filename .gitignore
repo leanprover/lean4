@@ -21,3 +21,4 @@ settings.json
 /*.nix
 /library/init/version.lean
 CMakeSettings.json
+CppProperties.json

@@ -249,10 +249,6 @@ static expr mk_binding_as_is(unsigned num, expr const * locals, expr const & b) 
     return r;
 }
 
-expr Fun_as_is(buffer<expr> const & locals, expr const & e, parser & p) {
-    return p.rec_save_pos(mk_binding_as_is<true>(locals.size(), locals.data(), e), p.get_pos_info(e));
-}
-
 expr Pi_as_is(buffer<expr> const & locals, expr const & e, parser & p) {
     return p.rec_save_pos(mk_binding_as_is<false>(locals.size(), locals.data(), e), p.get_pos_info(e));
 }

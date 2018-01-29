@@ -32,6 +32,7 @@ Author: Leonardo de Moura
 #include "library/fun_info.h"
 #include "library/num.h"
 #include "library/quote.h"
+#include "library/check.h"
 
 #ifndef LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH
 #define LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH 32
@@ -1923,18 +1924,42 @@ Now, we consider some workarounds/approximations.
 
    which is again type incorrect.
 
-   TODO(Leo): we address this issue by type checking the term after
-   abstraction AND for each metavariable that may contain a local constant
-   that depends on a term being abstracted, we create a fresh metavariable
-   with a smaller local context. In the example above, when we perform
-   the assignment
+   We can address the issue on the first example by type checking
+   the term after abstraction. This is not a significant performance
+   bottleneck because this case doesn't happen very often in practice
+   (262 times when compiling corelib on Jan 2018). The second example
+   is trickier, but it also occurs less frequently (8 times when compiling
+   corelib on Jan 2018, and all occurrences were in init/category when
+   we definy monads and auxiliary combinators for them).
+   We considered three options for the addressing the issue on the second example:
 
-       ?m_1 := (fun α'. id ?m_2[α := α'])
+    a) For each metavariable that may contain a local constant
+       that depends on a term being abstracted, we create a fresh metavariable
+       with a smaller local context. In the example above, when we perform
+       the assignment
 
-   we would also create a fresh ?m_3 with local context containing only (α : Type),
-   and assign
+         ?m_1 := (fun α'. id ?m_2[α := α'])
 
-       ?m_2 := ?m_3
+       we would also create a fresh ?m_3 with local context containing only (α : Type),
+       and assign
+
+         ?m_2 := ?m_3
+
+       This is an approximation, and it may reject valid assignments.
+
+    b) If we find a metavariable with this kind of dependency, we just
+       fail and fallback to first-order unification.
+
+    c) If we find a metavariable on the term after abstraction, we just
+       fail and fallback to first-order unification.
+
+   The first two options are incomparable, each one of them can solve
+   problems where the other fails. The third one is weaker than the second,
+   but we didn't find any example in the corelib where the second option
+   applies. The first and third options are also incomparable.
+
+   So, we decide to use the third option since it is the simplest to implement,
+   and all examples we have identified are in init/category.
 
  A3) `a_1 ... a_n` are not pairwise distinct (failed condition 1).
    We can approximate again, but the limitations are very similar to the previous one.
@@ -2022,8 +2047,14 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
     bool use_fo     = false; /* if true, we use first-order unification */
     bool add_locals = true;  /* while true we copy args to locals */
     /* in_ctx_locals is a subset of the local constants in `locals`.
-       See workaround A2. We use these locals to shrink the local context
-       of metavariables occuring in `v`.  */
+       See workaround A2.
+
+       In principle, we only need one store one bit indicating
+       whether there is a locals in `locals` that is the local context
+       of the metavariable or not. This is all we need to implement
+       option c) in the workaround A2.
+       We store all occurrences because we may decide to implement options a) or b).
+    */
     buffer<expr> in_ctx_locals;
     for (unsigned i = 0; i < args.size(); i++) {
         expr arg = args[i];
@@ -2087,8 +2118,10 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
     if (use_fo)
         return process_assignment_fo_approx(mvar, args, new_v);
 
-    if (optional<expr> new_new_v = check_assignment(locals, mvar, new_v))
+    if (optional<expr> new_new_v = check_assignment(locals, in_ctx_locals, mvar, new_v))
         new_v = *new_new_v;
+    else if (approximate() && !args.empty())
+        return process_assignment_fo_approx(mvar, args, new_v);
     else
         return false;
 
@@ -2118,6 +2151,24 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
         }
         lean_assert(locals.size() == args.size());
         new_v = mk_lambda(locals, new_v);
+    }
+
+    if (!in_ctx_locals.empty()) {
+        lean_assert(approximate());
+        try {
+            /* We need to type check new_v because abstraction using `mk_lambda` may have produced
+               a type incorrect term. See discussion at A2.
+
+               Remark: this test should not be a performance bottleneck. On Jan 2018, this check
+               had to be performed only 262 times when compiling corelib, and 823 times when
+               compiling mathlib. */
+            ::lean::check(*this, new_v);
+        } catch (exception &) {
+            if (args.size() > 0)
+                return process_assignment_fo_approx(mvar, args, new_v);
+            else
+                return false;
+        }
     }
 
     /* check types */
@@ -2230,12 +2281,13 @@ struct check_assignment_failed {};
 struct check_assignment_fn : public replace_visitor {
     type_context &         m_ctx;
     buffer<expr> const &   m_locals;
+    buffer<expr> const &   m_in_ctx_locals;
     expr const &           m_mvar;
     optional<metavar_decl> m_mvar_decl;
     expr                   m_value;
 
-    check_assignment_fn(type_context & ctx, buffer<expr> const & locals, expr const & mvar):
-        m_ctx(ctx), m_locals(locals), m_mvar(mvar) {
+    check_assignment_fn(type_context & ctx, buffer<expr> const & locals, buffer<expr> const & in_ctx_locals, expr const & mvar):
+        m_ctx(ctx), m_locals(locals), m_in_ctx_locals(in_ctx_locals), m_mvar(mvar) {
         if (!m_ctx.in_tmp_mode()) {
             m_mvar_decl = m_ctx.m_mctx.get_metavar_decl(mvar);
             lean_assert(m_mvar_decl);
@@ -2285,8 +2337,6 @@ struct check_assignment_fn : public replace_visitor {
     expr visit_meta_core(expr const & e, buffer<name> const & delayed_locals) {
         if (auto v = m_ctx.get_assignment(e)) return visit(*v);
 
-        if (!m_ctx.is_mode_mvar(e)) return replace_visitor::visit_meta(e);
-
         if (m_mvar == e) {
             /* mvar occurs in m_value */
             lean_trace(name({"type_context", "is_def_eq_detail"}),
@@ -2296,7 +2346,31 @@ struct check_assignment_fn : public replace_visitor {
             throw check_assignment_failed();
         }
 
+        if (!m_ctx.is_mode_mvar(e)) {
+            if (!m_in_ctx_locals.empty()) {
+                /*
+                  This code is reachable if we are in tmp mode and `e` is regular metavariable.
+                  We just fail, and this is ok because we usually do not use
+                  approximate unification/matching in tmp mode.
+
+                  Remark: this code was not reachable when compiling corelib on Jan 2018.
+                */
+                throw check_assignment_failed();
+            }
+            return replace_visitor::visit_meta(e);
+        }
+
         if (m_ctx.in_tmp_mode()) {
+            if (!m_in_ctx_locals.empty()) {
+                /* In tmp mode, we (usually) do not use approximate unification/matching.
+                   Moreover, m_in_ctx_locals is empty if !approximate().
+
+                   Remark: all temporary metavariables share the same local context.
+                   Then, if a local in `m_in_ctx_locals` is in the local context of `mvar`,
+                   then it will also be in the local context of `e`. */
+                throw check_assignment_failed();
+            }
+
             /* Recall that in tmp_mode all metavariables have the same local context.
                So, we don't need to check anything.
                In regular mode, we need to check condition 4
@@ -2318,6 +2392,12 @@ struct check_assignment_fn : public replace_visitor {
 
         local_context mvar_lctx = m_mvar_decl->get_context();
         local_context e_lctx    = e_decl->get_context();
+
+        if (!m_in_ctx_locals.empty()) {
+            /* We are using option c) described at workaround A2. */
+            throw check_assignment_failed();
+        }
+
         if (is_subset_of(e_lctx, mvar_lctx, delayed_locals))
             return e;
 
@@ -2400,9 +2480,9 @@ struct check_assignment_fn : public replace_visitor {
 };
 
 /* Auxiliary method for process_assignment */
-optional<expr> type_context::check_assignment(buffer<expr> const & locals, expr const & mvar, expr v) {
+optional<expr> type_context::check_assignment(buffer<expr> const & locals, buffer<expr> const & in_ctx_locals, expr const & mvar, expr v) {
     try {
-        return some_expr(check_assignment_fn(*this, locals, mvar)(v));
+        return some_expr(check_assignment_fn(*this, locals, in_ctx_locals, mvar)(v));
     } catch (check_assignment_failed &) {
         return none_expr();
     }

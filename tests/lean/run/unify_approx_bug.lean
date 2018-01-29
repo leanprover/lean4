@@ -14,15 +14,15 @@ open tactic
     ?m := λ α', ((λ (α : Type) (a : α), α) α' a)
 -/
 def ex1 (α : Type) (a : α) : Type → Type :=
-by
+by do
+  fail_if_success
   (do
     mvar1 ← mk_meta_var `(Type → Type),
     alpha ← to_expr ```(α),
     t     ← to_expr ```((λ (α : Type) (a : α), α) α a),
     unify (mvar1 alpha) t semireducible tt, -- should fail
-    exact mvar1)
-  <|>
-  (intros >> assumption)
+    exact mvar1),
+  intros, assumption
 
 /-
  Given metavariable ?m_1 and ?m_2 with local context
@@ -34,17 +34,15 @@ by
    ?m_1 α =?= id ?m_2
    ?m_2   =?= α
 
- After processing the first constraint, we have
+ The first constraint is solved using first-order unification
+ because we cannot guarantee that the solution will be type correct
+ for every term we may assign to `?m_2`
 
-   ?m_1 := λ α', id ?m_2[α := α']
-   ?m_2 := ?m_3
+    ?m_1 := λ α', id ?m_2[α := α']
 
-  where ?m_3 is a fresh metavariable with a local context
-  that does not contain `a`, since `a` depends on `α`.
+ So, we get `?m_2 := α`.
 
- After processing the second constraint, we have
-
-   ?m_3 := α
+ Remark: see option c) at workaround A2 described at type_context::process_assignment
 -/
 def ex2 (α : Type) (a : α) : Type → Type :=
 by do
@@ -52,8 +50,8 @@ by do
     mvar2 ← mk_meta_var `(Type),
     alpha ← to_expr ```(α),
     t     ← to_expr ```(id %%mvar2),
-    unify (mvar1 alpha) t semireducible tt, -- should create an auxiliary mvar and assign it to mvar2
-    unify mvar2 alpha,  -- the local context of the auxiliary declaration does not contain `a`
+    unify (mvar1 alpha) t semireducible tt, -- first-order unification is used here
+    unify mvar2 alpha,
     exact mvar1
 
 /-
@@ -66,20 +64,14 @@ by do
    ?m_1 α =?= id ?m_2
    ?m_2   =?= ((λ (α : Type) (a : α), α) α a)
 
- After processing the first constraint, we have
-
-   ?m_1 := λ α', id ?m_2[α := α']
-   ?m_2 := ?m_3
-
-  where ?m_3 is a fresh metavariable with a local context
-  that does not contain `a`, since `a` depends on `α`.
-
- When processing the second constraint, it fails
- because it tries to assing `((λ (α : Type) (a : α), α) α a)`
- to `?m_3`, but `a` is not in the context of `?m_3`.
+ Again, similarly to the previous example, we use
+ first-order unification to process the first constraint,
+ and we get `?m_2 := α`. The second constraint
+ is satisfied because `((λ (α : Type) (a : α), α) α a)`
+ is definitionally equal to `α`.
 -/
 def ex3 (α : Type) (a : α) : Type → Type :=
-by (do
+by do
     mvar1 ← mk_meta_var `(Type → Type),
     mvar2 ← mk_meta_var `(Type),
     alpha ← to_expr ```(α),
@@ -87,10 +79,11 @@ by (do
     unify (mvar1 alpha) t semireducible tt, -- should create an auxiliary mvar and assign it to mvar2
     t     ← to_expr ```((λ (α : Type) (a : α), α) α a),
     unify mvar2 t semireducible tt,  -- should fail `a` is not in the scope
-    exact mvar1)
-    <|> (intros >> assumption)
+    exact mvar1
 
 def f (α : Type) (a : α) := α
+
+constant f' (α : Type) (a : α) : Type
 
 /-
  Given a metavariable ?m with local context
@@ -106,15 +99,15 @@ def f (α : Type) (a : α) := α
     ?m := λ α', f α' a
 -/
 def ex4 (α : Type) (a : α) : Type → Type :=
-by
+by do
+  fail_if_success
   (do
     mvar1 ← mk_meta_var `(Type → Type),
     alpha ← to_expr ```(α),
     t     ← to_expr ```(f α a),
     unify (mvar1 alpha) t semireducible tt, -- should fail
-    exact mvar1)
-  <|>
-  (intros >> assumption)
+    exact mvar1),
+  intros, assumption
 
 /-
  Given a metavariable ?m with local context
@@ -138,6 +131,15 @@ by do
     unify (mvar1 alpha a) t semireducible tt, -- should work
     exact mvar1
 
+def ex5b (α : Type) (a : α) : Π A : Type, A → Type :=
+by do
+    mvar1 ← mk_meta_var `(Π A : Type, A → Type),
+    alpha ← to_expr ```(α),
+    a     ← to_expr ```(a),
+    t     ← to_expr ```(f' α a),
+    unify (mvar1 alpha a) t semireducible tt, -- should work
+    exact mvar1
+
 /-
  Given metavariable ?m_1 and ?m_2 with local context
 
@@ -148,29 +150,46 @@ by do
    ?m_1 α =?= id ?m_2
    ?m_2   =?= f α a
 
- After processing the first constraint, we have
-
-   ?m_1 := λ α', id ?m_2[α := α']
-   ?m_2 := ?m_3
-
-  where ?m_3 is a fresh metavariable with a local context
-  that does not contain `a`, since `a` depends on `α`.
-
- When processing the second constraint, it fails
- because it tries to assign `f α a`
- to `?m_3`, but `a` is not in the context of `?m_3`.
+ The first constraint is solved using first-order unification.
+ See option c) at workaround A2 described at type_context::process_assignment.
+ Then, we get `?m_2 := α`. The second constraint succeeds
+ because `f α a` is definitionally equal to `α`.
 -/
 def ex6 (α : Type) (a : α) : Type → Type :=
-by (do
-    mvar1 ← mk_meta_var `(Type → Type),
+by do mvar1 ← mk_meta_var `(Type → Type),
     mvar2 ← mk_meta_var `(Type),
     alpha ← to_expr ```(α),
     t     ← to_expr ```(id %%mvar2),
-    unify (mvar1 alpha) t semireducible tt, -- should create an auxiliary mvar and assign it to mvar2
+    unify (mvar1 alpha) t semireducible tt,
     t     ← to_expr ```(f α a),
-    unify mvar2 t semireducible tt,  -- should fail `a` is not in the scope
-    exact mvar1)
-    <|> (intros >> assumption)
+    unify mvar2 t semireducible tt,
+    exact mvar1
+
+/-
+ Given metavariable ?m_1 and ?m_2 with local context
+
+    (α : Type) (a : α)
+
+ then, the following unification constrains should be solved
+
+   ?m_1 α =?= id ?m_2
+   ?m_2   =?= f' α a
+
+  Similar to previous example, but this one fails because
+  `f' α a` is not definitionally equal to `α`.
+-/
+def ex6b (α : Type) (a : α) : Type → Type :=
+by do
+   fail_if_success
+      (do mvar1 ← mk_meta_var `(Type → Type),
+          mvar2 ← mk_meta_var `(Type),
+          alpha ← to_expr ```(α),
+          t     ← to_expr ```(id %%mvar2),
+          unify (mvar1 alpha) t semireducible tt,
+          t     ← to_expr ```(f' α a),
+          unify mvar2 t semireducible tt,
+          exact mvar1),
+   intros, assumption
 
 def g (α : Type) (a b : α) := α
 
@@ -188,15 +207,15 @@ def g (α : Type) (a b : α) := α
     ?m := λ α', g α' a a
 -/
 def ex7 (α : Type) (a : α) : Type → Type :=
-by
+by do
+  fail_if_success
   (do
     mvar1 ← mk_meta_var `(Type → Type),
     alpha ← to_expr ```(α),
     t     ← to_expr ```(g α a a),
     unify (mvar1 alpha) t semireducible tt, -- should fail
-    exact mvar1)
-  <|>
-  (intros >> assumption)
+    exact mvar1),
+  intros, assumption
 
 constant C (α : Type) (a : α) : Type
 
@@ -217,16 +236,17 @@ constant C (α : Type) (a : α) : Type
   with type of (λ (α' : Type) (x' : C α' a), α')
 -/
 def ex8 (α : Type) (a : α) (x : C α a) : Type :=
-by
-  (do
-  mvar_type ← to_expr ```(C α a → Type),
-  mvar_type ← to_expr ```(Type → %%mvar_type),
-  mvar1 ← mk_meta_var mvar_type,
-  alpha ← to_expr ```(α),
-  x     ← to_expr ```(x),
-  unify (mvar1 alpha x) alpha semireducible tt, -- should fail
-  exact (mvar1 alpha x))
-  <|> assumption
+by do
+  fail_if_success
+    (do
+      mvar_type ← to_expr ```(C α a → Type),
+      mvar_type ← to_expr ```(Type → %%mvar_type),
+      mvar1 ← mk_meta_var mvar_type,
+      alpha ← to_expr ```(α),
+      x     ← to_expr ```(x),
+      unify (mvar1 alpha x) alpha semireducible tt, -- should fail
+      exact (mvar1 alpha x)),
+  assumption
 
 /-
  Given a metavariable ?m with local context

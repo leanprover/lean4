@@ -1060,7 +1060,7 @@ private:
     expr try_zeta(expr const & e);
     expr expand_let_decls(expr const & e);
     friend struct check_assignment_fn;
-    optional<expr> check_assignment(buffer<expr> const & locals, expr const & mvar, expr v);
+    optional<expr> check_assignment(buffer<expr> const & locals, buffer<expr> const & in_ctx_locals, expr const & mvar, expr v);
     bool process_assignment(expr const & m, expr const & v);
     bool process_assignment_fo_approx(expr const & mvar, buffer<expr> const & args, expr const & new_v);
 

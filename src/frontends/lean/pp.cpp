@@ -352,6 +352,7 @@ void pretty_fn::set_options_core(options const & _o) {
     m_hide_comp_irrel   = get_pp_hide_comp_irrel(o);
     m_delayed_abstraction  = get_pp_delayed_abstraction(o);
     m_use_holes         = get_pp_use_holes(o);
+    m_annotations       = get_pp_annotations(o);
     m_hide_full_terms   = get_formatter_hide_full_terms(o);
     m_num_nat_coe       = m_numerals;
     m_structure_instances = get_pp_structure_instances(o);
@@ -1191,7 +1192,10 @@ auto pretty_fn::pp_macro(expr const & e) -> result {
         else
             return pp_macro_default(e);
     } else if (is_annotation(e)) {
-        return pp(get_annotation_arg(e));
+        if (m_annotations)
+            return format("[") + format(get_annotation_kind(e)) + space() + pp(get_annotation_arg(e)).fmt() + format("]");
+        else
+            return pp(get_annotation_arg(e));
     } else if (is_rec_fn_macro(e)) {
         return format("[") + format(get_rec_fn_name(e)) + format("]");
     } else if (is_synthetic_sorry(e)) {

@@ -17,7 +17,7 @@ Author: Jared Roesch
 #include "library/native_compiler/used_defs.h"
 
 namespace lean {
-used_defs::used_defs(environment const & env, std::function<void(declaration const &)> action) : m_env(env) {
+used_defs::used_defs(environment const & env, std::function<void(used_defs &, declaration const &)> action) : m_env(env) {
     this->m_used_names = name_set();
     this->m_names_to_process = std::vector<name>();
     this->m_action = action;
@@ -40,7 +40,7 @@ void used_defs::empty_stack() {
         // Is a definition and not a synthetic compiler name.
         auto d = this->m_env.find(n);
         if (d && d.value().is_definition()) {
-            m_action(d.value());
+            m_action(*this, d.value());
         }
     }
 }

@@ -27,7 +27,7 @@ if(${EMSCRIPTEN})
     # legacy code for mkleanbook
     # copy olean files from the library into build/emscripten/shell/library/...
     add_custom_target(lean_js_library
-        COMMAND rm -rf ${CMAKE_CURRENT_BINARY_DIR}/library
+        COMMAND "${CMAKE_COMMAND}" -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/library
         COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/library
         COMMAND bash -c "(cd ${LEAN_JS_LIBRARY}; tar c `find -name '*.olean'`) | (cd ${CMAKE_CURRENT_BINARY_DIR}/library; tar x)"
         VERBATIM)
@@ -51,7 +51,7 @@ else()
   if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     ADD_CUSTOM_COMMAND(TARGET lean
       POST_BUILD
-      COMMAND rm -f "${LEAN_SOURCE_DIR}/../bin/lean${CMAKE_EXECUTABLE_SUFFIX}"
+      COMMAND "${CMAKE_COMMAND}" -E remove -f "${LEAN_SOURCE_DIR}/../bin/lean${CMAKE_EXECUTABLE_SUFFIX}"
       COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_BINARY_DIR}/lean${CMAKE_EXECUTABLE_SUFFIX}" "${LEAN_SOURCE_DIR}/../bin/"
     )
   else()
@@ -121,7 +121,7 @@ endif()
 file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.lean")
 add_test(NAME leantest_clear_all
         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean"
-        COMMAND bash -c "rm *.test_suite.out *.status || true")
+        COMMAND "${CMAKE_COMMAND}" -E remove "*.test_suite.out" "*.status")
 set_tests_properties(leantest_clear_all PROPERTIES FIXTURES_SETUP AllFiles)
 
 file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.lean")
@@ -147,7 +147,7 @@ ENDFOREACH(T)
 file(GLOB LEANRUNTESTS "${LEAN_SOURCE_DIR}/../tests/lean/run/*.lean")
 add_test(NAME leanruntest_clear_all
         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/run"
-        COMMAND bash -c "rm *.test_suite.out *.status || true")
+        COMMAND "${CMAKE_COMMAND}" -E remove "*.test_suite.out" "*.status")
 set_tests_properties(leanruntest_clear_all PROPERTIES FIXTURES_SETUP AllFiles)
 
 file(GLOB LEANRUNTESTS "${LEAN_SOURCE_DIR}/../tests/lean/run/*.lean")
@@ -173,7 +173,7 @@ ENDFOREACH(T)
 file(GLOB LEANFAILTESTS "${LEAN_SOURCE_DIR}/../tests/lean/fail/*.lean")
 add_test(NAME leanfailtest_clear_all
         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/fail"
-        COMMAND bash -c "rm *.test_suite.out *.status || true")
+        COMMAND "${CMAKE_COMMAND}" -E remove "*.test_suite.out" "*.status")
 set_tests_properties(leanfailtest_clear_all PROPERTIES FIXTURES_SETUP AllFiles)
 add_test(NAME leanfailtest_all
         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/fail"

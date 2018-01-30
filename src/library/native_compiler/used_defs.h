@@ -20,9 +20,9 @@ struct used_defs {
     name_set m_used_names;
     std::vector<name> m_names_to_process;
     environment const & m_env;
-    std::function<void(declaration const &)> m_action;
+    std::function<void(used_defs &, declaration const &)> m_action;
 
-    used_defs(environment const & env, std::function<void(declaration const &)>);
+    used_defs(environment const & env, std::function<void(used_defs &, declaration const &)>);
     void names_in_decl(declaration const & d);
     void names_in_expr(expr const & e);
     void names_in_preprocessed_body(expr const & e);

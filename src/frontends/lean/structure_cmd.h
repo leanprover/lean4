@@ -30,5 +30,5 @@ expr mk_proj_app(environment const & env, name const & S_name, name const & fnam
 
 /* Default value support */
 optional<name> has_default_value(environment const & env, name const & S_name, name const & fname);
-expr mk_field_default_value(environment const & env, name const & full_field_name, std::function<optional<expr>(name const &)> const & get_field_value);
+expr mk_field_default_value(environment const & env, name const & full_field_name, std::function<expr(name const &)> const & get_field_value);
 }

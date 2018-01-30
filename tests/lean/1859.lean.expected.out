@@ -1,7 +1,7 @@
 1859.lean:7:0: warning: declaration 'X' uses sorry
-1859.lean:8:35: error: type mismatch at field 'to_A'
-  {x := A.x ?m_1 X}
+1859.lean:8:35: error: type mismatch at field 'x'
+  A.x ?m_1
 has type
-  @A ?m_1 (@T2.to_T1 ?m_1 ?m_2)
+  T1.O ?m_1
 but is expected to have type
-  @A ?m_1 (@T3.to_T1 ?m_1 ?m_2)
+  T1.O α

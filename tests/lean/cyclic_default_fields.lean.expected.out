@@ -1,2 +1,12 @@
+cyclic_default_fields.lean:6:8: error: Failed to insert value for 'Eq.eq', it depends on field(s) 'ne', but the value for these fields is not available.
+Unfolded type/default value:
+
+  λ (a b : ℕ), ¬?ne a b
+
+Failed to insert value for 'Eq.ne', it depends on field(s) 'eq', but the value for these fields is not available.
+Unfolded type/default value:
+
+  λ (a b : ℕ), ¬?eq a b
+⁇ : Eq ℕ
 {eq := eq ℕ, ne := λ (a b : ℕ), ¬a = b} : Eq ℕ
 {eq := λ (a b : ℕ), ¬a ≠ b, ne := ne ℕ} : Eq ℕ

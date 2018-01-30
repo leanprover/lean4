@@ -216,7 +216,7 @@ optional<name> has_default_value(environment const & env, name const & S_name, n
     return optional<name>();
 }
 
-expr mk_field_default_value(environment const & env, name const & full_field_name, std::function<optional<expr>(name const &)> const & get_field_value) {
+expr mk_field_default_value(environment const & env, name const & full_field_name, std::function<expr(name const &)> const & get_field_value) {
     optional<name> default_name = has_default_value(env, full_field_name.get_prefix(), full_field_name.get_string());
     lean_assert(default_name);
     declaration decl = env.get(*default_name);
@@ -225,12 +225,7 @@ expr mk_field_default_value(environment const & env, name const & full_field_nam
     while (is_lambda(value)) {
         if (is_explicit(binding_info(value))) {
             name fname = binding_name(value);
-            optional<expr> fval = get_field_value(fname);
-            if (!fval) {
-                throw exception(sstream() << "failed to construct default value for '" << full_field_name << "', "
-                                << "it depends on field '" << fname << "', but the value for this field is not available");
-            }
-            args.push_back(*fval);
+            args.push_back(get_field_value(fname));
         } else {
             args.push_back(mk_expr_placeholder());
         }
@@ -594,9 +589,7 @@ struct structure_cmd_fn {
 
     expr mk_field_default_value(name const & full_field_name) {
         return ::lean::mk_field_default_value(m_env, full_field_name, [&](name const & fname) {
-                if (auto d = get_field_by_name(fname))
-                    return some_expr(mk_explicit(d->m_local));
-                return none_expr();
+                return mk_explicit(get_field_by_name(fname)->m_local);
             });
     }
 

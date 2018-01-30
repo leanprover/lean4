@@ -253,10 +253,26 @@ struct pull_nested_rec_fn : public replace_visitor {
         return r;
     }
 
-    virtual expr visit_app(expr const & e) override {
-        buffer<expr> args;
-        expr const & fn = get_app_args(e, args);
+    virtual expr visit_app(expr const & _e) override {
+        expr const & fn = get_app_fn(_e);
         if (is_local(fn) && local_info(fn).is_rec() && base_lctx().find_local_decl(fn)) {
+            /* `_e` may contain references to let-variables.
+               Here is an example from issue #1917
+
+               ```
+               def foo : ℕ → false
+               | x :=
+                 match x with
+                 y := let z := y in foo z
+                 end
+               ```
+
+               We address this issue by using zeta-expansion.
+               Remark: this may cause an unintended code size blowup.
+             */
+            expr e = zeta_expand(lctx(), _e);
+            buffer<expr> args;
+            get_app_args(e, args);
             buffer<expr> local_deps;
             collect_locals(e, local_deps);
             type_context ctx = mk_type_context(lctx());
@@ -274,7 +290,9 @@ struct pull_nested_rec_fn : public replace_visitor {
             }
             return r;
         } else {
-            return default_visit_app(e, fn, args);
+            buffer<expr> args;
+            get_app_args(_e, args);
+            return default_visit_app(_e, fn, args);
         }
     }
 

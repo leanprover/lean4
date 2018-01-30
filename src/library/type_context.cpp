@@ -717,6 +717,20 @@ optional<expr> type_context::unfold_definition_core(expr const & e) {
     return none_expr();
 }
 
+/* (@id_rhs T f a_1 ... a_n) ==> (f a_1 ... a_n) */
+static optional<expr> extract_id_rhs(expr const & e) {
+    if (is_app_of(e, get_id_rhs_name())) {
+        /* found id_rhs */
+        buffer<expr> e_args;
+        get_app_args(e, e_args);
+        if (e_args.size() < 2) return none_expr();
+        expr r = mk_app(e_args[1], e_args.size() - 2, e_args.begin() + 2);
+        return some_expr(r);
+    } else {
+        return none_expr();
+    }
+}
+
 /* Unfold head(e) if it is a constant */
 optional<expr> type_context::unfold_definition(expr const & e) {
     flet<unsigned> inc_depth(m_unfold_depth, m_unfold_depth+1);
@@ -752,14 +766,9 @@ optional<expr> type_context::unfold_definition(expr const & e) {
                         break;
                     }
                 }
-                if (is_app_of(new_it, get_id_rhs_name())) {
-                    /* found RHS */
-                    buffer<expr> new_it_args;
-                    get_app_args(new_it, new_it_args);
-                    if (new_it_args.size() < 2) return none_expr();
-                    expr r = mk_app(new_it_args[1], new_it_args.size() - 2, new_it_args.begin() + 2);
-                    lean_trace(name({"type_context", "smart_unfolding"}), tout() << "result [" << m_unfold_depth << "]: " << r << "\n";);
-                    return some_expr(r);
+                if (optional<expr> r = extract_id_rhs(new_it)) {
+                    lean_trace(name({"type_context", "smart_unfolding"}), tout() << "result [" << m_unfold_depth << "]: " << *r << "\n";);
+                    return r;
                 } else {
                     expr const & new_it_fn = get_app_fn(new_it);
                     if (!is_constant(new_it_fn)) {
@@ -780,10 +789,20 @@ optional<expr> type_context::unfold_definition(expr const & e) {
             expr f = instantiate_value_univ_params(*d, const_levels(f0));
             buffer<expr> args;
             get_app_rev_args(e, args);
-            return some_expr(apply_beta(f, args.size(), args.data()));
+            expr r = apply_beta(f, args.size(), args.data());
+            if (optional<expr> new_r = extract_id_rhs(r)) {
+                return new_r;
+            } else {
+                return some_expr(r);
+            }
         }
+    } else if (auto r = unfold_definition_core(e)) {
+        if (optional<expr> new_r = extract_id_rhs(*r))
+            return new_r;
+        else
+            return r;
     } else {
-        return unfold_definition_core(e);
+        return none_expr();
     }
 }
 

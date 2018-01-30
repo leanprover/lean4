@@ -53,6 +53,8 @@ option(CUSTOM_ALLOCATORS   "CUSTOM_ALLOCATORS" ON)
 option(SAVE_SNAPSHOT       "SAVE_SNAPSHOT" ON)
 option(SAVE_INFO           "SAVE_INFO" ON)
 
+option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" ON)
+
 # library dir
 set(LIBRARY_DIR           "lib/lean"                   CACHE STRING "library dir")
 set(LEAN_EXT_INCLUDE_DIR  "include/lean_ext"           CACHE STRING "include dir for building Lean extensions")
@@ -101,6 +103,10 @@ endif()
 
 if (NOT("${SAVE_INFO}" MATCHES "ON"))
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_NO_INFO")
+endif()
+
+if (NOT("${CHECK_OLEAN_VERSION}" MATCHES "ON"))
+  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_IGNORE_OLEAN_VERSION")
 endif()
 
 message(STATUS "Lean library will be installed at "

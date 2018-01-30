@@ -2178,17 +2178,17 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
     return true;
 }
 
-/* Auxiliary method for applying first-order unification. See: workaround A5 at \c process_assignment.
+/* Basic step for applying first-order unification. See: workaround A5 at \c process_assignment.
 
    Remark: this method is trying to solve the unification constraint:
 
-      mvar args[0] ... args[args.size()-1] =?= new_v
+      mvar args[0] ... args[args.size()-1] =?= v
 */
-bool type_context::process_assignment_fo_approx(expr const & mvar, buffer<expr> const & args, expr const & new_v) {
+bool type_context::process_assignment_fo_approx_core(expr const & mvar, buffer<expr> const & args, expr const & v) {
     lean_assert(is_mvar(mvar));
-    buffer<expr> new_v_args;
-    expr new_v_fn = get_app_args(new_v, new_v_args);
-    if (new_v_args.empty()) {
+    buffer<expr> v_args;
+    expr v_fn = get_app_args(v, v_args);
+    if (v_args.empty()) {
         /*
           ?M a_1 ... a_k =?= t,  where t is not an application
         */
@@ -2197,7 +2197,7 @@ bool type_context::process_assignment_fo_approx(expr const & mvar, buffer<expr> 
     expr new_mvar = mvar;
     unsigned i = 0;
     unsigned j = 0;
-    if (args.size() > new_v_args.size()) {
+    if (args.size() > v_args.size()) {
         /*
           ?M a_1 ... a_i a_{i+1} ... a_{i+k} =?= f b_1 ... b_k
 
@@ -2208,9 +2208,9 @@ bool type_context::process_assignment_fo_approx(expr const & mvar, buffer<expr> 
           ...
           a_{i+k}        =?= b_k
         */
-        new_mvar = mk_app(mvar, args.size() - new_v_args.size(), args.data());
-        i        = args.size() - new_v_args.size();
-    } else if (args.size() < new_v_args.size()) {
+        new_mvar = mk_app(mvar, args.size() - v_args.size(), args.data());
+        i        = args.size() - v_args.size();
+    } else if (args.size() < v_args.size()) {
         /*
           ?M a_1 ... a_k =?= f b_1 ... b_i b_{i+1} ... b_{i+k}
 
@@ -2221,8 +2221,8 @@ bool type_context::process_assignment_fo_approx(expr const & mvar, buffer<expr> 
           ...
           a_k =?= b_{i+k}
         */
-        new_v_fn = mk_app(new_v_fn, new_v_args.size() - args.size(), new_v_args.data());
-        j        = new_v_args.size() - args.size();
+        v_fn = mk_app(v_fn, v_args.size() - args.size(), v_args.data());
+        j        = v_args.size() - args.size();
     } else {
         /*
           ?M a_1 ... a_k =?= f b_1 ... b_k
@@ -2233,23 +2233,58 @@ bool type_context::process_assignment_fo_approx(expr const & mvar, buffer<expr> 
           ...
           a_k =?= b_k
         */
-        lean_assert(new_v_args.size() == args.size());
+        lean_assert(v_args.size() == args.size());
     }
     /* We try to unify arguments before we try to unify the functions.
        This heuristic is consistently used in the is_def_eq procedure.
        See is_def_eq_args invocations.
        The motivation is the following: the universe constraints in
        the arguments propagate to the function. */
-    for (; j < new_v_args.size(); i++, j++) {
+    for (; j < v_args.size(); i++, j++) {
         lean_assert(i < args.size());
-        if (!is_def_eq_core(args[i], new_v_args[j]))
+        if (!is_def_eq_core(args[i], v_args[j]))
             return false;
     }
-    if (!is_def_eq_core(new_mvar, new_v_fn))
+    if (!is_def_eq_core(new_mvar, v_fn))
         return false;
     lean_assert(i == args.size());
-    lean_assert(j == new_v_args.size());
+    lean_assert(j == v_args.size());
     return true;
+}
+
+/* Auxiliary method for applying first-order unification. See: workaround A5 at \c process_assignment.
+
+   Remark: this method is trying to solve the unification constraint:
+
+      mvar args[0] ... args[args.size()-1] =?= v
+
+   It is uses process_assignment_fo_approx_core, if it fails, it tries to unfold `v`.
+
+   We have added support for unfolding here because we want to be able to solve unification problems such as
+
+      ?m unit =?= itactic
+
+   where `itactic` is defined as
+
+      meta def itactic := tactic unit
+
+*/
+bool type_context::process_assignment_fo_approx(expr const & mvar, buffer<expr> const & args, expr const & v) {
+    expr curr_v = v;
+    while (true) {
+        {
+            scope s(*this);
+            if (process_assignment_fo_approx_core(mvar, args, curr_v)) {
+                s.commit();
+                return true;
+            }
+        }
+        if (optional<expr> next_v = unfold_definition(curr_v)) {
+            curr_v = *next_v;
+        } else {
+            return false;
+        }
+    }
 }
 
 struct check_assignment_failed {};

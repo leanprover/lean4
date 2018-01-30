@@ -209,7 +209,7 @@ static void tst6() {
     std::vector<thread> threads;
     const unsigned STEP = DEFAULT_STEP;
     for (unsigned i = 0; i < N; i++) {
-        threads.push_back(thread([i, &trees]() {
+        threads.push_back(thread([i, &trees, SZ, STEP]() {
                     int_rb_tree t2 = trees[i];
                     for (unsigned j = i; j < SZ; j += STEP) {
                         t2.contains(j);

@@ -32,7 +32,7 @@ In each of the targets, add the following snippet (i.e., after every
 ## Enable Intellisense
 
 In Visual Studio, press Ctrl+Q and type `CppProperties.json` and press Enter.
-Ensure `includePath` variables include `C:\\path\\to\\lean\\src`.
+Ensure `includePath` variables include `"${workspaceRoot}\\src"`.
 
 
 ## Build Lean

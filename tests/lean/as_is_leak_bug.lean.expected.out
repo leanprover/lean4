@@ -1,0 +1,8 @@
+def f : Π {α : Type} [_inst_1 : has_to_string α], α → string :=
+λ {α : Type} [_inst_1 : has_to_string α] (a : α), to_string a
+def g : Π {α : Type} [_inst_1 : has_to_string α], α → string :=
+λ {α : Type} [_inst_1 : has_to_string α], f
+def g' : Π {α : Type} [_inst_1 : has_to_string α], (α → string) × Type :=
+λ {α : Type} [_inst_1 : has_to_string α], (f, α)
+def h : Π {α : Type} [_inst_1 : has_to_string α], (α → string) × (α → string) × ((α → string) × Type) × Type :=
+λ {α : Type} [_inst_1 : has_to_string α], (f, g, g', α)

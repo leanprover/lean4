@@ -343,7 +343,26 @@ environment add_local_ref(parser & p, environment const & env, name const & c_na
         }
     }
     if (lps.empty() && params.empty()) return env;
-    expr ref = mk_local_ref(c_real_name, param_names_to_levels(to_list(lps)), params);
+    /*
+      Procedures such as `collect_implicit_locals` wrap parameter types with the `as_is` annotation.
+      So, we remove these annotations before creating the local reference using `mk_local_ref`.
+      Remark: the resulting object is wrapped with the macro `as_atomic`.
+
+      Remark: The local constants created here and `collect_implicit_locals` are not structurally
+      equal. That is, `l : ty` is not structurally equal to `l : as_is ty`, but they are definitionally
+      equal, and moreover the collection method relies on the fact that they have the same internal
+      id.
+    */
+    buffer<expr> new_params;
+    for (unsigned i = 0; i < params.size(); i++) {
+        expr & param = params[i];
+        expr type          = mlocal_type(param);
+        if (is_as_is(type))
+            type = get_as_is_arg(type);
+        expr new_type      = replace_locals_preserving_pos_info(type, i, params.data(), new_params.data());
+        new_params.push_back(copy_tag(param, update_mlocal(param, new_type)));
+    }
+    expr ref = mk_local_ref(c_real_name, param_names_to_levels(to_list(lps)), new_params);
     return p.add_local_ref(env, c_name, ref);
 }
 

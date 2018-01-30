@@ -135,7 +135,8 @@ int getopt_long(int argc, char *in_argv[], const char *optstring, const option *
                     }
                     break;
                 }
-                *index = I - opts;
+                if (index)
+                  *index = I - opts;
                 return I->val;
             }
         }

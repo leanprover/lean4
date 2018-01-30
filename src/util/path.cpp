@@ -199,7 +199,8 @@ std::vector<std::string> read_dir(std::string const &dirname) {
     HANDLE hFind = FindFirstFile(dir.c_str(), &data);
     if (hFind != INVALID_HANDLE_VALUE) {
         do {
-            files.push_back(dirname + '\\' + data.cFileName);
+            if (strcmp(data.cFileName, ".") != 0 && strcmp(data.cFileName, "..") != 0)
+                files.push_back(dirname + '\\' + data.cFileName);
         } while (FindNextFile(hFind, &data));
         FindClose(hFind);
     }

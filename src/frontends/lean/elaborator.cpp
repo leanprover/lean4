@@ -2826,7 +2826,7 @@ void elaborator::assign_field_mvar(name const & S_fname, expr const & mvar,
 
 class unfold_projections_visitor : public replace_visitor {
 private:
-    type_context m_ctx;
+    type_context & m_ctx;
 protected:
     expr visit_app(expr const & e) override {
         expr e2 = replace_visitor::visit_app(e);
@@ -2837,7 +2837,7 @@ protected:
         return e2;
     }
 public:
-    unfold_projections_visitor(const type_context & ctx): m_ctx(ctx) {}
+    unfold_projections_visitor(type_context & ctx): m_ctx(ctx) {}
 };
 
 /* Predicated variant of `lean::instantiate_mvars`. It does not support delayed abstractions or universe mvars. */
@@ -3071,7 +3071,7 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> const &
                 // Example: `functor.map (functor.mk ?p1 ?m1 ?m2...) => ?m1`
                 auto reduce_and_check_deps = [&](expr & e) {
                     if (use_subobjects)
-                        e = unfold_projections_visitor(m_env)(e);
+                        e = unfold_projections_visitor(m_ctx)(e);
                     expr t = e;
                     name_set deps;
                     expr pretty = replace(t, [&](expr const & e) {

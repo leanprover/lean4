@@ -700,12 +700,16 @@ public:
     type_context(environment const & env, options const & o, local_context const & lctx,
                  transparency_mode m = transparency_mode::Reducible):
         type_context(env, o, metavar_context(), lctx, m) {}
-    type_context(environment const & env, transparency_mode m = transparency_mode::Reducible):
+    explicit type_context(environment const & env, transparency_mode m = transparency_mode::Reducible):
         type_context(env, options(), metavar_context(), local_context(), m) {}
     type_context(environment const & env, options const & o, transparency_mode m = transparency_mode::Reducible):
         type_context(env, o, metavar_context(), local_context(), m) {}
     type_context(environment const & env, options const & o, metavar_context const & mctx, local_context const & lctx,
                  type_context_cache_manager & manager, transparency_mode m = transparency_mode::Reducible);
+    type_context(type_context const &) = delete;
+    type_context(type_context &&) = default;
+    type_context & operator=(type_context const &) = delete;
+    type_context & operator=(type_context &&) = default;
     virtual ~type_context();
 
     virtual environment const & env() const override { return m_cache->m_env; }

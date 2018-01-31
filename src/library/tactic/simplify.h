@@ -76,7 +76,7 @@ class simplify_core_fn {
 protected:
     typedef expr_struct_map<simp_result> simplify_cache;
 
-    type_context              m_ctx;
+    type_context &            m_ctx;
     defeq_canonizer           m_defeq_canonizer;
     name                      m_rel;
     simp_lemmas               m_slss;

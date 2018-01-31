@@ -203,8 +203,8 @@ static optional<tactic_state> apply(type_context & ctx, expr e, apply_cfg const 
     if ((cfg.m_unify && !ctx.unify(e_type, target)) ||
         (!cfg.m_unify && !ctx.match(e_type, target))) {
         if (out_error_obj) {
+            auto pp_ctx = ::lean::mk_pp_ctx(ctx.env(), s.get_options(), ctx.mctx(), ctx.lctx());
             auto thunk = [=]() {
-                auto pp_ctx = ::lean::mk_pp_ctx(ctx.env(), s.get_options(), ctx.mctx(), ctx.lctx());
                 format msg = format("invalid apply tactic, failed to ");
                 if (cfg.m_unify)
                     msg += format("unify");

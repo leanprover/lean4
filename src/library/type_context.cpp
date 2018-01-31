@@ -356,7 +356,8 @@ type_context::type_context(type_context_cache_ptr const & ptr, metavar_context c
 }
 
 type_context::~type_context() {
-    if (m_cache_manager)
+    // note: m_cache may have been moved out
+    if (m_cache_manager && m_cache)
         m_cache_manager->recycle(m_cache);
 }
 

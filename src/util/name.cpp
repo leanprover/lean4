@@ -41,14 +41,14 @@ bool is_sub_script_alnum_unicode(unsigned u) {
             (0x1d62 <= u && u <= 0x1d6a);   // letter-like subscripts
 }
 
-bool is_id_first(char const * begin, char const * end) {
+bool is_id_first(unsigned char const * begin, unsigned char const * end) {
     if (std::isalpha(*begin) || *begin == '_')
         return true;
     unsigned u = utf8_to_unicode(begin, end);
     return u == id_begin_escape || is_letter_like_unicode(u);
 }
 
-bool is_id_rest(char const * begin, char const * end) {
+bool is_id_rest(unsigned char const * begin, unsigned char const * end) {
     if (std::isalnum(*begin) || *begin == '_' || *begin == '\'')
         return true;
     unsigned u = utf8_to_unicode(begin, end);

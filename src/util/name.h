@@ -26,16 +26,16 @@ constexpr char16_t id_begin_escape = u'«';
 constexpr char16_t id_end_escape = u'»';
 #endif
 
-bool is_id_first(char const * begin, char const * end);
-inline bool is_id_first(unsigned char const * begin, unsigned char const * end) {
-    return is_id_first(reinterpret_cast<char const *>(begin),
-                      reinterpret_cast<char const *>(end));
+bool is_id_first(unsigned char const * begin, unsigned char const * end);
+inline bool is_id_first(char const * begin, char const * end) {
+    return is_id_first(reinterpret_cast<unsigned char const *>(begin),
+                      reinterpret_cast<unsigned char const *>(end));
 }
 
-bool is_id_rest(char const * begin, char const * end);
-inline bool is_id_rest(unsigned char const * begin, unsigned char const * end) {
-    return is_id_rest(reinterpret_cast<char const *>(begin),
-                      reinterpret_cast<char const *>(end));
+bool is_id_rest(unsigned char const * begin, unsigned char const * end);
+inline bool is_id_rest(char const * begin, char const * end) {
+    return is_id_rest(reinterpret_cast<unsigned char const *>(begin),
+                      reinterpret_cast<unsigned char const *>(end));
 }
 
 enum class name_kind { ANONYMOUS, STRING, NUMERAL };

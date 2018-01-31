@@ -28,7 +28,7 @@ public:
         if (it == m_table.end()) {
             s.write_char(k + 1);
             f();
-            m_table.insert(std::make_pair(v, m_table.size()));
+            m_table.insert(std::make_pair(v, static_cast<unsigned>(m_table.size())));
         } else {
             s.write_char(0);
             s.write_unsigned(it->second);

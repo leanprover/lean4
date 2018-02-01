@@ -3600,7 +3600,7 @@ expr elaborator::get_default_numeral_type() {
 void elaborator::synthesize_numeral_types() {
     for (expr const & A : m_numeral_types) {
         if (is_metavar(instantiate_mvars(A))) {
-            if (!assign_mvar(A, get_default_numeral_type()))
+            if (!is_def_eq(A, get_default_numeral_type()))
                 report_or_throw(elaborator_exception(A, "invalid numeral, failed to force numeral to be a nat"));
         }
     }

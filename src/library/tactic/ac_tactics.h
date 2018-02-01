@@ -22,6 +22,10 @@ Author: Leonardo de Moura
    TODO(Leo): move this class or implement a similar one in `library/` because the `ac_match`
    module needs this functionality. Here, we only need to keep the code for exposing this functionality
    as Lean tactics.
+
+   TODO(Leo): the operations for creating and processing AC applications using the ac_app_macro
+   sort arguments using is_hash_lt. This is ok for end-game tactics, but this is really bad
+   for interactive tactics. It is bad even if we just sort and use is_hash_lt.
 */
 
 namespace lean {

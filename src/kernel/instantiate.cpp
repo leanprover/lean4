@@ -189,6 +189,7 @@ expr instantiate_univ_params(expr const & e, level_param_names const & ps, level
         });
 }
 
+/* CACHE_RESET: NO */
 MK_THREAD_LOCAL_GET(instantiate_univ_cache, get_type_univ_cache, LEAN_INST_UNIV_CACHE_SIZE);
 MK_THREAD_LOCAL_GET(instantiate_univ_cache, get_value_univ_cache, LEAN_INST_UNIV_CACHE_SIZE);
 

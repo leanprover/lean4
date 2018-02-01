@@ -123,6 +123,7 @@ public:
 
 typedef cache_compatibility_helper<app_builder_cache> app_builder_cache_helper;
 
+/* CACHE_RESET: YES */
 MK_THREAD_LOCAL_GET_DEF(app_builder_cache_helper, get_abch);
 
 /** Return an app_builder_cache for the transparency_mode in ctx, and compatible with the environment. */

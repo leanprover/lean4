@@ -69,6 +69,7 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
+/* CACHE_RESET: YES */
 MK_THREAD_LOCAL_GET(type_context_cache_manager, get_tcm, true /* use binder information at infer_cache */);
 
 static name * g_elab_strategy = nullptr;

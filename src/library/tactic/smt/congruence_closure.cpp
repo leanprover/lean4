@@ -94,6 +94,7 @@ public:
     }
 };
 
+/* CACHE_RESET: YES */
 MK_THREAD_LOCAL_GET_DEF(ext_congr_lemma_cache_manager, get_clcm);
 
 congruence_closure::congruence_closure(type_context & ctx, state & s, defeq_canonizer::state & dcs,

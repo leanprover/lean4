@@ -95,6 +95,7 @@ public:
     }
 };
 
+/* CACHE_RESET: NO */
 MK_THREAD_LOCAL_GET_DEF(mk_binding_cache, get_mk_binding_cache);
 
 template<bool is_lambda>

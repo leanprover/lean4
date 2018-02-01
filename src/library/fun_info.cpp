@@ -53,6 +53,7 @@ struct fun_info_cache {
 
 typedef cache_compatibility_helper<fun_info_cache> fun_info_cache_helper;
 
+/* CACHE_RESET: YES */
 MK_THREAD_LOCAL_GET_DEF(fun_info_cache_helper, get_fich);
 
 fun_info_cache & get_fun_info_cache_for(type_context const & ctx) {

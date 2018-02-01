@@ -49,6 +49,7 @@ struct eq_cache {
     }
 };
 
+/* CACHE_RESET: No */
 MK_THREAD_LOCAL_GET_DEF(eq_cache, get_eq_cache);
 
 /** \brief Functional object for comparing expressions.

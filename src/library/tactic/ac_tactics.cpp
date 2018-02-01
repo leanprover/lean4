@@ -30,6 +30,7 @@ struct ac_manager_old::cache {
         m_instance_fingerprint(get_instance_fingerprint(env)) {}
 };
 
+/* CACHE_RESET: YES */
 MK_THREAD_LOCAL_GET_DEF(ac_manager_old::cache_ptr, get_cache_ptr);
 
 static ac_manager_old::cache_ptr get_cache(environment const & env) {

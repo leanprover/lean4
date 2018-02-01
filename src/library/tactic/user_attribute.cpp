@@ -232,6 +232,10 @@ struct user_attr_cache {
     name_hash_map<entry> m_cache;
 };
 
+/* CACHE_RESET: NO
+
+   This cache contains vm_objects.
+*/
 MK_THREAD_LOCAL_GET_DEF(user_attr_cache, get_user_attribute_cache);
 
 static bool check_dep_fingerprints(environment const & env, list<name> const & dep_names, list<unsigned> const & dep_fingerprints) {

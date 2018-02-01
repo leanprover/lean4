@@ -48,6 +48,7 @@ struct for_each_cache {
     }
 };
 
+/* CACHE_RESET: NO */
 MK_CACHE_STACK(for_each_cache, LEAN_DEFAULT_FOR_EACH_CACHE_CAPACITY)
 
 class for_each_fn {

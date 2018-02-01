@@ -321,6 +321,7 @@ vm_obj tactic_target(vm_obj const & o) {
     return tactic::mk_success(to_obj(g->get_type()), s);
 }
 
+/* CACHE_RESET: YES */
 MK_THREAD_LOCAL_GET_DEF(type_context_cache_manager, get_tcm);
 
 type_context mk_type_context_for(environment const & env, options const & o, metavar_context const & mctx,

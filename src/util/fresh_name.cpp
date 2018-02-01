@@ -20,7 +20,9 @@ static void register_fresh_name_prefix(name const & p) {
     g_fresh_name_prefixes->insert(p);
 }
 
+/* CACHE_RESET: NO */
 MK_THREAD_LOCAL_GET_DEF(name, get_prefix);
+/* CACHE_RESET: YES */
 LEAN_THREAD_VALUE(unsigned, g_next_idx, 0);
 
 static bool is_fresh_prefix(name const & p) {
@@ -37,6 +39,7 @@ name mk_fresh_name() {
         prefix = name::mk_internal_unique_name();
         register_fresh_name_prefix(prefix);
     }
+    /* REMARK: after we implement RESET operation we will not need the following test anymore */
     if (g_next_idx == std::numeric_limits<unsigned>::max()) {
         // avoid overflow
         prefix = name(prefix, g_next_idx);

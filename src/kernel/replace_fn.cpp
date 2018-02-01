@@ -52,6 +52,7 @@ struct replace_cache {
     }
 };
 
+/* CACHE_RESET: NO */
 MK_CACHE_STACK(replace_cache, LEAN_DEFAULT_REPLACE_CACHE_CAPACITY)
 
 class replace_rec_fn {

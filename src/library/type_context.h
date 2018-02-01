@@ -41,7 +41,10 @@ bool is_at_least_instances(transparency_mode m);
 transparency_mode ensure_semireducible_mode(transparency_mode m);
 transparency_mode ensure_instances_mode(transparency_mode m);
 
-/* \brief Cached information for type_context. */
+/* \brief Cached information for type_context.
+
+   TODO(Leo): reevaluate the cache validation policies we use.
+ */
 class type_context_cache {
     typedef std::unordered_map<name, optional<declaration>, name_hash> transparency_cache;
     typedef std::unordered_map<name, bool, name_hash> name2bool;

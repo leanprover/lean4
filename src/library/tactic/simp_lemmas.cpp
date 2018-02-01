@@ -1199,6 +1199,9 @@ public:
     }
 };
 
+/* CACHE_RESET: YES
+
+   Do we still need this cache? Can we use user_attr_cache infrastructure. */
 MK_THREAD_LOCAL_GET_DEF(simp_lemmas_cache, get_cache);
 
 simp_lemmas get_simp_lemmas(environment const & env, simp_lemmas_token tk) {

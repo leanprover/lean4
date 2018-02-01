@@ -90,6 +90,7 @@ vm_obj ematch_state::mk_vm_ematch_config() const {
     return mk_vm_constructor(0, mk_vm_nat(get_config().m_max_instances), mk_vm_nat(get_config().m_max_generation));
 }
 
+/* CACHE_RESET: NO */
 /* Allocator for ematching constraints. */
 MK_THREAD_LOCAL_GET(small_object_allocator, get_emc_allocator, "ematch constraint");
 

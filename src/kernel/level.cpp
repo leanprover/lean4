@@ -247,6 +247,7 @@ bool is_one(level const & l) { return l == mk_level_one(); }
 
 typedef typename std::unordered_set<level, level_hash> level_cache;
 LEAN_THREAD_VALUE(bool, g_level_cache_enabled, false);
+/* CACHE_RESET: No */
 MK_THREAD_LOCAL_GET_DEF(level_cache, get_level_cache);
 bool enable_level_caching(bool f) {
     bool r = g_level_cache_enabled;

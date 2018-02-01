@@ -41,6 +41,7 @@ struct congr_lemma_cache {
 
 typedef cache_compatibility_helper<congr_lemma_cache> congr_lemma_cache_helper;
 
+/* CACHE_RESET: YES */
 MK_THREAD_LOCAL_GET_DEF(congr_lemma_cache_helper, get_clch);
 
 congr_lemma_cache & get_congr_lemma_cache_for(type_context const & ctx) {

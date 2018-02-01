@@ -18,7 +18,7 @@ Author: Leonardo de Moura
 #include "library/tactic/ac_tactics.h"
 
 namespace lean {
-struct ac_manager::cache {
+struct ac_manager_old::cache {
     environment                     m_env;
     unsigned                        m_reducibility_fingerprint;
     unsigned                        m_instance_fingerprint;
@@ -30,18 +30,18 @@ struct ac_manager::cache {
         m_instance_fingerprint(get_instance_fingerprint(env)) {}
 };
 
-MK_THREAD_LOCAL_GET_DEF(ac_manager::cache_ptr, get_cache_ptr);
+MK_THREAD_LOCAL_GET_DEF(ac_manager_old::cache_ptr, get_cache_ptr);
 
-static ac_manager::cache_ptr get_cache(environment const & env) {
+static ac_manager_old::cache_ptr get_cache(environment const & env) {
     auto & cache_ptr = get_cache_ptr();
     if (!cache_ptr ||
         !env.is_descendant(cache_ptr->m_env) ||
         get_reducibility_fingerprint(env) != cache_ptr->m_reducibility_fingerprint ||
         get_instance_fingerprint(env)     != cache_ptr->m_instance_fingerprint) {
         cache_ptr.reset();
-        return std::make_shared<ac_manager::cache>(env);
+        return std::make_shared<ac_manager_old::cache>(env);
     }
-    ac_manager::cache_ptr r = cache_ptr;
+    ac_manager_old::cache_ptr r = cache_ptr;
     cache_ptr.reset();
     r->m_env = env;
     if (!is_decl_eqp(env, r->m_env)) {
@@ -52,20 +52,20 @@ static ac_manager::cache_ptr get_cache(environment const & env) {
     return r;
 }
 
-static void recycle_cache(ac_manager::cache_ptr const & cache) {
+static void recycle_cache(ac_manager_old::cache_ptr const & cache) {
     get_cache_ptr() = cache;
 }
 
-ac_manager::ac_manager(type_context & ctx):
+ac_manager_old::ac_manager_old(type_context & ctx):
     m_ctx(ctx),
     m_cache_ptr(get_cache(ctx.env())) {
 }
 
-ac_manager::~ac_manager() {
+ac_manager_old::~ac_manager_old() {
     recycle_cache(m_cache_ptr);
 }
 
-optional<expr> ac_manager::is_assoc(expr const & e) {
+optional<expr> ac_manager_old::is_assoc(expr const & e) {
     auto op = get_binary_op(e);
     if (!op) return none_expr();
     bool idx = has_local(e);
@@ -82,7 +82,7 @@ optional<expr> ac_manager::is_assoc(expr const & e) {
     return r;
 }
 
-optional<expr> ac_manager::is_comm(expr const & e) {
+optional<expr> ac_manager_old::is_comm(expr const & e) {
     auto op = get_binary_op(e);
     if (!op) return none_expr();
     bool idx = has_local(e);

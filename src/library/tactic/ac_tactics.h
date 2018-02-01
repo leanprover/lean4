@@ -61,7 +61,7 @@ namespace lean {
 
    Summary: we need to move this module to `library/`, we need to extend it, and add missing optimizations.
 */
-class ac_manager {
+class ac_manager_old {
 public:
     struct cache;
     typedef std::shared_ptr<cache> cache_ptr;
@@ -69,8 +69,8 @@ private:
     type_context & m_ctx;
     cache_ptr      m_cache_ptr;
 public:
-    ac_manager(type_context & ctx);
-    ~ac_manager();
+    ac_manager_old(type_context & ctx);
+    ~ac_manager_old();
     /* If e is of the form (op a b), and op is associative (i.e., there is an instance (is_associative _ op)), then
        return proof term for forall x y z, op (op x y) z = op x (op y z) */
     optional<expr> is_assoc(expr const & e);

@@ -92,7 +92,7 @@ private:
     type_context &       m_ctx;
     congruence_closure & m_cc;
     state &              m_state;
-    ac_manager           m_ac_manager;
+    ac_manager_old       m_ac_manager;
     buffer<expr_triple>  m_todo;
 
     expr convert(expr const & op, expr const & e, buffer<expr> & args);

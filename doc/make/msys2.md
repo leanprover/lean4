@@ -22,7 +22,7 @@ Here are the commands to install all dependencies needed to compile Lean on your
 pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-ninja mingw-w64-x86_64-cmake git
 ```
 
-Then follow the generic build instructions in the [msys2] shell.
+Then follow the [generic build instructions](index.md) in the [msys2] shell.
 
 ## Install lean
 

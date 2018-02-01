@@ -359,7 +359,7 @@ void native_compile_module(environment const & env, buffer<declaration> decls) {
 
     // Compute the live set of names, we attach a callback that will be
     // invoked for every declaration encountered.
-    used_defs used_names(env, [&] (used_defs & used_names, declaration const & d) {
+    used_defs used_names{env, [&] (declaration const & d) {
         buffer<procedure> procs;
         // The the name is an internal decl we should not add it to the live set.
         if (is_internal_decl(d)) {
@@ -379,7 +379,7 @@ void native_compile_module(environment const & env, buffer<declaration> decls) {
                 all_procs.push_back(pair);
             }
         }
-    });
+    }};
 
     // We then loop over the set of procs produced by preprocessing the
     // main function, we transitively collect all names.
@@ -416,7 +416,7 @@ void native_compile_binary(environment const & env, declaration const & d) {
 
     // Compute the live set of names, we attach a callback that will be
     // invoked for every declaration encountered.
-    used_defs used_names(env, [&] (used_defs & used_names, declaration const & d) {
+    used_defs used_names{env, [&] (declaration const & d) {
         buffer<procedure> procs;
         if (is_internal_decl(d)) {
             return;
@@ -432,7 +432,7 @@ void native_compile_binary(environment const & env, declaration const & d) {
                 all_procs.push_back(pair);
             }
         }
-    });
+    }};
 
     // We then loop over the set of procs produced by preprocessing the
     // main function, we transitively collect all names.

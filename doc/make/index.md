@@ -43,7 +43,7 @@ Useful CMake Configuration Settings
 Pass these along with the `cmake ../../src` command.
 
 * `-G Ninja`
-  CMake 2.8.11 supports the [Ninja][https://ninja-build.org/] build system.
+  CMake 2.8.11 supports the [Ninja](https://ninja-build.org/) build system.
   [Some people report][ninja_work] that using
   Ninja can reduce the build time, esp when a build is
   incremental. Call `ninja` instead of `make` to build the project.

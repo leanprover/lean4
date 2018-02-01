@@ -122,9 +122,12 @@ master branch (aka work in progress branch)
   For example, given the goal `... |- [1,2].map nat.succ = t`, `simp!` reduces the left-hand-side
   of the equation to `[nat.succ 1, nat.succ 2]`. In this example, `simp!` is equivalent to
   `simp [list.map]`.
+
 * Allow the Script, Double-struck, and Fractur symbols from
   Mathematical Alphanumeric Symbols: https://unicode.org/charts/PDF/U1D400.pdf
   to be used as variables Example: `variables 𝓞 : Prop`.
+
+* Structure instance notation now allows explicitly setting implicit structure fields
 
 *Changes*
 

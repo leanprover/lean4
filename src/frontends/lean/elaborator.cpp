@@ -2973,28 +2973,14 @@ class visit_structure_instance_fn {
                 c_arg = m_elab.mk_metavar(S_fname.append_before("?"), d, m_ref);
 
                 /* Try to find field value, in the following order:
-                 * 1) implicit field: infer
-                 * 2) explicit value from m_fvalues
-                 * 3) subobject field: recurse
-                 * 4) value from source
-                 * 5) opt/auto param
+                 * 1) explicit value from m_fvalues
+                 * 2) subobject field: recurse
+                 * 3) value from source
+                 * 4) opt/auto/implicit param
                  * 6) `..` catchall: placeholder
                  */
                 auto it = std::find(m_fnames.begin(), m_fnames.end(), S_fname);
-                if (!is_explicit(binding_info(c_type))) {
-                    /* implicit field */
-                    if (it != m_fnames.end()) {
-                        // avoid redundant error
-                        m_fnames_used.insert(S_fname);
-                        m_elab.report_or_throw(
-                                elaborator_exception(m_e, sstream() << "invalid structure value {...}, field '"
-                                                                  << S_fname
-                                                                  << "' is implicit and must not be provided"));
-                    }
-                    m_field2elab.insert(S_fname, [=](expr const & d) {
-                        return binding_info(c_type).is_inst_implicit() ? m_elab.mk_instance(d, m_ref) : m_elab.mk_metavar(d, m_ref);
-                    });
-                } else if (it != m_fnames.end()) {
+                if (it != m_fnames.end()) {
                     /* explicitly passed field */
                     m_fnames_used.insert(S_fname);
                     insert_field_preterm(S_fname, m_fvalues[it - m_fnames.begin()]);
@@ -3020,11 +3006,17 @@ class visit_structure_instance_fn {
                     /* auto param */
                     m_field2elab.insert(S_fname, [=](expr const & d) {
                         if (m_elab.m_in_pattern) {
+                            // insert placeholder during pattern elaboration
                             return m_elab.mk_metavar(d, m_ref);
                         } else {
                             auto p = is_auto_param(d);
                             return m_elab.mk_auto_param(p->second, p->first, m_ref);
                         }
+                    });
+                } else if (!is_explicit(binding_info(c_type))) {
+                    /* implicit field */
+                    m_field2elab.insert(S_fname, [=](expr const & d) {
+                        return binding_info(c_type).is_inst_implicit() ? m_elab.mk_instance(d, m_ref) : m_elab.mk_metavar(d, m_ref);
                     });
                 } else if (m_info.m_catchall) {
                     /* catchall: insert placeholder */

@@ -159,21 +159,6 @@ bool type_context_cache::is_aux_recursor(name const & n) {
     return r;
 }
 
-type_context_cache::scope_pos_info::scope_pos_info(type_context_cache & o, pos_info_provider const * pip,
-                                                   expr const & pos_ref):
-    m_owner(o),
-    m_old_pip(m_owner.m_pip),
-    m_old_pos(m_owner.m_ci_pos) {
-    m_owner.m_pip = pip;
-    if (pip)
-        m_owner.m_ci_pos = pip->get_pos_info(pos_ref);
-}
-
-type_context_cache::scope_pos_info::~scope_pos_info() {
-    m_owner.m_pip    = m_old_pip;
-    m_owner.m_ci_pos = m_old_pos;
-}
-
 /* =====================
    type_context_cache_manager
    ===================== */
@@ -2924,48 +2909,6 @@ lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
         }
     }
     return l_undef; // This is not an "easy case"
-}
-
-/* We say a reduction is productive iff the result is not a recursor application */
-bool type_context::is_productive(expr const & e) {
-    /* TODO(Leo): make this more general.
-       Right now we consider the following cases to be non-productive
-       1)  (C.rec ...)   where rec is rec/rec_on/cases_on/brec_on
-       2)  (prod.fst A B (C.rec ...) ...)  where rec is rec/rec_on/cases_on/brec_on
-
-       Second case is a byproduct of the recursive equation compiler.
-    */
-    expr const & f = get_app_fn(e);
-    if (!is_constant(f))
-        return true;
-    name const & n = const_name(f);
-    if (n == get_pprod_fst_name()) {
-        /* We use pprod.fst when compiling recursive equations with brec_on.
-           So, we should check whether the main argument of the projection
-           is productive */
-        buffer<expr> args;
-        get_app_args(e, args);
-        if (args.size() < 3)
-            return false;
-        expr const & major = args[2];
-        return is_productive(major);
-    } else {
-        return !m_cache->is_aux_recursor(n) && !inductive::is_elim_rule(env(), n);
-    }
-}
-
-expr type_context::reduce_if_productive(expr const & t) {
-    if (auto r = unfold_definition(t)) {
-        expr new_t = whnf_core(*r, false);
-        if (is_productive(new_t)) {
-            return new_t;
-        }
-        /* Unfold projections and try again, but return term before unfolding projections. */
-        if (is_productive(whnf_core(new_t, true))) {
-            return new_t;
-        }
-    }
-    return t;
 }
 
 static bool same_head_symbol(expr const & t, expr const & s) {

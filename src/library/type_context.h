@@ -156,16 +156,6 @@ public:
     environment const & env() const { return m_env; }
 
     options const & get_options() const { return m_options; }
-
-    /** \brief Auxiliary object used to set position information for the type class resolution trace. */
-    class scope_pos_info {
-        type_context_cache &      m_owner;
-        pos_info_provider const * m_old_pip;
-        optional<pos_info>        m_old_pos;
-    public:
-        scope_pos_info(type_context_cache & o, pos_info_provider const * pip, expr const & pos_ref);
-        ~scope_pos_info();
-    };
 };
 
 typedef std::shared_ptr<type_context_cache> type_context_cache_ptr;
@@ -1087,8 +1077,6 @@ private:
     lbool quick_is_def_eq(expr const & e1, expr const & e2);
     bool try_unification_hint(unification_hint const & h, expr const & e1, expr const & e2);
     bool try_unification_hints(expr const & e1, expr const & e2);
-    bool is_productive(expr const & e);
-    expr reduce_if_productive(expr const & t);
     lbool is_def_eq_delta(expr const & t, expr const & s);
     lbool is_def_eq_proj(expr t, expr s);
     optional<pair<expr, expr>> find_unsynth_metavar(expr const & e);

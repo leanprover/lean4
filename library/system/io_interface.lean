@@ -80,10 +80,8 @@ instance monad_io_is_monad (m : Type → Type → Type) (e : Type) [monad_io m] 
 monad_io.monad m e
 
 instance monad_io_is_monad_fail (m : Type → Type → Type) [monad_io m] : monad_fail (m io.error) :=
-{ fail := λ α s, monad_io.fail _ _ _ (io.error.other s),
-  ..monad_io.monad m io.error }
+{ fail := λ α s, monad_io.fail _ _ _ (io.error.other s) }
 
 instance monad_io_is_alternative (m : Type → Type → Type) [monad_io m] : alternative (m io.error) :=
 { orelse  := λ α a b, monad_io.catch _ _ _ a (λ _, b),
-  failure := λ α, monad_io.fail _ _ _ (io.error.other "failure"),
-  ..monad_io.monad m io.error }
+  failure := λ α, monad_io.fail _ _ _ (io.error.other "failure") }

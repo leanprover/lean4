@@ -2861,6 +2861,8 @@ class visit_structure_instance_fn {
 
     // set of fnames that have been used by `create_field_mvars`. Not using all of them is an error.
     name_set m_fnames_used;
+    // fields for which no value could be found
+    buffer<name> m_missing_fields;
     // elaborated sources
     buffer<source> m_sources;
 
@@ -2987,10 +2989,19 @@ class visit_structure_instance_fn {
                 } else if (auto p = is_subobject_field(m_env, nested_S_name, S_fname)) {
                     /* subobject field */
                     auto num_used = m_fnames_used.size();
+                    auto old_missing_fields = m_missing_fields;
                     auto nested = create_field_mvars(*p);
-                    if (!m_sources.empty() && m_fnames_used.size() == num_used && field_from_source(S_fname)) {
+                    if (m_fnames_used.size() == num_used && field_from_source(S_fname)) {
                         // If the subobject doesn't contain any explicitly passed fields, we prefer to use
                         // its value directly from a source so that the two are definitionally equal
+                    } else if (!is_explicit(binding_info(c_type)) && m_fnames_used.size() == num_used &&
+                            old_missing_fields.size() < m_missing_fields.size()) {
+                        // If the subobject is a superclass, doesn't contain any explicitly passed fields,
+                        // and has missing fields, we fall back to type inference
+                        m_field2elab.insert(S_fname, [=](expr const & d) {
+                            return m_elab.mk_instance(d, m_ref);
+                        });
+                        m_missing_fields = old_missing_fields;
                     } else {
                         // We assign the subtree to the mvar eagerly so that the mvars representing the nested
                         // structure parameters are assigned, which are not inlcuded in the m_mvar2field dependency
@@ -3025,8 +3036,8 @@ class visit_structure_instance_fn {
                     });
                 } else {
                     /* failure */
-                    m_elab.report_or_throw(elaborator_exception(m_e, sstream() << "invalid structure value { ... }, field '"
-                            << S_fname << "' was not provided"));
+                    // Do not log an error immediately because subobjects may need backtracking
+                    m_missing_fields.push_back(S_fname);
                     m_field2elab.insert(S_fname, [=](expr const & d) {
                         return m_elab.mk_sorry(some_expr(d), m_ref);
                     });
@@ -3116,7 +3127,7 @@ class visit_structure_instance_fn {
 
     /** Repeatedly try to elaborate fields whose dependencies have been elaborated.
       * If we have not made any progress in a round, do a last one collecting any errors. */
-    void insert_field_values() {
+    void insert_field_values(expr const & e) {
         bool done = false;
         bool last_progress = true;
 
@@ -3124,10 +3135,14 @@ class visit_structure_instance_fn {
             done = true;
             bool progress = false;
             format error;
-            m_field2mvar.for_each([&](name const & S_fname, expr const & mvar) {
-                if (!m_elab.is_mvar_assigned(mvar)) {
+            // Try to resolve helper metavars reachable from e. Note that `m_mvar2field` etc. may contain
+            // metavars unreachable from e because of backtracking.
+            expr e2 = m_elab.instantiate_mvars(e);
+            for_each(e2, [&](expr const & e, unsigned) {
+                if (is_meta(e) && m_mvar2field.contains(mlocal_name(e))) {
+                    name S_fname = m_mvar2field[mlocal_name(e)];
                     name full_S_fname = m_S_name + S_fname;
-                    expr expected_type = m_elab.infer_type(mvar);
+                    expr expected_type = m_elab.infer_type(e);
                     expected_type = m_elab.instantiate_mvars(expected_type);
                     expr val;
 
@@ -3140,7 +3155,7 @@ class visit_structure_instance_fn {
                         done = false;
                         if (!last_progress)
                             error += e.m_fmt;
-                        return;
+                        return true;
                     }
 
                     expr val_type = m_elab.infer_type(val);
@@ -3150,7 +3165,7 @@ class visit_structure_instance_fn {
                          * Note that `ensure_has_type` has already unified their types, so this should not result
                          * in any missed unifications.
                          */
-                        lean_always_assert(m_ctx.match(mvar, *val2));
+                        lean_always_assert(m_ctx.match(e, *val2));
                         trace_elab_detail(tout() << "inserted field '" << S_fname << "' with value '" << *val2 << "'"
                                                  << "\n";)
                         progress = true;
@@ -3160,6 +3175,7 @@ class visit_structure_instance_fn {
                         throw elaborator_exception(val, msg);
                     }
                 }
+                return has_metavar(e);
             });
             if (!last_progress && !progress)
                 throw elaborator_exception(m_ref, error);
@@ -3187,6 +3203,12 @@ public:
         expr e2, c_type;
         std::tie(e2, c_type) = create_field_mvars(m_S_name);
 
+        /* Report missing fields. */
+        for (name const & S_fname : m_missing_fields) {
+            m_elab.report_or_throw(elaborator_exception(m_e, sstream() << "invalid structure value { ... }, field '"
+                                                                       << S_fname << "' was not provided"));
+        }
+
         /* Check if there are alien fields. */
         for (name const & fname : m_fnames) {
             if (!m_fnames_used.contains(fname)) {
@@ -3199,7 +3221,7 @@ public:
         /* Make sure to unify first to propagate the expected type, we'll report any errors later on. */
         bool type_def_eq = !m_expected_type || m_elab.is_def_eq(*m_expected_type, c_type);
 
-        insert_field_values();
+        insert_field_values(e2);
 
         /* Check expected type */
         if (!type_def_eq) {

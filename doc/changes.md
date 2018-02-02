@@ -129,6 +129,10 @@ master branch (aka work in progress branch)
 
 * Structure instance notation now allows explicitly setting implicit structure fields
 
+* Structure instance notation now falls back to type inference for inferring the
+  value of a superclass. This change eliminates the need for most `..` source specifiers
+  in instance declarations.
+
 *Changes*
 
 * Command `variable [io.interface]` is not needed anymore to use the `io` monad.

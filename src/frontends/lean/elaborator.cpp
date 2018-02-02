@@ -3139,7 +3139,7 @@ class visit_structure_instance_fn {
             // metavars unreachable from e because of backtracking.
             expr e2 = m_elab.instantiate_mvars(e);
             for_each(e2, [&](expr const & e, unsigned) {
-                if (is_meta(e) && m_mvar2field.contains(mlocal_name(e))) {
+                if (is_metavar(e) && m_mvar2field.contains(mlocal_name(e))) {
                     name S_fname = m_mvar2field[mlocal_name(e)];
                     name full_S_fname = m_S_name + S_fname;
                     expr expected_type = m_elab.infer_type(e);

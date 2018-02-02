@@ -459,7 +459,8 @@ name local_context::get_unused_name(name const & suggestion) const {
 
 local_context local_context::instantiate_mvars(metavar_context & mctx) const {
     local_context r;
-    r.m_next_idx = m_next_idx;
+    r.m_next_idx             = m_next_idx;
+    r.m_instance_fingerprint = m_instance_fingerprint;
     m_idx2local_decl.for_each([&](unsigned, local_decl const & d) {
             expr new_type = mctx.instantiate_mvars(d.m_ptr->m_type);
             optional<expr> new_value;

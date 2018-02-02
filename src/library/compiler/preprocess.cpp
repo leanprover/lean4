@@ -26,7 +26,6 @@ Author: Leonardo de Moura
 #include "library/compiler/comp_irrelevant.h"
 #include "library/compiler/nat_value.h"
 #include "library/compiler/eta_expansion.h"
-#include "library/compiler/simp_pr1_rec.h"
 #include "library/compiler/inliner.h"
 #include "library/compiler/elim_recursors.h"
 #include "library/compiler/erase_irrelevant.h"
@@ -250,9 +249,6 @@ public:
         v = eta_expand(m_env, v);
         lean_cond_assert("compiler", check(d, v));
         lean_trace(name({"compiler", "eta_expansion"}), tout() << "\n" << v << "\n";);
-        v = simp_pr1_rec(m_env, v);
-        lean_cond_assert("compiler", check(d, v));
-        lean_trace(name({"compiler", "simplify_pr1"}), tout() << "\n" << v << "\n";);
         v = elim_recursors(m_env, d.get_name(), v, procs);
         procs.emplace_back(d.get_name(), get_decl_pos_info(m_env, d.get_name()), v);
         lean_cond_assert("compiler", check(d, procs.back().m_code));

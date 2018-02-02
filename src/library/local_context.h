@@ -87,6 +87,38 @@ class local_context {
     subscripted_name_set   m_user_names;
     name_map<unsigned_set> m_user_name2idxs;
     idx2local_decl         m_idx2local_decl;
+    /*
+      TODO(Leo): m_instance_fingerprint management is still broken.
+
+      Here is a plan to fix it:
+      1- Rename  `set_instance_fingerprint` should be renamed to `freeze_local_instances`.
+      2- `freeze_local_instances` should save the content of `m_idx2local_decl` into
+         a new field. When the set of local instances are computed, we should use the
+         saced `m_idx2local_decl` instead of the current `m_idx2local_decl`.
+
+      Pending problem: what do we do if we need to revert a local instance?
+      ```
+        example {α : Type} [s : has_add α] : has_add α  :=
+        by do
+           ty ← to_expr ```(has_add α),
+           s1  ← mk_instance ty,
+           trace s1,
+           revert s1,
+           s2  ← mk_instance ty, -- Should fail, but it returns cached value
+           trace s2,
+           intro `_,
+           trace "here",
+           exact s1
+      ```
+
+      Possible solution:
+      - `freeze_local_instances` computes set of local instances eagerly.
+      - We store the local instances instead of `m_idx2local_decl`
+      - `revert` operation fails if a local instance is being reverted
+      - If `freeze_local_instances` is not set, then type_context will compute
+        local instances during initialization. This is needed to be able to elaborate
+        parameter.
+    */
     optional<unsigned>     m_instance_fingerprint;
     friend class type_context;
     /* Return the instance fingerprint for empty local_contexts */

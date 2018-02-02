@@ -82,39 +82,6 @@ void get_rec_args(environment const & env, name const & n, buffer<buffer<bool>> 
     }
 }
 
-bool is_recursive_rec_app(environment const & env, expr const & e) {
-    buffer<expr> args;
-    expr const & f = get_app_args(e, args);
-    if (!is_constant(f))
-        return false;
-    auto I_name = inductive::is_elim_rule(env, const_name(f));
-    if (!I_name || !is_recursive_datatype(env, *I_name) || is_inductive_predicate(env, *I_name))
-        return false;
-    unsigned nparams       = *inductive::get_num_params(env, *I_name);
-    unsigned nminors       = *inductive::get_num_minor_premises(env, *I_name);
-    unsigned ntypeformers  = 1;
-    buffer<buffer<bool>> is_rec_arg;
-    get_rec_args(env, *I_name, is_rec_arg);
-    for (unsigned i = nparams + ntypeformers, j = 0; i < nparams + ntypeformers + nminors; i++, j++) {
-        buffer<bool> const & minor_is_rec_arg = is_rec_arg[j];
-        expr minor = args[i];
-        buffer<expr> minor_ctx;
-        expr minor_body = fun_to_telescope(minor, minor_ctx, optional<binder_info>());
-        unsigned sz = std::min(minor_is_rec_arg.size(), minor_ctx.size());
-        if (find(minor_body, [&](expr const & e, unsigned) {
-                    if (!is_local(e))
-                        return false;
-                    for (unsigned k = 0; k < sz; k++) {
-                        if (minor_is_rec_arg[k] && mlocal_name(e) == mlocal_name(minor_ctx[k]))
-                            return true;
-                    }
-                    return false;
-                }))
-            return false;
-    }
-    return true;
-}
-
 bool is_cases_on_recursor(environment const & env, name const & n) {
     return ::lean::is_aux_recursor(env, n) && strcmp(n.get_string(), "cases_on") == 0;
 }

@@ -2,15 +2,7 @@ bad_error3.lean:1:33: error: type expected at
   p 0
 term has type
   ℕ → Prop
-bad_error3.lean:3:0: error: tactic failed, there are unsolved goals
-state:
-p : ℕ → ℕ → Prop
-⊢ ⁇
 bad_error3.lean:5:32: error: type expected at
   p 0
 term has type
   ℕ → Prop
-bad_error3.lean:7:0: error: tactic failed, there are unsolved goals
-state:
-p : ℕ → ℕ → Prop
-⊢ ⁇

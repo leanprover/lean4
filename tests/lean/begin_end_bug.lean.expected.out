@@ -5,4 +5,3 @@ a b c : ℕ,
 hab : a = b,
 hac : a = c
 ⊢ Type
-begin_end_bug.lean:3:48: error: _interaction._lambda_3: trying to evaluate sorry

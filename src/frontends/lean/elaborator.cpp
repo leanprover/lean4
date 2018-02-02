@@ -3692,6 +3692,13 @@ void elaborator::invoke_tactic(expr const & mvar, expr const & tactic) {
     expr type            = m_ctx.mctx().get_metavar_decl(mvar).get_type();
     tactic_state s       = mk_tactic_state_for(mvar);
 
+    if (has_synth_sorry({type, tactic})) {
+        // Skip if tactic or goal is broken. It is unlikely we will obtain
+        // any additional useful error messages.
+        m_ctx.assign(mvar, mk_sorry(some_expr(type), ref));
+        return;
+    }
+
     try {
         scoped_expr_caching scope(true);
         vm_obj r = tactic_evaluator(m_ctx, m_opts, ref)(tactic, s);

@@ -42,5 +42,3 @@ parser_error_recovery.lean:37:13: error: don't know how to synthesize placeholde
 context:
 x : ℕ
 ⊢ Type ?
-no goals
-parser_error_recovery.lean:33:3: error: _interaction._lambda_3: trying to evaluate sorry

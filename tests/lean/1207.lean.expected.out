@@ -4,7 +4,6 @@ context:
 h : tactic unit,
 _example : true
 ⊢ Type ?
-1207.lean:17:0: error: _interaction._lambda_3: trying to evaluate sorry
 1207.lean:21:23: error: unknown identifier 'foo'
 1207.lean:21:23: error: don't know how to synthesize placeholder
 context:

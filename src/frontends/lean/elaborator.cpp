@@ -2693,40 +2693,6 @@ expr elaborator::visit_equations(expr const & e) {
     return r;
 }
 
-void elaborator::check_pattern_inaccessible_annotations(expr const & p) {
-    if (is_app(p)) {
-        buffer<expr> args;
-        expr const & c = get_app_args(p, args);
-        if (is_constant(c)) {
-            if (optional<name> I_name = inductive::is_intro_rule(m_env, const_name(c))) {
-                /* Make sure the inductive datatype parameters are marked as inaccessible */
-                unsigned nparams = *inductive::get_num_params(m_env, *I_name);
-                for (unsigned i = 0; i < nparams && i < args.size(); i++) {
-                    if (!is_inaccessible(args[i])) {
-                        throw elaborator_exception(c, "invalid pattern, in a constructor application, "
-                                                   "the parameters of the inductive datatype must be marked as inaccessible");
-                    }
-                }
-            }
-            // TODO(Leo): we should add a similar check for derived constructors.
-            // What about constants marked as pattern? Example: @add
-            // Option: check again at elim_match. The error message will not be nice,
-            // but it is better than nothing.
-        }
-        for (expr const & a : args) {
-            check_pattern_inaccessible_annotations(a);
-        }
-    }
-}
-
-void elaborator::check_inaccessible_annotations(expr const & lhs) {
-    buffer<expr> patterns;
-    get_app_args(lhs, patterns);
-    for (expr const & p : patterns) {
-        check_pattern_inaccessible_annotations(p);
-    }
-}
-
 expr elaborator::visit_inaccessible(expr const & e, optional<expr> const & expected_type) {
     if (!m_in_pattern)
         throw elaborator_exception(e, "invalid occurrence of 'inaccessible' annotation, "

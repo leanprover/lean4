@@ -236,8 +236,6 @@ private:
     expr visit_convoy(expr const & e, optional<expr> const & expected_type);
     bool keep_do_failure_eq(expr const & first_eq);
     expr visit_equations(expr const & e);
-    void check_pattern_inaccessible_annotations(expr const & p);
-    void check_inaccessible_annotations(expr const & lhs);
     expr visit_equation(expr const & eq, unsigned num_fns);
     expr visit_inaccessible(expr const & e, optional<expr> const & expected_type);
 

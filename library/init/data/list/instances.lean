@@ -39,8 +39,25 @@ instance bin_tree_to_list : has_coe (bin_tree α) (list α) :=
 ⟨bin_tree.to_list⟩
 
 instance decidable_bex : ∀ (l : list α), decidable (∃ x ∈ l, p x)
-| [] := is_false (by simp)
-| (x::xs) := by simp; have := decidable_bex xs; apply_instance
+| []      := is_false (by simp)
+| (x::xs) :=
+  if h₁ : p x
+  then is_true ⟨x, mem_cons_self _ _, h₁⟩
+  else match decidable_bex xs with
+       | is_true h₂  := is_true
+          begin
+            cases h₂ with y h, cases h with hm hp,
+            exact ⟨y, mem_cons_of_mem _ hm, hp⟩
+          end
+       | is_false h₂ := is_false
+           begin
+             intro h, cases h with y h, cases h with hm hp,
+             cases eq_or_mem_of_mem_cons hm,
+             { rw [h] at hp, contradiction },
+             { refine absurd _ h₂,
+               exact ⟨y, h, hp⟩ }
+           end
+       end
 
 instance decidable_ball (l : list α) : decidable (∀ x ∈ l, p x) :=
 if h : ∃ x ∈ l, ¬ p x then

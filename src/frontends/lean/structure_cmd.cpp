@@ -498,7 +498,11 @@ struct structure_cmd_fn {
                     fname = *ref;
                 else
                     fname = name(parent_name.get_string()).append_before("to_");
-                expr field = mk_local(fname, mk_as_is(parent));
+                binder_info bi;
+                if (m_meta_info.m_attrs.has_class() && is_class(m_env, parent_name))
+                    // make superclass fields inst implicit
+                    bi = mk_inst_implicit_binder_info();
+                expr field = mk_local(fname, mk_as_is(parent), bi);
                 m_fields.emplace_back(field, none_expr(), field_kind::subobject);
             }
 
@@ -1081,6 +1085,8 @@ struct structure_cmd_fn {
                 collect_locals(type, used_locals);
                 collect_locals(val, used_locals);
                 buffer<expr> args;
+                // note: `mk_field_default_value` expects params to be implicit
+                // and fields to be explicit
                 /* Copy params first */
                 for (expr const & local : used_locals.get_collected()) {
                     if (is_param(local)) {
@@ -1093,7 +1099,7 @@ struct structure_cmd_fn {
                 /* Copy fields it depends on */
                 for (expr const & local : used_locals.get_collected()) {
                     if (!is_param(local))
-                        args.push_back(local);
+                        args.push_back(update_local(local, binder_info()));
                 }
                 name decl_name  = name(m_name + field.get_name(), "_default");
                 name decl_prv_name;

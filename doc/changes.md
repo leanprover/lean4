@@ -215,6 +215,9 @@ master branch (aka work in progress branch)
 
 * leanpkg now always stores .lean package files in a separate `src` directory.
 
+* Structure constructor parameters representing superclasses are now marked as instance implicit.
+  Note: Instances using the {...} structure notation should not be affected by this change.
+
 *API name changes*
 
 v3.3.0 (14 September 2017)

@@ -90,4 +90,15 @@ No synchronization is needed between threads. The kernel type checker
 does not take `name_generator`'s as described above.
 The class `abstract_type_context` should provide a `mk_fresh_name` primitive.
 
+Impact on the cache
+-------------------
+
+We have caches in thread local storage, and some of them
+rely on the fact that the names returned by `mk_fresh_name` are always
+different from previously generated names. This assumption will
+not be true after we replace `mk_fresh_name` with the `name_generator` object.
+So, we plan to implement a thread local storage reset operation described at commit
+ec1a490a1. The reset operation should be performed whenever we restore a parser snapshot.
+
+
 To be continued....

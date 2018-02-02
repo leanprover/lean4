@@ -400,8 +400,9 @@ tactic_state add_em_facts(tactic_state const & ts, smt_goal & g) {
 vm_obj mk_smt_state(tactic_state s, smt_config const & cfg) {
     if (!s.goals()) return mk_no_goals_exception(s);
     unsigned num_reverted;
+    /* TODO(Leo): revert-all is an anti-idiom. See discussion at m_instance_fingerprint. */
     std::tie(s, num_reverted) = revert_all(clear_recs(s));
-
+    s = reset_instance_fingerprint(s);
     smt_goal new_goal(cfg);
 
     vm_obj r = preprocess(s, cfg.m_pre_config);

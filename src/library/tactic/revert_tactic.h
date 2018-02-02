@@ -16,6 +16,9 @@ tactic_state revert(buffer<expr> & hs, tactic_state const & s, bool preserve_hs_
 expr revert(environment const & env, options const & opts, metavar_context & mctx, expr const & mvar, buffer<expr> & locals,
             bool preserve_locals_order);
 
+// temp hack
+tactic_state reset_instance_fingerprint(tactic_state const & s);
+
 void initialize_revert_tactic();
 void finalize_revert_tactic();
 }

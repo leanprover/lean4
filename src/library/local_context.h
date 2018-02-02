@@ -118,6 +118,9 @@ class local_context {
       - If `freeze_local_instances` is not set, then type_context will compute
         local instances during initialization. This is needed to be able to elaborate
         parameter.
+
+       The solution above is incompatible with the `revert-all, do something, reintroduce`
+       idiom. This idiom is used to implement `dsimp *` and SMT tactic.
     */
     optional<unsigned>     m_instance_fingerprint;
     friend class type_context;
@@ -142,6 +145,12 @@ public:
         local_context lctx;
         lctx.m_instance_fingerprint = optional<unsigned>(get_empty_instance_fingerprint());
         return lctx;
+    }
+
+    /* Temporary hack to make sure we can use SMT tactic until we fix the m_instance_fingerprint issue
+       described above. */
+    void reset_instance_fingerprint() {
+        m_instance_fingerprint = optional<unsigned>();
     }
 
     optional<unsigned> get_instance_fingerprint() const { return m_instance_fingerprint; }

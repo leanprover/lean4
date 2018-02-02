@@ -1,0 +1,93 @@
+Plan for fixing "mk_fresh_name".
+-----------
+
+We want to be able create "unique" names without using global and/or
+thread local variables. The motivations are:
+1- Issue #1601
+2- `tactic.mk_fresh_name : tactic name` breaks referencial transparency.
+   We can tolerate this problem since `tactic.mk_fresh_name` is a meta function,
+   but the previous item is a big problem.
+3- `mk_fresh_name` is not safe. In Lean 3, we expose `name` objects
+    in the Lean API. Thus, malicious users may create names that
+    are identical to names that will be returned by `mk_fresh_name` in
+    the future (e.g., when type checking a declaration).
+    It is conceivable that malicious user may create a type incorrect declaration
+    that will type check using this vulnerability.
+
+We would first add back the `name_generator` class.
+https://github.com/leanprover/lean/blob/CADE25/src/util/name_generator.h
+
+It is really annoying to carry the name generator object around.
+The plumbing can be minimized by using the following two tricks.
+
+1- `name_generator::mk_child` returns a new name generator that
+   creates names that will never clash with the ones created using
+   the parent name generator or any other of its descendants.
+   By using `mk_child`, we can avoid passing `name_generator` objects
+   and/or writing functions such as
+   ```
+      std::pair<result_type, name_generator> foo(name_generator const & g, expr const & e);
+      ...
+      std::pair<result_type, name_generator> p = foo(g, e);
+      result_type r = p.first;
+      g = p.second;
+
+   ```
+   where an updated name generator is returned. With `mk_child`, we can write
+   ```
+      result_type foo(name_generator const & g, expr const & e);
+      ...
+      result_type r = foo(g.mk_child(), e);
+   ```
+
+2- Internal prefixes. A module `M` may want to create a local/temporary
+   name generator that is guaranteed to create names that will
+   not clash with names created by users of this module.
+   We say it is "local/temporary" because we do not want to
+   include a name generator parameter in `M`s interface.
+   We can accomplish that by creating a name generator with
+   an unique prefix that only module `M` can use.
+   The static method
+   ```
+   static name name::mk_internal_unique_name();
+   ```
+   was created for this purpose. However, like `mk_fresh_name`,
+   it is not safe, since malicious users may again create the same
+   names using the Lean API. So, our plan is to
+   a) Delete `name::mk_internal_unique_name`
+   b) Use `_M` as a prefix for module `M` if `M` is
+      not a kernel module.
+   c) For the kernel type checker we use the prefix
+      `_kernel`, and throw an error if the input term
+      contains a name with the prefix `_kernel`.
+      Remark: this approach is safer than passing a name generator
+      as an argument to the kernel. A malicious user may manually
+      create the names that will be created by the name generator
+      in the same way he would do it in the scenario above where
+      `mk_fresh_name` is used.
+
+
+The current implementation also uses `mk_tagged_fresh_name`.  This
+procedure is used by modules that need to create fresh names, and an
+efficient method for detecting fresh names created by them.  The idea
+is simple, it just prefix the fresh name with an unique prefix. We can
+simulate this by adding the method
+`name_generator::mk_tagged_child(name const & prefix)`. Here `prefix`
+must be an atomic internal name (e.g., `_inst`, `to_fmt`, etc). It
+will be implemented as
+```
+    name_generator mk_tagged_child(name const & prefix) {
+       lean_assert(prefix.is_atomic());
+       lean_assert(is_internal_name(prefix));
+       return name_generator(prefix + next());
+    }
+```
+
+In the new design, the parser has a name_generator and
+saves it in the parser snapshots. The methods `name_generator::mk_child`
+and `name_generator::mk_tagged_child` to propagate the `name_generator`.
+No synchronization is needed between threads. The kernel type checker
+does not take `name_generator`'s as described above.
+The class `abstract_type_context` should provide a `mk_fresh_name` primitive.
+
+To be continued....

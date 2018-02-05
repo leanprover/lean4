@@ -320,7 +320,7 @@ server::server(unsigned num_threads, search_path const & path, environment const
     set_task_queue(m_tq.get());
     m_mod_mgr.reset(new module_mgr(this, m_lt.get_root(), m_path, m_initial_env, m_ios));
     m_mod_mgr->set_server_mode(true);
-    m_mod_mgr->set_save_olean(true);
+    m_mod_mgr->set_save_olean(false);
 }
 
 server::~server() {
@@ -692,9 +692,7 @@ server::cmd_res server::handle_search(server::cmd_req const & req) {
 std::shared_ptr<module_info> server::load_module(module_id const & id, bool can_use_olean) {
     if (m_open_files.count(id)) {
         auto & ef = m_open_files[id];
-        auto mod = std::make_shared<module_info>(id, ef.m_content, module_src::LEAN, ef.m_mtime);
-        mod->m_dirty = true;
-        return mod;
+        return std::make_shared<module_info>(id, ef.m_content, module_src::LEAN, ef.m_mtime);
     }
     return m_fs_vfs.load_module(id, can_use_olean);
 }

@@ -91,7 +91,6 @@ Author: Leonardo de Moura
 */
 namespace lean {
 namespace inductive {
-static name * g_tmp_prefix = nullptr;
 static name * g_inductive_extension = nullptr;
 
 /** \brief Environment extension used to store the computational rules associated with inductive datatype declarations. */
@@ -977,7 +976,6 @@ optional<unsigned> get_elim_major_idx(environment const & env, name const & n) {
 }
 
 void initialize_inductive_module() {
-    inductive::g_tmp_prefix          = new name(name::mk_internal_unique_name());
     inductive::g_inductive_extension = new name("inductive_extension");
     inductive::g_ext                 = new inductive::inductive_env_ext_reg();
 }
@@ -985,6 +983,5 @@ void initialize_inductive_module() {
 void finalize_inductive_module() {
     delete inductive::g_ext;
     delete inductive::g_inductive_extension;
-    delete inductive::g_tmp_prefix;
 }
 }

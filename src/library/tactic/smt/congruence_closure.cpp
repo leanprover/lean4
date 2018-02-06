@@ -61,8 +61,7 @@ typedef std::shared_ptr<ext_congr_lemma_cache> ext_congr_lemma_cache_ptr;
 
 class ext_congr_lemma_cache_manager {
     ext_congr_lemma_cache_ptr  m_cache_ptr;
-    unsigned               m_reducibility_fingerprint;
-    environment            m_env;
+    environment                m_env;
 
     ext_congr_lemma_cache_ptr release() {
         auto c = m_cache_ptr;
@@ -78,18 +77,13 @@ public:
             return std::make_shared<ext_congr_lemma_cache>(env);
         if (is_eqp(env, m_env))
             return release();
-        if (!env.is_descendant(m_env) ||
-            get_reducibility_fingerprint(env) != m_reducibility_fingerprint)
-            return std::make_shared<ext_congr_lemma_cache>(env);
-        m_cache_ptr->m_env     = env;
-        return release();
+        return std::make_shared<ext_congr_lemma_cache>(env);
     }
 
     void recycle(ext_congr_lemma_cache_ptr const & ptr) {
         m_cache_ptr = ptr;
         if (!is_eqp(ptr->m_env, m_env)) {
             m_env = ptr->m_env;
-            m_reducibility_fingerprint = get_reducibility_fingerprint(ptr->m_env);
         }
     }
 };

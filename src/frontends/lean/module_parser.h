@@ -43,7 +43,7 @@ class module_parser : public std::enable_shared_from_this<module_parser> {
 
 public:
     module_parser(std::string const & file_name, std::string const & content,
-                     environment const & initial_env, module_loader const & import_fn);
+                  environment const & initial_env, module_loader const & import_fn);
     ~module_parser();
 
     void use_separate_tasks(bool separate_tasks) { m_separate_tasks = separate_tasks; }

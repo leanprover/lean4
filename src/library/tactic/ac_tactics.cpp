@@ -20,14 +20,11 @@ Author: Leonardo de Moura
 namespace lean {
 struct ac_manager_old::cache {
     environment                     m_env;
-    unsigned                        m_reducibility_fingerprint;
-    unsigned                        m_instance_fingerprint;
     expr_struct_map<optional<expr>> m_assoc_cache[2];
     expr_struct_map<optional<expr>> m_comm_cache[2];
     cache(environment const & env):
-        m_env(env),
-        m_reducibility_fingerprint(get_reducibility_fingerprint(env)),
-        m_instance_fingerprint(get_instance_fingerprint(env)) {}
+        m_env(env) {
+    }
 };
 
 /* CACHE_RESET: YES */
@@ -35,21 +32,13 @@ MK_THREAD_LOCAL_GET_DEF(ac_manager_old::cache_ptr, get_cache_ptr);
 
 static ac_manager_old::cache_ptr get_cache(environment const & env) {
     auto & cache_ptr = get_cache_ptr();
-    if (!cache_ptr ||
-        !env.is_descendant(cache_ptr->m_env) ||
-        get_reducibility_fingerprint(env) != cache_ptr->m_reducibility_fingerprint ||
-        get_instance_fingerprint(env)     != cache_ptr->m_instance_fingerprint) {
+    if (!cache_ptr || !is_eqp(env, cache_ptr->m_env)) {
         cache_ptr.reset();
         return std::make_shared<ac_manager_old::cache>(env);
     }
     ac_manager_old::cache_ptr r = cache_ptr;
     cache_ptr.reset();
     r->m_env = env;
-    if (!is_decl_eqp(env, r->m_env)) {
-        /* erase cache for expressions containing locals, since it is probably not useful. */
-        r->m_assoc_cache[1].clear();
-        r->m_comm_cache[1].clear();
-    }
     return r;
 }
 

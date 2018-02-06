@@ -30,6 +30,7 @@ class type_checker : public abstract_type_context {
     typedef expr_bi_struct_map<expr> cache;
     typedef std::unordered_set<expr_pair, expr_pair_hash, expr_pair_eq> expr_pair_set;
     environment               m_env;
+    name_generator            m_name_generator;
     bool                      m_memoize;
     bool                      m_trusted_only;
     cache                     m_infer_type_cache[2];
@@ -83,6 +84,8 @@ public:
     ~type_checker();
 
     virtual environment const & env() const { return m_env; }
+
+    virtual name mk_fresh_name() { return m_name_generator.next(); }
 
     /** \brief Return the type of \c t.
         It does not check whether the input expression is type correct or not.

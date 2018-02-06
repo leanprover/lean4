@@ -91,6 +91,7 @@ Author: Leonardo de Moura
 */
 namespace lean {
 namespace inductive {
+static name * g_ind = nullptr; /* prefix for fresh names created in this module. */
 static name * g_inductive_extension = nullptr;
 
 /** \brief Environment extension used to store the computational rules associated with inductive datatype declarations. */
@@ -229,6 +230,7 @@ environment certified_inductive_decl::add(environment const & env) const {
 struct add_inductive_fn {
     typedef std::unique_ptr<type_checker> type_checker_ptr;
     environment          m_env;
+    name_generator       m_name_generator;
     inductive_decl       m_decl;
     // when kernel sets Type.{0} as impredicative, then
     // we track whether the resultant universe cannot be zero for any
@@ -259,7 +261,7 @@ struct add_inductive_fn {
     add_inductive_fn(environment            env,
                      inductive_decl const & decl,
                      bool is_trusted):
-        m_env(env), m_decl(decl),
+        m_env(env), m_name_generator(*g_ind), m_decl(decl),
         m_tc(new type_checker(m_env, true, false)) {
         m_is_not_zero = false;
         m_levels      = param_names_to_levels(decl.m_level_params);
@@ -277,7 +279,7 @@ struct add_inductive_fn {
     expr ensure_type(expr const & e) { return tc().ensure_type(e); }
 
     /** \brief Create a local constant for the given binding. */
-    expr mk_local_for(expr const & b) { return mk_local(mk_fresh_name(), binding_name(b), binding_domain(b), binding_info(b)); }
+    expr mk_local_for(expr const & b) { return mk_local(m_name_generator.next(), binding_name(b), binding_domain(b), binding_info(b)); }
 
     /** \brief Return type of the i-th global parameter. */
     expr get_param_type(unsigned i) { return mlocal_type(m_param_consts[i]); }
@@ -534,14 +536,14 @@ struct add_inductive_fn {
     /** \brief Populate m_elim_info. */
     void mk_elim_info() {
         // First, populate the fields m_C and m_major_premise
-        m_elim_info.m_major_premise = mk_local(mk_fresh_name(), "n",
+        m_elim_info.m_major_premise = mk_local(m_name_generator.next(), "n",
                                                mk_app(mk_app(m_it_const, m_param_consts), m_elim_info.m_indices), binder_info());
         expr C_ty = mk_sort(m_elim_level);
         if (m_dep_elim)
             C_ty = Pi(m_elim_info.m_major_premise, C_ty);
         C_ty = Pi(m_elim_info.m_indices, C_ty);
         name C_name("C");
-        m_elim_info.m_C = mk_local(mk_fresh_name(), C_name, C_ty, binder_info());
+        m_elim_info.m_C = mk_local(m_name_generator.next(), C_name, C_ty, binder_info());
 
         // Populate the field m_minor_premises
         unsigned minor_idx = 1;
@@ -606,11 +608,11 @@ struct add_inductive_fn {
                         ih = ih.append_after(i+1);
                     }
                 }
-                expr v_i    = mk_local(mk_fresh_name(), ih, v_i_ty, binder_info());
+                expr v_i    = mk_local(m_name_generator.next(), ih, v_i_ty, binder_info());
                 v.push_back(v_i);
             }
             expr minor_ty = Pi(b_u, Pi(v, C_app));
-            expr minor = mk_local(mk_fresh_name(), name("e").append_after(minor_idx), minor_ty, binder_info());
+            expr minor = mk_local(m_name_generator.next(), name("e").append_after(minor_idx), minor_ty, binder_info());
             m_elim_info.m_minor_premises.push_back(minor);
             minor_idx++;
         }
@@ -976,6 +978,7 @@ optional<unsigned> get_elim_major_idx(environment const & env, name const & n) {
 }
 
 void initialize_inductive_module() {
+    inductive::g_ind                 = new name("_ind");
     inductive::g_inductive_extension = new name("inductive_extension");
     inductive::g_ext                 = new inductive::inductive_env_ext_reg();
 }
@@ -983,5 +986,6 @@ void initialize_inductive_module() {
 void finalize_inductive_module() {
     delete inductive::g_ext;
     delete inductive::g_inductive_extension;
+    delete inductive::g_ind;
 }
 }

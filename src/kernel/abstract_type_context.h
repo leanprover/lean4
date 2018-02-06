@@ -20,6 +20,7 @@ public:
     virtual ~abstract_type_context() {}
     virtual environment const & env() const = 0;
     virtual expr whnf(expr const & e) = 0;
+    virtual name mk_fresh_name() = 0;
     virtual expr relaxed_whnf(expr const & e) { return whnf(e); }
     virtual bool is_def_eq(expr const & e1, expr const & e2) = 0;
     virtual bool relaxed_is_def_eq(expr const & e1, expr const & e2) { return is_def_eq(e1, e2); }

@@ -183,19 +183,7 @@ type_context_cache_ptr type_context_cache_manager::mk(environment const & env, o
         m_cache_ptr->m_options = o;
         return release();
     }
-    if (!env.is_descendant(m_env) ||
-        get_reducibility_fingerprint(env) != m_reducibility_fingerprint ||
-        get_instance_fingerprint(env) != m_instance_fingerprint) {
-        lean_trace("type_context_cache",
-                   bool c1 = (get_reducibility_fingerprint(env) == m_reducibility_fingerprint);
-                   bool c2 = (get_instance_fingerprint(env) == m_instance_fingerprint);
-                   tout() << "creating new cache, is_descendant: " << env.is_descendant(m_env)
-                   << ", reducibility compatibility: " << c1 << ", instance compatibility: " << c2 << "\n";);
-        return mk_cache(env, o, m_use_bi);
-    }
-    m_cache_ptr->m_options = o;
-    m_cache_ptr->m_env     = env;
-    return release();
+    return mk_cache(env, o, m_use_bi);
 }
 
 void type_context_cache_manager::recycle(type_context_cache_ptr const & ptr) {
@@ -203,8 +191,6 @@ void type_context_cache_manager::recycle(type_context_cache_ptr const & ptr) {
     m_cache_ptr = ptr;
     if (!is_eqp(ptr->m_env, m_env)) {
         m_env = ptr->m_env;
-        m_reducibility_fingerprint = get_reducibility_fingerprint(ptr->m_env);
-        m_instance_fingerprint     = get_instance_fingerprint(ptr->m_env);
     }
     if (!ptr->m_instance_fingerprint) {
         ptr->m_instance_cache.clear();

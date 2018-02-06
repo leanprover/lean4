@@ -5,10 +5,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Gabriel Ebner
 */
 #pragma once
+#include <memory>
 #include "util/buffer.h"
 #include "util/thread.h"
 #include "util/cancellable.h"
-#include <memory>
+#include "util/fresh_name.h"
 
 namespace lean {
 
@@ -61,13 +62,19 @@ class gtask_cell : public cancellable {
 
     virtual void execute() {};
 
-    gtask_cell(task_state state) : m_state(state) {}
-
     atomic<task_state>          m_state;
     std::unique_ptr<gtask_data> m_data;
     std::exception_ptr          m_exception;
+    name_generator              m_name_gen;
 
-    gtask_cell(gtask_imp * imp, task_flags flags) : m_state(task_state::Created) {
+    gtask_cell(task_state state) :
+        m_state(state),
+        m_name_gen(mk_fresh_name_generator_child()) {
+    }
+
+    gtask_cell(gtask_imp * imp, task_flags flags) :
+        m_state(task_state::Created),
+        m_name_gen(mk_fresh_name_generator_child()) {
         m_data.reset(new gtask_data(imp, flags));
     }
 
@@ -78,6 +85,8 @@ public:
 
     bool peek_is_finished() const { return m_state.load() > task_state::Running; }
     std::exception_ptr peek_exception() const;
+
+    name_generator const & get_name_generator() const { return m_name_gen; }
 
     virtual ~gtask_cell() {}
 };

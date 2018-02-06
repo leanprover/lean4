@@ -12,49 +12,17 @@ Author: Leonardo de Moura
 #include "util/shared_mutex.h"
 
 namespace lean {
-static name_set *     g_fresh_name_prefixes = nullptr;
-static shared_mutex * g_fresh_name_prefixes_guard = nullptr;
-
-static void register_fresh_name_prefix(name const & p) {
-    exclusive_lock lock(*g_fresh_name_prefixes_guard);
-    g_fresh_name_prefixes->insert(p);
-}
-
-/* CACHE_RESET: NO */
-MK_THREAD_LOCAL_GET_DEF(name, get_prefix);
-/* CACHE_RESET: YES */
-LEAN_THREAD_VALUE(unsigned, g_next_idx, 0);
-
-static bool is_fresh_prefix(name const & p) {
-    if (p == get_prefix())
-        return true;
-    shared_lock lock(*g_fresh_name_prefixes_guard);
-    return g_fresh_name_prefixes->contains(p);
-};
+static name * g_fresh = nullptr;
+MK_THREAD_LOCAL_GET(name_generator, get_name_generator, *g_fresh);
 
 name mk_fresh_name() {
-    name & prefix = get_prefix();
-    if (prefix.is_anonymous()) {
-        // prefix has not been initialized for this thread yet.
-        prefix = name::mk_internal_unique_name();
-        register_fresh_name_prefix(prefix);
-    }
-    /* REMARK: after we implement RESET operation we will not need the following test anymore */
-    if (g_next_idx == std::numeric_limits<unsigned>::max()) {
-        // avoid overflow
-        prefix = name(prefix, g_next_idx);
-        register_fresh_name_prefix(prefix);
-        g_next_idx = 0;
-    }
-    name r(prefix, g_next_idx);
-    g_next_idx++;
-    return r;
+    return get_name_generator().next();
 }
 
 bool is_fresh_name(name const & n) {
     if (n.is_anonymous() || !n.is_numeral())
         return false;
-    else if (is_fresh_prefix(n.get_prefix()))
+    else if (n.get_prefix() == *g_fresh)
         return true;
     else
         return is_fresh_name(n.get_prefix());
@@ -81,19 +49,7 @@ name sanitize_if_fresh(name const & n) {
 
 name mk_tagged_fresh_name(name const & tag) {
     lean_assert(tag.is_atomic());
-    name & prefix = get_prefix();
-    if (prefix.is_anonymous()) {
-        // prefix has not been initialized for this thread yet.
-        prefix = name::mk_internal_unique_name();
-    }
-    if (g_next_idx == std::numeric_limits<unsigned>::max()) {
-        // avoid overflow
-        prefix = name(prefix, g_next_idx);
-        g_next_idx = 0;
-    }
-    name r(tag + prefix, g_next_idx);
-    g_next_idx++;
-    return r;
+    return tag + mk_fresh_name();
 }
 
 bool is_tagged_by(name const & n, name const & tag) {
@@ -123,13 +79,23 @@ optional<name> get_tagged_name_suffix(name const & n, name const & tag) {
     }
 }
 
+name_generator get_fresh_name_generator_snapshot() {
+    return get_name_generator();
+}
+
+void set_fresh_name_generator(name_generator const & g) {
+    get_name_generator() = g;
+}
+
+name_generator mk_fresh_name_generator_child() {
+    return get_name_generator().mk_child();
+}
+
 void initialize_fresh_name() {
-    g_fresh_name_prefixes = new name_set();
-    g_fresh_name_prefixes_guard = new shared_mutex();
+    g_fresh = new name("_fresh");
 }
 
 void finalize_fresh_name() {
-    delete g_fresh_name_prefixes;
-    delete g_fresh_name_prefixes_guard;
+    delete g_fresh;
 }
 }

@@ -19,10 +19,12 @@ void initialize_util_module() {
     initialize_thread();
     initialize_ascii();
     initialize_name();
+    initialize_name_generator();
     initialize_fresh_name();
 }
 void finalize_util_module() {
     finalize_fresh_name();
+    finalize_name_generator();
     finalize_name();
     finalize_ascii();
     finalize_thread();

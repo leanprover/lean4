@@ -31,26 +31,4 @@ public:
         for (unsigned i = 0; i < 4; i++) m_cache_ptr[i].reset();
     }
 };
-
-/** \brief Helper class for making sure we have a cache that is compatible
-    with a given environment. */
-template<typename Cache>
-class transparencyless_cache_compatibility_helper {
-    std::unique_ptr<Cache> m_cache_ptr;
-public:
-    Cache & get_cache_for(environment const & env) {
-        if (!m_cache_ptr || !is_eqp(env, m_cache_ptr->env())) {
-            m_cache_ptr.reset(new Cache(env));
-        }
-        return *m_cache_ptr.get();
-    }
-
-    Cache & get_cache_for(type_context const & ctx) {
-        return get_cache_for(ctx.env());
-    }
-
-    void clear() {
-        m_cache_ptr.reset();
-    }
-};
 }

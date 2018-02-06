@@ -45,6 +45,14 @@ void set_fresh_name_generator(name_generator const & g);
    We use this operation to set the name_generator before we execute a task. */
 name_generator mk_fresh_name_generator_child();
 
+struct fresh_name_scope {
+    name_generator m_old;
+public:
+    fresh_name_scope();
+    fresh_name_scope(name_generator const & g);
+    ~fresh_name_scope();
+};
+
 void initialize_fresh_name();
 void finalize_fresh_name();
 }

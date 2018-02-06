@@ -91,6 +91,20 @@ name_generator mk_fresh_name_generator_child() {
     return get_name_generator().mk_child();
 }
 
+fresh_name_scope::fresh_name_scope():
+    m_old(get_name_generator()) {
+    get_name_generator() = name_generator(*g_fresh);
+}
+
+fresh_name_scope::fresh_name_scope(name_generator const & g):
+    m_old(get_name_generator()) {
+    get_name_generator() = g;
+}
+
+fresh_name_scope::~fresh_name_scope() {
+    get_name_generator() = m_old;
+}
+
 void initialize_fresh_name() {
     g_fresh = new name("_fresh");
 }

@@ -1205,6 +1205,7 @@ expr mk_iff_mp(type_context & ctx, expr const & h1, expr const & h2) {
 
 void initialize_app_builder() {
     register_trace_class("app_builder");
+    register_thread_local_reset_fn([]() { get_abch().clear(); });
 }
 void finalize_app_builder() {}
 }

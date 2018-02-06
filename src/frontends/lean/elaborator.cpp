@@ -4298,6 +4298,8 @@ static vm_obj tactic_save_type_info(vm_obj const &, vm_obj const & _e, vm_obj co
 }
 
 void initialize_elaborator() {
+    register_thread_local_reset_fn([]() { get_tcm().reset(); });
+
     g_elab_strategy = new name("elab_strategy");
     register_trace_class("elaborator");
     register_trace_class("elaborator_detail");

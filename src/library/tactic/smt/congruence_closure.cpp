@@ -86,6 +86,10 @@ public:
             m_env = ptr->m_env;
         }
     }
+
+    void reset() {
+        m_cache_ptr = nullptr;
+    }
 };
 
 /* CACHE_RESET: YES */
@@ -2176,6 +2180,8 @@ format congruence_closure::state::pp_parent_occs(formatter const & fmt) const {
 }
 
 void initialize_congruence_closure() {
+    register_thread_local_reset_fn([]() { get_clcm().reset(); });
+
     register_trace_class("cc");
     register_trace_class({"cc", "failure"});
     register_trace_class({"cc", "merge"});

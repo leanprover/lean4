@@ -172,6 +172,7 @@ public:
     type_context_cache_manager(bool use_bi = false):m_use_bi(use_bi) {}
     type_context_cache_ptr mk(environment const & env, options const & o);
     void recycle(type_context_cache_ptr const & ptr);
+    void reset() { m_cache_ptr = nullptr; }
 };
 
 class type_context : public abstract_type_context {

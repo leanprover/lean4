@@ -2349,6 +2349,7 @@ void parser::parse_command(cmd_meta const & meta) {
         maybe_throw_error({"expected command", p});
         return;
     }
+    reset_thread_local();
     m_last_cmd_pos = pos();
     name cmd_name = get_token_info().value();
     m_cmd_token = get_token_info().token();

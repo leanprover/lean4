@@ -21,6 +21,25 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
+static std::vector<std::function<void()>> * g_thread_local_reset_fns;
+
+static void initialize_thread_local_reset_fns() {
+    g_thread_local_reset_fns = new std::vector<std::function<void()>>();
+}
+
+static void finalize_thread_local_reset_fns() {
+    delete g_thread_local_reset_fns;
+}
+
+void register_thread_local_reset_fn(std::function<void()> fn) {
+    g_thread_local_reset_fns->push_back(fn);
+}
+
+void reset_thread_local() {
+    for (std::function<void()> const & fn : *g_thread_local_reset_fns) {
+        fn();
+    }
+}
 
 using runnable = std::function<void()>;
 
@@ -232,8 +251,11 @@ void run_post_thread_finalizers() {
 
 void initialize_thread() {
     g_thread_finalizers_mgr = new thread_finalizers_manager;
+    initialize_thread_local_reset_fns();
 }
-void finalize_thread() {}
+void finalize_thread() {
+    finalize_thread_local_reset_fns();
+}
 #else
 // reference implementation
 LEAN_THREAD_PTR(thread_finalizers, g_finalizers);
@@ -270,7 +292,11 @@ void run_post_thread_finalizers() {
     g_post_finalizers = nullptr;
 }
 
-void initialize_thread() {}
-void finalize_thread() {}
+void initialize_thread() {
+    initialize_thread_local_reset_fns();
+}
+void finalize_thread() {
+    finalize_thread_local_reset_fns();
+}
 #endif
 }

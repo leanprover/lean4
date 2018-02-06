@@ -107,6 +107,7 @@ void mt_task_queue::spawn_worker() {
 
             get_state(t) = task_state::Running;
             reset_heartbeat();
+            reset_thread_local();
             {
                 flet<gtask> _(this_worker->m_current_task, t);
                 scoped_current_task scope_cur_task(&t);

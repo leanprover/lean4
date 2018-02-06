@@ -953,6 +953,8 @@ vm_obj tactic_get_tag(vm_obj const & g, vm_obj const & s0) {
 }
 
 void initialize_tactic_state() {
+    register_thread_local_reset_fn([]() { get_tcm().reset(); });
+
     DECLARE_VM_BUILTIN(name({"tactic_state", "mk_empty"}),       tactic_state_mk_empty);
     DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),            tactic_state_env);
     DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}),    tactic_state_format_expr);

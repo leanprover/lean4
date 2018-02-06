@@ -19,14 +19,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 static name * g_fun_info = nullptr;
-void initialize_fun_info() {
-    g_fun_info = new name("fun_info");
-    register_trace_class(*g_fun_info);
-}
-
-void finalize_fun_info() {
-    delete g_fun_info;
-}
 
 #define lean_trace_fun_info(Code) lean_trace(*g_fun_info, Code)
 
@@ -62,6 +54,16 @@ fun_info_cache & get_fun_info_cache_for(type_context const & ctx) {
 
 void clear_fun_info_cache() {
     get_fich().clear();
+}
+
+void initialize_fun_info() {
+    g_fun_info = new name("fun_info");
+    register_trace_class(*g_fun_info);
+    register_thread_local_reset_fn([]() { clear_fun_info_cache(); });
+}
+
+void finalize_fun_info() {
+    delete g_fun_info;
 }
 
 /* Return the list of dependencies for the given type.

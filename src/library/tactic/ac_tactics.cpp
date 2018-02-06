@@ -25,6 +25,12 @@ struct ac_manager_old::cache {
     cache(environment const & env):
         m_env(env) {
     }
+    void clear() {
+        for (unsigned i = 0; i < 2; i++) {
+            m_assoc_cache[i].clear();
+            m_comm_cache[i].clear();
+        }
+    }
 };
 
 /* CACHE_RESET: YES */
@@ -676,6 +682,8 @@ vm_obj tactic_perm_ac(vm_obj const & op, vm_obj const & assoc, vm_obj const & co
 }
 
 void initialize_ac_tactics() {
+    register_thread_local_reset_fn([]() { if (auto ptr = get_cache_ptr()) ptr->clear(); });
+
     register_trace_class(name{"tactic", "perm_ac"});
     DECLARE_VM_BUILTIN(name({"tactic", "flat_assoc"}), tactic_flat_assoc);
     DECLARE_VM_BUILTIN(name({"tactic", "perm_ac"}),    tactic_perm_ac);

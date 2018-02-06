@@ -756,6 +756,7 @@ optional<congr_lemma> mk_rel_eq_congr(type_context & ctx, expr const & R) {
 
 void initialize_congr_lemma() {
     register_trace_class("congr_lemma");
+    register_thread_local_reset_fn([]() { get_clch().clear(); });
 }
 void finalize_congr_lemma() {
 }

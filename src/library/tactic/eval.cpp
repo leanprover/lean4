@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/error_msgs.h"
 #include "library/trace.h"
+#include "library/util.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_expr.h"
 #include "library/compiler/vm_compiler.h"
@@ -29,7 +30,7 @@ static vm_obj eval(expr const & A, expr a, tactic_state const & s) {
     } else {
         vm_state & S = get_vm_state();
         environment aux_env = S.env();
-        name eval_aux_name = mk_tagged_fresh_name("_eval_expr");
+        name eval_aux_name = mk_unused_name(aux_env, "_eval_expr");
         try {
             auto cd = check(aux_env, mk_definition(aux_env, eval_aux_name, {}, A, a, true, false));
             aux_env = aux_env.add(cd);

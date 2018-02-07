@@ -277,7 +277,7 @@ static format default_format(vm_state const & vm, unsigned idx) {
                 expr aux_type  = mk_arrow(*type, mk_constant(get_format_name()));
                 /* (@to_fmt type *instance) */
                 expr aux_value = mk_app(mk_constant(get_to_fmt_name(), {u}), *type, *instance);
-                name aux_name  = mk_tagged_fresh_name("_to_fmt_obj");
+                name aux_name  = mk_unused_name(aux_env, "_to_fmt_obj");
                 auto cd = check(aux_env, mk_definition(aux_env, aux_name, {}, aux_type, aux_value, true, false));
                 aux_env = aux_env.add(cd);
                 aux_env = vm_compile(aux_env, aux_env.get(aux_name));

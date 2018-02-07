@@ -10,6 +10,14 @@ Author: Leonardo de Moura
 #include "library/expr_pair.h"
 
 namespace lean {
+/* If \c n is not in \c env, then return \c. Otherwise, find the first j >= idx s.t.
+   n.append_after(j) is not in \c env. */
+name mk_unused_name(environment const & env, name const & n, unsigned & idx);
+
+/* If \c n is not in \c env, then return \c. Otherwise, find the first j >= 1 s.t.
+   n.append_after(j) is not in \c env. */
+name mk_unused_name(environment const & env, name const & n);
+
 /** \brief Return the "arity" of the given type. The arity is the number of nested pi-expressions. */
 unsigned get_arity(expr type);
 

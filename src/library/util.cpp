@@ -29,6 +29,21 @@ Author: Leonardo de Moura
 #include "githash.h" // NOLINT
 
 namespace lean {
+name mk_unused_name(environment const & env, name const & n, unsigned & idx) {
+    name curr = n;
+    while (true) {
+        if (!env.find(curr))
+            return curr;
+        curr = n.append_after(idx);
+        idx++;
+    }
+}
+
+name mk_unused_name(environment const & env, name const & n) {
+    unsigned idx = 1;
+    return mk_unused_name(env, n, idx);
+}
+
 /** \brief Return the "arity" of the given type. The arity is the number of nested pi-expressions. */
 unsigned get_arity(expr type) {
     unsigned r = 0;

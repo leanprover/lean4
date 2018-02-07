@@ -86,7 +86,7 @@ expr parse_single_header(parser & p, declaration_name_scope & scope, buffer <nam
             scope.set_name(c_name);
         } else {
             p.maybe_throw_error({"failed to synthesize instance name, name should be provided explicitly", c_pos});
-            c_name = mk_tagged_fresh_name("_inst");
+            c_name = mk_unused_name(p.env(), "_inst");
         }
     }
     lean_assert(!c_name.is_anonymous());

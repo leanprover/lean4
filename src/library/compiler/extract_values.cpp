@@ -24,7 +24,7 @@ class extract_values_fn : public compiler_step_visitor {
         auto it = m_cache.find(e);
         if (it != m_cache.end())
             return it->second;
-        name aux = mk_fresh_name(env(), m_prefix, "_val", m_idx);
+        name aux = mk_unused_name(env(), m_prefix, "_val", m_idx);
         m_new_procs.push_back(procedure(aux, m_pos, e));
         expr r   = mk_constant(aux);
         m_cache.insert(mk_pair(e, r));

@@ -113,7 +113,7 @@ protected:
         aux = abstract_locals(aux, abst_locals);
         /* Create expr (rec_fn) for representing recursive calls. */
         expr aux_decl_type = ctx().infer(aux);
-        name aux_decl_name = mk_fresh_name(m_env, m_prefix, "_rec", m_idx);
+        name aux_decl_name = mk_unused_name(m_env, m_prefix, "_rec", m_idx);
         expr rec_fn = mk_rec_fn_macro(aux_decl_name, aux_decl_type);
         /* Create new locals for aux.
            The operating abstract_locals creates a lambda-abstraction around aux if it uses

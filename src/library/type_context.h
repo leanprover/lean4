@@ -714,7 +714,7 @@ public:
     virtual environment const & env() const override { return m_cache->m_env; }
 
     // TODO(Leo): avoid ::lean::mk_fresh_name
-    virtual name mk_fresh_name() override { return ::lean::mk_fresh_name(); }
+    virtual name next_name() override { return ::lean::mk_fresh_name(); }
 
     options const & get_options() const { return m_cache->m_options; }
     local_context const & lctx() const { return m_lctx; }
@@ -1171,7 +1171,7 @@ public:
     virtual expr infer(expr const & e) override;
     virtual expr whnf(expr const & e) override;
     virtual bool is_def_eq(expr const & e1, expr const & e2) override;
-    virtual name mk_fresh_name() override { return m_ctx.mk_fresh_name(); }
+    virtual name next_name() override { return m_ctx.next_name(); }
 
     bool match(expr const & e1, expr const & e2);
 

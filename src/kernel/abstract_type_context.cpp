@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 expr abstract_type_context::push_local(name const & pp_name, expr const & type, binder_info const & bi) {
-    return mk_local(mk_fresh_name(), pp_name, type, bi);
+    return mk_local(next_name(), pp_name, type, bi);
 }
 
 void abstract_type_context::pop_local() {

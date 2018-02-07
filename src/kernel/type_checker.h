@@ -85,7 +85,7 @@ public:
 
     virtual environment const & env() const { return m_env; }
 
-    virtual name mk_fresh_name() { return m_name_generator.next(); }
+    virtual name next_name() { return m_name_generator.next(); }
 
     /** \brief Return the type of \c t.
         It does not check whether the input expression is type correct or not.

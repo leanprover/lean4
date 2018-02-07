@@ -2344,7 +2344,7 @@ public:
     virtual expr infer(expr const & e) override { return ctx().infer(e); }
     virtual expr check(expr const & e) override { return ctx().check(e); }
     virtual optional<expr> is_stuck(expr const & e) override { return ctx().is_stuck(e); }
-    virtual name mk_fresh_name() override { return ctx().mk_fresh_name(); }
+    virtual name next_name() override { return ctx().next_name(); }
 };
 
 void parser::parse_command(cmd_meta const & meta) {

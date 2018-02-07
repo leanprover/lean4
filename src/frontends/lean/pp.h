@@ -142,6 +142,7 @@ private:
     result pp_app(expr const & e);
     result pp_lambda(expr const & e);
     result pp_structure_instance(expr const & e);
+    bool is_field_notation_candidate(expr const & e);
     result pp_field_notation(expr const & e);
     result pp_pi(expr const & e);
     result pp_have(expr const & e);

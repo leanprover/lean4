@@ -856,23 +856,25 @@ auto pretty_fn::pp_structure_instance(expr const & e) -> result {
     }
 }
 
-static bool is_field_notation_candidate(environment const & env, expr const & e, bool implicit) {
+bool pretty_fn::is_field_notation_candidate(expr const & e) {
     expr const & f = get_app_fn(e);
     if (!is_constant(f)) return false;
-    projection_info const * info = get_projection_info(env, const_name(f));
+    projection_info const * info = get_projection_info(m_env, const_name(f));
     if (!info) return false; /* it is not a projection */
     if (get_app_num_args(e) != info->m_nparams + 1) return false;
     /* If implicit arguments is true, and the structure has parameters, we should not
        pretty print using field notation because we will not be able to see the parameters. */
-    if (implicit && info->m_nparams) return false;
+    if (m_implict && info->m_nparams) return false;
+    /* The @ explicitness annotation cannot be combined with field notation, so fail on implicit args */
+    if (m_implict && has_implicit_args(e)) return false;
     name const & S = const_name(f).get_prefix();
     /* We should not use field notation with type classes since the structure is implicit. */
-    if (is_class(env, S)) return false;
+    if (is_class(m_env, S)) return false;
     return true;
 }
 
 auto pretty_fn::pp_field_notation(expr const & e) -> result {
-    lean_assert(is_field_notation_candidate(m_env, e, m_implict));
+    lean_assert(is_field_notation_candidate(e));
     buffer<expr> args;
     expr const & f   = get_app_args(e, args);
     bool ignore_hide = true;
@@ -888,7 +890,7 @@ auto pretty_fn::pp_app(expr const & e) -> result {
     expr const & fn = app_fn(e);
     if (m_structure_instances && is_structure_instance(m_env, e, m_implict))
         return pp_structure_instance(e);
-    if (m_structure_projections && is_field_notation_candidate(m_env, e, m_implict))
+    if (m_structure_projections && is_field_notation_candidate(e))
         return pp_field_notation(e);
     // If the application contains a metavariable, then we want to
     // show the function, otherwise it would be hard to understand the

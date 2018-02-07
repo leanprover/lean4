@@ -1,0 +1,2 @@
+def P : C → list ℕ :=
+λ (c : C), @C.d c ℕ [0]

@@ -779,6 +779,7 @@ auto pretty_fn::pp_meta(expr const & e) -> result {
 
 auto pretty_fn::pp_local(expr const & e) -> result {
     name n = sanitize_if_fresh(mlocal_pp_name(e));
+    n = sanitize_name_generator_name(n);
     if (m_locals_full_names)
         return result(format("<") + format(n + mlocal_name(e)) + format(">"));
     else

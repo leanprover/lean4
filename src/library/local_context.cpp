@@ -420,6 +420,7 @@ format local_context::pp(formatter const & fmt, std::function<bool(local_decl co
             }
 
             name n = sanitize_if_fresh(d.get_pp_name());
+            n = sanitize_name_generator_name(n);
 
             if (d.get_value()) {
                 if (first) first = false;

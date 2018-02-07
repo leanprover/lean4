@@ -714,7 +714,7 @@ public:
     virtual environment const & env() const override { return m_cache->m_env; }
 
     // TODO(Leo): avoid ::lean::mk_fresh_name
-    virtual name mk_fresh_name() { return ::lean::mk_fresh_name(); }
+    virtual name mk_fresh_name() override { return ::lean::mk_fresh_name(); }
 
     options const & get_options() const { return m_cache->m_options; }
     local_context const & lctx() const { return m_lctx; }

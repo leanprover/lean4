@@ -76,7 +76,6 @@ static format * g_visible_fmt     = nullptr;
 static format * g_show_fmt        = nullptr;
 static format * g_explicit_fmt    = nullptr;
 static format * g_partial_explicit_fmt    = nullptr;
-static name   * g_tmp_prefix      = nullptr;
 
 class nat_numeral_pp {
     name m_nat;
@@ -144,7 +143,6 @@ void initialize_pp() {
     g_show_fmt        = new format(highlight_keyword(format("show")));
     g_explicit_fmt    = new format(highlight_keyword(format("@")));
     g_partial_explicit_fmt    = new format(highlight_keyword(format("@@")));
-    g_tmp_prefix      = new name(name::mk_internal_unique_name());
     g_nat_numeral_pp  = new nat_numeral_pp();
 
     g_pp_using_anonymous_constructor = new name("pp_using_anonymous_constructor");
@@ -184,7 +182,6 @@ void finalize_pp() {
     delete g_show_fmt;
     delete g_partial_explicit_fmt;
     delete g_explicit_fmt;
-    delete g_tmp_prefix;
 }
 
 /** \brief We assume a metavariable name has a suggestion embedded in it WHEN its

@@ -152,8 +152,6 @@ parser::error_if_undef_scope::error_if_undef_scope(parser & p):
 parser::all_id_local_scope::all_id_local_scope(parser & p):
     flet<id_behavior>(p.m_id_behavior, id_behavior::AllLocal) {}
 
-static name * g_tmp_prefix = nullptr;
-
 parser::parser(environment const & env, io_state const & ios,
                module_loader const & import_fn,
                std::istream & strm, std::string const & file_name,
@@ -2677,12 +2675,10 @@ void initialize_parser() {
     g_parser_show_errors     = new name{"parser", "show_errors"};
     register_bool_option(*g_parser_show_errors, LEAN_DEFAULT_PARSER_SHOW_ERRORS,
                          "(lean parser) display error messages in the regular output channel");
-    g_tmp_prefix = new name(name::mk_internal_unique_name());
 }
 
 void finalize_parser() {
     delete g_frontend_fresh;
-    delete g_tmp_prefix;
     delete g_parser_show_errors;
 }
 }

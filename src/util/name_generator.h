@@ -18,8 +18,12 @@ class name_generator {
     name     m_prefix;
     unsigned m_next_idx;
 public:
-    name_generator(name const & prefix):m_prefix(prefix), m_next_idx(0) { lean_assert(!prefix.is_anonymous()); }
     name_generator();
+    /* Create a name generator with the given prefix.
+       The prefix should start with a name registered using \c register_name_generator_prefix.
+
+       \pre uses_name_generator_prefix(prefix) */
+    name_generator(name const & prefix);
 
     name const & prefix() const { return m_prefix; }
 
@@ -28,11 +32,19 @@ public:
 
     /**
         \brief Create a child name_generator, each child name_generator is guaranteed to produce
-        names different from this name_generator and any other name_generator created with this generator.
-    */
+        names different from this name_generator and any other name_generator created with this generator. */
     name_generator mk_child() { return name_generator(next()); }
 
-    name_generator mk_tagged_child(name const & prefix) { return name_generator(prefix + next()); }
+    /**
+       \brief Similar to \c mk_child, but the base prefix is replaced with the given one.
+
+       \pre \c base_prefix must have been registered using \c register_name_generator_prefix.
+
+       Example: suppose `_cfresh` and `_ffresh` have been registered using \c register_name_generator_prefix,
+       and the current state is `m_prefix == _ffresh.2` and `m_next_idx = 10`. Then, the name_generator
+       returned by `mk_child_with(_cfresh)` is `{m_prefix = _cfresh.2.10, m_next_idx = 0}`, and
+       the current state of this object is updated to `m_next_idx = 11` */
+    name_generator mk_child_with(name const & base_prefix);
 
     friend void swap(name_generator & a, name_generator & b);
 };

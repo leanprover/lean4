@@ -10,7 +10,14 @@ Author: Leonardo de Moura
 #include "util/name_set.h"
 
 namespace lean {
+static name_set * g_ngen_prefixes = nullptr;
 static name * g_tmp_prefix = nullptr;
+
+name_generator::name_generator(name const & prefix):m_prefix(prefix), m_next_idx(0) {
+    lean_assert(!prefix.is_anonymous());
+    lean_assert(uses_name_generator_prefix(prefix));
+}
+
 name_generator::name_generator():name_generator(*g_tmp_prefix) {}
 
 name name_generator::next() {
@@ -24,12 +31,28 @@ name name_generator::next() {
     return r;
 }
 
+static name replace_base_prefix(name const & p, name const & new_base) {
+    if (g_ngen_prefixes->contains(p)) {
+        return new_base;
+    } else if (p.is_numeral()) {
+        return name(replace_base_prefix(p.get_prefix(), new_base), p.get_numeral());
+    } else if (p.is_string()) {
+        return name(replace_base_prefix(p.get_prefix(), new_base), p.get_numeral());
+    } else {
+        lean_unreachable();
+    }
+}
+
+name_generator name_generator::mk_child_with(name const & base_prefix) {
+    lean_assert(g_ngen_prefixes->contains(base_prefix));
+    name new_prefix = replace_base_prefix(next(), base_prefix);
+    return name_generator(new_prefix);
+}
+
 void swap(name_generator & a, name_generator & b) {
     swap(a.m_prefix, b.m_prefix);
     std::swap(a.m_next_idx, b.m_next_idx);
 }
-
-static name_set * g_ngen_prefixes = nullptr;
 
 void register_name_generator_prefix(name const & n) {
     lean_assert(!g_ngen_prefixes->contains(n));

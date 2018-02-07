@@ -23,7 +23,7 @@ bool is_pack_unpack(environment const & env, expr const & e) {
     return is_ginductive_pack(env, n) || is_ginductive_unpack(env, n);
 }
 
-name mk_unused_name(environment const & env, name const & prefix, char const * suffix, unsigned & idx) {
+name mk_compiler_unused_name(environment const & env, name const & prefix, char const * suffix, unsigned & idx) {
     while (true) {
         name curr(prefix, suffix);
         curr = curr.append_after(idx);

@@ -129,7 +129,7 @@ class lambda_lifting_fn : public compiler_step_visitor {
 
         buffer<expr> locals;
         new_e = abstract_locals(new_e, locals);
-        name aux_name = mk_unused_name(env(), m_prefix, "_lambda", m_idx);
+        name aux_name = mk_compiler_unused_name(env(), m_prefix, "_lambda", m_idx);
         m_new_procs.emplace_back(aux_name, get_pos_info(e), new_e);
         return mk_rev_app(mk_constant(aux_name), locals);
     }

@@ -10,7 +10,7 @@ namespace lean {
 class type_context;
 /** \brief Create a new name of the form prefix.suffix_idx that is not the name of a declaration and/or VM function.
     It also updates the index idx. */
-name mk_unused_name(environment const & env, name const & prefix, char const * suffix, unsigned & idx);
+name mk_compiler_unused_name(environment const & env, name const & prefix, char const * suffix, unsigned & idx);
 
 /** \brief Return true iff \c e is computationally irrelevant */
 bool is_comp_irrelevant(type_context & ctx, expr const & e);

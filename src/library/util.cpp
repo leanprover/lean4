@@ -39,16 +39,6 @@ unsigned get_arity(expr type) {
     return r;
 }
 
-bool is_internal_name(name const & n) {
-    name it = n;
-    while (!it.is_anonymous()) {
-        if (!it.is_anonymous() && it.is_string() && it.get_string() && it.get_string()[0] == '_')
-            return true;
-        it = it.get_prefix();
-    }
-    return false;
-}
-
 optional<expr> is_optional_param(expr const & e) {
     if (is_app_of(e, get_opt_param_name(), 2)) {
         return some_expr(app_arg(e));

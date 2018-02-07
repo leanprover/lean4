@@ -258,6 +258,9 @@ serializer & operator<<(serializer & s, name const & n);
 name read_name(deserializer & d);
 inline deserializer & operator>>(deserializer & d, name & n) { n = read_name(d); return d; }
 
+/** \brief Return true if it is a lean internal name, i.e., the name starts with a `_` */
+bool is_internal_name(name const & n);
+
 void initialize_name();
 void finalize_name();
 }

@@ -13,9 +13,6 @@ namespace lean {
 /** \brief Return the "arity" of the given type. The arity is the number of nested pi-expressions. */
 unsigned get_arity(expr type);
 
-/** \brief Return true if it is a lean internal name, i.e., the name starts with a `_` */
-bool is_internal_name(name const & n);
-
 optional<expr> is_optional_param(expr const & e);
 
 optional<expr_pair> is_auto_param(expr const & e);

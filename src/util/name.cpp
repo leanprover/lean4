@@ -546,6 +546,16 @@ name read_name(deserializer & d) {
     return d.get_extension<name_deserializer>(g_name_sd->m_deserializer_extid).read();
 }
 
+bool is_internal_name(name const & n) {
+    name it = n;
+    while (!it.is_anonymous()) {
+        if (!it.is_anonymous() && it.is_string() && it.get_string() && it.get_string()[0] == '_')
+            return true;
+        it = it.get_prefix();
+    }
+    return false;
+}
+
 void initialize_name() {
     g_anonymous = new name();
     g_name_sd   = new name_sd();

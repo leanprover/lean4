@@ -120,13 +120,16 @@ expr const & get_antiquote_expr(expr const & e) {
     return get_annotation_arg(e);
 }
 
+static name * g_quote_fresh = nullptr;
+
 expr mk_pexpr_quote_and_substs(expr const & e, bool is_strict) {
     name x("_x");
+    name_generator ngen(*g_quote_fresh);
     buffer<expr> locals;
     buffer<expr> aqs;
     expr s = replace(e, [&](expr const & t, unsigned) {
             if (is_antiquote(t)) {
-                expr local = mk_local(mk_fresh_name(), x.append_after(locals.size() + 1),
+                expr local = mk_local(ngen.next(), x.append_after(locals.size() + 1),
                                       mk_expr_placeholder(), binder_info());
                 locals.push_back(local);
                 aqs.push_back(get_antiquote_expr(t));
@@ -147,6 +150,8 @@ expr mk_pexpr_quote_and_substs(expr const & e, bool is_strict) {
 }
 
 void initialize_quote() {
+    g_quote_fresh         = new name("_quote_fresh");
+    register_name_generator_prefix(*g_quote_fresh);
     g_expr_quote_macro    = new name("expr_quote_macro");
     g_expr_quote_opcode   = new std::string("Quote");
     g_expr           = new expr(mk_app(Const(get_expr_name()), mk_bool_tt()));
@@ -168,6 +173,7 @@ void initialize_quote() {
 }
 
 void finalize_quote() {
+    delete g_quote_fresh;
     delete g_expr_quote_pre;
     delete g_expr_quote_macro;
     delete g_expr_quote_opcode;

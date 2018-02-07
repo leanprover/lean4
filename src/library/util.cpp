@@ -232,7 +232,7 @@ bool is_reflexive_datatype(abstract_type_context & tc, name const & n) {
             if (is_pi(arg) && find(arg, [&](expr const & e, unsigned) { return is_constant(e) && const_name(e) == n; })) {
                 return true;
             }
-            expr local = mk_local(mk_fresh_name(), binding_domain(type));
+            expr local = mk_local(tc.next_name(), binding_domain(type));
             type = instantiate(binding_body(type), local);
         }
     }
@@ -429,9 +429,9 @@ expr to_telescope(type_checker & ctx, expr type, buffer<expr> & telescope, optio
         type = new_type;
         expr local;
         if (binfo)
-            local = mk_local(mk_fresh_name(), binding_name(type), binding_domain(type), *binfo);
+            local = mk_local(ctx.next_name(), binding_name(type), binding_domain(type), *binfo);
         else
-            local = mk_local(mk_fresh_name(), binding_name(type), binding_domain(type), binding_info(type));
+            local = mk_local(ctx.next_name(), binding_name(type), binding_domain(type), binding_info(type));
         telescope.push_back(local);
         type     = instantiate(binding_body(type), local);
         new_type = ctx.whnf(type);

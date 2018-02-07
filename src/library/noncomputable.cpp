@@ -166,7 +166,7 @@ struct get_noncomputable_reason_fn {
             expr e = _e;
             while (is_lambda(e) || is_pi(e)) {
                 expr d = instantiate_rev(binding_domain(e), ls.size(), ls.data());
-                expr l = mk_local(mk_fresh_name(), binding_name(e), d, binding_info(e));
+                expr l = mk_local(m_tc.next_name(), binding_name(e), d, binding_info(e));
                 ls.push_back(l);
                 e = binding_body(e);
             }

@@ -25,8 +25,11 @@ Author: Leonardo de Moura
 #include "library/compiler/comp_irrelevant.h"
 
 namespace lean {
+static name * g_vm_compiler_fresh = nullptr;
+
 class vm_compiler_fn {
     environment        m_env;
+    name_generator     m_ngen;
     buffer<vm_instr> & m_code;
 
     void emit(vm_instr const & i) {
@@ -138,7 +141,7 @@ class vm_compiler_fn {
             name_map<unsigned> new_m = m;
             unsigned new_bpz = bpz;
             while (is_lambda(b)) {
-                name n = mk_fresh_name();
+                name n = m_ngen.next();
                 new_m.insert(n, new_bpz);
                 locals.push_back(mk_local(n));
                 new_bpz++;
@@ -256,7 +259,7 @@ class vm_compiler_fn {
             counter++;
             compile(instantiate_rev(let_value(e), locals.size(), locals.data()), bpz, new_m);
             emit(mk_local_info_instr(bpz, let_name(e), to_type_info(let_type(e))));
-            name n = mk_fresh_name();
+            name n = m_ngen.next();
             new_m.insert(n, bpz);
             locals.push_back(mk_local(n));
             bpz++;
@@ -310,7 +313,7 @@ class vm_compiler_fn {
 
 public:
     vm_compiler_fn(environment const & env, buffer<vm_instr> & code):
-        m_env(env), m_code(code) {}
+        m_env(env), m_ngen(*g_vm_compiler_fresh), m_code(code) {}
 
     pair<unsigned, list<vm_local_info>> operator()(expr e) {
         buffer<expr> locals;
@@ -320,7 +323,7 @@ public:
         name_map<unsigned> m;
         list<vm_local_info> args_info;
         while (is_lambda(e)) {
-            name n = mk_fresh_name();
+            name n = m_ngen.next();
             i--;
             m.insert(n, i);
             locals.push_back(mk_local(n));
@@ -394,10 +397,12 @@ environment vm_compile(environment const & env, declaration const & d, bool opti
 }
 
 void initialize_vm_compiler() {
+    g_vm_compiler_fresh = new name ("_vmc_fresh");
     register_trace_class({"compiler", "optimize_bytecode"});
     register_trace_class({"compiler", "code_gen"});
 }
 
 void finalize_vm_compiler() {
+    delete g_vm_compiler_fresh;
 }
 }

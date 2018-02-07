@@ -80,12 +80,9 @@ namespace lean {
 
 static name * g_nest_prefix = nullptr;
 
-static expr mk_local_for(expr const & b) { return mk_local(mk_fresh_name(), binding_name(b), binding_domain(b), binding_info(b)); }
-static expr mk_local_for(expr const & b, name const & n) { return mk_local(mk_fresh_name(), n, binding_domain(b), binding_info(b)); }
-static expr mk_local_pp(name const & n, expr const & ty) { return mk_local(mk_fresh_name(), n, ty, binder_info()); }
-
 class add_nested_inductive_decl_fn {
     environment                   m_env;
+    name_generator &              m_ngen;
     options                       m_opts;
     name_map<implicit_infer_kind> m_implicit_infer_map;
     // Note(dhs): m_nested_decl is morally const, but we make it non-const to pass around sizeof_lemmas
@@ -117,6 +114,10 @@ class add_nested_inductive_decl_fn {
     unsigned get_curr_ind_idx() { lean_assert(m_in_define_nested_irs); return m_pack_arity.size() - 1; }
     unsigned get_curr_ir_idx() { lean_assert(m_in_define_nested_irs); return m_pack_arity[get_curr_ind_idx()].size() - 1; }
     unsigned get_curr_ir_arg_idx() { lean_assert(m_in_define_nested_irs); return m_pack_arity[get_curr_ind_idx()][get_curr_ir_idx()].size(); }
+
+    expr mk_local_for(expr const & b) { return mk_local(m_ngen.next(), binding_name(b), binding_domain(b), binding_info(b)); }
+    expr mk_local_for(expr const & b, name const & n) { return mk_local(m_ngen.next(), n, binding_domain(b), binding_info(b)); }
+    expr mk_local_pp(name const & n, expr const & ty) { return mk_local(m_ngen.next(), n, ty, binder_info()); }
 
     // For sizeof
     bool                          m_has_sizeof{false};
@@ -276,7 +277,7 @@ class add_nested_inductive_decl_fn {
 
     void add_inner_decl() {
         try {
-            m_env = add_inner_inductive_declaration(m_env, m_opts, m_implicit_infer_map, m_inner_decl, m_is_trusted);
+            m_env = add_inner_inductive_declaration(m_env, m_ngen, m_opts, m_implicit_infer_map, m_inner_decl, m_is_trusted);
         } catch (exception & ex) {
             throw nested_exception(sstream() << "nested inductive type compiled to invalid inductive type", ex);
         }
@@ -2298,10 +2299,10 @@ class add_nested_inductive_decl_fn {
     }
 
 public:
-    add_nested_inductive_decl_fn(environment const & env, options const & opts,
+    add_nested_inductive_decl_fn(environment const & env, name_generator & ngen, options const & opts,
                                  name_map<implicit_infer_kind> const & implicit_infer_map,
                                  ginductive_decl & nested_decl, bool is_trusted):
-        m_env(env), m_opts(opts), m_implicit_infer_map(implicit_infer_map),
+        m_env(env), m_ngen(ngen), m_opts(opts), m_implicit_infer_map(implicit_infer_map),
         m_nested_decl(nested_decl), m_is_trusted(is_trusted),
         m_inner_decl(m_nested_decl.get_nest_depth() + 1, m_nested_decl.get_lp_names(), m_nested_decl.get_params(),
                      m_nested_decl.get_num_indices(), m_nested_decl.get_ir_offsets()),
@@ -2338,10 +2339,10 @@ public:
     }
 };
 
-optional<environment> add_nested_inductive_decl(environment const & env, options const & opts,
+optional<environment> add_nested_inductive_decl(environment const & env, name_generator & ngen, options const & opts,
                                                 name_map<implicit_infer_kind> const & implicit_infer_map,
                                                 ginductive_decl & decl, bool is_trusted) {
-    return add_nested_inductive_decl_fn(env, opts, implicit_infer_map, decl, is_trusted)();
+    return add_nested_inductive_decl_fn(env, ngen, opts, implicit_infer_map, decl, is_trusted)();
 }
 
 void initialize_inductive_compiler_nested() {

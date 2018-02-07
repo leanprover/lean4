@@ -30,11 +30,11 @@ Author: Daniel Selsam
 #include "library/tactic/eqn_lemmas.h"
 
 namespace lean {
-
 static name * g_mutual_suffix = nullptr;
 
 class add_mutual_inductive_decl_fn {
     environment                   m_env;
+    name_generator &              m_ngen;
     options const &               m_opts;
     name_map<implicit_infer_kind> m_implicit_infer_map;
     ginductive_decl const &       m_mut_decl;
@@ -59,8 +59,8 @@ class add_mutual_inductive_decl_fn {
     expr punit() const { return mk_constant(get_punit_name(), {m_elim_level}); }
     expr punit_star() const { return mk_constant(get_punit_star_name(), {m_elim_level}); }
 
-    expr mk_local_for(expr const & b) { return mk_local(mk_fresh_name(), binding_name(b), binding_domain(b), binding_info(b)); }
-    expr mk_local_pp(name const & n, expr const & ty) { return mk_local(mk_fresh_name(), n, ty, binder_info()); }
+    expr mk_local_for(expr const & b) { return mk_local(m_ngen.next(), binding_name(b), binding_domain(b), binding_info(b)); }
+    expr mk_local_pp(name const & n, expr const & ty) { return mk_local(m_ngen.next(), n, ty, binder_info()); }
 
     expr to_sigma_type(expr const & _ty) {
         expr ty = m_tctx.whnf(_ty);
@@ -873,10 +873,10 @@ class add_mutual_inductive_decl_fn {
     }
 
 public:
-    add_mutual_inductive_decl_fn(environment const & env, options const & opts,
+    add_mutual_inductive_decl_fn(environment const & env, name_generator & ngen, options const & opts,
                                  name_map<implicit_infer_kind> const & implicit_infer_map, ginductive_decl const & mut_decl,
                                  bool is_trusted):
-        m_env(env), m_opts(opts), m_implicit_infer_map(implicit_infer_map),
+        m_env(env), m_ngen(ngen), m_opts(opts), m_implicit_infer_map(implicit_infer_map),
         m_mut_decl(mut_decl), m_is_trusted(is_trusted),
         m_basic_decl(m_mut_decl.get_nest_depth() + 1, m_mut_decl.get_lp_names(), m_mut_decl.get_params(), m_mut_decl.get_ir_offsets()),
         m_tctx(env, opts) {}
@@ -894,7 +894,7 @@ public:
         compute_idx_to_ir_range();
 
         try {
-            m_env = add_inner_inductive_declaration(m_env, m_opts, m_implicit_infer_map, m_basic_decl, m_is_trusted);
+            m_env = add_inner_inductive_declaration(m_env, m_ngen, m_opts, m_implicit_infer_map, m_basic_decl, m_is_trusted);
         } catch (exception & ex) {
             throw nested_exception(sstream() << "mutually inductive types compiled to invalid basic inductive type", ex);
         }
@@ -909,10 +909,10 @@ public:
     }
 };
 
-environment add_mutual_inductive_decl(environment const & env, options const & opts,
+environment add_mutual_inductive_decl(environment const & env, name_generator & ngen, options const & opts,
                                       name_map<implicit_infer_kind> const & implicit_infer_map,
                                       ginductive_decl & mut_decl, bool is_trusted) {
-    return add_mutual_inductive_decl_fn(env, opts, implicit_infer_map, mut_decl, is_trusted)();
+    return add_mutual_inductive_decl_fn(env, ngen, opts, implicit_infer_map, mut_decl, is_trusted)();
 }
 
 void initialize_inductive_compiler_mutual() {

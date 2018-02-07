@@ -11,7 +11,7 @@ Author: Daniel Selsam
 #include "library/inductive_compiler/ginductive_decl.h"
 
 namespace lean {
-environment add_inner_inductive_declaration(environment const & env, options const & opts,
+environment add_inner_inductive_declaration(environment const & env, name_generator & ngen, options const & opts,
                                             name_map<implicit_infer_kind> implicit_infer_map,
                                             ginductive_decl & decl, bool is_trusted);
 

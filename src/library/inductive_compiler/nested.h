@@ -10,7 +10,7 @@ Author: Daniel Selsam
 #include "library/inductive_compiler/ginductive_decl.h"
 
 namespace lean {
-optional<environment> add_nested_inductive_decl(environment const & env, options const & opts,
+optional<environment> add_nested_inductive_decl(environment const & env, name_generator & ngen, options const & opts,
                                                 name_map<implicit_infer_kind> const & implicit_infer_map,
                                                 ginductive_decl & decl, bool is_trusted);
 

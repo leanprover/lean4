@@ -24,8 +24,8 @@ Author: Leonardo de Moura
 #include "util/task_builder.h"
 
 namespace lean {
-static name * g_kernel    = nullptr;
-static expr * g_dont_care = nullptr;
+static name * g_kernel_fresh = nullptr;
+static expr * g_dont_care    = nullptr;
 
 optional<expr> type_checker::expand_macro(expr const & m) {
     lean_assert(is_macro(m));
@@ -720,7 +720,7 @@ bool type_checker::is_def_eq(expr const & t, expr const & s) {
 }
 
 type_checker::type_checker(environment const & env, bool memoize, bool trusted_only):
-    m_env(env), m_name_generator(*g_kernel), m_memoize(memoize), m_trusted_only(trusted_only), m_params(nullptr) {
+    m_env(env), m_name_generator(*g_kernel_fresh), m_memoize(memoize), m_trusted_only(trusted_only), m_params(nullptr) {
 }
 
 type_checker::~type_checker() {}
@@ -807,14 +807,15 @@ certified_declaration certify_unchecked::certify_or_check(environment const & en
 }
 
 void initialize_type_checker() {
-    g_id_delta  = new name("id_delta");
-    g_dont_care = new expr(Const("dontcare"));
-    g_kernel    = new name("_kernel");
+    g_id_delta     = new name("id_delta");
+    g_dont_care    = new expr(Const("dontcare"));
+    g_kernel_fresh = new name("_kernel_fresh");
+    register_name_generator_prefix(*g_kernel_fresh);
 }
 
 void finalize_type_checker() {
     delete g_dont_care;
     delete g_id_delta;
-    delete g_kernel;
+    delete g_kernel_fresh;
 }
 }

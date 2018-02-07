@@ -11,14 +11,14 @@ Author: Daniel Selsam
 #include "library/constants.h"
 
 namespace lean {
-static name * g_inductive_compiler = nullptr; /* prefix for inductive compiler name generator */
+static name * g_inductive_compiler_fresh = nullptr; /* prefix for inductive compiler name generator */
 
 environment add_inductive_declaration(environment const & old_env, options const & opts,
                                       name_map<implicit_infer_kind> implicit_infer_map,
                                       buffer<name> const & lp_names, buffer<expr> const & params,
                                       buffer<expr> const & inds, buffer<buffer<expr> > const & intro_rules,
                                       bool is_trusted) {
-    name_generator ngen(*g_inductive_compiler);
+    name_generator ngen(*g_inductive_compiler_fresh);
     ginductive_decl decl(old_env, 0, lp_names, params, inds, intro_rules);
     environment env = add_inner_inductive_declaration(old_env, ngen, opts, implicit_infer_map, decl, is_trusted);
     return env;
@@ -44,10 +44,11 @@ environment add_structure_declaration_aux(environment const & old_env, options c
 }
 
 void initialize_inductive_compiler_add_decl() {
-    g_inductive_compiler = new name("_ic_fresh");
+    g_inductive_compiler_fresh = new name("_ic_fresh");
+    register_name_generator_prefix(*g_inductive_compiler_fresh);
 }
 
 void finalize_inductive_compiler_add_decl() {
-    delete g_inductive_compiler;
+    delete g_inductive_compiler_fresh;
 }
 }

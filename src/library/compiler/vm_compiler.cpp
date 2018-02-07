@@ -398,6 +398,7 @@ environment vm_compile(environment const & env, declaration const & d, bool opti
 
 void initialize_vm_compiler() {
     g_vm_compiler_fresh = new name ("_vmc_fresh");
+    register_name_generator_prefix(*g_vm_compiler_fresh);
     register_trace_class({"compiler", "optimize_bytecode"});
     register_trace_class({"compiler", "code_gen"});
 }

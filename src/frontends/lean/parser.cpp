@@ -158,7 +158,7 @@ parser::parser(environment const & env, io_state const & ios,
                module_loader const & import_fn,
                std::istream & strm, std::string const & file_name,
                bool use_exceptions) :
-    m_env(env), m_ios(ios),
+    m_env(env), m_ngen(*g_frontend_fresh), m_ios(ios),
     m_use_exceptions(use_exceptions),
     m_import_fn(import_fn),
     m_file_name(file_name),
@@ -2673,6 +2673,7 @@ bool parse_commands(environment & env, io_state & ios, char const * fname) {
 
 void initialize_parser() {
     g_frontend_fresh         = new name("_ffresh");
+    register_name_generator_prefix(*g_frontend_fresh);
     g_parser_show_errors     = new name{"parser", "show_errors"};
     register_bool_option(*g_parser_show_errors, LEAN_DEFAULT_PARSER_SHOW_ERRORS,
                          "(lean parser) display error messages in the regular output channel");

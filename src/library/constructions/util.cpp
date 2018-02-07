@@ -7,17 +7,18 @@ Author: Leonardo de Moura
 #include "util/name_generator.h"
 
 namespace lean {
-static name * g_constructions = nullptr;
+static name * g_constructions_fresh = nullptr;
 
 name_generator mk_constructions_name_generator() {
-    return name_generator(*g_constructions);
+    return name_generator(*g_constructions_fresh);
 }
 
 void initialize_constructions_util() {
-    g_constructions = new name("_constrs");
+    g_constructions_fresh = new name("_cnstr_fresh");
+    register_name_generator_prefix(*g_constructions_fresh);
 }
 
 void finalize_constructions_util() {
-    delete g_constructions;
+    delete g_constructions_fresh;
 }
 }

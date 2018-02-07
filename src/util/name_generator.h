@@ -38,6 +38,25 @@ public:
 };
 void swap(name_generator & a, name_generator & b);
 
+/* This procedure is invoked during initialization time to register
+   internal prefixes used to create name_generator objects.
+
+   The registration process has two benefits:
+   1- Make sure two different modules do not use the same prefix.
+      We get an assertion violation if more than one module uses the same prefix.
+
+   2- The registered names are used to implement `uses_name_generator_prefix` and `sanitize_name_generator_name`
+*/
+void register_name_generator_prefix(name const & n);
+
+/* Return true if \c n was generated using a prefix registered using \c register_name_generator_prefix */
+bool uses_name_generator_prefix(name const & n);
+
+/* If \c n was generated using a name_generator with a registered prefix, then
+   make sure the result is a valid Lean name (i.e., it does not have numeric parts).
+   Example: `sanitize_name_generator_name(_fresh.1.4)` returns `_fresh_1_4`. */
+name sanitize_name_generator_name(name const & n);
+
 void initialize_name_generator();
 void finalize_name_generator();
 }

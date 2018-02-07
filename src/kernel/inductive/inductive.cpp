@@ -91,7 +91,7 @@ Author: Leonardo de Moura
 */
 namespace lean {
 namespace inductive {
-static name * g_ind = nullptr; /* prefix for fresh names created in this module. */
+static name * g_ind_fresh           = nullptr; /* prefix for fresh names created in this module. */
 static name * g_inductive_extension = nullptr;
 
 /** \brief Environment extension used to store the computational rules associated with inductive datatype declarations. */
@@ -261,7 +261,7 @@ struct add_inductive_fn {
     add_inductive_fn(environment            env,
                      inductive_decl const & decl,
                      bool is_trusted):
-        m_env(env), m_name_generator(*g_ind), m_decl(decl),
+        m_env(env), m_name_generator(*g_ind_fresh), m_decl(decl),
         m_tc(new type_checker(m_env, true, false)) {
         m_is_not_zero = false;
         m_levels      = param_names_to_levels(decl.m_level_params);
@@ -980,7 +980,8 @@ optional<unsigned> get_elim_major_idx(environment const & env, name const & n) {
 }
 
 void initialize_inductive_module() {
-    inductive::g_ind                 = new name("_ind");
+    inductive::g_ind_fresh           = new name("_ind_fresh");
+    register_name_generator_prefix(*inductive::g_ind_fresh);
     inductive::g_inductive_extension = new name("inductive_extension");
     inductive::g_ext                 = new inductive::inductive_env_ext_reg();
 }
@@ -988,6 +989,6 @@ void initialize_inductive_module() {
 void finalize_inductive_module() {
     delete inductive::g_ext;
     delete inductive::g_inductive_extension;
-    delete inductive::g_ind;
+    delete inductive::g_ind_fresh;
 }
 }

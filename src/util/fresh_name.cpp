@@ -107,6 +107,7 @@ fresh_name_scope::~fresh_name_scope() {
 
 void initialize_fresh_name() {
     g_fresh = new name("_fresh");
+    register_name_generator_prefix(*g_fresh);
 }
 
 void finalize_fresh_name() {

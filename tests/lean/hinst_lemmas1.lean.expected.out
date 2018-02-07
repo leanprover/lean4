@@ -1,1 +1,1 @@
-{[foo2, patterns: {{?x_1 < ?x_2, ?x_1 > ?x_0}}], [foo3, patterns: {{?x_1 > ?x_0, ?x_1 < ?x_2 + ?x_2}}]}
+{[foo2, patterns: {{?x_1 > ?x_0, ?x_1 < ?x_2}}], [foo3, patterns: {{?x_1 > ?x_0, ?x_1 < ?x_2 + ?x_2}}]}

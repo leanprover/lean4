@@ -389,6 +389,8 @@ struct add_inductive_fn {
     void check_intro_rule(intro_rule const & ir) {
         expr t = intro_rule_type(ir);
         name n = intro_rule_name(ir);
+        /* make sure intro rule type does not contain locals nor metavariables. */
+        check_no_mlocal(m_env, n, t, true);
         tc().check(t, m_decl.m_level_params);
         unsigned i     = 0;
         bool found_rec = false;

@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "library/normalize.h"
 #include "library/scoped_ext.h"
 #include "library/aux_recursors.h"
+#include "library/constructions/util.h"
 
 namespace lean {
 static void throw_corrupted(name const & n) {
@@ -31,6 +32,7 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
         throw exception(sstream() << "error in 'no_confusion' generation, '" << n << "' is not an inductive datatype");
     if (is_inductive_predicate(env, n) || !can_elim_to_type(env, n))
         return optional<environment>();
+    name_generator ngen    = mk_constructions_name_generator();
     unsigned nparams       = decl->m_num_params;
     declaration ind_decl   = env.get(n);
     declaration cases_decl = env.get(name(n, "cases_on"));
@@ -49,11 +51,11 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
     // Create inductive datatype
     expr I = mk_app(mk_constant(n, ilvls), args);
     // Add (P : Type)
-    expr P = mk_local(mk_fresh_name(), "P", mk_sort(plvl), binder_info());
+    expr P = mk_local(ngen.next(), "P", mk_sort(plvl), binder_info());
     args.push_back(P);
     // add v1 and v2 elements of the inductive type
-    expr v1 = mk_local(mk_fresh_name(), "v1", I, binder_info());
-    expr v2 = mk_local(mk_fresh_name(), "v2", I, binder_info());
+    expr v1 = mk_local(ngen.next(), "v1", I, binder_info());
+    expr v2 = mk_local(ngen.next(), "v2", I, binder_info());
     args.push_back(v1);
     args.push_back(v2);
     expr R = mk_sort(rlvl);
@@ -107,7 +109,7 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
                         } else {
                             h_type = mk_app(mk_constant(get_heq_name(), to_list(l)), lhs_type, lhs, rhs_type, rhs);
                         }
-                        rtype_hyp.push_back(mk_local(mk_fresh_name(), mlocal_pp_name(lhs).append_after("_eq"), h_type, binder_info()));
+                        rtype_hyp.push_back(mk_local(ngen.next(), mlocal_pp_name(lhs).append_after("_eq"), h_type, binder_info()));
                     }
                 }
                 inner_cases_on_args.push_back(Fun(minor2_args, mk_arrow(Pi(rtype_hyp, P), Pres)));
@@ -134,6 +136,7 @@ environment mk_no_confusion(environment const & env, name const & n) {
         return env;
     environment new_env = *env1;
     type_checker tc(new_env);
+    name_generator ngen                = mk_constructions_name_generator();
     inductive::inductive_decl decl     = *inductive::is_inductive_decl(new_env, n);
     unsigned nparams                   = decl.m_num_params;
     declaration ind_decl               = env.get(n);
@@ -156,7 +159,7 @@ environment mk_no_confusion(environment const & env, name const & n) {
     expr v_type       = mlocal_type(v1);
     level v_lvl       = sort_level(tc.ensure_type(v_type));
     expr eq_v         = mk_app(mk_constant(get_eq_name(), to_list(v_lvl)), v_type);
-    expr H12          = mk_local(mk_fresh_name(), "H12", mk_app(eq_v, v1, v2), binder_info());
+    expr H12          = mk_local(ngen.next(), "h12", mk_app(eq_v, v1, v2), binder_info());
     args.push_back(H12);
     name no_confusion_name{n, "no_confusion"};
     expr no_confusion_ty = Pi(args, range);
@@ -168,7 +171,7 @@ environment mk_no_confusion(environment const & env, name const & n) {
     //   )
 
     // H11 is for creating the generalization
-    expr H11          = mk_local(mk_fresh_name(), "H11", mk_app(eq_v, v1, v1), binder_info());
+    expr H11          = mk_local(ngen.next(), "h11", mk_app(eq_v, v1, v1), binder_info());
     // Create the type former (fun Indices v1, no_confusion_type Params Indices P v1 v1)
     buffer<expr> type_former_args;
     for (unsigned i = nparams; i < nparams + nindices; i++)
@@ -219,8 +222,8 @@ environment mk_no_confusion(environment const & env, name const & n) {
     expr eq_rec = mk_app(mk_constant(get_eq_rec_name(), {eq_rec_l1, v_lvl}), v_type, v1);
     // create eq_rec type_former
     //    (fun (a : InductiveType), v1 = a -> no_confusion_type Params Indices v1 a)
-    expr a   = mk_local(mk_fresh_name(), "a",   v_type, binder_info());
-    expr H1a = mk_local(mk_fresh_name(), "H1a", mk_app(eq_v, v1, a), binder_info());
+    expr a   = mk_local(ngen.next(), "a",   v_type, binder_info());
+    expr H1a = mk_local(ngen.next(), "h1a", mk_app(eq_v, v1, a), binder_info());
     // reusing no_confusion_type_args... we just replace the last argument with a
     no_confusion_type_args.pop_back();
     no_confusion_type_args.push_back(a);

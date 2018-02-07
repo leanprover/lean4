@@ -26,6 +26,7 @@ Author: Daniel Selsam
 #include "library/tactic/simp_lemmas.h"
 #include "library/tactic/eqn_lemmas.h"
 #include "library/constructions/has_sizeof.h"
+#include "library/constructions/util.h"
 
 namespace lean {
 
@@ -52,14 +53,19 @@ name mk_sizeof_spec_name(name const & ir_name) {
     return ir_name + "sizeof_spec";
 }
 
-// TODO(dhs): Put these in one place and stop copying them
-static expr mk_local_for(expr const & b) { return mk_local(mk_fresh_name(), binding_name(b), binding_domain(b), binding_info(b)); }
-static expr mk_local_pp(name const & n, expr const & ty) { return mk_local(mk_fresh_name(), n, ty, binder_info()); }
-
 class mk_has_sizeof_fn {
-    environment  m_env;
-    type_context m_tctx;
-    name         m_ind_name;
+    environment    m_env;
+    name_generator m_ngen;
+    type_context   m_tctx;
+    name           m_ind_name;
+
+    expr mk_local_for(expr const & b) {
+        return mk_local(m_ngen.next(), binding_name(b), binding_domain(b), binding_info(b));
+    }
+
+    expr mk_local_pp(name const & n, expr const & ty) {
+        return mk_local(m_ngen.next(), n, ty, binder_info());
+    }
 
     optional<expr> mk_has_sizeof(expr const & type) {
         level l = get_level(m_tctx, type);
@@ -307,7 +313,7 @@ class mk_has_sizeof_fn {
 
 public:
     mk_has_sizeof_fn(environment const & env, name const & ind_name):
-        m_env(env), m_tctx(env), m_ind_name(ind_name) {}
+        m_env(env), m_ngen(mk_constructions_name_generator()), m_tctx(env), m_ind_name(ind_name) {}
 
     environment operator()() {
         if (m_env.find(get_has_sizeof_name()))

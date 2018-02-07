@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/normalize.h"
 #include "library/aux_recursors.h"
 #include "library/scoped_ext.h"
+#include "library/constructions/util.h"
 
 namespace lean {
 static bool is_type_former_arg(name const & C_name, expr const & arg) {
@@ -32,6 +33,7 @@ environment mk_cases_on(environment const & env, name const & n) {
     // TODO(Leo): cleanup, this code still has leftovers from the time the kernel had support for
     // mutually inductive types
     name cases_on_name(n, "cases_on");
+    name_generator ngen    = mk_constructions_name_generator();
     name rec_name          = inductive::get_elim_name(n);
     declaration rec_decl   = env.get(rec_name);
     declaration ind_decl   = env.get(n);
@@ -41,7 +43,7 @@ environment mk_cases_on(environment const & env, name const & n) {
     buffer<expr> rec_params;
     expr rec_type = rec_decl.get_type();
     while (is_pi(rec_type)) {
-        expr local = mk_local(mk_fresh_name(), binding_name(rec_type), binding_domain(rec_type), binding_info(rec_type));
+        expr local = mk_local(ngen.next(), binding_name(rec_type), binding_domain(rec_type), binding_info(rec_type));
         rec_type   = instantiate(binding_body(rec_type), local);
         rec_params.push_back(local);
     }
@@ -82,7 +84,7 @@ environment mk_cases_on(environment const & env, name const & n) {
         buffer<expr> minor_params;
         expr minor_type = mlocal_type(minor);
         while (is_pi(minor_type)) {
-            expr local = mk_local(mk_fresh_name(), binding_name(minor_type), binding_domain(minor_type),
+            expr local = mk_local(ngen.next(), binding_name(minor_type), binding_domain(minor_type),
                                   binding_info(minor_type));
             expr curr_type = mlocal_type(local);
             while (is_pi(curr_type))

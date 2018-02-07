@@ -15,19 +15,16 @@ Author: Leonardo de Moura
 #include "library/protected.h"
 #include "library/reducible.h"
 #include "library/aux_recursors.h"
+#include "library/constructions/util.h"
 
 namespace lean {
 using inductive::inductive_decl;
-
-static expr mk_local_from_binding(expr const & b) {
-    lean_assert(is_binding(b));
-    return mk_local(mk_fresh_name(), binding_name(b), binding_domain(b), binding_info(b));
-}
 
 enum class drec_kind {DRec, DRecOn, DCasesOn};
 
 struct mk_drec_fn {
     environment const & env;
+    name_generator      ngen;
     type_checker        tc;
     name const &        I;
     drec_kind           kind;
@@ -48,7 +45,8 @@ struct mk_drec_fn {
     buffer<expr> rec_args; // arguments for rec used to define drec
 
     mk_drec_fn(environment const & _env, name const & _I, drec_kind k):
-        env(_env), tc(env), I(_I), kind(k),
+        env(_env), ngen(mk_constructions_name_generator()),
+        tc(env), I(_I), kind(k),
         I_ind_decl(*inductive::is_inductive_decl(env, I)),
         I_rec_name(inductive::get_elim_name(I)),
         I_rec_decl(env.get(I_rec_name)),
@@ -60,6 +58,11 @@ struct mk_drec_fn {
         lvls(param_names_to_levels(I_rec_decl.get_univ_params())),
         elim_to_prop(I_rec_decl.get_num_univ_params() == I_decl.get_num_univ_params()),
         I_lvls(elim_to_prop ? lvls : tail(lvls)) {
+    }
+
+    expr mk_local_from_binding(expr const & b) {
+        lean_assert(is_binding(b));
+        return mk_local(ngen.next(), binding_name(b), binding_domain(b), binding_info(b));
     }
 
     expr init_rec_params() {
@@ -91,7 +94,7 @@ struct mk_drec_fn {
             motive_params.push_back(local);
         }
         expr new_param_type  = mk_app(mk_app(mk_constant(I, I_lvls), num_params, rec_params.data()), motive_params);
-        expr new_param       = mk_local(mk_fresh_name(), "h", new_param_type, binder_info());
+        expr new_param       = mk_local(ngen.next(), "h", new_param_type, binder_info());
         expr new_motive_type = Pi(motive_params, Pi(new_param, rec_motive_type));
         expr new_motive      = update_mlocal(rec_motive, new_motive_type);
         expr motive_arg      = Fun(motive_params, Pi(new_param, mk_app(mk_app(new_motive, motive_params), new_param)));
@@ -148,7 +151,7 @@ struct mk_drec_fn {
                     while (is_pi(h_type))
                         h_type = binding_body(h_type);
                     h_type = instantiate_rev(h_type, ih_params);
-                    expr h           = mk_local(mk_fresh_name(), "_h", h_type, binder_info());
+                    expr h           = mk_local(ngen.next(), "_h", h_type, binder_info());
                     expr app_ih_type = Pi(ih_params, Pi(h, mk_app(new_C_pre, h)));
                     expr app_ih      = update_mlocal(local, app_ih_type);
                     app_params.push_back(app_ih);
@@ -172,7 +175,7 @@ struct mk_drec_fn {
             expr new_minor       = update_mlocal(minor, new_minor_type);
             drec_params.push_back(new_minor);
             expr _h_type         = tc.infer(constructor_app);
-            expr _h              = mk_local(mk_fresh_name(), "_", _h_type, binder_info());
+            expr _h              = mk_local(ngen.next(), "_", _h_type, binder_info());
             rec_args.push_back(Fun(app_params, Fun(_h, mk_app(new_minor, app_args))));
             i++;
         }

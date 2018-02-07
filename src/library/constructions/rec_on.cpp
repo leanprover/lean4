@@ -17,18 +17,20 @@ Author: Leonardo de Moura
 #include "library/normalize.h"
 #include "library/aux_recursors.h"
 #include "library/scoped_ext.h"
+#include "library/constructions/util.h"
 
 namespace lean {
 environment mk_rec_on(environment const & env, name const & n) {
     if (!inductive::is_inductive_decl(env, n))
         throw exception(sstream() << "error in 'rec_on' generation, '" << n << "' is not an inductive datatype");
+    name_generator ngen = mk_constructions_name_generator();
     name rec_on_name(n, "rec_on");
     declaration rec_decl = env.get(inductive::get_elim_name(n));
 
     buffer<expr> locals;
     expr rec_type = rec_decl.get_type();
     while (is_pi(rec_type)) {
-        expr local = mk_local(mk_fresh_name(), binding_name(rec_type), binding_domain(rec_type), binding_info(rec_type));
+        expr local = mk_local(ngen.next(), binding_name(rec_type), binding_domain(rec_type), binding_info(rec_type));
         rec_type   = instantiate(binding_body(rec_type), local);
         locals.push_back(local);
     }

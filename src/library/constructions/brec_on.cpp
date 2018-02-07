@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "library/normalize.h"
 #include "library/aux_recursors.h"
 #include "library/scoped_ext.h"
+#include "library/constructions/util.h"
 
 namespace lean {
 static void throw_corrupted(name const & n) {
@@ -165,6 +166,7 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
         return env;
     if (is_inductive_predicate(env, n) || !can_elim_to_type(env, n))
         return env;
+    name_generator ngen    = mk_constructions_name_generator();
     inductive::inductive_decl decl = *inductive::is_inductive_decl(env, n);
     type_checker tc(env);
     unsigned nparams       = decl.m_num_params;
@@ -255,9 +257,9 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
         to_telescope(mlocal_type(C), F_args);
         expr F_result = mk_app(C, F_args);
         expr F_below  = mk_app(belows[j], F_args);
-        F_args.push_back(mk_local(mk_fresh_name(), "f", F_below, binder_info()));
+        F_args.push_back(mk_local(ngen.next(), "f", F_below, binder_info()));
         expr F_type   = Pi(F_args, F_result);
-        expr F        = mk_local(mk_fresh_name(), F_name, F_type, binder_info());
+        expr F        = mk_local(ngen.next(), F_name, F_type, binder_info());
         Fs.push_back(F);
         args.push_back(F);
     }

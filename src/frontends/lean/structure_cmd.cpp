@@ -902,7 +902,7 @@ struct structure_cmd_fn {
             return elab(tmp);
         expr type  = decl.get_type();
         expr value = *decl.m_default_val;
-        expr new_tmp = elab(mk_let(mk_fresh_name(), type, value, tmp));
+        expr new_tmp = elab(mk_let(m_p.next_name(), type, value, tmp));
         decl.m_local = update_local(decl.m_local, let_type(new_tmp), local_info(decl.m_local));
         decl.m_default_val = let_value(new_tmp);
         return let_body(new_tmp);
@@ -1215,7 +1215,7 @@ struct structure_cmd_fn {
             binder_info bi;
             if (m_meta_info.m_attrs.has_class())
                 bi = mk_inst_implicit_binder_info();
-            expr st                        = mk_local(mk_fresh_name(), "s", st_type, bi);
+            expr st                        = mk_local(m_p.next_name(), "s", st_type, bi);
             expr coercion_type             = infer_implicit(Pi(m_params, Pi(st, parent, m_p), m_p), m_params.size(), true);;
             expr coercion_value            = parent_intro;
             for (unsigned idx : fmap) {

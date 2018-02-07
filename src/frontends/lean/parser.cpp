@@ -70,6 +70,7 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
+static name * g_frontend_fresh = nullptr;
 
 void break_at_pos_exception::report_goal_pos(pos_info goal_pos) {
     if (!m_goal_pos)
@@ -1407,7 +1408,7 @@ expr parser::parse_notation(parse_table t, expr * left) {
         unsigned idx = 1;
         for (expr & arg : args) {
             actual_args.push_back(arg);
-            arg = mk_local(mk_fresh_name(), x.append_after(idx), mk_expr_placeholder(), binder_info());
+            arg = mk_local(next_name(), x.append_after(idx), mk_expr_placeholder(), binder_info());
             idx++;
         }
     }
@@ -1459,7 +1460,7 @@ expr parser::parse_placeholder() {
 expr parser::parse_anonymous_var_pattern() {
     auto p = pos();
     next();
-    expr t = mk_local(mk_fresh_name(), "_x", mk_expr_placeholder(), binder_info());
+    expr t = mk_local(next_name(), "_x", mk_expr_placeholder(), binder_info());
     return save_pos(t, p);
 }
 
@@ -1609,7 +1610,7 @@ struct to_pattern_fn {
         } else if (is_inaccessible(e)) {
             // do nothing
         } else if (is_placeholder(e)) {
-            expr r = copy_tag(e, mk_local(mk_fresh_name(), "_x", copy_tag(e, mk_expr_placeholder()), binder_info()));
+            expr r = copy_tag(e, mk_local(m_parser.next_name(), "_x", copy_tag(e, mk_expr_placeholder()), binder_info()));
             m_new_locals.push_back(r);
             m_anonymous_vars.insert(mk_pair(e, r));
         } else if (is_as_pattern(e)) {
@@ -1782,8 +1783,10 @@ static expr quote(expr const & e) {
 
 /** \brief Elaborate quote in an empty local context. We need to elaborate expr patterns in the parser to find out
     their pattern variables. */
-expr elaborate_quote(expr e, environment const & env, options const & opts) {
+static expr elaborate_quote(parser & p, expr e) {
     lean_assert(is_expr_quote(e));
+    environment const & env = p.env();
+    options const & opts    = p.get_options();
     e = get_expr_quote_value(e);
 
     name x("_x");
@@ -1791,7 +1794,7 @@ expr elaborate_quote(expr e, environment const & env, options const & opts) {
     buffer<expr> aqs;
     e = replace(e, [&](expr const & t, unsigned) {
         if (is_antiquote(t)) {
-            expr local = mk_local(mk_fresh_name(), x.append_after(locals.size() + 1),
+            expr local = mk_local(p.next_name(), x.append_after(locals.size() + 1),
                                   mk_expr_placeholder(), binder_info());
             locals.push_back(local);
             aqs.push_back(t);
@@ -1821,7 +1824,7 @@ expr parser::patexpr_to_pattern(expr const & pat_or_expr, bool skip_main_fn, buf
     undef_id_to_local_scope scope(*this);
     auto e = replace(pat_or_expr, [&](expr const & e) {
         if (is_expr_quote(e)) {
-            return some_expr(elaborate_quote(e, env(), get_options()));
+            return some_expr(elaborate_quote(*this, e));
         } else {
             return none_expr();
         }
@@ -2584,7 +2587,7 @@ bool parser::curr_is_command_like() const {
 
 std::shared_ptr<snapshot> parser::mk_snapshot() {
     return std::make_shared<snapshot>(
-            m_env, m_local_level_decls, m_local_decls,
+            m_env, m_ngen, m_local_level_decls, m_local_decls,
             m_level_variables, m_variables, m_include_vars,
             m_ios.get_options(), m_imports_parsed, m_ignore_noncomputable, m_parser_scope_stack, m_next_inst_idx, pos());
 }
@@ -2669,6 +2672,7 @@ bool parse_commands(environment & env, io_state & ios, char const * fname) {
 }
 
 void initialize_parser() {
+    g_frontend_fresh         = new name("_ffresh");
     g_parser_show_errors     = new name{"parser", "show_errors"};
     register_bool_option(*g_parser_show_errors, LEAN_DEFAULT_PARSER_SHOW_ERRORS,
                          "(lean parser) display error messages in the regular output channel");
@@ -2676,6 +2680,7 @@ void initialize_parser() {
 }
 
 void finalize_parser() {
+    delete g_frontend_fresh;
     delete g_tmp_prefix;
     delete g_parser_show_errors;
 }

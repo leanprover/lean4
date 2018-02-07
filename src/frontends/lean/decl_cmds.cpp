@@ -104,7 +104,7 @@ static environment declare_var(parser & p, environment env,
         if (p.get_local(n))
             throw parser_error(sstream() << "invalid parameter/variable declaration, '"
                                << n << "' has already been declared", pos);
-        name u = mk_fresh_name();
+        name u = p.next_name();
         expr l = p.save_pos(mk_local(u, n, type, bi), pos);
         if (k == variable_kind::Parameter)
             p.add_parameter(n, l);

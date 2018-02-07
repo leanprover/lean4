@@ -37,6 +37,7 @@ class scope_message_context;
 
 class parser : public abstract_parser {
     environment             m_env;
+    name_generator          m_ngen;
     io_state                m_ios;
     bool                    m_use_exceptions;
     bool                    m_show_errors;
@@ -212,6 +213,8 @@ public:
     ~parser();
 
     void init_scanner();
+
+    name next_name() { return m_ngen.next(); }
 
     void set_break_at_pos(pos_info const & pos) { m_break_at_pos = some(pos); }
     optional<pos_info> const & get_break_at_pos() const { return m_break_at_pos; }

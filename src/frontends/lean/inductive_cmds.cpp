@@ -230,7 +230,7 @@ class inductive_cmd_fn {
 
     /** \brief Create a local constant based on the given binding */
     expr mk_local_for(expr const & b) {
-        return mk_local(mk_fresh_name(), binding_name(b), binding_domain(b), binding_info(b), b.get_tag());
+        return mk_local(m_p.next_name(), binding_name(b), binding_domain(b), binding_info(b), b.get_tag());
     }
 
     /* \brief Add \c lvl to \c r_lvls (if it is not already there).

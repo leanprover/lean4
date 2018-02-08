@@ -124,7 +124,7 @@ bool pp_using_anonymous_constructor(environment const & env, name const & n) {
 }
 
 void initialize_pp() {
-    g_ellipsis_n_fmt  = new format(highlight(format("\u2026")));
+    g_ellipsis_n_fmt  = new format(highlight(format("\xE2\x80\xA6"))); //\u2026
     g_ellipsis_fmt    = new format(highlight(format("...")));
     g_placeholder_fmt = new format(highlight(format("_")));
     g_lambda_n_fmt    = new format(highlight_keyword(format("\xCE\xBB"))); //\u03BB

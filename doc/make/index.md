@@ -10,7 +10,7 @@ Platform-Specific Setup
 
 - [Linux (Ubuntu)](ubuntu-16.04.md)
 - [Windows (msys2)](msys2.md)
-- [Windows (Visual Studio)](doc/make/msvc.md)
+- [Windows (Visual Studio)](msvc.md)
 - [macOS](osx-10.9.md)
 
 Generic Build Instructions

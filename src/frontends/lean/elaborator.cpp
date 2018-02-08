@@ -3143,14 +3143,14 @@ class visit_structure_instance_fn {
                     name S_fname = m_mvar2field[mlocal_name(e)];
                     name full_S_fname = m_S_name + S_fname;
                     expr expected_type = m_elab.infer_type(e);
-                    expected_type = m_elab.instantiate_mvars(expected_type);
+                    expr reduced_expected_type = m_elab.instantiate_mvars(expected_type);
                     expr val;
 
                     try {
-                        reduce_and_check_deps(expected_type, full_S_fname);
+                        reduce_and_check_deps(reduced_expected_type, full_S_fname);
                         /* note: we pass the reduced, mvar-free expected type. Otherwise auto params may fail with
                          * "result contains meta-variables". */
-                        val = (*m_field2elab.find(S_fname))(expected_type);
+                        val = (*m_field2elab.find(S_fname))(reduced_expected_type);
                     } catch (field_not_ready_to_synthesize_exception const & e) {
                         done = false;
                         if (!last_progress)

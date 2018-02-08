@@ -1,0 +1,6 @@
+structure_notation_dep_mvars.lean:1:25: error: type mismatch at field 'pure_bind'
+  ?m_1
+has type
+  ∀ {α β : Type ?} (x : α) (f : α → list β), ?m_1 (?m_2 x) f = f x
+but is expected to have type
+  ∀ {α β : Type ?} (x : α) (f : α → list β), has_pure.pure list x >>= f = f x

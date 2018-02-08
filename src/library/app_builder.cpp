@@ -104,18 +104,10 @@ class app_builder_cache {
 
     environment          m_env;
     map                  m_map;
-    relation_info_getter m_rel_getter;
-    refl_info_getter     m_refl_getter;
-    symm_info_getter     m_symm_getter;
-    trans_info_getter    m_trans_getter;
     friend class app_builder;
 public:
     app_builder_cache(environment const & env):
-        m_env(env),
-        m_rel_getter(mk_relation_info_getter(env)),
-        m_refl_getter(mk_refl_info_getter(env)),
-        m_symm_getter(mk_symm_info_getter(env)),
-        m_trans_getter(mk_trans_info_getter(env)) {
+        m_env(env) {
     }
 
     environment const & env() const { return m_env; }
@@ -160,6 +152,8 @@ class app_builder {
     typedef app_builder_cache::key   key;
     typedef app_builder_cache::entry entry;
 
+    environment const & env() const { return m_ctx.env(); }
+
     levels mk_metavars(declaration const & d, buffer<expr> & mvars, buffer<optional<expr>> & inst_args) {
         unsigned num_univ = d.get_num_univ_params();
         buffer<level> lvls_buffer;
@@ -185,7 +179,7 @@ class app_builder {
         lean_assert(k.check_invariant());
         auto it = m_cache.m_map.find(k);
         if (it == m_cache.m_map.end()) {
-            if (auto d = m_ctx.env().find(c)) {
+            if (auto d = env().find(c)) {
                 buffer<expr> mvars;
                 buffer<optional<expr>> inst_args;
                 levels lvls = mk_metavars(*d, mvars, inst_args);
@@ -237,7 +231,7 @@ class app_builder {
         lean_assert(k.check_invariant());
         auto it = m_cache.m_map.find(k);
         if (it == m_cache.m_map.end()) {
-            if (auto d = m_ctx.env().find(c)) {
+            if (auto d = env().find(c)) {
                 buffer<expr> mvars;
                 buffer<optional<expr>> inst_args;
                 levels lvls = mk_metavars(*d, mask_sz, mvars, inst_args);
@@ -427,7 +421,7 @@ public:
             return mk_eq(lhs, rhs);
         } else if (n == get_iff_name()) {
             return mk_iff(lhs, rhs);
-        } else if (auto info = m_cache.m_rel_getter(n)) {
+        } else if (auto info = get_relation_info(env(), n)) {
             buffer<bool> mask;
             for (unsigned i = 0; i < info->get_arity(); i++) {
                 mask.push_back(i == info->get_lhs_pos() || i == info->get_rhs_pos());
@@ -466,7 +460,7 @@ public:
             return mk_iff_refl(a);
         } else if (relname == get_heq_name()) {
             return mk_heq_refl(a);
-        } else if (auto info = m_cache.m_refl_getter(relname)) {
+        } else if (auto info = get_refl_extra_info(env(), relname)) {
             return mk_app(info->m_name, 1, &a);
         } else {
             lean_app_builder_trace(
@@ -497,7 +491,7 @@ public:
             return mk_iff_symm(H);
         } else if (relname == get_heq_name()) {
             return mk_heq_symm(H);
-        } else if (auto info = m_cache.m_symm_getter(relname)) {
+        } else if (auto info = get_symm_extra_info(env(), relname)) {
             return mk_app(info->m_name, 1, &H);
         } else {
             lean_app_builder_trace(
@@ -551,7 +545,7 @@ public:
             return mk_iff_trans(H1, H2);
         } else if (relname == get_heq_name()) {
             return mk_heq_trans(H1, H2);
-        } else if (auto info = m_cache.m_trans_getter(relname, relname)) {
+        } else if (auto info = get_trans_extra_info(env(), relname, relname)) {
             expr args[2] = {H1, H2};
             return mk_app(info->m_name, 2, args);
         } else {

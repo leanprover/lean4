@@ -71,7 +71,7 @@ public:
     friend int cmp(mpq const & a, mpz const & b);
     friend int cmp(mpq const & a, unsigned b) { return mpq_cmp_ui(a.m_val, b, 1); }
     friend int cmp(mpq const & a, int b) { return mpq_cmp_si(a.m_val, b, 1); }
-    friend int cmp(mpq const & a, double b) { return a.get_double() - b; }
+    friend int cmp(mpq const & a, double b) { return static_cast<int>(a.get_double() - b); }
 
     friend bool operator<(mpq const & a, mpq const & b) { return cmp(a, b) < 0; }
     friend bool operator<(mpq const & a, mpz const & b) { return cmp(a, b) < 0; }

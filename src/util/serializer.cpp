@@ -28,7 +28,7 @@ void serializer_core::write_unsigned(unsigned i) {
     if (i < 255) {
         m_out.put(i & 0xff);
     } else {
-        m_out.put(0xff);
+        m_out.put(char(0xff));
         m_out.put((i >> 24) & 0xff);
         m_out.put((i >> 16) & 0xff);
         m_out.put((i >> 8) & 0xff);

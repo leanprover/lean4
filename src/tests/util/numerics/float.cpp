@@ -9,11 +9,11 @@ Author: Soonho Kong
 using namespace lean;
 
 static void abs() {
-    float f1 = -398723.3218937912;
-    float f2 = -9823.3487729;
+    float f1 = -398723.3218937912f;
+    float f2 = -9823.3487729f;
     float f3 = 0.0;
-    float f4 = 398.347389;
-    float f5 = 78398.30912;
+    float f4 = 398.347389f;
+    float f5 = 78398.30912f;
     float_abs(f1);
     float_abs(f2);
     float_abs(f3);
@@ -27,11 +27,11 @@ static void abs() {
 }
 
 static void ceil() {
-    float f1 = -398723.3218937912;
-    float f2 = -9823.3487729;
+    float f1 = -398723.3218937912f;
+    float f2 = -9823.3487729f;
     float f3 = 0.0;
-    float f4 = 398.347389;
-    float f5 = 78398.30912;
+    float f4 = 398.347389f;
+    float f5 = 78398.30912f;
     float_ceil(f1);
     float_ceil(f2);
     float_ceil(f3);

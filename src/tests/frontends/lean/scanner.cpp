@@ -154,8 +154,9 @@ static void tst2() {
     check("Int -+-> Int", {tk::Identifier, tk::Keyword, tk::Identifier}, env);
     check("x := 10", {tk::Identifier, tk::Keyword, tk::Numeral});
     check("{x}", {tk::Keyword, tk::Identifier, tk::Keyword});
-    check("\u03BB \u2200 \u2192", {tk::Keyword, tk::Keyword, tk::Keyword});
-    check_keyword("\u03BB", "fun");
+    // "\u03BB \u2200 \u2192"
+    check("\xCE\xBB \xE2\x88\x80 \xE2\x86\x92", {tk::Keyword, tk::Keyword, tk::Keyword});
+    check_keyword("\xCE\xBB", "fun");  // \u03BB
     scan("theorem a : Prop axiom b : Int");
     check("theorem a : Prop axiom b : Int", {tk::CommandKeyword, tk::Identifier, tk::Keyword, tk::Identifier,
                 tk::CommandKeyword, tk::Identifier, tk::Keyword, tk::Identifier});
@@ -171,7 +172,7 @@ static void tst3() {
     scan("\"\naaa\"");
     scan_error("foo.* 01");
     scan("10.0.");
-    scan("{ } . forall exists let in \u2200 := _");
+    scan("{ } . forall exists let in \xE2\x88\x80 := _"); // \u2200
 }
 
 static void tst4(unsigned N) {

@@ -127,13 +127,13 @@ void initialize_pp() {
     g_ellipsis_n_fmt  = new format(highlight(format("\u2026")));
     g_ellipsis_fmt    = new format(highlight(format("...")));
     g_placeholder_fmt = new format(highlight(format("_")));
-    g_lambda_n_fmt    = new format(highlight_keyword(format("\u03BB")));
+    g_lambda_n_fmt    = new format(highlight_keyword(format("\xCE\xBB"))); //\u03BB
     g_lambda_fmt      = new format(highlight_keyword(format("fun")));
-    g_forall_n_fmt    = new format(highlight_keyword(format("\u2200")));
+    g_forall_n_fmt    = new format(highlight_keyword(format("\xE2\x88\x80"))); //\u2200
     g_forall_fmt      = new format(highlight_keyword(format("forall")));
     g_pi_n_fmt        = new format(highlight_keyword(format("Π")));
     g_pi_fmt          = new format(highlight_keyword(format("Pi")));
-    g_arrow_n_fmt     = new format(highlight_keyword(format("\u2192")));
+    g_arrow_n_fmt     = new format(highlight_keyword(format("\xE2\x86\x92"))); //\u2192
     g_arrow_fmt       = new format(highlight_keyword(format("->")));
     g_let_fmt         = new format(highlight_keyword(format("let")));
     g_in_fmt          = new format(highlight_keyword(format("in")));
@@ -1868,7 +1868,7 @@ std::string sexpr_to_string(sexpr const & s) {
 // check whether a space must be inserted between the strings so that lexing them would
 // produce separate tokens
 std::pair<bool, token_table const *> pretty_fn::needs_space_sep(token_table const * last, std::string const & s1, std::string const & s2) const {
-    if (s1.size() == 0 || (is_id_rest(get_utf8_last_char(s1.data()), s1.data() + s1.size()) && is_id_rest(s2.data(), s2.data() + s2.size())))
+    if (s1.empty() || (is_id_rest(get_utf8_last_char(s1.data()), s1.data() + s1.size()) && is_id_rest(s2.data(), s2.data() + s2.size())))
         return mk_pair(true, nullptr); // would be lexed as a single identifier without space
 
     if (last) {

@@ -641,7 +641,7 @@ format smt_goal_to_format(smt_goal sg, tactic_state const & ts) {
     expr target                = decl.get_type();
     if (inst_mvars)
         target                 = mctx_tmp.instantiate_mvars(target);
-    format turnstile           = unicode ? format("\u22A2") /* ⊢ */ : format("|-");
+    format turnstile           = unicode ? format("\xE2\x8A\xA2") /* \u22A2 ⊢ */ : format("|-");
     type_context ctx(ts.env(), opts, mctx_tmp, lctx, transparency_mode::All);
     formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
     formatter fmt              = fmtf(ts.env(), opts, ctx);
@@ -677,7 +677,7 @@ format smt_state_to_format_core(vm_obj const & ss, tactic_state const & ts) {
        TODO(Leo): move this code to a different place */
     metavar_context mctx = ts.mctx();
     bool unicode         = get_pp_unicode(ts.get_options());
-    format turnstile     = unicode ? format("\u22A2") /* ⊢ */ : format("|-");
+    format turnstile     = unicode ? format("\xE2\x8A\xA2") /* \u22A2 ⊢ */ : format("|-");
     for (expr const & g : tail(ts.goals())) {
         metavar_decl d = mctx.get_metavar_decl(g);
         type_context ctx(ts.env(), ts.get_options(), mctx, d.get_context(), transparency_mode::Semireducible);

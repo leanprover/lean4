@@ -5,9 +5,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "library/type_context.h"
+#include "kernel/expr.h"
 
 namespace lean {
+class type_context;
+
 /** \brief Function parameter information. */
 class param_info {
     unsigned       m_implicit:1;

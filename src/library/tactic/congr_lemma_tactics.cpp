@@ -87,28 +87,12 @@ vm_obj tactic_mk_hcongr_lemma(vm_obj const & fn, vm_obj const & nargs, vm_obj co
     CATCH;
 }
 
-vm_obj tactic_mk_rel_iff_congr_lemma(vm_obj const & r, vm_obj const & m, vm_obj const & s) {
-    TRY;
-    type_context ctx = mk_type_context_for(s, m);
-    return mk_result(mk_rel_iff_congr(ctx, to_expr(r)), s);
-    CATCH;
-}
-
-vm_obj tactic_mk_rel_eq_congr_lemma(vm_obj const & r, vm_obj const & m, vm_obj const & s) {
-    TRY;
-    type_context ctx = mk_type_context_for(s, m);
-    return mk_result(mk_rel_eq_congr(ctx, to_expr(r)), s);
-    CATCH;
-}
-
 void initialize_congr_lemma_tactics() {
     DECLARE_VM_BUILTIN(name({"tactic", "mk_congr_lemma_simp"}),             tactic_mk_congr_lemma_simp);
     DECLARE_VM_BUILTIN(name({"tactic", "mk_specialized_congr_lemma_simp"}), tactic_mk_specialized_congr_lemma_simp);
     DECLARE_VM_BUILTIN(name({"tactic", "mk_congr_lemma"}),                  tactic_mk_congr_lemma);
     DECLARE_VM_BUILTIN(name({"tactic", "mk_specialized_congr_lemma"}),      tactic_mk_specialized_congr_lemma);
     DECLARE_VM_BUILTIN(name({"tactic", "mk_hcongr_lemma"}),                 tactic_mk_hcongr_lemma);
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_rel_iff_congr_lemma"}),          tactic_mk_rel_iff_congr_lemma);
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_rel_eq_congr_lemma"}),           tactic_mk_rel_eq_congr_lemma);
 }
 
 void finalize_congr_lemma_tactics() {

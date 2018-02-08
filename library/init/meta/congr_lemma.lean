@@ -40,14 +40,4 @@ meta constant mk_specialized_congr_lemma (h : expr) (md := semireducible) : tact
 
 meta constant mk_hcongr_lemma (h : expr) (nargs : option nat := none) (md := semireducible) : tactic congr_lemma
 
-/- If R is an equivalence relation, construct the congruence lemma
-   R a1 a2 -> R b1 b2 -> (R a1 b1) <-> (R a2 b2) -/
-meta constant mk_rel_iff_congr_lemma (h : expr) (md := semireducible) : tactic congr_lemma
-
-/- Similar to mk_rel_iff_congr
-   It fails if propext is not available.
-
-   R a1 a2 -> R b1 b2 -> (R a1 b1) = (R a2 b2) -/
-meta constant mk_rel_eq_congr_lemma (h : expr) (md := semireducible) : tactic congr_lemma
-
 end tactic

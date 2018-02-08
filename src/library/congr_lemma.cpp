@@ -31,11 +31,8 @@ struct congr_lemma_cache {
     cache                m_cache;
     cache                m_cache_spec;
     cache                m_hcache;
-    cache                m_rel_cache[2];
-    relation_info_getter m_relation_info_getter;
     congr_lemma_cache(environment const & env):
-        m_env(env),
-        m_relation_info_getter(mk_relation_info_getter(env)) {}
+        m_env(env) {}
     environment const & env() const { return m_env; }
 };
 
@@ -619,99 +616,6 @@ struct congr_lemma_manager {
         fun_info finfo = get_fun_info(m_ctx, fn);
         return mk_hcongr(fn, finfo.get_arity());
     }
-
-    /** \brief Given an equivalence relation \c R, create the congruence lemma
-
-            forall a1 a2 b1 b2, R a1 a2 -> R b1 b2 -> (R a1 b1 <-> R a2 b2)
-
-        If is_iff == false, then, it creates the lemma
-
-            forall a1 a2 b1 b2, R a1 a2 -> R b1 b2 -> (R a1 b1 = R a2 b2)
-
-        Propositional extensionality is used when is_iff == false */
-    optional<result> mk_rel_congr(expr const & R, bool is_iff) {
-        try {
-            if (!is_constant(R))
-                return optional<result>();
-            name const & R_name = const_name(R);
-            auto info = m_cache.m_relation_info_getter(R_name);
-            if (!info)
-                return optional<result>();
-            unsigned arity = info->get_arity();
-            key k(R, arity);
-            auto r = m_cache.m_rel_cache[is_iff].find(k);
-            if (r != m_cache.m_rel_cache[is_iff].end())
-                return optional<result>(r->second);
-            type_context::tmp_locals locals(m_ctx);
-            buffer<expr> hyps;
-            buffer<congr_arg_kind> kinds;
-            expr a1, b1, a2, b2;
-            expr H1, H2;
-            expr R_type = infer(R);
-            for (unsigned i = 0; i < arity; i++) {
-                R_type = relaxed_whnf(R_type);
-                if (!is_pi(R_type))
-                    return optional<result>();
-                expr h = locals.push_local_from_binding(R_type);
-                if (i == info->get_lhs_pos()) {
-                    a1 = h;
-                    a2 = locals.push_local_from_binding(R_type);
-                    H1 = locals.push_local("H1", mk_rel(m_ctx, R_name, a1, a2));
-                    hyps.push_back(a1);
-                    hyps.push_back(a2);
-                    hyps.push_back(H1);
-                    kinds.push_back(congr_arg_kind::Eq);
-                } else if (i == info->get_rhs_pos()) {
-                    b1 = h;
-                    b2 = locals.push_local_from_binding(R_type);
-                    H2 = locals.push_local("H2", mk_rel(m_ctx, R_name, b1, b2));
-                    hyps.push_back(b1);
-                    hyps.push_back(b2);
-                    hyps.push_back(H2);
-                    kinds.push_back(congr_arg_kind::Eq);
-                } else {
-                    hyps.push_back(h);
-                    kinds.push_back(congr_arg_kind::Fixed);
-                }
-                R_type = instantiate(binding_body(R_type), h);
-            }
-            expr lhs  = mk_rel(m_ctx, R_name, a1, b1);
-            expr rhs  = mk_rel(m_ctx, R_name, a2, b2);
-            //  (H1 : R a1 a2) -> (H2 : R b1 b2) -> (R a1 b1 <-> R a2 b2)
-            expr type = is_iff ? mk_iff(m_ctx, lhs, rhs) : mk_eq(m_ctx, lhs, rhs);
-            type = m_ctx.mk_pi(hyps, type);
-            /* Proof:
-               iff.intro
-               (λ H : R a1 b1, trans (symm H1) (trans H H2))
-               (λ H : R a2 b2, trans H1 (trans H (symm H2)))
-            */
-            expr H;
-            H = locals.push_local("lhs", lhs);
-            expr p1 = m_ctx.mk_lambda({H}, mk_trans(m_ctx, R_name, mk_symm(m_ctx, R_name, H1),
-                                                    mk_trans(m_ctx, R_name, H, H2)));
-            H = locals.push_local("rhs", rhs);
-            expr p2 = m_ctx.mk_lambda({H}, mk_trans(m_ctx, R_name, H1, mk_trans(m_ctx, R_name, H,
-                                                                                mk_symm(m_ctx, R_name, H2))));
-            expr pr = mk_app(m_ctx, get_iff_intro_name(), p1, p2);
-            if (!is_iff)
-                pr = mk_app(m_ctx, get_propext_name(), pr);
-            pr = m_ctx.mk_lambda(hyps, pr);
-            result res(type, pr, to_list(kinds));
-            m_cache.m_rel_cache[is_iff].insert(mk_pair(k, res));
-            return optional<result>(res);
-        } catch (app_builder_exception &) {
-            trace_app_builder_failure(R);
-            return optional<result>();
-        }
-    }
-
-    optional<result> mk_rel_iff_congr(expr const & R) {
-        return mk_rel_congr(R, true);
-    }
-
-    optional<result> mk_rel_eq_congr(expr const & R) {
-        return mk_rel_congr(R, false);
-    }
 };
 
 optional<congr_lemma> mk_congr_simp(type_context & ctx, expr const & fn) {
@@ -744,14 +648,6 @@ optional<congr_lemma> mk_hcongr(type_context & ctx, expr const & fn) {
 
 optional<congr_lemma> mk_hcongr(type_context & ctx, expr const & fn, unsigned nargs) {
     return congr_lemma_manager(ctx).mk_hcongr(fn, nargs);
-}
-
-optional<congr_lemma> mk_rel_iff_congr(type_context & ctx, expr const & R) {
-    return congr_lemma_manager(ctx).mk_rel_iff_congr(R);
-}
-
-optional<congr_lemma> mk_rel_eq_congr(type_context & ctx, expr const & R) {
-    return congr_lemma_manager(ctx).mk_rel_eq_congr(R);
 }
 
 void initialize_congr_lemma() {

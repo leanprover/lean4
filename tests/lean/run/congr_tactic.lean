@@ -72,36 +72,6 @@ end
 end test5
 
 namespace test6
--- iff relation
-
-constants (α : Type*)
-          (R : α → α → Prop)
-          (R_refl : ∀ x, R x x)
-          (R_symm : ∀ x y, R x y → R y x)
-          (R_trans : ∀ x y z, R x y → R y z → R x z)
-
-attribute [refl] R_refl
-attribute [symm] R_symm
-attribute [trans] R_trans
-
-example (x₁ x₁' x₂ x₂' : α) (H₁ : R x₁ x₁') (H₂ : R x₂ x₂') : R x₁ x₂ ↔ R x₁' x₂' :=
-begin
-rel_congr,
-exact H₁,
-exact H₂
-end
-
--- eq relation
-example (x₁ x₁' x₂ x₂' : α) (H₁ : R x₁ x₁') (H₂ : R x₂ x₂') : R x₁ x₂ = R x₁' x₂' :=
-begin
-rel_congr,
-exact H₁,
-exact H₂
-end
-
-end test6
-
-namespace test7
 
 variables (A : Type) (B : A → Type) (a a' : A) (b : B a) (b' : B a')
 
@@ -112,4 +82,4 @@ begin
   show b == b', from sorry,
 end
 
-end test7
+end test6

@@ -5,9 +5,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "library/type_context.h"
+#include "kernel/expr.h"
 
 namespace lean {
+class type_context;
+
 enum class congr_arg_kind {
     /* It is a parameter for the congruence lemma, the parameter occurs in the left and right hand sides. */
     Fixed,
@@ -50,17 +52,6 @@ optional<congr_lemma> mk_specialized_congr(type_context & ctx, expr const & a);
 
 optional<congr_lemma> mk_hcongr(type_context & ctx, expr const & fn);
 optional<congr_lemma> mk_hcongr(type_context & ctx, expr const & fn, unsigned nargs);
-
-/** \brief If R is an equivalence relation, construct the congruence lemma
-
-    R a1 a2 -> R b1 b2 -> (R a1 b1) <-> (R a2 b2) */
-optional<congr_lemma> mk_rel_iff_congr(type_context & ctx, expr const & R);
-
-/** \brief Similar to previous one.
-    It returns none if propext is not available.
-
-    R a1 a2 -> R b1 b2 -> (R a1 b1) = (R a2 b2) */
-optional<congr_lemma> mk_rel_eq_congr(type_context & ctx, expr const & R);
 
 void initialize_congr_lemma();
 void finalize_congr_lemma();

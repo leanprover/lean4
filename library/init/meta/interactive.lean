@@ -1534,7 +1534,6 @@ do e ← i_to_expr p,
    else tactic.fail "specialize requires a term of the form `h x_1 .. x_n` where `h` appears in the local context"
 
 meta def congr := tactic.congr
-meta def rel_congr := tactic.rel_congr
 
 end interactive
 end tactic

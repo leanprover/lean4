@@ -29,34 +29,13 @@ do try (applyc `eq_of_heq),
    clemma ← mk_hcongr_lemma lhs.get_app_fn lhs.get_app_num_args,
    apply_congr_core clemma
 
-meta def apply_rel_iff_congr_core (tgt : expr) : tactic unit :=
-do (lhs, rhs) ← match_iff tgt,
-   guard lhs.is_app,
-   clemma ← mk_rel_iff_congr_lemma lhs.get_app_fn,
-   apply_congr_core clemma
-
-meta def apply_rel_eq_congr_core (tgt : expr) : tactic unit :=
-do (lhs, rhs) ← match_eq tgt,
-   guard lhs.is_app,
-   clemma ← mk_rel_eq_congr_lemma lhs.get_app_fn,
-   apply_congr_core clemma
-
 meta def congr_core : tactic unit :=
 do tgt ← target,
    apply_eq_congr_core tgt
    <|> apply_heq_congr_core
    <|> fail "congr tactic failed"
 
-meta def rel_congr_core : tactic unit :=
-do tgt ← target,
-   apply_rel_iff_congr_core tgt
-   <|> apply_rel_eq_congr_core tgt
-   <|> fail "rel_congr tactic failed"
-
 meta def congr : tactic unit :=
 do focus1 (try assumption >> congr_core >> all_goals (try reflexivity >> try congr))
-
-meta def rel_congr : tactic unit :=
-do focus1 (try assumption >> rel_congr_core >> all_goals (try reflexivity))
 
 end tactic

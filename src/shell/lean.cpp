@@ -44,8 +44,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/dependencies.h"
 #include "frontends/lean/json.h"
 #include "frontends/lean/util.h"
-#include "library/native_compiler/options.h"
-#include "library/native_compiler/native_compiler.h"
 #include "library/trace.h"
 #include "init/init.h"
 #include "shell/simple_pos_info_provider.h"
@@ -237,9 +235,6 @@ static struct option g_long_options[] = {
     {"quiet",        no_argument,       0, 'q'},
     {"deps",         no_argument,       0, 'd'},
     {"test-suite",   no_argument,       0, 'e'},
-#if defined(LEAN_USE_ALPHA)
-    {"compile",      optional_argument, 0, 'C'},
-#endif
     {"timeout",      optional_argument, 0, 'T'},
 #if defined(LEAN_JSON)
     {"json",         no_argument,       0, 'J'},
@@ -446,7 +441,6 @@ int main(int argc, char ** argv) {
     bool make_mode          = false;
     bool recursive          = false;
     unsigned trust_lvl      = LEAN_BELIEVER_TRUST_LEVEL+1;
-    bool compile            = false;
     bool only_deps          = false;
     bool test_suite         = false;
     unsigned num_threads    = 0;
@@ -499,11 +493,6 @@ int main(int argc, char ** argv) {
         case 'n':
             native_output         = optarg;
             break;
-#if defined(LEAN_USE_ALPHA)
-        case 'C':
-            compile = true;
-            break;
-#endif
         case 'r':
             doc = optarg;
             break;
@@ -752,17 +741,6 @@ int main(int argc, char ** argv) {
                 std::ofstream status(mod.m_id + ".status");
                 status << (mod_ok && !get(has_errors(mod.m_mod_info->m_lt)) ? 0 : 1);
             }
-        }
-
-        // Options appear to be empty, pretty sure I'm making a mistake here.
-        if (compile && !mods.empty()) {
-            auto final_env = mods.front().m_mod_info->get_produced_env();
-            auto final_opts = get(mods.front().m_mod_info->m_result).m_opts;
-            type_context tc(final_env, final_opts);
-            lean::scope_trace_env scope2(final_env, final_opts, tc);
-            lean::native::scope_config scoped_native_config(
-                final_opts);
-            native_compile_binary(final_env, final_env.get(lean::name("main")));
         }
 
         // if (!mods.empty() && export_native_objects) {

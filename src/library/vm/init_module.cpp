@@ -17,7 +17,6 @@ Author: Leonardo de Moura
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_pexpr.h"
 #include "library/vm/vm_list.h"
-#include "library/vm/vm_native.h"
 #include "library/vm/vm_exceptional.h"
 #include "library/vm/vm_declaration.h"
 #include "library/vm/vm_environment.h"
@@ -41,7 +40,6 @@ void initialize_vm_core_module() {
     initialize_vm_expr();
     initialize_vm_pexpr();
     initialize_vm_list();
-    initialize_vm_native();
     initialize_vm_exceptional();
     initialize_vm_task();
     initialize_vm_declaration();
@@ -59,7 +57,6 @@ void finalize_vm_core_module() {
     finalize_vm_declaration();
     finalize_vm_task();
     finalize_vm_exceptional();
-    finalize_vm_native();
     finalize_vm_list();
     finalize_vm_pexpr();
     finalize_vm_expr();

@@ -17,7 +17,6 @@ Author: Leonardo de Moura
 #include "library/constructions/init_module.h"
 #include "library/equations_compiler/init_module.h"
 #include "library/inductive_compiler/init_module.h"
-#include "library/native_compiler/init_module.h"
 #include "library/print.h"
 #include "library/vm/init_module.h"
 #include "library/compiler/init_module.h"
@@ -38,7 +37,6 @@ void initialize() {
     initialize_vm_core_module();
     initialize_library_module();
     initialize_compiler_module();
-    initialize_native_compiler_module();
     initialize_tactic_module();
     initialize_constructions_module();
     initialize_equations_compiler_module();
@@ -61,7 +59,6 @@ void finalize() {
     finalize_equations_compiler_module();
     finalize_constructions_module();
     finalize_tactic_module();
-    finalize_native_compiler_module();
     finalize_compiler_module();
     finalize_library_module();
     finalize_vm_core_module();

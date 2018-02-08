@@ -24,12 +24,6 @@ Author: Leonardo de Moura
 #include "library/compiler/preprocess.h"
 #include "library/compiler/comp_irrelevant.h"
 
-/* These are used for loading external native dependencies in the virtual
-   machine.
-*/
-#include "library/native_compiler/extern.h"
-#include "library/native_compiler/used_defs.h"
-
 namespace lean {
 class vm_compiler_fn {
     environment        m_env;
@@ -216,8 +210,6 @@ class vm_compiler_fn {
                 emit(mk_sconstructor_instr(0));
             } else if (optional<vm_decl> decl = get_vm_decl(m_env, const_name(fn))) {
                 compile_global(*decl, args.size(), args.data(), bpz, m);
-            } else if (has_extern_attribute(m_env, const_name(fn))) {
-                compile_external(const_name(fn), args, bpz, m);
             } else {
                 throw_unknown_constant(const_name(fn));
             }
@@ -343,36 +335,10 @@ public:
     }
 };
 
-buffer<name> extern_names(environment const & env, buffer<procedure> const & procs) {
-    used_defs live_names{env, [&] (declaration const & d) {
-        live_names.names_in_decl(d);
-    }};
-
-    for (auto p : procs) {
-        live_names.names_in_preprocessed_body(p.m_code);
-    }
-
-    buffer<name> extern_ns;
-    live_names.m_used_names.for_each([&] (name const & n) {
-        if (has_extern_attribute(env, n)) {
-            std::cout << "found external to load: " << n << std::endl;
-            extern_ns.push_back(n);
-        }
-    });
-
-    return extern_ns;
-}
-
 static environment vm_compile(environment const & env, buffer<procedure> const & procs, bool optimize_bytecode) {
     environment new_env = env;
     for (auto const & p : procs) {
         new_env = reserve_vm_index(new_env, p.m_name, p.m_code);
-    }
-
-    // Load all the external functions required by this compilation.
-    auto ns = extern_names(env, procs);
-    for (auto n : ns) {
-        new_env = load_external_fn(new_env, n);
     }
 
     for (auto const & p : procs) {

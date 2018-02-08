@@ -108,6 +108,24 @@ transparency_mode ensure_instances_mode(transparency_mode m);
      * A tactic that allows user to use all local class instances available in the local context.
      * A tactic that reverses local instances
 
+   If functional data structures are too inefficient for the tactic_state cache. We
+   can use the following alternative design:
+   - We implement a thread local unique token generator.
+   - The token can be viewed as a reference to the tactic_state cache.
+   - tactic_state stores its token.
+   - Thread local storage stores the "imperative" implementation and a token of its owner.
+   - When we create a type context for a tactic_state we check whether the thread local
+     storage contains the cache for the given tactic_state. If yes, we use it. Otherwise,
+     we create a new one.
+   - When we finish using the type_context, we update the tactic_state with a fresh token,
+     and put the updated cache back into the thread local storage.
+   Remark: the thread local storage may store more than one cache.
+   Remark: this approach should work well for "sequential" tactic execution.
+   For `t1 <|> t2`, if `t1` fails, `t2` will potentially start with the empty cache
+   since the thread local storage contains the cache for `t1`.
+   We should measure whether this approach is more efficient than the functional one.
+   With the "abstract interface", we can even have both approaches.
+
  */
 class type_context_cache {
     typedef std::unordered_map<name, optional<declaration>, name_hash> transparency_cache;

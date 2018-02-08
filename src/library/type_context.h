@@ -44,6 +44,70 @@ transparency_mode ensure_instances_mode(transparency_mode m);
 /* \brief Cached information for type_context.
 
    TODO(Leo): reevaluate the cache validation policies we use.
+
+   ISSUE TO SOLVE:
+
+   We store `type_context_cache_manager`s in thread local objects.
+   Right now, the correctness of this cache relies on the fact
+   we never reuse fresh names. This is not true in the new name_generator
+   refactoring (for addressing issue #1601). The caches for the
+   modules app_builder and fun_info have the same problem.
+
+   We have implemented a thread local cache reset operation, but it is
+   not sufficient for fixing this issue since we only reset the cache
+   before each command and when start a task.
+
+   Here is a scenario that demonstrates the problem.
+   Suppose we are executing the tactic `t1 <|> t2`.
+   First, we execute `t1`, and in the process, the type_context
+   cache is populated with new local constants created by `t1`.
+   Then `t1` fails and we execute `t2`. After the refactoring,
+   the tactic_state contains a name_generator. So, `t2` may
+   potentially create new local constants using the names
+   used by `t2`, but with different types. So, the content
+   of the cache is invalid.
+
+   Possible solution:
+
+   - Stop storing caches that depend on fresh names in thread local storage.
+
+   - Create an abstract cache class (aka interface) for type_context, app_builder and fun_info.
+
+   - We add a dummy implementation that doesn't do anything. For example, for the infer_cache,
+     the cache interface has the methods
+
+           virtual optional<expr> get_infer(expr const & e) { return none_expr(); }
+           virtual void set_infer(expr const & e, expr const & t) { }
+
+   - We add an "imperative" implementation using the data structures we are currently using.
+     This implementation is heavily based on hash tables. It is useful for implementing
+     the elaborator. The elaborator uses the same type_context during the whole procedure.
+     This implementation is also useful for the new type_context API we are going to expose in the `io` monad.
+
+   - We add a "functional" implementation using rb_map and rb_tree.
+     This cache can be stored in the tactic_state. Remark: we do not need
+     to implement the whole interface, only the most important caches (e.g., the one for type inference).
+
+   The solution above has several additional benefits:
+
+   - The cache will be smaller in many cases. For example, after `t1` fails in `t1 <|> t2`, the cached information
+     about its new fresh local constants is not useful anymore, but it stays in the current
+     cache.
+
+   - We don't need to check whether the cache is valid or not when we create a new
+     type_context.
+
+   - It is more efficient when creating temporary type_context objects for performing
+     a single operation. In this kind of scenario, we can use the dummy cache implementation
+     that doesn't cache anything.
+
+   - It is easy to experiment with new cache data structures.
+
+   - We can easily flush the cache if a primitive tactic performs an operation that invalidates it.
+     Examples:
+     * A tactic that allows user to use all local class instances available in the local context.
+     * A tactic that reverses local instances
+
  */
 class type_context_cache {
     typedef std::unordered_map<name, optional<declaration>, name_hash> transparency_cache;

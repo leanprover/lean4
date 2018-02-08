@@ -71,7 +71,7 @@ transparency_mode ensure_instances_mode(transparency_mode m);
 
    - Stop storing caches that depend on fresh names in thread local storage.
 
-   - Create an abstract cache class (aka interface) for type_context, app_builder and fun_info.
+   - Create an abstract cache class (aka interface) for type_context, congr_lemma, app_builder and fun_info.
 
    - We add a dummy implementation that doesn't do anything. For example, for the infer_cache,
      the cache interface has the methods

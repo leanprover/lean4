@@ -59,46 +59,10 @@ struct ext_congr_lemma_cache {
 
 typedef std::shared_ptr<ext_congr_lemma_cache> ext_congr_lemma_cache_ptr;
 
-class ext_congr_lemma_cache_manager {
-    ext_congr_lemma_cache_ptr  m_cache_ptr;
-    environment                m_env;
-
-    ext_congr_lemma_cache_ptr release() {
-        auto c = m_cache_ptr;
-        m_cache_ptr.reset();
-        return c;
-    }
-
-public:
-    ext_congr_lemma_cache_manager() {}
-
-    ext_congr_lemma_cache_ptr mk(environment const & env) {
-        if (!m_cache_ptr)
-            return std::make_shared<ext_congr_lemma_cache>(env);
-        if (is_eqp(env, m_env))
-            return release();
-        return std::make_shared<ext_congr_lemma_cache>(env);
-    }
-
-    void recycle(ext_congr_lemma_cache_ptr const & ptr) {
-        m_cache_ptr = ptr;
-        if (!is_eqp(ptr->m_env, m_env)) {
-            m_env = ptr->m_env;
-        }
-    }
-
-    void reset() {
-        m_cache_ptr = nullptr;
-    }
-};
-
-/* CACHE_RESET: YES */
-MK_THREAD_LOCAL_GET_DEF(ext_congr_lemma_cache_manager, get_clcm);
-
 congruence_closure::congruence_closure(type_context & ctx, state & s, defeq_canonizer::state & dcs,
                                        cc_propagation_handler * phandler,
                                        cc_normalizer * normalizer):
-    m_ctx(ctx), m_defeq_canonizer(ctx, dcs), m_state(s), m_cache_ptr(get_clcm().mk(ctx.env())), m_mode(ctx.mode()),
+    m_ctx(ctx), m_defeq_canonizer(ctx, dcs), m_state(s), m_cache_ptr(std::make_shared<ext_congr_lemma_cache>(ctx.env())), m_mode(ctx.mode()),
     m_rel_info_getter(mk_relation_info_getter(ctx.env())),
     m_symm_info_getter(mk_symm_info_getter(ctx.env())),
     m_refl_info_getter(mk_refl_info_getter(ctx.env())),
@@ -108,7 +72,6 @@ congruence_closure::congruence_closure(type_context & ctx, state & s, defeq_cano
 }
 
 congruence_closure::~congruence_closure() {
-    get_clcm().recycle(m_cache_ptr);
 }
 
 inline ext_congr_lemma_cache_ptr const & get_cache_ptr(congruence_closure const & cc) {
@@ -2180,8 +2143,6 @@ format congruence_closure::state::pp_parent_occs(formatter const & fmt) const {
 }
 
 void initialize_congruence_closure() {
-    register_thread_local_reset_fn([]() { get_clcm().reset(); });
-
     register_trace_class("cc");
     register_trace_class({"cc", "failure"});
     register_trace_class({"cc", "merge"});

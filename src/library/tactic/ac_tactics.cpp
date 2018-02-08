@@ -33,23 +33,8 @@ struct ac_manager_old::cache {
     }
 };
 
-/* CACHE_RESET: YES */
-MK_THREAD_LOCAL_GET_DEF(ac_manager_old::cache_ptr, get_cache_ptr);
-
 static ac_manager_old::cache_ptr get_cache(environment const & env) {
-    auto & cache_ptr = get_cache_ptr();
-    if (!cache_ptr || !is_eqp(env, cache_ptr->m_env)) {
-        cache_ptr.reset();
-        return std::make_shared<ac_manager_old::cache>(env);
-    }
-    ac_manager_old::cache_ptr r = cache_ptr;
-    cache_ptr.reset();
-    r->m_env = env;
-    return r;
-}
-
-static void recycle_cache(ac_manager_old::cache_ptr const & cache) {
-    get_cache_ptr() = cache;
+    return std::make_shared<ac_manager_old::cache>(env);
 }
 
 ac_manager_old::ac_manager_old(type_context & ctx):
@@ -58,7 +43,6 @@ ac_manager_old::ac_manager_old(type_context & ctx):
 }
 
 ac_manager_old::~ac_manager_old() {
-    recycle_cache(m_cache_ptr);
 }
 
 optional<expr> ac_manager_old::is_assoc(expr const & e) {
@@ -682,8 +666,6 @@ vm_obj tactic_perm_ac(vm_obj const & op, vm_obj const & assoc, vm_obj const & co
 }
 
 void initialize_ac_tactics() {
-    register_thread_local_reset_fn([]() { if (auto ptr = get_cache_ptr()) ptr->clear(); });
-
     register_trace_class(name{"tactic", "perm_ac"});
     DECLARE_VM_BUILTIN(name({"tactic", "flat_assoc"}), tactic_flat_assoc);
     DECLARE_VM_BUILTIN(name({"tactic", "perm_ac"}),    tactic_perm_ac);

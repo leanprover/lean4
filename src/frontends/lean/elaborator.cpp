@@ -3032,7 +3032,7 @@ class visit_structure_instance_fn {
                 } else if (m_info.m_catchall) {
                     /* catchall: insert placeholder */
                     m_field2elab.insert(S_fname, [=](expr const & d) {
-                        return m_elab.mk_metavar(S_fname, d, m_ref);
+                        return m_elab.mk_metavar(d, m_ref);
                     });
                 } else {
                     /* failure */

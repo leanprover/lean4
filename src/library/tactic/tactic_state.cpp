@@ -211,7 +211,7 @@ format tactic_state::pp_goal(formatter_factory const & fmtf, expr const & g, boo
     if (target_lhs_only && is_simp_relation(env(), type, rel, lhs, rhs)) {
         r += format("|") + space() + nest(indent, fmt(lhs));
     } else {
-        format turnstile           = unicode ? format("\xE2\x8A\xA2") /* \u22A2 ⊢ */ : format("|-");
+        format turnstile(unicode ? "⊢" : "|-");
         r += turnstile + space() + nest(indent, fmt(type));
     }
     if (get_pp_goal_compact(get_options()))

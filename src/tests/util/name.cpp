@@ -98,9 +98,9 @@ static void tst5() {
 
 static void tst6() {
     lean_assert(name({"foo", "bla"}).is_safe_ascii());
-    lean_assert(!name({"foo", "b\xE2\x88\x80" "aaa"}).is_safe_ascii()); //u2200
-    lean_assert(!name({"\xE2\x88\x80", "boo"}).is_safe_ascii());
-    lean_assert(!name(name(name("baa"), "bla\xE2\x88\x80"), "foo").is_safe_ascii());
+    lean_assert(!name({"foo", "b∀aaa"}).is_safe_ascii());
+    lean_assert(!name({"∀", "boo"}).is_safe_ascii());
+    lean_assert(!name(name(name("baa"), "bla∀"), "foo").is_safe_ascii());
 }
 
 static void tst7() {

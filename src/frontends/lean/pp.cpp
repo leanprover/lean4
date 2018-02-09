@@ -124,16 +124,16 @@ bool pp_using_anonymous_constructor(environment const & env, name const & n) {
 }
 
 void initialize_pp() {
-    g_ellipsis_n_fmt  = new format(highlight(format("\xE2\x80\xA6"))); //\u2026
+    g_ellipsis_n_fmt  = new format(highlight(format("…")));
     g_ellipsis_fmt    = new format(highlight(format("...")));
     g_placeholder_fmt = new format(highlight(format("_")));
-    g_lambda_n_fmt    = new format(highlight_keyword(format("\xCE\xBB"))); //\u03BB
+    g_lambda_n_fmt    = new format(highlight_keyword(format("λ")));
     g_lambda_fmt      = new format(highlight_keyword(format("fun")));
-    g_forall_n_fmt    = new format(highlight_keyword(format("\xE2\x88\x80"))); //\u2200
+    g_forall_n_fmt    = new format(highlight_keyword(format("∀")));
     g_forall_fmt      = new format(highlight_keyword(format("forall")));
     g_pi_n_fmt        = new format(highlight_keyword(format("Π")));
     g_pi_fmt          = new format(highlight_keyword(format("Pi")));
-    g_arrow_n_fmt     = new format(highlight_keyword(format("\xE2\x86\x92"))); //\u2192
+    g_arrow_n_fmt     = new format(highlight_keyword(format("→")));
     g_arrow_fmt       = new format(highlight_keyword(format("->")));
     g_let_fmt         = new format(highlight_keyword(format("let")));
     g_in_fmt          = new format(highlight_keyword(format("in")));

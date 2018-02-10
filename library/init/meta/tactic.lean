@@ -415,13 +415,7 @@ meta constant get_assignment : expr → tactic expr
     Fail if argument is not a meta-variable. -/
 meta constant is_assigned : expr → tactic bool
 meta constant mk_fresh_name : tactic name
-/-- Return a hash code for expr that ignores inst_implicit arguments,
-   and proofs. -/
-meta constant abstract_hash : expr → tactic nat
-/-- Return the "weight" of the given expr while ignoring inst_implicit arguments,
-   and proofs. -/
-meta constant abstract_weight : expr → tactic nat
-meta constant abstract_eq     : expr → expr → tactic bool
+
 /-- Induction on `h` using recursor `rec`, names for the new hypotheses
    are retrieved from `ns`. If `ns` does not have sufficient names, then use the internal binder names
    in the recursor.

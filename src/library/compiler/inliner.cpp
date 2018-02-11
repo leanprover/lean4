@@ -70,7 +70,11 @@ class inline_simple_definitions_fn : public compiler_step_visitor {
     }
 
     expr default_visit_app(expr const & e) {
-        return compiler_step_visitor::visit_app(e);
+        expr new_e = compiler_step_visitor::visit_app(e);
+        if (new_e != e)
+            return visit(new_e);
+        else
+            return new_e;
     }
 
     bool is_nonrecursive_recursor(name const & n) {
@@ -82,11 +86,12 @@ class inline_simple_definitions_fn : public compiler_step_visitor {
 
     /* Try to reduce cases_on (and nonrecursive recursor) application
        if major became a constructor */
-    expr visit_cases_on_app(expr const & e_0) {
-        expr e = default_visit_app(e_0);
+    expr visit_cases_on_app(expr const & e) {
         buffer<expr> args;
         expr const & fn = get_app_args(e, args);
         lean_assert(is_constant(fn));
+        for (expr & arg : args)
+            arg = visit(arg);
         bool is_cases_on            = is_cases_on_recursor(env(), const_name(fn));
         name const & rec_name       = const_name(fn);
         name const & I_name         = rec_name.get_prefix();
@@ -99,23 +104,23 @@ class inline_simple_definitions_fn : public compiler_step_visitor {
             major_idx       = *inductive::get_elim_major_idx(env(), rec_name);
         }
         if (major_idx >= args.size())
-            return e;
+            return copy_tag(e, mk_app(fn, args));
         expr major = beta_reduce(args[major_idx]);
         if (is_constructor_app(env(), major)) {
             /* Major premise became a constructor. So, we should reduce. */
-            expr new_e = e;
+            expr new_e = copy_tag(e, mk_app(fn, args));
             if (is_cases_on) {
                 /* unfold cases_on */
                 if (auto r = unfold_term(env(), new_e))
                     new_e = *r;
                 else
-                    return e;
+                    return new_e;
             }
             /* reduce */
             if (auto r = ctx().norm_ext(new_e))
-                return copy_tag(e_0, compiler_step_visitor::visit(beta_reduce(*r)));
+                return copy_tag(e, visit(beta_reduce(*r)));
         }
-        return e;
+        return copy_tag(e, mk_app(fn, args));
     }
 
     optional<expr> reduce_projection(expr const & e) {

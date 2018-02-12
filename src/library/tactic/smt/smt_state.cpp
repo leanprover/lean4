@@ -400,9 +400,15 @@ tactic_state add_em_facts(tactic_state const & ts, smt_goal & g) {
 vm_obj mk_smt_state(tactic_state s, smt_config const & cfg) {
     if (!s.goals()) return mk_no_goals_exception(s);
     unsigned num_reverted;
-    /* TODO(Leo): revert-all is an anti-idiom. See discussion at m_instance_fingerprint. */
+    /* TODO(Leo): revert-all is an anti-idiom, because we need to unfreeze_local_instances.
+       Solution: we should not revert local instances.
+
+       It is not reliable to implement "revert/do something/intro" idiom using `num_reverted`.
+       The problem is that the `do something` step may eliminate `let`-decls.
+       We have to figure out a way to do it more reliably.
+    */
     std::tie(s, num_reverted) = revert_all(clear_recs(s));
-    s = reset_instance_fingerprint(s);
+    s = unfreeze_local_instances(s);
     smt_goal new_goal(cfg);
 
     vm_obj r = preprocess(s, cfg.m_pre_config);

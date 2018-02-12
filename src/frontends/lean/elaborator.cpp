@@ -69,9 +69,6 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
-/* CACHE_RESET: YES */
-MK_THREAD_LOCAL_GET(type_context_cache_manager, get_tcm, true /* use binder information at infer_cache */);
-
 static name * g_elab_strategy = nullptr;
 static name * g_elaborator_coercions = nullptr;
 
@@ -134,7 +131,7 @@ elaborator::elaborator(environment const & env, options const & opts, name const
                        metavar_context const & mctx, local_context const & lctx, bool recover_from_errors,
                        bool in_pattern, bool in_quote):
     m_env(env), m_opts(opts), m_decl_name(decl_name),
-    m_ctx(env, opts, mctx, lctx, get_tcm(), transparency_mode::Semireducible),
+    m_ctx(env, opts, mctx, lctx, transparency_mode::Semireducible),
     m_recover_from_errors(recover_from_errors),
     m_uses_infom(get_global_info_manager() != nullptr), m_in_pattern(in_pattern), m_in_quote(in_quote) {
     m_coercions = get_elaborator_coercions(opts);
@@ -4298,8 +4295,6 @@ static vm_obj tactic_save_type_info(vm_obj const &, vm_obj const & _e, vm_obj co
 }
 
 void initialize_elaborator() {
-    register_thread_local_reset_fn([]() { get_tcm().reset(); });
-
     g_elab_strategy = new name("elab_strategy");
     register_trace_class("elaborator");
     register_trace_class("elaborator_detail");

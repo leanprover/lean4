@@ -27,19 +27,6 @@ tactic_state revert(buffer<expr> & locals, tactic_state const & s, bool preserve
     return set_mctx_goals(s, mctx, cons(new_g, tail(s.goals())));
 }
 
-/* Temporary hack to make sure we can use SMT tactics until we fix the m_instance_fingerprint issue */
-tactic_state reset_instance_fingerprint(tactic_state const & s) {
-    lean_assert(s.goals());
-    metavar_context mctx = s.mctx();
-    expr mvar                  = head(s.goals());
-    optional<metavar_decl> g   = mctx.find_metavar_decl(mvar);
-    local_context lctx         = g->get_context();
-    lctx.reset_instance_fingerprint();
-    expr new_mvar              = mctx.mk_metavar_decl(lctx, g->get_type());
-    mctx.assign(mvar, new_mvar);
-    return set_mctx_goals(s, mctx, cons(new_mvar, tail(s.goals())));
-}
-
 vm_obj revert(list<expr> const & ls, tactic_state const & s, bool preserve_locals_order) {
     optional<metavar_decl> g   = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);

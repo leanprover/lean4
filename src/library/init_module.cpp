@@ -35,6 +35,7 @@ Author: Leonardo de Moura
 #include "library/user_recursors.h"
 #include "library/noncomputable.h"
 #include "library/aux_recursors.h"
+#include "library/context_cache.h"
 #include "library/type_context.h"
 #include "library/local_context.h"
 #include "library/metavar_context.h"
@@ -106,6 +107,7 @@ void initialize_library_module() {
     initialize_app_builder();
     initialize_fun_info();
     initialize_unification_hint();
+    initialize_context_cache();
     initialize_type_context();
     initialize_delayed_abstraction();
     initialize_inverse();
@@ -131,6 +133,7 @@ void finalize_library_module() {
     finalize_inverse();
     finalize_delayed_abstraction();
     finalize_type_context();
+    finalize_context_cache();
     finalize_unification_hint();
     finalize_fun_info();
     finalize_app_builder();

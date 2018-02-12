@@ -33,12 +33,12 @@ static name * g_induction_concat = nullptr;
     throw exception(sstream() << "induction tactic failed, recursor '" << rec_info.get_name() << "' is ill-formed");
 }
 
-static void set_intron(expr & R, type_context & ctx, expr const & M, unsigned n, optional<name> const & prefix, list<name> & ns, buffer<name> & new_names, bool use_unused_names) {
+static void set_intron(expr & R, type_context & ctx, options const & opts, expr const & M, unsigned n, optional<name> const & prefix, list<name> & ns, buffer<name> & new_names, bool use_unused_names) {
     if (n == 0) {
         R = M;
     } else {
         metavar_context mctx = ctx.mctx();
-        if (auto M1 = intron_core(ctx.env(), ctx.get_options(), mctx, M, n, new_names,
+        if (auto M1 = intron_core(ctx.env(), opts, mctx, M, n, new_names,
                                   [&](local_context const & lctx, name const & b_name) -> name {
                                       if (ns) {
                                           name r = head(ns);
@@ -71,9 +71,9 @@ static void set_intron(expr & R, type_context & ctx, expr const & M, unsigned n,
     }
 }
 
-static void set_intron(expr & R, type_context & ctx, expr const & M, unsigned n, buffer<name> & new_names, bool use_unused_names) {
+static void set_intron(expr & R, type_context & ctx, options const & opts, expr const & M, unsigned n, buffer<name> & new_names, bool use_unused_names) {
     list<name> tmp;
-    set_intron(R, ctx, M, n, optional<name>(), tmp, new_names, use_unused_names);
+    set_intron(R, ctx, opts, M, n, optional<name>(), tmp, new_names, use_unused_names);
 }
 
 static void set_clear(expr & R, type_context & ctx, expr const & M, expr const & H) {
@@ -313,9 +313,9 @@ list<expr> induction(environment const & env, options const & opts, transparency
                 set_clear(aux_M, ctx2, new_M, H2);
                 buffer<name> param_names; buffer<name> extra_names;
                 /* Introduce constructor parameter for new goal associated with minor premise. */
-                set_intron(aux_M, ctx2, aux_M, nparams, H_name, ns, param_names, true);
+                set_intron(aux_M, ctx2, opts, aux_M, nparams, H_name, ns, param_names, true);
                 /* Introduce hypothesis that had to be reverted because they depended on indices and/or major premise. */
-                set_intron(aux_M, ctx2, aux_M, nextra, extra_names, false);
+                set_intron(aux_M, ctx2, opts, aux_M, nextra, extra_names, false);
                 local_context aux_M_lctx = ctx2.mctx().get_metavar_decl(aux_M).get_context();
                 if (ilist) {
                     /* Save name of constructor parameters that have been introduced for new goal. */

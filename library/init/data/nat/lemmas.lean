@@ -1084,11 +1084,9 @@ by rw [mul_comm x z, mul_comm y z, mul_comm (x % y) z]; apply mul_mod_mul_left
 theorem cond_to_bool_mod_two (x : ℕ) [d : decidable (x % 2 = 1)]
 : cond (@to_bool (x % 2 = 1) d) 1 0 = x % 2 :=
 begin
-  cases d with h h
-  ; unfold decidable.to_bool cond,
-  { cases mod_two_eq_zero_or_one x with h' h',
-    rw h', cases h h' },
-  { rw h },
+  by_cases h : x % 2 = 1,
+  { simp! [*] },
+  { cases mod_two_eq_zero_or_one x; simp! [*] }
 end
 
 theorem sub_mul_mod (x k n : ℕ) (h₁ : n*k ≤ x) : (x - n*k) % n = x % n :=

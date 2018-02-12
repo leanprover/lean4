@@ -10,10 +10,14 @@ Author: Leonardo de Moura
 #include "library/compiler/comp_irrelevant.h"
 
 namespace lean {
+/*
+   Remark: we don't need typeclass resolution in the compiler.
+
+   TODO(Leo): should we have a context_cache for the compiler?
+*/
 compiler_step_visitor::compiler_step_visitor(environment const & env):
     m_env(env),
-    /* We don't need typeclass resolution in the compiler. */
-    m_ctx(env, options(), local_context::mk_with_instance_fingerprint(), transparency_mode::All) {
+    m_ctx(env, options(), local_context(), transparency_mode::All) {
 }
 
 compiler_step_visitor::~compiler_step_visitor() {

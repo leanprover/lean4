@@ -34,54 +34,7 @@ Author: Leonardo de Moura
 #include "library/quote.h"
 #include "library/check.h"
 
-#ifndef LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH
-#define LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH 32
-#endif
-
-#ifndef LEAN_DEFAULT_NAT_OFFSET_CNSTR_THRESHOLD
-#define LEAN_DEFAULT_NAT_OFFSET_CNSTR_THRESHOLD 1024
-#endif
-
-#ifndef LEAN_DEFAULT_UNFOLD_LEMMAS
-#define LEAN_DEFAULT_UNFOLD_LEMMAS false
-#endif
-
-#ifndef LEAN_DEFAULT_SMART_UNFOLDING
-#define LEAN_DEFAULT_SMART_UNFOLDING true
-#endif
-
-/* Comment the following line for disabling the thread local caches.
-   This is useful for debugging cache management bugs. */
-#define LEAN_TYPE_CONTEXT_CACHE_RESULTS
-
-#ifdef LEAN_TYPE_CONTEXT_CACHE_RESULTS
-#define CACHE_CODE(code) code
-#else
-#define CACHE_CODE(code)
-#endif
-
 namespace lean {
-static name * g_class_instance_max_depth = nullptr;
-static name * g_nat_offset_threshold     = nullptr;
-static name * g_unfold_lemmas            = nullptr;
-static name * g_smart_unfolding          = nullptr;
-
-unsigned get_class_instance_max_depth(options const & o) {
-    return o.get_unsigned(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH);
-}
-
-unsigned get_nat_offset_cnstr_threshold(options const & o) {
-    return o.get_unsigned(*g_nat_offset_threshold, LEAN_DEFAULT_NAT_OFFSET_CNSTR_THRESHOLD);
-}
-
-bool get_unfold_lemmas(options const & o) {
-    return o.get_bool(*g_unfold_lemmas, LEAN_DEFAULT_UNFOLD_LEMMAS);
-}
-
-bool get_smart_unfolding(options const & o) {
-    return o.get_bool(*g_smart_unfolding, LEAN_DEFAULT_SMART_UNFOLDING);
-}
-
 bool is_at_least_semireducible(transparency_mode m) {
     return m == transparency_mode::All || m == transparency_mode::Semireducible;
 }
@@ -96,106 +49,6 @@ transparency_mode ensure_semireducible_mode(transparency_mode m) {
 
 transparency_mode ensure_instances_mode(transparency_mode m) {
     return is_at_least_instances(m) ? m : transparency_mode::Instances;
-}
-
-/* =====================
-   type_context_cache
-   ===================== */
-
-type_context_cache::type_context_cache(environment const & env, options const & opts, bool use_bi):
-    m_env(env),
-    m_options(opts),
-    m_proj_info(get_projection_info_map(env)),
-    m_infer_cache(use_bi) {
-    m_ci_max_depth               = get_class_instance_max_depth(opts);
-    m_nat_offset_cnstr_threshold = get_nat_offset_cnstr_threshold(opts);
-    lean_trace("type_context_cache", tout() << "type_context_cache constructed\n";);
-}
-
-bool type_context_cache::is_transparent(transparency_mode m, declaration const & d) {
-    if (m == transparency_mode::None)
-        return false;
-    name const & n = d.get_name();
-    if (m_proj_info.contains(n))
-        return false;
-    if (m == transparency_mode::All)
-        return true;
-    if (d.is_theorem() && !get_unfold_lemmas(get_options()))
-        return false;
-    if (m == transparency_mode::Instances && is_instance(m_env, d.get_name()))
-        return true;
-    auto s = get_reducible_status(m_env, d.get_name());
-    if (s == reducible_status::Reducible && (m == transparency_mode::Reducible || m == transparency_mode::Instances))
-        return true;
-    if (s != reducible_status::Irreducible && m == transparency_mode::Semireducible)
-        return true;
-    return false;
-}
-
-optional<declaration> type_context_cache::is_transparent(transparency_mode m, name const & n) {
-    CACHE_CODE(
-        auto & cache = m_transparency_cache[static_cast<unsigned>(m)];
-        auto it = cache.find(n);
-        if (it != cache.end()) {
-            return it->second;
-        });
-    optional<declaration> r;
-    if (auto d = m_env.find(n)) {
-        if (d->is_definition() && is_transparent(m, *d)) {
-            r = d;
-        }
-    }
-    CACHE_CODE(cache.insert(mk_pair(n, r)););
-    return r;
-}
-
-bool type_context_cache::is_aux_recursor(name const & n) {
-    CACHE_CODE(
-        auto it = m_aux_recursor_cache.find(n);
-        if (it != m_aux_recursor_cache.end())
-            return it->second;);
-    bool r = ::lean::is_aux_recursor(env(), n);
-    CACHE_CODE(m_aux_recursor_cache.insert(mk_pair(n, r)););
-    return r;
-}
-
-/* =====================
-   type_context_cache_manager
-   ===================== */
-
-static type_context_cache_ptr mk_cache(environment const & env, options const & o, bool use_bi) {
-    return std::make_shared<type_context_cache>(env, o, use_bi);
-}
-
-type_context_cache_ptr type_context_cache_manager::release() {
-    type_context_cache_ptr c = m_cache_ptr;
-    m_cache_ptr.reset();
-    return c;
-}
-
-type_context_cache_ptr type_context_cache_manager::mk(environment const & env, options const & o) {
-    if (!m_cache_ptr ||
-        get_class_instance_max_depth(o) != m_max_depth ||
-        get_unfold_lemmas(o) != get_unfold_lemmas(m_cache_ptr->m_options)) {
-        return mk_cache(env, o, m_use_bi);
-    }
-    if (is_eqp(env, m_env)) {
-        m_cache_ptr->m_options = o;
-        return release();
-    }
-    return mk_cache(env, o, m_use_bi);
-}
-
-void type_context_cache_manager::recycle(type_context_cache_ptr const & ptr) {
-    m_max_depth = ptr->m_ci_max_depth;
-    m_cache_ptr = ptr;
-    if (!is_eqp(ptr->m_env, m_env)) {
-        m_env = ptr->m_env;
-    }
-    if (!ptr->m_instance_fingerprint) {
-        ptr->m_instance_cache.clear();
-        ptr->m_subsingleton_cache.clear();
-    }
 }
 
 /* =====================
@@ -221,35 +74,25 @@ bool type_context::tmp_locals::all_let_decls() const {
 /* =====================
    type_context
    ===================== */
-MK_THREAD_LOCAL_GET_DEF(type_context_cache_manager, get_tcm);
 
-void type_context::cache_failure(expr const & CACHE_CODE(t), expr const & CACHE_CODE(s)) {
-    CACHE_CODE(
-        if (t.hash() <= s.hash())
-            get_failure_cache().insert(mk_pair(t, s));
-        else
-            get_failure_cache().insert(mk_pair(s, t));
-        )
+void type_context::cache_failure(expr const & t, expr const & s) {
+    m_cache->set_is_def_eq_failure(*this, t, s);
 }
 
-bool type_context::is_cached_failure(expr const & CACHE_CODE(t), expr const & CACHE_CODE(s)) {
-    CACHE_CODE(
-        if (has_expr_metavar(t) || has_expr_metavar(s)) return false;
-        type_context_cache::failure_cache const & fcache = get_failure_cache();
-        if (t.hash() < s.hash()) {
-            return fcache.find(mk_pair(t, s)) != fcache.end();
-        } else if (t.hash() > s.hash()) {
-            return fcache.find(mk_pair(s, t)) != fcache.end();
-        } else {
-            return
-                fcache.find(mk_pair(t, s)) != fcache.end() ||
-                fcache.find(mk_pair(s, t)) != fcache.end();
-        });
-    return false;
+bool type_context::is_cached_failure(expr const & t, expr const & s) {
+    if (has_expr_metavar(t) || has_expr_metavar(s)) {
+        return false;
+    } else {
+        return m_cache->get_is_def_eq_failure(*this, t, s);
+    }
+}
+
+void type_context::freeze_local_instances() {
+    m_lctx.freeze_local_instances(m_local_instances);
 }
 
 void type_context::init_local_instances() {
-    m_local_instances = list<pair<name, expr>>();
+    m_local_instances = local_instances();
     m_lctx.for_each([&](local_decl const & decl) {
             /* Do not use auxiliary declarations introduced by equation compiler.
                This can happen when using meta definitions.
@@ -263,7 +106,7 @@ void type_context::init_local_instances() {
             */
             if (!decl.get_info().is_rec()) {
                 if (auto cls_name = is_class(decl.get_type())) {
-                    m_local_instances = cons(mk_pair(*cls_name, decl.mk_ref()), m_local_instances);
+                    m_local_instances = local_instances(local_instance(*cls_name, decl.mk_ref()), m_local_instances);
                 }
             }
         });
@@ -271,24 +114,8 @@ void type_context::init_local_instances() {
 
 void type_context::flush_instance_cache() {
     lean_trace("type_context_cache", tout() << "flushing instance cache\n";);
-    m_cache->m_instance_fingerprint = optional<unsigned>();
-    m_cache->m_local_instances      = list<pair<name, expr>>();
-    m_cache->m_instance_cache.clear();
-    m_cache->m_subsingleton_cache.clear();
-}
-
-void type_context::set_instance_fingerprint() {
-    lean_assert(!m_lctx.get_instance_fingerprint());
-    unsigned fingerprint = local_context::get_empty_instance_fingerprint();
-    m_lctx.for_each([&](local_decl const & decl) {
-            if (auto cls_name = is_class(decl.get_type())) {
-                fingerprint = hash(fingerprint, hash(cls_name->hash(), decl.get_type().hash()));
-            }
-        });
-    m_lctx.m_instance_fingerprint   = optional<unsigned>(fingerprint);
-    m_cache->m_instance_fingerprint = optional<unsigned>(fingerprint);
-    m_cache->m_local_instances      = m_local_instances;
-    lean_trace("type_context_cache", tout() << "set_instance_fingerprint: " << fingerprint << "\n";);
+    m_cache->reset_frozen_local_instances();
+    m_cache->flush_instances();
 }
 
 void type_context::init_core(transparency_mode m) {
@@ -299,76 +126,53 @@ void type_context::init_core(transparency_mode m) {
     m_tmp_data                    = nullptr;
     m_transparency_pred           = nullptr;
     m_approximate                 = false;
-    m_smart_unfolding             = get_smart_unfolding(get_options());
-    if (auto instance_fingerprint = m_lctx.get_instance_fingerprint()) {
-        if (m_cache->m_instance_fingerprint == instance_fingerprint) {
-            lean_trace("type_context_cache", tout() << "reusing instance cache, fingerprint: " << *instance_fingerprint << "\n";);
-            m_local_instances = m_cache->m_local_instances;
+    m_smart_unfolding             = m_cache->get_smart_unfolding();
+    if (auto lis = m_lctx.get_frozen_local_instances()) {
+        if (m_cache->get_frozen_local_instances() == lis) {
+            lean_trace("type_context_cache", tout() << "reusing instance cache\n";);
+            m_local_instances = *lis;
         } else {
-            lean_trace("type_context_cache", tout() << "incompatible fingerprints, flushing instance cache\n";);
+            lean_trace("type_context_cache", tout() << "incompatible local instances, flushing instance cache\n";);
             init_local_instances();
             flush_instance_cache();
-            m_cache->m_instance_fingerprint = m_lctx.get_instance_fingerprint();
-            m_cache->m_local_instances      = m_local_instances;
+            m_cache->set_frozen_local_instances(m_local_instances);
         }
     } else {
         init_local_instances();
         flush_instance_cache();
     }
     m_uhints = get_unification_hints(env());
-    lean_assert(m_cache->m_instance_fingerprint == m_lctx.get_instance_fingerprint());
 }
 
 type_context::type_context(environment const & env, options const & o, metavar_context const & mctx,
                            local_context const & lctx, transparency_mode m):
-    type_context(env, o, mctx, lctx, get_tcm(), m) {
-}
-
-type_context::type_context(environment const & env, options const & o, metavar_context const & mctx,
-                           local_context const & lctx, type_context_cache_manager & manager, transparency_mode m):
+    m_env(env),
     m_mctx(mctx), m_lctx(lctx),
-    m_cache_manager(&manager),
-    m_cache(manager.mk(env, o)) {
+    m_dummy_cache(o),
+    m_cache(&m_dummy_cache) {
     init_core(m);
 }
 
-/** This constructor is only used internally during type class resolution. */
-type_context::type_context(type_context_cache_ptr const & ptr, metavar_context const & mctx, local_context const & lctx,
-                           transparency_mode m):
+type_context::type_context(environment const & env, metavar_context const & mctx,
+                           local_context const & lctx, context_cache & cache, transparency_mode m):
+    m_env(env),
     m_mctx(mctx), m_lctx(lctx),
-    m_cache_manager(nullptr),
-    m_cache(ptr) {
+    m_cache(&cache) {
     init_core(m);
 }
 
 type_context::~type_context() {
-    // note: m_cache may have been moved out
-    if (m_cache_manager && m_cache)
-        m_cache_manager->recycle(m_cache);
 }
 
 void type_context::set_env(environment const & env) {
-    lean_assert(m_cache->m_instance_fingerprint == m_lctx.get_instance_fingerprint());
-    options o = m_cache->m_options;
-    if (m_cache_manager) {
-        m_cache_manager->recycle(m_cache);
-        m_cache = m_cache_manager->mk(env, o);
-
-    } else {
-        m_cache = mk_cache(env, o, false);
-    }
-    if (m_lctx.get_instance_fingerprint()) {
-        m_cache->m_instance_fingerprint = m_lctx.get_instance_fingerprint();
-        m_cache->m_local_instances      = m_local_instances;
-    }
-    lean_assert(m_cache->m_instance_fingerprint == m_lctx.get_instance_fingerprint());
+    m_env    = env;
     m_uhints = get_unification_hints(env);
 }
 
 void type_context::update_local_instances(expr const & new_local, expr const & new_type) {
-    if (!m_cache->m_instance_fingerprint) {
+    if (!m_cache->get_frozen_local_instances()) {
         if (auto c_name = is_class(new_type)) {
-            m_local_instances = cons(mk_pair(*c_name, new_local), m_local_instances);
+            m_local_instances = local_instances(local_instance(*c_name, new_local), m_local_instances);
             flush_instance_cache();
         }
     }
@@ -387,9 +191,9 @@ expr type_context::push_let(name const & ppn, expr const & type, expr const & va
 }
 
 void type_context::pop_local() {
-    if (!m_cache->m_instance_fingerprint && m_local_instances) {
+    if (!m_cache->get_frozen_local_instances() && m_local_instances) {
         optional<local_decl> decl = m_lctx.find_last_local_decl();
-        if (decl && decl->get_name() == mlocal_name(head(m_local_instances).second)) {
+        if (decl && decl->get_name() == mlocal_name(head(m_local_instances).get_local())) {
             m_local_instances = tail(m_local_instances);
             flush_instance_cache();
         }
@@ -640,7 +444,7 @@ expr type_context::mk_pi(std::initializer_list<expr> const & locals, expr const 
    Normalization
    -------------------- */
 
-optional<declaration> type_context::is_transparent(transparency_mode m, name const & n) {
+optional<declaration> type_context::get_decl(transparency_mode m, name const & n) {
     if (m_transparency_pred) {
         if ((*m_transparency_pred)(n)) {
             return env().find(n);
@@ -648,12 +452,12 @@ optional<declaration> type_context::is_transparent(transparency_mode m, name con
             return optional<declaration>();
         }
     } else {
-        return m_cache->is_transparent(m, n);
+        return m_cache->get_decl(*this, m, n);
     }
 }
 
-optional<declaration> type_context::is_transparent(name const & n) {
-    return is_transparent(m_transparency_mode, n);
+optional<declaration> type_context::get_decl(name const & n) {
+    return get_decl(m_transparency_mode, n);
 }
 
 name mk_smart_unfolding_name_for(name const & n) {
@@ -681,7 +485,7 @@ static expr ext_unfold_fn(environment const & env, expr const & fn) {
 /* Unfold \c e if it is a constant */
 optional<expr> type_context::unfold_definition_core(expr const & e) {
     if (is_constant(e)) {
-        if (auto d = is_transparent(const_name(e))) {
+        if (auto d = get_decl(const_name(e))) {
             if (length(const_levels(e)) == d->get_num_univ_params())
                 return some_expr(instantiate_value_univ_params(*d, const_levels(e)));
         }
@@ -710,7 +514,7 @@ optional<expr> type_context::unfold_definition(expr const & e) {
         expr f0 = get_app_fn(e);
         if (!is_constant(f0))
             return none_expr();
-        optional<declaration> d = is_transparent(const_name(f0));
+        optional<declaration> d = get_decl(const_name(f0));
         if (!d || length(const_levels(f0)) != d->get_num_univ_params())
             return none_expr();
         if (m_smart_unfolding && is_smart_unfolding_target(env(), const_name(f0))) {
@@ -782,7 +586,7 @@ projection_info const * type_context::is_projection(expr const & e) {
     expr const & f = get_app_fn(e);
     if (!is_constant(f))
         return nullptr;
-    projection_info const * info = m_cache->m_proj_info.find(const_name(f));
+    projection_info const * info = m_cache->get_proj_info(*this, const_name(f));
     if (!info)
         return nullptr;
     if (get_app_num_args(e) <= info->m_nparams)
@@ -821,7 +625,7 @@ optional<expr> type_context::reduce_aux_recursor(expr const & e) {
     expr const & f = get_app_fn(e);
     if (!is_constant(f))
         return none_expr();
-    if (m_cache->is_aux_recursor(const_name(f))) {
+    if (m_cache->get_aux_recursor(*this, const_name(f))) {
         flet<bool> no_smart_unfolding(m_smart_unfolding, false);
         return unfold_definition(e);
     } else {
@@ -997,14 +801,8 @@ expr type_context::whnf(expr const & e) {
     default:
         break;
     }
-    CACHE_CODE(
-        // TODO(Leo): add cache for m_smart_unfolding == false
-        auto & cache = m_cache->m_whnf_cache[static_cast<unsigned>(m_transparency_mode)];
-        if (m_smart_unfolding && !m_transparency_pred) {
-            auto it = cache.find(e);
-            if (it != cache.end())
-                return it->second;
-        });
+    if (auto r = m_cache->get_whnf(*this, e))
+        return *r;
     reset_used_assignment reset(*this);
     unsigned postponed_sz = m_postponed.size();
     expr t = e;
@@ -1016,7 +814,7 @@ expr type_context::whnf(expr const & e) {
             if ((!in_tmp_mode() || !has_expr_metavar(t1)) && m_smart_unfolding &&
                 !m_used_assignment && !is_stuck(t1) &&
                 postponed_sz == m_postponed.size() && !m_transparency_pred) {
-                CACHE_CODE(cache.insert(mk_pair(e, t1)););
+                m_cache->set_whnf(*this, e, t1);
             }
             return t1;
         }
@@ -1050,7 +848,7 @@ expr type_context::relaxed_whnf(expr const & e) {
 optional<expr> type_context::is_stuck_projection(expr const & e) {
     expr const & f = get_app_fn(e);
     if (!is_constant(f)) return none_expr(); // it is not projection app
-    projection_info const * info = m_cache->m_proj_info.find(const_name(f));
+    projection_info const * info = m_cache->get_proj_info(*this, const_name(f));
     if (!info) return none_expr(); // it is not projection app
     buffer<expr> args;
     get_app_args(e, args);
@@ -1095,15 +893,9 @@ expr type_context::infer(expr const & e) {
 }
 
 expr type_context::infer_core(expr const & e) {
-#ifndef LEAN_NO_TYPE_INFER_CACHE
-    CACHE_CODE(
-        auto & cache = m_cache->m_infer_cache;
-        unsigned postponed_sz = m_postponed.size();
-        auto it = cache.find(e);
-        if (it != cache.end())
-            return it->second;);
-#endif
-
+    if (auto r = m_cache->get_infer(*this, e))
+        return *r;
+    unsigned postponed_sz = m_postponed.size();
     reset_used_assignment reset(*this);
 
     expr r;
@@ -1139,12 +931,10 @@ expr type_context::infer_core(expr const & e) {
         break;
     }
 
-#ifndef LEAN_NO_TYPE_INFER_CACHE
-    CACHE_CODE(
-        if ((!in_tmp_mode() || (!has_expr_metavar(e) && !has_expr_metavar(r))) &&
-            !m_used_assignment && postponed_sz == m_postponed.size())
-            cache.insert(mk_pair(e, r)););
-#endif
+    if ((!in_tmp_mode() || (!has_expr_metavar(e) && !has_expr_metavar(r))) &&
+        !m_used_assignment && postponed_sz == m_postponed.size())
+        m_cache->set_infer(*this, e, r);
+
     return r;
 }
 
@@ -1791,7 +1581,7 @@ bool type_context::process_postponed(scope const & s) {
 optional<declaration> type_context::is_delta(expr const & e) {
     expr const & f = get_app_fn(e);
     if (is_constant(f)) {
-        return is_transparent(const_name(f));
+        return get_decl(const_name(f));
     } else {
         return none_declaration();
     }
@@ -2501,22 +2291,17 @@ bool type_context::is_def_eq_binding(expr e1, expr e2) {
 }
 
 optional<expr> type_context::mk_class_instance_at(local_context const & lctx, expr const & type) {
-    lean_assert(m_cache->m_instance_fingerprint == m_lctx.get_instance_fingerprint());
-
-    type_context tmp_ctx(m_cache, m_mctx, lctx, m_transparency_mode);
-    auto r = tmp_ctx.mk_class_instance(type);
-    if (r) m_mctx = tmp_ctx.mctx();
-
-    if (!lctx.get_instance_fingerprint() ||
-        lctx.get_instance_fingerprint() != m_lctx.get_instance_fingerprint()) {
-        /* The local instances in lctx may be different from the ones in m_lctx */
-        flush_instance_cache();
-        m_cache->m_instance_fingerprint = m_lctx.get_instance_fingerprint();
-        m_cache->m_local_instances      = m_local_instances;
+    if (m_cache->get_frozen_local_instances() &&
+        m_cache->get_frozen_local_instances() == lctx.get_frozen_local_instances()) {
+        return mk_class_instance(type);
+    } else {
+        context_cache tmp_cache(*m_cache, true);
+        type_context tmp_ctx(env(), m_mctx, lctx, tmp_cache, m_transparency_mode);
+        auto r = tmp_ctx.mk_class_instance(type);
+        if (r)
+            m_mctx = tmp_ctx.mctx();
+        return r;
     }
-
-    lean_assert(m_cache->m_instance_fingerprint == m_lctx.get_instance_fingerprint());
-    return r;
 }
 
 /** \brief Create a nested type class instance of the given type, and assign it to metavariable \c m.
@@ -3030,7 +2815,7 @@ optional<unsigned> type_context::to_small_num(expr const & e) {
     if (optional<mpz> r = eval_num(e)) {
         if (r->is_unsigned_int()) {
             unsigned r1 = r->get_unsigned_int();
-            if (r1 <= m_cache->m_nat_offset_cnstr_threshold)
+            if (r1 <= m_cache->get_nat_offset_cnstr_threshold())
                 return optional<unsigned>(r1);
         }
     }
@@ -3051,7 +2836,7 @@ optional<unsigned> type_context::is_offset_term (expr const & t) {
             k++;
             it = app_arg(it);
         }
-        if (k > 0 && k <= m_cache->m_nat_offset_cnstr_threshold)
+        if (k > 0 && k <= m_cache->get_nat_offset_cnstr_threshold())
             return optional<unsigned>(k);
         else
             return optional<unsigned>();
@@ -3264,8 +3049,8 @@ lbool type_context::is_def_eq_delta(expr const & t, expr const & s) {
                    Remark: this can only happen if transparency_mode
                    is Semireducible or All
                 */
-                auto rd_t = is_transparent(transparency_mode::Instances, d_t->get_name());
-                auto rd_s = is_transparent(transparency_mode::Instances, d_s->get_name());
+                auto rd_t = get_decl(transparency_mode::Instances, d_t->get_name());
+                auto rd_s = get_decl(transparency_mode::Instances, d_s->get_name());
                 if (rd_t && !rd_s) {
                     lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold (reducible) left: " << d_t->get_name() << "\n";);
                     if (auto new_t = unfold_definition(t))
@@ -3437,12 +3222,11 @@ bool type_context::is_def_eq_core_core(expr t, expr s) {
 }
 
 bool type_context::is_def_eq_core(expr const & t, expr const & s) {
-    CACHE_CODE(unsigned postponed_sz = m_postponed.size(););
+    unsigned postponed_sz = m_postponed.size();
     bool r = is_def_eq_core_core(t, s);
-    CACHE_CODE(
-        if (r && postponed_sz == m_postponed.size()) {
-            cache_equiv(t, s);
-        });
+    if (r && postponed_sz == m_postponed.size()) {
+        cache_equiv(t, s);
+    }
     return r;
 }
 
@@ -3549,7 +3333,7 @@ lbool type_context::is_quick_class(expr const & type, name & result) {
             if (auto r = constant_is_class(*it)) {
                 result = *r;
                 return l_true;
-            } else if (!is_transparent(const_name(*it))) {
+            } else if (!get_decl(const_name(*it))) {
                 return l_false;
             } else {
                 return l_undef;
@@ -3560,7 +3344,7 @@ lbool type_context::is_quick_class(expr const & type, name & result) {
                 if (auto r = constant_is_class(f)) {
                     result = *r;
                     return l_true;
-                } else if (!is_transparent(const_name(f))) {
+                } else if (!get_decl(const_name(f))) {
                     return l_false;
                 } else {
                     return l_undef;
@@ -3655,13 +3439,6 @@ struct instance_synthesizer {
         auto out = tout();
         if (!m_displayed_trace_header && m_choices.size() == 1) {
             out << tclass("class_instances");
-            if (m_ctx.m_cache->m_pip) {
-                if (auto fname = m_ctx.m_cache->m_pip->get_file_name()) {
-                    out << fname << ":";
-                }
-                if (m_ctx.m_cache->m_ci_pos)
-                    out << m_ctx.m_cache->m_ci_pos->first << ":" << m_ctx.m_cache->m_ci_pos->second << ":";
-            }
             out << " class-instance resolution trace" << endl;
             m_displayed_trace_header = true;
         }
@@ -3738,16 +3515,16 @@ struct instance_synthesizer {
 
     list<expr> get_local_instances(name const & cname) {
         buffer<expr> selected;
-        for (pair<name, expr> const & p : m_ctx.m_local_instances) {
-            if (p.first == cname)
-                selected.push_back(p.second);
+        for (local_instance const & li : m_ctx.m_local_instances) {
+            if (li.get_class_name() == cname)
+                selected.push_back(li.get_local());
         }
         return to_list(selected);
     }
 
     bool mk_choice_point(expr const & mvar) {
         lean_assert(is_metavar(mvar));
-        if (m_choices.size() > m_ctx.m_cache->m_ci_max_depth) {
+        if (m_choices.size() > m_ctx.m_cache->get_class_instance_max_depth()) {
             throw_class_exception(m_ctx.infer(m_main_mvar),
                                   "maximum class-instance resolution depth has been reached "
                                   "(the limit can be increased by setting option 'class.instance_max_depth') "
@@ -3933,12 +3710,9 @@ struct instance_synthesizer {
             return none_expr();
     }
 
-    void cache_result(expr const & CACHE_CODE(type), optional<expr> const & CACHE_CODE(inst)) {
-#ifndef LEAN_NO_TYPE_CLASS_CACHE
-        CACHE_CODE(
-            if (!has_expr_metavar(type))
-                m_ctx.m_cache->m_instance_cache.insert(mk_pair(type, inst)););
-#endif
+    void cache_result(expr const & type, optional<expr> const & inst) {
+        if (!has_expr_metavar(type))
+            m_ctx.m_cache->set_instance(m_ctx, type, inst);
     }
 
     optional<expr> ensure_no_meta(optional<expr> r) {
@@ -3972,20 +3746,16 @@ struct instance_synthesizer {
     optional<expr> mk_class_instance_core(expr const & type) {
         /* We do not cache results when multiple instances have to be generated. */
         if (!has_expr_metavar(type)) {
-#ifndef LEAN_NO_TYPE_CLASS_CACHE
-            CACHE_CODE(
-                auto it = m_ctx.m_cache->m_instance_cache.find(type);
-                if (it != m_ctx.m_cache->m_instance_cache.end()) {
-                    /* instance/failure is already cached */
-                    lean_trace("class_instances",
-                               scope_trace_env scope(m_ctx.env(), m_ctx);
-                               if (it->second)
-                                   tout() << "cached instance for " << type << "\n" << *(it->second) << "\n";
-                               else
-                                   tout() << "cached failure for " << type << "\n";);
-                    return it->second;
-                });
-#endif
+            if (auto r = m_ctx.m_cache->get_instance(m_ctx, type)) {
+                /* instance/failure is already cached */
+                lean_trace("class_instances",
+                           scope_trace_env scope(m_ctx.env(), m_ctx);
+                           if (*r)
+                               tout() << "cached instance for " << type << "\n" << *(*r) << "\n";
+                           else
+                               tout() << "cached failure for " << type << "\n";);
+                return *r;
+            }
         }
         m_state          = state();
         m_main_mvar      = m_ctx.mk_tmp_mvar(type);
@@ -4207,19 +3977,17 @@ optional<expr> type_context::mk_class_instance(expr const & type_0) {
 }
 
 optional<expr> type_context::mk_subsingleton_instance(expr const & type) {
-    CACHE_CODE(
-        auto it = m_cache->m_subsingleton_cache.find(type);
-        if (it != m_cache->m_subsingleton_cache.end())
-            return it->second;);
+    if (optional<optional<expr>> r = m_cache->get_subsingleton(*this, type))
+        return *r;
     expr Type  = whnf(infer(type));
     if (!is_sort(Type)) {
-        m_cache->m_subsingleton_cache.insert(mk_pair(type, none_expr()));
+        m_cache->set_subsingleton(*this, type, none_expr());
         return none_expr();
     }
     level lvl    = sort_level(Type);
     expr subsingleton = mk_app(mk_constant(get_subsingleton_name(), {lvl}), type);
-    auto r = mk_class_instance(subsingleton);
-    CACHE_CODE(m_cache->m_subsingleton_cache.insert(mk_pair(type, r)););
+    optional<expr> r = mk_class_instance(subsingleton);
+    m_cache->set_subsingleton(*this, type, r);
     return r;
 }
 
@@ -4380,25 +4148,8 @@ void initialize_type_context() {
     register_trace_class(name({"type_context", "smart_unfolding"}));
     register_trace_class(name({"type_context", "tmp_vars"}));
     register_trace_class("type_context_cache");
-    g_class_instance_max_depth     = new name{"class", "instance_max_depth"};
-    register_unsigned_option(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH,
-                             "(class) max allowed depth in class-instance resolution");
-    g_nat_offset_threshold         = new name{"unifier", "nat_offset_cnstr_threshold"};
-    register_unsigned_option(*g_nat_offset_threshold, LEAN_DEFAULT_NAT_OFFSET_CNSTR_THRESHOLD,
-                             "(unifier) the unifier has special support for offset nat constraints of the form: "
-                             "(t + k_1 =?= s + k_2), (t + k_1 =?= k_2) and (k_1 =?= k_2), "
-                             "where k_1 and k_2 are numerals, t and s are arbitrary terms, and they all have type nat, "
-                             "the offset constraint solver is used if k_1 and k_2 are smaller than the given threshold");
-    g_unfold_lemmas = new name{"type_context", "unfold_lemmas"};
-    register_bool_option(*g_unfold_lemmas, LEAN_DEFAULT_UNFOLD_LEMMAS,
-                         "(type-context) whether to unfold lemmas (e.g., during elaboration)");
-    g_smart_unfolding = new name{"type_context", "smart_unfolding"};
-    register_bool_option(*g_smart_unfolding, LEAN_DEFAULT_SMART_UNFOLDING,
-                         "(type-context) enable/disable smart unfolding (e.g., during elaboration)");
 }
 
 void finalize_type_context() {
-    delete g_class_instance_max_depth;
-    delete g_nat_offset_threshold;
 }
 }

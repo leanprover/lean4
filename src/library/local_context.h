@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "util/name_set.h"
 #include "util/subscripted_name_set.h"
 #include "kernel/expr.h"
+#include "library/local_instances.h"
 
 namespace lean {
 class local_decl {
@@ -82,50 +83,13 @@ class metavar_context;
 class local_context {
     typedef unsigned_map<local_decl> idx2local_decl;
     typedef rb_tree<unsigned, unsigned_cmp> unsigned_set;
-    unsigned               m_next_idx;
-    name_map<local_decl>   m_name2local_decl;
-    subscripted_name_set   m_user_names;
-    name_map<unsigned_set> m_user_name2idxs;
-    idx2local_decl         m_idx2local_decl;
-    /*
-      TODO(Leo): m_instance_fingerprint management is still broken.
-
-      Here is a plan to fix it:
-      1- Rename  `set_instance_fingerprint` should be renamed to `freeze_local_instances`.
-      2- `freeze_local_instances` should save the content of `m_idx2local_decl` into
-         a new field. When the set of local instances are computed, we should use the
-         saced `m_idx2local_decl` instead of the current `m_idx2local_decl`.
-
-      Pending problem: what do we do if we need to revert a local instance?
-      ```
-        example {α : Type} [s : has_add α] : has_add α  :=
-        by do
-           ty ← to_expr ```(has_add α),
-           s1  ← mk_instance ty,
-           trace s1,
-           revert s1,
-           s2  ← mk_instance ty, -- Should fail, but it returns cached value
-           trace s2,
-           intro `_,
-           trace "here",
-           exact s1
-      ```
-
-      Possible solution:
-      - `freeze_local_instances` computes set of local instances eagerly.
-      - We store the local instances instead of `m_idx2local_decl`
-      - `revert` operation fails if a local instance is being reverted
-      - If `freeze_local_instances` is not set, then type_context will compute
-        local instances during initialization. This is needed to be able to elaborate
-        parameter.
-
-       The solution above is incompatible with the `revert-all, do something, reintroduce`
-       idiom. This idiom is used to implement `dsimp *` and SMT tactic.
-    */
-    optional<unsigned>     m_instance_fingerprint;
+    unsigned                  m_next_idx;
+    name_map<local_decl>      m_name2local_decl;
+    subscripted_name_set      m_user_names;
+    name_map<unsigned_set>    m_user_name2idxs;
+    idx2local_decl            m_idx2local_decl;
+    optional<local_instances> m_local_instances;
     friend class type_context;
-    /* Return the instance fingerprint for empty local_contexts */
-    static unsigned get_empty_instance_fingerprint() { return 31; }
 
     void insert_user_name(local_decl const &d);
     void erase_user_name(local_decl const &d);
@@ -140,20 +104,9 @@ class local_context {
 public:
     local_context():m_next_idx(0) {}
 
-    /* Return an empty local context with instance fingerprint set. */
-    static local_context mk_with_instance_fingerprint() {
-        local_context lctx;
-        lctx.m_instance_fingerprint = optional<unsigned>(get_empty_instance_fingerprint());
-        return lctx;
-    }
-
-    /* Temporary hack to make sure we can use SMT tactic until we fix the m_instance_fingerprint issue
-       described above. */
-    void reset_instance_fingerprint() {
-        m_instance_fingerprint = optional<unsigned>();
-    }
-
-    optional<unsigned> get_instance_fingerprint() const { return m_instance_fingerprint; }
+    void freeze_local_instances(local_instances const & lis);
+    void unfreeze_local_instances();
+    optional<local_instances> get_frozen_local_instances() const { return m_local_instances; }
 
     bool empty() const { return m_idx2local_decl.empty(); }
 

@@ -303,7 +303,7 @@ public:
     expr mk_lambda(buffer<expr> const & params, expr const & type) { return m_ctx.mk_lambda(params, type); }
     expr infer_type(expr const & e) { return m_ctx.infer(e); }
     expr instantiate_mvars(expr const & e);
-    void set_instance_fingerprint() { m_ctx.set_instance_fingerprint(); }
+    void freeze_local_instances() { m_ctx.freeze_local_instances(); }
     expr elaborate(expr const & e);
     expr elaborate_type(expr const & e);
     expr_pair elaborate_with_type(expr const & e, expr const & e_type);

@@ -11,8 +11,12 @@ Author: Leonardo de Moura
 #include "library/congr_lemma.h"
 #include "library/projection.h"
 #include "library/fun_info.h"
+#include "library/local_instances.h"
 
 namespace lean {
+#define LEAN_NUM_TRANSPARENCY_MODES 5
+enum class transparency_mode { All = 0, Semireducible, Instances, Reducible, None };
+
 class type_context;
 
 /* Auxiliary information that is cached by the app_builder module in
@@ -33,13 +37,36 @@ struct app_builder_info {
     */
 };
 
-/* Cache for type_context, app_builder, fun_info and congr_lemma.
 
-   The default implementation does nothing.
+/*
+   We have two main kinds of cache in Lean: environmental and contextual.
+   The environmental caches only depend on the environment, and are easier to maintain.
+   We usually store them in thread local storage, and before using them we compare
+   if the current environment is a descendant of the one in the cache, and we
+   check for attribute fingerprints.
+
+   This class defines the interface for contextual caches.
+   A contextual cache depends on the local_context object.
+   Ideally, the cache should be stored in the local_context object,
+   but this is not feasible due to performance issues. The local_context object
+   should support a fast O(1) copy operation. Thus, we implement it using
+   functional data-structures such as red-black trees. This kind of data-structure
+   is too inefficient for a cache data structure, and we want to be able to
+   use hashtables (at least 10x faster than red-black trees). Another
+   issue is that we want to keep the `local_context` object simple and
+   without the overhead of many caches.
+
+   We use contextual caches for the operations performed in the following modules:
+   type_context, app_builder, fun_info and congr_lemma.
+   In the type_context, we cache inferred types, whnf, type class instances,
+   to cite a few.
+
+   This class do not implement any cache, only its interface. All operations
+   do nothing.
 
    This class has been added to address problems with the former `type_context_cache_manager`.
    The `type_context_cache_manager` objects were stored in thread local objects.
-   The correctness of this cache relied on the fact we never reuse fresh names.
+   The correctness of this cache relied on the fact we used to never reuse fresh names in the whole system.
    This is not true in the new name_generator refactoring (for addressing issue #1601).
    The caches for the modules app_builder, congr_lemma and fun_info have the same problem.
 
@@ -51,14 +78,11 @@ struct app_builder_info {
    Suppose we are executing the tactic `t1 <|> t2`.
    First, we execute `t1`, and in the process, the type_context
    cache is populated with new local constants created by `t1`.
-   Then `t1` fails and we execute `t2`. After the refactoring,
-   the tactic_state contains a name_generator. So, `t2` may
-   potentially create new local constants using the names
-   used by `t2`, but with different types. So, the content
+   Then `t1` fails and we execute `t2`. When, we execute `t2`
+   on the initial `tactic_state` object. Thus,
+   `t2` may potentially create new local constants using the names
+   used by `t1`, but with different types. So, the content
    of the cache is invalid.
-
-   Thus, we decided to add this abstract class (aka interface) for the caching operations
-   performed by the following modules: type_context, congr_lemma, app_builder and fun_info.
 
    Here are possible implementations of this API:
 
@@ -66,27 +90,57 @@ struct app_builder_info {
      that own a type_context object (e.g., elaborator).
      This implementation is also useful for the new type_context API we are going to expose in the `io` monad.
 
-   - A "functional" implementation using rb_map and rb_tree.
-     This cache can be stored in the tactic_state. Remark: we do not need
-     to implement the whole interface, only the most important caches (e.g., the one for type inference).
+   - In principle, a "functional" implementation using rb_map and rb_tree is possible.
+     Then, this version could be stored in the tactic_state or local_context objects.
+     We decided to not use it for performe issues. See comment above.
 
-   - If functional data structures are too inefficient. We can use the following alternative design:
+   - For caching contextual information in the tactic framework, we use the following approach:
      * We implement a thread local unique token generator.
      * The token can be viewed as a reference to the cache.
-     * tactic_state stores its token.
+     * tactic_state stores this token.
      * Thread local storage stores the "imperative" implementation and a token of its owner.
      * When we create a type_context for a tactic_state we check whether the thread local
-       storage contains the cache for the given tactic_state. If yes, we use it. Otherwise,
-       we create a new one.
-     * When we finish using the type_context, we update the tactic_state with a fresh token,
+       storage contains the cache for the given tactic_state. If yes, we use it, and obtain
+       a new token for it since we will perform destructive updates.
+       Otherwise, we create a new one.
+     * When we finish using the type_context, we update the tactic_state with the new fresh token,
        and put the updated cache back into the thread local storage.
 
        Remark: the thread local storage may store more than one cache.
+
        Remark: this approach should work well for "sequential" tactic execution.
           For `t1 <|> t2`, if `t1` fails, `t2` will potentially start with the empty cache
           since the thread local storage contains the cache for `t1`.
           We should measure whether this approach is more efficient than the functional one.
           With the "abstract interface", we can even have both approaches.
+
+       Remark: we have considered storing the token on the local context, but this is not ideal
+       because there are many tactics that create more than on subgoal (e.g., `apply`),
+       and we would have to use an empty cache for each subgoal but the first.
+       The situation would be analogous to the `t1 <|> t2` scenario described in the previous
+       remark. Moreover, the different subgoals usually have very similar local contexts
+       and information cached in one can be reused in the others.
+
+       Remark: recall that in a sequence of tactic_states [s_1, s_2, ...] obtained by executing tactics [t_1, t_2, ...]
+
+            s_1 -t_1-> s_2 -t_2-> s_3 -> ...
+
+       we never reuse names for labeling local declarations, and the cache is reused, since we will store the
+       cache on the thread local storage after each step, and will retrieve it before the beginning of the following step.
+       Most cached data (e.g., inferred types) is still valid because we never reuse names in the sequence.
+       The only exception is cached data related to type class instances and subsigletons (which depends on type class instances).
+       Here the result depends on the local instances available in the local context.
+       Recall we have two modes for handling local instances:
+
+       1) liberal: any local instance can be used. In this mode, the cache for type class instances and subsigletons has to be
+          flushed in the beginning of each step if the local_context is different from the previous one. Actually,
+          we do not track the local_context. So, the cache is always flushed in the beginning of each step in the liberal mode.
+          This is fine because we only use the "liberal" mode when elaborating the header of a declaration.
+
+       2) frozen: after elaborating the header of a declaration, we freeze the local instances that can be used to
+          elaborate its body. The freeze step is also useful to speedup the type_context initialization
+          (see comment in the type_context class). So, we just check if the frozen local instances are the same
+          before starting each step. This check is performed in the method `init_local_instances`.
 
    Here are some benefits of the new approach:
 
@@ -109,14 +163,46 @@ struct app_builder_info {
      * A tactic that reverses local instances
 */
 class context_cache {
+protected:
+    options                   m_options;
+    bool                      m_unfold_lemmas;
+    unsigned                  m_nat_offset_cnstr_threshold;
+    unsigned                  m_smart_unfolding;
+    unsigned                  m_class_instance_max_depth;
+    optional<local_instances> m_local_instances;
+    bool is_transparent(type_context & ctx, transparency_mode m, declaration const & d);
 public:
+    context_cache();
+    context_cache(options const &);
+    /* Create a "dummy" context_cache with the same configuration options.
+       The bool parameter is not used. It is here just to make sure we don't confuse
+       this constructor with the copy constructor. */
+    context_cache(context_cache const &, bool);
+    context_cache(context_cache const &) = delete;
+    context_cache(context_cache &&) = default;
+    virtual ~context_cache() {}
+
+    context_cache & operator=(context_cache const &) = delete;
+    context_cache & operator=(context_cache &&) = default;
+
+    /* Cached configuration options */
+    options const & get_options() const { return m_options; }
+    bool get_unfold_lemmas() const { return m_unfold_lemmas; }
+    unsigned get_nat_offset_cnstr_threshold() const { return m_nat_offset_cnstr_threshold; }
+    unsigned get_smart_unfolding() const { return m_smart_unfolding; }
+    unsigned get_class_instance_max_depth() const { return m_class_instance_max_depth; }
+
+    /* Operations for accessing environment data more efficiently.
+       The default implementation provided by this class does not have any optimization. */
+
+    virtual optional<declaration> get_decl(type_context &, transparency_mode, name const &);
+    virtual projection_info const * get_proj_info(type_context &, name const &);
+    virtual bool get_aux_recursor(type_context &, name const &);
+
     /* Cache support for type_context module */
 
     virtual optional<expr> get_infer(type_context &, expr const &) { return none_expr(); }
     virtual void set_infer(type_context &, expr const &, expr const &) {}
-
-    virtual optional<projection_info> get_proj_info(type_context &, name const &) { return optional<projection_info>(); }
-    virtual void set_proj_info(type_context &, name const &, projection_info const &) {}
 
     virtual bool get_equiv(type_context &, expr const &, expr const &) { return false; }
     virtual void set_equiv(type_context &, expr const &, expr const &) {}
@@ -124,20 +210,21 @@ public:
     virtual bool get_is_def_eq_failure(type_context &, expr const &, expr const &) { return false; }
     virtual void set_is_def_eq_failure(type_context &, expr const &, expr const &) {}
 
-    virtual lbool get_aux_recursor(type_context &, name const &) { return l_undef; }
-    virtual void set_aux_recursor(type_context &, name const &, bool) {}
-
-    virtual optional<declaration> get_decl(type_context &, name const &) { return optional<declaration>(); }
-    virtual void set_decl(type_context &, name const &, optional<declaration> const &) {}
-
     virtual optional<expr> get_whnf(type_context &, expr const &) { return none_expr(); }
     virtual void set_whnf(type_context &, expr const &, expr const &) {}
 
-    virtual optional<expr> get_instance(type_context &, expr const &) { return none_expr(); }
-    virtual void set_instance(type_context &, expr const &, expr const &) {}
+    virtual optional<optional<expr>> get_instance(type_context &, expr const &) { return optional<optional<expr>>(); }
+    virtual void set_instance(type_context &, expr const &, optional<expr> const &) {}
 
-    virtual optional<expr> get_subsingleton(type_context &, expr const &) { return none_expr(); }
-    virtual void set_subsingleton(type_context &, expr const &, expr const &) {}
+    virtual optional<optional<expr>> get_subsingleton(type_context &, expr const &) { return optional<optional<expr>>(); }
+    virtual void set_subsingleton(type_context &, expr const &, optional<expr> const &) {}
+
+    /* this method should flush the instance and subsingleton cache */
+    virtual void flush_instances() {}
+
+    void reset_frozen_local_instances() { m_local_instances = optional<local_instances>(); }
+    void set_frozen_local_instances(local_instances const & lis) { m_local_instances = lis; }
+    optional<local_instances> get_frozen_local_instances() const { return m_local_instances; }
 
     /* Cache support for fun_info module */
 
@@ -184,4 +271,7 @@ public:
     virtual optional<app_builder_info> get_app_builder_info(type_context &, expr const &, list<bool> const &) { return optional<app_builder_info>(); }
     virtual void set_app_builder_info(type_context &, expr const &, list<bool> const &, app_builder_info const &) {}
 };
+
+void initialize_context_cache();
+void finalize_context_cache();
 }

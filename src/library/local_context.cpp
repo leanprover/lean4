@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <algorithm>
 #include <limits>
 #include "util/fresh_name.h"
 #include "util/list_fn.h"
@@ -146,6 +147,17 @@ bool depends_on(local_decl const & d, metavar_context const & mctx, buffer<expr>
 
 bool depends_on(expr const & e, metavar_context const & mctx, local_context const & lctx, unsigned num, expr const * locals) {
     return depends_on_fn(mctx, lctx, num, locals)(e);
+}
+
+void local_context::freeze_local_instances(local_instances const & lis) {
+    m_local_instances = lis;
+    lean_assert(std::all_of(lis.begin(), lis.end(), [&](local_instance const & inst) {
+                return m_name2local_decl.contains(mlocal_name(inst.get_local()));
+            }));
+}
+
+void local_context::unfreeze_local_instances() {
+    m_local_instances = optional<local_instances>();
 }
 
 void local_context::insert_user_name(local_decl const &d) {
@@ -334,9 +346,17 @@ local_context local_context::remove(buffer<expr> const & locals) const {
                             }));
     /* TODO(Leo): check whether the following loop is a performance bottleneck. */
     local_context r          = *this;
-    r.m_instance_fingerprint = m_instance_fingerprint;
+    r.m_local_instances      = m_local_instances;
     for (expr const & l : locals) {
         local_decl d = get_local_decl(l);
+
+        /* frozen local instances cannot be deleted */
+        if (m_local_instances) {
+            lean_assert(std::all_of(m_local_instances->begin(), m_local_instances->end(), [&](local_instance const & inst) {
+                        return mlocal_name(inst.get_local()) != d.get_name();
+                }));
+        }
+
         r.m_name2local_decl.erase(mlocal_name(l));
         r.m_idx2local_decl.erase(d.get_idx());
         r.erase_user_name(d);
@@ -460,8 +480,8 @@ name local_context::get_unused_name(name const & suggestion) const {
 
 local_context local_context::instantiate_mvars(metavar_context & mctx) const {
     local_context r;
-    r.m_next_idx             = m_next_idx;
-    r.m_instance_fingerprint = m_instance_fingerprint;
+    r.m_next_idx        = m_next_idx;
+    r.m_local_instances = m_local_instances;
     m_idx2local_decl.for_each([&](unsigned, local_decl const & d) {
             expr new_type = mctx.instantiate_mvars(d.m_ptr->m_type);
             optional<expr> new_value;

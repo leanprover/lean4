@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "library/idx_metavar.h"
 #include "library/projection.h"
 #include "library/metavar_context.h"
+#include "library/context_cache.h"
 #include "library/expr_pair_maps.h"
 #include "library/exception.h"
 #include "library/unification_hint.h"
@@ -32,234 +33,13 @@ public:
     class_exception(expr const & m, char const * msg):generic_exception(m, msg) {}
 };
 
-#define LEAN_NUM_TRANSPARENCY_MODES 5
-enum class transparency_mode { All = 0, Semireducible, Instances, Reducible, None };
-
 bool is_at_least_semireducible(transparency_mode m);
 bool is_at_least_instances(transparency_mode m);
 
 transparency_mode ensure_semireducible_mode(transparency_mode m);
 transparency_mode ensure_instances_mode(transparency_mode m);
 
-/* \brief Cached information for type_context.
-
-   TODO(Leo): reevaluate the cache validation policies we use.
-
-   ISSUE TO SOLVE:
-
-   We store `type_context_cache_manager`s in thread local objects.
-   Right now, the correctness of this cache relies on the fact
-   we never reuse fresh names. This is not true in the new name_generator
-   refactoring (for addressing issue #1601). The caches for the
-   modules app_builder and fun_info have the same problem.
-
-   We have implemented a thread local cache reset operation, but it is
-   not sufficient for fixing this issue since we only reset the cache
-   before each command and when start a task.
-
-   Here is a scenario that demonstrates the problem.
-   Suppose we are executing the tactic `t1 <|> t2`.
-   First, we execute `t1`, and in the process, the type_context
-   cache is populated with new local constants created by `t1`.
-   Then `t1` fails and we execute `t2`. After the refactoring,
-   the tactic_state contains a name_generator. So, `t2` may
-   potentially create new local constants using the names
-   used by `t2`, but with different types. So, the content
-   of the cache is invalid.
-
-   Possible solution:
-
-   - Stop storing caches that depend on fresh names in thread local storage.
-
-   - Create an abstract cache class (aka interface) for type_context, congr_lemma, app_builder and fun_info.
-
-   - We add a dummy implementation that doesn't do anything. For example, for the infer_cache,
-     the cache interface has the methods
-
-           virtual optional<expr> get_infer(expr const & e) { return none_expr(); }
-           virtual void set_infer(expr const & e, expr const & t) { }
-
-   - We add an "imperative" implementation using the data structures we are currently using.
-     This implementation is heavily based on hash tables. It is useful for implementing
-     the elaborator. The elaborator uses the same type_context during the whole procedure.
-     This implementation is also useful for the new type_context API we are going to expose in the `io` monad.
-
-   - We add a "functional" implementation using rb_map and rb_tree.
-     This cache can be stored in the tactic_state. Remark: we do not need
-     to implement the whole interface, only the most important caches (e.g., the one for type inference).
-
-   The solution above has several additional benefits:
-
-   - The cache will be smaller in many cases. For example, after `t1` fails in `t1 <|> t2`, the cached information
-     about its new fresh local constants is not useful anymore, but it stays in the current
-     cache.
-
-   - We don't need to check whether the cache is valid or not when we create a new
-     type_context.
-
-   - It is more efficient when creating temporary type_context objects for performing
-     a single operation. In this kind of scenario, we can use the dummy cache implementation
-     that doesn't cache anything.
-
-   - It is easy to experiment with new cache data structures.
-
-   - We can easily flush the cache if a primitive tactic performs an operation that invalidates it.
-     Examples:
-     * A tactic that allows user to use all local class instances available in the local context.
-     * A tactic that reverses local instances
-
-   If functional data structures are too inefficient for the tactic_state cache. We
-   can use the following alternative design:
-   - We implement a thread local unique token generator.
-   - The token can be viewed as a reference to the tactic_state cache.
-   - tactic_state stores its token.
-   - Thread local storage stores the "imperative" implementation and a token of its owner.
-   - When we create a type context for a tactic_state we check whether the thread local
-     storage contains the cache for the given tactic_state. If yes, we use it. Otherwise,
-     we create a new one.
-   - When we finish using the type_context, we update the tactic_state with a fresh token,
-     and put the updated cache back into the thread local storage.
-   Remark: the thread local storage may store more than one cache.
-   Remark: this approach should work well for "sequential" tactic execution.
-   For `t1 <|> t2`, if `t1` fails, `t2` will potentially start with the empty cache
-   since the thread local storage contains the cache for `t1`.
-   We should measure whether this approach is more efficient than the functional one.
-   With the "abstract interface", we can even have both approaches.
-
- */
-class type_context_cache {
-    typedef std::unordered_map<name, optional<declaration>, name_hash> transparency_cache;
-    typedef std::unordered_map<name, bool, name_hash> name2bool;
-
-    /** We use expr_cond_bi_struct_map because sometimes we want the inferred type to
-        contain precise binder information (e.g., in the elaborator).
-        Binder information includes the the binder annotations: {}, [], etc.
-
-        That is, we want the type of (fun {A : Type} (a : A), a) to be (Pi {A : Type}, A -> A).
-
-        When binder information is considered in the infer_cache, we can't reuse the
-        cached value for (fun {A : Type} (a : A), a) when inferring the type of
-        (fun (A : Type) (a : A), a). This is wasteful in modules such as the tactic framework.
-
-        So, when we create a type_context_cache object we can specify whether this extra
-        level of precision is required or not. */
-    typedef expr_cond_bi_struct_map<expr> infer_cache;
-    typedef expr_struct_map<expr> whnf_cache;
-    typedef expr_struct_map<optional<expr>> instance_cache;
-    typedef expr_struct_map<optional<expr>> subsingleton_cache;
-    typedef std::unordered_set<expr_pair, expr_pair_hash, expr_pair_eq> failure_cache;
-
-    environment                   m_env;
-    options                       m_options;
-    name_map<projection_info>     m_proj_info;
-
-    /* We only cache inferred types if the metavariable assignment was not accessed.
-       This restriction is sufficient to make sure the cached information can be reused
-       because local declarations have unique global names, and these names
-       are never reused. So, a term `t` containing locals `l_1, ..., l_n`
-       will have the same type in any valid local context containing `l_1, ..., l_n`.
-
-       \remark The inferred type does not depend on reducibility annotations. */
-    infer_cache                   m_infer_cache;
-
-    /* Mapping from name to optional<declaration>, this mapping is faster than the one
-       at environment. Moreover, it takes into account constant reducibility annotations.
-       We have four different modes.
-       - ALL (everything is transparent).
-       - SEMIREDUCIBLE (semireducible and reducible constants are considered transparent).
-       - REDUCIBLE (only reducible constants are considered transparent).
-       - NONE (everything is opaque).
-
-       \remark In SEMIREDUCIBLE and REDUCIBLE modes, projections and theorems are considered
-       opaque independently of annotations. In ALL mode, projections are considered opaque,
-       this is not a problem since type_context implements a custom reduction rule for projections.
-
-       The ALL mode is used for type inference where it is unacceptable to fail to infer a type.
-       The SEMIREDUCIBLE mode is used for scenarios where an is_def_eq is expected to succeed
-       (e.g., exact and apply tactics).
-       The REDUCIBLE mode (more restrictive) is used during search (e.g., type class resolution,
-       blast, etc).
-       The NONE mode is used when normalizing expressions without using delta-reduction. */
-    transparency_cache            m_transparency_cache[LEAN_NUM_TRANSPARENCY_MODES];
-
-    equiv_manager                 m_equiv_manager[LEAN_NUM_TRANSPARENCY_MODES];
-
-    failure_cache                 m_failure_cache[LEAN_NUM_TRANSPARENCY_MODES];
-
-    whnf_cache                    m_whnf_cache[LEAN_NUM_TRANSPARENCY_MODES];
-
-    name2bool                     m_aux_recursor_cache;
-
-    /* We use the following approach for caching type class instances.
-
-       Whenever a type_context object is initialized with a local_context lctx
-
-       1) If lctx has an instance_fingerprint, then we compare with the instance_fingerprint
-          stored in this cache, if they are equal, we keep m_local_instances,
-          m_instance_cache and m_subsingleton_cache.
-
-          New local instances added using methods type_context::push_local and type_context::push_let will
-          be ignored.
-
-       2) If lctx doesn't have one, we clear m_local_instances, m_instance_cache and m_subsingleton_cache.
-          We also traverse lctx and collect the local instances.
-
-          The methods type_context::push_local and type_context::push_let will flush the cache
-          whenever new local instances are pushed into the local context.
-
-          m_instance_cache and m_subsingleton_cache are flushed before the cache is returned to the
-          cache manager. */
-    optional<unsigned>            m_instance_fingerprint;
-    list<pair<name, expr>>        m_local_instances;
-    instance_cache                m_instance_cache;
-    subsingleton_cache            m_subsingleton_cache;
-
-    pos_info_provider const *     m_pip{nullptr};
-    optional<pos_info>            m_ci_pos;
-
-    /* Options */
-
-    /* Maximum search depth when performing type class resolution. */
-    unsigned                      m_ci_max_depth;
-    /* See issue #1226 */
-    unsigned                      m_nat_offset_cnstr_threshold;
-
-    friend class type_context;
-    friend class type_context_cache_manager;
-    friend struct instance_synthesizer;
-    void init(local_context const & lctx);
-    bool is_transparent(transparency_mode m, declaration const & d);
-    optional<declaration> is_transparent(transparency_mode m, name const & n);
-    bool is_aux_recursor(name const & n);
-public:
-    /** When use_bi == true, the cache for inferred types take binder information into account.
-        See comment above for infer_cache. */
-    type_context_cache(environment const & env, options const & opts, bool use_bi = false);
-    environment const & env() const { return m_env; }
-
-    options const & get_options() const { return m_options; }
-};
-
-typedef std::shared_ptr<type_context_cache> type_context_cache_ptr;
-
-/* \brief Type context cache managers are thread local data that we use
-   to try to reuse type_context_cache objects */
-class type_context_cache_manager {
-    type_context_cache_ptr m_cache_ptr;
-    environment            m_env;
-    unsigned               m_max_depth;
-    bool                   m_use_bi;
-    type_context_cache_ptr release();
-public:
-    type_context_cache_manager(bool use_bi = false):m_use_bi(use_bi) {}
-    type_context_cache_ptr mk(environment const & env, options const & o);
-    void recycle(type_context_cache_ptr const & ptr);
-    void reset() { m_cache_ptr = nullptr; }
-};
-
 class type_context : public abstract_type_context {
-    typedef type_context_cache_ptr cache_ptr;
-    typedef type_context_cache_manager cache_manager;
     typedef buffer<optional<level>> tmp_uassignment;
     typedef buffer<optional<expr>>  tmp_eassignment;
     typedef buffer<metavar_context> mctx_stack;
@@ -612,11 +392,11 @@ public:
     };
 private:
     typedef buffer<scope_data> scopes;
-    typedef list<pair<name, expr>> local_instances;
+    environment        m_env;
     metavar_context    m_mctx;
     local_context      m_lctx;
-    cache_manager *    m_cache_manager;
-    cache_ptr          m_cache;
+    context_cache      m_dummy_cache; /* cache used when user does not provide a cache */
+    context_cache *    m_cache;
     local_instances    m_local_instances;
     /* We only cache results when m_used_assignment is false */
     bool               m_used_assignment;
@@ -754,15 +534,13 @@ private:
     static bool is_equiv_cache_target(expr const & e1, expr const & e2) {
         return !has_metavar(e1) && !has_metavar(e2) && (get_weight(e1) > 1 || get_weight(e2) > 1);
     }
-    equiv_manager & get_equiv_cache() { return m_cache->m_equiv_manager[static_cast<unsigned>(m_transparency_mode)]; }
     bool is_cached_equiv(expr const & e1, expr const & e2) {
-        return is_equiv_cache_target(e1, e2) && get_equiv_cache().is_equiv(e1, e2);
+        return is_equiv_cache_target(e1, e2) && m_cache->get_equiv(*this, e1, e2);
     }
     void cache_equiv(expr const & e1, expr const & e2) {
-        if (is_equiv_cache_target(e1, e2)) get_equiv_cache().add_equiv(e1, e2);
+        if (is_equiv_cache_target(e1, e2)) m_cache->set_equiv(*this, e1, e2);
     }
 
-    type_context_cache::failure_cache & get_failure_cache() { return m_cache->m_failure_cache[static_cast<unsigned>(m_transparency_mode)]; }
     void cache_failure(expr const & t, expr const & s);
     bool is_cached_failure(expr const & t, expr const & s);
 
@@ -773,9 +551,11 @@ private:
     projection_info const * is_projection(expr const & e);
     optional<expr> reduce_projection_core(projection_info const * info, expr const & e);
 
-    type_context(type_context_cache_ptr const & ptr, metavar_context const & mctx, local_context const & lctx,
+    type_context(context_cache * cache, metavar_context const & mctx, local_context const & lctx,
                  transparency_mode m);
 public:
+    type_context(environment const & env, metavar_context const & mctx, local_context const & lctx,
+                 context_cache & cache, transparency_mode m = transparency_mode::Reducible);
     type_context(environment const & env, options const & o, metavar_context const & mctx, local_context const & lctx,
                  transparency_mode m = transparency_mode::Reducible);
     type_context(environment const & env, options const & o, local_context const & lctx,
@@ -785,20 +565,19 @@ public:
         type_context(env, options(), metavar_context(), local_context(), m) {}
     type_context(environment const & env, options const & o, transparency_mode m = transparency_mode::Reducible):
         type_context(env, o, metavar_context(), local_context(), m) {}
-    type_context(environment const & env, options const & o, metavar_context const & mctx, local_context const & lctx,
-                 type_context_cache_manager & manager, transparency_mode m = transparency_mode::Reducible);
     type_context(type_context const &) = delete;
     type_context(type_context &&) = default;
-    type_context & operator=(type_context const &) = delete;
-    type_context & operator=(type_context &&) = default;
     virtual ~type_context();
 
-    virtual environment const & env() const override { return m_cache->m_env; }
+    type_context & operator=(type_context const &) = delete;
+    type_context & operator=(type_context &&) = default;
+
+    virtual environment const & env() const override { return m_env; }
+    options const & get_options() const { return m_cache->get_options(); }
 
     // TODO(Leo): avoid ::lean::mk_fresh_name
     virtual name next_name() override { return ::lean::mk_fresh_name(); }
 
-    options const & get_options() const { return m_cache->m_options; }
     local_context const & lctx() const { return m_lctx; }
     metavar_context const & mctx() const { return m_mctx; }
     expr mk_metavar_decl(local_context const & ctx, expr const & type) { return m_mctx.mk_metavar_decl(ctx, type); }
@@ -813,11 +592,33 @@ public:
     /* note: env must be a descendant of m_env */
     void set_env(environment const & env);
 
-    /* Set the instance fingerprint of the current local context.
+    /* Store the current local instances in the local context.
+       This has the following implications:
 
-       \remark After this method is invoked we cannot push local instances anymore
-       using the method push_local. */
-    void set_instance_fingerprint();
+       1- (Fewer cache resets)
+          Since the set of local instances has been frozen, we don't need to update it
+          when using `push_local` or `push_let`. We also do not need to flush the instance/subsingleton cache
+          when we using `push_local`, `push_let` and `pop_local`.
+
+       2- (Faster type_context initialization)
+          We don't need to recompute the set of local instances when we initialize
+          another type_context using a local_context object with frozen local instances.
+          This is particularly useful if the local_context is huge. Recall that to compute the set of
+          local instance, we need to traverse the whole local context.
+          Recall that we create many short lived type_context objects in the tactic framework.
+          For example, the tactic `infer_type t` creates a type_context object just to infer the type of `t`.
+
+       3- The instance and subsingleton caches can be reused in other type_context objects
+          IF the local_context is set with the same frozen local instances.
+
+       4- (Drawback) Local instances cannot be reverted anymore.
+
+       This method is invoked after we parse the header of a declaration.
+
+       TODO(Leo):
+       add tactic `unfreeze_local_instances : tactic unit` which unfreezes the set of frozen local instances
+       for the current goal. */
+    void freeze_local_instances();
 
     bool is_def_eq(level const & l1, level const & l2);
     virtual expr whnf(expr const & e) override;
@@ -1051,8 +852,8 @@ private:
     optional<expr> unfold_definition_core(expr const & e);
     bool should_unfold_macro(expr const & e);
     expr whnf_core(expr const & e, bool iota_proj_reduce);
-    optional<declaration> is_transparent(transparency_mode m, name const & n);
-    optional<declaration> is_transparent(name const & n);
+    optional<declaration> get_decl(transparency_mode m, name const & n);
+    optional<declaration> get_decl(name const & n);
     bool use_zeta() const;
 
 private:

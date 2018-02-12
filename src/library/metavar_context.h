@@ -26,14 +26,16 @@ name get_metavar_decl_ref_suffix(level const & l);
 name get_metavar_decl_ref_suffix(expr const & e);
 
 class metavar_context {
-    name_map<metavar_decl> m_decls;
-    name_map<level>        m_uassignment;
-    name_map<expr>         m_eassignment;
+    name_map<metavar_decl>    m_decls;
+    name_map<level>           m_uassignment;
+    name_map<expr>            m_eassignment;
+
     struct interface_impl;
     friend struct interface_impl;
     expr mk_metavar_decl(optional<name> const & pp_n, local_context const & ctx, expr const & type);
 public:
     level mk_univ_metavar_decl();
+
     expr mk_metavar_decl(local_context const & ctx, expr const & type) {
         return mk_metavar_decl(optional<name>(), ctx, type);
     }

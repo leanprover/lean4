@@ -6,8 +6,6 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <vector>
-#include <unordered_map>
-#include <unordered_set>
 #include <algorithm>
 #include "util/flet.h"
 #include "util/lbool.h"

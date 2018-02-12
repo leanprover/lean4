@@ -9,6 +9,7 @@ Author: Gabriel Ebner
 #include <utility>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include "frontends/lean/module_parser.h"
 #include "util/unit.h"
 #include "util/name.h"

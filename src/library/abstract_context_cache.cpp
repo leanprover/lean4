@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/sexpr/option_declarations.h"
-#include "library/context_cache.h"
+#include "library/abstract_context_cache.h"
 #include "library/type_context.h"
 #include "library/class.h"
 #include "library/reducible.h"
@@ -49,14 +49,14 @@ bool get_smart_unfolding(options const & o) {
     return o.get_bool(*g_smart_unfolding, LEAN_DEFAULT_SMART_UNFOLDING);
 }
 
-context_cache::context_cache():
+abstract_context_cache::abstract_context_cache():
     m_unfold_lemmas(LEAN_DEFAULT_UNFOLD_LEMMAS),
     m_nat_offset_cnstr_threshold(LEAN_DEFAULT_NAT_OFFSET_CNSTR_THRESHOLD),
     m_smart_unfolding(LEAN_DEFAULT_SMART_UNFOLDING),
     m_class_instance_max_depth(LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH) {
 }
 
-context_cache::context_cache(options const & o):
+abstract_context_cache::abstract_context_cache(options const & o):
     m_options(o),
     m_unfold_lemmas(::lean::get_unfold_lemmas(o)),
     m_nat_offset_cnstr_threshold(::lean::get_nat_offset_cnstr_threshold(o)),
@@ -64,7 +64,7 @@ context_cache::context_cache(options const & o):
     m_class_instance_max_depth(::lean::get_class_instance_max_depth(o)) {
 }
 
-context_cache::context_cache(context_cache const & c, bool):
+abstract_context_cache::abstract_context_cache(abstract_context_cache const & c, bool):
     m_options(c.m_options),
     m_unfold_lemmas(c.m_unfold_lemmas),
     m_nat_offset_cnstr_threshold(c.m_nat_offset_cnstr_threshold),
@@ -72,7 +72,7 @@ context_cache::context_cache(context_cache const & c, bool):
     m_class_instance_max_depth(c.m_class_instance_max_depth) {
 }
 
-bool context_cache::is_transparent(type_context & ctx, transparency_mode m, declaration const & d) {
+bool abstract_context_cache::is_transparent(type_context & ctx, transparency_mode m, declaration const & d) {
     if (m == transparency_mode::None)
         return false;
     name const & n = d.get_name();
@@ -92,7 +92,7 @@ bool context_cache::is_transparent(type_context & ctx, transparency_mode m, decl
     return false;
 }
 
-optional<declaration> context_cache::get_decl(type_context & ctx, transparency_mode m, name const & n) {
+optional<declaration> abstract_context_cache::get_decl(type_context & ctx, transparency_mode m, name const & n) {
     if (auto d = ctx.env().find(n)) {
         if (d->is_definition() && is_transparent(ctx, m, *d)) {
             return d;
@@ -101,15 +101,15 @@ optional<declaration> context_cache::get_decl(type_context & ctx, transparency_m
     return optional<declaration>();
 }
 
-projection_info const * context_cache::get_proj_info(type_context & ctx, name const & n) {
+projection_info const * abstract_context_cache::get_proj_info(type_context & ctx, name const & n) {
     return get_projection_info(ctx.env(), n);
 }
 
-bool context_cache::get_aux_recursor(type_context & ctx, name const & n) {
+bool abstract_context_cache::get_aux_recursor(type_context & ctx, name const & n) {
     return ::lean::is_aux_recursor(ctx.env(), n);
 }
 
-void initialize_context_cache() {
+void initialize_abstract_context_cache() {
     g_class_instance_max_depth     = new name{"class", "instance_max_depth"};
     register_unsigned_option(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH,
                              "(class) max allowed depth in class-instance resolution");
@@ -127,7 +127,7 @@ void initialize_context_cache() {
                          "(type-context) enable/disable smart unfolding (e.g., during elaboration)");
 }
 
-void finalize_context_cache() {
+void finalize_abstract_context_cache() {
     delete g_class_instance_max_depth;
     delete g_nat_offset_threshold;
     delete g_smart_unfolding;

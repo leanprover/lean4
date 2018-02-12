@@ -154,7 +154,7 @@ type_context::type_context(environment const & env, options const & o, metavar_c
 }
 
 type_context::type_context(environment const & env, metavar_context const & mctx,
-                           local_context const & lctx, context_cache & cache, transparency_mode m):
+                           local_context const & lctx, abstract_context_cache & cache, transparency_mode m):
     m_env(env),
     m_mctx(mctx), m_lctx(lctx),
     m_cache(&cache) {
@@ -2295,7 +2295,7 @@ optional<expr> type_context::mk_class_instance_at(local_context const & lctx, ex
         m_cache->get_frozen_local_instances() == lctx.get_frozen_local_instances()) {
         return mk_class_instance(type);
     } else {
-        context_cache tmp_cache(*m_cache, true);
+        abstract_context_cache tmp_cache(*m_cache, true);
         type_context tmp_ctx(env(), m_mctx, lctx, tmp_cache, m_transparency_mode);
         auto r = tmp_ctx.mk_class_instance(type);
         if (r)

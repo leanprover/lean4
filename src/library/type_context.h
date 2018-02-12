@@ -19,7 +19,7 @@ Author: Leonardo de Moura
 #include "library/idx_metavar.h"
 #include "library/projection.h"
 #include "library/metavar_context.h"
-#include "library/context_cache.h"
+#include "library/abstract_context_cache.h"
 #include "library/expr_pair_maps.h"
 #include "library/exception.h"
 #include "library/unification_hint.h"
@@ -392,11 +392,12 @@ public:
     };
 private:
     typedef buffer<scope_data> scopes;
+    typedef abstract_context_cache cache;
     environment        m_env;
     metavar_context    m_mctx;
     local_context      m_lctx;
-    context_cache      m_dummy_cache; /* cache used when user does not provide a cache */
-    context_cache *    m_cache;
+    cache              m_dummy_cache; /* cache used when user does not provide a cache */
+    cache *            m_cache;
     local_instances    m_local_instances;
     /* We only cache results when m_used_assignment is false */
     bool               m_used_assignment;
@@ -551,11 +552,11 @@ private:
     projection_info const * is_projection(expr const & e);
     optional<expr> reduce_projection_core(projection_info const * info, expr const & e);
 
-    type_context(context_cache * cache, metavar_context const & mctx, local_context const & lctx,
+    type_context(abstract_context_cache * cache, metavar_context const & mctx, local_context const & lctx,
                  transparency_mode m);
 public:
     type_context(environment const & env, metavar_context const & mctx, local_context const & lctx,
-                 context_cache & cache, transparency_mode m = transparency_mode::Reducible);
+                 abstract_context_cache & cache, transparency_mode m = transparency_mode::Reducible);
     type_context(environment const & env, options const & o, metavar_context const & mctx, local_context const & lctx,
                  transparency_mode m = transparency_mode::Reducible);
     type_context(environment const & env, options const & o, local_context const & lctx,

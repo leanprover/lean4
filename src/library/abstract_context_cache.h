@@ -37,7 +37,6 @@ struct app_builder_info {
     */
 };
 
-
 /*
    We have two main kinds of cache in Lean: environmental and contextual.
    The environmental caches only depend on the environment, and are easier to maintain.
@@ -162,7 +161,7 @@ struct app_builder_info {
      * A tactic that allows user to use all local class instances available in the local context.
      * A tactic that reverses local instances
 */
-class context_cache {
+class abstract_context_cache {
 protected:
     options                   m_options;
     bool                      m_unfold_lemmas;
@@ -172,18 +171,18 @@ protected:
     optional<local_instances> m_local_instances;
     bool is_transparent(type_context & ctx, transparency_mode m, declaration const & d);
 public:
-    context_cache();
-    context_cache(options const &);
+    abstract_context_cache();
+    abstract_context_cache(options const &);
     /* Create a "dummy" context_cache with the same configuration options.
        The bool parameter is not used. It is here just to make sure we don't confuse
        this constructor with the copy constructor. */
-    context_cache(context_cache const &, bool);
-    context_cache(context_cache const &) = delete;
-    context_cache(context_cache &&) = default;
-    virtual ~context_cache() {}
+    abstract_context_cache(abstract_context_cache const &, bool);
+    abstract_context_cache(abstract_context_cache const &) = delete;
+    abstract_context_cache(abstract_context_cache &&) = default;
+    virtual ~abstract_context_cache() {}
 
-    context_cache & operator=(context_cache const &) = delete;
-    context_cache & operator=(context_cache &&) = default;
+    abstract_context_cache & operator=(abstract_context_cache const &) = delete;
+    abstract_context_cache & operator=(abstract_context_cache &&) = default;
 
     /* Cached configuration options */
     options const & get_options() const { return m_options; }
@@ -272,6 +271,6 @@ public:
     virtual void set_app_builder_info(type_context &, expr const &, list<bool> const &, app_builder_info const &) {}
 };
 
-void initialize_context_cache();
-void finalize_context_cache();
+void initialize_abstract_context_cache();
+void finalize_abstract_context_cache();
 }

@@ -302,11 +302,12 @@ class cse_fn : public compiler_step_visitor {
     }
 
 public:
-    cse_fn(environment const & env):compiler_step_visitor(env) {}
+    cse_fn(environment const & env, abstract_context_cache & cache):
+        compiler_step_visitor(env, cache) {}
 };
 
-void cse(environment const & env, buffer<procedure> & procs) {
-    cse_fn fn(env);
+void cse(environment const & env, abstract_context_cache & cache, buffer<procedure> & procs) {
+    cse_fn fn(env, cache);
     for (auto & proc : procs)
         proc.m_code = fn(proc.m_code);
 }

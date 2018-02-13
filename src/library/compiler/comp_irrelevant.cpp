@@ -94,11 +94,12 @@ protected:
     }
 
 public:
-    mark_comp_irrelevant_fn(environment const & env):compiler_step_visitor(env) {}
+    mark_comp_irrelevant_fn(environment const & env, abstract_context_cache & cache):
+        compiler_step_visitor(env, cache) {}
 };
 
-expr mark_comp_irrelevant_subterms(environment const & env, expr const & e) {
-    return mark_comp_irrelevant_fn(env)(e);
+expr mark_comp_irrelevant_subterms(environment const & env, abstract_context_cache & cache, expr const & e) {
+    return mark_comp_irrelevant_fn(env, cache)(e);
 }
 
 void initialize_comp_irrelevant() {

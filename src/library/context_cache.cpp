@@ -7,6 +7,10 @@ Author: Leonardo de Moura
 #include "library/context_cache.h"
 
 namespace lean {
+context_cache::context_cache():
+    abstract_context_cache() {
+}
+
 context_cache::context_cache(options const & o):
     abstract_context_cache(o) {
 }

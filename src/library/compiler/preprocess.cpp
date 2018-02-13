@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/quote.h"
 #include "library/noncomputable.h"
+#include "library/context_cache.h"
 #include "library/module.h"
 #include "library/vm/vm.h"
 #include "library/compiler/util.h"
@@ -149,17 +150,18 @@ class expand_aux_fn : public compiler_step_visitor {
     }
 
 public:
-    expand_aux_fn(environment const & env):compiler_step_visitor(env) {}
+    expand_aux_fn(environment const & env, abstract_context_cache & cache):compiler_step_visitor(env, cache) {}
 };
 
-static expr expand_aux(environment const & env, expr const & e) {
-    return expand_aux_fn(env)(e);
+static expr expand_aux(environment const & env, abstract_context_cache & cache, expr const & e) {
+    return expand_aux_fn(env, cache)(e);
 }
 
 static name * g_tmp_prefix = nullptr;
 
 class preprocess_fn {
     environment    m_env;
+    context_cache  m_cache;
 
     bool check(declaration const & d, expr const & v) {
         bool memoize      = true;
@@ -179,7 +181,7 @@ class preprocess_fn {
 
     void erase_irrelevant(buffer<procedure> & procs) {
         for (procedure & p : procs) {
-            p.m_code = ::lean::erase_irrelevant(m_env, p.m_code);
+            p.m_code = ::lean::erase_irrelevant(m_env, m_cache, p.m_code);
         }
     }
 
@@ -236,38 +238,38 @@ public:
             return;
         expr v = d.get_value();
         lean_trace(name({"compiler", "input"}), tout() << "\n" << v << "\n";);
-        v = inline_simple_definitions(m_env, v);
+        v = inline_simple_definitions(m_env, m_cache, v);
         lean_cond_assert("compiler", check(d, v));
         lean_trace(name({"compiler", "inline"}), tout() << "\n" << v << "\n";);
-        v = expand_aux(m_env, v);
+        v = expand_aux(m_env, m_cache, v);
         lean_cond_assert("compiler", check(d, v));
         lean_trace(name({"compiler", "expand_aux"}), tout() << "\n" << v << "\n";);
-        v = mark_comp_irrelevant_subterms(m_env, v);
+        v = mark_comp_irrelevant_subterms(m_env, m_cache, v);
         lean_cond_assert("compiler", check(d, v));
         v = find_nat_values(m_env, v);
         lean_cond_assert("compiler", check(d, v));
-        v = eta_expand(m_env, v);
+        v = eta_expand(m_env, m_cache, v);
         lean_cond_assert("compiler", check(d, v));
         lean_trace(name({"compiler", "eta_expansion"}), tout() << "\n" << v << "\n";);
-        v = elim_recursors(m_env, d.get_name(), v, procs);
+        v = elim_recursors(m_env, m_cache, d.get_name(), v, procs);
         procs.emplace_back(d.get_name(), get_decl_pos_info(m_env, d.get_name()), v);
         lean_cond_assert("compiler", check(d, procs.back().m_code));
         lean_trace(name({"compiler", "elim_recursors"}), tout() << "\n"; display(procs););
         erase_irrelevant(procs);
         lean_trace(name({"compiler", "erase_irrelevant"}), tout() << "\n"; display(procs););
-        reduce_arity(m_env, procs);
+        reduce_arity(m_env, m_cache, procs);
         lean_trace(name({"compiler", "reduce_arity"}), tout() << "\n"; display(procs););
-        erase_trivial_structures(m_env, procs);
+        erase_trivial_structures(m_env, m_cache, procs);
         lean_trace(name({"compiler", "erase_trivial_structures"}), tout() << "\n"; display(procs););
-        lambda_lifting(m_env, d.get_name(), procs);
+        lambda_lifting(m_env, m_cache, d.get_name(), procs);
         lean_trace(name({"compiler", "lambda_lifting"}), tout() << "\n"; display(procs););
-        simp_inductive(m_env, procs);
+        simp_inductive(m_env, m_cache, procs);
         lean_trace(name({"compiler", "simplify_inductive"}), tout() << "\n"; display(procs););
-        elim_unused_lets(m_env, procs);
+        elim_unused_lets(m_env, m_cache, procs);
         lean_trace(name({"compiler", "elim_unused_lets"}), tout() << "\n"; display(procs););
-        extract_values(m_env, d.get_name(), procs);
+        extract_values(m_env, m_cache, d.get_name(), procs);
         lean_trace(name({"compiler", "extract_values"}), tout() << "\n"; display(procs););
-        cse(m_env, procs);
+        cse(m_env, m_cache, procs);
         lean_trace(name({"compiler", "cse"}), tout() << "\n"; display(procs););
         lean_trace(name({"compiler", "preprocess"}), tout() << "\n"; display(procs););
     }

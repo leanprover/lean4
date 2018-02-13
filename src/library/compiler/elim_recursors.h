@@ -9,5 +9,5 @@ Author: Leonardo de Moura
 #include "library/compiler/procedure.h"
 namespace lean {
 /** \brief Eliminate recursor applications */
-expr elim_recursors(environment & env, name const & prefix, expr const & e, buffer<procedure> & new_decls);
+expr elim_recursors(environment & env, abstract_context_cache & cache, name const & prefix, expr const & e, buffer<procedure> & new_decls);
 }

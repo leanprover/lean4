@@ -211,8 +211,8 @@ class lambda_lifting_fn : public compiler_step_visitor {
     }
 
 public:
-    lambda_lifting_fn(environment const & env, name const & prefix):
-        compiler_step_visitor(env), m_prefix(prefix), m_idx(1) {
+    lambda_lifting_fn(environment const & env, abstract_context_cache & cache, name const & prefix):
+        compiler_step_visitor(env, cache), m_prefix(prefix), m_idx(1) {
     }
 
     void operator()(buffer<procedure> & procs) {
@@ -226,7 +226,7 @@ public:
     }
 };
 
-void lambda_lifting(environment const & env, name const & prefix, buffer<procedure> & procs) {
-    return lambda_lifting_fn(env, prefix)(procs);
+void lambda_lifting(environment const & env, abstract_context_cache & cache, name const & prefix, buffer<procedure> & procs) {
+    return lambda_lifting_fn(env, cache, prefix)(procs);
 }
 }

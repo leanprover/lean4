@@ -111,7 +111,8 @@ protected:
         }
     }
 public:
-    simp_inductive_core_fn(environment const & env):compiler_step_visitor(env) {}
+    simp_inductive_core_fn(environment const & env, abstract_context_cache & cache):
+        compiler_step_visitor(env, cache) {}
 };
 
 /* \brief Remove constructor/projection/cases_on applications of trivial structures.
@@ -232,7 +233,8 @@ class erase_trivial_structures_fn : public simp_inductive_core_fn {
         return compiler_step_visitor::visit_app(e);
     }
 public:
-    erase_trivial_structures_fn(environment const & env):simp_inductive_core_fn(env) {}
+    erase_trivial_structures_fn(environment const & env, abstract_context_cache & cache):
+        simp_inductive_core_fn(env, cache) {}
 };
 
 class simp_inductive_fn : public simp_inductive_core_fn {
@@ -398,7 +400,8 @@ class simp_inductive_fn : public simp_inductive_core_fn {
     }
 
 public:
-    simp_inductive_fn(environment const & env):simp_inductive_core_fn(env) {}
+    simp_inductive_fn(environment const & env, abstract_context_cache & cache):
+        simp_inductive_core_fn(env, cache) {}
 };
 
 /*
@@ -429,14 +432,14 @@ public:
   ```
 */
 
-void erase_trivial_structures(environment const & env, buffer<procedure> & procs) {
-    erase_trivial_structures_fn eraser(env);
+void erase_trivial_structures(environment const & env, abstract_context_cache & cache, buffer<procedure> & procs) {
+    erase_trivial_structures_fn eraser(env, cache);
     for (auto & proc : procs)
         proc.m_code = eraser(proc.m_code);
 }
 
-void simp_inductive(environment const & env, buffer<procedure> & procs) {
-    simp_inductive_fn simplifier(env);
+void simp_inductive(environment const & env, abstract_context_cache & cache, buffer<procedure> & procs) {
+    simp_inductive_fn simplifier(env, cache);
     for (auto & proc : procs)
         proc.m_code = simplifier(proc.m_code);
 }

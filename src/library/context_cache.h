@@ -88,6 +88,7 @@ class context_cache : public abstract_context_cache {
     instance_cache                m_instance_cache;
     subsingleton_cache            m_subsingleton_cache;
 public:
+    context_cache();
     context_cache(options const & o);
     context_cache(context_cache const &) = delete;
     context_cache(context_cache &&) = default;

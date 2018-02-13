@@ -190,10 +190,11 @@ class eta_expand_fn : public compiler_step_visitor {
     }
 
 public:
-    eta_expand_fn(environment const & env):compiler_step_visitor(env) {}
+    eta_expand_fn(environment const & env, abstract_context_cache & cache):
+        compiler_step_visitor(env, cache) {}
 };
 
-expr eta_expand(environment const & env, expr const & e) {
-    return eta_expand_fn(env)(e);
+expr eta_expand(environment const & env, abstract_context_cache & cache, expr const & e) {
+    return eta_expand_fn(env, cache)(e);
 }
 }

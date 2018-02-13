@@ -18,7 +18,7 @@ protected:
 
     expr visit_lambda_let(expr const & e);
 protected:
-    compiler_step_visitor(environment const & env);
+    compiler_step_visitor(environment const & env, abstract_context_cache & cache);
     virtual ~compiler_step_visitor();
 
     environment const & env() const { return m_env; }

@@ -11,13 +11,17 @@ Author: Leonardo de Moura
 
 namespace lean {
 /*
-   Remark: we don't need typeclass resolution in the compiler.
-
-   TODO(Leo): should we have a context_cache for the compiler?
+  Remark: we don't need typeclass resolution in the compiler.
 */
-compiler_step_visitor::compiler_step_visitor(environment const & env):
+static local_context mk_local_context_without_local_instances() {
+    local_context lctx;
+    lctx.freeze_local_instances(local_instances());
+    return lctx;
+}
+
+compiler_step_visitor::compiler_step_visitor(environment const & env, abstract_context_cache & cache):
     m_env(env),
-    m_ctx(env, options(), local_context(), transparency_mode::All) {
+    m_ctx(env, metavar_context(), mk_local_context_without_local_instances(), cache, transparency_mode::All) {
 }
 
 compiler_step_visitor::~compiler_step_visitor() {

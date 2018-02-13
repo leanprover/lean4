@@ -9,8 +9,9 @@ Author: Leonardo de Moura
 
 namespace lean {
 class type_context;
+class abstract_context_cache;
 /** \brief Mark sub-expressions of \c e that are computationally irrelevant. */
-expr mark_comp_irrelevant_subterms(environment const & env, expr const & e);
+expr mark_comp_irrelevant_subterms(environment const & env, abstract_context_cache & cache, expr const & e);
 /** \brief Mark the given term as computationally irrelevant */
 expr mark_comp_irrelevant(expr const & e);
 /** \brief Return true iff \c e is annotated with the comp-irrelevant annotation */

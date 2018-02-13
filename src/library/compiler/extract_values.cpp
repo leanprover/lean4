@@ -55,8 +55,8 @@ class extract_values_fn : public compiler_step_visitor {
             return compiler_step_visitor::visit_macro(e);
     }
 public:
-    extract_values_fn(environment const & env, name const & prefix):
-        compiler_step_visitor(env), m_prefix(prefix) {}
+    extract_values_fn(environment const & env, abstract_context_cache & cache, name const & prefix):
+        compiler_step_visitor(env, cache), m_prefix(prefix) {}
 
     void operator()(procedure p) {
         m_root   = p.m_code;
@@ -70,8 +70,8 @@ public:
     }
 };
 
-void extract_values(environment const & env, name const & prefix, buffer<procedure> & procs) {
-    extract_values_fn fn(env, prefix);
+void extract_values(environment const & env, abstract_context_cache & cache, name const & prefix, buffer<procedure> & procs) {
+    extract_values_fn fn(env, cache, prefix);
     for (procedure const & p : procs)
         fn(p);
     procs.clear();

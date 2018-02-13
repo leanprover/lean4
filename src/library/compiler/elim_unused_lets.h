@@ -7,5 +7,5 @@ Author: Leonardo de Moura
 #pragma once
 #include "library/compiler/procedure.h"
 namespace lean {
-void elim_unused_lets(environment const & env, buffer<procedure> & procs);
+void elim_unused_lets(environment const & env, abstract_context_cache & cache, buffer<procedure> & procs);
 }

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/environment.h"
+#include "library/abstract_context_cache.h"
 #include "library/compiler/procedure.h"
 namespace lean {
 
@@ -15,12 +16,12 @@ namespace lean {
    the constructor has only one relevant field.
    In this case, we use a simple optimization where we represent elements of this inductive
    datatype as the only relevant element. */
-void erase_trivial_structures(environment const & env, buffer<procedure> & procs);
+void erase_trivial_structures(environment const & env, abstract_context_cache & cache, buffer<procedure> & procs);
 
 /** \brief Replaces cases_on, projections and constructor applications with _cases.idx, _proj.idx and _cnstr.idx
     It also removes irrelevant fields from constructors.
     \remark nat.cases_on, nat.succ and nat.zero are ignored. */
-void simp_inductive(environment const & env, buffer<procedure> & procs);
+void simp_inductive(environment const & env, abstract_context_cache & cache, buffer<procedure> & procs);
 
 /** \brief Return non-none idx iff \c e is of the form _cnstr.idx */
 optional<unsigned> is_internal_cnstr(expr const & e);

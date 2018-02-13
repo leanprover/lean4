@@ -59,11 +59,11 @@ class remove_args_fn : public compiler_step_visitor {
     }
 
 public:
-    remove_args_fn(environment const & env, name_map<std::vector<bool>> const & to_reduce):
-        compiler_step_visitor(env), m_to_reduce(to_reduce) {}
+    remove_args_fn(environment const & env, abstract_context_cache & cache, name_map<std::vector<bool>> const & to_reduce):
+        compiler_step_visitor(env, cache), m_to_reduce(to_reduce) {}
 };
 
-void reduce_arity(environment const & env, buffer<procedure> & procs) {
+void reduce_arity(environment const & env, abstract_context_cache & cache, buffer<procedure> & procs) {
     lean_assert(!procs.empty());
     /* Store in to_reduce a bit-vector indicating which arguments are used by each (auxiliary) function. */
     name_map<std::vector<bool>> to_reduce;
@@ -95,7 +95,7 @@ void reduce_arity(environment const & env, buffer<procedure> & procs) {
         }
     }
     /* reduce irrelevant application arguments */
-    remove_args_fn remove_args(env, to_reduce);
+    remove_args_fn remove_args(env, cache, to_reduce);
     for (unsigned i = 0; i < procs.size(); i++) {
         procedure & d = procs[i];
         d.m_code = remove_args(d.m_code);

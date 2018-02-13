@@ -415,11 +415,12 @@ class erase_irrelevant_fn : public compiler_step_visitor {
     }
 
 public:
-    erase_irrelevant_fn(environment const & env):compiler_step_visitor(env) {}
+    erase_irrelevant_fn(environment const & env, abstract_context_cache & cache):
+        compiler_step_visitor(env, cache) {}
 };
 
-expr erase_irrelevant(environment const & env, expr const & e) {
-    return erase_irrelevant_fn(env)(e);
+expr erase_irrelevant(environment const & env, abstract_context_cache & cache, expr const & e) {
+    return erase_irrelevant_fn(env, cache)(e);
 }
 
 void initialize_erase_irrelevant() {

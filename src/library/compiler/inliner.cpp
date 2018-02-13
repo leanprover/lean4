@@ -164,10 +164,11 @@ class inline_simple_definitions_fn : public compiler_step_visitor {
     }
 
 public:
-    inline_simple_definitions_fn(environment const & env):compiler_step_visitor(env) {}
+    inline_simple_definitions_fn(environment const & env, abstract_context_cache & cache):
+        compiler_step_visitor(env, cache) {}
 };
 
-expr inline_simple_definitions(environment const & env, expr const & e) {
-    return inline_simple_definitions_fn(env)(e);
+expr inline_simple_definitions(environment const & env, abstract_context_cache & cache, expr const & e) {
+    return inline_simple_definitions_fn(env, cache)(e);
 }
 }

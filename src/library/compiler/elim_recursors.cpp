@@ -254,14 +254,16 @@ protected:
     }
 
 public:
-    elim_recursors_fn(environment const & env, name const & prefix, buffer<procedure> & new_decls):
-        compiler_step_visitor(env), m_prefix(prefix), m_idx(1), m_new_decls(new_decls) {}
+    elim_recursors_fn(environment const & env, abstract_context_cache & cache,
+                      name const & prefix, buffer<procedure> & new_decls):
+        compiler_step_visitor(env, cache), m_prefix(prefix), m_idx(1), m_new_decls(new_decls) {}
 
     environment const & env() const { return m_env; }
 };
 
-expr elim_recursors(environment & env, name const & prefix, expr const & e, buffer<procedure> & new_decls) {
-    elim_recursors_fn fn(env, prefix, new_decls);
+expr elim_recursors(environment & env, abstract_context_cache & cache,
+                    name const & prefix, expr const & e, buffer<procedure> & new_decls) {
+    elim_recursors_fn fn(env, cache, prefix, new_decls);
     expr new_e = fn(e);
     env = fn.env();
     return new_e;

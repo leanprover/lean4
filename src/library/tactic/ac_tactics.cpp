@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include <algorithm>
+#include "kernel/expr_maps.h"
 #include "library/trace.h"
 #include "library/util.h"
 #include "library/reducible.h"

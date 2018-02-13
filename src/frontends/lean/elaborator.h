@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/pos_info_provider.h"
 #include "library/local_context.h"
 #include "library/type_context.h"
+#include "library/context_cache.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/elaborate.h"
 #include "library/tactic/elaborator_exception.h"
@@ -38,6 +39,7 @@ private:
     };
     environment       m_env;
     options           m_opts;
+    context_cache     m_cache;
     name              m_decl_name;
     type_context      m_ctx;
     info_manager      m_info;

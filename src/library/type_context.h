@@ -11,14 +11,10 @@ Author: Leonardo de Moura
 #include "util/lbool.h"
 #include "kernel/environment.h"
 #include "kernel/abstract_type_context.h"
-#include "kernel/expr_maps.h"
-#include "kernel/equiv_manager.h"
-#include "kernel/pos_info_provider.h"
 #include "library/idx_metavar.h"
 #include "library/projection.h"
 #include "library/metavar_context.h"
 #include "library/abstract_context_cache.h"
-#include "library/expr_pair_maps.h"
 #include "library/exception.h"
 #include "library/unification_hint.h"
 
@@ -534,10 +530,10 @@ private:
         return !has_metavar(e1) && !has_metavar(e2) && (get_weight(e1) > 1 || get_weight(e2) > 1);
     }
     bool is_cached_equiv(expr const & e1, expr const & e2) {
-        return is_equiv_cache_target(e1, e2) && m_cache->get_equiv(*this, e1, e2);
+        return is_equiv_cache_target(e1, e2) && m_cache->get_equiv(m_transparency_mode, e1, e2);
     }
     void cache_equiv(expr const & e1, expr const & e2) {
-        if (is_equiv_cache_target(e1, e2)) m_cache->set_equiv(*this, e1, e2);
+        if (is_equiv_cache_target(e1, e2)) m_cache->set_equiv(m_transparency_mode, e1, e2);
     }
 
     void cache_failure(expr const & t, expr const & s);

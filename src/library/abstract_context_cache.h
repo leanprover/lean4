@@ -200,23 +200,23 @@ public:
 
     /* Cache support for type_context module */
 
-    virtual optional<expr> get_infer(type_context &, expr const &) { return none_expr(); }
-    virtual void set_infer(type_context &, expr const &, expr const &) {}
+    virtual optional<expr> get_infer(expr const &) { return none_expr(); }
+    virtual void set_infer(expr const &, expr const &) {}
 
-    virtual bool get_equiv(type_context &, expr const &, expr const &) { return false; }
-    virtual void set_equiv(type_context &, expr const &, expr const &) {}
+    virtual bool get_equiv(transparency_mode, expr const &, expr const &) { return false; }
+    virtual void set_equiv(transparency_mode, expr const &, expr const &) {}
 
-    virtual bool get_is_def_eq_failure(type_context &, expr const &, expr const &) { return false; }
-    virtual void set_is_def_eq_failure(type_context &, expr const &, expr const &) {}
+    virtual bool get_is_def_eq_failure(transparency_mode, expr const &, expr const &) { return false; }
+    virtual void set_is_def_eq_failure(transparency_mode, expr const &, expr const &) {}
 
-    virtual optional<expr> get_whnf(type_context &, expr const &) { return none_expr(); }
-    virtual void set_whnf(type_context &, expr const &, expr const &) {}
+    virtual optional<expr> get_whnf(transparency_mode, expr const &) { return none_expr(); }
+    virtual void set_whnf(transparency_mode, expr const &, expr const &) {}
 
-    virtual optional<optional<expr>> get_instance(type_context &, expr const &) { return optional<optional<expr>>(); }
-    virtual void set_instance(type_context &, expr const &, optional<expr> const &) {}
+    virtual optional<optional<expr>> get_instance(expr const &) { return optional<optional<expr>>(); }
+    virtual void set_instance(expr const &, optional<expr> const &) {}
 
-    virtual optional<optional<expr>> get_subsingleton(type_context &, expr const &) { return optional<optional<expr>>(); }
-    virtual void set_subsingleton(type_context &, expr const &, optional<expr> const &) {}
+    virtual optional<optional<expr>> get_subsingleton(expr const &) { return optional<optional<expr>>(); }
+    virtual void set_subsingleton(expr const &, optional<expr> const &) {}
 
     /* this method should flush the instance and subsingleton cache */
     virtual void flush_instances() {}

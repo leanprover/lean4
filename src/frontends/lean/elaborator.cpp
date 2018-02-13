@@ -130,8 +130,8 @@ elaborator_strategy get_elaborator_strategy(environment const & env, name const 
 elaborator::elaborator(environment const & env, options const & opts, name const & decl_name,
                        metavar_context const & mctx, local_context const & lctx, bool recover_from_errors,
                        bool in_pattern, bool in_quote):
-    m_env(env), m_opts(opts), m_decl_name(decl_name),
-    m_ctx(env, opts, mctx, lctx, transparency_mode::Semireducible),
+    m_env(env), m_opts(opts), m_cache(opts), m_decl_name(decl_name),
+    m_ctx(env, mctx, lctx, m_cache, transparency_mode::Semireducible),
     m_recover_from_errors(recover_from_errors),
     m_uses_infom(get_global_info_manager() != nullptr), m_in_pattern(in_pattern), m_in_quote(in_quote) {
     m_coercions = get_elaborator_coercions(opts);

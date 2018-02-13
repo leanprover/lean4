@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include "kernel/expr_maps.h"
 #include "library/type_context.h"
 #include "library/defeq_canonizer.h"
 #include "library/tactic/simp_lemmas.h"

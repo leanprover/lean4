@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <memory>
+#include "kernel/expr_maps.h"
 #include "library/type_context.h"
 #include "library/head_map.h"
 

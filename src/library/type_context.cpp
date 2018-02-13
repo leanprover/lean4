@@ -76,14 +76,14 @@ bool type_context::tmp_locals::all_let_decls() const {
    ===================== */
 
 void type_context::cache_failure(expr const & t, expr const & s) {
-    m_cache->set_is_def_eq_failure(*this, t, s);
+    m_cache->set_is_def_eq_failure(m_transparency_mode, t, s);
 }
 
 bool type_context::is_cached_failure(expr const & t, expr const & s) {
     if (has_expr_metavar(t) || has_expr_metavar(s)) {
         return false;
     } else {
-        return m_cache->get_is_def_eq_failure(*this, t, s);
+        return m_cache->get_is_def_eq_failure(m_transparency_mode, t, s);
     }
 }
 
@@ -801,7 +801,7 @@ expr type_context::whnf(expr const & e) {
     default:
         break;
     }
-    if (auto r = m_cache->get_whnf(*this, e))
+    if (auto r = m_cache->get_whnf(m_transparency_mode, e))
         return *r;
     reset_used_assignment reset(*this);
     unsigned postponed_sz = m_postponed.size();
@@ -814,7 +814,7 @@ expr type_context::whnf(expr const & e) {
             if ((!in_tmp_mode() || !has_expr_metavar(t1)) && m_smart_unfolding &&
                 !m_used_assignment && !is_stuck(t1) &&
                 postponed_sz == m_postponed.size() && !m_transparency_pred) {
-                m_cache->set_whnf(*this, e, t1);
+                m_cache->set_whnf(m_transparency_mode, e, t1);
             }
             return t1;
         }
@@ -893,7 +893,7 @@ expr type_context::infer(expr const & e) {
 }
 
 expr type_context::infer_core(expr const & e) {
-    if (auto r = m_cache->get_infer(*this, e))
+    if (auto r = m_cache->get_infer(e))
         return *r;
     unsigned postponed_sz = m_postponed.size();
     reset_used_assignment reset(*this);
@@ -933,7 +933,7 @@ expr type_context::infer_core(expr const & e) {
 
     if ((!in_tmp_mode() || (!has_expr_metavar(e) && !has_expr_metavar(r))) &&
         !m_used_assignment && postponed_sz == m_postponed.size())
-        m_cache->set_infer(*this, e, r);
+        m_cache->set_infer(e, r);
 
     return r;
 }
@@ -3712,7 +3712,7 @@ struct instance_synthesizer {
 
     void cache_result(expr const & type, optional<expr> const & inst) {
         if (!has_expr_metavar(type))
-            m_ctx.m_cache->set_instance(m_ctx, type, inst);
+            m_ctx.m_cache->set_instance(type, inst);
     }
 
     optional<expr> ensure_no_meta(optional<expr> r) {
@@ -3746,7 +3746,7 @@ struct instance_synthesizer {
     optional<expr> mk_class_instance_core(expr const & type) {
         /* We do not cache results when multiple instances have to be generated. */
         if (!has_expr_metavar(type)) {
-            if (auto r = m_ctx.m_cache->get_instance(m_ctx, type)) {
+            if (auto r = m_ctx.m_cache->get_instance(type)) {
                 /* instance/failure is already cached */
                 lean_trace("class_instances",
                            scope_trace_env scope(m_ctx.env(), m_ctx);
@@ -3977,17 +3977,17 @@ optional<expr> type_context::mk_class_instance(expr const & type_0) {
 }
 
 optional<expr> type_context::mk_subsingleton_instance(expr const & type) {
-    if (optional<optional<expr>> r = m_cache->get_subsingleton(*this, type))
+    if (optional<optional<expr>> r = m_cache->get_subsingleton(type))
         return *r;
     expr Type  = whnf(infer(type));
     if (!is_sort(Type)) {
-        m_cache->set_subsingleton(*this, type, none_expr());
+        m_cache->set_subsingleton(type, none_expr());
         return none_expr();
     }
     level lvl    = sort_level(Type);
     expr subsingleton = mk_app(mk_constant(get_subsingleton_name(), {lvl}), type);
     optional<expr> r = mk_class_instance(subsingleton);
-    m_cache->set_subsingleton(*this, type, r);
+    m_cache->set_subsingleton(type, r);
     return r;
 }
 

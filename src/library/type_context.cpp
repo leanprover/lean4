@@ -2295,7 +2295,7 @@ optional<expr> type_context::mk_class_instance_at(local_context const & lctx, ex
         m_cache->get_frozen_local_instances() == lctx.get_frozen_local_instances()) {
         return mk_class_instance(type);
     } else {
-        abstract_context_cache tmp_cache(*m_cache, true);
+        context_cacheless tmp_cache(*m_cache, true);
         type_context tmp_ctx(env(), m_mctx, lctx, tmp_cache, m_transparency_mode);
         auto r = tmp_ctx.mk_class_instance(type);
         if (r)

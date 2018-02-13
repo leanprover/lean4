@@ -8,11 +8,11 @@ Author: Leonardo de Moura
 
 namespace lean {
 context_cache::context_cache():
-    abstract_context_cache() {
+    context_cacheless() {
 }
 
 context_cache::context_cache(options const & o):
-    abstract_context_cache(o) {
+    context_cacheless(o) {
 }
 
 context_cache::~context_cache() {
@@ -24,21 +24,21 @@ optional<declaration> context_cache::get_decl(type_context & ctx, transparency_m
     if (it != cache.end()) {
         return it->second;
     }
-    optional<declaration> r = abstract_context_cache::get_decl(ctx, m, n);
+    optional<declaration> r = context_cacheless::get_decl(ctx, m, n);
     cache.insert(mk_pair(n, r));
     return r;
 }
 
 projection_info const * context_cache::get_proj_info(type_context & ctx, name const & n) {
     // TODO(Leo): check if we really need a cache for get_proj_info
-    return abstract_context_cache::get_proj_info(ctx, n);
+    return context_cacheless::get_proj_info(ctx, n);
 }
 
 bool context_cache::get_aux_recursor(type_context & ctx, name const & n) {
     auto it = m_aux_recursor_cache.find(n);
     if (it != m_aux_recursor_cache.end())
         return it->second;
-    bool r = abstract_context_cache::get_aux_recursor(ctx, n);
+    bool r = context_cacheless::get_aux_recursor(ctx, n);
     m_aux_recursor_cache.insert(mk_pair(n, r));
     return r;
 }

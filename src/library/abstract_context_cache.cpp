@@ -49,14 +49,14 @@ bool get_smart_unfolding(options const & o) {
     return o.get_bool(*g_smart_unfolding, LEAN_DEFAULT_SMART_UNFOLDING);
 }
 
-abstract_context_cache::abstract_context_cache():
+context_cacheless::context_cacheless():
     m_unfold_lemmas(LEAN_DEFAULT_UNFOLD_LEMMAS),
     m_nat_offset_cnstr_threshold(LEAN_DEFAULT_NAT_OFFSET_CNSTR_THRESHOLD),
     m_smart_unfolding(LEAN_DEFAULT_SMART_UNFOLDING),
     m_class_instance_max_depth(LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH) {
 }
 
-abstract_context_cache::abstract_context_cache(options const & o):
+context_cacheless::context_cacheless(options const & o):
     m_options(o),
     m_unfold_lemmas(::lean::get_unfold_lemmas(o)),
     m_nat_offset_cnstr_threshold(::lean::get_nat_offset_cnstr_threshold(o)),
@@ -64,15 +64,15 @@ abstract_context_cache::abstract_context_cache(options const & o):
     m_class_instance_max_depth(::lean::get_class_instance_max_depth(o)) {
 }
 
-abstract_context_cache::abstract_context_cache(abstract_context_cache const & c, bool):
-    m_options(c.m_options),
-    m_unfold_lemmas(c.m_unfold_lemmas),
-    m_nat_offset_cnstr_threshold(c.m_nat_offset_cnstr_threshold),
-    m_smart_unfolding(c.m_smart_unfolding),
-    m_class_instance_max_depth(c.m_class_instance_max_depth) {
+context_cacheless::context_cacheless(abstract_context_cache const & c, bool):
+    m_options(c.get_options()),
+    m_unfold_lemmas(c.get_unfold_lemmas()),
+    m_nat_offset_cnstr_threshold(c.get_nat_offset_cnstr_threshold()),
+    m_smart_unfolding(c.get_smart_unfolding()),
+    m_class_instance_max_depth(c.get_class_instance_max_depth()) {
 }
 
-bool abstract_context_cache::is_transparent(type_context & ctx, transparency_mode m, declaration const & d) {
+bool context_cacheless::is_transparent(type_context & ctx, transparency_mode m, declaration const & d) {
     if (m == transparency_mode::None)
         return false;
     name const & n = d.get_name();
@@ -92,7 +92,7 @@ bool abstract_context_cache::is_transparent(type_context & ctx, transparency_mod
     return false;
 }
 
-optional<declaration> abstract_context_cache::get_decl(type_context & ctx, transparency_mode m, name const & n) {
+optional<declaration> context_cacheless::get_decl(type_context & ctx, transparency_mode m, name const & n) {
     if (auto d = ctx.env().find(n)) {
         if (d->is_definition() && is_transparent(ctx, m, *d)) {
             return d;
@@ -101,11 +101,11 @@ optional<declaration> abstract_context_cache::get_decl(type_context & ctx, trans
     return optional<declaration>();
 }
 
-projection_info const * abstract_context_cache::get_proj_info(type_context & ctx, name const & n) {
+projection_info const * context_cacheless::get_proj_info(type_context & ctx, name const & n) {
     return get_projection_info(ctx.env(), n);
 }
 
-bool abstract_context_cache::get_aux_recursor(type_context & ctx, name const & n) {
+bool context_cacheless::get_aux_recursor(type_context & ctx, name const & n) {
     return ::lean::is_aux_recursor(ctx.env(), n);
 }
 

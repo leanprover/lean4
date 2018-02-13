@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "library/abstract_context_cache.h"
 
 namespace lean {
-class context_cache : public abstract_context_cache {
+class context_cache : public context_cacheless {
     typedef std::unordered_map<name, optional<declaration>, name_hash> transparency_cache;
     typedef std::unordered_map<name, bool, name_hash> name2bool;
 

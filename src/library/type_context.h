@@ -387,10 +387,11 @@ public:
 private:
     typedef buffer<scope_data> scopes;
     typedef abstract_context_cache cache;
+    typedef context_cacheless dummy_cache;
     environment        m_env;
     metavar_context    m_mctx;
     local_context      m_lctx;
-    cache              m_dummy_cache; /* cache used when user does not provide a cache */
+    dummy_cache        m_dummy_cache; /* cache used when user does not provide a cache */
     cache *            m_cache;
     local_instances    m_local_instances;
     /* We only cache results when m_used_assignment is false */

@@ -60,9 +60,6 @@ struct app_builder_info {
    In the type_context, we cache inferred types, whnf, type class instances,
    to cite a few.
 
-   This class do not implement any cache, only its interface. All operations
-   do nothing.
-
    This class has been added to address problems with the former `type_context_cache_manager`.
    The `type_context_cache_manager` objects were stored in thread local objects.
    The correctness of this cache relied on the fact we used to never reuse fresh names in the whole system.
@@ -162,21 +159,8 @@ struct app_builder_info {
      * A tactic that reverses local instances
 */
 class abstract_context_cache {
-protected:
-    options                   m_options;
-    bool                      m_unfold_lemmas;
-    unsigned                  m_nat_offset_cnstr_threshold;
-    unsigned                  m_smart_unfolding;
-    unsigned                  m_class_instance_max_depth;
-    optional<local_instances> m_local_instances;
-    bool is_transparent(type_context & ctx, transparency_mode m, declaration const & d);
 public:
-    abstract_context_cache();
-    abstract_context_cache(options const &);
-    /* Create a "dummy" context_cache with the same configuration options.
-       The bool parameter is not used. It is here just to make sure we don't confuse
-       this constructor with the copy constructor. */
-    abstract_context_cache(abstract_context_cache const &, bool);
+    abstract_context_cache() {}
     abstract_context_cache(abstract_context_cache const &) = delete;
     abstract_context_cache(abstract_context_cache &&) = default;
     virtual ~abstract_context_cache() {}
@@ -185,11 +169,126 @@ public:
     abstract_context_cache & operator=(abstract_context_cache &&) = default;
 
     /* Cached configuration options */
-    options const & get_options() const { return m_options; }
-    bool get_unfold_lemmas() const { return m_unfold_lemmas; }
-    unsigned get_nat_offset_cnstr_threshold() const { return m_nat_offset_cnstr_threshold; }
-    unsigned get_smart_unfolding() const { return m_smart_unfolding; }
-    unsigned get_class_instance_max_depth() const { return m_class_instance_max_depth; }
+    virtual options const & get_options() const = 0;
+    virtual bool get_unfold_lemmas() const = 0;
+    virtual unsigned get_nat_offset_cnstr_threshold() const = 0;
+    virtual unsigned get_smart_unfolding() const = 0;
+    virtual unsigned get_class_instance_max_depth() const = 0;
+
+    /* Operations for accessing environment data more efficiently.
+       The default implementation provided by this class does not have any optimization. */
+
+    virtual optional<declaration> get_decl(type_context &, transparency_mode, name const &) = 0;
+    virtual projection_info const * get_proj_info(type_context &, name const &) = 0;
+    virtual bool get_aux_recursor(type_context &, name const &) = 0;
+
+    /* Cache support for type_context module */
+
+    virtual optional<expr> get_infer(expr const &) = 0;
+    virtual void set_infer(expr const &, expr const &) = 0;
+
+    virtual bool get_equiv(transparency_mode, expr const &, expr const &) = 0;
+    virtual void set_equiv(transparency_mode, expr const &, expr const &) = 0;
+
+    virtual bool get_is_def_eq_failure(transparency_mode, expr const &, expr const &) = 0;
+    virtual void set_is_def_eq_failure(transparency_mode, expr const &, expr const &) = 0;
+
+    virtual optional<expr> get_whnf(transparency_mode, expr const &) = 0;
+    virtual void set_whnf(transparency_mode, expr const &, expr const &) = 0;
+
+    virtual optional<optional<expr>> get_instance(expr const &) = 0;
+    virtual void set_instance(expr const &, optional<expr> const &) = 0;
+
+    virtual optional<optional<expr>> get_subsingleton(expr const &) = 0;
+    virtual void set_subsingleton(expr const &, optional<expr> const &) = 0;
+
+    /* this method should flush the instance and subsingleton cache */
+    virtual void flush_instances() = 0;
+
+    virtual void reset_frozen_local_instances() = 0;
+    virtual void set_frozen_local_instances(local_instances const & lis) = 0;
+    virtual optional<local_instances> get_frozen_local_instances() const = 0;
+
+    /* Cache support for fun_info module */
+
+    virtual optional<fun_info> get_fun_info(type_context &, expr const &) = 0;
+    virtual void set_fun_info(type_context &, expr const &, fun_info const &) = 0;
+
+    virtual optional<fun_info> get_fun_info_nargs(type_context &, expr const &, unsigned) = 0;
+    virtual void set_fun_info_nargs(type_context &, expr const &, unsigned, fun_info const &) = 0;
+
+    virtual optional<unsigned> get_specialization_prefix_size(type_context &, expr const &, unsigned) = 0;
+    virtual void set_specialization_prefix_size(type_context &, expr const &, unsigned, unsigned) = 0;
+
+    virtual optional<ss_param_infos> get_subsingleton_info(type_context &, expr const &) = 0;
+    virtual void set_subsingleton_info(type_context &, expr const &, ss_param_infos const &) = 0;
+
+    virtual optional<ss_param_infos> get_subsingleton_info_nargs(type_context &, expr const &, unsigned) = 0;
+    virtual void set_subsingleton_info_nargs(type_context &, expr const &, unsigned, ss_param_infos const &) = 0;
+
+    virtual optional<ss_param_infos> get_specialized_subsingleton_info_nargs(type_context &, expr const &, unsigned) = 0;
+    virtual void set_specialization_subsingleton_info_nargs(type_context &, expr const &, unsigned, ss_param_infos const &) = 0;
+
+    /* Cache support for congr_lemma module */
+
+    virtual optional<congr_lemma> get_simp_congr_lemma(type_context &, expr const &, unsigned) = 0;
+    virtual void set_simp_congr_lemma(type_context &, expr const &, unsigned, congr_lemma const &) = 0;
+
+    virtual optional<congr_lemma> get_specialized_simp_congr_lemma(type_context &, expr const &, unsigned) = 0;
+    virtual void set_specialized_simp_congr_lemma(type_context &, expr const &, unsigned, congr_lemma const &) = 0;
+
+    virtual optional<congr_lemma> get_congr_lemma(type_context &, expr const &, unsigned) = 0;
+    virtual void set_congr_lemma(type_context &, expr const &, unsigned, congr_lemma const &) = 0;
+
+    virtual optional<congr_lemma> get_specialized_congr_lemma(type_context &, expr const &, unsigned) = 0;
+    virtual void set_specialized_congr_lemma(type_context &, expr const &, unsigned, congr_lemma const &) = 0;
+
+    virtual optional<congr_lemma> get_hcongr_lemma(type_context &, expr const &, unsigned) = 0;
+    virtual void set_hcongr_lemma(type_context &, expr const &, unsigned, congr_lemma const &) = 0;
+
+    /* Cache support for app_builder */
+
+    virtual optional<app_builder_info> get_app_builder_info(type_context &, expr const &, unsigned) = 0;
+    virtual void set_app_builder_info(type_context &, expr const &, unsigned, app_builder_info const &) = 0;
+
+    virtual optional<app_builder_info> get_app_builder_info(type_context &, expr const &, list<bool> const &) = 0;
+    virtual void set_app_builder_info(type_context &, expr const &, list<bool> const &, app_builder_info const &) = 0;
+};
+
+/* Dummy implementation of the abstract_context_cache interface that does not do cache anything but configuration options. */
+class context_cacheless : public abstract_context_cache {
+protected:
+    bool is_transparent(type_context & ctx, transparency_mode m, declaration const & d);
+private:
+    options                   m_options;
+    bool                      m_unfold_lemmas;
+    unsigned                  m_nat_offset_cnstr_threshold;
+    unsigned                  m_smart_unfolding;
+    unsigned                  m_class_instance_max_depth;
+    optional<local_instances> m_local_instances;
+public:
+    context_cacheless();
+    context_cacheless(options const &);
+    /* Faster version of `context_cacheless(c.get_options())`.
+       The bool parameter is not used. It is here just to make sure we don't confuse
+       this constructor with the copy constructor. */
+    context_cacheless(abstract_context_cache const &, bool);
+    context_cacheless(context_cacheless const &) = delete;
+    context_cacheless(context_cacheless &&) = default;
+    virtual ~context_cacheless() {}
+
+    context_cacheless & operator=(context_cacheless const &) = delete;
+    context_cacheless & operator=(context_cacheless &&) = default;
+
+    virtual options const & get_options() const override { return m_options; }
+    virtual bool get_unfold_lemmas() const override { return m_unfold_lemmas; }
+    virtual unsigned get_nat_offset_cnstr_threshold() const override  { return m_nat_offset_cnstr_threshold; }
+    virtual unsigned get_smart_unfolding() const override  { return m_smart_unfolding; }
+    virtual unsigned get_class_instance_max_depth() const override  { return m_class_instance_max_depth; }
+
+    virtual void reset_frozen_local_instances() override { m_local_instances = optional<local_instances>(); }
+    virtual void set_frozen_local_instances(local_instances const & lis) override { m_local_instances = lis; }
+    virtual optional<local_instances> get_frozen_local_instances() const override { return m_local_instances; }
 
     /* Operations for accessing environment data more efficiently.
        The default implementation provided by this class does not have any optimization. */
@@ -218,12 +317,7 @@ public:
     virtual optional<optional<expr>> get_subsingleton(expr const &) { return optional<optional<expr>>(); }
     virtual void set_subsingleton(expr const &, optional<expr> const &) {}
 
-    /* this method should flush the instance and subsingleton cache */
     virtual void flush_instances() {}
-
-    void reset_frozen_local_instances() { m_local_instances = optional<local_instances>(); }
-    void set_frozen_local_instances(local_instances const & lis) { m_local_instances = lis; }
-    optional<local_instances> get_frozen_local_instances() const { return m_local_instances; }
 
     /* Cache support for fun_info module */
 

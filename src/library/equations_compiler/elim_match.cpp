@@ -66,9 +66,8 @@ static unsigned get_eqn_compiler_max_steps(options const & o) {
 
 struct elim_match_fn {
     environment     m_env;
-    options         m_opts;
-    metavar_context m_mctx;
     elaborator &    m_elab;
+    metavar_context m_mctx;
 
     expr            m_ref;
     unsigned        m_depth{0};
@@ -86,11 +85,11 @@ struct elim_match_fn {
        an enumeration type or not. */
     name_map<bool>  m_enum;
 
-    elim_match_fn(environment const & env, options const & opts,
-                  metavar_context const & mctx, elaborator & elab):
-        m_env(env), m_opts(opts), m_mctx(mctx), m_elab(elab) {
-        m_use_ite   = get_eqn_compiler_ite(opts);
-        m_max_steps = get_eqn_compiler_max_steps(opts);
+    elim_match_fn(environment const & env, elaborator & elab,
+                  metavar_context const & mctx):
+        m_env(env), m_elab(elab), m_mctx(mctx) {
+        m_use_ite   = get_eqn_compiler_ite(elab.get_options());
+        m_max_steps = get_eqn_compiler_max_steps(elab.get_options());
     }
 
     struct equation {
@@ -193,7 +192,7 @@ struct elim_match_fn {
     }
 
     type_context mk_type_context(local_context const & lctx) {
-        return mk_type_context_for(m_env, m_opts, m_mctx, lctx);
+        return type_context(m_env, m_mctx, lctx, m_elab.get_cache(), transparency_mode::Semireducible);
     }
 
     type_context mk_type_context(expr const & mvar) {
@@ -204,9 +203,12 @@ struct elim_match_fn {
         return mk_type_context(get_local_context(P));
     }
 
+    options const & get_options() const { return m_elab.get_options(); }
+
     std::function<format(expr const &)> mk_pp_ctx(local_context const & lctx) {
-        options opts = m_opts.update(get_pp_beta_name(), false);
-        type_context ctx = mk_type_context_for(m_env, opts, m_mctx, lctx);
+        options opts = get_options();
+        opts = opts.update(get_pp_beta_name(), false);
+        type_context ctx = mk_type_context(lctx);
         return ::lean::mk_pp_ctx(ctx);
     }
 
@@ -215,7 +217,7 @@ struct elim_match_fn {
     }
 
     format nest(format const & fmt) const {
-        return ::lean::nest(get_pp_indent(m_opts), fmt);
+        return ::lean::nest(get_pp_indent(get_options()), fmt);
     }
 
     format pp_equation(equation const & eqn) {
@@ -457,7 +459,7 @@ struct elim_match_fn {
         unsigned arity = get_eqns_arity(lctx, e);
         buffer<name> var_names;
         bool use_unused_names = false;
-        optional<expr> goal = intron(m_env, m_opts, m_mctx, mvar,
+        optional<expr> goal = intron(m_env, get_options(), m_mctx, mvar,
                                      arity, var_names, use_unused_names);
         if (!goal) throw_ill_formed_eqns();
         P.m_goal       = *goal;
@@ -771,7 +773,7 @@ struct elim_match_fn {
             bool unfold_ginductive = true;
             list<name> ids;
             std::tie(new_goals, new_goal_cnames) =
-                cases(m_env, m_opts, transparency_mode::Semireducible, m_mctx,
+                cases(m_env, get_options(), transparency_mode::Semireducible, m_mctx,
                       P.m_goal, x, ids, &ilist, &slist, unfold_ginductive);
             lean_assert(length(new_goals) == length(new_goal_cnames));
             lean_assert(length(new_goals) == length(ilist));
@@ -1133,7 +1135,7 @@ struct elim_match_fn {
         buffer<expr> to_revert;
         to_revert.push_back(x);
         bool preserve_to_revert_order = true; /* it is a don't care since to_revert has size 1 */
-        expr M_1           = revert(m_env, m_opts, m_mctx, P.m_goal, to_revert, preserve_to_revert_order);
+        expr M_1           = revert(m_env, get_options(), m_mctx, P.m_goal, to_revert, preserve_to_revert_order);
 
         /* Step 2 */
         type_context ctx1  = mk_type_context(M_1);
@@ -1172,7 +1174,7 @@ struct elim_match_fn {
         /* Step 3 */
         buffer<name> new_H_names;
         bool use_unused_names = false;
-        optional<expr> M_3 = intron(m_env, m_opts, m_mctx, M_2, to_revert.size(), new_H_names, use_unused_names);
+        optional<expr> M_3 = intron(m_env, get_options(), m_mctx, M_2, to_revert.size(), new_H_names, use_unused_names);
         if (!M_3) {
             throw_error("equation compiler failed, when reintroducing reverted variables "
                         "(use 'set_option trace.eqn_compiler.elim_match true' "
@@ -1411,9 +1413,9 @@ struct elim_match_fn {
     }
 };
 
-elim_match_result elim_match(environment & env, options const & opts, metavar_context & mctx,
-                             local_context const & lctx, expr const & eqns, elaborator & elab) {
-    elim_match_fn elim(env, opts, mctx, elab);
+elim_match_result elim_match(environment & env, elaborator & elab, metavar_context & mctx,
+                             local_context const & lctx, expr const & eqns) {
+    elim_match_fn elim(env, elab, mctx);
     auto r = elim(lctx, eqns);
     env = elim.m_env;
     return r;
@@ -1426,17 +1428,17 @@ static expr get_fn_type_from_eqns(expr const & eqns) {
     return binding_domain(eqn_buffer[0]);
 }
 
-eqn_compiler_result mk_nonrec(environment & env, options const & opts, metavar_context & mctx,
-               local_context const & lctx, expr const & eqns, elaborator & elab) {
+eqn_compiler_result mk_nonrec(environment & env, elaborator & elab, metavar_context & mctx,
+                              local_context const & lctx, expr const & eqns) {
     equations_header header = get_equations_header(eqns);
-    auto R = elim_match(env, opts, mctx, lctx, eqns, elab);
+    auto R = elim_match(env, elab, mctx, lctx, eqns);
     if (header.m_is_meta || header.m_is_lemma) {
         /* Do not generate auxiliary equation or equational lemmas */
         auto fn = mk_constant(head(header.m_fn_names));
         auto counter_examples = map2<expr>(R.m_counter_examples, [&] (list<expr> const & e) { return mk_app(fn, e); });
         return { {R.m_fn}, counter_examples };
     }
-    type_context ctx1(env, opts, mctx, lctx, transparency_mode::Semireducible);
+    type_context ctx1(env, mctx, lctx, elab.get_cache(), transparency_mode::Semireducible);
     /*
        We should use the type specified at eqns instead of m_ctx.infer(R.m_fn).
        These two types must be definitionally equal, but the shape of
@@ -1450,10 +1452,10 @@ eqn_compiler_result mk_nonrec(environment & env, options const & opts, metavar_c
     name fn_name        = head(header.m_fn_names);
     name fn_actual_name = head(header.m_fn_actual_names);
     expr fn;
-    std::tie(env, fn) = mk_aux_definition(env, opts, mctx, lctx, header,
+    std::tie(env, fn) = mk_aux_definition(env, elab.get_options(), mctx, lctx, header,
                                           fn_name, fn_actual_name, fn_type, R.m_fn);
     unsigned eqn_idx     = 1;
-    type_context ctx2(env, opts, mctx, lctx, transparency_mode::Semireducible);
+    type_context ctx2(env, mctx, lctx, elab.get_cache(), transparency_mode::Semireducible);
     for (expr type : R.m_lemmas) {
         type_context::tmp_locals locals(ctx2);
         type = ctx2.relaxed_whnf(type);
@@ -1467,7 +1469,7 @@ eqn_compiler_result mk_nonrec(environment & env, options const & opts, metavar_c
         buffer<expr> lhs_args;
         get_app_args(lhs, lhs_args);
         expr new_lhs = mk_app(fn, lhs_args);
-        env = mk_equation_lemma(env, opts, mctx, ctx2.lctx(), fn_name, fn_actual_name,
+        env = mk_equation_lemma(env, elab.get_options(), mctx, ctx2.lctx(), fn_name, fn_actual_name,
                                 eqn_idx, header.m_is_private, locals.as_buffer(), new_lhs, rhs);
         eqn_idx++;
     }

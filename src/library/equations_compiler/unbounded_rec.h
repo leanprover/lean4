@@ -13,7 +13,7 @@ class elaborator;
 
     This compilation step can only be used to compile meta definitions.
     If we use it on regular definitions, the kernel will reject it. */
-eqn_compiler_result unbounded_rec(environment & env, options const & opts,
-                   metavar_context & mctx, local_context const & lctx,
-                   expr const & eqns, elaborator & elab);
+eqn_compiler_result unbounded_rec(environment & env, elaborator & elab,
+                                  metavar_context & mctx, local_context const & lctx,
+                                  expr const & eqns);
 }

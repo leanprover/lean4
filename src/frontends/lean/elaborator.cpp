@@ -2681,7 +2681,7 @@ expr elaborator::visit_equations(expr const & e) {
     new_e = instantiate_mvars(new_e);
     ensure_no_unassigned_metavars(new_e);
     metavar_context mctx = m_ctx.mctx();
-    expr r = compile_equations(m_env, m_opts, mctx, m_ctx.lctx(), new_e, *this);
+    expr r = compile_equations(m_env, *this, mctx, m_ctx.lctx(), new_e);
     m_ctx.set_env(m_env);
     m_ctx.set_mctx(mctx);
     return r;

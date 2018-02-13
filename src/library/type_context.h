@@ -560,6 +560,8 @@ public:
         type_context(env, options(), metavar_context(), local_context(), m) {}
     type_context(environment const & env, options const & o, transparency_mode m = transparency_mode::Reducible):
         type_context(env, o, metavar_context(), local_context(), m) {}
+    type_context(environment const & env, abstract_context_cache & cache, transparency_mode m = transparency_mode::Reducible):
+        type_context(env, metavar_context(), local_context(), cache, m) {}
     type_context(type_context const &) = delete;
     type_context(type_context &&) = default;
     virtual ~type_context();

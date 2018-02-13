@@ -296,8 +296,16 @@ public:
                metavar_context const & mctx, local_context const & lctx,
                bool recover_from_errors = true, bool in_pattern = false, bool in_quote = false);
     ~elaborator();
+    abstract_context_cache & get_cache() { return m_cache; }
     metavar_context const & mctx() const { return m_ctx.mctx(); }
     local_context const & lctx() const { return m_ctx.lctx(); }
+    environment const & env() const { return m_env; }
+    options const & get_options() const { return m_opts; }
+    void set_env(environment const & env) {
+        m_env = env;
+        m_ctx.set_env(m_env);
+    }
+
     expr push_local(name const & n, expr const & type, binder_info const & bi = binder_info()) {
         return m_ctx.push_local(n, type, bi);
     }
@@ -336,12 +344,6 @@ public:
     };
     pair<expr, theorem_finalization_info> finalize_theorem_type(expr const & type, buffer<name> & new_lp_names);
     expr finalize_theorem_proof(expr const & val, theorem_finalization_info const & info);
-
-    environment const & env() const { return m_env; }
-    void set_env(environment const & env) {
-        m_env = env;
-        m_ctx.set_env(m_env);
-    }
 
     bool has_errors() const { return m_has_errors; }
 };

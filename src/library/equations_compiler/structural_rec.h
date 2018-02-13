@@ -16,9 +16,9 @@ class elaborator;
     1- \c eqns is defining more than one function
     2- None of the arguments is a primitive inductive datatype with support for brec_on
        construction, where every recursive call is structurally smaller. */
-optional<eqn_compiler_result> try_structural_rec(environment & env, options const & opts,
-                                  metavar_context & mctx, local_context const & lctx,
-                                  expr const & eqns, elaborator & elab);
+optional<eqn_compiler_result> try_structural_rec(environment & env, elaborator & elab,
+                                                 metavar_context & mctx, local_context const & lctx,
+                                                 expr const & eqns);
 
 void initialize_structural_rec();
 void finalize_structural_rec();

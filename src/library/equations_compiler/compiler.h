@@ -9,8 +9,7 @@ Author: Leonardo de Moura
 #include "library/equations_compiler/equations.h"
 namespace lean {
 class elaborator;
-expr compile_equations(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx,
-                       expr const & eqns, elaborator & elab);
+expr compile_equations(environment & env, elaborator & elab, metavar_context & mctx, local_context const & lctx, expr const & eqns);
 void initialize_compiler();
 void finalize_compiler();
 }

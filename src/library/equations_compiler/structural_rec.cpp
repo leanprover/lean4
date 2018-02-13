@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "library/equations_compiler/util.h"
 #include "library/equations_compiler/structural_rec.h"
 #include "library/equations_compiler/elim_match.h"
+#include "frontends/lean/elaborator.h"
 
 namespace lean {
 #define trace_struct(Code) lean_trace(name({"eqn_compiler", "structural_rec"}), type_context ctx = mk_type_context(); scope_trace_env _scope1(m_env, ctx); Code)
@@ -28,7 +29,7 @@ namespace lean {
 
 struct structural_rec_fn {
     environment      m_env;
-    options          m_opts;
+    elaborator &     m_elab;
     metavar_context  m_mctx;
     local_context    m_lctx;
 
@@ -42,9 +43,9 @@ struct structural_rec_fn {
     buffer<unsigned> m_indices_pos;
     expr             m_motive_type;
 
-    structural_rec_fn(environment const & env, options const & opts,
+    structural_rec_fn(environment const & env, elaborator & elab,
                       metavar_context const & mctx, local_context const & lctx):
-        m_env(env), m_opts(opts), m_mctx(mctx), m_lctx(lctx) {
+        m_env(env), m_elab(elab), m_mctx(mctx), m_lctx(lctx) {
     }
 
     [[ noreturn ]] void throw_error(char const * msg) {
@@ -56,7 +57,7 @@ struct structural_rec_fn {
     }
 
     type_context mk_type_context() {
-        return type_context(m_env, m_opts, m_mctx, m_lctx, transparency_mode::Semireducible);
+        return type_context(m_env, m_mctx, m_lctx, m_elab.get_cache(), transparency_mode::Semireducible);
     }
 
     environment const & env() const { return m_env; }
@@ -707,7 +708,7 @@ struct structural_rec_fn {
             return new_fn;
         } else {
             expr r;
-            std::tie(m_env, r) = mk_aux_definition(m_env, m_opts, m_mctx, m_lctx, m_header,
+            std::tie(m_env, r) = mk_aux_definition(m_env, m_elab.get_options(), m_mctx, m_lctx, m_header,
                                                    head(m_header.m_fn_names),
                                                    head(m_header.m_fn_actual_names),
                                                    m_fn_type, new_fn);
@@ -954,18 +955,18 @@ struct structural_rec_fn {
             }
             name const & fn_name        = head(m_header.m_fn_names);
             name const & fn_actual_name = head(m_header.m_fn_actual_names);
-            m_env = mk_equation_lemma(m_env, m_opts, m_mctx, ctx.lctx(), fn_name, fn_actual_name,
+            m_env = mk_equation_lemma(m_env, m_elab.get_options(), m_mctx, ctx.lctx(), fn_name, fn_actual_name,
                                       eqn_idx, m_header.m_is_private, new_locals, new_lhs, new_rhs);
             eqn_idx++;
         }
     }
 
-    optional<eqn_compiler_result> operator()(expr const & eqns, elaborator & elab) {
+    optional<eqn_compiler_result> operator()(expr const & eqns) {
         m_ref    = eqns;
         m_header = get_equations_header(eqns);
         auto new_eqns = elim_recursion(eqns);
         if (!new_eqns) return {};
-        elim_match_result R = elim_match(m_env, m_opts, m_mctx, m_lctx, *new_eqns, elab);
+        elim_match_result R = elim_match(m_env, m_elab, m_mctx, m_lctx, *new_eqns);
         expr fn = mk_function(R.m_fn);
         if (m_header.m_aux_lemmas) {
             lean_assert(!m_header.m_is_meta);
@@ -979,10 +980,10 @@ struct structural_rec_fn {
     }
 };
 
-optional<eqn_compiler_result> try_structural_rec(environment & env, options const & opts, metavar_context & mctx,
-                                  local_context const & lctx, expr const & eqns, elaborator & elab) {
-    structural_rec_fn F(env, opts, mctx, lctx);
-    if (auto r = F(eqns, elab)) {
+optional<eqn_compiler_result> try_structural_rec(environment & env, elaborator & elab, metavar_context & mctx,
+                                                 local_context const & lctx, expr const & eqns) {
+    structural_rec_fn F(env, elab, mctx, lctx);
+    if (auto r = F(eqns)) {
         env  = F.env();
         mctx = F.mctx();
         return r;

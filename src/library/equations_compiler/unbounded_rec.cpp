@@ -19,6 +19,8 @@ Author: Leonardo de Moura
 #include "library/equations_compiler/util.h"
 #include "library/equations_compiler/elim_match.h"
 #include "library/equations_compiler/unbounded_rec.h"
+#include "frontends/lean/elaborator.h"
+
 namespace lean {
 static expr replace_rec_apps(type_context & ctx, expr const & e) {
     equations_header const & header = get_equations_header(e);
@@ -82,10 +84,10 @@ static expr fix_rec_apps(expr const & e, name_map<expr> const & name2new_type,
         });
 }
 
-eqn_compiler_result unbounded_rec(environment & env, options const & opts,
-                   metavar_context & mctx, local_context const & lctx,
-                   expr const & e, elaborator & elab) {
-    type_context ctx(env, opts, mctx, lctx, transparency_mode::Semireducible);
+eqn_compiler_result unbounded_rec(environment & env, elaborator & elab,
+                                  metavar_context & mctx, local_context const & lctx,
+                                  expr const & e) {
+    type_context ctx(env, mctx, lctx, elab.get_cache(), transparency_mode::Semireducible);
 
     /* Replace recursive application with macro, and split mutual definition in n definitions. */
     expr e1 = replace_rec_apps(ctx, e);
@@ -103,7 +105,7 @@ eqn_compiler_result unbounded_rec(environment & env, options const & opts,
 
         for (unsigned fidx = 0; fidx < es.size(); fidx++) {
             unpack_eqns ues(ctx, es[fidx]);
-            auto R = elim_match(env, opts, mctx, lctx, es[fidx], elab);
+            auto R = elim_match(env, elab, mctx, lctx, es[fidx]);
             fns.push_back(helper.collect(R.m_fn));
             fn_types.push_back(helper.collect(ctx.infer(ues.get_fn(0))));
             for (list<expr> const & ts : R.m_counter_examples) {
@@ -124,8 +126,7 @@ eqn_compiler_result unbounded_rec(environment & env, options const & opts,
         equations_header const & header = get_equations_header(e);
         list<name> fn_names             = header.m_fn_names;
         list<name> fn_actual_names      = header.m_fn_actual_names;
-
-        bool zeta           = get_eqn_compiler_zeta(opts);
+        bool zeta                       = get_eqn_compiler_zeta(elab.get_options());
 
         /* 2. Update fn_types.
            zeta-expand (if needed) and apply closures. */
@@ -215,7 +216,7 @@ eqn_compiler_result unbounded_rec(environment & env, options const & opts,
 
         for (unsigned fidx = 0; fidx < es.size(); fidx++) {
             unpack_eqns ues(ctx, es[fidx]);
-            auto R = elim_match(env, opts, mctx, lctx, es[fidx], elab);
+            auto R = elim_match(env, elab, mctx, lctx, es[fidx]);
             fns.push_back(R.m_fn);
             for (list<expr> const & ts : R.m_counter_examples) {
                 counter_examples.push_back(mk_app(ues.get_fn(0), ts));

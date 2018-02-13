@@ -14,11 +14,10 @@ struct elim_match_result {
     list<expr> m_lemmas;
     list<list<expr>> m_counter_examples;
 };
-elim_match_result elim_match(environment & env, options const & opts, metavar_context & mctx,
-                local_context const & lctx, expr const & eqns, elaborator & elab);
-eqn_compiler_result mk_nonrec(environment & env, options const & opts, metavar_context & mctx,
-               local_context const & lctx, expr const & eqns,
-               elaborator & elab);
+elim_match_result elim_match(environment & env, elaborator & elab, metavar_context & mctx,
+                             local_context const & lctx, expr const & eqns);
+eqn_compiler_result mk_nonrec(environment & env, elaborator & elab, metavar_context & mctx,
+                              local_context const & lctx, expr const & eqns);
 void initialize_elim_match();
 void finalize_elim_match();
 }

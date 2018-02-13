@@ -9,9 +9,9 @@ Author: Leonardo de Moura
 #include "library/equations_compiler/util.h"
 namespace lean {
 class elaborator;
-eqn_compiler_result wf_rec(environment & env, options const & opts,
-            metavar_context & mctx, local_context const & lctx,
-            expr const & eqns, elaborator & elab);
+eqn_compiler_result wf_rec(environment & env, elaborator & elab,
+                           metavar_context & mctx, local_context const & lctx,
+                           expr const & eqns);
 
 /* Return true if definition `n` was compiled by equation compiler using
    well_founded recursion. */

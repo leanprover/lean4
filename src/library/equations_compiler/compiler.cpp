@@ -29,10 +29,8 @@ static bool has_nested_rec(expr const & eqns) {
             }));
 }
 
-static eqn_compiler_result compile_equations_core(environment & env, options const & opts,
-                                   metavar_context & mctx, local_context const & lctx,
-                                   expr const & eqns, elaborator & elab) {
-    type_context ctx(env, opts, mctx, lctx, transparency_mode::Semireducible);
+static eqn_compiler_result compile_equations_core(environment & env, elaborator & elab, metavar_context & mctx, local_context const & lctx, expr const & eqns) {
+    type_context ctx(env, mctx, lctx, elab.get_cache(), transparency_mode::Semireducible);
     trace_compiler(tout() << "compiling\n" << eqns << "\n";);
     trace_compiler(tout() << "recursive:          " << is_recursive_eqns(ctx, eqns) << "\n";);
     trace_compiler(tout() << "nested recursion:   " << has_nested_rec(eqns) << "\n";);
@@ -44,22 +42,22 @@ static eqn_compiler_result compile_equations_core(environment & env, options con
         if (is_wf_equations(eqns)) {
             throw exception("invalid use of 'using_well_founded', we do not need to use well founded recursion for meta definitions, since they can use unbounded recursion");
         }
-        return unbounded_rec(env, opts, mctx, lctx, eqns, elab);
+        return unbounded_rec(env, elab, mctx, lctx, eqns);
     }
 
     if (is_wf_equations(eqns)) {
-        return wf_rec(env, opts, mctx, lctx, eqns, elab);
+        return wf_rec(env, elab, mctx, lctx, eqns);
     }
 
     if (header.m_num_fns == 1) {
         if (!is_recursive_eqns(ctx, eqns)) {
-            return mk_nonrec(env, opts, mctx, lctx, eqns, elab);
-        } else if (auto r = try_structural_rec(env, opts, mctx, lctx, eqns, elab)) {
+            return mk_nonrec(env, elab, mctx, lctx, eqns);
+        } else if (auto r = try_structural_rec(env, elab, mctx, lctx, eqns)) {
             return *r;
         }
     }
 
-    return wf_rec(env, opts, mctx, lctx, eqns, elab);
+    return wf_rec(env, elab, mctx, lctx, eqns);
 }
 
 /** Auxiliary class for pulling nested recursive calls.
@@ -89,15 +87,15 @@ static eqn_compiler_result compile_equations_core(environment & env, options con
     Compile the match, and then beta-reduce.
 */
 struct pull_nested_rec_fn : public replace_visitor {
-    environment &         m_env;
-    options               m_opts;
-    metavar_context &     m_mctx;
-    buffer<local_context> m_lctx_stack;
-    buffer<expr>          m_new_locals;
-    buffer<expr>          m_new_values;
+    environment &            m_env;
+    elaborator &             m_elab;
+    metavar_context &        m_mctx;
+    buffer<local_context>    m_lctx_stack;
+    buffer<expr>             m_new_locals;
+    buffer<expr>             m_new_values;
 
-    pull_nested_rec_fn(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx):
-        m_env(env), m_opts(opts), m_mctx(mctx) {
+    pull_nested_rec_fn(environment & env, elaborator & elab, metavar_context & mctx, local_context const & lctx):
+        m_env(env), m_elab(elab), m_mctx(mctx) {
         m_lctx_stack.push_back(lctx);
     }
 
@@ -106,7 +104,7 @@ struct pull_nested_rec_fn : public replace_visitor {
     local_context & lctx() { return m_lctx_stack.back(); }
 
     type_context mk_type_context(local_context const & lctx) {
-        return type_context(m_env, m_opts, m_mctx, lctx, transparency_mode::Semireducible);
+        return type_context(m_env, m_mctx, lctx, m_elab.get_cache(), transparency_mode::Semireducible);
     }
 
     expr visit_lambda_pi_let(bool is_lam, expr const & e) {
@@ -296,11 +294,11 @@ struct pull_nested_rec_fn : public replace_visitor {
         }
     }
 
-    eqn_compiler_result operator()(expr const & e, elaborator & elab) {
+    eqn_compiler_result operator()(expr const & e) {
         expr new_e             = visit(e);
         lean_assert(m_lctx_stack.size() == 1);
         local_context new_lctx = m_lctx_stack[0];
-        auto r                 = compile_equations_core(m_env, m_opts, m_mctx, new_lctx, new_e, elab);
+        auto r                 = compile_equations_core(m_env, m_elab, m_mctx, new_lctx, new_e);
         type_context ctx       = mk_type_context(new_lctx);
         r.m_fns = map(r.m_fns, [&] (expr const & fn) { return replace_locals(fn, m_new_locals, m_new_values); });
         m_mctx                 = ctx.mctx();
@@ -321,19 +319,19 @@ static expr remove_aux_main_name(expr const & e) {
     return e;
 }
 
-static expr compile_equations_main(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx,
-                                   expr const & _eqns, elaborator & elab, bool report_cexs) {
+static expr compile_equations_main(environment & env, elaborator & elab,
+                                   metavar_context & mctx, local_context const & lctx, expr const & _eqns, bool report_cexs) {
     expr eqns = _eqns;
     equations_header const & header = get_equations_header(eqns);
     eqn_compiler_result r;
     if (!header.m_is_meta && has_nested_rec(eqns)) {
-        r = pull_nested_rec_fn(env, opts, mctx, lctx)(eqns, elab);
+        r = pull_nested_rec_fn(env, elab, mctx, lctx)(eqns);
     } else {
-        r = compile_equations_core(env, opts, mctx, lctx, eqns, elab);
+        r = compile_equations_core(env, elab, mctx, lctx, eqns);
     }
 
     if (report_cexs && r.m_counter_examples) {
-        auto pp = mk_pp_ctx(env, opts, mctx, lctx);
+        auto pp = mk_pp_ctx(env, elab.get_options(), mctx, lctx);
         auto fmt = format("non-exhaustive match, the following cases are missing:");
         for (auto & ce : r.m_counter_examples) {
             fmt += line() + pp(remove_aux_main_name(ce));
@@ -345,10 +343,9 @@ static expr compile_equations_main(environment & env, options const & opts, meta
     return mk_equations_result(fns.size(), fns.data());
 }
 
-expr compile_equations(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx,
-                       expr const & eqns, elaborator & elab) {
+expr compile_equations(environment & env, elaborator & elab, metavar_context & mctx, local_context const & lctx, expr const & eqns) {
     equations_header const & header = get_equations_header(eqns);
-    type_context ctx(env, opts, mctx, lctx, transparency_mode::Semireducible);
+    type_context ctx(env, mctx, lctx, elab.get_cache(), transparency_mode::Semireducible);
     if (!header.m_is_meta &&
         !header.m_is_lemma &&
         !header.m_is_noncomputable &&
@@ -364,9 +361,9 @@ expr compile_equations(environment & env, options const & opts, metavar_context 
         aux_header.m_aux_lemmas = false;
         aux_header.m_fn_actual_names = map(header.m_fn_actual_names, mk_aux_meta_rec_name);
         expr aux_eqns = remove_wf_annotation_from_equations(update_equations(eqns, aux_header));
-        compile_equations_main(env, opts, mctx, lctx, aux_eqns, elab, false);
+        compile_equations_main(env, elab, mctx, lctx, aux_eqns, false);
     }
-    return compile_equations_main(env, opts, mctx, lctx, eqns, elab, true);
+    return compile_equations_main(env, elab, mctx, lctx, eqns, true);
 }
 
 void initialize_compiler() {

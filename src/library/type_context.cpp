@@ -128,13 +128,12 @@ void type_context::init_core(transparency_mode m) {
     m_approximate                 = false;
     m_smart_unfolding             = m_cache->get_smart_unfolding();
     if (auto lis = m_lctx.get_frozen_local_instances()) {
+        m_local_instances = *lis;
         if (m_cache->get_frozen_local_instances() == lis) {
             lean_trace("type_context_cache", tout() << "reusing instance cache\n";);
-            m_local_instances = *lis;
         } else {
             lean_trace("type_context_cache", tout() << "incompatible local instances, flushing instance cache\n";);
-            init_local_instances();
-            flush_instance_cache();
+            m_cache->flush_instances();
             m_cache->set_frozen_local_instances(m_local_instances);
         }
     } else {

@@ -293,76 +293,76 @@ public:
     /* Operations for accessing environment data more efficiently.
        The default implementation provided by this class does not have any optimization. */
 
-    virtual optional<declaration> get_decl(type_context &, transparency_mode, name const &);
-    virtual projection_info const * get_proj_info(type_context &, name const &);
-    virtual bool get_aux_recursor(type_context &, name const &);
+    virtual optional<declaration> get_decl(type_context &, transparency_mode, name const &) override;
+    virtual projection_info const * get_proj_info(type_context &, name const &) override;
+    virtual bool get_aux_recursor(type_context &, name const &) override;
 
     /* Cache support for type_context module */
 
-    virtual optional<expr> get_infer(expr const &) { return none_expr(); }
-    virtual void set_infer(expr const &, expr const &) {}
+    virtual optional<expr> get_infer(expr const &) override { return none_expr(); }
+    virtual void set_infer(expr const &, expr const &) override {}
 
-    virtual bool get_equiv(transparency_mode, expr const &, expr const &) { return false; }
-    virtual void set_equiv(transparency_mode, expr const &, expr const &) {}
+    virtual bool get_equiv(transparency_mode, expr const &, expr const &) override { return false; }
+    virtual void set_equiv(transparency_mode, expr const &, expr const &) override {}
 
-    virtual bool get_is_def_eq_failure(transparency_mode, expr const &, expr const &) { return false; }
-    virtual void set_is_def_eq_failure(transparency_mode, expr const &, expr const &) {}
+    virtual bool get_is_def_eq_failure(transparency_mode, expr const &, expr const &) override { return false; }
+    virtual void set_is_def_eq_failure(transparency_mode, expr const &, expr const &) override {}
 
-    virtual optional<expr> get_whnf(transparency_mode, expr const &) { return none_expr(); }
-    virtual void set_whnf(transparency_mode, expr const &, expr const &) {}
+    virtual optional<expr> get_whnf(transparency_mode, expr const &) override { return none_expr(); }
+    virtual void set_whnf(transparency_mode, expr const &, expr const &) override {}
 
-    virtual optional<optional<expr>> get_instance(expr const &) { return optional<optional<expr>>(); }
-    virtual void set_instance(expr const &, optional<expr> const &) {}
+    virtual optional<optional<expr>> get_instance(expr const &) override { return optional<optional<expr>>(); }
+    virtual void set_instance(expr const &, optional<expr> const &) override {}
 
-    virtual optional<optional<expr>> get_subsingleton(expr const &) { return optional<optional<expr>>(); }
-    virtual void set_subsingleton(expr const &, optional<expr> const &) {}
+    virtual optional<optional<expr>> get_subsingleton(expr const &) override { return optional<optional<expr>>(); }
+    virtual void set_subsingleton(expr const &, optional<expr> const &) override {}
 
-    virtual void flush_instances() {}
+    virtual void flush_instances() override {}
 
     /* Cache support for fun_info module */
 
-    virtual optional<fun_info> get_fun_info(type_context &, expr const &) { return optional<fun_info>(); }
-    virtual void set_fun_info(type_context &, expr const &, fun_info const &) {}
+    virtual optional<fun_info> get_fun_info(type_context &, expr const &) override { return optional<fun_info>(); }
+    virtual void set_fun_info(type_context &, expr const &, fun_info const &) override {}
 
-    virtual optional<fun_info> get_fun_info_nargs(type_context &, expr const &, unsigned) { return optional<fun_info>(); }
-    virtual void set_fun_info_nargs(type_context &, expr const &, unsigned, fun_info const &) {}
+    virtual optional<fun_info> get_fun_info_nargs(type_context &, expr const &, unsigned) override { return optional<fun_info>(); }
+    virtual void set_fun_info_nargs(type_context &, expr const &, unsigned, fun_info const &) override {}
 
-    virtual optional<unsigned> get_specialization_prefix_size(type_context &, expr const &, unsigned) { return optional<unsigned>(); }
-    virtual void set_specialization_prefix_size(type_context &, expr const &, unsigned, unsigned) {}
+    virtual optional<unsigned> get_specialization_prefix_size(type_context &, expr const &, unsigned) override { return optional<unsigned>(); }
+    virtual void set_specialization_prefix_size(type_context &, expr const &, unsigned, unsigned) override {}
 
-    virtual optional<ss_param_infos> get_subsingleton_info(type_context &, expr const &) { return optional<ss_param_infos>(); }
-    virtual void set_subsingleton_info(type_context &, expr const &, ss_param_infos const &) {}
+    virtual optional<ss_param_infos> get_subsingleton_info(type_context &, expr const &) override { return optional<ss_param_infos>(); }
+    virtual void set_subsingleton_info(type_context &, expr const &, ss_param_infos const &) override {}
 
-    virtual optional<ss_param_infos> get_subsingleton_info_nargs(type_context &, expr const &, unsigned) { return optional<ss_param_infos>(); }
-    virtual void set_subsingleton_info_nargs(type_context &, expr const &, unsigned, ss_param_infos const &) {}
+    virtual optional<ss_param_infos> get_subsingleton_info_nargs(type_context &, expr const &, unsigned) override { return optional<ss_param_infos>(); }
+    virtual void set_subsingleton_info_nargs(type_context &, expr const &, unsigned, ss_param_infos const &) override {}
 
-    virtual optional<ss_param_infos> get_specialized_subsingleton_info_nargs(type_context &, expr const &, unsigned) { return optional<ss_param_infos>(); }
-    virtual void set_specialization_subsingleton_info_nargs(type_context &, expr const &, unsigned, ss_param_infos const &) {}
+    virtual optional<ss_param_infos> get_specialized_subsingleton_info_nargs(type_context &, expr const &, unsigned) override { return optional<ss_param_infos>(); }
+    virtual void set_specialization_subsingleton_info_nargs(type_context &, expr const &, unsigned, ss_param_infos const &) override {}
 
     /* Cache support for congr_lemma module */
 
-    virtual optional<congr_lemma> get_simp_congr_lemma(type_context &, expr const &, unsigned) { return optional<congr_lemma>(); }
-    virtual void set_simp_congr_lemma(type_context &, expr const &, unsigned, congr_lemma const &) {}
+    virtual optional<congr_lemma> get_simp_congr_lemma(type_context &, expr const &, unsigned) override { return optional<congr_lemma>(); }
+    virtual void set_simp_congr_lemma(type_context &, expr const &, unsigned, congr_lemma const &) override {}
 
-    virtual optional<congr_lemma> get_specialized_simp_congr_lemma(type_context &, expr const &, unsigned) { return optional<congr_lemma>(); }
-    virtual void set_specialized_simp_congr_lemma(type_context &, expr const &, unsigned, congr_lemma const &) {}
+    virtual optional<congr_lemma> get_specialized_simp_congr_lemma(type_context &, expr const &, unsigned) override { return optional<congr_lemma>(); }
+    virtual void set_specialized_simp_congr_lemma(type_context &, expr const &, unsigned, congr_lemma const &) override {}
 
-    virtual optional<congr_lemma> get_congr_lemma(type_context &, expr const &, unsigned) { return optional<congr_lemma>(); }
-    virtual void set_congr_lemma(type_context &, expr const &, unsigned, congr_lemma const &) {}
+    virtual optional<congr_lemma> get_congr_lemma(type_context &, expr const &, unsigned) override { return optional<congr_lemma>(); }
+    virtual void set_congr_lemma(type_context &, expr const &, unsigned, congr_lemma const &) override {}
 
-    virtual optional<congr_lemma> get_specialized_congr_lemma(type_context &, expr const &, unsigned) { return optional<congr_lemma>(); }
-    virtual void set_specialized_congr_lemma(type_context &, expr const &, unsigned, congr_lemma const &) {}
+    virtual optional<congr_lemma> get_specialized_congr_lemma(type_context &, expr const &, unsigned) override { return optional<congr_lemma>(); }
+    virtual void set_specialized_congr_lemma(type_context &, expr const &, unsigned, congr_lemma const &) override {}
 
-    virtual optional<congr_lemma> get_hcongr_lemma(type_context &, expr const &, unsigned) { return optional<congr_lemma>(); }
-    virtual void set_hcongr_lemma(type_context &, expr const &, unsigned, congr_lemma const &) {}
+    virtual optional<congr_lemma> get_hcongr_lemma(type_context &, expr const &, unsigned) override { return optional<congr_lemma>(); }
+    virtual void set_hcongr_lemma(type_context &, expr const &, unsigned, congr_lemma const &) override {}
 
     /* Cache support for app_builder */
 
-    virtual optional<app_builder_info> get_app_builder_info(type_context &, expr const &, unsigned) { return optional<app_builder_info>(); }
-    virtual void set_app_builder_info(type_context &, expr const &, unsigned, app_builder_info const &) {}
+    virtual optional<app_builder_info> get_app_builder_info(type_context &, expr const &, unsigned) override { return optional<app_builder_info>(); }
+    virtual void set_app_builder_info(type_context &, expr const &, unsigned, app_builder_info const &) override {}
 
-    virtual optional<app_builder_info> get_app_builder_info(type_context &, expr const &, list<bool> const &) { return optional<app_builder_info>(); }
-    virtual void set_app_builder_info(type_context &, expr const &, list<bool> const &, app_builder_info const &) {}
+    virtual optional<app_builder_info> get_app_builder_info(type_context &, expr const &, list<bool> const &) override { return optional<app_builder_info>(); }
+    virtual void set_app_builder_info(type_context &, expr const &, list<bool> const &, app_builder_info const &) override {}
 };
 
 void initialize_abstract_context_cache();

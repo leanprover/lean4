@@ -181,6 +181,9 @@ protected lemma zero_lt_bit0 : ∀ {n : nat}, n ≠ 0 → 0 < bit0 n
   calc 0 < succ (succ (bit0 n)) : zero_lt_succ _
      ... = bit0 (succ n)        : (nat.bit0_succ_eq n).symm
 
+protected lemma zero_lt_bit1 (n : nat) : 0 < bit1 n :=
+zero_lt_succ _
+
 protected lemma bit0_ne_zero : ∀ {n : ℕ}, n ≠ 0 → bit0 n ≠ 0
 | 0     h := absurd rfl h
 | (n+1) h :=

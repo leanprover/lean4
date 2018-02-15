@@ -10,26 +10,6 @@ universes u
 namespace nat
 attribute [pre_smt] nat_zero_eq_zero
 
-protected lemma zero_add : ∀ n : ℕ, 0 + n = n
-| 0     := rfl
-| (n+1) := congr_arg succ (zero_add n)
-
-lemma succ_add : ∀ n m : ℕ, (succ n) + m = succ (n + m)
-| n 0     := rfl
-| n (m+1) := congr_arg succ (succ_add n m)
-
-lemma add_succ (n m : ℕ) : n + succ m = succ (n + m) :=
-rfl
-
-protected lemma add_zero (n : ℕ) : n + 0 = n :=
-rfl
-
-lemma add_one (n : ℕ) : n + 1 = succ n :=
-rfl
-
-lemma succ_eq_add_one (n : ℕ) : succ n = n + 1 :=
-rfl
-
 protected lemma add_comm : ∀ n m : ℕ, n + m = m + n
 | n 0     := eq.symm (nat.zero_add n)
 | n (m+1) :=
@@ -371,23 +351,11 @@ protected theorem sub_le_sub_right {n m : ℕ} (h : n ≤ m) : ∀ k, n - k ≤ 
 
 /- bit0/bit1 properties -/
 
-protected lemma bit0_succ_eq (n : ℕ) : bit0 (succ n) = succ (succ (bit0 n)) :=
-show succ (succ n + n) = succ (succ (n + n)), from
-congr_arg succ (succ_add n n)
-
 protected lemma bit1_eq_succ_bit0 (n : ℕ) : bit1 n = succ (bit0 n) :=
 rfl
 
 protected lemma bit1_succ_eq (n : ℕ) : bit1 (succ n) = succ (succ (bit1 n)) :=
 eq.trans (nat.bit1_eq_succ_bit0 (succ n)) (congr_arg succ (nat.bit0_succ_eq n))
-
-protected lemma bit0_ne_zero : ∀ {n : ℕ}, n ≠ 0 → bit0 n ≠ 0
-| 0     h := absurd rfl h
-| (n+1) h := succ_ne_zero _
-
-protected lemma bit1_ne_zero (n : ℕ) : bit1 n ≠ 0 :=
-show succ (n + n) ≠ 0, from
-succ_ne_zero (n + n)
 
 protected lemma bit1_ne_one : ∀ {n : ℕ}, n ≠ 0 → bit1 n ≠ 1
 | 0     h h1 := absurd rfl h
@@ -455,17 +423,6 @@ ne.symm (nat.bit0_ne_one n)
 
 protected lemma one_ne_bit1 {n : ℕ} : n ≠ 0 → 1 ≠ bit1 n :=
 λ h, ne.symm (nat.bit1_ne_one h)
-
-protected lemma zero_lt_bit1 (n : nat) : 0 < bit1 n :=
-zero_lt_succ _
-
-protected lemma zero_lt_bit0 : ∀ {n : nat}, n ≠ 0 → 0 < bit0 n
-| 0        h := by contradiction
-| (succ n) h :=
-  begin
-    rw nat.bit0_succ_eq,
-    apply zero_lt_succ
-  end
 
 protected lemma one_lt_bit1 : ∀ {n : nat}, n ≠ 0 → 1 < bit1 n
 | 0        h := by contradiction

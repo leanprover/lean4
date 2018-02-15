@@ -37,9 +37,15 @@ nat.decidable_lt _ _
 instance decidable_le (a b : char) : decidable (a ≤ b) :=
 nat.decidable_le _ _
 
-/- We cannot use tactic dec_trivial here because the tactic framework has not been defined yet. -/
+/-
+We cannot use tactics dec_trivial or comp_val here because the tactic framework has not been defined yet.
+We also do not use `zero_lt_succ _` as a proof term because this proof may not be trivial to check by
+external type checkers. See discussion at: https://github.com/leanprover/tc/issues/8
+-/
 lemma zero_lt_d800 : 0 < 0xd800 :=
-zero_lt_succ _
+nat.zero_lt_bit0 $ nat.bit0_ne_zero $ nat.bit0_ne_zero $ nat.bit0_ne_zero $
+nat.bit0_ne_zero $ nat.bit0_ne_zero $ nat.bit0_ne_zero $ nat.bit0_ne_zero $
+nat.bit0_ne_zero $ nat.bit0_ne_zero $ nat.bit0_ne_zero $ nat.bit1_ne_zero 13
 
 @[pattern] def of_nat (n : nat) : char :=
 if h : is_valid_char n then {val := n, valid := h} else {val := 0, valid := or.inl zero_lt_d800}

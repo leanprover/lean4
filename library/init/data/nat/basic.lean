@@ -148,4 +148,48 @@ lemma sub_lt : ∀ {a b : ℕ}, 0 < a → 0 < b → a - b < a
 protected lemma lt_of_lt_of_le {n m k : ℕ} : n < m → m ≤ k → n < k :=
 nat.le_trans
 
+/- Basic nat.add lemmas -/
+protected lemma zero_add : ∀ n : ℕ, 0 + n = n
+| 0     := rfl
+| (n+1) := congr_arg succ (zero_add n)
+
+lemma succ_add : ∀ n m : ℕ, (succ n) + m = succ (n + m)
+| n 0     := rfl
+| n (m+1) := congr_arg succ (succ_add n m)
+
+lemma add_succ (n m : ℕ) : n + succ m = succ (n + m) :=
+rfl
+
+protected lemma add_zero (n : ℕ) : n + 0 = n :=
+rfl
+
+lemma add_one (n : ℕ) : n + 1 = succ n :=
+rfl
+
+lemma succ_eq_add_one (n : ℕ) : succ n = n + 1 :=
+rfl
+
+/- Basic lemmas for comparing numerals -/
+
+protected lemma bit0_succ_eq (n : ℕ) : bit0 (succ n) = succ (succ (bit0 n)) :=
+show succ (succ n + n) = succ (succ (n + n)), from
+congr_arg succ (succ_add n n)
+
+protected lemma zero_lt_bit0 : ∀ {n : nat}, n ≠ 0 → 0 < bit0 n
+| 0        h := absurd rfl h
+| (succ n) h :=
+  calc 0 < succ (succ (bit0 n)) : zero_lt_succ _
+     ... = bit0 (succ n)        : (nat.bit0_succ_eq n).symm
+
+protected lemma bit0_ne_zero : ∀ {n : ℕ}, n ≠ 0 → bit0 n ≠ 0
+| 0     h := absurd rfl h
+| (n+1) h :=
+  suffices (n+1) + (n+1) ≠ 0, from this,
+  suffices succ ((n+1) + n) ≠ 0, from this,
+  λ h, nat.no_confusion h
+
+protected lemma bit1_ne_zero (n : ℕ) : bit1 n ≠ 0 :=
+show succ (n + n) ≠ 0, from
+λ h, nat.no_confusion h
+
 end nat

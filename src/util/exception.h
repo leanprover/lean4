@@ -48,20 +48,22 @@ public:
 };
 
 class stack_space_exception : public throwable {
-    std::string m_component_name;
+    std::string m_msg;
+    stack_space_exception(std::string const & msg):m_msg(msg) {}
 public:
-    stack_space_exception(char const * component_name):m_component_name(component_name) {}
-    virtual char const * what() const noexcept;
-    virtual throwable * clone() const { return new stack_space_exception(m_component_name.c_str()); }
+    stack_space_exception(char const * component_name);
+    virtual char const * what() const noexcept { return m_msg.c_str(); }
+    virtual throwable * clone() const { return new stack_space_exception(m_msg); }
     virtual void rethrow() const { throw *this; }
 };
 
 class memory_exception : public throwable {
-    std::string m_component_name;
+    std::string m_msg;
+    memory_exception(std::string const & msg):m_msg(msg) {}
 public:
-    memory_exception(char const * component_name):m_component_name(component_name) {}
-    virtual char const * what() const noexcept;
-    virtual throwable * clone() const { return new memory_exception(m_component_name.c_str()); }
+    memory_exception(char const * component_name);
+    virtual char const * what() const noexcept { return m_msg.c_str(); }
+    virtual throwable * clone() const { return new memory_exception(m_msg); }
     virtual void rethrow() const { throw *this; }
 };
 

@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "api/lean_macros.h"
 #include "api/lean_bool.h"
 #include "api/lean_exception.h"
-#include "api/exception.h"
 
 namespace lean {
 inline throwable * to_exception(lean_exception e) { return reinterpret_cast<throwable *>(e); }

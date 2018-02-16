@@ -78,8 +78,16 @@ private def rand_nat_aux {gen : Type u} [random_gen gen] (gen_lo gen_mag : nat) 
 | r'@(r+1) v g :=
   let (x, g') := random_gen.next g,
       v'      := v*gen_mag + (x - gen_lo)
-  in have r' - gen_mag < r', from nat.sub_lt (nat.zero_lt_succ _) h,
-     rand_nat_aux (r' - gen_mag) v' g'
+  in have r' / gen_mag - 1 < r',
+     begin
+       by_cases h : (r + 1) / gen_mag = 0,
+       { rw [h], simp, apply nat.zero_lt_succ },
+       { have : (r + 1) / gen_mag > 0, from nat.pos_of_ne_zero h,
+         have h₁ : (r + 1) / gen_mag - 1 < (r + 1) / gen_mag, { apply nat.sub_lt, assumption, tactic.comp_val },
+         have h₂ : (r + 1) / gen_mag ≤ r + 1, { apply nat.div_le_self },
+         exact lt_of_lt_of_le h₁ h₂ }
+     end,
+     rand_nat_aux (r' / gen_mag - 1) v' g'
 
 /-- Generate a random natural number in the interval [lo, hi]. -/
 def rand_nat {gen : Type u} [random_gen gen] (g : gen) (lo hi : nat) : nat × gen :=

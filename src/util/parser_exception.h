@@ -12,8 +12,9 @@ namespace lean {
 /** \brief Exception produced by a Lean parser. */
 class parser_exception : public exception_with_pos {
 protected:
-    std::string m_fname;
-    pos_info    m_pos;
+    std::string           m_fname;
+    pos_info              m_pos;
+    optional<std::string> m_what_buffer;
 public:
     parser_exception(char const * msg, char const * fname, pos_info pos):
             exception_with_pos(msg), m_fname(fname), m_pos(pos) {}

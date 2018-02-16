@@ -3,7 +3,6 @@ import smt system.io
 open tactic
 meta def script_check_id (n : name) : tactic unit :=
 do env ← get_env, (env^.get n >> return ()) <|> (guard $ env^.is_namespace n) <|> (attribute.get_instances n >> return ()) <|> fail ("identifier '" ++ to_string n ++ "' is not a constant, namespace nor attribute")
-run_cmd script_check_id `abs
 run_cmd script_check_id `absurd
 run_cmd script_check_id `acc.cases_on
 run_cmd script_check_id `acc.rec
@@ -36,8 +35,6 @@ run_cmd script_check_id `char.of_nat
 run_cmd script_check_id `char.of_nat_ne_of_ne
 run_cmd script_check_id `is_valid_char_range_1
 run_cmd script_check_id `is_valid_char_range_2
-run_cmd script_check_id `classical.prop_decidable
-run_cmd script_check_id `classical.type_decidable_eq
 run_cmd script_check_id `coe
 run_cmd script_check_id `coe_fn
 run_cmd script_check_id `coe_sort
@@ -81,8 +78,6 @@ run_cmd script_check_id `forall_congr
 run_cmd script_check_id `forall_congr_eq
 run_cmd script_check_id `forall_not_of_not_exists
 run_cmd script_check_id `funext
-run_cmd script_check_id `ge
-run_cmd script_check_id `gt
 run_cmd script_check_id `has_add
 run_cmd script_check_id `has_add.add
 run_cmd script_check_id `has_andthen.andthen
@@ -92,7 +87,6 @@ run_cmd script_check_id `has_bind.seq
 run_cmd script_check_id `has_div
 run_cmd script_check_id `has_div.div
 run_cmd script_check_id `has_emptyc.emptyc
-run_cmd script_check_id `has_mod.mod
 run_cmd script_check_id `has_mul
 run_cmd script_check_id `has_mul.mul
 run_cmd script_check_id `has_insert.insert
@@ -148,14 +142,6 @@ run_cmd script_check_id `implies
 run_cmd script_check_id `implies_of_if_neg
 run_cmd script_check_id `implies_of_if_pos
 run_cmd script_check_id `int
-run_cmd script_check_id `int.has_add
-run_cmd script_check_id `int.has_mul
-run_cmd script_check_id `int.has_sub
-run_cmd script_check_id `int.has_div
-run_cmd script_check_id `int.has_le
-run_cmd script_check_id `int.has_lt
-run_cmd script_check_id `int.has_neg
-run_cmd script_check_id `int.has_mod
 run_cmd script_check_id `int.bit0_nonneg
 run_cmd script_check_id `int.bit1_nonneg
 run_cmd script_check_id `int.one_nonneg
@@ -173,7 +159,6 @@ run_cmd script_check_id `int.neg_ne_of_pos
 run_cmd script_check_id `int.ne_neg_of_pos
 run_cmd script_check_id `int.neg_ne_zero_of_ne
 run_cmd script_check_id `int.zero_ne_neg_of_ne
-run_cmd script_check_id `int.decidable_linear_ordered_comm_group
 run_cmd script_check_id `interactive.param_desc
 run_cmd script_check_id `interactive.parse
 run_cmd script_check_id `io_core
@@ -312,17 +297,6 @@ run_cmd script_check_id `propext
 run_cmd script_check_id `to_pexpr
 run_cmd script_check_id `quot.mk
 run_cmd script_check_id `quot.lift
-run_cmd script_check_id `real
-run_cmd script_check_id `real.of_int
-run_cmd script_check_id `real.to_int
-run_cmd script_check_id `real.is_int
-run_cmd script_check_id `real.has_neg
-run_cmd script_check_id `real.has_div
-run_cmd script_check_id `real.has_add
-run_cmd script_check_id `real.has_mul
-run_cmd script_check_id `real.has_sub
-run_cmd script_check_id `real.has_lt
-run_cmd script_check_id `real.has_le
 run_cmd script_check_id `reflected
 run_cmd script_check_id `reflected.subst
 run_cmd script_check_id `repr
@@ -339,10 +313,6 @@ run_cmd script_check_id `psigma.fst
 run_cmd script_check_id `psigma.snd
 run_cmd script_check_id `singleton
 run_cmd script_check_id `sizeof
-run_cmd script_check_id `smt.array
-run_cmd script_check_id `smt.select
-run_cmd script_check_id `smt.store
-run_cmd script_check_id `smt.prove
 run_cmd script_check_id `string
 run_cmd script_check_id `string.empty
 run_cmd script_check_id `string.str
@@ -387,7 +357,6 @@ run_cmd script_check_id `well_founded_tactics
 run_cmd script_check_id `well_founded_tactics.default
 run_cmd script_check_id `well_founded_tactics.rel_tac
 run_cmd script_check_id `well_founded_tactics.dec_tac
-run_cmd script_check_id `xor
 run_cmd script_check_id `zero_le_one
 run_cmd script_check_id `zero_lt_one
 run_cmd script_check_id `zero_mul

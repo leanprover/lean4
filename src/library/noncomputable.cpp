@@ -70,7 +70,8 @@ static bool is_builtin_extra(name const & n) {
         n == get_monad_io_terminal_impl_name() ||
         n == get_monad_io_file_system_impl_name() ||
         n == get_monad_io_environment_impl_name() ||
-        n == get_monad_io_process_impl_name();
+        n == get_monad_io_process_impl_name() ||
+        n == get_monad_io_random_impl_name();
 }
 
 static bool is_noncomputable(type_checker & tc, noncomputable_ext const & ext, name const & n) {

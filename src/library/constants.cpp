@@ -182,6 +182,8 @@ name const * g_monad_io_terminal_impl = nullptr;
 name const * g_monad_io_file_system_impl = nullptr;
 name const * g_monad_io_environment_impl = nullptr;
 name const * g_monad_io_process_impl = nullptr;
+name const * g_monad_io_random_impl = nullptr;
+name const * g_io_rand_nat = nullptr;
 name const * g_io = nullptr;
 name const * g_is_associative = nullptr;
 name const * g_is_associative_assoc = nullptr;
@@ -569,6 +571,8 @@ void initialize_constants() {
     g_monad_io_file_system_impl = new name{"monad_io_file_system_impl"};
     g_monad_io_environment_impl = new name{"monad_io_environment_impl"};
     g_monad_io_process_impl = new name{"monad_io_process_impl"};
+    g_monad_io_random_impl = new name{"monad_io_random_impl"};
+    g_io_rand_nat = new name{"io_rand_nat"};
     g_io = new name{"io"};
     g_is_associative = new name{"is_associative"};
     g_is_associative_assoc = new name{"is_associative", "assoc"};
@@ -957,6 +961,8 @@ void finalize_constants() {
     delete g_monad_io_file_system_impl;
     delete g_monad_io_environment_impl;
     delete g_monad_io_process_impl;
+    delete g_monad_io_random_impl;
+    delete g_io_rand_nat;
     delete g_io;
     delete g_is_associative;
     delete g_is_associative_assoc;
@@ -1344,6 +1350,8 @@ name const & get_monad_io_terminal_impl_name() { return *g_monad_io_terminal_imp
 name const & get_monad_io_file_system_impl_name() { return *g_monad_io_file_system_impl; }
 name const & get_monad_io_environment_impl_name() { return *g_monad_io_environment_impl; }
 name const & get_monad_io_process_impl_name() { return *g_monad_io_process_impl; }
+name const & get_monad_io_random_impl_name() { return *g_monad_io_random_impl; }
+name const & get_io_rand_nat_name() { return *g_io_rand_nat; }
 name const & get_io_name() { return *g_io; }
 name const & get_is_associative_name() { return *g_is_associative; }
 name const & get_is_associative_assoc_name() { return *g_is_associative_assoc; }

@@ -7,11 +7,17 @@ import system.io_interface
 
 /- The following constants have a builtin implementation -/
 constant io_core : Type → Type → Type
+
+/- Auxiliary definition used in the builtin implementation of monad_io_random_impl -/
+def io_rand_nat : std_gen → nat → nat → nat × std_gen :=
+rand_nat
+
 @[instance] constant monad_io_impl             : monad_io io_core
 @[instance] constant monad_io_terminal_impl    : monad_io_terminal io_core
 @[instance] constant monad_io_file_system_impl : monad_io_file_system io_core
 @[instance] constant monad_io_environment_impl : monad_io_environment io_core
 @[instance] constant monad_io_process_impl     : monad_io_process io_core
+@[instance] constant monad_io_random_impl      : monad_io_random io_core
 
 instance io_core_is_monad (e : Type) : monad (io_core e) :=
 monad_io_is_monad io_core e
@@ -167,6 +173,12 @@ def wait (c : child) : io nat :=
 monad_io_process.wait c
 
 end proc
+
+def set_rand_gen : std_gen → io unit :=
+monad_io_random.set_rand_gen io_core
+
+def rand (lo : nat := std_range.1) (hi : nat := std_range.2) : io nat :=
+monad_io_random.rand io_core lo hi
 
 end io
 

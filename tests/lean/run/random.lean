@@ -1,4 +1,4 @@
-import system.random
+import system.io
 universes u
 
 def tst1 : nat :=
@@ -56,3 +56,27 @@ def mk_dummy_gen (lo : nat := 0) (hi : nat := 100000) : dummy_gen :=
 
 /- Invoke gen_rand_list using the dummy generator. -/
 #eval (gen_rand_list 20 mk_dummy_gen 0 10).1
+
+open io
+/- The io monad has a number generator.
+   The action `rand` generates a random number.
+-/
+def prg₁ : io unit :=
+do v₁ ← rand,
+   put_str_ln (to_string v₁),
+   v₂ ← rand 0 100, -- we can provide lower and upper bounds
+   put_str_ln (to_string v₂)
+
+#eval prg₁
+#eval prg₁ /- generate different results since the "World" was modified by previous eval -/
+
+/- The default number generator for the io monad is
+   based on the C++ std::rand procedure, but the
+   user can use set_rand_gen to modify it.
+-/
+def prg₂ : io unit :=
+do set_rand_gen mk_std_gen,
+   prg₁
+
+#eval prg₂
+#eval prg₂ /- generate same result -/

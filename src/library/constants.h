@@ -184,6 +184,8 @@ name const & get_monad_io_terminal_impl_name();
 name const & get_monad_io_file_system_impl_name();
 name const & get_monad_io_environment_impl_name();
 name const & get_monad_io_process_impl_name();
+name const & get_monad_io_random_impl_name();
+name const & get_io_rand_nat_name();
 name const & get_io_name();
 name const & get_is_associative_name();
 name const & get_is_associative_assoc_name();

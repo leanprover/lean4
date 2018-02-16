@@ -83,6 +83,14 @@ static mpz const & to_mpz2(vm_obj const & o) {
     }
 }
 
+mpz const & vm_nat_to_mpz1(vm_obj const & o) {
+    return to_mpz1(o);
+}
+
+mpz const & vm_nat_to_mpz2(vm_obj const & o) {
+    return to_mpz2(o);
+}
+
 vm_obj nat_succ(vm_obj const & a) {
     if (LEAN_LIKELY(is_simple(a))) {
         return mk_vm_nat(cidx(a) + 1);

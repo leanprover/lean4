@@ -182,6 +182,8 @@ run_cmd script_check_id `monad_io_terminal_impl
 run_cmd script_check_id `monad_io_file_system_impl
 run_cmd script_check_id `monad_io_environment_impl
 run_cmd script_check_id `monad_io_process_impl
+run_cmd script_check_id `monad_io_random_impl
+run_cmd script_check_id `io_rand_nat
 run_cmd script_check_id `io
 run_cmd script_check_id `is_associative
 run_cmd script_check_id `is_associative.assoc

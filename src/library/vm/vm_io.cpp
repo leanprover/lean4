@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <vector>
 #include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #ifdef _MSC_VER
 #include <direct.h>
@@ -510,7 +511,7 @@ class monad_io_terminal (m : Type → Type → Type) :=
 (get_line     : m io.error string)
 (cmdline_args : list string)
 */
-static vm_obj monad_io_terminal_impl() {
+vm_obj monad_io_terminal_impl() {
     return mk_vm_constructor(0, {
             mk_native_closure(io_put_str),
             mk_native_closure(io_get_line),
@@ -546,6 +547,46 @@ std::string io_error_to_string(vm_obj const & o) {
     lean_unreachable();
 }
 
+MK_THREAD_LOCAL_GET_DEF(vm_obj, get_rand_gen);
+
+vm_obj io_set_rand_gen(vm_obj const & g, vm_obj const &) {
+    get_rand_gen() = g;
+    return mk_io_result(mk_vm_unit());
+}
+
+vm_obj io_rand(vm_obj const & lo, vm_obj const & hi, vm_obj const &) {
+    vm_obj & gen = get_rand_gen();
+    if (is_simple(gen)) {
+        if (optional<unsigned> lo1 = try_to_unsigned(lo)) {
+            if (optional<unsigned> hi1 = try_to_unsigned(hi)) {
+                unsigned r = 0;
+                if (*lo1 < *hi1) {
+                    r = *lo1 + (std::rand() % (*hi1 - *lo1));
+                }
+                return mk_io_result(mk_vm_nat(r));
+            }
+        }
+        mpz const & lo1 = vm_nat_to_mpz1(lo);
+        mpz const & hi1 = vm_nat_to_mpz2(hi);
+        mpz r(0);
+        if (lo1 < hi1) {
+            r = lo1 + (mpz(std::rand()) % (hi1 - lo1));
+        }
+        return mk_io_result(mk_vm_nat(r));
+    } else {
+        vm_obj io_rand_nat = get_vm_state().get_constant(get_io_rand_nat_name());
+        vm_obj r           = invoke(io_rand_nat, gen, lo, hi);
+        gen = cfield(r, 1);
+        return mk_io_result(cfield(r, 0));
+    }
+}
+
+vm_obj monad_io_random_impl() {
+    return mk_vm_constructor(0, {
+            mk_native_closure(io_set_rand_gen),
+            mk_native_closure(io_rand) });
+}
+
 void initialize_vm_io() {
     DECLARE_VM_BUILTIN(name("io_core"), io_core);
     DECLARE_VM_BUILTIN(name("monad_io_impl"), monad_io_impl);
@@ -553,6 +594,7 @@ void initialize_vm_io() {
     DECLARE_VM_BUILTIN(name("monad_io_file_system_impl"), monad_io_file_system_impl);
     DECLARE_VM_BUILTIN(name("monad_io_environment_impl"), monad_io_environment_impl);
     DECLARE_VM_BUILTIN(name("monad_io_process_impl"), monad_io_process_impl);
+    DECLARE_VM_BUILTIN(name("monad_io_random_impl"), monad_io_random_impl);
     g_cmdline_args = new std::vector<std::string>();
 }
 

@@ -81,15 +81,14 @@ scope_global_ios::~scope_global_ios() {
     g_ios = m_old_ios;
 }
 
-MK_THREAD_LOCAL_GET_DEF(std::string, get_what_str);
-
 char const * formatted_exception::what() const noexcept {
-    options const & opts = get_global_ios().get_options();
-    std::ostringstream out;
-    out << mk_pair(m_fmt, opts);
-    std::string & r = get_what_str();
-    r = out.str();
-    return r.c_str();
+    if (!m_what_buffer) {
+        options const & opts = get_global_ios().get_options();
+        std::ostringstream out;
+        out << mk_pair(m_fmt, opts);
+        const_cast<formatted_exception*>(this)->m_what_buffer = out.str();
+    }
+    return m_what_buffer->c_str();
 }
 
 options const & get_options_from_ios(io_state const & ios) {

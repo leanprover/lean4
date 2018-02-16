@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-
+#include <string>
 #include "util/output_channel.h"
 #include "util/sexpr/options.h"
 #include "util/exception_with_pos.h"
@@ -61,8 +61,9 @@ io_state const & get_global_ios();
     This is slightly different from ext_exception where the format object is built on demand. */
 class formatted_exception : public exception_with_pos {
 protected:
-    optional<pos_info> m_pos;
-    format             m_fmt;
+    optional<pos_info>    m_pos;
+    format                m_fmt;
+    optional<std::string> m_what_buffer;
 public:
     explicit formatted_exception(format const & fmt):m_fmt(fmt) {}
     formatted_exception(optional<pos_info> const & p, format const & fmt):m_pos(p), m_fmt(fmt) {}

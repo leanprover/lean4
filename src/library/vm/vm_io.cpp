@@ -561,7 +561,7 @@ vm_obj io_rand(vm_obj const & lo, vm_obj const & hi, vm_obj const &) {
             if (optional<unsigned> hi1 = try_to_unsigned(hi)) {
                 unsigned r = 0;
                 if (*lo1 < *hi1) {
-                    r = *lo1 + (std::rand() % (*hi1 - *lo1));
+                    r = *lo1 + (std::rand() % (*hi1 - *lo1)); // NOLINT
                 }
                 return mk_io_result(mk_vm_nat(r));
             }
@@ -570,7 +570,7 @@ vm_obj io_rand(vm_obj const & lo, vm_obj const & hi, vm_obj const &) {
         mpz const & hi1 = vm_nat_to_mpz2(hi);
         mpz r(0);
         if (lo1 < hi1) {
-            r = lo1 + (mpz(std::rand()) % (hi1 - lo1));
+            r = lo1 + (mpz(std::rand()) % (hi1 - lo1)); // NOLINT
         }
         return mk_io_result(mk_vm_nat(r));
     } else {

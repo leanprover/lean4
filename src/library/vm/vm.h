@@ -599,6 +599,12 @@ public:
 
 /** \brief Virtual machine for executing VM bytecode. */
 class vm_state {
+    struct performance_counters {
+        size_t                      m_num_constructor_allocs{0};
+        size_t                      m_num_closure_allocs{0};
+        size_t                      m_num_mpz_allocs{0};
+    };
+public:
     typedef std::vector<vm_decl> decl_vector;
     typedef std::vector<optional<vm_obj>> cache_vector;
     typedef unsigned_map<vm_decl> decl_map;
@@ -641,6 +647,8 @@ class vm_state {
     debugger_state_ptr          m_debugger_state_ptr;
     bool                        m_was_updated{false}; /* set to true if update_env is invoked */
 
+    performance_counters        m_perf_counters;
+
     void debugger_init();
     void debugger_step();
     void push_local_info(unsigned idx, vm_local_info const & info);
@@ -672,6 +680,8 @@ public:
 
     void update_env(environment const & env);
     bool env_was_updated() const { return m_was_updated; }
+
+    bool profiling() const { return m_profiling; }
 
     /* Auxiliary object for temporarily resetting env_was_updated flag. */
     class reset_env_was_updated_flag {
@@ -801,6 +811,7 @@ public:
         struct snapshot_core {
             chrono::milliseconds                  m_duration;
             std::vector<pair<unsigned, unsigned>> m_stack;
+            performance_counters                  m_perf_counters;
         };
         vm_state &                 m_state;
         atomic<bool>               m_stop;
@@ -815,6 +826,7 @@ public:
         struct snapshot {
             chrono::milliseconds              m_duration;
             std::vector<pair<name, unsigned>> m_stack;
+            performance_counters              m_perf_counters;
         };
 
         struct snapshots {
@@ -827,6 +839,12 @@ public:
         bool enabled() const { return m_thread_ptr.get() != nullptr; }
         snapshots get_snapshots();
     };
+
+    /* performance counters */
+    void inc_constructor_allocs() { m_perf_counters.m_num_constructor_allocs++; }
+    void inc_closure_allocs() { m_perf_counters.m_num_closure_allocs++; }
+    void inc_mpz_allocs() { m_perf_counters.m_num_mpz_allocs++; }
+    performance_counters const & get_perf_counters() const { return m_perf_counters; }
 };
 
 /** \brief Helper class for setting thread local vm_state object */

@@ -25,6 +25,9 @@ eval_helper::eval_helper(environment const & env, options const & opts, name con
 }
 
 vm_obj eval_helper::invoke_fn() {
+    /* We use `scope_vm_state` to set thread local g_vm_state which is used
+       to collect performance numbers when profiling. */
+    scope_vm_state scope(m_vms);
     unsigned arity = m_vms.get_decl(m_fn)->get_arity();
     if (arity > m_args.size()) {
         throw exception(sstream() << "cannot evaluate function: " << m_args.size()

@@ -36,6 +36,9 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
+/* Reference to the VM that is currently running. */
+LEAN_THREAD_VALUE(vm_state *, g_vm_state, nullptr);
+
 void vm_obj_cell::dec_ref(vm_obj & o, buffer<vm_obj_cell*> & todelete) {
     if (LEAN_VM_IS_PTR(o.m_data)) {
         vm_obj_cell * c = o.steal_ptr();
@@ -72,6 +75,9 @@ void vm_composite::dealloc(buffer<vm_obj_cell*> & todelete) {
 }
 
 vm_obj mk_vm_constructor(unsigned cidx, unsigned sz, vm_obj const * data) {
+    if (g_vm_state && g_vm_state->profiling()) {
+        g_vm_state->inc_constructor_allocs();
+    }
     return mk_vm_composite(vm_obj_kind::Constructor, cidx, sz, data);
 }
 
@@ -130,6 +136,9 @@ vm_obj update_vm_pair(vm_obj const & o, vm_obj const & v_1, vm_obj const & v_2) 
 }
 
 vm_obj mk_vm_closure(unsigned fn_idx, unsigned sz, vm_obj const * data) {
+    if (g_vm_state && g_vm_state->profiling()) {
+        g_vm_state->inc_closure_allocs();
+    }
     return mk_vm_composite(vm_obj_kind::Closure, fn_idx, sz, data);
 }
 
@@ -155,6 +164,9 @@ vm_obj mk_vm_closure(unsigned cidx, vm_obj const & o1, vm_obj const & o2, vm_obj
 vm_mpz::vm_mpz(mpz const & v):
     vm_obj_cell(vm_obj_kind::MPZ),
     m_value(v) {
+    if (g_vm_state && g_vm_state->profiling()) {
+        g_vm_state->inc_mpz_allocs();
+    }
 }
 
 vm_obj mk_vm_simple(unsigned v) {
@@ -1447,9 +1459,6 @@ void vm_state::debugger_init() {
     m_debugging          = true;
     m_debugger_state_ptr.reset(new debugger_state(m_env));
 }
-
-/* Reference to the VM that is currently running. */
-LEAN_THREAD_VALUE(vm_state *, g_vm_state, nullptr);
 
 scope_vm_state::scope_vm_state(vm_state & s):
     m_prev(g_vm_state) {
@@ -3414,7 +3423,8 @@ vm_state::profiler::profiler(vm_state & s, options const & opts):
                         auto curr = chrono::steady_clock::now();
                         m_snapshots.push_back(snapshot_core());
                         snapshot_core & s = m_snapshots.back();
-                        s.m_duration = chrono::duration_cast<chrono::milliseconds>(curr - start);
+                        s.m_perf_counters = m_state.get_perf_counters();
+                        s.m_duration      = chrono::duration_cast<chrono::milliseconds>(curr - start);
                         for (frame const & fr : m_state.m_call_stack) {
                             if (fr.m_curr_fn_idx != g_null_fn_idx &&
                                 (s.m_stack.empty() || s.m_stack.back().first != fr.m_curr_fn_idx)) {
@@ -3456,8 +3466,9 @@ auto vm_state::profiler::get_snapshots() -> snapshots {
     std::unordered_map<name, chrono::milliseconds, name_hash> cum_times;
     for (snapshot_core const & s : m_snapshots) {
         snapshot new_s;
-        new_s.m_duration = s.m_duration;
-        r.m_total_time += s.m_duration;
+        new_s.m_duration       = s.m_duration;
+        new_s.m_perf_counters  = s.m_perf_counters;
+        r.m_total_time        += s.m_duration;
         auto & new_stack = new_s.m_stack;
         std::unordered_set<name, name_hash> decl_already_seen_in_this_stack;
         for (auto const & p : s.m_stack) {
@@ -3506,6 +3517,15 @@ static bool equal_fns(vm_state::profiler::snapshot const & s1, vm_state::profile
 #endif
 
 void vm_state::profiler::snapshots::display(std::ostream & out) const {
+    if (!m_snapshots.empty()) {
+        performance_counters const & c = m_snapshots.back().m_perf_counters;
+        if (c.m_num_constructor_allocs > 0)
+            out << "num. allocated objects:  " << c.m_num_constructor_allocs << "\n";
+        if (c.m_num_closure_allocs > 0)
+            out << "num. allocated closures: " << c.m_num_closure_allocs << "\n";
+        if (c.m_num_mpz_allocs > 0)
+            out << "num. allocated big nums: " << c.m_num_mpz_allocs << "\n";
+    }
     for (auto & cum_time : m_cum_times) {
         out << std::setw(5) << cum_time.second.count() << "ms   "
             << std::setw(5) << std::fixed << std::setprecision(1)

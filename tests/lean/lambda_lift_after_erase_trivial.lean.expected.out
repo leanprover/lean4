@@ -1,0 +1,3 @@
+[compiler.lambda_lifting] 
+>> f1
+λ (a : ℕ), a

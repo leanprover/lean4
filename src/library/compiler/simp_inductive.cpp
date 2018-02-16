@@ -114,14 +114,12 @@ public:
     simp_inductive_core_fn(environment const & env):compiler_step_visitor(env) {}
 };
 
-/*
-   Remove constructor/projection/cases_on applications of trivial structures.
+/* \brief Remove constructor/projection/cases_on applications of trivial structures.
 
    We say a structure is trivial if it has only constructor and
    the constructor has only one relevant field.
    In this case, we use a simple optimization where we represent elements of this inductive
-   datatype as the only relevant element.
-*/
+   datatype as the only relevant element. */
 class erase_trivial_structures_fn : public simp_inductive_core_fn {
     bool has_only_one_constructor(name const & I_name) const {
         if (auto r = inductive::get_num_intro_rules(env(), I_name))
@@ -418,18 +416,29 @@ public:
   def f (g h : box (ℕ → ℕ)) (b : bool) : ℕ → ℕ :=
   box.val (bool.cases_on b g h)
   ```
+
+  Remark: it is useful to erase_trivial_structures before applying lamba lifting since
+  it will prevent the generation of unnecessary closures. Here is an example:
+  ```
+  structure box (α : Type) :=
+  (val : α)
+
+  set_option trace.compiler true
+  def f1 : box (ℕ → ℕ) :=
+  box.mk id
+  ```
 */
 
-expr simp_inductive(environment const & env, expr const & e) {
-    expr e1 = erase_trivial_structures_fn(env)(e);
-    return simp_inductive_fn(env)(e1);
+void erase_trivial_structures(environment const & env, buffer<procedure> & procs) {
+    erase_trivial_structures_fn eraser(env);
+    for (auto & proc : procs)
+        proc.m_code = eraser(proc.m_code);
 }
 
 void simp_inductive(environment const & env, buffer<procedure> & procs) {
-    erase_trivial_structures_fn eraser(env);
     simp_inductive_fn simplifier(env);
     for (auto & proc : procs)
-        proc.m_code = simplifier(eraser(proc.m_code));
+        proc.m_code = simplifier(proc.m_code);
 }
 
 void initialize_simp_inductive() {

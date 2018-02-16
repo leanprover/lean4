@@ -257,6 +257,8 @@ public:
         lean_trace(name({"compiler", "erase_irrelevant"}), tout() << "\n"; display(procs););
         reduce_arity(m_env, procs);
         lean_trace(name({"compiler", "reduce_arity"}), tout() << "\n"; display(procs););
+        erase_trivial_structures(m_env, procs);
+        lean_trace(name({"compiler", "erase_trivial_structures"}), tout() << "\n"; display(procs););
         lambda_lifting(m_env, d.get_name(), procs);
         lean_trace(name({"compiler", "lambda_lifting"}), tout() << "\n"; display(procs););
         simp_inductive(m_env, procs);
@@ -293,6 +295,7 @@ void initialize_preprocess() {
     register_trace_class({"compiler", "elim_recursors"});
     register_trace_class({"compiler", "erase_irrelevant"});
     register_trace_class({"compiler", "reduce_arity"});
+    register_trace_class({"compiler", "erase_trivial_structures"});
     register_trace_class({"compiler", "lambda_lifting"});
     register_trace_class({"compiler", "simplify_inductive"});
     register_trace_class({"compiler", "elim_unused_lets"});

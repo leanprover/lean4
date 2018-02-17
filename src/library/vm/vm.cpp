@@ -25,6 +25,7 @@ Author: Leonardo de Moura
 #include "library/private.h"
 #include "library/profiling.h"
 #include "library/util.h"
+#include "library/time_task.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_option.h"
@@ -3554,6 +3555,7 @@ void vm_state::profiler::snapshots::display(std::ostream & out) const {
 }
 
 bool vm_state::profiler::snapshots::display(std::string const &what, options const &opts, std::ostream &out) const {
+    report_profiling_time(what + " execution", m_total_time);
     if (m_total_time >= get_profiling_threshold(opts)) {
         out << what << " execution took " << display_profiling_time{m_total_time} << "\n";
         display(out);

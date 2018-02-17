@@ -133,6 +133,8 @@ master branch (aka work in progress branch)
   value of a superclass. This change eliminates the need for most `..` source specifiers
   in instance declarations.
 
+* The `--profile` flag will now print cumulative profiling times at the end of execution
+
 *Changes*
 
 * Command `variable [io.interface]` is not needed anymore to use the `io` monad.

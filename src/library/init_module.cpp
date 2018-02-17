@@ -52,6 +52,7 @@ Author: Leonardo de Moura
 #include "library/check.h"
 #include "library/parray.h"
 #include "library/profiling.h"
+#include "library/time_task.h"
 
 namespace lean {
 void initialize_library_core_module() {
@@ -115,9 +116,11 @@ void initialize_library_module() {
     initialize_check();
     initialize_congr_lemma();
     initialize_parray();
+    initialize_time_task();
 }
 
 void finalize_library_module() {
+    finalize_time_task();
     finalize_parray();
     finalize_congr_lemma();
     finalize_check();

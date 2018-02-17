@@ -13,7 +13,7 @@ Author: Gabriel Ebner
 
 namespace lean {
 
-/** Buider for a message object.  Automatically reports the message on destruction. */
+/** Builder for a message object. */
 class message_builder {
     std::shared_ptr<abstract_type_context> m_tc;
     std::string                            m_file_name;

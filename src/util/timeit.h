@@ -54,11 +54,15 @@ public:
     xtimeit(xtimeit const &) = delete;
     xtimeit(xtimeit &&) = default;
     ~xtimeit() {
-        auto end = std::chrono::steady_clock::now();
-        auto diff = second_duration(end - m_start);
+        auto diff = get_elapsed();
         if (diff >= m_threshold && m_fn) {
             m_fn(diff);
         }
+    }
+
+    second_duration get_elapsed() const {
+        auto end = std::chrono::steady_clock::now();
+        return second_duration(end - m_start);
     }
 };
 

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include <vector>
+#include "library/time_task.h"
 #include "library/profiling.h"
 #include "library/library_task_builder.h"
 #include "library/sorry.h"
@@ -179,17 +180,8 @@ static void finalize_definition(elaborator & elab, buffer<expr> const & params, 
 
 static certified_declaration check(parser & p, environment const & env, name const & c_name, declaration const & d, pos_info const & pos) {
     try {
-        if (p.profiling()) {
-            xtimeit timer(get_profiling_threshold(p.get_options()), [&](second_duration duration) {
-                    auto msg = p.mk_message(pos, INFORMATION);
-                    msg.get_text_stream().get_stream()
-                        << "type checking time of " << c_name << " took " << display_profiling_time{duration} << "\n";
-                    msg.report();
-                });
-            return ::lean::check(env, d);
-        } else {
-            return ::lean::check(env, d);
-        }
+        time_task _("type checking", p.mk_message(pos, INFORMATION), p.get_options(), c_name);
+        return ::lean::check(env, d);
     } catch (kernel_exception & ex) {
         unsigned i = get_pp_indent(p.get_options());
         auto pp_fn = ::lean::mk_pp_ctx(env, p.get_options(), metavar_context(), local_context());
@@ -226,6 +218,7 @@ static bool check_noncomputable(bool ignore_noncomputable, environment const & e
 static environment compile_decl(parser & p, environment const & env,
                                 name const & c_name, name const & c_real_name, pos_info const & pos) {
     try {
+        time_task _("compilation", p.mk_message(message_severity::INFORMATION), p.get_options(), c_real_name);
         return vm_compile(env, env.get(c_real_name));
     } catch (exception & ex) {
         // FIXME(gabriel): use position from exception
@@ -531,6 +524,7 @@ static std::tuple<expr, expr, name> parse_definition(parser & p, buffer<name> & 
                                                      bool is_example, bool is_instance, bool is_meta, bool is_abbrev) {
     parser::local_scope scope1(p);
     auto header_pos = p.pos();
+    time_task _("parsing", p.mk_message(header_pos, INFORMATION), p.get_options());
     declaration_name_scope scope2;
     expr fn = parse_single_header(p, scope2, lp_names, params, is_example, is_instance);
     expr val;
@@ -600,17 +594,8 @@ static expr_pair elaborate_definition_core(elaborator & elab, decl_cmd_kind kind
 }
 
 static expr_pair elaborate_definition(parser & p, elaborator & elab, decl_cmd_kind kind, expr const & fn, expr const & val, pos_info const & pos) {
-    if (p.profiling()) {
-        xtimeit timer(get_profiling_threshold(p.get_options()), [&](second_duration duration) {
-                auto msg = p.mk_message(pos, INFORMATION);
-                msg.get_text_stream().get_stream()
-                    << "elaboration of " << fn << " took " << display_profiling_time{duration} << "\n";
-                msg.report();
-            });
-        return elaborate_definition_core(elab, kind, fn, val);
-    } else {
-        return elaborate_definition_core(elab, kind, fn, val);
-    }
+    time_task _("elaboration", p.mk_message(pos, INFORMATION), p.get_options(), mlocal_pp_name(fn));
+    return elaborate_definition_core(elab, kind, fn, val);
 }
 
 static void finalize_theorem_type(elaborator & elab, buffer<expr> const & params, expr & type,
@@ -669,15 +654,9 @@ static expr elaborate_proof(
         elaborator elab(decl_env, opts, get_namespace(decl_env) + mlocal_pp_name(fn), mctx, lctx, recover_from_errors);
 
         expr val, type;
-        if (get_profiler(opts)) {
-            xtimeit timer(get_profiling_threshold(opts), [&](second_duration duration) {
-                auto msg = message_builder(decl_env, get_global_ios(), file_name, header_pos, INFORMATION);
-                msg.get_text_stream().get_stream()
-                        << "elaboration of " << mlocal_pp_name(fn) << " took " << display_profiling_time{duration} << "\n";
-                msg.report();
-            });
-            std::tie(val, type) = elab.elaborate_with_type(val0, mk_as_is(mlocal_type(fn)));
-        } else {
+        {
+            time_task _("elaboration", message_builder(tc, decl_env, get_global_ios(), file_name, header_pos, INFORMATION),
+                        opts, mlocal_pp_name(fn));
             std::tie(val, type) = elab.elaborate_with_type(val0, mk_as_is(mlocal_type(fn)));
         }
 
@@ -839,6 +818,7 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
             finalize_definition(elab, new_params, type, val, lp_names, meta.m_modifiers.m_is_meta);
             env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, prv_name, type, some_expr(val), {}, meta, is_abbrev, header_pos);
         }
+        time_task _("decl post-processing", p.mk_message(header_pos, INFORMATION), p.get_options(), c_name);
         environment new_env = env_n.first;
         name c_real_name    = env_n.second;
         if (is_rfl) new_env = mark_rfl_lemma(new_env, c_real_name);

@@ -39,6 +39,7 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/export.h"
 #include "library/message_builder.h"
+#include "library/time_task.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/dependencies.h"
@@ -742,6 +743,8 @@ int main(int argc, char ** argv) {
                 status << (mod_ok && !get(has_errors(mod.m_mod_info->m_lt)) ? 0 : 1);
             }
         }
+
+        display_cumulative_profiling_times(std::cerr);
 
         // if (!mods.empty() && export_native_objects) {
         //     // this code is now broken

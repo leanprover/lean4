@@ -12,6 +12,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include "library/profiling.h"
 #include "library/constants.h"
 #include "library/message_builder.h"
+#include "library/time_task.h"
 #include "library/vm/interaction_state.h"
 #include "library/vm/vm_environment.h"
 #include "library/vm/vm_exceptional.h"
@@ -222,7 +223,16 @@ environment interaction_monad<State>::evaluator::compile(name const & interactio
     }
     try {
         bool optimize_bytecode = false;
-        return vm_compile(new_env, new_env.get(interaction_name), optimize_bytecode);
+        if (provider) {
+            auto out = message_builder(environment(), get_global_ios(),
+                                       get_pos_info_provider()->get_file_name(),
+                                       get_pos_info_provider()->get_pos_info_or_some(interaction),
+                                       INFORMATION);
+            time_task _("elaboration: tactic compilation", out, m_opts);
+            return vm_compile(new_env, new_env.get(interaction_name), optimize_bytecode);
+        } else {
+            return vm_compile(new_env, new_env.get(interaction_name), optimize_bytecode);
+        }
     } catch (exception & ex) {
         throw formatted_exception(some(interaction), format(ex.what()));
     }
@@ -263,7 +273,7 @@ vm_obj interaction_monad<State>::evaluator::operator()(expr const & interaction,
                                    get_pos_info_provider()->get_pos_info_or_some(interaction),
                                    INFORMATION);
         out.set_caption("tactic profile data");
-        if (prof.get_snapshots().display("tactic", m_opts, out.get_text_stream().get_stream()))
+        if (prof.get_snapshots().display("elaboration: tactic", m_opts, out.get_text_stream().get_stream()))
             out.report();
     }
 

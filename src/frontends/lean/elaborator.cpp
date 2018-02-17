@@ -2898,8 +2898,8 @@ class visit_structure_instance_fn {
     }
 
     struct field_not_ready_to_synthesize_exception : exception {
-        format m_fmt;
-        explicit field_not_ready_to_synthesize_exception(const format & m_fmt) : m_fmt(m_fmt) {}
+        std::function<format()> m_fmt;
+        explicit field_not_ready_to_synthesize_exception(std::function<format()> m_fmt) : m_fmt(m_fmt) {}
     };
 
     void field_from_default_value(const name & S_fname) {
@@ -3070,19 +3070,21 @@ class visit_structure_instance_fn {
             return has_expr_metavar(e);
         });
         if (!deps.empty()) {
-            format error = format("Failed to insert value for '") + format(full_S_fname) +
-                    format("', it depends on field(s) '");
+            throw field_not_ready_to_synthesize_exception([=]() {
+                format error = format("Failed to insert value for '") + format(full_S_fname) +
+                               format("', it depends on field(s) '");
                 bool first = true;
-            deps.for_each([&](const name & dep) {
-                if (!first) error += format("', '");
-                error += format(dep);
-                first = false;
+                deps.for_each([&](const name & dep) {
+                    if (!first) error += format("', '");
+                    error += format(dep);
+                    first = false;
+                });
+                error += format("', but the value for these fields is not available.") + line() +
+                         format("Unfolded type/default value:") + line() +
+                         pp_until_meta_visible(m_elab.mk_fmt_ctx(), e) + line() +
+                         line();
+                return error;
             });
-            error += format("', but the value for these fields is not available.") + line() +
-                     format("Unfolded type/default value:") + line() +
-                     pp_until_meta_visible(m_elab.mk_fmt_ctx(), e) + line() +
-                     line();
-            throw field_not_ready_to_synthesize_exception(error);
         }
     }
 
@@ -3155,7 +3157,7 @@ class visit_structure_instance_fn {
                     } catch (field_not_ready_to_synthesize_exception const & e) {
                         done = false;
                         if (!last_progress)
-                            error += e.m_fmt;
+                            error += e.m_fmt();
                         return true;
                     }
 

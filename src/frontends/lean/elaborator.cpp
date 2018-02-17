@@ -3704,7 +3704,7 @@ void elaborator::invoke_tactic(expr const & mvar, expr const & tactic) {
 
     try {
         scoped_expr_caching scope(true);
-        vm_obj r = tactic_evaluator(m_ctx, m_opts, ref)(tactic, s);
+        vm_obj r = tactic_evaluator(m_ctx, m_opts, ref, /* allow_profiler */ true)(tactic, s);
         expr val;
         if (auto new_s = tactic::is_success(r)) {
             metavar_context mctx = new_s->mctx();

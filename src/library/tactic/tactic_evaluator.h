@@ -23,8 +23,8 @@ private:
 protected:
     virtual void process_failure(vm_state & S, vm_obj const & r) override;
 public:
-    tactic_evaluator(type_context & ctx, options const & opts, expr const & ref):
-            tactic::evaluator(ctx, opts), m_ref(ref) {}
+    tactic_evaluator(type_context & ctx, options const & opts, expr const & ref, bool allow_profiler = false):
+            tactic::evaluator(ctx, opts, allow_profiler), m_ref(ref) {}
     virtual vm_obj operator()(expr const & tactic, buffer<vm_obj> const & args, tactic_state const & s) override;
     vm_obj operator()(expr const & tactic, tactic_state const & s) {
         return tactic::evaluator::operator()(tactic, s);

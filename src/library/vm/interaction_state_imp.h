@@ -239,8 +239,11 @@ vm_obj interaction_monad<State>::evaluator::invoke(vm_state & S, name const & in
 }
 
 template<typename State>
-interaction_monad<State>::evaluator::evaluator(type_context & ctx, options const & opts):
+interaction_monad<State>::evaluator::evaluator(type_context & ctx, options const & opts, bool allow_profiler):
     m_ctx(ctx), m_opts(opts) {
+    if (!allow_profiler)
+        // do not bother to invoke the profiler for most trivial calls into Lean
+        m_opts = m_opts.update("profiler", false);
 }
 
 template<typename State>

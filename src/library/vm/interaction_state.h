@@ -58,11 +58,11 @@ struct interaction_monad {
 
     class evaluator {
         type_context & m_ctx;
-        options const & m_opts;
+        options m_opts;
     protected:
         virtual void process_failure(vm_state & S, vm_obj const & r);
     public:
-        evaluator(type_context & ctx, options const & opts);
+        evaluator(type_context & ctx, options const & opts, bool allow_profiler = false);
         environment compile(name const & interaction_name, expr const & interaction);
         vm_obj invoke(vm_state & S, name const & interaction_name,
                       std::initializer_list<vm_obj> const & args);

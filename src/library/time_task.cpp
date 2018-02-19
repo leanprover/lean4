@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Sebastian Ullrich
 */
-
+#include <string>
 #include <map>
 #include "library/time_task.h"
 
@@ -36,4 +36,3 @@ void finalize_time_task() {
     delete g_cum_times_mutex;
 }
 }
-

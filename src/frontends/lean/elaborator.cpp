@@ -2708,14 +2708,15 @@ elaborator::field_resolution elaborator::field_to_decl(expr const & e, expr cons
     if (is_field_notation(e)) {
         auto lhs = macro_arg(e, 0);
         if (is_constant(lhs)) {
+            type_context::tmp_locals locals(m_ctx);
             expr t = whnf(s_type);
             while (is_pi(t)) {
-                t = whnf(binding_body(t));
+                t = whnf(instantiate(binding_body(t), locals.push_local_from_binding(t)));
             }
-            if (is_sort(t)) {
+            if (is_sort(t) && !is_anonymous_field_notation(e)) {
                 name fname = get_field_notation_field_name(e);
                 throw elaborator_exception(lhs, format("unknown identifier '") + format(const_name(lhs)) + format(".") +
-                                                format(fname) + format("'"));
+                                           format(fname) + format("'"));
             }
         }
     }

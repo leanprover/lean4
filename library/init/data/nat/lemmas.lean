@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jeremy Avigad
 -/
 prelude
-import init.data.nat.basic init.data.nat.div init.data.nat.pow init.meta init.algebra.functions
+import init.data.nat.basic init.data.nat.div init.meta init.algebra.functions
 universes u
 
 namespace nat
@@ -1350,4 +1350,6 @@ begin
       simp [h₁] },
     rw [eq.symm (mod_eq_sub_mod p_b_ge)] }
 end
+
+
 end nat

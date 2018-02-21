@@ -231,4 +231,12 @@ optional<app_builder_info> persistent_context_cache::get_app_builder_info(type_c
 void persistent_context_cache::set_app_builder_info(type_context & ctx, expr const & e, list<bool> const & m, app_builder_info const & r) {
     return m_cache_ptr->set_app_builder_info(ctx, e, m, r);
 }
+
+void initialize_persistent_context_cache() {
+    /* We need to reset the cache since the unique_id local counters are reset too. */
+    register_thread_local_reset_fn([]() { get_unique_id_context_cache_pair() = unique_id_context_cache_pair(); });
+}
+
+void finalize_persistent_context_cache() {
+}
 }

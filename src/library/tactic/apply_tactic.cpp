@@ -255,11 +255,12 @@ optional<tactic_state> apply(type_context & ctx, bool all, bool use_instances, e
 }
 
 vm_obj tactic_apply_core(vm_obj const & e, vm_obj const & cfg0, vm_obj const & s0) {
-    tactic_state const & s = tactic::to_state(s0);
+    tactic_state s = tactic::to_state(s0);
     apply_cfg cfg(cfg0);
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
-    type_context ctx = mk_type_context_for(s, cfg.m_mode);
+    tactic_state_context_cache cache(s);
+    type_context ctx = cache.mk_type_context(cfg.m_mode);
     type_context::approximate_scope _(ctx, cfg.m_approx);
     try {
         vm_obj error_obj;

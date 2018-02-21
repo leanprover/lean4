@@ -1236,10 +1236,11 @@ meta constant simplify
 */
 vm_obj tactic_simplify(vm_obj const & slss, vm_obj const & u, vm_obj const & e, vm_obj const & c, vm_obj const & rel,
                        vm_obj const & prove, vm_obj const & _s) {
-    tactic_state const & s   = tactic::to_state(_s);
+    tactic_state s = tactic::to_state(_s);
     try {
         simp_config cfg(c);
-        type_context ctx     = mk_type_context_for(s, transparency_mode::Reducible);
+        tactic_state_context_cache cache(s);
+        type_context ctx     = cache.mk_type_context(transparency_mode::Reducible);
         defeq_can_state dcs  = s.dcs();
         tactic_simplify_fn simp(ctx, dcs, to_simp_lemmas(slss), to_list_name(u), cfg, s, prove);
         simp_result result   = simp(to_name(rel), to_expr(e));
@@ -1257,10 +1258,11 @@ vm_obj tactic_simplify(vm_obj const & slss, vm_obj const & u, vm_obj const & e, 
 
 static vm_obj ext_simplify_core(vm_obj const & a, vm_obj const & c, simp_lemmas const & slss, vm_obj const & prove,
                                 vm_obj const & pre, vm_obj const & post, name const & r, expr const & e,
-                                tactic_state const & s) {
+                                tactic_state s) {
     try {
         simp_config cfg(c);
-        type_context ctx     = mk_type_context_for(s, transparency_mode::Reducible);
+        tactic_state_context_cache cache(s);
+        type_context ctx     = cache.mk_type_context(transparency_mode::Reducible);
         defeq_can_state dcs  = s.dcs();
         vm_simplify_fn simp(ctx, dcs, slss, cfg, prove, pre, post, s);
         pair<vm_obj, simp_result> p = simp(a, r, e);

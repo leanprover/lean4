@@ -65,3 +65,12 @@ do t ← target >>= instantiate_mvars,
    (do (a, b) ← is_eq t,
         unify a b, to_expr ``(eq.refl %%a) >>= exact)
 end tactic
+
+namespace tactic
+namespace interactive
+/-- Close goals of the form `n ≠ m` when `n` and `m` have type `nat`, `char`, `string`, `int` or `fin sz`,
+    and they are literals. It also closes goals of the form `n < m`, `n > m`, `n ≤ m` and `n ≥ m` for `nat`.
+    If the foal is of the form `n = m`, then it tries to close it using reflexivity. -/
+meta def comp_val := tactic.comp_val
+end interactive
+end tactic

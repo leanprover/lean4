@@ -17,7 +17,7 @@ meta constant mk_int_val_ne_proof : expr → expr → option expr
 namespace tactic
 open expr
 meta def comp_val : tactic unit :=
-do t ← target,
+do t ← target >>= instantiate_mvars,
    guard (is_app t),
    type ← infer_type t.app_arg,
    (do is_def_eq type (const `nat []),

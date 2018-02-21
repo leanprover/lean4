@@ -1351,5 +1351,15 @@ begin
     rw [eq.symm (mod_eq_sub_mod p_b_ge)] }
 end
 
+lemma div_lt_self {n m : nat} : n > 0 → m > 1 → n / m < n :=
+begin
+  intros h₁ h₂,
+  have m_pos : m > 0, { apply lt_trans _ h₂, comp_val },
+  suffices : 1 * n < m * n, {
+    simp at this,
+    exact iff.mpr (div_lt_iff_lt_mul n n m_pos) this
+  },
+  exact mul_lt_mul h₂ (le_refl _) h₁ (nat.zero_le _)
+end
 
 end nat

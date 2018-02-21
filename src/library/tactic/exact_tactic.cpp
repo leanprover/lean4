@@ -10,12 +10,12 @@ Author: Leonardo de Moura
 #include "library/tactic/app_builder_tactics.h"
 
 namespace lean {
-
-vm_obj exact(expr const & e, transparency_mode const & m, tactic_state const & s) {
+static vm_obj exact(expr const & e, transparency_mode const & m, tactic_state s) {
     try {
         optional<metavar_decl> g = s.get_main_goal_decl();
         if (!g) return mk_no_goals_exception(s);
-        type_context ctx     = mk_type_context_for(s, m);
+        tactic_state_context_cache cache(s);
+        type_context ctx     = cache.mk_type_context(m);
         expr mvar            = head(s.goals());
         if (is_metavar(e) && mlocal_name(mvar) == mlocal_name(e)) {
             return tactic::mk_exception("invalid exact tactic, trying to solve goal using itself", s);
@@ -37,7 +37,7 @@ vm_obj exact(expr const & e, transparency_mode const & m, tactic_state const & s
                 auto thunk = [=]() {
                     format r("exact tactic failed, failed to assign ");
                     formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
-                    type_context ctx = mk_type_context_for(s, transparency_mode::All);
+                    type_context ctx = mk_cacheless_type_context_for(s, transparency_mode::All);
                     formatter fmt    = fmtf(s.env(), s.get_options(), ctx);
                     unsigned indent  = get_pp_indent(s.get_options());
                     r += nest(indent, line() + fmt(e));

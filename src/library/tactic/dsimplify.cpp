@@ -426,10 +426,11 @@ public:
 vm_obj tactic_dsimplify_core(vm_obj const &, vm_obj const & a,
                              vm_obj const & pre, vm_obj const & post, vm_obj const & e,
                              vm_obj const & _cfg, vm_obj const & _s) {
-    tactic_state const & s = tactic::to_state(_s);
+    tactic_state s = tactic::to_state(_s);
     dsimp_config cfg(_cfg);
     try {
-        type_context ctx = mk_type_context_for(s, cfg.m_md);
+        tactic_state_context_cache cache(s);
+        type_context ctx = cache.mk_type_context(cfg.m_md);
         defeq_can_state dcs = s.dcs();
         tactic_dsimplify_fn F(ctx, dcs, a, pre, post, s, cfg);
         expr new_e = F(to_expr(e));
@@ -445,10 +446,11 @@ vm_obj tactic_dsimplify_core(vm_obj const &, vm_obj const & a,
 }
 
 vm_obj simp_lemmas_dsimplify(vm_obj const & lemmas, vm_obj const & u, vm_obj const & e, vm_obj const & _cfg, vm_obj const & _s) {
-    tactic_state const & s = tactic::to_state(_s);
+    tactic_state s = tactic::to_state(_s);
     dsimp_config cfg(_cfg);
     try {
-        type_context ctx     = mk_type_context_for(s, cfg.m_md);
+        tactic_state_context_cache cache(s);
+        type_context ctx     = cache.mk_type_context(cfg.m_md);
         defeq_can_state dcs  = s.dcs();
         list<name> to_unfold = to_list_name(u);
         simp_lemmas_for dlemmas;

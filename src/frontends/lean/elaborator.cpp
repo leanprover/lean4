@@ -4276,11 +4276,12 @@ expr resolve_names(environment const & env, local_context const & lctx, expr con
 
 static vm_obj tactic_save_type_info(vm_obj const &, vm_obj const & _e, vm_obj const & ref, vm_obj const & _s) {
     expr const & e = to_expr(_e);
-    tactic_state const & s = tactic::to_state(_s);
+    tactic_state s = tactic::to_state(_s);
     if (!get_global_info_manager() || !get_pos_info_provider()) return tactic::mk_success(s);
     auto pos = get_pos_info_provider()->get_pos_info(to_expr(ref));
     if (!pos) return tactic::mk_success(s);
-    type_context ctx = mk_type_context_for(s);
+    tactic_state_context_cache cache(s);
+    type_context ctx = cache.mk_type_context();
     try {
         expr type = ctx.infer(e);
         get_global_info_manager()->add_type_info(*pos, type);

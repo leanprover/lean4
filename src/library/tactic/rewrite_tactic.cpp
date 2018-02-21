@@ -29,10 +29,11 @@ rewrite_cfg::rewrite_cfg(vm_obj const & cfg):apply_cfg(cfield(cfg, 0)) {
     m_occs = to_occurrences(cfield(cfg, 2));
 }
 
-static vm_obj rewrite_core(expr h, expr e, rewrite_cfg const & cfg, tactic_state const & s) {
+static vm_obj rewrite_core(expr h, expr e, rewrite_cfg const & cfg, tactic_state s) {
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
-    type_context ctx = mk_type_context_for(s, cfg.m_mode);
+    tactic_state_context_cache cache(s);
+    type_context ctx = cache.mk_type_context(cfg.m_mode);
     type_context::approximate_scope _(ctx, cfg.m_approx);
     expr h_type      = ctx.infer(h);
     /* Generate meta-variables for arguments */

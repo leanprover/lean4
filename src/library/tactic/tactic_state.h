@@ -196,6 +196,8 @@ type_context mk_type_context_for(environment const & env, options const & o,
 type_context mk_type_context_for(vm_obj const & s);
 type_context mk_type_context_for(vm_obj const & s, vm_obj const & m);
 
+type_context mk_cacheless_type_context_for(tactic_state const & s, transparency_mode m = transparency_mode::Semireducible);
+
 #define lean_tactic_trace(N, S, Code) lean_trace(N, {   \
     type_context _ctx = mk_type_context_for(S);         \
     scope_trace_env _scope((S).env(), _ctx);            \

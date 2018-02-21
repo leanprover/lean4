@@ -12,10 +12,11 @@ Author: Leonardo de Moura
 #include "library/tactic/kabstract.h"
 
 namespace lean {
-vm_obj generalize(transparency_mode m, expr const & e, name const & id, tactic_state const & s) {
+static vm_obj generalize(transparency_mode m, expr const & e, name const & id, tactic_state s) {
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
-    type_context ctx = mk_type_context_for(s, m);
+    tactic_state_context_cache cache(s);
+    type_context ctx = cache.mk_type_context(m);
     expr target = ctx.instantiate_mvars(g->get_type());
     expr target_abst = kabstract(ctx, target, e);
     if (closed(target_abst))

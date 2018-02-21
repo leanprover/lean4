@@ -6,11 +6,12 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <memory>
-#include "library/token.h"
+#include "library/unique_id.h"
 #include "library/abstract_context_cache.h"
 
 namespace lean {
 class context_cache;
+typedef unique_id context_cache_id;
 
 /*
    Ideally, we could have a "functional" implementation of abstract_context_cache using rb_map and rb_tree.
@@ -19,18 +20,18 @@ class context_cache;
    - rb_map (and rb_tree) are 10x slower than hashtable maps (and sets).
    - The functional object would increase the size of the tactic_state object considerably.
 
-   This class provides an alternative implementation where the tactic_state stores only a token.
-   This token is used to retrieve a thread local context_cache object.
+   This class provides an alternative implementation where the tactic_state stores only the cache id.
+   This id is used to retrieve a thread local context_cache object.
    See comment at abstract_context_cache for more details.
 */
 class persistent_context_cache : public abstract_context_cache {
-    token                          m_token;
+    context_cache_id               m_id;
     std::unique_ptr<context_cache> m_cache_ptr;
 public:
-    persistent_context_cache(token, options const &);
+    persistent_context_cache(context_cache_id, options const &);
     virtual ~persistent_context_cache();
 
-    token get_token() const { return m_token; }
+    context_cache_id get_id() const { return m_id; }
 
     /* Cached configuration options */
     virtual options const & get_options() const override;

@@ -9,25 +9,25 @@ Author: Leonardo de Moura
 #include "library/context_cache.h"
 
 namespace lean {
-typedef std::pair<token, std::unique_ptr<context_cache>> token_context_cache_pair;
+typedef std::pair<unique_id, std::unique_ptr<context_cache>> unique_id_context_cache_pair;
 
-MK_THREAD_LOCAL_GET_DEF(token_context_cache_pair, get_token_context_cache_pair);
+MK_THREAD_LOCAL_GET_DEF(unique_id_context_cache_pair, get_unique_id_context_cache_pair);
 
-persistent_context_cache::persistent_context_cache(token tk, options const & opts) {
-    token_context_cache_pair & p = get_token_context_cache_pair();
-    if (p.second && p.first == tk && p.second->get_options() == opts) {
+persistent_context_cache::persistent_context_cache(unique_id id, options const & opts) {
+    unique_id_context_cache_pair & p = get_unique_id_context_cache_pair();
+    if (p.second && p.first == id && p.second->get_options() == opts) {
         /* Reuse thread local cache */
         m_cache_ptr.swap(p.second);
-        m_token = mk_unique_token();
+        m_id = mk_unique_id();
     } else {
         m_cache_ptr.reset(new context_cache(opts));
-        m_token     = mk_unique_token();
+        m_id = mk_unique_id();
     }
 }
 
 persistent_context_cache::~persistent_context_cache() {
-    token_context_cache_pair & p = get_token_context_cache_pair();
-    p.first = m_token;
+    unique_id_context_cache_pair & p = get_unique_id_context_cache_pair();
+    p.first = m_id;
     m_cache_ptr.swap(p.second);
 }
 

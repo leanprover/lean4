@@ -54,7 +54,7 @@ Author: Leonardo de Moura
 #include "library/parray.h"
 #include "library/profiling.h"
 #include "library/time_task.h"
-#include "library/token.h"
+#include "library/unique_id.h"
 
 namespace lean {
 void initialize_library_core_module() {
@@ -76,7 +76,7 @@ void finalize_library_core_module() {
 }
 
 void initialize_library_module() {
-    initialize_token();
+    initialize_unique_id();
     initialize_local_context();
     initialize_metavar_context();
     initialize_fingerprint();
@@ -168,6 +168,6 @@ void finalize_library_module() {
     finalize_fingerprint();
     finalize_metavar_context();
     finalize_local_context();
-    finalize_token();
+    finalize_unique_id();
 }
 }

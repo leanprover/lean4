@@ -7,40 +7,40 @@ Author: Leonardo de Moura
 #include "util/pair.h"
 
 namespace lean {
-class token {
+class unique_id {
     unsigned m_thread_id;
     unsigned m_id;
-    token(unsigned i1, unsigned i2):m_thread_id(i1), m_id(i2) {}
-    friend token mk_unique_token();
-    friend bool operator==(token const & t1, token const & t2) {
+    unique_id(unsigned i1, unsigned i2):m_thread_id(i1), m_id(i2) {}
+    friend unique_id mk_unique_id();
+    friend bool operator==(unique_id const & t1, unique_id const & t2) {
         return t1.m_thread_id == t2.m_thread_id && t1.m_id == t2.m_id;
     }
 public:
-    /* Use `mk_unique_token()`, this constructor produces invalid tokens.
-       It can be used to represent uninitialized token values. */
-    token();
+    /* Use `mk_unique_id()`, this constructor produces and invalid id.
+       It can be used to represent uninitialized ids. */
+    unique_id();
     bool is_valid() const;
 };
 
-inline bool operator!=(token const & t1, token const & t2) {
+inline bool operator!=(unique_id const & t1, unique_id const & t2) {
     return !(t1 == t2);
 }
 
-/* Create a global unique token (modulo reset_thread_local).
+/* Create a global unique id (modulo reset_thread_local).
 
    Assumptions:
    - We do not create more than 2^32 - 1 threads.
      This is fine because we create a small set of threads
      when we start the process, and then we create only tasks.
 
-   - Each thread does not create more than 2^32 tokens.
+   - Each thread does not create more than 2^32 ids.
      This is fine because we reset the thread local counters
      after each \c reset_thread_local operation.
 
    That being said, if the assumptions above are violated
-   \c mk_unique_token throws an exception */
-token mk_unique_token();
+   \c mk_unique_id throws an exception */
+unique_id mk_unique_id();
 
-void initialize_token();
-void finalize_token();
+void initialize_unique_id();
+void finalize_unique_id();
 }

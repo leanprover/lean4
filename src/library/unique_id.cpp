@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 #include <limits>
 #include "util/thread.h"
 #include "util/exception.h"
-#include "library/token.h"
+#include "library/unique_id.h"
 
 namespace lean {
 static unsigned g_next_thread_id       = 0;
@@ -15,40 +15,40 @@ static mutex *  g_next_thread_id_guard = nullptr;
 LEAN_THREAD_VALUE(unsigned, g_thread_id, std::numeric_limits<unsigned>::max());
 LEAN_THREAD_VALUE(unsigned, g_next_idx, 0);
 
-token::token():
+unique_id::unique_id():
     m_thread_id(std::numeric_limits<unsigned>::max()),
     m_id(0) {
 }
 
-bool token::is_valid() const {
+bool unique_id::is_valid() const {
     return m_thread_id != std::numeric_limits<unsigned>::max();
 }
 
-token mk_unique_token() {
+unique_id mk_unique_id() {
     if (g_thread_id == std::numeric_limits<unsigned>::max()) {
         lock_guard<mutex> lock(*g_next_thread_id_guard);
         g_thread_id = g_next_thread_id;
         g_next_thread_id++;
         if (g_next_thread_id == std::numeric_limits<unsigned>::max()) {
             g_next_thread_id--;
-            throw exception("failed to generate unique token, too many threads");
+            throw exception("failed to generate unique id, too many threads");
         }
     }
-    token r(g_thread_id, g_next_idx);
+    unique_id r(g_thread_id, g_next_idx);
     g_next_idx++;
     if (g_next_idx == std::numeric_limits<unsigned>::max()) {
         g_next_idx--;
-        throw exception("failed to generate unique token, too many tokens have been generated");
+        throw exception("failed to generate unique unique id, too many ids have been generated");
     }
     return r;
 }
 
-void initialize_token() {
+void initialize_unique_id() {
     g_next_thread_id_guard = new mutex();
     register_thread_local_reset_fn([]() { g_next_idx = 0; });
 }
 
-void finalize_token() {
+void finalize_unique_id() {
     delete g_next_thread_id_guard;
 }
 }

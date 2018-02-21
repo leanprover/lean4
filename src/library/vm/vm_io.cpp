@@ -83,21 +83,18 @@ struct vm_handle : public vm_external {
     virtual vm_external * ts_clone(vm_clone_fn const &) override { lean_unreachable(); }
 };
 
-bool is_handle(vm_obj const & o) {
-    return is_external(o) && dynamic_cast<vm_handle*>(to_external(o));
-}
-
-handle_ref const & to_handle(vm_obj const & o) {
+static handle_ref const & to_handle(vm_obj const & o) {
     lean_vm_check(dynamic_cast<vm_handle*>(to_external(o)));
     return static_cast<vm_handle*>(to_external(o))->m_handle;
 }
 
-vm_obj to_obj(handle_ref const & h) {
+static vm_obj to_obj(handle_ref const & h) {
     return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_handle))) vm_handle(h));
 }
 
 struct vm_child : public vm_external {
     std::shared_ptr<child> m_child;
+    vm_child(std::shared_ptr<child> && h):m_child(std::move(h)) {}
     vm_child(std::shared_ptr<child> const & h):m_child(h) {}
     virtual ~vm_child() {}
     virtual void dealloc() override { this->~vm_child(); get_vm_allocator().deallocate(sizeof(vm_child), this); }
@@ -105,16 +102,12 @@ struct vm_child : public vm_external {
     virtual vm_external * ts_clone(vm_clone_fn const &) override { lean_unreachable(); }
 };
 
-bool is_child(vm_obj const & o) {
-    return is_external(o) && dynamic_cast<vm_child*>(to_external(o));
-}
-
 std::shared_ptr<child> const & to_child(vm_obj const & o) {
     lean_vm_check(dynamic_cast<vm_child*>(to_external(o)));
     return static_cast<vm_child*>(to_external(o))->m_child;
 }
 
-vm_obj to_obj(std::shared_ptr<child> const & h) {
+static vm_obj to_obj(std::shared_ptr<child> const & h) {
     return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_child))) vm_child(h));
 }
 
@@ -339,15 +332,11 @@ static vm_obj io_process_spawn(vm_obj const & process_obj, vm_obj const &) {
     if (!is_none(cfield(process_obj, 5)))
         cwd = to_string(get_some_value(cfield(process_obj, 5)));
 
-    lean::process proc(cmd);
+    lean::process proc(cmd, stdin_stdio, stdout_stdio, stderr_stdio);
 
     for (auto arg : args) {
         proc.arg(arg);
     }
-
-    proc.set_stdin(stdin_stdio);
-    proc.set_stdout(stdout_stdio);
-    proc.set_stderr(stderr_stdio);
 
     to_list<unit>(cfield(process_obj, 6), [&] (vm_obj const & o) {
         auto k = to_string(cfield(o, 0));
@@ -359,9 +348,7 @@ static vm_obj io_process_spawn(vm_obj const & process_obj, vm_obj const &) {
 
     if (cwd) proc.set_cwd(*cwd);
 
-    auto ch = proc.spawn();
-
-    return mk_io_result(to_obj(ch));
+    return mk_io_result(to_obj(proc.spawn()));
 }
 
 static vm_obj io_process_wait(vm_obj const & ch, vm_obj const &) {

@@ -77,6 +77,7 @@ static vm_obj cmdline_args_to_obj(std::vector<std::string> const & ss) {
 struct vm_handle : public vm_external {
     handle_ref m_handle;
     vm_handle(handle_ref const & h):m_handle(h) {}
+    vm_handle(handle_ref && h):m_handle(std::move(h)) {}
     virtual ~vm_handle() {}
     virtual void dealloc() override { this->~vm_handle(); get_vm_allocator().deallocate(sizeof(vm_handle), this); }
     virtual vm_external * clone(vm_clone_fn const &) override { return new vm_handle(m_handle); }
@@ -88,8 +89,8 @@ static handle_ref const & to_handle(vm_obj const & o) {
     return static_cast<vm_handle*>(to_external(o))->m_handle;
 }
 
-static vm_obj to_obj(handle_ref const & h) {
-    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_handle))) vm_handle(h));
+static vm_obj to_obj(handle_ref && h) {
+    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_handle))) vm_handle(std::move(h)));
 }
 
 struct vm_child : public vm_external {
@@ -107,8 +108,8 @@ std::shared_ptr<child> const & to_child(vm_obj const & o) {
     return static_cast<vm_child*>(to_external(o))->m_child;
 }
 
-static vm_obj to_obj(std::shared_ptr<child> const & h) {
-    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_child))) vm_child(h));
+static vm_obj to_obj(std::shared_ptr<child> && h) {
+    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_child))) vm_child(std::move(h)));
 }
 
 /*

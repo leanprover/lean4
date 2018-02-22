@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "library/context_cache.h"
 
 namespace lean {
-typedef std::pair<unique_id, std::unique_ptr<context_cache>> unique_id_context_cache_pair;
+typedef std::pair<unique_id, std::unique_ptr<abstract_context_cache>> unique_id_context_cache_pair;
 
 MK_THREAD_LOCAL_GET_DEF(unique_id_context_cache_pair, get_unique_id_context_cache_pair);
 

@@ -25,8 +25,8 @@ typedef unique_id context_cache_id;
    See comment at abstract_context_cache for more details.
 */
 class persistent_context_cache : public abstract_context_cache {
-    context_cache_id               m_id;
-    std::unique_ptr<context_cache> m_cache_ptr;
+    context_cache_id                        m_id;
+    std::unique_ptr<abstract_context_cache> m_cache_ptr;
 public:
     persistent_context_cache(context_cache_id, options const &);
     virtual ~persistent_context_cache();

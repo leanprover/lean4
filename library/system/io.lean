@@ -200,6 +200,7 @@ format.print (to_fmt a)
 def io.cmd (args : io.process.spawn_args) : io string :=
 do child ← io.proc.spawn { stdout := io.process.stdio.piped, ..args },
   buf ← io.fs.read_to_end child.stdout,
+  io.fs.close child.stdout,
   exitv ← io.proc.wait child,
   when (exitv ≠ 0) $ io.fail $ "process exited with status " ++ repr exitv,
   return buf.to_string

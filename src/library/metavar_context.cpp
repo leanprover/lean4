@@ -13,10 +13,6 @@ namespace lean {
 static name *       g_meta_prefix;
 static expr *       g_dummy_type;
 
-static name mk_meta_decl_name() {
-    return mk_tagged_fresh_name(*g_meta_prefix);
-}
-
 static expr mk_meta_ref(name const & n, optional<name> const & pp_n) {
     if (pp_n)
         return mk_metavar(n, *pp_n, *g_dummy_type);
@@ -25,7 +21,7 @@ static expr mk_meta_ref(name const & n, optional<name> const & pp_n) {
 }
 
 bool is_metavar_decl_ref(level const & u) {
-    return is_meta(u) && is_tagged_by(meta_id(u), *g_meta_prefix);
+    return is_meta(u) && is_prefix_of(*g_meta_prefix, meta_id(u));
 }
 
 bool is_metavar_decl_ref(expr const & e) {
@@ -34,15 +30,26 @@ bool is_metavar_decl_ref(expr const & e) {
 
 name get_metavar_decl_ref_suffix(level const & u) {
     lean_assert(is_metavar_decl_ref(u));
-    return *get_tagged_name_suffix(meta_id(u), *g_meta_prefix);
+    return meta_id(u).replace_prefix(*g_meta_prefix, name());
 }
 
 name get_metavar_decl_ref_suffix(expr const & e) {
     lean_assert(is_metavar_decl_ref(e));
-    if (auto r = get_tagged_name_suffix(mlocal_name(e), *g_meta_prefix))
-        return *r;
-    else
-        return mlocal_name(e);
+    return mlocal_name(e).replace_prefix(*g_meta_prefix, name());
+}
+
+metavar_context::metavar_context(name_generator & parent_ngen):
+    m_ngen(parent_ngen.mk_child_with(*g_meta_prefix)) {
+}
+
+// TODO(Leo): delete
+metavar_context::metavar_context():
+    m_ngen(*g_meta_prefix + mk_fresh_name()) {
+}
+
+// TODO(Leo): delete
+static name mk_meta_decl_name() {
+    return mk_tagged_fresh_name(*g_meta_prefix);
 }
 
 level metavar_context::mk_univ_metavar_decl() {
@@ -225,7 +232,8 @@ bool well_formed(local_context const & lctx, metavar_context const & mctx, expr 
 }
 
 void initialize_metavar_context() {
-    g_meta_prefix = new name(name::mk_internal_unique_name());
+    g_meta_prefix = new name("_mlocal");
+    register_name_generator_prefix(*g_meta_prefix);
     g_dummy_type  = new expr(mk_constant(name::mk_internal_unique_name()));
 }
 

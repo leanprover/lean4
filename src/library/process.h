@@ -16,8 +16,8 @@ Author: Jared Roesch
 namespace lean  {
 
 enum stdio {
-    INHERIT,
     PIPED,
+    INHERIT,
     NUL,
 };
 

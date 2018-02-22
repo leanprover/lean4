@@ -28,7 +28,7 @@ Author: Jared Roesch
 
 namespace lean {
 
-process::process(std::string n, stdio io_stdout, stdio io_stdin, stdio io_stderr):
+process::process(std::string n, stdio io_stdin, stdio io_stdout, stdio io_stderr):
     m_proc_name(n), m_stdout(io_stdout), m_stdin(io_stdin), m_stderr(io_stderr) {
     m_args.push_back(m_proc_name);
 }

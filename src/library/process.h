@@ -40,7 +40,7 @@ class process {
     std::shared_ptr<child> spawn_core();
 public:
     process(process const & proc) = default;
-    process(std::string exe_name, stdio io_stdout, stdio io_stdin, stdio io_stderr);
+    process(std::string exe_name, stdio io_stdin, stdio io_stdout, stdio io_stderr);
     process & arg(std::string arg_str);
     process & set_cwd(std::string const & cwd);
     process & set_env(std::string const & var, optional<std::string> const & val);

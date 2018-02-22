@@ -441,6 +441,8 @@ name name::replace_prefix(name const & prefix, name const & new_prefix) const {
     if (is_anonymous())
         return *this;
     name p = get_prefix().replace_prefix(prefix, new_prefix);
+    if (p.m_ptr == m_ptr)
+        return *this;
     if (is_string())
         return name(p, get_string());
     else

@@ -30,7 +30,7 @@ class metavar_context {
     name_map<metavar_decl>    m_decls;
     name_map<level>           m_uassignment;
     name_map<expr>            m_eassignment;
-    name_generator            m_ngen;
+    name_generator            m_ngen; // TODO(Leo): this field is not being used yet.
 
     struct interface_impl;
     friend struct interface_impl;

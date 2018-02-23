@@ -53,10 +53,12 @@ static name mk_meta_decl_name() {
 }
 
 level metavar_context::mk_univ_metavar_decl() {
+    // TODO(Leo): use m_ngen.next() instead of mk_meta_decl_name
     return mk_meta_univ(mk_meta_decl_name());
 }
 
 expr metavar_context::mk_metavar_decl(optional<name> const & pp_n, local_context const & ctx, expr const & type) {
+    // TODO(Leo): use m_ngen.next() instead of mk_meta_decl_name
     name n = mk_meta_decl_name();
     m_decls.insert(n, metavar_decl(ctx, head_beta_reduce(type)));
     return mk_meta_ref(n, pp_n);

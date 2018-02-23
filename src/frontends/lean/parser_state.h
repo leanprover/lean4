@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <string>
 #include <memory>
+#include "util/name_generator.h"
 #include "library/abstract_parser.h"
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/parser_config.h"
@@ -523,16 +524,14 @@ struct snapshot {
     parser_scope_stack m_parser_scope_stack;
     unsigned           m_next_inst_idx;
     pos_info           m_pos;
-    /* TODO(Leo): delete following field after we remove ::lean::mk_fresh_name */
-    name_generator     m_global_ngen;
     snapshot(environment const & env, name_generator const & ngen, local_level_decls const & lds,
              local_expr_decls const & eds, name_set const & lvars, name_set const & vars,
              name_set const & includes, options const & opts, bool imports_parsed, bool noncomputable_theory, parser_scope_stack const & pss,
              unsigned next_inst_idx, pos_info const & pos):
         m_env(env), m_ngen(ngen), m_lds(lds), m_eds(eds), m_lvars(lvars), m_vars(vars), m_include_vars(includes),
         m_options(opts), m_imports_parsed(imports_parsed), m_noncomputable_theory(noncomputable_theory),
-        m_parser_scope_stack(pss), m_next_inst_idx(next_inst_idx), m_pos(pos),
-        m_global_ngen(get_fresh_name_generator_snapshot()) {}
+        m_parser_scope_stack(pss), m_next_inst_idx(next_inst_idx), m_pos(pos)
+        {}
 };
 
 }

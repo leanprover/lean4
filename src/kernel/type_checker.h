@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "util/lbool.h"
 #include "util/flet.h"
 #include "util/name_set.h"
-#include "util/fresh_name.h"
+#include "util/name_generator.h"
 #include "kernel/environment.h"
 #include "kernel/expr_pair.h"
 #include "kernel/expr_maps.h"

@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include "util/flet.h"
 #include "util/lbool.h"
+#include "util/fresh_name.h"
 #include "kernel/environment.h"
 #include "kernel/abstract_type_context.h"
 #include "library/idx_metavar.h"

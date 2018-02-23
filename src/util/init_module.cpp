@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "util/thread.h"
 #include "util/memory_pool.h"
 #include "util/fresh_name.h"
+#include "util/name_generator.h"
 
 namespace lean {
 void initialize_util_module() {

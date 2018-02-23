@@ -13,10 +13,15 @@ Author: Leonardo de Moura
 
 namespace lean {
 static name * g_fresh = nullptr;
-MK_THREAD_LOCAL_GET(name_generator, get_name_generator, *g_fresh);
+MK_THREAD_LOCAL_GET_DEF(std::unique_ptr<name_generator>, get_name_generator_ptr);
 
 name mk_fresh_name() {
-    return get_name_generator().next();
+    std::unique_ptr<name_generator> & ngen = get_name_generator_ptr();
+    if (!ngen) {
+        name unique = name::mk_internal_unique_name();
+        ngen.reset(new name_generator(*g_fresh + unique));
+    }
+    return ngen->next();
 }
 
 bool is_fresh_name(name const & n) {
@@ -77,32 +82,6 @@ optional<name> get_tagged_name_suffix(name const & n, name const & tag) {
     } else {
         return optional<name>();
     }
-}
-
-name_generator get_fresh_name_generator_snapshot() {
-    return get_name_generator();
-}
-
-void set_fresh_name_generator(name_generator const & g) {
-    get_name_generator() = g;
-}
-
-name_generator mk_fresh_name_generator_child() {
-    return get_name_generator().mk_child();
-}
-
-fresh_name_scope::fresh_name_scope():
-    m_old(get_name_generator()) {
-    get_name_generator() = name_generator(*g_fresh);
-}
-
-fresh_name_scope::fresh_name_scope(name_generator const & g):
-    m_old(get_name_generator()) {
-    get_name_generator() = g;
-}
-
-fresh_name_scope::~fresh_name_scope() {
-    get_name_generator() = m_old;
 }
 
 void initialize_fresh_name() {

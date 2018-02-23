@@ -110,7 +110,6 @@ void mt_task_queue::spawn_worker() {
             reset_thread_local();
             {
                 flet<gtask> _(this_worker->m_current_task, t);
-                set_fresh_name_generator(t->get_name_generator());
                 scoped_current_task scope_cur_task(&t);
                 notify_queue_changed();
                 lock.unlock();

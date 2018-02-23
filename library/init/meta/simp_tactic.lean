@@ -49,6 +49,7 @@ meta instance : has_to_tactic_format simp_lemmas :=
 ⟨simp_lemmas.pp⟩
 
 namespace tactic
+/- Remark: `transform` should not change the target. -/
 meta def revert_and_transform (transform : expr → tactic expr) (h : expr) : tactic unit :=
 do num_reverted : ℕ ← revert h,
    t ← target,

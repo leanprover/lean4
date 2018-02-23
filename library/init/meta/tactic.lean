@@ -632,6 +632,20 @@ to_expr q
 meta def revert (l : expr) : tactic nat :=
 revert_lst [l]
 
+/- Revert "all" hypotheses. Actually, the tactic only reverts
+   hypotheses occurring after the last frozen local instance.
+   Recall that frozen local instances cannot be reverted.
+   We can use `unfreeze_local_instances` to workaround this limitation. -/
+meta def revert_all : tactic nat :=
+do lctx ← local_context,
+   lis  ← frozen_local_instances,
+   match lis with
+   | none           := revert_lst lctx
+   | some []        := revert_lst lctx
+                       /- `hi` is the last local instance. We shoul truncate `lctx` at `hi`. -/
+   | some (hi::his) := revert_lst $ lctx.foldl (λ r h, if h.local_uniq_name = hi.local_uniq_name then [] else h :: r) []
+   end
+
 meta def clear_lst : list name → tactic unit
 | []      := skip
 | (n::ns) := do H ← get_local n, clear H, clear_lst ns

@@ -1240,8 +1240,15 @@ meta def dsimp (no_dflt : parse only_flag) (es : parse simp_arg_list) (attr_name
                (l : parse location) (cfg : dsimp_config := {}) : tactic unit :=
 do (s, u) ← mk_simp_set no_dflt attr_names es,
 match l with
-| loc.wildcard := do ls ← local_context, n ← revert_lst ls, dsimp_target s u cfg, intron n
-| _            := l.apply (λ h, dsimp_hyp h s u cfg) (dsimp_target s u cfg)
+| loc.wildcard :=
+  /- Remark: we cannot revert frozen local instances.
+     We disable zeta expansion because to prevent `intron n` from failing.
+     Another option is to put a "marker" at the current target, and
+     implement `intro_upto_marker`. -/
+  do n ← revert_all,
+     dsimp_target s u {zeta := ff ..cfg},
+     intron n
+| _ := l.apply (λ h, dsimp_hyp h s u cfg) (dsimp_target s u cfg)
 end
 
 /--

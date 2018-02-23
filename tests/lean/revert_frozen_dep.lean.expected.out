@@ -1,1 +1,5 @@
-revert_frozen_dep.lean:4:0: error: failed to revert '_inst_1', it is a frozen local instance (possible solution: use tactic `tactic.unfreeze_local_instances` to reset the set of local instances)
+revert_frozen_dep.lean:3:2: error: failed to revert '_inst_1', it is a frozen local instance (possible solution: use tactic `tactic.unfreeze_local_instances` to reset the set of local instances)
+state:
+α : id Type,
+_inst_1 : has_add α
+⊢ true

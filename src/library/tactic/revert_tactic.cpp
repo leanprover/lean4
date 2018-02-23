@@ -28,20 +28,24 @@ tactic_state revert(buffer<expr> & locals, tactic_state const & s, bool preserve
 }
 
 vm_obj revert(list<expr> const & ls, tactic_state const & s, bool preserve_locals_order) {
-    optional<metavar_decl> g   = s.get_main_goal_decl();
-    if (!g) return mk_no_goals_exception(s);
-    local_context lctx         = g->get_context();
-    buffer<expr> locals;
-    for (expr const & l : ls) {
-        if (lctx.find_local_decl(l)) {
-            locals.push_back(l);
-        } else {
-            return tactic::mk_exception(sstream() << "revert tactic failed, unknown '"
-                                       << mlocal_pp_name(l) << "' hypothesis", s);
+    try {
+        optional<metavar_decl> g   = s.get_main_goal_decl();
+        if (!g) return mk_no_goals_exception(s);
+        local_context lctx         = g->get_context();
+        buffer<expr> locals;
+        for (expr const & l : ls) {
+            if (lctx.find_local_decl(l)) {
+                locals.push_back(l);
+            } else {
+                return tactic::mk_exception(sstream() << "revert tactic failed, unknown '"
+                                            << mlocal_pp_name(l) << "' hypothesis", s);
+            }
         }
+        tactic_state new_s = revert(locals, s, preserve_locals_order);
+        return tactic::mk_success(mk_vm_nat(locals.size()), new_s);
+    } catch (exception & ex) {
+        return tactic::mk_exception(ex, s);
     }
-    tactic_state new_s = revert(locals, s, preserve_locals_order);
-    return tactic::mk_success(mk_vm_nat(locals.size()), new_s);
 }
 
 vm_obj tactic_revert_lst(vm_obj const & ns, vm_obj const & s) {

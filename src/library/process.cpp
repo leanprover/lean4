@@ -122,9 +122,6 @@ std::shared_ptr<child> process::spawn_core() {
     HANDLE child_stdin = GetStdHandle(STD_INPUT_HANDLE);
     HANDLE child_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
     HANDLE child_stderr = GetStdHandle(STD_ERROR_HANDLE);
-    HANDLE parent_stdin = child_stdin;
-    HANDLE parent_stdout = child_stdout;
-    HANDLE parent_stderr = child_stderr;
 
     SECURITY_ATTRIBUTES saAttr;
 
@@ -160,25 +157,27 @@ std::shared_ptr<child> process::spawn_core() {
     auto proc_handle =
         create_child_process(command, m_cwd, m_env, child_stdin, child_stdout, child_stderr);
 
+    FILE * parent_stdin = nullptr, *parent_stdout = nullptr, *parent_stderr = nullptr;
+
     if (stdin_pipe) {
         CloseHandle(stdin_pipe->m_read_fd);
-        parent_stdin = stdin_pipe->m_write_fd;
+        parent_stdin = from_win_handle(stdin_pipe->m_write_fd, "w");
     }
 
     if (stdout_pipe) {
         CloseHandle(stdout_pipe->m_write_fd);
-        parent_stdout = stdout_pipe->m_read_fd;
+        parent_stdout = from_win_handle(stdout_pipe->m_read_fd, "r");
     }
 
     if (stderr_pipe) {
         CloseHandle(stderr_pipe->m_write_fd);
-        parent_stderr = stderr_pipe->m_read_fd;
+        parent_stderr = from_win_handle(stderr_pipe->m_read_fd, "r");
     }
 
     return std::make_shared<windows_child>(proc_handle,
-        std::make_shared<handle>(from_win_handle(parent_stdin, "w")),
-        std::make_shared<handle>(from_win_handle(parent_stdout, "r")),
-        std::make_shared<handle>(from_win_handle(parent_stderr, "r")));
+        std::make_shared<handle>(parent_stdin),
+        std::make_shared<handle>(parent_stdout),
+        std::make_shared<handle>(parent_stderr));
 }
 
 static void set_env(std::string const & var, optional<std::string> const & val) {

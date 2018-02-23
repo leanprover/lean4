@@ -172,12 +172,26 @@ static tactic_state clear_recs(tactic_state const & s) {
         return set_mctx_goals(s, mctx, cons(new_mvar, tail(s.goals())));
 }
 
+static optional<local_instance> get_last_local_instance(local_context const & lctx) {
+    if (optional<local_instances> const & lis = lctx.get_frozen_local_instances()) {
+        if (*lis)
+            return optional<local_instance>(head(*lis));
+    }
+    return optional<local_instance>();
+}
+
 static pair<tactic_state, unsigned> revert_all(tactic_state const & s) {
     lean_assert(s.goals());
     optional<metavar_decl> g = s.get_main_goal_decl();
     local_context lctx       = g->get_context();
     buffer<expr> hs;
-    lctx.for_each([&](local_decl const & d) { hs.push_back(d.mk_ref()); });
+    if (optional<local_instance> const & last_local_inst = get_last_local_instance(lctx)) {
+        /* We should not revert local instances. */
+        local_decl const & last_local_inst_decl = lctx.get_local_decl(mlocal_name(last_local_inst->get_local()));
+        lctx.for_each_after(last_local_inst_decl, [&](local_decl const & d) { hs.push_back(d.mk_ref()); });
+    } else {
+        lctx.for_each([&](local_decl const & d) { hs.push_back(d.mk_ref()); });
+    }
     bool preserve_to_revert_order = false;
     tactic_state new_s = revert(hs, s, preserve_to_revert_order);
     return mk_pair(new_s, hs.size());
@@ -400,15 +414,13 @@ tactic_state add_em_facts(tactic_state const & ts, smt_goal & g) {
 vm_obj mk_smt_state(tactic_state s, smt_config const & cfg) {
     if (!s.goals()) return mk_no_goals_exception(s);
     unsigned num_reverted;
-    /* TODO(Leo): revert-all is an anti-idiom, because we need to unfreeze_local_instances.
-       Solution: we should not revert local instances.
+    /* Remark: revert_all only reverts declarations after the last local instance.
 
        It is not reliable to implement "revert/do something/intro" idiom using `num_reverted`.
        The problem is that the `do something` step may eliminate `let`-decls.
        We have to figure out a way to do it more reliably.
     */
     std::tie(s, num_reverted) = revert_all(clear_recs(s));
-    s = unfreeze_local_instances(s);
     smt_goal new_goal(cfg);
 
     vm_obj r = preprocess(s, cfg.m_pre_config);

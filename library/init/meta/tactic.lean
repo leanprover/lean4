@@ -522,6 +522,22 @@ meta constant set_tag (g : expr) (t : tag) : tactic unit
 /-- Return tag associated with `g`. Return `[]` if there is no tag. -/
 meta constant get_tag (g : expr) : tactic tag
 
+/-- By default, Lean only considers local instances in the header of declarations.
+    This has two main benefits.
+    1- Results produced by the type class resolution procedure can be easily cached.
+    2- The set of local instances does not have to be recomputed.
+
+    This approach has the following disadvantages:
+    1- Frozen local instances cannot be reverted.
+    2- Local instances defined inside of a declaration are not considered during type
+       class resolution.
+
+    This tactic resets the set of local instances. After executing this tactic,
+    the set of local instances will be recomputed and the cache will be frequently
+    reset. Note that, the cache is still used when executing a single tactic that
+    may generate many type class resolution problems (e.g., `simp`). -/
+meta constant unfreeze_local_instances : tactic unit
+
 meta def induction' (h : expr) (ns : list name := []) (rec : option name := none) (md := semireducible) : tactic unit :=
 induction h ns rec md >> return ()
 

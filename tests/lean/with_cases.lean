@@ -2,6 +2,7 @@ open tactic
 
 example (p q : Prop) [s₁ : decidable p] [s₂ : decidable q] : true :=
 begin
+  unfreeze_local_instances,
   with_cases { cases s₁; cases s₂ },
   trace_state,
   all_goals { intros, trivial }

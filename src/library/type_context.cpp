@@ -278,6 +278,16 @@ pair<local_context, expr> type_context::revert_core(buffer<expr> & to_revert, lo
     unsigned num   = to_revert.size();
     if (num == 0)
         return mk_pair(ctx, type);
+    /* Check whether we are trying to revert a frozen local instance. */
+    if (optional<local_instances> lis = m_lctx.get_frozen_local_instances()) {
+        for (expr const & h : to_revert) {
+            for (local_instance const & li : *lis) {
+                if (mlocal_name(h) == mlocal_name(li.get_local())) {
+                    throw exception(sstream() << "failed to revert '" << h << "', it is a frozen local instance (possible solution: use tactic `tactic.unfreeze_local_instances` to reset the set of local instances)");
+                }
+            }
+        }
+    }
     local_decl d0     = get_local_with_smallest_idx(ctx, to_revert);
     bool must_sort    = false;
     process_to_revert(m_mctx, to_revert, num, d0, preserve_to_revert_order, must_sort);

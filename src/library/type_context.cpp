@@ -278,16 +278,6 @@ pair<local_context, expr> type_context::revert_core(buffer<expr> & to_revert, lo
     unsigned num   = to_revert.size();
     if (num == 0)
         return mk_pair(ctx, type);
-    /* Check whether we are trying to revert a frozen local instance. */
-    if (optional<local_instances> lis = m_lctx.get_frozen_local_instances()) {
-        for (expr const & h : to_revert) {
-            for (local_instance const & li : *lis) {
-                if (mlocal_name(h) == mlocal_name(li.get_local())) {
-                    throw exception(sstream() << "failed to revert '" << h << "', it is a frozen local instance (possible solution: use tactic `tactic.unfreeze_local_instances` to reset the set of local instances)");
-                }
-            }
-        }
-    }
     local_decl d0     = get_local_with_smallest_idx(ctx, to_revert);
     bool must_sort    = false;
     process_to_revert(m_mctx, to_revert, num, d0, preserve_to_revert_order, must_sort);
@@ -326,6 +316,16 @@ pair<local_context, expr> type_context::revert_core(buffer<expr> & to_revert, lo
         std::sort(to_revert.begin(), to_revert.end(), [&](expr const & l1, expr const & l2) {
                 return ctx.get_local_decl(l1).get_idx() < ctx.get_local_decl(l2).get_idx();
             });
+    }
+    /* Check whether we are trying to revert a frozen local instance. */
+    if (optional<local_instances> lis = m_lctx.get_frozen_local_instances()) {
+        for (expr const & h : to_revert) {
+            for (local_instance const & li : *lis) {
+                if (mlocal_name(h) == mlocal_name(li.get_local())) {
+                    throw exception(sstream() << "failed to revert '" << h << "', it is a frozen local instance (possible solution: use tactic `tactic.unfreeze_local_instances` to reset the set of local instances)");
+                }
+            }
+        }
     }
     local_context new_ctx = ctx.remove(to_revert);
     return mk_pair(new_ctx, mk_pi(ctx, to_revert, type));

@@ -991,21 +991,32 @@ vm_obj tactic_get_tag(vm_obj const & g, vm_obj const & s0) {
     }
 }
 
-tactic_state unfreeze_local_instances(tactic_state const & s) {
-    lean_assert(s.goals());
-    metavar_context mctx = s.mctx();
-    expr mvar                  = head(s.goals());
-    optional<metavar_decl> g   = mctx.find_metavar_decl(mvar);
+vm_obj tactic_unfreeze_local_instances(vm_obj const & s0) {
+    tactic_state s             = tactic::to_state(s0);
+    optional<metavar_decl> g   = s.get_main_goal_decl();
+    if (!g) return mk_no_goals_exception(s);
+    metavar_context mctx       = s.mctx();
     local_context lctx         = g->get_context();
     lctx.unfreeze_local_instances();
     expr new_mvar              = mctx.mk_metavar_decl(lctx, g->get_type());
-    mctx.assign(mvar, new_mvar);
-    return set_mctx_goals(s, mctx, cons(new_mvar, tail(s.goals())));
+    mctx.assign(*s.get_main_goal(), new_mvar);
+    tactic_state new_s = set_mctx_goals(s, mctx, cons(new_mvar, tail(s.goals())));
+    return tactic::mk_success(new_s);
 }
 
-vm_obj tactic_unfreeze_local_instances(vm_obj const & s0) {
-    tactic_state s = tactic::to_state(s0);
-    return tactic::mk_success(unfreeze_local_instances(s));
+vm_obj tactic_frozen_local_instances(vm_obj const & s0) {
+    tactic_state s             = tactic::to_state(s0);
+    optional<metavar_decl> g   = s.get_main_goal_decl();
+    if (!g) return mk_no_goals_exception(s);
+    local_context lctx         = g->get_context();
+    if (optional<local_instances> lis = lctx.get_frozen_local_instances()) {
+        buffer<expr> li_buffer;
+        for (local_instance const & li : *lis)
+            li_buffer.push_back(li.get_local());
+        return tactic::mk_success(mk_vm_some(to_obj(li_buffer)), s);
+    } else {
+        return tactic::mk_success(mk_vm_none(), s);
+    }
 }
 
 void initialize_tactic_state() {
@@ -1062,6 +1073,7 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "set_tag"}),              tactic_set_tag);
     DECLARE_VM_BUILTIN(name({"tactic", "get_tag"}),              tactic_get_tag);
     DECLARE_VM_BUILTIN(name({"tactic", "unfreeze_local_instances"}), tactic_unfreeze_local_instances);
+    DECLARE_VM_BUILTIN(name({"tactic", "frozen_local_instances"}),   tactic_frozen_local_instances);
 }
 
 void finalize_tactic_state() {

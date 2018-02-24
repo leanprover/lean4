@@ -38,27 +38,18 @@ name get_metavar_decl_ref_suffix(expr const & e) {
     return mlocal_name(e).replace_prefix(*g_meta_prefix, name());
 }
 
-metavar_context::metavar_context(name_generator & parent_ngen):
-    m_ngen(parent_ngen.mk_child_with(*g_meta_prefix)) {
-}
-
-// TODO(Leo): delete
-metavar_context::metavar_context():
-    m_ngen(*g_meta_prefix + mk_fresh_name()) {
-}
-
-// TODO(Leo): delete
+// TODO(Leo): fix this
 static name mk_meta_decl_name() {
     return mk_tagged_fresh_name(*g_meta_prefix);
 }
 
 level metavar_context::mk_univ_metavar_decl() {
-    // TODO(Leo): use m_ngen.next() instead of mk_meta_decl_name
+    // TODO(Leo): should use name_generator
     return mk_meta_univ(mk_meta_decl_name());
 }
 
 expr metavar_context::mk_metavar_decl(optional<name> const & pp_n, local_context const & ctx, expr const & type) {
-    // TODO(Leo): use m_ngen.next() instead of mk_meta_decl_name
+    // TODO(Leo): should use name_generator
     name n = mk_meta_decl_name();
     m_decls.insert(n, metavar_decl(ctx, head_beta_reduce(type)));
     return mk_meta_ref(n, pp_n);

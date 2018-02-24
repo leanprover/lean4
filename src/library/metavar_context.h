@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "util/name_generator.h"
 #include "library/local_context.h"
 
 namespace lean {
@@ -30,15 +29,11 @@ class metavar_context {
     name_map<metavar_decl>    m_decls;
     name_map<level>           m_uassignment;
     name_map<expr>            m_eassignment;
-    name_generator            m_ngen; // TODO(Leo): this field is not being used yet.
 
     struct interface_impl;
     friend struct interface_impl;
     expr mk_metavar_decl(optional<name> const & pp_n, local_context const & ctx, expr const & type);
 public:
-    metavar_context(name_generator & parent_ngen);
-    metavar_context(); // TODO(Leo): delete after we remove mk_fresh_name
-
     level mk_univ_metavar_decl();
 
     expr mk_metavar_decl(local_context const & ctx, expr const & type) {

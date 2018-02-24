@@ -175,6 +175,17 @@ format pp_indented_expr(tactic_state const & s, expr const & e);
    If we do not update the tactic_state cache id, then the next time we try to access the
    cache, a new empty cache will be created. */
 class tactic_state_context_cache : public persistent_context_cache {
+    /*
+      TODO(Leo): add name_generator to type_context, tactic_state, and this class.
+      When we create a `tactic_state_context_cache`:
+      1- Let `N` be the `name_generator` at `s`, then use it to create a child `name_generator` for this object.
+      2- Update `tactic_state & s` with new `N`.
+      3- Use the `name_generator` stored here to provide a child `name_generator`
+         to each `type_context` created using `mk_type_context`.
+
+      In this way, we don't have to propagate the name_generators back only forth.
+      However, we will have to make sure we have replaced every occurrence of mk_type_context_for
+      with this helper class. */
     tactic_state m_state;
 public:
     tactic_state_context_cache(tactic_state & s);

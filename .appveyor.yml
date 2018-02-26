@@ -4,6 +4,7 @@ environment:
   MSYSTEM: MINGW64  # use MSYS2 shell
   matrix:
   - CFG: MINGW64
+    UPLOAD: ON
   - CFG: MSVC
 
 cache: c:\tools\vcpkg\installed\
@@ -25,7 +26,7 @@ build_script:
       cmake --build .)
   - if %CFG% == MINGW64 (C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER/build &&
       OPTIONS='';
-      if [[ $APPVEYOR_REPO_BRANCH == master ]]; then OPTIONS+=' -DLEAN_VERSION_STRING=nightly'; fi;
+      if [[ $APPVEYOR_REPO_TAG != true ]]; then OPTIONS+='-DLEAN_VERSION_STRING=nightly-${date -uI}'; fi;
       cmake ../src -DINCLUDE_MSYS2_DLLS=ON -DCMAKE_BUILD_TYPE=Release $OPTIONS -G 'Unix Makefiles' &&
       cmake --build . &&
       cpack")
@@ -35,6 +36,8 @@ test_script:
   - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER/packages &&
       ../bin/leanpkg configure &&
       for d in _target/deps/*; do (cd $d; ../../../../bin/leanpkg test || exit 1); done"
+  - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER &&
+      if [[ $UPLOAD == ON && $GH_TOKEN && $APPVEYOR_BRANCH == master ]]; then bash script/deploy_nightly.sh; fi"
 
 artifacts:
   - path: build\lean-*-windows.zip
@@ -50,4 +53,4 @@ deploy:
   prerelease: false
   on:
     appveyor_repo_tag: true
-    CFG: MINGW64
+    UPLOAD: ON

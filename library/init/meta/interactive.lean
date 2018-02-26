@@ -532,7 +532,7 @@ focus1 $ do {
     -- process `h : t` case
     e ← match hp with
        | (some h, p) := do
-         x ← mk_fresh_name,
+         x ← get_unused_name,
          generalize h () (p, x),
          get_local x
        | (none, p) := i_to_expr p
@@ -747,7 +747,7 @@ meta def cases : parse cases_arg_p → parse with_ident_list → tactic unit
   e ← i_to_expr p,
   cases_core e ids
 | (some h, p) ids := do
-  x   ← mk_fresh_name,
+  x   ← get_unused_name,
   generalize h () (p, x),
   hx  ← get_local x,
   cases_core hx ids

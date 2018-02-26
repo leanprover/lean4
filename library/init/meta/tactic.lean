@@ -288,7 +288,7 @@ meta constant get_local     : name → tactic expr
 meta constant resolve_name  : name → tactic pexpr
 /-- Return the hypothesis in the main goal. Fail if tactic_state does not have any goal left. -/
 meta constant local_context : tactic (list expr)
-meta constant get_unused_name (n : name) (i : option nat := none) : tactic name
+meta constant get_unused_name (n : name := `_x) (i : option nat := none) : tactic name
 /--  Helper tactic for creating simple applications where some arguments are inferred using
     type inference.
 
@@ -1116,8 +1116,8 @@ meta def cases (e : expr) (ids : list name := []) (md := semireducible) (dmd := 
 if e.is_local_constant then
   do r ← cases_core e ids md, return $ r.map (λ t, t.1)
 else do
-  x ← mk_fresh_name,
   n ← revert_kdependencies e dmd,
+  x ← get_unused_name,
   (tactic.generalize e x dmd)
   <|>
   (do t ← infer_type e,

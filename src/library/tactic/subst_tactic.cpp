@@ -38,6 +38,7 @@ expr subst(environment const & env, options const & opts, transparency_mode cons
 
     lean_subst_trace_state(mvar, "initial:\n");
     lean_assert(mctx.find_metavar_decl(mvar));
+    lean_assert(is_local(H));
     metavar_decl g      = mctx.get_metavar_decl(mvar);
     type_context ctx    = mk_type_context_for(env, opts, mctx, g.get_context(), m);
     expr H_type         = ctx.instantiate_mvars(ctx.infer(H));
@@ -70,12 +71,25 @@ expr subst(environment const & env, options const & opts, transparency_mode cons
     if (depH2) {
         new_type = instantiate(abstract_local(new_type, H2), mk_eq_refl(ctx2, rhs));
         if (symm) {
+            lean_subst_trace(tout() << "dep-elim and symm\n";);
             motive = ctx2.mk_lambda({lhs, H2}, type);
         } else {
-            motive = mk_lambda("H", mk_eq(ctx2, rhs, lhs), type);
-            motive = ctx2.mk_lambda(lhs, motive);
+            lean_subst_trace(tout() << "dep-elim\n";);
+            /* `type` depends on (H2 : lhs = rhs). So, we use the following trick to avoid a type incorrect motive.
+               1- Create a new local (H2_prime : rhs = lhs)
+               2- Create new_type := type [H2_prime.symm / H2]
+                  `new_type` is type correct because `H2` and `H2_prime.symm` are definitionally equal by proof irrelevance.
+               3- Create motive by abstracting `lhs` and `H2_prime` in `new_type`.
+             */
+            type_context::tmp_locals locals(ctx2);
+            expr H2_prime = locals.push_local("_h", mk_eq(ctx2, rhs, lhs));
+            expr H2_prime_symm = mk_eq_symm(ctx2, H2_prime);
+            /* replace H2 in type with H2'.symm, where H2' is a new local that is def-eq to H2.symm */
+            expr new_type = instantiate(abstract_local(type, H2), H2_prime_symm);
+            motive = ctx2.mk_lambda({lhs, H2_prime}, new_type);
         }
     } else {
+        lean_subst_trace(tout() << "non dep-elim\n";);
         motive   = ctx2.mk_lambda(lhs, type);
     }
     expr major   = symm ? H2 : mk_eq_symm(ctx2, H2);

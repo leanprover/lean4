@@ -34,7 +34,7 @@ bool is_fresh_name(name const & n) {
 }
 
 static void sanitize_fresh(sstream & strm, name const & n) {
-    if (n.is_anonymous()) {
+    if (n.is_anonymous() || n == *g_fresh) {
         strm << "_fresh";
     } else if (n.is_numeral()) {
         sanitize_fresh(strm, n.get_prefix());

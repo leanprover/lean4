@@ -1,0 +1,8 @@
+1836.lean:12:2: error: cases tactic failed, when eliminating equality right-hand-side depends on left-hand-side
+state:
+A : pType,
+B : Type,
+b : B,
+f : A.carrier → {carrier := B, Point := b}.carrier,
+pf : f (A.Point) = {carrier := B, Point := b}.Point
+⊢ b = f (A.Point) → pf == _ → {f := f, p := pf} = {f := f, p := pf}

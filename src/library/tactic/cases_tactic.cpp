@@ -384,6 +384,11 @@ struct cases_tactic_fn {
                      ctx.lctx().get_local_decl(lhs).get_idx()
                      <
                      ctx.lctx().get_local_decl(rhs).get_idx());
+                if (symm && depends_on(lhs, m_mctx, ctx.lctx(), rhs)) {
+                    throw_exception(mvar, "cases tactic failed, when eliminating equality left-hand-side depends on right-hand-side");
+                } else if (!symm && depends_on(rhs, m_mctx, ctx.lctx(), lhs)) {
+                    throw_exception(mvar, "cases tactic failed, when eliminating equality right-hand-side depends on left-hand-side");
+                }
                 expr mvar2 = ::lean::subst(m_env, m_opts, m_mode, m_mctx, *mvar1, H, symm,
                                            updating ? &extra_subst : nullptr);
                 new_intros = apply(new_intros, extra_subst);

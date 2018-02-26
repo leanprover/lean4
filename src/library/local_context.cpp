@@ -77,6 +77,43 @@ struct depends_on_fn {
         lean_assert(std::all_of(locals, locals+num, is_local_decl_ref));
     }
 
+    bool visit_local(expr const & e) {
+        lean_assert(is_local_decl_ref(e));
+        if (std::any_of(m_locals, m_locals + m_num,
+                        [&](expr const & l) { return mlocal_name(e) == mlocal_name(l); }))
+            return true;
+
+        if (!m_lctx || m_visited_decls.contains(mlocal_name(e)))
+            return false;
+        m_visited_decls.insert(mlocal_name(e));
+        optional<local_decl> decl = m_lctx->find_local_decl(e);
+        if (!decl)
+            return false;
+        if (visit(decl->get_type()))
+            return true;
+        if (optional<expr> v = decl->get_value())
+            return visit(*v);
+        else
+            return false;
+    }
+
+    bool visit_metavar(expr const & e) {
+        lean_assert(is_metavar_decl_ref(e));
+        if (m_visited_mvars.contains(mlocal_name(e)))
+            return false;
+        m_visited_mvars.insert(mlocal_name(e));
+        optional<metavar_decl> decl = m_mctx.find_metavar_decl(e);
+        if (!decl)
+            return false;
+        if (visit(decl->get_type()))
+            return true;
+        if (auto v = m_mctx.get_assignment(e)) {
+            if (visit(*v))
+                return true;
+        }
+        return false;
+    }
+
     bool visit(expr const & e) {
         if (!has_local(e) && !has_expr_metavar(e))
             return false;
@@ -84,36 +121,13 @@ struct depends_on_fn {
         for_each(e, [&](expr const & e, unsigned) {
                 if (found) return false;
                 if (!has_local(e) && !has_expr_metavar(e)) return false;
-                if (is_local_decl_ref(e)) {
-                    if (std::any_of(m_locals, m_locals + m_num,
-                                    [&](expr const & l) { return mlocal_name(e) == mlocal_name(l); })) {
-                        found = true;
-                        return false;
-                    }
-                    if (m_lctx) {
-                        if (optional<local_decl> decl = m_lctx->find_local_decl(e)) {
-                            if (optional<expr> v = decl->get_value()) {
-                                if (!m_visited_decls.contains(decl->get_name())) {
-                                    m_visited_decls.insert(decl->get_name());
-                                    if (visit(*v)) {
-                                        found = true;
-                                        return false;
-                                    }
-                                }
-                            }
-                        }
-                    }
+                if (is_local_decl_ref(e) && visit_local(e)) {
+                    found = true;
+                    return false;
                 }
-                if (is_metavar_decl_ref(e)) {
-                    if (auto v = m_mctx.get_assignment(e)) {
-                        if (!m_visited_mvars.contains(mlocal_name(e))) {
-                            m_visited_mvars.insert(mlocal_name(e));
-                            if (visit(*v)) {
-                                found = true;
-                                return false;
-                            }
-                        }
-                    }
+                if (is_metavar_decl_ref(e) && visit_metavar(e)) {
+                    found = true;
+                    return false;
                 }
                 return true;
             });

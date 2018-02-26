@@ -396,15 +396,15 @@ private:
     cache *            m_cache;
     local_instances    m_local_instances;
     /* We only cache results when m_used_assignment is false */
-    bool               m_used_assignment;
+    bool               m_used_assignment{false};
     transparency_mode  m_transparency_mode;
     /* m_in_is_def_eq is a temporary flag set to true in the beginning of is_def_eq. */
-    bool               m_in_is_def_eq;
+    bool               m_in_is_def_eq{false};
     /* m_is_def_eq_depth is only used for tracing purposes */
-    unsigned           m_is_def_eq_depth;
+    unsigned           m_is_def_eq_depth{0};
     /* Stack of backtracking point (aka scope) */
     scopes             m_scopes;
-    tmp_data *         m_tmp_data;
+    tmp_data *         m_tmp_data{nullptr};
     /* If m_approximate == true, then enable approximate higher-order unification
        even if we are not in tmp_mode
 
@@ -412,7 +412,7 @@ private:
        - elaborator
        - apply and rewrite tactics use it by default (it can be disabled).
     */
-    bool               m_approximate;
+    bool               m_approximate{false};
 
     /* If m_zeta, then use zeta-reduction (i.e., expand let-expressions at whnf) */
     bool               m_zeta{true};
@@ -526,7 +526,7 @@ private:
     bool                       m_full_postponed{true};
     unification_hints          m_uhints;
 
-    std::function<bool(name const & e)> const * m_transparency_pred; // NOLINT
+    std::function<bool(name const & e)> const * m_transparency_pred{nullptr}; // NOLINT
 
     static bool is_equiv_cache_target(expr const & e1, expr const & e2) {
         return !has_metavar(e1) && !has_metavar(e2) && (get_weight(e1) > 1 || get_weight(e2) > 1);
@@ -565,11 +565,11 @@ public:
     type_context(environment const & env, abstract_context_cache & cache, transparency_mode m = transparency_mode::Reducible):
         type_context(env, metavar_context(), local_context(), cache, m) {}
     type_context(type_context const &) = delete;
-    type_context(type_context &&) = default;
+    type_context(type_context &&);
     virtual ~type_context();
 
     type_context & operator=(type_context const &) = delete;
-    type_context & operator=(type_context &&) = default;
+    type_context & operator=(type_context &&) = delete;
 
     virtual environment const & env() const override { return m_env; }
     options const & get_options() const { return m_cache->get_options(); }

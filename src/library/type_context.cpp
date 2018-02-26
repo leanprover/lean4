@@ -119,13 +119,7 @@ void type_context::flush_instance_cache() {
 }
 
 void type_context::init_core(transparency_mode m) {
-    m_used_assignment             = false;
     m_transparency_mode           = m;
-    m_in_is_def_eq                = false;
-    m_is_def_eq_depth             = 0;
-    m_tmp_data                    = nullptr;
-    m_transparency_pred           = nullptr;
-    m_approximate                 = false;
     m_smart_unfolding             = m_cache->get_smart_unfolding();
     if (auto lis = m_lctx.get_frozen_local_instances()) {
         m_local_instances = *lis;
@@ -158,6 +152,31 @@ type_context::type_context(environment const & env, metavar_context const & mctx
     m_mctx(mctx), m_lctx(lctx),
     m_cache(&cache) {
     init_core(m);
+}
+
+type_context::type_context(type_context && src):
+    m_env(std::move(src.m_env)),
+    m_mctx(std::move(src.m_mctx)),
+    m_lctx(std::move(src.m_lctx)),
+    m_dummy_cache(src.get_options()),
+    m_cache(src.m_cache == &src.m_dummy_cache ? &m_dummy_cache : src.m_cache),
+    m_local_instances(src.m_local_instances),
+    m_transparency_mode(src.m_transparency_mode),
+    m_approximate(src.m_approximate),
+    m_zeta(src.m_zeta),
+    m_smart_unfolding(src.m_smart_unfolding),
+    m_uhints(src.m_uhints) {
+    lean_assert(!src.m_tmp_data);
+    lean_assert(!src.m_used_assignment);
+    lean_assert(!src.m_in_is_def_eq);
+    lean_assert(src.m_is_def_eq_depth == 0);
+    lean_assert(src.m_scopes.empty());
+    lean_assert(src.m_update_left);
+    lean_assert(src.m_update_right);
+    lean_assert(src.m_unfold_depth == 0);
+    lean_assert(src.m_postponed.empty());
+    lean_assert(src.m_full_postponed);
+    lean_assert(!src.m_transparency_pred);
 }
 
 type_context::~type_context() {

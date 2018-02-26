@@ -2192,30 +2192,35 @@ class add_nested_inductive_decl_fn {
         lean_verify(is_eq(hyp_decl.get_type(), A, lhs, rhs));
 
         unsigned arity = get_app_num_args(lhs);
-        tctx = mk_type_context_for(s);
-        name H_unpack_name({"H_unpack"});
-        expr H_unpack_type = mk_eq(tctx, mk_app(tctx, unpack_name, arity, lhs), mk_app(tctx, unpack_name, arity, rhs));
-        s = *tactic::is_success(assert_define_core(true, H_unpack_name, H_unpack_type, s));
-        tctx = mk_type_context_for(s);
+        {
+            type_context tctx = mk_type_context_for(s);
+            name H_unpack_name({"H_unpack"});
+            expr H_unpack_type = mk_eq(tctx, mk_app(tctx, unpack_name, arity, lhs), mk_app(tctx, unpack_name, arity, rhs));
+            s = *tactic::is_success(assert_define_core(true, H_unpack_name, H_unpack_type, s));
+            {
+                type_context tctx = mk_type_context_for(s);
+                simp_config cfg = get_simp_config();
+                defeq_can_state dcs;
+                simp_lemmas slss;
+                slss = add(tctx, slss, hyp_decl.get_name(), hyp_decl.get_type(), hyp_decl.mk_ref(), LEAN_DEFAULT_PRIORITY);
+                simp_result r = finalize(tctx, get_eq_name(), simplify_fn(tctx, dcs, slss, list<name>(), cfg)(get_eq_name(), s.get_main_goal_decl()->get_type()));
+                lean_verify(is_eq(r.get_new(), lhs, rhs));
+                lean_assert(tctx.is_def_eq(lhs, rhs));
+                s = *apply(tctx, false, false, mk_eq_mpr(tctx, r.get_proof(), mk_eq_refl(tctx, lhs)), s);
 
-        simp_config cfg = get_simp_config();
-        defeq_can_state dcs;
-        simp_lemmas slss;
-        slss = add(tctx, slss, hyp_decl.get_name(), hyp_decl.get_type(), hyp_decl.mk_ref(), LEAN_DEFAULT_PRIORITY);
-        simp_result r = finalize(tctx, get_eq_name(), simplify_fn(tctx, dcs, slss, list<name>(), cfg)(get_eq_name(), s.get_main_goal_decl()->get_type()));
-        lean_verify(is_eq(r.get_new(), lhs, rhs));
-        lean_assert(tctx.is_def_eq(lhs, rhs));
-        s = *apply(tctx, false, false, mk_eq_mpr(tctx, r.get_proof(), mk_eq_refl(tctx, lhs)), s);
+                s = *intron(1, s, new_hyps, true);
+                {
+                    type_context tctx = mk_type_context_for(s);
+                    local_decl H_unpack_decl = tctx.lctx().get_local_decl(new_hyps.back());
 
-        s = *intron(1, s, new_hyps, true);
-        tctx = mk_type_context_for(s);
-        local_decl H_unpack_decl = tctx.lctx().get_local_decl(new_hyps.back());
-
-        slss = simp_lemmas();
-        slss = add(tctx, slss, unpack_pack_name, LEAN_DEFAULT_PRIORITY);
-        r = finalize(tctx, get_eq_name(), simplify_fn(tctx, dcs, slss, list<name>(), cfg)(get_eq_name(), H_unpack_decl.get_type()));
-        s = *apply(tctx, false, false, mk_eq_mp(tctx, r.get_proof(), H_unpack_decl.mk_ref()), s);
-        return s;
+                    slss = simp_lemmas();
+                    slss = add(tctx, slss, unpack_pack_name, LEAN_DEFAULT_PRIORITY);
+                    r = finalize(tctx, get_eq_name(), simplify_fn(tctx, dcs, slss, list<name>(), cfg)(get_eq_name(), H_unpack_decl.get_type()));
+                    s = *apply(tctx, false, false, mk_eq_mp(tctx, r.get_proof(), H_unpack_decl.mk_ref()), s);
+                    return s;
+                }
+            }
+        }
     }
 
     tactic_state prove_pack_injective_easy_direction(tactic_state const & s0) {
@@ -2234,25 +2239,27 @@ class add_nested_inductive_decl_fn {
             hyp_decl = *(s.get_main_goal_decl()->get_context().find_local_decl_from_user_name(h_name));
         }
         expr goal_type = s.get_main_goal_decl()->get_type();
-        tctx = mk_type_context_for(s);
-        simp_config cfg = get_simp_config();
-        defeq_can_state dcs;
-        simp_lemmas slss;
-        slss = add(tctx, slss, hyp_decl.get_name(), hyp_decl.get_type(), hyp_decl.mk_ref(), LEAN_DEFAULT_PRIORITY);
-        simp_result r = finalize(tctx, get_eq_name(), simplify_fn(tctx, dcs, slss, list<name>(), cfg)(get_eq_name(), goal_type));
-        expr pf;
+        {
+            type_context tctx = mk_type_context_for(s);
+            simp_config cfg = get_simp_config();
+            defeq_can_state dcs;
+            simp_lemmas slss;
+            slss = add(tctx, slss, hyp_decl.get_name(), hyp_decl.get_type(), hyp_decl.mk_ref(), LEAN_DEFAULT_PRIORITY);
+            simp_result r = finalize(tctx, get_eq_name(), simplify_fn(tctx, dcs, slss, list<name>(), cfg)(get_eq_name(), goal_type));
+            expr pf;
 
-        if (is_eq(r.get_new(), lhs, rhs)) {
-            lean_verify(tctx.is_def_eq(lhs, rhs));
-            pf = mk_eq_refl(tctx, lhs);
-        } else {
-            lean_verify(is_heq(r.get_new(), lhs, rhs));
-            lean_assert(tctx.is_def_eq(lhs, rhs));
-            pf = mk_heq_refl(tctx, lhs);
+            if (is_eq(r.get_new(), lhs, rhs)) {
+                lean_verify(tctx.is_def_eq(lhs, rhs));
+                pf = mk_eq_refl(tctx, lhs);
+            } else {
+                lean_verify(is_heq(r.get_new(), lhs, rhs));
+                lean_assert(tctx.is_def_eq(lhs, rhs));
+                pf = mk_heq_refl(tctx, lhs);
+            }
+            pf = mk_eq_mpr(tctx, r.get_proof(), pf);
+            s = *apply(tctx, false, false, pf, s);
+            return s;
         }
-        pf = mk_eq_mpr(tctx, r.get_proof(), pf);
-        s = *apply(tctx, false, false, pf, s);
-        return s;
     }
 
     expr prove_pack_injective(name const & pack_inj_name, expr const & pack_inj_type, name const & unpack_name, name const & unpack_pack_name) {

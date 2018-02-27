@@ -393,7 +393,7 @@ static environment init_quotient_cmd(parser & p) {
    Temporary procedure that converts metavariables in \c e to metavar_context metavariables.
    After we convert the frontend to type_context, we will not need to use this procedure.
 */
-static expr convert_metavars(metavar_context & ctx, expr const & e) {
+static expr convert_metavars(metavar_context & mctx, expr const & e) {
     expr_map<expr> cache;
 
     std::function<expr(expr const & e)> convert = [&](expr const & e) {
@@ -402,7 +402,7 @@ static expr convert_metavars(metavar_context & ctx, expr const & e) {
                     auto it = cache.find(e);
                     if (it != cache.end())
                         return some_expr(it->second);
-                    expr m = ctx.mk_metavar_decl(local_context(), convert(mlocal_type(e)));
+                    expr m = mctx.mk_metavar_decl(local_context(), convert(mlocal_type(e)));
                     cache.insert(mk_pair(e, m));
                     return some_expr(m);
                 } else {

@@ -581,6 +581,8 @@ public:
     metavar_context const & mctx() const { return m_mctx; }
     expr mk_metavar_decl(local_context const & ctx, expr const & type) { return m_mctx.mk_metavar_decl(ctx, type); }
     expr mk_metavar_decl(name const & pp_n, local_context const & ctx, expr const & type) { return m_mctx.mk_metavar_decl(pp_n, ctx, type); }
+    optional<metavar_decl> find_metavar_decl(expr const & mvar) const { return m_mctx.find_metavar_decl(mvar); }
+
     level mk_univ_metavar_decl() { return m_mctx.mk_univ_metavar_decl(); }
 
     name get_unused_name(name const & prefix, unsigned & idx) const { return m_lctx.get_unused_name(prefix, idx); }

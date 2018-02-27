@@ -148,13 +148,13 @@ vm_obj intro(name const & n, tactic_state const & s) {
             return tactic::mk_exception("intro tactic failed, Pi/let expression expected", s);
     }
     local_context lctx   = g->get_context();
-    metavar_context mctx = ctx.mctx();
     if (is_pi(type)) {
         name n1              = n == "_" ? lctx.get_unused_name(binding_name(type)) : n;
         expr H               = lctx.mk_local_decl(n1, annotated_head_beta_reduce(binding_domain(type)), binding_info(type));
         expr new_type        = instantiate(binding_body(type), H);
-        expr new_M           = mctx.mk_metavar_decl(lctx, new_type);
+        expr new_M           = ctx.mk_metavar_decl(lctx, new_type);
         expr new_val         = mk_lambda(n1, binding_domain(type), mk_delayed_abstraction(new_M, mlocal_name(H)));
+        metavar_context mctx = ctx.mctx();
         mctx.assign(head(s.goals()), new_val);
         list<expr> new_gs(new_M, tail(s.goals()));
         return tactic::mk_success(to_obj(H), set_mctx_goals(s, mctx, new_gs));
@@ -163,11 +163,11 @@ vm_obj intro(name const & n, tactic_state const & s) {
         name n1              = n == "_" ? lctx.get_unused_name(let_name(type)) : n;
         expr H               = lctx.mk_local_decl(n1, annotated_head_beta_reduce(let_type(type)), let_value(type));
         expr new_type        = instantiate(let_body(type), H);
-        expr new_M           = mctx.mk_metavar_decl(lctx, new_type);
+        expr new_M           = ctx.mk_metavar_decl(lctx, new_type);
         expr new_val         = mk_let(n1, let_type(type), let_value(type), mk_delayed_abstraction(new_M, mlocal_name(H)));
-        mctx.assign(head(s.goals()), new_val);
+        ctx.assign(head(s.goals()), new_val);
         list<expr> new_gs(new_M, tail(s.goals()));
-        return tactic::mk_success(to_obj(H), set_mctx_goals(s, mctx, new_gs));
+        return tactic::mk_success(to_obj(H), set_mctx_goals(s, ctx.mctx(), new_gs));
     }
 }
 

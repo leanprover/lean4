@@ -353,10 +353,10 @@ pair<local_context, expr> type_context::revert_core(buffer<expr> & to_revert, lo
 expr type_context::revert_core(buffer<expr> & to_revert, expr const & mvar, bool preserve_to_revert_order) {
     lean_assert(is_metavar_decl_ref(mvar));
     metavar_decl const & d = m_mctx.get_metavar_decl(mvar);
-    auto p = revert_core(to_revert, d.get_context(), d.get_type(), preserve_to_revert_order);
+    pair<local_context, expr> p = revert_core(to_revert, d.get_context(), d.get_type(), preserve_to_revert_order);
     /* Remark: we use copy_tag to make sure any position information
        associated wtih mvar is inherited by the new meta-variable. */
-    return copy_tag(mvar, m_mctx.mk_metavar_decl(p.first, p.second));
+    return copy_tag(mvar, mk_metavar_decl(p.first, p.second));
 }
 
 expr type_context::revert(buffer<expr> & to_revert, expr const & mvar, bool preserve_to_revert_order) {

@@ -995,12 +995,13 @@ vm_obj tactic_unfreeze_local_instances(vm_obj const & s0) {
     tactic_state s             = tactic::to_state(s0);
     optional<metavar_decl> g   = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
-    metavar_context mctx       = s.mctx();
     local_context lctx         = g->get_context();
+    tactic_state_context_cache cache(s);
+    type_context ctx           = cache.mk_type_context();
     lctx.unfreeze_local_instances();
-    expr new_mvar              = mctx.mk_metavar_decl(lctx, g->get_type());
-    mctx.assign(*s.get_main_goal(), new_mvar);
-    tactic_state new_s = set_mctx_goals(s, mctx, cons(new_mvar, tail(s.goals())));
+    expr new_mvar              = ctx.mk_metavar_decl(lctx, g->get_type());
+    ctx.assign(*s.get_main_goal(), new_mvar);
+    tactic_state new_s = set_mctx_goals(s, ctx.mctx(), cons(new_mvar, tail(s.goals())));
     return tactic::mk_success(new_s);
 }
 

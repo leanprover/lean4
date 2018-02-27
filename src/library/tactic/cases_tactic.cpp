@@ -238,10 +238,11 @@ struct cases_tactic_fn {
         add_eq(h, h_new);
         /* aux_type is  Pi (j' : J) (h' : I A j'), j == j' -> h == h' -> T */
         expr aux_type   = ctx.mk_pi(ts, ctx.mk_pi(h_new, ctx.mk_pi(eqs, g.get_type())));
-        expr aux_mvar   = m_mctx.mk_metavar_decl(g.get_context(), aux_type);
+        expr aux_mvar   = ctx.mk_metavar_decl(g.get_context(), aux_type);
         /* assign mvar := aux_mvar indices h refls */
-        m_mctx.assign(mvar, mk_app(mk_app(mk_app(aux_mvar, m_nindices, I_args.end() - m_nindices), h), refls));
+        ctx.assign(mvar, mk_app(mk_app(mk_app(aux_mvar, m_nindices, I_args.end() - m_nindices), h), refls));
         /* introduce indices j' and h' */
+        m_mctx = ctx.mctx();
         bool use_unused_names = false;
         auto r = intron(m_env, m_opts, m_mctx, aux_mvar, m_nindices + 1, new_indices_H, use_unused_names);
         lean_assert(r);
@@ -343,9 +344,10 @@ struct cases_tactic_fn {
             if (lhs != lhs_n || rhs != rhs_n) {
                 expr new_eq     = ::lean::mk_eq(ctx, lhs_n, rhs_n);
                 expr new_target = mk_arrow(new_eq, binding_body(target));
-                expr new_mvar   = m_mctx.mk_metavar_decl(lctx, new_target);
-                m_mctx.assign(mvar, new_mvar);
-                mvar = new_mvar;
+                expr new_mvar   = ctx.mk_metavar_decl(lctx, new_target);
+                ctx.assign(mvar, new_mvar);
+                m_mctx          = ctx.mctx();
+                mvar            = new_mvar;
                 lean_cases_trace(mvar, tout() << "normalize lhs/rhs:\n" << pp_goal(mvar) << "\n";);
             }
         }
@@ -364,10 +366,11 @@ struct cases_tactic_fn {
             /* Create helper goal mvar2 :  ctx |- lhs = rhs -> type, and assign
                mvar1 := mvar2 (eq_of_heq H) */
             expr new_target = mk_arrow(::lean::mk_eq(ctx, lhs, rhs), g1.get_type());
-            expr mvar2      = m_mctx.mk_metavar_decl(lctx, new_target);
+            expr mvar2      = ctx.mk_metavar_decl(lctx, new_target);
             expr val        = mk_app(mvar2, mk_eq_of_heq(ctx, H));
-            m_mctx.assign(*mvar1, val);
+            ctx.assign(*mvar1, val);
             lean_cases_trace(mvar, tout() << "converted heq => eq\n";);
+            m_mctx = ctx.mctx();
             return unify_eqs(input_H, mvar2, num_eqs, updating, new_intros, subst);
         } else if (is_eq(H_type, A, lhs, rhs)) {
             if (ctx.is_def_eq(lhs, rhs)) {

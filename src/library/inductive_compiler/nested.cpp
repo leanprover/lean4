@@ -1590,23 +1590,22 @@ class add_nested_inductive_decl_fn {
         lean_trace(name({"inductive_compiler", "nested", "prove"}), tout() << "[goal]: " << thm << "\n";);
 
         expr ty = thm;
-        metavar_context mctx;
-
         // Note: type_context only used to manage locals and abstract at the end
-        type_context tctx(m_env, m_tctx.get_options(), use_sizeof ? m_synth_lctx : local_context());
-        type_context::tmp_locals locals(tctx);
+        type_context ctx(m_env, m_tctx.get_options(), use_sizeof ? m_synth_lctx : local_context());
+        type_context::tmp_locals locals(ctx);
 
         while (is_pi(ty)) {
             expr l = locals.push_local_from_binding(ty);
             ty = instantiate(binding_body(ty), l);
         }
         expr H = locals.as_buffer().back();
-        expr goal = mctx.mk_metavar_decl(tctx.lctx(), ty);
+        expr goal = ctx.mk_metavar_decl(ctx.lctx(), ty);
         list<list<expr> > subgoal_hypotheses;
         hsubstitution_list subgoal_substitutions;
         list<name> ns;
-        list<expr> subgoals = induction(tctx.env(), tctx.get_options(), transparency_mode::None, mctx,
-                                        goal, H, rec_name, ns, &subgoal_hypotheses, &subgoal_substitutions);
+        metavar_context mctx = ctx.mctx();
+        list<expr> subgoals  = induction(ctx.env(), ctx.get_options(), transparency_mode::None, mctx,
+                                         goal, H, rec_name, ns, &subgoal_hypotheses, &subgoal_substitutions);
 
         for_each2(subgoals, subgoal_hypotheses, [&](expr const & m, list<expr> const & Hs) {
                 metavar_decl d = mctx.get_metavar_decl(m);

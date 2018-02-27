@@ -31,6 +31,17 @@ public:
     name next();
 
     /**
+       \brief Similar to \c next, but the base prefix is replaced with the given one.
+
+       \pre \c base_prefix must have been registered using \c register_name_generator_prefix.
+
+       Example: suppose `_cfresh` and `_ffresh` have been registered using \c register_name_generator_prefix,
+       and the current state is `m_prefix == _ffresh.2` and `m_next_idx = 10`. Then, the name
+       returned by `next_with(_cfresh)` is `_cfresh.2.10`, and
+       the current state of this object is updated to `m_next_idx = 11` */
+    name next_with(name const & base_prefix);
+
+    /**
         \brief Create a child name_generator, each child name_generator is guaranteed to produce
         names different from this name_generator and any other name_generator created with this generator. */
     name_generator mk_child() { return name_generator(next()); }
@@ -44,7 +55,7 @@ public:
        and the current state is `m_prefix == _ffresh.2` and `m_next_idx = 10`. Then, the name_generator
        returned by `mk_child_with(_cfresh)` is `{m_prefix = _cfresh.2.10, m_next_idx = 0}`, and
        the current state of this object is updated to `m_next_idx = 11` */
-    name_generator mk_child_with(name const & base_prefix);
+    name_generator mk_child_with(name const & base_prefix) { return name_generator(next_with(base_prefix)); }
 
     friend void swap(name_generator & a, name_generator & b);
 };

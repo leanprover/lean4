@@ -43,10 +43,9 @@ static name replace_base_prefix(name const & p, name const & new_base) {
     }
 }
 
-name_generator name_generator::mk_child_with(name const & base_prefix) {
+name name_generator::next_with(name const & base_prefix) {
     lean_assert(g_ngen_prefixes->contains(base_prefix));
-    name new_prefix = replace_base_prefix(next(), base_prefix);
-    return name_generator(new_prefix);
+    return replace_base_prefix(next(), base_prefix);
 }
 
 void swap(name_generator & a, name_generator & b) {

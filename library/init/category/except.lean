@@ -5,7 +5,7 @@ Authors: Jared Roesch, Sebastian Ullrich
 -/
 
 prelude
-import init.category.alternative init.category.transformers
+import init.category.alternative init.category.lift
 universes u v w
 
 inductive except (ε : Type u) (α : Type v)

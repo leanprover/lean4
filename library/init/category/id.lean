@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
 prelude
-import init.category.transformers
+import init.category.lift
 universe u
 
 @[inline] def id_bind {α β : Type u} (x : α) (f : α → id β) : id β := f x

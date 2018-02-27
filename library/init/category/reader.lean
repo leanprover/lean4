@@ -5,7 +5,7 @@ Authors: Sebastian Ullrich
 -/
 
 prelude
-import init.category.transformers init.category.id
+import init.category.lift init.category.id
 universes u v w
 
 structure reader_t (r : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=

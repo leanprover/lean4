@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2016 Gabriel Ebner. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Gabriel Ebner
+Authors: Gabriel Ebner, Sebastian Ullrich
 -/
 prelude
 import init.function init.coe
@@ -9,18 +9,8 @@ import init.category.monad
 
 universes u v w
 
-class monad_transformer (transformer : ∀ (m : Type u → Type v) [monad m], Type u → Type w) :=
-(is_monad : ∀ m [monad m], monad (transformer m))
-(monad_lift : ∀ m [monad m] α, m α → transformer m α)
-
-instance transformed_monad (m t) [monad_transformer t] [monad m] : monad (t m) :=
-monad_transformer.is_monad t m
-
 class has_monad_lift (m : Type u → Type v) (n : Type u → Type w) :=
 (monad_lift : ∀ α, m α → n α)
-
-instance monad_transformer_lift (t m) [monad_transformer t] [monad m] : has_monad_lift m (t m) :=
-⟨monad_transformer.monad_lift t m⟩
 
 class has_monad_lift_t (m : Type u → Type v) (n : Type u → Type w) :=
 (monad_lift {} : ∀ {α}, m α → n α)

@@ -7,7 +7,7 @@ The continuation monad transformer.
 -/
 
 prelude
-import init.category.alternative init.category.combinators init.category.transformers
+import init.category.alternative init.category.combinators init.category.lift
 universes u v w
 
 structure cont_t (r : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=

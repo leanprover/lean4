@@ -240,9 +240,10 @@ master branch (aka work in progress branch)
 
 *API name changes*
 
-* `monad.{monad_transformer,has_monad_lift(_t)}` ~> `{monad_transformer,has_monad_lift(_t)}`
+* `monad.has_monad_lift(_t)` ~> `has_monad_lift(_t)`
 * `monad.map_comp` ~> `comp_map`
 * `state(_t).{read,write}` ~> `{get,put}` (general operations defined on any `monad_state_lift`)
+* deleted `monad.monad_transformer`
 
 v3.3.0 (14 September 2017)
 -------------

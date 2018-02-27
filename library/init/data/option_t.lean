@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.interactive init.category.transformers init.category.lawful
+import init.meta.interactive init.category.lift init.category.lawful
 
 universes u v
 
@@ -68,7 +68,3 @@ instance {m : Type u → Type v} [monad m] : alternative (option_t m) :=
 
 def option_t.lift {m : Type u → Type v} [monad m] {α : Type u} (a : m α) : option_t m α :=
 (some <$> a : m (option α))
-
-instance option_t.monad_transformer : monad_transformer option_t :=
-{ is_monad   := @option_t.monad,
-  monad_lift := @option_t.lift }

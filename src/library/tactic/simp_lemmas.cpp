@@ -1227,7 +1227,7 @@ static bool instantiate_emetas(type_context & ctx, list<expr> const & _emetas, l
     lean_assert(emetas.size() == instances.size());
     for (unsigned i = 0; i < emetas.size(); ++i) {
         expr m = emetas[i];
-        unsigned mvar_idx = emetas.size() - 1 - i;
+        unsigned mvar_idx = to_meta_idx(m);
         expr m_type = ctx.instantiate_mvars(ctx.infer(m));
         // TODO(Leo, Daniel): do we need the following assertion?
         // lean_assert(!has_expr_metavar(m_type));
@@ -1416,9 +1416,10 @@ public:
     }
 };
 
-static bool instantiate_emetas(tmp_type_context & tmp_ctx, vm_obj const & prove_fn, unsigned num_emeta, list<expr> const & emetas, list<bool> const & instances, tactic_state const & s) {
+static bool instantiate_emetas(tmp_type_context & tmp_ctx, vm_obj const & prove_fn, list <expr> const & emetas,
+                               list<bool> const & instances, tactic_state const & s) {
     simp_aux_prover prover(prove_fn, s);
-    return instantiate_emetas_fn<simp_aux_prover>(prover)(tmp_ctx, num_emeta, emetas, instances);
+    return instantiate_emetas_fn<simp_aux_prover>(prover)(tmp_ctx, emetas, instances);
 }
 
 
@@ -1430,7 +1431,7 @@ static simp_result simp_lemma_rewrite_core(type_context & ctx, simp_lemma const 
         return simp_result(e);
     }
 
-    if (!instantiate_emetas(tmp_ctx, prove_fn, sl.get_num_emeta(), sl.get_emetas(), sl.get_instances(), s)) {
+    if (!instantiate_emetas(tmp_ctx, prove_fn, sl.get_emetas(), sl.get_instances(), s)) {
         lean_trace("simp_lemmas", tout() << "fail to instantiate emetas: " << sl.get_id() << "\n";);
         return simp_result(e);
     }

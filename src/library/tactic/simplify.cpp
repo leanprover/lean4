@@ -132,10 +132,10 @@ public:
     }
 };
 
-bool simplify_core_fn::instantiate_emetas(tmp_type_context & tmp_ctx, unsigned num_emeta,
-                                          list<expr> const & emetas, list<bool> const & instances) {
+bool simplify_core_fn::instantiate_emetas(tmp_type_context & tmp_ctx, list <expr> const & emetas,
+                                          list<bool> const & instances) {
     simp_prover prover(*this);
-    return instantiate_emetas_fn<simp_prover>(prover)(tmp_ctx, num_emeta, emetas, instances);
+    return instantiate_emetas_fn<simp_prover>(prover)(tmp_ctx, emetas, instances);
 }
 
 simp_result simplify_core_fn::lift_from_eq(simp_result const & r_eq) {
@@ -309,7 +309,7 @@ simp_result simplify_core_fn::try_user_congr(expr const & e, simp_lemma const & 
     if (!simplified)
         return simp_result(e);
 
-    if (!instantiate_emetas(tmp_ctx, cl.get_num_emeta(), cl.get_emetas(), cl.get_instances()))
+    if (!instantiate_emetas(tmp_ctx, cl.get_emetas(), cl.get_instances()))
         return simp_result(e);
 
     for (unsigned i = 0; i < cl.get_num_umeta(); i++) {
@@ -534,7 +534,7 @@ simp_result simplify_core_fn::rewrite_core(expr const & e, simp_lemma const & sl
         return simp_result(e);
     }
 
-    if (!instantiate_emetas(tmp_ctx, sl.get_num_emeta(), sl.get_emetas(), sl.get_instances())) {
+    if (!instantiate_emetas(tmp_ctx, sl.get_emetas(), sl.get_instances())) {
         lean_simp_trace_d(m_ctx, name({"simplify", "failure"}),
                           lean_trace_init_bool(name({"simplify", "failure"}), get_pp_implicit_name(), true);
                           tout() << "fail to instantiate emetas: '" << sl.get_id() << "' at\n"

@@ -39,12 +39,10 @@ public:
     instantiate_emetas_fn(Prover & prover):
         m_prover(prover) {}
 
-    bool operator()(tmp_type_context & tmp_ctx, unsigned num_emeta,
-                    list<expr> const & emetas, list<bool> const & instances) {
+    bool operator()(tmp_type_context & tmp_ctx, list<expr> const & emetas, list<bool> const & instances) {
         bool failed = false;
-        unsigned i  = num_emeta;
         for_each2(emetas, instances, [&](expr const & mvar, bool const & is_instance) {
-                i--;
+                unsigned mvar_idx = to_meta_idx(mvar);
                 if (failed) return;
                 expr mvar_type = tmp_ctx.instantiate_mvars(tmp_ctx.infer(mvar));
                 if (has_idx_metavar(mvar_type)) {
@@ -52,7 +50,7 @@ public:
                     return;
                 }
 
-                if (tmp_ctx.is_eassigned(i)) return;
+                if (tmp_ctx.is_eassigned(mvar_idx)) return;
 
                 if (is_instance) {
                     if (auto v = tmp_ctx.ctx().mk_class_instance(mvar_type)) {
@@ -70,7 +68,7 @@ public:
                     }
                 }
 
-                if (tmp_ctx.is_eassigned(i)) return;
+                if (tmp_ctx.is_eassigned(mvar_idx)) return;
 
                 if (optional<expr> pf = try_auto_param(tmp_ctx, mvar_type)) {
                     lean_verify(tmp_ctx.is_def_eq(mvar, *pf));

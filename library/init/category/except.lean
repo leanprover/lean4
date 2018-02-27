@@ -2,6 +2,8 @@
 Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jared Roesch, Sebastian Ullrich
+
+The except monad transformer.
 -/
 
 prelude
@@ -22,8 +24,8 @@ variables {ε : Type u} {m : Type v → Type w}
 protected def orelse [monad_except ε m] {α : Type v} (t₁ t₂ : m α) : m α :=
 catch t₁ $ λ _, t₂
 
-/- Alternative orelse operator that allows to select which exception should be used.
-   The default is to use the first exception since the standard `orelse` uses the second. -/
+/-- Alternative orelse operator that allows to select which exception should be used.
+    The default is to use the first exception since the standard `orelse` uses the second. -/
 meta def orelse' [monad_except ε m] {α : Type v} (t₁ t₂ : m α) (use_first_ex := tt) : m α :=
 catch t₁ $ λ e₁, catch t₂ $ λ e₂, throw (if use_first_ex then e₁ else e₂)
 end monad_except
@@ -73,17 +75,17 @@ namespace except_t
 section
   parameters {ε : Type u} {m : Type u → Type v} [monad m]
 
-  protected def return {α : Type u} (a : α) : except_t ε m α :=
+  @[inline] protected def return {α : Type u} (a : α) : except_t ε m α :=
   ⟨pure $ except.ok a⟩
 
-  protected def bind_cont {α β : Type u} (f : α → except_t ε m β) : except ε α → m (except ε β)
+  @[inline] protected def bind_cont {α β : Type u} (f : α → except_t ε m β) : except ε α → m (except ε β)
   | (except.ok a)    := (f a).run
   | (except.error e) := pure (except.error e)
 
-  protected def bind {α β : Type u} (ma : except_t ε m α) (f : α → except_t ε m β) : except_t ε m β :=
+  @[inline] protected def bind {α β : Type u} (ma : except_t ε m α) (f : α → except_t ε m β) : except_t ε m β :=
   ⟨ma.run >>= bind_cont f⟩
 
-  protected def lift {α : Type u} (t : m α) : except_t ε m α :=
+  @[inline] protected def lift {α : Type u} (t : m α) : except_t ε m α :=
   ⟨except.ok <$> t⟩
 
   instance : has_monad_lift m (except_t ε m) :=
@@ -95,7 +97,7 @@ section
    | except.error e := (handle e).run
    end⟩
 
-  protected def monad_map {m'} [monad m'] {α} (f : ∀ {α}, m α → m' α) : except_t ε m α → except_t ε m' α :=
+  @[inline] protected def monad_map {m'} [monad m'] {α} (f : ∀ {α}, m α → m' α) : except_t ε m α → except_t ε m' α :=
   λ x, ⟨f x.run⟩
 
   instance (m') [monad m'] : monad_functor m m' (except_t ε m) (except_t ε m') :=

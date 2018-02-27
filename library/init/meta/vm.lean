@@ -75,7 +75,7 @@ meta constant vm_core.ret {α : Type} : α → vm_core α
 meta constant vm_core.bind {α β : Type} : vm_core α → (α → vm_core β) → vm_core β
 
 meta instance : monad vm_core :=
-{map := @vm_core.map, pure := @vm_core.ret, bind := @vm_core.bind}
+{ map := @vm_core.map, pure := @vm_core.ret, bind := @vm_core.bind }
 
 @[reducible] meta def vm (α : Type) : Type := option_t vm_core α
 

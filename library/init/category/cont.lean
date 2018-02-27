@@ -33,7 +33,7 @@ section
   instance : monad (cont_t r m) :=
   { pure := @pure, bind := @bind }
 
-  protected def call_cc {α β : Type u} (f : ((α → cont_t r m β) → cont_t r m α)) : cont_t r m α :=
+  protected def call_cc {α β : Type u} (f : (α → cont_t r m β) → cont_t r m α) : cont_t r m α :=
   ⟨λ cc, (f (λ a, ⟨λ _, cc a⟩)).run cc⟩
 
   instance : monad_cont (cont_t r m) :=

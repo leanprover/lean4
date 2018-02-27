@@ -62,8 +62,7 @@ protected def orelse {α : Type u} : option α → option α → option α
 
 instance : alternative option :=
 { failure := @none,
-  orelse  := @option.orelse,
-  ..option.monad }
+  orelse  := @option.orelse }
 
 end option
 

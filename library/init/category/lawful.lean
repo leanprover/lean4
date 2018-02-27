@@ -5,7 +5,7 @@ Authors: Sebastian Ullrich
 -/
 prelude
 import init.category.monad init.meta.interactive
-import init.category.state init.category.except init.category.reader
+import init.category.state init.category.except init.category.reader init.category.cont
 universes u v
 
 open function
@@ -185,3 +185,23 @@ instance (r : Type u) (m : Type u → Type v) [monad m] [is_lawful_monad m] : is
 { id_map := by intros; apply reader_t.ext; intro; simp,
   pure_bind := by intros; apply reader_t.ext; intro; simp,
   bind_assoc := by intros; apply reader_t.ext; intro; simp [bind_assoc] }
+
+
+namespace cont_t
+  variable  {r : Type u}
+  variable  {m : Type u → Type v}
+  variables {α β : Type u}
+  variables (x : cont_t r m α)
+
+  lemma ext {x x' : cont_t r m α} (h : ∀ cc, x.run cc = x'.run cc) : x = x' :=
+  by cases x; cases x'; simp [show x = x', from funext h]
+
+  @[simp] lemma run_pure (a : α) (cc : α → m r) : (pure a : cont_t r m α).run cc = cc a := rfl
+  @[simp] lemma run_bind (f : α → cont_t r m β) (cc : β → m r) : (x >>= f).run cc = x.run (λ a, (f a).run cc) := rfl
+  @[simp] lemma run_map (f : α → β) (cc : β → m r) : (f <$> x).run cc = x.run (cc ∘ f) := rfl
+end cont_t
+
+instance (r : Type u) (m : Type u → Type v) [monad m] [is_lawful_monad m] : is_lawful_monad (cont_t r m) :=
+{ id_map := by intros; apply cont_t.ext; simp,
+  pure_bind := by intros; apply cont_t.ext; simp,
+  bind_assoc := by intros; apply cont_t.ext; simp }

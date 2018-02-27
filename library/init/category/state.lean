@@ -11,6 +11,8 @@ universes u v w
 structure state_t (σ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
 (run' : σ → m (α × σ))
 
+attribute [pp_using_anonymous_constructor] state_t
+
 @[reducible] def state (σ α : Type u) : Type u := state_t σ id α
 
 namespace state_t

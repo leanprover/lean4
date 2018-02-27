@@ -145,6 +145,8 @@ master branch (aka work in progress branch)
   (pure {} {α : Type u} : α → f α)
   ```
 
+* Add `except_t`, `reader_t`, `cont_t` monad transformers
+
 *Changes*
 
 * Command `variable [io.interface]` is not needed anymore to use the `io` monad.

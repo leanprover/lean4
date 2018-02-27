@@ -271,11 +271,6 @@ vm_obj to_obj(transparency_mode m) {
     return mk_vm_simple(static_cast<unsigned>(m));
 }
 
-
-vm_obj tactic_state_mk_empty(vm_obj const & vm_env, vm_obj const & vm_opts) {
-    return to_obj(mk_tactic_state_for(to_env(vm_env), to_options(vm_opts), "_mk_empty", local_context(), mk_true()));
-}
-
 vm_obj tactic_state_env(vm_obj const & s) {
     return to_obj(tactic::to_state(s).env());
 }
@@ -1021,7 +1016,6 @@ vm_obj tactic_frozen_local_instances(vm_obj const & s0) {
 }
 
 void initialize_tactic_state() {
-    DECLARE_VM_BUILTIN(name({"tactic_state", "mk_empty"}),       tactic_state_mk_empty);
     DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),            tactic_state_env);
     DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}),    tactic_state_format_expr);
     DECLARE_VM_BUILTIN(name({"tactic_state", "to_format"}),      tactic_state_to_format);

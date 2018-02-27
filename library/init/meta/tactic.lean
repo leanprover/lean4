@@ -14,8 +14,6 @@ meta constant tactic_state : Type
 universes u v
 
 namespace tactic_state
-/-- Create a tactic state with an empty local context and a dummy goal. -/
-meta constant mk_empty    : environment → options → tactic_state
 meta constant env         : tactic_state → environment
 /-- Format the given tactic state. If `target_lhs_only` is true and the target
     is of the form `lhs ~ rhs`, where `~` is a simplification relation,

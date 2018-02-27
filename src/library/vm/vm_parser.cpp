@@ -314,6 +314,27 @@ static vm_obj interactive_parse_binders(vm_obj const & vm_rbp, vm_obj const & vm
     CATCH;
 }
 
+static vm_obj vm_parser_of_tactic(vm_obj const &, vm_obj const & tac, vm_obj const & vm_s) {
+    auto s = lean_parser::to_state(vm_s);
+    tactic_state ts = mk_tactic_state_for(s.m_p->env(), s.m_p->get_options(), name("_parser_of_tactic"),
+                                          metavar_context(), local_context(), mk_true());
+    try {
+        vm_obj r = invoke(tac, to_obj(ts));
+        if (tactic::is_result_success(r)) {
+            vm_obj a = tactic::get_result_value(r);
+            tactic_state new_ts = tactic::to_state(tactic::get_result_state(r));
+            s.m_p->set_env(new_ts.env());
+            return lean_parser::mk_success(a, s);
+        } else {
+            /* Remark: the following command relies on the fact that
+               `tactic` and `parser` are both implemented using interaction_monad */
+            return lean_parser::update_exception_state(r, s);
+        }
+    } catch (exception & ex) {
+        return lean_parser::mk_exception(ex, s);
+    }
+}
+
 void initialize_vm_parser() {
     DECLARE_VM_BUILTIN(name({"lean", "parser_state", "env"}),         vm_parser_state_env);
     DECLARE_VM_BUILTIN(name({"lean", "parser_state", "options"}),     vm_parser_state_options);
@@ -327,7 +348,7 @@ void initialize_vm_parser() {
     DECLARE_VM_BUILTIN(name({"lean", "parser", "skip_info"}),         vm_parser_skip_info);
     DECLARE_VM_BUILTIN(name({"lean", "parser", "set_goal_info_pos"}), vm_parser_set_goal_info_pos);
     DECLARE_VM_BUILTIN(name({"lean", "parser", "with_input"}),        vm_parser_with_input);
-
+    DECLARE_VM_BUILTIN(name({"lean", "parser", "of_tactic"}),         vm_parser_of_tactic);
     DECLARE_VM_BUILTIN(name({"interactive", "decl_attributes", "apply"}), interactive_decl_attributes_apply);
     DECLARE_VM_BUILTIN(name({"interactive", "inductive_decl", "parse"}),  interactive_inductive_decl_parse);
     DECLARE_VM_BUILTIN(name({"interactive", "parse_binders"}),            interactive_parse_binders);

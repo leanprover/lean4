@@ -132,6 +132,12 @@ vm_obj interaction_monad<State>::mk_exception(vm_obj const & fn, vm_obj const & 
 }
 
 template<typename State>
+vm_obj interaction_monad<State>::update_exception_state(vm_obj const & ex, State const & s) {
+    lean_assert(!is_success(ex));
+    return mk_vm_constructor(1, cfield(ex, 0), cfield(ex, 1), to_obj(s));
+}
+
+template<typename State>
 vm_obj interaction_monad<State>::mk_exception(throwable const & ex, State const & s) {
     vm_obj _ex = lean::to_obj(ex);
     vm_obj fn = mk_vm_closure(get_throwable_to_format_fun_idx(), 1, &_ex);

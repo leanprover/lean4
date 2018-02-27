@@ -52,6 +52,7 @@ struct interaction_monad {
     static vm_obj mk_exception(char const * msg, State const & s);
     static vm_obj mk_exception(sstream const & strm, State const & s);
     static vm_obj mk_exception(std::function<format()> const & thunk, State const & s);
+    static vm_obj update_exception_state(vm_obj const & ex, State const & s);
     static void report_exception(vm_state & S, vm_obj const & r);
     static optional<State> is_success(vm_obj const & r);
     static optional<exception_info> is_exception(vm_state & S, vm_obj const & ex);

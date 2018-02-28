@@ -2895,7 +2895,7 @@ class visit_structure_instance_fn {
         explicit field_not_ready_to_synthesize_exception(std::function<format()> m_fmt) : m_fmt(m_fmt) {}
     };
 
-    void field_from_default_value(const name & S_fname) {
+    void field_from_default_value(name const & S_fname) {
         m_field2elab.insert(S_fname, [=](expr const & d) {
             if (m_elab.m_in_pattern) {
                 // insert placeholder during pattern elaboration
@@ -2979,7 +2979,7 @@ class visit_structure_instance_fn {
                 if (it != m_fnames.end()) {
                     /* explicitly passed field */
                     m_fnames_used.insert(S_fname);
-                    const expr & p = m_fvalues[it - m_fnames.begin()];
+                    expr const & p = m_fvalues[it - m_fnames.begin()];
                     m_field2elab.insert(S_fname, [=](expr const & d) {
                         return m_elab.visit(p, some_expr(consume_auto_opt_param(d)));
                     });
@@ -3070,7 +3070,7 @@ class visit_structure_instance_fn {
                 format error = format("Failed to insert value for '") + format(full_S_fname) +
                                format("', it depends on field(s) '");
                 bool first = true;
-                deps.for_each([&](const name & dep) {
+                deps.for_each([&](name const & dep) {
                     if (!first) error += format("', '");
                     error += format(dep);
                     first = false;

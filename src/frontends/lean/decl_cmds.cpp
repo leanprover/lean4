@@ -538,15 +538,13 @@ static environment attribute_cmd_core(parser & p, bool persistent) {
     if (p.curr_is_command()) {
         return modifiers_cmd(p, {attributes, {}, {}});
     }
-    name d          = p.check_constant_next("invalid 'attribute' command, constant expected");
-    ds.push_back(d);
-    while (p.curr_is_identifier()) {
+    do {
         auto pos = p.pos();
         name d = p.check_constant_next("invalid 'attribute' command, constant expected");
         ds.push_back(d);
         if (get_global_info_manager())
             get_global_info_manager()->add_const_info(p.env(), pos, d);
-    }
+    } while (p.curr_is_identifier());
     if (attributes.is_parsing_only())
         throw exception(sstream() << "invalid [parsing_only] attribute, can only be applied at declaration time");
     environment env = p.env();

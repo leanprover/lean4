@@ -1,21 +1,28 @@
+image: Visual Studio 2017
+
 environment:
+  MSYSTEM: MINGW64  # use MSYS2 shell
   matrix:
-  - MSYSTEM: MINGW64
+  - CFG: MINGW64
+  - CFG: MSVC
+
+cache: c:\tools\vcpkg\installed\
 
 install:
-  - C:\msys64\usr\bin\bash -lc "pacman --noconfirm --ask 20 -Syu" # update core
-  - C:\msys64\usr\bin\bash -lc "pacman --noconfirm -Su"  # update rest
-  # upgrading gcc to 6.x fails
-  - C:\msys64\usr\bin\bash -lc "pacman --noconfirm -Suuy mingw-w64-x86_64-ninja mingw-w64-x86_64-cmake git"
+  # upgrade git for vcpkg: https://github.com/appveyor/ci/issues/2097
+  - if %CFG% == MSVC (choco upgrade git -y & vcpkg install mpir:x64-windows)
 
 build_script:
-  - C:\msys64\usr\bin\bash -lc "exec 0</dev/null &&
-      cd $APPVEYOR_BUILD_FOLDER;
-      mkdir build && cd build;
+  - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+  - cd %APPVEYOR_BUILD_FOLDER% && mkdir build && cd build
+  - if %CFG% == MSVC (cmake ../src -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake -G "NMake Makefiles" &&
+      cmake --build .)
+  - if %CFG% == MINGW64 (C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER/build &&
       OPTIONS='';
       if [[ $APPVEYOR_REPO_BRANCH == master ]]; then OPTIONS+=' -DLEAN_VERSION_STRING=nightly'; fi;
-      cmake ../src -DINCLUDE_MSYS2_DLLS=ON -DCMAKE_BUILD_TYPE=Release $OPTIONS -G Ninja"
-  - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER/build && ninja && cpack"
+      cmake ../src -DINCLUDE_MSYS2_DLLS=ON -DCMAKE_BUILD_TYPE=Release $OPTIONS -G 'Unix Makefiles' &&
+      cmake --build . &&
+      cpack")
 
 test_script:
   - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER/build && ctest -j4 --output-on-failure"
@@ -37,3 +44,4 @@ deploy:
   prerelease: false
   on:
     appveyor_repo_tag: true
+    CFG: MINGW64

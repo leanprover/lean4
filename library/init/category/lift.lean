@@ -53,7 +53,9 @@ instance monad_functor_t_refl (m m') : monad_functor_t m m' m m' :=
 @[simp] lemma monad_map_refl {m m' : Type u → Type v} (f : ∀ {α}, m α → m' α) {α} : (monad_map @f : m α → m' α) = f := rfl
 
 
-/-- Run a monad stack to completion. -/
+/-- Run a monad stack to completion.
+    `run` should be the composition of the transformers' individual `run` functions.
+    `unrun` should be its inverse. -/
 class monad_run (out : out_param $ Type u → Type v) (m : Type u → Type v) :=
 (run {} {α : Type u} : m α → out α)
 (unrun {} {α : Type u} : out α → m α)

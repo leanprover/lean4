@@ -283,7 +283,7 @@ vm_obj user_attribute_get_cache_core(vm_obj const &, vm_obj const &, vm_obj cons
         result = invoke(cache_handler, to_obj(to_list(instances)), to_obj(s0));
         was_updated = get_vm_state().env_was_updated();
     }
-    if (tactic::is_success(result)) {
+    if (tactic::is_result_success(result)) {
         if (!was_updated) {
             user_attr_cache::entry entry;
             entry.m_env         = env;
@@ -291,15 +291,14 @@ vm_obj user_attribute_get_cache_core(vm_obj const &, vm_obj const &, vm_obj cons
             entry.m_dep_fingerprints = map2<unsigned>(deps, [&](name const & n) {
                     return get_attribute(env, n).get_fingerprint(env);
                 });
-            entry.m_val = cfield(result, 0);
+            entry.m_val = tactic::get_result_value(result);
             cache.m_cache.erase(attr.get_name());
             cache.m_cache.insert(mk_pair(attr.get_name(), entry));
             return tactic::mk_success(entry.m_val, s);
         } else {
             lean_trace("user_attributes_cache", tout() << "did not cache result for [" << attr.get_name() << "] "
                        "because VM environment has been updated with temporary declarations\n";);
-            vm_obj r = cfield(result, 0);
-            return tactic::mk_success(r, s);
+            return tactic::mk_success(tactic::get_result_value(result), s);
         }
     } else {
         return result;

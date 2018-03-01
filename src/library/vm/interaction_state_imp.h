@@ -26,6 +26,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_option.h"
+#include "library/vm/vm_pos_info.h"
 #include "library/compiler/vm_compiler.h"
 
 namespace lean {
@@ -90,6 +91,24 @@ bool interaction_monad<State>::is_result_exception(vm_obj const & r) {
 }
 
 template<typename State>
+vm_obj interaction_monad<State>::get_exception_message(vm_obj const & r) {
+    lean_assert(is_result_exception(r));
+    return cfield(r, 0);
+}
+
+template<typename State>
+vm_obj interaction_monad<State>::get_exception_pos(vm_obj const & r) {
+    lean_assert(is_result_exception(r));
+    return cfield(r, 1);
+}
+
+template<typename State>
+vm_obj interaction_monad<State>::get_exception_state(vm_obj const & r) {
+    lean_assert(is_result_exception(r));
+    return cfield(r, 2);
+}
+
+template<typename State>
 bool interaction_monad<State>::is_result_success(vm_obj const & r) {
     return is_constructor(r) && cidx(r) == 0;
 }
@@ -113,7 +132,7 @@ vm_obj interaction_monad<State>::mk_success(vm_obj const & a, State const & s) {
 
 template<typename State>
 vm_obj interaction_monad<State>::mk_success(State const & s) {
-    return mk_success(mk_vm_unit(), s);
+    return mk_result(mk_vm_unit(), s);
 }
 
 template<typename State>
@@ -133,8 +152,8 @@ vm_obj interaction_monad<State>::mk_exception(vm_obj const & fn, vm_obj const & 
 
 template<typename State>
 vm_obj interaction_monad<State>::update_exception_state(vm_obj const & ex, State const & s) {
-    lean_assert(!is_success(ex));
-    return mk_vm_constructor(1, cfield(ex, 0), cfield(ex, 1), to_obj(s));
+    lean_assert(is_result_exception(ex));
+    return mk_exception(get_exception_message(ex), get_exception_pos(ex), s);
 }
 
 template<typename State>
@@ -186,20 +205,20 @@ void interaction_monad<State>::report_exception(vm_state & S, vm_obj const & r) 
 template<typename State>
 auto interaction_monad<State>::is_success(vm_obj const & r) -> optional<State> {
     if (is_result_success(r))
-        return some(to_state(cfield(r, 1)));
+        return some(to_state(get_result_state(r)));
     return {};
 }
 
 template<typename State>
 auto interaction_monad<State>::is_exception(vm_state & S, vm_obj const & ex) -> optional<exception_info> {
-    if (is_result_exception(ex) && !is_none(cfield(ex, 0))) {
-        vm_obj fmt = S.invoke(get_some_value(cfield(ex, 0)), mk_vm_unit());
+    if (is_result_exception(ex) && !is_none(get_exception_message(ex))) {
+        vm_obj fmt = S.invoke(get_some_value(get_exception_message(ex)), mk_vm_unit());
         optional<pos_info> p;
-        if (!is_none(cfield(ex, 1))) {
-            auto vm_p = get_some_value(cfield(ex, 1));
-            p = some(mk_pair(to_unsigned(cfield(vm_p, 0)), to_unsigned(cfield(vm_p, 1))));
+        if (!is_none(get_exception_pos(ex))) {
+            auto vm_p = get_some_value(get_exception_pos(ex));
+            p = some(to_pos_info(vm_p));
         }
-        return optional<exception_info>(to_format(fmt), p, to_state(cfield(ex, 2)));
+        return optional<exception_info>(to_format(fmt), p, to_state(get_exception_state(ex)));
     } else {
         return {};
     }

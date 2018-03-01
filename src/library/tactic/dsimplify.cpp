@@ -390,7 +390,7 @@ class tactic_dsimplify_fn : public dsimplify_core_fn {
             m_s = *new_s;
             m_ctx.set_mctx(m_s.mctx());
             m_defeq_canonizer.set_state(m_s.dcs());
-            vm_obj p   = cfield(r, 0);
+            vm_obj p   = tactic::get_result_value(r);
             m_a        = cfield(p, 0);
             vm_obj p1  = cfield(p, 1);
             expr new_e = to_expr(cfield(p1, 0));

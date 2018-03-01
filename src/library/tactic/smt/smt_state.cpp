@@ -141,12 +141,8 @@ vm_obj to_obj(smt_goal const & s) {
     return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_smt_goal))) vm_smt_goal(s));
 }
 
-vm_obj tactic_result_to_smt_tactic_result(vm_obj const & r, vm_obj const & ss) {
-    return tactic::mk_result(mk_vm_pair(tactic::get_result_value(r), ss), tactic::get_result_state(r));
-}
-
 vm_obj mk_smt_tactic_success(vm_obj const & a, vm_obj const & ss, vm_obj const & ts) {
-    return mk_vm_constructor(0, mk_vm_pair(a, ss), ts);
+    return tactic::mk_result(mk_vm_pair(a, ss), ts);
 }
 
 vm_obj mk_smt_tactic_success(vm_obj const & ss, vm_obj const & ts) {
@@ -155,6 +151,10 @@ vm_obj mk_smt_tactic_success(vm_obj const & ss, vm_obj const & ts) {
 
 vm_obj mk_smt_tactic_success(vm_obj const & ss, tactic_state const & ts) {
     return mk_smt_tactic_success(ss, to_obj(ts));
+}
+
+vm_obj tactic_success_to_smt_tactic_success(vm_obj const & r, vm_obj const & ss) {
+    return mk_smt_tactic_success(tactic::get_result_value(r), ss, tactic::get_result_state(r));
 }
 
 /* Remove auxiliary definitions introduced by the equation compiler.
@@ -518,7 +518,7 @@ vm_obj tactic_to_smt_tactic(vm_obj const &, vm_obj const & tac, vm_obj const & s
     }
     if (is_nil(ss)) {
         /* There is no SMT state associated with any goal. */
-        return tactic_result_to_smt_tactic_result(r1, ss);
+        return tactic_success_to_smt_tactic_success(r1, ss);
     }
     /* We only handle the common cases:
        1) goals is of the form (a_1, a_2, ..., a_m)
@@ -538,17 +538,17 @@ vm_obj tactic_to_smt_tactic(vm_obj const &, vm_obj const & tac, vm_obj const & s
     vm_obj new_ts = tactic::get_result_state(r1);
     if (is_eqp(tactic::to_state(ts), tactic::to_state(new_ts))) {
         /* The tactic_state was not modified */
-        return tactic_result_to_smt_tactic_result(r1, ss);
+        return tactic_success_to_smt_tactic_success(r1, ss);
     }
     list<expr> goals          = tactic::to_state(ts).goals();
     list<expr> new_goals      = tactic::to_state(new_ts).goals();
     if (goals == new_goals) {
         /* Set of goals did not change. */
-        return tactic_result_to_smt_tactic_result(r1, ss);
+        return tactic_success_to_smt_tactic_success(r1, ss);
     }
     if (!new_goals) {
         /* There are no new goals */
-        return tactic_result_to_smt_tactic_result(r1, mk_vm_nil());
+        return tactic_success_to_smt_tactic_success(r1, mk_vm_nil());
     }
     if (!goals) {
         return tactic::mk_exception("failed to lift tactic to smt_tactic, there were no goals to be solved", tactic::to_state(ts));
@@ -557,12 +557,12 @@ vm_obj tactic_to_smt_tactic(vm_obj const &, vm_obj const & tac, vm_obj const & s
         /* Main goal was solved */
         /* remove one SMT goal */
         vm_obj new_ss = tail(ss);
-        return tactic_result_to_smt_tactic_result(r1, new_ss);
+        return tactic_success_to_smt_tactic_success(r1, new_ss);
     }
     metavar_context const & mctx = tactic::to_state(new_ts).mctx();
     if (tail(new_goals) == tail(goals) && same_hyps(mctx, head(new_goals), head(goals))) {
         /* The set of hypotheses in the main goal did not change */
-        return tactic_result_to_smt_tactic_result(r1, ss);
+        return tactic_success_to_smt_tactic_success(r1, ss);
     }
     vm_obj new_ss = ss;
     while (true) {
@@ -571,7 +571,7 @@ vm_obj tactic_to_smt_tactic(vm_obj const &, vm_obj const & tac, vm_obj const & s
                                        tactic::to_state(ts));
         }
         if (tail(new_goals) == tail(goals)) {
-            return tactic_result_to_smt_tactic_result(r1, new_ss);
+            return tactic_success_to_smt_tactic_success(r1, new_ss);
         }
         /* copy smt state */
         new_ss = mk_vm_cons(head(new_ss), new_ss);

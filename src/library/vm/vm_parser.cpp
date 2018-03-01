@@ -46,7 +46,7 @@ typedef interaction_monad<lean_parser_state> lean_parser;
 vm_obj run_parser(parser & p, expr const & spec, buffer<vm_obj> const & args) {
     type_context ctx(p.env(), p.get_options());
     auto r = lean_parser::evaluator(ctx, p.get_options())(spec, args, lean_parser_state {&p});
-    return lean_parser::get_result_value(r);
+    return lean_parser::get_success_value(r);
 }
 
 expr parse_interactive_param(parser & p, expr const & param_ty) {
@@ -251,7 +251,7 @@ vm_obj vm_parser_with_input(vm_obj const &, vm_obj const & vm_p, vm_obj const & 
     if (lean_parser::is_result_exception(vm_state)) {
         return vm_state;
     }
-    auto vm_res = lean_parser::get_result_value(vm_state);
+    auto vm_res = lean_parser::get_success_value(vm_state);
 
     // figure out remaining string from end position
     pos_info pos2 = {1, 0};
@@ -268,7 +268,7 @@ vm_obj vm_parser_with_input(vm_obj const &, vm_obj const & vm_p, vm_obj const & 
     }
 
     vm_res = mk_vm_pair(vm_res, to_obj(input.substr(spos)));
-    return lean_parser::mk_result(vm_res, lean_parser::get_result_state(vm_state));
+    return lean_parser::mk_success(vm_res, lean_parser::get_success_state(vm_state));
 }
 static vm_obj vm_parser_command_like(vm_obj const & vm_s) {
     auto s = lean_parser::to_state(vm_s);
@@ -321,8 +321,8 @@ static vm_obj vm_parser_of_tactic(vm_obj const &, vm_obj const & tac, vm_obj con
     try {
         vm_obj r = invoke(tac, to_obj(ts));
         if (tactic::is_result_success(r)) {
-            vm_obj a = tactic::get_result_value(r);
-            tactic_state new_ts = tactic::to_state(tactic::get_result_state(r));
+            vm_obj a = tactic::get_success_value(r);
+            tactic_state new_ts = tactic::to_state(tactic::get_success_state(r));
             s.m_p->set_env(new_ts.env());
             return lean_parser::mk_success(a, s);
         } else {

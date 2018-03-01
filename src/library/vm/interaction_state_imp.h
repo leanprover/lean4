@@ -80,7 +80,7 @@ bool interaction_monad<State>::is_silent_exception(vm_obj const & ex) {
 }
 
 template<typename State>
-vm_obj interaction_monad<State>::mk_result(vm_obj const & a, vm_obj const & s) {
+vm_obj interaction_monad<State>::mk_success(vm_obj const & a, vm_obj const & s) {
     lean_assert(is_state(s));
     return mk_vm_constructor(0, a, s);
 }
@@ -114,13 +114,13 @@ bool interaction_monad<State>::is_result_success(vm_obj const & r) {
 }
 
 template<typename State>
-vm_obj interaction_monad<State>::get_result_value(vm_obj const & r) {
+vm_obj interaction_monad<State>::get_success_value(vm_obj const & r) {
     lean_assert(is_result_success(r));
     return cfield(r, 0);
 }
 
 template<typename State>
-vm_obj interaction_monad<State>::get_result_state(vm_obj const & r) {
+vm_obj interaction_monad<State>::get_success_state(vm_obj const & r) {
     lean_assert(is_result_success(r));
     return cfield(r, 1);
 }
@@ -132,7 +132,7 @@ vm_obj interaction_monad<State>::mk_success(vm_obj const & a, State const & s) {
 
 template<typename State>
 vm_obj interaction_monad<State>::mk_success(State const & s) {
-    return mk_result(mk_vm_unit(), s);
+    return mk_success(mk_vm_unit(), s);
 }
 
 template<typename State>
@@ -205,7 +205,7 @@ void interaction_monad<State>::report_exception(vm_state & S, vm_obj const & r) 
 template<typename State>
 auto interaction_monad<State>::is_success(vm_obj const & r) -> optional<State> {
     if (is_result_success(r))
-        return some(to_state(get_result_state(r)));
+        return some(to_state(get_success_state(r)));
     return {};
 }
 

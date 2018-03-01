@@ -37,14 +37,14 @@ struct interaction_monad {
     static State const & to_state(vm_obj const & o);
     static vm_obj to_obj(State const & s);
     static bool is_silent_exception(vm_obj const & ex);
-    static vm_obj mk_result(vm_obj const & a, vm_obj const & s);
     static bool is_result_exception(vm_obj const & r);
     static vm_obj get_exception_message(vm_obj const & r);
     static vm_obj get_exception_pos(vm_obj const & r);
     static vm_obj get_exception_state(vm_obj const & r);
     static bool is_result_success(vm_obj const & r);
-    static vm_obj get_result_value(vm_obj const & r);
-    static vm_obj get_result_state(vm_obj const & r);
+    static vm_obj get_success_value(vm_obj const & r);
+    static vm_obj get_success_state(vm_obj const & r);
+    static vm_obj mk_success(vm_obj const & a, vm_obj const & s);
     static vm_obj mk_success(vm_obj const & a, State const & s);
     static vm_obj mk_success(State const & s);
     static vm_obj mk_exception(vm_obj const & fn, State const & s);

@@ -40,7 +40,7 @@ void interactive_report_type(environment const & env, options const & opts, expr
             vm_obj r = vm.invoke(get_interactive_param_desc_name(), {to_obj(s), to_obj(binding_domain(d))});
             format f;
             if (tactic::is_result_success(r))
-                f = to_format(tactic::get_result_value(r));
+                f = to_format(tactic::get_success_value(r));
             else
                 f = format("<error while executing ") + format(get_interactive_param_desc_name()) + format(": ") +
                     std::get<0>(*tactic::is_exception(vm, r)) + format(">");
@@ -248,7 +248,7 @@ bool execute_hole_command(tactic_state s, name const & cmd_decl_name, expr const
         if (!msg.empty())
             j["message"] = msgs.get_string();
         std::vector<json> as;
-        vm_obj l     = tactic::get_result_value(r);
+        vm_obj l     = tactic::get_success_value(r);
         while (cidx(l) != 0) {
             lean_assert(cidx(l) == 1);
             vm_obj p = cfield(l, 0);

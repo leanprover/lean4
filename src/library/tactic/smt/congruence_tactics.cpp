@@ -186,21 +186,21 @@ vm_obj cc_state_internalize(vm_obj const & ccs, vm_obj const & e, vm_obj const &
 vm_obj cc_state_is_eqv(vm_obj const & ccs, vm_obj const & e1, vm_obj const & e2, vm_obj const & _s) {
     cc_state_proc({
             bool r = cc.is_eqv(to_expr(e1), to_expr(e2));
-            return tactic::mk_result(mk_vm_bool(r), s);
+            return tactic::mk_success(mk_vm_bool(r), s);
         });
 }
 
 vm_obj cc_state_is_not_eqv(vm_obj const & ccs, vm_obj const & e1, vm_obj const & e2, vm_obj const & _s) {
     cc_state_proc({
             bool r = cc.is_not_eqv(to_expr(e1), to_expr(e2));
-            return tactic::mk_result(mk_vm_bool(r), s);
+            return tactic::mk_success(mk_vm_bool(r), s);
         });
 }
 
 vm_obj cc_state_eqv_proof(vm_obj const & ccs, vm_obj const & e1, vm_obj const & e2, vm_obj const & _s) {
     cc_state_proc({
             if (optional<expr> r = cc.get_proof(to_expr(e1), to_expr(e2))) {
-                return tactic::mk_result(to_obj(*r), s);
+                return tactic::mk_success(to_obj(*r), s);
             } else {
                 return tactic::mk_exception("cc_state.eqv_proof failed to build proof", s);
             }
@@ -210,7 +210,7 @@ vm_obj cc_state_eqv_proof(vm_obj const & ccs, vm_obj const & e1, vm_obj const & 
 vm_obj cc_state_proof_for(vm_obj const & ccs, vm_obj const & e, vm_obj const & _s) {
     cc_state_proc({
             if (optional<expr> r = cc.get_eq_proof(to_expr(e), mk_true())) {
-                return tactic::mk_result(to_obj(mk_of_eq_true(cc.ctx(), *r)), s);
+                return tactic::mk_success(to_obj(mk_of_eq_true(cc.ctx(), *r)), s);
             } else {
                 return tactic::mk_exception("cc_state.get_proof_for failed to build proof", s);
             }
@@ -220,7 +220,7 @@ vm_obj cc_state_proof_for(vm_obj const & ccs, vm_obj const & e, vm_obj const & _
 vm_obj cc_state_refutation_for(vm_obj const & ccs, vm_obj const & e, vm_obj const & _s) {
     cc_state_proc({
             if (optional<expr> r = cc.get_eq_proof(to_expr(e), mk_false())) {
-                return tactic::mk_result(to_obj(mk_not_of_eq_false(cc.ctx(), *r)), s);
+                return tactic::mk_success(to_obj(mk_not_of_eq_false(cc.ctx(), *r)), s);
             } else {
                 return tactic::mk_exception("cc_state.get_refutation_for failed to build proof", s);
             }
@@ -230,7 +230,7 @@ vm_obj cc_state_refutation_for(vm_obj const & ccs, vm_obj const & e, vm_obj cons
 vm_obj cc_state_proof_for_false(vm_obj const & ccs, vm_obj const & _s) {
     cc_state_proc({
             if (auto pr = cc.get_inconsistency_proof()) {
-                return tactic::mk_result(to_obj(*pr), s);
+                return tactic::mk_success(to_obj(*pr), s);
             } else {
                 return tactic::mk_exception("cc_state.false_proof failed, state is not inconsistent", s);
             }

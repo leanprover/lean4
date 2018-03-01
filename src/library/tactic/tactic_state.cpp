@@ -885,8 +885,8 @@ vm_obj tactic_using_new_ref(vm_obj const &, vm_obj const &, vm_obj const & a, vm
         s = set_user_state(s, us);
         vm_obj r = invoke(t, mk_vm_simple(ref), to_obj(s));
         if (tactic::is_result_success(r)) {
-            vm_obj b = tactic::get_result_value(r);
-            s        = tactic::to_state(tactic::get_result_state(r));
+            vm_obj b = tactic::get_success_value(r);
+            s        = tactic::to_state(tactic::get_success_state(r));
             us       = s.us();
             us.dealloc(ref);
             s        = set_user_state(s, us);

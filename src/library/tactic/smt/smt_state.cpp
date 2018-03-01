@@ -142,7 +142,7 @@ vm_obj to_obj(smt_goal const & s) {
 }
 
 vm_obj mk_smt_tactic_success(vm_obj const & a, vm_obj const & ss, vm_obj const & ts) {
-    return tactic::mk_result(mk_vm_pair(a, ss), ts);
+    return tactic::mk_success(mk_vm_pair(a, ss), ts);
 }
 
 vm_obj mk_smt_tactic_success(vm_obj const & ss, vm_obj const & ts) {
@@ -154,7 +154,7 @@ vm_obj mk_smt_tactic_success(vm_obj const & ss, tactic_state const & ts) {
 }
 
 vm_obj tactic_success_to_smt_tactic_success(vm_obj const & r, vm_obj const & ss) {
-    return mk_smt_tactic_success(tactic::get_result_value(r), ss, tactic::get_result_state(r));
+    return mk_smt_tactic_success(tactic::get_success_value(r), ss, tactic::get_success_state(r));
 }
 
 /* Remove auxiliary definitions introduced by the equation compiler.
@@ -425,7 +425,7 @@ vm_obj mk_smt_state(tactic_state s, smt_config const & cfg) {
 
     vm_obj r = preprocess(s, cfg.m_pre_config);
     if (tactic::is_result_exception(r)) return r;
-    s = tactic::to_state(tactic::get_result_state(r));
+    s = tactic::to_state(tactic::get_success_state(r));
 
     metavar_context mctx = s.mctx();
     bool use_unused_names = true;
@@ -447,7 +447,7 @@ static hinst_lemmas get_hinst_lemmas(name const & attr_name, tactic_state const 
     vm_obj r      = user_attribute_get_cache(S, s, attr_name);
     if (tactic::is_result_exception(r))
         throw exception(sstream() << "failed to initialize smt_state, failed to retrieve attribute '" << attr_name << "'");
-    vm_obj lemmas = tactic::get_result_value(r);
+    vm_obj lemmas = tactic::get_success_value(r);
     if (!is_hinst_lemmas(lemmas))
         throw exception(sstream() << "failed to initialize smt_state, attribute '" << attr_name << "' is not a hinst_lemmas");
     return to_hinst_lemmas(lemmas);
@@ -458,7 +458,7 @@ static simp_lemmas get_simp_lemmas(name const & attr_name, tactic_state const & 
     vm_obj r      = user_attribute_get_cache(S, s, mk_simp_attr_decl_name(attr_name));
     if (tactic::is_result_exception(r))
         throw exception(sstream() << "failed to initialize smt_state, failed to retrieve attribute '" << attr_name << "'");
-    vm_obj lemmas = tactic::get_result_value(r);
+    vm_obj lemmas = tactic::get_success_value(r);
     if (!is_simp_lemmas(lemmas))
         throw exception(sstream() << "failed to initialize smt_state, attribute '" << attr_name << "' is not a simp_lemmas");
     return to_simp_lemmas(lemmas);
@@ -535,7 +535,7 @@ vm_obj tactic_to_smt_tactic(vm_obj const &, vm_obj const & tac, vm_obj const & s
           (s_1, ..., s_1, s_2, ..., s_k)
            n copies of s_1
     */
-    vm_obj new_ts = tactic::get_result_state(r1);
+    vm_obj new_ts = tactic::get_success_state(r1);
     if (is_eqp(tactic::to_state(ts), tactic::to_state(new_ts))) {
         /* The tactic_state was not modified */
         return tactic_success_to_smt_tactic_success(r1, ss);
@@ -777,7 +777,7 @@ vm_obj smt_tactic_intros_core(list<name> const & ids, optional<unsigned> const &
 
     vm_obj r = preprocess(ts, new_sgoal.get_pre_config());
     if (tactic::is_result_exception(r)) return r;
-    ts = tactic::to_state(tactic::get_result_state(r));
+    ts = tactic::to_state(tactic::get_success_state(r));
 
     metavar_context mctx = ts.mctx();
     defeq_can_state dcs  = ts.dcs();
@@ -813,7 +813,7 @@ vm_obj smt_tactic_intros_core(vm_obj const & _ids, vm_obj const & ss, vm_obj con
 
     vm_obj r = preprocess(ts, new_sgoal.get_pre_config());
     if (tactic::is_result_exception(r)) return r;
-    ts = tactic::to_state(tactic::get_result_state(r));
+    ts = tactic::to_state(tactic::get_success_state(r));
 
     metavar_context mctx = ts.mctx();
     defeq_can_state dcs  = ts.dcs();

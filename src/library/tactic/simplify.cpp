@@ -1140,7 +1140,7 @@ class vm_simplify_fn : public simplify_ext_core_fn {
             m_s = *new_s;
             m_ctx.set_mctx(m_s.mctx());
             m_defeq_canonizer.set_state(m_s.dcs());
-            vm_obj t = tactic::get_result_value(r);
+            vm_obj t = tactic::get_success_value(r);
             /* t : A × expr × option expr × bool */
             m_a        = cfield(t, 0);
             vm_obj t1  = cfield(t, 1);

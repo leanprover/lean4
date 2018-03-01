@@ -58,7 +58,7 @@ optional<vm_obj> eval_helper::try_exec_tac() {
         m_args.push_back(tactic::to_obj(tac_st));
         auto r = invoke_fn();
         if (tactic::is_result_success(r)) {
-            return optional<vm_obj>(tactic::get_result_value(r));
+            return optional<vm_obj>(tactic::get_success_value(r));
         } else if (auto ex = tactic::is_exception(m_vms, r)) {
             throw formatted_exception(std::get<1>(*ex), std::get<0>(*ex));
         } else {

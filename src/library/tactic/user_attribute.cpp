@@ -139,7 +139,7 @@ static environment add_user_attr(environment const & env, name const & d) {
             tactic_state s = mk_tactic_state_for(env, options(), {}, local_context(), mk_true());
             auto vm_r = vm.invoke(get_some_value(cfield(o, 2)), to_obj(n), mk_vm_nat(prio), mk_vm_bool(persistent), to_obj(s));
             tactic::report_exception(vm, vm_r);
-            return tactic::to_state(tactic::get_result_state(vm_r)).env();
+            return tactic::to_state(tactic::get_success_state(vm_r)).env();
         };
     }
     before_unset_proc before_unset;
@@ -151,7 +151,7 @@ static environment add_user_attr(environment const & env, name const & d) {
             tactic_state s = mk_tactic_state_for(env, options(), {}, local_context(), mk_true());
             auto vm_r = vm.invoke(get_some_value(cfield(o, 3)), to_obj(n), mk_vm_bool(persistent), to_obj(s));
             tactic::report_exception(vm, vm_r);
-            return tactic::to_state(tactic::get_result_state(vm_r)).env();
+            return tactic::to_state(tactic::get_success_state(vm_r)).env();
         };
     }
 
@@ -291,14 +291,14 @@ vm_obj user_attribute_get_cache_core(vm_obj const &, vm_obj const &, vm_obj cons
             entry.m_dep_fingerprints = map2<unsigned>(deps, [&](name const & n) {
                     return get_attribute(env, n).get_fingerprint(env);
                 });
-            entry.m_val = tactic::get_result_value(result);
+            entry.m_val = tactic::get_success_value(result);
             cache.m_cache.erase(attr.get_name());
             cache.m_cache.insert(mk_pair(attr.get_name(), entry));
             return tactic::mk_success(entry.m_val, s);
         } else {
             lean_trace("user_attributes_cache", tout() << "did not cache result for [" << attr.get_name() << "] "
                        "because VM environment has been updated with temporary declarations\n";);
-            return tactic::mk_success(tactic::get_result_value(result), s);
+            return tactic::mk_success(tactic::get_success_value(result), s);
         }
     } else {
         return result;

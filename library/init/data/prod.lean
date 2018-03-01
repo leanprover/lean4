@@ -9,6 +9,10 @@ universes u v
 
 section
 variables {α : Type u} {β : Type v}
+
+@[simp] lemma prod.mk.eta : ∀{p : α × β}, (p.1, p.2) = p
+| (a, b) := rfl
+
 instance [inhabited α] [inhabited β] : inhabited (prod α β) :=
 ⟨(default α, default β)⟩
 

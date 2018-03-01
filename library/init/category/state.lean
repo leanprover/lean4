@@ -20,7 +20,7 @@ section
   variable  [monad m]
   variables {α β : Type u}
 
-  protected def run (st : σ) (x : state_t σ m α) : m (α × σ) :=
+  @[inline] protected def run (st : σ) (x : state_t σ m α) : m (α × σ) :=
   state_t.run' x st
 
   protected def pure (a : α) : state_t σ m α :=
@@ -56,7 +56,7 @@ section
   protected def lift {α : Type u} (t : m α) : state_t σ m α :=
   ⟨λ s, do a ← t, return (a, s)⟩
 
-  instance has_monad_lift_lift (m) [monad m] : has_monad_lift m (state_t σ m) :=
+  instance (m) [monad m] : has_monad_lift m (state_t σ m) :=
   ⟨@state_t.lift σ m _⟩
 
   protected def map {σ m m'} [monad m] [monad m'] {α} (f : Π {α}, m α → m' α) : state_t σ m α → state_t σ m' α :=
@@ -89,6 +89,9 @@ variables {σ : Type u} {m : Type u → Type v} {n : Type u → Type w} [monad m
 
 @[inline] def get : n σ :=
 @monad_lift _ _ _ _ (state_t.get : state_t σ m _)
+
+@[inline] def get_type (σ : Type u) [has_monad_lift_t (state_t σ m) n] : n σ :=
+get
 
 @[inline] def put (st : σ) : n punit :=
 monad_lift (state_t.put st : state_t σ m _)

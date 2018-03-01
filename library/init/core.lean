@@ -557,3 +557,6 @@ attribute [elab_simple] bin_tree.node bin_tree.leaf
 @[unify] def add_succ_defeq_succ_add_hint (x y z : nat) : unification_hint :=
 { pattern     := x + nat.succ y ≟ nat.succ z,
   constraints := [z ≟ x + y] }
+
+/-- Like `by apply_instance`, but not dependent on the tactic framework. -/
+@[reducible] def infer_instance {α : Type u} [i : α] : α := i

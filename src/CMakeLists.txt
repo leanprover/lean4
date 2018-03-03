@@ -484,7 +484,7 @@ endif ()
 add_custom_target(
     standard_lib ALL
     COMMAND "${LEAN_SOURCE_DIR}/../bin/lean" --make ${LEAN_EXTRA_MAKE_OPTS}
-    DEPENDS "${CMAKE_BINARY_DIR}/shell/lean"
+    DEPENDS bin_lean
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
     )
 

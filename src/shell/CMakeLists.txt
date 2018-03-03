@@ -14,10 +14,10 @@ if(${EMSCRIPTEN})
             "#!/bin/sh\nLEAN_PATH=${CMAKE_CURRENT_SOURCE_DIR}/../../library ${NODE_JS} ${CMAKE_CURRENT_BINARY_DIR}/lean.js \"$@\"\n")
     execute_process(COMMAND chmod +x ${CMAKE_CURRENT_BINARY_DIR}/lean_with_path)
 
-    ADD_CUSTOM_COMMAND(TARGET lean
-        POST_BUILD
+    ADD_CUSTOM_TARGET(bin_lean ALL
         COMMAND "${CMAKE_COMMAND}" -E make_directory "${LEAN_SOURCE_DIR}/../bin"
         COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_BINARY_DIR}/lean_with_path" "${LEAN_SOURCE_DIR}/../bin/lean"
+        DEPENDS lean
         )
 
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/lean
@@ -49,15 +49,15 @@ if(${EMSCRIPTEN})
     set_target_properties(lean_js_js PROPERTIES LINK_FLAGS "${LEAN_JS_OPTS}")
 else()
   if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    ADD_CUSTOM_COMMAND(TARGET lean
-      POST_BUILD
+    ADD_CUSTOM_TARGET(bin_lean ALL
       COMMAND "${CMAKE_COMMAND}" -E remove -f "${LEAN_SOURCE_DIR}/../bin/lean${CMAKE_EXECUTABLE_SUFFIX}"
       COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_BINARY_DIR}/lean${CMAKE_EXECUTABLE_SUFFIX}" "${LEAN_SOURCE_DIR}/../bin/"
+      DEPENDS lean
     )
   else()
-    ADD_CUSTOM_COMMAND(TARGET lean
-      POST_BUILD
+    ADD_CUSTOM_TARGET(bin_lean ALL
       COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_BINARY_DIR}/lean${CMAKE_EXECUTABLE_SUFFIX}" "${LEAN_SOURCE_DIR}/../bin/"
+      DEPENDS lean
     )
   endif()
 endif()

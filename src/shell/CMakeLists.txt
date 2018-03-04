@@ -48,15 +48,14 @@ if(${EMSCRIPTEN})
     set_target_properties(lean_js_wasm PROPERTIES LINK_FLAGS "-s WASM=1 ${LEAN_JS_OPTS} -s \"BINARYEN_METHOD='native-wasm'\"")
     set_target_properties(lean_js_js PROPERTIES LINK_FLAGS "${LEAN_JS_OPTS}")
 else()
-  if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  if (MSVC)
     ADD_CUSTOM_TARGET(bin_lean ALL
-      COMMAND "${CMAKE_COMMAND}" -E remove -f "${LEAN_SOURCE_DIR}/../bin/lean${CMAKE_EXECUTABLE_SUFFIX}"
-      COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_BINARY_DIR}/lean${CMAKE_EXECUTABLE_SUFFIX}" "${LEAN_SOURCE_DIR}/../bin/"
+      COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean>" "$<TARGET_FILE_DIR:lean>/mpir.dll" "${LEAN_SOURCE_DIR}/../bin/"
       DEPENDS lean
     )
   else()
     ADD_CUSTOM_TARGET(bin_lean ALL
-      COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_BINARY_DIR}/lean${CMAKE_EXECUTABLE_SUFFIX}" "${LEAN_SOURCE_DIR}/../bin/"
+      COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean>" "${LEAN_SOURCE_DIR}/../bin/"
       DEPENDS lean
     )
   endif()

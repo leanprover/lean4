@@ -213,48 +213,48 @@ public:
 
     /* Cache support for fun_info module */
 
-    virtual optional<fun_info> get_fun_info(type_context_old &, expr const &) = 0;
-    virtual void set_fun_info(type_context_old &, expr const &, fun_info const &) = 0;
+    virtual optional<fun_info> get_fun_info(expr const &) = 0;
+    virtual void set_fun_info(expr const &, fun_info const &) = 0;
 
-    virtual optional<fun_info> get_fun_info_nargs(type_context_old &, expr const &, unsigned) = 0;
-    virtual void set_fun_info_nargs(type_context_old &, expr const &, unsigned, fun_info const &) = 0;
+    virtual optional<fun_info> get_fun_info_nargs(expr const &, unsigned) = 0;
+    virtual void set_fun_info_nargs(expr const &, unsigned, fun_info const &) = 0;
 
-    virtual optional<unsigned> get_specialization_prefix_size(type_context_old &, expr const &, unsigned) = 0;
-    virtual void set_specialization_prefix_size(type_context_old &, expr const &, unsigned, unsigned) = 0;
+    virtual optional<unsigned> get_specialization_prefix_size(expr const &, unsigned) = 0;
+    virtual void set_specialization_prefix_size(expr const &, unsigned, unsigned) = 0;
 
-    virtual optional<ss_param_infos> get_subsingleton_info(type_context_old &, expr const &) = 0;
-    virtual void set_subsingleton_info(type_context_old &, expr const &, ss_param_infos const &) = 0;
+    virtual optional<ss_param_infos> get_subsingleton_info(expr const &) = 0;
+    virtual void set_subsingleton_info(expr const &, ss_param_infos const &) = 0;
 
-    virtual optional<ss_param_infos> get_subsingleton_info_nargs(type_context_old &, expr const &, unsigned) = 0;
-    virtual void set_subsingleton_info_nargs(type_context_old &, expr const &, unsigned, ss_param_infos const &) = 0;
+    virtual optional<ss_param_infos> get_subsingleton_info_nargs(expr const &, unsigned) = 0;
+    virtual void set_subsingleton_info_nargs(expr const &, unsigned, ss_param_infos const &) = 0;
 
-    virtual optional<ss_param_infos> get_specialized_subsingleton_info_nargs(type_context_old &, expr const &, unsigned) = 0;
-    virtual void set_specialization_subsingleton_info_nargs(type_context_old &, expr const &, unsigned, ss_param_infos const &) = 0;
+    virtual optional<ss_param_infos> get_specialized_subsingleton_info_nargs(expr const &, unsigned) = 0;
+    virtual void set_specialization_subsingleton_info_nargs(expr const &, unsigned, ss_param_infos const &) = 0;
 
     /* Cache support for congr_lemma module */
 
-    virtual optional<congr_lemma> get_simp_congr_lemma(type_context_old &, expr const &, unsigned) = 0;
-    virtual void set_simp_congr_lemma(type_context_old &, expr const &, unsigned, congr_lemma const &) = 0;
+    virtual optional<congr_lemma> get_simp_congr_lemma(expr const &, unsigned) = 0;
+    virtual void set_simp_congr_lemma(expr const &, unsigned, congr_lemma const &) = 0;
 
-    virtual optional<congr_lemma> get_specialized_simp_congr_lemma(type_context_old &, expr const &, unsigned) = 0;
-    virtual void set_specialized_simp_congr_lemma(type_context_old &, expr const &, unsigned, congr_lemma const &) = 0;
+    virtual optional<congr_lemma> get_specialized_simp_congr_lemma(expr const &, unsigned) = 0;
+    virtual void set_specialized_simp_congr_lemma(expr const &, unsigned, congr_lemma const &) = 0;
 
-    virtual optional<congr_lemma> get_congr_lemma(type_context_old &, expr const &, unsigned) = 0;
-    virtual void set_congr_lemma(type_context_old &, expr const &, unsigned, congr_lemma const &) = 0;
+    virtual optional<congr_lemma> get_congr_lemma(expr const &, unsigned) = 0;
+    virtual void set_congr_lemma(expr const &, unsigned, congr_lemma const &) = 0;
 
-    virtual optional<congr_lemma> get_specialized_congr_lemma(type_context_old &, expr const &, unsigned) = 0;
-    virtual void set_specialized_congr_lemma(type_context_old &, expr const &, unsigned, congr_lemma const &) = 0;
+    virtual optional<congr_lemma> get_specialized_congr_lemma(expr const &, unsigned) = 0;
+    virtual void set_specialized_congr_lemma(expr const &, unsigned, congr_lemma const &) = 0;
 
-    virtual optional<congr_lemma> get_hcongr_lemma(type_context_old &, expr const &, unsigned) = 0;
-    virtual void set_hcongr_lemma(type_context_old &, expr const &, unsigned, congr_lemma const &) = 0;
+    virtual optional<congr_lemma> get_hcongr_lemma(expr const &, unsigned) = 0;
+    virtual void set_hcongr_lemma(expr const &, unsigned, congr_lemma const &) = 0;
 
     /* Cache support for app_builder */
 
-    virtual optional<app_builder_info> get_app_builder_info(type_context_old &, expr const &, unsigned) = 0;
-    virtual void set_app_builder_info(type_context_old &, expr const &, unsigned, app_builder_info const &) = 0;
+    virtual optional<app_builder_info> get_app_builder_info(expr const &, unsigned) = 0;
+    virtual void set_app_builder_info(expr const &, unsigned, app_builder_info const &) = 0;
 
-    virtual optional<app_builder_info> get_app_builder_info(type_context_old &, expr const &, list<bool> const &) = 0;
-    virtual void set_app_builder_info(type_context_old &, expr const &, list<bool> const &, app_builder_info const &) = 0;
+    virtual optional<app_builder_info> get_app_builder_info(expr const &, list<bool> const &) = 0;
+    virtual void set_app_builder_info(expr const &, list<bool> const &, app_builder_info const &) = 0;
 };
 
 /* Dummy implementation of the abstract_context_cache interface that does not do cache anything but configuration options. */
@@ -324,48 +324,48 @@ public:
 
     /* Cache support for fun_info module */
 
-    virtual optional<fun_info> get_fun_info(type_context_old &, expr const &) override { return optional<fun_info>(); }
-    virtual void set_fun_info(type_context_old &, expr const &, fun_info const &) override {}
+    virtual optional<fun_info> get_fun_info(expr const &) override { return optional<fun_info>(); }
+    virtual void set_fun_info(expr const &, fun_info const &) override {}
 
-    virtual optional<fun_info> get_fun_info_nargs(type_context_old &, expr const &, unsigned) override { return optional<fun_info>(); }
-    virtual void set_fun_info_nargs(type_context_old &, expr const &, unsigned, fun_info const &) override {}
+    virtual optional<fun_info> get_fun_info_nargs(expr const &, unsigned) override { return optional<fun_info>(); }
+    virtual void set_fun_info_nargs(expr const &, unsigned, fun_info const &) override {}
 
-    virtual optional<unsigned> get_specialization_prefix_size(type_context_old &, expr const &, unsigned) override { return optional<unsigned>(); }
-    virtual void set_specialization_prefix_size(type_context_old &, expr const &, unsigned, unsigned) override {}
+    virtual optional<unsigned> get_specialization_prefix_size(expr const &, unsigned) override { return optional<unsigned>(); }
+    virtual void set_specialization_prefix_size(expr const &, unsigned, unsigned) override {}
 
-    virtual optional<ss_param_infos> get_subsingleton_info(type_context_old &, expr const &) override { return optional<ss_param_infos>(); }
-    virtual void set_subsingleton_info(type_context_old &, expr const &, ss_param_infos const &) override {}
+    virtual optional<ss_param_infos> get_subsingleton_info(expr const &) override { return optional<ss_param_infos>(); }
+    virtual void set_subsingleton_info(expr const &, ss_param_infos const &) override {}
 
-    virtual optional<ss_param_infos> get_subsingleton_info_nargs(type_context_old &, expr const &, unsigned) override { return optional<ss_param_infos>(); }
-    virtual void set_subsingleton_info_nargs(type_context_old &, expr const &, unsigned, ss_param_infos const &) override {}
+    virtual optional<ss_param_infos> get_subsingleton_info_nargs(expr const &, unsigned) override { return optional<ss_param_infos>(); }
+    virtual void set_subsingleton_info_nargs(expr const &, unsigned, ss_param_infos const &) override {}
 
-    virtual optional<ss_param_infos> get_specialized_subsingleton_info_nargs(type_context_old &, expr const &, unsigned) override { return optional<ss_param_infos>(); }
-    virtual void set_specialization_subsingleton_info_nargs(type_context_old &, expr const &, unsigned, ss_param_infos const &) override {}
+    virtual optional<ss_param_infos> get_specialized_subsingleton_info_nargs(expr const &, unsigned) override { return optional<ss_param_infos>(); }
+    virtual void set_specialization_subsingleton_info_nargs(expr const &, unsigned, ss_param_infos const &) override {}
 
     /* Cache support for congr_lemma module */
 
-    virtual optional<congr_lemma> get_simp_congr_lemma(type_context_old &, expr const &, unsigned) override { return optional<congr_lemma>(); }
-    virtual void set_simp_congr_lemma(type_context_old &, expr const &, unsigned, congr_lemma const &) override {}
+    virtual optional<congr_lemma> get_simp_congr_lemma(expr const &, unsigned) override { return optional<congr_lemma>(); }
+    virtual void set_simp_congr_lemma(expr const &, unsigned, congr_lemma const &) override {}
 
-    virtual optional<congr_lemma> get_specialized_simp_congr_lemma(type_context_old &, expr const &, unsigned) override { return optional<congr_lemma>(); }
-    virtual void set_specialized_simp_congr_lemma(type_context_old &, expr const &, unsigned, congr_lemma const &) override {}
+    virtual optional<congr_lemma> get_specialized_simp_congr_lemma(expr const &, unsigned) override { return optional<congr_lemma>(); }
+    virtual void set_specialized_simp_congr_lemma(expr const &, unsigned, congr_lemma const &) override {}
 
-    virtual optional<congr_lemma> get_congr_lemma(type_context_old &, expr const &, unsigned) override { return optional<congr_lemma>(); }
-    virtual void set_congr_lemma(type_context_old &, expr const &, unsigned, congr_lemma const &) override {}
+    virtual optional<congr_lemma> get_congr_lemma(expr const &, unsigned) override { return optional<congr_lemma>(); }
+    virtual void set_congr_lemma(expr const &, unsigned, congr_lemma const &) override {}
 
-    virtual optional<congr_lemma> get_specialized_congr_lemma(type_context_old &, expr const &, unsigned) override { return optional<congr_lemma>(); }
-    virtual void set_specialized_congr_lemma(type_context_old &, expr const &, unsigned, congr_lemma const &) override {}
+    virtual optional<congr_lemma> get_specialized_congr_lemma(expr const &, unsigned) override { return optional<congr_lemma>(); }
+    virtual void set_specialized_congr_lemma(expr const &, unsigned, congr_lemma const &) override {}
 
-    virtual optional<congr_lemma> get_hcongr_lemma(type_context_old &, expr const &, unsigned) override { return optional<congr_lemma>(); }
-    virtual void set_hcongr_lemma(type_context_old &, expr const &, unsigned, congr_lemma const &) override {}
+    virtual optional<congr_lemma> get_hcongr_lemma(expr const &, unsigned) override { return optional<congr_lemma>(); }
+    virtual void set_hcongr_lemma(expr const &, unsigned, congr_lemma const &) override {}
 
     /* Cache support for app_builder */
 
-    virtual optional<app_builder_info> get_app_builder_info(type_context_old &, expr const &, unsigned) override { return optional<app_builder_info>(); }
-    virtual void set_app_builder_info(type_context_old &, expr const &, unsigned, app_builder_info const &) override {}
+    virtual optional<app_builder_info> get_app_builder_info(expr const &, unsigned) override { return optional<app_builder_info>(); }
+    virtual void set_app_builder_info(expr const &, unsigned, app_builder_info const &) override {}
 
-    virtual optional<app_builder_info> get_app_builder_info(type_context_old &, expr const &, list<bool> const &) override { return optional<app_builder_info>(); }
-    virtual void set_app_builder_info(type_context_old &, expr const &, list<bool> const &, app_builder_info const &) override {}
+    virtual optional<app_builder_info> get_app_builder_info(expr const &, list<bool> const &) override { return optional<app_builder_info>(); }
+    virtual void set_app_builder_info(expr const &, list<bool> const &, app_builder_info const &) override {}
 };
 
 void initialize_abstract_context_cache();

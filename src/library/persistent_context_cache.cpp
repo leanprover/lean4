@@ -131,109 +131,109 @@ optional<local_instances> persistent_context_cache::get_frozen_local_instances()
     return m_cache_ptr->get_frozen_local_instances();
 }
 
-optional<fun_info> persistent_context_cache::get_fun_info(type_context_old & ctx, expr const & e) {
-    return m_cache_ptr->get_fun_info(ctx, e);
+optional<fun_info> persistent_context_cache::get_fun_info(expr const & e) {
+    return m_cache_ptr->get_fun_info(e);
 }
 
-void persistent_context_cache::set_fun_info(type_context_old & ctx, expr const & e, fun_info const & r) {
-    return m_cache_ptr->set_fun_info(ctx, e, r);
+void persistent_context_cache::set_fun_info(expr const & e, fun_info const & r) {
+    return m_cache_ptr->set_fun_info(e, r);
 }
 
-optional<fun_info> persistent_context_cache::get_fun_info_nargs(type_context_old & ctx, expr const & e, unsigned k) {
-    return m_cache_ptr->get_fun_info_nargs(ctx, e, k);
+optional<fun_info> persistent_context_cache::get_fun_info_nargs(expr const & e, unsigned k) {
+    return m_cache_ptr->get_fun_info_nargs(e, k);
 }
 
-void persistent_context_cache::set_fun_info_nargs(type_context_old & ctx, expr const & e, unsigned k, fun_info const & r) {
-    return m_cache_ptr->set_fun_info_nargs(ctx, e, k, r);
+void persistent_context_cache::set_fun_info_nargs(expr const & e, unsigned k, fun_info const & r) {
+    return m_cache_ptr->set_fun_info_nargs(e, k, r);
 }
 
-optional<unsigned> persistent_context_cache::get_specialization_prefix_size(type_context_old & ctx, expr const & e, unsigned k) {
-    return m_cache_ptr->get_specialization_prefix_size(ctx, e, k);
+optional<unsigned> persistent_context_cache::get_specialization_prefix_size(expr const & e, unsigned k) {
+    return m_cache_ptr->get_specialization_prefix_size(e, k);
 }
 
-void persistent_context_cache::set_specialization_prefix_size(type_context_old & ctx, expr const & e, unsigned k, unsigned r) {
-    return m_cache_ptr->set_specialization_prefix_size(ctx, e, k, r);
+void persistent_context_cache::set_specialization_prefix_size(expr const & e, unsigned k, unsigned r) {
+    return m_cache_ptr->set_specialization_prefix_size(e, k, r);
 }
 
-optional<ss_param_infos> persistent_context_cache::get_subsingleton_info(type_context_old & ctx, expr const & e) {
-    return m_cache_ptr->get_subsingleton_info(ctx, e);
+optional<ss_param_infos> persistent_context_cache::get_subsingleton_info(expr const & e) {
+    return m_cache_ptr->get_subsingleton_info(e);
 }
 
-void persistent_context_cache::set_subsingleton_info(type_context_old & ctx, expr const & e, ss_param_infos const & r) {
-    return m_cache_ptr->set_subsingleton_info(ctx, e, r);
+void persistent_context_cache::set_subsingleton_info(expr const & e, ss_param_infos const & r) {
+    return m_cache_ptr->set_subsingleton_info(e, r);
 }
 
-optional<ss_param_infos> persistent_context_cache::get_subsingleton_info_nargs(type_context_old & ctx, expr const & e, unsigned k) {
-    return m_cache_ptr->get_subsingleton_info_nargs(ctx, e, k);
+optional<ss_param_infos> persistent_context_cache::get_subsingleton_info_nargs(expr const & e, unsigned k) {
+    return m_cache_ptr->get_subsingleton_info_nargs(e, k);
 }
 
-void persistent_context_cache::set_subsingleton_info_nargs(type_context_old & ctx, expr const & e, unsigned k, ss_param_infos const & r) {
-    return m_cache_ptr->set_subsingleton_info_nargs(ctx, e, k, r);
+void persistent_context_cache::set_subsingleton_info_nargs(expr const & e, unsigned k, ss_param_infos const & r) {
+    return m_cache_ptr->set_subsingleton_info_nargs(e, k, r);
 }
 
-optional<ss_param_infos> persistent_context_cache::get_specialized_subsingleton_info_nargs(type_context_old & ctx, expr const & e, unsigned k) {
-    return m_cache_ptr->get_specialized_subsingleton_info_nargs(ctx, e, k);
+optional<ss_param_infos> persistent_context_cache::get_specialized_subsingleton_info_nargs(expr const & e, unsigned k) {
+    return m_cache_ptr->get_specialized_subsingleton_info_nargs(e, k);
 }
 
-void persistent_context_cache::set_specialization_subsingleton_info_nargs(type_context_old & ctx, expr const & e, unsigned k, ss_param_infos const & r) {
-    return m_cache_ptr->set_specialization_subsingleton_info_nargs(ctx, e, k, r);
+void persistent_context_cache::set_specialization_subsingleton_info_nargs(expr const & e, unsigned k, ss_param_infos const & r) {
+    return m_cache_ptr->set_specialization_subsingleton_info_nargs(e, k, r);
 }
 
-optional<congr_lemma> persistent_context_cache::get_simp_congr_lemma(type_context_old & ctx, expr const & e, unsigned k) {
-    return m_cache_ptr->get_simp_congr_lemma(ctx, e, k);
+optional<congr_lemma> persistent_context_cache::get_simp_congr_lemma(expr const & e, unsigned k) {
+    return m_cache_ptr->get_simp_congr_lemma(e, k);
 }
 
-void persistent_context_cache::set_simp_congr_lemma(type_context_old & ctx, expr const & e, unsigned k, congr_lemma const & r) {
-    return m_cache_ptr->set_simp_congr_lemma(ctx, e, k, r);
+void persistent_context_cache::set_simp_congr_lemma(expr const & e, unsigned k, congr_lemma const & r) {
+    return m_cache_ptr->set_simp_congr_lemma(e, k, r);
 }
 
-optional<congr_lemma> persistent_context_cache::get_specialized_simp_congr_lemma(type_context_old & ctx, expr const & e, unsigned k) {
-    return m_cache_ptr->get_specialized_simp_congr_lemma(ctx, e, k);
+optional<congr_lemma> persistent_context_cache::get_specialized_simp_congr_lemma(expr const & e, unsigned k) {
+    return m_cache_ptr->get_specialized_simp_congr_lemma(e, k);
 }
 
-void persistent_context_cache::set_specialized_simp_congr_lemma(type_context_old & ctx, expr const & e, unsigned k, congr_lemma const & r) {
-    return m_cache_ptr->set_specialized_simp_congr_lemma(ctx, e, k, r);
+void persistent_context_cache::set_specialized_simp_congr_lemma(expr const & e, unsigned k, congr_lemma const & r) {
+    return m_cache_ptr->set_specialized_simp_congr_lemma(e, k, r);
 }
 
-optional<congr_lemma> persistent_context_cache::get_congr_lemma(type_context_old & ctx, expr const & e, unsigned k) {
-    return m_cache_ptr->get_congr_lemma(ctx, e, k);
+optional<congr_lemma> persistent_context_cache::get_congr_lemma(expr const & e, unsigned k) {
+    return m_cache_ptr->get_congr_lemma(e, k);
 }
 
-void persistent_context_cache::set_congr_lemma(type_context_old & ctx, expr const & e, unsigned k, congr_lemma const & r) {
-    return m_cache_ptr->set_congr_lemma(ctx, e, k, r);
+void persistent_context_cache::set_congr_lemma(expr const & e, unsigned k, congr_lemma const & r) {
+    return m_cache_ptr->set_congr_lemma(e, k, r);
 }
 
-optional<congr_lemma> persistent_context_cache::get_specialized_congr_lemma(type_context_old & ctx, expr const & e, unsigned k) {
-    return m_cache_ptr->get_specialized_congr_lemma(ctx, e, k);
+optional<congr_lemma> persistent_context_cache::get_specialized_congr_lemma(expr const & e, unsigned k) {
+    return m_cache_ptr->get_specialized_congr_lemma(e, k);
 }
 
-void persistent_context_cache::set_specialized_congr_lemma(type_context_old & ctx, expr const & e, unsigned k, congr_lemma const & r) {
-    return m_cache_ptr->set_specialized_congr_lemma(ctx, e, k, r);
+void persistent_context_cache::set_specialized_congr_lemma(expr const & e, unsigned k, congr_lemma const & r) {
+    return m_cache_ptr->set_specialized_congr_lemma(e, k, r);
 }
 
-optional<congr_lemma> persistent_context_cache::get_hcongr_lemma(type_context_old & ctx, expr const & e, unsigned k) {
-    return m_cache_ptr->get_hcongr_lemma(ctx, e, k);
+optional<congr_lemma> persistent_context_cache::get_hcongr_lemma(expr const & e, unsigned k) {
+    return m_cache_ptr->get_hcongr_lemma(e, k);
 }
 
-void persistent_context_cache::set_hcongr_lemma(type_context_old & ctx, expr const & e, unsigned k, congr_lemma const & r) {
-    return m_cache_ptr->set_hcongr_lemma(ctx, e, k, r);
+void persistent_context_cache::set_hcongr_lemma(expr const & e, unsigned k, congr_lemma const & r) {
+    return m_cache_ptr->set_hcongr_lemma(e, k, r);
 }
 
-optional<app_builder_info> persistent_context_cache::get_app_builder_info(type_context_old & ctx, expr const & e, unsigned k) {
-    return m_cache_ptr->get_app_builder_info(ctx, e, k);
+optional<app_builder_info> persistent_context_cache::get_app_builder_info(expr const & e, unsigned k) {
+    return m_cache_ptr->get_app_builder_info(e, k);
 }
 
-void persistent_context_cache::set_app_builder_info(type_context_old & ctx, expr const & e, unsigned k, app_builder_info const & r) {
-    return m_cache_ptr->set_app_builder_info(ctx, e, k, r);
+void persistent_context_cache::set_app_builder_info(expr const & e, unsigned k, app_builder_info const & r) {
+    return m_cache_ptr->set_app_builder_info(e, k, r);
 }
 
 
-optional<app_builder_info> persistent_context_cache::get_app_builder_info(type_context_old & ctx, expr const & e, list<bool> const & m) {
-    return m_cache_ptr->get_app_builder_info(ctx, e, m);
+optional<app_builder_info> persistent_context_cache::get_app_builder_info(expr const & e, list<bool> const & m) {
+    return m_cache_ptr->get_app_builder_info(e, m);
 }
 
-void persistent_context_cache::set_app_builder_info(type_context_old & ctx, expr const & e, list<bool> const & m, app_builder_info const & r) {
-    return m_cache_ptr->set_app_builder_info(ctx, e, m, r);
+void persistent_context_cache::set_app_builder_info(expr const & e, list<bool> const & m, app_builder_info const & r) {
+    return m_cache_ptr->set_app_builder_info(e, m, r);
 }
 
 void initialize_persistent_context_cache() {

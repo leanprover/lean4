@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "library/context_cache.h"
+#include "library/type_context.h"
 
 namespace lean {
 context_cache::context_cache():
@@ -41,6 +42,12 @@ bool context_cache::get_aux_recursor(type_context & ctx, name const & n) {
     bool r = context_cacheless::get_aux_recursor(ctx, n);
     m_aux_recursor_cache.insert(mk_pair(n, r));
     return r;
+}
+
+void context_cache::get_unification_hints(type_context & ctx, name const & f1, name const & f2, buffer<unification_hint> & hints) {
+    if (!m_uhints)
+        m_uhints = ::lean::get_unification_hints(ctx.env());
+    ::lean::get_unification_hints(*m_uhints, f1, f2, hints);
 }
 
 template<typename R, typename C>

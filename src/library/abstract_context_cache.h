@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/projection.h"
 #include "library/fun_info.h"
 #include "library/local_instances.h"
+#include "library/unification_hint.h"
 
 namespace lean {
 #define LEAN_NUM_TRANSPARENCY_MODES 5
@@ -181,6 +182,7 @@ public:
     virtual optional<declaration> get_decl(type_context &, transparency_mode, name const &) = 0;
     virtual projection_info const * get_proj_info(type_context &, name const &) = 0;
     virtual bool get_aux_recursor(type_context &, name const &) = 0;
+    virtual void get_unification_hints(type_context &, name const & f1, name const & f2, buffer<unification_hint> & hints) = 0;
 
     /* Cache support for type_context module */
 
@@ -296,6 +298,7 @@ public:
     virtual optional<declaration> get_decl(type_context &, transparency_mode, name const &) override;
     virtual projection_info const * get_proj_info(type_context &, name const &) override;
     virtual bool get_aux_recursor(type_context &, name const &) override;
+    virtual void get_unification_hints(type_context &, name const & f1, name const & f2, buffer<unification_hint> & hints) override;
 
     /* Cache support for type_context module */
 

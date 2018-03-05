@@ -524,7 +524,6 @@ private:
        that cannot be solved precisely are ignored. This step is approximate, and it is
        useful to skip it until we have additional information. */
     bool                       m_full_postponed{true};
-    unification_hints          m_uhints;
 
     std::function<bool(name const & e)> const * m_transparency_pred{nullptr}; // NOLINT
 

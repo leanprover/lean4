@@ -87,6 +87,8 @@ class context_cache : public context_cacheless {
           cache manager. */
     instance_cache                m_instance_cache;
     subsingleton_cache            m_subsingleton_cache;
+
+    optional<unification_hints>   m_uhints;
 public:
     context_cache();
     context_cache(options const & o);
@@ -100,6 +102,7 @@ public:
     virtual optional<declaration> get_decl(type_context &, transparency_mode, name const &) override;
     virtual projection_info const * get_proj_info(type_context &, name const &) override;
     virtual bool get_aux_recursor(type_context &, name const &) override;
+    virtual void get_unification_hints(type_context &, name const & f1, name const & f2, buffer<unification_hint> & hints) override;
 
     /* Cache support for type_context module */
 

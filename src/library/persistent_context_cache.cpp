@@ -63,6 +63,10 @@ bool persistent_context_cache::get_aux_recursor(type_context & ctx, name const &
     return m_cache_ptr->get_aux_recursor(ctx, n);
 }
 
+void persistent_context_cache::get_unification_hints(type_context & ctx, name const & f1, name const & f2, buffer<unification_hint> & hints) {
+    return m_cache_ptr->get_unification_hints(ctx, f1, f2, hints);
+}
+
 optional<expr> persistent_context_cache::get_infer(expr const & e) {
     return m_cache_ptr->get_infer(e);
 }

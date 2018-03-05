@@ -134,7 +134,6 @@ void type_context::init_core(transparency_mode m) {
         init_local_instances();
         flush_instance_cache();
     }
-    m_uhints = get_unification_hints(env());
 }
 
 type_context::type_context(environment const & env, options const & o, metavar_context const & mctx,
@@ -164,8 +163,7 @@ type_context::type_context(type_context && src):
     m_transparency_mode(src.m_transparency_mode),
     m_approximate(src.m_approximate),
     m_zeta(src.m_zeta),
-    m_smart_unfolding(src.m_smart_unfolding),
-    m_uhints(src.m_uhints) {
+    m_smart_unfolding(src.m_smart_unfolding) {
     lean_assert(!src.m_tmp_data);
     lean_assert(!src.m_used_assignment);
     lean_assert(!src.m_in_is_def_eq);
@@ -184,7 +182,6 @@ type_context::~type_context() {
 
 void type_context::set_env(environment const & env) {
     m_env    = env;
-    m_uhints = get_unification_hints(env);
 }
 
 void type_context::update_local_instances(expr const & new_local, expr const & new_type) {
@@ -3295,7 +3292,7 @@ bool type_context::try_unification_hints(expr const & e1, expr const & e2) {
     expr e2_fn = get_app_fn(e2);
     if (is_constant(e1_fn) && is_constant(e2_fn)) {
         buffer<unification_hint> hints;
-        get_unification_hints(m_uhints, const_name(e1_fn), const_name(e2_fn), hints);
+        m_cache->get_unification_hints(*this, const_name(e1_fn), const_name(e2_fn), hints);
         for (unification_hint const & hint : hints) {
             lean_trace(name({"type_context", "unification_hint"}),
                        scope_trace_env scope(env(), *this);

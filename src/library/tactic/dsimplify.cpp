@@ -26,7 +26,7 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
-expr reduce_beta_eta_proj_iota(type_context & ctx, expr e, bool beta, bool eta, bool proj, bool iota) {
+expr reduce_beta_eta_proj_iota(type_context_old & ctx, expr e, bool beta, bool eta, bool proj, bool iota) {
     bool p;
     do {
         p = false;
@@ -60,7 +60,7 @@ expr reduce_beta_eta_proj_iota(type_context & ctx, expr e, bool beta, bool eta, 
     return e;
 }
 
-optional<expr> unfold_step(type_context & ctx, expr const & e, name_set const & to_unfold, bool unfold_reducible) {
+optional<expr> unfold_step(type_context_old & ctx, expr const & e, name_set const & to_unfold, bool unfold_reducible) {
     if (!unfold_reducible && to_unfold.empty())
         return none_expr();
     if (!is_app(e) && !is_constant(e))
@@ -77,7 +77,7 @@ optional<expr> unfold_step(type_context & ctx, expr const & e, name_set const & 
 
     if (is_projection(ctx.env(), const_name(fn))) {
         if (in_to_unfold) {
-            type_context::transparency_scope scope(ctx, transparency_mode::Instances);
+            type_context_old::transparency_scope scope(ctx, transparency_mode::Instances);
             return ctx.reduce_projection(e);
         } else {
             return none_expr();
@@ -85,7 +85,7 @@ optional<expr> unfold_step(type_context & ctx, expr const & e, name_set const & 
     } else if (in_to_unfold) {
         return unfold_term(ctx.env(), e);
     } else if (unfold_reducible && is_reducible(ctx.env(), fn_name)) {
-        type_context::transparency_scope scope(ctx, transparency_mode::Reducible);
+        type_context_old::transparency_scope scope(ctx, transparency_mode::Reducible);
         return unfold_term(ctx.env(), e);
     } else {
         return none_expr();
@@ -140,7 +140,7 @@ expr dsimplify_core_fn::visit_macro(expr const & e) {
 
 expr dsimplify_core_fn::visit_binding(expr const & e) {
     expr_kind k = e.kind();
-    type_context::tmp_locals locals(m_ctx);
+    type_context_old::tmp_locals locals(m_ctx);
     expr b = e;
     bool modified = false;
     while (b.kind() == k) {
@@ -163,7 +163,7 @@ expr dsimplify_core_fn::visit_let(expr const & e) {
     if (m_cfg.m_zeta) {
         return visit(instantiate(let_body(e), let_value(e)));
     } else {
-        type_context::tmp_locals locals(m_ctx);
+        type_context_old::tmp_locals locals(m_ctx);
         expr b = e;
         bool modified = false;
         while (is_let(b)) {
@@ -297,7 +297,7 @@ expr dsimplify_core_fn::visit(expr const & e) {
     return curr_e;
 }
 
-dsimplify_core_fn::dsimplify_core_fn(type_context & ctx, defeq_canonizer::state & dcs, dsimp_config const & cfg):
+dsimplify_core_fn::dsimplify_core_fn(type_context_old & ctx, defeq_canonizer::state & dcs, dsimp_config const & cfg):
     m_ctx(ctx), m_defeq_canonizer(ctx, dcs), m_num_steps(0), m_need_restart(false), m_cfg(cfg) {}
 
 expr dsimplify_core_fn::operator()(expr e) {
@@ -319,7 +319,7 @@ expr dsimplify_fn::reduce(expr const & e) {
 }
 
 optional<pair<expr, bool>> dsimplify_fn::pre(expr const & e) {
-    type_context::transparency_scope s(m_ctx, m_cfg.m_md);
+    type_context_old::transparency_scope s(m_ctx, m_cfg.m_md);
     expr new_e = reduce(e);
     if (new_e != e) {
         lean_dsimp_trace(m_ctx, "dsimplify", tout() << "reduce\n" << e << "\n==>\n" << new_e << "\n";);
@@ -334,7 +334,7 @@ optional<pair<expr, bool>> dsimplify_fn::post(expr const & e) {
         return optional<pair<expr, bool>>(*r, true);
     expr curr_e;
     {
-        type_context::transparency_scope s(m_ctx, m_cfg.m_md);
+        type_context_old::transparency_scope s(m_ctx, m_cfg.m_md);
         curr_e = reduce(e);
         if (curr_e != e) {
             lean_dsimp_trace(m_ctx, "dsimplify", tout() << "reduce\n" << e << "\n==>\n" << curr_e << "\n";);
@@ -370,7 +370,7 @@ optional<pair<expr, bool>> dsimplify_fn::post(expr const & e) {
         return optional<pair<expr, bool>>(curr_e, true);
 }
 
-dsimplify_fn::dsimplify_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas_for const & lemmas,
+dsimplify_fn::dsimplify_fn(type_context_old & ctx, defeq_canonizer::state & dcs, simp_lemmas_for const & lemmas,
                            list<name> const & to_unfold, dsimp_config const & cfg):
     dsimplify_core_fn(ctx, dcs, cfg),
     m_simp_lemmas(lemmas),
@@ -410,7 +410,7 @@ class tactic_dsimplify_fn : public dsimplify_core_fn {
     }
 
 public:
-    tactic_dsimplify_fn(type_context & ctx, defeq_canonizer::state & dcs,
+    tactic_dsimplify_fn(type_context_old & ctx, defeq_canonizer::state & dcs,
                         vm_obj const & a, vm_obj const & pre, vm_obj const & post,
                         tactic_state const & s, dsimp_config const & cfg):
         dsimplify_core_fn(ctx, dcs, cfg),
@@ -430,7 +430,7 @@ vm_obj tactic_dsimplify_core(vm_obj const &, vm_obj const & a,
     dsimp_config cfg(_cfg);
     try {
         tactic_state_context_cache cache(s);
-        type_context ctx = cache.mk_type_context(cfg.m_md);
+        type_context_old ctx = cache.mk_type_context(cfg.m_md);
         defeq_can_state dcs = s.dcs();
         tactic_dsimplify_fn F(ctx, dcs, a, pre, post, s, cfg);
         expr new_e = F(to_expr(e));
@@ -450,7 +450,7 @@ vm_obj simp_lemmas_dsimplify(vm_obj const & lemmas, vm_obj const & u, vm_obj con
     dsimp_config cfg(_cfg);
     try {
         tactic_state_context_cache cache(s);
-        type_context ctx     = cache.mk_type_context(cfg.m_md);
+        type_context_old ctx     = cache.mk_type_context(cfg.m_md);
         defeq_can_state dcs  = s.dcs();
         list<name> to_unfold = to_list_name(u);
         simp_lemmas_for dlemmas;

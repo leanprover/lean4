@@ -30,7 +30,7 @@ namespace lean {
 LEAN_THREAD_VALUE(break_at_pos_exception::token_context, g_context, break_at_pos_exception::token_context::none);
 
 void interactive_report_type(environment const & env, options const & opts, expr const & e, json & j) {
-    type_context tc(env);
+    type_context_old tc(env);
     if (g_context == break_at_pos_exception::token_context::interactive_tactic) {
         vm_state vm(env, options());
         tactic_state s = mk_tactic_state_for(env, opts, "_interactive_report_type", local_context(), mk_true());
@@ -221,7 +221,7 @@ optional<info_data> find_hole(module_info const & m_mod_info,
 }
 
 bool execute_hole_command(tactic_state s, name const & cmd_decl_name, expr const & args, json & j) {
-    type_context ctx = mk_type_context_for(s);
+    type_context_old ctx = mk_type_context_for(s);
     options opts     = s.get_options();
     opts = opts.update_if_undef(get_pp_use_holes_name(), true);
     s = set_options(s, opts);

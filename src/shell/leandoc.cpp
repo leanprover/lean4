@@ -225,7 +225,7 @@ static void gen_decl_doc(std::ostream & out, environment const & env, formatter 
 }
 
 void gen_doc(environment const & env, options const & _opts, std::ostream & out) {
-    type_context ctx(env);
+    type_context_old ctx(env);
     options opts     = _opts.update_if_undef(name{"pp", "width"}, 100);
     auto fmt_factory = lean::mk_pretty_formatter_factory();
     auto fmt         = fmt_factory(env, opts, ctx);

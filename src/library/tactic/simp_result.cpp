@@ -9,13 +9,13 @@ Author: Daniel Selsam
 
 namespace lean {
 
-simp_result finalize(type_context & tctx, name const & rel, simp_result const & r) {
+simp_result finalize(type_context_old & tctx, name const & rel, simp_result const & r) {
     if (r.has_proof()) return r;
     expr pf = mk_refl(tctx, rel, r.get_new());
     return simp_result(r.get_new(), pf);
 }
 
-simp_result join(type_context & tctx, name const & rel, simp_result const & r1, simp_result const & r2) {
+simp_result join(type_context_old & tctx, name const & rel, simp_result const & r1, simp_result const & r2) {
     /* Assumes that both simp_results are with respect to the same relation */
     if (!r1.has_proof()) {
         return r2;

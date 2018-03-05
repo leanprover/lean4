@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic_state.h"
 
 namespace lean {
-static void add_minors(type_context & ctx, unsigned nminors, expr & cases, buffer<expr> & new_goals) {
+static void add_minors(type_context_old & ctx, unsigned nminors, expr & cases, buffer<expr> & new_goals) {
     expr cases_type           = ctx.infer(cases);
     for (unsigned i = 0; i < nminors; i++) {
         cases_type            = ctx.relaxed_whnf(cases_type);
@@ -30,7 +30,7 @@ tactic_state destruct(transparency_mode md, expr const & e, tactic_state const &
     if (!s.goals())
         throw exception("destruct tactic failed, there are no goals to be solved");
 
-    type_context ctx          = mk_type_context_for(s, md);
+    type_context_old ctx          = mk_type_context_for(s, md);
     environment const & env   = ctx.env();
     expr target               = s.get_main_goal_decl()->get_type();
     level target_lvl          = get_level(ctx, target);
@@ -76,7 +76,7 @@ tactic_state destruct(transparency_mode md, expr const & e, tactic_state const &
         /* add motive */
         buffer<expr> refls; /* refl proof for indices and major */
         {
-            type_context::tmp_locals locals(ctx);
+            type_context_old::tmp_locals locals(ctx);
             buffer<expr> js;
             buffer<expr> eqs;
             expr I_A              = mk_app(I, I_args.size() - nindices, I_args.data());
@@ -128,7 +128,7 @@ tactic_state destruct(transparency_mode md, expr const & e, tactic_state const &
         lean_assert(!dep_elim);
         /* add motive */
         {
-            type_context::tmp_locals locals(ctx);
+            type_context_old::tmp_locals locals(ctx);
             if (nindices > 0) {
                 expr I_A          = mk_app(I, I_args.size() - nindices, I_args.data());
                 expr I_A_type     = ctx.infer(I_A);

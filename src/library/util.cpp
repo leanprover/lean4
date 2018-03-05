@@ -351,8 +351,8 @@ unsigned get_num_inductive_hypotheses_for(environment const & env, name const & 
     lean_assert(rec_mask.empty());
     name I_name = *inductive::is_intro_rule(env, n);
     inductive::inductive_decl decl = *inductive::is_inductive_decl(env, I_name);
-    type_context tc(env);
-    type_context::tmp_locals locals(tc);
+    type_context_old tc(env);
+    type_context_old::tmp_locals locals(tc);
     expr type   = tc.whnf(env.get(n).get_type());
     unsigned r  = 0;
     while (is_pi(type)) {

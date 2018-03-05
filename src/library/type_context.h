@@ -34,7 +34,7 @@ bool is_at_least_instances(transparency_mode m);
 transparency_mode ensure_semireducible_mode(transparency_mode m);
 transparency_mode ensure_instances_mode(transparency_mode m);
 
-class type_context : public abstract_type_context {
+class type_context_old : public abstract_type_context {
     typedef buffer<optional<level>> tmp_uassignment;
     typedef buffer<optional<expr>>  tmp_eassignment;
     typedef buffer<metavar_context> mctx_stack;
@@ -160,7 +160,7 @@ public:
       would not be the same for all subterms. For example, if we have a term `C.rec_on ?x_i h` and offset `k`.
       If we replace `x_i` with its assignment `v`, the offset for `v` is 0. We would need to have a macro
       to mark the offset of subterms, but then this macro would have to interact with reduction.
-      Another problem is that `type_context` invokes many auxiliary functions and modules.
+      Another problem is that `type_context_old` invokes many auxiliary functions and modules.
       Most of them would have to be offset aware.
 
       So, we decide to use a different and simpler approach, where we simply cache the
@@ -247,7 +247,7 @@ public:
 
       *** TMP mode ***
 
-      To be able to use temporary metavariables, the type_context must
+      To be able to use temporary metavariables, the type_context_old must
       be put into TMP mode. We have an auxiliary object to set/unset
       TMP mode.
 
@@ -297,7 +297,7 @@ public:
       However, this is not a general solution because the local instance may be used to resolve type
       class resolution problems in the type itself.
 
-      Thus, to avoid these problems, when the `type_context` is in TMP mode, we do not
+      Thus, to avoid these problems, when the `type_context_old` is in TMP mode, we do not
       assign regular metavariables. In TMP mode, regular metavariables are always treated
       as opaque constants.
 
@@ -336,7 +336,7 @@ public:
 
       - `app_builder`: a helper procedure for creating applications
       where missing arguments and universes levels are inferred using type inference.
-      It takes a `type_context` `ctx` as argument.
+      It takes a `type_context_old` `ctx` as argument.
       We use `(tmp-match) lctx | t =?= s` where `lctx` is `ctx.lctx()`
 
       - Simplifier and Ematcher. They solve nested matching problems.
@@ -361,7 +361,7 @@ public:
       This case is very similar to the previous one.
 
       Remark: only the two last applications require offsets. Moreover, `k` is `0` if
-      the `type_context` is not already in TMP mode.
+      the `type_context_old` is not already in TMP mode.
     */
 
     /* This class supports temporary meta-variables "mode". In this "tmp" mode,
@@ -373,7 +373,7 @@ public:
 
        These assignments are only used during type class resolution and matching operations.
        They are references to stack allocated buffers provided by customers.
-       They are nullptr if type_context is not in tmp_mode. */
+       They are nullptr if type_context_old is not in tmp_mode. */
     struct tmp_data {
         tmp_uassignment & m_uassignment;
         tmp_eassignment & m_eassignment;
@@ -432,7 +432,7 @@ private:
       may confuse users (see issue #1794). This was a recurrent
       problem before smart unfolding was implemented.
       The idea is quite simple, given an application `f a_1 ... a_n`,
-      type_context checks whether there is a `f._sunfold` helper
+      type_context_old checks whether there is a `f._sunfold` helper
       definition in the environment, if there is one, it uses it
       to unfold the term, and then reduces the resulting term until an
       `id_rhs _ t` application is the head. If this application is found,
@@ -457,11 +457,11 @@ private:
       is produced instead of `nat.succ (... incomprehensible mess that uses nat.brec_on ...)`.
 
       Note that `nat.add._sunfold` and `nat.add` are not definitionally equal.
-      Given an application `f a_1 ... a_n`, the type_context only assumes that
+      Given an application `f a_1 ... a_n`, the type_context_old only assumes that
       if `f._sunfold a_1 ... a_n` can be reduced to `id_rhs _ t`, then `f a_1 ... a_n` and
       `t` are definitionally equal.
 
-      Remark: type_context also uses smart unfolding for definitions `f._match_<idx>`
+      Remark: type_context_old also uses smart unfolding for definitions `f._match_<idx>`
     */
 
     bool               m_smart_unfolding{true};
@@ -470,8 +470,8 @@ private:
     /* Auxiliary object used to temporarily swap `m_update_left` and `m_update_right`.
        We use it before invoking methods where we swap left/right. */
     struct swap_update_flags_scope {
-        type_context & m_ctx;
-        swap_update_flags_scope(type_context & ctx):m_ctx(ctx) {
+        type_context_old & m_ctx;
+        swap_update_flags_scope(type_context_old & ctx):m_ctx(ctx) {
             std::swap(m_ctx.m_update_left, m_ctx.m_update_right);
         }
         ~swap_update_flags_scope() {
@@ -547,28 +547,28 @@ private:
     projection_info const * is_projection(expr const & e);
     optional<expr> reduce_projection_core(projection_info const * info, expr const & e);
 
-    type_context(abstract_context_cache * cache, metavar_context const & mctx, local_context const & lctx,
+    type_context_old(abstract_context_cache * cache, metavar_context const & mctx, local_context const & lctx,
                  transparency_mode m);
 public:
-    type_context(environment const & env, metavar_context const & mctx, local_context const & lctx,
+    type_context_old(environment const & env, metavar_context const & mctx, local_context const & lctx,
                  abstract_context_cache & cache, transparency_mode m = transparency_mode::Reducible);
-    type_context(environment const & env, options const & o, metavar_context const & mctx, local_context const & lctx,
+    type_context_old(environment const & env, options const & o, metavar_context const & mctx, local_context const & lctx,
                  transparency_mode m = transparency_mode::Reducible);
-    type_context(environment const & env, options const & o, local_context const & lctx,
+    type_context_old(environment const & env, options const & o, local_context const & lctx,
                  transparency_mode m = transparency_mode::Reducible):
-        type_context(env, o, metavar_context(), lctx, m) {}
-    explicit type_context(environment const & env, transparency_mode m = transparency_mode::Reducible):
-        type_context(env, options(), metavar_context(), local_context(), m) {}
-    type_context(environment const & env, options const & o, transparency_mode m = transparency_mode::Reducible):
-        type_context(env, o, metavar_context(), local_context(), m) {}
-    type_context(environment const & env, abstract_context_cache & cache, transparency_mode m = transparency_mode::Reducible):
-        type_context(env, metavar_context(), local_context(), cache, m) {}
-    type_context(type_context const &) = delete;
-    type_context(type_context &&);
-    virtual ~type_context();
+        type_context_old(env, o, metavar_context(), lctx, m) {}
+    explicit type_context_old(environment const & env, transparency_mode m = transparency_mode::Reducible):
+        type_context_old(env, options(), metavar_context(), local_context(), m) {}
+    type_context_old(environment const & env, options const & o, transparency_mode m = transparency_mode::Reducible):
+        type_context_old(env, o, metavar_context(), local_context(), m) {}
+    type_context_old(environment const & env, abstract_context_cache & cache, transparency_mode m = transparency_mode::Reducible):
+        type_context_old(env, metavar_context(), local_context(), cache, m) {}
+    type_context_old(type_context_old const &) = delete;
+    type_context_old(type_context_old &&);
+    virtual ~type_context_old();
 
-    type_context & operator=(type_context const &) = delete;
-    type_context & operator=(type_context &&) = delete;
+    type_context_old & operator=(type_context_old const &) = delete;
+    type_context_old & operator=(type_context_old &&) = delete;
 
     virtual environment const & env() const override { return m_env; }
     options const & get_options() const { return m_cache->get_options(); }
@@ -600,15 +600,15 @@ public:
           when using `push_local` or `push_let`. We also do not need to flush the instance/subsingleton cache
           when we using `push_local`, `push_let` and `pop_local`.
 
-       2- (Faster type_context initialization)
+       2- (Faster type_context_old initialization)
           We don't need to recompute the set of local instances when we initialize
-          another type_context using a local_context object with frozen local instances.
+          another type_context_old using a local_context object with frozen local instances.
           This is particularly useful if the local_context is huge. Recall that to compute the set of
           local instance, we need to traverse the whole local context.
-          Recall that we create many short lived type_context objects in the tactic framework.
-          For example, the tactic `infer_type t` creates a type_context object just to infer the type of `t`.
+          Recall that we create many short lived type_context_old objects in the tactic framework.
+          For example, the tactic `infer_type t` creates a type_context_old object just to infer the type of `t`.
 
-       3- The instance and subsingleton caches can be reused in other type_context objects
+       3- The instance and subsingleton caches can be reused in other type_context_old objects
           IF the local_context is set with the same frozen local instances.
 
        4- (Drawback) Local instances cannot be reverted anymore.
@@ -747,39 +747,39 @@ public:
     expr complete_instance(expr const & e);
 
     struct transparency_scope : public flet<transparency_mode> {
-        transparency_scope(type_context & ctx, transparency_mode m):
+        transparency_scope(type_context_old & ctx, transparency_mode m):
             flet<transparency_mode>(ctx.m_transparency_mode, m) {
         }
     };
 
     struct approximate_scope : public flet<bool> {
-        approximate_scope(type_context & ctx, bool approx = true):
+        approximate_scope(type_context_old & ctx, bool approx = true):
             flet<bool>(ctx.m_approximate, approx) {}
     };
 
     struct zeta_scope : public flet<bool> {
-        zeta_scope(type_context & ctx, bool val):
+        zeta_scope(type_context_old & ctx, bool val):
             flet<bool>(ctx.m_zeta, val) {}
     };
 
     struct nozeta_scope : public zeta_scope {
-        nozeta_scope(type_context & ctx):zeta_scope(ctx, false) {}
+        nozeta_scope(type_context_old & ctx):zeta_scope(ctx, false) {}
     };
 
     struct full_postponed_scope : public flet<bool> {
-        full_postponed_scope(type_context & ctx, bool full = true):
+        full_postponed_scope(type_context_old & ctx, bool full = true):
             flet<bool>(ctx.m_full_postponed, full) {}
     };
 
     struct smart_unfolding_scope : public flet<bool> {
-        smart_unfolding_scope(type_context & ctx, bool enable = true):
+        smart_unfolding_scope(type_context_old & ctx, bool enable = true):
             flet<bool>(ctx.m_smart_unfolding, enable) {}
     };
 
     struct relaxed_scope {
         transparency_scope m_transparency_scope;
         zeta_scope         m_zeta_scope;
-        relaxed_scope(type_context & ctx):
+        relaxed_scope(type_context_old & ctx):
             m_transparency_scope(ctx, transparency_mode::All),
             m_zeta_scope(ctx, true) {}
     };
@@ -790,12 +790,12 @@ public:
        -------------------------- */
 public:
     struct tmp_mode_scope {
-        type_context &          m_ctx;
+        type_context_old &          m_ctx;
         buffer<optional<level>> m_tmp_uassignment;
         buffer<optional<expr>>  m_tmp_eassignment;
         tmp_data *              m_old_data;
         tmp_data                m_data;
-        tmp_mode_scope(type_context & ctx, unsigned next_uidx = 0, unsigned next_midx = 0):
+        tmp_mode_scope(type_context_old & ctx, unsigned next_uidx = 0, unsigned next_midx = 0):
             m_ctx(ctx), m_old_data(ctx.m_tmp_data), m_data(m_tmp_uassignment, m_tmp_eassignment, ctx.lctx()) {
             m_tmp_uassignment.resize(next_uidx, none_level());
             m_tmp_eassignment.resize(next_midx, none_expr());
@@ -806,9 +806,9 @@ public:
         }
     };
     struct tmp_mode_scope_with_data {
-        type_context & m_ctx;
+        type_context_old & m_ctx;
         tmp_data *     m_old_data;
-        tmp_mode_scope_with_data(type_context & ctx, tmp_data & data):
+        tmp_mode_scope_with_data(type_context_old & ctx, tmp_data & data):
             m_ctx(ctx), m_old_data(ctx.m_tmp_data) {
             m_ctx.m_tmp_data = &data;
         }
@@ -827,10 +827,10 @@ public:
 
     /* Helper class to reset m_used_assignment flag */
     class reset_used_assignment {
-        type_context & m_ctx;
+        type_context_old & m_ctx;
         bool           m_old_used_assignment;
     public:
-        reset_used_assignment(type_context & ctx):
+        reset_used_assignment(type_context_old & ctx):
             m_ctx(ctx),
             m_old_used_assignment(m_ctx.m_used_assignment) {
             m_ctx.m_used_assignment = false;
@@ -879,12 +879,12 @@ public:
     bool is_tmp_mvar(level const & l) const { return is_idx_metauniv(l); }
     bool is_tmp_mvar(expr const & e) const { return is_idx_metavar(e); }
     /* Return true iff
-       1- `l` is a temporary universe metavariable and type_context is in tmp mode, OR
-       2- `l` is a regular universe metavariable an type_context is not in tmp_mode. */
+       1- `l` is a temporary universe metavariable and type_context_old is in tmp mode, OR
+       2- `l` is a regular universe metavariable an type_context_old is not in tmp_mode. */
     bool is_mode_mvar(level const & l) const;
     /* Return true iff
-       1- `e` is a temporary metavariable and type_context is in tmp mode, OR
-       2- `e` is a regular metavariable an type_context is not in tmp_mode. */
+       1- `e` is a temporary metavariable and type_context_old is in tmp mode, OR
+       2- `e` is a regular metavariable an type_context_old is not in tmp_mode. */
     bool is_mode_mvar(expr const & e) const;
 
     bool is_assigned(level const & l) const;
@@ -929,12 +929,12 @@ public:
 private:
     void commit_scope();
     class scope {
-        friend class type_context;
-        type_context & m_owner;
+        friend class type_context_old;
+        type_context_old & m_owner;
         bool           m_keep;
         unsigned       m_postponed_sz;
     public:
-        scope(type_context & o):m_owner(o), m_keep(false), m_postponed_sz(o.m_postponed.size()) { m_owner.push_scope(); }
+        scope(type_context_old & o):m_owner(o), m_keep(false), m_postponed_sz(o.m_postponed.size()) { m_owner.push_scope(); }
         ~scope() { m_owner.m_postponed.resize(m_postponed_sz); if (!m_keep) m_owner.pop_scope(); }
         void commit() { m_postponed_sz = m_owner.m_postponed.size(); m_owner.commit_scope(); m_keep = true; }
     };
@@ -996,16 +996,16 @@ private:
 public:
     /* Helper class for creating pushing local declarations into the local context m_lctx */
     class tmp_locals {
-        type_context & m_ctx;
+        type_context_old & m_ctx;
         buffer<expr>   m_locals;
 
         /* \brief Return true iff all locals in m_locals are let-decls */
         bool all_let_decls() const;
     public:
-        tmp_locals(type_context & ctx):m_ctx(ctx) {}
+        tmp_locals(type_context_old & ctx):m_ctx(ctx) {}
         ~tmp_locals();
 
-        type_context & ctx() { return m_ctx; }
+        type_context_old & ctx() { return m_ctx; }
 
         expr push_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info()) {
             expr r = m_ctx.push_local(pp_name, type, bi);
@@ -1042,13 +1042,13 @@ public:
 };
 
 class tmp_type_context : public abstract_type_context {
-    type_context &          m_ctx;
+    type_context_old &          m_ctx;
     buffer<optional<level>> m_tmp_uassignment;
     buffer<optional<expr>>  m_tmp_eassignment;
-    type_context::tmp_data  m_tmp_data;
+    type_context_old::tmp_data  m_tmp_data;
 public:
-    tmp_type_context(type_context & ctx, unsigned num_umeta = 0, unsigned num_emeta = 0);
-    type_context & ctx() const { return m_ctx; }
+    tmp_type_context(type_context_old & ctx, unsigned num_umeta = 0, unsigned num_emeta = 0);
+    type_context_old & ctx() const { return m_ctx; }
 
     virtual environment const & env() const override { return m_ctx.env(); }
     virtual expr infer(expr const & e) override;
@@ -1084,7 +1084,7 @@ mk_pp_ctx(environment const & env, options const & opts, metavar_context const &
 /** Create a formatting function that can 'decode' metavar_decl_refs and local_decl_refs
     with declarations stored in ctx */
 std::function<format(expr const &)>
-mk_pp_ctx(type_context const & ctx);
+mk_pp_ctx(type_context_old const & ctx);
 
 void initialize_type_context();
 void finalize_type_context();

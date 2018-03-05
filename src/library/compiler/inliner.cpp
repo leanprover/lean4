@@ -125,7 +125,7 @@ class inline_simple_definitions_fn : public compiler_step_visitor {
 
     optional<expr> reduce_projection(expr const & e) {
         /* When trying to reduce a projection, we should only unfold reducible constants. */
-        type_context::transparency_scope _(ctx(), transparency_mode::Instances);
+        type_context_old::transparency_scope _(ctx(), transparency_mode::Instances);
         return ctx().reduce_projection(e);
     }
 

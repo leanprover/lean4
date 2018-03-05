@@ -22,7 +22,7 @@ optional<name> is_gintro_rule_app(environment const & env, expr const & e) {
     return optional<name>(const_name(fn));
 }
 
-expr whnf_ginductive(type_context & ctx, expr const & e) {
+expr whnf_ginductive(type_context_old & ctx, expr const & e) {
     return ctx.whnf_head_pred(e, [&](expr const & e) {
             expr const & fn = get_app_fn(e);
             if (!is_constant(fn)) return true;
@@ -30,13 +30,13 @@ expr whnf_ginductive(type_context & ctx, expr const & e) {
         });
 }
 
-expr whnf_gintro_rule(type_context & ctx, expr const & e) {
+expr whnf_gintro_rule(type_context_old & ctx, expr const & e) {
     return ctx.whnf_head_pred(e, [&](expr const & e) {
             return !is_gintro_rule_app(ctx.env(), e);
         });
 }
 
-expr whnf_ginductive_gintro_rule(type_context & ctx, expr const & e) {
+expr whnf_ginductive_gintro_rule(type_context_old & ctx, expr const & e) {
     return ctx.whnf_head_pred(e, [&](expr const & e) {
             expr const & fn = get_app_fn(e);
             if (!is_constant(fn)) return true;

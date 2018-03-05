@@ -23,7 +23,7 @@ vm_obj tactic_unfold_projection(vm_obj const & _e, vm_obj const & m, vm_obj cons
     tactic_state const & s = tactic::to_state(_s);
     try {
         expr const & fn = get_app_fn(e);
-        type_context ctx = mk_type_context_for(s, to_transparency_mode(m));
+        type_context_old ctx = mk_type_context_for(s, to_transparency_mode(m));
         if (!is_constant(fn) || !is_projection(s.env(), const_name(fn)))
             return tactic::mk_exception("unfold projection failed, expression is not a projection application", s);
         if (auto new_e = ctx.reduce_projection(e))
@@ -34,7 +34,7 @@ vm_obj tactic_unfold_projection(vm_obj const & _e, vm_obj const & m, vm_obj cons
     }
 }
 
-optional<expr> dunfold(type_context & ctx, expr const & e) {
+optional<expr> dunfold(type_context_old & ctx, expr const & e) {
     environment const & env = ctx.env();
     expr const & fn = get_app_fn(e);
     if (!is_constant(fn))
@@ -76,7 +76,7 @@ protected:
         expr const & fn = get_app_fn(e);
         if (!is_constant(fn) || !m_cs.contains(const_name(fn)))
             return none();
-        type_context::transparency_scope scope(m_ctx, transparency_mode::Instances);
+        type_context_old::transparency_scope scope(m_ctx, transparency_mode::Instances);
         optional<expr> new_e;
         if (is_projection(m_ctx.env(), const_name(fn))) {
             new_e = m_ctx.reduce_projection(e);
@@ -93,7 +93,7 @@ protected:
     }
 
 public:
-    unfold_core_fn(type_context & ctx, defeq_canonizer::state & dcs, list<name> const & cs, dsimp_config const & cfg):
+    unfold_core_fn(type_context_old & ctx, defeq_canonizer::state & dcs, list<name> const & cs, dsimp_config const & cfg):
         dsimplify_core_fn(ctx, dcs, cfg),
         m_cs(to_name_set(cs)) {
         m_cfg.m_zeta = false;
@@ -105,7 +105,7 @@ class unfold_fn : public unfold_core_fn {
         return unfold_step(e);
     }
 public:
-    unfold_fn(type_context & ctx, defeq_canonizer::state & dcs, list<name> const & cs, dsimp_config const & cfg):
+    unfold_fn(type_context_old & ctx, defeq_canonizer::state & dcs, list<name> const & cs, dsimp_config const & cfg):
         unfold_core_fn(ctx, dcs, cs, cfg) {
     }
 };
@@ -119,7 +119,7 @@ vm_obj tactic_dunfold(vm_obj const & cs, vm_obj const & _e, vm_obj const & _cfg,
        (md := transparency.instances) -- this is not a new field.
     */
     dsimp_config cfg(_cfg);
-    type_context ctx       = mk_type_context_for(s, cfg.m_md);
+    type_context_old ctx       = mk_type_context_for(s, cfg.m_md);
     unfold_fn F(ctx, dcs, to_list_name(cs), cfg);
     try {
         expr new_e         = F(e);
@@ -143,12 +143,12 @@ vm_obj tactic_dunfold_head(vm_obj const & _e, vm_obj const & m, vm_obj const & _
         if (!is_constant(fn))
             return tactic::mk_exception("dunfold_expr failed, expression is not a constant nor a constant application", s);
         if (is_projection(s.env(), const_name(fn))) {
-            type_context ctx = mk_type_context_for(s, to_transparency_mode(m));
+            type_context_old ctx = mk_type_context_for(s, to_transparency_mode(m));
             if (auto new_e = ctx.reduce_projection(e))
                 return tactic::mk_success(to_obj(*new_e), s);
             return tactic::mk_exception("dunfold_expr failed, failed to unfold projection", s);
         } else if (has_eqn_lemmas(env, const_name(fn))) {
-            type_context ctx = mk_type_context_for(s, to_transparency_mode(m));
+            type_context_old ctx = mk_type_context_for(s, to_transparency_mode(m));
             if (auto new_e = dunfold(ctx, e)) {
                 return tactic::mk_success(to_obj(*new_e), s);
             } else {

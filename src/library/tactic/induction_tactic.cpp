@@ -33,7 +33,7 @@ static name * g_induction_concat = nullptr;
     throw exception(sstream() << "induction tactic failed, recursor '" << rec_info.get_name() << "' is ill-formed");
 }
 
-static void set_intron(expr & R, type_context & ctx, options const & opts, expr const & M, unsigned n, optional<name> const & prefix, list<name> & ns, buffer<name> & new_names, bool use_unused_names) {
+static void set_intron(expr & R, type_context_old & ctx, options const & opts, expr const & M, unsigned n, optional<name> const & prefix, list<name> & ns, buffer<name> & new_names, bool use_unused_names) {
     if (n == 0) {
         R = M;
     } else {
@@ -71,12 +71,12 @@ static void set_intron(expr & R, type_context & ctx, options const & opts, expr 
     }
 }
 
-static void set_intron(expr & R, type_context & ctx, options const & opts, expr const & M, unsigned n, buffer<name> & new_names, bool use_unused_names) {
+static void set_intron(expr & R, type_context_old & ctx, options const & opts, expr const & M, unsigned n, buffer<name> & new_names, bool use_unused_names) {
     list<name> tmp;
     set_intron(R, ctx, opts, M, n, optional<name>(), tmp, new_names, use_unused_names);
 }
 
-static void set_clear(expr & R, type_context & ctx, expr const & M, expr const & H) {
+static void set_clear(expr & R, type_context_old & ctx, expr const & M, expr const & H) {
     try {
         metavar_context mctx = ctx.mctx();
         R = clear(mctx, M, H);
@@ -111,8 +111,8 @@ static void throw_invalid_major_premise_type(unsigned arg_idx, expr const & H_ty
     throw_invalid_major_premise_type(arg_idx, H_type, strm.str().c_str());
 }
 
-static expr whnf_until(type_context & ctx, name const & n, expr const & e) {
-    type_context::transparency_scope scope(ctx, transparency_mode::All);
+static expr whnf_until(type_context_old & ctx, name const & n, expr const & e) {
+    type_context_old::transparency_scope scope(ctx, transparency_mode::All);
     return ctx.whnf_head_pred(e, [&](expr const & t) {
             expr fn = get_app_fn(t);
             if (is_constant(fn) && const_name(fn) == n)
@@ -139,7 +139,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
     }
     recursor_info rec_info = get_recursor_info(env, rec_name);
 
-    type_context ctx1 = mk_type_context_for(env, opts, mctx, g->get_context(), m);
+    type_context_old ctx1 = mk_type_context_for(env, opts, mctx, g->get_context(), m);
     expr H_type = whnf_until(ctx1, rec_info.get_type_name(), ctx1.infer(H));
 
     buffer<expr> H_type_args;
@@ -203,7 +203,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
     }
     optional<metavar_decl> g2 = mctx.find_metavar_decl(*mvar2);
     lean_assert(g2);
-    type_context ctx2   = mk_type_context_for(env, opts, mctx, g2->get_context(), m);
+    type_context_old ctx2   = mk_type_context_for(env, opts, mctx, g2->get_context(), m);
     local_context lctx2 = g2->get_context();
     indices.clear(); /* update indices buffer */
     for (unsigned i = 0; i < indices_H.size() - 1; i++)
@@ -420,7 +420,7 @@ vm_obj induction_tactic_core(transparency_mode const & m, expr const & H, name c
 vm_obj tactic_induction(vm_obj const & H, vm_obj const & ns, vm_obj const & rec, vm_obj const & m, vm_obj const & s) {
     if (is_none(rec)) {
         try {
-            type_context ctx = mk_type_context_for(s, m);
+            type_context_old ctx = mk_type_context_for(s, m);
             expr type = whnf_ginductive(ctx, ctx.infer(to_expr(H)));
             expr C    = get_app_fn(type);
             if (is_constant(C)) {

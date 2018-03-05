@@ -59,7 +59,7 @@ struct ext_congr_lemma_cache {
 
 typedef std::shared_ptr<ext_congr_lemma_cache> ext_congr_lemma_cache_ptr;
 
-congruence_closure::congruence_closure(type_context & ctx, state & s, defeq_canonizer::state & dcs,
+congruence_closure::congruence_closure(type_context_old & ctx, state & s, defeq_canonizer::state & dcs,
                                        cc_propagation_handler * phandler,
                                        cc_normalizer * normalizer):
     m_ctx(ctx), m_defeq_canonizer(ctx, dcs), m_state(s), m_cache_ptr(std::make_shared<ext_congr_lemma_cache>(ctx.env())), m_mode(ctx.mode()),
@@ -83,7 +83,7 @@ inline ext_congr_lemma_cache_data & get_cache(congruence_closure const & cc) {
 }
 
 /* Automatically generated congruence lemma based on heterogeneous equality. */
-static optional<ext_congr_lemma> mk_hcongr_lemma_core(type_context & ctx, expr const & fn, unsigned nargs) {
+static optional<ext_congr_lemma> mk_hcongr_lemma_core(type_context_old & ctx, expr const & fn, unsigned nargs) {
     optional<congr_lemma> eq_congr = mk_hcongr(ctx, fn, nargs);
     if (!eq_congr) return optional<ext_congr_lemma>();
     ext_congr_lemma res1(*eq_congr);
@@ -1024,7 +1024,7 @@ expr congruence_closure::mk_congr_proof_core(expr const & lhs, expr const & rhs,
     /* Convert r into a proof of lhs = rhs using eq.rec and
        the proof that lhs_fn = rhs_fn */
     expr lhs_fn_eq_rhs_fn = *get_eq_proof(lhs_fn, rhs_fn);
-    type_context::tmp_locals locals(m_ctx);
+    type_context_old::tmp_locals locals(m_ctx);
     expr x                = locals.push_local("_x", m_ctx.infer(lhs_fn));
     expr motive_rhs       = mk_app(x, rhs_args);
     expr motive           = heq_proofs ? mk_heq(m_ctx, lhs, motive_rhs) : mk_eq(m_ctx, lhs, motive_rhs);
@@ -1056,7 +1056,7 @@ optional<expr> congruence_closure::mk_symm_congr_proof(expr const & e1, expr con
            (lhs1 ~R1~ rhs1) = (rhs1 ~R1~ lhs1)
         */
         expr new_e1 = mk_rel(m_ctx, *R1, rhs1, lhs1);
-        type_context::tmp_locals locals(m_ctx);
+        type_context_old::tmp_locals locals(m_ctx);
         expr h1  = locals.push_local("_h1", e1);
         expr h2  = locals.push_local("_h2", new_e1);
         expr e1_iff_new_e1 = mk_app(m_ctx, get_iff_intro_name(),
@@ -1633,7 +1633,7 @@ expr_pair congruence_closure::to_forall_not(expr const & ex, expr const & h_not_
     lean_assert(is_exists(ex));
     expr A, p;
     lean_verify(is_exists(ex, A, p));
-    type_context::tmp_locals locals(m_ctx);
+    type_context_old::tmp_locals locals(m_ctx);
     level lvl         = get_level(m_ctx, A);
     expr x            = locals.push_local("_x", A);
     expr px           = head_beta_reduce(mk_app(p, x));

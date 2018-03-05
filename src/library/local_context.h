@@ -89,7 +89,7 @@ class local_context {
     name_map<unsigned_set>    m_user_name2idxs;
     idx2local_decl            m_idx2local_decl;
     optional<local_instances> m_local_instances;
-    friend class type_context;
+    friend class type_context_old;
 
     void insert_user_name(local_decl const &d);
     void erase_user_name(local_decl const &d);

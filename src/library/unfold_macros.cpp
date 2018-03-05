@@ -39,7 +39,7 @@ class unfold_untrusted_macros_fn : public replace_visitor_with_tc {
     }
 
 public:
-    unfold_untrusted_macros_fn(type_context & ctx, optional<unsigned> const & lvl):
+    unfold_untrusted_macros_fn(type_context_old & ctx, optional<unsigned> const & lvl):
         replace_visitor_with_tc(ctx), m_trust_lvl(lvl) {}
 };
 
@@ -54,7 +54,7 @@ static bool contains_untrusted_macro(unsigned trust_lvl, expr const & e) {
 
 expr unfold_untrusted_macros(environment const & env, expr const & e, optional<unsigned> const & trust_lvl) {
     if (!trust_lvl || contains_untrusted_macro(*trust_lvl, e)) {
-        type_context ctx(env, transparency_mode::All);
+        type_context_old ctx(env, transparency_mode::All);
         return unfold_untrusted_macros_fn(ctx, trust_lvl)(e);
     } else {
         return e;

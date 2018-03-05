@@ -52,14 +52,14 @@ transparency_mode ensure_instances_mode(transparency_mode m) {
 }
 
 /* =====================
-   type_context::tmp_locals
+   type_context_old::tmp_locals
    ===================== */
-type_context::tmp_locals::~tmp_locals() {
+type_context_old::tmp_locals::~tmp_locals() {
     for (unsigned i = 0; i < m_locals.size(); i++)
         m_ctx.pop_local();
 }
 
-bool type_context::tmp_locals::all_let_decls() const {
+bool type_context_old::tmp_locals::all_let_decls() const {
     for (expr const & l : m_locals) {
         if (optional<local_decl> d = m_ctx.m_lctx.find_local_decl(l)) {
             if (!d->get_value())
@@ -72,14 +72,14 @@ bool type_context::tmp_locals::all_let_decls() const {
 }
 
 /* =====================
-   type_context
+   type_context_old
    ===================== */
 
-void type_context::cache_failure(expr const & t, expr const & s) {
+void type_context_old::cache_failure(expr const & t, expr const & s) {
     m_cache->set_is_def_eq_failure(m_transparency_mode, t, s);
 }
 
-bool type_context::is_cached_failure(expr const & t, expr const & s) {
+bool type_context_old::is_cached_failure(expr const & t, expr const & s) {
     if (has_expr_metavar(t) || has_expr_metavar(s)) {
         return false;
     } else {
@@ -87,11 +87,11 @@ bool type_context::is_cached_failure(expr const & t, expr const & s) {
     }
 }
 
-void type_context::freeze_local_instances() {
+void type_context_old::freeze_local_instances() {
     m_lctx.freeze_local_instances(m_local_instances);
 }
 
-void type_context::init_local_instances() {
+void type_context_old::init_local_instances() {
     m_local_instances = local_instances();
     m_lctx.for_each([&](local_decl const & decl) {
             /* Do not use auxiliary declarations introduced by equation compiler.
@@ -112,13 +112,13 @@ void type_context::init_local_instances() {
         });
 }
 
-void type_context::flush_instance_cache() {
+void type_context_old::flush_instance_cache() {
     lean_trace("type_context_cache", tout() << "flushing instance cache\n";);
     m_cache->reset_frozen_local_instances();
     m_cache->flush_instances();
 }
 
-void type_context::init_core(transparency_mode m) {
+void type_context_old::init_core(transparency_mode m) {
     m_transparency_mode           = m;
     m_smart_unfolding             = m_cache->get_smart_unfolding();
     if (auto lis = m_lctx.get_frozen_local_instances()) {
@@ -136,7 +136,7 @@ void type_context::init_core(transparency_mode m) {
     }
 }
 
-type_context::type_context(environment const & env, options const & o, metavar_context const & mctx,
+type_context_old::type_context_old(environment const & env, options const & o, metavar_context const & mctx,
                            local_context const & lctx, transparency_mode m):
     m_env(env),
     m_mctx(mctx), m_lctx(lctx),
@@ -145,7 +145,7 @@ type_context::type_context(environment const & env, options const & o, metavar_c
     init_core(m);
 }
 
-type_context::type_context(environment const & env, metavar_context const & mctx,
+type_context_old::type_context_old(environment const & env, metavar_context const & mctx,
                            local_context const & lctx, abstract_context_cache & cache, transparency_mode m):
     m_env(env),
     m_mctx(mctx), m_lctx(lctx),
@@ -153,7 +153,7 @@ type_context::type_context(environment const & env, metavar_context const & mctx
     init_core(m);
 }
 
-type_context::type_context(type_context && src):
+type_context_old::type_context_old(type_context_old && src):
     m_env(std::move(src.m_env)),
     m_mctx(std::move(src.m_mctx)),
     m_lctx(std::move(src.m_lctx)),
@@ -177,14 +177,14 @@ type_context::type_context(type_context && src):
     lean_assert(!src.m_transparency_pred);
 }
 
-type_context::~type_context() {
+type_context_old::~type_context_old() {
 }
 
-void type_context::set_env(environment const & env) {
+void type_context_old::set_env(environment const & env) {
     m_env    = env;
 }
 
-void type_context::update_local_instances(expr const & new_local, expr const & new_type) {
+void type_context_old::update_local_instances(expr const & new_local, expr const & new_type) {
     if (!m_cache->get_frozen_local_instances()) {
         if (auto c_name = is_class(new_type)) {
             m_local_instances = local_instances(local_instance(*c_name, new_local), m_local_instances);
@@ -193,19 +193,19 @@ void type_context::update_local_instances(expr const & new_local, expr const & n
     }
 }
 
-expr type_context::push_local(name const & pp_name, expr const & type, binder_info const & bi) {
+expr type_context_old::push_local(name const & pp_name, expr const & type, binder_info const & bi) {
     expr local = m_lctx.mk_local_decl(pp_name, type, bi);
     update_local_instances(local, type);
     return local;
 }
 
-expr type_context::push_let(name const & ppn, expr const & type, expr const & value) {
+expr type_context_old::push_let(name const & ppn, expr const & type, expr const & value) {
     expr local = m_lctx.mk_local_decl(ppn, type, value);
     update_local_instances(local, type);
     return local;
 }
 
-void type_context::pop_local() {
+void type_context_old::pop_local() {
     if (!m_cache->get_frozen_local_instances() && m_local_instances) {
         optional<local_decl> decl = m_lctx.find_last_local_decl();
         if (decl && decl->get_name() == mlocal_name(head(m_local_instances).get_local())) {
@@ -289,7 +289,7 @@ static bool process_to_revert(metavar_context const & mctx, buffer<expr> & to_re
     return false;
 }
 
-pair<local_context, expr> type_context::revert_core(buffer<expr> & to_revert, local_context const & ctx,
+pair<local_context, expr> type_context_old::revert_core(buffer<expr> & to_revert, local_context const & ctx,
                                                     expr const & type, bool preserve_to_revert_order) {
     unsigned num   = to_revert.size();
     if (num == 0)
@@ -347,7 +347,7 @@ pair<local_context, expr> type_context::revert_core(buffer<expr> & to_revert, lo
     return mk_pair(new_ctx, mk_pi(ctx, to_revert, type));
 }
 
-expr type_context::revert_core(buffer<expr> & to_revert, expr const & mvar, bool preserve_to_revert_order) {
+expr type_context_old::revert_core(buffer<expr> & to_revert, expr const & mvar, bool preserve_to_revert_order) {
     lean_assert(is_metavar_decl_ref(mvar));
     metavar_decl const & d = m_mctx.get_metavar_decl(mvar);
     pair<local_context, expr> p = revert_core(to_revert, d.get_context(), d.get_type(), preserve_to_revert_order);
@@ -356,7 +356,7 @@ expr type_context::revert_core(buffer<expr> & to_revert, expr const & mvar, bool
     return copy_tag(mvar, mk_metavar_decl(p.first, p.second));
 }
 
-expr type_context::revert(buffer<expr> & to_revert, expr const & mvar, bool preserve_to_revert_order) {
+expr type_context_old::revert(buffer<expr> & to_revert, expr const & mvar, bool preserve_to_revert_order) {
     lean_assert(is_metavar_decl_ref(mvar));
     lean_assert(std::all_of(to_revert.begin(), to_revert.end(), [&](expr const & l) {
                 return static_cast<bool>(m_mctx.find_metavar_decl(mvar)->get_context().find_local_decl(l)); }));
@@ -375,7 +375,7 @@ expr type_context::revert(buffer<expr> & to_revert, expr const & mvar, bool pres
 
 /* We use delayed_abstract_locals to make sure the variables being abstracted
    will be abstracted correctly when any unassigned metavar ?M occurring in \c e gets instantiated. */
-expr type_context::abstract_locals(expr const & e, unsigned num_locals, expr const * locals) {
+expr type_context_old::abstract_locals(expr const & e, unsigned num_locals, expr const * locals) {
     lean_assert(std::all_of(locals, locals+num_locals, is_local_decl_ref));
     if (num_locals == 0)
         return e;
@@ -388,7 +388,7 @@ expr type_context::abstract_locals(expr const & e, unsigned num_locals, expr con
     return delayed_abstract_locals(m_mctx, new_e, num_locals, locals);
 }
 
-expr type_context::mk_binding(bool is_pi, local_context const & lctx, unsigned num_locals, expr const * locals, expr const & e) {
+expr type_context_old::mk_binding(bool is_pi, local_context const & lctx, unsigned num_locals, expr const * locals, expr const & e) {
     buffer<local_decl>     decls;
     buffer<expr>           types;
     buffer<optional<expr>> values;
@@ -417,51 +417,51 @@ expr type_context::mk_binding(bool is_pi, local_context const & lctx, unsigned n
     return new_e;
 }
 
-expr type_context::mk_lambda(local_context const & lctx, buffer<expr> const & locals, expr const & e) {
+expr type_context_old::mk_lambda(local_context const & lctx, buffer<expr> const & locals, expr const & e) {
     return mk_binding(false, lctx, locals.size(), locals.data(), e);
 }
 
-expr type_context::mk_pi(local_context const & lctx, buffer<expr> const & locals, expr const & e) {
+expr type_context_old::mk_pi(local_context const & lctx, buffer<expr> const & locals, expr const & e) {
     return mk_binding(true, lctx, locals.size(), locals.data(), e);
 }
 
-expr type_context::mk_lambda(local_context const & lctx, expr const & local, expr const & e) {
+expr type_context_old::mk_lambda(local_context const & lctx, expr const & local, expr const & e) {
     return mk_binding(false, lctx, 1, &local, e);
 }
 
-expr type_context::mk_pi(local_context const & lctx, expr const & local, expr const & e) {
+expr type_context_old::mk_pi(local_context const & lctx, expr const & local, expr const & e) {
     return mk_binding(true, lctx, 1, &local, e);
 }
 
-expr type_context::mk_lambda(local_context const & lctx, std::initializer_list<expr> const & locals, expr const & e) {
+expr type_context_old::mk_lambda(local_context const & lctx, std::initializer_list<expr> const & locals, expr const & e) {
     return mk_binding(false, lctx, locals.size(), locals.begin(), e);
 }
 
-expr type_context::mk_pi(local_context const & lctx, std::initializer_list<expr> const & locals, expr const & e) {
+expr type_context_old::mk_pi(local_context const & lctx, std::initializer_list<expr> const & locals, expr const & e) {
     return mk_binding(true, lctx, locals.size(), locals.begin(), e);
 }
 
-expr type_context::mk_lambda(buffer<expr> const & locals, expr const & e) {
+expr type_context_old::mk_lambda(buffer<expr> const & locals, expr const & e) {
     return mk_lambda(m_lctx, locals, e);
 }
 
-expr type_context::mk_pi(buffer<expr> const & locals, expr const & e) {
+expr type_context_old::mk_pi(buffer<expr> const & locals, expr const & e) {
     return mk_pi(m_lctx, locals, e);
 }
 
-expr type_context::mk_lambda(expr const & local, expr const & e) {
+expr type_context_old::mk_lambda(expr const & local, expr const & e) {
     return mk_lambda(m_lctx, local, e);
 }
 
-expr type_context::mk_pi(expr const & local, expr const & e) {
+expr type_context_old::mk_pi(expr const & local, expr const & e) {
     return mk_pi(m_lctx, local, e);
 }
 
-expr type_context::mk_lambda(std::initializer_list<expr> const & locals, expr const & e) {
+expr type_context_old::mk_lambda(std::initializer_list<expr> const & locals, expr const & e) {
     return mk_lambda(m_lctx, locals, e);
 }
 
-expr type_context::mk_pi(std::initializer_list<expr> const & locals, expr const & e) {
+expr type_context_old::mk_pi(std::initializer_list<expr> const & locals, expr const & e) {
     return mk_pi(m_lctx, locals, e);
 }
 
@@ -469,7 +469,7 @@ expr type_context::mk_pi(std::initializer_list<expr> const & locals, expr const 
    Normalization
    -------------------- */
 
-optional<declaration> type_context::get_decl(transparency_mode m, name const & n) {
+optional<declaration> type_context_old::get_decl(transparency_mode m, name const & n) {
     if (m_transparency_pred) {
         if ((*m_transparency_pred)(n)) {
             return env().find(n);
@@ -481,7 +481,7 @@ optional<declaration> type_context::get_decl(transparency_mode m, name const & n
     }
 }
 
-optional<declaration> type_context::get_decl(name const & n) {
+optional<declaration> type_context_old::get_decl(name const & n) {
     return get_decl(m_transparency_mode, n);
 }
 
@@ -508,7 +508,7 @@ static expr ext_unfold_fn(environment const & env, expr const & fn) {
 }
 
 /* Unfold \c e if it is a constant */
-optional<expr> type_context::unfold_definition_core(expr const & e) {
+optional<expr> type_context_old::unfold_definition_core(expr const & e) {
     if (is_constant(e)) {
         if (auto d = get_decl(const_name(e))) {
             if (length(const_levels(e)) == d->get_num_univ_params())
@@ -533,7 +533,7 @@ static optional<expr> extract_id_rhs(expr const & e) {
 }
 
 /* Unfold head(e) if it is a constant */
-optional<expr> type_context::unfold_definition(expr const & e) {
+optional<expr> type_context_old::unfold_definition(expr const & e) {
     flet<unsigned> inc_depth(m_unfold_depth, m_unfold_depth+1);
     if (is_app(e)) {
         expr f0 = get_app_fn(e);
@@ -607,7 +607,7 @@ optional<expr> type_context::unfold_definition(expr const & e) {
     }
 }
 
-projection_info const * type_context::is_projection(expr const & e) {
+projection_info const * type_context_old::is_projection(expr const & e) {
     expr const & f = get_app_fn(e);
     if (!is_constant(f))
         return nullptr;
@@ -619,7 +619,7 @@ projection_info const * type_context::is_projection(expr const & e) {
     return info;
 }
 
-optional<expr> type_context::reduce_projection_core(projection_info const * info, expr const & e) {
+optional<expr> type_context_old::reduce_projection_core(projection_info const * info, expr const & e) {
     buffer<expr> args;
     get_app_args(e, args);
     lean_assert(args.size() > info->m_nparams);
@@ -639,14 +639,14 @@ optional<expr> type_context::reduce_projection_core(projection_info const * info
     return some_expr(r);
 }
 
-optional<expr> type_context::reduce_projection(expr const & e) {
+optional<expr> type_context_old::reduce_projection(expr const & e) {
     projection_info const * info = is_projection(e);
     if (!info)
         return none_expr();
     return reduce_projection_core(info, e);
 }
 
-optional<expr> type_context::reduce_aux_recursor(expr const & e) {
+optional<expr> type_context_old::reduce_aux_recursor(expr const & e) {
     expr const & f = get_app_fn(e);
     if (!is_constant(f))
         return none_expr();
@@ -658,7 +658,7 @@ optional<expr> type_context::reduce_aux_recursor(expr const & e) {
     }
 }
 
-optional<expr> type_context::reduce_large_elim_recursor(expr const & e) {
+optional<expr> type_context_old::reduce_large_elim_recursor(expr const & e) {
     expr const & f = get_app_fn(e);
     if (!is_constant(f))
         return none_expr();
@@ -670,7 +670,7 @@ optional<expr> type_context::reduce_large_elim_recursor(expr const & e) {
     return none_expr();
 }
 
-bool type_context::should_unfold_macro(expr const &) {
+bool type_context_old::should_unfold_macro(expr const &) {
     /* If m_transparency_mode is set to ALL, then we unfold all
        macros. In this way, we make sure type inference does not fail.
        We also unfold macros when reducing inside of is_def_eq. */
@@ -681,7 +681,7 @@ bool type_context::should_unfold_macro(expr const &) {
     }
 }
 
-optional<expr> type_context::expand_macro(expr const & e) {
+optional<expr> type_context_old::expand_macro(expr const & e) {
     lean_assert(is_macro(e));
     if (should_unfold_macro(e)) {
         return macro_def(e).expand(e, *this);
@@ -690,11 +690,11 @@ optional<expr> type_context::expand_macro(expr const & e) {
     }
 }
 
-bool type_context::use_zeta() const {
+bool type_context_old::use_zeta() const {
     return m_zeta;
 }
 
-optional<expr> type_context::reduce_recursor(expr const & e) {
+optional<expr> type_context_old::reduce_recursor(expr const & e) {
     if (auto r = norm_ext(e))
         return r;
     if (auto r = reduce_aux_recursor(e))
@@ -715,7 +715,7 @@ optional<expr> type_context::reduce_recursor(expr const & e) {
 
   Remark: if proj_reduce is false, then projection reduction is not performed.
 */
-expr type_context::whnf_core(expr const & e0, bool proj_reduce) {
+expr type_context_old::whnf_core(expr const & e0, bool proj_reduce) {
     expr e = e0;
     while (true) { switch (e.kind()) {
     case expr_kind::Var:      case expr_kind::Sort:
@@ -818,7 +818,7 @@ expr type_context::whnf_core(expr const & e0, bool proj_reduce) {
     }}}
 }
 
-expr type_context::whnf(expr const & e) {
+expr type_context_old::whnf(expr const & e) {
     switch (e.kind()) {
     case expr_kind::Var:      case expr_kind::Sort:
     case expr_kind::Pi:       case expr_kind::Lambda:
@@ -846,7 +846,7 @@ expr type_context::whnf(expr const & e) {
     }
 }
 
-expr type_context::whnf_head_pred(expr const & e, std::function<bool(expr const &)> const & pred) { // NOLINT
+expr type_context_old::whnf_head_pred(expr const & e, std::function<bool(expr const &)> const & pred) { // NOLINT
     expr t = e;
     while (true) {
         expr t1 = whnf_core(t, true);
@@ -860,17 +860,17 @@ expr type_context::whnf_head_pred(expr const & e, std::function<bool(expr const 
     }
 }
 
-expr type_context::whnf_transparency_pred(expr const & e, std::function<bool(name const &)> const & pred) { // NOLINT
+expr type_context_old::whnf_transparency_pred(expr const & e, std::function<bool(name const &)> const & pred) { // NOLINT
     flet<std::function<bool(name const &)> const *>set_trans_pred(m_transparency_pred, &pred); // NOLINT
     return whnf(e);
 }
 
-expr type_context::relaxed_whnf(expr const & e) {
+expr type_context_old::relaxed_whnf(expr const & e) {
     relaxed_scope scope(*this);
     return whnf(e);
 }
 
-optional<expr> type_context::is_stuck_projection(expr const & e) {
+optional<expr> type_context_old::is_stuck_projection(expr const & e) {
     expr const & f = get_app_fn(e);
     if (!is_constant(f)) return none_expr(); // it is not projection app
     projection_info const * info = m_cache->get_proj_info(*this, const_name(f));
@@ -883,7 +883,7 @@ optional<expr> type_context::is_stuck_projection(expr const & e) {
     return is_stuck(mk);
 }
 
-optional<expr> type_context::is_stuck(expr const & e) {
+optional<expr> type_context_old::is_stuck(expr const & e) {
     if (is_meta(e)) {
         return some_expr(e);
     } else if (auto r = is_stuck_projection(e)) {
@@ -895,7 +895,7 @@ optional<expr> type_context::is_stuck(expr const & e) {
     }
 }
 
-expr type_context::try_to_pi(expr const & e) {
+expr type_context_old::try_to_pi(expr const & e) {
     expr new_e = whnf(e);
     if (is_pi(new_e))
         return new_e;
@@ -903,7 +903,7 @@ expr type_context::try_to_pi(expr const & e) {
         return e;
 }
 
-expr type_context::relaxed_try_to_pi(expr const & e) {
+expr type_context_old::relaxed_try_to_pi(expr const & e) {
     relaxed_scope scope(*this);
     return try_to_pi(e);
 }
@@ -912,12 +912,12 @@ expr type_context::relaxed_try_to_pi(expr const & e) {
    Type inference
    --------------- */
 
-expr type_context::infer(expr const & e) {
+expr type_context_old::infer(expr const & e) {
     relaxed_scope scope(*this);
     return infer_core(e);
 }
 
-expr type_context::infer_core(expr const & e) {
+expr type_context_old::infer_core(expr const & e) {
     if (auto r = m_cache->get_infer(e))
         return *r;
     unsigned postponed_sz = m_postponed.size();
@@ -963,7 +963,7 @@ expr type_context::infer_core(expr const & e) {
     return r;
 }
 
-expr type_context::infer_local(expr const & e) {
+expr type_context_old::infer_local(expr const & e) {
     lean_assert(is_local(e));
     if (is_local_decl_ref(e)) {
         optional<local_decl> d = m_lctx.find_local_decl(e);
@@ -987,7 +987,7 @@ static void throw_unknown_metavar(expr const & e) {
         });
 }
 
-expr type_context::infer_metavar(expr const & e) {
+expr type_context_old::infer_metavar(expr const & e) {
     if (is_metavar_decl_ref(e)) {
         auto d = m_mctx.find_metavar_decl(e);
         if (!d) throw_unknown_metavar(e);
@@ -1000,7 +1000,7 @@ expr type_context::infer_metavar(expr const & e) {
     }
 }
 
-expr type_context::infer_constant(expr const & e) {
+expr type_context_old::infer_constant(expr const & e) {
     declaration d   = env().get(const_name(e));
     auto const & ps = d.get_univ_params();
     auto const & ls = const_levels(e);
@@ -1013,7 +1013,7 @@ expr type_context::infer_constant(expr const & e) {
     return instantiate_type_univ_params(d, ls);
 }
 
-expr type_context::infer_macro(expr const & e) {
+expr type_context_old::infer_macro(expr const & e) {
     if (is_delayed_abstraction(e)) {
         expr const & mvar = get_delayed_abstraction_expr(e);
         if (!is_metavar_decl_ref(mvar)) {
@@ -1035,7 +1035,7 @@ expr type_context::infer_macro(expr const & e) {
     return def.check_type(e, *this, infer_only);
 }
 
-expr type_context::infer_lambda(expr e) {
+expr type_context_old::infer_lambda(expr e) {
     buffer<expr> es, ds;
     tmp_locals ls(*this);
     while (is_lambda(e)) {
@@ -1056,7 +1056,7 @@ expr type_context::infer_lambda(expr e) {
     return r;
 }
 
-optional<level> type_context::get_level_core(expr const & A) {
+optional<level> type_context_old::get_level_core(expr const & A) {
     lean_assert(m_transparency_mode == transparency_mode::All);
     expr A_type = whnf(infer_core(A));
     while (true) {
@@ -1076,7 +1076,7 @@ optional<level> type_context::get_level_core(expr const & A) {
                 return some_level(r);
             } else if (is_tmp_mvar(A_type) && in_tmp_mode()) {
                 /* The condition `in_tmp_mode()` may seem unnecessary, but we
-                   include it since `type_context` often has to process
+                   include it since `type_context_old` often has to process
                    ill-formed expressions produced by error recovery. */
                 level r = mk_tmp_univ_mvar();
                 assign(A_type, mk_sort(r));
@@ -1090,7 +1090,7 @@ optional<level> type_context::get_level_core(expr const & A) {
     }
 }
 
-level type_context::get_level(expr const & A) {
+level type_context_old::get_level(expr const & A) {
     if (auto r = get_level_core(A)) {
         return *r;
     } else {
@@ -1100,7 +1100,7 @@ level type_context::get_level(expr const & A) {
     }
 }
 
-expr type_context::infer_pi(expr e) {
+expr type_context_old::infer_pi(expr e) {
     tmp_locals ls(*this);
     buffer<level> us;
     while (is_pi(e)) {
@@ -1119,7 +1119,7 @@ expr type_context::infer_pi(expr e) {
     return mk_sort(r);
 }
 
-expr type_context::infer_app(expr const & e) {
+expr type_context_old::infer_app(expr const & e) {
     check_system("infer_type");
     buffer<expr> args;
     expr const & f = get_app_args(e, args);
@@ -1144,7 +1144,7 @@ expr type_context::infer_app(expr const & e) {
     return instantiate_rev(f_type, nargs-j, args.data()+j);
 }
 
-expr type_context::infer_let(expr e) {
+expr type_context_old::infer_let(expr e) {
     /*
       We may also infer the type of a let-expression by using
       tmp_locals, push_let, and they closing the resulting type with
@@ -1163,24 +1163,24 @@ expr type_context::infer_let(expr e) {
     return infer_core(instantiate_rev(e, vs.size(), vs.data()));
 }
 
-expr type_context::check(expr const & e) {
+expr type_context_old::check(expr const & e) {
     // TODO(Leo): infer doesn't really check anything
     return infer(e);
 }
 
-bool type_context::is_prop(expr const & e) {
+bool type_context_old::is_prop(expr const & e) {
     expr t = whnf(infer(e));
     return t == mk_Prop();
 }
 
-bool type_context::is_proof(expr const & e) {
+bool type_context_old::is_proof(expr const & e) {
     return is_prop(infer(e));
 }
 
 /* -------------------------------
    Temporary assignment mode support
    ------------------------------- */
-void type_context::ensure_num_tmp_mvars(unsigned num_uvars, unsigned num_mvars) {
+void type_context_old::ensure_num_tmp_mvars(unsigned num_uvars, unsigned num_mvars) {
     lean_assert(in_tmp_mode());
     if (m_tmp_data->m_uassignment.size() < num_uvars)
         m_tmp_data->m_uassignment.resize(num_uvars, none_level());
@@ -1188,29 +1188,29 @@ void type_context::ensure_num_tmp_mvars(unsigned num_uvars, unsigned num_mvars) 
         m_tmp_data->m_eassignment.resize(num_mvars, none_expr());
 }
 
-optional<level> type_context::get_tmp_uvar_assignment(unsigned idx) const {
+optional<level> type_context_old::get_tmp_uvar_assignment(unsigned idx) const {
     lean_assert(in_tmp_mode());
     lean_assert(idx < m_tmp_data->m_uassignment.size());
     return m_tmp_data->m_uassignment[idx];
 }
 
-optional<expr> type_context::get_tmp_mvar_assignment(unsigned idx) const {
+optional<expr> type_context_old::get_tmp_mvar_assignment(unsigned idx) const {
     lean_assert(in_tmp_mode());
     lean_assert(idx < m_tmp_data->m_eassignment.size());
     return m_tmp_data->m_eassignment[idx];
 }
 
-optional<level> type_context::get_tmp_assignment(level const & l) const {
+optional<level> type_context_old::get_tmp_assignment(level const & l) const {
     lean_assert(is_idx_metauniv(l));
     return get_tmp_uvar_assignment(to_meta_idx(l));
 }
 
-optional<expr> type_context::get_tmp_assignment(expr const & e) const {
+optional<expr> type_context_old::get_tmp_assignment(expr const & e) const {
     lean_assert(is_idx_metavar(e));
     return get_tmp_mvar_assignment(to_meta_idx(e));
 }
 
-void type_context::assign_tmp(level const & u, level const & l) {
+void type_context_old::assign_tmp(level const & u, level const & l) {
     lean_assert(in_tmp_mode());
     lean_assert(is_idx_metauniv(u));
     lean_assert(to_meta_idx(u) < m_tmp_data->m_uassignment.size());
@@ -1221,7 +1221,7 @@ void type_context::assign_tmp(level const & u, level const & l) {
     m_tmp_data->m_uassignment[idx] = l;
 }
 
-void type_context::assign_tmp(expr const & m, expr const & v) {
+void type_context_old::assign_tmp(expr const & m, expr const & v) {
     lean_assert(in_tmp_mode());
     lean_assert(is_idx_metavar(m));
     lean_assert(to_meta_idx(m) < m_tmp_data->m_eassignment.size());
@@ -1234,21 +1234,21 @@ void type_context::assign_tmp(expr const & m, expr const & v) {
     m_tmp_data->m_eassignment[to_meta_idx(m)] = v;
 }
 
-level type_context::mk_tmp_univ_mvar() {
+level type_context_old::mk_tmp_univ_mvar() {
     lean_assert(in_tmp_mode());
     unsigned idx = m_tmp_data->m_uassignment.size();
     m_tmp_data->m_uassignment.push_back(none_level());
     return mk_idx_metauniv(idx);
 }
 
-expr type_context::mk_tmp_mvar(expr const & type) {
+expr type_context_old::mk_tmp_mvar(expr const & type) {
     lean_assert(in_tmp_mode());
     unsigned idx = m_tmp_data->m_eassignment.size();
     m_tmp_data->m_eassignment.push_back(none_expr());
     return mk_idx_metavar(idx, type);
 }
 
-void type_context::resize_tmp_mvars(unsigned sz) {
+void type_context_old::resize_tmp_mvars(unsigned sz) {
     lean_assert(in_tmp_mode());
     m_tmp_data->m_eassignment.resize(sz, optional<expr>());
 }
@@ -1256,61 +1256,61 @@ void type_context::resize_tmp_mvars(unsigned sz) {
 /* -----------------------------------
    Uniform interface to temporary & regular metavariables
    ----------------------------------- */
-bool type_context::is_mvar(level const & l) const {
+bool type_context_old::is_mvar(level const & l) const {
     return (in_tmp_mode() && is_idx_metauniv(l)) || is_metavar_decl_ref(l);
 }
 
-bool type_context::is_mvar(expr const & e) const {
+bool type_context_old::is_mvar(expr const & e) const {
     return (in_tmp_mode() && is_idx_metavar(e)) || is_metavar_decl_ref(e);
 }
 
-bool type_context::is_mode_mvar(level const & l) const {
+bool type_context_old::is_mode_mvar(level const & l) const {
     if (in_tmp_mode())
         return is_idx_metauniv(l);
     else
         return is_metavar_decl_ref(l);
 }
 
-bool type_context::is_mode_mvar(expr const & e) const {
+bool type_context_old::is_mode_mvar(expr const & e) const {
     if (in_tmp_mode())
         return is_idx_metavar(e);
     else
         return is_metavar_decl_ref(e);
 }
 
-bool type_context::is_assigned(level const & l) const {
-    const_cast<type_context*>(this)->m_used_assignment = true;
+bool type_context_old::is_assigned(level const & l) const {
+    const_cast<type_context_old*>(this)->m_used_assignment = true;
     if (in_tmp_mode() && is_idx_metauniv(l))
         return static_cast<bool>(get_tmp_assignment(l));
     else
         return m_mctx.is_assigned(l);
 }
 
-bool type_context::is_assigned(expr const & e) const {
-    const_cast<type_context*>(this)->m_used_assignment = true;
+bool type_context_old::is_assigned(expr const & e) const {
+    const_cast<type_context_old*>(this)->m_used_assignment = true;
     if (in_tmp_mode() && is_idx_metavar(e))
         return static_cast<bool>(get_tmp_assignment(e));
     else
         return m_mctx.is_assigned(e);
 }
 
-optional<level> type_context::get_assignment(level const & l) const {
-    const_cast<type_context*>(this)->m_used_assignment = true;
+optional<level> type_context_old::get_assignment(level const & l) const {
+    const_cast<type_context_old*>(this)->m_used_assignment = true;
     if (in_tmp_mode() && is_idx_metauniv(l))
         return get_tmp_assignment(l);
     else
         return m_mctx.get_assignment(l);
 }
 
-optional<expr> type_context::get_assignment(expr const & e) const {
-    const_cast<type_context*>(this)->m_used_assignment = true;
+optional<expr> type_context_old::get_assignment(expr const & e) const {
+    const_cast<type_context_old*>(this)->m_used_assignment = true;
     if (in_tmp_mode() && is_idx_metavar(e))
         return get_tmp_assignment(e);
     else
         return m_mctx.get_assignment(e);
 }
 
-void type_context::assign(level const & u, level const & l) {
+void type_context_old::assign(level const & u, level const & l) {
     m_used_assignment = true;
     if (in_tmp_mode() && is_idx_metauniv(u))
         assign_tmp(u, l);
@@ -1318,7 +1318,7 @@ void type_context::assign(level const & u, level const & l) {
         m_mctx.assign(u, l);
 }
 
-void type_context::assign(expr const & m, expr const & v) {
+void type_context_old::assign(expr const & m, expr const & v) {
     m_used_assignment = true;
     if (in_tmp_mode() && is_idx_metavar(m))
         assign_tmp(m, v);
@@ -1326,18 +1326,18 @@ void type_context::assign(expr const & m, expr const & v) {
         m_mctx.assign(m, v);
 }
 
-level type_context::mk_fresh_univ_metavar() {
+level type_context_old::mk_fresh_univ_metavar() {
     if (in_tmp_mode())
         return mk_tmp_univ_mvar();
     else
         return mk_univ_metavar_decl();
 }
 
-level type_context::instantiate_mvars(level const & l) {
+level type_context_old::instantiate_mvars(level const & l) {
     return ::lean::instantiate_mvars(*this, l);
 }
 
-expr type_context::instantiate_mvars(expr const & e, bool postpone_push_delayed) {
+expr type_context_old::instantiate_mvars(expr const & e, bool postpone_push_delayed) {
     return ::lean::instantiate_mvars(*this, e, postpone_push_delayed);
 }
 
@@ -1345,7 +1345,7 @@ expr type_context::instantiate_mvars(expr const & e, bool postpone_push_delayed)
    Backtracking
    ----------------------------------- */
 
-void type_context::push_scope() {
+void type_context_old::push_scope() {
     if (in_tmp_mode()) {
         m_scopes.emplace_back(m_mctx, m_tmp_data->m_uassignment.size(), m_tmp_data->m_eassignment.size(), m_tmp_data->m_trail.size());
     } else {
@@ -1353,7 +1353,7 @@ void type_context::push_scope() {
     }
 }
 
-void type_context::pop_scope() {
+void type_context_old::pop_scope() {
     lean_assert(!m_scopes.empty());
     scope_data const & s = m_scopes.back();
     m_mctx = s.m_mctx;
@@ -1377,7 +1377,7 @@ void type_context::pop_scope() {
     m_scopes.pop_back();
 }
 
-void type_context::commit_scope() {
+void type_context_old::commit_scope() {
     lean_assert(!m_scopes.empty());
     m_scopes.pop_back();
 }
@@ -1416,7 +1416,7 @@ static bool generalized_check_meta(level const & m, level const & rhs, bool & fo
    creating a fresh metavariable ?w and assigning
             ?u := max v ?w
 */
-bool type_context::solve_u_eq_max_u_v(level const & lhs, level const & rhs) {
+bool type_context_old::solve_u_eq_max_u_v(level const & lhs, level const & rhs) {
     lean_assert(is_meta(lhs));
     lean_assert(occurs(lhs, rhs));
     buffer<level> rest;
@@ -1440,7 +1440,7 @@ bool type_context::solve_u_eq_max_u_v(level const & lhs, level const & rhs) {
     }
 }
 
-lbool type_context::is_def_eq_core(level const & l1, level const & l2, bool partial) {
+lbool type_context_old::is_def_eq_core(level const & l1, level const & l2, bool partial) {
     if (is_equivalent(l1, l2))
         return l_true;
 
@@ -1510,17 +1510,17 @@ lbool type_context::is_def_eq_core(level const & l1, level const & l2, bool part
     lean_unreachable();
 }
 
-lbool type_context::partial_is_def_eq(level const & l1, level const & l2) {
+lbool type_context_old::partial_is_def_eq(level const & l1, level const & l2) {
     return is_def_eq_core(l1, l2, true);
 }
 
-bool type_context::full_is_def_eq(level const & l1, level const & l2) {
+bool type_context_old::full_is_def_eq(level const & l1, level const & l2) {
     lbool r = is_def_eq_core(l1, l2, false);
     lean_assert(r != l_undef);
     return r == l_true;
 }
 
-bool type_context::is_def_eq(level const & l1, level const & l2) {
+bool type_context_old::is_def_eq(level const & l1, level const & l2) {
     lbool success = partial_is_def_eq(l1, l2);
     if (success == l_undef) {
         m_postponed.emplace_back(l1, l2);
@@ -1534,7 +1534,7 @@ bool type_context::is_def_eq(level const & l1, level const & l2) {
     }
 }
 
-bool type_context::is_def_eq(levels const & ls1, levels const & ls2) {
+bool type_context_old::is_def_eq(levels const & ls1, levels const & ls2) {
     if (is_nil(ls1) && is_nil(ls2)) {
         return true;
     } else if (!is_nil(ls1) && !is_nil(ls2)) {
@@ -1546,7 +1546,7 @@ bool type_context::is_def_eq(levels const & ls1, levels const & ls2) {
     }
 }
 
-bool type_context::process_postponed(scope const & s) {
+bool type_context_old::process_postponed(scope const & s) {
     unsigned sz = s.m_postponed_sz;
     lean_assert(m_postponed.size() >= sz);
     if (m_postponed.size() == sz)
@@ -1603,7 +1603,7 @@ bool type_context::process_postponed(scope const & s) {
 
 /** \brief Return some definition \c d iff \c e is a target for delta-reduction,
     and the given definition is the one to be expanded. */
-optional<declaration> type_context::is_delta(expr const & e) {
+optional<declaration> type_context_old::is_delta(expr const & e) {
     expr const & f = get_app_fn(e);
     if (is_constant(f)) {
         return get_decl(const_name(f));
@@ -1612,12 +1612,12 @@ optional<declaration> type_context::is_delta(expr const & e) {
     }
 }
 
-bool type_context::approximate() {
+bool type_context_old::approximate() {
     return in_tmp_mode() || m_approximate;
 }
 
 /* If \c e is a let local-decl, then unfold it, otherwise return e. */
-expr type_context::try_zeta(expr const & e) {
+expr type_context_old::try_zeta(expr const & e) {
     if (!is_local_decl_ref(e))
         return e;
     if (auto d = m_lctx.find_local_decl(e)) {
@@ -1627,7 +1627,7 @@ expr type_context::try_zeta(expr const & e) {
     return e;
 }
 
-expr type_context::expand_let_decls(expr const & e) {
+expr type_context_old::expand_let_decls(expr const & e) {
     return replace(e, [&](expr const & e, unsigned) {
             if (is_local_decl_ref(e)) {
                 if (auto d = m_lctx.find_local_decl(e)) {
@@ -1793,7 +1793,7 @@ Now, we consider some workarounds/approximations.
 
      then we use first-order unification (if approximate() is true)
 */
-bool type_context::process_assignment(expr const & m, expr const & v) {
+bool type_context_old::process_assignment(expr const & m, expr const & v) {
     lean_trace(name({"type_context", "is_def_eq_detail"}),
                scope_trace_env scope(env(), *this);
                tout() << "process_assignment " << m << " := " << v << "\n";);
@@ -1971,7 +1971,7 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
 
       mvar args[0] ... args[args.size()-1] =?= v
 */
-bool type_context::process_assignment_fo_approx_core(expr const & mvar, buffer<expr> const & args, expr const & v) {
+bool type_context_old::process_assignment_fo_approx_core(expr const & mvar, buffer<expr> const & args, expr const & v) {
     lean_assert(is_mvar(mvar));
     buffer<expr> v_args;
     expr v_fn = get_app_args(v, v_args);
@@ -2056,7 +2056,7 @@ bool type_context::process_assignment_fo_approx_core(expr const & mvar, buffer<e
       meta def itactic := tactic unit
 
 */
-bool type_context::process_assignment_fo_approx(expr const & mvar, buffer<expr> const & args, expr const & v) {
+bool type_context_old::process_assignment_fo_approx(expr const & mvar, buffer<expr> const & args, expr const & v) {
     expr curr_v = v;
     while (true) {
         {
@@ -2077,14 +2077,14 @@ bool type_context::process_assignment_fo_approx(expr const & mvar, buffer<expr> 
 struct check_assignment_failed {};
 
 struct check_assignment_fn : public replace_visitor {
-    type_context &         m_ctx;
+    type_context_old &         m_ctx;
     buffer<expr> const &   m_locals;
     buffer<expr> const &   m_in_ctx_locals;
     expr const &           m_mvar;
     optional<metavar_decl> m_mvar_decl;
     expr                   m_value;
 
-    check_assignment_fn(type_context & ctx, buffer<expr> const & locals, buffer<expr> const & in_ctx_locals, expr const & mvar):
+    check_assignment_fn(type_context_old & ctx, buffer<expr> const & locals, buffer<expr> const & in_ctx_locals, expr const & mvar):
         m_ctx(ctx), m_locals(locals), m_in_ctx_locals(in_ctx_locals), m_mvar(mvar) {
         if (!m_ctx.in_tmp_mode()) {
             m_mvar_decl = m_ctx.m_mctx.get_metavar_decl(mvar);
@@ -2278,7 +2278,7 @@ struct check_assignment_fn : public replace_visitor {
 };
 
 /* Auxiliary method for process_assignment */
-optional<expr> type_context::check_assignment(buffer<expr> const & locals, buffer<expr> const & in_ctx_locals, expr const & mvar, expr v) {
+optional<expr> type_context_old::check_assignment(buffer<expr> const & locals, buffer<expr> const & in_ctx_locals, expr const & mvar, expr v) {
     try {
         return some_expr(check_assignment_fn(*this, locals, in_ctx_locals, mvar)(v));
     } catch (check_assignment_failed &) {
@@ -2286,7 +2286,7 @@ optional<expr> type_context::check_assignment(buffer<expr> const & locals, buffe
     }
 }
 
-bool type_context::is_def_eq_binding(expr e1, expr e2) {
+bool type_context_old::is_def_eq_binding(expr e1, expr e2) {
     lean_assert(e1.kind() == e2.kind());
     lean_assert(is_binding(e1));
     expr_kind k = e1.kind();
@@ -2315,13 +2315,13 @@ bool type_context::is_def_eq_binding(expr e1, expr e2) {
                           instantiate_rev(e2, subst.size(), subst.data()));
 }
 
-optional<expr> type_context::mk_class_instance_at(local_context const & lctx, expr const & type) {
+optional<expr> type_context_old::mk_class_instance_at(local_context const & lctx, expr const & type) {
     if (m_cache->get_frozen_local_instances() &&
         m_cache->get_frozen_local_instances() == lctx.get_frozen_local_instances()) {
         return mk_class_instance(type);
     } else {
         context_cacheless tmp_cache(*m_cache, true);
-        type_context tmp_ctx(env(), m_mctx, lctx, tmp_cache, m_transparency_mode);
+        type_context_old tmp_ctx(env(), m_mctx, lctx, tmp_cache, m_transparency_mode);
         auto r = tmp_ctx.mk_class_instance(type);
         if (r)
             m_mctx = tmp_ctx.mctx();
@@ -2332,7 +2332,7 @@ optional<expr> type_context::mk_class_instance_at(local_context const & lctx, ex
 /** \brief Create a nested type class instance of the given type, and assign it to metavariable \c m.
     Return true iff the instance was successfully created.
     \remark This method is used to resolve nested type class resolution problems. */
-bool type_context::mk_nested_instance(expr const & m, expr const & m_type) {
+bool type_context_old::mk_nested_instance(expr const & m, expr const & m_type) {
     lean_assert(is_mvar(m));
     /* IMPORTANT: when mk_nested_instance is invoked we must make sure that
        we use the local context where 'm' was declared. */
@@ -2354,7 +2354,7 @@ bool type_context::mk_nested_instance(expr const & m, expr const & m_type) {
     }
 }
 
-expr type_context::complete_instance(expr const & e) {
+expr type_context_old::complete_instance(expr const & e) {
     if (!has_expr_metavar(e)) return e;
 
     if (is_app(e)) {
@@ -2396,7 +2396,7 @@ expr type_context::complete_instance(expr const & e) {
     return e;
 }
 
-bool type_context::is_def_eq_args(expr const & e1, expr const & e2) {
+bool type_context_old::is_def_eq_args(expr const & e1, expr const & e2) {
     lean_assert(is_app(e1) && is_app(e2));
     buffer<expr> args1, args2;
     expr const & fn = get_app_args(e1, args1);
@@ -2466,7 +2466,7 @@ bool type_context::is_def_eq_args(expr const & e1, expr const & e2) {
     Example:
          (lambda x : A, f ?M) =?= f
     The lhs cannot be eta-reduced because ?M is a meta-variable. */
-bool type_context::is_def_eq_eta(expr const & e1, expr const & e2) {
+bool type_context_old::is_def_eq_eta(expr const & e1, expr const & e2) {
     if (is_lambda(e1) && !is_lambda(e2)) {
         expr e2_type = relaxed_whnf(infer(e2));
         if (is_pi(e2_type)) {
@@ -2484,7 +2484,7 @@ bool type_context::is_def_eq_eta(expr const & e1, expr const & e2) {
     return false;
 }
 
-bool type_context::is_def_eq_proof_irrel(expr const & e1, expr const & e2) {
+bool type_context_old::is_def_eq_proof_irrel(expr const & e1, expr const & e2) {
     expr e1_type = infer(e1);
     expr e2_type = infer(e2);
     if (is_prop(e1_type) || is_prop(e2_type)) {
@@ -2521,7 +2521,7 @@ bool type_context::is_def_eq_proof_irrel(expr const & e1, expr const & e2) {
 
         ?m1 z_1' .... z_s' a_1 ... a_k
 */
-optional<expr> type_context::elim_delayed_abstraction(expr const & e) {
+optional<expr> type_context_old::elim_delayed_abstraction(expr const & e) {
     buffer<expr> args;
     expr f = get_app_args(e, args);
     lean_assert(is_delayed_abstraction(f));
@@ -2590,7 +2590,7 @@ static bool mvar_has_user_facing_name(expr const & m) {
     return mlocal_name(m) != mlocal_pp_name(m);
 }
 
-lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
+lbool type_context_old::quick_is_def_eq(expr const & e1, expr const & e2) {
     if (e1 == e2)
         return l_true;
     if (is_cached_equiv(e1, e2))
@@ -2714,7 +2714,7 @@ static bool same_head_symbol(expr const & t, expr const & s) {
     return is_constant(f_t) && is_constant(f_s) && const_name(f_t) == const_name(f_s);
 }
 
-expr type_context::try_to_unstuck_using_complete_instance(expr const & e) {
+expr type_context_old::try_to_unstuck_using_complete_instance(expr const & e) {
     lean_assert(is_stuck(e));
     /* This method tries to unstuck terms such as:
 
@@ -2770,7 +2770,7 @@ expr type_context::try_to_unstuck_using_complete_instance(expr const & e) {
     return complete_instance(e);
 }
 
-bool type_context::on_is_def_eq_failure(expr const & e1, expr const & e2) {
+bool type_context_old::on_is_def_eq_failure(expr const & e1, expr const & e2) {
     lean_trace(name({"type_context", "is_def_eq_detail"}),
                scope_trace_env scope(env(), *this);
                tout() << "on failure: " << e1 << " =?= " << e2 << "\n";);
@@ -2836,7 +2836,7 @@ static optional<mpz> eval_num(expr const & e) {
 }
 
 /* If e is a (small) numeral, then return it. Otherwise return none. */
-optional<unsigned> type_context::to_small_num(expr const & e) {
+optional<unsigned> type_context_old::to_small_num(expr const & e) {
     if (optional<mpz> r = eval_num(e)) {
         if (r->is_unsigned_int()) {
             unsigned r1 = r->get_unsigned_int();
@@ -2848,7 +2848,7 @@ optional<unsigned> type_context::to_small_num(expr const & e) {
 }
 
 /* If \c t is of the form (s + k) where k is a numeral, then return k. Otherwise, return none. */
-optional<unsigned> type_context::is_offset_term (expr const & t) {
+optional<unsigned> type_context_old::is_offset_term (expr const & t) {
     if (is_app_of(t, get_has_add_add_name(), 4) &&
         /* We do not consider (s + k) to be an offset term when has_add.add is marked as irreducible */
         get_reducible_status(env(), get_has_add_add_name()) != reducible_status::Irreducible) {
@@ -2884,7 +2884,7 @@ static expr get_offset_term(expr const & t) {
 
 /* Return true iff t is of the form (@add _ nat_has_add a b)
    \pre is_offset_term(t) */
-static bool uses_nat_has_add_instance_or_succ(type_context & ctx, expr const & t) {
+static bool uses_nat_has_add_instance_or_succ(type_context_old & ctx, expr const & t) {
     if (is_app_of(t, get_nat_succ_name(), 1)) {
         return true;
     } else if (is_app_of(t, get_has_add_add_name(), 4)) {
@@ -2924,7 +2924,7 @@ static expr update_offset(expr const & t, unsigned k) {
        t' + k_1 =?= s' + k_2
 
    where k_1 and k_2 are numerals, and type is nat */
-lbool type_context::try_offset_eq_offset(expr const & t, expr const & s) {
+lbool type_context_old::try_offset_eq_offset(expr const & t, expr const & s) {
     optional<unsigned> k1 = is_offset_term(t);
     if (!k1) return l_undef;
     optional<unsigned> k2 = is_offset_term(s);
@@ -2948,7 +2948,7 @@ lbool type_context::try_offset_eq_offset(expr const & t, expr const & s) {
        t' + k_1 =?= k_2
 
    where k_1 and k_2 are numerals, and type is nat */
-lbool type_context::try_offset_eq_numeral(expr const & t, expr const & s) {
+lbool type_context_old::try_offset_eq_numeral(expr const & t, expr const & s) {
     optional<unsigned> k1 = is_offset_term(t);
     if (!k1) return l_undef;
     optional<unsigned> k2 = to_small_num(s);
@@ -2975,7 +2975,7 @@ lbool type_context::try_offset_eq_numeral(expr const & t, expr const & s) {
    If t and s are encoding the same samll numeral, we return l_true.
    Otherwise, we return l_undef.
 */
-lbool type_context::try_numeral_eq_numeral(expr const & t, expr const & s) {
+lbool type_context_old::try_numeral_eq_numeral(expr const & t, expr const & s) {
     optional<mpz> n1 = eval_num(t);
     if (!n1) return l_undef;
     optional<mpz> n2 = eval_num(s);
@@ -2991,7 +2991,7 @@ lbool type_context::try_numeral_eq_numeral(expr const & t, expr const & s) {
 }
 
 /* Solve offset constraints. See discussion at issue #1226 */
-lbool type_context::try_nat_offset_cnstrs(expr const & t, expr const & s) {
+lbool type_context_old::try_nat_offset_cnstrs(expr const & t, expr const & s) {
     /* We should not use this feature when transparency_mode is none.
        See issue #1295 */
     if (m_transparency_mode == transparency_mode::None) return l_undef;
@@ -3008,7 +3008,7 @@ lbool type_context::try_nat_offset_cnstrs(expr const & t, expr const & s) {
     return try_numeral_eq_numeral(t, s);
 }
 
-lbool type_context::is_def_eq_delta(expr const & t, expr const & s) {
+lbool type_context_old::is_def_eq_delta(expr const & t, expr const & s) {
     optional<declaration> d_t = is_delta(t);
     optional<declaration> d_s = is_delta(s);
 
@@ -3118,7 +3118,7 @@ lbool type_context::is_def_eq_delta(expr const & t, expr const & s) {
     return l_undef;
 }
 
-lbool type_context::is_def_eq_proj(expr t, expr s) {
+lbool type_context_old::is_def_eq_proj(expr t, expr s) {
     projection_info const * t_proj = is_projection(t);
     projection_info const * s_proj = is_projection(s);
     if (t_proj && !s_proj) {
@@ -3168,7 +3168,7 @@ lbool type_context::is_def_eq_proj(expr t, expr s) {
     return l_undef;
 }
 
-bool type_context::is_def_eq_core_core(expr t, expr s) {
+bool type_context_old::is_def_eq_core_core(expr t, expr s) {
     lbool r = quick_is_def_eq(t, s);
     if (r != l_undef) return r == l_true;
 
@@ -3246,7 +3246,7 @@ bool type_context::is_def_eq_core_core(expr t, expr s) {
     return on_is_def_eq_failure(t, s);
 }
 
-bool type_context::is_def_eq_core(expr const & t, expr const & s) {
+bool type_context_old::is_def_eq_core(expr const & t, expr const & s) {
     unsigned postponed_sz = m_postponed.size();
     bool r = is_def_eq_core_core(t, s);
     if (r && postponed_sz == m_postponed.size()) {
@@ -3255,7 +3255,7 @@ bool type_context::is_def_eq_core(expr const & t, expr const & s) {
     return r;
 }
 
-bool type_context::is_def_eq(expr const & t, expr const & s) {
+bool type_context_old::is_def_eq(expr const & t, expr const & s) {
     scope S(*this);
     flet<bool> in_is_def_eq(m_in_is_def_eq, true);
     bool success = is_def_eq_core(t, s);
@@ -3271,12 +3271,12 @@ bool type_context::is_def_eq(expr const & t, expr const & s) {
     }
 }
 
-bool type_context::relaxed_is_def_eq(expr const & e1, expr const & e2) {
+bool type_context_old::relaxed_is_def_eq(expr const & e1, expr const & e2) {
     relaxed_scope scope(*this);
     return is_def_eq(e1, e2);
 }
 
-bool type_context::try_unification_hint(unification_hint const & hint, expr const & e1, expr const & e2) {
+bool type_context_old::try_unification_hint(unification_hint const & hint, expr const & e1, expr const & e2) {
     scope S(*this);
     flet<bool> disable_smart_unfolding(m_smart_unfolding, false);
     if (::lean::try_unification_hint(*this, hint, e1, e2) && process_postponed(S)) {
@@ -3287,7 +3287,7 @@ bool type_context::try_unification_hint(unification_hint const & hint, expr cons
     }
 }
 
-bool type_context::try_unification_hints(expr const & e1, expr const & e2) {
+bool type_context_old::try_unification_hints(expr const & e1, expr const & e2) {
     expr e1_fn = get_app_fn(e1);
     expr e2_fn = get_app_fn(e2);
     if (is_constant(e1_fn) && is_constant(e2_fn)) {
@@ -3312,7 +3312,7 @@ bool type_context::try_unification_hints(expr const & e1, expr const & e2) {
    ------------- */
 
 /** \brief If the constant \c e is a class, return its name */
-optional<name> type_context::constant_is_class(expr const & e) {
+optional<name> type_context_old::constant_is_class(expr const & e) {
     name const & cls_name = const_name(e);
     if (lean::is_class(env(), cls_name)) {
         return optional<name>(cls_name);
@@ -3321,7 +3321,7 @@ optional<name> type_context::constant_is_class(expr const & e) {
     }
 }
 
-optional<name> type_context::is_full_class(expr type) {
+optional<name> type_context_old::is_full_class(expr type) {
     expr new_type = whnf(type);
     if (is_pi(new_type)) {
         type = new_type;
@@ -3345,7 +3345,7 @@ optional<name> type_context::is_full_class(expr type) {
     l_true:   \c type is a class, and the name of the class is stored in \c result.
     l_false:  \c type is not a class.
     l_undef:  procedure did not establish whether \c type is a class or not. */
-lbool type_context::is_quick_class(expr const & type, name & result) {
+lbool type_context_old::is_quick_class(expr const & type, name & result) {
     expr const * it = &type;
     while (true) {
         switch (it->kind()) {
@@ -3388,7 +3388,7 @@ lbool type_context::is_quick_class(expr const & type, name & result) {
 }
 
 /** \brief Return true iff \c type is a class or Pi that produces a class. */
-optional<name> type_context::is_class(expr const & type) {
+optional<name> type_context_old::is_class(expr const & type) {
     name result;
     switch (is_quick_class(type, result)) {
     case l_true:  return optional<name>(result);
@@ -3418,7 +3418,7 @@ struct instance_synthesizer {
         state              m_state;
     };
 
-    type_context &        m_ctx;
+    type_context_old &        m_ctx;
     expr                  m_main_mvar;
     state                 m_state;    // active state
     buffer<choice>        m_choices;
@@ -3426,7 +3426,7 @@ struct instance_synthesizer {
     transparency_mode     m_old_transparency_mode;
     bool                  m_old_zeta;
 
-    instance_synthesizer(type_context & ctx):
+    instance_synthesizer(type_context_old & ctx):
         m_ctx(ctx),
         m_displayed_trace_header(false),
         m_old_transparency_mode(m_ctx.m_transparency_mode),
@@ -3474,7 +3474,7 @@ struct instance_synthesizer {
     /* Try to synthesize e.m_mvar using instance inst : inst_type. */
     bool try_instance(stack_entry const & e, expr const & inst, expr const & inst_type) {
         try {
-            type_context::tmp_locals locals(m_ctx);
+            type_context_old::tmp_locals locals(m_ctx);
             expr const & mvar = e.m_mvar;
             expr mvar_type    = m_ctx.infer(mvar);
             while (true) {
@@ -3619,7 +3619,7 @@ struct instance_synthesizer {
     }
 
     bool process_special(stack_entry const & e) {
-        type_context::tmp_locals locals(m_ctx);
+        type_context_old::tmp_locals locals(m_ctx);
         expr const & mvar = e.m_mvar;
         expr mvar_type    = m_ctx.infer(mvar);
         while (true) {
@@ -3890,7 +3890,7 @@ terms searching for unassigned metavariables for implementing this translation.
 
 For all these reasons, we have discarded this alternative design.
 */
-expr type_context::preprocess_class(expr const & type,
+expr type_context_old::preprocess_class(expr const & type,
                                     buffer<level_pair> & u_replacements,
                                     buffer<expr_pair> &  e_replacements) {
     if (!has_metavar(type)) {
@@ -3898,7 +3898,7 @@ expr type_context::preprocess_class(expr const & type,
         if (is_constant(C) && !has_class_out_params(env(), const_name(C)))
             return type;
     }
-    type_context::tmp_locals locals(*this);
+    type_context_old::tmp_locals locals(*this);
     expr it = type;
     while (true) {
         expr new_it = relaxed_whnf(it);
@@ -3946,7 +3946,7 @@ expr type_context::preprocess_class(expr const & type,
     return locals.mk_pi(new_class);
 }
 
-static void instantiate_replacements(type_context & ctx,
+static void instantiate_replacements(type_context_old & ctx,
                                      buffer<level_pair> & u_replacements,
                                      buffer<expr_pair> &  e_replacements) {
     for (level_pair & p : u_replacements) {
@@ -3957,7 +3957,7 @@ static void instantiate_replacements(type_context & ctx,
     }
 }
 
-optional<expr> type_context::mk_class_instance(expr const & type_0) {
+optional<expr> type_context_old::mk_class_instance(expr const & type_0) {
     expr type = instantiate_mvars(type_0);
     scope S(*this);
     optional<expr> result;
@@ -4001,7 +4001,7 @@ optional<expr> type_context::mk_class_instance(expr const & type_0) {
     return result;
 }
 
-optional<expr> type_context::mk_subsingleton_instance(expr const & type) {
+optional<expr> type_context_old::mk_subsingleton_instance(expr const & type) {
     if (optional<optional<expr>> r = m_cache->get_subsingleton(type))
         return *r;
     expr Type  = whnf(infer(type));
@@ -4020,7 +4020,7 @@ optional<expr> type_context::mk_subsingleton_instance(expr const & type) {
    Auxiliary
    ------------- */
 
-expr type_context::eta_expand(expr const & e) {
+expr type_context_old::eta_expand(expr const & e) {
     tmp_locals locals(*this);
     expr it = e;
     while (is_lambda(it)) {
@@ -4041,39 +4041,39 @@ expr type_context::eta_expand(expr const & e) {
     return locals.mk_lambda(r);
 }
 
-tmp_type_context::tmp_type_context(type_context & ctx, unsigned num_umeta, unsigned num_emeta):
+tmp_type_context::tmp_type_context(type_context_old & ctx, unsigned num_umeta, unsigned num_emeta):
     m_ctx(ctx), m_tmp_data(m_tmp_uassignment, m_tmp_eassignment, ctx.lctx()) {
     m_tmp_uassignment.resize(num_umeta, none_level());
     m_tmp_eassignment.resize(num_emeta, none_expr());
 }
 
 bool tmp_type_context::is_def_eq(expr const & e1, expr const & e2) {
-    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
+    type_context_old::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.is_def_eq(e1, e2);
 }
 
 bool tmp_type_context::match(expr const & e1, expr const & e2) {
-    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
+    type_context_old::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.match(e1, e2);
 }
 
 expr tmp_type_context::infer(expr const & e) {
-    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
+    type_context_old::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.infer(e);
 }
 
 expr tmp_type_context::whnf(expr const & e) {
-    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
+    type_context_old::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.whnf(e);
 }
 
 level tmp_type_context::mk_tmp_univ_mvar() {
-    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
+    type_context_old::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.mk_tmp_univ_mvar();
 }
 
 expr tmp_type_context::mk_tmp_mvar(expr const & type) {
-    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
+    type_context_old::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.mk_tmp_mvar(type);
 }
 
@@ -4092,53 +4092,53 @@ void tmp_type_context::clear_eassignment() {
 }
 
 expr tmp_type_context::instantiate_mvars(expr const & e) {
-    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
+    type_context_old::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.instantiate_mvars(e);
 }
 
 void tmp_type_context::assign(expr const & m, expr const & v) {
-    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
+    type_context_old::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     m_ctx.assign(m, v);
 }
 
 expr tmp_type_context::mk_lambda(buffer<expr> const & locals, expr const & e) {
-    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
+    type_context_old::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.mk_lambda(locals, e);
 }
 
 expr tmp_type_context::mk_pi(buffer<expr> const & locals, expr const & e) {
-    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
+    type_context_old::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.mk_pi(locals, e);
 }
 
 expr tmp_type_context::mk_lambda(expr const & local, expr const & e) {
-    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
+    type_context_old::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.mk_lambda(local, e);
 }
 
 expr tmp_type_context::mk_pi(expr const & local, expr const & e) {
-    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
+    type_context_old::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.mk_pi(local, e);
 }
 
 expr tmp_type_context::mk_lambda(std::initializer_list<expr> const & locals, expr const & e) {
-    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
+    type_context_old::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.mk_lambda(locals, e);
 }
 
 expr tmp_type_context::mk_pi(std::initializer_list<expr> const & locals, expr const & e) {
-    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
+    type_context_old::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.mk_pi(locals, e);
 }
 
 bool tmp_type_context::is_prop(expr const & e) {
-    type_context::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
+    type_context_old::tmp_mode_scope_with_data tmp_scope(m_ctx, m_tmp_data);
     return m_ctx.is_prop(e);
 }
 
 /** \brief Helper class for pretty printing terms that contain local_decl_ref's and metavar_decl_ref's */
 class pp_ctx {
-    type_context m_ctx;
+    type_context_old m_ctx;
     formatter    m_fmt;
 public:
     pp_ctx(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx):
@@ -4159,7 +4159,7 @@ mk_pp_ctx(environment const & env, options const & opts, metavar_context const &
 }
 
 std::function<format(expr const &)>
-mk_pp_ctx(type_context const & ctx) {
+mk_pp_ctx(type_context_old const & ctx) {
     return mk_pp_ctx(ctx.env(), ctx.get_options(), ctx.mctx(), ctx.lctx());
 }
 

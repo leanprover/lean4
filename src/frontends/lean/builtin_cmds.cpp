@@ -222,7 +222,7 @@ environment reduce_cmd(parser & p) {
     expr e; level_param_names ls;
     std::tie(e, ls) = parse_local_expr(p, "_reduce");
     expr r;
-    type_context ctx(p.env(), p.get_options(), metavar_context(), local_context(), transparency_mode::All);
+    type_context_old ctx(p.env(), p.get_options(), metavar_context(), local_context(), transparency_mode::All);
     if (whnf) {
         r = ctx.whnf(e);
     } else {
@@ -391,7 +391,7 @@ static environment init_quotient_cmd(parser & p) {
 
 /*
    Temporary procedure that converts metavariables in \c e to metavar_context metavariables.
-   After we convert the frontend to type_context, we will not need to use this procedure.
+   After we convert the frontend to type_context_old, we will not need to use this procedure.
 */
 static expr convert_metavars(metavar_context & mctx, expr const & e) {
     expr_map<expr> cache;
@@ -427,7 +427,7 @@ static environment unify_cmd(parser & p) {
     e2 = convert_metavars(mctx, e2);
     auto rep = p.mk_message(p.cmd_pos(), p.pos(), INFORMATION);
     rep << e1 << " =?= " << e2 << "\n";
-    type_context ctx(env, p.get_options(), mctx, lctx, transparency_mode::Semireducible);
+    type_context_old ctx(env, p.get_options(), mctx, lctx, transparency_mode::Semireducible);
     bool success = ctx.is_def_eq(e1, e2);
     if (success)
         rep << ctx.instantiate_mvars(e1) << " =?= " << ctx.instantiate_mvars(e2) << "\n";
@@ -453,7 +453,7 @@ static environment eval_cmd(parser & p) {
     if (has_synthetic_sorry(e))
         return p.env();
 
-    type_context tc(p.env(), transparency_mode::All);
+    type_context_old tc(p.env(), transparency_mode::All);
     auto type = tc.infer(e);
     bool has_repr_inst = false;
 

@@ -27,7 +27,7 @@ class context_cache : public context_cacheless {
         cached value for (fun {A : Type} (a : A), a) when inferring the type of
         (fun (A : Type) (a : A), a). This is wasteful in modules such as the tactic framework.
 
-        So, when we create a type_context_cache object we can specify whether this extra
+        So, when we create a type_context_old_cache object we can specify whether this extra
         level of precision is required or not. */
     typedef expr_cond_bi_struct_map<expr> infer_cache;
     typedef expr_struct_map<expr> whnf_cache;
@@ -50,9 +50,9 @@ class context_cache : public context_cacheless {
 
        \remark In Semireducible, Instances and Reducible modes, projections and theorems are considered
        opaque independently of annotations. Actually, theorems will not be treated as opaque
-       IF option `type_context.unfold_lemmas` is set to true.
+       IF option `type_context_old.unfold_lemmas` is set to true.
        In All mode, projections are still considered opaque,
-       this is not a problem since type_context implements a custom reduction rule for projections.
+       this is not a problem since type_context_old implements a custom reduction rule for projections.
 
        The All mode is used for type inference where it is unacceptable to fail to infer a type.
        The Semireducible mode is used for scenarios where an `is_def_eq` is expected to succeed
@@ -68,19 +68,19 @@ class context_cache : public context_cacheless {
 
     /* We use the following approach for caching type class instances.
 
-       Whenever a type_context object is initialized with a local_context lctx
+       Whenever a type_context_old object is initialized with a local_context lctx
 
        1) If lctx has an instance_fingerprint, then we compare with the instance_fingerprint
           stored in this cache, if they are equal, we keep m_local_instances,
           m_instance_cache and m_subsingleton_cache.
 
-          New local instances added using methods type_context::push_local and type_context::push_let will
+          New local instances added using methods type_context_old::push_local and type_context_old::push_let will
           be ignored.
 
        2) If lctx doesn't have one, we clear m_local_instances, m_instance_cache and m_subsingleton_cache.
           We also traverse lctx and collect the local instances.
 
-          The methods type_context::push_local and type_context::push_let will flush the cache
+          The methods type_context_old::push_local and type_context_old::push_let will flush the cache
           whenever new local instances are pushed into the local context.
 
           m_instance_cache and m_subsingleton_cache are flushed before the cache is returned to the
@@ -99,12 +99,12 @@ public:
     context_cache & operator=(context_cache const &) = delete;
     context_cache & operator=(context_cache &&) = default;
 
-    virtual optional<declaration> get_decl(type_context &, transparency_mode, name const &) override;
-    virtual projection_info const * get_proj_info(type_context &, name const &) override;
-    virtual bool get_aux_recursor(type_context &, name const &) override;
-    virtual void get_unification_hints(type_context &, name const & f1, name const & f2, buffer<unification_hint> & hints) override;
+    virtual optional<declaration> get_decl(type_context_old &, transparency_mode, name const &) override;
+    virtual projection_info const * get_proj_info(type_context_old &, name const &) override;
+    virtual bool get_aux_recursor(type_context_old &, name const &) override;
+    virtual void get_unification_hints(type_context_old &, name const & f1, name const & f2, buffer<unification_hint> & hints) override;
 
-    /* Cache support for type_context module */
+    /* Cache support for type_context_old module */
 
     virtual optional<expr> get_infer(expr const &) override;
     virtual void set_infer(expr const &, expr const &) override;

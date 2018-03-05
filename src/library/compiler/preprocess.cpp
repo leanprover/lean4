@@ -65,7 +65,7 @@ class expand_aux_fn : public compiler_step_visitor {
     expr visit_cases_on(expr const & e) {
         /* Try to reduce cases_on.
            Remark: we only unfold reducible constants. */
-        type_context::transparency_scope scope(ctx(), transparency_mode::Reducible);
+        type_context_old::transparency_scope scope(ctx(), transparency_mode::Reducible);
         if (auto r1 = ctx().reduce_aux_recursor(e)) {
             if (auto r2 = ctx().norm_ext(*r1)) {
                 return compiler_step_visitor::visit(*r2);
@@ -113,7 +113,7 @@ class expand_aux_fn : public compiler_step_visitor {
     }
 
     virtual expr visit_constant(expr const & e) override {
-        type_context::nozeta_scope scope(ctx());
+        type_context_old::nozeta_scope scope(ctx());
         if (should_unfold(e))
             return visit(unfold(e));
         else
@@ -121,14 +121,14 @@ class expand_aux_fn : public compiler_step_visitor {
     }
 
     virtual expr visit_app(expr const & e) override {
-        type_context::nozeta_scope scope(ctx());
+        type_context_old::nozeta_scope scope(ctx());
         switch (get_recursor_app_kind(e)) {
         case recursor_kind::NotRecursor: {
             if (should_unfold(e))
                 return visit(unfold(e));
             expr new_e;
             {
-                type_context::transparency_scope scope(ctx(), transparency_mode::Reducible);
+                type_context_old::transparency_scope scope(ctx(), transparency_mode::Reducible);
                 new_e = copy_tag(e, ctx().whnf_head_pred(e, [&](expr const &) { return false; }));
             }
             if (is_eqp(new_e, e))
@@ -141,7 +141,7 @@ class expand_aux_fn : public compiler_step_visitor {
         case recursor_kind::Aux:
             expr new_e;
             {
-                type_context::transparency_scope scope(ctx(), transparency_mode::Reducible);
+                type_context_old::transparency_scope scope(ctx(), transparency_mode::Reducible);
                 new_e = copy_tag(e, ctx().whnf_head_pred(e, [&](expr const & e) { return is_aux_recursor(e); }));
             }
             return compiler_step_visitor::visit(new_e);
@@ -210,9 +210,9 @@ class preprocess_fn {
        This procedure returns true if type of d is a proposition or return a type,
        and store the dummy code above in */
     bool compile_irrelevant(declaration const & d, buffer<procedure> & procs) {
-        type_context ctx(m_env, transparency_mode::All);
+        type_context_old ctx(m_env, transparency_mode::All);
         expr type = d.get_type();
-        type_context::tmp_locals locals(ctx);
+        type_context_old::tmp_locals locals(ctx);
         while (true) {
             type = ctx.relaxed_whnf(type);
             if (!is_pi(type))

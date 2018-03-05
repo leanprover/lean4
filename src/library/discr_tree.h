@@ -47,28 +47,28 @@ private:
     };
     static void swap(node & n1, node & n2);
     static node ensure_unshared(node && n);
-    static node insert_erase_atom(type_context & ctx, node && n, edge const & e, buffer<pair<expr, bool>> & todo, expr const & v, buffer<pair<node, node>> & skip, bool ins);
-    static node insert_erase_star(type_context & ctx, node && n, buffer<pair<expr, bool>> & todo, expr const & v, buffer<pair<node, node>> & skip, bool ins);
-    static node insert_erase_app(type_context & ctx, node && n, bool is_root, expr const & e, buffer<pair<expr, bool>> & todo, expr const & v,
+    static node insert_erase_atom(type_context_old & ctx, node && n, edge const & e, buffer<pair<expr, bool>> & todo, expr const & v, buffer<pair<node, node>> & skip, bool ins);
+    static node insert_erase_star(type_context_old & ctx, node && n, buffer<pair<expr, bool>> & todo, expr const & v, buffer<pair<node, node>> & skip, bool ins);
+    static node insert_erase_app(type_context_old & ctx, node && n, bool is_root, expr const & e, buffer<pair<expr, bool>> & todo, expr const & v,
                                  buffer<pair<node, node>> & skip, bool ins);
-    static node insert_erase(type_context & ctx, node && n, bool is_root, buffer<pair<expr, bool>> & todo,
+    static node insert_erase(type_context_old & ctx, node && n, bool is_root, buffer<pair<expr, bool>> & todo,
                              expr const & v, buffer<pair<node, node>> & skip, bool ins);
-    void insert_erase(type_context & ctx, expr const & k, expr const & v, bool ins);
+    void insert_erase(type_context_old & ctx, expr const & k, expr const & v, bool ins);
 
-    static bool find_atom(type_context & ctx, node const & n, edge const & e, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn); // NOLINT
-    static bool find_star(type_context & ctx, node const & n, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn); // NOLINT
-    static bool find_app(type_context & ctx, node const & n, expr const & e, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn); // NOLINT
-    static bool find(type_context & ctx, node const & n, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn); // NOLINT
+    static bool find_atom(type_context_old & ctx, node const & n, edge const & e, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn); // NOLINT
+    static bool find_star(type_context_old & ctx, node const & n, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn); // NOLINT
+    static bool find_app(type_context_old & ctx, node const & n, expr const & e, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn); // NOLINT
+    static bool find(type_context_old & ctx, node const & n, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn); // NOLINT
 
     node m_root;
 public:
-    void insert(type_context & ctx, expr const & k, expr const & v) { insert_erase(ctx, k, v, true); }
-    void insert(type_context & ctx, expr const & k) { insert(ctx, k, k); }
-    void erase(type_context & ctx, expr const & k, expr const & v) { insert_erase(ctx, k, v, false); }
-    void erase(type_context & ctx, expr const & k) { erase(ctx, k, k); }
+    void insert(type_context_old & ctx, expr const & k, expr const & v) { insert_erase(ctx, k, v, true); }
+    void insert(type_context_old & ctx, expr const & k) { insert(ctx, k, k); }
+    void erase(type_context_old & ctx, expr const & k, expr const & v) { insert_erase(ctx, k, v, false); }
+    void erase(type_context_old & ctx, expr const & k) { erase(ctx, k, k); }
 
-    void find(type_context & ctx, expr const & e, std::function<bool(expr const &)> const & fn) const; // NOLINT
-    void collect(type_context & ctx, expr const & e, buffer<expr> & r) const;
+    void find(type_context_old & ctx, expr const & e, std::function<bool(expr const &)> const & fn) const; // NOLINT
+    void collect(type_context_old & ctx, expr const & e, buffer<expr> & r) const;
 
     void trace() const;
 };

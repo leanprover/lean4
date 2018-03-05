@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "library/defeq_canonizer.h"
 
 namespace lean {
-defeq_canonizer::defeq_canonizer(type_context & ctx, state & s):
+defeq_canonizer::defeq_canonizer(type_context_old & ctx, state & s):
     m_ctx(ctx), m_state(s) {
 }
 
@@ -22,7 +22,7 @@ optional<name> defeq_canonizer::get_head_symbol(expr type) {
     if (is_constant(fn)) {
         return optional<name>(const_name(fn));
     } else if (is_pi(type)) {
-        type_context::tmp_locals locals(m_ctx);
+        type_context_old::tmp_locals locals(m_ctx);
         expr l = locals.push_local_from_binding(type);
         return get_head_symbol(instantiate(binding_body(type), l));
     } else {
@@ -99,12 +99,12 @@ expr defeq_canonizer::canonize_core(expr const & e) {
     }
 }
 
-static void trace(type_context & ctx, expr const & e, expr const & r) {
+static void trace(type_context_old & ctx, expr const & e, expr const & r) {
     lean_trace("defeq_canonizer", scope_trace_env _(ctx.env(), ctx); tout() << "\n" << e << "\n==>\n" << r << "\n";);
 }
 
 expr defeq_canonizer::canonize(expr const & e, bool & updated) {
-    type_context::transparency_scope scope(m_ctx, transparency_mode::Instances);
+    type_context_old::transparency_scope scope(m_ctx, transparency_mode::Instances);
     m_updated = &updated;
     expr r = canonize_core(e);
     trace(m_ctx, e, r);
@@ -112,7 +112,7 @@ expr defeq_canonizer::canonize(expr const & e, bool & updated) {
 }
 
 expr defeq_canonizer::canonize(expr const & e) {
-    type_context::transparency_scope scope(m_ctx, transparency_mode::Instances);
+    type_context_old::transparency_scope scope(m_ctx, transparency_mode::Instances);
     m_updated = nullptr;
     expr r = canonize_core(e);
     trace(m_ctx, e, r);

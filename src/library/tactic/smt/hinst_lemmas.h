@@ -68,8 +68,8 @@ list<multi_pattern> mk_multipatterns(environment const & env, io_state const & i
 
     \c md_norm is the transparency_mode used for normalizing the type of the lemma.
     The idea is to unfold the lemmas using the given transparency mode. */
-hinst_lemma mk_hinst_lemma(type_context & ctx, transparency_mode md_norm, expr const & H, bool simp = false);
-hinst_lemma mk_hinst_lemma(type_context & ctx, transparency_mode md_norm, name const & n, bool simp = false);
+hinst_lemma mk_hinst_lemma(type_context_old & ctx, transparency_mode md_norm, expr const & H, bool simp = false);
+hinst_lemma mk_hinst_lemma(type_context_old & ctx, transparency_mode md_norm, name const & n, bool simp = false);
 
 format pp_hinst_lemma(formatter const & fmt, hinst_lemma const & h);
 

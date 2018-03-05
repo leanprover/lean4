@@ -311,7 +311,7 @@ optional<expr> mk_int_val_ne_proof(expr const & a, expr const & b) {
     }
 }
 
-optional<expr> mk_val_ne_proof(type_context & ctx, expr const & a, expr const & b) {
+optional<expr> mk_val_ne_proof(type_context_old & ctx, expr const & a, expr const & b) {
     expr type = ctx.infer(a);
     if (ctx.is_def_eq(type, mk_nat_type()))
         return mk_nat_val_ne_proof(a, b);

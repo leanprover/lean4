@@ -254,9 +254,9 @@ bool has_class_out_params(environment const & env, name const & c) {
 environment add_instance_core(environment const & env, name const & n, unsigned priority, bool persistent) {
     declaration d = env.get(n);
     expr type = d.get_type();
-    type_context ctx(env, transparency_mode::All);
+    type_context_old ctx(env, transparency_mode::All);
     class_state S = class_ext::get_state(env);
-    type_context::tmp_locals locals(ctx);
+    type_context_old::tmp_locals locals(ctx);
     while (true) {
         type = ctx.whnf_head_pred(type, [&](expr const & e) {
                 expr const & fn = get_app_fn(e);

@@ -14,7 +14,7 @@ namespace lean {
 vm_obj assert_define_core(bool is_assert, name const & n, expr const & t, tactic_state const & s) {
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
-    type_context ctx     = mk_type_context_for(s);
+    type_context_old ctx     = mk_type_context_for(s);
     if (!is_sort(ctx.whnf(ctx.infer(t)))) {
         format msg("invalid ");
         if (is_assert) msg += format("assert"); else msg += format("define");
@@ -50,7 +50,7 @@ vm_obj tactic_define_core(vm_obj const & n, vm_obj const & t, vm_obj const & s) 
 vm_obj assertv_definev_core(bool is_assert, name const & n, expr const & t, expr const & v, tactic_state const & s) {
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
-    type_context ctx     = mk_type_context_for(s);
+    type_context_old ctx     = mk_type_context_for(s);
     expr v_type          = ctx.infer(v);
     if (!ctx.is_def_eq(t, v_type)) {
         auto thunk = [=]() {

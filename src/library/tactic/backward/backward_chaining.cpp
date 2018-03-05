@@ -29,7 +29,7 @@ unsigned get_backward_chaining_max_depth(options const & o) {
 
 struct back_chaining_fn {
     tactic_state         m_initial_state;
-    type_context         m_ctx;
+    type_context_old         m_ctx;
     bool                 m_use_instances;
     unsigned             m_max_depth;
     vm_obj               m_pre_tactic;

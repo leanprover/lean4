@@ -21,7 +21,7 @@ message_builder::message_builder(std::shared_ptr<abstract_type_context> const & 
 message_builder::message_builder(environment const & env, io_state const & ios,
                                  std::string const & file_name, pos_info const & pos,
                                  message_severity severity) :
-        message_builder(std::make_shared<type_context>(env, ios.get_options()),
+        message_builder(std::make_shared<type_context_old>(env, ios.get_options()),
                         env, ios, file_name, pos, severity) {}
 
 message message_builder::build() {

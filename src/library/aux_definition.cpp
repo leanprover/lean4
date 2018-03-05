@@ -150,7 +150,7 @@ buffer<expr> const & closure_helper::get_norm_closure_params() const {
 }
 
 struct mk_aux_definition_fn : public closure_helper {
-    mk_aux_definition_fn(type_context & ctx):closure_helper(ctx) {}
+    mk_aux_definition_fn(type_context_old & ctx):closure_helper(ctx) {}
 
     pair<environment, expr> operator()(name const & c, expr const & type, expr const & value, bool is_lemma, optional<bool> const & is_meta) {
         lean_assert(!is_lemma || is_meta);
@@ -189,14 +189,14 @@ struct mk_aux_definition_fn : public closure_helper {
 
 pair<environment, expr> mk_aux_definition(environment const & env, metavar_context const & mctx, local_context const & lctx,
                                           name const & c, expr const & type, expr const & value, optional<bool> const & is_meta) {
-    type_context ctx(env, options(), mctx, lctx, transparency_mode::All);
+    type_context_old ctx(env, options(), mctx, lctx, transparency_mode::All);
     bool is_lemma = false;
     return mk_aux_definition_fn(ctx)(c, type, value, is_lemma, is_meta);
 }
 
 pair<environment, expr> mk_aux_definition(environment const & env, metavar_context const & mctx, local_context const & lctx,
                                           name const & c, expr const & value, optional<bool> const & is_meta) {
-    type_context ctx(env, options(), mctx, lctx, transparency_mode::All);
+    type_context_old ctx(env, options(), mctx, lctx, transparency_mode::All);
     expr type     = ctx.infer(value);
     bool is_lemma = false;
     return mk_aux_definition_fn(ctx)(c, type, value, is_lemma, is_meta);
@@ -204,7 +204,7 @@ pair<environment, expr> mk_aux_definition(environment const & env, metavar_conte
 
 pair<environment, expr> mk_aux_lemma(environment const & env, metavar_context const & mctx, local_context const & lctx,
                                      name const & c, expr const & type, expr const & value) {
-    type_context ctx(env, options(), mctx, lctx, transparency_mode::All);
+    type_context_old ctx(env, options(), mctx, lctx, transparency_mode::All);
     bool is_lemma = true;
     optional<bool> is_meta(false);
     return mk_aux_definition_fn(ctx)(c, type, value, is_lemma, is_meta);
@@ -214,7 +214,7 @@ struct abstract_nested_proofs_fn : public replace_visitor_with_tc {
     name     m_base_name;
     unsigned m_idx{1};
 
-    abstract_nested_proofs_fn(type_context & ctx, name const & b):
+    abstract_nested_proofs_fn(type_context_old & ctx, name const & b):
         replace_visitor_with_tc(ctx),
         m_base_name(b, "_proof") {
     }
@@ -284,7 +284,7 @@ struct abstract_nested_proofs_fn : public replace_visitor_with_tc {
 };
 
 pair<environment, expr> abstract_nested_proofs(environment const & env, metavar_context const & mctx, local_context const & lctx, name const & base_name, expr const & e) {
-    type_context ctx(env, options(), mctx, lctx, transparency_mode::Semireducible);
+    type_context_old ctx(env, options(), mctx, lctx, transparency_mode::Semireducible);
     return abstract_nested_proofs_fn(ctx, base_name)(e);
 }
 

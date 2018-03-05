@@ -81,7 +81,7 @@ protected:
         }
     }
 
-    expr consume_lambdas(type_context::tmp_locals & locals, expr e) {
+    expr consume_lambdas(type_context_old::tmp_locals & locals, expr e) {
         while (true) {
             expr new_e = ctx().whnf(e);
             if (is_lambda(new_e)) {
@@ -118,7 +118,7 @@ protected:
         /* Create new locals for aux.
            The operating abstract_locals creates a lambda-abstraction around aux if it uses
            local constants. */
-        type_context::tmp_locals locals(m_ctx);
+        type_context_old::tmp_locals locals(m_ctx);
         buffer<expr> aux_decl_params; /* "fixed" parameters of the auxiliary recursive declaration. */
         expr aux_body = aux;
         while (is_lambda(aux_body)) {
@@ -175,7 +175,7 @@ protected:
                 unsigned carity = get_constructor_arity(env(), cnames[i]);
                 expr minor      = aux_body_args[first_minor_idx + i];
                 // tout() << ">> minor: " << minor << "\n";
-                type_context::tmp_locals minor_locals(m_ctx);
+                type_context_old::tmp_locals minor_locals(m_ctx);
                 buffer<expr> minor_recs; /* "recursive calls" */
                 lean_assert(carity >= nparams);
                 buffer<bool> rec_mask;
@@ -186,7 +186,7 @@ protected:
                     expr minor_local = minor_locals.push_local_from_binding(minor);
                     minor = instantiate(binding_body(minor), minor_local);
                     /* Check if minor_local is recursive data */
-                    type_context::tmp_locals aux_locals(m_ctx);
+                    type_context_old::tmp_locals aux_locals(m_ctx);
                     expr minor_local_type = ctx().whnf(ctx().infer(minor_local));
                     // tout() << ">>> minor_local_type: " << minor_local_type << "\n";
                     while (is_pi(minor_local_type)) {

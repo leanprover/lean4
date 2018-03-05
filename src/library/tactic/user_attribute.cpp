@@ -69,7 +69,7 @@ public:
     attr_data_ptr parse_data(abstract_parser & p) const override final {
         lean_assert(dynamic_cast<parser *>(&p));
         auto & p2 = *static_cast<parser *>(&p);
-        type_context ctx(p2.env(), p2.get_options());
+        type_context_old ctx(p2.env(), p2.get_options());
         expr parser = mk_app(ctx, get_user_attribute_parse_reflect_name(), 3, mk_constant(m_decl));
         expr param = to_expr(run_parser(p2, parser));
         return attr_data_ptr(new user_attribute_data(param));
@@ -95,7 +95,7 @@ vm_obj user_attribute_get_param_untyped(vm_obj const &, vm_obj const &, vm_obj c
 
 vm_obj user_attribute_set_untyped(expr const & beta, name const & attr_n, name const & n, expr const & val,
                                         bool persistent, unsigned prio, tactic_state const & s) {
-    type_context ctx(s.env(), s.get_options());
+    type_context_old ctx(s.env(), s.get_options());
     if (!ctx.is_def_eq(beta, ctx.infer(val))) {
         return tactic::mk_exception(sstream() << "set_untyped failed, '" << val << "' is not of type '" << beta << "'", s);
     }

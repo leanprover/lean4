@@ -150,7 +150,7 @@ expr mk_pattern_hint(expr const & e) {
 
 typedef rb_tree<unsigned, unsigned_cmp> idx_metavar_set;
 
-static bool is_higher_order(type_context & ctx, expr const & e) {
+static bool is_higher_order(type_context_old & ctx, expr const & e) {
     /* Remark: is it too expensive to use ctx.relaxed_whnf here? */
     return is_pi(ctx.whnf(ctx.infer(e)));
 }
@@ -159,7 +159,7 @@ static bool is_higher_order(type_context & ctx, expr const & e) {
     create n idx_metavars (one for each a_i), store the meta-variables in mvars,
     and store in trackable and residue the subsets of these meta-variables as
     described in the beginning of this file. Then returns B (instantiated with the new meta-variables) */
-expr extract_trackable(type_context & ctx, expr const & type,
+expr extract_trackable(type_context_old & ctx, expr const & type,
                        buffer<expr> & mvars,
                        buffer<bool> & inst_implicit_flags,
                        idx_metavar_set & trackable, idx_metavar_set & residue) {
@@ -244,7 +244,7 @@ expr extract_trackable(type_context & ctx, expr const & type,
     return B;
 }
 
-static expr dsimp(type_context & ctx, transparency_mode md, expr const & e) {
+static expr dsimp(type_context_old & ctx, transparency_mode md, expr const & e) {
     /* We used to use ::lean::normalize here, but it was bad since it would unfold type class instances.
        First, this may be a performance problem.
        Second, it would expose a problem with the way we define some algebraic structures.
@@ -260,7 +260,7 @@ static expr dsimp(type_context & ctx, transparency_mode md, expr const & e) {
 }
 
 struct mk_hinst_lemma_fn {
-    type_context &     m_ctx;
+    type_context_old &     m_ctx;
     transparency_mode  m_md_norm;
     name_set           m_no_inst_patterns;
     expr               m_H;
@@ -276,7 +276,7 @@ struct mk_hinst_lemma_fn {
     unsigned           m_num_steps;
     name               m_id;
 
-    mk_hinst_lemma_fn(type_context & ctx, transparency_mode md_norm, expr const & H,
+    mk_hinst_lemma_fn(type_context_old & ctx, transparency_mode md_norm, expr const & H,
                       unsigned num_uvars, unsigned max_steps, bool simp,
                       name const & id):
         m_ctx(ctx), m_md_norm(md_norm),
@@ -504,7 +504,7 @@ struct mk_hinst_lemma_fn {
        Remaining metavariables are "renamed" (i.e., renumbered to avoid gaps due to residue hypotheses moved to the end).
        Trackable set is updated.
        subst will contain the mvars renaming */
-    expr mk_proof(type_context::tmp_locals & locals, buffer<expr> & new_residue, buffer<expr> & subst) {
+    expr mk_proof(type_context_old::tmp_locals & locals, buffer<expr> & new_residue, buffer<expr> & subst) {
         unsigned j = 0;
         bool found_residue     = false;
         bool only_tail_residue = true;
@@ -565,7 +565,7 @@ struct mk_hinst_lemma_fn {
         lean_assert(m_mvars.size() == inst_implicit_flags.size());
         buffer<expr> subst;
         buffer<expr> residue_locals;
-        type_context::tmp_locals locals(m_ctx);
+        type_context_old::tmp_locals locals(m_ctx);
         expr proof  = mk_proof(locals, residue_locals, subst);
         B           = replace_mvars(B, subst);
         candidate_set hints = collect_pattern_hints(m_mvars, residue_locals, B);
@@ -612,7 +612,7 @@ struct mk_hinst_lemma_fn {
     }
 };
 
-hinst_lemma mk_hinst_lemma_core(type_context & ctx, transparency_mode md_norm, expr const & H, unsigned num_uvars,
+hinst_lemma mk_hinst_lemma_core(type_context_old & ctx, transparency_mode md_norm, expr const & H, unsigned num_uvars,
                                 unsigned max_steps, bool simp, name const & id) {
     if (num_uvars == 0 && !is_pi(ctx.relaxed_whnf(ctx.infer(H)))) {
         hinst_lemma h;
@@ -623,11 +623,11 @@ hinst_lemma mk_hinst_lemma_core(type_context & ctx, transparency_mode md_norm, e
         return h;
     } else {
         try {
-            type_context::tmp_mode_scope tscope(ctx, num_uvars, 0);
+            type_context_old::tmp_mode_scope tscope(ctx, num_uvars, 0);
             bool erase_hints = false;
             return mk_hinst_lemma_fn(ctx, md_norm, H, num_uvars, max_steps, simp, id)(erase_hints);
         } catch (mk_hinst_lemma_fn::try_again_without_hints &) {
-            type_context::tmp_mode_scope tscope(ctx, num_uvars, 0);
+            type_context_old::tmp_mode_scope tscope(ctx, num_uvars, 0);
             try {
                 bool erase_hints = true;
                 return mk_hinst_lemma_fn(ctx, md_norm, H, num_uvars, max_steps, simp, id)(erase_hints);
@@ -644,7 +644,7 @@ unsigned get_hinst_lemma_max_steps(options const & o) {
     return o.get_unsigned(*g_hinst_lemma_max_steps, LEAN_DEFAULT_HINST_LEMMA_PATTERN_MAX_STEPS);
 }
 
-hinst_lemma mk_hinst_lemma(type_context & ctx, transparency_mode md_norm, expr const & H, bool simp) {
+hinst_lemma mk_hinst_lemma(type_context_old & ctx, transparency_mode md_norm, expr const & H, bool simp) {
     unsigned max_steps = get_hinst_lemma_max_steps(ctx.get_options());
     name id;
     if (is_local(H))
@@ -652,7 +652,7 @@ hinst_lemma mk_hinst_lemma(type_context & ctx, transparency_mode md_norm, expr c
     return mk_hinst_lemma_core(ctx, md_norm, H, 0, max_steps, simp, id);
 }
 
-hinst_lemma mk_hinst_lemma(type_context & ctx, transparency_mode md_norm, name const & c, bool simp) {
+hinst_lemma mk_hinst_lemma(type_context_old & ctx, transparency_mode md_norm, name const & c, bool simp) {
     unsigned max_steps = get_hinst_lemma_max_steps(ctx.get_options());
     declaration const & d = ctx.env().get(c);
     buffer<level> us;
@@ -704,7 +704,7 @@ vm_obj to_obj(hinst_lemma const & s) {
 
 vm_obj hinst_lemma_mk_core(vm_obj const & m, vm_obj const & lemma, vm_obj const & simp, vm_obj const & s) {
     LEAN_TACTIC_TRY;
-    type_context ctx        = mk_type_context_for(s);
+    type_context_old ctx        = mk_type_context_for(s);
     hinst_lemma h           = mk_hinst_lemma(ctx, to_transparency_mode(m), to_expr(lemma), to_bool(simp));
     return tactic::mk_success(to_obj(h), tactic::to_state(s));
     LEAN_TACTIC_CATCH(tactic::to_state(s));
@@ -712,7 +712,7 @@ vm_obj hinst_lemma_mk_core(vm_obj const & m, vm_obj const & lemma, vm_obj const 
 
 vm_obj hinst_lemma_mk_from_decl_core(vm_obj const & m, vm_obj const & lemma_name, vm_obj const & simp, vm_obj const & s) {
     LEAN_TACTIC_TRY;
-    type_context ctx        = mk_type_context_for(s);
+    type_context_old ctx        = mk_type_context_for(s);
     hinst_lemma h           = mk_hinst_lemma(ctx, to_transparency_mode(m), to_name(lemma_name), to_bool(simp));
     return tactic::mk_success(to_obj(h), tactic::to_state(s));
     LEAN_TACTIC_CATCH(tactic::to_state(s));
@@ -722,7 +722,7 @@ vm_obj hinst_lemma_pp(vm_obj const & h, vm_obj const & _s) {
     tactic_state const & s = tactic::to_state(_s);
     LEAN_TACTIC_TRY;
     formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
-    type_context ctx = mk_type_context_for(s);
+    type_context_old ctx = mk_type_context_for(s);
     formatter fmt = fmtf(s.env(), s.get_options(), ctx);
     format r = pp_hinst_lemma(fmt, to_hinst_lemma(h));
     return tactic::mk_success(to_obj(r), s);

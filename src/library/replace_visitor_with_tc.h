@@ -8,10 +8,10 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/type_context.h"
 namespace lean {
-/** \brief Version of replace_visitor with a nested type_context object. */
+/** \brief Version of replace_visitor with a nested type_context_old object. */
 class replace_visitor_with_tc : public replace_visitor {
 protected:
-    type_context & m_ctx;
+    type_context_old & m_ctx;
     expr visit_lambda_pi_let(bool is_lam, expr const & e);
     virtual expr visit_lambda(expr const & e) override {
         return visit_lambda_pi_let(true, e);
@@ -24,6 +24,6 @@ protected:
     }
     virtual expr visit_app(expr const & e) override;
 public:
-    replace_visitor_with_tc(type_context & ctx):m_ctx(ctx) {}
+    replace_visitor_with_tc(type_context_old & ctx):m_ctx(ctx) {}
 };
 }

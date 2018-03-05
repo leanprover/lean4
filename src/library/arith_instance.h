@@ -70,7 +70,7 @@ typedef std::shared_ptr<arith_instance_info> arith_instance_info_ptr;
 arith_instance_info_ptr mk_arith_instance_info(expr const & type, level const & lvl);
 
 class arith_instance {
-    type_context *          m_ctx;
+    type_context_old *          m_ctx;
     arith_instance_info_ptr m_info;
 
     expr mk_structure(name const & s, optional<expr> & r);
@@ -79,11 +79,11 @@ class arith_instance {
     expr mk_pos_num(mpz const & n);
 
 public:
-    arith_instance(type_context & ctx, arith_instance_info_ptr const & info):m_ctx(&ctx), m_info(info) {}
-    arith_instance(type_context & ctx, expr const & type, level const & level);
-    arith_instance(type_context & ctx, expr const & type);
+    arith_instance(type_context_old & ctx, arith_instance_info_ptr const & info):m_ctx(&ctx), m_info(info) {}
+    arith_instance(type_context_old & ctx, expr const & type, level const & level);
+    arith_instance(type_context_old & ctx, expr const & type);
     arith_instance(arith_instance_info_ptr const & info):m_ctx(nullptr), m_info(info) {}
-    arith_instance(type_context & ctx):m_ctx(&ctx) {}
+    arith_instance(type_context_old & ctx):m_ctx(&ctx) {}
 
     void set_info(arith_instance_info_ptr const & info) { m_info = info; }
     /* The following method creates a fresh `arith_instance_info` for the given type.

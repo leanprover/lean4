@@ -71,7 +71,7 @@ vm_obj vm_task_map(vm_obj const &, vm_obj const &, vm_obj const & fn, vm_obj con
         auto file_name = logtree().get_location().m_file_name;
 
         // Tracing
-        type_context tc(env);
+        type_context_old tc(env);
         scope_trace_env scope_trace(env, opts, tc);
         scope_traces_as_messages scope_traces_as_msg(file_name, logtree().get_location().m_range.m_begin);
 

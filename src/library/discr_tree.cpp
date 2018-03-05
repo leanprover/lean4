@@ -138,7 +138,7 @@ int discr_tree::node_cmp::operator()(node const & n1, node const & n2) const {
     }
 }
 
-auto discr_tree::insert_erase_atom(type_context & ctx, node && n, edge const & e, buffer<pair<expr, bool>> & todo,
+auto discr_tree::insert_erase_atom(type_context_old & ctx, node && n, edge const & e, buffer<pair<expr, bool>> & todo,
                                    expr const & v, buffer<pair<node, node>> & skip, bool ins) -> node {
     node new_n = ensure_unshared(n.steal());
     if (auto child = new_n.m_ptr->m_children.find(e)) {
@@ -154,14 +154,14 @@ auto discr_tree::insert_erase_atom(type_context & ctx, node && n, edge const & e
     }
 }
 
-auto discr_tree::insert_erase_star(type_context & ctx, node && n, buffer<pair<expr, bool>> & todo, expr const & v,
+auto discr_tree::insert_erase_star(type_context_old & ctx, node && n, buffer<pair<expr, bool>> & todo, expr const & v,
                                    buffer<pair<node, node>> & skip, bool ins) -> node {
     node new_n = ensure_unshared(n.steal());
     new_n.m_ptr->m_star_child = insert_erase(ctx, new_n.m_ptr->m_star_child.steal(), false, todo, v, skip, ins);
     return new_n;
 }
 
-auto discr_tree::insert_erase_app(type_context & ctx,
+auto discr_tree::insert_erase_app(type_context_old & ctx,
                                   node && n, bool is_root, expr const & e, buffer<pair<expr, bool>> & todo, expr const & v,
                                   buffer<pair<node, node>> & skip, bool ins) -> node {
     lean_assert(is_app(e));
@@ -199,7 +199,7 @@ auto discr_tree::insert_erase_app(type_context & ctx,
     }
 }
 
-auto discr_tree::insert_erase(type_context & ctx,
+auto discr_tree::insert_erase(type_context_old & ctx,
                               node && n, bool is_root, buffer<pair<expr, bool>> & todo,
                               expr const & v, buffer<pair<node, node>> & skip, bool ins) -> node {
     if (todo.empty()) {
@@ -241,7 +241,7 @@ auto discr_tree::insert_erase(type_context & ctx,
     lean_unreachable();
 }
 
-void discr_tree::insert_erase(type_context & ctx, expr const & k, expr const & v, bool ins) {
+void discr_tree::insert_erase(type_context_old & ctx, expr const & k, expr const & v, bool ins) {
     // insert & erase operations.
     // The erase operation is not optimal because it does not eliminate dead branches from the tree.
     // If this becomes an issue, we can remove dead branches from time to time and/or reconstruct
@@ -253,7 +253,7 @@ void discr_tree::insert_erase(type_context & ctx, expr const & k, expr const & v
     lean_trace("discr_tree", tout() << "\n"; trace(););
 }
 
-bool discr_tree::find_atom(type_context & ctx, node const & n, edge const & e, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn) { // NOLINT
+bool discr_tree::find_atom(type_context_old & ctx, node const & n, edge const & e, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn) { // NOLINT
     if (auto child = n.m_ptr->m_children.find(e)) {
         return find(ctx, *child, todo, fn);
     } else {
@@ -261,7 +261,7 @@ bool discr_tree::find_atom(type_context & ctx, node const & n, edge const & e, l
     }
 }
 
-bool discr_tree::find_star(type_context & ctx, node const & n, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn) { // NOLINT
+bool discr_tree::find_star(type_context_old & ctx, node const & n, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn) { // NOLINT
     bool cont = true;
     n.m_ptr->m_skip.for_each([&](node const & skip_child) {
             if (cont && !find(ctx, skip_child, todo, fn))
@@ -277,7 +277,7 @@ bool discr_tree::find_star(type_context & ctx, node const & n, list<pair<expr, b
     return cont;
 }
 
-bool discr_tree::find_app(type_context & ctx, node const & n, expr const & e, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn) { // NOLINT
+bool discr_tree::find_app(type_context_old & ctx, node const & n, expr const & e, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn) { // NOLINT
     lean_assert(is_app(e));
     buffer<expr> args;
     expr const & f = get_app_args(e, args);
@@ -303,7 +303,7 @@ bool discr_tree::find_app(type_context & ctx, node const & n, expr const & e, li
     }
 }
 
-bool discr_tree::find(type_context & ctx, node const & n, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn) { // NOLINT
+bool discr_tree::find(type_context_old & ctx, node const & n, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn) { // NOLINT
     if (!todo) {
         bool cont = true;
         n.m_ptr->m_values.for_each([&](expr const & v) {
@@ -338,12 +338,12 @@ bool discr_tree::find(type_context & ctx, node const & n, list<pair<expr, bool>>
     lean_unreachable();
 }
 
-void discr_tree::find(type_context & ctx, expr const & e, std::function<bool(expr const &)> const & fn) const { // NOLINT
+void discr_tree::find(type_context_old & ctx, expr const & e, std::function<bool(expr const &)> const & fn) const { // NOLINT
     if (m_root)
         find(ctx, m_root, to_list(mk_pair(e, false)), fn);
 }
 
-void discr_tree::collect(type_context & ctx, expr const & e, buffer<expr> & r) const {
+void discr_tree::collect(type_context_old & ctx, expr const & e, buffer<expr> & r) const {
     find(ctx, e, [&](expr const & v) { r.push_back(v); return true; });
 }
 

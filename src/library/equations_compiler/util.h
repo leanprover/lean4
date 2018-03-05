@@ -22,7 +22,7 @@ bool get_eqn_compiler_zeta(options const & o);
     TODO(Leo): as soon as we remove the legacy code from Lean2, this
     class will be much simpler. */
 class unpack_eqns {
-    type_context::tmp_locals m_locals;
+    type_context_old::tmp_locals m_locals;
     expr                     m_src;
     buffer<expr>             m_fns;
     /* m_arity[i] contains the number of arguments for each equation lhs
@@ -36,7 +36,7 @@ class unpack_eqns {
 public:
     /** \brief Extract the data stored in the equations-expression \c e.
         \pre is_equations(e) */
-    unpack_eqns(type_context & ctx, expr const & e);
+    unpack_eqns(type_context_old & ctx, expr const & e);
     /** \brief Re-build an equations-expression using the information
         stored at m_fns and m_eqs. */
     expr repack();
@@ -55,7 +55,7 @@ public:
 /** \brief Helper class for unpacking a single equation nested in a equations expression. */
 class unpack_eqn {
     expr                     m_src;
-    type_context::tmp_locals m_locals;
+    type_context_old::tmp_locals m_locals;
     bool                     m_modified_vars{false};
     buffer<expr>             m_vars;
     expr                     m_nested_src;
@@ -63,7 +63,7 @@ class unpack_eqn {
     expr                     m_rhs;
     bool                     m_ignore_if_unused;
 public:
-    unpack_eqn(type_context & ctx, expr const & eqn);
+    unpack_eqn(type_context_old & ctx, expr const & eqn);
     expr add_var(name const & n, expr const & type);
     buffer<expr> & get_vars() { return m_vars; }
     expr & lhs() { return m_lhs; }
@@ -76,7 +76,7 @@ public:
 /** \brief Return true iff \c e is recursive. That is, some equation
     in the rhs has a reference to a function being defined by the
     equations. */
-bool is_recursive_eqns(type_context & ctx, expr const & e);
+bool is_recursive_eqns(type_context_old & ctx, expr const & e);
 
 expr erase_inaccessible_annotations(expr const & e);
 list<expr> erase_inaccessible_annotations(list<expr> const & es);
@@ -118,14 +118,14 @@ environment mk_simple_equation_lemma_for(environment const & env, options const 
 name mk_equation_name(name const & f_name, unsigned eqn_idx);
 
 /* Return true iff e is a nat, int, char or string value. */
-bool is_nat_int_char_string_name_value(type_context & ctx, expr const & e);
+bool is_nat_int_char_string_name_value(type_context_old & ctx, expr const & e);
 
 /* Given a variable (x : I A idx), where (I A idx) is an inductive datatype,
    for each constructor c of (I A idx), this function invokes fn(t, new_vars) where t is of the form (c A ...),
    where new_vars are fresh variables and are arguments of (c A ...)
    which have not been fixed by typing constraints. Moreover, fn is only invoked if
    the type of (c A ...) matches (I A idx). */
-void for_each_compatible_constructor(type_context & ctx, expr const & var,
+void for_each_compatible_constructor(type_context_old & ctx, expr const & var,
                                      std::function<void(expr const &, buffer<expr> &)> const & fn);
 
 /* Given the telescope vars [x_1, ..., x_i, ..., x_n] and var := x_i,
@@ -140,12 +140,12 @@ void for_each_compatible_constructor(type_context & ctx, expr const & var,
 
    The replacement will suppress entries x_j => T(x_j) if T(x_j) is equal to x_j.
 */
-void update_telescope(type_context & ctx, buffer<expr> const & vars, expr const & var,
+void update_telescope(type_context_old & ctx, buffer<expr> const & vars, expr const & var,
                       expr const & t, buffer<expr> const & t_vars,  buffer<expr> & new_vars,
                       buffer<expr> & from, buffer<expr> & to);
 
 /* Create auxiliary definition for unfolding declaration `n`.
-   See smart unfolding comment at type_context. */
+   See smart unfolding comment at type_context_old. */
 environment mk_smart_unfolding_definition(environment const & env, options const & o, name const & n);
 
 struct eqn_compiler_result {

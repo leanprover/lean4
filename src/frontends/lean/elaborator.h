@@ -41,7 +41,7 @@ private:
     options           m_opts;
     context_cache     m_cache;
     name              m_decl_name;
-    type_context      m_ctx;
+    type_context_old      m_ctx;
     info_manager      m_info;
     unsigned          m_aux_meta_idx = 1;
     bool              m_recover_from_errors;
@@ -121,9 +121,9 @@ private:
     bool is_uvar_assigned(level const & l) const { return m_ctx.is_assigned(l); }
     bool is_mvar_assigned(expr const & e) const { return m_ctx.is_assigned(e); }
 
-    expr push_local(type_context::tmp_locals & locals, name const & n, expr const & type,
+    expr push_local(type_context_old::tmp_locals & locals, name const & n, expr const & type,
                     binder_info const & binfo, expr const & ref);
-    expr push_let(type_context::tmp_locals & locals,
+    expr push_let(type_context_old::tmp_locals & locals,
                   name const & n, expr const & type, expr const & value, expr const & ref);
 
     level mk_univ_metavar();

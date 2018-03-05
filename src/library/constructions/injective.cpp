@@ -23,7 +23,7 @@ Author: Daniel Selsam, Leonardo de Moura
 
 namespace lean {
 
-static void collect_args(type_context & tctx, expr const & type, unsigned num_params,
+static void collect_args(type_context_old & tctx, expr const & type, unsigned num_params,
                   buffer<expr> & params, buffer<expr> & args1, buffer<expr> & args2, buffer<expr> & new_args) {
     expr ty = tctx.relaxed_whnf(type);
 
@@ -60,7 +60,7 @@ static void collect_args(type_context & tctx, expr const & type, unsigned num_pa
 
 expr mk_injective_type_core(environment const & env, name const & ir_name, expr const & ir_type, unsigned num_params, level_param_names const & lp_names, bool use_eq) {
     // The transparency needs to match the kernel since we need to be consistent with the no_confusion construction.
-    type_context ctx(env, transparency_mode::All);
+    type_context_old ctx(env, transparency_mode::All);
     buffer<expr> params, args1, args2, new_args;
     collect_args(ctx, ir_type, num_params, params, args1, args2, new_args);
     expr c_ir_params = mk_app(mk_constant(ir_name, param_names_to_levels(lp_names)), params);
@@ -103,7 +103,7 @@ expr mk_injective_eq_type(environment const & env, name const & ir_name, expr co
     return mk_injective_type_core(env, ir_name, ir_type, num_params, lp_names, true);
 }
 
-expr prove_by_assumption(type_context & tctx, expr const & ty, expr const & eq) {
+expr prove_by_assumption(type_context_old & tctx, expr const & ty, expr const & eq) {
     if (is_eq(ty) && is_heq(tctx.infer(eq))) {
         return mk_eq_of_heq(tctx, eq);
     } else {
@@ -111,7 +111,7 @@ expr prove_by_assumption(type_context & tctx, expr const & ty, expr const & eq) 
     }
 }
 
-expr prove_conjuncts_core(type_context & tctx, expr const & ty, buffer<expr> const & eqs, unsigned idx) {
+expr prove_conjuncts_core(type_context_old & tctx, expr const & ty, buffer<expr> const & eqs, unsigned idx) {
     if (idx == eqs.size() - 1) {
         lean_assert(!is_and(ty));
         return prove_by_assumption(tctx, ty, eqs[idx]);
@@ -124,12 +124,12 @@ expr prove_conjuncts_core(type_context & tctx, expr const & ty, buffer<expr> con
     }
 }
 
-expr prove_conjuncts(type_context & tctx, expr const & ty, buffer<expr> const & eqs) {
+expr prove_conjuncts(type_context_old & tctx, expr const & ty, buffer<expr> const & eqs) {
     return prove_conjuncts_core(tctx, ty, eqs, 0);
 }
 
 expr prove_injective(environment const & env, expr const & inj_type, name const & ind_name) {
-    type_context tctx(env);
+    type_context_old tctx(env);
     expr ty = inj_type;
 
     buffer<expr> args;
@@ -182,7 +182,7 @@ expr prove_injective(environment const & env, expr const & inj_type, name const 
 }
 
 expr prove_injective_arrow(environment const & env, expr const & inj_arrow_type, name const & inj_name, level_param_names const & inj_lp_names) {
-    type_context tctx(env);
+    type_context_old tctx(env);
     expr ty = inj_arrow_type;
 
     buffer<expr> args;
@@ -209,7 +209,7 @@ expr prove_injective_arrow(environment const & env, expr const & inj_arrow_type,
 
 environment mk_injective_arrow(environment const & env, name const & ir_name) {
     declaration d = env.get(mk_injective_name(ir_name));
-    type_context tctx(env);
+    type_context_old tctx(env);
 
     name P_lp_name = mk_fresh_lp_name(d.get_univ_params());
     expr P = tctx.push_local(name("P"), mk_sort(mk_param_univ(P_lp_name)), mk_strict_implicit_binder_info());
@@ -249,7 +249,7 @@ environment mk_injective_arrow(environment const & env, name const & ir_name) {
 
 expr prove_injective_eq(environment const & env, expr const & inj_eq_type, name const & inj_eq_name) {
     try {
-        type_context ctx(env, transparency_mode::Semireducible);
+        type_context_old ctx(env, transparency_mode::Semireducible);
         expr dummy_ref;
         tactic_state s = mk_tactic_state_for(env, options(), inj_eq_name, metavar_context(), local_context(), inj_eq_type);
         vm_obj r = tactic_evaluator(ctx, options(), dummy_ref)(mk_constant(get_tactic_mk_inj_eq_name()), s);

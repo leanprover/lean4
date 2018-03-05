@@ -356,8 +356,8 @@ static void get_args_for_instantiating_lemma(unsigned arity,
    Then, copy the equation lemmas from d._main to d.
 */
 static environment copy_equation_lemmas(environment const & env, buffer<name> const & d_names) {
-    type_context ctx(env, transparency_mode::All);
-    type_context::tmp_locals locals(ctx);
+    type_context_old ctx(env, transparency_mode::All);
+    type_context_old::tmp_locals locals(ctx);
     level_param_names lps;
     levels ls;
     buffer<expr> vals;
@@ -643,7 +643,7 @@ static expr elaborate_proof(
         bool is_rfl_lemma, expr const & final_type,
         metavar_context const & mctx, local_context const & lctx,
         parser_pos_provider pos_provider, bool use_info_manager, std::string const & file_name) {
-    auto tc = std::make_shared<type_context>(decl_env, opts, mctx, lctx);
+    auto tc = std::make_shared<type_context_old>(decl_env, opts, mctx, lctx);
     scope_trace_env scope2(decl_env, opts, *tc);
     scope_traces_as_messages scope2a(file_name, header_pos);
     scope_pos_info_provider scope3(pos_provider);
@@ -681,7 +681,7 @@ static void check_example(environment const & decl_env, options const & opts,
                           expr const & fn, expr const & val0,
                           metavar_context const & mctx, local_context const & lctx,
                           parser_pos_provider pos_provider, bool use_info_manager, std::string const & file_name) {
-    auto tc = std::make_shared<type_context>(decl_env, opts, mctx, lctx);
+    auto tc = std::make_shared<type_context_old>(decl_env, opts, mctx, lctx);
     scope_trace_env scope2(decl_env, opts, *tc);
     scope_traces_as_messages scope2a(file_name, pos_provider.get_some_pos());
     scope_pos_info_provider scope3(pos_provider);

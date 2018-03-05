@@ -159,10 +159,10 @@ class cse_fn : public compiler_step_visitor {
         unsigned &               m_counter;
         expr_struct_set const &  m_common_subexprs;
         expr_struct_map<expr>    m_common_subexpr_to_local;
-        type_context::tmp_locals m_all_locals; /* new local declarations, it also include let-decls for common-subexprs */
+        type_context_old::tmp_locals m_all_locals; /* new local declarations, it also include let-decls for common-subexprs */
         local_context const &    m_lctx;
 
-        cse_processor(unsigned & counter, type_context & ctx, expr_struct_set const & s):
+        cse_processor(unsigned & counter, type_context_old & ctx, expr_struct_set const & s):
             m_counter(counter),
             m_common_subexprs(s),
             m_all_locals(ctx),
@@ -197,10 +197,10 @@ class cse_fn : public compiler_step_visitor {
 
     /* Similar to cse_processor, but has support for binding exprs (lambda and let) */
     struct cse_processor_for_binding : public cse_processor {
-        type_context::tmp_locals const & m_locals;
+        type_context_old::tmp_locals const & m_locals;
         buffer<expr>                     m_new_locals;
 
-        cse_processor_for_binding(unsigned & counter, type_context & ctx, type_context::tmp_locals const & locals, expr_struct_set const & s):
+        cse_processor_for_binding(unsigned & counter, type_context_old & ctx, type_context_old::tmp_locals const & locals, expr_struct_set const & s):
             cse_processor(counter, ctx, s),
             m_locals(locals) {
         }
@@ -228,7 +228,7 @@ class cse_fn : public compiler_step_visitor {
     };
 
     expr visit_lambda_let(expr const & e) {
-        type_context::tmp_locals locals(m_ctx);
+        type_context_old::tmp_locals locals(m_ctx);
         expr t = e;
         buffer<expr> let_values;
         while (true) {

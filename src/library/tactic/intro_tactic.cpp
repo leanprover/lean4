@@ -20,9 +20,9 @@ optional<expr> intron_core(environment const & env, options const & opts, metava
     lean_assert(is_metavar(mvar));
     optional<metavar_decl> g = mctx.find_metavar_decl(mvar);
     if (!g) return none_expr();
-    type_context ctx     = mk_type_context_for(env, opts, mctx, g->get_context());
+    type_context_old ctx     = mk_type_context_for(env, opts, mctx, g->get_context());
     expr type            = g->get_type();
-    type_context::tmp_locals new_locals(ctx);
+    type_context_old::tmp_locals new_locals(ctx);
     buffer<expr> new_Hs;
     for (unsigned i = 0; i < n; i++) {
         if (!is_pi(type) && !is_let(type)) {
@@ -140,7 +140,7 @@ vm_obj tactic_intron(vm_obj const & num, vm_obj const & s) {
 vm_obj intro(name const & n, tactic_state const & s) {
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
-    type_context ctx     = mk_type_context_for(s);
+    type_context_old ctx     = mk_type_context_for(s);
     expr type            = g->get_type();
     if (!is_pi(type) && !is_let(type)) {
         type             = ctx.whnf(type);

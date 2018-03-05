@@ -82,7 +82,7 @@ static void print_axioms(parser & p, message_builder & out) {
     if (p.curr_is_identifier()) {
         name c = p.check_constant_next("invalid '#print axioms', constant expected");
         auto env = p.env();
-        type_context tc(env, p.get_options());
+        type_context_old tc(env, p.get_options());
         auto new_out = io_state_stream(env, p.ios(), tc, out.get_text_stream().get_channel());
         print_axioms_deps(env, new_out)(c);
     } else {
@@ -184,7 +184,7 @@ static void print_patterns(parser & p, name const & n) {
                 options opts         = p.get_options();
                 opts                 = opts.update_if_undef(get_pp_metavar_args_name(), true);
                 io_state new_ios(p.ios(), opts);
-                type_context tc(p.env(), opts);
+                type_context_old tc(p.env(), opts);
                 io_state_stream out = regular(p.env(), new_ios, tc);
                 out << "(multi-)patterns:\n";
                 if (!is_nil(hi.m_mvars)) {

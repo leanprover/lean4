@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 /* Given (f ...), try to unfold it using (refl) equational lemmas for f. */
-optional<expr> dunfold(type_context & ctx, expr const & e);
+optional<expr> dunfold(type_context_old & ctx, expr const & e);
 void initialize_unfold_tactic();
 void finalize_unfold_tactic();
 }

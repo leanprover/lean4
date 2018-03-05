@@ -48,7 +48,7 @@ typedef cache_compatibility_helper<fun_info_cache> fun_info_cache_helper;
 /* CACHE_RESET: YES */
 MK_THREAD_LOCAL_GET_DEF(fun_info_cache_helper, get_fich);
 
-fun_info_cache & get_fun_info_cache_for(type_context const & ctx) {
+fun_info_cache & get_fun_info_cache_for(type_context_old const & ctx) {
     return get_fich().get_cache_for(ctx);
 }
 
@@ -89,11 +89,11 @@ static list<unsigned> collect_deps(expr const & type, buffer<expr> const & local
 }
 
 /* Store parameter info for fn in \c pinfos and return the dependencies of the resulting type. */
-static list<unsigned> get_core(type_context & ctx,
+static list<unsigned> get_core(type_context_old & ctx,
                                expr const & fn, buffer<param_info> & pinfos,
                                unsigned max_args) {
     expr type = ctx.relaxed_try_to_pi(ctx.infer(fn));
-    type_context::tmp_locals locals(ctx);
+    type_context_old::tmp_locals locals(ctx);
     unsigned i = 0;
     while (is_pi(type)) {
         if (i == max_args)
@@ -112,7 +112,7 @@ static list<unsigned> get_core(type_context & ctx,
     return collect_deps(type, locals.as_buffer(), pinfos);
 }
 
-fun_info get_fun_info(type_context & ctx, expr const & e) {
+fun_info get_fun_info(type_context_old & ctx, expr const & e) {
     fun_info_cache & cache = get_fun_info_cache_for(ctx);
     auto it = cache.m_cache_get.find(e);
     if (it != cache.m_cache_get.end())
@@ -124,7 +124,7 @@ fun_info get_fun_info(type_context & ctx, expr const & e) {
     return r;
 }
 
-fun_info get_fun_info(type_context & ctx, expr const & e, unsigned nargs) {
+fun_info get_fun_info(type_context_old & ctx, expr const & e, unsigned nargs) {
     fun_info_cache & cache = get_fun_info_cache_for(ctx);
     expr_unsigned key(e, nargs);
     auto it = cache.m_cache_get_nargs.find(key);
@@ -138,10 +138,10 @@ fun_info get_fun_info(type_context & ctx, expr const & e, unsigned nargs) {
 }
 
 /* Store subsingleton parameter info for fn in \c ssinfos */
-static void get_ss_core(type_context & ctx, expr const & fn, buffer<ss_param_info> & ssinfos,
+static void get_ss_core(type_context_old & ctx, expr const & fn, buffer<ss_param_info> & ssinfos,
                         unsigned max_args) {
     expr type = ctx.relaxed_try_to_pi(ctx.infer(fn));
-    type_context::tmp_locals locals(ctx);
+    type_context_old::tmp_locals locals(ctx);
     unsigned i = 0;
     while (is_pi(type)) {
         if (i == max_args)
@@ -162,7 +162,7 @@ static void get_ss_core(type_context & ctx, expr const & fn, buffer<ss_param_inf
     }
 }
 
-ss_param_infos get_subsingleton_info(type_context & ctx, expr const & e) {
+ss_param_infos get_subsingleton_info(type_context_old & ctx, expr const & e) {
     fun_info_cache & cache = get_fun_info_cache_for(ctx);
     auto it = cache.m_ss_cache_get.find(e);
     if (it != cache.m_ss_cache_get.end())
@@ -174,7 +174,7 @@ ss_param_infos get_subsingleton_info(type_context & ctx, expr const & e) {
     return r;
 }
 
-ss_param_infos get_subsingleton_info(type_context & ctx, expr const & e, unsigned nargs) {
+ss_param_infos get_subsingleton_info(type_context_old & ctx, expr const & e, unsigned nargs) {
     fun_info_cache & cache = get_fun_info_cache_for(ctx);
     expr_unsigned key(e, nargs);
     auto it = cache.m_ss_cache_get_nargs.find(key);
@@ -202,7 +202,7 @@ static bool has_nonsubsingleton_fwd_dep(unsigned i, buffer<param_info> const & p
     return false;
 }
 
-static void trace_if_unsupported(type_context & ctx, expr const & fn,
+static void trace_if_unsupported(type_context_old & ctx, expr const & fn,
                                  buffer<expr> const & args, unsigned prefix_sz, ss_param_infos const & result) {
     lean_assert(args.size() >= length(result));
     if (!is_fun_info_trace_enabled())
@@ -248,7 +248,7 @@ static void trace_if_unsupported(type_context & ctx, expr const & fn,
     }
 }
 
-unsigned get_specialization_prefix_size(type_context & ctx, expr const & fn, unsigned nargs) {
+unsigned get_specialization_prefix_size(type_context_old & ctx, expr const & fn, unsigned nargs) {
     /*
       We say a function is "cheap" if it is of the form:
 
@@ -306,7 +306,7 @@ unsigned get_specialization_prefix_size(type_context & ctx, expr const & fn, uns
     return prefix_sz;
 }
 
-ss_param_infos get_specialized_subsingleton_info(type_context & ctx, expr const & a) {
+ss_param_infos get_specialized_subsingleton_info(type_context_old & ctx, expr const & a) {
     lean_assert(is_app(a));
     buffer<expr> args;
     expr const & fn        = get_app_args(a, args);

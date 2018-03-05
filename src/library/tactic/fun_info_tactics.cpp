@@ -62,7 +62,7 @@ static vm_obj mk_result(list<ss_param_info> const & info, vm_obj const & s) {
 
 vm_obj tactic_get_fun_info(vm_obj const & fn, vm_obj const & n, vm_obj const & m, vm_obj const & s) {
     TRY;
-    type_context ctx = mk_type_context_for(s, m);
+    type_context_old ctx = mk_type_context_for(s, m);
     if (is_none(n)) {
         return mk_result(get_fun_info(ctx, to_expr(fn)), s);
     } else {
@@ -73,7 +73,7 @@ vm_obj tactic_get_fun_info(vm_obj const & fn, vm_obj const & n, vm_obj const & m
 
 vm_obj tactic_get_subsingleton_info(vm_obj const & fn, vm_obj const & n, vm_obj const & m, vm_obj const & s) {
     TRY;
-    type_context ctx = mk_type_context_for(s, m);
+    type_context_old ctx = mk_type_context_for(s, m);
     if (is_none(n)) {
         return mk_result(get_subsingleton_info(ctx, to_expr(fn)), s);
     } else {
@@ -84,14 +84,14 @@ vm_obj tactic_get_subsingleton_info(vm_obj const & fn, vm_obj const & n, vm_obj 
 
 vm_obj tactic_get_spec_subsingleton_info(vm_obj const & app, vm_obj const & m, vm_obj const & s) {
     TRY;
-    type_context ctx = mk_type_context_for(s, m);
+    type_context_old ctx = mk_type_context_for(s, m);
     return mk_result(get_specialized_subsingleton_info(ctx, to_expr(app)), s);
     CATCH;
 }
 
 vm_obj tactic_get_spec_prefix_size(vm_obj const & fn, vm_obj const & n, vm_obj const & m, vm_obj const & s) {
     TRY;
-    type_context ctx = mk_type_context_for(s, m);
+    type_context_old ctx = mk_type_context_for(s, m);
     return tactic::mk_success(mk_vm_nat(get_specialization_prefix_size(ctx, to_expr(fn), force_to_unsigned(n, 0))),
                              tactic::to_state(s));
     CATCH;

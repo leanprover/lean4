@@ -87,7 +87,7 @@ class simp_inductive_core_fn : public compiler_step_visitor {
 protected:
     /* Return new minor premise and a flag indicating whether the body is unreachable or not */
     pair<expr, bool> visit_minor_premise(expr e, buffer<bool> const & rel_fields) {
-        type_context::tmp_locals locals(ctx());
+        type_context_old::tmp_locals locals(ctx());
         for (unsigned i = 0; i < rel_fields.size(); i++) {
             lean_assert(is_lambda(e));
             if (rel_fields[i]) {
@@ -251,7 +251,7 @@ class simp_inductive_fn : public simp_inductive_core_fn {
         for (unsigned i = 0; i < cnames.size(); i++) {
             unsigned carity  = get_constructor_arity(env(), cnames[i]);
             unsigned data_sz = carity - nparams;
-            type_context::tmp_locals locals(ctx());
+            type_context_old::tmp_locals locals(ctx());
             expr new_minor   = args[i+1];
             for (unsigned j = 0; j < data_sz; j++) {
                 if (!is_lambda(new_minor))

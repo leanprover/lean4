@@ -30,9 +30,9 @@ struct backward_lemma_prio_fn {
 class backward_lemma_index {
     head_map_prio<backward_lemma, backward_lemma_prio_fn> m_index;
 public:
-    backward_lemma_index(type_context & ctx);
-    void insert(type_context & ctx, expr const & href);
-    void erase(type_context & ctx, expr const & href);
+    backward_lemma_index(type_context_old & ctx);
+    void insert(type_context_old & ctx, expr const & href);
+    void erase(type_context_old & ctx, expr const & href);
     list<backward_lemma> find(head_index const & h) const;
 };
 

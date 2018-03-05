@@ -15,7 +15,7 @@ static name * g_algebra = nullptr;
 
 MK_THREAD_LOCAL_GET_DEF(algebraic_info_manager::data_ptr, get_alg_info_data);
 
-algebraic_info_manager::algebraic_info_manager(type_context & ctx):
+algebraic_info_manager::algebraic_info_manager(type_context_old & ctx):
     m_ctx(ctx) {
     data_ptr p = get_alg_info_data();
     if (p &&
@@ -49,7 +49,7 @@ algebraic_info_ref algebraic_info_manager::get_info(expr const & op) {
 
 vm_obj tactic_trace_algebra_info(vm_obj const & op, vm_obj const & _s) {
     tactic_state const & s = tactic::to_state(_s);
-    type_context ctx = mk_type_context_for(s);
+    type_context_old ctx = mk_type_context_for(s);
     algebraic_info_manager m(ctx);
     if (m.get_info(to_expr(op))) {
         tout() << "operator has algebraic info\n";

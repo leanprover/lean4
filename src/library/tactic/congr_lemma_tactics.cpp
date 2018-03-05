@@ -42,7 +42,7 @@ static vm_obj mk_result(optional<congr_lemma> const & l, vm_obj const & s) {
 
 vm_obj tactic_mk_congr_lemma_simp(vm_obj const & fn, vm_obj const & nargs, vm_obj const & m, vm_obj const & s) {
     TRY;
-    type_context ctx = mk_type_context_for(s, m);
+    type_context_old ctx = mk_type_context_for(s, m);
     if (is_none(nargs)) {
         return mk_result(mk_congr_simp(ctx, to_expr(fn)), s);
     } else {
@@ -53,14 +53,14 @@ vm_obj tactic_mk_congr_lemma_simp(vm_obj const & fn, vm_obj const & nargs, vm_ob
 
 vm_obj tactic_mk_specialized_congr_lemma_simp(vm_obj const & a, vm_obj const & m, vm_obj const & s) {
     TRY;
-    type_context ctx = mk_type_context_for(s, m);
+    type_context_old ctx = mk_type_context_for(s, m);
     return mk_result(mk_specialized_congr_simp(ctx, to_expr(a)), s);
     CATCH;
 }
 
 vm_obj tactic_mk_congr_lemma(vm_obj const & fn, vm_obj const & nargs, vm_obj const & m, vm_obj const & s) {
     TRY;
-    type_context ctx = mk_type_context_for(s, m);
+    type_context_old ctx = mk_type_context_for(s, m);
     if (is_none(nargs)) {
         return mk_result(mk_congr(ctx, to_expr(fn)), s);
     } else {
@@ -71,14 +71,14 @@ vm_obj tactic_mk_congr_lemma(vm_obj const & fn, vm_obj const & nargs, vm_obj con
 
 vm_obj tactic_mk_specialized_congr_lemma(vm_obj const & a, vm_obj const & m, vm_obj const & s) {
     TRY;
-    type_context ctx = mk_type_context_for(s, m);
+    type_context_old ctx = mk_type_context_for(s, m);
     return mk_result(mk_specialized_congr(ctx, to_expr(a)), s);
     CATCH;
 }
 
 vm_obj tactic_mk_hcongr_lemma(vm_obj const & fn, vm_obj const & nargs, vm_obj const & m, vm_obj const & s) {
     TRY;
-    type_context ctx = mk_type_context_for(s, m);
+    type_context_old ctx = mk_type_context_for(s, m);
     if (is_none(nargs)) {
         return mk_result(mk_hcongr(ctx, to_expr(fn)), s);
     } else {

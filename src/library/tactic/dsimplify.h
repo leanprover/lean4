@@ -46,7 +46,7 @@ struct dsimp_config {
 
 class dsimplify_core_fn {
 protected:
-    type_context &        m_ctx;
+    type_context_old &        m_ctx;
     defeq_canonizer       m_defeq_canonizer;
     expr_struct_map<expr> m_cache;
     unsigned              m_num_steps;
@@ -65,7 +65,7 @@ protected:
     expr visit(expr const & e);
 
 public:
-    dsimplify_core_fn(type_context & ctx, defeq_canonizer::state & s, dsimp_config const & cfg);
+    dsimplify_core_fn(type_context_old & ctx, defeq_canonizer::state & s, dsimp_config const & cfg);
     expr operator()(expr e);
     metavar_context const & mctx() const;
 };
@@ -77,12 +77,12 @@ class dsimplify_fn : public dsimplify_core_fn {
     virtual optional<pair<expr, bool>> pre(expr const & e) override;
     virtual optional<pair<expr, bool>> post(expr const & e) override;
 public:
-    dsimplify_fn(type_context & ctx, defeq_canonizer::state & s,
+    dsimplify_fn(type_context_old & ctx, defeq_canonizer::state & s,
                  simp_lemmas_for const & lemmas, list<name> const & to_unfold, dsimp_config const & cfg);
 };
 
-expr reduce_beta_eta_proj_iota(type_context & ctx, expr e, bool beta, bool eta, bool proj, bool iota);
-optional<expr> unfold_step(type_context & ctx, expr const & e, name_set const & to_unfold, bool unfold_reducible);
+expr reduce_beta_eta_proj_iota(type_context_old & ctx, expr e, bool beta, bool eta, bool proj, bool iota);
+optional<expr> unfold_step(type_context_old & ctx, expr const & e, name_set const & to_unfold, bool unfold_reducible);
 
 void initialize_dsimplify();
 void finalize_dsimplify();

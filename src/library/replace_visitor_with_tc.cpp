@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "library/replace_visitor_with_tc.h"
 namespace lean {
 expr replace_visitor_with_tc::visit_lambda_pi_let(bool is_lam, expr const & e) {
-    type_context::tmp_locals locals(m_ctx);
+    type_context_old::tmp_locals locals(m_ctx);
     expr t = e;
     while (true) {
         if ((is_lam && is_lambda(t)) || (!is_lam && is_pi(t))) {

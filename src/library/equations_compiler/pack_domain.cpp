@@ -16,15 +16,15 @@ Author: Leonardo de Moura
 
 namespace lean {
 struct sigma_packer_fn {
-    type_context & m_ctx;
-    sigma_packer_fn(type_context & ctx):m_ctx(ctx) {}
+    type_context_old & m_ctx;
+    sigma_packer_fn(type_context_old & ctx):m_ctx(ctx) {}
 
     expr_pair mk_sigma_domain(expr const & pi_type, buffer<expr> & out_locals, unsigned n) {
         expr type = pi_type;
         if (!is_pi(type)) type = m_ctx.relaxed_whnf(type);
         if (!is_pi(type)) throw_ill_formed_eqns();
         expr const & A = binding_domain(type);
-        type_context::tmp_locals locals(m_ctx);
+        type_context_old::tmp_locals locals(m_ctx);
         expr a = locals.push_local_from_binding(type);
         out_locals.push_back(a);
         expr next_pi_type = instantiate(binding_body(type), a);
@@ -49,7 +49,7 @@ struct sigma_packer_fn {
         buffer<expr> locals;
         expr domain, pre_codomain;
         std::tie(domain, pre_codomain) = mk_sigma_domain(pi_type, locals, n);
-        type_context::tmp_locals plocal(m_ctx);
+        type_context_old::tmp_locals plocal(m_ctx);
         expr p = plocal.push_local("_p", domain);
         expr codomain = mk_codomain(pre_codomain, p, locals, n);
         return plocal.mk_pi(codomain);
@@ -123,7 +123,7 @@ struct sigma_packer_fn {
         }
 
     public:
-        update_apps_fn(type_context & ctx, buffer<expr> const & old_fns, unpack_eqns const & ues):
+        update_apps_fn(type_context_old & ctx, buffer<expr> const & old_fns, unpack_eqns const & ues):
             replace_visitor_with_tc(ctx), m_old_fns(old_fns), m_ues(ues) {}
     };
 
@@ -154,7 +154,7 @@ struct sigma_packer_fn {
     }
 };
 
-expr pack_domain(type_context & ctx, expr const & e) {
+expr pack_domain(type_context_old & ctx, expr const & e) {
     return sigma_packer_fn(ctx)(e);
 }
 }

@@ -28,7 +28,7 @@ namespace lean {
     All new parameters are sorted based on dependencies.
 */
 class closure_helper {
-    type_context &  m_ctx;
+    type_context_old &  m_ctx;
     name            m_prefix;
     unsigned        m_next_idx;
     name_set        m_found_univ_params;
@@ -43,12 +43,12 @@ class closure_helper {
     buffer<expr>    m_norm_params;
 
 public:
-    closure_helper(type_context & ctx):
+    closure_helper(type_context_old & ctx):
         m_ctx(ctx),
         m_prefix("_aux_param"),
         m_next_idx(0) {}
 
-    type_context & ctx() { return m_ctx; }
+    type_context_old & ctx() { return m_ctx; }
 
     /* \pre finalize_collection has not been invoked */
     level collect(level const & l);

@@ -50,7 +50,7 @@ public:
 
 class smt : public cc_propagation_handler, public cc_normalizer {
 private:
-    type_context &     m_ctx;
+    type_context_old &     m_ctx;
     defeq_can_state &  m_dcs;
     smt_goal &         m_goal;
     congruence_closure m_cc;
@@ -61,7 +61,7 @@ private:
     virtual void new_aux_cc_term(expr const & e) override;
     virtual expr normalize(expr const & e) override;
 public:
-    smt(type_context & ctx, defeq_can_state & dcs, smt_goal & g);
+    smt(type_context_old & ctx, defeq_can_state & dcs, smt_goal & g);
     virtual ~smt();
 
     void internalize(expr const & e);

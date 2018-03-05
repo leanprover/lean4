@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "library/tactic/gexpr.h"
 
 namespace lean {
-expr gexpr::to_expr(type_context & ctx) const {
+expr gexpr::to_expr(type_context_old & ctx) const {
     if (m_univ_poly) {
         declaration const & fdecl = ctx.env().get(const_name(m_expr));
         buffer<level> ls_buffer;

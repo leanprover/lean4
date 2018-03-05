@@ -7,13 +7,13 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/environment.h"
 namespace lean {
-class type_context;
+class type_context_old;
 /** \brief Create a new name of the form prefix.suffix_idx that is not the name of a declaration and/or VM function.
     It also updates the index idx. */
 name mk_compiler_unused_name(environment const & env, name const & prefix, char const * suffix, unsigned & idx);
 
 /** \brief Return true iff \c e is computationally irrelevant */
-bool is_comp_irrelevant(type_context & ctx, expr const & e);
+bool is_comp_irrelevant(type_context_old & ctx, expr const & e);
 
 /** \brief Given an inductive datatype \c n, store in \c r a "bitvector" s.t.
     r[i][j] is true iff the j-th argument of the i-th minor premise of the recursor \c n.rec

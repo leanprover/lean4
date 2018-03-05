@@ -51,7 +51,7 @@ optional<expr> mk_int_val_pos_proof(expr const & a);
 optional<expr> mk_int_val_ne_proof(expr const & a, expr const & b);
 
 /* Return a proof for a != b, a/b has type nat/int/char/string, and they are distinct values. */
-optional<expr> mk_val_ne_proof(type_context & ctx, expr const & a, expr const & b);
+optional<expr> mk_val_ne_proof(type_context_old & ctx, expr const & a, expr const & b);
 
 void initialize_comp_val();
 void finalize_comp_val();

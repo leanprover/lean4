@@ -56,11 +56,11 @@ struct cases_tactic_fn {
     declaration                   m_I_decl;
     declaration                   m_cases_on_decl;
 
-    type_context mk_type_context_for(metavar_decl const & g) {
+    type_context_old mk_type_context_for(metavar_decl const & g) {
         return ::lean::mk_type_context_for(m_env, m_opts, m_mctx, g.get_context(), m_mode);
     }
 
-    type_context mk_type_context_for(expr const & mvar) {
+    type_context_old mk_type_context_for(expr const & mvar) {
         return mk_type_context_for(m_mctx.get_metavar_decl(mvar));
     }
 
@@ -77,7 +77,7 @@ struct cases_tactic_fn {
         throw cases_tactic_exception { mk_tactic_state(mvar), [=] { return format(msg); } };
     }
 
-    #define lean_cases_trace(MVAR, CODE) lean_trace(name({"tactic", "cases"}), type_context TMP_CTX = mk_type_context_for(MVAR); scope_trace_env _scope1(m_env, TMP_CTX); CODE)
+    #define lean_cases_trace(MVAR, CODE) lean_trace(name({"tactic", "cases"}), type_context_old TMP_CTX = mk_type_context_for(MVAR); scope_trace_env _scope1(m_env, TMP_CTX); CODE)
 
     void init_inductive_info(name const & n) {
         m_nindices       = get_ginductive_num_indices(m_env, n);
@@ -89,7 +89,7 @@ struct cases_tactic_fn {
         m_cases_on_decl  = m_env.get(get_dep_cases_on(m_env, n));
     }
 
-    expr whnf_inductive(type_context & ctx, expr const & e) {
+    expr whnf_inductive(type_context_old & ctx, expr const & e) {
         if (m_unfold_ginductive)
             return ctx.relaxed_whnf(e);
         else
@@ -109,7 +109,7 @@ struct cases_tactic_fn {
     }
 
     bool is_cases_applicable(expr const & mvar, expr const & H) {
-        type_context ctx = mk_type_context_for(mvar);
+        type_context_old ctx = mk_type_context_for(mvar);
         expr t = whnf_inductive(ctx, ctx.infer(H));
         buffer<expr> args;
         expr const & fn = get_app_args(t, args);
@@ -137,7 +137,7 @@ struct cases_tactic_fn {
         lean_assert(is_local(h));
         if (m_nindices == 0)
             return true;
-        type_context ctx = mk_type_context_for(g);
+        type_context_old ctx = mk_type_context_for(g);
         expr h_type      = whnf_inductive(ctx, ctx.infer(h));
         buffer<expr> args;
         get_app_args(h_type, args);
@@ -164,9 +164,9 @@ struct cases_tactic_fn {
         return ok;
     }
 
-    pair<expr, expr> mk_eq(type_context & ctx, expr const & lhs, expr const & rhs) {
+    pair<expr, expr> mk_eq(type_context_old & ctx, expr const & lhs, expr const & rhs) {
         // make sure we don't assign regular metavars at is_def_eq
-        type_context::tmp_mode_scope scope(ctx);
+        type_context_old::tmp_mode_scope scope(ctx);
         expr lhs_type = ctx.infer(lhs);
         expr rhs_type = ctx.infer(rhs);
         level l       = get_level(ctx, lhs_type);
@@ -197,7 +197,7 @@ struct cases_tactic_fn {
         The original goal is solved if we can solve the produced goal. */
     expr generalize_indices(expr const & mvar, expr const & h, buffer<name> & new_indices_H, unsigned & num_eqs) {
         metavar_decl g     = m_mctx.get_metavar_decl(mvar);
-        type_context ctx   = mk_type_context_for(g);
+        type_context_old ctx   = mk_type_context_for(g);
         expr h_type        = whnf_inductive(ctx, ctx.infer(h));
         buffer<expr> I_args;
         expr const & I     = get_app_args(h_type, I_args);
@@ -311,7 +311,7 @@ struct cases_tactic_fn {
 
     /* Create (f ... x) with the given arity, where the other arguments are inferred using
        type inference */
-    expr mk_inverse(type_context & ctx, inverse_info const & inv, expr const & x) {
+    expr mk_inverse(type_context_old & ctx, inverse_info const & inv, expr const & x) {
         buffer<bool> mask;
         mask.resize(inv.m_arity - 1, false);
         mask.push_back(true);
@@ -338,7 +338,7 @@ struct cases_tactic_fn {
         expr target          = g.get_type();
         lean_assert(is_pi(target) && is_arrow(target));
         if (is_eq(binding_domain(target), lhs, rhs)) {
-            type_context ctx     = mk_type_context_for(mvar);
+            type_context_old ctx     = mk_type_context_for(mvar);
             expr lhs_n = whnf_gintro_rule(ctx, lhs);
             expr rhs_n = whnf_gintro_rule(ctx, rhs);
             if (lhs != lhs_n || rhs != rhs_n) {
@@ -358,7 +358,7 @@ struct cases_tactic_fn {
         local_decl H_decl    = g1.get_context().get_last_local_decl();
         expr H_type          = H_decl.get_type();
         expr H               = H_decl.mk_ref();
-        type_context ctx     = mk_type_context_for(*mvar1);
+        type_context_old ctx     = mk_type_context_for(*mvar1);
         if (is_heq(H_type, A, lhs, B, rhs)) {
             if (!ctx.is_def_eq(A, B)) {
                 throw_exception(mvar, "cases tactic failed, when processing auxiliary heterogeneous equality");

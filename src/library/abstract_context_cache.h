@@ -18,7 +18,7 @@ namespace lean {
 #define LEAN_NUM_TRANSPARENCY_MODES 5
 enum class transparency_mode { All = 0, Semireducible, Instances, Reducible, None };
 
-class type_context;
+class type_context_old;
 
 /* Auxiliary information that is cached by the app_builder module in
    the context_cache. */
@@ -57,12 +57,12 @@ struct app_builder_info {
    without the overhead of many caches.
 
    We use contextual caches for the operations performed in the following modules:
-   type_context, app_builder, fun_info and congr_lemma.
-   In the type_context, we cache inferred types, whnf, type class instances,
+   type_context_old, app_builder, fun_info and congr_lemma.
+   In the type_context_old, we cache inferred types, whnf, type class instances,
    to cite a few.
 
-   This class has been added to address problems with the former `type_context_cache_manager`.
-   The `type_context_cache_manager` objects were stored in thread local objects.
+   This class has been added to address problems with the former `type_context_old_cache_manager`.
+   The `type_context_old_cache_manager` objects were stored in thread local objects.
    The correctness of this cache relied on the fact we used to never reuse fresh names in the whole system.
    This is not true in the new name_generator refactoring (for addressing issue #1601).
    The caches for the modules app_builder, congr_lemma and fun_info have the same problem.
@@ -73,7 +73,7 @@ struct app_builder_info {
 
    Here is a scenario that demonstrates the problem.
    Suppose we are executing the tactic `t1 <|> t2`.
-   First, we execute `t1`, and in the process, the type_context
+   First, we execute `t1`, and in the process, the type_context_old
    cache is populated with new local constants created by `t1`.
    Then `t1` fails and we execute `t2`. When, we execute `t2`
    on the initial `tactic_state` object. Thus,
@@ -84,8 +84,8 @@ struct app_builder_info {
    Here are possible implementations of this API:
 
    - An "imperative" implementation using hashtables, and it is useful for modules
-     that own a type_context object (e.g., elaborator).
-     This implementation is also useful for the new type_context API we are going to expose in the `io` monad.
+     that own a type_context_old object (e.g., elaborator).
+     This implementation is also useful for the new type_context_old API we are going to expose in the `io` monad.
 
    - In principle, a "functional" implementation using rb_map and rb_tree is possible.
      Then, this version could be stored in the tactic_state or local_context objects.
@@ -96,11 +96,11 @@ struct app_builder_info {
      * The token can be viewed as a reference to the cache.
      * tactic_state stores this token.
      * Thread local storage stores the "imperative" implementation and a token of its owner.
-     * When we create a type_context for a tactic_state we check whether the thread local
+     * When we create a type_context_old for a tactic_state we check whether the thread local
        storage contains the cache for the given tactic_state. If yes, we use it, and obtain
        a new token for it since we will perform destructive updates.
        Otherwise, we create a new one.
-     * When we finish using the type_context, we update the tactic_state with the new fresh token,
+     * When we finish using the type_context_old, we update the tactic_state with the new fresh token,
        and put the updated cache back into the thread local storage.
 
        Remark: the thread local storage may store more than one cache.
@@ -135,8 +135,8 @@ struct app_builder_info {
           This is fine because we only use the "liberal" mode when elaborating the header of a declaration.
 
        2) frozen: after elaborating the header of a declaration, we freeze the local instances that can be used to
-          elaborate its body. The freeze step is also useful to speedup the type_context initialization
-          (see comment in the type_context class). So, we just check if the frozen local instances are the same
+          elaborate its body. The freeze step is also useful to speedup the type_context_old initialization
+          (see comment in the type_context_old class). So, we just check if the frozen local instances are the same
           before starting each step. This check is performed in the method `init_local_instances`.
 
    Here are some benefits of the new approach:
@@ -146,9 +146,9 @@ struct app_builder_info {
      cache.
 
    - We don't need to check whether the cache is valid or not when we create a new
-     type_context.
+     type_context_old.
 
-   - It is more efficient when creating temporary type_context objects for performing
+   - It is more efficient when creating temporary type_context_old objects for performing
      a single operation. In this kind of scenario, we can use the dummy cache implementation
      that doesn't cache anything.
 
@@ -179,12 +179,12 @@ public:
     /* Operations for accessing environment data more efficiently.
        The default implementation provided by this class does not have any optimization. */
 
-    virtual optional<declaration> get_decl(type_context &, transparency_mode, name const &) = 0;
-    virtual projection_info const * get_proj_info(type_context &, name const &) = 0;
-    virtual bool get_aux_recursor(type_context &, name const &) = 0;
-    virtual void get_unification_hints(type_context &, name const & f1, name const & f2, buffer<unification_hint> & hints) = 0;
+    virtual optional<declaration> get_decl(type_context_old &, transparency_mode, name const &) = 0;
+    virtual projection_info const * get_proj_info(type_context_old &, name const &) = 0;
+    virtual bool get_aux_recursor(type_context_old &, name const &) = 0;
+    virtual void get_unification_hints(type_context_old &, name const & f1, name const & f2, buffer<unification_hint> & hints) = 0;
 
-    /* Cache support for type_context module */
+    /* Cache support for type_context_old module */
 
     virtual optional<expr> get_infer(expr const &) = 0;
     virtual void set_infer(expr const &, expr const &) = 0;
@@ -213,54 +213,54 @@ public:
 
     /* Cache support for fun_info module */
 
-    virtual optional<fun_info> get_fun_info(type_context &, expr const &) = 0;
-    virtual void set_fun_info(type_context &, expr const &, fun_info const &) = 0;
+    virtual optional<fun_info> get_fun_info(type_context_old &, expr const &) = 0;
+    virtual void set_fun_info(type_context_old &, expr const &, fun_info const &) = 0;
 
-    virtual optional<fun_info> get_fun_info_nargs(type_context &, expr const &, unsigned) = 0;
-    virtual void set_fun_info_nargs(type_context &, expr const &, unsigned, fun_info const &) = 0;
+    virtual optional<fun_info> get_fun_info_nargs(type_context_old &, expr const &, unsigned) = 0;
+    virtual void set_fun_info_nargs(type_context_old &, expr const &, unsigned, fun_info const &) = 0;
 
-    virtual optional<unsigned> get_specialization_prefix_size(type_context &, expr const &, unsigned) = 0;
-    virtual void set_specialization_prefix_size(type_context &, expr const &, unsigned, unsigned) = 0;
+    virtual optional<unsigned> get_specialization_prefix_size(type_context_old &, expr const &, unsigned) = 0;
+    virtual void set_specialization_prefix_size(type_context_old &, expr const &, unsigned, unsigned) = 0;
 
-    virtual optional<ss_param_infos> get_subsingleton_info(type_context &, expr const &) = 0;
-    virtual void set_subsingleton_info(type_context &, expr const &, ss_param_infos const &) = 0;
+    virtual optional<ss_param_infos> get_subsingleton_info(type_context_old &, expr const &) = 0;
+    virtual void set_subsingleton_info(type_context_old &, expr const &, ss_param_infos const &) = 0;
 
-    virtual optional<ss_param_infos> get_subsingleton_info_nargs(type_context &, expr const &, unsigned) = 0;
-    virtual void set_subsingleton_info_nargs(type_context &, expr const &, unsigned, ss_param_infos const &) = 0;
+    virtual optional<ss_param_infos> get_subsingleton_info_nargs(type_context_old &, expr const &, unsigned) = 0;
+    virtual void set_subsingleton_info_nargs(type_context_old &, expr const &, unsigned, ss_param_infos const &) = 0;
 
-    virtual optional<ss_param_infos> get_specialized_subsingleton_info_nargs(type_context &, expr const &, unsigned) = 0;
-    virtual void set_specialization_subsingleton_info_nargs(type_context &, expr const &, unsigned, ss_param_infos const &) = 0;
+    virtual optional<ss_param_infos> get_specialized_subsingleton_info_nargs(type_context_old &, expr const &, unsigned) = 0;
+    virtual void set_specialization_subsingleton_info_nargs(type_context_old &, expr const &, unsigned, ss_param_infos const &) = 0;
 
     /* Cache support for congr_lemma module */
 
-    virtual optional<congr_lemma> get_simp_congr_lemma(type_context &, expr const &, unsigned) = 0;
-    virtual void set_simp_congr_lemma(type_context &, expr const &, unsigned, congr_lemma const &) = 0;
+    virtual optional<congr_lemma> get_simp_congr_lemma(type_context_old &, expr const &, unsigned) = 0;
+    virtual void set_simp_congr_lemma(type_context_old &, expr const &, unsigned, congr_lemma const &) = 0;
 
-    virtual optional<congr_lemma> get_specialized_simp_congr_lemma(type_context &, expr const &, unsigned) = 0;
-    virtual void set_specialized_simp_congr_lemma(type_context &, expr const &, unsigned, congr_lemma const &) = 0;
+    virtual optional<congr_lemma> get_specialized_simp_congr_lemma(type_context_old &, expr const &, unsigned) = 0;
+    virtual void set_specialized_simp_congr_lemma(type_context_old &, expr const &, unsigned, congr_lemma const &) = 0;
 
-    virtual optional<congr_lemma> get_congr_lemma(type_context &, expr const &, unsigned) = 0;
-    virtual void set_congr_lemma(type_context &, expr const &, unsigned, congr_lemma const &) = 0;
+    virtual optional<congr_lemma> get_congr_lemma(type_context_old &, expr const &, unsigned) = 0;
+    virtual void set_congr_lemma(type_context_old &, expr const &, unsigned, congr_lemma const &) = 0;
 
-    virtual optional<congr_lemma> get_specialized_congr_lemma(type_context &, expr const &, unsigned) = 0;
-    virtual void set_specialized_congr_lemma(type_context &, expr const &, unsigned, congr_lemma const &) = 0;
+    virtual optional<congr_lemma> get_specialized_congr_lemma(type_context_old &, expr const &, unsigned) = 0;
+    virtual void set_specialized_congr_lemma(type_context_old &, expr const &, unsigned, congr_lemma const &) = 0;
 
-    virtual optional<congr_lemma> get_hcongr_lemma(type_context &, expr const &, unsigned) = 0;
-    virtual void set_hcongr_lemma(type_context &, expr const &, unsigned, congr_lemma const &) = 0;
+    virtual optional<congr_lemma> get_hcongr_lemma(type_context_old &, expr const &, unsigned) = 0;
+    virtual void set_hcongr_lemma(type_context_old &, expr const &, unsigned, congr_lemma const &) = 0;
 
     /* Cache support for app_builder */
 
-    virtual optional<app_builder_info> get_app_builder_info(type_context &, expr const &, unsigned) = 0;
-    virtual void set_app_builder_info(type_context &, expr const &, unsigned, app_builder_info const &) = 0;
+    virtual optional<app_builder_info> get_app_builder_info(type_context_old &, expr const &, unsigned) = 0;
+    virtual void set_app_builder_info(type_context_old &, expr const &, unsigned, app_builder_info const &) = 0;
 
-    virtual optional<app_builder_info> get_app_builder_info(type_context &, expr const &, list<bool> const &) = 0;
-    virtual void set_app_builder_info(type_context &, expr const &, list<bool> const &, app_builder_info const &) = 0;
+    virtual optional<app_builder_info> get_app_builder_info(type_context_old &, expr const &, list<bool> const &) = 0;
+    virtual void set_app_builder_info(type_context_old &, expr const &, list<bool> const &, app_builder_info const &) = 0;
 };
 
 /* Dummy implementation of the abstract_context_cache interface that does not do cache anything but configuration options. */
 class context_cacheless : public abstract_context_cache {
 protected:
-    bool is_transparent(type_context & ctx, transparency_mode m, declaration const & d);
+    bool is_transparent(type_context_old & ctx, transparency_mode m, declaration const & d);
 private:
     options                   m_options;
     bool                      m_unfold_lemmas;
@@ -295,12 +295,12 @@ public:
     /* Operations for accessing environment data more efficiently.
        The default implementation provided by this class does not have any optimization. */
 
-    virtual optional<declaration> get_decl(type_context &, transparency_mode, name const &) override;
-    virtual projection_info const * get_proj_info(type_context &, name const &) override;
-    virtual bool get_aux_recursor(type_context &, name const &) override;
-    virtual void get_unification_hints(type_context &, name const & f1, name const & f2, buffer<unification_hint> & hints) override;
+    virtual optional<declaration> get_decl(type_context_old &, transparency_mode, name const &) override;
+    virtual projection_info const * get_proj_info(type_context_old &, name const &) override;
+    virtual bool get_aux_recursor(type_context_old &, name const &) override;
+    virtual void get_unification_hints(type_context_old &, name const & f1, name const & f2, buffer<unification_hint> & hints) override;
 
-    /* Cache support for type_context module */
+    /* Cache support for type_context_old module */
 
     virtual optional<expr> get_infer(expr const &) override { return none_expr(); }
     virtual void set_infer(expr const &, expr const &) override {}
@@ -324,48 +324,48 @@ public:
 
     /* Cache support for fun_info module */
 
-    virtual optional<fun_info> get_fun_info(type_context &, expr const &) override { return optional<fun_info>(); }
-    virtual void set_fun_info(type_context &, expr const &, fun_info const &) override {}
+    virtual optional<fun_info> get_fun_info(type_context_old &, expr const &) override { return optional<fun_info>(); }
+    virtual void set_fun_info(type_context_old &, expr const &, fun_info const &) override {}
 
-    virtual optional<fun_info> get_fun_info_nargs(type_context &, expr const &, unsigned) override { return optional<fun_info>(); }
-    virtual void set_fun_info_nargs(type_context &, expr const &, unsigned, fun_info const &) override {}
+    virtual optional<fun_info> get_fun_info_nargs(type_context_old &, expr const &, unsigned) override { return optional<fun_info>(); }
+    virtual void set_fun_info_nargs(type_context_old &, expr const &, unsigned, fun_info const &) override {}
 
-    virtual optional<unsigned> get_specialization_prefix_size(type_context &, expr const &, unsigned) override { return optional<unsigned>(); }
-    virtual void set_specialization_prefix_size(type_context &, expr const &, unsigned, unsigned) override {}
+    virtual optional<unsigned> get_specialization_prefix_size(type_context_old &, expr const &, unsigned) override { return optional<unsigned>(); }
+    virtual void set_specialization_prefix_size(type_context_old &, expr const &, unsigned, unsigned) override {}
 
-    virtual optional<ss_param_infos> get_subsingleton_info(type_context &, expr const &) override { return optional<ss_param_infos>(); }
-    virtual void set_subsingleton_info(type_context &, expr const &, ss_param_infos const &) override {}
+    virtual optional<ss_param_infos> get_subsingleton_info(type_context_old &, expr const &) override { return optional<ss_param_infos>(); }
+    virtual void set_subsingleton_info(type_context_old &, expr const &, ss_param_infos const &) override {}
 
-    virtual optional<ss_param_infos> get_subsingleton_info_nargs(type_context &, expr const &, unsigned) override { return optional<ss_param_infos>(); }
-    virtual void set_subsingleton_info_nargs(type_context &, expr const &, unsigned, ss_param_infos const &) override {}
+    virtual optional<ss_param_infos> get_subsingleton_info_nargs(type_context_old &, expr const &, unsigned) override { return optional<ss_param_infos>(); }
+    virtual void set_subsingleton_info_nargs(type_context_old &, expr const &, unsigned, ss_param_infos const &) override {}
 
-    virtual optional<ss_param_infos> get_specialized_subsingleton_info_nargs(type_context &, expr const &, unsigned) override { return optional<ss_param_infos>(); }
-    virtual void set_specialization_subsingleton_info_nargs(type_context &, expr const &, unsigned, ss_param_infos const &) override {}
+    virtual optional<ss_param_infos> get_specialized_subsingleton_info_nargs(type_context_old &, expr const &, unsigned) override { return optional<ss_param_infos>(); }
+    virtual void set_specialization_subsingleton_info_nargs(type_context_old &, expr const &, unsigned, ss_param_infos const &) override {}
 
     /* Cache support for congr_lemma module */
 
-    virtual optional<congr_lemma> get_simp_congr_lemma(type_context &, expr const &, unsigned) override { return optional<congr_lemma>(); }
-    virtual void set_simp_congr_lemma(type_context &, expr const &, unsigned, congr_lemma const &) override {}
+    virtual optional<congr_lemma> get_simp_congr_lemma(type_context_old &, expr const &, unsigned) override { return optional<congr_lemma>(); }
+    virtual void set_simp_congr_lemma(type_context_old &, expr const &, unsigned, congr_lemma const &) override {}
 
-    virtual optional<congr_lemma> get_specialized_simp_congr_lemma(type_context &, expr const &, unsigned) override { return optional<congr_lemma>(); }
-    virtual void set_specialized_simp_congr_lemma(type_context &, expr const &, unsigned, congr_lemma const &) override {}
+    virtual optional<congr_lemma> get_specialized_simp_congr_lemma(type_context_old &, expr const &, unsigned) override { return optional<congr_lemma>(); }
+    virtual void set_specialized_simp_congr_lemma(type_context_old &, expr const &, unsigned, congr_lemma const &) override {}
 
-    virtual optional<congr_lemma> get_congr_lemma(type_context &, expr const &, unsigned) override { return optional<congr_lemma>(); }
-    virtual void set_congr_lemma(type_context &, expr const &, unsigned, congr_lemma const &) override {}
+    virtual optional<congr_lemma> get_congr_lemma(type_context_old &, expr const &, unsigned) override { return optional<congr_lemma>(); }
+    virtual void set_congr_lemma(type_context_old &, expr const &, unsigned, congr_lemma const &) override {}
 
-    virtual optional<congr_lemma> get_specialized_congr_lemma(type_context &, expr const &, unsigned) override { return optional<congr_lemma>(); }
-    virtual void set_specialized_congr_lemma(type_context &, expr const &, unsigned, congr_lemma const &) override {}
+    virtual optional<congr_lemma> get_specialized_congr_lemma(type_context_old &, expr const &, unsigned) override { return optional<congr_lemma>(); }
+    virtual void set_specialized_congr_lemma(type_context_old &, expr const &, unsigned, congr_lemma const &) override {}
 
-    virtual optional<congr_lemma> get_hcongr_lemma(type_context &, expr const &, unsigned) override { return optional<congr_lemma>(); }
-    virtual void set_hcongr_lemma(type_context &, expr const &, unsigned, congr_lemma const &) override {}
+    virtual optional<congr_lemma> get_hcongr_lemma(type_context_old &, expr const &, unsigned) override { return optional<congr_lemma>(); }
+    virtual void set_hcongr_lemma(type_context_old &, expr const &, unsigned, congr_lemma const &) override {}
 
     /* Cache support for app_builder */
 
-    virtual optional<app_builder_info> get_app_builder_info(type_context &, expr const &, unsigned) override { return optional<app_builder_info>(); }
-    virtual void set_app_builder_info(type_context &, expr const &, unsigned, app_builder_info const &) override {}
+    virtual optional<app_builder_info> get_app_builder_info(type_context_old &, expr const &, unsigned) override { return optional<app_builder_info>(); }
+    virtual void set_app_builder_info(type_context_old &, expr const &, unsigned, app_builder_info const &) override {}
 
-    virtual optional<app_builder_info> get_app_builder_info(type_context &, expr const &, list<bool> const &) override { return optional<app_builder_info>(); }
-    virtual void set_app_builder_info(type_context &, expr const &, list<bool> const &, app_builder_info const &) override {}
+    virtual optional<app_builder_info> get_app_builder_info(type_context_old &, expr const &, list<bool> const &) override { return optional<app_builder_info>(); }
+    virtual void set_app_builder_info(type_context_old &, expr const &, list<bool> const &, app_builder_info const &) override {}
 };
 
 void initialize_abstract_context_cache();

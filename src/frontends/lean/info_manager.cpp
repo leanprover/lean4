@@ -59,7 +59,7 @@ public:
 
 #ifdef LEAN_JSON
 void hole_info_data::report(io_state_stream const & ios, json & record) const {
-    type_context ctx = mk_type_context_for(m_state);
+    type_context_old ctx = mk_type_context_for(m_state);
     interactive_report_type(ios.get_environment(), ios.get_options(), ctx.infer(m_state.main()), record);
 }
 #endif
@@ -172,7 +172,7 @@ void info_manager::add_vm_obj_format_info(pos_info pos, environment const & env,
 #ifdef LEAN_JSON
 void info_manager::get_info_record(environment const & env, options const & o, io_state const & ios, pos_info pos,
                                    json & record, std::function<bool (info_data const &)> pred) const {
-    type_context tc(env, o);
+    type_context_old tc(env, o);
     io_state_stream out = regular(env, ios, tc).update_options(o);
     get_line_info_set(pos.first).for_each([&](unsigned c, list<info_data> const & ds) {
         if (c == pos.second) {

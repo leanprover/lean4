@@ -645,7 +645,7 @@ int main(int argc, char ** argv) {
             set_io_cmdline_args({argv + optind, argv + argc});
             eval_helper fn(main_env, main_opts, "main");
 
-            type_context tc(main_env, main_opts);
+            type_context_old tc(main_env, main_opts);
             scope_trace_env scope2(main_env, main_opts, tc);
 
             try {

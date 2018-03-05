@@ -34,13 +34,13 @@ bool check_hypothesis_in_context(metavar_context const & mctx, expr const & mvar
 expr subst(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
            expr const & mvar, expr const & H, bool symm, hsubstitution * subst) {
     #define lean_subst_trace(CODE) lean_trace(name({"tactic", "subst"}), CODE)
-#define lean_subst_trace_state(MVAR, MSG) lean_trace(name({"tactic", "subst"}), tactic_state S = mk_tactic_state_for_metavar(env, opts, "subst", mctx, MVAR); type_context TMP_CTX = mk_cacheless_type_context_for(S, m); scope_trace_env _scope1(env, TMP_CTX); tout() << MSG << S.pp_core() << "\n";)
+#define lean_subst_trace_state(MVAR, MSG) lean_trace(name({"tactic", "subst"}), tactic_state S = mk_tactic_state_for_metavar(env, opts, "subst", mctx, MVAR); type_context_old TMP_CTX = mk_cacheless_type_context_for(S, m); scope_trace_env _scope1(env, TMP_CTX); tout() << MSG << S.pp_core() << "\n";)
 
     lean_subst_trace_state(mvar, "initial:\n");
     lean_assert(mctx.find_metavar_decl(mvar));
     lean_assert(is_local(H));
     metavar_decl g      = mctx.get_metavar_decl(mvar);
-    type_context ctx    = mk_type_context_for(env, opts, mctx, g.get_context(), m);
+    type_context_old ctx    = mk_type_context_for(env, opts, mctx, g.get_context(), m);
     expr H_type         = ctx.instantiate_mvars(ctx.infer(H));
     expr lhs, rhs;
     lean_verify(is_eq(H_type, lhs, rhs));
@@ -66,7 +66,7 @@ expr subst(environment const & env, options const & opts, transparency_mode cons
     expr H2             = lctx.get_local(lhsH2[1]);
     bool depH2          = depends_on(type, H2);
     expr new_type       = instantiate(abstract_local(type, lhs), rhs);
-    type_context ctx2   = mk_type_context_for(env, opts, mctx, g2.get_context(), m);
+    type_context_old ctx2   = mk_type_context_for(env, opts, mctx, g2.get_context(), m);
     expr motive;
     if (depH2) {
         new_type = instantiate(abstract_local(new_type, H2), mk_eq_refl(ctx2, rhs));
@@ -81,7 +81,7 @@ expr subst(environment const & env, options const & opts, transparency_mode cons
                   `new_type` is type correct because `H2` and `H2_prime.symm` are definitionally equal by proof irrelevance.
                3- Create motive by abstracting `lhs` and `H2_prime` in `new_type`.
              */
-            type_context::tmp_locals locals(ctx2);
+            type_context_old::tmp_locals locals(ctx2);
             expr H2_prime = locals.push_local("_h", mk_eq(ctx2, rhs, lhs));
             expr H2_prime_symm = mk_eq_symm(ctx2, H2_prime);
             /* replace H2 in type with H2'.symm, where H2' is a new local that is def-eq to H2.symm */

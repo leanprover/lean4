@@ -44,7 +44,7 @@ class add_mutual_inductive_decl_fn {
     name                          m_basic_ind_name;
     name                          m_basic_prefix;
 
-    type_context                  m_tctx;
+    type_context_old                  m_tctx;
 
     buffer<expr>                  m_index_types;
     expr                          m_full_index_type;
@@ -317,7 +317,7 @@ class add_mutual_inductive_decl_fn {
         name basic_has_sizeof_name = mk_has_sizeof_name(mlocal_name(m_basic_decl.get_ind(0)));
 
         for (unsigned ind_idx = 0; ind_idx < m_mut_decl.get_inds().size(); ++ind_idx) {
-            type_context tctx_synth(m_env, m_opts, lctx);
+            type_context_old tctx_synth(m_env, m_opts, lctx);
 
             expr const & ind = m_mut_decl.get_ind(ind_idx);
             name sizeof_name = mk_sizeof_name(mlocal_name(ind));
@@ -377,7 +377,7 @@ class add_mutual_inductive_decl_fn {
 
     void define_sizeof_specs(local_context const & lctx, buffer<expr> const & param_insts) {
         for (unsigned ind_idx = 0; ind_idx < m_mut_decl.get_inds().size(); ++ind_idx) {
-            type_context tctx_synth(m_env, m_opts, lctx);
+            type_context_old tctx_synth(m_env, m_opts, lctx);
             expr const & ind = m_mut_decl.get_ind(ind_idx);
             name sizeof_name = mk_sizeof_name(mlocal_name(ind));
 
@@ -403,7 +403,7 @@ class add_mutual_inductive_decl_fn {
                     expr local = mk_local_for(ir_ty);
                     locals.push_back(local);
                     expr candidate = mk_app(m_tctx, get_sizeof_name(), local);
-                    type_context stctx(m_env, options(), m_tctx.lctx(), transparency_mode::Semireducible);
+                    type_context_old stctx(m_env, options(), m_tctx.lctx(), transparency_mode::Semireducible);
                     if (!stctx.is_def_eq(candidate, mk_constant(get_nat_zero_name())))
                         rhs = mk_nat_add(rhs, candidate);
                     ir_ty = tctx_synth.whnf(instantiate(binding_body(ir_ty), local));

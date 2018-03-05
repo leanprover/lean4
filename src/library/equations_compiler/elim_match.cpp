@@ -191,15 +191,15 @@ struct elim_match_fn {
         return true;
     }
 
-    type_context mk_type_context(local_context const & lctx) {
-        return type_context(m_env, m_mctx, lctx, m_elab.get_cache(), transparency_mode::Semireducible);
+    type_context_old mk_type_context(local_context const & lctx) {
+        return type_context_old(m_env, m_mctx, lctx, m_elab.get_cache(), transparency_mode::Semireducible);
     }
 
-    type_context mk_type_context(expr const & mvar) {
+    type_context_old mk_type_context(expr const & mvar) {
         return mk_type_context(get_local_context(mvar));
     }
 
-    type_context mk_type_context(problem const & P) {
+    type_context_old mk_type_context(problem const & P) {
         return mk_type_context(get_local_context(P));
     }
 
@@ -208,7 +208,7 @@ struct elim_match_fn {
     std::function<format(expr const &)> mk_pp_ctx(local_context const & lctx) {
         options opts = get_options();
         opts = opts.update(get_pp_beta_name(), false);
-        type_context ctx = mk_type_context(lctx);
+        type_context_old ctx = mk_type_context(lctx);
         return ::lean::mk_pp_ctx(ctx);
     }
 
@@ -235,7 +235,7 @@ struct elim_match_fn {
     format pp_problem(problem const & P) {
         format r;
         auto pp = mk_pp_ctx(P);
-        type_context ctx = mk_type_context(P);
+        type_context_old ctx = mk_type_context(P);
         r += format("match") + space() + format(P.m_fn_name) + space() + format(":") + space() + pp(ctx.infer(P.m_goal));
         format v;
         bool first = true;
@@ -264,7 +264,7 @@ struct elim_match_fn {
         if (!is_constant(e)) return optional<name>();
         return is_constructor(const_name(e));
     }
-    optional<name> is_constructor_app(type_context & ctx, expr const & e) const {
+    optional<name> is_constructor_app(type_context_old & ctx, expr const & e) const {
         if (auto ind_type = is_constructor(get_app_fn(e))) {
             // Check that e is not a partially applied constructor.
             auto e_type = whnf_ginductive(ctx, ctx.infer(e));
@@ -321,7 +321,7 @@ struct elim_match_fn {
         return result;
     }
 
-    bool is_value(type_context & ctx, expr const & e) {
+    bool is_value(type_context_old & ctx, expr const & e) {
         try {
             if (!m_use_ite) return false;
             if (is_nat_int_char_string_name_value(ctx, e)) return true;
@@ -333,7 +333,7 @@ struct elim_match_fn {
         }
     }
 
-    bool is_finite_value(type_context & ctx, expr const & e) {
+    bool is_finite_value(type_context_old & ctx, expr const & e) {
         lean_assert(is_value(ctx, e));
         return is_char_value(ctx, e);
     }
@@ -355,7 +355,7 @@ struct elim_match_fn {
     unsigned get_inductive_num_params(expr const & I) const { return get_inductive_num_params(const_name(I)); }
 
     /* Normalize until head is constructor or value */
-    expr whnf_pattern(type_context & ctx, expr const & e) {
+    expr whnf_pattern(type_context_old & ctx, expr const & e) {
         if (is_inaccessible(e)) {
             return e;
         } else if (is_value(ctx, e)) {
@@ -374,14 +374,14 @@ struct elim_match_fn {
     }
 
     /* Normalize until head is constructor */
-    expr whnf_constructor(type_context & ctx, expr const & e) {
+    expr whnf_constructor(type_context_old & ctx, expr const & e) {
         return ctx.whnf_head_pred(e, [&](expr const & e) {
                 return !is_constructor_app(ctx, e);
             });
     }
 
     /* Normalize until head is an inductive datatype */
-    expr whnf_inductive(type_context & ctx, expr const & e) {
+    expr whnf_inductive(type_context_old & ctx, expr const & e) {
         return ctx.whnf_head_pred(e, [&](expr const & e) {
                 return !is_inductive_app(e);
             });
@@ -391,7 +391,7 @@ struct elim_match_fn {
         expr it = eqn;
         it = binding_body(it); /* consume fn header */
         if (is_no_equation(it)) return optional<equation>();
-        type_context ctx = mk_type_context(lctx);
+        type_context_old ctx = mk_type_context(lctx);
         buffer<expr> locals;
         while (is_lambda(it)) {
             expr type  = instantiate_rev(binding_domain(it), locals);
@@ -443,7 +443,7 @@ struct elim_match_fn {
     unsigned get_eqns_arity(local_context const & lctx, expr const & eqns) {
         /* Naive way to retrieve the arity of the function being defined */
         lean_assert(is_equations(eqns));
-        type_context ctx = mk_type_context(lctx);
+        type_context_old ctx = mk_type_context(lctx);
         unpack_eqns ues(ctx, eqns);
         return ues.get_arity_of(0);
     }
@@ -507,7 +507,7 @@ struct elim_match_fn {
     bool is_constructor_transition(problem const & P) {
         return all_equations(P, [&](equation const & eqn) {
                 expr const & p = head(eqn.m_patterns);
-                type_context ctx = mk_type_context(eqn.m_lctx);
+                type_context_old ctx = mk_type_context(eqn.m_lctx);
                 if (is_constructor_app(ctx, p))
                     return true;
                 return is_value(ctx, p);
@@ -541,7 +541,7 @@ struct elim_match_fn {
                 if (is_local(p)) {
                     has_variable = true; return true;
                 }
-                type_context ctx = mk_type_context(eqn.m_lctx);
+                type_context_old ctx = mk_type_context(eqn.m_lctx);
                 if (is_constructor_app(ctx, p)) {
                     has_constructor = true; return true;
                 }
@@ -569,7 +569,7 @@ struct elim_match_fn {
                 if (is_local(p)) {
                     has_variable = true; return true;
                 } else {
-                    type_context ctx = mk_type_context(eqn.m_lctx);
+                    type_context_old ctx = mk_type_context(eqn.m_lctx);
                     if (is_value(ctx, p)) {
                         has_value    = true;
                         if (is_finite_value(ctx, p))
@@ -584,7 +584,7 @@ struct elim_match_fn {
             return false;
         if (!has_variable && has_finite_value)
             return false;
-        type_context ctx  = mk_type_context(P);
+        type_context_old ctx  = mk_type_context(P);
         /* Check whether other variables on the variable stack depend on the head. */
         expr const & v   = head(P.m_var_stack);
         if (depends_on(ctx.infer(P.m_goal), v)) {
@@ -692,7 +692,7 @@ struct elim_match_fn {
         buffer<equation> R;
         for (equation const & eqn : eqns) {
             lean_assert(eqn.m_patterns);
-            type_context ctx = mk_type_context(eqn.m_lctx);
+            type_context_old ctx = mk_type_context(eqn.m_lctx);
             /* Remark: reverted bcf44f7020, see issue #1739 */
             /* expr pattern     = whnf_constructor(ctx, head(eqn.m_patterns)); */
             /* We use ctx.relaxed_whnf to make sure we expose the kernel constructor */
@@ -740,7 +740,7 @@ struct elim_match_fn {
             equation new_eqn   = eqn;
             new_eqn.m_subst    = apply(eqn.m_subst, new_subst);
             /* Update patterns */
-            type_context ctx   = mk_type_context(eqn.m_lctx);
+            type_context_old ctx   = mk_type_context(eqn.m_lctx);
             for (unsigned i = nparams; i < pattern_args.size(); i++)
                 pattern_args[i] = whnf_pattern(ctx, pattern_args[i]);
             new_eqn.m_patterns = to_list(pattern_args.begin() + nparams, pattern_args.end(), tail(eqn.m_patterns));
@@ -752,7 +752,7 @@ struct elim_match_fn {
     optional<list<lemma>> process_constructor_core(problem const & P, bool fail_if_subgoals) {
         trace_match(tout() << "step: constructors only\n";);
         lean_assert(is_constructor_transition(P));
-        type_context ctx   = mk_type_context(P);
+        type_context_old ctx   = mk_type_context(P);
         expr x             = head(P.m_var_stack);
         /* Remark: reverted bcf44f7020, see issue #1739 */
         /* expr x_type        = whnf_inductive(ctx, ctx.infer(x)); */
@@ -823,7 +823,7 @@ struct elim_match_fn {
         bool is_last       = !tail(P.m_var_stack);
         expr x             = head(P.m_var_stack);
         local_context lctx = get_local_context(P.m_goal);
-        type_context ctx   = mk_type_context(P);
+        type_context_old ctx   = mk_type_context(P);
         expr goal_type     = ctx.infer(P.m_goal);
         expr else_goal     = ctx.mk_metavar_decl(lctx, goal_type);
         buffer<expr> values;
@@ -868,7 +868,7 @@ struct elim_match_fn {
                     if (is_last) break;
                 } else if (is_local(p)) {
                     /* Replace variable `p` with `val` in this equation */
-                    type_context ctx   = mk_type_context(eqn.m_lctx);
+                    type_context_old ctx   = mk_type_context(eqn.m_lctx);
                     buffer<expr> from;
                     buffer<expr> to;
                     buffer<expr> new_vars;
@@ -918,7 +918,7 @@ struct elim_match_fn {
                     equation new_eqn = eqn;
                     new_eqn.m_patterns = tail(new_eqn.m_patterns);
                     new_eqn.m_subst    = add_subst(eqn.m_subst, p, x);
-                    type_context ctx   = mk_type_context(eqn.m_lctx);
+                    type_context_old ctx   = mk_type_context(eqn.m_lctx);
                     new_eqn.m_hs       = eqn.m_hs;
                     unsigned idx       = length(eqn.m_hs) + 1;
                     for (unsigned i = 0; i < values.size(); i++) {
@@ -949,7 +949,7 @@ struct elim_match_fn {
         for (equation const & eqn : P.m_equations) {
             expr const & pattern = head(eqn.m_patterns);
             if (is_local(pattern)) {
-                type_context ctx  = mk_type_context(eqn.m_lctx);
+                type_context_old ctx  = mk_type_context(eqn.m_lctx);
                 for_each_compatible_constructor(ctx, pattern,
                     [&](expr const & c, buffer<expr> const & new_c_vars) {
                     expr var = pattern;
@@ -983,7 +983,7 @@ struct elim_match_fn {
         if (!is_next_var(P)) {
             return process_variable(P);
         } else {
-            type_context ctx = mk_type_context(P);
+            type_context_old ctx = mk_type_context(P);
             expr x           = head(P.m_var_stack);
             expr arg_type    = ctx.infer(x);
             if (is_below_type(arg_type)) {
@@ -1015,7 +1015,7 @@ struct elim_match_fn {
     list<lemma> process_non_variable(problem const & P) {
         expr p = head(P.m_var_stack);
         lean_assert(!is_local(p));
-        type_context ctx = mk_type_context(P);
+        type_context_old ctx = mk_type_context(P);
         if (all_inaccessible(P)) {
             trace_match(tout() << "step: skip inaccessible patterns\n";);
             problem new_P;
@@ -1063,7 +1063,7 @@ struct elim_match_fn {
 
     /* Create (f ... x) with the given arity, where the other arguments are inferred using
        type inference */
-    expr mk_app_with_arity(type_context & ctx, name const & f, unsigned arity, expr const & x) {
+    expr mk_app_with_arity(type_context_old & ctx, name const & f, unsigned arity, expr const & x) {
         buffer<bool> mask;
         mask.resize(arity - 1, false);
         mask.push_back(true);
@@ -1138,7 +1138,7 @@ struct elim_match_fn {
         expr M_1           = revert(m_env, get_options(), m_mctx, P.m_goal, to_revert, preserve_to_revert_order);
 
         /* Step 2 */
-        type_context ctx1  = mk_type_context(M_1);
+        type_context_old ctx1  = mk_type_context(M_1);
         expr M_1_type      = ctx1.relaxed_whnf(ctx1.infer(M_1));
         lean_assert(is_pi(M_1_type));
         expr x1            = ctx1.push_local(binding_name(M_1_type), binding_domain(M_1_type));
@@ -1232,9 +1232,9 @@ struct elim_match_fn {
                        t =?= s
 
 
-               Remark: we also use `id_rhs` to implement "smart reduction" at type_context.
+               Remark: we also use `id_rhs` to implement "smart reduction" at type_context_old.
             */
-            type_context ctx = mk_type_context(P);
+            type_context_old ctx = mk_type_context(P);
             rhs              = mk_id_rhs(ctx, rhs);
         }
         m_mctx.assign(P.m_goal, rhs);
@@ -1299,7 +1299,7 @@ struct elim_match_fn {
     expr finalize_lemma(expr const & fn, lemma const & L) {
         buffer<expr> args;
         to_buffer(L.m_lhs_args, args);
-        type_context ctx = mk_type_context(L.m_lctx);
+        type_context_old ctx = mk_type_context(L.m_lctx);
         expr lhs = mk_app(fn, args);
         expr eq  = mk_eq(ctx, lhs, L.m_rhs);
         buffer<expr> locals;
@@ -1368,7 +1368,7 @@ struct elim_match_fn {
     elim_match_result operator()(local_context const & lctx, expr const & eqns) {
         lean_assert(equations_num_fns(eqns) == 1);
         DEBUG_CODE({
-                type_context ctx = mk_type_context(lctx);
+                type_context_old ctx = mk_type_context(lctx);
                 lean_assert(!is_recursive_eqns(ctx, eqns));
             });
         m_aux_lemmas             = get_equations_header(eqns).m_aux_lemmas;
@@ -1438,7 +1438,7 @@ eqn_compiler_result mk_nonrec(environment & env, elaborator & elab, metavar_cont
         auto counter_examples = map2<expr>(R.m_counter_examples, [&] (list<expr> const & e) { return mk_app(fn, e); });
         return { {R.m_fn}, counter_examples };
     }
-    type_context ctx1(env, mctx, lctx, elab.get_cache(), transparency_mode::Semireducible);
+    type_context_old ctx1(env, mctx, lctx, elab.get_cache(), transparency_mode::Semireducible);
     /*
        We should use the type specified at eqns instead of m_ctx.infer(R.m_fn).
        These two types must be definitionally equal, but the shape of
@@ -1455,9 +1455,9 @@ eqn_compiler_result mk_nonrec(environment & env, elaborator & elab, metavar_cont
     std::tie(env, fn) = mk_aux_definition(env, elab.get_options(), mctx, lctx, header,
                                           fn_name, fn_actual_name, fn_type, R.m_fn);
     unsigned eqn_idx     = 1;
-    type_context ctx2(env, mctx, lctx, elab.get_cache(), transparency_mode::Semireducible);
+    type_context_old ctx2(env, mctx, lctx, elab.get_cache(), transparency_mode::Semireducible);
     for (expr type : R.m_lemmas) {
-        type_context::tmp_locals locals(ctx2);
+        type_context_old::tmp_locals locals(ctx2);
         type = ctx2.relaxed_whnf(type);
         while (is_pi(type)) {
             expr local = locals.push_local_from_binding(type);

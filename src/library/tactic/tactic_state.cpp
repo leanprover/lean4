@@ -171,7 +171,7 @@ tactic_state set_context_cache_id(tactic_state const & s, context_cache_id const
 }
 
 format tactic_state::pp_expr(formatter_factory const & fmtf, expr const & e) const {
-    type_context ctx = mk_cacheless_type_context_for(*this, transparency_mode::All);
+    type_context_old ctx = mk_cacheless_type_context_for(*this, transparency_mode::All);
     formatter fmt = fmtf(env(), get_options(), ctx);
     return fmt(e);
 }
@@ -200,7 +200,7 @@ format tactic_state::pp_goal(formatter_factory const & fmtf, expr const & g, boo
     metavar_decl decl          = mctx().get_metavar_decl(g);
     local_context lctx         = decl.get_context();
     metavar_context mctx_tmp   = mctx();
-    type_context ctx(env(), get_options(), mctx_tmp, lctx, transparency_mode::All);
+    type_context_old ctx(env(), get_options(), mctx_tmp, lctx, transparency_mode::All);
     formatter fmt              = fmtf(env(), opts, ctx);
     if (inst_mvars)
         lctx                   = lctx.instantiate_mvars(mctx_tmp);
@@ -312,7 +312,7 @@ vm_obj tactic_format_result(vm_obj const & o) {
     metavar_context mctx = s.mctx();
     expr r = mctx.instantiate_mvars(s.main());
     metavar_decl main_decl = mctx.get_metavar_decl(s.main());
-    type_context ctx(s.env(), s.get_options(), mctx, main_decl.get_context(), transparency_mode::All);
+    type_context_old ctx(s.env(), s.get_options(), mctx, main_decl.get_context(), transparency_mode::All);
     formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
     formatter fmt = fmtf(s.env(), s.get_options(), ctx);
     return tactic::mk_success(to_obj(fmt(r)), s);
@@ -331,45 +331,45 @@ tactic_state_context_cache::tactic_state_context_cache(tactic_state & s):
     s       = m_state;
 }
 
-type_context tactic_state_context_cache::mk_type_context(tactic_state const & s, local_context const & lctx, transparency_mode m) {
+type_context_old tactic_state_context_cache::mk_type_context(tactic_state const & s, local_context const & lctx, transparency_mode m) {
     lean_assert(s.get_cache_id() == m_state.get_cache_id());
-    return type_context(s.env(), s.mctx(), lctx, *this, m);
+    return type_context_old(s.env(), s.mctx(), lctx, *this, m);
 }
 
-type_context tactic_state_context_cache::mk_type_context(tactic_state const & s, transparency_mode m) {
+type_context_old tactic_state_context_cache::mk_type_context(tactic_state const & s, transparency_mode m) {
     local_context lctx;
     if (auto d = s.get_main_goal_decl()) lctx = d->get_context();
     return mk_type_context(s, lctx, m);
 }
 
-type_context tactic_state_context_cache::mk_type_context(transparency_mode m) {
+type_context_old tactic_state_context_cache::mk_type_context(transparency_mode m) {
     return mk_type_context(m_state, m);
 }
 
-type_context mk_type_context_for(environment const & env, options const & o, metavar_context const & mctx,
+type_context_old mk_type_context_for(environment const & env, options const & o, metavar_context const & mctx,
                                  local_context const & lctx, transparency_mode m) {
-    return type_context(env, o, mctx, lctx, m);
+    return type_context_old(env, o, mctx, lctx, m);
 }
 
-type_context mk_type_context_for(tactic_state const & s, local_context const & lctx, transparency_mode m) {
+type_context_old mk_type_context_for(tactic_state const & s, local_context const & lctx, transparency_mode m) {
     return mk_type_context_for(s.env(), s.get_options(), s.mctx(), lctx, m);
 }
 
-type_context mk_type_context_for(tactic_state const & s, transparency_mode m) {
+type_context_old mk_type_context_for(tactic_state const & s, transparency_mode m) {
     local_context lctx;
     if (auto d = s.get_main_goal_decl()) lctx = d->get_context();
     return mk_type_context_for(s, lctx, m);
 }
 
-type_context mk_type_context_for(vm_obj const & s) {
+type_context_old mk_type_context_for(vm_obj const & s) {
     return mk_type_context_for(tactic::to_state(s));
 }
 
-type_context mk_type_context_for(vm_obj const & s, vm_obj const & m) {
+type_context_old mk_type_context_for(vm_obj const & s, vm_obj const & m) {
     return mk_type_context_for(tactic::to_state(s), to_transparency_mode(m));
 }
 
-type_context mk_cacheless_type_context_for(tactic_state const & s, transparency_mode m) {
+type_context_old mk_cacheless_type_context_for(tactic_state const & s, transparency_mode m) {
     return mk_type_context_for(s, m);
 }
 
@@ -383,7 +383,7 @@ static void check_closed(char const * tac_name, expr const & e) {
 vm_obj tactic_infer_type(vm_obj const & e, vm_obj const & s0) {
     tactic_state s = tactic::to_state(s0);
     tactic_state_context_cache cache(s);
-    type_context ctx = cache.mk_type_context();
+    type_context_old ctx = cache.mk_type_context();
     try {
         check_closed("infer_type", to_expr(e));
         return tactic::mk_success(to_obj(ctx.infer(to_expr(e))), s);
@@ -395,7 +395,7 @@ vm_obj tactic_infer_type(vm_obj const & e, vm_obj const & s0) {
 vm_obj tactic_whnf(vm_obj const & e, vm_obj const & t, vm_obj const & unfold_ginductive, vm_obj const & s0) {
     tactic_state s = tactic::to_state(s0);
     tactic_state_context_cache cache(s);
-    type_context ctx = cache.mk_type_context(to_transparency_mode(t));
+    type_context_old ctx = cache.mk_type_context(to_transparency_mode(t));
     try {
         check_closed("whnf", to_expr(e));
         if (to_bool(unfold_ginductive)) {
@@ -411,7 +411,7 @@ vm_obj tactic_whnf(vm_obj const & e, vm_obj const & t, vm_obj const & unfold_gin
 vm_obj tactic_head_eta_expand(vm_obj const & e, vm_obj const & s0) {
     tactic_state s   = tactic::to_state(s0);
     tactic_state_context_cache cache(s);
-    type_context ctx = cache.mk_type_context();
+    type_context_old ctx = cache.mk_type_context();
     try {
         check_closed("head_eta_expand", to_expr(e));
         return tactic::mk_success(to_obj(ctx.eta_expand(to_expr(e))), s);
@@ -472,7 +472,7 @@ vm_obj tactic_zeta(vm_obj const & e0, vm_obj const & s0) {
 vm_obj tactic_is_class(vm_obj const & e, vm_obj const & s0) {
     tactic_state s = tactic::to_state(s0);
     tactic_state_context_cache cache(s);
-    type_context ctx = cache.mk_type_context();
+    type_context_old ctx = cache.mk_type_context();
     try {
         check_closed("is_class", to_expr(e));
         return tactic::mk_success(mk_vm_bool(static_cast<bool>(ctx.is_class(to_expr(e)))), s);
@@ -484,7 +484,7 @@ vm_obj tactic_is_class(vm_obj const & e, vm_obj const & s0) {
 vm_obj tactic_mk_instance(vm_obj const & e, vm_obj const & s0) {
     tactic_state s = tactic::to_state(s0);
     tactic_state_context_cache cache(s);
-    type_context ctx = cache.mk_type_context();
+    type_context_old ctx = cache.mk_type_context();
     try {
         check_closed("mk_instance", to_expr(e));
         if (auto r = ctx.mk_class_instance(to_expr(e))) {
@@ -508,7 +508,7 @@ static vm_obj mk_unify_exception(char const * header, expr const & e1, expr cons
         format r(header);
         unsigned indent = get_pp_indent(s.get_options());
         formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
-        type_context ctx   = mk_cacheless_type_context_for(s, transparency_mode::All);
+        type_context_old ctx   = mk_cacheless_type_context_for(s, transparency_mode::All);
         formatter fmt      = fmtf(s.env(), s.get_options(), ctx);
         expr e1_type       = ctx.infer(e1);
         expr e2_type       = ctx.infer(e2);
@@ -527,11 +527,11 @@ static vm_obj mk_unify_exception(char const * header, expr const & e1, expr cons
 vm_obj tactic_unify(vm_obj const & e1, vm_obj const & e2, vm_obj const & t, vm_obj const & approx, vm_obj const & s0) {
     tactic_state s = tactic::to_state(s0);
     tactic_state_context_cache cache(s);
-    type_context ctx       = cache.mk_type_context(to_transparency_mode(t));
+    type_context_old ctx       = cache.mk_type_context(to_transparency_mode(t));
     try {
         check_closed("unify", to_expr(e1));
         check_closed("unify", to_expr(e2));
-        type_context::approximate_scope scope(ctx, to_bool(approx));
+        type_context_old::approximate_scope scope(ctx, to_bool(approx));
         bool r = ctx.is_def_eq(to_expr(e1), to_expr(e2));
         if (r) {
             return tactic::mk_success(set_mctx(s, ctx.mctx()));
@@ -547,11 +547,11 @@ vm_obj tactic_unify(vm_obj const & e1, vm_obj const & e2, vm_obj const & t, vm_o
 vm_obj tactic_is_def_eq(vm_obj const & e1, vm_obj const & e2, vm_obj const & t, vm_obj const & approx, vm_obj const & s0) {
     tactic_state s = tactic::to_state(s0);
     tactic_state_context_cache cache(s);
-    type_context ctx = cache.mk_type_context(to_transparency_mode(t));
+    type_context_old ctx = cache.mk_type_context(to_transparency_mode(t));
     try {
         check_closed("is_def_eq", to_expr(e1));
         check_closed("is_def_eq", to_expr(e2));
-        type_context::approximate_scope scope(ctx, to_bool(approx));
+        type_context_old::approximate_scope scope(ctx, to_bool(approx));
         bool r = ctx.pure_is_def_eq(to_expr(e1), to_expr(e2));
         if (r) {
             return tactic::mk_success(s);
@@ -785,7 +785,7 @@ vm_obj tactic_decl_name(vm_obj const & _s) {
 }
 
 format tactic_state::pp() const {
-    type_context ctx = mk_cacheless_type_context_for(*this, transparency_mode::Semireducible);
+    type_context_old ctx = mk_cacheless_type_context_for(*this, transparency_mode::Semireducible);
     expr ts_expr     = mk_constant("tactic_state");
     optional<expr> to_fmt_inst = ctx.mk_class_instance(mk_app(mk_constant("has_to_format", {mk_level_zero()}), ts_expr));
     if (!to_fmt_inst) {
@@ -943,7 +943,7 @@ vm_obj tactic_type_check(vm_obj const & e, vm_obj const & m, vm_obj const & s0) 
     tactic_state s = tactic::to_state(s0);
     try {
         tactic_state_context_cache cache(s);
-        type_context ctx = cache.mk_type_context(to_transparency_mode(m));
+        type_context_old ctx = cache.mk_type_context(to_transparency_mode(m));
         check(ctx, to_expr(e));
         return tactic::mk_success(s);
     } catch (exception & ex) {
@@ -992,7 +992,7 @@ vm_obj tactic_unfreeze_local_instances(vm_obj const & s0) {
     if (!g) return mk_no_goals_exception(s);
     local_context lctx         = g->get_context();
     tactic_state_context_cache cache(s);
-    type_context ctx           = cache.mk_type_context();
+    type_context_old ctx           = cache.mk_type_context();
     lctx.unfreeze_local_instances();
     expr new_mvar              = ctx.mk_metavar_decl(lctx, g->get_type());
     ctx.assign(*s.get_main_goal(), new_mvar);

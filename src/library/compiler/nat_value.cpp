@@ -81,7 +81,7 @@ mpz const & get_nat_value_value(expr const & e) {
     return static_cast<nat_value_macro const *>(macro_def(e).raw())->get_value();
 }
 
-optional<expr> to_nat_value(type_context & ctx, expr const & e) {
+optional<expr> to_nat_value(type_context_old & ctx, expr const & e) {
     if (optional<mpz> v = to_num(e)) {
         expr type = ctx.whnf(ctx.infer(e));
         if (is_nat_type(type)) {
@@ -98,11 +98,11 @@ class find_nat_values_fn : public replace_visitor_with_tc {
         return replace_visitor_with_tc::visit_app(e);
     }
 public:
-    find_nat_values_fn(type_context & ctx):replace_visitor_with_tc(ctx) {}
+    find_nat_values_fn(type_context_old & ctx):replace_visitor_with_tc(ctx) {}
 };
 
 expr find_nat_values(environment const & env, expr const & e) {
-    type_context ctx(env, transparency_mode::All);
+    type_context_old ctx(env, transparency_mode::All);
     return find_nat_values_fn(ctx)(e);
 }
 

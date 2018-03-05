@@ -252,11 +252,11 @@ simp_result simplify_core_fn::try_user_congr(expr const & e, simp_lemma const & 
     buffer<expr> congr_hyps;
     to_buffer(cl.get_congr_hyps(), congr_hyps);
 
-    buffer<type_context::tmp_locals> factories;
+    buffer<type_context_old::tmp_locals> factories;
     buffer<name> relations;
     for (expr const & m : congr_hyps) {
         factories.emplace_back(m_ctx);
-        type_context::tmp_locals & local_factory = factories.back();
+        type_context_old::tmp_locals & local_factory = factories.back();
         expr m_type = tmp_ctx.instantiate_mvars(tmp_ctx.infer(m));
 
         while (is_pi(m_type)) {
@@ -811,7 +811,7 @@ bool simplify_core_fn::simplify_constructor_eq_constructor(simp_result & r) {
             if (!inj_decl)
                 return false;
             unsigned inj_arity = get_arity(inj_decl->get_type());
-            type_context::tmp_locals locals(m_ctx);
+            type_context_old::tmp_locals locals(m_ctx);
             expr H   = locals.push_local("_h", r.get_new());
             expr inj = mk_app(m_ctx, inj_name, inj_arity, H);
             buffer<expr> inj_args;
@@ -860,7 +860,7 @@ optional<pair<simp_result, bool>> simplify_core_fn::post(expr const &, optional<
     return optional<pair<simp_result, bool>>();
 }
 
-simplify_core_fn::simplify_core_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss,
+simplify_core_fn::simplify_core_fn(type_context_old & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss,
                                    simp_config const & cfg):
     m_ctx(ctx), m_defeq_canonizer(m_ctx, dcs), m_slss(slss), m_cfg(cfg) {
 }
@@ -887,7 +887,7 @@ simp_result simplify_core_fn::operator()(name const & rel, expr const & e) {
     }
 }
 
-static expr mk_mpr(type_context & ctx, name const & rel, expr const & h1, expr const & h2) {
+static expr mk_mpr(type_context_old & ctx, name const & rel, expr const & h1, expr const & h2) {
     lean_assert(rel == get_eq_name() || rel == get_iff_name());
     if (rel == get_eq_name())
         return mk_eq_mpr(ctx, h1, h2);
@@ -923,14 +923,14 @@ optional<expr> simplify_core_fn::prove_by_simp(name const & rel, expr const & e)
    simplify_ext_core_fn
    ------------------------------------ */
 
-simplify_ext_core_fn::simplify_ext_core_fn(type_context & ctx, defeq_can_state & dcs, simp_lemmas const & slss,
+simplify_ext_core_fn::simplify_ext_core_fn(type_context_old & ctx, defeq_can_state & dcs, simp_lemmas const & slss,
                                            simp_config const & cfg):
     simplify_core_fn(ctx, dcs, slss, cfg) {
 }
 
 simp_result simplify_ext_core_fn::visit_lambda(expr const & e) {
     if (m_rel != get_eq_name() || !m_cfg.m_use_axioms) return simp_result(e);
-    type_context::tmp_locals locals(m_ctx);
+    type_context_old::tmp_locals locals(m_ctx);
     expr it = e;
     while (is_lambda(it)) {
         expr d = instantiate_rev(binding_domain(it), locals.size(), locals.as_buffer().data());
@@ -965,7 +965,7 @@ simp_result simplify_ext_core_fn::visit_lambda(expr const & e) {
 simp_result simplify_ext_core_fn::forall_congr(expr const & e) {
     lean_assert(m_rel == get_eq_name() || m_rel == get_iff_name());
     buffer<expr> pis;
-    type_context::tmp_locals locals(m_ctx);
+    type_context_old::tmp_locals locals(m_ctx);
     expr it = e;
     while (is_pi(it)) {
         expr d = instantiate_rev(binding_domain(it), locals.as_buffer().size(), locals.as_buffer().data());
@@ -1020,7 +1020,7 @@ simp_result simplify_ext_core_fn::imp_congr(expr const & e) {
     expr const & b  = binding_body(e);
     simp_result r_a = visit(a, some_expr(e));
     if (m_cfg.m_contextual) {
-        type_context::tmp_locals locals(m_ctx);
+        type_context_old::tmp_locals locals(m_ctx);
         expr h = locals.push_local("_h", r_a.get_new());
         flet<simp_lemmas> set_slss(m_slss, add_to_slss(m_slss, locals.as_buffer()));
         freset<simplify_cache> reset_cache(m_cache);
@@ -1091,12 +1091,12 @@ optional<pair<simp_result, bool>> simplify_fn::pre(expr const &, optional<expr> 
 }
 
 // TODO(Leo): move to a different file
-static optional<expr> unfold_using_nontrivial_eqns(type_context & ctx, expr const & e) {
+static optional<expr> unfold_using_nontrivial_eqns(type_context_old & ctx, expr const & e) {
     if (!is_app(e)) return none_expr();
     expr const & f = get_app_fn(e);
     if (!is_constant(f)) return none_expr();
     if (has_simple_eqn_lemma(ctx.env(), const_name(f))) return none_expr();
-    type_context::transparency_scope scope(ctx, transparency_mode::Semireducible);
+    type_context_old::transparency_scope scope(ctx, transparency_mode::Semireducible);
     return ctx.unfold_definition(e);
 }
 
@@ -1179,7 +1179,7 @@ class vm_simplify_fn : public simplify_ext_core_fn {
     }
 
 public:
-    vm_simplify_fn(type_context & ctx, defeq_can_state & dcs, simp_lemmas const & slss, simp_config const & cfg,
+    vm_simplify_fn(type_context_old & ctx, defeq_can_state & dcs, simp_lemmas const & slss, simp_config const & cfg,
                    vm_obj const & prove, vm_obj const & pre, vm_obj const & post, tactic_state const & s):
         simplify_ext_core_fn(ctx, dcs, slss, cfg),
         m_prove(prove), m_pre(pre), m_post(post),
@@ -1216,7 +1216,7 @@ class tactic_simplify_fn : public simplify_fn {
     }
 
 public:
-    tactic_simplify_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss, list<name> const & to_unfold,
+    tactic_simplify_fn(type_context_old & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss, list<name> const & to_unfold,
                        simp_config const & cfg, tactic_state const & s, vm_obj const & prove):
         simplify_fn(ctx, dcs, slss, to_unfold, cfg),
         m_s(s),
@@ -1240,7 +1240,7 @@ vm_obj tactic_simplify(vm_obj const & slss, vm_obj const & u, vm_obj const & e, 
     try {
         simp_config cfg(c);
         tactic_state_context_cache cache(s);
-        type_context ctx     = cache.mk_type_context(transparency_mode::Reducible);
+        type_context_old ctx     = cache.mk_type_context(transparency_mode::Reducible);
         defeq_can_state dcs  = s.dcs();
         tactic_simplify_fn simp(ctx, dcs, to_simp_lemmas(slss), to_list_name(u), cfg, s, prove);
         simp_result result   = simp(to_name(rel), to_expr(e));
@@ -1262,7 +1262,7 @@ static vm_obj ext_simplify_core(vm_obj const & a, vm_obj const & c, simp_lemmas 
     try {
         simp_config cfg(c);
         tactic_state_context_cache cache(s);
-        type_context ctx     = cache.mk_type_context(transparency_mode::Reducible);
+        type_context_old ctx     = cache.mk_type_context(transparency_mode::Reducible);
         defeq_can_state dcs  = s.dcs();
         vm_simplify_fn simp(ctx, dcs, slss, cfg, prove, pre, post, s);
         pair<vm_obj, simp_result> p = simp(a, r, e);

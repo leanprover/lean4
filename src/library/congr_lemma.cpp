@@ -41,17 +41,17 @@ typedef cache_compatibility_helper<congr_lemma_cache> congr_lemma_cache_helper;
 /* CACHE_RESET: YES */
 MK_THREAD_LOCAL_GET_DEF(congr_lemma_cache_helper, get_clch);
 
-congr_lemma_cache & get_congr_lemma_cache_for(type_context const & ctx) {
+congr_lemma_cache & get_congr_lemma_cache_for(type_context_old const & ctx) {
     return get_clch().get_cache_for(ctx);
 }
 
 struct congr_lemma_manager {
     typedef expr_unsigned key;
     typedef congr_lemma result;
-    type_context &      m_ctx;
+    type_context_old &      m_ctx;
     congr_lemma_cache & m_cache;
 
-    congr_lemma_manager(type_context & ctx):
+    congr_lemma_manager(type_context_old & ctx):
         m_ctx(ctx), m_cache(get_congr_lemma_cache_for(ctx)) {}
 
     expr infer(expr const & e) { return m_ctx.infer(e); }
@@ -179,7 +179,7 @@ struct congr_lemma_manager {
         how the resulting term looks like. */
     optional<result> mk_congr_simp(expr const & fn, buffer<param_info> const & pinfos, buffer<congr_arg_kind> const & kinds) {
         try {
-            type_context::tmp_locals locals(m_ctx);
+            type_context_old::tmp_locals locals(m_ctx);
             expr fn_type = relaxed_whnf(infer(fn));
             name e_name("e");
             buffer<expr> lhss;
@@ -253,7 +253,7 @@ struct congr_lemma_manager {
     optional<result> mk_congr(expr const & fn, optional<result> const & simp_lemma,
                               buffer<param_info> const & pinfos, buffer<congr_arg_kind> const & kinds) {
         try {
-            type_context::tmp_locals locals(m_ctx);
+            type_context_old::tmp_locals locals(m_ctx);
             expr fn_type1 = whnf(infer(fn));
             expr fn_type2 = fn_type1;
             name e_name("e");
@@ -484,7 +484,7 @@ struct congr_lemma_manager {
         } else if (is_heq(type, A, a, B, b)) {
             return mk_heq_refl(m_ctx, a);
         } else {
-            type_context::tmp_locals locals(m_ctx);
+            type_context_old::tmp_locals locals(m_ctx);
             lean_assert(is_pi(type) && is_pi(binding_body(type)) && is_pi(binding_body(binding_body(type))));
             expr a      = locals.push_local_from_binding(type);
             type        = instantiate(binding_body(type), a);
@@ -506,7 +506,7 @@ struct congr_lemma_manager {
 
     optional<result> mk_hcongr_core(expr const & fn, unsigned nargs) {
         try {
-            type_context::tmp_locals locals(m_ctx);
+            type_context_old::tmp_locals locals(m_ctx);
             expr fn_type_lhs = relaxed_whnf(infer(fn));
             expr fn_type_rhs = fn_type_lhs;
             name e_name("e");
@@ -618,35 +618,35 @@ struct congr_lemma_manager {
     }
 };
 
-optional<congr_lemma> mk_congr_simp(type_context & ctx, expr const & fn) {
+optional<congr_lemma> mk_congr_simp(type_context_old & ctx, expr const & fn) {
     return congr_lemma_manager(ctx).mk_congr_simp(fn);
 }
 
-optional<congr_lemma> mk_congr_simp(type_context & ctx, expr const & fn, unsigned nargs) {
+optional<congr_lemma> mk_congr_simp(type_context_old & ctx, expr const & fn, unsigned nargs) {
     return congr_lemma_manager(ctx).mk_congr_simp(fn, nargs);
 }
 
-optional<congr_lemma> mk_specialized_congr_simp(type_context & ctx, expr const & a) {
+optional<congr_lemma> mk_specialized_congr_simp(type_context_old & ctx, expr const & a) {
     return congr_lemma_manager(ctx).mk_specialized_congr_simp(a);
 }
 
-optional<congr_lemma> mk_congr(type_context & ctx, expr const & fn) {
+optional<congr_lemma> mk_congr(type_context_old & ctx, expr const & fn) {
     return congr_lemma_manager(ctx).mk_congr(fn);
 }
 
-optional<congr_lemma> mk_congr(type_context & ctx, expr const & fn, unsigned nargs) {
+optional<congr_lemma> mk_congr(type_context_old & ctx, expr const & fn, unsigned nargs) {
     return congr_lemma_manager(ctx).mk_congr(fn, nargs);
 }
 
-optional<congr_lemma> mk_specialized_congr(type_context & ctx, expr const & a) {
+optional<congr_lemma> mk_specialized_congr(type_context_old & ctx, expr const & a) {
     return congr_lemma_manager(ctx).mk_specialized_congr(a);
 }
 
-optional<congr_lemma> mk_hcongr(type_context & ctx, expr const & fn) {
+optional<congr_lemma> mk_hcongr(type_context_old & ctx, expr const & fn) {
     return congr_lemma_manager(ctx).mk_hcongr(fn);
 }
 
-optional<congr_lemma> mk_hcongr(type_context & ctx, expr const & fn, unsigned nargs) {
+optional<congr_lemma> mk_hcongr(type_context_old & ctx, expr const & fn, unsigned nargs) {
     return congr_lemma_manager(ctx).mk_hcongr(fn, nargs);
 }
 

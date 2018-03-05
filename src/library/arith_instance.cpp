@@ -17,10 +17,10 @@ arith_instance_info_ptr mk_arith_instance_info(expr const & type, level const & 
     return std::make_shared<arith_instance_info>(type, lvl);
 }
 
-arith_instance::arith_instance(type_context & ctx, expr const & type, level const & level):
+arith_instance::arith_instance(type_context_old & ctx, expr const & type, level const & level):
     m_ctx(&ctx), m_info(mk_arith_instance_info(type, level)) {}
 
-arith_instance::arith_instance(type_context & ctx, expr const & type):
+arith_instance::arith_instance(type_context_old & ctx, expr const & type):
     m_ctx(&ctx) {
     set_type(type);
 }

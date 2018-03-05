@@ -218,7 +218,7 @@ bool elaborator::try_report(std::exception const & ex, optional<expr> const & re
     auto pip = get_pos_info_provider();
     if (!pip) return false;
 
-    auto tc = std::make_shared<type_context>(m_env, m_opts, m_ctx.mctx(), m_ctx.lctx());
+    auto tc = std::make_shared<type_context_old>(m_env, m_opts, m_ctx.mctx(), m_ctx.lctx());
     message_builder out(tc, m_env, get_global_ios(), pip->get_file_name(),
                         ref ? pip->get_pos_info_or_some(*ref) : pip->get_some_pos(), ERROR);
     out.set_exception(ex);
@@ -441,7 +441,7 @@ auto elaborator::use_elim_elab_core(name const & fn) -> optional<elim_info> {
     if (is_basic_aux_recursor(m_env, fn) || inductive::is_elim_rule(m_env, fn)) {
         return optional<elim_info>(get_elim_info_for_builtin(fn));
     }
-    type_context::tmp_locals locals(m_ctx);
+    type_context_old::tmp_locals locals(m_ctx);
     declaration d     = m_env.get(fn);
     expr type         = d.get_type();
     while (is_pi(type)) {
@@ -703,7 +703,7 @@ optional<expr> elaborator::mk_coercion(expr const & e, expr e_type, expr type, e
 }
 
 bool elaborator::is_def_eq(expr const & e1, expr const & e2) {
-    type_context::approximate_scope scope(m_ctx);
+    type_context_old::approximate_scope scope(m_ctx);
     try {
         return m_ctx.is_def_eq(e1, e2);
     } catch (exception &) {
@@ -1585,7 +1585,7 @@ expr elaborator::visit_base_app_core(expr const & fn, arg_mask amask, buffer<exp
                (max 1 ?m) =?= ?m
                (max ?m1 1) =?= (max 1 ?m2)
 
-           The first one cannot be solved by type_context, and an approximate
+           The first one cannot be solved by type_context_old, and an approximate
            solution is used for the second one. In the second pass, we will have
            additional information propagated from the expected_type, and these
            constraints may become trivial.
@@ -1608,11 +1608,11 @@ expr elaborator::visit_base_app_core(expr const & fn, arg_mask amask, buffer<exp
 
                    1 =?= (max 1 ?u)
 
-           which, as described above, cannot be solved by type_context.
+           which, as described above, cannot be solved by type_context_old.
            However, this constraint becomes trivial after we propagate the expected type
            (list name), and we have to solve (list name) =?= (list ?m)
         */
-        type_context::full_postponed_scope scope(m_ctx, false);
+        type_context_old::full_postponed_scope scope(m_ctx, false);
         flet<bool> dont_recover(m_recover_from_errors, false);
         first_pass(fn, args, *expected_type, ref, info);
     } catch (elaborator_exception & ex1) {
@@ -2127,7 +2127,7 @@ static expr instantiate_rev_locals(expr const & a, unsigned n, expr const * subs
     return replace(a, fn);
 }
 
-static expr instantiate_rev_locals(expr const & e, type_context::tmp_locals const & locals) {
+static expr instantiate_rev_locals(expr const & e, type_context_old::tmp_locals const & locals) {
     return instantiate_rev_locals(e, locals.as_buffer().size(), locals.as_buffer().data());
 }
 
@@ -2178,7 +2178,7 @@ expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_ty
         }
     } else {
         // User provided some typing information for the match
-        type_context::tmp_locals locals(m_ctx);
+        type_context_old::tmp_locals locals(m_ctx);
         expr it = fn_type;
         for (unsigned i = 0; i < args.size(); i++) {
             if (!is_pi(it))
@@ -2310,7 +2310,7 @@ expr elaborator::mk_aux_meta_def(expr const & e, expr const & ref) {
     return new_c;
 }
 
-static void mvar_dep_sort_aux(type_context & ctx, expr const & m,
+static void mvar_dep_sort_aux(type_context_old & ctx, expr const & m,
                               name_set const & mvar_names, name_set & visited, buffer<expr> & result) {
     if (visited.contains(mlocal_name(m)))
         return;
@@ -2329,7 +2329,7 @@ static void mvar_dep_sort_aux(type_context & ctx, expr const & m,
 }
 
 /* Topological sort based on dependencies. */
-static void mvar_dep_sort(type_context & ctx, buffer<expr> & mvars) {
+static void mvar_dep_sort(type_context_old & ctx, buffer<expr> & mvars) {
     name_set visited;
     buffer<expr> result;
     name_set mvar_names;
@@ -2359,7 +2359,7 @@ class validate_and_collect_lhs_mvars : public replace_visitor {
     buffer<expr> &  m_unassigned_mvars;
     name_set        m_collected;
 
-    type_context & ctx() { return m_elab.m_ctx; }
+    type_context_old & ctx() { return m_elab.m_ctx; }
 
     environment const & env() { return m_elab.env(); }
 
@@ -2368,7 +2368,7 @@ class validate_and_collect_lhs_mvars : public replace_visitor {
            of definitions compiled using the equation compiler */
         {
             /* Try without use delta reduction */
-            type_context::transparency_scope scope(ctx(), transparency_mode::None);
+            type_context_old::transparency_scope scope(ctx(), transparency_mode::None);
             expr new_e = ctx().whnf(e);
             if (new_e != e) return some_expr(new_e);
         }
@@ -2517,7 +2517,7 @@ public:
 
 /* Similar to instantiate_mvars, but add an inaccessible pattern annotation around metavariables
    whose value has been fixed by type inference. */
-static expr instantiate_pattern_mvars(type_context & ctx, expr const & lhs) {
+static expr instantiate_pattern_mvars(type_context_old & ctx, expr const & lhs) {
     return replace(lhs, [&](expr const & e, unsigned) {
             if (is_metavar_decl_ref(e) && ctx.is_assigned(e)) {
                 expr v = ctx.instantiate_mvars(e);
@@ -2533,7 +2533,7 @@ static expr instantiate_pattern_mvars(type_context & ctx, expr const & lhs) {
 
 expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
     expr const & ref = e;
-    type_context::tmp_locals fns(m_ctx);
+    type_context_old::tmp_locals fns(m_ctx);
     expr it = e;
     for (unsigned i = 0; i < num_fns; i++) {
         if (!is_lambda(it))
@@ -2583,7 +2583,7 @@ expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
         // sort using dependencies
         mvar_dep_sort(m_ctx, unassigned_mvars);
         // create local variables for each unassigned metavar
-        type_context::tmp_locals new_locals(m_ctx);
+        type_context_old::tmp_locals new_locals(m_ctx);
         for (expr & m : unassigned_mvars) {
             expr type      = instantiate_mvars(m_ctx.infer(m));
             expr new_local = new_locals.push_local(mlocal_pp_name(m), type, binder_info());
@@ -2705,7 +2705,7 @@ elaborator::field_resolution elaborator::field_to_decl(expr const & e, expr cons
     if (is_field_notation(e)) {
         auto lhs = macro_arg(e, 0);
         if (is_constant(lhs)) {
-            type_context::tmp_locals locals(m_ctx);
+            type_context_old::tmp_locals locals(m_ctx);
             expr t = whnf(s_type);
             while (is_pi(t)) {
                 t = whnf(instantiate(binding_body(t), locals.push_local_from_binding(t)));
@@ -2809,7 +2809,7 @@ expr elaborator::visit_field(expr const & e, optional<expr> const & expected_typ
 
 class reduce_projections_visitor : public replace_visitor {
 private:
-    type_context & m_ctx;
+    type_context_old & m_ctx;
 protected:
     expr visit_app(expr const & e) override {
         expr e2 = replace_visitor::visit_app(e);
@@ -2820,7 +2820,7 @@ protected:
         return e2;
     }
 public:
-    reduce_projections_visitor(type_context & ctx): m_ctx(ctx) {}
+    reduce_projections_visitor(type_context_old & ctx): m_ctx(ctx) {}
 };
 
 /* Predicated variant of `lean::instantiate_mvars`. It does not support delayed abstractions or universe mvars. */
@@ -2846,7 +2846,7 @@ class visit_structure_instance_fn {
     elaborator & m_elab;
     // note: fields needed by trace macros
     environment & m_env = m_elab.m_env;
-    type_context & m_ctx = m_elab.m_ctx;
+    type_context_old & m_ctx = m_elab.m_ctx;
 
     // inputs
     expr m_e, m_ref = m_e;
@@ -3362,7 +3362,7 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
 
 /* If the instance fingerprint has been set, then make sure `type` is not a local instance.
    Then, add a new local declaration to locals. */
-expr elaborator::push_local(type_context::tmp_locals & locals,
+expr elaborator::push_local(type_context_old::tmp_locals & locals,
                             name const & n, expr const & type, binder_info const & binfo, expr const & /* ref */) {
 #if 0 // TODO(Leo): the following check is too restrictive
     if (m_ctx.lctx().get_instance_fingerprint() &&
@@ -3374,7 +3374,7 @@ expr elaborator::push_local(type_context::tmp_locals & locals,
 }
 
 /* See method above */
-expr elaborator::push_let(type_context::tmp_locals & locals,
+expr elaborator::push_let(type_context_old::tmp_locals & locals,
                           name const & n, expr const & type, expr const & value, expr const & /* ref */) {
 #if 0 // TODO(Leo): the following check is too restrictive
     if (m_ctx.lctx().get_instance_fingerprint() &&
@@ -3386,7 +3386,7 @@ expr elaborator::push_let(type_context::tmp_locals & locals,
 }
 
 expr elaborator::visit_lambda(expr const & e, optional<expr> const & expected_type) {
-    type_context::tmp_locals locals(m_ctx);
+    type_context_old::tmp_locals locals(m_ctx);
     expr it  = e;
     expr ex;
     bool has_expected;
@@ -3431,7 +3431,7 @@ expr elaborator::visit_lambda(expr const & e, optional<expr> const & expected_ty
 }
 
 expr elaborator::visit_pi(expr const & e) {
-    type_context::tmp_locals locals(m_ctx);
+    type_context_old::tmp_locals locals(m_ctx);
     expr it  = e;
     expr parent_it = e;
     while (is_pi(it)) {
@@ -3465,7 +3465,7 @@ expr elaborator::visit_let(expr const & e, optional<expr> const & expected_type)
     new_type       = instantiate_mvars(new_type);
     new_value      = instantiate_mvars(new_value);
     ensure_no_unassigned_metavars(new_value);
-    type_context::tmp_locals locals(m_ctx);
+    type_context_old::tmp_locals locals(m_ctx);
     expr l = copy_tag(let_type(e), push_let(locals, let_name(e), new_type, new_value, ref));
     save_identifier_info(l);
     expr body      = instantiate_rev_locals(let_body(e), locals);
@@ -3503,7 +3503,7 @@ expr elaborator::visit_have_expr(expr const & e, optional<expr> const & expected
     new_proof       = enforce_type(new_proof, new_type, "invalid have-expression", proof);
     synthesize();
     ensure_no_unassigned_metavars(new_proof);
-    type_context::tmp_locals locals(m_ctx);
+    type_context_old::tmp_locals locals(m_ctx);
     expr ref        = binding_domain(lambda);
     push_local(locals, binding_name(lambda), new_type, binding_info(lambda), ref);
     expr body       = instantiate_rev_locals(binding_body(lambda), locals);
@@ -3524,7 +3524,7 @@ expr elaborator::visit_suffices_expr(expr const & e, optional<expr> const & expe
     expr new_type = visit(type, none_expr());
     synthesize_no_tactics();
     {
-        type_context::tmp_locals locals(m_ctx);
+        type_context_old::tmp_locals locals(m_ctx);
         expr ref        = binding_domain(fn);
         push_local(locals, binding_name(fn), new_type, binding_info(fn), ref);
         expr body       = instantiate_rev_locals(binding_body(fn), locals);
@@ -3797,7 +3797,7 @@ void elaborator::synthesize() {
 
 void elaborator::report_error(tactic_state const & s, char const * state_header,
                               char const * msg, expr const & ref) {
-    auto tc = std::make_shared<type_context>(m_env, m_opts, m_ctx.mctx(), m_ctx.lctx());
+    auto tc = std::make_shared<type_context_old>(m_env, m_opts, m_ctx.mctx(), m_ctx.lctx());
     auto pip = get_pos_info_provider();
     if (!pip) return;
     message_builder out(tc, m_env, get_global_ios(), pip->get_file_name(),
@@ -3857,7 +3857,7 @@ void elaborator::snapshot::restore(elaborator & e) {
     This class also transforms remaining universe metavariables
     into parameters */
 struct sanitize_param_names_fn : public replace_visitor {
-    type_context &  m_ctx;
+    type_context_old &  m_ctx;
     name            m_p{"u"};
     name_set        m_L; /* All parameter names in the input expression. */
     unsigned        m_idx{1};
@@ -3867,10 +3867,10 @@ struct sanitize_param_names_fn : public replace_visitor {
        theorem type. */
     bool            m_fixed;
 
-    sanitize_param_names_fn(type_context & ctx, buffer<name> & new_lp_names):
+    sanitize_param_names_fn(type_context_old & ctx, buffer<name> & new_lp_names):
         m_ctx(ctx), m_new_param_names(new_lp_names), m_fixed(false) {}
 
-    sanitize_param_names_fn(type_context & ctx, elaborator::theorem_finalization_info const & info,
+    sanitize_param_names_fn(type_context_old & ctx, elaborator::theorem_finalization_info const & info,
                             buffer<name> & new_lp_names):
         m_ctx(ctx), m_L(info.m_L),
         m_new_param_names(new_lp_names), m_fixed(true) {}
@@ -3932,7 +3932,7 @@ struct sanitize_param_names_fn : public replace_visitor {
     }
 };
 
-/** When the output of the elaborator may contain meta-variables, we convert the type_context level meta-variables
+/** When the output of the elaborator may contain meta-variables, we convert the type_context_old level meta-variables
     into regular kernel meta-variables. */
 static expr replace_with_simple_metavars(metavar_context mctx, name_map<expr> & cache, expr const & e) {
     if (!has_expr_metavar(e)) return e;
@@ -4280,7 +4280,7 @@ static vm_obj tactic_save_type_info(vm_obj const &, vm_obj const & _e, vm_obj co
     auto pos = get_pos_info_provider()->get_pos_info(to_expr(ref));
     if (!pos) return tactic::mk_success(s);
     tactic_state_context_cache cache(s);
-    type_context ctx = cache.mk_type_context();
+    type_context_old ctx = cache.mk_type_context();
     try {
         expr type = ctx.infer(e);
         get_global_info_manager()->add_type_info(*pos, type);

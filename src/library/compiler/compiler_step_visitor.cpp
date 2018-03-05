@@ -28,7 +28,7 @@ compiler_step_visitor::~compiler_step_visitor() {
 }
 
 expr compiler_step_visitor::visit_lambda_let(expr const & e) {
-    type_context::tmp_locals locals(m_ctx);
+    type_context_old::tmp_locals locals(m_ctx);
     expr t = e;
     while (true) {
         /* Types are ignored in compilation steps. So, we do not invoke visit for d. */

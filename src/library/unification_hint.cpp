@@ -55,7 +55,7 @@ struct unification_hint_state {
 
     void register_hint(environment const & env, name const & decl_name, expr const & value, unsigned priority) {
         m_decl_names_to_prio.insert(decl_name, priority);
-        type_context _ctx(env, options(), transparency_mode::All);
+        type_context_old _ctx(env, options(), transparency_mode::All);
         tmp_type_context ctx(_ctx);
         expr e_hint = value;
         unsigned num_vars = 0;
@@ -221,7 +221,7 @@ format pp_unification_hints(unification_hints const & hints, formatter const & f
 }
 
 class unification_hint_fn {
-    type_context &           m_owner;
+    type_context_old &           m_owner;
     unification_hint const & m_hint;
     buffer<optional<expr>>   m_assignment;
 
@@ -324,7 +324,7 @@ class unification_hint_fn {
     }
 
 public:
-    unification_hint_fn(type_context & o, unification_hint const & hint):
+    unification_hint_fn(type_context_old & o, unification_hint const & hint):
         m_owner(o), m_hint(hint) {
         m_assignment.resize(m_hint.get_num_vars());
     }
@@ -364,7 +364,7 @@ public:
     }
 };
 
-bool try_unification_hint(type_context & o, unification_hint const & hint, expr const & lhs, expr const & rhs) {
+bool try_unification_hint(type_context_old & o, unification_hint const & hint, expr const & lhs, expr const & rhs) {
     return unification_hint_fn(o, hint)(lhs, rhs);
 }
 

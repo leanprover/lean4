@@ -37,8 +37,8 @@ apply_cfg::apply_cfg(vm_obj const & cfg):
   Compute the number of expected arguments and whether the result type is of the form
   (?m ...) where ?m is an unassigned metavariable.
 */
-static pair<unsigned, bool> get_expected_num_args_ho_result(type_context & ctx, expr e) {
-    type_context::tmp_locals locals(ctx);
+static pair<unsigned, bool> get_expected_num_args_ho_result(type_context_old & ctx, expr e) {
+    type_context_old::tmp_locals locals(ctx);
     unsigned r = 0;
     while (true) {
         e = ctx.relaxed_whnf(e);
@@ -54,11 +54,11 @@ static pair<unsigned, bool> get_expected_num_args_ho_result(type_context & ctx, 
     }
 }
 
-static unsigned get_expected_num_args(type_context & ctx, expr e) {
+static unsigned get_expected_num_args(type_context_old & ctx, expr e) {
     return get_expected_num_args_ho_result(ctx, e).first;
 }
 
-static bool try_instance(type_context & ctx, expr const & meta, tactic_state const & s, vm_obj * out_error_obj, char const * tac_name) {
+static bool try_instance(type_context_old & ctx, expr const & meta, tactic_state const & s, vm_obj * out_error_obj, char const * tac_name) {
     if (ctx.is_assigned(meta))
         return true;
     expr meta_type      = ctx.instantiate_mvars(ctx.infer(meta));
@@ -90,7 +90,7 @@ static bool try_instance(type_context & ctx, expr const & meta, tactic_state con
     return true;
 }
 
-bool synth_instances(type_context & ctx, buffer<expr> const & metas, buffer<bool> const & is_instance,
+bool synth_instances(type_context_old & ctx, buffer<expr> const & metas, buffer<bool> const & is_instance,
                      tactic_state const & s, vm_obj * out_error_obj, char const * tac_name) {
     unsigned i = is_instance.size();
     while (i > 0) {
@@ -105,7 +105,7 @@ bool synth_instances(type_context & ctx, buffer<expr> const & metas, buffer<bool
 /** \brief Given a sequence metas/goals: <tt>(?m_1 ...) (?m_2 ... ) ... (?m_k ...)</tt>,
     we say ?m_i is "redundant" if it occurs in the type of some ?m_j.
     This procedure removes from metas any redundant element. */
-static void remove_dep_goals(type_context & ctx, buffer<expr> & metas) {
+static void remove_dep_goals(type_context_old & ctx, buffer<expr> & metas) {
     unsigned k = 0;
     for (unsigned i = 0; i < metas.size(); i++) {
         bool found = false;
@@ -125,7 +125,7 @@ static void remove_dep_goals(type_context & ctx, buffer<expr> & metas) {
     metas.shrink(k);
 }
 
-static void reorder_non_dep_first(type_context & ctx, buffer<expr> & metas) {
+static void reorder_non_dep_first(type_context_old & ctx, buffer<expr> & metas) {
     buffer<expr> non_dep, dep;
     for (unsigned i = 0; i < metas.size(); i++) {
         bool found = false;
@@ -148,7 +148,7 @@ static void reorder_non_dep_first(type_context & ctx, buffer<expr> & metas) {
     metas.append(dep);
 }
 
-void collect_new_goals(type_context & ctx, new_goals_kind k, buffer<expr> const & metas, buffer<expr> & new_goals) {
+void collect_new_goals(type_context_old & ctx, new_goals_kind k, buffer<expr> const & metas, buffer<expr> & new_goals) {
     for (auto m : metas) {
         if (!ctx.is_assigned(m)) {
             ctx.instantiate_mvars_at_type_of(m);
@@ -167,7 +167,7 @@ void collect_new_goals(type_context & ctx, new_goals_kind k, buffer<expr> const 
     }
 }
 
-static optional<tactic_state> apply(type_context & ctx, expr e, apply_cfg const & cfg, tactic_state const & s,
+static optional<tactic_state> apply(type_context_old & ctx, expr e, apply_cfg const & cfg, tactic_state const & s,
                                     vm_obj * out_error_obj, vm_obj * new_metas) {
     optional<metavar_decl> g = s.get_main_goal_decl();
     lean_assert(g);
@@ -243,11 +243,11 @@ static optional<tactic_state> apply(type_context & ctx, expr e, apply_cfg const 
                                             to_list(new_goals.begin(), new_goals.end(), tail(s.goals()))));
 }
 
-optional<tactic_state> apply(type_context & ctx, expr const & e, apply_cfg const & cfg, tactic_state const & s) {
+optional<tactic_state> apply(type_context_old & ctx, expr const & e, apply_cfg const & cfg, tactic_state const & s) {
     return apply(ctx, e, cfg, s, nullptr, nullptr);
 }
 
-optional<tactic_state> apply(type_context & ctx, bool all, bool use_instances, expr const & e, tactic_state const & s) {
+optional<tactic_state> apply(type_context_old & ctx, bool all, bool use_instances, expr const & e, tactic_state const & s) {
     apply_cfg cfg;
     cfg.m_new_goals     = all ? new_goals_kind::All : new_goals_kind::NonDepOnly;
     cfg.m_instances     = use_instances;
@@ -260,8 +260,8 @@ vm_obj tactic_apply_core(vm_obj const & e, vm_obj const & cfg0, vm_obj const & s
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
     tactic_state_context_cache cache(s);
-    type_context ctx = cache.mk_type_context(cfg.m_mode);
-    type_context::approximate_scope _(ctx, cfg.m_approx);
+    type_context_old ctx = cache.mk_type_context(cfg.m_mode);
+    type_context_old::approximate_scope _(ctx, cfg.m_approx);
     try {
         vm_obj error_obj;
         vm_obj new_metas;

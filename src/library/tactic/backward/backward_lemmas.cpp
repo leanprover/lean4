@@ -21,8 +21,8 @@ Author: Leonardo de Moura
 #include "library/tactic/backward/backward_lemmas.h"
 
 namespace lean {
-static optional<head_index> get_backward_target(type_context & ctx, expr type) {
-    type_context::tmp_locals locals(ctx);
+static optional<head_index> get_backward_target(type_context_old & ctx, expr type) {
+    type_context_old::tmp_locals locals(ctx);
     while (is_pi(type)) {
         expr local  = locals.push_local_from_binding(type);
         type = ctx.try_to_pi(instantiate(binding_body(type), local));
@@ -34,7 +34,7 @@ static optional<head_index> get_backward_target(type_context & ctx, expr type) {
         return optional<head_index>();
 }
 
-static optional<head_index> get_backward_target(type_context & ctx, name const & c) {
+static optional<head_index> get_backward_target(type_context_old & ctx, name const & c) {
     declaration const & d = ctx.env().get(c);
     list<level> us = param_names_to_levels(d.get_univ_params());
     expr type      = ctx.try_to_pi(instantiate_type_univ_params(d, us));
@@ -92,7 +92,7 @@ unsigned backward_lemma_prio_fn::operator()(backward_lemma const & r) const {
     return LEAN_DEFAULT_PRIORITY;
 }
 
-backward_lemma_index::backward_lemma_index(type_context & ctx):
+backward_lemma_index::backward_lemma_index(type_context_old & ctx):
     m_index(get_intro_attribute().get_instances_by_prio(ctx.env())) {
     buffer<name> lemmas;
     get_intro_attribute().get_instances(ctx.env(), lemmas);
@@ -109,14 +109,14 @@ backward_lemma_index::backward_lemma_index(type_context & ctx):
     }
 }
 
-void backward_lemma_index::insert(type_context & ctx, expr const & href) {
+void backward_lemma_index::insert(type_context_old & ctx, expr const & href) {
     expr href_type = ctx.infer(href);
     if (optional<head_index> target = get_backward_target(ctx, href_type)) {
         m_index.insert(*target, backward_lemma(gexpr(href)));
     }
 }
 
-void backward_lemma_index::erase(type_context & ctx, expr const & href) {
+void backward_lemma_index::erase(type_context_old & ctx, expr const & href) {
     expr href_type = ctx.infer(href);
     if (optional<head_index> target = get_backward_target(ctx, href_type)) {
         m_index.erase(*target, backward_lemma(gexpr(href)));
@@ -149,12 +149,12 @@ vm_obj to_obj(backward_lemma_index const & idx) {
 }
 
 vm_obj tactic_mk_backward_lemmas(vm_obj const & m, vm_obj const & s) {
-    type_context ctx = mk_type_context_for(s, m);
+    type_context_old ctx = mk_type_context_for(s, m);
     return tactic::mk_success(to_obj(backward_lemma_index(ctx)), tactic::to_state(s));
 }
 
 vm_obj tactic_backward_lemmas_insert(vm_obj const & m, vm_obj const & lemmas, vm_obj const & lemma, vm_obj const & s) {
-    type_context ctx = mk_type_context_for(s, m);
+    type_context_old ctx = mk_type_context_for(s, m);
     backward_lemma_index new_lemmas = to_backward_lemmas(lemmas);
     new_lemmas.insert(ctx, to_expr(lemma));
     return tactic::mk_success(to_obj(new_lemmas), tactic::to_state(s));
@@ -174,7 +174,7 @@ void initialize_backward_lemmas() {
                                                   auto const & data = *get_intro_attribute().get(env, c);
                                                   if (data.m_eager)
                                                       return env; // FIXME: support old blast attributes
-                                                  type_context ctx(env, ios.get_options());
+                                                  type_context_old ctx(env, ios.get_options());
                                                   auto index = get_backward_target(ctx, c);
                                                   if (!index || index->kind() != expr_kind::Constant)
                                                       throw exception(

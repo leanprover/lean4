@@ -38,7 +38,7 @@ static ac_manager_old::cache_ptr get_cache(environment const & env) {
     return std::make_shared<ac_manager_old::cache>(env);
 }
 
-ac_manager_old::ac_manager_old(type_context & ctx):
+ac_manager_old::ac_manager_old(type_context_old & ctx):
     m_ctx(ctx),
     m_cache_ptr(get_cache(ctx.env())) {
 }
@@ -652,7 +652,7 @@ expr mk_perm_ac_macro(abstract_type_context & ctx, expr const & assoc, expr cons
 
 vm_obj tactic_flat_assoc(vm_obj const & op, vm_obj const & assoc, vm_obj const & e, vm_obj const & s) {
     TRY;
-    type_context ctx   = mk_type_context_for(s);
+    type_context_old ctx   = mk_type_context_for(s);
     pair<expr, expr> p = flat_assoc_fn(ctx, to_expr(op), to_expr(assoc)).flat(to_expr(e));
     return tactic::mk_success(mk_vm_pair(to_obj(p.first), to_obj(p.second)), tactic::to_state(s));
     CATCH;
@@ -660,7 +660,7 @@ vm_obj tactic_flat_assoc(vm_obj const & op, vm_obj const & assoc, vm_obj const &
 
 vm_obj tactic_perm_ac(vm_obj const & op, vm_obj const & assoc, vm_obj const & comm, vm_obj const & e1, vm_obj const & e2, vm_obj const & s) {
     TRY;
-    type_context ctx   = mk_type_context_for(s);
+    type_context_old ctx   = mk_type_context_for(s);
     expr H = perm_ac_fn(ctx, to_expr(op), to_expr(assoc), to_expr(comm)).perm(to_expr(e1), to_expr(e2));
     return tactic::mk_success(to_obj(H), tactic::to_state(s));
     CATCH;

@@ -422,7 +422,7 @@ bool is_simp_relation(environment const & env, expr const & e, expr & lhs, expr 
     return is_simp_relation(env, e, rel, lhs, rhs);
 }
 
-static bool is_ceqv(type_context & ctx, name const & id, expr e);
+static bool is_ceqv(type_context_old & ctx, name const & id, expr e);
 
 /** \brief Auxiliary functional object for creating "conditional equations"
 
@@ -431,7 +431,7 @@ static bool is_ceqv(type_context & ctx, name const & id, expr e);
 */
 class to_ceqvs_fn {
     environment const & m_env;
-    type_context &      m_ctx;
+    type_context_old &      m_ctx;
 
     static list<expr_pair> mk_singleton(expr const & e, expr const & H) {
         return list<expr_pair>(mk_pair(e, H));
@@ -493,7 +493,7 @@ class to_ceqvs_fn {
         } else if (auto arg = is_auto_param(e)) {
             return apply(arg->first, H, restricted);
         } else if (is_pi(e)) {
-            type_context::tmp_locals locals(m_ctx);
+            type_context_old::tmp_locals locals(m_ctx);
             expr local = locals.push_local_from_binding(e);
             expr new_e = instantiate(binding_body(e), local);
             expr new_H = mk_app(H, local);
@@ -508,7 +508,7 @@ class to_ceqvs_fn {
             }
         } else if (is_ite(e, c, Hdec, A, arg1, arg2) && is_prop(e)) {
             expr not_c = mk_app(mk_constant(get_not_name()), c);
-            type_context::tmp_locals locals(m_ctx);
+            type_context_old::tmp_locals locals(m_ctx);
             expr Hc    = locals.push_local(name(), c);
             expr Hnc   = locals.push_local(name(), not_c);
             expr H1    = mk_app({mk_constant(get_implies_of_if_pos_name()), c, arg1, arg2, Hdec, e, Hc});
@@ -547,7 +547,7 @@ class to_ceqvs_fn {
     }
 
 public:
-    to_ceqvs_fn(type_context & ctx):m_env(ctx.env()), m_ctx(ctx) {}
+    to_ceqvs_fn(type_context_old & ctx):m_env(ctx.env()), m_ctx(ctx) {}
 
     list<expr_pair> operator()(name const & id, expr const & e, expr const & H) {
         bool restricted = false;
@@ -557,11 +557,11 @@ public:
     }
 };
 
-static list<expr_pair> to_ceqvs(type_context & ctx, name const & id, expr const & e, expr const & H) {
+static list<expr_pair> to_ceqvs(type_context_old & ctx, name const & id, expr const & e, expr const & H) {
     return to_ceqvs_fn(ctx)(id, e, H);
 }
 
-static bool is_ceqv(type_context & ctx, name const & id, expr e) {
+static bool is_ceqv(type_context_old & ctx, name const & id, expr e) {
     name_set to_find;
     // Define a procedure for removing arguments from to_find.
     auto visitor_fn = [&](expr const & e, unsigned) {
@@ -576,7 +576,7 @@ static bool is_ceqv(type_context & ctx, name const & id, expr e) {
     };
     environment const & env = ctx.env();
     buffer<expr> hypotheses; // arguments that are propositions
-    type_context::tmp_locals locals(ctx);
+    type_context_old::tmp_locals locals(ctx);
     while (is_pi(e)) {
         if (!to_find.empty()) {
             // Support for dependent types.
@@ -699,7 +699,7 @@ static bool is_refl_app(expr const & pr) {
     return is_constant(fn) && const_name(fn) == get_eq_refl_name();
 }
 
-static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name const & id,
+static simp_lemmas add_core(type_context_old & ctx, simp_lemmas const & s, name const & id,
                             levels const & univ_metas, buffer<expr> const & _emetas,
                             expr const & e, expr const & h, unsigned priority) {
     lean_assert(ctx.in_tmp_mode());
@@ -744,13 +744,13 @@ static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name cons
     return new_s;
 }
 
-static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name const & id,
+static simp_lemmas add_core(type_context_old & ctx, simp_lemmas const & s, name const & id,
                             buffer<level> const & univ_metas, buffer<expr> const & emetas,
                             expr const & e, expr const & h, unsigned priority) {
     return add_core(ctx, s, id, to_list(univ_metas), emetas, e, h, priority);
 }
 
-static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name const & id, levels const & univ_metas,
+static simp_lemmas add_core(type_context_old & ctx, simp_lemmas const & s, name const & id, levels const & univ_metas,
                             expr const & e, expr const & h, unsigned priority) {
     buffer<expr> emetas;
     return add_core(ctx, s, id, univ_metas, emetas, e, h, priority);
@@ -772,7 +772,7 @@ bool is_rfl_lemma(environment const & env, name const & cname) {
     return get_refl_lemma_attribute().is_instance(env, cname);
 }
 
-static levels mk_tmp_levels_for(type_context & ctx, declaration const & d) {
+static levels mk_tmp_levels_for(type_context_old & ctx, declaration const & d) {
     buffer<level> us;
     unsigned num_univs = d.get_num_univ_params();
     for (unsigned i = 0; i < num_univs; i++) {
@@ -781,9 +781,9 @@ static levels mk_tmp_levels_for(type_context & ctx, declaration const & d) {
     return to_list(us);
 }
 
-static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name const & cname, unsigned priority) {
+static simp_lemmas add_core(type_context_old & ctx, simp_lemmas const & s, name const & cname, unsigned priority) {
     environment const & env = ctx.env();
-    type_context::tmp_mode_scope scope(ctx);
+    type_context_old::tmp_mode_scope scope(ctx);
     declaration const & d = env.get(cname);
     levels ls = mk_tmp_levels_for(ctx, d);
     expr type = instantiate_type_univ_params(d, ls);
@@ -811,7 +811,7 @@ static simp_lemmas add_core(type_context & ctx, simp_lemmas const & s, name cons
 
 /* Extended version. If cname is a definition with equational lemmas associated to it, then
    add the equational lemmas. */
-static simp_lemmas ext_add_core(type_context & ctx, simp_lemmas const & s, name const & cname, unsigned priority) {
+static simp_lemmas ext_add_core(type_context_old & ctx, simp_lemmas const & s, name const & cname, unsigned priority) {
     simp_lemmas r = s;
 
     // Note: for relations that are not in Prop, the definition will be both
@@ -886,8 +886,8 @@ static bool is_valid_congr_hyp_rhs(expr const & rhs, name_set & found_mvars) {
     return true;
 }
 
-static simp_lemmas add_congr_core(type_context & ctx, simp_lemmas const & s, name const & n, unsigned prio) {
-    type_context::tmp_mode_scope scope(ctx);
+static simp_lemmas add_congr_core(type_context_old & ctx, simp_lemmas const & s, name const & n, unsigned prio) {
+    type_context_old::tmp_mode_scope scope(ctx);
     declaration const & d = ctx.env().get(n);
     buffer<level> us;
     unsigned num_univs = d.get_num_univ_params();
@@ -968,7 +968,7 @@ static simp_lemmas add_congr_core(type_context & ctx, simp_lemmas const & s, nam
         expr const & mvar = emetas[i];
         if (explicits[i] && !found_mvars.contains(mlocal_name(mvar))) {
             expr type = mlocal_type(mvar);
-            type_context::tmp_locals locals(ctx);
+            type_context_old::tmp_locals locals(ctx);
             while (is_pi(type)) {
                 expr local = locals.push_local_from_binding(type);
                 type = instantiate(binding_body(type), local);
@@ -1006,12 +1006,12 @@ static simp_lemmas add_congr_core(type_context & ctx, simp_lemmas const & s, nam
     return new_s;
 }
 
-simp_lemmas add(type_context & ctx, simp_lemmas const & s, name const & id, unsigned priority) {
+simp_lemmas add(type_context_old & ctx, simp_lemmas const & s, name const & id, unsigned priority) {
     return ext_add_core(ctx, s, id, priority);
 }
 
-simp_lemmas add(type_context & ctx, simp_lemmas const & s, name const & id, expr const & e, expr const & h, unsigned priority) {
-    type_context::tmp_mode_scope scope(ctx);
+simp_lemmas add(type_context_old & ctx, simp_lemmas const & s, name const & id, expr const & e, expr const & h, unsigned priority) {
+    type_context_old::tmp_mode_scope scope(ctx);
     auto r = add_core(ctx, s, id, list<level>(), e, h, priority);
     if (is_eqp(r, s)) {
         report_failure(sstream() << "invalid simplification lemma '" << id << "': " << e);
@@ -1019,7 +1019,7 @@ simp_lemmas add(type_context & ctx, simp_lemmas const & s, name const & id, expr
     return r;
 }
 
-simp_lemmas add_congr(type_context & ctx, simp_lemmas const & s, name const & id, unsigned priority) {
+simp_lemmas add_congr(type_context_old & ctx, simp_lemmas const & s, name const & id, unsigned priority) {
     return add_congr_core(ctx, s, id, priority);
 }
 
@@ -1046,20 +1046,20 @@ simp_lemmas join(simp_lemmas const & s1, simp_lemmas const & s2) {
 }
 
 static void on_add_simp_lemma(environment const & env, name const & c, bool) {
-    type_context ctx(env);
+    type_context_old ctx(env);
     simp_lemmas s;
     flet<bool> set_ex(g_throw_ex, true);
     ext_add_core(ctx, s, c, LEAN_DEFAULT_PRIORITY);
 }
 
 static void on_add_congr_lemma(environment const & env, name const & c, bool) {
-    type_context ctx(env);
+    type_context_old ctx(env);
     simp_lemmas s;
     flet<bool> set_ex(g_throw_ex, true);
     add_congr_core(ctx, s, c, LEAN_DEFAULT_PRIORITY);
 }
 
-static simp_lemmas get_simp_lemmas_from_attribute(type_context & ctx, name const & attr_name, simp_lemmas result) {
+static simp_lemmas get_simp_lemmas_from_attribute(type_context_old & ctx, name const & attr_name, simp_lemmas result) {
     auto const & attr = get_attribute(ctx.env(), attr_name);
     buffer<name> simp_lemmas;
     attr.get_instances(ctx.env(), simp_lemmas);
@@ -1072,7 +1072,7 @@ static simp_lemmas get_simp_lemmas_from_attribute(type_context & ctx, name const
     return result;
 }
 
-static simp_lemmas get_congr_lemmas_from_attribute(type_context & ctx, name const & attr_name, simp_lemmas result) {
+static simp_lemmas get_congr_lemmas_from_attribute(type_context_old & ctx, name const & attr_name, simp_lemmas result) {
     auto const & attr = get_attribute(ctx.env(), attr_name);
     buffer<name> congr_lemmas;
     attr.get_instances(ctx.env(), congr_lemmas);
@@ -1142,7 +1142,7 @@ public:
 
     simp_lemmas mk_lemmas(environment const & env, entry & C, simp_lemmas_token tk) {
         lean_trace("simp_lemmas_cache", tout() << "make simp lemmas [" << tk << "]\n";);
-        type_context ctx(env);
+        type_context_old ctx(env);
         C.m_env = env;
         auto & cfg = get_simp_lemmas_config(tk);
         simp_lemmas lemmas;
@@ -1218,7 +1218,7 @@ simp_lemmas get_simp_lemmas(environment const & env, name const & tk_name) {
         throw exception(sstream() << "unknown simp_lemmas collection '" << tk_name << "'");
 }
 
-static bool instantiate_emetas(type_context & ctx, list<expr> const & _emetas, list<bool> const & _instances) {
+static bool instantiate_emetas(type_context_old & ctx, list<expr> const & _emetas, list<bool> const & _instances) {
     buffer<expr> emetas;
     buffer<bool> instances;
     to_buffer(_emetas, emetas);
@@ -1256,9 +1256,9 @@ static bool instantiate_emetas(type_context & ctx, list<expr> const & _emetas, l
     return true;
 }
 
-static expr refl_lemma_rewrite_core(type_context & ctx, expr const & e, simp_lemma const & sl) {
+static expr refl_lemma_rewrite_core(type_context_old & ctx, expr const & e, simp_lemma const & sl) {
     lean_assert(sl.is_refl());
-    type_context::tmp_mode_scope scope(ctx, sl.get_num_umeta(), sl.get_num_emeta());
+    type_context_old::tmp_mode_scope scope(ctx, sl.get_num_umeta(), sl.get_num_emeta());
 
     if (!ctx.is_def_eq(sl.get_lhs(), e)) return e;
 
@@ -1277,7 +1277,7 @@ static expr refl_lemma_rewrite_core(type_context & ctx, expr const & e, simp_lem
     return ctx.instantiate_mvars(sl.get_rhs());
 }
 
-expr refl_lemma_rewrite(type_context & ctx, expr const & e, simp_lemma const & sl) {
+expr refl_lemma_rewrite(type_context_old & ctx, expr const & e, simp_lemma const & sl) {
     if (!is_app(e))
         return refl_lemma_rewrite_core(ctx, e, sl);
     unsigned e_nargs   = get_app_num_args(e);
@@ -1336,7 +1336,7 @@ vm_obj simp_lemmas_add(vm_obj const & lemmas, vm_obj const & lemma, vm_obj const
     tactic_state s = tactic::to_state(s0);
     LEAN_TACTIC_TRY;
     tactic_state_context_cache cache(s);
-    type_context ctx = cache.mk_type_context();
+    type_context_old ctx = cache.mk_type_context();
     expr e = to_expr(lemma);
     name id;
     if (is_constant(e))
@@ -1350,7 +1350,7 @@ vm_obj simp_lemmas_add(vm_obj const & lemmas, vm_obj const & lemma, vm_obj const
     buffer<level> umetas;
     buffer<expr> emetas;
     e = to_idx_metavars(ctx.mctx(), e, umetas, emetas);
-    type_context::tmp_mode_scope scope(ctx, umetas.size(), emetas.size());
+    type_context_old::tmp_mode_scope scope(ctx, umetas.size(), emetas.size());
     expr e_type = ctx.infer(e);
     simp_lemmas new_lemmas = add_core(ctx, to_simp_lemmas(lemmas), id, umetas, emetas,
                                       e_type, e, LEAN_DEFAULT_PRIORITY);
@@ -1362,7 +1362,7 @@ vm_obj simp_lemmas_add_simp(vm_obj const & lemmas, vm_obj const & lemma_name, vm
     tactic_state s = tactic::to_state(s0);
     LEAN_TACTIC_TRY;
     tactic_state_context_cache cache(s);
-    type_context ctx = cache.mk_type_context();
+    type_context_old ctx = cache.mk_type_context();
     simp_lemmas new_lemmas = add(ctx, to_simp_lemmas(lemmas), to_name(lemma_name), LEAN_DEFAULT_PRIORITY);
     return tactic::mk_success(to_obj(new_lemmas), s);
     LEAN_TACTIC_CATCH(s);
@@ -1372,7 +1372,7 @@ vm_obj simp_lemmas_add_congr(vm_obj const & lemmas, vm_obj const & lemma_name, v
     tactic_state s = tactic::to_state(s0);
     LEAN_TACTIC_TRY;
     tactic_state_context_cache cache(s);
-    type_context ctx = cache.mk_type_context();
+    type_context_old ctx = cache.mk_type_context();
     simp_lemmas new_lemmas = add_congr(ctx, to_simp_lemmas(lemmas), to_name(lemma_name), LEAN_DEFAULT_PRIORITY);
     return tactic::mk_success(to_obj(new_lemmas), s);
     LEAN_TACTIC_CATCH(s);
@@ -1423,7 +1423,7 @@ static bool instantiate_emetas(tmp_type_context & tmp_ctx, vm_obj const & prove_
 }
 
 
-static simp_result simp_lemma_rewrite_core(type_context & ctx, simp_lemma const & sl, vm_obj const & prove_fn,
+static simp_result simp_lemma_rewrite_core(type_context_old & ctx, simp_lemma const & sl, vm_obj const & prove_fn,
                                            expr const & e, tactic_state const & s) {
     tmp_type_context tmp_ctx(ctx, sl.get_num_umeta(), sl.get_num_emeta());
     if (!tmp_ctx.is_def_eq(sl.get_lhs(), e)) {
@@ -1464,7 +1464,7 @@ static vm_obj simp_lemmas_rewrite_core(transparency_mode const & m, simp_lemmas 
     if (!srs) return tactic::mk_exception("failed to apply simp_lemmas, no simp lemma", s);
 
     tactic_state_context_cache cache(s);
-    type_context ctx = cache.mk_type_context(m);
+    type_context_old ctx = cache.mk_type_context(m);
 
     for (simp_lemma const & lemma : *srs) {
         simp_result r = simp_lemma_rewrite_core(ctx, lemma, prove_fn, e, s);
@@ -1495,7 +1495,7 @@ static vm_obj simp_lemmas_drewrite_core(transparency_mode const & m, simp_lemmas
     if (!srs) return tactic::mk_exception("failed to apply simp_lemmas, no simp lemma", s);
 
     tactic_state_context_cache cache(s);
-    type_context ctx = cache.mk_type_context(m);
+    type_context_old ctx = cache.mk_type_context(m);
 
     for (simp_lemma const & lemma : *srs) {
         if (lemma.is_refl()) {
@@ -1515,8 +1515,8 @@ vm_obj simp_lemmas_drewrite(vm_obj const & sls, vm_obj const & e, vm_obj const &
 static bool is_valid_simp_lemma_cnst(name const & cname, tactic_state s) {
     try {
         tactic_state_context_cache cache(s);
-        type_context ctx = cache.mk_type_context();
-        type_context::tmp_mode_scope scope(ctx);
+        type_context_old ctx = cache.mk_type_context();
+        type_context_old::tmp_mode_scope scope(ctx);
         declaration const & d = ctx.env().get(cname);
         levels ls  = mk_tmp_levels_for(ctx, d);
         expr type  = instantiate_type_univ_params(d, ls);
@@ -1535,7 +1535,7 @@ vm_obj is_valid_simp_lemma_cnst(vm_obj const & n, vm_obj const & s) {
 static bool is_valid_simp_lemma(expr const & e, tactic_state s) {
     try {
         tactic_state_context_cache cache(s);
-        type_context ctx = cache.mk_type_context();
+        type_context_old ctx = cache.mk_type_context();
         expr type = ctx.infer(e);
         return !is_nil(to_ceqvs(ctx, name(), type, e));
     } catch (exception &) {
@@ -1562,7 +1562,7 @@ vm_obj simp_lemmas_pp(vm_obj const & S, vm_obj const & _s) {
     formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
     tactic_state s = tactic::to_state(_s);
     tactic_state_context_cache cache(s);
-    type_context ctx = cache.mk_type_context();
+    type_context_old ctx = cache.mk_type_context();
     formatter fmt = fmtf(s.env(), s.get_options(), ctx);
     format r = to_simp_lemmas(S).pp(fmt);
     return tactic::mk_success(to_obj(r), s);

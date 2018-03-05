@@ -40,7 +40,7 @@ static environment update(environment const & env, eqn_lemmas_ext const & ext) {
 }
 
 environment add_eqn_lemma_core(environment const & env, name const & eqn_lemma) {
-    type_context ctx(env, transparency_mode::None);
+    type_context_old ctx(env, transparency_mode::None);
     simp_lemmas lemmas = add(ctx, simp_lemmas(), eqn_lemma, LEAN_DEFAULT_PRIORITY);
     optional<simp_lemma> new_lemma;
     lemmas.for_each([&](name const & r, simp_lemma const & sl) {

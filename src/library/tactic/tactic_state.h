@@ -177,12 +177,12 @@ format pp_indented_expr(tactic_state const & s, expr const & e);
    cache, a new empty cache will be created. */
 class tactic_state_context_cache : public persistent_context_cache {
     /*
-      TODO(Leo): add name_generator to type_context, tactic_state, and this class.
+      TODO(Leo): add name_generator to type_context_old, tactic_state, and this class.
       When we create a `tactic_state_context_cache`:
       1- Let `N` be the `name_generator` at `s`, then use it to create a child `name_generator` for this object.
       2- Update `tactic_state & s` with new `N`.
       3- Use the `name_generator` stored here to provide a child `name_generator`
-         to each `type_context` created using `mk_type_context`.
+         to each `type_context_old` created using `mk_type_context`.
 
       In this way, we don't have to propagate the name_generators back only forth.
       However, we will have to make sure we have replaced every occurrence of mk_type_context_for
@@ -190,26 +190,26 @@ class tactic_state_context_cache : public persistent_context_cache {
     tactic_state m_state;
 public:
     tactic_state_context_cache(tactic_state & s);
-    /* Create a type_context object using this cache and the initial tactic_state object. */
-    type_context mk_type_context(transparency_mode m = transparency_mode::Semireducible);
-    /* Create a type_context object using this cache and the given tactic_state object.
+    /* Create a type_context_old object using this cache and the initial tactic_state object. */
+    type_context_old mk_type_context(transparency_mode m = transparency_mode::Semireducible);
+    /* Create a type_context_old object using this cache and the given tactic_state object.
 
        \pre s.get_cache_id() == m_state.get_cache_id(). */
-    type_context mk_type_context(tactic_state const & s, transparency_mode m = transparency_mode::Semireducible);
-    type_context mk_type_context(tactic_state const & s, local_context const & lctx, transparency_mode m = transparency_mode::Semireducible);
+    type_context_old mk_type_context(tactic_state const & s, transparency_mode m = transparency_mode::Semireducible);
+    type_context_old mk_type_context(tactic_state const & s, local_context const & lctx, transparency_mode m = transparency_mode::Semireducible);
 };
 
-type_context mk_type_context_for(tactic_state const & s, transparency_mode m = transparency_mode::Semireducible);
-type_context mk_type_context_for(tactic_state const & s, local_context const & lctx, transparency_mode m = transparency_mode::Semireducible);
-type_context mk_type_context_for(environment const & env, options const & o,
+type_context_old mk_type_context_for(tactic_state const & s, transparency_mode m = transparency_mode::Semireducible);
+type_context_old mk_type_context_for(tactic_state const & s, local_context const & lctx, transparency_mode m = transparency_mode::Semireducible);
+type_context_old mk_type_context_for(environment const & env, options const & o,
                                  metavar_context const & mctx, local_context const & lctx, transparency_mode m = transparency_mode::Semireducible);
-type_context mk_type_context_for(vm_obj const & s);
-type_context mk_type_context_for(vm_obj const & s, vm_obj const & m);
+type_context_old mk_type_context_for(vm_obj const & s);
+type_context_old mk_type_context_for(vm_obj const & s, vm_obj const & m);
 
-type_context mk_cacheless_type_context_for(tactic_state const & s, transparency_mode m = transparency_mode::Semireducible);
+type_context_old mk_cacheless_type_context_for(tactic_state const & s, transparency_mode m = transparency_mode::Semireducible);
 
 #define lean_tactic_trace(N, S, Code) lean_trace(N, {   \
-    type_context _ctx = mk_type_context_for(S);         \
+    type_context_old _ctx = mk_type_context_for(S);         \
     scope_trace_env _scope((S).env(), _ctx);            \
     Code                                                \
 })

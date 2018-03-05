@@ -33,8 +33,8 @@ static vm_obj rewrite_core(expr h, expr e, rewrite_cfg const & cfg, tactic_state
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
     tactic_state_context_cache cache(s);
-    type_context ctx = cache.mk_type_context(cfg.m_mode);
-    type_context::approximate_scope _(ctx, cfg.m_approx);
+    type_context_old ctx = cache.mk_type_context(cfg.m_mode);
+    type_context_old::approximate_scope _(ctx, cfg.m_approx);
     expr h_type      = ctx.infer(h);
     /* Generate meta-variables for arguments */
     buffer<expr> metas;
@@ -90,7 +90,7 @@ static vm_obj rewrite_core(expr h, expr e, rewrite_cfg const & cfg, tactic_state
     expr e_eq_e_abst = mk_app(app_fn(e_eq_e), e_abst);
     expr motive = mk_lambda("_a", A, e_eq_e_abst);
     try {
-        type_context::transparency_scope scope(ctx, ensure_semireducible_mode(ctx.mode()));
+        type_context_old::transparency_scope scope(ctx, ensure_semireducible_mode(ctx.mode()));
         check(ctx, motive);
     } catch (exception & ex) {
         throw nested_exception("rewrite tactic failed, motive is not type correct", ex);

@@ -15,7 +15,7 @@ Author: Robert Y. Lewis
 
 namespace lean {
 class norm_num_context {
-    type_context & m_ctx;
+    type_context_old & m_ctx;
     arith_instance m_ainst;
 
     pair<expr, expr> mk_norm_add(expr const &, expr const &);
@@ -83,12 +83,12 @@ class norm_num_context {
     expr mk_norm_eq(expr const &, expr const &);
 
 public:
-    norm_num_context(type_context & ctx): m_ctx(ctx), m_ainst(ctx) {}
+    norm_num_context(type_context_old & ctx): m_ctx(ctx), m_ainst(ctx) {}
 
     pair<expr, expr> mk_norm(expr const & e);
 };
 
-inline pair<expr, expr> mk_norm_num(type_context & ctx, expr const & e) {
+inline pair<expr, expr> mk_norm_num(type_context_old & ctx, expr const & e) {
     return norm_num_context(ctx).mk_norm(e);
 }
 }

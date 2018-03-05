@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "library/inductive_compiler/ginductive.h"
 
 namespace lean {
-optional<expr> mk_constructor_eq_constructor_inconsistency_proof(type_context & ctx, expr const & e1, expr const & e2, expr const & h) {
+optional<expr> mk_constructor_eq_constructor_inconsistency_proof(type_context_old & ctx, expr const & e1, expr const & e2, expr const & h) {
     environment const & env = ctx.env();
     optional<name> c1 = is_gintro_rule_app(env, e1);
     if (!c1) return none_expr();
@@ -28,8 +28,8 @@ optional<expr> mk_constructor_eq_constructor_inconsistency_proof(type_context & 
     return some_expr(pr);
 }
 
-optional<expr> mk_constructor_ne_constructor_proof(type_context & ctx, expr const & e1, expr const & e2) {
-    type_context::tmp_locals locals(ctx);
+optional<expr> mk_constructor_ne_constructor_proof(type_context_old & ctx, expr const & e1, expr const & e2) {
+    type_context_old::tmp_locals locals(ctx);
     expr h  = locals.push_local("_h", mk_eq(ctx, e1, e2));
     if (optional<expr> pr = mk_constructor_eq_constructor_inconsistency_proof(ctx, e1, e2, h))
         return some_expr(locals.mk_lambda(*pr));
@@ -37,7 +37,7 @@ optional<expr> mk_constructor_ne_constructor_proof(type_context & ctx, expr cons
         return none_expr();
 }
 
-optional<expr> mk_constructor_eq_constructor_implied_core(type_context & ctx, expr const & e1, expr const & e2, expr const & h, buffer<expr_pair> & implied_pairs) {
+optional<expr> mk_constructor_eq_constructor_implied_core(type_context_old & ctx, expr const & e1, expr const & e2, expr const & h, buffer<expr_pair> & implied_pairs) {
     // TODO(Leo, Daniel): add support for generalized inductive datatypes
     // TODO(Leo): add a definition for this proof at inductive datatype declaration time?
     environment const & env = ctx.env();
@@ -88,7 +88,7 @@ optional<expr> mk_constructor_eq_constructor_implied_core(type_context & ctx, ex
     expr nct = ctx.relaxed_whnf(mk_app(ctx, nct_name, motive, e1, e2));
     if (!is_pi(nct)) return none_expr();
     expr it  = binding_domain(nct);
-    type_context::tmp_locals locals(ctx);
+    type_context_old::tmp_locals locals(ctx);
     buffer<expr> eq_proofs;
     for (unsigned i = 0; i < num_new_eqs; i++) {
         /* Remark: some of the hypotheses are heterogeneous, we should convert them
@@ -113,7 +113,7 @@ optional<expr> mk_constructor_eq_constructor_implied_core(type_context & ctx, ex
     return some_expr(mk_app(result_prefix, fun));
 }
 
-bool mk_constructor_eq_constructor_implied_eqs(type_context & ctx, expr const & e1, expr const & e2, expr const & h, buffer<std::tuple<expr, expr, expr>> & result) {
+bool mk_constructor_eq_constructor_implied_eqs(type_context_old & ctx, expr const & e1, expr const & e2, expr const & h, buffer<std::tuple<expr, expr, expr>> & result) {
     buffer<expr_pair> implied_pairs;
     optional<expr> conj_pr = mk_constructor_eq_constructor_implied_core(ctx, e1, e2, h, implied_pairs);
     if (!conj_pr) return false;

@@ -12,8 +12,8 @@ Author: Leonardo de Moura
 
 The simplifier will be the main consumer of this module.
 The simplifier will use AC matching for any simp lemma marked with the [ac_match] attribute.
-If AC matching fails, we use the matching procedure provided by type_context.
-The AC matching procedure implemented here does not subsume the matching procedure at type_context,
+If AC matching fails, we use the matching procedure provided by type_context_old.
+The AC matching procedure implemented here does not subsume the matching procedure at type_context_old,
 which performs matching modulo CIC reduction rules and has support for higher-order patterns.
 By default, all simp lemmas derived from the local context will have the [ac_match] attribute.
 The simplifier will have an option for disabling all AC matching support.
@@ -26,7 +26,7 @@ The AC matching procedure uses backtracking. The state is a tuple (Y, U, U_p, U_
   - Y is a set of auxiliary temporary metavariables
   - U is a set of (unsolved) matching constraints: p =?= t, p may contain temporary metavariables, but t doesn't
   - U_p is a set of unsolved and postponed matching constraints. We use this set for storing matching constraints that should
-    be solved using using type_context full force is_def_eq procedure.
+    be solved using using type_context_old full force is_def_eq procedure.
   - U_u is a set of (unsolved) universe matching constraints: p =?= u, p may contain temporary universe metavariables, but u doesn't.
   - P (partial solutions) is a mapping from temporary metavariable to a triple (op, y, t) where
       op is an AC operator, y is in Y, and t is a term and the head of t is not op.
@@ -36,15 +36,15 @@ The AC matching procedure uses backtracking. The state is a tuple (Y, U, U_p, U_
   - S_u (universe solutions) is a mapping from temporary universe metavariable to an universe term u.
     u does not contain temporary metavariables.
 
-We implement the mappings P and S using arrays. We use a similar approach in type_context.
+We implement the mappings P and S using arrays. We use a similar approach in type_context_old.
 We implement U as a queue. The queue is an array and index qidx (queue head).
 This module ignores the fact that the universe operator `max` is associative and commutative.
-Non trival universe constraints are just postponed like in the type_context class.
+Non trival universe constraints are just postponed like in the type_context_old class.
 
 This module does not use AC matching for implicit arguments. Matching constraints for implicit arguments
-are stored at U_p. When U is empty, we just use full force type_context is_def_eq to process the constraints
-at U_p. Note that the type_context must have access to S and S_u.
-We address this requirement by using the type_context m_eassignment and m_uassignment
+are stored at U_p. When U is empty, we just use full force type_context_old is_def_eq to process the constraints
+at U_p. Note that the type_context_old must have access to S and S_u.
+We address this requirement by using the type_context_old m_eassignment and m_uassignment
 to implement S and S_u. Similarly, we use m_postponed to implement U_u.
 
 Here are the rules for processing U elements
@@ -150,7 +150,7 @@ Remark: we use + and * to denote arbitrary AC operators
   ==>
   replace with p =?= s[x/t]
 
-After we don't have more elements in U to process using the rules above, we process U_p and U_u constraints using type_context is_def_eq with full force.
+After we don't have more elements in U to process using the rules above, we process U_p and U_u constraints using type_context_old is_def_eq with full force.
 
 Remark: in the rules above we do not have support for Pi and lambda-terms containing temporary metavariables.
 We will treat macros and (A -> B) as applications. Here (A -> B) denotes a non dependent Pi-term.

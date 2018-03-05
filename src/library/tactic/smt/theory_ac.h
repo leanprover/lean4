@@ -89,7 +89,7 @@ public:
     };
 
 private:
-    type_context &       m_ctx;
+    type_context_old &       m_ctx;
     congruence_closure & m_cc;
     state &              m_state;
     ac_manager_old       m_ac_manager;

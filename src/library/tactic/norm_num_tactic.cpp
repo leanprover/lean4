@@ -11,7 +11,7 @@ Authors: Robert Y. Lewis, Leonardo de Moura
 namespace lean {
 vm_obj tactic_norm_num(vm_obj const & e, vm_obj const & _s) {
     tactic_state const & s = tactic::to_state(_s);
-    type_context ctx = mk_type_context_for(s);
+    type_context_old ctx = mk_type_context_for(s);
     try {
         pair<expr, expr> p = mk_norm_num(ctx, to_expr(e));
         return tactic::mk_success(mk_vm_pair(to_obj(p.first), to_obj(p.second)), s);

@@ -41,7 +41,7 @@ smt_goal::smt_goal(smt_config const & cfg):
     smt_goal(std::make_shared<smt_config>(cfg)) {
 }
 
-smt::smt(type_context & ctx, defeq_can_state & dcs, smt_goal & g):
+smt::smt(type_context_old & ctx, defeq_can_state & dcs, smt_goal & g):
     m_ctx(ctx),
     m_dcs(dcs),
     m_goal(g),
@@ -109,10 +109,10 @@ void smt::ematch_using(hinst_lemma const & lemma, buffer<new_instance> & result)
     ::lean::ematch(m_ctx, m_goal.m_em_state, m_cc, lemma, false, result);
 }
 
-static dsimplify_fn mk_dsimp(type_context & ctx, defeq_can_state & dcs, smt_pre_config const & cfg);
+static dsimplify_fn mk_dsimp(type_context_old & ctx, defeq_can_state & dcs, smt_pre_config const & cfg);
 
 expr smt::normalize(expr const & e) {
-    type_context::zeta_scope _1(m_ctx, m_goal.get_pre_config().m_zeta);
+    type_context_old::zeta_scope _1(m_ctx, m_goal.get_pre_config().m_zeta);
     dsimplify_fn dsimp       = mk_dsimp(m_ctx, m_dcs, m_goal.get_pre_config());
     return dsimp(e);
 }
@@ -197,7 +197,7 @@ static pair<tactic_state, unsigned> revert_all(tactic_state const & s) {
     return mk_pair(new_s, hs.size());
 }
 
-static dsimplify_fn mk_dsimp(type_context & ctx, defeq_can_state & dcs, smt_pre_config const & cfg) {
+static dsimplify_fn mk_dsimp(type_context_old & ctx, defeq_can_state & dcs, smt_pre_config const & cfg) {
     dsimp_config dcfg;
     dcfg.m_max_steps          = cfg.m_max_steps;
     dcfg.m_canonize_instances = false;
@@ -224,7 +224,7 @@ static dsimplify_fn mk_dsimp(type_context & ctx, defeq_can_state & dcs, smt_pre_
     return dsimplify_fn(ctx, dcs, eq_lemmas, list<name>(), dcfg);
 }
 
-static simplify_fn mk_simp(type_context & ctx, defeq_can_state & dcs, smt_pre_config const & cfg) {
+static simplify_fn mk_simp(type_context_old & ctx, defeq_can_state & dcs, smt_pre_config const & cfg) {
     simp_config scfg;
     scfg.m_max_steps          = cfg.m_max_steps;
     scfg.m_contextual         = false;
@@ -236,9 +236,9 @@ static simplify_fn mk_simp(type_context & ctx, defeq_can_state & dcs, smt_pre_co
     return simplify_fn(ctx, dcs, cfg.m_simp_lemmas, list<name>(), scfg);
 }
 
-static simp_result preprocess(type_context & ctx, defeq_can_state & dcs, smt_pre_config const & cfg, expr const & e) {
-    type_context::zeta_scope         scope1(ctx, cfg.m_zeta);
-    type_context::transparency_scope scope2(ctx, transparency_mode::Reducible);
+static simp_result preprocess(type_context_old & ctx, defeq_can_state & dcs, smt_pre_config const & cfg, expr const & e) {
+    type_context_old::zeta_scope         scope1(ctx, cfg.m_zeta);
+    type_context_old::transparency_scope scope2(ctx, transparency_mode::Reducible);
     dsimplify_fn dsimp       = mk_dsimp(ctx, dcs, cfg);
     expr new_e               = dsimp(e);
     simplify_fn simp         = mk_simp(ctx, dcs, cfg);
@@ -249,7 +249,7 @@ static simp_result preprocess(type_context & ctx, defeq_can_state & dcs, smt_pre
 static vm_obj preprocess(tactic_state s, smt_pre_config const & cfg) {
     lean_assert(s.goals());
     optional<metavar_decl> g = s.get_main_goal_decl();
-    type_context ctx         = mk_type_context_for(s, transparency_mode::Reducible);
+    type_context_old ctx         = mk_type_context_for(s, transparency_mode::Reducible);
     expr target              = g->get_type();
     defeq_can_state dcs      = s.dcs();
     simp_result r            = preprocess(ctx, dcs, cfg, target);
@@ -266,7 +266,7 @@ static vm_obj preprocess(tactic_state s, smt_pre_config const & cfg) {
     }
 }
 
-static expr_pair preprocess_forward(type_context & ctx, defeq_can_state & dcs, smt_pre_config const & cfg, expr const & type, expr const & h) {
+static expr_pair preprocess_forward(type_context_old & ctx, defeq_can_state & dcs, smt_pre_config const & cfg, expr const & type, expr const & h) {
     simp_result r = preprocess(ctx, dcs, cfg, type);
     if (r.has_proof()) {
         expr new_h = mk_eq_mp(ctx, r.get_proof(), h);
@@ -278,11 +278,11 @@ static expr_pair preprocess_forward(type_context & ctx, defeq_can_state & dcs, s
     }
 }
 
-static expr_pair preprocess_forward(type_context & ctx, defeq_can_state & dcs, smt_goal const & g, expr const & type, expr const & h) {
+static expr_pair preprocess_forward(type_context_old & ctx, defeq_can_state & dcs, smt_goal const & g, expr const & type, expr const & h) {
     return preprocess_forward(ctx, dcs, g.get_pre_config(), type, h);
 }
 
-static name mk_intro_name(type_context & ctx, name const & bname, bool use_unused_names, list<name> & user_ids) {
+static name mk_intro_name(type_context_old & ctx, name const & bname, bool use_unused_names, list<name> & user_ids) {
     if (user_ids) {
         name r   = head(user_ids);
         user_ids = tail(user_ids);
@@ -295,7 +295,7 @@ static name mk_intro_name(type_context & ctx, name const & bname, bool use_unuse
 }
 
 /* This try_to_pi version only unfolds the head symbol if it is a not-application or a reducible constant. */
-static expr convervative_try_to_pi(type_context & ctx, expr const & e) {
+static expr convervative_try_to_pi(type_context_old & ctx, expr const & e) {
     expr new_e = ctx.whnf_head_pred(e, [&](expr const & t) {
             if (is_not(t)) return true;
             expr const & fn = get_app_fn(e);
@@ -309,7 +309,7 @@ static expr intros(environment const & env, options const & opts, metavar_contex
                    optional<unsigned> const & num, list<name> ids) {
     optional<metavar_decl> decl = mctx.find_metavar_decl(mvar);
     lean_assert(decl);
-    type_context ctx(env, opts, mctx, decl->get_context(), transparency_mode::Semireducible);
+    type_context_old ctx(env, opts, mctx, decl->get_context(), transparency_mode::Semireducible);
     smt S(ctx, dcs, s_goal);
     /* We need to use dsimp to canonize instances as we introduce hypotheses.
        Example: suppose we are introducing
@@ -318,9 +318,9 @@ static expr intros(environment const & env, options const & opts, metavar_contex
        The nested instances of has_add and has_zero must be canonized and registered at dcs.
     */
     dsimplify_fn dsimp = mk_dsimp(ctx, dcs, s_goal.get_pre_config());
-    type_context::zeta_scope _1(ctx, s_goal.get_pre_config().m_zeta);
+    type_context_old::zeta_scope _1(ctx, s_goal.get_pre_config().m_zeta);
     expr target = decl->get_type();
-    type_context::tmp_locals locals(ctx);
+    type_context_old::tmp_locals locals(ctx);
     buffer<expr> new_Hs;
     buffer<expr> to_inst;
     for (unsigned i = 0; !num || i < *num; i++) {
@@ -386,7 +386,7 @@ static expr intros(environment const & env, options const & opts, metavar_contex
 
 /* Assert lemma in the current state if does not have universal metavariables, and return true.
    Return false otherwise. */
-static bool add_em_fact(smt & S, type_context & ctx, hinst_lemma const & lemma) {
+static bool add_em_fact(smt & S, type_context_old & ctx, hinst_lemma const & lemma) {
     if (lemma.m_num_mvars == 0 && lemma.m_num_uvars == 0) {
         expr type  = lemma.m_prop;
         expr h     = lemma.m_proof;
@@ -401,7 +401,7 @@ static bool add_em_fact(smt & S, type_context & ctx, hinst_lemma const & lemma) 
 }
 
 tactic_state add_em_facts(tactic_state const & ts, smt_goal & g) {
-    type_context ctx      = mk_type_context_for(ts);
+    type_context_old ctx      = mk_type_context_for(ts);
     defeq_can_state dcs   = ts.dcs();
     smt S(ctx, dcs, g);
     hinst_lemmas lemmas   = g.get_em_state().get_new_lemmas();
@@ -629,7 +629,7 @@ static format pp_negative_facts(cc_state const & ccs, formatter const & fmt) {
         return format();
 }
 
-static format pp_equivalences(type_context & ctx, cc_state const & ccs, formatter const & fmt) {
+static format pp_equivalences(type_context_old & ctx, cc_state const & ccs, formatter const & fmt) {
     format r;
     bool first = true;
     buffer<expr> roots;
@@ -660,7 +660,7 @@ format smt_goal_to_format(smt_goal sg, tactic_state const & ts) {
     if (inst_mvars)
         target                 = mctx_tmp.instantiate_mvars(target);
     format turnstile(unicode ? "⊢" : "|-");
-    type_context ctx(ts.env(), opts, mctx_tmp, lctx, transparency_mode::All);
+    type_context_old ctx(ts.env(), opts, mctx_tmp, lctx, transparency_mode::All);
     formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
     formatter fmt              = fmtf(ts.env(), opts, ctx);
     defeq_can_state dcs        = ts.dcs();
@@ -698,7 +698,7 @@ format smt_state_to_format_core(vm_obj const & ss, tactic_state const & ts) {
     format turnstile(unicode ? "⊢" : "|-");
     for (expr const & g : tail(ts.goals())) {
         metavar_decl d = mctx.get_metavar_decl(g);
-        type_context ctx(ts.env(), ts.get_options(), mctx, d.get_context(), transparency_mode::Semireducible);
+        type_context_old ctx(ts.env(), ts.get_options(), mctx, d.get_context(), transparency_mode::Semireducible);
         formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
         formatter fmt                  = fmtf(ts.env(), ts.get_options(), ctx);
         r += line() + line() + turnstile + space() + nest(3, fmt(d.get_type()));
@@ -742,7 +742,7 @@ vm_obj smt_tactic_close(vm_obj const & ss, vm_obj const & _ts) {
         return mk_smt_state_empty_exception(ts);
     lean_assert(ts.goals());
     expr target         = ts.get_main_goal_decl()->get_type();
-    type_context ctx    = mk_type_context_for(ts);
+    type_context_old ctx    = mk_type_context_for(ts);
     smt_goal g          = to_smt_goal(head(ss));
     defeq_can_state dcs = ts.dcs();
     smt S(ctx, dcs, g);
@@ -844,7 +844,7 @@ vm_obj smt_tactic_ematch_core(vm_obj const & pred, vm_obj const & ss, vm_obj con
     lean_assert(ts.goals());
     LEAN_TACTIC_TRY;
     expr target         = ts.get_main_goal_decl()->get_type();
-    type_context ctx    = mk_type_context_for(ts);
+    type_context_old ctx    = mk_type_context_for(ts);
     defeq_can_state dcs = ts.dcs();
     smt_goal g          = to_smt_goal(head(ss));
     smt S(ctx, dcs, g);
@@ -876,7 +876,7 @@ vm_obj smt_tactic_mk_ematch_eqn_lemmas_for_core(vm_obj const & md, vm_obj const 
     if (is_nil(ss)) return mk_smt_state_empty_exception(ts);
     lean_assert(ts.goals());
     LEAN_TACTIC_TRY;
-    type_context ctx    = mk_type_context_for(ts);
+    type_context_old ctx    = mk_type_context_for(ts);
     buffer<name> eqns;
     get_ext_eqn_lemmas_for(ts.env(), to_name(decl_name), eqns);
     if (eqns.empty())
@@ -907,7 +907,7 @@ vm_obj smt_tactic_preprocess(vm_obj const & e, vm_obj const & ss, vm_obj const &
     if (is_nil(ss)) return mk_smt_state_empty_exception(ts);
     lean_assert(ts.goals());
     LEAN_TACTIC_TRY;
-    type_context ctx    = mk_type_context_for(ts);
+    type_context_old ctx    = mk_type_context_for(ts);
     smt_goal g          = to_smt_goal(head(ss));
     defeq_can_state dcs = ts.dcs();
     simp_result r       = preprocess(ctx, dcs, g.get_pre_config(), to_expr(e));
@@ -939,7 +939,7 @@ vm_obj smt_tactic_set_lemmas(vm_obj const & lemmas, vm_obj const & ss, vm_obj co
 vm_obj smt_tactic_add_lemmas(vm_obj const & lemmas, vm_obj const & ss, vm_obj const & _ts) {
     tactic_state ts     = tactic::to_state(_ts);
     if (is_nil(ss)) return mk_smt_state_empty_exception(ts);
-    type_context ctx    = mk_type_context_for(ts);
+    type_context_old ctx    = mk_type_context_for(ts);
     defeq_can_state dcs = ts.dcs();
     smt_goal g          = to_smt_goal(head(ss));
     smt S(ctx, dcs, g);
@@ -962,7 +962,7 @@ vm_obj smt_tactic_ematch_using(vm_obj const & hs, vm_obj const & ss, vm_obj cons
     lean_assert(ts.goals());
     LEAN_TACTIC_TRY;
     expr target         = ts.get_main_goal_decl()->get_type();
-    type_context ctx    = mk_type_context_for(ts);
+    type_context_old ctx    = mk_type_context_for(ts);
     defeq_can_state dcs = ts.dcs();
     smt_goal g          = to_smt_goal(head(ss));
     smt S(ctx, dcs, g);

@@ -156,7 +156,7 @@ public:
     };
 
 private:
-    type_context &            m_ctx;
+    type_context_old &            m_ctx;
     defeq_canonizer           m_defeq_canonizer;
     state &                   m_state;
     buffer<todo_entry>        m_todo;
@@ -253,13 +253,13 @@ private:
 
     friend ext_congr_lemma_cache_ptr const & get_cache_ptr(congruence_closure const & cc);
 public:
-    congruence_closure(type_context & ctx, state & s, defeq_canonizer::state & dcs,
+    congruence_closure(type_context_old & ctx, state & s, defeq_canonizer::state & dcs,
                        cc_propagation_handler * phandler = nullptr,
                        cc_normalizer * normalizer = nullptr);
     ~congruence_closure();
 
     environment const & env() const { return m_ctx.env(); }
-    type_context & ctx() { return m_ctx; }
+    type_context_old & ctx() { return m_ctx; }
     transparency_mode mode() const { return m_mode; }
     defeq_canonizer & get_defeq_canonizer() { return m_defeq_canonizer; }
 

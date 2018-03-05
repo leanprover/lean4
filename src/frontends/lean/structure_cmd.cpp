@@ -258,7 +258,7 @@ struct structure_cmd_fn {
     parser &                    m_p;
     cmd_meta                    m_meta_info;
     environment                 m_env;
-    type_context                m_ctx;
+    type_context_old                m_ctx;
     name                        m_namespace;
     name                        m_name;
     name                        m_given_name;

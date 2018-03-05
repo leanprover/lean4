@@ -23,7 +23,7 @@ public:
         return *m_cache_ptr[midx].get();
     }
 
-    Cache & get_cache_for(type_context const & ctx) {
+    Cache & get_cache_for(type_context_old const & ctx) {
         return get_cache_for(ctx.env(), ctx.mode());
     }
 

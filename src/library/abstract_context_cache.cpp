@@ -72,7 +72,7 @@ context_cacheless::context_cacheless(abstract_context_cache const & c, bool):
     m_class_instance_max_depth(c.get_class_instance_max_depth()) {
 }
 
-bool context_cacheless::is_transparent(type_context & ctx, transparency_mode m, declaration const & d) {
+bool context_cacheless::is_transparent(type_context_old & ctx, transparency_mode m, declaration const & d) {
     if (m == transparency_mode::None)
         return false;
     name const & n = d.get_name();
@@ -92,7 +92,7 @@ bool context_cacheless::is_transparent(type_context & ctx, transparency_mode m, 
     return false;
 }
 
-optional<declaration> context_cacheless::get_decl(type_context & ctx, transparency_mode m, name const & n) {
+optional<declaration> context_cacheless::get_decl(type_context_old & ctx, transparency_mode m, name const & n) {
     if (auto d = ctx.env().find(n)) {
         if (d->is_definition() && is_transparent(ctx, m, *d)) {
             return d;
@@ -101,15 +101,15 @@ optional<declaration> context_cacheless::get_decl(type_context & ctx, transparen
     return optional<declaration>();
 }
 
-projection_info const * context_cacheless::get_proj_info(type_context & ctx, name const & n) {
+projection_info const * context_cacheless::get_proj_info(type_context_old & ctx, name const & n) {
     return get_projection_info(ctx.env(), n);
 }
 
-bool context_cacheless::get_aux_recursor(type_context & ctx, name const & n) {
+bool context_cacheless::get_aux_recursor(type_context_old & ctx, name const & n) {
     return ::lean::is_aux_recursor(ctx.env(), n);
 }
 
-void context_cacheless::get_unification_hints(type_context & ctx, name const & f1, name const & f2, buffer<unification_hint> & hints) {
+void context_cacheless::get_unification_hints(type_context_old & ctx, name const & f1, name const & f2, buffer<unification_hint> & hints) {
     return ::lean::get_unification_hints(ctx.env(), f1, f2, hints);
 }
 

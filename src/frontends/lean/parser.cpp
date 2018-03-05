@@ -2327,10 +2327,10 @@ expr parser::parse_expr_with_env(local_environment const & lenv, unsigned rbp) {
 class lazy_type_context : public abstract_type_context {
     environment m_env;
     options     m_opts;
-    std::unique_ptr<type_context> m_ctx;
-    type_context & ctx() {
+    std::unique_ptr<type_context_old> m_ctx;
+    type_context_old & ctx() {
         if (!m_ctx)
-            m_ctx.reset(new type_context(m_env, m_opts));
+            m_ctx.reset(new type_context_old(m_env, m_opts));
         return *m_ctx;
     }
 public:
@@ -2609,12 +2609,12 @@ char const * parser::get_file_name() const {
 }
 
 message_builder parser::mk_message(pos_info const &p, message_severity severity) const {
-    std::shared_ptr<abstract_type_context> tc = std::make_shared<type_context>(env(), get_options());
+    std::shared_ptr<abstract_type_context> tc = std::make_shared<type_context_old>(env(), get_options());
     return message_builder(tc, env(), ios(), get_file_name(), p, severity);
 }
 
 message_builder parser::mk_message(pos_info const & start_pos, pos_info const & end_pos, message_severity severity) const {
-    std::shared_ptr<abstract_type_context> tc = std::make_shared<type_context>(env(), get_options());
+    std::shared_ptr<abstract_type_context> tc = std::make_shared<type_context_old>(env(), get_options());
     message_builder b(tc, env(), ios(), get_file_name(), start_pos, severity);
     b.set_end_pos(end_pos);
     return b;

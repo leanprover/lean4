@@ -18,8 +18,8 @@ void for_each_key_equivalence(environment const & env, std::function<void(buffer
     New equivalent head symbols can be declared using \c add_key_alias.
     If \c unify is false, then matching is used instead of unification. That is, metavariables occurring in `s` are
     not assigned. */
-expr kabstract(type_context & ctx, expr const & s, expr const & t, occurrences const & occs, bool unify);
-inline expr kabstract(type_context & ctx, expr const & s, expr const & t) { return kabstract(ctx, s, t, occurrences(), true); }
+expr kabstract(type_context_old & ctx, expr const & s, expr const & t, occurrences const & occs, bool unify);
+inline expr kabstract(type_context_old & ctx, expr const & s, expr const & t) { return kabstract(ctx, s, t, occurrences(), true); }
 
 void initialize_kabstract();
 void finalize_kabstract();

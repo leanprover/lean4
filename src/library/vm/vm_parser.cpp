@@ -44,7 +44,7 @@ typedef interaction_monad<lean_parser_state> lean_parser;
                 catch (exception const & ex) { return lean_parser::mk_exception(ex, s); }
 
 vm_obj run_parser(parser & p, expr const & spec, buffer<vm_obj> const & args) {
-    type_context ctx(p.env(), p.get_options());
+    type_context_old ctx(p.env(), p.get_options());
     auto r = lean_parser::evaluator(ctx, p.get_options())(spec, args, lean_parser_state {&p});
     return lean_parser::get_success_value(r);
 }
@@ -60,7 +60,7 @@ expr parse_interactive_param(parser & p, expr const & param_ty) {
     }
     try {
         vm_obj vm_parsed = run_parser(p, param_args[2]);
-        type_context ctx(p.env());
+        type_context_old ctx(p.env());
         name n("_reflect");
         lean_parser::evaluator eval(ctx, p.get_options());
         auto env = eval.compile(n, param_args[1]);

@@ -21,7 +21,7 @@ bool is_nat_value(expr const & e);
 mpz const & get_nat_value_value(expr const & e);
 
 /** \brief If \c e encodes a nat numeral, then convert it into a nat_value macro */
-optional<expr> to_nat_value(type_context & ctx, expr const & e);
+optional<expr> to_nat_value(type_context_old & ctx, expr const & e);
 
 void initialize_nat_value();
 void finalize_nat_value();

@@ -49,7 +49,7 @@ void tst1() {
     expr e2 = mk_delayed_abstraction(e1, {mkp(A1, A2), mkp(a1, a2), mkp(b1, b2)});
     lean_assert(mctx.instantiate_mvars(e1) == a1);
     lean_assert(mctx.instantiate_mvars(e2) == a2);
-    type_context ctx(env, options(), mctx, lctx2);
+    type_context_old ctx(env, options(), mctx, lctx2);
     lean_assert(ctx.infer(e2) == A2);
 }
 

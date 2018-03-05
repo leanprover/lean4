@@ -42,7 +42,7 @@ class eta_expand_fn : public compiler_step_visitor {
         expr type = ctx().relaxed_whnf(ctx().infer(e));
         if (!is_pi(type))
             return false;
-        type_context::tmp_locals locals(ctx());
+        type_context_old::tmp_locals locals(ctx());
         while (is_pi(type)) {
             expr local = locals.push_local_from_binding(type);
             type       = ctx().relaxed_whnf(instantiate(binding_body(type), local));

@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 struct check_fn {
-    type_context &   m_ctx;
+    type_context_old &   m_ctx;
     expr_struct_set  m_visited;
 
     void visit_constant(expr const & e) {
@@ -44,7 +44,7 @@ struct check_fn {
     }
 
     void visit_binding(expr const & e, bool is_pi) {
-        type_context::tmp_locals locals(m_ctx);
+        type_context_old::tmp_locals locals(m_ctx);
         expr it = e;
         while (it.kind() == e.kind()) {
             expr d = instantiate_rev(binding_domain(it), locals.size(), locals.data());
@@ -78,7 +78,7 @@ struct check_fn {
                             "(use 'set_option trace.check true' for additional details)");
         }
         /* Improve performance if bottleneck */
-        type_context::tmp_locals locals(m_ctx);
+        type_context_old::tmp_locals locals(m_ctx);
         expr local = locals.push_local_from_let(e);
         visit(instantiate(let_body(e), local));
     }
@@ -130,11 +130,11 @@ struct check_fn {
     }
 
 public:
-    check_fn(type_context & ctx):m_ctx(ctx) {}
+    check_fn(type_context_old & ctx):m_ctx(ctx) {}
     void operator()(expr const & e) { return visit(e); }
 };
 
-void check(type_context & ctx, expr const & e) {
+void check(type_context_old & ctx, expr const & e) {
     metavar_context mctx = ctx.mctx();
     check_fn checker(ctx);
     checker(e);

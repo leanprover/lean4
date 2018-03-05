@@ -37,7 +37,7 @@ struct mk_pattern_fn {
     typedef rb_expr_tree                           expr_set;
     typedef rb_map<level, level, level_quick_cmp>  level2meta;
     typedef rb_expr_map<expr>                      expr2meta;
-    type_context m_ctx;
+    type_context_old m_ctx;
     level2meta   m_level2meta;
     expr2meta    m_expr2meta;
     level_set    m_found_levels;
@@ -151,8 +151,8 @@ vm_obj tactic_match_pattern(vm_obj const & p, vm_obj const & e, vm_obj const & m
     TRY;
     expr t; list<level> uos; list<expr> os; unsigned nuvars, nmvars;
     get_pattern_fields(p, t, uos, os, nuvars, nmvars);
-    type_context ctx = mk_type_context_for(s, m);
-    type_context::tmp_mode_scope scope(ctx, nuvars, nmvars);
+    type_context_old ctx = mk_type_context_for(s, m);
+    type_context_old::tmp_mode_scope scope(ctx, nuvars, nmvars);
     if (ctx.is_def_eq(t, to_expr(e))) {
         for (unsigned i = 0; i < nuvars; i++) {
             if (!ctx.get_tmp_uvar_assignment(i))

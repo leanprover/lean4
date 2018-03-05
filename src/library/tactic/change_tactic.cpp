@@ -16,7 +16,7 @@ vm_obj change_core(expr const & e, bool check, tactic_state const & s) {
         optional<metavar_decl> g = s.get_main_goal_decl();
         if (!g) return mk_no_goals_exception(s);
         if (e == g->get_type()) return tactic::mk_success(s);
-        type_context ctx         = mk_type_context_for(s);
+        type_context_old ctx         = mk_type_context_for(s);
         if (!check || ctx.is_def_eq(e, g->get_type())) {
             expr new_e   = ctx.instantiate_mvars(e);
             expr new_M   = ctx.mk_metavar_decl(g->get_context(), new_e);

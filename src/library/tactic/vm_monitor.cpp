@@ -268,7 +268,7 @@ static format default_format(vm_state const & vm, unsigned idx) {
     if (auto type = info.second) {
         try {
             vm_state & curr_vm = get_vm_state();
-            type_context ctx(curr_vm.env());
+            type_context_old ctx(curr_vm.env());
             level u = get_level(ctx, *type);
             expr has_to_format = mk_app(mk_constant(get_has_to_format_name(), {u}), *type);
             if (optional<expr> instance = ctx.mk_class_instance(has_to_format)) {
@@ -304,7 +304,7 @@ vm_obj vm_pp_stack_obj(vm_obj const & i, vm_obj const & /*s*/) {
     format r;
     if (is_expr(o)) {
         formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
-        type_context ctx(vm.env());
+        type_context_old ctx(vm.env());
         formatter fmt                  = fmtf(vm.env(), vm.get_options(), ctx);
         try {
             r = fmt(to_expr(o));
@@ -420,7 +420,7 @@ vm_obj vm_get_attribute(vm_obj const & vm_n, vm_obj const &) {
 vm_obj vm_pp_expr(vm_obj const & e, vm_obj const &) {
     auto const & vm = get_vm_state_being_debugged();
     formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
-    type_context ctx(vm.env());
+    type_context_old ctx(vm.env());
     formatter fmt                  = fmtf(vm.env(), vm.get_options(), ctx);
     try {
         return mk_vm_success(to_obj(fmt(to_expr(e))));

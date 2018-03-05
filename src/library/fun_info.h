@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
-class type_context;
+class type_context_old;
 
 /** \brief Function parameter information. */
 class param_info {
@@ -43,10 +43,10 @@ public:
     list<unsigned> const & get_result_deps() const { return m_result_deps; }
 };
 
-fun_info get_fun_info(type_context & ctx, expr const & fn);
+fun_info get_fun_info(type_context_old & ctx, expr const & fn);
 /** \brief Return information assuming the function has only nargs.
     \pre nargs <= get_fun_info(ctx, fn).get_arity() */
-fun_info get_fun_info(type_context & ctx, expr const & fn, unsigned nargs);
+fun_info get_fun_info(type_context_old & ctx, expr const & fn, unsigned nargs);
 
 /** \brief Subsingleton parameter information */
 class subsingleton_param_info {
@@ -84,8 +84,8 @@ public:
 typedef subsingleton_param_info ss_param_info;
 typedef list<ss_param_info>     ss_param_infos;
 
-list<ss_param_info> get_subsingleton_info(type_context & ctx, expr const & fn);
-list<ss_param_info> get_subsingleton_info(type_context & ctx, expr const & fn, unsigned nargs);
+list<ss_param_info> get_subsingleton_info(type_context_old & ctx, expr const & fn);
+list<ss_param_info> get_subsingleton_info(type_context_old & ctx, expr const & fn, unsigned nargs);
 /** \brief Return subsingleton parameter information for the function application.
     This is more precise than \c get_subsingleton_info for dependent functions.
 
@@ -99,8 +99,8 @@ list<ss_param_info> get_subsingleton_info(type_context & ctx, expr const & fn, u
 
     The second argument is marked as subsingleton only because the resulting information
     is taking into account the first argument. */
-list<ss_param_info> get_specialized_subsingleton_info(type_context & ctx, expr const & app);
-unsigned get_specialization_prefix_size(type_context & ctx, expr const & fn, unsigned nargs);
+list<ss_param_info> get_specialized_subsingleton_info(type_context_old & ctx, expr const & app);
+unsigned get_specialization_prefix_size(type_context_old & ctx, expr const & fn, unsigned nargs);
 
 /** Clear thread local cache */
 void clear_fun_info_cache();

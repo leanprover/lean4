@@ -22,7 +22,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/elaborator.h"
 
 namespace lean {
-static expr replace_rec_apps(type_context & ctx, expr const & e) {
+static expr replace_rec_apps(type_context_old & ctx, expr const & e) {
     equations_header const & header = get_equations_header(e);
     list<name> actual_names = header.m_fn_actual_names;
     unpack_eqns ues(ctx, e);
@@ -48,7 +48,7 @@ static expr replace_rec_apps(type_context & ctx, expr const & e) {
     return r;
 }
 
-static void split_rec_fns(type_context & ctx, expr const & e, buffer<expr> & result) {
+static void split_rec_fns(type_context_old & ctx, expr const & e, buffer<expr> & result) {
     equations_header const & header = get_equations_header(e);
     unpack_eqns ues(ctx, e);
     list<name> fn_names        = header.m_fn_names;
@@ -87,7 +87,7 @@ static expr fix_rec_apps(expr const & e, name_map<expr> const & name2new_type,
 eqn_compiler_result unbounded_rec(environment & env, elaborator & elab,
                                   metavar_context & mctx, local_context const & lctx,
                                   expr const & e) {
-    type_context ctx(env, mctx, lctx, elab.get_cache(), transparency_mode::Semireducible);
+    type_context_old ctx(env, mctx, lctx, elab.get_cache(), transparency_mode::Semireducible);
 
     /* Replace recursive application with macro, and split mutual definition in n definitions. */
     expr e1 = replace_rec_apps(ctx, e);

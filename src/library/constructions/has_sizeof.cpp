@@ -66,13 +66,13 @@ class mk_has_sizeof_fn {
         return mk_local(m_ngen.next(), n, ty, binder_info());
     }
 
-    optional<expr> mk_has_sizeof(type_context & ctx, expr const & type) {
+    optional<expr> mk_has_sizeof(type_context_old & ctx, expr const & type) {
         level l = get_level(ctx, type);
         expr inst_type = mk_app(mk_constant(get_has_sizeof_name(), {l}), type);
         return ctx.mk_class_instance(inst_type);
     }
 
-    optional<expr> build_has_sizeof_argument_type(type_context & ctx, expr const & param) {
+    optional<expr> build_has_sizeof_argument_type(type_context_old & ctx, expr const & param) {
         expr ty = ctx.relaxed_whnf(ctx.infer(param));
         buffer<expr> locals;
         while (is_pi(ty)) {
@@ -87,7 +87,7 @@ class mk_has_sizeof_fn {
                                            mk_app(param, locals))));
     }
 
-    optional<expr> is_recursive_arg(type_context & ctx, expr const & arg_ty, buffer<expr> & arg_args) {
+    optional<expr> is_recursive_arg(type_context_old & ctx, expr const & arg_ty, buffer<expr> & arg_args) {
         expr it = ctx.relaxed_whnf(arg_ty);
         while (is_pi(it)) {
             expr arg_arg = mk_local_for(it);
@@ -102,7 +102,7 @@ class mk_has_sizeof_fn {
     }
 
     void define_instance() {
-        type_context ctx(m_env);
+        type_context_old ctx(m_env);
 
         auto odecls = inductive::is_inductive_decl(m_env, m_ind_name);
         if (!odecls)
@@ -123,7 +123,7 @@ class mk_has_sizeof_fn {
 
         name has_sizeof_name = mk_has_sizeof_name(m_ind_name);
 
-        type_context::tmp_locals locals(ctx);
+        type_context_old::tmp_locals locals(ctx);
 
         buffer<expr> params;
         buffer<expr> param_insts;
@@ -159,7 +159,7 @@ class mk_has_sizeof_fn {
         {
             // Create a new type context so that the [has_sizeof] instances are available for type class resolution
             local_context lctx = ctx.lctx();
-            type_context ctx(m_env, options(), lctx);
+            type_context_old ctx(m_env, options(), lctx);
 
             expr motive;
             {
@@ -268,9 +268,9 @@ class mk_has_sizeof_fn {
             m_env = add_protected(m_env, has_sizeof_name);
 
             {
-                /* Create new type_context with new environment */
+                /* Create new type_context_old with new environment */
                 local_context lctx = ctx.lctx();
-                type_context ctx(m_env, options(), lctx);
+                type_context_old ctx(m_env, options(), lctx);
                 expr c_has_sizeof = mk_app(mk_app(mk_constant(has_sizeof_name, lvls), params), used_param_insts);
 
                 // Defeq simp lemmas
@@ -289,7 +289,7 @@ class mk_has_sizeof_fn {
                         expr local = mk_local_for(ir_ty);
                         locals.push_back(local);
                         expr candidate = mk_app(ctx, get_sizeof_name(), local);
-                        type_context stctx(m_env, options(), ctx.lctx(), transparency_mode::Semireducible);
+                        type_context_old stctx(m_env, options(), ctx.lctx(), transparency_mode::Semireducible);
                         if (!stctx.is_def_eq(candidate, mk_constant(get_nat_zero_name())))
                             rhs = mk_nat_add(rhs, candidate);
                         ir_ty = ctx.relaxed_whnf(instantiate(binding_body(ir_ty), local));

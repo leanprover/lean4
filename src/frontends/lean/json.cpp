@@ -56,7 +56,7 @@ void add_source_info(environment const & env, name const & d, json & record) {
 
 json serialize_decl(name const & short_name, name const & long_name, environment const & env, options const & o) {
     declaration const & d = env.get(long_name);
-    type_context tc(env);
+    type_context_old tc(env);
     auto fmter = mk_pretty_formatter_factory()(env, o, tc);
     expr type = d.get_type();
     if (LEAN_COMPLETE_CONSUME_IMPLICIT) {

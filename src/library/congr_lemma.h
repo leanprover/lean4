@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
-class type_context;
+class type_context_old;
 
 enum class congr_arg_kind {
     /* It is a parameter for the congruence lemma, the parameter occurs in the left and right hand sides. */
@@ -40,18 +40,18 @@ public:
     bool all_eq_kind() const;
 };
 
-optional<congr_lemma> mk_congr_simp(type_context & ctx, expr const & fn);
-optional<congr_lemma> mk_congr_simp(type_context & ctx, expr const & fn, unsigned nargs);
+optional<congr_lemma> mk_congr_simp(type_context_old & ctx, expr const & fn);
+optional<congr_lemma> mk_congr_simp(type_context_old & ctx, expr const & fn, unsigned nargs);
 /* Create a specialized theorem using (a prefix of) the arguments of the given application. */
-optional<congr_lemma> mk_specialized_congr_simp(type_context & ctx, expr const & a);
+optional<congr_lemma> mk_specialized_congr_simp(type_context_old & ctx, expr const & a);
 
-optional<congr_lemma> mk_congr(type_context & ctx, expr const & fn);
-optional<congr_lemma> mk_congr(type_context & ctx, expr const & fn, unsigned nargs);
+optional<congr_lemma> mk_congr(type_context_old & ctx, expr const & fn);
+optional<congr_lemma> mk_congr(type_context_old & ctx, expr const & fn, unsigned nargs);
 /* Create a specialized theorem using (a prefix of) the arguments of the given application. */
-optional<congr_lemma> mk_specialized_congr(type_context & ctx, expr const & a);
+optional<congr_lemma> mk_specialized_congr(type_context_old & ctx, expr const & a);
 
-optional<congr_lemma> mk_hcongr(type_context & ctx, expr const & fn);
-optional<congr_lemma> mk_hcongr(type_context & ctx, expr const & fn, unsigned nargs);
+optional<congr_lemma> mk_hcongr(type_context_old & ctx, expr const & fn);
+optional<congr_lemma> mk_hcongr(type_context_old & ctx, expr const & fn, unsigned nargs);
 
 void initialize_congr_lemma();
 void finalize_congr_lemma();

@@ -55,7 +55,7 @@ class lambda_lifting_fn : public compiler_step_visitor {
     }
 
     expr visit_lambda_core(expr const & e) {
-        type_context::tmp_locals locals(m_ctx);
+        type_context_old::tmp_locals locals(m_ctx);
         expr t = e;
         while (is_lambda(t)) {
             lean_assert(is_neutral_expr(binding_domain(t)) || closed(binding_domain(t)));
@@ -135,7 +135,7 @@ class lambda_lifting_fn : public compiler_step_visitor {
     }
 
     virtual expr visit_let(expr const & e) override {
-        type_context::tmp_locals locals(m_ctx);
+        type_context_old::tmp_locals locals(m_ctx);
         expr t = e;
         while (is_let(t)) {
             lean_assert(is_neutral_expr(let_type(t)) || closed(let_type(t)));
@@ -149,7 +149,7 @@ class lambda_lifting_fn : public compiler_step_visitor {
     }
 
     expr visit_cases_on_minor(unsigned data_sz, expr e) {
-        type_context::tmp_locals locals(ctx());
+        type_context_old::tmp_locals locals(ctx());
         for (unsigned i = 0; i < data_sz; i++) {
             if (is_lambda(e)) {
                 expr l = locals.push_local_from_binding(e);

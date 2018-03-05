@@ -23,7 +23,7 @@ Author: Leonardo de Moura
 #include "library/tactic/smt/hinst_lemmas.h"
 
 namespace lean {
-void ematch_state::internalize(type_context & ctx, expr const & e) {
+void ematch_state::internalize(type_context_old & ctx, expr const & e) {
     switch (e.kind()) {
     case expr_kind::Var:      case expr_kind::Sort:
     case expr_kind::Constant: case expr_kind::Meta:
@@ -272,7 +272,7 @@ static list<expr> const & ac_t(ematch_cnstr const & c) { return to_ac_cnstr(c)->
 */
 class ematch_fn {
     typedef list<ematch_cnstr> state;
-    type_context &                m_ctx;
+    type_context_old &                m_ctx;
     ematch_state &                m_em_state;
     congruence_closure &          m_cc;
     buffer<new_instance> &        m_new_instances;
@@ -952,7 +952,7 @@ class ematch_fn {
        The given lemma is instantiated for each solution found.
        The new instances are stored at m_new_instances. */
     void main(hinst_lemma const & lemma, state const & init, expr const & p, expr const & t) {
-        type_context::tmp_mode_scope scope(m_ctx, lemma.m_num_uvars, lemma.m_num_mvars);
+        type_context_old::tmp_mode_scope scope(m_ctx, lemma.m_num_uvars, lemma.m_num_mvars);
         lean_assert(!has_idx_metavar(t));
         clear_choice_stack();
         m_state = init;
@@ -1017,12 +1017,12 @@ class ematch_fn {
     }
 
 public:
-    ematch_fn(type_context & ctx, ematch_state & ems, congruence_closure & cc, buffer<new_instance> & new_insts):
+    ematch_fn(type_context_old & ctx, ematch_state & ems, congruence_closure & cc, buffer<new_instance> & new_insts):
         m_ctx(ctx), m_em_state(ems), m_cc(cc), m_new_instances(new_insts) {}
 
     void ematch_term(hinst_lemma const & lemma, expr const & t) {
         /* The following scope is a temporary workaround, we need to refactor this module
-           and adapt all improvements added to type_context::is_def_eq. */
+           and adapt all improvements added to type_context_old::is_def_eq. */
         for (multi_pattern const & mp : lemma.m_multi_patterns) {
             ematch_term(lemma, mp, t);
         }
@@ -1031,7 +1031,7 @@ public:
     /* Match internalized terms in m_em_state with the given lemma. */
     void ematch_terms(hinst_lemma const & lemma, bool filter) {
         /* The following scope is a temporary workaround, we need to refactor this module
-           and adapt all improvements added to type_context::is_def_eq. */
+           and adapt all improvements added to type_context_old::is_def_eq. */
         for (multi_pattern const & mp : lemma.m_multi_patterns) {
             ematch_terms(lemma, mp, filter);
         }
@@ -1041,7 +1041,7 @@ public:
         if (m_em_state.max_instances_exceeded())
             return;
         /* The following scope is a temporary workaround, we need to refactor this module
-           and adapt all improvements added to type_context::is_def_eq. */
+           and adapt all improvements added to type_context_old::is_def_eq. */
         ematch_using_lemmas(m_em_state.get_new_lemmas(), false);
         ematch_using_lemmas(m_em_state.get_lemmas(), true);
         m_em_state.m_lemmas.merge(m_em_state.m_new_lemmas);
@@ -1050,17 +1050,17 @@ public:
     }
 };
 
-void ematch(type_context & ctx, ematch_state & s, congruence_closure & cc, hinst_lemma const & lemma, expr const & t, buffer<new_instance> & result) {
+void ematch(type_context_old & ctx, ematch_state & s, congruence_closure & cc, hinst_lemma const & lemma, expr const & t, buffer<new_instance> & result) {
     congruence_closure::state_scope scope(cc);
     ematch_fn(ctx, s, cc, result).ematch_term(lemma, t);
 }
 
-void ematch(type_context & ctx, ematch_state & s, congruence_closure & cc, hinst_lemma const & lemma, bool filter, buffer<new_instance> & result) {
+void ematch(type_context_old & ctx, ematch_state & s, congruence_closure & cc, hinst_lemma const & lemma, bool filter, buffer<new_instance> & result) {
     congruence_closure::state_scope scope(cc);
     ematch_fn(ctx, s, cc, result).ematch_terms(lemma, filter);
 }
 
-void ematch(type_context & ctx, ematch_state & s, congruence_closure & cc, buffer<new_instance> & result) {
+void ematch(type_context_old & ctx, ematch_state & s, congruence_closure & cc, buffer<new_instance> & result) {
     congruence_closure::state_scope scope(cc);
     ematch_fn(ctx, s, cc, result)();
 }
@@ -1102,7 +1102,7 @@ vm_obj ematch_state_mk(vm_obj const & cfg) {
 vm_obj ematch_state_internalize(vm_obj const & ems, vm_obj const & e, vm_obj const & s) {
     LEAN_TACTIC_TRY;
     ematch_state S   = to_ematch_state(ems);
-    type_context ctx = mk_type_context_for(s);
+    type_context_old ctx = mk_type_context_for(s);
     S.internalize(ctx, to_expr(e));
     return tactic::mk_success(to_obj(S), tactic::to_state(s));
     LEAN_TACTIC_CATCH(tactic::to_state(s));
@@ -1122,7 +1122,7 @@ vm_obj mk_ematch_result(buffer<new_instance> const & new_inst_buffer, congruence
 vm_obj ematch_core(vm_obj const & md, vm_obj const & _ccs, vm_obj const & _ems, vm_obj const & hlemma, vm_obj const & t, vm_obj const & _s) {
     tactic_state const & s = tactic::to_state(_s);
     LEAN_TACTIC_TRY;
-    type_context ctx    = mk_type_context_for(_s, md);
+    type_context_old ctx    = mk_type_context_for(_s, md);
     ematch_state ems    = to_ematch_state(_ems);
     defeq_can_state dcs = s.dcs();
     congruence_closure::state ccs = to_cc_state(_ccs);
@@ -1138,7 +1138,7 @@ vm_obj ematch_core(vm_obj const & md, vm_obj const & _ccs, vm_obj const & _ems, 
 vm_obj ematch_all_core(vm_obj const & md, vm_obj const & _ccs, vm_obj const & _ems, vm_obj const & hlemma, vm_obj const & filter, vm_obj const & _s) {
     tactic_state const & s = tactic::to_state(_s);
     LEAN_TACTIC_TRY;
-    type_context ctx    = mk_type_context_for(_s, md);
+    type_context_old ctx    = mk_type_context_for(_s, md);
     ematch_state ems    = to_ematch_state(_ems);
     defeq_can_state dcs = s.dcs();
     congruence_closure::state ccs = to_cc_state(_ccs);

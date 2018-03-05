@@ -22,7 +22,7 @@ static vm_obj eval(expr const & A, expr a, tactic_state const & s) {
     if (has_local(a) || !closed(a))
         return tactic::mk_exception("invalid eval_expr, expression must be closed", s);
     if (is_constant(a)) {
-        type_context ctx = mk_type_context_for(s);
+        type_context_old ctx = mk_type_context_for(s);
         if (!ctx.is_def_eq(A, ctx.infer(a)))
             return tactic::mk_exception("invalid eval_expr, type mismatch", s);
         vm_obj r = get_vm_state().get_constant(const_name(a));

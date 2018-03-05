@@ -13,7 +13,7 @@ expr revert(environment const & env, options const & opts, metavar_context & mct
             bool preserve_locals_order) {
     optional<metavar_decl> g   = mctx.find_metavar_decl(mvar);
     lean_assert(g);
-    type_context ctx           = mk_type_context_for(env, opts, mctx, g->get_context(), transparency_mode::All);
+    type_context_old ctx           = mk_type_context_for(env, opts, mctx, g->get_context(), transparency_mode::All);
     expr val                   = ctx.revert(locals, mvar, preserve_locals_order);
     expr new_g                 = get_app_fn(val);
     mctx                       = ctx.mctx();

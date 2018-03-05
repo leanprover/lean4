@@ -34,7 +34,7 @@ public:
     ematch_state(ematch_config const & cfg, hinst_lemmas const & lemmas = hinst_lemmas()):
         m_config(cfg), m_new_lemmas(lemmas) {}
 
-    void internalize(type_context & ctx, expr const & e);
+    void internalize(type_context_old & ctx, expr const & e);
     bool max_instances_exceeded() const { return m_max_instances_exceeded; }
     bool save_instance(expr const & e);
     /* Record the fact that the given lemma was instantiated with the given arguments. */
@@ -55,18 +55,18 @@ struct new_instance {
 };
 
 /* Ematch patterns in lemma with t, and add instances of lemma at result */
-void ematch(type_context & ctx, ematch_state & s, congruence_closure & cc, hinst_lemma const & lemma, expr const & t,
+void ematch(type_context_old & ctx, ematch_state & s, congruence_closure & cc, hinst_lemma const & lemma, expr const & t,
             buffer<new_instance> & result);
 
 /* Ematch patterns in lemma with terms internalized in the ematch_state, and add instances of lemma at result */
-void ematch(type_context & ctx, ematch_state & s, congruence_closure & cc, hinst_lemma const & lemma, bool filter,
+void ematch(type_context_old & ctx, ematch_state & s, congruence_closure & cc, hinst_lemma const & lemma, bool filter,
             buffer<new_instance> & result);
 
 /* Ematch patterns of lemmas in s.m_lemmas and s.m_new_lemmas with terms internalized in the ematch_state.
    Add instances to result.
    Move s.m_new_lemmas to s.m_lemmas, and increment gmt from cc.
    For s.m_lemmas, only terms with mt >= gmt are considered. */
-void ematch(type_context & ctx, ematch_state & s, congruence_closure & cc, buffer<new_instance> & result);
+void ematch(type_context_old & ctx, ematch_state & s, congruence_closure & cc, buffer<new_instance> & result);
 
 /*
 structure cc_config :=

@@ -33,7 +33,7 @@ name mk_compiler_unused_name(environment const & env, name const & prefix, char 
     }
 }
 
-bool is_comp_irrelevant(type_context & ctx, expr const & e) {
+bool is_comp_irrelevant(type_context_old & ctx, expr const & e) {
     expr type = ctx.whnf(ctx.infer(e));
     return is_sort(type) || ctx.is_prop(type);
 }

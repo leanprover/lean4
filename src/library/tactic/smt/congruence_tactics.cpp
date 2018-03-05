@@ -84,7 +84,7 @@ vm_obj cc_state_mk_using_hs_core(vm_obj const & cfg, vm_obj const & _s) {
     if (!g) return mk_no_goals_exception(s);
     try {
         local_context lctx          = g->get_context();
-        type_context ctx            = mk_type_context_for(s);
+        type_context_old ctx            = mk_type_context_for(s);
         defeq_can_state dcs         = s.dcs();
         congruence_closure::state r = mk_core(cfg);
         congruence_closure cc(ctx, r, dcs);
@@ -102,7 +102,7 @@ vm_obj cc_state_mk_using_hs_core(vm_obj const & cfg, vm_obj const & _s) {
 
 vm_obj cc_state_pp_core(vm_obj const & ccs, vm_obj const & nonsingleton, vm_obj const & _s) {
     tactic_state const & s   = tactic::to_state(_s);
-    type_context ctx         = mk_type_context_for(s);
+    type_context_old ctx         = mk_type_context_for(s);
     formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
     formatter fmt            = fmtf(s.env(), s.get_options(), ctx);
     format r                 = to_cc_state(ccs).pp_eqcs(fmt, to_bool(nonsingleton));
@@ -111,7 +111,7 @@ vm_obj cc_state_pp_core(vm_obj const & ccs, vm_obj const & nonsingleton, vm_obj 
 
 vm_obj cc_state_pp_eqc(vm_obj const & ccs, vm_obj const & e, vm_obj const & _s) {
     tactic_state const & s   = tactic::to_state(_s);
-    type_context ctx         = mk_type_context_for(s);
+    type_context_old ctx         = mk_type_context_for(s);
     formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
     formatter fmt            = fmtf(s.env(), s.get_options(), ctx);
     format r                 = to_cc_state(ccs).pp_eqc(fmt, to_expr(e));
@@ -157,7 +157,7 @@ vm_obj cc_state_inc_gmt(vm_obj const & ccs) {
 #define cc_state_proc(CODE)                                     \
     tactic_state const & s   = tactic::to_state(_s);             \
     try {                                                       \
-        type_context ctx            = mk_type_context_for(s);   \
+        type_context_old ctx            = mk_type_context_for(s);   \
         congruence_closure::state S = to_cc_state(ccs);         \
         defeq_can_state dcs         = s.dcs();                  \
         congruence_closure cc(ctx, S, dcs);                     \

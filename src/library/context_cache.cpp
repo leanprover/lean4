@@ -19,7 +19,7 @@ context_cache::context_cache(options const & o):
 context_cache::~context_cache() {
 }
 
-optional<declaration> context_cache::get_decl(type_context & ctx, transparency_mode m, name const & n) {
+optional<declaration> context_cache::get_decl(type_context_old & ctx, transparency_mode m, name const & n) {
     auto & cache = m_transparency_cache[static_cast<unsigned>(m)];
     auto it = cache.find(n);
     if (it != cache.end()) {
@@ -30,12 +30,12 @@ optional<declaration> context_cache::get_decl(type_context & ctx, transparency_m
     return r;
 }
 
-projection_info const * context_cache::get_proj_info(type_context & ctx, name const & n) {
+projection_info const * context_cache::get_proj_info(type_context_old & ctx, name const & n) {
     // TODO(Leo): check if we really need a cache for get_proj_info
     return context_cacheless::get_proj_info(ctx, n);
 }
 
-bool context_cache::get_aux_recursor(type_context & ctx, name const & n) {
+bool context_cache::get_aux_recursor(type_context_old & ctx, name const & n) {
     auto it = m_aux_recursor_cache.find(n);
     if (it != m_aux_recursor_cache.end())
         return it->second;
@@ -44,7 +44,7 @@ bool context_cache::get_aux_recursor(type_context & ctx, name const & n) {
     return r;
 }
 
-void context_cache::get_unification_hints(type_context & ctx, name const & f1, name const & f2, buffer<unification_hint> & hints) {
+void context_cache::get_unification_hints(type_context_old & ctx, name const & f1, name const & f2, buffer<unification_hint> & hints) {
     if (!m_uhints)
         m_uhints = ::lean::get_unification_hints(ctx.env());
     ::lean::get_unification_hints(*m_uhints, f1, f2, hints);

@@ -14,7 +14,7 @@ namespace lean {
 class compiler_step_visitor : public replace_visitor {
 protected:
     environment  m_env;
-    type_context m_ctx;
+    type_context_old m_ctx;
 
     expr visit_lambda_let(expr const & e);
 protected:
@@ -22,7 +22,7 @@ protected:
     virtual ~compiler_step_visitor();
 
     environment const & env() const { return m_env; }
-    type_context & ctx() { return m_ctx; }
+    type_context_old & ctx() { return m_ctx; }
 
     virtual expr visit_macro(expr const & e) override;
 
@@ -32,7 +32,7 @@ protected:
     }
 
     virtual expr visit_local(expr const & e) override {
-        /* We don't need to visit the type since we are using type_context. */
+        /* We don't need to visit the type since we are using type_context_old. */
         return e;
     }
 

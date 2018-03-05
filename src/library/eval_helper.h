@@ -17,7 +17,7 @@ namespace lean {
 class eval_helper {
     environment        m_env;
     options            m_opts;
-    type_context       m_tc;
+    type_context_old       m_tc;
     buffer<vm_obj>     m_args;
     vm_state           m_vms;
     vm_state::profiler m_prof;

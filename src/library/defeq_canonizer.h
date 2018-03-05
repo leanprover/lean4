@@ -38,7 +38,7 @@ public:
         name_map<list<expr>> m_M;
     };
 private:
-    type_context & m_ctx;
+    type_context_old & m_ctx;
     state &        m_state;
     bool *         m_updated{nullptr};
 
@@ -51,7 +51,7 @@ private:
     expr canonize_core(expr const & e);
 
 public:
-    defeq_canonizer(type_context & ctx, state & s);
+    defeq_canonizer(type_context_old & ctx, state & s);
 
     expr canonize(expr const & e, bool & updated);
     expr canonize(expr const & e);

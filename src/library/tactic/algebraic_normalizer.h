@@ -98,13 +98,13 @@ public:
     typedef std::shared_ptr<data>                data_ptr;
 
 private:
-    type_context &                               m_ctx;
+    type_context_old &                               m_ctx;
     data_ptr                                     m_data;
 
 public:
-    algebraic_info_manager(type_context & ctx);
+    algebraic_info_manager(type_context_old & ctx);
     ~algebraic_info_manager();
-    type_context & ctx() const { return m_ctx; }
+    type_context_old & ctx() const { return m_ctx; }
     algebraic_info_ref get_info(expr const & op);
 };
 

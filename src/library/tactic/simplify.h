@@ -76,7 +76,7 @@ class simplify_core_fn {
 protected:
     typedef expr_struct_map<simp_result> simplify_cache;
 
-    type_context &            m_ctx;
+    type_context_old &            m_ctx;
     defeq_canonizer           m_defeq_canonizer;
     name                      m_rel;
     simp_lemmas               m_slss;
@@ -153,7 +153,7 @@ protected:
     bool match(tmp_type_context & ctx, simp_lemma const & sl, expr const & t);
 
 public:
-    simplify_core_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss,
+    simplify_core_fn(type_context_old & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss,
                      simp_config const & cfg);
 
     environment const & env() const;
@@ -173,7 +173,7 @@ protected:
     virtual simp_result visit_let(expr const & e) override;
     virtual simp_result visit_macro(expr const & e) override;
 public:
-    simplify_ext_core_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss,
+    simplify_ext_core_fn(type_context_old & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss,
                          simp_config const & cfg);
 };
 
@@ -186,7 +186,7 @@ protected:
     virtual optional<pair<simp_result, bool>> post(expr const & e, optional<expr> const & parent) override;
     virtual optional<expr> prove(expr const & e) override;
 public:
-    simplify_fn(type_context & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss, list<name> const & to_unfold,
+    simplify_fn(type_context_old & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss, list<name> const & to_unfold,
                 simp_config const & cfg):
         simplify_ext_core_fn(ctx, dcs, slss, cfg),
         m_to_unfold(to_name_set(to_unfold)) {}

@@ -91,7 +91,7 @@ class inductive_cmd_fn {
     environment                     m_env;
     cmd_meta                        m_meta_info;
     buffer<decl_attributes>         m_mut_attrs;
-    type_context                    m_ctx;
+    type_context_old                    m_ctx;
     buffer<name>                    m_lp_names;
     pos_info                        m_pos;
     name_map<implicit_infer_kind>   m_implicit_infer_map;
@@ -303,7 +303,7 @@ class inductive_cmd_fn {
     /** \brief Return the universe level of the given type, if it is not a sort, then raise an exception. */
     level get_datatype_result_level(expr d_type) {
         d_type = m_ctx.relaxed_whnf(d_type);
-        type_context::tmp_locals locals(m_ctx);
+        type_context_old::tmp_locals locals(m_ctx);
         while (is_pi(d_type)) {
             d_type = instantiate(binding_body(d_type), locals.push_local_from_binding(d_type));
             d_type = m_ctx.relaxed_whnf(d_type);
@@ -325,7 +325,7 @@ class inductive_cmd_fn {
         }
     }
 
-    void unify_nested_occurrences(type_context & ctx, expr const & ir_type, buffer<expr> const & inds, level const & resultant_level) {
+    void unify_nested_occurrences(type_context_old & ctx, expr const & ir_type, buffer<expr> const & inds, level const & resultant_level) {
         expr ty = ir_type;
         while (is_pi(ty)) {
             expr arg_ty = binding_domain(ty);
@@ -402,7 +402,7 @@ class inductive_cmd_fn {
 
     /* Apply beta and zeta reduction */
     expr normalize(expr const & e) {
-        type_context::transparency_scope scope(m_ctx, transparency_mode::None);
+        type_context_old::transparency_scope scope(m_ctx, transparency_mode::None);
         return ::lean::normalize(m_ctx, e);
     }
 

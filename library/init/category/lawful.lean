@@ -173,51 +173,51 @@ instance (m : Type u → Type v) [monad m] [is_lawful_monad m] (ε : Type u) : i
 
 namespace reader_t
 section
-  variable  {r : Type u}
+  variable  {ρ : Type u}
   variable  {m : Type u → Type v}
   variables {α β : Type u}
-  variables (x : reader_t r m α) (cfg : r)
+  variables (x : reader_t ρ m α) (r : ρ)
 
-  lemma ext {x x' : reader_t r m α} (h : ∀ cfg, x.run cfg = x'.run cfg) : x = x' :=
+  lemma ext {x x' : reader_t ρ m α} (h : ∀ r, x.run r = x'.run r) : x = x' :=
   by cases x; cases x'; simp [show x = x', from funext h]
 
   variable  [monad m]
 
-  @[simp] lemma run_pure (a) : (pure a : reader_t r m α).run cfg = pure a := rfl
-  @[simp] lemma run_bind (f : α → reader_t r m β) :
-    (x >>= f).run cfg = x.run cfg >>= λ a, (f a).run cfg := rfl
-  @[simp] lemma run_map (f : α → β) [is_lawful_monad m] : (f <$> x).run cfg = f <$> x.run cfg :=
+  @[simp] lemma run_pure (a) : (pure a : reader_t ρ m α).run r = pure a := rfl
+  @[simp] lemma run_bind (f : α → reader_t ρ m β) :
+    (x >>= f).run r = x.run r >>= λ a, (f a).run r := rfl
+  @[simp] lemma run_map (f : α → β) [is_lawful_monad m] : (f <$> x).run r = f <$> x.run r :=
   by rw ←bind_pure_comp_eq_map m; refl
   @[simp] lemma run_monad_lift {n} [has_monad_lift_t n m] (x : n α) :
-    (monad_lift x : reader_t r m α).run cfg = (monad_lift x : m α) := rfl
+    (monad_lift x : reader_t ρ m α).run r = (monad_lift x : m α) := rfl
   @[simp] lemma run_monad_map {m' n n'} [monad m'] [monad_functor_t n n' m m'] (f : ∀ {α}, n α → n' α) :
-    (monad_map @f x : reader_t r m' α).run cfg = monad_map @f (x.run cfg) := rfl
-  @[simp] lemma run_read : (reader_t.read : reader_t r m r).run cfg = pure cfg := rfl
+    (monad_map @f x : reader_t ρ m' α).run r = monad_map @f (x.run r) := rfl
+  @[simp] lemma run_read : (reader_t.read : reader_t ρ m ρ).run r = pure r := rfl
 end
 end reader_t
 
-instance (r : Type u) (m : Type u → Type v) [monad m] [is_lawful_monad m] : is_lawful_monad (reader_t r m) :=
+instance (ρ : Type u) (m : Type u → Type v) [monad m] [is_lawful_monad m] : is_lawful_monad (reader_t ρ m) :=
 { id_map := by intros; apply reader_t.ext; intro; simp,
   pure_bind := by intros; apply reader_t.ext; intro; simp,
   bind_assoc := by intros; apply reader_t.ext; intro; simp [bind_assoc] }
 
 
 namespace cont_t
-  variable  {r : Type u}
+  variable  {ρ : Type u}
   variable  {m : Type u → Type v}
   variables {α β : Type u}
-  variables (x : cont_t r m α)
+  variables (x : cont_t ρ m α)
 
-  lemma ext {x x' : cont_t r m α} (h : ∀ cc, x.run cc = x'.run cc) : x = x' :=
+  lemma ext {x x' : cont_t ρ m α} (h : ∀ cc, x.run cc = x'.run cc) : x = x' :=
   by cases x; cases x'; simp [show x = x', from funext h]
 
-  @[simp] lemma run_pure (a : α) (cc : α → m r) : (pure a : cont_t r m α).run cc = cc a := rfl
-  @[simp] lemma run_bind (f : α → cont_t r m β) (cc : β → m r) :
+  @[simp] lemma run_pure (a : α) (cc : α → m ρ) : (pure a : cont_t ρ m α).run cc = cc a := rfl
+  @[simp] lemma run_bind (f : α → cont_t ρ m β) (cc : β → m ρ) :
     (x >>= f).run cc = x.run (λ a, (f a).run cc) := rfl
-  @[simp] lemma run_map (f : α → β) (cc : β → m r) : (f <$> x).run cc = x.run (cc ∘ f) := rfl
+  @[simp] lemma run_map (f : α → β) (cc : β → m ρ) : (f <$> x).run cc = x.run (cc ∘ f) := rfl
 end cont_t
 
-instance (r : Type u) (m : Type u → Type v) [monad m] [is_lawful_monad m] : is_lawful_monad (cont_t r m) :=
+instance (ρ : Type u) (m : Type u → Type v) [monad m] [is_lawful_monad m] : is_lawful_monad (cont_t ρ m) :=
 { id_map := by intros; apply cont_t.ext; simp,
   pure_bind := by intros; apply cont_t.ext; simp,
   bind_assoc := by intros; apply cont_t.ext; simp }

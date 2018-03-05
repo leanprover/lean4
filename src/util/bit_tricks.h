@@ -9,4 +9,5 @@ Author: Leonardo de Moura
 namespace lean {
 inline bool is_power_of_two(unsigned v) { return !(v & (v - 1)) && v; }
 unsigned log2(unsigned v);
+double log2(int v);
 }

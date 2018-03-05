@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/debug.h"
+
 namespace lean {
 unsigned log2(unsigned v) {
     unsigned r = 0;
@@ -28,5 +30,11 @@ unsigned log2(unsigned v) {
         r |=  1;
     }
     return r;
+}
+
+// make sure no one calls the math.h log2 accidentally
+double log2(int v) {
+  (void)v;
+  lean_unreachable();
 }
 }

@@ -11,7 +11,7 @@ import init.category.id init.category.except
 universes u v w
 
 structure state_t (σ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
-(run' : σ → m (α × σ))
+(run : σ → m (α × σ))
 
 attribute [pp_using_anonymous_constructor] state_t
 
@@ -20,10 +20,6 @@ attribute [pp_using_anonymous_constructor] state_t
 namespace state_t
 section
   variables {σ : Type u} {m : Type u → Type v}
-
-  -- swap `st` and `x`
-  @[inline] protected def run {α : Type u} (st : σ) (x : state_t σ m α) : m (α × σ) :=
-  state_t.run' x st
 
   variable  [monad m]
   variables {α β : Type u}
@@ -78,13 +74,9 @@ section
 
   instance (ε) [monad_except ε m] : monad_except ε (state_t σ m) :=
   { throw := λ α, state_t.lift ∘ throw,
-    catch := λ α x c, ⟨λ s, catch (x.run s) (state_t.run s ∘ c)⟩ }
+    catch := λ α x c, ⟨λ s, catch (x.run s) (λ e, state_t.run (c e) s)⟩ }
 end
 end state_t
-
-@[reducible] protected def state.run {σ α : Type u} (st : σ) (x : state σ α) : α × σ :=
-state_t.run st x
-
 
 /-- A specialization of `monad_lift` to `state_t` that allows `σ` to be inferred. -/
 class monad_state_lift (σ : out_param (Type u)) (m : out_param (Type u → Type v)) (n : Type u → Type w) :=

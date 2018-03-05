@@ -50,8 +50,8 @@ void context_cache::get_unification_hints(type_context_old & ctx, name const & f
     ::lean::get_unification_hints(*m_uhints, f1, f2, hints);
 }
 
-template<typename R, typename C>
-optional<R> find_at(C const & c, expr const & e) {
+template<typename R, typename C, typename K>
+optional<R> find_at(C const & c, K const & e) {
     auto it = c.find(e);
     if (it != c.end())
         return optional<R>(it->second);
@@ -123,5 +123,53 @@ void context_cache::set_subsingleton(expr const & e, optional<expr> const & r) {
 void context_cache::flush_instances() {
     m_instance_cache.clear();
     m_subsingleton_cache.clear();
+}
+
+optional<fun_info> context_cache::get_fun_info(transparency_mode m, expr const & e) {
+    return find_at<fun_info>(m_fi_cache[static_cast<unsigned>(m)], e);
+}
+
+void context_cache::set_fun_info(transparency_mode m, expr const & e, fun_info const & fi) {
+    m_fi_cache[static_cast<unsigned>(m)].insert(mk_pair(e, fi));
+}
+
+optional<fun_info> context_cache::get_fun_info_nargs(transparency_mode m, expr const & e, unsigned nargs) {
+    return find_at<fun_info>(m_fi_cache_nargs[static_cast<unsigned>(m)], expr_unsigned(e, nargs));
+}
+
+void context_cache::set_fun_info_nargs(transparency_mode m, expr const & e, unsigned nargs, fun_info const & fi) {
+    m_fi_cache_nargs[static_cast<unsigned>(m)].insert(mk_pair(expr_unsigned(e, nargs), fi));
+}
+
+optional<unsigned> context_cache::get_specialization_prefix_size(transparency_mode m, expr const & e, unsigned nargs) {
+    return find_at<unsigned>(m_prefix_cache[static_cast<unsigned>(m)], expr_unsigned(e, nargs));
+}
+
+void context_cache::set_specialization_prefix_size(transparency_mode m, expr const & e, unsigned nargs, unsigned sz) {
+    m_prefix_cache[static_cast<unsigned>(m)].insert(mk_pair(expr_unsigned(e, nargs), sz));
+}
+
+optional<ss_param_infos> context_cache::get_subsingleton_info(transparency_mode m, expr const & e) {
+    return find_at<ss_param_infos>(m_ss_cache[static_cast<unsigned>(m)], e);
+}
+
+void context_cache::set_subsingleton_info(transparency_mode m, expr const & e, ss_param_infos const & ss) {
+    m_ss_cache[static_cast<unsigned>(m)].insert(mk_pair(e, ss));
+}
+
+optional<ss_param_infos> context_cache::get_subsingleton_info_nargs(transparency_mode m, expr const & e, unsigned nargs) {
+    return find_at<ss_param_infos>(m_ss_cache_nargs[static_cast<unsigned>(m)], expr_unsigned(e, nargs));
+}
+
+void context_cache::set_subsingleton_info_nargs(transparency_mode m, expr const & e, unsigned nargs, ss_param_infos const & ss) {
+    m_ss_cache_nargs[static_cast<unsigned>(m)].insert(mk_pair(expr_unsigned(e, nargs), ss));
+}
+
+optional<ss_param_infos> context_cache::get_specialized_subsingleton_info_nargs(transparency_mode m, expr const & e, unsigned nargs) {
+    return find_at<ss_param_infos>(m_ss_cache_spec[static_cast<unsigned>(m)], expr_unsigned(e, nargs));
+}
+
+void context_cache::set_specialization_subsingleton_info_nargs(transparency_mode m, expr const & e, unsigned nargs, ss_param_infos const & ss) {
+    m_ss_cache_spec[static_cast<unsigned>(m)].insert(mk_pair(expr_unsigned(e, nargs), ss));
 }
 }

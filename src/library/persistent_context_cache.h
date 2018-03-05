@@ -77,23 +77,23 @@ public:
 
     /* Cache support for fun_info module */
 
-    virtual optional<fun_info> get_fun_info(expr const &) override;
-    virtual void set_fun_info(expr const &, fun_info const &) override;
+    virtual optional<fun_info> get_fun_info(transparency_mode, expr const &) override;
+    virtual void set_fun_info(transparency_mode, expr const &, fun_info const &) override;
 
-    virtual optional<fun_info> get_fun_info_nargs(expr const &, unsigned) override;
-    virtual void set_fun_info_nargs(expr const &, unsigned, fun_info const &) override;
+    virtual optional<fun_info> get_fun_info_nargs(transparency_mode, expr const &, unsigned) override;
+    virtual void set_fun_info_nargs(transparency_mode, expr const &, unsigned, fun_info const &) override;
 
-    virtual optional<unsigned> get_specialization_prefix_size(expr const &, unsigned) override;
-    virtual void set_specialization_prefix_size(expr const &, unsigned, unsigned) override;
+    virtual optional<unsigned> get_specialization_prefix_size(transparency_mode, expr const &, unsigned) override;
+    virtual void set_specialization_prefix_size(transparency_mode, expr const &, unsigned, unsigned) override;
 
-    virtual optional<ss_param_infos> get_subsingleton_info(expr const &) override;
-    virtual void set_subsingleton_info(expr const &, ss_param_infos const &) override;
+    virtual optional<ss_param_infos> get_subsingleton_info(transparency_mode, expr const &) override;
+    virtual void set_subsingleton_info(transparency_mode, expr const &, ss_param_infos const &) override;
 
-    virtual optional<ss_param_infos> get_subsingleton_info_nargs(expr const &, unsigned) override;
-    virtual void set_subsingleton_info_nargs(expr const &, unsigned, ss_param_infos const &) override;
+    virtual optional<ss_param_infos> get_subsingleton_info_nargs(transparency_mode, expr const &, unsigned) override;
+    virtual void set_subsingleton_info_nargs(transparency_mode, expr const &, unsigned, ss_param_infos const &) override;
 
-    virtual optional<ss_param_infos> get_specialized_subsingleton_info_nargs(expr const &, unsigned) override;
-    virtual void set_specialization_subsingleton_info_nargs(expr const &, unsigned, ss_param_infos const &) override;
+    virtual optional<ss_param_infos> get_specialized_subsingleton_info_nargs(transparency_mode, expr const &, unsigned) override;
+    virtual void set_specialization_subsingleton_info_nargs(transparency_mode, expr const &, unsigned, ss_param_infos const &) override;
 
     /* Cache support for congr_lemma module */
 

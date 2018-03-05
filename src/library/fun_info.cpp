@@ -26,40 +26,9 @@ static bool is_fun_info_trace_enabled() {
     return is_trace_class_enabled(*g_fun_info);
 }
 
-struct fun_info_cache {
-    typedef expr_struct_map<fun_info>         cache;
-    typedef expr_unsigned_map<fun_info>       narg_cache;
-    typedef expr_struct_map<ss_param_infos>   ss_cache;
-    typedef expr_unsigned_map<ss_param_infos> narg_ss_cache;
-    typedef expr_unsigned_map<unsigned>       prefix_cache;
-    environment   m_env;
-    cache         m_cache_get;
-    narg_cache    m_cache_get_nargs;
-    ss_cache      m_ss_cache_get;
-    narg_ss_cache m_ss_cache_get_nargs;
-    narg_ss_cache m_ss_cache_get_spec;
-    prefix_cache  m_cache_prefix;
-    fun_info_cache(environment const & env):m_env(env) {}
-    environment const & env() const { return m_env; }
-};
-
-typedef cache_compatibility_helper<fun_info_cache> fun_info_cache_helper;
-
-/* CACHE_RESET: YES */
-MK_THREAD_LOCAL_GET_DEF(fun_info_cache_helper, get_fich);
-
-fun_info_cache & get_fun_info_cache_for(type_context_old const & ctx) {
-    return get_fich().get_cache_for(ctx);
-}
-
-void clear_fun_info_cache() {
-    get_fich().clear();
-}
-
 void initialize_fun_info() {
     g_fun_info = new name("fun_info");
     register_trace_class(*g_fun_info);
-    register_thread_local_reset_fn([]() { clear_fun_info_cache(); });
 }
 
 void finalize_fun_info() {
@@ -113,27 +82,24 @@ static list<unsigned> get_core(type_context_old & ctx,
 }
 
 fun_info get_fun_info(type_context_old & ctx, expr const & e) {
-    fun_info_cache & cache = get_fun_info_cache_for(ctx);
-    auto it = cache.m_cache_get.find(e);
-    if (it != cache.m_cache_get.end())
-        return it->second;
+    abstract_context_cache & cache = ctx.get_cache();
+    if (auto r = cache.get_fun_info(ctx.mode(), e))
+        return *r;
     buffer<param_info> pinfos;
     auto result_deps = get_core(ctx, e, pinfos, std::numeric_limits<unsigned>::max());
     fun_info r(pinfos.size(), to_list(pinfos), result_deps);
-    cache.m_cache_get.insert(mk_pair(e, r));
+    cache.set_fun_info(ctx.mode(), e, r);
     return r;
 }
 
 fun_info get_fun_info(type_context_old & ctx, expr const & e, unsigned nargs) {
-    fun_info_cache & cache = get_fun_info_cache_for(ctx);
-    expr_unsigned key(e, nargs);
-    auto it = cache.m_cache_get_nargs.find(key);
-    if (it != cache.m_cache_get_nargs.end())
-        return it->second;
+    abstract_context_cache & cache = ctx.get_cache();
+    if (auto r = cache.get_fun_info_nargs(ctx.mode(), e, nargs))
+        return *r;
     buffer<param_info> pinfos;
     auto result_deps = get_core(ctx, e, pinfos, nargs);
     fun_info r(pinfos.size(), to_list(pinfos), result_deps);
-    cache.m_cache_get_nargs.insert(mk_pair(key, r));
+    cache.set_fun_info_nargs(ctx.mode(), e, nargs, r);
     return r;
 }
 
@@ -163,27 +129,24 @@ static void get_ss_core(type_context_old & ctx, expr const & fn, buffer<ss_param
 }
 
 ss_param_infos get_subsingleton_info(type_context_old & ctx, expr const & e) {
-    fun_info_cache & cache = get_fun_info_cache_for(ctx);
-    auto it = cache.m_ss_cache_get.find(e);
-    if (it != cache.m_ss_cache_get.end())
-        return it->second;
+    abstract_context_cache & cache = ctx.get_cache();
+    if (auto r = cache.get_subsingleton_info(ctx.mode(), e))
+        return *r;
     buffer<ss_param_info> ssinfos;
     get_ss_core(ctx, e, ssinfos, std::numeric_limits<unsigned>::max());
     ss_param_infos r = to_list(ssinfos);
-    cache.m_ss_cache_get.insert(mk_pair(e, r));
+    cache.set_subsingleton_info(ctx.mode(), e, r);
     return r;
 }
 
 ss_param_infos get_subsingleton_info(type_context_old & ctx, expr const & e, unsigned nargs) {
-    fun_info_cache & cache = get_fun_info_cache_for(ctx);
-    expr_unsigned key(e, nargs);
-    auto it = cache.m_ss_cache_get_nargs.find(key);
-    if (it != cache.m_ss_cache_get_nargs.end())
-        return it->second;
+    abstract_context_cache & cache = ctx.get_cache();
+    if (auto r = cache.get_subsingleton_info_nargs(ctx.mode(), e, nargs))
+        return *r;
     buffer<ss_param_info> ssinfos;
     get_ss_core(ctx, e, ssinfos, nargs);
     ss_param_infos r = to_list(ssinfos);
-    cache.m_ss_cache_get_nargs.insert(mk_pair(key, r));
+    cache.set_subsingleton_info_nargs(ctx.mode(), e, nargs, r);
     return r;
 }
 
@@ -279,11 +242,9 @@ unsigned get_specialization_prefix_size(type_context_old & ctx, expr const & fn,
 
       This procecure returns the size of group a)
     */
-    fun_info_cache & cache = get_fun_info_cache_for(ctx);
-    expr_unsigned key(fn, nargs);
-    auto it = cache.m_cache_prefix.find(key);
-    if (it != cache.m_cache_prefix.end())
-        return it->second;
+    abstract_context_cache & cache = ctx.get_cache();
+    if (auto r = cache.get_specialization_prefix_size(ctx.mode(), fn, nargs))
+        return *r;
     fun_info info = get_fun_info(ctx, fn, nargs);
     buffer<param_info> pinfos;
     to_buffer(info.get_params_info(), pinfos);
@@ -302,7 +263,7 @@ unsigned get_specialization_prefix_size(type_context_old & ctx, expr const & fn,
             break;
     }
     unsigned prefix_sz = i;
-    cache.m_cache_prefix.insert(mk_pair(key, prefix_sz));
+    cache.set_specialization_prefix_size(ctx.mode(), fn, nargs, prefix_sz);
     return prefix_sz;
 }
 
@@ -315,12 +276,9 @@ ss_param_infos get_specialized_subsingleton_info(type_context_old & ctx, expr co
     expr g = a;
     for (unsigned i = 0; i < num_rest_args; i++)
         g = app_fn(g);
-    fun_info_cache & cache = get_fun_info_cache_for(ctx);
-    expr_unsigned key(g, num_rest_args);
-    auto it = cache.m_ss_cache_get_spec.find(key);
-    if (it != cache.m_ss_cache_get_spec.end()) {
-        return it->second;
-    }
+    abstract_context_cache & cache = ctx.get_cache();
+    if (auto r = cache.get_specialized_subsingleton_info_nargs(ctx.mode(), g, num_rest_args))
+        return *r;
     buffer<ss_param_info> ssinfos;
     get_ss_core(ctx, fn, ssinfos, prefix_sz);
     for (unsigned i = 0; i < prefix_sz; i++) {
@@ -328,7 +286,7 @@ ss_param_infos get_specialized_subsingleton_info(type_context_old & ctx, expr co
     }
     get_ss_core(ctx, g, ssinfos, num_rest_args);
     ss_param_infos r = to_list(ssinfos);
-    cache.m_ss_cache_get_spec.insert(mk_pair(key, r));
+    cache.set_specialization_subsingleton_info_nargs(ctx.mode(), g, num_rest_args, r);
     trace_if_unsupported(ctx, fn, args, prefix_sz, r);
     return r;
 }

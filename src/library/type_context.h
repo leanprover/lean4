@@ -592,6 +592,8 @@ public:
     /* note: env must be a descendant of m_env */
     void set_env(environment const & env);
 
+    abstract_context_cache & get_cache() { return *m_cache; }
+
     /* Store the current local instances in the local context.
        This has the following implications:
 

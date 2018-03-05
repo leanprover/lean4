@@ -102,9 +102,6 @@ list<ss_param_info> get_subsingleton_info(type_context_old & ctx, expr const & f
 list<ss_param_info> get_specialized_subsingleton_info(type_context_old & ctx, expr const & app);
 unsigned get_specialization_prefix_size(type_context_old & ctx, expr const & fn, unsigned nargs);
 
-/** Clear thread local cache */
-void clear_fun_info_cache();
-
 void initialize_fun_info();
 void finalize_fun_info();
 }

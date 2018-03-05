@@ -131,52 +131,52 @@ optional<local_instances> persistent_context_cache::get_frozen_local_instances()
     return m_cache_ptr->get_frozen_local_instances();
 }
 
-optional<fun_info> persistent_context_cache::get_fun_info(expr const & e) {
-    return m_cache_ptr->get_fun_info(e);
+optional<fun_info> persistent_context_cache::get_fun_info(transparency_mode m, expr const & e) {
+    return m_cache_ptr->get_fun_info(m, e);
 }
 
-void persistent_context_cache::set_fun_info(expr const & e, fun_info const & r) {
-    return m_cache_ptr->set_fun_info(e, r);
+void persistent_context_cache::set_fun_info(transparency_mode m, expr const & e, fun_info const & r) {
+    return m_cache_ptr->set_fun_info(m, e, r);
 }
 
-optional<fun_info> persistent_context_cache::get_fun_info_nargs(expr const & e, unsigned k) {
-    return m_cache_ptr->get_fun_info_nargs(e, k);
+optional<fun_info> persistent_context_cache::get_fun_info_nargs(transparency_mode m, expr const & e, unsigned k) {
+    return m_cache_ptr->get_fun_info_nargs(m, e, k);
 }
 
-void persistent_context_cache::set_fun_info_nargs(expr const & e, unsigned k, fun_info const & r) {
-    return m_cache_ptr->set_fun_info_nargs(e, k, r);
+void persistent_context_cache::set_fun_info_nargs(transparency_mode m, expr const & e, unsigned k, fun_info const & r) {
+    return m_cache_ptr->set_fun_info_nargs(m, e, k, r);
 }
 
-optional<unsigned> persistent_context_cache::get_specialization_prefix_size(expr const & e, unsigned k) {
-    return m_cache_ptr->get_specialization_prefix_size(e, k);
+optional<unsigned> persistent_context_cache::get_specialization_prefix_size(transparency_mode m, expr const & e, unsigned k) {
+    return m_cache_ptr->get_specialization_prefix_size(m, e, k);
 }
 
-void persistent_context_cache::set_specialization_prefix_size(expr const & e, unsigned k, unsigned r) {
-    return m_cache_ptr->set_specialization_prefix_size(e, k, r);
+void persistent_context_cache::set_specialization_prefix_size(transparency_mode m, expr const & e, unsigned k, unsigned r) {
+    return m_cache_ptr->set_specialization_prefix_size(m, e, k, r);
 }
 
-optional<ss_param_infos> persistent_context_cache::get_subsingleton_info(expr const & e) {
-    return m_cache_ptr->get_subsingleton_info(e);
+optional<ss_param_infos> persistent_context_cache::get_subsingleton_info(transparency_mode m, expr const & e) {
+    return m_cache_ptr->get_subsingleton_info(m, e);
 }
 
-void persistent_context_cache::set_subsingleton_info(expr const & e, ss_param_infos const & r) {
-    return m_cache_ptr->set_subsingleton_info(e, r);
+void persistent_context_cache::set_subsingleton_info(transparency_mode m, expr const & e, ss_param_infos const & r) {
+    return m_cache_ptr->set_subsingleton_info(m, e, r);
 }
 
-optional<ss_param_infos> persistent_context_cache::get_subsingleton_info_nargs(expr const & e, unsigned k) {
-    return m_cache_ptr->get_subsingleton_info_nargs(e, k);
+optional<ss_param_infos> persistent_context_cache::get_subsingleton_info_nargs(transparency_mode m, expr const & e, unsigned k) {
+    return m_cache_ptr->get_subsingleton_info_nargs(m, e, k);
 }
 
-void persistent_context_cache::set_subsingleton_info_nargs(expr const & e, unsigned k, ss_param_infos const & r) {
-    return m_cache_ptr->set_subsingleton_info_nargs(e, k, r);
+void persistent_context_cache::set_subsingleton_info_nargs(transparency_mode m, expr const & e, unsigned k, ss_param_infos const & r) {
+    return m_cache_ptr->set_subsingleton_info_nargs(m, e, k, r);
 }
 
-optional<ss_param_infos> persistent_context_cache::get_specialized_subsingleton_info_nargs(expr const & e, unsigned k) {
-    return m_cache_ptr->get_specialized_subsingleton_info_nargs(e, k);
+optional<ss_param_infos> persistent_context_cache::get_specialized_subsingleton_info_nargs(transparency_mode m, expr const & e, unsigned k) {
+    return m_cache_ptr->get_specialized_subsingleton_info_nargs(m, e, k);
 }
 
-void persistent_context_cache::set_specialization_subsingleton_info_nargs(expr const & e, unsigned k, ss_param_infos const & r) {
-    return m_cache_ptr->set_specialization_subsingleton_info_nargs(e, k, r);
+void persistent_context_cache::set_specialization_subsingleton_info_nargs(transparency_mode m, expr const & e, unsigned k, ss_param_infos const & r) {
+    return m_cache_ptr->set_specialization_subsingleton_info_nargs(m, e, k, r);
 }
 
 optional<congr_lemma> persistent_context_cache::get_simp_congr_lemma(expr const & e, unsigned k) {

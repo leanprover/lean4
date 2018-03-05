@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <unordered_set>
 #include "kernel/expr_maps.h"
 #include "kernel/equiv_manager.h"
+#include "library/expr_unsigned_map.h"
 #include "library/expr_pair_maps.h"
 #include "library/abstract_context_cache.h"
 
@@ -89,6 +90,21 @@ class context_cache : public context_cacheless {
     subsingleton_cache            m_subsingleton_cache;
 
     optional<unification_hints>   m_uhints;
+
+    /* Cache datastructures for fun_info */
+
+    typedef expr_struct_map<fun_info>         fi_cache;
+    typedef expr_unsigned_map<fun_info>       fi_cache_nargs;
+    typedef expr_struct_map<ss_param_infos>   ss_cache;
+    typedef expr_unsigned_map<ss_param_infos> ss_cache_nargs;
+    typedef expr_unsigned_map<unsigned>       prefix_cache;
+    fi_cache                      m_fi_cache[LEAN_NUM_TRANSPARENCY_MODES];
+    fi_cache_nargs                m_fi_cache_nargs[LEAN_NUM_TRANSPARENCY_MODES];
+    ss_cache                      m_ss_cache[LEAN_NUM_TRANSPARENCY_MODES];
+    ss_cache_nargs                m_ss_cache_nargs[LEAN_NUM_TRANSPARENCY_MODES];
+    ss_cache_nargs                m_ss_cache_spec[LEAN_NUM_TRANSPARENCY_MODES];
+    prefix_cache                  m_prefix_cache[LEAN_NUM_TRANSPARENCY_MODES];
+
 public:
     context_cache();
     context_cache(options const & o);
@@ -125,5 +141,25 @@ public:
     virtual void set_subsingleton(expr const &, optional<expr> const &) override;
 
     virtual void flush_instances() override;
+
+    /* Cache support for fun_info module */
+
+    virtual optional<fun_info> get_fun_info(transparency_mode, expr const &) override;
+    virtual void set_fun_info(transparency_mode, expr const &, fun_info const &) override;
+
+    virtual optional<fun_info> get_fun_info_nargs(transparency_mode, expr const &, unsigned) override;
+    virtual void set_fun_info_nargs(transparency_mode, expr const &, unsigned, fun_info const &) override;
+
+    virtual optional<unsigned> get_specialization_prefix_size(transparency_mode, expr const &, unsigned) override;
+    virtual void set_specialization_prefix_size(transparency_mode, expr const &, unsigned, unsigned) override;
+
+    virtual optional<ss_param_infos> get_subsingleton_info(transparency_mode, expr const &) override;
+    virtual void set_subsingleton_info(transparency_mode, expr const &, ss_param_infos const &) override;
+
+    virtual optional<ss_param_infos> get_subsingleton_info_nargs(transparency_mode, expr const &, unsigned) override;
+    virtual void set_subsingleton_info_nargs(transparency_mode, expr const &, unsigned, ss_param_infos const &) override;
+
+    virtual optional<ss_param_infos> get_specialized_subsingleton_info_nargs(transparency_mode, expr const &, unsigned) override;
+    virtual void set_specialization_subsingleton_info_nargs(transparency_mode, expr const &, unsigned, ss_param_infos const &) override;
 };
 }

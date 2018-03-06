@@ -7,7 +7,7 @@ The reader monad transformer for passing immutable state.
 -/
 
 prelude
-import init.category.lift init.category.id
+import init.category.lift init.category.id init.category.alternative
 universes u v w
 
 structure reader_t (ρ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
@@ -48,6 +48,16 @@ section
 
   instance (r m m') [monad m] [monad m'] : monad_functor m m' (reader_t r m) (reader_t r m') :=
   ⟨@reader_t.monad_map r m m' _ _⟩
+
+  protected def orelse [alternative m] {α : Type u} (x₁ x₂ : reader_t ρ m α) : reader_t ρ m α :=
+  ⟨λ s, x₁.run s <|> x₂.run s⟩
+
+  protected def failure [alternative m] {α : Type u} : reader_t ρ m α :=
+  ⟨λ s, failure⟩
+
+  instance [alternative m] : alternative (reader_t ρ m) :=
+  { failure := @reader_t.failure _ _ _ _,
+    orelse  := @reader_t.orelse _ _ _ _ }
 end
 end reader_t
 

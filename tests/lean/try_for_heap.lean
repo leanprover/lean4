@@ -49,4 +49,4 @@ example
 (hassoc   : ∀ x y z, (x ∙ y) ∙ z = x ∙ (y ∙ z))
 (hnoalias : ∀ h y₁ y₂ w₁ w₂, is_def (h ∙ y₁ ↣ w₁ ∙ y₂ ↣ w₂) → y₁ ≠ y₂)
 : is_def (h₁ ∙ (x₁ ↣ v₁ ∙ x₂ ↣ v₂) ∙ h₂ ∙ (x₃ ↣ v₃)) → x₁ ≠ x₃ ∧ x₁ ≠ x₂ ∧ x₂ ≠ x₃ :=
-by try_for 10000 $ my_tac -- should work
+by try_for 100000 $ my_tac -- should work

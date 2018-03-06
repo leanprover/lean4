@@ -19,7 +19,7 @@ namespace dlist
 open function
 variables {α : Type u}
 
-local notation `♯`:max := by abstract {intros, rsimp}
+local notation `♯`:max := by abstract { intros, simp }
 
 /-- Convert a list to a dlist -/
 def of_list (l : list α) : dlist α :=
@@ -47,15 +47,15 @@ local attribute [simp] function.comp
 
 /-- `O(1)` Prepend a single element to a dlist -/
 def cons (x : α) : dlist α →  dlist α
-| ⟨xs, h⟩ := ⟨x::_ ∘ xs, ♯⟩
+| ⟨xs, h⟩ := ⟨x::_ ∘ xs, by abstract { intros, simp, rw [←h] }⟩
 
 /-- `O(1)` Append a single element to a dlist -/
 def concat (x : α) : dlist α → dlist α
-| ⟨xs, h⟩ := ⟨xs ∘ x::_, ♯⟩
+| ⟨xs, h⟩ := ⟨xs ∘ x::_, by abstract { intros, simp, rw [h, h [x]], simp }⟩
 
 /-- `O(1)` Append dlists -/
 protected def append : dlist α → dlist α → dlist α
-| ⟨xs, h₁⟩ ⟨ys, h₂⟩ := ⟨xs ∘ ys, ♯⟩
+| ⟨xs, h₁⟩ ⟨ys, h₂⟩ := ⟨xs ∘ ys, by { intros, simp, rw [h₂, h₁, h₁ (ys list.nil)], simp } ⟩
 
 instance : has_append (dlist α) :=
 ⟨dlist.append⟩
@@ -81,13 +81,13 @@ by simp
 
 lemma to_list_append (l₁ l₂ : dlist α) : to_list (l₁ ++ l₂) = to_list l₁ ++ to_list l₂ :=
 show to_list (dlist.append l₁ l₂) = to_list l₁ ++ to_list l₂, from
-by cases l₁; cases l₂; simp; rsimp
+by cases l₁; cases l₂; simp; rw l₁_invariant
 
 lemma to_list_cons (x : α) (l : dlist α) : to_list (cons x l) = x :: to_list l :=
-by cases l; rsimp
+by cases l; simp
 
 lemma to_list_concat (x : α) (l : dlist α) : to_list (concat x l) = to_list l ++ [x] :=
-by cases l; simp; rsimp
+by cases l; simp; rw [l_invariant]
 
 section transfer
 

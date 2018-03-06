@@ -68,3 +68,6 @@ instance {m : Type u → Type v} [monad m] : alternative (option_t m) :=
 
 def option_t.lift {m : Type u → Type v} [monad m] {α : Type u} (a : m α) : option_t m α :=
 (some <$> a : m (option α))
+
+instance {m : Type u → Type v} [monad m] : has_monad_lift m (option_t m) :=
+⟨@option_t.lift _ _⟩

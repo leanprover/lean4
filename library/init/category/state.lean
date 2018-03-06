@@ -78,7 +78,11 @@ section
 end
 end state_t
 
-/-- A specialization of `monad_lift` to `state_t` that allows `σ` to be inferred. -/
+/-- A specialization of `monad_lift` to lifting `state_t` that allows `σ` to be inferred.
+
+    This class is roughly equivalent to `MonadState` from https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-State-Class.html,
+    with the important distinction that it is automatically derived via the generic
+    `has_monad_lift` class. -/
 class monad_state_lift (σ : out_param (Type u)) (m : out_param (Type u → Type v)) (n : Type u → Type w) :=
 [has_lift : has_monad_lift_t (state_t σ m) n]
 
@@ -88,18 +92,27 @@ local attribute [instance] monad_state_lift.has_lift
 section
 variables {σ : Type u} {m : Type u → Type v} {n : Type u → Type w} [monad m] [monad_state_lift σ m n]
 
+/-- Obtain the top-most state of a monad stack. -/
 @[inline] def get : n σ :=
 @monad_lift _ _ _ _ (state_t.get : state_t σ m _)
 
-@[inline] def get_type (σ : Type u) [has_monad_lift_t (state_t σ m) n] : n σ :=
-get
-
+/-- Set the top-most state of a monad stack. -/
 @[inline] def put (st : σ) : n punit :=
 monad_lift (state_t.put st : state_t σ m _)
 
+/-- Map the top-most state of a monad stack.
+
+    Note: `modify f` may be preferable to `f <$> get >>= put` because the latter
+    does not use the state linearly (without sufficient inlining). -/
 @[inline] def modify (f : σ → σ) : n punit :=
 monad_lift (state_t.modify f : state_t σ m _)
 end
+
+/-- Get the state at a specific position in the monad stack.
+
+    Example: <first figure out if this is the correct way to go> -/
+@[inline] def get_type (m : Type u → Type v) {n : Type u → Type w} (σ : Type u) [has_monad_lift_t (state_t σ m) n] [monad m] : n σ :=
+get
 
 
 /-- A specialization of `monad_map` to `state_t` that allows `σ` to be inferred. -/
@@ -109,9 +122,19 @@ class monad_state_functor (σ σ' : out_param (Type u)) (m : out_param (Type u �
 attribute [instance] monad_state_functor.mk
 local attribute [instance] monad_state_functor.functor
 
+/-- Change the top-most state type of a monad stack.
+    This allows zooming into a part of the state via the lens-like `get` and `set` functions.
+
+    Example:
+    ```
+    def zoom_fst {α : Type} : state ℕ α → state (ℕ × ℕ) α :=
+    zoom prod.fst (λ n p, (n, prod.snd p))
+    ```
+    -/
 def zoom {σ σ'} {m n n'} [monad m] {α : Type u} (get : σ → σ') (set : σ' → σ → σ)
   [monad_state_functor σ' σ m n n'] : n α → n' α :=
 monad_map $ λ α, (state_t.zoom get set : state_t σ' m α → state_t σ m α)
+
 
 instance (σ m out) [monad_run out m] : monad_run (λ α, σ → out (α × σ)) (state_t σ m) :=
 ⟨λ α x, run ∘ (λ σ, x.run σ), λ α a, state_t.mk (unrun ∘ a)⟩

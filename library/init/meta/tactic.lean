@@ -1001,8 +1001,8 @@ do env  ← get_env,
    return (expr.const c ls)
 
 /-- Apply the constant `c` -/
-meta def applyc (c : name) : tactic unit :=
-do c ← mk_const c, apply c, skip
+meta def applyc (c : name) (cfg : apply_cfg := {}) : tactic unit :=
+do c ← mk_const c, apply c cfg, skip
 
 meta def eapplyc (c : name) : tactic unit :=
 do c ← mk_const c, eapply c, skip

@@ -1595,7 +1595,8 @@ protected meta def apply_inj_lemma : tactic unit :=
 do h ← intro `h,
    some (lhs, rhs) ← expr.is_eq <$> infer_type h,
    (expr.const C _) ← return lhs.get_app_fn,
-   applyc (name.mk_string "inj" C),
+   -- We disable auto_param and opt_param support to address issue #1943
+   applyc (name.mk_string "inj" C) {auto_param := ff, opt_param := ff},
    assumption
 
 /- Auxiliary tactic for proving `I.C.inj_eq` lemmas.

@@ -10,6 +10,7 @@ prelude
 import init.category.lift init.category.id init.category.alternative
 universes u v w
 
+/-- An implementation of [ReaderT](https://hackage.haskell.org/package/transformers-0.5.5.0/docs/Control-Monad-Trans-Reader.html#t:ReaderT) -/
 structure reader_t (ρ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
 (run : ρ → m α)
 
@@ -69,12 +70,13 @@ class monad_reader_lift (ρ : out_param (Type u)) (m : out_param (Type u → Typ
 attribute [instance] monad_reader_lift.mk
 local attribute [instance] monad_reader_lift.has_lift
 
+/-- Read the value of the top-most environment in a monad stack. -/
 def monad_reader_lift.read {ρ : Type u} {m : Type u → Type v} {n : Type u → Type w} [monad m] [monad_reader_lift ρ m n] : n ρ :=
 @monad_lift _ _ _ _ (reader_t.read : reader_t ρ m _)
 export monad_reader_lift (read)
 
 
-/-- A specialization of `monad_map` to `reader_t` that allows `r` to be inferred. -/
+/-- A specialization of `monad_map` to `reader_t` that allows `ρ` to be inferred. -/
 class monad_reader_functor (ρ ρ' : out_param (Type u)) (m : out_param (Type u → Type v)) (n n' : Type u → Type w) :=
 [functor {} : monad_functor_t (reader_t ρ m) (reader_t ρ' m) n n']
 
@@ -84,6 +86,7 @@ local attribute [instance] monad_reader_functor.functor
 def with_reader_t {ρ ρ' m} [monad m] {α} (f : ρ' → ρ) : reader_t ρ m α → reader_t ρ' m α :=
 λ x, ⟨λ r, x.run (f r)⟩
 
+/-- Embed a computation, modifying the top-most environment (possibly including its type) in its monad stack. -/
 def with_reader {ρ ρ'} {m n n'} [monad m] [monad_reader_functor ρ ρ' m n n'] {α : Type u} (f : ρ' → ρ) : n α → n' α :=
 monad_map $ λ α, (with_reader_t f : reader_t ρ m α → reader_t ρ' m α)
 

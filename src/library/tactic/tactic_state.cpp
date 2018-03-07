@@ -837,6 +837,18 @@ vm_obj tactic_unsafe_run_io(vm_obj const &, vm_obj const & a, vm_obj const & s) 
     }
 }
 
+vm_obj io_run_tactic(vm_obj const &, vm_obj const & tac, vm_obj const &) {
+    vm_state & vm  = get_vm_state();
+    tactic_state s = mk_tactic_state_for(vm.env(), vm.get_options(), "_io_run_tactic",
+                                         metavar_context(), local_context(), mk_true());
+    vm_obj r = invoke(tac, to_obj(s));
+    if (tactic::is_result_success(r)) {
+        return mk_io_result(tactic::get_result_value(r));
+    } else {
+        return mk_io_failure("tactic failed"); // TODO(Leo): improve exception message
+    }
+}
+
 unsigned tactic_user_state::alloc(vm_obj const & v) {
     unsigned r;
     if (m_free_refs) {
@@ -1069,6 +1081,7 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "get_tag"}),              tactic_get_tag);
     DECLARE_VM_BUILTIN(name({"tactic", "unfreeze_local_instances"}), tactic_unfreeze_local_instances);
     DECLARE_VM_BUILTIN(name({"tactic", "frozen_local_instances"}),   tactic_frozen_local_instances);
+    DECLARE_VM_BUILTIN(name({"io", "run_tactic"}),               io_run_tactic);
 }
 
 void finalize_tactic_state() {

@@ -226,3 +226,13 @@ precautions:
 TODO[Leo]: add `[noinline]` attribute and option `compiler.cse`.
 -/
 meta constant tactic.unsafe_run_io {α : Type} : io α → tactic α
+
+/--
+   Execute the given tactic with a tactic_state object that contains:
+   - The current environment in the virtual machine.
+   - The current set of options in the virtual machine.
+   - Empty metavariable and local contexts.
+   - One single goal of the form `⊢ true`.
+   This action is mainly useful for writing tactics that inspect
+   the environment. -/
+meta constant io.run_tactic {α : Type} (a : tactic α) : io α

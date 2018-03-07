@@ -33,7 +33,7 @@ The reference manual is work in progress, and we don't know when it will be read
 The core and math libraries contain many definitions and proofs, they demonstrate how we expect the system to be used.
 If the lack of documentation is an issue, then Lean is not a good match for you.
 Documentation is not the main priority right now. Recall that Lean is a research project and not a product.
-A public chat room dedicated to Lean is open on [Gitter](https://gitter.im/leanprover_public/Lobby?utm_source=share-link&utm_medium=link&utm_campaign=share-link).
+A public and very active chat room dedicated to Lean is open on [Zulip](https://leanprover.zulipchat.com).
 It is a good place to interact with other Lean users.
 You may also join the [Lean user forum](https://groups.google.com/forum/#!forum/lean-user) on Google Groups.
 

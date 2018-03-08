@@ -216,11 +216,12 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
 }
 
 void module_mgr::build_lean(std::shared_ptr<module_info> const & mod, name_set const & module_stack) {
+    auto id = mod->m_id;
     auto & lt = logtree();
     auto end_pos = find_end_pos(mod->m_contents);
-    scope_log_tree lt2(lt.mk_child({}, {}, { mod->m_id, {{1, 0}, end_pos} }));
+    scope_log_tree lt2(lt.mk_child({}, {}, { id, {{1, 0}, end_pos} }));
 
-    auto imports = get_direct_imports(mod->m_id, mod->m_contents);
+    auto imports = get_direct_imports(id, mod->m_contents);
 
     mod->m_lt = logtree();
     mod->m_trans_mtime = mod->m_mtime;
@@ -228,12 +229,12 @@ void module_mgr::build_lean(std::shared_ptr<module_info> const & mod, name_set c
         module_id d_id;
         std::shared_ptr<module_info const> d_mod;
         try {
-            d_id = resolve(m_path, mod->m_id, d);
+            d_id = resolve(m_path, id, d);
             build_module(d_id, true, module_stack);
             d_mod = m_modules[d_id];
             mod->m_trans_mtime = std::max(mod->m_trans_mtime, d_mod->m_trans_mtime);
         } catch (throwable & ex) {
-            message_builder(m_initial_env, m_ios, mod->m_id, {1, 0}, ERROR).set_exception(ex).report();
+            message_builder(m_initial_env, m_ios, id, {1, 0}, ERROR).set_exception(ex).report();
         }
         mod->m_deps.push_back({ d_id, d, d_mod });
     }
@@ -252,13 +253,13 @@ void module_mgr::build_lean(std::shared_ptr<module_info> const & mod, name_set c
         }
     }
 
-    auto ldr = mk_loader(mod->m_id, mod->m_deps);
-    auto mod_parser_fn = std::make_shared<module_parser>(mod->m_id, mod->m_contents, m_initial_env, ldr);
+    auto ldr = mk_loader(id, mod->m_deps);
+    auto mod_parser_fn = std::make_shared<module_parser>(id, mod->m_contents, m_initial_env, ldr);
     mod_parser_fn->save_info(m_server_mode);
 
     module_parser_result snapshots;
     std::tie(mod->m_cancel, snapshots) = build_lean_snapshots(
-            mod_parser_fn, m_modules[mod->m_id], deps, mod->m_contents);
+            mod_parser_fn, m_modules[id], deps, mod->m_contents);
     lean_assert(!mod->m_cancel->is_cancelled());
     scope_cancellation_token scope_cancel(mod->m_cancel);
 
@@ -271,12 +272,12 @@ void module_mgr::build_lean(std::shared_ptr<module_info> const & mod, name_set c
     auto initial_env = m_initial_env;
     mod->m_result = map<module_info::parse_result>(
         get_end(snapshots),
-        [=](module_parser_result const & res) {
+        [id, initial_env, ldr](module_parser_result const & res) {
             module_info::parse_result parse_res;
 
             lean_always_assert(res.m_snapshot_at_end);
             parse_res.m_loaded_module = cache_preimported_env(
-                    export_module(res.m_snapshot_at_end->m_env, mod->m_id),
+                    export_module(res.m_snapshot_at_end->m_env, id),
                     initial_env, [=] { return ldr; });
 
             parse_res.m_opts = res.m_snapshot_at_end->m_options;

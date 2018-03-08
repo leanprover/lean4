@@ -843,7 +843,7 @@ vm_obj io_run_tactic(vm_obj const &, vm_obj const & tac, vm_obj const &) {
                                          metavar_context(), local_context(), mk_true());
     vm_obj r = invoke(tac, to_obj(s));
     if (tactic::is_result_success(r)) {
-        return mk_io_result(tactic::get_result_value(r));
+        return mk_io_result(tactic::get_success_value(r));
     } else {
         return mk_io_failure("tactic failed"); // TODO(Leo): improve exception message
     }

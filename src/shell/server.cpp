@@ -453,6 +453,8 @@ void server::handle_request(server::cmd_req const & req) {
     } else if (command == "long_sleep") {
         chrono::milliseconds small_delay(10000);
         this_thread::sleep_for(small_delay);
+    } else if (command == "sync_output") {
+        taskq().wait_for_finish(this->m_lt.get_root().wait_for_finish());
     } else {
         send_msg(cmd_res(req.m_seq_num, std::string("unknown command")));
     }

@@ -79,22 +79,4 @@ _root_.cond b t (return ())
 def unlessb {m : Type → Type} [monad m] (b : bool) (t : m unit) : m unit :=
 _root_.cond b (return ()) t
 
-def lift {m : Type u → Type v} [monad m] {α φ : Type u} (f : α → φ) (ma : m α) : m φ :=
-do a ← ma, return (f a)
-
-def lift₂ {m : Type u → Type v} [monad m] {α φ : Type u} (f : α → α → φ) (ma₁ ma₂: m α) : m φ :=
-do a₁ ← ma₁, a₂ ← ma₂, return (f a₁ a₂)
-
-def lift₃ {m : Type u → Type v} [monad m] {α φ : Type u} (f : α → α → α → φ)
-  (ma₁ ma₂ ma₃ : m α) : m φ :=
-do a₁ ← ma₁, a₂ ← ma₂, a₃ ← ma₃, return (f a₁ a₂ a₃)
-
-def lift₄ {m : Type u → Type v} [monad m] {α φ : Type u} (f : α → α → α → α → φ)
-  (ma₁ ma₂ ma₃ ma₄ : m α) : m φ :=
-do a₁ ← ma₁, a₂ ← ma₂, a₃ ← ma₃, a₄ ← ma₄, return (f a₁ a₂ a₃ a₄)
-
-def lift₅ {m : Type u → Type v} [monad m] {α φ : Type u} (f : α → α → α → α → α → φ)
-  (ma₁ ma₂ ma₃ ma₄ ma₅ : m α) : m φ :=
-do a₁ ← ma₁, a₂ ← ma₂, a₃ ← ma₃, a₄ ← ma₄, a₅ ← ma₅, return (f a₁ a₂ a₃ a₄ a₅)
-
 end monad

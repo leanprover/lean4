@@ -66,11 +66,11 @@ section
   instance (σ m m') [monad m] [monad m'] : monad_functor m m' (state_t σ m) (state_t σ m') :=
   ⟨@state_t.monad_map σ m m' _ _⟩
 
-  -- TODO(Sebastian): uses lenses as in https://hackage.haskell.org/package/lens-4.15.4/docs/Control-Lens-Zoom.html#t:Zoom ?
-  protected def zoom {σ σ' α : Type u} {m : Type u → Type v} [monad m] (get : σ → σ')
-    (set : σ' → σ → σ) (x : state_t σ' m α) : state_t σ m α :=
-  ⟨λ st, do (a, st') ← x.run (get st),
-            pure (a, set st' st)⟩
+  protected def zoom {σ σ' σ'' α : Type u} {m : Type u → Type v} [monad m] (split : σ → σ' × σ'')
+    (join : σ' → σ'' → σ) (x : state_t σ' m α) : state_t σ m α :=
+  ⟨λ st, do let (st, ctx) := split st,
+            (a, st') ← x.run st,
+            pure (a, join st' ctx)⟩
 
   instance (ε) [monad_except ε m] : monad_except ε (state_t σ m) :=
   { throw := λ α, state_t.lift ∘ throw,
@@ -123,17 +123,24 @@ attribute [instance] monad_state_functor.mk
 local attribute [instance] monad_state_functor.functor
 
 /-- Change the top-most state type of a monad stack.
-    This allows zooming into a part of the state via the lens-like `get` and `set` functions.
+    This allows zooming into a part of the state.
+    The `split` function should split σ into the part σ' and the "context" σ'' so
+    that the potentially modified σ' and the context can be rejoined by `join`
+    in the end.
+    In the simplest case, the context can be chosen as the full outer state
+    (ie. `σ'' = σ`), which makes `split` and `join` simpler to define. However,
+    note that the state will not be used linearly in this case.
 
     Example:
     ```
-    def zoom_fst {α : Type} : state ℕ α → state (ℕ × ℕ) α :=
-    zoom prod.fst (λ n p, (n, prod.snd p))
+    def zoom_fst {α σ σ' : Type} : state σ α → state (σ × σ') α :=
+    zoom id prod.mk
     ```
     -/
-def zoom {σ σ'} {m n n'} [monad m] {α : Type u} (get : σ → σ') (set : σ' → σ → σ)
-  [monad_state_functor σ' σ m n n'] : n α → n' α :=
-monad_map $ λ α, (state_t.zoom get set : state_t σ' m α → state_t σ m α)
+-- TODO(Sebastian): replace with proper lenses
+def zoom {σ σ' σ''} {m n n'} [monad_state_functor σ' σ m n n'] [monad m] {α : Type u} (split : σ → σ' × σ'') (join : σ' → σ'' → σ)
+  : n α → n' α :=
+monad_map $ λ α, (state_t.zoom split join : state_t σ' m α → state_t σ m α)
 
 
 instance (σ m out) [monad_run out m] : monad_run (λ α, σ → out (α × σ)) (state_t σ m) :=

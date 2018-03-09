@@ -25,16 +25,16 @@ do n ← get,
    pure n.succ
 
 def zoom_test : reader_t ℕ (state_t (ℕ × ℕ) io) unit :=
-do -- zoom in on first elem
-   zoom (λ p, prod.fst p) -- note: type of `p` is not known yet
-         (λ n p, (n, prod.snd p))
+do -- zoom in on second elem
+   zoom (λ p, (prod.snd p, prod.fst p)) -- note: type of `p` is not known yet
+         (λ m n, (n, m))
          -- note: inner monad type must be known
          -- note: the reader_t layer is not discarded
          (read >>= put : reader_t ℕ (state_t ℕ io) punit),
-   (0, 2) ← get,
+   (1, 0) ← get,
 
    -- you can also (mis?)use zoom to zoom out to a larger state
-   3 ← zoom (λ p, (p, 3))
+   3 ← zoom (λ p, ((p, 3), p))
             (λ q _, q.1)
             ((do q ← get, pure q.2) : reader_t ℕ (state_t ((ℕ × ℕ) × ℕ) io) ℕ),
    pure ()

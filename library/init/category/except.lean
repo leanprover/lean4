@@ -14,24 +14,6 @@ inductive except (ε : Type u) (α : Type v)
 | error {} : ε → except
 | ok {} : α → except
 
-class monad_except (ε : out_param (Type u)) (m : Type v → Type w) :=
-(throw {} {α : Type v} : ε → m α)
-(catch {} {α : Type v} : m α → (ε → m α) → m α)
-
-namespace monad_except
-variables {ε : Type u} {m : Type v → Type w}
-
-protected def orelse [monad_except ε m] {α : Type v} (t₁ t₂ : m α) : m α :=
-catch t₁ $ λ _, t₂
-
-/-- Alternative orelse operator that allows to select which exception should be used.
-    The default is to use the first exception since the standard `orelse` uses the second. -/
-meta def orelse' [monad_except ε m] {α : Type v} (t₁ t₂ : m α) (use_first_ex := tt) : m α :=
-catch t₁ $ λ e₁, catch t₂ $ λ e₂, throw (if use_first_ex then e₁ else e₂)
-end monad_except
-
-export monad_except (throw catch)
-
 namespace except
 section
   parameter {ε : Type u}
@@ -65,6 +47,7 @@ section
   { pure := @return, bind := @bind }
 end
 end except
+
 
 structure except_t (ε : Type u) (m : Type u → Type v) (α : Type u) : Type v :=
 (run : m (except ε α))
@@ -108,8 +91,29 @@ section
 end
 end except_t
 
+
+/-- An implementation of [MonadError](https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-Except.html#t:MonadError) -/
+class monad_except (ε : out_param (Type u)) (m : Type v → Type w) :=
+(throw {} {α : Type v} : ε → m α)
+(catch {} {α : Type v} : m α → (ε → m α) → m α)
+
+namespace monad_except
+variables {ε : Type u} {m : Type v → Type w}
+
+protected def orelse [monad_except ε m] {α : Type v} (t₁ t₂ : m α) : m α :=
+catch t₁ $ λ _, t₂
+
+/-- Alternative orelse operator that allows to select which exception should be used.
+    The default is to use the first exception since the standard `orelse` uses the second. -/
+meta def orelse' [monad_except ε m] {α : Type v} (t₁ t₂ : m α) (use_first_ex := tt) : m α :=
+catch t₁ $ λ e₁, catch t₂ $ λ e₂, throw (if use_first_ex then e₁ else e₂)
+end monad_except
+
+export monad_except (throw catch)
+
 instance (m ε) [monad m] : monad_except ε (except_t ε m) :=
 { throw := λ α, except_t.mk ∘ pure ∘ except.error, catch := @except_t.catch ε _ _ }
+
 
 instance (ε m out) [monad_run out m] : monad_run (λ α, out (except ε α)) (except_t ε m) :=
 ⟨λ α, run ∘ except_t.run, λ α, except_t.mk ∘ unrun⟩

@@ -79,8 +79,7 @@ end
 
 instance : alternative parser :=
 { failure := @parser.failure,
-  orelse := @parser.orelse,
-  ..parser.monad_fail }
+  orelse := @parser.orelse }
 
 instance : inhabited (parser α) :=
 ⟨parser.failure⟩

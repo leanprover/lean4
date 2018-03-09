@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.tactic init.data.option_t
+import init.meta.tactic init.category.option
 import init.meta.mk_dec_eq_instance
 
 meta constant vm_obj : Type

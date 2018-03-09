@@ -5,7 +5,7 @@ Authors: Sebastian Ullrich
 -/
 prelude
 import init.category.monad init.meta.interactive
-import init.category.state init.category.except init.category.reader
+import init.category.state init.category.except init.category.reader init.category.option
 universes u v
 
 open function
@@ -202,3 +202,41 @@ instance (ρ : Type u) (m : Type u → Type v) [monad m] [is_lawful_monad m] : i
 { id_map := by intros; apply reader_t.ext; intro; simp,
   pure_bind := by intros; apply reader_t.ext; intro; simp,
   bind_assoc := by intros; apply reader_t.ext; intro; simp [bind_assoc] }
+
+
+namespace option_t
+  variables {α β : Type u} {m : Type u → Type v} (x : option_t m α)
+
+  lemma ext {x x' : option_t m α} (h : x.run = x'.run) : x = x' :=
+  by cases x; cases x'; simp * at *
+
+  variable [monad m]
+
+  @[simp] lemma run_pure (a) : (pure a : option_t m α).run = pure (some a) := rfl
+  @[simp] lemma run_bind (f : α → option_t m β) : (x >>= f).run = x.run >>= option_t.bind_cont f :=
+  rfl
+  @[simp] lemma run_map (f : α → β) [is_lawful_monad m] : (f <$> x).run = option.map f <$> x.run :=
+  begin
+    rw ←bind_pure_comp_eq_map m,
+    change x.run >>= option_t.bind_cont (pure ∘ f) = _,
+    apply bind_ext_congr,
+    intro a; cases a; simp [option_t.bind_cont, option.map, option.bind]
+  end
+  @[simp] lemma run_monad_lift {n} [has_monad_lift_t n m] (x : n α) :
+    (monad_lift x : option_t m α).run = some <$> (monad_lift x : m α) := rfl
+  @[simp] lemma run_monad_map {m' n n'} [monad m'] [monad_functor_t n n' m m'] (f : ∀ {α}, n α → n' α) :
+    (monad_map @f x : option_t m' α).run = monad_map @f x.run := rfl
+end option_t
+
+instance (m : Type u → Type v) [monad m] [is_lawful_monad m] : is_lawful_monad (option_t m) :=
+{ id_map := begin
+    intros, apply option_t.ext, simp only [option_t.run_map],
+    rw [map_ext_congr, id_map],
+    intro a, cases a; refl
+  end,
+  bind_assoc := begin
+    intros, apply option_t.ext, simp only [option_t.run_bind, bind_assoc],
+    rw [bind_ext_congr],
+    intro a, cases a; simp [option_t.bind_cont]
+  end,
+  pure_bind := by intros; apply option_t.ext; simp [option_t.bind_cont] }

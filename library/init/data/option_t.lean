@@ -30,7 +30,7 @@ instance {m : Type u → Type v} [monad m] : monad (option_t m) :=
 instance {m : Type u → Type v} [monad m] [is_lawful_monad m] : is_lawful_monad (option_t m) :=
 { id_map := begin
     intros,
-    simp [has_map.map, option_t_bind, function.comp],
+    simp [(<$>), option_t_bind, function.comp],
     have h : option_t_bind._match_1 option_t_return = @pure m _ (option α),
     { funext s, cases s; refl },
     { simp [h, bind_pure] },

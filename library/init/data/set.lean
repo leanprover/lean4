@@ -87,13 +87,13 @@ instance : functor set :=
 instance : is_lawful_functor set :=
 { id_map := begin
     intros _ s, funext b,
-    dsimp [has_map.map, image, set_of],
+    dsimp [image, set_of],
     exact propext ⟨λ ⟨b', ⟨_, _⟩⟩, ‹b' = b› ▸ ‹s b'›,
                    λ _, ⟨b, ⟨‹s b›, rfl⟩⟩⟩,
   end,
   comp_map := begin
     intros, funext c,
-    dsimp [has_map.map, image, set_of, function.comp],
+    dsimp [image, set_of, function.comp],
     exact propext ⟨λ ⟨a, ⟨h₁, h₂⟩⟩, ⟨g a, ⟨⟨a, ⟨h₁, rfl⟩⟩, h₂⟩⟩,
                    λ ⟨b, ⟨⟨a, ⟨h₁, h₂⟩⟩, h₃⟩⟩, ⟨a, ⟨h₁, h₂.symm ▸ h₃⟩⟩⟩
   end }

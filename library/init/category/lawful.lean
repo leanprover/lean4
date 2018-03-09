@@ -14,7 +14,7 @@ open tactic
 meta def control_laws_tac := whnf_target >> intros >> to_expr ``(rfl) >>= exact
 
 class is_lawful_functor (f : Type u → Type v) [functor f] : Prop :=
-(map_const_eq : ∀ {α β : Type u}, @has_map.map_const f _ α β = (<$>) ∘ const β . control_laws_tac)
+(map_const_eq : ∀ {α β : Type u}, ((<$) : α → f β → f α) = (<$>) ∘ const β . control_laws_tac)
 -- `functor` is indeed a categorical functor
 (id_map       : Π {α : Type u} (x : f α), id <$> x = x)
 (comp_map     : Π {α β γ : Type u} (g : α → β) (h : β → γ) (x : f α), (h ∘ g) <$> x = h <$> g <$> x)
@@ -67,7 +67,7 @@ lemma bind_ext_congr {α β} {m : Type u → Type v} [has_bind m] {x : m α} {f 
   x >>= f = x >>= g :=
 λ h, by simp [show f = g, from funext h]
 
-lemma map_ext_congr {α β} {m : Type u → Type v} [has_map m] {x : m α} {f g : α → β} :
+lemma map_ext_congr {α β} {m : Type u → Type v} [functor m] {x : m α} {f g : α → β} :
   (∀ a, f a = g a) →
   (f <$> x : m β) = g <$> x :=
 λ h, by simp [show f = g, from funext h]

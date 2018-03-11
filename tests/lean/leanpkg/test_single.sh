@@ -29,7 +29,7 @@ echo "-- testing $f"
 bash "$ff" >& "$f.tmp"
 echo $? >> "$f.tmp"
 
-sed -E "s|^[^ ]*[/\\\\]||" "$f.tmp" | sed "/WARNING: Lean version mismatch/d" > "$f.produced.out"
+sed -E "s|^[^ ]*[/\\\\]||" "$f.tmp" | sed "/WARNING: Lean version mismatch/d" | sed "/^$/d" > "$f.produced.out"
 rm "$f.tmp"
 if test -f "$f.expected.out"; then
     if $DIFF -u --ignore-all-space -I "executing external script" "$f.expected.out" "$f.produced.out"; then

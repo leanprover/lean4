@@ -9,3 +9,7 @@ def lean.githash : string :=
 
 def lean.is_release : bool :=
 @LEAN_VERSION_IS_RELEASE@ ≠ 0
+
+/-- Additional version description like "nightly-2018-03-11" -/
+def lean.special_version_desc : string :=
+"@LEAN_SPECIAL_VERSION_DESC@"

@@ -12,12 +12,16 @@ sformat!("{major}.{minor}.{patch}")
 def lean_version_string :=
 if lean.is_release then
     lean_version_string_core
+else if lean.special_version_desc ≠ "" then
+    lean.special_version_desc
 else
     "master"
 
 def ui_lean_version_string :=
 if lean.is_release then
     lean_version_string_core
+else if lean.special_version_desc ≠ "" then
+    lean.special_version_desc
 else
     "master (" ++ lean_version_string_core ++ ")"
 

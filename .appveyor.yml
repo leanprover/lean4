@@ -26,7 +26,7 @@ build_script:
       cmake --build .)
   - if %CFG% == MINGW64 (C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER/build &&
       OPTIONS='';
-      if [[ $APPVEYOR_REPO_TAG != true ]]; then OPTIONS+='-DLEAN_VERSION_STRING=nightly-${date -uI}'; fi;
+      if [[ $APPVEYOR_SCHEDULED_BUILD == True ]]; then . ./script/setup_nightly.sh; fi &&
       cmake ../src -DINCLUDE_MSYS2_DLLS=ON -DCMAKE_BUILD_TYPE=Release $OPTIONS -G 'Unix Makefiles' &&
       cmake --build . &&
       cpack")
@@ -37,7 +37,7 @@ test_script:
       ../bin/leanpkg configure &&
       for d in _target/deps/*; do (cd $d; ../../../../bin/leanpkg test || exit 1); done"
   - C:\msys64\usr\bin\bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER &&
-      if [[ $UPLOAD == ON && $GH_TOKEN && $APPVEYOR_BRANCH == master ]]; then bash script/deploy_nightly.sh; fi"
+      if [[ $UPLOAD == ON && $GH_TOKEN && $APPVEYOR_BRANCH == master ]]; then bash script/deploy_nightly.sh build/lean-*-windows.zip; fi"
 
 artifacts:
   - path: build\lean-*-windows.zip

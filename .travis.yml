@@ -119,7 +119,7 @@ script:
   - if [[ $STATIC != ON ]]; then STATIC=OFF; fi
   - if [[ $MULTI_THREAD != OFF ]]; then MULTI_THREAD=ON; fi
   - OPTIONS=""
-  - if [[ -z $TRAVIS_TAG ]]; then OPTIONS+="-DLEAN_VERSION_STRING=nightly-${date -uI}"; fi
+  - if [[ $TRAVIS_EVENT_TYPE == cron ]]; then . ./script/setup_nightly.sh; fi
   - cmake -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE
           -DCMAKE_CXX_COMPILER=$CMAKE_CXX_COMPILER
           -DTESTCOV=$TESTCOV
@@ -139,7 +139,7 @@ script:
        for d in _target/deps/*; do (cd $d; ../../../../bin/leanpkg test); done)
     fi
   - if [[ $UPLOAD == ON ]]; then cpack; fi
-  - if [[ $UPLOAD == ON && $GH_TOKEN && $TRAVIS_PULL_REQUEST == false && $TRAVIS_BRANCH == master ]]; then (cd ..; bash script/deploy_nightly.sh); fi
+  - if [[ $UPLOAD == ON && $GH_TOKEN && $TRAVIS_PULL_REQUEST == false && $TRAVIS_BRANCH == master ]]; then (cd ..; bash script/deploy_nightly.sh build/lean-* && bash script/deploy_gh_pages.sh); fi
   - cd ..
 
 after_script:

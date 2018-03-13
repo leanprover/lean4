@@ -63,7 +63,7 @@ section
 local attribute [reducible] smt_tactic
 meta instance : monad smt_tactic := by apply_instance
 meta instance : alternative smt_tactic := by apply_instance
-meta instance : monad_state_lift smt_state tactic smt_tactic := by apply_instance
+meta instance : monad_state smt_state smt_tactic := by apply_instance
 end
 
 /- We don't use the default state_t lift operation because only

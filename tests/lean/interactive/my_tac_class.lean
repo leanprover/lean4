@@ -4,7 +4,7 @@ state_t nat tactic
 section
 local attribute [reducible] mytac
 meta instance : monad mytac := by apply_instance
-meta instance : monad_state_lift nat tactic mytac := by apply_instance
+meta instance : monad_state nat mytac := by apply_instance
 meta instance : has_monad_lift tactic mytac := by apply_instance
 end
 

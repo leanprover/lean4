@@ -242,7 +242,7 @@ master branch (aka work in progress branch)
 
 * `monad.has_monad_lift(_t)` ~> `has_monad_lift(_t)`
 * `monad.map_comp` ~> `comp_map`
-* `state(_t).{read,write}` ~> `{get,put}` (general operations defined on any `monad_state_lift`)
+* `state(_t).{read,write}` ~> `{get,put}` (general operations defined on any `monad_state`)
 * deleted `monad.monad_transformer`
 * deleted `monad.lift{n}`. Use `f <$> a1 <*> ... <*> an` instead of `monad.lift{n} f a1 ... an`.
 * merged `has_map` into `functor`

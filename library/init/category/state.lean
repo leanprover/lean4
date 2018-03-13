@@ -78,42 +78,38 @@ section
 end
 end state_t
 
-/-- A specialization of `monad_lift` to lifting `state_t` that allows `σ` to be inferred.
-
-    This class is roughly equivalent to `MonadState` from https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-State-Class.html,
-    with the important distinction that it is automatically derived via the generic
-    `has_monad_lift` class. -/
-class monad_state_lift (σ : out_param (Type u)) (m : out_param (Type u → Type v)) (n : Type u → Type w) :=
-[has_lift : has_monad_lift_t (state_t σ m) n]
-
-attribute [instance] monad_state_lift.mk
-local attribute [instance] monad_state_lift.has_lift
+/-- An implementation of [MonadState](https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-State-Class.html).
+    In contrast to the Haskell implementation, we use overlapping instances to derive instances
+    automatically from `monad_lift`. -/
+class monad_state (σ : out_param (Type u)) (m : Type u → Type v) :=
+(lift {} {α : Type u} : state σ α → m α)
 
 section
-variables {σ : Type u} {m : Type u → Type v} {n : Type u → Type w} [monad m] [monad_state_lift σ m n]
+variables {σ : Type u} {m : Type u → Type v}
+
+instance monad_state_trans {n : Type u → Type w} [has_monad_lift m n] [monad_state σ m] : monad_state σ n :=
+⟨λ α x, monad_lift (monad_state.lift x : m α)⟩
+
+instance [monad m] : monad_state σ (state_t σ m) :=
+⟨λ α x, ⟨λ s, pure (x.run s)⟩⟩
+
+variables [monad m] [monad_state σ m]
 
 /-- Obtain the top-most state of a monad stack. -/
-@[inline] def get : n σ :=
-@monad_lift _ _ _ _ (state_t.get : state_t σ m _)
+@[inline] def get : m σ :=
+monad_state.lift state_t.get
 
 /-- Set the top-most state of a monad stack. -/
-@[inline] def put (st : σ) : n punit :=
-monad_lift (state_t.put st : state_t σ m _)
+@[inline] def put (st : σ) : m punit :=
+monad_state.lift (state_t.put st)
 
 /-- Map the top-most state of a monad stack.
 
     Note: `modify f` may be preferable to `f <$> get >>= put` because the latter
     does not use the state linearly (without sufficient inlining). -/
-@[inline] def modify (f : σ → σ) : n punit :=
-monad_lift (state_t.modify f : state_t σ m _)
+@[inline] def modify (f : σ → σ) : m punit :=
+monad_state.lift (state_t.modify f)
 end
-
-/-- Get the state at a specific position in the monad stack.
-
-    Example: <first figure out if this is the correct way to go> -/
-@[inline] def get_type (m : Type u → Type v) {n : Type u → Type w} (σ : Type u) [has_monad_lift_t (state_t σ m) n] [monad m] : n σ :=
-get
-
 
 /-- A specialization of `monad_map` to `state_t` that allows `σ` to be inferred. -/
 class monad_state_functor (σ σ' : out_param (Type u)) (m : out_param (Type u → Type v)) (n n' : Type u → Type w) :=

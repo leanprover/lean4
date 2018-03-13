@@ -19,7 +19,7 @@ do 0 ← read,  -- unlifted
 
 #eval (lifted_test.run 0).run 1
 
-def infer_test {m n} [monad_state_lift ℕ m n] [monad m] [monad n] : n ℕ :=
+def infer_test {m} [monad_state ℕ m] [monad m] : m ℕ :=
 do n ← get,
    -- can infer σ through class inference
    pure n.succ
@@ -43,10 +43,8 @@ do -- zoom in on second elem
 
 def bistate_test : state_t ℕ (state_t bool io) unit :=
 do 0 ← get, -- outer state_t wins
-   -- manual
+   -- can always lift manually
    tt ← monad_lift (get : state_t bool io bool),
-   -- needs to mention inner monad
-   tt ← get_type io bool,
    pure ()
 
 #eval (bistate_test.run 0).run tt

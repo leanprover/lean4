@@ -130,7 +130,7 @@ script:
           $OPTIONS
           ../src
   - make -j2
-  - if [[ $TEST != OFF ]]; then yes "A" | travis_wait ctest -j2 --output-on-failure; fi
+  - if [[ $TEST != OFF ]]; then yes "A" | travis_wait 60 ctest -j2 --output-on-failure; fi
   - |
     if [[ $TEST_LEANPKG_REGISTRY == ON ]]; then
       (cd ../packages

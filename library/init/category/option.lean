@@ -59,5 +59,5 @@ namespace option_t
   { throw := λ _ _, option_t.fail, catch := @option_t.catch _ _ }
 
   instance (m out) [monad_run out m] : monad_run (λ α, out (option α)) (option_t m) :=
-  ⟨λ α, monad_run.run ∘ option_t.run, λ α, option_t.mk ∘ unrun⟩
+  ⟨λ α, monad_run.run ∘ option_t.run⟩
 end option_t

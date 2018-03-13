@@ -116,4 +116,4 @@ instance (m ε) [monad m] : monad_except ε (except_t ε m) :=
 
 
 instance (ε m out) [monad_run out m] : monad_run (λ α, out (except ε α)) (except_t ε m) :=
-⟨λ α, run ∘ except_t.run, λ α, except_t.mk ∘ unrun⟩
+⟨λ α, run ∘ except_t.run⟩

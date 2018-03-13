@@ -70,7 +70,6 @@ instance monad_functor_t_refl (m m') : monad_functor_t m m' m m' :=
 
 /-- Run a monad stack to completion.
     `run` should be the composition of the transformers' individual `run` functions.
-    `unrun` should be its inverse.
     This class mostly saves some typing when using highly nested monad stacks:
     ```
     @[reducible] def my_monad := reader_t my_cfg $ state_t my_state $ except_t my_err id
@@ -80,6 +79,5 @@ instance monad_functor_t_refl (m m') : monad_functor_t m m' m m' :=
     -/
 class monad_run (out : out_param $ Type u → Type v) (m : Type u → Type v) :=
 (run {} {α : Type u} : m α → out α)
-(unrun {} {α : Type u} : out α → m α)
 
-export monad_run (run unrun)
+export monad_run (run)

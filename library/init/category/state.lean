@@ -144,4 +144,4 @@ monad_map $ λ α, (state_t.zoom split join : state_t σ' m α → state_t σ m 
 
 
 instance (σ m out) [monad_run out m] : monad_run (λ α, σ → out (α × σ)) (state_t σ m) :=
-⟨λ α x, run ∘ (λ σ, x.run σ), λ α a, state_t.mk (unrun ∘ a)⟩
+⟨λ α x, run ∘ (λ σ, x.run σ)⟩

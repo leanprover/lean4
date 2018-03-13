@@ -92,4 +92,4 @@ monad_map $ λ α, (with_reader_t f : reader_t ρ m α → reader_t ρ' m α)
 
 
 instance (ρ : Type u) (m out) [monad_run out m] : monad_run (λ α, ρ → out α) (reader_t ρ m) :=
-⟨λ α x, run ∘ x.run, λ α a, reader_t.mk (unrun ∘ a)⟩
+⟨λ α x, run ∘ x.run⟩

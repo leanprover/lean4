@@ -15,4 +15,4 @@ universe u
 { pure := @id, bind := @id_bind }
 
 @[inline] instance : monad_run id id :=
-⟨@id, @id⟩
+⟨@id⟩

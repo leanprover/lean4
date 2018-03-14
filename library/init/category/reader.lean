@@ -63,17 +63,23 @@ end
 end reader_t
 
 
-/-- A specialization of `monad_lift` to `reader_t` that allows `ρ` to be inferred. -/
-class monad_reader_lift (ρ : out_param (Type u)) (m : out_param (Type u → Type v)) (n : Type u → Type w) :=
-[has_lift : has_monad_lift_t (reader_t ρ m) n]
+/-- An implementation of [MonadReader](https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-Reader-Class.html#t:MonadReader).
+    It does not contain `local` because this function cannot be lifted using `monad_lift`.
+    Instead, the `monad_reader_functor` class provides the more general `with_reader` function. -/
+class monad_reader (ρ : out_param (Type u)) (m : Type u → Type v) :=
+(lift {} {α : Type u} : reader ρ α → m α)
 
-attribute [instance] monad_reader_lift.mk
-local attribute [instance] monad_reader_lift.has_lift
+instance monad_reader_trans {ρ : Type u} {m : Type u → Type v} {n : Type u → Type w}
+  [has_monad_lift m n] [monad_reader ρ m] : monad_reader ρ n :=
+⟨λ α x, monad_lift (monad_reader.lift x : m α)⟩
+
+instance {ρ : Type u} {m : Type u → Type v} [monad m] : monad_reader ρ (reader_t ρ m) :=
+⟨λ α x, ⟨λ r, pure $ x.run r⟩⟩
 
 /-- Read the value of the top-most environment in a monad stack. -/
-def monad_reader_lift.read {ρ : Type u} {m : Type u → Type v} {n : Type u → Type w} [monad m] [monad_reader_lift ρ m n] : n ρ :=
-@monad_lift _ _ _ _ (reader_t.read : reader_t ρ m _)
-export monad_reader_lift (read)
+def monad_reader.read {ρ : Type u} {m : Type u → Type v} [monad_reader ρ m] : m ρ :=
+monad_reader.lift (reader_t.read : reader ρ _)
+export monad_reader (read)
 
 
 /-- A specialization of `monad_map` to `reader_t` that allows `ρ` to be inferred. -/

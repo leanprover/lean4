@@ -44,11 +44,14 @@ section
   instance (m) [monad m] : has_monad_lift m (reader_t ρ m) :=
   ⟨@reader_t.lift ρ m _⟩
 
-  protected def monad_map {r m m'} [monad m] [monad m'] {α} (f : Π {α}, m α → m' α) : reader_t r m α → reader_t r m' α :=
+  protected def monad_map {ρ m m'} [monad m] [monad m'] {α} (f : Π {α}, m α → m' α) : reader_t ρ m α → reader_t ρ m' α :=
   λ x, ⟨λ r, f (x.run r)⟩
 
-  instance (r m m') [monad m] [monad m'] : monad_functor m m' (reader_t r m) (reader_t r m') :=
-  ⟨@reader_t.monad_map r m m' _ _⟩
+  instance (ρ m m') [monad m] [monad m'] : monad_functor m m' (reader_t ρ m) (reader_t ρ m') :=
+  ⟨@reader_t.monad_map ρ m m' _ _⟩
+
+  protected def adapt {ρ' : Type u} [monad m] {α : Type u} (f : ρ' → ρ) : reader_t ρ m α → reader_t ρ' m α :=
+  λ x, ⟨λ r, x.run (f r)⟩
 
   protected def orelse [alternative m] {α : Type u} (x₁ x₂ : reader_t ρ m α) : reader_t ρ m α :=
   ⟨λ s, x₁.run s <|> x₂.run s⟩
@@ -65,36 +68,50 @@ end reader_t
 
 /-- An implementation of [MonadReader](https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-Reader-Class.html#t:MonadReader).
     It does not contain `local` because this function cannot be lifted using `monad_lift`.
-    Instead, the `monad_reader_functor` class provides the more general `with_reader` function. -/
+    Instead, the `monad_reader_adapter` class provides the more general `adapt_reader` function.
+
+    Note: This class can be seen as a simplification of the more "principled" definition
+    ```
+    class monad_reader (ρ : out_param (Type u)) (n : Type u → Type u) :=
+    (lift {} {α : Type u} : (∀ {m : Type u → Type u} [monad m], reader_t ρ m α) → n α)
+    ```
+    -/
 class monad_reader (ρ : out_param (Type u)) (m : Type u → Type v) :=
-(lift {} {α : Type u} : reader ρ α → m α)
+(read {} : m ρ)
+
+export monad_reader (read)
 
 instance monad_reader_trans {ρ : Type u} {m : Type u → Type v} {n : Type u → Type w}
   [has_monad_lift m n] [monad_reader ρ m] : monad_reader ρ n :=
-⟨λ α x, monad_lift (monad_reader.lift x : m α)⟩
+⟨monad_lift (monad_reader.read : m ρ)⟩
 
 instance {ρ : Type u} {m : Type u → Type v} [monad m] : monad_reader ρ (reader_t ρ m) :=
-⟨λ α x, ⟨λ r, pure $ x.run r⟩⟩
-
-/-- Read the value of the top-most environment in a monad stack. -/
-def monad_reader.read {ρ : Type u} {m : Type u → Type v} [monad_reader ρ m] : m ρ :=
-monad_reader.lift (reader_t.read : reader ρ _)
-export monad_reader (read)
+⟨reader_t.read⟩
 
 
-/-- A specialization of `monad_map` to `reader_t` that allows `ρ` to be inferred. -/
-class monad_reader_functor (ρ ρ' : out_param (Type u)) (m : out_param (Type u → Type v)) (n n' : Type u → Type w) :=
-[functor {} : monad_functor_t (reader_t ρ m) (reader_t ρ' m) n n']
+/-- Adapt a monad stack, changing the type of its top-most environment.
 
-attribute [instance] monad_reader_functor.mk
-local attribute [instance] monad_reader_functor.functor
+    This class is comparable to [Control.Lens.Magnify](https://hackage.haskell.org/package/lens-4.15.4/docs/Control-Lens-Zoom.html#t:Magnify), but does not use lenses (why would it), and is derived automatically for any transformer implementing `monad_functor`.
 
-def with_reader_t {ρ ρ' m} [monad m] {α} (f : ρ' → ρ) : reader_t ρ m α → reader_t ρ' m α :=
-λ x, ⟨λ r, x.run (f r)⟩
+    Note: This class can be seen as a simplification of the more "principled" definition
+    ```
+    class monad_reader_functor (ρ ρ' : out_param (Type u)) (n n' : Type u → Type u) :=
+    (map {} {α : Type u} : (∀ {m : Type u → Type u} [monad m], reader_t ρ m α → reader_t ρ' m α) → n α → n' α)
+    ```
+    -/
+class monad_reader_adapter (ρ ρ' : out_param (Type u)) (m m' : Type u → Type v) :=
+(adapt_reader {} {α : Type u} : (ρ' → ρ) → m α → m' α)
+export monad_reader_adapter (adapt_reader)
 
-/-- Embed a computation, modifying the top-most environment (possibly including its type) in its monad stack. -/
-def with_reader {ρ ρ'} {m n n'} [monad m] [monad_reader_functor ρ ρ' m n n'] {α : Type u} (f : ρ' → ρ) : n α → n' α :=
-monad_map $ λ α, (with_reader_t f : reader_t ρ m α → reader_t ρ' m α)
+section
+variables {ρ ρ' : Type u} {m m' : Type u → Type v}
+
+instance monad_reader_adapter_trans {n n' : Type u → Type v} [monad_functor m m' n n'] [monad_reader_adapter ρ ρ' m m'] : monad_reader_adapter ρ ρ' n n' :=
+⟨λ α f, monad_map (λ α, (adapt_reader f : m α → m' α))⟩
+
+instance [monad m] : monad_reader_adapter ρ ρ' (reader_t ρ m) (reader_t ρ' m) :=
+⟨λ α, reader_t.adapt⟩
+end
 
 
 instance (ρ : Type u) (m out) [monad_run out m] : monad_run (λ α, ρ → out α) (reader_t ρ m) :=

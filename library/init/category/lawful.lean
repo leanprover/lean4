@@ -112,13 +112,13 @@ section
     (monad_lift x : state_t σ m α).run st = do a ← (monad_lift x : m α), pure (a, st) := rfl
   @[simp] lemma run_monad_map {m' n n'} [monad m'] [monad_functor_t n n' m m'] (f : ∀ {α}, n α → n' α) :
     (monad_map @f x : state_t σ m' α).run st = monad_map @f (x.run st) := rfl
-  @[simp] lemma run_zoom {σ' σ''} (st : σ) (split : σ → σ' × σ'') (join : σ' → σ'' → σ)
+  @[simp] lemma run_adapt {σ' σ''} (st : σ) (split : σ → σ' × σ'') (join : σ' → σ'' → σ)
     (x : state_t σ' m α) :
-    (state_t.zoom split join x : state_t σ m α).run st =
+    (state_t.adapt split join x : state_t σ m α).run st =
     do let (st, ctx) := split st,
             (a, st') ← x.run st,
             pure (a, join st' ctx) :=
-  by delta state_t.zoom; refl
+  by delta state_t.adapt; refl
   @[simp] lemma run_get : (state_t.get : state_t σ m σ).run st = pure (st, st) := rfl
   @[simp] lemma run_put (st') : (state_t.put st' : state_t σ m _).run st = pure (punit.star, st') := rfl
 end

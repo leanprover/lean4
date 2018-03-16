@@ -24,22 +24,24 @@ do n ← get,
    -- can infer σ through class inference
    pure n.succ
 
-def zoom_test : reader_t ℕ (state_t (ℕ × ℕ) io) unit :=
+def adapt_test : reader_t ℕ (state_t (ℕ × ℕ) io) unit :=
 do -- zoom in on second elem
-   zoom (λ p, (prod.snd p, prod.fst p)) -- note: type of `p` is not known yet
-         (λ m n, (n, m))
-         -- note: inner monad type must be known
-         -- note: the reader_t layer is not discarded
-         (read >>= put : reader_t ℕ (state_t ℕ io) punit),
+   adapt_state
+     (λ p, (prod.snd p, prod.fst p)) -- note: type of `p` is not known yet
+     (λ m n, (n, m))
+     -- note: inner monad type must be known
+     -- note: the reader_t layer is not discarded
+     (read >>= put : reader_t ℕ (state_t ℕ io) punit),
    (1, 0) ← get,
 
-   -- you can also (mis?)use zoom to zoom out to a larger state
-   3 ← zoom (λ p, ((p, 3), p))
-            (λ q _, q.1)
-            ((do q ← get, pure q.2) : reader_t ℕ (state_t ((ℕ × ℕ) × ℕ) io) ℕ),
+   -- zoom out
+   3 ← adapt_state
+         (λ p, ((p, 3), p))
+         (λ q _, q.1)
+         ((do q ← get, pure q.2) : reader_t ℕ (state_t ((ℕ × ℕ) × ℕ) io) ℕ),
    pure ()
 
-#eval (zoom_test.run 0).run (1, 2)
+#eval (adapt_test.run 0).run (1, 2)
 
 def bistate_test : state_t ℕ (state_t bool io) unit :=
 do 0 ← get, -- outer state_t wins

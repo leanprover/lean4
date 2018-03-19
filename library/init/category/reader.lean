@@ -25,32 +25,32 @@ section
   variable  [monad m]
   variables {α β : Type u}
 
-  protected def read : reader_t ρ m ρ :=
+  @[inline] protected def read : reader_t ρ m ρ :=
   ⟨pure⟩
 
-  protected def pure (a : α) : reader_t ρ m α :=
+  @[inline] protected def pure (a : α) : reader_t ρ m α :=
   ⟨λ r, pure a⟩
 
-  protected def bind (x : reader_t ρ m α) (f : α → reader_t ρ m β) : reader_t ρ m β :=
+  @[inline] protected def bind (x : reader_t ρ m α) (f : α → reader_t ρ m β) : reader_t ρ m β :=
   ⟨λ r, do a ← x.run r,
            (f a).run r⟩
 
   instance : monad (reader_t ρ m) :=
   { pure := @reader_t.pure _ _ _, bind := @reader_t.bind _ _ _ }
 
-  protected def lift (a : m α) : reader_t ρ m α :=
+  @[inline] protected def lift (a : m α) : reader_t ρ m α :=
   ⟨λ r, a⟩
 
   instance (m) [monad m] : has_monad_lift m (reader_t ρ m) :=
   ⟨@reader_t.lift ρ m _⟩
 
-  protected def monad_map {ρ m m'} [monad m] [monad m'] {α} (f : Π {α}, m α → m' α) : reader_t ρ m α → reader_t ρ m' α :=
+  @[inline] protected def monad_map {ρ m m'} [monad m] [monad m'] {α} (f : Π {α}, m α → m' α) : reader_t ρ m α → reader_t ρ m' α :=
   λ x, ⟨λ r, f (x.run r)⟩
 
   instance (ρ m m') [monad m] [monad m'] : monad_functor m m' (reader_t ρ m) (reader_t ρ m') :=
   ⟨@reader_t.monad_map ρ m m' _ _⟩
 
-  protected def adapt {ρ' : Type u} [monad m] {α : Type u} (f : ρ' → ρ) : reader_t ρ m α → reader_t ρ' m α :=
+  @[inline] protected def adapt {ρ' : Type u} [monad m] {α : Type u} (f : ρ' → ρ) : reader_t ρ m α → reader_t ρ' m α :=
   λ x, ⟨λ r, x.run (f r)⟩
 
   protected def orelse [alternative m] {α : Type u} (x₁ x₂ : reader_t ρ m α) : reader_t ρ m α :=

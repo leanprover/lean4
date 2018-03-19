@@ -7,7 +7,7 @@ The reader monad transformer for passing immutable state.
 -/
 
 prelude
-import init.category.lift init.category.id init.category.alternative
+import init.category.lift init.category.id init.category.alternative init.category.except
 universes u v w
 
 /-- An implementation of [ReaderT](https://hackage.haskell.org/package/transformers-0.5.5.0/docs/Control-Monad-Trans-Reader.html#t:ReaderT) -/
@@ -62,6 +62,10 @@ section
   instance [alternative m] : alternative (reader_t ρ m) :=
   { failure := @reader_t.failure _ _ _ _,
     orelse  := @reader_t.orelse _ _ _ _ }
+
+  instance (ε) [monad m] [monad_except ε m] : monad_except ε (reader_t ρ m) :=
+  { throw := λ α, reader_t.lift ∘ throw,
+    catch := λ α x c, ⟨λ r, catch (x.run r) (λ e, (c e).run r)⟩ }
 end
 end reader_t
 

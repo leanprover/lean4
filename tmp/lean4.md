@@ -182,14 +182,25 @@ the new syntactic object and Lean expressions.
 
 # Compiler
 
-- The first compilation step applies compiler specific simplification rules provided by users.
-For example, we will be able to mark `map g (map f l) = map (g o f) l` as an optimization
-rule for the compiler.
-
 - The new compiler will use a System-F like intermediate representation.
 It will be similar to Haskell core language. Inductive datatypes will be represented
 using a constant for each constructor and a `cases` eliminator. If `cases` is encoded
 using a expr-macro, we can easily support `default/other` case.
+
+- Code inlining will occur at the System-F level after we have applied
+simplifications.  This is relevant for the performance issues we have
+observed when a long chain of functions need to be unfolded (e.g., new
+monad transformer library).
+
+- The first compilation step applies compiler specific simplification rules provided by users.
+For example, we will be able to mark `map g (map f l) = map (g o f) l` as an optimization
+rule for the compiler.
+
+Issue: many opportunities for applying simplification rules only appear after we have inlined
+definitions. However, we want to inline after we have converted into System-F and have
+erased computationally irrelevant code and applied basic simplifications (e.g., erase trivial structures).
+This is a problem since user provided simplification rules are not applicable here since they have
+been described at the Lean level.
 
 - Basic types (scalars, bool, char, uint32, uint64, int64, int32, ...) and C++ types
 can be stored in unboxed form. The unboxed version are prefixed with `#` as they do
@@ -211,11 +222,6 @@ We are considering caching monomorphised functions into the .olean files. If we 
 where more than one .olean contains the same monomorphised function. We see two options: we have a canonical way to generate
 names for monomorphised functions; we generate unique names, and accept the fact the environment will contain duplicates.
 It is just a space issue.
-
-- Code inlining will occur at the System-F level after we have applied
-simplifications.  This is relevant for the performance issues we have
-observed when a long chain of functions need to be unfolded (e.g., new
-monad transformer library).
 
 # IR
 

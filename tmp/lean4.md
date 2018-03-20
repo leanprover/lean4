@@ -223,6 +223,16 @@ where more than one .olean contains the same monomorphised function. We see two 
 names for monomorphised functions; we generate unique names, and accept the fact the environment will contain duplicates.
 It is just a space issue.
 
+- In Lean3, `name`, `level` and `expr` are all implemented in C++. To expose these objects in Lean, we have to wrap them
+using a subclass of `vm_external`. This generates a significant performance overhead. For example, suppose we have a lean
+function that traverses a big expression; for each visited expression `e`, we need to create a `vm_expr` object for wrapping `e`.
+Moreover, we have two layers of reference counting: one at `expr` and another at `vm_obj`.
+This design decision is fine in Lean3 because the most expensive tasks are implemented in C++, and Lean code is only
+used to "glue" together existing procedures implemented in C++. This is not the case in Lean4.
+So, in Lean4, all these objects will be implemented directly in Lean.
+As described above, we will have a tool that will generate C++ functions for creating and accessing these objects.
+We believe this will not affect much how we code in C++, and it will eliminate a lot of boilerplate code we currently use.
+
 # IR
 
 - Register based.

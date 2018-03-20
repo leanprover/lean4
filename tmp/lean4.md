@@ -303,6 +303,10 @@ operation needed to retrieve them. We will use this table when converting the Sy
 representation into the IR.
 
 Open issue: should we use SSA or SIL?
+BTW, most of the benefits of SSA/SIL seem to be irrelevant for Lean.
+The paper https://arxiv.org/pdf/1507.05762.pdf send by Nuno describes the pros/cons for SSA.
+Most of them seem to be related to static analysis procedures. I think we will need very few
+static analysis steps, most optimizations will be implemented at System-F before we convert the code into IR.
 
 # VM
 

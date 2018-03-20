@@ -341,6 +341,100 @@ for each of these functions. When we import the .olean file that generated the f
 we compare whether the hash code there matches the one in the emitted C++ code.
 If it does, we use the C++ version, otherwise we use the bytecode.
 
+# Explicit reference counting
+
+As described above, we will have opcodes for increasing/decreasing `vm_obj`s reference counters.
+In Lean3, we perform too many unnecessary increments/decrements.
+A function is responsible for decreasing the reference counter of each argument (i.e., it consumes the argument), and
+for increasing the reference counter of the result. Each argument should be viewed as a resource that is consumed by the function.
+Many optimizations are possible. For example, consider the function
+```
+def proj2 (a : A) (b : B) := b
+```
+A naive compilation into bytecode would produce:
+```
+def proj2 a b :=
+  r := b;
+  inc r;
+  dec a;
+  dec b;
+  return r
+```
+This can be optimized as
+```
+def proj2 a b :=
+  dec a;
+  return b
+```
+We need to explicitly decrement `a` because it was not use by `proj2`.
+The function
+```
+def ex1 (x : X) (y : Y) :=
+  let v1 := f x x,
+      v2 := f x y
+  in h v1 v2
+```
+is compiled as
+```
+def ex1 x y :=
+  inc x;
+  inc x;
+  v1 := f x x;
+  v2 := f x y;
+  r  := h v1 v2;
+  return r
+```
+The reference counter for `x` is incremented twice because it is used 3 times in this function.
+Note that, we don't have to decrement `v1` nor `v2` since they are consumed by `h`.
+We can an instruction `inc2 x` for executing `inc x; inc x` in a single step.
+Now consider a map-like function
+```
+def my_map : list A -> list A
+| []     := []
+| (h::t) := g h :: my_map t
+```
+This function will be compiled as
+```
+def my_map t :=
+switch (cidx t) {
+case 0:
+  return t;
+case 1:
+  h1 := get#0 t;
+  t1 := get#1 t;
+  dec t;
+  h2 := g h1;
+  t2 := my_map t2;
+  r  := mk_list_cons h2 t2;
+  return r
+}
+```
+The instruction `get#<idx> t` returns the field `idx` of the object `t`. It bumps the reference counter of the resulting object, but does not update the reference counter of `t`.
+`mk_list_cons h2 t2` is a function that creates a constructor object with tag `#1` and two pointers `h2` and `t2`. We don't need to decrement
+the reference counters of `h2` and `t2` since they were "consumed" by `mk_list_cons`. We can inline `mk_list_cons` too.
+We can also add a special `dec` instruction for reusing memory cells, and write `my_map` as:
+```
+def my_map t :=
+switch (cidx t) {
+case 0:
+  return t;
+case 1:
+  h1 := get#0 t;
+  t1 := get#1 t;
+  t_cell := dec_core t;
+  h2 := g h1;
+  t2 := my_map t2;
+  r  := mk_list_cons_reusing h2 t2 t_cell;
+  return r
+}
+```
+The `dec_core t` instruction decrements the reference counter of `t`, but does not delete the memory cell if it is zero.
+Then, `mk_list_cons_reusing` will reuse `t`'s memory cell if the counter is 0, and will create a new cell otherwise.
+With this trick, `my_map` will perform destructive updates if the input list is not shared.
+To avoid memory leaks, we have to make sure that in each path after `dec_core t`, `t_cell` is used in a `mk_*_reusing` function
+and/or we explicitly delete it using `del t_cell`.
+TODO: improve description
+
 # Memory management
 
 Lean3 VM objects are not thread safe: they do not use atomic

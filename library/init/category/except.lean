@@ -88,6 +88,9 @@ section
 
   instance : monad (except_t ε m) :=
   { pure := @return, bind := @bind }
+
+  protected def adapt {ε' α : Type u} (f : ε → ε') : except_t ε m α → except_t ε' m α :=
+  λ x, ⟨except.map_error f <$> x.run⟩
 end
 end except_t
 
@@ -113,6 +116,29 @@ export monad_except (throw catch)
 
 instance (m ε) [monad m] : monad_except ε (except_t ε m) :=
 { throw := λ α, except_t.mk ∘ pure ∘ except.error, catch := @except_t.catch ε _ _ }
+
+
+/-- Adapt a monad stack, changing its top-most error type.
+
+    Note: This class can be seen as a simplification of the more "principled" definition
+    ```
+    class monad_except_functor (ε ε' : out_param (Type u)) (n n' : Type u → Type u) :=
+    (map {} {α : Type u} : (∀ {m : Type u → Type u} [monad m], except_t ε m α → except_t ε' m α) → n α → n' α)
+    ```
+    -/
+class monad_except_adapter (ε ε' : out_param (Type u)) (m m' : Type u → Type v) :=
+(adapt_except {} {α : Type u} : (ε → ε') → m α → m' α)
+export monad_except_adapter (adapt_except)
+
+section
+variables {ε ε' : Type u} {m m' : Type u → Type v}
+
+instance monad_except_adapter_trans {n n' : Type u → Type v} [monad_functor m m' n n'] [monad_except_adapter ε ε' m m'] : monad_except_adapter ε ε' n n' :=
+⟨λ α f, monad_map (λ α, (adapt_except f : m α → m' α))⟩
+
+instance [monad m] : monad_except_adapter ε ε' (except_t ε m) (except_t ε' m) :=
+⟨λ α, except_t.adapt⟩
+end
 
 
 instance (ε m out) [monad_run out m] : monad_run (λ α, out (except ε α)) (except_t ε m) :=

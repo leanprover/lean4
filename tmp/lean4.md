@@ -1,7 +1,7 @@
 Design notes for Lean4
 ----------------------
 
-* Goals
+# Goals
 
 - Move more code from C++ to Lean.
 - New compiler and C++ code generator.
@@ -12,7 +12,7 @@ Design notes for Lean4
 - Fix language design issues.
 - Reduce clutter in the core lib and code base.
 
-* Plan
+# Plan
 
 - Create Lean4 branch
 - Disable most tests (they will be incrementally added back as we make progress on Lean4).
@@ -30,15 +30,62 @@ Remove unnecessary closure objects that were added for the previous C++ code gen
 that was discontinued.
 - Split tactic state into backtrackable and non-backtrackable parts using the
 new monad transformers. The plan is to have the following monads for meta programming:
-  a) `meta_core`: it has non-backtrackable state, stores the name generator and
-      cache data structures. It allows users to invoke `io` actions.
-  b) `elab`: it has a non-backtrackable state, and is defined on top of `meta_core`.
-      It provides access to the environment, and metavariable context.
-      It also allows us to create `type_context` objects. There is no goal management.
-  c) `tactic`: it has a backtrackable state, and has goal management support.
-      It is also defined on top of `meta_core`, and it can execute `elab` actions.
-  Both `meta_core` and `elab` use their state linearly. We will implement the (most of the) C++ primitive tactics
-  in the `elab` monad.
+  a) `elab`: it is morally state_t and except_t where the state is `elab_state`.
+     `elab_state` is defined in C++, and contains: `environment`, cache data structures,
+     `name_generator`, `options` and `metavar_context`. Only `metavar_context` is backtrackable, and
+     we define `<|>` as
+     ```
+     meta def elab.orelse {α : Type} (e₁ : elab α) (e₂ : elab α) : elab α :=
+     ⟨λ s, let mctx := s.get_mvar_ctx in
+        match e₁.run s with
+        | elab_result.exception α ex s' := e₂.run (s'.set_mvar_ctx mctx)
+        | r                             := r
+        end⟩
+     ```
+     Note that, `elab_state` is used linearly in the definition above, and we just save
+     `metavar_context`.
+
+  b) `tactic`: it built on top of `elab` using `state_t`. In the new state we store
+      the list of goals (i.e., metavariables) and the main metavariable.
+
+  We will implement (most of) the C++ primitive tactics in the `elab` monad.
+  One of the motivations for the approach above is that C++ and Lean code use `elab` in very similar ways.
+  For example, the `type_context` object in C++ just gets a reference for the `elab_state` object.
+
+  Remark: `elab` monad will be defined in Lean, but we will mark it private. All tactics that
+  have access to the private definition will use `elab_state` linearly. The idea is to make sure
+  we can use destructive updates when implementing C++ primitive tactics. This is a big
+  advantage with respect to the approach used in Lean3 where we keep creating (and deleting) `tactic_state` objects
+  all over the place.
+
+  We have considered splitting `elab` into two monads. The first one `elab_core` would have a state
+  without `metavar_context`. `elab_core` would morally be `except_t ex (state elab_core_state)`. And then,
+  `elab` would be defined as `state_t metavar_context elab_core`. So, `metavar_context` would be backtrackable
+  for free, and we would not need to define a custom `orelse`. This change is fine on the Lean side, but it would
+  be messy when programming in C++ because we would have to continue to propagate the `metavar_context` manually as
+  we do in Lean3. Recall that a few bugs in Lean3 are due to incorrect propagation of the `metavar_context`. These bugs
+  will all disappear with the new design.
+  We also have additional performance overhead with the `elab`+`elab_core` approach.
+  For example, we want to support the following API:
+  ```
+  mk_type_context : elab type_context
+  infer_type : type_context -> expr -> elab expr
+  whnf : type_context -> expr -> elab expr
+  ...
+  ```
+  If we use `elab`+`elab_core` approach, the `infer_type` primitive would have to be implemented as:
+  ```
+  vm_obj infer_type(vm_obj const & ctx, vm_obj const & e, vm_obj const & mctx, vm_obj const & s) {
+  try {
+    ctx.set_mctx(mctx); // copy current metavar_context to ctx
+    auto r = ctx.infer(e);
+    return mk_success_result(r, ctx.mctx(), s); // build result using updated metavar_context
+  } catch (exception & ex) {
+    ....
+  } }
+  ```
+  In the `elab` only approach, we save one argument `mctx`, and we don't have to copy the `metavar_context`.
+
 - Implement support objects in Lean: options, format, structure trace messages, syntax object, etc.
 - Add parser infrastructure in Lean.
 - Compiler and C++ code generator. The C++ code generator will avoid many bootstrapping
@@ -58,7 +105,7 @@ It feels weird to have to box a Lean value to be able to invoke the builtin impl
 After we have the tool, we would write `c_foo(bool a, bool b)` and describe its signature in a Lean file.
 The tool then generates the wrappers for invoking `c_foo` from the interpreter and generated C++ code.
 
-* Language and library issues
+# Language and library issues
 
 - `private` declarations are not reliable. Users can easily subvert them
 using meta programming. This is problematic for several optimizations
@@ -133,7 +180,7 @@ be needed anymore.
 Moreover, as soon as we implement the new parser, we will want quotations for building
 the new syntactic object and Lean expressions.
 
-* Compiler
+# Compiler
 
 - The first compilation step applies compiler specific simplification rules provided by users.
 For example, we will be able to mark `map g (map f l) = map (g o f) l` as an optimization
@@ -170,7 +217,7 @@ simplifications.  This is relevant for the performance issues we have
 observed when a long chain of functions need to be unfolded (e.g., new
 monad transformer library).
 
-* IR
+# IR
 
 - Register based.
 - Explicit reference counting instructions. We use reference counting for: composite objects, closures and

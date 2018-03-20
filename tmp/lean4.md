@@ -222,6 +222,7 @@ We are considering caching monomorphised functions into the .olean files. If we 
 where more than one .olean contains the same monomorphised function. We see two options: we have a canonical way to generate
 names for monomorphised functions; we generate unique names, and accept the fact the environment will contain duplicates.
 It is just a space issue.
+Remark: see comment `closure` bullet point below. We may not use unboxed values in closures.
 
 - In Lean3, `name`, `level` and `expr` are all implemented in C++. To expose these objects in Lean, we have to wrap them
 using a subclass of `vm_external`. This generates a significant performance overhead. For example, suppose we have a lean
@@ -232,6 +233,53 @@ used to "glue" together existing procedures implemented in C++. This is not the 
 So, in Lean4, all these objects will be implemented directly in Lean.
 As described above, we will have a tool that will generate C++ functions for creating and accessing these objects.
 We believe this will not affect much how we code in C++, and it will eliminate a lot of boilerplate code we currently use.
+
+# Object memory layout
+
+- Constructor objects: they will contain pointers and unboxed data. We will use all-pointers first approach, and the header will contain 8 bytes:
+  a) reference counter: 4 bytes
+  b) kind: 1 byte
+  c) tag (aka constructor index): 1 byte
+  d) size (aka number of pointer objects): 2 bytes
+  After the header we have `size` pointers and then all unboxed data. In debug mode, we want to store the size of the space used for
+  unboxed data, and use this information for implementing sanity checks.
+  Remark: the header of all composite Lean objects start with the reference counter and `kind`.
+  Note that this representation supports only inductive datatypes with at most 256 constructors and 2^16 pointer fields.
+  This is sufficient for our needs.
+  If one day we want to support inductive datatypes with more than 256 constructors and/or 2^16 pointer fields, we can add
+  a new kind of constructor object, and add new opcodes for manipulating them. We say this new kind is a "fat" constructor object
+  since its header is bigger.
+
+- Array: we support arrays of pointers and arrays of unboxed data. We will have opcodes for reading and updating arrays.
+The updates are destructive when the array reference counter is 1.
+
+- Closures: we need two kinds of closures: one that stores the bytecode id (for interpreted code); and another that stores a function pointer (for compiled code).
+We need to decide whether we will support closures that store unboxed data or not. The simple solution is to support only boxed data
+in closures. This may not be a huge performance overhead since many higher order functions such as `map` and `fold` will
+be specialized during the monomorphisaton step, and we will not even create the closures.
+A possible compromise is to support unboxed data only for closures that store function pointers. The idea is the following, whenever we emit C++ code for a function,
+we also generate a `run` function for it s.t. given the closure data, it invokes the function. Then, we store the pointer to the `run` function in the closure.
+For example, suppose we have generated
+```
+vm_obj foo(bool b1, vm_obj o, bool b2) { ... }
+```
+Then, we would also generate
+```
+vm_obj run_foo(closure_data d) {
+  return foo(get_closure_bool(8, d), get_closure_obj(0, d), get_closure_bool(9, d));
+}
+```
+`get_closure_bool(offset, d)` retrieves the Boolean stored at the given offset in `d`.
+Note that, as in constructor objects, unboxed data is stored after pointers at `closure_data`.
+So, we use `get_closure_bool(8, d)` to retrieve `b` which is stored after `o` (the pointer to `o` consumes 8 bytes) in `d`.
+It is not clear this approach is a good one since we would always need to create a `closure_data` object that contains all arguments
+before executing a closure. It is not clear how to support the optimization we use in Lean3 that avoids the allocation of the last `closure_data`
+in most cases (https://github.com/leanprover/lean/blob/master/src/library/vm/vm.cpp#L1698).
+
+- MPZ (multiprecision integers)
+
+- String. Remark: internally it is not an array of char, but an array of bytes encoded in UTF8. The key difference with respect to Lean3 is that it will
+not use the `vm_external` wrapper approach, but have an object kind for strings.
 
 # IR
 
@@ -256,7 +304,7 @@ representation into the IR.
 
 Open issue: should we use SSA or SIL?
 
-* VM
+# VM
 
 - We need a new VM for the new IR.
 
@@ -289,7 +337,7 @@ for each of these functions. When we import the .olean file that generated the f
 we compare whether the hash code there matches the one in the emitted C++ code.
 If it does, we use the C++ version, otherwise we use the bytecode.
 
-* Memory management
+# Memory management
 
 Lean3 VM objects are not thread safe: they do not use atomic
 operations for updating the reference counter, and we use a small

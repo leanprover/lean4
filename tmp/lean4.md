@@ -430,10 +430,49 @@ case 1:
 ```
 The `dec_core t` instruction decrements the reference counter of `t`, but does not delete the memory cell if it is zero.
 Then, `mk_list_cons_reusing` will reuse `t`'s memory cell if the counter is 0, and will create a new cell otherwise.
-With this trick, `my_map` will perform destructive updates if the input list is not shared.
+With this trick, `my_map` will not allocate any constructor object if the input list is not shared.
 To avoid memory leaks, we have to make sure that in each path after `dec_core t`, `t_cell` is used in a `mk_*_reusing` function
 and/or we explicitly delete it using `del t_cell`.
-TODO: improve description
+When the reference counter of `t` is one in `case 1`, the `get#0 t` and `get#1 t` unnecessarily increase the reference counter of the result value just to decrease it again at `dec_core t`. We can avoid this overhead by using the following alternative formulation
+```
+def my_map t :=
+switch (cidx t) {
+case 0:
+  return t;
+case 1:
+  if (ref_count t == 1) {
+    h1     := steal#0 t;
+    t1     := steal#1 t;
+    t_cell := t;
+  } else {
+    h1     := get#0 t;
+    t1     := get#1 t;
+    dec t;
+    t_cell := 0;
+  }
+  h2 := g h1;
+  t2 := my_map t2;
+  r  := mk_constructor_reusing #1 2 t_cell;
+  set#0 r h2;
+  set#1 r t2;
+  return r
+}
+```
+The instruction `steal#<idx> t` is similar to `get#<idx> t`, but it does not increase the reference counter of the resulting object.
+`mk_constructor_reusing #1 2 t_cell` creates a constructor object with tag `#1` and size 2 and reusing `t_cell` if different from 0. The instructions `set#<idx>` are used to initialize the resulting fields.
+The optimization above can be used whenever `t` is dead after the `case`, and an object of same size is created.
+Note that if `t` is a list of arrays and it is not shared, then `g h1` will also be able to perform destructive updates.
+Remark: suppose the `i`-th field in `case` branch is not used, then instead of using `steal#i t`, we use `dec#i t` to decrement the reference counter of the `i`-th field.
+
+TODO: create experiments to check whether the optimization above is relevant or not.
+
+# Tail recursion
+
+TODO
+
+# Unboxed products and sums
+
+TODO
 
 # Memory management
 

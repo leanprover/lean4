@@ -119,7 +119,7 @@ script:
   - if [[ $STATIC != ON ]]; then STATIC=OFF; fi
   - if [[ $MULTI_THREAD != OFF ]]; then MULTI_THREAD=ON; fi
   - OPTIONS=""
-  - if [[ $TRAVIS_EVENT_TYPE == cron ]]; then . ./script/setup_nightly.sh; fi
+  - if [[ $TRAVIS_EVENT_TYPE == cron ]]; then . ../script/setup_nightly.sh; fi
   - cmake -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE
           -DCMAKE_CXX_COMPILER=$CMAKE_CXX_COMPILER
           -DTESTCOV=$TESTCOV

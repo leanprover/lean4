@@ -113,8 +113,12 @@ abbreviation id_rhs (α : Sort u) (a : α) : α := a
 inductive punit : Sort u
 | star : punit
 
-inductive unit : Type
-| star : unit
+/-- An abbreviation for `punit.{0}`, its most common instantiation.
+    This type should be preferred over `punit` where possible to avoid
+    unnecessary universe parameters. -/
+abbreviation unit : Type := punit
+
+@[pattern] abbreviation unit.star : unit := punit.star
 
 /--
 Gadget for defining thunks, thunk parameters have special treatment.
@@ -490,11 +494,6 @@ protected def psigma.sizeof {α : Type u} {β : α → Type v} [has_sizeof α] [
 
 instance (α : Type u) (β : α → Type v) [has_sizeof α] [∀ a, has_sizeof (β a)] : has_sizeof (psigma β) :=
 ⟨psigma.sizeof⟩
-
-protected def unit.sizeof : unit → nat
-| u := 1
-
-instance : has_sizeof unit := ⟨unit.sizeof⟩
 
 protected def punit.sizeof : punit → nat
 | u := 1

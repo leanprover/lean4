@@ -286,6 +286,7 @@ run_cmd script_check_id `opt_param
 run_cmd script_check_id `or
 run_cmd script_check_id `out_param
 run_cmd script_check_id `punit
+run_cmd script_check_id `punit.cases_on
 run_cmd script_check_id `punit.star
 run_cmd script_check_id `prod.mk
 run_cmd script_check_id `pprod
@@ -343,7 +344,6 @@ run_cmd script_check_id `true.intro
 run_cmd script_check_id `unification_hint
 run_cmd script_check_id `unification_hint.mk
 run_cmd script_check_id `unit
-run_cmd script_check_id `unit.cases_on
 run_cmd script_check_id `unit.star
 run_cmd script_check_id `monad_from_pure_bind
 run_cmd script_check_id `user_attribute

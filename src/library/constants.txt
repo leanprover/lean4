@@ -281,6 +281,7 @@ opt_param
 or
 out_param
 punit
+punit.cases_on
 punit.star
 prod.mk
 pprod
@@ -338,7 +339,6 @@ true.intro
 unification_hint
 unification_hint.mk
 unit
-unit.cases_on
 unit.star
 monad_from_pure_bind
 user_attribute

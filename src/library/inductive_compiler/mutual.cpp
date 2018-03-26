@@ -533,12 +533,13 @@ class add_mutual_inductive_decl_fn {
             expr x_u = mk_local_pp("x_u", mk_app(m_basic_decl.get_c_ind_params(0), mk_app(m_putters[ind_idx], mk_sigma(rev_unpacked_sigma_args, u))));
             expr unit_C = Fun(u, Pi(x_u, mk_sort(m_elim_level)));
             level motive_level = get_level(m_tctx, Pi(u, Pi(x_u, mk_sort(m_elim_level))));
+            level unit_level = mk_level_one();
             expr unit_major_premise = idx;
 
             expr x_star = mk_local_pp("x", mk_app(m_basic_decl.get_c_ind_params(0), mk_app(m_putters[ind_idx], mk_sigma(rev_unpacked_sigma_args, mk_constant(get_unit_star_name())))));
             expr unit_minor_premise = Fun(x_star, mk_app(mk_app(C, indices), x_star));
 
-            return mk_app(mk_constant(get_unit_cases_on_name(), {motive_level}), unit_C, unit_major_premise, unit_minor_premise);
+            return mk_app(mk_constant(get_punit_cases_on_name(), {motive_level, unit_level}), unit_C, unit_major_premise, unit_minor_premise);
         }
 
         expr A = binding_domain(ty);

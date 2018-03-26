@@ -286,6 +286,7 @@ name const * g_opt_param = nullptr;
 name const * g_or = nullptr;
 name const * g_out_param = nullptr;
 name const * g_punit = nullptr;
+name const * g_punit_cases_on = nullptr;
 name const * g_punit_star = nullptr;
 name const * g_prod_mk = nullptr;
 name const * g_pprod = nullptr;
@@ -343,7 +344,6 @@ name const * g_true_intro = nullptr;
 name const * g_unification_hint = nullptr;
 name const * g_unification_hint_mk = nullptr;
 name const * g_unit = nullptr;
-name const * g_unit_cases_on = nullptr;
 name const * g_unit_star = nullptr;
 name const * g_monad_from_pure_bind = nullptr;
 name const * g_user_attribute = nullptr;
@@ -643,6 +643,7 @@ void initialize_constants() {
     g_or = new name{"or"};
     g_out_param = new name{"out_param"};
     g_punit = new name{"punit"};
+    g_punit_cases_on = new name{"punit", "cases_on"};
     g_punit_star = new name{"punit", "star"};
     g_prod_mk = new name{"prod", "mk"};
     g_pprod = new name{"pprod"};
@@ -700,7 +701,6 @@ void initialize_constants() {
     g_unification_hint = new name{"unification_hint"};
     g_unification_hint_mk = new name{"unification_hint", "mk"};
     g_unit = new name{"unit"};
-    g_unit_cases_on = new name{"unit", "cases_on"};
     g_unit_star = new name{"unit", "star"};
     g_monad_from_pure_bind = new name{"monad_from_pure_bind"};
     g_user_attribute = new name{"user_attribute"};
@@ -1001,6 +1001,7 @@ void finalize_constants() {
     delete g_or;
     delete g_out_param;
     delete g_punit;
+    delete g_punit_cases_on;
     delete g_punit_star;
     delete g_prod_mk;
     delete g_pprod;
@@ -1058,7 +1059,6 @@ void finalize_constants() {
     delete g_unification_hint;
     delete g_unification_hint_mk;
     delete g_unit;
-    delete g_unit_cases_on;
     delete g_unit_star;
     delete g_monad_from_pure_bind;
     delete g_user_attribute;
@@ -1358,6 +1358,7 @@ name const & get_opt_param_name() { return *g_opt_param; }
 name const & get_or_name() { return *g_or; }
 name const & get_out_param_name() { return *g_out_param; }
 name const & get_punit_name() { return *g_punit; }
+name const & get_punit_cases_on_name() { return *g_punit_cases_on; }
 name const & get_punit_star_name() { return *g_punit_star; }
 name const & get_prod_mk_name() { return *g_prod_mk; }
 name const & get_pprod_name() { return *g_pprod; }
@@ -1415,7 +1416,6 @@ name const & get_true_intro_name() { return *g_true_intro; }
 name const & get_unification_hint_name() { return *g_unification_hint; }
 name const & get_unification_hint_mk_name() { return *g_unification_hint_mk; }
 name const & get_unit_name() { return *g_unit; }
-name const & get_unit_cases_on_name() { return *g_unit_cases_on; }
 name const & get_unit_star_name() { return *g_unit_star; }
 name const & get_monad_from_pure_bind_name() { return *g_monad_from_pure_bind; }
 name const & get_user_attribute_name() { return *g_user_attribute; }

@@ -243,6 +243,8 @@ master branch (aka work in progress branch)
 
 * The monad laws have been separated into new type classes `is_lawful_{functor,applicative,monad}`.
 
+* `unit` is now an abbreviation of `punit.{0}`
+
 *API name changes*
 
 * `monad.has_monad_lift(_t)` ~> `has_monad_lift(_t)`
@@ -251,6 +253,7 @@ master branch (aka work in progress branch)
 * deleted `monad.monad_transformer`
 * deleted `monad.lift{n}`. Use `f <$> a1 <*> ... <*> an` instead of `monad.lift{n} f a1 ... an`.
 * merged `has_map` into `functor`
+* `unit_eq(_unit)` ~> `punit_eq(_punit)`
 
 v3.3.0 (14 September 2017)
 -------------

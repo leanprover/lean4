@@ -3,7 +3,7 @@ user_command.lean:14:0: error: unknown identifier 'foo'
 user_command.lean:12:50: error: function expected at
   ()
 term has type
-  unit
+  punit
 foo
 user_command.lean:23:8: error: command does not accept modifiers
 bar

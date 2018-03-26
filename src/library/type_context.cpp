@@ -652,7 +652,44 @@ optional<expr> type_context_old::reduce_aux_recursor(expr const & e) {
         return none_expr();
     if (m_cache->get_aux_recursor(*this, const_name(f))) {
         flet<bool> no_smart_unfolding(m_smart_unfolding, false);
-        return unfold_definition(e);
+        optional<expr> r = unfold_definition(e);
+        /* Remark:
+
+           (brec_on ...) unfolds to a term of the form (pprod.fst (rec ...))
+
+           The method `whnf_core` has a flag that disables projection-reduction.
+           This flag is necessary, for example, when solving constraints such as `(pprod.fst ?m) =?= (pprod.fst (1, 2))`
+
+           When projection-reduction is disabled, we observed a negative performance impact on
+           constraints containing `brec_on` that come from the equation compiler.
+           For example, consider the following definition
+
+           ```
+           def nasty_size : list nat → nat
+           | []      := 1000000
+           | (a::as) := nasty_size as + 1000000
+           ```
+
+           We will get a constraint of the form
+           ```
+           (list.brec_on [] ...) =?= bit0 ...
+           ```
+           The is_def_eq method reduces this constraint using whnf_core with projection-reduction disabled. So,
+           we obtain
+           ```
+           pprod.fst ... =?= bit0 ...
+           ```
+           This constraint is then handled by is_def_eq_delta, which decides to unfold `bit0` which is a poor decision.
+           The key problem here is that we morally did not reduce `brec_on`.
+           Thus, we fix the issue by using reduce_projection if the auxiliary recursor is a brec_on.
+           This fix is a little bit hackish and non modular because `brec_on` auxiliary recursors are defined in
+           a completely different module, and type_context should not be aware of them.
+        */
+        if (r && strcmp(const_name(f).get_string(), "brec_on") == 0) {
+            if (auto r2 = reduce_projection(*r))
+                return r2;
+        }
+        return r;
     } else {
         return none_expr();
     }

@@ -95,7 +95,7 @@ class monad_state (σ : out_param (Type u)) (m : Type u → Type v) :=
 (lift {} {α : Type u} : state σ α → m α)
 
 section
-variables {σ : Type u} {m : Type u → Type u}
+variables {σ : Type u} {m : Type u → Type v}
 
 -- NOTE: The ordering of the following two instances determines that the top-most `state_t` monad layer
 -- will be picked first

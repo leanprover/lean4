@@ -1,13 +1,18 @@
-#!/bin/bash
-
-set -exu
+#!/bin/false
+# script should be sourced
 
 git remote add nightly "https://$GH_TOKEN@github.com/leanprover/lean-nightly.git"
 git fetch nightly --tags
 
+export LEAN_VERSION_STRING="nightly-$(date -uI)"
+
 # do nothing if commit is already tagged
-if [ ! git describe --exact-match --tags HEAD >& /dev/null ]
+if git checkout $LEAN_VERSION_STRING || ! git name-rev --name-only --tags --no-undefined HEAD
 then
-    LEAN_VERSION_STRING="nightly-$(date -uI)"
+    # write into file since we repeatedly open and close shells on AppVeyor
+    cat <<EOF > ./nightly.sh
+export LEAN_VERSION_STRING=$LEAN_VERSION_STRING
+EOF
+    . ./nightly.sh
     OPTIONS+=" -DLEAN_SPECIAL_VERSION_DESC=$LEAN_VERSION_STRING"
 fi

@@ -145,7 +145,12 @@ master branch (aka work in progress branch)
   (pure {} {α : Type u} : α → f α)
   ```
 
-* Add `except_t`, `reader_t`, `cont_t` monad transformers
+* Add `except_t` and `reader_t` monad transformers
+
+* Add `monad_{except,reader,state}` classes for accessing effects anywhere in a monad stack
+  without the need for explicit lifting. Add analogous `monad_{except,reader,state}_adapter`
+  classes for translating a monad stack into another one with the same shape but different
+  parameter types.
 
 *Changes*
 

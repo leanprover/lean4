@@ -5,12 +5,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
-#include <library/attribute_manager.h>
 #include "kernel/inductive/inductive.h"
 #include "library/util.h"
 #include "library/module.h"
 #include "library/trace.h"
 #include "library/normalize.h"
+#include "library/attribute_manager.h"
 #include "library/vm/vm.h"
 #include "library/compiler/util.h"
 #include "library/compiler/compiler_step_visitor.h"

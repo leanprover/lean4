@@ -24,6 +24,8 @@ then
     echo -e "Changes since ${last_tag}:\n\n" > diff.md
     git show $last_tag:doc/changes.md > old.md
     ./script/diff_changelogs.py old.md doc/changes.md >> diff.md
+    echo -e "*Full commit log*\n" >> diff.md
+    git log --oneline $last_tag..HEAD | sed 's/^/* /' >> diff.md
     git push nightly $LEAN_VERSION_STRING
     gothub release -s $GH_TOKEN -u leanprover -r lean-nightly -t $LEAN_VERSION_STRING -d - --pre-release < diff.md
 else

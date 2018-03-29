@@ -16,6 +16,7 @@ has_mod : Type u → Type u
 has_mul : Type u → Type u
 has_neg : Type u → Type u
 has_one : Type u → Type u
+has_pow : Type u → out_param (Type v) → Type (max u v)
 has_sdiff : Type u → Type u
 has_sep : out_param (Type u) → Type v → Type (max u v)
 has_sizeof : Sort u → Sort (max 1 u)
@@ -43,6 +44,7 @@ has_mod : Type u → Type u
 has_mul : Type u → Type u
 has_neg : Type u → Type u
 has_one : Type u → Type u
+has_pow : Type u → out_param (Type v) → Type (max u v)
 has_sdiff : Type u → Type u
 has_sep : out_param (Type u) → Type v → Type (max u v)
 has_sizeof : Sort u → Sort (max 1 u)

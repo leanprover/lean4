@@ -197,11 +197,12 @@ show succ (n + n) ≠ 0, from
 
 /- Exponentiation -/
 
-def pow (b : ℕ) : ℕ → ℕ
+protected def pow (b : ℕ) : ℕ → ℕ
 | 0        := 1
 | (succ n) := pow n * b
 
-infix `^` := pow
+instance : has_pow nat nat :=
+⟨nat.pow⟩
 
 lemma pow_succ (b n : ℕ) : b^(succ n) = b^n * b := rfl
 

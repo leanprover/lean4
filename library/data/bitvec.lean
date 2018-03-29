@@ -190,7 +190,7 @@ section conversion
   : bitvec.to_nat (bitvec.of_nat k n) = n % 2^k :=
   begin
     induction k with k generalizing n,
-    { unfold pow, simp [nat.mod_one], refl },
+    { unfold pow nat.pow, simp [nat.mod_one], refl },
     { have h : 0 < 2, { apply le_succ },
       rw [ of_nat_succ
          , to_nat_append

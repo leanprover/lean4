@@ -43,7 +43,7 @@ reserve infixl ` * `:70
 reserve infixl ` / `:70
 reserve infixl ` % `:70
 reserve prefix `-`:100
-reserve infix ` ^ `:80
+reserve infixr ` ^ `:80
 
 reserve infixr ` ∘ `:90                 -- input with \comp
 
@@ -337,7 +337,11 @@ class has_sep (α : out_param $ Type u) (γ : Type v) :=
 /- Type class for set-like membership -/
 class has_mem (α : out_param $ Type u) (γ : Type v) := (mem : α → γ → Prop)
 
+class has_pow (α : Type u) (β : out_param $ Type v) :=
+(pow : α → β → α)
+
 export has_andthen (andthen)
+export has_pow (pow)
 
 infix ∈        := has_mem.mem
 notation a ∉ s := ¬ has_mem.mem a s
@@ -360,6 +364,7 @@ infix ⊆        := has_subset.subset
 infix ⊂        := has_ssubset.ssubset
 infix \        := has_sdiff.sdiff
 infix ≈        := has_equiv.equiv
+infixr ^       := has_pow.pow
 
 export has_append (append)
 

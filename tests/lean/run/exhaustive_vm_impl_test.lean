@@ -103,7 +103,7 @@ run_cmd verify $ ∀ x < 100, ∀ y < 10, is_ok $ nat.test_bit x y
 
 def ints : list ℤ :=
 (do i ← list.range 40, [-i, i]) ++
-(do s ← [-1,1], j ← list.range 20, [s*2^31 + j-10])
+(do s ← [-1,1], j ← list.range 20, [s*(2^31:nat) + j-10])
 
 def small_ints : list ℤ :=
 (do i ← list.range 40, [-i, i])

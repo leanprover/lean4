@@ -2578,6 +2578,16 @@ optional<expr> type_context_old::elim_delayed_abstraction(expr const & e) {
     lean_assert(hns.size() == vs.size());
     expr mvar = get_delayed_abstraction_expr(f);
     lean_assert(is_metavar(mvar));
+    if (is_assigned(mvar)) {
+        expr t = instantiate_mvars(mvar);
+        expr new_e = mk_delayed_abstraction(t, hns, vs);
+        /* Remark: mk_delayed_abstraction uses push_delayed_abstraction if new_e is not a metavariable.
+           So, new_e may not be a delayed_abstraction. */
+        if (is_delayed_abstraction(new_e))
+            return elim_delayed_abstraction(new_e);
+        else
+            return some_expr(new_e);
+    }
     local_context lctx = m_mctx.get_metavar_decl(mvar).get_context();
     buffer<expr> to_revert;
     buffer<expr> replacements;

@@ -1,0 +1,8 @@
+1952b.lean:13:2: error: invalid structure value { ... }, field 'F' was not provided
+1952b.lean:13:2: error: invalid structure value { ... }, field 'res' was not provided
+1952b.lean:13:13: error: type mismatch at field 'Hidem'
+  λ (U : set β), rfl
+has type
+  ∀ (U : set β), ?m_2[U] = ?m_2[U]
+but is expected to have type
+  ∀ (U : set β), ⁇ U U = ⁇ U U ∘ ⁇ U U

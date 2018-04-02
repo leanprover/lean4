@@ -1133,7 +1133,8 @@ void initialize_library_util() {
         << LEAN_VERSION_MINOR << "." << LEAN_VERSION_PATCH;
     if (std::strlen(LEAN_SPECIAL_VERSION_DESC) > 0) {
         out << ", " << LEAN_SPECIAL_VERSION_DESC;
-    } else if (std::strcmp(LEAN_GITHASH, "GITDIR-NOTFOUND") == 0) {
+    }
+    if (std::strcmp(LEAN_GITHASH, "GITDIR-NOTFOUND") == 0) {
         if (std::strcmp(LEAN_PACKAGE_VERSION, "NOT-FOUND") != 0) {
             out << ", package " << LEAN_PACKAGE_VERSION;
         }

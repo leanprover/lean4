@@ -30,7 +30,6 @@ class mpbq {
 public:
     mpbq():m_k(0) {}
     mpbq(mpbq const & v):m_num(v.m_num), m_k(v.m_k) {}
-    mpbq(mpbq && v);
     explicit mpbq(mpz const & v):m_num(v), m_k(0) {}
     explicit mpbq(mpq const & v) { set(*this, v); }
     explicit mpbq(int n):m_num(n), m_k(0) {}

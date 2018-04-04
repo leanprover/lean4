@@ -1,56 +1,9 @@
-decidable : Prop → Type
-has_add : Type u → Type u
-has_andthen : Type u → Type v → out_param (Type w) → Type (max u v w)
-has_append : Type u → Type u
-has_div : Type u → Type u
-has_dvd : Type u → Type u
-has_emptyc : Type u → Type u
-has_equiv : Sort u → Sort (max 1 u)
-has_insert : out_param (Type u) → Type v → Type (max u v)
-has_inter : Type u → Type u
-has_inv : Type u → Type u
-has_le : Type u → Type u
-has_lt : Type u → Type u
-has_mem : out_param (Type u) → Type v → Type (max u v)
-has_mod : Type u → Type u
-has_mul : Type u → Type u
-has_neg : Type u → Type u
-has_one : Type u → Type u
-has_pow : Type u → out_param (Type v) → Type (max u v)
-has_sdiff : Type u → Type u
-has_sep : out_param (Type u) → Type v → Type (max u v)
-has_sizeof : Sort u → Sort (max 1 u)
-has_ssubset : Type u → Type u
-has_sub : Type u → Type u
-has_subset : Type u → Type u
-has_union : Type u → Type u
-has_zero : Type u → Type u
-point : Type u_1 → Type u_2 → Type (max u_1 u_2)
-decidable : Prop → Type
-has_add : Type u → Type u
-has_andthen : Type u → Type v → out_param (Type w) → Type (max u v w)
-has_append : Type u → Type u
-has_div : Type u → Type u
-has_dvd : Type u → Type u
-has_emptyc : Type u → Type u
-has_equiv : Sort u → Sort (max 1 u)
-has_insert : out_param (Type u) → Type v → Type (max u v)
-has_inter : Type u → Type u
-has_inv : Type u → Type u
-has_le : Type u → Type u
-has_lt : Type u → Type u
-has_mem : out_param (Type u) → Type v → Type (max u v)
-has_mod : Type u → Type u
-has_mul : Type u → Type u
-has_neg : Type u → Type u
-has_one : Type u → Type u
-has_pow : Type u → out_param (Type v) → Type (max u v)
-has_sdiff : Type u → Type u
-has_sep : out_param (Type u) → Type v → Type (max u v)
-has_sizeof : Sort u → Sort (max 1 u)
-has_ssubset : Type u → Type u
-has_sub : Type u → Type u
-has_subset : Type u → Type u
-has_union : Type u → Type u
-has_zero : Type u → Type u
-point : Type u_1 → Type u_2 → Type (max u_1 u_2)
+@[class]
+structure point : Type u_1 → Type u_2 → Type (max u_1 u_2)
+fields:
+point.x : Π (A : Type u_1) (B : Type u_2) [c : point A B], A
+point.y : Π (A : Type u_1) (B : Type u_2) [c : point A B], B
+structure point2 : Type u_1 → Type u_2 → Type (max u_1 u_2)
+fields:
+point2.x : Π {A : Type u_1} {B : Type u_2}, point2 A B → A
+point2.y : Π {A : Type u_1} {B : Type u_2}, point2 A B → B

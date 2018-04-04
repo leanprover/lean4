@@ -1279,11 +1279,11 @@ by rw [mul_comm m k, mul_comm n k] at H; exact dvd_of_mul_dvd_mul_left kpos H
 
 @[simp] theorem pow_one (b : ℕ) : b^1 = b := by simp [pow_succ]
 
-theorem pow_le_pow_of_le_left {x y : ℕ} (H : x ≤ y) : ∀ i, x^i ≤ y^i
+theorem pow_le_pow_of_le_left {x y : ℕ} (H : x ≤ y) : ∀ i : ℕ, x^i ≤ y^i
 | 0 := le_refl _
 | (succ i) := mul_le_mul (pow_le_pow_of_le_left i) H (zero_le _) (zero_le _)
 
-theorem pow_le_pow_of_le_right {x : ℕ} (H : x > 0) {i} : ∀ {j}, i ≤ j → x^i ≤ x^j
+theorem pow_le_pow_of_le_right {x : ℕ} (H : x > 0) {i : ℕ} : ∀ {j}, i ≤ j → x^i ≤ x^j
 | 0        h := by rw eq_zero_of_le_zero h; apply le_refl
 | (succ j) h := (lt_or_eq_of_le h).elim
   (λhl, by rw [pow_succ, ← mul_one (x^i)]; exact
@@ -1304,7 +1304,7 @@ begin
     (pos_pow_of_pos _ $ lt_of_le_of_lt (zero_le _) H)
 end
 
-theorem pow_lt_pow_of_lt_right {x : ℕ} (H : x > 1) {i j} (h : i < j) : x^i < x^j :=
+theorem pow_lt_pow_of_lt_right {x : ℕ} (H : x > 1) {i j : ℕ} (h : i < j) : x^i < x^j :=
 begin
   have xpos := lt_of_succ_lt H,
   refine lt_of_lt_of_le _ (pow_le_pow_of_le_right xpos h),

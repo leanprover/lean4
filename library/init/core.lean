@@ -337,7 +337,7 @@ class has_sep (α : out_param $ Type u) (γ : Type v) :=
 /- Type class for set-like membership -/
 class has_mem (α : out_param $ Type u) (γ : Type v) := (mem : α → γ → Prop)
 
-class has_pow (α : Type u) (β : out_param $ Type v) :=
+class has_pow (α : Type u) (β : Type v) :=
 (pow : α → β → α)
 
 export has_andthen (andthen)

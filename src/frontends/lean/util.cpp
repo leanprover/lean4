@@ -21,7 +21,6 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/aliases.h"
 #include "library/constants.h"
-#include "library/typed_expr.h"
 #include "library/placeholder.h"
 #include "library/unfold_macros.h"
 #include "library/choice.h"
@@ -36,6 +35,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/decl_util.h" // TODO(Leo): remove
 #include "frontends/lean/prenum.h"
+#include "frontends/lean/typed_expr.h"
 
 #ifndef LEAN_DEFAULT_AUTO_PARAM_CHECK_EXISTS
 #define LEAN_DEFAULT_AUTO_PARAM_CHECK_EXISTS true

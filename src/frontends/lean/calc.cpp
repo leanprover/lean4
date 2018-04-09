@@ -22,11 +22,11 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/scoped_ext.h"
 #include "library/annotation.h"
-#include "library/typed_expr.h"
 #include "library/sorry.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
+#include "frontends/lean/typed_expr.h"
 
 namespace lean {
 static name * g_calc_name  = nullptr;

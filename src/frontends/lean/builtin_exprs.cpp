@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/aliases.h"
 #include "library/scoped_ext.h"
-#include "library/typed_expr.h"
 #include "library/choice.h"
 #include "library/constants.h"
 #include "library/quote.h"
@@ -36,6 +35,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/brackets.h"
 #include "frontends/lean/tactic_notation.h"
 #include "frontends/lean/elaborator.h"
+#include "frontends/lean/typed_expr.h"
 
 #ifndef LEAN_DEFAULT_PARSER_CHECKPOINT_HAVE
 #define LEAN_DEFAULT_PARSER_CHECKPOINT_HAVE true

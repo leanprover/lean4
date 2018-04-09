@@ -26,7 +26,6 @@ Author: Leonardo de Moura
 #include "library/protected.h"
 #include "library/quote.h"
 #include "library/explicit.h"
-#include "library/typed_expr.h"
 #include "library/num.h"
 #include "library/util.h"
 #include "library/print.h"
@@ -52,6 +51,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser_config.h"
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/tokens.h"
+#include "frontends/lean/typed_expr.h"
 
 #include "library/trace.h"
 

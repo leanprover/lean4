@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "library/quote.h"
 #include "library/io_state_stream.h"
 #include "library/trace.h"
-#include "library/typed_expr.h"
 #include "library/placeholder.h"
 #include "library/explicit.h"
 #include "kernel/scope_pos_info_provider.h"
@@ -29,6 +28,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/decl_util.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/builtin_exprs.h"
+#include "frontends/lean/typed_expr.h"
 
 /* The auto quotation currently supports two classes of tactics: tactic and smt_tactic.
    To add a new class Tac, we have to

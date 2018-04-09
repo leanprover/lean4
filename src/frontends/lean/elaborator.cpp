@@ -30,7 +30,6 @@ Author: Leonardo de Moura
 #include "library/sorry.h"
 #include "library/quote.h"
 #include "library/util.h"
-#include "library/typed_expr.h"
 #include "library/annotation.h"
 #include "library/pp_options.h"
 #include "library/replace_visitor.h"
@@ -63,6 +62,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/structure_cmd.h"
 #include "frontends/lean/structure_instance.h"
 #include "frontends/lean/elaborator.h"
+#include "frontends/lean/typed_expr.h"
 
 #ifndef LEAN_DEFAULT_ELABORATOR_COERCIONS
 #define LEAN_DEFAULT_ELABORATOR_COERCIONS true

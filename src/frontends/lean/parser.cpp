@@ -41,7 +41,6 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/scoped_ext.h"
 #include "library/explicit.h"
-#include "library/typed_expr.h"
 #include "library/num.h"
 #include "library/string.h"
 #include "library/sorry.h"
@@ -64,6 +63,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/local_context_adapter.h"
 #include "frontends/lean/structure_instance.h"
+#include "frontends/lean/typed_expr.h"
 
 #ifndef LEAN_DEFAULT_PARSER_SHOW_ERRORS
 #define LEAN_DEFAULT_PARSER_SHOW_ERRORS true

@@ -16,12 +16,12 @@ Author: Leonardo de Moura
 #include "library/num.h"
 #include "library/aliases.h"
 #include "library/constants.h"
-#include "library/typed_expr.h"
 #include "library/vm/vm_nat.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/decl_attributes.h"
+#include "frontends/lean/typed_expr.h"
 
 namespace lean {
 static std::string parse_symbol(parser & p, char const * msg) {

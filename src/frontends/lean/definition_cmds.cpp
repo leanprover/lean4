@@ -19,7 +19,6 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/constants.h"
 #include "library/explicit.h"
-#include "library/typed_expr.h"
 #include "library/private.h"
 #include "library/protected.h"
 #include "library/scoped_ext.h"
@@ -42,6 +41,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/decl_util.h"
 #include "frontends/lean/decl_attributes.h"
 #include "frontends/lean/definition_cmds.h"
+#include "frontends/lean/typed_expr.h"
 
 namespace lean {
 environment ensure_decl_namespaces(environment const & env, name const & full_n) {

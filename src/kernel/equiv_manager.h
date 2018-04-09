@@ -17,9 +17,9 @@ class equiv_manager {
         unsigned m_rank;
     };
 
-    std::vector<node>         m_nodes;
-    expr_struct_map<node_ref> m_to_node;
-    bool                      m_use_hash;
+    std::vector<node>  m_nodes;
+    expr_map<node_ref> m_to_node;
+    bool               m_use_hash;
 
     node_ref mk_node();
     node_ref find(node_ref n);

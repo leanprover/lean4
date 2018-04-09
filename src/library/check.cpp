@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 namespace lean {
 struct check_fn {
     type_context_old &   m_ctx;
-    expr_struct_set  m_visited;
+    expr_set             m_visited;
 
     void visit_constant(expr const & e) {
         declaration d = m_ctx.env().get(const_name(e));

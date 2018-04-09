@@ -23,7 +23,7 @@ class cse_fn : public compiler_step_visitor {
 
     class visitor_fn {
     protected:
-        expr_struct_set m_visited; /* do we need this? */
+        expr_set m_visited; /* do we need this? */
 
         bool check_visited(expr const & e) {
             if (m_visited.find(e) != m_visited.end())
@@ -65,7 +65,7 @@ class cse_fn : public compiler_step_visitor {
 
     class collect_candidates_fn : public visitor_fn {
         environment const & m_env;
-        expr_struct_set m_candidates;
+        expr_set m_candidates;
 
         void add_candidate(expr const & e) {
             if (!closed(e)) return;
@@ -94,12 +94,12 @@ class cse_fn : public compiler_step_visitor {
         }
     public:
         collect_candidates_fn(environment const & env):m_env(env) {}
-        expr_struct_set const & get_candidates() const { return m_candidates; }
+        expr_set const & get_candidates() const { return m_candidates; }
     };
 
     class collect_num_occs_fn : public visitor_fn {
-        expr_struct_set const &   m_candidates;
-        expr_struct_map<unsigned> m_num_occs;
+        expr_set const &   m_candidates;
+        expr_map<unsigned> m_num_occs;
 
         void add_occ(expr const & e) {
             if (!closed(e)) return;
@@ -127,12 +127,12 @@ class cse_fn : public compiler_step_visitor {
                 visit(arg);
         }
     public:
-        collect_num_occs_fn(expr_struct_set const & cs):m_candidates(cs) {}
-        expr_struct_map<unsigned> const & get_num_occs() const { return m_num_occs; }
+        collect_num_occs_fn(expr_set const & cs):m_candidates(cs) {}
+        expr_map<unsigned> const & get_num_occs() const { return m_num_occs; }
     };
 
     void collect_common_subexprs(buffer<expr> const & let_values, expr const & body,
-                                 expr_struct_set & r) {
+                                 expr_set & r) {
         /* first pass */
         collect_candidates_fn candidate_collector(m_ctx.env());
         for (expr const & v : let_values) candidate_collector(v);
@@ -149,20 +149,20 @@ class cse_fn : public compiler_step_visitor {
         }
     }
 
-    void collect_common_subexprs(expr const & e, expr_struct_set & r) {
+    void collect_common_subexprs(expr const & e, expr_set & r) {
         buffer<expr> tmp;
         collect_common_subexprs(tmp, e, r);
     }
 
     /* Helper functor for converting common subexpressions into fresh let-decls */
     struct cse_processor {
-        unsigned &               m_counter;
-        expr_struct_set const &  m_common_subexprs;
-        expr_struct_map<expr>    m_common_subexpr_to_local;
+        unsigned &        m_counter;
+        expr_set const &  m_common_subexprs;
+        expr_map<expr>    m_common_subexpr_to_local;
         type_context_old::tmp_locals m_all_locals; /* new local declarations, it also include let-decls for common-subexprs */
-        local_context const &    m_lctx;
+        local_context const &        m_lctx;
 
-        cse_processor(unsigned & counter, type_context_old & ctx, expr_struct_set const & s):
+        cse_processor(unsigned & counter, type_context_old & ctx, expr_set const & s):
             m_counter(counter),
             m_common_subexprs(s),
             m_all_locals(ctx),
@@ -198,9 +198,9 @@ class cse_fn : public compiler_step_visitor {
     /* Similar to cse_processor, but has support for binding exprs (lambda and let) */
     struct cse_processor_for_binding : public cse_processor {
         type_context_old::tmp_locals const & m_locals;
-        buffer<expr>                     m_new_locals;
+        buffer<expr>                         m_new_locals;
 
-        cse_processor_for_binding(unsigned & counter, type_context_old & ctx, type_context_old::tmp_locals const & locals, expr_struct_set const & s):
+        cse_processor_for_binding(unsigned & counter, type_context_old & ctx, type_context_old::tmp_locals const & locals, expr_set const & s):
             cse_processor(counter, ctx, s),
             m_locals(locals) {
         }
@@ -250,7 +250,7 @@ class cse_fn : public compiler_step_visitor {
         t = instantiate_rev(t, locals.size(), locals.data());
         t = visit(t);
 
-        expr_struct_set common_subexprs;
+        expr_set common_subexprs;
         collect_common_subexprs(let_values, t, common_subexprs);
         if (common_subexprs.empty())
             return copy_tag(e, locals.mk_lambda(t));
@@ -279,7 +279,7 @@ class cse_fn : public compiler_step_visitor {
                 args[i] = visit(m);
             } else {
                 m = visit(m);
-                expr_struct_set common_subexprs;
+                expr_set common_subexprs;
                 collect_common_subexprs(m, common_subexprs);
                 if (!common_subexprs.empty()) {
                     cse_processor proc(m_counter, m_ctx, common_subexprs);

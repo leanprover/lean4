@@ -1507,7 +1507,7 @@ struct to_pattern_fn {
     parser &              m_parser;
     buffer<expr> &        m_new_locals;
     name_map<expr>        m_locals_map; // local variable name --> its interpretation
-    expr_struct_map<expr> m_anonymous_vars; // for _
+    expr_map<expr>        m_anonymous_vars; // for _
 
 
     to_pattern_fn(parser & p, buffer<expr> & new_locals):

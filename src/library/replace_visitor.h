@@ -15,7 +15,7 @@ namespace lean {
    redefine the visit_* methods. */
 class replace_visitor {
 protected:
-    typedef expr_bi_struct_map<expr> cache;
+    typedef expr_bi_map<expr> cache;
     cache   m_cache;
     expr save_result(expr const & e, expr && r, bool shared);
     virtual expr visit_sort(expr const &);

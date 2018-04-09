@@ -12,5 +12,5 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
-typedef std::unordered_set<expr, expr_hash, std::equal_to<expr>> expr_struct_set;
+typedef std::unordered_set<expr, expr_hash, std::equal_to<expr>> expr_set;
 }

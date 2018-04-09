@@ -20,9 +20,9 @@ Author: Leonardo de Moura
 
 namespace lean {
 struct ac_manager_old::cache {
-    environment                     m_env;
-    expr_struct_map<optional<expr>> m_assoc_cache[2];
-    expr_struct_map<optional<expr>> m_comm_cache[2];
+    environment              m_env;
+    expr_map<optional<expr>> m_assoc_cache[2];
+    expr_map<optional<expr>> m_comm_cache[2];
     cache(environment const & env):
         m_env(env) {
     }

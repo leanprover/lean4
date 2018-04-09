@@ -28,7 +28,7 @@ class exporter {
     std::unordered_set<name, name_hash> m_exported;
     name_hmap<unsigned>          m_name2idx;
     level_map<unsigned>          m_level2idx;
-    expr_bi_struct_map<unsigned> m_expr2idx;
+    expr_bi_map<unsigned>        m_expr2idx;
     bool                         m_quotient_exported = false;
 
     unsigned export_name(name const & n) {

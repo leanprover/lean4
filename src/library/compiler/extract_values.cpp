@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 namespace lean {
 class extract_values_fn : public compiler_step_visitor {
     name                  m_prefix;
-    expr_struct_map<expr> m_cache;
+    expr_map<expr>        m_cache;
     unsigned              m_idx{1};
     buffer<procedure>     m_new_procs;
     expr                  m_root;

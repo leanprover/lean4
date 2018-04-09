@@ -48,7 +48,7 @@ class dsimplify_core_fn {
 protected:
     type_context_old &        m_ctx;
     defeq_canonizer       m_defeq_canonizer;
-    expr_struct_map<expr> m_cache;
+    expr_map<expr>        m_cache;
     unsigned              m_num_steps;
     bool                  m_need_restart;
     dsimp_config          m_cfg;

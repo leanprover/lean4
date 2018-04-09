@@ -27,15 +27,15 @@ class type_checker : public abstract_type_context {
        Examples:
        The type of (lambda x : A, t)   is (Pi x : A, typeof(t))
        The type of (lambda {x : A}, t) is (Pi {x : A}, typeof(t)) */
-    typedef expr_bi_struct_map<expr> cache;
+    typedef expr_bi_map<expr> cache;
     typedef std::unordered_set<expr_pair, expr_pair_hash, expr_pair_eq> expr_pair_set;
     environment               m_env;
     name_generator            m_name_generator;
     bool                      m_memoize;
     bool                      m_trusted_only;
     cache                     m_infer_type_cache[2];
-    expr_struct_map<expr>     m_whnf_core_cache;
-    expr_struct_map<expr>     m_whnf_cache;
+    expr_map<expr>            m_whnf_core_cache;
+    expr_map<expr>            m_whnf_cache;
     equiv_manager             m_eqv_manager;
     expr_pair_set             m_failure_cache;
     level_param_names const * m_params;

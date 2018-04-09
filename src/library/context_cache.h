@@ -30,10 +30,10 @@ class context_cache : public context_cacheless {
 
         So, when we create a type_context_old_cache object we can specify whether this extra
         level of precision is required or not. */
-    typedef expr_cond_bi_struct_map<expr> infer_cache;
-    typedef expr_struct_map<expr> whnf_cache;
-    typedef expr_struct_map<optional<expr>> instance_cache;
-    typedef expr_struct_map<optional<expr>> subsingleton_cache;
+    typedef expr_cond_bi_map<expr> infer_cache;
+    typedef expr_map<expr> whnf_cache;
+    typedef expr_map<optional<expr>> instance_cache;
+    typedef expr_map<optional<expr>> subsingleton_cache;
     typedef std::unordered_set<expr_pair, expr_pair_hash, expr_pair_eq> failure_cache;
 
     /* Remark: we only cache inferred types if the metavariable assignment was not accessed.
@@ -93,9 +93,9 @@ class context_cache : public context_cacheless {
 
     /* Cache datastructures for fun_info */
 
-    typedef expr_struct_map<fun_info>         fi_cache;
+    typedef expr_map<fun_info>                fi_cache;
     typedef expr_unsigned_map<fun_info>       fi_cache_nargs;
-    typedef expr_struct_map<ss_param_infos>   ss_cache;
+    typedef expr_map<ss_param_infos>          ss_cache;
     typedef expr_unsigned_map<ss_param_infos> ss_cache_nargs;
     typedef expr_unsigned_map<unsigned>       prefix_cache;
     fi_cache                      m_fi_cache[LEAN_NUM_TRANSPARENCY_MODES];

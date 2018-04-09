@@ -27,7 +27,7 @@ struct replace_cache {
     replace_cache(unsigned c):m_capacity(c), m_cache(c) {}
 
     expr * find(expr const & e, unsigned offset) {
-        unsigned i = hash(e.hash_alloc(), offset) % m_capacity;
+        unsigned i = hash(e.hash(), offset) % m_capacity;
         if (m_cache[i].m_cell == e.raw() && m_cache[i].m_offset == offset)
             return &m_cache[i].m_result;
         else
@@ -35,7 +35,7 @@ struct replace_cache {
     }
 
     void insert(expr const & e, unsigned offset, expr const & v) {
-        unsigned i = hash(e.hash_alloc(), offset) % m_capacity;
+        unsigned i = hash(e.hash(), offset) % m_capacity;
         if (m_cache[i].m_cell == nullptr)
             m_used.push_back(i);
         m_cache[i].m_cell   = e.raw();

@@ -23,7 +23,7 @@ class cse_fn : public compiler_step_visitor {
 
     class visitor_fn {
     protected:
-        expr_set m_visited;
+        expr_struct_set m_visited; /* do we need this? */
 
         bool check_visited(expr const & e) {
             if (m_visited.find(e) != m_visited.end())

@@ -29,7 +29,7 @@ struct for_each_cache {
     for_each_cache(unsigned c):m_capacity(c), m_cache(c) {}
 
     bool visited(expr const & e, unsigned offset) {
-        unsigned i = hash(e.hash_alloc(), offset) % m_capacity;
+        unsigned i = hash(e.hash(), offset) % m_capacity;
         if (m_cache[i].m_cell == e.raw() && m_cache[i].m_offset == offset) {
             return true;
         } else {

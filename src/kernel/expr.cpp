@@ -53,8 +53,6 @@ unsigned hash_levels(levels const & ls) {
     return r;
 }
 
-LEAN_THREAD_VALUE(unsigned, g_hash_alloc_counter, 0);
-
 #ifdef LEAN_TRACK_LIVE_EXPRS
 static atomic<unsigned> g_num_live_exprs(0);
 unsigned get_num_live_exprs() {
@@ -73,14 +71,6 @@ expr_cell::expr_cell(expr_kind k, unsigned h, bool has_expr_mv, bool has_univ_mv
     m_hash(h),
     m_tag(g),
     m_rc(0) {
-    // m_hash_alloc does not need to be a unique identifier.
-    // We want diverse hash codes because given expr_cell * c1 and expr_cell * c2,
-    // if c1 != c2, then there is high probability c1->m_hash_alloc != c2->m_hash_alloc.
-    // Remark: using pointer address as a hash code is not a good idea.
-    //    - each execution run will behave differently.
-    //    - the hash is not diverse enough
-    m_hash_alloc = g_hash_alloc_counter;
-    g_hash_alloc_counter++;
     #ifdef LEAN_TRACK_LIVE_EXPRS
     atomic_fetch_add_explicit(&g_num_live_exprs, 1u, memory_order_release);
     #endif
@@ -98,8 +88,6 @@ expr_cell::expr_cell(expr_cell const & src):
     unsigned tag  = src.m_tag;
     m_flags = flgs;
     m_tag   = tag;
-    m_hash_alloc = g_hash_alloc_counter;
-    g_hash_alloc_counter++;
     #ifdef LEAN_TRACK_LIVE_EXPRS
     atomic_fetch_add_explicit(&g_num_live_exprs, 1u, memory_order_release);
     #endif

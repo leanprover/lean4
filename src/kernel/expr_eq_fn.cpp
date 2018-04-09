@@ -30,7 +30,7 @@ struct eq_cache {
     bool check(expr const & a, expr const & b) {
         if (!is_shared(a) || !is_shared(b))
             return false;
-        unsigned i = hash(a.hash_alloc(), b.hash_alloc()) % m_capacity;
+        unsigned i = hash(a.hash(), b.hash()) % m_capacity;
         if (m_cache[i].m_a == a.raw() && m_cache[i].m_b == b.raw()) {
             return true;
         } else {

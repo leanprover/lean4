@@ -93,7 +93,7 @@ public:
         local_context                            m_lctx;
         name_set                                 m_symbols;
         head_map<pair<expr, algebraic_info_ref>> m_head_info;
-        expr_map<algebraic_info_ref>             m_op_info;
+        expr_struct_map<algebraic_info_ref>      m_op_info;
     };
     typedef std::shared_ptr<data>                data_ptr;
 

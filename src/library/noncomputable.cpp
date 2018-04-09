@@ -116,7 +116,7 @@ struct get_noncomputable_reason_fn {
 
     type_checker &            m_tc;
     noncomputable_ext const & m_ext;
-    expr_set                  m_cache;
+    expr_struct_set           m_cache;
 
     get_noncomputable_reason_fn(type_checker & tc):
         m_tc(tc), m_ext(get_extension(tc.env())) {

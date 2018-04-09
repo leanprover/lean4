@@ -62,7 +62,7 @@ void collected_locals::insert(expr const & l) {
 void collect_locals(expr const & e, collected_locals & ls, bool restricted) {
     if (!has_local(e))
         return;
-    expr_set visited;
+    expr_struct_set visited;
     std::function<void(expr const & e)> visit = [&](expr const & e) {
         if (!has_local(e))
             return;

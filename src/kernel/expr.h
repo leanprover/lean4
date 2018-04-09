@@ -58,7 +58,6 @@ protected:
     unsigned           m_has_local:1;      // term contains local constants
     unsigned           m_has_param_univ:1; // term constains parametric universe levels
     unsigned           m_hash;             // hash based on the structure of the expression (this is a good hash for structural equality)
-    unsigned           m_hash_alloc;       // hash based on 'time' of allocation (this is a good hash for pointer-based equality)
     atomic_uint        m_tag;
     MK_LEAN_RC(); // Declare m_rc counter
     void dealloc();
@@ -73,7 +72,6 @@ public:
     expr_cell(expr_kind k, unsigned h, bool has_expr_mv, bool has_univ_mv, bool has_local, bool has_param_univ, tag g);
     expr_kind kind() const { return static_cast<expr_kind>(m_kind); }
     unsigned  hash() const { return m_hash; }
-    unsigned  hash_alloc() const { return m_hash_alloc; }
     bool has_expr_metavar() const { return m_has_expr_mv; }
     bool has_univ_metavar() const { return m_has_univ_mv; }
     bool has_local() const { return m_has_local; }
@@ -119,7 +117,6 @@ public:
 
     expr_kind kind() const { return m_ptr->kind(); }
     unsigned  hash() const { return m_ptr ? m_ptr->hash() : 23; }
-    unsigned  hash_alloc() const { return m_ptr ? m_ptr->hash_alloc() : 23; }
     bool has_expr_metavar() const { return m_ptr->has_expr_metavar(); }
     bool has_univ_metavar() const { return m_ptr->has_univ_metavar(); }
     bool has_metavar() const { return has_expr_metavar() || has_univ_metavar(); }
@@ -637,19 +634,6 @@ unsigned get_app_num_args(expr const & e);
 // Auxiliary functionals
 /** \brief Functional object for hashing kernel expressions. */
 struct expr_hash { unsigned operator()(expr const & e) const { return e.hash(); } };
-/**
-    \brief Functional object for hashing (based on allocation time) kernel expressions.
-
-    This hash is compatible with pointer equality.
-    \warning This hash is incompatible with structural equality (i.e., std::equal_to<expr>)
-*/
-struct expr_hash_alloc { unsigned operator()(expr const & e) const { return e.hash_alloc(); } };
-/** \brief Functional object for testing pointer equality between kernel expressions. */
-struct expr_eqp { bool operator()(expr const & e1, expr const & e2) const { return is_eqp(e1, e2); } };
-/** \brief Functional object for hashing kernel expression cells. */
-struct expr_cell_hash { unsigned operator()(expr_ptr e) const { return e->hash_alloc(); } };
-/** \brief Functional object for testing pointer equality between kernel cell expressions. */
-struct expr_cell_eqp { bool operator()(expr_ptr e1, expr_ptr e2) const { return e1 == e2; } };
 // =======================================
 
 // =======================================

@@ -12,12 +12,5 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
-// =======================================
-// Expression Set
-// Remark: to expressions are assumed to be equal if they are "pointer-equal"
-typedef std::unordered_set<expr, expr_hash_alloc, expr_eqp> expr_set;
-// =======================================
-
-// Similar to expr_set, but using structural equality
 typedef std::unordered_set<expr, expr_hash, std::equal_to<expr>> expr_struct_set;
 }

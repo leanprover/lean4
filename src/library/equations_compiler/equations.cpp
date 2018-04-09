@@ -90,7 +90,8 @@ public:
     equations_header const & get_header() const { return m_header; }
 };
 
-class equation_base_macro_cell : public macro_definition_cell {
+class equation_base_macro_cell :
+public macro_definition_cell {
 public:
     virtual expr check_type(expr const &, abstract_type_context &, bool) const override {
         expr dummy = mk_Prop();

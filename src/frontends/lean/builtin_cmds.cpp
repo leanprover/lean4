@@ -394,7 +394,7 @@ static environment init_quotient_cmd(parser & p) {
    After we convert the frontend to type_context_old, we will not need to use this procedure.
 */
 static expr convert_metavars(metavar_context & mctx, expr const & e) {
-    expr_map<expr> cache;
+    expr_struct_map<expr> cache;
 
     std::function<expr(expr const & e)> convert = [&](expr const & e) {
         return replace(e, [&](expr const e, unsigned) {

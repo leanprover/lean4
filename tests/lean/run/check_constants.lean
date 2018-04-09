@@ -341,6 +341,7 @@ run_cmd script_check_id `trans_rel_left
 run_cmd script_check_id `trans_rel_right
 run_cmd script_check_id `true
 run_cmd script_check_id `true.intro
+run_cmd script_check_id `typed_expr
 run_cmd script_check_id `unification_hint
 run_cmd script_check_id `unification_hint.mk
 run_cmd script_check_id `unit

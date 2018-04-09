@@ -341,6 +341,7 @@ name const * g_trans_rel_left = nullptr;
 name const * g_trans_rel_right = nullptr;
 name const * g_true = nullptr;
 name const * g_true_intro = nullptr;
+name const * g_typed_expr = nullptr;
 name const * g_unification_hint = nullptr;
 name const * g_unification_hint_mk = nullptr;
 name const * g_unit = nullptr;
@@ -698,6 +699,7 @@ void initialize_constants() {
     g_trans_rel_right = new name{"trans_rel_right"};
     g_true = new name{"true"};
     g_true_intro = new name{"true", "intro"};
+    g_typed_expr = new name{"typed_expr"};
     g_unification_hint = new name{"unification_hint"};
     g_unification_hint_mk = new name{"unification_hint", "mk"};
     g_unit = new name{"unit"};
@@ -1056,6 +1058,7 @@ void finalize_constants() {
     delete g_trans_rel_right;
     delete g_true;
     delete g_true_intro;
+    delete g_typed_expr;
     delete g_unification_hint;
     delete g_unification_hint_mk;
     delete g_unit;
@@ -1413,6 +1416,7 @@ name const & get_trans_rel_left_name() { return *g_trans_rel_left; }
 name const & get_trans_rel_right_name() { return *g_trans_rel_right; }
 name const & get_true_name() { return *g_true; }
 name const & get_true_intro_name() { return *g_true_intro; }
+name const & get_typed_expr_name() { return *g_typed_expr; }
 name const & get_unification_hint_name() { return *g_unification_hint; }
 name const & get_unification_hint_mk_name() { return *g_unification_hint_mk; }
 name const & get_unit_name() { return *g_unit; }

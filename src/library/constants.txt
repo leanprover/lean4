@@ -336,6 +336,7 @@ trans_rel_left
 trans_rel_right
 true
 true.intro
+typed_expr
 unification_hint
 unification_hint.mk
 unit

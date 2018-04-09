@@ -3306,8 +3306,6 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
         return visit_anonymous_constructor(e, expected_type);
     } else if (is_prenum(e)) {
         return visit_prenum(e, expected_type);
-    } else if (is_typed_expr(e)) {
-        return visit_typed_expr(e);
     } else if (is_choice(e) || is_explicit(e) || is_partial_explicit(e)) {
         return visit_app_core(e, buffer<expr>(), expected_type, e);
     } else if (is_by(e)) {
@@ -3567,6 +3565,8 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
     return recover_expr_from_exception(expected_type, e, [&] () -> expr {
         if (is_placeholder(e)) {
             return visit_placeholder(e, expected_type);
+        } else if (is_typed_expr(e)) {
+            return visit_typed_expr(e);
         } else if (is_have_expr(e)) {
             return copy_tag(e, visit_have_expr(e, expected_type));
         } else if (is_suffices_annotation(e)) {

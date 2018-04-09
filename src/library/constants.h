@@ -343,6 +343,7 @@ name const & get_trans_rel_left_name();
 name const & get_trans_rel_right_name();
 name const & get_true_name();
 name const & get_true_intro_name();
+name const & get_typed_expr_name();
 name const & get_unification_hint_name();
 name const & get_unification_hint_mk_name();
 name const & get_unit_name();

@@ -104,6 +104,9 @@ a
 /-- Gadget for marking output parameters in type classes. -/
 @[reducible] def out_param (α : Sort u) : Sort u := α
 
+/-- Auxiliary declaration used to implement the notation (a : α) -/
+@[reducible] def typed_expr (α : Type u) (a : α) : α := a
+
 /-
   id_rhs is an auxiliary declaration used in the equation compiler to address performance
   issues when proving equational lemmas. The equation compiler uses it as a marker.

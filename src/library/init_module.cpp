@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/constants.h"
 #include "library/kernel_serializer.h"
-#include "library/typed_expr.h"
 #include "library/choice.h"
 #include "library/class.h"
 #include "library/num.h"
@@ -85,7 +84,6 @@ void initialize_library_module() {
     initialize_idx_metavar();
     initialize_io_state();
     initialize_kernel_serializer();
-    initialize_typed_expr();
     initialize_choice();
     initialize_string();
     initialize_num();
@@ -159,7 +157,6 @@ void finalize_library_module() {
     finalize_num();
     finalize_string();
     finalize_choice();
-    finalize_typed_expr();
     finalize_kernel_serializer();
     finalize_io_state();
     finalize_idx_metavar();

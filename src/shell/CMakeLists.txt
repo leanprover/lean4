@@ -85,9 +85,9 @@ add_test(lean_unknown_file1 bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${
 # add_test(NAME "lean_eqn_macro"
 #         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
 #         COMMAND bash "./test_eqn_macro.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
-add_test(NAME "lean_print_notation"
-         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
-         COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "print_tests.lean")
+# add_test(NAME "lean_print_notation"
+#         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
+#         COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "print_tests.lean")
 # add_test(NAME "issue_597"
 #          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
 #          COMMAND bash "./issue_597.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")

@@ -6,7 +6,7 @@ Authors: Jeremy Avigad
 The integers, with addition, multiplication, and subtraction.
 -/
 prelude
-import init.data.nat.gcd init.meta.transfer init.data.list
+import init.data.nat.gcd init.data.list
 open nat
 
 /- the type, coercions, and notation -/
@@ -39,8 +39,6 @@ protected def one  : int := of_nat 1
 
 instance : has_zero int := ⟨int.zero⟩
 instance : has_one int := ⟨int.one⟩
-
-/- definitions of basic functions -/
 
 def neg_of_nat : ℕ → int
 | 0        := 0

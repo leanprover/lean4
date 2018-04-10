@@ -67,12 +67,15 @@ let q  := s / 2147483562,
     s2 := q % 2147483398 in
 ⟨s1 + 1, s2 + 1⟩
 
+
 /-
 Auxiliary function for random_nat_val.
 Generate random values until we exceed the target magnitude.
 `gen_lo` and `gen_mag` are the generator lower bound and magnitude.
 The parameter `r` is the "remaining" magnitude.
 -/
+
+/-
 private def rand_nat_aux {gen : Type u} [random_gen gen] (gen_lo gen_mag : nat) (h : gen_mag > 0) : nat → nat → gen → nat × gen
 | 0        v g := (v, g)
 | r'@(r+1) v g :=
@@ -111,3 +114,4 @@ in (v', g')
 def rand_bool {gen : Type u} [random_gen gen] (g : gen) : bool × gen :=
 let (v, g') := rand_nat g 0 1
 in (v = 1, g')
+-/

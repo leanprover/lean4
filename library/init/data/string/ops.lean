@@ -21,11 +21,12 @@ by cases it; cases it_snd; simp [iterator.next, iterator.next_to_string, string.
 
 lemma zero_lt_length_next_to_string_of_has_next {it : iterator} :
   it.has_next → 0 < it.next_to_string.length :=
-by cases it; cases it_snd; simp [iterator.has_next, iterator.next_to_string, string.length, nat.zero_lt_one_add]
+by cases it; cases it_snd; simp [iterator.has_next, iterator.next_to_string, string.length, nat.zero_lt_succ]
 
 end iterator
 
 -- TODO(Sebastian): generalize to something like https://doc.rust-lang.org/std/primitive.str.html#method.split
+/-
 private def split_core (p : char → bool) : iterator → iterator → list string
 | start stop :=
 if h : stop.has_next then
@@ -43,5 +44,6 @@ using_well_founded { rel_tac := λ _ _, `[exact ⟨_, measure_wf (λ e, e.2.next
 
 def split (p : char → bool) (s : string) : list string :=
 split_core p s.mk_iterator s.mk_iterator
+-/
 
 end string

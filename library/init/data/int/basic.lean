@@ -6,7 +6,7 @@ Authors: Jeremy Avigad
 The integers, with addition, multiplication, and subtraction.
 -/
 prelude
-import init.data.nat.gcd init.data.list
+import init.data.nat.basic init.data.list init.meta.mk_dec_eq_instance
 open nat
 
 /- the type, coercions, and notation -/
@@ -126,8 +126,6 @@ def rem : int → int → int
 
 instance : has_div int := ⟨int.div⟩
 instance : has_mod int := ⟨int.mod⟩
-
-def gcd (m n : int) : ℕ := gcd (nat_abs m) (nat_abs n)
 
 def to_nat : int → ℕ
 | (n : ℕ) := n

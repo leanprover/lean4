@@ -64,16 +64,16 @@ def append_string (b : buffer char) (s : string) : buffer char :=
 b.append_list s.to_list
 
 lemma lt_aux_1 {a b c : nat} (h : a + c < b) : a < b :=
-lt_of_le_of_lt (nat.le_add_right a c) h
+nat.lt_of_le_of_lt (nat.le_add_right a c) h
 
 lemma lt_aux_2 {n} (h : n > 0) : n - 1 < n :=
 have h₁ : 1 > 0, from dec_trivial,
 nat.sub_lt h h₁
 
 lemma lt_aux_3 {n i} (h : i + 1 < n) : n - 2 - i < n  :=
-have n > 0,     from lt.trans (nat.zero_lt_succ i) h,
+have n > 0,     from nat.lt_trans (nat.zero_lt_succ i) h,
 have n - 2 < n, from nat.sub_lt this (dec_trivial),
-lt_of_le_of_lt (nat.sub_le _ _) this
+nat.lt_of_le_of_lt (nat.sub_le _ _) this
 
 def append_array {α : Type u} {n : nat} (nz : n > 0) : buffer α → array n α → ∀ i : nat, i < n → buffer α
 | ⟨m, b⟩ a 0     _ :=
@@ -102,6 +102,7 @@ def foldl : buffer α → β → (α → β → β) → β
 def rev_iterate : Π (b : buffer α), β → (fin b.size → α → β → β) → β
 | ⟨_, a⟩ b f := a.rev_iterate b f
 
+/-
 def take (b : buffer α) (n : nat) : buffer α :=
 if h : n ≤ b.size then ⟨n, b.to_array.take n h⟩ else b
 
@@ -113,6 +114,7 @@ if h : n ≤ b.size then ⟨_, b.to_array.drop n h⟩ else b
 
 def reverse (b : buffer α) : buffer α :=
 ⟨b.size, b.to_array.reverse⟩
+-/
 
 protected def mem (v : α) (a : buffer α) : Prop := ∃i, read a i = v
 

@@ -19,7 +19,7 @@ def of_nat {n : nat} (a : nat) : fin (succ n) :=
 private lemma mlt {n b : nat} : ∀ {a}, n > a → b % n < n
 | 0     h := nat.mod_lt _ h
 | (a+1) h :=
-  have n > 0, from lt.trans (nat.zero_lt_succ _) h,
+  have n > 0, from nat.lt_trans (nat.zero_lt_succ _) h,
   nat.mod_lt _ this
 
 protected def add : fin n → fin n → fin n
@@ -29,7 +29,7 @@ protected def mul : fin n → fin n → fin n
 | ⟨a, h⟩ ⟨b, _⟩ := ⟨(a * b) % n, mlt h⟩
 
 private lemma sublt {a b n : nat} (h : a < n) : a - b < n :=
-lt_of_le_of_lt (nat.sub_le a b) h
+nat.lt_of_le_of_lt (nat.sub_le a b) h
 
 protected def sub : fin n → fin n → fin n
 | ⟨a, h⟩ ⟨b, _⟩ := ⟨a - b, sublt h⟩
@@ -40,14 +40,14 @@ begin
   {simp [mod_zero], assumption},
   {have h : a % (succ b) < succ b,
    apply nat.mod_lt _ (nat.zero_lt_succ _),
-   exact lt.trans h h₂}
+   exact nat.lt_trans h h₂}
 end
 
 protected def mod : fin n → fin n → fin n
 | ⟨a, h₁⟩ ⟨b, h₂⟩ := ⟨a % b, modlt h₁ h₂⟩
 
 private lemma divlt {a b n : nat} (h : a < n) : a / b < n :=
-lt_of_le_of_lt (nat.div_le_self a b) h
+nat.lt_of_le_of_lt (nat.div_le_self a b) h
 
 protected def div : fin n → fin n → fin n
 | ⟨a, h⟩ ⟨b, _⟩ := ⟨a / b, divlt h⟩
@@ -59,36 +59,6 @@ instance : has_sub (fin n)         := ⟨fin.sub⟩
 instance : has_mul (fin n)         := ⟨fin.mul⟩
 instance : has_mod (fin n)         := ⟨fin.mod⟩
 instance : has_div (fin n)         := ⟨fin.div⟩
-
-lemma of_nat_zero : @of_nat n 0 = 0 := rfl
-
-lemma add_def (a b : fin n) : (a + b).val = (a.val + b.val) % n :=
-show (fin.add a b).val = (a.val + b.val) % n, from
-by cases a; cases b; simp [fin.add]
-
-lemma mul_def (a b : fin n) : (a * b).val = (a.val * b.val) % n :=
-show (fin.mul a b).val = (a.val * b.val) % n, from
-by cases a; cases b; simp [fin.mul]
-
-lemma sub_def (a b : fin n) : (a - b).val = a.val - b.val :=
-show (fin.sub a b).val = a.val - b.val, from
-by cases a; cases b; simp [fin.sub]
-
-lemma mod_def (a b : fin n) : (a % b).val = a.val % b.val :=
-show (fin.mod a b).val = a.val % b.val, from
-by cases a; cases b; simp [fin.mod]
-
-lemma div_def (a b : fin n) : (a / b).val = a.val / b.val :=
-show (fin.div a b).val = a.val / b.val, from
-by cases a; cases b; simp [fin.div]
-
-lemma lt_def (a b : fin n) : (a < b) = (a.val < b.val) :=
-show (fin.lt a b) = (a.val < b.val), from
-by cases a; cases b; simp [fin.lt]
-
-lemma le_def (a b : fin n) : (a ≤ b) = (a.val ≤ b.val) :=
-show (fin.le a b) = (a.val ≤ b.val), from
-by cases a; cases b; simp [fin.le]
 
 lemma val_zero : (0 : fin (succ n)).val = 0 := rfl
 

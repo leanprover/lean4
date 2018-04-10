@@ -29,11 +29,11 @@ def iterate_aux (a : d_array n α) (f : Π i : fin n, α i → β → β) : Π (
 | 0     h b := b
 | (j+1) h b :=
   let i : fin n := ⟨j, h⟩ in
-  f i (a.read i) (iterate_aux j (le_of_lt h) b)
+  f i (a.read i) (iterate_aux j (nat.le_of_lt h) b)
 
 /- has builtin VM implementation -/
 def iterate (a : d_array n α) (b : β) (f : Π i : fin n, α i → β → β) : β :=
-iterate_aux a f n (le_refl _) b
+iterate_aux a f n (nat.le_refl _) b
 
 /- has builtin VM implementation -/
 def foreach (a : d_array n α) (f : Π i : fin n, α i → α i) : d_array n α :=
@@ -52,10 +52,10 @@ def rev_iterate_aux (a : d_array n α) (f : Π i : fin n, α i → β → β) : 
 | 0     h b := b
 | (j+1) h b :=
   let i : fin n := ⟨j, h⟩ in
-  rev_iterate_aux j (le_of_lt h) (f i (a.read i) b)
+  rev_iterate_aux j (nat.le_of_lt h) (f i (a.read i) b)
 
 def rev_iterate (a : d_array n α) (b : β) (f : Π i : fin n, α i → β → β) : β :=
-rev_iterate_aux a f n (le_refl _) b
+rev_iterate_aux a f n (nat.le_refl _) b
 
 @[simp] lemma read_write (a : d_array n α) (i : fin n) (v : α i) : read (write a i v) i = v :=
 by simp [read, write]
@@ -71,22 +71,22 @@ begin cases a, cases b, congr, funext i, cases i, apply h end
 
 protected def beq_aux [∀ i, decidable_eq (α i)] (a b : d_array n α) : Π (i : nat), i ≤ n → bool
 | 0     h := tt
-| (i+1) h := if a.read ⟨i, h⟩ = b.read ⟨i, h⟩ then beq_aux i (le_of_lt h) else ff
+| (i+1) h := if a.read ⟨i, h⟩ = b.read ⟨i, h⟩ then beq_aux i (nat.le_of_lt h) else ff
 
 protected def beq [∀ i, decidable_eq (α i)] (a b : d_array n α) : bool :=
-d_array.beq_aux a b n (le_refl _)
+d_array.beq_aux a b n (nat.le_refl _)
 
 lemma of_beq_aux_eq_tt [∀ i, decidable_eq (α i)] {a b : d_array n α} : ∀ (i : nat) (h : i ≤ n), d_array.beq_aux a b i h = tt →
-                       ∀ (j : nat) (h' : j < i), a.read ⟨j, lt_of_lt_of_le h' h⟩ = b.read ⟨j, lt_of_lt_of_le h' h⟩
+                       ∀ (j : nat) (h' : j < i), a.read ⟨j, nat.lt_of_lt_of_le h' h⟩ = b.read ⟨j, nat.lt_of_lt_of_le h' h⟩
 | 0     h₁ h₂ j h₃ := absurd h₃ (nat.not_lt_zero _)
 | (i+1) h₁ h₂ j h₃ :=
   begin
     have h₂' : read a ⟨i, h₁⟩ = read b ⟨i, h₁⟩ ∧ d_array.beq_aux a b i _ = tt, {simp [d_array.beq_aux] at h₂, assumption},
-    have h₁' : i ≤ n, from le_of_lt h₁,
-    have ih  : ∀ (j : nat) (h' : j < i), a.read ⟨j, lt_of_lt_of_le h' h₁'⟩ = b.read ⟨j, lt_of_lt_of_le h' h₁'⟩, from of_beq_aux_eq_tt i h₁' h₂'.2,
+    have h₁' : i ≤ n, from nat.le_of_lt h₁,
+    have ih  : ∀ (j : nat) (h' : j < i), a.read ⟨j, nat.lt_of_lt_of_le h' h₁'⟩ = b.read ⟨j, nat.lt_of_lt_of_le h' h₁'⟩, from of_beq_aux_eq_tt i h₁' h₂'.2,
     by_cases hji : j = i,
     { subst hji, exact h₂'.1 },
-    { have j_lt_i : j < i, from lt_of_le_of_ne (nat.le_of_lt_succ h₃) hji,
+    { have j_lt_i : j < i, from nat.lt_of_le_of_ne (nat.le_of_lt_succ h₃) hji,
       exact ih j j_lt_i }
   end
 
@@ -95,20 +95,20 @@ begin
   unfold d_array.beq,
   intro h,
   have : ∀ (j : nat) (h : j < n), a.read ⟨j, h⟩ = b.read ⟨j, h⟩, from
-    of_beq_aux_eq_tt n (le_refl _) h,
+    of_beq_aux_eq_tt n (nat.le_refl _) h,
   apply d_array.ext' this
 end
 
 lemma of_beq_aux_eq_ff [∀ i, decidable_eq (α i)] {a b : d_array n α} : ∀ (i : nat) (h : i ≤ n), d_array.beq_aux a b i h = ff →
-                       ∃ (j : nat) (h' : j < i), a.read ⟨j, lt_of_lt_of_le h' h⟩ ≠ b.read ⟨j, lt_of_lt_of_le h' h⟩
+                       ∃ (j : nat) (h' : j < i), a.read ⟨j, nat.lt_of_lt_of_le h' h⟩ ≠ b.read ⟨j, nat.lt_of_lt_of_le h' h⟩
 | 0     h₁ h₂ := begin simp [d_array.beq_aux] at h₂, contradiction end
 | (i+1) h₁ h₂ :=
   begin
     have h₂' : read a ⟨i, h₁⟩ ≠ read b ⟨i, h₁⟩ ∨ d_array.beq_aux a b i _ = ff, {simp [d_array.beq_aux] at h₂, assumption},
     cases h₂' with h h,
     { existsi i, existsi (nat.lt_succ_self _), exact h },
-    { have h₁' : i ≤ n, from le_of_lt h₁,
-      have ih : ∃ (j : nat) (h' : j < i), a.read ⟨j, lt_of_lt_of_le h' h₁'⟩ ≠ b.read ⟨j, lt_of_lt_of_le h' h₁'⟩, from of_beq_aux_eq_ff i h₁' h,
+    { have h₁' : i ≤ n, from nat.le_of_lt h₁,
+      have ih : ∃ (j : nat) (h' : j < i), a.read ⟨j, nat.lt_of_lt_of_le h' h₁'⟩ ≠ b.read ⟨j, nat.lt_of_lt_of_le h' h₁'⟩, from of_beq_aux_eq_ff i h₁' h,
       cases ih with j ih,
       cases ih with h' ih,
       existsi j, existsi (nat.lt_succ_of_lt h'),
@@ -119,7 +119,7 @@ lemma of_beq_eq_ff [∀ i, decidable_eq (α i)] {a b : d_array n α} : d_array.b
 begin
   unfold d_array.beq,
   intros h hne,
-  have : ∃ (j : nat) (h' : j < n), a.read ⟨j, h'⟩ ≠ b.read ⟨j, h'⟩, from of_beq_aux_eq_ff n (le_refl _) h,
+  have : ∃ (j : nat) (h' : j < n), a.read ⟨j, h'⟩ ≠ b.read ⟨j, h'⟩, from of_beq_aux_eq_ff n (nat.le_refl _) h,
   cases this with j this,
   cases this with h' this,
   subst hne,
@@ -178,7 +178,7 @@ def to_list (a : array n α) : list α :=
 a.rev_foldl [] (::)
 
 lemma push_back_idx {j n} (h₁ : j < n + 1) (h₂ : j ≠ n) : j < n :=
-nat.lt_of_le_and_ne (nat.le_of_lt_succ h₁) h₂
+nat.lt_of_le_of_ne (nat.le_of_lt_succ h₁) h₂
 
 /- has builtin VM implementation -/
 def push_back (a : array n α) (v : α) : array (n+1) α :=

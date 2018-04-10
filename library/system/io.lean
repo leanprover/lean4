@@ -9,8 +9,8 @@ import system.io_interface
 constant io_core : Type → Type → Type
 
 /- Auxiliary definition used in the builtin implementation of monad_io_random_impl -/
-def io_rand_nat : std_gen → nat → nat → nat × std_gen :=
-rand_nat
+-- def io_rand_nat : std_gen → nat → nat → nat × std_gen :=
+-- rand_nat
 
 @[instance] constant monad_io_impl             : monad_io io_core
 @[instance] constant monad_io_terminal_impl    : monad_io_terminal io_core
@@ -123,7 +123,7 @@ monad_io_file_system.write
 
 def get_char (h : handle) : io char :=
 do b ← read h 1,
-   if h : b.size = 1 then return $ b.read ⟨0, h.symm ▸ zero_lt_one⟩
+   if h : b.size = 1 then return $ b.read ⟨0, h.symm ▸ nat.zero_lt_one⟩
    else io.fail "get_char failed"
 
 def get_line : handle → io char_buffer :=

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.ordering.basic init.meta init.algebra.classes init.ite_simp
+import init.data.ordering.basic init.meta init.ite_simp
 set_option default_priority 100
 
 universes u
@@ -30,12 +30,14 @@ local attribute [simp] cmp_using
 @[simp] lemma cmp_using_eq_lt (a b : α) : (cmp_using lt a b = ordering.lt) = lt a b :=
 by simp
 
+/-
 @[simp] lemma cmp_using_eq_gt [is_strict_order α lt] (a b : α) : (cmp_using lt a b = ordering.gt) = lt b a :=
 begin
   simp, apply propext, apply iff.intro,
   { exact λ h, h.2 },
   { intro hba, split, { intro hab, exact absurd (trans hab hba) (irrefl a) }, { assumption } }
 end
+-/
 
 @[simp] lemma cmp_using_eq_eq (a b : α) : (cmp_using lt a b = ordering.eq) = (¬ lt a b ∧ ¬ lt b a) :=
 by simp

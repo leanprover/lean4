@@ -5,4 +5,3 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.data.nat.basic init.data.nat.div init.data.nat.lemmas
-       init.data.nat.bitwise

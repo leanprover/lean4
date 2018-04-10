@@ -524,8 +524,6 @@ iff.intro (λ h, h trivial) (λ h h', h)
 inductive Exists {α : Sort u} (p : α → Prop) : Prop
 | intro (w : α) (h : p w) : Exists
 
-attribute [intro] Exists.intro
-
 @[pattern]
 def exists.intro := @Exists.intro
 
@@ -543,7 +541,6 @@ def exists_unique {α : Sort u} (p : α → Prop) :=
 
 notation `∃!` binders `, ` r:(scoped P, exists_unique P) := r
 
-@[intro]
 lemma exists_unique.intro {α : Sort u} {p : α → Prop} (w : α) (h₁ : p w) (h₂ : ∀ y, p y → y = w) :
   ∃! x, p x :=
 exists.intro w ⟨h₁, h₂⟩

@@ -66,11 +66,9 @@ left_comm (@min α _) (@min_comm α _) (@min_assoc α _)
 lemma min_self (a : α) : min a a = a :=
 by min_tac a a
 
-@[ematch]
 lemma min_eq_left {a b : α} (h : a ≤ b) : min a b = a :=
 begin apply eq.symm, apply eq_min (le_refl _) h, intros, assumption end
 
-@[ematch]
 lemma min_eq_right {a b : α} (h : b ≤ a) : min a b = b :=
 eq.subst (min_comm b a) (min_eq_left h)
 

@@ -36,8 +36,8 @@ Author: Leonardo de Moura
 #include "library/tactic/destruct_tactic.h"
 #include "library/tactic/algebraic_normalizer.h"
 #include "library/tactic/hole_command.h"
-#include "library/tactic/backward/init_module.h"
-#include "library/tactic/smt/init_module.h"
+// #include "library/tactic/backward/init_module.h"
+// #include "library/tactic/smt/init_module.h"
 
 namespace lean {
 void initialize_tactic_module() {
@@ -62,7 +62,7 @@ void initialize_tactic_module() {
     initialize_rewrite_tactic();
     initialize_unfold_tactic();
     initialize_simplify();
-    initialize_backward_module();
+    // initialize_backward_module();
     initialize_elaborate();
     initialize_user_attribute();
     initialize_eval();
@@ -74,10 +74,10 @@ void initialize_tactic_module() {
     initialize_destruct_tactic();
     initialize_algebraic_normalizer();
     initialize_hole_command();
-    initialize_smt_module();
+    // initialize_smt_module();
 }
 void finalize_tactic_module() {
-    finalize_smt_module();
+    // finalize_smt_module();
     finalize_hole_command();
     finalize_algebraic_normalizer();
     finalize_destruct_tactic();
@@ -89,7 +89,7 @@ void finalize_tactic_module() {
     finalize_eval();
     finalize_user_attribute();
     finalize_elaborate();
-    finalize_backward_module();
+    // finalize_backward_module();
     finalize_simplify();
     finalize_unfold_tactic();
     finalize_rewrite_tactic();

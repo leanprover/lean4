@@ -5,7 +5,7 @@ Author: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn
 -/
 prelude
 import init.data.list.basic init.function init.meta init.data.nat.lemmas
-import init.meta.interactive init.meta.smt.rsimp
+import init.meta.interactive
 
 universes u v w w₁ w₂
 variables {α : Type u} {β : Type v} {γ : Type w}
@@ -95,7 +95,7 @@ or.inl rfl
 @[simp] lemma mem_cons_iff (a y : α) (l : list α) : a ∈ y :: l ↔ (a = y ∨ a ∈ l) :=
 iff.rfl
 
-@[rsimp] lemma mem_cons_eq (a y : α) (l : list α) : (a ∈ y :: l) = (a = y ∨ a ∈ l) :=
+lemma mem_cons_eq (a y : α) (l : list α) : (a ∈ y :: l) = (a = y ∨ a ∈ l) :=
 rfl
 
 lemma mem_cons_of_mem (y : α) {a : α} {l : list α} : a ∈ l → a ∈ y :: l :=
@@ -107,7 +107,7 @@ assume h, h
 @[simp] lemma mem_append {a : α} {s t : list α} : a ∈ s ++ t ↔ a ∈ s ∨ a ∈ t :=
 by induction s; simp [*, or_assoc]
 
-@[rsimp] lemma mem_append_eq (a : α) (s t : list α) : (a ∈ s ++ t) = (a ∈ s ∨ a ∈ t) :=
+lemma mem_append_eq (a : α) (s t : list α) : (a ∈ s ++ t) = (a ∈ s ∨ a ∈ t) :=
 propext mem_append
 
 lemma mem_append_left {a : α} {l₁ : list α} (l₂ : list α) (h : a ∈ l₁) : a ∈ l₁ ++ l₂ :=

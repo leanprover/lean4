@@ -53,8 +53,6 @@ show extfun_app ⟦f₁⟧ = extfun_app ⟦f₂⟧, from
 congr_arg extfun_app (sound h)
 end
 
-attribute [intro!] funext
-
 local infix `~` := function.equiv
 
 instance pi.subsingleton {α : Sort u} {β : α → Sort v} [∀ a, subsingleton (β a)] : subsingleton (Π a, β a) :=

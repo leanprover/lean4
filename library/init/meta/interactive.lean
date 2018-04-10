@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.meta.tactic init.meta.rewrite_tactic init.meta.simp_tactic
-import init.meta.smt.congruence_closure init.category.combinators
+import init.category.combinators
 import init.meta.interactive_base init.meta.derive init.meta.match_tactic
 import init.meta.congr_tactic
 
@@ -1281,24 +1281,6 @@ tactic.transitivity >> match q with
   do (r, lhs, rhs) ← target_lhs_rhs,
      i_to_expr q >>= unify rhs
 end
-
-/--
-Proves a goal with target `s = t` when `s` and `t` are equal up to the associativity and commutativity of their binary operations.
--/
-meta def ac_reflexivity : tactic unit :=
-tactic.ac_refl
-
-/--
-An abbreviation for `ac_reflexivity`.
--/
-meta def ac_refl : tactic unit :=
-tactic.ac_refl
-
-/--
-Tries to prove the main goal using congruence closure.
--/
-meta def cc : tactic unit :=
-tactic.cc
 
 /--
 Given hypothesis `h : x = t` or `h : t = x`, where `x` is a local constant, `subst h` substitutes `x` by `t` everywhere in the main goal and then clears `h`.

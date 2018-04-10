@@ -330,7 +330,3 @@ section integral_domain
   by rwa mul_one at this
 
 end integral_domain
-
-/- TODO(Leo): remove the following annotations as soon as we have support for arithmetic
-   in the SMT tactic framework -/
-attribute [ematch] add_zero zero_add mul_one one_mul mul_zero zero_mul

@@ -21,7 +21,6 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/kernel_serializer.h"
 #include "library/tactic/elaborate.h"
-#include "library/tactic/smt/hinst_lemmas.h"
 #include "library/equations_compiler/equations.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/decl_cmds.h"
@@ -568,9 +567,10 @@ static expr parse_sorry(parser & p, unsigned, expr const *, pos_info const & pos
     return p.mk_sorry(pos);
 }
 
-static expr parse_pattern(parser & p, unsigned, expr const * args, pos_info const & pos) {
-    return p.save_pos(mk_pattern_hint(args[0]), pos);
-}
+// We have disabled the SMT frontend
+// static expr parse_pattern(parser & p, unsigned, expr const * args, pos_info const & pos) {
+//    return p.save_pos(mk_pattern_hint(args[0]), pos);
+// }
 
 static expr parse_lazy_quoted_pexpr(parser & p, unsigned, expr const *, pos_info const & pos) {
     if (p.in_quote())
@@ -1035,7 +1035,7 @@ parse_table init_nud_table() {
     r = r.add({transition("`", mk_ext_action(parse_quoted_name))}, x0);
     r = r.add({transition("%%", mk_ext_action(parse_antiquote_expr))}, x0);
     r = r.add({transition("#[", mk_ext_action(parse_bin_tree))}, x0);
-    r = r.add({transition("(:", Expr), transition(":)", mk_ext_action(parse_pattern))}, x0);
+    // r = r.add({transition("(:", Expr), transition(":)", mk_ext_action(parse_pattern))}, x0);
     r = r.add({transition("()", mk_ext_action(parse_unit))}, x0);
     r = r.add({transition("(::)", mk_ext_action(parse_lambda_cons))}, x0);
     r = r.add({transition("fun", mk_ext_action(parse_lambda))}, x0);

@@ -8,8 +8,6 @@ import init.data.nat.basic init.data.nat.div init.meta init.algebra.functions
 universes u
 
 namespace nat
-attribute [pre_smt] nat_zero_eq_zero
-
 protected lemma add_comm : ∀ n m : ℕ, n + m = m + n
 | n 0     := eq.symm (nat.zero_add n)
 | n (m+1) :=
@@ -500,22 +498,18 @@ protected theorem sub_self : ∀ (n : ℕ), n - n = 0
 
 /- TODO(Leo): remove the following ematch annotations as soon as we have
    arithmetic theory in the smt_stactic -/
-@[ematch_lhs]
 protected theorem add_sub_add_right : ∀ (n k m : ℕ), (n + k) - (m + k) = n - m
 | n 0        m := by rw [add_zero, add_zero]
 | n (succ k) m := by rw [add_succ, add_succ, succ_sub_succ, add_sub_add_right n k m]
 
-@[ematch_lhs]
 protected theorem add_sub_add_left (k n m : ℕ) : (k + n) - (k + m) = n - m :=
 by rw [add_comm k n, add_comm k m, nat.add_sub_add_right]
 
-@[ematch_lhs]
 protected theorem add_sub_cancel (n m : ℕ) : n + m - m = n :=
 suffices n + m - (0 + m) = n, from
   by rwa [zero_add] at this,
 by rw [nat.add_sub_add_right, nat.sub_zero]
 
-@[ematch_lhs]
 protected theorem add_sub_cancel_left (n m : ℕ) : n + m - n = m :=
 show n + m - (n + 0) = m, from
 by rw [nat.add_sub_add_left, nat.sub_zero]

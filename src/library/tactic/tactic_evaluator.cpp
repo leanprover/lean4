@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/vm/vm_list.h"
 #include "library/compiler/vm_compiler.h"
-#include "library/tactic/smt/smt_state.h"
 #include "library/tactic/elaborator_exception.h"
 #include "library/tactic/tactic_evaluator.h"
 

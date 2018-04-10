@@ -38,7 +38,6 @@ Author: Leonardo de Moura
 #include "library/idx_metavar.h"
 #include "library/equations_compiler/equations.h"
 #include "library/tactic/tactic_state.h"
-#include "library/tactic/smt/hinst_lemmas.h"
 #include "library/compiler/comp_irrelevant.h"
 #include "library/compiler/erase_irrelevant.h"
 #include "library/compiler/rec_fn_macro.h"
@@ -1176,8 +1175,10 @@ auto pretty_fn::pp_macro(expr const & e) -> result {
         auto lhs_fmt = pp_child(get_as_pattern_lhs(e), max_bp()).fmt();
         auto rhs_fmt = pp_child(get_as_pattern_rhs(e), max_bp()).fmt();
         return result(lhs_fmt + format("@") + rhs_fmt);
+/*
     } else if (is_pattern_hint(e)) {
         return result(group(nest(2, format("(:") + pp(get_pattern_hint_arg(e)).fmt() + format(":)"))));
+*/
     } else if (is_marked_as_comp_irrelevant(e)) {
         if (m_hide_comp_irrel)
             return m_unicode ? format("◾") : format("irrel");

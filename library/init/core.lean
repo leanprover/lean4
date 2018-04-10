@@ -105,7 +105,7 @@ a
 @[reducible] def out_param (α : Sort u) : Sort u := α
 
 /-- Auxiliary declaration used to implement the notation (a : α) -/
-@[reducible] def typed_expr (α : Type u) (a : α) : α := a
+@[reducible] def typed_expr (α : Sort u) (a : α) : α := a
 
 /-
   id_rhs is an auxiliary declaration used in the equation compiler to address performance

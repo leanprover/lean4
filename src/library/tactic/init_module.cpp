@@ -31,7 +31,6 @@ Author: Leonardo de Moura
 #include "library/tactic/dsimplify.h"
 #include "library/tactic/simplify.h"
 #include "library/tactic/vm_monitor.h"
-#include "library/tactic/norm_num_tactic.h"
 #include "library/tactic/destruct_tactic.h"
 
 namespace lean {
@@ -62,14 +61,12 @@ void initialize_tactic_module() {
     initialize_simp_lemmas();
     initialize_eqn_lemmas();
     initialize_dsimplify();
-    initialize_norm_num_tactic();
     initialize_vm_monitor();
     initialize_destruct_tactic();
 }
 void finalize_tactic_module() {
     finalize_destruct_tactic();
     finalize_vm_monitor();
-    finalize_norm_num_tactic();
     finalize_dsimplify();
     finalize_eqn_lemmas();
     finalize_simp_lemmas();

@@ -9,7 +9,7 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   exception.cpp fingerprint.cpp pp_options.cpp
   unfold_macros.cpp app_builder.cpp projection.cpp relation_manager.cpp
   export.cpp user_recursors.cpp idx_metavar.cpp noncomputable.cpp
-  aux_recursors.cpp norm_num.cpp trace.cpp
+  aux_recursors.cpp trace.cpp
   attribute_manager.cpp unification_hint.cpp
   local_context.cpp metavar_context.cpp type_context.cpp export_decl.cpp delayed_abstraction.cpp
   fun_info.cpp congr_lemma.cpp defeq_canonizer.cpp

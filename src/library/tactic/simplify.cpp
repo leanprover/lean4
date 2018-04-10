@@ -26,7 +26,6 @@ Author: Daniel Selsam, Leonardo de Moura
 #include "library/num.h"
 #include "library/idx_metavar.h"
 #include "library/util.h"
-#include "library/norm_num.h"
 #include "library/attribute_manager.h"
 #include "library/defeq_canonizer.h"
 #include "library/relation_manager.h"

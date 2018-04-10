@@ -39,7 +39,6 @@ Author: Leonardo de Moura
 #include "library/local_context.h"
 #include "library/metavar_context.h"
 #include "library/attribute_manager.h"
-#include "library/unification_hint.h"
 #include "library/delayed_abstraction.h"
 #include "library/app_builder.h"
 #include "library/fun_info.h"
@@ -106,7 +105,6 @@ void initialize_library_module() {
     initialize_aux_recursors();
     initialize_app_builder();
     initialize_fun_info();
-    initialize_unification_hint();
     initialize_abstract_context_cache();
     initialize_type_context();
     initialize_delayed_abstraction();
@@ -134,7 +132,6 @@ void finalize_library_module() {
     finalize_delayed_abstraction();
     finalize_type_context();
     finalize_abstract_context_cache();
-    finalize_unification_hint();
     finalize_fun_info();
     finalize_app_builder();
     finalize_aux_recursors();

@@ -27,7 +27,6 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/aux_recursors.h"
 #include "library/attribute_manager.h"
-#include "library/unification_hint.h"
 #include "library/delayed_abstraction.h"
 #include "library/fun_info.h"
 #include "library/num.h"
@@ -3241,8 +3240,6 @@ bool type_context_old::is_def_eq_core_core(expr t, expr s) {
         s = s_n;
     }
 
-    if (try_unification_hints(t, s)) return l_true;
-
     r = try_nat_offset_cnstrs(t, s);
     if (r != l_undef) return r == l_true;
 
@@ -3321,37 +3318,6 @@ bool type_context_old::is_def_eq(expr const & t, expr const & s) {
 bool type_context_old::relaxed_is_def_eq(expr const & e1, expr const & e2) {
     relaxed_scope scope(*this);
     return is_def_eq(e1, e2);
-}
-
-bool type_context_old::try_unification_hint(unification_hint const & hint, expr const & e1, expr const & e2) {
-    scope S(*this);
-    flet<bool> disable_smart_unfolding(m_smart_unfolding, false);
-    if (::lean::try_unification_hint(*this, hint, e1, e2) && process_postponed(S)) {
-        S.commit();
-        return true;
-    } else {
-        return false;
-    }
-}
-
-bool type_context_old::try_unification_hints(expr const & e1, expr const & e2) {
-    expr e1_fn = get_app_fn(e1);
-    expr e2_fn = get_app_fn(e2);
-    if (is_constant(e1_fn) && is_constant(e2_fn)) {
-        buffer<unification_hint> hints;
-        m_cache->get_unification_hints(*this, const_name(e1_fn), const_name(e2_fn), hints);
-        for (unification_hint const & hint : hints) {
-            lean_trace(name({"type_context", "unification_hint"}),
-                       scope_trace_env scope(env(), *this);
-                       tout() << e1 << " =?= " << e2
-                       << ", pattern: " << hint.get_lhs() << " =?= " << hint.get_rhs() << "\n";);
-            if (try_unification_hint(hint, e1, e2) ||
-                try_unification_hint(hint, e2, e1)) {
-                return true;
-            }
-        }
-    }
-    return false;
 }
 
 /* -------------
@@ -4212,7 +4178,6 @@ mk_pp_ctx(type_context_old const & ctx) {
 
 void initialize_type_context() {
     register_trace_class("class_instances");
-    register_trace_class(name({"type_context", "unification_hint"}));
     register_trace_class(name({"type_context", "is_def_eq"}));
     register_trace_class(name({"type_context", "is_def_eq_detail"}));
     register_trace_class(name({"type_context", "univ_is_def_eq"}));

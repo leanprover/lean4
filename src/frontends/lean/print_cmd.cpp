@@ -23,7 +23,6 @@ Author: Leonardo de Moura
 #include "library/user_recursors.h"
 #include "library/noncomputable.h"
 #include "library/type_context.h"
-#include "library/unification_hint.h"
 #include "library/reducible.h"
 #include "library/tactic/simp_lemmas.h"
 #include "library/tactic/kabstract.h"
@@ -450,10 +449,6 @@ void print_polymorphic(parser & p, message_builder & out) {
     print_id_info(p, out, id, show_value, pos);
 }
 
-static void print_unification_hints(parser & p, message_builder & out) {
-    out << pp_unification_hints(get_unification_hints(p.env()), out.get_formatter());
-}
-
 static void print_simp_rules(parser & p, message_builder & out) {
     name attr = p.check_id_next("invalid '#print [simp]' command, identifier expected");
     simp_lemmas slss = get_simp_lemmas(p.env(), attr);
@@ -603,8 +598,6 @@ environment print_cmd(parser & p) {
 
         if (name == "recursor") {
             print_recursor_info(p, out);
-        } else if (name == "unify") {
-            print_unification_hints(p, out);
         } else if (name == "simp") {
             print_simp_rules(p, out);
         } else if (name == "congr") {

@@ -89,8 +89,6 @@ class context_cache : public context_cacheless {
     instance_cache                m_instance_cache;
     subsingleton_cache            m_subsingleton_cache;
 
-    optional<unification_hints>   m_uhints;
-
     /* Cache datastructures for fun_info */
 
     typedef expr_map<fun_info>                fi_cache;
@@ -118,7 +116,6 @@ public:
     virtual optional<declaration> get_decl(type_context_old &, transparency_mode, name const &) override;
     virtual projection_info const * get_proj_info(type_context_old &, name const &) override;
     virtual bool get_aux_recursor(type_context_old &, name const &) override;
-    virtual void get_unification_hints(type_context_old &, name const & f1, name const & f2, buffer<unification_hint> & hints) override;
 
     /* Cache support for type_context_old module */
 

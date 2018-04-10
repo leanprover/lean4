@@ -7,6 +7,7 @@ Author: Gabriel Ebner
 #include "kernel/instantiate.h"
 #include "library/util.h"
 #include "library/eval_helper.h"
+#include "library/io_state.h"
 #include "library/tactic/tactic_state.h"
 
 namespace lean {

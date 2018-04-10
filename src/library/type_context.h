@@ -17,7 +17,7 @@ Author: Leonardo de Moura
 #include "library/metavar_context.h"
 #include "library/abstract_context_cache.h"
 #include "library/exception.h"
-#include "library/unification_hint.h"
+#include "library/expr_pair.h"
 
 namespace lean {
 /* Return `f._sunfold` */
@@ -351,17 +351,6 @@ public:
       only fresh new temporary metavariables. So, no offsets are needed since
       we don't use pre-allocated temporary metavars. Thus, we use
       `(tmp-unify) lctx | t =?= s` where `lctx` is the local context for `?m`.
-
-      - (Internal) Unification hints. For versions <= 3.3, we used a
-      custom and very basic matching procedure to implement
-      this feature. This created several stability problems
-      and counterintuitive behavior. We use temporary
-      metavariables and matching.
-      We also use `(nested-tmp-match) lctx | (k, t) =?= s`.
-      This case is very similar to the previous one.
-
-      Remark: only the two last applications require offsets. Moreover, `k` is `0` if
-      the `type_context_old` is not already in TMP mode.
     */
 
     /* This class supports temporary meta-variables "mode". In this "tmp" mode,
@@ -967,13 +956,10 @@ private:
     bool is_def_eq_proof_irrel(expr const & e1, expr const & e2);
     optional<expr> elim_delayed_abstraction(expr const & e);
     lbool quick_is_def_eq(expr const & e1, expr const & e2);
-    bool try_unification_hint(unification_hint const & h, expr const & e1, expr const & e2);
-    bool try_unification_hints(expr const & e1, expr const & e2);
     lbool is_def_eq_delta(expr const & t, expr const & s);
     lbool is_def_eq_proj(expr t, expr s);
     optional<pair<expr, expr>> find_unsynth_metavar(expr const & e);
     bool mk_nested_instance(expr const & m, expr const & m_type);
-    friend class unification_hint_fn;
 
     /* Support for solving offset constraints, see issue #1226 */
     optional<unsigned> to_small_num(expr const & e);

@@ -109,10 +109,6 @@ bool context_cacheless::get_aux_recursor(type_context_old & ctx, name const & n)
     return ::lean::is_aux_recursor(ctx.env(), n);
 }
 
-void context_cacheless::get_unification_hints(type_context_old & ctx, name const & f1, name const & f2, buffer<unification_hint> & hints) {
-    return ::lean::get_unification_hints(ctx.env(), f1, f2, hints);
-}
-
 void initialize_abstract_context_cache() {
     g_class_instance_max_depth     = new name{"class", "instance_max_depth"};
     register_unsigned_option(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH,

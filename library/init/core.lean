@@ -297,16 +297,6 @@ inductive nat
 | zero : nat
 | succ (n : nat) : nat
 
-structure unification_constraint :=
-{α : Type u} (lhs : α) (rhs : α)
-
-infix ` ≟ `:50   := unification_constraint.mk
-infix ` =?= `:50 := unification_constraint.mk
-
-structure unification_hint :=
-(pattern : unification_constraint)
-(constraints : list unification_constraint)
-
 /- Declare builtin and reserved notation -/
 
 class has_zero     (α : Type u) := (zero : α)
@@ -559,11 +549,6 @@ inductive bin_tree (α : Type u)
 | node (left right : bin_tree) : bin_tree
 
 attribute [elab_simple] bin_tree.node bin_tree.leaf
-
-/- Basic unification hints -/
-@[unify] def add_succ_defeq_succ_add_hint (x y z : nat) : unification_hint :=
-{ pattern     := x + nat.succ y ≟ nat.succ z,
-  constraints := [z ≟ x + y] }
 
 /-- Like `by apply_instance`, but not dependent on the tactic framework. -/
 @[reducible] def infer_instance {α : Type u} [i : α] : α := i

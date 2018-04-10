@@ -44,12 +44,6 @@ bool context_cache::get_aux_recursor(type_context_old & ctx, name const & n) {
     return r;
 }
 
-void context_cache::get_unification_hints(type_context_old & ctx, name const & f1, name const & f2, buffer<unification_hint> & hints) {
-    if (!m_uhints)
-        m_uhints = ::lean::get_unification_hints(ctx.env());
-    ::lean::get_unification_hints(*m_uhints, f1, f2, hints);
-}
-
 template<typename R, typename C, typename K>
 optional<R> find_at(C const & c, K const & e) {
     auto it = c.find(e);

@@ -17,7 +17,7 @@ protected lemma add_comm : ∀ n m : ℕ, n + m = m + n
 
 protected lemma add_assoc : ∀ n m k : ℕ, (n + m) + k = n + (m + k)
 | n m 0        := rfl
-| n m (succ k) := by rw [add_succ, add_succ, add_assoc]
+| n m (succ k) := by rw [add_succ, add_succ, add_succ, add_assoc]
 
 protected lemma add_left_comm : ∀ (n m k : ℕ), n + (m + k) = m + (n + k) :=
 left_comm nat.add nat.add_comm nat.add_assoc
@@ -959,7 +959,11 @@ protected theorem div_self {n : ℕ} (H : n > 0) : n / n = 1 :=
 let t := add_div_right 0 H in by rwa [nat.zero_add, nat.zero_div] at t
 
 theorem add_mul_div_left (x z : ℕ) {y : ℕ} (H : y > 0) : (x + y * z) / y = x / y + z :=
-by {induction z with z ih, simp [nat.mul_zero, nat.add_zero], rw [mul_succ, ← nat.add_assoc, nat.add_div_right _ H, ih]}
+begin
+  induction z with z ih,
+  { simp [nat.mul_zero, nat.add_zero] },
+  { rw [mul_succ, ← nat.add_assoc, nat.add_div_right _ H, ih, add_succ] }
+end
 
 theorem add_mul_div_right (x y : ℕ) {z : ℕ} (H : z > 0) : (x + y * z) / z = x / z + y :=
 by rw [nat.mul_comm, add_mul_div_left _ _ H]

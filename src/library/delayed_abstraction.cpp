@@ -114,7 +114,7 @@ struct push_delayed_abstraction_fn : public replace_visitor {
     void inc_vidxs() { add_vidxs(1); }
     void dec_vidxs() { add_vidxs(-1); }
 
-    expr visit_binding(expr const & e) override {
+    virtual expr visit_binding(expr const & e) override {
         expr new_d = visit(binding_domain(e));
         inc_vidxs();
         expr new_b;
@@ -126,7 +126,7 @@ struct push_delayed_abstraction_fn : public replace_visitor {
         return update_binding(e, new_d, new_b);
     }
 
-    expr visit_let(expr const & e) override {
+    virtual expr visit_let(expr const & e) override {
         expr new_t = visit(let_type(e));
         expr new_v = visit(let_value(e));
         inc_vidxs();
@@ -139,17 +139,17 @@ struct push_delayed_abstraction_fn : public replace_visitor {
         return update_let(e, new_t, new_v, new_b);
     }
 
-    expr visit_app(expr const & e) override {
+    virtual expr visit_app(expr const & e) override {
         expr new_f = visit(app_fn(e));
         expr new_a = visit(app_arg(e));
         return update_app(e, new_f, new_a);
     }
 
-    expr visit_var(expr const & e) override {
+    virtual expr visit_var(expr const & e) override {
         return e;
     }
 
-    expr visit_local(expr const & e) override {
+    virtual expr visit_local(expr const & e) override {
         for (unsigned i = 0; i < m_ns.size(); i++) {
             if (m_ns[i] == mlocal_name(e)) {
                 return lift_free_vars(m_vs[i], m_deltas[i]);
@@ -158,7 +158,7 @@ struct push_delayed_abstraction_fn : public replace_visitor {
         return e;
     }
 
-    expr visit_macro(expr const & e) override {
+    virtual expr visit_macro(expr const & e) override {
         if (is_delayed_abstraction(e)) {
             unsigned sz = m_vs.size();
             buffer<name> new_ns;
@@ -184,7 +184,7 @@ struct push_delayed_abstraction_fn : public replace_visitor {
         }
     }
 
-    expr visit_meta(expr const & e) override {
+    virtual expr visit_meta(expr const & e) override {
         if (m_mctx && is_metavar_decl_ref(e)) {
             if (optional<metavar_decl> decl = m_mctx->find_metavar_decl(e)) {
                 /* We only include delayed substitutions that are in the scope of `e` */

@@ -10,9 +10,6 @@ namespace fin
 open nat
 variable {n : nat}
 
-protected def succ : fin n → fin (succ n)
-| ⟨a, h⟩ := ⟨nat.succ a, succ_lt_succ h⟩
-
 def of_nat {n : nat} (a : nat) : fin (succ n) :=
 ⟨a % succ n, nat.mod_lt _ (nat.zero_lt_succ _)⟩
 
@@ -59,16 +56,5 @@ instance : has_sub (fin n)         := ⟨fin.sub⟩
 instance : has_mul (fin n)         := ⟨fin.mul⟩
 instance : has_mod (fin n)         := ⟨fin.mod⟩
 instance : has_div (fin n)         := ⟨fin.div⟩
-
-lemma val_zero : (0 : fin (succ n)).val = 0 := rfl
-
-def pred {n : nat} : ∀ i : fin (succ n), i ≠ 0 → fin n
-| ⟨a, h₁⟩ h₂ := ⟨a.pred,
-  begin
-    have this : a ≠ 0,
-    { have aux₁ := vne_of_ne h₂,
-      dsimp at aux₁, rw val_zero at aux₁, exact aux₁ },
-    exact nat.pred_lt_pred this h₁
-  end⟩
 
 end fin

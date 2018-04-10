@@ -488,12 +488,12 @@ add_custom_target(
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
     )
 
-add_custom_target(
-    leanpkg ALL
-    COMMAND "${LEAN_SOURCE_DIR}/../bin/lean" --make ${LEAN_EXTRA_MAKE_OPTS}
-    DEPENDS standard_lib
-    WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../leanpkg"
-)
+# add_custom_target(
+#     leanpkg ALL
+#     COMMAND "${LEAN_SOURCE_DIR}/../bin/lean" --make ${LEAN_EXTRA_MAKE_OPTS}
+#     DEPENDS standard_lib
+#     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../leanpkg"
+# )
 
 add_custom_target(clean-std-lib
   WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"

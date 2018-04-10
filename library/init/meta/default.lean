@@ -11,6 +11,6 @@ import init.meta.injection_tactic init.meta.relation_tactics init.meta.fun_info
 import init.meta.congr_lemma init.meta.match_tactic init.meta.rewrite_tactic
 import init.meta.derive init.meta.mk_dec_eq_instance
 import init.meta.simp_tactic init.meta.set_get_option_tactics
-import init.meta.interactive init.meta.vm
+import init.meta.interactive
 import init.meta.comp_value_tactics
 import init.meta.congr_tactic

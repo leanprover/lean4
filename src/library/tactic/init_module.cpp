@@ -18,7 +18,6 @@ Author: Leonardo de Moura
 #include "library/tactic/fun_info_tactics.h"
 #include "library/tactic/congr_lemma_tactics.h"
 #include "library/tactic/match_tactic.h"
-#include "library/tactic/ac_tactics.h"
 #include "library/tactic/induction_tactic.h"
 #include "library/tactic/cases_tactic.h"
 #include "library/tactic/generalize_tactic.h"
@@ -34,10 +33,6 @@ Author: Leonardo de Moura
 #include "library/tactic/vm_monitor.h"
 #include "library/tactic/norm_num_tactic.h"
 #include "library/tactic/destruct_tactic.h"
-#include "library/tactic/algebraic_normalizer.h"
-#include "library/tactic/hole_command.h"
-// #include "library/tactic/backward/init_module.h"
-// #include "library/tactic/smt/init_module.h"
 
 namespace lean {
 void initialize_tactic_module() {
@@ -55,14 +50,12 @@ void initialize_tactic_module() {
     initialize_fun_info_tactics();
     initialize_congr_lemma_tactics();
     initialize_match_tactic();
-    initialize_ac_tactics();
     initialize_induction_tactic();
     initialize_cases_tactic();
     initialize_generalize_tactic();
     initialize_rewrite_tactic();
     initialize_unfold_tactic();
     initialize_simplify();
-    // initialize_backward_module();
     initialize_elaborate();
     initialize_user_attribute();
     initialize_eval();
@@ -72,14 +65,8 @@ void initialize_tactic_module() {
     initialize_norm_num_tactic();
     initialize_vm_monitor();
     initialize_destruct_tactic();
-    initialize_algebraic_normalizer();
-    initialize_hole_command();
-    // initialize_smt_module();
 }
 void finalize_tactic_module() {
-    // finalize_smt_module();
-    finalize_hole_command();
-    finalize_algebraic_normalizer();
     finalize_destruct_tactic();
     finalize_vm_monitor();
     finalize_norm_num_tactic();
@@ -89,14 +76,12 @@ void finalize_tactic_module() {
     finalize_eval();
     finalize_user_attribute();
     finalize_elaborate();
-    // finalize_backward_module();
     finalize_simplify();
     finalize_unfold_tactic();
     finalize_rewrite_tactic();
     finalize_generalize_tactic();
     finalize_cases_tactic();
     finalize_induction_tactic();
-    finalize_ac_tactics();
     finalize_match_tactic();
     finalize_congr_lemma_tactics();
     finalize_fun_info_tactics();

@@ -117,7 +117,9 @@ else e
 private meta def prove_eq_by_perm (a b : expr) : tactic expr :=
 (is_def_eq a b >> to_expr ``(eq.refl %%a))
 <|>
-perm_ac (get_add_fn a) `(nat.add_assoc) `(nat.add_comm) a b
+do e       ← to_expr ``(%%a = %%b),
+   (_, pr) ← solve_aux e `[simp only [add_assoc, add_comm, add_left_comm]],
+   return pr
 
 private meta def num_small_lt (a b : expr) : bool :=
 if a = b then ff

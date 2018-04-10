@@ -437,12 +437,6 @@ void server::handle_request(server::cmd_req const & req) {
         handle_async_response(req, handle_complete(req));
     } else if (command == "info") {
         handle_async_response(req, handle_info(req));
-    } else if (command == "hole") {
-        handle_async_response(req, handle_hole(req));
-    } else if (command == "hole_commands") {
-        send_msg(handle_hole_commands(req));
-    } else if (command == "all_hole_commands") {
-        send_msg(handle_all_hole_commands(req));
     } else if (command == "search") {
         send_msg(handle_search(req));
     } else if (command == "roi") {
@@ -632,46 +626,6 @@ task<server::cmd_res> server::handle_info(server::cmd_req const & req) {
         return cmd_res(req.m_seq_num, info(mod_info, pos));
     }).wrap(library_scopes(log_tree::node()))
       .set_cancellation_token(m_bg_task_ctok).build();
-}
-
-json server::hole_command(std::shared_ptr<module_info const> const & mod_info, std::string const & action,
-                          pos_info const & pos) {
-    json j;
-    std::vector<info_manager> im = get_info_managers(m_lt);
-    execute_hole_command(*mod_info, im, pos, action, j);
-    return j;
-}
-
-task<server::cmd_res> server::handle_hole(cmd_req const & req) {
-    auto ctok = mk_cancellation_token();
-    std::string action = req.m_payload.at("action");
-    std::string fn     = req.m_payload.at("file_name");
-    pos_info pos       = {req.m_payload.at("line"), req.m_payload.at("column")};
-    auto mod_info      = m_mod_mgr->get_module(fn);
-
-    return task_builder<cmd_res>([=] { return cmd_res(req.m_seq_num, hole_command(mod_info, action, pos)); })
-        .wrap(library_scopes(log_tree::node()))
-        .set_cancellation_token(ctok)
-        .build();
-}
-
-server::cmd_res server::handle_hole_commands(server::cmd_req const & req) {
-    std::string fn     = req.m_payload.at("file_name");
-    pos_info pos       = {req.m_payload.at("line"), req.m_payload.at("column")};
-    auto mod_info      = m_mod_mgr->get_module(fn);
-    std::vector<info_manager> im = get_info_managers(m_lt);
-    json j;
-    get_hole_commands(*mod_info, im, pos, j);
-    return cmd_res(req.m_seq_num, j);
-}
-
-server::cmd_res server::handle_all_hole_commands(server::cmd_req const & req) {
-    std::string fn     = req.m_payload.at("file_name");
-    auto mod_info      = m_mod_mgr->get_module(fn);
-    std::vector<info_manager> im = get_info_managers(m_lt);
-    json j;
-    get_all_hole_commands(*mod_info, im, j);
-    return cmd_res(req.m_seq_num, j);
 }
 
 server::cmd_res server::handle_search(server::cmd_req const & req) {

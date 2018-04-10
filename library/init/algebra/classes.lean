@@ -7,58 +7,58 @@ prelude
 import init.logic init.data.ordering.basic
 universes u v
 
-@[algebra] class is_symm_op (α : Type u) (β : out_param (Type v)) (op : α → α → β) : Prop :=
+class is_symm_op (α : Type u) (β : out_param (Type v)) (op : α → α → β) : Prop :=
 (symm_op : ∀ a b, op a b = op b a)
 
-@[algebra] class is_commutative (α : Type u) (op : α → α → α) : Prop :=
+class is_commutative (α : Type u) (op : α → α → α) : Prop :=
 (comm : ∀ a b, op a b = op b a)
 
 instance is_symm_op_of_is_commutative (α : Type u) (op : α → α → α) [is_commutative α op] : is_symm_op α α op :=
 {symm_op := is_commutative.comm op}
 
-@[algebra] class is_associative (α : Type u) (op : α → α → α) : Prop :=
+class is_associative (α : Type u) (op : α → α → α) : Prop :=
 (assoc : ∀ a b c, op (op a b) c = op a (op b c))
 
-@[algebra] class is_left_id (α : Type u) (op : α → α → α) (o : out_param α) : Prop :=
+class is_left_id (α : Type u) (op : α → α → α) (o : out_param α) : Prop :=
 (left_id : ∀ a, op o a = a)
 
-@[algebra] class is_right_id (α : Type u) (op : α → α → α) (o : out_param α) : Prop :=
+class is_right_id (α : Type u) (op : α → α → α) (o : out_param α) : Prop :=
 (right_id : ∀ a, op a o = a)
 
-@[algebra] class is_left_null (α : Type u) (op : α → α → α) (o : out_param α) : Prop :=
+class is_left_null (α : Type u) (op : α → α → α) (o : out_param α) : Prop :=
 (left_null : ∀ a, op o a = o)
 
-@[algebra] class is_right_null (α : Type u) (op : α → α → α) (o : out_param α) : Prop :=
+class is_right_null (α : Type u) (op : α → α → α) (o : out_param α) : Prop :=
 (right_null : ∀ a, op a o = o)
 
-@[algebra] class is_left_cancel (α : Type u) (op : α → α → α) : Prop :=
+class is_left_cancel (α : Type u) (op : α → α → α) : Prop :=
 (left_cancel : ∀ a b c, op a b = op a c → b = c)
 
-@[algebra] class is_right_cancel (α : Type u) (op : α → α → α) : Prop :=
+class is_right_cancel (α : Type u) (op : α → α → α) : Prop :=
 (right_cancel : ∀ a b c, op a b = op c b → a = c)
 
-@[algebra] class is_idempotent (α : Type u) (op : α → α → α) : Prop :=
+class is_idempotent (α : Type u) (op : α → α → α) : Prop :=
 (idempotent : ∀ a, op a a = a)
 
-@[algebra] class is_left_distrib (α : Type u) (op₁ : α → α → α) (op₂ : out_param $ α → α → α) : Prop :=
+class is_left_distrib (α : Type u) (op₁ : α → α → α) (op₂ : out_param $ α → α → α) : Prop :=
 (left_distrib : ∀ a b c, op₁ a (op₂ b c) = op₂ (op₁ a b) (op₁ a c))
 
-@[algebra] class is_right_distrib (α : Type u) (op₁ : α → α → α) (op₂ : out_param $ α → α → α) : Prop :=
+class is_right_distrib (α : Type u) (op₁ : α → α → α) (op₂ : out_param $ α → α → α) : Prop :=
 (right_distrib : ∀ a b c, op₁ (op₂ a b) c = op₂ (op₁ a c) (op₁ b c))
 
-@[algebra] class is_left_inv (α : Type u) (op : α → α → α) (inv : out_param $ α → α) (o : out_param α) : Prop :=
+class is_left_inv (α : Type u) (op : α → α → α) (inv : out_param $ α → α) (o : out_param α) : Prop :=
 (left_inv : ∀ a, op (inv a) a = o)
 
-@[algebra] class is_right_inv (α : Type u) (op : α → α → α) (inv : out_param $ α → α) (o : out_param α) : Prop :=
+class is_right_inv (α : Type u) (op : α → α → α) (inv : out_param $ α → α) (o : out_param α) : Prop :=
 (right_inv : ∀ a, op a (inv a) = o)
 
-@[algebra] class is_cond_left_inv (α : Type u) (op : α → α → α) (inv : out_param $ α → α) (o : out_param α) (p : out_param $ α → Prop) : Prop :=
+class is_cond_left_inv (α : Type u) (op : α → α → α) (inv : out_param $ α → α) (o : out_param α) (p : out_param $ α → Prop) : Prop :=
 (left_inv : ∀ a, p a → op (inv a) a = o)
 
-@[algebra] class is_cond_right_inv (α : Type u) (op : α → α → α) (inv : out_param $ α → α) (o : out_param α) (p : out_param $ α → Prop) : Prop :=
+class is_cond_right_inv (α : Type u) (op : α → α → α) (inv : out_param $ α → α) (o : out_param α) (p : out_param $ α → Prop) : Prop :=
 (right_inv : ∀ a, p a → op a (inv a) = o)
 
-@[algebra] class is_distinct (α : Type u) (a : α) (b : α) : Prop :=
+class is_distinct (α : Type u) (a : α) (b : α) : Prop :=
 (distinct : a ≠ b)
 
 /-
@@ -71,57 +71,57 @@ class is_idempotent (α : Type u) (f : α → α) : Prop :=
 (idempotent : ∀ a, f (f a) = f a)
 -/
 
-@[algebra] class is_irrefl (α : Type u) (r : α → α → Prop) : Prop :=
+class is_irrefl (α : Type u) (r : α → α → Prop) : Prop :=
 (irrefl : ∀ a, ¬ r a a)
 
-@[algebra] class is_refl (α : Type u) (r : α → α → Prop) : Prop :=
+class is_refl (α : Type u) (r : α → α → Prop) : Prop :=
 (refl : ∀ a, r a a)
 
-@[algebra] class is_symm (α : Type u) (r : α → α → Prop) : Prop :=
+class is_symm (α : Type u) (r : α → α → Prop) : Prop :=
 (symm : ∀ a b, r a b → r b a)
 
 instance is_symm_op_of_is_symm (α : Type u) (r : α → α → Prop) [is_symm α r] : is_symm_op α Prop r :=
 {symm_op := λ a b, propext $ iff.intro (is_symm.symm a b) (is_symm.symm b a)}
 
-@[algebra] class is_asymm (α : Type u) (r : α → α → Prop) : Prop :=
+class is_asymm (α : Type u) (r : α → α → Prop) : Prop :=
 (asymm : ∀ a b, r a b → ¬ r b a)
 
-@[algebra] class is_antisymm (α : Type u) (r : α → α → Prop) : Prop :=
+class is_antisymm (α : Type u) (r : α → α → Prop) : Prop :=
 (antisymm : ∀ a b, r a b → r b a → a = b)
 
-@[algebra] class is_trans (α : Type u) (r : α → α → Prop) : Prop :=
+class is_trans (α : Type u) (r : α → α → Prop) : Prop :=
 (trans  : ∀ a b c, r a b → r b c → r a c)
 
-@[algebra] class is_total (α : Type u) (r : α → α → Prop) : Prop :=
+class is_total (α : Type u) (r : α → α → Prop) : Prop :=
 (total : ∀ a b, r a b ∨ r b a)
 
-@[algebra] class is_preorder (α : Type u) (r : α → α → Prop) extends is_refl α r, is_trans α r : Prop.
+class is_preorder (α : Type u) (r : α → α → Prop) extends is_refl α r, is_trans α r : Prop.
 
-@[algebra] class is_total_preorder (α : Type u) (r : α → α → Prop) extends is_trans α r, is_total α r : Prop.
+class is_total_preorder (α : Type u) (r : α → α → Prop) extends is_trans α r, is_total α r : Prop.
 
 instance is_total_preorder_is_preorder (α : Type u) (r : α → α → Prop) [s : is_total_preorder α r] : is_preorder α r :=
 {trans := s.trans,
  refl  := λ a, or.elim (is_total.total r a a) id id}
 
-@[algebra] class is_partial_order (α : Type u) (r : α → α → Prop) extends is_preorder α r, is_antisymm α r : Prop.
+class is_partial_order (α : Type u) (r : α → α → Prop) extends is_preorder α r, is_antisymm α r : Prop.
 
-@[algebra] class is_linear_order (α : Type u) (r : α → α → Prop) extends is_partial_order α r, is_total α r : Prop.
+class is_linear_order (α : Type u) (r : α → α → Prop) extends is_partial_order α r, is_total α r : Prop.
 
-@[algebra] class is_equiv (α : Type u) (r : α → α → Prop) extends is_preorder α r, is_symm α r : Prop.
+class is_equiv (α : Type u) (r : α → α → Prop) extends is_preorder α r, is_symm α r : Prop.
 
-@[algebra] class is_per (α : Type u) (r : α → α → Prop) extends is_symm α r, is_trans α r : Prop.
+class is_per (α : Type u) (r : α → α → Prop) extends is_symm α r, is_trans α r : Prop.
 
-@[algebra] class is_strict_order (α : Type u) (r : α → α → Prop) extends is_irrefl α r, is_trans α r : Prop.
+class is_strict_order (α : Type u) (r : α → α → Prop) extends is_irrefl α r, is_trans α r : Prop.
 
-@[algebra] class is_incomp_trans (α : Type u) (lt : α → α → Prop) : Prop :=
+class is_incomp_trans (α : Type u) (lt : α → α → Prop) : Prop :=
 (incomp_trans : ∀ a b c, (¬ lt a b ∧ ¬ lt b a) → (¬ lt b c ∧ ¬ lt c b) → (¬ lt a c ∧ ¬ lt c a))
 
-@[algebra] class is_strict_weak_order (α : Type u) (lt : α → α → Prop) extends is_strict_order α lt, is_incomp_trans α lt : Prop.
+class is_strict_weak_order (α : Type u) (lt : α → α → Prop) extends is_strict_order α lt, is_incomp_trans α lt : Prop.
 
-@[algebra] class is_trichotomous (α : Type u) (lt : α → α → Prop) : Prop :=
+class is_trichotomous (α : Type u) (lt : α → α → Prop) : Prop :=
 (trichotomous : ∀ a b, lt a b ∨ a = b ∨ lt b a)
 
-@[algebra] class is_strict_total_order (α : Type u) (lt : α → α → Prop) extends is_trichotomous α lt, is_strict_weak_order α lt.
+class is_strict_total_order (α : Type u) (lt : α → α → Prop) extends is_trichotomous α lt, is_strict_weak_order α lt.
 
 instance eq_is_equiv (α : Type u) : is_equiv α (=) :=
 {symm := @eq.symm _, trans := @eq.trans _, refl := eq.refl}

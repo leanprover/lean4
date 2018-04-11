@@ -5,7 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import init.data.string.basic init.data.bool.basic init.data.subtype.basic
-import init.data.unsigned.basic init.data.prod init.data.sum.basic init.data.nat.div
+import init.data.uint init.data.prod init.data.sum.basic init.data.nat.div
 open sum subtype nat
 
 universes u v
@@ -128,7 +128,10 @@ instance : has_repr string :=
 instance (n : nat) : has_repr (fin n) :=
 ⟨λ f, repr (fin.val f)⟩
 
-instance : has_repr unsigned :=
+instance : has_repr uint32 :=
+⟨λ n, repr (fin.val n)⟩
+
+instance : has_repr uint64 :=
 ⟨λ n, repr (fin.val n)⟩
 
 def char.repr (c : char) : string :=

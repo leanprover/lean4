@@ -17,8 +17,11 @@ meta instance nat.reflect : has_reflect ℕ
        else if n % 2 = 0 then `(bit0 %%(nat.reflect (n / 2)) : ℕ)
        else `(bit1 %%(nat.reflect (n / 2)) : ℕ)
 
-meta instance unsigned.reflect : has_reflect unsigned
-| ⟨n, pr⟩ := `(unsigned.of_nat' n)
+meta instance uint32.reflect : has_reflect uint32
+| ⟨n, pr⟩ := `(uint32.of_nat n)
+
+meta instance uint64.reflect : has_reflect uint64
+| ⟨n, pr⟩ := `(uint64.of_nat n)
 
 end
 

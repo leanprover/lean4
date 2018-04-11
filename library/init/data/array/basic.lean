@@ -69,66 +69,6 @@ by cases a; cases b; congr; exact funext h
 protected lemma ext' {a b : d_array n α} (h : ∀ (i : nat) (h : i < n), read a ⟨i, h⟩ = read b ⟨i, h⟩) : a = b :=
 begin cases a, cases b, congr, funext i, cases i, apply h end
 
-protected def beq_aux [∀ i, decidable_eq (α i)] (a b : d_array n α) : Π (i : nat), i ≤ n → bool
-| 0     h := tt
-| (i+1) h := if a.read ⟨i, h⟩ = b.read ⟨i, h⟩ then beq_aux i (nat.le_of_lt h) else ff
-
-protected def beq [∀ i, decidable_eq (α i)] (a b : d_array n α) : bool :=
-d_array.beq_aux a b n (nat.le_refl _)
-
-lemma of_beq_aux_eq_tt [∀ i, decidable_eq (α i)] {a b : d_array n α} : ∀ (i : nat) (h : i ≤ n), d_array.beq_aux a b i h = tt →
-                       ∀ (j : nat) (h' : j < i), a.read ⟨j, nat.lt_of_lt_of_le h' h⟩ = b.read ⟨j, nat.lt_of_lt_of_le h' h⟩
-| 0     h₁ h₂ j h₃ := absurd h₃ (nat.not_lt_zero _)
-| (i+1) h₁ h₂ j h₃ :=
-  begin
-    have h₂' : read a ⟨i, h₁⟩ = read b ⟨i, h₁⟩ ∧ d_array.beq_aux a b i _ = tt, {simp [d_array.beq_aux] at h₂, assumption},
-    have h₁' : i ≤ n, from nat.le_of_lt h₁,
-    have ih  : ∀ (j : nat) (h' : j < i), a.read ⟨j, nat.lt_of_lt_of_le h' h₁'⟩ = b.read ⟨j, nat.lt_of_lt_of_le h' h₁'⟩, from of_beq_aux_eq_tt i h₁' h₂'.2,
-    by_cases hji : j = i,
-    { subst hji, exact h₂'.1 },
-    { have j_lt_i : j < i, from nat.lt_of_le_of_ne (nat.le_of_lt_succ h₃) hji,
-      exact ih j j_lt_i }
-  end
-
-lemma of_beq_eq_tt [∀ i, decidable_eq (α i)] {a b : d_array n α} : d_array.beq a b = tt → a = b :=
-begin
-  unfold d_array.beq,
-  intro h,
-  have : ∀ (j : nat) (h : j < n), a.read ⟨j, h⟩ = b.read ⟨j, h⟩, from
-    of_beq_aux_eq_tt n (nat.le_refl _) h,
-  apply d_array.ext' this
-end
-
-lemma of_beq_aux_eq_ff [∀ i, decidable_eq (α i)] {a b : d_array n α} : ∀ (i : nat) (h : i ≤ n), d_array.beq_aux a b i h = ff →
-                       ∃ (j : nat) (h' : j < i), a.read ⟨j, nat.lt_of_lt_of_le h' h⟩ ≠ b.read ⟨j, nat.lt_of_lt_of_le h' h⟩
-| 0     h₁ h₂ := begin simp [d_array.beq_aux] at h₂, contradiction end
-| (i+1) h₁ h₂ :=
-  begin
-    have h₂' : read a ⟨i, h₁⟩ ≠ read b ⟨i, h₁⟩ ∨ d_array.beq_aux a b i _ = ff, {simp [d_array.beq_aux] at h₂, assumption},
-    cases h₂' with h h,
-    { existsi i, existsi (nat.lt_succ_self _), exact h },
-    { have h₁' : i ≤ n, from nat.le_of_lt h₁,
-      have ih : ∃ (j : nat) (h' : j < i), a.read ⟨j, nat.lt_of_lt_of_le h' h₁'⟩ ≠ b.read ⟨j, nat.lt_of_lt_of_le h' h₁'⟩, from of_beq_aux_eq_ff i h₁' h,
-      cases ih with j ih,
-      cases ih with h' ih,
-      existsi j, existsi (nat.lt_succ_of_lt h'),
-      exact ih }
-  end
-
-lemma of_beq_eq_ff [∀ i, decidable_eq (α i)] {a b : d_array n α} : d_array.beq a b = ff → a ≠ b :=
-begin
-  unfold d_array.beq,
-  intros h hne,
-  have : ∃ (j : nat) (h' : j < n), a.read ⟨j, h'⟩ ≠ b.read ⟨j, h'⟩, from of_beq_aux_eq_ff n (nat.le_refl _) h,
-  cases this with j this,
-  cases this with h' this,
-  subst hne,
-  contradiction
-end
-
-instance [∀ i, decidable_eq (α i)] : decidable_eq (d_array n α) :=
-λ a b, if h : d_array.beq a b = tt then is_true (of_beq_eq_tt h) else is_false (of_beq_eq_ff (eq_ff_of_not_eq_tt h))
-
 end d_array
 
 def array (n : nat) (α : Type u) : Type u :=
@@ -231,8 +171,5 @@ d_array.ext h
 
 protected lemma ext' {a b : array n α} (h : ∀ (i : nat) (h : i < n), read a ⟨i, h⟩ = read b ⟨i, h⟩) : a = b :=
 d_array.ext' h
-
-instance [decidable_eq α] : decidable_eq (array n α) :=
-begin unfold array, apply_instance end
 
 end array

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.data.nat.basic
+import init.data.nat.div
 open nat
 structure fin (n : nat) := (val : nat) (is_lt : val < n)
 
@@ -32,16 +32,54 @@ def {u} elim0 {α : Sort u} : fin 0 → α
 
 variable {n : nat}
 
-lemma eq_of_veq : ∀ {i j : fin n}, (val i) = (val j) → i = j
+def of_nat {n : nat} (a : nat) : fin (succ n) :=
+⟨a % succ n, nat.mod_lt _ (nat.zero_lt_succ _)⟩
+
+private theorem mlt {n b : nat} : ∀ {a}, n > a → b % n < n
+| 0     h := nat.mod_lt _ h
+| (a+1) h :=
+  have n > 0, from nat.lt_trans (nat.zero_lt_succ _) h,
+  nat.mod_lt _ this
+
+protected def add : fin n → fin n → fin n
+| ⟨a, h⟩ ⟨b, _⟩ := ⟨(a + b) % n, mlt h⟩
+
+protected def mul : fin n → fin n → fin n
+| ⟨a, h⟩ ⟨b, _⟩ := ⟨(a * b) % n, mlt h⟩
+
+/-
+Remark: sub/mod/div can be defined without using (% n), but
+we are trying to minimize the number of nat theorems
+needed to boostrap Lean.
+-/
+
+protected def sub : fin n → fin n → fin n
+| ⟨a, h⟩ ⟨b, _⟩ := ⟨(a - b) % n, mlt h⟩
+
+protected def mod : fin n → fin n → fin n
+| ⟨a, h⟩ ⟨b, _⟩ := ⟨(a % b) % n, mlt h⟩
+
+protected def div : fin n → fin n → fin n
+| ⟨a, h⟩ ⟨b, _⟩ := ⟨(a / b) % n, mlt h⟩
+
+instance : has_zero (fin (succ n)) := ⟨⟨0, succ_pos n⟩⟩
+instance : has_one (fin (succ n))  := ⟨of_nat 1⟩
+instance : has_add (fin n)         := ⟨fin.add⟩
+instance : has_sub (fin n)         := ⟨fin.sub⟩
+instance : has_mul (fin n)         := ⟨fin.mul⟩
+instance : has_mod (fin n)         := ⟨fin.mod⟩
+instance : has_div (fin n)         := ⟨fin.div⟩
+
+theorem eq_of_veq : ∀ {i j : fin n}, (val i) = (val j) → i = j
 | ⟨iv, ilt₁⟩ ⟨.(iv), ilt₂⟩ rfl := rfl
 
-lemma veq_of_eq : ∀ {i j : fin n}, i = j → (val i) = (val j)
+theorem veq_of_eq : ∀ {i j : fin n}, i = j → (val i) = (val j)
 | ⟨iv, ilt⟩ .(_) rfl := rfl
 
-lemma ne_of_vne {i j : fin n} (h : val i ≠ val j) : i ≠ j :=
+theorem ne_of_vne {i j : fin n} (h : val i ≠ val j) : i ≠ j :=
 λ h', absurd (veq_of_eq h') h
 
-lemma vne_of_ne {i j : fin n} (h : i ≠ j) : val i ≠ val j :=
+theorem vne_of_ne {i j : fin n} (h : i ≠ j) : val i ≠ val j :=
 λ h', absurd (eq_of_veq h') h
 
 end fin

@@ -5,7 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import init.data.string.basic init.data.bool.basic init.data.subtype.basic
-import init.data.unsigned.basic init.data.prod init.data.sum.basic init.data.nat.div
+import init.data.uint init.data.prod init.data.sum.basic init.data.nat.div
 import init.data.repr
 open sum subtype nat
 
@@ -51,7 +51,10 @@ instance : has_to_string char :=
 instance (n : nat) : has_to_string (fin n) :=
 ⟨λ f, to_string (fin.val f)⟩
 
-instance : has_to_string unsigned :=
+instance : has_to_string uint32 :=
+⟨λ n, to_string (fin.val n)⟩
+
+instance : has_to_string uint64 :=
 ⟨λ n, to_string (fin.val n)⟩
 
 instance {α : Type u} [has_to_string α] : has_to_string (option α) :=

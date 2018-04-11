@@ -120,7 +120,7 @@ protected meta constant expr.pos : expr elab → option pos
 /-- `copy_pos_info src tgt` copies position information from `src` to `tgt`. -/
 meta constant expr.copy_pos_info : expr → expr → expr
 
-meta constant expr.is_internal_cnstr : expr → option unsigned
+meta constant expr.is_internal_cnstr : expr → option uint32
 meta constant expr.get_nat_value : expr → option nat
 
 meta constant expr.collect_univ_params : expr → list name

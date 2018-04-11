@@ -708,7 +708,7 @@ static void check_example(environment const & decl_env, options const & opts,
         new_env = module::add(new_env, cdef);
         check_noncomputable(noncomputable_theory, new_env, decl_name, def.get_name(), modifiers.m_is_noncomputable,
                                  pos_provider.get_file_name(), pos_provider.get_some_pos());
-    } catch (exception & ex) {
+    } catch (throwable & ex) {
         message_builder error_msg(tc, decl_env, get_global_ios(),
                                   pos_provider.get_file_name(), pos_provider.get_some_pos(),
                                   ERROR);

@@ -131,9 +131,6 @@ public:
 
     optional<expr> expand_macro(expr const & m);
 
-    /** \brief Return a metavariable that may be stucking the \c e's reduction. */
-    virtual optional<expr> is_stuck(expr const & e);
-
     template<typename F>
     typename std::result_of<F()>::type with_params(level_param_names const & ps, F && f) {
         flet<level_param_names const *> updt(m_params, &ps);

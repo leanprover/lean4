@@ -278,15 +278,6 @@ optional<expr> type_checker::norm_ext(expr const & e) {
     return m_env.norm_ext()(e, *this);
 }
 
-/** \brief Return true if \c e may be reduced later after metavariables are instantiated. */
-optional<expr> type_checker::is_stuck(expr const & e) {
-    if (is_meta(e)) {
-        return some_expr(e);
-    } else {
-        return m_env.norm_ext().is_stuck(e, *this);
-    }
-}
-
 /** \brief Weak head normal form core procedure. It does not perform delta reduction nor normalization extensions. */
 expr type_checker::whnf_core(expr const & e) {
     check_system("whnf");

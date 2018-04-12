@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "util/hash.h"
 #include "util/buffer.h"
 #include "util/object_serializer.h"
-#include "util/lru_cache.h"
 #include "util/memory_pool.h"
 #include "kernel/expr.h"
 #include "kernel/expr_eq_fn.h"

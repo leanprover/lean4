@@ -47,7 +47,7 @@ void initialize() {
 
 void finalize() {
 #ifdef LEAN_TRACK_CUSTOM_ALLOCATORS
-    std::cerr << "memory deallocated by memory_pool and small_object_allocator (before finalization): " << get_memory_deallocated() << "\n";
+    std::cerr << "memory deallocated by memory_pool (before finalization): " << get_memory_deallocated() << "\n";
 #endif
 #ifdef LEAN_TRACK_LIVE_EXPRS
     std::cerr << "number of live expressions (before finalization): " << get_num_live_exprs() << "\n";
@@ -71,14 +71,14 @@ void finalize() {
     finalize_util_module();
     run_post_thread_finalizers();
 #ifdef LEAN_TRACK_CUSTOM_ALLOCATORS
-    std::cerr << "memory deallocated by memory_pool and small_object_allocator (after finalization): " << get_memory_deallocated() << "\n";
+    std::cerr << "memory deallocated by memory_pool (after finalization): " << get_memory_deallocated() << "\n";
 #endif
 #ifdef LEAN_TRACK_LIVE_EXPRS
     std::cerr << "number of live expressions (after finalization): " << get_num_live_exprs() << "\n";
 #endif
     delete_thread_finalizer_manager();
 #ifdef LEAN_TRACK_CUSTOM_ALLOCATORS
-    std::cerr << "memory deallocated by memory_pool and small_object_allocator (after thread finalization): " << get_memory_deallocated() << "\n";
+    std::cerr << "memory deallocated by memory_pool (after thread finalization): " << get_memory_deallocated() << "\n";
 #endif
 #ifdef LEAN_TRACK_LIVE_EXPRS
     std::cerr << "number of live expressions (after thread finalization): " << get_num_live_exprs() << "\n";

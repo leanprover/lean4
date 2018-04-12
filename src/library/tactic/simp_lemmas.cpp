@@ -1306,9 +1306,9 @@ struct vm_simp_lemmas : public vm_external {
     simp_lemmas m_val;
     vm_simp_lemmas(simp_lemmas const & v): m_val(v) {}
     virtual ~vm_simp_lemmas() {}
-    virtual void dealloc() override { this->~vm_simp_lemmas(); get_vm_allocator().deallocate(sizeof(vm_simp_lemmas), this); }
+    virtual void dealloc() override { delete this; }
     virtual vm_external * ts_clone(vm_clone_fn const &) override { return new vm_simp_lemmas(m_val); }
-    virtual vm_external * clone(vm_clone_fn const &) override { return new (get_vm_allocator().allocate(sizeof(vm_simp_lemmas))) vm_simp_lemmas(m_val); }
+    virtual vm_external * clone(vm_clone_fn const &) override { return new vm_simp_lemmas(m_val); }
 };
 
 bool is_simp_lemmas(vm_obj const & o) {
@@ -1321,7 +1321,7 @@ simp_lemmas const & to_simp_lemmas(vm_obj const & o) {
 }
 
 vm_obj to_obj(simp_lemmas const & idx) {
-    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_simp_lemmas))) vm_simp_lemmas(idx));
+    return mk_vm_external(new vm_simp_lemmas(idx));
 }
 
 vm_obj simp_lemmas_mk_default(vm_obj const & s) {

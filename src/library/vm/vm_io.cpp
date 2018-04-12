@@ -79,7 +79,7 @@ struct vm_handle : public vm_external {
     vm_handle(handle_ref const & h):m_handle(h) {}
     vm_handle(handle_ref && h):m_handle(std::move(h)) {}
     virtual ~vm_handle() {}
-    virtual void dealloc() override { this->~vm_handle(); get_vm_allocator().deallocate(sizeof(vm_handle), this); }
+    virtual void dealloc() override { delete this; }
     virtual vm_external * clone(vm_clone_fn const &) override { return new vm_handle(m_handle); }
     virtual vm_external * ts_clone(vm_clone_fn const &) override { lean_unreachable(); }
 };
@@ -90,7 +90,7 @@ static handle_ref const & to_handle(vm_obj const & o) {
 }
 
 static vm_obj to_obj(handle_ref && h) {
-    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_handle))) vm_handle(std::move(h)));
+    return mk_vm_external(new vm_handle(std::move(h)));
 }
 
 struct vm_child : public vm_external {
@@ -98,7 +98,7 @@ struct vm_child : public vm_external {
     vm_child(std::shared_ptr<child> && h):m_child(std::move(h)) {}
     vm_child(std::shared_ptr<child> const & h):m_child(h) {}
     virtual ~vm_child() {}
-    virtual void dealloc() override { this->~vm_child(); get_vm_allocator().deallocate(sizeof(vm_child), this); }
+    virtual void dealloc() override { delete this; }
     virtual vm_external * clone(vm_clone_fn const &) override { return new vm_child(m_child); }
     virtual vm_external * ts_clone(vm_clone_fn const &) override { lean_unreachable(); }
 };
@@ -109,7 +109,7 @@ std::shared_ptr<child> const & to_child(vm_obj const & o) {
 }
 
 static vm_obj to_obj(std::shared_ptr<child> && h) {
-    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_child))) vm_child(std::move(h)));
+    return mk_vm_external(new vm_child(std::move(h)));
 }
 
 /*

@@ -21,9 +21,9 @@ struct vm_format : public vm_external {
     format m_val;
     vm_format(format const & v):m_val(v) {}
     virtual ~vm_format() {}
-    virtual void dealloc() override { this->~vm_format(); get_vm_allocator().deallocate(sizeof(vm_format), this); }
+    virtual void dealloc() override { delete this; }
     virtual vm_external * ts_clone(vm_clone_fn const &) override { return new vm_format(m_val); }
-    virtual vm_external * clone(vm_clone_fn const &) override { return new (get_vm_allocator().allocate(sizeof(vm_format))) vm_format(m_val); }
+    virtual vm_external * clone(vm_clone_fn const &) override { return new vm_format(m_val); }
 };
 
 bool is_format(vm_obj const & o) {
@@ -36,7 +36,7 @@ format const & to_format(vm_obj const & o) {
 }
 
 vm_obj to_obj(format const & n) {
-    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_format))) vm_format(n));
+    return mk_vm_external(new vm_format(n));
 }
 
 vm_obj format_line() {
@@ -140,9 +140,9 @@ struct vm_format_thunk : public vm_external {
     std::function<format()> m_val;
     vm_format_thunk(std::function<format()> const & fn):m_val(fn) {}
     virtual ~vm_format_thunk() {}
-    virtual void dealloc() override { this->~vm_format_thunk(); get_vm_allocator().deallocate(sizeof(vm_format_thunk), this); }
+    virtual void dealloc() override { delete this; }
     virtual vm_external * ts_clone(vm_clone_fn const &) override { return new vm_format_thunk(m_val); }
-    virtual vm_external * clone(vm_clone_fn const &) override { return new (get_vm_allocator().allocate(sizeof(vm_format_thunk))) vm_format_thunk(m_val); }
+    virtual vm_external * clone(vm_clone_fn const &) override { return new vm_format_thunk(m_val); }
 };
 
 std::function<format()> const & to_format_thunk(vm_obj const & o) {
@@ -151,7 +151,7 @@ std::function<format()> const & to_format_thunk(vm_obj const & o) {
 }
 
 vm_obj to_obj(std::function<format()> const & fn) {
-    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_format_thunk))) vm_format_thunk(fn));
+    return mk_vm_external(new vm_format_thunk(fn));
 }
 
 static unsigned g_apply_format_thunk_idx = -1;

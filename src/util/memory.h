@@ -17,7 +17,7 @@ size_t get_allocated_memory();
 
 #ifdef LEAN_TRACK_CUSTOM_ALLOCATORS
 /* We use report_memory_deallocated to track memory released by custom allocators such
-   as memory_pool and small_object_allocator. */
+   as memory_pool. */
 void report_memory_deallocated(size_t s);
 size_t get_memory_deallocated();
 #define lean_report_memory_deallocated(s) report_memory_deallocated(s)

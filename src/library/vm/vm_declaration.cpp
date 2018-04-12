@@ -42,9 +42,9 @@ struct vm_declaration : public vm_external {
     declaration m_val;
     vm_declaration(declaration const & v):m_val(v) {}
     virtual ~vm_declaration() {}
-    virtual void dealloc() override { this->~vm_declaration(); get_vm_allocator().deallocate(sizeof(vm_declaration), this); }
+    virtual void dealloc() override { delete this; }
     virtual vm_external * ts_clone(vm_clone_fn const &) override { return new vm_declaration(m_val); }
-    virtual vm_external * clone(vm_clone_fn const &) override { return new (get_vm_allocator().allocate(sizeof(vm_declaration))) vm_declaration(m_val); }
+    virtual vm_external * clone(vm_clone_fn const &) override { return new vm_declaration(m_val); }
 };
 
 bool is_declaration(vm_obj const & o) {
@@ -57,7 +57,7 @@ declaration const & to_declaration(vm_obj const & o) {
 }
 
 vm_obj to_obj(declaration const & n) {
-    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_declaration))) vm_declaration(n));
+    return mk_vm_external(new vm_declaration(n));
 }
 
 vm_obj declaration_defn(vm_obj const & n, vm_obj const & ls, vm_obj const & type, vm_obj const & value,

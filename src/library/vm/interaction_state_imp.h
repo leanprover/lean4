@@ -38,8 +38,7 @@ interaction_monad<State>::vm_State::~vm_State() {}
 
 template<typename State>
 void interaction_monad<State>::vm_State::dealloc() {
-    this->~vm_State();
-    get_vm_allocator().deallocate(sizeof(vm_State), this);
+    delete this;
 }
 
 template<typename State>
@@ -55,7 +54,7 @@ vm_external * interaction_monad<State>::vm_State::clone(vm_clone_fn const &) {
     if (!is_ts_safe(m_val)) {
         throw exception("Failed to copy state to another thread");
     }
-    return new(get_vm_allocator().allocate(sizeof(vm_State))) vm_State(m_val);
+    return new vm_State(m_val);
 }
 
 template<typename State>
@@ -71,7 +70,7 @@ auto interaction_monad<State>::to_state(vm_obj const & o) -> State const & {
 
 template<typename State>
 vm_obj interaction_monad<State>::to_obj(State const & s) {
-    return mk_vm_external(new(get_vm_allocator().allocate(sizeof(vm_State))) vm_State(s));
+    return mk_vm_external(new vm_State(s));
 }
 
 template<typename State>

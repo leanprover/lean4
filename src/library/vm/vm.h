@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "util/compiler_hints.h"
 #include "util/rc.h"
 #include "util/interrupt.h"
-#include "util/small_object_allocator.h"
 #include "util/serializer.h"
 #include "util/numerics/mpz.h"
 #include "kernel/environment.h"
@@ -210,8 +209,6 @@ public:
         return reinterpret_cast<vm_obj const *>(reinterpret_cast<char const *>(this)+sizeof(vm_native_closure));
     }
 };
-
-small_object_allocator & get_vm_allocator();
 
 // =======================================
 // Constructors

@@ -14,7 +14,7 @@ struct vm_array : public vm_external {
     parray<vm_obj> m_array;
     vm_array(parray<vm_obj> const & a):m_array(a) {}
     virtual ~vm_array() {}
-    virtual void dealloc() override { this->~vm_array(); get_vm_allocator().deallocate(sizeof(vm_array), this); }
+    virtual void dealloc() override { delete this; }
     virtual vm_external * ts_clone(vm_clone_fn const &) override;
     virtual vm_external * clone(vm_clone_fn const &) override { lean_unreachable(); }
 };
@@ -51,7 +51,7 @@ vm_external * vm_array_ts_copy::clone(vm_clone_fn const & fn) {
     for (vm_obj const & p : m_entries) {
         array.push_back(fn(p));
     }
-    return new (get_vm_allocator().allocate(sizeof(vm_array))) vm_array(array);
+    return new vm_array(array);
 }
 
 parray<vm_obj> const & to_array(vm_obj const & o) {
@@ -60,7 +60,7 @@ parray<vm_obj> const & to_array(vm_obj const & o) {
 }
 
 vm_obj to_obj(parray<vm_obj> const & a) {
-    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_array))) vm_array(a));
+    return mk_vm_external(new vm_array(a));
 }
 
 vm_obj d_array_read(vm_obj const &, vm_obj const &, vm_obj const & a, vm_obj const & i) {

@@ -16,16 +16,14 @@ struct vm_list : public vm_external {
     list<A> m_val;
     vm_list(list<A> const & v):m_val(v) {}
     virtual ~vm_list() {}
-    virtual void dealloc() override {
-        this->~vm_list(); get_vm_allocator().deallocate(sizeof(vm_list<A>), this);
-    }
+    virtual void dealloc() override { delete this; }
     virtual vm_external * ts_clone(vm_clone_fn const &) override { return new vm_list<A>(m_val); }
-    virtual vm_external * clone(vm_clone_fn const &) override { return new (get_vm_allocator().allocate(sizeof(vm_list<A>))) vm_list<A>(m_val); }
+    virtual vm_external * clone(vm_clone_fn const &) override { return new vm_list<A>(m_val); }
 };
 
 template<typename A>
 vm_obj list_to_obj(list<A> const & l) {
-    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_list<A>))) vm_list<A>(l));
+    return mk_vm_external(new vm_list<A>(l));
 }
 
 vm_obj to_obj(list<name> const & ls) { return list_to_obj(ls); }

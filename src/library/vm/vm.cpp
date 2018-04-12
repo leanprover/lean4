@@ -15,7 +15,6 @@ Author: Leonardo de Moura
 #include "util/flet.h"
 #include "util/interrupt.h"
 #include "util/sstream.h"
-#include "util/small_object_allocator.h"
 #include "util/sexpr/option_declarations.h"
 #include "util/shared_mutex.h"
 #include "library/constants.h"
@@ -48,12 +47,6 @@ void vm_obj_cell::dec_ref(vm_obj & o, buffer<vm_obj_cell*> & todelete) {
     }
 }
 
-MK_THREAD_LOCAL_GET(small_object_allocator, get_small_allocator, "vm object");
-
-small_object_allocator & get_vm_allocator() {
-    return get_small_allocator();
-}
-
 vm_composite::vm_composite(vm_obj_kind k, unsigned idx, unsigned sz, vm_obj const * data):
     vm_obj_cell(k), m_idx(idx),  m_size(sz) {
     vm_obj * fields = get_field_ptr();
@@ -62,7 +55,7 @@ vm_composite::vm_composite(vm_obj_kind k, unsigned idx, unsigned sz, vm_obj cons
 
 static vm_obj mk_vm_composite(vm_obj_kind k, unsigned idx, unsigned sz, vm_obj const * data) {
     lean_assert(k == vm_obj_kind::Constructor || k == vm_obj_kind::Closure);
-    return vm_obj(new (get_small_allocator().allocate(sizeof(vm_composite) + sz * sizeof(vm_obj))) vm_composite(k, idx, sz, data));
+    return vm_obj(new (malloc(sizeof(vm_composite) + sz * sizeof(vm_obj))) vm_composite(k, idx, sz, data));
 }
 
 void vm_composite::dealloc(buffer<vm_obj_cell*> & todelete) {
@@ -72,7 +65,7 @@ void vm_composite::dealloc(buffer<vm_obj_cell*> & todelete) {
         dec_ref(fields[i], todelete);
     }
     this->~vm_composite();
-    get_small_allocator().deallocate(sizeof(vm_composite) + sz * sizeof(vm_obj), this);
+    free(this);
 }
 
 vm_obj mk_vm_constructor(unsigned cidx, unsigned sz, vm_obj const * data) {
@@ -175,12 +168,11 @@ vm_obj mk_vm_simple(unsigned v) {
 }
 
 vm_obj mk_vm_mpz(mpz const & v) {
-    return vm_obj(new (get_small_allocator().allocate(sizeof(vm_mpz))) vm_mpz(v));
+    return vm_obj(new vm_mpz(v));
 }
 
 void vm_mpz::dealloc() {
-    this->~vm_mpz();
-    get_small_allocator().deallocate(sizeof(vm_mpz), this);
+    delete this;
 }
 
 /* TODO(Leo, Jared): delete mk_native_closure that takes environment as argument */
@@ -207,11 +199,11 @@ void vm_native_closure::dealloc(buffer<vm_obj_cell*> & todelete) {
         dec_ref(args[i], todelete);
     }
     this->~vm_native_closure();
-    get_small_allocator().deallocate(sizeof(vm_native_closure) + nargs * sizeof(vm_obj), this);
+    free(this);
 }
 
 vm_obj mk_native_closure(vm_cfunction fn, unsigned arity, unsigned num_args, vm_obj const * args) {
-    return vm_obj(new (get_small_allocator().allocate(sizeof(vm_native_closure) + num_args * sizeof(vm_obj))) vm_native_closure(fn, arity, num_args, args));
+    return vm_obj(new (malloc(sizeof(vm_native_closure) + num_args * sizeof(vm_obj))) vm_native_closure(fn, arity, num_args, args));
 }
 
 vm_obj mk_native_closure(vm_cfunction fn, unsigned arity, std::initializer_list<vm_obj> const & args) {

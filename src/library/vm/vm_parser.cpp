@@ -83,9 +83,9 @@ struct vm_decl_attributes : public vm_external {
     decl_attributes m_val;
     vm_decl_attributes(decl_attributes const & v):m_val(v) {}
     virtual ~vm_decl_attributes() {}
-    virtual void dealloc() override { this->~vm_decl_attributes(); get_vm_allocator().deallocate(sizeof(vm_decl_attributes), this); }
+    virtual void dealloc() override { delete this; }
     virtual vm_external * ts_clone(vm_clone_fn const &) override { return new vm_decl_attributes(m_val); }
-    virtual vm_external * clone(vm_clone_fn const &) override { return new (get_vm_allocator().allocate(sizeof(vm_decl_attributes))) vm_decl_attributes(m_val); }
+    virtual vm_external * clone(vm_clone_fn const &) override { return new vm_decl_attributes(m_val); }
 };
 
 static decl_attributes const & to_decl_attributes(vm_obj const & o) {
@@ -94,7 +94,7 @@ static decl_attributes const & to_decl_attributes(vm_obj const & o) {
 }
 
 static vm_obj to_obj(decl_attributes const & n) {
-    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_decl_attributes))) vm_decl_attributes(n));
+    return mk_vm_external(new vm_decl_attributes(n));
 }
 
 static vm_obj to_obj(decl_modifiers const & mods) {

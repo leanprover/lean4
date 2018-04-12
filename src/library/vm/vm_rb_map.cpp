@@ -29,7 +29,7 @@ struct vm_rb_map : public vm_external {
     vm_obj_map m_map;
     vm_rb_map(vm_obj_map const & m):m_map(m) {}
     virtual ~vm_rb_map() {}
-    virtual void dealloc() override { this->~vm_rb_map(); get_vm_allocator().deallocate(sizeof(vm_rb_map), this); }
+    virtual void dealloc() override { delete this; }
     virtual vm_external * ts_clone(vm_clone_fn const &) override;
     virtual vm_external * clone(vm_clone_fn const &) override { lean_unreachable(); }
 };
@@ -72,7 +72,7 @@ vm_external * vm_rb_map_ts_copy::clone(vm_clone_fn const & fn) {
     for (auto const & p : m_entries) {
         new_map.insert(fn(p.first), fn(p.second));
     }
-    return new (get_vm_allocator().allocate(sizeof(vm_rb_map))) vm_rb_map(new_map);
+    return new vm_rb_map(new_map);
 }
 
 vm_obj_map const & to_map(vm_obj const & o) {
@@ -81,7 +81,7 @@ vm_obj_map const & to_map(vm_obj const & o) {
 }
 
 vm_obj to_obj(vm_rb_map const & n) {
-    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_rb_map))) vm_rb_map(n));
+    return mk_vm_external(new vm_rb_map(n));
 }
 
 vm_obj rb_map_mk_core(vm_obj const &, vm_obj const &, vm_obj const & cmp) {
@@ -141,9 +141,9 @@ struct vm_name_set : public vm_external {
     name_set m_val;
     vm_name_set(name_set const & v):m_val(v) {}
     virtual ~vm_name_set() {}
-    virtual void dealloc() override { this->~vm_name_set(); get_vm_allocator().deallocate(sizeof(vm_name_set), this); }
+    virtual void dealloc() override { delete this; }
     virtual vm_external * ts_clone(vm_clone_fn const &) override { return new vm_name_set(m_val); }
-    virtual vm_external * clone(vm_clone_fn const &) override { return new (get_vm_allocator().allocate(sizeof(vm_name_set))) vm_name_set(m_val); }
+    virtual vm_external * clone(vm_clone_fn const &) override { return new vm_name_set(m_val); }
 };
 
 bool is_name_set(vm_obj const & o) {
@@ -156,7 +156,7 @@ name_set const & to_name_set(vm_obj const & o) {
 }
 
 vm_obj to_obj(name_set const & n) {
-    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_name_set))) vm_name_set(n));
+    return mk_vm_external(new vm_name_set(n));
 }
 
 vm_obj mk_name_set() {

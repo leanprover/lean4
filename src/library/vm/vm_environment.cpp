@@ -34,9 +34,9 @@ struct vm_environment : public vm_external {
     environment m_val;
     vm_environment(environment const & v):m_val(v) {}
     virtual ~vm_environment() {}
-    virtual void dealloc() override { this->~vm_environment(); get_vm_allocator().deallocate(sizeof(vm_environment), this); }
+    virtual void dealloc() override { delete this; }
     virtual vm_external * ts_clone(vm_clone_fn const &) override { return new vm_environment(m_val); }
-    virtual vm_external * clone(vm_clone_fn const &) override { return new (get_vm_allocator().allocate(sizeof(vm_environment))) vm_environment(m_val); }
+    virtual vm_external * clone(vm_clone_fn const &) override { return new vm_environment(m_val); }
 };
 
 bool is_env(vm_obj const & o) {
@@ -49,7 +49,7 @@ environment const & to_env(vm_obj const & o) {
 }
 
 vm_obj to_obj(environment const & n) {
-    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_environment))) vm_environment(n));
+    return mk_vm_external(new vm_environment(n));
 }
 
 vm_obj environment_mk_std(vm_obj const & l) {

@@ -24,7 +24,7 @@ struct vm_task : public vm_external {
     task<ts_vm_obj> m_val;
     vm_task(task<ts_vm_obj> const & v) : m_val(v) {}
     virtual ~vm_task() {}
-    virtual void dealloc() override { this->~vm_task(); get_vm_allocator().deallocate(sizeof(vm_task), this); }
+    virtual void dealloc() override { delete this; }
     virtual vm_external * ts_clone(vm_clone_fn const &) override {
         return new vm_task(m_val);
     }
@@ -43,7 +43,7 @@ task<ts_vm_obj> const & to_task(vm_obj const & o) {
 }
 
 vm_obj to_obj(task<ts_vm_obj> const & n) {
-    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_task))) vm_task(n));
+    return mk_vm_external(new vm_task(n));
 }
 
 vm_obj to_obj(task<expr> const & n) {

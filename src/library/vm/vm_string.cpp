@@ -17,9 +17,9 @@ struct vm_string : public vm_external {
     size_t      m_length; // number of unicode scalar values
     vm_string(std::string const & v, size_t len):m_value(v), m_length(len) {}
     virtual ~vm_string() {}
-    virtual void dealloc() override { this->~vm_string(); get_vm_allocator().deallocate(sizeof(vm_string), this); }
+    virtual void dealloc() override { delete this; }
     virtual vm_external * ts_clone(vm_clone_fn const &) override { return new vm_string(m_value, m_length); }
-    virtual vm_external * clone(vm_clone_fn const &) override { return new (get_vm_allocator().allocate(sizeof(vm_string))) vm_string(m_value, m_length); }
+    virtual vm_external * clone(vm_clone_fn const &) override { return new vm_string(m_value, m_length); }
 };
 
 bool is_string(vm_obj const & o) {
@@ -36,7 +36,7 @@ std::string to_string(vm_obj const & o) {
 }
 
 vm_obj to_obj(std::string const & s, size_t len) {
-    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_string))) vm_string(s, len));
+    return mk_vm_external(new vm_string(s, len));
 }
 
 vm_obj to_obj(std::string const & s) {

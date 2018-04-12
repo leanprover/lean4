@@ -15,9 +15,9 @@ struct vm_throwable : public vm_external {
     throwable * m_val;
     vm_throwable(throwable const & ex):m_val(ex.clone()) {}
     virtual ~vm_throwable() { delete m_val; }
-    virtual void dealloc() override { this->~vm_throwable(); get_vm_allocator().deallocate(sizeof(vm_throwable), this); }
+    virtual void dealloc() override { delete this; }
     virtual vm_external * ts_clone(vm_clone_fn const &) override { return new vm_throwable(*m_val); }
-    virtual vm_external * clone(vm_clone_fn const &) override { return new (get_vm_allocator().allocate(sizeof(vm_throwable))) vm_throwable(*m_val); }
+    virtual vm_external * clone(vm_clone_fn const &) override { return new vm_throwable(*m_val); }
 };
 
 throwable * to_throwable(vm_obj const & o) {
@@ -26,7 +26,7 @@ throwable * to_throwable(vm_obj const & o) {
 }
 
 vm_obj to_obj(throwable const & ex) {
-    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_throwable))) vm_throwable(ex));
+    return mk_vm_external(new vm_throwable(ex));
 }
 
 /** Implement two different signatures:

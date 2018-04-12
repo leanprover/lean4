@@ -1,6 +1,0 @@
-add_executable(mpq mpq.cpp $<TARGET_OBJECTS:util> $<TARGET_OBJECTS:numerics> $<TARGET_OBJECTS:sexpr>)
-target_link_libraries(mpq ${EXTRA_LIBS})
-add_exec_test(mpq "mpq")
-add_executable(mpz mpz.cpp $<TARGET_OBJECTS:util> $<TARGET_OBJECTS:numerics> $<TARGET_OBJECTS:sexpr>)
-target_link_libraries(mpz ${EXTRA_LIBS})
-add_exec_test(mpz "mpz")

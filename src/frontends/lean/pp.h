@@ -11,12 +11,12 @@ Author: Leonardo de Moura
 #include "util/pair.h"
 #include "util/name_map.h"
 #include "util/name_set.h"
+#include "util/mpz.h"
 #include "util/sexpr/options.h"
 #include "util/sexpr/format.h"
 #include "kernel/environment.h"
 #include "kernel/abstract_type_context.h"
 #include "frontends/lean/token_table.h"
-#include "util/numerics/mpz.h"
 
 namespace lean {
 class notation_entry;

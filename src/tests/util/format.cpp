@@ -11,7 +11,7 @@ Author: Soonho Kong
 #include <string>
 #include "util/test.h"
 #include "util/init_module.h"
-#include "util/numerics/mpq.h"
+#include "util/mpq.h"
 #include "util/sexpr/format.h"
 #include "util/sexpr/sexpr_fn.h"
 #include "util/sexpr/options.h"

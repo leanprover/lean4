@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include "util/sstream.h"
 #include "util/thread.h"
-#include "util/numerics/mpq.h"
+#include "util/mpq.h"
 
 namespace lean {
 MK_THREAD_LOCAL_GET_DEF(mpz, get_tlocal1);

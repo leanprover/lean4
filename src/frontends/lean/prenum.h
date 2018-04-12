@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/expr.h"
-#include "util/numerics/mpz.h"
+#include "util/mpz.h"
 
 namespace lean {
 /** \brief Create a pre-numeral. We create pre-numerals at parsing time. The elaborator is responsible for

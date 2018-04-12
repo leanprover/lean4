@@ -1,4 +1,4 @@
-add_library(util OBJECT debug.cpp name.cpp name_set.cpp fresh_name.cpp
+add_library(util OBJECT debug.cpp mpz.cpp mpq.cpp name.cpp name_set.cpp fresh_name.cpp
   exception.cpp interrupt.cpp hash.cpp escaped.cpp bit_tricks.cpp
   safe_arith.cpp ascii.cpp memory.cpp shared_mutex.cpp path.cpp
   stackinfo.cpp lean_path.cpp serializer.cpp lbool.cpp

@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "library/kernel_serializer.h"
-#include "util/numerics/mpz.h"
+#include "util/mpz.h"
 
 namespace lean {
 static name * g_prenum_name = nullptr;

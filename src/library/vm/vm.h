@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 #include "util/rc.h"
 #include "util/interrupt.h"
 #include "util/serializer.h"
-#include "util/numerics/mpz.h"
+#include "util/mpz.h"
 #include "kernel/environment.h"
 #include "kernel/pos_info_provider.h"
 

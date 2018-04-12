@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "util/name.h"
 #include "util/flet.h"
 #include "util/utf8.h"
-#include "util/numerics/mpq.h"
+#include "util/mpq.h"
 #include "kernel/environment.h"
 #include "library/io_state.h"
 #include "frontends/lean/token_table.h"

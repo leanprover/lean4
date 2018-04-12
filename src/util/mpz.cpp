@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <memory>
 #include "util/sstream.h"
 #include "util/thread.h"
-#include "util/numerics/mpz.h"
+#include "util/mpz.h"
 #include <string>
 
 namespace lean {

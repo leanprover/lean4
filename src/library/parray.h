@@ -87,7 +87,8 @@ class parray {
     };
 
     static void del_elem(T * ptr) {
-        delete ptr;
+        ptr->~T();
+        free(ptr);
     }
 
     static void deallocate_cell(cell * c) {
@@ -108,7 +109,8 @@ class parray {
                     delete c->get_mutex();
                 break;
             }
-            delete c;
+            c->~cell();
+            free(c);
             if (next == nullptr)
                 return;
             lean_assert(next->m_rc > 0);
@@ -150,11 +152,11 @@ class parray {
     }
 
     static cell * mk_cell() {
-        return new cell();
+        return new (malloc(sizeof(cell) + (ThreadSafe ? sizeof(mutex*) : 0))) cell();
     }
 
     static T * mk_elem_copy(T const & e) {
-        return new T(e);
+        return new (malloc(sizeof(cell) + (ThreadSafe ? sizeof(mutex*) : 0))) T(e);
     }
 
     typedef buffer<cell *, 1024> cell_buffer;

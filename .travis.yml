@@ -134,14 +134,14 @@ script:
           ../src
   - make -j2
   - if [[ $TEST != OFF ]]; then yes "A" | travis_wait 60 ctest -j2 --output-on-failure; fi
-  - |
-    # don't test packages when building nightly
-    if [[ $TEST_LEANPKG_REGISTRY == ON && -z $LEAN_VERSION_STRING ]]; then
-      (cd ../packages
-       if [[ $TRAVIS_OS_NAME == linux ]]; then ../bin/leanpkg add "https://github.com/leanprover/smt2_interface"; fi
-       ../bin/leanpkg configure
-       for d in _target/deps/*; do (cd $d; ../../../../bin/leanpkg test); done)
-    fi
+  # - |
+  #   # don't test packages when building nightly
+  #   if [[ $TEST_LEANPKG_REGISTRY == ON && -z $LEAN_VERSION_STRING ]]; then
+  #     (cd ../packages
+  #      if [[ $TRAVIS_OS_NAME == linux ]]; then ../bin/leanpkg add "https://github.com/leanprover/smt2_interface"; fi
+  #      ../bin/leanpkg configure
+  #      for d in _target/deps/*; do (cd $d; ../../../../bin/leanpkg test); done)
+  #   fi
   - if [[ $UPLOAD == ON ]]; then cpack; fi
   - if [[ $UPLOAD == ON && $GH_TOKEN && $TRAVIS_PULL_REQUEST == false && $TRAVIS_BRANCH == master ]]; then (cd ..; bash script/deploy_nightly.sh build/lean-*); fi
   - cd ..

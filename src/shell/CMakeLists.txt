@@ -197,15 +197,15 @@ FOREACH(T ${LEANFAILTESTS})
 ENDFOREACH(T)
 
 # LEANPKG TESTS
-file(GLOB LEANPKGTESTS "${LEAN_SOURCE_DIR}/../tests/lean/leanpkg/*.sh")
-FOREACH(T ${LEANPKGTESTS})
-  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-  if(NOT T_NAME MATCHES "test_single.sh")
-  add_test(NAME "leanpkgtest_${T_NAME}"
-           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/leanpkg/"
-           COMMAND bash "./test_single.sh" "${LEAN_SOURCE_DIR}/../bin/lean" ${T_NAME})
-  endif()
-ENDFOREACH(T)
+# file(GLOB LEANPKGTESTS "${LEAN_SOURCE_DIR}/../tests/lean/leanpkg/*.sh")
+# FOREACH(T ${LEANPKGTESTS})
+#   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+#   if(NOT T_NAME MATCHES "test_single.sh")
+#   add_test(NAME "leanpkgtest_${T_NAME}"
+#            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/leanpkg/"
+#            COMMAND bash "./test_single.sh" "${LEAN_SOURCE_DIR}/../bin/lean" ${T_NAME})
+#   endif()
+# ENDFOREACH(T)
 
 # LEAN TESTS using --trust=0
 file(GLOB LEANT0TESTS "${LEAN_SOURCE_DIR}/../tests/lean/trust0/*.lean")

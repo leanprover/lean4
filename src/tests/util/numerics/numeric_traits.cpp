@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "util/numerics/init_module.h"
 #include "util/numerics/mpq.h"
 #include "util/numerics/mpz.h"
-#include "util/numerics/mpbq.h"
 #include "util/numerics/double.h"
 #include "util/numerics/float.h"
 using namespace lean;
@@ -30,7 +29,6 @@ static void tst1() {
     tst_num(mpq(0));
     tst_num(mpz(3));
     tst_num(mpz(0));
-    tst_num(mpbq(3));
     tst_num(1.0);
     tst_num(static_cast<float>(1.0));
 }

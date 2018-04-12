@@ -8,8 +8,6 @@ Author: Leonardo de Moura
 #include "util/numerics/mpz.h"
 
 namespace lean {
-class mpbq;
-
 /**
    \brief Wrapper for GMP rationals
 */
@@ -26,7 +24,6 @@ public:
     mpq & operator=(mpz const & v) { mpq_set_z(m_val, v.m_val); return *this; }
     mpq & operator=(mpq const & v) { mpq_set(m_val, v.m_val); return *this; }
     mpq & operator=(mpq && v) { swap(*this, v); return *this; }
-    mpq & operator=(mpbq const & b);
     mpq & operator=(char const * v) { mpq_set_str(m_val, v, 10); return *this; }
     mpq & operator=(unsigned long int v) { mpq_set_ui(m_val, v, 1u); return *this; }
     mpq & operator=(long int v) { mpq_set_si(m_val, v, 1); return *this; }

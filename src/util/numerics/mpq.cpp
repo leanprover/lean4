@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "util/thread.h"
 #include "util/numerics/mpq.h"
-#include "util/numerics/mpbq.h"
 
 namespace lean {
 mpq * numeric_traits<mpq>::pi_l = nullptr;
@@ -24,14 +23,6 @@ void numeric_traits<mpq>::finalize() {
     delete pi_l;
     delete pi_n;
     delete pi_u;
-}
-
-mpq & mpq::operator=(mpbq const & b) {
-    *this = 2;
-    power(*this, *this, b.get_k());
-    inv();
-    *this *= b.get_numerator();
-    return *this;
 }
 
 MK_THREAD_LOCAL_GET_DEF(mpz, get_tlocal1);

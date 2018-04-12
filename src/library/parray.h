@@ -152,11 +152,11 @@ class parray {
     }
 
     static cell * mk_cell() {
-        return new (malloc(sizeof(cell) + (ThreadSafe ? sizeof(mutex*) : 0))) cell();
+        return new (malloc(sizeof(cell) + (ThreadSafe ? sizeof(mutex*) : 0))) cell(); // NOLINT
     }
 
     static T * mk_elem_copy(T const & e) {
-        return new (malloc(sizeof(cell) + (ThreadSafe ? sizeof(mutex*) : 0))) T(e);
+        return new (malloc(sizeof(cell) + (ThreadSafe ? sizeof(mutex*) : 0))) T(e); // NOLINT
     }
 
     typedef buffer<cell *, 1024> cell_buffer;

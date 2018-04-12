@@ -165,13 +165,6 @@ expr mk_not(type_context_old & ctx, expr const & H);
 /** p -> not p -> b */
 expr mk_absurd(type_context_old & ctx, expr const & Hp, expr const & Hnp, expr const & b);
 
-expr mk_partial_add(type_context_old & ctx, expr const & A);
-expr mk_partial_mul(type_context_old & ctx, expr const & A);
-expr mk_zero(type_context_old & ctx, expr const & A);
-expr mk_one(type_context_old & ctx, expr const & A);
-expr mk_partial_left_distrib(type_context_old & ctx, expr const & A);
-expr mk_partial_right_distrib(type_context_old & ctx, expr const & A);
-
 expr mk_ss_elim(type_context_old & ctx, expr const & A, expr const & ss_inst, expr const & old_e, expr const & new_e);
 
 /** \brief False elimination */

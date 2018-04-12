@@ -691,66 +691,6 @@ public:
         return mk_eq_rec(motive, minor, H);
     }
 
-    expr mk_partial_add(expr const & A) {
-        level lvl = get_level(A);
-        auto A_has_add = m_ctx.mk_class_instance(::lean::mk_app(mk_constant(get_has_add_name(), {lvl}), A));
-        if (!A_has_add) {
-            trace_inst_failure(A, "has_add");
-            throw app_builder_exception();
-        }
-        return ::lean::mk_app(mk_constant(get_has_add_add_name(), {lvl}), A, *A_has_add);
-    }
-
-    expr mk_partial_mul(expr const & A) {
-        level lvl = get_level(A);
-        auto A_has_mul = m_ctx.mk_class_instance(::lean::mk_app(mk_constant(get_has_mul_name(), {lvl}), A));
-        if (!A_has_mul) {
-            trace_inst_failure(A, "has_mul");
-            throw app_builder_exception();
-        }
-        return ::lean::mk_app(mk_constant(get_has_mul_mul_name(), {lvl}), A, *A_has_mul);
-    }
-
-    expr mk_zero(expr const & A) {
-        level lvl = get_level(A);
-        auto A_has_zero = m_ctx.mk_class_instance(::lean::mk_app(mk_constant(get_has_zero_name(), {lvl}), A));
-        if (!A_has_zero) {
-            trace_inst_failure(A, "has_zero");
-            throw app_builder_exception();
-        }
-        return ::lean::mk_app(mk_constant(get_has_zero_zero_name(), {lvl}), A, *A_has_zero);
-    }
-
-    expr mk_one(expr const & A) {
-        level lvl = get_level(A);
-        auto A_has_one = m_ctx.mk_class_instance(::lean::mk_app(mk_constant(get_has_one_name(), {lvl}), A));
-        if (!A_has_one) {
-            trace_inst_failure(A, "has_one");
-            throw app_builder_exception();
-        }
-        return ::lean::mk_app(mk_constant(get_has_one_one_name(), {lvl}), A, *A_has_one);
-    }
-
-    expr mk_partial_left_distrib(expr const & A) {
-        level lvl = get_level(A);
-        auto A_distrib = m_ctx.mk_class_instance(::lean::mk_app(mk_constant(get_distrib_name(), {lvl}), A));
-        if (!A_distrib) {
-            trace_inst_failure(A, "distrib");
-            throw app_builder_exception();
-        }
-        return ::lean::mk_app(mk_constant(get_left_distrib_name(), {lvl}), A, *A_distrib);
-    }
-
-    expr mk_partial_right_distrib(expr const & A) {
-        level lvl = get_level(A);
-        auto A_distrib = m_ctx.mk_class_instance(::lean::mk_app(mk_constant(get_distrib_name(), {lvl}), A));
-        if (!A_distrib) {
-            trace_inst_failure(A, "distrib");
-            throw app_builder_exception();
-        }
-        return ::lean::mk_app(mk_constant(get_right_distrib_name(), {lvl}), A, *A_distrib);
-    }
-
     expr mk_ss_elim(expr const & A, expr const & ss_inst, expr const & old_e, expr const & new_e) {
         level lvl = get_level(A);
         return ::lean::mk_app(mk_constant(get_subsingleton_elim_name(), {lvl}), A, ss_inst, old_e, new_e);
@@ -1080,30 +1020,6 @@ expr mk_not(type_context_old & ctx, expr const & H) {
 
 expr mk_absurd(type_context_old & ctx, expr const & Hp, expr const & Hnp, expr const & b) {
     return mk_app(ctx, get_absurd_name(), {b, Hp, Hnp});
-}
-
-expr mk_partial_add(type_context_old & ctx, expr const & A) {
-    return app_builder(ctx).mk_partial_add(A);
-}
-
-expr mk_partial_mul(type_context_old & ctx, expr const & A) {
-    return app_builder(ctx).mk_partial_mul(A);
-}
-
-expr mk_zero(type_context_old & ctx, expr const & A) {
-    return app_builder(ctx).mk_zero(A);
-}
-
-expr mk_one(type_context_old & ctx, expr const & A) {
-    return app_builder(ctx).mk_one(A);
-}
-
-expr mk_partial_left_distrib(type_context_old & ctx, expr const & A) {
-    return app_builder(ctx).mk_partial_left_distrib(A);
-}
-
-expr mk_partial_right_distrib(type_context_old & ctx, expr const & A) {
-    return app_builder(ctx).mk_partial_right_distrib(A);
 }
 
 expr mk_ss_elim(type_context_old & ctx, expr const & A, expr const & ss_inst, expr const & old_e, expr const & new_e) {

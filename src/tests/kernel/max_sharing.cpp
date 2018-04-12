@@ -70,12 +70,9 @@ int main() {
     initialize_library_core_module();
     initialize_library_module();
     init_default_print_fn();
-    {
-        scoped_expr_caching set(false);
-        tst1();
-        tst2();
-        tst3();
-    }
+    tst1();
+    tst2();
+    tst3();
     finalize_library_module();
     finalize_library_core_module();
     finalize_kernel_module();

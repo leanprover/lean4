@@ -51,10 +51,6 @@ static void tst1() {
     std::cout << mk_app(fa, a) << "\n";
     lean_assert(is_eqp(app_fn(fa), f));
     lean_assert(is_eqp(app_arg(fa), a));
-    {
-        scoped_expr_caching set(false);
-        lean_assert(!is_eqp(fa, mk_app(f, a)));
-    }
     lean_assert(mk_app(fa, a) == mk_app(f, a, a));
     std::cout << mk_app(fa, fa, fa) << "\n";
     std::cout << mk_lambda("x", ty, Var(0)) << "\n";
@@ -169,7 +165,6 @@ static void tst6() {
 }
 
 static void tst7() {
-    scoped_expr_caching set(false);
     expr f  = Const("f");
     expr v  = Var(0);
     expr a1 = max_sharing(mk_app(f, v, v));
@@ -255,7 +250,6 @@ static void tst11() {
 }
 
 static void tst12() {
-    scoped_expr_caching set(false);
     expr f  = Const("f");
     expr v  = Var(0);
     expr a1 = max_sharing(mk_app(f, v, v));
@@ -311,7 +305,6 @@ static void tst15() {
 }
 
 static void check_copy(expr const & e) {
-    scoped_expr_caching set(false);
     expr c = copy(e);
     lean_assert(!is_eqp(e, c));
     lean_assert(e == c);

@@ -19,8 +19,6 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
-level cache(level const & e);
-
 level_cell const & to_cell(level const & l) {
     return *l.m_ptr;
 }
@@ -180,7 +178,7 @@ bool is_explicit(level const & l) {
 }
 
 level mk_succ(level const & l) {
-    return cache(level(new level_succ(l)));
+    return level(new level_succ(l));
 }
 
 /** \brief Convert (succ^k l) into (l, k). If l is not a succ, then return (l, 0) */
@@ -218,7 +216,7 @@ level mk_max(level const & l1, level const & l2)  {
             lean_assert(p1.second != p2.second);
             return p1.second > p2.second ? l1 : l2;
         } else {
-            return cache(level(new level_max_core(false, l1, l2)));
+            return level(new level_max_core(false, l1, l2));
         }
     }
 }
@@ -233,48 +231,17 @@ level mk_imax(level const & l1, level const & l2) {
     else if (l1 == l2)
         return l1;  // imax u u = u
     else
-        return cache(level(new level_max_core(true,  l1, l2)));
+        return level(new level_max_core(true,  l1, l2));
 }
 
-level mk_param_univ(name const & n)  { return cache(level(new level_param_core(level_kind::Param, n))); }
-level mk_meta_univ(name const & n)   { return cache(level(new level_param_core(level_kind::Meta, n))); }
+level mk_param_univ(name const & n)  { return level(new level_param_core(level_kind::Param, n)); }
+level mk_meta_univ(name const & n)   { return level(new level_param_core(level_kind::Meta, n)); }
 
 static level * g_level_zero = nullptr;
 static level * g_level_one  = nullptr;
 level const & mk_level_zero() { return *g_level_zero; }
 level const & mk_level_one() { return *g_level_one; }
 bool is_one(level const & l) { return l == mk_level_one(); }
-
-typedef typename std::unordered_set<level, level_hash> level_cache;
-LEAN_THREAD_VALUE(bool, g_level_cache_enabled, false);
-/* CACHE_RESET: No */
-MK_THREAD_LOCAL_GET_DEF(level_cache, get_level_cache);
-bool enable_level_caching(bool f) {
-    bool r = g_level_cache_enabled;
-    g_level_cache_enabled = f;
-    get_level_cache().insert(mk_level_zero());
-    get_level_cache().insert(mk_level_one());
-    return r;
-}
-void flush_level_cache() {
-    level_cache new_cache;
-    get_level_cache().swap(new_cache);
-}
-level cache(level const & e) {
-    if (g_level_cache_enabled) {
-        level_cache & cache = get_level_cache();
-        auto it = cache.find(e);
-        if (it != cache.end()) {
-            return *it;
-        } else {
-            cache.insert(e);
-        }
-    }
-    return e;
-}
-bool is_cached(level const & e) {
-    return get_level_cache().find(e) != get_level_cache().end();
-}
 
 level::level():level(mk_level_zero()) {}
 level::level(level_cell * ptr):m_ptr(ptr) { if (m_ptr) m_ptr->inc_ref(); }

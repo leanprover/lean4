@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 expr copy(expr const & a) {
-    scoped_expr_caching scope(false);
     switch (a.kind()) {
     case expr_kind::Var:      return mk_var(var_idx(a));
     case expr_kind::Constant: return mk_constant(const_name(a), const_levels(a));
@@ -27,7 +26,6 @@ expr copy(expr const & a) {
 }
 
 expr deep_copy(expr const & e) {
-    scoped_expr_caching scope(false);
     return replace(e, [](expr const & e) {
             if (is_atomic(e))
                 return some_expr(copy(e));

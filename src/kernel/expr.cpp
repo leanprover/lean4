@@ -374,177 +374,37 @@ expr_macro::~expr_macro() {}
 
 // =======================================
 // Constructors
-LEAN_THREAD_VALUE(bool, g_expr_cache_enabled, false);
-typedef typename std::unordered_set<expr, expr_hash, is_bi_equal_proc> expr_cache;
-/* CACHE_RESET: NO */
-MK_THREAD_LOCAL_GET_DEF(expr_cache, get_expr_cache);
 
-struct cache_expr_insert_fn {
-    expr_cache & m_cache;
-    cache_expr_insert_fn(expr_cache & c):m_cache(c) {}
-
-    expr insert_macro(expr const & e) {
-        buffer<expr> new_args;
-        bool updated = false;
-        unsigned num = macro_num_args(e);
-        for (unsigned i = 0; i < num; i++) {
-            expr const & arg = macro_arg(e, i);
-            new_args.push_back(insert(arg));
-            if (!is_eqp(arg, new_args.back()))
-                updated = true;
-        }
-        if (updated) {
-            char * mem = new char[sizeof(expr_macro) + num*sizeof(expr const *)];
-            return expr(new (mem) expr_macro(*to_macro(e), new_args.data()));
-        } else {
-            return e;
-        }
-    }
-
-    expr insert_meta(expr const & e) {
-        expr new_type = insert(mlocal_type(e));
-        if (is_eqp(new_type, mlocal_type(e))) {
-            return e;
-        } else {
-            return expr(new expr_mlocal(*to_mlocal(e), new_type));
-        }
-    }
-
-    expr insert_local(expr const & e) {
-        expr new_type = insert(mlocal_type(e));
-        if (is_eqp(new_type, mlocal_type(e))) {
-            return e;
-        } else {
-            return expr(new expr_local(*to_local(e), new_type));
-        }
-    }
-
-    expr insert_constant(expr const & e) {
-        /* TODO(Leo): similar insert for levels */
-        return e;
-    }
-
-    expr insert_sort(expr const & e) {
-        /* TODO(Leo): similar insert for levels */
-        return e;
-    }
-
-    expr insert_app(expr const & e) {
-        expr new_fn  = insert(app_fn(e));
-        expr new_arg = insert(app_arg(e));
-        if (is_eqp(new_fn, app_fn(e)) && is_eqp(new_arg, app_arg(e))) {
-            return e;
-        } else {
-            return expr(new expr_app(*to_app(e), new_fn, new_arg));
-        }
-    }
-
-    expr insert_binding(expr const & e) {
-        expr new_domain = insert(binding_domain(e));
-        expr new_body   = insert(binding_body(e));
-        if (is_eqp(new_domain, binding_domain(e)) && is_eqp(new_body, binding_body(e))) {
-            return e;
-        } else {
-            return expr(new expr_binding(*to_binding(e), new_domain, new_body));
-        }
-    }
-
-    expr insert_let(expr const & e) {
-        expr new_type  = insert(let_type(e));
-        expr new_value = insert(let_value(e));
-        expr new_body  = insert(let_body(e));
-        if (is_eqp(new_type, let_type(e)) && is_eqp(new_value, let_value(e)) && is_eqp(new_body, let_body(e))) {
-            return e;
-        } else {
-            return expr(new expr_let(*to_let(e), new_type, new_value, new_body));
-        }
-        return e;
-    }
-
-    expr insert(expr const & e) {
-        auto it = m_cache.find(e);
-        if (it != m_cache.end()) {
-            return *it;
-        }
-        expr new_e;
-        switch (e.kind()) {
-        case expr_kind::Var:       new_e = e;                  break;
-        case expr_kind::Macro:     new_e = insert_macro(e);    break;
-        case expr_kind::Meta:      new_e = insert_meta(e);     break;
-        case expr_kind::Local:     new_e = insert_local(e);    break;
-        case expr_kind::Constant:  new_e = insert_constant(e); break;
-        case expr_kind::Sort:      new_e = insert_sort(e);     break;
-        case expr_kind::App:       new_e = insert_app(e);      break;
-        case expr_kind::Lambda:    new_e = insert_binding(e);  break;
-        case expr_kind::Pi:        new_e = insert_binding(e);  break;
-        case expr_kind::Let:       new_e = insert_let(e);      break;
-        }
-        m_cache.insert(new_e);
-        return new_e;
-    }
-
-    expr operator()(expr const & e) { return insert(e); }
-};
-
-inline expr cache(expr const & e) {
-    if (g_expr_cache_enabled)
-        return cache_expr_insert_fn(get_expr_cache())(e);
-    else
-        return e;
-}
-bool enable_expr_caching(bool f) {
-    DEBUG_CODE(bool r1 =) enable_level_caching(f);
-    bool r2 = g_expr_cache_enabled;
-    lean_assert(r1 == r2);
-    cache(mk_Prop());
-    cache(mk_Type());
-    if (f) {
-        clear_abstract_cache();
-        clear_instantiate_cache();
-    }
-    g_expr_cache_enabled = f;
-    return r2;
-}
-bool is_cached(expr const & e) {
-    return get_expr_cache().find(e) != get_expr_cache().end();
-}
-void flush_expr_cache() {
-    flush_level_cache();
-    expr_cache new_cache;
-    get_expr_cache().swap(new_cache);
-    clear_abstract_cache();
-    clear_instantiate_cache();
-}
 expr mk_var(unsigned idx, tag g) {
-    return cache(expr(new expr_var(idx, g)));
+    return expr(new expr_var(idx, g));
 }
 expr mk_constant(name const & n, levels const & ls, tag g) {
-    return cache(expr(new expr_const(n, ls, g)));
+    return expr(new expr_const(n, ls, g));
 }
 expr mk_macro(macro_definition const & m, unsigned num, expr const * args, tag g) {
     char * mem = new char[sizeof(expr_macro) + num*sizeof(expr const *)];
-    return cache(expr(new (mem) expr_macro(m, num, args, g)));
+    return expr(new (mem) expr_macro(m, num, args, g));
 }
 expr mk_metavar(name const & n, name const & pp_n, expr const & t, tag g) {
-    return cache(expr(new expr_mlocal(true, n, pp_n, t, g)));
+    return expr(new expr_mlocal(true, n, pp_n, t, g));
 }
 expr mk_metavar(name const & n, expr const & t, tag g) {
     return mk_metavar(n, n, t, g);
 }
 expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi, tag g) {
-    return cache(expr(new expr_local(n, pp_n, t, bi, g)));
+    return expr(new expr_local(n, pp_n, t, bi, g));
 }
 expr mk_app(expr const & f, expr const & a, tag g) {
-    return cache(expr(new expr_app(f, a, g)));
+    return expr(new expr_app(f, a, g));
 }
 expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & i, tag g) {
-    return cache(expr(new expr_binding(k, n, t, e, i, g)));
+    return expr(new expr_binding(k, n, t, e, i, g));
 }
 expr mk_let(name const & n, expr const & t, expr const & v, expr const & b, tag g) {
-    return cache(expr(new expr_let(n, t, v, b, g)));
+    return expr(new expr_let(n, t, v, b, g));
 }
 expr mk_sort(level const & l, tag g) {
-    return cache(expr(new expr_sort(l, g)));
+    return expr(new expr_sort(l, g));
 }
 // =======================================
 

@@ -258,7 +258,6 @@ struct print_expr_fn {
     print_expr_fn(std::ostream & out):m_out(out) {}
 
     void operator()(expr const & e) {
-        scoped_expr_caching set(false);
         print(e);
     }
 };

@@ -659,7 +659,6 @@ std::shared_ptr<loaded_module const> cache_preimported_env(
 modification_list parse_olean_modifications(std::string const & olean_code, std::string const & file_name) {
     modification_list ms;
     std::istringstream in(olean_code, std::ios_base::binary);
-    scoped_expr_caching enable_caching(false);
     deserializer d(in, optional<std::string>(file_name));
     object_readers & readers = get_object_readers();
     unsigned obj_counter = 0;

@@ -779,7 +779,6 @@ certified_declaration check(environment const & env, declaration const & d, bool
             auto checked_proof =
                     map<expr>(d.get_value_task(),
                               [d, env, memoize, trusted_only] (expr const & val) -> expr {
-                                  scoped_expr_caching disable(false);
                                   type_checker checker(env, memoize, trusted_only);
                                   check_definition(env, d, checker);
                                   return val;

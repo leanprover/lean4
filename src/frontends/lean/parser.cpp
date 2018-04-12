@@ -2529,8 +2529,6 @@ bool parser::parse_command_like() {
     init_scanner();
     m_error_since_last_cmd = false;
 
-    // We disable hash-consing while parsing to make sure the pos-info are correct.
-    scoped_expr_caching disable(false);
     scope_pos_info_provider scope1(*this);
 
     check_interrupted();

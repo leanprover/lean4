@@ -5,9 +5,9 @@
   </tr>
   <tr>
     <td><a href="LICENSE"><img src="https://img.shields.io/badge/license-APACHE_2-green.svg?dummy" title="License"/></a></td>
-    <td><a href="https://ci.appveyor.com/project/leodemoura/lean"><img src="https://ci.appveyor.com/api/projects/status/lush6vyy1m0qg6vc/branch/master"/></a></td>
-    <td><a href="https://travis-ci.org/leanprover/lean"><img src="https://travis-ci.org/leanprover/lean.png?branch=master"/></a></td>
-    <td><a href="https://codecov.io/gh/leanprover/lean"><img src="https://codecov.io/gh/leanprover/lean/branch/master/graph/badge.svg" alt="Codecov"/></a></td>
+    <td><a href="https://ci.appveyor.com/project/leodemoura/lean/branch/lean4"><img src="https://ci.appveyor.com/api/projects/status/lush6vyy1m0qg6vc/branch/lean4"/></a></td>
+    <td><a href="https://travis-ci.org/leanprover/lean/branches"><img src="https://travis-ci.org/leanprover/lean.png?branch=lean4"/></a></td>
+    <td><a href="https://codecov.io/gh/leanprover/lean/branch/lean4"><img src="https://codecov.io/gh/leanprover/lean/branch/lean4/graph/badge.svg" alt="Codecov"/></a></td>
     <td><a href="https://leanprover.zulipchat.com"><img src="https://img.shields.io/badge/zulip-join_chat-brightgreen.svg" alt="Join the Zulip chat"/></a></td>
   </tr>
 </table>

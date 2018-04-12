@@ -21,18 +21,15 @@ static name *       g_local_prefix;
 static expr *       g_dummy_type;
 static local_decl * g_dummy_decl;
 
-DEF_THREAD_MEMORY_POOL(get_local_decl_allocator, sizeof(local_decl::cell));
-
 void local_decl::cell::dealloc() {
-    this->~cell();
-    get_local_decl_allocator().recycle(this);
+    delete this;
 }
 local_decl::cell::cell(unsigned idx, name const & n, name const & pp_n, expr const & t, optional<expr> const & v, binder_info const & bi):
     m_name(n), m_pp_name(pp_n), m_type(t), m_value(v), m_bi(bi), m_idx(idx), m_rc(1) {}
 
 local_decl::local_decl():local_decl(*g_dummy_decl) {}
 local_decl::local_decl(unsigned idx, name const & n, name const & pp_n, expr const & t, optional<expr> const & v, binder_info const & bi) {
-    m_ptr = new (get_local_decl_allocator().allocate()) cell(idx, n, pp_n, t, v, bi);
+    m_ptr = new cell(idx, n, pp_n, t, v, bi);
 }
 
 local_decl::local_decl(local_decl const & d, expr const & t, optional<expr> const & v):

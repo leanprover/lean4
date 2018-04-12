@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "util/debug.h"
 #include "util/buffer.h"
 #include "util/optional.h"
-#include "util/memory_pool.h"
 #include "util/list.h"
 
 namespace lean {
@@ -47,20 +46,6 @@ class sequence {
         node m_second;
         join_cell(node const & f, node const & s):cell(true), m_first(f), m_second(s) {}
     };
-
-    static memory_pool & get_elem_cell_allocator() {
-        LEAN_THREAD_PTR(memory_pool, g_allocator);
-        if (!g_allocator)
-            g_allocator = allocate_thread_memory_pool(sizeof(elem_cell));
-        return *g_allocator;
-    }
-
-    static memory_pool & get_join_cell_allocator() {
-        LEAN_THREAD_PTR(memory_pool, g_allocator);
-        if (!g_allocator)
-            g_allocator = allocate_thread_memory_pool(sizeof(join_cell));
-        return *g_allocator;
-    }
 
 private:
     node m_node;
@@ -116,22 +101,20 @@ template<typename T>
 void sequence<T>::cell::dealloc() {
     if (m_join) {
         join_cell * c = static_cast<join_cell*>(this);
-        c->~join_cell();
-        get_join_cell_allocator().recycle(c);
+        delete c;
     } else {
         elem_cell * c = static_cast<elem_cell*>(this);
-        c->~elem_cell();
-        get_elem_cell_allocator().recycle(c);
+        delete c;
     }
 }
 
 template<typename T>
-sequence<T>::node::node(T const & v):m_ptr(new (get_elem_cell_allocator().allocate()) elem_cell(v)) {}
+sequence<T>::node::node(T const & v):m_ptr(new elem_cell(v)) {}
 
 template<typename T>
 sequence<T>::node::node(node const & f, node const & s) {
     if (f && s) {
-        m_ptr = new (get_join_cell_allocator().allocate()) join_cell(f, s);
+        m_ptr = new join_cell(f, s);
     } else if (f) {
         m_ptr = f.m_ptr;
         m_ptr->inc_ref();

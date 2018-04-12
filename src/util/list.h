@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "util/rc.h"
 #include "util/debug.h"
 #include "util/optional.h"
-#include "util/memory_pool.h"
 #include "util/buffer.h"
 
 namespace lean {
@@ -34,19 +33,12 @@ public:
         void dealloc();
     };
 private:
-    static memory_pool & get_allocator() {
-        LEAN_THREAD_PTR(memory_pool, g_allocator);
-        if (!g_allocator)
-            g_allocator = allocate_thread_memory_pool(sizeof(cell));
-        return *g_allocator;
-    }
-
     cell * m_ptr;
     cell * steal_ptr() { cell * r = m_ptr; m_ptr = nullptr; return r; }
 public:
     list():m_ptr(nullptr) {}
-    list(T const & h, list const & t):m_ptr(new (get_allocator().allocate()) cell(h, t)) {}
-    explicit list(T const & h):m_ptr(new (get_allocator().allocate()) cell(h, list())) {}
+    list(T const & h, list const & t):m_ptr(new cell(h, t)) {}
+    explicit list(T const & h):m_ptr(new cell(h, list())) {}
     list(list const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
     list(list&& s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     list(std::initializer_list<T> const & l):list() {
@@ -113,7 +105,7 @@ public:
 
     template<typename... Args>
     void emplace_front(Args&&... args) {
-        cell * new_ptr = new (get_allocator().allocate()) cell(true, *this, args...);
+        cell * new_ptr = new cell(true, *this, args...);
         if (m_ptr) m_ptr->dec_ref();
         m_ptr = new_ptr;
     }
@@ -161,8 +153,7 @@ public:
 
 template<typename T>
 void list<T>::cell::dealloc() {
-    this->~cell();
-    get_allocator().recycle(this);
+    delete this;
 }
 
 template<typename T> inline list<T>         cons(T const & h, list<T> const & t) { return list<T>(h, t); }

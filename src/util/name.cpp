@@ -15,7 +15,6 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "util/debug.h"
 #include "util/buffer.h"
-#include "util/memory_pool.h"
 #include "util/hash.h"
 #include "util/ascii.h"
 #include "util/utf8.h"
@@ -102,8 +101,6 @@ void copy_limbs(name::imp * p, buffer<name::imp *> & limbs) {
     std::reverse(limbs.begin(), limbs.end());
 }
 
-DEF_THREAD_MEMORY_POOL(get_numeric_name_allocator, sizeof(name::imp));
-
 void name::imp::dealloc() {
     imp * curr = this;
     while (true) {
@@ -112,7 +109,7 @@ void name::imp::dealloc() {
         if (curr->m_is_string)
             delete[] reinterpret_cast<char*>(curr);
         else
-            get_numeric_name_allocator().recycle(curr);
+            delete curr;
         curr = p;
         if (!curr || !curr->dec_ref_core())
             break;
@@ -141,7 +138,7 @@ name::name(name const & prefix, char const * nam) {
 }
 
 name::name(name const & prefix, unsigned k, bool) {
-    m_ptr      = new (get_numeric_name_allocator().allocate()) imp(false, prefix.m_ptr);
+    m_ptr      = new imp(false, prefix.m_ptr);
     m_ptr->m_k = k;
     if (m_ptr->m_prefix)
         m_ptr->m_hash = ::lean::hash(m_ptr->m_prefix->m_hash, k);

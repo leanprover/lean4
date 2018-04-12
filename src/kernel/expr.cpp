@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "util/hash.h"
 #include "util/buffer.h"
 #include "util/object_serializer.h"
-#include "util/memory_pool.h"
 #include "kernel/expr.h"
 #include "kernel/expr_eq_fn.h"
 #include "kernel/expr_sets.h"
@@ -129,7 +128,6 @@ bool is_meta(expr const & e) {
 }
 
 // Expr variables
-DEF_THREAD_MEMORY_POOL(get_var_allocator, sizeof(expr_var));
 expr_var::expr_var(unsigned idx, tag g):
     expr_cell(expr_kind::Var, idx, false, false, false, false, g),
     m_vidx(idx) {
@@ -137,12 +135,10 @@ expr_var::expr_var(unsigned idx, tag g):
         throw exception("invalid free variable index, de Bruijn index is too big");
 }
 void expr_var::dealloc() {
-    this->~expr_var();
-    get_var_allocator().recycle(this);
+    delete this;
 }
 
 // Expr constants
-DEF_THREAD_MEMORY_POOL(get_const_allocator, sizeof(expr_const));
 expr_const::expr_const(name const & n, levels const & ls, tag g):
     expr_cell(expr_kind::Constant, ::lean::hash(n.hash(), hash_levels(ls)), false,
               has_meta(ls), false, has_param(ls), g),
@@ -150,8 +146,7 @@ expr_const::expr_const(name const & n, levels const & ls, tag g):
     m_levels(ls) {
 }
 void expr_const::dealloc() {
-    this->~expr_const();
-    get_const_allocator().recycle(this);
+    delete this;
 }
 
 unsigned binder_info::hash() const {
@@ -159,7 +154,6 @@ unsigned binder_info::hash() const {
 }
 
 // Expr metavariables and local variables
-DEF_THREAD_MEMORY_POOL(get_mlocal_allocator, sizeof(expr_mlocal));
 expr_mlocal::expr_mlocal(bool is_meta, name const & n, name const & pp_n, expr const & t, tag g):
     expr_composite(is_meta ? expr_kind::Meta : expr_kind::Local, n.hash(), is_meta || t.has_expr_metavar(), t.has_univ_metavar(),
                    !is_meta || t.has_local(), t.has_param_univ(),
@@ -170,14 +164,12 @@ expr_mlocal::expr_mlocal(bool is_meta, name const & n, name const & pp_n, expr c
 
 void expr_mlocal::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_type, todelete);
-    this->~expr_mlocal();
-    get_mlocal_allocator().recycle(this);
+    delete this;
 }
 
 expr_mlocal::expr_mlocal(expr_mlocal const & src, expr const & new_type):
     expr_composite(src), m_name(src.m_name), m_pp_name(src.m_pp_name), m_type(new_type) {}
 
-DEF_THREAD_MEMORY_POOL(get_local_allocator, sizeof(expr_local));
 expr_local::expr_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi, tag g):
     expr_mlocal(false, n, pp_n, t, g), m_bi(bi) {}
 
@@ -186,8 +178,7 @@ expr_local::expr_local(expr_local const & src, expr const & new_type):
 
 void expr_local::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_type, todelete);
-    this->~expr_local();
-    get_local_allocator().recycle(this);
+    delete this;
 }
 
 expr_composite::expr_composite(expr_composite const & src):
@@ -206,7 +197,6 @@ expr_composite::expr_composite(expr_kind k, unsigned h, bool has_expr_mv, bool h
     m_free_var_range(fv_range) {}
 
 // Expr applications
-DEF_THREAD_MEMORY_POOL(get_app_allocator, sizeof(expr_app));
 expr_app::expr_app(expr const & fn, expr const & arg, tag g):
     expr_composite(expr_kind::App, ::lean::hash(fn.hash(), arg.hash()),
                    fn.has_expr_metavar() || arg.has_expr_metavar(),
@@ -228,8 +218,7 @@ expr_app::expr_app(expr_app const & src, expr const & new_fn, expr const & new_a
 void expr_app::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_fn, todelete);
     dec_ref(m_arg, todelete);
-    this->~expr_app();
-    get_app_allocator().recycle(this);
+    delete this;
 }
 
 static unsigned dec(unsigned k) { return k == 0 ? 0 : k - 1; }
@@ -243,7 +232,6 @@ bool operator==(binder_info const & i1, binder_info const & i2) {
 }
 
 // Expr binders (Lambda, Pi)
-DEF_THREAD_MEMORY_POOL(get_binding_allocator, sizeof(expr_binding));
 expr_binding::expr_binding(expr_kind k, name const & n, expr const & t, expr const & b, binder_info const & i, tag g):
     expr_composite(k, ::lean::hash(t.hash(), b.hash()),
                    t.has_expr_metavar()   || b.has_expr_metavar(),
@@ -267,24 +255,20 @@ expr_binding::expr_binding(expr_binding const & src, expr const & d, expr const 
 void expr_binding::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_body, todelete);
     dec_ref(m_binder.m_type, todelete);
-    this->~expr_binding();
-    get_binding_allocator().recycle(this);
+    delete this;
 }
 
 // Expr Sort
-DEF_THREAD_MEMORY_POOL(get_sort_allocator, sizeof(expr_sort));
 expr_sort::expr_sort(level const & l, tag g):
     expr_cell(expr_kind::Sort, ::lean::hash(l), false, has_meta(l), false, has_param(l), g),
     m_level(l) {
 }
 expr_sort::~expr_sort() {}
 void expr_sort::dealloc() {
-    this->~expr_sort();
-    get_sort_allocator().recycle(this);
+    delete this;
 }
 
 // Let expressions
-DEF_THREAD_MEMORY_POOL(get_let_allocator, sizeof(expr_let));
 expr_let::expr_let(name const & n, expr const & t, expr const & v, expr const & b, tag g):
     expr_composite(expr_kind::Let,
                    ::lean::hash(::lean::hash(t.hash(), v.hash()), b.hash()),
@@ -308,8 +292,7 @@ void expr_let::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_body,  todelete);
     dec_ref(m_value, todelete);
     dec_ref(m_type,  todelete);
-    this->~expr_let();
-    get_let_allocator().recycle(this);
+    delete this;
 }
 
 // Macro definition
@@ -423,7 +406,7 @@ struct cache_expr_insert_fn {
         if (is_eqp(new_type, mlocal_type(e))) {
             return e;
         } else {
-            return expr(new (get_mlocal_allocator().allocate()) expr_mlocal(*to_mlocal(e), new_type));
+            return expr(new expr_mlocal(*to_mlocal(e), new_type));
         }
     }
 
@@ -432,7 +415,7 @@ struct cache_expr_insert_fn {
         if (is_eqp(new_type, mlocal_type(e))) {
             return e;
         } else {
-            return expr(new (get_local_allocator().allocate()) expr_local(*to_local(e), new_type));
+            return expr(new expr_local(*to_local(e), new_type));
         }
     }
 
@@ -452,7 +435,7 @@ struct cache_expr_insert_fn {
         if (is_eqp(new_fn, app_fn(e)) && is_eqp(new_arg, app_arg(e))) {
             return e;
         } else {
-            return expr(new (get_app_allocator().allocate()) expr_app(*to_app(e), new_fn, new_arg));
+            return expr(new expr_app(*to_app(e), new_fn, new_arg));
         }
     }
 
@@ -462,7 +445,7 @@ struct cache_expr_insert_fn {
         if (is_eqp(new_domain, binding_domain(e)) && is_eqp(new_body, binding_body(e))) {
             return e;
         } else {
-            return expr(new (get_binding_allocator().allocate()) expr_binding(*to_binding(e), new_domain, new_body));
+            return expr(new expr_binding(*to_binding(e), new_domain, new_body));
         }
     }
 
@@ -473,7 +456,7 @@ struct cache_expr_insert_fn {
         if (is_eqp(new_type, let_type(e)) && is_eqp(new_value, let_value(e)) && is_eqp(new_body, let_body(e))) {
             return e;
         } else {
-            return expr(new (get_let_allocator().allocate()) expr_let(*to_let(e), new_type, new_value, new_body));
+            return expr(new expr_let(*to_let(e), new_type, new_value, new_body));
         }
         return e;
     }
@@ -533,35 +516,35 @@ void flush_expr_cache() {
     clear_instantiate_cache();
 }
 expr mk_var(unsigned idx, tag g) {
-    return cache(expr(new (get_var_allocator().allocate()) expr_var(idx, g)));
+    return cache(expr(new expr_var(idx, g)));
 }
 expr mk_constant(name const & n, levels const & ls, tag g) {
-    return cache(expr(new (get_const_allocator().allocate()) expr_const(n, ls, g)));
+    return cache(expr(new expr_const(n, ls, g)));
 }
 expr mk_macro(macro_definition const & m, unsigned num, expr const * args, tag g) {
     char * mem = new char[sizeof(expr_macro) + num*sizeof(expr const *)];
     return cache(expr(new (mem) expr_macro(m, num, args, g)));
 }
 expr mk_metavar(name const & n, name const & pp_n, expr const & t, tag g) {
-    return cache(expr(new (get_mlocal_allocator().allocate()) expr_mlocal(true, n, pp_n, t, g)));
+    return cache(expr(new expr_mlocal(true, n, pp_n, t, g)));
 }
 expr mk_metavar(name const & n, expr const & t, tag g) {
     return mk_metavar(n, n, t, g);
 }
 expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi, tag g) {
-    return cache(expr(new (get_local_allocator().allocate()) expr_local(n, pp_n, t, bi, g)));
+    return cache(expr(new expr_local(n, pp_n, t, bi, g)));
 }
 expr mk_app(expr const & f, expr const & a, tag g) {
-    return cache(expr(new (get_app_allocator().allocate()) expr_app(f, a, g)));
+    return cache(expr(new expr_app(f, a, g)));
 }
 expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & i, tag g) {
-    return cache(expr(new (get_binding_allocator().allocate()) expr_binding(k, n, t, e, i, g)));
+    return cache(expr(new expr_binding(k, n, t, e, i, g)));
 }
 expr mk_let(name const & n, expr const & t, expr const & v, expr const & b, tag g) {
-    return cache(expr(new (get_let_allocator().allocate()) expr_let(n, t, v, b, g)));
+    return cache(expr(new expr_let(n, t, v, b, g)));
 }
 expr mk_sort(level const & l, tag g) {
-    return cache(expr(new (get_sort_allocator().allocate()) expr_sort(l, g)));
+    return cache(expr(new expr_sort(l, g)));
 }
 // =======================================
 

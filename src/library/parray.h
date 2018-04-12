@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include <utility>
 #include <memory>
 #include <algorithm>
-#include "util/memory_pool.h"
 #include "util/debug.h"
 #include "util/buffer.h"
 #include "util/thread.h"
@@ -87,23 +86,8 @@ class parray {
         cell():m_rc(1), m_kind(Root), m_size(0), m_values(nullptr) {}
     };
 
-    static memory_pool & get_allocator() {
-        LEAN_THREAD_PTR(memory_pool, g_allocator);
-        if (!g_allocator)
-            g_allocator = allocate_thread_memory_pool(sizeof(cell) + (ThreadSafe ? sizeof(mutex*) : 0)); // NOLINT
-        return *g_allocator;
-    }
-
-    static memory_pool & get_elem_allocator() {
-        LEAN_THREAD_PTR(memory_pool, g_allocator);
-        if (!g_allocator)
-            g_allocator = allocate_thread_memory_pool(std::max(sizeof(T), sizeof(size_t)));
-        return *g_allocator;
-    }
-
     static void del_elem(T * ptr) {
-        ptr->~T();
-        get_elem_allocator().recycle(ptr);
+        delete ptr;
     }
 
     static void deallocate_cell(cell * c) {
@@ -124,8 +108,7 @@ class parray {
                     delete c->get_mutex();
                 break;
             }
-            c->~cell();
-            get_allocator().recycle(c);
+            delete c;
             if (next == nullptr)
                 return;
             lean_assert(next->m_rc > 0);
@@ -167,11 +150,11 @@ class parray {
     }
 
     static cell * mk_cell() {
-        return new (get_allocator().allocate()) cell();
+        return new cell();
     }
 
     static T * mk_elem_copy(T const & e) {
-        return new (get_elem_allocator().allocate()) T(e);
+        return new T(e);
     }
 
     typedef buffer<cell *, 1024> cell_buffer;
@@ -624,10 +607,6 @@ public:
 
     unsigned get_rc() const {
         return m_cell->m_rc;
-    }
-
-    static unsigned sizeof_cell() {
-        return get_allocator().obj_size();
     }
 
     friend void swap(parray & a1, parray & a2) {

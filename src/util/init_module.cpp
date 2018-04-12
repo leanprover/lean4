@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "util/serializer.h"
 #include "util/name.h"
 #include "util/thread.h"
-#include "util/memory_pool.h"
 #include "util/fresh_name.h"
 #include "util/name_generator.h"
 

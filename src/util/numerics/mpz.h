@@ -11,8 +11,6 @@ Author: Leonardo de Moura
 #include <iostream>
 #include "util/debug.h"
 #include "util/serializer.h"
-#include "util/numerics/numeric_traits.h"
-
 namespace lean {
 class mpq;
 
@@ -232,25 +230,7 @@ struct mpz_cmp_fn {
     int operator()(mpz const & v1, mpz const & v2) const { return cmp(v1, v2); }
 };
 
-template<>
-class numeric_traits<mpz> {
-public:
-    static bool precise() { return true; }
-    static bool is_zero(mpz const & v) { return v.is_zero(); }
-    static bool is_pos(mpz const & v) { return v.is_pos(); }
-    static bool is_neg(mpz const & v) { return v.is_neg(); }
-    static void set_rounding(bool ) {}
-    static void neg(mpz & v) { v.neg(); }
-    static void reset(mpz & v) { v = 0; }
-    // v <- v^k
-    static void power(mpz & v, unsigned k) { _power(v, v, k); }
-    static mpz const & zero();
-};
-
 serializer & operator<<(serializer & s, mpz const & n);
 mpz read_mpz(deserializer & d);
 inline deserializer & operator>>(deserializer & d, mpz & n) { n = read_mpz(d); return d; }
-
-void initialize_mpz();
-void finalize_mpz();
 }

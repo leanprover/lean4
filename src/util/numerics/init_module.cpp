@@ -7,17 +7,11 @@ Author: Leonardo de Moura
 #include <cstddef>
 #include <gmp.h>
 #include "util/memory.h"
-#include "util/numerics/mpz.h"
-#include "util/numerics/mpq.h"
 
 namespace lean {
 void initialize_numerics_module() {
-    initialize_mpz();
-    initialize_mpq();
 }
 
 void finalize_numerics_module() {
-    finalize_mpq();
-    finalize_mpz();
 }
 }

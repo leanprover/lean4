@@ -217,71 +217,7 @@ public:
     };
 };
 
-template<>
-class numeric_traits<mpq> {
-    static mpq * pi_l;
-    static mpq * pi_n;
-    static mpq * pi_u;
-public:
-    static void initialize();
-    static void finalize();
-
-    static bool precise() { return true; }
-    static bool is_zero(mpq const &  v) { return v.is_zero(); }
-    static bool is_pos(mpq const & v) { return v.is_pos(); }
-    static bool is_neg(mpq const & v) { return v.is_neg(); }
-    static void set_rounding(bool ) {}
-    static void neg(mpq & v) { v.neg(); }
-    static void inv(mpq & v) { v.inv(); }
-    static void reset(mpq & v) { v = 0; }
-    static mpq const & zero();
-    static mpq const & one();
-
-    static void power(mpq & v, unsigned k) { _power(v, v, k); }
-    static void abs(mpq & v) { v.abs(); }
-    static void ceil(mpq & v) { v.ceil(); }
-    static void floor(mpq & v) { v.floor(); }
-    static double get_double(mpq const & d) { return d.get_double(); }
-
-    // constants
-    static inline mpq pi_lower()       { return *pi_l;     }
-    static inline mpq pi()             { return *pi_n;     }
-    static inline mpq pi_upper()       { return *pi_u;     }
-    static inline mpq pi_half_lower()  { return *pi_l / 2; }
-    static inline mpq pi_half()        { return *pi_n / 2; }
-    static inline mpq pi_half_upper()  { return *pi_u / 2; }
-    static inline mpq pi_twice_lower() { return *pi_l * 2; }
-    static inline mpq pi_twice()       { return *pi_n * 2; }
-    static inline mpq pi_twice_upper() { return *pi_u * 2; }
-
-    // Transcendental functions
-    static void exp(mpq & )   { lean_unreachable(); } // LCOV_EXCL_LINE
-    static void exp2(mpq & )  { lean_unreachable(); } // LCOV_EXCL_LINE
-    static void exp10(mpq & ) { lean_unreachable(); } // LCOV_EXCL_LINE
-    static void log(mpq & )   { lean_unreachable(); } // LCOV_EXCL_LINE
-    static void log2(mpq & )  { lean_unreachable(); } // LCOV_EXCL_LINE
-    static void log10(mpq & ) { lean_unreachable(); } // LCOV_EXCL_LINE
-    static void sin(mpq & )   { lean_unreachable(); } // LCOV_EXCL_LINE
-    static void cos(mpq & )   { lean_unreachable(); } // LCOV_EXCL_LINE
-    static void tan(mpq & )   { lean_unreachable(); } // LCOV_EXCL_LINE
-    static void sec(mpq & )   { lean_unreachable(); } // LCOV_EXCL_LINE
-    static void csc(mpq & )   { lean_unreachable(); } // LCOV_EXCL_LINE
-    static void cot(mpq & )   { lean_unreachable(); } // LCOV_EXCL_LINE
-    static void asin(mpq & )  { lean_unreachable(); } // LCOV_EXCL_LINE
-    static void acos(mpq & )  { lean_unreachable(); } // LCOV_EXCL_LINE
-    static void atan(mpq & )  { lean_unreachable(); } // LCOV_EXCL_LINE
-    static void sinh(mpq & )  { lean_unreachable(); } // LCOV_EXCL_LINE
-    static void cosh(mpq & )  { lean_unreachable(); } // LCOV_EXCL_LINE
-    static void tanh(mpq & )  { lean_unreachable(); } // LCOV_EXCL_LINE
-    static void asinh(mpq & ) { lean_unreachable(); } // LCOV_EXCL_LINE
-    static void acosh(mpq & ) { lean_unreachable(); } // LCOV_EXCL_LINE
-    static void atanh(mpq & ) { lean_unreachable(); } // LCOV_EXCL_LINE
-};
-
 serializer & operator<<(serializer & s, mpq const & n);
 mpq read_mpq(deserializer & d);
 inline deserializer & operator>>(deserializer & d, mpq & n) { n = read_mpq(d); return d; }
-
-void initialize_mpq();
-void finalize_mpq();
 }

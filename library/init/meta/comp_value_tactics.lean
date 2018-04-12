@@ -12,7 +12,6 @@ meta constant mk_nat_val_le_proof : expr → expr → option expr
 meta constant mk_fin_val_ne_proof : expr → expr → option expr
 meta constant mk_char_val_ne_proof : expr → expr → option expr
 meta constant mk_string_val_ne_proof : expr → expr → option expr
-meta constant mk_int_val_ne_proof : expr → expr → option expr
 
 namespace tactic
 open expr
@@ -51,11 +50,6 @@ do t ← target >>= instantiate_mvars,
        pr     ← mk_string_val_ne_proof a b,
        exact pr)
    <|>
-   (do is_def_eq type (const `int []),
-       (a, b) ← is_ne t,
-       pr     ← mk_int_val_ne_proof a b,
-       exact pr)
-   <|>
    (do type   ← whnf type,
        guard (is_napp_of type `fin 1),
        (a, b) ← is_ne t,
@@ -68,7 +62,7 @@ end tactic
 
 namespace tactic
 namespace interactive
-/-- Close goals of the form `n ≠ m` when `n` and `m` have type `nat`, `char`, `string`, `int` or `fin sz`,
+/-- Close goals of the form `n ≠ m` when `n` and `m` have type `nat`, `char`, `string`, or `fin sz`,
     and they are literals. It also closes goals of the form `n < m`, `n > m`, `n ≤ m` and `n ≥ m` for `nat`.
     If the foal is of the form `n = m`, then it tries to close it using reflexivity. -/
 meta def comp_val := tactic.comp_val

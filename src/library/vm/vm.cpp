@@ -3592,13 +3592,6 @@ unsigned get_vm_builtin_arity(name const & fn) {
     lean_unreachable();
 }
 
-environment vm_monitor_register(environment const & env, name const & d) {
-    expr const & type = env.get(d).get_type();
-    if (!is_app_of(type, get_vm_monitor_name(), 1))
-        throw exception("invalid vm_monitor.register argument, must be name of a definition of type (vm_monitor ?s) ");
-    return module::add_and_perform(env, std::make_shared<vm_monitor_modification>(d));
-}
-
 [[noreturn]] void vm_check_failed(char const * condition) {
     throw exception(sstream() << "vm check failed: " << condition
                               << " (possibly due to incorrect axioms, or sorry)");

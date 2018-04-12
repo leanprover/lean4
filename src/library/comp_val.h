@@ -37,19 +37,6 @@ optional<expr> mk_char_val_ne_proof(expr const & a, expr const & b);
 /* Similar to mk_nat_val_ne_proof, but for string type */
 optional<expr> mk_string_val_ne_proof(expr a, expr b);
 
-/* Return a proof for e >= 0 if e is a nonnegative int numeral.
-
-   \pre typeof(e) is int. */
-optional<expr> mk_int_val_nonneg_proof(expr const & e);
-
-/* Return a proof for e > 0 if e is a nonnegative int numeral.
-
-   \pre typeof(e) is int. */
-optional<expr> mk_int_val_pos_proof(expr const & a);
-
-/* Similar to mk_nat_val_ne_proof, but for int type */
-optional<expr> mk_int_val_ne_proof(expr const & a, expr const & b);
-
 /* Return a proof for a != b, a/b has type nat/int/char/string, and they are distinct values. */
 optional<expr> mk_val_ne_proof(type_context_old & ctx, expr const & a, expr const & b);
 

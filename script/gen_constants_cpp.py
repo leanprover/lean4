@@ -88,7 +88,7 @@ def main(argv=None):
         f.write('}\n')
     with open(tst_file, 'w') as f:
         f.write('-- DO NOT EDIT, automatically generated file, generator scripts/gen_constants_cpp.py\n')
-        f.write("import smt system.io\n")
+        f.write("import system.io\n")
         f.write("open tactic\n");
         f.write("meta def script_check_id (n : name) : tactic unit :=\n");
         f.write("do env ← get_env, (env^.get n >> return ()) <|> (guard $ env^.is_namespace n) <|> (attribute.get_instances n >> return ()) <|> fail (\"identifier '\" ++ to_string n ++ \"' is not a constant, namespace nor attribute\")\n");

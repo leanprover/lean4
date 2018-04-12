@@ -562,10 +562,7 @@ vm_obj io_rand(vm_obj const & lo, vm_obj const & hi, vm_obj const &) {
         }
         return mk_io_result(mk_vm_nat(r));
     } else {
-        vm_obj io_rand_nat = get_vm_state().get_constant(get_io_rand_nat_name());
-        vm_obj r           = invoke(io_rand_nat, gen, lo, hi);
-        gen = cfield(r, 1);
-        return mk_io_result(cfield(r, 0));
+        return mk_io_failure("not implemented yet, io_rand_nat primitive has been deleted");
     }
 }
 

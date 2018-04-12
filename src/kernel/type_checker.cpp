@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "util/lbool.h"
 #include "util/flet.h"
 #include "util/sstream.h"
-#include "util/scoped_map.h"
 #include "util/fresh_name.h"
 #include "kernel/type_checker.h"
 #include "kernel/expr_maps.h"

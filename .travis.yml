@@ -27,6 +27,7 @@ matrix:
        CMAKE_BUILD_TYPE=Release
        UPLOAD=ON
        STATIC=ON
+       FIRST=1
 
    - os: linux
      env:
@@ -119,9 +120,13 @@ script:
   - if [[ $STATIC != ON ]]; then STATIC=OFF; fi
   - if [[ $MULTI_THREAD != OFF ]]; then MULTI_THREAD=ON; fi
   - OPTIONS=""
-  - if [[ $TRAVIS_EVENT_TYPE == cron ]]; then
-      git fetch --unshallow --tags origin &&
-      . ../script/setup_nightly.sh;
+  - |
+    if [[ $TRAVIS_EVENT_TYPE == cron ]]
+    then
+      # trigger AppVeyor build from first Travis job because they can't be bothered to let us set up a cron build
+      [[ -n $FIRST ]] && curl -H "Authorization: Bearer $APPVEYOR_TOKEN" -H "Content-Type: application/json" https://ci.appveyor.com/api/builds -d '{"accountName": "leodemoura", "projectSlug": "lean", "branch": "master", "environmentVariables": {"APPVEYOR_SCHEDULED_BUILD": "True"}}'
+      git fetch --unshallow --tags origin
+      . ../script/setup_nightly.sh
     fi
   - cmake -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE
           -DCMAKE_CXX_COMPILER=$CMAKE_CXX_COMPILER

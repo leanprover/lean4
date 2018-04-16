@@ -2432,6 +2432,38 @@ expr type_context_old::complete_instance(expr const & e) {
     return e;
 }
 
+/*
+If `e` is an unassigned metavariable, then return `some(e)`.
+If `e` is of the form `fun (x_1 ... x_n), ?m x_1 ... x_n)`, and `?m` is unassigned, then return `some(?m)`.
+Otherwise, return `none`.
+
+We use this method to implement `is_def_eq_args`.
+*/
+optional<expr> type_context_old::is_unassigned_mvar_arg(expr const & e) {
+    if (is_mode_mvar(e) && !is_assigned(e))
+        return some_expr(e);
+    if (!is_lambda(e))
+        return none_expr();
+    expr it    = e;
+    unsigned n = 0;
+    while (is_lambda(it)) {
+        it = binding_body(it);
+        n++;
+    }
+    for (unsigned i = 0; i < n; i++) {
+        if (!is_app(it))
+            return none_expr();
+        expr const & a = app_arg(it);
+        if (!is_var(a) || var_idx(a) != i)
+            return none_expr();
+        it = app_fn(it);
+    }
+    if (is_mode_mvar(it) && !is_assigned(it))
+        return some_expr(it);
+    else
+        return none_expr();
+}
+
 bool type_context_old::is_def_eq_args(expr const & e1, expr const & e2) {
     lean_assert(is_app(e1) && is_app(e2));
     buffer<expr> args1, args2;
@@ -2459,14 +2491,21 @@ bool type_context_old::is_def_eq_args(expr const & e1, expr const & e2) {
                 ?m t =?= f s
 
        is not higher-order.
+
+       We also handle the eta-expanded cases:
+
+           fun x_1 ... x_n, ?m x_1 ... x_n =?= t
+           t =?= fun x_1 ... x_n, ?m x_1 ... x_n
+
+       This is important because type inference often produces
+       eta-expanded terms, and without this extra case, we could
+       introduce counter intuitive behavior.
     */
     for (param_info const & pinfo : finfo.get_params_info()) {
         if (pinfo.is_inst_implicit() || pinfo.is_implicit()) {
-            if ((is_mode_mvar(args1[i]) && !is_assigned(args1[i])) ||
-                (is_mode_mvar(args2[i]) && !is_assigned(args2[i]))) {
-                if (!is_def_eq_core(args1[i], args2[i])) {
+            if (is_unassigned_mvar_arg(args1[i]) || is_unassigned_mvar_arg(args2[i])) {
+                if (!is_def_eq_core(args1[i], args2[i]))
                     return false;
-                }
             } else {
                 postponed.emplace_back(i, pinfo.is_inst_implicit());
             }

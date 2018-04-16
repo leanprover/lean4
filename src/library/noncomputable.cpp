@@ -132,7 +132,13 @@ struct get_noncomputable_reason_fn {
             return false;
         m_cache.insert(e);
         expr type = m_tc.whnf(m_tc.infer(e));
-        return !m_tc.is_prop(type) && !is_sort(type);
+        if (m_tc.is_prop(type) || is_sort(type))
+            return false;
+        while (is_pi(type)) {
+            expr l = mk_local(m_tc.next_name(), binding_name(type), binding_domain(type), binding_info(type));
+            type = m_tc.whnf(instantiate(binding_body(type), l));
+        }
+        return !is_sort(type);
     }
 
     void visit_macro(expr const & e) {

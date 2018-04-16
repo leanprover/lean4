@@ -951,7 +951,7 @@ private:
     bool is_def_eq_core(expr const & t, expr const & s);
     bool is_def_eq_binding(expr e1, expr e2);
     expr try_to_unstuck_using_complete_instance(expr const & e);
-    optional<expr> is_unassigned_mvar_arg(expr const & e);
+    optional<expr> is_eta_unassigned_mvar(expr const & e);
     bool is_def_eq_args(expr const & e1, expr const & e2);
     bool is_def_eq_eta(expr const & e1, expr const & e2);
     bool is_def_eq_proof_irrel(expr const & e1, expr const & e2);

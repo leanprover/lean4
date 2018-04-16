@@ -2432,16 +2432,9 @@ expr type_context_old::complete_instance(expr const & e) {
     return e;
 }
 
-/*
-If `e` is an unassigned metavariable, then return `some(e)`.
-If `e` is of the form `fun (x_1 ... x_n), ?m x_1 ... x_n)`, and `?m` is unassigned, then return `some(?m)`.
-Otherwise, return `none`.
-
-We use this method to implement `is_def_eq_args`.
-*/
-optional<expr> type_context_old::is_unassigned_mvar_arg(expr const & e) {
-    if (is_mode_mvar(e) && !is_assigned(e))
-        return some_expr(e);
+/* If `e` is of the form `(fun x_1 ... x_n, f x_1 ... x_n)` and `f` does not contain `x_1`, ..., `x_n`,
+   then return `some(f)`. Otherwise, return `none` */
+static optional<expr> is_eta_expanded(expr const & e) {
     if (!is_lambda(e))
         return none_expr();
     expr it    = e;
@@ -2458,10 +2451,26 @@ optional<expr> type_context_old::is_unassigned_mvar_arg(expr const & e) {
             return none_expr();
         it = app_fn(it);
     }
-    if (is_mode_mvar(it) && !is_assigned(it))
+    if (closed(it))
         return some_expr(it);
     else
         return none_expr();
+}
+
+/*
+If `e` is an unassigned metavariable, then return `some(e)`.
+If `e` is of the form `fun (x_1 ... x_n), ?m x_1 ... x_n)`, and `?m` is unassigned, then return `some(?m)`.
+Otherwise, return `none`.
+
+We use this method to implement `is_def_eq_args`.
+*/
+optional<expr> type_context_old::is_eta_unassigned_mvar(expr const & e) {
+    if (is_mode_mvar(e) && !is_assigned(e))
+        return some_expr(e);
+    if (auto r = is_eta_expanded(e))
+        if (is_mode_mvar(*r) && !is_assigned(*r))
+            return r;
+    return none_expr();
 }
 
 bool type_context_old::is_def_eq_args(expr const & e1, expr const & e2) {
@@ -2503,7 +2512,7 @@ bool type_context_old::is_def_eq_args(expr const & e1, expr const & e2) {
     */
     for (param_info const & pinfo : finfo.get_params_info()) {
         if (pinfo.is_inst_implicit() || pinfo.is_implicit()) {
-            if (is_unassigned_mvar_arg(args1[i]) || is_unassigned_mvar_arg(args2[i])) {
+            if (is_eta_unassigned_mvar(args1[i]) || is_eta_unassigned_mvar(args2[i])) {
                 if (!is_def_eq_core(args1[i], args2[i]))
                     return false;
             } else {
@@ -2675,6 +2684,8 @@ static bool mvar_has_user_facing_name(expr const & m) {
     return mlocal_name(m) != mlocal_pp_name(m);
 }
 
+
+
 lbool type_context_old::quick_is_def_eq(expr const & e1, expr const & e2) {
     if (e1 == e2)
         return l_true;
@@ -2684,7 +2695,6 @@ lbool type_context_old::quick_is_def_eq(expr const & e1, expr const & e2) {
         return to_lbool(is_def_eq_core(get_annotation_arg(e1), e2));
     if (is_annotation(e2))
         return to_lbool(is_def_eq_core(e1, get_annotation_arg(e2)));
-
     expr const & f1 = get_app_fn(e1);
     expr const & f2 = get_app_fn(e2);
 
@@ -2706,6 +2716,10 @@ lbool type_context_old::quick_is_def_eq(expr const & e1, expr const & e2) {
 
     if (is_mode_mvar(f1)) {
         lean_assert(!is_assigned(f1));
+        if (optional<expr> ee2 = is_eta_expanded(e2)) {
+            if (e1 == *ee2)
+                return l_true; /* ?m =?= (fun x_1 ... x_n, ?m x_1 ... x_n) */
+        }
         if (m_update_left && !is_mode_mvar(f2)) {
             return to_lbool(process_assignment(e1, e2));
         } else if (m_update_left && in_tmp_mode()) {
@@ -2767,6 +2781,10 @@ lbool type_context_old::quick_is_def_eq(expr const & e1, expr const & e2) {
 
     if (is_mode_mvar(f2)) {
         lean_assert(!is_assigned(f2));
+        if (optional<expr> ee1 = is_eta_expanded(e1)) {
+            if (e2 == *ee1)
+                return l_true; /* (fun x_1 ... x_n, ?m x_1 ... x_n) =?= ?m */
+        }
         if (m_update_right) {
             swap_update_flags_scope scope(*this);
             /* We need to swap `m_update_left` and `m_update_right` because `process_assignment` uses `is_def_eq` */

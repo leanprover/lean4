@@ -615,11 +615,11 @@ namespace decidable
   variables {p q : Prop}
 
   def rec_on_true [h : decidable p] {h₁ : p → Sort u} {h₂ : ¬p → Sort u} (h₃ : p) (h₄ : h₁ h₃)
-      : decidable.rec_on h h₂ h₁ :=
+      : (decidable.rec_on h h₂ h₁ : Sort u) :=
   decidable.rec_on h (λ h, false.rec _ (h h₃)) (λ h, h₄)
 
   def rec_on_false [h : decidable p] {h₁ : p → Sort u} {h₂ : ¬p → Sort u} (h₃ : ¬p) (h₄ : h₂ h₃)
-      : decidable.rec_on h h₂ h₁ :=
+      : (decidable.rec_on h h₂ h₁ : Sort u) :=
   decidable.rec_on h (λ h, h₄) (λ h, false.rec _ (h₃ h))
 
   def by_cases {q : Sort u} [φ : decidable p] : (p → q) → (¬p → q) → q := dite _

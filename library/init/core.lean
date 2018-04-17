@@ -142,7 +142,7 @@ inductive false : Prop
 
 inductive empty : Type
 
-def not (a : Prop) := a → false
+def not (a : Prop) : Prop := a → false
 prefix `¬` := not
 
 inductive eq {α : Sort u} (a : α) : α → Prop

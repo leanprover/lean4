@@ -67,7 +67,7 @@ end well_founded
 open well_founded
 
 -- Empty relation is well-founded
-def empty_wf {α : Sort u} : well_founded empty_relation :=
+def empty_wf {α : Sort u} : well_founded (@empty_relation α) :=
 well_founded.intro (λ (a : α),
   acc.intro a (λ (b : α) (lt : false), false.rec _ lt))
 

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include <vector>
+#include "library/placeholder.h"
 #include "library/time_task.h"
 #include "library/profiling.h"
 #include "library/library_task_builder.h"
@@ -586,7 +587,9 @@ static expr_pair elaborate_theorem(elaborator & elab, expr const & fn, expr val)
 }
 
 static expr_pair elaborate_definition_core(elaborator & elab, decl_cmd_kind kind, expr const & fn, expr const & val) {
-    if (kind == decl_cmd_kind::Theorem) {
+    // We elaborate `fn` and `val` separately if `fn` is a theorem or its return type
+    // was specified explicitly
+    if (kind == decl_cmd_kind::Theorem || !is_placeholder(mlocal_type(fn))) {
         return elaborate_theorem(elab, fn, val);
     } else {
         return elab.elaborate_with_type(val, mlocal_type(fn));

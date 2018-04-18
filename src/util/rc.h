@@ -18,11 +18,7 @@ unsigned get_rc() const { return atomic_load_explicit(&m_rc, memory_order_acquir
 void inc_ref() { atomic_fetch_add_explicit(&m_rc, 1u, memory_order_relaxed); } \
 bool dec_ref_core() {                                                   \
     lean_assert(get_rc() > 0);                                          \
-    if (atomic_fetch_sub_explicit(&m_rc, 1u, memory_order_acq_rel) == 1u) { \
-        return true;                                                    \
-    } else {                                                            \
-        return false;                                                   \
-    }                                                                   \
+    return atomic_fetch_sub_explicit(&m_rc, 1u, memory_order_acq_rel) == 1u; \
 }                                                                       \
 void dec_ref() { if (dec_ref_core()) { dealloc(); } }
 

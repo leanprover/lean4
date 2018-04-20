@@ -7,11 +7,18 @@ prelude
 import init.data.fin.basic
 
 open nat
+def uint16_sz : nat := 65536
+def uint16 := fin uint16_sz
+
 def uint32_sz : nat := 4294967296
 def uint32 := fin uint32_sz
 
 def uint64_sz : nat := 18446744073709551616
 def uint64 := fin uint64_sz
+
+instance : decidable_eq uint16 :=
+have decidable_eq (fin uint16_sz), from fin.decidable_eq _,
+this
 
 instance : decidable_eq uint32 :=
 have decidable_eq (fin uint32_sz), from fin.decidable_eq _,
@@ -20,6 +27,16 @@ this
 instance : decidable_eq uint64 :=
 have decidable_eq (fin uint64_sz), from fin.decidable_eq _,
 this
+
+instance : has_zero uint16 := ⟨fin.of_nat 0⟩
+instance : has_one uint16  := ⟨fin.of_nat 1⟩
+instance : has_add uint16  := ⟨fin.add⟩
+instance : has_sub uint16  := ⟨fin.sub⟩
+instance : has_mul uint16  := ⟨fin.mul⟩
+instance : has_mod uint16  := ⟨fin.mod⟩
+instance : has_div uint16  := ⟨fin.div⟩
+instance : has_lt uint16   := ⟨fin.lt⟩
+instance : has_le uint16   := ⟨fin.le⟩
 
 instance : has_zero uint32 := ⟨fin.of_nat 0⟩
 instance : has_one uint32  := ⟨fin.of_nat 1⟩
@@ -40,6 +57,12 @@ instance : has_mod uint64  := ⟨fin.mod⟩
 instance : has_div uint64  := ⟨fin.div⟩
 instance : has_lt uint64   := ⟨fin.lt⟩
 instance : has_le uint64   := ⟨fin.le⟩
+
+def uint16.of_nat (n : nat) : uint16 :=
+fin.of_nat n
+
+def uint16.to_nat (u : uint16) : nat :=
+fin.val u
 
 def uint32.of_nat (n : nat) : uint32 :=
 fin.of_nat n

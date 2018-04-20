@@ -51,6 +51,9 @@ instance : has_to_string char :=
 instance (n : nat) : has_to_string (fin n) :=
 ⟨λ f, to_string (fin.val f)⟩
 
+instance : has_to_string uint16 :=
+⟨λ n, to_string (fin.val n)⟩
+
 instance : has_to_string uint32 :=
 ⟨λ n, to_string (fin.val n)⟩
 

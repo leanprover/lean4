@@ -47,14 +47,14 @@ protected def add : fin n → fin n → fin n
 protected def mul : fin n → fin n → fin n
 | ⟨a, h⟩ ⟨b, _⟩ := ⟨(a * b) % n, mlt h⟩
 
+protected def sub : fin n → fin n → fin n
+| ⟨a, h⟩ ⟨b, _⟩ := ⟨(a + (n - b)) % n, mlt h⟩
+
 /-
 Remark: sub/mod/div can be defined without using (% n), but
 we are trying to minimize the number of nat theorems
 needed to boostrap Lean.
 -/
-
-protected def sub : fin n → fin n → fin n
-| ⟨a, h⟩ ⟨b, _⟩ := ⟨(a - b) % n, mlt h⟩
 
 protected def mod : fin n → fin n → fin n
 | ⟨a, h⟩ ⟨b, _⟩ := ⟨(a % b) % n, mlt h⟩

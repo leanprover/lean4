@@ -46,6 +46,14 @@ def list.mfirst {m : Type u → Type v} [monad m] [alternative m] {α : Type w} 
 | []      := failure
 | (a::as) := f a <|> list.mfirst as
 
+def list.mexists {m : Type → Type u} [monad m] {α : Type v} (f : α → m bool) : list α → m bool
+| []      := return ff
+| (a::as) := do b ← f a, if b then return tt else list.mexists as
+
+def list.mforall {m : Type → Type u} [monad m] {α : Type v} (f : α → m bool) : list α → m bool
+| []      := return tt
+| (a::as) := do b ← f a, if b then list.mforall as else return ff
+
 def when {m : Type → Type} [monad m] (c : Prop) [h : decidable c] (t : m unit) : m unit :=
 ite c t (pure ())
 

@@ -189,7 +189,13 @@ inline lean_obj * alloc_mpz(mpz const & m) {
     return new lean_mpz(m);
 }
 
-/* The memory associated with all Lean objects but mpz and external can be deallocated using `free`. */
+/* The memory associated with all Lean objects but `lean_mpz` and `lean_external` can be deallocated using `free`.
+   All fields in these objects are integral types, but `std::atomic<uintptr_t> m_rc`.
+   However, `std::atomic<Integral>` has a trivial destructor.
+   In the C++ reference manual (http://en.cppreference.com/w/cpp/atomic/atomic), we find the following sentence:
+
+   "Additionally, the resulting std::atomic<Integral> specialization has standard layout, a trivial default constructor,
+   and a trivial destructor." */
 inline void dealloc_mpz(lean_obj * o) { delete to_mpz(o); }
 inline void dealloc_external(lean_obj * o) { delete to_external(o); }
 

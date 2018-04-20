@@ -40,12 +40,12 @@ size_t obj_header_size(lean_obj * o) {
 static_assert(sizeof(atomic<rc_type>) == sizeof(lean_obj*),  "unexpected atomic<rc_type> size, the object GC assumes these two types have the same size");
 
 inline lean_obj * get_next(lean_obj * o) {
-    static_assert(o == static_cast<void*>(&(o->m_rc)), "the object GC relies on the fact that the first field of a structure is stored at offset 0");
+    lean_assert(o == static_cast<void*>(&(o->m_rc))); // The object GC relies on the fact that the first field of a structure is stored at offset 0
     return *reinterpret_cast<lean_obj**>(o);
 }
 
 inline void set_next(lean_obj * o, lean_obj * n) {
-    static_assert(o == static_cast<void*>(&(o->m_rc)), "the object GC relies on the fact that the first field of a structure is stored at offset 0");
+    lean_assert(o == static_cast<void*>(&(o->m_rc))); // The object GC relies on the fact that the first field of a structure is stored at offset 0
     *reinterpret_cast<lean_obj**>(o) = n;
 }
 

@@ -56,7 +56,7 @@ inductive instr
 | unop    (x : var) (ty : type) (op : unop) (y : var)        -- x : ty := op y
 | binop   (x : var) (ty : type) (op : binop) (y z : var)     -- x : ty := op y z
 | call    (xs : list var) (f : fid) (ys : list var)          -- Function call:  xs := f ys
-| phi     (x : var) (ys : list (var × blockid))              -- var := phi (var, blockid) ... (var, blockid)
+| phi     (x : var) (ys : list var)                          -- var := phi ys
 /- Constructor objects -/
 | cnstr   (o : var) (tag : tag) (nobjs ssz : uint16)         -- Create constructor object
 | set     (o : var) (i : uint16) (x : var)                   -- Set object field:          set o i x
@@ -119,7 +119,7 @@ def instr.valid_ssa : instr → ssa_check
 | (instr.unop x _ _ y)    := x.not_defined >> y.defined
 | (instr.binop x _ _ y z) := x.not_defined >> y.defined >> z.defined
 | (instr.call xs _ ys)    := xs.mmap' var.not_defined >> ys.mmap' var.defined
-| (instr.phi x ps)        := x.not_defined >> ps.mmap' (λ ⟨y, _⟩, y.defined)
+| (instr.phi x ys)        := x.not_defined >> ys.mmap' var.defined
 | (instr.cnstr o _ _ _)   := o.not_defined
 | (instr.set o _ x)       := o.defined >> x.defined
 | (instr.get x y _)       := x.not_defined >> y.defined
@@ -170,7 +170,7 @@ def instr.collect_vars : instr → collector
 | (instr.unop x _ _ y)    := x.collect >> y.collect
 | (instr.binop x _ _ y z) := x.collect >> y.collect >> z.collect
 | (instr.call xs _ ys)    := xs.mmap' var.collect >> ys.mmap' var.collect
-| (instr.phi x ps)        := x.collect >> ps.mmap' (λ ⟨y, _⟩, y.collect)
+| (instr.phi x ys)        := x.collect >> ys.mmap' var.collect
 | (instr.cnstr o _ _ _)   := o.collect
 | (instr.set o _ x)       := o.collect >> x.collect
 | (instr.get x y _)       := x.collect >> y.collect
@@ -223,17 +223,13 @@ do s ← get,
    if s.contains bid then return ()
    else throw ("unknown blockid '" ++ bid ++ "'")
 
-def instr.check_blockids : instr → blockid_check
-| (instr.phi x ps)  := ps.mmap' (λ ⟨_, bid⟩, bid.defined)
-| _                 := return ()
-
 def terminator.check_blockids : terminator → blockid_check
 | (terminator.ret ys)      := return ()
 | (terminator.case _ bids) := bids.mmap' blockid.defined
 | (terminator.jmp bid)     := bid.defined
 
 def block.check_blockids : block → blockid_check
-| {instrs := is, term := r, ..} := is.mmap' instr.check_blockids >> r.check_blockids
+| {term := r, ..} := r.check_blockids
 
 def decl.check_blockids : decl → blockid_check
 | {bs := bs, ..} :=

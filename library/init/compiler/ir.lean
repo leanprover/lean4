@@ -49,6 +49,8 @@ def blockid_set    := rbtree blockid (<)
 def context        := rbmap var type (<)
 def mk_var_set     := mk_rbtree var (<)
 def mk_blockid_set := mk_rbtree blockid (<)
+def var2blockid    := rbmap var blockid (<)
+def mk_var2blockid := mk_rbmap var blockid (<)
 
 inductive instr
 | lit     (x : var) (ty : type) (lit : literal)              -- x : ty := lit
@@ -80,7 +82,7 @@ inductive instr
 | dec     (x : var)                                          -- Remark: can be defined using `decs`, `dealloc` and `shared`
 
 structure phi :=
-(x : var) (ys : list var)
+(x : var) (ty : type) (ys : list var)
 
 inductive terminator
 | ret  (ys : list var)
@@ -103,44 +105,105 @@ structure decl :=
 SSA validator
 -/
 @[reducible] def ssa_check : Type :=
-except_t string (state var_set) unit
+except_t string (state (var2blockid × var_set)) unit
 
+def var.declare_at (b : blockid) (x : var) : ssa_check :=
+do (m, s) ← get,
+   if m.contains x then throw ("variable has already been defined '" ++ x ++ "'")
+   else put (m.insert x b, s)
+
+def instr.declare_vars_at (b : blockid) : instr → ssa_check
+| (instr.lit x _ _)       := x.declare_at b
+| (instr.cast x _ _)      := x.declare_at b
+| (instr.unop x _ _ _)    := x.declare_at b
+| (instr.binop x _ _ _ _) := x.declare_at b
+| (instr.call xs _ _)     := xs.mmap' (var.declare_at b)
+| (instr.cnstr o _ _ _)   := o.declare_at b
+| (instr.set o _ _)       := o.declare_at b
+| (instr.get x _ _)       := x.declare_at b
+| (instr.sets o _ _)      := o.declare_at b
+| (instr.gets x _ _ _)    := x.declare_at b
+| (instr.closure x _ _)   := x.declare_at b
+| (instr.apply x _)       := x.declare_at b
+| (instr.array a _ _)     := a.declare_at b
+| (instr.read x _ _)      := x.declare_at b
+| (instr.sarray x _ _ _)  := x.declare_at b
+| (instr.sread x _ _ _)   := x.declare_at b
+| _                       := return ()
+
+def phi.declare_at (b : blockid) : phi → ssa_check
+| {x := x, ..} := x.declare_at b
+
+def block.declare_vars : block → ssa_check
+| {id := b, phis := ps, instrs := is, ..} :=
+  ps.mmap' (phi.declare_at b) >>
+  is.mmap' (instr.declare_vars_at b)
+
+def arg.declare_at (b : blockid) : arg → ssa_check
+| {n := x, ..} := x.declare_at b
+
+/- Collect where each variable is declared, and
+   check whether each variable was declared at most once. -/
+def decl.declare_vars : decl → ssa_check
+| {as := as, bs := b::bs, ..} :=
+  /- We assume that arguments are declared in the first basic block.
+     TODO: check whether this assumption matches LLVM or not -/
+  as.mmap' (arg.declare_at b.id) >>
+  b.declare_vars >>
+  bs.mmap' block.declare_vars
+| _ := throw "declaration must have at least one block"
+
+/- Generate the mapping from variable to blockid for the given declaration.
+   This function assumes `d` is in SSA. -/
+def decl.var2blockid (d : decl) : var2blockid :=
+let (_, (m, _)) := d.declare_vars.run.run (mk_var2blockid, mk_var_set) in
+m
+
+/- Given, x := phi ys,
+   check whether every ys is declared at the var2blockid mapping,
+   and update the set of already defined variables in the basic block with `x`.
+
+   TODO: check whether the SSA validation rules here match the ones used in LLVM. -/
+def phi.valid_ssa : phi → ssa_check
+| {x := x, ys := ys, ..} := do
+  (m, s) ← get,
+  ys.mmap' (λ y, if m.contains y then return ()
+                 else throw ("undefined '" ++ y ++ "'")),
+  put (m, s.insert x)
+
+/- Check whether `x` has been already defined in the current basic block or not. -/
 def var.defined (x : var) : ssa_check :=
-do s ← get,
+do (_, s) ← get,
    if s.contains x then return ()
    else throw ("undefined variable '" ++ x ++ "'")
 
-def var.not_defined (x : var) : ssa_check :=
-do s ← get,
-   if s.contains x then throw ("variable has already been defined '" ++ x ++ "'")
-   else put (s.insert x)
+/- Mark `x` as a variable defined in the current basic block. -/
+def var.define (x : var) : ssa_check :=
+do (m, s) ← get, put (m, s.insert x)
 
 def instr.valid_ssa : instr → ssa_check
-| (instr.lit x _ _)       := x.not_defined
-| (instr.cast x _ y)      := x.not_defined >> y.defined
-| (instr.unop x _ _ y)    := x.not_defined >> y.defined
-| (instr.binop x _ _ y z) := x.not_defined >> y.defined >> z.defined
-| (instr.call xs _ ys)    := xs.mmap' var.not_defined >> ys.mmap' var.defined
-| (instr.cnstr o _ _ _)   := o.not_defined
+| (instr.lit x _ _)       := x.define
+| (instr.cast x _ y)      := x.define >> y.defined
+| (instr.unop x _ _ y)    := x.define >> y.defined
+| (instr.binop x _ _ y z) := x.define >> y.defined >> z.defined
+| (instr.call xs _ ys)    := xs.mmap' var.define >> ys.mmap' var.defined
+| (instr.cnstr o _ _ _)   := o.define
 | (instr.set o _ x)       := o.defined >> x.defined
-| (instr.get x y _)       := x.not_defined >> y.defined
+| (instr.get x y _)       := x.define >> y.defined
 | (instr.sets o _ x)      := o.defined >> x.defined
-| (instr.gets x _ y _)    := x.not_defined >> y.defined
-| (instr.closure x _ ys)  := x.not_defined >> ys.mmap' var.defined
-| (instr.apply x ys)      := x.not_defined >> ys.mmap' var.defined
-| (instr.array a sz c)    := a.not_defined >> sz.defined >> c.defined
+| (instr.gets x _ y _)    := x.define >> y.defined
+| (instr.closure x _ ys)  := x.define >> ys.mmap' var.defined
+| (instr.apply x ys)      := x.define >> ys.mmap' var.defined
+| (instr.array a sz c)    := a.define >> sz.defined >> c.defined
 | (instr.write a i v)     := a.defined >> i.defined >> v.defined
-| (instr.read x a i)      := x.not_defined >> a.defined >> i.defined
-| (instr.sarray x _ sz c) := x.not_defined >> sz.defined >> c.defined
+| (instr.read x a i)      := x.define >> a.defined >> i.defined
+| (instr.sarray x _ sz c) := x.define >> sz.defined >> c.defined
 | (instr.swrite a i v)    := a.defined >> i.defined >> v.defined
-| (instr.sread x _ a i)   := x.not_defined >> a.defined >> i.defined
+| (instr.sread x _ a i)   := x.define >> a.defined >> i.defined
 | (instr.inc x)           := x.defined
 | (instr.decs x)          := x.defined
 | (instr.dealloc x)       := x.defined
 | (instr.dec x)           := x.defined
-
-def phi.valid_ssa : phi → ssa_check
-|{x := x, ys := ys} := x.not_defined >> ys.mmap' var.defined
 
 def terminator.valid_ssa : terminator → ssa_check
 | (terminator.ret ys)     := ys.mmap' var.defined
@@ -149,19 +212,24 @@ def terminator.valid_ssa : terminator → ssa_check
 
 def block.valid_ssa : block → ssa_check
 | {phis := ps, instrs := is, term := r, ..} :=
-  ps.mmap' phi.valid_ssa >>
-  is.mmap' instr.valid_ssa >>
-  r.valid_ssa
+  do (m, s) ← get,
+     put (m, mk_var_set), -- reset set of variables defined in the current block
+     ps.mmap' phi.valid_ssa,
+     is.mmap' instr.valid_ssa,
+     r.valid_ssa
 
-def arg.valid_ssa : arg → ssa_check
-| {n := x, ..} := x.not_defined
-
+/-
+We first check whether every variable `x` was declared only once
+and store the blockid where `x` is defined (action: `decl.declare_vars`).
+Then, we check whether every used variable in basic block has been
+defined before being used.
+-/
 def decl.valid_ssa : decl → ssa_check
-| {as := as, bs := bs, ..} :=
-  as.mmap' arg.valid_ssa >> bs.mmap' block.valid_ssa
+| d@{as := as, bs := bs, ..} :=
+  d.declare_vars >> bs.mmap' block.valid_ssa
 
 def valid_ssa (d : decl) : bool :=
-let (e, _) := d.valid_ssa.run.run mk_var_set
+let (e, _) := d.valid_ssa.run.run (mk_var2blockid, mk_var_set)
 in  e.to_bool
 
 /- Collect used variables -/
@@ -196,7 +264,7 @@ def instr.collect_vars : instr → collector
 | (instr.dec x)           := x.collect
 
 def phi.collect_vars : phi → collector
-| {x := x, ys := ys} := x.collect >> ys.mmap' var.collect
+| {x := x, ys := ys, ..} := x.collect >> ys.mmap' var.collect
 
 def terminator.collect_vars : terminator → collector
 | (terminator.ret ys)     := ys.mmap' var.collect

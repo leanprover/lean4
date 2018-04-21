@@ -44,10 +44,11 @@ show has_lt string, from infer_instance
 instance blockid_has_lt : has_lt blockid :=
 show has_lt string, from infer_instance
 
-def var_set     := rbtree var (<)
-def blockid_set := rbtree blockid (<)
-def context     := rbmap var type (<)
-def mk_var_set  := mk_rbtree var (<)
+def var_set        := rbtree var (<)
+def blockid_set    := rbtree blockid (<)
+def context        := rbmap var type (<)
+def mk_var_set     := mk_rbtree var (<)
+def mk_blockid_set := mk_rbtree blockid (<)
 
 inductive instr
 | lit     (x : var) (ty : type) (lit : literal)              -- x : ty := lit
@@ -100,16 +101,16 @@ structure decl :=
 SSA validator
 -/
 @[reducible] def ssa_check : Type :=
-except_t unit (state var_set) unit
+except_t string (state var_set) unit
 
 def var.defined (x : var) : ssa_check :=
 do s ← get,
    if s.contains x then return ()
-   else throw ()
+   else throw ("undefined variable '" ++ x ++ "'")
 
 def var.not_defined (x : var) : ssa_check :=
 do s ← get,
-   if s.contains x then throw ()
+   if s.contains x then throw ("variable has already been defined '" ++ x ++ "'")
    else put (s.insert x)
 
 def instr.valid_ssa : instr → ssa_check
@@ -137,11 +138,16 @@ def instr.valid_ssa : instr → ssa_check
 | (instr.dealloc x)       := x.defined
 | (instr.dec x)           := x.defined
 
-def arg.valid_ssa : arg → ssa_check
-| {n := x, ..} := x.not_defined
+def terminator.valid_ssa : terminator → ssa_check
+| (terminator.ret ys)     := ys.mmap' var.defined
+| (terminator.case x _)   := x.defined
+| (terminator.jmp _)      := return ()
 
 def block.valid_ssa : block → ssa_check
-| {instrs := is, ..} := is.mmap' instr.valid_ssa
+| {instrs := is, term := r, ..} := is.mmap' instr.valid_ssa >> r.valid_ssa
+
+def arg.valid_ssa : arg → ssa_check
+| {n := x, ..} := x.not_defined
 
 def decl.valid_ssa : decl → ssa_check
 | {as := as, bs := bs, ..} :=
@@ -183,11 +189,16 @@ def instr.collect_vars : instr → collector
 | (instr.dealloc x)       := x.collect
 | (instr.dec x)           := x.collect
 
-def arg.collect : arg → collector
-| {n := x, ..} := x.collect
+def terminator.collect_vars : terminator → collector
+| (terminator.ret ys)     := ys.mmap' var.collect
+| (terminator.case x _)   := x.collect
+| (terminator.jmp _)      := return ()
 
 def block.collect_vars : block → collector
-| {instrs := is, ..} := is.mmap' instr.collect_vars
+| {instrs := is, term := r, ..} := is.mmap' instr.collect_vars >> r.collect_vars
+
+def arg.collect : arg → collector
+| {n := x, ..} := x.collect
 
 def decl.collect_vars : decl → collector
 | {as := as, bs := bs, ..} :=
@@ -197,12 +208,44 @@ def collect_vars (d : decl) : var_set :=
 let (_, r) := d.collect_vars.run mk_var_set
 in r
 
-/-
-TODO:
-- blockid validation
-- type checker
--/
+/- Check blockids -/
+@[reducible] def blockid_check : Type :=
+except_t string (state blockid_set) unit
 
+def block.declare : block → blockid_check
+| {id := id, ..} :=
+  do s ← get,
+     if s.contains id then throw ("blockid '" ++ id ++ "' has already been used")
+     else put (s.insert id)
+
+def blockid.defined (bid : blockid) : blockid_check :=
+do s ← get,
+   if s.contains bid then return ()
+   else throw ("unknown blockid '" ++ bid ++ "'")
+
+def instr.check_blockids : instr → blockid_check
+| (instr.phi x ps)  := ps.mmap' (λ ⟨_, bid⟩, bid.defined)
+| _                 := return ()
+
+def terminator.check_blockids : terminator → blockid_check
+| (terminator.ret ys)      := return ()
+| (terminator.case _ bids) := bids.mmap' blockid.defined
+| (terminator.jmp bid)     := bid.defined
+
+def block.check_blockids : block → blockid_check
+| {instrs := is, term := r, ..} := is.mmap' instr.check_blockids >> r.check_blockids
+
+def decl.check_blockids : decl → blockid_check
+| {bs := bs, ..} :=
+  bs.mmap' block.declare >> bs.mmap' block.check_blockids
+
+def check_blockids (d : decl) : bool :=
+let (e, _) := d.check_blockids.run.run mk_blockid_set
+in  e.to_bool
+
+/-
+TODO: type inference
+-/
 
 end ir
 end lean

@@ -56,7 +56,6 @@ inductive instr
 | unop    (x : var) (ty : type) (op : unop) (y : var)        -- x : ty := op y
 | binop   (x : var) (ty : type) (op : binop) (y z : var)     -- x : ty := op y z
 | call    (xs : list var) (f : fid) (ys : list var)          -- Function call:  xs := f ys
-| phi     (x : var) (ys : list var)                          -- var := phi ys
 /- Constructor objects -/
 | cnstr   (o : var) (tag : tag) (nobjs ssz : uint16)         -- Create constructor object
 | set     (o : var) (i : uint16) (x : var)                   -- Set object field:          set o i x
@@ -80,13 +79,16 @@ inductive instr
 | dealloc (x : var)
 | dec     (x : var)                                          -- Remark: can be defined using `decs`, `dealloc` and `shared`
 
+structure phi :=
+(x : var) (ys : list var)
+
 inductive terminator
 | ret  (ys : list var)
 | case (x : var) (bs : list blockid)
 | jmp  (b : blockid)
 
 structure block :=
-(id : blockid) (instrs : list instr) (term : terminator)
+(id : blockid) (phis : list phi) (instrs : list instr) (term : terminator)
 
 structure arg :=
 (n : var) (ty : type)
@@ -119,7 +121,6 @@ def instr.valid_ssa : instr → ssa_check
 | (instr.unop x _ _ y)    := x.not_defined >> y.defined
 | (instr.binop x _ _ y z) := x.not_defined >> y.defined >> z.defined
 | (instr.call xs _ ys)    := xs.mmap' var.not_defined >> ys.mmap' var.defined
-| (instr.phi x ys)        := x.not_defined >> ys.mmap' var.defined
 | (instr.cnstr o _ _ _)   := o.not_defined
 | (instr.set o _ x)       := o.defined >> x.defined
 | (instr.get x y _)       := x.not_defined >> y.defined
@@ -138,13 +139,19 @@ def instr.valid_ssa : instr → ssa_check
 | (instr.dealloc x)       := x.defined
 | (instr.dec x)           := x.defined
 
+def phi.valid_ssa : phi → ssa_check
+|{x := x, ys := ys} := x.not_defined >> ys.mmap' var.defined
+
 def terminator.valid_ssa : terminator → ssa_check
 | (terminator.ret ys)     := ys.mmap' var.defined
 | (terminator.case x _)   := x.defined
 | (terminator.jmp _)      := return ()
 
 def block.valid_ssa : block → ssa_check
-| {instrs := is, term := r, ..} := is.mmap' instr.valid_ssa >> r.valid_ssa
+| {phis := ps, instrs := is, term := r, ..} :=
+  ps.mmap' phi.valid_ssa >>
+  is.mmap' instr.valid_ssa >>
+  r.valid_ssa
 
 def arg.valid_ssa : arg → ssa_check
 | {n := x, ..} := x.not_defined
@@ -170,7 +177,6 @@ def instr.collect_vars : instr → collector
 | (instr.unop x _ _ y)    := x.collect >> y.collect
 | (instr.binop x _ _ y z) := x.collect >> y.collect >> z.collect
 | (instr.call xs _ ys)    := xs.mmap' var.collect >> ys.mmap' var.collect
-| (instr.phi x ys)        := x.collect >> ys.mmap' var.collect
 | (instr.cnstr o _ _ _)   := o.collect
 | (instr.set o _ x)       := o.collect >> x.collect
 | (instr.get x y _)       := x.collect >> y.collect
@@ -189,13 +195,19 @@ def instr.collect_vars : instr → collector
 | (instr.dealloc x)       := x.collect
 | (instr.dec x)           := x.collect
 
+def phi.collect_vars : phi → collector
+| {x := x, ys := ys} := x.collect >> ys.mmap' var.collect
+
 def terminator.collect_vars : terminator → collector
 | (terminator.ret ys)     := ys.mmap' var.collect
 | (terminator.case x _)   := x.collect
 | (terminator.jmp _)      := return ()
 
 def block.collect_vars : block → collector
-| {instrs := is, term := r, ..} := is.mmap' instr.collect_vars >> r.collect_vars
+| {phis := ps, instrs := is, term := r, ..} :=
+  ps.mmap' phi.collect_vars >>
+  is.mmap' instr.collect_vars >>
+  r.collect_vars
 
 def arg.collect : arg → collector
 | {n := x, ..} := x.collect

@@ -66,7 +66,7 @@ section
   instance (σ m m') [monad m] [monad m'] : monad_functor m m' (state_t σ m) (state_t σ m') :=
   ⟨@state_t.monad_map σ m m' _ _⟩
 
-  protected def adapt {σ σ' σ'' α : Type u} {m : Type u → Type v} [monad m] (split : σ → σ' × σ'')
+  @[inline] protected def adapt {σ σ' σ'' α : Type u} {m : Type u → Type v} [monad m] (split : σ → σ' × σ'')
     (join : σ' → σ'' → σ) (x : state_t σ' m α) : state_t σ m α :=
   ⟨λ st, do let (st, ctx) := split st,
             (a, st') ← x.run st,

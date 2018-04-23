@@ -89,7 +89,7 @@ section
   instance : monad (except_t ε m) :=
   { pure := @return, bind := @bind }
 
-  protected def adapt {ε' α : Type u} (f : ε → ε') : except_t ε m α → except_t ε' m α :=
+  @[inline] protected def adapt {ε' α : Type u} (f : ε → ε') : except_t ε m α → except_t ε' m α :=
   λ x, ⟨except.map_error f <$> x.run⟩
 end
 end except_t

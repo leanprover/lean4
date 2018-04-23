@@ -14,7 +14,6 @@ size_t obj_byte_size(lean_obj * o) {
     case lean_obj_kind::Closure:         return closure_byte_size(o);
     case lean_obj_kind::Array:           return array_byte_size(o);
     case lean_obj_kind::ScalarArray:     return sarray_byte_size(o);
-    case lean_obj_kind::String:          return string_byte_size(o);
     case lean_obj_kind::MPZ:             return sizeof(lean_mpz);
     case lean_obj_kind::External:        lean_unreachable();
     }
@@ -27,7 +26,6 @@ size_t obj_header_size(lean_obj * o) {
     case lean_obj_kind::Closure:         return sizeof(lean_closure);
     case lean_obj_kind::Array:           return sizeof(lean_array);
     case lean_obj_kind::ScalarArray:     return sizeof(lean_sarray);
-    case lean_obj_kind::String:          return sizeof(lean_string);
     case lean_obj_kind::MPZ:             return sizeof(lean_mpz);
     case lean_obj_kind::External:        lean_unreachable();
     }
@@ -91,8 +89,6 @@ void del(lean_obj * o) {
             break;
         }
         case lean_obj_kind::ScalarArray:
-            free(o); break;
-        case lean_obj_kind::String:
             free(o); break;
         case lean_obj_kind::MPZ:
             dealloc_mpz(o); break;

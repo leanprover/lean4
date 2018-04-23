@@ -11,9 +11,7 @@ Author: Leonardo de Moura
 #include "util/mpz.h"
 
 namespace lean {
-enum class lean_obj_kind {
-    Constructor, Closure, Array, ScalarArray,
-    String, MPZ, External };
+enum class lean_obj_kind { Constructor, Closure, Array, ScalarArray, MPZ, External };
 
 /* The reference counter is a uintptr_t, because at deletion time, we use this field to implement
    a linked list of objects to be deleted. */
@@ -83,21 +81,6 @@ struct lean_closure : public lean_obj {
         lean_obj(lean_obj_kind::Closure), m_arity(arity), m_num_fixed(n), m_fun(f) {}
 };
 
-/* Header size: 16 bytes in 32 bit machines, 32 bytes in 64 bit machines.
-
-   Remark: in Lean3, we have used std::string, but this adds an extra
-   level of indirection. Moreover, most compilers use a reference counter
-   in the implementation.
-
-   It is unlikely we need support for strings with more than 2^32 bytes in 64-bit machines, but
-   we don't want to keep checking that at runtime. */
-struct lean_string : public lean_obj {
-    size_t      m_size;     // in bytes
-    size_t      m_capacity; // in bytes
-    lean_string(size_t sz, size_t c):
-        lean_obj(lean_obj_kind::String), m_size(sz), m_capacity(c) {}
-};
-
 struct lean_mpz : public lean_obj {
     mpz m_value;
     lean_mpz(mpz const & v):
@@ -144,7 +127,6 @@ inline bool is_cnstr(lean_obj * o) { return get_kind(o) == lean_obj_kind::Constr
 inline bool is_closure(lean_obj * o) { return get_kind(o) == lean_obj_kind::Closure; }
 inline bool is_array(lean_obj * o) { return get_kind(o) == lean_obj_kind::Array; }
 inline bool is_sarray(lean_obj * o) { return get_kind(o) == lean_obj_kind::ScalarArray; }
-inline bool is_string(lean_obj * o) { return get_kind(o) == lean_obj_kind::String; }
 inline bool is_mpz(lean_obj * o) { return get_kind(o) == lean_obj_kind::MPZ; }
 inline bool is_external(lean_obj * o) { return get_kind(o) == lean_obj_kind::External; }
 
@@ -153,7 +135,6 @@ inline lean_cnstr * to_cnstr(lean_obj * o) { lean_assert(is_cnstr(o)); return st
 inline lean_closure * to_closure(lean_obj * o) { lean_assert(is_closure(o)); return static_cast<lean_closure*>(o); }
 inline lean_array * to_array(lean_obj * o) { lean_assert(is_array(o)); return static_cast<lean_array*>(o); }
 inline lean_sarray * to_sarray(lean_obj * o) { lean_assert(is_sarray(o)); return static_cast<lean_sarray*>(o); }
-inline lean_string * to_string(lean_obj * o) { lean_assert(is_string(o)); return static_cast<lean_string*>(o); }
 inline lean_mpz * to_mpz(lean_obj * o) { lean_assert(is_mpz(o)); return static_cast<lean_mpz*>(o); }
 inline lean_external * to_external(lean_obj * o) { lean_assert(is_external(o)); return static_cast<lean_external*>(o); }
 
@@ -179,10 +160,6 @@ inline lean_obj * alloc_closure(lean_cfun fun, unsigned arity, unsigned num_fixe
     /* We reserve enough space for storing (arity - 1) arguments.
        So, we may fix extra arguments without allocating extra memory when the closure object is not shared. */
     return new (malloc(sizeof(lean_closure) + (arity - 1) * sizeof(lean_obj *))) lean_closure(fun, arity, num_fixed);
-}
-
-inline lean_obj * alloc_string(unsigned size, unsigned capacity) {
-    return new (malloc(sizeof(lean_string) + capacity)) lean_string(size, capacity);
 }
 
 inline lean_obj * alloc_mpz(mpz const & m) {
@@ -217,10 +194,6 @@ inline lean_cfun closure_fun(lean_obj * o) { return to_closure(o)->m_fun; }
 inline unsigned closure_arity(lean_obj * o) { return to_closure(o)->m_arity; }
 inline unsigned closure_num_fixed(lean_obj * o) { return to_closure(o)->m_num_fixed; }
 inline size_t closure_byte_size(lean_obj * o) { return sizeof(lean_closure) + (closure_arity(o) - 1)*sizeof(lean_obj*); }
-
-inline size_t string_size(lean_obj * o) { return to_string(o)->m_size; }
-inline size_t string_capacity(lean_obj * o) { return to_string(o)->m_capacity; }
-inline size_t string_byte_size(lean_obj * o) { return sizeof(lean_string) + string_size(o)* sizeof(lean_obj*); }
 
 inline mpz const & mpz_value(lean_obj * o) { return to_mpz(o)->m_value; }
 
@@ -274,11 +247,6 @@ inline lean_obj * closure_arg(lean_obj * o, unsigned i) {
 inline lean_obj ** closure_arg_cptr(lean_obj * o) {
     lean_assert(is_closure(o));
     return reinterpret_cast<lean_obj**>(reinterpret_cast<char*>(o) + sizeof(lean_closure));
-}
-
-inline char const * string_cstr(lean_obj * o) {
-    lean_assert(is_string(o));
-    return reinterpret_cast<char *>(o) + sizeof(lean_string);
 }
 
 /* Low level setters.

@@ -35,7 +35,7 @@ size_t obj_header_size(lean_obj * o) {
 /* We use the field m_rc to implement a linked list of lean objects to be deleted.
    This hack is safe because m_rc has type uintptr_t. */
 
-static_assert(sizeof(atomic<rc_type>) == sizeof(lean_obj*),  "unexpected atomic<rc_type> size, the object GC assumes these two types have the same size");
+static_assert(sizeof(atomic<rc_type>) == sizeof(lean_obj*),  "unexpected atomic<rc_type> size, the object GC assumes these two types have the same size"); // NOLINT
 
 inline lean_obj * get_next(lean_obj * o) {
     lean_assert(o == static_cast<void*>(&(o->m_rc))); // The object GC relies on the fact that the first field of a structure is stored at offset 0

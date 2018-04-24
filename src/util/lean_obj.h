@@ -61,7 +61,7 @@ struct lean_sarray : public lean_obj {
         lean_obj(lean_obj_kind::ScalarArray), m_elem_size(esz), m_size(sz), m_capacity(c) {}
 };
 
-typedef lean_obj * (*lean_cfun)(lean_obj *);
+typedef lean_obj * (*lean_cfun)(lean_obj *); // NOLINT
 
 /* Note that `lean_cfun` is a function pointer for a C function of
    arity 1. The `apply` operator performs a cast operation.
@@ -143,15 +143,15 @@ inline lean_external * to_external(lean_obj * o) { lean_assert(is_external(o)); 
 
 inline lean_obj * alloc_cnstr(unsigned tag, unsigned num_objs, unsigned scalar_sz) {
     lean_assert(tag < 65536 && num_objs < 65536 && scalar_sz < 65536);
-    return new (malloc(sizeof(lean_cnstr) + num_objs * sizeof(lean_obj *) + scalar_sz)) lean_cnstr(tag, num_objs, scalar_sz);
+    return new (malloc(sizeof(lean_cnstr) + num_objs * sizeof(lean_obj *) + scalar_sz)) lean_cnstr(tag, num_objs, scalar_sz); // NOLINT
 }
 
 inline lean_obj * alloc_array(unsigned size, unsigned capacity) {
-    return new (malloc(sizeof(lean_array) + capacity * sizeof(lean_obj *))) lean_array(size, capacity);
+    return new (malloc(sizeof(lean_array) + capacity * sizeof(lean_obj *))) lean_array(size, capacity); // NOLINT
 }
 
 inline lean_obj * alloc_sarray(unsigned elem_size, size_t size, size_t capacity) {
-    return new (malloc(sizeof(lean_sarray) + capacity * elem_size)) lean_sarray(elem_size, size, capacity);
+    return new (malloc(sizeof(lean_sarray) + capacity * elem_size)) lean_sarray(elem_size, size, capacity); // NOLINT
 }
 
 inline lean_obj * alloc_closure(lean_cfun fun, unsigned arity, unsigned num_fixed) {
@@ -159,7 +159,7 @@ inline lean_obj * alloc_closure(lean_cfun fun, unsigned arity, unsigned num_fixe
     lean_assert(num_fixed < arity);
     /* We reserve enough space for storing (arity - 1) arguments.
        So, we may fix extra arguments without allocating extra memory when the closure object is not shared. */
-    return new (malloc(sizeof(lean_closure) + (arity - 1) * sizeof(lean_obj *))) lean_closure(fun, arity, num_fixed);
+    return new (malloc(sizeof(lean_closure) + (arity - 1) * sizeof(lean_obj *))) lean_closure(fun, arity, num_fixed); // NOLINT
 }
 
 inline lean_obj * alloc_mpz(mpz const & m) {
@@ -179,21 +179,21 @@ inline void dealloc_external(lean_obj * o) { delete to_external(o); }
 /* Getters */
 inline unsigned cnstr_num_objs(lean_obj * o) { return to_cnstr(o)->m_num_objs; }
 inline unsigned cnstr_scalar_size(lean_obj * o) { return to_cnstr(o)->m_scalar_size; }
-inline size_t cnstr_byte_size(lean_obj * o) { return sizeof(lean_cnstr) + cnstr_num_objs(o)*sizeof(lean_obj*) + cnstr_scalar_size(o); }
+inline size_t cnstr_byte_size(lean_obj * o) { return sizeof(lean_cnstr) + cnstr_num_objs(o)*sizeof(lean_obj*) + cnstr_scalar_size(o); } // NOLINT
 
 inline size_t array_size(lean_obj * o) { return to_array(o)->m_size; }
 inline size_t array_capacity(lean_obj * o) { return to_array(o)->m_capacity; }
-inline size_t array_byte_size(lean_obj * o) { return sizeof(lean_array) + array_capacity(o)*sizeof(lean_obj*); }
+inline size_t array_byte_size(lean_obj * o) { return sizeof(lean_array) + array_capacity(o)*sizeof(lean_obj*); } // NOLINT
 
 inline unsigned sarray_elem_size(lean_obj * o) { return to_sarray(o)->m_elem_size; }
 inline size_t sarray_size(lean_obj * o) { return to_sarray(o)->m_size; }
 inline size_t sarray_capacity(lean_obj * o) { return to_sarray(o)->m_capacity; }
-inline size_t sarray_byte_size(lean_obj * o) { return sizeof(lean_sarray) + sarray_capacity(o)*sarray_elem_size(o); }
+inline size_t sarray_byte_size(lean_obj * o) { return sizeof(lean_sarray) + sarray_capacity(o)*sarray_elem_size(o); } // NOLINT
 
 inline lean_cfun closure_fun(lean_obj * o) { return to_closure(o)->m_fun; }
 inline unsigned closure_arity(lean_obj * o) { return to_closure(o)->m_arity; }
 inline unsigned closure_num_fixed(lean_obj * o) { return to_closure(o)->m_num_fixed; }
-inline size_t closure_byte_size(lean_obj * o) { return sizeof(lean_closure) + (closure_arity(o) - 1)*sizeof(lean_obj*); }
+inline size_t closure_byte_size(lean_obj * o) { return sizeof(lean_closure) + (closure_arity(o) - 1)*sizeof(lean_obj*); } // NOLINT
 
 inline mpz const & mpz_value(lean_obj * o) { return to_mpz(o)->m_value; }
 
@@ -214,7 +214,7 @@ inline T obj_data(lean_obj * o, size_t offset) {
 
 inline lean_obj * cnstr_obj(lean_obj * o, unsigned i) {
     lean_assert(i < cnstr_num_objs(o));
-    return obj_data<lean_obj*>(o, sizeof(lean_cnstr) + sizeof(lean_obj*)*i);
+    return obj_data<lean_obj*>(o, sizeof(lean_cnstr) + sizeof(lean_obj*)*i); // NOLINT
 }
 
 inline lean_obj ** cnstr_obj_cptr(lean_obj * o) {
@@ -224,7 +224,7 @@ inline lean_obj ** cnstr_obj_cptr(lean_obj * o) {
 
 inline lean_obj * array_obj(lean_obj * o, size_t i) {
     lean_assert(i < array_size(o));
-    return obj_data<lean_obj*>(o, sizeof(lean_array) + sizeof(lean_obj*)*i);
+    return obj_data<lean_obj*>(o, sizeof(lean_array) + sizeof(lean_obj*)*i); // NOLINT
 }
 
 inline lean_obj ** array_cptr(lean_obj * o) {
@@ -241,7 +241,7 @@ inline T * sarray_cptr(lean_obj * o) {
 
 inline lean_obj * closure_arg(lean_obj * o, unsigned i) {
     lean_assert(i < closure_num_fixed(o));
-    return obj_data<lean_obj*>(o, sizeof(lean_closure) + sizeof(lean_obj*)*i);
+    return obj_data<lean_obj*>(o, sizeof(lean_closure) + sizeof(lean_obj*)*i); // NOLINT
 }
 
 inline lean_obj ** closure_arg_cptr(lean_obj * o) {
@@ -262,7 +262,7 @@ inline void set_obj_data(lean_obj * o, size_t offset, T v) {
 
 inline void set_cnstr_obj(lean_obj * o, unsigned i, lean_obj * v) {
     lean_assert(i < cnstr_num_objs(o));
-    set_obj_data(o, sizeof(lean_cnstr) + sizeof(lean_obj*)*i, v);
+    set_obj_data(o, sizeof(lean_cnstr) + sizeof(lean_obj*)*i, v); // NOLINT
 }
 
 inline void set_array_size(lean_obj * o, size_t sz) {
@@ -274,7 +274,7 @@ inline void set_array_size(lean_obj * o, size_t sz) {
 
 inline void set_array_obj(lean_obj * o, size_t i, lean_obj * v) {
     lean_assert(i < array_size(o));
-    set_obj_data(o, sizeof(lean_array) + sizeof(lean_obj*)*i, v);
+    set_obj_data(o, sizeof(lean_array) + sizeof(lean_obj*)*i, v); // NOLINT
 }
 
 inline void set_sarray_size(lean_obj * o, size_t sz) {
@@ -294,7 +294,7 @@ inline void set_closure_num_fixed(lean_obj * o, unsigned n) {
 
 inline void set_closure_arg(lean_obj * o, unsigned i, lean_obj * a) {
     lean_assert(i < closure_num_fixed(o));
-    set_obj_data(o, sizeof(lean_closure) + sizeof(lean_obj*)*i, a);
+    set_obj_data(o, sizeof(lean_closure) + sizeof(lean_obj*)*i, a); // NOLINT
 }
 
 /* Constructors */

@@ -34,6 +34,16 @@ bool is_at_least_instances(transparency_mode m);
 transparency_mode ensure_semireducible_mode(transparency_mode m);
 transparency_mode ensure_instances_mode(transparency_mode m);
 
+/* Approximation configuration object. */
+struct unifier_config {
+    bool m_fo_approx{false};
+    bool m_ctx_approx{false};
+    bool m_quasi_pattern_approx{false};
+    unifier_config() {}
+    unifier_config(bool fo_approx, bool ctx_approx, bool qp_approx):
+        m_fo_approx(fo_approx), m_ctx_approx(ctx_approx), m_quasi_pattern_approx(qp_approx) {}
+};
+
 class type_context_old : public abstract_type_context {
     typedef buffer<optional<level>> tmp_uassignment;
     typedef buffer<optional<expr>>  tmp_eassignment;
@@ -394,14 +404,12 @@ private:
     /* Stack of backtracking point (aka scope) */
     scopes             m_scopes;
     tmp_data *         m_tmp_data{nullptr};
-    /* If m_approximate == true, then enable approximate higher-order unification
-       even if we are not in tmp_mode
+    /* Higher-order unification approximation options.
 
-       Users:
+       Modules that use approximations:
        - elaborator
-       - apply and rewrite tactics use it by default (it can be disabled).
-    */
-    bool               m_approximate{false};
+       - apply and rewrite tactics use it by default (it can be disabled). */
+    unifier_config     m_unifier_cfg;
 
     /* If m_zeta, then use zeta-reduction (i.e., expand let-expressions at whnf) */
     bool               m_zeta{true};
@@ -743,9 +751,25 @@ public:
         }
     };
 
-    struct approximate_scope : public flet<bool> {
+    /* Enable/disable all unifier approximations. */
+    struct approximate_scope : public flet<unifier_config> {
         approximate_scope(type_context_old & ctx, bool approx = true):
-            flet<bool>(ctx.m_approximate, approx) {}
+            flet<unifier_config>(ctx.m_unifier_cfg, unifier_config(approx, approx, approx)) {}
+    };
+
+    struct fo_unif_approx_scope : public flet<bool> {
+        fo_unif_approx_scope(type_context_old & ctx, bool approx = true):
+            flet<bool>(ctx.m_unifier_cfg.m_fo_approx, approx) {}
+    };
+
+    struct ctx_unif_approx_scope : public flet<bool> {
+        ctx_unif_approx_scope(type_context_old & ctx, bool approx = true):
+            flet<bool>(ctx.m_unifier_cfg.m_ctx_approx, approx) {}
+    };
+
+    struct quasi_pattern_unif_approx_scope : public flet<bool> {
+        quasi_pattern_unif_approx_scope(type_context_old & ctx, bool approx = true):
+            flet<bool>(ctx.m_unifier_cfg.m_quasi_pattern_approx, approx) {}
     };
 
     struct zeta_scope : public flet<bool> {
@@ -781,7 +805,7 @@ public:
        -------------------------- */
 public:
     struct tmp_mode_scope {
-        type_context_old &          m_ctx;
+        type_context_old &      m_ctx;
         buffer<optional<level>> m_tmp_uassignment;
         buffer<optional<expr>>  m_tmp_eassignment;
         tmp_data *              m_old_data;
@@ -930,7 +954,10 @@ private:
         void commit() { m_postponed_sz = m_owner.m_postponed.size(); m_owner.commit_scope(); m_keep = true; }
     };
     bool process_postponed(scope const & s);
-    bool approximate();
+    bool fo_unif_approx() const { return m_unifier_cfg.m_fo_approx; }
+    bool ctx_unif_approx() const { return m_unifier_cfg.m_ctx_approx; }
+    bool quasi_pattern_unif_approx() const { return m_unifier_cfg.m_quasi_pattern_approx; }
+    bool approximate() const { return fo_unif_approx() || ctx_unif_approx() || quasi_pattern_unif_approx(); }
     expr try_zeta(expr const & e);
     expr expand_let_decls(expr const & e);
     friend struct check_assignment_fn;

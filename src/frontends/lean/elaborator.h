@@ -117,6 +117,7 @@ private:
     expr whnf(expr const & e) { return m_ctx.whnf(e); }
     expr try_to_pi(expr const & e) { return m_ctx.try_to_pi(e); }
     bool is_def_eq(expr const & e1, expr const & e2);
+    bool is_def_eq_all_approx(expr const & e1, expr const & e2);
     bool try_is_def_eq(expr const & e1, expr const & e2);
     bool is_uvar_assigned(level const & l) const { return m_ctx.is_assigned(l); }
     bool is_mvar_assigned(expr const & e) const { return m_ctx.is_assigned(e); }

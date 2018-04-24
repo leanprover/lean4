@@ -54,15 +54,15 @@ lemma proof_irrel {a : Prop} (h₁ h₂ : a) : h₁ = h₂ := rfl
 
 @[simp] lemma id.def {α : Sort u} (a : α) : id a = a := rfl
 
-@[inline] def eq.mp {α β : Sort u} : (α = β) → α → β :=
-eq.rec_on
+@[inline] def eq.mp {α β : Sort u} (h₁ : α = β) (h₂ : α) : β :=
+eq.rec_on h₁ h₂
 
 @[inline] def eq.mpr {α β : Sort u} : (α = β) → β → α :=
 λ h₁ h₂, eq.rec_on (eq.symm h₁) h₂
 
 @[elab_as_eliminator]
-lemma eq.substr {α : Sort u} {p : α → Prop} {a b : α} (h₁ : b = a) : p a → p b :=
-eq.subst (eq.symm h₁)
+lemma eq.substr {α : Sort u} {p : α → Prop} {a b : α} (h₁ : b = a) (h₂ : p a) : p b :=
+eq.subst (eq.symm h₁) h₂
 
 lemma congr {α : Sort u} {β : Sort v} {f₁ f₂ : α → β} {a₁ a₂ : α} (h₁ : f₁ = f₂) (h₂ : a₁ = a₂) : f₁ a₁ = f₂ a₂ :=
 eq.subst h₁ (eq.subst h₂ rfl)
@@ -70,8 +70,8 @@ eq.subst h₁ (eq.subst h₂ rfl)
 lemma congr_fun {α : Sort u} {β : α → Sort v} {f g : Π x, β x} (h : f = g) (a : α) : f a = g a :=
 eq.subst h (eq.refl (f a))
 
-lemma congr_arg {α : Sort u} {β : Sort v} {a₁ a₂ : α} (f : α → β) : a₁ = a₂ → f a₁ = f a₂ :=
-congr rfl
+lemma congr_arg {α : Sort u} {β : Sort v} {a₁ a₂ : α} (f : α → β) (h : a₁ = a₂) : f a₁ = f a₂ :=
+congr rfl h
 
 lemma trans_rel_left {α : Sort u} {a b c : α} (r : α → α → Prop) (h₁ : r a b) (h₂ : b = c) : r a c :=
 h₂ ▸ h₁
@@ -133,11 +133,11 @@ attribute [refl] heq.refl
 section
 variables {α β φ : Sort u} {a a' : α} {b b' : β} {c : φ}
 
-lemma heq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : a == b)
-: p a → p b := eq.rec_on (eq_of_heq h₁)
+lemma heq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : a == b) (h₂ : p a) : p b :=
+eq.rec_on (eq_of_heq h₁) h₂
 
-lemma heq.subst {p : ∀ T : Sort u, T → Prop} : a == b → p α a → p β b :=
-heq.rec_on
+lemma heq.subst {p : ∀ T : Sort u, T → Prop} (h₁ : a == b) (h₂ : p α a) : p β b :=
+heq.rec_on h₁ h₂
 
 @[symm] lemma heq.symm (h : a == b) : b == a :=
 heq.rec_on h (heq.refl a)

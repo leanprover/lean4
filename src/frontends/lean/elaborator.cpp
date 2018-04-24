@@ -703,6 +703,17 @@ optional<expr> elaborator::mk_coercion(expr const & e, expr e_type, expr type, e
 }
 
 bool elaborator::is_def_eq(expr const & e1, expr const & e2) {
+    type_context_old::fo_unif_approx_scope  scope1(m_ctx);
+    type_context_old::ctx_unif_approx_scope scope2(m_ctx);
+    try {
+        return m_ctx.is_def_eq(e1, e2);
+    } catch (exception &) {
+        return false;
+    }
+}
+
+/* Check `e1 =?= e2` using all unifier approximation: first-order, context-compression and quasi-patterns. */
+bool elaborator::is_def_eq_all_approx(expr const & e1, expr const & e2) {
     type_context_old::approximate_scope scope(m_ctx);
     try {
         return m_ctx.is_def_eq(e1, e2);
@@ -1127,7 +1138,7 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
     trace_elab_debug(tout() << "motive:\n  " << instantiate_mvars(motive) << "\n";);
 
     expr motive_arg = new_args[info.m_motive_idx];
-    if (!is_def_eq(motive_arg, motive)) {
+    if (!is_def_eq_all_approx(motive_arg, motive)) {
         throw elaborator_exception(ref, "\"eliminator\" elaborator failed to compute the motive");
     }
 
@@ -1140,7 +1151,7 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
                 expr new_arg      = visit(*arg, some_expr(new_arg_type));
                 if (!is_def_eq(new_args[i], new_arg)) {
                     throw elaborator_exception(ref, format("\"eliminator\" elaborator type mismatch, term") +
-                            pp_type_mismatch(new_arg, infer_type(new_arg), new_arg_type));
+                                               pp_type_mismatch(new_arg, infer_type(new_arg), new_arg_type));
                 } else {
                     new_args[i] = new_arg;
                 }

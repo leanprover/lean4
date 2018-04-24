@@ -160,7 +160,7 @@ type_context_old::type_context_old(type_context_old && src):
     m_cache(src.m_cache == &src.m_dummy_cache ? &m_dummy_cache : src.m_cache),
     m_local_instances(src.m_local_instances),
     m_transparency_mode(src.m_transparency_mode),
-    m_approximate(src.m_approximate),
+    m_unifier_cfg(src.m_unifier_cfg),
     m_zeta(src.m_zeta),
     m_smart_unfolding(src.m_smart_unfolding) {
     lean_assert(!src.m_tmp_data);
@@ -1648,10 +1648,6 @@ optional<declaration> type_context_old::is_delta(expr const & e) {
     }
 }
 
-bool type_context_old::approximate() {
-    return in_tmp_mode() || m_approximate;
-}
-
 /* If \c e is a let local-decl, then unfold it, otherwise return e. */
 expr type_context_old::try_zeta(expr const & e) {
     if (!is_local_decl_ref(e))
@@ -1709,7 +1705,7 @@ Now, we consider some workarounds/approximations.
      (precise) solution: unfold `x` in `t`.
 
  A2) Suppose some `a_i` is in `C` (failed condition 2)
-     (approximated) solution (when approximate() predicate returns true) :
+     (approximated) solution (when fo_unif_approx() predicate returns true) :
      ignore condition and also use
 
         ?M := fun a_1 ... a_n, t
@@ -1811,7 +1807,7 @@ Now, we consider some workarounds/approximations.
    If `?M'` is assigned, the workaround is precise, and we just unfold `?M'`.
 
  A5) If some `a_i` is not a local constant,
-     then we use first-order unification (if approximate() is true)
+     then we use first-order unification (if fo_unif_approx() is true)
 
        ?M a_1 ... a_i a_{i+1} ... a_{i+k} =?= f b_1 ... b_k
 
@@ -1827,7 +1823,7 @@ Now, we consider some workarounds/approximations.
 
         ?M a_1 ... a_n =?= ?M b_1 ... b_k
 
-     then we use first-order unification (if approximate() is true)
+     then we use first-order unification (if fo_unif_approx() is true)
 */
 bool type_context_old::process_assignment(expr const & m, expr const & v) {
     lean_trace(name({"type_context", "is_def_eq_detail"}),
@@ -1864,7 +1860,7 @@ bool type_context_old::process_assignment(expr const & m, expr const & v) {
         args[i] = arg;
         if (!is_local_decl_ref(arg)) {
             /* m is of the form (?M ... t ...) where t is not a local constant. */
-            if (approximate()) {
+            if (fo_unif_approx()) {
                 /* workaround A5 */
                 use_fo     = true;
                 add_locals = false;
@@ -1875,8 +1871,11 @@ bool type_context_old::process_assignment(expr const & m, expr const & v) {
             if (std::any_of(locals.begin(), locals.end(),
                             [&](expr const & local) { return mlocal_name(local) == mlocal_name(arg); })) {
                 /* m is of the form (?M ... l ... l ...) where l is a local constant. */
-                if (approximate()) {
+                if (quasi_pattern_unif_approx()) {
                     /* workaround A3 */
+                    add_locals = false;
+                } else if (fo_unif_approx()) {
+                    use_fo     = true;
                     add_locals = false;
                 } else {
                     return false;
@@ -1888,18 +1887,28 @@ bool type_context_old::process_assignment(expr const & m, expr const & v) {
             if (in_tmp_mode()) {
                 if (m_tmp_data->m_mvar_lctx.find_local_decl(arg)) {
                     /* m is of the form (?M@C ... l ...) where l is a local constant in C */
-                    if (!approximate())
+                    if (quasi_pattern_unif_approx()) {
+                        if (add_locals)
+                            in_ctx_locals.push_back(arg);
+                    } else if (fo_unif_approx()) {
+                        use_fo     = true;
+                        add_locals = false;
+                    } else {
                         return false;
-                    if (add_locals)
-                        in_ctx_locals.push_back(arg);
+                    }
                 }
             } else {
                 if (mvar_decl->get_context().find_local_decl(arg)) {
                     /* m is of the form (?M@C ... l ...) where l is a local constant in C. */
-                    if (!approximate())
+                    if (quasi_pattern_unif_approx()) {
+                        if (add_locals)
+                            in_ctx_locals.push_back(arg);
+                    } else if (fo_unif_approx()) {
+                        use_fo     = true;
+                        add_locals = false;
+                    } else {
                         return false;
-                    if (add_locals)
-                        in_ctx_locals.push_back(arg);
+                    }
                 }
             }
         }
@@ -1909,7 +1918,7 @@ bool type_context_old::process_assignment(expr const & m, expr const & v) {
 
     expr new_v = instantiate_mvars(v); /* enforce A4 */
 
-    if (approximate() && !locals.empty() && get_app_fn(new_v) == mvar) {
+    if (fo_unif_approx() && !locals.empty() && get_app_fn(new_v) == mvar) {
         /* A6 */
         use_fo = true;
     }
@@ -1919,7 +1928,7 @@ bool type_context_old::process_assignment(expr const & m, expr const & v) {
 
     if (optional<expr> new_new_v = check_assignment(locals, in_ctx_locals, mvar, new_v))
         new_v = *new_new_v;
-    else if (approximate() && !args.empty())
+    else if (fo_unif_approx() && !args.empty())
         return process_assignment_fo_approx(mvar, args, new_v);
     else
         return false;
@@ -1953,7 +1962,6 @@ bool type_context_old::process_assignment(expr const & m, expr const & v) {
     }
 
     if (!in_ctx_locals.empty()) {
-        lean_assert(approximate());
         try {
             /* We need to type check new_v because abstraction using `mk_lambda` may have produced
                a type incorrect term. See discussion at A2.
@@ -2197,7 +2205,7 @@ struct check_assignment_fn : public replace_visitor {
         if (m_ctx.in_tmp_mode()) {
             if (!m_in_ctx_locals.empty()) {
                 /* In tmp mode, we (usually) do not use approximate unification/matching.
-                   Moreover, m_in_ctx_locals is empty if !approximate().
+                   Moreover, m_in_ctx_locals is empty if we are not approximating
 
                    Remark: all temporary metavariables share the same local context.
                    Then, if a local in `m_in_ctx_locals` is in the local context of `mvar`,
@@ -2235,7 +2243,7 @@ struct check_assignment_fn : public replace_visitor {
         if (is_subset_of(e_lctx, mvar_lctx, delayed_locals))
             return e;
 
-        if (m_ctx.approximate() && mvar_lctx.is_subset_of(e_lctx)) {
+        if (m_ctx.ctx_unif_approx() && mvar_lctx.is_subset_of(e_lctx)) {
             expr e_type = e_decl->get_type();
             if (mvar_lctx.well_formed(e_type)) {
                 /* Restrict context of the ?M' */
@@ -2267,7 +2275,7 @@ struct check_assignment_fn : public replace_visitor {
                        scope_trace_env scope(m_ctx.env(), m_ctx);
                        tout() << "failed to assign " << m_mvar << " :=\n" << m_value << "\n"
                        << "value contains metavariable " << e;
-                       if (!m_ctx.approximate()) {
+                       if (!m_ctx.ctx_unif_approx()) {
                            tout() << " that was declared in a local context that is not a "
                                   << "subset of the one in the metavariable being assigned, "
                                   << "and local context restriction is disabled\n";
@@ -4030,6 +4038,8 @@ static void instantiate_replacements(type_context_old & ctx,
 optional<expr> type_context_old::mk_class_instance(expr const & type_0) {
     expr type = instantiate_mvars(type_0);
     scope S(*this);
+    fo_unif_approx_scope  as1(*this);
+    ctx_unif_approx_scope as2(*this);
     optional<expr> result;
     buffer<level_pair> u_replacements;
     buffer<expr_pair>  e_replacements;

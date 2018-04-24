@@ -234,29 +234,29 @@ and store the blockid where `x` is defined (action: `decl.declare_vars`).
 Then, we check whether every used variable in basic block has been
 defined before being used.
 -/
-def decl.valid_ssa : decl → except_t ssa_error id var2blockid
-| d@{as := as, bs := bs, ..} :=
-  do m ← d.var2blockid,
-     bs.mmap' (λ b : block, run_reader b.valid_ssa m),
-     return m
-
-def valid_ssa (d : decl) : bool :=
-d.valid_ssa.run.to_bool
+def decl.valid_ssa (d : decl) : except_t ssa_error id var2blockid :=
+do m ← d.var2blockid,
+   d.bs.mmap' (λ b : block, run_reader b.valid_ssa m),
+   return m
 
 /- Check blockids -/
+inductive blockid_error
+| already_used (bid : blockid)
+| unknown (bid : blockid)
+
 @[reducible] def blockid_check_m :=
-except_t string (state blockid_set)
+except_t blockid_error (state blockid_set)
 
 def block.declare : block → blockid_check_m unit
 | {id := id, ..} :=
   do s ← get,
-     if s.contains id then throw ("blockid '" ++ id ++ "' has already been used")
+     if s.contains id then throw $ blockid_error.already_used id
      else put (s.insert id)
 
 def blockid.defined (bid : blockid) : blockid_check_m unit :=
 do s ← get,
    if s.contains bid then return ()
-   else throw ("unknown blockid '" ++ bid ++ "'")
+   else throw $ blockid_error.unknown bid
 
 def terminator.check_blockids : terminator → blockid_check_m unit
 | (terminator.ret ys)      := return ()
@@ -270,9 +270,8 @@ def decl.check_blockids : decl → blockid_check_m unit
 | {bs := bs, ..} :=
   bs.mmap' block.declare >> bs.mmap' block.check_blockids
 
-def check_blockids (d : decl) : bool :=
-let r : except_t string id unit := run_state d.check_blockids mk_blockid_set in
-r.run.to_bool
+def check_blockids (d : decl) : except_t blockid_error id blockid_set :=
+run_state (d.check_blockids >> get) mk_blockid_set
 
 /-
 TODO: type inference

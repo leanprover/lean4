@@ -117,6 +117,19 @@ instance [monad m] : monad_reader_adapter ρ ρ' (reader_t ρ m) (reader_t ρ' m
 ⟨λ α, reader_t.adapt⟩
 end
 
-
 instance (ρ : Type u) (m out) [monad_run out m] : monad_run (λ α, ρ → out α) (reader_t ρ m) :=
 ⟨λ α x, run ∘ x.run⟩
+
+class monad_reader_runner (ρ : Type u) (m m' : Type u → Type u) :=
+(run_reader {} {α : Type u} : m α → ρ → m' α)
+export monad_reader_runner (run_reader)
+
+section
+variables {ρ ρ' : Type u} {m m' : Type u → Type u}
+
+instance monad_reader_runner_trans {n n' : Type u → Type u} [monad_functor m m' n n'] [monad_reader_runner ρ m m'] : monad_reader_runner ρ n n' :=
+⟨λ α x r, monad_map (λ α (y : m α), (run_reader y r : m' α)) x⟩
+
+instance reader_t.monad_state_runner [monad m] : monad_reader_runner ρ (reader_t ρ m) m :=
+⟨λ α x r, x.run r⟩
+end

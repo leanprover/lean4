@@ -170,6 +170,19 @@ instance [monad m] : monad_state_adapter σ σ' (state_t σ m) (state_t σ' m) :
 ⟨λ σ'' α, state_t.adapt⟩
 end
 
-
 instance (σ m out) [monad_run out m] : monad_run (λ α, σ → out (α × σ)) (state_t σ m) :=
 ⟨λ α x, run ∘ (λ σ, x.run σ)⟩
+
+class monad_state_runner (σ : Type u) (m m' : Type u → Type u) :=
+(run_state {} {α : Type u} : m α → σ → m' α)
+export monad_state_runner (run_state)
+
+section
+variables {σ σ' : Type u} {m m' : Type u → Type u}
+
+instance monad_state_runner_trans {n n' : Type u → Type u} [monad_functor m m' n n'] [monad_state_runner σ m m'] : monad_state_runner σ n n' :=
+⟨λ α x s, monad_map (λ α (y : m α), (run_state y s : m' α)) x⟩
+
+instance state_t.monad_state_runner [monad m] : monad_state_runner σ (state_t σ m) m :=
+⟨λ α x s, prod.fst <$> x.run s⟩
+end

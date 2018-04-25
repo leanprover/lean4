@@ -55,6 +55,16 @@ def rev_fold (f : α → β → β) : rbnode α → β → β
 | (red_node l v r)   b := rev_fold l (f v (rev_fold r b))
 | (black_node l v r) b := rev_fold l (f v (rev_fold r b))
 
+def all (p : α → bool) : rbnode α → bool
+| leaf                 := tt
+| (red_node l v r)     := p v && all l && all r
+| (black_node l v r)   := p v && all l && all r
+
+def any (p : α → bool) : rbnode α → bool
+| leaf                 := ff
+| (red_node l v r)     := p v || any l || any r
+| (black_node l v r)   := p v || any l || any r
+
 def balance1 : rbnode α → α → rbnode α → α → rbnode α → rbnode α
 | (red_node l x r₁) y r₂  v t := red_node (black_node l x r₁) y (black_node r₂ v t)
 | l₁ y (red_node l₂ x r)  v t := red_node (black_node l₁ y l₂) x (black_node r v t)
@@ -210,6 +220,18 @@ def contains (t : rbtree α lt) (a : α) : bool :=
 
 def from_list (l : list α) (lt : α → α → Prop . rbtree.default_lt) [decidable_rel lt] : rbtree α lt :=
 l.foldl insert (mk_rbtree α lt)
+
+def all : rbtree α lt → (α → bool) → bool
+| ⟨t, _⟩ p := t.all p
+
+def any : rbtree α lt → (α → bool) → bool
+| ⟨t, _⟩ p := t.any p
+
+def subset (t₁ t₂ : rbtree α lt) : bool :=
+t₁.all $ λ a, (t₂.find a).to_bool
+
+def seteq (t₁ t₂ : rbtree α lt) : bool :=
+subset t₁ t₂ && subset t₂ t₁
 
 end rbtree
 

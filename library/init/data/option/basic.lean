@@ -19,6 +19,10 @@ def get_or_else {α : Type u} : option α → α → α
 | (some x) _ := x
 | none     e := e
 
+def to_bool {α : Type u} : option α → bool
+| (some _) := tt
+| none     := ff
+
 def is_some {α : Type u} : option α → bool
 | (some _) := tt
 | none     := ff

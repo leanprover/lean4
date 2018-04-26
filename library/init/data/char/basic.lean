@@ -65,11 +65,33 @@ lemma ne_of_vne {c d : char} (h : c.val ≠ d.val) : c ≠ d :=
 lemma vne_of_ne {c d : char} (h : c ≠ d) : c.val ≠ d.val :=
 λ h', absurd (eq_of_veq h') h
 
-end char
-
 instance : decidable_eq char :=
 λ i j, decidable_of_decidable_of_iff
   (nat.decidable_eq i.val j.val) ⟨char.eq_of_veq, char.veq_of_eq⟩
 
 instance : inhabited char :=
 ⟨'A'⟩
+
+def is_whitespace (c : char) : bool :=
+c = ' ' || c = '\t' || c = '\n'
+
+def is_upper (c : char) : bool :=
+c.val ≥ 65 && c.val ≤ 90
+
+def is_lower (c : char) : bool :=
+c.val ≥ 97 && c.val ≤ 122
+
+def is_alpha (c : char) : bool :=
+c.is_upper || c.is_lower
+
+def is_digit (c : char) : bool :=
+c.val ≥ 48 && c.val ≤ 57
+
+def is_alphanum (c : char) : bool :=
+c.is_alpha || c.is_digit
+
+def to_lower (c : char) : char :=
+let n := to_nat c in
+if n >= 65 ∧ n <= 90 then of_nat (n + 32) else c
+
+end char

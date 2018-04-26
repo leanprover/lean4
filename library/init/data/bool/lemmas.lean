@@ -4,41 +4,41 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.bool.basic init.meta
+import init.meta
 
 attribute [simp] cond bor band bnot bxor
 
 @[simp] lemma {u} cond_a_a {α : Type u} (b : bool) (a : α) : cond b a a = a :=
 by cases b; simp
 
-@[simp] lemma band_self (b : bool) : b && b = b :=
+@[simp] lemma band_self (b : bool) : (b && b) = b :=
 by cases b; simp
 
-@[simp] lemma band_tt (b : bool) : b && tt = b :=
+@[simp] lemma band_tt (b : bool) : (b && tt) = b :=
 by cases b; simp
 
-@[simp] lemma band_ff (b : bool) : b && ff = ff :=
+@[simp] lemma band_ff (b : bool) : (b && ff) = ff :=
 by cases b; simp
 
-@[simp] lemma tt_band (b : bool) : tt && b = b :=
+@[simp] lemma tt_band (b : bool) : (tt && b) = b :=
 by cases b; simp
 
-@[simp] lemma ff_band (b : bool) : ff && b = ff :=
+@[simp] lemma ff_band (b : bool) : (ff && b) = ff :=
 by cases b; simp
 
-@[simp] lemma bor_self (b : bool) : b || b = b :=
+@[simp] lemma bor_self (b : bool) : (b || b) = b :=
 by cases b; simp
 
-@[simp] lemma bor_tt (b : bool) : b || tt = tt :=
+@[simp] lemma bor_tt (b : bool) : (b || tt) = tt :=
 by cases b; simp
 
-@[simp] lemma bor_ff (b : bool) : b || ff = b :=
+@[simp] lemma bor_ff (b : bool) : (b || ff) = b :=
 by cases b; simp
 
-@[simp] lemma tt_bor (b : bool) : tt || b = tt :=
+@[simp] lemma tt_bor (b : bool) : (tt || b) = tt :=
 by cases b; simp
 
-@[simp] lemma ff_bor (b : bool) : ff || b = b :=
+@[simp] lemma ff_bor (b : bool) : (ff || b) = b :=
 by cases b; simp
 
 @[simp] lemma bxor_self (b : bool) : bxor b b = ff :=
@@ -86,10 +86,10 @@ by cases a; cases b; simp
 @[simp] lemma bnot_eq_true_eq_eq_ff (a : bool) : (bnot a = tt) = (a = ff) :=
 by cases a; simp
 
-@[simp] lemma band_eq_false_eq_eq_ff_or_eq_ff (a b : bool) : (a && b = ff) = (a = ff ∨ b = ff) :=
+@[simp] lemma band_eq_false_eq_eq_ff_or_eq_ff (a b : bool) : ((a && b) = ff) = (a = ff ∨ b = ff) :=
 by cases a; cases b; simp
 
-@[simp] lemma bor_eq_false_eq_eq_ff_and_eq_ff (a b : bool) : (a || b = ff) = (a = ff ∧ b = ff) :=
+@[simp] lemma bor_eq_false_eq_eq_ff_and_eq_ff (a b : bool) : ((a || b) = ff) = (a = ff ∧ b = ff) :=
 by cases a; cases b; simp
 
 @[simp] lemma bnot_eq_ff_eq_eq_tt (a : bool) : (bnot a = ff) = (a = tt) :=

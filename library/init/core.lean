@@ -56,8 +56,9 @@ reserve infix ` > `:50
 
 /- boolean operations -/
 
-reserve infixl ` && `:70
-reserve infixl ` || `:65
+reserve prefix `!`:40
+reserve infixl ` && `:35
+reserve infixl ` || `:30
 
 /- set operations -/
 
@@ -552,3 +553,32 @@ attribute [elab_simple] bin_tree.node bin_tree.leaf
 
 /-- Like `by apply_instance`, but not dependent on the tactic framework. -/
 @[reducible] def infer_instance {α : Type u} [i : α] : α := i
+
+/- Boolean operators -/
+
+@[inline] def cond {a : Type u} : bool → a → a → a
+| tt x y := x
+| ff x y := y
+
+@[inline] def bor : bool → bool → bool
+| tt _  := tt
+| ff tt := tt
+| ff ff := ff
+
+@[inline] def band : bool → bool → bool
+| ff _  := ff
+| tt ff := ff
+| tt tt := tt
+
+@[inline] def bnot : bool → bool
+| tt := ff
+| ff := tt
+
+@[inline] def bxor : bool → bool → bool
+| tt ff  := tt
+| ff tt  := tt
+| _  _   := ff
+
+notation !x     := bnot x
+notation x || y := bor x y
+notation x && y := band x y

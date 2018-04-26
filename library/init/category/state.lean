@@ -105,7 +105,7 @@ instance monad_state_trans {n : Type u → Type w} [has_monad_lift m n] [monad_s
 instance [monad m] : monad_state σ (state_t σ m) :=
 ⟨λ α x, ⟨λ s, pure (x.run s)⟩⟩
 
-variables [monad m] [monad_state σ m]
+variables [monad_state σ m]
 
 /-- Obtain the top-most state of a monad stack. -/
 @[inline] def get : m σ :=

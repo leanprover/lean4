@@ -35,17 +35,6 @@ def get {α : Type u} : Π {o : option α}, is_some o → α
 | (some x) h := x
 | none     h := false.rec _ $ bool.ff_ne_tt h
 
-def rhoare {α : Type u} : bool → α → option α
-| tt a := none
-| ff a := some a
-
-def lhoare {α : Type u} : α → option α → α
-| a none     := a
-| _ (some b) := b
-
-infixr `|>`:1 := rhoare
-infixr `<|`:1 := lhoare
-
 @[inline] protected def bind {α : Type u} {β : Type v} : option α → (α → option β) → option β
 | none     b := none
 | (some a) b := b a

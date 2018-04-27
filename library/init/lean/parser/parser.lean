@@ -87,8 +87,11 @@ error (merge msg₁ msg₂) ff
 def merge_ok_epsilon (a : α) (s : state) (msg₁ msg₂ : message) :=
 ok_eps a s (merge msg₁ msg₂)
 
+@[inline] def mk_eps_result (a : α) (s : state) : result α :=
+ok_eps a s { pos := s.pos }
+
 protected def pure (a : α) : parser_m α :=
-λ s, ok_eps a s { pos := s.pos }
+λ s, mk_eps_result a s
 
 def eps : parser_m unit :=
 parser.pure ()
@@ -238,12 +241,10 @@ def any : parser_m char :=
 private def str_aux (s : string) : nat → string.iterator → string.iterator → position → result string
 | 0 it input pos     := ok s { input := input, pos := pos }
 | (n+1) it input pos :=
-  if !input.has_next then
-    eoi_error pos
-  else
-    let c := input.curr in
-    if it.curr = c then str_aux n it.next input.next (next_pos c pos)
-    else error { pos := pos, unexpected := repr c } ff
+  if !input.has_next then eoi_error pos
+  else let c := input.curr in
+       if it.curr = c then str_aux n it.next input.next (next_pos c pos)
+       else error { pos := pos, unexpected := repr c } ff
 
 /--
 `str s` parses a sequence of elements that match `s`. Returns the parsed string (i.e. `s`).
@@ -252,13 +253,109 @@ Note: The behaviour of this parser is different to that the `string` parser in t
 as this one is all-or-nothing.
 -/
 def str (s : string) : parser_m string :=
-λ st, str_aux s s.length s.mk_iterator st.input st.pos
+λ st, if s.is_empty then mk_eps_result "" st
+      else str_aux s s.length s.mk_iterator st.input st.pos
 
+private def take_aux : nat → string → string.iterator → position → result string
+| 0     r input pos := ok r { input := input, pos := pos }
+| (n+1) r input pos :=
+  if !input.has_next then eoi_error pos
+  else let c := input.curr in
+       take_aux n (r.push c) input.next (next_pos c pos)
+
+/-- Consume `n` characters. -/
+def take (n : nat) : parser_m string :=
+λ s, if n = 0 then mk_eps_result "" s
+     else take_aux n "" s.input s.pos
+
+@[inline] private def mk_string_result (r : string) (input : string.iterator) (pos : position) : result string :=
+if r.is_empty then mk_eps_result r { input := input, pos := pos }
+else ok r { input := input, pos := pos }
+
+private def take_while_aux (p : char → bool) : nat → string → string.iterator → position → result string
+| 0     r input pos := mk_string_result r input pos
+| (n+1) r input pos :=
+  if !input.has_next then mk_string_result r input pos
+  else let c := input.curr in
+       if p c then take_while_aux n (r.push c) input.next (next_pos c pos)
+       else mk_string_result r input pos
+
+/--
+Consume input as long as the predicate returns `tt`, and return the consumed input.
+This parser does not fail. It will return an empty string if the predicate
+returns `ff` on the current character. -/
+def take_while (p : char → bool) : parser_m string :=
+λ s, take_while_aux p s.input.remaining "" s.input s.pos
+
+/--
+Consume input as long as the predicate returns `tt`, and return the consumed input.
+This parser requires the predicate to succeed on at least once. -/
+def take_while1 (p : char → bool) : parser_m string :=
+λ s, if !s.input.has_next then eoi_error s.pos
+     else let c := s.input.curr in
+          if p c
+          then let input := s.input.next in
+               take_while_aux p input.remaining (to_string c) input (next_pos c s.pos)
+          else error { pos := s.pos, unexpected := repr c } ff
+
+/--
+Consume input as long as the predicate returns `ff` (i.e. until it returns `tt`), and return the consumed input.
+This parser does not fail. -/
+def take_until (p : char → bool) : parser_m string :=
+take_while (λ c, !p c)
+
+@[inline] private def mk_consumed_result (consumed : bool) (input : string.iterator) (pos : position) : result unit :=
+if consumed then ok () { input := input, pos := pos }
+else mk_eps_result () { input := input, pos := pos }
+
+private def take_while_aux' (p : char → bool) : nat → bool → string.iterator → position → result unit
+| 0     consumed input pos := mk_consumed_result consumed input pos
+| (n+1) consumed input pos :=
+  if !input.has_next then mk_consumed_result consumed input pos
+  else let c := input.curr in
+       if p c then take_while_aux' n tt input.next (next_pos c pos)
+       else mk_consumed_result consumed input pos
+
+/-- Similar to `take_while` but it does not return the consumed input. -/
+def take_while' (p : char → bool) : parser_m unit :=
+λ s, take_while_aux' p s.input.remaining ff s.input s.pos
+
+/-- Similar to `take_while1` but it does not return the consumed input. -/
+def take_while1' (p : char → bool) : parser_m unit :=
+λ s, if !s.input.has_next then eoi_error s.pos
+     else let c := s.input.curr in
+          if p c
+          then let input := s.input.next in
+               take_while_aux' p input.remaining tt input (next_pos c s.pos)
+          else error { pos := s.pos, unexpected := repr c } ff
+
+/-- Consume zero or more whitespaces. -/
+def whitespace : parser_m unit :=
+take_while' char.is_whitespace
+
+/-- Shorthand for `p <* whitespace` -/
+def lexeme (p : parser_m α) : parser_m α :=
+p <* whitespace
+
+/-- Parse a numeral in decimal. -/
+def num : parser_m nat :=
+string.to_nat <$> (take_while1 char.is_digit)
+
+/-- Return the number of characters left to be parsed. -/
 def remaining : parser_m nat :=
 λ s, ok_eps s.input.remaining s { pos := s.pos }
 
+/-- Succeed only if there are at least `n` characters left. -/
+def ensure (n : nat) : parser_m unit :=
+λ s, if n ≤ s.input.remaining then mk_eps_result () s
+     else error { pos := s.pos, unexpected := "end of input", expected := ["at least " ++ to_string n ++ " characters"] } ff
+
 def left_over : parser_m string.iterator :=
 λ s, ok_eps s.input s { pos := s.pos }
+
+/-- Return the current position. -/
+def pos : parser_m position :=
+λ s, ok_eps s.pos s { pos := s.pos }
 
 def many1_aux (p : parser_m α) : nat → parser_m (list α)
 | 0     := do a ← p, return [a]
@@ -281,19 +378,6 @@ do r ← remaining, many1_aux' p r
 
 def many' (p : parser_m α) : parser_m unit :=
 many1' p <* eps
-
-def whitespace : parser_m unit :=
-many' (satisfy char.is_whitespace)
-
-def lexeme (p : parser_m α) : parser_m α :=
-p <* whitespace
-
-def digits_to_nat : nat → list char → nat
-| r []      := r
-| r (d::ds) := digits_to_nat (r*10 + d.to_nat - '0'.to_nat) ds
-
-def num : parser_m nat :=
-(digits_to_nat 0) <$> many1 digit
 
 def eoi : parser_m unit :=
 λ s, if s.input.remaining = 0 then ok_eps () s { pos := s.pos }

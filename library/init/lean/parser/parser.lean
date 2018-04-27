@@ -92,6 +92,7 @@ protected def bind (p : parser_m α) (q : α → parser_m β) : parser_m β :=
      | ok a s :=
        match q a s with
        | ok_eps b s msg₂ := ok b s
+       | error msg ff    := error msg tt
        | other           := other
        end
      | ok_eps a s msg₁ :=

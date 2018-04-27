@@ -20,6 +20,9 @@ has_to_string.to_string
 instance : has_to_string string :=
 ⟨λ s, s⟩
 
+instance : has_to_string string.iterator :=
+⟨λ it, it.next_to_string⟩
+
 instance : has_to_string bool :=
 ⟨λ b, cond b "tt" "ff"⟩
 

@@ -125,6 +125,9 @@ else "\"" ++ string.quote_aux s.to_list ++ "\""
 instance : has_repr string :=
 ⟨string.quote⟩
 
+instance : has_repr string.iterator :=
+⟨λ it, it.next_to_string.quote ++ ".mk_iterator"⟩
+
 instance (n : nat) : has_repr (fin n) :=
 ⟨λ f, repr (fin.val f)⟩
 

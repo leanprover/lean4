@@ -43,7 +43,7 @@ instance {α : Type u} [has_to_string α] : has_to_string (list α) :=
 ⟨list.to_string⟩
 
 instance : has_to_string unit :=
-⟨λ u, "star"⟩
+⟨λ u, "()"⟩
 
 instance : has_to_string nat :=
 ⟨λ n, repr n⟩

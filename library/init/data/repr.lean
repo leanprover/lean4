@@ -36,7 +36,7 @@ instance {α : Type u} [has_repr α] : has_repr (list α) :=
 ⟨list.repr⟩
 
 instance : has_repr unit :=
-⟨λ u, "star"⟩
+⟨λ u, "()"⟩
 
 instance {α : Type u} [has_repr α] : has_repr (option α) :=
 ⟨λ o, match o with | none := "none" | (some a) := "(some " ++ repr a ++ ")" end⟩

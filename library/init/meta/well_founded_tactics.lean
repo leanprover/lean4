@@ -4,8 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta init.data.sigma.lex init.data.list.instances
-import init.data.string.instances
+import init.meta init.data.sigma.lex
 
 /-- Argument for using_well_founded
 

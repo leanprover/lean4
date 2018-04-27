@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich
 -/
 prelude
-import init.parser.move
-import init.parser.syntax
+import init.lean.parser.move
+import init.lean.parser.syntax
 import init.meta.well_founded_tactics
 
 namespace lean.parser

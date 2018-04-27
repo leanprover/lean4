@@ -5,7 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import init.data.list.basic
-import init.category.lawful
+import init.control.lawful
 open list
 
 universes u v

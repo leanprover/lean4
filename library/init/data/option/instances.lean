@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.data.option.basic
 import init.meta.tactic
-import init.category.lawful
+import init.control.lawful
 
 universes u v
 

@@ -7,7 +7,7 @@ The reader monad transformer for passing immutable state.
 -/
 
 prelude
-import init.category.lift init.category.id init.category.alternative init.category.except
+import init.control.lift init.control.id init.control.alternative init.control.except
 universes u v w
 
 /-- An implementation of [ReaderT](https://hackage.haskell.org/package/transformers-0.5.5.0/docs/Control-Monad-Trans-Reader.html#t:ReaderT) -/

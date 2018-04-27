@@ -8,7 +8,7 @@ paper:
 https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/parsec-paper-letter.pdf
 -/
 prelude
-import init.data.to_string init.data.string.basic init.data.list.basic init.category.except
+import init.data.to_string init.data.string.basic init.data.list.basic init.control.except
 namespace lean
 namespace parser
 

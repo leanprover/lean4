@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.logic init.category.monad init.category.alternative
+import init.logic init.control.monad init.control.alternative
 open decidable
 
 universes u v

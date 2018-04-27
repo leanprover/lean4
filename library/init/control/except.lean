@@ -7,7 +7,7 @@ The except monad transformer.
 -/
 
 prelude
-import init.category.alternative init.category.lift
+import init.control.alternative init.control.lift
 universes u v w
 
 inductive except (ε : Type u) (α : Type v)

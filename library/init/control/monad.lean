@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Luke Nelson, Jared Roesch, Sebastian Ullrich
 -/
 prelude
-import init.category.applicative
+import init.control.applicative
 universes u v
 
 open function

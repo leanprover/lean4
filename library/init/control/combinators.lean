@@ -6,7 +6,7 @@ Authors: Jeremy Avigad, Leonardo de Moura
 Monad combinators, as in Haskell's Control.Monad.
 -/
 prelude
-import init.category.monad init.category.alternative init.data.list.basic
+import init.control.monad init.control.alternative init.data.list.basic
 universes u v w
 
 def list.mmap {m : Type u → Type v} [monad m] {α : Type w} {β : Type u} (f : α → m β) : list α → m (list β)

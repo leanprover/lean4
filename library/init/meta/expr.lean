@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.level init.category.monad init.meta.rb_map
+import init.meta.level init.control.monad init.meta.rb_map
 universes u v
 open native
 structure pos :=

@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.meta.interactive
-import init.category.lawful
+import init.control.lawful
 
 universes u v
 def set (α : Type u) := α → Prop

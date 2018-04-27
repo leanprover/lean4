@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jeremy Avigad
 -/
 prelude
-import init.data.ordering.basic init.function init.meta.name init.meta.format init.category.monad
+import init.data.ordering.basic init.function init.meta.name init.meta.format init.control.monad
 
 open format
 

@@ -10,7 +10,7 @@ Please see https://hackage.haskell.org/package/layers-0.1/docs/Documentation-Lay
 -/
 prelude
 import init.function init.coe
-import init.category.monad
+import init.control.monad
 
 universes u v w
 
@@ -43,7 +43,7 @@ instance has_monad_lift_t_refl (m) : has_monad_lift_t m m :=
 @[simp] lemma monad_lift_refl {m : Type u → Type v} {α} : (monad_lift : m α → m α) = id := rfl
 
 
-/-- A functor in the category of monads. Can be used to lift monad-transforming functions.
+/-- A functor in the control of monads. Can be used to lift monad-transforming functions.
     Based on pipes' [MFunctor](https://hackage.haskell.org/package/pipes-2.4.0/docs/Control-MFunctor.html),
     but not restricted to monad transformers.
     Alternatively, an implementation of [MonadTransFunctor](http://duairc.netsoc.ie/layers-docs/Control-Monad-Layer.html#t:MonadTransFunctor). -/

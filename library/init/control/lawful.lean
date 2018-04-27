@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
 prelude
-import init.category.monad init.meta.interactive
-import init.category.state init.category.except init.category.reader init.category.option
+import init.control.monad init.meta.interactive
+import init.control.state init.control.except init.control.reader init.control.option
 universes u v
 
 open function

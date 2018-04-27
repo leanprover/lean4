@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.rbmap init.data.int init.category.state init.category.except init.category.combinators
+import init.data.rbmap init.data.int init.control.state init.control.except init.control.combinators
 
 /-
 Missing

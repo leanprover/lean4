@@ -6,7 +6,7 @@ Authors: Sebastian Ullrich
 The identity monad.
 -/
 prelude
-import init.category.lift
+import init.control.lift
 universe u
 
 @[inline] def id_bind {α β : Type u} (x : α) (f : α → id β) : id β := f x

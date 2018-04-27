@@ -1,0 +1,52 @@
+"hellohello"
+"hello hello"
+5
+['h', 'e', 'l', 'l', 'o']
+['α', 'β']
+[]
+['α', 'β', 'γ']
+['γ', 'β', 'α']
+0
+3
+[]
+['α']
+['β', 'α']
+['β', 'γ']
+['α', 'β']
+""
+"αβa"
+"α α-"
+'A'
+"aβγ"
+"abγ"
+"abc"
+"cbγ"
+"0bc"
+"01c"
+"012"
+"21c"
+"λbc"
+"abc-bc"
+"abc"
+"a\x00bb"
+4
+"abc-ab"
+"abc"
+ff
+tt
+ff
+ff
+tt
+tt
+ff
+"αβabc"
+"αabcβ"
+"αβabcαdeβ"
+"adef"
+"abef"
+"aef"
+"aba"
+ff
+tt
+tt
+ff

@@ -5,10 +5,10 @@ Author: Sebastian Ullrich
 -/
 prelude
 import init.data
-import init.meta.mk_dec_eq_instance
 
 -- non-meta instance
-attribute [derive decidable_eq] name
+instance : decidable_eq name :=
+sorry -- TODO(Leo): define instance after we implement new `decidable` type class
 
 universes u v w
 

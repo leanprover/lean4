@@ -31,3 +31,8 @@ open subtype
 
 instance {α : Type u} {p : α → Prop} {a : α} (h : p a) : inhabited {x // p x} :=
 ⟨⟨a, h⟩⟩
+
+instance {α : Type u} {p : α → Prop} [decidable_eq α] : decidable_eq {x : α // p x}
+| ⟨a, h₁⟩ ⟨b, h₂⟩ :=
+  if h : a = b then is_true (subtype.eq h)
+  else is_false (λ h', subtype.no_confusion h' (λ h', absurd h' h))

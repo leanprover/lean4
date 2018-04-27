@@ -4,4 +4,4 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura, Jeremy Avigad
 -/
 prelude
-import init.data.subtype.basic init.data.subtype.instances
+import init.data.subtype.basic

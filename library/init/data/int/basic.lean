@@ -6,15 +6,24 @@ Authors: Jeremy Avigad
 The integers, with addition, multiplication, and subtraction.
 -/
 prelude
-import init.data.nat.basic init.data.list init.meta.mk_dec_eq_instance
+import init.data.nat.basic init.data.list
 open nat
 
 /- the type, coercions, and notation -/
 
-@[derive decidable_eq]
 inductive int : Type
 | of_nat : nat → int
 | neg_succ_of_nat : nat → int
+
+instance : decidable_eq int
+| (int.of_nat a) (int.of_nat b) :=
+  if h : a = b then is_true (h ▸ rfl)
+  else is_false (λ h', int.no_confusion h' (λ h', absurd h' h))
+| (int.neg_succ_of_nat a) (int.neg_succ_of_nat b) :=
+  if h : a = b then is_true (h ▸ rfl)
+  else is_false (λ h', int.no_confusion h' (λ h', absurd h' h))
+| (int.of_nat a) (int.neg_succ_of_nat b) := is_false (λ h, int.no_confusion h)
+| (int.neg_succ_of_nat a) (int.of_nat b) := is_false (λ h, int.no_confusion h)
 
 notation `ℤ` := int
 

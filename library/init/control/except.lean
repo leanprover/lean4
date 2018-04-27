@@ -5,7 +5,6 @@ Authors: Jared Roesch, Sebastian Ullrich
 
 The except monad transformer.
 -/
-
 prelude
 import init.control.alternative init.control.lift
 universes u v w
@@ -13,6 +12,24 @@ universes u v w
 inductive except (ε : Type u) (α : Type v)
 | error {} : ε → except
 | ok {} : α → except
+
+section
+variables {ε : Type u} {α : Type v}
+
+protected def except.to_string [has_to_string ε] [has_to_string α] : except ε α → string
+| (except.error e) := "(error " ++ to_string e ++ ")"
+| (except.ok a)    := "(ok " ++ to_string a ++ ")"
+
+protected def except.repr [has_repr ε] [has_repr α] : except ε α → string
+| (except.error e) := "(error " ++ repr e ++ ")"
+| (except.ok a)    := "(ok " ++ repr a ++ ")"
+
+instance [has_to_string ε] [has_to_string α] : has_to_string (except ε α) :=
+⟨except.to_string⟩
+
+instance [has_repr ε] [has_repr α] : has_repr (except ε α) :=
+⟨except.repr⟩
+end
 
 namespace except
 section

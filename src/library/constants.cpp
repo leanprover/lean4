@@ -128,9 +128,9 @@ name const * g_monad_io_process_impl = nullptr;
 name const * g_monad_io_random_impl = nullptr;
 name const * g_io = nullptr;
 name const * g_ite = nullptr;
-name const * g_lean_parser = nullptr;
-name const * g_lean_parser_pexpr = nullptr;
-name const * g_lean_parser_tk = nullptr;
+name const * g_lean3_parser = nullptr;
+name const * g_lean3_parser_pexpr = nullptr;
+name const * g_lean3_parser_tk = nullptr;
 name const * g_list = nullptr;
 name const * g_list_nil = nullptr;
 name const * g_list_cons = nullptr;
@@ -372,9 +372,9 @@ void initialize_constants() {
     g_monad_io_random_impl = new name{"monad_io_random_impl"};
     g_io = new name{"io"};
     g_ite = new name{"ite"};
-    g_lean_parser = new name{"lean", "parser"};
-    g_lean_parser_pexpr = new name{"lean", "parser", "pexpr"};
-    g_lean_parser_tk = new name{"lean", "parser", "tk"};
+    g_lean3_parser = new name{"lean3", "parser"};
+    g_lean3_parser_pexpr = new name{"lean3", "parser", "pexpr"};
+    g_lean3_parser_tk = new name{"lean3", "parser", "tk"};
     g_list = new name{"list"};
     g_list_nil = new name{"list", "nil"};
     g_list_cons = new name{"list", "cons"};
@@ -617,9 +617,9 @@ void finalize_constants() {
     delete g_monad_io_random_impl;
     delete g_io;
     delete g_ite;
-    delete g_lean_parser;
-    delete g_lean_parser_pexpr;
-    delete g_lean_parser_tk;
+    delete g_lean3_parser;
+    delete g_lean3_parser_pexpr;
+    delete g_lean3_parser_tk;
     delete g_list;
     delete g_list_nil;
     delete g_list_cons;
@@ -861,9 +861,9 @@ name const & get_monad_io_process_impl_name() { return *g_monad_io_process_impl;
 name const & get_monad_io_random_impl_name() { return *g_monad_io_random_impl; }
 name const & get_io_name() { return *g_io; }
 name const & get_ite_name() { return *g_ite; }
-name const & get_lean_parser_name() { return *g_lean_parser; }
-name const & get_lean_parser_pexpr_name() { return *g_lean_parser_pexpr; }
-name const & get_lean_parser_tk_name() { return *g_lean_parser_tk; }
+name const & get_lean3_parser_name() { return *g_lean3_parser; }
+name const & get_lean3_parser_pexpr_name() { return *g_lean3_parser_pexpr; }
+name const & get_lean3_parser_tk_name() { return *g_lean3_parser_tk; }
 name const & get_list_name() { return *g_list; }
 name const & get_list_nil_name() { return *g_list_nil; }
 name const & get_list_cons_name() { return *g_list_cons; }

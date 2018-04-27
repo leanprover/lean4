@@ -6,7 +6,7 @@ Authors: Sebastian Ullrich
 prelude
 import init.meta.tactic
 
-namespace lean
+namespace lean3
 
 -- TODO: make inspectable (and pure)
 meta constant parser_state : Type
@@ -86,4 +86,4 @@ meta instance : has_coe (tactic α) (parser α) :=
 ⟨of_tactic⟩
 
 end parser
-end lean
+end lean3

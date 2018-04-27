@@ -16,7 +16,7 @@ meta structure user_attribute_cache_cfg (cache_ty : Type) :=
 meta def user_attribute.dflt_cache_cfg : tactic unit :=
 tactic.exact `(⟨λ _, pure (), []⟩ : user_attribute_cache_cfg unit)
 meta def user_attribute.dflt_parser : tactic unit :=
-tactic.exact `(pure () : lean.parser unit)
+tactic.exact `(pure () : lean3.parser unit)
 
 meta structure user_attribute (cache_ty : Type := unit) (param_ty : Type := unit) :=
 (name          : name)
@@ -33,7 +33,7 @@ meta structure user_attribute (cache_ty : Type := unit) (param_ty : Type := unit
 [reflect_param : has_reflect param_ty]
 /- Parser that will be invoked after parsing the attribute's name. The parse result will be reflected
    and stored and can be retrieved with `user_attribute.get_param`. -/
-(parser        : lean.parser param_ty . user_attribute.dflt_parser)
+(parser        : lean3.parser param_ty . user_attribute.dflt_parser)
 
 /- Registers a new user-defined attribute. The argument must be the name of a definition of type
    `user_attribute`. -/
@@ -42,7 +42,7 @@ tactic.set_basic_attribute ``user_attribute decl tt
 
 meta constant user_attribute.get_cache {α β : Type} (attr : user_attribute α β) : tactic α
 
-meta def user_attribute.parse_reflect {α β : Type} (attr : user_attribute α β) : lean.parser expr :=
+meta def user_attribute.parse_reflect {α β : Type} (attr : user_attribute α β) : lean3.parser expr :=
 (λ a, attr.reflect_param a) <$> attr.parser
 
 meta constant user_attribute.get_param_untyped {α β : Type} (attr : user_attribute α β) (decl : name)

@@ -10,7 +10,7 @@ import init.meta.attribute
 import init.meta.interactive_base
 import init.meta.mk_has_reflect_instance
 
-open lean
+open lean3
 open interactive.types
 open tactic
 

@@ -28,7 +28,7 @@ static environment add_user_command(environment const & env, name const & d) {
     std::string tk;
     if (is_binding(type) && is_app_of(binding_domain(type), get_interactive_parse_name(), 3)) {
         auto const & parser = app_arg(binding_domain(type));
-        if (is_app_of(parser, get_lean_parser_tk_name(), 1)) {
+        if (is_app_of(parser, get_lean3_parser_tk_name(), 1)) {
             if (auto lit = to_string(app_arg(parser))) {
                 tk = *lit;
                 type = binding_body(type);
@@ -42,7 +42,7 @@ static environment add_user_command(environment const & env, name const & d) {
                         "optionally preceded by `interactive.decl_meta_info` parameter");
     }
 
-    if (!(is_app_of(type, get_lean_parser_name(), 1) && is_constant(app_arg(type), get_unit_name()))) {
+    if (!(is_app_of(type, get_lean3_parser_name(), 1) && is_constant(app_arg(type), get_unit_name()))) {
         throw exception("invalid user-defined command, must return type `lean.parser unit`");
     }
 

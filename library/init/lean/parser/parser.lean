@@ -7,6 +7,7 @@ Implementation for the parsec parser combinators described in the
 paper:
 https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/parsec-paper-letter.pdf
 -/
+namespace lean
 namespace parser
 
 structure position :=
@@ -246,3 +247,4 @@ def sep_by (p : parser_m α) (sep : parser_m β) : parser_m (list α) :=
 sep_by1 p sep <|> return []
 
 end parser
+end lean

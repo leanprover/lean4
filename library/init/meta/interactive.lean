@@ -9,8 +9,8 @@ import init.category.combinators
 import init.meta.interactive_base init.meta.derive init.meta.match_tactic
 import init.meta.congr_tactic
 
-open lean
-open lean.parser
+open lean3
+open lean3.parser
 
 local postfix `?`:9001 := optional
 local postfix *:9001 := many

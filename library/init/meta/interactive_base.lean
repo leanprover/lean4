@@ -7,8 +7,8 @@ prelude
 import init.data.option.basic
 import init.meta.lean.parser init.meta.tactic init.meta.has_reflect
 
-open lean
-open lean.parser
+open lean3
+open lean3.parser
 
 local postfix `?`:9001 := optional
 local postfix *:9001 := many
@@ -208,7 +208,7 @@ do f ← parse_format "" s,
    pure ``(to_fmt %%(reflect acc) ++ format.line ++ %%f)
 | acc ('{'::'{'::s) := parse_format (acc ++ "{") s
 | acc ('{'::s) :=
-do (e, s) ← with_input (lean.parser.pexpr 0) s.as_string,
+do (e, s) ← with_input (lean3.parser.pexpr 0) s.as_string,
    '}'::s ← return s.to_list | fail "'}' expected",
    f ← parse_format "" s,
    pure ``(to_fmt %%(reflect acc) ++ to_fmt %%e ++ %%f)
@@ -223,7 +223,7 @@ private meta def parse_sformat : string → list char → parser pexpr
 | acc []            := pure $ pexpr.of_expr (reflect acc)
 | acc ('{'::'{'::s) := parse_sformat (acc ++ "{") s
 | acc ('{'::s) :=
-do (e, s) ← with_input (lean.parser.pexpr 0) s.as_string,
+do (e, s) ← with_input (lean3.parser.pexpr 0) s.as_string,
    '}'::s ← return s.to_list | fail "'}' expected",
    f ← parse_sformat "" s,
    pure ``(%%(reflect acc) ++ to_string %%e ++ %%f)

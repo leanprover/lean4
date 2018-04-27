@@ -128,9 +128,9 @@ run_cmd script_check_id `monad_io_process_impl
 run_cmd script_check_id `monad_io_random_impl
 run_cmd script_check_id `io
 run_cmd script_check_id `ite
-run_cmd script_check_id `lean.parser
-run_cmd script_check_id `lean.parser.pexpr
-run_cmd script_check_id `lean.parser.tk
+run_cmd script_check_id `lean3.parser
+run_cmd script_check_id `lean3.parser.pexpr
+run_cmd script_check_id `lean3.parser.tk
 run_cmd script_check_id `list
 run_cmd script_check_id `list.nil
 run_cmd script_check_id `list.cons

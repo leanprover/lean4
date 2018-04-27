@@ -137,8 +137,17 @@ vm_obj string_fold(vm_obj const &, vm_obj const & a, vm_obj const & f, vm_obj co
     return r;
 }
 
+/* pos is in bytes, and remaining is in characters */
+vm_obj mk_vm_iterator(vm_obj const & s, vm_obj const & pos, vm_obj const & remaining) {
+    return mk_vm_constructor(0, s, pos, remaining);
+}
+
+vm_obj mk_vm_iterator(vm_obj const & s, size_t pos, size_t remaining) {
+    return mk_vm_iterator(s, mk_vm_nat(pos), mk_vm_nat(remaining));
+}
+
 vm_obj string_mk_iterator(vm_obj const & s) {
-    return mk_vm_pair(s, mk_vm_nat(0));
+    return mk_vm_iterator(s, 0, to_vm_string(s).m_length);
 }
 
 vm_string const & it_string(vm_obj const & it) {
@@ -149,6 +158,14 @@ size_t it_pos(vm_obj const & it) {
     return force_to_size_t(cfield(it, 1));
 }
 
+size_t it_remaining(vm_obj const & it) {
+    return force_to_size_t(cfield(it, 2));
+}
+
+vm_obj string_iterator_remaining(vm_obj const & it) {
+    return mk_vm_nat(it_remaining(it));
+}
+
 /*
   instance : inhabited char :=
   ⟨'A'⟩
@@ -157,6 +174,7 @@ static vm_obj mk_default_char() {
     return mk_vm_nat(65);
 }
 
+/* curr : iterator → char */
 vm_obj string_iterator_curr(vm_obj const & it) {
     vm_string const & s = it_string(it);
     size_t i            = it_pos(it);
@@ -209,7 +227,7 @@ vm_obj string_iterator_set_curr(vm_obj const & it, vm_obj const & c) {
         push_unicode_scalar(tmp, code);
         std::string new_s = s.m_value;
         new_s.replace(i, get_utf8_char_size_at(new_s, i), tmp);
-        return mk_vm_pair(to_obj(new_s, s.m_length), cfield(it, 1));;
+        return mk_vm_iterator(to_obj(new_s, s.m_length), cfield(it, 1), cfield(it, 2));;
     }
 }
 
@@ -219,9 +237,10 @@ def next : iterator → iterator
 vm_obj string_iterator_next(vm_obj const & it) {
     vm_string const & s = it_string(it);
     size_t i            = it_pos(it);
+    size_t r            = it_remaining(it);
     if (i < s.m_value.size()) {
         next_utf8(s.m_value, i);
-        return update_vm_constructor(it, 1, mk_vm_nat(i));
+        return update_vm_constructor(update_vm_constructor(it, 1, mk_vm_nat(i)), 2, mk_vm_nat(r - 1));
     } else {
         return it;
     }
@@ -233,13 +252,14 @@ def prev : iterator → iterator
 vm_obj string_iterator_prev(vm_obj const & it) {
     vm_string const & s = it_string(it);
     size_t i            = it_pos(it);
+    size_t r            = it_remaining(it);
     if (i > 0) {
         size_t new_i = i;
         /* we have to walk at most 4 steps backwards */
         for (unsigned j = 0; j < 4; j++) {
             --new_i;
             if (is_utf8_first_byte(s.m_value[new_i])) {
-                return update_vm_constructor(it, 1, mk_vm_nat(new_i));
+                return update_vm_constructor(update_vm_constructor(it, 1, mk_vm_nat(new_i)), 2, mk_vm_nat(r + 1));;
             }
         }
         /* incorrectly encoded utf-8 string */
@@ -273,27 +293,28 @@ vm_obj string_iterator_insert(vm_obj const & it, vm_obj const & s) {
     vm_string const & s_0 = it_string(it);
     vm_string const & s_1 = to_vm_string(s);
     size_t i              = it_pos(it);
+    size_t r              = it_remaining(it);
     if (i >= s_0.m_value.size()) {
         /* insert s in the end */
         if (is_unshared_it_vm_string(it)) {
             const_cast<vm_string&>(s_0).m_value  += s_1.m_value;
             const_cast<vm_string&>(s_0).m_length += s_1.m_length;
-            return it;
+            return update_vm_constructor(it, 2, mk_vm_nat(r + s_1.m_length));
         } else {
             std::string new_s = s_0.m_value;
             new_s += s_1.m_value;
-            return mk_vm_pair(to_obj(new_s, s_0.m_length + s_1.m_length), mk_vm_nat(i));
+            return mk_vm_iterator(to_obj(new_s, s_0.m_length + s_1.m_length), i, r + s_1.m_length);
         }
     } else {
         /* insert in the middle */
         if (is_unshared_it_vm_string(it)) {
             const_cast<vm_string&>(s_0).m_value.insert(i, s_1.m_value);
             const_cast<vm_string&>(s_0).m_length += s_1.m_length;
-            return it;
+            return update_vm_constructor(it, 2, mk_vm_nat(r + s_1.m_length));
         } else {
             std::string new_s = s_0.m_value;
             new_s.insert(i, s_1.m_value);
-            return mk_vm_pair(to_obj(new_s, s_0.m_length + s_1.m_length), mk_vm_nat(i));
+            return mk_vm_iterator(to_obj(new_s, s_0.m_length + s_1.m_length), i, r + s_1.m_length);
         }
     }
 }
@@ -308,19 +329,21 @@ vm_obj string_iterator_remove(vm_obj const & it, vm_obj const & _n) {
     size_t j            = i;
     size_t n            = force_to_size_t(_n);
     size_t new_len      = s.m_length;
+    size_t r            = it_remaining(it);
     for (size_t k = 0; k < n && j < sz; k++) {
         next_utf8(s.m_value, j);
         new_len--;
+        r--;
     }
     size_t count        = j - i;
     if (is_unshared_it_vm_string(it)) {
         const_cast<vm_string&>(s).m_value.erase(i, count);
         const_cast<vm_string&>(s).m_length = new_len;
-        return it;
+        return update_vm_constructor(it, 2, mk_vm_nat(r));
     } else {
         std::string new_s = s.m_value;
         new_s.erase(i, count);
-        return mk_vm_pair(to_obj(new_s, new_len), mk_vm_nat(i));
+        return mk_vm_iterator(to_obj(new_s, new_len), i, r);
     }
 }
 
@@ -336,7 +359,7 @@ def to_end : iterator → iterator
 */
 vm_obj string_iterator_to_end(vm_obj const & it) {
     vm_string const & s = it_string(it);
-    return update_vm_constructor(it, 1, mk_vm_nat(s.m_value.size()));
+    return update_vm_constructor(update_vm_constructor(it, 1, mk_vm_nat(s.m_value.size())), 2, mk_vm_nat(0));
 }
 
 /*
@@ -449,6 +472,7 @@ vm_obj string_has_decidable_lt(vm_obj const & s1, vm_obj const & s2) {
     else return mk_vm_simple(0);
 }
 
+/* def extract : iterator → iterator → option string */
 vm_obj string_iterator_extract(vm_obj const & it1, vm_obj const & it2) {
     vm_string const & s1 = it_string(it1);
     vm_string const & s2 = it_string(it2);
@@ -485,6 +509,7 @@ void initialize_vm_string() {
     DECLARE_VM_BUILTIN(name({"string", "iterator", "has_prev"}),       string_iterator_has_prev);
     DECLARE_VM_BUILTIN(name({"string", "iterator", "insert"}),         string_iterator_insert);
     DECLARE_VM_BUILTIN(name({"string", "iterator", "remove"}),         string_iterator_remove);
+    DECLARE_VM_BUILTIN(name({"string", "iterator", "remaining"}),      string_iterator_remaining);
     DECLARE_VM_BUILTIN(name({"string", "iterator", "to_string"}),      string_iterator_to_string);
     DECLARE_VM_BUILTIN(name({"string", "iterator", "to_end"}),         string_iterator_to_end);
     DECLARE_VM_BUILTIN(name({"string", "iterator", "next_to_string"}), string_iterator_next_to_string);

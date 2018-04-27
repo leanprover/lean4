@@ -13,3 +13,9 @@
 #eval ("αβcc".mk_iterator.next.insert "_foo_").to_string
 #eval ("αβcc".mk_iterator.next.next.insert "_foo_").to_string
 #eval ("αβcc".mk_iterator.next.next.prev.insert "_foo_").to_string
+#eval ("αβcc".mk_iterator.remaining)
+#eval ("αβcc".mk_iterator.next.remaining)
+#eval ("αβcc".mk_iterator.next.insert "αbcβ").remaining
+#eval (("αβcc".mk_iterator.next.insert "αbcβ").remove 2).remaining
+#eval (("αβcc".mk_iterator.next.insert "αbcβ").remove 2).prev.remaining
+#eval ("αβcc".mk_iterator.next.to_end).remaining

@@ -9,11 +9,19 @@ https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/parsec-paper
 -/
 prelude
 import init.data.to_string init.data.string.basic init.data.list.basic init.control.except
+import init.data.repr
 namespace lean
 namespace parser
 
 structure position :=
 (fname : string := "") (line : nat := 1) (col : nat := 0)
+
+def position.repr (p : position) : string :=
+if p.fname = "" then "{line := " ++ repr p.line ++ ", col := " ++ repr p.col ++ "}"
+else "{fname := " ++ repr p.fname ++ ", line := " ++ repr p.line ++ ", col := " ++ repr p.col ++ "}"
+
+instance position_has_repr : has_repr position :=
+⟨position.repr⟩
 
 structure state :=
 (input : string.iterator)
@@ -35,8 +43,16 @@ def message.to_string (msg : message) : string :=
 "unexpected " ++ msg.unexpected ++ "\n" ++
 if msg.expected = [] then "" else "expected " ++ expected.to_string msg.expected
 
-instance : has_to_string message :=
+instance message_has_to_string : has_to_string message :=
 ⟨message.to_string⟩
+
+def message.repr (msg : message) : string :=
+"{pos := " ++ repr msg.pos ++ ", " ++
+ "unexpected := " ++ repr msg.unexpected ++ ", " ++
+ "expected := " ++ repr msg.expected ++ "}"
+
+instance message_has_repr : has_repr message :=
+⟨message.repr⟩
 
 /-
 Remark: we store error messages in `ok_eps` results.
@@ -62,12 +78,6 @@ match p {pos := {fname := fname}, input := s.mk_iterator} with
 | error msg _  := except.error msg
 end
 
-def test [has_to_string α] (p : parser_m α) (s : string) : string :=
-match run p s with
-| except.ok a := "success: " ++ to_string a
-| except.error msg := to_string msg
-end
-
 def merge (msg₁ msg₂ : message) : message :=
 { expected := msg₁.expected ++ msg₂.expected, ..msg₁ }
 
@@ -79,6 +89,9 @@ ok_eps a s (merge msg₁ msg₂)
 
 protected def pure (a : α) : parser_m α :=
 λ s, ok_eps a s { pos := s.pos }
+
+def eps : parser_m unit :=
+parser.pure ()
 
 /--
   The `bind p q` combinator behaves as follows:
@@ -130,14 +143,11 @@ The parser `try p <|> q` will try `q` even when
 It is also useful for specifying both the lexer and parser
 together.
 ```
-    (do try (string "let"), whitespace, ...)
-    <|>
-    (do try (string "fun"), whitespace, ...)
+    (do try (ch 'l' >> ch 'e' >> ch 't'), whitespace, ...)
     <|>
     ...
 ```
-Without the `try` combinator we will not be able
-to backtrack on the `let` keyword.
+Without the `try` combinator we will not be able to backtrack on the `let` keyword.
 -/
 def try (p : parser_m α) : parser_m α :=
 λ s, match p s with
@@ -180,23 +190,28 @@ protected def orelse (p q : parser_m α) : parser_m α :=
 instance : has_orelse parser_m :=
 { orelse := @parser.orelse }
 
+@[inline] def next_pos (c : char) (p : position) : position :=
+if c = '\n'
+then { line := p.line+1, col := 0, ..p }
+else { col := p.col+1, ..p }
+
+@[inline] def eoi_error (pos : position) : result α :=
+error { pos := pos, unexpected := "end of input" } ff
+
 /--
 If the next character `c` satisfies `p`, then
 update position and return `c`. Otherwise,
 generate error message with current position and character.
 -/
-def satisfy (p : char → bool) : parser_m char :=
+@[inline] def satisfy (p : char → bool) : parser_m char :=
 λ s, if !s.input.has_next then
-       error { pos := s.pos, unexpected := "end of input" } ff
+       eoi_error s.pos
      else
        let c := s.input.curr in
        if !p c then
          error { pos := s.pos, unexpected := repr c } ff
        else
-         let p     := s.pos in
-         let new_p := if c = '\n' then { line := p.line+1, col := 0, ..p } else { col := p.col+1, ..p } in
-         let new_s : state := { input := s.input.next, pos := new_p, ..s } in
-         ok c new_s
+         ok c { input := s.input.next, pos := next_pos c s.pos, ..s }
 
 def ch (c : char) : parser_m char :=
 satisfy (= c)
@@ -207,15 +222,43 @@ satisfy char.is_alpha
 def digit : parser_m char :=
 satisfy char.is_digit
 
-def str_aux : nat → string.iterator → parser_m unit
-| 0 it     := return ()
-| (n+1) it := ch (it.curr) >> str_aux n it.next
+def upper : parser_m char :=
+satisfy char.is_upper
 
-def str (s : string) : parser_m unit :=
-str_aux s.length s.mk_iterator
+def lower : parser_m char :=
+satisfy char.is_lower
+
+def any : parser_m char :=
+λ s, if !s.input.has_next then
+       error { pos := s.pos, unexpected := "end of input" } ff
+     else
+       let c     := s.input.curr in
+       ok c { input := s.input.next, pos := next_pos c s.pos, ..s }
+
+private def str_aux (s : string) : nat → string.iterator → string.iterator → position → result string
+| 0 it input pos     := ok s { input := input, pos := pos }
+| (n+1) it input pos :=
+  if !input.has_next then
+    eoi_error pos
+  else
+    let c := input.curr in
+    if it.curr = c then str_aux n it.next input.next (next_pos c pos)
+    else error { pos := pos, unexpected := repr c } ff
+
+/--
+`str s` parses a sequence of elements that match `s`. Returns the parsed string (i.e. `s`).
+This parser consumes no input if it fails (even if a partial match).
+Note: The behaviour of this parser is different to that the `string` parser in the Parsec Haskell library,
+as this one is all-or-nothing.
+-/
+def str (s : string) : parser_m string :=
+λ st, str_aux s s.length s.mk_iterator st.input st.pos
 
 def remaining : parser_m nat :=
 λ s, ok_eps s.input.remaining s { pos := s.pos }
+
+def left_over : parser_m string.iterator :=
+λ s, ok_eps s.input s { pos := s.pos }
 
 def many1_aux (p : parser_m α) : nat → parser_m (list α)
 | 0     := do a ← p, return [a]
@@ -227,7 +270,7 @@ def many1 (p : parser_m α) : parser_m (list α) :=
 do r ← remaining, many1_aux p r
 
 def many (p : parser_m α) : parser_m (list α) :=
-many1 p <|> return []
+many1 p <* eps
 
 def many1_aux' (p : parser_m α) : nat → parser_m unit
 | 0     := p >> return ()
@@ -236,8 +279,21 @@ def many1_aux' (p : parser_m α) : nat → parser_m unit
 def many1' (p : parser_m α) : parser_m unit :=
 do r ← remaining, many1_aux' p r
 
+def many' (p : parser_m α) : parser_m unit :=
+many1' p <* eps
+
 def whitespace : parser_m unit :=
-many1' (satisfy char.is_whitespace)
+many' (satisfy char.is_whitespace)
+
+def lexeme (p : parser_m α) : parser_m α :=
+p <* whitespace
+
+def digits_to_nat : nat → list char → nat
+| r []      := r
+| r (d::ds) := digits_to_nat (r*10 + d.to_nat - '0'.to_nat) ds
+
+def num : parser_m nat :=
+(digits_to_nat 0) <$> many1 digit
 
 def eoi : parser_m unit :=
 λ s, if s.input.remaining = 0 then ok_eps () s { pos := s.pos }
@@ -248,6 +304,15 @@ def sep_by1 (p : parser_m α) (sep : parser_m β) : parser_m (list α) :=
 
 def sep_by (p : parser_m α) (sep : parser_m β) : parser_m (list α) :=
 sep_by1 p sep <|> return []
+
+def parse (p : parser_m α) (s : string) (fname := "") : except message α :=
+run p s fname
+
+def parse_with_eoi (p : parser_m α) (s : string) (fname := "") : except message α :=
+run (p <* eoi) s fname
+
+def parse_with_left_over (p : parser_m α) (s : string) (fname := "") : except message (α × string.iterator) :=
+run (prod.mk <$> p <*> left_over) s fname
 
 end parser
 end lean

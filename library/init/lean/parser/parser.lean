@@ -77,15 +77,6 @@ match p {pos := {fname := fname}, input := s.mk_iterator} with
 | error msg _  := except.error msg
 end
 
-def merge (msg₁ msg₂ : message) : message :=
-{ expected := msg₁.expected ++ msg₂.expected, ..msg₁ }
-
-def merge_error (msg₁ msg₂ : message) : result α :=
-error (merge msg₁ msg₂) ff
-
-def merge_ok_epsilon (a : α) (s : state) (msg₁ msg₂ : message) :=
-ok_eps a s (merge msg₁ msg₂)
-
 @[inline] def mk_eps_result (a : α) (s : state) : result α :=
 ok_eps a s { pos := s.pos }
 
@@ -94,6 +85,24 @@ protected def pure (a : α) : parser α :=
 
 def eps : parser unit :=
 parser.pure ()
+
+protected def failure : parser α :=
+λ s, error { unexpected := "failure", pos := s.pos } ff
+
+def merge (msg₁ msg₂ : message) : message :=
+{ expected := msg₁.expected ++ msg₂.expected, ..msg₁ }
+
+def merge' (msg₁ msg₂ : message) : message :=
+{ expected := msg₁.expected ++ msg₂.expected, ..msg₂ }
+
+def merge_error (msg₁ msg₂ : message) : result α :=
+error (merge msg₁ msg₂) ff
+
+def merge_error' (msg₁ msg₂ : message) : result α :=
+error (merge' msg₁ msg₂) ff
+
+def merge_ok_epsilon (a : α) (s : state) (msg₁ msg₂ : message) :=
+ok_eps a s (merge msg₁ msg₂)
 
 /--
   The `bind p q` combinator behaves as follows:
@@ -113,7 +122,7 @@ protected def bind (p : parser α) (q : α → parser β) : parser β :=
      | ok_eps a s msg₁ :=
        match q a s with
        | ok_eps b s msg₂ := merge_ok_epsilon b s msg₁ msg₂
-       | error msg₂ ff   := merge_error msg₂ msg₁
+       | error msg₂ ff   := merge_error' msg₁ msg₂
        | other           := other
        end
      | error msg c := error msg c
@@ -189,8 +198,9 @@ protected def orelse (p q : parser α) : parser α :=
      | other              := other
      end
 
-instance : has_orelse parser :=
-{ orelse := @parser.orelse }
+instance : alternative parser :=
+{ orelse  := @parser.orelse,
+  failure := @parser.failure }
 
 @[inline] def next_pos (c : char) (p : position) : position :=
 if c = '\n'
@@ -387,6 +397,20 @@ def sep_by1 (p : parser α) (sep : parser β) : parser (list α) :=
 
 def sep_by (p : parser α) (sep : parser β) : parser (list α) :=
 sep_by1 p sep <|> return []
+
+def fix_aux (f : parser α → parser α) : nat → parser α
+| 0     := failure
+| (n+1) := f (fix_aux n)
+
+def fix (f : parser α → parser α) : parser α :=
+do n ← remaining, fix_aux f (n+1)
+
+/- Parse `p` without consuming any input. -/
+def lookahead (p : parser α) : parser α :=
+λ s, match p s with
+     | ok a s' := ok_eps a s { pos := s.pos }
+     | other   := other
+     end
 
 def parse (p : parser α) (s : string) (fname := "") : except message α :=
 run p s fname

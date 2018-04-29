@@ -151,6 +151,9 @@ instance : has_append string :=
 namespace string
 def str : string → char → string := push
 
+def pushn (s : string) (c : char) (n : nat) : string :=
+n.repeat (λ _ s, s.push c) s
+
 def is_empty (s : string) : bool :=
 to_bool (s.length = 0)
 

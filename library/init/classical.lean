@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 -/
 prelude
-import init.data.subtype.basic init.funext
+import init.funext
 
 namespace classical
 universes u v
@@ -114,7 +114,7 @@ else ⟨choice h, λ h, absurd h hp⟩
 noncomputable def epsilon {α : Sort u} [h : nonempty α] (p : α → Prop) : α :=
 (strong_indefinite_description p h).val
 
-theorem epsilon_spec_aux {α : Sort u} (h : nonempty α) (p : α → Prop) 
+theorem epsilon_spec_aux {α : Sort u} (h : nonempty α) (p : α → Prop)
   : (∃ y, p y) → p (@epsilon α h p) :=
 (strong_indefinite_description p h).property
 

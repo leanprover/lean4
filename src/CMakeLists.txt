@@ -287,7 +287,7 @@ if (EMSCRIPTEN)
             URL https://gmplib.org/download/gmp/gmp-6.1.1.tar.bz2
             URL_HASH SHA256=a8109865f2893f1373b0a8ed5ff7429de8db696fc451b1036bd7bdf95bbeffd6
             BUILD_IN_SOURCE 1
-            CONFIGURE_COMMAND emconfigure ./configure "CC_FOR_BUILD=gcc" "CFLAGS=-m32 -DPIC ${CFLAGS_EMSCRIPTEN}" --host=x86_64-pc-linux-gnu --build=i686-pc-linux-gnu --disable-assembly --prefix=${gmp_install_prefix}
+            CONFIGURE_COMMAND emconfigure ./configure "CC_FOR_BUILD=gcc" "CCAS=gcc -c" "CFLAGS=-m32 -DPIC ${CFLAGS_EMSCRIPTEN}" --host=x86_64-pc-linux-gnu --build=i686-pc-linux-gnu --disable-assembly --prefix=${gmp_install_prefix}
             BUILD_COMMAND emmake make -j4
             INSTALL_COMMAND make install
     )

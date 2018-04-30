@@ -37,11 +37,6 @@ lemma mt {a b : Prop} (h₁ : a → b) (h₂ : ¬b) : ¬a := assume ha : a, h₂
 
 lemma not_false : ¬false := id
 
-def non_contradictory (a : Prop) : Prop := ¬¬a
-
-lemma non_contradictory_intro {a : Prop} (ha : a) : ¬¬a :=
-assume hna : ¬a, absurd ha hna
-
 /- false -/
 
 @[inline] def false.elim {C : Sort u} (h : false) : C :=
@@ -283,13 +278,6 @@ iff.intro
 lemma iff_false_intro (h : ¬a) : a ↔ false :=
 iff.intro h (false.rec a)
 
-lemma not_non_contradictory_iff_absurd (a : Prop) : ¬¬¬a ↔ ¬a :=
-iff.intro
-  (λ (hl : ¬¬¬a) (ha : a), hl (non_contradictory_intro ha))
-  absurd
-
-def not_not_not_iff := not_non_contradictory_iff_absurd
-
 lemma imp_congr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a → b) ↔ (c → d) :=
 iff.intro
   (λ hab hc, iff.mp h₂ (hab (iff.mpr h₁ hc)))
@@ -372,37 +360,22 @@ def and_implies := @and.imp
 @[congr] lemma and_congr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a ∧ b) ↔ (c ∧ d) :=
 iff.intro (and.imp (iff.mp h₁) (iff.mp h₂)) (and.imp (iff.mpr h₁) (iff.mpr h₂))
 
-lemma and_congr_right (h : a → (b ↔ c)) : (a ∧ b) ↔ (a ∧ c) :=
-iff.intro
-  (assume ⟨ha, hb⟩, ⟨ha, iff.elim_left (h ha) hb⟩)
-  (assume ⟨ha, hc⟩, ⟨ha, iff.elim_right (h ha) hc⟩)
-
-lemma and.comm : a ∧ b ↔ b ∧ a :=
+lemma and_comm : a ∧ b ↔ b ∧ a :=
 iff.intro and.swap and.swap
 
-lemma and_comm (a b : Prop) : a ∧ b ↔ b ∧ a := and.comm
-
-lemma and.assoc : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) :=
+lemma and_assoc : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) :=
 iff.intro
   (assume ⟨⟨ha, hb⟩, hc⟩, ⟨ha, ⟨hb, hc⟩⟩)
   (assume ⟨ha, ⟨hb, hc⟩⟩, ⟨⟨ha, hb⟩, hc⟩)
 
-lemma and_assoc (a b : Prop) : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) := and.assoc
-
-lemma and.left_comm : a ∧ (b ∧ c) ↔ b ∧ (a ∧ c) :=
-iff.trans (iff.symm and.assoc) (iff.trans (and_congr and.comm (iff.refl c)) and.assoc)
-
-lemma and_iff_left {a b : Prop} (hb : b) : (a ∧ b) ↔ a :=
-iff.intro and.left (λ ha, ⟨ha, hb⟩)
-
-lemma and_iff_right {a b : Prop} (ha : a) : (a ∧ b) ↔ b :=
-iff.intro and.right (and.intro ha)
+lemma and_left_comm : a ∧ (b ∧ c) ↔ b ∧ (a ∧ c) :=
+iff.trans (iff.symm and_assoc) (iff.trans (and_congr and_comm (iff.refl c)) and_assoc)
 
 @[simp] lemma and_true (a : Prop) : a ∧ true ↔ a :=
-and_iff_left trivial
+iff.intro and.left (λ ha, ⟨ha, trivial⟩)
 
 @[simp] lemma true_and (a : Prop) : true ∧ a ↔ a :=
-and_iff_right trivial
+iff.intro and.right (λ h, ⟨trivial, h⟩)
 
 @[simp] lemma and_false (a : Prop) : a ∧ false ↔ false :=
 iff_false_intro and.right
@@ -421,38 +394,18 @@ iff.intro and.left (assume h, ⟨h, h⟩)
 
 /- or simp rules -/
 
-lemma or.imp (h₂ : a → c) (h₃ : b → d) : a ∨ b → c ∨ d :=
-or.rec (λ h, or.inl (h₂ h)) (λ h, or.inr (h₃ h))
-
-lemma or.imp_left (h : a → b) : a ∨ c → b ∨ c :=
-or.imp h id
-
-lemma or.imp_right (h : a → b) : c ∨ a → c ∨ b :=
-or.imp id h
-
 @[congr] lemma or_congr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a ∨ b) ↔ (c ∨ d) :=
-iff.intro (or.imp (iff.mp h₁) (iff.mp h₂)) (or.imp (iff.mpr h₁) (iff.mpr h₂))
+iff.intro (λ h, or.elim h (λ h, or.inl (iff.mp h₁ h)) (λ h, or.inr (iff.mp h₂ h)))
+          (λ h, or.elim h (λ h, or.inl (iff.mpr h₁ h)) (λ h, or.inr (iff.mpr h₂ h)))
 
-lemma or.comm : a ∨ b ↔ b ∨ a := iff.intro or.swap or.swap
+lemma or_comm : a ∨ b ↔ b ∨ a := iff.intro or.swap or.swap
 
-lemma or_comm (a b : Prop) : a ∨ b ↔ b ∨ a := or.comm
+lemma or_assoc : (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) :=
+iff.intro (λ h, or.elim h (λ h, or.elim h or.inl (λ h, or.inr (or.inl h))) (λ h, or.inr (or.inr h)))
+          (λ h, or.elim h (λ h, or.inl (or.inl h)) (λ h, or.elim h (λ h, or.inl (or.inr h)) or.inr))
 
-lemma or.assoc : (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) :=
-iff.intro
-  (or.rec (or.imp_right or.inl) (λ h, or.inr (or.inr h)))
-  (or.rec (λ h, or.inl (or.inl h)) (or.imp_left or.inr))
-
-lemma or_assoc (a b : Prop) : (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) :=
-or.assoc
-
-lemma or.left_comm : a ∨ (b ∨ c) ↔ b ∨ (a ∨ c) :=
-iff.trans (iff.symm or.assoc) (iff.trans (or_congr or.comm (iff.refl c)) or.assoc)
-
-theorem or_iff_right_of_imp (ha : a → b) : (a ∨ b) ↔ b :=
-iff.intro (or.rec ha id) or.inr
-
-theorem or_iff_left_of_imp (hb : b → a) : (a ∨ b) ↔ a :=
-iff.intro (or.rec id hb) or.inl
+lemma or_left_comm : a ∨ (b ∨ c) ↔ b ∨ (a ∨ c) :=
+iff.trans (iff.symm or_assoc) (iff.trans (or_congr or_comm (iff.refl c)) or_assoc)
 
 @[simp] lemma or_true (a : Prop) : a ∨ true ↔ true :=
 iff_true_intro (or.inr trivial)
@@ -464,7 +417,7 @@ iff_true_intro (or.inl trivial)
 iff.intro (or.rec id false.elim) or.inl
 
 @[simp] lemma false_or (a : Prop) : false ∨ a ↔ a :=
-iff.trans or.comm (or_false a)
+iff.trans or_comm (or_false a)
 
 @[simp] lemma or_self (a : Prop) : a ∨ a ↔ a :=
 iff.intro (or.rec id id) or.inl
@@ -473,19 +426,19 @@ lemma not_or {a b : Prop} : ¬ a → ¬ b → ¬ (a ∨ b)
 | hna hnb (or.inl ha) := absurd ha hna
 | hna hnb (or.inr hb) := absurd hb hnb
 
-/- or resolution rulse -/
+/- or resolution rulses -/
 
-def or.resolve_left {a b : Prop} (h : a ∨ b) (na : ¬ a) : b :=
-  or.elim h (λ ha, absurd ha na) id
+def resolve_left {a b : Prop} (h : a ∨ b) (na : ¬ a) : b :=
+or.elim h (λ ha, absurd ha na) id
 
-def or.neg_resolve_left {a b : Prop} (h : ¬ a ∨ b) (ha : a) : b :=
-  or.elim h (λ na, absurd ha na) id
+def neg_resolve_left {a b : Prop} (h : ¬ a ∨ b) (ha : a) : b :=
+or.elim h (λ na, absurd ha na) id
 
-def or.resolve_right {a b : Prop} (h : a ∨ b) (nb : ¬ b) : a :=
-  or.elim h id (λ hb, absurd hb nb)
+def resolve_right {a b : Prop} (h : a ∨ b) (nb : ¬ b) : a :=
+or.elim h id (λ hb, absurd hb nb)
 
-def or.neg_resolve_right {a b : Prop} (h : a ∨ ¬ b) (hb : b) : a :=
-  or.elim h id (λ nb, absurd hb nb)
+def neg_resolve_right {a b : Prop} (h : a ∨ ¬ b) (hb : b) : a :=
+or.elim h id (λ nb, absurd hb nb)
 
 /- iff simp rules -/
 
@@ -595,10 +548,10 @@ decidable.cases_on h (λ h, false.elim (iff.mp not_true h)) (λ _, rfl)
 @[simp] lemma to_bool_false_eq_ff (h : decidable false) : @to_bool false h = ff :=
 decidable.cases_on h (λ h, rfl) (λ h, false.elim h)
 
-instance decidable.true : decidable true :=
+instance : decidable true :=
 is_true trivial
 
-instance decidable.false : decidable false :=
+instance : decidable false :=
 is_false not_false
 
 -- We use "dependent" if-then-else to be able to communicate the if-then-else condition
@@ -985,30 +938,6 @@ match h₁, h₂ with
 | (is_true h_c),  h₂ := h_c
 | (is_false h_c), h₂ := false.elim h₂
 end
-
-/-- Universe lifting operation -/
-structure {r s} ulift (α : Type s) : Type (max s r) :=
-up :: (down : α)
-
-namespace ulift
-/- Bijection between α and ulift.{v} α -/
-lemma up_down {α : Type u} : ∀ (b : ulift.{v} α), up (down b) = b
-| (up a) := rfl
-
-lemma down_up {α : Type u} (a : α) : down (up.{v} a) = a := rfl
-end ulift
-
-/-- Universe lifting operation from Sort to Type -/
-structure plift (α : Sort u) : Type u :=
-up :: (down : α)
-
-namespace plift
-/- Bijection between α and plift α -/
-lemma up_down {α : Sort u} : ∀ (b : plift α), up (down b) = b
-| (up a) := rfl
-
-lemma down_up {α : Sort u} (a : α) : down (up a) = a := rfl
-end plift
 
 /- Equalities for rewriting let-expressions -/
 lemma let_value_eq {α : Sort u} {β : Sort v} {a₁ a₂ : α} (b : α → β) :

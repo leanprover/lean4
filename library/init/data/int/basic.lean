@@ -155,8 +155,8 @@ protected def lt (a b : int) : Prop := (a + 1) ≤ b
 instance : has_lt int := ⟨int.lt⟩
 
 private def decidable_nonneg : Π (a : int), decidable (nonneg a)
-| (of_nat m) := decidable.true
-| -[1+ m]    := decidable.false
+| (of_nat m) := show decidable true,  from infer_instance
+| -[1+ m]    := show decidable false, from infer_instance
 
 instance decidable_le (a b : int) : decidable (a ≤ b) :=
 decidable_nonneg _

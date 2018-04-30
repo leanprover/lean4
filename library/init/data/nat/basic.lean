@@ -312,10 +312,12 @@ protected theorem lt_or_ge : ∀ (a b : ℕ), a < b ∨ a ≥ b
   end
 
 protected theorem le_total (m n : ℕ) : m ≤ n ∨ n ≤ m :=
-or.imp_left nat.le_of_lt (nat.lt_or_ge m n)
+or.elim (nat.lt_or_ge m n)
+  (λ h, or.inl (nat.le_of_lt h))
+  or.inr
 
 protected theorem lt_of_le_and_ne {m n : ℕ} (h1 : m ≤ n) : m ≠ n → m < n :=
-or.resolve_right (or.swap (nat.eq_or_lt_of_le h1))
+resolve_right (or.swap (nat.eq_or_lt_of_le h1))
 
 theorem eq_zero_of_le_zero {n : nat} (h : n ≤ 0) : n = 0 :=
 nat.le_antisymm h (zero_le _)

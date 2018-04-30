@@ -582,3 +582,27 @@ attribute [elab_simple] bin_tree.node bin_tree.leaf
 notation !x     := bnot x
 notation x || y := bor x y
 notation x && y := band x y
+
+/-- Universe lifting operation -/
+structure {r s} ulift (α : Type s) : Type (max s r) :=
+up :: (down : α)
+
+namespace ulift
+/- Bijection between α and ulift.{v} α -/
+lemma up_down {α : Type u} : ∀ (b : ulift.{v} α), up (down b) = b
+| (up a) := rfl
+
+lemma down_up {α : Type u} (a : α) : down (up.{v} a) = a := rfl
+end ulift
+
+/-- Universe lifting operation from Sort to Type -/
+structure plift (α : Sort u) : Type u :=
+up :: (down : α)
+
+namespace plift
+/- Bijection between α and plift α -/
+lemma up_down {α : Sort u} : ∀ (b : plift α), up (down b) = b
+| (up a) := rfl
+
+lemma down_up {α : Sort u} (a : α) : down (up a) = a := rfl
+end plift

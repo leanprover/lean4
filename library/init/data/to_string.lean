@@ -5,7 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import init.data.string.basic
-import init.data.uint init.data.prod init.data.sum.basic init.data.nat.div
+import init.data.uint init.data.sum.basic init.data.nat.div
 import init.data.repr
 open sum subtype nat
 

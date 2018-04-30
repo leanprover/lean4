@@ -13,11 +13,11 @@ namespace parser
 @[reducible] def macro_scope_id := ℕ
 
 -- byte offset into source string
-@[reducible] def position := ℕ
+@[reducible] def offset := ℕ
 
 structure span :=
-(left : position)
-(right : position)
+(left  : offset)
+(right : offset)
 (file : string)
 
 structure syntax_ident :=

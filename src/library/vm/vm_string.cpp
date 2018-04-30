@@ -166,6 +166,12 @@ vm_obj string_iterator_remaining(vm_obj const & it) {
     return mk_vm_nat(it_remaining(it));
 }
 
+vm_obj string_iterator_offset(vm_obj const & it) {
+    size_t len = it_string(it).m_length;
+    size_t rem = it_remaining(it);
+    return mk_vm_nat(len - rem);
+}
+
 /*
   instance : inhabited char :=
   ⟨'A'⟩
@@ -510,6 +516,7 @@ void initialize_vm_string() {
     DECLARE_VM_BUILTIN(name({"string", "iterator", "insert"}),         string_iterator_insert);
     DECLARE_VM_BUILTIN(name({"string", "iterator", "remove"}),         string_iterator_remove);
     DECLARE_VM_BUILTIN(name({"string", "iterator", "remaining"}),      string_iterator_remaining);
+    DECLARE_VM_BUILTIN(name({"string", "iterator", "offset"}),         string_iterator_offset);
     DECLARE_VM_BUILTIN(name({"string", "iterator", "to_string"}),      string_iterator_to_string);
     DECLARE_VM_BUILTIN(name({"string", "iterator", "to_end"}),         string_iterator_to_end);
     DECLARE_VM_BUILTIN(name({"string", "iterator", "next_to_string"}), string_iterator_next_to_string);

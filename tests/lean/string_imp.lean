@@ -19,3 +19,12 @@
 #eval (("αβcc".mk_iterator.next.insert "αbcβ").remove 2).remaining
 #eval (("αβcc".mk_iterator.next.insert "αbcβ").remove 2).prev.remaining
 #eval ("αβcc".mk_iterator.next.to_end).remaining
+#eval "αβcc".mk_iterator.offset
+#eval "αβcc".mk_iterator.next.offset
+#eval "αβcc".mk_iterator.next.next.offset
+#eval ("αβcc".mk_iterator.next.set_curr 'a').offset
+#eval ("αβcc".mk_iterator.next.insert "αbc").offset
+#eval ("αβcc".mk_iterator.next.insert "αbc").remaining
+#eval ("αβcc".mk_iterator.insert "αbc").offset
+#eval ("αβcc".mk_iterator.next.insert "αbcβ").offset
+#eval "αβcd".mk_iterator.to_end.offset

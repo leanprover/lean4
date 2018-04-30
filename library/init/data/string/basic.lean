@@ -71,6 +71,9 @@ namespace iterator
 def remaining : iterator → nat
 | ⟨p, n⟩ := n.length
 
+def offset : iterator → nat
+| ⟨p, n⟩ := p.length
+
 def curr : iterator → char
 | ⟨p, c::n⟩ := c
 | _         := default char

@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.meta.tactic init.meta.rewrite_tactic init.meta.simp_tactic
 import init.control.combinators
-import init.meta.interactive_base init.meta.derive init.meta.match_tactic
+import init.meta.interactive_base init.meta.match_tactic
 import init.meta.congr_tactic
 
 open lean3

@@ -28,3 +28,9 @@
 #eval ("αβcc".mk_iterator.insert "αbc").offset
 #eval ("αβcc".mk_iterator.next.insert "αbcβ").offset
 #eval "αβcd".mk_iterator.to_end.offset
+#eval "ab\n\nfoo bla".line_column 0
+#eval "ab\n\nfoo bla".line_column 1
+#eval "ab\n\nfoo bla".line_column 2
+#eval "ab\n\nfoo bla".line_column 3
+#eval "ab\n\nfoo bla".line_column 8
+#eval "ab\n\nfoo bla".line_column 100

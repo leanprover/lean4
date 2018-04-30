@@ -194,6 +194,17 @@ def popn_back (s : string) (n : nat) : string :=
 def backn (s : string) (n : nat) : string :=
 (s.mk_iterator.to_end.prevn n).next_to_string
 
+private def line_column_aux : nat → string.iterator → nat × nat → nat × nat
+| 0     it r           := r
+| (k+1) it r@(line, col) :=
+  if it.has_next = ff then r
+  else match it.curr with
+       | '\n'  := line_column_aux k it.next (line+1, 0)
+       | other := line_column_aux k it.next (line, col+1)
+       end
+
+def line_column (s : string) (offset : nat) : nat × nat :=
+line_column_aux offset s.mk_iterator (1, 0)
 end string
 
 protected def char.to_string (c : char) : string :=

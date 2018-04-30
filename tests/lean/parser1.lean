@@ -14,6 +14,8 @@ match parse p s with
 end
 
 #eval test (ch 'a') "a" 'a'
+#eval test any "a" 'a'
+#eval test any "b" 'b'
 #eval test (str "foo" <|> str "bla" <|> str "boo") "bla" "bla"
 #eval test ((str "foo" >> str "foo") <|> str "bla" <|> str "boo") "bla" "bla"
 #eval test_failure ((str "foo" >> str "foo") <|> str "foo2" <|> str "boo") "foo2"

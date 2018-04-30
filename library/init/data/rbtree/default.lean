@@ -5,6 +5,3 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.data.rbtree.basic
-
-meta def rbtree.default_lt : tactic unit :=
-`[apply has_lt.lt]

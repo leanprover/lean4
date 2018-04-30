@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.ordering
+import init.data.ordering.basic init.coe init.data.option.basic
 
 universes u v
 
@@ -162,12 +162,10 @@ end rbnode
 
 open rbnode
 
-set_option auto_param.check_exists false
-
-def rbtree (α : Type u) (lt : α → α → Prop . rbtree.default_lt) : Type u :=
+def rbtree (α : Type u) (lt : α → α → Prop) : Type u :=
 {t : rbnode α // t.well_formed lt }
 
-def mk_rbtree (α : Type u) (lt : α → α → Prop . rbtree.default_lt) : rbtree α lt :=
+def mk_rbtree (α : Type u) (lt : α → α → Prop) : rbtree α lt :=
 ⟨leaf, well_formed.leaf_wff lt⟩
 
 namespace rbtree
@@ -218,7 +216,7 @@ def find : rbtree α lt → α → option α
 def contains (t : rbtree α lt) (a : α) : bool :=
 (t.find a).is_some
 
-def from_list (l : list α) (lt : α → α → Prop . rbtree.default_lt) [decidable_rel lt] : rbtree α lt :=
+def from_list (l : list α) (lt : α → α → Prop) [decidable_rel lt] : rbtree α lt :=
 l.foldl insert (mk_rbtree α lt)
 
 def all : rbtree α lt → (α → bool) → bool
@@ -235,5 +233,5 @@ subset t₁ t₂ && subset t₂ t₁
 
 end rbtree
 
-def rbtree_of {α : Type u} (l : list α) (lt : α → α → Prop . rbtree.default_lt) [decidable_rel lt] : rbtree α lt :=
+def rbtree_of {α : Type u} (l : list α) (lt : α → α → Prop) [decidable_rel lt] : rbtree α lt :=
 rbtree.from_list l lt

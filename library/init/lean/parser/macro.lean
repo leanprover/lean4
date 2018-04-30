@@ -43,14 +43,14 @@ structure resolved :=
 meta instance resolved.has_to_format : has_to_format resolved := ⟨λ r, to_fmt (r.decl, r.prefix)⟩
 
 structure resolve_cfg :=
-(global_scope : rbmap name syntax)
+(global_scope : rbmap name syntax (<))
 
-@[reducible] def resolve_map := rbmap syntax_id resolved
+@[reducible] def resolve_map := rbmap syntax_id resolved (<)
 
 structure resolve_state :=
 (resolve_map : resolve_map)
 
-def scope := rbmap (name × option macro_scope_id) syntax_id
+def scope := rbmap (name × option macro_scope_id) syntax_id (<)
 
 @[reducible] def resolve_m := parse_m resolve_cfg resolve_state
 
@@ -65,7 +65,7 @@ structure macro :=
 -- (elaborate : list syntax → expr → tactic expr)
 
 structure parse_state :=
-(macros : rbmap name macro)
+(macros : rbmap name macro (<))
 (resolve_cfg : resolve_cfg)
 
 -- identifiers in macro expansions are annotated with incremental tags

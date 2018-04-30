@@ -11,12 +11,10 @@ universes u v w
 def rbmap_lt {α : Type u} {β : Type v} (lt : α → α → Prop) (a b : α × β) : Prop :=
 lt a.1 b.1
 
-set_option auto_param.check_exists false
-
-def rbmap (α : Type u) (β : Type v) (lt : α → α → Prop . rbtree.default_lt) : Type (max u v) :=
+def rbmap (α : Type u) (β : Type v) (lt : α → α → Prop) : Type (max u v) :=
 rbtree (α × β) (rbmap_lt lt)
 
-def mk_rbmap (α : Type u) (β : Type v) (lt : α → α → Prop . rbtree.default_lt) : rbmap α β lt :=
+def mk_rbmap (α : Type u) (β : Type v) (lt : α → α → Prop) : rbmap α β lt :=
 mk_rbtree (α × β) (rbmap_lt lt)
 
 namespace rbmap
@@ -85,10 +83,10 @@ to_value (m.find_entry k)
 def contains (m : rbmap α β lt) (k : α) : bool :=
 (find_entry m k).is_some
 
-def from_list (l : list (α × β)) (lt : α → α → Prop . rbtree.default_lt) [decidable_rel lt] : rbmap α β lt :=
+def from_list (l : list (α × β)) (lt : α → α → Prop) [decidable_rel lt] : rbmap α β lt :=
 l.foldl (λ m p, insert m p.1 p.2)  (mk_rbmap α β lt)
 
 end rbmap
 
-def rbmap_of {α : Type u} {β : Type v} (l : list (α × β)) (lt : α → α → Prop . rbtree.default_lt) [decidable_rel lt] : rbmap α β lt :=
+def rbmap_of {α : Type u} {β : Type v} (l : list (α × β)) (lt : α → α → Prop) [decidable_rel lt] : rbmap α β lt :=
 rbmap.from_list l lt

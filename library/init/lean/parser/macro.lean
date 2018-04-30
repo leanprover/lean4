@@ -4,10 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich
 -/
 prelude
-import init.lean.parser.move
-import init.lean.parser.syntax
+import init.data.rbmap init.lean.parser.syntax init.control.combinators
 
-namespace lean.parser
+namespace lean
+namespace parser
 
 local attribute [instance] name.has_lt_quick
 
@@ -17,13 +17,13 @@ namespace parse_m
 section
 local attribute [reducible] parse_m
 
-instance (r σ) : monad (parse_m r σ) := by apply_instance
+instance (r σ) : monad (parse_m r σ) := infer_instance
 --instance (r σ) : monad_run _ (parse_m r σ) := by apply_instance
-instance (r σ) : monad_except string (parse_m r σ) := by apply_instance
-instance (r σ) : monad_reader r (parse_m r σ) := by apply_instance
-instance (r σ) : monad_state σ (parse_m r σ) := by apply_instance
-instance (r σ σ') : monad_state_adapter σ σ' (parse_m r σ) (parse_m r σ') := by apply_instance
-instance (r r' σ) : monad_reader_adapter r r' (parse_m r σ) (parse_m r' σ) := by apply_instance
+instance (r σ) : monad_except string (parse_m r σ) := infer_instance
+instance (r σ) : monad_reader r (parse_m r σ)      := infer_instance
+instance (r σ) : monad_state σ (parse_m r σ)       := infer_instance
+instance (r σ σ') : monad_state_adapter σ σ' (parse_m r σ) (parse_m r σ')  := infer_instance
+instance (r r' σ) : monad_reader_adapter r r' (parse_m r σ) (parse_m r' σ) := infer_instance
 
 def run {r σ α} (cfg : r) (st : σ) (x : parse_m r σ α) :=
 (x.run.run cfg).run st
@@ -83,7 +83,7 @@ def flip_tag (tag : ℕ) : syntax → syntax
 | (syntax.node node) := syntax.node {node with args := (node.args.map
     -- flip_tag
     (λ s, flip_tag s))}
-| (syntax.list ls) := syntax.list (ls.map
+| (syntax.lst ls) := syntax.lst (ls.map
     -- flip_tag
     (λ s, flip_tag s))
 | (syntax.ident ident@{msc := none, ..}) := syntax.ident {ident with msc := some tag}
@@ -126,4 +126,5 @@ let sc : scope := mk_rbmap _ _ _,
        rsm ← get,
        pure (stx, rsm)
 
-end lean.parser
+end parser
+end lean

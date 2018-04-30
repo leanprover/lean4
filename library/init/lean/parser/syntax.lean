@@ -4,9 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich
 -/
 prelude
-import init.data
+import init.lean.name
 
-namespace lean.parser
+namespace lean
+namespace parser
 
 @[reducible] def syntax_id := ℕ
 @[reducible] def macro_scope_id := ℕ
@@ -32,22 +33,29 @@ inductive syntax
 | ident (val : syntax_ident)
 /- any non-ident atom -/
 | atom (val : syntax_atom)
-| list (ls : list syntax)
+| lst  (ls : list syntax)
 | node (val : syntax_node syntax)
 
-protected meta def syntax.to_format : syntax → format :=
-λ s, format.group $ format.nest 2 $ match s with
-| (syntax.ident ident@{msc := none, ..}) := format!"({ident.id}: ident `{ident.name})"
-| (syntax.ident ident@{msc := some sc, ..}) := format!"({ident.id}: ident `{ident.name} from {sc})"
-| (syntax.atom atom) := format!"({atom.id}: atom {atom.val})"
-| (syntax.list ls) := format!"[{format.join $ ls.map syntax.to_format}]"
-| (syntax.node node) :=
-    let args := format.join $ node.args.map (λ arg, format!"\n{arg.to_format}") in
-    format!"({node.id}: node `{node.m} {args})"
-end
+namespace syntax
+open format
 
-meta instance : has_to_format syntax := ⟨syntax.to_format⟩
-meta instance : has_to_string syntax := ⟨to_string ∘ to_fmt⟩
-meta instance : has_repr syntax := ⟨to_string ∘ to_fmt⟩
+protected mutual def to_format, to_format_lst
+with to_format : syntax → format
+| (ident {id := id, name := n, msc := none, ..}) :=
+  paren (to_fmt id ++ ": ident " ++ to_fmt n)
+| (ident {id := id, name := n, msc := some sc, ..}) :=
+  paren (to_fmt id ++ ": ident " ++ to_fmt n  ++ " from " ++ to_fmt sc)
+| (atom a) := paren (to_fmt a.id ++ ": atom " ++ to_fmt a.val)
+| (lst ls) := paren $ join $ to_format_lst ls
+| (node {id := id, m := n, args := args, ..}) :=
+  paren (to_fmt id ++ ": node " ++ to_fmt n ++ join (to_format_lst args))
+with to_format_lst : list syntax → list format
+| []      := []
+| (s::ss) := (line ++ to_format s) :: to_format_lst ss
+end syntax
 
-end lean.parser
+instance : has_to_format syntax := ⟨syntax.to_format⟩
+instance : has_to_string syntax := ⟨to_string ∘ to_fmt⟩
+
+end parser
+end lean

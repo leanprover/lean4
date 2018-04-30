@@ -9,7 +9,7 @@ import init.lean.parser.syntax
 
 namespace lean.parser
 
-local attribute [instance] name.has_lt_quick option.has_lt
+local attribute [instance] name.has_lt_quick
 
 @[irreducible] def parse_m (r σ) := except_t string $ reader_t r $ state σ
 

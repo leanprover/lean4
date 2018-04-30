@@ -35,17 +35,3 @@ namespace name
 
   protected def has_lt_quick : has_lt name := ⟨name.quick_lt⟩
 end name
-
-namespace option
-  variables {α : Type u} (r : α → α → Prop)
-
-  @[simp] protected def lt : option α → option α → Prop
-  | none (some x) := true
-  | (some x) (some y) := r x y
-  | _ _ := false
-
-  instance decidable_rel_lt [decidable_rel r] : decidable_rel (option.lt r) :=
-  by intros a b; cases a; cases b; simp; apply_instance
-
-  protected def has_lt [has_lt α] : has_lt (option α) := ⟨option.lt (<)⟩
-end option

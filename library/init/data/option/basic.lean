@@ -57,6 +57,17 @@ instance : alternative option :=
 { failure := @none,
   orelse  := @option.orelse }
 
+@[simp] protected def lt {α : Type u} (r : α → α → Prop) : option α → option α → Prop
+| none (some x)     := true
+| (some x) (some y) := r x y
+| _ _               := false
+
+instance decidable_rel_lt {α : Type u} (r : α → α → Prop) [s : decidable_rel r] : decidable_rel (option.lt r)
+| none     (some y) := is_true  trivial
+| (some x) (some y) := s x y
+| (some x) none     := is_false not_false
+| none     none     := is_false not_false
+
 end option
 
 instance (α : Type u) : inhabited (option α) :=
@@ -71,3 +82,5 @@ instance {α : Type u} [d : decidable_eq α] : decidable_eq (option α)
   | (is_true e)  := is_true (congr_arg (@some α) e)
   | (is_false n) := is_false (λ h, option.no_confusion h (λ e, absurd e n))
   end
+
+instance {α : Type u} [has_lt α] : has_lt (option α) := ⟨option.lt (<)⟩

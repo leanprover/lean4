@@ -7,7 +7,7 @@ Quotient types.
 -/
 prelude
 /- We import propext here, otherwise we would need a quot.lift for propositions. -/
-import init.data.sigma.basic init.core init.propext
+import init.core
 
 universes u v
 

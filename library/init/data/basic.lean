@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.data.quot init.data.nat.basic init.data.sum.basic
-import init.data.sigma.basic init.data.fin.basic init.data.list.basic init.data.char.basic
+import init.data.fin.basic init.data.list.basic init.data.char.basic
 import init.data.string.basic init.data.option.basic init.data.set
 import init.data.uint init.data.ordering.basic init.data.repr
 import init.data.to_string

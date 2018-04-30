@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.core init.data.nat.basic init.propext
+import init.core init.data.nat.basic
 open decidable list
 
 universes u v w

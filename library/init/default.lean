@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.core init.control init.data.basic init.version
-import init.propext init.funext init.function init.classical
+import init.funext init.function init.classical
 import init.util init.coe init.wf init.meta init.meta.well_founded_tactics init.data
 
 @[user_attribute]

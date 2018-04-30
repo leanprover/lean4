@@ -1668,6 +1668,28 @@ def {u₁ u₂ v₁ v₂} prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β�
   (f : α₁ → α₂) (g : β₁ → β₂) : α₁ × β₁ → α₂ × β₂
 | (a, b) := (f a, g b)
 
+/- Dependent products -/
+
+notation `Σ` binders `, ` r:(scoped p, sigma p) := r
+notation `Σ'` binders `, ` r:(scoped p, psigma p) := r
+
+theorem ex_of_psig {α : Type u} {p : α → Prop} : (Σ' x, p x) → ∃ x, p x
+| ⟨x, hx⟩ := ⟨x, hx⟩
+
+section
+variables {α : Type u} {β : α → Type v}
+
+protected theorem sigma.eq : ∀ {p₁ p₂ : Σ a : α, β a} (h₁ : p₁.1 = p₂.1), (eq.rec_on h₁ p₁.2 : β p₂.1) = p₂.2 → p₁ = p₂
+| ⟨a, b⟩ ⟨.(a), .(b)⟩ rfl rfl := rfl
+end
+
+section
+variables {α : Sort u} {β : α → Sort v}
+
+protected theorem psigma.eq : ∀ {p₁ p₂ : psigma β} (h₁ : p₁.1 = p₂.1), (eq.rec_on h₁ p₁.2 : β p₂.1) = p₂.2 → p₁ = p₂
+| ⟨a, b⟩ ⟨.(a), .(b)⟩ rfl rfl := rfl
+end
+
 /- Universe polymorphic unit -/
 
 theorem punit_eq (a b : punit) : a = b :=
@@ -1696,18 +1718,55 @@ instance setoid_has_equiv {α : Sort u} [setoid α] : has_equiv α :=
 namespace setoid
 variables {α : Sort u} [setoid α]
 
-@[refl] lemma refl (a : α) : a ≈ a :=
+@[refl] theorem refl (a : α) : a ≈ a :=
 match setoid.iseqv α with
 | ⟨h_refl, h_symm, h_trans⟩ := h_refl a
 end
 
-@[symm] lemma symm {a b : α} (hab : a ≈ b) : b ≈ a :=
+@[symm] theorem symm {a b : α} (hab : a ≈ b) : b ≈ a :=
 match setoid.iseqv α with
 | ⟨h_refl, h_symm, h_trans⟩ := h_symm hab
 end
 
-@[trans] lemma trans {a b c : α} (hab : a ≈ b) (hbc : b ≈ c) : a ≈ c :=
+@[trans] theorem trans {a b c : α} (hab : a ≈ b) (hbc : b ≈ c) : a ≈ c :=
 match setoid.iseqv α with
 | ⟨h_refl, h_symm, h_trans⟩ := h_trans hab hbc
 end
 end setoid
+
+/- Propositional extensionality -/
+
+constant propext {a b : Prop} : (a ↔ b) → a = b
+
+/- Additional congruence theorems. -/
+
+theorem forall_congr_eq {a : Sort u} {p q : a → Prop} (h : ∀ x, p x = q x) : (∀ x, p x) = ∀ x, q x :=
+propext (forall_congr (λ a, (h a).to_iff))
+
+theorem imp_congr_eq {a b c d : Prop} (h₁ : a = c) (h₂ : b = d) : (a → b) = (c → d) :=
+propext (imp_congr h₁.to_iff h₂.to_iff)
+
+theorem imp_congr_ctx_eq {a b c d : Prop} (h₁ : a = c) (h₂ : c → (b = d)) : (a → b) = (c → d) :=
+propext (imp_congr_ctx h₁.to_iff (λ hc, (h₂ hc).to_iff))
+
+theorem eq_true_intro {a : Prop} (h : a) : a = true :=
+propext (iff_true_intro h)
+
+theorem eq_false_intro {a : Prop} (h : ¬a) : a = false :=
+propext (iff_false_intro h)
+
+theorem iff.to_eq {a b : Prop} (h : a ↔ b) : a = b :=
+propext h
+
+theorem iff_eq_eq {a b : Prop} : (a ↔ b) = (a = b) :=
+propext (iff.intro
+  (assume h, iff.to_eq h)
+  (assume h, h.to_iff))
+
+theorem eq_false {a : Prop} : (a = false) = (¬ a) :=
+have (a ↔ false) = (¬ a), from propext (iff_false a),
+eq.subst (@iff_eq_eq a false) this
+
+theorem eq_true {a : Prop} : (a = true) = a :=
+have (a ↔ true) = a, from propext (iff_true a),
+eq.subst (@iff_eq_eq a true) this

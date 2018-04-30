@@ -6,7 +6,7 @@ Authors: Jared Roesch, Sebastian Ullrich
 The except monad transformer.
 -/
 prelude
-import init.control.alternative init.control.lift
+import init.control.alternative init.control.lift init.data.to_string
 universes u v w
 
 inductive except (ε : Type u) (α : Type v)

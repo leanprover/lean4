@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luke Nelson, Jared Roesch, Sebastian Ullrich, Leonardo de Moura
 -/
 prelude
-import init.core init.function init.meta.name
+import init.core init.function
 open function
 universes u v
 

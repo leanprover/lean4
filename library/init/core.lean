@@ -1627,6 +1627,28 @@ instance {α : Type u} {p : α → Prop} [decidable_eq α] : decidable_eq {x : �
   else is_false (λ h', subtype.no_confusion h' (λ h', absurd h' h))
 end subtype
 
+/- Sum -/
+
+notation α ⊕ β := sum α β
+
+section
+variables {α : Type u} {β : Type v}
+
+instance sum.inhabited_left [h : inhabited α] : inhabited (α ⊕ β) :=
+⟨sum.inl (default α)⟩
+
+instance sum.inhabited_right [h : inhabited β] : inhabited (α ⊕ β) :=
+⟨sum.inr (default β)⟩
+
+instance {α : Type u} {β : Type v} [decidable_eq α] [decidable_eq β] : decidable_eq (α ⊕ β)
+| (sum.inl a) (sum.inl b) := if h : a = b then is_true (h ▸ rfl)
+                             else is_false (λ h', sum.no_confusion h' (λ h', absurd h' h))
+| (sum.inr a) (sum.inr b) := if h : a = b then is_true (h ▸ rfl)
+                             else is_false (λ h', sum.no_confusion h' (λ h', absurd h' h))
+| (sum.inr a) (sum.inl b) := is_false (λ h, sum.no_confusion h)
+| (sum.inl a) (sum.inr b) := is_false (λ h, sum.no_confusion h)
+end
+
 /- Product -/
 
 section

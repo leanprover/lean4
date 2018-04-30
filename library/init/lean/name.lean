@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.data.string.basic init.coe init.data.uint
+import init.data.string.basic init.coe init.data.uint init.data.to_string
+import init.lean.format
 namespace lean
 
 inductive name
@@ -67,7 +68,6 @@ instance has_decidable_eq : decidable_eq name
 | (mk_numeral _ _)   anonymous          := is_false $ λ h, name.no_confusion h
 | (mk_numeral _ _)   (mk_string _ _)    := is_false $ λ h, name.no_confusion h
 
-
 @[simp] def quick_lt : name → name → bool
 | anonymous        anonymous          := ff
 | anonymous        _                  := tt
@@ -79,6 +79,22 @@ instance has_decidable_eq : decidable_eq name
 /- Alternative has_lt instance. -/
 protected def has_lt_quick : has_lt name :=
 ⟨λ a b, name.quick_lt a b = tt⟩
+
+def to_string_with_sep (sep : string) : name → string
+| anonymous                := "[anonymous]"
+| (mk_string anonymous s)  := s
+| (mk_numeral anonymous v) := to_string v
+| (mk_string n s)          := to_string_with_sep n ++ sep ++ s
+| (mk_numeral n v)         := to_string_with_sep n ++ sep ++ repr v
+
+protected def to_string : name → string :=
+to_string_with_sep "."
+
+instance : has_to_string name :=
+⟨name.to_string⟩
+
+instance : has_to_format name :=
+⟨λ n, n.to_string⟩
 
 end name
 end lean

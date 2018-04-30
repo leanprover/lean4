@@ -12,6 +12,7 @@ Platform-Specific Setup
 - [Windows (msys2)](msys2.md)
 - [Windows (Visual Studio)](msvc.md)
 - [macOS](osx-10.9.md)
+- [Emscripten: lean.js](emscripten.md)
 
 Generic Build Instructions
 --------------------------

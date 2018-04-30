@@ -67,5 +67,18 @@ instance has_decidable_eq : decidable_eq name
 | (mk_numeral _ _)   anonymous          := is_false $ λ h, name.no_confusion h
 | (mk_numeral _ _)   (mk_string _ _)    := is_false $ λ h, name.no_confusion h
 
+
+@[simp] def quick_lt : name → name → bool
+| anonymous        anonymous          := ff
+| anonymous        _                  := tt
+| (mk_numeral n v) (mk_numeral n' v') := v < v' || (v = v' && n.quick_lt n')
+| (mk_numeral _ _) (mk_string _ _)    := tt
+| (mk_string n s)  (mk_string n' s')  := s < s' || (s = s' && n.quick_lt n')
+| _                _                  := ff
+
+/- Alternative has_lt instance. -/
+protected def has_lt_quick : has_lt name :=
+⟨λ a b, name.quick_lt a b = tt⟩
+
 end name
 end lean

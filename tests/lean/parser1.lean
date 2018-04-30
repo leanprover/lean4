@@ -4,7 +4,7 @@ open lean.parser
 def test {α} [decidable_eq α] (p : parser α) (s : string) (e : α) : io unit :=
 match parse p s with
 | except.ok a := if a = e then return () else io.print_ln "unexpected result"
-| except.error e := io.print_ln (to_string e)
+| except.error e := io.print_ln (e.to_string s)
 end
 
 def test_failure {α} (p : parser α) (s : string) : io unit :=

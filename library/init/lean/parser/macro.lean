@@ -6,7 +6,6 @@ Author: Sebastian Ullrich
 prelude
 import init.lean.parser.move
 import init.lean.parser.syntax
-import init.meta.well_founded_tactics
 
 namespace lean.parser
 
@@ -91,7 +90,6 @@ def flip_tag (tag : ℕ) : syntax → syntax
 | (syntax.ident ident@{msc := some tag', ..}) :=
     syntax.ident {ident with msc := if tag = tag' then none else some tag'}
 | stx := stx
-using_well_founded { dec_tac := tactic.admit } -- TODO
 
 def expand : ℕ → syntax → exp_m syntax
 | 0 _ := throw "macro expansion limit exceeded"
@@ -116,7 +114,6 @@ do cfg ← read,
    (arg_scopes.zip node.args).mmap' -- (uncurry resolve)
                                     (λ ⟨sc, stx⟩, resolve sc stx)
 | _ _ := pure ()
-using_well_founded { dec_tac := tactic.admit }
 
 def expand' (stx : syntax) : parse_m parse_state unit syntax :=
 adapt_state (λ _, ({expand_state . next_tag := 0}, ())) (λ _, id) (expand 1000 stx)

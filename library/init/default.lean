@@ -5,8 +5,8 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.core init.control init.data.basic init.version
-import init.function init.classical
-import init.util init.coe init.wf init.meta init.meta.well_founded_tactics init.data
+import init.function init.util init.coe init.wf init.meta
+import init.meta.well_founded_tactics init.data
 
 @[user_attribute]
 meta def debugger.attr : user_attribute :=

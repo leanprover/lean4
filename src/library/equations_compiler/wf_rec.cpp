@@ -41,7 +41,8 @@ struct wf_rec_fn {
     expr             m_R;
     expr             m_R_wf;
 
-    expr             m_dec_tac;
+    optional<expr>   m_has_well_founded_inst; // TODO(Leo): delete after we remove the wf_term_hack axiom
+    optional<expr>   m_dec_tac;
 
     wf_rec_fn(environment const & env, elaborator & elab,
               metavar_context const & mctx, local_context const & lctx):
@@ -76,46 +77,67 @@ struct wf_rec_fn {
         return r;
     }
 
-    void mk_wf_relation(expr const & eqns, expr const & rel_tac) {
+    void init_R_R_wf(type_context_old & ctx, expr const & domain, expr const & has_well_founded_inst) {
+        bool mask[2] = {true, true};
+        expr args[2] = {domain, has_well_founded_inst};
+        m_R    = mk_app(ctx, get_has_well_founded_r_name(), 2, mask, args);
+        m_R_wf = mk_app(ctx, get_has_well_founded_wf_name(), 2, mask, args);
+    }
+
+    void mk_wf_relation(expr const & eqns, expr const & wf_tacs) {
         lean_assert(get_equations_header(eqns).m_num_fns == 1);
         type_context_old ctx = mk_type_context();
         unpack_eqns ues(ctx, eqns);
         name fn_name = head(get_equations_header(eqns).m_fn_names);
-        vm_obj vm_fn   = to_obj(ues.get_fn(0));
-        vm_obj vm_eqns = to_obj(to_list(ues.get_eqns_of(0)));
-        buffer<vm_obj> extra_args;
-        extra_args.push_back(vm_fn);
-        extra_args.push_back(vm_eqns);
-        try {
-            expr fn_type          = ctx.relaxed_whnf(ctx.infer(ues.get_fn(0)));
-            lean_assert(is_pi(fn_type));
-            expr d                = binding_domain(fn_type);
-            expr has_well_founded = mk_app(ctx, get_has_well_founded_name(), d);
-            tactic_state s        = mk_tactic_state_for(m_env, get_options(), name(fn_name, "_wf_rec_mk_rel_tactic"), m_mctx, m_lctx, has_well_founded);
-            vm_obj r = tactic_evaluator(ctx, get_options(), m_ref)(rel_tac, extra_args, s);
-            if (auto new_s = tactic::is_success(r)) {
-                metavar_context mctx = new_s->mctx();
-                bool postpone_push_delayed = true;
-                expr val = mctx.instantiate_mvars(new_s->main(), postpone_push_delayed);
-                bool mask[2] = {true, true};
-                expr args[2] = {d, val};
-                m_R    = mk_app(ctx, get_has_well_founded_r_name(), 2, mask, args);
-                m_R_wf = mk_app(ctx, get_has_well_founded_wf_name(), 2, mask, args);
-                m_env  = new_s->env();
-                return;
+        expr fn_type = ctx.relaxed_whnf(ctx.infer(ues.get_fn(0)));
+        lean_assert(is_pi(fn_type));
+        expr d                = binding_domain(fn_type);
+        expr has_well_founded = mk_app(ctx, get_has_well_founded_name(), d);
+        if (!m_env.find(get_well_founded_tactics_rel_tac_name())) {
+            /* Structure `well_founded_tactics` has not been defined yet.
+
+               For now, we just use type class resolution to infer an instance of `has_well_founded`.
+               In the future, we should invoke a tactic compiled into C/C++ to build
+             */
+            m_has_well_founded_inst = ctx.mk_class_instance(has_well_founded);
+            if (!m_has_well_founded_inst) {
+                throw generic_exception(m_ref, "failed to create well founded relation using tactic");
             }
-        } catch (exception & ex) {
-            throw nested_exception(some_expr(m_ref),
-                                   "failed to create well founded relation using tactic",
-                                   ex);
+            init_R_R_wf(ctx, d, *m_has_well_founded_inst);
+        } else {
+            expr rel_tac = mk_app(mk_constant(get_well_founded_tactics_rel_tac_name()), wf_tacs);
+
+            vm_obj vm_fn   = to_obj(ues.get_fn(0));
+            vm_obj vm_eqns = to_obj(to_list(ues.get_eqns_of(0)));
+            buffer<vm_obj> extra_args;
+            extra_args.push_back(vm_fn);
+            extra_args.push_back(vm_eqns);
+            try {
+                tactic_state s        = mk_tactic_state_for(m_env, get_options(), name(fn_name, "_wf_rec_mk_rel_tactic"),
+                                                            m_mctx, m_lctx, has_well_founded);
+                vm_obj r = tactic_evaluator(ctx, get_options(), m_ref)(rel_tac, extra_args, s);
+                if (auto new_s = tactic::is_success(r)) {
+                    metavar_context mctx = new_s->mctx();
+                    m_env  = new_s->env();
+                    bool postpone_push_delayed = true;
+                    expr val = mctx.instantiate_mvars(new_s->main(), postpone_push_delayed);
+                    init_R_R_wf(ctx, d, val);
+                } else {
+                    throw generic_exception(m_ref, "failed to create well founded relation using tactic");
+                }
+            } catch (exception & ex) {
+                throw nested_exception(some_expr(m_ref),
+                                       "failed to create well founded relation using tactic",
+                                       ex);
+            }
         }
-        throw generic_exception(m_ref, "failed to create well founded relation using tactic");
     }
 
     void init(expr const & eqns, expr const & wf_tacs) {
-        expr rel_tac = mk_app(mk_constant(get_well_founded_tactics_rel_tac_name()), wf_tacs);
-        mk_wf_relation(eqns, rel_tac);
-        m_dec_tac    = mk_app(mk_constant(get_well_founded_tactics_dec_tac_name()), wf_tacs);
+        mk_wf_relation(eqns, wf_tacs);
+        if (m_env.find(get_well_founded_tactics_dec_tac_name())) {
+            m_dec_tac    = mk_app(mk_constant(get_well_founded_tactics_dec_tac_name()), wf_tacs);
+        }
     }
 
     /* Return the type of the functional. */
@@ -154,53 +176,66 @@ struct wf_rec_fn {
 
         /* Prove that y < x */
         expr mk_dec_proof(expr const & y, expr const & ref) {
-            expr y_R_x = mk_app(m_parent.m_R, y, m_x);
+            if (!m_parent.m_dec_tac) {
+                /* Structure `well_founded_tactics` has not been defined yet.
 
-            metavar_context mctx = m_ctx.mctx();
-            tactic_state s = mk_tactic_state_for(m_parent.m_env, m_parent.get_options(),
-                                                 name(m_fn_name, "_wf_rec_mk_dec_tactic"), mctx, m_ctx.lctx(), y_R_x);
-            try {
-                vm_obj r = tactic_evaluator(m_ctx, m_parent.get_options(), ref)(m_parent.m_dec_tac, s);
-                if (auto new_s = tactic::is_success(r)) {
-                    mctx = new_s->mctx();
-                    bool postpone_push_delayed = true;
-                    expr r = mctx.instantiate_mvars(new_s->main(), postpone_push_delayed);
-                    m_parent.m_env = new_s->env();
-                    m_ctx.set_env(new_s->env());
-                    m_ctx.set_mctx(mctx);
-                    return r;
+                   For now, we just use the (unsound) axiom `wf_term_hack`.
+                   In the future, we should invoke a tactic compiled into C/C++ to prove y < x.
+                */
+                lean_assert(m_parent.m_has_well_founded_inst);
+                try {
+                    return mk_app(m_ctx, get_wf_term_hack_name(), *m_parent.m_has_well_founded_inst, y, m_x);
+                } catch (exception & ex) {
+                    throw nested_exception("failed to use wf_term_hack axiom",
+                                           ex);
                 }
-            } catch (elaborator_exception & ex) {
-                bool using_well_founded = is_wf_equations(m_parent.m_ref);
-                auto R = m_parent.m_R;
-                nested_exception ex2(
-                    ex.get_pos(),
-                    [=](formatter const & fmt) {
-                        format r;
-                        formatter _fmt = fmt;
-                        if (is_app_of(R, get_has_well_founded_r_name())) {
-                            options o = fmt.get_options();
-                            o         = o.update_if_undef(get_pp_implicit_name(), true);
-                            _fmt      = fmt.update_options(o);
-                        }
-                        r += format("failed to prove recursive application is decreasing, well founded relation");
-                        r += pp_indent_expr(_fmt, R);
-                        if (!using_well_founded) {
-                            r += line() + format("Possible solutions: ");
-                            r += line() + format("  - Use 'using_well_founded' keyword in the end of your definition "
-                                                "to specify tactics for synthesizing well founded relations and "
-                                                "decreasing proofs.");
-                            r += line() + format("  - The default decreasing tactic uses the 'assumption' tactic, "
-                                                "thus hints (aka local proofs) can be provided using 'have'-expressions.");
-                        }
-                        r += line() + format("The nested exception contains the failure state for the decreasing tactic.");
+            } else {
+                expr y_R_x = mk_app(m_parent.m_R, y, m_x);
+                metavar_context mctx = m_ctx.mctx();
+                tactic_state s = mk_tactic_state_for(m_parent.m_env, m_parent.get_options(),
+                                                     name(m_fn_name, "_wf_rec_mk_dec_tactic"), mctx, m_ctx.lctx(), y_R_x);
+                try {
+                    vm_obj r = tactic_evaluator(m_ctx, m_parent.get_options(), ref)(*m_parent.m_dec_tac, s);
+                    if (auto new_s = tactic::is_success(r)) {
+                        mctx = new_s->mctx();
+                        bool postpone_push_delayed = true;
+                        expr r = mctx.instantiate_mvars(new_s->main(), postpone_push_delayed);
+                        m_parent.m_env = new_s->env();
+                        m_ctx.set_env(new_s->env());
+                        m_ctx.set_mctx(mctx);
                         return r;
-                    },
-                    ex);
-                if (!m_parent.m_elab.try_report(ex2)) throw ex2;
+                    }
+                } catch (elaborator_exception & ex) {
+                    bool using_well_founded = is_wf_equations(m_parent.m_ref);
+                    auto R = m_parent.m_R;
+                    nested_exception ex2(
+                        ex.get_pos(),
+                        [=](formatter const & fmt) {
+                            format r;
+                            formatter _fmt = fmt;
+                            if (is_app_of(R, get_has_well_founded_r_name())) {
+                                options o = fmt.get_options();
+                                o         = o.update_if_undef(get_pp_implicit_name(), true);
+                                _fmt      = fmt.update_options(o);
+                            }
+                            r += format("failed to prove recursive application is decreasing, well founded relation");
+                            r += pp_indent_expr(_fmt, R);
+                            if (!using_well_founded) {
+                                r += line() + format("Possible solutions: ");
+                                r += line() + format("  - Use 'using_well_founded' keyword in the end of your definition "
+                                                     "to specify tactics for synthesizing well founded relations and "
+                                                     "decreasing proofs.");
+                                r += line() + format("  - The default decreasing tactic uses the 'assumption' tactic, "
+                                                     "thus hints (aka local proofs) can be provided using 'have'-expressions.");
+                            }
+                            r += line() + format("The nested exception contains the failure state for the decreasing tactic.");
+                            return r;
+                        },
+                        ex);
+                    if (!m_parent.m_elab.try_report(ex2)) throw ex2;
+                }
+                return m_parent.m_elab.mk_sorry(y_R_x);
             }
-
-            return m_parent.m_elab.mk_sorry(y_R_x);
         }
 
         virtual expr visit_app(expr const & e) {

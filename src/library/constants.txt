@@ -241,3 +241,4 @@ well_founded_tactics
 well_founded_tactics.default
 well_founded_tactics.rel_tac
 well_founded_tactics.dec_tac
+wf_term_hack

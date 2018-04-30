@@ -246,3 +246,4 @@ run_cmd script_check_id `well_founded_tactics
 run_cmd script_check_id `well_founded_tactics.default
 run_cmd script_check_id `well_founded_tactics.rel_tac
 run_cmd script_check_id `well_founded_tactics.dec_tac
+run_cmd script_check_id `wf_term_hack

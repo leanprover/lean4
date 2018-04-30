@@ -319,3 +319,13 @@ instance has_well_founded {α : Type u} {β : α → Type v} [s₁ : has_well_fo
 {r := lex s₁.r (λ a, (s₂ a).r), wf := lex_wf s₁.wf (λ a, (s₂ a).wf)}
 
 end psigma
+
+/- Temporary hack for bootstrapping lean.
+   TODO: DELETE!!!!
+
+   This axiom is inconsistent. We can use it to prove that any function terminates.
+   We are temporarily using this axiom until the new code generator is ready.
+   With the new code generator, we will pre-compile into C/C++ a default
+   tactic for proving termination. This tactic is then used to define the Lean compiler.
+-/
+axiom wf_term_hack {α : Type u} [has_well_founded α] (x y : α) : has_well_founded.r x y

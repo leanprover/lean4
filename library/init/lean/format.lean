@@ -66,13 +66,7 @@ def space_upto_line' : list (nat × format) → nat → space_result
 | []      w := {}
 | (p::ps) w := merge w (space_upto_line p.2 w) (space_upto_line' ps w)
 
-/-
-TODO: we need well founded recursion to avoid the `meta` modifier.
-If the default tactic cannot handle it, we have the following options:
-1- Define `pretty : format -> nat -> string` after the tactic framework is defined.
-2- Compute `fuel` using `format` size, and then use it to perform structural recursion on the fuel.
--/
-meta def be : nat → nat → string → list (nat × format) → string
+def be : nat → nat → string → list (nat × format) → string
 | w k out []                           := out
 | w k out ((i, nil)::z)                := be w k out z
 | w k out ((i, (compose _ f₁ f₂))::z)  := be w k out ((i, f₁)::(i, f₂)::z)
@@ -83,8 +77,7 @@ meta def be : nat → nat → string → list (nat × format) → string
   let r := merge w (space_upto_line f₁ w) (space_upto_line' z w) in
   if r.exceeded then be w k out ((i, f₂)::z) else be w k out ((i, f₁)::z)
 
-/- TODO: remove `meta` -/
-meta def pretty (f : format) (w : nat := 80) : string :=
+def pretty (f : format) (w : nat := 80) : string :=
 be w 0 "" [(0, f)]
 
 @[inline] def bracket (l : string) (f : format) (r : string) : format :=
@@ -117,7 +110,7 @@ def list.to_format {α : Type u} [has_to_format α] : list α → format
 instance list_has_to_format {α : Type u} [has_to_format α] : has_to_format (list α) :=
 ⟨list.to_format⟩
 
-meta instance {α : Type u} {β : Type v} [has_to_format α] [has_to_format β] : has_to_format (prod α β) :=
+instance {α : Type u} {β : Type v} [has_to_format α] [has_to_format β] : has_to_format (prod α β) :=
 ⟨λ ⟨a, b⟩, paren $ to_format a ++ "," ++ line ++ to_format b⟩
 
 end lean

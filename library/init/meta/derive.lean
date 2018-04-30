@@ -84,5 +84,3 @@ instance_derive_handler ``has_reflect mk_has_reflect_instance ff (λ n params tg
   do param_cls ← mk_app `reflected [param],
     pure $ expr.pi `a binder_info.inst_implicit param_cls tgt
   ) tgt)
-
-attribute [derive has_reflect] bool prod sum option interactive.loc pos

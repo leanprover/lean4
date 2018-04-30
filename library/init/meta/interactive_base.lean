@@ -23,6 +23,10 @@ inductive loc : Type
 | wildcard : loc
 | ns       : list (option name) → loc
 
+meta instance : has_reflect loc
+| loc.wildcard := `(_)
+| (loc.ns ls)  := `(_)
+
 meta def loc.include_goal : loc → bool
 | loc.wildcard := tt
 | (loc.ns ls)  := (ls.map option.is_none).bor

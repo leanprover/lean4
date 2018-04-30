@@ -39,3 +39,21 @@ meta instance list.reflect {α : Type} [has_reflect α] [reflected α] : has_ref
 
 meta instance punit.reflect : has_reflect punit
 | () := `(_)
+
+meta instance bool.reflect : has_reflect bool
+| tt := `(_)
+| ff := `(_)
+
+meta instance prod.reflect {α β : Type} [has_reflect α] [has_reflect β] [reflected α] [reflected β] : has_reflect (α × β)
+| (a, b) := `(_)
+
+meta instance sum.reflect {α β : Type} [has_reflect α] [has_reflect β] [reflected α] [reflected β] : has_reflect (sum α β)
+| (sum.inl a) := `(_)
+| (sum.inr b) := `(_)
+
+meta instance option.reflect {α : Type} [has_reflect α] [reflected α] : has_reflect (option α)
+| none     := `(_)
+| (some a) := `(_)
+
+meta instance pos.reflect : has_reflect pos
+| {line := l, column := c} := `(_)

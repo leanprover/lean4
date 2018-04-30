@@ -1,5 +1,5 @@
 prelude
-import init.logic
+import init.core
 
 meta constant {u} task : Type u → Type u
 

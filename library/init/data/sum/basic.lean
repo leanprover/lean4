@@ -6,7 +6,7 @@ Authors: Leonardo de Moura, Jeremy Avigad
 The sum type, aka disjoint union.
 -/
 prelude
-import init.logic
+import init.core
 
 notation α ⊕ β := sum α β
 

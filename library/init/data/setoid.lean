@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.logic
+import init.core
 universes u
 class setoid (α : Sort u) :=
 (r : α → α → Prop) (iseqv : equivalence r)

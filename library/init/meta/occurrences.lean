@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.logic init.data.repr init.meta.format
+import init.data.repr init.meta.format
 import init.meta.contradiction_tactic init.meta.constructor_tactic
 import init.meta.relation_tactics init.meta.injection_tactic
 

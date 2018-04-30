@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.logic init.control.applicative
+import init.core init.control.applicative
 universes u v
 
 class has_orelse (f : Type u → Type v) : Type (max (u+1) v) :=

@@ -6,7 +6,7 @@ Author: Jeremy Avigad
 Extensional equality for functions, and a proof of function extensionality from quotients.
 -/
 prelude
-import init.data.quot init.logic
+import init.data.quot init.core
 
 universes u v
 

@@ -6,7 +6,7 @@ Author: Leonardo de Moura, Jeremy Avigad, Haitao Zhang
 General operations on functions.
 -/
 prelude
-import init.data.prod init.funext init.logic
+import init.data.prod init.funext init.core
 universes u₁ u₂ u₃ u₄
 
 namespace function

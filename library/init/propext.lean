@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.logic
+import init.core
 
 constant propext {a b : Prop} : (a ↔ b) → a = b
 

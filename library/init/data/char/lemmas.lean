@@ -1,5 +1,5 @@
 prelude
-import init.meta init.logic init.data.nat.basic
+import init.meta init.data.nat.basic
 import init.data.char.basic
 
 namespace char

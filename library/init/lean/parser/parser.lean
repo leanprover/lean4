@@ -12,7 +12,6 @@ import init.data.to_string init.data.string.basic init.data.list.basic init.cont
 import init.data.repr
 namespace lean.parser
 @[reducible] def position : Type := nat
-def state := string.iterator
 
 structure message :=
 (pos        : position    := 0)
@@ -45,14 +44,14 @@ They contain the error that would have occurred if a
 successful "epsilon" alternative was not taken.
 -/
 inductive result (α : Type)
-| ok (a : α) (s : state)                     : result
-| ok_eps (a : α) (s : state) (msg : message) : result
-| error {} (msg : message) (consumed : bool) : result
+| ok (a : α) (s : string.iterator)                     : result
+| ok_eps (a : α) (s : string.iterator) (msg : message) : result
+| error {} (msg : message) (consumed : bool)           : result
 
 open result
 
 def parser (α : Type) :=
-state → result α
+string.iterator → result α
 
 variables {α β : Type}
 
@@ -63,7 +62,7 @@ match p s.mk_iterator with
 | error msg _  := except.error msg
 end
 
-@[inline] def mk_eps_result (a : α) (s : state) : result α :=
+@[inline] def mk_eps_result (a : α) (s : string.iterator) : result α :=
 ok_eps a s { pos := s.offset }
 
 protected def pure (a : α) : parser α :=
@@ -87,7 +86,7 @@ error (merge msg₁ msg₂) ff
 def merge_error' (msg₁ msg₂ : message) : result α :=
 error (merge' msg₁ msg₂) ff
 
-def merge_ok_epsilon (a : α) (s : state) (msg₁ msg₂ : message) :=
+def merge_ok_epsilon (a : α) (s : string.iterator) (msg₁ msg₂ : message) :=
 ok_eps a s (merge msg₁ msg₂)
 
 /--

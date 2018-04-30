@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich
 -/
 prelude
-import init.lean.name
+import init.lean.name init.lean.parser.parser
 
 namespace lean
 namespace parser
@@ -12,13 +12,10 @@ namespace parser
 @[reducible] def syntax_id := ℕ
 @[reducible] def macro_scope_id := ℕ
 
--- byte offset into source string
-@[reducible] def offset := ℕ
-
 structure span :=
-(left  : offset)
-(right : offset)
-(file : string)
+(left  : position)
+(right : position)
+(file  : string)
 
 structure syntax_ident :=
 (id : syntax_id) (sp : option span) (name : name) (msc : option macro_scope_id)

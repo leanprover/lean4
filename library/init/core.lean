@@ -1633,7 +1633,7 @@ end subtype
 section
 variables {α : Type u} {β : Type v}
 
-@[simp] lemma prod.mk.eta : ∀{p : α × β}, (p.1, p.2) = p
+@[simp] theorem prod.mk.eta : ∀{p : α × β}, (p.1, p.2) = p
 | (a, b) := rfl
 
 instance [inhabited α] [inhabited β] : inhabited (prod α β) :=
@@ -1660,10 +1660,27 @@ instance prod_has_decidable_lt
          [decidable_rel ((<) : β → β → Prop)] : Π s t : α × β, decidable (s < t) :=
 λ t s, or.decidable
 
-lemma prod.lt_def [has_lt α] [has_lt β] (s t : α × β) : (s < t) = (s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)) :=
+theorem prod.lt_def [has_lt α] [has_lt β] (s t : α × β) : (s < t) = (s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)) :=
 rfl
 end
 
 def {u₁ u₂ v₁ v₂} prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ : Type v₂}
   (f : α₁ → α₂) (g : β₁ → β₂) : α₁ × β₁ → α₂ × β₂
 | (a, b) := (f a, g b)
+
+/- Universe polymorphic unit -/
+
+theorem punit_eq (a b : punit) : a = b :=
+punit.rec_on a (punit.rec_on b rfl)
+
+theorem punit_eq_punit (a : punit) : a = () :=
+punit_eq a ()
+
+instance : subsingleton punit :=
+subsingleton.intro punit_eq
+
+instance : inhabited punit :=
+⟨()⟩
+
+instance : decidable_eq punit :=
+λ a b, is_true (punit_eq a b)

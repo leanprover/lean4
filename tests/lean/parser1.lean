@@ -3,7 +3,7 @@ open lean.parser
 
 def test {α} [decidable_eq α] (p : parser α) (s : string) (e : α) : io unit :=
 match parse p s with
-| except.ok a := if a = e then return () else io.print_ln "unexpected result"
+| except.ok a    := if a = e then return () else io.print_ln "unexpected result"
 | except.error e := io.print_ln (e.to_string s)
 end
 
@@ -11,6 +11,12 @@ def test_failure {α} (p : parser α) (s : string) : io unit :=
 match parse p s with
 | except.ok a    := io.print_ln "unexpected success"
 | except.error e := return ()
+end
+
+def show_result {α} [has_to_string α] (p : parser α) (s : string) : io unit :=
+match parse p s with
+| except.ok a    := io.print_ln "result: " >> io.print_ln (to_string a)
+| except.error e := io.print_ln (e.to_string s)
 end
 
 #eval test (ch 'a') "a" 'a'
@@ -55,6 +61,22 @@ do c ← satisfy (λ a, a.is_alpha || a = '_'),
 #eval test_failure var "1_a_1bc"
 #eval test_failure var "*_a_1bc"
 #eval test var "abc$" "abc"
+
+open lean
+
+#eval test identifier "«!!aaa».b1'" (mk_str_name (mk_simple_name "!!aaa") "b1'")
+#eval test identifier "a" (mk_simple_name "a")
+#eval test identifier "a'" (mk_simple_name "a'")
+#eval test identifier "_" (mk_simple_name "_")
+#eval test identifier "_a1" (mk_simple_name "_a1")
+#eval test identifier "aaa.bbb._αc" (mk_str_name (mk_str_name (mk_simple_name "aaa") "bbb") "_αc")
+#eval test identifier "«!a!aa».b12.ccc" (mk_str_name (mk_str_name (mk_simple_name "!a!aa") "b12") "ccc")
+#eval test_failure identifier "1_a_1bc"
+#eval test_failure identifier "!"
+#eval test_failure identifier "1"
+#eval test_failure identifier "'a"
+#eval test_failure identifier ""
+#eval test_failure identifier " "
 
 inductive Expr
 | Add : Expr → Expr → Expr

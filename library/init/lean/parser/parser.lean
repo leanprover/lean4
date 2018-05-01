@@ -9,8 +9,9 @@ https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/parsec-paper
 -/
 prelude
 import init.data.to_string init.data.string.basic init.data.list.basic init.control.except
-import init.data.repr
-namespace lean.parser
+import init.data.repr init.lean.name init.lean.char
+namespace lean
+namespace parser
 @[reducible] def position : Type := nat
 
 structure message :=
@@ -192,6 +193,12 @@ instance : alternative parser :=
 @[inline] def eoi_error (pos : position) : result α :=
 error { pos := pos, unexpected := "end of input" } ff
 
+def curr : parser char :=
+λ it, mk_eps_result it.curr it
+
+@[inline] def cond (p : char → bool) (t : parser α) (e : parser α) : parser α :=
+λ it, if p it.curr then t it else e it
+
 /--
 If the next character `c` satisfies `p`, then
 update position and return `c`. Otherwise,
@@ -273,6 +280,9 @@ returns `ff` on the current character. -/
 def take_while (p : char → bool) : parser string :=
 λ it, take_while_aux p it.remaining "" it
 
+def take_while_cont (p : char → bool) (ini : string) : parser string :=
+λ it, take_while_aux p it.remaining ini it
+
 /--
 Consume input as long as the predicate returns `tt`, and return the consumed input.
 This parser requires the predicate to succeed on at least once. -/
@@ -289,6 +299,9 @@ Consume input as long as the predicate returns `ff` (i.e. until it returns `tt`)
 This parser does not fail. -/
 def take_until (p : char → bool) : parser string :=
 take_while (λ c, !p c)
+
+def take_until1 (p : char → bool) : parser string :=
+take_while1 (λ c, !p c)
 
 @[inline] private def mk_consumed_result (consumed : bool) (it : iterator) : result unit :=
 if consumed then ok () it
@@ -382,6 +395,22 @@ def fix_aux (f : parser α → parser α) : nat → parser α
 def fix (f : parser α → parser α) : parser α :=
 do n ← remaining, fix_aux f (n+1)
 
+def foldr_aux (f : α → β → β) (p : parser α) (b : β) : nat → parser β
+| 0     := return b
+| (n+1) := (f <$> p <*> foldr_aux n) <|> return b
+
+/-- Matches zero or more occurrences of `p`, and folds the result. -/
+def foldr (f : α → β → β) (p : parser α) (b : β) : parser β :=
+λ it, foldr_aux f p b it.remaining it
+
+def foldl_aux (f : α → β → α) (p : parser β) : α → nat → parser α
+| a 0     := return a
+| a (n+1) := (do x ← p, foldl_aux (f a x) n) <|> return a
+
+/-- Matches zero or more occurrences of `p`, and folds the result. -/
+def foldl (f : α → β → α) (a : α) (p : parser β) : parser α :=
+λ it, foldl_aux f p a it.remaining it
+
 /- Parse `p` without consuming any input. -/
 def lookahead (p : parser α) : parser α :=
 λ it, match p it with
@@ -398,4 +427,23 @@ run (p <* eoi) s fname
 def parse_with_left_over (p : parser α) (s : string) (fname := "") : except message (α × iterator) :=
 run (prod.mk <$> p <*> left_over) s fname
 
-end lean.parser
+/- Lean specific parsers -/
+
+def id_part_default : parser string :=
+do c ← satisfy is_id_first,
+   take_while_cont is_id_rest (to_string c)
+
+def id_part_escaped : parser string :=
+ch id_begin_escape >> take_until1 is_id_end_escape <* ch id_end_escape
+
+def id_part : parser string :=
+cond is_id_begin_escape
+  id_part_escaped
+  id_part_default
+
+def identifier : parser name :=
+(try $ do s  ← id_part,
+       foldl name.mk_string (mk_simple_name s) (ch '.' >> id_part)) <?> "identifier"
+
+end parser
+end lean

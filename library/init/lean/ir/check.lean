@@ -124,7 +124,7 @@ def instr.valid_ssa : instr → ssa_valid_m unit
 | (instr.sread x _ a i)   := x.define >> a.defined >> i.defined
 | (instr.inc x)           := x.defined
 | (instr.decs x)          := x.defined
-| (instr.dealloc x)       := x.defined
+| (instr.free x)          := x.defined
 | (instr.dec x)           := x.defined
 
 def terminator.valid_ssa : terminator → ssa_valid_m unit

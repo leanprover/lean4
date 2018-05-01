@@ -418,6 +418,12 @@ def lookahead (p : parser α) : parser α :=
       | other   := other
       end
 
+def unexpected (msg : string) : parser α :=
+λ it, error {unexpected := msg, pos := it.offset} ff
+
+def unexpected_at (msg : string) (pos : position) : parser α :=
+λ it, error {unexpected := msg, pos := pos} ff
+
 def parse (p : parser α) (s : string) (fname := "") : except message α :=
 run p s fname
 

@@ -25,7 +25,7 @@ inductive unop
 | copy_array | copy_sarray
 
 inductive binop
-| add | sub | mul | div | mod | shl | shr | ashr | band | bor | bxor
+| add | sub | mul | div | mod | shl | shr | ashr | and | or | xor
 | le  | ge  | lt  | gt  | eq  | ne
 
 inductive literal
@@ -82,7 +82,7 @@ inductive instr
 /- Reference counting -/
 | inc     (x : var)                                          -- inc var
 | decs    (x : var)                                          -- decrement RC of shared object
-| dealloc (x : var)
+| free    (x : var)
 | dec     (x : var)                                          -- Remark: can be defined using `decs`, `dealloc` and `shared`
 
 structure phi :=

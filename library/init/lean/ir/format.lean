@@ -4,23 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.lean.format init.lean.parser.identifier init.lean.ir.ir
+import init.lean.format init.lean.parser.identifier
+import init.lean.ir.reserved init.lean.ir.ir
 
 namespace lean
 namespace ir
 open lean.format
-
-def reserved := [ "bool", "byte", "uint16", "uint32", "uint64",
- "int16", "int32", "int64", "float", "double", "object", "not", "neg",
- "scalar", "shared", "unbox", "box", "copy_array", "copy_sarray",
- "add", "sub", "mul", "div", "mod", "shl", "shr", "ashr", "band",
- "bor", "bxor", "le", "ge", "lt", "gt", "eq", "ne", "call", "closure",
- "apply", "cnstr", "set", "get", "sets", "gets", "array", "read",
- "write", "sarray", "sread", "swrite", "inc", "decs", "dec", "del",
- "phi", "ret", "case", "jmp", "decl", "end"]
-
-def reserved_set : rbtree string (<) :=
-reserved.foldl rbtree.insert (mk_rbtree string (<))
 
 def should_escape_aux : nat → bool → string.iterator → bool
 | 0     _ _   := ff
@@ -28,7 +17,7 @@ def should_escape_aux : nat → bool → string.iterator → bool
 | (n+1) ff it := !is_id_rest it.curr  || should_escape_aux n ff it.next
 
 def should_escape (s : string) : bool :=
-reserved_set.contains s || should_escape_aux s.length tt s.mk_iterator
+should_escape_aux s.length tt s.mk_iterator
 
 def escape_string (s : string) : string :=
 to_string id_begin_escape ++ s ++ to_string id_end_escape
@@ -38,7 +27,7 @@ if should_escape s then escape_string s else s
 
 def id.to_string : name → string
 | name.anonymous                     := escape_string ""
-| (name.mk_string name.anonymous s)  := id_part.to_string s
+| (name.mk_string name.anonymous s)  := if is_reserved s then escape_string s else id_part.to_string s
 | (name.mk_numeral name.anonymous v) := escape_string (to_string v)
 | (name.mk_string n s)               := id.to_string n ++ "." ++ id_part.to_string s
 | (name.mk_numeral n v)              := id.to_string n ++ "." ++ escape_string (to_string v)
@@ -69,7 +58,7 @@ instance unop.has_to_string : has_to_string unop := ⟨pretty ∘ to_fmt⟩
 def binop.to_format : binop → format
 | binop.add  := "add"  | binop.sub  := "sub" | binop.mul  := "mul"  | binop.div  := "div"
 | binop.mod  := "mod"  | binop.shl  := "shl" | binop.shr  := "shr"  | binop.ashr := "ashr"
-| binop.band := "band" | binop.bor  := "bor" | binop.bxor := "bxor" | binop.le   := "le"
+| binop.and  := "and"  | binop.or   := "or"  | binop.xor  := "xor"  | binop.le   := "le"
 | binop.ge   := "ge"   | binop.lt   := "lt"  | binop.gt   := "gt"   | binop.eq   := "eq"
 | binop.ne   := "ne"
 
@@ -106,7 +95,7 @@ def instr.to_format : instr → format
 | (instr.sread x ty a i)     := to_fmt x ++ " : " ++ to_fmt ty  ++ " := sread " ++ to_fmt a ++ " " ++ to_fmt i
 | (instr.inc x)              := "inc " ++ to_fmt x
 | (instr.decs x)             := "decs " ++ to_fmt x
-| (instr.dealloc x)          := "del " ++ to_fmt x
+| (instr.free x)             := "free " ++ to_fmt x
 | (instr.dec x)              := "dec " ++ to_fmt x
 
 instance instr.has_to_format : has_to_format instr := ⟨instr.to_format⟩

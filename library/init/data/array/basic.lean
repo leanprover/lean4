@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
 prelude
-import init.data.nat init.data.bool init.ite_simp
+import init.data.nat.basic init.data.fin.basic
 universes u v w
 
 /- In the VM, d_array is implemented a persistent array. -/
@@ -57,18 +57,6 @@ def rev_iterate_aux (a : d_array n α) (f : Π i : fin n, α i → β → β) : 
 def rev_iterate (a : d_array n α) (b : β) (f : Π i : fin n, α i → β → β) : β :=
 rev_iterate_aux a f n (nat.le_refl _) b
 
-@[simp] lemma read_write (a : d_array n α) (i : fin n) (v : α i) : read (write a i v) i = v :=
-by simp [read, write]
-
-@[simp] lemma read_write_of_ne (a : d_array n α) {i j : fin n} (v : α i) : i ≠ j → read (write a i v) j = read a j :=
-by intro h; simp [read, write, h]
-
-protected lemma ext {a b : d_array n α} (h : ∀ i, read a i = read b i) : a = b :=
-by cases a; cases b; congr; exact funext h
-
-protected lemma ext' {a b : d_array n α} (h : ∀ (i : nat) (h : i < n), read a ⟨i, h⟩ = read b ⟨i, h⟩) : a = b :=
-begin cases a, cases b, congr, funext i, cases i, apply h end
-
 end d_array
 
 def array (n : nat) (α : Type u) : Type u :=
@@ -117,14 +105,14 @@ rev_iterate a b (λ _, f)
 def to_list (a : array n α) : list α :=
 a.rev_foldl [] (::)
 
-lemma push_back_idx {j n} (h₁ : j < n + 1) (h₂ : j ≠ n) : j < n :=
+theorem push_back_idx {j n} (h₁ : j < n + 1) (h₂ : j ≠ n) : j < n :=
 nat.lt_of_le_of_ne (nat.le_of_lt_succ h₁) h₂
 
 /- has builtin VM implementation -/
 def push_back (a : array n α) (v : α) : array (n+1) α :=
 {data := λ ⟨j, h₁⟩, if h₂ : j = n then v else a.read ⟨j, push_back_idx h₁ h₂⟩}
 
-lemma pop_back_idx {j n} (h : j < n) : j < n + 1 :=
+theorem pop_back_idx {j n} (h : j < n) : j < n + 1 :=
 nat.lt.step h
 
 /- has builtin VM implementation -/
@@ -136,40 +124,10 @@ protected def mem (v : α) (a : array n α) : Prop :=
 
 instance : has_mem α (array n α) := ⟨array.mem⟩
 
-theorem read_mem (a : array n α) (i) : read a i ∈ a :=
-exists.intro i rfl
-
-instance [has_repr α] : has_repr (array n α) :=
-⟨repr ∘ to_list⟩
-
-meta instance [has_to_format α] : has_to_format (array n α) :=
-⟨to_fmt ∘ to_list⟩
-
-meta instance [has_to_tactic_format α] : has_to_tactic_format (array n α) :=
-⟨tactic.pp ∘ to_list⟩
-
-@[simp] lemma read_write (a : array n α) (i : fin n) (v : α) : read (write a i v) i = v :=
-d_array.read_write a i v
-
-@[simp] lemma read_write_of_ne (a : array n α) {i j : fin n} (v : α) : i ≠ j → read (write a i v) j = read a j :=
-d_array.read_write_of_ne a v
-
 def read' [inhabited β] (a : array n β) (i : nat) : β :=
 if h : i < n then a.read ⟨i,h⟩ else default β
 
 def write' (a : array n α) (i : nat) (v : α) : array n α :=
 if h : i < n then a.write ⟨i, h⟩ v else a
-
-lemma read_eq_read' [inhabited α] (a : array n α) {i : nat} (h : i < n) : read a ⟨i, h⟩ = read' a i :=
-by simp [read', h]
-
-lemma write_eq_write' (a : array n α) {i : nat} (h : i < n) (v : α) : write a ⟨i, h⟩ v = write' a i v :=
-by simp [write', h]
-
-protected lemma ext {a b : array n α} (h : ∀ i, read a i = read b i) : a = b :=
-d_array.ext h
-
-protected lemma ext' {a b : array n α} (h : ∀ (i : nat) (h : i < n), read a ⟨i, h⟩ = read b ⟨i, h⟩) : a = b :=
-d_array.ext' h
 
 end array

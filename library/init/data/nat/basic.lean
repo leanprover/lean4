@@ -392,10 +392,10 @@ zero_lt_succ 0
 theorem le_of_lt_succ {m n : nat} : m < succ n → m ≤ n :=
 le_of_succ_le_succ
 
-lemma add_le_add {a b c d : nat} (h₁ : a ≤ b) (h₂ : c ≤ d) : a + c ≤ b + d :=
+theorem add_le_add {a b c d : nat} (h₁ : a ≤ b) (h₂ : c ≤ d) : a + c ≤ b + d :=
 nat.le_trans (nat.add_le_add_right h₁ c) (nat.add_le_add_left h₂ b)
 
-lemma add_lt_add {a b c d : nat} (h₁ : a < b) (h₂ : c < d) : a + c < b + d :=
+theorem add_lt_add {a b c d : nat} (h₁ : a < b) (h₂ : c < d) : a + c < b + d :=
 nat.lt_trans (nat.add_lt_add_right h₁ c) (nat.add_lt_add_left h₂ b)
 
 /- Basic theorems for comparing numerals -/
@@ -524,16 +524,16 @@ protected theorem one_lt_bit0 : ∀ {n : nat}, n ≠ 0 → 1 < bit0 n
     (nat.bit0_succ_eq n).symm ▸ this,
   succ_lt_succ (zero_lt_succ _)
 
-protected lemma bit0_lt {n m : nat} (h : n < m) : bit0 n < bit0 m :=
+protected theorem bit0_lt {n m : nat} (h : n < m) : bit0 n < bit0 m :=
 nat.add_lt_add h h
 
-protected lemma bit1_lt {n m : nat} (h : n < m) : bit1 n < bit1 m :=
+protected theorem bit1_lt {n m : nat} (h : n < m) : bit1 n < bit1 m :=
 succ_lt_succ (nat.add_lt_add h h)
 
-protected lemma bit0_lt_bit1 {n m : nat} (h : n ≤ m) : bit0 n < bit1 m :=
+protected theorem bit0_lt_bit1 {n m : nat} (h : n ≤ m) : bit0 n < bit1 m :=
 lt_succ_of_le (nat.add_le_add h h)
 
-protected lemma bit1_lt_bit0 : ∀ {n m : nat}, n < m → bit1 n < bit0 m
+protected theorem bit1_lt_bit0 : ∀ {n m : nat}, n < m → bit1 n < bit0 m
 | n 0        h := absurd h (not_lt_zero _)
 | n (succ m) h :=
   have n ≤ m, from le_of_lt_succ h,
@@ -541,11 +541,11 @@ protected lemma bit1_lt_bit0 : ∀ {n m : nat}, n < m → bit1 n < bit0 m
   have succ (n + n) ≤ succ m + m,        from (succ_add m m).symm ▸ this,
   show succ (n + n) < succ (succ m + m), from lt_succ_of_le this
 
-protected lemma one_le_bit1 (n : ℕ) : 1 ≤ bit1 n :=
+protected theorem one_le_bit1 (n : ℕ) : 1 ≤ bit1 n :=
 show 1 ≤ succ (bit0 n), from
 succ_le_succ (zero_le (bit0 n))
 
-protected lemma one_le_bit0 : ∀ (n : ℕ), n ≠ 0 → 1 ≤ bit0 n
+protected theorem one_le_bit0 : ∀ (n : ℕ), n ≠ 0 → 1 ≤ bit0 n
 | 0     h := absurd rfl h
 | (n+1) h :=
   suffices 1 ≤ succ (succ (bit0 n)), from
@@ -557,5 +557,27 @@ protected lemma one_le_bit0 : ∀ (n : ℕ), n ≠ 0 → 1 ≤ bit0 n
 theorem pow_succ (b n : ℕ) : b^(succ n) = b^n * b := rfl
 
 theorem pow_zero (b : ℕ) : b^0 = 1 := rfl
+
+/- mul + order -/
+
+theorem mul_le_mul_left {n m : ℕ} (k : ℕ) (h : n ≤ m) : k * n ≤ k * m :=
+match le.dest h with
+| ⟨l, hl⟩ :=
+  have k * n + k * l = k * m, from nat.left_distrib k n l ▸ hl.symm ▸ rfl,
+  le.intro this
+end
+
+theorem mul_le_mul_right {n m : ℕ} (k : ℕ) (h : n ≤ m) : n * k ≤ m * k :=
+nat.mul_comm k m ▸ nat.mul_comm k n ▸ mul_le_mul_left k h
+
+protected theorem mul_lt_mul_of_pos_left {n m k : ℕ} (h : n < m) (hk : k > 0) : k * n < k * m :=
+nat.lt_of_lt_of_le (nat.add_lt_add_left hk _) (nat.mul_succ k n ▸ nat.mul_le_mul_left k (succ_le_of_lt h))
+
+protected theorem mul_lt_mul_of_pos_right {n m k : ℕ} (h : n < m) (hk : k > 0) : n * k < m * k :=
+nat.mul_comm k m ▸ nat.mul_comm k n ▸ nat.mul_lt_mul_of_pos_left h hk
+
+protected theorem mul_pos {a b : nat} (ha : a > 0) (hb : b > 0) : a * b > 0 :=
+have h : 0 * b < a * b, from nat.mul_lt_mul_of_pos_right ha hb,
+nat.zero_mul b ▸ h
 
 end nat

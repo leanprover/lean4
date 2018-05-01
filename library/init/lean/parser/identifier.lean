@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.char.basic
+import init.data.char.basic init.lean.parser.parser
 
 namespace lean
 
@@ -37,4 +37,23 @@ c = id_begin_escape
 def is_id_end_escape (c : char) : bool :=
 c = id_end_escape
 
+namespace parser
+
+def id_part_default : parser string :=
+do c ← satisfy is_id_first,
+   take_while_cont is_id_rest (to_string c)
+
+def id_part_escaped : parser string :=
+ch id_begin_escape >> take_until1 is_id_end_escape <* ch id_end_escape
+
+def id_part : parser string :=
+cond is_id_begin_escape
+  id_part_escaped
+  id_part_default
+
+def identifier : parser name :=
+(try $ do s  ← id_part,
+       foldl name.mk_string (mk_simple_name s) (ch '.' >> id_part)) <?> "identifier"
+
+end parser
 end lean

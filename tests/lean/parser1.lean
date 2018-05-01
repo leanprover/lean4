@@ -1,4 +1,4 @@
-import system.io init.lean.parser.parser
+import system.io init.lean.parser.identifier
 open lean.parser
 
 def test {α} [decidable_eq α] (p : parser α) (s : string) (e : α) : io unit :=

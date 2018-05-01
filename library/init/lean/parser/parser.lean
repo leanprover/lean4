@@ -9,7 +9,7 @@ https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/parsec-paper
 -/
 prelude
 import init.data.to_string init.data.string.basic init.data.list.basic init.control.except
-import init.data.repr init.lean.name init.lean.char
+import init.data.repr init.lean.name
 namespace lean
 namespace parser
 @[reducible] def position : Type := nat
@@ -426,24 +426,6 @@ run (p <* eoi) s fname
 
 def parse_with_left_over (p : parser α) (s : string) (fname := "") : except message (α × iterator) :=
 run (prod.mk <$> p <*> left_over) s fname
-
-/- Lean specific parsers -/
-
-def id_part_default : parser string :=
-do c ← satisfy is_id_first,
-   take_while_cont is_id_rest (to_string c)
-
-def id_part_escaped : parser string :=
-ch id_begin_escape >> take_until1 is_id_end_escape <* ch id_end_escape
-
-def id_part : parser string :=
-cond is_id_begin_escape
-  id_part_escaped
-  id_part_default
-
-def identifier : parser name :=
-(try $ do s  ← id_part,
-       foldl name.mk_string (mk_simple_name s) (ch '.' >> id_part)) <?> "identifier"
 
 end parser
 end lean

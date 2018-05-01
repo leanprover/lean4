@@ -19,6 +19,7 @@ settings.json
 .gdb_history
 .vscode
 /*.nix
+*.produced.out
 /library/init/version.lean
 CMakeSettings.json
 CppProperties.json

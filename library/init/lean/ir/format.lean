@@ -4,15 +4,48 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.lean.format init.lean.ir.ir
+import init.lean.format init.lean.parser.identifier init.lean.ir.ir
 
 namespace lean
 namespace ir
 open lean.format
 
-instance var.has_to_format : has_to_format var         := infer_instance_as (has_to_format name)
-instance blockid.has_to_format : has_to_format blockid := infer_instance_as (has_to_format name)
-instance fnid.has_to_format : has_to_format fnid       := infer_instance_as (has_to_format name)
+def reserved := [ "bool", "byte", "uint16", "uint32", "uint64",
+ "int16", "int32", "int64", "float", "double", "object", "not", "neg",
+ "scalar", "shared", "unbox", "box", "copy_array", "copy_sarray",
+ "add", "sub", "mul", "div", "mod", "shl", "shr", "ashr", "band",
+ "bor", "bxor", "le", "ge", "lt", "gt", "eq", "ne", "call", "closure",
+ "apply", "cnstr", "set", "get", "sets", "gets", "array", "read",
+ "write", "sarray", "sread", "swrite", "inc", "decs", "dec", "del",
+ "phi", "ret", "case", "jmp", "decl", "end"]
+
+def reserved_set : rbtree string (<) :=
+reserved.foldl rbtree.insert (mk_rbtree string (<))
+
+def should_escape_aux : nat → bool → string.iterator → bool
+| 0     _ _   := ff
+| (n+1) tt it := !is_id_first it.curr || should_escape_aux n ff it.next
+| (n+1) ff it := !is_id_rest it.curr  || should_escape_aux n ff it.next
+
+def should_escape (s : string) : bool :=
+reserved_set.contains s || should_escape_aux s.length tt s.mk_iterator
+
+def escape_string (s : string) : string :=
+to_string id_begin_escape ++ s ++ to_string id_end_escape
+
+def id_part.to_string (s : string) : string :=
+if should_escape s then escape_string s else s
+
+def id.to_string : name → string
+| name.anonymous                     := escape_string ""
+| (name.mk_string name.anonymous s)  := id_part.to_string s
+| (name.mk_numeral name.anonymous v) := escape_string (to_string v)
+| (name.mk_string n s)               := id.to_string n ++ "." ++ id_part.to_string s
+| (name.mk_numeral n v)              := id.to_string n ++ "." ++ escape_string (to_string v)
+
+instance var.has_to_format : has_to_format var         := ⟨λ v, id.to_string v⟩
+instance blockid.has_to_format : has_to_format blockid := ⟨λ b, id.to_string b⟩
+instance fnid.has_to_format : has_to_format fnid       := ⟨λ f, id.to_string f⟩
 instance tag.has_to_format : has_to_format tag         := infer_instance_as (has_to_format uint16)
 
 def type.to_format : type → format
@@ -61,7 +94,7 @@ def instr.to_format : instr → format
 | (instr.cnstr o t n sz)     := to_fmt o ++ " := cnstr " ++ to_fmt t ++ " " ++ to_fmt n ++ " " ++ to_fmt sz
 | (instr.set o i x)          := to_fmt "set " ++ to_fmt o ++ " " ++ to_fmt i ++ " " ++ to_fmt x
 | (instr.get x o i)          := to_fmt x ++ " := get " ++ to_fmt o ++ " " ++ to_fmt i
-| (instr.sets o d v)         := to_fmt "set " ++ to_fmt o ++ " " ++ to_fmt d ++ " " ++ to_fmt v
+| (instr.sets o d v)         := to_fmt "sets " ++ to_fmt o ++ " " ++ to_fmt d ++ " " ++ to_fmt v
 | (instr.gets x ty o d)      := to_fmt x ++ " : " ++ to_fmt ty ++ " := gets " ++ to_fmt o ++ " " ++ to_fmt d
 | (instr.closure x f ys)     := to_fmt x ++ " := closure " ++ to_fmt f ++ join_with ys " "
 | (instr.apply x ys)         := to_fmt x ++ " := apply " ++ join_with ys " "

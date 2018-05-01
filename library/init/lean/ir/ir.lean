@@ -36,14 +36,17 @@ inductive literal
 
 def tag     := uint16
 def var     := name
-def fid     := name
+def fnid    := name
 def blockid := name
 
 instance var_has_lt : has_lt var :=
-show has_lt name, from name.has_lt_quick
+(name.has_lt_quick : has_lt name)
 
 instance blockid_has_lt : has_lt blockid :=
-show has_lt name, from name.has_lt_quick
+(name.has_lt_quick : has_lt name)
+
+instance fnid_has_lt : has_lt fnid :=
+(name.has_lt_quick : has_lt name)
 
 def var_set        := rbtree var (<)
 def blockid_set    := rbtree blockid (<)
@@ -58,7 +61,7 @@ inductive instr
 | cast    (x : var) (ty : type) (y : var)                    -- x : ty := y
 | unop    (x : var) (ty : type) (op : unop) (y : var)        -- x : ty := op y
 | binop   (x : var) (ty : type) (op : binop) (y z : var)     -- x : ty := op y z
-| call    (xs : list var) (f : fid) (ys : list var)          -- Function call:  xs := f ys
+| call    (xs : list var) (f : fnid) (ys : list var)         -- Function call:  xs := f ys
 /- Constructor objects -/
 | cnstr   (o : var) (tag : tag) (nobjs ssz : uint16)         -- Create constructor object
 | set     (o : var) (i : uint16) (x : var)                   -- Set object field:          set o i x
@@ -66,7 +69,7 @@ inductive instr
 | sets    (o : var) (d : uint16) (v : var)                   -- Set scalar field:          sets o d v
 | gets    (x : var) (ty : type) (o : var) (d : uint16)       -- Get scalar field:          x : ty := gets o d
 /- Closures -/
-| closure (x : var) (f : fid) (ys : list var)                -- Create closure:            x := closure f ys
+| closure (x : var) (f : fnid) (ys : list var)               -- Create closure:            x := closure f ys
 | apply   (x : var) (ys : list var)                          -- Apply closure:             x := apply ys
 /- Array of objects -/
 | array   (a sz c : var)                                     -- Create array of objects with size `sz` and capacity `c`
@@ -100,7 +103,7 @@ structure result :=
 (ty : type)
 
 structure decl :=
-(n : fid) (as : list arg) (rs : list result) (bs : list block)
+(n : fnid) (as : list arg) (rs : list result) (bs : list block)
 
 end ir
 end lean

@@ -106,9 +106,14 @@ instance to_string_to_format {α : Type u} [has_to_string α] : has_to_format α
 
 instance string_has_to_format : has_to_format string := ⟨format.text⟩
 
+def format.join_with {α : Type u} [has_to_format α] : list α → format → format
+| []      sep  := nil
+| [a]     sep := to_fmt a
+| (a::as) sep := to_fmt a ++ sep ++ format.join_with as sep
+
 def list.to_format {α : Type u} [has_to_format α] : list α → format
 | [] := "[]"
-| xs := sbracket $ join $ list.intersperse ("," ++ line) $ xs.map to_format
+| xs := sbracket $ format.join_with xs ("," ++ line)
 
 instance list_has_to_format {α : Type u} [has_to_format α] : has_to_format (list α) :=
 ⟨list.to_format⟩
@@ -116,10 +121,11 @@ instance list_has_to_format {α : Type u} [has_to_format α] : has_to_format (li
 instance {α : Type u} {β : Type v} [has_to_format α] [has_to_format β] : has_to_format (prod α β) :=
 ⟨λ ⟨a, b⟩, paren $ to_format a ++ "," ++ line ++ to_format b⟩
 
-instance nat_has_to_format : has_to_format nat :=
-⟨λ n, to_string n⟩
+instance nat_has_to_format : has_to_format nat    := ⟨λ n, to_string n⟩
+instance uint16_has_to_format : has_to_format uint16 := ⟨λ n, to_string n⟩
+instance uint32_has_to_format : has_to_format uint32 := ⟨λ n, to_string n⟩
+instance uint64_has_to_format : has_to_format uint64 := ⟨λ n, to_string n⟩
 
-instance format_has_to_string : has_to_string format :=
-⟨pretty⟩
+instance format_has_to_string : has_to_string format := ⟨pretty⟩
 
 end lean

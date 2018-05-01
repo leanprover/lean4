@@ -573,6 +573,7 @@ attribute [elab_simple] bin_tree.node bin_tree.leaf
 
 /-- Like `by apply_instance`, but not dependent on the tactic framework. -/
 @[reducible] def infer_instance {α : Type u} [i : α] : α := i
+@[reducible, elab_simple] def infer_instance_as (α : Type u) [i : α] : α := i
 
 /- Boolean operators -/
 

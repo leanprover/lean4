@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.data.rbmap init.data.int init.control.state init.control.except init.control.combinators
+import init.lean.name
 
 /-
 Missing
@@ -34,15 +35,15 @@ inductive literal
 | float   : string → literal  -- for float/double literals
 
 def tag     := uint16
-def var     := string
-def fid     := string
-def blockid := string
+def var     := name
+def fid     := name
+def blockid := name
 
 instance var_has_lt : has_lt var :=
-show has_lt string, from infer_instance
+show has_lt name, from name.has_lt_quick
 
 instance blockid_has_lt : has_lt blockid :=
-show has_lt string, from infer_instance
+show has_lt name, from name.has_lt_quick
 
 def var_set        := rbtree var (<)
 def blockid_set    := rbtree blockid (<)

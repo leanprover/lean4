@@ -38,6 +38,8 @@ end
 #eval test ((lookahead (str "ab") >> ch 'a' >> ch 'b') <|> (ch 'a' >> ch 'c')) "ac" 'c'
 #eval test (str "ab" >> eps <|> (ch 'a' >> ch 'c' >> eps)) "ac" ()
 #eval test (try (ch 'a' >> ch 'b') <|> (ch 'a' >> ch 'c')) "ac" 'c'
+#eval test (lookahead (ch 'a')) "abc" 'a'
+#eval test_failure (not_followed_by (lookahead (ch 'a'))) "abc"
 
 def symbol (c : char) : parser char :=
 lexeme (ch c) <?> repr c

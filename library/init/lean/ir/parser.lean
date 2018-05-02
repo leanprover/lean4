@@ -12,53 +12,56 @@ namespace ir
 open lean.parser
 
 def symbol (s : string) : parser unit :=
-lexeme (str s >> eps) <?> s
+(str s >> whitespace) <?> s
+
+def keyword (s : string) : parser unit :=
+(try $ str s >> not_followed_by_sat is_id_rest >> whitespace) <?> s
 
 def parse_type : parser type :=
-    (symbol "bool" >> return type.bool)
-<|> (symbol "byte" >> return type.byte)
-<|> (symbol "uint16" >> return type.uint16)
-<|> (symbol "uint32" >> return type.uint32)
-<|> (symbol "uint64" >> return type.uint64)
-<|> (symbol "int16" >> return type.int16)
-<|> (symbol "int32" >> return type.int32)
-<|> (symbol "int64" >> return type.int64)
-<|> (symbol "float" >> return type.float)
-<|> (symbol "double" >> return type.double)
-<|> (symbol "object" >> return type.object)
+    (keyword "bool" >> return type.bool)
+<|> (keyword "byte" >> return type.byte)
+<|> (keyword "uint16" >> return type.uint16)
+<|> (keyword "uint32" >> return type.uint32)
+<|> (keyword "uint64" >> return type.uint64)
+<|> (keyword "int16" >> return type.int16)
+<|> (keyword "int32" >> return type.int32)
+<|> (keyword "int64" >> return type.int64)
+<|> (keyword "float" >> return type.float)
+<|> (keyword "double" >> return type.double)
+<|> (keyword "object" >> return type.object)
 
 def parse_unop : parser unop :=
-    (symbol "not" >> return unop.not)
-<|> (symbol "neg" >> return unop.neg)
-<|> (symbol "scalar" >> return unop.scalar)
-<|> (symbol "shared" >> return unop.shared)
-<|> (symbol "unbox" >> return unop.unbox)
-<|> (symbol "box" >> return unop.box)
-<|> (symbol "copy_array" >> return unop.copy_array)
-<|> (symbol "copy_sarray" >> return unop.copy_sarray)
+    (keyword "not" >> return unop.not)
+<|> (keyword "neg" >> return unop.neg)
+<|> (keyword "scalar" >> return unop.scalar)
+<|> (keyword "shared" >> return unop.shared)
+<|> (keyword "unbox" >> return unop.unbox)
+<|> (keyword "box" >> return unop.box)
+<|> (keyword "copy_array" >> return unop.copy_array)
+<|> (keyword "copy_sarray" >> return unop.copy_sarray)
 
 def parse_binop : parser binop :=
-    (symbol "add" >> return binop.add)
-<|> (symbol "sub" >> return binop.sub)
-<|> (symbol "mul" >> return binop.mul)
-<|> (symbol "div" >> return binop.div)
-<|> (symbol "mod" >> return binop.mod)
-<|> (symbol "shl" >> return binop.shl)
-<|> (symbol "shr" >> return binop.shr)
-<|> (symbol "ashr" >> return binop.ashr)
-<|> (symbol "and" >> return binop.and)
-<|> (symbol "or" >> return binop.or)
-<|> (symbol "xor" >> return binop.xor)
-<|> (symbol "le" >> return binop.le)
-<|> (symbol "ge" >> return binop.ge)
-<|> (symbol "lt" >> return binop.lt)
-<|> (symbol "gt" >> return binop.gt)
-<|> (symbol "eq" >> return binop.eq)
-<|> (symbol "ne" >> return binop.ne)
+    (keyword "add" >> return binop.add)
+<|> (keyword "sub" >> return binop.sub)
+<|> (keyword "mul" >> return binop.mul)
+<|> (keyword "div" >> return binop.div)
+<|> (keyword "mod" >> return binop.mod)
+<|> (keyword "shl" >> return binop.shl)
+<|> (keyword "shr" >> return binop.shr)
+<|> (keyword "ashr" >> return binop.ashr)
+<|> (keyword "and" >> return binop.and)
+<|> (keyword "or" >> return binop.or)
+<|> (keyword "xor" >> return binop.xor)
+<|> (keyword "le" >> return binop.le)
+<|> (keyword "ge" >> return binop.ge)
+<|> (keyword "lt" >> return binop.lt)
+<|> (keyword "gt" >> return binop.gt)
+<|> (keyword "eq" >> return binop.eq)
+<|> (keyword "ne" >> return binop.ne)
 
 def parse_literal : parser literal :=
-    (symbol "tt" >> return (literal.bool tt))
-<|> (symbol "ff" >> return (literal.bool ff))
+    (keyword "tt" >> return (literal.bool tt))
+<|> (keyword "ff" >> return (literal.bool ff))
 <|> (do n ← lexeme num <?> "numeral", return (literal.num n))
 <|> (do n ← (ch '-' >> lexeme num), return (literal.num (- n)))
 <|> literal.str <$> parse_string_literal
@@ -79,7 +82,7 @@ lexeme identifier <?> "function name"
 def parse_nary_call (x : var) : parser instr :=
 do xs  ← many1 parse_var,
    symbol ":=",
-   symbol "call",
+   keyword "call",
    fid ← parse_fnid,
    ys  ← many parse_var,
    return $ instr.call ([x] ++ xs) fid ys
@@ -88,8 +91,8 @@ def parse_typed_assignment (x : var) : parser instr :=
 do  symbol ":",
     ty ← parse_type,
     symbol ":=",
-    (symbol "sget" >> instr.sget x ty <$> parse_var <*> parse_uint16)
-<|> (symbol "sread" >> instr.sread x ty <$> parse_var <*> parse_var)
+    (keyword "sget" >> instr.sget x ty <$> parse_var <*> parse_uint16)
+<|> (keyword "sread" >> instr.sread x ty <$> parse_var <*> parse_var)
 <|> (instr.unop x ty <$> parse_unop <*> parse_var)
 <|> (instr.binop x ty <$> parse_binop <*> parse_var <*> parse_var)
 <|> (instr.cast x ty <$> parse_var)
@@ -97,15 +100,15 @@ do  symbol ":",
 
 def parse_untyped_assignment (x : var) : parser instr :=
 do  symbol ":=",
-    (symbol "closure" >> instr.closure x <$> parse_fnid <*> many parse_var)
-<|> (symbol "apply"   >> instr.apply x <$> many1 parse_var)
-<|> (symbol "read"    >> instr.read x <$> parse_var <*> parse_var)
-<|> (symbol "get"     >> instr.get x <$> parse_var <*> parse_uint16)
-<|> (symbol "read"    >> instr.read x <$> parse_var <*> parse_var)
-<|> (symbol "call"    >> instr.call [x] <$> parse_fnid <*> many parse_var)
-<|> (symbol "cnstr"   >> instr.cnstr x <$> parse_uint16 <*> parse_uint16 <*> parse_uint16)
-<|> (symbol "array"   >> instr.array x <$> parse_var <*> parse_var)
-<|> (symbol "sarray"  >> instr.sarray x <$> parse_type <*> parse_var <*> parse_var)
+    (keyword "closure" >> instr.closure x <$> parse_fnid <*> many parse_var)
+<|> (keyword "apply"   >> instr.apply x <$> many1 parse_var)
+<|> (keyword "read"    >> instr.read x <$> parse_var <*> parse_var)
+<|> (keyword "get"     >> instr.get x <$> parse_var <*> parse_uint16)
+<|> (keyword "read"    >> instr.read x <$> parse_var <*> parse_var)
+<|> (keyword "call"    >> instr.call [x] <$> parse_fnid <*> many parse_var)
+<|> (keyword "cnstr"   >> instr.cnstr x <$> parse_uint16 <*> parse_uint16 <*> parse_uint16)
+<|> (keyword "array"   >> instr.array x <$> parse_var <*> parse_var)
+<|> (keyword "sarray"  >> instr.sarray x <$> parse_type <*> parse_var <*> parse_var)
 
 def parse_assignment : parser instr :=
 do x ← parse_var,
@@ -114,14 +117,14 @@ do x ← parse_var,
    else parse_nary_call x
 
 def parse_instr : parser instr :=
-    (symbol "write" >> instr.write <$> parse_var <*> parse_var <*> parse_var)
-<|> (symbol "swrite" >> instr.swrite <$> parse_var <*> parse_var <*> parse_var)
-<|> (symbol "set" >> instr.set <$> parse_var <*> parse_uint16 <*> parse_var)
-<|> (symbol "sset" >> instr.sset <$> parse_var <*> parse_uint16 <*> parse_var)
-<|> (symbol "inc" >> instr.inc <$> parse_var)
-<|> (symbol "decs" >> instr.decs <$> parse_var)
-<|> (symbol "dec" >> instr.dec <$> parse_var)
-<|> (symbol "free" >> instr.free <$> parse_var)
+    (keyword "write" >> instr.write <$> parse_var <*> parse_var <*> parse_var)
+<|> (keyword "swrite" >> instr.swrite <$> parse_var <*> parse_var <*> parse_var)
+<|> (keyword "set" >> instr.set <$> parse_var <*> parse_uint16 <*> parse_var)
+<|> (keyword "sset" >> instr.sset <$> parse_var <*> parse_uint16 <*> parse_var)
+<|> (keyword "inc" >> instr.inc <$> parse_var)
+<|> (keyword "dec" >> instr.dec <$> parse_var)
+<|> (keyword "decs" >> instr.decs <$> parse_var)
+<|> (keyword "free" >> instr.free <$> parse_var)
 <|> parse_assignment
 
 end ir

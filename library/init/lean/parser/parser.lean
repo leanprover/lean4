@@ -191,17 +191,12 @@ def curr : parser char :=
 /--
 If the next character `c` satisfies `p`, then
 update position and return `c`. Otherwise,
-generate error message with current position and character.
--/
+generate error message with current position and character. -/
 @[inline] def satisfy (p : char → bool) : parser char :=
-λ it, if !it.has_next then
-       eoi_error it.offset
-      else
-        let c := it.curr in
-        if !p c then
-          error { pos := it.offset, unexpected := repr c } ff
-        else
-          ok c it.next
+λ it, if !it.has_next then eoi_error it.offset
+      else let c := it.curr in
+           if p c then ok c it.next
+           else error { pos := it.offset, unexpected := repr c } ff
 
 def ch (c : char) : parser char :=
 satisfy (= c)
@@ -400,12 +395,27 @@ def foldl_aux (f : α → β → α) (p : parser β) : α → nat → parser α
 def foldl (f : α → β → α) (a : α) (p : parser β) : parser α :=
 λ it, foldl_aux f p a it.remaining it
 
-/- Parse `p` without consuming any input. -/
+/-- Parse `p` without consuming any input. -/
 def lookahead (p : parser α) : parser α :=
 λ it, match p it with
       | ok a s' := mk_eps_result a it
       | other   := other
       end
+
+/-- `not_followed_by p` succeeds when parser `p` fails -/
+def not_followed_by (p : parser α) (msg : string := "input") : parser unit :=
+λ it, match p it with
+      | ok _ _       := error { pos := it.offset, unexpected := msg } ff
+      | ok_eps _ _ _ := error { pos := it.offset, unexpected := msg } ff
+      | error _ _    := mk_eps_result () it
+      end
+
+/-- Faster version of `not_followed_by (satisfy p)` -/
+@[inline] def not_followed_by_sat (p : char → bool) : parser unit :=
+λ it, if !it.has_next then mk_eps_result () it
+      else let c := it.curr in
+           if p c then error { pos := it.offset, unexpected := repr c } ff
+           else mk_eps_result () it
 
 def unexpected (msg : string) : parser α :=
 λ it, error {unexpected := msg, pos := it.offset} ff

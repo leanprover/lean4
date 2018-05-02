@@ -9,15 +9,15 @@ https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/parsec-paper
 -/
 prelude
 import init.data.to_string init.data.string.basic init.data.list.basic init.control.except
-import init.data.repr init.lean.name
+import init.data.repr init.lean.name init.data.dlist
 namespace lean
 namespace parser
 @[reducible] def position : Type := nat
 
 structure message :=
-(pos        : position    := 0)
-(unexpected : string      := "")      -- unexpected input
-(expected   : list string := []) -- expected productions
+(pos        : position     := 0)
+(unexpected : string       := "")          -- unexpected input
+(expected   : dlist string := dlist.empty) -- expected productions
 
 open string (iterator)
 
@@ -31,12 +31,13 @@ protected def message.to_string (input : string) (msg : message) : string :=
 let (line, col) := input.line_column msg.pos in
 "error at (line : " ++ to_string line ++ ", column: " ++ to_string col ++ ")\n" ++
 "unexpected " ++ msg.unexpected ++ "\n" ++
-if msg.expected = [] then "" else "expected " ++ expected.to_string msg.expected
+let ex_list := msg.expected.to_list in
+if ex_list = [] then "" else "expected " ++ expected.to_string ex_list
 
 def message.repr (msg : message) : string :=
 "{pos := " ++ repr msg.pos ++ ", " ++
  "unexpected := " ++ repr msg.unexpected ++ ", " ++
- "expected := " ++ repr msg.expected ++ "}"
+ "expected := dlist.of_list " ++ repr msg.expected.to_list ++ "}"
 
 instance message_has_repr : has_repr message :=
 ⟨message.repr⟩
@@ -47,9 +48,9 @@ They contain the error that would have occurred if a
 successful "epsilon" alternative was not taken.
 -/
 inductive result (α : Type)
-| ok (a : α) (it : iterator)                              : result
-| ok_eps (a : α) (it : iterator) (expected : list string) : result
-| error {} (msg : message) (consumed : bool)              : result
+| ok (a : α) (it : iterator)                               : result
+| ok_eps (a : α) (it : iterator) (expected : dlist string) : result
+| error {} (msg : message) (consumed : bool)               : result
 
 open result
 
@@ -66,7 +67,7 @@ match p s.mk_iterator with
 end
 
 @[inline] def mk_eps_result (a : α) (it : iterator) : result α :=
-ok_eps a it []
+ok_eps a it dlist.empty
 
 protected def pure (a : α) : parser α :=
 λ it, mk_eps_result a it
@@ -108,11 +109,11 @@ instance : monad parser :=
 { bind := @parser.bind, pure := @parser.pure }
 
 def expect (msg : message) (exp : string) : message :=
-{expected := [exp], ..msg}
+{expected := dlist.singleton exp, ..msg}
 
 @[inline] def label (p : parser α) (ex : string) : parser α :=
 λ it, match p it with
-      | ok_eps a it _  := ok_eps a it [ex]
+      | ok_eps a it _  := ok_eps a it (dlist.singleton ex)
       | error msg ff   := error (expect msg ex) ff
       | other          := other
       end
@@ -330,19 +331,19 @@ string.to_nat <$> (take_while1 char.is_digit)
 
 /-- Return the number of characters left to be parsed. -/
 def remaining : parser nat :=
-λ it, ok_eps it.remaining it []
+λ it, mk_eps_result it.remaining it
 
 /-- Succeed only if there are at least `n` characters left. -/
 def ensure (n : nat) : parser unit :=
 λ it, if n ≤ it.remaining then mk_eps_result () it
-      else error { pos := it.offset, unexpected := "end of input", expected := ["at least " ++ to_string n ++ " characters"] } ff
+      else error { pos := it.offset, unexpected := "end of input", expected := dlist.singleton ("at least " ++ to_string n ++ " characters") } ff
 
 def left_over : parser iterator :=
-λ it, ok_eps it it []
+λ it, mk_eps_result it it
 
 /-- Return the current position. -/
 def pos : parser position :=
-λ it, ok_eps it.offset it []
+λ it, mk_eps_result it.offset it
 
 def many1_aux (p : parser α) : nat → parser (list α)
 | 0     := do a ← p, return [a]
@@ -367,8 +368,8 @@ def many' (p : parser α) : parser unit :=
 many1' p <|> return ()
 
 def eoi : parser unit :=
-λ it, if it.remaining = 0 then ok_eps () it []
-      else error { pos := it.offset, unexpected := repr it.curr, expected := ["end of input"] } ff
+λ it, if it.remaining = 0 then mk_eps_result () it
+      else error { pos := it.offset, unexpected := repr it.curr, expected := dlist.singleton ("end of input") } ff
 
 def sep_by1 (p : parser α) (sep : parser β) : parser (list α) :=
 (::) <$> p <*> many (sep >> p)
@@ -402,7 +403,7 @@ def foldl (f : α → β → α) (a : α) (p : parser β) : parser α :=
 /- Parse `p` without consuming any input. -/
 def lookahead (p : parser α) : parser α :=
 λ it, match p it with
-      | ok a s' := ok_eps a it []
+      | ok a s' := mk_eps_result a it
       | other   := other
       end
 

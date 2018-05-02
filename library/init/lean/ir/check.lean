@@ -37,8 +37,8 @@ def instr.declare_vars_at (b : blockid) : instr → ssa_decl_m unit
 | (instr.cnstr o _ _ _)   := o.declare_at b
 | (instr.set o _ _)       := o.declare_at b
 | (instr.get x _ _)       := x.declare_at b
-| (instr.sets o _ _)      := o.declare_at b
-| (instr.gets x _ _ _)    := x.declare_at b
+| (instr.sset o _ _)      := o.declare_at b
+| (instr.sget x _ _ _)    := x.declare_at b
 | (instr.closure x _ _)   := x.declare_at b
 | (instr.apply x _)       := x.declare_at b
 | (instr.array a _ _)     := a.declare_at b
@@ -112,8 +112,8 @@ def instr.valid_ssa : instr → ssa_valid_m unit
 | (instr.cnstr o _ _ _)   := o.define
 | (instr.set o _ x)       := o.defined >> x.defined
 | (instr.get x y _)       := x.define >> y.defined
-| (instr.sets o _ x)      := o.defined >> x.defined
-| (instr.gets x _ y _)    := x.define >> y.defined
+| (instr.sset o _ x)      := o.defined >> x.defined
+| (instr.sget x _ y _)    := x.define >> y.defined
 | (instr.closure x _ ys)  := x.define >> ys.mmap' var.defined
 | (instr.apply x ys)      := x.define >> ys.mmap' var.defined
 | (instr.array a sz c)    := a.define >> sz.defined >> c.defined

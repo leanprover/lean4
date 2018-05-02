@@ -83,8 +83,8 @@ def instr.to_format : instr → format
 | (instr.cnstr o t n sz)     := to_fmt o ++ " := cnstr " ++ to_fmt t ++ " " ++ to_fmt n ++ " " ++ to_fmt sz
 | (instr.set o i x)          := to_fmt "set " ++ to_fmt o ++ " " ++ to_fmt i ++ " " ++ to_fmt x
 | (instr.get x o i)          := to_fmt x ++ " := get " ++ to_fmt o ++ " " ++ to_fmt i
-| (instr.sets o d v)         := to_fmt "sets " ++ to_fmt o ++ " " ++ to_fmt d ++ " " ++ to_fmt v
-| (instr.gets x ty o d)      := to_fmt x ++ " : " ++ to_fmt ty ++ " := gets " ++ to_fmt o ++ " " ++ to_fmt d
+| (instr.sset o d v)         := to_fmt "sset " ++ to_fmt o ++ " " ++ to_fmt d ++ " " ++ to_fmt v
+| (instr.sget x ty o d)      := to_fmt x ++ " : " ++ to_fmt ty ++ " := sget " ++ to_fmt o ++ " " ++ to_fmt d
 | (instr.closure x f ys)     := to_fmt x ++ " := closure " ++ to_fmt f ++ join_with ys " "
 | (instr.apply x ys)         := to_fmt x ++ " := apply " ++ join_with ys " "
 | (instr.array a sz c)       := to_fmt a ++ " := array " ++ to_fmt sz ++ " " ++ to_fmt c

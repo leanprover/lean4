@@ -14,7 +14,7 @@ def reserved := [ "bool", "byte", "uint16", "uint32", "uint64",
  "scalar", "shared", "unbox", "box", "copy_array", "copy_sarray",
  "add", "sub", "mul", "div", "mod", "shl", "shr", "ashr", "and",
  "or", "xor", "le", "ge", "lt", "gt", "eq", "ne", "call", "closure",
- "apply", "cnstr", "set", "get", "sets", "gets", "array", "read",
+ "apply", "cnstr", "set", "get", "sset", "sget", "array", "read",
  "write", "sarray", "sread", "swrite", "inc", "decs", "dec", "del",
  "phi", "ret", "case", "jmp", "decl", "end", "tt", "ff"]
 

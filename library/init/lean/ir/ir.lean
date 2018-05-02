@@ -66,8 +66,8 @@ inductive instr
 | cnstr   (o : var) (tag : tag) (nobjs ssz : uint16)         -- Create constructor object
 | set     (o : var) (i : uint16) (x : var)                   -- Set object field:          set o i x
 | get     (x : var) (o : var) (i : uint16)                   -- Get object field:          x := get o i
-| sets    (o : var) (d : uint16) (v : var)                   -- Set scalar field:          sets o d v
-| gets    (x : var) (ty : type) (o : var) (d : uint16)       -- Get scalar field:          x : ty := gets o d
+| sset    (o : var) (d : uint16) (v : var)                   -- Set scalar field:          sset o d v
+| sget    (x : var) (ty : type) (o : var) (d : uint16)       -- Get scalar field:          x : ty := sget o d
 /- Closures -/
 | closure (x : var) (f : fnid) (ys : list var)               -- Create closure:            x := closure f ys
 | apply   (x : var) (ys : list var)                          -- Apply closure:             x := apply ys

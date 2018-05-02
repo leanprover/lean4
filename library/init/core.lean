@@ -1122,7 +1122,6 @@ def by_cases {q : Sort u} [s : decidable p] (h1 : p → q) (h2 : ¬p → q) : q 
 match s with
 | is_true h  := h1 h
 | is_false h := h2 h
-end
 
 theorem em (p : Prop) [decidable p] : p ∨ ¬p :=
 by_cases or.inl or.inr
@@ -1140,12 +1139,10 @@ theorem not_and_iff_or_not (p q : Prop) [d₁ : decidable p] [d₂ : decidable q
 iff.intro
 (λ h, match d₁ with
       | is_true h₁  :=
-        match d₂ with
-        | is_true h₂  := absurd (and.intro h₁ h₂) h
-        | is_false h₂ := or.inr h₂
-        end
-      | is_false h₁ := or.inl h₁
-      end)
+        (match d₂ with
+         | is_true h₂  := absurd (and.intro h₁ h₂) h
+         | is_false h₂ := or.inr h₂)
+      | is_false h₁ := or.inl h₁)
 (λ h ⟨hp, hq⟩, or.elim h (λ h, h hp) (λ h, h hq))
 
 theorem not_or_iff_and_not (p q) [d₁ : decidable p] [d₂ : decidable q] : ¬ (p ∨ q) ↔ ¬ p ∧ ¬ q :=
@@ -1155,9 +1152,7 @@ iff.intro
         | is_false h₁ :=
           match d₂ with
           | is_true h₂  := false.elim $ h (or.inr h₂)
-          | is_false h₂ := ⟨h₁, h₂⟩
-          end
-        end)
+          | is_false h₂ := ⟨h₁, h₂⟩)
   (λ ⟨np, nq⟩ h, or.elim h np nq)
 end decidable
 
@@ -1250,14 +1245,12 @@ theorem decidable_eq_inl_refl {α : Sort u} [h : decidable_eq α] (a : α) : h a
 match (h a a) with
 | (is_true e)  := rfl
 | (is_false n) := absurd rfl n
-end
 
 theorem decidable_eq_inr_neg {α : Sort u} [h : decidable_eq α] {a b : α} : Π n : a ≠ b, h a b = is_false n :=
 assume n,
 match (h a b) with
 | (is_true e)   := absurd e n
 | (is_false n₁) := proof_irrel n n₁ ▸ eq.refl (is_false n)
-end
 
 /- if-then-else expression theorems -/
 
@@ -1265,20 +1258,17 @@ theorem if_pos {c : Prop} [h : decidable c] (hc : c) {α : Sort u} {t e : α} : 
 match h with
 | (is_true  hc)  := rfl
 | (is_false hnc) := absurd hc hnc
-end
 
 theorem if_neg {c : Prop} [h : decidable c] (hnc : ¬c) {α : Sort u} {t e : α} : (ite c t e) = e :=
 match h with
 | (is_true hc)   := absurd hc hnc
 | (is_false hnc) := rfl
-end
 
 @[simp]
 theorem if_t_t (c : Prop) [h : decidable c] {α : Sort u} (t : α) : (ite c t t) = t :=
 match h with
 | (is_true hc)   := rfl
 | (is_false hnc) := rfl
-end
 
 theorem implies_of_if_pos {c t e : Prop} [decidable c] (h : ite c t e) : c → t :=
 assume hc, eq.rec_on (if_pos hc : ite c t e = t) h
@@ -1295,7 +1285,6 @@ match dec_b, dec_c with
 | (is_true h₁),  (is_true h₂)  := h_t h₂
 | (is_false h₁), (is_true h₂)  := absurd h₂ (iff.mp (not_iff_not_of_iff h_c) h₁)
 | (is_true h₁),  (is_false h₂) := absurd h₁ (iff.mpr (not_iff_not_of_iff h_c) h₂)
-end
 
 @[congr]
 theorem if_congr {α : Sort u} {b c : Prop} [dec_b : decidable b] [dec_c : decidable c]
@@ -1331,7 +1320,6 @@ match dec_b, dec_c with
 | (is_true h₁),  (is_true h₂)  := h_t h₂
 | (is_false h₁), (is_true h₂)  := absurd h₂ (iff.mp (not_iff_not_of_iff h_c) h₁)
 | (is_true h₁),  (is_false h₂) := absurd h₁ (iff.mpr (not_iff_not_of_iff h_c) h₂)
-end
 
 @[congr]
 theorem if_congr_prop {b c x y u v : Prop} [dec_b : decidable b] [dec_c : decidable c]
@@ -1354,13 +1342,11 @@ theorem if_simp_congr_prop {b c x y u v : Prop} [dec_b : decidable b]
 match h with
 | (is_true hc)   := rfl
 | (is_false hnc) := absurd hc hnc
-end
 
 @[simp] theorem dif_neg {c : Prop} [h : decidable c] (hnc : ¬c) {α : Sort u} {t : c → α} {e : ¬ c → α} : dite c t e = e hnc :=
 match h with
 | (is_true hc)   := absurd hc hnc
 | (is_false hnc) := rfl
-end
 
 theorem dif_ctx_congr {α : Sort u} {b c : Prop} [dec_b : decidable b] [dec_c : decidable c]
                     {x : b → α} {u : c → α} {y : ¬b → α} {v : ¬c → α}
@@ -1373,7 +1359,6 @@ match dec_b, dec_c with
 | (is_true h₁),  (is_true h₂)  := h_t h₂
 | (is_false h₁), (is_true h₂)  := absurd h₂ (iff.mp (not_iff_not_of_iff h_c) h₁)
 | (is_true h₁),  (is_false h₂) := absurd h₁ (iff.mpr (not_iff_not_of_iff h_c) h₂)
-end
 
 theorem dif_ctx_simp_congr {α : Sort u} {b c : Prop} [dec_b : decidable b]
                          {x : b → α} {u : c → α} {y : ¬b → α} {v : ¬c → α}
@@ -1388,19 +1373,16 @@ theorem dif_eq_if (c : Prop) [h : decidable c] {α : Sort u} (t : α) (e : α) :
 match h with
 | (is_true hc)   := rfl
 | (is_false hnc) := rfl
-end
 
 instance {c t e : Prop} [d_c : decidable c] [d_t : decidable t] [d_e : decidable e] : decidable (if c then t else e)  :=
 match d_c with
 | (is_true hc)  := d_t
 | (is_false hc) := d_e
-end
 
 instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [d_c : decidable c] [d_t : ∀ h, decidable (t h)] [d_e : ∀ h, decidable (e h)] : decidable (if h : c then t h else e h)  :=
 match d_c with
 | (is_true hc)  := d_t hc
 | (is_false hc) := d_e hc
-end
 
 def as_true (c : Prop) [decidable c] : Prop :=
 if c then true else false
@@ -1412,7 +1394,6 @@ def of_as_true {c : Prop} [h₁ : decidable c] (h₂ : as_true c) : c :=
 match h₁, h₂ with
 | (is_true h_c),  h₂ := h_c
 | (is_false h_c), h₂ := false.elim h₂
-end
 
 /-- Universe lifting operation -/
 structure {r s} ulift (α : Type s) : Type (max s r) :=
@@ -1492,16 +1473,13 @@ instance (p : Prop) : subsingleton (decidable p) :=
 subsingleton.intro (λ d₁,
   match d₁ with
   | (is_true t₁) := (λ d₂,
-    match d₂ with
-    | (is_true t₂) := eq.rec_on (proof_irrel t₁ t₂) rfl
-    | (is_false f₂) := absurd t₁ f₂
-    end)
+    (match d₂ with
+     | (is_true t₂) := eq.rec_on (proof_irrel t₁ t₂) rfl
+     | (is_false f₂) := absurd t₁ f₂))
   | (is_false f₁) := (λ d₂,
-    match d₂ with
-    | (is_true t₂) := absurd t₂ f₁
-    | (is_false f₂) := eq.rec_on (proof_irrel f₁ f₂) rfl
-    end)
-  end)
+    (match d₂ with
+     | (is_true t₂) := absurd t₂ f₁
+     | (is_false f₂) := eq.rec_on (proof_irrel f₁ f₂) rfl)))
 
 protected theorem rec_subsingleton {p : Prop} [h : decidable p] {h₁ : p → Sort u} {h₂ : ¬p → Sort u}
                                  [h₃ : Π (h : p), subsingleton (h₁ h)] [h₄ : Π (h : ¬p), subsingleton (h₂ h)]
@@ -1509,7 +1487,6 @@ protected theorem rec_subsingleton {p : Prop} [h : decidable p] {h₁ : p → So
 match h with
 | (is_true h)  := h₃ h
 | (is_false h) := h₄ h
-end
 
 /- Equalities for rewriting let-expressions -/
 theorem let_value_eq {α : Sort u} {β : Sort v} {a₁ a₂ : α} (b : α → β) :
@@ -1665,12 +1642,10 @@ instance [h₁ : decidable_eq α] [h₂ : decidable_eq β] : decidable_eq (α ×
 | (a, b) (a', b') :=
   match (h₁ a a') with
   | (is_true e₁) :=
-    match (h₂ b b') with
-    | (is_true e₂)  := is_true (eq.rec_on e₁ (eq.rec_on e₂ rfl))
-    | (is_false n₂) := is_false (assume h, prod.no_confusion h (λ e₁' e₂', absurd e₂' n₂))
-    end
+    (match (h₂ b b') with
+     | (is_true e₂)  := is_true (eq.rec_on e₁ (eq.rec_on e₂ rfl))
+     | (is_false n₂) := is_false (assume h, prod.no_confusion h (λ e₁' e₂', absurd e₂' n₂)))
   | (is_false n₁) := is_false (assume h, prod.no_confusion h (λ e₁' e₂', absurd e₁' n₁))
-  end
 
 instance [has_lt α] [has_lt β] : has_lt (α × β) :=
 ⟨λ s t, s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)⟩
@@ -1743,17 +1718,14 @@ variables {α : Sort u} [setoid α]
 @[refl] theorem refl (a : α) : a ≈ a :=
 match setoid.iseqv α with
 | ⟨h_refl, h_symm, h_trans⟩ := h_refl a
-end
 
 @[symm] theorem symm {a b : α} (hab : a ≈ b) : b ≈ a :=
 match setoid.iseqv α with
 | ⟨h_refl, h_symm, h_trans⟩ := h_symm hab
-end
 
 @[trans] theorem trans {a b c : α} (hab : a ≈ b) (hbc : b ≈ c) : a ≈ c :=
-match setoid.iseqv α with
-| ⟨h_refl, h_symm, h_trans⟩ := h_trans hab hbc
-end
+(match setoid.iseqv α with
+ | ⟨h_refl, h_symm, h_trans⟩ := h_trans hab hbc)
 end setoid
 
 /- Propositional extensionality -/
@@ -2045,8 +2017,7 @@ instance {α : Sort u} {s : setoid α} [d : ∀ a b : α, decidable (a ≈ b)] :
     (λ a₁ a₂,
       match (d a₁ a₂) with
       | (is_true h₁)  := is_true (quotient.sound h₁)
-      | (is_false h₂) := is_false (λ h, absurd (quotient.exact h) h₂)
-      end)
+      | (is_false h₂) := is_false (λ h, absurd (quotient.exact h) h₂))
 
 /- Function extensionality -/
 
@@ -2190,7 +2161,6 @@ noncomputable def type_decidable (α : Sort u) : psum α (α → false) :=
 match (prop_decidable (nonempty α)) with
 | (is_true hp)  := psum.inl (@inhabited.default _ (inhabited_of_nonempty hp))
 | (is_false hn) := psum.inr (λ a, absurd (nonempty.intro a) hn)
-end
 
 noncomputable theorem strong_indefinite_description {α : Sort u} (p : α → Prop)
   (h : nonempty α) : {x : α // (∃ y : α, p y) → p x} :=

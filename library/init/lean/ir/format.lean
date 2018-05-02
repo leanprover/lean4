@@ -79,13 +79,13 @@ def instr.to_format : instr → format
 | (instr.cast x ty y)        := to_fmt x ++ " : " ++ to_fmt ty ++ " := " ++ to_fmt y
 | (instr.unop x ty op y)     := to_fmt x ++ " : " ++ to_fmt ty ++ " := " ++ to_fmt op ++ " " ++ to_fmt y
 | (instr.binop x ty op y z)  := to_fmt x ++ " : " ++ to_fmt ty ++ " := " ++ to_fmt op ++ " " ++ to_fmt y ++ " " ++ to_fmt z
-| (instr.call xs fn ys)      := join_sep xs " " ++ " := call " ++ to_fmt fn ++ " " ++ join_sep ys " "
+| (instr.call xs fn ys)      := join_sep xs " " ++ " := call " ++ to_fmt fn ++ prefix_join " " ys
 | (instr.cnstr o t n sz)     := to_fmt o ++ " := cnstr " ++ to_fmt t ++ " " ++ to_fmt n ++ " " ++ to_fmt sz
 | (instr.set o i x)          := to_fmt "set " ++ to_fmt o ++ " " ++ to_fmt i ++ " " ++ to_fmt x
 | (instr.get x o i)          := to_fmt x ++ " := get " ++ to_fmt o ++ " " ++ to_fmt i
 | (instr.sset o d v)         := to_fmt "sset " ++ to_fmt o ++ " " ++ to_fmt d ++ " " ++ to_fmt v
 | (instr.sget x ty o d)      := to_fmt x ++ " : " ++ to_fmt ty ++ " := sget " ++ to_fmt o ++ " " ++ to_fmt d
-| (instr.closure x f ys)     := to_fmt x ++ " := closure " ++ to_fmt f ++ join_sep ys " "
+| (instr.closure x f ys)     := to_fmt x ++ " := closure " ++ to_fmt f ++ prefix_join " " ys
 | (instr.apply x ys)         := to_fmt x ++ " := apply " ++ join_sep ys " "
 | (instr.array a sz c)       := to_fmt a ++ " := array " ++ to_fmt sz ++ " " ++ to_fmt c
 | (instr.write a i v)        := "write " ++ to_fmt a ++ " " ++ to_fmt i ++ " " ++ to_fmt v

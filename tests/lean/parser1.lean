@@ -1,4 +1,4 @@
-import system.io init.lean.parser.identifier
+import system.io init.lean.parser.identifier init.lean.ir.parser init.lean.ir.format
 open lean.parser
 
 def test {α} [decidable_eq α] (p : parser α) (s : string) (e : α) : io unit :=
@@ -15,7 +15,7 @@ end
 
 def show_result {α} [has_to_string α] (p : parser α) (s : string) : io unit :=
 match parse p s with
-| except.ok a    := io.print_ln "result: " >> io.print_ln (to_string a)
+| except.ok a    := io.print_ln "result: " >> io.print_ln (repr $ to_string a)
 | except.error e := io.print_ln (e.to_string s)
 end
 
@@ -77,6 +77,56 @@ open lean
 #eval test_failure identifier "'a"
 #eval test_failure identifier ""
 #eval test_failure identifier " "
+
+#eval test parse_string_literal "\"abc\"" "abc"
+#eval test parse_string_literal "\"\\\\abc\"" "\\abc"
+#eval test parse_string_literal "\"\"" ""
+#eval test parse_string_literal "\"\\\"\"" "\""
+#eval test parse_string_literal "\"\\\'\"" "\'"
+#eval test parse_string_literal "\"\\\n\"" "\n"
+#eval test parse_string_literal "\"\\\t\"" "\t"
+#eval test parse_string_literal "\"\\x4e\"" "N"
+#eval test parse_string_literal "\"\\x4E\"" "N"
+#eval test parse_string_literal "\"\\x7D\"" "}"
+#eval test parse_string_literal "\"\\u03b1\\u03b1\"" "αα"
+#eval test_failure parse_string_literal "\"abc"
+#eval test_failure parse_string_literal "\"\\abc\""
+#eval test_failure parse_string_literal "\"\\x4z\""
+#eval test_failure parse_string_literal "\"\\x4\""
+#eval test_failure parse_string_literal "\"\\u03b\\u03b1\""
+#eval test_failure parse_string_literal "\"\\u03bz\\u03b1\""
+
+def parse_instr_pp : parser string :=
+do cmd ← lean.ir.parse_instr,
+   return $ to_string cmd
+
+#eval test parse_instr_pp "x : uint32 :=   y" "x : uint32 := y"
+#eval test parse_instr_pp "x :    uint32 :=  10" "x : uint32 := 10"
+#eval test parse_instr_pp "x : bool:=not y" "x : bool := not y"
+#eval test parse_instr_pp "x : bool := and z   y" "x : bool := and z y"
+#eval test parse_instr_pp "x y := call f z w" "x y := call f z w"
+#eval test parse_instr_pp "x := call f z   w" "x := call f z w"
+#eval test parse_instr_pp "o := cnstr 0   3   0" "o := cnstr 0 3 0"
+#eval test parse_instr_pp "set o 0 x" "set o 0 x"
+#eval test parse_instr_pp "x := get o 0" "x := get o 0"
+#eval test parse_instr_pp "«set» := get o 0" "«set» := get o 0"
+#eval test parse_instr_pp "sset o 10 x" "sset o 10 x"
+#eval test parse_instr_pp "x : bool := sget o 0" "x : bool := sget o 0"
+#eval test parse_instr_pp "x := closure f a" "x := closure f a"
+#eval test parse_instr_pp "x := closure f a b" "x := closure f a b"
+#eval test parse_instr_pp "x := apply f a" "x := apply f a"
+#eval test parse_instr_pp "x := array sz c" "x := array sz c"
+#eval test parse_instr_pp "write a i v" "write a i v"
+#eval test parse_instr_pp "x := read a i" "x := read a i"
+#eval test parse_instr_pp "x := sarray uint32 sz c" "x := sarray uint32 sz c"
+#eval test parse_instr_pp "swrite a i v" "swrite a i v"
+#eval test parse_instr_pp "x : uint64 := sread a i" "x : uint64 := sread a i"
+#eval test parse_instr_pp "inc x" "inc x"
+#eval test parse_instr_pp "dec x" "dec x"
+#eval test parse_instr_pp "decs x" "decs x"
+#eval test parse_instr_pp "free x" "free x"
+#eval test parse_instr_pp "x := call  f" "x := call f"
+#eval test parse_instr_pp "x:uint32:=   sread y   z" "x : uint32 := sread y z"
 
 inductive Expr
 | Add : Expr → Expr → Expr

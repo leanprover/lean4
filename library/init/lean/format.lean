@@ -111,6 +111,14 @@ def format.join_sep {α : Type u} [has_to_format α] : list α → format → fo
 | [a]     sep := to_fmt a
 | (a::as) sep := to_fmt a ++ sep ++ format.join_sep as sep
 
+def format.prefix_join {α : Type u} [has_to_format α] (pre : format) : list α → format
+| []      := nil
+| (a::as) := pre ++ to_fmt a ++ format.prefix_join as
+
+def format.join_suffix {α : Type u} [has_to_format α] : list α → format → format
+| []      suffix := nil
+| (a::as) suffix := to_fmt a ++ suffix ++ format.join_suffix as suffix
+
 def list.to_format {α : Type u} [has_to_format α] : list α → format
 | [] := "[]"
 | xs := sbracket $ format.join_sep xs ("," ++ line)

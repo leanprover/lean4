@@ -42,14 +42,14 @@ instance message_has_repr : has_repr message :=
 ⟨message.repr⟩
 
 /-
-Remark: we store error messages in `ok_eps` results.
+Remark: we store expected "error" messages in `ok_eps` results.
 They contain the error that would have occurred if a
 successful "epsilon" alternative was not taken.
 -/
 inductive result (α : Type)
-| ok (a : α) (it : iterator)                     : result
-| ok_eps (a : α) (it : iterator) (msg : message) : result
-| error {} (msg : message) (consumed : bool)     : result
+| ok (a : α) (it : iterator)                              : result
+| ok_eps (a : α) (it : iterator) (expected : list string) : result
+| error {} (msg : message) (consumed : bool)              : result
 
 open result
 
@@ -66,7 +66,7 @@ match p s.mk_iterator with
 end
 
 @[inline] def mk_eps_result (a : α) (it : iterator) : result α :=
-ok_eps a it { pos := it.offset }
+ok_eps a it []
 
 protected def pure (a : α) : parser α :=
 λ it, mk_eps_result a it
@@ -79,18 +79,6 @@ protected def failure : parser α :=
 
 def merge (msg₁ msg₂ : message) : message :=
 { expected := msg₁.expected ++ msg₂.expected, ..msg₁ }
-
-def merge' (msg₁ msg₂ : message) : message :=
-{ expected := msg₁.expected ++ msg₂.expected, ..msg₂ }
-
-def merge_error (msg₁ msg₂ : message) : result α :=
-error (merge msg₁ msg₂) ff
-
-def merge_error' (msg₁ msg₂ : message) : result α :=
-error (merge' msg₁ msg₂) ff
-
-def merge_ok_epsilon (a : α) (it : iterator) (msg₁ msg₂ : message) :=
-ok_eps a it (merge msg₁ msg₂)
 
 /--
   The `bind p q` combinator behaves as follows:
@@ -107,11 +95,11 @@ protected def bind (p : parser α) (q : α → parser β) : parser β :=
        | error msg ff     := error msg tt
        | other            := other
        end
-     | ok_eps a it msg₁ :=
+     | ok_eps a it ex₁ :=
        match q a it with
-       | ok_eps b it msg₂ := merge_ok_epsilon b it msg₁ msg₂
-       | error msg₂ ff    := merge_error' msg₁ msg₂
-       | other            := other
+       | ok_eps b it ex₂ := ok_eps b it (ex₁ ++ ex₂)
+       | error msg₂ ff   := error { expected := ex₁ ++ msg₂.expected, .. msg₂ } ff
+       | other           := other
        end
      | error msg c := error msg c
      end
@@ -122,11 +110,11 @@ instance : monad parser :=
 def expect (msg : message) (exp : string) : message :=
 {expected := [exp], ..msg}
 
-@[inline] def label (p : parser α) (exp : string) : parser α :=
+@[inline] def label (p : parser α) (ex : string) : parser α :=
 λ it, match p it with
-      | ok_eps a it msg := ok_eps a it (expect msg exp)
-      | error msg ff    := error (expect msg exp) ff
-      | other           := other
+      | ok_eps a it _  := ok_eps a it [ex]
+      | error msg ff   := error (expect msg ex) ff
+      | other          := other
       end
 
 infixr ` <?> `:2 := label
@@ -171,19 +159,19 @@ def try (p : parser α) : parser α :=
 -/
 protected def orelse (p q : parser α) : parser α :=
 λ it, match p it with
-      | ok_eps a it' msg₁ :=
+      | ok_eps a it' ex₁ :=
         match q it with
-        | ok_eps _ _ msg₂ := merge_ok_epsilon a it' msg₁ msg₂
-        | error msg₂ ff   := merge_ok_epsilon a it' msg₁ msg₂
-        | other           := other
+        | ok_eps _ _ ex₂ := ok_eps a it' (ex₁ ++ ex₂)
+        | error msg₂ ff  := ok_eps a it' (ex₁ ++ msg₂.expected)
+        | other          := other
         end
       | error msg₁ ff :=
         match q it with
-        | ok_eps a it' msg₂ := merge_ok_epsilon a it' msg₁ msg₂
-        | error msg₂ ff     := merge_error msg₁ msg₂
-        | other             := other
+        | ok_eps a it' ex₂ := ok_eps a it' (msg₁.expected ++ ex₂)
+        | error msg₂ ff    := error (merge msg₁ msg₂) ff
+        | other            := other
         end
-      | other               := other
+      | other              := other
       end
 
 instance : alternative parser :=
@@ -342,7 +330,7 @@ string.to_nat <$> (take_while1 char.is_digit)
 
 /-- Return the number of characters left to be parsed. -/
 def remaining : parser nat :=
-λ it, ok_eps it.remaining it { pos := it.offset }
+λ it, ok_eps it.remaining it []
 
 /-- Succeed only if there are at least `n` characters left. -/
 def ensure (n : nat) : parser unit :=
@@ -350,11 +338,11 @@ def ensure (n : nat) : parser unit :=
       else error { pos := it.offset, unexpected := "end of input", expected := ["at least " ++ to_string n ++ " characters"] } ff
 
 def left_over : parser iterator :=
-λ it, ok_eps it it { pos := it.offset }
+λ it, ok_eps it it []
 
 /-- Return the current position. -/
 def pos : parser position :=
-λ it, ok_eps it.offset it { pos := it.offset }
+λ it, ok_eps it.offset it []
 
 def many1_aux (p : parser α) : nat → parser (list α)
 | 0     := do a ← p, return [a]
@@ -379,7 +367,7 @@ def many' (p : parser α) : parser unit :=
 many1' p <|> return ()
 
 def eoi : parser unit :=
-λ it, if it.remaining = 0 then ok_eps () it { pos := it.offset }
+λ it, if it.remaining = 0 then ok_eps () it []
       else error { pos := it.offset, unexpected := repr it.curr, expected := ["end of input"] } ff
 
 def sep_by1 (p : parser α) (sep : parser β) : parser (list α) :=
@@ -414,7 +402,7 @@ def foldl (f : α → β → α) (a : α) (p : parser β) : parser α :=
 /- Parse `p` without consuming any input. -/
 def lookahead (p : parser α) : parser α :=
 λ it, match p it with
-      | ok a s' := ok_eps a it { pos := it.offset }
+      | ok a s' := ok_eps a it []
       | other   := other
       end
 

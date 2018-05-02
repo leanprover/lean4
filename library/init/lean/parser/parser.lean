@@ -366,7 +366,7 @@ def many1 (p : parser α) : parser (list α) :=
 do r ← remaining, many1_aux p r
 
 def many (p : parser α) : parser (list α) :=
-many1 p <* eps
+many1 p <|> return []
 
 def many1_aux' (p : parser α) : nat → parser unit
 | 0     := p >> return ()
@@ -376,7 +376,7 @@ def many1' (p : parser α) : parser unit :=
 do r ← remaining, many1_aux' p r
 
 def many' (p : parser α) : parser unit :=
-many1' p <* eps
+many1' p <|> return ()
 
 def eoi : parser unit :=
 λ it, if it.remaining = 0 then ok_eps () it { pos := it.offset }

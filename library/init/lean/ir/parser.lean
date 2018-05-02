@@ -126,5 +126,3 @@ def parse_instr : parser instr :=
 
 end ir
 end lean
-
-#exit

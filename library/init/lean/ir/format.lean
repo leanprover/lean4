@@ -79,14 +79,14 @@ def instr.to_format : instr → format
 | (instr.cast x ty y)        := to_fmt x ++ " : " ++ to_fmt ty ++ " := " ++ to_fmt y
 | (instr.unop x ty op y)     := to_fmt x ++ " : " ++ to_fmt ty ++ " := " ++ to_fmt op ++ " " ++ to_fmt y
 | (instr.binop x ty op y z)  := to_fmt x ++ " : " ++ to_fmt ty ++ " := " ++ to_fmt op ++ " " ++ to_fmt y ++ " " ++ to_fmt z
-| (instr.call xs fn ys)      := join_with xs " " ++ " := call " ++ to_fmt fn ++ " " ++ join_with ys " "
+| (instr.call xs fn ys)      := join_sep xs " " ++ " := call " ++ to_fmt fn ++ " " ++ join_sep ys " "
 | (instr.cnstr o t n sz)     := to_fmt o ++ " := cnstr " ++ to_fmt t ++ " " ++ to_fmt n ++ " " ++ to_fmt sz
 | (instr.set o i x)          := to_fmt "set " ++ to_fmt o ++ " " ++ to_fmt i ++ " " ++ to_fmt x
 | (instr.get x o i)          := to_fmt x ++ " := get " ++ to_fmt o ++ " " ++ to_fmt i
 | (instr.sset o d v)         := to_fmt "sset " ++ to_fmt o ++ " " ++ to_fmt d ++ " " ++ to_fmt v
 | (instr.sget x ty o d)      := to_fmt x ++ " : " ++ to_fmt ty ++ " := sget " ++ to_fmt o ++ " " ++ to_fmt d
-| (instr.closure x f ys)     := to_fmt x ++ " := closure " ++ to_fmt f ++ join_with ys " "
-| (instr.apply x ys)         := to_fmt x ++ " := apply " ++ join_with ys " "
+| (instr.closure x f ys)     := to_fmt x ++ " := closure " ++ to_fmt f ++ join_sep ys " "
+| (instr.apply x ys)         := to_fmt x ++ " := apply " ++ join_sep ys " "
 | (instr.array a sz c)       := to_fmt a ++ " := array " ++ to_fmt sz ++ " " ++ to_fmt c
 | (instr.write a i v)        := "write " ++ to_fmt a ++ " " ++ to_fmt i ++ " " ++ to_fmt v
 | (instr.read x a i)         := to_fmt x ++ " := read " ++ to_fmt a ++ " " ++ to_fmt i
@@ -102,13 +102,13 @@ instance instr.has_to_format : has_to_format instr := ⟨instr.to_format⟩
 instance instr.has_to_string : has_to_string instr := ⟨pretty ∘ to_fmt⟩
 
 def phi.to_format : phi → format
-| {x := x, ty := ty, ys := ys} := to_fmt x ++ " : " ++ to_fmt ty ++  " := phi " ++ join_with ys " "
+| {x := x, ty := ty, ys := ys} := to_fmt x ++ " : " ++ to_fmt ty ++  " := phi " ++ join_sep ys " "
 
 instance phi.has_to_format : has_to_format phi := ⟨phi.to_format⟩
 instance phi.has_to_string : has_to_string phi := ⟨pretty ∘ to_fmt⟩
 
 def terminator.to_format : terminator → format
-| (terminator.ret ys)    := "ret " ++ join_with ys " "
+| (terminator.ret ys)    := "ret " ++ join_sep ys " "
 | (terminator.case x bs) := "case " ++ to_fmt x ++ " " ++ to_fmt bs
 | (terminator.jmp b)     := "jmp " ++ to_fmt b
 
@@ -117,7 +117,7 @@ instance terminator.has_to_string : has_to_string terminator := ⟨pretty ∘ to
 
 def block.to_format : block → format
 | {id := id, phis := ps, instrs := is, term := t} :=
-  to_fmt id ++ ":" ++ line ++ join_with ps line ++ join_with is line ++ to_fmt t
+  to_fmt id ++ ":" ++ line ++ join_sep ps line ++ join_sep is line ++ to_fmt t
 
 instance block.has_to_format : has_to_format block := ⟨block.to_format⟩
 instance block.has_to_string : has_to_string block := ⟨pretty ∘ to_fmt⟩
@@ -135,7 +135,9 @@ instance result.has_to_format : has_to_format result := ⟨result.to_format⟩
 instance result.has_to_string : has_to_string result := ⟨pretty ∘ to_fmt⟩
 
 def decl.to_format : decl → format
-| {n := f, as := as, rs := rs, bs := bs} := "decl " ++ to_fmt f ++ " " ++ join_with as " " ++ " : " ++ join_with rs " " ++ " := " ++ line ++ join_with bs line ++ line ++ "end"
+| {n := f, as := as, rs := rs, bs := bs} :=
+  "decl " ++ to_fmt f ++ " " ++ join_sep as " " ++ " : " ++ join_sep rs " " ++ " := " ++ line ++
+  join_sep bs line ++ line ++ "end"
 
 instance decl.has_to_format : has_to_format decl := ⟨decl.to_format⟩
 instance decl.has_to_string : has_to_string decl := ⟨pretty ∘ to_fmt⟩

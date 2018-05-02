@@ -106,14 +106,14 @@ instance to_string_to_format {α : Type u} [has_to_string α] : has_to_format α
 
 instance string_has_to_format : has_to_format string := ⟨format.text⟩
 
-def format.join_with {α : Type u} [has_to_format α] : list α → format → format
+def format.join_sep {α : Type u} [has_to_format α] : list α → format → format
 | []      sep  := nil
 | [a]     sep := to_fmt a
-| (a::as) sep := to_fmt a ++ sep ++ format.join_with as sep
+| (a::as) sep := to_fmt a ++ sep ++ format.join_sep as sep
 
 def list.to_format {α : Type u} [has_to_format α] : list α → format
 | [] := "[]"
-| xs := sbracket $ format.join_with xs ("," ++ line)
+| xs := sbracket $ format.join_sep xs ("," ++ line)
 
 instance list_has_to_format {α : Type u} [has_to_format α] : has_to_format (list α) :=
 ⟨list.to_format⟩

@@ -40,6 +40,15 @@ list.has_dec_eq
 instance : has_append (list α) :=
 ⟨list.append⟩
 
+theorem append_nil : ∀ (l : list α), l ++ [] = l
+| []      := rfl
+| (a::as) := show a :: (as ++ []) = a :: as, from (append_nil as).symm ▸ rfl
+
+theorem append_assoc : ∀ (l₁ l₂ l₃ : list α), (l₁ ++ l₂) ++ l₃ = l₁ ++ (l₂ ++ l₃)
+| []      l₁ l₂ := rfl
+| (a::as) l₁ l₂ := show a :: (as ++ l₁ ++ l₂) = a :: (as ++ (l₁ ++ l₂)), from
+                   append_assoc as l₁ l₂ ▸ rfl
+
 protected def mem : α → list α → Prop
 | a []       := false
 | a (b :: l) := a = b ∨ mem a l

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.lean.ir.ir init.lean.parser.parser
 import init.lean.parser.identifier init.lean.parser.string_literal
+import init.lean.ir.reserved
 
 namespace lean
 namespace ir
@@ -73,11 +74,21 @@ try (do p ← pos,
         return $ uint16.of_nat n)
 <?> "uint16"
 
+def identifier : parser name :=
+try (do p ← pos,
+        n ← lean.parser.identifier,
+        when (is_reserved_name n) $ unexpected_at "keyword" p,
+        return n)
+<?> "identifier"
+
 def parse_var : parser var :=
 lexeme identifier <?> "variable"
 
 def parse_fnid : parser fnid :=
 lexeme identifier <?> "function name"
+
+def parse_blockid : parser blockid :=
+lexeme identifier <?> "label"
 
 def parse_nary_call (x : var) : parser instr :=
 do xs  ← many1 parse_var,
@@ -126,6 +137,41 @@ def parse_instr : parser instr :=
 <|> (keyword "decs" >> instr.decs <$> parse_var)
 <|> (keyword "free" >> instr.free <$> parse_var)
 <|> parse_assignment
+
+def parse_phi : parser phi :=
+do (x, ty) ← try $ do { x ← parse_var, symbol ":", ty ← parse_type, symbol ":=", keyword "phi", return (x, ty) },
+   ys ← many1 parse_var,
+   return {x := x, ty := ty, ys := ys}
+
+def parse_terminator : parser terminator :=
+    (keyword "jmp" >> terminator.jmp <$> parse_blockid)
+<|> (keyword "ret" >> terminator.ret <$> many parse_var)
+<|> (keyword "case" >> terminator.case <$> parse_var <*> many parse_blockid)
+
+def parse_block : parser block :=
+do id ← parse_blockid,
+   symbol ":",
+   ps ← many (parse_phi <* symbol ";"),
+   is ← many (parse_instr <* symbol ";"),
+   t  ← parse_terminator <* symbol ";",
+   return { id := id, phis := ps, instrs := is, term := t }
+
+def parse_arg : parser arg :=
+do symbol "(", x ← parse_var, symbol ":", ty ← parse_type, symbol ")", return {n := x, ty := ty}
+
+
+def parse_header : parser header :=
+do n ← parse_fnid,
+   as ← many parse_arg,
+   symbol ":",
+   r ← many (result.mk <$> parse_type),
+   return { n := n, args := as, return := r }
+
+def parse_def : parser decl :=
+symbol "def" >> decl.defn <$> parse_header <*> (symbol ":=" >> many parse_block)
+
+def parse_external : parser decl :=
+symbol "external" >> decl.external <$> parse_header
 
 end ir
 end lean

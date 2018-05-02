@@ -102,8 +102,12 @@ structure arg :=
 structure result :=
 (ty : type)
 
-structure decl :=
-(n : fnid) (as : list arg) (rs : list result) (bs : list block)
+structure header :=
+(n : fnid) (args : list arg) (return : list result)
+
+inductive decl
+| external (h : header)
+| defn     (h : header) (bs : list block)
 
 end ir
 end lean

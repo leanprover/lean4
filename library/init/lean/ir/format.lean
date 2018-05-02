@@ -117,7 +117,7 @@ instance terminator.has_to_string : has_to_string terminator := ⟨pretty ∘ to
 
 def block.to_format : block → format
 | {id := id, phis := ps, instrs := is, term := t} :=
-  to_fmt id ++ ":" ++ line ++ join_sep ps line ++ join_sep is line ++ to_fmt t
+  to_fmt id ++ ":" ++ nest 2 (line ++ join_suffix ps (";" ++ line) ++ join_suffix is (";" ++ line) ++ to_fmt t ++ ";")
 
 instance block.has_to_format : has_to_format block := ⟨block.to_format⟩
 instance block.has_to_string : has_to_string block := ⟨pretty ∘ to_fmt⟩
@@ -134,10 +134,15 @@ def result.to_format : result → format
 instance result.has_to_format : has_to_format result := ⟨result.to_format⟩
 instance result.has_to_string : has_to_string result := ⟨pretty ∘ to_fmt⟩
 
+def header.to_format (h : header) : format :=
+to_fmt h.n ++ " " ++ join_sep h.args " " ++ " : " ++ join_sep h.return " "
+
+instance header.has_to_format : has_to_format header := ⟨header.to_format⟩
+instance header.has_to_string : has_to_string header := ⟨pretty ∘ to_fmt⟩
+
 def decl.to_format : decl → format
-| {n := f, as := as, rs := rs, bs := bs} :=
-  "decl " ++ to_fmt f ++ " " ++ join_sep as " " ++ " : " ++ join_sep rs " " ++ " := " ++ line ++
-  join_sep bs line ++ line ++ "end"
+| (decl.defn h bs)  := "def " ++ to_fmt h ++ " := " ++ line ++ join_sep bs line ++ line
+| (decl.external h) := "external " ++ to_fmt h
 
 instance decl.has_to_format : has_to_format decl := ⟨decl.to_format⟩
 instance decl.has_to_string : has_to_string decl := ⟨pretty ∘ to_fmt⟩

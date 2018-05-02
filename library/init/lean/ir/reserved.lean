@@ -16,13 +16,17 @@ def reserved := [ "bool", "byte", "uint16", "uint32", "uint64",
  "or", "xor", "le", "ge", "lt", "gt", "eq", "ne", "call", "closure",
  "apply", "cnstr", "set", "get", "sset", "sget", "array", "read",
  "write", "sarray", "sread", "swrite", "inc", "decs", "dec", "del",
- "phi", "ret", "case", "jmp", "decl", "end", "tt", "ff"]
+ "phi", "ret", "case", "jmp", "decl", "tt", "ff"]
 
 def reserved_set : rbtree string (<) :=
 reserved.foldl rbtree.insert (mk_rbtree string (<))
 
 def is_reserved (s : string) : bool :=
 reserved_set.contains s
+
+def is_reserved_name : name → bool
+| (name.mk_string p s) := is_reserved s
+| _                    := ff
 
 end ir
 end lean

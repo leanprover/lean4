@@ -61,13 +61,14 @@ def arg.declare_at (b : blockid) : arg → ssa_decl_m unit
 /- Collect where each variable is declared, and
    check whether each variable was declared at most once. -/
 def decl.declare_vars : decl → ssa_decl_m unit
-| {as := as, bs := b::bs, ..} :=
+| (decl.defn {args := as, ..} (b::bs)) :=
   /- We assume that arguments are declared in the first basic block.
      TODO: check whether this assumption matches LLVM or not -/
   as.mmap' (arg.declare_at b.id) >>
   b.declare_vars >>
   bs.mmap' block.declare_vars
-| _ := throw ssa_error.no_block
+| (decl.defn _  []) := throw ssa_error.no_block
+| _                 := return ()
 
 /- Generate the mapping from variable to blockid for the given declaration.
    This function assumes `d` is in SSA. -/
@@ -173,8 +174,12 @@ defined before being used.
 -/
 def decl.valid_ssa (d : decl) : except_t ssa_error id var2blockid :=
 do m ← d.var2blockid,
-   d.bs.mmap' (λ b : block, run_reader block.valid_ssa (m, b)),
-   return m
+   match d with
+   | decl.defn _ bs := do
+      bs.mmap' (λ b : block, run_reader block.valid_ssa (m, b)),
+      return m
+   | _ := return m
+   end
 
 /- Check blockids -/
 inductive blockid_error
@@ -202,8 +207,9 @@ def terminator.check_blockids : terminator → blockid_check_m unit
 def block.check_blockids (b : block) : blockid_check_m unit :=
 b.term.check_blockids
 
-def decl.check_blockids (d : decl) : blockid_check_m unit :=
-d.bs.mmap' block.declare >> d.bs.mmap' block.check_blockids
+def decl.check_blockids : decl → blockid_check_m unit
+| (decl.defn _ bs) := bs.mmap' block.declare >> bs.mmap' block.check_blockids
+| _                := return ()
 
 def check_blockids (d : decl) : except_t blockid_error id blockid_set :=
 run_state (d.check_blockids >> get) mk_blockid_set

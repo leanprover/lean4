@@ -17,16 +17,13 @@ def uint64_sz : nat := 18446744073709551616
 def uint64 := fin uint64_sz
 
 instance : decidable_eq uint16 :=
-have decidable_eq (fin uint16_sz), from fin.decidable_eq _,
-this
+infer_instance_as (decidable_eq (fin uint16_sz))
 
 instance : decidable_eq uint32 :=
-have decidable_eq (fin uint32_sz), from fin.decidable_eq _,
-this
+infer_instance_as (decidable_eq (fin uint32_sz))
 
 instance : decidable_eq uint64 :=
-have decidable_eq (fin uint64_sz), from fin.decidable_eq _,
-this
+infer_instance_as (decidable_eq (fin uint64_sz))
 
 instance : has_zero uint16 := ⟨fin.of_nat 0⟩
 instance : has_one uint16  := ⟨fin.of_nat 1⟩

@@ -8,11 +8,7 @@ import init.core
 
 namespace system
 
-structure platform_type :=
-(nbits : nat)
-
--- TODO: mark as opaque
-def platform : platform_type :=
-{ nbits := 64 } -- TODO use `default nat` }
+-- TODO: mark as opaque, the VM provides platform specific implementation
+def platform.nbits : nat := 64
 
 end system

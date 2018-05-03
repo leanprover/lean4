@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_parser.h"
 #include "library/vm/vm_array.h"
 #include "library/vm/vm_string.h"
+#include "library/vm/vm_platform.h"
 
 namespace lean {
 void initialize_vm_core_module() {
@@ -47,9 +48,11 @@ void initialize_vm_core_module() {
     initialize_vm_parser();
     initialize_vm_array();
     initialize_vm_string();
+    initialize_vm_platform();
 }
 
 void finalize_vm_core_module() {
+    finalize_vm_platform();
     finalize_vm_string();
     finalize_vm_array();
     finalize_vm_parser();

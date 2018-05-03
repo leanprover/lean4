@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.data.string.basic init.data.uint init.data.nat.div
+import init.data.string.basic init.data.uint init.data.usize init.data.nat.div
 open sum subtype nat
 
 universes u v
@@ -130,14 +130,10 @@ instance : has_repr string.iterator :=
 instance (n : nat) : has_repr (fin n) :=
 ⟨λ f, repr (fin.val f)⟩
 
-instance : has_repr uint16 :=
-⟨λ n, repr (fin.val n)⟩
-
-instance : has_repr uint32 :=
-⟨λ n, repr (fin.val n)⟩
-
-instance : has_repr uint64 :=
-⟨λ n, repr (fin.val n)⟩
+instance : has_repr uint16 := ⟨λ n, repr (fin.val n)⟩
+instance : has_repr uint32 := ⟨λ n, repr (fin.val n)⟩
+instance : has_repr uint64 := ⟨λ n, repr (fin.val n)⟩
+instance : has_repr usize  := ⟨λ n, repr (fin.val n)⟩
 
 def char.repr (c : char) : string :=
 repr c

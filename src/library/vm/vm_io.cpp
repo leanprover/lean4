@@ -185,26 +185,18 @@ static vm_obj fs_close(vm_obj const & h, vm_obj const &) {
     }
 }
 
-static vm_obj mk_buffer(parray<vm_obj> const & a) {
-    return mk_vm_pair(mk_vm_nat(a.size()), to_obj(a));
-}
-
 static vm_obj fs_read(vm_obj const & h, vm_obj const & n, vm_obj const &) {
     handle_ref const & href = to_handle(h);
     if (href->is_closed()) return mk_handle_has_been_closed_error();
     buffer<char> tmp;
     unsigned num = force_to_unsigned(n); /* TODO(Leo): handle size_t */
     tmp.resize(num, 0);
-    size_t sz = fread(tmp.data(), 1, num, href->m_file);
+    fread(tmp.data(), 1, num, href->m_file);
     if (ferror(href->m_file)) {
         clearerr(href->m_file);
         return mk_io_failure("read failed");
     }
-    parray<vm_obj> r;
-    for (size_t i = 0; i < sz; i++) {
-        r.push_back(mk_vm_simple(static_cast<unsigned char>(tmp[i])));
-    }
-    return mk_io_result(mk_buffer(r));
+    return mk_io_result(to_obj(std::string(tmp.data())));
 }
 
 static vm_obj fs_write(vm_obj const & h, vm_obj const & b, vm_obj const &) {
@@ -214,15 +206,8 @@ static vm_obj fs_write(vm_obj const & h, vm_obj const & b, vm_obj const &) {
         return mk_handle_has_been_closed_error();
     }
 
-    buffer<char> tmp;
-    parray<vm_obj> const & a = to_array(cfield(b, 1));
-    unsigned sz = a.size();
-    for (unsigned i = 0; i < sz; i++) {
-        tmp.push_back(static_cast<unsigned char>(cidx(a[i])));
-    }
-
     try {
-        href->write(tmp);
+        href->write(to_string(b));
         return mk_io_result(mk_vm_unit());
     } catch (handle_exception e) {
         return mk_io_failure("write failed");
@@ -236,7 +221,7 @@ static vm_obj fs_get_line(vm_obj const & h, vm_obj const &) {
         return mk_handle_has_been_closed_error();
     }
 
-    parray<vm_obj> r;
+    std::string r;
     while (true) {
         int c = fgetc(href->m_file);
         if (ferror(href->m_file)) {
@@ -245,11 +230,11 @@ static vm_obj fs_get_line(vm_obj const & h, vm_obj const &) {
         }
         if (c == EOF)
             break;
-        r.push_back(mk_vm_simple(static_cast<unsigned char>(static_cast<char>(c))));
+        r.push_back(static_cast<char>(c));
         if (c == '\n')
             break;
     }
-    return mk_io_result(mk_buffer(r));
+    return mk_io_result(to_obj(r));
 }
 
 static vm_obj fs_stdin(vm_obj const &) {

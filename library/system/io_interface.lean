@@ -3,7 +3,7 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import data.buffer system.random
+import system.random
 
 inductive io.error
 | other     : string → io.error
@@ -55,9 +55,9 @@ class monad_io_file_system (m : Type → Type → Type) [monad_io m] :=
 (is_eof         : (handle m) → m io.error bool)
 (flush          : (handle m) → m io.error unit)
 (close          : (handle m) → m io.error unit)
-(read           : (handle m) → nat → m io.error char_buffer)
-(write          : (handle m) → char_buffer → m io.error unit)
-(get_line       : (handle m) → m io.error char_buffer)
+(read           : (handle m) → nat → m io.error string)
+(write          : (handle m) → string → m io.error unit)
+(get_line       : (handle m) → m io.error string)
 (stdin          : m io.error (handle m))
 (stdout         : m io.error (handle m))
 (stderr         : m io.error (handle m))

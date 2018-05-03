@@ -115,31 +115,31 @@ monad_io_file_system.flush
 def close : handle → io unit :=
 monad_io_file_system.close
 
-def read : handle → nat → io char_buffer :=
+def read : handle → nat → io string :=
 monad_io_file_system.read
 
-def write : handle → char_buffer → io unit :=
+def write : handle → string → io unit :=
 monad_io_file_system.write
 
 def get_char (h : handle) : io char :=
 do b ← read h 1,
-   if h : b.size = 1 then return $ b.read ⟨0, h.symm ▸ nat.zero_lt_one⟩
-   else io.fail "get_char failed"
+   if b.is_empty then io.fail "get_char failed"
+   else return b.mk_iterator.curr
 
-def get_line : handle → io char_buffer :=
+def get_line : handle → io string :=
 monad_io_file_system.get_line
 
 def put_char (h : handle) (c : char) : io unit :=
-write h (mk_buffer.push_back c)
+write h (to_string c)
 
 def put_str (h : handle) (s : string) : io unit :=
-write h (mk_buffer.append_string s)
+write h s
 
 def put_str_ln (h : handle) (s : string) : io unit :=
 put_str h s >> put_str h "\n"
 
-def read_to_end (h : handle) : io char_buffer :=
-iterate mk_buffer $ λ r,
+def read_to_end (h : handle) : io string :=
+iterate "" $ λ r,
   do done ← is_eof h,
     if done
     then return none
@@ -147,7 +147,7 @@ iterate mk_buffer $ λ r,
       c ← read h 1024,
       return $ some (r ++ c)
 
-def read_file (s : string) (bin := ff) : io char_buffer :=
+def read_file (s : string) (bin := ff) : io string :=
 do h ← mk_file_handle s io.mode.read bin,
    read_to_end h
 
@@ -199,11 +199,11 @@ format.print (to_fmt a)
     read into `string` which is then returned. -/
 def io.cmd (args : io.process.spawn_args) : io string :=
 do child ← io.proc.spawn { stdout := io.process.stdio.piped, ..args },
-  buf ← io.fs.read_to_end child.stdout,
+  s ← io.fs.read_to_end child.stdout,
   io.fs.close child.stdout,
   exitv ← io.proc.wait child,
   when (exitv ≠ 0) $ io.fail $ "process exited with status " ++ repr exitv,
-  return buf.to_string
+  return s
 
 /--
 This is the "back door" into the `io` monad, allowing IO computation to be performed during tactic execution.

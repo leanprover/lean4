@@ -28,7 +28,7 @@ Author:  Leonardo de Moura & Jared Roesch
 
 namespace lean {
 
-void handle::write(buffer<char> & buf) {
+void handle::write(std::string const & buf) {
     auto sz = buf.size();
     if (fwrite(buf.data(), 1, sz, m_file) != sz) {
         std::cout << "write_error: " << errno << std::endl;

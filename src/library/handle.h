@@ -27,7 +27,7 @@ public:
 
     ~handle();
 
-    void write(buffer<char> & data);
+    void write(std::string const & data);
     void flush();
 
     bool is_stdin();

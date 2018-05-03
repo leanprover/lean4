@@ -111,7 +111,6 @@ do cmd ← lean.ir.parse_instr,
 #eval test parse_instr_pp "o := cnstr 0   3   0" "o := cnstr 0 3 0"
 #eval test parse_instr_pp "set o 0 x" "set o 0 x"
 #eval test parse_instr_pp "x := get o 0" "x := get o 0"
-#eval test parse_instr_pp "«set» := get o 0" "«set» := get o 0"
 #eval test parse_instr_pp "sset o 10 x" "sset o 10 x"
 #eval test parse_instr_pp "x : bool := sget o 0" "x : bool := sget o 0"
 #eval test parse_instr_pp "x := closure f a" "x := closure f a"

@@ -1137,12 +1137,10 @@ iff.intro of_not_not not_not_intro
 
 theorem not_and_iff_or_not (p q : Prop) [d₁ : decidable p] [d₂ : decidable q] : ¬ (p ∧ q) ↔ ¬ p ∨ ¬ q :=
 iff.intro
-(λ h, match d₁ with
-      | is_true h₁  :=
-        (match d₂ with
-         | is_true h₂  := absurd (and.intro h₁ h₂) h
-         | is_false h₂ := or.inr h₂)
-      | is_false h₁ := or.inl h₁)
+(λ h, match d₁, d₂ with
+      | is_true h₁,  is_true h₂  := absurd (and.intro h₁ h₂) h
+      | _,           is_false h₂ := or.inr h₂
+      | is_false h₁, _           := or.inl h₁)
 (λ h ⟨hp, hq⟩, or.elim h (λ h, h hp) (λ h, h hq))
 
 theorem not_or_iff_and_not (p q) [d₁ : decidable p] [d₂ : decidable q] : ¬ (p ∨ q) ↔ ¬ p ∧ ¬ q :=
@@ -1473,13 +1471,13 @@ instance (p : Prop) : subsingleton (decidable p) :=
 subsingleton.intro (λ d₁,
   match d₁ with
   | (is_true t₁) := (λ d₂,
-    (match d₂ with
-     | (is_true t₂) := eq.rec_on (proof_irrel t₁ t₂) rfl
-     | (is_false f₂) := absurd t₁ f₂))
+    match d₂ with
+    | (is_true t₂) := eq.rec_on (proof_irrel t₁ t₂) rfl
+    | (is_false f₂) := absurd t₁ f₂)
   | (is_false f₁) := (λ d₂,
-    (match d₂ with
-     | (is_true t₂) := absurd t₂ f₁
-     | (is_false f₂) := eq.rec_on (proof_irrel f₁ f₂) rfl)))
+    match d₂ with
+    | (is_true t₂) := absurd t₂ f₁
+    | (is_false f₂) := eq.rec_on (proof_irrel f₁ f₂) rfl))
 
 protected theorem rec_subsingleton {p : Prop} [h : decidable p] {h₁ : p → Sort u} {h₂ : ¬p → Sort u}
                                  [h₃ : Π (h : p), subsingleton (h₁ h)] [h₄ : Π (h : ¬p), subsingleton (h₂ h)]

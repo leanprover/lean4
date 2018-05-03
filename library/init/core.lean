@@ -1422,6 +1422,7 @@ end plift
 class inhabited (α : Sort u) :=
 (default : α)
 
+-- TODO: mark as opaque
 def default (α : Sort u) [inhabited α] : α :=
 inhabited.default α
 
@@ -1440,6 +1441,8 @@ instance pi.inhabited (α : Sort u) {β : α → Sort v} [Π x, inhabited (β x)
 instance : inhabited bool := ⟨ff⟩
 
 instance : inhabited true := ⟨trivial⟩
+
+instance : inhabited nat := ⟨0⟩
 
 class inductive nonempty (α : Sort u) : Prop
 | intro (val : α) : nonempty

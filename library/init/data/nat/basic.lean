@@ -55,9 +55,6 @@ def {u} repeat {α : Type u} (f : ℕ → α → α) : ℕ → α → α
 | 0         a := a
 | (succ n)  a := f n (repeat n a)
 
-instance : inhabited ℕ :=
-⟨nat.zero⟩
-
 protected def pow (b : ℕ) : ℕ → ℕ
 | 0        := 1
 | (succ n) := pow n * b
@@ -332,6 +329,14 @@ theorem lt_of_succ_le {a b : ℕ} (h : succ a ≤ b) : a < b := h
 
 theorem succ_le_of_lt {a b : ℕ} (h : a < b) : succ a ≤ b := h
 
+theorem lt_or_eq_or_le_succ {m n : nat} (h : m ≤ succ n) : m ≤ n ∨ m = succ n :=
+decidable.by_cases
+  (λ h' : m = succ n, or.inr h')
+  (λ h' : m ≠ succ n,
+     have m < succ n, from nat.lt_of_le_and_ne h h',
+     have succ m ≤ succ n, from succ_le_of_lt this,
+     or.inl (le_of_succ_le_succ this))
+
 theorem le_add_right : ∀ (n k : ℕ), n ≤ n + k
 | n 0     := nat.le_refl n
 | n (k+1) := le_succ_of_le (le_add_right n k)
@@ -552,12 +557,6 @@ protected theorem one_le_bit0 : ∀ (n : ℕ), n ≠ 0 → 1 ≤ bit0 n
     eq.symm (nat.bit0_succ_eq n) ▸ this,
   succ_le_succ (zero_le (succ (bit0 n)))
 
-/- power -/
-
-theorem pow_succ (b n : ℕ) : b^(succ n) = b^n * b := rfl
-
-theorem pow_zero (b : ℕ) : b^0 = 1 := rfl
-
 /- mul + order -/
 
 theorem mul_le_mul_left {n m : ℕ} (k : ℕ) (h : n ≤ m) : k * n ≤ k * m :=
@@ -570,6 +569,9 @@ end
 theorem mul_le_mul_right {n m : ℕ} (k : ℕ) (h : n ≤ m) : n * k ≤ m * k :=
 nat.mul_comm k m ▸ nat.mul_comm k n ▸ mul_le_mul_left k h
 
+protected theorem mul_le_mul {n₁ m₁ n₂ m₂ : nat} (h₁ : n₁ ≤ n₂) (h₂ : m₁ ≤ m₂) : n₁ * m₁ ≤ n₂ * m₂ :=
+nat.le_trans (mul_le_mul_right _ h₁) (mul_le_mul_left _ h₂)
+
 protected theorem mul_lt_mul_of_pos_left {n m k : ℕ} (h : n < m) (hk : k > 0) : k * n < k * m :=
 nat.lt_of_lt_of_le (nat.add_lt_add_left hk _) (nat.mul_succ k n ▸ nat.mul_le_mul_left k (succ_le_of_lt h))
 
@@ -579,5 +581,29 @@ nat.mul_comm k m ▸ nat.mul_comm k n ▸ nat.mul_lt_mul_of_pos_left h hk
 protected theorem mul_pos {a b : nat} (ha : a > 0) (hb : b > 0) : a * b > 0 :=
 have h : 0 * b < a * b, from nat.mul_lt_mul_of_pos_right ha hb,
 nat.zero_mul b ▸ h
+
+/- power -/
+
+theorem pow_succ (b n : ℕ) : b^(succ n) = b^n * b := rfl
+
+theorem pow_zero (b : ℕ) : b^0 = 1 := rfl
+
+theorem pow_le_pow_of_le_left {x y : ℕ} (h : x ≤ y) : ∀ i : ℕ, x^i ≤ y^i
+| 0        := nat.le_refl _
+| (succ i) := nat.mul_le_mul (pow_le_pow_of_le_left i) h
+
+theorem pow_le_pow_of_le_right {x : ℕ} (hx : x > 0) {i : ℕ} : ∀ {j}, i ≤ j → x^i ≤ x^j
+| 0        h :=
+  have i = 0, from eq_zero_of_le_zero h,
+  this.symm ▸ nat.le_refl _
+| (succ j) h :=
+  or.elim (lt_or_eq_or_le_succ h)
+    (λ h, show x^i ≤ x^j * x, from
+          suffices x^i * 1 ≤ x^j * x, from nat.mul_one (x^i) ▸ this,
+          nat.mul_le_mul (pow_le_pow_of_le_right h) hx)
+    (λ h, h.symm ▸ nat.le_refl _)
+
+theorem pos_pow_of_pos {b : ℕ} (n : ℕ) (h : 0 < b) : 0 < b^n :=
+pow_le_pow_of_le_right h (nat.zero_le _)
 
 end nat

@@ -1,133 +1,137 @@
 /-
-Copyright (c) 2017 Microsoft Corporation. All rights reserved.
+Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura, Mario Carneiro
+Authors: Leonardo de Moura
 -/
 prelude
-import init.data.nat.basic init.data.fin.basic
+import init.data.nat.basic init.data.fin.basic init.data.usize init.data.repr init.function
 universes u v w
 
-/- In the VM, d_array is implemented a persistent array. -/
-structure d_array (n : nat) (α : fin n → Type u) :=
-(data : Π i : fin n, α i)
+/-
+The compiler has special support for arrays.
+They are implemented as a dynamic array.
+-/
 
-namespace d_array
-variables {n : nat} {α : fin n → Type u} {β : Type v}
+structure array (α : Type u) :=
+(sz   : nat)
+(data : fin sz → α)
 
-def nil {α} : d_array 0 α :=
-{data := λ ⟨x, h⟩, absurd h (nat.not_lt_zero x)}
+/- TODO: mark as builtin -/
+def mk_array {α : Type u} (n : nat) (v : α) : array α :=
+{ sz   := n,
+  data := λ _, v}
 
-/- has builtin VM implementation -/
-def read (a : d_array n α) (i : fin n) : α i :=
-a.data i
-
-/- has builtin VM implementation -/
-def write (a : d_array n α) (i : fin n) (v : α i) : d_array n α :=
-{data := λ j, if h : i = j then eq.rec_on h v else a.read j}
-
-def iterate_aux (a : d_array n α) (f : Π i : fin n, α i → β → β) : Π (i : nat), i ≤ n → β → β
-| 0     h b := b
-| (j+1) h b :=
-  let i : fin n := ⟨j, h⟩ in
-  f i (a.read i) (iterate_aux j (nat.le_of_lt h) b)
-
-/- has builtin VM implementation -/
-def iterate (a : d_array n α) (b : β) (f : Π i : fin n, α i → β → β) : β :=
-iterate_aux a f n (nat.le_refl _) b
-
-/- has builtin VM implementation -/
-def foreach (a : d_array n α) (f : Π i : fin n, α i → α i) : d_array n α :=
-iterate a a $ λ i v a', a'.write i (f i v)
-
-def map (f : Π i : fin n, α i → α i) (a : d_array n α) : d_array n α :=
-foreach a f
-
-def map₂ (f : Π i : fin n, α i → α i → α i) (a b : d_array n α) : d_array n α :=
-foreach b (λ i, f i (a.read i))
-
-def foldl (a : d_array n α) (b : β) (f : Π i : fin n, α i → β → β) : β :=
-iterate a b f
-
-def rev_iterate_aux (a : d_array n α) (f : Π i : fin n, α i → β → β) : Π (i : nat), i ≤ n → β → β
-| 0     h b := b
-| (j+1) h b :=
-  let i : fin n := ⟨j, h⟩ in
-  rev_iterate_aux j (nat.le_of_lt h) (f i (a.read i) b)
-
-def rev_iterate (a : d_array n α) (b : β) (f : Π i : fin n, α i → β → β) : β :=
-rev_iterate_aux a f n (nat.le_refl _) b
-
-end d_array
-
-def array (n : nat) (α : Type u) : Type u :=
-d_array n (λ _, α)
-
-/- has builtin VM implementation -/
-def mk_array {α} (n) (v : α) : array n α :=
-{data := λ _, v}
+theorem sz_mk_array_eq {α : Type u} (n : nat) (v : α) : (mk_array n v).sz = n :=
+rfl
 
 namespace array
-variables {n : nat} {α : Type u} {β : Type v}
+variables {α : Type u} {β : Type v}
 
-def nil {α} : array 0 α :=
-d_array.nil
+/- TODO: mark as builtin -/
+def nil : array α :=
+{ sz   := 0,
+  data := λ ⟨x, h⟩, absurd h (nat.not_lt_zero x) }
 
-def read (a : array n α) (i : fin n) : α :=
-d_array.read a i
+def empty (a : array α) : bool :=
+a.sz = 0
 
-def write (a : array n α) (i : fin n) (v : α) : array n α :=
-d_array.write a i v
+/- TODO: mark as builtin -/
+def read (a : array α) (i : fin a.sz) : α :=
+a.data i
 
-def iterate (a : array n α) (b : β) (f : fin n → α → β → β) : β :=
-d_array.iterate a b f
+/- TODO: mark as builtin -/
+def write (a : array α) (i : fin a.sz) (v : α) : array α :=
+{ sz   := a.sz,
+  data := λ j, if h : i = j then v else a.data j }
 
-def foreach (a : array n α) (f : fin n → α → α) : array n α :=
-iterate a a (λ i v a', a'.write i (f i v))
+theorem sz_write_eq (a : array α) (i : fin a.sz) (v : α) : (write a i v).sz = a.sz :=
+rfl
 
-def map (f : α → α) (a : array n α) : array n α :=
-foreach a (λ _, f)
+/- TODO: add builtin -/
+def read' [inhabited α] (a : array α) (i : nat) : α :=
+if h : i < a.sz then a.read ⟨i, h⟩ else default α
 
-def map₂ (f : α → α → α) (a b : array n α) : array n α :=
-foreach b (λ i, f (a.read i))
+/- TODO: add builtin -/
+def write' (a : array α) (i : nat) (v : α) : array α :=
+if h : i < a.sz then a.write ⟨i, h⟩ v else a
 
-def foldl (a : array n α) (b : β) (f : α → β → β) : β :=
+/- TODO: add builtin -/
+def uread [inhabited α] (a : array α) (i : usize) : α :=
+if h : i.val < a.sz then a.read ⟨i.val, h⟩ else default α
+
+/- TODO: add builtin -/
+def uwrite (a : array α) (i : usize) (v : α) : array α :=
+if h : i.val < a.sz then a.write ⟨i.val, h⟩ v else a
+
+/- TODO: mark as builtin -/
+def push (a : array α) (v : α) : array α :=
+{ sz   := nat.succ a.sz,
+  data := λ ⟨j, h₁⟩,
+    if h₂ : j = a.sz then v
+    else a.data ⟨j, nat.lt_of_le_of_ne (nat.le_of_lt_succ h₁) h₂⟩ }
+
+/- TODO: mark as builtin -/
+def pop (a : array α) : array α :=
+{ sz   := nat.pred a.sz,
+  data := λ ⟨j, h⟩, a.read ⟨j, nat.lt_of_lt_of_le h (nat.pred_le _)⟩ }
+
+private def iterate_aux (a : array α) (f : Π i : fin a.sz, α → β → β) : Π (i : nat), i ≤ a.sz → β → β
+| 0     h b := b
+| (j+1) h b :=
+  let i : fin a.sz := ⟨j, h⟩ in
+  f i (a.read i) (iterate_aux j (nat.le_of_lt h) b)
+
+/- TODO : mark as builtin -/
+def iterate (a : array α) (b : β) (f : Π i : fin a.sz, α → β → β) : β :=
+iterate_aux a f a.sz (nat.le_refl _) b
+
+def foldl (a : array α) (b : β) (f : α → β → β) : β :=
 iterate a b (λ _, f)
 
-def rev_list (a : array n α) : list α :=
-a.foldl [] (::)
+private def rev_iterate_aux (a : array α) (f : Π i : fin a.sz, α → β → β) : Π (i : nat), i ≤ a.sz → β → β
+| 0     h b := b
+| (j+1) h b :=
+  let i : fin a.sz := ⟨j, h⟩ in
+  rev_iterate_aux j (nat.le_of_lt h) (f i (a.read i) b)
 
-def rev_iterate (a : array n α) (b : β) (f : fin n → α → β → β) : β :=
-d_array.rev_iterate a b f
+/- TODO: mark as builtin -/
+def rev_iterate (a : array α) (b : β) (f : Π i : fin a.sz, α → β → β) : β :=
+rev_iterate_aux a f a.sz (nat.le_refl _) b
 
-def rev_foldl (a : array n α) (b : β) (f : α → β → β) : β :=
+def rev_foldl (a : array α) (b : β) (f : α → β → β) : β :=
 rev_iterate a b (λ _, f)
 
-def to_list (a : array n α) : list α :=
+def to_list (a : array α) : list α :=
 a.rev_foldl [] (::)
 
-theorem push_back_idx {j n} (h₁ : j < n + 1) (h₂ : j ≠ n) : j < n :=
-nat.lt_of_le_of_ne (nat.le_of_lt_succ h₁) h₂
+instance [has_repr α] : has_repr (array α) :=
+⟨repr ∘ to_list⟩
 
-/- has builtin VM implementation -/
-def push_back (a : array n α) (v : α) : array (n+1) α :=
-{data := λ ⟨j, h₁⟩, if h₂ : j = n then v else a.read ⟨j, push_back_idx h₁ h₂⟩}
+private def foreach_aux (a : array α) (f : Π i : fin a.sz, α → α) : { a' : array α // a'.sz = a.sz } :=
+iterate a ⟨a, rfl⟩ $ λ i v ⟨a', h⟩,
+  let i' : fin a'.sz := eq.rec_on h.symm i in
+  ⟨a'.write i' (f i v), (sz_write_eq a' i' (f i v)) ▸ h⟩
 
-theorem pop_back_idx {j n} (h : j < n) : j < n + 1 :=
-nat.lt.step h
+/- TODO : mark as builtin -/
+def foreach (a : array α) (f : Π i : fin a.sz, α → α) : array α :=
+(foreach_aux a f).val
 
-/- has builtin VM implementation -/
-def pop_back (a : array (n+1) α) : array n α :=
-{data := λ ⟨j, h⟩, a.read ⟨j, pop_back_idx h⟩}
+theorem sz_foreach_eq (a : array α) (f : Π i : fin a.sz, α → α) : (foreach a f).sz = a.sz :=
+(foreach_aux a f).property
 
-protected def mem (v : α) (a : array n α) : Prop :=
-∃ i : fin n, read a i = v
+def map (f : α → α) (a : array α) : array α :=
+foreach a (λ _, f)
 
-instance : has_mem α (array n α) := ⟨array.mem⟩
-
-def read' [inhabited β] (a : array n β) (i : nat) : β :=
-if h : i < n then a.read ⟨i,h⟩ else default β
-
-def write' (a : array n α) (i : nat) (v : α) : array n α :=
-if h : i < n then a.write ⟨i, h⟩ v else a
+def map₂ (f : α → α → α) (a b : array α) : array α :=
+if h : a.sz ≤ b.sz
+then foreach a (λ ⟨i, h'⟩, f (b.read ⟨i, nat.lt_of_lt_of_le h' h⟩))
+else foreach b (λ ⟨i, h'⟩, f (a.read ⟨i, nat.lt_trans h' (nat.gt_of_not_le h)⟩))
 
 end array
+
+def list.to_array_aux {α : Type u} : list α → array α → array α
+| []      r := r
+| (a::as) r := list.to_array_aux as (r.push a)
+
+def list.to_array {α : Type u} (l : list α) : array α :=
+l.to_array_aux array.nil

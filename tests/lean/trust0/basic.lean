@@ -55,9 +55,6 @@ def {u} repeat {α : Type u} (f : ℕ → α → α) : ℕ → α → α
 | 0         a := a
 | (succ n)  a := f n (repeat n a)
 
-instance : inhabited ℕ :=
-⟨nat.zero⟩
-
 @[simp] lemma nat_zero_eq_zero : nat.zero = 0 :=
 rfl
 

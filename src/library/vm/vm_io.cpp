@@ -191,12 +191,12 @@ static vm_obj fs_read(vm_obj const & h, vm_obj const & n, vm_obj const &) {
     buffer<char> tmp;
     unsigned num = force_to_unsigned(n); /* TODO(Leo): handle size_t */
     tmp.resize(num, 0);
-    fread(tmp.data(), 1, num, href->m_file);
+    size_t sz = fread(tmp.data(), 1, num, href->m_file);
     if (ferror(href->m_file)) {
         clearerr(href->m_file);
         return mk_io_failure("read failed");
     }
-    return mk_io_result(to_obj(std::string(tmp.data())));
+    return mk_io_result(to_obj(std::string(tmp.data(), sz)));
 }
 
 static vm_obj fs_write(vm_obj const & h, vm_obj const & b, vm_obj const &) {

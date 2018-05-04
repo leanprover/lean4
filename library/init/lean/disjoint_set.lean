@@ -16,16 +16,16 @@ structure disjoint_set.node (α : Type u) :=
 (find : α)
 (rank : nat := 0)
 
-structure disjoint_set (α : Type u) [decidable_eq α] (h : α → uint32) : Type u :=
+structure disjoint_set (α : Type u) [decidable_eq α] (h : α → usize) : Type u :=
 (map : hashmap α (disjoint_set.node α) h)
 
 variables {α : Type u}
 
-def mk_disjoint_set [decidable_eq α] (h : α → uint32) : disjoint_set α h :=
+def mk_disjoint_set [decidable_eq α] (h : α → usize) : disjoint_set α h :=
 ⟨mk_hashmap h⟩
 
 namespace disjoint_set
-variables [decidable_eq α] {h : α → uint32}
+variables [decidable_eq α] {h : α → usize}
 
 private def find_aux : nat → α → hashmap α (node α) h → node α
 | 0     a m := { find := a, rank := 0 }

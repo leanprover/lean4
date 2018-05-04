@@ -10,7 +10,7 @@ universes u v w
 def bucket_array (α : Type u) (β : α → Type v) :=
 { b : array (list (Σ a, β a)) // b.sz > 0 }
 
-def bucket_array.uwrite {α : Type u} {β : α → Type v} (data : bucket_array α β) (i : uint32) (d : list (Σ a, β a)) (h : i.val < data.val.sz) : bucket_array α β :=
+def bucket_array.uwrite {α : Type u} {β : α → Type v} (data : bucket_array α β) (i : usize) (d : list (Σ a, β a)) (h : i.val < data.val.sz) : bucket_array α β :=
 ⟨ data.val.uwrite i d h,
   calc (data.val.uwrite i d h).sz = data.val.sz : array.sz_write_eq _ _ _
                      ...          > 0           : data.property ⟩
@@ -34,10 +34,10 @@ let n := if nbuckets = 0 then 8 else nbuckets in
 namespace hashmap_imp
 variables {α : Type u} {β : α → Type v}
 
-def mk_idx {n : nat} (h : n > 0) (u : uint32) : { u : uint32 // u.val < n } :=
+def mk_idx {n : nat} (h : n > 0) (u : usize) : { u : usize // u.val < n } :=
 ⟨u %ₙ n, fin.modn_lt _ h⟩
 
-def reinsert_aux (hash_fn : α → uint32) (data : bucket_array α β) (a : α) (b : β a) : bucket_array α β :=
+def reinsert_aux (hash_fn : α → usize) (data : bucket_array α β) (a : α) (b : β a) : bucket_array α β :=
 let ⟨i, h⟩ := mk_idx data.property (hash_fn a) in
 data.uwrite i (⟨a, b⟩ :: data.val.uread i h) h
 
@@ -52,7 +52,7 @@ def find_aux [decidable_eq α] (a : α) : list (Σ a, β a) → option (β a)
 def contains_aux [decidable_eq α] (a : α) (l : list (Σ a, β a)) : bool :=
 (find_aux a l).is_some
 
-def find [decidable_eq α] (hash_fn : α → uint32) (m : hashmap_imp α β) (a : α) : option (β a) :=
+def find [decidable_eq α] (hash_fn : α → usize) (m : hashmap_imp α β) (a : α) : option (β a) :=
 match m with
 | ⟨_, buckets⟩ :=
   let ⟨i, h⟩ := mk_idx buckets.property (hash_fn a) in
@@ -69,7 +69,7 @@ def erase_aux [decidable_eq α] (a : α) : list (Σ a, β a) → list (Σ a, β 
 | []            := []
 | (⟨a', b'⟩::t) := if a' = a then t else ⟨a', b'⟩ :: erase_aux t
 
-def insert [decidable_eq α] (hash_fn : α → uint32) (m : hashmap_imp α β) (a : α) (b : β a) : hashmap_imp α β :=
+def insert [decidable_eq α] (hash_fn : α → usize) (m : hashmap_imp α β) (a : α) (b : β a) : hashmap_imp α β :=
 match m with
 | ⟨size, buckets⟩ :=
   let ⟨i, h⟩ := mk_idx buckets.property (hash_fn a) in
@@ -85,7 +85,7 @@ match m with
             ⟨ size',
               fold_buckets buckets' ⟨mk_array nbuckets' [], nz'⟩ (reinsert_aux hash_fn) ⟩
 
-def erase [decidable_eq α] (hash_fn : α → uint32) (m : hashmap_imp α β) (a : α) : hashmap_imp α β :=
+def erase [decidable_eq α] (hash_fn : α → usize) (m : hashmap_imp α β) (a : α) : hashmap_imp α β :=
 match m with
 | ⟨ size, buckets ⟩ :=
   let ⟨i, h⟩ := mk_idx buckets.property (hash_fn a) in
@@ -93,23 +93,23 @@ match m with
   if contains_aux a bkt then ⟨size - 1, buckets.uwrite i (erase_aux a bkt) h⟩
   else m
 
-inductive well_formed [decidable_eq α] (hash_fn : α → uint32) : hashmap_imp α β → Prop
+inductive well_formed [decidable_eq α] (hash_fn : α → usize) : hashmap_imp α β → Prop
 | mk_wff     : ∀ n,                     well_formed (mk_hashmap_imp n)
 | insert_wff : ∀ m a b, well_formed m → well_formed (insert hash_fn m a b)
 | erase_wff  : ∀ m a,   well_formed m → well_formed (erase hash_fn m a)
 
 end hashmap_imp
 
-def d_hashmap (α : Type u) (β : α → Type v) [decidable_eq α] (h : α → uint32) :=
+def d_hashmap (α : Type u) (β : α → Type v) [decidable_eq α] (h : α → usize) :=
 { m : hashmap_imp α β // m.well_formed h }
 
 open hashmap_imp
 
-def mk_d_hashmap {α : Type u} {β : α → Type v} [decidable_eq α] (h : α → uint32) (nbuckets := 8) : d_hashmap α β h :=
+def mk_d_hashmap {α : Type u} {β : α → Type v} [decidable_eq α] (h : α → usize) (nbuckets := 8) : d_hashmap α β h :=
 ⟨ mk_hashmap_imp nbuckets, well_formed.mk_wff h nbuckets ⟩
 
 namespace d_hashmap
-variables {α : Type u} {β : α → Type v} [decidable_eq α] {h : α → uint32}
+variables {α : Type u} {β : α → Type v} [decidable_eq α] {h : α → usize}
 
 def insert (m : d_hashmap α β h) (a : α) (b : β a) : d_hashmap α β h :=
 match m with
@@ -144,14 +144,14 @@ m.size = 0
 
 end d_hashmap
 
-def hashmap (α : Type u) (β : Type v) [decidable_eq α] (h : α → uint32) :=
+def hashmap (α : Type u) (β : Type v) [decidable_eq α] (h : α → usize) :=
 d_hashmap α (λ _, β) h
 
-def mk_hashmap {α : Type u} {β : Type v} [decidable_eq α] (h : α → uint32) (nbuckets := 8) : hashmap α β h :=
+def mk_hashmap {α : Type u} {β : Type v} [decidable_eq α] (h : α → usize) (nbuckets := 8) : hashmap α β h :=
 mk_d_hashmap h nbuckets
 
 namespace hashmap
-variables {α : Type u} {β : Type v} [decidable_eq α] {h : α → uint32}
+variables {α : Type u} {β : Type v} [decidable_eq α] {h : α → usize}
 
 @[inline] def insert (m : hashmap α β h) (a : α) (b : β) : hashmap α β h :=
 d_hashmap.insert m a b

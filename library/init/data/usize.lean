@@ -25,6 +25,7 @@ instance : has_add usize  := ⟨fin.add⟩
 instance : has_sub usize  := ⟨fin.sub⟩
 instance : has_mul usize  := ⟨fin.mul⟩
 instance : has_mod usize  := ⟨fin.mod⟩
+instance : has_modn usize := ⟨fin.modn⟩
 instance : has_div usize  := ⟨fin.div⟩
 instance : has_lt usize   := ⟨fin.lt⟩
 instance : has_le usize   := ⟨fin.le⟩

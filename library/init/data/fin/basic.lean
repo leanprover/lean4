@@ -51,7 +51,7 @@ protected def sub : fin n → fin n → fin n
 | ⟨a, h⟩ ⟨b, _⟩ := ⟨(a + (n - b)) % n, mlt h⟩
 
 /-
-Remark: sub/mod/div can be defined without using (% n), but
+Remark: mod/div/modn can be defined without using (% n), but
 we are trying to minimize the number of nat theorems
 needed to boostrap Lean.
 -/
@@ -62,6 +62,9 @@ protected def mod : fin n → fin n → fin n
 protected def div : fin n → fin n → fin n
 | ⟨a, h⟩ ⟨b, _⟩ := ⟨(a / b) % n, mlt h⟩
 
+protected def modn : fin n → nat → fin n
+| ⟨a, h⟩ m := ⟨(a % m) % n, mlt h⟩
+
 instance : has_zero (fin (succ n)) := ⟨⟨0, succ_pos n⟩⟩
 instance : has_one (fin (succ n))  := ⟨of_nat 1⟩
 instance : has_add (fin n)         := ⟨fin.add⟩
@@ -69,6 +72,7 @@ instance : has_sub (fin n)         := ⟨fin.sub⟩
 instance : has_mul (fin n)         := ⟨fin.mul⟩
 instance : has_mod (fin n)         := ⟨fin.mod⟩
 instance : has_div (fin n)         := ⟨fin.div⟩
+instance : has_modn (fin n)        := ⟨fin.modn⟩
 
 theorem eq_of_veq : ∀ {i j : fin n}, (val i) = (val j) → i = j
 | ⟨iv, ilt₁⟩ ⟨.(iv), ilt₂⟩ rfl := rfl
@@ -81,6 +85,9 @@ theorem ne_of_vne {i j : fin n} (h : val i ≠ val j) : i ≠ j :=
 
 theorem vne_of_ne {i j : fin n} (h : i ≠ j) : val i ≠ val j :=
 λ h', absurd (eq_of_veq h') h
+
+theorem modn_lt : ∀ {m : nat} (i : fin n), m > 0 → (i %ₙ m).val < m
+| m ⟨a, h⟩ hp :=  nat.lt_of_le_of_lt (mod_le _ _) (mod_lt _ hp)
 
 end fin
 

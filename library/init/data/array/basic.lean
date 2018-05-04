@@ -56,11 +56,19 @@ def write' (a : array α) (i : nat) (v : α) : array α :=
 if h : i < a.sz then a.write ⟨i, h⟩ v else a
 
 /- TODO: add builtin -/
-def uread [inhabited α] (a : array α) (i : usize) : α :=
+def uread (a : array α) (i : uint32) (h : i.val < a.sz) : α :=
+a.read ⟨i.val, h⟩
+
+/- TODO: add builtin -/
+def uwrite (a : array α) (i : uint32) (v : α) (h : i.val < a.sz) : array α :=
+a.write ⟨i.val, h⟩ v
+
+/- TODO: add builtin -/
+def uread' [inhabited α] (a : array α) (i : uint32) : α :=
 if h : i.val < a.sz then a.read ⟨i.val, h⟩ else default α
 
 /- TODO: add builtin -/
-def uwrite (a : array α) (i : usize) (v : α) : array α :=
+def uwrite' (a : array α) (i : uint32) (v : α) : array α :=
 if h : i.val < a.sz then a.write ⟨i.val, h⟩ v else a
 
 /- TODO: mark as builtin -/

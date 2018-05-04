@@ -31,6 +31,7 @@ instance : has_add uint16  := ⟨fin.add⟩
 instance : has_sub uint16  := ⟨fin.sub⟩
 instance : has_mul uint16  := ⟨fin.mul⟩
 instance : has_mod uint16  := ⟨fin.mod⟩
+instance : has_modn uint16 := ⟨fin.modn⟩
 instance : has_div uint16  := ⟨fin.div⟩
 instance : has_lt uint16   := ⟨fin.lt⟩
 instance : has_le uint16   := ⟨fin.le⟩
@@ -41,6 +42,7 @@ instance : has_add uint32  := ⟨fin.add⟩
 instance : has_sub uint32  := ⟨fin.sub⟩
 instance : has_mul uint32  := ⟨fin.mul⟩
 instance : has_mod uint32  := ⟨fin.mod⟩
+instance : has_modn uint32 := ⟨fin.modn⟩
 instance : has_div uint32  := ⟨fin.div⟩
 instance : has_lt uint32   := ⟨fin.lt⟩
 instance : has_le uint32   := ⟨fin.le⟩
@@ -51,24 +53,14 @@ instance : has_add uint64  := ⟨fin.add⟩
 instance : has_sub uint64  := ⟨fin.sub⟩
 instance : has_mul uint64  := ⟨fin.mul⟩
 instance : has_mod uint64  := ⟨fin.mod⟩
+instance : has_modn uint64 := ⟨fin.modn⟩
 instance : has_div uint64  := ⟨fin.div⟩
 instance : has_lt uint64   := ⟨fin.lt⟩
 instance : has_le uint64   := ⟨fin.le⟩
 
-def uint16.of_nat (n : nat) : uint16 :=
-fin.of_nat n
-
-def uint16.to_nat (u : uint16) : nat :=
-fin.val u
-
-def uint32.of_nat (n : nat) : uint32 :=
-fin.of_nat n
-
-def uint32.to_nat (u : uint32) : nat :=
-fin.val u
-
-def uint64.of_nat (n : nat) : uint64 :=
-fin.of_nat n
-
-def uint64.to_nat (u : uint64) : nat :=
-fin.val u
+def uint16.of_nat (n : nat) : uint16 := fin.of_nat n
+def uint16.to_nat (u : uint16) : nat := fin.val u
+def uint32.of_nat (n : nat) : uint32 := fin.of_nat n
+def uint32.to_nat (u : uint32) : nat := fin.val u
+def uint64.of_nat (n : nat) : uint64 := fin.of_nat n
+def uint64.to_nat (u : uint64) : nat := fin.val u

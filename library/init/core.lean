@@ -42,6 +42,7 @@ reserve infixl ` - `:65
 reserve infixl ` * `:70
 reserve infixl ` / `:70
 reserve infixl ` % `:70
+reserve infixl ` %ₙ `:70
 reserve prefix `-`:100
 reserve infixr ` ^ `:80
 
@@ -324,6 +325,7 @@ class has_sub      (α : Type u) := (sub : α → α → α)
 class has_div      (α : Type u) := (div : α → α → α)
 class has_dvd      (α : Type u) := (dvd : α → α → Prop)
 class has_mod      (α : Type u) := (mod : α → α → α)
+class has_modn     (α : Type u) := (modn : α → nat → α)
 class has_le       (α : Type u) := (le : α → α → Prop)
 class has_lt       (α : Type u) := (lt : α → α → Prop)
 class has_append   (α : Type u) := (append : α → α → α)
@@ -359,6 +361,7 @@ infix -        := has_sub.sub
 infix /        := has_div.div
 infix ∣        := has_dvd.dvd
 infix %        := has_mod.mod
+infix %ₙ       := has_modn.modn
 prefix -       := has_neg.neg
 infix <=       := has_le.le
 infix ≤        := has_le.le

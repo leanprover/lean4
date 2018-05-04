@@ -93,4 +93,11 @@ mod.induction_on x y
         have heq : x % y = x, from mod_eq_of_lt hgt,
         heq.symm ▸ hgt))
 
+theorem mod_le (x y : ℕ) : x % y ≤ x :=
+or.elim (nat.lt_or_ge x y)
+  (λ h₁ : x < y, (mod_eq_of_lt h₁).symm ▸ nat.le_refl _)
+  (λ h₁ : x ≥ y, or.elim (eq_zero_or_pos y)
+    (λ h₂ : y = 0, h₂.symm ▸ (nat.mod_zero x).symm ▸ nat.le_refl _)
+    (λ h₂ : y > 0, nat.le_trans (nat.le_of_lt (nat.mod_lt _ h₂)) h₁))
+
 end nat

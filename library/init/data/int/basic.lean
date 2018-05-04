@@ -57,7 +57,6 @@ def sub_nat_nat (m n : ℕ) : int :=
 match (n - m : nat) with
 | 0        := of_nat (m - n)  -- m ≥ n
 | (succ k) := -[1+ k]         -- m < n, and n - m = succ k
-end
 
 protected def neg : int → int
 | (of_nat n) := neg_of_nat n

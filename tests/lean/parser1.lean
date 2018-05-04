@@ -5,19 +5,16 @@ def test {α} [decidable_eq α] (p : parser α) (s : string) (e : α) : io unit 
 match parse p s with
 | except.ok a    := if a = e then return () else io.print_ln "unexpected result"
 | except.error e := io.print_ln (e.to_string s)
-end
 
 def test_failure {α} (p : parser α) (s : string) : io unit :=
 match parse p s with
 | except.ok a    := io.print_ln "unexpected success"
 | except.error e := return ()
-end
 
 def show_result {α} [has_to_string α] (p : parser α) (s : string) : io unit :=
 match parse p s with
 | except.ok a    := io.print_ln "result: " >> io.print_ln (repr $ to_string a)
 | except.error e := io.print_ln (e.to_string s)
-end
 
 #eval test (ch 'a') "a" 'a'
 #eval test any "a" 'a'
@@ -149,12 +146,10 @@ instance eq_expr : decidable_eq Expr
 | (Add e₁ e₂) (Var y)     := is_false (λ h, Expr.no_confusion h)
 | (Add e₁ e₂) (Add e₃ e₄) :=
   match eq_expr e₁ e₃ with
-  | is_true h   := match eq_expr e₂ e₄ with
-                   | is_true  h' := is_true (h ▸ h' ▸ rfl)
-                   | is_false h' := is_false (λ he, Expr.no_confusion he (λ h₁ h₂, absurd h₂ h'))
-                   end
+  | is_true h   := (match eq_expr e₂ e₄ with
+                    | is_true  h' := is_true (h ▸ h' ▸ rfl)
+                    | is_false h' := is_false (λ he, Expr.no_confusion he (λ h₁ h₂, absurd h₂ h')))
   | is_false h := is_false (λ he, Expr.no_confusion he (λ h₁ h₂, absurd h₁ h))
-  end
 
 def parse_atom (p : parser Expr) : parser Expr :=
 (Var <$> lexeme var <?> "variable")

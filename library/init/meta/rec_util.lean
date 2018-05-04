@@ -58,7 +58,7 @@ private meta def mk_constructors_arg_names_aux : list name → name → nat → 
 | []      p i r := return (list.reverse r)
 | (c::cs) p i r := do
   v : list name × nat ← mk_constructor_arg_names c p i,
-  match v with (l, i') := mk_constructors_arg_names_aux cs p i' (l :: r) end
+  match v with (l, i') := mk_constructors_arg_names_aux cs p i' (l :: r)
 
 /-- Given an inductive datatype I with k constructors and where constructor i has n_i fields,
    return the list [[p.1, ..., p.n_1], [p.{n_1 + 1}, ..., p.{n_1 + n_2}], ..., [..., p.{n_1 + ... + n_k}]] -/
@@ -99,7 +99,6 @@ private meta def mk_constructor_fresh_names_aux : nat → expr → name_set → 
        mk_constructor_fresh_names_aux (nparams - 1) ty' s
      }
   | _ := return ([], s)
-  end
 
 meta def mk_constructor_fresh_names (nparams : nat) (c : name) (s : name_set) : tactic (list name × name_set) :=
 do d    ← get_decl c,

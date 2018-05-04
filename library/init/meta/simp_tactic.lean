@@ -53,15 +53,14 @@ namespace tactic
 meta def revert_and_transform (transform : expr → tactic expr) (h : expr) : tactic unit :=
 do num_reverted : ℕ ← revert h,
    t ← target,
-   match t with
-   | expr.pi n bi d b  :=
-        do h_simp ← transform d,
-           unsafe_change $ expr.pi n bi h_simp b
-   | expr.elet n g e f :=
-        do h_simp ← transform g,
-           unsafe_change $ expr.elet n h_simp e f
-   | _ := fail "reverting hypothesis created neither a pi nor an elet expr (unreachable?)"
-   end,
+   (match t with
+    | expr.pi n bi d b  :=
+         do h_simp ← transform d,
+            unsafe_change $ expr.pi n bi h_simp b
+    | expr.elet n g e f :=
+         do h_simp ← transform g,
+            unsafe_change $ expr.elet n h_simp e f
+    | _ := fail "reverting hypothesis created neither a pi nor an elet expr (unreachable?)"),
    intron num_reverted
 
 /-- `get_eqn_lemmas_for deps d` returns the automatically generated equational lemmas for definition d.
@@ -274,7 +273,7 @@ meta constant ext_simplify_core
 
 private meta def is_equation : expr → bool
 | (expr.pi n bi d b) := is_equation b
-| e                  := match (expr.is_eq e) with (some a) := tt | none := ff end
+| e                  := match (expr.is_eq e) with | (some a) := tt | none := ff
 
 meta def collect_ctx_simps : tactic (list expr) :=
 local_context
@@ -447,7 +446,6 @@ es.mmap' $ λ e,
    | some pr :=
       assert e.h.local_pp_name e.new_type >>
       mk_eq_mp pr e.h >>= exact
-   end
 
 private meta def clear_old_hyps (es : list simp_all_entry) : tactic unit :=
 es.mmap' $ λ e, when (e.pr ≠ none) (try (clear e.h))

@@ -50,7 +50,6 @@ match m.val with
 | rbnode.leaf             := false
 | rbnode.red_node _ e _   := rbtree.mem (k, e.2) m
 | rbnode.black_node _ e _ := rbtree.mem (k, e.2) m
-end
 
 instance : has_mem α (rbmap α β lt) :=
 ⟨rbmap.mem⟩
@@ -71,7 +70,6 @@ match m.val with
 | rbnode.leaf             := none
 | rbnode.red_node _ e _   := @rbtree.find _ _ rbmap_lt_dec m (k, e.2)
 | rbnode.black_node _ e _ := @rbtree.find _ _ rbmap_lt_dec m (k, e.2)
-end
 
 def to_value : option (α × β) → option β
 | none     := none

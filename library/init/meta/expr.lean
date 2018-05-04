@@ -29,8 +29,7 @@ instance : has_repr binder_info :=
 | binder_info.implicit := "implicit"
 | binder_info.strict_implicit := "strict_implicit"
 | binder_info.inst_implicit := "inst_implicit"
-| binder_info.aux_decl := "aux_decl"
-end⟩
+| binder_info.aux_decl := "aux_decl"⟩
 
 meta constant macro_def : Type
 
@@ -64,7 +63,6 @@ meta def expr.erase_annotations : expr elab → expr elab
   match e.is_annotation with
   | some (_, a) := expr.erase_annotations a
   | none        := e
-  end
 
 /-- Compares expressions, including binder names. -/
 meta constant expr.has_decidable_eq : decidable_eq expr
@@ -147,7 +145,6 @@ id
 λ ef ea, match ef with
 | (expr.lam _ _ _ _) := expr.subst ef ea
 | _                  := expr.app   ef ea
-end
 
 attribute [irreducible] reflected reflected.subst reflected.to_expr
 

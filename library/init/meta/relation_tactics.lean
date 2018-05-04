@@ -16,7 +16,6 @@ do tgt   ← target >>= instantiate_mvars,
    match (op_for env (const_name r)) with
    | (some refl) := do r ← mk_const refl, apply_core r {md := md, new_goals := new_goals.non_dep_only} >> return ()
    | none        := fail $ tac_name ++ " tactic failed, target is not a relation application with the expected property."
-   end
 
 meta def reflexivity (md := semireducible) : tactic unit :=
 relation_tactic md environment.refl_for "reflexivity"

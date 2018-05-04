@@ -38,10 +38,10 @@ instance : has_repr unit :=
 ⟨λ u, "()"⟩
 
 instance {α : Type u} [has_repr α] : has_repr (option α) :=
-⟨λ o, match o with | none := "none" | (some a) := "(some " ++ repr a ++ ")" end⟩
+⟨λ o, match o with | none := "none" | (some a) := "(some " ++ repr a ++ ")"⟩
 
 instance {α : Type u} {β : Type v} [has_repr α] [has_repr β] : has_repr (α ⊕ β) :=
-⟨λ s, match s with | (inl a) := "(inl " ++ repr a ++ ")" | (inr b) := "(inr " ++ repr b ++ ")" end⟩
+⟨λ s, match s with | (inl a) := "(inl " ++ repr a ++ ")" | (inr b) := "(inr " ++ repr b ++ ")"⟩
 
 instance {α : Type u} {β : Type v} [has_repr α] [has_repr β] : has_repr (α × β) :=
 ⟨λ ⟨a, b⟩, "(" ++ repr a ++ ", " ++ repr b ++ ")"⟩

@@ -52,14 +52,12 @@ instance has_decidable_eq : decidable_eq name
     match has_decidable_eq p₁ p₂ with
     | is_true h₂  := is_true $ h₁ ▸ h₂ ▸ rfl
     | is_false h₂ := is_false $ λ h, name.no_confusion h $ λ hp hs, absurd hp h₂
-    end
   else is_false $ λ h, name.no_confusion h $ λ hp hs, absurd hs h₁
 | (mk_numeral p₁ n₁) (mk_numeral p₂ n₂) :=
   if h₁ : n₁ = n₂ then
     match has_decidable_eq p₁ p₂ with
     | is_true h₂  := is_true $ h₁ ▸ h₂ ▸ rfl
     | is_false h₂ := is_false $ λ h, name.no_confusion h $ λ hp hs, absurd hp h₂
-    end
   else is_false $ λ h, name.no_confusion h $ λ hp hs, absurd hs h₁
 | anonymous          (mk_string _ _)    := is_false $ λ h, name.no_confusion h
 | anonymous          (mk_numeral _ _)   := is_false $ λ h, name.no_confusion h

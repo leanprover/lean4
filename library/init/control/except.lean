@@ -50,7 +50,6 @@ section
   match ma with
   | (except.error err) := except.error err
   | (except.ok v) := f v
-  end
 
   protected def to_bool {α : Type v} : except ε α → bool
   | (except.ok _)    := tt
@@ -94,8 +93,7 @@ section
   protected def catch {α : Type u} (ma : except_t ε m α) (handle : ε → except_t ε m α) : except_t ε m α :=
   ⟨ma.run >>= λ res, match res with
    | except.ok a    := pure (except.ok a)
-   | except.error e := (handle e).run
-   end⟩
+   | except.error e := (handle e).run⟩
 
   @[inline] protected def monad_map {m'} [monad m'] {α} (f : ∀ {α}, m α → m' α) : except_t ε m α → except_t ε m' α :=
   λ x, ⟨f x.run⟩

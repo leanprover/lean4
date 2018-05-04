@@ -8,7 +8,6 @@ def show_result {α} [lean.has_to_format α] (p : parser α) (s : string) : io u
 match parse p s with
 | except.ok a    := io.print_ln (lean.to_fmt a)
 | except.error e := io.print_ln (e.to_string s)
-end
 
 def IR := "
 def succ (x : uint32) : uint32 :=

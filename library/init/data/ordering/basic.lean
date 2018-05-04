@@ -12,7 +12,7 @@ inductive ordering
 | lt | eq | gt
 
 instance : has_repr ordering :=
-⟨(λ s, match s with | ordering.lt := "lt" | ordering.eq := "eq" | ordering.gt := "gt" end)⟩
+⟨(λ s, match s with | ordering.lt := "lt" | ordering.eq := "eq" | ordering.gt := "gt")⟩
 
 namespace ordering
 def swap : ordering → ordering
@@ -43,21 +43,17 @@ instance : decidable_eq ordering :=
 λ a b,
   match a with
   | ordering.lt :=
-    match b with
-    | ordering.lt := is_true rfl
-    | ordering.eq := is_false (λ h, ordering.no_confusion h)
-    | ordering.gt := is_false (λ h, ordering.no_confusion h)
-    end
+    (match b with
+     | ordering.lt := is_true rfl
+     | ordering.eq := is_false (λ h, ordering.no_confusion h)
+     | ordering.gt := is_false (λ h, ordering.no_confusion h))
   | ordering.eq :=
-    match b with
-    | ordering.lt := is_false (λ h, ordering.no_confusion h)
-    | ordering.eq := is_true rfl
-    | ordering.gt := is_false (λ h, ordering.no_confusion h)
-    end
+    (match b with
+     | ordering.lt := is_false (λ h, ordering.no_confusion h)
+     | ordering.eq := is_true rfl
+     | ordering.gt := is_false (λ h, ordering.no_confusion h))
   | ordering.gt :=
     match b with
     | ordering.lt := is_false (λ h, ordering.no_confusion h)
     | ordering.eq := is_false (λ h, ordering.no_confusion h)
     | ordering.gt := is_true rfl
-    end
-  end

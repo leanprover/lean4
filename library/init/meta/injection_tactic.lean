@@ -73,7 +73,6 @@ private meta def injections_with_inner : nat → list expr → list name → tac
   | none          := injections_with_inner (n+1) lc ns
   | some ([], _)  := skip -- This means that the contradiction part was triggered and the goal is done
   | some (t, ns') := injections_with_inner n (t ++ lc) ns'
-  end
 
 meta def injections_with (ns : list name) : tactic unit :=
 do lc ← local_context,

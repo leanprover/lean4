@@ -121,7 +121,6 @@ meta def insert {key : Type} {data : Type} (rbl : rb_lmap key data) (k : key) (d
 match (rb_map.find rbl k) with
 | none     := rb_map.insert rbl k [d]
 | (some l) := rb_map.insert (rb_map.erase rbl k) k (d :: l)
-end
 
 meta def erase {key : Type} {data : Type} (rbl : rb_lmap key data) (k : key) :
   rb_lmap key data :=
@@ -134,7 +133,6 @@ meta def find {key : Type} {data : Type} (rbl : rb_lmap key data) (k : key) : li
 match (rb_map.find rbl k) with
 | none     := []
 | (some l) := l
-end
 
 end rb_lmap
 

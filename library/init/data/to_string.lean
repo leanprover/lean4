@@ -62,10 +62,10 @@ instance : has_to_string uint64 :=
 ⟨λ n, to_string (fin.val n)⟩
 
 instance {α : Type u} [has_to_string α] : has_to_string (option α) :=
-⟨λ o, match o with | none := "none" | (some a) := "(some " ++ to_string a ++ ")" end⟩
+⟨λ o, match o with | none := "none" | (some a) := "(some " ++ to_string a ++ ")"⟩
 
 instance {α : Type u} {β : Type v} [has_to_string α] [has_to_string β] : has_to_string (α ⊕ β) :=
-⟨λ s, match s with | (inl a) := "(inl " ++ to_string a ++ ")" | (inr b) := "(inr " ++ to_string b ++ ")" end⟩
+⟨λ s, match s with | (inl a) := "(inl " ++ to_string a ++ ")" | (inr b) := "(inr " ++ to_string b ++ ")"⟩
 
 instance {α : Type u} {β : Type v} [has_to_string α] [has_to_string β] : has_to_string (α × β) :=
 ⟨λ ⟨a, b⟩, "(" ++ to_string a ++ ", " ++ to_string b ++ ")"⟩

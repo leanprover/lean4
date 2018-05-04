@@ -35,8 +35,8 @@ meta def loc.get_locals : loc → tactic (list expr)
 | loc.wildcard := tactic.local_context
 | (loc.ns xs)  := xs.mfoldl (λ ls n, match n with
   | none := pure ls
-  | some n := do l ← tactic.get_local n, pure $ l :: ls
-  end) []
+  | some n := do l ← tactic.get_local n, pure $ l :: ls)
+  []
 
 meta def loc.apply (hyp_tac : expr → tactic unit) (goal_tac : tactic unit) (l : loc) : tactic unit :=
 do hs ← l.get_locals,

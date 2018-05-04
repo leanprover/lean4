@@ -52,7 +52,6 @@ cleanup,
 match res with
 | sum.inr res := return res
 | sum.inl error := monad_io.fail _ _ _ error
-end
 
 protected def fail {α : Type} (s : string) : io α :=
 monad_io.fail io_core _ _ (io.error.other s)

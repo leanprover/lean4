@@ -111,7 +111,6 @@ show (tt = tt) = true, by simp
 match d with
 | is_true hp := ⟨λh, hp, λ_, rfl⟩
 | is_false hnp := ⟨λh, bool.no_confusion h, λhp, absurd hp hnp⟩
-end
 
 theorem to_bool_true {p : Prop} [decidable p] : p → to_bool p := (to_bool_iff p).2
 

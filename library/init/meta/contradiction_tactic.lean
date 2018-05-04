@@ -68,7 +68,6 @@ private meta def contra_constructor_eq : list expr → tactic unit
                   exact pr
           else contra_constructor_eq Hs
      | _ := contra_constructor_eq Hs
-     end
 
 meta def contradiction : tactic unit :=
 do try intro1,

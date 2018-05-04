@@ -73,12 +73,10 @@ let aux (n : name) : tactic expr := do
   match p with
   | (expr.const c []) := do r ← mk_const c, save_type_info r q, return r
   | _                 := i_to_expr p
-  end
 in match q with
 | (expr.const c [])          := aux c
 | (expr.local_const c _ _ _) := aux c
 | _                          := i_to_expr q
-end
 
 namespace interactive
 open interactive interactive.types expr
@@ -108,8 +106,7 @@ mcond tags_enabled
       r ← r.mfilter $ λ ⟨n, m⟩, bnot <$> is_assigned m,
       match r with
       | [(_, m)] := set_tag m in_tag /- if there is only new subgoal, we just propagate `in_tag` -/
-      | _        := r.mmap' (λ ⟨n, m⟩, set_tag m (n::in_tag))
-      end)
+      | _        := r.mmap' (λ ⟨n, m⟩, set_tag m (n::in_tag)))
   (tac >> skip)
 
 /--
@@ -289,9 +286,7 @@ do {
   p ← resolve_name n,
   match p with
   | expr.const n _ := mk_const n -- create metavars for universe levels
-  | _              := i_to_expr p
-  end
-}
+  | _              := i_to_expr p }
 
 /- Version of to_expr that tries to bypass the elaborator if `p` is just a constant or local constant.
    This is not an optimization, by skipping the elaborator we make sure that no unwanted resolution is used.
@@ -302,7 +297,6 @@ match p with
 | (const c [])          := do new_e ← resolve_name' c, save_type_info new_e p, return new_e
 | (local_const c _ _ _) := do new_e ← resolve_name' c, save_type_info new_e p, return new_e
 | _                     := i_to_expr p
-end
 
 meta structure rw_rule :=
 (pos  : pos)
@@ -319,13 +313,11 @@ let aux (n : name) : tactic (list name) := do {
   let e := p.erase_annotations.get_app_fn.erase_annotations,
   match e with
   | const n _ := get_eqn_lemmas_for tt n
-  | _         := return []
-  end } <|> return [] in
+  | _         := return [] } <|> return [] in
 match r.rule with
 | const n _           := aux n
 | local_const n _ _ _ := aux n
 | _                   := return []
-end
 
 private meta def rw_goal (cfg : rewrite_cfg) (rs : list rw_rule) : tactic unit :=
 rs.mmap' $ λ r, do
@@ -367,11 +359,11 @@ meta def rw_rules : parser rw_rules_t :=
 <|> rw_rules_t.mk <$> (list.ret <$> rw_rule_p texpr) <*> return none
 
 private meta def rw_core (rs : parse rw_rules) (loca : parse location) (cfg : rewrite_cfg) : tactic unit :=
-match loca with
-| loc.wildcard := loca.try_apply (rw_hyp cfg rs.rules) (rw_goal cfg rs.rules)
-| _            := loca.apply (rw_hyp cfg rs.rules) (rw_goal cfg rs.rules)
-end >> try (reflexivity reducible)
-    >> (returnopt rs.end_pos >>= save_info <|> skip)
+(match loca with
+ | loc.wildcard := loca.try_apply (rw_hyp cfg rs.rules) (rw_goal cfg rs.rules)
+ | _            := loca.apply (rw_hyp cfg rs.rules) (rw_goal cfg rs.rules))
+>> try (reflexivity reducible)
+>> (returnopt rs.end_pos >>= save_info <|> skip)
 
 /--
 `rewrite e` applies identity `e` as a rewrite rule to the target of the main goal. If `e` is preceded by left arrow (`←` or `<-`), the rewrite is applied in the reverse direction. If `e` is a defined constant, then the equational lemmas associated with `e` are used. This provides a convenient way to unfold `e`.
@@ -486,7 +478,6 @@ with_desc "(id :)? expr" $ do
   | (local_const x _ _ _) :=
     (tk ":" *> do t ← texpr, pure (some x, t)) <|> pure (none, t)
   | _ := pure (none, t)
-  end
 
 /--
   Given the initial tag `in_tag` and the cases names produced by `induction` or `cases` tactic,
@@ -509,7 +500,6 @@ do te ← tags_enabled,
              ```
           -/
      else tgs.mmap' (λ ⟨n, g⟩, with_enable_tags (set_tag g (`_case_simple::n::[])))
-   end
 
 private meta def set_induction_tags (in_tag : tag) (rs : list (name × list expr × list (name × expr))) : tactic unit :=
 set_cases_tags in_tag (rs.map (λ e, e.1))
@@ -534,14 +524,12 @@ meta def induction (hp : parse cases_arg_p) (rec_name : parse using_ident) (ids 
 do in_tag ← get_main_tag,
 focus1 $ do {
     -- process `h : t` case
-    e ← match hp with
-       | (some h, p) := do
-         x ← get_unused_name,
-         generalize h () (p, x),
-         get_local x
-       | (none, p) := i_to_expr p
-       end,
-
+    e ← (match hp with
+         | (some h, p) := do
+           x ← get_unused_name,
+           generalize h () (p, x),
+           get_local x
+         | (none, p) := i_to_expr p),
    -- generalize major premise
    e ← if e.is_local_constant then pure e
        else tactic.generalize e >> intro1,
@@ -612,7 +600,6 @@ do gs ← collect_tagged_goals pre,
    | gs  := do
      tags : list (list name) ← gs.mmap get_tag,
      fail ("invalid `case`, there is more than one goal tagged with prefix " ++ to_string pre ++ ", matching tags: " ++ to_string tags)
-   end
 
 private meta def find_tagged_goal (pre : list name) : tactic expr :=
 match pre with
@@ -628,7 +615,6 @@ match pre with
                else return r_id)
             <|> return id),
      find_tagged_goal_aux pre
-end
 
 private meta def find_case (goals : list expr) (ty : name) (idx : nat) (num_indices : nat) : option expr → expr → option (expr × expr)
 | case e := if e.has_meta_var then match e with
@@ -638,34 +624,30 @@ private meta def find_case (goals : list expr) (ty : name) (idx : nat) (num_indi
        pure (case, e)
   | (app _ _)    :=
     let idx :=
-      match e.get_app_fn with
+     (match e.get_app_fn with
       | const (name.mk_string rec ty') _ :=
         guard (ty' = ty) >>
-        match mk_simple_name rec with
-        | `drec := some idx | `rec := some idx
-        -- indices + major premise
-        | `dcases_on := some (idx + num_indices + 1) | `cases_on := some (idx + num_indices + 1)
-        | _ := none
-        end
-      | _ := none
-      end in
-    match idx with
-    | none := list.foldl (<|>) (find_case case e.get_app_fn) $ e.get_app_args.map (find_case case)
-    | some idx :=
-      let args := e.get_app_args in
-      do arg ← args.nth idx,
+        (match mk_simple_name rec with
+         | `drec := some idx | `rec := some idx
+         -- indices + major premise
+         | `dcases_on := some (idx + num_indices + 1) | `cases_on := some (idx + num_indices + 1)
+         | _ := none)
+      | _ := none) in
+    (match idx with
+     | none := list.foldl (<|>) (find_case case e.get_app_fn) $ e.get_app_args.map (find_case case)
+     | some idx :=
+       let args := e.get_app_args in
+       do arg ← args.nth idx,
          args.enum.foldl
            (λ acc ⟨i, arg⟩, match acc with
              | some _ := acc
-             | _      := if i ≠ idx then find_case none arg else none
-             end)
+             | _      := if i ≠ idx then find_case none arg else none)
            -- start recursion with likely case
-           (find_case (some arg) arg)
-    end
+           (find_case (some arg) arg))
   | (lam _ _ _ e) := find_case case e
   | (macro n args) := list.foldl (<|>) none $ args.map (find_case case)
   | _             := none
-  end else none
+  else none
 
 private meta def rename_lams : expr → list name → tactic unit
 | (lam n _ _ e) (n'::ns) := (rename n n' >> rename_lams e ns) <|> rename_lams e (n'::ns)
@@ -718,8 +700,6 @@ do g   ← find_tagged_goal pre,
           rename_lams case ids,
           solve1 tac
      | ff := failed
-     end
-   end
 
 /--
 Assuming `x` is a variable in the local context with an inductive type, `destruct x` splits the main goal, producing one goal for each constructor of the inductive type, in which `x` is assumed to be a general instance of that constructor. In contrast to `cases`, the local context is unchanged, i.e. no elements are reverted or introduced.
@@ -838,7 +818,6 @@ meta def iterate (n : parse small_nat?) (t : itactic) : tactic unit :=
 match n with
 | none   := tactic.iterate t
 | some n := iterate_exactly n t
-end
 
 /--
 `repeat { t }` applies `t` to each goal. If the application succeeds,
@@ -920,7 +899,7 @@ If `h` is omitted, the name `this` is used.
 -/
 meta def «have» (h : parse ident?) (q₁ : parse (tk ":" *> texpr)?) (q₂ : parse $ (tk ":=" *> texpr)?) : tactic unit :=
 let h := h.get_or_else `this in
-match q₁, q₂ with
+(match q₁, q₂ with
 | some e, some p := do
   t ← i_to_expr e,
   v ← i_to_expr ``(%%p : %%t),
@@ -932,8 +911,8 @@ match q₁, q₂ with
 | none, none := do
   u ← mk_meta_univ,
   e ← mk_meta_var (sort u),
-  tactic.assert h e
-end >> skip
+  tactic.assert h e)
+>> skip
 
 /--
 `let h : t := p` adds the hypothesis `h : t := p` to the current goal if `p` a term of type `t`. If `t` is omitted, it will be inferred.
@@ -944,20 +923,20 @@ If `h` is omitted, the name `this` is used.
 -/
 meta def «let» (h : parse ident?) (q₁ : parse (tk ":" *> texpr)?) (q₂ : parse $ (tk ":=" *> texpr)?) : tactic unit :=
 let h := h.get_or_else `this in
-match q₁, q₂ with
-| some e, some p := do
-  t ← i_to_expr e,
-  v ← i_to_expr ``(%%p : %%t),
-  tactic.definev h t v
-| none, some p := do
-  p ← i_to_expr p,
-  tactic.pose h none p
-| some e, none := i_to_expr e >>= tactic.define h
-| none, none := do
-  u ← mk_meta_univ,
-  e ← mk_meta_var (sort u),
-  tactic.define h e
-end >> skip
+(match q₁, q₂ with
+ | some e, some p := do
+   t ← i_to_expr e,
+   v ← i_to_expr ``(%%p : %%t),
+   tactic.definev h t v
+ | none, some p := do
+   p ← i_to_expr p,
+   tactic.pose h none p
+ | some e, none := i_to_expr e >>= tactic.define h
+ | none, none := do
+   u ← mk_meta_univ,
+   e ← mk_meta_var (sort u),
+   tactic.define h e)
+>> skip
 
 /--
 `suffices h : t` is the same as `have h : t, tactic.swap`. In other words, it adds the hypothesis `h : t` to the current goal and opens a new subgoal with target `t`.
@@ -1080,7 +1059,6 @@ private meta def resolve_exception_ids (all_hyps : bool) : list name → list na
   | local_const n _ _ _ := when (not all_hyps) (fail $ sformat! "invalid local exception {id}, '*' was not used") >>
                            resolve_exception_ids ids gex (n::hex)
   | _                   := fail $ sformat! "invalid exception {id}, unknown identifier"
-  end
 
 /- Return (hs, gex, hex, all) -/
 meta def decode_simp_arg_list (hs : list simp_arg_type) : tactic $ list pexpr × list name × list name × bool :=
@@ -1090,8 +1068,7 @@ do
        match r, h with
        | (es, ex, all), simp_arg_type.all_hyps  := (es, ex, tt)
        | (es, ex, all), simp_arg_type.except id := (es, id::ex, all)
-       | (es, ex, all), simp_arg_type.expr e    := (e::es, ex, all)
-       end)
+       | (es, ex, all), simp_arg_type.expr e    := (e::es, ex, all))
     ([], [], ff),
   (gex, hex) ← resolve_exception_ids all ex [] [],
   return (hs.reverse, gex, hex, all)
@@ -1110,7 +1087,6 @@ when p.is_choice_macro $
     fail $ to_fmt "ambiguous overload, possible interpretations" ++
            format.join (ps.map (λ p, (to_fmt p).indent 4))
   | _ := failed
-  end
 
 private meta def simp_lemmas.resolve_and_add (s : simp_lemmas) (u : list name) (n : name) (ref : pexpr) : tactic (simp_lemmas × list name) :=
 do
@@ -1131,14 +1107,12 @@ do
     (do e ← i_to_expr_no_subgoals p, b ← is_valid_simp_lemma e, guard b, try (save_type_info e ref), s ← s.add e, return (s, u))
     <|>
     report_invalid_simp_lemma n
-  end
 
 private meta def simp_lemmas.add_pexpr (s : simp_lemmas) (u : list name) (p : pexpr) : tactic (simp_lemmas × list name) :=
 match p with
 | (const c [])          := simp_lemmas.resolve_and_add s u c p
 | (local_const c _ _ _) := simp_lemmas.resolve_and_add s u c p
 | _                     := do new_e ← i_to_expr_no_subgoals p, s ← s.add new_e, return (s, u)
-end
 
 private meta def simp_lemmas.append_pexprs : simp_lemmas → list name → list pexpr → tactic (simp_lemmas × list name)
 | s u []      := return (s, u)
@@ -1181,14 +1155,13 @@ do to_remove ← hs.mfilter $ λ h, do {
 meta def simp_core (cfg : simp_config) (discharger : tactic unit)
                    (no_dflt : bool) (hs : list simp_arg_type) (attr_names : list name)
                    (locat : loc) : tactic unit :=
-match locat with
-| loc.wildcard := do (all_hyps, s, u) ← mk_simp_set_core no_dflt attr_names hs tt,
-                     if all_hyps then tactic.simp_all s u cfg discharger
-                     else do hyps ← non_dep_prop_hyps, simp_core_aux cfg discharger s u hyps tt
-| _            := do (s, u) ← mk_simp_set no_dflt attr_names hs,
-                     ns ← locat.get_locals,
-                     simp_core_aux cfg discharger s u ns locat.include_goal
-end
+(match locat with
+ | loc.wildcard := do (all_hyps, s, u) ← mk_simp_set_core no_dflt attr_names hs tt,
+                      if all_hyps then tactic.simp_all s u cfg discharger
+                      else do hyps ← non_dep_prop_hyps, simp_core_aux cfg discharger s u hyps tt
+ | _            := do (s, u) ← mk_simp_set no_dflt attr_names hs,
+                      ns ← locat.get_locals,
+                      simp_core_aux cfg discharger s u ns locat.include_goal)
 >> try tactic.triv >> try (tactic.reflexivity reducible)
 
 /--
@@ -1257,7 +1230,6 @@ match l with
      dsimp_target s u {zeta := ff ..cfg},
      intron n
 | _ := l.apply (λ h, dsimp_hyp h s u cfg) (dsimp_target s u cfg)
-end
 
 /--
 This tactic applies to a goal whose target has the form `t ~ u` where `~` is a reflexive relation, that is, a relation which has a reflexivity lemma tagged with the attribute `[refl]`. The tactic checks whether `t` and `u` are definitionally equal and then solves the goal.
@@ -1288,7 +1260,6 @@ tactic.transitivity >> match q with
 | some q :=
   do (r, lhs, rhs) ← target_lhs_rhs,
      i_to_expr q >>= unify rhs
-end
 
 /--
 Given hypothesis `h : x = t` or `h : t = x`, where `x` is a local constant, `subst h` substitutes `x` by `t` everywhere in the main goal and then clears `h`.
@@ -1338,7 +1309,6 @@ match l with
                           dunfold_target new_cs cfg,
                           intron n
 | _              := do new_cs ← to_qualified_names cs, l.apply (λ h, dunfold_hyp cs h cfg) (dunfold_target new_cs cfg)
-end
 
 private meta def delta_hyps : list name → list name → tactic unit
 | cs []      := skip
@@ -1370,7 +1340,6 @@ match l with
 | _            :=
   l.try_apply (λ h, unfold_projs_hyp h cfg)
     (tactic.unfold_projs_target cfg) <|> fail "unfold_projs failed to simplify"
-end
 
 end interactive
 

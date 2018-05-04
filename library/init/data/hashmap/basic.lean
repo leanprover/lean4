@@ -114,17 +114,14 @@ variables {α : Type u} {β : α → Type v} [decidable_eq α] {h : α → usize
 def insert (m : d_hashmap α β h) (a : α) (b : β a) : d_hashmap α β h :=
 match m with
 | ⟨ m, hw ⟩ := ⟨ m.insert h a b, well_formed.insert_wff m a b hw ⟩
-end
 
 def erase (m : d_hashmap α β h) (a : α) : d_hashmap α β h :=
 match m with
 | ⟨ m, hw ⟩ := ⟨ m.erase h a, well_formed.erase_wff m a hw ⟩
-end
 
 def find (m : d_hashmap α β h) (a : α) : option (β a) :=
 match m with
 | ⟨ m, _ ⟩ := m.find h a
-end
 
 @[inline] def contains (m : d_hashmap α β h) (a : α) : bool :=
 (m.find a).is_some
@@ -132,12 +129,10 @@ end
 def fold {δ : Type w} (m : d_hashmap α β h) (d : δ) (f : δ → Π a, β a → δ) : δ :=
 match m with
 | ⟨ m, _ ⟩ := m.fold d f
-end
 
 def size (m : d_hashmap α β h) : nat :=
 match m with
 | ⟨ {size := sz, ..}, _ ⟩ := sz
-end
 
 @[inline] def empty (m : d_hashmap α β h) : bool :=
 m.size = 0

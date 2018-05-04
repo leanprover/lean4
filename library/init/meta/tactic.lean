@@ -65,13 +65,11 @@ meta def {u₁ u₂} tactic.up {α : Type u₂} (t : tactic α) : tactic (ulift.
 λ s, match t s with
 | success a s'      := success (ulift.up a) s'
 | exception t ref s := exception t ref s
-end
 
 meta def {u₁ u₂} tactic.down {α : Type u₂} (t : tactic (ulift.{u₁} α)) : tactic α :=
 λ s, match t s with
 | success (ulift.up a) s' := success a s'
 | exception t ref s       := exception t ref s
-end
 
 namespace tactic
 variables {α : Type u}
@@ -96,8 +94,6 @@ meta def try_lst : list (tactic unit) → tactic unit
     match try_lst tacs s' with
     | result.exception _ _ _ := result.exception e p s'
     | r := r
-    end
-  end
 
 meta def fail_if_success {α : Type u} (t : tactic α) : tactic unit :=
 λ s, result.cases_on (t s)
@@ -109,7 +105,6 @@ meta def success_if_fail {α : Type u} (t : tactic α) : tactic unit :=
 | (interaction_monad.result.exception _ _ s') := success () s
 | (interaction_monad.result.success a s) :=
    mk_exception "success_if_fail combinator failed, given tactic succeeded" none s
-end
 
 open nat
 /-- (iterate_at_most n t): repeat the given tactic at most n times or until t fails -/
@@ -129,7 +124,6 @@ meta def returnopt (e : option α) : tactic α :=
 λ s, match e with
 | (some a) := success a s
 | none     := mk_exception "failed" none s
-end
 
 meta instance opt_to_tac : has_coe (option α) (tactic α) :=
 ⟨returnopt⟩
@@ -141,8 +135,7 @@ meta def decorate_ex (msg : format) (t : tactic α) : tactic α :=
   (λ opt_thunk,
      match opt_thunk with
      | some e := exception (some (λ u, msg ++ format.nest 2 (format.line ++ e u)))
-     | none   := exception none
-     end)
+     | none   := exception none)
 
 @[inline] meta def write (s' : tactic_state) : tactic unit :=
 λ s, success () s'
@@ -169,8 +162,6 @@ meta def returnex {α : Type} (e : exceptional α) : tactic α :=
   match get_options s with
   | success opt _   := exception (some (λ u, f opt)) none s
   | exception _ _ _ := exception (some (λ u, f options.mk)) none s
-  end
-end
 
 meta instance ex_to_tac {α : Type} : has_coe (exceptional α) (tactic α) :=
 ⟨returnex⟩
@@ -594,7 +585,6 @@ match t with
 | expr.pi   _ _ _ _ := do H ← intro1, Hs ← intros, return (H :: Hs)
 | expr.elet _ _ _ _ := do H ← intro1, Hs ← intros, return (H :: Hs)
 | _                 := return []
-end
 
 meta def intro_lst : list name → tactic (list expr)
 | []      := return []
@@ -613,7 +603,6 @@ do t ← target,
    | expr.pi _ _ _ b   := proc b
    | expr.elet _ _ _ b := proc b
    | _                 := return []
-   end
 
 meta def introv : list name → tactic (list expr)
 | []      := intros_dep
@@ -642,7 +631,6 @@ do lctx ← local_context,
    | some []        := revert_lst lctx
                        /- `hi` is the last local instance. We shoul truncate `lctx` at `hi`. -/
    | some (hi::his) := revert_lst $ lctx.foldl (λ r h, if h.local_uniq_name = hi.local_uniq_name then [] else h :: r) []
-   end
 
 meta def clear_lst : list name → tactic unit
 | []      := skip
@@ -652,50 +640,42 @@ meta def match_not (e : expr) : tactic expr :=
 match (expr.is_not e) with
 | (some a) := return a
 | none     := fail "expression is not a negation"
-end
 
 meta def match_and (e : expr) : tactic (expr × expr) :=
 match (expr.is_and e) with
 | (some (α, β)) := return (α, β)
 | none     := fail "expression is not a conjunction"
-end
 
 meta def match_or (e : expr) : tactic (expr × expr) :=
 match (expr.is_or e) with
 | (some (α, β)) := return (α, β)
 | none     := fail "expression is not a disjunction"
-end
 
 meta def match_iff (e : expr) : tactic (expr × expr) :=
 match (expr.is_iff e) with
 | (some (lhs, rhs)) := return (lhs, rhs)
 | none              := fail "expression is not an iff"
-end
 
 meta def match_eq (e : expr) : tactic (expr × expr) :=
 match (expr.is_eq e) with
 | (some (lhs, rhs)) := return (lhs, rhs)
 | none              := fail "expression is not an equality"
-end
 
 meta def match_ne (e : expr) : tactic (expr × expr) :=
 match (expr.is_ne e) with
 | (some (lhs, rhs)) := return (lhs, rhs)
 | none              := fail "expression is not a disequality"
-end
 
 meta def match_heq (e : expr) : tactic (expr × expr × expr × expr) :=
 do match (expr.is_heq e) with
 | (some (α, lhs, β, rhs)) := return (α, lhs, β, rhs)
 | none                    := fail "expression is not a heterogeneous equality"
-end
 
 meta def match_refl_app (e : expr) : tactic (name × expr × expr) :=
 do env ← get_env,
 match (environment.is_refl_app env e) with
 | (some (R, lhs, rhs)) := return (R, lhs, rhs)
 | none                 := fail "expression is not an application of a reflexive relation"
-end
 
 meta def match_app_of (e : expr) (n : name) : tactic (list expr) :=
 guard (expr.is_app_of e n) >> return e.get_app_args
@@ -745,7 +725,6 @@ do gs ← get_goals,
    match gs with
    | (g₁ :: g₂ :: rs) := set_goals (g₂ :: g₁ :: rs)
    | e                := skip
-   end
 
 /-- `assert h t`, adds a new goal for t, and the hypothesis `h : t` in the current goal. -/
 meta def assert (h : name) (t : expr) : tactic expr :=
@@ -797,7 +776,6 @@ private meta def repeat_aux (t : tactic unit) : list expr → list expr → tact
   | _    := do
     gs' ← get_goals,
     repeat_aux (gs' ++ gs) r
-  end
 
 /-- This tactic is applied to each goal. If the application succeeds,
     the tactic is applied recursively to all the generated subgoals until it eventually fails.
@@ -824,8 +802,6 @@ do gs ← get_goals,
         match gs' with
         | [] := set_goals rs
         | gs := fail "solve1 tactic failed, focused goal has not been solved"
-        end
-   end
 
 /-- `solve [t_1, ... t_n]` applies the first tactic that solves the main goal. -/
 meta def solve (ts : list (tactic unit)) : tactic unit :=
@@ -856,7 +832,6 @@ do g::gs ← get_goals,
       gs' ← get_goals,
       set_goals (gs' ++ gs),
       return a
-   end
 
 private meta def all_goals_core (tac : tactic unit) : list expr → list expr → tactic unit
 | []        ac := set_goals ac
@@ -1074,7 +1049,6 @@ do tgt : expr ← target,
    match H with
    | some n := intro n
    | none   := intro1
-   end
 
 private meta def generalizes_aux (md : transparency) : list expr → tactic unit
 | []      := skip
@@ -1208,7 +1182,6 @@ meta def try_for {α} (max : nat) (tac : tactic α) : tactic α :=
 match _root_.try_for max (tac s) with
 | some r := r
 | none   := mk_exception "try_for tactic failed, timeout" none s
-end
 
 meta def updateex_env (f : environment → exceptional environment) : tactic unit :=
 do env ← get_env,
@@ -1288,7 +1261,6 @@ meta def any_of {α β} : list α → (α → tactic β) → tactic β
                    match opt_b with
                    | some b := return b
                    | none   := any_of es fn
-                   end
 end list
 
 /- Install monad laws tactic and use it to prove some instances. -/

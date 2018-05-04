@@ -23,12 +23,10 @@ protected def has_dec_eq [s : decidable_eq α] : decidable_eq (list α)
 | (a::as) (b::bs) :=
   match s a b with
   | is_true hab  :=
-    match has_dec_eq as bs with
-    | is_true habs  := is_true (eq.subst hab (eq.subst habs rfl))
-    | is_false nabs := is_false (λ h, list.no_confusion h (λ _ habs, absurd habs nabs))
-    end
+    (match has_dec_eq as bs with
+     | is_true habs  := is_true (eq.subst hab (eq.subst habs rfl))
+     | is_false nabs := is_false (λ h, list.no_confusion h (λ _ habs, absurd habs nabs)))
   | is_false nab := is_false (λ h, list.no_confusion h (λ hab _, absurd hab nab))
-  end
 
 instance [decidable_eq α] : decidable_eq (list α) :=
 list.has_dec_eq
@@ -61,9 +59,8 @@ instance decidable_mem [decidable_eq α] (a : α) : ∀ (l : list α), decidable
 | (b::l) :=
   if h₁ : a = b then is_true (or.inl h₁)
   else match decidable_mem l with
-  | is_true  h₂ := is_true (or.inr h₂)
-  | is_false h₂ := is_false (not_or h₁ h₂)
-  end
+       | is_true  h₂ := is_true (or.inr h₂)
+       | is_false h₂ := is_false (not_or h₁ h₂)
 
 instance : has_emptyc (list α) :=
 ⟨list.nil⟩
@@ -135,7 +132,6 @@ def filter_map (f : α → option β) : list α → list β
   match f a with
   | none   := filter_map l
   | some b := b :: filter_map l
-  end
 
 def filter (p : α → Prop) [decidable_pred p] : list α → list α
 | []     := []
@@ -209,7 +205,7 @@ zip_with prod.mk
 
 def unzip : list (α × β) → list α × list β
 | []            := ([], [])
-| ((a, b) :: t) := match unzip t with (al, bl) := (a::al, b::bl) end
+| ((a, b) :: t) := match unzip t with | (al, bl) := (a::al, b::bl)
 
 protected def insert [decidable_eq α] (a : α) (l : list α) : list α :=
 if a ∈ l then l else a :: l
@@ -300,8 +296,6 @@ instance has_decidable_lt [has_lt α] [h : decidable_rel ((<) : α → α → Pr
     match has_decidable_lt as bs with
     | is_true h₂  := is_true (or.inr h₂)
     | is_false h₂ := is_false (λ hd, or.elim hd (λ n₁, absurd n₁ h₁) (λ n₂, absurd n₂ h₂))
-    end
-  end
 
 @[reducible] protected def le [has_lt α] (a b : list α) : Prop :=
 ¬ b < a

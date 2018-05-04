@@ -11,12 +11,10 @@ private meta def apply_replacement (replacements : name_map name) (e : expr) : e
 e.replace (λ e d,
   match e with
   | expr.const n ls :=
-    match replacements.find n with
-    | some new_n := some (expr.const new_n ls)
-    | none       := none
-    end
-  | _ := none
-  end)
+    (match replacements.find n with
+     | some new_n := some (expr.const new_n ls)
+     | none       := none)
+  | _ := none)
 
 /-- Given a set of constant renamings `replacements` and a declaration name `src_decl_name`, create a new
    declaration called `new_decl_name` s.t. its type is the type of `src_decl_name` after applying the

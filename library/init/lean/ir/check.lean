@@ -141,8 +141,7 @@ p.ys.mfoldl (λ s y,
                    then do b ← read_block,
                            throw (ssa_error.phi_multiple_entries b.id p.x bid)
                    else return $ (s.insert bid)
-     | none   := do b ← read_block, throw (ssa_error.undefined b.id y)
-     end)
+     | none   := do b ← read_block, throw (ssa_error.undefined b.id y))
   mk_blockid_set
 
 def phis.check_predecessors (ps : list phi) : ssa_valid_m unit :=
@@ -152,8 +151,8 @@ do ps.mfoldl (λ (os : option blockid_set) (p : phi),
         | (some s) := if s.seteq s' then return os
                       else do b ← read_block,
                               throw (ssa_error.phi_missing_predecessor b.id p.x)
-        | none      := return (some s')
-     end) none,
+        | none      := return (some s'))
+     none,
    return ()
 
 def block.valid_ssa_core : ssa_valid_m unit :=
@@ -179,7 +178,6 @@ do m ← d.var2blockid,
       bs.mmap' (λ b : block, run_reader block.valid_ssa (m, b)),
       return m
    | _ := return m
-   end
 
 /- Check blockids -/
 inductive blockid_error

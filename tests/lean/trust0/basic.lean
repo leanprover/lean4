@@ -49,7 +49,6 @@ instance : decidable_eq ℕ
     match decidable_eq x y with
     | is_true xeqy := is_true (xeqy ▸ eq.refl (succ x))
     | is_false xney := is_false (λ h, nat.no_confusion h (λ xeqy, absurd xeqy xney))
-    end
 
 def {u} repeat {α : Type u} (f : ℕ → α → α) : ℕ → α → α
 | 0         a := a
@@ -98,7 +97,6 @@ instance decidable_le : ∀ a b : ℕ, decidable (a ≤ b)
   match decidable_le a b with
   | is_true h  := is_true (succ_le_succ h)
   | is_false h := is_false (λ a, h (le_of_succ_le_succ a))
-  end
 
 instance decidable_lt : ∀ a b : ℕ, decidable (a < b) :=
 λ a b, nat.decidable_le (succ a) b

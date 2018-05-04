@@ -43,7 +43,7 @@ protected def map {α β} (f : α → β) (o : option α) : option β :=
 option.bind o (some ∘ f)
 
 theorem map_id {α} : (option.map id : option α → option α) = id :=
-funext (λo, match o with | none := rfl | some x := rfl end)
+funext (λo, match o with | none := rfl | some x := rfl)
 
 instance : monad option :=
 {pure := @some, bind := @option.bind, map := @option.map}
@@ -81,6 +81,5 @@ instance {α : Type u} [d : decidable_eq α] : decidable_eq (option α)
   match (d v₁ v₂) with
   | (is_true e)  := is_true (congr_arg (@some α) e)
   | (is_false n) := is_false (λ h, option.no_confusion h (λ e, absurd e n))
-  end
 
 instance {α : Type u} [has_lt α] : has_lt (option α) := ⟨option.lt (<)⟩

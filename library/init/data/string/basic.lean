@@ -126,16 +126,14 @@ protected def extract_core : list char → list char → option (list char)
   match extract_core cs₁ cs₂ with
   | none   := none
   | some r := some (c::r)
-  end
 
 def extract : iterator → iterator → option string
 | ⟨p₁, n₁⟩ ⟨p₂, n₂⟩ :=
   if p₁.reverse ++ n₁ ≠ p₂.reverse ++ n₂ then none
   else if n₁ = n₂ then some ""
-  else match iterator.extract_core n₁ n₂ with
-       | none := none
-       | some r := some ⟨r⟩
-       end
+  else (match iterator.extract_core n₁ n₂ with
+        | none := none
+        | some r := some ⟨r⟩)
 
 end iterator
 end string
@@ -201,7 +199,6 @@ private def line_column_aux : nat → string.iterator → nat × nat → nat × 
   else match it.curr with
        | '\n'  := line_column_aux k it.next (line+1, 0)
        | other := line_column_aux k it.next (line, col+1)
-       end
 
 def line_column (s : string) (offset : nat) : nat × nat :=
 line_column_aux offset s.mk_iterator (1, 0)

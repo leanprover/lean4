@@ -64,7 +64,6 @@ match p s.mk_iterator with
 | ok a _       := except.ok a
 | ok_eps a _ _ := except.ok a
 | error msg _  := except.error msg
-end
 
 @[inline] def mk_eps_result (a : α) (it : iterator) : result α :=
 ok_eps a it dlist.empty
@@ -91,19 +90,16 @@ def merge (msg₁ msg₂ : message) : message :=
 protected def bind (p : parser α) (q : α → parser β) : parser β :=
 λ it, match p it with
      | ok a it :=
-       match q a it with
-       | ok_eps b it msg₂ := ok b it
-       | error msg ff     := error msg tt
-       | other            := other
-       end
+       (match q a it with
+        | ok_eps b it msg₂ := ok b it
+        | error msg ff     := error msg tt
+        | other            := other)
      | ok_eps a it ex₁ :=
-       match q a it with
-       | ok_eps b it ex₂ := ok_eps b it (ex₁ ++ ex₂)
-       | error msg₂ ff   := error { expected := ex₁ ++ msg₂.expected, .. msg₂ } ff
-       | other           := other
-       end
+       (match q a it with
+        | ok_eps b it ex₂ := ok_eps b it (ex₁ ++ ex₂)
+        | error msg₂ ff   := error { expected := ex₁ ++ msg₂.expected, .. msg₂ } ff
+        | other           := other)
      | error msg c := error msg c
-     end
 
 instance : monad parser :=
 { bind := @parser.bind, pure := @parser.pure }
@@ -116,7 +112,6 @@ def expect (msg : message) (exp : string) : message :=
       | ok_eps a it _  := ok_eps a it (dlist.singleton ex)
       | error msg ff   := error (expect msg ex) ff
       | other          := other
-      end
 
 infixr ` <?> `:2 := label
 
@@ -141,7 +136,6 @@ def try (p : parser α) : parser α :=
 λ it, match p it with
       | error msg _  := error msg ff
       | other        := other
-      end
 
 /--
   The `orelse p q` combinator behaves as follows:
@@ -161,19 +155,16 @@ def try (p : parser α) : parser α :=
 protected def orelse (p q : parser α) : parser α :=
 λ it, match p it with
       | ok_eps a it' ex₁ :=
-        match q it with
-        | ok_eps _ _ ex₂ := ok_eps a it' (ex₁ ++ ex₂)
-        | error msg₂ ff  := ok_eps a it' (ex₁ ++ msg₂.expected)
-        | other          := other
-        end
+        (match q it with
+         | ok_eps _ _ ex₂ := ok_eps a it' (ex₁ ++ ex₂)
+         | error msg₂ ff  := ok_eps a it' (ex₁ ++ msg₂.expected)
+         | other          := other)
       | error msg₁ ff :=
-        match q it with
-        | ok_eps a it' ex₂ := ok_eps a it' (msg₁.expected ++ ex₂)
-        | error msg₂ ff    := error (merge msg₁ msg₂) ff
-        | other            := other
-        end
+        (match q it with
+         | ok_eps a it' ex₂ := ok_eps a it' (msg₁.expected ++ ex₂)
+         | error msg₂ ff    := error (merge msg₁ msg₂) ff
+         | other            := other)
       | other              := other
-      end
 
 instance : alternative parser :=
 { orelse  := @parser.orelse,
@@ -400,7 +391,6 @@ def lookahead (p : parser α) : parser α :=
 λ it, match p it with
       | ok a s' := mk_eps_result a it
       | other   := other
-      end
 
 /-- `not_followed_by p` succeeds when parser `p` fails -/
 def not_followed_by (p : parser α) (msg : string := "input") : parser unit :=
@@ -408,7 +398,6 @@ def not_followed_by (p : parser α) (msg : string := "input") : parser unit :=
       | ok _ _       := error { pos := it.offset, unexpected := msg } ff
       | ok_eps _ _ _ := error { pos := it.offset, unexpected := msg } ff
       | error _ _    := mk_eps_result () it
-      end
 
 /-- Faster version of `not_followed_by (satisfy p)` -/
 @[inline] def not_followed_by_sat (p : char → bool) : parser unit :=

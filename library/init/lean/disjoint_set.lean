@@ -33,7 +33,6 @@ private def find_aux : nat → α → hashmap α (node α) h → node α
   match m.find a with
   | some r := if r.find = a then r else find_aux n r.find m
   | none   := { find := a, rank := 0 }
-  end
 
 def find : disjoint_set α h → α → α
 | ⟨m⟩ a := (find_aux m.size a m).find

@@ -35,7 +35,7 @@ meta def      contains (env : environment) (d : name) : bool :=
 match env.get d with
 | exceptional.success _      := tt
 | exceptional.exception ._ _ := ff
-end
+
 /-- Register the given name as a namespace, making it available to the `open` command -/
 meta constant add_namespace   : environment → name → environment
 /-- Return tt iff the given name is a namespace -/
@@ -105,7 +105,6 @@ match (refl_for env (const_name (get_app_fn e))) with
     then some (n, app_arg (app_fn e), app_arg e)
     else none
 | none   := none
-end
 
 /-- Return true if 'n' has been declared in the current file -/
 meta def in_current_file (env : environment) (n : name) : bool :=
@@ -115,7 +114,6 @@ meta def is_definition (env : environment) (n : name) : bool :=
 match env.get n with
 | exceptional.success (declaration.defn _ _ _ _ _ _) := tt
 | _                                                  := ff
-end
 
 end environment
 

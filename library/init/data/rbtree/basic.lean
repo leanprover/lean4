@@ -96,11 +96,10 @@ variables (lt : α → α → Prop) [decidable_rel lt]
 def ins : rbnode α → α → rbnode α
 | leaf             x  := red_node leaf x leaf
 | (red_node a y b) x  :=
-   match cmp_using lt x y with
-   | ordering.lt := red_node (ins a x) y b
-   | ordering.eq := red_node a x b
-   | ordering.gt := red_node a y (ins b x)
-   end
+   (match cmp_using lt x y with
+    | ordering.lt := red_node (ins a x) y b
+    | ordering.eq := red_node a x b
+    | ordering.gt := red_node a y (ins b x))
 | (black_node a y b) x :=
     match cmp_using lt x y with
     | ordering.lt :=
@@ -110,7 +109,6 @@ def ins : rbnode α → α → rbnode α
     | ordering.gt :=
       if b.get_color = red then balance2_node (ins b x) y a
       else black_node a y (ins b x)
-    end
 
 def mk_insert_result : color → rbnode α → rbnode α
 | red (red_node l v r)   := black_node l v r
@@ -140,17 +138,15 @@ variable [decidable_rel lt]
 def find : rbnode α → α → option α
 | leaf             x := none
 | (red_node a y b) x :=
-  match cmp_using lt x y with
-  | ordering.lt := find a x
-  | ordering.eq := some y
-  | ordering.gt := find b x
-  end
+  (match cmp_using lt x y with
+   | ordering.lt := find a x
+   | ordering.eq := some y
+   | ordering.gt := find b x)
 | (black_node a y b) x :=
-  match cmp_using lt x y with
-  | ordering.lt := find a x
-  | ordering.eq := some y
-  | ordering.gt := find b x
-  end
+  (match cmp_using lt x y with
+   | ordering.lt := find a x
+   | ordering.eq := some y
+   | ordering.gt := find b x)
 
 end membership
 

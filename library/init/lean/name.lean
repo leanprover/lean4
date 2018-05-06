@@ -32,7 +32,7 @@ namespace name
 private def hash_aux : name → usize → usize
 | anonymous        r := r
 | (mk_string n s)  r := hash_aux n (mix_hash r (hash s))
-| (mk_numeral n k) r := hash_aux n (mix_hash r (usize.of_nat k))
+| (mk_numeral n k) r := hash_aux n (mix_hash r (hash k))
 
 -- TODO: mark as opaque and builtin, and add as builtin
 protected def hash (n : name) : usize :=

@@ -10,14 +10,20 @@ universes u
 class hashable (α : Type u) :=
 (hash : α → usize)
 
+export hashable (hash)
+
 -- TODO: mark as builtin and opaque
 def mix_hash (u₁ u₂ : usize) : usize :=
 default usize
 
 -- TODO: mark as builtin
-def string.hash (s : string) : usize :=
+protected def string.hash (s : string) : usize :=
 default usize
 
 instance : hashable string := ⟨string.hash⟩
 
-export hashable (hash)
+-- TODO: add builtin
+protected def nat.hash (n : nat) : usize :=
+usize.of_nat n
+
+instance : hashable nat := ⟨nat.hash⟩

@@ -19,10 +19,10 @@ structure disjoint_set.node (α : Type u) :=
 structure disjoint_set (α : Type u) [decidable_eq α] [hashable α] : Type u :=
 (map : hashmap α (disjoint_set.node α))
 
-variables {α : Type u}
-
-def mk_disjoint_set [decidable_eq α] [hashable α] : disjoint_set α :=
+def mk_disjoint_set (α : Type u) [decidable_eq α] [hashable α] : disjoint_set α :=
 ⟨mk_hashmap⟩
+
+variables {α : Type u}
 
 namespace disjoint_set
 variables [decidable_eq α] [hashable α]

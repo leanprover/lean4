@@ -1,0 +1,86 @@
+/-
+Copyright (c) 2018 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Leonardo de Moura
+-/
+prelude
+import init.lean.ir.ir init.control.state init.lean.disjoint_set
+
+namespace lean
+namespace ir
+/-
+We need to eliminate Phi nodes before we translate the IR to C/C++.
+
+The procedure is the following. First, for each instruction `x : ty := phi y_1 ... y_n`,
+we put `x`, `y_1`, ... `y_n` in the same equivalence class.
+Then, we select a representative from each equivalence class and replace each
+variable with its representative.
+-/
+
+@[reducible] def elim_phi_m (α : Type) := state_t (disjoint_set name) id α
+
+def merge (x y : var) : elim_phi_m unit :=
+modify $ λ s, s.merge x y
+
+def find (x : var) : elim_phi_m var :=
+do s ← get, return $ s.find x
+
+def group_vars : decl → elim_phi_m unit
+| (decl.defn _ bs) := bs.mmap' $ λ b, b.phis.mmap' $ λ p, p.ys.mmap' (merge p.x)
+| _                := return ()
+
+def instr.replace_vars : instr → elim_phi_m instr
+| (instr.lit x ty lit)      := instr.lit <$> find x <*> pure ty <*> pure lit
+| (instr.cast x ty y)       := instr.cast <$> find x <*> pure ty <*> find y
+| (instr.unop x ty op y)    := instr.unop <$> find x <*> pure ty <*> pure op <*> find y
+| (instr.binop x ty op y z) := instr.binop <$> find x <*> pure ty <*> pure op <*> find y <*> find z
+| (instr.call xs f ys)      := instr.call <$> xs.mmap find <*> pure f <*> ys.mmap find
+| (instr.cnstr o tag n s)   := instr.cnstr <$> find o <*> pure tag <*> pure n <*> pure s
+| (instr.set o i x)         := instr.set <$> find o <*> pure i <*> find x
+| (instr.get x o i)         := instr.get <$> find x <*> find o <*> pure i
+| (instr.sset o i x)        := instr.sset <$> find o <*> pure i <*> find x
+| (instr.sget x ty o i)     := instr.sget <$> find x <*> pure ty <*> find o <*> pure i
+| (instr.closure x f ys)    := instr.closure <$> find x <*> pure f <*> ys.mmap find
+| (instr.apply x ys)        := instr.apply <$> find x <*> ys.mmap find
+| (instr.array a sz c)      := instr.array <$> find a <*> find sz <*> find c
+| (instr.write a i v)       := instr.write <$> find a <*> find i <*> find v
+| (instr.read x a i)        := instr.read <$> find x <*> find a <*> find i
+| (instr.sarray a ty sz c)  := instr.sarray <$> find a <*> pure ty <*> find sz <*> find c
+| (instr.swrite a i v)      := instr.swrite <$> find a <*> find i <*> find v
+| (instr.sread x ty a i)    := instr.sread <$> find x <*> pure ty <*> find a <*> find i
+| (instr.inc x)             := instr.inc <$> find x
+| (instr.decs x)            := instr.decs <$> find x
+| (instr.free x)            := instr.free <$> find x
+| (instr.dec x)             := instr.dec <$> find x
+
+def terminator.replace_vars : terminator → elim_phi_m terminator
+| (terminator.ret xs)    := terminator.ret <$> xs.mmap find
+| (terminator.case x bs) := terminator.case <$> find x <*> pure bs
+| j@(terminator.jmp _)   := pure j
+
+def arg.replace_vars (a : arg) : elim_phi_m arg :=
+do x ← find a.n, return { n := x, ..a }
+
+def header.replace_vars (h : header) : elim_phi_m header :=
+do as ← h.args.mmap arg.replace_vars, return { args := as, ..h }
+
+def block.replace_vars (b : block) : elim_phi_m block :=
+do instrs' ← b.instrs.mmap instr.replace_vars,
+   term'   ← b.term.replace_vars,
+   return
+     { phis   := [],
+       instrs := instrs',
+       term   := term', ..b}
+
+def decl.replace_vars : decl → elim_phi_m decl
+| (decl.defn h bs) := decl.defn <$> (header.replace_vars h) <*> bs.mmap block.replace_vars
+| other            := pure other
+
+def elim_phi_aux (d : decl) : elim_phi_m decl :=
+group_vars d >> d.replace_vars
+
+def elim_phi (d : decl) : decl :=
+((elim_phi_aux d).run (mk_disjoint_set var)).1
+
+end ir
+end lean

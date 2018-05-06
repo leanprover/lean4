@@ -146,7 +146,7 @@ do (x, ty) ← try $ do { x ← parse_var, symbol ":", ty ← parse_type, symbol
 def parse_terminator : parser terminator :=
     (keyword "jmp" >> terminator.jmp <$> parse_blockid)
 <|> (keyword "ret" >> terminator.ret <$> many parse_var)
-<|> (keyword "case" >> terminator.case <$> parse_var <*> many parse_blockid)
+<|> (keyword "case" >> terminator.case <$> parse_var <*> (symbol "[" >> sep_by1 parse_blockid (symbol ",") <* symbol "]"))
 
 def parse_block : parser block :=
 do id ← parse_blockid,

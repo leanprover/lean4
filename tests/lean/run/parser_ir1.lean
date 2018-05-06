@@ -29,7 +29,7 @@ loop:
   n2   : uint32 := sub n1 one;
   zero : uint32 := 0;
   c    : bool   := eq n2 zero;
-  case c loop end;
+  case c [loop, end];
 end:
   r3   : uint32 := phi r2;
   ret r3;

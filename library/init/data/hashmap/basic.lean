@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.data.array.basic init.data.list.basic init.data.option.basic
+import init.data.array.basic init.data.list.basic
+import init.data.option.basic init.data.hashable
 universes u v w
 
 def bucket_array (α : Type u) (β : α → Type v) :=
@@ -52,10 +53,10 @@ def find_aux [decidable_eq α] (a : α) : list (Σ a, β a) → option (β a)
 def contains_aux [decidable_eq α] (a : α) (l : list (Σ a, β a)) : bool :=
 (find_aux a l).is_some
 
-def find [decidable_eq α] (hash_fn : α → usize) (m : hashmap_imp α β) (a : α) : option (β a) :=
+def find [decidable_eq α] [hashable α] (m : hashmap_imp α β) (a : α) : option (β a) :=
 match m with
 | ⟨_, buckets⟩ :=
-  let ⟨i, h⟩ := mk_idx buckets.property (hash_fn a) in
+  let ⟨i, h⟩ := mk_idx buckets.property (hash a) in
   find_aux a (buckets.val.uread i h)
 
 def fold {δ : Type w} (m : hashmap_imp α β) (d : δ) (f : δ → Π a, β a → δ) : δ :=
@@ -69,10 +70,10 @@ def erase_aux [decidable_eq α] (a : α) : list (Σ a, β a) → list (Σ a, β 
 | []            := []
 | (⟨a', b'⟩::t) := if a' = a then t else ⟨a', b'⟩ :: erase_aux t
 
-def insert [decidable_eq α] (hash_fn : α → usize) (m : hashmap_imp α β) (a : α) (b : β a) : hashmap_imp α β :=
+def insert [decidable_eq α] [hashable α] (m : hashmap_imp α β) (a : α) (b : β a) : hashmap_imp α β :=
 match m with
 | ⟨size, buckets⟩ :=
-  let ⟨i, h⟩ := mk_idx buckets.property (hash_fn a) in
+  let ⟨i, h⟩ := mk_idx buckets.property (hash a) in
   let bkt    := buckets.val.uread i h in
   if contains_aux a bkt
   then ⟨size, buckets.uwrite i (replace_aux a b bkt) h⟩
@@ -83,87 +84,87 @@ match m with
        else let nbuckets' := buckets.val.sz * 2 in
             let nz' : nbuckets' > 0 := nat.mul_pos buckets.property (nat.zero_lt_bit0 nat.one_ne_zero) in
             ⟨ size',
-              fold_buckets buckets' ⟨mk_array nbuckets' [], nz'⟩ (reinsert_aux hash_fn) ⟩
+              fold_buckets buckets' ⟨mk_array nbuckets' [], nz'⟩ (reinsert_aux hash) ⟩
 
-def erase [decidable_eq α] (hash_fn : α → usize) (m : hashmap_imp α β) (a : α) : hashmap_imp α β :=
+def erase [decidable_eq α] [hashable α] (m : hashmap_imp α β) (a : α) : hashmap_imp α β :=
 match m with
 | ⟨ size, buckets ⟩ :=
-  let ⟨i, h⟩ := mk_idx buckets.property (hash_fn a) in
+  let ⟨i, h⟩ := mk_idx buckets.property (hash a) in
   let bkt    := buckets.val.uread i h in
   if contains_aux a bkt then ⟨size - 1, buckets.uwrite i (erase_aux a bkt) h⟩
   else m
 
-inductive well_formed [decidable_eq α] (hash_fn : α → usize) : hashmap_imp α β → Prop
+inductive well_formed [decidable_eq α] [hashable α] : hashmap_imp α β → Prop
 | mk_wff     : ∀ n,                     well_formed (mk_hashmap_imp n)
-| insert_wff : ∀ m a b, well_formed m → well_formed (insert hash_fn m a b)
-| erase_wff  : ∀ m a,   well_formed m → well_formed (erase hash_fn m a)
+| insert_wff : ∀ m a b, well_formed m → well_formed (insert m a b)
+| erase_wff  : ∀ m a,   well_formed m → well_formed (erase m a)
 
 end hashmap_imp
 
-def d_hashmap (α : Type u) (β : α → Type v) [decidable_eq α] (h : α → usize) :=
-{ m : hashmap_imp α β // m.well_formed h }
+def d_hashmap (α : Type u) (β : α → Type v) [decidable_eq α] [hashable α] :=
+{ m : hashmap_imp α β // m.well_formed }
 
 open hashmap_imp
 
-def mk_d_hashmap {α : Type u} {β : α → Type v} [decidable_eq α] (h : α → usize) (nbuckets := 8) : d_hashmap α β h :=
-⟨ mk_hashmap_imp nbuckets, well_formed.mk_wff h nbuckets ⟩
+def mk_d_hashmap {α : Type u} {β : α → Type v} [decidable_eq α] [hashable α] (nbuckets := 8) : d_hashmap α β :=
+⟨ mk_hashmap_imp nbuckets, well_formed.mk_wff nbuckets ⟩
 
 namespace d_hashmap
-variables {α : Type u} {β : α → Type v} [decidable_eq α] {h : α → usize}
+variables {α : Type u} {β : α → Type v} [decidable_eq α] [hashable α]
 
-def insert (m : d_hashmap α β h) (a : α) (b : β a) : d_hashmap α β h :=
+def insert (m : d_hashmap α β) (a : α) (b : β a) : d_hashmap α β :=
 match m with
-| ⟨ m, hw ⟩ := ⟨ m.insert h a b, well_formed.insert_wff m a b hw ⟩
+| ⟨ m, hw ⟩ := ⟨ m.insert a b, well_formed.insert_wff m a b hw ⟩
 
-def erase (m : d_hashmap α β h) (a : α) : d_hashmap α β h :=
+def erase (m : d_hashmap α β) (a : α) : d_hashmap α β :=
 match m with
-| ⟨ m, hw ⟩ := ⟨ m.erase h a, well_formed.erase_wff m a hw ⟩
+| ⟨ m, hw ⟩ := ⟨ m.erase a, well_formed.erase_wff m a hw ⟩
 
-def find (m : d_hashmap α β h) (a : α) : option (β a) :=
+def find (m : d_hashmap α β) (a : α) : option (β a) :=
 match m with
-| ⟨ m, _ ⟩ := m.find h a
+| ⟨ m, _ ⟩ := m.find a
 
-@[inline] def contains (m : d_hashmap α β h) (a : α) : bool :=
+@[inline] def contains (m : d_hashmap α β) (a : α) : bool :=
 (m.find a).is_some
 
-def fold {δ : Type w} (m : d_hashmap α β h) (d : δ) (f : δ → Π a, β a → δ) : δ :=
+def fold {δ : Type w} (m : d_hashmap α β) (d : δ) (f : δ → Π a, β a → δ) : δ :=
 match m with
 | ⟨ m, _ ⟩ := m.fold d f
 
-def size (m : d_hashmap α β h) : nat :=
+def size (m : d_hashmap α β) : nat :=
 match m with
 | ⟨ {size := sz, ..}, _ ⟩ := sz
 
-@[inline] def empty (m : d_hashmap α β h) : bool :=
+@[inline] def empty (m : d_hashmap α β) : bool :=
 m.size = 0
 
 end d_hashmap
 
-def hashmap (α : Type u) (β : Type v) [decidable_eq α] (h : α → usize) :=
-d_hashmap α (λ _, β) h
+def hashmap (α : Type u) (β : Type v) [decidable_eq α] [hashable α] :=
+d_hashmap α (λ _, β)
 
-def mk_hashmap {α : Type u} {β : Type v} [decidable_eq α] (h : α → usize) (nbuckets := 8) : hashmap α β h :=
-mk_d_hashmap h nbuckets
+def mk_hashmap {α : Type u} {β : Type v} [decidable_eq α] [hashable α] (nbuckets := 8) : hashmap α β  :=
+mk_d_hashmap nbuckets
 
 namespace hashmap
-variables {α : Type u} {β : Type v} [decidable_eq α] {h : α → usize}
+variables {α : Type u} {β : Type v} [decidable_eq α] [hashable α]
 
-@[inline] def insert (m : hashmap α β h) (a : α) (b : β) : hashmap α β h :=
+@[inline] def insert (m : hashmap α β) (a : α) (b : β) : hashmap α β :=
 d_hashmap.insert m a b
 
-@[inline] def erase (m : hashmap α β h) (a : α) : hashmap α β h :=
+@[inline] def erase (m : hashmap α β) (a : α) : hashmap α β :=
 d_hashmap.erase m a
 
-@[inline] def contains (m : hashmap α β h) (a : α) : bool :=
+@[inline] def contains (m : hashmap α β) (a : α) : bool :=
 (m.find a).is_some
 
-@[inline] def fold {δ : Type w} (m : hashmap α β h) (d : δ) (f : δ → α → β → δ) : δ :=
+@[inline] def fold {δ : Type w} (m : hashmap α β) (d : δ) (f : δ → α → β → δ) : δ :=
 d_hashmap.fold m d f
 
-@[inline] def size (m : hashmap α β h) : nat :=
+@[inline] def size (m : hashmap α β) : nat :=
 d_hashmap.size m
 
-@[inline] def empty (m : hashmap α β h) : bool :=
+@[inline] def empty (m : hashmap α β) : bool :=
 d_hashmap.empty m
 
 end hashmap

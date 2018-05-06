@@ -16,31 +16,31 @@ structure disjoint_set.node (α : Type u) :=
 (find : α)
 (rank : nat := 0)
 
-structure disjoint_set (α : Type u) [decidable_eq α] (h : α → usize) : Type u :=
-(map : hashmap α (disjoint_set.node α) h)
+structure disjoint_set (α : Type u) [decidable_eq α] [hashable α] : Type u :=
+(map : hashmap α (disjoint_set.node α))
 
 variables {α : Type u}
 
-def mk_disjoint_set [decidable_eq α] (h : α → usize) : disjoint_set α h :=
-⟨mk_hashmap h⟩
+def mk_disjoint_set [decidable_eq α] [hashable α] : disjoint_set α :=
+⟨mk_hashmap⟩
 
 namespace disjoint_set
-variables [decidable_eq α] {h : α → usize}
+variables [decidable_eq α] [hashable α]
 
-private def find_aux : nat → α → hashmap α (node α) h → node α
+private def find_aux : nat → α → hashmap α (node α) → node α
 | 0     a m := { find := a, rank := 0 }
 | (n+1) a m :=
   match m.find a with
   | some r := if r.find = a then r else find_aux n r.find m
   | none   := { find := a, rank := 0 }
 
-def find : disjoint_set α h → α → α
+def find : disjoint_set α → α → α
 | ⟨m⟩ a := (find_aux m.size a m).find
 
-def rank : disjoint_set α h → α → nat
+def rank : disjoint_set α → α → nat
 | ⟨m⟩ a := (find_aux m.size a m).rank
 
-def merge : disjoint_set α h → α → α → disjoint_set α h
+def merge : disjoint_set α → α → α → disjoint_set α
 | ⟨m⟩ a b :=
   let ra := find_aux m.size a m in
   let rb := find_aux m.size b m in

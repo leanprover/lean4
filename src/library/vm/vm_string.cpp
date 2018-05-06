@@ -491,6 +491,11 @@ vm_obj string_iterator_extract(vm_obj const & it1, vm_obj const & it2) {
     return mk_vm_some(to_obj(s1.m_value.substr(pos1, pos2 - pos1), pos2 - pos1));
 }
 
+vm_obj string_hash(vm_obj const & s) {
+    std::string const & _s = to_string(s);
+    return mk_vm_nat(hash_str(_s.size(), _s.data(), 13));
+}
+
 void initialize_vm_string() {
     DECLARE_VM_BUILTIN(name({"string_imp", "mk"}),             string_imp_mk);
     DECLARE_VM_BUILTIN(name({"string_imp", "data"}),           string_imp_data);
@@ -506,6 +511,7 @@ void initialize_vm_string() {
     DECLARE_VM_BUILTIN(name({"string", "has_decidable_eq"}),  string_has_decidable_eq);
     // DECLARE_VM_BUILTIN(name({"string", "cmp"}),               string_cmp);
     DECLARE_VM_BUILTIN(name({"string", "has_decidable_lt"}),  string_has_decidable_lt);
+    DECLARE_VM_BUILTIN(name({"string", "hash"}),              string_hash);
 
     DECLARE_VM_BUILTIN(name({"string", "iterator", "curr"}),           string_iterator_curr);
     DECLARE_VM_BUILTIN(name({"string", "iterator", "set_curr"}),       string_iterator_set_curr);

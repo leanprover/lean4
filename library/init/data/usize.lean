@@ -19,13 +19,14 @@ nat.pos_pow_of_pos _ (nat.zero_lt_bit0 nat.one_ne_zero)
 def usize.of_nat (a : nat) : usize :=
 ⟨a % usize_sz, nat.mod_lt _ usize_sz_pos⟩
 
-instance : has_zero usize := ⟨usize.of_nat 0⟩
-instance : has_one usize  := ⟨usize.of_nat 1⟩
-instance : has_add usize  := ⟨fin.add⟩
-instance : has_sub usize  := ⟨fin.sub⟩
-instance : has_mul usize  := ⟨fin.mul⟩
-instance : has_mod usize  := ⟨fin.mod⟩
-instance : has_modn usize := ⟨fin.modn⟩
-instance : has_div usize  := ⟨fin.div⟩
-instance : has_lt usize   := ⟨fin.lt⟩
-instance : has_le usize   := ⟨fin.le⟩
+instance : has_zero usize  := ⟨usize.of_nat 0⟩
+instance : has_one usize   := ⟨usize.of_nat 1⟩
+instance : has_add usize   := ⟨fin.add⟩
+instance : has_sub usize   := ⟨fin.sub⟩
+instance : has_mul usize   := ⟨fin.mul⟩
+instance : has_mod usize   := ⟨fin.mod⟩
+instance : has_modn usize  := ⟨fin.modn⟩
+instance : has_div usize   := ⟨fin.div⟩
+instance : has_lt usize    := ⟨fin.lt⟩
+instance : has_le usize    := ⟨fin.le⟩
+instance : inhabited usize := ⟨0⟩

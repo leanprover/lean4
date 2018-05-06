@@ -5,7 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import init.data.string.basic init.coe init.data.uint init.data.to_string
-import init.lean.format
+import init.lean.format init.data.hashable
 namespace lean
 
 inductive name
@@ -29,11 +29,17 @@ instance string_to_name : has_coe string name :=
 ⟨mk_simple_name⟩
 
 namespace name
-/- TODO: mark `hash` as opaque, and mark that is replaced by
-   the code generator. Since it is marked as opaque, other modules
-   can't assume anything about it. -/
-def hash (n : name) : uint32 :=
-0
+private def hash_aux : name → usize → usize
+| anonymous        r := r
+| (mk_string n s)  r := hash_aux n (mix_hash r (hash s))
+| (mk_numeral n k) r := hash_aux n (mix_hash r (usize.of_nat k))
+
+-- TODO: mark as opaque and builtin, and add as builtin
+protected def hash (n : name) : usize :=
+hash_aux n 11
+
+instance : hashable name :=
+⟨name.hash⟩
 
 def get_prefix : name → name
 | anonymous        := anonymous

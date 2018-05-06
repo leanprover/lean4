@@ -10,11 +10,14 @@ universes u
 class hashable (α : Type u) :=
 (hash : α → usize)
 
+-- TODO: mark as builtin and opaque
+def mix_hash (u₁ u₂ : usize) : usize :=
+default usize
+
 -- TODO: mark as builtin
 def string.hash (s : string) : usize :=
 default usize
 
-instance : hashable string :=
-⟨string.hash⟩
+instance : hashable string := ⟨string.hash⟩
 
 export hashable (hash)

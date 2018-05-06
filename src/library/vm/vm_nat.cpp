@@ -332,6 +332,10 @@ vm_obj nat_repeat(vm_obj const &, vm_obj const & f, vm_obj const & n, vm_obj con
     }
 }
 
+vm_obj mix_hash(vm_obj const & u1, vm_obj const & u2) {
+    return mk_vm_nat(hash(to_unsigned(u1), to_unsigned(u2)));
+}
+
 void initialize_vm_nat() {
     DECLARE_VM_BUILTIN(name({"nat", "succ"}),             nat_succ);
     DECLARE_VM_BUILTIN(name({"nat", "add"}),              nat_add);
@@ -355,6 +359,8 @@ void initialize_vm_nat() {
     DECLARE_VM_BUILTIN(name({"nat", "ldiff"}),            nat_ldiff);
     DECLARE_VM_BUILTIN(name({"nat", "lxor"}),             nat_lxor);
     DECLARE_VM_BUILTIN(name({"nat", "test_bit"}),         nat_test_bit);
+
+    DECLARE_VM_BUILTIN(name("mix_hash"), mix_hash);
 
     declare_vm_builtin(name({"nat", "cases_on"}),          "nat_rec",          4, nat_rec);
     declare_vm_builtin(name({"nat", "rec_on"}),            "nat_rec",          4, nat_rec);

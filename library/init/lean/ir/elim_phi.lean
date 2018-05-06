@@ -17,7 +17,7 @@ Then, we select a representative from each equivalence class and replace each
 variable with its representative.
 -/
 
-@[reducible] def elim_phi_m (α : Type) := state_t (disjoint_set name) id α
+@[reducible] def elim_phi_m (α : Type) := state_t (disjoint_set var) id α
 
 def merge (x y : var) : elim_phi_m unit :=
 modify $ λ s, s.merge x y

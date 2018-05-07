@@ -98,6 +98,9 @@ class has_to_format (α : Type u) :=
 
 export lean.has_to_format (to_format)
 
+instance format_has_to_format : has_to_format format :=
+⟨id⟩
+
 def to_fmt {α : Type u} [has_to_format α] : α → format :=
 to_format
 
@@ -126,7 +129,7 @@ def list.to_format {α : Type u} [has_to_format α] : list α → format
 instance list_has_to_format {α : Type u} [has_to_format α] : has_to_format (list α) :=
 ⟨list.to_format⟩
 
-instance {α : Type u} {β : Type v} [has_to_format α] [has_to_format β] : has_to_format (prod α β) :=
+instance prod_has_to_format {α : Type u} {β : Type v} [has_to_format α] [has_to_format β] : has_to_format (prod α β) :=
 ⟨λ ⟨a, b⟩, paren $ to_format a ++ "," ++ line ++ to_format b⟩
 
 instance nat_has_to_format : has_to_format nat    := ⟨λ n, to_string n⟩

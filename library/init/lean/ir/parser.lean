@@ -99,11 +99,13 @@ do xs  ← many1 parse_var,
    ys  ← many parse_var,
    return $ instr.call ([x] ++ xs) fid ys
 
-def parse_sizet_elem : parser (nat × type) :=
-do symbol "(", n ← lexeme num, symbol ",", ty ← parse_type, symbol ")", return (n, ty)
+def parse_sizet_entry : parser (nat × type) :=
+(prod.mk 1 <$> parse_type)
+<|>
+(prod.mk <$> lexeme num <*> (symbol ":" >> parse_type))
 
 def parse_sizet : parser sizet :=
-symbol "[" >> sep_by1 parse_sizet_elem (symbol ",") <* symbol "]"
+symbol "[" >> sep_by1 parse_sizet_entry (symbol ",") <* symbol "]"
 
 def parse_typed_assignment (x : var) : parser instr :=
 do  symbol ":",

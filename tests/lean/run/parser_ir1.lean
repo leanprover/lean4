@@ -42,3 +42,18 @@ do (except.ok ir) ← return $ parse (whitespace >> parse_def) s,
    io.print_ln (lean.to_fmt (elim_phi ir))
 
 #eval tst_elim_phi IR2
+
+
+def IR3 := "
+def mk_struct (d1 : object) (d2 : uint32) (d3 : usize) (d4 : uint32) (d5 : bool) (d6 : bool) : object :=
+main:
+  o := cnstr 0 1 [object, 2:uint32, usize, bool];
+  set o 0 d1;
+  sset o [object] d3;
+  sset o [object, usize] d2;
+  sset o [object, usize, uint32] d4;
+  sset o [object, usize, 2:uint32] d5;
+  sset o [object, usize, 2:uint32, bool] d6;
+  ret o;
+"
+#eval show_result (whitespace >> parse_def) IR3

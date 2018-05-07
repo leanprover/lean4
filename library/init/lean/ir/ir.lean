@@ -17,7 +17,7 @@ namespace lean
 namespace ir
 
 inductive type
-| bool | byte | uint16 | uint32 | uint64 | int16 | int32 | int64 | float | double | object
+| bool | byte | uint16 | uint32 | uint64 | usize | int16 | int32 | int64 | float | double | object
 
 inductive unop
 | not | neg | scalar | shared
@@ -38,6 +38,13 @@ def tag     := uint16
 def var     := name
 def fnid    := name
 def blockid := name
+/--
+`sizet` is used to represent object size and offset.
+An element `[(n_1, t_1), ..., (n_k, t_k)]` represents
+the size/offset `n_1 * sizeof(t_1) + ... + n_k * sizeof(t_k)`.
+We use this type to be able to generate platform independent
+code because the size of some types are platform dependent (e.g., `object` and `usize`) -/
+def sizet   := list (nat × type)
 
 instance var_has_lt : has_lt var := (name.has_lt_quick : has_lt name)
 instance blockid_has_lt : has_lt blockid := (name.has_lt_quick : has_lt name)
@@ -60,33 +67,33 @@ def mk_blockid_set : blockid_set := mk_rbtree blockid (<)
 def mk_var2blockid : var2blockid := mk_rbmap var blockid (<)
 
 inductive instr
-| lit     (x : var) (ty : type) (lit : literal)              -- x : ty := lit
-| cast    (x : var) (ty : type) (y : var)                    -- x : ty := y
-| unop    (x : var) (ty : type) (op : unop) (y : var)        -- x : ty := op y
-| binop   (x : var) (ty : type) (op : binop) (y z : var)     -- x : ty := op y z
-| call    (xs : list var) (f : fnid) (ys : list var)         -- Function call:  xs := f ys
+| lit     (x : var) (ty : type) (lit : literal)                 -- x : ty := lit
+| cast    (x : var) (ty : type) (y : var)                       -- x : ty := y
+| unop    (x : var) (ty : type) (op : unop) (y : var)           -- x : ty := op y
+| binop   (x : var) (ty : type) (op : binop) (y z : var)        -- x : ty := op y z
+| call    (xs : list var) (f : fnid) (ys : list var)            -- Function call:  xs := f ys
 /- Constructor objects -/
-| cnstr   (o : var) (tag : tag) (nobjs ssz : uint16)         -- Create constructor object
-| set     (o : var) (i : uint16) (x : var)                   -- Set object field:          set o i x
-| get     (x : var) (o : var) (i : uint16)                   -- Get object field:          x := get o i
-| sset    (o : var) (d : uint16) (v : var)                   -- Set scalar field:          sset o d v
-| sget    (x : var) (ty : type) (o : var) (d : uint16)       -- Get scalar field:          x : ty := sget o d
+| cnstr   (o : var) (tag : tag) (nobjs : uint16) (ssz : sizet)  -- Create constructor object
+| set     (o : var) (i : uint16) (x : var)                      -- Set object field:          set o i x
+| get     (x : var) (o : var) (i : uint16)                      -- Get object field:          x := get o i
+| sset    (o : var) (d : sizet) (v : var)                       -- Set scalar field:          sset o d v
+| sget    (x : var) (ty : type) (o : var) (d : sizet)           -- Get scalar field:          x : ty := sget o d
 /- Closures -/
-| closure (x : var) (f : fnid) (ys : list var)               -- Create closure:            x := closure f ys
-| apply   (x : var) (ys : list var)                          -- Apply closure:             x := apply ys
+| closure (x : var) (f : fnid) (ys : list var)                  -- Create closure:            x := closure f ys
+| apply   (x : var) (ys : list var)                             -- Apply closure:             x := apply ys
 /- Array of objects -/
-| array   (a sz c : var)                                     -- Create array of objects with size `sz` and capacity `c`
-| write   (a i v : var)                                      -- Array write                write a i v
-| read    (x a i : var)                                      -- Array read                 x := a[i]
+| array   (a sz c : var)                                        -- Create array of objects with size `sz` and capacity `c`
+| write   (a i v : var)                                         -- Array write                write a i v
+| read    (x a i : var)                                         -- Array read                 x := a[i]
 /- Scalar arrays -/
-| sarray  (a : var) (ty : type) (sz c : var)                 -- Create scalar array
-| swrite  (a i v : var)                                      -- Scalar array write         swrite a i v
-| sread   (x : var) (ty : type) (a i : var)                  -- Scalar array read          x : type := a[i]
+| sarray  (a : var) (ty : type) (sz c : var)                    -- Create scalar array
+| swrite  (a i v : var)                                         -- Scalar array write         swrite a i v
+| sread   (x : var) (ty : type) (a i : var)                     -- Scalar array read          x : type := a[i]
 /- Reference counting -/
-| inc     (x : var)                                          -- inc var
-| decs    (x : var)                                          -- decrement RC of shared object
+| inc     (x : var)                                             -- inc var
+| decs    (x : var)                                             -- decrement RC of shared object
 | free    (x : var)
-| dec     (x : var)                                          -- Remark: can be defined using `decs`, `dealloc` and `shared`
+| dec     (x : var)                                             -- Remark: can be defined using `decs`, `dealloc` and `shared`
 
 structure phi :=
 (x : var) (ty : type) (ys : list var)

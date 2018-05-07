@@ -24,6 +24,7 @@ def parse_type : parser type :=
 <|> (keyword "uint16" >> return type.uint16)
 <|> (keyword "uint32" >> return type.uint32)
 <|> (keyword "uint64" >> return type.uint64)
+<|> (keyword "usize" >> return type.usize)
 <|> (keyword "int16" >> return type.int16)
 <|> (keyword "int32" >> return type.int32)
 <|> (keyword "int64" >> return type.int64)
@@ -98,11 +99,17 @@ do xs  ← many1 parse_var,
    ys  ← many parse_var,
    return $ instr.call ([x] ++ xs) fid ys
 
+def parse_sizet_elem : parser (nat × type) :=
+do symbol "(", n ← lexeme num, symbol ",", ty ← parse_type, symbol ")", return (n, ty)
+
+def parse_sizet : parser sizet :=
+symbol "[" >> sep_by1 parse_sizet_elem (symbol ",") <* symbol "]"
+
 def parse_typed_assignment (x : var) : parser instr :=
 do  symbol ":",
     ty ← parse_type,
     symbol ":=",
-    (keyword "sget" >> instr.sget x ty <$> parse_var <*> parse_uint16)
+    (keyword "sget" >> instr.sget x ty <$> parse_var <*> parse_sizet)
 <|> (keyword "sread" >> instr.sread x ty <$> parse_var <*> parse_var)
 <|> (instr.unop x ty <$> parse_unop <*> parse_var)
 <|> (instr.binop x ty <$> parse_binop <*> parse_var <*> parse_var)
@@ -117,7 +124,7 @@ do  symbol ":=",
 <|> (keyword "get"     >> instr.get x <$> parse_var <*> parse_uint16)
 <|> (keyword "read"    >> instr.read x <$> parse_var <*> parse_var)
 <|> (keyword "call"    >> instr.call [x] <$> parse_fnid <*> many parse_var)
-<|> (keyword "cnstr"   >> instr.cnstr x <$> parse_uint16 <*> parse_uint16 <*> parse_uint16)
+<|> (keyword "cnstr"   >> instr.cnstr x <$> parse_uint16 <*> parse_uint16 <*> parse_sizet)
 <|> (keyword "array"   >> instr.array x <$> parse_var <*> parse_var)
 <|> (keyword "sarray"  >> instr.sarray x <$> parse_type <*> parse_var <*> parse_var)
 
@@ -131,7 +138,7 @@ def parse_instr : parser instr :=
     (keyword "write" >> instr.write <$> parse_var <*> parse_var <*> parse_var)
 <|> (keyword "swrite" >> instr.swrite <$> parse_var <*> parse_var <*> parse_var)
 <|> (keyword "set" >> instr.set <$> parse_var <*> parse_uint16 <*> parse_var)
-<|> (keyword "sset" >> instr.sset <$> parse_var <*> parse_uint16 <*> parse_var)
+<|> (keyword "sset" >> instr.sset <$> parse_var <*> parse_sizet <*> parse_var)
 <|> (keyword "inc" >> instr.inc <$> parse_var)
 <|> (keyword "dec" >> instr.dec <$> parse_var)
 <|> (keyword "decs" >> instr.decs <$> parse_var)
@@ -158,7 +165,6 @@ do id ← parse_blockid,
 
 def parse_arg : parser arg :=
 do symbol "(", x ← parse_var, symbol ":", ty ← parse_type, symbol ")", return {n := x, ty := ty}
-
 
 def parse_header : parser header :=
 do n ← parse_fnid,

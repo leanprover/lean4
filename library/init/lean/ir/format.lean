@@ -39,7 +39,7 @@ instance tag.has_to_format : has_to_format tag         := infer_instance_as (has
 
 def type.to_format : type → format
 | type.bool   := "bool"   | type.byte   := "byte"
-| type.uint16 := "uint16" | type.uint32 := "uint32" | type.uint64 := "uint64"
+| type.uint16 := "uint16" | type.uint32 := "uint32" | type.uint64 := "uint64" | type.usize := "usize"
 | type.int16  := "int16"  | type.int32  := "int32"   | type.int64  := "int64"
 | type.float  := "float"  | type.double := "double"  | type.object := "object"
 
@@ -73,6 +73,9 @@ def literal.to_format : literal → format
 
 instance literal.has_to_format : has_to_format literal := ⟨literal.to_format⟩
 instance literal.has_to_string : has_to_string literal := ⟨pretty ∘ to_fmt⟩
+
+instance sizet.has_to_format : has_to_format sizet := infer_instance_as (has_to_format (list (nat × type)))
+instance sizet.has_to_string : has_to_string sizet := ⟨pretty ∘ to_fmt⟩
 
 def instr.to_format : instr → format
 | (instr.lit x ty lit)       := to_fmt x ++ " : " ++ to_fmt ty ++ " := " ++ to_fmt lit

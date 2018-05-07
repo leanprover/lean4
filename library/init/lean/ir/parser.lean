@@ -13,10 +13,10 @@ namespace ir
 open lean.parser
 
 def symbol (s : string) : parser unit :=
-(str s >> whitespace) <?> s
+(str s >> whitespace) <?> ("'" ++ s ++ "'")
 
 def keyword (s : string) : parser unit :=
-(try $ str s >> not_followed_by_sat is_id_rest >> whitespace) <?> s
+(try $ str s >> not_followed_by_sat is_id_rest >> whitespace) <?> ("'" ++ s ++ "'")
 
 def parse_type : parser type :=
     (keyword "bool" >> return type.bool)
@@ -102,10 +102,10 @@ do xs  ← many1 parse_var,
 def parse_sizet_entry : parser (nat × type) :=
 (prod.mk 1 <$> parse_type)
 <|>
-(prod.mk <$> lexeme num <*> (symbol ":" >> parse_type))
+(prod.mk <$> (lexeme num <?> "numeral") <*> (symbol ":" >> parse_type))
 
 def parse_sizet : parser sizet :=
-symbol "[" >> sep_by1 parse_sizet_entry (symbol ",") <* symbol "]"
+symbol "[" >> sep_by parse_sizet_entry (symbol ",") <* symbol "]"
 
 def parse_typed_assignment (x : var) : parser instr :=
 do  symbol ":",

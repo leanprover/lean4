@@ -11,9 +11,6 @@ namespace ir
 /-
 SSA validator
 -/
-@[reducible] def ssa_check : Type :=
-except_t string (state (var2blockid × var_set)) unit
-
 inductive ssa_error
 | already_defined (b : blockid) (x : var)                         -- variable `x` has already been defined at basic block `b`
 | undefined (b : blockid) (x : var)                               -- undefined variable `x` at basic block `b`

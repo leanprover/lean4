@@ -1982,8 +1982,7 @@ bool type_context_old::process_assignment(expr const & m, expr const & v) {
     try {
         expr t1 = infer(mvar);
         expr t2 = infer(new_v);
-        /* TODO(Leo): check whether using transparency_mode::All hurts performance.
-           We use Semireducible to make sure we will not fail an unification step
+        /* We use Semireducible to make sure we will not fail an unification step
                    ?m := t
            because we cannot establish that the types of ?m and t are definitionally equal
            due to the current transparency setting.

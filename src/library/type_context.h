@@ -795,7 +795,7 @@ public:
         transparency_scope m_transparency_scope;
         zeta_scope         m_zeta_scope;
         relaxed_scope(type_context_old & ctx):
-            m_transparency_scope(ctx, transparency_mode::All),
+            m_transparency_scope(ctx, transparency_mode::Semireducible),
             m_zeta_scope(ctx, true) {}
     };
 

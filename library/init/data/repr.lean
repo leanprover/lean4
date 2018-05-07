@@ -130,10 +130,10 @@ instance : has_repr string.iterator :=
 instance (n : nat) : has_repr (fin n) :=
 ⟨λ f, repr (fin.val f)⟩
 
-instance : has_repr uint16 := ⟨λ n, repr (fin.val n)⟩
-instance : has_repr uint32 := ⟨λ n, repr (fin.val n)⟩
-instance : has_repr uint64 := ⟨λ n, repr (fin.val n)⟩
-instance : has_repr usize  := ⟨λ n, repr (fin.val n)⟩
+instance : has_repr uint16 := ⟨λ n, repr n.to_nat⟩
+instance : has_repr uint32 := ⟨λ n, repr n.to_nat⟩
+instance : has_repr uint64 := ⟨λ n, repr n.to_nat⟩
+instance : has_repr usize  := ⟨λ n, repr n.to_nat⟩
 
 def char.repr (c : char) : string :=
 repr c

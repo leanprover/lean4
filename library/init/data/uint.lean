@@ -57,8 +57,10 @@ instance : has_le uint64    := ⟨fin.le⟩
 instance : inhabited uint64 := ⟨0⟩
 
 def uint16.of_nat (n : nat) : uint16 := fin.of_nat n
-def uint16.to_nat (u : uint16) : nat := fin.val u
+def uint16.to_nat (u : uint16) : nat := u.val
 def uint32.of_nat (n : nat) : uint32 := fin.of_nat n
-def uint32.to_nat (u : uint32) : nat := fin.val u
+def uint32.to_nat (u : uint32) : nat := u.val
 def uint64.of_nat (n : nat) : uint64 := fin.of_nat n
-def uint64.to_nat (u : uint64) : nat := fin.val u
+def uint64.to_nat (u : uint64) : nat := u.val
+
+attribute [irreducible] uint16 uint32 uint64

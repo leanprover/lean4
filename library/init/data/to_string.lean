@@ -53,13 +53,13 @@ instance (n : nat) : has_to_string (fin n) :=
 ⟨λ f, to_string (fin.val f)⟩
 
 instance : has_to_string uint16 :=
-⟨λ n, to_string (fin.val n)⟩
+⟨λ n, to_string n.to_nat⟩
 
 instance : has_to_string uint32 :=
-⟨λ n, to_string (fin.val n)⟩
+⟨λ n, to_string n.to_nat⟩
 
 instance : has_to_string uint64 :=
-⟨λ n, to_string (fin.val n)⟩
+⟨λ n, to_string n.to_nat⟩
 
 instance {α : Type u} [has_to_string α] : has_to_string (option α) :=
 ⟨λ o, match o with | none := "none" | (some a) := "(some " ++ to_string a ++ ")"⟩

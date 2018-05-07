@@ -11,7 +11,7 @@ universes u v w
 def bucket_array (α : Type u) (β : α → Type v) :=
 { b : array (list (Σ a, β a)) // b.sz > 0 }
 
-def bucket_array.uwrite {α : Type u} {β : α → Type v} (data : bucket_array α β) (i : usize) (d : list (Σ a, β a)) (h : i.val < data.val.sz) : bucket_array α β :=
+def bucket_array.uwrite {α : Type u} {β : α → Type v} (data : bucket_array α β) (i : usize) (d : list (Σ a, β a)) (h : i.to_nat < data.val.sz) : bucket_array α β :=
 ⟨ data.val.uwrite i d h,
   calc (data.val.uwrite i d h).sz = data.val.sz : array.sz_write_eq _ _ _
                      ...          > 0           : data.property ⟩
@@ -35,8 +35,8 @@ let n := if nbuckets = 0 then 8 else nbuckets in
 namespace hashmap_imp
 variables {α : Type u} {β : α → Type v}
 
-def mk_idx {n : nat} (h : n > 0) (u : usize) : { u : usize // u.val < n } :=
-⟨u %ₙ n, fin.modn_lt _ h⟩
+def mk_idx {n : nat} (h : n > 0) (u : usize) : { u : usize // u.to_nat < n } :=
+⟨u %ₙ n, usize.modn_lt _ h⟩
 
 def reinsert_aux (hash_fn : α → usize) (data : bucket_array α β) (a : α) (b : β a) : bucket_array α β :=
 let ⟨i, h⟩ := mk_idx data.property (hash_fn a) in

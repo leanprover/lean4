@@ -9,7 +9,7 @@ import init.meta.expr init.util
 @[reducible] meta def {u} has_reflect (α : Sort u) := Π a : α, reflected a
 
 section
-local attribute [semireducible] reflected
+local attribute [semireducible] reflected uint32 uint64
 
 meta instance nat.reflect : has_reflect ℕ
 | n := if n = 0 then `(0 : ℕ)
@@ -22,7 +22,6 @@ meta instance uint32.reflect : has_reflect uint32
 
 meta instance uint64.reflect : has_reflect uint64
 | ⟨n, pr⟩ := `(uint64.of_nat n)
-
 end
 
 /- Instances that [derive] depends on. All other basic instances are defined at the end of

@@ -149,6 +149,15 @@ set_option profiler true
 #eval state.run (reader_t.run (reader_t.run (reader_t.run (bench_state_classy 10000) 0) 0) 0) 0
 #eval eff.run $ State.run 0 $ Reader.run 0 $ Reader.run 0 $ Reader.run 0 (bench_state_classy 10000)
 
+-- left-associated binds lead to quadratic run time (section 2.6)
+def bench_state_classy' {m : Type → Type*} [monad m] [monad_state ℕ m] : ℕ → m ℕ
+| 0 := get
+| (nat.succ n) := bench_state_classy' n <* modify (+n)
+
+#eval eff.run $ State.run 0 (bench_state_classy' 100)
+#eval eff.run $ State.run 0 (bench_state_classy' 500)
+#eval eff.run $ State.run 0 (bench_state_classy' 1000)
+
 def bench_state_t : ℕ → state ℕ ℕ
 | 0 := get
 | (nat.succ n) := modify (+n) >> bench_state_t n

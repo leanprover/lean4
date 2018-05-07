@@ -20,19 +20,19 @@ namespace dlist
 variables {α : Type u}
 open list
 
-def of_list (l : list α) : dlist α :=
+@[inline] def of_list (l : list α) : dlist α :=
 ⟨append l, λ t, (append_nil l).symm ▸ rfl⟩
 
-def empty : dlist α :=
+@[inline] def empty : dlist α :=
 ⟨id, λ t, rfl⟩
 
-def to_list : dlist α → list α
+@[inline] def to_list : dlist α → list α
 | ⟨f, h⟩ := f []
 
-def singleton : α → dlist α
-| a := ⟨λ t, a :: t, λ t, rfl⟩
+@[inline] def singleton (a : α) : dlist α :=
+⟨λ t, a :: t, λ t, rfl⟩
 
-def cons : α → dlist α → dlist α
+@[inline] def cons : α → dlist α → dlist α
 | a ⟨f, h⟩ := ⟨λ t, a :: f t, λ t,
                show a :: f t = a :: (f [] ++ t), from h t ▸ rfl⟩
 

@@ -49,7 +49,6 @@ instance type.has_to_string : has_to_string type := ⟨pretty ∘ to_fmt⟩
 def unop.to_format : unop → format
 | unop.not         := "not"        | unop.neg         := "neg"
 | unop.scalar      := "scalar"     | unop.shared      := "shared"
-| unop.unbox       := "unbox"      | unop.box         := "box"
 | unop.copy_array  := "copy_array" | unop.copy_sarray := "copy_sarray"
 
 instance unop.has_to_format : has_to_format unop := ⟨unop.to_format⟩

@@ -37,8 +37,6 @@ def parse_unop : parser unop :=
 <|> (keyword "neg" >> return unop.neg)
 <|> (keyword "scalar" >> return unop.scalar)
 <|> (keyword "shared" >> return unop.shared)
-<|> (keyword "unbox" >> return unop.unbox)
-<|> (keyword "box" >> return unop.box)
 <|> (keyword "copy_array" >> return unop.copy_array)
 <|> (keyword "copy_sarray" >> return unop.copy_sarray)
 

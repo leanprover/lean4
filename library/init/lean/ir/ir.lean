@@ -21,7 +21,6 @@ inductive type
 
 inductive unop
 | not | neg | scalar | shared
-| unbox | box
 | copy_array | copy_sarray
 
 inductive binop

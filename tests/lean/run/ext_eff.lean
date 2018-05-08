@@ -1,3 +1,5 @@
+import system.io
+
 /- An extensible effects library, inspired by "Freer Monads, More Extensible Effects" (O. Kiselyov, H. Ishii)
    and https://github.com/lexi-lambda/freer-simple -/
 
@@ -12,6 +14,11 @@ instance member_head {α : Type*} (x : α) (xs) : member x (x::xs) :=
 
 instance member_tail {α : Type*} (x y : α) (ys) [member x ys] : member x (y::ys) :=
 ⟨member.idx x ys + 1, by simp [member.prf x ys]⟩
+
+class last_member {α : Type*} (x : out_param α) (xs : list α) extends member x xs
+
+instance last_member_singleton {α : Type*} (x : α) : last_member x [x] := {}
+instance last_member_tail {α : Type*} (x y : α) (ys) [last_member x ys] : last_member x (y::ys) := {}
 
 
 structure union (effs : list effect) (α : Type) :=
@@ -65,6 +72,9 @@ instance (effs) : monad (eff effs) :=
 @[inline] def eff.send {e : effect} {effs α} [member e effs] : e α → eff effs α :=
 λ x, eff.impure (union.inj x) pure
 
+@[inline] def eff.send_m {e : effect} {effs α} [monad e] [last_member e effs] : e α → eff effs α :=
+λ x, eff.impure (union.inj x) pure
+
 @[inline] def eff.handle_relay {e : effect} {effs α β} (ret : β → eff effs α)
   (h : ∀ {β}, e β → (β → eff effs α) → eff effs α) : eff (e :: effs) β → eff effs α
 | (eff.pure a) := ret a
@@ -81,7 +91,7 @@ instance (effs) : monad (eff effs) :=
   | sum.inr u := eff.impure u (λ b, eff.handle_relay_σ st (k b))
 
 
-@[inline] def eff.interpose {e : effect} {effs α β} [member e effs] (ret : β → eff effs α)
+@[inline] def eff.interpose (e : effect) {effs α β} [member e effs] (ret : β → eff effs α)
   (h : ∀ {β}, e β → (β → eff effs α) → eff effs α) : eff effs β → eff effs α
 | (eff.pure a) := ret a
 | (@eff.impure _ _ β u k) := match u.prj e with
@@ -123,7 +133,7 @@ inductive Exception (ε α : Type) : Type
 
 @[inline] def eff.throw {ε α effs} [member (Exception ε) effs] (ex : ε) : eff effs α := eff.send (Exception.throw ex)
 @[inline] def eff.catch {ε α effs} [member (Exception ε) effs] (x : eff effs α) (handle : ε → eff effs α) : eff effs α :=
-x.interpose pure (λ β x k, match (x : Exception ε β) with Exception.throw e := handle e)
+x.interpose (Exception ε) pure (λ β x k, match x with Exception.throw e := handle e)
 instance {ε effs} [member (Exception ε) effs] : monad_except ε (eff effs) :=
 ⟨λ α, eff.throw, λ α, eff.catch⟩
 
@@ -134,6 +144,67 @@ eff.handle_relay (pure ∘ except.ok) (λ β x k, match x with Exception.throw e
 def eff.run {α : Type} : eff [] α → α
 | (eff.pure a) := a
 
+def eff.run_m {α : Type} {m} [monad m] : eff [m] α → m α
+| (eff.pure a) := pure a
+| (eff.impure u k) := match u.decomp with
+  | sum.inl m := m >>= λ a, eff.run_m (k a)
+
+instance (m effs) [member m effs] : has_monad_lift m (eff effs) :=
+⟨λ α, eff.send⟩
+
+section examples
+
+-- from http://okmij.org/ftp/Haskell/extensible/EffDynCatch.hs
+
+@[inline] def io.try {α} : io α → io (except io.error α) :=
+λ x, io.catch (except.ok <$> x) (pure ∘ except.error)
+
+instance : has_repr io.error :=
+⟨λ e, match e with
+      | io.error.sys n := "io.error.sys " ++ repr n
+      | io.error.other s := "io.error.other " ++ repr s⟩
+
+@[inline] def eff.catch_io {effs α} [member io effs] (x : eff effs α) (catch : io.error → eff effs α) : eff effs α :=
+x.interpose io pure (λ β x k, do ex ← monad_lift x.try,
+                                 match ex with
+                                 | except.ok b := k b
+                                 | except.error e := catch e)
+
+-- like `io.try`, but can be used at any point, not just in the very last layer
+@[inline] def eff.try_io {α effs} [member io effs] (x : eff effs α) : eff effs (except io.error α) :=
+eff.catch_io (except.ok <$> x) (pure ∘ except.error)
+
+@[inline] def exfn : bool → io bool
+| tt := io.fail "thrown"
+| ff := pure tt
+
+-- handle IO exceptions before State
+def test1 :=
+  let tf : bool → eff [io] _ := λ (x : bool), Reader.run x $ State.run ([] : list string) $ eff.try_io $
+  do modify (λ xs, "begin"::xs),
+     x ← read,
+     r ← monad_lift $ exfn x,
+     modify (λ xs, "end"::xs),
+     pure r in
+  do repr <$> eff.run_m (tf tt) >>= io.print_ln,
+     repr <$> eff.run_m (tf ff) >>= io.print_ln
+
+#eval test1
+
+-- handle IO exceptions after State
+def test2 :=
+  let tf : bool → eff [io] _ := λ (x : bool), Reader.run x $ eff.try_io $ State.run ([] : list string) $
+  do modify (λ xs, "begin"::xs),
+     x ← read,
+     r ← monad_lift $ exfn x,
+     modify (λ xs, "end"::xs),
+     pure r in
+  do repr <$> eff.run_m (tf tt) >>= io.print_ln,
+     repr <$> eff.run_m (tf ff) >>= io.print_ln
+
+#eval test2
+
+end examples
 
 section benchmarks
 def state.run {σ α : Type*} : state σ α → σ → α × σ := state_t.run

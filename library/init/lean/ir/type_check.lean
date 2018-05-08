@@ -78,6 +78,9 @@ match op with
 
 @[reducible] def type_checker_m := except_t format (reader_t (environment × list result) (state_t context id))
 
+def type_checker_m.run {α} (a : type_checker_m α) (env : environment) (r : list result) : except format α :=
+((a.run.run (env, r)).run mk_context).1
+
 def match_type (x : var) (t expected : type) : type_checker_m unit :=
 unless (t = expected) $
   throw ("type mismatch, variable `" ++ to_fmt x ++ "` has type `" ++ to_fmt t ++ "`" ++
@@ -177,8 +180,7 @@ def decl.infer_types : decl → type_checker_m context
 /-- Return context with the type of variables used in the given declaration.
     It does not check whether instructions are being used correctly. -/
 def infer_types (d : decl) (env : environment) : except format context :=
-let (r, _) := (d.infer_types.run.run (env, d.header.return)).run mk_context
-in r
+d.infer_types.run env d.header.return
 
 def check_arg_types : list var → list arg → type_checker_m unit
 | []      []      := return ()
@@ -243,9 +245,7 @@ def decl.check : decl → type_checker_m unit
 | _                := return ()
 
 def type_check (d : decl) (env : environment := λ _, none) : except format context :=
-let act := do ctx ← d.infer_types, d.check, return ctx in
-let (r, _) := (act.run.run (env, d.header.return)).run mk_context in
-r
+(d.infer_types >> d.check >> get).run env d.header.return
 
 end ir
 end lean

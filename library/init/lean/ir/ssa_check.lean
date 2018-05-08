@@ -4,25 +4,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.lean.ir.ir
+import init.lean.ir.ir init.lean.ir.format 
 
 namespace lean
 namespace ir
 /-
 SSA validator
 -/
-inductive ssa_error
-| already_defined (b : blockid) (x : var)                         -- variable `x` has already been defined at basic block `b`
-| undefined (b : blockid) (x : var)                               -- undefined variable `x` at basic block `b`
-| phi_multiple_entries (b : blockid) (x : var) (pred : blockid)   -- `x := phi y_1 ... y_n` at basic block `b`, where there are `y_i` and `y_j` defined in the same basic block `pred`
-| phi_missing_predecessor (b : blockid) (x : var)                 -- `x := phi ys` has a missing predecessor at basic block `b`
-| no_block
 
-@[reducible] def ssa_decl_m := except_t ssa_error (state_t var2blockid id)
+@[reducible] def ssa_decl_m := except_t format (state_t var2blockid id)
 
 def var.declare_at (b : blockid) (x : var) : ssa_decl_m unit :=
 do m ← get,
-   if m.contains x then throw (ssa_error.already_defined b x)
+   if m.contains x then throw ("already defined " ++ to_fmt x)
    else put (m.insert x b)
 
 def instr.declare_vars_at (b : blockid) : instr → ssa_decl_m unit
@@ -63,15 +57,15 @@ def decl.declare_vars : decl → ssa_decl_m unit
   as.mmap' (arg.declare_at b.id) >>
   b.declare_vars >>
   bs.mmap' block.declare_vars
-| (decl.defn _  []) := throw ssa_error.no_block
+| (decl.defn _  []) := throw "declaration must have at least one basic block" 
 | _                 := return ()
 
 /- Generate the mapping from variable to blockid for the given declaration.
    This function assumes `d` is in SSA. -/
-def decl.var2blockid (d : decl) : except_t ssa_error id var2blockid :=
+def decl.var2blockid (d : decl) : except_t format id var2blockid :=
 run_state (d.declare_vars >> get) mk_var2blockid
 
-@[reducible] def ssa_valid_m := except_t ssa_error (reader_t (var2blockid × block) (state_t var_set id))
+@[reducible] def ssa_valid_m := except_t format (reader_t (var2blockid × block) (state_t var_set id))
 
 def read_var2blockid : ssa_valid_m var2blockid :=
 prod.fst <$> read
@@ -87,17 +81,14 @@ modify $ λ s, s.insert x
 def var.defined (x : var) : ssa_valid_m unit :=
 do s ← get,
    if s.contains x then return ()
-   else do b ← read_block,
-           throw (ssa_error.undefined b.id x)
+   else throw ("undefined " ++ to_fmt x) 
 
 /- Given, x := phi ys,
    check whether every ys is declared at the var2blockid mapping,
    and update the set of already defined variables in the basic block with `x`. -/
 def phi.valid_ssa (p : phi) : ssa_valid_m unit :=
 do m ← read_var2blockid,
-   p.ys.mmap' (λ y, if m.contains y then return ()
-                 else do b ← read_block,
-                         throw (ssa_error.undefined b.id y)),
+   p.ys.mmap' $ λ y, unless (m.contains y) $ throw ("undefined " ++ to_fmt y), 
    p.x.define
 
 def instr.valid_ssa : instr → ssa_valid_m unit
@@ -133,10 +124,9 @@ p.ys.mfoldl (λ s y,
   do m ← read_var2blockid,
      match m.find y with
      | some bid := if s.contains bid
-                   then do b ← read_block,
-                           throw (ssa_error.phi_multiple_entries b.id p.x bid)
+                   then throw ("multiple predecessors at '" ++ to_fmt p ++ "'")
                    else return $ (s.insert bid)
-     | none   := do b ← read_block, throw (ssa_error.undefined b.id y))
+     | none   := throw ("undefined '" ++ to_fmt y ++ "' at '" ++ to_fmt p ++ "'"))
   mk_blockid_set
 
 def phis.check_predecessors (ps : list phi) : ssa_valid_m unit :=
@@ -144,8 +134,7 @@ do ps.mfoldl (λ (os : option blockid_set) (p : phi),
      do s' ← p.predecessors,
         match os with
         | (some s) := if s.seteq s' then return os
-                      else do b ← read_block,
-                              throw (ssa_error.phi_missing_predecessor b.id p.x)
+                      else throw ("missing predecessor '" ++ to_fmt p.x ++ "' at '" ++ to_fmt p ++ "'")
         | none      := return (some s'))
      none,
    return ()
@@ -157,7 +146,7 @@ do b ← read_block,
    b.instrs.mmap' instr.valid_ssa,
    b.term.valid_ssa
 
-def block.valid_ssa : except_t ssa_error (reader_t (var2blockid × block) id) unit :=
+def block.valid_ssa : except_t format (reader_t (var2blockid × block) id) unit :=
 run_state block.valid_ssa_core mk_var_set
 
 /-
@@ -166,7 +155,7 @@ and store the blockid where `x` is defined (action: `decl.declare_vars`).
 Then, we check whether every used variable in basic block has been
 defined before being used.
 -/
-def decl.valid_ssa (d : decl) : except_t ssa_error id var2blockid :=
+def decl.valid_ssa (d : decl) : except_t format id var2blockid :=
 do m ← d.var2blockid,
    match d with
    | decl.defn _ bs := do

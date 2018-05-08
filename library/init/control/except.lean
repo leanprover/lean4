@@ -59,6 +59,11 @@ section
   | (except.ok a)    := some a
   | (except.error _) := none
 
+  protected def catch {α : Type u} (ma : except ε α) (handle : ε → except ε α) : except ε α :=
+  match ma with
+  | except.ok a    := except.ok a
+  | except.error e := handle e
+
   instance : monad (except ε) :=
   { pure := @return, bind := @bind }
 end
@@ -132,6 +137,8 @@ export monad_except (throw catch)
 instance (m ε) [monad m] : monad_except ε (except_t ε m) :=
 { throw := λ α, except_t.mk ∘ pure ∘ except.error, catch := @except_t.catch ε _ _ }
 
+instance (ε) : monad_except ε (except ε) :=
+{ throw := λ α, except.error, catch := @except.catch _ }
 
 /-- Adapt a monad stack, changing its top-most error type.
 
@@ -140,7 +147,7 @@ instance (m ε) [monad m] : monad_except ε (except_t ε m) :=
     class monad_except_functor (ε ε' : out_param (Type u)) (n n' : Type u → Type u) :=
     (map {} {α : Type u} : (∀ {m : Type u → Type u} [monad m], except_t ε m α → except_t ε' m α) → n α → n' α)
     ```
-    -/
+-/
 class monad_except_adapter (ε ε' : out_param (Type u)) (m m' : Type u → Type v) :=
 (adapt_except {} {α : Type u} : (ε → ε') → m α → m' α)
 export monad_except_adapter (adapt_except)

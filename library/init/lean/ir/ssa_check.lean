@@ -154,24 +154,25 @@ do m ← d.var2blockid,
    | _              := return m
 
 /- Check blockids -/
-inductive blockid_error
-| already_used (bid : blockid)
-| unknown (bid : blockid)
-
 @[reducible] def blockid_check_m :=
-except_t blockid_error (state blockid_set)
+except_t format (state blockid_set)
+
+def blockid_check_m.run {α} (a : blockid_check_m α) : except format α :=
+(a.run.run mk_blockid_set).1
 
 def block.declare (b : block) : blockid_check_m unit :=
 do s ← get,
-   if s.contains b.id then throw $ blockid_error.already_used b.id
+   if s.contains b.id then throw $ "block label '" ++ to_fmt b.id ++ "' has been used more than once"
    else put (s.insert b.id)
 
 def blockid.defined (bid : blockid) : blockid_check_m unit :=
 do s ← get,
    if s.contains bid then return ()
-   else throw $ blockid_error.unknown bid
+   else throw $ "unknown basic block '" ++ to_fmt bid ++ "'"
 
-def terminator.check_blockids : terminator → blockid_check_m unit
+def terminator.check_blockids (term : terminator) : blockid_check_m unit :=
+term.decorate_error $
+match term with
 | (terminator.ret ys)      := return ()
 | (terminator.case _ bids) := bids.mmap' blockid.defined
 | (terminator.jmp bid)     := bid.defined
@@ -180,15 +181,11 @@ def block.check_blockids (b : block) : blockid_check_m unit :=
 b.term.check_blockids
 
 def decl.check_blockids : decl → blockid_check_m unit
-| (decl.defn _ bs) := bs.mmap' block.declare >> bs.mmap' block.check_blockids
+| (decl.defn h bs) := h.decorate_error $ bs.mmap' block.declare >> bs.mmap' block.check_blockids
 | _                := return ()
 
-def check_blockids (d : decl) : except_t blockid_error id blockid_set :=
-run_state (d.check_blockids >> get) mk_blockid_set
-
-/-
-TODO: type inference
--/
+def check_blockids (d : decl) : except format blockid_set :=
+(d.check_blockids >> get).run
 
 end ir
 end lean

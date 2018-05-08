@@ -99,7 +99,6 @@ def parse_instr_pp : parser string :=
 do cmd ← lean.ir.parse_instr,
    return $ to_string cmd
 
-#eval test parse_instr_pp "x : uint32 :=   y" "x : uint32 := y"
 #eval test parse_instr_pp "x :    uint32 :=  10" "x : uint32 := 10"
 #eval test parse_instr_pp "x : bool:=not y" "x : bool := not y"
 #eval test parse_instr_pp "x : bool := and z   y" "x : bool := and z y"

@@ -19,6 +19,9 @@ variable with its representative.
 
 @[reducible] def elim_phi_m (α : Type) := state_t (disjoint_set var) id α
 
+def elim_phi_m.run {α} (a : elim_phi_m α) : α :=
+(a.run (mk_disjoint_set var)).1
+
 def merge (x y : var) : elim_phi_m unit :=
 modify $ λ s, s.merge x y
 
@@ -79,7 +82,7 @@ def elim_phi_aux (d : decl) : elim_phi_m decl :=
 group_vars d >> d.replace_vars
 
 def elim_phi (d : decl) : decl :=
-((elim_phi_aux d).run (mk_disjoint_set var)).1
+(elim_phi_aux d).run
 
 end ir
 end lean

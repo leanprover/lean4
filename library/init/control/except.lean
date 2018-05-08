@@ -155,6 +155,5 @@ instance [monad m] : monad_except_adapter ε ε' (except_t ε m) (except_t ε' m
 ⟨λ α, except_t.adapt⟩
 end
 
-
 instance (ε m out) [monad_run out m] : monad_run (λ α, out (except ε α)) (except_t ε m) :=
 ⟨λ α, run ∘ except_t.run⟩

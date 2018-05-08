@@ -47,9 +47,12 @@ instance type.has_to_format : has_to_format type := ⟨type.to_format⟩
 instance type.has_to_string : has_to_string type := ⟨pretty ∘ to_fmt⟩
 
 def unop.to_format : unop → format
-| unop.not         := "not"        | unop.neg         := "neg"
-| unop.scalar      := "scalar"     | unop.shared      := "shared"
-| unop.copy_array  := "copy_array" | unop.copy_sarray := "copy_sarray"
+| unop.not         := "not"        | unop.neg          := "neg"
+| unop.scalar      := "scalar"     | unop.shared       := "shared"
+| unop.box         := "box"        | unop.unbox        := "unbox"
+| unop.box_bignum  := "box_bignum" | unop.unbox_bignum := "unbox_bignum"
+| unop.cast        := "cast"
+| unop.copy_array  := "copy_array" | unop.copy_sarray  := "copy_sarray"
 
 instance unop.has_to_format : has_to_format unop := ⟨unop.to_format⟩
 instance unop.has_to_string : has_to_string unop := ⟨pretty ∘ to_fmt⟩
@@ -85,7 +88,6 @@ instance sizet.has_to_string : has_to_string sizet := ⟨pretty ∘ to_fmt⟩
 
 def instr.to_format : instr → format
 | (instr.lit x ty lit)       := to_fmt x ++ " : " ++ to_fmt ty ++ " := " ++ to_fmt lit
-| (instr.cast x ty y)        := to_fmt x ++ " : " ++ to_fmt ty ++ " := " ++ to_fmt y
 | (instr.unop x ty op y)     := to_fmt x ++ " : " ++ to_fmt ty ++ " := " ++ to_fmt op ++ " " ++ to_fmt y
 | (instr.binop x ty op y z)  := to_fmt x ++ " : " ++ to_fmt ty ++ " := " ++ to_fmt op ++ " " ++ to_fmt y ++ " " ++ to_fmt z
 | (instr.call xs fn ys)      := join_sep xs " " ++ " := call " ++ to_fmt fn ++ prefix_join " " ys

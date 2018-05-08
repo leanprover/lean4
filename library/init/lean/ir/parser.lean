@@ -39,6 +39,11 @@ def parse_unop : parser unop :=
 <|> (keyword "shared" >> return unop.shared)
 <|> (keyword "copy_array" >> return unop.copy_array)
 <|> (keyword "copy_sarray" >> return unop.copy_sarray)
+<|> (keyword "box" >> return unop.box)
+<|> (keyword "unbox" >> return unop.unbox)
+<|> (keyword "box_bignum" >> return unop.box_bignum)
+<|> (keyword "unbox_bignum" >> return unop.unbox_bignum)
+<|> (keyword "cast" >> return unop.cast)
 
 def parse_binop : parser binop :=
     (keyword "add" >> return binop.add)
@@ -113,7 +118,6 @@ do  symbol ":",
 <|> (keyword "sread" >> instr.sread x ty <$> parse_var <*> parse_var)
 <|> (instr.unop x ty <$> parse_unop <*> parse_var)
 <|> (instr.binop x ty <$> parse_binop <*> parse_var <*> parse_var)
-<|> (instr.cast x ty <$> parse_var)
 <|> (instr.lit x ty <$> parse_literal)
 
 def parse_untyped_assignment (x : var) : parser instr :=

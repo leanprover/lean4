@@ -27,7 +27,6 @@ do m ← get,
 
 def instr.declare_vars_at (b : blockid) : instr → ssa_decl_m unit
 | (instr.lit x _ _)       := x.declare_at b
-| (instr.cast x _ _)      := x.declare_at b
 | (instr.unop x _ _ _)    := x.declare_at b
 | (instr.binop x _ _ _ _) := x.declare_at b
 | (instr.call xs _ _)     := xs.mmap' (var.declare_at b)
@@ -103,7 +102,6 @@ do m ← read_var2blockid,
 
 def instr.valid_ssa : instr → ssa_valid_m unit
 | (instr.lit x _ _)       := x.define
-| (instr.cast x _ y)      := x.define >> y.defined
 | (instr.unop x _ _ y)    := x.define >> y.defined
 | (instr.binop x _ _ y z) := x.define >> y.defined >> z.defined
 | (instr.call xs _ ys)    := xs.mmap' var.define >> ys.mmap' var.defined

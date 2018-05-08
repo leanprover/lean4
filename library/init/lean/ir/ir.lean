@@ -19,8 +19,35 @@ namespace ir
 inductive type
 | bool | byte | uint16 | uint32 | uint64 | usize | int16 | int32 | int64 | float | double | object
 
+/- TEMPORARY HACK for defining (decidable_eq type) until we bootstrap new compiler -/
+def type2id : type → nat
+| type.bool   := 0  | type.byte   := 1
+| type.uint16 := 2  | type.uint32 := 3  | type.uint64 := 4 | type.usize := 5
+| type.int16  := 6  | type.int32  := 7  | type.int64  := 8
+| type.float  := 9  | type.double := 10 | type.object := 11
+
+def id2type : nat → type
+| 0 := type.bool   | 1 := type.byte
+| 2 := type.uint16 | 3 := type.uint32  | 4 := type.uint64 | 5 := type.usize
+| 6 := type.int16  | 7 := type.int32   | 8 := type.int64
+| 9 := type.float  | 10 := type.double | _       := type.object
+
+theorem id2type_type2id_eq : ∀ (ty : type), id2type (type2id ty) = ty
+| type.bool   := rfl  | type.byte   := rfl
+| type.uint16 := rfl  | type.uint32 := rfl  | type.uint64 := rfl | type.usize := rfl
+| type.int16  := rfl  | type.int32  := rfl  | type.int64  := rfl
+| type.float  := rfl  | type.double := rfl  | type.object := rfl
+
+instance type_has_dec_eq : decidable_eq type :=
+λ t₁ t₂,
+ if h : type2id t₁ = type2id t₂
+ then is_true (id2type_type2id_eq t₁ ▸ id2type_type2id_eq t₂ ▸ h ▸ rfl)
+ else is_false (λ h', absurd rfl (@eq.subst _ (λ t, ¬ type2id t = type2id t₂) _ _ h' h))
+
+/- END of TEMPORARY HACK for (decidable_eq type) -/
+
 inductive unop
-| not | neg | scalar | shared
+| not | neg | scalar | shared | cast | box | unbox | box_bignum | unbox_bignum
 | copy_array | copy_sarray
 
 inductive binop
@@ -64,10 +91,10 @@ def var2blockid    := rbmap var blockid (<)
 def mk_var_set     : var_set     := mk_rbtree var (<)
 def mk_blockid_set : blockid_set := mk_rbtree blockid (<)
 def mk_var2blockid : var2blockid := mk_rbmap var blockid (<)
+def mk_context     : context     := mk_rbmap var type (<)
 
 inductive instr
 | lit     (x : var) (ty : type) (lit : literal)                 -- x : ty := lit
-| cast    (x : var) (ty : type) (y : var)                       -- x : ty := y
 | unop    (x : var) (ty : type) (op : unop) (y : var)           -- x : ty := op y
 | binop   (x : var) (ty : type) (op : binop) (y z : var)        -- x : ty := op y z
 | call    (xs : list var) (f : fnid) (ys : list var)            -- Function call:  xs := f ys
@@ -117,6 +144,12 @@ structure header :=
 inductive decl
 | external (h : header)
 | defn     (h : header) (bs : list block)
+
+def decl.header : decl → header
+| (decl.external h) := h
+| (decl.defn h _)   := h
+
+def environment := fnid → option decl
 
 end ir
 end lean

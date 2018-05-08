@@ -31,7 +31,6 @@ def group_vars : decl → elim_phi_m unit
 
 def instr.replace_vars : instr → elim_phi_m instr
 | (instr.lit x ty lit)      := instr.lit <$> find x <*> pure ty <*> pure lit
-| (instr.cast x ty y)       := instr.cast <$> find x <*> pure ty <*> find y
 | (instr.unop x ty op y)    := instr.unop <$> find x <*> pure ty <*> pure op <*> find y
 | (instr.binop x ty op y z) := instr.binop <$> find x <*> pure ty <*> pure op <*> find y <*> find z
 | (instr.call xs f ys)      := instr.call <$> xs.mmap find <*> pure f <*> ys.mmap find

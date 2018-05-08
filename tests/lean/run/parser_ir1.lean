@@ -1,13 +1,18 @@
 import system.io
 import init.lean.ir.parser init.lean.ir.format
-import init.lean.ir.elim_phi
+import init.lean.ir.elim_phi init.lean.ir.type_check
 
 open lean.parser
 open lean.ir
 
-def show_result {α} [lean.has_to_format α] (p : parser α) (s : string) : io unit :=
+def check_decl (d : decl) : io unit :=
+match type_check d with
+| except.ok _    := return ()
+| except.error e := io.print_ln (to_string e)
+
+def show_result (p : parser decl) (s : string) : io unit :=
 match parse p s with
-| except.ok a    := io.print_ln (lean.to_fmt a)
+| except.ok d    := io.print_ln (lean.to_fmt d) >> check_decl d
 | except.error e := io.print_ln (e.to_string s)
 
 def IR1 := "
@@ -38,11 +43,11 @@ end:
 #eval show_result (whitespace >> parse_def) IR2
 
 def tst_elim_phi (s : string) : io unit :=
-do (except.ok ir) ← return $ parse (whitespace >> parse_def) s,
-   io.print_ln (lean.to_fmt (elim_phi ir))
+do (except.ok d) ← return $ parse (whitespace >> parse_def) s,
+   check_decl d,
+   io.print_ln (lean.to_fmt (elim_phi d))
 
 #eval tst_elim_phi IR2
-
 
 def IR3 := "
 def mk_struct (d1 : object) (d2 : uint32) (d3 : usize) (d4 : uint32) (d5 : bool) (d6 : bool) : object :=

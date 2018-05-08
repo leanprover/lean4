@@ -132,7 +132,9 @@ def set_result_types : list var → list result → type_checker_m unit
 | (x::xs) (t::ts) := set_type x t.ty >> set_result_types xs ts
 | _       _       := throw "unexpected number of return values"
 
-def instr.infer_types_core : instr → type_checker_m unit
+def instr.infer_types (ins : instr) : type_checker_m unit :=
+ins.decorate_error $
+match ins with
 | (instr.lit x t l)        := set_type x t
 | (instr.unop x t op y)    := set_type x t
 | (instr.binop x t op y z) := set_type x t
@@ -148,33 +150,17 @@ def instr.infer_types_core : instr → type_checker_m unit
 | (instr.sread x t a i)    := set_type x t
 | other                    := return ()
 
-def instr.decorate (ins : instr) (err : format) : type_checker_m unit :=
-throw $ "at instruction `" ++ to_fmt ins ++ "`" ++ format.line ++ err
-
-def instr.infer_types (ins : instr) : type_checker_m unit :=
-catch ins.infer_types_core ins.decorate
-
-def phi.decorate (p : phi) (err : format) : type_checker_m unit :=
-throw $ "at phi node `" ++ to_fmt p ++ "`" ++ format.line ++ err
-
 def phi.infer_types (p : phi) : type_checker_m unit :=
-catch (set_type p.x p.ty) p.decorate
+p.decorate_error $ set_type p.x p.ty
 
 def arg.infer_types (a : arg) : type_checker_m unit :=
 set_type a.n a.ty
 
-def block.decorate (b : block) (err : format) : type_checker_m unit :=
-throw $ "at basic block `" ++ to_fmt b.id ++ "`" ++ format.line ++ err
-
 def block.infer_types (b : block) : type_checker_m unit :=
-catch (b.phis.mmap' phi.infer_types >> b.instrs.mmap' instr.infer_types) b.decorate
-
-def header.decorate {α : Type} (h : header) (err : format) : type_checker_m α :=
-throw $ "error at declaration `" ++ to_fmt h.n ++ "`" ++ format.line ++ err
+b.decorate_error $ b.phis.mmap' phi.infer_types >> b.instrs.mmap' instr.infer_types
 
 def decl.infer_types : decl → type_checker_m context
-| (decl.defn h bs) :=
-  catch (h.args.mmap' arg.infer_types >> bs.mmap' block.infer_types >> get) h.decorate
+| (decl.defn h bs) := h.decorate_error $ h.args.mmap' arg.infer_types >> bs.mmap' block.infer_types >> get
 | _                := get
 
 /-- Return context with the type of variables used in the given declaration.
@@ -189,7 +175,9 @@ def check_arg_types : list var → list arg → type_checker_m unit
 
 /-- Check whether the given instruction is type correct or not. It assumes the context already contains
     the type of all variables. -/
-def instr.check_core : instr → type_checker_m unit
+def instr.check (ins : instr) : type_checker_m unit :=
+ins.decorate_error $
+match ins with
 | (instr.lit x t l)        := l.check t
 | (instr.unop x t op y)    := do t₁ ← get_type y, unless (valid_unop_types op t t₁) $ throw "invalid unary operation"
 | (instr.binop x t op y z) := do t₁ ← get_type y, t₂ ← get_type z, unless (valid_binop_types op t t₁ t₂) $ throw "invalid binary operation"
@@ -215,33 +203,26 @@ def instr.check_core : instr → type_checker_m unit
 | (instr.free x)           := check_type x type.object
 | (instr.dec x)            := check_type x type.object
 
-def instr.check (ins : instr) : type_checker_m unit :=
-catch ins.check_core ins.decorate
-
 def phi.check (p : phi) : type_checker_m unit :=
-catch (p.ys.mmap' (flip check_type p.ty)) p.decorate
+p.decorate_error $ p.ys.mmap' (flip check_type p.ty)
 
 def check_result_types : list var → list result → type_checker_m unit
 | []      []      := return ()
 | (x::xs) (t::ts) := check_type x t.ty >> check_result_types xs ts
 | _       _       := throw "unexpected number of return values"
 
-def terminator.decorate (term : terminator) (err : format) : type_checker_m unit :=
-throw $ "error at terminator `" ++ to_fmt term ++ "`" ++ format.line ++ err
-
-def terminator.check_core : terminator → type_checker_m unit
+def terminator.check (term : terminator) : type_checker_m unit :=
+term.decorate_error $
+match term with
 | (terminator.ret ys)   := do (_, rs) ← read, check_result_types ys rs
 | (terminator.case x _) := do t ← get_type x, unless (t = type.object || t = type.bool) $ throw "variable must be an object or bool"
 | (terminator.jmp _)    := return ()
 
-def terminator.check (term : terminator) : type_checker_m unit :=
-catch (terminator.check_core term) term.decorate
-
 def block.check (b : block) : type_checker_m unit :=
-catch (b.phis.mmap' phi.check >> b.instrs.mmap' instr.check >> b.term.check) b.decorate
+b.decorate_error $ b.phis.mmap' phi.check >> b.instrs.mmap' instr.check >> b.term.check
 
 def decl.check : decl → type_checker_m unit
-| (decl.defn h bs) := catch (bs.mmap' block.check) h.decorate
+| (decl.defn h bs) := h.decorate_error $ bs.mmap' block.check
 | _                := return ()
 
 def type_check (d : decl) (env : environment := λ _, none) : except format context :=

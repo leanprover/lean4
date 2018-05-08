@@ -4,74 +4,62 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.lean.ir.ir init.lean.ir.format 
+import init.lean.ir.ir init.lean.ir.format
 
 namespace lean
 namespace ir
-/-
-SSA validator
--/
+@[reducible] def ssa_pre_m := except_t format (state_t var2blockid id)
 
-@[reducible] def ssa_decl_m := except_t format (state_t var2blockid id)
-
-def var.declare_at (b : blockid) (x : var) : ssa_decl_m unit :=
+def var.declare (x : var) : reader_t blockid ssa_pre_m unit :=
 do m ← get,
    if m.contains x then throw ("already defined " ++ to_fmt x)
-   else put (m.insert x b)
+   else do b ← read, put (m.insert x b)
 
-def instr.declare_vars_at (b : blockid) : instr → ssa_decl_m unit
-| (instr.lit x _ _)       := x.declare_at b
-| (instr.unop x _ _ _)    := x.declare_at b
-| (instr.binop x _ _ _ _) := x.declare_at b
-| (instr.call xs _ _)     := xs.mmap' (var.declare_at b)
-| (instr.cnstr o _ _ _)   := o.declare_at b
-| (instr.set o _ _)       := o.declare_at b
-| (instr.get x _ _)       := x.declare_at b
-| (instr.sset o _ _)      := o.declare_at b
-| (instr.sget x _ _ _)    := x.declare_at b
-| (instr.closure x _ _)   := x.declare_at b
-| (instr.apply x _)       := x.declare_at b
-| (instr.array a _ _)     := a.declare_at b
-| (instr.read x _ _)      := x.declare_at b
-| (instr.sarray x _ _ _)  := x.declare_at b
-| (instr.sread x _ _ _)   := x.declare_at b
+def instr.declare_vars : instr → reader_t blockid ssa_pre_m unit
+| (instr.lit x _ _)       := x.declare
+| (instr.unop x _ _ _)    := x.declare
+| (instr.binop x _ _ _ _) := x.declare
+| (instr.call xs _ _)     := xs.mmap' var.declare
+| (instr.cnstr o _ _ _)   := o.declare
+| (instr.set o _ _)       := o.declare
+| (instr.get x _ _)       := x.declare
+| (instr.sset o _ _)      := o.declare
+| (instr.sget x _ _ _)    := x.declare
+| (instr.closure x _ _)   := x.declare
+| (instr.apply x _)       := x.declare
+| (instr.array a _ _)     := a.declare
+| (instr.read x _ _)      := x.declare
+| (instr.sarray x _ _ _)  := x.declare
+| (instr.sread x _ _ _)   := x.declare
 | _                       := return ()
 
-def phi.declare_at (b : blockid) : phi → ssa_decl_m unit
-| {x := x, ..} := x.declare_at b
+def phi.declare  (p : phi) : reader_t blockid ssa_pre_m unit :=
+p.decorate_error p.x.declare
 
-def block.declare_vars : block → ssa_decl_m unit
-| {id := b, phis := ps, instrs := is, ..} :=
-  ps.mmap' (phi.declare_at b) >>
-  is.mmap' (instr.declare_vars_at b)
+def block.declare_vars (b : block) : ssa_pre_m unit :=
+b.decorate_error $ (b.phis.mmap' phi.declare >> b.instrs.mmap' instr.declare_vars).run b.id
 
-def arg.declare_at (b : blockid) : arg → ssa_decl_m unit
-| {n := x, ..} := x.declare_at b
+def arg.declare (a : arg) : reader_t blockid ssa_pre_m unit :=
+a.n.declare
 
 /- Collect where each variable is declared, and
    check whether each variable was declared at most once. -/
-def decl.declare_vars : decl → ssa_decl_m unit
-| (decl.defn {args := as, ..} (b::bs)) :=
-  /- We assume that arguments are declared in the first basic block.
-     TODO: check whether this assumption matches LLVM or not -/
-  as.mmap' (arg.declare_at b.id) >>
-  b.declare_vars >>
-  bs.mmap' block.declare_vars
-| (decl.defn _  []) := throw "declaration must have at least one basic block" 
+def decl.declare_vars : decl → ssa_pre_m unit
+| (decl.defn h (b::bs)) :=
+  /- We assume that arguments are declared in the first basic block. -/
+  h.decorate_error $ (h.args.mmap' arg.declare).run b.id >> b.declare_vars >> bs.mmap' block.declare_vars
+| (decl.defn _  []) := throw "declaration must have at least one basic block"
 | _                 := return ()
 
 /- Generate the mapping from variable to blockid for the given declaration.
    This function assumes `d` is in SSA. -/
-def decl.var2blockid (d : decl) : except_t format id var2blockid :=
-run_state (d.declare_vars >> get) mk_var2blockid
+def decl.var2blockid (d : decl) : except format var2blockid :=
+((d.declare_vars >> get).run.run mk_var2blockid).1
 
-@[reducible] def ssa_valid_m := except_t format (reader_t (var2blockid × block) (state_t var_set id))
+@[reducible] def ssa_valid_m := except_t format (reader_t var2blockid (state_t var_set id))
 
-def read_var2blockid : ssa_valid_m var2blockid :=
-prod.fst <$> read
-
-def read_block : ssa_valid_m block :=
-prod.snd <$> read
+def ssa_valid_m.run {α} (a : ssa_valid_m α) (m : var2blockid) : except format α :=
+((a.run.run m).run mk_var_set).1
 
 /- Mark `x` as a variable defined in the current basic block. -/
 def var.define (x : var) : ssa_valid_m unit :=
@@ -81,17 +69,20 @@ modify $ λ s, s.insert x
 def var.defined (x : var) : ssa_valid_m unit :=
 do s ← get,
    if s.contains x then return ()
-   else throw ("undefined " ++ to_fmt x) 
+   else throw ("undefined " ++ to_fmt x)
 
 /- Given, x := phi ys,
    check whether every ys is declared at the var2blockid mapping,
    and update the set of already defined variables in the basic block with `x`. -/
 def phi.valid_ssa (p : phi) : ssa_valid_m unit :=
-do m ← read_var2blockid,
-   p.ys.mmap' $ λ y, unless (m.contains y) $ throw ("undefined " ++ to_fmt y), 
+p.decorate_error $
+   do m ← read,
+   p.ys.mmap' $ λ y, unless (m.contains y) $ throw ("undefined " ++ to_fmt y),
    p.x.define
 
-def instr.valid_ssa : instr → ssa_valid_m unit
+def instr.valid_ssa (ins : instr) : ssa_valid_m unit :=
+ins.decorate_error $
+match ins with
 | (instr.lit x _ _)       := x.define
 | (instr.unop x _ _ y)    := x.define >> y.defined
 | (instr.binop x _ _ y z) := x.define >> y.defined >> z.defined
@@ -114,14 +105,16 @@ def instr.valid_ssa : instr → ssa_valid_m unit
 | (instr.free x)          := x.defined
 | (instr.dec x)           := x.defined
 
-def terminator.valid_ssa : terminator → ssa_valid_m unit
+def terminator.valid_ssa (term : terminator) : ssa_valid_m unit :=
+term.decorate_error $
+match term with
 | (terminator.ret ys)     := ys.mmap' var.defined
 | (terminator.case x _)   := x.defined
 | (terminator.jmp _)      := return ()
 
 def phi.predecessors (p : phi) : ssa_valid_m blockid_set :=
 p.ys.mfoldl (λ s y,
-  do m ← read_var2blockid,
+  do m ← read,
      match m.find y with
      | some bid := if s.contains bid
                    then throw ("multiple predecessors at '" ++ to_fmt p ++ "'")
@@ -131,6 +124,7 @@ p.ys.mfoldl (λ s y,
 
 def phis.check_predecessors (ps : list phi) : ssa_valid_m unit :=
 do ps.mfoldl (λ (os : option blockid_set) (p : phi),
+     p.decorate_error $
      do s' ← p.predecessors,
         match os with
         | (some s) := if s.seteq s' then return os
@@ -139,15 +133,12 @@ do ps.mfoldl (λ (os : option blockid_set) (p : phi),
      none,
    return ()
 
-def block.valid_ssa_core : ssa_valid_m unit :=
-do b ← read_block,
-   phis.check_predecessors b.phis,
+def block.valid_ssa_core (b : block) : ssa_valid_m unit :=
+b.decorate_error $
+do phis.check_predecessors b.phis,
    b.phis.mmap' phi.valid_ssa,
    b.instrs.mmap' instr.valid_ssa,
    b.term.valid_ssa
-
-def block.valid_ssa : except_t format (reader_t (var2blockid × block) id) unit :=
-run_state block.valid_ssa_core mk_var_set
 
 /-
 We first check whether every variable `x` was declared only once
@@ -155,13 +146,12 @@ and store the blockid where `x` is defined (action: `decl.declare_vars`).
 Then, we check whether every used variable in basic block has been
 defined before being used.
 -/
-def decl.valid_ssa (d : decl) : except_t format id var2blockid :=
+def decl.valid_ssa (d : decl) : except format var2blockid :=
+d.decorate_error $
 do m ← d.var2blockid,
    match d with
-   | decl.defn _ bs := do
-      bs.mmap' (λ b : block, run_reader block.valid_ssa (m, b)),
-      return m
-   | _ := return m
+   | decl.defn _ bs := (bs.mmap' block.valid_ssa_core).run m >> return m
+   | _              := return m
 
 /- Check blockids -/
 inductive blockid_error

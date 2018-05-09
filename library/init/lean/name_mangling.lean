@@ -54,15 +54,18 @@ do r ← remaining, parse_mangled_string_aux r ""
 def string.demangle (s : string) : option string :=
 (parse parse_mangled_string s).to_option
 
-def name.mangle : name → string
-| name.anonymous       := "_l"
+private def name.mangle_aux (pre : string) : name → string
+| name.anonymous       := pre
 | (name.mk_string p s) :=
-  let r := name.mangle p in
+  let r := name.mangle_aux p in
   let m := string.mangle s in
   r ++ "_s" ++ to_string m.length ++ "_" ++ m
 | (name.mk_numeral p n) :=
-  let r := name.mangle p in
+  let r := name.mangle_aux p in
   r ++ "_" ++ to_string n ++ "_"
+
+def name.mangle (n : name) (pre : string := "_l") : string :=
+name.mangle_aux pre n
 
 private def parse_mangled_name_aux : nat → name → parser name
 | 0 r     := return r
@@ -74,10 +77,10 @@ private def parse_mangled_name_aux : nat → name → parser name
   <|> (do ch '_', n ← num, ch '_',
           parse_mangled_name_aux i (r.mk_numeral n))
 
-private def parse_mangled_name : parser name :=
-do str "_l", r ← remaining, parse_mangled_name_aux r name.anonymous
+private def parse_mangled_name (pre : string) : parser name :=
+do str pre, r ← remaining, parse_mangled_name_aux r name.anonymous
 
-def name.demangle (s : string) : option name :=
-(parse parse_mangled_name s).to_option
+def name.demangle (s : string) (pre : string := "_l") : option name :=
+(parse (parse_mangled_name pre) s).to_option
 
 end lean

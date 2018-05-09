@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.data.rbtree.basic
 
-universes u v w
+universes u v w w'
 
 def rbmap_lt {α : Type u} {β : Type v} (lt : α → α → Prop) (a b : α × β) : Prop :=
 lt a.1 b.1
@@ -37,6 +37,12 @@ m.fold (λ e, f e.1 e.2) d
 
 def rev_fold (f : α → β → δ → δ) (m : rbmap α β lt) (d : δ) : δ :=
 m.rev_fold (λ e, f e.1 e.2) d
+
+def mfold {m : Type w → Type w'} [monad m] (f : α → β → δ → m δ) (mp : rbmap α β lt) (d : δ) : m δ :=
+mp.mfold (λ e, f e.1 e.2) d
+
+def mfor {m : Type w → Type w'} [monad m] (f : α → β → m δ) (mp : rbmap α β lt) : m punit :=
+mp.mfold (λ a b _, f a b >> return ⟨⟩) ⟨⟩
 
 /-
 We don't assume β is inhabited when in membership predicate `mem` and

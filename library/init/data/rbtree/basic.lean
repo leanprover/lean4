@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.data.ordering.basic init.coe init.data.option.basic
 
-universes u v
+universes u v w
 
 inductive rbnode (α : Type u)
 | leaf  {}                                                 : rbnode
@@ -49,6 +49,11 @@ def fold (f : α → β → β) : rbnode α → β → β
 | leaf b               := b
 | (red_node l v r)   b := fold r (f v (fold l b))
 | (black_node l v r) b := fold r (f v (fold l b))
+
+def mfold {m : Type v → Type w} [monad m] (f : α → β → m β) : rbnode α → β → m β
+| leaf b               := pure b
+| (red_node l v r) b   := do b₁ ← mfold l b, b₂ ← f v b₁, mfold r b₂
+| (black_node l v r) b := do b₁ ← mfold l b, b₂ ← f v b₁, mfold r b₂
 
 def rev_fold (f : α → β → β) : rbnode α → β → β
 | leaf b               := b
@@ -184,6 +189,12 @@ def fold (f : α → β → β) : rbtree α lt → β →  β
 
 def rev_fold (f : α → β → β) : rbtree α lt → β →  β
 | ⟨t, _⟩ b := t.rev_fold f b
+
+def mfold {m : Type v → Type w} [monad m] (f : α → β → m β) : rbtree α lt → β → m β
+| ⟨t, _⟩ b := t.mfold f b
+
+def mfor {m : Type v → Type w} [monad m] (f : α → m β) (t : rbtree α lt) : m punit :=
+t.mfold (λ a _, f a >> return ⟨⟩) ⟨⟩
 
 def empty : rbtree α lt → bool
 | ⟨leaf, _⟩ := tt

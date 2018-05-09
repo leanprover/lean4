@@ -3,6 +3,8 @@ import system.io
 /- An extensible effects library, inspired by "Freer Monads, More Extensible Effects" (O. Kiselyov, H. Ishii)
    and https://github.com/lexi-lambda/freer-simple -/
 
+def N := 100 -- Default number of interations for testing
+
 def effect := Type → Type
 
 class member {α : Type*} (x : α) (xs : list α) :=
@@ -214,30 +216,30 @@ def bench_state_classy {m : Type → Type*} [monad m] [monad_state ℕ m] : ℕ 
 | (nat.succ n) := modify (+n) >> bench_state_classy n
 
 set_option profiler true
-#eval state.run (bench_state_classy 10000) 0
-#eval eff.run $ State.run 0 (bench_state_classy 10000)
+#eval state.run (bench_state_classy N) 0
+#eval eff.run $ State.run 0 (bench_state_classy N)
 
-#eval state.run (reader_t.run (reader_t.run (reader_t.run (bench_state_classy 10000) 0) 0) 0) 0
-#eval eff.run $ State.run 0 $ Reader.run 0 $ Reader.run 0 $ Reader.run 0 (bench_state_classy 10000)
+#eval state.run (reader_t.run (reader_t.run (reader_t.run (bench_state_classy N) 0) 0) 0) 0
+#eval eff.run $ State.run 0 $ Reader.run 0 $ Reader.run 0 $ Reader.run 0 (bench_state_classy N)
 
 -- left-associated binds lead to quadratic run time (section 2.6)
 def bench_state_classy' {m : Type → Type*} [monad m] [monad_state ℕ m] : ℕ → m ℕ
 | 0 := get
 | (nat.succ n) := bench_state_classy' n <* modify (+n)
 
-#eval eff.run $ State.run 0 (bench_state_classy' 100)
-#eval eff.run $ State.run 0 (bench_state_classy' 500)
-#eval eff.run $ State.run 0 (bench_state_classy' 1000)
+#eval eff.run $ State.run 0 (bench_state_classy' (N/100))
+#eval eff.run $ State.run 0 (bench_state_classy' (N/20))
+#eval eff.run $ State.run 0 (bench_state_classy' (N/10))
 
 def bench_state_t : ℕ → state ℕ ℕ
 | 0 := get
 | (nat.succ n) := modify (+n) >> bench_state_t n
 
-#eval state.run (bench_state_t 10000) 0
+#eval state.run (bench_state_t N) 0
 
 def bench_State : ℕ → eff [State ℕ] ℕ
 | 0 := get
 | (nat.succ n) := modify (+n) >> bench_State n
 
-#eval eff.run $ State.run 0 (bench_State 10000)
+#eval eff.run $ State.run 0 (bench_State N)
 end benchmarks

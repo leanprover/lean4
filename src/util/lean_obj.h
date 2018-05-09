@@ -177,6 +177,7 @@ inline void dealloc_mpz(lean_obj * o) { delete to_mpz(o); }
 inline void dealloc_external(lean_obj * o) { delete to_external(o); }
 
 /* Getters */
+inline unsigned cnstr_tag(lean_obj * o) { return to_cnstr(o)->m_tag; }
 inline unsigned cnstr_num_objs(lean_obj * o) { return to_cnstr(o)->m_num_objs; }
 inline unsigned cnstr_scalar_size(lean_obj * o) { return to_cnstr(o)->m_scalar_size; }
 inline size_t cnstr_byte_size(lean_obj * o) { return sizeof(lean_cnstr) + cnstr_num_objs(o)*sizeof(lean_obj*) + cnstr_scalar_size(o); } // NOLINT

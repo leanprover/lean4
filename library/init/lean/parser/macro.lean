@@ -109,9 +109,9 @@ def resolve : scope → syntax → resolve_m' unit
 | sc (syntax.node node) :=
 do cfg ← read,
    some {resolve := some res, ..} ← pure $ cfg.macros.find node.m
-     | node.args.mmap' $ resolve sc,
+     | node.args.mfor $ resolve sc,
    arg_scopes ← adapt_reader parse_state.resolve_cfg $ res sc node,
-   (arg_scopes.zip node.args).mmap' -- (uncurry resolve)
+   (arg_scopes.zip node.args).mfor -- (uncurry resolve)
                                     (λ ⟨sc, stx⟩, resolve sc stx)
 | _ _ := pure ()
 

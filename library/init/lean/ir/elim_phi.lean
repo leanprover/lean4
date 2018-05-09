@@ -28,7 +28,7 @@ def find (x : var) : elim_phi_m var :=
 do s ← get, return $ s.find x
 
 def group_vars : decl → elim_phi_m unit
-| (decl.defn _ bs) := bs.mmap' $ λ b, b.phis.mmap' $ λ p, p.ys.mmap' (merge p.x)
+| (decl.defn _ bs) := bs.mfor $ λ b, b.phis.mfor $ λ p, p.ys.mfor (merge p.x)
 | _                := return ()
 
 def instr.replace_vars : instr → elim_phi_m instr

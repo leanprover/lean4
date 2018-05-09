@@ -920,7 +920,7 @@ meta def try_apply_opt_auto_param (cfg : apply_cfg) (ms : list expr) : tactic un
 when (cfg.auto_param || cfg.opt_param) $
 mwhen (has_opt_auto_param ms) $ do
   gs ← get_goals,
-  ms.mmap' (λ m, mwhen (bnot <$> is_assigned m) $
+  ms.mfor (λ m, mwhen (bnot <$> is_assigned m) $
                    set_goals [m] >>
                    when cfg.opt_param (try apply_opt_param) >>
                    when cfg.auto_param (try apply_auto_param)),
@@ -935,7 +935,7 @@ ms.mfoldl
 meta def try_apply_opt_auto_param_for_apply (cfg : apply_cfg) (ms : list (name × expr)) : tactic unit :=
 mwhen (has_opt_auto_param_for_apply ms) $ do
   gs ← get_goals,
-  ms.mmap' (λ m, mwhen (bnot <$> (is_assigned m.2)) $
+  ms.mfor (λ m, mwhen (bnot <$> (is_assigned m.2)) $
                    set_goals [m.2] >>
                    when cfg.opt_param (try apply_opt_param) >>
                    when cfg.auto_param (try apply_auto_param)),

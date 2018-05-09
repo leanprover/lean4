@@ -106,7 +106,7 @@ mcond tags_enabled
       r ← r.mfilter $ λ ⟨n, m⟩, bnot <$> is_assigned m,
       match r with
       | [(_, m)] := set_tag m in_tag /- if there is only new subgoal, we just propagate `in_tag` -/
-      | _        := r.mmap' (λ ⟨n, m⟩, set_tag m (n::in_tag)))
+      | _        := r.mfor (λ ⟨n, m⟩, set_tag m (n::in_tag)))
   (tac >> skip)
 
 /--
@@ -320,7 +320,7 @@ match r.rule with
 | _                   := return []
 
 private meta def rw_goal (cfg : rewrite_cfg) (rs : list rw_rule) : tactic unit :=
-rs.mmap' $ λ r, do
+rs.mfor $ λ r, do
  save_info r.pos,
  eq_lemmas ← get_rule_eqn_lemmas r,
  orelse'
@@ -491,7 +491,7 @@ do te ← tags_enabled,
    | _   := do
      let tgs : list (name × expr) := rs.map₂ (λ n g, (n, g)) gs,
      if te
-     then tgs.mmap' (λ ⟨n, g⟩, set_tag g (n::in_tag))
+     then tgs.mfor (λ ⟨n, g⟩, set_tag g (n::in_tag))
           /- If `induction/cases` is not in a `with_cases` block, we still set tags using `_case_simple` to make
              sure we can use the `case` notation.
              ```
@@ -499,7 +499,7 @@ do te ← tags_enabled,
              case c { ... }
              ```
           -/
-     else tgs.mmap' (λ ⟨n, g⟩, with_enable_tags (set_tag g (`_case_simple::n::[])))
+     else tgs.mfor (λ ⟨n, g⟩, with_enable_tags (set_tag g (`_case_simple::n::[])))
 
 private meta def set_induction_tags (in_tag : tag) (rs : list (name × list expr × list (name × expr))) : tactic unit :=
 set_cases_tags in_tag (rs.map (λ e, e.1))
@@ -554,7 +554,7 @@ focus1 $ do {
         intron n,
         -- now try to clear hypotheses that may have been abstracted away
         let locals := arg.fold [] (λ e _ acc, if e.is_local_constant then e::acc else acc),
-        locals.mmap' (try ∘ clear),
+        locals.mfor (try ∘ clear),
         pure h
       },
       intron (n-1),
@@ -569,7 +569,7 @@ focus1 $ do {
    all_goals $ do {
      intron n,
      clear_lst (newvars.map local_pp_name),
-     (e::locals).mmap' (try ∘ clear) },
+     (e::locals).mfor (try ∘ clear) },
 
    set_induction_tags in_tag rs }
 
@@ -888,7 +888,7 @@ Assuming the target of the goal is a Pi or a let, `assume h : t` unifies the typ
 meta def «assume» : parse (sum.inl <$> (tk ":" *> texpr) <|> sum.inr <$> parse_binders tac_rbp) → tactic unit
 | (sum.inl ty)      := assume_core `this ty
 | (sum.inr binders) :=
-  binders.mmap' $ λ b, assume_core b.local_pp_name b.local_type
+  binders.mfor $ λ b, assume_core b.local_pp_name b.local_type
 
 /--
 `have h : t := p` adds the hypothesis `h : t` to the current goal if `p` a term of type `t`. If `t` is omitted, it will be inferred.
@@ -1150,7 +1150,7 @@ do to_remove ← hs.mfilter $ λ h, do {
          (return ff) },
    goal_simplified ← if tgt then (simp_target s u cfg discharger >> return tt) <|> (return ff) else return ff,
    guard (cfg.fail_if_unchanged = ff ∨ to_remove.length > 0 ∨ goal_simplified) <|> fail "simplify tactic failed to simplify",
-   to_remove.mmap' (λ h, try (clear h))
+   to_remove.mfor (λ h, try (clear h))
 
 meta def simp_core (cfg : simp_config) (discharger : tactic unit)
                    (no_dflt : bool) (hs : list simp_arg_type) (attr_names : list name)

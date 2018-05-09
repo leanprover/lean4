@@ -157,10 +157,10 @@ def arg.infer_types (a : arg) : type_checker_m unit :=
 set_type a.n a.ty
 
 def block.infer_types (b : block) : type_checker_m unit :=
-b.decorate_error $ b.phis.mmap' phi.infer_types >> b.instrs.mmap' instr.infer_types
+b.decorate_error $ b.phis.mfor phi.infer_types >> b.instrs.mfor instr.infer_types
 
 def decl.infer_types : decl → type_checker_m context
-| (decl.defn h bs) := h.decorate_error $ h.args.mmap' arg.infer_types >> bs.mmap' block.infer_types >> get
+| (decl.defn h bs) := h.decorate_error $ h.args.mfor arg.infer_types >> bs.mfor block.infer_types >> get
 | _                := get
 
 /-- Return context with the type of variables used in the given declaration.
@@ -187,11 +187,11 @@ match ins with
 | (instr.get x o _)        := check_type o type.object
 | (instr.sset o _ x)       := check_type o type.object >> check_ne_type x type.object
 | (instr.sget x t o _)     := check_type o type.object >> check_ne_type x type.object
-| (instr.closure x f ys)   := do ys.mmap' (flip check_type type.object), d ← get_decl f,
+| (instr.closure x f ys)   := do ys.mfor (flip check_type type.object), d ← get_decl f,
                                  unless (d.header.return.length = 1) $ throw "unexpected number of return values",
                                  unless (d.header.args.length = ys.length) $ throw "unexpected number of arguments",
-                                 d.header.args.mmap' (λ a, unless (a.ty = type.object) $ throw "invalid closure, arguments must have type object")
-| (instr.apply x ys)       := ys.mmap' (flip check_type type.object)
+                                 d.header.args.mfor (λ a, unless (a.ty = type.object) $ throw "invalid closure, arguments must have type object")
+| (instr.apply x ys)       := ys.mfor (flip check_type type.object)
 | (instr.array a sz c)     := check_type sz type.usize >> check_type c type.usize
 | (instr.write a i v)      := check_type a type.object >> check_type i type.usize >> check_type v type.object
 | (instr.read x a i)       := check_type a type.object >> check_type i type.usize
@@ -204,7 +204,7 @@ match ins with
 | (instr.dec x)            := check_type x type.object
 
 def phi.check (p : phi) : type_checker_m unit :=
-p.decorate_error $ p.ys.mmap' (flip check_type p.ty)
+p.decorate_error $ p.ys.mfor (flip check_type p.ty)
 
 def check_result_types : list var → list result → type_checker_m unit
 | []      []      := return ()
@@ -219,10 +219,10 @@ match term with
 | (terminator.jmp _)    := return ()
 
 def block.check (b : block) : type_checker_m unit :=
-b.decorate_error $ b.phis.mmap' phi.check >> b.instrs.mmap' instr.check >> b.term.check
+b.decorate_error $ b.phis.mfor phi.check >> b.instrs.mfor instr.check >> b.term.check
 
 def decl.check : decl → type_checker_m unit
-| (decl.defn h bs) := h.decorate_error $ bs.mmap' block.check
+| (decl.defn h bs) := h.decorate_error $ bs.mfor block.check
 | _                := return ()
 
 def type_check (d : decl) (env : environment := λ _, none) : except format context :=

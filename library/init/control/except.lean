@@ -92,6 +92,9 @@ section
   @[inline] protected def lift {α : Type u} (t : m α) : except_t ε m α :=
   ⟨except.ok <$> t⟩
 
+  instance except_t_of_except : has_monad_lift (except ε) (except_t ε m) :=
+  ⟨λ α e, ⟨pure e⟩⟩
+
   instance : has_monad_lift m (except_t ε m) :=
   ⟨@except_t.lift⟩
 

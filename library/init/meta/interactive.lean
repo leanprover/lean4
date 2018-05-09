@@ -279,7 +279,7 @@ meta def «from» := exact
 `revert h₁ ... hₙ` applies to any goal with hypotheses `h₁` ... `hₙ`. It moves the hypotheses and their dependencies to the target of the goal. This tactic is the inverse of `intro`.
 -/
 meta def revert (ids : parse ident*) : tactic unit :=
-propagate_tags (do hs ← mmap tactic.get_local ids, revert_lst hs, skip)
+propagate_tags (do hs ← ids.mmap tactic.get_local, revert_lst hs, skip)
 
 private meta def resolve_name' (n : name) : tactic expr :=
 do {
@@ -563,7 +563,7 @@ focus1 $ do {
    },
 
    -- revert `generalizing` params
-   n ← mmap tactic.get_local (revert.get_or_else []) >>= revert_lst,
+   n ← (revert.get_or_else []).mmap tactic.get_local >>= revert_lst,
 
    rs ← tactic.induction e ids rec_name,
    all_goals $ do {

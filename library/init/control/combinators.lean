@@ -68,29 +68,3 @@ do b ← mbool, cond b tm fm
 
 def mwhen {m : Type → Type} [monad m] (c : m bool) (t : m unit) : m unit :=
 mcond c t (return ())
-
-export list (mmap mmap' mfilter mfoldl)
-
-namespace monad
-def mapm   := @mmap
-def mapm'  := @mmap'
-def join   := @mjoin
-def filter := @mfilter
-def foldl  := @mfoldl
-def cond   := @mcond
-
-def sequence {m : Type u → Type v} [monad m] {α : Type u} : list (m α) → m (list α)
-| []       := return []
-| (h :: t) := do h' ← h, t' ← sequence t, return (h' :: t')
-
-def sequence' {m : Type → Type u} [monad m] {α : Type} : list (m α) → m unit
-| []       := return ()
-| (h :: t) := h >> sequence' t
-
-def whenb {m : Type → Type} [monad m] (b : bool) (t : m unit) : m unit :=
-_root_.cond b t (return ())
-
-def unlessb {m : Type → Type} [monad m] (b : bool) (t : m unit) : m unit :=
-_root_.cond b (return ()) t
-
-end monad

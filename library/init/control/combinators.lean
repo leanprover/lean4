@@ -13,9 +13,12 @@ def list.mmap {m : Type u → Type v} [monad m] {α : Type w} {β : Type u} (f :
 | []       := return []
 | (h :: t) := do h' ← f h, t' ← list.mmap t, return (h' :: t')
 
-def list.mmap' {m : Type → Type v} [monad m] {α : Type u} {β : Type} (f : α → m β) : list α → m unit
-| []       := return ()
+def list.mmap' {m : Type u → Type v} [monad m] {α : Type w} {β : Type u} (f : α → m β) : list α → m punit
+| []       := return ⟨⟩
 | (h :: t) := f h >> list.mmap' t
+
+def list.mfor {m : Type u → Type v} [monad m] {α : Type w} {β : Type u} (f : α → m β) : list α → m punit :=
+list.mmap' f
 
 infix ` =<< `:2 := λ u v, v >>= u
 

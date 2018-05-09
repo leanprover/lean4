@@ -170,8 +170,8 @@ instance [monad m] : monad_state_adapter σ σ' (state_t σ m) (state_t σ' m) :
 ⟨λ σ'' α, state_t.adapt⟩
 end
 
-instance (σ m out) [monad_run out m] : monad_run (λ α, σ → out (α × σ)) (state_t σ m) :=
-⟨λ α x, run ∘ (λ σ, x.run σ)⟩
+instance (σ : Type u) (m out : Type u → Type v) [functor m] [monad_run out m] : monad_run (λ α, σ → out α) (state_t σ m) :=
+⟨λ α x, run ∘ (λ σ, prod.fst <$> (x.run σ))⟩
 
 class monad_state_runner (σ : Type u) (m m' : Type u → Type u) :=
 (run_state {} {α : Type u} : m α → σ → m' α)

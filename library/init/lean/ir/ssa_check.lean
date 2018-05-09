@@ -54,12 +54,12 @@ def decl.declare_vars : decl → ssa_pre_m unit
 /- Generate the mapping from variable to blockid for the given declaration.
    This function assumes `d` is in SSA. -/
 def decl.var2blockid (d : decl) : except format var2blockid :=
-((d.declare_vars >> get).run.run mk_var2blockid).1
+run (d.declare_vars >> get) mk_var2blockid
 
 @[reducible] def ssa_valid_m := except_t format (reader_t var2blockid (state_t var_set id))
 
 def ssa_valid_m.run {α} (a : ssa_valid_m α) (m : var2blockid) : except format α :=
-(run a m mk_var_set).1
+run a m mk_var_set
 
 /- Mark `x` as a variable defined in the current basic block. -/
 def var.define (x : var) : ssa_valid_m unit :=
@@ -158,7 +158,7 @@ do m ← d.var2blockid,
 except_t format (state blockid_set)
 
 def blockid_check_m.run {α} (a : blockid_check_m α) : except format α :=
-(run a mk_blockid_set).1
+run a mk_blockid_set
 
 def block.declare (b : block) : blockid_check_m unit :=
 do s ← get,

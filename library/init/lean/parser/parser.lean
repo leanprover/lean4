@@ -9,7 +9,7 @@ https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/parsec-paper
 -/
 prelude
 import init.data.to_string init.data.string.basic init.data.list.basic init.control.except
-import init.data.repr init.lean.name init.data.dlist
+import init.data.repr init.lean.name init.data.dlist init.control.monad_fail
 namespace lean
 namespace parser
 @[reducible] def position : Type := nat
@@ -103,6 +103,9 @@ protected def bind (p : parser α) (q : α → parser β) : parser β :=
 
 instance : monad parser :=
 { bind := @parser.bind, pure := @parser.pure }
+
+instance : monad_fail parser :=
+{ fail := λ _ s it, error { unexpected := s, pos := it.offset } ff }
 
 def expect (msg : message) (exp : string) : message :=
 {expected := dlist.singleton exp, ..msg}

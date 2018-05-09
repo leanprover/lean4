@@ -117,8 +117,9 @@ inductive instr
 | sread   (x : var) (ty : type) (a i : var)                     -- Scalar array read          x : type := a[i]
 /- Reference counting -/
 | inc     (x : var)                                             -- inc var
-| decs    (x : var)                                             -- decrement RC of shared object
-| free    (x : var)
+| decs    (x : var)                                             -- Decrement RC of shared object
+| free    (x : var)                                             -- Just free memory
+| dealloc (x : var)                                             -- If object may be a numeral/external, then invoke destructor and then free
 | dec     (x : var)                                             -- Remark: can be defined using `decs`, `dealloc` and `shared`
 
 structure phi :=

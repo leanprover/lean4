@@ -147,6 +147,7 @@ def parse_instr : parser instr :=
 <|> (keyword "dec" >> instr.dec <$> parse_var)
 <|> (keyword "decs" >> instr.decs <$> parse_var)
 <|> (keyword "free" >> instr.free <$> parse_var)
+<|> (keyword "dealloc" >> instr.dealloc <$> parse_var)
 <|> parse_assignment
 
 def parse_phi : parser phi :=

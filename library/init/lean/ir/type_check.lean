@@ -200,6 +200,7 @@ match ins with
 | (instr.sread x t a i)    := check_ne_type x type.object >> check_type a type.object >> check_type a type.usize
 | (instr.inc x)            := check_type x type.object
 | (instr.decs x)           := check_type x type.object
+| (instr.dealloc x)        := check_type x type.object
 | (instr.free x)           := check_type x type.object
 | (instr.dec x)            := check_type x type.object
 

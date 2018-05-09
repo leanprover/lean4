@@ -52,6 +52,7 @@ def instr.replace_vars : instr → elim_phi_m instr
 | (instr.inc x)             := instr.inc <$> find x
 | (instr.decs x)            := instr.decs <$> find x
 | (instr.free x)            := instr.free <$> find x
+| (instr.dealloc x)         := instr.dealloc <$> find x
 | (instr.dec x)             := instr.dec <$> find x
 
 def terminator.replace_vars : terminator → elim_phi_m terminator

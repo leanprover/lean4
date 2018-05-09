@@ -107,6 +107,7 @@ def instr.to_format : instr → format
 | (instr.inc x)              := "inc " ++ to_fmt x
 | (instr.decs x)             := "decs " ++ to_fmt x
 | (instr.free x)             := "free " ++ to_fmt x
+| (instr.dealloc x)          := "dealloc " ++ to_fmt x
 | (instr.dec x)              := "dec " ++ to_fmt x
 
 instance instr.has_to_format : has_to_format instr := ⟨instr.to_format⟩

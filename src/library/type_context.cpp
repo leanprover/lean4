@@ -1989,7 +1989,7 @@ bool type_context_old::process_assignment(expr const & m, expr const & v) {
            This change is consistent with the general approach used in the rest of the code
            base where spurious typing errors due reducibility are avoided by using
            relaxed_is_def_eq. */
-        relaxed_scope _(*this);
+        relaxed_scope _(*this, transparency_mode::Semireducible);
         if (!is_def_eq_core(t1, t2)) {
             lean_trace(name({"type_context", "is_def_eq_detail"}),
                        scope_trace_env scope(env(), *this);

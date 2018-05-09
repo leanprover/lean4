@@ -16,11 +16,10 @@ we put `x`, `y_1`, ... `y_n` in the same equivalence class.
 Then, we select a representative from each equivalence class and replace each
 variable with its representative.
 -/
-
 @[reducible] def elim_phi_m (α : Type) := state_t (disjoint_set var) id α
 
 def elim_phi_m.run {α} (a : elim_phi_m α) : α :=
-(a.run (mk_disjoint_set var)).1
+(run a (mk_disjoint_set var)).1
 
 def merge (x y : var) : elim_phi_m unit :=
 modify $ λ s, s.merge x y

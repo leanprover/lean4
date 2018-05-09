@@ -79,7 +79,7 @@ match op with
 @[reducible] def type_checker_m := except_t format (reader_t (environment × list result) (state_t context id))
 
 def type_checker_m.run {α} (a : type_checker_m α) (env : environment) (r : list result) : except format α :=
-((a.run.run (env, r)).run mk_context).1
+(run a (env, r) mk_context).1
 
 def match_type (x : var) (t expected : type) : type_checker_m unit :=
 unless (t = expected) $

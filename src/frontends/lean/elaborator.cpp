@@ -1536,12 +1536,49 @@ expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<
                 /* See comment above at first type_before_whnf assignment */
                 type_before_whnf = instantiate(binding_body(type), new_arg);
                 type             = whnf(type_before_whnf);
-            } else if (i < args.size()) {
-                expr new_fn = mk_app(fn, new_args.size(), new_args.data());
-                new_args.clear();
-                fn = ensure_function(new_fn, ref);
-                type_before_whnf = infer_type(fn);
-                type = whnf(type_before_whnf);
+           } else if (i < args.size()) {
+                bool progress = false;
+                /* If type is of the form `?m ...`, we may try to synthesize pending type class problems,
+                   and check whether `?m` has been instantiated or not.
+
+                   We need this trick to handle `monad_run.run`. This function has type
+                   ```
+                   run : Π {out m : Type u_1 → Type u_2} [c : monad_run out m] {α : Type u_1}, m α → out α
+                   ```
+                   The resultant type `out α` depends on resolving the type class resolution problem `monad_run out m`
+                   since `out` is marked as an `out_param`.
+
+                   Without this approach, we would have to write
+                   ```
+                   @[reducible] def type_checker_m := except_t format (reader_t (environment × list result) (state_t context id))
+
+                   def type_checker_m.run {α} (a : type_checker_m α) (env : environment) (r : list result) : except format α :=
+                   (run a (env, r) mk_context).1
+                   ```
+                   as
+                   ```
+                   @[reducible] def type_checker_m := except_t format (reader_t (environment × list result) (state_t context id))
+
+                   def type_checker_m.run {α} (a : type_checker_m α) (env : environment) (r : list result) : except format α :=
+                   let tmp := run a in
+                   (tmp (env, r) mk_context).1
+                   ```
+                   or completely avoid `run`. */
+                if (is_meta(type)) {
+                    synthesize_type_class_instances();
+                    expr new_type = instantiate_mvars(type);
+                    if (new_type != type) {
+                        type = new_type;
+                        progress = true;
+                    }
+                }
+                if (!progress) {
+                    expr new_fn = mk_app(fn, new_args.size(), new_args.data());
+                    new_args.clear();
+                    fn = ensure_function(new_fn, ref);
+                    type_before_whnf = infer_type(fn);
+                    type = whnf(type_before_whnf);
+                }
             } else {
                 lean_assert(i == args.size());
                 break;

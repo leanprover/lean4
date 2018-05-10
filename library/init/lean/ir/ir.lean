@@ -60,11 +60,13 @@ inductive binop
 
 /-- Operators for instructions of the form `op x` -/
 inductive unins
-| inc     -- increment reference counter
-| dec     -- decrement reference counter
-| decs    -- decrement reference counter of shared object
-| free    -- free object memory, object must not be an external or big number
-| dealloc -- free object memory
+| inc        -- increment reference counter
+| dec        -- decrement reference counter
+| decs       -- decrement reference counter of shared object
+| free       -- free object memory, object must not be an external or big number
+| dealloc    -- free object memory
+| array_pop  -- array pop back
+| sarray_pop -- scalar array pop back
 
 inductive literal
 | bool    : bool   → literal

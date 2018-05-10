@@ -72,6 +72,7 @@ def unins.to_format : unins → format
 | unins.inc  := "inc"
 | unins.dec  := "dec"  | unins.decs := "decs"
 | unins.free := "free" | unins.dealloc := "dealloc"
+| unins.array_pop := "array_pop" | unins.sarray_pop := "sarray_pop"
 
 instance unins.has_to_format : has_to_format unins := ⟨unins.to_format⟩
 instance unins.has_to_string : has_to_string unins := ⟨pretty ∘ to_fmt⟩

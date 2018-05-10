@@ -68,6 +68,8 @@ def parse_unins : parser unins :=
 <|> (keyword "decs" >> return unins.decs)
 <|> (keyword "free" >> return unins.free)
 <|> (keyword "dealloc" >> return unins.dealloc)
+<|> (keyword "array_pop" >> return unins.array_pop)
+<|> (keyword "sarray_pop" >> return unins.sarray_pop)
 
 def parse_literal : parser literal :=
     (keyword "tt" >> return (literal.bool tt))

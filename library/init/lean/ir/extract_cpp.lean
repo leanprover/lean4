@@ -198,6 +198,8 @@ def unins2cpp : unins → string
 | unins.dec            := "lean::dec_ref"
 | unins.free           := "free"
 | unins.dealloc        := "lean::dealloc"
+| unins.array_pop      := "lean::array_pop"
+| unins.sarray_pop     := "lean::sarray_pop"
 
 def emit_unary (op : unins) (x : var) : extract_m unit :=
 emit (unins2cpp op) >> emit "(" >> emit_var x >> emit ")"

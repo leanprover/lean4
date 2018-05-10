@@ -53,7 +53,6 @@ def parse_binop : parser binop :=
 <|> (keyword "mod" >> return binop.mod)
 <|> (keyword "shl" >> return binop.shl)
 <|> (keyword "shr" >> return binop.shr)
-<|> (keyword "ashr" >> return binop.ashr)
 <|> (keyword "and" >> return binop.and)
 <|> (keyword "or" >> return binop.or)
 <|> (keyword "xor" >> return binop.xor)

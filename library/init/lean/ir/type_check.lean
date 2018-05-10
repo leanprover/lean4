@@ -65,7 +65,6 @@ match op with
 | binop.mod  := r = t₁ && r = t₂ && is_nonfloat_arith_ty r
 | binop.shl  := r = t₁ && r = t₂ && is_bitshift_ty r
 | binop.shr  := r = t₁ && r = t₂ && is_bitshift_ty r
-| binop.ashr := r = t₁ && r = t₂ && is_bitshift_ty r
 | binop.and  := r = t₁ && r = t₂ && is_bitwise_ty r
 | binop.or   := r = t₁ && r = t₂ && is_bitwise_ty r
 | binop.xor  := r = t₁ && r = t₂ && is_bitwise_ty r

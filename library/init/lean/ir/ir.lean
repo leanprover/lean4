@@ -51,7 +51,7 @@ inductive unop
 | copy_array | copy_sarray
 
 inductive binop
-| add | sub | mul | div | mod | shl | shr | ashr | and | or | xor
+| add | sub | mul | div | mod | shl | shr | and | or | xor
 | le  | ge  | lt  | gt  | eq  | ne
 
 inductive literal

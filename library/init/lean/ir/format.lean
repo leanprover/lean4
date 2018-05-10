@@ -36,6 +36,7 @@ instance var.has_to_format : has_to_format var         := ⟨λ v, id.to_string 
 instance blockid.has_to_format : has_to_format blockid := ⟨λ b, id.to_string b⟩
 instance fnid.has_to_format : has_to_format fnid       := ⟨λ f, id.to_string f⟩
 instance tag.has_to_format : has_to_format tag         := infer_instance_as (has_to_format uint16)
+instance tag.has_to_string : has_to_string tag         := infer_instance_as (has_to_string uint16)
 
 def type.to_format : type → format
 | type.bool   := "bool"   | type.byte   := "byte"
@@ -59,7 +60,7 @@ instance unop.has_to_string : has_to_string unop := ⟨pretty ∘ to_fmt⟩
 
 def binop.to_format : binop → format
 | binop.add  := "add"  | binop.sub  := "sub" | binop.mul  := "mul"  | binop.div  := "div"
-| binop.mod  := "mod"  | binop.shl  := "shl" | binop.shr  := "shr"  | binop.ashr := "ashr"
+| binop.mod  := "mod"  | binop.shl  := "shl" | binop.shr  := "shr"
 | binop.and  := "and"  | binop.or   := "or"  | binop.xor  := "xor"  | binop.le   := "le"
 | binop.ge   := "ge"   | binop.lt   := "lt"  | binop.gt   := "gt"   | binop.eq   := "eq"
 | binop.ne   := "ne"

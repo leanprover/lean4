@@ -41,8 +41,6 @@ def parse_unop : parser unop :=
 <|> (keyword "copy_sarray" >> return unop.copy_sarray)
 <|> (keyword "box" >> return unop.box)
 <|> (keyword "unbox" >> return unop.unbox)
-<|> (keyword "box_bignum" >> return unop.box_bignum)
-<|> (keyword "unbox_bignum" >> return unop.unbox_bignum)
 <|> (keyword "cast" >> return unop.cast)
 
 def parse_binop : parser binop :=

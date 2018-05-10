@@ -51,7 +51,6 @@ def unop.to_format : unop → format
 | unop.not         := "not"        | unop.neg          := "neg"
 | unop.scalar      := "scalar"     | unop.shared       := "shared"
 | unop.box         := "box"        | unop.unbox        := "unbox"
-| unop.box_bignum  := "box_bignum" | unop.unbox_bignum := "unbox_bignum"
 | unop.cast        := "cast"
 | unop.copy_array  := "copy_array" | unop.copy_sarray  := "copy_sarray"
 

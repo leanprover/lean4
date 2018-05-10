@@ -152,19 +152,28 @@ match op with
 | binop.eq   := emit_arith t x y z "==" "lean::big_eq"
 | binop.ne   := emit_arith t x y z "!=" "lean::big_nq"
 
+
+/-- Emit `x := op(y)` -/
+def emit_x_op_y (x : var) (op : string) (y : var) : extract_m unit :=
+emit_var x >> emit " := " >> emit op >> emit "(" >> emit_var y >> emit ")"
+
 def emit_unop (x : var) (t : type) (op : unop) (y : var) : extract_m unit :=
 match op with
-| unop.not          := return () -- TODO
-| unop.neg          := return () -- TODO
-| unop.scalar       := return () -- TODO
-| unop.shared       := return () -- TODO
-| unop.copy_array   := return () -- TODO
-| unop.copy_sarray  := return () -- TODO
-| unop.box          := return () -- TODO
-| unop.unbox        := return () -- TODO
-| unop.unbox_bignum := return () -- TODO
-| unop.box_bignum   := return () -- TODO
-| unop.cast         := return () -- TODO
+| unop.not          :=
+  (match t with
+   | type.bool      := emit_x_op_y x "!" y
+   | _              := emit_x_op_y x "~" y)
+| unop.neg          :=
+  (match t with
+   | type.object    := emit_x_op_y x "lean::big_neg" y
+   | _              := emit_x_op_y x "-" y)
+| unop.scalar       := emit_x_op_y x "lean::is_scalar" y
+| unop.shared       := emit_x_op_y x "lean::is_shared" y
+| unop.copy_array   := emit_x_op_y x "lean::copy_array" y
+| unop.copy_sarray  := emit_x_op_y x "lean::copy_sarray" y
+| unop.box          := emit_x_op_y x "lean::box" y
+| unop.unbox        := emit_x_op_y x "lean::unbox" y
+| unop.cast         := emit_var x >> emit " := static_cast<" >> emit_type t >> emit ">(" >> emit_var y >> emit ")"
 
 def emit_lit (x : var) (t : type) (l : literal) : extract_m unit :=
 return () -- TODO

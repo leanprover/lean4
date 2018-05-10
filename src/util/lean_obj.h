@@ -146,7 +146,7 @@ inline lean_obj * alloc_cnstr(unsigned tag, unsigned num_objs, unsigned scalar_s
     return new (malloc(sizeof(lean_cnstr) + num_objs * sizeof(lean_obj *) + scalar_sz)) lean_cnstr(tag, num_objs, scalar_sz); // NOLINT
 }
 
-inline lean_obj * alloc_array(unsigned size, unsigned capacity) {
+inline lean_obj * alloc_array(size_t size, size_t capacity) {
     return new (malloc(sizeof(lean_array) + capacity * sizeof(lean_obj *))) lean_array(size, capacity); // NOLINT
 }
 
@@ -223,6 +223,11 @@ inline lean_obj ** cnstr_obj_cptr(lean_obj * o) {
     return reinterpret_cast<lean_obj**>(reinterpret_cast<char*>(o) + sizeof(lean_cnstr));
 }
 
+template<typename T>
+inline T cnstr_scalar(lean_obj * o, size_t offset) {
+    return obj_data<T>(o, sizeof(lean_cnstr) + offset);
+}
+
 inline lean_obj * array_obj(lean_obj * o, size_t i) {
     lean_assert(i < array_size(o));
     return obj_data<lean_obj*>(o, sizeof(lean_array) + sizeof(lean_obj*)*i); // NOLINT
@@ -238,6 +243,11 @@ inline T * sarray_cptr(lean_obj * o) {
     lean_assert(is_sarray(o));
     lean_assert(sarray_elem_size(o) == sizeof(T));
     return reinterpret_cast<T*>(reinterpret_cast<char*>(o) + sizeof(lean_sarray));
+}
+
+template<typename T>
+T sarray_data(lean_obj * o, size_t i) {
+    return sarray_cptr<T>(o)[i];
 }
 
 inline lean_obj * closure_arg(lean_obj * o, unsigned i) {
@@ -266,6 +276,11 @@ inline void set_cnstr_obj(lean_obj * o, unsigned i, lean_obj * v) {
     set_obj_data(o, sizeof(lean_cnstr) + sizeof(lean_obj*)*i, v); // NOLINT
 }
 
+template<typename T>
+inline void set_cnstr_scalar(lean_obj * o, unsigned i, T v) {
+    set_obj_data(o, sizeof(lean_cnstr) + i, v);
+}
+
 inline void set_array_size(lean_obj * o, size_t sz) {
     lean_assert(is_array(o));
     lean_assert(!is_shared(o));
@@ -276,6 +291,11 @@ inline void set_array_size(lean_obj * o, size_t sz) {
 inline void set_array_obj(lean_obj * o, size_t i, lean_obj * v) {
     lean_assert(i < array_size(o));
     set_obj_data(o, sizeof(lean_array) + sizeof(lean_obj*)*i, v); // NOLINT
+}
+
+template<typename T>
+inline void set_sarray_data(lean_obj * o, size_t i, T v) {
+    set_obj_data(o, sizeof(lean_sarray) + sizeof(T)*i, v);
 }
 
 inline void set_sarray_size(lean_obj * o, size_t sz) {

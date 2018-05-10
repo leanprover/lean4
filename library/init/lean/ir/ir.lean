@@ -48,7 +48,7 @@ instance type_has_dec_eq : decidable_eq type :=
 
 /-- Operators for instructions of the form `x : t := op y` -/
 inductive unop
-| not | neg | is_scalar | is_shared | cast | box | unbox
+| not | neg | is_scalar | is_shared | is_null | cast | box | unbox
 | array_copy
 | sarray_copy
 | array_size

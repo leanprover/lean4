@@ -182,6 +182,7 @@ def unop2cpp (t : type) : unop → string
 | unop.neg          := if t = type.object then "lean::big_neg" else "-"
 | unop.is_scalar    := "lean::is_scalar"
 | unop.is_shared    := "lean::is_shared"
+| unop.is_null      := "lean::is_null"
 | unop.box          := "lean::box"
 | unop.unbox        := "lean::unbox"
 | unop.cast         := "static_cast<" ++ type2cpp t ++ ">"

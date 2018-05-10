@@ -130,7 +130,7 @@ emit op >> paren (emit_var x)
 
 /-- Emit `x := y op z` -/
 def emit_infix (x y z : var) (op : string) : extract_m unit :=
-emit_var x >> emit " := " >> emit_var y >> emit op >> emit_var z
+emit_var x >> emit " := " >> emit_var y >> emit " " >> emit op >> emit " " >> emit_var z
 
 /- Emit `x := big_op(y, z)` -/
 def emit_big_binop (x y z : var) (big_op : string) : extract_m unit :=
@@ -259,7 +259,7 @@ def emit_header (h : header) : extract_m unit :=
 emit_return h.return >> emit " " >> emit_fnid h.n >> paren(emit_arg_list h.args)
 
 def decl_local (x : var) (ty : type) : extract_m unit :=
-emit_var x >> emit_type ty >> emit_eos
+emit_type ty >> emit " " >> emit_var x >> emit_eos
 
 def decl_locals (args : list arg) : extract_m unit :=
 do env ← read,
@@ -278,7 +278,7 @@ do ctx ← monad_lift $ infer_types d env,
 end cpp
 
 def extract_cpp (env : environment) (cpp_names : fnid → option string) (ds : list decl) : except format string :=
-let out := cpp.file_header in
+let out := cpp.file_header ++ "\n" in
 run (ds.mfor (cpp.emit_decl env cpp_names) >> get) out
 
 end ir

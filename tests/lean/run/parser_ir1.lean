@@ -1,6 +1,7 @@
 import system.io
 import init.lean.ir.parser init.lean.ir.format
 import init.lean.ir.elim_phi init.lean.ir.type_check
+import init.lean.ir.extract_cpp
 
 open lean.parser
 open lean.ir
@@ -62,3 +63,28 @@ main:
   ret o;
 "
 #eval show_result (whitespace >> parse_def) IR3
+
+def tst_extract_cpp (s : string) : io unit :=
+do (except.ok d) ← return $ parse (whitespace >> parse_def) s,
+   check_decl d,
+   (except.ok code) ← return $ extract_cpp (λ _, none) (λ _, none) [elim_phi d],
+   io.print_ln code
+
+#eval tst_extract_cpp IR3
+#eval tst_extract_cpp IR2
+
+def IR4 := "
+def swap (d1 : object) (d2 : object) : object object :=
+main:
+  r1 := cnstr 0 2 [];
+  r2 := cnstr 0 2 [];
+  set r1 0 d1;
+  set r1 1 d2;
+  inc d1;
+  inc d2;
+  set r2 0 d2;
+  set r2 1 d1;
+  ret r1 r2;
+"
+
+#eval tst_extract_cpp IR4

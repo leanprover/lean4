@@ -175,8 +175,19 @@ match op with
 | unop.unbox        := emit_x_op_y x "lean::unbox" y
 | unop.cast         := emit_var x >> emit " := static_cast<" >> emit_type t >> emit ">(" >> emit_var y >> emit ")"
 
+def emit_num_suffix : type → extract_m unit
+| type.uint32 := emit "u"
+| type.uint64 := emit "ull"
+| type.int64  := emit "ll"
+| _           := return ()
+
 def emit_lit (x : var) (t : type) (l : literal) : extract_m unit :=
-return () -- TODO
+match l with
+| literal.bool tt := emit_var x >> emit " := true"
+| literal.bool ff := emit_var x >> emit " := false"
+| literal.str s   := emit_var x >> emit " := lean::mk_string(" >> emit (repr s) >> emit ")"
+| literal.float v := emit_var x >> emit " := " >> emit v
+| literal.num v   := emit_var x >> emit " := " >> emit v >> emit_num_suffix t
 
 def emit_instr (ins : instr) : extract_m unit :=
 ins.decorate_error $

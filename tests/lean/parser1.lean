@@ -113,17 +113,17 @@ do cmd ← lean.ir.parse_instr,
 #eval test parse_instr_pp "x := closure f a b" "x := closure f a b"
 #eval test parse_instr_pp "x := apply f a" "x := apply f a"
 #eval test parse_instr_pp "x := array sz c" "x := array sz c"
-#eval test parse_instr_pp "write a i v" "write a i v"
-#eval test parse_instr_pp "x := read a i" "x := read a i"
+#eval test parse_instr_pp "array_write a i v" "array_write a i v"
+#eval test parse_instr_pp "x : object := array_read a i" "x : object := array_read a i"
 #eval test parse_instr_pp "x := sarray uint32 sz c" "x := sarray uint32 sz c"
-#eval test parse_instr_pp "swrite a i v" "swrite a i v"
-#eval test parse_instr_pp "x : uint64 := sread a i" "x : uint64 := sread a i"
+#eval test parse_instr_pp "array_write a i v" "array_write a i v"
+#eval test parse_instr_pp "x : uint64 := array_read a i" "x : uint64 := array_read a i"
 #eval test parse_instr_pp "inc x" "inc x"
 #eval test parse_instr_pp "dec x" "dec x"
 #eval test parse_instr_pp "decs x" "decs x"
 #eval test parse_instr_pp "free x" "free x"
 #eval test parse_instr_pp "x := call  f" "x := call f"
-#eval test parse_instr_pp "x:uint32:=   sread y   z" "x : uint32 := sread y z"
+#eval test parse_instr_pp "x:uint32:=   array_read y   z" "x : uint32 := array_read y z"
 
 inductive Expr
 | Add : Expr → Expr → Expr

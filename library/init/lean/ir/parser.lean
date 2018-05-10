@@ -60,7 +60,7 @@ def parse_binop : parser binop :=
 <|> (keyword "gt" >> return binop.gt)
 <|> (keyword "eq" >> return binop.eq)
 <|> (keyword "ne" >> return binop.ne)
-<|> (keyword "read" >> return binop.read)
+<|> (keyword "array_read" >> return binop.array_read)
 
 def parse_unins : parser unins :=
     (keyword "inc" >> return unins.inc)
@@ -143,8 +143,8 @@ do x ← parse_var,
    else parse_nary_call x
 
 def parse_instr : parser instr :=
-    (keyword "write" >> instr.write <$> parse_var <*> parse_var <*> parse_var)
-<|> (keyword "swrite" >> instr.swrite <$> parse_var <*> parse_var <*> parse_var)
+    (keyword "array_write" >> instr.array_write <$> parse_var <*> parse_var <*> parse_var)
+<|> (keyword "array_push" >> instr.array_push <$> parse_var <*> parse_var)
 <|> (keyword "set" >> instr.set <$> parse_var <*> parse_uint16 <*> parse_var)
 <|> (keyword "sset" >> instr.sset <$> parse_var <*> parse_sizet <*> parse_var)
 <|> (instr.unary <$> parse_unins <*> parse_var)

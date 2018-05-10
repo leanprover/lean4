@@ -63,7 +63,7 @@ def binop.to_format : binop → format
 | binop.and  := "and"  | binop.or   := "or"  | binop.xor  := "xor"  | binop.le   := "le"
 | binop.ge   := "ge"   | binop.lt   := "lt"  | binop.gt   := "gt"   | binop.eq   := "eq"
 | binop.ne   := "ne"
-| binop.read := "read"
+| binop.array_read := "array_read"
 
 instance binop.has_to_format : has_to_format binop := ⟨binop.to_format⟩
 instance binop.has_to_string : has_to_string binop := ⟨pretty ∘ to_fmt⟩
@@ -109,9 +109,9 @@ def instr.to_format : instr → format
 | (instr.closure x f ys)     := to_fmt x ++ " := closure " ++ to_fmt f ++ prefix_join " " ys
 | (instr.apply x ys)         := to_fmt x ++ " := apply " ++ join_sep ys " "
 | (instr.array a sz c)       := to_fmt a ++ " := array " ++ to_fmt sz ++ " " ++ to_fmt c
-| (instr.write a i v)        := "write " ++ to_fmt a ++ " " ++ to_fmt i ++ " " ++ to_fmt v
 | (instr.sarray a ty sz c)   := to_fmt a ++ " := sarray " ++ to_fmt ty ++ " " ++ to_fmt sz ++ " " ++ to_fmt c
-| (instr.swrite a i v)       := "swrite " ++ to_fmt a ++ " " ++ to_fmt i ++ " " ++ to_fmt v
+| (instr.array_write a i v)  := "array_write " ++ to_fmt a ++ " " ++ to_fmt i ++ " " ++ to_fmt v
+| (instr.array_push a v)     := "array_push " ++ to_fmt a ++ " " ++ to_fmt v
 | (instr.unary op x)         := to_fmt op ++ " " ++ to_fmt x
 
 instance instr.has_to_format : has_to_format instr := ⟨instr.to_format⟩

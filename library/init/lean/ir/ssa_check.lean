@@ -81,22 +81,22 @@ p.decorate_error $
 def instr.valid_ssa (ins : instr) : ssa_valid_m unit :=
 ins.decorate_error $
 match ins with
-| (instr.lit x _ _)       := x.define
-| (instr.unop x _ _ y)    := x.define >> y.defined
-| (instr.binop x _ _ y z) := x.define >> y.defined >> z.defined
-| (instr.call xs _ ys)    := xs.mfor var.define >> ys.mfor var.defined
-| (instr.cnstr o _ _ _)   := o.define
-| (instr.set o _ x)       := o.defined >> x.defined
-| (instr.get x y _)       := x.define >> y.defined
-| (instr.sset o _ x)      := o.defined >> x.defined
-| (instr.sget x _ y _)    := x.define >> y.defined
-| (instr.closure x _ ys)  := x.define >> ys.mfor var.defined
-| (instr.apply x ys)      := x.define >> ys.mfor var.defined
-| (instr.array a sz c)    := a.define >> sz.defined >> c.defined
-| (instr.write a i v)     := a.defined >> i.defined >> v.defined
-| (instr.sarray x _ sz c) := x.define >> sz.defined >> c.defined
-| (instr.swrite a i v)    := a.defined >> i.defined >> v.defined
-| (instr.unary _ x)       := x.defined
+| (instr.lit x _ _)         := x.define
+| (instr.unop x _ _ y)      := x.define >> y.defined
+| (instr.binop x _ _ y z)   := x.define >> y.defined >> z.defined
+| (instr.call xs _ ys)      := xs.mfor var.define >> ys.mfor var.defined
+| (instr.cnstr o _ _ _)     := o.define
+| (instr.set o _ x)         := o.defined >> x.defined
+| (instr.get x y _)         := x.define >> y.defined
+| (instr.sset o _ x)        := o.defined >> x.defined
+| (instr.sget x _ y _)      := x.define >> y.defined
+| (instr.closure x _ ys)    := x.define >> ys.mfor var.defined
+| (instr.apply x ys)        := x.define >> ys.mfor var.defined
+| (instr.array a sz c)      := a.define >> sz.defined >> c.defined
+| (instr.sarray x _ sz c)   := x.define >> sz.defined >> c.defined
+| (instr.array_write a i v) := a.defined >> i.defined >> v.defined
+| (instr.array_push a v)    := a.defined >> v.defined
+| (instr.unary _ x)         := x.defined
 
 def terminator.valid_ssa (term : terminator) : ssa_valid_m unit :=
 term.decorate_error $

@@ -151,7 +151,7 @@ match op with
 | binop.gt   := emit_arith t x y z ">" "lean::big_gt"
 | binop.eq   := emit_arith t x y z "==" "lean::big_eq"
 | binop.ne   := emit_arith t x y z "!=" "lean::big_nq"
-| binop.read :=
+| binop.array_read :=
   (match t with
    | type.object := emit_var x >> emit " := lean::array_obj(" >> emit_var y >> emit ", " >> emit_var z >> emit ")"
    | _           := emit_var x >> emit " := lean::sarray_data<" >> emit_type t >> emit ">(" >> emit_var y >> emit ", " >> emit_var z >> emit ")")
@@ -207,22 +207,30 @@ emit (unins2cpp op) >> emit "(" >> emit_var x >> emit ")"
 def emit_instr (ins : instr) : extract_m unit :=
 ins.decorate_error $
 (match ins with
- | (instr.lit x t l)        := emit_lit x t l
- | (instr.unop x t op y)    := emit_unop x t op y
- | (instr.binop x t op y z) := emit_binop x t op y z
- | (instr.call xs f ys)     := emit_call_lhs xs >> emit_fnid f >> emit "(" >> emit_sep ys emit_var >> emit ")"
- | (instr.cnstr o t n sz)   := emit_var o >> emit " := lean::alloc_cnstr(" >> emit t >> emit ", " >> emit n >> emit ", " >> emit_sizet sz >> emit ")"
- | (instr.set o i x)        := emit "lean::set_cnstr_obj(" >> emit_var o >> emit ", " >> emit i >> emit ", " >> emit_var x >> emit ")"
- | (instr.get x o i)        := emit_var x >> emit " := lean::cnstr_obj(" >> emit_var o >> emit ", " >> emit i >> emit ")"
- | (instr.sset o d x)       := emit "lean::set_cnstr_scalar(" >> emit_var o >> emit ", " >> emit_sizet d >> emit ", " >> emit_var x >> emit ")"
- | (instr.sget x t o d)     := emit_var x >> emit " := lean::cnstr_scalar<" >> emit_type t >> emit ">(" >> emit_var o >> emit ", " >> emit_sizet d >> emit ")"
- | (instr.closure x f ys)   := return () -- TODO
- | (instr.apply x ys)       := return () -- TODO
- | (instr.array a sz c)     := emit_var a >> emit " := lean::alloc_array(" >> emit_var sz >> emit ", " >> emit_var c >> emit ")"
- | (instr.write a i v)      := emit "lean::set_array_obj(" >> emit_var a >> emit ", " >> emit_var i >> emit ", " >> emit_var v >> emit ")"
- | (instr.sarray a t sz c)  := emit_var a >> emit " := lean::alloc_sarray(" >> emit_type_size t >> emit ", " >> emit_var sz >> emit ", " >> emit_var c >> emit ")"
- | (instr.swrite a i v)     := emit "lean::set_sarray_data(" >> emit_var a >> emit ", " >> emit_var i >> emit ", " >> emit_var v >> emit ")"
- | (instr.unary op x)       := emit_unary op x)
+ | (instr.lit x t l)         := emit_lit x t l
+ | (instr.unop x t op y)     := emit_unop x t op y
+ | (instr.binop x t op y z)  := emit_binop x t op y z
+ | (instr.call xs f ys)      := emit_call_lhs xs >> emit_fnid f >> emit "(" >> emit_sep ys emit_var >> emit ")"
+ | (instr.cnstr o t n sz)    := emit_var o >> emit " := lean::alloc_cnstr(" >> emit t >> emit ", " >> emit n >> emit ", " >> emit_sizet sz >> emit ")"
+ | (instr.set o i x)         := emit "lean::set_cnstr_obj(" >> emit_var o >> emit ", " >> emit i >> emit ", " >> emit_var x >> emit ")"
+ | (instr.get x o i)         := emit_var x >> emit " := lean::cnstr_obj(" >> emit_var o >> emit ", " >> emit i >> emit ")"
+ | (instr.sset o d x)        := emit "lean::set_cnstr_scalar(" >> emit_var o >> emit ", " >> emit_sizet d >> emit ", " >> emit_var x >> emit ")"
+ | (instr.sget x t o d)      := emit_var x >> emit " := lean::cnstr_scalar<" >> emit_type t >> emit ">(" >> emit_var o >> emit ", " >> emit_sizet d >> emit ")"
+ | (instr.closure x f ys)    := return () -- TODO
+ | (instr.apply x ys)        := return () -- TODO
+ | (instr.array a sz c)      := emit_var a >> emit " := lean::alloc_array(" >> emit_var sz >> emit ", " >> emit_var c >> emit ")"
+ | (instr.sarray a t sz c)   := emit_var a >> emit " := lean::alloc_sarray(" >> emit_type_size t >> emit ", " >> emit_var sz >> emit ", " >> emit_var c >> emit ")"
+ | (instr.array_write a i v) :=
+   do env ← read,
+      if env.ctx.find v = some type.object
+      then emit "lean::set_array_obj(" >> emit_var a >> emit ", " >> emit_var i >> emit ", " >> emit_var v >> emit ")"
+      else emit "lean::set_sarray_data(" >> emit_var a >> emit ", " >> emit_var i >> emit ", " >> emit_var v >> emit ")"
+ | (instr.array_push a v) :=
+   do env ← read,
+      if env.ctx.find v = some type.object
+      then emit "lean::array_push(" >> emit_var a >> emit ", " >> emit_var v >> emit ")"
+      else emit "lean::sarray_push(" >> emit_var a >> emit ", " >> emit_var v >> emit ")"
+ | (instr.unary op x)        := emit_unary op x)
 >> emit_eos
 
 def emit_block (b : block) : extract_m unit :=

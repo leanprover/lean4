@@ -56,7 +56,7 @@ inductive unop
 inductive binop
 | add | sub | mul | div | mod | shl | shr | and | or | xor
 | le  | ge  | lt  | gt  | eq  | ne
-| read -- (scalar) array read
+| array_read -- (scalar) array read
 
 /-- Operators for instructions of the form `op x` -/
 inductive unins
@@ -121,12 +121,11 @@ inductive instr
 /- Closures -/
 | closure (x : var) (f : fnid) (ys : list var)                  -- Create closure:            x := closure f ys
 | apply   (x : var) (ys : list var)                             -- Apply closure:             x := apply ys
-/- Array of objects -/
+/- Arrays -/
 | array   (a sz c : var)                                        -- Create array of objects with size `sz` and capacity `c`
-| write   (a i v : var)                                         -- Array write                write a i v
-/- Scalar arrays -/
 | sarray  (a : var) (ty : type) (sz c : var)                    -- Create scalar array
-| swrite  (a i v : var)                                         -- Scalar array write         swrite a i v
+| array_write (a i v : var)                                     -- (scalar) Array write      write a i v
+| array_push  (a v : var)                                       -- (scalar) Array push back  push a v
 /- Unary instructions -/
 | unary   (op : unins) (x : var)                                -- op x
 

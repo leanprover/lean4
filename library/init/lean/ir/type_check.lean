@@ -72,7 +72,7 @@ match op with
 | binop.gt   := r = type.bool && t₁ = t₂ && is_arith_ty t₁
 | binop.eq   := r = type.bool && t₁ = t₂
 | binop.ne   := r = type.bool && t₁ = t₂
-| binop.read := t₁ = type.object && t₂ = type.usize
+| binop.array_read := t₁ = type.object && t₂ = type.usize
 
 @[reducible] def type_checker_m := except_t format (reader_t (environment × list result) (state_t context id))
 
@@ -174,25 +174,25 @@ def check_arg_types : list var → list arg → type_checker_m unit
 def instr.check (ins : instr) : type_checker_m unit :=
 ins.decorate_error $
 match ins with
-| (instr.lit x t l)        := l.check t
-| (instr.unop x t op y)    := do t₁ ← get_type y, unless (valid_unop_types op t t₁) $ throw "invalid unary operation"
-| (instr.binop x t op y z) := do t₁ ← get_type y, t₂ ← get_type z, unless (valid_binop_types op t t₁ t₂) $ throw "invalid binary operation"
-| (instr.call xs f ys)     := do d ← get_decl f, check_arg_types ys d.header.args
-| (instr.cnstr o _ _ _)    := return ()
-| (instr.set o _ x)        := check_type o type.object >> check_type x type.object
-| (instr.get x o _)        := check_type o type.object
-| (instr.sset o _ x)       := check_type o type.object >> check_ne_type x type.object
-| (instr.sget x t o _)     := check_type o type.object >> check_ne_type x type.object
-| (instr.closure x f ys)   := do ys.mfor (flip check_type type.object), d ← get_decl f,
+| (instr.lit x t l)         := l.check t
+| (instr.unop x t op y)     := do t₁ ← get_type y, unless (valid_unop_types op t t₁) $ throw "invalid unary operation"
+| (instr.binop x t op y z)  := do t₁ ← get_type y, t₂ ← get_type z, unless (valid_binop_types op t t₁ t₂) $ throw "invalid binary operation"
+| (instr.call xs f ys)      := do d ← get_decl f, check_arg_types ys d.header.args
+| (instr.cnstr o _ _ _)     := return ()
+| (instr.set o _ x)         := check_type o type.object >> check_type x type.object
+| (instr.get x o _)         := check_type o type.object
+| (instr.sset o _ x)        := check_type o type.object >> check_ne_type x type.object
+| (instr.sget x t o _)      := check_type o type.object >> check_ne_type x type.object
+| (instr.closure x f ys)    := do ys.mfor (flip check_type type.object), d ← get_decl f,
                                  unless (d.header.return.length = 1) $ throw "unexpected number of return values",
                                  unless (d.header.args.length = ys.length) $ throw "unexpected number of arguments",
                                  d.header.args.mfor (λ a, unless (a.ty = type.object) $ throw "invalid closure, arguments must have type object")
-| (instr.apply x ys)       := ys.mfor (flip check_type type.object)
-| (instr.array a sz c)     := check_type sz type.usize >> check_type c type.usize
-| (instr.write a i v)      := check_type a type.object >> check_type i type.usize >> check_type v type.object
-| (instr.sarray a t sz c)  := check_type sz type.usize >> check_type c type.usize >> unless (t ≠ type.object) (throw "invalid scalar array")
-| (instr.swrite a i v)     := check_type a type.object >> check_type i type.usize >> check_ne_type v type.object
-| (instr.unary _ x)        := check_type x type.object
+| (instr.apply x ys)        := ys.mfor (flip check_type type.object)
+| (instr.array a sz c)      := check_type sz type.usize >> check_type c type.usize
+| (instr.sarray a t sz c)   := check_type sz type.usize >> check_type c type.usize >> unless (t ≠ type.object) (throw "invalid scalar array")
+| (instr.array_write a i _) := check_type a type.object >> check_type i type.usize
+| (instr.array_push a _)    := check_type a type.object
+| (instr.unary _ x)         := check_type x type.object
 
 def phi.check (p : phi) : type_checker_m unit :=
 p.decorate_error $ p.ys.mfor (flip check_type p.ty)

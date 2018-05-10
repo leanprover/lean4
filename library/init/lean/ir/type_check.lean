@@ -47,8 +47,8 @@ match op with
 | unop.neg          := t = r && is_signed_arith_ty t
 | unop.is_scalar    := t = type.object && r = type.bool
 | unop.is_shared    := t = type.object && r = type.bool
-| unop.copy_array   := t = type.object && r = type.object
-| unop.copy_sarray  := t = type.object && r = type.object
+| unop.array_copy   := t = type.object && r = type.object
+| unop.sarray_copy  := t = type.object && r = type.object
 | unop.unbox        := t = type.object && (r = type.uint32 || r = type.int32)
 | unop.box          := r = type.object && (t = type.uint32 || t = type.int32)
 | unop.cast         := r ≠ type.object && r ≠ type.object

@@ -169,8 +169,8 @@ match op with
    | _              := emit_x_op_y x "-" y)
 | unop.is_scalar    := emit_x_op_y x "lean::is_scalar" y
 | unop.is_shared    := emit_x_op_y x "lean::is_shared" y
-| unop.copy_array   := emit_x_op_y x "lean::copy_array" y
-| unop.copy_sarray  := emit_x_op_y x "lean::copy_sarray" y
+| unop.array_copy   := emit_x_op_y x "lean::array_copy" y
+| unop.sarray_copy  := emit_x_op_y x "lean::sarray_copy" y
 | unop.box          := emit_x_op_y x "lean::box" y
 | unop.unbox        := emit_x_op_y x "lean::unbox" y
 | unop.cast         := emit_var x >> emit " := static_cast<" >> emit_type t >> emit ">(" >> emit_var y >> emit ")"

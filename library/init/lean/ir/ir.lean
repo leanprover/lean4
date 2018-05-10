@@ -48,7 +48,8 @@ instance type_has_dec_eq : decidable_eq type :=
 
 inductive unop
 | not | neg | is_scalar | is_shared | cast | box | unbox
-| copy_array | copy_sarray
+| array_copy
+| sarray_copy
 
 inductive binop
 | add | sub | mul | div | mod | shl | shr | and | or | xor

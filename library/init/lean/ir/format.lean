@@ -48,11 +48,13 @@ instance type.has_to_format : has_to_format type := ⟨type.to_format⟩
 instance type.has_to_string : has_to_string type := ⟨pretty ∘ to_fmt⟩
 
 def unop.to_format : unop → format
-| unop.not         := "not"        | unop.neg          := "neg"
-| unop.is_scalar   := "is_scalar"  | unop.is_shared    := "is_shared"
-| unop.box         := "box"        | unop.unbox        := "unbox"
-| unop.cast        := "cast"
-| unop.array_copy  := "array_copy" | unop.sarray_copy  := "sarray_copy"
+| unop.not           := "not"        | unop.neg          := "neg"
+| unop.is_scalar     := "is_scalar"  | unop.is_shared    := "is_shared"
+| unop.box           := "box"        | unop.unbox        := "unbox"
+| unop.cast          := "cast"
+| unop.array_copy    := "array_copy" | unop.sarray_copy  := "sarray_copy"
+| unop.array_size    := "array_size" | unop.sarray_size  := "sarray_size"
+| unop.string_len    := "string_len"
 
 instance unop.has_to_format : has_to_format unop := ⟨unop.to_format⟩
 instance unop.has_to_string : has_to_string unop := ⟨pretty ∘ to_fmt⟩

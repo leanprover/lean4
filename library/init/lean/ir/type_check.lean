@@ -43,15 +43,18 @@ match ty with
 /-- Return `tt` iff the instruction `x : r := op y` is type correct where `y : t` -/
 def valid_unop_types (op : unop) (r : type) (t : type) : bool :=
 match op with
-| unop.not          := t = r && is_bitwise_ty t
-| unop.neg          := t = r && is_signed_arith_ty t
-| unop.is_scalar    := t = type.object && r = type.bool
-| unop.is_shared    := t = type.object && r = type.bool
-| unop.array_copy   := t = type.object && r = type.object
-| unop.sarray_copy  := t = type.object && r = type.object
-| unop.unbox        := t = type.object && (r = type.uint32 || r = type.int32)
-| unop.box          := r = type.object && (t = type.uint32 || t = type.int32)
-| unop.cast         := r ≠ type.object && r ≠ type.object
+| unop.not           := t = r && is_bitwise_ty t
+| unop.neg           := t = r && is_signed_arith_ty t
+| unop.is_scalar     := t = type.object && r = type.bool
+| unop.is_shared     := t = type.object && r = type.bool
+| unop.array_copy    := t = type.object && r = type.object
+| unop.sarray_copy   := t = type.object && r = type.object
+| unop.unbox         := t = type.object && (r = type.uint32 || r = type.int32)
+| unop.box           := r = type.object && (t = type.uint32 || t = type.int32)
+| unop.cast          := r ≠ type.object && r ≠ type.object
+| unop.array_size    := r = type.usize && t = type.object
+| unop.sarray_size   := r = type.usize && t = type.object
+| unop.string_len    := r = type.usize && t = type.object
 
 /-- Return `tt` iff the instruction `x : r := op y z` is type correct where `y z : t` -/
 def valid_binop_types (op : binop) (r : type) (t₁ t₂ : type) : bool :=

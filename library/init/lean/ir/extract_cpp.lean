@@ -36,7 +36,7 @@ do env ← read,
    | some s := emit s
    | none   := emit (name.mangle fid)
 
-def to_cpp_type : type → string
+def type2cpp : type → string
 | type.bool   := "unsigned char"  | type.byte   := "unsigned char"
 | type.uint16 := "unsigned short" | type.uint32 := "unsigned"      | type.uint64 := "unsigned long long"  | type.usize  := "size_t"
 | type.int16  := "short"          | type.int32  := "int"           | type.int64  := "long long"
@@ -44,7 +44,7 @@ def to_cpp_type : type → string
 | type.object := "lean_obj*"
 
 def emit_type (ty : type) : extract_m unit :=
-emit (to_cpp_type ty)
+emit (type2cpp ty)
 
 def emit_sep_aux {α} (f : α → extract_m unit) (sep : string) : list α → extract_m unit
 | []      := return ()
@@ -160,23 +160,22 @@ match op with
 def emit_x_op_y (x : var) (op : string) (y : var) : extract_m unit :=
 emit_var x >> emit " := " >> emit op >> emit "(" >> emit_var y >> emit ")"
 
+def unop2cpp (t : type) : unop → string
+| unop.not          := if t = type.bool then "!" else "~"
+| unop.neg          := if t = type.object then "lean::big_neg" else "-"
+| unop.is_scalar    := "lean::is_scalar"
+| unop.is_shared    := "lean::is_shared"
+| unop.box          := "lean::box"
+| unop.unbox        := "lean::unbox"
+| unop.cast         := "static_cast<" ++ type2cpp t ++ ">"
+| unop.array_copy   := "lean::array_copy"
+| unop.sarray_copy  := "lean::sarray_copy"
+| unop.array_size   := "lean::array_size"
+| unop.sarray_size  := "lean::sarray_size"
+| unop.string_len   := "lean::string_len"
+
 def emit_unop (x : var) (t : type) (op : unop) (y : var) : extract_m unit :=
-match op with
-| unop.not          :=
-  (match t with
-   | type.bool      := emit_x_op_y x "!" y
-   | _              := emit_x_op_y x "~" y)
-| unop.neg          :=
-  (match t with
-   | type.object    := emit_x_op_y x "lean::big_neg" y
-   | _              := emit_x_op_y x "-" y)
-| unop.is_scalar    := emit_x_op_y x "lean::is_scalar" y
-| unop.is_shared    := emit_x_op_y x "lean::is_shared" y
-| unop.array_copy   := emit_x_op_y x "lean::array_copy" y
-| unop.sarray_copy  := emit_x_op_y x "lean::sarray_copy" y
-| unop.box          := emit_x_op_y x "lean::box" y
-| unop.unbox        := emit_x_op_y x "lean::unbox" y
-| unop.cast         := emit_var x >> emit " := static_cast<" >> emit_type t >> emit ">(" >> emit_var y >> emit ")"
+emit_var x >> emit " := " >> emit (unop2cpp t op) >> emit "(" >> emit_var y >> emit ")"
 
 def emit_num_suffix : type → extract_m unit
 | type.uint32 := emit "u"

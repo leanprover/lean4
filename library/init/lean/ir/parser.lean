@@ -42,6 +42,9 @@ def parse_unop : parser unop :=
 <|> (keyword "box" >> return unop.box)
 <|> (keyword "unbox" >> return unop.unbox)
 <|> (keyword "cast" >> return unop.cast)
+<|> (keyword "array_size" >> return unop.array_size)
+<|> (keyword "sarray_size" >> return unop.sarray_size)
+<|> (keyword "string_len" >> return unop.string_len)
 
 def parse_binop : parser binop :=
     (keyword "add" >> return binop.add)

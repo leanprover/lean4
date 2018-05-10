@@ -51,6 +51,9 @@ inductive unop
 | not | neg | is_scalar | is_shared | cast | box | unbox
 | array_copy
 | sarray_copy
+| array_size
+| sarray_size
+| string_len
 
 /-- Operators for instructions of the form `x : t := op y z` -/
 inductive binop

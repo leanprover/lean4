@@ -36,19 +36,15 @@ do env ← read,
    | some s := emit s
    | none   := emit (name.mangle fid)
 
-def emit_type : type → extract_m unit
-| type.bool   := emit "bool"
-| type.byte   := emit "unsigned char"
-| type.uint16 := emit "unsigned short"
-| type.uint32 := emit "unsigned"
-| type.uint64 := emit "unsigned long long"
-| type.usize  := emit "size_t"
-| type.int16  := emit "short"
-| type.int32  := emit "int"
-| type.int64  := emit "long long"
-| type.float  := emit "float"
-| type.double := emit "double"
-| type.object := emit "lean_obj*"
+def to_cpp_type : type → string
+| type.bool   := "unsigned char"  | type.byte   := "unsigned char"
+| type.uint16 := "unsigned short" | type.uint32 := "unsigned"      | type.uint64 := "unsigned long long"  | type.usize  := "size_t"
+| type.int16  := "short"          | type.int32  := "int"           | type.int64  := "long long"
+| type.float  := "float"          | type.double := "double"
+| type.object := "lean_obj*"
+
+def emit_type (ty : type) : extract_m unit :=
+emit (to_cpp_type ty)
 
 def emit_sep_aux {α} (f : α → extract_m unit) (sep : string) : list α → extract_m unit
 | []      := return ()
@@ -104,28 +100,12 @@ def emit_call_lhs : list var → extract_m unit
 | [x] := emit_var x >> emit " := "
 | xs  := emit "std::tie(" >> emit_sep xs emit_var >> emit ") := "
 
-def type2size : type → sum nat string
-| type.bool   := sum.inl 1 | type.byte   := sum.inl 1
-| type.uint16 := sum.inl 2 | type.uint32 := sum.inl 4 | type.uint64 := sum.inl 8
-| type.int16  := sum.inl 2 | type.int32  := sum.inl 4 | type.int64  := sum.inl 8
-| type.float  := sum.inl 4 | type.double := sum.inl 8
-| type.object := sum.inr "sizeof(void*)"
-| type.usize  := sum.inr "sizeof(size_t)"
-
 def emit_type_size (ty : type) : extract_m unit :=
-match type2size ty with
-| sum.inl n := emit n
-| sum.inr s := emit s
+emit "sizeof(" >> emit_type ty >> emit ")"
 
-def emit_sizet_aux : list (nat × type) → nat → extract_m unit
-| [] r             := emit r
-| ((n, ty)::ss) r  :=
-  match type2size ty with
-  | sum.inl sz := emit_sizet_aux ss (r+n*sz)
-  | sum.inr s  := emit n >> emit "*" >> emit s >> emit " + " >> emit_sizet_aux ss r
-
-def emit_sizet (s : sizet) : extract_m unit :=
-emit_sizet_aux s 0
+def emit_sizet : list (nat × type) → extract_m unit
+| []             := emit 0
+| ((n, ty)::ss)  := emit n >> emit "*" >> emit_type_size ty >> emit " + " >> emit_sizet ss
 
 /-- Emit `op(x)` -/
 def emit_op_x (op : string) (x : var) : extract_m unit :=

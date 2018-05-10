@@ -47,7 +47,7 @@ instance type_has_dec_eq : decidable_eq type :=
 /- END of TEMPORARY HACK for (decidable_eq type) -/
 
 inductive unop
-| not | neg | scalar | shared | cast | box | unbox
+| not | neg | is_scalar | is_shared | cast | box | unbox
 | copy_array | copy_sarray
 
 inductive binop

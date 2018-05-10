@@ -45,8 +45,8 @@ def valid_unop_types (op : unop) (r : type) (t : type) : bool :=
 match op with
 | unop.not          := t = r && is_bitwise_ty t
 | unop.neg          := t = r && is_signed_arith_ty t
-| unop.scalar       := t = type.object && r = type.bool
-| unop.shared       := t = type.object && r = type.bool
+| unop.is_scalar    := t = type.object && r = type.bool
+| unop.is_shared    := t = type.object && r = type.bool
 | unop.copy_array   := t = type.object && r = type.object
 | unop.copy_sarray  := t = type.object && r = type.object
 | unop.unbox        := t = type.object && (r = type.uint32 || r = type.int32)

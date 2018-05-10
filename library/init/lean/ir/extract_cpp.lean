@@ -167,8 +167,8 @@ match op with
   (match t with
    | type.object    := emit_x_op_y x "lean::big_neg" y
    | _              := emit_x_op_y x "-" y)
-| unop.scalar       := emit_x_op_y x "lean::is_scalar" y
-| unop.shared       := emit_x_op_y x "lean::is_shared" y
+| unop.is_scalar    := emit_x_op_y x "lean::is_scalar" y
+| unop.is_shared    := emit_x_op_y x "lean::is_shared" y
 | unop.copy_array   := emit_x_op_y x "lean::copy_array" y
 | unop.copy_sarray  := emit_x_op_y x "lean::copy_sarray" y
 | unop.box          := emit_x_op_y x "lean::box" y

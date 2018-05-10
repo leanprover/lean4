@@ -54,6 +54,7 @@ inductive unop
 inductive binop
 | add | sub | mul | div | mod | shl | shr | and | or | xor
 | le  | ge  | lt  | gt  | eq  | ne
+| read -- (scalar) array read
 
 inductive literal
 | bool    : bool   → literal
@@ -111,11 +112,9 @@ inductive instr
 /- Array of objects -/
 | array   (a sz c : var)                                        -- Create array of objects with size `sz` and capacity `c`
 | write   (a i v : var)                                         -- Array write                write a i v
-| read    (x a i : var)                                         -- Array read                 x := a[i]
 /- Scalar arrays -/
 | sarray  (a : var) (ty : type) (sz c : var)                    -- Create scalar array
 | swrite  (a i v : var)                                         -- Scalar array write         swrite a i v
-| sread   (x : var) (ty : type) (a i : var)                     -- Scalar array read          x : type := a[i]
 /- Reference counting -/
 | inc     (x : var)                                             -- inc var
 | decs    (x : var)                                             -- Decrement RC of shared object

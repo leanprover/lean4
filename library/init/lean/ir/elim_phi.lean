@@ -45,10 +45,8 @@ def instr.replace_vars : instr → elim_phi_m instr
 | (instr.apply x ys)        := instr.apply <$> find x <*> ys.mmap find
 | (instr.array a sz c)      := instr.array <$> find a <*> find sz <*> find c
 | (instr.write a i v)       := instr.write <$> find a <*> find i <*> find v
-| (instr.read x a i)        := instr.read <$> find x <*> find a <*> find i
 | (instr.sarray a ty sz c)  := instr.sarray <$> find a <*> pure ty <*> find sz <*> find c
 | (instr.swrite a i v)      := instr.swrite <$> find a <*> find i <*> find v
-| (instr.sread x ty a i)    := instr.sread <$> find x <*> pure ty <*> find a <*> find i
 | (instr.inc x)             := instr.inc <$> find x
 | (instr.decs x)            := instr.decs <$> find x
 | (instr.free x)            := instr.free <$> find x

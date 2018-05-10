@@ -151,7 +151,10 @@ match op with
 | binop.gt   := emit_arith t x y z ">" "lean::big_gt"
 | binop.eq   := emit_arith t x y z "==" "lean::big_eq"
 | binop.ne   := emit_arith t x y z "!=" "lean::big_nq"
-
+| binop.read :=
+  (match t with
+   | type.object := emit_var x >> emit " := lean::array_obj(" >> emit_var y >> emit ", " >> emit_var z >> emit ")"
+   | _           := emit_var x >> emit " := lean::sarray_data<" >> emit_type t >> emit ">(" >> emit_var y >> emit ", " >> emit_var z >> emit ")")
 
 /-- Emit `x := op(y)` -/
 def emit_x_op_y (x : var) (op : string) (y : var) : extract_m unit :=
@@ -205,10 +208,8 @@ ins.decorate_error $
  | (instr.apply x ys)       := return () -- TODO
  | (instr.array a sz c)     := emit_var a >> emit " := lean::alloc_array(" >> emit_var sz >> emit ", " >> emit_var c >> emit ")"
  | (instr.write a i v)      := emit "lean::set_array_obj(" >> emit_var a >> emit ", " >> emit_var i >> emit ", " >> emit_var v >> emit ")"
- | (instr.read x a i)       := emit_var x >> emit " := lean::array_obj(" >> emit_var a >> emit ", " >> emit_var i >> emit ")"
  | (instr.sarray a t sz c)  := emit_var a >> emit " := lean::alloc_sarray(" >> emit_type_size t >> emit ", " >> emit_var sz >> emit ", " >> emit_var c >> emit ")"
  | (instr.swrite a i v)     := emit "lean::set_sarray_data(" >> emit_var a >> emit ", " >> emit_var i >> emit ", " >> emit_var v >> emit ")"
- | (instr.sread x t a i)    := emit_var x >> emit " := lean::sarray_data<" >> emit_type t >> emit ">(" >> emit_var a >> emit ", " >> emit_var i >> emit ")"
  | (instr.inc x)            := emit_op_x "lean::inc_ref" x
  | (instr.decs x)           := emit_op_x "lean::dec_shared_ref" x
  | (instr.free x)           := emit_op_x "free" x

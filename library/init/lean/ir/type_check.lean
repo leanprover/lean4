@@ -72,6 +72,7 @@ match op with
 | binop.gt   := r = type.bool && t₁ = t₂ && is_arith_ty t₁
 | binop.eq   := r = type.bool && t₁ = t₂
 | binop.ne   := r = type.bool && t₁ = t₂
+| binop.read := t₁ = type.object && t₂ = type.usize
 
 @[reducible] def type_checker_m := except_t format (reader_t (environment × list result) (state_t context id))
 
@@ -142,9 +143,7 @@ match ins with
 | (instr.closure x f ys)   := set_type x type.object
 | (instr.apply x ys)       := set_type x type.object
 | (instr.array a sz c)     := set_type a type.object
-| (instr.read x a i)       := set_type x type.object
 | (instr.sarray a t sz c)  := set_type a type.object
-| (instr.sread x t a i)    := set_type x t
 | other                    := return ()
 
 def phi.infer_types (p : phi) : type_checker_m unit :=
@@ -191,10 +190,8 @@ match ins with
 | (instr.apply x ys)       := ys.mfor (flip check_type type.object)
 | (instr.array a sz c)     := check_type sz type.usize >> check_type c type.usize
 | (instr.write a i v)      := check_type a type.object >> check_type i type.usize >> check_type v type.object
-| (instr.read x a i)       := check_type a type.object >> check_type i type.usize
 | (instr.sarray a t sz c)  := check_type sz type.usize >> check_type c type.usize >> unless (t ≠ type.object) (throw "invalid scalar array")
 | (instr.swrite a i v)     := check_type a type.object >> check_type i type.usize >> check_ne_type v type.object
-| (instr.sread x t a i)    := check_ne_type x type.object >> check_type a type.object >> check_type a type.usize
 | (instr.inc x)            := check_type x type.object
 | (instr.decs x)           := check_type x type.object
 | (instr.dealloc x)        := check_type x type.object

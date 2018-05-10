@@ -28,9 +28,7 @@ def instr.declare_vars : instr → reader_t blockid ssa_pre_m unit
 | (instr.closure x _ _)   := x.declare
 | (instr.apply x _)       := x.declare
 | (instr.array a _ _)     := a.declare
-| (instr.read x _ _)      := x.declare
 | (instr.sarray x _ _ _)  := x.declare
-| (instr.sread x _ _ _)   := x.declare
 | _                       := return ()
 
 def phi.declare  (p : phi) : reader_t blockid ssa_pre_m unit :=
@@ -96,10 +94,8 @@ match ins with
 | (instr.apply x ys)      := x.define >> ys.mfor var.defined
 | (instr.array a sz c)    := a.define >> sz.defined >> c.defined
 | (instr.write a i v)     := a.defined >> i.defined >> v.defined
-| (instr.read x a i)      := x.define >> a.defined >> i.defined
 | (instr.sarray x _ sz c) := x.define >> sz.defined >> c.defined
 | (instr.swrite a i v)    := a.defined >> i.defined >> v.defined
-| (instr.sread x _ a i)   := x.define >> a.defined >> i.defined
 | (instr.inc x)           := x.defined
 | (instr.decs x)          := x.defined
 | (instr.free x)          := x.defined

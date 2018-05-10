@@ -60,6 +60,7 @@ def parse_binop : parser binop :=
 <|> (keyword "gt" >> return binop.gt)
 <|> (keyword "eq" >> return binop.eq)
 <|> (keyword "ne" >> return binop.ne)
+<|> (keyword "read" >> return binop.read)
 
 def parse_literal : parser literal :=
     (keyword "tt" >> return (literal.bool tt))
@@ -112,7 +113,6 @@ do  symbol ":",
     ty ← parse_type,
     symbol ":=",
     (keyword "sget" >> instr.sget x ty <$> parse_var <*> parse_sizet)
-<|> (keyword "sread" >> instr.sread x ty <$> parse_var <*> parse_var)
 <|> (instr.unop x ty <$> parse_unop <*> parse_var)
 <|> (instr.binop x ty <$> parse_binop <*> parse_var <*> parse_var)
 <|> (instr.lit x ty <$> parse_literal)
@@ -121,9 +121,7 @@ def parse_untyped_assignment (x : var) : parser instr :=
 do  symbol ":=",
     (keyword "closure" >> instr.closure x <$> parse_fnid <*> many parse_var)
 <|> (keyword "apply"   >> instr.apply x <$> many1 parse_var)
-<|> (keyword "read"    >> instr.read x <$> parse_var <*> parse_var)
 <|> (keyword "get"     >> instr.get x <$> parse_var <*> parse_uint16)
-<|> (keyword "read"    >> instr.read x <$> parse_var <*> parse_var)
 <|> (keyword "call"    >> instr.call [x] <$> parse_fnid <*> many parse_var)
 <|> (keyword "cnstr"   >> instr.cnstr x <$> parse_uint16 <*> parse_uint16 <*> parse_sizet)
 <|> (keyword "array"   >> instr.array x <$> parse_var <*> parse_var)

@@ -210,7 +210,7 @@ def terminator.check (term : terminator) : type_checker_m unit :=
 term.decorate_error $
 match term with
 | (terminator.ret ys)   := do (_, rs) ← read, check_result_types ys rs
-| (terminator.case x _) := do t ← get_type x, unless (t = type.object || t = type.bool) $ throw "variable must be an object or bool"
+| (terminator.case x _) := do t ← get_type x, unless (t = type.object || t = type.bool || t = type.uint32) $ throw "variable must be an object, uint32 or bool"
 | (terminator.jmp _)    := return ()
 
 def block.check (b : block) : type_checker_m unit :=

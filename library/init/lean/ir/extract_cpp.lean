@@ -98,12 +98,18 @@ def emit_cases : list blockid → nat → extract_m unit
 
 def emit_case : var → list blockid → extract_m unit
 | x [b]     := emit "goto " >> emit_blockid b >> emit_eos
-| x [b₁,b₂] :=
-  do env ← read,
-     if env.ctx.find x = some type.bool
-     then emit "if (" >> emit_var x >> emit ") goto " >> emit_blockid b₂ >> emit "; else goto " >> emit_blockid b₁ >> emit_eos
-     else emit "if (" >> emit_tag x >> emit " == 0) goto " >> emit_blockid b₁ >> emit "; else goto " >> emit_blockid b₂ >> emit_eos
-| x bs      := emit "switch (" >> emit_tag x >> emit ") {" >> emit_cases bs 0 >> emit "}" >> emit_line
+| x [b₁,b₂] := do
+     env ← read,
+     (match env.ctx.find x with
+      | some type.bool   := emit "if (" >> emit_var x >> emit ") goto " >> emit_blockid b₂ >> emit "; else goto " >> emit_blockid b₁
+      | some type.uint32 := emit "if (" >> emit_var x >> emit " == 0) goto " >> emit_blockid b₁ >> emit "; else goto " >> emit_blockid b₂
+      | _                := emit "if (" >> emit_tag x >> emit " == 0) goto " >> emit_blockid b₁ >> emit "; else goto " >> emit_blockid b₂),
+     emit_eos
+| x bs      :=  do
+    env ← read,
+    emit "switch ",
+    paren (if env.ctx.find x = some type.uint32 then emit_var x else emit_tag x),
+    emit " {" >> emit_line >> emit_cases bs 0 >> emit "}" >> emit_line
 
 def emit_terminator (term : terminator) : extract_m unit :=
 term.decorate_error $

@@ -136,6 +136,7 @@ instance nat_has_to_format : has_to_format nat    := ⟨λ n, to_string n⟩
 instance uint16_has_to_format : has_to_format uint16 := ⟨λ n, to_string n⟩
 instance uint32_has_to_format : has_to_format uint32 := ⟨λ n, to_string n⟩
 instance uint64_has_to_format : has_to_format uint64 := ⟨λ n, to_string n⟩
+instance usize_has_to_format : has_to_format usize := ⟨λ n, to_string n⟩
 
 instance format_has_to_string : has_to_string format := ⟨pretty⟩
 

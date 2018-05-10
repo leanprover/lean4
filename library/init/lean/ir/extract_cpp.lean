@@ -126,10 +126,6 @@ def emit_call_lhs : list var → extract_m unit
 def emit_type_size (ty : type) : extract_m unit :=
 emit "sizeof" >> paren(emit_type ty)
 
-def emit_sizet : list (nat × type) → extract_m unit
-| []             := emit 0
-| ((n, ty)::ss)  := emit n >> emit "*" >> emit_type_size ty >> emit " + " >> emit_sizet ss
-
 /-- Emit `op(x)` -/
 def emit_op_x (op : string) (x : var) : extract_m unit :=
 emit op >> paren (emit_var x)
@@ -234,11 +230,11 @@ ins.decorate_error $
  | (instr.unop x t op y)     := emit_unop x t op y
  | (instr.binop x t op y z)  := emit_binop x t op y z
  | (instr.call xs f ys)      := emit_call_lhs xs >> emit_fnid f >> paren(emit_var_list ys)
- | (instr.cnstr o t n sz)    := emit_var o >> emit " := lean::alloc_cnstr" >> paren(emit t <+> emit n <+> emit_sizet sz)
+ | (instr.cnstr o t n sz)    := emit_var o >> emit " := lean::alloc_cnstr" >> paren(emit t <+> emit n <+> emit sz)
  | (instr.set o i x)         := emit "lean::set_cnstr_obj" >> paren (emit_var o <+> emit i <+> emit_var x)
  | (instr.get x o i)         := emit_var x >> emit " := lean::cnstr_obj" >> paren(emit_var o <+> emit i)
- | (instr.sset o d x)        := emit "lean::set_cnstr_scalar" >> paren(emit_var o <+> emit_sizet d <+> emit_var x)
- | (instr.sget x t o d)      := emit_var x >> emit " := lean::cnstr_scalar" >> emit_template_param t >> paren(emit_var o <+> emit_sizet d)
+ | (instr.sset o d x)        := emit "lean::set_cnstr_scalar" >> paren(emit_var o <+> emit d <+> emit_var x)
+ | (instr.sget x t o d)      := emit_var x >> emit " := lean::cnstr_scalar" >> emit_template_param t >> paren(emit_var o <+> emit d)
  | (instr.closure x f ys)    := return () -- TODO
  | (instr.apply x ys)        := return () -- TODO
  | (instr.array a sz c)      := emit_var a >> emit " := lean::alloc_array" >> paren(emit_var sz <+> emit_var c)

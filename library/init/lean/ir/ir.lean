@@ -81,13 +81,6 @@ def tag     := uint16
 def var     := name
 def fnid    := name
 def blockid := name
-/--
-`sizet` is used to represent object size and offset.
-An element `[(n_1, t_1), ..., (n_k, t_k)]` represents
-the size/offset `n_1 * sizeof(t_1) + ... + n_k * sizeof(t_k)`.
-We use this type to be able to generate platform independent
-code because the size of some types are platform dependent (e.g., `object` and `usize`) -/
-def sizet   := list (nat × type)
 
 instance var_has_lt : has_lt var := (name.has_lt_quick : has_lt name)
 instance blockid_has_lt : has_lt blockid := (name.has_lt_quick : has_lt name)
@@ -116,11 +109,11 @@ inductive instr
 | binop   (x : var) (ty : type) (op : binop) (y z : var)        -- x : ty := op y z
 | call    (xs : list var) (f : fnid) (ys : list var)            -- Function call:  xs := f ys
 /- Constructor objects -/
-| cnstr   (o : var) (tag : tag) (nobjs : uint16) (ssz : sizet)  -- Create constructor object
+| cnstr   (o : var) (tag : tag) (nobjs : uint16) (ssz : usize)  -- Create constructor object
 | set     (o : var) (i : uint16) (x : var)                      -- Set object field:          set o i x
 | get     (x : var) (o : var) (i : uint16)                      -- Get object field:          x := get o i
-| sset    (o : var) (d : sizet) (v : var)                       -- Set scalar field:          sset o d v
-| sget    (x : var) (ty : type) (o : var) (d : sizet)           -- Get scalar field:          x : ty := sget o d
+| sset    (o : var) (d : usize) (v : var)                       -- Set scalar field:          sset o d v
+| sget    (x : var) (ty : type) (o : var) (d : usize)           -- Get scalar field:          x : ty := sget o d
 /- Closures -/
 | closure (x : var) (f : fnid) (ys : list var)                  -- Create closure:            x := closure f ys
 | apply   (x : var) (ys : list var)                             -- Apply closure:             x := apply ys

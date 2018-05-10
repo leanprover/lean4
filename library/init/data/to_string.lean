@@ -61,6 +61,9 @@ instance : has_to_string uint32 :=
 instance : has_to_string uint64 :=
 ⟨λ n, to_string n.to_nat⟩
 
+instance : has_to_string usize :=
+⟨λ n, to_string n.to_nat⟩
+
 instance {α : Type u} [has_to_string α] : has_to_string (option α) :=
 ⟨λ o, match o with | none := "none" | (some a) := "(some " ++ to_string a ++ ")"⟩
 

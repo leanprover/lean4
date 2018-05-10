@@ -92,12 +92,6 @@ def sizet_entry.to_format : nat × type → format
 | (1, ty) := to_fmt ty
 | (n, ty) := to_fmt n ++ ":" ++ to_fmt ty
 
-def sizet.to_format (s : sizet) : format :=
-sbracket $ join_sep (s.map sizet_entry.to_format) ("," ++ line)
-
-instance sizet.has_to_format : has_to_format sizet := ⟨sizet.to_format⟩
-instance sizet.has_to_string : has_to_string sizet := ⟨pretty ∘ to_fmt⟩
-
 def instr.to_format : instr → format
 | (instr.lit x ty lit)       := to_fmt x ++ " : " ++ to_fmt ty ++ " := " ++ to_fmt lit
 | (instr.unop x ty op y)     := to_fmt x ++ " : " ++ to_fmt ty ++ " := " ++ to_fmt op ++ " " ++ to_fmt y

@@ -53,13 +53,13 @@ do (except.ok d) ← return $ parse (whitespace >> parse_def) s,
 def IR3 := "
 def mk_struct (d1 : object) (d2 : uint32) (d3 : usize) (d4 : uint32) (d5 : bool) (d6 : bool) : object :=
 main:
-  o := cnstr 0 1 [object, 2:uint32, usize, bool];
+  o := cnstr 0 1 18;
   set o 0 d1;
-  sset o [object] d3;
-  sset o [object, usize] d2;
-  sset o [object, usize, uint32] d4;
-  sset o [object, usize, 2:uint32] d5;
-  sset o [object, usize, 2:uint32, bool] d6;
+  sset o 8 d3;
+  sset o 16 d2;
+  sset o 20 d4;
+  sset o 24 d5;
+  sset o 25 d6;
   ret o;
 "
 #eval show_result (whitespace >> parse_def) IR3
@@ -76,8 +76,8 @@ do (except.ok d) ← return $ parse (whitespace >> parse_def) s,
 def IR4 := "
 def swap (d1 : object) (d2 : object) : object object :=
 main:
-  r1 := cnstr 0 2 [];
-  r2 := cnstr 0 2 [];
+  r1 := cnstr 0 2 0;
+  r2 := cnstr 0 2 0;
   set r1 0 d1;
   set r1 1 d2;
   inc d1;

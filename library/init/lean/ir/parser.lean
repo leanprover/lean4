@@ -89,6 +89,13 @@ try (do p ← pos,
         return $ uint16.of_nat n)
 <?> "uint16"
 
+def parse_usize : parser usize :=
+try (do p ← pos,
+        n ← lexeme num,
+        when (n ≥ usize_sz) $ unexpected_at "big numeral, it does not fit in an usize" p,
+        return $ usize.of_nat n)
+<?> "usize"
+
 def identifier : parser name :=
 try (do p ← pos,
         n ← lean.parser.identifier,
@@ -113,19 +120,11 @@ do xs  ← many1 parse_var,
    ys  ← many parse_var,
    return $ instr.call ([x] ++ xs) fid ys
 
-def parse_sizet_entry : parser (nat × type) :=
-(prod.mk 1 <$> parse_type)
-<|>
-(prod.mk <$> (lexeme num <?> "numeral") <*> (symbol ":" >> parse_type))
-
-def parse_sizet : parser sizet :=
-symbol "[" >> sep_by parse_sizet_entry (symbol ",") <* symbol "]"
-
 def parse_typed_assignment (x : var) : parser instr :=
 do  symbol ":",
     ty ← parse_type,
     symbol ":=",
-    (keyword "sget" >> instr.sget x ty <$> parse_var <*> parse_sizet)
+    (keyword "sget" >> instr.sget x ty <$> parse_var <*> parse_usize)
 <|> (instr.unop x ty <$> parse_unop <*> parse_var)
 <|> (instr.binop x ty <$> parse_binop <*> parse_var <*> parse_var)
 <|> (instr.lit x ty <$> parse_literal)
@@ -136,7 +135,7 @@ do  symbol ":=",
 <|> (keyword "apply"   >> instr.apply x <$> many1 parse_var)
 <|> (keyword "get"     >> instr.get x <$> parse_var <*> parse_uint16)
 <|> (keyword "call"    >> instr.call [x] <$> parse_fnid <*> many parse_var)
-<|> (keyword "cnstr"   >> instr.cnstr x <$> parse_uint16 <*> parse_uint16 <*> parse_sizet)
+<|> (keyword "cnstr"   >> instr.cnstr x <$> parse_uint16 <*> parse_uint16 <*> parse_usize)
 <|> (keyword "array"   >> instr.array x <$> parse_var <*> parse_var)
 <|> (keyword "sarray"  >> instr.sarray x <$> parse_type <*> parse_var <*> parse_var)
 
@@ -150,7 +149,7 @@ def parse_instr : parser instr :=
     (keyword "array_write" >> instr.array_write <$> parse_var <*> parse_var <*> parse_var)
 <|> (keyword "array_push" >> instr.array_push <$> parse_var <*> parse_var)
 <|> (keyword "set" >> instr.set <$> parse_var <*> parse_uint16 <*> parse_var)
-<|> (keyword "sset" >> instr.sset <$> parse_var <*> parse_sizet <*> parse_var)
+<|> (keyword "sset" >> instr.sset <$> parse_var <*> parse_usize <*> parse_var)
 <|> (instr.unary <$> parse_unins <*> parse_var)
 <|> parse_assignment
 

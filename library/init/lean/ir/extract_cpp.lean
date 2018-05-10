@@ -192,6 +192,16 @@ match l with
 | literal.float v := emit_var x >> emit " := " >> emit v
 | literal.num v   := emit_var x >> emit " := " >> emit v >> emit_num_suffix t
 
+def unins2cpp : unins → string
+| unins.inc            := "lean::inc_ref"
+| unins.decs           := "lean::dec_shared_ref"
+| unins.dec            := "lean::dec_ref"
+| unins.free           := "free"
+| unins.dealloc        := "lean::dealloc"
+
+def emit_unary (op : unins) (x : var) : extract_m unit :=
+emit (unins2cpp op) >> emit "(" >> emit_var x >> emit ")"
+
 def emit_instr (ins : instr) : extract_m unit :=
 ins.decorate_error $
 (match ins with
@@ -210,11 +220,7 @@ ins.decorate_error $
  | (instr.write a i v)      := emit "lean::set_array_obj(" >> emit_var a >> emit ", " >> emit_var i >> emit ", " >> emit_var v >> emit ")"
  | (instr.sarray a t sz c)  := emit_var a >> emit " := lean::alloc_sarray(" >> emit_type_size t >> emit ", " >> emit_var sz >> emit ", " >> emit_var c >> emit ")"
  | (instr.swrite a i v)     := emit "lean::set_sarray_data(" >> emit_var a >> emit ", " >> emit_var i >> emit ", " >> emit_var v >> emit ")"
- | (instr.inc x)            := emit_op_x "lean::inc_ref" x
- | (instr.decs x)           := emit_op_x "lean::dec_shared_ref" x
- | (instr.free x)           := emit_op_x "free" x
- | (instr.dealloc x)        := emit_op_x "lean::dealloc" x
- | (instr.dec x)            := emit_op_x "lean::dec_ref" x)
+ | (instr.unary op x)       := emit_unary op x)
 >> emit_eos
 
 def emit_block (b : block) : extract_m unit :=

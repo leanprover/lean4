@@ -46,15 +46,25 @@ instance type_has_dec_eq : decidable_eq type :=
 
 /- END of TEMPORARY HACK for (decidable_eq type) -/
 
+/-- Operators for instructions of the form `x : t := op y` -/
 inductive unop
 | not | neg | is_scalar | is_shared | cast | box | unbox
 | array_copy
 | sarray_copy
 
+/-- Operators for instructions of the form `x : t := op y z` -/
 inductive binop
 | add | sub | mul | div | mod | shl | shr | and | or | xor
 | le  | ge  | lt  | gt  | eq  | ne
 | read -- (scalar) array read
+
+/-- Operators for instructions of the form `op x` -/
+inductive unins
+| inc     -- increment reference counter
+| dec     -- decrement reference counter
+| decs    -- decrement reference counter of shared object
+| free    -- free object memory, object must not be an external or big number
+| dealloc -- free object memory
 
 inductive literal
 | bool    : bool   → literal
@@ -115,12 +125,8 @@ inductive instr
 /- Scalar arrays -/
 | sarray  (a : var) (ty : type) (sz c : var)                    -- Create scalar array
 | swrite  (a i v : var)                                         -- Scalar array write         swrite a i v
-/- Reference counting -/
-| inc     (x : var)                                             -- inc var
-| decs    (x : var)                                             -- Decrement RC of shared object
-| free    (x : var)                                             -- Just free memory
-| dealloc (x : var)                                             -- If object may be a numeral/external, then invoke destructor and then free
-| dec     (x : var)                                             -- Remark: can be defined using `decs`, `dealloc` and `shared`
+/- Unary instructions -/
+| unary   (op : unins) (x : var)                                -- op x
 
 structure phi :=
 (x : var) (ty : type) (ys : list var)

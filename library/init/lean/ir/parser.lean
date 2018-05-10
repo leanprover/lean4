@@ -62,6 +62,13 @@ def parse_binop : parser binop :=
 <|> (keyword "ne" >> return binop.ne)
 <|> (keyword "read" >> return binop.read)
 
+def parse_unins : parser unins :=
+    (keyword "inc" >> return unins.inc)
+<|> (keyword "dec" >> return unins.dec)
+<|> (keyword "decs" >> return unins.decs)
+<|> (keyword "free" >> return unins.free)
+<|> (keyword "dealloc" >> return unins.dealloc)
+
 def parse_literal : parser literal :=
     (keyword "tt" >> return (literal.bool tt))
 <|> (keyword "ff" >> return (literal.bool ff))
@@ -138,11 +145,7 @@ def parse_instr : parser instr :=
 <|> (keyword "swrite" >> instr.swrite <$> parse_var <*> parse_var <*> parse_var)
 <|> (keyword "set" >> instr.set <$> parse_var <*> parse_uint16 <*> parse_var)
 <|> (keyword "sset" >> instr.sset <$> parse_var <*> parse_sizet <*> parse_var)
-<|> (keyword "inc" >> instr.inc <$> parse_var)
-<|> (keyword "dec" >> instr.dec <$> parse_var)
-<|> (keyword "decs" >> instr.decs <$> parse_var)
-<|> (keyword "free" >> instr.free <$> parse_var)
-<|> (keyword "dealloc" >> instr.dealloc <$> parse_var)
+<|> (instr.unary <$> parse_unins <*> parse_var)
 <|> parse_assignment
 
 def parse_phi : parser phi :=

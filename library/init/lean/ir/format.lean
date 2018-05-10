@@ -68,6 +68,14 @@ def binop.to_format : binop → format
 instance binop.has_to_format : has_to_format binop := ⟨binop.to_format⟩
 instance binop.has_to_string : has_to_string binop := ⟨pretty ∘ to_fmt⟩
 
+def unins.to_format : unins → format
+| unins.inc  := "inc"
+| unins.dec  := "dec"  | unins.decs := "decs"
+| unins.free := "free" | unins.dealloc := "dealloc"
+
+instance unins.has_to_format : has_to_format unins := ⟨unins.to_format⟩
+instance unins.has_to_string : has_to_string unins := ⟨pretty ∘ to_fmt⟩
+
 def literal.to_format : literal → format
 | (literal.bool b)  := to_fmt b
 | (literal.str s)   := repr s
@@ -103,11 +111,7 @@ def instr.to_format : instr → format
 | (instr.write a i v)        := "write " ++ to_fmt a ++ " " ++ to_fmt i ++ " " ++ to_fmt v
 | (instr.sarray a ty sz c)   := to_fmt a ++ " := sarray " ++ to_fmt ty ++ " " ++ to_fmt sz ++ " " ++ to_fmt c
 | (instr.swrite a i v)       := "swrite " ++ to_fmt a ++ " " ++ to_fmt i ++ " " ++ to_fmt v
-| (instr.inc x)              := "inc " ++ to_fmt x
-| (instr.decs x)             := "decs " ++ to_fmt x
-| (instr.free x)             := "free " ++ to_fmt x
-| (instr.dealloc x)          := "dealloc " ++ to_fmt x
-| (instr.dec x)              := "dec " ++ to_fmt x
+| (instr.unary op x)         := to_fmt op ++ " " ++ to_fmt x
 
 instance instr.has_to_format : has_to_format instr := ⟨instr.to_format⟩
 instance instr.has_to_string : has_to_string instr := ⟨pretty ∘ to_fmt⟩

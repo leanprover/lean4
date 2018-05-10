@@ -96,11 +96,7 @@ match ins with
 | (instr.write a i v)     := a.defined >> i.defined >> v.defined
 | (instr.sarray x _ sz c) := x.define >> sz.defined >> c.defined
 | (instr.swrite a i v)    := a.defined >> i.defined >> v.defined
-| (instr.inc x)           := x.defined
-| (instr.decs x)          := x.defined
-| (instr.free x)          := x.defined
-| (instr.dealloc x)       := x.defined
-| (instr.dec x)           := x.defined
+| (instr.unary _ x)       := x.defined
 
 def terminator.valid_ssa (term : terminator) : ssa_valid_m unit :=
 term.decorate_error $

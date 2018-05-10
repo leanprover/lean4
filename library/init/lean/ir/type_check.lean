@@ -192,11 +192,7 @@ match ins with
 | (instr.write a i v)      := check_type a type.object >> check_type i type.usize >> check_type v type.object
 | (instr.sarray a t sz c)  := check_type sz type.usize >> check_type c type.usize >> unless (t ≠ type.object) (throw "invalid scalar array")
 | (instr.swrite a i v)     := check_type a type.object >> check_type i type.usize >> check_ne_type v type.object
-| (instr.inc x)            := check_type x type.object
-| (instr.decs x)           := check_type x type.object
-| (instr.dealloc x)        := check_type x type.object
-| (instr.free x)           := check_type x type.object
-| (instr.dec x)            := check_type x type.object
+| (instr.unary _ x)        := check_type x type.object
 
 def phi.check (p : phi) : type_checker_m unit :=
 p.decorate_error $ p.ys.mfor (flip check_type p.ty)

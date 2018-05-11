@@ -15,11 +15,14 @@ class has_repr (α : Type u) :=
 def repr {α : Type u} [has_repr α] : α → string :=
 has_repr.repr
 
+-- This instance is needed because `id` is not reducible
+instance {α : Type u} [has_repr α] : has_repr (id α) :=
+infer_instance_as (has_repr α)
+
 instance : has_repr bool :=
 ⟨λ b, cond b "tt" "ff"⟩
 
 instance {p : Prop} : has_repr (decidable p) :=
--- Remark: type class inference will not consider local instance `b` in the new elaborator
 ⟨λ b : decidable p, @ite p b _ "tt" "ff"⟩
 
 protected def list.repr_aux {α : Type u} [has_repr α] : bool → list α → string

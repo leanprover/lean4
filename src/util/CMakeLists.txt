@@ -1,4 +1,4 @@
-add_library(util OBJECT debug.cpp thread.cpp mpz.cpp mpq.cpp lean_obj.cpp
+add_library(util OBJECT debug.cpp thread.cpp mpz.cpp mpq.cpp lean_obj.cpp apply.cpp
   name.cpp name_set.cpp fresh_name.cpp
   exception.cpp interrupt.cpp hash.cpp escaped.cpp bit_tricks.cpp
   safe_arith.cpp ascii.cpp memory.cpp shared_mutex.cpp path.cpp

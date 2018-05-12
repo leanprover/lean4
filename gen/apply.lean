@@ -9,10 +9,13 @@ n.repeat (λ i a, a >> f i) (return ())
 
 @[reducible] def m := reader_t handle io
 
-def m.run (out : string) (a : m unit) : io unit :=
-do h ← mk_file_handle out io.mode.write,
+def m.run (a : m unit) (out : option string := none) : io unit :=
+match out with
+| some out := do
+   h ← mk_file_handle out io.mode.write,
    a.run h,
    fs.close h
+| none := stdout >>= a.run
 
 def emit (s : string) : m unit :=
 ⟨λ h, fs.write h s⟩
@@ -50,58 +53,45 @@ do emit $ sformat! "obj* apply_{n}(obj* f, {arg_decls}) {{\n",
    emit "unsigned fixed = closure_num_fixed(f);\n",
    emit $ sformat! "if (arity == fixed + {n}) {{\n",
      emit $ sformat! "  switch (arity) {{\n",
-     emit "  case 0: lean_unreachable();\n",
      max.mrepeat $ λ i, do {
        let j := i + 1,
-       if j ≥ n then let fs := mk_fs_args (j - n) in
-                          let sep := if j = n then "" else ", " in
-                          emit $ sformat! "  case {j}: return FN{j}(f)({fs}{sep}{args});\n"
-       else emit $ sformat! "  case {j}: lean_unreachable();\n"
+       when (j ≥ n) $
+         let fs := mk_fs_args (j - n) in
+         let sep := if j = n then "" else ", " in
+         emit $ sformat! "  case {j}: return FN{j}(f)({fs}{sep}{args});\n"
      },
      emit "  default:\n",
+       emit $ sformat! "    lean_assert(arity > {max});\n",
        n.mrepeat $ λ i, emit $ sformat! "    fx(arity-{n-i}) = a{i+1};\n",
        emit "    return FNN(f)(closure_arg_cptr(f));\n",
      emit "  }\n",
    emit $ sformat! "} else if (arity < fixed + {n}) {{\n",
-     if n ≥ 2 then do {
-       emit $ sformat! "  switch (arity) {{\n",
-       emit "  case 0: lean_unreachable();\n",
-       max.mrepeat $ λ i, do {
-         let j := i + 1,
-         emit $ sformat! "  case {j}:\n",
-         emit "    switch (fixed) {\n",
-         j.mrepeat $ λ k, do {
-            when (j < k + n) $ do  {
-              emit $ sformat! "    case {k}: ",
-              let args1 := mk_args (j-k) in
-              let args2 := mk_args_from (j-k) n in
-              let sep   := if k > 0 then ", " else "" in
-              let fs    := mk_fs_args k in
-              emit $ sformat! "return apply_{n-(j-k)}c(FN{j}(f)({fs}{sep}{args1}), {args2});\n"
-            }
-         },
-         emit "    default: lean_unreachable();\n",
-         emit "    }\n",
-         return ()
-       },
-       emit "  default:\n",
-       emit $ sformat! "    obj * as[{n}] = {{ {args} };\n",
-       emit "    for (unsigned i = 0; i < arity-fixed; i++) fx(fixed+i) = as[i];\n",
-       emit $ sformat! "    return apply_nc(FNN(f)(closure_arg_cptr(f)), {n}+fixed-arity, as+arity-fixed);\n",
-       emit "  }\n" }
+     if n ≥ 2 then do
+       emit $ sformat! "  obj * as[{n}] = {{ {args} };\n",
+       emit $ sformat! "  if (arity > {max}) {{\n",
+         emit "    for (unsigned i = 0; i < arity-fixed; i++) fx(fixed+i) = as[i];\n",
+         emit $ sformat! "    return apply_nc(FNN(f)(closure_arg_cptr(f)), {n}+fixed-arity, as+arity-fixed);\n",
+       emit "  } else {\n",
+       emit "    obj* args[16];\n",
+       emit "    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);\n",
+       emit "    for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];\n",
+       emit $ sformat! "    return apply_nc(curry(f, arity, args), {n}+fixed-arity, as+arity-fixed);\n",
+       emit "  }\n"
      else emit "  lean_assert(fixed < arity);\n  lean_unreachable();\n",
    emit "} else {\n",
      emit $ sformat! "  return fix_args(f, {{{args}});\n",
    emit "}\n",
    emit "}\n"
 
-def mk_apply_ic (n : nat) : m unit :=
-let arg_decls := mk_arg_decls n in
-let args := mk_args n in
-do emit $ sformat! "static inline obj* apply_{n}c(obj* f, {arg_decls}) {{\n",
-   emit $ sformat! "obj* r = apply_{n}(f, {args});\n",
-   emit "dec_ref_core(f);\n",
-   emit "return r;\n",
+def mk_curry (max : nat) : m unit :=
+do emit "static obj* curry(obj* f, unsigned n, obj** as) {\n",
+   emit "switch (n) {\n",
+   emit "case 0: lean_unreachable();\n",
+   max.mrepeat $ λ i,
+     let as := mk_as_args (i+1) in
+     emit $ sformat! "case {i+1}: return FN{i+1}(f)({as});\n",
+   emit "default: return FNN(f)(as);\n",
+   emit "}\n",
    emit "}\n"
 
 def mk_apply_n (max : nat) : m unit :=
@@ -124,27 +114,8 @@ do emit "obj* apply_m(obj* f, unsigned n, obj** as) {\n",
      emit "  for (unsigned i = 0; i < n; i++) fx(arity-n+i) = as[i];\n",
      emit "  return FNN(f)(closure_arg_cptr(f));\n",
    emit $ sformat! "} else if (arity < fixed + n) {{\n",
-     emit "  switch (arity) {\n",
-     emit "  case 0: lean_unreachable();\n",
-     emit "  case 1: return apply_nc(FN1(f)(as[0]), n-1, as+1);\n",
-     max.mrepeat $ λ i, do {
-       let j := i + 1,
-       when (j ≥ 2) $ do
-         emit $ sformat! "  case {j}:\n",
-         emit "    switch (fixed) {\n",
-         j.mrepeat $ λ k, do {
-           let as  := mk_as_args (j-k) in
-           let sep := if k > 0 then ", " else "" in
-           let fs  := mk_fs_args k in
-           emit sformat! "    case {k}: return apply_nc(FN{j}(f)({fs}{sep}{as}), n-{j-k}, as+{j-k});\n"
-         },
-         emit "    default: lean_unreachable();\n",
-         emit "    }\n"
-     },
-     emit "  default:\n",
-     emit "    for (unsigned i = 0; i < arity-fixed; i++) fx(fixed+i) = as[i];\n",
-     emit "    return apply_nc(FNN(f)(closure_arg_cptr(f)), n+fixed-arity, as+arity-fixed);\n",
-     emit "  }\n",
+     emit "  for (unsigned i = 0; i < arity-fixed; i++) fx(fixed+i) = as[i];\n",
+     emit "  return apply_nc(FNN(f)(closure_arg_cptr(f)), n+fixed-arity, as+arity-fixed);\n",
    emit "} else {\n",
      emit "  return fix_args(f, n, as);\n",
    emit "}\n",
@@ -199,9 +170,10 @@ do mk_copyright,
    max.mrepeat $ λ i, mk_typedef_fn (i+1),
    emit "typedef obj* (*fnn)(obj**); // NOLINT\n",
    emit "#define FNN(f) reinterpret_cast<fnn>(closure_fun(f))\n",
+   mk_curry max,
    emit "obj* apply_n(obj*, unsigned, obj**);\n",
    emit "static inline obj* apply_nc(obj* f, unsigned n, obj** as) { obj* r = apply_n(f, n, as); dec_ref_core(f); return r; }\n",
-   max.mrepeat $ λ i, do { mk_apply_i (i+1) max, mk_apply_ic (i+1) },
+   max.mrepeat $ λ i, do { mk_apply_i (i+1) max },
    mk_apply_m max,
    mk_apply_n max,
    emit "}\n"
@@ -223,6 +195,8 @@ do mk_copyright,
    emit $ sformat! "// pre: n > {max}\n",
    emit "lean_obj* apply_m(lean_obj* f, unsigned n, lean_obj** args);\n",
    emit "}\n"
+
+-- #eval (mk_apply_cpp MAX_ARGS).run none
 
 #eval (mk_apply_cpp MAX_ARGS).run "..//src//util//apply.cpp"
 #eval (mk_apply_h MAX_ARGS).run "..//src//util//apply.h"

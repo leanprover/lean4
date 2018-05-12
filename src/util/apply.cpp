@@ -1,3 +1,10 @@
+
+/*
+Copyright (c) 2018 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Author: Leonardo de Moura
+*/
 // DO NOT EDIT, this is an automatically generated file
 // Generated using script: ../../gen/apply.lean
 #include "util/apply.h"
@@ -28,39 +35,39 @@ static obj* fix_args(obj* f, unsigned n, obj*const* as) {
 static inline obj* fix_args(obj* f, std::initializer_list<obj*> const & l) {
     return fix_args(f, l.size(), l.begin());
 }
-typedef obj* (*fn1)(obj*);
+typedef obj* (*fn1)(obj*); // NOLINT
 #define FN1(f) reinterpret_cast<fn1>(closure_fun(f))
-typedef obj* (*fn2)(obj*, obj*);
+typedef obj* (*fn2)(obj*, obj*); // NOLINT
 #define FN2(f) reinterpret_cast<fn2>(closure_fun(f))
-typedef obj* (*fn3)(obj*, obj*, obj*);
+typedef obj* (*fn3)(obj*, obj*, obj*); // NOLINT
 #define FN3(f) reinterpret_cast<fn3>(closure_fun(f))
-typedef obj* (*fn4)(obj*, obj*, obj*, obj*);
+typedef obj* (*fn4)(obj*, obj*, obj*, obj*); // NOLINT
 #define FN4(f) reinterpret_cast<fn4>(closure_fun(f))
-typedef obj* (*fn5)(obj*, obj*, obj*, obj*, obj*);
+typedef obj* (*fn5)(obj*, obj*, obj*, obj*, obj*); // NOLINT
 #define FN5(f) reinterpret_cast<fn5>(closure_fun(f))
-typedef obj* (*fn6)(obj*, obj*, obj*, obj*, obj*, obj*);
+typedef obj* (*fn6)(obj*, obj*, obj*, obj*, obj*, obj*); // NOLINT
 #define FN6(f) reinterpret_cast<fn6>(closure_fun(f))
-typedef obj* (*fn7)(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+typedef obj* (*fn7)(obj*, obj*, obj*, obj*, obj*, obj*, obj*); // NOLINT
 #define FN7(f) reinterpret_cast<fn7>(closure_fun(f))
-typedef obj* (*fn8)(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+typedef obj* (*fn8)(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*); // NOLINT
 #define FN8(f) reinterpret_cast<fn8>(closure_fun(f))
-typedef obj* (*fn9)(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+typedef obj* (*fn9)(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*); // NOLINT
 #define FN9(f) reinterpret_cast<fn9>(closure_fun(f))
-typedef obj* (*fn10)(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+typedef obj* (*fn10)(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*); // NOLINT
 #define FN10(f) reinterpret_cast<fn10>(closure_fun(f))
-typedef obj* (*fn11)(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+typedef obj* (*fn11)(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*); // NOLINT
 #define FN11(f) reinterpret_cast<fn11>(closure_fun(f))
-typedef obj* (*fn12)(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+typedef obj* (*fn12)(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*); // NOLINT
 #define FN12(f) reinterpret_cast<fn12>(closure_fun(f))
-typedef obj* (*fn13)(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+typedef obj* (*fn13)(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*); // NOLINT
 #define FN13(f) reinterpret_cast<fn13>(closure_fun(f))
-typedef obj* (*fn14)(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+typedef obj* (*fn14)(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*); // NOLINT
 #define FN14(f) reinterpret_cast<fn14>(closure_fun(f))
-typedef obj* (*fn15)(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+typedef obj* (*fn15)(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*); // NOLINT
 #define FN15(f) reinterpret_cast<fn15>(closure_fun(f))
-typedef obj* (*fn16)(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+typedef obj* (*fn16)(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*); // NOLINT
 #define FN16(f) reinterpret_cast<fn16>(closure_fun(f))
-typedef obj* (*fnn)(obj**);
+typedef obj* (*fnn)(obj**); // NOLINT
 #define FNN(f) reinterpret_cast<fnn>(closure_fun(f))
 obj* apply_n(obj*, unsigned, obj**);
 static inline obj* apply_nc(obj* f, unsigned n, obj** as) { obj* r = apply_n(f, n, as); dec_ref_core(f); return r; }
@@ -212,7 +219,7 @@ if (arity == fixed + 2) {
     case 15: return apply_1c(FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), fx(14), a1), a2);
     default: lean_unreachable();
     }
-  default: 
+  default:
     obj * as[2] = { a1, a2 };
     for (unsigned i = 0; i < arity-fixed; i++) fx(fixed+i) = as[i];
     return apply_nc(FNN(f)(closure_arg_cptr(f)), 2+fixed-arity, as+arity-fixed);
@@ -352,7 +359,7 @@ if (arity == fixed + 3) {
     case 15: return apply_2c(FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), fx(14), a1), a2, a3);
     default: lean_unreachable();
     }
-  default: 
+  default:
     obj * as[3] = { a1, a2, a3 };
     for (unsigned i = 0; i < arity-fixed; i++) fx(fixed+i) = as[i];
     return apply_nc(FNN(f)(closure_arg_cptr(f)), 3+fixed-arity, as+arity-fixed);
@@ -507,7 +514,7 @@ if (arity == fixed + 4) {
     case 15: return apply_3c(FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), fx(14), a1), a2, a3, a4);
     default: lean_unreachable();
     }
-  default: 
+  default:
     obj * as[4] = { a1, a2, a3, a4 };
     for (unsigned i = 0; i < arity-fixed; i++) fx(fixed+i) = as[i];
     return apply_nc(FNN(f)(closure_arg_cptr(f)), 4+fixed-arity, as+arity-fixed);
@@ -676,7 +683,7 @@ if (arity == fixed + 5) {
     case 15: return apply_4c(FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), fx(14), a1), a2, a3, a4, a5);
     default: lean_unreachable();
     }
-  default: 
+  default:
     obj * as[5] = { a1, a2, a3, a4, a5 };
     for (unsigned i = 0; i < arity-fixed; i++) fx(fixed+i) = as[i];
     return apply_nc(FNN(f)(closure_arg_cptr(f)), 5+fixed-arity, as+arity-fixed);
@@ -858,7 +865,7 @@ if (arity == fixed + 6) {
     case 15: return apply_5c(FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), fx(14), a1), a2, a3, a4, a5, a6);
     default: lean_unreachable();
     }
-  default: 
+  default:
     obj * as[6] = { a1, a2, a3, a4, a5, a6 };
     for (unsigned i = 0; i < arity-fixed; i++) fx(fixed+i) = as[i];
     return apply_nc(FNN(f)(closure_arg_cptr(f)), 6+fixed-arity, as+arity-fixed);
@@ -1052,7 +1059,7 @@ if (arity == fixed + 7) {
     case 15: return apply_6c(FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), fx(14), a1), a2, a3, a4, a5, a6, a7);
     default: lean_unreachable();
     }
-  default: 
+  default:
     obj * as[7] = { a1, a2, a3, a4, a5, a6, a7 };
     for (unsigned i = 0; i < arity-fixed; i++) fx(fixed+i) = as[i];
     return apply_nc(FNN(f)(closure_arg_cptr(f)), 7+fixed-arity, as+arity-fixed);
@@ -1257,7 +1264,7 @@ if (arity == fixed + 8) {
     case 15: return apply_7c(FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), fx(14), a1), a2, a3, a4, a5, a6, a7, a8);
     default: lean_unreachable();
     }
-  default: 
+  default:
     obj * as[8] = { a1, a2, a3, a4, a5, a6, a7, a8 };
     for (unsigned i = 0; i < arity-fixed; i++) fx(fixed+i) = as[i];
     return apply_nc(FNN(f)(closure_arg_cptr(f)), 8+fixed-arity, as+arity-fixed);
@@ -1472,7 +1479,7 @@ if (arity == fixed + 9) {
     case 15: return apply_8c(FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), fx(14), a1), a2, a3, a4, a5, a6, a7, a8, a9);
     default: lean_unreachable();
     }
-  default: 
+  default:
     obj * as[9] = { a1, a2, a3, a4, a5, a6, a7, a8, a9 };
     for (unsigned i = 0; i < arity-fixed; i++) fx(fixed+i) = as[i];
     return apply_nc(FNN(f)(closure_arg_cptr(f)), 9+fixed-arity, as+arity-fixed);
@@ -1696,7 +1703,7 @@ if (arity == fixed + 10) {
     case 15: return apply_9c(FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), fx(14), a1), a2, a3, a4, a5, a6, a7, a8, a9, a10);
     default: lean_unreachable();
     }
-  default: 
+  default:
     obj * as[10] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10 };
     for (unsigned i = 0; i < arity-fixed; i++) fx(fixed+i) = as[i];
     return apply_nc(FNN(f)(closure_arg_cptr(f)), 10+fixed-arity, as+arity-fixed);
@@ -1928,7 +1935,7 @@ if (arity == fixed + 11) {
     case 15: return apply_10c(FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), fx(14), a1), a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
     default: lean_unreachable();
     }
-  default: 
+  default:
     obj * as[11] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11 };
     for (unsigned i = 0; i < arity-fixed; i++) fx(fixed+i) = as[i];
     return apply_nc(FNN(f)(closure_arg_cptr(f)), 11+fixed-arity, as+arity-fixed);
@@ -2167,7 +2174,7 @@ if (arity == fixed + 12) {
     case 15: return apply_11c(FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), fx(14), a1), a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12);
     default: lean_unreachable();
     }
-  default: 
+  default:
     obj * as[12] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12 };
     for (unsigned i = 0; i < arity-fixed; i++) fx(fixed+i) = as[i];
     return apply_nc(FNN(f)(closure_arg_cptr(f)), 12+fixed-arity, as+arity-fixed);
@@ -2412,7 +2419,7 @@ if (arity == fixed + 13) {
     case 15: return apply_12c(FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), fx(14), a1), a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
     default: lean_unreachable();
     }
-  default: 
+  default:
     obj * as[13] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13 };
     for (unsigned i = 0; i < arity-fixed; i++) fx(fixed+i) = as[i];
     return apply_nc(FNN(f)(closure_arg_cptr(f)), 13+fixed-arity, as+arity-fixed);
@@ -2662,7 +2669,7 @@ if (arity == fixed + 14) {
     case 15: return apply_13c(FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), fx(14), a1), a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14);
     default: lean_unreachable();
     }
-  default: 
+  default:
     obj * as[14] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14 };
     for (unsigned i = 0; i < arity-fixed; i++) fx(fixed+i) = as[i];
     return apply_nc(FNN(f)(closure_arg_cptr(f)), 14+fixed-arity, as+arity-fixed);
@@ -2916,7 +2923,7 @@ if (arity == fixed + 15) {
     case 15: return apply_14c(FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), fx(14), a1), a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15);
     default: lean_unreachable();
     }
-  default: 
+  default:
     obj * as[15] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15 };
     for (unsigned i = 0; i < arity-fixed; i++) fx(fixed+i) = as[i];
     return apply_nc(FNN(f)(closure_arg_cptr(f)), 15+fixed-arity, as+arity-fixed);
@@ -3173,7 +3180,7 @@ if (arity == fixed + 16) {
     case 15: return apply_15c(FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), fx(14), a1), a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16);
     default: lean_unreachable();
     }
-  default: 
+  default:
     obj * as[16] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16 };
     for (unsigned i = 0; i < arity-fixed; i++) fx(fixed+i) = as[i];
     return apply_nc(FNN(f)(closure_arg_cptr(f)), 16+fixed-arity, as+arity-fixed);

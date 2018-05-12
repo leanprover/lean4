@@ -1,3 +1,10 @@
+
+/*
+Copyright (c) 2018 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Author: Leonardo de Moura
+*/
 // DO NOT EDIT, this is an automatically generated file
 // Generated using script: ../../gen/apply.lean
 #include "util/lean_obj.h"

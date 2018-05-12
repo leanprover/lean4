@@ -19,7 +19,7 @@ def emit (s : string) : m unit :=
 
 def mk_typedef_fn (i : nat) : m unit :=
 let args := string.join $ (list.repeat "obj*" i).intersperse ", " in
-do emit $ sformat! "typedef obj* (*fn{i})({args});\n",
+do emit $ sformat! "typedef obj* (*fn{i})({args}); // NOLINT\n",
    emit $ sformat! "#define FN{i}(f) reinterpret_cast<fn{i}>(closure_fun(f))\n"
 
 -- Make string: "obj* a1, obj* a2, ..., obj* an"
@@ -84,7 +84,7 @@ do emit $ sformat! "obj* apply_{n}(obj* f, {arg_decls}) {{\n",
          emit "    }\n",
          return ()
        },
-       emit "  default: \n",
+       emit "  default:\n",
        emit $ sformat! "    obj * as[{n}] = {{ {args} };\n",
        emit "    for (unsigned i = 0; i < arity-fixed; i++) fx(fixed+i) = as[i];\n",
        emit $ sformat! "    return apply_nc(FNN(f)(closure_arg_cptr(f)), {n}+fixed-arity, as+arity-fixed);\n",
@@ -177,8 +177,19 @@ static inline obj* fix_args(obj* f, std::initializer_list<obj*> const & l) {
 }
 "
 
+def mk_copyright : m unit :=
+emit "
+/*
+Copyright (c) 2018 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Author: Leonardo de Moura
+*/
+"
+
 def mk_apply_cpp (max : nat) : m unit :=
-do emit "// DO NOT EDIT, this is an automatically generated file\n",
+do mk_copyright,
+   emit "// DO NOT EDIT, this is an automatically generated file\n",
    emit "// Generated using script: ../../gen/apply.lean\n",
    emit "#include \"util/apply.h\"\n",
    emit "namespace lean {\n",
@@ -186,7 +197,7 @@ do emit "// DO NOT EDIT, this is an automatically generated file\n",
    emit "#define fx(i) closure_arg_cptr(f)[i]\n",
    mk_fix_args,
    max.mrepeat $ λ i, mk_typedef_fn (i+1),
-   emit "typedef obj* (*fnn)(obj**);\n",
+   emit "typedef obj* (*fnn)(obj**); // NOLINT\n",
    emit "#define FNN(f) reinterpret_cast<fnn>(closure_fun(f))\n",
    emit "obj* apply_n(obj*, unsigned, obj**);\n",
    emit "static inline obj* apply_nc(obj* f, unsigned n, obj** as) { obj* r = apply_n(f, n, as); dec_ref_core(f); return r; }\n",
@@ -200,7 +211,8 @@ def mk_arg_decls' (n : nat) : string :=
 string.join $ (n.repeat (λ i r, r ++ [sformat! "lean_obj* a{i+1}"]) []).intersperse ", "
 
 def mk_apply_h (max : nat) : m unit :=
-do emit "// DO NOT EDIT, this is an automatically generated file\n",
+do mk_copyright,
+   emit "// DO NOT EDIT, this is an automatically generated file\n",
    emit "// Generated using script: ../../gen/apply.lean\n",
    emit "#include \"util/lean_obj.h\"\n",
    emit "namespace lean {\n",

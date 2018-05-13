@@ -1,8 +1,5 @@
-import system.io
+import init.lean.config system.io
 open io
-
-/- Efficient dispatch is for function with at most MAX_ARGS. -/
-def MAX_ARGS := 16
 
 def nat.mrepeat {m} [monad m] (n : nat) (f : nat → m unit) : m unit :=
 n.repeat (λ i a, a >> f i) (return ())
@@ -196,7 +193,7 @@ do mk_copyright,
    emit "lean_obj* apply_m(lean_obj* f, unsigned n, lean_obj** args);\n",
    emit "}\n"
 
--- #eval (mk_apply_cpp MAX_ARGS).run none
+-- #eval (mk_apply_cpp lean.closure_max_args).run none
 
-#eval (mk_apply_cpp MAX_ARGS).run "..//src//util//apply.cpp"
-#eval (mk_apply_h MAX_ARGS).run "..//src//util//apply.h"
+#eval (mk_apply_cpp lean.closure_max_args).run "..//src//util//apply.cpp"
+#eval (mk_apply_h lean.closure_max_args).run "..//src//util//apply.h"

@@ -15,6 +15,7 @@ main:
   a' := call foo a a;
   c d := call boo a;
   r   := cnstr 0 2 0;
+  w   := call f a a a a a a a a a a a a a a a a a a;
   set r 0 a';
   set r 1 d;
   ret r;

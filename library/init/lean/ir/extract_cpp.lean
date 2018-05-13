@@ -277,9 +277,12 @@ d.header.return.length = 1 &&
 d.header.return.all (λ a, a.ty = type.object) &&
 d.header.args.all (λ a, a.ty = type.object)
 
+def emit_uncurry_header (d : decl) : extract_m unit :=
+emit "obj* uncurry" >> emit_fnid d.header.n >> emit "(obj** as)"
+
 def emit_uncurry (d : decl) : extract_m unit :=
 let nargs := d.header.args.length in
-   emit "obj* uncurry" >> emit_fnid d.header.n >> emit "(obj** as) {\n"
+   emit_uncurry_header d >> emit " {\n"
 >> emit "return " >> emit_fnid d.header.n >> paren (emit "as[0]" >> (nargs-1).mrepeat (λ i, emit ", " >> emit "as[" >> emit (i+1) >> emit "]")) >> emit_eos
 >> emit "}\n"
 
@@ -305,7 +308,7 @@ d.foldl (λ s d, match d with
 def emit_used_headers (env : environment) (external_names : fnid → option string) (d : list decl) : except_t format (state_t string id) unit :=
 let used := collect_used d in
 (used.mfor (λ fid, match env fid with
-   | some d := emit_header d.header >> emit ";" >> emit_line
+   | some d := emit_header d.header >> emit ";\n" >> when (need_uncurry d) (emit_uncurry_header d >> emit ";\n")
    | _      := return ())).run { external_names := external_names, ctx := mk_context }
 
 end cpp

@@ -4,13 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.lean.name_mangling
+import init.lean.name_mangling init.lean.config
 import init.lean.ir.type_check
 
 namespace lean
 namespace ir
 namespace cpp
-def file_header := "#include <lean_obj.h>"
+def file_header :=
+"#include <lean_obj.h>
+typedef lean::lean_obj obj;"
 
 structure extract_env :=
 (external_names : fnid → option string)
@@ -49,7 +51,7 @@ def type2cpp : type → string
 | type.uint16 := "unsigned short" | type.uint32 := "unsigned"      | type.uint64 := "unsigned long long"  | type.usize  := "size_t"
 | type.int16  := "short"          | type.int32  := "int"           | type.int64  := "long long"
 | type.float  := "float"          | type.double := "double"
-| type.object := "lean::lean_obj*"
+| type.object := "obj*"
 
 def emit_type (ty : type) : extract_m unit :=
 emit (type2cpp ty)
@@ -269,10 +271,24 @@ do env ← read,
    env.ctx.mfor $ λ x ty,
      unless (args.any (λ a, a.n = x)) (decl_local x ty)
 
+def need_uncurry (d : decl) : bool :=
+d.header.args.length > lean.closure_max_args &&
+d.header.return.length = 1 &&
+d.header.return.all (λ a, a.ty = type.object) &&
+d.header.args.all (λ a, a.ty = type.object)
+
+def emit_uncurry (d : decl) : extract_m unit :=
+let nargs := d.header.args.length in
+   emit "obj* uncurry" >> emit_fnid d.header.n >> emit "(obj** as) {\n"
+>> emit "return " >> emit_fnid d.header.n >> paren (emit "as[0]" >> (nargs-1).mrepeat (λ i, emit ", " >> emit "as[" >> emit (i+1) >> emit "]")) >> emit_eos
+>> emit "}\n"
+
 def emit_decl_core (d : decl) : extract_m unit :=
 d.decorate_error $
 match d with
-| (decl.defn h bs)  := emit_header h >> emit " {" >> emit_line >> decl_locals h.args >> bs.mfor emit_block >> emit "}" >> emit_line
+| (decl.defn h bs)  :=
+  emit_header h >> emit " {" >> emit_line >> decl_locals h.args >> bs.mfor emit_block >> emit "}" >> emit_line >>
+  when (need_uncurry d) (emit_uncurry d)
 | (decl.external h) := emit_header h >> emit ";" >> emit_line
 
 def emit_decl (env : environment) (external_names : fnid → option string) (d : decl) : except_t format (state_t string id) unit :=

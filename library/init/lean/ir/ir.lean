@@ -99,11 +99,13 @@ def blockid_set    := rbtree blockid (<)
 def context        := rbmap var type (<)
 def var2blockid    := rbmap var blockid (<)
 def fnid2string    := rbmap fnid string (<)
+def fnid_set       := rbtree fnid (<)
 def mk_var_set     : var_set     := mk_rbtree var (<)
 def mk_blockid_set : blockid_set := mk_rbtree blockid (<)
 def mk_var2blockid : var2blockid := mk_rbmap var blockid (<)
 def mk_context     : context     := mk_rbmap var type (<)
 def mk_fnid2string : fnid2string := mk_rbmap fnid string (<)
+def mk_fnid_set    : fnid_set    := mk_rbtree fnid (<)
 
 inductive instr
 | lit     (x : var) (ty : type) (lit : literal)                 -- x : ty := lit
@@ -150,6 +152,10 @@ structure header :=
 inductive decl
 | external (h : header)
 | defn     (h : header) (bs : list block)
+
+def decl.is_definition : decl → bool
+| (decl.defn _ _) := tt
+| _               := ff
 
 def decl.header : decl → header
 | (decl.external h) := h

@@ -283,22 +283,36 @@ let nargs := d.header.args.length in
 >> emit "return " >> emit_fnid d.header.n >> paren (emit "as[0]" >> (nargs-1).mrepeat (λ i, emit ", " >> emit "as[" >> emit (i+1) >> emit "]")) >> emit_eos
 >> emit "}\n"
 
-def emit_decl_core (d : decl) : extract_m unit :=
+def emit_def_core (d : decl) : extract_m unit :=
 d.decorate_error $
 match d with
 | (decl.defn h bs)  :=
   emit_header h >> emit " {" >> emit_line >> decl_locals h.args >> bs.mfor emit_block >> emit "}" >> emit_line >>
   when (need_uncurry d) (emit_uncurry d)
-| (decl.external h) := emit_header h >> emit ";" >> emit_line
+| _ := return ()
 
-def emit_decl (env : environment) (external_names : fnid → option string) (d : decl) : except_t format (state_t string id) unit :=
+def emit_def (env : environment) (external_names : fnid → option string) (d : decl) : except_t format (state_t string id) unit :=
 do ctx ← monad_lift $ infer_types d env,
-   (emit_decl_core d).run { external_names := external_names, ctx := ctx }
+   (emit_def_core d).run { external_names := external_names, ctx := ctx }
+
+def collect_used (d : list decl) : fnid_set :=
+d.foldl (λ s d, match d with
+  | (decl.defn _ bs) := bs.foldl (λ s b, b.instrs.foldl (λ s ins, match ins with
+    | instr.call _ fid _ := s.insert fid
+    | _                  := s) s) s
+  | _                := s) mk_fnid_set
+
+def emit_used_headers (env : environment) (external_names : fnid → option string) (d : list decl) : except_t format (state_t string id) unit :=
+let used := collect_used d in
+(used.mfor (λ fid, match env fid with
+   | some d := emit_header d.header >> emit ";" >> emit_line
+   | _      := return ())).run { external_names := external_names, ctx := mk_context }
+
 end cpp
 
 def extract_cpp (env : environment) (cpp_names : fnid → option string) (ds : list decl) : except format string :=
 let out := cpp.file_header ++ "\n" in
-run (ds.mfor (cpp.emit_decl env cpp_names) >> get) out
+run (cpp.emit_used_headers env cpp_names ds >> ds.mfor (cpp.emit_def env cpp_names) >> get) out
 
 end ir
 end lean

@@ -301,8 +301,9 @@ do ctx ← monad_lift $ infer_types d env,
 def collect_used (d : list decl) : fnid_set :=
 d.foldl (λ s d, match d with
   | (decl.defn _ bs) := bs.foldl (λ s b, b.instrs.foldl (λ s ins, match ins with
-    | instr.call _ fid _ := s.insert fid
-    | _                  := s) s) s
+    | instr.call _ fid _    := s.insert fid
+    | instr.closure _ fid _ := s.insert fid
+    | _                      := s) s) s
   | _                := s) mk_fnid_set
 
 def emit_used_headers (env : environment) (external_names : fnid → option string) (d : list decl) : except_t format (state_t string id) unit :=

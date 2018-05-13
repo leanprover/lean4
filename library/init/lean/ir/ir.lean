@@ -96,12 +96,14 @@ instance fnid_hashable : hashable fnid := infer_instance_as (hashable name)
 
 def var_set        := rbtree var (<)
 def blockid_set    := rbtree blockid (<)
+def fnid_set       := rbtree fnid (<)
 def context        := rbmap var type (<)
 def var2blockid    := rbmap var blockid (<)
 def mk_var_set     : var_set     := mk_rbtree var (<)
 def mk_blockid_set : blockid_set := mk_rbtree blockid (<)
 def mk_var2blockid : var2blockid := mk_rbmap var blockid (<)
 def mk_context     : context     := mk_rbmap var type (<)
+def mk_fnid_set    : fnid_set    := mk_rbtree fnid (<)
 
 inductive instr
 | lit     (x : var) (ty : type) (lit : literal)                 -- x : ty := lit
@@ -154,6 +156,10 @@ def decl.header : decl → header
 | (decl.defn h _)   := h
 
 def environment := fnid → option decl
+
+def decl.name : decl → name
+| (decl.defn {n:=n, ..} _) := n
+| (decl.external {n:=n, ..}) := n
 
 end ir
 end lean

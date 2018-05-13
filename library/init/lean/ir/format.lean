@@ -35,6 +35,7 @@ def id.to_string : name → string
 instance var.has_to_format : has_to_format var         := ⟨λ v, id.to_string v⟩
 instance blockid.has_to_format : has_to_format blockid := ⟨λ b, id.to_string b⟩
 instance fnid.has_to_format : has_to_format fnid       := ⟨λ f, id.to_string f⟩
+instance fnid.has_to_string : has_to_string fnid       := ⟨λ f, id.to_string f⟩
 instance tag.has_to_format : has_to_format tag         := infer_instance_as (has_to_format uint16)
 instance tag.has_to_string : has_to_string tag         := infer_instance_as (has_to_string uint16)
 

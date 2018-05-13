@@ -63,19 +63,22 @@ run a m mk_var_set
 def var.define (x : var) : ssa_valid_m unit :=
 modify $ λ s, s.insert x
 
+def arg.define (a : arg) : ssa_valid_m unit :=
+a.n.define
+
 /- Check whether `x` has been already defined in the current basic block or not. -/
 def var.defined (x : var) : ssa_valid_m unit :=
 do s ← get,
    if s.contains x then return ()
-   else throw ("undefined " ++ to_fmt x)
+   else throw ("undefined '" ++ to_fmt x ++ "'")
 
 /- Given, x := phi ys,
    check whether every ys is declared at the var2blockid mapping,
    and update the set of already defined variables in the basic block with `x`. -/
 def phi.valid_ssa (p : phi) : ssa_valid_m unit :=
 p.decorate_error $
-   do m ← read,
-   p.ys.mfor $ λ y, unless (m.contains y) $ throw ("undefined " ++ to_fmt y),
+do m ← read,
+   p.ys.mfor $ λ y, unless (m.contains y) $ throw ("undefined '" ++ to_fmt y ++ "'"),
    p.x.define
 
 def instr.valid_ssa (ins : instr) : ssa_valid_m unit :=
@@ -143,8 +146,11 @@ def decl.valid_ssa (d : decl) : except format var2blockid :=
 d.decorate_error $
 do m ← d.var2blockid,
    match d with
-   | decl.defn _ bs := (bs.mfor block.valid_ssa_core).run m >> return m
-   | _              := return m
+   | decl.defn {args:=args, ..} (b::bs) :=
+       (args.mfor arg.define >> block.valid_ssa_core b).run m
+    >> (bs.mfor block.valid_ssa_core).run m
+    >> return m
+   | _                   := return m
 
 /- Check blockids -/
 @[reducible] def blockid_check_m :=

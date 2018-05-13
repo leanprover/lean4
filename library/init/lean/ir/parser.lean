@@ -164,8 +164,7 @@ def parse_terminator : parser terminator :=
 <|> (keyword "case" >> terminator.case <$> parse_var <*> (symbol "[" >> sep_by1 parse_blockid (symbol ",") <* symbol "]"))
 
 def parse_block : parser block :=
-do id ← parse_blockid,
-   symbol ":",
+do id ← try (parse_blockid <* symbol ":"),
    ps ← many (parse_phi <* symbol ";"),
    is ← many (parse_instr <* symbol ";"),
    t  ← parse_terminator <* symbol ";",

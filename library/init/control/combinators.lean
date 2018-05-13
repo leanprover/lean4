@@ -9,6 +9,9 @@ prelude
 import init.control.monad init.control.alternative init.data.list.basic init.coe
 universes u v w
 
+def nat.mrepeat {m} [monad m] (n : nat) (f : nat → m unit) : m unit :=
+n.repeat (λ i a, a >> f i) (return ())
+
 def list.mmap {m : Type u → Type v} [monad m] {α : Type w} {β : Type u} (f : α → m β) : list α → m (list β)
 | []       := return []
 | (h :: t) := do h' ← f h, t' ← list.mmap t, return (h' :: t')

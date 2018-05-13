@@ -1,9 +1,6 @@
 import init.lean.config system.io
 open io
 
-def nat.mrepeat {m} [monad m] (n : nat) (f : nat → m unit) : m unit :=
-n.repeat (λ i a, a >> f i) (return ())
-
 @[reducible] def m := reader_t handle io
 
 def m.run (a : m unit) (out : option string := none) : io unit :=

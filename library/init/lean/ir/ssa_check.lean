@@ -21,9 +21,7 @@ def instr.declare_vars : instr → reader_t blockid ssa_pre_m unit
 | (instr.binop x _ _ _ _) := x.declare
 | (instr.call xs _ _)     := xs.mfor var.declare
 | (instr.cnstr o _ _ _)   := o.declare
-| (instr.set o _ _)       := o.declare
 | (instr.get x _ _)       := x.declare
-| (instr.sset o _ _)      := o.declare
 | (instr.sget x _ _ _)    := x.declare
 | (instr.closure x _ _)   := x.declare
 | (instr.apply x _)       := x.declare

@@ -12,7 +12,11 @@ def PRG1 := "
 
 def bla (a : object) : object :=
 main:
-  r := call foo a a;
+  a' := call foo a a;
+  c d := call boo a;
+  r   := cnstr 0 2 0;
+  set r 0 a';
+  set r 1 d;
   ret r;
 
 def f (a1 : object) (a2 : object) (a3 : object) (a4 : object) (a5 : object)
@@ -21,6 +25,10 @@ def f (a1 : object) (a2 : object) (a3 : object) (a4 : object) (a5 : object)
       (a16 : object) (a17 : object) (a18 : object) : object :=
 main:
   ret a16;
+
+def boo (a : object) : object object :=
+main:
+  ret a a;
 "
 
 #eval comp PRG1

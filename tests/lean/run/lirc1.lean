@@ -8,7 +8,7 @@ match lirc s with
 | except.error e := io.print "Error: " >> io.print e
 
 def PRG1 := "
-nomangling external foo (a : object) (b : object) : object
+[lean::mk_pair] external foo (a : object) (b : object) : object
 
 def bla (a : object) : object :=
 main:

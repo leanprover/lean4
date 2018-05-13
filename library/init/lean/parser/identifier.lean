@@ -55,5 +55,14 @@ def identifier : parser name :=
 (try $ do s  ← id_part,
        foldl name.mk_string (mk_simple_name s) (ch '.' >> id_part)) <?> "identifier"
 
+def c_identifier : parser string :=
+(try $ do c ← satisfy (λ c, c.is_alpha || c = '_'),
+       take_while_cont (λ c, c.is_alphanum || c = '_') (to_string c)) <?> "C identifier"
+
+def cpp_identifier : parser string :=
+(try $ do n ← c_identifier,
+       ns ← many ((++) <$> str "::" <*> c_identifier),
+       return $ string.join (n::ns)) <?> "C++ identifier"
+
 end parser
 end lean

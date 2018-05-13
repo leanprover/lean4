@@ -16,17 +16,19 @@ namespace lean
 namespace ir
 open lean.parser
 
-def parse_input_aux : nat → list decl → fnid_set → parser (list decl × fnid_set)
-| 0     ds s := return (ds.reverse, s)
-| (n+1) ds s :=
-  (eoi >> return (ds.reverse, s))
+def parse_input_aux : nat → list decl → fnid2string → parser (list decl × fnid2string)
+| 0     ds m := return (ds.reverse, m)
+| (n+1) ds m :=
+  (eoi >> return (ds.reverse, m))
   <|>
-  (do m ← (symbol "nomangling" >> return tt) <|> return ff,
+  (do cid ← (do symbol "[", n ← lexeme $ cpp_identifier, symbol "]", return (some n)) <|> return none,
       d ← parse_decl,
-      parse_input_aux n (d::ds) (if m then s.insert d.name else s))
+      match cid with
+      | some cid := parse_input_aux n (d::ds) (m.insert d.name cid)
+      | none     := parse_input_aux n (d::ds) m)
 
-def parse_input (s : string) : except format (list decl × fnid_set) :=
-match parse (whitespace >> parse_input_aux s.length [] mk_fnid_set) s with
+def parse_input (s : string) : except format (list decl × fnid2string) :=
+match parse (whitespace >> parse_input_aux s.length [] mk_fnid2string) s with
 | except.ok r    := return r
 | except.error m := throw (m.to_string s)
 
@@ -39,15 +41,11 @@ def mk_env (ds : list decl) : environment :=
 let m := ds.foldl (λ m d, rbmap.insert m d.name d) (mk_rbmap name decl (<)) in
 λ n, m.find n
 
-def mk_name_map (s : fnid_set) : fnid → option string :=
-λ fid, if s.contains fid then some (to_string fid) else none
-
 def lirc (s : string) : except format string :=
-do (ds, s) ← parse_input s,
+do (ds, m) ← parse_input s,
    let env := mk_env ds,
-   let nm  := mk_name_map s,
    ds.mfor (check env),
-   extract_cpp env nm ds
+   extract_cpp env m.find ds
 
 end ir
 end lean

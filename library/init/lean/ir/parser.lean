@@ -187,5 +187,8 @@ symbol "def" >> decl.defn <$> parse_header <*> (symbol ":=" >> many parse_block)
 def parse_external : parser decl :=
 symbol "external" >> decl.external <$> parse_header
 
+def parse_decl : parser decl :=
+parse_def <|> parse_external
+
 end ir
 end lean

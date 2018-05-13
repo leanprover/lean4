@@ -77,7 +77,7 @@ def emit_return : list result → extract_m unit
 | rs  := emit "std::tuple" >> emit_template_params (rs.map result.ty)
 
 def emit_arg_list (args : list arg) : extract_m unit :=
-emit_sep args $ λ a, emit_type a.ty >> emit " : " >> emit_var a.n
+emit_sep args $ λ a, emit_type a.ty >> emit " " >> emit_var a.n
 
 /-- Emit end-of-statement -/
 def emit_eos : extract_m unit :=

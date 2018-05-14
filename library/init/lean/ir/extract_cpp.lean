@@ -11,8 +11,8 @@ namespace lean
 namespace ir
 namespace cpp
 def file_header :=
-"#include <util/lean_obj.h>
-#include <util/apply.h>
+"#include <runtime/lean_obj.h>
+#include <runtime/apply.h>
 typedef lean::lean_obj obj;"
 
 structure extract_env :=

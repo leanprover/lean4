@@ -180,6 +180,7 @@ def mk_apply_h (max : nat) : m unit :=
 do mk_copyright,
    emit "// DO NOT EDIT, this is an automatically generated file\n",
    emit "// Generated using script: ../../gen/apply.lean\n",
+   emit "#pragma once\n",
    emit "#include \"util/lean_obj.h\"\n",
    emit "namespace lean {\n",
    max.mrepeat $ λ i,

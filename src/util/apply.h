@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 */
 // DO NOT EDIT, this is an automatically generated file
 // Generated using script: ../../gen/apply.lean
+#pragma once
 #include "util/lean_obj.h"
 namespace lean {
 lean_obj* apply_1(lean_obj* f, lean_obj* a1);

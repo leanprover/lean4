@@ -8,8 +8,8 @@ Author: Sebastian Ullrich
 #include <exception>
 #include <string>
 #include <memory>
+#include "runtime/exception.h"
 #include "util/message_definitions.h"
-#include "util/exception.h"
 
 namespace lean {
 class exception_with_pos : public exception {

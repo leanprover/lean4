@@ -6,9 +6,9 @@ Author: Gabriel Ebner
 */
 #pragma once
 #include <utility>
-#include "util/name.h"
-#include "util/int64.h"
 #include <string>
+#include "runtime/int64.h"
+#include "util/name.h"
 
 namespace lean {
 

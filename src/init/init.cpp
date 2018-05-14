@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "util/stackinfo.h"
-#include "util/thread.h"
+#include "runtime/stackinfo.h"
+#include "runtime/thread.h"
 #include "util/init_module.h"
 #include "util/sexpr/init_module.h"
 #include "kernel/init_module.h"

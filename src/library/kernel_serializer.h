@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <string>
-#include "util/serializer.h"
+#include "runtime/serializer.h"
 #include "kernel/declaration.h"
 #include "kernel/inductive/inductive.h"
 

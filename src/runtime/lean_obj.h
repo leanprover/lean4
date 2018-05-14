@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <string>
-#include "util/mpz.h"
+#include "runtime/mpz.h"
 
 namespace lean {
 enum class lean_obj_kind { Constructor, Closure, Array, ScalarArray, MPZ, External };

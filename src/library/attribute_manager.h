@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <string>
-#include "util/sstream.h"
+#include "runtime/sstream.h"
 #include "util/priority_queue.h"
 #include "kernel/environment.h"
 #include "library/abstract_parser.h"

@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "util/exception.h"
+#include "runtime/exception.h"
 #include "util/exception_with_pos.h"
 #include "util/sexpr/options.h"
 #include "kernel/formatter.h"

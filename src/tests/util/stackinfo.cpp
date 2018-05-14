@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <iostream>
+#include "runtime/stackinfo.h"
 #include "util/test.h"
-#include "util/stackinfo.h"
 using namespace lean;
 
 static char foo(int i) {

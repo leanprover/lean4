@@ -4,11 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "runtime/debug.h"
+#include "runtime/serializer.h"
+#include "runtime/thread.h"
 #include "util/ascii.h"
-#include "util/debug.h"
-#include "util/serializer.h"
 #include "util/name.h"
-#include "util/thread.h"
 #include "util/fresh_name.h"
 #include "util/name_generator.h"
 

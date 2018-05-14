@@ -10,12 +10,9 @@ Author: Leonardo de Moura
 #include <string>
 #include <sstream>
 #include <cstring>
-#include "util/extensible_object.h"
-#include "util/list.h"
-#include "util/buffer.h"
-#include "util/int64.h"
-#include "util/optional.h"
-#include "util/pair.h"
+#include "runtime/int64.h"
+#include "runtime/extensible_object.h"
+#include "runtime/optional.h"
 
 namespace lean {
 /**
@@ -47,8 +44,6 @@ inline serializer & operator<<(serializer & s, int i) { s.write_int(i); return s
 inline serializer & operator<<(serializer & s, char c) { s.write_char(c); return s; }
 inline serializer & operator<<(serializer & s, bool b) { s.write_bool(b); return s; }
 inline serializer & operator<<(serializer & s, double b) { s.write_double(b); return s; }
-template<typename T1, typename T2>
-inline serializer & operator<<(serializer & s, pair<T1, T2> const & p) { s << p.first << p.second; return s; }
 
 /**
    \brief Low-tech serializer.
@@ -84,9 +79,6 @@ inline deserializer & operator>>(deserializer & d, int & i) { i = d.read_int(); 
 inline deserializer & operator>>(deserializer & d, char & c) { c = d.read_char(); return d; }
 inline deserializer & operator>>(deserializer & d, bool & b) { b = d.read_bool(); return d; }
 inline deserializer & operator>>(deserializer & d, double & b) { b = d.read_double(); return d; }
-template<typename T1, typename T2>
-inline deserializer & operator>>(deserializer & d, pair<T1, T2> & p) { d >> p.first >> p.second; return d; }
-
 
 class corrupted_stream_exception : public exception {
 public:
@@ -95,28 +87,6 @@ public:
 
 void initialize_serializer();
 void finalize_serializer();
-
-template<typename T>
-serializer & write_list(serializer & s, list<T> const & ls) {
-    s << length(ls);
-    for (auto const & e : ls)
-        s << e;
-    return s;
-}
-
-template<typename T, typename R>
-list<T> read_list(deserializer & d, R && t_reader) {
-    unsigned num = d.read_unsigned();
-    buffer<T> ls;
-    for (unsigned i = 0; i < num; i++)
-        ls.push_back(t_reader(d));
-    return to_list(ls.begin(), ls.end());
-}
-
-template<typename T>
-list<T> read_list(deserializer & d) {
-    return read_list<T>(d, [](deserializer & d) { T r; d >> r; return r; });
-}
 
 template<typename T>
 serializer & write_optional(serializer & s, optional<T> const & a) {

@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
-#include "util/interrupt.h"
+#include "runtime/interrupt.h"
 #include "util/utf8.h"
 #include "library/vm/vm_string.h"
 #include "library/vm/vm_nat.h"

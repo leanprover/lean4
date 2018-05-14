@@ -10,10 +10,10 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <sstream>
 #include <string>
-#include "util/thread.h"
+#include "runtime/thread.h"
+#include "runtime/debug.h"
+#include "runtime/sstream.h"
 #include "util/name.h"
-#include "util/sstream.h"
-#include "util/debug.h"
 #include "util/buffer.h"
 #include "util/hash.h"
 #include "util/ascii.h"

@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 #include <memory>
 #include <vector>
-#include "util/thread.h"
-#include "util/debug.h"
+#include "runtime/thread.h"
+#include "runtime/debug.h"
 namespace lean {
 /**
    \brief Template for creating objects that can be attached to "extensions".

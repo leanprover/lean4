@@ -4,12 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "library/sorry.h"
-#include "library/noncomputable.h"
+#include "runtime/sstream.h"
 #include "util/fresh_name.h"
-#include "util/sstream.h"
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
+#include "library/sorry.h"
+#include "library/noncomputable.h"
 #include "library/constants.h"
 #include "library/trace.h"
 #include "library/annotation.h"

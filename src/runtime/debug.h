@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 #include <iostream>
 #include <typeinfo>
-#include "util/exception.h"
-#include "util/compiler_hints.h"
+#include "runtime/exception.h"
+#include "runtime/compiler_hints.h"
 
 #ifndef __has_builtin
 #define __has_builtin(x) 0

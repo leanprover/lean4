@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <string>
+#include "runtime/optional.h"
 #include "util/buffer.h"
-#include "util/optional.h"
 
 namespace lean {
 using uchar = unsigned char;

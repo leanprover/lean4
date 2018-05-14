@@ -8,8 +8,8 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <algorithm>
 #include <utility>
+#include "runtime/optional.h"
 #include "util/name.h"
-#include "util/optional.h"
 #include "util/list.h"
 #include "util/sexpr/format.h"
 #include "util/sexpr/options.h"

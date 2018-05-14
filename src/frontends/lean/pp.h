@@ -8,10 +8,10 @@ Author: Leonardo de Moura
 #include <string>
 #include <utility>
 #include <limits>
+#include "runtime/mpz.h"
 #include "util/pair.h"
 #include "util/name_map.h"
 #include "util/name_set.h"
-#include "util/mpz.h"
 #include "util/sexpr/options.h"
 #include "util/sexpr/format.h"
 #include "kernel/environment.h"

@@ -6,15 +6,15 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include <string>
-#include "library/eval_helper.h"
+#include "runtime/sstream.h"
 #include "util/timeit.h"
-#include "util/sstream.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/type_checker.h"
 #include "kernel/replace_fn.h"
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
+#include "library/eval_helper.h"
 #include "library/scoped_ext.h"
 #include "library/trace.h"
 #include "library/aliases.h"

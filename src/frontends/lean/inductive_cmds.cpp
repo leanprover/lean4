@@ -6,7 +6,7 @@ Authors: Daniel Selsam, Leonardo de Moura
 */
 #include <algorithm>
 #include <string>
-#include "util/sstream.h"
+#include "runtime/sstream.h"
 #include "util/name_map.h"
 #include "util/fresh_name.h"
 #include "util/sexpr/option_declarations.h"

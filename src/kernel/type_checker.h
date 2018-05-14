@@ -9,8 +9,8 @@ Author: Leonardo de Moura
 #include <memory>
 #include <utility>
 #include <algorithm>
+#include "runtime/flet.h"
 #include "util/lbool.h"
-#include "util/flet.h"
 #include "util/name_set.h"
 #include "util/name_generator.h"
 #include "kernel/environment.h"

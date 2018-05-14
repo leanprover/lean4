@@ -10,10 +10,10 @@
 #include <utility>
 #include <vector>
 #include <unordered_map>
-#include "util/sstream.h"
+#include "runtime/interrupt.h"
+#include "runtime/sstream.h"
 #include "util/hash.h"
 #include "util/escaped.h"
-#include "util/interrupt.h"
 #include "util/sexpr/sexpr.h"
 #include "util/sexpr/format.h"
 #include "util/sexpr/sexpr_fn.h"

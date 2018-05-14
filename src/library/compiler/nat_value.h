@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include "runtime/mpz.h"
 #include "library/type_context.h"
-#include "util/mpz.h"
 
 namespace lean {
 /** \brief Replace nat numerals encoded using bit0, bit1, one with an auxiliary nat_value macro.

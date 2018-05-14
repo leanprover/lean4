@@ -8,9 +8,9 @@ Author: Leonardo de Moura
 #include <string>
 #include <utility>
 #include <vector>
-#include "util/flet.h"
+#include "runtime/exception.h"
+#include "runtime/flet.h"
 #include "util/name_map.h"
-#include "util/exception.h"
 #include "util/task.h"
 #include "kernel/environment.h"
 #include "kernel/expr_maps.h"

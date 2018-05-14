@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include <utility>
+#include "runtime/sstream.h"
 #include "util/rb_map.h"
-#include "util/sstream.h"
 #include "kernel/free_vars.h"
 #include "kernel/replace_fn.h"
 #include "library/io_state_stream.h"

@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <cctype>
 #include <string>
-#include "util/exception.h"
+#include "runtime/exception.h"
 #include "util/name.h"
 #include "util/utf8.h"
 #include "library/type_context.h"

@@ -5,10 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <memory>
-#include "util/sstream.h"
-#include "util/thread.h"
-#include "util/mpz.h"
 #include <string>
+#include "runtime/sstream.h"
+#include "runtime/thread.h"
+#include "runtime/mpz.h"
 
 namespace lean {
 mpz::mpz(uint64 v):

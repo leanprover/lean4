@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <memory>
 #include <string>
-#include "util/sstream.h"
+#include "runtime/sstream.h"
 #include "library/scoped_ext.h"
 
 namespace lean {

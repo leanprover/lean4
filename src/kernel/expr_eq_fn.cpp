@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include <memory>
-#include "util/interrupt.h"
-#include "util/thread.h"
+#include "runtime/interrupt.h"
+#include "runtime/thread.h"
 #include "kernel/expr.h"
 #include "kernel/expr_sets.h"
 

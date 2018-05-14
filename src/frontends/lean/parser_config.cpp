@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include <string>
-#include "util/sstream.h"
+#include "runtime/sstream.h"
 #include "util/list_fn.h"
 #include "library/scoped_ext.h"
 #include "library/kernel_serializer.h"

@@ -20,7 +20,7 @@ Author: Leonardo de Moura
 #include <linux/limits.h>
 #endif
 #include <util/unit.h>
-#include "util/sstream.h"
+#include "runtime/sstream.h"
 #include "library/handle.h"
 #include "library/io_state.h"
 #include "library/constants.h"

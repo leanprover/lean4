@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <unordered_map>
 #include <vector>
-#include "util/serializer.h"
+#include "runtime/serializer.h"
 
 #ifndef LEAN_OBJECT_SERIALIZER_BUCKET_SIZE
 #define LEAN_OBJECT_SERIALIZER_BUCKET_SIZE 8

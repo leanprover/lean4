@@ -9,7 +9,7 @@ Author: Leonardo de Moura, Gabriel Ebner
 #include <cstdlib>
 #include <fstream>
 #include <vector>
-#include "util/sstream.h"
+#include "runtime/sstream.h"
 
 #ifndef LEAN_DEFAULT_MODULE_FILE_NAME
 #define LEAN_DEFAULT_MODULE_FILE_NAME "default"

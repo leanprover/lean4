@@ -6,13 +6,13 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include <string>
-#include "library/trace.h"
-#include "library/sorry.h"
-#include "util/sstream.h"
+#include "runtime/sstream.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/inductive/inductive.h"
 #include "kernel/quotient/quotient.h"
+#include "library/trace.h"
+#include "library/sorry.h"
 #include "library/util.h"
 #include "library/class.h"
 #include "library/aliases.h"

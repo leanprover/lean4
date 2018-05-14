@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <vector>
 #include <memory>
-#include "util/debug.h"
+#include "runtime/debug.h"
 
 /** \brief Macro for creating a stack of objects of type Cache in thread local storage.
     The argument \c Arg is provided to every new instance of Cache.
@@ -39,4 +39,3 @@ public:                                                                 \
     }                                                                   \
     Cache * operator->() const { return m_cache; }                      \
 };                                                                      \
-

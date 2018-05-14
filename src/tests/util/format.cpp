@@ -9,9 +9,9 @@ Author: Soonho Kong
 #include <sstream>
 #include <utility>
 #include <string>
+#include "runtime/mpq.h"
 #include "util/test.h"
 #include "util/init_module.h"
-#include "util/mpq.h"
 #include "util/sexpr/format.h"
 #include "util/sexpr/sexpr_fn.h"
 #include "util/sexpr/options.h"

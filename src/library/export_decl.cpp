@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
-#include "util/serializer.h"
+#include "runtime/serializer.h"
 #include "library/export_decl.h"
 #include "library/scoped_ext.h"
 

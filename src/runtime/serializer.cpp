@@ -9,8 +9,8 @@ Author: Leonardo de Moura
 #include <limits>
 #include <stdio.h>
 #include <ios>
-#include "util/serializer.h"
-#include "util/exception.h"
+#include "runtime/exception.h"
+#include "runtime/serializer.h"
 
 namespace lean {
 void initialize_serializer() {

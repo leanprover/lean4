@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "util/interrupt.h"
+#include "runtime/interrupt.h"
 #include "kernel/find_fn.h"
 #include "kernel/expr_maps.h"
 #include "library/type_context.h"

@@ -7,9 +7,9 @@ Author: Gabriel Ebner
 #include <string>
 #include <algorithm>
 #include <vector>
+#include "runtime/interrupt.h"
+#include "runtime/flet.h"
 #include "library/mt_task_queue.h"
-#include "util/interrupt.h"
-#include "util/flet.h"
 
 #if defined(LEAN_MULTI_THREAD)
 namespace lean {

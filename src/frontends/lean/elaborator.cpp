@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include <utility>
-#include "util/flet.h"
-#include "util/thread.h"
+#include "runtime/thread.h"
+#include "runtime/flet.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/find_fn.h"
 #include "kernel/error_msgs.h"

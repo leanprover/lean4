@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #include <string>
 #include <errno.h>
 #include <fcntl.h>
-#include "util/exception.h"
-#include "util/sstream.h"
+#include "runtime/exception.h"
+#include "runtime/sstream.h"
 #include "util/file_lock.h"
 
 #if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)

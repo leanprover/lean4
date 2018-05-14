@@ -10,11 +10,11 @@ Author: Leonardo de Moura
 #include <ctime>
 #include <unordered_set>
 #include <sstream>
+#include "runtime/thread.h"
 #include "util/test.h"
 #include "util/buffer.h"
 #include "util/rb_tree.h"
 #include "util/timeit.h"
-#include "util/thread.h"
 #include "util/init_module.h"
 using namespace lean;
 

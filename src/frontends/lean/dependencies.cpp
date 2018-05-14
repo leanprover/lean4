@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include <fstream>
 #include <string>
-#include "util/sstream.h"
+#include "runtime/sstream.h"
 #include "util/lean_path.h"
 #include "frontends/lean/scanner.h"
 

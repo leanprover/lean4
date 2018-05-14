@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include "runtime/mpz.h"
 #include "kernel/expr.h"
-#include "util/mpz.h"
 
 namespace lean {
 /** \brief Create a pre-numeral. We create pre-numerals at parsing time. The elaborator is responsible for

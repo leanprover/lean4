@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <functional>
 #include <memory>
-#include "util/serializer.h"
+#include "runtime/serializer.h"
 
 namespace lean {
 class name;

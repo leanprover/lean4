@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include "runtime/mpz.h"
 #include "library/kernel_serializer.h"
-#include "util/mpz.h"
 
 namespace lean {
 static name * g_prenum_name = nullptr;

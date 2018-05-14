@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #include <iostream>
 #include <algorithm>
+#include "runtime/sstream.h"
 #include "util/fresh_name.h"
-#include "util/sstream.h"
 #include "util/timeit.h"
 #include "kernel/type_checker.h"
 #include "kernel/abstract.h"

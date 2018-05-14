@@ -8,8 +8,8 @@ Author: Leonardo de Moura
 #include <utility>
 #include <memory>
 #include <vector>
+#include "runtime/optional.h"
 #include "util/rc.h"
-#include "util/optional.h"
 #include "util/list.h"
 #include "util/rb_map.h"
 #include "util/name_set.h"

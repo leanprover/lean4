@@ -10,13 +10,13 @@ Author: Gabriel Ebner
 #include <memory>
 #include <string>
 #include <limits>
-#include "util/thread.h"
-#include "util/int64.h"
+#include "runtime/thread.h"
+#include "runtime/int64.h"
+#include "runtime/flet.h"
 #include "util/name_map.h"
 #include "util/task.h"
 #include "util/message_definitions.h"
 #include "util/name_set.h"
-#include "util/flet.h"
 
 namespace lean {
 

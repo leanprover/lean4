@@ -10,10 +10,10 @@ Author: Leonardo de Moura
 #include <functional>
 #include <algorithm>
 #include <utility>
+#include "runtime/optional.h"
+#include "runtime/serializer.h"
 #include "util/rc.h"
 #include "util/pair.h"
-#include "util/serializer.h"
-#include "util/optional.h"
 #include "util/list.h"
 
 namespace lean {

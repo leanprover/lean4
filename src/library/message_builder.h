@@ -6,7 +6,7 @@ Author: Gabriel Ebner
 */
 #pragma once
 #include <string>
-#include "util/exception.h"
+#include "runtime/exception.h"
 #include "library/io_state_stream.h"
 #include "library/messages.h"
 #include "library/type_context.h"

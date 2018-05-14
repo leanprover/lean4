@@ -7,9 +7,10 @@ Author: Leonardo de Moura
 #pragma once
 #include <iostream>
 #include <iterator>
+#include "runtime/debug.h"
+#include "runtime/serializer.h"
+#include "runtime/optional.h"
 #include "util/rc.h"
-#include "util/debug.h"
-#include "util/optional.h"
 #include "util/buffer.h"
 
 namespace lean {
@@ -240,4 +241,25 @@ list<T> reverse_to_list(buffer<T> const & b) {
     return reverse_to_list(b.begin(), b.end());
 }
 
+template<typename T>
+serializer & write_list(serializer & s, list<T> const & ls) {
+    s << length(ls);
+    for (auto const & e : ls)
+        s << e;
+    return s;
+}
+
+template<typename T, typename R>
+list<T> read_list(deserializer & d, R && t_reader) {
+    unsigned num = d.read_unsigned();
+    buffer<T> ls;
+    for (unsigned i = 0; i < num; i++)
+        ls.push_back(t_reader(d));
+    return to_list(ls.begin(), ls.end());
+}
+
+template<typename T>
+list<T> read_list(deserializer & d) {
+    return read_list<T>(d, [](deserializer & d) { T r; d >> r; return r; });
+}
 }

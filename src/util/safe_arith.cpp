@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <limits>
-#include "util/exception.h"
+#include "runtime/exception.h"
 
 namespace lean {
 void check_int_overflow(long long n) {

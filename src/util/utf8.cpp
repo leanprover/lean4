@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #include <cstdlib>
 #include <string>
-#include "util/debug.h"
-#include "util/optional.h"
+#include "runtime/debug.h"
+#include "runtime/optional.h"
 #include "util/utf8.h"
 
 namespace lean {

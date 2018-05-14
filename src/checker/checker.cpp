@@ -5,11 +5,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Gabriel Ebner
 */
 #include <fstream>
-#include "kernel/init_module.h"
+#include "runtime/sstream.h"
 #include "util/init_module.h"
 #include "util/test.h"
-#include "util/sstream.h"
 #include "util/sexpr/init_module.h"
+#include "kernel/init_module.h"
 #include "kernel/quotient/quotient.h"
 #include "kernel/inductive/inductive.h"
 #include "kernel/standard_kernel.h"

@@ -6,8 +6,8 @@ Author: Gabriel Ebner
 */
 #pragma once
 #include <memory>
+#include "runtime/thread.h"
 #include "util/buffer.h"
-#include "util/thread.h"
 #include "util/cancellable.h"
 
 namespace lean {

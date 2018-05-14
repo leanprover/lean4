@@ -7,12 +7,12 @@ Author: Leonardo de Moura
 #pragma once
 #include <string>
 #include <vector>
+#include "runtime/mpz.h"
 #include "kernel/environment.h"
 #include "library/scoped_ext.h"
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/parse_table.h"
 #include "frontends/lean/cmd_table.h"
-#include "util/mpz.h"
 
 namespace lean {
 struct token_entry {

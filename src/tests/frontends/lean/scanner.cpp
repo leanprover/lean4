@@ -6,9 +6,9 @@ Author: Leonardo de Moura
 */
 #include <sstream>
 #include <string>
+#include "runtime/exception.h"
 #include "util/test.h"
 #include "util/escaped.h"
-#include "util/exception.h"
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/parser_config.h"
 #include "init/init.h"

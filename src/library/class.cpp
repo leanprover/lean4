@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include "runtime/sstream.h"
 #include "util/lbool.h"
-#include "util/sstream.h"
 #include "util/fresh_name.h"
 #include "util/name_set.h"
 #include "kernel/type_checker.h"

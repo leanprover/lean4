@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <vector>
 #include <limits>
-#include "util/int64.h"
+#include "runtime/int64.h"
 
 namespace lean {
 /** \brief The bitap algorithm (aka Baeza-Yates–Gonnet algorithm) for approximate string matching.

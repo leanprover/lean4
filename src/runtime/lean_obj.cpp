@@ -4,8 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "util/lean_obj.h"
-#include "util/buffer.h"
+#include "runtime/lean_obj.h"
 
 namespace lean {
 size_t obj_byte_size(lean_obj * o) {

@@ -17,8 +17,7 @@ Author: Leonardo de Moura
 // Support for pid
 #include<unistd.h>
 #endif
-#include "util/debug.h"
-// #include "util/log_tree.h"
+#include "runtime/debug.h"
 
 namespace lean {
 static volatile bool           g_has_violations     = false;
@@ -49,8 +48,6 @@ void notify_assertion_violation(const char * fileName, int line, const char * co
     std::cerr << "LEAN ASSERTION VIOLATION\n";
     std::cerr << "File: " << fileName << "\n";
     std::cerr << "Line: " << line << "\n";
-    // if (has_logtree())
-    //    std::cerr << "Task: " << logtree().get_location().m_file_name << ": " << logtree().get_description() << "\n";
     std::cerr << condition << "\n";
     std::cerr.flush();
 }

@@ -4,15 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Gabriel Ebner
 */
-#include "checker/text_import.h"
-#include "kernel/environment.h"
-#include "kernel/inductive/inductive.h"
-#include "kernel/type_checker.h"
-#include "util/sstream.h"
 #include <string>
 #include <iostream>
 #include <unordered_map>
+#include "runtime/sstream.h"
+#include "kernel/environment.h"
+#include "kernel/inductive/inductive.h"
+#include "kernel/type_checker.h"
 #include "kernel/quotient/quotient.h"
+#include "checker/text_import.h"
 
 namespace lean {
 

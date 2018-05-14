@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "util/interrupt.h"
+#include "runtime/interrupt.h"
 #include "kernel/for_each_fn.h"
 #include "library/idx_metavar.h"
 #include "library/metavar_context.h"

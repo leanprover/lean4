@@ -12,12 +12,12 @@ Author: Leonardo de Moura
 #include <fstream>
 #include <algorithm>
 #include <sys/stat.h>
+#include "runtime/thread.h"
+#include "runtime/interrupt.h"
+#include "runtime/sstream.h"
 #include "util/hash.h"
-#include "util/thread.h"
 #include "util/lean_path.h"
-#include "util/sstream.h"
 #include "util/buffer.h"
-#include "util/interrupt.h"
 #include "util/name_map.h"
 #include "util/file_lock.h"
 #include "kernel/type_checker.h"

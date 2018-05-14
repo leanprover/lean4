@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <string>
-#include "util/sstream.h"
+#include "runtime/sstream.h"
 #include "kernel/ext_exception.h"
 #include "kernel/scope_pos_info_provider.h"
 

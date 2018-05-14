@@ -6,7 +6,8 @@ Author: Daniel Selsam
 */
 #include <utility>
 #include <string>
-#include "util/serializer.h"
+#include "runtime/serializer.h"
+#include "util/pair.h"
 #include "util/list_fn.h"
 #include "kernel/environment.h"
 #include "library/inductive_compiler/ginductive.h"

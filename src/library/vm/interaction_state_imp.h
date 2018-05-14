@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 */
 #pragma once
-#include "util/sstream.h"
+#include "runtime/sstream.h"
 #include "util/fresh_name.h"
 #include "kernel/type_checker.h"
 #include "kernel/instantiate.h"

@@ -15,9 +15,9 @@ Author: Leonardo de Moura, Gabriel Ebner
 #include <vector>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include "util/exception.h"
-#include "util/sstream.h"
-#include "util/optional.h"
+#include "runtime/exception.h"
+#include "runtime/sstream.h"
+#include "runtime/optional.h"
 
 #ifdef _MSC_VER
 #define S_ISDIR(mode) ((mode & _S_IFDIR) != 0)

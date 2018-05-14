@@ -5,10 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
-#include "util/sstream.h"
+#include "runtime/sstream.h"
+#include "kernel/abstract_type_context.h"
 #include "library/kernel_serializer.h"
 #include "library/compiler/rec_fn_macro.h"
-#include "kernel/abstract_type_context.h"
 
 namespace lean {
 static name * g_rec_fn_macro_id = nullptr;

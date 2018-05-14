@@ -10,12 +10,12 @@ Author: Leonardo de Moura
 #include <vector>
 #include <string>
 #include <cstdint>
-#include "util/debug.h"
-#include "util/compiler_hints.h"
+#include "runtime/debug.h"
+#include "runtime/interrupt.h"
+#include "runtime/serializer.h"
+#include "runtime/mpz.h"
+#include "runtime/compiler_hints.h"
 #include "util/rc.h"
-#include "util/interrupt.h"
-#include "util/serializer.h"
-#include "util/mpz.h"
 #include "kernel/environment.h"
 #include "kernel/pos_info_provider.h"
 

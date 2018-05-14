@@ -12,9 +12,9 @@ Author: Leonardo de Moura
 #else
 #include <pthread.h>
 #endif
-#include "util/thread.h"
-#include "util/interrupt.h"
-#include "util/exception.h"
+#include "runtime/thread.h"
+#include "runtime/interrupt.h"
+#include "runtime/exception.h"
 
 #ifndef LEAN_DEFAULT_THREAD_STACK_SIZE
 #define LEAN_DEFAULT_THREAD_STACK_SIZE 8*1024*1024 // 8Mb

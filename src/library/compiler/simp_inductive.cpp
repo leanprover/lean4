@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "util/sstream.h"
+#include "runtime/sstream.h"
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
 #include "library/util.h"

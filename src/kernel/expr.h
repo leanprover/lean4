@@ -11,14 +11,14 @@ Author: Leonardo de Moura
 #include <utility>
 #include <tuple>
 #include <string>
-#include "util/thread.h"
+#include "runtime/optional.h"
+#include "runtime/thread.h"
+#include "runtime/serializer.h"
 #include "util/rc.h"
 #include "util/name.h"
 #include "util/hash.h"
 #include "util/buffer.h"
 #include "util/list_fn.h"
-#include "util/optional.h"
-#include "util/serializer.h"
 #include "util/sexpr/format.h"
 #include "kernel/level.h"
 #include "kernel/formatter.h"

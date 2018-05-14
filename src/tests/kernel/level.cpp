@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <locale>
+#include "runtime/exception.h"
 #include "util/test.h"
-#include "util/exception.h"
 #include "util/init_module.h"
 #include "util/sexpr/init_module.h"
 #include "kernel/init_module.h"

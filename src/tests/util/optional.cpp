@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #include <iostream>
 #include <string>
+#include "runtime/optional.h"
 #include "util/test.h"
-#include "util/optional.h"
 using namespace lean;
 
 struct point {

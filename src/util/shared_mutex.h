@@ -12,7 +12,7 @@
 */
 #pragma once
 #include <climits>
-#include "util/thread.h"
+#include "runtime/thread.h"
 
 namespace lean {
 #if defined(LEAN_MULTI_THREAD)

@@ -8,9 +8,9 @@ Author: Leonardo de Moura
 #include <utility>
 #include <memory>
 #include <algorithm>
-#include "util/debug.h"
+#include "runtime/debug.h"
+#include "runtime/thread.h"
 #include "util/buffer.h"
-#include "util/thread.h"
 #include "library/trace.h"
 
 namespace lean {

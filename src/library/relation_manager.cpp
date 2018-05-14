@@ -5,10 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
-#include "util/optional.h"
+#include "runtime/sstream.h"
+#include "runtime/optional.h"
 #include "util/name.h"
 #include "util/rb_map.h"
-#include "util/sstream.h"
 #include "library/constants.h"
 #include "library/scoped_ext.h"
 #include "library/relation_manager.h"

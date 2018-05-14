@@ -8,12 +8,10 @@ Author: Leonardo de Moura
 #include <string>
 #include <limits>
 #include <vector>
-#include "library/profiling.h"
-#include "library/library_task_builder.h"
+#include "runtime/interrupt.h"
+#include "runtime/sstream.h"
+#include "runtime/flet.h"
 #include "util/utf8.h"
-#include "util/interrupt.h"
-#include "util/sstream.h"
-#include "util/flet.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"
@@ -22,6 +20,8 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/error_msgs.h"
 #include "library/st_task_queue.h"
+#include "library/profiling.h"
+#include "library/library_task_builder.h"
 #include "library/module_mgr.h"
 #include "library/export_decl.h"
 #include "library/trace.h"

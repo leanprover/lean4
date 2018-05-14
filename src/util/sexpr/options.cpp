@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <memory>
 #include <string>
-#include "util/sstream.h"
+#include "runtime/sstream.h"
 #include "util/sexpr/options.h"
 #include "util/sexpr/option_declarations.h"
 #include "util/sexpr/sexpr_fn.h"

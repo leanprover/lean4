@@ -7,9 +7,9 @@ Author: Gabriel Ebner
 #pragma once
 
 #include <vector>
-#include "util/thread.h"
-#include "util/flet.h"
-#include "util/interrupt.h"
+#include "runtime/thread.h"
+#include "runtime/interrupt.h"
+#include "runtime/flet.h"
 
 namespace lean {
 

@@ -9,8 +9,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <algorithm>
 #include <string>
-#include <library/replace_visitor.h>
-#include "util/sstream.h"
+#include "runtime/sstream.h"
 #include "util/fresh_name.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/instantiate.h"
@@ -18,6 +17,7 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "kernel/error_msgs.h"
 #include "kernel/inductive/inductive.h"
+#include "library/replace_visitor.h"
 #include "library/trace.h"
 #include "library/attribute_manager.h"
 #include "library/scoped_ext.h"

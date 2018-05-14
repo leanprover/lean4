@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <algorithm>
-#include "util/flet.h"
-#include "util/interrupt.h"
+#include "runtime/interrupt.h"
+#include "runtime/flet.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"

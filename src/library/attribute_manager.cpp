@@ -8,8 +8,8 @@ Author: Leonardo de Moura
 #include <string>
 #include <algorithm>
 #include <unordered_map>
+#include "runtime/sstream.h"
 #include "util/priority_queue.h"
-#include "util/sstream.h"
 #include "library/attribute_manager.h"
 #include "library/scoped_ext.h"
 

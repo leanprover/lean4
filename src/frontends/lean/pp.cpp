@@ -9,13 +9,13 @@ Author: Leonardo de Moura
 #include <limits>
 #include <string>
 #include <util/utf8.h>
-#include "library/sorry.h"
-#include "util/flet.h"
+#include "runtime/flet.h"
 #include "util/fresh_name.h"
 #include "kernel/replace_fn.h"
 #include "kernel/free_vars.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
+#include "library/sorry.h"
 #include "library/annotation.h"
 #include "library/aliases.h"
 #include "library/class.h"

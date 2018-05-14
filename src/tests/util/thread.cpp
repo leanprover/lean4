@@ -7,10 +7,10 @@ Author: Leonardo de Moura
 #include <cstdlib>
 #include <iostream>
 #include <vector>
-#include "util/thread.h"
-#include "util/debug.h"
+#include "runtime/thread.h"
+#include "runtime/debug.h"
+#include "runtime/interrupt.h"
 #include "util/shared_mutex.h"
-#include "util/interrupt.h"
 #include "util/init_module.h"
 using namespace lean;
 

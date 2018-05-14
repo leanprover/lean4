@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include <string>
-#include "util/sstream.h"
+#include "runtime/sstream.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"

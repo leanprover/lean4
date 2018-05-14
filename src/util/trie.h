@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 #include <algorithm>
 #include <string>
+#include "runtime/optional.h"
 #include "util/rb_map.h"
-#include "util/optional.h"
 #include "util/buffer.h"
 
 namespace lean {

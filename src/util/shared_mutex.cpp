@@ -10,7 +10,7 @@
    Hinnant. The proposal is also part of the Boost library which is
    licensed under http://www.boost.org/LICENSE_1_0.txt
 */
-#include "util/debug.h"
+#include "runtime/debug.h"
 #include "util/shared_mutex.h"
 
 namespace lean {

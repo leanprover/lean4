@@ -156,7 +156,7 @@ def mk_apply_cpp (max : nat) : m unit :=
 do mk_copyright,
    emit "// DO NOT EDIT, this is an automatically generated file\n",
    emit "// Generated using script: ../../gen/apply.lean\n",
-   emit "#include \"util/apply.h\"\n",
+   emit "#include \"runtime/apply.h\"\n",
    emit "namespace lean {\n",
    emit "#define obj lean_obj\n",
    emit "#define fx(i) closure_arg_cptr(f)[i]\n",
@@ -181,7 +181,7 @@ do mk_copyright,
    emit "// DO NOT EDIT, this is an automatically generated file\n",
    emit "// Generated using script: ../../gen/apply.lean\n",
    emit "#pragma once\n",
-   emit "#include \"util/lean_obj.h\"\n",
+   emit "#include \"runtime/lean_obj.h\"\n",
    emit "namespace lean {\n",
    max.mrepeat $ λ i,
      let args := mk_arg_decls' (i+1) in
@@ -193,5 +193,5 @@ do mk_copyright,
 
 -- #eval (mk_apply_cpp lean.closure_max_args).run none
 
-#eval (mk_apply_cpp lean.closure_max_args).run "..//src//util//apply.cpp"
-#eval (mk_apply_h lean.closure_max_args).run "..//src//util//apply.h"
+#eval (mk_apply_cpp lean.closure_max_args).run "..//src//runtime//apply.cpp"
+#eval (mk_apply_h lean.closure_max_args).run "..//src//runtime//apply.h"

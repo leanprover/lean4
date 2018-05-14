@@ -6,9 +6,9 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include <functional>
+#include "runtime/sstream.h"
 #include "util/test.h"
 #include "util/parser_exception.h"
-#include "util/sstream.h"
 #include "util/init_module.h"
 using namespace lean;
 

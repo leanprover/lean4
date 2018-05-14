@@ -12,8 +12,8 @@ Author: Soonho Kong
 #include <utility>
 #include <string>
 #include <vector>
+#include "runtime/debug.h"
 #include "util/pair.h"
-#include "util/debug.h"
 #include "util/sexpr/sexpr.h"
 
 namespace lean {

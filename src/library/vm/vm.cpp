@@ -11,13 +11,13 @@ Author: Leonardo de Moura
 #include <unordered_map>
 #include <unordered_set>
 #include <iomanip>
+#include "runtime/interrupt.h"
+#include "runtime/sstream.h"
+#include "runtime/memory.h"
+#include "runtime/flet.h"
 #include "util/timeit.h"
-#include "util/flet.h"
-#include "util/interrupt.h"
-#include "util/sstream.h"
 #include "util/sexpr/option_declarations.h"
 #include "util/shared_mutex.h"
-#include "util/memory.h"
 #include "library/constants.h"
 #include "library/kernel_serializer.h"
 #include "library/trace.h"

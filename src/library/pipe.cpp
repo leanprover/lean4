@@ -4,10 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Jared Roesch
 */
-
+#include "runtime/exception.h"
 #include "library/pipe.h"
-#include "util/exception.h"
-
 
 #if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
 #else

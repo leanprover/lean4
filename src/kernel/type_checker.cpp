@@ -6,12 +6,13 @@ Author: Leonardo de Moura
 */
 #include <utility>
 #include <vector>
+#include "runtime/interrupt.h"
+#include "runtime/sstream.h"
+#include "runtime/flet.h"
 #include "util/task.h"
-#include "util/interrupt.h"
 #include "util/lbool.h"
-#include "util/flet.h"
-#include "util/sstream.h"
 #include "util/fresh_name.h"
+#include "util/task_builder.h"
 #include "kernel/type_checker.h"
 #include "kernel/expr_maps.h"
 #include "kernel/instantiate.h"
@@ -20,7 +21,6 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
-#include "util/task_builder.h"
 
 namespace lean {
 static name * g_kernel_fresh = nullptr;

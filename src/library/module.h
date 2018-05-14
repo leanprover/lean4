@@ -9,12 +9,12 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <utility>
 #include <vector>
-#include "util/serializer.h"
-#include "util/optional.h"
+#include "runtime/serializer.h"
+#include "runtime/optional.h"
+#include "util/task.h"
 #include "kernel/pos_info_provider.h"
 #include "kernel/inductive/inductive.h"
 #include "library/io_state.h"
-#include "util/task.h"
 
 namespace lean {
 class corrupted_file_exception : public exception {

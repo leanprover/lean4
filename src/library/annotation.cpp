@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <unordered_map>
 #include <memory>
 #include <string>
-#include "util/sstream.h"
+#include "runtime/sstream.h"
 #include "kernel/abstract_type_context.h"
 #include "library/kernel_serializer.h"
 #include "library/annotation.h"

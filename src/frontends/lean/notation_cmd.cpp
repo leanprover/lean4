@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include <limits>
 #include <string>
-#include "util/sstream.h"
+#include "runtime/sstream.h"
 #include "util/utf8.h"
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"

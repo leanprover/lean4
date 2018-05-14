@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 */
 // DO NOT EDIT, this is an automatically generated file
 // Generated using script: ../../gen/apply.lean
-#include "util/apply.h"
+#include "runtime/apply.h"
 namespace lean {
 #define obj lean_obj
 #define fx(i) closure_arg_cptr(f)[i]

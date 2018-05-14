@@ -7,8 +7,8 @@ Author: Leonardo de Moura, Gabriel Ebner
 #pragma once
 #include <string>
 #include <vector>
+#include "runtime/exception.h"
 #include "util/name.h"
-#include "util/exception.h"
 #include "util/path.h"
 
 namespace lean {

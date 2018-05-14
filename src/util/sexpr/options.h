@@ -6,10 +6,10 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <algorithm>
+#include "runtime/serializer.h"
 #include "util/name.h"
 #include "util/sexpr/sexpr.h"
 #include "util/sexpr/format.h"
-#include "util/serializer.h"
 
 namespace lean {
 enum option_kind { BoolOption, IntOption, UnsignedOption, DoubleOption, StringOption, SExprOption };

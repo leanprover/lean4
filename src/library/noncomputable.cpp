@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <utility>
 #include <string>
-#include "util/sstream.h"
+#include "runtime/sstream.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/type_checker.h"

@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
-#include "util/interrupt.h"
+#include "runtime/interrupt.h"
 #include "util/fresh_name.h"
 #include "kernel/type_checker.h"
 #include "kernel/replace_fn.h"

@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include "runtime/sstream.h"
 #include "util/sexpr/option_declarations.h"
-#include "util/sstream.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "library/annotation.h"

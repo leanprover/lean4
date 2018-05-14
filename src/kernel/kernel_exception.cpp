@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include <string>
-#include "util/sstream.h"
+#include "runtime/sstream.h"
 #include "kernel/scope_pos_info_provider.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/error_msgs.h"

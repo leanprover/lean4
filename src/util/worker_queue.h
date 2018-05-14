@@ -8,11 +8,11 @@ Author: Leonardo de Moura
 #include <memory>
 #include <functional>
 #include <vector>
+#include "runtime/thread.h"
+#include "runtime/interrupt.h"
+#include "runtime/exception.h"
+#include "runtime/optional.h"
 #include "util/buffer.h"
-#include "util/thread.h"
-#include "util/interrupt.h"
-#include "util/optional.h"
-#include "util/exception.h"
 
 namespace lean {
 template<typename T>

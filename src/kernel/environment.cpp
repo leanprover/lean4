@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <limits>
 #include <util/task_builder.h>
-#include "util/thread.h"
+#include "runtime/thread.h"
 #include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
 

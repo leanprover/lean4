@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "util/sstream.h"
+#include "runtime/sstream.h"
 #include "util/list_fn.h"
 #include "util/rb_map.h"
 #include "util/fresh_name.h"

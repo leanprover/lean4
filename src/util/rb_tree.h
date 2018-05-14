@@ -7,10 +7,10 @@ Author: Leonardo de Moura
 #pragma once
 #include <utility>
 #include <algorithm>
+#include "runtime/optional.h"
+#include "runtime/debug.h"
 #include "util/rc.h"
-#include "util/debug.h"
 #include "util/buffer.h"
-#include "util/optional.h"
 
 namespace lean {
 /**

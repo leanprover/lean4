@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "util/sstream.h"
+#include "runtime/sstream.h"
 #include "library/io_state.h"
 #include "library/tactic/tactic_state.h"
 

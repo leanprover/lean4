@@ -7,12 +7,12 @@ Author: Leonardo de Moura
 #include <sstream>
 #include <cstring>
 #include <string>
+#include "runtime/sstream.h"
 #include "util/rc.h"
 #include "util/hash.h"
 #include "util/name.h"
 #include "util/escaped.h"
 #include "util/buffer.h"
-#include "util/sstream.h"
 #include "util/object_serializer.h"
 #include "util/sexpr/sexpr.h"
 

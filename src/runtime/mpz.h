@@ -9,8 +9,8 @@ Author: Leonardo de Moura
 #include <gmp.h>
 #include <string>
 #include <iostream>
-#include "util/debug.h"
-#include "util/serializer.h"
+#include "runtime/debug.h"
+#include "runtime/serializer.h"
 namespace lean {
 class mpq;
 

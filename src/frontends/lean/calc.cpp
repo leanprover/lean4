@@ -8,11 +8,11 @@ Author: Leonardo de Moura
 #include <utility>
 #include <algorithm>
 #include <vector>
-#include "util/optional.h"
+#include "runtime/interrupt.h"
+#include "runtime/optional.h"
 #include "util/name.h"
 #include "util/rb_map.h"
 #include "util/buffer.h"
-#include "util/interrupt.h"
 #include "kernel/environment.h"
 #include "library/relation_manager.h"
 #include "library/module.h"

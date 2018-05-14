@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #include <tuple>
 #include <unordered_set>
 #include <functional>
+#include "runtime/interrupt.h"
 #include "util/buffer.h"
-#include "util/interrupt.h"
 #include "library/max_sharing.h"
 
 namespace lean {

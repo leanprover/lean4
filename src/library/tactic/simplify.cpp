@@ -6,11 +6,11 @@ Author: Daniel Selsam, Leonardo de Moura
 #include <functional>
 #include <iostream>
 #include <limits>
-#include "util/flet.h"
+#include "runtime/interrupt.h"
+#include "runtime/flet.h"
+#include "runtime/optional.h"
 #include "util/freset.h"
 #include "util/pair.h"
-#include "util/optional.h"
-#include "util/interrupt.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/abstract.h"
 #include "kernel/expr_maps.h"

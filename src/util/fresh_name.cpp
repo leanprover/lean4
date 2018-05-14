@@ -5,10 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <limits>
-#include "util/sstream.h"
+#include "runtime/thread.h"
+#include "runtime/sstream.h"
 #include "util/name_set.h"
 #include "util/fresh_name.h"
-#include "util/thread.h"
 #include "util/shared_mutex.h"
 
 namespace lean {

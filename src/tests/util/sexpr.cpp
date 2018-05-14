@@ -6,10 +6,10 @@ Author: Leonardo de Moura
 */
 #include <sstream>
 #include <string>
+#include "runtime/mpq.h"
 #include "util/test.h"
 #include "util/name.h"
 #include "util/init_module.h"
-#include "util/mpq.h"
 #include "util/sexpr/sexpr.h"
 #include "util/sexpr/sexpr_fn.h"
 #include "util/sexpr/format.h"

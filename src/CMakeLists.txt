@@ -389,6 +389,8 @@ configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
 configure_file("${LEAN_SOURCE_DIR}/../library/init/version.lean.in" "${LEAN_SOURCE_DIR}/../library/init/version.lean")
 
 include_directories("${LEAN_BINARY_DIR}")
+add_subdirectory(runtime)
+set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:runtime>)
 add_subdirectory(util)
 set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:util>)
 add_subdirectory(util/sexpr)

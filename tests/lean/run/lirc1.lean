@@ -8,7 +8,7 @@ match lirc s with
 | except.error e := io.print "Error: " >> io.print e
 
 def PRG1 := "
-[lean::mk_pair] external foo (a : object) (b : object) : object
+[make_my_pair] external foo (a : object) (b : object) : object
 
 def bla (g : object) (a : object) (z : uint32) : object :=
 main:
@@ -22,6 +22,8 @@ main:
   z' : uint32 := add z one;
   h := closure foo a;
   h' := closure f a a a;
+  n : object := 1000;
+  n' : object := 10000000000000000000;
   set r 0 a';
   set r 1 d;
   ret r;

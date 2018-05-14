@@ -11,7 +11,8 @@ namespace lean
 namespace ir
 namespace cpp
 def file_header :=
-"#include <lean_obj.h>
+"#include <util/lean_obj.h>
+#include <util/apply.h>
 typedef lean::lean_obj obj;"
 
 structure extract_env :=
@@ -215,7 +216,14 @@ match l with
 | literal.bool ff := emit_var x >> emit " = false"
 | literal.str s   := emit_var x >> emit " = lean::mk_string" >> paren(emit (repr s))
 | literal.float v := emit_var x >> emit " = " >> emit v
-| literal.num v   := emit_var x >> emit " = " >> emit v >> emit_num_suffix t
+| literal.num v   :=
+  match t with
+  | type.object := do
+    emit_var x >> emit " = lean::alloc_mpz(lean::mpz(",
+    if v < uint32_sz then emit v >> emit "u"
+    else emit "\"" >> emit v >> emit "\"",
+    emit "))"
+  | _           := emit_var x >> emit " = " >> emit v >> emit_num_suffix t
 
 def unins2cpp : unins → string
 | unins.inc            := "lean::inc_ref"

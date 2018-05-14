@@ -20,6 +20,8 @@ main:
   w''  := apply g a a a a a a a a a a a a a a a a a a;
   one : uint32 := 1;
   z' : uint32 := add z one;
+  h := closure foo a;
+  h' := closure f a a a;
   set r 0 a';
   set r 1 d;
   ret r;

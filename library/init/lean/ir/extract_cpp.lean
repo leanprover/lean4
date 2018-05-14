@@ -17,6 +17,7 @@ typedef lean::lean_obj obj;"
 structure extract_env :=
 (external_names : fnid → option string)
 (ctx            : context)
+(env            : environment)
 
 @[reducible] def extract_m := reader_t extract_env (except_t format (state_t string id))
 
@@ -40,11 +41,14 @@ emit $ name.mangle x "_x"
 def emit_blockid (b : blockid) : extract_m unit :=
 emit $ name.mangle b "_lbl"
 
-def emit_fnid (fid : fnid) : extract_m unit :=
+def fid2cpp (fid : fnid) : extract_m string :=
 do env ← read,
    match env.external_names fid with
-   | some s := emit s
-   | none   := emit (name.mangle fid)
+   | some s := return s
+   | none   := return (name.mangle fid)
+
+def emit_fnid (fid : fnid) : extract_m unit :=
+fid2cpp fid >>= emit
 
 def type2cpp : type → string
 | type.bool   := "unsigned char"  | type.byte   := "unsigned char"
@@ -235,6 +239,20 @@ match ys with
   else emit_var x >> emit " = apply_" >> emit n >> paren(emit_var_list ys)
 | _       := throw "ill-formed apply"
 
+def emit_closure (x : var) (f : fnid) (ys : list var) : extract_m unit :=
+do env ← read,
+   match env.env f with
+   | some d := do
+     emit_var x, emit " = lean::alloc_closure(",
+     let arity := d.header.args.length,
+     fname ← fid2cpp f,
+     let fname := if arity > closure_max_args then "uncurry" ++ fname else fname,
+     emit "reinterpret_cast<lean::lean_cfun>(" >> emit fname >> emit ")" <+> emit arity <+> emit ys.length,
+     emit ")",
+     ys.mfoldl (λ i y, emit ";\nlean::set_closure_arg" >> paren (emit_var x <+> emit i <+> emit_var y) >> return (i+1)) 0,
+     return ()
+   | none   := throw "invalid closure"
+
 def emit_instr (ins : instr) : extract_m unit :=
 ins.decorate_error $
 (match ins with
@@ -247,7 +265,7 @@ ins.decorate_error $
  | (instr.get x o i)         := emit_var x >> emit " = lean::cnstr_obj" >> paren(emit_var o <+> emit i)
  | (instr.sset o d x)        := emit "lean::set_cnstr_scalar" >> paren(emit_var o <+> emit d <+> emit_var x)
  | (instr.sget x t o d)      := emit_var x >> emit " = lean::cnstr_scalar" >> emit_template_param t >> paren(emit_var o <+> emit d)
- | (instr.closure x f ys)    := return () -- TODO
+ | (instr.closure x f ys)    := emit_closure x f ys
  | (instr.apply x ys)        := emit_apply x ys
  | (instr.array a sz c)      := emit_var a >> emit " = lean::alloc_array" >> paren(emit_var sz <+> emit_var c)
  | (instr.sarray a t sz c)   := emit_var a >> emit " = lean::alloc_sarray" >> paren(emit_type_size t <+> emit_var sz <+> emit_var c)
@@ -306,7 +324,7 @@ match d with
 
 def emit_def (env : environment) (external_names : fnid → option string) (d : decl) : except_t format (state_t string id) unit :=
 do ctx ← monad_lift $ infer_types d env,
-   (emit_def_core d).run { external_names := external_names, ctx := ctx }
+   (emit_def_core d).run { external_names := external_names, ctx := ctx, env := env }
 
 def collect_used (d : list decl) : fnid_set :=
 d.foldl (λ s d, match d with
@@ -320,7 +338,7 @@ def emit_used_headers (env : environment) (external_names : fnid → option stri
 let used := collect_used d in
 (used.mfor (λ fid, match env fid with
    | some d := emit_header d.header >> emit ";\n" >> when (need_uncurry d) (emit_uncurry_header d >> emit ";\n")
-   | _      := return ())).run { external_names := external_names, ctx := mk_context }
+   | _      := return ())).run { external_names := external_names, ctx := mk_context, env := env }
 
 end cpp
 

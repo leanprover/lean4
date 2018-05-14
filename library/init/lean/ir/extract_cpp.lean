@@ -122,8 +122,8 @@ match term with
 
 def emit_call_lhs : list var → extract_m unit
 | []  := return ()
-| [x] := emit_var x >> emit " := "
-| xs  := emit "std::tie" >> paren(emit_var_list xs) >> emit " := "
+| [x] := emit_var x >> emit " = "
+| xs  := emit "std::tie" >> paren(emit_var_list xs) >> emit " = "
 
 def emit_type_size (ty : type) : extract_m unit :=
 emit "sizeof" >> paren(emit_type ty)
@@ -134,11 +134,11 @@ emit op >> paren (emit_var x)
 
 /-- Emit `x := y op z` -/
 def emit_infix (x y z : var) (op : string) : extract_m unit :=
-emit_var x >> emit " := " >> emit_var y >> emit " " >> emit op >> emit " " >> emit_var z
+emit_var x >> emit " = " >> emit_var y >> emit " " >> emit op >> emit " " >> emit_var z
 
 /- Emit `x := big_op(y, z)` -/
 def emit_big_binop (x y z : var) (big_op : string) : extract_m unit :=
-emit_var x >> emit " := " >> emit big_op >> paren (emit_var y <+> emit_var z)
+emit_var x >> emit " = " >> emit big_op >> paren (emit_var y <+> emit_var z)
 
 def emit_arith (t : type) (x y z : var) (op : string) (big_op : string) : extract_m unit :=
 match t with
@@ -174,12 +174,12 @@ match op with
 | binop.ne   := emit_arith t x y z "!=" "lean::big_nq"
 | binop.array_read :=
   (match t with
-   | type.object := emit_var x >> emit " := lean::array_obj" >> paren (emit_var y <+> emit_var z)
-   | _           := emit_var x >> emit " := lean::sarray_data" >> emit_template_param t >> paren (emit_var y <+> emit_var z))
+   | type.object := emit_var x >> emit " = lean::array_obj" >> paren (emit_var y <+> emit_var z)
+   | _           := emit_var x >> emit " = lean::sarray_data" >> emit_template_param t >> paren (emit_var y <+> emit_var z))
 
 /-- Emit `x := op(y)` -/
 def emit_x_op_y (x : var) (op : string) (y : var) : extract_m unit :=
-emit_var x >> emit " := " >> emit op >> paren(emit_var y)
+emit_var x >> emit " = " >> emit op >> paren(emit_var y)
 
 def unop2cpp (t : type) : unop → string
 | unop.not          := if t = type.bool then "!" else "~"
@@ -197,7 +197,7 @@ def unop2cpp (t : type) : unop → string
 | unop.string_len   := "lean::string_len"
 
 def emit_unop (x : var) (t : type) (op : unop) (y : var) : extract_m unit :=
-emit_var x >> emit " := " >> emit (unop2cpp t op) >> paren(emit_var y)
+emit_var x >> emit " = " >> emit (unop2cpp t op) >> paren(emit_var y)
 
 def emit_num_suffix : type → extract_m unit
 | type.uint32 := emit "u"
@@ -207,11 +207,11 @@ def emit_num_suffix : type → extract_m unit
 
 def emit_lit (x : var) (t : type) (l : literal) : extract_m unit :=
 match l with
-| literal.bool tt := emit_var x >> emit " := true"
-| literal.bool ff := emit_var x >> emit " := false"
-| literal.str s   := emit_var x >> emit " := lean::mk_string" >> paren(emit (repr s))
-| literal.float v := emit_var x >> emit " := " >> emit v
-| literal.num v   := emit_var x >> emit " := " >> emit v >> emit_num_suffix t
+| literal.bool tt := emit_var x >> emit " = true"
+| literal.bool ff := emit_var x >> emit " = false"
+| literal.str s   := emit_var x >> emit " = lean::mk_string" >> paren(emit (repr s))
+| literal.float v := emit_var x >> emit " = " >> emit v
+| literal.num v   := emit_var x >> emit " = " >> emit v >> emit_num_suffix t
 
 def unins2cpp : unins → string
 | unins.inc            := "lean::inc_ref"
@@ -225,6 +225,16 @@ def unins2cpp : unins → string
 def emit_unary (op : unins) (x : var) : extract_m unit :=
 emit (unins2cpp op) >> paren(emit_var x)
 
+def emit_apply (x : var) (ys : list var) : extract_m unit :=
+match ys with
+| (f::as) :=
+  let n := as.length in
+  if n > closure_max_args
+  then emit "{ obj * as[" >> emit n >> emit "] = {" >> emit_var_list as >> emit "}; "
+       >> emit_var x >> emit " = apply_m" >> paren(emit_var f <+> emit n <+> emit "as") >> emit "; }"
+  else emit_var x >> emit " = apply_" >> emit n >> paren(emit_var_list ys)
+| _       := throw "ill-formed apply"
+
 def emit_instr (ins : instr) : extract_m unit :=
 ins.decorate_error $
 (match ins with
@@ -232,15 +242,15 @@ ins.decorate_error $
  | (instr.unop x t op y)     := emit_unop x t op y
  | (instr.binop x t op y z)  := emit_binop x t op y z
  | (instr.call xs f ys)      := emit_call_lhs xs >> emit_fnid f >> paren(emit_var_list ys)
- | (instr.cnstr o t n sz)    := emit_var o >> emit " := lean::alloc_cnstr" >> paren(emit t <+> emit n <+> emit sz)
+ | (instr.cnstr o t n sz)    := emit_var o >> emit " = lean::alloc_cnstr" >> paren(emit t <+> emit n <+> emit sz)
  | (instr.set o i x)         := emit "lean::set_cnstr_obj" >> paren (emit_var o <+> emit i <+> emit_var x)
- | (instr.get x o i)         := emit_var x >> emit " := lean::cnstr_obj" >> paren(emit_var o <+> emit i)
+ | (instr.get x o i)         := emit_var x >> emit " = lean::cnstr_obj" >> paren(emit_var o <+> emit i)
  | (instr.sset o d x)        := emit "lean::set_cnstr_scalar" >> paren(emit_var o <+> emit d <+> emit_var x)
- | (instr.sget x t o d)      := emit_var x >> emit " := lean::cnstr_scalar" >> emit_template_param t >> paren(emit_var o <+> emit d)
+ | (instr.sget x t o d)      := emit_var x >> emit " = lean::cnstr_scalar" >> emit_template_param t >> paren(emit_var o <+> emit d)
  | (instr.closure x f ys)    := return () -- TODO
- | (instr.apply x ys)        := return () -- TODO
- | (instr.array a sz c)      := emit_var a >> emit " := lean::alloc_array" >> paren(emit_var sz <+> emit_var c)
- | (instr.sarray a t sz c)   := emit_var a >> emit " := lean::alloc_sarray" >> paren(emit_type_size t <+> emit_var sz <+> emit_var c)
+ | (instr.apply x ys)        := emit_apply x ys
+ | (instr.array a sz c)      := emit_var a >> emit " = lean::alloc_array" >> paren(emit_var sz <+> emit_var c)
+ | (instr.sarray a t sz c)   := emit_var a >> emit " = lean::alloc_sarray" >> paren(emit_type_size t <+> emit_var sz <+> emit_var c)
  | (instr.array_write a i v) :=
    do env ← read,
       if env.ctx.find v = some type.object

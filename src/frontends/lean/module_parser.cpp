@@ -4,12 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Gabriel Ebner
 */
-#include <util/utf8.h>
+#include <string>
+#include <vector>
+#include "runtime/utf8.h"
 #include "library/library_task_builder.h"
 #include "frontends/lean/module_parser.h"
 #include "frontends/lean/info_manager.h"
-#include <string>
-#include <vector>
 
 namespace lean {
 

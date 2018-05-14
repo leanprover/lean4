@@ -4,7 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <iostream>
 #include "runtime/lean_obj.h"
+#include "runtime/utf8.h"
 
 namespace lean {
 size_t obj_byte_size(lean_obj * o) {
@@ -103,4 +105,27 @@ void del(lean_obj * o) {
         o = pop_back(todo);
     }
 }
+
+lean_obj * mk_string(char const * s) {
+    size_t sz  = strlen(s);
+    size_t len = utf8_strlen(s);
+    size_t rsz = sz + sizeof(size_t);
+    lean_obj * r = alloc_sarray(1, rsz, rsz);
+    set_sarray_data<size_t>(r, 0, len);
+    memcpy(sarray_cptr<char>(r) + sizeof(size_t), s, sz);
+    return r;
+}
+
+lean_obj * mk_string(std::string const & s) {
+    return mk_string(s.c_str());
+}
+
+void dbg_print_str(lean_obj * o) {
+    lean_assert(is_string(o));
+    std::cout << c_str(o) << "\n";
+}
+}
+
+extern "C" void lean_dbg_print_str(lean::lean_obj* o) {
+    lean::dbg_print_str(o);
 }

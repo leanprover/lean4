@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <limits>
 #include <string>
-#include <util/utf8.h>
+#include "runtime/utf8.h"
 #include "runtime/flet.h"
 #include "util/fresh_name.h"
 #include "kernel/replace_fn.h"

@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "runtime/interrupt.h"
-#include "util/utf8.h"
+#include "runtime/utf8.h"
 #include "library/vm/vm_string.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_option.h"

@@ -18,7 +18,7 @@ typedef uintptr_t rc_type;
 struct lean_obj {
     atomic<rc_type> m_rc;
     unsigned        m_kind:16;
-    lean_obj(lean_obj_kind k):m_rc(0), m_kind(static_cast<unsigned>(k)) {}
+    lean_obj(lean_obj_kind k):m_rc(1), m_kind(static_cast<unsigned>(k)) {}
 };
 
 /* We can represent inductive datatypes that have:
@@ -322,9 +322,6 @@ inline lean_obj * mk_mpz(mpz const & m) { return alloc_mpz(m); }
 
 lean_obj * mk_string(char const * s);
 lean_obj * mk_string(std::string const & s);
-
-lean_obj * string_shrink_to_fit(lean_obj * s);
-lean_obj * array_shrink_to_fit(lean_obj * a);
-lean_obj * sarray_shrink_to_fit(lean_obj * a);
-lean_obj * shrink_to_fit(lean_obj * o);
+inline bool is_string(lean_obj * o) { return !is_scalar(o) && is_sarray(o) && sarray_elem_size(o) == 1; }
+inline char const * c_str(lean_obj * o) { lean_assert(is_string(o)); return sarray_cptr<char>(o) + sizeof(size_t); }
 }

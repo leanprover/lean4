@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <limits>
 #include <string>
 #include "runtime/sstream.h"
-#include "util/utf8.h"
+#include "runtime/utf8.h"
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
 #include "library/scoped_ext.h"

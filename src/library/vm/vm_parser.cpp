@@ -8,6 +8,7 @@ Author: Sebastian Ullrich
 #include <string>
 #include <iostream>
 #include <vector>
+#include "runtime/utf8.h"
 #include "library/constants.h"
 #include "library/explicit.h"
 #include "library/num.h"
@@ -27,7 +28,6 @@ Author: Sebastian Ullrich
 #include "frontends/lean/decl_util.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/inductive_cmds.h"
-#include "util/utf8.h"
 
 namespace lean {
 

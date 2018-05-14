@@ -8,7 +8,7 @@ Author: Gabriel Ebner
 #include <string>
 #include <vector>
 #include <algorithm>
-#include "util/utf8.h"
+#include "runtime/utf8.h"
 #include "util/lean_path.h"
 #include "util/file_lock.h"
 #include "library/module_mgr.h"

@@ -13,11 +13,11 @@ Author: Leonardo de Moura
 #include "runtime/thread.h"
 #include "runtime/debug.h"
 #include "runtime/sstream.h"
+#include "runtime/utf8.h"
 #include "util/name.h"
 #include "util/buffer.h"
 #include "util/hash.h"
 #include "util/ascii.h"
-#include "util/utf8.h"
 #include "util/object_serializer.h"
 
 namespace lean {

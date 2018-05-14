@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include <algorithm>
-#include "util/utf8.h"
+#include "runtime/utf8.h"
 #include "kernel/type_checker.h"
 #include "library/kernel_serializer.h"
 #include "library/string.h"

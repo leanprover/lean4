@@ -1,4 +1,4 @@
-set(RUNTIME_OBJS debug.cpp thread.cpp mpz.cpp mpq.cpp
+set(RUNTIME_OBJS debug.cpp thread.cpp mpz.cpp mpq.cpp utf8.cpp
 lean_obj.cpp apply.cpp exception.cpp interrupt.cpp memory.cpp
 serializer.cpp stackinfo.cpp)
 add_library(runtime OBJECT ${RUNTIME_OBJS})

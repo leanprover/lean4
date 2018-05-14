@@ -9,8 +9,8 @@ Author: Leonardo de Moura
 #include <iostream>
 #include "runtime/mpq.h"
 #include "runtime/flet.h"
+#include "runtime/utf8.h"
 #include "util/name.h"
-#include "util/utf8.h"
 #include "kernel/environment.h"
 #include "kernel/pos_info_provider.h"
 #include "library/io_state.h"

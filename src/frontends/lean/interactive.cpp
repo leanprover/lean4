@@ -6,7 +6,7 @@ Author: Sebastian Ullrich
 */
 #include <string>
 #include <vector>
-#include "util/utf8.h"
+#include "runtime/utf8.h"
 #include "util/lean_path.h"
 #include "util/sexpr/option_declarations.h"
 #include "library/module_mgr.h"

@@ -189,7 +189,7 @@ match ins with
 | (instr.sget x t o _)      := check_type o type.object >> check_ne_type x type.object
 | (instr.closure x f ys)    := do ys.mfor (flip check_type type.object), d ← get_decl f,
                                  unless (d.header.return.length = 1) $ throw "unexpected number of return values",
-                                 unless (d.header.args.length = ys.length) $ throw "unexpected number of arguments",
+                                 unless (d.header.args.length ≥ ys.length) $ throw "too many arguments",
                                  d.header.args.mfor (λ a, unless (a.ty = type.object) $ throw "invalid closure, arguments must have type object")
 | (instr.apply x ys)        := ys.mfor (flip check_type type.object)
 | (instr.array a sz c)      := check_type sz type.usize >> check_type c type.usize

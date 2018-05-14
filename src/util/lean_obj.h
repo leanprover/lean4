@@ -6,8 +6,6 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <string>
-#include "util/thread.h"
-#include "util/debug.h"
 #include "util/mpz.h"
 
 namespace lean {

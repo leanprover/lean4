@@ -146,9 +146,16 @@ iterate "" $ λ r,
       c ← read h 1024,
       return $ some (r ++ c)
 
-def read_file (s : string) (bin := ff) : io string :=
-do h ← mk_file_handle s io.mode.read bin,
-   read_to_end h
+def read_file (fname : string) (bin := ff) : io string :=
+do h ← mk_file_handle fname io.mode.read bin,
+   r ← read_to_end h,
+   close h,
+   return r
+
+def write_file (fname : string) (data : string) (bin := ff) : io unit :=
+do h ← mk_file_handle fname io.mode.write bin,
+   write h data,
+   close h
 
 end fs
 

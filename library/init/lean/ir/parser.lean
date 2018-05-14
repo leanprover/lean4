@@ -150,6 +150,7 @@ def parse_instr : parser instr :=
 <|> (keyword "array_push" >> instr.array_push <$> parse_var <*> parse_var)
 <|> (keyword "set" >> instr.set <$> parse_var <*> parse_uint16 <*> parse_var)
 <|> (keyword "sset" >> instr.sset <$> parse_var <*> parse_usize <*> parse_var)
+<|> (keyword "call" >> instr.call [] <$> parse_fnid <*> many parse_var)
 <|> (instr.unary <$> parse_unins <*> parse_var)
 <|> parse_assignment
 
@@ -176,8 +177,7 @@ do symbol "(", x ← parse_var, symbol ":", ty ← parse_type, symbol ")", retur
 def parse_header : parser header :=
 do n ← parse_fnid,
    as ← many parse_arg,
-   symbol ":",
-   r ← many (result.mk <$> parse_type),
+   r ← try (symbol ":" >> many1 (result.mk <$> parse_type)) <|> return [],
    return { n := n, args := as, return := r }
 
 def parse_def : parser decl :=

@@ -21,7 +21,7 @@ def parse_input_aux : nat → list decl → fnid2string → parser (list decl ×
 | (n+1) ds m :=
   (eoi >> return (ds.reverse, m))
   <|>
-  (do cid ← (do symbol "[", n ← lexeme $ cpp_identifier, symbol "]", return (some n)) <|> return none,
+  (do cid ← (do symbol "[", n ← lexeme $ c_identifier, symbol "]", return (some n)) <|> return none,
       d ← parse_decl,
       match cid with
       | some cid := parse_input_aux n (d::ds) (m.insert d.name cid)

@@ -345,7 +345,9 @@ d.foldl (λ s d, match d with
 def emit_used_headers (env : environment) (external_names : fnid → option string) (d : list decl) : except_t format (state_t string id) unit :=
 let used := collect_used d in
 (used.mfor (λ fid, match env fid with
-   | some d := emit_header d.header >> emit ";\n" >> when (need_uncurry d) (emit_uncurry_header d >> emit ";\n")
+   | some d := do
+     unless (external_names fid = none) (emit "extern \"C\" "),
+     emit_header d.header >> emit ";\n" >> when (need_uncurry d) (emit_uncurry_header d >> emit ";\n")
    | _      := return ())).run { external_names := external_names, ctx := mk_context, env := env }
 
 end cpp

@@ -33,7 +33,7 @@ Otherwise, it is bitwise negation if `t` is `uint32/uint64/usize`.
 
 - `x : t := neg y`, arithmetical `-`. `t` is `int16/int32/int64/float/double/object`.
 If `t` is `object`, the instruction is unspecified if `t` is not a big number.
-When `t` is a big number, the operation will destructively update `y` if `RC = 1` and set `x` to `y`.
+When `t` is a big number (i.e., `t` is `object`), the operation will destructively update `y` if `RC(y) = 1`.
 Otherwise, it decrements `RC(y)`, and allocates a new big number to store the result.
 
 - `x : bool := is_scalar y`, set `x` to `tt` iff `y : object` is a tagged
@@ -58,6 +58,7 @@ The behavior is unspecified if `y` is not an array of objects.
 
 - `x : object := sarray_copy y` creates a copy of the scalar array `y : object`.
 The behavior is unspecified if `y` is not an array of scalar values.
+Remark: `sarray_copy` can be used to copy strings.
 
 - `x : usize := array_size y` stores the size of the array `y : object` into `x`.
 The behavior is unspecified if `y` is not an array of objects.
@@ -67,29 +68,96 @@ The behavior is unspecified if `y` is not an array of scalar values.
 
 - `x : usize : string_len y` stores the length of the string `y : object` into `x`.
 The length is the number of unicode scalar values.
-The behavior is unspecified if `y` is not a string.
--/
+The behavior is unspecified if `y` is not a string. -/
 inductive assign_unop
 | not | neg | is_scalar | is_shared | is_null | cast | box | unbox
 | array_copy | sarray_copy | array_size | sarray_size | string_len
 
-/-- Operators for instructions of the form `x : t := op y z` -/
+/-- Operators for instructions of the form `x : t := op y z`
+
+- `x : t := add y z`: addition. Remark: `t ≠ bool`.
+When `t` is a big number (i.e., `t` is `object`), the operation will destructively update `y` (or `z`) if `RC(y) = 1` (`RC(z) = 1`),
+and decrement `RC(z)` (`RC(y)`). If `RC(y)` and `RC(z)` are greater than 1, then it allocates a new big number to store the result,
+and decrements `RC(y)` and `RC(z)`.
+
+- `x : t := sub y z`: subtraction. Remark: `t ≠ bool`. See `add` for big number case.
+
+- `x : t := mul y z`: multiplication. Remark: `t ≠ bool`. See `add` for big number case.
+
+- `x : t := div y z`: division. Remark: `t ≠ bool`. See `add` for big number case.
+
+- `x : t := mod y z`: modulo. Remark: `t ≠ bool`, `t ≠ float` and `t ≠ double`. See `add` for big number case.
+
+- `x : t := shl y z`: bit shift left. Remark: `t ≠ bool`, `t ≠ float`, `t ≠ double` and `t ≠ object`.
+
+- `x : t := shr y z`: bit shift right. Remark: `t ≠ bool`, `t ≠ float`, `t ≠ double` and `t ≠ object`.
+If `t` is `int16`, `int32` or `int64`, it is an arithmetical bit shift.
+
+- `x : t := and y z`: if `t = bool`, then it is the logical and. Otherwise, it is the bitwise and.
+Remark: `t ≠ bool`, `t ≠ float`, `t ≠ double` and `t ≠ object`.
+
+- `x : t := or y z`: if `t = bool`, then it is the logical or. Otherwise, it is the bitwise or.
+Remark: `t ≠ bool`, `t ≠ float`, `t ≠ double` and `t ≠ object`.
+
+- `x : t := xor y z`: if `t = bool`, then it is the logical xor. Otherwise, it is the bitwise xor.
+Remark: `t ≠ bool`, `t ≠ float`, `t ≠ double` and `t ≠ object`.
+
+- `x : bool := le y z`: less than or equal to. Remark: `t ≠ bool`.
+If `y` and `z` are `object`, then they must be big numbers.
+
+- `x : bool := ge y z`: greater than or equal to. Remark: `t ≠ bool`.
+If `y` and `z` are `object`, then they must be big numbers.
+
+- `x : bool := lt y z`: less than. Remark: `t ≠ bool`.
+If `y` and `z` are `object`, then they must be big numbers.
+
+- `x : bool := gt y z`: greater than. Remark: `t ≠ bool`.
+If `y` and `z` are `object`, then they must be big numbers.
+
+- `x : bool := eq y z`: equality test. If `y` and `z` are `object`, then they must be big numbers.
+
+- `x : bool := ne y z`: disequality test. If `y` and `z` are `object`, then they must be big numbers.
+
+- `x : t := array_read a i`: Read position `i` of the array `a`. `a` must be an (array) `object`.
+If `a` is a scalar array, then `t ≠ object`. If `a` is an (non-scalar) array, then `t = object`. -/
 inductive assign_binop
 | add | sub | mul | div | mod | shl | shr | and | or | xor
 | le  | ge  | lt  | gt  | eq  | ne
 | array_read -- (scalar) array read
 
-/-- Operators for instructions of the form `op x` -/
-inductive unop
-| inc        -- increment reference counter
-| dec        -- decrement reference counter
-| decs       -- decrement reference counter of shared object
-| free       -- free object memory, object must not be an external or big number
-| dealloc    -- free object memory
-| array_pop  -- array pop back
-| sarray_pop -- scalar array pop back
+/-- Operators for instructions of the form `op x`
 
-/-- Operators for instructions of the form `op x y` -/
+- `inc x`: increment `RC(x)`, `x` must have type `object`, and it must not be a tagged pointer.
+
+- `dec x`: decrement `RC(x)`, `x` must have type `object`, and it must not be a tagged pointer.
+If `RC(x)` becomes zero, then `x` is deleted.
+
+- `decs x`: decrement `RC(x)`, `x` must have type `object`, `RC(x) > 1`, and it must not be a tagged pointer.
+That is, `x` must be a shared object.
+
+- `free x`: free `x`'s memory. `x` must have type `object`, it must not be a tagged pointer,
+and it must not be an external or big number.
+
+- `dealloc x`: finalize `x` and free `x`'s memory. `x` must have type `object`, and it must not be a tagged pointer.
+
+- `array_pop x`: remove the last element of array `x`. `x` must have type `object`, `RC(x) = 1`, and it must
+be an array of objects.
+
+- `sarray_pop x`: remove the last element of array `x`. `x` must have type `object`, `RC(x) = 1`, and it must
+be an array of scalar values. -/
+inductive unop
+| inc | dec | decs | free | dealloc
+| array_pop | sarray_pop
+
+/-- Operators for instructions of the form `op x y`
+
+- `array_push a x`: push element `x` in the end of array `a`. `x` must have type `object`, `RC(x) = 1`, and it must
+be an array. If `x` has a scalar type, then `a` is an array of scalar. Otherwise, it is an array of objects.
+
+- `string_push s c`: push character `c` in the end of string `s`. `s` must have type `object`, and `RC(s) = 1`.
+be a string.
+
+- `string_append s₁ s₂`: append string `s₂` in the end of string `s₁`. `s₁` must have type `object`, and `RC(s₁) = 1`. -/
 inductive binop
 | array_push
 | string_push
@@ -106,6 +174,7 @@ def var     := name
 def fnid    := name
 def blockid := name
 
+/- IR Instructions -/
 inductive instr
 | assign_lit   (x : var) (ty : type) (lit : literal)                 -- x : ty := lit
 | assign_unop  (x : var) (ty : type) (op : assign_unop) (y : var)    -- x : ty := op y

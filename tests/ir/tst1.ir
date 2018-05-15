@@ -1,0 +1,8 @@
+[lean_dbg_print_str] external print_str (s : object)
+
+[main] def main : int32 :=
+entry:
+  s : object := "hello world";
+  call print_str s;
+  c : int32 := 0;
+  ret c;

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.lean.ir.ir init.lean.ir.format
+import init.lean.ir.instances init.lean.ir.format
 
 namespace lean
 namespace ir

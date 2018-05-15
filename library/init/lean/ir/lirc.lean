@@ -44,7 +44,7 @@ let m := ds.foldl (λ m d, rbmap.insert m d.name d) (mk_rbmap name decl (<)) in
 def update_external_names (m : fnid2string) (external_names : fnid → option string) : fnid → option string :=
 λ n, m.find n <|> external_names n
 
-def lirc (s : string) (cfg : extract_cpp_config) : except format string :=
+def lirc (s : string) (cfg : extract_cpp_config := {}) : except format string :=
 do (ds, m) ← parse_input s,
    let env := update_env ds cfg.env,
    let ext := update_external_names m cfg.external_names,

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.lean.ir.ir init.control.state init.lean.disjoint_set
+import init.lean.ir.instances init.control.state init.lean.disjoint_set
 
 namespace lean
 namespace ir

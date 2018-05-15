@@ -1,6 +1,6 @@
 set(RUNTIME_OBJS debug.cpp thread.cpp mpz.cpp mpq.cpp utf8.cpp
 lean_obj.cpp apply.cpp exception.cpp interrupt.cpp memory.cpp
-serializer.cpp stackinfo.cpp)
+serializer.cpp stackinfo.cpp init_module.cpp)
 add_library(runtime OBJECT ${RUNTIME_OBJS})
 add_library(leanruntime ${RUNTIME_OBJS})
 

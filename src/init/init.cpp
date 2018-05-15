@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "runtime/stackinfo.h"
 #include "runtime/thread.h"
+#include "runtime/init_module.h"
 #include "util/init_module.h"
 #include "util/sexpr/init_module.h"
 #include "kernel/init_module.h"
@@ -25,6 +26,7 @@ Author: Leonardo de Moura
 namespace lean {
 void initialize() {
     save_stack_info();
+    initialize_runtime_module();
     initialize_util_module();
     initialize_sexpr_module();
     initialize_kernel_module();
@@ -66,6 +68,7 @@ void finalize() {
     finalize_kernel_module();
     finalize_sexpr_module();
     finalize_util_module();
+    finalize_runtime_module();
     run_post_thread_finalizers();
 #ifdef LEAN_TRACK_CUSTOM_ALLOCATORS
     std::cerr << "memory deallocated by memory_pool (after finalization): " << get_memory_deallocated() << "\n";

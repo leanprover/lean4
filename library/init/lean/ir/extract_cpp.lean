@@ -202,8 +202,8 @@ match op with
 | assign_binop.mod  := emit_arith t x y z "%" "lean::big_mod"
 | assign_binop.shl  := emit_infix x y z "<<"
 | assign_binop.shr  := emit_infix x y z ">>"
-| assign_binop.and  := emit_logical_arith t x y z "&&" "&" (some "lean::bigand")
-| assign_binop.or   := emit_logical_arith t x y z "||" "|" (some "lean::bigor")
+| assign_binop.and  := emit_logical_arith t x y z "&&" "&" (some "lean::big_and")
+| assign_binop.or   := emit_logical_arith t x y z "||" "|" (some "lean::big_or")
 | assign_binop.xor  := emit_logical_arith t x y z "!=" "^" none
 | assign_binop.le   := emit_arith t x y z "<=" "lean::big_le"
 | assign_binop.ge   := emit_arith t x y z ">=" "lean::big_ge"

@@ -33,8 +33,6 @@ Otherwise, it is bitwise negation if `t` is `uint32/uint64/usize`.
 
 - `x : t := neg y`, arithmetical `-`. `t` is `int16/int32/int64/float/double/object`.
 If `t` is `object`, the instruction is unspecified if `t` is not a big number.
-When `t` is a big number (i.e., `t` is `object`), the operation will destructively update `y` if `RC(y) = 1`.
-Otherwise, it decrements `RC(y)`, and allocates a new big number to store the result.
 
 - `x : bool := is_scalar y`, set `x` to `tt` iff `y : object` is a tagged
 pointer.
@@ -76,9 +74,8 @@ inductive assign_unop
 /-- Operators for instructions of the form `x : t := op y z`
 
 - `x : t := add y z`: addition. Remark: `t ≠ bool`.
-When `t` is a big number (i.e., `t` is `object`), the operation will destructively update `y` (or `z`) if `RC(y) = 1` (`RC(z) = 1`),
-and decrement `RC(z)` (`RC(y)`). If `RC(y)` and `RC(z)` are greater than 1, then it allocates a new big number to store the result,
-and decrements `RC(y)` and `RC(z)`.
+When `t` is a big number (i.e., `t` is `object`), a new big number is
+allocated to store the result.
 
 - `x : t := sub y z`: subtraction. Remark: `t ≠ bool`. See `add` for big number case.
 
@@ -157,7 +154,10 @@ be an array. If `x` has a scalar type, then `a` is an array of scalar. Otherwise
 - `string_push s c`: push character `c` in the end of string `s`. `s` must have type `object`, and `RC(s) = 1`.
 be a string.
 
-- `string_append s₁ s₂`: append string `s₂` in the end of string `s₁`. `s₁` must have type `object`, and `RC(s₁) = 1`. -/
+- `string_append s₁ s₂`: append string `s₂` in the end of string `s₁`. `s₁` must have type `object`, and `RC(s₁) = 1`.
+
+Remark: in the future we may add instructions for performing updates destructively on big numbers. Example:
+`add_acc x y` would be `x += y`, and require `RC(x) = 1`. -/
 inductive binop
 | array_push
 | string_push

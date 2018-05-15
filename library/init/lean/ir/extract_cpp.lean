@@ -195,22 +195,22 @@ match t with
 
 def emit_assign_binop (x : var) (t : type) (op : assign_binop) (y z : var) : extract_m unit :=
 match op with
-| assign_binop.add  := emit_arith t x y z "+" "lean::big_add"
-| assign_binop.sub  := emit_arith t x y z "-" "lean::big_sub"
-| assign_binop.mul  := emit_arith t x y z "*" "lean::big_mul"
-| assign_binop.div  := emit_arith t x y z "/" "lean::big_div"
-| assign_binop.mod  := emit_arith t x y z "%" "lean::big_mod"
+| assign_binop.add  := emit_arith t x y z "+" "lean::add"
+| assign_binop.sub  := emit_arith t x y z "-" "lean::sub"
+| assign_binop.mul  := emit_arith t x y z "*" "lean::mul"
+| assign_binop.div  := emit_arith t x y z "/" "lean::div"
+| assign_binop.mod  := emit_arith t x y z "%" "lean::mod"
 | assign_binop.shl  := emit_infix x y z "<<"
 | assign_binop.shr  := emit_infix x y z ">>"
-| assign_binop.and  := emit_logical_arith t x y z "&&" "&" (some "lean::big_and")
-| assign_binop.or   := emit_logical_arith t x y z "||" "|" (some "lean::big_or")
+| assign_binop.and  := emit_logical_arith t x y z "&&" "&" (some "lean::and")
+| assign_binop.or   := emit_logical_arith t x y z "||" "|" (some "lean::or")
 | assign_binop.xor  := emit_logical_arith t x y z "!=" "^" none
-| assign_binop.le   := emit_arith t x y z "<=" "lean::big_le"
-| assign_binop.ge   := emit_arith t x y z ">=" "lean::big_ge"
-| assign_binop.lt   := emit_arith t x y z "<" "lean::big_lt"
-| assign_binop.gt   := emit_arith t x y z ">" "lean::big_gt"
-| assign_binop.eq   := emit_arith t x y z "==" "lean::big_eq"
-| assign_binop.ne   := emit_arith t x y z "!=" "lean::big_nq"
+| assign_binop.le   := emit_arith t x y z "<=" "lean::le"
+| assign_binop.ge   := emit_arith t x y z ">=" "lean::ge"
+| assign_binop.lt   := emit_arith t x y z "<" "lean::lt"
+| assign_binop.gt   := emit_arith t x y z ">" "lean::gt"
+| assign_binop.eq   := emit_arith t x y z "==" "lean::eq"
+| assign_binop.ne   := emit_arith t x y z "!=" "lean::ne"
 | assign_binop.array_read :=
   (match t with
    | type.object := emit_var x >> emit " = lean::array_obj" >> paren (emit_var y <+> emit_var z)
@@ -222,7 +222,7 @@ emit_var x >> emit " = " >> emit op >> paren(emit_var y)
 
 def assign_unop2cpp (t : type) : assign_unop → string
 | assign_unop.not          := if t = type.bool then "!" else "~"
-| assign_unop.neg          := if t = type.object then "lean::big_neg" else "-"
+| assign_unop.neg          := if t = type.object then "lean::neg" else "-"
 | assign_unop.is_scalar    := "lean::is_scalar"
 | assign_unop.is_shared    := "lean::is_shared"
 | assign_unop.is_null      := "lean::is_null"

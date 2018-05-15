@@ -32,7 +32,7 @@ uint64 | usize | int16 | int32 | int64 | float | double | object
 Otherwise, it is bitwise negation if `t` is `uint32/uint64/usize`.
 
 - `x : t := neg y`, arithmetical `-`. `t` is `int16/int32/int64/float/double/object`.
-If `t` is `object`, the instruction is unspecified if `t` is not a big number.
+If `t = object`, the instruction is unspecified if `t` is not a big number nor a tagged pointer.
 
 - `x : bool := is_scalar y`, set `x` to `tt` iff `y : object` is a tagged
 pointer.
@@ -74,8 +74,8 @@ inductive assign_unop
 /-- Operators for instructions of the form `x : t := op y z`
 
 - `x : t := add y z`: addition. Remark: `t ≠ bool`.
-When `t` is a big number (i.e., `t` is `object`), a new big number is
-allocated to store the result.
+When `t = object`, i.e., `t` is big number or tagged pointer, a new big number may be allocated
+if the result does not fit in a tagged pointer.
 
 - `x : t := sub y z`: subtraction. Remark: `t ≠ bool`. See `add` for big number case.
 

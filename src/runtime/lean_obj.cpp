@@ -125,8 +125,15 @@ void dbg_print_str(lean_obj * o) {
     lean_assert(is_string(o));
     std::cout << c_str(o) << "\n";
 }
+
+void dbg_print_num(lean_obj * o) {
+    if (is_scalar(o)) {
+        std::cout << unbox(o) << "\n";
+    } else {
+        std::cout << mpz_value(o) << "\n";
+    }
+}
 }
 
-extern "C" void lean_dbg_print_str(lean::lean_obj* o) {
-    lean::dbg_print_str(o);
-}
+extern "C" void lean_dbg_print_str(lean::lean_obj* o) { lean::dbg_print_str(o); }
+extern "C" void lean_dbg_print_num(lean::lean_obj* o) { lean::dbg_print_num(o); }

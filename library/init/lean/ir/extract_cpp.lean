@@ -193,25 +193,25 @@ match t with
    | none        := throw "ill-formed binary operator")
 | _           := emit_infix x y z op
 
-def emit_binop (x : var) (t : type) (op : binop) (y z : var) : extract_m unit :=
+def emit_assign_binop (x : var) (t : type) (op : assign_binop) (y z : var) : extract_m unit :=
 match op with
-| binop.add  := emit_arith t x y z "+" "lean::big_add"
-| binop.sub  := emit_arith t x y z "-" "lean::big_sub"
-| binop.mul  := emit_arith t x y z "*" "lean::big_mul"
-| binop.div  := emit_arith t x y z "/" "lean::big_div"
-| binop.mod  := emit_arith t x y z "%" "lean::big_mod"
-| binop.shl  := emit_infix x y z "<<"
-| binop.shr  := emit_infix x y z ">>"
-| binop.and  := emit_logical_arith t x y z "&&" "&" (some "lean::bigand")
-| binop.or   := emit_logical_arith t x y z "||" "|" (some "lean::bigor")
-| binop.xor  := emit_logical_arith t x y z "!=" "^" none
-| binop.le   := emit_arith t x y z "<=" "lean::big_le"
-| binop.ge   := emit_arith t x y z ">=" "lean::big_ge"
-| binop.lt   := emit_arith t x y z "<" "lean::big_lt"
-| binop.gt   := emit_arith t x y z ">" "lean::big_gt"
-| binop.eq   := emit_arith t x y z "==" "lean::big_eq"
-| binop.ne   := emit_arith t x y z "!=" "lean::big_nq"
-| binop.array_read :=
+| assign_binop.add  := emit_arith t x y z "+" "lean::big_add"
+| assign_binop.sub  := emit_arith t x y z "-" "lean::big_sub"
+| assign_binop.mul  := emit_arith t x y z "*" "lean::big_mul"
+| assign_binop.div  := emit_arith t x y z "/" "lean::big_div"
+| assign_binop.mod  := emit_arith t x y z "%" "lean::big_mod"
+| assign_binop.shl  := emit_infix x y z "<<"
+| assign_binop.shr  := emit_infix x y z ">>"
+| assign_binop.and  := emit_logical_arith t x y z "&&" "&" (some "lean::bigand")
+| assign_binop.or   := emit_logical_arith t x y z "||" "|" (some "lean::bigor")
+| assign_binop.xor  := emit_logical_arith t x y z "!=" "^" none
+| assign_binop.le   := emit_arith t x y z "<=" "lean::big_le"
+| assign_binop.ge   := emit_arith t x y z ">=" "lean::big_ge"
+| assign_binop.lt   := emit_arith t x y z "<" "lean::big_lt"
+| assign_binop.gt   := emit_arith t x y z ">" "lean::big_gt"
+| assign_binop.eq   := emit_arith t x y z "==" "lean::big_eq"
+| assign_binop.ne   := emit_arith t x y z "!=" "lean::big_nq"
+| assign_binop.array_read :=
   (match t with
    | type.object := emit_var x >> emit " = lean::array_obj" >> paren (emit_var y <+> emit_var z)
    | _           := emit_var x >> emit " = lean::sarray_data" >> emit_template_param t >> paren (emit_var y <+> emit_var z))
@@ -220,23 +220,23 @@ match op with
 def emit_x_op_y (x : var) (op : string) (y : var) : extract_m unit :=
 emit_var x >> emit " = " >> emit op >> paren(emit_var y)
 
-def unop2cpp (t : type) : unop → string
-| unop.not          := if t = type.bool then "!" else "~"
-| unop.neg          := if t = type.object then "lean::big_neg" else "-"
-| unop.is_scalar    := "lean::is_scalar"
-| unop.is_shared    := "lean::is_shared"
-| unop.is_null      := "lean::is_null"
-| unop.box          := "lean::box"
-| unop.unbox        := "lean::unbox"
-| unop.cast         := "static_cast<" ++ type2cpp t ++ ">"
-| unop.array_copy   := "lean::array_copy"
-| unop.sarray_copy  := "lean::sarray_copy"
-| unop.array_size   := "lean::array_size"
-| unop.sarray_size  := "lean::sarray_size"
-| unop.string_len   := "lean::string_len"
+def assign_unop2cpp (t : type) : assign_unop → string
+| assign_unop.not          := if t = type.bool then "!" else "~"
+| assign_unop.neg          := if t = type.object then "lean::big_neg" else "-"
+| assign_unop.is_scalar    := "lean::is_scalar"
+| assign_unop.is_shared    := "lean::is_shared"
+| assign_unop.is_null      := "lean::is_null"
+| assign_unop.box          := "lean::box"
+| assign_unop.unbox        := "lean::unbox"
+| assign_unop.cast         := "static_cast<" ++ type2cpp t ++ ">"
+| assign_unop.array_copy   := "lean::array_copy"
+| assign_unop.sarray_copy  := "lean::sarray_copy"
+| assign_unop.array_size   := "lean::array_size"
+| assign_unop.sarray_size  := "lean::sarray_size"
+| assign_unop.string_len   := "lean::string_len"
 
-def emit_unop (x : var) (t : type) (op : unop) (y : var) : extract_m unit :=
-emit_var x >> emit " = " >> emit (unop2cpp t op) >> paren(emit_var y)
+def emit_assign_unop (x : var) (t : type) (op : assign_unop) (y : var) : extract_m unit :=
+emit_var x >> emit " = " >> emit (assign_unop2cpp t op) >> paren(emit_var y)
 
 def emit_num_suffix : type → extract_m unit
 | type.uint32 := emit "u"
@@ -244,7 +244,7 @@ def emit_num_suffix : type → extract_m unit
 | type.int64  := emit "ll"
 | _           := return ()
 
-def emit_lit (x : var) (t : type) (l : literal) : extract_m unit :=
+def emit_assign_lit (x : var) (t : type) (l : literal) : extract_m unit :=
 match l with
 | literal.bool tt := emit_var x >> emit " = true"
 | literal.bool ff := emit_var x >> emit " = false"
@@ -259,24 +259,24 @@ match l with
     emit "))"
   | _           := emit_var x >> emit " = " >> emit v >> emit_num_suffix t
 
-def unins2cpp : unins → string
-| unins.inc            := "lean::inc_ref"
-| unins.decs           := "lean::dec_shared_ref"
-| unins.dec            := "lean::dec_ref"
-| unins.free           := "free"
-| unins.dealloc        := "lean::dealloc"
-| unins.array_pop      := "lean::array_pop"
-| unins.sarray_pop     := "lean::sarray_pop"
+def unop2cpp : unop → string
+| unop.inc            := "lean::inc_ref"
+| unop.decs           := "lean::dec_shared_ref"
+| unop.dec            := "lean::dec_ref"
+| unop.free           := "free"
+| unop.dealloc        := "lean::dealloc"
+| unop.array_pop      := "lean::array_pop"
+| unop.sarray_pop     := "lean::sarray_pop"
 
-def emit_unary (op : unins) (x : var) : extract_m unit :=
-emit (unins2cpp op) >> paren(emit_var x)
+def emit_unop (op : unop) (x : var) : extract_m unit :=
+emit (unop2cpp op) >> paren(emit_var x)
 
-def emit_binary (op : binins) (x y : var) : extract_m unit :=
+def emit_binop (op : binop) (x y : var) : extract_m unit :=
 (match op with
- | binins.array_push :=
+ | binop.array_push :=
     do env ← read, if env.ctx.find y = some type.object then emit "lean::array_push" else emit "lean::sarray_push"
- | binins.string_push   := emit "lean::string_push"
- | binins.string_append := emit "lean::string_append")
+ | binop.string_push   := emit "lean::string_push"
+ | binop.string_append := emit "lean::string_append")
 >> paren(emit_var x <+> emit_var y)
 
 def emit_apply (x : var) (ys : list var) : extract_m unit :=
@@ -306,9 +306,11 @@ do env ← read,
 def emit_instr (ins : instr) : extract_m unit :=
 ins.decorate_error $
 (match ins with
- | (instr.lit x t l)         := emit_lit x t l
- | (instr.unop x t op y)     := emit_unop x t op y
- | (instr.binop x t op y z)  := emit_binop x t op y z
+ | (instr.assign_lit x t l)         := emit_assign_lit x t l
+ | (instr.assign_unop x t op y)     := emit_assign_unop x t op y
+ | (instr.assign_binop x t op y z)  := emit_assign_binop x t op y z
+ | (instr.binop op x y)             := emit_binop op x y
+ | (instr.unop op x)                := emit_unop op x
  | (instr.call xs f ys)      := do
    emit_call_lhs xs, c ← is_const f,
    if c then emit_global f
@@ -326,9 +328,7 @@ ins.decorate_error $
    do env ← read,
       if env.ctx.find v = some type.object
       then emit "lean::set_array_obj" >> paren(emit_var a <+> emit_var i <+> emit_var v)
-      else emit "lean::set_sarray_data" >> paren(emit_var a <+> emit_var i <+> emit_var v)
- | (instr.binary op x y)     := emit_binary op x y
- | (instr.unary op x)        := emit_unary op x)
+      else emit "lean::set_sarray_data" >> paren(emit_var a <+> emit_var i <+> emit_var v))
 >> emit_eos
 
 def emit_block (b : block) : extract_m unit :=

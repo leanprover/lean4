@@ -32,22 +32,22 @@ def group_vars : decl → elim_phi_m unit
 | _                := return ()
 
 def instr.replace_vars : instr → elim_phi_m instr
-| (instr.lit x ty lit)      := instr.lit <$> find x <*> pure ty <*> pure lit
-| (instr.unop x ty op y)    := instr.unop <$> find x <*> pure ty <*> pure op <*> find y
-| (instr.binop x ty op y z) := instr.binop <$> find x <*> pure ty <*> pure op <*> find y <*> find z
-| (instr.call xs f ys)      := instr.call <$> xs.mmap find <*> pure f <*> ys.mmap find
-| (instr.cnstr o tag n s)   := instr.cnstr <$> find o <*> pure tag <*> pure n <*> pure s
-| (instr.set o i x)         := instr.set <$> find o <*> pure i <*> find x
-| (instr.get x o i)         := instr.get <$> find x <*> find o <*> pure i
-| (instr.sset o i x)        := instr.sset <$> find o <*> pure i <*> find x
-| (instr.sget x ty o i)     := instr.sget <$> find x <*> pure ty <*> find o <*> pure i
-| (instr.closure x f ys)    := instr.closure <$> find x <*> pure f <*> ys.mmap find
-| (instr.apply x ys)        := instr.apply <$> find x <*> ys.mmap find
-| (instr.array a sz c)      := instr.array <$> find a <*> find sz <*> find c
-| (instr.array_write a i v) := instr.array_write <$> find a <*> find i <*> find v
-| (instr.sarray a ty sz c)  := instr.sarray <$> find a <*> pure ty <*> find sz <*> find c
-| (instr.unary op x)        := instr.unary op <$> find x
-| (instr.binary op x y)     := instr.binary op <$> find x <*> find y
+| (instr.assign_lit x ty lit)      := instr.assign_lit <$> find x <*> pure ty <*> pure lit
+| (instr.assign_unop x ty op y)    := instr.assign_unop <$> find x <*> pure ty <*> pure op <*> find y
+| (instr.assign_binop x ty op y z) := instr.assign_binop <$> find x <*> pure ty <*> pure op <*> find y <*> find z
+| (instr.unop op x)                := instr.unop op <$> find x
+| (instr.binop op x y)             := instr.binop op <$> find x <*> find y
+| (instr.call xs f ys)             := instr.call <$> xs.mmap find <*> pure f <*> ys.mmap find
+| (instr.cnstr o tag n s)          := instr.cnstr <$> find o <*> pure tag <*> pure n <*> pure s
+| (instr.set o i x)                := instr.set <$> find o <*> pure i <*> find x
+| (instr.get x o i)                := instr.get <$> find x <*> find o <*> pure i
+| (instr.sset o i x)               := instr.sset <$> find o <*> pure i <*> find x
+| (instr.sget x ty o i)            := instr.sget <$> find x <*> pure ty <*> find o <*> pure i
+| (instr.closure x f ys)           := instr.closure <$> find x <*> pure f <*> ys.mmap find
+| (instr.apply x ys)               := instr.apply <$> find x <*> ys.mmap find
+| (instr.array a sz c)             := instr.array <$> find a <*> find sz <*> find c
+| (instr.array_write a i v)        := instr.array_write <$> find a <*> find i <*> find v
+| (instr.sarray a ty sz c)         := instr.sarray <$> find a <*> pure ty <*> find sz <*> find c
 
 def terminator.replace_vars : terminator → elim_phi_m terminator
 | (terminator.ret xs)    := terminator.ret <$> xs.mmap find

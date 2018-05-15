@@ -69,18 +69,18 @@ The behavior is unspecified if `y` is not an array of scalar values.
 The length is the number of unicode scalar values.
 The behavior is unspecified if `y` is not a string.
 -/
-inductive unop
+inductive assign_unop
 | not | neg | is_scalar | is_shared | is_null | cast | box | unbox
 | array_copy | sarray_copy | array_size | sarray_size | string_len
 
 /-- Operators for instructions of the form `x : t := op y z` -/
-inductive binop
+inductive assign_binop
 | add | sub | mul | div | mod | shl | shr | and | or | xor
 | le  | ge  | lt  | gt  | eq  | ne
 | array_read -- (scalar) array read
 
 /-- Operators for instructions of the form `op x` -/
-inductive unins
+inductive unop
 | inc        -- increment reference counter
 | dec        -- decrement reference counter
 | decs       -- decrement reference counter of shared object
@@ -90,7 +90,7 @@ inductive unins
 | sarray_pop -- scalar array pop back
 
 /-- Operators for instructions of the form `op x y` -/
-inductive binins
+inductive binop
 | array_push
 | string_push
 | string_append
@@ -107,25 +107,25 @@ def fnid    := name
 def blockid := name
 
 inductive instr
-| lit     (x : var) (ty : type) (lit : literal)                 -- x : ty := lit
-| unop    (x : var) (ty : type) (op : unop) (y : var)           -- x : ty := op y
-| binop   (x : var) (ty : type) (op : binop) (y z : var)        -- x : ty := op y z
-| unary   (op : unins) (x : var)                                -- op x
-| binary (op : binins) (x y : var)                              -- op x y
-| call    (xs : list var) (f : fnid) (ys : list var)            -- Function call:  xs := f ys
+| assign_lit   (x : var) (ty : type) (lit : literal)                 -- x : ty := lit
+| assign_unop  (x : var) (ty : type) (op : assign_unop) (y : var)    -- x : ty := op y
+| assign_binop (x : var) (ty : type) (op : assign_binop) (y z : var) -- x : ty := op y z
+| unop         (op : unop) (x : var)                                 -- op x
+| binop        (op : binop) (x y : var)                              -- op x y
+| call         (xs : list var) (f : fnid) (ys : list var)            -- Function call:  xs := f ys
 /- Constructor objects -/
-| cnstr   (o : var) (tag : tag) (nobjs : uint16) (ssz : usize)  -- Create constructor object
-| set     (o : var) (i : uint16) (x : var)                      -- Set object field:          set o i x
-| get     (x : var) (o : var) (i : uint16)                      -- Get object field:          x := get o i
-| sset    (o : var) (d : usize) (v : var)                       -- Set scalar field:          sset o d v
-| sget    (x : var) (ty : type) (o : var) (d : usize)           -- Get scalar field:          x : ty := sget o d
+| cnstr   (o : var) (tag : tag) (nobjs : uint16) (ssz : usize)       -- Create constructor object
+| set     (o : var) (i : uint16) (x : var)                           -- Set object field:          set o i x
+| get     (x : var) (o : var) (i : uint16)                           -- Get object field:          x := get o i
+| sset    (o : var) (d : usize) (v : var)                            -- Set scalar field:          sset o d v
+| sget    (x : var) (ty : type) (o : var) (d : usize)                -- Get scalar field:          x : ty := sget o d
 /- Closures -/
-| closure (x : var) (f : fnid) (ys : list var)                  -- Create closure:            x := closure f ys
-| apply   (x : var) (ys : list var)                             -- Apply closure:             x := apply ys
+| closure (x : var) (f : fnid) (ys : list var)                       -- Create closure:            x := closure f ys
+| apply   (x : var) (ys : list var)                                  -- Apply closure:             x := apply ys
 /- Arrays -/
-| array   (a sz c : var)                                        -- Create array of objects with size `sz` and capacity `c`
-| sarray  (a : var) (ty : type) (sz c : var)                    -- Create scalar array
-| array_write (a i v : var)                                     -- (scalar) Array write      write a i v
+| array   (a sz c : var)                                             -- Create array of objects with size `sz` and capacity `c`
+| sarray  (a : var) (ty : type) (sz c : var)                         -- Create scalar array
+| array_write (a i v : var)                                          -- (scalar) Array write      write a i v
 
 structure phi :=
 (x : var) (ty : type) (ys : list var)

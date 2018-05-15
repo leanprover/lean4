@@ -48,45 +48,45 @@ def type.to_format : type → format
 instance type.has_to_format : has_to_format type := ⟨type.to_format⟩
 instance type.has_to_string : has_to_string type := ⟨pretty ∘ to_fmt⟩
 
+def assign_unop.to_format : assign_unop → format
+| assign_unop.not           := "not"        | assign_unop.neg          := "neg"
+| assign_unop.is_scalar     := "is_scalar"  | assign_unop.is_shared    := "is_shared" | assign_unop.is_null := "is_null"
+| assign_unop.box           := "box"        | assign_unop.unbox        := "unbox"
+| assign_unop.cast          := "cast"
+| assign_unop.array_copy    := "array_copy" | assign_unop.sarray_copy  := "sarray_copy"
+| assign_unop.array_size    := "array_size" | assign_unop.sarray_size  := "sarray_size"
+| assign_unop.string_len    := "string_len"
+
+instance assign_unop.has_to_format : has_to_format assign_unop := ⟨assign_unop.to_format⟩
+instance assign_unop.has_to_string : has_to_string assign_unop := ⟨pretty ∘ to_fmt⟩
+
+def assign_binop.to_format : assign_binop → format
+| assign_binop.add  := "add"  | assign_binop.sub  := "sub" | assign_binop.mul  := "mul"  | assign_binop.div  := "div"
+| assign_binop.mod  := "mod"  | assign_binop.shl  := "shl" | assign_binop.shr  := "shr"
+| assign_binop.and  := "and"  | assign_binop.or   := "or"  | assign_binop.xor  := "xor"  | assign_binop.le   := "le"
+| assign_binop.ge   := "ge"   | assign_binop.lt   := "lt"  | assign_binop.gt   := "gt"   | assign_binop.eq   := "eq"
+| assign_binop.ne   := "ne"
+| assign_binop.array_read := "array_read"
+
+instance assign_binop.has_to_format : has_to_format assign_binop := ⟨assign_binop.to_format⟩
+instance assign_binop.has_to_string : has_to_string assign_binop := ⟨pretty ∘ to_fmt⟩
+
 def unop.to_format : unop → format
-| unop.not           := "not"        | unop.neg          := "neg"
-| unop.is_scalar     := "is_scalar"  | unop.is_shared    := "is_shared" | unop.is_null := "is_null"
-| unop.box           := "box"        | unop.unbox        := "unbox"
-| unop.cast          := "cast"
-| unop.array_copy    := "array_copy" | unop.sarray_copy  := "sarray_copy"
-| unop.array_size    := "array_size" | unop.sarray_size  := "sarray_size"
-| unop.string_len    := "string_len"
+| unop.inc  := "inc"
+| unop.dec  := "dec"  | unop.decs := "decs"
+| unop.free := "free" | unop.dealloc := "dealloc"
+| unop.array_pop := "array_pop" | unop.sarray_pop := "sarray_pop"
 
 instance unop.has_to_format : has_to_format unop := ⟨unop.to_format⟩
 instance unop.has_to_string : has_to_string unop := ⟨pretty ∘ to_fmt⟩
 
 def binop.to_format : binop → format
-| binop.add  := "add"  | binop.sub  := "sub" | binop.mul  := "mul"  | binop.div  := "div"
-| binop.mod  := "mod"  | binop.shl  := "shl" | binop.shr  := "shr"
-| binop.and  := "and"  | binop.or   := "or"  | binop.xor  := "xor"  | binop.le   := "le"
-| binop.ge   := "ge"   | binop.lt   := "lt"  | binop.gt   := "gt"   | binop.eq   := "eq"
-| binop.ne   := "ne"
-| binop.array_read := "array_read"
+| binop.array_push    := "array_push"
+| binop.string_push   := "string_push"
+| binop.string_append := "string_append"
 
 instance binop.has_to_format : has_to_format binop := ⟨binop.to_format⟩
 instance binop.has_to_string : has_to_string binop := ⟨pretty ∘ to_fmt⟩
-
-def unins.to_format : unins → format
-| unins.inc  := "inc"
-| unins.dec  := "dec"  | unins.decs := "decs"
-| unins.free := "free" | unins.dealloc := "dealloc"
-| unins.array_pop := "array_pop" | unins.sarray_pop := "sarray_pop"
-
-instance unins.has_to_format : has_to_format unins := ⟨unins.to_format⟩
-instance unins.has_to_string : has_to_string unins := ⟨pretty ∘ to_fmt⟩
-
-def binins.to_format : binins → format
-| binins.array_push    := "array_push"
-| binins.string_push   := "string_push"
-| binins.string_append := "string_append"
-
-instance binins.has_to_format : has_to_format binins := ⟨binins.to_format⟩
-instance binins.has_to_string : has_to_string binins := ⟨pretty ∘ to_fmt⟩
 
 def literal.to_format : literal → format
 | (literal.bool b)  := to_fmt b
@@ -102,22 +102,22 @@ def sizet_entry.to_format : nat × type → format
 | (n, ty) := to_fmt n ++ ":" ++ to_fmt ty
 
 def instr.to_format : instr → format
-| (instr.lit x ty lit)       := to_fmt x ++ " : " ++ to_fmt ty ++ " := " ++ to_fmt lit
-| (instr.unop x ty op y)     := to_fmt x ++ " : " ++ to_fmt ty ++ " := " ++ to_fmt op ++ " " ++ to_fmt y
-| (instr.binop x ty op y z)  := to_fmt x ++ " : " ++ to_fmt ty ++ " := " ++ to_fmt op ++ " " ++ to_fmt y ++ " " ++ to_fmt z
-| (instr.call xs fn ys)      := join_sep xs " " ++ " := call " ++ to_fmt fn ++ prefix_join " " ys
-| (instr.cnstr o t n sz)     := to_fmt o ++ " := cnstr " ++ to_fmt t ++ " " ++ to_fmt n ++ " " ++ to_fmt sz
-| (instr.set o i x)          := to_fmt "set " ++ to_fmt o ++ " " ++ to_fmt i ++ " " ++ to_fmt x
-| (instr.get x o i)          := to_fmt x ++ " := get " ++ to_fmt o ++ " " ++ to_fmt i
-| (instr.sset o d v)         := to_fmt "sset " ++ to_fmt o ++ " " ++ to_fmt d ++ " " ++ to_fmt v
-| (instr.sget x ty o d)      := to_fmt x ++ " : " ++ to_fmt ty ++ " := sget " ++ to_fmt o ++ " " ++ to_fmt d
-| (instr.closure x f ys)     := to_fmt x ++ " := closure " ++ to_fmt f ++ prefix_join " " ys
-| (instr.apply x ys)         := to_fmt x ++ " := apply " ++ join_sep ys " "
-| (instr.array a sz c)       := to_fmt a ++ " := array " ++ to_fmt sz ++ " " ++ to_fmt c
-| (instr.sarray a ty sz c)   := to_fmt a ++ " := sarray " ++ to_fmt ty ++ " " ++ to_fmt sz ++ " " ++ to_fmt c
-| (instr.array_write a i v)  := "array_write " ++ to_fmt a ++ " " ++ to_fmt i ++ " " ++ to_fmt v
-| (instr.unary op x)         := to_fmt op ++ " " ++ to_fmt x
-| (instr.binary op x y)      := to_fmt op ++ " " ++ to_fmt x ++ " " ++ to_fmt y
+| (instr.assign_lit x ty lit)       := to_fmt x ++ " : " ++ to_fmt ty ++ " := " ++ to_fmt lit
+| (instr.assign_unop x ty op y)     := to_fmt x ++ " : " ++ to_fmt ty ++ " := " ++ to_fmt op ++ " " ++ to_fmt y
+| (instr.assign_binop x ty op y z)  := to_fmt x ++ " : " ++ to_fmt ty ++ " := " ++ to_fmt op ++ " " ++ to_fmt y ++ " " ++ to_fmt z
+| (instr.unop op x)                 := to_fmt op ++ " " ++ to_fmt x
+| (instr.binop op x y)              := to_fmt op ++ " " ++ to_fmt x ++ " " ++ to_fmt y
+| (instr.call xs fn ys)             := join_sep xs " " ++ " := call " ++ to_fmt fn ++ prefix_join " " ys
+| (instr.cnstr o t n sz)            := to_fmt o ++ " := cnstr " ++ to_fmt t ++ " " ++ to_fmt n ++ " " ++ to_fmt sz
+| (instr.set o i x)                 := to_fmt "set " ++ to_fmt o ++ " " ++ to_fmt i ++ " " ++ to_fmt x
+| (instr.get x o i)                 := to_fmt x ++ " := get " ++ to_fmt o ++ " " ++ to_fmt i
+| (instr.sset o d v)                := to_fmt "sset " ++ to_fmt o ++ " " ++ to_fmt d ++ " " ++ to_fmt v
+| (instr.sget x ty o d)             := to_fmt x ++ " : " ++ to_fmt ty ++ " := sget " ++ to_fmt o ++ " " ++ to_fmt d
+| (instr.closure x f ys)            := to_fmt x ++ " := closure " ++ to_fmt f ++ prefix_join " " ys
+| (instr.apply x ys)                := to_fmt x ++ " := apply " ++ join_sep ys " "
+| (instr.array a sz c)              := to_fmt a ++ " := array " ++ to_fmt sz ++ " " ++ to_fmt c
+| (instr.sarray a ty sz c)          := to_fmt a ++ " := sarray " ++ to_fmt ty ++ " " ++ to_fmt sz ++ " " ++ to_fmt c
+| (instr.array_write a i v)         := "array_write " ++ to_fmt a ++ " " ++ to_fmt i ++ " " ++ to_fmt v
 
 instance instr.has_to_format : has_to_format instr := ⟨instr.to_format⟩
 instance instr.has_to_string : has_to_string instr := ⟨pretty ∘ to_fmt⟩

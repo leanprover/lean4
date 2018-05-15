@@ -16,18 +16,18 @@ do m ← get,
    else do b ← read, put (m.insert x b)
 
 def instr.declare_vars : instr → reader_t blockid ssa_pre_m unit
-| (instr.lit x _ _)       := x.declare
-| (instr.unop x _ _ _)    := x.declare
-| (instr.binop x _ _ _ _) := x.declare
-| (instr.call xs _ _)     := xs.mfor var.declare
-| (instr.cnstr o _ _ _)   := o.declare
-| (instr.get x _ _)       := x.declare
-| (instr.sget x _ _ _)    := x.declare
-| (instr.closure x _ _)   := x.declare
-| (instr.apply x _)       := x.declare
-| (instr.array a _ _)     := a.declare
-| (instr.sarray x _ _ _)  := x.declare
-| _                       := return ()
+| (instr.assign_lit x _ _)       := x.declare
+| (instr.assign_unop x _ _ _)    := x.declare
+| (instr.assign_binop x _ _ _ _) := x.declare
+| (instr.call xs _ _)            := xs.mfor var.declare
+| (instr.cnstr o _ _ _)          := o.declare
+| (instr.get x _ _)              := x.declare
+| (instr.sget x _ _ _)           := x.declare
+| (instr.closure x _ _)          := x.declare
+| (instr.apply x _)              := x.declare
+| (instr.array a _ _)            := a.declare
+| (instr.sarray x _ _ _)         := x.declare
+| _                              := return ()
 
 def phi.declare  (p : phi) : reader_t blockid ssa_pre_m unit :=
 p.decorate_error p.x.declare
@@ -82,22 +82,22 @@ do m ← read,
 def instr.valid_ssa (ins : instr) : ssa_valid_m unit :=
 ins.decorate_error $
 match ins with
-| (instr.lit x _ _)         := x.define
-| (instr.unop x _ _ y)      := x.define >> y.defined
-| (instr.binop x _ _ y z)   := x.define >> y.defined >> z.defined
-| (instr.call xs _ ys)      := xs.mfor var.define >> ys.mfor var.defined
-| (instr.cnstr o _ _ _)     := o.define
-| (instr.set o _ x)         := o.defined >> x.defined
-| (instr.get x y _)         := x.define >> y.defined
-| (instr.sset o _ x)        := o.defined >> x.defined
-| (instr.sget x _ y _)      := x.define >> y.defined
-| (instr.closure x _ ys)    := x.define >> ys.mfor var.defined
-| (instr.apply x ys)        := x.define >> ys.mfor var.defined
-| (instr.array a sz c)      := a.define >> sz.defined >> c.defined
-| (instr.sarray x _ sz c)   := x.define >> sz.defined >> c.defined
-| (instr.array_write a i v) := a.defined >> i.defined >> v.defined
-| (instr.unary _ x)         := x.defined
-| (instr.binary _ x y)      := x.defined >> y.defined
+| (instr.assign_lit x _ _)       := x.define
+| (instr.assign_unop x _ _ y)    := x.define >> y.defined
+| (instr.assign_binop x _ _ y z) := x.define >> y.defined >> z.defined
+| (instr.unop _ x)               := x.defined
+| (instr.binop _ x y)            := x.defined >> y.defined
+| (instr.call xs _ ys)           := xs.mfor var.define >> ys.mfor var.defined
+| (instr.cnstr o _ _ _)          := o.define
+| (instr.set o _ x)              := o.defined >> x.defined
+| (instr.get x y _)              := x.define >> y.defined
+| (instr.sset o _ x)             := o.defined >> x.defined
+| (instr.sget x _ y _)           := x.define >> y.defined
+| (instr.closure x _ ys)         := x.define >> ys.mfor var.defined
+| (instr.apply x ys)             := x.define >> ys.mfor var.defined
+| (instr.array a sz c)           := a.define >> sz.defined >> c.defined
+| (instr.sarray x _ sz c)        := x.define >> sz.defined >> c.defined
+| (instr.array_write a i v)      := a.defined >> i.defined >> v.defined
 
 def terminator.valid_ssa (term : terminator) : ssa_valid_m unit :=
 term.decorate_error $

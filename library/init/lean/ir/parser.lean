@@ -32,53 +32,53 @@ def parse_type : parser type :=
 <|> (keyword "double" >> return type.double)
 <|> (keyword "object" >> return type.object)
 
+def parse_assign_unop : parser assign_unop :=
+    (keyword "not" >> return assign_unop.not)
+<|> (keyword "neg" >> return assign_unop.neg)
+<|> (keyword "is_scalar" >> return assign_unop.is_scalar)
+<|> (keyword "is_shared" >> return assign_unop.is_shared)
+<|> (keyword "is_null" >> return assign_unop.is_null)
+<|> (keyword "array_copy" >> return assign_unop.array_copy)
+<|> (keyword "sarray_copy" >> return assign_unop.sarray_copy)
+<|> (keyword "box" >> return assign_unop.box)
+<|> (keyword "unbox" >> return assign_unop.unbox)
+<|> (keyword "cast" >> return assign_unop.cast)
+<|> (keyword "array_size" >> return assign_unop.array_size)
+<|> (keyword "sarray_size" >> return assign_unop.sarray_size)
+<|> (keyword "string_len" >> return assign_unop.string_len)
+
+def parse_assign_binop : parser assign_binop :=
+    (keyword "add" >> return assign_binop.add)
+<|> (keyword "sub" >> return assign_binop.sub)
+<|> (keyword "mul" >> return assign_binop.mul)
+<|> (keyword "div" >> return assign_binop.div)
+<|> (keyword "mod" >> return assign_binop.mod)
+<|> (keyword "shl" >> return assign_binop.shl)
+<|> (keyword "shr" >> return assign_binop.shr)
+<|> (keyword "and" >> return assign_binop.and)
+<|> (keyword "or" >> return assign_binop.or)
+<|> (keyword "xor" >> return assign_binop.xor)
+<|> (keyword "le" >> return assign_binop.le)
+<|> (keyword "ge" >> return assign_binop.ge)
+<|> (keyword "lt" >> return assign_binop.lt)
+<|> (keyword "gt" >> return assign_binop.gt)
+<|> (keyword "eq" >> return assign_binop.eq)
+<|> (keyword "ne" >> return assign_binop.ne)
+<|> (keyword "array_read" >> return assign_binop.array_read)
+
 def parse_unop : parser unop :=
-    (keyword "not" >> return unop.not)
-<|> (keyword "neg" >> return unop.neg)
-<|> (keyword "is_scalar" >> return unop.is_scalar)
-<|> (keyword "is_shared" >> return unop.is_shared)
-<|> (keyword "is_null" >> return unop.is_null)
-<|> (keyword "array_copy" >> return unop.array_copy)
-<|> (keyword "sarray_copy" >> return unop.sarray_copy)
-<|> (keyword "box" >> return unop.box)
-<|> (keyword "unbox" >> return unop.unbox)
-<|> (keyword "cast" >> return unop.cast)
-<|> (keyword "array_size" >> return unop.array_size)
-<|> (keyword "sarray_size" >> return unop.sarray_size)
-<|> (keyword "string_len" >> return unop.string_len)
+    (keyword "inc" >> return unop.inc)
+<|> (keyword "dec" >> return unop.dec)
+<|> (keyword "decs" >> return unop.decs)
+<|> (keyword "free" >> return unop.free)
+<|> (keyword "dealloc" >> return unop.dealloc)
+<|> (keyword "array_pop" >> return unop.array_pop)
+<|> (keyword "sarray_pop" >> return unop.sarray_pop)
 
 def parse_binop : parser binop :=
-    (keyword "add" >> return binop.add)
-<|> (keyword "sub" >> return binop.sub)
-<|> (keyword "mul" >> return binop.mul)
-<|> (keyword "div" >> return binop.div)
-<|> (keyword "mod" >> return binop.mod)
-<|> (keyword "shl" >> return binop.shl)
-<|> (keyword "shr" >> return binop.shr)
-<|> (keyword "and" >> return binop.and)
-<|> (keyword "or" >> return binop.or)
-<|> (keyword "xor" >> return binop.xor)
-<|> (keyword "le" >> return binop.le)
-<|> (keyword "ge" >> return binop.ge)
-<|> (keyword "lt" >> return binop.lt)
-<|> (keyword "gt" >> return binop.gt)
-<|> (keyword "eq" >> return binop.eq)
-<|> (keyword "ne" >> return binop.ne)
-<|> (keyword "array_read" >> return binop.array_read)
-
-def parse_unins : parser unins :=
-    (keyword "inc" >> return unins.inc)
-<|> (keyword "dec" >> return unins.dec)
-<|> (keyword "decs" >> return unins.decs)
-<|> (keyword "free" >> return unins.free)
-<|> (keyword "dealloc" >> return unins.dealloc)
-<|> (keyword "array_pop" >> return unins.array_pop)
-<|> (keyword "sarray_pop" >> return unins.sarray_pop)
-
-def parse_binins : parser binins :=
-    (keyword "array_push" >> return binins.array_push)
-<|> (keyword "string_push" >> return binins.string_push)
-<|> (keyword "string_append" >> return binins.string_append)
+    (keyword "array_push" >> return binop.array_push)
+<|> (keyword "string_push" >> return binop.string_push)
+<|> (keyword "string_append" >> return binop.string_append)
 
 def parse_literal : parser literal :=
     (keyword "tt" >> return (literal.bool tt))
@@ -130,9 +130,9 @@ do  symbol ":",
     ty ← parse_type,
     symbol ":=",
     (keyword "sget" >> instr.sget x ty <$> parse_var <*> parse_usize)
-<|> (instr.unop x ty <$> parse_unop <*> parse_var)
-<|> (instr.binop x ty <$> parse_binop <*> parse_var <*> parse_var)
-<|> (instr.lit x ty <$> parse_literal)
+<|> (instr.assign_unop x ty <$> parse_assign_unop <*> parse_var)
+<|> (instr.assign_binop x ty <$> parse_assign_binop <*> parse_var <*> parse_var)
+<|> (instr.assign_lit x ty <$> parse_literal)
 
 def parse_untyped_assignment (x : var) : parser instr :=
 do  symbol ":=",
@@ -155,8 +155,8 @@ def parse_instr : parser instr :=
 <|> (keyword "set" >> instr.set <$> parse_var <*> parse_uint16 <*> parse_var)
 <|> (keyword "sset" >> instr.sset <$> parse_var <*> parse_usize <*> parse_var)
 <|> (keyword "call" >> instr.call [] <$> parse_fnid <*> many parse_var)
-<|> (instr.unary <$> parse_unins <*> parse_var)
-<|> (instr.binary <$> parse_binins <*> parse_var <*> parse_var)
+<|> (instr.unop <$> parse_unop <*> parse_var)
+<|> (instr.binop <$> parse_binop <*> parse_var <*> parse_var)
 <|> parse_assignment
 
 def parse_phi : parser phi :=

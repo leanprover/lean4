@@ -41,42 +41,42 @@ match ty with
 | _ := ff
 
 /-- Return `tt` iff the instruction `x : r := op y` is type correct where `y : t` -/
-def valid_unop_types (op : unop) (r : type) (t : type) : bool :=
+def valid_assign_unop_types (op : assign_unop) (r : type) (t : type) : bool :=
 match op with
-| unop.not           := t = r && is_bitwise_ty t
-| unop.neg           := t = r && is_signed_arith_ty t
-| unop.is_scalar     := t = type.object && r = type.bool
-| unop.is_shared     := t = type.object && r = type.bool
-| unop.is_null       := t = type.object && r = type.bool
-| unop.array_copy    := t = type.object && r = type.object
-| unop.sarray_copy   := t = type.object && r = type.object
-| unop.unbox         := t = type.object && (r = type.uint32 || r = type.int32)
-| unop.box           := r = type.object && (t = type.uint32 || t = type.int32)
-| unop.cast          := r ≠ type.object && r ≠ type.object
-| unop.array_size    := r = type.usize && t = type.object
-| unop.sarray_size   := r = type.usize && t = type.object
-| unop.string_len    := r = type.usize && t = type.object
+| assign_unop.not           := t = r && is_bitwise_ty t
+| assign_unop.neg           := t = r && is_signed_arith_ty t
+| assign_unop.is_scalar     := t = type.object && r = type.bool
+| assign_unop.is_shared     := t = type.object && r = type.bool
+| assign_unop.is_null       := t = type.object && r = type.bool
+| assign_unop.array_copy    := t = type.object && r = type.object
+| assign_unop.sarray_copy   := t = type.object && r = type.object
+| assign_unop.unbox         := t = type.object && (r = type.uint32 || r = type.int32)
+| assign_unop.box           := r = type.object && (t = type.uint32 || t = type.int32)
+| assign_unop.cast          := r ≠ type.object && r ≠ type.object
+| assign_unop.array_size    := r = type.usize && t = type.object
+| assign_unop.sarray_size   := r = type.usize && t = type.object
+| assign_unop.string_len    := r = type.usize && t = type.object
 
 /-- Return `tt` iff the instruction `x : r := op y z` is type correct where `y z : t` -/
-def valid_binop_types (op : binop) (r : type) (t₁ t₂ : type) : bool :=
+def valid_assign_binop_types (op : assign_binop) (r : type) (t₁ t₂ : type) : bool :=
 match op with
-| binop.add  := r = t₁ && r = t₂ && is_arith_ty r
-| binop.sub  := r = t₁ && r = t₂ && is_arith_ty r
-| binop.mul  := r = t₁ && r = t₂ && is_arith_ty r
-| binop.div  := r = t₁ && r = t₂ && is_arith_ty r
-| binop.mod  := r = t₁ && r = t₂ && is_nonfloat_arith_ty r
-| binop.shl  := r = t₁ && r = t₂ && is_bitshift_ty r
-| binop.shr  := r = t₁ && r = t₂ && is_bitshift_ty r
-| binop.and  := r = t₁ && r = t₂ && is_bitwise_ty r
-| binop.or   := r = t₁ && r = t₂ && is_bitwise_ty r
-| binop.xor  := r = t₁ && r = t₂ && is_bitwise_ty r
-| binop.le   := r = type.bool && t₁ = t₂ && is_arith_ty t₁
-| binop.ge   := r = type.bool && t₁ = t₂ && is_arith_ty t₁
-| binop.lt   := r = type.bool && t₁ = t₂ && is_arith_ty t₁
-| binop.gt   := r = type.bool && t₁ = t₂ && is_arith_ty t₁
-| binop.eq   := r = type.bool && t₁ = t₂
-| binop.ne   := r = type.bool && t₁ = t₂
-| binop.array_read := t₁ = type.object && t₂ = type.usize
+| assign_binop.add  := r = t₁ && r = t₂ && is_arith_ty r
+| assign_binop.sub  := r = t₁ && r = t₂ && is_arith_ty r
+| assign_binop.mul  := r = t₁ && r = t₂ && is_arith_ty r
+| assign_binop.div  := r = t₁ && r = t₂ && is_arith_ty r
+| assign_binop.mod  := r = t₁ && r = t₂ && is_nonfloat_arith_ty r
+| assign_binop.shl  := r = t₁ && r = t₂ && is_bitshift_ty r
+| assign_binop.shr  := r = t₁ && r = t₂ && is_bitshift_ty r
+| assign_binop.and  := r = t₁ && r = t₂ && is_bitwise_ty r
+| assign_binop.or   := r = t₁ && r = t₂ && is_bitwise_ty r
+| assign_binop.xor  := r = t₁ && r = t₂ && is_bitwise_ty r
+| assign_binop.le   := r = type.bool && t₁ = t₂ && is_arith_ty t₁
+| assign_binop.ge   := r = type.bool && t₁ = t₂ && is_arith_ty t₁
+| assign_binop.lt   := r = type.bool && t₁ = t₂ && is_arith_ty t₁
+| assign_binop.gt   := r = type.bool && t₁ = t₂ && is_arith_ty t₁
+| assign_binop.eq   := r = type.bool && t₁ = t₂
+| assign_binop.ne   := r = type.bool && t₁ = t₂
+| assign_binop.array_read := t₁ = type.object && t₂ = type.usize
 
 @[reducible] def type_checker_m := except_t format (reader_t (environment × list result) (state_t context id))
 
@@ -137,9 +137,9 @@ def set_result_types : list var → list result → type_checker_m unit
 def instr.infer_types (ins : instr) : type_checker_m unit :=
 ins.decorate_error $
 match ins with
-| (instr.lit x t l)        := set_type x t
-| (instr.unop x t op y)    := set_type x t
-| (instr.binop x t op y z) := set_type x t
+| (instr.assign_lit x t l)        := set_type x t
+| (instr.assign_unop x t op y)    := set_type x t
+| (instr.assign_binop x t op y z) := set_type x t
 | (instr.call xs f ys)     := do d ← get_decl f, set_result_types xs d.header.return
 | (instr.cnstr o _ _ _)    := set_type o type.object
 | (instr.get x o _)        := set_type x type.object
@@ -178,9 +178,9 @@ def check_arg_types : list var → list arg → type_checker_m unit
 def instr.check (ins : instr) : type_checker_m unit :=
 ins.decorate_error $
 match ins with
-| (instr.lit x t l)         := l.check t
-| (instr.unop x t op y)     := do t₁ ← get_type y, unless (valid_unop_types op t t₁) $ throw "invalid unary operation"
-| (instr.binop x t op y z)  := do t₁ ← get_type y, t₂ ← get_type z, unless (valid_binop_types op t t₁ t₂) $ throw "invalid binary operation"
+| (instr.assign_lit x t l)         := l.check t
+| (instr.assign_unop x t op y)     := do t₁ ← get_type y, unless (valid_assign_unop_types op t t₁) $ throw "invalid unary operation"
+| (instr.assign_binop x t op y z)  := do t₁ ← get_type y, t₂ ← get_type z, unless (valid_assign_binop_types op t t₁ t₂) $ throw "invalid binary operation"
 | (instr.call xs f ys)      := do d ← get_decl f, check_arg_types ys d.header.args
 | (instr.cnstr o _ _ _)     := return ()
 | (instr.set o _ x)         := check_type o type.object >> check_type x type.object
@@ -195,13 +195,13 @@ match ins with
 | (instr.array a sz c)      := check_type sz type.usize >> check_type c type.usize
 | (instr.sarray a t sz c)   := check_type sz type.usize >> check_type c type.usize >> unless (t ≠ type.object) (throw "invalid scalar array")
 | (instr.array_write a i _) := check_type a type.object >> check_type i type.usize
-| (instr.unary _ x)         := check_type x type.object
-| (instr.binary op x y)     :=
+| (instr.unop _ x)          := check_type x type.object
+| (instr.binop op x y)      :=
   check_type x type.object >>
   match op with
-  | binins.string_push   := check_type y type.uint32
-  | binins.string_append := check_type y type.object
-  | binins.array_push    := return ()
+  | binop.string_push   := check_type y type.uint32
+  | binop.string_append := check_type y type.object
+  | binop.array_push    := return ()
 
 def phi.check (p : phi) : type_checker_m unit :=
 p.decorate_error $ p.ys.mfor (flip check_type p.ty)

@@ -45,9 +45,9 @@ def instr.replace_vars : instr → elim_phi_m instr
 | (instr.apply x ys)        := instr.apply <$> find x <*> ys.mmap find
 | (instr.array a sz c)      := instr.array <$> find a <*> find sz <*> find c
 | (instr.array_write a i v) := instr.array_write <$> find a <*> find i <*> find v
-| (instr.array_push a v)    := instr.array_push <$> find a <*> find v
 | (instr.sarray a ty sz c)  := instr.sarray <$> find a <*> pure ty <*> find sz <*> find c
 | (instr.unary op x)        := instr.unary op <$> find x
+| (instr.binary op x y)     := instr.binary op <$> find x <*> find y
 
 def terminator.replace_vars : terminator → elim_phi_m terminator
 | (terminator.ret xs)    := terminator.ret <$> xs.mmap find

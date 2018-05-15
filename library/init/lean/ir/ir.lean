@@ -89,6 +89,12 @@ inductive unins
 | array_pop  -- array pop back
 | sarray_pop -- scalar array pop back
 
+/-- Operators for instructions of the form `op x y` -/
+inductive binins
+| array_push
+| string_push
+| string_append
+
 inductive literal
 | bool    : bool   → literal
 | str     : string → literal
@@ -104,6 +110,8 @@ inductive instr
 | lit     (x : var) (ty : type) (lit : literal)                 -- x : ty := lit
 | unop    (x : var) (ty : type) (op : unop) (y : var)           -- x : ty := op y
 | binop   (x : var) (ty : type) (op : binop) (y z : var)        -- x : ty := op y z
+| unary   (op : unins) (x : var)                                -- op x
+| binary (op : binins) (x y : var)                              -- op x y
 | call    (xs : list var) (f : fnid) (ys : list var)            -- Function call:  xs := f ys
 /- Constructor objects -/
 | cnstr   (o : var) (tag : tag) (nobjs : uint16) (ssz : usize)  -- Create constructor object
@@ -118,10 +126,6 @@ inductive instr
 | array   (a sz c : var)                                        -- Create array of objects with size `sz` and capacity `c`
 | sarray  (a : var) (ty : type) (sz c : var)                    -- Create scalar array
 | array_write (a i v : var)                                     -- (scalar) Array write      write a i v
-| array_push  (a v : var)                                       -- (scalar) Array push back  push a v
--- TODO: add string_push and string_append
-/- Unary instructions -/
-| unary   (op : unins) (x : var)                                -- op x
 
 structure phi :=
 (x : var) (ty : type) (ys : list var)

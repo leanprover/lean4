@@ -271,6 +271,14 @@ def unins2cpp : unins → string
 def emit_unary (op : unins) (x : var) : extract_m unit :=
 emit (unins2cpp op) >> paren(emit_var x)
 
+def emit_binary (op : binins) (x y : var) : extract_m unit :=
+(match op with
+ | binins.array_push :=
+    do env ← read, if env.ctx.find y = some type.object then emit "lean::array_push" else emit "lean::sarray_push"
+ | binins.string_push   := emit "lean::string_push"
+ | binins.string_append := emit "lean::string_append")
+>> paren(emit_var x <+> emit_var y)
+
 def emit_apply (x : var) (ys : list var) : extract_m unit :=
 match ys with
 | (f::as) :=
@@ -319,11 +327,7 @@ ins.decorate_error $
       if env.ctx.find v = some type.object
       then emit "lean::set_array_obj" >> paren(emit_var a <+> emit_var i <+> emit_var v)
       else emit "lean::set_sarray_data" >> paren(emit_var a <+> emit_var i <+> emit_var v)
- | (instr.array_push a v) :=
-   do env ← read,
-      if env.ctx.find v = some type.object
-      then emit "lean::array_push" >> paren(emit_var a <+> emit_var v)
-      else emit "lean::sarray_push" >> paren(emit_var a <+> emit_var v)
+ | (instr.binary op x y)     := emit_binary op x y
  | (instr.unary op x)        := emit_unary op x)
 >> emit_eos
 

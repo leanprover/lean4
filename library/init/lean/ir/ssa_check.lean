@@ -96,8 +96,8 @@ match ins with
 | (instr.array a sz c)      := a.define >> sz.defined >> c.defined
 | (instr.sarray x _ sz c)   := x.define >> sz.defined >> c.defined
 | (instr.array_write a i v) := a.defined >> i.defined >> v.defined
-| (instr.array_push a v)    := a.defined >> v.defined
 | (instr.unary _ x)         := x.defined
+| (instr.binary _ x y)      := x.defined >> y.defined
 
 def terminator.valid_ssa (term : terminator) : ssa_valid_m unit :=
 term.decorate_error $

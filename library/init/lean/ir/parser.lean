@@ -75,6 +75,11 @@ def parse_unins : parser unins :=
 <|> (keyword "array_pop" >> return unins.array_pop)
 <|> (keyword "sarray_pop" >> return unins.sarray_pop)
 
+def parse_binins : parser binins :=
+    (keyword "array_push" >> return binins.array_push)
+<|> (keyword "string_push" >> return binins.string_push)
+<|> (keyword "string_append" >> return binins.string_append)
+
 def parse_literal : parser literal :=
     (keyword "tt" >> return (literal.bool tt))
 <|> (keyword "ff" >> return (literal.bool ff))
@@ -147,11 +152,11 @@ do x ← parse_var,
 
 def parse_instr : parser instr :=
     (keyword "array_write" >> instr.array_write <$> parse_var <*> parse_var <*> parse_var)
-<|> (keyword "array_push" >> instr.array_push <$> parse_var <*> parse_var)
 <|> (keyword "set" >> instr.set <$> parse_var <*> parse_uint16 <*> parse_var)
 <|> (keyword "sset" >> instr.sset <$> parse_var <*> parse_usize <*> parse_var)
 <|> (keyword "call" >> instr.call [] <$> parse_fnid <*> many parse_var)
 <|> (instr.unary <$> parse_unins <*> parse_var)
+<|> (instr.binary <$> parse_binins <*> parse_var <*> parse_var)
 <|> parse_assignment
 
 def parse_phi : parser phi :=

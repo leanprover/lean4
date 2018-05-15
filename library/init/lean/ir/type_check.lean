@@ -195,8 +195,13 @@ match ins with
 | (instr.array a sz c)      := check_type sz type.usize >> check_type c type.usize
 | (instr.sarray a t sz c)   := check_type sz type.usize >> check_type c type.usize >> unless (t ≠ type.object) (throw "invalid scalar array")
 | (instr.array_write a i _) := check_type a type.object >> check_type i type.usize
-| (instr.array_push a _)    := check_type a type.object
 | (instr.unary _ x)         := check_type x type.object
+| (instr.binary op x y)     :=
+  check_type x type.object >>
+  match op with
+  | binins.string_push   := check_type y type.uint32
+  | binins.string_append := check_type y type.object
+  | binins.array_push    := return ()
 
 def phi.check (p : phi) : type_checker_m unit :=
 p.decorate_error $ p.ys.mfor (flip check_type p.ty)

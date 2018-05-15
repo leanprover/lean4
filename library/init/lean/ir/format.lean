@@ -80,6 +80,14 @@ def unins.to_format : unins → format
 instance unins.has_to_format : has_to_format unins := ⟨unins.to_format⟩
 instance unins.has_to_string : has_to_string unins := ⟨pretty ∘ to_fmt⟩
 
+def binins.to_format : binins → format
+| binins.array_push    := "array_push"
+| binins.string_push   := "string_push"
+| binins.string_append := "string_append"
+
+instance binins.has_to_format : has_to_format binins := ⟨binins.to_format⟩
+instance binins.has_to_string : has_to_string binins := ⟨pretty ∘ to_fmt⟩
+
 def literal.to_format : literal → format
 | (literal.bool b)  := to_fmt b
 | (literal.str s)   := repr s
@@ -108,8 +116,8 @@ def instr.to_format : instr → format
 | (instr.array a sz c)       := to_fmt a ++ " := array " ++ to_fmt sz ++ " " ++ to_fmt c
 | (instr.sarray a ty sz c)   := to_fmt a ++ " := sarray " ++ to_fmt ty ++ " " ++ to_fmt sz ++ " " ++ to_fmt c
 | (instr.array_write a i v)  := "array_write " ++ to_fmt a ++ " " ++ to_fmt i ++ " " ++ to_fmt v
-| (instr.array_push a v)     := "array_push " ++ to_fmt a ++ " " ++ to_fmt v
 | (instr.unary op x)         := to_fmt op ++ " " ++ to_fmt x
+| (instr.binary op x y)      := to_fmt op ++ " " ++ to_fmt x ++ " " ++ to_fmt y
 
 instance instr.has_to_format : has_to_format instr := ⟨instr.to_format⟩
 instance instr.has_to_string : has_to_string instr := ⟨pretty ∘ to_fmt⟩

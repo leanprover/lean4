@@ -8,6 +8,6 @@ do args ← io.cmdline_args,
      io.fail "Error: incorrect number of arguments, expected `lirc file.lean`",
    let fname := args.head,
    input ← fs.read_file fname,
-   match lirc input with
+   match lirc input {main_proc := some "main"} with
    | except.ok r    := fs.write_file (fname ++ ".cpp") r
    | except.error e := io.fail (to_string e)

@@ -37,15 +37,19 @@ d.valid_ssa >> check_blockids d >> type_check d env >> return ()
 
 local attribute [instance] name.has_lt_quick
 
-def mk_env (ds : list decl) : environment :=
+def update_env (ds : list decl) (env : environment) : environment :=
 let m := ds.foldl (λ m d, rbmap.insert m d.name d) (mk_rbmap name decl (<)) in
-λ n, m.find n
+λ n, m.find n <|> env n
 
-def lirc (s : string) (unit_name := "main") (unit_deps : list string := []) : except format string :=
+def update_external_names (m : fnid2string) (external_names : fnid → option string) : fnid → option string :=
+λ n, m.find n <|> external_names n
+
+def lirc (s : string) (cfg : extract_cpp_config) : except format string :=
 do (ds, m) ← parse_input s,
-   let env := mk_env ds,
+   let env := update_env ds cfg.env,
+   let ext := update_external_names m cfg.external_names,
    ds.mfor (check env),
-   extract_cpp ds { env := env, external_names := m.find, unit_name := unit_name, unit_deps := unit_deps }
+   extract_cpp ds { env := env, external_names := ext, ..cfg }
 
 end ir
 end lean

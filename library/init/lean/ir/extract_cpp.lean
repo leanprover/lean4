@@ -27,7 +27,7 @@ structure extract_cpp_config :=
 (runtime_dir : string := "runtime")
 (env : environment := λ _, none)
 (external_names : fnid → option string := λ _, none)
-(main_proc : option fnid := some (mk_simple_name "main"))
+(main_proc : option fnid := none)
 
 namespace cpp
 def file_header (runtime_dir : string) :=

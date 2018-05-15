@@ -126,6 +126,9 @@ def var     := name
 def fnid    := name
 def blockid := name
 
+instance : has_coe string fnid :=
+⟨mk_simple_name⟩
+
 -- TODO: move collection declarations to another file
 instance var_has_lt : has_lt var := (name.has_lt_quick : has_lt name)
 instance blockid_has_lt : has_lt blockid := (name.has_lt_quick : has_lt name)

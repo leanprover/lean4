@@ -217,7 +217,9 @@ def block.check (b : block) : type_checker_m unit :=
 b.decorate_error $ b.phis.mfor phi.check >> b.instrs.mfor instr.check >> b.term.check
 
 def decl.check : decl → type_checker_m unit
-| (decl.defn h bs) := h.decorate_error $ bs.mfor block.check
+| (decl.defn h bs) := h.decorate_error $
+  when (h.is_const && (h.return.length ≠ 1 || h.args.length ≠ 0)) (throw "invalid constant definition")
+  >> bs.mfor block.check
 | _                := return ()
 
 def type_check (d : decl) (env : environment := λ _, none) : except format context :=

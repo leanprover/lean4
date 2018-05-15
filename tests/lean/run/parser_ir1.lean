@@ -67,8 +67,9 @@ main:
 def tst_extract_cpp (s : string) : io unit :=
 do (except.ok d) ← return $ parse (whitespace >> parse_def) s,
    check_decl d,
-   (except.ok code) ← return $ extract_cpp (λ _, none) (λ _, none) [elim_phi d],
-   io.print_ln code
+   match extract_cpp [elim_phi d] {main_proc := none} with
+   | except.ok code := io.print_ln code
+   | except.error s := io.print_ln s
 
 #eval tst_extract_cpp IR3
 #eval tst_extract_cpp IR2

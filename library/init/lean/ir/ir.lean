@@ -192,13 +192,17 @@ structure arg :=
 structure result :=
 (ty : type)
 
+instance : inhabited result :=
+⟨⟨type.bool⟩⟩
+
+/--
+Header of function declarations.
+If `is_const` is `tt` than it is a constant declaration.
+The result of this kind of function (when `args = []`) is precomputed
+during compilation unit initialization. -/
 structure header :=
-(n : fnid) (args : list arg) (return : list result)
+(name : fnid) (args : list arg) (return : list result) (is_const : bool)
 
-/- TODO: constant declarations. At the IR level, we should distinguish constants from
-functions that take 0 arguments.
-
-TODO: add support for compilation unit initialization. -/
 inductive decl
 | external (h : header)
 | defn     (h : header) (bs : list block)
@@ -211,11 +215,10 @@ def decl.header : decl → header
 | (decl.external h) := h
 | (decl.defn h _)   := h
 
-def environment := fnid → option decl
+def decl.name (d : decl) : name :=
+d.header.name
 
-def decl.name : decl → name
-| (decl.defn {n:=n, ..} _) := n
-| (decl.external {n:=n, ..}) := n
+def environment := fnid → option decl
 
 end ir
 end lean

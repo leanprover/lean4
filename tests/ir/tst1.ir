@@ -1,8 +1,19 @@
 [lean_dbg_print_str] external print_str (s : object)
+[lean_dbg_print_num] external print_num (s : object)
 
-[main] def main : int32 :=
+defconst x : object :=
+main:
+  y : uint32 := 10;
+  z : uint32 := 20;
+  r : uint32 := add y z;
+  r' : object := box r;
+  ret r';
+
+def main : int32 :=
 entry:
   s : object := "hello world";
   call print_str s;
+  v := call x;
+  call print_num v;
   c : int32 := 0;
   ret c;

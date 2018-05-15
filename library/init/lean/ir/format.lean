@@ -148,7 +148,7 @@ instance result.has_to_format : has_to_format result := ⟨result.to_format⟩
 instance result.has_to_string : has_to_string result := ⟨pretty ∘ to_fmt⟩
 
 def header.to_format (h : header) : format :=
-to_fmt h.n ++ " " ++ join_sep h.args " " ++ " : " ++ join_sep h.return " "
+to_fmt h.name ++ " " ++ join_sep h.args " " ++ " : " ++ join_sep h.return " "
 
 instance header.has_to_format : has_to_format header := ⟨header.to_format⟩
 instance header.has_to_string : has_to_string header := ⟨pretty ∘ to_fmt⟩
@@ -173,7 +173,7 @@ def block.decorate_error {α m} [monad_except format m] (b : block) (a : m α) :
 catch a (λ e, throw ("at block '" ++ to_fmt b.id ++ "'" ++ line ++ e))
 
 def header.decorate_error {α m} [monad_except format m] (h : header) (a : m α) : m α :=
-catch a (λ e, throw ("error at declaration '" ++ to_fmt h.n ++ "'" ++ line ++ e))
+catch a (λ e, throw ("error at declaration '" ++ to_fmt h.name ++ "'" ++ line ++ e))
 
 def decl.decorate_error {α m} [monad_except format m] (d : decl) (a : m α) : m α :=
 d.header.decorate_error a

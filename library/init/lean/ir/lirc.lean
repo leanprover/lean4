@@ -41,11 +41,11 @@ def mk_env (ds : list decl) : environment :=
 let m := ds.foldl (λ m d, rbmap.insert m d.name d) (mk_rbmap name decl (<)) in
 λ n, m.find n
 
-def lirc (s : string) : except format string :=
+def lirc (s : string) (unit_name := "main") (unit_deps : list string := []) : except format string :=
 do (ds, m) ← parse_input s,
    let env := mk_env ds,
    ds.mfor (check env),
-   extract_cpp env m.find ds
+   extract_cpp ds { env := env, external_names := m.find, unit_name := unit_name, unit_deps := unit_deps }
 
 end ir
 end lean

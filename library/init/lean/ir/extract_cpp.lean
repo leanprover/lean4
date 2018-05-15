@@ -9,16 +9,35 @@ import init.lean.ir.type_check
 
 namespace lean
 namespace ir
+/--
+C++ code extraction configuration object.
+
+- `unit_name`: compilation unit name. The name is used to generate initialization/finalization procedures.
+- `unit_deps`: list of compilation units the given unit depends on. This information is also used to generate
+   initialization and finalization procedures.
+- `runtime_dir` : location of the Lean C++ runtime include files.
+- `env`: mapping from declaration name to declaration.
+- `external_names`: a mapping s.t. entry `(fid, n)` is in the mapping when we need to use name `n` for
+   declaration `fid` when emitting C++ code.
+- `main_proc`: name of the main procedure. Initialization and finalization code is inserted for it.
+-/
+structure extract_cpp_config :=
+(unit_name : string := "main")
+(unit_deps : list string := [])
+(runtime_dir : string := "runtime")
+(env : environment := λ _, none)
+(external_names : fnid → option string := λ _, none)
+(main_proc : option fnid := some (mk_simple_name "main"))
+
 namespace cpp
-def file_header :=
-"#include <runtime/lean_obj.h>
-#include <runtime/apply.h>
-typedef lean::lean_obj obj;"
+def file_header (runtime_dir : string) :=
+   "#include <" ++ runtime_dir ++ "/lean_obj.h>\n"
+++ "#include <" ++ runtime_dir ++ "/apply.h>\n"
+++ "typedef lean::lean_obj obj;"
 
 structure extract_env :=
-(external_names : fnid → option string)
-(ctx            : context)
-(env            : environment)
+(cfg : extract_cpp_config)
+(ctx : context := mk_context)
 
 @[reducible] def extract_m := reader_t extract_env (except_t format (state_t string id))
 
@@ -44,12 +63,24 @@ emit $ name.mangle b "_lbl"
 
 def fid2cpp (fid : fnid) : extract_m string :=
 do env ← read,
-   match env.external_names fid with
+   match env.cfg.external_names fid with
    | some s := return s
    | none   := return (name.mangle fid)
 
 def emit_fnid (fid : fnid) : extract_m unit :=
 fid2cpp fid >>= emit
+
+def is_const (fid : fnid) : extract_m bool :=
+do env ← read,
+   match env.cfg.env fid with
+   | some d := return d.header.is_const
+   | none   := return ff
+
+def global2cpp (fid : fnid) : extract_m string :=
+do s ← fid2cpp fid, return $ "_g" ++ s
+
+def emit_global (fid : fnid) : extract_m unit :=
+global2cpp fid >>= emit
 
 def type2cpp : type → string
 | type.bool   := "unsigned char"  | type.byte   := "unsigned char"
@@ -249,7 +280,7 @@ match ys with
 
 def emit_closure (x : var) (f : fnid) (ys : list var) : extract_m unit :=
 do env ← read,
-   match env.env f with
+   match env.cfg.env f with
    | some d := do
      emit_var x, emit " = lean::alloc_closure(",
      let arity := d.header.args.length,
@@ -267,7 +298,10 @@ ins.decorate_error $
  | (instr.lit x t l)         := emit_lit x t l
  | (instr.unop x t op y)     := emit_unop x t op y
  | (instr.binop x t op y z)  := emit_binop x t op y z
- | (instr.call xs f ys)      := emit_call_lhs xs >> emit_fnid f >> paren(emit_var_list ys)
+ | (instr.call xs f ys)      := do
+   emit_call_lhs xs, c ← is_const f,
+   if c then emit_global f
+   else (emit_fnid f >> paren(emit_var_list ys))
  | (instr.cnstr o t n sz)    := emit_var o >> emit " = lean::alloc_cnstr" >> paren(emit t <+> emit n <+> emit sz)
  | (instr.set o i x)         := emit "lean::set_cnstr_obj" >> paren (emit_var o <+> emit i <+> emit_var x)
  | (instr.get x o i)         := emit_var x >> emit " = lean::cnstr_obj" >> paren(emit_var o <+> emit i)
@@ -297,7 +331,7 @@ def emit_block (b : block) : extract_m unit :=
 >> emit_terminator b.term
 
 def emit_header (h : header) : extract_m unit :=
-emit_return h.return >> emit " " >> emit_fnid h.n >> paren(emit_arg_list h.args)
+emit_return h.return >> emit " " >> emit_fnid h.name >> paren(emit_arg_list h.args)
 
 def decl_local (x : var) (ty : type) : extract_m unit :=
 emit_type ty >> emit " " >> emit_var x >> emit_eos
@@ -314,47 +348,103 @@ d.header.return.all (λ a, a.ty = type.object) &&
 d.header.args.all (λ a, a.ty = type.object)
 
 def emit_uncurry_header (d : decl) : extract_m unit :=
-emit "obj* uncurry" >> emit_fnid d.header.n >> emit "(obj** as)"
+emit "obj* uncurry" >> emit_fnid d.header.name >> emit "(obj** as)"
 
 def emit_uncurry (d : decl) : extract_m unit :=
 let nargs := d.header.args.length in
    emit_uncurry_header d >> emit " {\n"
->> emit "return " >> emit_fnid d.header.n >> paren (emit "as[0]" >> (nargs-1).mrepeat (λ i, emit ", " >> emit "as[" >> emit (i+1) >> emit "]")) >> emit_eos
+>> emit "return " >> emit_fnid d.header.name >> paren (emit "as[0]" >> (nargs-1).mrepeat (λ i, emit ", " >> emit "as[" >> emit (i+1) >> emit "]")) >> emit_eos
 >> emit "}\n"
 
 def emit_def_core (d : decl) : extract_m unit :=
 d.decorate_error $
 match d with
 | (decl.defn h bs)  :=
-  emit_header h >> emit " {" >> emit_line >> decl_locals h.args >> bs.mfor emit_block >> emit "}" >> emit_line >>
+  emit_header h >> emit " {" >> emit_line
+  >> decl_locals h.args >> bs.mfor emit_block
+  >> emit "}" >> emit_line >>
   when (need_uncurry d) (emit_uncurry d)
 | _ := return ()
 
-def emit_def (env : environment) (external_names : fnid → option string) (d : decl) : except_t format (state_t string id) unit :=
-do ctx ← monad_lift $ infer_types d env,
-   (emit_def_core d).run { external_names := external_names, ctx := ctx, env := env }
+def emit_def (d : decl) : extract_m unit :=
+do env ← read,
+   ctx ← monad_lift $ infer_types d env.cfg.env,
+   adapt_reader (λ env : extract_env, {ctx := ctx, ..env}) $
+     emit_def_core d
 
 def collect_used (d : list decl) : fnid_set :=
 d.foldl (λ s d, match d with
-  | (decl.defn _ bs) := bs.foldl (λ s b, b.instrs.foldl (λ s ins, match ins with
+  | decl.defn _ bs := bs.foldl (λ s b, b.instrs.foldl (λ s ins, match ins with
     | instr.call _ fid _    := s.insert fid
     | instr.closure _ fid _ := s.insert fid
-    | _                      := s) s) s
+    | _                     := s) s) s
   | _                := s) mk_fnid_set
 
-def emit_used_headers (env : environment) (external_names : fnid → option string) (d : list decl) : except_t format (state_t string id) unit :=
-let used := collect_used d in
-(used.mfor (λ fid, match env fid with
-   | some d := do
-     unless (external_names fid = none) (emit "extern \"C\" "),
-     emit_header d.header >> emit ";\n" >> when (need_uncurry d) (emit_uncurry_header d >> emit ";\n")
-   | _      := return ())).run { external_names := external_names, ctx := mk_context, env := env }
+def emit_used_headers (ds : list decl) : extract_m unit :=
+let used := collect_used ds in
+do env ← read,
+used.mfor (λ fid, match env.cfg.env fid with
+ | some d := do
+   unless (env.cfg.external_names fid = none) (emit "extern \"C\" "),
+   emit_header d.header >> emit ";\n" >> when (need_uncurry d) (emit_uncurry_header d >> emit ";\n")
+ | _      := return ())
+
+def emit_global_var_decls (ds : list decl) : extract_m unit :=
+ds.mfor $ λ d, when d.header.is_const $
+  emit_type d.header.return.head.ty >> emit " " >> emit_global d.header.name >> emit ";\n"
+
+def emit_initialize_proc (ds : list decl) : extract_m unit :=
+do env ← read,
+   emit "void initialize_", emit env.cfg.unit_name, emit "() {\n",
+   emit "if (_G_initialized) return;\n",
+   emit "_G_initialized = true;\n",
+   env.cfg.unit_deps.mfor $ λ dep, emit "initialize_" >> emit dep >> emit "();\n",
+   ds.mfor $ λ d, when d.header.is_const $
+     emit_global d.header.name >> emit " = " >> emit_fnid d.header.name >> emit "();\n",
+   emit "}\n"
+
+def emit_finalize_proc (ds : list decl) : extract_m unit :=
+do env ← read,
+   emit "void finalize_", emit env.cfg.unit_name, emit "() {\n",
+   emit "if (_G_finalized) return;\n",
+   emit "_G_finalized = true;\n",
+   env.cfg.unit_deps.mfor $ λ dep, emit "finalize_" >> emit dep >> emit "();\n",
+   ds.mfor $ λ d, when (d.header.is_const && d.header.return.head.ty = type.object) $
+     emit "if (!is_scalar(" >> emit_global d.header.name >> emit ")) lean::dec_ref(" >> emit_global d.header.name >> emit ");\n",
+   emit "}\n"
+
+def emit_main_proc : extract_m unit :=
+do env ← read,
+   match env.cfg.main_proc with
+   | some fid :=
+     (match env.cfg.env fid with
+      | some d :=
+        unless (d.header.args.length = 0) (throw $ "invalid main function '" ++ to_string fid ++ "', it must not take any arguments")
+        >> unless (d.header.return.length = 1 && d.header.return.head.ty = type.int32) (throw $ "invalid main function '" ++ to_string fid ++ "', return type must be int32")
+        >> emit "int main() {\n"
+        >> emit "initialize_" >> emit env.cfg.unit_name >> emit "();\n"
+        >> emit "int r = " >> emit_fnid fid >> emit "();\n"
+        >> emit "finalize_" >> emit env.cfg.unit_name >> emit "();\n"
+        >> emit "return r;\n}\n"
+      | none := throw ("unknown main function '" ++ to_string fid ++ "'"))
+   | none := return ()
 
 end cpp
 
-def extract_cpp (env : environment) (cpp_names : fnid → option string) (ds : list decl) : except format string :=
-let out := cpp.file_header ++ "\n" in
-run (cpp.emit_used_headers env cpp_names ds >> ds.mfor (cpp.emit_def env cpp_names) >> get) out
+open cpp
+
+def extract_cpp (ds : list decl) (cfg : extract_cpp_config := {}) : except format string :=
+let out := file_header cfg.runtime_dir ++ "\n" in
+run (emit_used_headers ds
+     >> emit "static bool _G_initialized = false;\n"
+     >> emit "static bool _G_finalized = false;\n"
+     >> emit_global_var_decls ds
+     >> emit_initialize_proc ds
+     >> emit_finalize_proc ds
+     >> ds.mfor emit_def
+     >> emit_main_proc
+     >> get)
+{cfg := cfg} out
 
 end ir
 end lean

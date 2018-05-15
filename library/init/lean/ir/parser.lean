@@ -174,20 +174,25 @@ do id ← try (parse_blockid <* symbol ":"),
 def parse_arg : parser arg :=
 do symbol "(", x ← parse_var, symbol ":", ty ← parse_type, symbol ")", return {n := x, ty := ty}
 
-def parse_header : parser header :=
+def parse_header (is_const : bool) : parser header :=
 do n ← parse_fnid,
-   as ← many parse_arg,
-   r ← try (symbol ":" >> many1 (result.mk <$> parse_type)) <|> return [],
-   return { n := n, args := as, return := r }
+   as ← if is_const then return [] else many parse_arg,
+   r ← if is_const
+       then do symbol ":", t ← parse_type, return [result.mk t]
+       else try (symbol ":" >> many1 (result.mk <$> parse_type)) <|> return [],
+   return { name := n, args := as, return := r, is_const := is_const }
 
 def parse_def : parser decl :=
-symbol "def" >> decl.defn <$> parse_header <*> (symbol ":=" >> many parse_block)
+keyword "def" >> decl.defn <$> parse_header ff <*> (symbol ":=" >> many parse_block)
+
+def parse_defconst : parser decl :=
+keyword "defconst" >> decl.defn <$> parse_header tt <*> (symbol ":=" >> many parse_block)
 
 def parse_external : parser decl :=
-symbol "external" >> decl.external <$> parse_header
+keyword "external" >> decl.external <$> parse_header ff
 
 def parse_decl : parser decl :=
-parse_def <|> parse_external
+parse_def <|> parse_defconst <|> parse_external
 
 end ir
 end lean

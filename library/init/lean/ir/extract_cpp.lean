@@ -30,6 +30,9 @@ structure extract_cpp_config :=
 (main_proc : option fnid := none)
 
 namespace cpp
+def initialize_prefix := "_lean_initialize_"
+def finalize_prefix   := "_lean_finalize_"
+
 def file_header (runtime_dir : string) :=
    "#include <" ++ runtime_dir ++ "/lean_obj.h>\n"
 ++ "#include <" ++ runtime_dir ++ "/apply.h>\n"
@@ -395,20 +398,20 @@ ds.mfor $ λ d, when d.header.is_const $
 
 def emit_initialize_proc (ds : list decl) : extract_m unit :=
 do env ← read,
-   emit "void initialize_", emit env.cfg.unit_name, emit "() {\n",
+   emit "void ", emit initialize_prefix, emit env.cfg.unit_name, emit "() {\n",
    emit "if (_G_initialized) return;\n",
    emit "_G_initialized = true;\n",
-   env.cfg.unit_deps.mfor $ λ dep, emit "initialize_" >> emit dep >> emit "();\n",
+   env.cfg.unit_deps.mfor $ λ dep, emit initialize_prefix >> emit dep >> emit "();\n",
    ds.mfor $ λ d, when d.header.is_const $
      emit_global d.header.name >> emit " = " >> emit_fnid d.header.name >> emit "();\n",
    emit "}\n"
 
 def emit_finalize_proc (ds : list decl) : extract_m unit :=
 do env ← read,
-   emit "void finalize_", emit env.cfg.unit_name, emit "() {\n",
+   emit "void ", emit finalize_prefix, emit env.cfg.unit_name, emit "() {\n",
    emit "if (_G_finalized) return;\n",
    emit "_G_finalized = true;\n",
-   env.cfg.unit_deps.mfor $ λ dep, emit "finalize_" >> emit dep >> emit "();\n",
+   env.cfg.unit_deps.mfor $ λ dep, emit finalize_prefix >> emit dep >> emit "();\n",
    ds.mfor $ λ d, when (d.header.is_const && d.header.return.head.ty = type.object) $
      emit "if (!is_scalar(" >> emit_global d.header.name >> emit ")) lean::dec_ref(" >> emit_global d.header.name >> emit ");\n",
    emit "}\n"
@@ -422,9 +425,9 @@ do env ← read,
         unless (d.header.args.length = 0) (throw $ "invalid main function '" ++ to_string fid ++ "', it must not take any arguments")
         >> unless (d.header.return.length = 1 && d.header.return.head.ty = type.int32) (throw $ "invalid main function '" ++ to_string fid ++ "', return type must be int32")
         >> emit "int main() {\n"
-        >> emit "initialize_" >> emit env.cfg.unit_name >> emit "();\n"
+        >> emit initialize_prefix >> emit env.cfg.unit_name >> emit "();\n"
         >> emit "int r = " >> emit_fnid fid >> emit "();\n"
-        >> emit "finalize_" >> emit env.cfg.unit_name >> emit "();\n"
+        >> emit finalize_prefix >> emit env.cfg.unit_name >> emit "();\n"
         >> emit "return r;\n}\n"
       | none := throw ("unknown main function '" ++ to_string fid ++ "'"))
    | none := return ()

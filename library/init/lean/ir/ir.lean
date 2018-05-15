@@ -15,9 +15,16 @@ Missing
 
 namespace lean
 namespace ir
+/-
+The type `object` is a pointer to constructor/composite objects, arrays of objects, scalar arrays (`string` is a scalar array),
+closures, big numbers (implemented using GMP), external objects or a tagged pointer.
+Tagged pointers are used to represent small scalar values in polymorphic code.
 
-inductive type
-| bool | byte | uint16 | uint32 | uint64 | usize | int16 | int32 | int64 | float | double | object
+The other types `bool/byte/uint16/uint32/uint64/usize/int16/int32/int64/float/double` are the usual unboxed scalar data.
+We box values of type `bool/byte/uint16/uint32/int16/int32/float` are boxed (in 64-bit machines) as tagged pointers.
+`usize/uint64/int64/double` are boxed by creating a composite object with a single field. -/
+inductive type | bool | byte | uint16 | uint32 |
+uint64 | usize | int16 | int32 | int64 | float | double | object
 
 /- TEMPORARY HACK for defining (decidable_eq type) until we bootstrap new compiler -/
 def type2id : type → nat
@@ -43,17 +50,54 @@ instance type_has_dec_eq : decidable_eq type :=
  if h : type2id t₁ = type2id t₂
  then is_true (id2type_type2id_eq t₁ ▸ id2type_type2id_eq t₂ ▸ h ▸ rfl)
  else is_false (λ h', absurd rfl (@eq.subst _ (λ t, ¬ type2id t = type2id t₂) _ _ h' h))
-
 /- END of TEMPORARY HACK for (decidable_eq type) -/
 
-/-- Operators for instructions of the form `x : t := op y` -/
+/-- Operators for instructions of the form `x : t := op y`
+
+- `x : t := not y`, if `t = bool`, then it is the logical negation.
+Otherwise, it is bitwise negation if `t` is `uint32/uint64/usize`.
+
+- `x : t := neg y`, arithmetical `-`. `t` is `int16/int32/int64/float/double/object`.
+If `t` is `object`, the instruction is unspecified if `t` is not a big number.
+When `t` is a big number, the operation will destructively update `y` if `RC = 1` and set `x` to `y`.
+Otherwise, it decrements `RC(y)`, and allocates a new big number to store the result.
+
+- `x : bool := is_scalar y`, set `x` to `tt` iff `y : object` is a tagged
+pointer.
+
+- `x : bool := is_shared y`, set `x` to `tt` iff `y : object` `RC(y)` is greater than 1.
+The behavior is unspecified if `y` is a tagged pointer.
+
+- `x : bool := is_null y`, set `x` to `tt` iff `y : object` is null.
+
+- `x : t := cast y` is a scalar type casting operation. `t` and `typeof(y)` must not be
+`object`.
+
+- `x : object := box y` convert `y : t` where `t` is `int32/uint32` into a tagged
+pointer. `y` must fit in 31bits (in 32-bit machines).
+
+- `x : t := unbox y` convert `y : object` back into a scalar value. `t` is `int32/uint32`.
+The behavior is unspecified if `y` is not a tagged pointer.
+
+- `x : object := array_copy y` creates a copy of the array `y : object`.
+The behavior is unspecified if `y` is not an array of objects.
+
+- `x : object := sarray_copy y` creates a copy of the scalar array `y : object`.
+The behavior is unspecified if `y` is not an array of scalar values.
+
+- `x : usize := array_size y` stores the size of the array `y : object` into `x`.
+The behavior is unspecified if `y` is not an array of objects.
+
+- `x : usize : sarray_size y` stores the size of the scalar array `y : object` into `x`.
+The behavior is unspecified if `y` is not an array of scalar values.
+
+- `x : usize : string_len y` stores the length of the string `y : object` into `x`.
+The length is the number of unicode scalar values.
+The behavior is unspecified if `y` is not a string.
+-/
 inductive unop
 | not | neg | is_scalar | is_shared | is_null | cast | box | unbox
-| array_copy
-| sarray_copy
-| array_size
-| sarray_size
-| string_len
+| array_copy | sarray_copy | array_size | sarray_size | string_len
 
 /-- Operators for instructions of the form `x : t := op y z` -/
 inductive binop
@@ -74,7 +118,7 @@ inductive unins
 inductive literal
 | bool    : bool   → literal
 | str     : string → literal
-| num     : int    → literal  -- for uint32/uint64/int32/int64/byte literals
+| num     : int    → literal  -- for uint32/uint64/int32/int64/byte/object literals
 | float   : string → literal  -- for float/double literals
 
 def tag     := uint16
@@ -82,6 +126,7 @@ def var     := name
 def fnid    := name
 def blockid := name
 
+-- TODO: move collection declarations to another file
 instance var_has_lt : has_lt var := (name.has_lt_quick : has_lt name)
 instance blockid_has_lt : has_lt blockid := (name.has_lt_quick : has_lt name)
 instance fnid_has_lt : has_lt fnid := (name.has_lt_quick : has_lt name)
@@ -126,6 +171,7 @@ inductive instr
 | sarray  (a : var) (ty : type) (sz c : var)                    -- Create scalar array
 | array_write (a i v : var)                                     -- (scalar) Array write      write a i v
 | array_push  (a v : var)                                       -- (scalar) Array push back  push a v
+-- TODO: add string_push and string_append
 /- Unary instructions -/
 | unary   (op : unins) (x : var)                                -- op x
 
@@ -149,6 +195,10 @@ structure result :=
 structure header :=
 (n : fnid) (args : list arg) (return : list result)
 
+/- TODO: constant declarations. At the IR level, we should distinguish constants from
+functions that take 0 arguments.
+
+TODO: add support for compilation unit initialization. -/
 inductive decl
 | external (h : header)
 | defn     (h : header) (bs : list block)

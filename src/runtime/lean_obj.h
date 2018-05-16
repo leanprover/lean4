@@ -6,7 +6,9 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <string>
+#include "runtime/compiler_hints.h"
 #include "runtime/mpz.h"
+#include "runtime/int64.h"
 
 namespace lean {
 enum class lean_obj_kind { Constructor, Closure, Array, ScalarArray, MPZ, External };
@@ -93,7 +95,7 @@ struct lean_external : public lean_obj {
 };
 
 inline bool is_scalar(lean_obj * o) { return (reinterpret_cast<uintptr_t>(o) & 1) == 1; }
-inline lean_obj * box(unsigned n) { return reinterpret_cast<lean_obj*>(static_cast<uintptr_t>((n << 1) | 1)); }
+inline lean_obj * box(unsigned n) { return reinterpret_cast<lean_obj*>((static_cast<uintptr_t>(n) << 1) | 1); }
 inline unsigned unbox(lean_obj * o) { return reinterpret_cast<uintptr_t>(o) >> 1; }
 
 /* Generic Lean object delete operation.
@@ -316,12 +318,188 @@ inline void set_closure_arg(lean_obj * o, unsigned i, lean_obj * a) {
     set_obj_data(o, sizeof(lean_closure) + sizeof(lean_obj*)*i, a); // NOLINT
 }
 
-/* Constructors */
-
-inline lean_obj * mk_mpz(mpz const & m) { return alloc_mpz(m); }
+/* String */
 
 lean_obj * mk_string(char const * s);
 lean_obj * mk_string(std::string const & s);
 inline bool is_string(lean_obj * o) { return !is_scalar(o) && is_sarray(o) && sarray_elem_size(o) == 1; }
 inline char const * c_str(lean_obj * o) { lean_assert(is_string(o)); return sarray_cptr<char>(o) + sizeof(size_t); }
+
+/* Natural numbers */
+
+#define LEAN_MAX_SMALL_NAT (sizeof(void*) == 8 ? std::numeric_limits<unsigned>::max() : (std::numeric_limits<unsigned>::max() >> 1)) // NOLINT
+
+inline lean_obj * mk_mpz_core(mpz const & m) {
+    lean_assert(m > LEAN_MAX_SMALL_NAT);
+    return alloc_mpz(m);
+}
+
+inline lean_obj * mk_mpz(mpz const & m) {
+    if (m > LEAN_MAX_SMALL_NAT)
+        return mk_mpz_core(m);
+    else
+        return box(m.get_unsigned_int());
+}
+
+inline lean_obj * mk_nat_obj(unsigned n) {
+    if (sizeof(void*) == 8) { // NOLINT
+        return box(n);
+    } else if (n <= LEAN_MAX_SMALL_NAT) {
+        return box(n);
+    } else {
+        return mk_mpz_core(mpz(n));
+    }
+}
+
+inline lean_obj * mk_nat_obj(uint64 n) {
+    if (LEAN_LIKELY(n < LEAN_MAX_SMALL_NAT)) {
+        return box(n);
+    } else {
+        return mk_mpz_core(mpz(n));
+    }
+}
+
+inline uint64 nat2uint64(lean_obj * a) {
+    lean_assert(is_scalar(a));
+    return unbox(a);
+}
+
+inline lean_obj * nat_succ(lean_obj * a) {
+    if (LEAN_LIKELY(is_scalar(a))) {
+        return mk_nat_obj(nat2uint64(a) + 1);
+    } else {
+        return mk_mpz_core(mpz_value(a) + 1);
+    }
+}
+
+lean_obj * nat_big_add(lean_obj * a1, lean_obj * a2);
+
+inline lean_obj * nat_add(lean_obj * a1, lean_obj * a2) {
+    if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
+        return mk_nat_obj(nat2uint64(a1) + nat2uint64(a2));
+    } else {
+        return nat_big_add(a1, a2);
+    }
+}
+
+lean_obj * nat_big_sub(lean_obj * a1, lean_obj * a2);
+
+inline lean_obj * nat_sub(lean_obj * a1, lean_obj * a2) {
+    if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
+        unsigned n1 = unbox(a1);
+        unsigned n2 = unbox(a2);
+        if (n1 < n2)
+            return box(0);
+        else
+            return box(n1 - n2);
+    } else {
+        return nat_big_sub(a1, a2);
+    }
+}
+
+lean_obj * nat_big_mul(lean_obj * a1, lean_obj * a2);
+
+inline lean_obj * nat_mul(lean_obj * a1, lean_obj * a2) {
+    if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
+        return mk_nat_obj(nat2uint64(a1) * nat2uint64(a2));
+    } else {
+        return nat_big_mul(a1, a2);
+    }
+}
+
+lean_obj * nat_big_div(lean_obj * a1, lean_obj * a2);
+
+inline lean_obj * nat_div(lean_obj * a1, lean_obj * a2) {
+    if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
+        unsigned n1 = unbox(a1);
+        unsigned n2 = unbox(a2);
+        if (n2 == 0)
+            return box(0);
+        else
+            return box(n1 / n2);
+    } else {
+        return nat_big_div(a1, a2);
+    }
+}
+
+lean_obj * nat_big_mod(lean_obj * a1, lean_obj * a2);
+
+inline lean_obj * nat_mod(lean_obj * a1, lean_obj * a2) {
+    if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
+        unsigned n1 = unbox(a1);
+        unsigned n2 = unbox(a2);
+        if (n2 == 0)
+            return box(0);
+        else
+            return box(n1 % n2);
+    } else {
+        return nat_big_mod(a1, a2);
+    }
+}
+
+bool nat_big_eq(lean_obj * a1, lean_obj * a2);
+
+inline bool nat_eq(lean_obj * a1, lean_obj * a2) {
+    if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
+        return a1 == a2;
+    } else {
+        return nat_big_eq(a1, a2);
+    }
+}
+
+inline bool nat_ne(lean_obj * a1, lean_obj * a2) {
+    return !nat_eq(a1, a2);
+}
+
+bool nat_big_le(lean_obj * a1, lean_obj * a2);
+
+inline bool nat_le(lean_obj * a1, lean_obj * a2) {
+    if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
+        return a1 <= a2;
+    } else {
+        return nat_big_le(a1, a2);
+    }
+}
+
+bool nat_big_lt(lean_obj * a1, lean_obj * a2);
+
+inline bool nat_lt(lean_obj * a1, lean_obj * a2) {
+    if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
+        return a1 < a2;
+    } else {
+        return nat_big_lt(a1, a2);
+    }
+}
+
+lean_obj * nat_big_land(lean_obj * a1, lean_obj * a2);
+
+inline lean_obj * nat_land(lean_obj * a1, lean_obj * a2) {
+    if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
+        return reinterpret_cast<lean_obj*>(reinterpret_cast<uintptr_t>(a1) & reinterpret_cast<uintptr_t>(a2));
+    } else {
+        return nat_big_land(a1, a2);
+    }
+}
+
+lean_obj * nat_big_lor(lean_obj * a1, lean_obj * a2);
+
+inline lean_obj * nat_lor(lean_obj * a1, lean_obj * a2) {
+    if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
+        return reinterpret_cast<lean_obj*>(reinterpret_cast<uintptr_t>(a1) | reinterpret_cast<uintptr_t>(a2));
+    } else {
+        return nat_big_lor(a1, a2);
+    }
+}
+
+lean_obj * nat_big_xor(lean_obj * a1, lean_obj * a2);
+
+inline lean_obj * nat_lxor(lean_obj * a1, lean_obj * a2) {
+    if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
+        return box(unbox(a1) ^ unbox(a2));
+    } else {
+        return nat_big_xor(a1, a2);
+    }
+}
+
+
 }

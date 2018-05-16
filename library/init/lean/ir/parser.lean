@@ -46,6 +46,7 @@ def parse_assign_unop : parser assign_unop :=
 <|> (keyword "array_size" >> return assign_unop.array_size)
 <|> (keyword "sarray_size" >> return assign_unop.sarray_size)
 <|> (keyword "string_len" >> return assign_unop.string_len)
+<|> (keyword "succ" >> return assign_unop.succ)
 
 def parse_assign_binop : parser assign_binop :=
     (keyword "add" >> return assign_binop.add)
@@ -59,9 +60,7 @@ def parse_assign_binop : parser assign_binop :=
 <|> (keyword "or" >> return assign_binop.or)
 <|> (keyword "xor" >> return assign_binop.xor)
 <|> (keyword "le" >> return assign_binop.le)
-<|> (keyword "ge" >> return assign_binop.ge)
 <|> (keyword "lt" >> return assign_binop.lt)
-<|> (keyword "gt" >> return assign_binop.gt)
 <|> (keyword "eq" >> return assign_binop.eq)
 <|> (keyword "ne" >> return assign_binop.ne)
 <|> (keyword "array_read" >> return assign_binop.array_read)

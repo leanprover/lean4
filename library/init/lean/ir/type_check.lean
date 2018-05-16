@@ -56,6 +56,7 @@ match op with
 | assign_unop.array_size    := r = type.usize && t = type.object
 | assign_unop.sarray_size   := r = type.usize && t = type.object
 | assign_unop.string_len    := r = type.usize && t = type.object
+| assign_unop.succ          := r = type.object && t = type.object
 
 /-- Return `tt` iff the instruction `x : r := op y z` is type correct where `y z : t` -/
 def valid_assign_binop_types (op : assign_binop) (r : type) (t₁ t₂ : type) : bool :=
@@ -71,9 +72,7 @@ match op with
 | assign_binop.or   := r = t₁ && r = t₂ && is_bitwise_ty r
 | assign_binop.xor  := r = t₁ && r = t₂ && is_bitwise_ty r
 | assign_binop.le   := r = type.bool && t₁ = t₂ && is_arith_ty t₁
-| assign_binop.ge   := r = type.bool && t₁ = t₂ && is_arith_ty t₁
 | assign_binop.lt   := r = type.bool && t₁ = t₂ && is_arith_ty t₁
-| assign_binop.gt   := r = type.bool && t₁ = t₂ && is_arith_ty t₁
 | assign_binop.eq   := r = type.bool && t₁ = t₂
 | assign_binop.ne   := r = type.bool && t₁ = t₂
 | assign_binop.array_read := t₁ = type.object && t₂ = type.usize

@@ -1,0 +1,32 @@
+[lean_dbg_print_str] external print_str (s : object)
+[lean_dbg_print_num] external print_num (s : object)
+
+def print_bool (b : bool) :=
+entry:
+  case b [false_lbl, true_lbl];
+true_lbl:
+  s1 : object := "true";
+  call print_str s1;
+  ret;
+false_lbl:
+  s2 : object := "false";
+  call print_str s2;
+  ret;
+
+def main : int32 :=
+entry:
+  n1 : object := 10;
+  n2 : object := 20;
+  n3 : object := add n1 n2;
+  n4 : object := mul n3 n3;
+  call print_num n4;
+  c1 : bool := lt n4 n1;
+  call print_bool c1;
+  c2 : bool := le n4 n4;
+  call print_bool c2;
+  n5 : object := 100000000000000000;
+  n6 : object := 200000000000000000;
+  n7 : object := add n5 n6;
+  call print_num n7;
+  r : int32 := 0;
+  ret r;

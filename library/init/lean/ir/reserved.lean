@@ -17,7 +17,7 @@ def reserved := [ "bool", "byte", "uint16", "uint32", "uint64",
  "apply", "cnstr", "set", "get", "sset", "sget", "array", "read",
  "write", "sarray", "sread", "swrite", "inc", "decs", "dec", "del",
  "phi", "ret", "case", "jmp", "decl", "tt", "ff", "def", "external",
- "defconst"]
+ "defconst", "succ"]
 
 def reserved_set : rbtree string (<) :=
 reserved.foldl rbtree.insert (mk_rbtree string (<))

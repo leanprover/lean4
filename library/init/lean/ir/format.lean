@@ -55,7 +55,8 @@ def assign_unop.to_format : assign_unop → format
 | assign_unop.cast          := "cast"
 | assign_unop.array_copy    := "array_copy" | assign_unop.sarray_copy  := "sarray_copy"
 | assign_unop.array_size    := "array_size" | assign_unop.sarray_size  := "sarray_size"
-| assign_unop.string_len    := "string_len"
+| assign_unop.string_len    := "string_len" | assign_unop.succ         := "succ"
+
 
 instance assign_unop.has_to_format : has_to_format assign_unop := ⟨assign_unop.to_format⟩
 instance assign_unop.has_to_string : has_to_string assign_unop := ⟨pretty ∘ to_fmt⟩
@@ -64,8 +65,7 @@ def assign_binop.to_format : assign_binop → format
 | assign_binop.add  := "add"  | assign_binop.sub  := "sub" | assign_binop.mul  := "mul"  | assign_binop.div  := "div"
 | assign_binop.mod  := "mod"  | assign_binop.shl  := "shl" | assign_binop.shr  := "shr"
 | assign_binop.and  := "and"  | assign_binop.or   := "or"  | assign_binop.xor  := "xor"  | assign_binop.le   := "le"
-| assign_binop.ge   := "ge"   | assign_binop.lt   := "lt"  | assign_binop.gt   := "gt"   | assign_binop.eq   := "eq"
-| assign_binop.ne   := "ne"
+| assign_binop.lt   := "lt"   | assign_binop.eq   := "eq"  | assign_binop.ne   := "ne"
 | assign_binop.array_read := "array_read"
 
 instance assign_binop.has_to_format : has_to_format assign_binop := ⟨assign_binop.to_format⟩

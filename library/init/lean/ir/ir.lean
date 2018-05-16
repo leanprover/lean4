@@ -61,15 +61,18 @@ Remark: `sarray_copy` can be used to copy strings.
 - `x : usize := array_size y` stores the size of the array `y : object` into `x`.
 The behavior is unspecified if `y` is not an array of objects.
 
-- `x : usize : sarray_size y` stores the size of the scalar array `y : object` into `x`.
+- `x : usize := sarray_size y` stores the size of the scalar array `y : object` into `x`.
 The behavior is unspecified if `y` is not an array of scalar values.
 
-- `x : usize : string_len y` stores the length of the string `y : object` into `x`.
+- `x : usize := string_len y` stores the length of the string `y : object` into `x`.
 The length is the number of unicode scalar values.
-The behavior is unspecified if `y` is not a string. -/
+The behavior is unspecified if `y` is not a string.
+
+- `x : object := succ y` natural number successor. -/
 inductive assign_unop
 | not | neg | is_scalar | is_shared | is_null | cast | box | unbox
 | array_copy | sarray_copy | array_size | sarray_size | string_len
+| succ
 
 /-- Operators for instructions of the form `x : t := op y z`
 
@@ -102,13 +105,7 @@ Remark: `t ≠ bool`, `t ≠ float`, `t ≠ double` and `t ≠ object`.
 - `x : bool := le y z`: less than or equal to. Remark: `t ≠ bool`.
 If `y` and `z` are `object`, then they must be big numbers.
 
-- `x : bool := ge y z`: greater than or equal to. Remark: `t ≠ bool`.
-If `y` and `z` are `object`, then they must be big numbers.
-
 - `x : bool := lt y z`: less than. Remark: `t ≠ bool`.
-If `y` and `z` are `object`, then they must be big numbers.
-
-- `x : bool := gt y z`: greater than. Remark: `t ≠ bool`.
 If `y` and `z` are `object`, then they must be big numbers.
 
 - `x : bool := eq y z`: equality test. If `y` and `z` are `object`, then they must be big numbers.
@@ -119,7 +116,7 @@ If `y` and `z` are `object`, then they must be big numbers.
 If `a` is a scalar array, then `t ≠ object`. If `a` is an (non-scalar) array, then `t = object`. -/
 inductive assign_binop
 | add | sub | mul | div | mod | shl | shr | and | or | xor
-| le  | ge  | lt  | gt  | eq  | ne
+| le  | lt  | eq  | ne
 | array_read -- (scalar) array read
 
 /-- Operators for instructions of the form `op x`

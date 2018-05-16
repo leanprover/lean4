@@ -184,33 +184,28 @@ match t with
 | type.object := emit_big_binop x y z big_op
 | _           := emit_infix x y z op
 
-def emit_logical_arith (t : type) (x y z : var) (bool_op : string) (op : string) (big_op : option string) : extract_m unit :=
+def emit_logical_arith (t : type) (x y z : var) (bool_op : string) (op : string) (big_op : string) : extract_m unit :=
 match t with
 | type.bool   := emit_infix x y z bool_op
-| type.object :=
-  (match big_op with
-   | some big_op := emit_big_binop x y z big_op
-   | none        := throw "ill-formed binary operator")
+| type.object := emit_big_binop x y z big_op
 | _           := emit_infix x y z op
 
 def emit_assign_binop (x : var) (t : type) (op : assign_binop) (y z : var) : extract_m unit :=
 match op with
-| assign_binop.add  := emit_arith t x y z "+" "lean::add"
-| assign_binop.sub  := emit_arith t x y z "-" "lean::sub"
-| assign_binop.mul  := emit_arith t x y z "*" "lean::mul"
-| assign_binop.div  := emit_arith t x y z "/" "lean::div"
-| assign_binop.mod  := emit_arith t x y z "%" "lean::mod"
+| assign_binop.add  := emit_arith t x y z "+" "lean::nat_add"
+| assign_binop.sub  := emit_arith t x y z "-" "lean::nat_sub"
+| assign_binop.mul  := emit_arith t x y z "*" "lean::nat_mul"
+| assign_binop.div  := emit_arith t x y z "/" "lean::nat_div"
+| assign_binop.mod  := emit_arith t x y z "%" "lean::nat_mod"
 | assign_binop.shl  := emit_infix x y z "<<"
 | assign_binop.shr  := emit_infix x y z ">>"
-| assign_binop.and  := emit_logical_arith t x y z "&&" "&" (some "lean::and")
-| assign_binop.or   := emit_logical_arith t x y z "||" "|" (some "lean::or")
-| assign_binop.xor  := emit_logical_arith t x y z "!=" "^" none
-| assign_binop.le   := emit_arith t x y z "<=" "lean::le"
-| assign_binop.ge   := emit_arith t x y z ">=" "lean::ge"
-| assign_binop.lt   := emit_arith t x y z "<" "lean::lt"
-| assign_binop.gt   := emit_arith t x y z ">" "lean::gt"
-| assign_binop.eq   := emit_arith t x y z "==" "lean::eq"
-| assign_binop.ne   := emit_arith t x y z "!=" "lean::ne"
+| assign_binop.and  := emit_logical_arith t x y z "&&" "&" "lean::nat_land"
+| assign_binop.or   := emit_logical_arith t x y z "||" "|" "lean::nat_lor"
+| assign_binop.xor  := emit_logical_arith t x y z "!=" "^" "lean::nat_lxor"
+| assign_binop.le   := emit_arith t x y z "<=" "lean::nat_le"
+| assign_binop.lt   := emit_arith t x y z "<"  "lean::nat_lt"
+| assign_binop.eq   := emit_arith t x y z "==" "lean::nat_eq"
+| assign_binop.ne   := emit_arith t x y z "!=" "lean::nat_ne"
 | assign_binop.array_read :=
   (match t with
    | type.object := emit_var x >> emit " = lean::array_obj" >> paren (emit_var y <+> emit_var z)
@@ -234,6 +229,7 @@ def assign_unop2cpp (t : type) : assign_unop → string
 | assign_unop.array_size   := "lean::array_size"
 | assign_unop.sarray_size  := "lean::sarray_size"
 | assign_unop.string_len   := "lean::string_len"
+| assign_unop.succ         := "lean::nat_succ"
 
 def emit_assign_unop (x : var) (t : type) (op : assign_unop) (y : var) : extract_m unit :=
 emit_var x >> emit " = " >> emit (assign_unop2cpp t op) >> paren(emit_var y)
@@ -252,11 +248,10 @@ match l with
 | literal.float v := emit_var x >> emit " = " >> emit v
 | literal.num v   :=
   match t with
-  | type.object := do
-    emit_var x >> emit " = lean::alloc_mpz(lean::mpz(",
-    if v < uint32_sz then emit v >> emit "u"
-    else emit "\"" >> emit v >> emit "\"",
-    emit "))"
+  | type.object :=
+    emit_var x >> emit " = " >>
+    if v < uint32_sz then emit "lean::mk_nat_obj" >> paren(emit v >> emit "u")
+    else emit "lean::mk_mpz_core(lean::mpz(\"" >> emit v >> emit "\"))"
   | _           := emit_var x >> emit " = " >> emit v >> emit_num_suffix t
 
 def unop2cpp : unop → string

@@ -107,6 +107,8 @@ void del(lean_obj * o) {
     }
 }
 
+/* Strings */
+
 lean_obj * mk_string(char const * s) {
     size_t sz  = strlen(s);
     size_t len = utf8_strlen(s);
@@ -120,6 +122,132 @@ lean_obj * mk_string(char const * s) {
 lean_obj * mk_string(std::string const & s) {
     return mk_string(s.c_str());
 }
+
+/* Natural numbers */
+
+lean_obj * nat_big_add(lean_obj * a1, lean_obj * a2) {
+    lean_assert(!is_scalar(a1) || !is_scalar(a2));
+    if (is_scalar(a1))
+        return mk_mpz_core(unbox(a1) + mpz_value(a2));
+    else if (is_scalar(a2))
+        return mk_mpz_core(mpz_value(a1) + unbox(a2));
+    else
+        return mk_mpz_core(mpz_value(a1) + mpz_value(a2));
+}
+
+lean_obj * nat_big_sub(lean_obj * a1, lean_obj * a2) {
+    lean_assert(!is_scalar(a1) || !is_scalar(a2));
+    if (is_scalar(a1)) {
+        lean_assert(unbox(a1) < mpz_value(a2));
+        return box(0);
+    } else if (is_scalar(a2)) {
+        lean_assert(mpz_value(a1) > unbox(a2));
+        return mk_mpz(mpz_value(a1) - unbox(a2));
+    } else {
+        if (mpz_value(a1) < mpz_value(a2))
+            return box(0);
+        else
+            return mk_mpz(mpz_value(a1) - mpz_value(a2));
+    }
+}
+
+lean_obj * nat_big_mul(lean_obj * a1, lean_obj * a2) {
+    lean_assert(!is_scalar(a1) || !is_scalar(a2));
+    if (is_scalar(a1))
+        return mk_mpz_core(unbox(a1) * mpz_value(a2));
+    else if (is_scalar(a2))
+        return mk_mpz_core(mpz_value(a1) * unbox(a2));
+    else
+        return mk_mpz_core(mpz_value(a1) * mpz_value(a2));
+}
+
+lean_obj * nat_big_div(lean_obj * a1, lean_obj * a2) {
+    lean_assert(!is_scalar(a1) || !is_scalar(a2));
+    if (is_scalar(a1)) {
+        lean_assert(mpz_value(a2) != 0);
+        lean_assert(unbox(a1) / mpz_value(a2) == 0);
+        return box(0);
+    } else if (is_scalar(a2)) {
+        unsigned n2 = unbox(a2);
+        return n2 == 0 ? a2 : mk_mpz(mpz_value(a1) / n2);
+    } else {
+        lean_assert(mpz_value(a2) != 0);
+        return mk_mpz(mpz_value(a1) / mpz_value(a2));
+    }
+}
+
+lean_obj * nat_big_mod(lean_obj * a1, lean_obj * a2) {
+    lean_assert(!is_scalar(a1) || !is_scalar(a2));
+    if (is_scalar(a1)) {
+        lean_assert(mpz_value(a2) != 0);
+        return a1;
+    } else if (is_scalar(a2)) {
+        unsigned n2 = unbox(a2);
+        return n2 == 0 ? a2 : box((mpz_value(a1) % mpz(n2)).get_unsigned_int());
+    } else {
+        lean_assert(mpz_value(a2) != 0);
+        return mk_mpz(mpz_value(a1) % mpz_value(a2));
+    }
+}
+
+bool nat_big_eq(lean_obj * a1, lean_obj * a2) {
+    if (is_scalar(a1))
+        return unbox(a1) == mpz_value(a2);
+    else if (is_scalar(a2))
+        return mpz_value(a1) == unbox(a2);
+    else
+        return mpz_value(a1) == mpz_value(a2);
+}
+
+bool nat_big_le(lean_obj * a1, lean_obj * a2) {
+    if (is_scalar(a1))
+        return unbox(a1) <= mpz_value(a2);
+    else if (is_scalar(a2))
+        return mpz_value(a1) <= unbox(a2);
+    else
+        return mpz_value(a1) <= mpz_value(a2);
+}
+
+bool nat_big_lt(lean_obj * a1, lean_obj * a2) {
+    if (is_scalar(a1))
+        return unbox(a1) < mpz_value(a2);
+    else if (is_scalar(a2))
+        return mpz_value(a1) < unbox(a2);
+    else
+        return mpz_value(a1) < mpz_value(a2);
+}
+
+lean_obj * nat_big_land(lean_obj * a1, lean_obj * a2) {
+    lean_assert(!is_scalar(a1) || !is_scalar(a2));
+    if (is_scalar(a1))
+        return mk_mpz(mpz(unbox(a1)) & mpz_value(a2));
+    else if (is_scalar(a2))
+        return mk_mpz(mpz_value(a1) & mpz(unbox(a2)));
+    else
+        return mk_mpz(mpz_value(a1) & mpz_value(a2));
+}
+
+lean_obj * nat_big_lor(lean_obj * a1, lean_obj * a2) {
+    lean_assert(!is_scalar(a1) || !is_scalar(a2));
+    if (is_scalar(a1))
+        return mk_mpz(mpz(unbox(a1)) | mpz_value(a2));
+    else if (is_scalar(a2))
+        return mk_mpz(mpz_value(a1) | mpz(unbox(a2)));
+    else
+        return mk_mpz(mpz_value(a1) | mpz_value(a2));
+}
+
+lean_obj * nat_big_lxor(lean_obj * a1, lean_obj * a2) {
+    lean_assert(!is_scalar(a1) || !is_scalar(a2));
+    if (is_scalar(a1))
+        return mk_mpz(mpz(unbox(a1)) ^ mpz_value(a2));
+    else if (is_scalar(a2))
+        return mk_mpz(mpz_value(a1) ^ mpz(unbox(a2)));
+    else
+        return mk_mpz(mpz_value(a1) ^ mpz_value(a2));
+}
+
+/* Debugging helper functions */
 
 void dbg_print_str(lean_obj * o) {
     lean_assert(is_string(o));

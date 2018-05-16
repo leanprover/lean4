@@ -66,9 +66,11 @@ def parse_assign_binop : parser assign_binop :=
 <|> (keyword "array_read" >> return assign_binop.array_read)
 
 def parse_unop : parser unop :=
-    (keyword "inc" >> return unop.inc)
+    (keyword "inc_ref" >> return unop.inc_ref)
+<|> (keyword "dec_ref" >> return unop.dec_ref)
+<|> (keyword "inc" >> return unop.inc)
 <|> (keyword "dec" >> return unop.dec)
-<|> (keyword "decs" >> return unop.decs)
+<|> (keyword "dec_sref" >> return unop.dec_sref)
 <|> (keyword "free" >> return unop.free)
 <|> (keyword "dealloc" >> return unop.dealloc)
 <|> (keyword "array_pop" >> return unop.array_pop)

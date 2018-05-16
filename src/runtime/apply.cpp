@@ -22,11 +22,11 @@ static obj* fix_args(obj* f, unsigned n, obj*const* as) {
     obj ** target = closure_arg_cptr(r);
     for (unsigned i = 0; i < fixed; i++, source++, target++) {
         *target = *source;
-        if (!is_scalar(*target)) inc_ref(*target);
+        inc(*target);
     }
     for (unsigned i = 0; i < n; i++, as++, target++) {
         *target = *as;
-        if (!is_scalar(*target)) inc_ref(*target);
+        inc(*target);
     }
     inc_ref(r);
     return r;

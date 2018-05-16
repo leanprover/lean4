@@ -120,6 +120,8 @@ inline void inc_ref(lean_obj * o) { atomic_fetch_add_explicit(&o->m_rc, static_c
 inline void dec_shared_ref(lean_obj * o) { lean_assert(is_shared(o)); atomic_fetch_sub_explicit(&o->m_rc, static_cast<rc_type>(1), memory_order_acq_rel); }
 inline bool dec_ref_core(lean_obj * o) { lean_assert(get_rc(o) > 0); return atomic_fetch_sub_explicit(&o->m_rc, static_cast<rc_type>(1), memory_order_acq_rel) == 1; }
 inline void dec_ref(lean_obj * o) { if (dec_ref_core(o)) del(o); }
+inline void inc(lean_obj * o) { if (!is_scalar(o)) inc_ref(o); }
+inline void dec(lean_obj * o) { if (!is_scalar(o)) dec_ref(o); }
 
 /* Testers */
 inline lean_obj_kind get_kind(lean_obj * o) { return static_cast<lean_obj_kind>(o->m_kind); }

@@ -255,9 +255,11 @@ match l with
   | _           := emit_var x >> emit " = " >> emit v >> emit_num_suffix t
 
 def unop2cpp : unop → string
-| unop.inc            := "lean::inc_ref"
-| unop.decs           := "lean::dec_shared_ref"
-| unop.dec            := "lean::dec_ref"
+| unop.inc_ref        := "lean::inc_ref"
+| unop.dec_ref        := "lean::dec_ref"
+| unop.dec_sref       := "lean::dec_shared_ref"
+| unop.inc            := "lean::inc"
+| unop.dec            := "lean::dec"
 | unop.free           := "free"
 | unop.dealloc        := "lean::dealloc"
 | unop.array_pop      := "lean::array_pop"

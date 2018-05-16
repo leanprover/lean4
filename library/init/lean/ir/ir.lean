@@ -121,13 +121,17 @@ inductive assign_binop
 
 /-- Operators for instructions of the form `op x`
 
-- `inc x`: increment `RC(x)`, `x` must have type `object`, and it must not be a tagged pointer.
+- `inc_ref x`: increment `RC(x)`, `x` must have type `object`, and it must not be a tagged pointer.
 
-- `dec x`: decrement `RC(x)`, `x` must have type `object`, and it must not be a tagged pointer.
+- `dec_ref x`: decrement `RC(x)`, `x` must have type `object`, and it must not be a tagged pointer.
 If `RC(x)` becomes zero, then `x` is deleted.
 
-- `decs x`: decrement `RC(x)`, `x` must have type `object`, `RC(x) > 1`, and it must not be a tagged pointer.
+- `dec_sref x`: decrement `RC(x)`, `x` must have type `object`, `RC(x) > 1`, and it must not be a tagged pointer.
 That is, `x` must be a shared object.
+
+- `inc x`: increment `RC(x)` IF `x` is not a tagged pointer. `x` must have type `object`.
+
+- `dec x`: decrement `RC(x)` IF `x` is not a tagged pointer.  `x` must have type `object`.
 
 - `free x`: free `x`'s memory. `x` must have type `object`, it must not be a tagged pointer,
 and it must not be an external or big number.
@@ -140,7 +144,8 @@ be an array of objects.
 - `sarray_pop x`: remove the last element of array `x`. `x` must have type `object`, `RC(x) = 1`, and it must
 be an array of scalar values. -/
 inductive unop
-| inc | dec | decs | free | dealloc
+| inc_ref | dec_ref | dec_sref | inc | dec
+| free | dealloc
 | array_pop | sarray_pop
 
 /-- Operators for instructions of the form `op x y`

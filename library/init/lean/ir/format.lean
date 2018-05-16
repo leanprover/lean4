@@ -72,9 +72,9 @@ instance assign_binop.has_to_format : has_to_format assign_binop := ⟨assign_bi
 instance assign_binop.has_to_string : has_to_string assign_binop := ⟨pretty ∘ to_fmt⟩
 
 def unop.to_format : unop → format
-| unop.inc  := "inc"
-| unop.dec  := "dec"  | unop.decs := "decs"
-| unop.free := "free" | unop.dealloc := "dealloc"
+| unop.inc_ref   := "inc_ref"   | unop.dec_ref := "dec_ref"  | unop.dec_sref := "dec_sref"
+| unop.inc       := "inc"       | unop.dec     := "dec"
+| unop.free      := "free"      | unop.dealloc := "dealloc"
 | unop.array_pop := "array_pop" | unop.sarray_pop := "sarray_pop"
 
 instance unop.has_to_format : has_to_format unop := ⟨unop.to_format⟩

@@ -200,21 +200,47 @@ void utf8_decode(std::string const & str, buffer<unsigned> & out) {
 #define MAX_TWO_B   0x800
 #define MAX_THREE_B 0x10000
 
-void push_unicode_scalar(std::string & s, unsigned code) {
+template<typename T>
+class push_back_trait {};
+
+template<> class push_back_trait<char*> {
+public:
+    static void push(char * & s, unsigned char c) { *s = c; ++s; }
+};
+
+template<> class push_back_trait<std::string> {
+public:
+    static void push(std::string & s, unsigned char c) { s.push_back(c); }
+};
+
+template<typename T>
+unsigned push_unicode_scalar_core(T & d, unsigned code) {
     if (code < MAX_ONE_B) {
-        s.push_back(static_cast<unsigned char>(code));
+        push_back_trait<T>::push(d, static_cast<unsigned char>(code));
+        return 1;
     } else if (code < MAX_TWO_B) {
-        s.push_back(static_cast<unsigned char>(code >> 6 & 0x1F) | TAG_TWO_B);
-        s.push_back(static_cast<unsigned char>(code & 0x3F) | TAG_CONT);
+        push_back_trait<T>::push(d, static_cast<unsigned char>(code >> 6 & 0x1F) | TAG_TWO_B);
+        push_back_trait<T>::push(d, static_cast<unsigned char>(code & 0x3F) | TAG_CONT);
+        return 2;
     } else if (code < MAX_THREE_B) {
-        s.push_back(static_cast<unsigned char>(code >> 12 & 0x0F) | TAG_THREE_B);
-        s.push_back(static_cast<unsigned char>(code >>  6 & 0x3F) | TAG_CONT);
-        s.push_back(static_cast<unsigned char>(code & 0x3F) | TAG_CONT);
+        push_back_trait<T>::push(d, static_cast<unsigned char>(code >> 12 & 0x0F) | TAG_THREE_B);
+        push_back_trait<T>::push(d, static_cast<unsigned char>(code >>  6 & 0x3F) | TAG_CONT);
+        push_back_trait<T>::push(d, static_cast<unsigned char>(code & 0x3F) | TAG_CONT);
+        return 3;
     } else {
-        s.push_back(static_cast<unsigned char>(code >> 18 & 0x07) | TAG_FOUR_B);
-        s.push_back(static_cast<unsigned char>(code >> 12 & 0x3F) | TAG_CONT);
-        s.push_back(static_cast<unsigned char>(code >>  6 & 0x3F) | TAG_CONT);
-        s.push_back(static_cast<unsigned char>(code & 0x3F) | TAG_CONT);
+        push_back_trait<T>::push(d, static_cast<unsigned char>(code >> 18 & 0x07) | TAG_FOUR_B);
+        push_back_trait<T>::push(d, static_cast<unsigned char>(code >> 12 & 0x3F) | TAG_CONT);
+        push_back_trait<T>::push(d, static_cast<unsigned char>(code >>  6 & 0x3F) | TAG_CONT);
+        push_back_trait<T>::push(d, static_cast<unsigned char>(code & 0x3F) | TAG_CONT);
+        return 4;
     }
+}
+
+unsigned push_unicode_scalar(char * d, unsigned code) {
+    return push_unicode_scalar_core<char*>(d, code);
+}
+
+void push_unicode_scalar(std::string & s, unsigned code) {
+    push_unicode_scalar_core(s, code);
 }
 }

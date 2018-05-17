@@ -86,7 +86,6 @@ match ins with
 | (instr.assign_unop x _ _ y)    := x.define >> y.defined
 | (instr.assign_binop x _ _ y z) := x.define >> y.defined >> z.defined
 | (instr.unop _ x)               := x.defined
-| (instr.binop _ x y)            := x.defined >> y.defined
 | (instr.call xs _ ys)           := xs.mfor var.define >> ys.mfor var.defined
 | (instr.cnstr o _ _ _)          := o.define
 | (instr.set o _ x)              := o.defined >> x.defined

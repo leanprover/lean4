@@ -107,20 +107,67 @@ void del(lean_obj * o) {
     }
 }
 
+/* Scalar arrays */
+
+static lean_obj * sarray_ensure_capacity(lean_obj * o, size_t extra) {
+    lean_assert(!is_shared(o));
+    size_t sz  = sarray_size(o);
+    size_t cap = sarray_capacity(o);
+    if (sz + extra > cap) {
+        unsigned esize = sarray_elem_size(o);
+        lean_obj * new_o = alloc_sarray(esize, sz, cap + sz + extra);
+        lean_assert(sarray_capacity(new_o) >= sz + extra);
+        memcpy(sarray_cptr<char>(new_o), sarray_cptr<char>(o), esize * sz);
+        free(o);
+        return new_o;
+    } else {
+        return o;
+    }
+}
+
 /* Strings */
 
 lean_obj * mk_string(char const * s) {
     size_t sz  = strlen(s);
     size_t len = utf8_strlen(s);
-    size_t rsz = sz + sizeof(size_t);
+    size_t rsz = sz + sizeof(size_t) + 1;
     lean_obj * r = alloc_sarray(1, rsz, rsz);
     set_sarray_data<size_t>(r, 0, len);
-    memcpy(sarray_cptr<char>(r) + sizeof(size_t), s, sz);
+    memcpy(sarray_cptr<char>(r) + sizeof(size_t), s, sz+1);
     return r;
 }
 
 lean_obj * mk_string(std::string const & s) {
     return mk_string(s.c_str());
+}
+
+lean_obj * string_push(lean_obj * s, unsigned c) {
+    lean_assert(!is_shared(s));
+    lean_obj * r = sarray_ensure_capacity(s, 5);
+    size_t sz = sarray_size(r);
+    unsigned consumed = push_unicode_scalar(sarray_cptr<char>(r) + sz - 1, c);
+    set_sarray_size(r, sz + consumed);
+    set_sarray_data<char>(r, sz + consumed - 1, 0);
+    set_sarray_data<size_t>(r, 0, string_len(r) + 1);
+    return r;
+}
+
+lean_obj * string_append(lean_obj * s1, lean_obj * s2) {
+    lean_assert(!is_shared(s1));
+    size_t sz1 = sarray_size(s1);
+    size_t sz2 = sarray_size(s2);
+    size_t len1 = string_len(s1);
+    size_t len2 = string_len(s2);
+    lean_assert(sz2 >= sizeof(size_t));
+    sz2 -= sizeof(size_t);
+    lean_obj * r = sarray_ensure_capacity(s1, sz2-1);
+    if (s1 == s2) s2 = r;
+    memcpy(sarray_cptr<char>(r) + sz1 - 1, c_str(s2), sz2 - 1);
+    unsigned new_sz = sz1 + sz2 - 1;
+    set_sarray_size(r, new_sz);
+    set_sarray_data<char>(r, new_sz - 1, 0);
+    set_sarray_data<size_t>(r, 0, len1 + len2);
+    return r;
 }
 
 /* Natural numbers */

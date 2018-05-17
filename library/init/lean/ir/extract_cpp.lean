@@ -210,6 +210,12 @@ match op with
   (match t with
    | type.object := emit_var x >> emit " = lean::array_obj" >> paren (emit_var y <+> emit_var z)
    | _           := emit_var x >> emit " = lean::sarray_data" >> emit_template_param t >> paren (emit_var y <+> emit_var z))
+| assign_binop.array_push :=
+  do env ← read, emit_var x, emit " = ",
+     if env.ctx.find z = some type.object then emit "lean::array_push" else emit "lean::sarray_push",
+     paren(emit_var y <+> emit_var z)
+| assign_binop.string_push   := emit_var x >> emit " = lean::string_push" >> paren (emit_var y <+> emit_var z)
+| assign_binop.string_append := emit_var x >> emit " = lean::string_append" >> paren (emit_var y <+> emit_var z)
 
 /-- Emit `x := op(y)` -/
 def emit_x_op_y (x : var) (op : string) (y : var) : extract_m unit :=
@@ -268,14 +274,6 @@ def unop2cpp : unop → string
 def emit_unop (op : unop) (x : var) : extract_m unit :=
 emit (unop2cpp op) >> paren(emit_var x)
 
-def emit_binop (op : binop) (x y : var) : extract_m unit :=
-(match op with
- | binop.array_push :=
-    do env ← read, if env.ctx.find y = some type.object then emit "lean::array_push" else emit "lean::sarray_push"
- | binop.string_push   := emit "lean::string_push"
- | binop.string_append := emit "lean::string_append")
->> paren(emit_var x <+> emit_var y)
-
 def emit_apply (x : var) (ys : list var) : extract_m unit :=
 match ys with
 | (f::as) :=
@@ -306,7 +304,6 @@ ins.decorate_error $
  | (instr.assign_lit x t l)         := emit_assign_lit x t l
  | (instr.assign_unop x t op y)     := emit_assign_unop x t op y
  | (instr.assign_binop x t op y z)  := emit_assign_binop x t op y z
- | (instr.binop op x y)             := emit_binop op x y
  | (instr.unop op x)                := emit_unop op x
  | (instr.call xs f ys)      := do
    emit_call_lhs xs, c ← is_const f,

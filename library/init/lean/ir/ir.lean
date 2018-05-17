@@ -113,11 +113,28 @@ If `y` and `z` are `object`, then they must be big numbers.
 - `x : bool := ne y z`: disequality test. If `y` and `z` are `object`, then they must be big numbers.
 
 - `x : t := array_read a i`: Read position `i` of the array `a`. `a` must be an (array) `object`.
-If `a` is a scalar array, then `t ≠ object`. If `a` is an (non-scalar) array, then `t = object`. -/
+If `a` is a scalar array, then `t ≠ object`. If `a` is an (non-scalar) array, then `t = object`.
+
+- `r : object := array_push a x`: push element `x` in the end of array `a`. `x` must have type `object`, `RC(x) = 1`, and it must
+be an array. If `x` has a scalar type, then `a` is an array of scalar. Otherwise, it is an array of objects.
+Remark: if `a` has space for the new element, then `r` is set to `a`. Otherwise, a new array object is allocated, set to `r`,
+and `a` is deleted.
+
+- `r : object := string_push s c`: push character `c` in the end of string `s`. `s` must have type `object`, and `RC(s) = 1`.
+be a string.
+Remark: if `s` has space for the new element, then `r` is set to `s`. Otherwise, a new string is allocated, set to `r`,
+and `s` is deleted.
+
+- `r : object : string_append s₁ s₂`: append string `s₂` in the end of string `s₁`. `s₁` must have type `object`, and `RC(s₁) = 1`.
+Remark: if `s₁` has space for all `s₂` characters, then `r` is set to `s₁`. Otherwise, a new string is allocated, set to `r`,
+and `s₁` is deleted.
+
+Remark: in the future we may add instructions for performing updates destructively on big numbers. Example:
+`add_acc x y` would be `x += y`, and require `RC(x) = 1`. -/
 inductive assign_binop
 | add | sub | mul | div | mod | shl | shr | and | or | xor
 | le  | lt  | eq  | ne
-| array_read -- (scalar) array read
+| array_read | array_push | string_push | string_append
 
 /-- Operators for instructions of the form `op x`
 
@@ -148,23 +165,6 @@ inductive unop
 | free | dealloc
 | array_pop | sarray_pop
 
-/-- Operators for instructions of the form `op x y`
-
-- `array_push a x`: push element `x` in the end of array `a`. `x` must have type `object`, `RC(x) = 1`, and it must
-be an array. If `x` has a scalar type, then `a` is an array of scalar. Otherwise, it is an array of objects.
-
-- `string_push s c`: push character `c` in the end of string `s`. `s` must have type `object`, and `RC(s) = 1`.
-be a string.
-
-- `string_append s₁ s₂`: append string `s₂` in the end of string `s₁`. `s₁` must have type `object`, and `RC(s₁) = 1`.
-
-Remark: in the future we may add instructions for performing updates destructively on big numbers. Example:
-`add_acc x y` would be `x += y`, and require `RC(x) = 1`. -/
-inductive binop
-| array_push
-| string_push
-| string_append
-
 inductive literal
 | bool    : bool   → literal
 | str     : string → literal
@@ -182,7 +182,6 @@ inductive instr
 | assign_unop  (x : var) (ty : type) (op : assign_unop) (y : var)    -- x : ty := op y
 | assign_binop (x : var) (ty : type) (op : assign_binop) (y z : var) -- x : ty := op y z
 | unop         (op : unop) (x : var)                                 -- op x
-| binop        (op : binop) (x y : var)                              -- op x y
 | call         (xs : list var) (f : fnid) (ys : list var)            -- Function call:  xs := f ys
 /- Constructor objects -/
 | cnstr   (o : var) (tag : tag) (nobjs : uint16) (ssz : usize)       -- Create constructor object

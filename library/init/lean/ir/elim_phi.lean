@@ -36,7 +36,6 @@ def instr.replace_vars : instr → elim_phi_m instr
 | (instr.assign_unop x ty op y)    := instr.assign_unop <$> find x <*> pure ty <*> pure op <*> find y
 | (instr.assign_binop x ty op y z) := instr.assign_binop <$> find x <*> pure ty <*> pure op <*> find y <*> find z
 | (instr.unop op x)                := instr.unop op <$> find x
-| (instr.binop op x y)             := instr.binop op <$> find x <*> find y
 | (instr.call xs f ys)             := instr.call <$> xs.mmap find <*> pure f <*> ys.mmap find
 | (instr.cnstr o tag n s)          := instr.cnstr <$> find o <*> pure tag <*> pure n <*> pure s
 | (instr.set o i x)                := instr.set <$> find o <*> pure i <*> find x

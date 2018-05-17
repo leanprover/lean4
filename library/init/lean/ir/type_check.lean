@@ -75,7 +75,10 @@ match op with
 | assign_binop.lt   := r = type.bool && t₁ = t₂ && is_arith_ty t₁
 | assign_binop.eq   := r = type.bool && t₁ = t₂
 | assign_binop.ne   := r = type.bool && t₁ = t₂
-| assign_binop.array_read := t₁ = type.object && t₂ = type.usize
+| assign_binop.array_read    := t₁ = type.object && t₂ = type.usize
+| assign_binop.array_push    := r = type.object && t₁ = type.object
+| assign_binop.string_push   := r = type.object && t₁ = type.object && t₂ = type.uint32
+| assign_binop.string_append := r = type.object && t₁ = type.object && t₂ = type.object
 
 @[reducible] def type_checker_m := except_t format (reader_t (environment × list result) (state_t context id))
 
@@ -180,6 +183,7 @@ match ins with
 | (instr.assign_lit x t l)         := l.check t
 | (instr.assign_unop x t op y)     := do t₁ ← get_type y, unless (valid_assign_unop_types op t t₁) $ throw "invalid unary operation"
 | (instr.assign_binop x t op y z)  := do t₁ ← get_type y, t₂ ← get_type z, unless (valid_assign_binop_types op t t₁ t₂) $ throw "invalid binary operation"
+| (instr.unop _ x)          := check_type x type.object
 | (instr.call xs f ys)      := do d ← get_decl f, check_arg_types ys d.header.args
 | (instr.cnstr o _ _ _)     := return ()
 | (instr.set o _ x)         := check_type o type.object >> check_type x type.object
@@ -194,13 +198,6 @@ match ins with
 | (instr.array a sz c)      := check_type sz type.usize >> check_type c type.usize
 | (instr.sarray a t sz c)   := check_type sz type.usize >> check_type c type.usize >> unless (t ≠ type.object) (throw "invalid scalar array")
 | (instr.array_write a i _) := check_type a type.object >> check_type i type.usize
-| (instr.unop _ x)          := check_type x type.object
-| (instr.binop op x y)      :=
-  check_type x type.object >>
-  match op with
-  | binop.string_push   := check_type y type.uint32
-  | binop.string_append := check_type y type.object
-  | binop.array_push    := return ()
 
 def phi.check (p : phi) : type_checker_m unit :=
 p.decorate_error $ p.ys.mfor (flip check_type p.ty)

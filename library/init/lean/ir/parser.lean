@@ -64,6 +64,9 @@ def parse_assign_binop : parser assign_binop :=
 <|> (keyword "eq" >> return assign_binop.eq)
 <|> (keyword "ne" >> return assign_binop.ne)
 <|> (keyword "array_read" >> return assign_binop.array_read)
+<|> (keyword "array_push" >> return assign_binop.array_push)
+<|> (keyword "string_push" >> return assign_binop.string_push)
+<|> (keyword "string_append" >> return assign_binop.string_append)
 
 def parse_unop : parser unop :=
     (keyword "inc_ref" >> return unop.inc_ref)
@@ -75,11 +78,6 @@ def parse_unop : parser unop :=
 <|> (keyword "dealloc" >> return unop.dealloc)
 <|> (keyword "array_pop" >> return unop.array_pop)
 <|> (keyword "sarray_pop" >> return unop.sarray_pop)
-
-def parse_binop : parser binop :=
-    (keyword "array_push" >> return binop.array_push)
-<|> (keyword "string_push" >> return binop.string_push)
-<|> (keyword "string_append" >> return binop.string_append)
 
 def parse_literal : parser literal :=
     (keyword "tt" >> return (literal.bool tt))
@@ -157,7 +155,6 @@ def parse_instr : parser instr :=
 <|> (keyword "sset" >> instr.sset <$> parse_var <*> parse_usize <*> parse_var)
 <|> (keyword "call" >> instr.call [] <$> parse_fnid <*> many parse_var)
 <|> (instr.unop <$> parse_unop <*> parse_var)
-<|> (instr.binop <$> parse_binop <*> parse_var <*> parse_var)
 <|> parse_assignment
 
 def parse_phi : parser phi :=

@@ -326,6 +326,9 @@ lean_obj * mk_string(char const * s);
 lean_obj * mk_string(std::string const & s);
 inline bool is_string(lean_obj * o) { return !is_scalar(o) && is_sarray(o) && sarray_elem_size(o) == 1; }
 inline char const * c_str(lean_obj * o) { lean_assert(is_string(o)); return sarray_cptr<char>(o) + sizeof(size_t); }
+inline size_t string_len(lean_obj * o) { return sarray_data<size_t>(o, 0); }
+lean_obj * string_push(lean_obj * s, unsigned c);
+lean_obj * string_append(lean_obj * s1, lean_obj * s2);
 
 /* Natural numbers */
 

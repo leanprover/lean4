@@ -66,7 +66,10 @@ def assign_binop.to_format : assign_binop → format
 | assign_binop.mod  := "mod"  | assign_binop.shl  := "shl" | assign_binop.shr  := "shr"
 | assign_binop.and  := "and"  | assign_binop.or   := "or"  | assign_binop.xor  := "xor"  | assign_binop.le   := "le"
 | assign_binop.lt   := "lt"   | assign_binop.eq   := "eq"  | assign_binop.ne   := "ne"
-| assign_binop.array_read := "array_read"
+| assign_binop.array_read    := "array_read"
+| assign_binop.array_push    := "array_push"
+| assign_binop.string_push   := "string_push"
+| assign_binop.string_append := "string_append"
 
 instance assign_binop.has_to_format : has_to_format assign_binop := ⟨assign_binop.to_format⟩
 instance assign_binop.has_to_string : has_to_string assign_binop := ⟨pretty ∘ to_fmt⟩
@@ -79,14 +82,6 @@ def unop.to_format : unop → format
 
 instance unop.has_to_format : has_to_format unop := ⟨unop.to_format⟩
 instance unop.has_to_string : has_to_string unop := ⟨pretty ∘ to_fmt⟩
-
-def binop.to_format : binop → format
-| binop.array_push    := "array_push"
-| binop.string_push   := "string_push"
-| binop.string_append := "string_append"
-
-instance binop.has_to_format : has_to_format binop := ⟨binop.to_format⟩
-instance binop.has_to_string : has_to_string binop := ⟨pretty ∘ to_fmt⟩
 
 def literal.to_format : literal → format
 | (literal.bool b)  := to_fmt b
@@ -106,7 +101,6 @@ def instr.to_format : instr → format
 | (instr.assign_unop x ty op y)     := to_fmt x ++ " : " ++ to_fmt ty ++ " := " ++ to_fmt op ++ " " ++ to_fmt y
 | (instr.assign_binop x ty op y z)  := to_fmt x ++ " : " ++ to_fmt ty ++ " := " ++ to_fmt op ++ " " ++ to_fmt y ++ " " ++ to_fmt z
 | (instr.unop op x)                 := to_fmt op ++ " " ++ to_fmt x
-| (instr.binop op x y)              := to_fmt op ++ " " ++ to_fmt x ++ " " ++ to_fmt y
 | (instr.call xs fn ys)             := join_sep xs " " ++ " := call " ++ to_fmt fn ++ prefix_join " " ys
 | (instr.cnstr o t n sz)            := to_fmt o ++ " := cnstr " ++ to_fmt t ++ " " ++ to_fmt n ++ " " ++ to_fmt sz
 | (instr.set o i x)                 := to_fmt "set " ++ to_fmt o ++ " " ++ to_fmt i ++ " " ++ to_fmt x

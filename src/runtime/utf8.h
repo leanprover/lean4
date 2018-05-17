@@ -38,4 +38,8 @@ void utf8_decode(std::string const & str, buffer<unsigned> & out);
 
 /* Push a unicode scalar value into a utf-8 encoded string */
 void push_unicode_scalar(std::string & s, unsigned code);
+
+/* Store unicode scalar value at `d`, `d` must point to memory with enough space to stroe `c`.
+   Return the number of bytes consumed. */
+unsigned push_unicode_scalar(char * d, unsigned code);
 }

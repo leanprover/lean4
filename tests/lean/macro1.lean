@@ -1,13 +1,5 @@
 import init.lean.parser.macro
 
-meta def name.to_lean_name : name → lean.name
-| name.anonymous := lean.name.anonymous
-| (name.mk_string s n) := n.to_lean_name.mk_string s
-| (name.mk_numeral u n) := n.to_lean_name.mk_numeral u.to_nat
-
-meta instance : has_coe name lean.name :=
-⟨name.to_lean_name⟩
-
 namespace lean
 open lean.parser
 
@@ -53,18 +45,6 @@ def macros : name → option macro
 def cfg : parse_state :=
 {macros := rbmap.from_list ([lambda_macro, ref_macro, intro_x_macro].map (λ m, (m.name, m))) _,
  resolve_cfg := {global_scope := mk_rbmap _ _ _}}
-
-meta def format.to_root_format : format → _root_.format
-| (format.nil) := _root_.format.nil
-| (format.line) := _root_.format.line
-| (format.text s) := s
-| (format.nest n f) := f.to_root_format.nest n
-| (format.compose ff f₁ f₂) := _root_.format.compose f₁.to_root_format f₂.to_root_format
-| (format.compose tt f₁ f₂) := (_root_.format.compose f₁.to_root_format f₂.to_root_format).group
-| (format.choice f₁ f₂) := f₁.to_root_format -- :/
-
-meta instance has_lean_format_to_format {α} [has_to_format α] : _root_.has_to_format α :=
-⟨format.to_root_format ∘ to_fmt⟩
 
 namespace rbmap
   universes u v w

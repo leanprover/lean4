@@ -1,11 +1,10 @@
-macro1.lean:16:4: warning: failed to generate bytecode for 'lambda_macro'
+macro1.lean:8:4: warning: failed to generate bytecode for 'lambda_macro'
 code generation failed, VM does not have code for '_unreachable_'
-macro1.lean:31:4: warning: failed to generate bytecode for 'ref_macro'
+macro1.lean:23:4: warning: failed to generate bytecode for 'ref_macro'
 code generation failed, VM does not have code for '_unreachable_'
 (0: node lambda (1: ident x) (2: node ref (3: ident x)))
 ((0: node lambda (1: ident x) (2: node ref (3: ident x))), ⟨3 ← ((inl 1), x)⟩)
 (0: node lambda (1: ident x) (5: node lambda (6: ident x from 0) (2: node ref (3: ident x))))
-((0: node lambda (1: ident x) (5: node lambda (6: ident x from 0) (2: node ref (3: ident x)))),
- ⟨3 ← ((inl 1), x)⟩)
+((0: node lambda (1: ident x) (5: node lambda (6: ident x from 0) (2: node ref (3: ident x)))), ⟨3 ← ((inl 1), x)⟩)
 (0: node lambda (1: ident x.y) (2: node ref (3: ident x.y.z)))
 ((0: node lambda (1: ident x.y) (2: node ref (3: ident x.y.z))), ⟨3 ← ((inl 1), x.y)⟩)

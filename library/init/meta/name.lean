@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.ordering.basic init.coe init.data.to_string
+import init.data.ordering.basic init.coe init.data.to_string init.lean.name
 
 /-- Reflect a C++ name object. The VM replaces it with the C++ implementation. -/
 inductive name
@@ -110,3 +110,11 @@ meta def name.replace_prefix : name → name → name → name
 | anonymous        p p' := anonymous
 | (mk_string s c)  p p' := if c = p then mk_string s p' else mk_string s (name.replace_prefix c p p')
 | (mk_numeral v c) p p' := if c = p then mk_numeral v p' else mk_numeral v (name.replace_prefix c p p')
+
+meta def name.to_lean_name : name → lean.name
+| name.anonymous := lean.name.anonymous
+| (name.mk_string s n) := n.to_lean_name.mk_string s
+| (name.mk_numeral u n) := n.to_lean_name.mk_numeral u.to_nat
+
+meta instance : has_coe name lean.name :=
+⟨name.to_lean_name⟩

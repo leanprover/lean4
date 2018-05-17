@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.options init.function init.data.to_string
+import init.meta.options init.function init.data.to_string init.lean.format
 
 universes u v
 
@@ -142,3 +142,15 @@ format.bracket "[" "]" f
 
 meta def format.dcbrace (f : format) : format :=
 to_fmt "⦃" ++ nest 1 f ++ to_fmt "⦄"
+
+meta def format.from_lean_format : lean.format → format
+| (lean.format.nil) := format.nil
+| (lean.format.line) := format.line
+| (lean.format.text s) := s
+| (lean.format.nest n f) := (format.from_lean_format f).nest n
+| (lean.format.compose ff f₁ f₂) := format.compose (format.from_lean_format f₁) (format.from_lean_format f₂)
+| (lean.format.compose tt f₁ f₂) := (format.compose (format.from_lean_format f₁) (format.from_lean_format f₂)).group
+| (lean.format.choice f₁ f₂) := format.from_lean_format f₁ -- HACK
+
+meta instance has_to_format_of_lean_has_to_format {α} [lean.has_to_format α] : has_to_format α :=
+⟨format.from_lean_format ∘ lean.to_fmt⟩

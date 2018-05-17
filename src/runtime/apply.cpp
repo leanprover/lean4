@@ -116,7 +116,7 @@ if (arity == fixed + 1) {
   default:
     lean_assert(arity > 16);
     obj * as[1] = { a1 };
-    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
     for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
     for (unsigned i = 0; i < 1; i++) args[fixed+i] = as[i];
     return FNN(f)(args);
@@ -151,14 +151,14 @@ if (arity == fixed + 2) {
   default:
     lean_assert(arity > 16);
     obj * as[2] = { a1, a2 };
-    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
     for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
     for (unsigned i = 0; i < 2; i++) args[fixed+i] = as[i];
     return FNN(f)(args);
   }
 } else if (arity < fixed + 2) {
   obj * as[2] = { a1, a2 };
-  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
   for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   return apply_nc(curry(f, arity, args), 2+fixed-arity, as+arity-fixed);
@@ -188,14 +188,14 @@ if (arity == fixed + 3) {
   default:
     lean_assert(arity > 16);
     obj * as[3] = { a1, a2, a3 };
-    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
     for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
     for (unsigned i = 0; i < 3; i++) args[fixed+i] = as[i];
     return FNN(f)(args);
   }
 } else if (arity < fixed + 3) {
   obj * as[3] = { a1, a2, a3 };
-  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
   for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   return apply_nc(curry(f, arity, args), 3+fixed-arity, as+arity-fixed);
@@ -224,14 +224,14 @@ if (arity == fixed + 4) {
   default:
     lean_assert(arity > 16);
     obj * as[4] = { a1, a2, a3, a4 };
-    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
     for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
     for (unsigned i = 0; i < 4; i++) args[fixed+i] = as[i];
     return FNN(f)(args);
   }
 } else if (arity < fixed + 4) {
   obj * as[4] = { a1, a2, a3, a4 };
-  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
   for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   return apply_nc(curry(f, arity, args), 4+fixed-arity, as+arity-fixed);
@@ -259,14 +259,14 @@ if (arity == fixed + 5) {
   default:
     lean_assert(arity > 16);
     obj * as[5] = { a1, a2, a3, a4, a5 };
-    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
     for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
     for (unsigned i = 0; i < 5; i++) args[fixed+i] = as[i];
     return FNN(f)(args);
   }
 } else if (arity < fixed + 5) {
   obj * as[5] = { a1, a2, a3, a4, a5 };
-  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
   for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   return apply_nc(curry(f, arity, args), 5+fixed-arity, as+arity-fixed);
@@ -293,14 +293,14 @@ if (arity == fixed + 6) {
   default:
     lean_assert(arity > 16);
     obj * as[6] = { a1, a2, a3, a4, a5, a6 };
-    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
     for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
     for (unsigned i = 0; i < 6; i++) args[fixed+i] = as[i];
     return FNN(f)(args);
   }
 } else if (arity < fixed + 6) {
   obj * as[6] = { a1, a2, a3, a4, a5, a6 };
-  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
   for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   return apply_nc(curry(f, arity, args), 6+fixed-arity, as+arity-fixed);
@@ -326,14 +326,14 @@ if (arity == fixed + 7) {
   default:
     lean_assert(arity > 16);
     obj * as[7] = { a1, a2, a3, a4, a5, a6, a7 };
-    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
     for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
     for (unsigned i = 0; i < 7; i++) args[fixed+i] = as[i];
     return FNN(f)(args);
   }
 } else if (arity < fixed + 7) {
   obj * as[7] = { a1, a2, a3, a4, a5, a6, a7 };
-  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
   for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   return apply_nc(curry(f, arity, args), 7+fixed-arity, as+arity-fixed);
@@ -358,14 +358,14 @@ if (arity == fixed + 8) {
   default:
     lean_assert(arity > 16);
     obj * as[8] = { a1, a2, a3, a4, a5, a6, a7, a8 };
-    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
     for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
     for (unsigned i = 0; i < 8; i++) args[fixed+i] = as[i];
     return FNN(f)(args);
   }
 } else if (arity < fixed + 8) {
   obj * as[8] = { a1, a2, a3, a4, a5, a6, a7, a8 };
-  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
   for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   return apply_nc(curry(f, arity, args), 8+fixed-arity, as+arity-fixed);
@@ -389,14 +389,14 @@ if (arity == fixed + 9) {
   default:
     lean_assert(arity > 16);
     obj * as[9] = { a1, a2, a3, a4, a5, a6, a7, a8, a9 };
-    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
     for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
     for (unsigned i = 0; i < 9; i++) args[fixed+i] = as[i];
     return FNN(f)(args);
   }
 } else if (arity < fixed + 9) {
   obj * as[9] = { a1, a2, a3, a4, a5, a6, a7, a8, a9 };
-  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
   for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   return apply_nc(curry(f, arity, args), 9+fixed-arity, as+arity-fixed);
@@ -419,14 +419,14 @@ if (arity == fixed + 10) {
   default:
     lean_assert(arity > 16);
     obj * as[10] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10 };
-    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
     for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
     for (unsigned i = 0; i < 10; i++) args[fixed+i] = as[i];
     return FNN(f)(args);
   }
 } else if (arity < fixed + 10) {
   obj * as[10] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10 };
-  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
   for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   return apply_nc(curry(f, arity, args), 10+fixed-arity, as+arity-fixed);
@@ -448,14 +448,14 @@ if (arity == fixed + 11) {
   default:
     lean_assert(arity > 16);
     obj * as[11] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11 };
-    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
     for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
     for (unsigned i = 0; i < 11; i++) args[fixed+i] = as[i];
     return FNN(f)(args);
   }
 } else if (arity < fixed + 11) {
   obj * as[11] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11 };
-  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
   for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   return apply_nc(curry(f, arity, args), 11+fixed-arity, as+arity-fixed);
@@ -476,14 +476,14 @@ if (arity == fixed + 12) {
   default:
     lean_assert(arity > 16);
     obj * as[12] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12 };
-    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
     for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
     for (unsigned i = 0; i < 12; i++) args[fixed+i] = as[i];
     return FNN(f)(args);
   }
 } else if (arity < fixed + 12) {
   obj * as[12] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12 };
-  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
   for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   return apply_nc(curry(f, arity, args), 12+fixed-arity, as+arity-fixed);
@@ -503,14 +503,14 @@ if (arity == fixed + 13) {
   default:
     lean_assert(arity > 16);
     obj * as[13] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13 };
-    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
     for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
     for (unsigned i = 0; i < 13; i++) args[fixed+i] = as[i];
     return FNN(f)(args);
   }
 } else if (arity < fixed + 13) {
   obj * as[13] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13 };
-  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
   for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   return apply_nc(curry(f, arity, args), 13+fixed-arity, as+arity-fixed);
@@ -529,14 +529,14 @@ if (arity == fixed + 14) {
   default:
     lean_assert(arity > 16);
     obj * as[14] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14 };
-    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
     for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
     for (unsigned i = 0; i < 14; i++) args[fixed+i] = as[i];
     return FNN(f)(args);
   }
 } else if (arity < fixed + 14) {
   obj * as[14] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14 };
-  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
   for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   return apply_nc(curry(f, arity, args), 14+fixed-arity, as+arity-fixed);
@@ -554,14 +554,14 @@ if (arity == fixed + 15) {
   default:
     lean_assert(arity > 16);
     obj * as[15] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15 };
-    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
     for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
     for (unsigned i = 0; i < 15; i++) args[fixed+i] = as[i];
     return FNN(f)(args);
   }
 } else if (arity < fixed + 15) {
   obj * as[15] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15 };
-  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
   for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   return apply_nc(curry(f, arity, args), 15+fixed-arity, as+arity-fixed);
@@ -578,14 +578,14 @@ if (arity == fixed + 16) {
   default:
     lean_assert(arity > 16);
     obj * as[16] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16 };
-    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
     for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
     for (unsigned i = 0; i < 16; i++) args[fixed+i] = as[i];
     return FNN(f)(args);
   }
 } else if (arity < fixed + 16) {
   obj * as[16] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16 };
-  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
   for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   return apply_nc(curry(f, arity, args), 16+fixed-arity, as+arity-fixed);
@@ -598,12 +598,12 @@ lean_assert(n > 16);
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + n) {
-  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
   for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
   for (unsigned i = 0; i < n; i++) args[fixed+i] = as[i];
   return FNN(f)(args);
 } else if (arity < fixed + n) {
-  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*)));
+  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
   for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
   return apply_nc(FNN(f)(args), n+fixed-arity, as+arity-fixed);

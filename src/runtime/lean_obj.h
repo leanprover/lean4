@@ -6,11 +6,20 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <string>
+#include <malloc.h>
 #include "runtime/compiler_hints.h"
 #include "runtime/mpz.h"
 #include "runtime/int64.h"
 
 namespace lean {
+inline void * alloca(size_t s) {
+#ifdef _MSC_VER
+    return ::_alloca(s);
+#else
+    return ::alloca(s);
+#endif
+}
+
 enum class lean_obj_kind { Constructor, Closure, Array, ScalarArray, MPZ, External };
 
 /* The reference counter is a uintptr_t, because at deletion time, we use this field to implement

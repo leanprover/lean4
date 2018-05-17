@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
 prelude
-import init.lean.format init.meta.expr init.data.rbmap
+import init.lean.format init.data.rbmap init.lean.pos
 
 universe u
 
@@ -24,15 +24,6 @@ def trace.pp : trace → format
 fmt ++ format.nest 2 (format.join $ subtraces.map (λ t, format.line ++ t.pp))
 
 namespace trace
-
---TODO: move this (and `pos` itself) into separate module
-def pos.lt : pos → pos → Prop
-| ⟨l₁, c₁⟩ ⟨l₂, c₂⟩ := (l₁, c₁) < (l₂, c₂)
-
-instance pos.has_lt : has_lt pos := ⟨pos.lt⟩
-
-instance pos.decidable_lt : Π (p₁ p₂ : pos), decidable (p₁ < p₂)
-| ⟨l₁, c₁⟩ ⟨l₂, c₂⟩ := infer_instance_as $ decidable ((l₁, c₁) < (l₂, c₂))
 
 def trace_map := rbmap pos trace (<)
 

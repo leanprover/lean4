@@ -10,16 +10,16 @@ universe u
 
 namespace lean
 
-meta inductive message
+inductive message
 | from_format (fmt : format)
 
-meta instance : has_coe format message :=
+instance : has_coe format message :=
 ⟨message.from_format⟩
 
-meta inductive trace
+inductive trace
 | mk (msg : message) (subtraces : list trace)
 
-meta def trace.pp : trace → format
+def trace.pp : trace → format
 | (trace.mk (message.from_format fmt) subtraces) :=
 fmt ++ format.nest 2 (format.join $ subtraces.map (λ t, format.line ++ t.pp))
 
@@ -34,26 +34,26 @@ instance pos.has_lt : has_lt pos := ⟨pos.lt⟩
 instance pos.decidable_lt : Π (p₁ p₂ : pos), decidable (p₁ < p₂)
 | ⟨l₁, c₁⟩ ⟨l₂, c₂⟩ := infer_instance_as $ decidable ((l₁, c₁) < (l₂, c₂))
 
-meta def trace_map := rbmap pos trace (<)
+def trace_map := rbmap pos trace (<)
 
-meta structure trace_state :=
+structure trace_state :=
 (roots : trace_map)
 (cur_pos : pos)
 (cur_traces : list trace)
 
-meta def trace_t (m : Type → Type u) := state_t trace_state m
+def trace_t (m : Type → Type u) := state_t trace_state m
 local attribute [reducible] trace_t
 
-meta class monad_tracer (m : Type → Type u) :=
+class monad_tracer (m : Type → Type u) :=
 (trace_root {α} : pos → message → thunk (m α) → m α)
 (trace_ctx {α} : message → thunk (m α) → m α)
 
 export monad_tracer (trace_root trace_ctx)
 
-meta def trace {m} [monad m] [monad_tracer m] (msg : message) : m unit :=
+def trace {m} [monad m] [monad_tracer m] (msg : message) : m unit :=
 trace_ctx msg (pure ())
 
-meta instance (m) [monad m] : monad_tracer (trace_t m) :=
+instance (m) [monad m] : monad_tracer (trace_t m) :=
 { trace_root := λ α pos msg ctx, do {
     modify $ λ st, {cur_pos := pos, cur_traces := [], ..st},
     a ← ctx (),
@@ -69,11 +69,11 @@ meta instance (m) [monad m] : monad_tracer (trace_t m) :=
   }
 }
 
-meta def trace_t.run {m α} [monad m] (x : trace_t m α) : m (α × trace_map) :=
+def trace_t.run {m α} [monad m] (x : trace_t m α) : m (α × trace_map) :=
 do (a, st) ← state_t.run x {roots := mk_rbmap _ _ _, cur_pos := ⟨0, 0⟩, cur_traces := []},
    pure (a, st.roots)
 
-meta def test : id trace_map :=
+def test : id trace_map :=
 prod.snd <$> trace_t.run (
 trace_root ⟨1, 0⟩ "type_context.is_def_eq trace" (
   trace_ctx "f 0 =?= f a (approximate mode)" (

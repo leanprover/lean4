@@ -293,7 +293,7 @@ do env ← read,
      let fname := if arity > closure_max_args then "uncurry" ++ fname else fname,
      emit "reinterpret_cast<lean::lean_cfun>(" >> emit fname >> emit ")" <+> emit arity <+> emit ys.length,
      emit ")",
-     ys.mfoldl (λ i y, emit ";\nlean::set_closure_arg" >> paren (emit_var x <+> emit i <+> emit_var y) >> return (i+1)) 0,
+     ys.mfoldl (λ i y, emit ";\nlean::closure_set_arg" >> paren (emit_var x <+> emit i <+> emit_var y) >> return (i+1)) 0,
      return ()
    | none   := throw "invalid closure"
 
@@ -310,9 +310,9 @@ ins.decorate_error $
    if c then emit_global f
    else (emit_fnid f >> paren(emit_var_list ys))
  | (instr.cnstr o t n sz)    := emit_var o >> emit " = lean::alloc_cnstr" >> paren(emit t <+> emit n <+> emit sz)
- | (instr.set o i x)         := emit "lean::set_cnstr_obj" >> paren (emit_var o <+> emit i <+> emit_var x)
+ | (instr.set o i x)         := emit "lean::cnstr_set_obj" >> paren (emit_var o <+> emit i <+> emit_var x)
  | (instr.get x o i)         := emit_var x >> emit " = lean::cnstr_obj" >> paren(emit_var o <+> emit i)
- | (instr.sset o d x)        := emit "lean::set_cnstr_scalar" >> paren(emit_var o <+> emit d <+> emit_var x)
+ | (instr.sset o d x)        := emit "lean::cnstr_set_scalar" >> paren(emit_var o <+> emit d <+> emit_var x)
  | (instr.sget x t o d)      := emit_var x >> emit " = lean::cnstr_scalar" >> emit_template_param t >> paren(emit_var o <+> emit d)
  | (instr.closure x f ys)    := emit_closure x f ys
  | (instr.apply x ys)        := emit_apply x ys
@@ -321,8 +321,8 @@ ins.decorate_error $
  | (instr.array_write a i v) :=
    do env ← read,
       if env.ctx.find v = some type.object
-      then emit "lean::set_array_obj" >> paren(emit_var a <+> emit_var i <+> emit_var v)
-      else emit "lean::set_sarray_data" >> paren(emit_var a <+> emit_var i <+> emit_var v))
+      then emit "lean::array_set_obj" >> paren(emit_var a <+> emit_var i <+> emit_var v)
+      else emit "lean::sarray_set_data" >> paren(emit_var a <+> emit_var i <+> emit_var v))
 >> emit_eos
 
 def emit_block (b : block) : extract_m unit :=

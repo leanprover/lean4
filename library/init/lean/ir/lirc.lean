@@ -32,8 +32,8 @@ match parse (whitespace >> parse_input_aux s.length [] mk_fnid2string) s with
 | except.ok r    := return r
 | except.error m := throw (m.to_string s)
 
-def check (env : environment) (d : decl) : except format unit :=
-d.valid_ssa >> check_blockids d >> type_check d env >> return ()
+def check (env : environment) (ssa : bool) (d : decl) : except format unit :=
+when ssa (d.valid_ssa >> return ()) >> check_blockids d >> type_check d env >> return ()
 
 local attribute [instance] name.has_lt_quick
 
@@ -44,12 +44,12 @@ let m := ds.foldl (λ m d, rbmap.insert m d.name d) (mk_rbmap name decl (<)) in
 def update_external_names (m : fnid2string) (external_names : fnid → option string) : fnid → option string :=
 λ n, m.find n <|> external_names n
 
-def lirc (s : string) (cfg : extract_cpp_config := {}) : except format string :=
+def lirc (s : string) (cfg : extract_cpp_config := {}) (ssa := ff) : except format string :=
 do (ds, m) ← parse_input s,
    let env := update_env ds cfg.env,
    let ext := update_external_names m cfg.external_names,
-   ds.mfor (check env),
-   let ds := ds.map elim_phi,
+   ds.mfor (check env ssa),
+   let ds := if ssa then ds.map elim_phi else ds,
    extract_cpp ds { env := env, external_names := ext, ..cfg }
 
 end ir

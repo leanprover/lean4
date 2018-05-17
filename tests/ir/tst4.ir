@@ -9,10 +9,9 @@ zero_case:
   r1 : object := box r;
   ret r1;
 succ_case:
-  n1  : uint32 := phi n;
   one : uint32 := 1;
-  n2  : uint32 := sub n1 one;
-  tail := call iota n2;
+  n1  : uint32 := sub n one;
+  tail := call iota n1;
   head : object := box n1;
   r2 := cnstr 1 2 0;
   set r2 0 head;
@@ -27,8 +26,7 @@ null_case:
   r : uint32 := 0;
   ret r;
 cons_case:
-  o1 : object := phi o;
-  tail := get o1 1;
+  tail := get o 1;
   sz1 := call len tail;
   one : uint32 := 1;
   sz2 : uint32 := add sz1 one;
@@ -42,10 +40,9 @@ null_case:
   r : uint32 := 0;
   ret r;
 cons_case:
-  o1 : object := phi o;
-  head := get o1 0;
+  head := get o 0;
   n : uint32 := unbox head;
-  tail := get o1 1;
+  tail := get o 1;
   sum1 := call sum tail;
   sum2 : uint32 := add sum1 n;
   ret sum2;
@@ -55,15 +52,12 @@ entry:
   t : uint32 := tag o;
   case t [null_case, cons_case];
 null_case:
-  r1 : object := phi o;
-  ret r1;
+  ret o;
 cons_case:
-  f1 : object := phi f;
-  o1 : object := phi o;
-  head := get o1 0;
-  tail := get o1 1;
-  head1 := apply f1 head;
-  tail1 := call map f1 tail;
+  head := get o 0;
+  tail := get o 1;
+  head1 := apply f head;
+  tail1 := call map f tail;
   r := cnstr 1 2 0;
   set r 0 head1;
   set r 1 tail1;
@@ -82,37 +76,26 @@ entry:
   t : uint32 := tag o;
   case t [null_case, cons_case];
 null_case:
-  r1 : object := phi o;
-  ret r1;
+  ret o;
 cons_case:
-  f1 : object := phi f;
-  o1 : object := phi o;
-  s1 : bool   := is_shared o1;
-  case s1 [not_shared_case1, shared_case1];
+  s : bool   := is_shared o;
+  case s [not_shared_case1, shared_case1];
 not_shared_case1:
-  f2 : object := phi f1;
-  o2 : object := phi o1;
-  cell1 : object := phi o1;
-  head1 := get o2 0;
-  tail1 := get o2 1;
+  head := get o 0;
+  tail := get o 1;
+  cell : object := o;
   jmp cont1;
 shared_case1:
-  f3 : object := phi f1;
-  o3 : object := phi o1;
-  head2 := get o3 0;
-  tail2 := get o3 1;
-  inc head2;
-  inc tail2;
-  dec_sref o3;
-  cell2 := cnstr 1 2 0;
+  head := get o 0;
+  tail := get o 1;
+  inc head;
+  inc tail;
+  dec_sref o;
+  cell := cnstr 1 2 0;
   jmp cont1;
 cont1:
-  head : object := phi head1 head2;
-  tail : object := phi tail1 tail2;
-  f'   : object := phi f2 f3;
-  cell : object := phi cell1 cell2;
-  nhead := apply f' head;
-  ntail := call d_map f' tail;
+  nhead := apply f head;
+  ntail := call d_map f tail;
   set cell 0 nhead;
   set cell 1 ntail;
   ret cell;
@@ -122,31 +105,22 @@ entry:
   t : uint32 := tag o;
   case t [null_case, cons_case];
 null_case:
-  r1 : object := phi o;
-  ret r1;
+  ret o;
 cons_case:
-  o1 : object := phi o;
-  s1 : bool   := is_shared o1;
-  case s1 [not_shared_case1, shared_case1];
+  s : bool   := is_shared o;
+  head := get o 0;
+  tail := get o 1;
+  case s [not_shared_case1, shared_case1];
 not_shared_case1:
-  o2 : object := phi o1;
-  cell1 : object := phi o1;
-  head1 := get o2 0;
-  tail1 := get o2 1;
+  cell : object := o;
   jmp cont1;
 shared_case1:
-  o3 : object := phi o1;
-  head2 := get o3 0;
-  tail2 := get o3 1;
-  inc head2;
-  inc tail2;
-  dec_sref o3;
-  cell2 := cnstr 1 2 0;
+  inc head;
+  inc tail;
+  dec_sref o;
+  cell := cnstr 1 2 0;
   jmp cont1;
 cont1:
-  head : object := phi head1 head2;
-  tail : object := phi tail1 tail2;
-  cell : object := phi cell1 cell2;
   v1 : uint32 := unbox head;
   one : uint32 := 1;
   v2 : uint32 := add v1 one;
@@ -220,14 +194,12 @@ entry:
   n : uint32 := 200;
   jmp loop;
 loop:
-  n1 : uint32 := phi n n3;
-  case n1 [zero_case, succ_case];
+  case n [zero_case, succ_case];
 zero_case:
   r : int32 := 0;
   ret r;
 succ_case:
-  n2 : uint32 := phi n1;
   one : uint32 := 1;
-  n3 : uint32 := sub n2 one;
+  n : uint32 := sub n one;
   r2 := call tst;
   jmp loop;

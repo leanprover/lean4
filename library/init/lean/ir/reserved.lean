@@ -9,15 +9,18 @@ import init.data.rbtree.basic init.lean.name
 namespace lean
 namespace ir
 
-def reserved := [ "bool", "byte", "uint16", "uint32", "uint64",
+def reserved := [ "bool", "byte", "uint16", "uint32", "uint64", "usize",
  "int16", "int32", "int64", "float", "double", "object", "not", "neg",
- "scalar", "shared", "unbox", "box", "copy_array", "copy_sarray",
- "add", "sub", "mul", "div", "mod", "shl", "shr", "ashr", "and",
- "or", "xor", "le", "ge", "lt", "gt", "eq", "ne", "call", "closure",
- "apply", "cnstr", "set", "get", "sset", "sget", "array", "read",
- "write", "sarray", "sread", "swrite", "inc", "decs", "dec", "del",
- "phi", "ret", "case", "jmp", "decl", "tt", "ff", "def", "external",
- "defconst", "succ"]
+ "is_scalar", "is_shared", "is_null", "unbox", "box", "cast",
+ "array_copy", "sarray_copy", "array_size", "sarray_size", "string_len",
+ "succ", "tag", "tag_ref",
+ "add", "sub", "mul", "div", "mod", "shl", "shr", "and",
+ "or", "xor", "le", "lt", "eq", "ne", "array_read", "array_push",
+ "string_push", "string_append", "inc_ref", "dec_ref", "dec_sref",
+ "inc", "dec", "free", "dealloc", "array_pop", "sarray_pop",
+ "call", "cnstr", "set", "get", "sset", "sget", "closure", "apply",
+ "array", "sarray", "array_write", "phi", "ret", "case", "jmp",
+ "def", "external"]
 
 def reserved_set : rbtree string (<) :=
 reserved.foldl rbtree.insert (mk_rbtree string (<))

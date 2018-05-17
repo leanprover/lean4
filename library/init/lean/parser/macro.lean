@@ -40,7 +40,7 @@ structure resolved :=
    are field accesses. -/
 («prefix» : name)
 
-meta instance resolved.has_to_format : has_to_format resolved := ⟨λ r, to_fmt (r.decl, r.prefix)⟩
+instance resolved.has_to_format : has_to_format resolved := ⟨λ r, to_fmt (r.decl, r.prefix)⟩
 
 structure resolve_cfg :=
 (global_scope : rbmap name syntax (<))

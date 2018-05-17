@@ -47,6 +47,8 @@ def parse_assign_unop : parser assign_unop :=
 <|> (keyword "sarray_size" >> return assign_unop.sarray_size)
 <|> (keyword "string_len" >> return assign_unop.string_len)
 <|> (keyword "succ" >> return assign_unop.succ)
+<|> (keyword "tag" >> return assign_unop.tag)
+<|> (keyword "tag_ref" >> return assign_unop.tag_ref)
 
 def parse_assign_binop : parser assign_binop :=
     (keyword "add" >> return assign_binop.add)

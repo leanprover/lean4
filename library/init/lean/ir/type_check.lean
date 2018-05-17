@@ -57,6 +57,8 @@ match op with
 | assign_unop.sarray_size   := r = type.usize && t = type.object
 | assign_unop.string_len    := r = type.usize && t = type.object
 | assign_unop.succ          := r = type.object && t = type.object
+| assign_unop.tag           := r = type.uint32 && t = type.object
+| assign_unop.tag_ref       := r = type.uint32 && t = type.object
 
 /-- Return `tt` iff the instruction `x : r := op y z` is type correct where `y z : t` -/
 def valid_assign_binop_types (op : assign_binop) (r : type) (t₁ t₂ : type) : bool :=
@@ -211,7 +213,7 @@ def terminator.check (term : terminator) : type_checker_m unit :=
 term.decorate_error $
 match term with
 | (terminator.ret ys)   := do (_, rs) ← read, check_result_types ys rs
-| (terminator.case x _) := do t ← get_type x, unless (t = type.object || t = type.bool || t = type.uint32) $ throw "variable must be an object, uint32 or bool"
+| (terminator.case x _) := do t ← get_type x, unless (t = type.bool || t = type.uint32) $ throw "variable must be an uint32 or bool"
 | (terminator.jmp _)    := return ()
 
 def block.check (b : block) : type_checker_m unit :=

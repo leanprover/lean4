@@ -124,9 +124,6 @@ emit_sep args $ λ a, emit_type a.ty >> emit " " >> emit_var a.n
 def emit_eos : extract_m unit :=
 emit ";" >> emit_line
 
-def emit_tag (x : var) : extract_m unit :=
-emit "lean::cnstr_tag" >> paren(emit_var x)
-
 def emit_return_vars : list var → extract_m unit
 | []  := return ()
 | [x] := emit_var x
@@ -144,12 +141,12 @@ def emit_case : var → list blockid → extract_m unit
      (match env.ctx.find x with
       | some type.bool   := emit "if (" >> emit_var x >> emit ") goto " >> emit_blockid b₂ >> emit "; else goto " >> emit_blockid b₁
       | some type.uint32 := emit "if (" >> emit_var x >> emit " == 0) goto " >> emit_blockid b₁ >> emit "; else goto " >> emit_blockid b₂
-      | _                := emit "if (" >> emit_tag x >> emit " == 0) goto " >> emit_blockid b₁ >> emit "; else goto " >> emit_blockid b₂),
+      | _                := throw "ill-formed case"),
      emit_eos
 | x bs      :=  do
     env ← read,
     emit "switch ",
-    paren (if env.ctx.find x = some type.uint32 then emit_var x else emit_tag x),
+    paren (emit_var x),
     emit " {" >> emit_line >> emit_cases bs 0 >> emit "}" >> emit_line
 
 def emit_terminator (term : terminator) : extract_m unit :=
@@ -236,6 +233,8 @@ def assign_unop2cpp (t : type) : assign_unop → string
 | assign_unop.sarray_size  := "lean::sarray_size"
 | assign_unop.string_len   := "lean::string_len"
 | assign_unop.succ         := "lean::nat_succ"
+| assign_unop.tag_ref      := "lean::cnstr_tag"
+| assign_unop.tag          := "lean::tag"
 
 def emit_assign_unop (x : var) (t : type) (op : assign_unop) (y : var) : extract_m unit :=
 emit_var x >> emit " = " >> emit (assign_unop2cpp t op) >> paren(emit_var y)

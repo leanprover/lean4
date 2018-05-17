@@ -56,7 +56,7 @@ def assign_unop.to_format : assign_unop → format
 | assign_unop.array_copy    := "array_copy" | assign_unop.sarray_copy  := "sarray_copy"
 | assign_unop.array_size    := "array_size" | assign_unop.sarray_size  := "sarray_size"
 | assign_unop.string_len    := "string_len" | assign_unop.succ         := "succ"
-
+| assign_unop.tag           := "tag"        | assign_unop.tag_ref      := "tag_ref"
 
 instance assign_unop.has_to_format : has_to_format assign_unop := ⟨assign_unop.to_format⟩
 instance assign_unop.has_to_string : has_to_string assign_unop := ⟨pretty ∘ to_fmt⟩

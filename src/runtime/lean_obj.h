@@ -217,6 +217,8 @@ inline size_t closure_byte_size(lean_obj * o) { return sizeof(lean_closure) + (c
 
 inline mpz const & mpz_value(lean_obj * o) { return to_mpz(o)->m_value; }
 
+inline unsigned tag(lean_obj * o) { if (is_scalar(o)) return unbox(o); else return cnstr_tag(o); }
+
 /* Size of the object in bytes. This function is used for debugging purposes.
    \pre !is_scalar(o) && !is_external(o) */
 size_t obj_byte_size(lean_obj * o);

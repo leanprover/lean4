@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.lean.ir.parser init.lean.ir.type_check init.lean.ir.ssa_check
-import init.lean.ir.extract_cpp init.lean.ir.format
+import init.lean.ir.extract_cpp init.lean.ir.format init.lean.ir.elim_phi
 
 /-
 Frontend for compiling a file containing IR declarations into C++.
@@ -49,6 +49,7 @@ do (ds, m) ← parse_input s,
    let env := update_env ds cfg.env,
    let ext := update_external_names m cfg.external_names,
    ds.mfor (check env),
+   let ds := ds.map elim_phi,
    extract_cpp ds { env := env, external_names := ext, ..cfg }
 
 end ir

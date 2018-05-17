@@ -68,11 +68,17 @@ The behavior is unspecified if `y` is not an array of scalar values.
 The length is the number of unicode scalar values.
 The behavior is unspecified if `y` is not a string.
 
-- `x : object := succ y` natural number successor. -/
+- `x : object := succ y` natural number successor.
+
+- `x : uint32 := tag_ref y` return the tag of the (constructor) object `y`. `y` must not be
+  a tagged pointer.
+
+- `x : uint32 := tag y` return the tag of the (constructor) object `y` OR tagged pointer.
+-/
 inductive assign_unop
 | not | neg | is_scalar | is_shared | is_null | cast | box | unbox
 | array_copy | sarray_copy | array_size | sarray_size | string_len
-| succ
+| succ | tag | tag_ref
 
 /-- Operators for instructions of the form `x : t := op y z`
 

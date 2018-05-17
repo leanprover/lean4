@@ -184,6 +184,7 @@ def blockid := name
 
 /- IR Instructions -/
 inductive instr
+| assign       (x : var) (ty : type) (y : var)                       -- x : ty := y
 | assign_lit   (x : var) (ty : type) (lit : literal)                 -- x : ty := lit
 | assign_unop  (x : var) (ty : type) (op : assign_unop) (y : var)    -- x : ty := op y
 | assign_binop (x : var) (ty : type) (op : assign_binop) (y z : var) -- x : ty := op y z

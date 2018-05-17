@@ -16,6 +16,7 @@ do m ← get,
    else do b ← read, put (m.insert x b)
 
 def instr.declare_vars : instr → reader_t blockid ssa_pre_m unit
+| (instr.assign x _ _)           := x.declare
 | (instr.assign_lit x _ _)       := x.declare
 | (instr.assign_unop x _ _ _)    := x.declare
 | (instr.assign_binop x _ _ _ _) := x.declare
@@ -82,6 +83,7 @@ do m ← read,
 def instr.valid_ssa (ins : instr) : ssa_valid_m unit :=
 ins.decorate_error $
 match ins with
+| (instr.assign x _ y)           := x.define >> y.defined
 | (instr.assign_lit x _ _)       := x.define
 | (instr.assign_unop x _ _ y)    := x.define >> y.defined
 | (instr.assign_binop x _ _ y z) := x.define >> y.defined >> z.defined

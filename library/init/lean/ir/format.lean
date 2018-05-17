@@ -97,6 +97,7 @@ def sizet_entry.to_format : nat × type → format
 | (n, ty) := to_fmt n ++ ":" ++ to_fmt ty
 
 def instr.to_format : instr → format
+| (instr.assign x ty y)             := to_fmt x ++ " : " ++ to_fmt ty ++ " := " ++ to_fmt y
 | (instr.assign_lit x ty lit)       := to_fmt x ++ " : " ++ to_fmt ty ++ " := " ++ to_fmt lit
 | (instr.assign_unop x ty op y)     := to_fmt x ++ " : " ++ to_fmt ty ++ " := " ++ to_fmt op ++ " " ++ to_fmt y
 | (instr.assign_binop x ty op y z)  := to_fmt x ++ " : " ++ to_fmt ty ++ " := " ++ to_fmt op ++ " " ++ to_fmt y ++ " " ++ to_fmt z

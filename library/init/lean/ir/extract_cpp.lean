@@ -300,6 +300,7 @@ do env ← read,
 def emit_instr (ins : instr) : extract_m unit :=
 ins.decorate_error $
 (match ins with
+ | (instr.assign x t y)             := emit_var x >> emit " = " >> emit_var y
  | (instr.assign_lit x t l)         := emit_assign_lit x t l
  | (instr.assign_unop x t op y)     := emit_assign_unop x t op y
  | (instr.assign_binop x t op y z)  := emit_assign_binop x t op y z

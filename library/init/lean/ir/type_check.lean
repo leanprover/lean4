@@ -141,6 +141,7 @@ def set_result_types : list var → list result → type_checker_m unit
 def instr.infer_types (ins : instr) : type_checker_m unit :=
 ins.decorate_error $
 match ins with
+| (instr.assign x t y)            := set_type x t
 | (instr.assign_lit x t l)        := set_type x t
 | (instr.assign_unop x t op y)    := set_type x t
 | (instr.assign_binop x t op y z) := set_type x t
@@ -182,6 +183,7 @@ def check_arg_types : list var → list arg → type_checker_m unit
 def instr.check (ins : instr) : type_checker_m unit :=
 ins.decorate_error $
 match ins with
+| (instr.assign x t y)             := do t₁ ← get_type y, unless (t = t₁) (throw "invalid assignment")
 | (instr.assign_lit x t l)         := l.check t
 | (instr.assign_unop x t op y)     := do t₁ ← get_type y, unless (valid_assign_unop_types op t t₁) $ throw "invalid unary operation"
 | (instr.assign_binop x t op y z)  := do t₁ ← get_type y, t₂ ← get_type z, unless (valid_assign_binop_types op t t₁ t₂) $ throw "invalid binary operation"

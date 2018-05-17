@@ -131,6 +131,7 @@ do  symbol ":",
     ty ← parse_type,
     symbol ":=",
     (keyword "sget" >> instr.sget x ty <$> parse_var <*> parse_usize)
+<|> (instr.assign x ty <$> parse_var)
 <|> (instr.assign_unop x ty <$> parse_assign_unop <*> parse_var)
 <|> (instr.assign_binop x ty <$> parse_assign_binop <*> parse_var <*> parse_var)
 <|> (instr.assign_lit x ty <$> parse_literal)

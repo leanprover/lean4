@@ -120,7 +120,7 @@ do cmd ← lean.ir.parse_instr,
 #eval test parse_instr_pp "x : uint64 := array_read a i" "x : uint64 := array_read a i"
 #eval test parse_instr_pp "inc x" "inc x"
 #eval test parse_instr_pp "dec x" "dec x"
-#eval test parse_instr_pp "decs x" "decs x"
+#eval test parse_instr_pp "dec_sref x" "dec_sref x"
 #eval test parse_instr_pp "free x" "free x"
 #eval test parse_instr_pp "x := call  f" "x := call f"
 #eval test parse_instr_pp "x:uint32:=   array_read y   z" "x : uint32 := array_read y z"

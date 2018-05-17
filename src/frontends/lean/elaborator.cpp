@@ -2109,20 +2109,19 @@ expr elaborator::visit_anonymous_constructor(expr const & e, optional<expr> cons
     expr const & c = get_app_args(get_anonymous_constructor_arg(e), args);
     if (!expected_type)
         throw elaborator_exception(e, "invalid constructor ⟨...⟩, expected type must be known");
-    expr I = get_app_fn(m_ctx.relaxed_whnf(instantiate_mvars(*expected_type)));
+    expr I = get_app_fn(whnf_ginductive(m_ctx, instantiate_mvars(*expected_type)));
     if (!is_constant(I))
         throw elaborator_exception(e, format("invalid constructor ⟨...⟩, expected type is not an inductive type") +
                                    pp_indent(*expected_type));
     name I_name = const_name(I);
     if (is_private(m_env, I_name) && !is_expr_aliased(m_env, I_name))
         throw elaborator_exception(e, "invalid constructor ⟨...⟩, type is a private inductive datatype");
-    if (!inductive::is_inductive_decl(m_env, I_name))
+    if (!is_ginductive(m_env, I_name))
         throw elaborator_exception(e, sstream() << "invalid constructor ⟨...⟩, '" << I_name << "' is not an inductive type");
-    buffer<name> c_names;
-    get_intro_rule_names(m_env, I_name, c_names);
-    if (c_names.size() != 1)
+    auto c_names = get_ginductive_intro_rules(m_env, I_name);
+    if (!c_names || tail(c_names))
         throw elaborator_exception(e, sstream() << "invalid constructor ⟨...⟩, '" << I_name << "' must have only one constructor");
-    expr type = m_env.get(c_names[0]).get_type();
+    expr type = m_env.get(head(c_names)).get_type();
     unsigned num_explicit = 0;
     while (is_pi(type)) {
         if (is_explicit(binding_info(type)))
@@ -2136,7 +2135,7 @@ expr elaborator::visit_anonymous_constructor(expr const & e, optional<expr> cons
         args.shrink(num_explicit);
         args.back() = rest;
     }
-    expr new_e = copy_tag(e, mk_app(mk_constant(c_names[0]), args));
+    expr new_e = copy_tag(e, mk_app(mk_constant(head(c_names)), args));
     return visit(new_e, expected_type);
 }
 

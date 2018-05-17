@@ -94,6 +94,7 @@ struct lean_external : public lean_obj {
     virtual ~lean_external() {}
 };
 
+inline bool is_null(lean_obj * o) { return o == nullptr; }
 inline bool is_scalar(lean_obj * o) { return (reinterpret_cast<uintptr_t>(o) & 1) == 1; }
 inline lean_obj * box(unsigned n) { return reinterpret_cast<lean_obj*>((static_cast<uintptr_t>(n) << 1) | 1); }
 inline unsigned unbox(lean_obj * o) { return reinterpret_cast<uintptr_t>(o) >> 1; }
@@ -177,6 +178,13 @@ inline lean_obj * alloc_mpz(mpz const & m) {
    and a trivial destructor." */
 inline void dealloc_mpz(lean_obj * o) { delete to_mpz(o); }
 inline void dealloc_external(lean_obj * o) { delete to_external(o); }
+inline void dealloc(lean_obj * o) {
+    switch (get_kind(o)) {
+    case lean_obj_kind::External: dealloc_external(o); break;
+    case lean_obj_kind::MPZ: dealloc_mpz(o); break;
+    default: break;
+    }
+}
 
 /* Getters */
 inline unsigned cnstr_tag(lean_obj * o) { return to_cnstr(o)->m_tag; }

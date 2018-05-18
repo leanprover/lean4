@@ -332,14 +332,14 @@ lean_obj * string_append(lean_obj * s1, lean_obj * s2);
 
 #define LEAN_MAX_SMALL_NAT (sizeof(void*) == 8 ? std::numeric_limits<unsigned>::max() : (std::numeric_limits<unsigned>::max() >> 1)) // NOLINT
 
-inline lean_obj * mk_mpz_core(mpz const & m) {
+inline lean_obj * mk_nat_obj_core(mpz const & m) {
     lean_assert(m > LEAN_MAX_SMALL_NAT);
     return alloc_mpz(m);
 }
 
-inline lean_obj * mk_mpz(mpz const & m) {
+inline lean_obj * mk_nat_obj(mpz const & m) {
     if (m > LEAN_MAX_SMALL_NAT)
-        return mk_mpz_core(m);
+        return mk_nat_obj_core(m);
     else
         return box(m.get_unsigned_int());
 }
@@ -350,15 +350,15 @@ inline lean_obj * mk_nat_obj(unsigned n) {
     } else if (n <= LEAN_MAX_SMALL_NAT) {
         return box(n);
     } else {
-        return mk_mpz_core(mpz(n));
+        return mk_nat_obj_core(mpz(n));
     }
 }
 
 inline lean_obj * mk_nat_obj(uint64 n) {
-    if (LEAN_LIKELY(n < LEAN_MAX_SMALL_NAT)) {
+    if (LEAN_LIKELY(n <= LEAN_MAX_SMALL_NAT)) {
         return box(n);
     } else {
-        return mk_mpz_core(mpz(n));
+        return mk_nat_obj_core(mpz(n));
     }
 }
 
@@ -371,7 +371,7 @@ inline lean_obj * nat_succ(lean_obj * a) {
     if (LEAN_LIKELY(is_scalar(a))) {
         return mk_nat_obj(nat2uint64(a) + 1);
     } else {
-        return mk_mpz_core(mpz_value(a) + 1);
+        return mk_nat_obj_core(mpz_value(a) + 1);
     }
 }
 

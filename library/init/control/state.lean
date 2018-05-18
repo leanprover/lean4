@@ -163,6 +163,10 @@ export monad_state_adapter (adapt_state)
 section
 variables {σ σ' : Type u} {m m' : Type u → Type v}
 
+def monad_state_adapter.adapt_state' [monad_state_adapter σ σ' m m'] {α : Type u} (to_σ : σ' → σ) (from_σ : σ → σ') : m α → m' α :=
+adapt_state (λ st, (to_σ st, punit.star)) (λ st _, from_σ st)
+export monad_state_adapter (adapt_state')
+
 instance monad_state_adapter_trans {n n' : Type u → Type v} [monad_functor m m' n n'] [monad_state_adapter σ σ' m m'] : monad_state_adapter σ σ' n n' :=
 ⟨λ σ'' α split join, monad_map (λ α, (adapt_state split join : m α → m' α))⟩
 

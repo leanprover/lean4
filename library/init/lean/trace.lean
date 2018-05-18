@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
 prelude
-import init.lean.format init.data.rbmap init.lean.pos
+import init.lean.format init.data.rbmap init.lean.pos init.lean.name init.lean.options
 
 universe u
 
@@ -28,56 +28,57 @@ namespace trace
 def trace_map := rbmap pos trace (<)
 
 structure trace_state :=
+(opts : options)
 (roots : trace_map)
-(cur_pos : pos)
+(cur_pos : option pos)
 (cur_traces : list trace)
 
 def trace_t (m : Type → Type u) := state_t trace_state m
 local attribute [reducible] trace_t
 
+instance (m) [monad m] : monad (trace_t m) := infer_instance
+
 class monad_tracer (m : Type → Type u) :=
-(trace_root {α} : pos → message → thunk (m α) → m α)
-(trace_ctx {α} : message → thunk (m α) → m α)
+(trace_root {α} : pos → name → message → thunk (m α) → m α)
+(trace_ctx {α} : name → message → thunk (m α) → m α)
 
 export monad_tracer (trace_root trace_ctx)
 
-def trace {m} [monad m] [monad_tracer m] (msg : message) : m unit :=
-trace_ctx msg (pure ())
+def trace {m} [monad m] [monad_tracer m] (cls : name) (msg : message) : m unit :=
+trace_ctx cls msg (pure ())
 
 instance (m) [monad m] : monad_tracer (trace_t m) :=
-{ trace_root := λ α pos msg ctx, do {
-    modify $ λ st, {cur_pos := pos, cur_traces := [], ..st},
-    a ← ctx (),
-    modify $ λ (st : trace_state), {roots := st.roots.insert pos ⟨msg, st.cur_traces⟩, ..st},
-    pure a
-  },
-  trace_ctx := λ α msg ctx, do {
+{ trace_root := λ α pos cls msg ctx, do {
     st ← get,
-    put {cur_traces := [], ..st},
-    a ← ctx (),
-    modify $ λ (st' : trace_state), {cur_traces := st.cur_traces ++ [⟨msg, st'.cur_traces⟩], ..st'},
-    pure a
+    if st.opts.get_bool cls = some tt then do {
+      modify $ λ st, {cur_pos := pos, cur_traces := [], ..st},
+      a ← ctx (),
+      modify $ λ (st : trace_state), {roots := st.roots.insert pos ⟨msg, st.cur_traces⟩, ..st},
+      pure a
+    } else ctx ()
+  },
+  trace_ctx := λ α cls msg ctx, do {
+    st ← get,
+    -- tracing enabled?
+    some _ ← pure st.cur_pos | ctx (),
+    -- trace class enabled?
+    if st.opts.get_bool cls = some tt then do {
+      put {cur_traces := [], ..st},
+      a ← ctx (),
+      modify $ λ (st' : trace_state), {cur_traces := st.cur_traces ++ [⟨msg, st'.cur_traces⟩], ..st'},
+      pure a
+    } else
+      -- disable tracing inside 'ctx'
+      adapt_state'
+        (λ _, {cur_pos := none, ..st})
+        (λ st', {cur_pos := st.cur_pos, ..st'})
+        (ctx ())
   }
 }
 
-def trace_t.run {m α} [monad m] (x : trace_t m α) : m (α × trace_map) :=
-do (a, st) ← state_t.run x {roots := mk_rbmap _ _ _, cur_pos := ⟨0, 0⟩, cur_traces := []},
+meta def trace_t.run {m α} [monad m] (opts : options) (x : trace_t m α) : m (α × trace_map) :=
+do (a, st) ← state_t.run x {opts := opts, roots := mk_rbmap _ _ _, cur_pos := none, cur_traces := []},
    pure (a, st.roots)
-
-def test : id trace_map :=
-prod.snd <$> trace_t.run (
-trace_root ⟨1, 0⟩ "type_context.is_def_eq trace" (
-  trace_ctx "f 0 =?= f a (approximate mode)" (
-    -- is_def_eq_detail
-    trace_ctx "f 0 =?= f a" (
-      trace "0 =?= a" >>
-      trace "...failed"
-    ) >>
-    trace "...failed"
-  )
-))
-
---run_cmd tactic.trace $ format.join $ list.intersperse format.line $ test.to_list.map $ λ ⟨pos, tr⟩, to_fmt pos ++ ": " ++ tr.pp
 
 end trace
 end lean

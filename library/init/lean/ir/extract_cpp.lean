@@ -194,6 +194,11 @@ match op with
 | assign_binop.mul  := emit_arith t x y z "*" "lean::nat_mul"
 | assign_binop.div  := emit_arith t x y z "/" "lean::nat_div"
 | assign_binop.mod  := emit_arith t x y z "%" "lean::nat_mod"
+| assign_binop.iadd := emit_big_binop x y z "lean::int_add"
+| assign_binop.isub := emit_big_binop x y z "lean::int_sub"
+| assign_binop.imul := emit_big_binop x y z "lean::int_mul"
+| assign_binop.idiv := emit_big_binop x y z "lean::int_div"
+| assign_binop.imod := emit_big_binop x y z "lean::int_mod"
 | assign_binop.shl  := emit_infix x y z "<<"
 | assign_binop.shr  := emit_infix x y z ">>"
 | assign_binop.and  := emit_logical_arith t x y z "&&" "&" "lean::nat_land"
@@ -203,6 +208,10 @@ match op with
 | assign_binop.lt   := emit_arith t x y z "<"  "lean::nat_lt"
 | assign_binop.eq   := emit_arith t x y z "==" "lean::nat_eq"
 | assign_binop.ne   := emit_arith t x y z "!=" "lean::nat_ne"
+| assign_binop.ile  := emit_big_binop x y z "lean::int_le"
+| assign_binop.ilt  := emit_big_binop x y z "lean::int_lt"
+| assign_binop.ieq  := emit_big_binop x y z "lean::int_eq"
+| assign_binop.ine  := emit_big_binop x y z "lean::int_ne"
 | assign_binop.array_read :=
   (match t with
    | type.object := emit_var x >> emit " = lean::array_obj" >> paren (emit_var y <+> emit_var z)
@@ -220,7 +229,9 @@ emit_var x >> emit " = " >> emit op >> paren(emit_var y)
 
 def assign_unop2cpp (t : type) : assign_unop → string
 | assign_unop.not          := if t = type.bool then "!" else "~"
-| assign_unop.neg          := if t = type.object then "lean::neg" else "-"
+| assign_unop.neg          := "-"
+| assign_unop.ineg         := "lean::int_neg"
+| assign_unop.nat2int      := "lean::nat2int"
 | assign_unop.is_scalar    := "lean::is_scalar"
 | assign_unop.is_shared    := "lean::is_shared"
 | assign_unop.is_null      := "lean::is_null"

@@ -13,7 +13,6 @@ def is_signed_arith_ty (ty : type) : bool :=
 match ty with
 | type.int16  := tt | type.int32 := tt  | type.int64 := tt
 | type.float  := tt | type.double := tt
-| type.object := tt -- big numbers
 | _ := ff
 
 /-- Return `tt` iff `ty` is a type that may occur in arithmetical operations. -/
@@ -45,6 +44,8 @@ def valid_assign_unop_types (op : assign_unop) (r : type) (t : type) : bool :=
 match op with
 | assign_unop.not           := t = r && is_bitwise_ty t
 | assign_unop.neg           := t = r && is_signed_arith_ty t
+| assign_unop.ineg          := t = r && t = type.object
+| assign_unop.nat2int       := t = r && t = type.object
 | assign_unop.is_scalar     := t = type.object && r = type.bool
 | assign_unop.is_shared     := t = type.object && r = type.bool
 | assign_unop.is_null       := t = type.object && r = type.bool
@@ -68,6 +69,11 @@ match op with
 | assign_binop.mul  := r = t₁ && r = t₂ && is_arith_ty r
 | assign_binop.div  := r = t₁ && r = t₂ && is_arith_ty r
 | assign_binop.mod  := r = t₁ && r = t₂ && is_nonfloat_arith_ty r
+| assign_binop.iadd := r = t₁ && r = t₂ && r = type.object
+| assign_binop.isub := r = t₁ && r = t₂ && r = type.object
+| assign_binop.imul := r = t₁ && r = t₂ && r = type.object
+| assign_binop.idiv := r = t₁ && r = t₂ && r = type.object
+| assign_binop.imod := r = t₁ && r = t₂ && r = type.object
 | assign_binop.shl  := r = t₁ && r = t₂ && is_bitshift_ty r
 | assign_binop.shr  := r = t₁ && r = t₂ && is_bitshift_ty r
 | assign_binop.and  := r = t₁ && r = t₂ && is_bitwise_ty r
@@ -77,6 +83,10 @@ match op with
 | assign_binop.lt   := r = type.bool && t₁ = t₂ && is_arith_ty t₁
 | assign_binop.eq   := r = type.bool && t₁ = t₂
 | assign_binop.ne   := r = type.bool && t₁ = t₂
+| assign_binop.ile  := r = type.bool && t₁ = t₂ && t₁ = type.object
+| assign_binop.ilt  := r = type.bool && t₁ = t₂ && t₁ = type.object
+| assign_binop.ieq  := r = type.bool && t₁ = t₂ && t₁ = type.object
+| assign_binop.ine  := r = type.bool && t₁ = t₂ && t₁ = type.object
 | assign_binop.array_read    := t₁ = type.object && t₂ = type.usize
 | assign_binop.array_push    := r = type.object && t₁ = type.object
 | assign_binop.string_push   := r = type.object && t₁ = type.object && t₂ = type.uint32

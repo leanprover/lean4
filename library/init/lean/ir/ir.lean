@@ -31,8 +31,11 @@ uint64 | usize | int16 | int32 | int64 | float | double | object
 - `x : t := not y`, if `t = bool`, then it is the logical negation.
 Otherwise, it is bitwise negation if `t` is `uint32/uint64/usize`.
 
-- `x : t := neg y`, arithmetical `-`. `t` is `int16/int32/int64/float/double/object`.
-If `t = object`, the instruction is unspecified if `t` is not a big number nor a tagged pointer.
+- `x : t := neg y`, arithmetical `-`. `t` is `int16/int32/int64/float/double`.
+
+- `x : object := ineg y`, integer `-`.
+
+- `x : object := nat2int y`, convert a natural (big) number into an integer (big) number.
 
 - `x : bool := is_scalar y`, set `x` to `tt` iff `y : object` is a tagged
 pointer.
@@ -76,7 +79,7 @@ The behavior is unspecified if `y` is not a string.
 - `x : uint32 := tag y` return the tag of the (constructor) object `y` OR tagged pointer.
 -/
 inductive assign_unop
-| not | neg | is_scalar | is_shared | is_null | cast | box | unbox
+| not | neg | ineg | nat2int | is_scalar | is_shared | is_null | cast | box | unbox
 | array_copy | sarray_copy | array_size | sarray_size | string_len
 | succ | tag | tag_ref
 
@@ -93,6 +96,16 @@ if the result does not fit in a tagged pointer.
 - `x : t := div y z`: division. Remark: `t ≠ bool`. See `add` for big number case.
 
 - `x : t := mod y z`: modulo. Remark: `t ≠ bool`, `t ≠ float` and `t ≠ double`. See `add` for big number case.
+
+- `x : object := iadd y z`: (big) integer addition.
+
+- `x : object := isub y z`: (big) integer subtraction.
+
+- `x : object := imul y z`: (big) integer multiplication.
+
+- `x : object := idiv y z`: (big) integer division.
+
+- `x : object := imod y z`: (big) integer modulo.
 
 - `x : t := shl y z`: bit shift left. Remark: `t ≠ bool`, `t ≠ float`, `t ≠ double` and `t ≠ object`.
 
@@ -118,6 +131,14 @@ If `y` and `z` are `object`, then they must be big numbers.
 
 - `x : bool := ne y z`: disequality test. If `y` and `z` are `object`, then they must be big numbers.
 
+- `x : bool := ile y z`: (big) integer less than or equal to. `y` and `z` have type `object`.
+
+- `x : bool := ilt y z`: (big) integer less than. `y` and `z` have type `object`.
+
+- `x : bool := ieq y z`: (big) integer equality. `y` and `z` have type `object`.
+
+- `x : bool := ine y z`: (big) integer disequality. `y` and `z` have type `object`.
+
 - `x : t := array_read a i`: Read position `i` of the array `a`. `a` must be an (array) `object`.
 If `a` is a scalar array, then `t ≠ object`. If `a` is an (non-scalar) array, then `t = object`.
 
@@ -138,8 +159,11 @@ and `s₁` is deleted.
 Remark: in the future we may add instructions for performing updates destructively on big numbers. Example:
 `add_acc x y` would be `x += y`, and require `RC(x) = 1`. -/
 inductive assign_binop
-| add | sub | mul | div | mod | shl | shr | and | or | xor
-| le  | lt  | eq  | ne
+| add  | sub  | mul  | div  | mod
+| iadd | isub | imul | idiv | imod
+| shl  | shr  | and  | or   | xor
+| le   | lt   | eq   | ne
+| ile  | ilt  | ieq  | ine
 | array_read | array_push | string_push | string_append
 
 /-- Operators for instructions of the form `op x`

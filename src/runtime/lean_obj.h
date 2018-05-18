@@ -557,6 +557,27 @@ inline int int2int(lean_obj * a) {
     }
 }
 
+inline lean_obj * nat2int(lean_obj * a) {
+    if (is_scalar(a)) {
+        unsigned v = unbox(a);
+        if (v <= LEAN_MAX_SMALL_INT) {
+            return a;
+        } else {
+            return alloc_mpz(mpz(v));
+        }
+    } else {
+        return a;
+    }
+}
+
+inline lean_obj * int_neg(lean_obj * a) {
+    if (LEAN_LIKELY(is_scalar(a))) {
+        return mk_int_obj(-int2int64(a));
+    } else {
+        return mk_int_obj(neg(mpz_value(a)));
+    }
+}
+
 lean_obj * int_big_add(lean_obj * a1, lean_obj * a2);
 
 inline lean_obj * int_add(lean_obj * a1, lean_obj * a2) {

@@ -49,7 +49,8 @@ instance type.has_to_format : has_to_format type := ⟨type.to_format⟩
 instance type.has_to_string : has_to_string type := ⟨pretty ∘ to_fmt⟩
 
 def assign_unop.to_format : assign_unop → format
-| assign_unop.not           := "not"        | assign_unop.neg          := "neg"
+| assign_unop.not           := "not"        | assign_unop.neg          := "neg"       | assign_unop.ineg    := "ineg"
+| assign_unop.nat2int       := "nat2int"
 | assign_unop.is_scalar     := "is_scalar"  | assign_unop.is_shared    := "is_shared" | assign_unop.is_null := "is_null"
 | assign_unop.box           := "box"        | assign_unop.unbox        := "unbox"
 | assign_unop.cast          := "cast"
@@ -62,10 +63,12 @@ instance assign_unop.has_to_format : has_to_format assign_unop := ⟨assign_unop
 instance assign_unop.has_to_string : has_to_string assign_unop := ⟨pretty ∘ to_fmt⟩
 
 def assign_binop.to_format : assign_binop → format
-| assign_binop.add  := "add"  | assign_binop.sub  := "sub" | assign_binop.mul  := "mul"  | assign_binop.div  := "div"
-| assign_binop.mod  := "mod"  | assign_binop.shl  := "shl" | assign_binop.shr  := "shr"
-| assign_binop.and  := "and"  | assign_binop.or   := "or"  | assign_binop.xor  := "xor"  | assign_binop.le   := "le"
-| assign_binop.lt   := "lt"   | assign_binop.eq   := "eq"  | assign_binop.ne   := "ne"
+| assign_binop.add  := "add"  | assign_binop.sub  := "sub"  | assign_binop.mul  := "mul"   | assign_binop.div   := "div"  | assign_binop.mod  := "mod"
+| assign_binop.iadd := "iadd" | assign_binop.isub := "isub" | assign_binop.imul := "imul"  | assign_binop.idiv  := "idiv" | assign_binop.imod := "imod"
+| assign_binop.shl  := "shl"  | assign_binop.shr  := "shr"
+| assign_binop.and  := "and"  | assign_binop.or   := "or"   | assign_binop.xor  := "xor"
+| assign_binop.le   := "le"   | assign_binop.lt   := "lt"   | assign_binop.eq   := "eq"  | assign_binop.ne   := "ne"
+| assign_binop.ile  := "ile"  | assign_binop.ilt  := "ilt"  | assign_binop.ieq  := "ieq" | assign_binop.ine  := "ine"
 | assign_binop.array_read    := "array_read"
 | assign_binop.array_push    := "array_push"
 | assign_binop.string_push   := "string_push"

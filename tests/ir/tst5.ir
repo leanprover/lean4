@@ -1,0 +1,31 @@
+[lean_dbg_print_num] external print_num (s : object)
+[lean_dbg_print_str] external print_str (s : object)
+
+def print_bool (b : bool) :=
+entry:
+  case b [false_lbl, true_lbl];
+true_lbl:
+  s1 : object := "true";
+  call print_str s1;
+  ret;
+false_lbl:
+  s2 : object := "false";
+  call print_str s2;
+  ret;
+
+def main : int32 :=
+entry:
+  n : object := 4294967295;
+  b : bool   := is_scalar n;
+  call print_num n;
+  call print_bool b;
+  i : object := nat2int n;
+  b : bool   := is_scalar i;
+  call print_num i;
+  call print_bool b;
+  i : object := ineg i;
+  call print_num i;
+  i : object := iadd i i;
+  call print_num i;
+  r : int32  := 0;
+  ret r;

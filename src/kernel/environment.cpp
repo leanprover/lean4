@@ -191,21 +191,4 @@ environment environment::update(unsigned id, std::shared_ptr<environment_extensi
 void environment::for_each_declaration(std::function<void(declaration const & d)> const & f) const {
     m_declarations.for_each([&](name const &, declaration const & d) { return f(d); });
 }
-
-task<bool> environment::is_correct() const {
-    std::vector<gtask> deps;
-    for_each_declaration([&] (declaration const & d) {
-        if (d.is_theorem())
-            deps.push_back(d.get_value_task());
-    });
-
-    auto env = *this;
-    return task_builder<bool>([env] {
-        env.for_each_declaration([&] (declaration const & d) {
-            if (d.is_definition()) d.get_value();
-        });
-        return true;
-    }).depends_on(std::move(deps)).build();
-}
-
 }

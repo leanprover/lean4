@@ -1272,9 +1272,6 @@ meta def monad_from_pure_bind {m : Type u → Type v}
   (bind : Π {α β : Type u}, m α → (α → m β) → m β) : monad m :=
 {pure := @pure, bind := @bind}
 
-meta instance : monad task :=
-{map := @task.map, bind := @task.bind, pure := @task.pure}
-
 namespace tactic
 meta def mk_id_proof (prop : expr) (pr : expr) : expr :=
 expr.app (expr.app (expr.const ``id [level.zero]) prop) pr

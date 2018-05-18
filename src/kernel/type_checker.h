@@ -145,7 +145,7 @@ void check_no_mlocal(environment const & env, name const & n, expr const & e, bo
 
 /** \brief Type check the given declaration, and return a certified declaration if it is type correct.
     Throw an exception if the declaration is type incorrect. */
-certified_declaration check(environment const & env, declaration const & d, bool immediately = false);
+certified_declaration check(environment const & env, declaration const & d);
 
 void initialize_type_checker();
 void finalize_type_checker();

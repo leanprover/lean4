@@ -233,7 +233,7 @@ static environment compile_decl(parser & p, environment const & env,
 
 static pair<environment, name>
 declare_definition(parser & p, environment const & env, decl_cmd_kind kind, buffer<name> const & lp_names,
-                   name const & c_name, name const & prv_name, expr type, optional<expr> val, task<expr> const & proof, cmd_meta const & meta,
+                   name const & c_name, name const & prv_name, expr type, optional<expr> val, cmd_meta const & meta,
                    bool is_abbrev, pos_info const & pos) {
     name c_real_name;
     environment new_env = env;
@@ -254,7 +254,6 @@ declare_definition(parser & p, environment const & env, decl_cmd_kind kind, buff
     bool use_conv_opt = true;
     bool is_trusted   = !meta.m_modifiers.m_is_meta;
     auto def          =
-        !val ? mk_theorem(c_real_name, to_list(lp_names), type, proof) :
         (kind == decl_cmd_kind::Theorem ?
          mk_theorem(c_real_name, to_list(lp_names), type, *val) :
          (is_abbrev ? mk_definition(c_real_name, to_list(lp_names), type, *val, reducibility_hints::mk_abbreviation(), is_trusted) :
@@ -437,7 +436,7 @@ static environment copy_equation_lemmas(environment const & env, buffer<name> co
             new_eqn_value = mk_app(mk_constant(eqn_name, eqn_levels), args);
             new_eqn_value = locals.mk_lambda(new_eqn_value);
             declaration new_decl = mk_theorem(new_eqn_name, lps, new_eqn_type, new_eqn_value);
-            new_env = module::add(new_env, check(new_env, new_decl, true));
+            new_env = module::add(new_env, check(new_env, new_decl));
             if (is_rfl_lemma(env, eqn_name))
                 new_env = mark_rfl_lemma(new_env, new_eqn_name);
             new_env = add_eqn_lemma(new_env, new_eqn_name);
@@ -500,7 +499,7 @@ static environment mutual_definition_cmd_core(parser & p, decl_cmd_kind kind, cm
         name c_real_name;
         bool is_abbrev = false;
         std::tie(env, c_real_name) = declare_definition(p, env, kind, lp_names, c_name, prv_names[i],
-                                                        curr_type, some_expr(curr), {}, meta, is_abbrev, header_pos);
+                                                        curr_type, some_expr(curr), meta, is_abbrev, header_pos);
         env = add_local_ref(p, env, c_name, c_real_name, lp_names, params);
         new_d_names.push_back(c_real_name);
         elab.set_env(env);
@@ -786,12 +785,10 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
             auto pos_provider = p.get_parser_pos_provider(header_pos);
             bool use_info_manager = get_global_info_manager() != nullptr;
             std::string file_name = p.get_file_name();
-            auto proof = add_library_task(task_builder<expr>([=] {
-                return elaborate_proof(decl_env, opts, header_pos, new_params_list,
-                                       new_fn, val, thm_finfo, is_rfl, type,
-                                       mctx, lctx, pos_provider, use_info_manager, file_name);
-            }), log_tree::ElaborationLevel);
-            env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, prv_name, type, opt_val, proof, meta, is_abbrev, header_pos);
+            opt_val = elaborate_proof(decl_env, opts, header_pos, new_params_list,
+                                      new_fn, val, thm_finfo, is_rfl, type,
+                                      mctx, lctx, pos_provider, use_info_manager, file_name);
+            env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, prv_name, type, opt_val, meta, is_abbrev, header_pos);
         } else if (kind == decl_cmd_kind::Example) {
             auto env = p.env();
             auto opts = p.get_options();
@@ -819,7 +816,7 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
                 val = get_equations_result(val, 0);
             }
             finalize_definition(elab, new_params, type, val, lp_names, meta.m_modifiers.m_is_meta);
-            env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, prv_name, type, some_expr(val), {}, meta, is_abbrev, header_pos);
+            env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, prv_name, type, some_expr(val), meta, is_abbrev, header_pos);
         }
         time_task _("decl post-processing", p.mk_message(header_pos, INFORMATION), p.get_options(), c_name);
         environment new_env = env_n.first;

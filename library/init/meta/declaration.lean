@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.expr init.meta.name init.meta.task
+import init.meta.expr init.meta.name
 
 /--
 Reducibility hints are used in the convertibility checker.
@@ -48,7 +48,7 @@ meta inductive declaration
 /- definition: name, list universe parameters, type, value, is_trusted -/
 | defn : name → list name → expr → expr → reducibility_hints → bool → declaration
 /- theorem: name, list universe parameters, type, value (remark: theorems are always trusted) -/
-| thm  : name → list name → expr → task expr → declaration
+| thm  : name → list name → expr → expr → declaration
 /- constant assumption: name, list universe parameters, type, is_trusted -/
 | cnst : name → list name → expr → bool → declaration
 /- axiom : name → list universe parameters, type (remark: axioms are always trusted) -/
@@ -81,13 +81,8 @@ meta def type : declaration → expr
 
 meta def value : declaration → expr
 | (defn _ _ _ v _ _) := v
-| (thm _ _ _ v)      := v.get
-| _                  := default expr
-
-meta def value_task : declaration → task expr
-| (defn _ _ _ v _ _) := task.pure v
 | (thm _ _ _ v)      := v
-| _                  := task.pure (default expr)
+| _                  := default expr
 
 meta def is_trusted : declaration → bool
 | (defn _ _ _ _ _ t) := t
@@ -108,22 +103,17 @@ meta def update_name : declaration → name → declaration
 
 meta def update_value : declaration → expr → declaration
 | (defn n ls t v h tr) new_v := defn n ls t new_v h tr
-| (thm n ls t v)       new_v := thm n ls t (task.pure new_v)
-| d                    new_v := d
-
-meta def update_value_task : declaration → task expr → declaration
-| (defn n ls t v h tr) new_v := defn n ls t new_v.get h tr
 | (thm n ls t v)       new_v := thm n ls t new_v
 | d                    new_v := d
 
 meta def map_value : declaration → (expr → expr) → declaration
 | (defn n ls t v h tr) f := defn n ls t (f v) h tr
-| (thm n ls t v)       f := thm n ls t (task.map f v)
+| (thm n ls t v)       f := thm n ls t (f v)
 | d                    f := d
 
 meta def to_definition : declaration → declaration
 | (cnst n ls t tr) := defn n ls t (default expr) reducibility_hints.abbrev tr
-| (ax n ls t)      := thm n ls t (task.pure (default expr))
+| (ax n ls t)      := thm n ls t (default expr)
 | d                := d
 
 meta def is_definition : declaration → bool

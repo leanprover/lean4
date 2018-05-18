@@ -756,7 +756,7 @@ static void check_definition(environment const & env, declaration const & d, typ
     }
 }
 
-certified_declaration check(environment const & env, declaration const & d, bool immediately) {
+certified_declaration check(environment const & env, declaration const & d) {
     check_no_mlocal(env, d.get_name(), d.get_type(), true);
     check_name(env, d.get_name());
     check_duplicated_params(env, d);
@@ -765,18 +765,6 @@ certified_declaration check(environment const & env, declaration const & d, bool
     expr sort = checker.check(d.get_type(), d.get_univ_params());
     checker.ensure_sort(sort, d.get_type());
     if (d.is_definition()) {
-        if (!immediately && env.trust_lvl() != 0 && d.is_theorem()) {
-            // TODO(gabriel): cancellation
-            auto checked_proof =
-                    map<expr>(d.get_value_task(),
-                              [d, env, memoize, trusted_only] (expr const & val) -> expr {
-                                  type_checker checker(env, memoize, trusted_only);
-                                  check_definition(env, d, checker);
-                                  return val;
-                              }).build();
-            return certified_declaration(env.get_id(),
-                                         mk_theorem(d.get_name(), d.get_univ_params(), d.get_type(), checked_proof));
-        }
         check_definition(env, d, checker);
     }
     return certified_declaration(env.get_id(), d);

@@ -348,16 +348,11 @@ struct decl_modification : public modification {
 
     void get_introduced_exprs(std::vector<task<expr>> & es) const override {
         es.push_back(mk_pure_task(m_decl.get_type()));
-        if (m_decl.is_theorem()) {
-            es.push_back(m_decl.get_value_task());
-        } else if (m_decl.is_definition()) {
+        if (m_decl.is_definition())
             es.push_back(mk_pure_task(m_decl.get_value()));
-        }
     }
 
-    void get_task_dependencies(buffer<gtask> & deps) const override {
-        if (m_decl.is_theorem())
-            deps.push_back(m_decl.get_value_task());
+    void get_task_dependencies(buffer<gtask> &) const override {
     }
 };
 
@@ -451,21 +446,6 @@ static name sorry_decl_name(name const & n) {
 }
 
 struct sorry_warning_tag : public log_entry_cell {};
-static bool is_sorry_warning_or_error(log_entry const & e) {
-    return is_error_message(e) || dynamic_cast<sorry_warning_tag const *>(e.get()) != nullptr;
-}
-
-static task<bool> error_already_reported() {
-    for (auto & e : logtree().get_entries())
-        if (is_sorry_warning_or_error(e))
-            return mk_pure_task(true);
-
-    std::vector<task<bool>> children;
-    logtree().get_used_children().for_each([&] (name const &, log_tree::node const & c) {
-        children.push_back(c.has_entry(is_sorry_warning_or_error));
-    });
-    return any(children, [] (bool already_reported) { return already_reported; });
-}
 
 environment add(environment const & env, certified_declaration const & d) {
     environment new_env = env.add(d);
@@ -474,35 +454,6 @@ environment add(environment const & env, certified_declaration const & d) {
         new_env = mark_noncomputable(new_env, _d.get_name());
     new_env = update_module_defs(new_env, _d);
     new_env = add(new_env, std::make_shared<decl_modification>(_d, env.trust_lvl()));
-
-    if (_d.is_theorem()) {
-        // report errors from kernel type-checker
-        add_library_task(task_builder<unit>([_d, env] {
-            message_builder msg(env, get_global_ios(),
-                logtree().get_location().m_file_name, logtree().get_location().m_range.m_begin,
-                ERROR);
-            try {
-                _d.get_value();
-            } catch (std::exception & ex) {
-                msg.set_exception(ex).report();
-            } catch (...) {
-                msg << "unknown exception while type-checking theorem";
-                msg.report();
-            }
-            return unit();
-        }).depends_on(_d.is_theorem() ? _d.get_value_task() : nullptr));
-    }
-
-    add_library_task(map<unit>(error_already_reported(), [_d] (bool already_reported) {
-        if (!already_reported && has_sorry(_d)) {
-            report_message(message(logtree().get_location().m_file_name,
-                                   logtree().get_location().m_range.m_begin, WARNING,
-                                   (sstream() << "declaration '" << sorry_decl_name(_d.get_name()) << "' uses sorry").str()));
-            logtree().add(std::make_shared<sorry_warning_tag>());
-        }
-        return unit {};
-    }).depends_on(_d.is_theorem() ? _d.get_value_task() : nullptr));
-
     return add_decl_pos_info(new_env, _d.get_name());
 }
 

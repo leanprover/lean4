@@ -74,7 +74,7 @@ struct text_importer {
                 mk_theorem(m_name.at(name_idx), ls, m_expr.at(type_idx), m_expr.at(val_idx)) :
                 mk_definition(m_env, m_name.at(name_idx), ls, m_expr.at(type_idx), m_expr.at(val_idx), true, true);
 
-        m_env = m_env.add(check(m_env, decl, true));
+        m_env = m_env.add(check(m_env, decl));
     }
 
     void handle_ax(std::istream & in) {

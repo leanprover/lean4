@@ -188,9 +188,6 @@ public:
     friend bool is_decl_eqp(environment const & e1, environment const & e2) {
         return is_eqp(e1.m_declarations, e2.m_declarations);
     }
-
-    /** \brief Returns a task that returns true iff all proofs are correct.  May throw an exception otherwise. */
-    task<bool> is_correct() const;
 };
 
 void initialize_environment();
@@ -204,7 +201,7 @@ class name_generator;
 */
 class certified_declaration {
     friend class certify_unchecked;
-    friend certified_declaration check(environment const & env, declaration const & d, bool immediately);
+    friend certified_declaration check(environment const & env, declaration const & d);
     environment_id m_id;
     declaration    m_declaration;
     certified_declaration(environment_id const & id, declaration const & d):m_id(id), m_declaration(d) {}

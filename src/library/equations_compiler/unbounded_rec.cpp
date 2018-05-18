@@ -161,7 +161,7 @@ eqn_compiler_result unbounded_rec(environment & env, elaborator & elab,
             bool use_self_opt = true;
             bool trusted      = false;
             declaration d     = mk_definition(env, fn_name, lvl_names, fn_type, fn, use_self_opt, trusted);
-            env               = module::add(env, check(env, d, true));
+            env               = module::add(env, check(env, d));
 
             expr result_fn    = mk_app(mk_constant(fn_name, to_list(closure_lvl_params)), closure_params);
 

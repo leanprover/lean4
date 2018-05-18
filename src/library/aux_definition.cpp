@@ -177,7 +177,7 @@ struct mk_aux_definition_fn : public closure_helper {
             bool use_self_opt = true;
             d = mk_definition(env, c, get_norm_level_names(), def_type, def_value, use_self_opt, !untrusted);
         }
-        environment new_env = module::add(env, check(env, d, true));
+        environment new_env = module::add(env, check(env, d));
         buffer<level> ls;
         get_level_closure(ls);
         buffer<expr> ps;

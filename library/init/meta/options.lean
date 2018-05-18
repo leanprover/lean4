@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.name
+import init.meta.name init.lean.options
 universe u
 meta constant options                   : Type
 meta constant options.size              : options → nat
@@ -27,3 +27,14 @@ meta instance : has_add options :=
 
 meta instance : inhabited options :=
 ⟨options.mk⟩
+
+meta def options.to_lean_options (opts : options) : lean.options :=
+opts.fold lean.options.mk (λ n lopts,
+  if opts.get_bool n tt ≠ opts.get_bool n ff then -- ...
+    lopts.set_bool n (opts.get_bool n tt)
+  else if opts.get_nat n 0 ≠ opts.get_nat n 1 then
+    lopts.set_nat n (opts.get_nat n 0)
+  else if opts.get_string n "" ≠ opts.get_string n "foo" then
+    lopts.set_string n (opts.get_string n "")
+  else
+    lopts)

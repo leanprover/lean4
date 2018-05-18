@@ -238,30 +238,39 @@ lean_obj * nat_big_mod(lean_obj * a1, lean_obj * a2) {
 }
 
 bool nat_big_eq(lean_obj * a1, lean_obj * a2) {
-    if (is_scalar(a1))
-        return unbox(a1) == mpz_value(a2);
-    else if (is_scalar(a2))
-        return mpz_value(a1) == unbox(a2);
-    else
+    if (is_scalar(a1)) {
+        lean_assert(unbox(a1) != mpz_value(a2))
+        return false;
+    } else if (is_scalar(a2)) {
+        lean_assert(mpz_value(a1) != unbox(a2))
+        return false;
+    } else {
         return mpz_value(a1) == mpz_value(a2);
+    }
 }
 
 bool nat_big_le(lean_obj * a1, lean_obj * a2) {
-    if (is_scalar(a1))
-        return unbox(a1) <= mpz_value(a2);
-    else if (is_scalar(a2))
-        return mpz_value(a1) <= unbox(a2);
-    else
+    if (is_scalar(a1)) {
+        lean_assert(unbox(a1) < mpz_value(a2))
+        return true;
+    } else if (is_scalar(a2)) {
+        lean_assert(mpz_value(a1) > unbox(a2));
+        return false;
+    } else {
         return mpz_value(a1) <= mpz_value(a2);
+    }
 }
 
 bool nat_big_lt(lean_obj * a1, lean_obj * a2) {
-    if (is_scalar(a1))
-        return unbox(a1) < mpz_value(a2);
-    else if (is_scalar(a2))
-        return mpz_value(a1) < unbox(a2);
-    else
+    if (is_scalar(a1)) {
+        lean_assert(unbox(a1) < mpz_value(a2));
+        return true;
+    } else if (is_scalar(a2)) {
+        lean_assert(mpz_value(a1) > unbox(a2));
+        return false;
+    } else {
         return mpz_value(a1) < mpz_value(a2);
+    }
 }
 
 lean_obj * nat_big_land(lean_obj * a1, lean_obj * a2) {

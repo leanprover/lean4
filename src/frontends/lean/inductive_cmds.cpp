@@ -17,7 +17,6 @@ Authors: Daniel Selsam, Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "kernel/abstract.h"
 #include "kernel/free_vars.h"
-#include "library/scoped_ext.h"
 #include "library/locals.h"
 #include "library/attribute_manager.h"
 #include "library/deep_copy.h"

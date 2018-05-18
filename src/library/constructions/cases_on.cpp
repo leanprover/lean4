@@ -17,7 +17,6 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/normalize.h"
 #include "library/aux_recursors.h"
-#include "library/scoped_ext.h"
 #include "library/constructions/util.h"
 
 namespace lean {

@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/trace.h"
 #include "library/documentation.h"
-#include "library/scoped_ext.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_format.h"

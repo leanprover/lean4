@@ -20,7 +20,6 @@ Author: Leonardo de Moura
 #include "library/choice.h"
 #include "library/placeholder.h"
 #include "library/explicit.h"
-#include "library/scoped_ext.h"
 #include "library/annotation.h"
 #include "library/sorry.h"
 #include "frontends/lean/parser.h"

@@ -8,7 +8,6 @@ Author: Sebastian Ullrich
 #include "kernel/abstract.h"
 #include "library/constants.h"
 #include "library/attribute_manager.h"
-#include "library/scoped_ext.h"
 #include "library/tactic/elaborator_exception.h"
 #include "library/string.h"
 #include "library/vm/vm_expr.h"

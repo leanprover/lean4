@@ -19,7 +19,6 @@ Author: Leonardo de Moura
 #include "library/annotation.h"
 #include "library/aliases.h"
 #include "library/class.h"
-#include "library/scoped_ext.h"
 #include "library/expr_pair.h"
 #include "library/placeholder.h"
 #include "library/private.h"

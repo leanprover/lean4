@@ -36,7 +36,6 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/private.h"
 #include "library/attribute_manager.h"
-#include "library/scoped_ext.h"
 #include "library/protected.h"
 #include "library/message_builder.h"
 #include "library/aliases.h"

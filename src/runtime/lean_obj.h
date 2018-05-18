@@ -503,4 +503,151 @@ inline lean_obj * nat_lxor(lean_obj * a1, lean_obj * a2) {
         return nat_big_xor(a1, a2);
     }
 }
+
+/* Integers */
+
+#define LEAN_MAX_SMALL_INT (sizeof(void*) == 8 ? std::numeric_limits<int>::max() : (1 << 30)) // NOLINT
+#define LEAN_MIN_SMALL_INT (sizeof(void*) == 8 ? std::numeric_limits<int>::min() : -(1 << 30)) // NOLINT
+
+inline lean_obj * mk_int_obj_core(mpz const & m) {
+    lean_assert(m < LEAN_MIN_SMALL_INT || m > LEAN_MAX_SMALL_INT);
+    return alloc_mpz(m);
+}
+
+inline lean_obj * mk_int_obj(mpz const & m) {
+    if (m < LEAN_MIN_SMALL_INT || m > LEAN_MAX_SMALL_INT)
+        return mk_int_obj_core(m);
+    else
+        return box(static_cast<unsigned>(m.get_int()));
+}
+
+inline lean_obj * mk_int_obj(int n) {
+    if (sizeof(void*) == 8) { // NOLINT
+        return box(static_cast<unsigned>(n));
+    } else if (LEAN_MIN_SMALL_INT <= n && n <= LEAN_MAX_SMALL_INT) {
+        return box(static_cast<unsigned>(n));
+    } else {
+        return alloc_mpz(mpz(n));
+    }
+}
+
+inline lean_obj * mk_int_obj(int64 n) {
+    if (LEAN_LIKELY(LEAN_MIN_SMALL_INT <= n && n <= LEAN_MAX_SMALL_INT)) {
+        return box(static_cast<unsigned>(static_cast<int>(n)));
+    } else {
+        return mk_int_obj_core(mpz(n));
+    }
+}
+
+inline int64 int2int64(lean_obj * a) {
+    lean_assert(is_scalar(a));
+    if (sizeof(void*) == 8) { // NOLINT
+        return static_cast<int>(unbox(a));
+    } else {
+        return static_cast<int>(reinterpret_cast<size_t>(a)) >> 1;
+    }
+}
+
+inline int int2int(lean_obj * a) {
+    lean_assert(is_scalar(a));
+    if (sizeof(void*) == 8) { // NOLINT
+        return static_cast<int>(unbox(a));
+    } else {
+        return static_cast<int>(reinterpret_cast<size_t>(a)) >> 1;
+    }
+}
+
+lean_obj * int_big_add(lean_obj * a1, lean_obj * a2);
+
+inline lean_obj * int_add(lean_obj * a1, lean_obj * a2) {
+    if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
+        return mk_int_obj(int2int64(a1) + int2int64(a2));
+    } else {
+        return int_big_add(a1, a2);
+    }
+}
+
+lean_obj * int_big_sub(lean_obj * a1, lean_obj * a2);
+
+inline lean_obj * int_sub(lean_obj * a1, lean_obj * a2) {
+    if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
+        return mk_int_obj(int2int64(a1) - int2int64(a2));
+    } else {
+        return int_big_sub(a1, a2);
+    }
+}
+
+lean_obj * int_big_mul(lean_obj * a1, lean_obj * a2);
+
+inline lean_obj * int_mul(lean_obj * a1, lean_obj * a2) {
+    if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
+        return mk_int_obj(int2int64(a1) * int2int64(a2));
+    } else {
+        return int_big_mul(a1, a2);
+    }
+}
+
+lean_obj * int_big_div(lean_obj * a1, lean_obj * a2);
+
+inline lean_obj * int_div(lean_obj * a1, lean_obj * a2) {
+    if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
+        int v1 = int2int(a1);
+        int v2 = int2int(a2);
+        if (v2 == 0)
+            return box(0);
+        else
+            return mk_int_obj(v1 / v2);
+    } else {
+        return int_big_div(a1, a2);
+    }
+}
+
+lean_obj * int_big_rem(lean_obj * a1, lean_obj * a2);
+
+inline lean_obj * int_rem(lean_obj * a1, lean_obj * a2) {
+    if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
+        int v1 = int2int(a1);
+        int v2 = int2int(a2);
+        if (v2 == 0)
+            return box(0);
+        else
+            return mk_int_obj(v1 % v2);
+    } else {
+        return int_big_rem(a1, a2);
+    }
+}
+
+bool int_big_eq(lean_obj * a1, lean_obj * a2);
+
+inline bool int_eq(lean_obj * a1, lean_obj * a2) {
+    if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
+        return a1 == a2;
+    } else {
+        return int_big_eq(a1, a2);
+    }
+}
+
+inline bool int_ne(lean_obj * a1, lean_obj * a2) {
+    return !int_eq(a1, a2);
+}
+
+bool int_big_le(lean_obj * a1, lean_obj * a2);
+
+inline bool int_le(lean_obj * a1, lean_obj * a2) {
+    if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
+        return int2int(a1) <= int2int(a2);
+    } else {
+        return int_big_le(a1, a2);
+    }
+}
+
+bool int_big_lt(lean_obj * a1, lean_obj * a2);
+
+inline bool int_lt(lean_obj * a1, lean_obj * a2) {
+    if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
+        return int2int(a1) < int2int(a2);
+    } else {
+        return int_big_lt(a1, a2);
+    }
+}
 }

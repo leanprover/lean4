@@ -303,6 +303,85 @@ lean_obj * nat_big_lxor(lean_obj * a1, lean_obj * a2) {
         return mk_nat_obj(mpz_value(a1) ^ mpz_value(a2));
 }
 
+/* Integers */
+
+lean_obj * int_big_add(lean_obj * a1, lean_obj * a2) {
+    if (is_scalar(a1))
+        return mk_int_obj(int2int(a1) + mpz_value(a2));
+    else if (is_scalar(a2))
+        return mk_int_obj(mpz_value(a1) + int2int(a2));
+    else
+        return mk_int_obj(mpz_value(a1) + mpz_value(a2));
+}
+
+lean_obj * int_big_sub(lean_obj * a1, lean_obj * a2) {
+    if (is_scalar(a1))
+        return mk_int_obj(int2int(a1) - mpz_value(a2));
+    else if (is_scalar(a2))
+        return mk_int_obj(mpz_value(a1) - int2int(a2));
+    else
+        return mk_int_obj(mpz_value(a1) - mpz_value(a2));
+}
+
+lean_obj * int_big_mul(lean_obj * a1, lean_obj * a2) {
+    if (is_scalar(a1))
+        return mk_int_obj(int2int(a1) * mpz_value(a2));
+    else if (is_scalar(a2))
+        return mk_int_obj(mpz_value(a1) * int2int(a2));
+    else
+        return mk_int_obj(mpz_value(a1) * mpz_value(a2));
+}
+
+lean_obj * int_big_div(lean_obj * a1, lean_obj * a2) {
+    if (is_scalar(a1))
+        return mk_int_obj(int2int(a1) / mpz_value(a2));
+    else if (is_scalar(a2))
+        return mk_int_obj(mpz_value(a1) / int2int(a2));
+    else
+        return mk_int_obj(mpz_value(a1) / mpz_value(a2));
+}
+
+lean_obj * int_big_rem(lean_obj * a1, lean_obj * a2) {
+    if (is_scalar(a1))
+        return mk_int_obj(mpz(int2int(a1)) % mpz_value(a2));
+    else if (is_scalar(a2))
+        return mk_int_obj(mpz_value(a1) % mpz(int2int(a2)));
+    else
+        return mk_int_obj(mpz_value(a1) % mpz_value(a2));
+}
+
+bool int_big_eq(lean_obj * a1, lean_obj * a2) {
+    if (is_scalar(a1)) {
+        lean_assert(int2int(a1) != mpz_value(a2))
+        return false;
+    } else if (is_scalar(a2)) {
+        lean_assert(mpz_value(a1) != int2int(a2))
+        return false;
+    } else {
+        return mpz_value(a1) == mpz_value(a2);
+    }
+}
+
+bool int_big_le(lean_obj * a1, lean_obj * a2) {
+    if (is_scalar(a1)) {
+        return int2int(a1) <= mpz_value(a2);
+    } else if (is_scalar(a2)) {
+        return mpz_value(a1) <= int2int(a2);
+    } else {
+        return mpz_value(a1) <= mpz_value(a2);
+    }
+}
+
+bool int_big_lt(lean_obj * a1, lean_obj * a2) {
+    if (is_scalar(a1)) {
+        return int2int(a1) < mpz_value(a2);
+    } else if (is_scalar(a2)) {
+        return mpz_value(a1) < int2int(a2);
+    } else {
+        return mpz_value(a1) < mpz_value(a2);
+    }
+}
+
 /* Debugging helper functions */
 
 void dbg_print_str(lean_obj * o) {

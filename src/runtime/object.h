@@ -225,6 +225,8 @@ inline void cnstr_set_scalar(object * o, unsigned i, T v) {
     obj_set_data(o, sizeof(constructor) + i, v);
 }
 
+inline unsigned obj_tag(object * o) { if (is_scalar(o)) return unbox(o); else return cnstr_tag(o); }
+
 /* Closures */
 inline object * alloc_closure(lean_cfun fun, unsigned arity, unsigned num_fixed) {
     lean_assert(arity > 0);
@@ -248,7 +250,6 @@ inline void closure_set_arg(object * o, unsigned i, object * a) {
     lean_assert(i < closure_num_fixed(o));
     obj_set_data(o, sizeof(closure) + sizeof(object*)*i, a); // NOLINT
 }
-inline unsigned tag(object * o) { if (is_scalar(o)) return unbox(o); else return cnstr_tag(o); }
 
 /* Array of objects */
 inline object * alloc_array(size_t size, size_t capacity) {

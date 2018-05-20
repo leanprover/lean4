@@ -245,7 +245,7 @@ def assign_unop2cpp (t : type) : assign_unop → string
 | assign_unop.string_len   := "lean::string_len"
 | assign_unop.succ         := "lean::nat_succ"
 | assign_unop.tag_ref      := "lean::cnstr_tag"
-| assign_unop.tag          := "lean::tag"
+| assign_unop.tag          := "lean::obj_tag"
 
 def emit_assign_unop (x : var) (t : type) (op : assign_unop) (y : var) : extract_m unit :=
 emit_var x >> emit " = " >> emit (assign_unop2cpp t op) >> paren(emit_var y)

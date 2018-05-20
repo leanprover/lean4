@@ -87,6 +87,13 @@ static void display_name_core(std::ostream & out, name const & n, bool escape, c
     }
 }
 
+static void display_name(std::ostream & out, name const & n, bool escape, char const * sep) {
+    if (n.is_anonymous())
+        out << anonymous_str;
+    else
+        display_name_core(out, n, escape, sep);
+}
+
 name::name(name const & prefix, char const * n):
     object_ref(mk_cnstr(static_cast<unsigned>(name_kind::STRING),
                         prefix.raw(), mk_string(n), sizeof(unsigned))) {
@@ -290,18 +297,18 @@ name name::get_root() const {
 
 std::string name::to_string(char const * sep) const {
     std::ostringstream s;
-    display_name_core(s, *this, false, sep);
+    display_name(s, *this, false, sep);
     return s.str();
 }
 
 std::string name::escape(char const * sep) const {
     std::ostringstream s;
-    display_name_core(s, *this, true, sep);
+    display_name(s, *this, true, sep);
     return s.str();
 }
 
 std::ostream & operator<<(std::ostream & out, name const & n) {
-    display_name_core(out, n, false, lean_name_separator);
+    display_name(out, n, false, lean_name_separator);
     return out;
 }
 

@@ -13,27 +13,22 @@ namespace lean {
 class object_ref {
     object * m_obj;
 public:
-    object_ref():m_obj(nullptr) {}
-    explicit object_ref(object * o):m_obj(o) {
-        lean_assert(get_rc(o) > 0);
-    }
-    object_ref(object_ref const & s):m_obj(s.m_obj) { if (m_obj) inc(m_obj); }
-    object_ref(object_ref && s):m_obj(s.m_obj) { s.m_obj = nullptr; }
-    ~object_ref() { if (m_obj) dec(m_obj); }
+    object_ref():m_obj(box(0)) {}
+    explicit object_ref(object * o):m_obj(o) { lean_assert(is_scalar(o) || get_rc(o) > 0); }
+    object_ref(object_ref const & s):m_obj(s.m_obj) { inc(m_obj); }
+    object_ref(object_ref && s):m_obj(s.m_obj) { s.m_obj = box(0); }
+    ~object_ref() { dec(m_obj); }
     object_ref & operator=(object_ref const & s) {
-        if (s.m_obj)
-            inc(s.m_obj);
+        inc(s.m_obj);
         object * new_obj = s.m_obj;
-        if (m_obj)
-            dec(m_obj);
+        dec(m_obj);
         m_obj = new_obj;
         return *this;
     }
     object_ref & operator=(object_ref && s) {
-        if (m_obj)
-            dec(m_obj);
+        dec(m_obj);
         m_obj   = s.m_obj;
-        s.m_obj = nullptr;
+        s.m_obj = box(0);
         return *this;
     }
     object * raw() const { return m_obj; }

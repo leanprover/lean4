@@ -6,7 +6,10 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <string>
+#include <cstdlib>
+#if !defined(__APPLE__)
 #include <malloc.h>
+#endif
 #include "runtime/compiler_hints.h"
 #include "runtime/mpz.h"
 #include "runtime/int64.h"

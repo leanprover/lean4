@@ -13,14 +13,14 @@ namespace lean {
 // Builtin nat operations
 
 vm_obj mk_vm_nat(unsigned n) {
-    if (LEAN_LIKELY(n < LEAN_MAX_SMALL_NAT))
+    if (LEAN_LIKELY(n < LEAN_VM_MAX_SMALL_NAT))
         return mk_vm_simple(n);
     else
         return mk_vm_mpz(mpz(n));
 }
 
 vm_obj mk_vm_nat(mpz const & n) {
-    if (LEAN_LIKELY(n < LEAN_MAX_SMALL_NAT))
+    if (LEAN_LIKELY(n < LEAN_VM_MAX_SMALL_NAT))
         return mk_vm_simple(n.get_unsigned_int());
     else
         return mk_vm_mpz(n);
@@ -110,7 +110,7 @@ vm_obj nat_add(vm_obj const & a1, vm_obj const & a2) {
 vm_obj nat_mul(vm_obj const & a1, vm_obj const & a2) {
     if (LEAN_LIKELY(is_simple(a1) && is_simple(a2))) {
         unsigned long long r = static_cast<unsigned long long>(cidx(a1)) * static_cast<unsigned long long>(cidx(a2));
-        if (LEAN_LIKELY(r < LEAN_MAX_SMALL_NAT)) {
+        if (LEAN_LIKELY(r < LEAN_VM_MAX_SMALL_NAT)) {
             return mk_vm_simple(r);
         }
     }
@@ -181,7 +181,7 @@ vm_obj nat_shiftl(vm_obj const & a1, vm_obj const & a2) {
     if (LEAN_LIKELY(is_simple(a1) && is_simple(a2))) {
         unsigned v1 = cidx(a1);
         unsigned v2 = cidx(a2);
-        if (v2 <= 31 && v1 >> (31 - v2) == 0) // LEAN_MAX_SMALL_NAT = 1 >> 31
+        if (v2 <= 31 && v1 >> (31 - v2) == 0) // LEAN_VM_MAX_SMALL_NAT = 1 >> 31
             return mk_vm_nat(v1 << v2);
     }
     mpz v1 = to_mpz1(a1);

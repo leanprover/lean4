@@ -665,7 +665,7 @@ vm_instr mk_constructor_instr(unsigned cidx, unsigned nfields) {
 }
 
 vm_instr mk_num_instr(mpz const & v) {
-    if (v < LEAN_MAX_SMALL_NAT) {
+    if (v < LEAN_VM_MAX_SMALL_NAT) {
         vm_instr r(opcode::SConstructor);
         r.m_num = v.get_unsigned_int();
         return r;

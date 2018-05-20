@@ -333,7 +333,7 @@ vm_obj expr_lower_vars(vm_obj const & e, vm_obj const & n1, vm_obj const & n2) {
 }
 
 vm_obj expr_hash(vm_obj const & e) {
-    unsigned r = to_expr(e).hash() % LEAN_MAX_SMALL_NAT;
+    unsigned r = to_expr(e).hash() % LEAN_VM_MAX_SMALL_NAT;
     return mk_vm_simple(r); // make sure it is a simple value
 }
 

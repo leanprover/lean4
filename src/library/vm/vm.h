@@ -298,7 +298,7 @@ LEAN_ALWAYS_INLINE inline vm_obj const & cfield(vm_obj const & o, unsigned i) { 
 LEAN_ALWAYS_INLINE inline bool to_bool(vm_obj const & o) { return cidx(o) != 0; }
 // =======================================
 
-#define LEAN_MAX_SMALL_NAT (1u << 31)
+#define LEAN_VM_MAX_SMALL_NAT (1u << 31)
 
 class vm_state;
 

@@ -8,21 +8,21 @@ Author: Leonardo de Moura
 #include "library/vm/vm.h"
 #include "library/vm/vm_nat.h"
 
-#define LEAN_MAX_SMALL_INT (1 << 30)
-#define LEAN_MIN_SMALL_INT -(1 << 30)
+#define LEAN_VM_MAX_SMALL_INT (1 << 30)
+#define LEAN_VM_MIN_SMALL_INT -(1 << 30)
 
 namespace lean {
 // =======================================
 // Builtin int operations
-inline bool is_small_int(int n)         { return LEAN_MIN_SMALL_INT <= n && n < LEAN_MAX_SMALL_INT; }
-inline bool is_small_int(unsigned n)    { return n < LEAN_MAX_SMALL_INT; }
-inline bool is_small_int(long long n)   { return LEAN_MIN_SMALL_INT <= n && n < LEAN_MAX_SMALL_INT; }
-inline bool is_small_int(mpz const & n) { return LEAN_MIN_SMALL_INT <= n && n < LEAN_MAX_SMALL_INT; }
+inline bool is_small_int(int n)         { return LEAN_VM_MIN_SMALL_INT <= n && n < LEAN_VM_MAX_SMALL_INT; }
+inline bool is_small_int(unsigned n)    { return n < LEAN_VM_MAX_SMALL_INT; }
+inline bool is_small_int(long long n)   { return LEAN_VM_MIN_SMALL_INT <= n && n < LEAN_VM_MAX_SMALL_INT; }
+inline bool is_small_int(mpz const & n) { return LEAN_VM_MIN_SMALL_INT <= n && n < LEAN_VM_MAX_SMALL_INT; }
 
 inline unsigned to_unsigned(int n) {
     lean_assert(is_small_int(n));
     unsigned r = static_cast<unsigned>(n) & 0x7FFFFFFF;
-    lean_assert(r < LEAN_MAX_SMALL_NAT);
+    lean_assert(r < LEAN_VM_MAX_SMALL_NAT);
     return r;
 }
 
@@ -163,7 +163,7 @@ vm_obj int_shiftl(vm_obj const & a1, vm_obj const & a2) {
 
         if (v1 >= 0) {
             if (v2 >= 0) {
-                if (v2 <= 30 && v1 >> (30 - v2) == 0) // LEAN_MAX_SMALL_INT = 1 >> 30
+                if (v2 <= 30 && v1 >> (30 - v2) == 0) // LEAN_VM_MAX_SMALL_INT = 1 >> 30
                     return mk_vm_int(v1 << v2);
             } else if (-v2 < 32) {
                 return mk_vm_int(v1 >> -v2);

@@ -286,10 +286,9 @@ inline size_t sarray_size(object * o) { return to_sarray(o)->m_size; }
 inline size_t sarray_capacity(object * o) { return to_sarray(o)->m_capacity; }
 inline size_t sarray_byte_size(object * o) { return sizeof(sarray) + sarray_capacity(o)*sarray_elem_size(o); } // NOLINT
 template<typename T>
-T * sarray_cptr(object * o) {
-    lean_assert(is_sarray(o)); lean_assert(sarray_elem_size(o) == sizeof(T));
-    return reinterpret_cast<T*>(reinterpret_cast<char*>(o) + sizeof(sarray));
-}
+T * sarray_cptr_core(object * o) { lean_assert(is_sarray(o)); return reinterpret_cast<T*>(reinterpret_cast<char*>(o) + sizeof(sarray)); }
+template<typename T>
+T * sarray_cptr(object * o) { lean_assert(sarray_elem_size(o) == sizeof(T)); return sarray_cptr_core<T>(o); }
 template<typename T> T sarray_data(object * o, size_t i) { return sarray_cptr<T>(o)[i]; }
 template<typename T> void sarray_set_data(object * o, size_t i, T v) {
     obj_set_data(o, sizeof(sarray) + sizeof(T)*i, v);
@@ -312,7 +311,7 @@ object * mk_string(char const * s);
 object * mk_string(std::string const & s);
 inline bool is_string(object * o) { return !is_scalar(o) && is_sarray(o) && sarray_elem_size(o) == 1; }
 inline char const * c_str(object * o) { lean_assert(is_string(o)); return sarray_cptr<char>(o) + sizeof(size_t); }
-inline size_t string_len(object * o) { return sarray_data<size_t>(o, 0); }
+inline size_t string_len(object * o) { return *sarray_cptr_core<size_t>(o); }
 object * string_push(object * s, unsigned c);
 object * string_append(object * s1, object * s2);
 

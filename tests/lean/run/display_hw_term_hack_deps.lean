@@ -5,7 +5,7 @@ import init.lean.ir.type_check init.lean.ir.ssa_check init.lean.ir.elim_phi init
 open tactic
 
 meta def is_eqn_theorem : name → bool
-| (name.mk_string _ (name.mk_string "equations" _)) := tt
+| (name.mk_string (name.mk_string "equations" _) _) := tt
 | _                                                 := ff
 
 meta def display_hw_term_hack_dependencies : tactic unit :=

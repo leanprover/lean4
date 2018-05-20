@@ -1,5 +1,5 @@
 import init.lean.parser.macro
-
+attribute [instance] lean.name.has_lt_quick
 namespace lean
 open lean.parser
 

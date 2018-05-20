@@ -53,7 +53,7 @@ public:
     static char const * get_string(object * o) { return c_str(get_string_obj(o)); }
     static object * get_num_obj(object * o) { return cnstr_obj(o, 1); }
     static unsigned get_numeral(object * o) { return unbox(cnstr_obj(o, 1)); }
-    static unsigned hash(object * o) { return cnstr_scalar<unsigned>(o, 2*sizeof(object*)); }
+    static unsigned hash(object * o) { return cnstr_scalar<unsigned>(o, 2*sizeof(object*)); } // NOLINT
     static bool eq_core(object * o1, object * o2);
     static int cmp(object * o1, object * o2);
     size_t size_core(bool unicode) const;

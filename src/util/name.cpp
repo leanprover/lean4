@@ -92,14 +92,14 @@ name::name(name const & prefix, char const * n):
                         prefix.raw(), mk_string(n), sizeof(unsigned))) {
     size_t sz  = strlen(n);
     unsigned h = hash_str(static_cast<unsigned>(sz), n, prefix.hash());
-    cnstr_set_scalar<unsigned>(raw(), 2*sizeof(object*), h);
+    cnstr_set_scalar<unsigned>(raw(), 2*sizeof(object*), h); // NOLINT
 }
 
 name::name(name const & prefix, unsigned k):
     object_ref(mk_cnstr(static_cast<unsigned>(name_kind::NUMERAL),
                         prefix.raw(), mk_nat_obj(k), sizeof(unsigned))) {
     unsigned h = ::lean::hash(k, prefix.hash());
-    cnstr_set_scalar<unsigned>(raw(), 2*sizeof(object*), h);
+    cnstr_set_scalar<unsigned>(raw(), 2*sizeof(object*), h); // NOLINT
 }
 
 name::name(std::initializer_list<char const *> const & l):name() {

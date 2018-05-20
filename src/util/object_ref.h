@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <algorithm>
 #include "runtime/object.h"
 
 namespace lean {
@@ -53,7 +54,7 @@ inline object_ref mk_cnstr(unsigned tag, object_ref const & r1, object_ref const
 }
 /* The following definition is a low level hack that relies on the fact that sizeof(object_ref) == sizeof(object *). */
 inline object_ref const & cnstr_obj_ref(object_ref const & ref, unsigned i) {
-    static_assert(sizeof(object_ref) == sizeof(object *), "unexpected object_ref size");
+    static_assert(sizeof(object_ref) == sizeof(object *), "unexpected object_ref size"); // NOLINT
     lean_assert(is_cnstr(ref));
     return reinterpret_cast<object_ref const *>(reinterpret_cast<char*>(ref.raw()) + sizeof(constructor))[i];
 }

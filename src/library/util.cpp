@@ -1098,8 +1098,8 @@ optional<name> name_lit_to_name(expr const & name_lit) {
     if (is_constant(name_lit, get_name_anonymous_name()))
         return optional<name>(name());
     if (is_app_of(name_lit, get_name_mk_string_name(), 2)) {
-        if (auto str = to_string(app_arg(app_fn(name_lit))))
-        if (auto p   = name_lit_to_name(app_arg(name_lit)))
+        if (auto p   = name_lit_to_name(app_arg(app_fn(name_lit))))
+        if (auto str = to_string(app_arg(name_lit)))
             return optional<name>(name(*p, str->c_str()));
     }
     return optional<name>();

@@ -847,9 +847,9 @@ bool is_name_value(expr const & e) {
     buffer<expr> args;
     expr const & fn = get_app_args(e, args);
     if (is_constant(fn, get_name_mk_string_name()) && args.size() == 2)
-        return is_string_value(args[0]) && is_name_value(args[1]);
+        return is_name_value(args[0]) && is_string_value(args[1]);
     if (is_constant(fn, get_name_mk_numeral_name()) && args.size() == 2)
-        return is_num(args[0]) && is_name_value(args[1]);
+        return is_name_value(args[0]) && is_num(args[1]);
     return false;
 }
 

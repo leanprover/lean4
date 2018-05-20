@@ -29,8 +29,8 @@ end
 
 meta instance name.reflect : has_reflect name
 | name.anonymous        := `(name.anonymous)
-| (name.mk_string  s n) := `(λ n, name.mk_string  s n).subst (name.reflect n)
-| (name.mk_numeral i n) := `(λ n, name.mk_numeral i n).subst (name.reflect n)
+| (name.mk_string  n s) := `(λ n, name.mk_string  n s).subst (name.reflect n)
+| (name.mk_numeral n i) := `(λ n, name.mk_numeral n i).subst (name.reflect n)
 
 meta instance list.reflect {α : Type} [has_reflect α] [reflected α] : has_reflect (list α)
 | []     := `([])

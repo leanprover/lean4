@@ -360,9 +360,9 @@ expr quote(name const & n) {
         case name_kind::ANONYMOUS:
             return mk_constant(get_name_anonymous_name());
         case name_kind::NUMERAL:
-            return mk_app(mk_constant(get_name_mk_numeral_name()), quote(n.get_numeral()), quote(n.get_prefix()));
+            return mk_app(mk_constant(get_name_mk_numeral_name()), quote(n.get_prefix()), quote(n.get_numeral()));
         case name_kind::STRING:
-            return mk_app(mk_constant(get_name_mk_string_name()), quote(n.get_string()), quote(n.get_prefix()));
+            return mk_app(mk_constant(get_name_mk_string_name()), quote(n.get_prefix()), quote(n.get_string()));
     }
     lean_unreachable();
 }

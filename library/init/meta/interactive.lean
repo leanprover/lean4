@@ -578,7 +578,7 @@ private meta def is_case_simple_tag : tag → bool
 | _                    := ff
 
 private meta def is_case_tag : tag → option nat
-| (name.mk_numeral n `_case :: _) := some n.to_nat
+| (name.mk_numeral `_case n :: _) := some n.to_nat
 | _                               := none
 
 private meta def tag_match (t : tag) (pre : list name) : bool :=
@@ -625,7 +625,7 @@ private meta def find_case (goals : list expr) (ty : name) (idx : nat) (num_indi
   | (app _ _)    :=
     let idx :=
      (match e.get_app_fn with
-      | const (name.mk_string rec ty') _ :=
+      | const (name.mk_string ty' rec) _ :=
         guard (ty' = ty) >>
         (match mk_simple_name rec with
          | `drec := some idx | `rec := some idx
@@ -1514,7 +1514,7 @@ private meta def add_interactive_aux (new_namespace : name) : list name → comm
   env    ← get_env,
   d_name ← resolve_constant n,
   (declaration.defn _ ls ty val hints trusted) ← env.get d_name,
-  (name.mk_string h _) ← return d_name,
+  (name.mk_string _ h) ← return d_name,
   let new_name := `tactic.interactive <.> h,
   add_decl (declaration.defn new_name ls ty (expr.const d_name (ls.map level.param)) hints trusted),
   add_interactive_aux ns
@@ -1555,7 +1555,7 @@ do h ← intro `h,
    some (lhs, rhs) ← expr.is_eq <$> infer_type h,
    (expr.const C _) ← return lhs.get_app_fn,
    -- We disable auto_param and opt_param support to address issue #1943
-   applyc (name.mk_string "inj" C) {auto_param := ff, opt_param := ff},
+   applyc (name.mk_string C "inj") {auto_param := ff, opt_param := ff},
    assumption
 
 /- Auxiliary tactic for proving `I.C.inj_eq` lemmas.

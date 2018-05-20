@@ -9,8 +9,8 @@ import init.data.ordering.basic init.coe init.data.to_string init.lean.name
 /-- Reflect a C++ name object. The VM replaces it with the C++ implementation. -/
 inductive name
 | anonymous  : name
-| mk_string  : string → name → name
-| mk_numeral : uint32 → name → name
+| mk_string  : name → string → name
+| mk_numeral : name → uint32 → name
 
 /-- Gadget for automatic parameter support. This is similar to the opt_param gadget, but it uses
     the tactic declaration names tac_name to synthesize the argument.
@@ -26,10 +26,10 @@ instance : inhabited name :=
 ⟨name.anonymous⟩
 
 def mk_str_name (n : name) (s : string) : name :=
-name.mk_string s n
+name.mk_string n s
 
 def mk_num_name (n : name) (v : nat) : name :=
-name.mk_numeral (uint32.of_nat v) n
+name.mk_numeral n (uint32.of_nat v)
 
 def mk_simple_name (s : string) : name :=
 mk_str_name name.anonymous s
@@ -43,13 +43,13 @@ open name
 
 def name.get_prefix : name → name
 | anonymous        := anonymous
-| (mk_string s p)  := p
-| (mk_numeral s p) := p
+| (mk_string p _)  := p
+| (mk_numeral p _) := p
 
 def name.update_prefix : name → name → name
 | anonymous        new_p := anonymous
-| (mk_string s p)  new_p := mk_string s new_p
-| (mk_numeral s p) new_p := mk_numeral s new_p
+| (mk_string p s)  new_p := mk_string new_p s
+| (mk_numeral p v) new_p := mk_numeral new_p v
 
 /- The (decidable_eq string) has not been defined yet.
    So, we disable the use of if-then-else when compiling the following definitions. -/
@@ -57,15 +57,15 @@ set_option eqn_compiler.ite false
 
 def name.to_string_with_sep (sep : string) : name → string
 | anonymous                := "[anonymous]"
-| (mk_string s anonymous)  := s
-| (mk_numeral v anonymous) := repr v
-| (mk_string s n)          := name.to_string_with_sep n ++ sep ++ s
-| (mk_numeral v n)         := name.to_string_with_sep n ++ sep ++ repr v
+| (mk_string anonymous s)  := s
+| (mk_numeral anonymous v) := repr v
+| (mk_string n s)          := name.to_string_with_sep n ++ sep ++ s
+| (mk_numeral n v)         := name.to_string_with_sep n ++ sep ++ repr v
 
 private def name.components' : name -> list name
 | anonymous                := []
-| (mk_string s n)          := mk_string s anonymous :: name.components' n
-| (mk_numeral v n)         := mk_numeral v anonymous :: name.components' n
+| (mk_string n s)          := mk_string anonymous s :: name.components' n
+| (mk_numeral n v)         := mk_numeral anonymous v :: name.components' n
 
 def name.components (n : name) : list name :=
 (name.components' n).reverse
@@ -108,13 +108,13 @@ meta def name.is_prefix_of : name → name → bool
 
 meta def name.replace_prefix : name → name → name → name
 | anonymous        p p' := anonymous
-| (mk_string s c)  p p' := if c = p then mk_string s p' else mk_string s (name.replace_prefix c p p')
-| (mk_numeral v c) p p' := if c = p then mk_numeral v p' else mk_numeral v (name.replace_prefix c p p')
+| (mk_string c s)  p p' := if c = p then mk_string p' s else mk_string (name.replace_prefix c p p') s
+| (mk_numeral c v) p p' := if c = p then mk_numeral p' v else mk_numeral (name.replace_prefix c p p') v
 
 meta def name.to_lean_name : name → lean.name
 | name.anonymous := lean.name.anonymous
-| (name.mk_string s n) := n.to_lean_name.mk_string s
-| (name.mk_numeral u n) := n.to_lean_name.mk_numeral u.to_nat
+| (name.mk_string n s) := n.to_lean_name.mk_string s
+| (name.mk_numeral n u) := n.to_lean_name.mk_numeral u.to_nat
 
 meta instance : has_coe name lean.name :=
 ⟨name.to_lean_name⟩

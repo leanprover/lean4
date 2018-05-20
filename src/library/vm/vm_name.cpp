@@ -40,12 +40,12 @@ vm_obj name_anonymous() {
     return to_obj(name());
 }
 
-vm_obj name_mk_string(vm_obj const & s, vm_obj const & n) {
+vm_obj name_mk_string(vm_obj const & n, vm_obj const & s) {
     std::string str = to_string(s);
     return to_obj(name(to_name(n), str.c_str()));
 }
 
-vm_obj name_mk_numeral(vm_obj const & num, vm_obj const & n) {
+vm_obj name_mk_numeral(vm_obj const & n, vm_obj const & num) {
     return to_obj(name(to_name(n), to_unsigned(num)));
 }
 
@@ -54,12 +54,12 @@ unsigned name_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
     if (n.is_anonymous()) {
         return 0;
     } else if (n.is_string()) {
-        data.push_back(to_obj(std::string(n.get_string())));
         data.push_back(to_obj(n.get_prefix()));
+        data.push_back(to_obj(std::string(n.get_string())));
         return 1;
     } else {
-        data.push_back(mk_vm_nat(n.get_numeral()));
         data.push_back(to_obj(n.get_prefix()));
+        data.push_back(mk_vm_nat(n.get_numeral()));
         return 2;
     }
 }

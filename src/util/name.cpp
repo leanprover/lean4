@@ -54,105 +54,52 @@ bool is_id_rest(unsigned char const * begin, unsigned char const * end) {
     return is_letter_like_unicode(u) || is_sub_script_alnum_unicode(u);
 }
 
-void name::imp::display_core(std::ostream & out, imp * p, bool escape, char const * sep) {
-    lean_assert(p != nullptr);
-    if (p->m_prefix) {
-        display_core(out, p->m_prefix, escape, sep);
+static void display_name_core(std::ostream & out, name const & n, bool escape, char const * sep) {
+    lean_assert(!n.is_anonymous());
+    name pre = n.get_prefix();
+    if (pre) {
+        display_name_core(out, pre, escape, sep);
         out << sep;
     }
-    if (p->m_is_string) {
-        size_t sz = strlen(p->m_str);
+    if (n.is_string()) {
+        char const * str = n.get_string();
+        size_t sz = strlen(str);
         bool must_escape = false;
-        if (escape && *p->m_str) {
-            if (!is_id_first(p->m_str, p->m_str + sz))
+        if (escape && *str) {
+            if (!is_id_first(str, str + sz))
                 must_escape = true;
             // don't escape names produced by server::display_decl
-            if (must_escape && p->m_str[0] == '?')
+            if (must_escape && str[0] == '?')
                 must_escape = false;
             if (escape) {
-                for (char * s = p->m_str + get_utf8_size(p->m_str[0]); !must_escape && *s; s += get_utf8_size(*s)) {
-                    if (!is_id_rest(s, p->m_str + sz))
+                for (char const * s = str + get_utf8_size(str[0]); !must_escape && *s; s += get_utf8_size(*s)) {
+                    if (!is_id_rest(s, str + sz))
                         must_escape = true;
                 }
             }
         }
         if (must_escape || sz == 0)
-            out << "«" << p->m_str << "»";
+            out << "«" << str << "»";
         else
-            out << p->m_str;
+            out << str;
     } else {
-        out << p->m_k;
+        out << n.get_numeral();
     }
 }
 
-void name::imp::display(std::ostream & out, imp * p, bool escape, char const * sep) {
-    if (p == nullptr)
-        out << anonymous_str;
-    else
-        display_core(out, p, escape, sep);
+name::name(name const & prefix, char const * n):
+    object_ref(mk_cnstr(static_cast<unsigned>(name_kind::STRING),
+                        prefix.raw(), mk_string(n), sizeof(unsigned))) {
+    size_t sz  = strlen(n);
+    unsigned h = hash_str(static_cast<unsigned>(sz), n, prefix.hash());
+    cnstr_set_scalar<unsigned>(raw(), 2*sizeof(object*), h);
 }
 
-void copy_limbs(name::imp * p, buffer<name::imp *> & limbs) {
-    limbs.clear();
-    while (p != nullptr) {
-        limbs.push_back(p);
-        p = p->m_prefix;
-    }
-    std::reverse(limbs.begin(), limbs.end());
-}
-
-void name::imp::dealloc() {
-    imp * curr = this;
-    while (true) {
-        lean_assert(curr->get_rc() == 0);
-        imp * p = curr->m_prefix;
-        if (curr->m_is_string)
-            delete[] reinterpret_cast<char*>(curr);
-        else
-            delete curr;
-        curr = p;
-        if (!curr || !curr->dec_ref_core())
-            break;
-    }
-}
-
-name::name(imp * p) {
-    m_ptr = p;
-    if (m_ptr)
-        m_ptr->inc_ref();
-}
-
-name::name() {
-    m_ptr = nullptr;
-}
-
-name::name(name const & prefix, char const * nam) {
-    size_t sz  = strlen(nam);
-    lean_assert(sz < (1u << 31));
-    char * mem = new char[sizeof(imp) + sz + 1];
-    m_ptr      = new (mem) imp(true, prefix.m_ptr);
-    std::memcpy(mem + sizeof(imp), nam, sz + 1);
-    m_ptr->m_str       = mem + sizeof(imp);
-    // Emscripten easily breaks with small changes here.  The main fix seems to be to use m_ptr->m_str instead of name.
-    m_ptr->m_hash = hash_str(static_cast<unsigned>(sz), m_ptr->m_str, prefix.hash());
-}
-
-name::name(name const & prefix, unsigned k, bool) {
-    m_ptr      = new imp(false, prefix.m_ptr);
-    m_ptr->m_k = k;
-    if (m_ptr->m_prefix)
-        m_ptr->m_hash = ::lean::hash(m_ptr->m_prefix->m_hash, k);
-    else
-        m_ptr->m_hash = k;
-}
-
-name::name(name const & prefix, unsigned k):name(prefix, k, true) {
-}
-
-name::name(char const * n):name(name(), n) {
-}
-
-name::name(unsigned k):name(name(), k, true) {
+name::name(name const & prefix, unsigned k):
+    object_ref(mk_cnstr(static_cast<unsigned>(name_kind::NUMERAL),
+                        prefix.raw(), mk_nat_obj(k), sizeof(unsigned))) {
+    unsigned h = ::lean::hash(k, prefix.hash());
+    cnstr_set_scalar<unsigned>(raw(), 2*sizeof(object*), h);
 }
 
 name::name(std::initializer_list<char const *> const & l):name() {
@@ -174,47 +121,38 @@ name const & name::anonymous() {
     return *g_anonymous;
 }
 
-static atomic<unsigned> * g_next_id = nullptr;
-
-name name::mk_internal_unique_name() {
-    unsigned id = (*g_next_id)++;
-    return name(id);
-}
-
-name & name::operator=(name const & other) { LEAN_COPY_REF(other); }
-
-name & name::operator=(name && other) { LEAN_MOVE_REF(other); }
-
-name_kind name::kind() const {
-    if (m_ptr == nullptr)
-        return name_kind::ANONYMOUS;
-    else
-        return m_ptr->m_is_string ? name_kind::STRING : name_kind::NUMERAL;
+static void copy_limbs(object * p, buffer<object *> & limbs) {
+    limbs.clear();
+    while (!is_scalar(p)) {
+        limbs.push_back(p);
+        p = name::get_prefix(p);
+    }
+    std::reverse(limbs.begin(), limbs.end());
 }
 
 /* Equality test core procedure, it is invoked by operator== */
-bool eq_core(name::imp * i1, name::imp * i2) {
+bool name::eq_core(object * i1, object * i2) {
     while (true) {
-        lean_assert(i1 != nullptr);
-        lean_assert(i2 != nullptr);
+        lean_assert(!is_scalar(i1));
+        lean_assert(!is_scalar(i2));
         lean_assert(i1 && i2);
-        lean_assert(i1->m_hash == i2->m_hash);
-        if (i1->m_is_string != i2->m_is_string)
+        lean_assert(hash(i1) == hash(i2));
+        if (cnstr_tag(i1) != cnstr_tag(i2))
             return false;
-        if (i1->m_is_string) {
-            if (strcmp(i1->m_str, i2->m_str) != 0)
+        if (static_cast<name_kind>(cnstr_tag(i1)) == name_kind::STRING) {
+            if (strcmp(get_string(i1), get_string(i2)) != 0)
                 return false;
         } else {
-            if (i1->m_k != i2->m_k)
+            if (!nat_eq(get_num_obj(i1), get_num_obj(i2)))
                 return false;
         }
-        i1 = i1->m_prefix;
-        i2 = i2->m_prefix;
+        i1 = get_prefix(i1);
+        i2 = get_prefix(i2);
         if (i1 == i2)
             return true;
-        if ((i1 == nullptr) != (i2 == nullptr))
+        if (is_scalar(i1) != is_scalar(i2))
             return false;
-        if (i1->m_hash != i2->m_hash)
+        if (hash(i1) != hash(i2))
             return false;
     }
 }
@@ -222,9 +160,9 @@ bool eq_core(name::imp * i1, name::imp * i2) {
 bool is_prefix_of(name const & n1, name const & n2) {
     if (n2.is_atomic())
         return n1 == n2;
-    buffer<name::imp*> limbs1, limbs2;
-    name::imp* i1 = n1.m_ptr;
-    name::imp* i2 = n2.m_ptr;
+    buffer<object*> limbs1, limbs2;
+    object* i1 = n1.raw();
+    object* i2 = n2.raw();
     copy_limbs(i1, limbs1);
     copy_limbs(i2, limbs2);
     unsigned sz1 = limbs1.size();
@@ -238,12 +176,12 @@ bool is_prefix_of(name const & n1, name const & n2) {
     for (; it1 != limbs1.end(); ++it1, ++it2) {
         i1 = *it1;
         i2 = *it2;
-        if (i1->m_is_string != i2->m_is_string)
+        if (cnstr_tag(i1) != cnstr_tag(i2))
             return false;
-        if (i1->m_is_string) {
-            if (strcmp(i1->m_str, i2->m_str) != 0)
+        if (static_cast<name_kind>(cnstr_tag(i1)) == name_kind::STRING) {
+            if (strcmp(name::get_string(i1), name::get_string(i2)) != 0)
                 return false;
-        } else if (i1->m_k != i2->m_k) {
+        } else if (!nat_eq(name::get_num_obj(i1), name::get_num_obj(i2))) {
             return false;
         }
     }
@@ -251,11 +189,14 @@ bool is_prefix_of(name const & n1, name const & n2) {
 }
 
 bool operator==(name const & a, char const * b) {
-    return a.m_ptr && a.m_ptr->m_is_string && strcmp(a.m_ptr->m_str, b) == 0;
+    return
+        a.kind() == name_kind::STRING &&
+        is_scalar(name::get_prefix(a.raw())) &&
+        strcmp(a.get_string(), b) == 0;
 }
 
-int cmp(name::imp * i1, name::imp * i2) {
-    buffer<name::imp *> limbs1, limbs2;
+int name::cmp(object * i1, object * i2) {
+    buffer<object*> limbs1, limbs2;
     copy_limbs(i1, limbs1);
     copy_limbs(i2, limbs2);
     auto it1 = limbs1.begin();
@@ -263,16 +204,20 @@ int cmp(name::imp * i1, name::imp * i2) {
     for (; it1 != limbs1.end() && it2 != limbs2.end(); ++it1, ++it2) {
         i1 = *it1;
         i2 = *it2;
+        name_kind k1 = static_cast<name_kind>(cnstr_tag(i1));
+        name_kind k2 = static_cast<name_kind>(cnstr_tag(i2));
+        if (k1 != k2)
+            return k1 == name_kind::STRING ? 1 : -1;
 
-        if (i1->m_is_string != i2->m_is_string)
-            return i1->m_is_string ? 1 : -1;
-
-        if (i1->m_is_string) {
-            int c = strcmp(i1->m_str, i2->m_str);
+        if (k1 == name_kind::STRING) {
+            int c = strcmp(get_string(i1), get_string(i2));
             if (c != 0)
                 return c;
-        } else if (i1->m_k != i2->m_k) {
-            return i1->m_k < i2->m_k ? -1 : 1;
+        } else {
+            object * n1 = get_num_obj(i1);
+            object * n2 = get_num_obj(i2);
+            if (nat_ne(n1, n2))
+                return nat_lt(n1, n2) ? -1 : 1;
         }
     }
     if (it1 == limbs1.end() && it2 == limbs2.end())
@@ -292,24 +237,24 @@ static unsigned num_digits(unsigned k) {
 }
 
 size_t name::size_core(bool unicode) const {
-    if (m_ptr == nullptr) {
+    if (is_scalar(raw())) {
         return strlen(anonymous_str);
     } else {
-        imp * i       = m_ptr;
+        object * i    = raw();
         size_t sep_sz = strlen(lean_name_separator);
         size_t r      = 0;
         while (true) {
-            if (i->m_is_string) {
-                r += unicode ? utf8_strlen(i->m_str) : strlen(i->m_str);
+            lean_assert(!is_scalar(i));
+            if (kind(i) == name_kind::STRING) {
+                r += unicode ? string_len(get_string_obj(i)) : strlen(get_string(i));
             } else {
-                r += num_digits(i->m_k);
+                // TODO(Leo): we are ignoring the case the numeral is not small.
+                r += num_digits(get_numeral(i));
             }
-            if (i->m_prefix) {
-                r += sep_sz;
-                i  = i->m_prefix;
-            } else {
+            i = get_prefix(i);
+            if (is_scalar(i))
                 break;
-            }
+            r += sep_sz;
         }
         return r;
     }
@@ -324,13 +269,13 @@ size_t name::utf8_size() const {
 }
 
 bool name::is_safe_ascii() const {
-    imp * i       = m_ptr;
-    while (i) {
-        if (i->m_is_string) {
-            if (!::lean::is_safe_ascii(i->m_str))
+    object * i = raw();
+    while (!is_scalar(i)) {
+        if (kind(i) == name_kind::STRING) {
+            if (!::lean::is_safe_ascii(get_string(i)))
                 return false;
         }
-        i  = i->m_prefix;
+        i  = get_prefix(i);
     }
     return true;
 }
@@ -345,18 +290,18 @@ name name::get_root() const {
 
 std::string name::to_string(char const * sep) const {
     std::ostringstream s;
-    imp::display(s, m_ptr, false, sep);
+    display_name_core(s, *this, false, sep);
     return s.str();
 }
 
 std::string name::escape(char const * sep) const {
     std::ostringstream s;
-    imp::display(s, m_ptr, true, sep);
+    display_name_core(s, *this, true, sep);
     return s.str();
 }
 
 std::ostream & operator<<(std::ostream & out, name const & n) {
-    name::imp::display(out, n.m_ptr, false);
+    display_name_core(out, n, false, lean_name_separator);
     return out;
 }
 
@@ -368,13 +313,13 @@ name operator+(name const & n1, name const & n2) {
     } else {
         name prefix;
         if (!n2.is_atomic())
-            prefix = n1 + name(n2.m_ptr->m_prefix);
+            prefix = n1 + n2.get_prefix();
         else
             prefix = n1;
-        if (n2.m_ptr->m_is_string)
-            return name(prefix, n2.m_ptr->m_str);
+        if (n2.is_string())
+            return name(prefix, n2.get_string());
         else
-            return name(prefix, n2.m_ptr->m_k);
+            return name(prefix, n2.get_numeral()); // <<< TODO(Leo): ignoring the case the numeral is not small.
     }
 }
 
@@ -438,7 +383,7 @@ name name::replace_prefix(name const & prefix, name const & new_prefix) const {
     if (is_anonymous())
         return *this;
     name p = get_prefix().replace_prefix(prefix, new_prefix);
-    if (p.m_ptr == m_ptr)
+    if (p.raw() == raw())
         return *this;
     if (is_string())
         return name(p, get_string());
@@ -512,7 +457,7 @@ public:
                 switch (k) {
                 case LL_ANON:          return name();
                 case LL_STRING:        return name(d.read_string().c_str());
-                case LL_INT:           return name(name(), d.read_unsigned(), true);
+                case LL_INT:           return name(name(), d.read_unsigned());
                 case LL_STRING_PREFIX: {
                     name prefix = read();
                     return name(prefix, d.read_string().c_str());
@@ -553,6 +498,13 @@ bool is_internal_name(name const & n) {
         it = it.get_prefix();
     }
     return false;
+}
+
+static atomic<unsigned> * g_next_id = nullptr;
+
+name name::mk_internal_unique_name() {
+    unsigned id = (*g_next_id)++;
+    return name(name(), id);
 }
 
 void initialize_name() {

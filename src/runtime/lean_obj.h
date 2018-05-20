@@ -23,16 +23,16 @@ inline void * alloca(size_t s) {
 #endif
 }
 
-enum class lean_obj_kind { Constructor, Closure, Array, ScalarArray, MPZ, External };
+enum class object_kind { Constructor, Closure, Array, ScalarArray, MPZ, External };
 
 /* The reference counter is a uintptr_t, because at deletion time, we use this field to implement
    a linked list of objects to be deleted. */
 typedef uintptr_t rc_type;
 
-struct lean_obj {
+struct object {
     atomic<rc_type> m_rc;
     unsigned        m_kind:16;
-    lean_obj(lean_obj_kind k):m_rc(1), m_kind(static_cast<unsigned>(k)) {}
+    object(object_kind k):m_rc(1), m_kind(static_cast<unsigned>(k)) {}
 };
 
 /* We can represent inductive datatypes that have:
@@ -43,21 +43,21 @@ struct lean_obj {
    We only need m_scalar_size for implementing sanity checks at runtime.
 
    Header size: 12 bytes in 32 bit machines and 16 bytes in 64 bit machines. */
-struct lean_cnstr : public lean_obj {
+struct constructor : public object {
     unsigned    m_tag:16;
     unsigned    m_num_objs:16;
     unsigned    m_scalar_size:16;
-    lean_cnstr(unsigned tag, unsigned num_objs, unsigned scalar_sz):
-        lean_obj(lean_obj_kind::Constructor), m_tag(tag), m_num_objs(num_objs), m_scalar_size(scalar_sz) {}
+    constructor(unsigned tag, unsigned num_objs, unsigned scalar_sz):
+        object(object_kind::Constructor), m_tag(tag), m_num_objs(num_objs), m_scalar_size(scalar_sz) {}
 };
 
 /* Array of objects.
    Header size: 16 bytes in 32 bit machines and 32 bytes in 64 bit machines. */
-struct lean_array : public lean_obj {
+struct array : public object {
     size_t   m_size;
     size_t   m_capacity;
-    lean_array(size_t sz, size_t c):
-        lean_obj(lean_obj_kind::Array), m_size(sz), m_capacity(c) {}
+    array(size_t sz, size_t c):
+        object(object_kind::Array), m_size(sz), m_capacity(c) {}
 };
 
 /* Array of scalar values.
@@ -65,15 +65,15 @@ struct lean_array : public lean_obj {
 
    The field m_elem_size is only needed for implementing sanity checks at runtime.
    Header size: 16 bytes in 32 bit machines and 32 bytes in 64 bit machines. */
-struct lean_sarray : public lean_obj {
+struct sarray : public object {
     unsigned m_elem_size:16; // in bytes
     size_t   m_size;
     size_t   m_capacity;
-    lean_sarray(unsigned esz, size_t sz, size_t c):
-        lean_obj(lean_obj_kind::ScalarArray), m_elem_size(esz), m_size(sz), m_capacity(c) {}
+    sarray(unsigned esz, size_t sz, size_t c):
+        object(object_kind::ScalarArray), m_elem_size(esz), m_size(sz), m_capacity(c) {}
 };
 
-typedef lean_obj * (*lean_cfun)(lean_obj *); // NOLINT
+typedef object * (*lean_cfun)(object *); // NOLINT
 
 /* Note that `lean_cfun` is a function pointer for a C function of
    arity 1. The `apply` operator performs a cast operation.
@@ -85,31 +85,31 @@ typedef lean_obj * (*lean_cfun)(lean_obj *); // NOLINT
    from bytecodes. We just store an extra argument: the virtual machine
    function descriptor. We store in m_fun a pointer to a C function
    that extracts the function descriptor and then invokes the VM. */
-struct lean_closure : public lean_obj {
+struct closure : public object {
     unsigned  m_arity:16;     // number of arguments expected by m_fun.
     unsigned  m_num_fixed:16; // number of arguments that have been already fixed.
     lean_cfun m_fun;
-    lean_closure(lean_cfun f, unsigned arity, unsigned n):
-        lean_obj(lean_obj_kind::Closure), m_arity(arity), m_num_fixed(n), m_fun(f) {}
+    closure(lean_cfun f, unsigned arity, unsigned n):
+        object(object_kind::Closure), m_arity(arity), m_num_fixed(n), m_fun(f) {}
 };
 
-struct lean_mpz : public lean_obj {
+struct mpz_object : public object {
     mpz m_value;
-    lean_mpz(mpz const & v):
-        lean_obj(lean_obj_kind::MPZ), m_value(v) {}
+    mpz_object(mpz const & v):
+        object(object_kind::MPZ), m_value(v) {}
 };
 
-/* Base class for wrapping external data.
+/* Base class for wrapping external_object data.
    For example, we use it to wrap the Lean environment object. */
-struct lean_external : public lean_obj {
+struct external_object : public object {
     virtual void dealloc() {}
-    virtual ~lean_external() {}
+    virtual ~external_object() {}
 };
 
-inline bool is_null(lean_obj * o) { return o == nullptr; }
-inline bool is_scalar(lean_obj * o) { return (reinterpret_cast<uintptr_t>(o) & 1) == 1; }
-inline lean_obj * box(unsigned n) { return reinterpret_cast<lean_obj*>((static_cast<uintptr_t>(n) << 1) | 1); }
-inline unsigned unbox(lean_obj * o) { return reinterpret_cast<uintptr_t>(o) >> 1; }
+inline bool is_null(object * o) { return o == nullptr; }
+inline bool is_scalar(object * o) { return (reinterpret_cast<uintptr_t>(o) & 1) == 1; }
+inline object * box(unsigned n) { return reinterpret_cast<object*>((static_cast<uintptr_t>(n) << 1) | 1); }
+inline unsigned unbox(object * o) { return reinterpret_cast<uintptr_t>(o) >> 1; }
 
 /* Generic Lean object delete operation.
 
@@ -125,62 +125,62 @@ inline unsigned unbox(lean_obj * o) { return reinterpret_cast<uintptr_t>(o) >> 1
    3- They can unfold the loop that decrements the reference counters for nested objects.
 
    \pre !is_scalar(o); */
-void del(lean_obj * o);
+void del(object * o);
 
-inline unsigned get_rc(lean_obj * o) { lean_assert(!is_scalar(o)); return atomic_load_explicit(&(o->m_rc), memory_order_acquire); }
-inline bool is_shared(lean_obj * o) { return get_rc(o) > 1; }
-inline void inc_ref(lean_obj * o) { atomic_fetch_add_explicit(&o->m_rc, static_cast<rc_type>(1), memory_order_relaxed); }
-inline void dec_shared_ref(lean_obj * o) { lean_assert(is_shared(o)); atomic_fetch_sub_explicit(&o->m_rc, static_cast<rc_type>(1), memory_order_acq_rel); }
-inline bool dec_ref_core(lean_obj * o) { lean_assert(get_rc(o) > 0); return atomic_fetch_sub_explicit(&o->m_rc, static_cast<rc_type>(1), memory_order_acq_rel) == 1; }
-inline void dec_ref(lean_obj * o) { if (dec_ref_core(o)) del(o); }
-inline void inc(lean_obj * o) { if (!is_scalar(o)) inc_ref(o); }
-inline void dec(lean_obj * o) { if (!is_scalar(o)) dec_ref(o); }
+inline unsigned get_rc(object * o) { lean_assert(!is_scalar(o)); return atomic_load_explicit(&(o->m_rc), memory_order_acquire); }
+inline bool is_shared(object * o) { return get_rc(o) > 1; }
+inline void inc_ref(object * o) { atomic_fetch_add_explicit(&o->m_rc, static_cast<rc_type>(1), memory_order_relaxed); }
+inline void dec_shared_ref(object * o) { lean_assert(is_shared(o)); atomic_fetch_sub_explicit(&o->m_rc, static_cast<rc_type>(1), memory_order_acq_rel); }
+inline bool dec_ref_core(object * o) { lean_assert(get_rc(o) > 0); return atomic_fetch_sub_explicit(&o->m_rc, static_cast<rc_type>(1), memory_order_acq_rel) == 1; }
+inline void dec_ref(object * o) { if (dec_ref_core(o)) del(o); }
+inline void inc(object * o) { if (!is_scalar(o)) inc_ref(o); }
+inline void dec(object * o) { if (!is_scalar(o)) dec_ref(o); }
 
 /* Testers */
-inline lean_obj_kind get_kind(lean_obj * o) { return static_cast<lean_obj_kind>(o->m_kind); }
-inline bool is_cnstr(lean_obj * o) { return get_kind(o) == lean_obj_kind::Constructor; }
-inline bool is_closure(lean_obj * o) { return get_kind(o) == lean_obj_kind::Closure; }
-inline bool is_array(lean_obj * o) { return get_kind(o) == lean_obj_kind::Array; }
-inline bool is_sarray(lean_obj * o) { return get_kind(o) == lean_obj_kind::ScalarArray; }
-inline bool is_mpz(lean_obj * o) { return get_kind(o) == lean_obj_kind::MPZ; }
-inline bool is_external(lean_obj * o) { return get_kind(o) == lean_obj_kind::External; }
+inline object_kind get_kind(object * o) { return static_cast<object_kind>(o->m_kind); }
+inline bool is_cnstr(object * o) { return get_kind(o) == object_kind::Constructor; }
+inline bool is_closure(object * o) { return get_kind(o) == object_kind::Closure; }
+inline bool is_array(object * o) { return get_kind(o) == object_kind::Array; }
+inline bool is_sarray(object * o) { return get_kind(o) == object_kind::ScalarArray; }
+inline bool is_mpz(object * o) { return get_kind(o) == object_kind::MPZ; }
+inline bool is_external(object * o) { return get_kind(o) == object_kind::External; }
 
 /* Casting */
-inline lean_cnstr * to_cnstr(lean_obj * o) { lean_assert(is_cnstr(o)); return static_cast<lean_cnstr*>(o); }
-inline lean_closure * to_closure(lean_obj * o) { lean_assert(is_closure(o)); return static_cast<lean_closure*>(o); }
-inline lean_array * to_array(lean_obj * o) { lean_assert(is_array(o)); return static_cast<lean_array*>(o); }
-inline lean_sarray * to_sarray(lean_obj * o) { lean_assert(is_sarray(o)); return static_cast<lean_sarray*>(o); }
-inline lean_mpz * to_mpz(lean_obj * o) { lean_assert(is_mpz(o)); return static_cast<lean_mpz*>(o); }
-inline lean_external * to_external(lean_obj * o) { lean_assert(is_external(o)); return static_cast<lean_external*>(o); }
+inline constructor * to_cnstr(object * o) { lean_assert(is_cnstr(o)); return static_cast<constructor*>(o); }
+inline closure * to_closure(object * o) { lean_assert(is_closure(o)); return static_cast<closure*>(o); }
+inline array * to_array(object * o) { lean_assert(is_array(o)); return static_cast<array*>(o); }
+inline sarray * to_sarray(object * o) { lean_assert(is_sarray(o)); return static_cast<sarray*>(o); }
+inline mpz_object * to_mpz(object * o) { lean_assert(is_mpz(o)); return static_cast<mpz_object*>(o); }
+inline external_object * to_external(object * o) { lean_assert(is_external(o)); return static_cast<external_object*>(o); }
 
-/* The memory associated with all Lean objects but `lean_mpz` and `lean_external` can be deallocated using `free`.
+/* The memory associated with all Lean objects but `mpz_object` and `external_object` can be deallocated using `free`.
    All fields in these objects are integral types, but `std::atomic<uintptr_t> m_rc`.
    However, `std::atomic<Integral>` has a trivial destructor.
    In the C++ reference manual (http://en.cppreference.com/w/cpp/atomic/atomic), we find the following sentence:
 
    "Additionally, the resulting std::atomic<Integral> specialization has standard layout, a trivial default constructor,
    and a trivial destructor." */
-inline void dealloc_mpz(lean_obj * o) { delete to_mpz(o); }
-inline void dealloc_external(lean_obj * o) { delete to_external(o); }
-inline void dealloc(lean_obj * o) {
+inline void dealloc_mpz(object * o) { delete to_mpz(o); }
+inline void dealloc_external(object * o) { delete to_external(o); }
+inline void dealloc(object * o) {
     switch (get_kind(o)) {
-    case lean_obj_kind::External: dealloc_external(o); break;
-    case lean_obj_kind::MPZ: dealloc_mpz(o); break;
+    case object_kind::External: dealloc_external(o); break;
+    case object_kind::MPZ: dealloc_mpz(o); break;
     default: break;
     }
 }
 
 /* Size of the object in bytes. This function is used for debugging purposes.
    \pre !is_scalar(o) && !is_external(o) */
-size_t obj_byte_size(lean_obj * o);
+size_t obj_byte_size(object * o);
 
 /* Size of the object header in bytes. This function is used for debugging purposes.
    \pre !is_scalar(o) && !is_external(o) */
-size_t obj_header_size(lean_obj * o);
+size_t obj_header_size(object * o);
 
 /* Retrieves data of type `T` stored offset bytes inside of `o` */
 template<typename T>
-inline T obj_data(lean_obj * o, size_t offset) {
+inline T obj_data(object * o, size_t offset) {
     lean_assert(obj_header_size(o) <= offset);
     lean_assert(offset + sizeof(T) <= obj_byte_size(o));
     return *(reinterpret_cast<T *>(reinterpret_cast<char *>(o) + offset));
@@ -188,7 +188,7 @@ inline T obj_data(lean_obj * o, size_t offset) {
 
 /* Set object data of type T */
 template<typename T>
-inline void obj_set_data(lean_obj * o, size_t offset, T v) {
+inline void obj_set_data(object * o, size_t offset, T v) {
     lean_assert(!is_shared(o));
     lean_assert(obj_header_size(o) <= offset);
     lean_assert(offset + sizeof(T) <= obj_byte_size(o));
@@ -196,104 +196,104 @@ inline void obj_set_data(lean_obj * o, size_t offset, T v) {
 }
 
 /* Constructor objects */
-inline lean_obj * alloc_cnstr(unsigned tag, unsigned num_objs, unsigned scalar_sz) {
+inline object * alloc_cnstr(unsigned tag, unsigned num_objs, unsigned scalar_sz) {
     lean_assert(tag < 65536 && num_objs < 65536 && scalar_sz < 65536);
-    return new (malloc(sizeof(lean_cnstr) + num_objs * sizeof(lean_obj *) + scalar_sz)) lean_cnstr(tag, num_objs, scalar_sz); // NOLINT
+    return new (malloc(sizeof(constructor) + num_objs * sizeof(object *) + scalar_sz)) constructor(tag, num_objs, scalar_sz); // NOLINT
 }
-inline unsigned cnstr_tag(lean_obj * o) { return to_cnstr(o)->m_tag; }
-inline unsigned cnstr_num_objs(lean_obj * o) { return to_cnstr(o)->m_num_objs; }
-inline unsigned cnstr_scalar_size(lean_obj * o) { return to_cnstr(o)->m_scalar_size; }
-inline size_t cnstr_byte_size(lean_obj * o) { return sizeof(lean_cnstr) + cnstr_num_objs(o)*sizeof(lean_obj*) + cnstr_scalar_size(o); } // NOLINT
-inline lean_obj * cnstr_obj(lean_obj * o, unsigned i) {
+inline unsigned cnstr_tag(object * o) { return to_cnstr(o)->m_tag; }
+inline unsigned cnstr_num_objs(object * o) { return to_cnstr(o)->m_num_objs; }
+inline unsigned cnstr_scalar_size(object * o) { return to_cnstr(o)->m_scalar_size; }
+inline size_t cnstr_byte_size(object * o) { return sizeof(constructor) + cnstr_num_objs(o)*sizeof(object*) + cnstr_scalar_size(o); } // NOLINT
+inline object * cnstr_obj(object * o, unsigned i) {
     lean_assert(i < cnstr_num_objs(o));
-    return obj_data<lean_obj*>(o, sizeof(lean_cnstr) + sizeof(lean_obj*)*i); // NOLINT
+    return obj_data<object*>(o, sizeof(constructor) + sizeof(object*)*i); // NOLINT
 }
-inline lean_obj ** cnstr_obj_cptr(lean_obj * o) {
+inline object ** cnstr_obj_cptr(object * o) {
     lean_assert(is_cnstr(o));
-    return reinterpret_cast<lean_obj**>(reinterpret_cast<char*>(o) + sizeof(lean_cnstr));
+    return reinterpret_cast<object**>(reinterpret_cast<char*>(o) + sizeof(constructor));
 }
 template<typename T>
-inline T cnstr_scalar(lean_obj * o, size_t offset) {
-    return obj_data<T>(o, sizeof(lean_cnstr) + offset);
+inline T cnstr_scalar(object * o, size_t offset) {
+    return obj_data<T>(o, sizeof(constructor) + offset);
 }
-inline void cnstr_set_obj(lean_obj * o, unsigned i, lean_obj * v) {
+inline void cnstr_set_obj(object * o, unsigned i, object * v) {
     lean_assert(i < cnstr_num_objs(o));
-    obj_set_data(o, sizeof(lean_cnstr) + sizeof(lean_obj*)*i, v); // NOLINT
+    obj_set_data(o, sizeof(constructor) + sizeof(object*)*i, v); // NOLINT
 }
 template<typename T>
-inline void cnstr_set_scalar(lean_obj * o, unsigned i, T v) {
-    obj_set_data(o, sizeof(lean_cnstr) + i, v);
+inline void cnstr_set_scalar(object * o, unsigned i, T v) {
+    obj_set_data(o, sizeof(constructor) + i, v);
 }
 
 /* Closures */
-inline lean_obj * alloc_closure(lean_cfun fun, unsigned arity, unsigned num_fixed) {
+inline object * alloc_closure(lean_cfun fun, unsigned arity, unsigned num_fixed) {
     lean_assert(arity > 0);
     lean_assert(num_fixed < arity);
-    return new (malloc(sizeof(lean_closure) + num_fixed * sizeof(lean_obj *))) lean_closure(fun, arity, num_fixed); // NOLINT
+    return new (malloc(sizeof(closure) + num_fixed * sizeof(object *))) closure(fun, arity, num_fixed); // NOLINT
 }
-inline lean_cfun closure_fun(lean_obj * o) { return to_closure(o)->m_fun; }
-inline unsigned closure_arity(lean_obj * o) { return to_closure(o)->m_arity; }
-inline unsigned closure_num_fixed(lean_obj * o) { return to_closure(o)->m_num_fixed; }
-inline size_t closure_byte_size(lean_obj * o) { return sizeof(lean_closure) + (closure_arity(o) - 1)*sizeof(lean_obj*); } // NOLINT
-inline lean_obj * closure_arg(lean_obj * o, unsigned i) {
+inline lean_cfun closure_fun(object * o) { return to_closure(o)->m_fun; }
+inline unsigned closure_arity(object * o) { return to_closure(o)->m_arity; }
+inline unsigned closure_num_fixed(object * o) { return to_closure(o)->m_num_fixed; }
+inline size_t closure_byte_size(object * o) { return sizeof(closure) + (closure_arity(o) - 1)*sizeof(object*); } // NOLINT
+inline object * closure_arg(object * o, unsigned i) {
     lean_assert(i < closure_num_fixed(o));
-    return obj_data<lean_obj*>(o, sizeof(lean_closure) + sizeof(lean_obj*)*i); // NOLINT
+    return obj_data<object*>(o, sizeof(closure) + sizeof(object*)*i); // NOLINT
 }
 
-inline lean_obj ** closure_arg_cptr(lean_obj * o) {
+inline object ** closure_arg_cptr(object * o) {
     lean_assert(is_closure(o));
-    return reinterpret_cast<lean_obj**>(reinterpret_cast<char*>(o) + sizeof(lean_closure));
+    return reinterpret_cast<object**>(reinterpret_cast<char*>(o) + sizeof(closure));
 }
-inline void closure_set_arg(lean_obj * o, unsigned i, lean_obj * a) {
+inline void closure_set_arg(object * o, unsigned i, object * a) {
     lean_assert(i < closure_num_fixed(o));
-    obj_set_data(o, sizeof(lean_closure) + sizeof(lean_obj*)*i, a); // NOLINT
+    obj_set_data(o, sizeof(closure) + sizeof(object*)*i, a); // NOLINT
 }
-inline unsigned tag(lean_obj * o) { if (is_scalar(o)) return unbox(o); else return cnstr_tag(o); }
+inline unsigned tag(object * o) { if (is_scalar(o)) return unbox(o); else return cnstr_tag(o); }
 
 /* Array of objects */
-inline lean_obj * alloc_array(size_t size, size_t capacity) {
-    return new (malloc(sizeof(lean_array) + capacity * sizeof(lean_obj *))) lean_array(size, capacity); // NOLINT
+inline object * alloc_array(size_t size, size_t capacity) {
+    return new (malloc(sizeof(array) + capacity * sizeof(object *))) array(size, capacity); // NOLINT
 }
-inline size_t array_size(lean_obj * o) { return to_array(o)->m_size; }
-inline size_t array_capacity(lean_obj * o) { return to_array(o)->m_capacity; }
-inline size_t array_byte_size(lean_obj * o) { return sizeof(lean_array) + array_capacity(o)*sizeof(lean_obj*); } // NOLINT
-inline lean_obj * array_obj(lean_obj * o, size_t i) {
+inline size_t array_size(object * o) { return to_array(o)->m_size; }
+inline size_t array_capacity(object * o) { return to_array(o)->m_capacity; }
+inline size_t array_byte_size(object * o) { return sizeof(array) + array_capacity(o)*sizeof(object*); } // NOLINT
+inline object * array_obj(object * o, size_t i) {
     lean_assert(i < array_size(o));
-    return obj_data<lean_obj*>(o, sizeof(lean_array) + sizeof(lean_obj*)*i); // NOLINT
+    return obj_data<object*>(o, sizeof(array) + sizeof(object*)*i); // NOLINT
 }
-inline lean_obj ** array_cptr(lean_obj * o) {
+inline object ** array_cptr(object * o) {
     lean_assert(is_array(o));
-    return reinterpret_cast<lean_obj**>(reinterpret_cast<char*>(o) + sizeof(lean_array));
+    return reinterpret_cast<object**>(reinterpret_cast<char*>(o) + sizeof(array));
 }
-inline void array_set_size(lean_obj * o, size_t sz) {
+inline void array_set_size(object * o, size_t sz) {
     lean_assert(is_array(o));
     lean_assert(!is_shared(o));
     lean_assert(sz <= array_capacity(o));
     to_array(o)->m_size = sz;
 }
-inline void array_set_obj(lean_obj * o, size_t i, lean_obj * v) {
+inline void array_set_obj(object * o, size_t i, object * v) {
     lean_assert(i < array_size(o));
-    obj_set_data(o, sizeof(lean_array) + sizeof(lean_obj*)*i, v); // NOLINT
+    obj_set_data(o, sizeof(array) + sizeof(object*)*i, v); // NOLINT
 }
 
 /* Array of scalars */
-inline lean_obj * alloc_sarray(unsigned elem_size, size_t size, size_t capacity) {
-    return new (malloc(sizeof(lean_sarray) + capacity * elem_size)) lean_sarray(elem_size, size, capacity); // NOLINT
+inline object * alloc_sarray(unsigned elem_size, size_t size, size_t capacity) {
+    return new (malloc(sizeof(sarray) + capacity * elem_size)) sarray(elem_size, size, capacity); // NOLINT
 }
-inline unsigned sarray_elem_size(lean_obj * o) { return to_sarray(o)->m_elem_size; }
-inline size_t sarray_size(lean_obj * o) { return to_sarray(o)->m_size; }
-inline size_t sarray_capacity(lean_obj * o) { return to_sarray(o)->m_capacity; }
-inline size_t sarray_byte_size(lean_obj * o) { return sizeof(lean_sarray) + sarray_capacity(o)*sarray_elem_size(o); } // NOLINT
+inline unsigned sarray_elem_size(object * o) { return to_sarray(o)->m_elem_size; }
+inline size_t sarray_size(object * o) { return to_sarray(o)->m_size; }
+inline size_t sarray_capacity(object * o) { return to_sarray(o)->m_capacity; }
+inline size_t sarray_byte_size(object * o) { return sizeof(sarray) + sarray_capacity(o)*sarray_elem_size(o); } // NOLINT
 template<typename T>
-T * sarray_cptr(lean_obj * o) {
+T * sarray_cptr(object * o) {
     lean_assert(is_sarray(o)); lean_assert(sarray_elem_size(o) == sizeof(T));
-    return reinterpret_cast<T*>(reinterpret_cast<char*>(o) + sizeof(lean_sarray));
+    return reinterpret_cast<T*>(reinterpret_cast<char*>(o) + sizeof(sarray));
 }
-template<typename T> T sarray_data(lean_obj * o, size_t i) { return sarray_cptr<T>(o)[i]; }
-template<typename T> void sarray_set_data(lean_obj * o, size_t i, T v) {
-    obj_set_data(o, sizeof(lean_sarray) + sizeof(T)*i, v);
+template<typename T> T sarray_data(object * o, size_t i) { return sarray_cptr<T>(o)[i]; }
+template<typename T> void sarray_set_data(object * o, size_t i, T v) {
+    obj_set_data(o, sizeof(sarray) + sizeof(T)*i, v);
 }
-inline void sarray_set_size(lean_obj * o, size_t sz) {
+inline void sarray_set_size(object * o, size_t sz) {
     lean_assert(is_sarray(o));
     lean_assert(!is_shared(o));
     lean_assert(sz <= sarray_capacity(o));
@@ -302,36 +302,36 @@ inline void sarray_set_size(lean_obj * o, size_t sz) {
 
 /* MPZ */
 
-inline lean_obj * alloc_mpz(mpz const & m) { return new lean_mpz(m); }
-inline mpz const & mpz_value(lean_obj * o) { return to_mpz(o)->m_value; }
+inline object * alloc_mpz(mpz const & m) { return new mpz_object(m); }
+inline mpz const & mpz_value(object * o) { return to_mpz(o)->m_value; }
 
 /* String */
 
-lean_obj * mk_string(char const * s);
-lean_obj * mk_string(std::string const & s);
-inline bool is_string(lean_obj * o) { return !is_scalar(o) && is_sarray(o) && sarray_elem_size(o) == 1; }
-inline char const * c_str(lean_obj * o) { lean_assert(is_string(o)); return sarray_cptr<char>(o) + sizeof(size_t); }
-inline size_t string_len(lean_obj * o) { return sarray_data<size_t>(o, 0); }
-lean_obj * string_push(lean_obj * s, unsigned c);
-lean_obj * string_append(lean_obj * s1, lean_obj * s2);
+object * mk_string(char const * s);
+object * mk_string(std::string const & s);
+inline bool is_string(object * o) { return !is_scalar(o) && is_sarray(o) && sarray_elem_size(o) == 1; }
+inline char const * c_str(object * o) { lean_assert(is_string(o)); return sarray_cptr<char>(o) + sizeof(size_t); }
+inline size_t string_len(object * o) { return sarray_data<size_t>(o, 0); }
+object * string_push(object * s, unsigned c);
+object * string_append(object * s1, object * s2);
 
 /* Natural numbers */
 
 #define LEAN_MAX_SMALL_NAT (sizeof(void*) == 8 ? std::numeric_limits<unsigned>::max() : (std::numeric_limits<unsigned>::max() >> 1)) // NOLINT
 
-inline lean_obj * mk_nat_obj_core(mpz const & m) {
+inline object * mk_nat_obj_core(mpz const & m) {
     lean_assert(m > LEAN_MAX_SMALL_NAT);
     return alloc_mpz(m);
 }
 
-inline lean_obj * mk_nat_obj(mpz const & m) {
+inline object * mk_nat_obj(mpz const & m) {
     if (m > LEAN_MAX_SMALL_NAT)
         return mk_nat_obj_core(m);
     else
         return box(m.get_unsigned_int());
 }
 
-inline lean_obj * mk_nat_obj(unsigned n) {
+inline object * mk_nat_obj(unsigned n) {
     if (sizeof(void*) == 8) { // NOLINT
         return box(n);
     } else if (n <= LEAN_MAX_SMALL_NAT) {
@@ -341,7 +341,7 @@ inline lean_obj * mk_nat_obj(unsigned n) {
     }
 }
 
-inline lean_obj * mk_nat_obj(uint64 n) {
+inline object * mk_nat_obj(uint64 n) {
     if (LEAN_LIKELY(n <= LEAN_MAX_SMALL_NAT)) {
         return box(n);
     } else {
@@ -349,12 +349,12 @@ inline lean_obj * mk_nat_obj(uint64 n) {
     }
 }
 
-inline uint64 nat2uint64(lean_obj * a) {
+inline uint64 nat2uint64(object * a) {
     lean_assert(is_scalar(a));
     return unbox(a);
 }
 
-inline lean_obj * nat_succ(lean_obj * a) {
+inline object * nat_succ(object * a) {
     if (LEAN_LIKELY(is_scalar(a))) {
         return mk_nat_obj(nat2uint64(a) + 1);
     } else {
@@ -362,9 +362,9 @@ inline lean_obj * nat_succ(lean_obj * a) {
     }
 }
 
-lean_obj * nat_big_add(lean_obj * a1, lean_obj * a2);
+object * nat_big_add(object * a1, object * a2);
 
-inline lean_obj * nat_add(lean_obj * a1, lean_obj * a2) {
+inline object * nat_add(object * a1, object * a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return mk_nat_obj(nat2uint64(a1) + nat2uint64(a2));
     } else {
@@ -372,9 +372,9 @@ inline lean_obj * nat_add(lean_obj * a1, lean_obj * a2) {
     }
 }
 
-lean_obj * nat_big_sub(lean_obj * a1, lean_obj * a2);
+object * nat_big_sub(object * a1, object * a2);
 
-inline lean_obj * nat_sub(lean_obj * a1, lean_obj * a2) {
+inline object * nat_sub(object * a1, object * a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         unsigned n1 = unbox(a1);
         unsigned n2 = unbox(a2);
@@ -387,9 +387,9 @@ inline lean_obj * nat_sub(lean_obj * a1, lean_obj * a2) {
     }
 }
 
-lean_obj * nat_big_mul(lean_obj * a1, lean_obj * a2);
+object * nat_big_mul(object * a1, object * a2);
 
-inline lean_obj * nat_mul(lean_obj * a1, lean_obj * a2) {
+inline object * nat_mul(object * a1, object * a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return mk_nat_obj(nat2uint64(a1) * nat2uint64(a2));
     } else {
@@ -397,9 +397,9 @@ inline lean_obj * nat_mul(lean_obj * a1, lean_obj * a2) {
     }
 }
 
-lean_obj * nat_big_div(lean_obj * a1, lean_obj * a2);
+object * nat_big_div(object * a1, object * a2);
 
-inline lean_obj * nat_div(lean_obj * a1, lean_obj * a2) {
+inline object * nat_div(object * a1, object * a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         unsigned n1 = unbox(a1);
         unsigned n2 = unbox(a2);
@@ -412,9 +412,9 @@ inline lean_obj * nat_div(lean_obj * a1, lean_obj * a2) {
     }
 }
 
-lean_obj * nat_big_mod(lean_obj * a1, lean_obj * a2);
+object * nat_big_mod(object * a1, object * a2);
 
-inline lean_obj * nat_mod(lean_obj * a1, lean_obj * a2) {
+inline object * nat_mod(object * a1, object * a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         unsigned n1 = unbox(a1);
         unsigned n2 = unbox(a2);
@@ -427,9 +427,9 @@ inline lean_obj * nat_mod(lean_obj * a1, lean_obj * a2) {
     }
 }
 
-bool nat_big_eq(lean_obj * a1, lean_obj * a2);
+bool nat_big_eq(object * a1, object * a2);
 
-inline bool nat_eq(lean_obj * a1, lean_obj * a2) {
+inline bool nat_eq(object * a1, object * a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return a1 == a2;
     } else {
@@ -437,13 +437,13 @@ inline bool nat_eq(lean_obj * a1, lean_obj * a2) {
     }
 }
 
-inline bool nat_ne(lean_obj * a1, lean_obj * a2) {
+inline bool nat_ne(object * a1, object * a2) {
     return !nat_eq(a1, a2);
 }
 
-bool nat_big_le(lean_obj * a1, lean_obj * a2);
+bool nat_big_le(object * a1, object * a2);
 
-inline bool nat_le(lean_obj * a1, lean_obj * a2) {
+inline bool nat_le(object * a1, object * a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return a1 <= a2;
     } else {
@@ -451,9 +451,9 @@ inline bool nat_le(lean_obj * a1, lean_obj * a2) {
     }
 }
 
-bool nat_big_lt(lean_obj * a1, lean_obj * a2);
+bool nat_big_lt(object * a1, object * a2);
 
-inline bool nat_lt(lean_obj * a1, lean_obj * a2) {
+inline bool nat_lt(object * a1, object * a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return a1 < a2;
     } else {
@@ -461,29 +461,29 @@ inline bool nat_lt(lean_obj * a1, lean_obj * a2) {
     }
 }
 
-lean_obj * nat_big_land(lean_obj * a1, lean_obj * a2);
+object * nat_big_land(object * a1, object * a2);
 
-inline lean_obj * nat_land(lean_obj * a1, lean_obj * a2) {
+inline object * nat_land(object * a1, object * a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
-        return reinterpret_cast<lean_obj*>(reinterpret_cast<uintptr_t>(a1) & reinterpret_cast<uintptr_t>(a2));
+        return reinterpret_cast<object*>(reinterpret_cast<uintptr_t>(a1) & reinterpret_cast<uintptr_t>(a2));
     } else {
         return nat_big_land(a1, a2);
     }
 }
 
-lean_obj * nat_big_lor(lean_obj * a1, lean_obj * a2);
+object * nat_big_lor(object * a1, object * a2);
 
-inline lean_obj * nat_lor(lean_obj * a1, lean_obj * a2) {
+inline object * nat_lor(object * a1, object * a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
-        return reinterpret_cast<lean_obj*>(reinterpret_cast<uintptr_t>(a1) | reinterpret_cast<uintptr_t>(a2));
+        return reinterpret_cast<object*>(reinterpret_cast<uintptr_t>(a1) | reinterpret_cast<uintptr_t>(a2));
     } else {
         return nat_big_lor(a1, a2);
     }
 }
 
-lean_obj * nat_big_xor(lean_obj * a1, lean_obj * a2);
+object * nat_big_xor(object * a1, object * a2);
 
-inline lean_obj * nat_lxor(lean_obj * a1, lean_obj * a2) {
+inline object * nat_lxor(object * a1, object * a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return box(unbox(a1) ^ unbox(a2));
     } else {
@@ -496,19 +496,19 @@ inline lean_obj * nat_lxor(lean_obj * a1, lean_obj * a2) {
 #define LEAN_MAX_SMALL_INT (sizeof(void*) == 8 ? std::numeric_limits<int>::max() : (1 << 30)) // NOLINT
 #define LEAN_MIN_SMALL_INT (sizeof(void*) == 8 ? std::numeric_limits<int>::min() : -(1 << 30)) // NOLINT
 
-inline lean_obj * mk_int_obj_core(mpz const & m) {
+inline object * mk_int_obj_core(mpz const & m) {
     lean_assert(m < LEAN_MIN_SMALL_INT || m > LEAN_MAX_SMALL_INT);
     return alloc_mpz(m);
 }
 
-inline lean_obj * mk_int_obj(mpz const & m) {
+inline object * mk_int_obj(mpz const & m) {
     if (m < LEAN_MIN_SMALL_INT || m > LEAN_MAX_SMALL_INT)
         return mk_int_obj_core(m);
     else
         return box(static_cast<unsigned>(m.get_int()));
 }
 
-inline lean_obj * mk_int_obj(int n) {
+inline object * mk_int_obj(int n) {
     if (sizeof(void*) == 8) { // NOLINT
         return box(static_cast<unsigned>(n));
     } else if (LEAN_MIN_SMALL_INT <= n && n <= LEAN_MAX_SMALL_INT) {
@@ -518,7 +518,7 @@ inline lean_obj * mk_int_obj(int n) {
     }
 }
 
-inline lean_obj * mk_int_obj(int64 n) {
+inline object * mk_int_obj(int64 n) {
     if (LEAN_LIKELY(LEAN_MIN_SMALL_INT <= n && n <= LEAN_MAX_SMALL_INT)) {
         return box(static_cast<unsigned>(static_cast<int>(n)));
     } else {
@@ -526,7 +526,7 @@ inline lean_obj * mk_int_obj(int64 n) {
     }
 }
 
-inline int64 int2int64(lean_obj * a) {
+inline int64 int2int64(object * a) {
     lean_assert(is_scalar(a));
     if (sizeof(void*) == 8) { // NOLINT
         return static_cast<int>(unbox(a));
@@ -535,7 +535,7 @@ inline int64 int2int64(lean_obj * a) {
     }
 }
 
-inline int int2int(lean_obj * a) {
+inline int int2int(object * a) {
     lean_assert(is_scalar(a));
     if (sizeof(void*) == 8) { // NOLINT
         return static_cast<int>(unbox(a));
@@ -544,7 +544,7 @@ inline int int2int(lean_obj * a) {
     }
 }
 
-inline lean_obj * nat2int(lean_obj * a) {
+inline object * nat2int(object * a) {
     if (is_scalar(a)) {
         unsigned v = unbox(a);
         if (v <= LEAN_MAX_SMALL_INT) {
@@ -557,7 +557,7 @@ inline lean_obj * nat2int(lean_obj * a) {
     }
 }
 
-inline lean_obj * int_neg(lean_obj * a) {
+inline object * int_neg(object * a) {
     if (LEAN_LIKELY(is_scalar(a))) {
         return mk_int_obj(-int2int64(a));
     } else {
@@ -565,9 +565,9 @@ inline lean_obj * int_neg(lean_obj * a) {
     }
 }
 
-lean_obj * int_big_add(lean_obj * a1, lean_obj * a2);
+object * int_big_add(object * a1, object * a2);
 
-inline lean_obj * int_add(lean_obj * a1, lean_obj * a2) {
+inline object * int_add(object * a1, object * a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return mk_int_obj(int2int64(a1) + int2int64(a2));
     } else {
@@ -575,9 +575,9 @@ inline lean_obj * int_add(lean_obj * a1, lean_obj * a2) {
     }
 }
 
-lean_obj * int_big_sub(lean_obj * a1, lean_obj * a2);
+object * int_big_sub(object * a1, object * a2);
 
-inline lean_obj * int_sub(lean_obj * a1, lean_obj * a2) {
+inline object * int_sub(object * a1, object * a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return mk_int_obj(int2int64(a1) - int2int64(a2));
     } else {
@@ -585,9 +585,9 @@ inline lean_obj * int_sub(lean_obj * a1, lean_obj * a2) {
     }
 }
 
-lean_obj * int_big_mul(lean_obj * a1, lean_obj * a2);
+object * int_big_mul(object * a1, object * a2);
 
-inline lean_obj * int_mul(lean_obj * a1, lean_obj * a2) {
+inline object * int_mul(object * a1, object * a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return mk_int_obj(int2int64(a1) * int2int64(a2));
     } else {
@@ -595,9 +595,9 @@ inline lean_obj * int_mul(lean_obj * a1, lean_obj * a2) {
     }
 }
 
-lean_obj * int_big_div(lean_obj * a1, lean_obj * a2);
+object * int_big_div(object * a1, object * a2);
 
-inline lean_obj * int_div(lean_obj * a1, lean_obj * a2) {
+inline object * int_div(object * a1, object * a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         int v1 = int2int(a1);
         int v2 = int2int(a2);
@@ -610,9 +610,9 @@ inline lean_obj * int_div(lean_obj * a1, lean_obj * a2) {
     }
 }
 
-lean_obj * int_big_rem(lean_obj * a1, lean_obj * a2);
+object * int_big_rem(object * a1, object * a2);
 
-inline lean_obj * int_rem(lean_obj * a1, lean_obj * a2) {
+inline object * int_rem(object * a1, object * a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         int v1 = int2int(a1);
         int v2 = int2int(a2);
@@ -625,9 +625,9 @@ inline lean_obj * int_rem(lean_obj * a1, lean_obj * a2) {
     }
 }
 
-bool int_big_eq(lean_obj * a1, lean_obj * a2);
+bool int_big_eq(object * a1, object * a2);
 
-inline bool int_eq(lean_obj * a1, lean_obj * a2) {
+inline bool int_eq(object * a1, object * a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return a1 == a2;
     } else {
@@ -635,13 +635,13 @@ inline bool int_eq(lean_obj * a1, lean_obj * a2) {
     }
 }
 
-inline bool int_ne(lean_obj * a1, lean_obj * a2) {
+inline bool int_ne(object * a1, object * a2) {
     return !int_eq(a1, a2);
 }
 
-bool int_big_le(lean_obj * a1, lean_obj * a2);
+bool int_big_le(object * a1, object * a2);
 
-inline bool int_le(lean_obj * a1, lean_obj * a2) {
+inline bool int_le(object * a1, object * a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return int2int(a1) <= int2int(a2);
     } else {
@@ -649,9 +649,9 @@ inline bool int_le(lean_obj * a1, lean_obj * a2) {
     }
 }
 
-bool int_big_lt(lean_obj * a1, lean_obj * a2);
+bool int_big_lt(object * a1, object * a2);
 
-inline bool int_lt(lean_obj * a1, lean_obj * a2) {
+inline bool int_lt(object * a1, object * a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return int2int(a1) < int2int(a2);
     } else {

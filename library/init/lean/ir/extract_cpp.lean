@@ -36,7 +36,7 @@ def finalize_prefix   := "_lean_finalize_"
 def file_header (runtime_dir : string) :=
    "#include <" ++ runtime_dir ++ "/lean_obj.h>\n"
 ++ "#include <" ++ runtime_dir ++ "/apply.h>\n"
-++ "typedef lean::lean_obj obj;"
+++ "typedef lean::object obj;"
 
 structure extract_env :=
 (cfg : extract_cpp_config)

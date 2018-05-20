@@ -160,7 +160,7 @@ do mk_copyright,
    emit "// Generated using script: ../../gen/apply.lean\n",
    emit "#include \"runtime/apply.h\"\n",
    emit "namespace lean {\n",
-   emit "#define obj lean_obj\n",
+   emit "#define obj object\n",
    emit "#define fx(i) closure_arg_cptr(f)[i]\n",
    mk_fix_args,
    max.mrepeat $ λ i, mk_typedef_fn (i+1),
@@ -174,9 +174,9 @@ do mk_copyright,
    mk_apply_n max,
    emit "}\n"
 
--- Make string: "lean_obj* a1, lean_obj* a2, ..., lean_obj* an"
+-- Make string: "object* a1, object* a2, ..., object** an"
 def mk_arg_decls' (n : nat) : string :=
-string.join $ (n.repeat (λ i r, r ++ [sformat! "lean_obj* a{i+1}"]) []).intersperse ", "
+string.join $ (n.repeat (λ i r, r ++ [sformat! "object* a{i+1}"]) []).intersperse ", "
 
 def mk_apply_h (max : nat) : m unit :=
 do mk_copyright,
@@ -187,10 +187,10 @@ do mk_copyright,
    emit "namespace lean {\n",
    max.mrepeat $ λ i,
      let args := mk_arg_decls' (i+1) in
-     emit $ sformat! "lean_obj* apply_{i+1}(lean_obj* f, {args});\n",
-   emit "lean_obj* apply_n(lean_obj* f, unsigned n, lean_obj** args);\n",
+     emit $ sformat! "object* apply_{i+1}(object* f, {args});\n",
+   emit "object* apply_n(object* f, unsigned n, object** args);\n",
    emit $ sformat! "// pre: n > {max}\n",
-   emit "lean_obj* apply_m(lean_obj* f, unsigned n, lean_obj** args);\n",
+   emit "object* apply_m(object* f, unsigned n, object** args);\n",
    emit "}\n"
 
 -- #eval (mk_apply_cpp lean.closure_max_args).run none

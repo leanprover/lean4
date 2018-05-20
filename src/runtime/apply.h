@@ -9,23 +9,23 @@ Author: Leonardo de Moura
 #pragma once
 #include "runtime/lean_obj.h"
 namespace lean {
-lean_obj* apply_1(lean_obj* f, lean_obj* a1);
-lean_obj* apply_2(lean_obj* f, lean_obj* a1, lean_obj* a2);
-lean_obj* apply_3(lean_obj* f, lean_obj* a1, lean_obj* a2, lean_obj* a3);
-lean_obj* apply_4(lean_obj* f, lean_obj* a1, lean_obj* a2, lean_obj* a3, lean_obj* a4);
-lean_obj* apply_5(lean_obj* f, lean_obj* a1, lean_obj* a2, lean_obj* a3, lean_obj* a4, lean_obj* a5);
-lean_obj* apply_6(lean_obj* f, lean_obj* a1, lean_obj* a2, lean_obj* a3, lean_obj* a4, lean_obj* a5, lean_obj* a6);
-lean_obj* apply_7(lean_obj* f, lean_obj* a1, lean_obj* a2, lean_obj* a3, lean_obj* a4, lean_obj* a5, lean_obj* a6, lean_obj* a7);
-lean_obj* apply_8(lean_obj* f, lean_obj* a1, lean_obj* a2, lean_obj* a3, lean_obj* a4, lean_obj* a5, lean_obj* a6, lean_obj* a7, lean_obj* a8);
-lean_obj* apply_9(lean_obj* f, lean_obj* a1, lean_obj* a2, lean_obj* a3, lean_obj* a4, lean_obj* a5, lean_obj* a6, lean_obj* a7, lean_obj* a8, lean_obj* a9);
-lean_obj* apply_10(lean_obj* f, lean_obj* a1, lean_obj* a2, lean_obj* a3, lean_obj* a4, lean_obj* a5, lean_obj* a6, lean_obj* a7, lean_obj* a8, lean_obj* a9, lean_obj* a10);
-lean_obj* apply_11(lean_obj* f, lean_obj* a1, lean_obj* a2, lean_obj* a3, lean_obj* a4, lean_obj* a5, lean_obj* a6, lean_obj* a7, lean_obj* a8, lean_obj* a9, lean_obj* a10, lean_obj* a11);
-lean_obj* apply_12(lean_obj* f, lean_obj* a1, lean_obj* a2, lean_obj* a3, lean_obj* a4, lean_obj* a5, lean_obj* a6, lean_obj* a7, lean_obj* a8, lean_obj* a9, lean_obj* a10, lean_obj* a11, lean_obj* a12);
-lean_obj* apply_13(lean_obj* f, lean_obj* a1, lean_obj* a2, lean_obj* a3, lean_obj* a4, lean_obj* a5, lean_obj* a6, lean_obj* a7, lean_obj* a8, lean_obj* a9, lean_obj* a10, lean_obj* a11, lean_obj* a12, lean_obj* a13);
-lean_obj* apply_14(lean_obj* f, lean_obj* a1, lean_obj* a2, lean_obj* a3, lean_obj* a4, lean_obj* a5, lean_obj* a6, lean_obj* a7, lean_obj* a8, lean_obj* a9, lean_obj* a10, lean_obj* a11, lean_obj* a12, lean_obj* a13, lean_obj* a14);
-lean_obj* apply_15(lean_obj* f, lean_obj* a1, lean_obj* a2, lean_obj* a3, lean_obj* a4, lean_obj* a5, lean_obj* a6, lean_obj* a7, lean_obj* a8, lean_obj* a9, lean_obj* a10, lean_obj* a11, lean_obj* a12, lean_obj* a13, lean_obj* a14, lean_obj* a15);
-lean_obj* apply_16(lean_obj* f, lean_obj* a1, lean_obj* a2, lean_obj* a3, lean_obj* a4, lean_obj* a5, lean_obj* a6, lean_obj* a7, lean_obj* a8, lean_obj* a9, lean_obj* a10, lean_obj* a11, lean_obj* a12, lean_obj* a13, lean_obj* a14, lean_obj* a15, lean_obj* a16);
-lean_obj* apply_n(lean_obj* f, unsigned n, lean_obj** args);
+object* apply_1(object* f, object* a1);
+object* apply_2(object* f, object* a1, object* a2);
+object* apply_3(object* f, object* a1, object* a2, object* a3);
+object* apply_4(object* f, object* a1, object* a2, object* a3, object* a4);
+object* apply_5(object* f, object* a1, object* a2, object* a3, object* a4, object* a5);
+object* apply_6(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6);
+object* apply_7(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7);
+object* apply_8(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7, object* a8);
+object* apply_9(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7, object* a8, object* a9);
+object* apply_10(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7, object* a8, object* a9, object* a10);
+object* apply_11(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7, object* a8, object* a9, object* a10, object* a11);
+object* apply_12(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7, object* a8, object* a9, object* a10, object* a11, object* a12);
+object* apply_13(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7, object* a8, object* a9, object* a10, object* a11, object* a12, object* a13);
+object* apply_14(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7, object* a8, object* a9, object* a10, object* a11, object* a12, object* a13, object* a14);
+object* apply_15(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7, object* a8, object* a9, object* a10, object* a11, object* a12, object* a13, object* a14, object* a15);
+object* apply_16(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7, object* a8, object* a9, object* a10, object* a11, object* a12, object* a13, object* a14, object* a15, object* a16);
+object* apply_n(object* f, unsigned n, object** args);
 // pre: n > 16
-lean_obj* apply_m(lean_obj* f, unsigned n, lean_obj** args);
+object* apply_m(object* f, unsigned n, object** args);
 }

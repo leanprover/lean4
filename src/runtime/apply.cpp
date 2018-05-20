@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 // Generated using script: ../../gen/apply.lean
 #include "runtime/apply.h"
 namespace lean {
-#define obj lean_obj
+#define obj object
 #define fx(i) closure_arg_cptr(f)[i]
 
 static obj* fix_args(obj* f, unsigned n, obj*const* as) {

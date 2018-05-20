@@ -153,34 +153,6 @@ inline lean_sarray * to_sarray(lean_obj * o) { lean_assert(is_sarray(o)); return
 inline lean_mpz * to_mpz(lean_obj * o) { lean_assert(is_mpz(o)); return static_cast<lean_mpz*>(o); }
 inline lean_external * to_external(lean_obj * o) { lean_assert(is_external(o)); return static_cast<lean_external*>(o); }
 
-/* Low-level operations for allocating lean objects.
-   They do not initialize nested objects and scalar values. */
-
-inline lean_obj * alloc_cnstr(unsigned tag, unsigned num_objs, unsigned scalar_sz) {
-    lean_assert(tag < 65536 && num_objs < 65536 && scalar_sz < 65536);
-    return new (malloc(sizeof(lean_cnstr) + num_objs * sizeof(lean_obj *) + scalar_sz)) lean_cnstr(tag, num_objs, scalar_sz); // NOLINT
-}
-
-inline lean_obj * alloc_array(size_t size, size_t capacity) {
-    return new (malloc(sizeof(lean_array) + capacity * sizeof(lean_obj *))) lean_array(size, capacity); // NOLINT
-}
-
-inline lean_obj * alloc_sarray(unsigned elem_size, size_t size, size_t capacity) {
-    return new (malloc(sizeof(lean_sarray) + capacity * elem_size)) lean_sarray(elem_size, size, capacity); // NOLINT
-}
-
-inline lean_obj * alloc_closure(lean_cfun fun, unsigned arity, unsigned num_fixed) {
-    lean_assert(arity > 0);
-    lean_assert(num_fixed < arity);
-    /* We reserve enough space for storing (arity - 1) arguments.
-       So, we may fix extra arguments without allocating extra memory when the closure object is not shared. */
-    return new (malloc(sizeof(lean_closure) + (arity - 1) * sizeof(lean_obj *))) lean_closure(fun, arity, num_fixed); // NOLINT
-}
-
-inline lean_obj * alloc_mpz(mpz const & m) {
-    return new lean_mpz(m);
-}
-
 /* The memory associated with all Lean objects but `lean_mpz` and `lean_external` can be deallocated using `free`.
    All fields in these objects are integral types, but `std::atomic<uintptr_t> m_rc`.
    However, `std::atomic<Integral>` has a trivial destructor.
@@ -224,7 +196,10 @@ inline void obj_set_data(lean_obj * o, size_t offset, T v) {
 }
 
 /* Constructor objects */
-
+inline lean_obj * alloc_cnstr(unsigned tag, unsigned num_objs, unsigned scalar_sz) {
+    lean_assert(tag < 65536 && num_objs < 65536 && scalar_sz < 65536);
+    return new (malloc(sizeof(lean_cnstr) + num_objs * sizeof(lean_obj *) + scalar_sz)) lean_cnstr(tag, num_objs, scalar_sz); // NOLINT
+}
 inline unsigned cnstr_tag(lean_obj * o) { return to_cnstr(o)->m_tag; }
 inline unsigned cnstr_num_objs(lean_obj * o) { return to_cnstr(o)->m_num_objs; }
 inline unsigned cnstr_scalar_size(lean_obj * o) { return to_cnstr(o)->m_scalar_size; }
@@ -251,7 +226,11 @@ inline void cnstr_set_scalar(lean_obj * o, unsigned i, T v) {
 }
 
 /* Closures */
-
+inline lean_obj * alloc_closure(lean_cfun fun, unsigned arity, unsigned num_fixed) {
+    lean_assert(arity > 0);
+    lean_assert(num_fixed < arity);
+    return new (malloc(sizeof(lean_closure) + num_fixed * sizeof(lean_obj *))) lean_closure(fun, arity, num_fixed); // NOLINT
+}
 inline lean_cfun closure_fun(lean_obj * o) { return to_closure(o)->m_fun; }
 inline unsigned closure_arity(lean_obj * o) { return to_closure(o)->m_arity; }
 inline unsigned closure_num_fixed(lean_obj * o) { return to_closure(o)->m_num_fixed; }
@@ -272,7 +251,9 @@ inline void closure_set_arg(lean_obj * o, unsigned i, lean_obj * a) {
 inline unsigned tag(lean_obj * o) { if (is_scalar(o)) return unbox(o); else return cnstr_tag(o); }
 
 /* Array of objects */
-
+inline lean_obj * alloc_array(size_t size, size_t capacity) {
+    return new (malloc(sizeof(lean_array) + capacity * sizeof(lean_obj *))) lean_array(size, capacity); // NOLINT
+}
 inline size_t array_size(lean_obj * o) { return to_array(o)->m_size; }
 inline size_t array_capacity(lean_obj * o) { return to_array(o)->m_capacity; }
 inline size_t array_byte_size(lean_obj * o) { return sizeof(lean_array) + array_capacity(o)*sizeof(lean_obj*); } // NOLINT
@@ -296,7 +277,9 @@ inline void array_set_obj(lean_obj * o, size_t i, lean_obj * v) {
 }
 
 /* Array of scalars */
-
+inline lean_obj * alloc_sarray(unsigned elem_size, size_t size, size_t capacity) {
+    return new (malloc(sizeof(lean_sarray) + capacity * elem_size)) lean_sarray(elem_size, size, capacity); // NOLINT
+}
 inline unsigned sarray_elem_size(lean_obj * o) { return to_sarray(o)->m_elem_size; }
 inline size_t sarray_size(lean_obj * o) { return to_sarray(o)->m_size; }
 inline size_t sarray_capacity(lean_obj * o) { return to_sarray(o)->m_capacity; }
@@ -319,6 +302,7 @@ inline void sarray_set_size(lean_obj * o, size_t sz) {
 
 /* MPZ */
 
+inline lean_obj * alloc_mpz(mpz const & m) { return new lean_mpz(m); }
 inline mpz const & mpz_value(lean_obj * o) { return to_mpz(o)->m_value; }
 
 /* String */

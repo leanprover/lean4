@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 // DO NOT EDIT, this is an automatically generated file
 // Generated using script: ../../gen/apply.lean
 #pragma once
-#include "runtime/lean_obj.h"
+#include "runtime/object.h"
 namespace lean {
 object* apply_1(object* f, object* a1);
 object* apply_2(object* f, object* a1, object* a2);

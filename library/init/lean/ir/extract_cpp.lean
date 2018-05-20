@@ -34,7 +34,7 @@ def initialize_prefix := "_lean_initialize_"
 def finalize_prefix   := "_lean_finalize_"
 
 def file_header (runtime_dir : string) :=
-   "#include <" ++ runtime_dir ++ "/lean_obj.h>\n"
+   "#include <" ++ runtime_dir ++ "/object.h>\n"
 ++ "#include <" ++ runtime_dir ++ "/apply.h>\n"
 ++ "typedef lean::object obj;"
 

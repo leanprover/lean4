@@ -183,7 +183,7 @@ do mk_copyright,
    emit "// DO NOT EDIT, this is an automatically generated file\n",
    emit "// Generated using script: ../../gen/apply.lean\n",
    emit "#pragma once\n",
-   emit "#include \"runtime/lean_obj.h\"\n",
+   emit "#include \"runtime/object.h\"\n",
    emit "namespace lean {\n",
    max.mrepeat $ λ i,
      let args := mk_arg_decls' (i+1) in

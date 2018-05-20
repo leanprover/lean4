@@ -89,16 +89,16 @@ vm_obj name_is_internal(vm_obj const & n) {
 }
 
 void initialize_vm_name() {
-    DECLARE_VM_BUILTIN(name({"name", "anonymous"}),        name_anonymous);
-    DECLARE_VM_BUILTIN(name({"name", "mk_string"}),        name_mk_string);
-    DECLARE_VM_BUILTIN(name({"name", "mk_numeral"}),       name_mk_numeral);
-    DECLARE_VM_BUILTIN(name({"name", "has_decidable_eq"}), name_has_decidable_eq);
+    DECLARE_VM_BUILTIN(name({"lean", "name", "anonymous"}),        name_anonymous);
+    DECLARE_VM_BUILTIN(name({"lean", "name", "mk_string"}),        name_mk_string);
+    DECLARE_VM_BUILTIN(name({"lean", "name", "mk_numeral"}),       name_mk_numeral);
+    DECLARE_VM_BUILTIN(name({"lean", "name", "has_decidable_eq"}), name_has_decidable_eq);
     DECLARE_VM_BUILTIN(name({"name", "cmp"}),              name_cmp);
     DECLARE_VM_BUILTIN(name({"name", "lex_cmp"}),          name_lex_cmp);
-    DECLARE_VM_BUILTIN(name({"name", "append_after"}),     name_append_after);
     DECLARE_VM_BUILTIN(name({"name", "append"}),           name_append);
-    DECLARE_VM_BUILTIN(name({"name", "is_internal"}),      name_is_internal);
-    DECLARE_VM_CASES_BUILTIN(name({"name", "cases_on"}),   name_cases_on);
+    DECLARE_VM_BUILTIN(name({"lean", "name", "is_internal"}),      name_is_internal);
+    DECLARE_VM_BUILTIN(name({"lean", "name", "append_after"}),     name_append_after);
+    DECLARE_VM_CASES_BUILTIN(name({"lean", "name", "cases_on"}),   name_cases_on);
 }
 
 void finalize_vm_name() {

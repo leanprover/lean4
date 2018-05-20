@@ -63,7 +63,7 @@ private meta def contra_constructor_eq : list expr → tactic unit
              is_constructor_app env rhs ∧
              const_name (get_app_fn lhs) ≠ const_name (get_app_fn rhs)
           then do tgt    ← target,
-                  I_name ← return $ name.get_prefix (const_name (get_app_fn lhs)),
+                  I_name ← return $ lean.name.get_prefix (const_name (get_app_fn lhs)),
                   pr ← mk_app (I_name <.> "no_confusion") [tgt, lhs, rhs, H],
                   exact pr
           else contra_constructor_eq Hs

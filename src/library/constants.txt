@@ -132,9 +132,9 @@ list.cons
 match_failed
 monad
 monad_fail
-name.anonymous
-name.mk_numeral
-name.mk_string
+lean.name.anonymous
+lean.name.mk_numeral
+lean.name.mk_string
 nat
 nat.succ
 nat.zero

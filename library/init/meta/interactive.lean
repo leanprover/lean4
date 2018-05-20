@@ -578,7 +578,7 @@ private meta def is_case_simple_tag : tag → bool
 | _                    := ff
 
 private meta def is_case_tag : tag → option nat
-| (name.mk_numeral `_case n :: _) := some n.to_nat
+| (name.mk_numeral `_case n :: _) := some n
 | _                               := none
 
 private meta def tag_match (t : tag) (pre : list name) : bool :=

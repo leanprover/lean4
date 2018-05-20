@@ -137,9 +137,9 @@ run_cmd script_check_id `list.cons
 run_cmd script_check_id `match_failed
 run_cmd script_check_id `monad
 run_cmd script_check_id `monad_fail
-run_cmd script_check_id `name.anonymous
-run_cmd script_check_id `name.mk_numeral
-run_cmd script_check_id `name.mk_string
+run_cmd script_check_id `lean.name.anonymous
+run_cmd script_check_id `lean.name.mk_numeral
+run_cmd script_check_id `lean.name.mk_string
 run_cmd script_check_id `nat
 run_cmd script_check_id `nat.succ
 run_cmd script_check_id `nat.zero

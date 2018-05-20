@@ -137,9 +137,9 @@ name const * g_list_cons = nullptr;
 name const * g_match_failed = nullptr;
 name const * g_monad = nullptr;
 name const * g_monad_fail = nullptr;
-name const * g_name_anonymous = nullptr;
-name const * g_name_mk_numeral = nullptr;
-name const * g_name_mk_string = nullptr;
+name const * g_lean_name_anonymous = nullptr;
+name const * g_lean_name_mk_numeral = nullptr;
+name const * g_lean_name_mk_string = nullptr;
 name const * g_nat = nullptr;
 name const * g_nat_succ = nullptr;
 name const * g_nat_zero = nullptr;
@@ -382,9 +382,9 @@ void initialize_constants() {
     g_match_failed = new name{"match_failed"};
     g_monad = new name{"monad"};
     g_monad_fail = new name{"monad_fail"};
-    g_name_anonymous = new name{"name", "anonymous"};
-    g_name_mk_numeral = new name{"name", "mk_numeral"};
-    g_name_mk_string = new name{"name", "mk_string"};
+    g_lean_name_anonymous = new name{"lean", "name", "anonymous"};
+    g_lean_name_mk_numeral = new name{"lean", "name", "mk_numeral"};
+    g_lean_name_mk_string = new name{"lean", "name", "mk_string"};
     g_nat = new name{"nat"};
     g_nat_succ = new name{"nat", "succ"};
     g_nat_zero = new name{"nat", "zero"};
@@ -628,9 +628,9 @@ void finalize_constants() {
     delete g_match_failed;
     delete g_monad;
     delete g_monad_fail;
-    delete g_name_anonymous;
-    delete g_name_mk_numeral;
-    delete g_name_mk_string;
+    delete g_lean_name_anonymous;
+    delete g_lean_name_mk_numeral;
+    delete g_lean_name_mk_string;
     delete g_nat;
     delete g_nat_succ;
     delete g_nat_zero;
@@ -873,9 +873,9 @@ name const & get_list_cons_name() { return *g_list_cons; }
 name const & get_match_failed_name() { return *g_match_failed; }
 name const & get_monad_name() { return *g_monad; }
 name const & get_monad_fail_name() { return *g_monad_fail; }
-name const & get_name_anonymous_name() { return *g_name_anonymous; }
-name const & get_name_mk_numeral_name() { return *g_name_mk_numeral; }
-name const & get_name_mk_string_name() { return *g_name_mk_string; }
+name const & get_lean_name_anonymous_name() { return *g_lean_name_anonymous; }
+name const & get_lean_name_mk_numeral_name() { return *g_lean_name_mk_numeral; }
+name const & get_lean_name_mk_string_name() { return *g_lean_name_mk_string; }
 name const & get_nat_name() { return *g_nat; }
 name const & get_nat_succ_name() { return *g_nat_succ; }
 name const & get_nat_zero_name() { return *g_nat_zero; }

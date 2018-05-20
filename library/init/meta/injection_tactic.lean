@@ -57,7 +57,7 @@ do
     else fail "injection tactic failed, argument must be an equality proof where lhs and rhs are of the form (c ...), where c is a constructor"
   else do
     tgt ← target,
-    let I_name := name.get_prefix n_fl,
+    let I_name := lean.name.get_prefix n_fl,
     pr ← mk_app (I_name <.> "no_confusion") [tgt, lhs, rhs, h],
     exact pr,
     return ([], ns)

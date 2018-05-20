@@ -439,12 +439,6 @@ environment update_module_defs(environment const & env, declaration const & d) {
     }
 }
 
-static name sorry_decl_name(name const & n) {
-    if (n.is_string() && n.get_string()[0] == '_')
-        return sorry_decl_name(n.get_prefix());
-    return n;
-}
-
 struct sorry_warning_tag : public log_entry_cell {};
 
 environment add(environment const & env, certified_declaration const & d) {

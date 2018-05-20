@@ -26,9 +26,9 @@ meta structure user_attribute (cache_ty : Type := unit) (param_ty : Type := unit
    not be applied after all.
    Declaring an `after_set` handler without a `before_unset` handler will make the attribute
    non-removable. -/
-(after_set    : option (Π (decl : _root_.name) (prio : nat) (persistent : bool), command) := none)
+(after_set    : option (Π (decl : lean.name) (prio : nat) (persistent : bool), command) := none)
 /- Optional handler that will be called before the attribute is removed from a declaration. -/
-(before_unset : option (Π (decl : _root_.name) (persistent : bool), command) := none)
+(before_unset : option (Π (decl : lean.name) (persistent : bool), command) := none)
 (cache_cfg     : user_attribute_cache_cfg cache_ty . user_attribute.dflt_cache_cfg)
 [reflect_param : has_reflect param_ty]
 /- Parser that will be invoked after parsing the attribute's name. The parse result will be reflected

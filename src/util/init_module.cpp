@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "runtime/init_module.h"
 #include "util/ascii.h"
 #include "util/name.h"
 #include "util/fresh_name.h"
@@ -11,9 +12,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 void initialize_util_module() {
-    initialize_debug();
-    initialize_serializer();
-    initialize_thread();
+    initialize_runtime_module();
     initialize_ascii();
     initialize_name();
     initialize_name_generator();
@@ -24,8 +23,6 @@ void finalize_util_module() {
     finalize_name_generator();
     finalize_name();
     finalize_ascii();
-    finalize_thread();
-    finalize_serializer();
-    finalize_debug();
+    finalize_runtime_module();
 }
 }

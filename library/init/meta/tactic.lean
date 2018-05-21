@@ -1117,3 +1117,8 @@ do g ← main_goal, set_tag g t
 end tactic
 
 notation [parsing_only] `command`:max := tactic unit
+
+meta def monad_from_pure_bind {m : Type u → Type v}
+  (pure : Π {α : Type u}, α → m α)
+  (bind : Π {α β : Type u}, m α → (α → m β) → m β) : monad m :=
+{pure := @pure, bind := @bind}

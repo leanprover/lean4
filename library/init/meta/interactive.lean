@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.meta.tactic init.meta.rewrite_tactic init.meta.simp_tactic
 import init.control.combinators
-import init.meta.interactive_base init.meta.match_tactic
+import init.meta.interactive_base
 import init.meta.congr_tactic
 
 open lean3
@@ -736,33 +736,6 @@ meta def cases : parse cases_arg_p → parse with_ident_list → tactic unit
   hx  ← get_local x,
   cases_core hx ids
 
-private meta def find_matching_hyp (ps : list pattern) : tactic expr :=
-any_hyp $ λ h, do
-  type ← infer_type h,
-  ps.mfirst $ λ p, do
-  match_pattern p type,
-  return h
-
-/--
-`cases_matching p` applies the `cases` tactic to a hypothesis `h : type` if `type` matches the pattern `p`.
-`cases_matching [p_1, ..., p_n]` applies the `cases` tactic to a hypothesis `h : type` if `type` matches one of the given patterns.
-`cases_matching* p` more efficient and compact version of `focus1 { repeat { cases_matching p } }`. It is more efficient because the pattern is compiled once.
-
-Example: The following tactic destructs all conjunctions and disjunctions in the current goal.
-```
-cases_matching* [_ ∨ _, _ ∧ _]
-```
--/
-meta def cases_matching (rec : parse $ (tk "*")?) (ps : parse pexpr_list_or_texpr) : tactic unit :=
-do ps ← ps.mmap pexpr_to_pattern,
-   if rec.is_none
-   then find_matching_hyp ps >>= cases_core
-   else tactic.focus1 $ tactic.repeat $ find_matching_hyp ps >>= cases_core
-
-/-- Shorthand for `cases_matching` -/
-meta def casesm (rec : parse $ (tk "*")?) (ps : parse pexpr_list_or_texpr) : tactic unit :=
-cases_matching rec ps
-
 private meta def try_cases_for_types (type_names : list name) (at_most_one : bool) : tactic unit :=
 any_hyp $ λ h, do
   I ← expr.get_app_fn <$> (infer_type h >>= head_beta),
@@ -994,14 +967,6 @@ Applies the constructor when the type of the target is an inductive data type wi
 -/
 meta def split : tactic unit :=
 concat_tags tactic.split
-
-private meta def constructor_matching_aux (ps : list pattern) : tactic unit :=
-do t ← target, ps.mfirst (λ p, match_pattern p t), constructor
-
-meta def constructor_matching (rec : parse $ (tk "*")?) (ps : parse pexpr_list_or_texpr) : tactic unit :=
-do ps ← ps.mmap pexpr_to_pattern,
-   if rec.is_none then constructor_matching_aux ps
-   else tactic.focus1 $ tactic.repeat $ constructor_matching_aux ps
 
 /--
 Replaces the target of the main goal by `false`.
@@ -1420,12 +1385,6 @@ meta def guard_hyp (n : parse ident) (p : parse $ tk ":=" *> texpr) : tactic uni
 do h ← get_local n >>= infer_type, guard_expr_eq h p
 
 /--
-`match_target t` fails if target does not match pattern `t`.
--/
-meta def match_target (t : parse texpr) (m := reducible) : tactic unit :=
-tactic.match_target t m >> skip
-
-/--
 `by_cases (h :)? p` splits the main goal into two cases, assuming `h : p` in the first branch, and `h : ¬ p` in the second branch.
 
 This tactic requires that `p` is decidable. To ensure that all propositions are decidable via classical reasoning, use  `local attribute classical.prop_decidable [instance]`.
@@ -1584,7 +1543,7 @@ meta def mk_inj_eq : tactic unit :=
   apply _root_.propext,
   apply _root_.iff.intro,
   { tactic.apply_inj_lemma },
-  { intro _, try { cases_matching* _ ∧ _ }, refl <|> { congr; { assumption <|> subst_vars } } }
+  { intro _, try { cases_type* and }, refl <|> { congr; { assumption <|> subst_vars } } }
 ]
 end tactic
 

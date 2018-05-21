@@ -1,3 +1,5 @@
+-- TODO: renable test after we restore tactic framework
+#exit
 import system.io
 
 /- An extensible effects library, inspired by "Freer Monads, More Extensible Effects" (O. Kiselyov, H. Ishii)

@@ -1,3 +1,5 @@
+-- TODO: renable test after we restore tactic framework
+#exit
 /- An extensible effects library, inspired by "Freer Monads, More Extensible Effects" (O. Kiselyov, H. Ishii)
    and https://github.com/lexi-lambda/freer-simple -/
 

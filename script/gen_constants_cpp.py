@@ -86,6 +86,8 @@ def main(argv=None):
             f.write('name const & get_%s_name() { return *g_%s; }\n' % (c[0], c[0]))
         # end namespace
         f.write('}\n')
+    # TODO: enable test file again
+    return 0
     with open(tst_file, 'w') as f:
         f.write('-- DO NOT EDIT, automatically generated file, generator scripts/gen_constants_cpp.py\n')
         f.write("import system.io\n")

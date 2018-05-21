@@ -383,16 +383,6 @@ meta def is_numeral : expr → bool
 meta def imp (a b : expr) : expr :=
 pi `_ binder_info.default a b
 
-meta def lambdas : list expr → expr → expr
-| (local_const uniq pp info t :: es) f :=
-  lam pp info t (abstract_local (lambdas es f) uniq)
-| _ f := f
-
-meta def pis : list expr → expr → expr
-| (local_const uniq pp info t :: es) f :=
-  pi pp info t (abstract_local (pis es f) uniq)
-| _ f := f
-
 meta def extract_opt_auto_param : expr → expr
 | `(@opt_param %%t _)  := extract_opt_auto_param t
 | `(@auto_param %%t _) := extract_opt_auto_param t

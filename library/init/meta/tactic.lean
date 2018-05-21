@@ -1004,20 +1004,6 @@ return $ expr.mk_sorry t
 meta def admit : tactic unit :=
 target >>= exact ∘ expr.mk_sorry
 
-meta def mk_local' (pp_name : name) (bi : binder_info) (type : expr) : tactic expr := do
-uniq_name ← mk_fresh_name,
-return $ expr.local_const uniq_name pp_name bi type
-
-meta def mk_local_def (pp_name : name) (type : expr) : tactic expr :=
-mk_local' pp_name binder_info.default type
-
-meta def mk_local_pis : expr → tactic (list expr × expr)
-| (expr.pi n bi d b) := do
-  p ← mk_local' n bi d,
-  (ps, r) ← mk_local_pis (expr.instantiate_var b p),
-  return ((p :: ps), r)
-| e := return ([], e)
-
 private meta def get_pi_arity_aux : expr → tactic nat
 | (expr.pi n bi d b) :=
   do m     ← mk_fresh_name,

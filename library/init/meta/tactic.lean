@@ -312,26 +312,6 @@ meta constant mk_app (fn : name) (args : list expr) (md := semireducible) : tact
    ```
 -/
 meta constant mk_mapp (fn : name) (args : list (option expr)) (md := semireducible) : tactic expr
-/-- (mk_congr_arg h₁ h₂) is a more efficient version of (mk_app `congr_arg [h₁, h₂]) -/
-meta constant mk_congr_arg  : expr → expr → tactic expr
-/-- (mk_congr_fun h₁ h₂) is a more efficient version of (mk_app `congr_fun [h₁, h₂]) -/
-meta constant mk_congr_fun  : expr → expr → tactic expr
-/-- (mk_congr h₁ h₂) is a more efficient version of (mk_app `congr [h₁, h₂]) -/
-meta constant mk_congr      : expr → expr → tactic expr
-/-- (mk_eq_refl h) is a more efficient version of (mk_app `eq.refl [h]) -/
-meta constant mk_eq_refl    : expr → tactic expr
-/-- (mk_eq_symm h) is a more efficient version of (mk_app `eq.symm [h]) -/
-meta constant mk_eq_symm    : expr → tactic expr
-/-- (mk_eq_trans h₁ h₂) is a more efficient version of (mk_app `eq.trans [h₁, h₂]) -/
-meta constant mk_eq_trans   : expr → expr → tactic expr
-/-- (mk_eq_mp h₁ h₂) is a more efficient version of (mk_app `eq.mp [h₁, h₂]) -/
-meta constant mk_eq_mp      : expr → expr → tactic expr
-/-- (mk_eq_mpr h₁ h₂) is a more efficient version of (mk_app `eq.mpr [h₁, h₂]) -/
-meta constant mk_eq_mpr      : expr → expr → tactic expr
-/- Given a local constant t, if t has type (lhs = rhs) apply substitution.
-   Otherwise, try to find a local constant that has type of the form (t = t') or (t' = t).
-   The tactic fails if the given expression is not a local constant. -/
-meta constant subst_core     : expr → tactic unit
 /-- Close the current goal using `e`. Fail is the type of `e` is not definitionally equal to
     the target type. -/
 meta constant exact (e : expr) (md := semireducible) : tactic unit
@@ -635,50 +615,6 @@ do lctx ← local_context,
 meta def clear_lst : list name → tactic unit
 | []      := skip
 | (n::ns) := do H ← get_local n, clear H, clear_lst ns
-
-meta def match_not (e : expr) : tactic expr :=
-match (expr.is_not e) with
-| (some a) := return a
-| none     := fail "expression is not a negation"
-
-meta def match_and (e : expr) : tactic (expr × expr) :=
-match (expr.is_and e) with
-| (some (α, β)) := return (α, β)
-| none     := fail "expression is not a conjunction"
-
-meta def match_or (e : expr) : tactic (expr × expr) :=
-match (expr.is_or e) with
-| (some (α, β)) := return (α, β)
-| none     := fail "expression is not a disjunction"
-
-meta def match_iff (e : expr) : tactic (expr × expr) :=
-match (expr.is_iff e) with
-| (some (lhs, rhs)) := return (lhs, rhs)
-| none              := fail "expression is not an iff"
-
-meta def match_eq (e : expr) : tactic (expr × expr) :=
-match (expr.is_eq e) with
-| (some (lhs, rhs)) := return (lhs, rhs)
-| none              := fail "expression is not an equality"
-
-meta def match_ne (e : expr) : tactic (expr × expr) :=
-match (expr.is_ne e) with
-| (some (lhs, rhs)) := return (lhs, rhs)
-| none              := fail "expression is not a disequality"
-
-meta def match_heq (e : expr) : tactic (expr × expr × expr × expr) :=
-do match (expr.is_heq e) with
-| (some (α, lhs, β, rhs)) := return (α, lhs, β, rhs)
-| none                    := fail "expression is not a heterogeneous equality"
-
-meta def match_refl_app (e : expr) : tactic (name × expr × expr) :=
-do env ← get_env,
-match (environment.is_refl_app env e) with
-| (some (R, lhs, rhs)) := return (R, lhs, rhs)
-| none                 := fail "expression is not an application of a reflexive relation"
-
-meta def match_app_of (e : expr) (n : name) : tactic (list expr) :=
-guard (expr.is_app_of e n) >> return e.get_app_args
 
 meta def get_local_type (n : name) : tactic expr :=
 get_local n >>= infer_type
@@ -1004,37 +940,9 @@ return $ expr.mk_sorry t
 meta def admit : tactic unit :=
 target >>= exact ∘ expr.mk_sorry
 
-private meta def get_pi_arity_aux : expr → tactic nat
-| (expr.pi n bi d b) :=
-  do m     ← mk_fresh_name,
-     let l := expr.local_const m n bi d,
-     new_b ← whnf (expr.instantiate_var b l),
-     r     ← get_pi_arity_aux new_b,
-     return (r + 1)
-| e                  := return 0
-
-/-- Compute the arity of the given (Pi-)type -/
-meta def get_pi_arity (type : expr) : tactic nat :=
-whnf type >>= get_pi_arity_aux
-
-/-- Compute the arity of the given function -/
-meta def get_arity (fn : expr) : tactic nat :=
-infer_type fn >>= get_pi_arity
-
 meta def triv : tactic unit := mk_const `trivial >>= exact
 
 notation `dec_trivial` := of_as_true (by tactic.triv)
-
-meta def by_contradiction (H : option name := none) : tactic expr :=
-do tgt : expr ← target,
-   (match_not tgt >> return ())
-   <|>
-   (mk_mapp `decidable.by_contradiction [some tgt, none] >>= eapply >> skip)
-   <|>
-   fail "tactic by_contradiction failed, target is not a negation nor a decidable proposition (remark: when 'local attribute classical.prop_decidable [instance]' is used all propositions are decidable)",
-   match H with
-   | some n := intro n
-   | none   := intro1
 
 private meta def generalizes_aux (md : transparency) : list expr → tactic unit
 | []      := skip
@@ -1189,19 +1097,6 @@ do h ← get_local curr,
    intro new,
    intron (n - 1)
 
-/--
-"Replace" hypothesis `h : type` with `h : new_type` where `eq_pr` is a proof
-that (type = new_type). The tactic actually creates a new hypothesis
-with the same user facing name, and (tries to) clear `h`.
-The `clear` step fails if `h` has forward dependencies. In this case, the old `h`
-will remain in the local context. The tactic returns the new hypothesis. -/
-meta def replace_hyp (h : expr) (new_type : expr) (eq_pr : expr) : tactic expr :=
-do h_type ← infer_type h,
-   new_h ← assert h.local_pp_name new_type,
-   mk_eq_mp eq_pr h >>= exact,
-   try $ clear h,
-   return new_h
-
 meta def main_goal : tactic expr :=
 do g::gs ← get_goals, return g
 
@@ -1219,58 +1114,6 @@ main_goal >>= get_tag
 meta def set_main_tag (t : tag) : tactic unit :=
 do g ← main_goal, set_tag g t
 
-meta def subst (h : expr) : tactic unit :=
-(do guard h.is_local_constant,
-    some (α, lhs, β, rhs) ← expr.is_heq <$> infer_type h,
-    is_def_eq α β,
-    new_h_type ← mk_app `eq [lhs, rhs],
-    new_h_pr   ← mk_app `eq_of_heq [h],
-    new_h ← assertv h.local_pp_name new_h_type new_h_pr,
-    try (clear h),
-    subst_core new_h)
-<|> subst_core h
 end tactic
 
 notation [parsing_only] `command`:max := tactic unit
-
-open tactic
-
-namespace list
-
-meta def for_each {α} : list α → (α → tactic unit) → tactic unit
-| []      fn := skip
-| (e::es) fn := do fn e, for_each es fn
-
-meta def any_of {α β} : list α → (α → tactic β) → tactic β
-| []      fn := failed
-| (e::es) fn := do opt_b ← try_core (fn e),
-                   match opt_b with
-                   | some b := return b
-                   | none   := any_of es fn
-end list
-
-/- Install monad laws tactic and use it to prove some instances. -/
-
-meta def order_laws_tac := whnf_target >> intros >> to_expr ``(iff.refl _) >>= exact
-
-meta def monad_from_pure_bind {m : Type u → Type v}
-  (pure : Π {α : Type u}, α → m α)
-  (bind : Π {α β : Type u}, m α → (α → m β) → m β) : monad m :=
-{pure := @pure, bind := @bind}
-
-namespace tactic
-meta def mk_id_proof (prop : expr) (pr : expr) : expr :=
-expr.app (expr.app (expr.const ``id [level.zero]) prop) pr
-
-meta def mk_id_eq (lhs : expr) (rhs : expr) (pr : expr) : tactic expr :=
-do prop ← mk_app `eq [lhs, rhs],
-   return $ mk_id_proof prop pr
-
-meta def replace_target (new_target : expr) (pr : expr) : tactic unit :=
-do t ← target,
-   assert `htarget new_target, swap,
-   ht        ← get_local `htarget,
-   locked_pr ← mk_id_eq t new_target pr,
-   mk_eq_mpr locked_pr ht >>= exact
-
-end tactic

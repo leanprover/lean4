@@ -466,7 +466,9 @@ focus1 $ do {
    rs ← tactic.induction e ids rec_name,
    all_goals $ do {
      intron n,
-     clear_lst (newvars.map local_pp_name),
+     /- TODO: the following command is not reliable since it is based on user facing name.
+        Moreover, we are not storing them anymore on local constants. -/
+     -- clear_lst (newvars.map local_pp_name),
      (e::locals).mfor (try ∘ clear) },
 
    set_induction_tags in_tag rs }

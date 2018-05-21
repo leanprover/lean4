@@ -91,13 +91,6 @@ meta constant expr.lex_lt : expr → expr → bool
 meta constant expr.fold {α : Type} : expr → α → (expr → nat → α → α) → α
 meta constant expr.replace : expr → (expr → nat → option expr) → expr
 
-meta constant expr.abstract_local  : expr → name → expr
-meta constant expr.abstract_locals : expr → list name → expr
-
-meta def expr.abstract : expr → expr → expr
-| e (expr.local_const n m bi t) := e.abstract_local n
-| e _                           := e
-
 meta constant expr.instantiate_univ_params : expr → list (name × level) → expr
 meta constant expr.instantiate_var         : expr → expr → expr
 meta constant expr.instantiate_vars        : expr → list expr → expr
@@ -183,12 +176,6 @@ meta constant mk_sorry (type : expr) : expr
 /-- Checks whether e is sorry, and returns its type. -/
 meta constant is_sorry (e : expr) : option expr
 
-meta def instantiate_local (n : name) (s : expr) (e : expr) : expr :=
-instantiate_var (abstract_local e n) s
-
-meta def instantiate_locals (s : list (name × expr)) (e : expr) : expr :=
-instantiate_vars (abstract_locals e (list.reverse (list.map prod.fst s))) (list.map prod.snd s)
-
 meta def is_var : expr → bool
 | (var _) := tt
 | _       := ff
@@ -228,15 +215,6 @@ meta def mk_app : expr → list expr → expr
 | e []      := e
 | e (x::xs) := mk_app (e x) xs
 
-meta def mk_binding (ctor : name → binder_info → expr → expr → expr) (e : expr) : Π (l : expr), expr
-| (local_const n pp_n bi ty) := ctor pp_n bi ty (e.abstract_local n)
-| _                          := e
-
-/-- (bind_pi e l) abstracts and pi-binds the local `l` in `e` -/
-meta def bind_pi := mk_binding pi
-/-- (bind_lambda e l) abstracts and lambda-binds the local `l` in `e` -/
-meta def bind_lambda := mk_binding lam
-
 meta def ith_arg_aux : expr → nat → expr
 | (app f a) 0     := a
 | (app f a) (n+1) := ith_arg_aux f n
@@ -260,14 +238,6 @@ meta def is_local_constant : expr → bool
 meta def local_uniq_name : expr → name
 | (local_const n m bi t) := n
 | e                      := name.anonymous
-
-meta def local_pp_name : expr elab → name
-| (local_const x n bi t) := n
-| e                      := name.anonymous
-
-meta def local_type : expr elab → expr elab
-| (local_const _ _ _ t) := t
-| e := e
 
 meta def is_aux_decl : expr → bool
 | (local_const _ _ binder_info.aux_decl _) := tt

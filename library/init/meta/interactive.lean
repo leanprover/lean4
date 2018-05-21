@@ -73,9 +73,9 @@ let aux (n : name) : tactic expr := do
   | (expr.const c []) := do r ← mk_const c, save_type_info r q, return r
   | _                 := i_to_expr p
 in match q with
-| (expr.const c [])          := aux c
-| (expr.local_const c _ _ _) := aux c
-| _                          := i_to_expr q
+| (expr.const c [])    := aux c
+| (expr.local_const c) := aux c
+| _                    := i_to_expr q
 
 namespace interactive
 open interactive interactive.types expr
@@ -293,9 +293,9 @@ do {
    Remark: another benefit is that auxiliary temporary metavariables do not appear in error messages. -/
 meta def to_expr' (p : pexpr) : tactic expr :=
 match p with
-| (const c [])          := do new_e ← resolve_name' c, save_type_info new_e p, return new_e
-| (local_const c _ _ _) := do new_e ← resolve_name' c, save_type_info new_e p, return new_e
-| _                     := i_to_expr p
+| (const c [])    := do new_e ← resolve_name' c, save_type_info new_e p, return new_e
+| (local_const c) := do new_e ← resolve_name' c, save_type_info new_e p, return new_e
+| _               := i_to_expr p
 
 precedence `generalizing` : 0
 
@@ -340,7 +340,7 @@ do e_type ← infer_type e >>= whnf,
    return I
 
 private meta def generalize_arg_p_aux : pexpr → parser (pexpr × name)
-| (app (app (macro _ [const `eq _ ]) h) (local_const x _ _ _)) := pure (h, x)
+| (app (app (macro _ [const `eq _ ]) h) (local_const x)) := pure (h, x)
 | _ := fail "parse error"
 
 
@@ -373,7 +373,7 @@ meta def cases_arg_p : parser (option name × pexpr) :=
 with_desc "(id :)? expr" $ do
   t ← texpr,
   match t with
-  | (local_const x _ _ _) :=
+  | (local_const x) :=
     (tk ":" *> do t ← texpr, pure (some x, t)) <|> pure (none, t)
   | _ := pure (none, t)
 

@@ -39,7 +39,7 @@ meta inductive expr (elaborated : bool := tt)
 | sort     {} : level → expr
 | const    {} : name → list level → expr
 | mvar        : name → name → expr → expr
-| local_const : name → name → binder_info → expr → expr
+| local_const {} : name → expr
 | app         : expr → expr → expr
 | lam         : name → binder_info → expr → expr → expr
 | pi          : name → binder_info → expr → expr → expr
@@ -232,16 +232,12 @@ meta def is_constant : expr elab → bool
 | e            := ff
 
 meta def is_local_constant : expr → bool
-| (local_const n m bi t) := tt
-| e                      := ff
+| (local_const n) := tt
+| e               := ff
 
 meta def local_uniq_name : expr → name
-| (local_const n m bi t) := n
-| e                      := name.anonymous
-
-meta def is_aux_decl : expr → bool
-| (local_const _ _ binder_info.aux_decl _) := tt
-| _                                        := ff
+| (local_const n) := n
+| e               := name.anonymous
 
 meta def is_constant_of : expr elab → name → bool
 | (const n₁ ls) n₂ := n₁ = n₂
@@ -367,7 +363,7 @@ meta def to_raw_fmt : expr elab → format
 | (sort l) := p ["sort", to_fmt l]
 | (const n ls) := p ["const", to_fmt n, to_fmt ls]
 | (mvar n m t)   := p ["mvar", to_fmt n, to_fmt m, to_raw_fmt t]
-| (local_const n m bi t) := p ["local_const", to_fmt n, to_fmt m, to_raw_fmt t]
+| (local_const n) := p ["local_const", to_fmt n]
 | (app e f) := p ["app", to_raw_fmt e, to_raw_fmt f]
 | (lam n bi e t) := p ["lam", to_fmt n, repr bi, to_raw_fmt e, to_raw_fmt t]
 | (pi n bi e t) := p ["pi", to_fmt n, repr bi, to_raw_fmt e, to_raw_fmt t]

@@ -129,8 +129,8 @@ vm_obj expr_mvar_intro(vm_obj const &, vm_obj const & n, vm_obj const & pp_n, vm
     return to_obj(mk_metavar(to_name(n), to_name(pp_n), to_expr(t)));
 }
 
-vm_obj expr_local_const_intro(vm_obj const &, vm_obj const & n, vm_obj const & ppn, vm_obj const & bi, vm_obj const & t) {
-    return to_obj(mk_local(to_name(n), to_name(ppn), to_expr(t), to_binder_info(bi)));
+vm_obj expr_local_const_intro(vm_obj const &, vm_obj const & n) {
+    return to_obj(mk_local(to_name(n), to_name(n), expr(), binder_info()));
 }
 
 vm_obj expr_app_intro(vm_obj const &, vm_obj const & f, vm_obj const & a) {
@@ -179,9 +179,6 @@ unsigned expr_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
         break;
     case expr_kind::Local:
         data.push_back(to_obj(mlocal_name(e)));
-        data.push_back(to_obj(mlocal_pp_name(e)));
-        data.push_back(to_obj(local_info(e)));
-        data.push_back(to_obj(mlocal_type(e)));
         break;
     case expr_kind::App:
         data.push_back(to_obj(app_fn(e)));

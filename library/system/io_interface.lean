@@ -3,8 +3,6 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import system.random
-
 inductive io.error
 | other     : string → io.error
 | sys       : nat → io.error
@@ -75,10 +73,6 @@ class monad_io_process (m : Type → Type → Type) [monad_io m] :=
 (stderr : child → (handle m))
 (spawn  : io.process.spawn_args → m io.error child)
 (wait   : child → m io.error nat)
-
-class monad_io_random (m : Type → Type → Type) :=
-(set_rand_gen : std_gen → m io.error unit)
-(rand         : nat → nat → m io.error nat)
 
 instance monad_io_is_monad (m : Type → Type → Type) (e : Type) [monad_io m] : monad (m e) :=
 monad_io.monad m e

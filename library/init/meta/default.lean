@@ -6,10 +6,4 @@ Authors: Leonardo de Moura
 prelude
 import init.meta.name init.meta.options init.meta.format init.meta.rb_map
 import init.meta.level init.meta.expr init.meta.environment init.meta.attribute
-import init.meta.tactic init.meta.contradiction_tactic init.meta.constructor_tactic
-import init.meta.injection_tactic init.meta.relation_tactics init.meta.fun_info
-import init.meta.congr_lemma init.meta.rewrite_tactic
-import init.meta.simp_tactic init.meta.set_get_option_tactics
-import init.meta.interactive
-import init.meta.comp_value_tactics
-import init.meta.congr_tactic
+import init.meta.tactic init.meta.interactive

@@ -166,7 +166,7 @@ inline void dealloc(object * o) {
     switch (get_kind(o)) {
     case object_kind::External: dealloc_external(o); break;
     case object_kind::MPZ: dealloc_mpz(o); break;
-    default: break;
+    default: free(o); break;
     }
 }
 

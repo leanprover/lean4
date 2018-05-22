@@ -428,77 +428,6 @@ name string_to_name(std::string const & str) {
     return name(result, id_part.c_str());
 }
 
-enum name_ll_kind { LL_ANON = 0, LL_STRING = 1, LL_INT = 2, LL_STRING_PREFIX = 3, LL_INT_PREFIX = 4 };
-name_ll_kind ll_kind(name const & n) {
-    if (n.is_anonymous())
-        return LL_ANON;
-    if (n.is_atomic())
-        return n.is_string() ? LL_STRING : LL_INT;
-    else
-        return n.is_string() ? LL_STRING_PREFIX : LL_INT_PREFIX;
-}
-
-class name_serializer : public object_serializer<name, name::ptr_hash, name::ptr_eq> {
-    typedef object_serializer<name, name::ptr_hash, name::ptr_eq> super;
-public:
-    void write(name const & n) {
-        name_ll_kind k = ll_kind(n);
-        super::write_core(n, k, [&]() {
-                serializer & s = get_owner();
-                switch (k) {
-                case LL_ANON:            break;
-                case LL_STRING:          s.write_string(n.get_string()); break;
-                case LL_INT:             s.write_unsigned(n.get_numeral()); break;
-                case LL_STRING_PREFIX:   write(n.get_prefix()); s.write_string(n.get_string()); break;
-                case LL_INT_PREFIX:      write(n.get_prefix()); s.write_unsigned(n.get_numeral()); break;
-                }
-            });
-    }
-};
-
-class name_deserializer : public object_deserializer<name> {
-    typedef object_deserializer<name> super;
-public:
-    name read() {
-        return super::read_core([&](char c) {
-                deserializer & d = get_owner();
-                name_ll_kind k = static_cast<name_ll_kind>(c);
-                switch (k) {
-                case LL_ANON:          return name();
-                case LL_STRING:        return name(d.read_string().c_str());
-                case LL_INT:           return name(name(), d.read_unsigned());
-                case LL_STRING_PREFIX: {
-                    name prefix = read();
-                    return name(prefix, d.read_string().c_str());
-                }
-                case LL_INT_PREFIX: {
-                    name prefix = read();
-                    return name(prefix, d.read_unsigned());
-                }}
-                throw corrupted_stream_exception();
-            });
-    }
-};
-
-struct name_sd {
-    unsigned m_serializer_extid;
-    unsigned m_deserializer_extid;
-    name_sd() {
-        m_serializer_extid   = serializer::register_extension([](){ return std::unique_ptr<serializer::extension>(new name_serializer()); });
-        m_deserializer_extid = deserializer::register_extension([](){ return std::unique_ptr<deserializer::extension>(new name_deserializer()); });
-    }
-};
-static name_sd * g_name_sd = nullptr;
-
-serializer & operator<<(serializer & s, name const & n) {
-    s.get_extension<name_serializer>(g_name_sd->m_serializer_extid).write(n);
-    return s;
-}
-
-name read_name(deserializer & d) {
-    return d.get_extension<name_deserializer>(g_name_sd->m_deserializer_extid).read();
-}
-
 bool is_internal_name(name const & n) {
     name it = n;
     while (!it.is_anonymous()) {
@@ -518,13 +447,11 @@ name name::mk_internal_unique_name() {
 
 void initialize_name() {
     g_anonymous = new name();
-    g_name_sd   = new name_sd();
     g_next_id   = new atomic<unsigned>(0);
 }
 
 void finalize_name() {
     delete g_next_id;
-    delete g_name_sd;
     delete g_anonymous;
 }
 }

@@ -216,6 +216,10 @@ template<typename T>
 inline T cnstr_scalar(object * o, size_t offset) {
     return obj_data<T>(o, sizeof(constructor) + offset);
 }
+inline unsigned char * cnstr_scalar_cptr(object * o) {
+    lean_assert(is_cnstr(o));
+    return reinterpret_cast<unsigned char*>(reinterpret_cast<char*>(o) + sizeof(constructor) + cnstr_num_objs(o)*sizeof(object*)); // NOLINT
+}
 inline void cnstr_set_obj(object * o, unsigned i, object * v) {
     lean_assert(i < cnstr_num_objs(o));
     obj_set_data(o, sizeof(constructor) + sizeof(object*)*i, v); // NOLINT

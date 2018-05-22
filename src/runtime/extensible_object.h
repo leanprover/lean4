@@ -10,6 +10,12 @@ Author: Leonardo de Moura
 #include "runtime/thread.h"
 #include "runtime/debug.h"
 namespace lean {
+/*
+   TODO(Leo): remove this file after we finish converting the code to `object`.
+   This file is needed because we had custom serializers for name/level/expr.
+   After we implement them using `object`, we can use the `object` serializer.
+*/
+
 /**
    \brief Template for creating objects that can be attached to "extensions".
 */

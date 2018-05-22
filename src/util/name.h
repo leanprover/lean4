@@ -58,7 +58,9 @@ public:
     static int cmp(object * o1, object * o2);
     size_t size_core(bool unicode) const;
 private:
-    name(object_ref const & r):object_ref(r) {}
+    friend name read_name(deserializer & d);
+    explicit name(object * r):object_ref(r) { inc(r); }
+    explicit name(object_ref const & r):object_ref(r) {}
 public:
     name():object_ref(box(static_cast<unsigned>(name_kind::ANONYMOUS))) {}
     name(name const & prefix, char const * name);
@@ -195,6 +197,7 @@ public:
             return cmp(a, b);
         }
     }
+    void serialize(serializer & s) const { s.write_object(raw()); }
     struct ptr_hash { unsigned operator()(name const & n) const { return std::hash<object*>()(n.raw()); } };
     struct ptr_eq { bool operator()(name const & n1, name const & n2) const { return n1.raw() == n2.raw(); } };
 };
@@ -231,8 +234,8 @@ struct name_pair_quick_cmp {
 
 typedef std::function<bool(name const &)> name_predicate; // NOLINT
 
-serializer & operator<<(serializer & s, name const & n);
-name read_name(deserializer & d);
+inline serializer & operator<<(serializer & s, name const & n) { n.serialize(s); return s; }
+inline name read_name(deserializer & d) { return name(d.read_object()); }
 inline deserializer & operator>>(deserializer & d, name & n) { n = read_name(d); return d; }
 
 /** \brief Return true if it is a lean internal name, i.e., the name starts with a `_` */

@@ -137,6 +137,26 @@ static void tst12() {
     lean_assert(mk_unique(s, name("foo")) == name(name("foo"), 2));
 }
 
+static void tst13() {
+    std::ostringstream ostrm;
+    serializer out(ostrm);
+    name s1({"a", "b"});
+    out << s1;
+    std::cout << "------\n";
+    unsigned i = 0;
+    for (unsigned char c : ostrm.str()) {
+        std::cout << i << ": " << static_cast<unsigned>(c) << "\n";
+        i++;
+    }
+    std::istringstream istrm(ostrm.str());
+    deserializer in(istrm);
+    name s2;
+    in >> s2;
+    std::cout << "h1: " << s1.hash() << "\nh2: " << s2.hash() << "\n";
+    std::cout << "s1>> " << s1 << "\ns2>> " << s2 << "\n";
+    lean_assert(s1 == s2);
+}
+
 int main() {
     save_stack_info();
     initialize_util_module();
@@ -150,6 +170,7 @@ int main() {
     tst8();
     tst11();
     tst12();
+    tst13();
     finalize_util_module();
     return has_violations() ? 1 : 0;
 }

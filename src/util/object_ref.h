@@ -36,17 +36,14 @@ public:
     static void swap(object_ref & a, object_ref & b) { std::swap(a.m_obj, b.m_obj); }
 };
 
-object_ref mk_cnstr(unsigned tag, unsigned num_objs, object_ref * objs, unsigned scalar_sz = 0);
+/* Remark: this function doesn't increase the reference counter of objs */
 object_ref mk_cnstr(unsigned tag, unsigned num_objs, object ** objs, unsigned scalar_sz = 0);
 inline object_ref mk_cnstr(unsigned tag, object * o, unsigned scalar_sz = 0) { return mk_cnstr(tag, 1, &o, scalar_sz); }
-inline object_ref mk_cnstr(unsigned tag, object_ref const & r, unsigned scalar_sz = 0) { return mk_cnstr(tag, r.raw(), scalar_sz); }
 inline object_ref mk_cnstr(unsigned tag, object * o1, object * o2, unsigned scalar_sz = 0) {
     object * os[] = { o1, o2 };
     return mk_cnstr(tag, 2, os, scalar_sz);
 }
-inline object_ref mk_cnstr(unsigned tag, object_ref const & r1, object_ref const & r2, unsigned scalar_sz = 0) {
-    return mk_cnstr(tag, r1.raw(), r2.raw(), scalar_sz);
-}
+
 /* The following definition is a low level hack that relies on the fact that sizeof(object_ref) == sizeof(object *). */
 inline object_ref const & cnstr_obj_ref(object_ref const & ref, unsigned i) {
     static_assert(sizeof(object_ref) == sizeof(object *), "unexpected object_ref size"); // NOLINT

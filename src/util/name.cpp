@@ -97,6 +97,7 @@ static void display_name(std::ostream & out, name const & n, bool escape, char c
 name::name(name const & prefix, char const * n):
     object_ref(mk_cnstr(static_cast<unsigned>(name_kind::STRING),
                         prefix.raw(), mk_string(n), sizeof(unsigned))) {
+    inc(prefix.raw());
     size_t sz  = strlen(n);
     unsigned h = hash_str(static_cast<unsigned>(sz), n, prefix.hash());
     cnstr_set_scalar<unsigned>(raw(), 2*sizeof(object*), h); // NOLINT
@@ -105,6 +106,7 @@ name::name(name const & prefix, char const * n):
 name::name(name const & prefix, unsigned k):
     object_ref(mk_cnstr(static_cast<unsigned>(name_kind::NUMERAL),
                         prefix.raw(), mk_nat_obj(k), sizeof(unsigned))) {
+    inc(prefix.raw());
     unsigned h = ::lean::hash(k, prefix.hash());
     cnstr_set_scalar<unsigned>(raw(), 2*sizeof(object*), h); // NOLINT
 }

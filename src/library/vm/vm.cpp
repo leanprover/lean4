@@ -992,7 +992,7 @@ static vm_instr read_vm_instr(deserializer & d) {
         idx = d.read_unsigned();
         return mk_constructor_instr(idx, d.read_unsigned());
     case opcode::Num:
-        return mk_num_instr(read_mpz(d));
+        return mk_num_instr(d.read_mpz());
     case opcode::Expr:
         return mk_expr_instr(read_expr(d));
     case opcode::LocalInfo: {

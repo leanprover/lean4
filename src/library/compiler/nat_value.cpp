@@ -113,7 +113,7 @@ void initialize_nat_value() {
                                 [](deserializer & d, unsigned num, expr const *) {
                                     if (num != 0)
                                         throw corrupted_stream_exception();
-                                    mpz v = read_mpz(d);
+                                    mpz v = d.read_mpz();
                                     return mk_nat_value(v);
                                 });
 }

@@ -101,17 +101,6 @@ std::string mpz::to_string() const {
     out << *this;
     return out.str();
 }
-
-serializer & operator<<(serializer & s, mpz const & n) {
-    std::ostringstream out;
-    out << n;
-    s << out.str();
-    return s;
-}
-
-mpz read_mpz(deserializer & d) {
-    return mpz(d.read_string().c_str());
-}
 }
 
 void print(lean::mpz const & n) { std::cout << n << std::endl; }

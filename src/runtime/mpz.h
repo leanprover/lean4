@@ -231,7 +231,6 @@ struct mpz_cmp_fn {
     int operator()(mpz const & v1, mpz const & v2) const { return cmp(v1, v2); }
 };
 
-serializer & operator<<(serializer & s, mpz const & n);
-mpz read_mpz(deserializer & d);
-inline deserializer & operator>>(deserializer & d, mpz & n) { n = read_mpz(d); return d; }
+inline serializer & operator<<(serializer & s, mpz const & n) { s.write_mpz(n); return s; }
+inline deserializer & operator>>(deserializer & d, mpz & n) { n = d.read_mpz(); return d; }
 }

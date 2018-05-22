@@ -605,4 +605,9 @@ theorem pow_le_pow_of_le_right {n : nat} (hx : n > 0) {i : nat} : ∀ {j}, i ≤
 theorem pos_pow_of_pos {n : nat} (m : nat) (h : 0 < n) : 0 < n^m :=
 pow_le_pow_of_le_right h (nat.zero_le _)
 
+/- Max -/
+
+protected def max (n m : nat) : nat :=
+if n ≤ m then m else n
+
 end nat

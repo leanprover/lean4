@@ -40,7 +40,6 @@ enum class level_kind { Zero, Succ, Max, IMax, Param, Meta };
    \brief Universe level.
 */
 class level {
-    friend class environment;
     level_cell * m_ptr;
     friend level_cell const & to_cell(level const & l);
     friend class optional<level>;

@@ -19,6 +19,20 @@ inductive level
 instance level_is_inhabited : inhabited level :=
 ⟨level.zero⟩
 
+def level.has_param : level → bool
+| (level.param _)    := tt
+| (level.succ l)     := level.has_param l
+| (level.max l₁ l₂)  := level.has_param l₁ || level.has_param l₂
+| (level.imax l₁ l₂) := level.has_param l₁ || level.has_param l₂
+| _                  := ff
+
+def level.has_mvar : level → bool
+| (level.mvar _)     := tt
+| (level.succ l)     := level.has_param l
+| (level.max l₁ l₂)  := level.has_param l₁ || level.has_param l₂
+| (level.imax l₁ l₂) := level.has_param l₁ || level.has_param l₂
+| _                  := ff
+
 def level.of_nat : nat → level
 | 0     := level.zero
 | (n+1) := level.succ (level.of_nat n)

@@ -38,4 +38,4 @@ public:                                                                 \
         m_cache->clear();                                               \
     }                                                                   \
     Cache * operator->() const { return m_cache; }                      \
-};                                                                      \
+};

@@ -8,6 +8,8 @@ Author: Leonardo de Moura
 #include "util/object_ref.h"
 
 namespace lean {
+template<typename T> T const & head(object * o) { return static_cast<T const &>(cnstr_obj_ref(o, 0)); }
+
 /* Wrapper for manipulating Lean lists in C++ */
 template<typename T>
 class obj_list : public object_ref {
@@ -51,8 +53,8 @@ public:
         while (!is_scalar(it1) && !is_scalar(it2)) {
             if (it1 == it2)
                 return true;
-            T const & h1 = static_cast<T const &>(cnstr_obj_ref(it1, 0));
-            T const & h2 = static_cast<T const &>(cnstr_obj_ref(it2, 0));
+            T const & h1 = ::lean::head<T>(it1);
+            T const & h2 = ::lean::head<T>(it2);
             if (h1 != h2)
                 return false;
             it1 = cnstr_obj(it1, 1);
@@ -77,7 +79,7 @@ public:
         iterator operator++(int) { iterator tmp(*this); operator++(); return tmp; }
         bool operator==(iterator const & s) const { return m_it == s.m_it; }
         bool operator!=(iterator const & s) const { return !operator==(s); }
-        T const & operator*() { return static_cast<T const &>(cnstr_obj_ref(m_it, 0)); }
+        T const & operator*() { return ::lean::head<T>(m_it); }
     };
 
     iterator begin() const { return iterator(raw()); }
@@ -91,6 +93,8 @@ public:
         }
     }
 };
+
+template<typename T> obj_list<T> const & tail(object * o) { return static_cast<obj_list<T> const &>(cnstr_obj_ref(o, 1)); }
 
 template<typename T> size_t length(obj_list<T> const & l) {
     size_t r    = 0;
@@ -126,8 +130,30 @@ obj_list<T> map(obj_list<T> const & l, F && f) {
 
 template<typename T, typename F>
 obj_list<T> map_reuse(obj_list<T> const & l, F && f) {
-    // TODO(Leo):
-    return map(l, std::move(f));
+    if (is_nil(l))
+        return l;
+    buffer<object*> tmp;
+    l.get_cons_cells(tmp);
+    auto it    = tmp.end();
+    auto begin = tmp.begin();
+    while (it != begin) {
+        --it;
+        object * curr  = *it;
+        T const & h = head<T>(curr);
+        T new_h = f(h);
+        if (new_h.raw() != h.raw()) {
+            obj_list<T> const & t = tail<T>(curr);
+            obj_list<T> r(new_h, t);
+            while (it != begin) {
+                --it;
+                object * curr  = *it;
+                T const & h = head<T>(curr);
+                r = cons(f(h), r);
+            }
+            return r;
+        }
+    }
+    return l;
 }
 
 /** \brief Compare two lists using the binary predicate p. */
@@ -160,18 +186,18 @@ obj_list<T> filter(obj_list<T> const & l, P && p) {
     size_t i = tmp.size();
     while (i > 0) {
         --i;
-        if (!p(static_cast<T const &>(cnstr_obj_ref(tmp[i], 0)))) {
+        if (!p(head<T>(tmp[i]))) {
             obj_list<T> r;
-            r = static_cast<obj_list<T> const &>(cnstr_obj_ref(tmp[i], 1));
+            r = tail<T>(tmp[i]);
             while (i > 0) {
                 --i;
-                T const & h = static_cast<T const &>(cnstr_obj_ref(tmp[i], 0));
+                T const & h = head<T>(tmp[i]);
                 if (p(h))
                     r = cons(h, r);
             }
             return r;
         }
     }
-    return l; // not element was removed
+    return l; // no element was removed
 }
 }

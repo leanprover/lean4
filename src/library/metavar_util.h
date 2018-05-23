@@ -115,9 +115,7 @@ class instantiate_mvars_fn : public replace_visitor {
     }
 
     levels visit_levels(levels const & ls) {
-        return map_reuse(ls,
-                         [&](level const & l) { return visit_level(l); },
-                         [](level const & l1, level const & l2) { return is_eqp(l1, l2); });
+        return map_reuse(ls, [&](level const & l) { return visit_level(l); });
     }
 
     virtual expr visit_sort(expr const & s) override {

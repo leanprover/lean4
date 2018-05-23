@@ -350,7 +350,7 @@ level instantiate(level const & l, level_param_names const & ps, levels const & 
             } else if (is_param(l)) {
                 name const & id = param_id(l);
                 list<name> const *it1 = &ps;
-                list<level> const * it2 = &ls;
+                levels const * it2 = &ls;
                 while (!is_nil(*it1)) {
                     if (head(*it1) == id)
                         return some_level(head(*it2));
@@ -627,7 +627,10 @@ bool is_geq(level const & l1, level const & l2) {
     return is_geq_core(normalize(l1), normalize(l2));
 }
 levels param_names_to_levels(level_param_names const & ps) {
-    return map2<level>(ps, [](name const & p) { return mk_param_univ(p); });
+    buffer<level> ls;
+    for (auto const & p : ps)
+        ls.push_back(mk_param_univ(p));
+    return levels(ls);
 }
 
 void initialize_level() {

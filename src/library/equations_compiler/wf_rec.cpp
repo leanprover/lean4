@@ -510,7 +510,7 @@ struct wf_rec_fn {
                 name packed_eqn_name = mk_equation_name(packed_name, i);
                 optional<declaration> packed_eqn_decl = m_env.find(packed_eqn_name);
                 if (!packed_eqn_decl) break;
-                list<level> packed_eqn_levels = param_names_to_levels(packed_eqn_decl->get_univ_params());
+                levels packed_eqn_levels = param_names_to_levels(packed_eqn_decl->get_univ_params());
                 expr packed_eqn_type = instantiate_type_univ_params(*packed_eqn_decl, packed_eqn_levels);
                 type_context_old::tmp_locals args(ctx);
                 expr packed_eqn = packed_eqn_type;

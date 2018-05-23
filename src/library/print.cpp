@@ -198,7 +198,7 @@ struct print_expr_fn {
     }
 
     void print_const(expr const & a) {
-        list<level> const & ls = const_levels(a);
+        levels const & ls = const_levels(a);
         out() << const_name(a);
         if (!is_nil(ls)) {
             out() << ".{";

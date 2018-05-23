@@ -747,7 +747,7 @@ static simp_lemmas add_core(type_context_old & ctx, simp_lemmas const & s, name 
 static simp_lemmas add_core(type_context_old & ctx, simp_lemmas const & s, name const & id,
                             buffer<level> const & univ_metas, buffer<expr> const & emetas,
                             expr const & e, expr const & h, unsigned priority) {
-    return add_core(ctx, s, id, to_list(univ_metas), emetas, e, h, priority);
+    return add_core(ctx, s, id, levels(univ_metas), emetas, e, h, priority);
 }
 
 static simp_lemmas add_core(type_context_old & ctx, simp_lemmas const & s, name const & id, levels const & univ_metas,
@@ -778,7 +778,7 @@ static levels mk_tmp_levels_for(type_context_old & ctx, declaration const & d) {
     for (unsigned i = 0; i < num_univs; i++) {
         us.push_back(ctx.mk_tmp_univ_mvar());
     }
-    return to_list(us);
+    return levels(us);
 }
 
 static simp_lemmas add_core(type_context_old & ctx, simp_lemmas const & s, name const & cname, unsigned priority) {
@@ -894,7 +894,7 @@ static simp_lemmas add_congr_core(type_context_old & ctx, simp_lemmas const & s,
     for (unsigned i = 0; i < num_univs; i++) {
         us.push_back(ctx.mk_tmp_univ_mvar());
     }
-    levels ls = to_list(us);
+    levels ls(us);
     expr rule    = instantiate_type_univ_params(d, ls);
     expr proof   = mk_constant(n, ls);
 
@@ -1012,7 +1012,7 @@ simp_lemmas add(type_context_old & ctx, simp_lemmas const & s, name const & id, 
 
 simp_lemmas add(type_context_old & ctx, simp_lemmas const & s, name const & id, expr const & e, expr const & h, unsigned priority) {
     type_context_old::tmp_mode_scope scope(ctx);
-    auto r = add_core(ctx, s, id, list<level>(), e, h, priority);
+    auto r = add_core(ctx, s, id, levels(), e, h, priority);
     if (is_eqp(r, s)) {
         report_failure(sstream() << "invalid simplification lemma '" << id << "': " << e);
     }

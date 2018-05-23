@@ -415,7 +415,7 @@ static environment copy_equation_lemmas(environment const & env, buffer<name> co
                                                const_levels(lhs_fn),
                                                const_levels(fn),
                                                eqn_level_buffer);
-            levels eqn_levels = to_list(eqn_level_buffer);
+            levels eqn_levels(eqn_level_buffer);
             /* Get arguments for instantiating the lemma */
             buffer<expr> eqn_args;
             get_args_for_instantiating_lemma(num_eqn_params, lhs_args, args, eqn_args);

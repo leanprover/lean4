@@ -104,9 +104,9 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
                         level l       = sort_level(tc.ensure_type(lhs_type));
                         expr h_type;
                         if (tc.is_def_eq(lhs_type, rhs_type)) {
-                            h_type = mk_app(mk_constant(get_eq_name(), to_list(l)), lhs_type, lhs, rhs);
+                            h_type = mk_app(mk_constant(get_eq_name(), levels(l)), lhs_type, lhs, rhs);
                         } else {
-                            h_type = mk_app(mk_constant(get_heq_name(), to_list(l)), lhs_type, lhs, rhs_type, rhs);
+                            h_type = mk_app(mk_constant(get_heq_name(), levels(l)), lhs_type, lhs, rhs_type, rhs);
                         }
                         rtype_hyp.push_back(mk_local(ngen.next(), mlocal_pp_name(lhs).append_after("_eq"), h_type, binder_info()));
                     }
@@ -157,7 +157,7 @@ environment mk_no_confusion(environment const & env, name const & n) {
     expr v2           = args[args.size()-1];
     expr v_type       = mlocal_type(v1);
     level v_lvl       = sort_level(tc.ensure_type(v_type));
-    expr eq_v         = mk_app(mk_constant(get_eq_name(), to_list(v_lvl)), v_type);
+    expr eq_v         = mk_app(mk_constant(get_eq_name(), levels(v_lvl)), v_type);
     expr H12          = mk_local(ngen.next(), "h12", mk_app(eq_v, v1, v2), binder_info());
     args.push_back(H12);
     name no_confusion_name{n, "no_confusion"};

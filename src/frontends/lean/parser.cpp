@@ -1945,7 +1945,7 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only, 
             if (!consumed_input()) break;
         }
         next();
-        ls = to_list(lvl_buffer.begin(), lvl_buffer.end());
+        ls = levels(lvl_buffer);
     }
 
     auto check_no_levels = [&] (levels const & ls, pos_info const & p) {

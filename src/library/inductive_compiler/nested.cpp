@@ -1070,7 +1070,7 @@ class add_nested_inductive_decl_fn {
         }
 
         // Elim levels
-        list<level> elim_levels = const_levels(fn);
+        levels elim_levels = const_levels(fn);
         {
             declaration d = m_env.get(get_dep_recursor(m_env, const_name(fn)));
             if (length(elim_levels) < d.get_num_univ_params()) {
@@ -1078,7 +1078,7 @@ class add_nested_inductive_decl_fn {
                 level unpacked_level = get_level(m_tctx, mk_app(start, indices));
                 level packed_level = get_level(m_tctx, mk_app(end, indices));
                 lean_assert(unpacked_level == packed_level);
-                elim_levels = list<level>(unpacked_level, elim_levels);
+                elim_levels = levels(unpacked_level, elim_levels);
             }
         }
 
@@ -1277,13 +1277,13 @@ class add_nested_inductive_decl_fn {
         }
 
         // 1. elim levels
-        list<level> pack_elim_levels, unpack_elim_levels;
+        levels pack_elim_levels, unpack_elim_levels;
         {
             pack_elim_levels = const_levels(nest_fn);
             unpack_elim_levels = m_inner_decl.get_levels();
             if (m_elim_to_type) {
-                pack_elim_levels = list<level>(m_nested_decl.get_result_level(m_env), pack_elim_levels);
-                unpack_elim_levels = list<level>(m_nested_decl.get_result_level(m_env), unpack_elim_levels);
+                pack_elim_levels = levels(m_nested_decl.get_result_level(m_env), pack_elim_levels);
+                unpack_elim_levels = levels(m_nested_decl.get_result_level(m_env), unpack_elim_levels);
             }
         }
 

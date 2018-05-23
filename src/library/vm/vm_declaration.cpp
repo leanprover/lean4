@@ -104,7 +104,7 @@ meta_constant declaration.instantiate_type_univ_params : declaration → list le
 */
 vm_obj declaration_instantiate_type_univ_params(vm_obj const & _d, vm_obj const & _ls) {
     declaration const & d  = to_declaration(_d);
-    list<level> const & ls = to_list_level(_ls);
+    levels ls = to_levels(_ls);
     if (d.get_num_univ_params() != length(ls))
         return mk_vm_none();
     else
@@ -117,7 +117,7 @@ meta_constant declaration.instantiate_value_univ_params : declaration → list l
 */
 vm_obj declaration_instantiate_value_univ_params(vm_obj const & _d, vm_obj const & _ls) {
     declaration const & d  = to_declaration(_d);
-    list<level> const & ls = to_list_level(_ls);
+    levels ls = to_levels(_ls);
     if (!d.is_definition() || d.get_num_univ_params() != length(ls))
         return mk_vm_none();
     else

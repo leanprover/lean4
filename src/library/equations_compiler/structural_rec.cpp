@@ -403,7 +403,7 @@ struct structural_rec_fn {
         for (level const & v : const_levels(I))
             below_lvls.push_back(v);
         name below_name = name(const_name(I), m_use_ibelow ? "ibelow" : "below");
-        expr below      = mk_app(mk_constant(below_name, to_list(below_lvls)), I_params);
+        expr below      = mk_app(mk_constant(below_name, levels(below_lvls)), I_params);
         m_motive_type   = binding_domain(ctx.relaxed_whnf(ctx.infer(below)));
         below           = mk_app(mk_app(mk_app(below, motive), idx_args), rec_arg);
         locals.push_local("_F", below);

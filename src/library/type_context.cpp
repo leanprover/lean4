@@ -3606,7 +3606,7 @@ struct instance_synthesizer {
             unsigned num_univ_ps = decl->get_num_univ_params();
             for (unsigned i = 0; i < num_univ_ps; i++)
                 ls_buffer.push_back(m_ctx.mk_tmp_univ_mvar());
-            levels ls = to_list(ls_buffer.begin(), ls_buffer.end());
+            levels ls(ls_buffer);
             expr inst_cnst = mk_constant(inst_name, ls);
             expr inst_type = instantiate_type_univ_params(*decl, ls);
             return try_instance(e, inst_cnst, inst_type);
@@ -4000,7 +4000,7 @@ expr type_context_old::preprocess_class(expr const & type,
         }
     }
     if (!u_replacements.empty())
-        C = update_constant(C, to_list(C_levels));
+        C = update_constant(C, levels(C_levels));
     expr it2 = infer(C);
     for (expr & C_arg : C_args) {
         it2  = relaxed_whnf(it2);

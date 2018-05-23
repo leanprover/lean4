@@ -15,11 +15,11 @@ void to_buffer_name(vm_obj const & o, buffer<name> & r);
 vm_obj to_obj(buffer<name> const & ls);
 vm_obj to_obj(list<name> const & ls);
 
-list<level> to_list_level(vm_obj const & o);
+levels to_levels(vm_obj const & o);
 /* Given an object o : list level, store its contents at \c r */
 void to_buffer_level(vm_obj const & o, buffer<level> & r);
 vm_obj to_obj(buffer<level> const & ls);
-vm_obj to_obj(list<level> const & ls);
+vm_obj to_obj(levels const & ls);
 
 list<expr> to_list_expr(vm_obj const & o);
 /* Given an object o : list expr, store its contents at \c r */
@@ -51,6 +51,17 @@ list<A> to_list(vm_obj const & o, F const & fn) {
         return list<A>();
     } else if (is_constructor(o)) {
         return list<A>(fn(cfield(o, 0)), to_list<A>(cfield(o, 1), fn));
+    } else {
+        lean_unreachable();
+    }
+}
+
+template<typename A, typename F>
+obj_list<A> to_obj_list(vm_obj const & o, F const & fn) {
+    if (is_simple(o)) {
+        return obj_list<A>();
+    } else if (is_constructor(o)) {
+        return obj_list<A>(fn(cfield(o, 0)), to_obj_list<A>(cfield(o, 1), fn));
     } else {
         lean_unreachable();
     }

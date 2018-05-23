@@ -159,7 +159,7 @@ class app_builder {
         for (unsigned i = 0; i < num_univ; i++) {
             lvls_buffer.push_back(m_ctx.mk_tmp_univ_mvar());
         }
-        levels lvls = to_list(lvls_buffer);
+        levels lvls(lvls_buffer);
         expr type   = m_ctx.relaxed_whnf(instantiate_type_univ_params(d, lvls));
         while (is_pi(type)) {
             expr mvar = m_ctx.mk_tmp_mvar(binding_domain(type));
@@ -206,7 +206,7 @@ class app_builder {
         for (unsigned i = 0; i < num_univ; i++) {
             lvls_buffer.push_back(m_ctx.mk_tmp_univ_mvar());
         }
-        levels lvls = to_list(lvls_buffer);
+        levels lvls(lvls_buffer);
         expr type   = instantiate_type_univ_params(d, lvls);
         for (unsigned i = 0; i < arity; i++) {
             type   = m_ctx.relaxed_whnf(type);

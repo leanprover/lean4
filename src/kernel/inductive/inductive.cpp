@@ -236,7 +236,7 @@ struct add_inductive_fn {
     // we track whether the resultant universe cannot be zero for any
     // universe level instantiation
     bool                 m_is_not_zero;
-    list<level>          m_levels;       // m_decl.m_level_params ==> m_levels
+    levels               m_levels;       // m_decl.m_level_params ==> m_levels
     type_checker_ptr     m_tc;
 
     level                m_elim_level;   // extra universe level for eliminator.

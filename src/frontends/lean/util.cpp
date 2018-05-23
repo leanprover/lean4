@@ -102,7 +102,7 @@ levels collect_local_nonvar_levels(parser & p, level_param_names const & ls) {
         else
             break;
     }
-    return to_list(section_ls_buffer.begin(), section_ls_buffer.end());
+    return levels(section_ls_buffer);
 }
 
 // Version of collect_locals(expr const & e, collected_locals & ls) that ignores local constants occurring in

@@ -56,7 +56,7 @@ levels closure_helper::collect(levels const & ls) {
     if (!modified)
         return ls;
     else
-        return to_list(r);
+        return levels(r);
 }
 
 expr closure_helper::collect(expr const & e) {
@@ -182,7 +182,7 @@ struct mk_aux_definition_fn : public closure_helper {
         get_level_closure(ls);
         buffer<expr> ps;
         get_expr_closure(ps);
-        expr r = mk_app(mk_constant(c, to_list(ls)), ps);
+        expr r = mk_app(mk_constant(c, levels(ls)), ps);
         return mk_pair(new_env, r);
     }
 };

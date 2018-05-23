@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include "runtime/optional.h"
 #include "util/name.h"
-#include "util/list.h"
+#include "util/obj_list.h"
 #include "util/sexpr/format.h"
 #include "util/sexpr/options.h"
 
@@ -78,7 +78,7 @@ public:
     friend inline name const & level_id(level const & l) { lean_assert(l.is_param() || l.is_meta()); return static_cast<name const &>(cnstr_obj_ref(l, 0)); }
 };
 
-typedef list<level> levels;
+typedef obj_list<level> levels;
 
 bool operator==(level const & l1, level const & l2);
 inline bool operator!=(level const & l1, level const & l2) { return !operator==(l1, l2); }
@@ -86,10 +86,10 @@ inline bool operator!=(level const & l1, level const & l2) { return !operator==(
 struct level_hash { unsigned operator()(level const & n) const { return n.hash(); } };
 struct level_eq { bool operator()(level const & n1, level const & n2) const { return n1 == n2; } };
 
-inline serializer & operator<<(serializer & s, level const & n) { n.serialize(s); return s; }
+inline serializer & operator<<(serializer & s, level const & l) { l.serialize(s); return s; }
+inline serializer & operator<<(serializer & s, levels const & ls) { ls.serialize(s); return s; }
 inline level read_level(deserializer & d) { return level::deserialize(d); }
-inline serializer & operator<<(serializer & s, levels const & ls) { return write_list<level>(s, ls); }
-inline levels read_levels(deserializer & d) { return read_list<level>(d, read_level); }
+inline levels read_levels(deserializer & d) { return read_obj_list<level>(d); }
 
 inline optional<level> none_level() { return optional<level>(); }
 inline optional<level> some_level(level const & e) { return optional<level>(e); }
@@ -156,9 +156,6 @@ level normalize(level const & l);
 bool is_geq_core(level l1, level l2);
 
 bool is_geq(level const & l1, level const & l2);
-
-
-typedef list<level> levels;
 
 bool has_meta(levels const & ls);
 bool has_param(levels const & ls);

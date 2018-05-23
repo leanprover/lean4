@@ -14,8 +14,7 @@ expr gexpr::to_expr(type_context_old & ctx) const {
         unsigned num_univ_ps = fdecl.get_num_univ_params();
         for (unsigned i = 0; i < num_univ_ps; i++)
             ls_buffer.push_back(ctx.mk_univ_metavar_decl());
-        levels ls = to_list(ls_buffer.begin(), ls_buffer.end());
-        return mk_constant(const_name(m_expr), ls);
+        return mk_constant(const_name(m_expr), levels(ls_buffer));
     } else {
         return m_expr;
     }

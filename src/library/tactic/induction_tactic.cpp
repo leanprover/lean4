@@ -235,7 +235,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
         throw exception(sstream() << "induction tactic failed, recursor '" << rec_info.get_name()
                         << "' can only eliminate into Prop");
     }
-    expr rec = mk_constant(rec_info.get_name(), to_list(rec_lvls));
+    expr rec = mk_constant(rec_info.get_name(), levels(rec_lvls));
     /* Compute recursor parameters */
     unsigned nparams = 0;
     for (optional<unsigned> const & pos : rec_info.get_params_pos()) {

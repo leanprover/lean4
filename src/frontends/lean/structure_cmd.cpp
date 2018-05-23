@@ -539,7 +539,10 @@ struct structure_cmd_fn {
                     level_param_names new_ls;
                     expr new_tmp;
                     std::tie(new_tmp, new_ls) = m_p.elaborate_type(m_name, list<expr>(), tmp);
-                    levels new_meta_ls = map2<level>(new_ls, [&](name const &) { return m_ctx.mk_univ_metavar_decl(); });
+                    levels new_meta_ls;
+                    unsigned num_new_ls = length(new_ls);
+                    for (unsigned i = 0; i < num_new_ls; i++)
+                        new_meta_ls = cons(m_ctx.mk_univ_metavar_decl(), new_meta_ls);
                     return instantiate_univ_params(new_tmp, new_ls, new_meta_ls);
                 });
             });
@@ -641,7 +644,10 @@ struct structure_cmd_fn {
                     expr base_obj = *base_obj_opt;
                     level_param_names lparams; unsigned nparams; inductive::intro_rule intro;
                     std::tie(lparams, nparams, intro) = get_parent_info(base_S_name);
-                    levels meta_ls = map2<level>(lparams, [&](name const &) { return m_ctx.mk_univ_metavar_decl(); });
+                    unsigned num_lparams = length(lparams);
+                    levels meta_ls;
+                    for (unsigned i = 0; i < num_lparams; i++)
+                        meta_ls = cons(m_ctx.mk_univ_metavar_decl(), meta_ls);
                     expr type = instantiate_univ_params(m_p.env().get(full_fname).get_type(), lparams, meta_ls);
                     std::function<expr(expr const &, unsigned)> pi_to_lam = [&](expr const & e, unsigned i) {
                         if (i == nparams + 1)

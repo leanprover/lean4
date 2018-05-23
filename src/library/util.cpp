@@ -382,7 +382,7 @@ void get_constructor_rec_arg_mask(environment const & env, name const & n, buffe
 }
 
 expr instantiate_univ_param (expr const & e, name const & p, level const & l) {
-    return instantiate_univ_params(e, to_list(p), to_list(l));
+    return instantiate_univ_params(e, to_list(p), levels(l));
 }
 
 unsigned get_expect_num_args(abstract_type_context & ctx, expr e) {

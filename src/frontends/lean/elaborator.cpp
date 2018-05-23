@@ -937,7 +937,7 @@ expr elaborator::visit_const_core(expr const & e) {
     for (unsigned i = ls.size(); i < num_univ_params; i++)
         ls.push_back(mk_univ_metavar());
     lean_assert(num_univ_params == ls.size());
-    return update_constant(e, to_list(ls.begin(), ls.end()));
+    return update_constant(e, levels(ls));
 }
 
 /** \brief Auxiliary function for saving information about which overloaded identifier was used by the elaborator. */

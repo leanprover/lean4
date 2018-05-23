@@ -178,9 +178,7 @@ expr instantiate_univ_params(expr const & e, level_param_names const & ps, level
             if (!has_param_univ(e))
                 return some_expr(e);
             if (is_constant(e)) {
-                return some_expr(update_constant(e, map_reuse(const_levels(e),
-                                                              [&](level const & l) { return instantiate(l, ps, ls); },
-                                                              [](level const & l1, level const & l2) { return is_eqp(l1, l2); })));
+                return some_expr(update_constant(e, map_reuse(const_levels(e), [&](level const & l) { return instantiate(l, ps, ls); })));
             } else if (is_sort(e)) {
                 return some_expr(update_sort(e, instantiate(sort_level(e), ps, ls)));
             } else {

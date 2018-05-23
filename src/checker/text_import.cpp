@@ -36,7 +36,7 @@ struct text_importer {
         while (in >> idx) {
             ls.push_back(m_level.at(idx));
         }
-        return to_list(ls);
+        return levels(ls);
     }
 
     level_param_names read_level_params(std::istream & in) {

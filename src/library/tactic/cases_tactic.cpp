@@ -171,11 +171,11 @@ struct cases_tactic_fn {
         expr rhs_type = ctx.infer(rhs);
         level l       = get_level(ctx, lhs_type);
         if (ctx.is_def_eq(lhs_type, rhs_type)) {
-            return mk_pair(mk_app(mk_constant(get_eq_name(), to_list(l)), lhs_type, lhs, rhs),
-                           mk_app(mk_constant(get_eq_refl_name(), to_list(l)), lhs_type, lhs));
+            return mk_pair(mk_app(mk_constant(get_eq_name(), levels(l)), lhs_type, lhs, rhs),
+                           mk_app(mk_constant(get_eq_refl_name(), levels(l)), lhs_type, lhs));
         } else {
-            return mk_pair(mk_app(mk_constant(get_heq_name(), to_list(l)), lhs_type, lhs, rhs_type, rhs),
-                           mk_app(mk_constant(get_heq_refl_name(), to_list(l)), lhs_type, lhs));
+            return mk_pair(mk_app(mk_constant(get_heq_name(), levels(l)), lhs_type, lhs, rhs_type, rhs),
+                           mk_app(mk_constant(get_heq_refl_name(), levels(l)), lhs_type, lhs));
         }
     }
 

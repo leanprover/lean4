@@ -345,7 +345,6 @@ object * deserializer_core::read_object() {
         case object_kind::External:     r = read_external(); break;
         default: throw corrupted_stream_exception();
         }
-        inc_ref(r);
         m_objs.push_back(r);
         return r;
     }

@@ -204,7 +204,7 @@ bool operator==(name const & a, char const * b) {
         strcmp(a.get_string(), b) == 0;
 }
 
-int name::cmp(object * i1, object * i2) {
+int name::cmp_core(object * i1, object * i2) {
     buffer<object*> limbs1, limbs2;
     copy_limbs(i1, limbs1);
     copy_limbs(i2, limbs2);

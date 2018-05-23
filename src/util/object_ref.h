@@ -32,7 +32,6 @@ public:
         return *this;
     }
     object * raw() const { return m_obj; }
-    operator object*() const { return m_obj; }
     static void swap(object_ref & a, object_ref & b) { std::swap(a.m_obj, b.m_obj); }
 };
 
@@ -47,7 +46,7 @@ inline object_ref mk_cnstr(unsigned tag, object * o1, object * o2, unsigned scal
 /* The following definition is a low level hack that relies on the fact that sizeof(object_ref) == sizeof(object *). */
 inline object_ref const & cnstr_obj_ref(object_ref const & ref, unsigned i) {
     static_assert(sizeof(object_ref) == sizeof(object *), "unexpected object_ref size"); // NOLINT
-    lean_assert(is_cnstr(ref));
+    lean_assert(is_cnstr(ref.raw()));
     return reinterpret_cast<object_ref const *>(reinterpret_cast<char*>(ref.raw()) + sizeof(constructor))[i];
 }
 

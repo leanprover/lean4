@@ -53,7 +53,7 @@ public:
     static unsigned get_numeral(object * o) { return unbox(cnstr_obj(o, 1)); }
     static unsigned hash(object * o) { return cnstr_scalar<unsigned>(o, 2*sizeof(object*)); } // NOLINT
     static bool eq_core(object * o1, object * o2);
-    static int cmp(object * o1, object * o2);
+    static int cmp_core(object * o1, object * o2);
     size_t size_core(bool unicode) const;
 private:
     friend name read_name(deserializer & d);
@@ -106,7 +106,7 @@ public:
     friend bool operator==(name const & a, char const * b);
     friend bool operator!=(name const & a, char const * b) { return !(a == b); }
     /** \brief Total order on hierarchical names. */
-    friend int cmp(name const & a, name const & b) { return cmp(a.raw(), b.raw()); }
+    friend int cmp(name const & a, name const & b) { return cmp_core(a.raw(), b.raw()); }
     friend bool operator<(name const & a, name const & b) { return cmp(a, b) < 0; }
     friend bool operator>(name const & a, name const & b) { return cmp(a, b) > 0; }
     friend bool operator<=(name const & a, name const & b) { return cmp(a, b) <= 0; }

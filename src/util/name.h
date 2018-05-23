@@ -198,8 +198,6 @@ public:
         }
     }
     void serialize(serializer & s) const { s.write_object(raw()); }
-    struct ptr_hash { unsigned operator()(name const & n) const { return std::hash<object*>()(n.raw()); } };
-    struct ptr_eq { bool operator()(name const & n1, name const & n2) const { return n1.raw() == n2.raw(); } };
 };
 
 name string_to_name(std::string const & str);

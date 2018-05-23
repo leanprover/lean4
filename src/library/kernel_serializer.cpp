@@ -12,83 +12,6 @@ Author: Leonardo de Moura
 
 // Procedures for serializing and deserializing kernel objects (levels, exprs, declarations)
 namespace lean {
-// Universe level serialization
-class level_serializer : public object_serializer<level, level::ptr_hash, level::ptr_eq> {
-    typedef object_serializer<level, level::ptr_hash, level::ptr_eq> super;
-public:
-    void write(level const & l) {
-        super::write(l, [&]() {
-                serializer & s = get_owner();
-                auto k = kind(l);
-                s << static_cast<char>(k);
-                switch (k) {
-                case level_kind::Zero:     break;
-                case level_kind::Param:    s << param_id(l);   break;
-                case level_kind::Meta:     s << meta_id(l);    break;
-                case level_kind::Max:      write(max_lhs(l));  write(max_rhs(l)); break;
-                case level_kind::IMax:     write(imax_lhs(l)); write(imax_rhs(l)); break;
-                case level_kind::Succ:     write(succ_of(l));  break;
-                }
-            });
-    }
-};
-
-class level_deserializer : public object_deserializer<level> {
-    typedef object_deserializer<level> super;
-public:
-    level read() {
-        return super::read([&]() -> level {
-                deserializer & d = get_owner();
-                auto k = static_cast<level_kind>(d.read_char());
-                switch (k) {
-                case level_kind::Zero:
-                    return mk_level_zero();
-                case level_kind::Param:
-                    return mk_param_univ(read_name(d));
-                case level_kind::Meta:
-                    return mk_meta_univ(read_name(d));
-                case level_kind::Max: {
-                    level lhs = read();
-                    return mk_max(lhs, read());
-                }
-                case level_kind::IMax: {
-                    level lhs = read();
-                    return mk_imax(lhs, read());
-                }
-                case level_kind::Succ:
-                    return mk_succ(read());
-                }
-                throw corrupted_stream_exception();
-            });
-    }
-};
-
-struct level_sd {
-    unsigned m_s_extid;
-    unsigned m_d_extid;
-    level_sd() {
-        m_s_extid = serializer::register_extension([](){
-                return std::unique_ptr<serializer::extension>(new level_serializer());
-            });
-        m_d_extid = deserializer::register_extension([](){
-                return std::unique_ptr<deserializer::extension>(new level_deserializer());
-            });
-    }
-};
-
-static level_sd * g_level_sd = nullptr;
-
-serializer & operator<<(serializer & s, level const & n) {
-    s.get_extension<level_serializer>(g_level_sd->m_s_extid).write(n);
-    return s;
-}
-
-level read_level(deserializer & d) { return d.get_extension<level_deserializer>(g_level_sd->m_d_extid).read(); }
-
-serializer & operator<<(serializer & s, levels const & ls) { return write_list<level>(s, ls); }
-
-levels read_levels(deserializer & d) { return read_list<level>(d, read_level); }
-
 // Expression serialization
 typedef std::unordered_map<std::string, macro_definition_cell::reader> macro_readers;
 static macro_readers * g_macro_readers = nullptr;
@@ -414,7 +337,6 @@ certified_inductive_decl read_certified_inductive_decl(deserializer & d) {
 }
 
 void initialize_kernel_serializer() {
-    g_level_sd      = new level_sd();
     g_macro_readers = new macro_readers();
     g_binder_name   = new name("a");
     g_expr_sd       = new expr_sd();
@@ -424,6 +346,5 @@ void finalize_kernel_serializer() {
     delete g_expr_sd;
     delete g_binder_name;
     delete g_macro_readers;
-    delete g_level_sd;
 }
 }

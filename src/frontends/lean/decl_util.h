@@ -174,7 +174,7 @@ environment add_alias(environment const & env, bool is_protected, name const & c
 
 /** \brief Create an equations header for the given function names.
     It uses the information set using declaration_info_scope */
-equations_header mk_equations_header(list<name> const & fn_names, list<name> const & fn_actual_names);
+equations_header mk_equations_header(names const & fn_names, names const & fn_actual_names);
 equations_header mk_equations_header(name const & fn_name, name const & fn_actual_name);
 equations_header mk_match_header(name const & n, name const & actual_n);
 

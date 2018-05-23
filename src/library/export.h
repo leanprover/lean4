@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 namespace lean {
 void export_as_lowtext(std::ostream & out, environment const & env,
-    optional<list<name>> const & decls);
+    optional<names> const & decls);
 void export_all_as_lowtext(std::ostream & out, environment const & env) {
     return export_as_lowtext(out, env, {});
 }

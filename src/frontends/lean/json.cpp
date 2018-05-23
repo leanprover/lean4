@@ -82,7 +82,7 @@ json serialize_decl(name const & short_name, name const & long_name, environment
 
 json serialize_decl(name const & d, environment const & env, options const & o) {
     // using namespace override resolution rule
-    list<name> const & ns_list = get_namespaces(env);
+    names const & ns_list = get_namespaces(env);
     for (name const & ns : ns_list) {
         name new_d = d.replace_prefix(ns, name());
         if (new_d != d &&

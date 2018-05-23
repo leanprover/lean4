@@ -371,7 +371,7 @@ optional<pair<expr, bool>> dsimplify_fn::post(expr const & e) {
 }
 
 dsimplify_fn::dsimplify_fn(type_context_old & ctx, defeq_canonizer::state & dcs, simp_lemmas_for const & lemmas,
-                           list<name> const & to_unfold, dsimp_config const & cfg):
+                           names const & to_unfold, dsimp_config const & cfg):
     dsimplify_core_fn(ctx, dcs, cfg),
     m_simp_lemmas(lemmas),
     m_to_unfold(to_name_set(to_unfold)) {
@@ -452,7 +452,7 @@ vm_obj simp_lemmas_dsimplify(vm_obj const & lemmas, vm_obj const & u, vm_obj con
         tactic_state_context_cache cache(s);
         type_context_old ctx     = cache.mk_type_context(cfg.m_md);
         defeq_can_state dcs  = s.dcs();
-        list<name> to_unfold = to_list_name(u);
+        names to_unfold = to_names(u);
         simp_lemmas_for dlemmas;
         if (auto * dls = to_simp_lemmas(lemmas).find(get_eq_name()))
             dlemmas = *dls;

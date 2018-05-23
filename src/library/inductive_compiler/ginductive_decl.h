@@ -66,7 +66,7 @@ public:
     unsigned get_num_params() const { return m_params.size(); }
     unsigned get_num_inds() const { return m_inds.size(); }
     unsigned get_num_intro_rules(unsigned ind_idx) const { return m_intro_rules[ind_idx].size(); }
-    levels get_levels() const { return param_names_to_levels(to_list(m_lp_names)); }
+    levels get_levels() const { return param_names_to_levels(names(m_lp_names)); }
 
     expr const & get_param(unsigned i) const { return m_params[i]; }
     expr const & get_ind(unsigned i) const { return m_inds[i]; }

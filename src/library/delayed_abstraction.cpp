@@ -31,9 +31,9 @@ static name * g_delayed_abstraction_macro = nullptr;
      the local constant H with the de-bruijn index 0 at this assignment.
 */
 class delayed_abstraction_macro : public macro_definition_cell {
-    list<name> m_value;
+    names m_value;
 public:
-    delayed_abstraction_macro(list<name> const & v):m_value(v) {}
+    delayed_abstraction_macro(names const & v):m_value(v) {}
     virtual bool lt(macro_definition_cell const & d) const override {
         /** TODO(Leo): improve if needed */
         return length(m_value) < length(static_cast<delayed_abstraction_macro const &>(d).m_value);
@@ -55,7 +55,7 @@ public:
         return length(m_value);
     }
     virtual void write(serializer &) const override { lean_unreachable(); }
-    list<name> const & get_names() const { return m_value; }
+    names const & get_names() const { return m_value; }
 };
 
 /** \brief Each name occurs only once. */
@@ -69,7 +69,7 @@ bool validate_delayed_abstraction(buffer<name> const & b) {
     return true;
 }
 
-bool validate_delayed_abstraction(list<name> const & s) {
+bool validate_delayed_abstraction(names const & s) {
     buffer<name> b;
     to_buffer(s, b);
     return validate_delayed_abstraction(b);
@@ -81,7 +81,7 @@ expr mk_delayed_abstraction_core(expr const & e, buffer<name> const & ns, buffer
     buffer<expr> args;
     args.append(vs);
     args.push_back(e);
-    return mk_macro(macro_definition(new delayed_abstraction_macro(to_list(ns))), args.size(), args.data());
+    return mk_macro(macro_definition(new delayed_abstraction_macro(names(ns))), args.size(), args.data());
 }
 
 bool is_delayed_abstraction(expr const & e) {

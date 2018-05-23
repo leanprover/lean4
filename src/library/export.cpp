@@ -188,7 +188,9 @@ class exporter {
         unsigned n = export_name(d.get_name());
         export_dependencies(d.get_type());
         export_dependencies(d.get_value());
-        auto ps = map2<unsigned>(d.get_univ_params(), [&] (name const & p) { return export_name(p); });
+        buffer<unsigned> ps;
+        for (name const & p : d.get_univ_params())
+            ps.push_back(export_name(p));
         auto t = export_expr(d.get_type());
         auto v = export_expr(d.get_value());
         m_out << "#DEF " << n << " " << t << " " << v;
@@ -200,7 +202,9 @@ class exporter {
     void export_axiom(declaration const & d) {
         unsigned n = export_name(d.get_name());
         export_dependencies(d.get_type());
-        auto ps = map2<unsigned>(d.get_univ_params(), [&] (name const & p) { return export_name(p); });
+        buffer<unsigned> ps;
+        for (name const & p : d.get_univ_params())
+            ps.push_back(export_name(p));
         auto t = export_expr(d.get_type());
         m_out << "#AX " << n << " " << t;
         for (unsigned p : ps)
@@ -329,7 +333,7 @@ class exporter {
 public:
     exporter(std::ostream & out, environment const & env) : m_out(out), m_env(env) {}
 
-    void operator()(optional<list<name>> const & decls) {
+    void operator()(optional<names> const & decls) {
         m_name2idx[{}] = 0;
         m_level2idx[{}] = 0;
         if (has_quotient(m_env))
@@ -345,7 +349,7 @@ public:
 };
 
 void export_as_lowtext(std::ostream & out, environment const & env,
-        optional<list<name>> const & decls) {
+        optional<names> const & decls) {
     exporter(out, env)(decls);
 }
 }

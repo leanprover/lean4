@@ -41,13 +41,13 @@ vm_obj obj_list_to_obj(obj_list<A> const & l) {
     return mk_vm_external(new vm_obj_list<A>(l));
 }
 
-vm_obj to_obj(list<name> const & ls) { return list_to_obj(ls); }
+vm_obj to_obj(names const & ls) { return obj_list_to_obj(ls); }
 vm_obj to_obj(levels const & ls) { return obj_list_to_obj(ls); }
 vm_obj to_obj(list<expr> const & ls) { return list_to_obj(ls); }
 
 vm_obj to_obj(list<list<expr>> const & ls) { return list_to_obj(ls); }
 
-vm_obj to_obj(buffer<name> const & ls) { return to_obj(to_list(ls)); }
+vm_obj to_obj(buffer<name> const & ls) { return to_obj(names(ls)); }
 vm_obj to_obj(buffer<level> const & ls) { return to_obj(levels(ls)); }
 vm_obj to_obj(buffer<expr> const & ls) { return to_obj(to_list(ls)); }
 
@@ -75,10 +75,11 @@ static obj_list<A> to_obj_list_ ## A(vm_obj const & o) {                       \
     }                                                                   \
 }
 
-MK_TO_LIST(name, to_name)
+MK_TO_OBJ_LIST(name, to_name)
 MK_TO_OBJ_LIST(level, to_level)
 MK_TO_LIST(expr, to_expr)
 
+names to_names(vm_obj const & o) { return to_obj_list_name(o); }
 levels to_levels(vm_obj const & o) { return to_obj_list_level(o); }
 
 #define MK_TO_BUFFER(A, ToA)                                            \
@@ -127,8 +128,8 @@ unsigned list_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
         data.append(csize(o), cfields(o));
         return 1;
     } else {
-        if (auto l = dynamic_cast<vm_list<name>*>(to_external(o))) {
-            return list_cases_on_core(l->m_val, data);
+        if (auto l = dynamic_cast<vm_obj_list<name>*>(to_external(o))) {
+            return obj_list_cases_on_core(l->m_val, data);
         } else if (auto l = dynamic_cast<vm_list<expr>*>(to_external(o))) {
             return list_cases_on_core(l->m_val, data);
         } else if (auto l = dynamic_cast<vm_obj_list<level>*>(to_external(o))) {

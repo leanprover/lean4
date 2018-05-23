@@ -23,8 +23,8 @@ void register_scoped_ext(push_scope_fn push, pop_scope_fn pop) {
 struct scope_mng_ext : public environment_extension {
     name_set         m_namespace_set;     // all namespaces registered in the system
     name_set         m_opened_namespaces; // set of namespaces marked as "open"
-    list<name>       m_namespaces;        // stack of namespaces/sections
-    list<name>       m_headers;           // namespace/section header
+    names       m_namespaces;        // stack of namespaces/sections
+    names       m_headers;           // namespace/section header
     list<scope_kind> m_scope_kinds;
 };
 
@@ -51,7 +51,7 @@ name const & get_scope_header(environment const & env) {
     return !is_nil(ext.m_namespaces) ? head(ext.m_headers) : name::anonymous();
 }
 
-list<name> const & get_namespaces(environment const & env) {
+names const & get_namespaces(environment const & env) {
     return get_extension(env).m_namespaces;
 }
 

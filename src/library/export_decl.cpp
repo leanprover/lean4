@@ -80,7 +80,7 @@ struct export_decl_modification : public modification {
 
     void serialize(serializer & s) const override {
         s << m_in_ns << m_export_decl.m_ns << m_export_decl.m_as << m_export_decl.m_had_explicit;
-        write_list<name>(s, m_export_decl.m_except_names);
+        s << m_export_decl.m_except_names;
         write_list<pair<name, name>>(s, m_export_decl.m_renames);
     }
 
@@ -88,7 +88,7 @@ struct export_decl_modification : public modification {
         auto m = std::make_shared<export_decl_modification>();
         auto & e = m->m_export_decl;
         d >> m->m_in_ns >> e.m_ns >> e.m_as >> e.m_had_explicit;
-        e.m_except_names = read_list<name>(d, read_name);
+        e.m_except_names = read_names(d);
         e.m_renames = read_list<pair<name, name>>(d, read_pair_name);
         return m;
     }

@@ -349,7 +349,7 @@ level instantiate(level const & l, level_param_names const & ps, levels const & 
                 return some_level(l);
             } else if (is_param(l)) {
                 name const & id = param_id(l);
-                list<name> const *it1 = &ps;
+                names const *it1 = &ps;
                 levels const * it2 = &ls;
                 while (!is_nil(*it1)) {
                     if (head(*it1) == id)

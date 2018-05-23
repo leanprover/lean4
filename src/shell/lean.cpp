@@ -758,9 +758,9 @@ int main(int argc, char ** argv) {
 
             exclusive_file_lock export_lock(*export_txt);
             std::ofstream out(*export_txt);
-            optional<list<name>> decls;
+            optional<names> decls;
             if (!only_export.empty()) {
-                decls = to_list(only_export);
+                decls = names(only_export);
             }
             export_as_lowtext(out, combined_env, decls);
         }

@@ -176,7 +176,7 @@ format tactic_state::pp_expr(formatter_factory const & fmtf, expr const & e) con
     return fmt(e);
 }
 
-static format pp_tag(list<name> const & tag) {
+static format pp_tag(names const & tag) {
     buffer<name> tmp;
     for (auto n : tag) {
         if (!is_internal_name(n))
@@ -983,7 +983,7 @@ vm_obj tactic_set_tag(vm_obj const & g, vm_obj const & t, vm_obj const & s0) {
     if (is_nil(t)) {
         tinfo.m_tags.erase(to_expr(g));
     } else {
-        tinfo.m_tags.insert(to_expr(g), to_list_name(t));
+        tinfo.m_tags.insert(to_expr(g), to_names(t));
     }
     return tactic::mk_success(set_tag_info(s, tinfo));
 }

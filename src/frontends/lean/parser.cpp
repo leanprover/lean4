@@ -1854,11 +1854,11 @@ expr parser::parse_pattern(std::function<expr(parser &)> const & fn, buffer<expr
    go inside lambda/pi/let. */
 class patexpr_to_expr_fn : public replace_visitor {
     parser &         m_p;
-    list<name>       m_locals;
+    names       m_locals;
 
     virtual expr visit_binding(expr const & e) override {
         expr new_d = visit(binding_domain(e));
-        flet<list<name>> set(m_locals, cons(binding_name(e), m_locals));
+        flet<names> set(m_locals, cons(binding_name(e), m_locals));
         expr new_b = visit(binding_body(e));
         return update_binding(e, new_d, new_b);
     }
@@ -1866,7 +1866,7 @@ class patexpr_to_expr_fn : public replace_visitor {
     virtual expr visit_let(expr const & e) override {
         expr new_type = visit(let_type(e));
         expr new_val  = visit(let_value(e));
-        flet<list<name>> set(m_locals, cons(let_name(e), m_locals));
+        flet<names> set(m_locals, cons(let_name(e), m_locals));
         expr new_body = visit(let_body(e));
         return update_let(e, new_type, new_val, new_body);
     }
@@ -1892,7 +1892,7 @@ expr parser::patexpr_to_expr(expr const & pat_or_expr) {
     return patexpr_to_expr_fn(*this)(pat_or_expr);
 }
 
-optional<expr> parser::resolve_local(name const & id, pos_info const & p, list<name> const & extra_locals,
+optional<expr> parser::resolve_local(name const & id, pos_info const & p, names const & extra_locals,
                                      bool allow_field_notation) {
     /* Remark: (auxiliary) local constants many not be atomic.
        Example: when elaborating
@@ -1930,7 +1930,7 @@ optional<expr> parser::resolve_local(name const & id, pos_info const & p, list<n
     }
 }
 
-expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only, bool allow_field_notation, list<name> const & extra_locals) {
+expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only, bool allow_field_notation, names const & extra_locals) {
     buffer<level> lvl_buffer;
     levels ls;
     bool explicit_levels = false;
@@ -2027,7 +2027,7 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only, 
     return *r;
 }
 
-list<name> parser::to_constants(name const & id, char const * msg, pos_info const & p) const {
+names parser::to_constants(name const & id, char const * msg, pos_info const & p) const {
     buffer<name> rs;
 
     std::function<void(expr const & e)> extract_names = [&](expr const & e) {
@@ -2048,14 +2048,14 @@ list<name> parser::to_constants(name const & id, char const * msg, pos_info cons
     // locals
     if (auto it1 = m_local_decls.find(id)) {
         extract_names(*it1);
-        return to_list(rs);
+        return names(rs);
     }
 
     for (name const & ns : get_namespaces(m_env)) {
         auto new_id = ns + id;
         if (!ns.is_anonymous() && m_env.find(new_id) &&
             (!id.is_atomic() || !is_protected(m_env, new_id))) {
-            return to_list(new_id);
+            return names(new_id);
         }
     }
 
@@ -2063,7 +2063,7 @@ list<name> parser::to_constants(name const & id, char const * msg, pos_info cons
         name new_id = id;
         new_id = remove_root_prefix(new_id);
         if (m_env.find(new_id))
-            return to_list(new_id);
+            return names(new_id);
     }
 
     buffer<expr> alts;
@@ -2080,7 +2080,7 @@ list<name> parser::to_constants(name const & id, char const * msg, pos_info cons
         throw parser_error(sstream() << "unknown identifier '" << id.escape() << "'", p);
     }
 
-    return to_list(rs);
+    return names(rs);
 }
 
 name parser::to_constant(name const & id, char const * msg, pos_info const & p) {

@@ -465,8 +465,8 @@ struct wf_rec_fn {
     eqn_compiler_result unpack(expr const & packed_fn, expr const & eqns_before_pack,
                                list<list<expr>> const & counter_example_args) {
         equations_header const & header = get_equations_header(eqns_before_pack);
-        list<name> fn_names     = header.m_fn_names;
-        list<name> fn_actual_names = header.m_fn_actual_names;
+        names fn_names     = header.m_fn_names;
+        names fn_actual_names = header.m_fn_actual_names;
         type_context_old ctx = mk_type_context();
         buffer<expr> result_fns;
         expr packed_fn_type = ctx.relaxed_whnf(ctx.infer(packed_fn));
@@ -573,8 +573,8 @@ struct wf_rec_fn {
             eqns = pack_mutual(eqns);
         } else {
             equations_header new_header   = header;
-            new_header.m_fn_names         = to_list(name(head(header.m_fn_names), "_pack"));
-            new_header.m_fn_actual_names  = to_list(name(head(header.m_fn_actual_names), "_pack"));
+            new_header.m_fn_names         = names(name(head(header.m_fn_names), "_pack"));
+            new_header.m_fn_actual_names  = names(name(head(header.m_fn_actual_names), "_pack"));
             eqns                          = update_equations(eqns, new_header);
         }
 

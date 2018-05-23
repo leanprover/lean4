@@ -186,7 +186,7 @@ protected:
     virtual optional<pair<simp_result, bool>> post(expr const & e, optional<expr> const & parent) override;
     virtual optional<expr> prove(expr const & e) override;
 public:
-    simplify_fn(type_context_old & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss, list<name> const & to_unfold,
+    simplify_fn(type_context_old & ctx, defeq_canonizer::state & dcs, simp_lemmas const & slss, names const & to_unfold,
                 simp_config const & cfg):
         simplify_ext_core_fn(ctx, dcs, slss, cfg),
         m_to_unfold(to_name_set(to_unfold)) {}

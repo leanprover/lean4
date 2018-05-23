@@ -16,7 +16,9 @@ class obj_list : public object_ref {
     explicit obj_list(object * o):object_ref(o) { inc(o); }
 public:
     obj_list():object_ref(box(0)) {}
-    obj_list(T const & a):object_ref(mk_cnstr(1, a.raw(), box(0))) { inc(a.raw()); }
+    explicit obj_list(T const & a):object_ref(mk_cnstr(1, a.raw(), box(0))) { inc(a.raw()); }
+    explicit obj_list(T const * a) { if (a) *this = obj_list(*a); }
+    explicit obj_list(obj_list<T> const * l) { if (l) *this = *l; }
     obj_list(T const & h, obj_list<T> const & t):object_ref(mk_cnstr(1, h.raw(), t.raw())) { inc(h.raw()); inc(t.raw()); }
     obj_list(obj_list const & other):object_ref(other) {}
     obj_list(obj_list && other):object_ref(other) {}
@@ -109,6 +111,8 @@ template<typename T> size_t length(obj_list<T> const & l) {
 template<typename T> serializer & operator<<(serializer & s, obj_list<T> const & l) { l.serialize(s); return s; }
 template<typename T> obj_list<T> read_obj_list(deserializer & d) { return obj_list<T>::deserialize(d); }
 
+template<typename T> optional<T> head_opt(obj_list<T> const & l) { return is_nil(l) ? optional<T>() : some(head(l)); }
+
 /** \brief Given `[a_0, ..., a_k]`, return `[f a_0, ..., f a_k]`. */
 template<typename To, typename From, typename F>
 obj_list<To> map2(obj_list<From> const & l, F && f) {
@@ -199,5 +203,24 @@ obj_list<T> filter(obj_list<T> const & l, P && p) {
         }
     }
     return l; // no element was removed
+}
+
+/** \brief Append two lists */
+template<typename T> obj_list<T> append(obj_list<T> const & l1, obj_list<T> const & l2) {
+    if (!l1) {
+        return l2;
+    } else if (!l2) {
+        return l1;
+    } else {
+        buffer<object*> tmp;
+        l1.get_cons_cells(tmp);
+        obj_list<T> r = l2;
+        unsigned i = tmp.size();
+        while (i > 0) {
+            --i;
+            r = cons(head<T>(tmp[i]), r);
+        }
+        return r;
+    }
 }
 }

@@ -238,7 +238,7 @@ struct user_attr_cache {
 */
 MK_THREAD_LOCAL_GET_DEF(user_attr_cache, get_user_attribute_cache);
 
-static bool check_dep_fingerprints(environment const & env, list<name> const & dep_names, list<unsigned> const & dep_fingerprints) {
+static bool check_dep_fingerprints(environment const & env, names const & dep_names, list<unsigned> const & dep_fingerprints) {
     if (!dep_names && !dep_fingerprints) {
         return true;
     } else if (dep_names && dep_fingerprints) {
@@ -255,7 +255,7 @@ vm_obj user_attribute_get_cache_core(vm_obj const &, vm_obj const &, vm_obj cons
     name const & n               = to_name(cfield(vm_attr, 0));
     vm_obj const & cache_cfg     = cfield(vm_attr, 4);
     vm_obj const & cache_handler = cfield(cache_cfg, 0);
-    list<name> const & deps      = to_list_name(cfield(cache_cfg, 1));
+    names const & deps      = to_names(cfield(cache_cfg, 1));
     LEAN_TACTIC_TRY;
     environment const & env = s.env();
     attribute const & attr  = get_attribute(env, n);
@@ -280,7 +280,7 @@ vm_obj user_attribute_get_cache_core(vm_obj const &, vm_obj const &, vm_obj cons
     bool was_updated;
     {
         vm_state::reset_env_was_updated_flag scope(get_vm_state());
-        result = invoke(cache_handler, to_obj(to_list(instances)), to_obj(s0));
+        result = invoke(cache_handler, to_obj(names(instances)), to_obj(s0));
         was_updated = get_vm_state().env_was_updated();
     }
     if (tactic::is_result_success(result)) {
@@ -288,9 +288,10 @@ vm_obj user_attribute_get_cache_core(vm_obj const &, vm_obj const &, vm_obj cons
             user_attr_cache::entry entry;
             entry.m_env         = env;
             entry.m_fingerprint = attr.get_fingerprint(env);
-            entry.m_dep_fingerprints = map2<unsigned>(deps, [&](name const & n) {
-                    return get_attribute(env, n).get_fingerprint(env);
-                });
+            buffer<unsigned> tmp;
+            for (name const & n : deps)
+                tmp.push_back(get_attribute(env, n).get_fingerprint(env));
+            entry.m_dep_fingerprints = to_list(tmp);
             entry.m_val = tactic::get_success_value(result);
             cache.m_cache.erase(attr.get_name());
             cache.m_cache.insert(mk_pair(attr.get_name(), entry));

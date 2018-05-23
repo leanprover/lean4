@@ -45,7 +45,7 @@ struct text_importer {
         while (in >> idx) {
             ls.push_back(m_name.at(idx));
         }
-        return to_list(ls);
+        return names(ls);
     }
 
     void handle_ind(std::istream & in) {

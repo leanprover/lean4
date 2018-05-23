@@ -40,7 +40,7 @@ expr const & get_choice(expr const & e, unsigned i);
    the result contains the list [f, g]. This function is only used for producing nicer
    error messages.
 */
-list<list<name>> collect_choice_symbols(expr const & e);
+list<names> collect_choice_symbols(expr const & e);
 /** \brief Format the result produced by collect_choice_symbols. */
 format pp_choice_symbols(expr const & e);
 

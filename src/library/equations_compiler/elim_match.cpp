@@ -766,12 +766,12 @@ struct elim_match_fn {
         intros_list ilist;
         hsubstitution_list slist;
         list<expr> new_goals;
-        list<name> new_goal_cnames;
+        names new_goal_cnames;
         try {
             /* Remark: reverted bcf44f7020, see issue #1739 */
             /* bool unfold_ginductive = false; */
             bool unfold_ginductive = true;
-            list<name> ids;
+            names ids;
             std::tie(new_goals, new_goal_cnames) =
                 cases(m_env, get_options(), transparency_mode::Semireducible, m_mctx,
                       P.m_goal, x, ids, &ilist, &slist, unfold_ginductive);

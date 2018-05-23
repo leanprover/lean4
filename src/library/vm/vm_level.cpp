@@ -141,7 +141,7 @@ vm_obj level_instantiate(vm_obj const & o, vm_obj const & lst) {
         ls.push_back(to_level(cfield(h, 1)));
         it = cfield(it, 1);
     }
-    return to_obj(instantiate(l, to_list(ns), levels(ls)));
+    return to_obj(instantiate(l, names(ns), levels(ls)));
 }
 
 void initialize_vm_level() {

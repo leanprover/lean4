@@ -191,7 +191,7 @@ class parser : public abstract_parser {
 
     std::shared_ptr<snapshot> mk_snapshot();
 
-    optional<expr> resolve_local(name const & id, pos_info const & p, list<name> const & extra_locals,
+    optional<expr> resolve_local(name const & id, pos_info const & p, names const & extra_locals,
                                  bool allow_field_notation = true);
 
     friend class module_parser;
@@ -331,7 +331,7 @@ public:
         otherwise throw an exception. */
     name check_atomic_id_next(char const * msg);
     name check_atomic_decl_id_next(char const * msg);
-    list<name> to_constants(name const & id, char const * msg, pos_info const & p) const;
+    names to_constants(name const & id, char const * msg, pos_info const & p) const;
     name to_constant(name const & id, char const * msg, pos_info const & p);
     /** \brief Check if the current token is a constant, if it is, return it and move to next token, otherwise throw an exception. */
     name check_constant_next(char const * msg);
@@ -403,7 +403,7 @@ public:
 
     /** \brief Convert an identifier into an expression (constant or local constant) based on the current scope */
     expr id_to_expr(name const & id, pos_info const & p, bool resolve_only = false, bool allow_field_notation = true,
-                    list<name> const & extra_locals = list<name>());
+                    names const & extra_locals = names());
 
     /** Always parses an expression.  Returns a synthetic sorry even if no input is consumed. */
     expr parse_expr(unsigned rbp = 0);

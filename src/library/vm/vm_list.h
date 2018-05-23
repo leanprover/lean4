@@ -9,11 +9,11 @@ Author: Leonardo de Moura
 #include "library/vm/vm.h"
 
 namespace lean {
-list<name> to_list_name(vm_obj const & o);
+names to_names(vm_obj const & o);
 /* Given an object o : list name, store its contents at \c r */
 void to_buffer_name(vm_obj const & o, buffer<name> & r);
 vm_obj to_obj(buffer<name> const & ls);
-vm_obj to_obj(list<name> const & ls);
+vm_obj to_obj(names const & ls);
 
 levels to_levels(vm_obj const & o);
 /* Given an object o : list level, store its contents at \c r */

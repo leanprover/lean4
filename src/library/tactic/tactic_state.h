@@ -31,7 +31,7 @@ public:
 
 struct tag_info {
     bool                    m_tags_enabled{false};
-    rb_expr_map<list<name>> m_tags;
+    rb_expr_map<names> m_tags;
 };
 
 class tactic_state_cell {

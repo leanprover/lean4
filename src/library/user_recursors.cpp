@@ -286,7 +286,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
 
 struct recursor_state {
     name_map<recursor_info> m_recursors;
-    name_map<list<name>>    m_type2recursors;
+    name_map<names>    m_type2recursors;
 
     void insert(recursor_info const & info) {
         m_recursors.insert(info.get_name(), info);
@@ -295,7 +295,7 @@ struct recursor_state {
                                     cons(info.get_name(),
                                          filter(*l, [&](name const & n) { return n != info.get_name(); })));
         } else {
-            m_type2recursors.insert(info.get_type_name(), to_list(info.get_name()));
+            m_type2recursors.insert(info.get_type_name(), names(info.get_name()));
         }
     }
 };
@@ -336,11 +336,11 @@ recursor_info get_recursor_info(environment const & env, name const & r) {
     return mk_recursor_info(env, r, optional<unsigned>());
 }
 
-list<name> get_recursors_for(environment const & env, name const & I) {
+names get_recursors_for(environment const & env, name const & I) {
     if (auto l = recursor_ext::get_state(env).m_type2recursors.find(I))
         return *l;
     else
-        return list<name>();
+        return names();
 }
 
 bool is_user_defined_recursor(environment const & env, name const & r) {

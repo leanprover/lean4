@@ -96,7 +96,7 @@ public:
        level parameters and new parameters created for universe meta-variables.
 
        \pre finalize_collection has been invoked */
-    list<name> get_norm_level_names() const { return to_list(m_level_params); }
+    names get_norm_level_names() const { return names(m_level_params); }
 };
 
 /** \brief Create an auxiliary definition with name `c` where `type` and `value` may contain local constants and

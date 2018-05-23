@@ -362,7 +362,7 @@ environment add_local_ref(parser & p, environment const & env, name const & c_na
         expr new_type      = replace_locals_preserving_pos_info(type, i, params.data(), new_params.data());
         new_params.push_back(copy_tag(param, update_mlocal(param, new_type)));
     }
-    expr ref = mk_local_ref(c_real_name, param_names_to_levels(to_list(lps)), new_params);
+    expr ref = mk_local_ref(c_real_name, param_names_to_levels(names(lps)), new_params);
     return p.add_local_ref(env, c_name, ref);
 }
 
@@ -423,7 +423,7 @@ bool declaration_info_scope::gen_aux_lemmas() const {
     return get_definition_info().m_aux_lemmas;
 }
 
-equations_header mk_equations_header(list<name> const & ns, list<name> const & actual_ns) {
+equations_header mk_equations_header(names const & ns, names const & actual_ns) {
     equations_header h;
     h.m_num_fns          = length(ns);
     h.m_fn_names         = ns;
@@ -437,11 +437,11 @@ equations_header mk_equations_header(list<name> const & ns, list<name> const & a
 }
 
 equations_header mk_equations_header(name const & n, name const & actual_n) {
-    return mk_equations_header(to_list(n), to_list(actual_n));
+    return mk_equations_header(names(n), names(actual_n));
 }
 
 equations_header mk_match_header(name const & n, name const & actual_n) {
-    equations_header h = mk_equations_header(to_list(n), to_list(actual_n));
+    equations_header h = mk_equations_header(names(n), names(actual_n));
     h.m_gen_code = false;
     return h;
 }

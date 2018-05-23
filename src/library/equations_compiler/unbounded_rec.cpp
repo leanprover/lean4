@@ -24,7 +24,7 @@ Author: Leonardo de Moura
 namespace lean {
 static expr replace_rec_apps(type_context_old & ctx, expr const & e) {
     equations_header const & header = get_equations_header(e);
-    list<name> actual_names = header.m_fn_actual_names;
+    names actual_names = header.m_fn_actual_names;
     unpack_eqns ues(ctx, e);
     buffer<expr> fns;
     buffer<expr> macro_fns;
@@ -51,13 +51,13 @@ static expr replace_rec_apps(type_context_old & ctx, expr const & e) {
 static void split_rec_fns(type_context_old & ctx, expr const & e, buffer<expr> & result) {
     equations_header const & header = get_equations_header(e);
     unpack_eqns ues(ctx, e);
-    list<name> fn_names        = header.m_fn_names;
-    list<name> fn_actual_names = header.m_fn_actual_names;
+    names fn_names        = header.m_fn_names;
+    names fn_actual_names = header.m_fn_actual_names;
     for (unsigned fidx = 0; fidx < ues.get_num_fns(); fidx++) {
         equations_header new_header = header;
         new_header.m_num_fns         = 1;
-        new_header.m_fn_names        = to_list(head(fn_names));
-        new_header.m_fn_actual_names = to_list(head(fn_actual_names));
+        new_header.m_fn_names        = names(head(fn_names));
+        new_header.m_fn_actual_names = names(head(fn_actual_names));
         fn_names                     = tail(fn_names);
         fn_actual_names              = tail(fn_actual_names);
         buffer<expr> eqns;
@@ -120,12 +120,12 @@ eqn_compiler_result unbounded_rec(environment & env, elaborator & elab,
         helper.get_level_closure(closure_lvl_params);
         helper.get_expr_closure(closure_params);
 
-        list<name> lvl_names;
+        names lvl_names;
         lvl_names = helper.get_norm_level_names();
 
         equations_header const & header = get_equations_header(e);
-        list<name> fn_names             = header.m_fn_names;
-        list<name> fn_actual_names      = header.m_fn_actual_names;
+        names fn_names             = header.m_fn_names;
+        names fn_actual_names      = header.m_fn_actual_names;
         bool zeta                       = get_eqn_compiler_zeta(elab.get_options());
 
         /* 2. Update fn_types.

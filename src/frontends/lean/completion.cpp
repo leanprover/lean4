@@ -39,7 +39,7 @@ unsigned get_auto_completion_max_results(options const & o) {
 optional<name> is_essentially_atomic(environment const & env, name const & n) {
     if (n.is_atomic())
         return optional<name>(n);
-    list<name> const & ns_list = get_namespaces(env);
+    names const & ns_list = get_namespaces(env);
     for (name const & ns : ns_list) {
         if (is_prefix_of(ns, n)) {
             auto n_prime = n.replace_prefix(ns, name());

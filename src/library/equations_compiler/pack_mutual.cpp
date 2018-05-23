@@ -188,8 +188,8 @@ struct pack_mutual_fn {
         trace_debug_mutual(tout() << "new function " << new_fn_name << " : " << new_fn_type << "\n";);
 
         equations_header new_header = get_equations_header(e);
-        new_header.m_fn_names         = to_list(new_fn_name);
-        new_header.m_fn_actual_names  = to_list(new_fn_actual_name);
+        new_header.m_fn_names         = names(new_fn_name);
+        new_header.m_fn_actual_names  = names(new_fn_actual_name);
         new_header.m_num_fns          = 1;
 
         replace_fns replacer(m_ctx, ues, new_fn);

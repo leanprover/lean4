@@ -18,7 +18,7 @@ environment register_ginductive_decl(environment const & env, ginductive_decl co
 optional<ginductive_kind> is_ginductive(environment const & env, name const & ind_name);
 
 /* \brief Returns the names of the introduction rules for the inductive type \e ind_name. */
-list<name> get_ginductive_intro_rules(environment const & env, name const & ind_name);
+names get_ginductive_intro_rules(environment const & env, name const & ind_name);
 
 /* \brief Returns the name of the inductive type if \e ir_name is indeed an introduction rule. */
 optional<name> is_ginductive_intro_rule(environment const & env, name const & ir_name);
@@ -30,7 +30,7 @@ unsigned get_ginductive_num_params(environment const & env, name const & ind_nam
 unsigned get_ginductive_num_indices(environment const & env, name const & ind_name);
 
 /* \brief Returns the names of all types that are mutually inductive with \e ind_name */
-list<name> get_ginductive_mut_ind_names(environment const & env, name const & ind_name);
+names get_ginductive_mut_ind_names(environment const & env, name const & ind_name);
 
 /* Normalize \c e until it is in weak head normal form OR the head is a ginductive datatype. */
 expr whnf_ginductive(type_context_old & ctx, expr const & e);
@@ -95,10 +95,10 @@ bool is_ginductive_pack(environment const & env, name const & n);
 bool is_ginductive_unpack(environment const & env, name const & n);
 
 /* \brief Returns the names of all mutual ginductive types */
-list<name> get_ginductive_all_mutual_inds(environment const & env);
+names get_ginductive_all_mutual_inds(environment const & env);
 
 /* \brief Returns the names of all nested ginductive types */
-list<name> get_ginductive_all_nested_inds(environment const & env);
+names get_ginductive_all_nested_inds(environment const & env);
 
 void initialize_inductive_compiler_ginductive();
 void finalize_inductive_compiler_ginductive();

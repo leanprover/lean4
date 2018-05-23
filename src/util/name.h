@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "util/pair.h"
 #include "util/list.h"
 #include "util/object_ref.h"
+#include "util/obj_list.h"
 
 namespace lean {
 constexpr char const * lean_name_separator = ".";
@@ -236,6 +237,10 @@ inline deserializer & operator>>(deserializer & d, name & n) { n = read_name(d);
 
 /** \brief Return true if it is a lean internal name, i.e., the name starts with a `_` */
 bool is_internal_name(name const & n);
+
+typedef obj_list<name> names;
+inline serializer & operator<<(serializer & s, names const & ns) { ns.serialize(s); return s; }
+inline names read_names(deserializer & d) { return read_obj_list<name>(d); }
 
 void initialize_name();
 void finalize_name();

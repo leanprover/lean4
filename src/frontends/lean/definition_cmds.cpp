@@ -93,7 +93,7 @@ expr mk_equations(parser & p, buffer<expr> const & fns,
     for (expr const & eq : eqs) {
         new_eqs.push_back(Fun(fns, eq, p));
     }
-    equations_header h = mk_equations_header(to_list(fn_full_names), to_list(fn_prv_names));
+    equations_header h = mk_equations_header(names(fn_full_names), names(fn_prv_names));
     if (wf_tacs) {
         return p.save_pos(mk_equations(h, new_eqs.size(), new_eqs.data(), *wf_tacs), pos);
     } else {
@@ -255,9 +255,9 @@ declare_definition(parser & p, environment const & env, decl_cmd_kind kind, buff
     bool is_trusted   = !meta.m_modifiers.m_is_meta;
     auto def          =
         (kind == decl_cmd_kind::Theorem ?
-         mk_theorem(c_real_name, to_list(lp_names), type, *val) :
-         (is_abbrev ? mk_definition(c_real_name, to_list(lp_names), type, *val, reducibility_hints::mk_abbreviation(), is_trusted) :
-          mk_definition(new_env, c_real_name, to_list(lp_names), type, *val, use_conv_opt, is_trusted)));
+         mk_theorem(c_real_name, names(lp_names), type, *val) :
+         (is_abbrev ? mk_definition(c_real_name, names(lp_names), type, *val, reducibility_hints::mk_abbreviation(), is_trusted) :
+          mk_definition(new_env, c_real_name, names(lp_names), type, *val, use_conv_opt, is_trusted)));
     auto cdef         = check(p, new_env, c_name, def, pos);
     new_env           = module::add(new_env, cdef);
 
@@ -705,7 +705,7 @@ static void check_example(environment const & decl_env, options const & opts,
         bool use_conv_opt = true;
         bool is_trusted  = !modifiers.m_is_meta;
         auto new_env = elab.env();
-        auto def = mk_definition(new_env, decl_name, to_list(univ_params_buf), type, val, use_conv_opt, is_trusted);
+        auto def = mk_definition(new_env, decl_name, names(univ_params_buf), type, val, use_conv_opt, is_trusted);
         auto cdef = check(new_env, def);
         new_env = module::add(new_env, cdef);
         check_noncomputable(noncomputable_theory, new_env, decl_name, def.get_name(), modifiers.m_is_noncomputable,
@@ -792,7 +792,7 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
         } else if (kind == decl_cmd_kind::Example) {
             auto env = p.env();
             auto opts = p.get_options();
-            auto lp_name_list = to_list(lp_names);
+            auto lp_name_list = names(lp_names);
             auto new_params_list = to_list(new_params);
             auto mctx = elab.mctx();
             auto lctx = elab.lctx();

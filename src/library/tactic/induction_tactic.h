@@ -27,7 +27,7 @@ typedef list<hsubstitution> hsubstitution_list;
     \post ilist != nullptr ==> length(*ilist) == length(result)
     \post slist != nullptr ==> length(*slist) == length(result) */
 list<expr> induction(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
-                     expr const & mvar, expr const & H, name const & rec_name, list<name> & ns,
+                     expr const & mvar, expr const & H, name const & rec_name, names & ns,
                      intros_list * ilist, hsubstitution_list * slist);
 
 void initialize_induction_tactic();

@@ -33,7 +33,7 @@ static name * g_induction_concat = nullptr;
     throw exception(sstream() << "induction tactic failed, recursor '" << rec_info.get_name() << "' is ill-formed");
 }
 
-static void set_intron(expr & R, type_context_old & ctx, options const & opts, expr const & M, unsigned n, optional<name> const & prefix, list<name> & ns, buffer<name> & new_names, bool use_unused_names) {
+static void set_intron(expr & R, type_context_old & ctx, options const & opts, expr const & M, unsigned n, optional<name> const & prefix, names & ns, buffer<name> & new_names, bool use_unused_names) {
     if (n == 0) {
         R = M;
     } else {
@@ -72,7 +72,7 @@ static void set_intron(expr & R, type_context_old & ctx, options const & opts, e
 }
 
 static void set_intron(expr & R, type_context_old & ctx, options const & opts, expr const & M, unsigned n, buffer<name> & new_names, bool use_unused_names) {
-    list<name> tmp;
+    names tmp;
     set_intron(R, ctx, opts, M, n, optional<name>(), tmp, new_names, use_unused_names);
 }
 
@@ -123,7 +123,7 @@ static expr whnf_until(type_context_old & ctx, name const & n, expr const & e) {
 }
 
 list<expr> induction(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
-                     expr const & mvar, expr const & H, name const & rec_name, list<name> & ns,
+                     expr const & mvar, expr const & H, name const & rec_name, names & ns,
                      intros_list * ilist, hsubstitution_list * slist, buffer<name> & minor_names) {
     lean_assert(is_metavar(mvar));
     lean_assert(is_local(H));
@@ -357,7 +357,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
 }
 
 list<expr> induction(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
-                     expr const & mvar, expr const & H, name const & rec_name, list<name> & ns,
+                     expr const & mvar, expr const & H, name const & rec_name, names & ns,
                      intros_list * ilist, hsubstitution_list * slist) {
     buffer<name> tmp;
     return induction(env, opts, m, mctx, mvar, H, rec_name, ns, ilist, slist, tmp);
@@ -377,13 +377,13 @@ static bool has_one_minor_per_constructor(environment const & env, name const & 
     return false;
 }
 
-vm_obj induction_tactic_core(transparency_mode const & m, expr const & H, name const & rec_name, list<name> const & ns,
+vm_obj induction_tactic_core(transparency_mode const & m, expr const & H, name const & rec_name, names const & ns,
                              tactic_state const & s) {
     if (!s.goals()) return mk_no_goals_exception(s);
     if (!is_local(H)) return tactic::mk_exception("induction tactic failed, argument is not a hypothesis", s);
     try {
         metavar_context mctx = s.mctx();
-        list<name> tmp_ns = ns;
+        names tmp_ns = ns;
         list<list<expr>> hyps;
         buffer<name> minor_names;
         hsubstitution_list substs;
@@ -425,7 +425,7 @@ vm_obj tactic_induction(vm_obj const & H, vm_obj const & ns, vm_obj const & rec,
             expr C    = get_app_fn(type);
             if (is_constant(C)) {
                 name C_rec = get_dep_recursor(ctx.env(), const_name(C));
-                return induction_tactic_core(to_transparency_mode(m), to_expr(H), C_rec, to_list_name(ns), tactic::to_state(s));
+                return induction_tactic_core(to_transparency_mode(m), to_expr(H), C_rec, to_names(ns), tactic::to_state(s));
             } else {
                 return tactic::mk_exception("induction tactic failed, inductive datatype expected",
                                             tactic::to_state(s));
@@ -435,7 +435,7 @@ vm_obj tactic_induction(vm_obj const & H, vm_obj const & ns, vm_obj const & rec,
         }
     } else {
         return induction_tactic_core(to_transparency_mode(m), to_expr(H),
-                                     to_name(get_some_value(rec)), to_list_name(ns), tactic::to_state(s));
+                                     to_name(get_some_value(rec)), to_names(ns), tactic::to_state(s));
     }
 }
 

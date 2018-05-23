@@ -61,19 +61,19 @@ vm_obj to_obj(declaration const & n) {
 
 vm_obj declaration_defn(vm_obj const & n, vm_obj const & ls, vm_obj const & type, vm_obj const & value,
                         vm_obj const & hints, vm_obj const & trusted) {
-    return to_obj(mk_definition(to_name(n), to_list_name(ls), to_expr(type), to_expr(value), to_reducibility_hints(hints), to_bool(trusted)));
+    return to_obj(mk_definition(to_name(n), to_names(ls), to_expr(type), to_expr(value), to_reducibility_hints(hints), to_bool(trusted)));
 }
 
 vm_obj declaration_thm(vm_obj const & n, vm_obj const & ls, vm_obj const & type, vm_obj const & value) {
-    return to_obj(mk_theorem(to_name(n), to_list_name(ls), to_expr(type), to_expr(value)));
+    return to_obj(mk_theorem(to_name(n), to_names(ls), to_expr(type), to_expr(value)));
 }
 
 vm_obj declaration_cnst(vm_obj const & n, vm_obj const & ls, vm_obj const & type, vm_obj const & trusted) {
-    return to_obj(mk_constant_assumption(to_name(n), to_list_name(ls), to_expr(type), to_bool(trusted)));
+    return to_obj(mk_constant_assumption(to_name(n), to_names(ls), to_expr(type), to_bool(trusted)));
 }
 
 vm_obj declaration_ax(vm_obj const & n, vm_obj const & ls, vm_obj const & type) {
-    return to_obj(mk_axiom(to_name(n), to_list_name(ls), to_expr(type)));
+    return to_obj(mk_axiom(to_name(n), to_names(ls), to_expr(type)));
 }
 
 unsigned declaration_cases_on(vm_obj const & o, buffer<vm_obj> & data) {

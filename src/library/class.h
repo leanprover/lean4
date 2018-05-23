@@ -20,7 +20,7 @@ name_predicate mk_class_pred(environment const & env);
 /** \brief Return the set of active instances (as a predicate) for the given environment */
 name_predicate mk_instance_pred(environment const & env);
 /** \brief Return the instances of the given class. */
-list<name> get_class_instances(environment const & env, name const & c);
+names get_class_instances(environment const & env, name const & c);
 /** \brief Return the classes in the given environment. */
 void get_classes(environment const & env, buffer<name> & classes);
 name get_class_name(environment const & env, expr const & e);

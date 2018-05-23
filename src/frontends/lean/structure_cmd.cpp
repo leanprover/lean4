@@ -1020,7 +1020,7 @@ struct structure_cmd_fn {
     }
 
     expr mk_intro_type_no_params() {
-        levels ls = param_names_to_levels(to_list(m_level_names.begin(), m_level_names.end()));
+        levels ls = param_names_to_levels(names(m_level_names));
         expr r    = mk_app(mk_constant(m_name, ls), m_params);
         for (unsigned i = 0; i < m_fields.size(); i++) {
             auto const & decl = m_fields[m_fields.size() - 1 - i];
@@ -1066,7 +1066,7 @@ struct structure_cmd_fn {
         expr structure_type = mk_structure_type();
         expr intro_type     = mk_intro_type();
 
-        level_param_names lnames = to_list(m_level_names.begin(), m_level_names.end());
+        level_param_names lnames = names(m_level_names);
         inductive::intro_rule intro = inductive::mk_intro_rule(m_mk, intro_type);
         inductive::inductive_decl  decl(m_name, lnames, m_params.size(), structure_type, to_list(intro));
         bool is_trusted = !m_meta_info.m_modifiers.m_is_meta;
@@ -1214,7 +1214,7 @@ struct structure_cmd_fn {
         lean_assert(m_parents.size() == m_field_maps.size());
         buffer<name> coercion_names;
         mk_coercion_names(coercion_names);
-        level_param_names lnames = to_list(m_level_names.begin(), m_level_names.end());
+        level_param_names lnames = names(m_level_names);
         levels st_ls             = param_names_to_levels(lnames);
         for (unsigned i = 0; i < m_parents.size(); i++) {
             expr const & parent            = m_parents[i];
@@ -1327,7 +1327,7 @@ struct structure_cmd_fn {
         infer_resultant_universe();
         add_ctx_locals();
         remove_local_vars(m_p, m_ctx_locals);
-        m_ctx_levels = collect_local_nonvar_levels(m_p, to_list(m_level_names.begin(), m_level_names.end()));
+        m_ctx_levels = collect_local_nonvar_levels(m_p, names(m_level_names));
         declare_inductive_type();
         declare_projections();
         declare_defaults();

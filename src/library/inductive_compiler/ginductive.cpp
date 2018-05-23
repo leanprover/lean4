@@ -72,12 +72,12 @@ struct ginductive_entry {
     bool       m_is_inner;
     unsigned   m_num_params;
     list<unsigned> m_num_indices;
-    list<name> m_inds;
-    list<list<name> > m_intro_rules;
+    names m_inds;
+    list<names > m_intro_rules;
     list<unsigned> m_ir_offsets;
     list<pair<unsigned, unsigned> > m_idx_to_ir_range;
-    list<name> m_packs;
-    list<name> m_unpacks;
+    names m_packs;
+    names m_unpacks;
 };
 
 inline serializer & operator<<(serializer & s, ginductive_kind k) {
@@ -107,15 +107,15 @@ serializer & operator<<(serializer & s, ginductive_entry const & entry) {
     s << entry.m_is_inner;
     s << entry.m_num_params;
     write_list<unsigned>(s, entry.m_num_indices);
-    write_list<name>(s, entry.m_inds);
-    for (list<name> const & irs : reverse(entry.m_intro_rules))
-        write_list<name>(s, irs);
+    s << entry.m_inds;
+    for (names const & irs : reverse(entry.m_intro_rules))
+        s << irs;
 
     write_list<unsigned>(s, entry.m_ir_offsets);
     write_list<pair<unsigned, unsigned> >(s, entry.m_idx_to_ir_range);
 
-    write_list<name>(s, entry.m_packs);
-    write_list<name>(s, entry.m_unpacks);
+    s << entry.m_packs;
+    s << entry.m_unpacks;
 
     return s;
 }
@@ -126,18 +126,18 @@ ginductive_entry read_ginductive_entry(deserializer & d) {
     d >> entry.m_is_inner;
     d >> entry.m_num_params;
     entry.m_num_indices = read_list<unsigned>(d);
-    entry.m_inds    = read_list<name>(d, read_name);
+    entry.m_inds    = read_names(d);
 
     unsigned num_inds = length(entry.m_inds);
     for (unsigned i = 0; i < num_inds; ++i) {
-        entry.m_intro_rules = list<list<name> >(read_list<name>(d, read_name), entry.m_intro_rules);
+        entry.m_intro_rules = list<names>(read_names(d), entry.m_intro_rules);
     }
 
     entry.m_ir_offsets = read_list<unsigned>(d);
     entry.m_idx_to_ir_range = read_list<pair<unsigned, unsigned> >(d);
 
-    entry.m_packs = read_list<name>(d, read_name);
-    entry.m_unpacks = read_list<name>(d, read_name);
+    entry.m_packs = read_names(d);
+    entry.m_unpacks = read_names(d);
     return entry;
 }
 
@@ -147,10 +147,10 @@ inline deserializer & operator>>(deserializer & d, ginductive_entry & entry) {
 }
 
 struct ginductive_env_ext : public environment_extension {
-    list<name>                m_all_nested_inds;
-    list<name>                m_all_mutual_inds;
-    name_map<list<name> >     m_ind_to_irs;
-    name_map<list<name> >     m_ind_to_mut_inds;
+    names                m_all_nested_inds;
+    names                m_all_mutual_inds;
+    name_map<names >     m_ind_to_irs;
+    name_map<names >     m_ind_to_mut_inds;
     name_map<ginductive_kind> m_ind_to_kind;
     name_map<unsigned>        m_num_params;
     name_map<unsigned>        m_num_indices;
@@ -170,7 +170,7 @@ struct ginductive_env_ext : public environment_extension {
         buffer<unsigned> num_indices;
         to_buffer(entry.m_num_indices, num_indices);
 
-        buffer<list<name> > intro_rules;
+        buffer<names > intro_rules;
         to_buffer(entry.m_intro_rules, intro_rules);
 
         buffer<unsigned> ir_offsets;
@@ -181,8 +181,8 @@ struct ginductive_env_ext : public environment_extension {
         for (name const & ind : entry.m_inds) {
             switch (entry.m_kind) {
             case ginductive_kind::BASIC: break;
-            case ginductive_kind::MUTUAL: m_all_mutual_inds = list<name>(ind, m_all_mutual_inds); break;
-            case ginductive_kind::NESTED: m_all_nested_inds = list<name>(ind, m_all_nested_inds); break;
+            case ginductive_kind::MUTUAL: m_all_mutual_inds = names(ind, m_all_mutual_inds); break;
+            case ginductive_kind::NESTED: m_all_nested_inds = names(ind, m_all_nested_inds); break;
             }
 
             if (entry.m_is_inner) {
@@ -221,8 +221,8 @@ struct ginductive_env_ext : public environment_extension {
             return optional<ginductive_kind>();
     }
 
-    list<name> get_intro_rules(name const & ind_name) const {
-        list<name> const * ir_names = m_ind_to_irs.find(ind_name);
+    names get_intro_rules(name const & ind_name) const {
+        names const * ir_names = m_ind_to_irs.find(ind_name);
         lean_assert(ir_names);
         return *ir_names;
     }
@@ -247,8 +247,8 @@ struct ginductive_env_ext : public environment_extension {
         return *num_indices;
     }
 
-    list<name> get_mut_ind_names(name const & ind_name) const {
-        list<name> const * mut_ind_names = m_ind_to_mut_inds.find(ind_name);
+    names get_mut_ind_names(name const & ind_name) const {
+        names const * mut_ind_names = m_ind_to_mut_inds.find(ind_name);
         lean_assert(mut_ind_names);
         return *mut_ind_names;
     }
@@ -287,11 +287,11 @@ struct ginductive_env_ext : public environment_extension {
         return get_ith(*ranges, idx_number);
     }
 
-    list<name> get_all_nested_inds() const {
+    names get_all_nested_inds() const {
         return m_all_nested_inds;
     }
 
-    list<name> get_all_mutual_inds() const {
+    names get_all_mutual_inds() const {
         return m_all_mutual_inds;
     }
 };
@@ -347,18 +347,18 @@ environment register_ginductive_decl(environment const & env, ginductive_decl co
     for (expr const & ind : decl.get_inds()) {
         inds.push_back(mlocal_name(ind));
     }
-    entry.m_inds = to_list(inds);
+    entry.m_inds = names(inds);
 
-    buffer<list<name> > intro_rules;
+    buffer<names > intro_rules;
     for (buffer<expr> const & irs : decl.get_intro_rules()) {
         buffer<name> ir_names;
         for (expr const & ir : irs)
             ir_names.push_back(mlocal_name(ir));
-        intro_rules.push_back(to_list(ir_names));
+        intro_rules.push_back(names(ir_names));
     }
     entry.m_intro_rules = to_list(intro_rules);
-    entry.m_packs = to_list(decl.get_packs());
-    entry.m_unpacks = to_list(decl.get_unpacks());
+    entry.m_packs = names(decl.get_packs());
+    entry.m_unpacks = names(decl.get_unpacks());
 
     entry.m_ir_offsets = to_list(decl.get_ir_offsets());
     entry.m_idx_to_ir_range = to_list(decl.get_idx_to_ir_range());
@@ -370,7 +370,7 @@ optional<ginductive_kind> is_ginductive(environment const & env, name const & in
     return get_extension(env).is_ginductive(ind_name);
 }
 
-list<name> get_ginductive_intro_rules(environment const & env, name const & ind_name) {
+names get_ginductive_intro_rules(environment const & env, name const & ind_name) {
     return get_extension(env).get_intro_rules(ind_name);
 }
 
@@ -386,7 +386,7 @@ unsigned get_ginductive_num_indices(environment const & env, name const & ind_na
     return get_extension(env).get_num_indices(ind_name);
 }
 
-list<name> get_ginductive_mut_ind_names(environment const & env, name const & ind_name) {
+names get_ginductive_mut_ind_names(environment const & env, name const & ind_name) {
     return get_extension(env).get_mut_ind_names(ind_name);
 }
 
@@ -413,11 +413,11 @@ bool is_ginductive_unpack(environment const & env, name const & n) {
     return get_extension(env).is_unpack(n);
 }
 
-list<name> get_ginductive_all_mutual_inds(environment const & env) {
+names get_ginductive_all_mutual_inds(environment const & env) {
     return get_extension(env).get_all_mutual_inds();
 }
 
-list<name> get_ginductive_all_nested_inds(environment const & env) {
+names get_ginductive_all_nested_inds(environment const & env) {
     return get_extension(env).get_all_nested_inds();
 }
 

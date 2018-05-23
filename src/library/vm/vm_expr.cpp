@@ -250,15 +250,15 @@ vm_obj expr_replace(vm_obj const & e, vm_obj const & fn) {
 }
 
 vm_obj expr_instantiate_univ_params(vm_obj const & e, vm_obj const & nls) {
-  list<name> ns = to_list<name>(nls, [](vm_obj const & p) {
-    lean_assert(csize(p) == 2);
-    return to_name(cfield(p, 0));
-  } );
-  levels ls = to_obj_list<level>(nls, [](vm_obj const & p) {
-    lean_assert(csize(p) == 2);
-    return to_level(cfield(p, 1));
-  } );
-  return to_obj(instantiate_univ_params(to_expr(e), ns, ls));
+    names ns = to_obj_list<name>(nls, [](vm_obj const & p) {
+            lean_assert(csize(p) == 2);
+            return to_name(cfield(p, 0));
+        } );
+    levels ls = to_obj_list<level>(nls, [](vm_obj const & p) {
+            lean_assert(csize(p) == 2);
+            return to_level(cfield(p, 1));
+        } );
+    return to_obj(instantiate_univ_params(to_expr(e), ns, ls));
 }
 
 vm_obj expr_instantiate_var(vm_obj const & e, vm_obj const & v) {
@@ -382,7 +382,7 @@ vm_obj expr_get_nat_value(vm_obj const & o) {
 }
 
 vm_obj expr_collect_univ_params(vm_obj const & o) {
-    list<name> param_list;
+    names param_list;
     collect_univ_params(to_expr(o), name_set()).for_each(
             [&] (name const & n) { param_list = cons(n, param_list); });
     return to_obj(param_list);

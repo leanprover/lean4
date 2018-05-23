@@ -42,8 +42,8 @@ expr mk_choice(unsigned num_es, expr const * es) {
         return mk_macro(*g_choice, num_es, es);
 }
 
-list<list<name>> collect_choice_symbols(expr const & e) {
-    buffer<list<name>> r;
+list<names> collect_choice_symbols(expr const & e) {
+    buffer<names> r;
     for_each(e, [&](expr const & e, unsigned) {
             if (is_choice(e)) {
                 buffer<name> cs;
@@ -55,7 +55,7 @@ list<list<name>> collect_choice_symbols(expr const & e) {
                         cs.push_back(mlocal_pp_name(c));
                 }
                 if (cs.size() > 1)
-                    r.push_back(to_list(cs));
+                    r.push_back(names(cs));
             }
             return true;
         });
@@ -63,7 +63,7 @@ list<list<name>> collect_choice_symbols(expr const & e) {
 }
 
 format pp_choice_symbols(expr const & e) {
-    list<list<name>> symbols = collect_choice_symbols(e);
+    list<names> symbols = collect_choice_symbols(e);
     if (symbols) {
         format r;
         bool first = true;

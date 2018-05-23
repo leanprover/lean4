@@ -82,8 +82,8 @@ corrupted_file_exception::corrupted_file_exception(std::string const & fname):
 struct module_ext : public environment_extension {
     std::vector<module_name> m_direct_imports;
     list<std::shared_ptr<modification const>> m_modifications;
-    list<name>        m_module_univs;
-    list<name>        m_module_decls;
+    names        m_module_univs;
+    names        m_module_decls;
     name_set          m_module_defs;
     name_set          m_imported;
     // Map from declaration name to olean file where it was defined
@@ -105,11 +105,11 @@ static environment update(environment const & env, module_ext const & ext) {
     return env.update(g_ext->m_ext_id, std::make_shared<module_ext>(ext));
 }
 
-list<name> const & get_curr_module_decl_names(environment const & env) {
+names const & get_curr_module_decl_names(environment const & env) {
     return get_extension(env).m_module_decls;
 }
 
-list<name> const & get_curr_module_univ_names(environment const & env) {
+names const & get_curr_module_univ_names(environment const & env) {
     return get_extension(env).m_module_univs;
 }
 

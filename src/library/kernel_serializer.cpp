@@ -224,8 +224,7 @@ reducibility_hints read_hints(deserializer & d) {
 }
 
 // Declaration serialization
-serializer & operator<<(serializer & s, level_param_names const & ps) { return write_list<name>(s, ps); }
-level_param_names read_level_params(deserializer & d) { return read_list<name>(d); }
+level_param_names read_level_params(deserializer & d) { return read_names(d); }
 serializer & operator<<(serializer & s, declaration const & d) {
     char k = 0;
     if (d.is_definition())
@@ -320,7 +319,7 @@ public:
         unsigned nACe        = d.read_unsigned();
         bool elim_prop       = d.read_bool();
         bool dep_elim        = d.read_bool();
-        level_param_names ls = read_list<name>(d, read_name);
+        level_param_names ls = read_names(d);
         expr elim_type       = read_expr(d);
         inductive_decl decl  = read_inductive_decl(d);
         bool       K         = d.read_bool();

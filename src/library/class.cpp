@@ -39,9 +39,9 @@ struct class_entry {
 };
 
 struct class_state {
-    typedef name_map<list<name>> class_instances;
+    typedef name_map<names> class_instances;
     typedef name_map<unsigned>   instance_priorities;
-    typedef name_map<list<name>> class_track_attrs;
+    typedef name_map<names> class_track_attrs;
     typedef name_map<name_set>   attr_symbols;
 
     class_instances       m_instances;
@@ -61,19 +61,19 @@ struct class_state {
         return m_priorities.contains(i);
     }
 
-    list<name> insert(name const & inst, unsigned priority, list<name> const & insts) const {
+    names insert(name const & inst, unsigned priority, names const & insts) const {
         if (!insts)
-            return to_list(inst);
+            return names(inst);
         else if (priority >= get_priority(head(insts)))
-            return list<name>(inst, insts);
+            return names(inst, insts);
         else
-            return list<name>(head(insts), insert(inst, priority, tail(insts)));
+            return names(head(insts), insert(inst, priority, tail(insts)));
     }
 
     void add_class(environment const & env, name const & c) {
         auto it = m_instances.find(c);
         if (!it)
-            m_instances.insert(c, list<name>());
+            m_instances.insert(c, names());
         expr type = env.get(c).get_type();
         bool has_out_param = false;
         while (is_pi(type)) {
@@ -114,7 +114,7 @@ struct class_state {
     void add_instance(environment const & env, name const & c, name const & i, unsigned p) {
         auto it = m_instances.find(c);
         if (!it) {
-            m_instances.insert(c, to_list(i));
+            m_instances.insert(c, names(i));
         } else {
             auto lst = filter(*it, [&](name const & i1) { return i1 != i; });
             m_instances.insert(c, insert(i, p, lst));
@@ -132,7 +132,7 @@ struct class_state {
         if (auto s = m_class_track_attrs.find(c)) {
             m_class_track_attrs.insert(c, cons(attr_name, *s));
         } else {
-            m_class_track_attrs.insert(c, to_list(attr_name));
+            m_class_track_attrs.insert(c, names(attr_name));
         }
     }
 };
@@ -236,7 +236,7 @@ environment add_class_core(environment const & env, name const &n, bool persiste
 
 void get_classes(environment const & env, buffer<name> & classes) {
     class_state const & s = class_ext::get_state(env);
-    s.m_instances.for_each([&](name const & c, list<name> const &) {
+    s.m_instances.for_each([&](name const & c, names const &) {
             classes.push_back(c);
         });
 }
@@ -298,9 +298,9 @@ name_predicate mk_instance_pred(environment const & env) {
     return [=](name const & n) { return insts.contains(n); }; // NOLINT
 }
 
-list<name> get_class_instances(environment const & env, name const & c) {
+names get_class_instances(environment const & env, name const & c) {
     class_state const & s = class_ext::get_state(env);
-    return ptr_to_list(s.m_instances.find(c));
+    return names(s.m_instances.find(c));
 }
 
 static name * g_class_attr_name    = nullptr;

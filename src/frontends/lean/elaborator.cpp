@@ -4081,7 +4081,7 @@ pair<expr, level_param_names> elaborator::finalize(expr const & e, bool check_un
     buffer<expr> es; es.push_back(e);
     buffer<name> new_lp_names;
     finalize(es, new_lp_names, check_unassigned, to_simple_metavar);
-    return mk_pair(es[0], to_list(new_lp_names));
+    return mk_pair(es[0], names(new_lp_names));
 }
 
 auto elaborator::finalize_theorem_type(expr const & type, buffer<name> & new_lp_names)
@@ -4119,7 +4119,7 @@ elaborate(environment & env, options const & opts, name const & decl_name,
 }
 
 static optional<expr> resolve_local_name_core(environment const & env, local_context const & lctx, name const & id,
-                                              expr const & src, list<name> const & extra_locals) {
+                                              expr const & src, names const & extra_locals) {
     // extra locals
     unsigned vidx = 0;
     for (name const & extra : extra_locals) {
@@ -4159,7 +4159,7 @@ static optional<expr> resolve_local_name_core(environment const & env, local_con
 
 // Auxiliary procedure for #translate
 static expr resolve_local_name(environment const & env, local_context const & lctx, name const & id,
-                               expr const & src, bool ignore_aliases, list<name> const & extra_locals) {
+                               expr const & src, bool ignore_aliases, names const & extra_locals) {
     /* locals */
     if (auto r = resolve_local_name_core(env, lctx, id, src, extra_locals))
         return *r;
@@ -4189,7 +4189,7 @@ static expr resolve_local_name(environment const & env, local_context const & lc
 
     if (!ignore_aliases) {
         // aliases
-        list<name> as = get_expr_aliases(env, id);
+        names as = get_expr_aliases(env, id);
         if (!is_nil(as)) {
             buffer<expr> new_as;
             if (r)
@@ -4223,7 +4223,7 @@ vm_obj tactic_resolve_local_name(vm_obj const & vm_id, vm_obj const & vm_s) {
         if (!g) return mk_no_goals_exception(s);
         expr src; // dummy
         bool ignore_aliases = false;
-        return tactic::mk_success(to_obj(resolve_local_name(s.env(), g->get_context(), id, src, ignore_aliases, list<name>())), s);
+        return tactic::mk_success(to_obj(resolve_local_name(s.env(), g->get_context(), id, src, ignore_aliases, names())), s);
     } catch (exception & ex) {
         return tactic::mk_exception(ex, s);
     }
@@ -4232,7 +4232,7 @@ vm_obj tactic_resolve_local_name(vm_obj const & vm_id, vm_obj const & vm_s) {
 struct resolve_names_fn : public replace_visitor {
     environment const &   m_env;
     local_context const & m_lctx;
-    list<name>            m_locals;
+    names            m_locals;
 
 
     resolve_names_fn(environment const & env, local_context const & lctx):
@@ -4261,7 +4261,7 @@ struct resolve_names_fn : public replace_visitor {
 
     virtual expr visit_binding(expr const & e) override {
         expr new_d = visit(binding_domain(e));
-        flet<list<name>> set(m_locals, cons(binding_name(e), m_locals));
+        flet<names> set(m_locals, cons(binding_name(e), m_locals));
         expr new_b = visit(binding_body(e));
         return update_binding(e, new_d, new_b);
     }
@@ -4269,7 +4269,7 @@ struct resolve_names_fn : public replace_visitor {
     virtual expr visit_let(expr const & e) override {
         expr new_type = visit(let_type(e));
         expr new_val  = visit(let_value(e));
-        flet<list<name>> set(m_locals, cons(let_name(e), m_locals));
+        flet<names> set(m_locals, cons(let_name(e), m_locals));
         expr new_body = visit(let_body(e));
         return update_let(e, new_type, new_val, new_body);
     }

@@ -301,7 +301,7 @@ static environment variable_cmd_core(parser & p, variable_kind k, cmd_meta const
         ls = to_level_param_names(collect_univ_params(type));
     } else {
         update_univ_parameters(p, ls_buffer, collect_univ_params(type));
-        ls = to_list(ls_buffer.begin(), ls_buffer.end());
+        ls = names(ls_buffer);
     }
     level_param_names new_ls;
     list<expr> ctx = p.locals_to_context();

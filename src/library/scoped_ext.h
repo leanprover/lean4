@@ -50,7 +50,7 @@ name const & get_scope_header(environment const & env);
       - It returns [foo.bla.boo, foo.bla, foo]
 
     \remark This is *not* the set of opened namespaces. */
-list<name> const & get_namespaces(environment const & env);
+names const & get_namespaces(environment const & env);
 bool in_section(environment const & env);
 
 /** \brief Check if \c n may be a reference to a namespace, if it is return it.

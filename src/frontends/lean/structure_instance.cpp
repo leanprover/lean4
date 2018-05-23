@@ -31,20 +31,20 @@ static std::string * g_structure_instance_opcode = nullptr;
 class structure_instance_macro_cell : public macro_definition_cell {
     name       m_struct;
     bool       m_catchall;
-    list<name> m_fields;
+    names m_fields;
 public:
-    structure_instance_macro_cell(name const & s, bool ca, list<name> const & fs):
+    structure_instance_macro_cell(name const & s, bool ca, names const & fs):
         m_struct(s), m_catchall(ca), m_fields(fs) {}
     virtual name get_name() const override { return *g_structure_instance_name; }
     virtual expr check_type(expr const &, abstract_type_context &, bool) const override { throw_se_ex(); }
     virtual optional<expr> expand(expr const &, abstract_type_context &) const override { throw_se_ex(); }
     virtual void write(serializer & s) const override {
         s << *g_structure_instance_opcode << m_struct << m_catchall;
-        write_list(s, m_fields);
+        s << m_fields;
     }
     name const & get_struct() const { return m_struct; }
     bool get_catchall() const { return m_catchall; }
-    list<name> const & get_field_names() const { return m_fields; }
+    names const & get_field_names() const { return m_fields; }
     virtual bool operator==(macro_definition_cell const & other) const override {
         if (auto other_ptr = dynamic_cast<structure_instance_macro_cell const *>(&other)) {
             return m_struct == other_ptr->m_struct && m_catchall == other_ptr->m_catchall && m_fields == other_ptr->m_fields;
@@ -54,7 +54,7 @@ public:
     }
 };
 
-static expr mk_structure_instance_core(name const & s, bool ca, list<name> const & fs, unsigned num, expr const * args) {
+static expr mk_structure_instance_core(name const & s, bool ca, names const & fs, unsigned num, expr const * args) {
     lean_assert(num >= length(fs));
     macro_definition def(new structure_instance_macro_cell(s, ca, fs));
     return mk_macro(def, num, args);
@@ -66,7 +66,7 @@ expr mk_structure_instance(name const & s, buffer<name> const & fns, buffer<expr
     buffer<expr> aux;
     aux.append(fvs);
     aux.append(sources);
-    return mk_structure_instance_core(s, catchall, to_list(fns), aux.size(), aux.data());
+    return mk_structure_instance_core(s, catchall, names(fns), aux.size(), aux.data());
 }
 
 expr mk_structure_instance(structure_instance_info const & info) {
@@ -98,11 +98,11 @@ void initialize_structure_instance() {
     g_structure_instance_opcode = new std::string("STI");
     register_macro_deserializer(*g_structure_instance_opcode,
                                 [](deserializer & d, unsigned num, expr const * args) {
-                                    list<name> fns;
+                                    names fns;
                                     name s;
                                     bool ca;
                                     d >> s >> ca;
-                                    fns = read_list<name>(d);
+                                    fns = read_names(d);
                                     unsigned len = length(fns);
                                     if (num < len)
                                         throw corrupted_stream_exception();

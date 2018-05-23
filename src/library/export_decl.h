@@ -14,13 +14,13 @@ struct export_decl {
     name                   m_as;
     bool                   m_had_explicit;
     list<pair<name, name>> m_renames;
-    list<name>             m_except_names;
+    names             m_except_names;
 
     export_decl() {}
     export_decl(name const & ns, name const & as, bool had_explicit, buffer<pair<name, name>> const & renames,
                 buffer<name> const & except_names):
         m_ns(ns), m_as(as), m_had_explicit(had_explicit),
-        m_renames(to_list(renames)), m_except_names(to_list(except_names)) {}
+        m_renames(to_list(renames)), m_except_names(names(except_names)) {}
 };
 
 /** \brief We store export commands to allow us to replay them whenever the namespace is opened. */

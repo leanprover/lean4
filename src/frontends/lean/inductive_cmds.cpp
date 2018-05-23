@@ -187,7 +187,7 @@ class inductive_cmd_fn {
         buffer<expr> params_only(params);
         remove_non_parameters(params_only);
         // Create aliases/local refs
-        levels ctx_levels = collect_local_nonvar_levels(m_p, to_list(m_lp_names));
+        levels ctx_levels = collect_local_nonvar_levels(m_p, names(m_lp_names));
         for (expr const & ind : inds) {
             name d_name = mlocal_name(ind);
             name d_short_name(d_name.get_string());
@@ -536,7 +536,7 @@ class inductive_cmd_fn {
         // We replace the inds appearing in the types of introduction rules with constants
         buffer<expr> c_inds;
         for (expr const & ind : inds) {
-            c_inds.push_back(mk_app(mk_constant(mlocal_name(ind), param_names_to_levels(to_list(m_lp_names))), new_params));
+            c_inds.push_back(mk_app(mk_constant(mlocal_name(ind), param_names_to_levels(names(m_lp_names))), new_params));
         }
 
         unsigned offset = offsets[0] + offsets[1];

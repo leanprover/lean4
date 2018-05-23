@@ -3491,7 +3491,7 @@ struct instance_synthesizer {
 
     struct choice {
         list<expr>         m_local_instances;
-        list<name>         m_instances;
+        names         m_instances;
         state              m_state;
     };
 
@@ -3666,7 +3666,7 @@ struct instance_synthesizer {
         return false;
     }
 
-    bool process_next_alt_core(stack_entry const & e, list<name> & inst_names) {
+    bool process_next_alt_core(stack_entry const & e, names & inst_names) {
         while (!empty(inst_names)) {
             name inst_name    = head(inst_names);
             inst_names        = tail(inst_names);
@@ -3686,12 +3686,12 @@ struct instance_synthesizer {
             return true;
         }
         cs.back().m_local_instances = list<expr>();
-        list<name> insts = cs.back().m_instances;
+        names insts = cs.back().m_instances;
         if (process_next_alt_core(e, insts)) {
             cs.back().m_instances = insts;
             return true;
         }
-        cs.back().m_instances = list<name>();
+        cs.back().m_instances = names();
         return false;
     }
 

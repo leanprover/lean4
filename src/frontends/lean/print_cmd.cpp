@@ -344,7 +344,7 @@ void print_id_info(parser & p, message_builder & out, name const & id, bool show
     bool found = false;
 
     // declarations
-    list<name> cs;
+    names cs;
     try {
         cs = p.to_constants(id, "", pos);
         found = true;
@@ -462,7 +462,7 @@ static void print_congr_rules(parser & p, message_builder & out) {
 }
 
 static void print_aliases(parser const & p, message_builder & out) {
-    for_each_expr_alias(p.env(), [&](name const & n, list<name> const & as) {
+    for_each_expr_alias(p.env(), [&](name const & n, names const & as) {
             out << n << " -> {";
             bool first = true;
             for (name const & a : as) {
@@ -526,7 +526,7 @@ environment print_cmd(parser & p) {
         p.next();
         auto pos = p.pos();
         name id  = p.check_id_next("invalid '#print definition', constant expected");
-        list<name> cs = p.to_constants(id, "invalid '#print definition', constant expected", pos);
+        names cs = p.to_constants(id, "invalid '#print definition', constant expected", pos);
         bool first = true;
         for (name const & c : cs) {
             if (first)

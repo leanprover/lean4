@@ -43,7 +43,7 @@ struct cases_tactic_fn {
     transparency_mode             m_mode;
     metavar_context &             m_mctx;
     /* User provided ids to name new hypotheses */
-    list<name> &                  m_ids;
+    names &                  m_ids;
     /* If m_unfold_ginductive is true, then we normalize major premise type using relaxed_whnf,
        and expose the basic kernel inductive datatype. This feature is used by the equation compiler.
        The `cases` tactic exposed to users hides how the generalized inductive datatype implementation. */
@@ -540,7 +540,7 @@ struct cases_tactic_fn {
         }
     }
 
-    pair<list<expr>, list<name>> unify_eqs(expr const & input_H, list<expr> const & mvars, list<name> const & cnames, unsigned num_eqs,
+    pair<list<expr>, names> unify_eqs(expr const & input_H, list<expr> const & mvars, names const & cnames, unsigned num_eqs,
                                            intros_list * ilist, hsubstitution_list * slist) {
         lean_assert((ilist == nullptr) == (slist == nullptr));
         buffer<expr>              new_goals;
@@ -548,7 +548,7 @@ struct cases_tactic_fn {
         buffer<hsubstitution>     new_slist;
         buffer<name>              new_cnames;
         list<expr> it1            = mvars;
-        list<name> itn            = cnames;
+        names itn            = cnames;
         intros_list const * it2   = ilist;
         hsubstitution_list const * it3 = slist;
         while (it1) {
@@ -579,11 +579,11 @@ struct cases_tactic_fn {
             *ilist = to_list(new_ilist);
             *slist = to_list(new_slist);
         }
-        return mk_pair(to_list(new_goals), to_list(new_cnames));
+        return mk_pair(to_list(new_goals), names(new_cnames));
     }
 
     cases_tactic_fn(environment const & env, options const & opts, transparency_mode m,
-                    metavar_context & mctx, list<name> & ids, bool unfold_ginductive):
+                    metavar_context & mctx, names & ids, bool unfold_ginductive):
         m_env(env),
         m_opts(opts),
         m_mode(m),
@@ -592,7 +592,7 @@ struct cases_tactic_fn {
         m_unfold_ginductive(unfold_ginductive) {
     }
 
-    pair<list<expr>, list<name>> operator()(expr const & mvar, expr const & H,
+    pair<list<expr>, names> operator()(expr const & mvar, expr const & H,
                                             intros_list * ilist, hsubstitution_list * slist) {
         lean_assert((ilist != nullptr) == (slist != nullptr));
         lean_assert(is_metavar(mvar));
@@ -601,7 +601,7 @@ struct cases_tactic_fn {
             throw exception("cases tactic failed, argument must be a hypothesis");
         if (!is_cases_applicable(mvar, H))
             throw exception("cases tactic failed, it is not applicable to the given hypothesis");
-        list<name> cname_list = get_ginductive_intro_rules(m_env, m_I_decl.get_name());
+        names cname_list = get_ginductive_intro_rules(m_env, m_I_decl.get_name());
         metavar_decl g = m_mctx.get_metavar_decl(mvar);
         /* Remark: if ilist/rlist are provided, then we force dependent pattern matching
            even when indices are independent. */
@@ -636,9 +636,9 @@ struct cases_tactic_fn {
     }
 };
 
-pair<list<expr>, list<name>>
+pair<list<expr>, names>
 cases(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
-      expr const & mvar, expr const & H, list<name> & ids, intros_list * ilist, hsubstitution_list * slist,
+      expr const & mvar, expr const & H, names & ids, intros_list * ilist, hsubstitution_list * slist,
       bool unfold_ginductive) {
     auto r = cases_tactic_fn(env, opts, m, mctx, ids, unfold_ginductive)(mvar, H, ilist, slist);
     lean_assert(length(r.first) == length(r.second));
@@ -649,15 +649,15 @@ vm_obj tactic_cases_core(vm_obj const & H, vm_obj const & ns, vm_obj const & m, 
     tactic_state const & s   = tactic::to_state(_s);
     try {
         if (!s.goals()) return mk_no_goals_exception(s);
-        list<name> ids       = to_list_name(ns);
+        names ids       = to_names(ns);
         metavar_context mctx = s.mctx();
         list<list<expr>> hyps;
         hsubstitution_list substs;
         bool unfold_ginductive = false;
-        pair<list<expr>, list<name>> info = cases(s.env(), s.get_options(), to_transparency_mode(m), mctx,
+        pair<list<expr>, names> info = cases(s.env(), s.get_options(), to_transparency_mode(m), mctx,
                                                   head(s.goals()), to_expr(H), ids, &hyps, &substs,
                                                   unfold_ginductive);
-        list<name> constrs = info.second;
+        names constrs = info.second;
         buffer<vm_obj> info_objs;
         while (!is_nil(hyps)) {
             buffer<vm_obj> substs_objs;

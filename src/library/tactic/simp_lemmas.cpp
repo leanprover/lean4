@@ -1388,7 +1388,7 @@ vm_obj simp_lemmas_join(vm_obj const & lemmas1, vm_obj const & lemmas2) {
 
 vm_obj simp_lemmas_erase(vm_obj const & lemmas, vm_obj const & lemma_list) {
     name_set S;
-    for (name const & l : to_list_name(lemma_list))
+    for (name const & l : to_names(lemma_list))
         S.insert(l);
     simp_lemmas new_lemmas = to_simp_lemmas(lemmas);
     new_lemmas.erase(S);

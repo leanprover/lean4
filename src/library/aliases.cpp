@@ -25,7 +25,7 @@ static environment update(environment const & env, aliases_ext const & ext);
 struct aliases_ext : public environment_extension {
     struct state {
         bool                  m_in_section;
-        name_map<list<name>>  m_aliases;
+        name_map<names>  m_aliases;
         name_map<name>        m_inv_aliases;
         name_map<name>        m_level_aliases;
         name_map<name>        m_inv_level_aliases;
@@ -44,7 +44,7 @@ struct aliases_ext : public environment_extension {
                 if (it && !overwrite)
                     m_aliases.insert(a, cons(e, filter(*it, [&](name const & t) { return t != e; })));
                 else
-                    m_aliases.insert(a, to_list(e));
+                    m_aliases.insert(a, names(e));
                 m_inv_aliases.insert(e, a);
             }
         }
@@ -100,7 +100,7 @@ struct aliases_ext : public environment_extension {
         m_scopes = tail(m_scopes);
     }
 
-    void for_each_expr_alias(std::function<void(name const &, list<name> const &)> const & fn) {
+    void for_each_expr_alias(std::function<void(name const &, names const &)> const & fn) {
         m_state.m_aliases.for_each(fn);
     }
 
@@ -150,8 +150,8 @@ optional<name> is_expr_aliased(environment const & env, name const & t) {
     return it ? optional<name>(*it) : optional<name>();
 }
 
-list<name> get_expr_aliases(environment const & env, name const & n) {
-    return ptr_to_list(get_extension(env).m_state.m_aliases.find(n));
+names get_expr_aliases(environment const & env, name const & n) {
+    return names(get_extension(env).m_state.m_aliases.find(n));
 }
 
 environment erase_expr_aliases(environment const & env, name const & n) {
@@ -209,7 +209,7 @@ environment add_aliases(environment const & env, name const & prefix, name const
     return update(env, ext);
 }
 
-void for_each_expr_alias(environment const & env, std::function<void(name const &, list<name> const &)> const & fn) {
+void for_each_expr_alias(environment const & env, std::function<void(name const &, names const &)> const & fn) {
     aliases_ext ext = get_extension(env);
     ext.for_each_expr_alias(fn);
 }

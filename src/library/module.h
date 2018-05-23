@@ -46,9 +46,9 @@ module_loader mk_olean_loader(std::vector<std::string> const &);
 module_loader mk_dummy_loader();
 
 /** \brief Return the list of declarations performed in the current module */
-list<name> const & get_curr_module_decl_names(environment const & env);
+names const & get_curr_module_decl_names(environment const & env);
 /** \brief Return the list of universes declared in the current module */
-list<name> const & get_curr_module_univ_names(environment const & env);
+names const & get_curr_module_univ_names(environment const & env);
 /** \brief Return the list of modules directly imported by the current module */
 std::vector<module_name> get_curr_module_imports(environment const & env);
 

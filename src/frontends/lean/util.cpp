@@ -295,7 +295,7 @@ optional<name> is_uniquely_aliased(environment const & env, name const & n) {
 
 name get_decl_short_name(name const & d, environment const & env) {
     // using namespace override resolution rule
-    list<name> const & ns_list = get_namespaces(env);
+    names const & ns_list = get_namespaces(env);
     for (name const & ns : ns_list) {
         if (is_prefix_of(ns, d) && ns != d)
             return d.replace_prefix(ns, name());

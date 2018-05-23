@@ -93,7 +93,7 @@ protected:
     }
 
 public:
-    unfold_core_fn(type_context_old & ctx, defeq_canonizer::state & dcs, list<name> const & cs, dsimp_config const & cfg):
+    unfold_core_fn(type_context_old & ctx, defeq_canonizer::state & dcs, names const & cs, dsimp_config const & cfg):
         dsimplify_core_fn(ctx, dcs, cfg),
         m_cs(to_name_set(cs)) {
         m_cfg.m_zeta = false;
@@ -105,7 +105,7 @@ class unfold_fn : public unfold_core_fn {
         return unfold_step(e);
     }
 public:
-    unfold_fn(type_context_old & ctx, defeq_canonizer::state & dcs, list<name> const & cs, dsimp_config const & cfg):
+    unfold_fn(type_context_old & ctx, defeq_canonizer::state & dcs, names const & cs, dsimp_config const & cfg):
         unfold_core_fn(ctx, dcs, cs, cfg) {
     }
 };
@@ -120,7 +120,7 @@ vm_obj tactic_dunfold(vm_obj const & cs, vm_obj const & _e, vm_obj const & _cfg,
     */
     dsimp_config cfg(_cfg);
     type_context_old ctx       = mk_type_context_for(s, cfg.m_md);
-    unfold_fn F(ctx, dcs, to_list_name(cs), cfg);
+    unfold_fn F(ctx, dcs, to_names(cs), cfg);
     try {
         expr new_e         = F(e);
         tactic_state new_s = set_mctx_dcs(s, F.mctx(), dcs);

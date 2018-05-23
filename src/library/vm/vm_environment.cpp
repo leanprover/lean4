@@ -90,7 +90,7 @@ vm_obj environment_add_inductive(vm_obj const & env, vm_obj const & n, vm_obj co
     try {
         environment new_env = module::add_inductive(to_env(env),
                                                     inductive::inductive_decl(to_name(n),
-                                                                              to_list_name(ls),
+                                                                              to_names(ls),
                                                                               force_to_unsigned(num, 0),
                                                                               to_expr(type),
                                                                               to_list_intro_rule(cnstrs)),
@@ -127,7 +127,7 @@ vm_obj environment_is_recursive(vm_obj const & env, vm_obj const & n) {
 vm_obj environment_constructors_of(vm_obj const & env, vm_obj const & n) {
     buffer<name> ns;
     get_intro_rule_names(to_env(env), to_name(n), ns);
-    return to_obj(to_list(ns));
+    return to_obj(names(ns));
 }
 
 vm_obj environment_recursor_of(vm_obj const & env, vm_obj const & n) {

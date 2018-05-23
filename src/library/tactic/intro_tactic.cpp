@@ -69,7 +69,7 @@ optional<expr> intron_core(environment const & env, options const & opts, metava
     return some_expr(new_M);
 }
 
-static name mk_aux_name(local_context const & lctx, list<name> & given_names, name const & default_name,
+static name mk_aux_name(local_context const & lctx, names & given_names, name const & default_name,
                         bool use_unused_names) {
     if (given_names) {
         name r      = head(given_names);
@@ -81,7 +81,7 @@ static name mk_aux_name(local_context const & lctx, list<name> & given_names, na
 }
 
 optional<expr> intron(environment const & env, options const & opts, metavar_context & mctx,
-                      expr const & mvar, unsigned n, list<name> & given_names, buffer<name> & new_Hns,
+                      expr const & mvar, unsigned n, names & given_names, buffer<name> & new_Hns,
                       bool use_unused_names) {
     return intron_core(env, opts, mctx, mvar, n, new_Hns,
                        [&](local_context const & lctx, name const & n) {
@@ -90,20 +90,20 @@ optional<expr> intron(environment const & env, options const & opts, metavar_con
 }
 
 optional<expr> intron(environment const & env, options const & opts, metavar_context & mctx,
-                      expr const & mvar, unsigned n, list<name> & given_names, bool use_unused_names) {
+                      expr const & mvar, unsigned n, names & given_names, bool use_unused_names) {
     buffer<name> tmp;
     return intron(env, opts, mctx, mvar, n, given_names, tmp, use_unused_names);
 }
 
 optional<expr> intron(environment const & env, options const & opts, metavar_context & mctx,
                       expr const & mvar, unsigned n, bool use_unused_names) {
-    list<name> empty;
+    names empty;
     return intron(env, opts, mctx, mvar, n, empty, use_unused_names);
 }
 
 optional<expr> intron(environment const & env, options const & opts, metavar_context & mctx,
                       expr const & mvar, unsigned n, buffer<name> & new_Hns, bool use_unused_names) {
-    list<name> empty;
+    names empty;
     return intron(env, opts, mctx, mvar, n, empty, new_Hns, use_unused_names);
 }
 
@@ -111,7 +111,7 @@ optional<tactic_state> intron(unsigned n, tactic_state const & s, buffer<name> &
     if (n == 0) return some_tactic_state(s);
     optional<expr> mvar  = s.get_main_goal();
     if (!mvar) return none_tactic_state();
-    list<name> new_names;
+    names new_names;
     metavar_context mctx = s.mctx();
     if (optional<expr> new_M = intron(s.env(), s.get_options(), mctx, *mvar, n, new_names, new_Hns, use_unused_names)) {
         list<expr> new_gs(*new_M, tail(s.goals()));

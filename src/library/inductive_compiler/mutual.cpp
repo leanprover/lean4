@@ -293,7 +293,7 @@ class add_mutual_inductive_decl_fn {
                        << mlocal_name(ind) << " : " << new_ind_type << " :=\n  " << new_ind_val << "\n";);
             lean_assert(!has_local(new_ind_type));
             lean_assert(!has_local(new_ind_val));
-            m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, mlocal_name(ind), to_list(m_mut_decl.get_lp_names()), new_ind_type, new_ind_val, true)));
+            m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, mlocal_name(ind), names(m_mut_decl.get_lp_names()), new_ind_type, new_ind_val, true)));
             m_tctx.set_env(m_env);
         }
     }
@@ -347,7 +347,7 @@ class add_mutual_inductive_decl_fn {
                        << sizeof_name << " : " << sizeof_type << " :=\n  " << sizeof_val << "\n";);
             lean_assert(!has_local(sizeof_type));
             lean_assert(!has_local(sizeof_val));
-            m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, sizeof_name, to_list(m_mut_decl.get_lp_names()), sizeof_type, sizeof_val, true)));
+            m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, sizeof_name, names(m_mut_decl.get_lp_names()), sizeof_type, sizeof_val, true)));
             m_env = add_protected(m_env, sizeof_name);
             m_tctx.set_env(m_env);
 
@@ -368,7 +368,7 @@ class add_mutual_inductive_decl_fn {
                        << has_sizeof_name << " : " << has_sizeof_type << " :=\n  " << has_sizeof_val << "\n";);
             lean_assert(!has_local(has_sizeof_type));
             lean_assert(!has_local(has_sizeof_val));
-            m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, has_sizeof_name, to_list(m_mut_decl.get_lp_names()), has_sizeof_type, has_sizeof_val, true)));
+            m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, has_sizeof_name, names(m_mut_decl.get_lp_names()), has_sizeof_type, has_sizeof_val, true)));
             m_env = add_instance(m_env, has_sizeof_name, LEAN_DEFAULT_PRIORITY, true);
             m_env = add_protected(m_env, sizeof_name);
             m_tctx.set_env(m_env);
@@ -421,7 +421,7 @@ class add_mutual_inductive_decl_fn {
                 lean_trace(name({"inductive_compiler", "mutual", "sizeof"}), tout()
                            << dsimp_rule_name << " : " << dsimp_rule_type << " :=\n  " << dsimp_rule_val << "\n";);
 
-                m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, dsimp_rule_name, to_list(m_mut_decl.get_lp_names()), dsimp_rule_type, dsimp_rule_val, true)));
+                m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, dsimp_rule_name, names(m_mut_decl.get_lp_names()), dsimp_rule_type, dsimp_rule_val, true)));
                 m_env = mark_rfl_lemma(m_env, dsimp_rule_name);
                 m_env = add_eqn_lemma(m_env, dsimp_rule_name);
                 m_env = add_protected(m_env, dsimp_rule_name);
@@ -461,7 +461,7 @@ class add_mutual_inductive_decl_fn {
                 if (!static_cast<bool>(m_env.find(mk_injective_name(mlocal_name(m_basic_decl.get_intro_rule(0, basic_ir_idx)))))) {
                     return;
                 }
-                level_param_names lp_names = to_list(m_mut_decl.get_lp_names());
+                level_param_names lp_names = names(m_mut_decl.get_lp_names());
                 unsigned num_params = m_mut_decl.get_num_params();
                 name ir_name  = mlocal_name(ir);
                 expr ir_type  = Pi(m_mut_decl.get_params(), mlocal_type(ir));
@@ -499,7 +499,7 @@ class add_mutual_inductive_decl_fn {
                 lean_assert(!has_local(new_ir_val));
                 lean_trace(name({"inductive_compiler", "mutual", "ir"}), tout() << mlocal_name(ir) << " : " << new_ir_type << "\n";);
 
-                m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, mlocal_name(ir), to_list(m_mut_decl.get_lp_names()), new_ir_type, new_ir_val, true)));
+                m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, mlocal_name(ir), names(m_mut_decl.get_lp_names()), new_ir_type, new_ir_val, true)));
                 m_env = set_pattern_attribute(m_env, mlocal_name(ir));
                 m_tctx.set_env(m_env);
                 basic_ir_idx++;

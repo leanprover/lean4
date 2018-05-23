@@ -126,6 +126,17 @@ void serializer_core::write_scalar_array(object * o) {
         m_out.put(*it);
 }
 
+void serializer_core::write_string_object(object * o) {
+    size_t sz  = string_size(o);
+    size_t len = string_len(o);
+    write_size_t(sz);
+    write_size_t(len);
+    char const * it  = c_str(o);
+    char const * end = it + sz;
+    for (; it != end; ++it)
+        m_out.put(*it);
+}
+
 void serializer_core::write_mpz(mpz const & n) {
     std::ostringstream out;
     out << n;
@@ -156,6 +167,7 @@ void serializer_core::write_object(object * o) {
             case object_kind::Closure:      write_closure(o); break;
             case object_kind::Array:        write_array(o); break;
             case object_kind::ScalarArray:  write_scalar_array(o); break;
+            case object_kind::String:       write_string_object(o); break;
             case object_kind::MPZ:          write_mpz(mpz_value(o)); break;
             case object_kind::External:     write_external(o); break;
             default: lean_unreachable();
@@ -295,6 +307,17 @@ object * deserializer_core::read_scalar_array() {
     return r;
 }
 
+object * deserializer_core::read_string_object() {
+    size_t sz            = read_size_t();
+    size_t len           = read_size_t();
+    object * r           = alloc_string(sz, sz, len);
+    unsigned char * it   = const_cast<unsigned char*>(reinterpret_cast<unsigned char const *>(c_str(r)));
+    unsigned char * end  = it + sz;
+    for (; it != end; ++it)
+        *it = m_in.get();
+    return r;
+}
+
 object * deserializer_core::read_external() {
     throw exception("serializer for external objects has not been implemented yet");
 }
@@ -316,6 +339,7 @@ object * deserializer_core::read_object() {
         case object_kind::Closure:      r = read_closure(); break;
         case object_kind::Array:        r = read_array(); break;
         case object_kind::ScalarArray:  r = read_scalar_array(); break;
+        case object_kind::String:       r = read_string_object(); break;
         case object_kind::MPZ:          r = alloc_mpz(read_mpz()); break;
         case object_kind::External:     r = read_external(); break;
         default: throw corrupted_stream_exception();

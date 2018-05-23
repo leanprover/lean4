@@ -29,6 +29,7 @@ class serializer_core {
     void write_closure(object * o);
     void write_array(object * o);
     void write_scalar_array(object * o);
+    void write_string_object(object * o);
     void write_external(object * o);
 public:
     serializer_core(std::ostream & out):m_out(out) {}
@@ -74,6 +75,7 @@ class deserializer_core {
     object * read_closure();
     object * read_array();
     object * read_scalar_array();
+    object * read_string_object();
     object * read_external();
 public:
     deserializer_core(std::istream & in):m_in(in) {}

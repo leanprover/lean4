@@ -16,6 +16,7 @@ size_t obj_byte_size(object * o) {
     case object_kind::Closure:         return closure_byte_size(o);
     case object_kind::Array:           return array_byte_size(o);
     case object_kind::ScalarArray:     return sarray_byte_size(o);
+    case object_kind::String:          return string_byte_size(o);
     case object_kind::MPZ:             return sizeof(mpz_object);
     case object_kind::External:        lean_unreachable();
     }
@@ -28,6 +29,7 @@ size_t obj_header_size(object * o) {
     case object_kind::Closure:         return sizeof(closure);
     case object_kind::Array:           return sizeof(array);
     case object_kind::ScalarArray:     return sizeof(sarray);
+    case object_kind::String:          return sizeof(string_object);
     case object_kind::MPZ:             return sizeof(mpz_object);
     case object_kind::External:        lean_unreachable();
     }
@@ -92,6 +94,8 @@ void del(object * o) {
         }
         case object_kind::ScalarArray:
             free(o); break;
+        case object_kind::String:
+            free(o); break;
         case object_kind::MPZ:
             dealloc_mpz(o); break;
         case object_kind::External:
@@ -109,6 +113,7 @@ void del(object * o) {
 
 /* Scalar arrays */
 
+#if 0
 static object * sarray_ensure_capacity(object * o, size_t extra) {
     lean_assert(!is_shared(o));
     size_t sz  = sarray_size(o);
@@ -124,16 +129,32 @@ static object * sarray_ensure_capacity(object * o, size_t extra) {
         return o;
     }
 }
+#endif
 
 /* Strings */
+static inline char * w_c_str(object * o) { lean_assert(is_string(o)); return reinterpret_cast<char *>(o) + sizeof(string_object); }
+
+static object * string_ensure_capacity(object * o, size_t extra) {
+    lean_assert(!is_shared(o));
+    size_t sz  = string_size(o);
+    size_t cap = string_capacity(o);
+    if (sz + extra > cap) {
+        object * new_o = alloc_string(sz, cap + sz + extra, string_len(o));
+        lean_assert(string_capacity(new_o) >= sz + extra);
+        memcpy(w_c_str(new_o), c_str(o), sz);
+        free(o);
+        return new_o;
+    } else {
+        return o;
+    }
+}
 
 object * mk_string(char const * s) {
     size_t sz  = strlen(s);
     size_t len = utf8_strlen(s);
-    size_t rsz = sz + sizeof(size_t) + 1;
-    object * r = alloc_sarray(1, rsz, rsz);
-    sarray_set_data<size_t>(r, 0, len);
-    memcpy(sarray_cptr<char>(r) + sizeof(size_t), s, sz+1);
+    size_t rsz = sz + 1;
+    object * r = alloc_string(rsz, rsz, len);
+    memcpy(w_c_str(r), s, sz+1);
     return r;
 }
 
@@ -143,30 +164,30 @@ object * mk_string(std::string const & s) {
 
 object * string_push(object * s, unsigned c) {
     lean_assert(!is_shared(s));
-    object * r = sarray_ensure_capacity(s, 5);
-    size_t sz = sarray_size(r);
+    object * r = string_ensure_capacity(s, 5);
+    size_t sz  = string_size(r);
     unsigned consumed = push_unicode_scalar(sarray_cptr<char>(r) + sz - 1, c);
-    sarray_set_size(r, sz + consumed);
-    sarray_set_data<char>(r, sz + consumed - 1, 0);
-    sarray_set_data<size_t>(r, 0, string_len(r) + 1);
+    to_string(r)->m_size   = sz + consumed;
+    to_string(r)->m_length++;
+    w_c_str(r)[sz + consumed - 1] = 0;
     return r;
 }
 
 object * string_append(object * s1, object * s2) {
     lean_assert(!is_shared(s1));
-    size_t sz1 = sarray_size(s1);
-    size_t sz2 = sarray_size(s2);
+    size_t sz1 = string_size(s1);
+    size_t sz2 = string_size(s2);
     size_t len1 = string_len(s1);
     size_t len2 = string_len(s2);
     lean_assert(sz2 >= sizeof(size_t));
     sz2 -= sizeof(size_t);
-    object * r = sarray_ensure_capacity(s1, sz2-1);
+    object * r = string_ensure_capacity(s1, sz2-1);
     if (s1 == s2) s2 = r;
-    memcpy(sarray_cptr<char>(r) + sz1 - 1, c_str(s2), sz2 - 1);
+    memcpy(w_c_str(r) + sz1 - 1, c_str(s2), sz2 - 1);
     unsigned new_sz = sz1 + sz2 - 1;
-    sarray_set_size(r, new_sz);
-    sarray_set_data<char>(r, new_sz - 1, 0);
-    sarray_set_data<size_t>(r, 0, len1 + len2);
+    to_string(r)->m_size   = new_sz;
+    to_string(r)->m_length = len1 + len2;
+    w_c_str(r)[new_sz - 1] = 0;
     return r;
 }
 

@@ -23,7 +23,7 @@ inline void * alloca(size_t s) {
 #endif
 }
 
-enum class object_kind { Constructor, Closure, Array, ScalarArray, MPZ, External };
+enum class object_kind { Constructor, Closure, Array, ScalarArray, String, MPZ, External };
 
 /* The reference counter is a uintptr_t, because at deletion time, we use this field to implement
    a linked list of objects to be deleted. */
@@ -71,6 +71,14 @@ struct sarray : public object {
     size_t   m_capacity;
     sarray(unsigned esz, size_t sz, size_t c):
         object(object_kind::ScalarArray), m_elem_size(esz), m_size(sz), m_capacity(c) {}
+};
+
+struct string_object : public object {
+    size_t m_size;
+    size_t m_capacity;
+    size_t m_length;   // UTF8 length
+    string_object(size_t sz, size_t c, size_t len):
+        object(object_kind::String), m_size(sz), m_capacity(c), m_length(len) {}
 };
 
 typedef object * (*lean_cfun)(object *); // NOLINT
@@ -142,6 +150,7 @@ inline bool is_cnstr(object * o) { return get_kind(o) == object_kind::Constructo
 inline bool is_closure(object * o) { return get_kind(o) == object_kind::Closure; }
 inline bool is_array(object * o) { return get_kind(o) == object_kind::Array; }
 inline bool is_sarray(object * o) { return get_kind(o) == object_kind::ScalarArray; }
+inline bool is_string(object * o) { return get_kind(o) == object_kind::String; }
 inline bool is_mpz(object * o) { return get_kind(o) == object_kind::MPZ; }
 inline bool is_external(object * o) { return get_kind(o) == object_kind::External; }
 
@@ -150,6 +159,7 @@ inline constructor * to_cnstr(object * o) { lean_assert(is_cnstr(o)); return sta
 inline closure * to_closure(object * o) { lean_assert(is_closure(o)); return static_cast<closure*>(o); }
 inline array * to_array(object * o) { lean_assert(is_array(o)); return static_cast<array*>(o); }
 inline sarray * to_sarray(object * o) { lean_assert(is_sarray(o)); return static_cast<sarray*>(o); }
+inline string_object * to_string(object * o) { lean_assert(is_string(o)); return static_cast<string_object*>(o); }
 inline mpz_object * to_mpz(object * o) { lean_assert(is_mpz(o)); return static_cast<mpz_object*>(o); }
 inline external_object * to_external(object * o) { lean_assert(is_external(o)); return static_cast<external_object*>(o); }
 
@@ -310,12 +320,16 @@ inline object * alloc_mpz(mpz const & m) { return new mpz_object(m); }
 inline mpz const & mpz_value(object * o) { return to_mpz(o)->m_value; }
 
 /* String */
-
+inline object * alloc_string(size_t size, size_t capacity, size_t len) {
+    return new (malloc(sizeof(string_object) + capacity)) string_object(size, capacity, len); // NOLINT
+}
 object * mk_string(char const * s);
 object * mk_string(std::string const & s);
-inline bool is_string(object * o) { return !is_scalar(o) && is_sarray(o) && sarray_elem_size(o) == 1; }
-inline char const * c_str(object * o) { lean_assert(is_string(o)); return sarray_cptr<char>(o) + sizeof(size_t); }
-inline size_t string_len(object * o) { return *sarray_cptr_core<size_t>(o); }
+inline char const * c_str(object * o) { lean_assert(is_string(o)); return reinterpret_cast<char*>(o) + sizeof(string_object); }
+inline size_t string_capacity(object * o) { return to_string(o)->m_capacity; }
+inline size_t string_size(object * o) { return to_string(o)->m_size; }
+inline size_t string_len(object * o) { return to_string(o)->m_length; }
+inline size_t string_byte_size(object * o) { return sizeof(string_object) + string_capacity(o); } // NOLINT
 object * string_push(object * s, unsigned c);
 object * string_append(object * s1, object * s2);
 

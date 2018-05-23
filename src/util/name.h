@@ -40,10 +40,8 @@ inline bool is_id_rest(char const * begin, char const * end) {
 }
 
 enum class name_kind { ANONYMOUS, STRING, NUMERAL };
-/**
-   \brief Hierarchical names.
-*/
-class name : object_ref {
+/** \brief Hierarchical names. */
+class name : public object_ref {
 public:
     /* Low level primitives */
     static name_kind kind(object * o) { return static_cast<name_kind>(obj_tag(o)); }
@@ -60,7 +58,7 @@ public:
 private:
     friend name read_name(deserializer & d);
     explicit name(object * r):object_ref(r) { inc(r); }
-    explicit name(object_ref const & r):object_ref(r) {}
+    explicit name(object_ref && r):object_ref(r) {}
 public:
     name():object_ref(box(static_cast<unsigned>(name_kind::ANONYMOUS))) {}
     name(name const & prefix, char const * name);

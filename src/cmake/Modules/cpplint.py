@@ -3333,8 +3333,11 @@ def CheckLanguage(filename, clean_lines, linenum, file_extension, include_state,
     pass
   else:
     # Check pointer casts for other than string constants
-    CheckCStyleCast(filename, linenum, line, clean_lines.raw_lines[linenum],
-                    'reinterpret_cast', r'\((\w+\s?\*+\s?)\)', error)
+    pass
+    # Disabled by Leo de Moura, 05/22/2018.
+    # This test was producing bogus error messages when we use expressions such as `sizeof(object*)`
+    # CheckCStyleCast(filename, linenum, line, clean_lines.raw_lines[linenum],
+    #                'reinterpret_cast', r'\((\w+\s?\*+\s?)\)', error)
 
   # In addition, we look for people taking the address of a cast.  This
   # is dangerous -- casts can assign to temporaries, so the pointer doesn't

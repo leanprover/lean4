@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <limits>
 #include <stdio.h>
+#include <utility>
 #include <ios>
 #include "runtime/exception.h"
 #include "runtime/serializer.h"
@@ -92,7 +93,7 @@ void serializer_core::write_constructor(object * o) {
         m_out.put(*sit);
 }
 
-void serializer_core::write_closure(object *) {
+void serializer_core::write_closure(object *) { // NOLINT
     /* TODO(Leo): we need a table from function pointer to unique name id.
 
        For serializing bytecode, we will need to retrieve the unique name id too.
@@ -143,7 +144,7 @@ void serializer_core::write_mpz(mpz const & n) {
     write_string(out.str());
 }
 
-void serializer_core::write_external(object *) {
+void serializer_core::write_external(object *) { // NOLINT
     /* TODO(Leo): we need support for registering serializers/deserializers
        for external objects.
     */

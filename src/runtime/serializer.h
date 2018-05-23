@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <functional>
 #include <unordered_map>
 #include <cstring>
 #include "runtime/int64.h"

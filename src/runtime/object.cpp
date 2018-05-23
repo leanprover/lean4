@@ -166,7 +166,7 @@ object * string_push(object * s, unsigned c) {
     lean_assert(!is_shared(s));
     object * r = string_ensure_capacity(s, 5);
     size_t sz  = string_size(r);
-    unsigned consumed = push_unicode_scalar(sarray_cptr<char>(r) + sz - 1, c);
+    unsigned consumed = push_unicode_scalar(w_c_str(r) + sz - 1, c);
     to_string(r)->m_size   = sz + consumed;
     to_string(r)->m_length++;
     w_c_str(r)[sz + consumed - 1] = 0;
@@ -179,8 +179,6 @@ object * string_append(object * s1, object * s2) {
     size_t sz2 = string_size(s2);
     size_t len1 = string_len(s1);
     size_t len2 = string_len(s2);
-    lean_assert(sz2 >= sizeof(size_t));
-    sz2 -= sizeof(size_t);
     object * r = string_ensure_capacity(s1, sz2-1);
     if (s1 == s2) s2 = r;
     memcpy(w_c_str(r) + sz1 - 1, c_str(s2), sz2 - 1);

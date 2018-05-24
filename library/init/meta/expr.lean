@@ -171,11 +171,6 @@ const `true []
 meta def mk_false : expr :=
 const `false []
 
-/-- Returns the sorry macro with the given type. -/
-meta constant mk_sorry (type : expr) : expr
-/-- Checks whether e is sorry, and returns its type. -/
-meta constant is_sorry (e : expr) : option expr
-
 meta def is_var : expr → bool
 | (var _) := tt
 | _       := ff

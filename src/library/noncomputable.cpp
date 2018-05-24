@@ -66,6 +66,7 @@ struct noncomputable_modification : public modification {
 static bool is_builtin_extra(name const & n) {
     return
         n == get_io_core_name() ||
+        n == get_sorry_ax_name() ||
         n == get_monad_io_impl_name() ||
         n == get_monad_io_terminal_impl_name() ||
         n == get_monad_io_file_system_impl_name() ||

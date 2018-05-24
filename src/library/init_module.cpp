@@ -23,7 +23,6 @@ Author: Leonardo de Moura
 #include "library/export_decl.h"
 #include "library/io_state.h"
 #include "library/idx_metavar.h"
-#include "library/sorry.h"
 #include "library/placeholder.h"
 #include "library/print.h"
 #include "library/fingerprint.h"
@@ -93,7 +92,6 @@ void initialize_library_module() {
     initialize_reducible();
     initialize_aliases();
     initialize_export_decl();
-    initialize_sorry();
     initialize_class();
     initialize_library_util();
     initialize_quote();
@@ -143,7 +141,6 @@ void finalize_library_module() {
     finalize_quote();
     finalize_library_util();
     finalize_class();
-    finalize_sorry();
     finalize_export_decl();
     finalize_aliases();
     finalize_reducible();

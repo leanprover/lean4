@@ -229,6 +229,8 @@ class vm_compiler_fn {
             compile_cnstr(e, bpz, m);
         } else if (is_internal_proj(fn)) {
             compile_proj(e, bpz, m);
+        } else if (is_sorry(e)) {
+            compile_global(*get_vm_decl(m_env, "sorry"), 0, nullptr, bpz, m);
         } else {
             compile_fn_call(e, bpz, m);
         }
@@ -279,8 +281,6 @@ class vm_compiler_fn {
             emit(mk_expr_instr(get_expr_quote_value(e)));
         } else if (is_pexpr_quote(e)) {
             emit(mk_expr_instr(get_pexpr_quote_value(e)));
-        } else if (is_sorry(e)) {
-            compile_global(*get_vm_decl(m_env, "sorry"), 0, nullptr, bpz, m);
         } else {
             throw exception(sstream() << "code generation failed, unexpected kind of macro has been found: '"
                             << macro_def(e).get_name() << "'");

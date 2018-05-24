@@ -1212,7 +1212,8 @@ struct elim_match_fn {
     list<lemma> process_leaf(problem const & P) {
         if (!P.m_equations) {
             m_unsolved.push_back(P);
-            m_mctx.assign(P.m_goal, mk_sorry(m_mctx.get_metavar_decl(P.m_goal).get_type(), true));
+            type_context_old ctx = mk_type_context(P);
+            m_mctx.assign(P.m_goal, mk_sorry(ctx, m_mctx.get_metavar_decl(P.m_goal).get_type(), true));
             return list<lemma>();
         }
         equation const & eqn       = head(P.m_equations);
@@ -1291,7 +1292,7 @@ struct elim_match_fn {
         } catch (exception & ex) {
             if (!m_elab.try_report(ex, some_expr(m_ref))) throw;
             m_error_during_process = true;
-            m_mctx.assign(P.m_goal, mk_sorry(m_mctx.get_metavar_decl(P.m_goal).get_type(), true));
+            m_mctx.assign(P.m_goal, m_elab.mk_sorry(m_mctx.get_metavar_decl(P.m_goal).get_type(), true));
         }
         return list<lemma>();
     }

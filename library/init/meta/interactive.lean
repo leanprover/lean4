@@ -667,11 +667,6 @@ meta def trivial : tactic unit :=
 tactic.triv <|> fail "trivial tactic failed"
 
 /--
-Closes the main goal using `sorry`.
--/
-meta def admit : tactic unit := tactic.admit
-
-/--
 `iterate { t }` repeatedly applies tactic `t` until `t` fails. `iterate { t }` always succeeds.
 
 `iterate n { t }` applies `t` `n` times.

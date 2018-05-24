@@ -2229,3 +2229,8 @@ theorem eq_false_or_eq_true (a : Prop) : a = false ∨ a = true :=
 end aux
 
 end classical
+
+/- Auxiliary axiom used to implement `sorry`.
+   TODO: add this theorem on-demand. That is,
+   we should only add it if after the first error. -/
+constant sorry_ax (α : Sort u) (synthetic := tt) : α

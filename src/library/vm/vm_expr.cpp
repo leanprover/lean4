@@ -413,15 +413,6 @@ vm_obj vm_mk_string_val_ne_proof(vm_obj const & a, vm_obj const & b) {
     return to_obj(mk_string_val_ne_proof(to_expr(a), to_expr(b)));
 }
 
-vm_obj expr_mk_sorry(vm_obj const & t) {
-    return to_obj(mk_sorry(to_expr(t)));
-}
-
-vm_obj expr_is_sorry(vm_obj const & e_) {
-    auto & e = to_expr(e_);
-    return to_obj(is_sorry(e) ? some(sorry_type(e)) : none_expr());
-}
-
 vm_obj expr_occurs(vm_obj const & e1, vm_obj const & e2) {
     return mk_vm_bool(occurs(to_expr(e1), to_expr(e2)));
 }
@@ -517,9 +508,6 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name("mk_string_val_ne_proof"),     vm_mk_string_val_ne_proof);
 
     DECLARE_VM_BUILTIN(name("expr", "is_annotation"),      expr_is_annotation);
-
-    DECLARE_VM_BUILTIN(name("expr", "mk_sorry"), expr_mk_sorry);
-    DECLARE_VM_BUILTIN(name("expr", "is_sorry"), expr_is_sorry);
 
     // Not sure if we should expose these or what?
     DECLARE_VM_BUILTIN(name({"expr", "is_internal_cnstr"}), expr_is_internal_cnstr);

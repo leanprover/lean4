@@ -203,6 +203,7 @@ psigma.fst
 psigma.snd
 singleton
 sizeof
+sorry_ax
 string
 string.empty
 string.str

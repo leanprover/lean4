@@ -210,6 +210,7 @@ name const & get_psigma_fst_name();
 name const & get_psigma_snd_name();
 name const & get_singleton_name();
 name const & get_sizeof_name();
+name const & get_sorry_ax_name();
 name const & get_string_name();
 name const & get_string_empty_name();
 name const & get_string_str_name();

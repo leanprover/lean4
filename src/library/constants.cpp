@@ -208,6 +208,7 @@ name const * g_psigma_fst = nullptr;
 name const * g_psigma_snd = nullptr;
 name const * g_singleton = nullptr;
 name const * g_sizeof = nullptr;
+name const * g_sorry_ax = nullptr;
 name const * g_string = nullptr;
 name const * g_string_empty = nullptr;
 name const * g_string_str = nullptr;
@@ -453,6 +454,7 @@ void initialize_constants() {
     g_psigma_snd = new name{"psigma", "snd"};
     g_singleton = new name{"singleton"};
     g_sizeof = new name{"sizeof"};
+    g_sorry_ax = new name{"sorry_ax"};
     g_string = new name{"string"};
     g_string_empty = new name{"string", "empty"};
     g_string_str = new name{"string", "str"};
@@ -699,6 +701,7 @@ void finalize_constants() {
     delete g_psigma_snd;
     delete g_singleton;
     delete g_sizeof;
+    delete g_sorry_ax;
     delete g_string;
     delete g_string_empty;
     delete g_string_str;
@@ -944,6 +947,7 @@ name const & get_psigma_fst_name() { return *g_psigma_fst; }
 name const & get_psigma_snd_name() { return *g_psigma_snd; }
 name const & get_singleton_name() { return *g_singleton; }
 name const & get_sizeof_name() { return *g_sizeof; }
+name const & get_sorry_ax_name() { return *g_sorry_ax; }
 name const & get_string_name() { return *g_string; }
 name const & get_string_empty_name() { return *g_string_empty; }
 name const & get_string_str_name() { return *g_string_str; }

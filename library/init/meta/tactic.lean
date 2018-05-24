@@ -930,16 +930,6 @@ do u ← mk_meta_univ,
    t ← mk_meta_var (expr.sort u),
    mk_meta_var t
 
-/-- Makes a sorry macro with a meta-variable as its type. -/
-meta def mk_sorry : tactic expr := do
-u ← mk_meta_univ,
-t ← mk_meta_var (expr.sort u),
-return $ expr.mk_sorry t
-
-/-- Closes the main goal using sorry. -/
-meta def admit : tactic unit :=
-target >>= exact ∘ expr.mk_sorry
-
 meta def triv : tactic unit := mk_const `trivial >>= exact
 
 notation `dec_trivial` := of_as_true (by tactic.triv)

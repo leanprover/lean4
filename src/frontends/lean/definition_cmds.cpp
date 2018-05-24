@@ -673,7 +673,7 @@ static expr elaborate_proof(
         /* Remark: we need the catch to be able to produce correct line information */
         message_builder(tc, decl_env, get_global_ios(), file_name, header_pos, ERROR)
             .set_exception(ex).report();
-        return mk_sorry(final_type, true);
+        return mk_sorry(*tc, final_type, true);
     }
 }
 

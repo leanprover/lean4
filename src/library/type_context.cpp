@@ -3436,8 +3436,10 @@ lbool type_context_old::is_quick_class(expr const & type, name & result) {
     while (true) {
         switch (it->kind()) {
         case expr_kind::Var:  case expr_kind::Sort:   case expr_kind::Local:
-        case expr_kind::Meta: case expr_kind::Lambda: case expr_kind::Let:
+        case expr_kind::Meta: case expr_kind::Lambda:
             return l_false;
+        case expr_kind::Let:
+            return l_undef;
         case expr_kind::Macro:
             return l_undef;
         case expr_kind::Constant:

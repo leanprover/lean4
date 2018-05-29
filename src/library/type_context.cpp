@@ -2372,6 +2372,15 @@ optional<expr> type_context_old::mk_class_instance_at(local_context const & lctx
     }
 }
 
+/* Temporary hack until we can create type context objects efficiently */
+bool type_context_old::is_def_eq_at(local_context const & lctx, expr const & a, expr const & b) {
+    context_cacheless tmp_cache(*m_cache, true);
+    type_context_old tmp_ctx(env(), m_mctx, lctx, tmp_cache, m_transparency_mode);
+    bool r = tmp_ctx.is_def_eq(a, b);
+    m_mctx = tmp_ctx.mctx();
+    return r;
+}
+
 /** \brief Create a nested type class instance of the given type, and assign it to metavariable \c m.
     Return true iff the instance was successfully created.
     \remark This method is used to resolve nested type class resolution problems. */

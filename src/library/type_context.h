@@ -624,6 +624,7 @@ public:
     virtual expr infer(expr const & e) override;
     virtual expr check(expr const & e) override;
     virtual bool is_def_eq(expr const & e1, expr const & e2) override;
+    bool is_def_eq_at(local_context const & lctx, expr const & a, expr const & b);
 
     bool match(expr const & e1, expr const & e2) {
         flet<bool> update_left(m_update_left, true);

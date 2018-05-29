@@ -3672,7 +3672,7 @@ bool elaborator::synthesize_type_class_instance_core(expr const & mvar, expr con
     metavar_decl mdecl = m_ctx.mctx().get_metavar_decl(mvar);
     expr ref = mvar;
     expr synthesized_inst = mk_instance_core(mdecl.get_context(), inst_type, ref);
-    if (!is_def_eq(inferred_inst, synthesized_inst)) {
+    if (!m_ctx.is_def_eq_at(mdecl.get_context(), inferred_inst, synthesized_inst)) {
         auto pp_fn = mk_pp_ctx();
         throw elaborator_exception(mvar,
                                    format("synthesized type class instance is not definitionally equal to expression "

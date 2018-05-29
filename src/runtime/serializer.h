@@ -17,7 +17,7 @@ Author: Leonardo de Moura
 #include "runtime/optional.h"
 
 namespace lean {
-class object;
+struct object;
 class mpz;
 /** \brief Serializer
 

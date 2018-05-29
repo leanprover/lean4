@@ -51,8 +51,6 @@ level mk_max_imax(level_kind k, level const & l1, level const & l2) {
     return level(r);
 }
 
-static inline bool is_param_core(level const & l) { return is_param(l) || is_meta(l); }
-
 level mk_param_univ(name const & n) {
     inc(n.raw());
     return level(mk_cnstr(static_cast<unsigned>(level_kind::Param), n.raw()));

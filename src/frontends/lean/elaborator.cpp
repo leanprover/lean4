@@ -125,6 +125,9 @@ elaborator_strategy get_elaborator_strategy(environment const & env, name const 
 #define trace_elab(CODE) lean_trace("elaborator", scope_trace_env _scope(m_env, m_ctx); CODE)
 #define trace_elab_detail(CODE) lean_trace("elaborator_detail", scope_trace_env _scope(m_env, m_ctx); CODE)
 #define trace_elab_debug(CODE) lean_trace("elaborator_debug", scope_trace_env _scope(m_env, m_ctx); CODE)
+#define trace_elab_numeral(CODE) lean_trace(name({"elaborator", "numeral"}), scope_trace_env _scope(m_env, m_ctx); CODE)
+#define trace_elab_instances(CODE) lean_trace(name({"elaborator", "instances"}), scope_trace_env _scope(m_env, m_ctx); CODE)
+#define trace_elab_equation(CODE) lean_trace(name({"elaborator", "equation"}), scope_trace_env _scope(m_env, m_ctx); CODE)
 
 elaborator::elaborator(environment const & env, options const & opts, name const & decl_name,
                        metavar_context const & mctx, local_context const & lctx, bool recover_from_errors,
@@ -2594,6 +2597,7 @@ expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
     if (is_no_equation(it)) {
         return fns.mk_lambda(it);
     } else {
+        trace_elab_equation(tout() << "visit_equation\n";);
         metavar_context mctx0 = m_ctx.mctx();
         it = instantiate_rev_locals(it, fns);
         buffer<expr> local_mvars;
@@ -2622,7 +2626,9 @@ expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
             new_lhs = visit(lhs, none_expr());
             synthesize_no_tactics();
         }
+        trace_elab_equation(tout() << "new_lhs:\n" << new_lhs << "\n";);
         new_lhs = instantiate_pattern_mvars(m_ctx, new_lhs);
+        trace_elab_equation(tout() << "new_lhs (after instantiate_pattern_mvars):\n" << new_lhs << "\n";);
         // collect unassigned metavariables not in mctx0
         buffer<expr> unassigned_mvars;
         validate_and_collect_lhs_mvars(*this, ref, mctx0, unassigned_mvars)(new_lhs);
@@ -2673,6 +2679,7 @@ expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
         // new_rhs       = instantiate_mvars(new_rhs);
         new_rhs       = enforce_type(new_rhs, new_lhs_type, "equation type mismatch", it);
         expr new_eq = copy_tag(it, mk_equation(new_lhs, new_rhs, ignore_equation_if_unused(it)));
+        trace_elab_equation(tout() << new_eq << "\n";);
         expr r = copy_tag(ref, fns.mk_lambda(new_locals.mk_lambda(new_eq)));
         return r;
     }
@@ -3516,6 +3523,7 @@ expr elaborator::visit_let(expr const & e, optional<expr> const & expected_type)
     save_identifier_info(l);
     expr body      = instantiate_rev_locals(let_body(e), locals);
     expr new_body  = visit(body, expected_type);
+    /* TODO(Leo): add synthesize here? */
     expr new_e     = locals.mk_lambda(new_body);
     return new_e;
 }
@@ -3660,7 +3668,8 @@ expr elaborator::get_default_numeral_type() {
 
 void elaborator::synthesize_numeral_types() {
     for (expr const & A : m_numeral_types) {
-        if (is_metavar(instantiate_mvars(A))) {
+        trace_elab_numeral(tout() << "synthesize num type: " << A << ", " << instantiate_mvars(A) << "\n";);
+        if (is_meta(instantiate_mvars(A))) {
             if (!is_def_eq(A, get_default_numeral_type()))
                 report_or_throw(elaborator_exception(A, "invalid numeral, failed to force numeral to be a nat"));
         }
@@ -3674,6 +3683,7 @@ bool elaborator::synthesize_type_class_instance_core(expr const & mvar, expr con
     metavar_decl mdecl = m_ctx.mctx().get_metavar_decl(mvar);
     expr ref = mvar;
     expr synthesized_inst = mk_instance_core(mdecl.get_context(), inst_type, ref);
+    trace_elab_instances(tout() << inferred_inst << " =?= " << synthesized_inst << "\n";);
     if (!m_ctx.is_def_eq_at(mdecl.get_context(), inferred_inst, synthesized_inst)) {
         auto pp_fn = mk_pp_ctx();
         throw elaborator_exception(mvar,
@@ -4341,6 +4351,9 @@ static vm_obj tactic_save_type_info(vm_obj const &, vm_obj const & _e, vm_obj co
 void initialize_elaborator() {
     g_elab_strategy = new name("elab_strategy");
     register_trace_class("elaborator");
+    register_trace_class(name({"elaborator", "numeral"}));
+    register_trace_class(name({"elaborator", "instances"}));
+    register_trace_class(name({"elaborator", "equation"}));
     register_trace_class("elaborator_detail");
     register_trace_class("elaborator_debug");
 

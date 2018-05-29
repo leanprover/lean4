@@ -876,6 +876,7 @@ private:
     pair<local_context, expr> revert_core(buffer<expr> & to_revert, local_context const & ctx,
                                           expr const & type, bool preserve_to_revert_order);
     expr revert_core(buffer<expr> & to_revert, expr const & mvar, bool preserve_to_revert_order);
+    expr elim_mvar_deps(expr const & e, unsigned num, expr const * locals);
     expr mk_binding(bool is_pi, local_context const & lctx, unsigned num_locals, expr const * locals, expr const & e);
 
     /* ------------

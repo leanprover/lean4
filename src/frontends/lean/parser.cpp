@@ -1756,7 +1756,13 @@ static expr quote(expr const & e) {
             throw elaborator_exception(e, sstream() << "invalid quotation, unexpected local constant '"
                                                     << mlocal_pp_name(e) << "'");
         case expr_kind::App:
-            return mk_app(mk_constant({"expr", "app"}), quote(app_fn(e)), quote(app_arg(e)));
+            if (is_meta(e)) {
+                /* Remark: metavariable applications of the form `?m x1 ... xn` may be introduced
+                   by type_context::elim_mvar_deps when we create lambda/pi-expressions. */
+                return mk_expr_placeholder();
+            } else {
+                return mk_app(mk_constant({"expr", "app"}), quote(app_fn(e)), quote(app_arg(e)));
+            }
         case expr_kind::Lambda:
             return mk_app(mk_constant({"expr", "lam"}), mk_expr_placeholder(), mk_expr_placeholder(),
                           quote(binding_domain(e)), quote(binding_body(e)));

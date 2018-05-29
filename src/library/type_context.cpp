@@ -289,7 +289,7 @@ static bool process_to_revert(metavar_context const & mctx, buffer<expr> & to_re
 }
 
 pair<local_context, expr> type_context_old::revert_core(buffer<expr> & to_revert, local_context const & ctx,
-                                                    expr const & type, bool preserve_to_revert_order) {
+                                                        expr const & type, bool preserve_to_revert_order) {
     unsigned num   = to_revert.size();
     if (num == 0)
         return mk_pair(ctx, type);
@@ -387,6 +387,44 @@ expr type_context_old::abstract_locals(expr const & e, unsigned num_locals, expr
     return delayed_abstract_locals(m_mctx, new_e, num_locals, locals);
 }
 
+/* For every metavariable `?m` occurring at `e`, revert all locals in `?m` that are in `locals` (or depend on them) and obtain `?m1`.
+   `?m` is replaced with `?m1 x_1 ... x_n` where `x_1 ... x_n` are the reverted locals. */
+expr type_context_old::elim_mvar_deps(expr const & e, unsigned num, expr const * locals) {
+    if (num == 0)
+        return e;
+    expr new_e = instantiate_mvars(e);
+    if (!has_expr_metavar(new_e))
+        return new_e;
+    lean_trace(name({"type_context", "mvar_deps"}), tout() << "elim_mvar_deps:\n" << new_e << "\n";);
+    return replace(new_e, [&](expr const & m, unsigned) {
+            if (!has_expr_metavar(m)) {
+                return some_expr(m);
+            } else if (is_metavar_decl_ref(m)) {
+                if (optional<expr> const & v = m_mctx.get_assignment(m)) {
+                    /* We don't need to visit v, since this assignment
+                       was created by this procedure. */
+                    return v;
+                } else {
+                    metavar_decl const & d     = m_mctx.get_metavar_decl(m);
+                    local_context const & lctx = d.get_context();
+                    buffer<expr> to_revert;
+                    for (unsigned i = 0; i < num; i++) {
+                        if (optional<local_decl> decl = lctx.find_local_decl(locals[i])) {
+                            to_revert.push_back(locals[i]);
+                        }
+                    }
+                    if (to_revert.empty())
+                        return some_expr(m);
+                    bool preserve_to_revert_order = false;
+                    expr new_m = revert(to_revert, m, preserve_to_revert_order);
+                    lean_trace(name({"type_context", "mvar_deps"}), tout() << m << " ==> " << new_m << "\n";);
+                    return some_expr(new_m);
+                }
+            }
+            return none_expr();
+        });
+}
+
 expr type_context_old::mk_binding(bool is_pi, local_context const & lctx, unsigned num_locals, expr const * locals, expr const & e) {
     buffer<local_decl>     decls;
     buffer<expr>           types;
@@ -394,13 +432,13 @@ expr type_context_old::mk_binding(bool is_pi, local_context const & lctx, unsign
     for (unsigned i = 0; i < num_locals; i++) {
         local_decl decl = lctx.get_local_decl(locals[i]);
         decls.push_back(decl);
-        types.push_back(abstract_locals(instantiate_mvars(decl.get_type()), i, locals));
+        types.push_back(::lean::abstract_locals(elim_mvar_deps(decl.get_type(), i, locals), i, locals));
         if (auto v = decl.get_value())
-            values.push_back(some_expr(abstract_locals(instantiate_mvars(*v), i, locals)));
+            values.push_back(some_expr(::lean::abstract_locals(elim_mvar_deps(*v, i, locals), i, locals)));
         else
             values.push_back(none_expr());
     }
-    expr new_e = abstract_locals(instantiate_mvars(e), num_locals, locals);
+    expr new_e = ::lean::abstract_locals(elim_mvar_deps(e, num_locals, locals), num_locals, locals);
     lean_assert(types.size() == values.size());
     unsigned i = types.size();
     while (i > 0) {
@@ -1083,7 +1121,7 @@ expr type_context_old::infer_lambda(expr e) {
     }
     check_system("infer_type");
     expr t = infer_core(instantiate_rev(e, ls.size(), ls.data()));
-    expr r = abstract_locals(t, ls.size(), ls.data());
+    expr r = ::lean::abstract_locals(t, ls.size(), ls.data());
     unsigned i = es.size();
     while (i > 0) {
         --i;
@@ -4256,6 +4294,7 @@ mk_pp_ctx(type_context_old const & ctx) {
 void initialize_type_context() {
     register_trace_class("class_instances");
     register_trace_class(name({"type_context", "is_def_eq"}));
+    register_trace_class(name({"type_context", "mvar_deps"}));
     register_trace_class(name({"type_context", "is_def_eq_detail"}));
     register_trace_class(name({"type_context", "univ_is_def_eq"}));
     register_trace_class(name({"type_context", "univ_is_def_eq_detail"}));

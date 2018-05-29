@@ -3735,10 +3735,10 @@ tactic_state elaborator::mk_tactic_state_for(expr const & mvar) {
 }
 
 void elaborator::invoke_tactic(expr const & mvar, expr const & tactic) {
-    expr const & ref     = mvar;
-    expr type            = m_ctx.mctx().get_metavar_decl(mvar).get_type();
-    tactic_state s       = mk_tactic_state_for(mvar);
-
+    expr const & ref       = mvar;
+    metavar_decl mvar_decl = m_ctx.mctx().get_metavar_decl(mvar);
+    expr type              = mvar_decl.get_type();
+    tactic_state s         = mk_tactic_state_for(mvar);
     if (has_synth_sorry({type, tactic})) {
         // Skip if tactic or goal is broken. It is unlikely we will obtain
         // any additional useful error messages.
@@ -3770,7 +3770,7 @@ void elaborator::invoke_tactic(expr const & mvar, expr const & tactic) {
         if (is_metavar(mvar1)) {
             /* small optimization: avoid is_def_eq because it infer types and checks whether they are def-eq */
             m_ctx.assign(mvar1, val);
-        } else if (!m_ctx.is_def_eq(mvar1, val)) {
+        } else if (!m_ctx.is_def_eq_at(mvar_decl.get_context(), mvar1, val)) {
             /* TODO(Leo): improve following error message. It should not happen very often. */
             throw exception("tactic failed, type mismatch");
         }

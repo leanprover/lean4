@@ -34,8 +34,8 @@ def run' {r σ α} (cfg : r) (st : σ): parse_m r σ α → except string α :=
 end parse_m
 
 structure resolved :=
--- local or global
-(decl : syntax_id ⊕ name)
+-- local or (overloaded) global
+(decl : syntax_id ⊕ list name)
 /- prefix of the reference that corresponds to the decl. All trailing name components
    are field accesses. -/
 («prefix» : name)

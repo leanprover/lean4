@@ -3316,6 +3316,8 @@ expr elaborator::visit_expr_quote(expr const & e, optional<expr> const & expecte
         });
         s = Fun(locals, s);
         expr new_s = visit(s, none_expr());
+        synthesize();
+        new_s = instantiate_mvars(new_s);
         if (has_param_univ(new_s))
             throw elaborator_exception(e, "invalid quotation, contains universe parameter");
         if (has_univ_metavar(new_s))

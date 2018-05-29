@@ -3523,7 +3523,7 @@ expr elaborator::visit_let(expr const & e, optional<expr> const & expected_type)
     save_identifier_info(l);
     expr body      = instantiate_rev_locals(let_body(e), locals);
     expr new_body  = visit(body, expected_type);
-    /* TODO(Leo): add synthesize here? */
+    synthesize();
     expr new_e     = locals.mk_lambda(new_body);
     return new_e;
 }

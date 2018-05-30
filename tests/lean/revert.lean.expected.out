@@ -1,0 +1,33 @@
+?m_1
+?m_1 h1 h2
+revert.lean:69:9: error: invalid type ascription, term has type
+  b = b
+but is expected to have type
+  ?m_1 b = b
+state:
+6 goals
+n m : ℕ,
+h : n = m,
+b : ℕ
+⊢ ?m_1 b = b
+
+n m : ℕ,
+h : n = m
+⊢ ℕ
+
+n m : ℕ,
+h : n = m
+⊢ ℕ
+
+n m : ℕ,
+h : n = m
+⊢ ?m_1 = m
+
+n m : ℕ,
+h : n = m
+⊢ n = m
+
+n m : ℕ,
+h : n = m,
+a : ℕ
+⊢ ℕ

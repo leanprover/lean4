@@ -29,7 +29,6 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/print.h"
 #include "library/pp_options.h"
-#include "library/delayed_abstraction.h"
 #include "library/constants.h"
 #include "library/replace_visitor.h"
 #include "library/string.h"
@@ -345,7 +344,6 @@ void pretty_fn::set_options_core(options const & _o) {
     m_preterm           = get_pp_preterm(o);
     m_binder_types      = get_pp_binder_types(o);
     m_hide_comp_irrel   = get_pp_hide_comp_irrel(o);
-    m_delayed_abstraction  = get_pp_delayed_abstraction(o);
     m_use_holes         = get_pp_use_holes(o);
     m_annotations       = get_pp_annotations(o);
     m_hide_full_terms   = get_formatter_hide_full_terms(o);
@@ -1051,27 +1049,6 @@ auto pretty_fn::pp_explicit(expr const & e) -> result {
     return result(max_bp(), compose(*g_explicit_fmt, res_arg.fmt()));
 }
 
-auto pretty_fn::pp_delayed_abstraction(expr const & e) -> result {
-    if (m_use_holes) {
-        return pp_hole();
-    } else if (m_delayed_abstraction) {
-        format r;
-        r += format("[");
-        buffer<name> ns; buffer<expr> es;
-        get_delayed_abstraction_info(e, ns, es);
-        for (unsigned i = 0; i < ns.size(); i++) {
-            format r2;
-            if (i) r2 += format(",") + line();
-            r2 += pp(es[i]).fmt();
-            r += group(r2);
-        }
-        r += format("]");
-        return result(pp(get_delayed_abstraction_expr(e)).fmt() + nest(m_indent, r));
-    } else {
-        return pp(get_delayed_abstraction_expr(e));
-    }
-}
-
 auto pretty_fn::pp_equation(expr const & e) -> format {
     lean_assert(is_equation(e));
     format r = format("|");
@@ -1165,8 +1142,6 @@ auto pretty_fn::pp_macro(expr const & e) -> result {
         return result(format("`(") + nest(4, pp(get_expr_quote_value(e)).fmt()) + format(")"));
     } else if (is_pexpr_quote(e)) {
         return result(format("``(") + nest(2, pp(get_pexpr_quote_value(e)).fmt()) + format(")"));
-    } else if (is_delayed_abstraction(e)) {
-        return pp_delayed_abstraction(e);
     } else if (is_inaccessible(e)) {
         format r = format(".") + pp_child(get_annotation_arg(e), max_bp()).fmt();
         return result(r);

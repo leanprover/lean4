@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "library/util.h"
-#include "library/delayed_abstraction.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_expr.h"
@@ -49,23 +48,8 @@ optional<expr> intron_core(environment const & env, options const & opts, metava
         }
     }
     expr new_M   = ctx.mk_metavar_decl(ctx.lctx(), type);
-    expr new_val = abstract_locals(mk_delayed_abstraction_with_locals(new_M, new_Hs), new_Hs.size(), new_Hs.data());
-    unsigned i   = new_Hs.size();
-    while (i > 0) {
-        --i;
-        local_decl d = ctx.lctx().get_local_decl(new_Hs[i]);
-        expr type = d.get_type();
-        type      = abstract_locals(type, i, new_Hs.data());
-        if (auto letval = d.get_value()) {
-            letval    = abstract_locals(*letval, i, new_Hs.data());
-            new_val   = mk_let(d.get_pp_name(), type, *letval, new_val);
-        } else {
-            new_val   = mk_lambda(d.get_pp_name(), type, new_val, d.get_info());
-        }
-    }
-    lean_assert(!ctx.mctx().is_assigned(new_M));
     mctx = ctx.mctx();
-    mctx.assign(mvar, new_val);
+    mctx.assign(mvar, ctx.lctx(), to_list(new_Hs), new_M);
     return some_expr(new_M);
 }
 
@@ -153,9 +137,8 @@ vm_obj intro(name const & n, tactic_state const & s) {
         expr H               = lctx.mk_local_decl(n1, annotated_head_beta_reduce(binding_domain(type)), binding_info(type));
         expr new_type        = instantiate(binding_body(type), H);
         expr new_M           = ctx.mk_metavar_decl(lctx, new_type);
-        expr new_val         = mk_lambda(n1, binding_domain(type), mk_delayed_abstraction(new_M, mlocal_name(H)));
         metavar_context mctx = ctx.mctx();
-        mctx.assign(head(s.goals()), new_val);
+        mctx.assign(head(s.goals()), lctx, to_list(H), new_M);
         list<expr> new_gs(new_M, tail(s.goals()));
         return tactic::mk_success(to_obj(H), set_mctx_goals(s, mctx, new_gs));
     } else {
@@ -164,10 +147,10 @@ vm_obj intro(name const & n, tactic_state const & s) {
         expr H               = lctx.mk_local_decl(n1, annotated_head_beta_reduce(let_type(type)), let_value(type));
         expr new_type        = instantiate(let_body(type), H);
         expr new_M           = ctx.mk_metavar_decl(lctx, new_type);
-        expr new_val         = mk_let(n1, let_type(type), let_value(type), mk_delayed_abstraction(new_M, mlocal_name(H)));
-        ctx.assign(head(s.goals()), new_val);
+        metavar_context mctx = ctx.mctx();
+        mctx.assign(head(s.goals()), lctx, to_list(H), new_M);
         list<expr> new_gs(new_M, tail(s.goals()));
-        return tactic::mk_success(to_obj(H), set_mctx_goals(s, ctx.mctx(), new_gs));
+        return tactic::mk_success(to_obj(H), set_mctx_goals(s, mctx, new_gs));
     }
 }
 

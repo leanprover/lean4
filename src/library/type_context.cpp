@@ -27,7 +27,6 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/aux_recursors.h"
 #include "library/attribute_manager.h"
-#include "library/delayed_abstraction.h"
 #include "library/fun_info.h"
 #include "library/num.h"
 #include "library/quote.h"
@@ -370,21 +369,6 @@ expr type_context_old::revert(buffer<expr> & to_revert, expr const & mvar, bool 
     }
     m_mctx.assign(mvar, r);
     return r;
-}
-
-/* We use delayed_abstract_locals to make sure the variables being abstracted
-   will be abstracted correctly when any unassigned metavar ?M occurring in \c e gets instantiated. */
-expr type_context_old::abstract_locals(expr const & e, unsigned num_locals, expr const * locals) {
-    lean_assert(std::all_of(locals, locals+num_locals, is_local_decl_ref));
-    if (num_locals == 0)
-        return e;
-    if (in_tmp_mode()) {
-        /* 1- Regular metavariables should not depend on temporary local constants that have been created in tmp mode.
-           2- The tmp metavariables all share the same fixed local context. */
-        return ::lean::abstract_locals(e, num_locals, locals);
-    }
-    expr new_e = instantiate_mvars(e);
-    return delayed_abstract_locals(m_mctx, new_e, num_locals, locals);
 }
 
 /* For every metavariable `?m` occurring at `e`, revert all locals in `?m` that are in `locals` (or depend on them) and obtain `?m1`.
@@ -1088,22 +1072,6 @@ expr type_context_old::infer_constant(expr const & e) {
 }
 
 expr type_context_old::infer_macro(expr const & e) {
-    if (is_delayed_abstraction(e)) {
-        expr const & mvar = get_delayed_abstraction_expr(e);
-        if (!is_metavar_decl_ref(mvar)) {
-            throw generic_exception(e, [=](formatter const & fmt) {
-                    return format("unexpected occurrence of delayed abstraction macro") + pp_indent_expr(fmt, e)
-                        + line() + format("term") + pp_indent_expr(fmt, mvar)
-                        + line() + format("is not a metavariable in this context");
-                });
-        }
-        buffer<name> ns;
-        buffer<expr> es;
-        get_delayed_abstraction_info(e, ns, es);
-        auto d = m_mctx.find_metavar_decl(mvar);
-        if (!d) throw_unknown_metavar(mvar);
-        return append_delayed_abstraction(d->get_type(), ns, es);
-    }
     auto def = macro_def(e);
     bool infer_only = true;
     return def.check_type(e, *this, infer_only);
@@ -1411,8 +1379,8 @@ level type_context_old::instantiate_mvars(level const & l) {
     return ::lean::instantiate_mvars(*this, l);
 }
 
-expr type_context_old::instantiate_mvars(expr const & e, bool postpone_push_delayed) {
-    return ::lean::instantiate_mvars(*this, e, postpone_push_delayed);
+expr type_context_old::instantiate_mvars(expr const & e) {
+    return ::lean::instantiate_mvars(*this, e);
 }
 
 /* -----------------------------------
@@ -1785,14 +1753,13 @@ Now, we consider some workarounds/approximations.
 
    If we use the approximation above we obtain:
 
-      ?m_1 := (fun α'. id ?m_2[α := α'])
+      ?m_1 := (fun α'. id (?m_2' α'))
 
-   where `?m_2[α := α']` denotes a delayed substitution that indicates
-   that whenever we instantiate `?m_2`, we must replace the local constant
-   α with the bound variable `α'`.
-   Now, suppose we assign `?m_2`.
+   where `?m_2'` is a new metavariable, and `?m_2 := ?m_2 α`
 
-     ?m_2 := @id α a
+   Now, suppose we assign `?m_2'`.
+
+     ?m_2 := fun α, @id α a
 
    Then, we have
 
@@ -1814,14 +1781,7 @@ Now, we consider some workarounds/approximations.
        with a smaller local context. In the example above, when we perform
        the assignment
 
-         ?m_1 := (fun α'. id ?m_2[α := α'])
-
-       we would also create a fresh ?m_3 with local context containing only (α : Type),
-       and assign
-
-         ?m_2 := ?m_3
-
-       This is an approximation, and it may reject valid assignments.
+         ?m_1 := (fun α'. id (?m_2' α'))
 
     b) If we find a metavariable with this kind of dependency, we just
        fail and fallback to first-order unification.
@@ -2203,17 +2163,16 @@ struct check_assignment_fn : public replace_visitor {
         return e;
     }
 
-    /** Return true iff ctx1 - delayed_locals is a subset of ctx2 */
-    bool is_subset_of(local_context const & ctx1, local_context const & ctx2, buffer<name> const & delayed_locals) {
+    /** Return true iff ctx1 is a subset of ctx2 */
+    bool is_subset_of(local_context const & ctx1, local_context const & ctx2) {
         return !ctx1.find_if([&](local_decl const & d1) { // NOLINT
                 name const & n1 = d1.get_name();
                 if (ctx2.find_local_decl(n1)) return false;
-                bool is_delayed = std::find(delayed_locals.begin(), delayed_locals.end(), n1) != delayed_locals.end();
-                return !is_delayed;
+                return true;
             });
     }
 
-    expr visit_meta_core(expr const & e, buffer<name> const & delayed_locals) {
+    expr visit_meta(expr const & e) override {
         if (auto v = m_ctx.get_assignment(e)) return visit(*v);
 
         if (m_mvar == e) {
@@ -2277,7 +2236,7 @@ struct check_assignment_fn : public replace_visitor {
             throw check_assignment_failed();
         }
 
-        if (is_subset_of(e_lctx, mvar_lctx, delayed_locals))
+        if (is_subset_of(e_lctx, mvar_lctx))
             return e;
 
         if (m_ctx.ctx_unif_approx() && mvar_lctx.is_subset_of(e_lctx)) {
@@ -2324,28 +2283,8 @@ struct check_assignment_fn : public replace_visitor {
         }
     }
 
-    expr visit_meta(expr const & e) override {
-        buffer<name> tmp;
-        return visit_meta_core(e, tmp);
-    }
-
     expr visit_macro(expr const & e) override {
-        if (is_delayed_abstraction(e)) {
-            expr const & a = get_delayed_abstraction_expr(e);
-            if (is_metavar(a)) {
-                buffer<name> ns;
-                buffer<expr> vs;
-                get_delayed_abstraction_info(e, ns, vs);
-                expr new_mvar = visit_meta_core(a, ns);
-                for (expr & v : vs)
-                    v = visit(v);
-                return mk_delayed_abstraction(new_mvar, ns, vs);
-            } else {
-                return visit(push_delayed_abstraction(e));
-            }
-        } else {
-            return replace_visitor::visit_macro(e);
-        }
+        return replace_visitor::visit_macro(e);
     }
 
     expr operator()(expr const & v) {
@@ -2635,110 +2574,10 @@ bool type_context_old::is_def_eq_proof_irrel(expr const & e1, expr const & e2) {
     return false;
 }
 
-/*
-   Given `e` of the form `[delayed t {x_1 := v_1, ..., x_n := v_n}] a_1 ... a_k`
-
-   If `t` is not a metavariable, then we just "push" the delayed
-   abstraction.
-
-   If `t` is a metavariable ?m AND we are not in tmp mode, then we first substitute the `x_i`s
-   that are not in the local context of ?m, and we obtain
-
-         `delayed ?m {y_1 := w_1, ..., y_m := w_m}`
-
-   where each `y_i` is in the local context of ?m.
-
-   Then, we "revert" the y_i's. The revert method returns
-   a metavariable application (?m1 z_1 .... z_s) where
-   `z`s include `y`s and their dependencies. Recall that the
-   revert operation has assigned
-          ?m := ?m1 z_1 ... z_s
-
-   Then, we replace the `y`s with `w`s in (?m1 z_1 .... z_s)
-   and return
-
-        ?m1 z_1' .... z_s' a_1 ... a_k
-*/
-optional<expr> type_context_old::elim_delayed_abstraction(expr const & e) {
-    buffer<expr> args;
-    expr f = get_app_args(e, args);
-    lean_assert(is_delayed_abstraction(f));
-    expr new_f = push_delayed_abstraction(f);
-    if (new_f != f)
-        return some_expr(mk_app(new_f, args));
-    if (in_tmp_mode()) {
-        /* Remark: in tmp mode we treat regular metavariables
-           as black boxes. So, there is no point in eliminating
-           the delayed abstraction. We will not make progress in
-           the is_def_eq method. */
-        return none_expr();
-    }
-    buffer<name> hns;
-    buffer<expr> vs;
-    get_delayed_abstraction_info(f, hns, vs);
-    lean_assert(hns.size() == vs.size());
-    expr mvar = get_delayed_abstraction_expr(f);
-    lean_assert(is_metavar(mvar));
-    if (is_assigned(mvar)) {
-        expr t = instantiate_mvars(mvar);
-        expr new_e = mk_delayed_abstraction(t, hns, vs);
-        /* Remark: mk_delayed_abstraction uses push_delayed_abstraction if new_e is not a metavariable.
-           So, new_e may not be a delayed_abstraction. */
-        if (is_delayed_abstraction(new_e))
-            return elim_delayed_abstraction(new_e);
-        else
-            return some_expr(new_e);
-    }
-    local_context lctx = m_mctx.get_metavar_decl(mvar).get_context();
-    buffer<expr> to_revert;
-    buffer<expr> replacements;
-    unsigned i = hns.size();
-    while (i > 0) {
-        --i;
-        name const & hn = hns[i];
-        expr const & v  = vs[i];
-        if (optional<local_decl> h = lctx.find_local_decl(hn)) {
-            expr local = h->mk_ref();
-            /* Remark:
-               hns may contain duplicate entries. This can happen
-               at push_delayed_abstraction over an assigned meta. */
-            if (!contains_local(local, to_revert.begin(), to_revert.end())) {
-                to_revert.push_back(local);
-                replacements.push_back(v);
-            }
-        } else {
-            // replace hn with v at vs[0] ... vs[i-1]
-            for (unsigned j = 0; j < i; j++) {
-                vs[j] = instantiate(abstract_local(vs[j], hn), v);
-            }
-        }
-    }
-    expr new_fn;
-    if (!to_revert.empty()) {
-        std::reverse(to_revert.begin(), to_revert.end());
-        std::reverse(replacements.begin(), replacements.end());
-        buffer<expr> saved_to_revert; saved_to_revert.append(to_revert);
-        bool preserve_to_revert_order = false;
-        expr new_meta = revert(to_revert, mvar, preserve_to_revert_order);
-        lean_assert(saved_to_revert.size() == replacements.size());
-        new_fn        = replace_locals(new_meta, saved_to_revert, replacements);
-    } else {
-        new_fn = mvar;
-    }
-    expr r = mk_app(new_fn, args);
-    lean_trace(name({"type_context", "is_def_eq_detail"}),
-               scope_trace_env scope(env(), *this);
-               tout() << "eliminated delayed abstraction:\n"
-               << e << "\n====>\n" << r << "\n";);
-    return some_expr(r);
-}
-
 static bool mvar_has_user_facing_name(expr const & m) {
     lean_assert(is_metavar(m));
     return mlocal_name(m) != mlocal_pp_name(m);
 }
-
-
 
 lbool type_context_old::quick_is_def_eq(expr const & e1, expr const & e2) {
     if (e1 == e2)
@@ -2758,14 +2597,9 @@ lbool type_context_old::quick_is_def_eq(expr const & e1, expr const & e2) {
         return to_lbool(is_def_eq_core(e1, instantiate_mvars(e2)));
     }
 
-    if (is_delayed_abstraction(f1)) {
-        if (auto new_e1 = elim_delayed_abstraction(e1))
-            return to_lbool(is_def_eq_core(*new_e1, e2));
-    }
-
-    if (is_delayed_abstraction(f2)) {
-        if (auto new_e2 = elim_delayed_abstraction(e2))
-            return to_lbool(is_def_eq_core(e1, *new_e2));
+    if ((is_metavar_decl_ref(f1) && m_mctx.is_delayed_assigned(f1)) ||
+        (is_metavar_decl_ref(f2) && m_mctx.is_delayed_assigned(f2))) {
+        return l_false;
     }
 
     if (is_mode_mvar(f1)) {

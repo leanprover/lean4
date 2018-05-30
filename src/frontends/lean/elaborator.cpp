@@ -42,7 +42,6 @@ Author: Leonardo de Moura
 #include "library/inverse.h"
 #include "library/aux_definition.h"
 #include "library/check.h"
-#include "library/delayed_abstraction.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_expr.h"
 #include "library/compiler/vm_compiler.h"
@@ -2876,10 +2875,9 @@ public:
     reduce_projections_visitor(type_context_old & ctx): m_ctx(ctx) {}
 };
 
-/* Predicated variant of `lean::instantiate_mvars`. It does not support delayed abstractions or universe mvars. */
+/* Predicated variant of `lean::instantiate_mvars`. It does not support universe mvars. */
 expr elaborator::instantiate_mvars(expr const & e, std::function<bool(expr const &)> pred) { // NOLINT
     return replace(e, [&](expr const & e) {
-        lean_assert(!is_delayed_abstraction(e));
         if (m_ctx.is_mvar(e) && pred(e))
             if (auto asn = m_ctx.get_assignment(e))
                 return some_expr(instantiate_mvars(*asn, pred));
@@ -3761,8 +3759,7 @@ void elaborator::invoke_tactic(expr const & mvar, expr const & tactic) {
         expr val;
         if (auto new_s = tactic::is_success(r)) {
             metavar_context mctx = new_s->mctx();
-            bool postpone_push_delayed = true;
-            val = mctx.instantiate_mvars(new_s->main(), postpone_push_delayed);
+            val = mctx.instantiate_mvars(new_s->main());
             if (has_expr_metavar(val)) {
                 val = recoverable_error(some_expr(type), ref,
                                         unsolved_tactic_state(*new_s, "tactic failed, result contains meta-variables", ref));
@@ -3994,27 +3991,7 @@ struct sanitize_param_names_fn : public replace_visitor {
 static expr replace_with_simple_metavars(metavar_context mctx, name_map<expr> & cache, expr const & e) {
     if (!has_expr_metavar(e)) return e;
     return replace(e, [&](expr const & e, unsigned) {
-            if (is_delayed_abstraction(e)) {
-                expr new_e = push_delayed_abstraction(e);
-                if (e == new_e) {
-                    expr mvar = get_delayed_abstraction_expr(e);
-                    if (auto decl = mctx.find_metavar_decl(mvar)) {
-                        buffer<name> ns; buffer<expr> es;
-                        get_delayed_abstraction_info(e, ns, es);
-                        expr mvar_type = mctx.instantiate_mvars(decl->get_type());
-                        mvar_type      = append_delayed_abstraction(mvar_type, ns, es);
-                        expr new_type  = replace_with_simple_metavars(mctx, cache, mvar_type);
-                        expr new_mvar  = mk_metavar(mlocal_name(mvar), new_type);
-                        return some_expr(new_mvar);
-                    } else if (is_metavar_decl_ref(e)) {
-                        throw exception("unexpected occurrence of internal elaboration metavariable");
-                    } else {
-                        return none_expr();
-                    }
-                } else {
-                    return some_expr(replace_with_simple_metavars(mctx, cache, new_e));
-                }
-            } else if (is_metavar(e)) {
+            if (is_metavar(e)) {
                 if (auto r = cache.find(mlocal_name(e))) {
                     return some_expr(*r);
                 } else if (auto decl = mctx.find_metavar_decl(e)) {

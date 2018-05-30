@@ -119,8 +119,7 @@ struct wf_rec_fn {
                 if (auto new_s = tactic::is_success(r)) {
                     metavar_context mctx = new_s->mctx();
                     m_env  = new_s->env();
-                    bool postpone_push_delayed = true;
-                    expr val = mctx.instantiate_mvars(new_s->main(), postpone_push_delayed);
+                    expr val = mctx.instantiate_mvars(new_s->main());
                     init_R_R_wf(ctx, d, val);
                 } else {
                     throw generic_exception(m_ref, "failed to create well founded relation using tactic");
@@ -198,8 +197,7 @@ struct wf_rec_fn {
                     vm_obj r = tactic_evaluator(m_ctx, m_parent.get_options(), ref)(*m_parent.m_dec_tac, s);
                     if (auto new_s = tactic::is_success(r)) {
                         mctx = new_s->mctx();
-                        bool postpone_push_delayed = true;
-                        expr r = mctx.instantiate_mvars(new_s->main(), postpone_push_delayed);
+                        expr r = mctx.instantiate_mvars(new_s->main());
                         m_parent.m_env = new_s->env();
                         m_ctx.set_env(new_s->env());
                         m_ctx.set_mctx(mctx);

@@ -26,9 +26,21 @@ name get_metavar_decl_ref_suffix(level const & l);
 name get_metavar_decl_ref_suffix(expr const & e);
 
 class metavar_context {
-    name_map<metavar_decl>    m_decls;
-    name_map<level>           m_uassignment;
-    name_map<expr>            m_eassignment;
+    struct delayed_assignment {
+        local_context m_lctx;
+        list<expr>    m_locals;
+        expr          m_val;
+        delayed_assignment() {}
+        delayed_assignment(local_context const & lctx, list<expr> const & locals, expr const & v):
+            m_lctx(lctx), m_locals(locals), m_val(v) {
+            lean_assert(std::all_of(locals.begin(), locals.end(), is_local));
+        }
+    };
+
+    name_map<metavar_decl>       m_decls;
+    name_map<level>              m_uassignment;
+    name_map<expr>               m_eassignment;
+    name_map<delayed_assignment> m_dassignment;
 
     struct interface_impl;
     friend struct interface_impl;
@@ -70,11 +82,30 @@ public:
         return m_eassignment.contains(mlocal_name(m));
     }
 
+    bool is_delayed_assigned(expr const & m) const {
+        lean_assert(is_metavar_decl_ref(m));
+        return m_dassignment.contains(mlocal_name(m));
+    }
+
     void assign(level const & u, level const & l);
     void assign(expr const & e, expr const & v);
+    /*
+      Add the delayed assignment
+      ```
+      e := Fun(locals, v)
+      ```
+      This kind of assignment is created by the `intro` tactic.
+      The term `v` contains metavariables that have not been instantiated yet.
+      So, `abstract_locals(locals, v)` would not work correctly.
+      We also cannot create an auxiliary metavariable in this case since it would "solve" the new goal
+      created by the `intro` tactic.
+
+      \pre is_metavar_decl_ref(e)
+    */
+    void assign(expr const & e, local_context const & lctx, list<expr> const & locals, expr const & v);
 
     level instantiate_mvars(level const & l);
-    expr instantiate_mvars(expr const & e, bool postpone_push_delayed = false);
+    expr instantiate_mvars(expr const & e);
 
     bool has_assigned(level const & l) const;
     bool has_assigned(levels const & ls) const;
@@ -82,6 +113,7 @@ public:
 
     optional<level> get_assignment(level const & l) const;
     optional<expr> get_assignment(expr const & e) const;
+    optional<delayed_assignment> get_delayed_assignment(expr const & e) const;
 
     /** \brief Instantiate the assigned meta-variables in the type of \c m
         \pre get_metavar_decl(m) is not none */

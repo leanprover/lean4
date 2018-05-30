@@ -29,7 +29,6 @@ Author: Leonardo de Moura
 #include "library/aux_definition.h"
 #include "library/app_builder.h"
 #include "library/sorry.h"
-#include "library/delayed_abstraction.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/revert_tactic.h"
 #include "library/tactic/clear_tactic.h"

@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include "kernel/instantiate.h"
 #include "library/replace_visitor.h"
-#include "library/delayed_abstraction.h"
 
 namespace lean {
 /*
@@ -23,8 +22,6 @@ bool is_mvar(expr const & e) const;
 bool is_assigned(expr const & e) const;
 optional<expr> get_assignment(expr const & e) const;
 void assign(expr const & m, expr const & v);
-
-push_delayed_abstraction
 
 bool in_tmp_mode() const;
 */
@@ -106,9 +103,6 @@ level instantiate_mvars(CTX & ctx, level const & l) {
 template<typename CTX>
 class instantiate_mvars_fn : public replace_visitor {
     CTX & m_ctx;
-    bool  m_postpone_push_delayed;
-    bool  m_found_delayed_abstraction{false};
-
 
     level visit_level(level const & l) {
         return instantiate_mvars(m_ctx, l);
@@ -181,15 +175,7 @@ class instantiate_mvars_fn : public replace_visitor {
         buffer<expr> new_args;
         for (unsigned i = 0; i < macro_num_args(e); i++)
             new_args.push_back(visit(macro_arg(e, i)));
-        expr r = update_macro(e, new_args.size(), new_args.data());
-        if (is_delayed_abstraction(r)) {
-            if (m_postpone_push_delayed) {
-                m_found_delayed_abstraction = true;
-            } else {
-                return push_delayed_abstraction(r);
-            }
-        }
-        return r;
+        return update_macro(e, new_args.size(), new_args.data());
     }
 
     virtual expr visit(expr const & e) override {
@@ -200,22 +186,17 @@ class instantiate_mvars_fn : public replace_visitor {
     }
 
 public:
-    instantiate_mvars_fn(CTX & ctx, bool postpone_push_delayed):m_ctx(ctx), m_postpone_push_delayed(postpone_push_delayed) {}
+    instantiate_mvars_fn(CTX & ctx):m_ctx(ctx) {}
     expr operator()(expr const & e) {
-        expr r = visit(e);
-        if (m_found_delayed_abstraction) {
-            buffer<name> ns; buffer<expr> es;
-            r = append_delayed_abstraction(r, ns, es);
-        }
-        return r;
+        return visit(e);
     }
 };
 
 template<typename CTX>
-expr instantiate_mvars(CTX & ctx, expr const & e, bool postpone_push_delayed) {
+expr instantiate_mvars(CTX & ctx, expr const & e) {
     if (!has_assigned(ctx, e))
         return e;
-    expr r = instantiate_mvars_fn<CTX>(ctx, postpone_push_delayed)(e);
+    expr r = instantiate_mvars_fn<CTX>(ctx)(e);
     lean_assert(!has_assigned(ctx, r));
     return r;
 }

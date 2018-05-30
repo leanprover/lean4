@@ -38,7 +38,6 @@ Author: Leonardo de Moura
 #include "library/local_context.h"
 #include "library/metavar_context.h"
 #include "library/attribute_manager.h"
-#include "library/delayed_abstraction.h"
 #include "library/app_builder.h"
 #include "library/fun_info.h"
 #include "library/inverse.h"
@@ -105,7 +104,6 @@ void initialize_library_module() {
     initialize_fun_info();
     initialize_abstract_context_cache();
     initialize_type_context();
-    initialize_delayed_abstraction();
     initialize_inverse();
     initialize_pattern_attribute();
     initialize_comp_val();
@@ -127,7 +125,6 @@ void finalize_library_module() {
     finalize_comp_val();
     finalize_pattern_attribute();
     finalize_inverse();
-    finalize_delayed_abstraction();
     finalize_type_context();
     finalize_abstract_context_cache();
     finalize_fun_info();

@@ -677,7 +677,6 @@ public:
     virtual bool has_local_pp_name(name const & pp_name) override {
         return static_cast<bool>(m_lctx.m_user_name2idxs.find(pp_name));
     }
-    virtual expr abstract_locals(expr const & e, unsigned num_locals, expr const * locals) override;
 
     /** Similar to whnf, but invokes the given predicate before unfolding constant symbols in the head.
         If pred(e') is false, then the method will not unfold definition in the head of e', and will return e'.
@@ -911,7 +910,7 @@ public:
     void assign(level const & u, level const & l);
     void assign(expr const & m, expr const & v);
     level instantiate_mvars(level const & l);
-    expr instantiate_mvars(expr const & e, bool postpone_push_delayed = false);
+    expr instantiate_mvars(expr const & e);
     /** \brief Instantiate the assigned meta-variables in the type of \c m
         \pre get_metavar_decl(m) is not none */
     void instantiate_mvars_at_type_of(expr const & m) {
@@ -984,7 +983,6 @@ private:
     bool is_def_eq_args(expr const & e1, expr const & e2);
     bool is_def_eq_eta(expr const & e1, expr const & e2);
     bool is_def_eq_proof_irrel(expr const & e1, expr const & e2);
-    optional<expr> elim_delayed_abstraction(expr const & e);
     lbool quick_is_def_eq(expr const & e1, expr const & e2);
     lbool is_def_eq_delta(expr const & t, expr const & s);
     lbool is_def_eq_proj(expr t, expr s);

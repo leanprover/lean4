@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/fresh_name.h"
+#include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
 #include "library/metavar_util.h"
 #include "library/metavar_context.h"
@@ -89,7 +90,12 @@ void metavar_context::assign(level const & u, level const & l) {
 }
 
 void metavar_context::assign(expr const & e, expr const & v) {
+    lean_assert(!is_delayed_assigned(e));
     m_eassignment.insert(mlocal_name(e), v);
+}
+
+void metavar_context::assign(expr const & e, local_context const & lctx, list<expr> const & locals, expr const & v) {
+    m_dassignment.insert(mlocal_name(e), delayed_assignment(lctx, locals, v));
 }
 
 optional<level> metavar_context::get_assignment(level const & l) const {
@@ -108,8 +114,19 @@ optional<expr> metavar_context::get_assignment(expr const & e) const {
         return none_expr();
 }
 
+optional<metavar_context::delayed_assignment> metavar_context::get_delayed_assignment(expr const & e) const {
+    lean_assert(is_metavar_decl_ref(e));
+    if (auto v = m_dassignment.find(mlocal_name(e)))
+        return optional<delayed_assignment>(*v);
+    else
+        return optional<delayed_assignment>();
+}
+
 struct metavar_context::interface_impl {
     metavar_context & m_ctx;
+    /* We store the set of delayed assigned variables that have been found to prevent their values
+       from being visited over and over again. */
+    name_set          m_delayed_found;
     interface_impl(metavar_context const & ctx):m_ctx(const_cast<metavar_context&>(ctx)) {}
 
     static bool is_mvar(level const & l) { return is_metavar_decl_ref(l); }
@@ -118,10 +135,59 @@ struct metavar_context::interface_impl {
     void assign(level const & u, level const & v) { m_ctx.assign(u, v); }
 
     static bool is_mvar(expr const & e) { return is_metavar_decl_ref(e); }
-    bool is_assigned(expr const & e) const { return m_ctx.is_assigned(e); }
-    optional<expr> get_assignment(expr const & e) const { return m_ctx.get_assignment(e); }
-    void assign(expr const & m, expr const & v) { m_ctx.assign(m, v); }
 
+    optional<expr> check_delayed_assignment(expr const & e) {
+        lean_assert(is_metavar_decl_ref(e));
+        optional<delayed_assignment> d = m_ctx.get_delayed_assignment(e);
+        if (!d)
+            return none_expr();
+        if (m_delayed_found.contains(mlocal_name(e)))
+            return none_expr();
+        /* Remark: a delayed assignment can be transformed in a regular assignment
+           as soon as all metavariables occurring in the assigned value have
+           been assigned. */
+        expr new_v = m_ctx.instantiate_mvars(d->m_val);
+        if (has_expr_metavar(new_v)) {
+            m_delayed_found.insert(mlocal_name(e));
+            if (!is_eqp(new_v, d->m_val))
+                m_ctx.assign(e, d->m_lctx, d->m_locals, new_v);
+            return none_expr();
+        } else {
+            m_ctx.m_dassignment.erase(mlocal_name(e));
+            buffer<expr> locals;
+            to_buffer(d->m_locals, locals);
+            new_v = ::lean::abstract_locals(new_v, locals.size(), locals.data());
+            unsigned i = locals.size();
+            while (i > 0) {
+                --i;
+                local_decl decl = d->m_lctx.get_local_decl(locals[i]);
+                expr type       = ::lean::abstract_locals(decl.get_type(), i, locals.data());
+                if (optional<expr> letval = decl.get_value()) {
+                    letval = ::lean::abstract_locals(*letval, i, locals.data());
+                    new_v  = mk_let(decl.get_pp_name(), type, *letval, new_v);
+                } else {
+                    new_v  = mk_lambda(decl.get_pp_name(), type, new_v, decl.get_info());
+                }
+            }
+            m_ctx.assign(e, new_v);
+            return some_expr(new_v);
+        }
+    }
+
+    bool is_assigned(expr const & e) const {
+        lean_assert(is_metavar_decl_ref(e));
+        return m_ctx.is_assigned(e) || const_cast<metavar_context::interface_impl*>(this)->check_delayed_assignment(e);
+    }
+
+    optional<expr> get_assignment(expr const & e) const {
+        if (optional<expr> v = m_ctx.get_assignment(e))
+            return v;
+        if (optional<expr> v = const_cast<metavar_context::interface_impl*>(this)->check_delayed_assignment(e))
+            return v;
+        return none_expr();
+    }
+
+    void assign(expr const & m, expr const & v) { m_ctx.assign(m, v); }
     bool in_tmp_mode() const { return false; }
 };
 
@@ -139,9 +205,9 @@ level metavar_context::instantiate_mvars(level const & l) {
     return ::lean::instantiate_mvars(impl, l);
 }
 
-expr metavar_context::instantiate_mvars(expr const & e, bool postpone_push_delayed) {
+expr metavar_context::instantiate_mvars(expr const & e) {
     interface_impl impl(*this);
-    return ::lean::instantiate_mvars(impl, e, postpone_push_delayed);
+    return ::lean::instantiate_mvars(impl, e);
 }
 
 void metavar_context::instantiate_mvars_at_type_of(expr const & m) {

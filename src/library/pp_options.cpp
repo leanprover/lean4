@@ -88,10 +88,6 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_PP_BINDER_TYPES true
 #endif
 
-#ifndef LEAN_DEFAULT_PP_DELAYED_ABSTRACTION
-#define LEAN_DEFAULT_PP_DELAYED_ABSTRACTION true
-#endif
-
 #ifndef LEAN_DEFAULT_PP_ALL
 #define LEAN_DEFAULT_PP_ALL false
 #endif
@@ -141,7 +137,6 @@ static name * g_pp_goal_compact      = nullptr;
 static name * g_pp_goal_max_hyps     = nullptr;
 static name * g_pp_binder_types      = nullptr;
 static name * g_pp_hide_comp_irrel   = nullptr;
-static name * g_pp_delayed_abstraction = nullptr;
 static name * g_pp_structure_instances = nullptr;
 static name * g_pp_structure_instances_qualifier = nullptr;
 static name * g_pp_structure_projections    = nullptr;
@@ -171,7 +166,6 @@ void initialize_pp_options() {
     g_pp_binder_types      = new name{"pp", "binder_types"};
     g_pp_hide_comp_irrel   = new name{"pp", "hide_comp_irrelevant"};
     g_pp_all               = new name{"pp", "all"};
-    g_pp_delayed_abstraction  = new name{"pp", "delayed_abstraction"};
     g_pp_goal_compact      = new name{"pp", "goal", "compact"};
     g_pp_goal_max_hyps     = new name{"pp", "goal", "max_hypotheses"};
     g_pp_structure_instances = new name{"pp", "structure_instances"};
@@ -223,8 +217,6 @@ void initialize_pp_options() {
                          "(pretty printer) hide terms marked as computationally irrelevant, these marks are introduced by the code generator");
     register_bool_option(*g_pp_binder_types, LEAN_DEFAULT_PP_BINDER_TYPES,
                          "(pretty printer) display types of lambda and Pi parameters");
-    register_bool_option(*g_pp_delayed_abstraction, LEAN_DEFAULT_PP_DELAYED_ABSTRACTION,
-                         "(pretty printer) display the location of delayed-abstractions (for debugging purposes)");
     register_bool_option(*g_pp_structure_instances, LEAN_DEFAULT_PP_STRUCTURE_INSTANCES,
                          "(pretty printer) display structure instances using the '{ field_name := field_value, ... }' notation "
                          "or '⟨field_value, ... ⟩' if structure is tagged with [pp_using_anonymous_constructor] attribute");
@@ -285,7 +277,6 @@ void finalize_pp_options() {
     delete g_pp_structure_instances_qualifier;
     delete g_pp_structure_projections;
     delete g_pp_all;
-    delete g_pp_delayed_abstraction;
     delete g_pp_instantiate_mvars;
     delete g_pp_use_holes;
     delete g_pp_annotations;
@@ -328,7 +319,6 @@ bool     get_pp_goal_compact(options const & opts)      { return opts.get_bool(*
 unsigned get_pp_goal_max_hyps(options const & opts)     { return opts.get_unsigned(*g_pp_goal_max_hyps, LEAN_DEFAULT_PP_GOAL_MAX_HYPS); }
 bool     get_pp_binder_types(options const & opts)      { return opts.get_bool(*g_pp_binder_types, LEAN_DEFAULT_PP_BINDER_TYPES); }
 bool     get_pp_hide_comp_irrel(options const & opts)   { return opts.get_bool(*g_pp_hide_comp_irrel, LEAN_DEFAULT_PP_HIDE_COMP_IRRELEVANT); }
-bool     get_pp_delayed_abstraction(options const & opts) { return opts.get_bool(*g_pp_delayed_abstraction, LEAN_DEFAULT_PP_DELAYED_ABSTRACTION); }
 bool     get_pp_structure_instances(options const & opts) { return opts.get_bool(*g_pp_structure_instances, LEAN_DEFAULT_PP_STRUCTURE_INSTANCES); }
 bool     get_pp_structure_instances_qualifier(options const & opts) { return opts.get_bool(*g_pp_structure_instances_qualifier, LEAN_DEFAULT_PP_STRUCTURE_INSTANCES_QUALIFIER); }
 bool     get_pp_structure_projections(options const & opts) { return opts.get_bool(*g_pp_structure_projections, LEAN_DEFAULT_PP_STRUCTURE_PROJECTIONS); }

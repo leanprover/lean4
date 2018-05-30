@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "library/sorry.h"
 #include "library/constants.h"
 #include "library/util.h"
-#include "library/util.h"
 
 namespace lean {
 expr mk_sorry(abstract_type_context & ctx, expr const & ty, bool synthetic) {

@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "library/time_task.h"
 #include "library/profiling.h"
-#include "library/library_task_builder.h"
 #include "library/sorry.h"
 #include "util/timeit.h"
 #include "kernel/type_checker.h"
@@ -800,12 +799,9 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
             bool use_info_manager = get_global_info_manager() != nullptr;
             bool noncomputable_theory = p.ignore_noncomputable();
             std::string file_name = p.get_file_name();
-            add_library_task<unit>([=] {
-                check_example(env, opts, meta.m_modifiers, noncomputable_theory,
-                              lp_name_list, new_params_list, fn, val, mctx, lctx,
-                              pos_provider, use_info_manager, file_name);
-                return unit();
-            }, log_tree::ElaborationLevel);
+            check_example(env, opts, meta.m_modifiers, noncomputable_theory,
+                          lp_name_list, new_params_list, fn, val, mctx, lctx,
+                          pos_provider, use_info_manager, file_name);
             return p.env();
         } else {
             std::tie(val, type) = elaborate_definition(p, elab, kind, fn, val, header_pos);

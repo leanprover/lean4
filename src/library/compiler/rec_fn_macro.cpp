@@ -78,11 +78,6 @@ name const & get_rec_fn_name(expr const & e) {
     return static_cast<rec_fn_macro_definition_cell const*>(macro_def(e).raw())->get_rec_fn_name();
 }
 
-expr const & get_rec_fn_type(expr const & e) {
-    lean_assert(is_rec_fn_macro(e));
-    return macro_arg(e, 0);
-}
-
 void initialize_rec_fn_macro() {
     g_rec_fn_macro_id = new name("rec_fn");
     g_rec_fn_opcode   = new std::string("RecFn");

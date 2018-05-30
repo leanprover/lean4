@@ -16,7 +16,6 @@ expr mk_rec_fn_macro(name const & fn_name, expr const & type);
 
 bool is_rec_fn_macro(expr const & e);
 name const & get_rec_fn_name(expr const & e);
-expr const & get_rec_fn_type(expr const & e);
 
 void initialize_rec_fn_macro();
 void finalize_rec_fn_macro();

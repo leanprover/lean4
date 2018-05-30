@@ -15,7 +15,6 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/constants.h"
 #include "library/kernel_serializer.h"
-#include "library/aliases.h"
 #include "library/protected.h"
 #include "library/type_context.h"
 #include "library/class.h"

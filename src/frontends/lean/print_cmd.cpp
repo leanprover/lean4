@@ -473,17 +473,6 @@ static void print_aliases(parser const & p, message_builder & out) {
         });
 }
 
-static void print_key_equivalences(parser & p, message_builder & out) {
-    for_each_key_equivalence(p.env(), [&](buffer<name> const & ns) {
-            out << "[";
-            for (unsigned i = 0; i < ns.size(); i++) {
-                if (i > 0) out << ", ";
-                out << ns[i];
-            }
-            out << "]\n";
-        });
-}
-
 static void print_attribute(parser & p, message_builder & out, attribute const & attr) {
     buffer<name> instances;
     attr.get_instances(p.env(), instances);
@@ -519,9 +508,6 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token_or_id(get_trust_tk())) {
         p.next();
         out << "trust level: " << p.env().trust_lvl() << endl;
-    } else if (p.curr_is_token_or_id(get_key_equivalences_tk())) {
-        p.next();
-        print_key_equivalences(p, out);
     } else if (p.curr_is_token_or_id(get_definition_tk())) {
         p.next();
         auto pos = p.pos();

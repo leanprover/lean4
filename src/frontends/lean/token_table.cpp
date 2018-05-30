@@ -109,7 +109,7 @@ void init_token_table(token_table & t) {
          "precedence", "reserve", "infixl", "infixr", "infix", "postfix", "prefix", "notation",
          "set_option", "open", "export", "@[",
          "attribute", "instance", "include", "omit", "init_quotient",
-         "declare_trace", "add_key_equivalence",
+         "declare_trace",
          "run_cmd", "#check", "#reduce", "#eval", "#print", "#help", "#exit",
          "#compile", "#unify", nullptr};
 

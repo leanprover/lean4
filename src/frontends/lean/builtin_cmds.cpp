@@ -549,12 +549,6 @@ environment declare_trace_cmd(parser & p) {
     return module::add_and_perform(p.env(), std::make_shared<declare_trace_modification>(cls));
 }
 
-environment add_key_equivalence_cmd(parser & p) {
-    name h1 = p.check_constant_next("invalid add_key_equivalence command, constant expected");
-    name h2 = p.check_constant_next("invalid add_key_equivalence command, constant expected");
-    return add_key_equivalence(p.env(), h1, h2);
-}
-
 static environment run_command_cmd(parser & p) {
     transient_cmd_scope cmd_scope(p);
     module::scope_pos_info scope_pos(p.pos());
@@ -614,7 +608,6 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("#help",             "brief description of available commands and options", help_cmd));
     add_cmd(r, cmd_info("init_quotient",     "initialize quotient type computational rules", init_quotient_cmd));
     add_cmd(r, cmd_info("declare_trace",     "declare a new trace class (for debugging Lean tactics)", declare_trace_cmd));
-    add_cmd(r, cmd_info("add_key_equivalence", "register that to symbols are equivalence for key-matching", add_key_equivalence_cmd));
     add_cmd(r, cmd_info("run_cmd",           "execute an user defined command at top-level", run_command_cmd));
     add_cmd(r, cmd_info("import",            "import module(s)", import_cmd));
     add_cmd(r, cmd_info("hide",              "hide aliases in the current scope", hide_cmd));

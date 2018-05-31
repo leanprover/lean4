@@ -23,7 +23,6 @@ Author: Leonardo de Moura
 #include "library/tactic/rewrite_tactic.h"
 #include "library/tactic/unfold_tactic.h"
 #include "library/tactic/elaborate.h"
-#include "library/tactic/user_attribute.h"
 #include "library/tactic/eval.h"
 #include "library/tactic/simp_lemmas.h"
 #include "library/tactic/eqn_lemmas.h"
@@ -53,7 +52,6 @@ void initialize_tactic_module() {
     initialize_unfold_tactic();
     initialize_simplify();
     initialize_elaborate();
-    initialize_user_attribute();
     initialize_eval();
     initialize_simp_lemmas();
     initialize_eqn_lemmas();
@@ -66,7 +64,6 @@ void finalize_tactic_module() {
     finalize_eqn_lemmas();
     finalize_simp_lemmas();
     finalize_eval();
-    finalize_user_attribute();
     finalize_elaborate();
     finalize_simplify();
     finalize_unfold_tactic();

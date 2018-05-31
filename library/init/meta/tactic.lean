@@ -440,13 +440,6 @@ meta constant unset_attribute : name → name → tactic unit
    has the attribute `attr_name`. The result is the priority. -/
 meta constant has_attribute : name → name → tactic nat
 
-/-- `copy_attribute attr_name c_name d_name` copy attribute `attr_name` from
-   `src` to `tgt` if it is defined for `src` -/
-meta def copy_attribute (attr_name : name) (src : name) (p : bool) (tgt : name) : tactic unit :=
-try $ do
-  prio ← has_attribute attr_name src,
-  set_basic_attribute attr_name tgt p (some prio)
-
 /-- Name of the declaration currently being elaborated. -/
 meta constant decl_name : tactic name
 

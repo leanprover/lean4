@@ -7,8 +7,3 @@ prelude
 import init.core init.control init.data.basic init.version
 import init.function init.util init.coe init.wf init.meta
 import init.meta.well_founded_tactics init.data
-
-@[user_attribute]
-meta def debugger.attr : user_attribute :=
-{ name  := `breakpoint,
-  descr := "breakpoint for debugger" }

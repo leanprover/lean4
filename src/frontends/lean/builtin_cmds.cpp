@@ -522,33 +522,6 @@ static environment eval_cmd(parser & p) {
     return p.env();
 }
 
-struct declare_trace_modification : public modification {
-    LEAN_MODIFICATION("decl_trace")
-
-    name m_cls;
-
-    declare_trace_modification(name const & cls) : m_cls(cls) {}
-    declare_trace_modification() {}
-
-    void perform(environment &) const override {
-        // TODO(gabriel): this is just fundamentally wrong
-        register_trace_class(m_cls);
-    }
-
-    void serialize(serializer & s) const override {
-        s << m_cls;
-    }
-
-    static std::shared_ptr<modification const> deserialize(deserializer & d) {
-        return std::make_shared<declare_trace_modification>(read_name(d));
-    }
-};
-
-environment declare_trace_cmd(parser & p) {
-    name cls = p.check_id_next("invalid declare_trace command, identifier expected");
-    return module::add_and_perform(p.env(), std::make_shared<declare_trace_modification>(cls));
-}
-
 static environment run_command_cmd(parser & p) {
     transient_cmd_scope cmd_scope(p);
     module::scope_pos_info scope_pos(p.pos());
@@ -607,7 +580,6 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("local",             "define local attributes or notation", local_cmd));
     add_cmd(r, cmd_info("#help",             "brief description of available commands and options", help_cmd));
     add_cmd(r, cmd_info("init_quotient",     "initialize quotient type computational rules", init_quotient_cmd));
-    add_cmd(r, cmd_info("declare_trace",     "declare a new trace class (for debugging Lean tactics)", declare_trace_cmd));
     add_cmd(r, cmd_info("run_cmd",           "execute an user defined command at top-level", run_command_cmd));
     add_cmd(r, cmd_info("import",            "import module(s)", import_cmd));
     add_cmd(r, cmd_info("hide",              "hide aliases in the current scope", hide_cmd));
@@ -630,11 +602,9 @@ cmd_table get_builtin_cmds() {
 void initialize_builtin_cmds() {
     g_cmds = new cmd_table();
     init_cmd_table(*g_cmds);
-    declare_trace_modification::init();
 }
 
 void finalize_builtin_cmds() {
-    declare_trace_modification::finalize();
     delete g_cmds;
 }
 }

@@ -310,40 +310,25 @@ struct import_helper {
 
 struct decl_modification : public modification {
     LEAN_MODIFICATION("decl")
-
     declaration m_decl;
-    unsigned    m_trust_lvl = LEAN_BELIEVER_TRUST_LEVEL + 1;
 
     decl_modification() {}
-    decl_modification(declaration const & decl, unsigned trust_lvl):
-        m_decl(decl), m_trust_lvl(trust_lvl) {}
+    decl_modification(declaration const & decl):
+        m_decl(decl) {}
 
     void perform(environment & env) const override {
         auto decl = m_decl;
-        /*
-           The unfold_untrusted_macros is only needed when we are importing the declaration from a .olean
-           file that has been created with a different (and higher) trust level. So, it may contain macros
-           that will not be accepted by the current kernel, and they must be unfolded.
-
-           In a single Lean session, the trust level is fixed, and we invoke unfold_untrusted_macros
-           at frontends/lean/definition_cmds.cpp before we even create the declaration.
-        */
-        if (m_trust_lvl > env.trust_lvl()) {
-            decl = unfold_untrusted_macros(env, decl);
-        }
-
         // TODO(gabriel): this might be a bit more unsafe here than before
         env = import_helper::add_unchecked(env, decl);
     }
 
     void serialize(serializer & s) const override {
-        s << m_decl << m_trust_lvl;
+        s << m_decl;
     }
 
     static std::shared_ptr<modification const> deserialize(deserializer & d) {
         auto decl = read_declaration(d);
-        unsigned trust_lvl; d >> trust_lvl;
-        return std::make_shared<decl_modification>(std::move(decl), trust_lvl);
+        return std::make_shared<decl_modification>(std::move(decl));
     }
 
     void get_introduced_exprs(std::vector<task<expr>> & es) const override {
@@ -360,34 +345,21 @@ struct inductive_modification : public modification {
     LEAN_MODIFICATION("ind")
 
     inductive::certified_inductive_decl m_decl;
-    unsigned m_trust_lvl = LEAN_BELIEVER_TRUST_LEVEL + 1;
 
-
-    inductive_modification(inductive::certified_inductive_decl const & decl, unsigned trust_lvl) :
-            m_decl(decl), m_trust_lvl(trust_lvl) {}
+    inductive_modification(inductive::certified_inductive_decl const & decl):
+        m_decl(decl) {}
 
     void perform(environment & env) const override {
-        if (m_trust_lvl > env.trust_lvl()) {
-            auto d = m_decl.get_decl();
-            d.m_type = unfold_untrusted_macros(env, d.m_type);
-            d.m_intro_rules = map(d.m_intro_rules, [&](inductive::intro_rule const & r) {
-                return unfold_untrusted_macros(env, r);
-            });
-            env = add_inductive(env, d, m_decl.is_meta()).first;
-        } else {
-            env = m_decl.add(env);
-        }
+        env = m_decl.add(env);
     }
 
     void serialize(serializer & s) const override {
-        s << m_decl << m_trust_lvl;
+        s << m_decl;
     }
 
     static std::shared_ptr<modification const> deserialize(deserializer & d) {
         auto decl = read_certified_inductive_decl(d);
-        unsigned trust_lvl;
-        d >> trust_lvl;
-        return std::make_shared<inductive_modification>(std::move(decl), trust_lvl);
+        return std::make_shared<inductive_modification>(std::move(decl));
     }
 
     void get_introduced_exprs(std::vector<task<expr>> & es) const override {
@@ -447,7 +419,7 @@ environment add(environment const & env, certified_declaration const & d) {
     if (!check_computable(new_env, _d.get_name()))
         new_env = mark_noncomputable(new_env, _d.get_name());
     new_env = update_module_defs(new_env, _d);
-    new_env = add(new_env, std::make_shared<decl_modification>(_d, env.trust_lvl()));
+    new_env = add(new_env, std::make_shared<decl_modification>(_d));
     return add_decl_pos_info(new_env, _d.get_name());
 }
 
@@ -472,7 +444,7 @@ environment add_inductive(environment                       env,
     ext.m_module_decls = cons(decl.m_name, ext.m_module_decls);
     new_env = update(new_env, ext);
     new_env = add_decl_pos_info(new_env, decl.m_name);
-    return add(new_env, std::make_shared<inductive_modification>(cidecl, env.trust_lvl()));
+    return add(new_env, std::make_shared<inductive_modification>(cidecl));
 }
 } // end of namespace module
 
@@ -519,7 +491,6 @@ olean_data parse_olean(std::istream & in, std::string const & file_name, bool ch
         throw exception(sstream() << "file '" << file_name << "' has been corrupted");
     }
 
-//    if (m_senv.env().trust_lvl() <= LEAN_BELIEVER_TRUST_LEVEL) {
     if (check_hash) {
         unsigned computed_hash = olean_hash(code);
         if (claimed_hash != computed_hash)

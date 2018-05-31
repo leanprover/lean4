@@ -56,8 +56,8 @@ environment mk_rec_on(environment const & env, name const & n) {
     expr rec_on_val = Fun(new_locals, mk_app(rec, locals));
 
     environment new_env = module::add(env,
-                                      check(env, mk_definition_inferring_trusted(env, rec_on_name, rec_decl.get_univ_params(),
-                                                                                 rec_on_type, rec_on_val, reducibility_hints::mk_abbreviation())));
+                                      check(env, mk_definition_inferring_meta(env, rec_on_name, rec_decl.get_univ_params(),
+                                                                              rec_on_type, rec_on_val, reducibility_hints::mk_abbreviation())));
     new_env = set_reducible(new_env, rec_on_name, reducible_status::Reducible, true);
     new_env = add_aux_recursor(new_env, rec_on_name);
     return add_protected(new_env, rec_on_name);

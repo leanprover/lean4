@@ -69,15 +69,9 @@ expr unfold_all_macros(environment const & env, expr const & e) {
     return unfold_untrusted_macros(env, e, {});
 }
 
-static bool contains_untrusted_macro(unsigned trust_lvl, declaration const & d) {
-#if defined(LEAN_ALL_MACROS_HAVE_SMALL_TRUST_LVL)
-    if (trust_lvl > LEAN_BELIEVER_TRUST_LEVEL) return false;
-#endif
-    if (!d.is_trusted())
-        return false;
-    if (contains_untrusted_macro(trust_lvl, d.get_type()))
-        return true;
-    return (d.is_definition() || d.is_theorem()) && contains_untrusted_macro(trust_lvl, d.get_value());
+static bool contains_untrusted_macro(unsigned /* trust_lvl */, declaration const & /* d */) {
+    /* TODO(Leo): macros will be deleted */
+    return false;
 }
 
 declaration unfold_untrusted_macros(environment const & env, declaration const & d, optional<unsigned> const & trust_lvl) {
@@ -89,7 +83,7 @@ declaration unfold_untrusted_macros(environment const & env, declaration const &
         } else if (d.is_definition()) {
             expr new_v = unfold_untrusted_macros(env, d.get_value(), trust_lvl);
             return mk_definition(d.get_name(), d.get_univ_params(), new_t, new_v,
-                                 d.get_hints(), d.is_trusted());
+                                 d.get_hints(), d.is_meta());
         } else if (d.is_axiom()) {
             return mk_axiom(d.get_name(), d.get_univ_params(), new_t);
         } else if (d.is_constant_assumption()) {

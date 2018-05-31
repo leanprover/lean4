@@ -152,7 +152,7 @@ buffer<expr> const & closure_helper::get_norm_closure_params() const {
 struct mk_aux_definition_fn : public closure_helper {
     mk_aux_definition_fn(type_context_old & ctx):closure_helper(ctx) {}
 
-    pair<environment, expr> operator()(name const & c, expr const & type, expr const & value, bool is_lemma, optional<bool> const & is_meta) {
+    pair<environment, expr> operator()(name const & c, expr const & type, expr const & value, bool is_lemma, optional<bool> is_meta) {
         lean_assert(!is_lemma || is_meta);
         lean_assert(!is_lemma || *is_meta == false);
         expr new_type  = collect(ctx().instantiate_mvars(type));
@@ -161,21 +161,14 @@ struct mk_aux_definition_fn : public closure_helper {
         finalize_collection();
         expr def_type  = mk_pi_closure(new_type);
         expr def_value = mk_lambda_closure(new_value);
-        bool untrusted = false;
-        if (is_meta)
-            untrusted = *is_meta;
-        else
-            untrusted = use_untrusted(env, def_type) || use_untrusted(env, def_value);
-        if (!untrusted) {
-            def_type  = unfold_untrusted_macros(env, def_type);
-            def_value = unfold_untrusted_macros(env, def_value);
-        }
+        if (!is_meta)
+            is_meta = use_meta(env, def_type) || use_meta(env, def_value);
         declaration d;
         if (is_lemma) {
             d = mk_theorem(c, get_norm_level_names(), def_type, def_value);
         } else {
             bool use_self_opt = true;
-            d = mk_definition(env, c, get_norm_level_names(), def_type, def_value, use_self_opt, !untrusted);
+            d = mk_definition(env, c, get_norm_level_names(), def_type, def_value, use_self_opt, *is_meta);
         }
         environment new_env = module::add(env, check(env, d));
         buffer<level> ls;

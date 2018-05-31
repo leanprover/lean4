@@ -67,7 +67,7 @@ static void print_constant(std::ostream & out, environment const & env, formatte
     format r;
     if (is_protected(env, d.get_name()))
         add_string(r, "protected");
-    if (!d.is_trusted())
+    if (d.is_meta())
         add_string(r, "meta");
     if (d.is_definition() && is_marked_noncomputable(env, d.get_name()))
         add_string(r, "noncomputable");

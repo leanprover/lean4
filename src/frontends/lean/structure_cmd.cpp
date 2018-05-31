@@ -1069,8 +1069,8 @@ struct structure_cmd_fn {
         level_param_names lnames = names(m_level_names);
         inductive::intro_rule intro = inductive::mk_intro_rule(m_mk, intro_type);
         inductive::inductive_decl  decl(m_name, lnames, m_params.size(), structure_type, to_list(intro));
-        bool is_trusted = !m_meta_info.m_modifiers.m_is_meta;
-        m_env = module::add_inductive(m_env, decl, is_trusted);
+        bool is_meta = m_meta_info.m_modifiers.m_is_meta;
+        m_env = module::add_inductive(m_env, decl, is_meta);
         name rec_name = inductive::get_elim_name(m_name);
         m_env = add_namespace(m_env, m_name);
         m_env = add_protected(m_env, rec_name);
@@ -1079,7 +1079,7 @@ struct structure_cmd_fn {
         add_rec_alias(rec_name);
         m_env = add_structure_declaration_aux(m_env, m_p.get_options(), m_level_names, m_params,
                                               mk_local(m_name, mk_structure_type_no_params()),
-                                              mk_local(m_mk, mk_intro_type_no_params()), is_trusted);
+                                              mk_local(m_mk, mk_intro_type_no_params()), is_meta);
     }
 
     void declare_projections() {
@@ -1146,7 +1146,7 @@ struct structure_cmd_fn {
                 used_univs = collect_univ_params(decl_value, used_univs);
                 used_univs = collect_univ_params(decl_type, used_univs);
                 level_param_names decl_lvls = to_level_param_names(used_univs);
-                declaration new_decl = mk_definition_inferring_trusted(m_env, decl_name, decl_lvls,
+                declaration new_decl = mk_definition_inferring_meta(m_env, decl_name, decl_lvls,
                                                                        decl_type, decl_value, reducibility_hints::mk_abbreviation());
                 m_env = module::add(m_env, check(m_env, new_decl));
                 if (!m_meta_info.m_modifiers.m_is_meta)
@@ -1159,7 +1159,7 @@ struct structure_cmd_fn {
     void add_rec_on_alias(name const & n) {
         name rec_on_name(m_name, "rec_on");
         declaration rec_on_decl = m_env.get(rec_on_name);
-        declaration new_decl = mk_definition_inferring_trusted(m_env, n, rec_on_decl.get_univ_params(),
+        declaration new_decl = mk_definition_inferring_meta(m_env, n, rec_on_decl.get_univ_params(),
                                                                rec_on_decl.get_type(), rec_on_decl.get_value(),
                                                                reducibility_hints::mk_abbreviation());
         m_env = module::add(m_env, check(m_env, new_decl));
@@ -1255,8 +1255,8 @@ struct structure_cmd_fn {
             coercion_value                 = Fun(m_params, Fun(st, coercion_value, m_p), m_p);
             name coercion_name             = coercion_names[i];
             bool use_conv_opt              = false;
-            declaration coercion_decl      = mk_definition_inferring_trusted(m_env, coercion_name, lnames,
-                                                                             coercion_type, coercion_value, use_conv_opt);
+            declaration coercion_decl      = mk_definition_inferring_meta(m_env, coercion_name, lnames,
+                                                                          coercion_type, coercion_value, use_conv_opt);
             m_env = module::add(m_env, check(m_env, coercion_decl));
             add_alias(coercion_name);
             m_env = vm_compile(m_env, m_env.get(coercion_name));

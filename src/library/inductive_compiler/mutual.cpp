@@ -38,7 +38,7 @@ class add_mutual_inductive_decl_fn {
     options const &               m_opts;
     name_map<implicit_infer_kind> m_implicit_infer_map;
     ginductive_decl const &       m_mut_decl;
-    bool                          m_is_trusted;
+    bool                          m_is_meta;
     ginductive_decl               m_basic_decl;
 
     name                          m_basic_ind_name;
@@ -293,7 +293,7 @@ class add_mutual_inductive_decl_fn {
                        << mlocal_name(ind) << " : " << new_ind_type << " :=\n  " << new_ind_val << "\n";);
             lean_assert(!has_local(new_ind_type));
             lean_assert(!has_local(new_ind_val));
-            m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, mlocal_name(ind), names(m_mut_decl.get_lp_names()), new_ind_type, new_ind_val, true)));
+            m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, mlocal_name(ind), names(m_mut_decl.get_lp_names()), new_ind_type, new_ind_val, true)));
             m_tctx.set_env(m_env);
         }
     }
@@ -347,7 +347,7 @@ class add_mutual_inductive_decl_fn {
                        << sizeof_name << " : " << sizeof_type << " :=\n  " << sizeof_val << "\n";);
             lean_assert(!has_local(sizeof_type));
             lean_assert(!has_local(sizeof_val));
-            m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, sizeof_name, names(m_mut_decl.get_lp_names()), sizeof_type, sizeof_val, true)));
+            m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, sizeof_name, names(m_mut_decl.get_lp_names()), sizeof_type, sizeof_val, true)));
             m_env = add_protected(m_env, sizeof_name);
             m_tctx.set_env(m_env);
 
@@ -368,7 +368,7 @@ class add_mutual_inductive_decl_fn {
                        << has_sizeof_name << " : " << has_sizeof_type << " :=\n  " << has_sizeof_val << "\n";);
             lean_assert(!has_local(has_sizeof_type));
             lean_assert(!has_local(has_sizeof_val));
-            m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, has_sizeof_name, names(m_mut_decl.get_lp_names()), has_sizeof_type, has_sizeof_val, true)));
+            m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, has_sizeof_name, names(m_mut_decl.get_lp_names()), has_sizeof_type, has_sizeof_val, true)));
             m_env = add_instance(m_env, has_sizeof_name, LEAN_DEFAULT_PRIORITY, true);
             m_env = add_protected(m_env, sizeof_name);
             m_tctx.set_env(m_env);
@@ -421,7 +421,7 @@ class add_mutual_inductive_decl_fn {
                 lean_trace(name({"inductive_compiler", "mutual", "sizeof"}), tout()
                            << dsimp_rule_name << " : " << dsimp_rule_type << " :=\n  " << dsimp_rule_val << "\n";);
 
-                m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, dsimp_rule_name, names(m_mut_decl.get_lp_names()), dsimp_rule_type, dsimp_rule_val, true)));
+                m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, dsimp_rule_name, names(m_mut_decl.get_lp_names()), dsimp_rule_type, dsimp_rule_val, true)));
                 m_env = mark_rfl_lemma(m_env, dsimp_rule_name);
                 m_env = add_eqn_lemma(m_env, dsimp_rule_name);
                 m_env = add_protected(m_env, dsimp_rule_name);
@@ -468,14 +468,14 @@ class add_mutual_inductive_decl_fn {
                 expr inj_and_type = mk_injective_type(m_env, ir_name, ir_type, num_params, lp_names);
                 expr inj_and_val = mk_constant(mk_injective_name(mlocal_name(m_basic_decl.get_intro_rule(0, basic_ir_idx))), m_mut_decl.get_levels());
                 lean_trace(name({"inductive_compiler", "mutual", "injective"}), tout() << mk_injective_name(ir_name) << " : " << inj_and_type << " :=\n  " << inj_and_val << "\n";);
-                m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, mk_injective_name(ir_name), lp_names, inj_and_type, inj_and_val, true)));
+                m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, mk_injective_name(ir_name), lp_names, inj_and_type, inj_and_val, true)));
                 m_env = mk_injective_arrow(m_env, ir_name);
 
                 if (m_env.find(get_tactic_mk_inj_eq_name())) {
                     name inj_eq_name  = mk_injective_eq_name(ir_name);
                     expr inj_eq_type  = mk_injective_eq_type(m_env, ir_name, ir_type, num_params, lp_names);
                     expr inj_eq_value = prove_injective_eq(m_env, inj_eq_type, inj_eq_name);
-                    m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, inj_eq_name, lp_names, inj_eq_type, inj_eq_value, true)));
+                    m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, inj_eq_name, lp_names, inj_eq_type, inj_eq_value, true)));
                 }
 
                 m_tctx.set_env(m_env);
@@ -499,7 +499,7 @@ class add_mutual_inductive_decl_fn {
                 lean_assert(!has_local(new_ir_val));
                 lean_trace(name({"inductive_compiler", "mutual", "ir"}), tout() << mlocal_name(ir) << " : " << new_ir_type << "\n";);
 
-                m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, mlocal_name(ir), names(m_mut_decl.get_lp_names()), new_ir_type, new_ir_val, true)));
+                m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, mlocal_name(ir), names(m_mut_decl.get_lp_names()), new_ir_type, new_ir_val, true)));
                 m_env = set_pattern_attribute(m_env, mlocal_name(ir));
                 m_tctx.set_env(m_env);
                 basic_ir_idx++;
@@ -779,7 +779,7 @@ class add_mutual_inductive_decl_fn {
 
         lean_assert(!has_local(rec_type));
         lean_assert(!has_local(rec_val));
-        m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, get_dep_recursor(m_env, mlocal_name(ind)), rec_lp_names, rec_type, rec_val, true)));
+        m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, get_dep_recursor(m_env, mlocal_name(ind)), rec_lp_names, rec_type, rec_val, true)));
     }
 
     void define_cases_on(name const & rec_name, level_param_names const & rec_lp_names, unsigned ind_idx) {
@@ -853,7 +853,7 @@ class add_mutual_inductive_decl_fn {
 
         lean_assert(!has_local(cases_on_type));
         lean_assert(!has_local(cases_on_val));
-        m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, name(mlocal_name(ind), "cases_on"), rec_lp_names, cases_on_type, cases_on_val, true)));
+        m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, name(mlocal_name(ind), "cases_on"), rec_lp_names, cases_on_type, cases_on_val, true)));
     }
 
     void define_recursors() {
@@ -876,9 +876,9 @@ class add_mutual_inductive_decl_fn {
 public:
     add_mutual_inductive_decl_fn(environment const & env, name_generator & ngen, options const & opts,
                                  name_map<implicit_infer_kind> const & implicit_infer_map, ginductive_decl const & mut_decl,
-                                 bool is_trusted):
+                                 bool is_meta):
         m_env(env), m_ngen(ngen), m_opts(opts), m_implicit_infer_map(implicit_infer_map),
-        m_mut_decl(mut_decl), m_is_trusted(is_trusted),
+        m_mut_decl(mut_decl), m_is_meta(is_meta),
         m_basic_decl(m_mut_decl.get_nest_depth() + 1, m_mut_decl.get_lp_names(), m_mut_decl.get_params(), m_mut_decl.get_ir_offsets()),
         m_tctx(env, opts) {}
 
@@ -895,7 +895,7 @@ public:
         compute_idx_to_ir_range();
 
         try {
-            m_env = add_inner_inductive_declaration(m_env, m_ngen, m_opts, m_implicit_infer_map, m_basic_decl, m_is_trusted);
+            m_env = add_inner_inductive_declaration(m_env, m_ngen, m_opts, m_implicit_infer_map, m_basic_decl, m_is_meta);
         } catch (exception & ex) {
             throw nested_exception(sstream() << "mutually inductive types compiled to invalid basic inductive type", ex);
         }
@@ -912,8 +912,8 @@ public:
 
 environment add_mutual_inductive_decl(environment const & env, name_generator & ngen, options const & opts,
                                       name_map<implicit_infer_kind> const & implicit_infer_map,
-                                      ginductive_decl & mut_decl, bool is_trusted) {
-    return add_mutual_inductive_decl_fn(env, ngen, opts, implicit_infer_map, mut_decl, is_trusted)();
+                                      ginductive_decl & mut_decl, bool is_meta) {
+    return add_mutual_inductive_decl_fn(env, ngen, opts, implicit_infer_map, mut_decl, is_meta)();
 }
 
 void initialize_inductive_compiler_mutual() {

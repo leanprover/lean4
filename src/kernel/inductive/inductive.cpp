@@ -187,7 +187,7 @@ name get_elim_name(name const & n) {
 
 environment certified_inductive_decl::add_constant(environment const & env, name const & n, level_param_names const & ls,
                                                    expr const & t) const {
-    return env.add(certify_unchecked::certify_or_check(env, mk_constant_assumption(n, ls, t, m_is_trusted)));
+    return env.add(certify_unchecked::certify_or_check(env, mk_constant_assumption(n, ls, t, m_is_meta)));
 }
 
 environment certified_inductive_decl::add_core(environment const & env, bool update_ext_only) const {
@@ -220,7 +220,7 @@ environment certified_inductive_decl::add_core(environment const & env, bool upd
 
 environment certified_inductive_decl::add(environment const & env) const {
     if (env.trust_lvl() == 0) {
-        return add_inductive(env, m_decl, m_is_trusted).first;
+        return add_inductive(env, m_decl, m_is_meta).first;
     } else {
         return add_core(env, false);
     }
@@ -256,16 +256,16 @@ struct add_inductive_fn {
         elim_info():m_K_target(false) {}
     };
     elim_info            m_elim_info; // for datatype being declared
-    bool                 m_is_trusted;
+    bool                 m_is_meta;
 
     add_inductive_fn(environment            env,
                      inductive_decl const & decl,
-                     bool is_trusted):
+                     bool is_meta):
         m_env(env), m_name_generator(*g_ind_fresh), m_decl(decl),
         m_tc(new type_checker(m_env, true, false)) {
         m_is_not_zero = false;
         m_levels      = param_names_to_levels(decl.m_level_params);
-        m_is_trusted  = is_trusted;
+        m_is_meta  = is_meta;
     }
 
     /** \brief Make sure the latest environment is being used by m_tc. */
@@ -323,7 +323,7 @@ struct add_inductive_fn {
     /** \brief Add all datatype declarations to environment. */
     void declare_inductive_type() {
         m_env = m_env.add(check(m_env, mk_constant_assumption(m_decl.m_name, m_decl.m_level_params, m_decl.m_type,
-                                                              m_is_trusted)));
+                                                              m_is_meta)));
         updt_type_checker();
     }
 
@@ -408,7 +408,7 @@ struct add_inductive_fn {
                 if (!(is_geq(m_it_level, sort_level(s)) || is_zero(m_it_level)))
                     throw kernel_exception(m_env, sstream() << "universe level of type_of(arg #" << (i + 1) << ") "
                                            << "of '" << n << "' is too big for the corresponding inductive datatype");
-                if (m_is_trusted)
+                if (!m_is_meta)
                     check_positivity(binding_domain(t), n, i);
                 bool is_rec = (bool)is_rec_argument(binding_domain(t)); // NOLINT
                 if (is_rec)
@@ -445,7 +445,7 @@ struct add_inductive_fn {
         for (auto ir : m_decl.m_intro_rules) {
             m_env = m_env.add(check(m_env, mk_constant_assumption(intro_rule_name(ir),
                                                                   m_decl.m_level_params, intro_rule_type(ir),
-                                                                  m_is_trusted)));
+                                                                  m_is_meta)));
         }
         updt_type_checker();
     }
@@ -660,7 +660,7 @@ struct add_inductive_fn {
         elim_ty   = Pi(m_param_consts, elim_ty);
         elim_ty   = infer_implicit(elim_ty, true /* strict */);
         m_env = m_env.add(check(m_env, mk_constant_assumption(get_elim_name(), get_elim_level_param_names(), elim_ty,
-                                                              m_is_trusted)));
+                                                              m_is_meta)));
         return elim_ty;
     }
 
@@ -724,7 +724,7 @@ struct add_inductive_fn {
         return certified_inductive_decl(m_decl.m_num_params + 1 + e.size(), elim_Prop, m_dep_elim,
                                         get_elim_level_param_names(), elim_type, m_decl,
                                         m_elim_info.m_K_target, m_elim_info.m_indices.size(), to_list(comp_rules),
-                                        m_is_trusted);
+                                        m_is_meta);
     }
 
     pair<environment, certified_inductive_decl> operator()() {
@@ -739,10 +739,10 @@ struct add_inductive_fn {
 };
 
 pair<environment, certified_inductive_decl>
-add_inductive(environment env, inductive_decl const & decl, bool is_trusted) {
+add_inductive(environment env, inductive_decl const & decl, bool is_meta) {
     if (!env.norm_ext().supports(*g_inductive_extension))
         throw kernel_exception(env, "environment does not support inductive datatypes");
-    return add_inductive_fn(env, decl, is_trusted)();
+    return add_inductive_fn(env, decl, is_meta)();
 }
 
 bool inductive_normalizer_extension::supports(name const & feature) const {

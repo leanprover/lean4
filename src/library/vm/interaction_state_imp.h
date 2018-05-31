@@ -236,10 +236,10 @@ environment interaction_monad<State>::evaluator::compile(name const & interactio
     expr interaction_type = m_ctx.infer(interaction);
     environment new_env = m_ctx.env();
     bool use_conv_opt = true;
-    bool is_trusted = false;
+    bool is_meta      = true;
     auto cd = check(new_env,
                     mk_definition(new_env, interaction_name, {}, interaction_type, interaction, use_conv_opt,
-                                  is_trusted));
+                                  is_meta));
     new_env = new_env.add(cd);
     if (provider) {
         if (auto pos = provider->get_pos_info(interaction))

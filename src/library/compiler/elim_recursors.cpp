@@ -33,10 +33,10 @@ protected:
         level_param_names ps = to_level_param_names(collect_univ_params(value));
         type_checker tc(m_env);
         expr type         = tc.infer(value);
-        bool trusted      = false;
+        bool meta         = true;
         /* We add declaration as a constant to make sure
            we can infer the type of the resultant expression. */
-        declaration new_decl = mk_constant_assumption(n, ps, type, trusted);
+        declaration new_decl = mk_constant_assumption(n, ps, type, meta);
         m_env = m_env.add(check(m_env, new_decl));
         return mk_constant(n, param_names_to_levels(ps));
     }

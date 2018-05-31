@@ -219,7 +219,7 @@ class exporter {
 
     void export_declaration(declaration d) {
         // do not export meta declarations
-        if (!d.is_trusted()) return;
+        if (d.is_meta()) return;
 
         if (is_quotient_decl(m_env, d.get_name()))
             return export_quotient();

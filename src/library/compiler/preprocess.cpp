@@ -164,9 +164,9 @@ class preprocess_fn {
     context_cache  m_cache;
 
     bool check(declaration const & d, expr const & v) {
-        bool memoize      = true;
-        bool trusted_only = false;
-        type_checker tc(m_env, memoize, trusted_only);
+        bool memoize       = true;
+        bool non_meta_only = false;
+        type_checker tc(m_env, memoize, non_meta_only);
         expr t = tc.check(v, d.get_univ_params());
         if (!tc.is_def_eq(d.get_type(), t))
             throw exception("preprocess failed");

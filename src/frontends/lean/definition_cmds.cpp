@@ -251,12 +251,12 @@ declare_definition(parser & p, environment const & env, decl_cmd_kind kind, buff
         std::tie(new_env, *val) = abstract_nested_proofs(new_env, c_real_name, *val);
     }
     bool use_conv_opt = true;
-    bool is_trusted   = !meta.m_modifiers.m_is_meta;
+    bool is_meta      = meta.m_modifiers.m_is_meta;
     auto def          =
         (kind == decl_cmd_kind::Theorem ?
          mk_theorem(c_real_name, names(lp_names), type, *val) :
-         (is_abbrev ? mk_definition(c_real_name, names(lp_names), type, *val, reducibility_hints::mk_abbreviation(), is_trusted) :
-          mk_definition(new_env, c_real_name, names(lp_names), type, *val, use_conv_opt, is_trusted)));
+         (is_abbrev ? mk_definition(c_real_name, names(lp_names), type, *val, reducibility_hints::mk_abbreviation(), is_meta) :
+          mk_definition(new_env, c_real_name, names(lp_names), type, *val, use_conv_opt, is_meta)));
     auto cdef         = check(p, new_env, c_name, def, pos);
     new_env           = module::add(new_env, cdef);
 
@@ -702,9 +702,9 @@ static void check_example(environment const & decl_env, options const & opts,
         finalize_definition(elab, params_buf, type, val, univ_params_buf, modifiers.m_is_meta);
 
         bool use_conv_opt = true;
-        bool is_trusted  = !modifiers.m_is_meta;
+        bool is_meta      = modifiers.m_is_meta;
         auto new_env = elab.env();
-        auto def = mk_definition(new_env, decl_name, names(univ_params_buf), type, val, use_conv_opt, is_trusted);
+        auto def = mk_definition(new_env, decl_name, names(univ_params_buf), type, val, use_conv_opt, is_meta);
         auto cdef = check(new_env, def);
         new_env = module::add(new_env, cdef);
         check_noncomputable(noncomputable_theory, new_env, decl_name, def.get_name(), modifiers.m_is_noncomputable,

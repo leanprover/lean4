@@ -52,7 +52,7 @@ bool declaration::is_definition() const    { return static_cast<bool>(m_ptr->m_v
 bool declaration::is_constant_assumption() const { return !is_definition(); }
 bool declaration::is_axiom() const         { return is_constant_assumption() && m_ptr->m_theorem; }
 bool declaration::is_theorem() const       { return is_definition() && m_ptr->m_theorem; }
-bool declaration::is_trusted() const       { return m_ptr->m_trusted; }
+bool declaration::is_meta() const          { return m_ptr->m_meta; }
 
 name const & declaration::get_name() const { return m_ptr->m_name; }
 level_param_names const & declaration::get_univ_params() const { return m_ptr->m_params; }
@@ -66,8 +66,8 @@ expr const & declaration::get_value() const {
 reducibility_hints const & declaration::get_hints() const { return m_ptr->m_hints; }
 
 declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v,
-                          reducibility_hints const & h, bool trusted) {
-    return declaration(new declaration::cell(n, params, t, v, h, trusted));
+                          reducibility_hints const & h, bool meta) {
+    return declaration(new declaration::cell(n, params, t, v, h, meta));
 }
 static unsigned get_max_height(environment const & env, expr const & v) {
     unsigned h = 0;
@@ -83,27 +83,27 @@ static unsigned get_max_height(environment const & env, expr const & v) {
 }
 
 declaration mk_definition(environment const & env, name const & n, level_param_names const & params, expr const & t,
-                          expr const & v, bool use_self_opt, bool trusted) {
+                          expr const & v, bool use_self_opt, bool meta) {
     unsigned h = get_max_height(env, v);
-    return mk_definition(n, params, t, v, reducibility_hints::mk_regular(h+1, use_self_opt), trusted);
+    return mk_definition(n, params, t, v, reducibility_hints::mk_regular(h+1, use_self_opt), meta);
 }
 declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v) {
     return declaration(new declaration::cell(n, params, t, v));
 }
 declaration mk_axiom(name const & n, level_param_names const & params, expr const & t) {
-    return declaration(new declaration::cell(n, params, t, true, true));
+    return declaration(new declaration::cell(n, params, t, true, false));
 }
-declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t, bool trusted) {
-    return declaration(new declaration::cell(n, params, t, false, trusted));
+declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t, bool meta) {
+    return declaration(new declaration::cell(n, params, t, false, meta));
 }
 
-bool use_untrusted(environment const & env, expr const & e) {
+bool use_meta(environment const & env, expr const & e) {
     bool found = false;
     for_each(e, [&](expr const & e, unsigned) {
             if (found) return false;
             if (is_constant(e)) {
                 if (auto d = env.find(const_name(e))) {
-                    if (!d->is_trusted()) {
+                    if (d->is_meta()) {
                         found = true;
                         return false;
                     }
@@ -114,20 +114,22 @@ bool use_untrusted(environment const & env, expr const & e) {
     return found;
 }
 
-declaration mk_definition_inferring_trusted(environment const & env, name const & n, level_param_names const & params,
+declaration mk_definition_inferring_meta(environment const & env, name const & n, level_param_names const & params,
                                             expr const & t, expr const & v, reducibility_hints const & hints) {
-    bool trusted = !use_untrusted(env, t) && !use_untrusted(env, v);
-    return mk_definition(n, params, t, v, hints, trusted);
+    bool meta = use_meta(env, t) || use_meta(env, v);
+    return mk_definition(n, params, t, v, hints, meta);
 }
-declaration mk_definition_inferring_trusted(environment const & env, name const & n, level_param_names const & params,
-                                            expr const & t, expr const & v, bool use_self_opt) {
-    bool trusted = !use_untrusted(env, t) && !use_untrusted(env, v);
-    unsigned h   = get_max_height(env, v);
-    return mk_definition(n, params, t, v, reducibility_hints::mk_regular(h+1, use_self_opt), trusted);
+
+declaration mk_definition_inferring_meta(environment const & env, name const & n, level_param_names const & params,
+                                         expr const & t, expr const & v, bool use_self_opt) {
+    bool meta  = use_meta(env, t) && use_meta(env, v);
+    unsigned h = get_max_height(env, v);
+    return mk_definition(n, params, t, v, reducibility_hints::mk_regular(h+1, use_self_opt), meta);
 }
-declaration mk_constant_assumption_inferring_trusted(environment const & env, name const & n,
-                                                     level_param_names const & params, expr const & t) {
-    return mk_constant_assumption(n, params, t, !use_untrusted(env, t));
+
+declaration mk_constant_assumption_inferring_meta(environment const & env, name const & n,
+                                                  level_param_names const & params, expr const & t) {
+    return mk_constant_assumption(n, params, t, use_meta(env, t));
 }
 
 void initialize_declaration() {

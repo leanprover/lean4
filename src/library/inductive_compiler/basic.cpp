@@ -70,7 +70,7 @@ class add_basic_inductive_decl_fn {
     options const &                       m_opts;
     name_map<implicit_infer_kind> const & m_implicit_infer_map;
     ginductive_decl const &               m_decl;
-    bool                                  m_is_trusted;
+    bool                                  m_is_meta;
     void mk_basic_aux_decls() {
         name ind_name = mlocal_name(m_decl.get_inds()[0]);
 
@@ -110,7 +110,7 @@ class add_basic_inductive_decl_fn {
             m_env = mk_binduction_on(m_env, ind_name);
         }
 
-        if (m_is_trusted)
+        if (!m_is_meta)
             m_env = mk_has_sizeof(m_env, ind_name);
     }
 
@@ -134,13 +134,13 @@ class add_basic_inductive_decl_fn {
             lean_trace(name({"inductive_compiler", "basic", "irs"}), tout() << mlocal_name(ir) << " : " << new_ir_type << "\n";);
         }
         inductive_decl kdecl(mlocal_name(ind), names(lp_names), params.size(), new_ind_type, to_list(new_intro_rules));
-        m_env = module::add_inductive(m_env, kdecl, m_is_trusted);
+        m_env = module::add_inductive(m_env, kdecl, m_is_meta);
     }
 
 public:
     add_basic_inductive_decl_fn(environment const & env, options const & opts, name_map<implicit_infer_kind> implicit_infer_map,
-                                ginductive_decl const & decl, bool is_trusted):
-        m_env(env), m_opts(opts), m_implicit_infer_map(implicit_infer_map), m_decl(decl), m_is_trusted(is_trusted) {}
+                                ginductive_decl const & decl, bool is_meta):
+        m_env(env), m_opts(opts), m_implicit_infer_map(implicit_infer_map), m_decl(decl), m_is_meta(is_meta) {}
 
     environment operator()() {
         send_to_kernel();
@@ -150,8 +150,8 @@ public:
 };
 
 environment add_basic_inductive_decl(environment const & env, options const & opts, name_map<implicit_infer_kind> implicit_infer_map,
-                                     ginductive_decl const & decl, bool is_trusted) {
-    return add_basic_inductive_decl_fn(env, opts, implicit_infer_map, decl, is_trusted)();
+                                     ginductive_decl const & decl, bool is_meta) {
+    return add_basic_inductive_decl_fn(env, opts, implicit_infer_map, decl, is_meta)();
 }
 
 void initialize_inductive_compiler_basic() {

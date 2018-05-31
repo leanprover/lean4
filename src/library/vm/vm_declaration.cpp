@@ -60,16 +60,16 @@ vm_obj to_obj(declaration const & n) {
 }
 
 vm_obj declaration_defn(vm_obj const & n, vm_obj const & ls, vm_obj const & type, vm_obj const & value,
-                        vm_obj const & hints, vm_obj const & trusted) {
-    return to_obj(mk_definition(to_name(n), to_names(ls), to_expr(type), to_expr(value), to_reducibility_hints(hints), to_bool(trusted)));
+                        vm_obj const & hints, vm_obj const & meta) {
+    return to_obj(mk_definition(to_name(n), to_names(ls), to_expr(type), to_expr(value), to_reducibility_hints(hints), to_bool(meta)));
 }
 
 vm_obj declaration_thm(vm_obj const & n, vm_obj const & ls, vm_obj const & type, vm_obj const & value) {
     return to_obj(mk_theorem(to_name(n), to_names(ls), to_expr(type), to_expr(value)));
 }
 
-vm_obj declaration_cnst(vm_obj const & n, vm_obj const & ls, vm_obj const & type, vm_obj const & trusted) {
-    return to_obj(mk_constant_assumption(to_name(n), to_names(ls), to_expr(type), to_bool(trusted)));
+vm_obj declaration_cnst(vm_obj const & n, vm_obj const & ls, vm_obj const & type, vm_obj const & meta) {
+    return to_obj(mk_constant_assumption(to_name(n), to_names(ls), to_expr(type), to_bool(meta)));
 }
 
 vm_obj declaration_ax(vm_obj const & n, vm_obj const & ls, vm_obj const & type) {
@@ -89,11 +89,11 @@ unsigned declaration_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
     } else if (d.is_definition()) {
         data.push_back(to_obj(d.get_value()));
         data.push_back(to_obj(d.get_hints()));
-        data.push_back(mk_vm_bool(d.is_trusted()));
+        data.push_back(mk_vm_bool(d.is_meta()));
         return 0;
     } else {
         lean_assert(d.is_constant_assumption());
-        data.push_back(mk_vm_bool(d.is_trusted()));
+        data.push_back(mk_vm_bool(d.is_meta()));
         return 2;
     }
 }

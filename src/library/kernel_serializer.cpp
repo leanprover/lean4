@@ -231,7 +231,7 @@ serializer & operator<<(serializer & s, declaration const & d) {
         k |= 1;
     if (d.is_theorem() || d.is_axiom())
         k |= 2;
-    if (d.is_trusted())
+    if (d.is_meta())
         k |= 4;
     s << k << d.get_name() << d.get_univ_params() << d.get_type();
     if (d.is_definition()) {
@@ -246,7 +246,7 @@ declaration read_declaration(deserializer & d) {
     char k               = d.read_char();
     bool has_value       = (k & 1) != 0;
     bool is_th_ax        = (k & 2) != 0;
-    bool is_trusted      = (k & 4) != 0;
+    bool is_meta         = (k & 4) != 0;
     name n               = read_name(d);
     level_param_names ps = read_level_params(d);
     expr t               = read_expr(d);
@@ -256,13 +256,13 @@ declaration read_declaration(deserializer & d) {
             return mk_theorem(n, ps, t, v);
         } else {
             reducibility_hints hints = read_hints(d);
-            return mk_definition(n, ps, t, v, hints, is_trusted);
+            return mk_definition(n, ps, t, v, hints, is_meta);
         }
     } else {
         if (is_th_ax)
             return mk_axiom(n, ps, t);
         else
-            return mk_constant_assumption(n, ps, t, is_trusted);
+            return mk_constant_assumption(n, ps, t, is_meta);
     }
 }
 
@@ -308,7 +308,7 @@ inductive_decl read_inductive_decl(deserializer & d) {
 serializer & operator<<(serializer & s, certified_inductive_decl const & d) {
     s << d.get_num_ACe() << d.elim_prop_only() << d.has_dep_elim()
       << d.get_elim_levels() << d.get_elim_type() << d.get_decl()
-      << d.is_K_target() << d.get_num_indices() << d.is_trusted();
+      << d.is_K_target() << d.get_num_indices() << d.is_meta();
     write_list<certified_inductive_decl::comp_rule>(s, d.get_comp_rules());
     return s;
 }
@@ -324,10 +324,10 @@ public:
         inductive_decl decl  = read_inductive_decl(d);
         bool       K         = d.read_bool();
         unsigned   nind      = d.read_unsigned();
-        bool is_trusted      = d.read_bool();
+        bool is_meta         = d.read_bool();
         auto rs              = read_list<certified_inductive_decl::comp_rule>(d, read_comp_rule);
         return certified_inductive_decl(nACe, elim_prop, dep_elim, ls, elim_type, decl,
-                                        K, nind, rs, is_trusted);
+                                        K, nind, rs, is_meta);
     }
 };
 

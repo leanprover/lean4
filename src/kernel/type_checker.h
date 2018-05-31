@@ -32,7 +32,7 @@ class type_checker : public abstract_type_context {
     environment               m_env;
     name_generator            m_name_generator;
     bool                      m_memoize;
-    bool                      m_trusted_only;
+    bool                      m_non_meta_only;
     cache                     m_infer_type_cache[2];
     expr_map<expr>            m_whnf_core_cache;
     expr_map<expr>            m_whnf_cache;
@@ -79,8 +79,10 @@ class type_checker : public abstract_type_context {
 
 public:
     /** \brief Create a type checker for the given environment.
-       memoize: if true, then inferred types are memoized/cached */
-    type_checker(environment const & env, bool memoize = true, bool trusted_only = true);
+        memoize: if true, then inferred types are memoized/cached.
+
+    */
+    type_checker(environment const & env, bool memoize = true, bool non_meta_only = true);
     ~type_checker();
 
     virtual environment const & env() const { return m_env; }
@@ -100,8 +102,6 @@ public:
     /** \brief Like \c check, but ignores undefined universes */
     expr check_ignore_undefined_universes(expr const & e);
     virtual expr check(expr const & t) { return check_ignore_undefined_universes(t); }
-
-    virtual bool is_trusted_only() const { return m_trusted_only; }
 
     /** \brief Return true iff t is definitionally equal to s. */
     virtual bool is_def_eq(expr const & t, expr const & s);

@@ -122,8 +122,8 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
     }
     expr no_confusion_type_value = Fun(args, mk_app(cases_on1, outer_cases_on_args));
 
-    declaration new_d = mk_definition_inferring_trusted(env, no_confusion_type_name, lps, no_confusion_type_type, no_confusion_type_value,
-                                                        reducibility_hints::mk_abbreviation());
+    declaration new_d = mk_definition_inferring_meta(env, no_confusion_type_name, lps, no_confusion_type_type, no_confusion_type_value,
+                                                     reducibility_hints::mk_abbreviation());
     environment new_env = module::add(env, check(env, new_d));
     new_env = set_reducible(new_env, no_confusion_type_name, reducible_status::Reducible, true);
     return some(add_protected(new_env, no_confusion_type_name));
@@ -232,8 +232,8 @@ environment mk_no_confusion(environment const & env, name const & n) {
     eq_rec = mk_app(mk_app(eq_rec, rec_type_former, gen, v2, H12), H12);
     //
     expr no_confusion_val = Fun(args, eq_rec);
-    declaration new_d = mk_definition_inferring_trusted(new_env, no_confusion_name, lps, no_confusion_ty, no_confusion_val,
-                                                        reducibility_hints::mk_abbreviation());
+    declaration new_d = mk_definition_inferring_meta(new_env, no_confusion_name, lps, no_confusion_ty, no_confusion_val,
+                                                     reducibility_hints::mk_abbreviation());
     new_env = module::add(new_env, check(new_env, new_d));
     new_env = set_reducible(new_env, no_confusion_name, reducible_status::Reducible, true);
     new_env = add_no_confusion(new_env, no_confusion_name);

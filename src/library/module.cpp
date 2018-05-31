@@ -373,7 +373,7 @@ struct inductive_modification : public modification {
             d.m_intro_rules = map(d.m_intro_rules, [&](inductive::intro_rule const & r) {
                 return unfold_untrusted_macros(env, r);
             });
-            env = add_inductive(env, d, m_decl.is_trusted()).first;
+            env = add_inductive(env, d, m_decl.is_meta()).first;
         } else {
             env = m_decl.add(env);
         }
@@ -464,8 +464,8 @@ using inductive::certified_inductive_decl;
 
 environment add_inductive(environment                       env,
                           inductive::inductive_decl const & decl,
-                          bool                              is_trusted) {
-    pair<environment, certified_inductive_decl> r = inductive::add_inductive(env, decl, is_trusted);
+                          bool                              is_meta) {
+    pair<environment, certified_inductive_decl> r = inductive::add_inductive(env, decl, is_meta);
     environment new_env             = r.first;
     certified_inductive_decl cidecl = r.second;
     module_ext ext = get_extension(env);

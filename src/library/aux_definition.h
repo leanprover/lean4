@@ -107,7 +107,7 @@ public:
 
     where l_i's and a_j's are the collected dependencies.
 
-    If is_meta is none, then function also computes whether the new definition should be tagged as trusted or not.
+    If is_meta is none, then function also computes whether the new definition should be tagged as meta or not.
 
     The updated environment is an extension of ctx.env() */
 pair<environment, expr> mk_aux_definition(environment const & env, metavar_context const & mctx, local_context const & lctx,

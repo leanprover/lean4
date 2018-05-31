@@ -87,7 +87,7 @@ class add_nested_inductive_decl_fn {
     name_map<implicit_infer_kind> m_implicit_infer_map;
     // Note(dhs): m_nested_decl is morally const, but we make it non-const to pass around sizeof_lemmas
     ginductive_decl &             m_nested_decl;
-    bool                          m_is_trusted;
+    bool                          m_is_meta;
     ginductive_decl               m_inner_decl;
 
     type_context_old                  m_tctx;
@@ -277,7 +277,7 @@ class add_nested_inductive_decl_fn {
 
     void add_inner_decl() {
         try {
-            m_env = add_inner_inductive_declaration(m_env, m_ngen, m_opts, m_implicit_infer_map, m_inner_decl, m_is_trusted);
+            m_env = add_inner_inductive_declaration(m_env, m_ngen, m_opts, m_implicit_infer_map, m_inner_decl, m_is_meta);
         } catch (exception & ex) {
             throw nested_exception(sstream() << "nested inductive type compiled to invalid inductive type", ex);
         }
@@ -370,7 +370,7 @@ class add_nested_inductive_decl_fn {
     void define_theorem(name const & n, expr const & ty, expr const & val) {
         assert_no_locals(n, ty);
         assert_no_locals(n, val);
-        declaration d = mk_definition_inferring_trusted(m_env, n, names(m_nested_decl.get_lp_names()), ty, val, true);
+        declaration d = mk_definition_inferring_meta(m_env, n, names(m_nested_decl.get_lp_names()), ty, val, true);
         try {
             m_env = module::add(m_env, check(m_env, d));
             lean_trace(name({"inductive_compiler", "nested", "define", "success"}), tout() << n << " : " << ty << "\n";);
@@ -388,7 +388,7 @@ class add_nested_inductive_decl_fn {
     void define(name const & n, expr const & ty, expr const & val, level_param_names const & lp_names) {
         assert_no_locals(n, ty);
         assert_no_locals(n, val);
-        declaration d = mk_definition_inferring_trusted(m_env, n, lp_names, ty, val, true);
+        declaration d = mk_definition_inferring_meta(m_env, n, lp_names, ty, val, true);
         try {
             m_env = module::add(m_env, check(m_env, d));
             lean_trace(name({"inductive_compiler", "nested", "define", "success"}), tout() << n << " : " << ty << " :=\n  " << val << "\n";);
@@ -817,7 +817,7 @@ class add_nested_inductive_decl_fn {
                        << has_sizeof_name << " : " << has_sizeof_type << " :=\n  " << has_sizeof_val << "\n";);
             lean_assert(!has_local(has_sizeof_type));
             lean_assert(!has_local(has_sizeof_val));
-            m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, has_sizeof_name, names(m_nested_decl.get_lp_names()), has_sizeof_type, has_sizeof_val, true)));
+            m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, has_sizeof_name, names(m_nested_decl.get_lp_names()), has_sizeof_type, has_sizeof_val, true)));
             m_env = add_instance(m_env, has_sizeof_name, LEAN_DEFAULT_PRIORITY, true);
             m_env = add_protected(m_env, sizeof_name);
             m_tctx.set_env(m_env);
@@ -897,7 +897,7 @@ class add_nested_inductive_decl_fn {
                 lean_trace(name({"inductive_compiler", "nested", "sizeof"}), tout()
                            << sizeof_spec_name << " : " << sizeof_spec_type << " :=\n  " << sizeof_spec_val << "\n";);
 
-                m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, sizeof_spec_name, names(m_nested_decl.get_lp_names()), sizeof_spec_type, sizeof_spec_val, true)));
+                m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, sizeof_spec_name, names(m_nested_decl.get_lp_names()), sizeof_spec_type, sizeof_spec_val, true)));
                 lean_trace(name({"inductive_compiler", "nested", "sizeof"}), tout() << "[defined]: " << sizeof_spec_name << "\n";);
 
                 m_env = add_eqn_lemma(m_env, sizeof_spec_name);
@@ -1667,7 +1667,7 @@ class add_nested_inductive_decl_fn {
         args.push_back(to_obj(mk_primitive_name(fn_type::UNPACK_PACK)));
         args.push_back(to_obj(mk_primitive_name(fn_type::UNPACK)));
         expr proof = prove_pack_injective(lemma_name, goal, mk_primitive_name(fn_type::UNPACK), mk_primitive_name(fn_type::UNPACK_PACK));
-        m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, lemma_name, names(m_nested_decl.get_lp_names()), goal, proof, true)));
+        m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, lemma_name, names(m_nested_decl.get_lp_names()), goal, proof, true)));
         m_tctx.set_env(m_env);
         m_inj_lemmas = add(m_tctx, m_inj_lemmas, lemma_name, LEAN_DEFAULT_PRIORITY);
     }
@@ -1721,7 +1721,7 @@ class add_nested_inductive_decl_fn {
         args.push_back(to_obj(mk_nested_name(fn_type::UNPACK_PACK, nest_idx)));
         args.push_back(to_obj(mk_nested_name(fn_type::UNPACK, nest_idx)));
         expr proof = prove_pack_injective(lemma_name, goal, mk_nested_name(fn_type::UNPACK, nest_idx), mk_nested_name(fn_type::UNPACK_PACK, nest_idx));
-        m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, lemma_name, names(m_nested_decl.get_lp_names()), goal, proof, true)));
+        m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, lemma_name, names(m_nested_decl.get_lp_names()), goal, proof, true)));
         m_tctx.set_env(m_env);
         m_inj_lemmas = add(m_tctx, m_inj_lemmas, lemma_name, LEAN_DEFAULT_PRIORITY);
     }
@@ -1818,7 +1818,7 @@ class add_nested_inductive_decl_fn {
         args.push_back(to_obj(mk_pi_name(fn_type::UNPACK_PACK)));
         args.push_back(to_obj(mk_pi_name(fn_type::UNPACK)));
         expr proof = prove_pack_injective(lemma_name, goal, mk_pi_name(fn_type::UNPACK), mk_pi_name(fn_type::UNPACK_PACK));
-        m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, lemma_name, names(m_nested_decl.get_lp_names()), goal, proof, true)));
+        m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, lemma_name, names(m_nested_decl.get_lp_names()), goal, proof, true)));
         m_tctx.set_env(m_env);
         m_inj_lemmas = add(m_tctx, m_inj_lemmas, lemma_name, LEAN_DEFAULT_PRIORITY);
     }
@@ -2291,13 +2291,13 @@ class add_nested_inductive_decl_fn {
                 expr inj_val = prove_nested_injective(inj_type, m_inj_lemmas, inj_arrow_name);
                 m_env = module::add(m_env,
                                     check(m_env,
-                                          mk_definition_inferring_trusted(m_env, inj_name, lp_names, inj_type, inj_val, true)));
+                                          mk_definition_inferring_meta(m_env, inj_name, lp_names, inj_type, inj_val, true)));
                 m_env = mk_injective_arrow(m_env, ir_name);
                 if (m_env.find(get_tactic_mk_inj_eq_name())) {
                     name inj_eq_name  = mk_injective_eq_name(ir_name);
                     expr inj_eq_type  = mk_injective_eq_type(m_env, ir_name, ir_type, num_params, lp_names);
                     expr inj_eq_value = prove_injective_eq(m_env, inj_eq_type, inj_eq_name);
-                    m_env = module::add(m_env, check(m_env, mk_definition_inferring_trusted(m_env, inj_eq_name, lp_names, inj_eq_type, inj_eq_value, true)));
+                    m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, inj_eq_name, lp_names, inj_eq_type, inj_eq_value, true)));
                 }
             }
         }
@@ -2307,9 +2307,9 @@ class add_nested_inductive_decl_fn {
 public:
     add_nested_inductive_decl_fn(environment const & env, name_generator & ngen, options const & opts,
                                  name_map<implicit_infer_kind> const & implicit_infer_map,
-                                 ginductive_decl & nested_decl, bool is_trusted):
+                                 ginductive_decl & nested_decl, bool is_meta):
         m_env(env), m_ngen(ngen), m_opts(opts), m_implicit_infer_map(implicit_infer_map),
-        m_nested_decl(nested_decl), m_is_trusted(is_trusted),
+        m_nested_decl(nested_decl), m_is_meta(is_meta),
         m_inner_decl(m_nested_decl.get_nest_depth() + 1, m_nested_decl.get_lp_names(), m_nested_decl.get_params(),
                      m_nested_decl.get_num_indices(), m_nested_decl.get_ir_offsets()),
         m_tctx(env, opts, transparency_mode::Semireducible) { }
@@ -2347,8 +2347,8 @@ public:
 
 optional<environment> add_nested_inductive_decl(environment const & env, name_generator & ngen, options const & opts,
                                                 name_map<implicit_infer_kind> const & implicit_infer_map,
-                                                ginductive_decl & decl, bool is_trusted) {
-    return add_nested_inductive_decl_fn(env, ngen, opts, implicit_infer_map, decl, is_trusted)();
+                                                ginductive_decl & decl, bool is_meta) {
+    return add_nested_inductive_decl_fn(env, ngen, opts, implicit_infer_map, decl, is_meta)();
 }
 
 void initialize_inductive_compiler_nested() {

@@ -88,7 +88,7 @@ static void print_axioms(parser & p, message_builder & out) {
         bool has_axioms = false;
         p.env().for_each_declaration([&](declaration const & d) {
                 name const & n = d.get_name();
-                if (!d.is_definition() && !p.env().is_builtin(n) && d.is_trusted()) {
+                if (!d.is_definition() && !p.env().is_builtin(n) && !d.is_meta()) {
                     out << n << " : " << d.get_type() << endl;
                     has_axioms = true;
                 }
@@ -328,7 +328,7 @@ static bool print_constant(parser const & p, message_builder & out, char const *
         out << "protected ";
     if (d.is_definition() && is_marked_noncomputable(p.env(), d.get_name()))
         out << "noncomputable ";
-    if (!d.is_trusted())
+    if (d.is_meta())
         out << "meta ";
     out << kind << " " << to_user_name(p.env(), d.get_name());
     out.get_text_stream().update_options(out.get_text_stream().get_options().update((name {"pp", "binder_types"}), true))

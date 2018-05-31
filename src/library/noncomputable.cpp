@@ -80,7 +80,7 @@ static bool is_noncomputable(type_checker & tc, noncomputable_ext const & ext, n
     if (ext.m_noncomputable.contains(n))
         return true;
     declaration const & d = env.get(n);
-    if (!d.is_trusted()) {
+    if (d.is_meta()) {
         return false; /* ignore nontrusted definitions */
     } else if (d.is_axiom() && !tc.is_prop(d.get_type())) {
         return true;

@@ -126,8 +126,8 @@ static environment declare_var(parser & p, environment env,
         if (k == variable_kind::Axiom) {
             env = module::add(env, check(env, mk_axiom(full_n, ls, new_type)));
         } else {
-            bool is_trusted = !meta.m_modifiers.m_is_meta;
-            env = module::add(env, check(env, mk_constant_assumption(full_n, ls, new_type, is_trusted)));
+            bool is_meta = meta.m_modifiers.m_is_meta;
+            env = module::add(env, check(env, mk_constant_assumption(full_n, ls, new_type, is_meta)));
         }
         if (meta.m_doc_string)
             env = add_doc_string(env, full_n, *meta.m_doc_string);

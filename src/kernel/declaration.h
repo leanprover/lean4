@@ -76,23 +76,20 @@ class declaration {
         bool               m_theorem;
         optional<expr>     m_value;        // if none, then declaration is actually a postulate
         reducibility_hints m_hints;
-        /* Definitions are trusted by default, and nested macros are expanded when kernel is instantiated with
-           trust level 0. When this flag is false, then we do not expand nested macros. We say the
-           associated definitions are "untrusted". We use this feature to define tactical-definitions.
-           The kernel type checker ensures trusted definitions do not use untrusted ones. */
-        bool              m_trusted;
+        /* Definitions are non-meta by default. We use this feature to define tactical-definitions. */
+        bool               m_meta;
         void dealloc() { delete this; }
 
-        cell(name const & n, level_param_names const & params, expr const & t, bool is_axiom, bool trusted):
+        cell(name const & n, level_param_names const & params, expr const & t, bool is_axiom, bool meta):
             m_rc(1), m_name(n), m_params(params), m_type(t), m_theorem(is_axiom),
-            m_hints(reducibility_hints::mk_opaque()), m_trusted(trusted) {}
+            m_hints(reducibility_hints::mk_opaque()), m_meta(meta) {}
         cell(name const & n, level_param_names const & params, expr const & t, expr const & v,
-             reducibility_hints const & h, bool trusted):
+             reducibility_hints const & h, bool meta):
             m_rc(1), m_name(n), m_params(params), m_type(t), m_theorem(false),
-            m_value(v), m_hints(h), m_trusted(trusted) {}
+            m_value(v), m_hints(h), m_meta(meta) {}
         cell(name const & n, level_param_names const & params, expr const & t, expr const & v):
             m_rc(1), m_name(n), m_params(params), m_type(t), m_theorem(true),
-            m_value(v), m_hints(reducibility_hints::mk_opaque()), m_trusted(true) {}
+            m_value(v), m_hints(reducibility_hints::mk_opaque()), m_meta(false) {}
     };
     cell * m_ptr;
     explicit declaration(cell * ptr);
@@ -123,7 +120,7 @@ public:
     bool is_theorem() const;
     bool is_constant_assumption() const;
 
-    bool is_trusted() const;
+    bool is_meta() const;
 
     name const & get_name() const;
     level_param_names const & get_univ_params() const;
@@ -134,12 +131,12 @@ public:
     reducibility_hints const & get_hints() const;
 
     friend declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v,
-                                     reducibility_hints const & hints, bool trusted);
+                                     reducibility_hints const & hints, bool meta);
     friend declaration mk_definition(environment const & env, name const & n, level_param_names const & params, expr const & t,
-                                     expr const & v, bool use_conv_opt, bool trusted);
+                                     expr const & v, bool use_conv_opt, bool meta);
     friend declaration mk_theorem(name const &, level_param_names const &, expr const &, expr const &);
     friend declaration mk_axiom(name const & n, level_param_names const & params, expr const & t);
-    friend declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t, bool trusted);
+    friend declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t, bool meta);
 };
 
 inline optional<declaration> none_declaration() { return optional<declaration>(); }
@@ -147,27 +144,27 @@ inline optional<declaration> some_declaration(declaration const & o) { return op
 inline optional<declaration> some_declaration(declaration && o) { return optional<declaration>(std::forward<declaration>(o)); }
 
 declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v,
-                          reducibility_hints const & hints, bool trusted = true);
+                          reducibility_hints const & hints, bool meta = false);
 declaration mk_definition(environment const & env, name const & n, level_param_names const & params, expr const & t, expr const & v,
-                          bool use_conv_opt = true, bool trusted = true);
+                          bool use_conv_opt = true, bool meta = false);
 declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v);
 declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v);
 declaration mk_axiom(name const & n, level_param_names const & params, expr const & t);
-declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t, bool trusted = true);
+declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t, bool meta = false);
 
 /** \brief Return true iff \c e depends on meta-declarations */
-bool use_untrusted(environment const & env, expr const & e);
+bool use_meta(environment const & env, expr const & e);
 
-/** \brief Similar to mk_definition but infer the value of trusted flag.
-    That is, set it to false if \c t or \c v contains a untrusted declaration. */
-declaration mk_definition_inferring_trusted(environment const & env, name const & n, level_param_names const & params,
-                                            expr const & t, expr const & v, reducibility_hints const & hints);
-declaration mk_definition_inferring_trusted(environment const & env, name const & n, level_param_names const & params,
-                                            expr const & t, expr const & v, bool use_self_opt);
-/** \brief Similar to mk_constant_assumption but infer the value of trusted flag.
-    That is, set it to false if \c t or \c v contains a untrusted declaration. */
-declaration mk_constant_assumption_inferring_trusted(environment const & env, name const & n,
-                                                     level_param_names const & params, expr const & t);
+/** \brief Similar to mk_definition but infer the value of meta flag.
+    That is, set it to true if \c t or \c v contains a meta declaration. */
+declaration mk_definition_inferring_meta(environment const & env, name const & n, level_param_names const & params,
+                                         expr const & t, expr const & v, reducibility_hints const & hints);
+declaration mk_definition_inferring_meta(environment const & env, name const & n, level_param_names const & params,
+                                         expr const & t, expr const & v, bool use_self_opt);
+/** \brief Similar to mk_constant_assumption but infer the value of meta flag.
+    That is, set it to true if \c t or \c v contains a meta declaration. */
+declaration mk_constant_assumption_inferring_meta(environment const & env, name const & n,
+                                                  level_param_names const & params, expr const & t);
 
 void initialize_declaration();
 void finalize_declaration();

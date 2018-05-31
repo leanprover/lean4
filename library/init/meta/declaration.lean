@@ -84,7 +84,7 @@ meta def value : declaration → expr
 | (thm _ _ _ v)      := v
 | _                  := default expr
 
-meta def is_trusted : declaration → bool
+meta def is_meta : declaration → bool
 | (defn _ _ _ _ _ t) := t
 | (cnst _ _ _ t)     := t
 | _                  := tt

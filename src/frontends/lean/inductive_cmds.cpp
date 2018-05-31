@@ -705,7 +705,7 @@ public:
         parse_result r;
         parse(r);
         m_env = add_inductive_declaration(m_p.env(), m_p.get_options(), m_implicit_infer_map, m_lp_names, r.m_params,
-                                          r.m_inds, r.m_intro_rules, !m_meta_info.m_modifiers.m_is_meta);
+                                          r.m_inds, r.m_intro_rules, m_meta_info.m_modifiers.m_is_meta);
         post_process(r.m_params, r.m_inds, r.m_intro_rules);
         return m_env;
     }

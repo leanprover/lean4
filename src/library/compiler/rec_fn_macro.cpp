@@ -34,10 +34,7 @@ public:
 
     virtual void display(std::ostream & out) const override { out << m_name; }
 
-    virtual expr check_type(expr const & m, abstract_type_context & tc, bool) const override {
-        if (tc.is_trusted_only()) {
-            throw exception("rec_fn_macro only allowed in meta definitions");
-        }
+    virtual expr check_type(expr const & m, abstract_type_context & /* tc */, bool) const override {
         check_macro(m);
         return macro_arg(m, 0);
     }

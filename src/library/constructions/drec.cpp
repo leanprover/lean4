@@ -197,9 +197,9 @@ struct mk_drec_fn {
         expr rec_cnst     = mk_constant(I_rec_name, lvls);
         expr drec_value   = Fun(drec_params, mk_app(rec_cnst, rec_args));
         name drec_name    = mk_drec_name();
-        declaration new_d = mk_definition_inferring_trusted(env, drec_name, I_rec_decl.get_univ_params(),
-                                                            drec_type, drec_value,
-                                                            reducibility_hints::mk_abbreviation());
+        declaration new_d = mk_definition_inferring_meta(env, drec_name, I_rec_decl.get_univ_params(),
+                                                         drec_type, drec_value,
+                                                         reducibility_hints::mk_abbreviation());
         environment new_env = module::add(env, check(env, new_d));
         new_env = set_reducible(new_env, drec_name, reducible_status::Reducible, true);
         new_env = add_aux_recursor(new_env, drec_name);

@@ -19,8 +19,8 @@ Author: Leonardo de Moura
 #include "kernel/normalizer_extension.h"
 
 #ifndef LEAN_BELIEVER_TRUST_LEVEL
-// If an environment E is created with a trust level > LEAN_BELIEVER_TRUST_LEVEL, then
-// we can add declarations to E without type checking them.
+/* If an environment E is created with a trust level > LEAN_BELIEVER_TRUST_LEVEL, then
+   we can add declarations to E without type checking them. */
 #define LEAN_BELIEVER_TRUST_LEVEL 1024
 #endif
 
@@ -33,15 +33,12 @@ namespace inductive { class certified_inductive_decl; }
 typedef std::function<bool(name const &)> extra_opaque_pred; // NOLINT
 extra_opaque_pred const & no_extra_opaque();
 
-/**
-   \brief The header of an environment is created when we create the empty environment.
-   Moreover if environment B is an extension of environment A, then A and B share the same header.
-*/
+/** \brief The header of an environment is created when we create the empty environment.
+    Moreover if environment B is an extension of environment A, then A and B share the same header. */
 class environment_header {
     /* In the following field, 0 means untrusted mode (i.e., check everything),
        higher level allow us to trust the implementation of macros, and even
-       allow us to add declarations without type checking them (e.g., m_trust_lvl > LEAN_BELIEVER_TRUST_LEVEL)
-    */
+       allow us to add declarations without type checking them (e.g., m_trust_lvl > LEAN_BELIEVER_TRUST_LEVEL) */
     unsigned m_trust_lvl;
     std::unique_ptr<normalizer_extension const> m_norm_ext;
     void dealloc();
@@ -60,17 +57,33 @@ public:
 
 typedef std::vector<std::shared_ptr<environment_extension const>> environment_extensions;
 
-/** \brief environment identifier for tracking descendants of a given environment. */
+/** \brief environment identifier for tracking descendants of a given environment.
+
+    It is used in the following places:
+    1) `environment::add`: to check whether the certified declaration has been type checked
+       in an "ancestor" of the `this` environment.
+
+    2) `environment::replace`: (similar to previous case) to check whether the new declaration
+       has been type checked in an "ancestor" of the `this` environment.
+
+    3) `tactic.set_env`: to check whether the new environment is a descendant of the environment
+       in the current `tactic_state` object.
+
+    4) `vm::update_env`: similar to case 3.
+
+    5) To check whether user_attribute and simp_lemmas thread local caches needs to be reset or not.
+
+    Cases 1 and 2 are needed for soundness. Cases 3 and 4 are necessary to enforce invariants that
+    we assume in the frontend, otherwise user defined tactics may break the system. Case 5 can
+    be avoided after we stop using thread local caches. */
 class environment_id {
     friend class environment_id_tester;
     friend class environment; // Only the environment class can create object of this type.
     struct path;
     path *   m_ptr;
     unsigned m_depth;
-    /**
-        \brief Create an identifier for an environment that is a direct descendant of the given one.
-        The bool field is just to make sure this constructor is not confused with a copy constructor
-    */
+    /** \brief Create an identifier for an environment that is a direct descendant of the given one.
+        The bool field is just to make sure this constructor is not confused with a copy constructor */
     environment_id(environment_id const & ancestor, bool);
     /** \brief Create an identifier for an environment without ancestors (e.g., empty environment) */
     environment_id();
@@ -87,13 +100,11 @@ public:
     bool is_descendant(environment_id const & id) const;
 };
 
-/**
-   \brief Lean core environment. An environment object can be extended/customized in different ways:
+/** \brief Lean core environment. An environment object can be extended/customized in different ways:
 
-   1- By providing a normalizer_extension when creating an empty environment.
-   3- By attaching additional data as environment::extensions. The additional data can be added
-      at any time. They contain information used by the automation (e.g., rewriting sets, unification hints, etc).
-*/
+    1- By providing a normalizer_extension when creating an empty environment.
+    2- By attaching additional data as environment::extensions. The additional data can be added
+       at any time. They contain information used by the automation (e.g., rewriting sets, unification hints, etc). */
 class environment {
     typedef std::shared_ptr<environment_header const>     header;
     typedef name_map<declaration>                         declarations;
@@ -133,33 +144,27 @@ public:
     /** \brief Return declaration with name \c n. Throws and exception if declaration does not exist in this environment. */
     declaration get(name const & n) const;
 
-    /**
-       \brief Extends the current environment with the given (certified) declaration
-       This method throws an exception if:
+    /** \brief Extends the current environment with the given (certified) declaration
+        This method throws an exception if:
           - The declaration was certified in an environment which is not an ancestor of this one.
-          - The environment already contains a declaration with the given name.
-    */
+          - The environment already contains a declaration with the given name. */
     environment add(certified_declaration const & d) const;
 
-    /**
-       \brief Replace the axiom with name <tt>t.get_declaration().get_name()</tt> with the theorem t.get_declaration().
-       This method throws an exception if:
+    /** \brief Replace the axiom with name <tt>t.get_declaration().get_name()</tt> with the theorem t.get_declaration().
+        This method throws an exception if:
           - The theorem was certified in an environment which is not an ancestor of this one.
-          - The environment does not contain an axiom named <tt>t.get_declaration().get_name()</tt>
-    */
+          - The environment does not contain an axiom named <tt>t.get_declaration().get_name()</tt> */
     environment replace(certified_declaration const & t) const;
 
-    /**
-       \brief Register an environment extension. Every environment
-       object may contain this extension. The argument \c initial is
-       the initial value for the new extensions. The extension object
-       can be retrieved using the given token (unsigned integer) returned
-       by this method.
+    /** \brief Register an environment extension. Every environment
+        object may contain this extension. The argument \c initial is
+        the initial value for the new extensions. The extension object
+        can be retrieved using the given token (unsigned integer) returned
+        by this method.
 
-       \remark The extension objects are created on demand.
+        \remark The extension objects are created on demand.
 
-       \see get_extension
-    */
+        \see get_extension */
     static unsigned register_extension(std::shared_ptr<environment_extension const> const & initial);
 
     /** \brief Return the extension with the given id. */
@@ -168,11 +173,9 @@ public:
     /** \brief Update the environment extension with the given id. */
     environment update(unsigned extid, std::shared_ptr<environment_extension const> const & ext) const;
 
-    /**
-        \brief Return a new environment, where its "history" has been truncated/forgotten.
+    /** \brief Return a new environment, where its "history" has been truncated/forgotten.
         That is, <tt>is_descendant(e)</tt> will return false for any environment \c e that
-        is not pointer equal to the result.
-    */
+        is not pointer equal to the result. */
     environment forget() const;
 
     /** \brief Apply the function \c f to each declaration */
@@ -195,10 +198,8 @@ void finalize_environment();
 
 class name_generator;
 
-/**
-   \brief A certified declaration is one that has been type checked.
-   Only the type_checker class can create certified declarations.
-*/
+/** \brief A certified declaration is one that has been type checked.
+    Only the type_checker class can create certified declarations. */
 class certified_declaration {
     friend class certify_unchecked;
     friend certified_declaration check(environment const & env, declaration const & d);
@@ -214,12 +215,10 @@ public:
 class certify_unchecked {
     friend struct import_helper;
     friend class inductive::certified_inductive_decl;
-    /**
-       \brief Certifies a declaration without type-checking.
+    /** \brief Certifies a declaration without type-checking.
 
        \remark This method throws an excetion if trust_lvl() == 0
-       It is only used when importing pre-compiled .olean files and for inductive definitions, and trust_lvl() > 0.
-    */
+       It is only used when importing pre-compiled .olean files and for inductive definitions, and trust_lvl() > 0. */
     static certified_declaration certify(environment const & env, declaration const & d);
     static certified_declaration certify_or_check(environment const & env, declaration const & d);
 };

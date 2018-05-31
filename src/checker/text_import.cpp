@@ -61,7 +61,7 @@ struct text_importer {
         auto ls = read_level_params(in);
 
         inductive::inductive_decl decl(m_name.at(name_idx), ls, num_params, m_expr.at(type_idx), to_list(intros));
-        m_env = inductive::add_inductive(m_env, decl, true).first;
+        m_env = inductive::add_inductive(m_env, decl, false).first;
     }
 
     void handle_def(std::istream & in) {
@@ -72,7 +72,7 @@ struct text_importer {
         auto decl =
             type_checker(m_env).is_prop(m_expr.at(type_idx)) ?
                 mk_theorem(m_name.at(name_idx), ls, m_expr.at(type_idx), m_expr.at(val_idx)) :
-                mk_definition(m_env, m_name.at(name_idx), ls, m_expr.at(type_idx), m_expr.at(val_idx), true, true);
+                mk_definition(m_env, m_name.at(name_idx), ls, m_expr.at(type_idx), m_expr.at(val_idx), true, false);
 
         m_env = m_env.add(check(m_env, decl));
     }

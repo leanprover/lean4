@@ -100,8 +100,7 @@ static gtask compile_olean(std::shared_ptr<module_info const> const & mod, log_t
     gtask mod_dep = mk_deep_dependency(mod->m_result, [] (buffer<gtask> & deps, module_info::parse_result const & res) {
         for (auto & mdf : res.m_loaded_module->m_modifications)
             mdf->get_task_dependencies(deps);
-        deps.push_back(res.m_loaded_module->m_uses_sorry);
-    });
+        });
 
     std::vector<gtask> olean_deps;
     for (auto & dep : mod->m_deps)
@@ -192,8 +191,7 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
             auto deps = mod->m_deps;
             res.m_loaded_module = cache_preimported_env(
                     { id, parsed_olean.m_imports,
-                      parse_olean_modifications(parsed_olean.m_serialized_modifications, id),
-                      mk_pure_task<bool>(parsed_olean.m_uses_sorry), {} },
+                      parse_olean_modifications(parsed_olean.m_serialized_modifications, id), {} },
                     m_initial_env, [=] { return mk_loader(id, deps); });
 
             mod->m_result = mk_pure_task<module_info::parse_result>(res);

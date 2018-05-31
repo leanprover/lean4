@@ -24,7 +24,6 @@ Author: Leonardo de Moura
 #include "kernel/quotient/quotient.h"
 #include "library/module.h"
 #include "library/noncomputable.h"
-#include "library/sorry.h"
 #include "library/constants.h"
 #include "library/kernel_serializer.h"
 #include "library/unfold_macros.h"
@@ -252,24 +251,15 @@ void write_module(loaded_module const & mod, std::ostream & out) {
     std::string r = out1.str();
     unsigned h    = olean_hash(r);
 
-    bool uses_sorry = get(mod.m_uses_sorry);
-
     serializer s2(out);
     s2 << g_olean_header << get_version_string();
     s2 << h;
-    s2 << uses_sorry;
     // store imported files
     s2 << static_cast<unsigned>(mod.m_imports.size());
     for (auto m : mod.m_imports)
         s2 << m;
     // store object code
     s2.write_blob(r);
-}
-
-static task<bool> has_sorry(modification_list const & mods) {
-    std::vector<task<expr>> introduced_exprs;
-    for (auto & mod : mods) mod->get_introduced_exprs(introduced_exprs);
-    return any(introduced_exprs, [] (expr const & e) { return has_sorry(e); });
 }
 
 loaded_module export_module(environment const & env, std::string const & mod_name) {
@@ -283,8 +273,6 @@ loaded_module export_module(environment const & env, std::string const & mod_nam
     for (auto & w : ext.m_modifications)
         out.m_modifications.push_back(w);
     std::reverse(out.m_modifications.begin(), out.m_modifications.end());
-
-    out.m_uses_sorry = has_sorry(out.m_modifications);
 
     return out;
 }
@@ -331,12 +319,6 @@ struct decl_modification : public modification {
         return std::make_shared<decl_modification>(std::move(decl));
     }
 
-    void get_introduced_exprs(std::vector<task<expr>> & es) const override {
-        es.push_back(mk_pure_task(m_decl.get_type()));
-        if (m_decl.is_definition())
-            es.push_back(mk_pure_task(m_decl.get_value()));
-    }
-
     void get_task_dependencies(buffer<gtask> &) const override {
     }
 };
@@ -360,12 +342,6 @@ struct inductive_modification : public modification {
     static std::shared_ptr<modification const> deserialize(deserializer & d) {
         auto decl = read_certified_inductive_decl(d);
         return std::make_shared<inductive_modification>(std::move(decl));
-    }
-
-    void get_introduced_exprs(std::vector<task<expr>> & es) const override {
-        es.push_back(mk_pure_task(m_decl.get_decl().m_type));
-        for (auto & i : m_decl.get_decl().m_intro_rules)
-            es.push_back(mk_pure_task(i));
     }
 };
 
@@ -410,8 +386,6 @@ environment update_module_defs(environment const & env, declaration const & d) {
         return update(env, ext);
     }
 }
-
-struct sorry_warning_tag : public log_entry_cell {};
 
 environment add(environment const & env, certified_declaration const & d) {
     environment new_env = env.add(d);
@@ -465,7 +439,6 @@ bool is_candidate_olean_file(std::string const & file_name) {
 
 olean_data parse_olean(std::istream & in, std::string const & file_name, bool check_hash) {
     std::vector<module_name> imports;
-    bool uses_sorry;
 
     deserializer d1(in, optional<std::string>(file_name));
     std::string header, version;
@@ -475,8 +448,6 @@ olean_data parse_olean(std::istream & in, std::string const & file_name, bool ch
         throw exception(sstream() << "file '" << file_name << "' does not seem to be a valid object Lean file, invalid header");
     d1 >> version >> claimed_hash;
     // version has already been checked in `is_candidate_olean_file`
-
-    d1 >> uses_sorry;
 
     unsigned num_imports  = d1.read_unsigned();
     for (unsigned i = 0; i < num_imports; i++) {
@@ -497,7 +468,7 @@ olean_data parse_olean(std::istream & in, std::string const & file_name, bool ch
             throw exception(sstream() << "file '" << file_name << "' has been corrupted, checksum mismatch");
     }
 
-    return { imports, code, uses_sorry };
+    return { imports, code };
 }
 
 static void import_module(environment & env, std::string const & module_file_name, module_name const & ref,
@@ -621,8 +592,7 @@ module_loader mk_olean_loader(std::vector<std::string> const & path) {
         auto parsed = parse_olean(in, fn, check_hash);
         auto modifs = parse_olean_modifications(parsed.m_serialized_modifications, fn);
         return std::make_shared<loaded_module>(
-                loaded_module { fn, parsed.m_imports, modifs,
-                                mk_pure_task<bool>(parsed.m_uses_sorry), {} });
+            loaded_module { fn, parsed.m_imports, modifs, {} });
     };
 }
 

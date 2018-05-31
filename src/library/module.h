@@ -37,7 +37,6 @@ struct loaded_module {
     std::string m_module_name;
     std::vector<module_name> m_imports;
     modification_list m_modifications;
-    task<bool> m_uses_sorry;
 
     task<environment> m_env;
 };
@@ -98,7 +97,6 @@ bool is_candidate_olean_file(std::string const & file_name);
 struct olean_data {
     std::vector<module_name> m_imports;
     std::string m_serialized_modifications;
-    bool m_uses_sorry;
 };
 olean_data parse_olean(std::istream & in, std::string const & file_name, bool check_hash = true);
 modification_list parse_olean_modifications(std::string const & serialized_modifications, std::string const & file_name);
@@ -111,9 +109,6 @@ public:
     virtual void perform(environment &) const = 0;
     virtual void serialize(serializer &) const = 0;
     virtual void get_task_dependencies(buffer<gtask> &) const {}
-
-    // Used to check for sorrys.
-    virtual void get_introduced_exprs(std::vector<task<expr>> &) const {}
 };
 
 #define LEAN_MODIFICATION(k) \

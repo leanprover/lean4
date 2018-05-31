@@ -757,14 +757,32 @@ static void check_definition(environment const & env, declaration const & d, typ
     }
 }
 
-certified_declaration check(environment const & env, declaration const & d) {
+static void check_decl_type(environment const & env, declaration const & d, type_checker & checker) {
     check_no_mlocal(env, d.get_name(), d.get_type(), true);
     check_name(env, d.get_name());
     check_duplicated_params(env, d);
-    bool memoize = true; bool non_meta_only = !d.is_meta();
-    type_checker checker(env, memoize, non_meta_only);
     expr sort = checker.check(d.get_type(), d.get_univ_params());
     checker.ensure_sort(sort, d.get_type());
+}
+
+void check_decl_type(environment const & env, declaration const & d) {
+    bool memoize = true; bool non_meta_only = !d.is_meta();
+    type_checker checker(env, memoize, non_meta_only);
+    check_decl_type(env, d, checker);
+}
+
+void check_decl_value(environment const & env, declaration const & d) {
+    bool memoize = true; bool non_meta_only = !d.is_meta();
+    type_checker checker(env, memoize, non_meta_only);
+    if (d.is_definition()) {
+        check_definition(env, d, checker);
+    }
+}
+
+certified_declaration check(environment const & env, declaration const & d) {
+    bool memoize = true; bool non_meta_only = !d.is_meta();
+    type_checker checker(env, memoize, non_meta_only);
+    check_decl_type(env, d, checker);
     if (d.is_definition()) {
         check_definition(env, d, checker);
     }

@@ -156,6 +156,12 @@ public:
           - The environment does not contain an axiom named <tt>t.get_declaration().get_name()</tt> */
     environment replace(certified_declaration const & t) const;
 
+    /** \brief Add a sequence of (possibly mutually recursive) meta declarations.
+        The type checking occurs in two phases:
+        1- We type check each declaration type and add to a new environment.
+        2- We type check the definitions body. */
+    environment add_meta(buffer<declaration> const & ds) const;
+
     /** \brief Register an environment extension. Every environment
         object may contain this extension. The argument \c initial is
         the initial value for the new extensions. The extension object

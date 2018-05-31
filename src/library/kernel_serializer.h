@@ -28,6 +28,7 @@ inline deserializer & operator>>(deserializer & d, expr & e) { e = read_expr(d);
 
 serializer & operator<<(serializer & s, declaration const & d);
 declaration read_declaration(deserializer & d);
+inline deserializer & operator>>(deserializer & d, declaration & decl) { decl = read_declaration(d); return d; }
 
 serializer & operator<<(serializer & s, inductive::certified_inductive_decl const & d);
 inductive::certified_inductive_decl read_certified_inductive_decl(deserializer & d);

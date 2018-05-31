@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "runtime/thread.h"
 #include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
+#include "kernel/type_checker.h"
 
 namespace lean {
 environment_header::environment_header(unsigned trust_lvl, std::unique_ptr<normalizer_extension const> ext):
@@ -106,6 +107,20 @@ environment environment::add(certified_declaration const & d) const {
     if (find(n))
         throw_already_declared(*this, n);
     return environment(m_header, m_id, insert(m_declarations, n, d.get_declaration()), m_extensions);
+}
+
+environment environment::add_meta(buffer<declaration> const & ds) const {
+    environment new_env = *this;
+    /* Check declarations header, and add them to new_env.m_declarations */
+    for (declaration const & d : ds) {
+        check_decl_type(new_env, d);
+        new_env.m_declarations.insert(d.get_name(), d);
+    }
+    /* Check actual definitions */
+    for (declaration const & d : ds) {
+        check_decl_value(new_env, d);
+    }
+    return new_env;
 }
 
 environment environment::replace(certified_declaration const & t) const {

@@ -137,6 +137,7 @@ environment add_and_perform(environment const & env, std::shared_ptr<modificatio
 
 /** \brief Add the given declaration to the environment, and mark it to be exported. */
 environment add(environment const & env, certified_declaration const & d);
+environment add_meta(environment const & env, buffer<declaration> const & ds);
 
 /** \brief Return true iff \c n is a definition added to the current module using #module::add */
 bool is_definition(environment const & env, name const & n);

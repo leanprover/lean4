@@ -100,12 +100,12 @@ public:
     bool is_descendant(environment_id const & id) const;
 };
 
-typedef expr intro_rule;
+typedef expr constructor;
 
 struct inductive_decl {
     name                 m_name;
     expr                 m_type;
-    list<intro_rule>     m_intro_rules;
+    list<constructor>    m_constructors;
 };
 
 struct inductive_decls {

@@ -100,6 +100,20 @@ public:
     bool is_descendant(environment_id const & id) const;
 };
 
+typedef expr intro_rule;
+
+struct inductive_decl {
+    name                 m_name;
+    expr                 m_type;
+    list<intro_rule>     m_intro_rules;
+};
+
+struct inductive_decls {
+    level_param_names    m_level_params;
+    unsigned             m_num_params{0};
+    list<inductive_decl> m_decls;
+};
+
 /** \brief Lean core environment. An environment object can be extended/customized in different ways:
 
     1- By providing a normalizer_extension when creating an empty environment.
@@ -110,11 +124,12 @@ class environment {
     typedef name_map<declaration>                         declarations;
     typedef std::shared_ptr<environment_extensions const> extensions;
 
-    header         m_header;
-    environment_id m_id;
-    bool           m_quot_initialized{false};
-    declarations   m_declarations;
-    extensions     m_extensions;
+    header                    m_header;
+    environment_id            m_id;
+    bool                      m_quot_initialized{false};
+    declarations              m_declarations;
+    extensions                m_extensions;
+    name_map<inductive_decls> m_inductive_decls;
 
     environment(environment const & env, declarations const & ds):
         m_header(env.m_header), m_id(environment_id::mk_descendant(env.m_id)), m_quot_initialized(env.m_quot_initialized), m_declarations(ds), m_extensions(env.m_extensions) {}
@@ -140,8 +155,11 @@ public:
 
     bool is_quot_initialized() const { return m_quot_initialized; }
 
-    /* \brief Declare `quot` type. */
+    /* \brief Add `quot` type. */
     environment add_quot() const;
+
+    /* \brief Add (mutually recursive) inductive declarations */
+    environment add_inductive_decls(inductive_decls const & decls) const;
 
     /** \brief Return reference to the normalizer extension associatied with this environment. */
     normalizer_extension const & norm_ext() const { return m_header->norm_ext(); }

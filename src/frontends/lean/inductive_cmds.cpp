@@ -45,6 +45,17 @@ Authors: Daniel Selsam, Leonardo de Moura
 #include "frontends/lean/inductive_cmds.h"
 
 namespace lean {
+struct single_inductive_decl {
+    decl_attributes m_attrs;
+    expr            m_expr;
+    buffer<expr>    m_intros;
+};
+
+struct mutual_inductive_decl {
+    buffer<name>                  m_lp_names;
+    buffer<expr>                  m_params;
+    buffer<single_inductive_decl> m_decls;
+};
 
 static level mk_succn(level const & l, unsigned offset) {
     level result = l;
@@ -710,7 +721,7 @@ public:
         return m_env;
     }
 
-    inductive_decl parse_and_elaborate() {
+    mutual_inductive_decl parse_and_elaborate() {
         parse_result r;
         parse(r);
         buffer<single_inductive_decl> decls;
@@ -721,10 +732,10 @@ public:
     }
 };
 
-inductive_decl parse_inductive_decl(parser & p, cmd_meta const & meta) {
+void parse_inductive_decl(parser & p, cmd_meta const & meta) {
     auto pos = p.pos();
     module::scope_pos_info scope_pos(pos);
-    return inductive_cmd_fn(p, meta).parse_and_elaborate();
+    inductive_cmd_fn(p, meta).parse_and_elaborate();
 }
 
 environment inductive_cmd(parser & p, cmd_meta const & meta) {

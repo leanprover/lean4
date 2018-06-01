@@ -61,10 +61,6 @@ static bool get_inductive_no_confusion(options const & opts) {
     return opts.get_bool(*g_inductive_no_confusion, LEAN_DEFAULT_XINDUCTIVE_NO_CONFUSION);
 }
 
-using inductive::inductive_decl;
-using inductive::intro_rule;
-using inductive::mk_intro_rule;
-
 class add_basic_inductive_decl_fn {
     environment                           m_env;
     options const &                       m_opts;
@@ -125,15 +121,15 @@ class add_basic_inductive_decl_fn {
 
         lean_trace(name({"inductive_compiler", "basic", "ind"}), tout() << mlocal_name(ind) << "\n";);
 
-        buffer<intro_rule> new_intro_rules;
+        buffer<inductive::intro_rule> new_intro_rules;
         for (expr const & ir : intro_rules) {
             implicit_infer_kind k = get_implicit_infer_kind(m_implicit_infer_map, mlocal_name(ir));
             expr new_ir_type = infer_implicit_params(Pi(params, mlocal_type(ir)), params.size(), k);
             lean_assert(!has_local(new_ir_type));
-            new_intro_rules.push_back(mk_intro_rule(mlocal_name(ir), new_ir_type));
+            new_intro_rules.push_back(inductive::mk_intro_rule(mlocal_name(ir), new_ir_type));
             lean_trace(name({"inductive_compiler", "basic", "irs"}), tout() << mlocal_name(ir) << " : " << new_ir_type << "\n";);
         }
-        inductive_decl kdecl(mlocal_name(ind), names(lp_names), params.size(), new_ind_type, to_list(new_intro_rules));
+        inductive::inductive_decl kdecl(mlocal_name(ind), names(lp_names), params.size(), new_ind_type, to_list(new_intro_rules));
         m_env = module::add_inductive(m_env, kdecl, m_is_meta);
     }
 

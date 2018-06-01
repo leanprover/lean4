@@ -288,23 +288,6 @@ static vm_obj interactive_decl_attributes_apply(vm_obj const & vm_attrs, vm_obj 
     CATCH;
 }
 
-static vm_obj to_obj(single_inductive_decl const & d) {
-    return mk_vm_constructor(0, {to_obj(d.m_attrs), to_obj(d.m_expr), to_obj(d.m_intros)});
-}
-
-static vm_obj to_obj(inductive_decl const & d) {
-    return mk_vm_constructor(0, {to_obj(d.m_lp_names), to_obj(d.m_params),
-                                 to_vm_list(to_list(d.m_decls), [](single_inductive_decl const & d) { return to_obj(d); })});
-}
-
-static vm_obj interactive_inductive_decl_parse(vm_obj const & vm_meta, vm_obj const & vm_s) {
-    auto s = lean_parser::to_state(vm_s);
-    TRY;
-        auto decl = parse_inductive_decl(*s.m_p, to_cmd_meta(vm_meta));
-        return lean_parser::mk_success(to_obj(decl), s);
-    CATCH;
-}
-
 static vm_obj interactive_parse_binders(vm_obj const & vm_rbp, vm_obj const & vm_s) {
     auto s = lean_parser::to_state(vm_s);
     TRY;
@@ -350,7 +333,6 @@ void initialize_vm_parser() {
     DECLARE_VM_BUILTIN(name({"lean3", "parser", "with_input"}),        vm_parser_with_input);
     DECLARE_VM_BUILTIN(name({"lean3", "parser", "of_tactic"}),         vm_parser_of_tactic);
     DECLARE_VM_BUILTIN(name({"interactive", "decl_attributes", "apply"}), interactive_decl_attributes_apply);
-    DECLARE_VM_BUILTIN(name({"interactive", "inductive_decl", "parse"}),  interactive_inductive_decl_parse);
     DECLARE_VM_BUILTIN(name({"interactive", "parse_binders"}),            interactive_parse_binders);
 }
 

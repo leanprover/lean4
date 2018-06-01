@@ -18,8 +18,6 @@ Author: Leonardo de Moura
 #include "library/constructions/util.h"
 
 namespace lean {
-using inductive::inductive_decl;
-
 enum class drec_kind {DRec, DRecOn, DCasesOn};
 
 struct mk_drec_fn {
@@ -28,7 +26,7 @@ struct mk_drec_fn {
     type_checker        tc;
     name const &        I;
     drec_kind           kind;
-    inductive_decl      I_ind_decl;
+    inductive::inductive_decl      I_ind_decl;
     name                I_rec_name;
     declaration         I_rec_decl;
     declaration         I_decl;

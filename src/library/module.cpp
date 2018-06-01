@@ -305,9 +305,8 @@ struct decl_modification : public modification {
         m_decl(decl) {}
 
     void perform(environment & env) const override {
-        auto decl = m_decl;
         // TODO(gabriel): this might be a bit more unsafe here than before
-        env = import_helper::add_unchecked(env, decl);
+        env = import_helper::add_unchecked(env, m_decl);
     }
 
     void serialize(serializer & s) const override {
@@ -334,7 +333,7 @@ struct meta_decls_modification : public modification {
     void perform(environment & env) const override {
         buffer<declaration> decls;
         to_buffer(m_decls, decls);
-        env = env.add_meta(decls);
+        env = env.add_meta(decls, env.trust_lvl() == 0);
     }
 
     void serialize(serializer & s) const override {

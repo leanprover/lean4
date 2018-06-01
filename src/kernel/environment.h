@@ -159,8 +159,10 @@ public:
     /** \brief Add a sequence of (possibly mutually recursive) meta declarations.
         The type checking occurs in two phases:
         1- We type check each declaration type and add to a new environment.
-        2- We type check the definitions body. */
-    environment add_meta(buffer<declaration> const & ds) const;
+        2- We type check the definitions body.
+
+        If \c check is false, then type checking is skipped. */
+    environment add_meta(buffer<declaration> const & ds, bool check = true) const;
 
     /** \brief Register an environment extension. Every environment
         object may contain this extension. The argument \c initial is

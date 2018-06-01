@@ -109,16 +109,21 @@ environment environment::add(certified_declaration const & d) const {
     return environment(m_header, m_id, insert(m_declarations, n, d.get_declaration()), m_extensions);
 }
 
-environment environment::add_meta(buffer<declaration> const & ds) const {
+environment environment::add_meta(buffer<declaration> const & ds, bool check) const {
+    if (!check && trust_lvl() == 0)
+        throw_kernel_exception(*this, "invalid meta declarations, type checking cannot be skipped at trust level 0");
     environment new_env = *this;
     /* Check declarations header, and add them to new_env.m_declarations */
     for (declaration const & d : ds) {
-        check_decl_type(new_env, d);
+        if (check)
+            check_decl_type(new_env, d);
         new_env.m_declarations.insert(d.get_name(), d);
     }
     /* Check actual definitions */
-    for (declaration const & d : ds) {
-        check_decl_value(new_env, d);
+    if (check) {
+        for (declaration const & d : ds) {
+            check_decl_value(new_env, d);
+        }
     }
     return new_env;
 }

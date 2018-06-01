@@ -106,12 +106,17 @@ struct inductive_decl {
     name                 m_name;
     expr                 m_type;
     list<constructor>    m_constructors;
+    inductive_decl(name const & n, expr const & ty, list<constructor> const & constructors):
+        m_name(n), m_type(ty), m_constructors(constructors) {}
 };
 
 struct inductive_decls {
     level_param_names    m_level_params;
-    unsigned             m_num_params{0};
+    list<expr>           m_params;
     list<inductive_decl> m_decls;
+    inductive_decls() {}
+    inductive_decls(level_param_names const & lvls, list<expr> const & params, list<inductive_decl> const & decls):
+        m_level_params(lvls), m_params(params), m_decls(decls) {}
 };
 
 /** \brief Lean core environment. An environment object can be extended/customized in different ways:

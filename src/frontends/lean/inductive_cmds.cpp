@@ -45,6 +45,8 @@ Authors: Daniel Selsam, Leonardo de Moura
 #include "frontends/lean/inductive_cmds.h"
 
 namespace lean {
+static name * g_new_inductive = nullptr;
+
 struct single_inductive_decl {
     decl_attributes m_attrs;
     expr            m_expr;
@@ -114,6 +116,10 @@ class inductive_cmd_fn {
 
     [[ noreturn ]] void throw_error(char const * error_msg) const { throw parser_error(error_msg, m_pos); }
     [[ noreturn ]] void throw_error(sstream const & strm) const { throw parser_error(strm, m_pos); }
+
+    bool use_new_inductive() const {
+        return m_p.get_options().get_bool(*g_new_inductive, false);
+    }
 
     implicit_infer_kind get_implicit_infer_kind(name const & n) {
         if (auto it = m_implicit_infer_map.find(n))
@@ -712,12 +718,24 @@ public:
         elaborate_inductive_decls(params, inds, intro_rules, result.m_params, result.m_inds, result.m_intro_rules);
     }
 
+    void add_inductive_decls(parse_result & r) {
+       buffer<inductive_decl> decls;
+        for (unsigned i = 0; i < r.m_inds.size(); i++) {
+            decls.push_back(inductive_decl(mlocal_name(r.m_inds[i]), mlocal_type(r.m_inds[i]), to_list(r.m_intro_rules[i])));
+        }
+        m_env = m_env.add_inductive_decls(inductive_decls(names(m_lp_names), to_list(r.m_params), to_list(decls)));
+    }
+
     environment inductive_cmd() {
         parse_result r;
         parse(r);
-        m_env = add_inductive_declaration(m_p.env(), m_p.get_options(), m_implicit_infer_map, m_lp_names, r.m_params,
-                                          r.m_inds, r.m_intro_rules, m_meta_info.m_modifiers.m_is_meta);
-        post_process(r.m_params, r.m_inds, r.m_intro_rules);
+        if (use_new_inductive()) {
+            add_inductive_decls(r);
+        } else {
+            m_env = add_inductive_declaration(m_p.env(), m_p.get_options(), m_implicit_infer_map, m_lp_names, r.m_params,
+                                              r.m_inds, r.m_intro_rules, m_meta_info.m_modifiers.m_is_meta);
+            post_process(r.m_params, r.m_inds, r.m_intro_rules);
+        }
         return m_env;
     }
 
@@ -759,8 +777,11 @@ void initialize_inductive_cmds() {
     register_trace_class(name({"inductive", "lp_names"}));
     register_trace_class(name({"inductive", "infer_resultant"}));
     register_trace_class(name({"inductive", "unify"}));
+    g_new_inductive = new name{"new_inductive"};
+    register_bool_option(*g_new_inductive, false, "use new inductive datatype module");
 }
 
 void finalize_inductive_cmds() {
+    delete g_new_inductive;
 }
 }

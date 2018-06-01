@@ -12,11 +12,7 @@ class abstract_context_cache;
     The parameters, motive and indices are also erased from cases_on applications.
 
     \remark The resultant term cannot be type checked. So, any preprocessing step
-    that requires type inference cannot be applied after this transformation.
-
-    \remark This procedure also replace occurrences of rec_fn_macro with constants.
-    The rec_fn_macro is only used to make sure the result type checks.
-    So, since the result will not type check anyway, there is no point in using them. */
+    that requires type inference cannot be applied after this transformation.  */
 expr erase_irrelevant(environment const & env, abstract_context_cache & cache, expr const & e);
 /** \brief Neutral auxiliary term. */
 bool is_neutral_expr(expr const & e);

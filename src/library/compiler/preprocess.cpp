@@ -39,6 +39,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 class expand_aux_fn : public compiler_step_visitor {
+    name_set m_decl_names; /* functions being compiled */
+
     enum class recursor_kind { Aux, CasesOn, NotRecursor };
     /* We only expand auxiliary recursors and user-defined recursors.
        However, we don't unfold recursors of the form C.cases_on if C != eq. */
@@ -98,10 +100,16 @@ class expand_aux_fn : public compiler_step_visitor {
         return is_constant(e) && ::lean::is_inline(env(), const_name(e));
     }
 
+    bool is_function_being_compiled(expr const & e) const {
+        expr const & f = get_app_fn(e);
+        return is_constant(f) && m_decl_names.contains(const_name(f));
+    }
+
     bool should_unfold(expr const & e) {
         return
-            (is_not_vm_function(e) && !ctx().is_proof(e) && !is_pack_unpack(e) && !is_noncomputable_const(e)) ||
-            (is_inline(e));
+            !is_function_being_compiled(e) &&
+            ((is_not_vm_function(e) && !ctx().is_proof(e) && !is_pack_unpack(e) && !is_noncomputable_const(e)) ||
+             (is_inline(e)));
     }
 
     expr unfold(expr const & e) {
@@ -150,11 +158,13 @@ class expand_aux_fn : public compiler_step_visitor {
     }
 
 public:
-    expand_aux_fn(environment const & env, abstract_context_cache & cache):compiler_step_visitor(env, cache) {}
+    expand_aux_fn(environment const & env, name_set const & decl_names, abstract_context_cache & cache):
+        compiler_step_visitor(env, cache),
+        m_decl_names(decl_names) {}
 };
 
-static expr expand_aux(environment const & env, abstract_context_cache & cache, expr const & e) {
-    return expand_aux_fn(env, cache)(e);
+static expr expand_aux(environment const & env, name_set const & ns, abstract_context_cache & cache, expr const & e) {
+    return expand_aux_fn(env, ns, cache)(e);
 }
 
 static name * g_tmp_prefix = nullptr;
@@ -162,6 +172,7 @@ static name * g_tmp_prefix = nullptr;
 class preprocess_fn {
     environment    m_env;
     context_cache  m_cache;
+    name_set       m_decl_names; /* name of the functions being compiled */
 
     bool check(declaration const & d, expr const & v) {
         bool memoize       = true;
@@ -184,25 +195,6 @@ class preprocess_fn {
             p.m_code = ::lean::erase_irrelevant(m_env, m_cache, p.m_code);
         }
     }
-
-#if 0
-    void dump_pos_info(expr const & v) {
-        std::cout << v << "\n\n";
-        for_each(v, [&](expr const & e, unsigned) {
-                auto pip = get_pos_info_provider();
-                if (!pip) return false;
-                if (auto p = pip->get_pos_info(e))
-                    std::cout << "pos[" << ((unsigned)e.kind()) << "]: " << p->first << ":" << p->second << "\n"
-                              << e << "\n";
-                return true;
-            });
-        std::cout << "------------\n";
-    }
-
-    void dump_pos_info(buffer<pair<name, expr>> & procs) {
-        for (auto p : procs) dump_pos_info(p.second);
-    }
-#endif
 
     /* If type of d is a proposition or return a type, we don't need to compile it.
        We can just generate (fun args, neutral_expr)
@@ -230,8 +222,16 @@ class preprocess_fn {
     }
 
 public:
-    preprocess_fn(environment const & env):
-        m_env(env) {}
+    preprocess_fn(environment const & env, declaration const & d):
+        m_env(env) {
+        m_decl_names.insert(d.get_name());
+    }
+
+    preprocess_fn(environment const & env, buffer<declaration> const & ds):
+        m_env(env) {
+        for (declaration const & d : ds)
+            m_decl_names.insert(d.get_name());
+    }
 
     void operator()(declaration const & d, buffer<procedure> & procs) {
         if (compile_irrelevant(d, procs))
@@ -241,7 +241,7 @@ public:
         v = inline_simple_definitions(m_env, m_cache, v);
         lean_cond_assert("compiler", check(d, v));
         lean_trace(name({"compiler", "inline"}), tout() << "\n" << v << "\n";);
-        v = expand_aux(m_env, m_cache, v);
+        v = expand_aux(m_env, m_decl_names, m_cache, v);
         lean_cond_assert("compiler", check(d, v));
         lean_trace(name({"compiler", "expand_aux"}), tout() << "\n" << v << "\n";);
         v = mark_comp_irrelevant_subterms(m_env, m_cache, v);
@@ -276,13 +276,14 @@ public:
 };
 
 void preprocess(environment const & env, declaration const & d, buffer<procedure> & result) {
-    return preprocess_fn(env)(d, result);
+    return preprocess_fn(env, d)(d, result);
 }
 
 void preprocess(environment const & env, buffer<declaration> const & ds, buffer<procedure> & result) {
+    preprocess_fn F(env, ds);
     for (declaration const & d : ds) {
         buffer<procedure> procs;
-        preprocess(env, d, procs);
+        F(d, procs);
         result.append(procs);
     }
 }

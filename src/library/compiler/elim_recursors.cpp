@@ -18,7 +18,6 @@ Author: Leonardo de Moura
 #include "library/compiler/procedure.h"
 #include "library/compiler/comp_irrelevant.h"
 #include "library/compiler/compiler_step_visitor.h"
-#include "library/compiler/rec_fn_macro.h"
 
 namespace lean {
 class elim_recursors_fn : public compiler_step_visitor {
@@ -114,7 +113,7 @@ protected:
         /* Create expr (rec_fn) for representing recursive calls. */
         expr aux_decl_type = ctx().infer(aux);
         name aux_decl_name = mk_compiler_unused_name(m_env, m_prefix, "_rec", m_idx);
-        expr rec_fn = mk_rec_fn_macro(aux_decl_name, aux_decl_type);
+        expr rec_fn = mk_constant(aux_decl_name, const_levels(fn));
         /* Create new locals for aux.
            The operating abstract_locals creates a lambda-abstraction around aux if it uses
            local constants. */

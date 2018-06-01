@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "kernel/for_each_fn.h"
 #include "library/trace.h"
-#include "library/compiler/rec_fn_macro.h"
 #include "library/compiler/procedure.h"
 #include "library/compiler/compiler_step_visitor.h"
 
@@ -29,13 +28,6 @@ static expr reduce_arity_of(expr const & e, unsigned i, std::vector<bool> const 
 class remove_args_fn : public compiler_step_visitor {
     /* Mapping from auxiliary function name to bitvector of used arguments */
     name_map<std::vector<bool>> const & m_to_reduce;
-
-    virtual expr visit_macro(expr const & e) override {
-        /* This module assumes rec_fn_macros have already been eliminated.
-           Remark: the step erase_irrelevant eliminates all occurences. */
-        lean_assert(!is_rec_fn_macro(e));
-        return compiler_step_visitor::visit_macro(e);
-    }
 
     virtual expr visit_app(expr const & e) override {
         expr const & fn = get_app_fn(e);

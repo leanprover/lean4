@@ -977,7 +977,7 @@ void update_telescope(type_context_old & ctx, buffer<expr> const & vars, expr co
 }
 
 /* Helper functor for mk_smart_unfolding_definition */
-struct replace_rec_fn_macro_fn : public replace_visitor {
+struct replace_aux_meta_fn : public replace_visitor {
     name const & m_fn_aux_name;
     expr const & m_new_fn;
     unsigned     m_nargs_to_skip;
@@ -986,8 +986,8 @@ struct replace_rec_fn_macro_fn : public replace_visitor {
     virtual expr visit_app(expr const & e) override {
         buffer<expr> args;
         expr const & fn = get_app_args(e, args);
-        if (is_rec_fn_macro(fn)) {
-            if (args.size() >= m_nargs_to_skip && get_rec_fn_name(fn) == m_fn_aux_name) {
+        if (is_constant(fn) && const_name(fn) == m_fn_aux_name) {
+            if (args.size() >= m_nargs_to_skip) {
                 m_found = true;
                 for (unsigned i = m_nargs_to_skip; i < args.size(); i++) {
                     expr & arg   = args[i];
@@ -1013,7 +1013,7 @@ struct replace_rec_fn_macro_fn : public replace_visitor {
         }
     }
 
-    replace_rec_fn_macro_fn(name const & fn_aux_name, expr const & new_fn, unsigned nargs_to_skip):
+    replace_aux_meta_fn(name const & fn_aux_name, expr const & new_fn, unsigned nargs_to_skip):
         m_fn_aux_name(fn_aux_name),
         m_new_fn(new_fn),
         m_nargs_to_skip(nargs_to_skip) {
@@ -1050,7 +1050,7 @@ environment mk_smart_unfolding_definition(environment const & env, options const
         expr new_fn  = mk_app(mk_constant(n, ls), locals.size(), locals.data());
         helper_value = instantiate_value_univ_params(*aux_d, const_levels(fn));
         helper_value = apply_beta(helper_value, args.size(), args.data());
-        replace_rec_fn_macro_fn proc(meta_aux_fn_name, new_fn, args.size());
+        replace_aux_meta_fn proc(meta_aux_fn_name, new_fn, args.size());
         helper_value = proc(helper_value);
         if (!proc.m_found)
             throw exception("failed to generate helper declaration for smart unfolding, auxiliary meta declaration does not contain recursive application");

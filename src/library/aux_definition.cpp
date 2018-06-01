@@ -59,7 +59,7 @@ levels closure_helper::collect(levels const & ls) {
         return levels(r);
 }
 
-expr closure_helper::collect(expr const & e) {
+expr closure_helper::collect(expr const & e, name_set const & except_locals) {
     lean_assert(!m_finalized_collection);
     return replace(e, [&](expr const & e, unsigned) {
             if (is_metavar(e)) {
@@ -76,7 +76,7 @@ expr closure_helper::collect(expr const & e) {
                 }
             } else if (is_local(e)) {
                 name const & id = mlocal_name(e);
-                if (!m_found_local.contains(id)) {
+                if (!m_found_local.contains(id) && !except_locals.contains(id)) {
                     m_found_local.insert(id);
                     m_params.push_back(e);
                 }

@@ -54,8 +54,11 @@ public:
     level collect(level const & l);
     /* \pre finalize_collection has not been invoked */
     levels collect(levels const & ls);
-    /* \pre finalize_collection has not been invoked */
-    expr collect(expr const & e);
+    /*
+       \remark Locals at `except_locals` are not collected.
+       \pre finalize_collection has not been invoked */
+    expr collect(expr const & e, name_set const & except_locals);
+    expr collect(expr const & e) { return collect(e, name_set()); }
 
     /* \pre finalize_collection has not been invoked */
     void finalize_collection();

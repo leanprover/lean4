@@ -29,7 +29,6 @@ Author: Leonardo de Moura
 #include "library/aux_definition.h"
 #include "library/comp_val.h"
 #include "library/unfold_macros.h"
-#include "library/compiler/rec_fn_macro.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/tactic/eqn_lemmas.h"
 #include "library/inductive_compiler/ginductive.h"

@@ -13,7 +13,6 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/aux_definition.h"
 #include "library/module.h"
-#include "library/compiler/rec_fn_macro.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/vm/vm.h"
 #include "library/equations_compiler/util.h"

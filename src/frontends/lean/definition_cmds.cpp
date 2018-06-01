@@ -32,7 +32,6 @@ Author: Leonardo de Moura
 #include "library/equations_compiler/util.h"
 #include "library/equations_compiler/equations.h"
 #include "library/compiler/vm_compiler.h"
-#include "library/compiler/rec_fn_macro.h"
 #include "library/tactic/eqn_lemmas.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"

@@ -30,8 +30,6 @@ inductive macro_definition
 | nat_lit         : nat → macro_definition
 | string_lit      : string → macro_definition
 | annotation      : name → macro_definition
-/- rec_fn will be deleted -/
-| rec_fn          : name → macro_definition
 /- The following macros will be Syntax object in Lean4 -/
 | struct_instance : name → bool → list name → macro_definition
 | field_notation  : name → nat → macro_definition

@@ -38,7 +38,6 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic_state.h"
 #include "library/compiler/comp_irrelevant.h"
 #include "library/compiler/erase_irrelevant.h"
-#include "library/compiler/rec_fn_macro.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/prenum.h"
@@ -1171,8 +1170,6 @@ auto pretty_fn::pp_macro(expr const & e) -> result {
             return format("[") + format(get_annotation_kind(e)) + space() + pp(get_annotation_arg(e)).fmt() + format("]");
         else
             return pp(get_annotation_arg(e));
-    } else if (is_rec_fn_macro(e)) {
-        return format("[") + format(get_rec_fn_name(e)) + format("]");
     } else if (is_synthetic_sorry(e)) {
         if (m_use_holes)
             return pp_hole();

@@ -25,10 +25,10 @@ size_t obj_byte_size(object * o) {
 
 size_t obj_header_size(object * o) {
     switch (get_kind(o)) {
-    case object_kind::Constructor:     return sizeof(constructor);
-    case object_kind::Closure:         return sizeof(closure);
-    case object_kind::Array:           return sizeof(array);
-    case object_kind::ScalarArray:     return sizeof(sarray);
+    case object_kind::Constructor:     return sizeof(constructor_object);
+    case object_kind::Closure:         return sizeof(closure_object);
+    case object_kind::Array:           return sizeof(array_object);
+    case object_kind::ScalarArray:     return sizeof(sarray_object);
     case object_kind::String:          return sizeof(string_object);
     case object_kind::MPZ:             return sizeof(mpz_object);
     case object_kind::External:        lean_unreachable();

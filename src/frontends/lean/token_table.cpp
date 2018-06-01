@@ -108,7 +108,7 @@ void init_token_table(token_table & t) {
          "import", "inductive", "coinductive", "structure", "class", "universe", "universes", "local",
          "precedence", "reserve", "infixl", "infixr", "infix", "postfix", "prefix", "notation",
          "set_option", "open", "export", "@[",
-         "attribute", "instance", "include", "omit", "init_quotient",
+         "attribute", "instance", "include", "omit", "init_quot",
          "run_cmd", "#check", "#reduce", "#eval", "#print", "#help", "#exit",
          "#compile", "#unify", nullptr};
 

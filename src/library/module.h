@@ -147,8 +147,8 @@ environment add_inductive(environment                       env,
                           inductive::inductive_decl const & decl,
                           bool                              is_meta);
 
-/** \brief The following function must be invoked to register the quotient type computation rules in the kernel. */
-environment declare_quotient(environment const & env);
+/** \brief The following function must be invoked to register the `quot` type computation rules in the kernel. */
+environment add_quot(environment const & env);
 
 /* Auxiliary object for setting position information for module declarations.
    It affects module::add and module::add_inductive methods. */

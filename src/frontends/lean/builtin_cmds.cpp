@@ -385,8 +385,8 @@ static environment help_cmd(parser & p) {
     return p.env();
 }
 
-static environment init_quotient_cmd(parser & p) {
-    return module::declare_quotient(p.env());
+static environment init_quot_cmd(parser & p) {
+    return module::add_quot(p.env());
 }
 
 /*
@@ -579,7 +579,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("#eval",             "evaluate given expression using VM", eval_cmd));
     add_cmd(r, cmd_info("local",             "define local attributes or notation", local_cmd));
     add_cmd(r, cmd_info("#help",             "brief description of available commands and options", help_cmd));
-    add_cmd(r, cmd_info("init_quotient",     "initialize quotient type computational rules", init_quotient_cmd));
+    add_cmd(r, cmd_info("init_quot",         "initialize `quot` type computational rules", init_quot_cmd));
     add_cmd(r, cmd_info("run_cmd",           "execute an user defined command at top-level", run_command_cmd));
     add_cmd(r, cmd_info("import",            "import module(s)", import_cmd));
     add_cmd(r, cmd_info("hide",              "hide aliases in the current scope", hide_cmd));

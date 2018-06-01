@@ -10,7 +10,6 @@ Author: Gabriel Ebner
 #include "util/test.h"
 #include "util/sexpr/init_module.h"
 #include "kernel/init_module.h"
-#include "kernel/quotient/quotient.h"
 #include "kernel/inductive/inductive.h"
 #include "kernel/standard_kernel.h"
 #include "kernel/for_each_fn.h"
@@ -99,10 +98,8 @@ int main(int argc, char ** argv) {
             initialize_sexpr_module();
             initialize_kernel_module();
             initialize_inductive_module();
-            initialize_quotient_module();
         }
         ~initer() {
-            finalize_quotient_module();
             finalize_inductive_module();
             finalize_kernel_module();
             finalize_sexpr_module();

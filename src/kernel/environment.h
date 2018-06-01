@@ -112,11 +112,14 @@ class environment {
 
     header         m_header;
     environment_id m_id;
+    bool           m_quot_initialized{false};
     declarations   m_declarations;
     extensions     m_extensions;
 
-    environment(header const & h, environment_id const & id, declarations const & d, extensions const & ext);
-
+    environment(environment const & env, declarations const & ds):
+        m_header(env.m_header), m_id(environment_id::mk_descendant(env.m_id)), m_quot_initialized(env.m_quot_initialized), m_declarations(ds), m_extensions(env.m_extensions) {}
+    environment(environment const & env, extensions const & exts):
+        m_header(env.m_header), m_id(environment_id::mk_descendant(env.m_id)), m_quot_initialized(env.m_quot_initialized), m_declarations(env.m_declarations), m_extensions(exts) {}
 public:
     environment(unsigned trust_lvl = 0);
     environment(unsigned trust_lvl, std::unique_ptr<normalizer_extension> ext);
@@ -131,9 +134,14 @@ public:
     /** \brief Return the trust level of this environment. */
     unsigned trust_lvl() const { return m_header->trust_lvl(); }
 
-    bool is_recursor(name const & n) const { return m_header->is_recursor(*this, n); }
+    bool is_recursor(name const & n) const;
 
-    bool is_builtin(name const & n) const { return m_header->is_builtin(*this, n); }
+    bool is_builtin(name const & n) const;
+
+    bool is_quot_initialized() const { return m_quot_initialized; }
+
+    /* \brief Declare `quot` type. */
+    environment add_quot() const;
 
     /** \brief Return reference to the normalizer extension associatied with this environment. */
     normalizer_extension const & norm_ext() const { return m_header->norm_ext(); }

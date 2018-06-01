@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
+#include "kernel/quot.h"
 
 namespace lean {
 static name * g_kernel_fresh = nullptr;
@@ -276,6 +277,11 @@ bool type_checker::is_prop(expr const & e) {
 
 /** \brief Apply normalizer extensions to \c e. */
 optional<expr> type_checker::norm_ext(expr const & e) {
+    if (m_env.is_quot_initialized()) {
+        if (optional<expr> r = quot_reduce_rec(e, [&](expr const & e) { return whnf(e); })) {
+            return r;
+        }
+    }
     return m_env.norm_ext()(e, *this);
 }
 

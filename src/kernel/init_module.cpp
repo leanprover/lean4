@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/level.h"
 #include "kernel/declaration.h"
 #include "kernel/error_msgs.h"
+#include "kernel/quot.h"
 
 namespace lean {
 void initialize_kernel_module() {
@@ -21,8 +22,10 @@ void initialize_kernel_module() {
     initialize_type_checker();
     initialize_environment();
     initialize_formatter();
+    initialize_quot();
 }
 void finalize_kernel_module() {
+    finalize_quot();
     finalize_formatter();
     finalize_environment();
     finalize_type_checker();

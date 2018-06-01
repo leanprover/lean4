@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/error_msgs.h"
 #include "kernel/replace_fn.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/quot.h"
 #include "kernel/inductive/inductive.h"
 #include "library/trace.h"
 #include "library/class.h"
@@ -628,6 +629,14 @@ optional<expr> type_context_old::unfold_definition(expr const & e) {
     }
 }
 
+optional<expr> type_context_old::norm_ext(expr const & e) {
+    if (env().is_quot_initialized()) {
+        if (optional<expr> r = quot_reduce_rec(e, [&](expr const & e) { return whnf(e); }))
+            return r;
+    }
+    return env().norm_ext()(e, *this);
+}
+
 projection_info const * type_context_old::is_projection(expr const & e) {
     expr const & f = get_app_fn(e);
     if (!is_constant(f))
@@ -949,6 +958,11 @@ optional<expr> type_context_old::is_stuck(expr const & e) {
     } else if (is_annotation(e)) {
         return is_stuck(get_annotation_arg(e));
     } else {
+        if (env().is_quot_initialized()) {
+            if (optional<expr> r = quot_is_stuck(e, [&](expr const & e) { return whnf(e); },
+                                                 [&](expr const & e) { return is_stuck(e); }))
+                return r;
+        }
         return env().norm_ext().is_stuck(e, *this);
     }
 }

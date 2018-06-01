@@ -21,7 +21,6 @@ Author: Leonardo de Moura
 #include "util/name_map.h"
 #include "util/file_lock.h"
 #include "kernel/type_checker.h"
-#include "kernel/quotient/quotient.h"
 #include "library/module.h"
 #include "library/noncomputable.h"
 #include "library/constants.h"
@@ -375,7 +374,7 @@ struct quot_modification : public modification {
     LEAN_MODIFICATION("quot")
 
     void perform(environment & env) const override {
-        env = ::lean::declare_quotient(env);
+        env = env.add_quot();
     }
 
     void serialize(serializer &) const override {}
@@ -439,7 +438,7 @@ bool is_definition(environment const & env, name const & n) {
     return ext.m_module_defs.contains(n);
 }
 
-environment declare_quotient(environment const & env) {
+environment add_quot(environment const & env) {
     return add_and_perform(env, std::make_shared<quot_modification>());
 }
 

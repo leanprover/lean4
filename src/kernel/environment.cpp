@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/type_checker.h"
+#include "kernel/quot.h"
 
 namespace lean {
 environment_header::environment_header(unsigned trust_lvl, std::unique_ptr<normalizer_extension const> ext):
@@ -70,9 +71,6 @@ bool environment_id::is_descendant(environment_id const & id) const {
     return false;
 }
 
-environment::environment(header const & h, environment_id const & ancestor, declarations const & d, extensions const & exts):
-    m_header(h), m_id(environment_id::mk_descendant(ancestor)), m_declarations(d), m_extensions(exts) {}
-
 environment::environment(unsigned trust_lvl):
     environment(trust_lvl, mk_id_normalizer_extension())
 {}
@@ -100,13 +98,29 @@ declaration environment::get(name const & n) const {
     throw_kernel_exception(env, "invalid declaration, it was checked/certified in an incompatible environment");
 }
 
+bool environment::is_recursor(name const & n) const {
+    return m_header->is_recursor(*this, n) || (m_quot_initialized && quot_is_rec(n));
+}
+
+bool environment::is_builtin(name const & n) const {
+    return m_header->is_builtin(*this, n) || (m_quot_initialized && quot_is_decl(n));
+}
+
+environment environment::add_quot() const {
+    if (m_quot_initialized)
+        return *this;
+    environment new_env = quot_declare(*this);
+    new_env.m_quot_initialized = true;
+    return new_env;
+}
+
 environment environment::add(certified_declaration const & d) const {
     if (!m_id.is_descendant(d.get_id()))
         throw_incompatible_environment(*this);
     name const & n = d.get_declaration().get_name();
     if (find(n))
         throw_already_declared(*this, n);
-    return environment(m_header, m_id, insert(m_declarations, n, d.get_declaration()), m_extensions);
+    return environment(*this, insert(m_declarations, n, d.get_declaration()));
 }
 
 environment environment::add_meta(buffer<declaration> const & ds, bool check) const {
@@ -143,11 +157,13 @@ environment environment::replace(certified_declaration const & t) const {
         throw_kernel_exception(*this, "invalid replacement of axiom with theorem, the 'replace' operation can only be used when the axiom and theorem have the same type");
     if (ax->get_univ_params() != t.get_declaration().get_univ_params())
         throw_kernel_exception(*this, "invalid replacement of axiom with theorem, the 'replace' operation can only be used when the axiom and theorem have the same universe parameters");
-    return environment(m_header, m_id, insert(m_declarations, n, t.get_declaration()), m_extensions);
+    return environment(*this, insert(m_declarations, n, t.get_declaration()));
 }
 
 environment environment::forget() const {
-    return environment(m_header, environment_id(), m_declarations, m_extensions);
+    environment new_env = *this;
+    new_env.m_id = environment_id();
+    return new_env;
 }
 
 class extension_manager {
@@ -205,7 +221,7 @@ environment environment::update(unsigned id, std::shared_ptr<environment_extensi
     if (id >= new_exts->size())
         new_exts->resize(id+1);
     (*new_exts)[id] = ext;
-    return environment(m_header, m_id, m_declarations, new_exts);
+    return environment(*this, new_exts);
 }
 
 void environment::for_each_declaration(std::function<void(declaration const & d)> const & f) const {

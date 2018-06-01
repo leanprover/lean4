@@ -168,7 +168,7 @@ constant quot.lift {α : Sort u} {r : α → α → Prop} {β : Sort v} (f : α 
 constant quot.ind {α : Sort u} {r : α → α → Prop} {β : quot r → Prop} :
   (∀ a : α, β (quot.mk r a)) → ∀ q : quot r, β q
 -/
-init_quotient
+init_quot
 
 inductive heq {α : Sort u} (a : α) : Π {β : Sort u}, β → Prop
 | refl : heq a

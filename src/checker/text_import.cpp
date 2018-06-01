@@ -11,7 +11,7 @@ Author: Gabriel Ebner
 #include "kernel/environment.h"
 #include "kernel/inductive/inductive.h"
 #include "kernel/type_checker.h"
-#include "kernel/quotient/quotient.h"
+#include "kernel/quot.h"
 #include "checker/text_import.h"
 
 namespace lean {
@@ -125,7 +125,7 @@ struct text_importer {
         } else if (cmd == "#AX") {
             handle_ax(in);
         } else if (cmd == "#QUOT") {
-            m_env = declare_quotient(m_env);
+            m_env = m_env.add_quot();
         } else if (cmd == "#PREFIX") {
             handle_notation(in, lowlevel_notation_kind::Prefix);
         } else if (cmd == "#POSTFIX") {

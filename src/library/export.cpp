@@ -6,10 +6,10 @@ Author: Leonardo de Moura
 */
 #include <unordered_map>
 #include "frontends/lean/parser_config.h"
-#include "kernel/quotient/quotient.h"
 #include "kernel/expr_maps.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/instantiate.h"
+#include "kernel/quot.h"
 #include "kernel/inductive/inductive.h"
 #include "library/module.h"
 #include "library/unfold_macros.h"
@@ -221,7 +221,7 @@ class exporter {
         // do not export meta declarations
         if (d.is_meta()) return;
 
-        if (is_quotient_decl(m_env, d.get_name()))
+        if (quot_is_decl(d.get_name()))
             return export_quotient();
         if (inductive::is_inductive_decl(m_env, d.get_name()))
             return export_inductive(d.get_name());
@@ -288,11 +288,12 @@ class exporter {
     }
 
     void export_quotient() {
+        if (!m_env.is_quot_initialized())
+            return;
         if (m_quotient_exported) return;
         m_quotient_exported = true;
 
-        for (auto & n : quotient_required_decls())
-            export_declaration(n);
+        export_declaration("eq");
 
         m_out << "#QUOT\n";
     }
@@ -336,8 +337,7 @@ public:
     void operator()(optional<names> const & decls) {
         m_name2idx[{}] = 0;
         m_level2idx[{}] = 0;
-        if (has_quotient(m_env))
-            export_quotient();
+        export_quotient();
         if (decls) {
             for (auto & d : *decls)
                 export_declaration(d);

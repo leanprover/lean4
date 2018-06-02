@@ -451,7 +451,6 @@ endfunction()
 add_subdirectory(tests/util)
 add_subdirectory(tests/kernel)
 add_subdirectory(tests/library)
-add_subdirectory(tests/frontends/lean)
 add_subdirectory(tests/shell)
 
 # Include style check

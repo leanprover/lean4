@@ -514,8 +514,6 @@ inline expr mk_app(expr const & e1, expr const & e2, expr const & e3, expr const
     return mk_app({e1, e2, e3, e4, e5}, g);
 }
 
-/** \brief Return application (...((f x_{n-1}) x_{n-2}) ... x_0) */
-expr mk_app_vars(expr const & f, unsigned n, tag g = nulltag);
 // =======================================
 
 // =======================================

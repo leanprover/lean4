@@ -473,15 +473,6 @@ expr mk_rev_app(unsigned num_args, expr const * args, tag g) {
     return mk_rev_app(mk_app(args[num_args-1], args[num_args-2], g), num_args-2, args, g);
 }
 
-expr mk_app_vars(expr const & f, unsigned n, tag g) {
-    expr r = f;
-    while (n > 0) {
-        --n;
-        r = mk_app(r, mk_var(n, g), g);
-    }
-    return r;
-}
-
 expr const & get_app_args(expr const & e, buffer<expr> & args) {
     unsigned sz = args.size();
     expr const * it = &e;

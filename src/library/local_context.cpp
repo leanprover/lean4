@@ -24,16 +24,16 @@ static local_decl * g_dummy_decl;
 void local_decl::cell::dealloc() {
     delete this;
 }
-local_decl::cell::cell(unsigned idx, name const & n, name const & pp_n, expr const & t, optional<expr> const & v, binder_info const & bi):
-    m_name(n), m_pp_name(pp_n), m_type(t), m_value(v), m_bi(bi), m_idx(idx), m_rc(1) {}
+local_decl::cell::cell(unsigned idx, name const & n, name const & un, expr const & t, optional<expr> const & v, binder_info const & bi):
+    m_name(n), m_user_name(un), m_type(t), m_value(v), m_bi(bi), m_idx(idx), m_rc(1) {}
 
 local_decl::local_decl():local_decl(*g_dummy_decl) {}
-local_decl::local_decl(unsigned idx, name const & n, name const & pp_n, expr const & t, optional<expr> const & v, binder_info const & bi) {
-    m_ptr = new cell(idx, n, pp_n, t, v, bi);
+local_decl::local_decl(unsigned idx, name const & n, name const & un, expr const & t, optional<expr> const & v, binder_info const & bi) {
+    m_ptr = new cell(idx, n, un, t, v, bi);
 }
 
 local_decl::local_decl(local_decl const & d, expr const & t, optional<expr> const & v):
-    local_decl(d.m_ptr->m_idx, d.m_ptr->m_name, d.m_ptr->m_pp_name, t, v, d.m_ptr->m_bi) {}
+    local_decl(d.m_ptr->m_idx, d.m_ptr->m_name, d.m_ptr->m_user_name, t, v, d.m_ptr->m_bi) {}
 
 name mk_local_decl_name() {
     return mk_tagged_fresh_name(*g_local_prefix);
@@ -44,8 +44,8 @@ static bool is_local_decl_name(name const & n) {
     return is_tagged_by(n, *g_local_prefix);
 })
 
-static expr mk_local_ref(name const & n, name const & pp_n, binder_info const & bi) {
-    return mk_local(n, pp_n, *g_dummy_type, bi);
+static expr mk_local_ref(name const & n, name const & un, binder_info const & bi) {
+    return mk_local(n, un, *g_dummy_type, bi);
 }
 
 bool is_local_decl_ref(expr const & e) {
@@ -53,7 +53,7 @@ bool is_local_decl_ref(expr const & e) {
 }
 
 expr local_decl::mk_ref() const {
-    return mk_local_ref(m_ptr->m_name, m_ptr->m_pp_name, m_ptr->m_bi);
+    return mk_local_ref(m_ptr->m_name, m_ptr->m_user_name, m_ptr->m_bi);
 }
 
 struct depends_on_fn {
@@ -173,36 +173,36 @@ void local_context::unfreeze_local_instances() {
 
 void local_context::insert_user_name(local_decl const &d) {
     unsigned_set idxs;
-    if (auto existing_idxs = m_user_name2idxs.find(d.get_pp_name())) {
+    if (auto existing_idxs = m_user_name2idxs.find(d.get_user_name())) {
         idxs = *existing_idxs;
     } else {
-        m_user_names.insert(d.get_pp_name());
+        m_user_names.insert(d.get_user_name());
     }
     idxs.insert(d.get_idx());
-    m_user_name2idxs.insert(d.get_pp_name(), idxs);
+    m_user_name2idxs.insert(d.get_user_name(), idxs);
 }
 
 void local_context::erase_user_name(local_decl const & d) {
-    unsigned_set idxs = *m_user_name2idxs.find(d.get_pp_name());
+    unsigned_set idxs = *m_user_name2idxs.find(d.get_user_name());
     idxs.erase(d.get_idx());
     if (idxs.empty()) {
-        m_user_name2idxs.erase(d.get_pp_name());
-        m_user_names.erase(d.get_pp_name());
+        m_user_name2idxs.erase(d.get_user_name());
+        m_user_names.erase(d.get_user_name());
     } else {
-        m_user_name2idxs.insert(d.get_pp_name(), idxs);
+        m_user_name2idxs.insert(d.get_user_name(), idxs);
     }
 }
 
-expr local_context::mk_local_decl(name const & n, name const & ppn, expr const & type, optional<expr> const & value, binder_info const & bi) {
+expr local_context::mk_local_decl(name const & n, name const & un, expr const & type, optional<expr> const & value, binder_info const & bi) {
     lean_assert(is_local_decl_name(n));
     lean_assert(!m_name2local_decl.contains(n));
     unsigned idx = m_next_idx;
     m_next_idx++;
-    local_decl l(idx, n, ppn, type, value, bi);
+    local_decl l(idx, n, un, type, value, bi);
     m_name2local_decl.insert(n, l);
     m_idx2local_decl.insert(idx, l);
     insert_user_name(l);
-    return mk_local_ref(n, ppn, bi);
+    return mk_local_ref(n, un, bi);
 }
 
 expr local_context::mk_local_decl(expr const & type, binder_info const & bi) {
@@ -215,20 +215,20 @@ expr local_context::mk_local_decl(expr const & type, expr const & value) {
     return mk_local_decl(n, n, type, some_expr(value), binder_info());
 }
 
-expr local_context::mk_local_decl(name const & ppn, expr const & type, binder_info const & bi) {
-    return mk_local_decl(mk_local_decl_name(), ppn, type, none_expr(), bi);
+expr local_context::mk_local_decl(name const & un, expr const & type, binder_info const & bi) {
+    return mk_local_decl(mk_local_decl_name(), un, type, none_expr(), bi);
 }
 
-expr local_context::mk_local_decl(name const & ppn, expr const & type, expr const & value) {
-    return mk_local_decl(mk_local_decl_name(), ppn, type, some_expr(value), binder_info());
+expr local_context::mk_local_decl(name const & un, expr const & type, expr const & value) {
+    return mk_local_decl(mk_local_decl_name(), un, type, some_expr(value), binder_info());
 }
 
-expr local_context::mk_local_decl(name const & n, name const & ppn, expr const & type, binder_info const & bi) {
-    return mk_local_decl(n, ppn, type, none_expr(), bi);
+expr local_context::mk_local_decl(name const & n, name const & un, expr const & type, binder_info const & bi) {
+    return mk_local_decl(n, un, type, none_expr(), bi);
 }
 
-expr local_context::mk_local_decl(name const & n, name const & ppn, expr const & type, expr const & value) {
-    return mk_local_decl(n, ppn, type, some_expr(value), binder_info());
+expr local_context::mk_local_decl(name const & n, name const & un, expr const & type, expr const & value) {
+    return mk_local_decl(n, un, type, some_expr(value), binder_info());
 }
 
 optional<local_decl> local_context::find_local_decl(name const & n) const {
@@ -404,7 +404,7 @@ bool local_context::well_formed() const {
                     lean_unreachable();
                 }
             }
-            if (!m_user_names.contains(d.get_pp_name())) {
+            if (!m_user_names.contains(d.get_user_name())) {
                 ok = false;
                 lean_unreachable();
             }
@@ -450,7 +450,7 @@ format local_context::pp(formatter const & fmt, std::function<bool(local_decl co
                 ids  = format();
             }
 
-            name n = sanitize_if_fresh(d.get_pp_name());
+            name n = sanitize_if_fresh(d.get_user_name());
             n = sanitize_name_generator_name(n);
 
             if (d.get_value()) {

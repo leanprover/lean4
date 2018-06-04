@@ -316,11 +316,11 @@ pair<local_context, expr> type_context_old::revert_core(buffer<expr> & to_revert
                         if (i > 0) out << " ";
                         out << "'" << to_revert[i] << "'";
                     }
-                    out << ", '" << d.get_pp_name() << "' "
+                    out << ", '" << d.get_user_name() << "' "
                         << "depends on " << (num == 1 ? "it" : "them")
-                        << ", and '" << d.get_pp_name() << "' is an auxiliary declaration "
+                        << ", and '" << d.get_user_name() << "' is an auxiliary declaration "
                         << "introduced by the equation compiler (possible solution: "
-                        << "use tactic 'clear' to remove '" << d.get_pp_name() << "' "
+                        << "use tactic 'clear' to remove '" << d.get_user_name() << "' "
                         << "from the local context)";
                     throw exception(out);
                 }
@@ -429,11 +429,11 @@ expr type_context_old::mk_binding(bool is_pi, local_context const & lctx, unsign
     while (i > 0) {
         --i;
         if (values[i]) {
-            new_e = mk_let(decls[i].get_pp_name(), types[i], *values[i], new_e);
+            new_e = mk_let(decls[i].get_user_name(), types[i], *values[i], new_e);
         } else if (is_pi) {
-            new_e = ::lean::mk_pi(decls[i].get_pp_name(), types[i], new_e, decls[i].get_info());
+            new_e = ::lean::mk_pi(decls[i].get_user_name(), types[i], new_e, decls[i].get_info());
         } else {
-            new_e = ::lean::mk_lambda(decls[i].get_pp_name(), types[i], new_e, decls[i].get_info());
+            new_e = ::lean::mk_lambda(decls[i].get_user_name(), types[i], new_e, decls[i].get_info());
         }
     }
     return new_e;

@@ -216,11 +216,11 @@ class cse_fn : public compiler_step_visitor {
                 if (decl.get_value()) {
                     /* let-entry */
                     expr new_v = process(*decl.get_value());
-                    expr l     = m_all_locals.push_let(decl.get_pp_name(), adjust_locals(decl.get_type()), new_v);
+                    expr l     = m_all_locals.push_let(decl.get_user_name(), adjust_locals(decl.get_type()), new_v);
                     m_new_locals.push_back(l);
             } else {
                 /* lambda-entry */
-                    expr l = m_all_locals.push_local(decl.get_pp_name(), adjust_locals(decl.get_type()), decl.get_info());
+                    expr l = m_all_locals.push_local(decl.get_user_name(), adjust_locals(decl.get_type()), decl.get_info());
                     m_new_locals.push_back(l);
                 }
             }

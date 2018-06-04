@@ -164,9 +164,9 @@ struct metavar_context::interface_impl {
                 expr type       = ::lean::abstract_locals(decl.get_type(), i, locals.data());
                 if (optional<expr> letval = decl.get_value()) {
                     letval = ::lean::abstract_locals(*letval, i, locals.data());
-                    new_v  = mk_let(decl.get_pp_name(), type, *letval, new_v);
+                    new_v  = mk_let(decl.get_user_name(), type, *letval, new_v);
                 } else {
-                    new_v  = mk_lambda(decl.get_pp_name(), type, new_v, decl.get_info());
+                    new_v  = mk_lambda(decl.get_user_name(), type, new_v, decl.get_info());
                 }
             }
             m_ctx.assign(e, new_v);

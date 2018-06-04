@@ -12,31 +12,28 @@ Author: Leonardo de Moura
 #include "library/local_instances.h"
 
 namespace lean {
+/* TODO(Leo): implement using runtime objects */
 class local_decl {
 public:
     struct cell {
-        /*
-          <name> : <type> := <value>
-
-          m_pp_name is used for interacting with the user.
-          It may not be not unique.
-        */
+        /* <name> : <type> := <value>
+           m_user_name is used for interacting with the user, and it may not be not unique. */
         name               m_name; /* this one is unique */
-        name               m_pp_name;
+        name               m_user_name;
         expr               m_type;
         optional<expr>     m_value;
         binder_info        m_bi;
         unsigned           m_idx;
         MK_LEAN_RC(); // Declare m_rc counter
         void dealloc();
-        cell(unsigned idx, name const & n, name const & pp_n, expr const & t, optional<expr> const & v,
+        cell(unsigned idx, name const & n, name const & un, expr const & t, optional<expr> const & v,
              binder_info const & bi);
     };
 private:
     cell * m_ptr;
     friend class local_context;
     friend void initialize_local_context();
-    local_decl(unsigned idx, name const & n, name const & pp_n, expr const & t, optional<expr> const & v, binder_info const & bi);
+    local_decl(unsigned idx, name const & n, name const & un, expr const & t, optional<expr> const & v, binder_info const & bi);
     local_decl(local_decl const & d, expr const & t, optional<expr> const & v);
 public:
     local_decl();
@@ -49,7 +46,7 @@ public:
     friend bool is_eqp(local_decl const & a, local_decl const & b) { return a.m_ptr == b.m_ptr; }
 
     name const & get_name() const { return m_ptr->m_name; }
-    name const & get_pp_name() const { return m_ptr->m_pp_name; }
+    name const & get_user_name() const { return m_ptr->m_user_name; }
     expr const & get_type() const { return m_ptr->m_type; }
     optional<expr> const & get_value() const { return m_ptr->m_value; }
     binder_info const & get_info() const { return m_ptr->m_bi; }
@@ -84,18 +81,20 @@ class local_context {
     typedef unsigned_map<local_decl> idx2local_decl;
     typedef rb_tree<unsigned, unsigned_cmp> unsigned_set;
     unsigned                  m_next_idx;
+    idx2local_decl            m_idx2local_decl;
     name_map<local_decl>      m_name2local_decl;
+    /* frozen local instances */
+    optional<local_instances> m_local_instances;
+    /* support for user names */
     subscripted_name_set      m_user_names;
     name_map<unsigned_set>    m_user_name2idxs;
-    idx2local_decl            m_idx2local_decl;
-    optional<local_instances> m_local_instances;
     friend class type_context_old;
 
-    void insert_user_name(local_decl const &d);
-    void erase_user_name(local_decl const &d);
+    void insert_user_name(local_decl const & d);
+    void erase_user_name(local_decl const & d);
 
     local_context remove(buffer<expr> const & locals) const;
-    expr mk_local_decl(name const & n, name const & ppn, expr const & type,
+    expr mk_local_decl(name const & n, name const & un, expr const & type,
                        optional<expr> const & value, binder_info const & bi);
     static local_decl update_local_decl(local_decl const & d, expr const & t,
                                         optional<expr> const & v) {
@@ -112,15 +111,15 @@ public:
 
     expr mk_local_decl(expr const & type, binder_info const & bi = binder_info());
     expr mk_local_decl(expr const & type, expr const & value);
-    expr mk_local_decl(name const & ppn, expr const & type, binder_info const & bi = binder_info());
-    expr mk_local_decl(name const & ppn, expr const & type, expr const & value);
+    expr mk_local_decl(name const & un, expr const & type, binder_info const & bi = binder_info());
+    expr mk_local_decl(name const & un, expr const & type, expr const & value);
 
     /* Low-level version of the methods above.
 
        \pre `n` was created using mk_local_decl_name
        \pre there is no local_decl named `n` in this local_context. */
-    expr mk_local_decl(name const & n, name const & ppn, expr const & type, binder_info const & bi = binder_info());
-    expr mk_local_decl(name const & n, name const & ppn, expr const & type, expr const & value);
+    expr mk_local_decl(name const & n, name const & un, expr const & type, binder_info const & bi = binder_info());
+    expr mk_local_decl(name const & n, name const & un, expr const & type, expr const & value);
 
     /** \brief Return the local declarations for the given reference.
         \pre is_local_decl_ref(e) */
@@ -135,7 +134,7 @@ public:
     optional<local_decl> find_if(std::function<bool(local_decl const &)> const & pred) const; // NOLINT
     optional<local_decl> back_find_if(std::function<bool(local_decl const &)> const & pred) const; // NOLINT
 
-    /** \brief Return the most recently added local_decl \c d s.t. d.get_pp_name() == n
+    /** \brief Return the most recently added local_decl \c d s.t. d.get_user_name() == n
         \remark This method is used to implement tactics such as 'revert'. */
     optional<local_decl> find_local_decl_from_user_name(name const & n) const;
 

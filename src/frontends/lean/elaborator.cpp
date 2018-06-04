@@ -2808,7 +2808,7 @@ elaborator::field_resolution elaborator::field_to_decl(expr const & e, expr cons
         name full_fname = const_name(I) + fname;
         name local_name = full_fname.replace_prefix(get_namespace(env()), {});
         if (auto ldecl = m_ctx.lctx().find_if([&](local_decl const & decl) {
-            return decl.get_info().is_rec() && decl.get_pp_name() == local_name;
+            return decl.get_info().is_rec() && decl.get_user_name() == local_name;
         })) {
             // projection is recursive call
             return field_resolution(full_fname, ldecl);

@@ -15,16 +15,15 @@ namespace parser
 structure span :=
 (left  : position)
 (right : position)
-(file  : string)
 
 structure syntax_ident :=
-(id : syntax_id) (sp : option span) (name : name) (msc : option macro_scope_id)
+(id : syntax_id) (span : option span) (name : name) (msc : option macro_scope_id)
 
 structure syntax_atom :=
-(id : syntax_id) (sp : option span) (val : name)
+(id : syntax_id) (span : option span) (val : name)
 
 structure syntax_node (syntax : Type) :=
-(id : syntax_id) (sp : option span) (m : name) (args : list syntax)
+(id : syntax_id) (span : option span) (m : name) (args : list syntax)
 
 inductive syntax
 | ident (val : syntax_ident)
@@ -35,6 +34,12 @@ inductive syntax
 
 namespace syntax
 open format
+
+protected def span : syntax → option span
+| (ident val) := val.span
+| (atom val)  := val.span
+| (lst _)     := none
+| (node val)  := val.span
 
 protected mutual def to_format, to_format_lst
 with to_format : syntax → format

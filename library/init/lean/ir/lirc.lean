@@ -15,6 +15,7 @@ We use it for testing.
 namespace lean
 namespace ir
 open lean.parser
+open lean.parser.parser_t
 
 def parse_input_aux : nat → list decl → fnid2string → parser (list decl × fnid2string)
 | 0     ds m := return (ds.reverse, m)

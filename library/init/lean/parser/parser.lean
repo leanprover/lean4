@@ -29,7 +29,7 @@ def expected.to_string : list string → string
 
 protected def message.to_string (input : string) (msg : message) : string :=
 let (line, col) := input.line_column msg.pos in
-"error at (line : " ++ to_string line ++ ", column: " ++ to_string col ++ ")\n" ++
+"error at line " ++ to_string line ++ ", column " ++ to_string col ++ ":\n" ++
 "unexpected " ++ msg.unexpected ++ "\n" ++
 let ex_list := msg.expected.to_list in
 if ex_list = [] then "" else "expected " ++ expected.to_string ex_list
@@ -54,28 +54,32 @@ inductive result (α : Type)
 
 open result
 
-def parser (α : Type) :=
-iterator → result α
+def parser_t (m : Type → Type) (α : Type) :=
+iterator → m (result α)
 
-variables {α β : Type}
+abbreviation parser (α : Type) := parser_t id α
 
-def run (p : parser α) (s : string) (fname := "") : except message α :=
-match p s.mk_iterator with
-| ok a _       := except.ok a
-| ok_eps a _ _ := except.ok a
-| error msg _  := except.error msg
+namespace parser_t
+variables {m : Type → Type} [monad m] {α β : Type}
+
+def run (p : parser_t m α) (s : string) (fname := "") : m (except message α) :=
+do r ← p s.mk_iterator,
+   pure $ match r with
+   | ok a _       := except.ok a
+   | ok_eps a _ _ := except.ok a
+   | error msg _  := except.error msg
 
 @[inline] def mk_eps_result (a : α) (it : iterator) : result α :=
 ok_eps a it dlist.empty
 
-protected def pure (a : α) : parser α :=
-λ it, mk_eps_result a it
+protected def pure (a : α) : parser_t m α :=
+λ it, pure $ mk_eps_result a it
 
-def eps : parser unit :=
-parser.pure ()
+def eps : parser_t m unit :=
+parser_t.pure ()
 
-protected def failure : parser α :=
-λ it, error { unexpected := "failure", pos := it.offset } ff
+protected def failure : parser_t m α :=
+λ it, pure $ error { unexpected := "failure", pos := it.offset } ff
 
 def merge (msg₁ msg₂ : message) : message :=
 { expected := msg₁.expected ++ msg₂.expected, ..msg₁ }
@@ -87,34 +91,42 @@ def merge (msg₁ msg₂ : message) : message :=
   3- If `q` succeeds but does not consume input, then execute `q`
      and merge error messages if both do not consume any input.
 -/
-protected def bind (p : parser α) (q : α → parser β) : parser β :=
-λ it, match p it with
-     | ok a it :=
-       (match q a it with
-        | ok_eps b it msg₂ := ok b it
-        | error msg ff     := error msg tt
-        | other            := other)
-     | ok_eps a it ex₁ :=
-       (match q a it with
-        | ok_eps b it ex₂ := ok_eps b it (ex₁ ++ ex₂)
-        | error msg₂ ff   := error { expected := ex₁ ++ msg₂.expected, .. msg₂ } ff
-        | other           := other)
-     | error msg c := error msg c
+protected def bind (p : parser_t m α) (q : α → parser_t m β) : parser_t m β :=
+λ it, do r ← p it,
+         match r with
+         | ok a it :=
+           do r ← q a it,
+              pure (match r with
+                | ok_eps b it msg₂ := ok b it
+                | error msg ff     := error msg tt
+                | other            := other)
+         | ok_eps a it ex₁ :=
+           do r ← q a it,
+              pure (match r with
+                | ok_eps b it ex₂ := ok_eps b it (ex₁ ++ ex₂)
+                | error msg₂ ff   := error { expected := ex₁ ++ msg₂.expected, .. msg₂ } ff
+                | other           := other)
+         | error msg c := pure $ error msg c
 
-instance : monad parser :=
-{ bind := @parser.bind, pure := @parser.pure }
+instance : monad (parser_t m) :=
+{ bind := λ _ _, parser_t.bind, pure := λ _, parser_t.pure }
 
-instance : monad_fail parser :=
-{ fail := λ _ s it, error { unexpected := s, pos := it.offset } ff }
+instance : monad_fail (parser_t m) :=
+{ fail := λ _ s it, pure $ error { unexpected := s, pos := it.offset } ff }
+
+instance : has_monad_lift m (parser_t m) :=
+{ monad_lift := λ _ x it, do a ← x,
+                             pure (mk_eps_result a it) }
 
 def expect (msg : message) (exp : string) : message :=
 {expected := dlist.singleton exp, ..msg}
 
-@[inline] def label (p : parser α) (ex : string) : parser α :=
-λ it, match p it with
-      | ok_eps a it _  := ok_eps a it (dlist.singleton ex)
-      | error msg ff   := error (expect msg ex) ff
-      | other          := other
+@[inline] def label (p : parser_t m α) (ex : string) : parser_t m α :=
+λ it, do r ← p it,
+         pure $ match r with
+           | ok_eps a it _  := ok_eps a it (dlist.singleton ex)
+           | error msg ff   := error (expect msg ex) ff
+           | other          := other
 
 infixr ` <?> `:2 := label
 
@@ -135,10 +147,11 @@ together.
 ```
 Without the `try` combinator we will not be able to backtrack on the `let` keyword.
 -/
-def try (p : parser α) : parser α :=
-λ it, match p it with
-      | error msg _  := error msg ff
-      | other        := other
+def try (p : parser_t m α) : parser_t m α :=
+λ it, do r ← p it,
+         pure $ match r with
+           | error msg _  := error msg ff
+           | other        := other
 
 /--
   The `orelse p q` combinator behaves as follows:
@@ -155,61 +168,65 @@ def try (p : parser α) : parser α :=
      it combines their error messages (even if one of
      them succeeded).
 -/
-protected def orelse (p q : parser α) : parser α :=
-λ it, match p it with
+protected def orelse (p q : parser_t m α) : parser_t m α :=
+λ it, do r ← p it,
+      match r with
       | ok_eps a it' ex₁ :=
-        (match q it with
-         | ok_eps _ _ ex₂ := ok_eps a it' (ex₁ ++ ex₂)
-         | error msg₂ ff  := ok_eps a it' (ex₁ ++ msg₂.expected)
-         | other          := other)
+        do r' ← q it,
+        pure (match r' with
+          | ok_eps _ _ ex₂ := ok_eps a it' (ex₁ ++ ex₂)
+          | error msg₂ ff  := ok_eps a it' (ex₁ ++ msg₂.expected)
+          | other          := other)
       | error msg₁ ff :=
-        (match q it with
+        do r' ← q it,
+        pure (match r' with
          | ok_eps a it' ex₂ := ok_eps a it' (msg₁.expected ++ ex₂)
          | error msg₂ ff    := error (merge msg₁ msg₂) ff
          | other            := other)
-      | other              := other
+      | other              := pure other
 
-instance : alternative parser :=
-{ orelse  := @parser.orelse,
-  failure := @parser.failure }
+instance : alternative (parser_t m) :=
+{ orelse  := λ _, parser_t.orelse,
+  failure := λ _, parser_t.failure }
 
 @[inline] def eoi_error (pos : position) : result α :=
 error { pos := pos, unexpected := "end of input" } ff
 
-def curr : parser char :=
-λ it, mk_eps_result it.curr it
+def curr : parser_t m char :=
+λ it, pure $ mk_eps_result it.curr it
 
-@[inline] def cond (p : char → bool) (t : parser α) (e : parser α) : parser α :=
+@[inline] def cond (p : char → bool) (t : parser_t m α) (e : parser_t m α) : parser_t m α :=
 λ it, if p it.curr then t it else e it
 
 /--
 If the next character `c` satisfies `p`, then
 update position and return `c`. Otherwise,
 generate error message with current position and character. -/
-@[inline] def satisfy (p : char → bool) : parser char :=
-λ it, if !it.has_next then eoi_error it.offset
-      else let c := it.curr in
-           if p c then ok c it.next
-           else error { pos := it.offset, unexpected := repr c } ff
+@[inline] def satisfy (p : char → bool) : parser_t m char :=
+λ it, pure $
+        if !it.has_next then eoi_error it.offset
+        else let c := it.curr in
+            if p c then ok c it.next
+            else error { pos := it.offset, unexpected := repr c } ff
 
-def ch (c : char) : parser char :=
+def ch (c : char) : parser_t m char :=
 satisfy (= c)
 
-def alpha : parser char :=
+def alpha : parser_t m char :=
 satisfy char.is_alpha
 
-def digit : parser char :=
+def digit : parser_t m char :=
 satisfy char.is_digit
 
-def upper : parser char :=
+def upper : parser_t m char :=
 satisfy char.is_upper
 
-def lower : parser char :=
+def lower : parser_t m char :=
 satisfy char.is_lower
 
-def any : parser char :=
-λ it, if !it.has_next then error { pos := it.offset, unexpected := "end of input" } ff
-     else ok it.curr it.next
+def any : parser_t m char :=
+λ it, pure $ if !it.has_next then error { pos := it.offset, unexpected := "end of input" } ff
+             else ok it.curr it.next
 
 private def str_aux (s : string) : nat → iterator → iterator → result string
 | 0     _    it := ok s it
@@ -220,13 +237,13 @@ private def str_aux (s : string) : nat → iterator → iterator → result stri
 
 /--
 `str s` parses a sequence of elements that match `s`. Returns the parsed string (i.e. `s`).
-This parser consumes no input if it fails (even if a partial match).
-Note: The behaviour of this parser is different to that the `string` parser in the Parsec Haskell library,
+This parser_t m consumes no input if it fails (even if a partial match).
+Note: The behaviour of this parser_t m is different to that the `string` parser_t m in the Parsec Haskell library,
 as this one is all-or-nothing.
 -/
-def str (s : string) : parser string :=
-λ it, if s.is_empty then mk_eps_result "" it
-      else str_aux s s.length s.mk_iterator it
+def str (s : string) : parser_t m string :=
+λ it, pure $ if s.is_empty then mk_eps_result "" it
+             else str_aux s s.length s.mk_iterator it
 
 private def take_aux : nat → string → iterator →result string
 | 0     r it := ok r it
@@ -235,9 +252,9 @@ private def take_aux : nat → string → iterator →result string
   else take_aux n (r.push (it.curr)) it.next
 
 /-- Consume `n` characters. -/
-def take (n : nat) : parser string :=
-λ it, if n = 0 then mk_eps_result "" it
-      else take_aux n "" it
+def take (n : nat) : parser_t m string :=
+λ it, pure $ if n = 0 then mk_eps_result "" it
+             else take_aux n "" it
 
 @[inline] private def mk_string_result (r : string) (it : iterator) : result string :=
 if r.is_empty then mk_eps_result r it
@@ -253,32 +270,33 @@ private def take_while_aux (p : char → bool) : nat → string → iterator →
 
 /--
 Consume input as long as the predicate returns `tt`, and return the consumed input.
-This parser does not fail. It will return an empty string if the predicate
+This parser_t m does not fail. It will return an empty string if the predicate
 returns `ff` on the current character. -/
-def take_while (p : char → bool) : parser string :=
-λ it, take_while_aux p it.remaining "" it
+def take_while (p : char → bool) : parser_t m string :=
+λ it, pure $ take_while_aux p it.remaining "" it
 
-def take_while_cont (p : char → bool) (ini : string) : parser string :=
-λ it, take_while_aux p it.remaining ini it
+def take_while_cont (p : char → bool) (ini : string) : parser_t m string :=
+λ it, pure $ take_while_aux p it.remaining ini it
 
 /--
 Consume input as long as the predicate returns `tt`, and return the consumed input.
-This parser requires the predicate to succeed on at least once. -/
-def take_while1 (p : char → bool) : parser string :=
-λ it, if !it.has_next then eoi_error it.offset
-      else let c := it.curr in
-           if p c
-           then let input := it.next in
-                take_while_aux p input.remaining (to_string c) input
-           else error { pos := it.offset, unexpected := repr c } ff
+This parser_t m requires the predicate to succeed on at least once. -/
+def take_while1 (p : char → bool) : parser_t m string :=
+λ it, pure $
+        if !it.has_next then eoi_error it.offset
+        else let c := it.curr in
+            if p c
+            then let input := it.next in
+                  take_while_aux p input.remaining (to_string c) input
+            else error { pos := it.offset, unexpected := repr c } ff
 
 /--
 Consume input as long as the predicate returns `ff` (i.e. until it returns `tt`), and return the consumed input.
-This parser does not fail. -/
-def take_until (p : char → bool) : parser string :=
+This parser_t m does not fail. -/
+def take_until (p : char → bool) : parser_t m string :=
 take_while (λ c, !p c)
 
-def take_until1 (p : char → bool) : parser string :=
+def take_until1 (p : char → bool) : parser_t m string :=
 take_while1 (λ c, !p c)
 
 @[inline] private def mk_consumed_result (consumed : bool) (it : iterator) : result unit :=
@@ -294,135 +312,140 @@ private def take_while_aux' (p : char → bool) : nat → bool → iterator → 
        else mk_consumed_result consumed it
 
 /-- Similar to `take_while` but it does not return the consumed input. -/
-def take_while' (p : char → bool) : parser unit :=
-λ it, take_while_aux' p it.remaining ff it
+def take_while' (p : char → bool) : parser_t m unit :=
+λ it, pure $ take_while_aux' p it.remaining ff it
 
 /-- Similar to `take_while1` but it does not return the consumed input. -/
-def take_while1' (p : char → bool) : parser unit :=
-λ it, if !it.has_next then eoi_error it.offset
-      else let c := it.curr in
-           if p c
-           then let input := it.next in
-                take_while_aux' p input.remaining tt input
-           else error { pos := it.offset, unexpected := repr c } ff
+def take_while1' (p : char → bool) : parser_t m unit :=
+λ it, pure $
+        if !it.has_next then eoi_error it.offset
+        else let c := it.curr in
+            if p c
+            then let input := it.next in
+                  take_while_aux' p input.remaining tt input
+            else error { pos := it.offset, unexpected := repr c } ff
 
 /-- Consume zero or more whitespaces. -/
-def whitespace : parser unit :=
+def whitespace : parser_t m unit :=
 take_while' char.is_whitespace
 
 /-- Shorthand for `p <* whitespace` -/
-def lexeme (p : parser α) : parser α :=
+def lexeme (p : parser_t m α) : parser_t m α :=
 p <* whitespace
 
 /-- Parse a numeral in decimal. -/
-def num : parser nat :=
+def num : parser_t m nat :=
 string.to_nat <$> (take_while1 char.is_digit)
 
 /-- Return the number of characters left to be parsed. -/
-def remaining : parser nat :=
-λ it, mk_eps_result it.remaining it
+def remaining : parser_t m nat :=
+λ it, pure $ mk_eps_result it.remaining it
 
 /-- Succeed only if there are at least `n` characters left. -/
-def ensure (n : nat) : parser unit :=
-λ it, if n ≤ it.remaining then mk_eps_result () it
-      else error { pos := it.offset, unexpected := "end of input", expected := dlist.singleton ("at least " ++ to_string n ++ " characters") } ff
+def ensure (n : nat) : parser_t m unit :=
+λ it, pure $ if n ≤ it.remaining then mk_eps_result () it
+             else error { pos := it.offset, unexpected := "end of input", expected := dlist.singleton ("at least " ++ to_string n ++ " characters") } ff
 
-def left_over : parser iterator :=
-λ it, mk_eps_result it it
+def left_over : parser_t m iterator :=
+λ it, pure $ mk_eps_result it it
 
 /-- Return the current position. -/
-def pos : parser position :=
-λ it, mk_eps_result it.offset it
+def pos : parser_t m position :=
+λ it, pure $ mk_eps_result it.offset it
 
-def many1_aux (p : parser α) : nat → parser (list α)
+def many1_aux (p : parser_t m α) : nat → parser_t m (list α)
 | 0     := do a ← p, return [a]
 | (n+1) := do a ← p,
               as ← (many1_aux n <|> return []),
               return (a::as)
 
-def many1 (p : parser α) : parser (list α) :=
+def many1 (p : parser_t m α) : parser_t m (list α) :=
 do r ← remaining, many1_aux p r
 
-def many (p : parser α) : parser (list α) :=
+def many (p : parser_t m α) : parser_t m (list α) :=
 many1 p <|> return []
 
-def many1_aux' (p : parser α) : nat → parser unit
+def many1_aux' (p : parser_t m α) : nat → parser_t m unit
 | 0     := p >> return ()
 | (n+1) := p >> (many1_aux' n <|> return ())
 
-def many1' (p : parser α) : parser unit :=
+def many1' (p : parser_t m α) : parser_t m unit :=
 do r ← remaining, many1_aux' p r
 
-def many' (p : parser α) : parser unit :=
+def many' (p : parser_t m α) : parser_t m unit :=
 many1' p <|> return ()
 
-def eoi : parser unit :=
-λ it, if it.remaining = 0 then mk_eps_result () it
-      else error { pos := it.offset, unexpected := repr it.curr, expected := dlist.singleton ("end of input") } ff
+def eoi : parser_t m unit :=
+λ it, pure $ if it.remaining = 0 then mk_eps_result () it
+             else error { pos := it.offset, unexpected := repr it.curr, expected := dlist.singleton ("end of input") } ff
 
-def sep_by1 (p : parser α) (sep : parser β) : parser (list α) :=
+def sep_by1 (p : parser_t m α) (sep : parser_t m β) : parser_t m (list α) :=
 (::) <$> p <*> many (sep >> p)
 
-def sep_by (p : parser α) (sep : parser β) : parser (list α) :=
+def sep_by (p : parser_t m α) (sep : parser_t m β) : parser_t m (list α) :=
 sep_by1 p sep <|> return []
 
-def fix_aux (f : parser α → parser α) : nat → parser α
+def fix_aux (f : parser_t m α → parser_t m α) : nat → parser_t m α
 | 0     := failure
 | (n+1) := f (fix_aux n)
 
-def fix (f : parser α → parser α) : parser α :=
+def fix (f : parser_t m α → parser_t m α) : parser_t m α :=
 do n ← remaining, fix_aux f (n+1)
 
-def foldr_aux (f : α → β → β) (p : parser α) (b : β) : nat → parser β
+def foldr_aux (f : α → β → β) (p : parser_t m α) (b : β) : nat → parser_t m β
 | 0     := return b
 | (n+1) := (f <$> p <*> foldr_aux n) <|> return b
 
 /-- Matches zero or more occurrences of `p`, and folds the result. -/
-def foldr (f : α → β → β) (p : parser α) (b : β) : parser β :=
+def foldr (f : α → β → β) (p : parser_t m α) (b : β) : parser_t m β :=
 λ it, foldr_aux f p b it.remaining it
 
-def foldl_aux (f : α → β → α) (p : parser β) : α → nat → parser α
+def foldl_aux (f : α → β → α) (p : parser_t m β) : α → nat → parser_t m α
 | a 0     := return a
 | a (n+1) := (do x ← p, foldl_aux (f a x) n) <|> return a
 
 /-- Matches zero or more occurrences of `p`, and folds the result. -/
-def foldl (f : α → β → α) (a : α) (p : parser β) : parser α :=
+def foldl (f : α → β → α) (a : α) (p : parser_t m β) : parser_t m α :=
 λ it, foldl_aux f p a it.remaining it
 
 /-- Parse `p` without consuming any input. -/
-def lookahead (p : parser α) : parser α :=
-λ it, match p it with
-      | ok a s' := mk_eps_result a it
-      | other   := other
+def lookahead (p : parser_t m α) : parser_t m α :=
+λ it, do r ← p it,
+         pure $ match r with
+           | ok a s' := mk_eps_result a it
+           | other   := other
 
-/-- `not_followed_by p` succeeds when parser `p` fails -/
-def not_followed_by (p : parser α) (msg : string := "input") : parser unit :=
-λ it, match p it with
-      | ok _ _       := error { pos := it.offset, unexpected := msg } ff
-      | ok_eps _ _ _ := error { pos := it.offset, unexpected := msg } ff
-      | error _ _    := mk_eps_result () it
+/-- `not_followed_by p` succeeds when parser_t m `p` fails -/
+def not_followed_by (p : parser_t m α) (msg : string := "input") : parser_t m unit :=
+λ it, do r ← p it,
+         pure $ match r with
+           | ok _ _       := error { pos := it.offset, unexpected := msg } ff
+           | ok_eps _ _ _ := error { pos := it.offset, unexpected := msg } ff
+           | error _ _    := mk_eps_result () it
 
 /-- Faster version of `not_followed_by (satisfy p)` -/
-@[inline] def not_followed_by_sat (p : char → bool) : parser unit :=
-λ it, if !it.has_next then mk_eps_result () it
-      else let c := it.curr in
-           if p c then error { pos := it.offset, unexpected := repr c } ff
-           else mk_eps_result () it
+@[inline] def not_followed_by_sat (p : char → bool) : parser_t m unit :=
+λ it, pure $
+        if !it.has_next then mk_eps_result () it
+        else let c := it.curr in
+            if p c then error { pos := it.offset, unexpected := repr c } ff
+            else mk_eps_result () it
 
-def unexpected (msg : string) : parser α :=
-λ it, error {unexpected := msg, pos := it.offset} ff
+def unexpected (msg : string) : parser_t m α :=
+λ it, pure $ error {unexpected := msg, pos := it.offset} ff
 
-def unexpected_at (msg : string) (pos : position) : parser α :=
-λ it, error {unexpected := msg, pos := pos} ff
+def unexpected_at (msg : string) (pos : position) : parser_t m α :=
+λ it, pure $ error {unexpected := msg, pos := pos} ff
 
-def parse (p : parser α) (s : string) (fname := "") : except message α :=
+def parse (p : parser_t m α) (s : string) (fname := "") : m (except message α) :=
 run p s fname
 
-def parse_with_eoi (p : parser α) (s : string) (fname := "") : except message α :=
+def parse_with_eoi (p : parser_t m α) (s : string) (fname := "") : m (except message α) :=
 run (p <* eoi) s fname
 
-def parse_with_left_over (p : parser α) (s : string) (fname := "") : except message (α × iterator) :=
+def parse_with_left_over (p : parser_t m α) (s : string) (fname := "") : m (except message (α × iterator)) :=
 run (prod.mk <$> p <*> left_over) s fname
 
+end parser_t
 end parser
 end lean

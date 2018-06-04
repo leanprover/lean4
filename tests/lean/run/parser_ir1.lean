@@ -4,6 +4,7 @@ import init.lean.ir.elim_phi init.lean.ir.type_check
 import init.lean.ir.extract_cpp
 
 open lean.parser
+open lean.parser.parser_t
 open lean.ir
 
 def check_decl (d : decl) : io unit :=

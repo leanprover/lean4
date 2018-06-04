@@ -7,6 +7,7 @@ prelude
 import init.lean.name init.lean.parser.string_literal
 namespace lean
 open lean.parser
+open lean.parser.parser_t
 
 private def string.mangle_aux : nat → string.iterator → string → string
 | 0     it r := r

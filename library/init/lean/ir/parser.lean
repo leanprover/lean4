@@ -11,6 +11,7 @@ import init.lean.ir.reserved
 namespace lean
 namespace ir
 open lean.parser
+open lean.parser.parser_t
 
 def symbol (s : string) : parser unit :=
 (str s >> whitespace) <?> ("'" ++ s ++ "'")

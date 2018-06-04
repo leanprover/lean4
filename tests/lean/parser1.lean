@@ -1,5 +1,6 @@
 import system.io init.lean.parser.identifier init.lean.ir.parser init.lean.ir.format
 open lean.parser
+open lean.parser.parser_t
 
 def test {α} [decidable_eq α] (p : parser α) (s : string) (e : α) : io unit :=
 match parse p s with
@@ -180,8 +181,8 @@ whitespace >> fix (λ F, parse_add F) <* eoi
 
 namespace paper_ex
 #print "Failure 3"
-def digit  : parser char := lean.parser.digit <?> "digit"
-def letter : parser char := lean.parser.alpha <?> "letter"
+def digit  : parser char := parser_t.digit <?> "digit"
+def letter : parser char := parser_t.alpha <?> "letter"
 def tst    : parser char := (digit <|> return '0') >> letter
 #eval test tst "*" 'a'
 #print "---------"

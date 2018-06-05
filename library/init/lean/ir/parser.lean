@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.lean.ir.ir init.lean.parser.parser
+import init.lean.ir.ir init.lean.parser.parser_t
 import init.lean.parser.identifier init.lean.parser.string_literal
 import init.lean.ir.reserved
 

@@ -674,8 +674,8 @@ public:
     }
 
     virtual void pop_local() override;
-    virtual bool has_local_pp_name(name const & pp_name) override {
-        return static_cast<bool>(m_lctx.m_user_name2idxs.find(pp_name));
+    virtual bool is_local_user_name(name const & n) const override {
+        return static_cast<bool>(m_lctx.m_user_name2idxs.find(n));
     }
 
     /** Similar to whnf, but invokes the given predicate before unfolding constant symbols in the head.
@@ -1013,7 +1013,7 @@ public:
     /* Helper class for creating pushing local declarations into the local context m_lctx */
     class tmp_locals {
         type_context_old & m_ctx;
-        buffer<expr>   m_locals;
+        buffer<expr>       m_locals;
 
         /* \brief Return true iff all locals in m_locals are let-decls */
         bool all_let_decls() const;

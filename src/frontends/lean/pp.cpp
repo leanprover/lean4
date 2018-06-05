@@ -714,8 +714,8 @@ auto pretty_fn::pp_const(expr const & e, optional<unsigned> const & num_ref_univ
         if (auto n1 = hidden_to_user_name(m_env, short_n))
             short_n = *n1;
     }
-    if (m_ctx.has_local_pp_name(short_n.get_root())) {
-        if (m_ctx.has_local_pp_name(n.get_root())) {
+    if (m_ctx.is_local_user_name(short_n.get_root())) {
+        if (m_ctx.is_local_user_name(n.get_root())) {
             n = get_root_tk() + n;
         }
     } else {

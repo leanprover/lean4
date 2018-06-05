@@ -13,8 +13,7 @@ namespace lean {
 
     \remark This class will eventually replace the class extension_context.
 
-    \remark This class is already using the Lean 0.3 approach where
-    constraint_seq is not used. */
+    TODO(Leo): try to remove this class from Lean4. */
 class abstract_type_context {
 public:
     virtual ~abstract_type_context() {}
@@ -32,10 +31,14 @@ public:
 
     virtual expr push_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info());
     virtual void pop_local();
-    virtual bool has_local_pp_name(name const & pp_name);
     virtual expr abstract_locals(expr const & e, unsigned num_locals, expr const * locals);
 
     expr check(expr const & e, bool infer_only) { return infer_only ? infer(e) : check(e); }
+
+    /* This method is used by the pretty printer to decide whether the `_root_` prefix needs
+       to be added or not when formatting a constant.
+       TODO(Kha, Leo): this looks hackish, we should find a better solution. */
+    virtual bool is_local_user_name(name const &) const { return false; }
 };
 
 class push_local_fn {

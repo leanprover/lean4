@@ -291,20 +291,12 @@ vm_obj expr_abstract_locals(vm_obj const & e, vm_obj const & ns) {
     return to_obj(abstract_locals(to_expr(e), locals.size(), locals.data()));
 }
 
-vm_obj expr_has_var(vm_obj const & e) {
-    return mk_vm_bool(!closed(to_expr(e)));
-}
-
-vm_obj expr_has_var_idx(vm_obj const & e, vm_obj const & u) {
+vm_obj expr_has_bvar_idx(vm_obj const & e, vm_obj const & u) {
     if (auto n = try_to_unsigned(u)) {
         return mk_vm_bool(has_free_var(to_expr(e), *n));
     } else {
         return mk_vm_false();
     }
-}
-
-vm_obj expr_has_local(vm_obj const & e) {
-    return mk_vm_bool(has_local(to_expr(e)));
 }
 
 vm_obj expr_has_meta_var(vm_obj const & e) {
@@ -453,10 +445,6 @@ vm_obj expr_pos(vm_obj const &, vm_obj const & e) {
     return mk_vm_none();
 }
 
-vm_obj expr_has_local_in(vm_obj const & e, vm_obj const & s) {
-    return mk_vm_bool(contains_local(to_expr(e), to_name_set(s)));
-}
-
 void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "var"}),              expr_var_intro);
     DECLARE_VM_BUILTIN(name({"expr", "sort"}),             expr_sort_intro);
@@ -482,9 +470,7 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "subst"}),            expr_subst);
     DECLARE_VM_BUILTIN(name({"expr", "abstract_local"}),   expr_abstract_local);
     DECLARE_VM_BUILTIN(name({"expr", "abstract_locals"}),  expr_abstract_locals);
-    DECLARE_VM_BUILTIN(name({"expr", "has_var"}),          expr_has_var);
-    DECLARE_VM_BUILTIN(name({"expr", "has_var_idx"}),      expr_has_var_idx);
-    DECLARE_VM_BUILTIN(name({"expr", "has_local"}),        expr_has_local);
+    DECLARE_VM_BUILTIN(name({"expr", "has_bvar_idx"}),     expr_has_bvar_idx);
     DECLARE_VM_BUILTIN(name({"expr", "has_meta_var"}),     expr_has_meta_var);
     DECLARE_VM_BUILTIN(name({"expr", "lift_vars"}),        expr_lift_vars);
     DECLARE_VM_BUILTIN(name({"expr", "lower_vars"}),       expr_lower_vars);
@@ -493,7 +479,6 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "copy_pos_info"}),    expr_copy_pos_info);
     DECLARE_VM_BUILTIN(name({"expr", "occurs"}),           expr_occurs);
     DECLARE_VM_BUILTIN(name({"expr", "collect_univ_params"}), expr_collect_univ_params);
-    DECLARE_VM_BUILTIN(name({"expr", "has_local_in"}),     expr_has_local_in);
 
     DECLARE_VM_CASES_BUILTIN(name({"expr", "cases_on"}),   expr_cases_on);
 

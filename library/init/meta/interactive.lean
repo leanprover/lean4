@@ -73,9 +73,9 @@ let aux (n : name) : tactic expr := do
   | (expr.const c []) := do r ← mk_const c, save_type_info r q, return r
   | _                 := i_to_expr p
 in match q with
-| (expr.const c [])    := aux c
-| (expr.local_const c) := aux c
-| _                    := i_to_expr q
+| (expr.const c []) := aux c
+| (expr.fvar c)     := aux c
+| _                 := i_to_expr q
 
 namespace interactive
 open interactive interactive.types expr
@@ -293,19 +293,19 @@ do {
    Remark: another benefit is that auxiliary temporary metavariables do not appear in error messages. -/
 meta def to_expr' (p : pexpr) : tactic expr :=
 match p with
-| (const c [])    := do new_e ← resolve_name' c, save_type_info new_e p, return new_e
-| (local_const c) := do new_e ← resolve_name' c, save_type_info new_e p, return new_e
-| _               := i_to_expr p
+| (const c [])  := do new_e ← resolve_name' c, save_type_info new_e p, return new_e
+| (fvar c)      := do new_e ← resolve_name' c, save_type_info new_e p, return new_e
+| _             := i_to_expr p
 
 precedence `generalizing` : 0
 
 private meta def collect_hyps_uids : tactic name_set :=
 do ctx ← local_context,
-   return $ ctx.foldl (λ r h, r.insert h.local_uniq_name) mk_name_set
+   return $ ctx.foldl (λ r h, r.insert h.fvar_id) mk_name_set
 
 private meta def revert_new_hyps (input_hyp_uids : name_set) : tactic unit :=
 do ctx ← local_context,
-   let to_revert := ctx.foldr (λ h r, if input_hyp_uids.contains h.local_uniq_name then r else h::r) [],
+   let to_revert := ctx.foldr (λ h r, if input_hyp_uids.contains h.fvar_id then r else h::r) [],
    tag ← get_main_tag,
    m   ← revert_lst to_revert,
    set_main_tag (mk_num_name `_case m :: tag)
@@ -340,7 +340,7 @@ do e_type ← infer_type e >>= whnf,
    return I
 
 private meta def generalize_arg_p_aux : pexpr → parser (pexpr × name)
-| (app (app (macro _ [const `eq _ ]) h) (local_const x)) := pure (h, x)
+| (app (app (macro _ [const `eq _ ]) h) (fvar x)) := pure (h, x)
 | _ := fail "parse error"
 
 
@@ -373,7 +373,7 @@ meta def cases_arg_p : parser (option name × pexpr) :=
 with_desc "(id :)? expr" $ do
   t ← texpr,
   match t with
-  | (local_const x) :=
+  | (fvar x) :=
     (tk ":" *> do t ← texpr, pure (some x, t)) <|> pure (none, t)
   | _ := pure (none, t)
 
@@ -429,7 +429,7 @@ focus1 $ do {
            get_local x
          | (none, p) := i_to_expr p),
    -- generalize major premise
-   e ← if e.is_local_constant then pure e
+   e ← if e.is_fvar then pure e
        else tactic.generalize e >> intro1,
 
    -- generalize major premise args
@@ -441,7 +441,7 @@ focus1 $ do {
       env ← get_env,
       tt ← pure $ env.is_inductive n | pure (e, [], []),
       let (locals, nonlocals) := (t.get_app_args.drop $ env.inductive_num_params n).partition
-        (λ arg : expr, arg.is_local_constant),
+        (λ arg : expr, arg.is_fvar),
       _ :: _ ← pure nonlocals | pure (e, [], []),
 
       n ← tactic.revert e,
@@ -451,7 +451,7 @@ focus1 $ do {
         h ← intro1,
         intron n,
         -- now try to clear hypotheses that may have been abstracted away
-        let locals := arg.fold [] (λ e _ acc, if e.is_local_constant then e::acc else acc),
+        let locals := arg.fold [] (λ e _ acc, if e.is_fvar then e::acc else acc),
         locals.mfor (try ∘ clear),
         pure h
       },

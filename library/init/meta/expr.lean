@@ -35,11 +35,11 @@ meta constant macro_def : Type
 
 /-- Reflect a C++ expr object. The VM replaces it with the C++ implementation. -/
 meta inductive expr (elaborated : bool := tt)
-| var      {} : nat → expr
+| bvar {} : nat → expr -- bound variables
+| fvar {} : name → expr -- free variables
 | sort     {} : level → expr
 | const    {} : name → list level → expr
 | mvar        : name → name → expr → expr
-| local_const {} : name → expr
 | app         : expr → expr → expr
 | lam         : name → binder_info → expr → expr → expr
 | pi          : name → binder_info → expr → expr → expr
@@ -52,8 +52,8 @@ meta instance : inhabited expr :=
 ⟨expr.sort level.zero⟩
 
 meta constant expr.macro_def_name (d : macro_def) : name
-meta def expr.mk_var (n : nat) : expr :=
-expr.var n
+meta def expr.mk_bvar (n : nat) : expr :=
+expr.bvar n
 
 /- Expressions can be annotated using the annotation macro. -/
 meta constant expr.is_annotation : expr elab → option (name × expr elab)
@@ -98,9 +98,7 @@ meta constant expr.instantiate_vars        : expr → list expr → expr
 protected meta constant expr.subst : expr elab → expr elab → expr elab
 
 /-- `has_var e` returns true iff e has free variables. -/
-meta constant expr.has_var       : expr → bool
-meta constant expr.has_var_idx   : expr → nat → bool
-meta constant expr.has_local     : expr → bool
+meta constant expr.has_bvar_idx   : expr → nat → bool
 meta constant expr.has_meta_var  : expr → bool
 /-- `lower_vars e s d` lowers the free variables >= s in `e` by `d`. That is, a free variable `var i` s.t.
    `i >= s` is mapped to `var (i-d)`. -/
@@ -117,8 +115,6 @@ meta constant expr.get_nat_value : expr → option nat
 meta constant expr.collect_univ_params : expr → list name
 /-- `occurs e t` returns `tt` iff `e` occurs in `t` -/
 meta constant expr.occurs        : expr → expr → bool
-
-meta constant expr.has_local_in : expr → name_set → bool
 
 /-- (reflected a) is a special opaque container for a closed `expr` representing `a`.
     It can only be obtained via type class inference, which will use the representation
@@ -171,8 +167,8 @@ const `true []
 meta def mk_false : expr :=
 const `false []
 
-meta def is_var : expr → bool
-| (var _) := tt
+meta def is_bvar : expr → bool
+| (bvar _) := tt
 | _       := ff
 
 meta def app_of_list : expr → list expr → expr
@@ -226,13 +222,13 @@ meta def is_constant : expr elab → bool
 | (const n ls) := tt
 | e            := ff
 
-meta def is_local_constant : expr → bool
-| (local_const n) := tt
-| e               := ff
+meta def is_fvar : expr → bool
+| (fvar n) := tt
+| e        := ff
 
-meta def local_uniq_name : expr → name
-| (local_const n) := n
-| e               := name.anonymous
+meta def fvar_id : expr → name
+| (fvar n) := n
+| e        := name.anonymous
 
 meta def is_constant_of : expr elab → name → bool
 | (const n₁ ls) n₂ := n₁ = n₂
@@ -302,10 +298,6 @@ meta def is_pi : expr → bool
 | (pi _ _ _ _) := tt
 | e            := ff
 
-meta def is_arrow : expr → bool
-| (pi _ _ _ b) := bnot (has_var b)
-| e            := ff
-
 meta def is_let : expr → bool
 | (elet _ _ _ _) := tt
 | e              := ff
@@ -354,11 +346,11 @@ open format
 private meta def p := λ xs, paren (format.join (list.intersperse " " xs))
 
 meta def to_raw_fmt : expr elab → format
-| (var n) := p ["var", to_fmt n]
+| (bvar n) := p ["bvar", to_fmt n]
+| (fvar n) := p ["fvar", to_fmt n]
 | (sort l) := p ["sort", to_fmt l]
 | (const n ls) := p ["const", to_fmt n, to_fmt ls]
 | (mvar n m t)   := p ["mvar", to_fmt n, to_fmt m, to_raw_fmt t]
-| (local_const n) := p ["local_const", to_fmt n]
 | (app e f) := p ["app", to_raw_fmt e, to_raw_fmt f]
 | (lam n bi e t) := p ["lam", to_fmt n, repr bi, to_raw_fmt e, to_raw_fmt t]
 | (pi n bi e t) := p ["pi", to_fmt n, repr bi, to_raw_fmt e, to_raw_fmt t]

@@ -567,7 +567,7 @@ meta def intro_lst : list name → tactic (list expr)
 meta def intros_dep : tactic (list expr) :=
 do t ← target,
    let proc (b : expr) :=
-      if b.has_var_idx 0 then
+      if b.has_bvar_idx 0 then
         do h ← intro1, hs ← intros_dep, return (h::hs)
       else
         -- body doesn't depend on new hypothesis
@@ -603,7 +603,7 @@ do lctx ← local_context,
    | none           := revert_lst lctx
    | some []        := revert_lst lctx
                        /- `hi` is the last local instance. We shoul truncate `lctx` at `hi`. -/
-   | some (hi::his) := revert_lst $ lctx.foldl (λ r h, if h.local_uniq_name = hi.local_uniq_name then [] else h :: r) []
+   | some (hi::his) := revert_lst $ lctx.foldl (λ r h, if h.fvar_id = hi.fvar_id then [] else h :: r) []
 
 meta def clear_lst : list name → tactic unit
 | []      := skip
@@ -962,7 +962,7 @@ revert_kdependencies e md
 
     It returns the constructor names associated with each new goal. -/
 meta def cases (e : expr) (ids : list name := []) (md := semireducible) (dmd := semireducible) : tactic (list name) :=
-if e.is_local_constant then
+if e.is_fvar then
   do r ← cases_core e ids md, return $ r.map (λ t, t.1)
 else do
   n ← revert_kdependencies e dmd,

@@ -343,7 +343,6 @@ void pretty_fn::set_options_core(options const & _o) {
     m_preterm           = get_pp_preterm(o);
     m_binder_types      = get_pp_binder_types(o);
     m_hide_comp_irrel   = get_pp_hide_comp_irrel(o);
-    m_use_holes         = get_pp_use_holes(o);
     m_annotations       = get_pp_annotations(o);
     m_hide_full_terms   = get_formatter_hide_full_terms(o);
     m_num_nat_coe       = m_numerals;
@@ -751,12 +750,8 @@ auto pretty_fn::pp_const(expr const & e, optional<unsigned> const & num_ref_univ
     }
 }
 
-static format pp_hole() { return format("{! !}"); }
-
 auto pretty_fn::pp_meta(expr const & e) -> result {
-    if (m_use_holes) {
-        return pp_hole();
-    } else if (mlocal_name(e) != mlocal_pp_name(e)) {
+    if (mlocal_name(e) != mlocal_pp_name(e)) {
         return result(format(mlocal_pp_name(e)));
     } else if (is_idx_metavar(e)) {
         return result(format((sstream() << "?x_" << to_meta_idx(e)).str()));
@@ -1171,15 +1166,9 @@ auto pretty_fn::pp_macro(expr const & e) -> result {
         else
             return pp(get_annotation_arg(e));
     } else if (is_synthetic_sorry(e)) {
-        if (m_use_holes)
-            return pp_hole();
-        else
-            return m_unicode ? format("⁇") : format("??");
+        return m_unicode ? format("⁇") : format("??");
     } else if (is_sorry(e)) {
-        if (m_use_holes)
-            return pp_hole();
-        else
-            return format("sorry");
+        return format("sorry");
     } else {
         return pp_macro_default(e);
     }

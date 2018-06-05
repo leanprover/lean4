@@ -86,7 +86,6 @@ private:
     bool                    m_structure_instances;
     bool                    m_structure_instances_qualifier;
     bool                    m_structure_projections;
-    bool                    m_use_holes;
     bool                    m_annotations;
 
     name mk_metavar_name(name const & m, optional<name> const & prefix = optional<name>());

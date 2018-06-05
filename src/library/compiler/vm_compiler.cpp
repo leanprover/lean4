@@ -211,6 +211,8 @@ class vm_compiler_fn {
         } else if (is_constant(fn)) {
             if (is_neutral_expr(fn)) {
                 emit(mk_sconstructor_instr(0));
+            } else if (is_unreachable_expr(fn)) {
+                emit(mk_unreachable_instr());
             } else if (optional<vm_decl> decl = get_vm_decl(m_env, const_name(fn))) {
                 compile_global(*decl, args.size(), args.data(), bpz, m);
             } else {

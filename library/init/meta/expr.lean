@@ -89,32 +89,11 @@ meta constant expr.lt : expr → expr → bool
 meta constant expr.lex_lt : expr → expr → bool
 
 meta constant expr.fold {α : Type} : expr → α → (expr → nat → α → α) → α
-meta constant expr.replace : expr → (expr → nat → option expr) → expr
-
-meta constant expr.instantiate_univ_params : expr → list (name × level) → expr
-meta constant expr.instantiate_var         : expr → expr → expr
-meta constant expr.instantiate_vars        : expr → list expr → expr
 
 protected meta constant expr.subst : expr elab → expr elab → expr elab
 
 /-- `has_var e` returns true iff e has free variables. -/
 meta constant expr.has_bvar_idx   : expr → nat → bool
-meta constant expr.has_meta_var  : expr → bool
-/-- `lower_vars e s d` lowers the free variables >= s in `e` by `d`. That is, a free variable `var i` s.t.
-   `i >= s` is mapped to `var (i-d)`. -/
-meta constant expr.lower_vars    : expr → nat → nat → expr
-/-- Lifts free variables. See `expr.lower_vars` for details. -/
-meta constant expr.lift_vars     : expr → nat → nat → expr
-protected meta constant expr.pos : expr elab → option pos
-/-- `copy_pos_info src tgt` copies position information from `src` to `tgt`. -/
-meta constant expr.copy_pos_info : expr → expr → expr
-
-meta constant expr.is_internal_cnstr : expr → option uint32
-meta constant expr.get_nat_value : expr → option nat
-
-meta constant expr.collect_univ_params : expr → list name
-/-- `occurs e t` returns `tt` iff `e` occurs in `t` -/
-meta constant expr.occurs        : expr → expr → bool
 
 /-- (reflected a) is a special opaque container for a closed `expr` representing `a`.
     It can only be obtained via type class inference, which will use the representation

@@ -238,59 +238,6 @@ vm_obj expr_fold(vm_obj const &, vm_obj const & e, vm_obj const & a, vm_obj cons
     return r;
 }
 
-vm_obj expr_replace(vm_obj const & e, vm_obj const & fn) {
-    expr r = replace(to_expr(e), [&](expr const & o, unsigned d) {
-            vm_obj new_o = invoke(fn, to_obj(o), mk_vm_nat(d));
-            if (is_none(new_o))
-                return none_expr();
-            else
-                return some_expr(to_expr(get_some_value(new_o)));
-        });
-    return to_obj(r);
-}
-
-vm_obj expr_instantiate_univ_params(vm_obj const & e, vm_obj const & nls) {
-    names ns = to_obj_list<name>(nls, [](vm_obj const & p) {
-            lean_assert(csize(p) == 2);
-            return to_name(cfield(p, 0));
-        } );
-    levels ls = to_obj_list<level>(nls, [](vm_obj const & p) {
-            lean_assert(csize(p) == 2);
-            return to_level(cfield(p, 1));
-        } );
-    return to_obj(instantiate_univ_params(to_expr(e), ns, ls));
-}
-
-vm_obj expr_instantiate_var(vm_obj const & e, vm_obj const & v) {
-    return to_obj(instantiate(to_expr(e), to_expr(v)));
-}
-
-vm_obj expr_instantiate_vars(vm_obj const & e, vm_obj const & vs) {
-    buffer<expr> vs_buf;
-    to_buffer_expr(vs, vs_buf);
-    return to_obj(instantiate(to_expr(e), vs_buf.size(), vs_buf.data()));
-}
-
-vm_obj expr_abstract_local(vm_obj const & e, vm_obj const & n) {
-    return to_obj(abstract_local(to_expr(e), to_name(n)));
-}
-
-static void list_name_to_buffer_local(vm_obj const & o, buffer<expr> & r) {
-    if (is_simple(o)) {
-        return;
-    } else {
-        expr dummy = mk_Prop();
-        r.push_back(mk_local(to_name(cfield(o, 0)), dummy));
-        list_name_to_buffer_local(cfield(o, 1), r);
-    }
-}
-
-vm_obj expr_abstract_locals(vm_obj const & e, vm_obj const & ns) {
-    buffer<expr> locals;
-    list_name_to_buffer_local(ns, locals);
-    return to_obj(abstract_locals(to_expr(e), locals.size(), locals.data()));
-}
-
 vm_obj expr_has_bvar_idx(vm_obj const & e, vm_obj const & u) {
     if (auto n = try_to_unsigned(u)) {
         return mk_vm_bool(has_free_var(to_expr(e), *n));
@@ -299,68 +246,9 @@ vm_obj expr_has_bvar_idx(vm_obj const & e, vm_obj const & u) {
     }
 }
 
-vm_obj expr_has_meta_var(vm_obj const & e) {
-    return mk_vm_bool(has_metavar(to_expr(e)));
-}
-
-vm_obj expr_lift_vars(vm_obj const & e, vm_obj const & n1, vm_obj const & n2) {
-    auto u1 = try_to_unsigned(n1);
-    auto u2 = try_to_unsigned(n2);
-    if (u1 && u2)
-        return to_obj(lift_free_vars(to_expr(e), *u1, *u2));
-    else
-        return e;
-}
-
-vm_obj expr_lower_vars(vm_obj const & e, vm_obj const & n1, vm_obj const & n2) {
-    auto u1 = try_to_unsigned(n1);
-    auto u2 = try_to_unsigned(n2);
-    if (u1 && u2)
-        return to_obj(lower_free_vars(to_expr(e), *u1, *u2));
-    else
-        return e;
-}
-
 vm_obj expr_hash(vm_obj const & e) {
     unsigned r = to_expr(e).hash() % LEAN_VM_MAX_SMALL_NAT;
     return mk_vm_simple(r); // make sure it is a simple value
-}
-
-vm_obj expr_copy_pos_info(vm_obj const & src, vm_obj const & tgt) {
-    return to_obj(copy_tag(to_expr(src), copy(to_expr(tgt))));
-}
-
-vm_obj expr_is_internal_cnstr(vm_obj const & e) {
-    auto opt_unsigned = is_internal_cnstr(to_expr(e));
-    if (opt_unsigned) {
-        std::cout << *opt_unsigned << std::endl;
-        vm_obj u = to_obj(*opt_unsigned);
-        return mk_vm_constructor(1, { u });
-    } else {
-        return mk_vm_constructor(0, {});
-    }
-}
-
-vm_obj expr_is_internal_proj(vm_obj const & e) {
-    auto opt_unsigned = is_internal_proj(to_expr(e));
-    if (opt_unsigned) {
-        std::cout << *opt_unsigned << std::endl;
-        vm_obj u = to_obj(*opt_unsigned);
-        return mk_vm_constructor(1, { u });
-    } else {
-        return mk_vm_constructor(0, {});
-    }
-}
-
-vm_obj expr_is_internal_cases(vm_obj const & e) {
-    auto opt_unsigned = is_internal_cases(to_expr(e));
-    if (opt_unsigned) {
-        std::cout << *opt_unsigned << std::endl;
-        vm_obj u = to_obj(*opt_unsigned);
-        return mk_vm_constructor(1, { u });
-    } else {
-        return mk_vm_constructor(0, {});
-    }
 }
 
 vm_obj expr_get_nat_value(vm_obj const & o) {
@@ -405,10 +293,6 @@ vm_obj vm_mk_string_val_ne_proof(vm_obj const & a, vm_obj const & b) {
     return to_obj(mk_string_val_ne_proof(to_expr(a), to_expr(b)));
 }
 
-vm_obj expr_occurs(vm_obj const & e1, vm_obj const & e2) {
-    return mk_vm_bool(occurs(to_expr(e1), to_expr(e2)));
-}
-
 vm_obj expr_subst(vm_obj const &, vm_obj const & _e1, vm_obj const & _e2) {
     expr const & e1 = to_expr(_e1);
     expr const & e2 = to_expr(_e2);
@@ -439,18 +323,12 @@ vm_obj reflect_string(vm_obj const & s) {
     return to_obj(from_string(to_string(s)));
 }
 
-vm_obj expr_pos(vm_obj const &, vm_obj const & e) {
-    if (auto p = get_pos_info(to_expr(e)))
-        return mk_vm_some(to_obj(*p));
-    return mk_vm_none();
-}
-
 void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "var"}),              expr_var_intro);
+    DECLARE_VM_BUILTIN(name({"expr", "fvar"}),             expr_local_const_intro);
     DECLARE_VM_BUILTIN(name({"expr", "sort"}),             expr_sort_intro);
     DECLARE_VM_BUILTIN(name({"expr", "const"}),            expr_const_intro);
     DECLARE_VM_BUILTIN(name({"expr", "mvar"}),             expr_mvar_intro);
-    DECLARE_VM_BUILTIN(name({"expr", "local_const"}),      expr_local_const_intro);
     DECLARE_VM_BUILTIN(name({"expr", "app"}),              expr_app_intro);
     DECLARE_VM_BUILTIN(name({"expr", "lam"}),              expr_lam_intro);
     DECLARE_VM_BUILTIN(name({"expr", "pi"}),               expr_pi_intro);
@@ -463,22 +341,9 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "lt"}),               expr_lt);
     DECLARE_VM_BUILTIN(name({"expr", "lex_lt"}),           expr_lex_lt);
     DECLARE_VM_BUILTIN(name({"expr", "fold"}),             expr_fold);
-    DECLARE_VM_BUILTIN(name({"expr", "replace"}),          expr_replace);
-    DECLARE_VM_BUILTIN(name({"expr", "instantiate_univ_params"}), expr_instantiate_univ_params);
-    DECLARE_VM_BUILTIN(name({"expr", "instantiate_var"}),  expr_instantiate_var);
-    DECLARE_VM_BUILTIN(name({"expr", "instantiate_vars"}), expr_instantiate_vars);
     DECLARE_VM_BUILTIN(name({"expr", "subst"}),            expr_subst);
-    DECLARE_VM_BUILTIN(name({"expr", "abstract_local"}),   expr_abstract_local);
-    DECLARE_VM_BUILTIN(name({"expr", "abstract_locals"}),  expr_abstract_locals);
     DECLARE_VM_BUILTIN(name({"expr", "has_bvar_idx"}),     expr_has_bvar_idx);
-    DECLARE_VM_BUILTIN(name({"expr", "has_meta_var"}),     expr_has_meta_var);
-    DECLARE_VM_BUILTIN(name({"expr", "lift_vars"}),        expr_lift_vars);
-    DECLARE_VM_BUILTIN(name({"expr", "lower_vars"}),       expr_lower_vars);
     DECLARE_VM_BUILTIN(name({"expr", "hash"}),             expr_hash);
-    DECLARE_VM_BUILTIN(name({"expr", "pos"}),              expr_pos);
-    DECLARE_VM_BUILTIN(name({"expr", "copy_pos_info"}),    expr_copy_pos_info);
-    DECLARE_VM_BUILTIN(name({"expr", "occurs"}),           expr_occurs);
-    DECLARE_VM_BUILTIN(name({"expr", "collect_univ_params"}), expr_collect_univ_params);
 
     DECLARE_VM_CASES_BUILTIN(name({"expr", "cases_on"}),   expr_cases_on);
 
@@ -493,10 +358,6 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name("mk_string_val_ne_proof"),     vm_mk_string_val_ne_proof);
 
     DECLARE_VM_BUILTIN(name("expr", "is_annotation"),      expr_is_annotation);
-
-    // Not sure if we should expose these or what?
-    DECLARE_VM_BUILTIN(name({"expr", "is_internal_cnstr"}), expr_is_internal_cnstr);
-    DECLARE_VM_BUILTIN(name({"expr", "get_nat_value"}), expr_get_nat_value);
 }
 
 void finalize_vm_expr() {

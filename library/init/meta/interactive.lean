@@ -246,15 +246,7 @@ meta def change (q : parse texpr) : parse (tk "with" *> texpr)? → parse locati
 | none (loc.ns [none]) := do e ← i_to_expr q, change_core e none
 | none (loc.ns [some h]) := do eq ← i_to_expr q, eh ← get_local h, change_core eq (some eh)
 | none _ := fail "change-at does not support multiple locations"
-| (some w) l :=
-  do u ← mk_meta_univ,
-     ty ← mk_meta_var (sort u),
-     eq ← i_to_expr ``(%%q : %%ty),
-     ew ← i_to_expr ``(%%w : %%ty),
-     let repl := λe : expr, e.replace (λ a n, if a = eq then some ew else none),
-     l.try_apply
-       (λh, do e ← infer_type h, change_core (repl e) (some h))
-       (do g ← target, change_core (repl g) none)
+| (some w) l := fail "not implemented yet"
 
 /--
 This tactic provides an exact proof term to solve the main goal. If `t` is the goal and `p` is a term of type `u` then `exact p` succeeds if and only if `t` and `u` can be unified.
@@ -347,28 +339,6 @@ private meta def generalize_arg_p_aux : pexpr → parser (pexpr × name)
 private meta def generalize_arg_p : parser (pexpr × name) :=
 with_desc "expr = id" $ parser.pexpr 0 >>= generalize_arg_p_aux
 
-/--
-`generalize : e = x` replaces all occurrences of `e` in the target with a new hypothesis `x` of the same type.
-
-`generalize h : e = x` in addition registers the hypothesis `h : e = x`.
--/
-meta def generalize (h : parse ident?) (_ : parse $ tk ":") (p : parse generalize_arg_p) : tactic unit :=
-propagate_tags $
-do let (p, x) := p,
-   e ← i_to_expr p,
-   some h ← pure h | tactic.generalize e x >> intro1 >> skip,
-   tgt ← target,
-   -- if generalizing fails, fall back to not replacing anything
-   tgt' ← do {
-     ⟨tgt', _⟩ ← solve_aux tgt (tactic.generalize e x >> target),
-     to_expr ``(Π x, %%e = x → %%(tgt'.binding_body.lift_vars 0 1))
-   } <|> to_expr ``(Π x, %%e = x → %%tgt),
-   t ← assert h tgt',
-   swap,
-   exact ``(%%t %%e rfl),
-   intro x,
-   intro h
-
 meta def cases_arg_p : parser (option name × pexpr) :=
 with_desc "(id :)? expr" $ do
   t ← texpr,
@@ -413,9 +383,6 @@ For example, given `n : nat` and a goal with a hypothesis `h : P n` and target `
 
 `induction e using r` allows the user to specify the principle of induction that should be used. Here `r` should be a theorem whose result type must be of the form `C t`, where `C` is a bound variable and `t` is a (possibly empty) sequence of bound variables
 
-`induction e generalizing z₁ ... zₙ`, where `z₁ ... zₙ` are variables in the local context, generalizes over `z₁ ... zₙ` before applying the induction but then introduces them in each goal. In other words, the net effect is that each inductive hypothesis is generalized.
-
-`induction h : t` will introduce an equality of the form `h : t = C x y`, asserting that the input term is equal to the current constructor case, to the context.
 -/
 meta def induction (hp : parse cases_arg_p) (rec_name : parse using_ident) (ids : parse with_ident_list)
   (revert : parse $ (tk "generalizing" *> ident*)?) : tactic unit :=
@@ -423,10 +390,7 @@ do in_tag ← get_main_tag,
 focus1 $ do {
     -- process `h : t` case
     e ← (match hp with
-         | (some h, p) := do
-           x ← get_unused_name,
-           generalize h () (p, x),
-           get_local x
+         | (some h, p) := fail "not implemented yet"
          | (none, p) := i_to_expr p),
    -- generalize major premise
    e ← if e.is_fvar then pure e
@@ -517,7 +481,7 @@ match pre with
      find_tagged_goal_aux pre
 
 private meta def find_case (goals : list expr) (ty : name) (idx : nat) (num_indices : nat) : option expr → expr → option (expr × expr)
-| case e := if e.has_meta_var then match e with
+| case e := match e with
   | (mvar _ _ _)    :=
     do case ← case,
        guard $ e ∈ goals,
@@ -547,7 +511,6 @@ private meta def find_case (goals : list expr) (ty : name) (idx : nat) (num_indi
   | (lam _ _ _ e) := find_case case e
   | (macro n args) := list.foldl (<|>) none $ args.map (find_case case)
   | _             := none
-  else none
 
 private meta def rename_lams : expr → list name → tactic unit
 | (lam n _ _ e) (n'::ns) := (rename n n' >> rename_lams e ns) <|> rename_lams e (n'::ns)
@@ -630,11 +593,7 @@ meta def cases : parse cases_arg_p → parse with_ident_list → tactic unit
 | (none,   p) ids := do
   e ← i_to_expr p,
   cases_core e ids
-| (some h, p) ids := do
-  x   ← get_unused_name,
-  generalize h () (p, x),
-  hx  ← get_local x,
-  cases_core hx ids
+| (some h, p) ids := fail "not implemented yet"
 
 private meta def try_cases_for_types (type_names : list name) (at_most_one : bool) : tactic unit :=
 any_hyp $ λ h, do

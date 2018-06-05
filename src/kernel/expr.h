@@ -45,7 +45,7 @@ class expr;
           |   Let           name expr expr expr
           |   Macro         macro
 */
-enum class expr_kind { Var, Sort, Constant, Meta, Local, App, Lambda, Pi, Let, Macro };
+enum class expr_kind { Var, Local, Sort, Constant, Meta, App, Lambda, Pi, Let, Macro };
 class expr_cell {
 protected:
     // The bits of the following field mean:

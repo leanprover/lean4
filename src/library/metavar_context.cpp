@@ -14,11 +14,8 @@ namespace lean {
 static name *       g_meta_prefix;
 static expr *       g_dummy_type;
 
-static expr mk_meta_ref(name const & n, optional<name> const & pp_n) {
-    if (pp_n)
-        return mk_metavar(n, *pp_n, *g_dummy_type);
-    else
-        return mk_metavar(n, *g_dummy_type);
+static expr mk_meta_ref(name const & n) {
+    return mk_metavar(n, *g_dummy_type);
 }
 
 bool is_metavar_decl_ref(level const & u) {
@@ -49,11 +46,11 @@ level metavar_context::mk_univ_metavar_decl() {
     return mk_meta_univ(mk_meta_decl_name());
 }
 
-expr metavar_context::mk_metavar_decl(optional<name> const & pp_n, local_context const & ctx, expr const & type) {
+expr metavar_context::mk_metavar_decl(name const & user_name, local_context const & lctx, expr const & type) {
     // TODO(Leo): should use name_generator
     name n = mk_meta_decl_name();
-    m_decls.insert(n, metavar_decl(ctx, head_beta_reduce(type)));
-    return mk_meta_ref(n, pp_n);
+    m_decls.insert(n, metavar_decl(user_name, lctx, head_beta_reduce(type)));
+    return mk_meta_ref(n);
 }
 
 optional<metavar_decl> metavar_context::find_metavar_decl(expr const & e) const {
@@ -215,7 +212,7 @@ void metavar_context::instantiate_mvars_at_type_of(expr const & m) {
     expr type      = d.get_type();
     expr new_type  = instantiate_mvars(type);
     if (new_type != type) {
-        m_decls.insert(mlocal_name(m), metavar_decl(d.get_context(), new_type));
+        m_decls.insert(mlocal_name(m), metavar_decl(d.get_user_name(), d.get_context(), new_type));
     }
 }
 

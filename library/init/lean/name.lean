@@ -72,6 +72,20 @@ instance has_decidable_eq : decidable_eq name
 | (mk_numeral _ _)   anonymous          := is_false $ λ h, name.no_confusion h
 | (mk_numeral _ _)   (mk_string _ _)    := is_false $ λ h, name.no_confusion h
 
+def replace_prefix : name → name → name → name
+| anonymous anonymous new_p := new_p
+| anonymous _         _     := anonymous
+| n@(mk_string p s) query_p new_p :=
+  if n = query_p then
+    new_p
+  else
+    mk_string (p.replace_prefix query_p new_p) s
+| n@(mk_numeral p s) query_p new_p :=
+  if n = query_p then
+    new_p
+  else
+    mk_numeral (p.replace_prefix query_p new_p) s
+
 @[simp] def quick_lt : name → name → bool
 | anonymous        anonymous          := ff
 | anonymous        _                  := tt

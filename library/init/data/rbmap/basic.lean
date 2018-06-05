@@ -90,6 +90,10 @@ def contains (m : rbmap α β lt) (k : α) : bool :=
 def from_list (l : list (α × β)) (lt : α → α → Prop) [decidable_rel lt] : rbmap α β lt :=
 l.foldl (λ m p, insert m p.1 p.2)  (mk_rbmap α β lt)
 
+-- TODO: replace with more efficient, structure-preserving implementation (needs wf proof)
+def map (f : α → β → δ) (m : rbmap α β lt) : rbmap α δ lt :=
+m.fold (λ a b m, rbmap.insert m a (f a b)) (mk_rbmap α δ lt)
+
 end rbmap
 
 def rbmap_of {α : Type u} {β : Type v} (l : list (α × β)) (lt : α → α → Prop) [decidable_rel lt] : rbmap α β lt :=

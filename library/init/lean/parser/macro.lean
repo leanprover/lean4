@@ -33,26 +33,8 @@ def run' {r σ α} (cfg : r) (st : σ): parse_m r σ α → except string α :=
 λ x, prod.fst $ parse_m.run cfg st x
 end parse_m
 
-structure resolved :=
--- local or (overloaded) global
-(decl : syntax_id ⊕ list name)
-/- prefix of the reference that corresponds to the decl. All trailing name components
-   are field accesses. -/
-(«prefix» : name)
-
-instance resolved.has_to_format : has_to_format resolved := ⟨λ r, to_fmt (r.decl, r.prefix)⟩
-
 structure resolve_cfg :=
 (global_scope : rbmap name syntax (<))
-
-@[reducible] def resolve_map := rbmap syntax_id resolved (<)
-
-structure resolve_state :=
-(resolve_map : resolve_map)
-
-def scope := rbmap (name × option macro_scope_id) syntax_id (<)
-
-@[reducible] def resolve_m := parse_m resolve_cfg resolve_state
 
 def exp_fuel := 1000
 
@@ -61,7 +43,6 @@ structure macro :=
 -- (read : reader)
 -- TODO: What else does an expander need? How to model recursive expansion?
 (expand : option (syntax_node syntax → syntax) := none)
-(resolve : option (scope → syntax_node syntax → resolve_m (list scope)) := none)
 -- (elaborate : list syntax → expr → tactic expr)
 
 structure parse_state :=
@@ -95,7 +76,7 @@ def expand : ℕ → syntax → exp_m syntax
 | 0 _ := throw "macro expansion limit exceeded"
 | (fuel + 1) (syntax.node node) :=
 do cfg ← read,
-   some {expand := some exp, ..} ← pure $ cfg.macros.find node.m
+   some {expand := some exp, ..} ← pure $ cfg.macros.find node.macro
      | (λ args, syntax.node {node with args := args}) <$> node.args.mmap (expand fuel),
    tag ← mk_tag,
    let node := {node with args := node.args.map $ flip_tag tag},
@@ -103,28 +84,43 @@ do cfg ← read,
    expand fuel $ flip_tag tag $ exp node
 | _ stx := pure stx
 
-@[reducible] def resolve_m' := parse_m parse_state resolve_state
+def scope := rbmap (name × option macro_scope_id) var_offset (<)
 
-def resolve : scope → syntax → resolve_m' unit
-| sc (syntax.node node) :=
-do cfg ← read,
-   some {resolve := some res, ..} ← pure $ cfg.macros.find node.m
-     | node.args.mfor $ resolve sc,
-   arg_scopes ← adapt_reader parse_state.resolve_cfg $ res sc node,
-   (arg_scopes.zip node.args).mfor -- (uncurry resolve)
-                                    (λ ⟨sc, stx⟩, resolve sc stx)
-| _ _ := pure ()
+def scope.insert (sc : scope) (id : syntax_ident) : scope :=
+(sc.map (λ _ idx, idx + 1)).insert (id.name, id.msc) 0
+
+def resolve_name (msc : option macro_scope_id) (sc : scope) : name → option resolved
+| n@(name.mk_string n' s) :=
+do {
+  decl ← sc.find (n, msc),
+  pure ⟨sum.inl decl, n⟩
+} <|> resolve_name n'
+| _ := none
+
+def resolve : scope → syntax → parse_m parse_state unit syntax
+-- TODO(Sebastian): move `match` back into primary pattern, use fuel if necessary
+| sc (syntax.node n) := (match n with
+  | ({macro := `bind, args := [syntax.lst vars, body], ..}) :=
+  do sc ← vars.mfoldl (λ sc var,
+       do syntax.ident var ← pure var | throw "ill-shaped 'bind' macro",
+          pure $ scope.insert sc var) sc,
+     body ← resolve sc body,
+     pure $ syntax.node {n with args := [syntax.lst vars, body]}
+  | _ :=
+  do args ← n.args.mmap (resolve sc),
+     pure $ syntax.node {n with args := args})
+| sc (syntax.ident id) :=
+do some res ← pure $ resolve_name id.msc sc id.name
+     | throw ("unknown identifier " ++ id.name.to_string),
+   pure $ syntax.ident {id with res := some res}
+| _ stx := pure stx
 
 def expand' (stx : syntax) : parse_m parse_state unit syntax :=
 adapt_state (λ _, ({expand_state . next_tag := 0}, ())) (λ _, id) (expand 1000 stx)
 
-def resolve' (stx : syntax) : parse_m parse_state unit (syntax × resolve_state) :=
-let sc : scope := mk_rbmap _ _ _,
-    st : resolve_state := ⟨mk_rbmap _ _ _⟩ in
-    adapt_state (λ _, (st, ())) (λ _, id) $
-    do resolve sc stx,
-       rsm ← get,
-       pure (stx, rsm)
+def resolve' (stx : syntax) : parse_m parse_state unit syntax :=
+let sc : scope := mk_rbmap _ _ _ in
+resolve sc stx
 
 end parser
 end lean

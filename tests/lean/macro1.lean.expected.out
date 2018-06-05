@@ -1,6 +1,6 @@
-(0: node lambda (1: ident x) (2: node ref (3: ident x)))
-((0: node lambda (1: ident x) (2: node ref (3: ident x))), ⟨3 ← ((inl 1), x)⟩)
-(0: node lambda (1: ident x) (5: node lambda (6: ident x from 0) (2: node ref (3: ident x))))
-((0: node lambda (1: ident x) (5: node lambda (6: ident x from 0) (2: node ref (3: ident x)))), ⟨3 ← ((inl 1), x)⟩)
-(0: node lambda (1: ident x.y) (2: node ref (3: ident x.y.z)))
-((0: node lambda (1: ident x.y) (2: node ref (3: ident x.y.z))), ⟨3 ← ((inl 1), x.y)⟩)
+(node lambda_core (node bind [(ident x)] (ident x:0)))
+macro1.lean:45:0: error: unknown identifier y
+state:
+⊢ true
+(node lambda_core (node bind [(ident x)] (node lambda_core (node bind [(ident x!1)] (ident x:1)))))
+(node lambda_core (node bind [(ident x.y)] (ident x.y.z:0.(z))))

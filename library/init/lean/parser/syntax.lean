@@ -9,21 +9,31 @@ import init.lean.name init.lean.parser.parser_t
 namespace lean
 namespace parser
 
-@[reducible] def syntax_id := ℕ
+/-- De Bruijn index relative to surrounding 'bind' macros -/
+@[reducible] def var_offset := ℕ
 @[reducible] def macro_scope_id := ℕ
 
 structure span :=
 (left  : position)
 (right : position)
 
+structure resolved :=
+-- local or (overloaded) global
+(decl : var_offset ⊕ list name)
+/- prefix of the reference that corresponds to the decl. All trailing name components
+   are field accesses. -/
+(«prefix» : name)
+
+instance resolved.has_to_format : has_to_format resolved := ⟨λ r, to_fmt (r.decl, r.prefix)⟩
+
 structure syntax_ident :=
-(id : syntax_id) (span : option span) (name : name) (msc : option macro_scope_id)
+(span : option span) (name : name) (msc : option macro_scope_id) (res : option resolved)
 
 structure syntax_atom :=
-(id : syntax_id) (span : option span) (val : name)
+(span : option span) (val : name)
 
 structure syntax_node (syntax : Type) :=
-(id : syntax_id) (span : option span) (m : name) (args : list syntax)
+(span : option span) (macro : name) (args : list syntax)
 
 inductive syntax
 | ident (val : syntax_ident)
@@ -43,17 +53,32 @@ protected def span : syntax → option span
 
 protected mutual def to_format, to_format_lst
 with to_format : syntax → format
-| (ident {id := id, name := n, msc := none, ..}) :=
-  paren (to_fmt id ++ ": ident " ++ to_fmt n)
-| (ident {id := id, name := n, msc := some sc, ..}) :=
-  paren (to_fmt id ++ ": ident " ++ to_fmt n  ++ " from " ++ to_fmt sc)
-| (atom a) := paren (to_fmt a.id ++ ": atom " ++ to_fmt a.val)
-| (lst ls) := paren $ join $ to_format_lst ls
-| (node {id := id, m := n, args := args, ..}) :=
-  paren (to_fmt id ++ ": node " ++ to_fmt n ++ join (to_format_lst args))
+| (ident id) :=
+  let n :=
+    to_fmt id.name ++
+    (match id.msc with
+     | some msc := "!" ++ to_fmt msc
+     | none := "") ++
+    (match id.res with
+     | some res :=
+       ":" ++
+       (match res.decl with
+        | sum.inl idx := to_fmt idx
+        | sum.inr [n] := to_fmt n
+        | sum.inr ns  := to_fmt ns)
+       ++ if res.prefix = id.name then
+         to_fmt ""
+       else
+         to_fmt ".(" ++ to_fmt (id.name.replace_prefix res.prefix name.anonymous) ++ ")"
+     | none := "") in
+  paren ("ident " ++ n)
+| (atom a) := paren ("atom " ++ to_fmt a.val)
+| (lst ls) := sbracket $ join_sep (to_format_lst ls) line
+| (node {macro := n, args := args, ..}) :=
+  paren ("node " ++ to_fmt n ++ prefix_join line (to_format_lst args))
 with to_format_lst : list syntax → list format
 | []      := []
-| (s::ss) := (line ++ to_format s) :: to_format_lst ss
+| (s::ss) := to_format s :: to_format_lst ss
 end syntax
 
 instance : has_to_format syntax := ⟨syntax.to_format⟩

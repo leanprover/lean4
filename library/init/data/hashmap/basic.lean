@@ -155,6 +155,9 @@ d_hashmap.insert m a b
 @[inline] def erase (m : hashmap α β) (a : α) : hashmap α β :=
 d_hashmap.erase m a
 
+@[inline] def find (m : hashmap α β) (a : α) : option β :=
+d_hashmap.find m a
+
 @[inline] def contains (m : hashmap α β) (a : α) : bool :=
 (m.find a).is_some
 

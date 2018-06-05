@@ -13,7 +13,7 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   fun_info.cpp congr_lemma.cpp defeq_canonizer.cpp
   replace_visitor_with_tc.cpp aux_definition.cpp inverse.cpp pattern_attribute.cpp choice.cpp
   locals.cpp normalize.cpp mt_task_queue.cpp st_task_queue.cpp
-  library_task_builder.cpp
+  library_task_builder.cpp subscripted_name_set.cpp
   eval_helper.cpp messages.cpp message_builder.cpp module_mgr.cpp comp_val.cpp
   documentation.cpp check.cpp parray.cpp process.cpp
   pipe.cpp handle.cpp profiling.cpp time_task.cpp abstract_context_cache.cpp

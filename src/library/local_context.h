@@ -7,9 +7,9 @@ Author: Leonardo de Moura
 #pragma once
 #include "util/name_map.h"
 #include "util/name_set.h"
-#include "util/subscripted_name_set.h"
 #include "kernel/expr.h"
 #include "library/local_instances.h"
+#include "library/subscripted_name_set.h"
 
 namespace lean {
 /* TODO(Leo): implement using runtime objects */

@@ -6,7 +6,8 @@ Author: Gabriel Ebner
 */
 #include <limits>
 #include <iostream>
-#include "util/subscripted_name_set.h"
+#include "library/subscripted_name_set.h"
+
 namespace lean {
 void subscripted_name_set::check_invariants() const {
     m_names.for_each([&] (name const & n) {
@@ -93,7 +94,7 @@ name subscripted_name_set::get_unused_name(name const & prefix, unsigned idx) co
             idx = free_region->begin;
     }
     name n = prefix.append_after(idx);
-    if (contains(n)) { lean_unreachable(); }
+    lean_assert(!contains(n));
     return n;
 }
 

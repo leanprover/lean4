@@ -48,11 +48,6 @@ meta def lean.name.is_prefix_of : name → name → bool
 
 open lean.name
 
-meta def lean.name.replace_prefix : name → name → name → name
-| anonymous        p p' := anonymous
-| (mk_string c s)  p p' := if c = p then mk_string p' s else mk_string (lean.name.replace_prefix c p p') s
-| (mk_numeral c v) p p' := if c = p then mk_numeral p' v else mk_numeral (lean.name.replace_prefix c p p') v
-
 def lean.name.components' : name -> list name
 | anonymous                := []
 | (mk_string n s)          := mk_string anonymous s :: lean.name.components' n

@@ -963,41 +963,6 @@ vm_obj tactic_type_check(vm_obj const & e, vm_obj const & m, vm_obj const & s0) 
     }
 }
 
-vm_obj tactic_enable_tags(vm_obj const & b, vm_obj const & s0) {
-    tactic_state s = tactic::to_state(s0);
-    tag_info tinfo = s.tinfo();
-    tinfo.m_tags_enabled = to_bool(b);
-    return tactic::mk_success(set_tag_info(s, tinfo));
-}
-
-vm_obj tactic_tags_enabled(vm_obj const & s0) {
-    tactic_state s = tactic::to_state(s0);
-    return tactic::mk_success(mk_vm_bool(s.tinfo().m_tags_enabled), s);
-}
-
-vm_obj tactic_set_tag(vm_obj const & g, vm_obj const & t, vm_obj const & s0) {
-    tactic_state s = tactic::to_state(s0);
-    tag_info tinfo = s.tinfo();
-    if (!tinfo.m_tags_enabled)
-        return tactic::mk_success(s);
-    if (is_nil(t)) {
-        tinfo.m_tags.erase(to_expr(g));
-    } else {
-        tinfo.m_tags.insert(to_expr(g), to_names(t));
-    }
-    return tactic::mk_success(set_tag_info(s, tinfo));
-}
-
-vm_obj tactic_get_tag(vm_obj const & g, vm_obj const & s0) {
-    tactic_state s = tactic::to_state(s0);
-    tag_info const & tinfo = s.tinfo();
-    if (auto t = tinfo.m_tags.find(to_expr(g))) {
-        return tactic::mk_success(to_obj(*t), s);
-    } else {
-        return tactic::mk_success(mk_vm_nil(), s);
-    }
-}
-
 vm_obj tactic_unfreeze_local_instances(vm_obj const & s0) {
     tactic_state s             = tactic::to_state(s0);
     optional<metavar_decl> g   = s.get_main_goal_decl();
@@ -1075,10 +1040,6 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "write_ref"}),            tactic_write_ref);
     DECLARE_VM_BUILTIN(name({"tactic", "sleep"}),                tactic_sleep);
     DECLARE_VM_BUILTIN(name({"tactic", "type_check"}),           tactic_type_check);
-    DECLARE_VM_BUILTIN(name({"tactic", "enable_tags"}),          tactic_enable_tags);
-    DECLARE_VM_BUILTIN(name({"tactic", "tags_enabled"}),         tactic_tags_enabled);
-    DECLARE_VM_BUILTIN(name({"tactic", "set_tag"}),              tactic_set_tag);
-    DECLARE_VM_BUILTIN(name({"tactic", "get_tag"}),              tactic_get_tag);
     DECLARE_VM_BUILTIN(name({"tactic", "unfreeze_local_instances"}), tactic_unfreeze_local_instances);
     DECLARE_VM_BUILTIN(name({"tactic", "frozen_local_instances"}),   tactic_frozen_local_instances);
     DECLARE_VM_BUILTIN(name({"io", "run_tactic"}),               io_run_tactic);

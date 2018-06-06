@@ -471,19 +471,6 @@ meta constant sleep (msecs : nat) : tactic unit
 meta constant type_check (e : expr) (md := semireducible) : tactic unit
 open list nat
 
-/-- Goals can be tagged using a list of names. -/
-def tag : Type := list name
-
-/-- Enable/disable goal tagging -/
-meta constant enable_tags (b : bool) : tactic unit
-/-- Return tt iff goal tagging is enabled. -/
-meta constant tags_enabled : tactic bool
-/-- Tag goal `g` with tag `t`. It does nothing is goal tagging is disabled.
-    Remark: `set_goal g []` removes the tag -/
-meta constant set_tag (g : expr) (t : tag) : tactic unit
-/-- Return tag associated with `g`. Return `[]` if there is no tag. -/
-meta constant get_tag (g : expr) : tactic tag
-
 /-- By default, Lean only considers local instances in the header of declarations.
     This has two main benefits.
     1- Results produced by the type class resolution procedure can be easily cached.
@@ -1082,20 +1069,6 @@ do h ← get_local curr,
 
 meta def main_goal : tactic expr :=
 do g::gs ← get_goals, return g
-
-/- Goal tagging support -/
-meta def with_enable_tags {α : Type} (t : tactic α) (b := tt) : tactic α :=
-do old ← tags_enabled,
-   enable_tags b,
-   r ← t,
-   enable_tags old,
-   return r
-
-meta def get_main_tag : tactic tag :=
-main_goal >>= get_tag
-
-meta def set_main_tag (t : tag) : tactic unit :=
-do g ← main_goal, set_tag g t
 
 end tactic
 

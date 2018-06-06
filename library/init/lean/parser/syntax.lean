@@ -33,13 +33,12 @@ structure syntax_atom :=
 (span : option span) (val : name)
 
 structure syntax_node (syntax : Type) :=
-(span : option span) (macro : name) (args : list syntax)
+(macro : name) (args : list syntax)
 
 inductive syntax
 | ident (val : syntax_ident)
 /- any non-ident atom -/
 | atom (val : syntax_atom)
-| lst  (ls : list syntax)
 | node (val : syntax_node syntax)
 
 namespace syntax
@@ -48,8 +47,7 @@ open format
 protected def span : syntax → option span
 | (ident val) := val.span
 | (atom val)  := val.span
-| (lst _)     := none
-| (node val)  := val.span
+| (node val)  := none -- should perhaps be the 'join' of all sub-spans?
 
 protected mutual def to_format, to_format_lst
 with to_format : syntax → format
@@ -73,7 +71,8 @@ with to_format : syntax → format
      | none := "") in
   paren ("ident " ++ n)
 | (atom a) := paren ("atom " ++ to_fmt a.val)
-| (lst ls) := sbracket $ join_sep (to_format_lst ls) line
+| (node {macro := name.anonymous, args := args, ..}) :=
+  sbracket $ join_sep (to_format_lst args) line
 | (node {macro := n, args := args, ..}) :=
   paren ("node " ++ to_fmt n ++ prefix_join line (to_format_lst args))
 with to_format_lst : list syntax → list format

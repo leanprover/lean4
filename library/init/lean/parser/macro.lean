@@ -64,9 +64,6 @@ def flip_tag (tag : ℕ) : syntax → syntax
 | (syntax.node node) := syntax.node {node with args := (node.args.map
     -- flip_tag
     (λ s, flip_tag s))}
-| (syntax.lst ls) := syntax.lst (ls.map
-    -- flip_tag
-    (λ s, flip_tag s))
 | (syntax.ident ident@{msc := none, ..}) := syntax.ident {ident with msc := some tag}
 | (syntax.ident ident@{msc := some tag', ..}) :=
     syntax.ident {ident with msc := if tag = tag' then none else some tag'}
@@ -100,12 +97,12 @@ do {
 def resolve : scope → syntax → parse_m parse_state unit syntax
 -- TODO(Sebastian): move `match` back into primary pattern, use fuel if necessary
 | sc (syntax.node n) := (match n with
-  | ({macro := `bind, args := [syntax.lst vars, body], ..}) :=
+  | ({macro := `bind, args := [syntax.node {macro := name.anonymous, args := vars}, body], ..}) :=
   do sc ← vars.mfoldl (λ sc var,
        do syntax.ident var ← pure var | throw "ill-shaped 'bind' macro",
           pure $ scope.insert sc var) sc,
      body ← resolve sc body,
-     pure $ syntax.node {n with args := [syntax.lst vars, body]}
+     pure $ syntax.node {n with args := [syntax.node {macro := name.anonymous, args := vars}, body]}
   | _ :=
   do args ← n.args.mmap (resolve sc),
      pure $ syntax.node {n with args := args})

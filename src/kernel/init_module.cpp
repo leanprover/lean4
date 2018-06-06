@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/level.h"
 #include "kernel/declaration.h"
 #include "kernel/error_msgs.h"
+#include "kernel/local_ctx.h"
 #include "kernel/quot.h"
 
 namespace lean {
@@ -23,8 +24,11 @@ void initialize_kernel_module() {
     initialize_environment();
     initialize_formatter();
     initialize_quot();
+    initialize_local_ctx();
 }
+
 void finalize_kernel_module() {
+    finalize_local_ctx();
     finalize_quot();
     finalize_formatter();
     finalize_environment();

@@ -17,43 +17,8 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 
 namespace lean {
-static name *       g_local_prefix;
-static expr *       g_dummy_type;
-static local_decl * g_dummy_decl;
-
-void local_decl::cell::dealloc() {
-    delete this;
-}
-local_decl::cell::cell(unsigned idx, name const & n, name const & un, expr const & t, optional<expr> const & v, binder_info const & bi):
-    m_name(n), m_user_name(un), m_type(t), m_value(v), m_bi(bi), m_idx(idx), m_rc(1) {}
-
-local_decl::local_decl():local_decl(*g_dummy_decl) {}
-local_decl::local_decl(unsigned idx, name const & n, name const & un, expr const & t, optional<expr> const & v, binder_info const & bi) {
-    m_ptr = new cell(idx, n, un, t, v, bi);
-}
-
-local_decl::local_decl(local_decl const & d, expr const & t, optional<expr> const & v):
-    local_decl(d.m_ptr->m_idx, d.m_ptr->m_name, d.m_ptr->m_user_name, t, v, d.m_ptr->m_bi) {}
-
 name mk_local_decl_name() {
-    return mk_tagged_fresh_name(*g_local_prefix);
-}
-
-DEBUG_CODE(
-static bool is_local_decl_name(name const & n) {
-    return is_tagged_by(n, *g_local_prefix);
-})
-
-static expr mk_local_ref(name const & n, name const & un, binder_info const & bi) {
-    return mk_local(n, un, *g_dummy_type, bi);
-}
-
-bool is_local_decl_ref(expr const & e) {
-    return is_local(e) && mlocal_type(e) == *g_dummy_type;
-}
-
-expr local_decl::mk_ref() const {
-    return mk_local_ref(m_ptr->m_name, m_ptr->m_user_name, m_ptr->m_bi);
+    return mk_fresh_name();
 }
 
 struct depends_on_fn {
@@ -171,7 +136,7 @@ void local_context::unfreeze_local_instances() {
     m_local_instances = optional<local_instances>();
 }
 
-void local_context::insert_user_name(local_decl const &d) {
+void local_context::insert_user_name(local_decl const & d) {
     unsigned_set idxs;
     if (auto existing_idxs = m_user_name2idxs.find(d.get_user_name())) {
         idxs = *existing_idxs;
@@ -194,15 +159,9 @@ void local_context::erase_user_name(local_decl const & d) {
 }
 
 expr local_context::mk_local_decl(name const & n, name const & un, expr const & type, optional<expr> const & value, binder_info const & bi) {
-    lean_assert(is_local_decl_name(n));
-    lean_assert(!m_name2local_decl.contains(n));
-    unsigned idx = m_next_idx;
-    m_next_idx++;
-    local_decl l(idx, n, un, type, value, bi);
-    m_name2local_decl.insert(n, l);
-    m_idx2local_decl.insert(idx, l);
-    insert_user_name(l);
-    return mk_local_ref(n, un, bi);
+    local_decl d = local_ctx::mk_local_decl(n, un, type, value, bi);
+    insert_user_name(d);
+    return d.mk_ref();
 }
 
 expr local_context::mk_local_decl(expr const & type, binder_info const & bi) {
@@ -229,48 +188,6 @@ expr local_context::mk_local_decl(name const & n, name const & un, expr const & 
 
 expr local_context::mk_local_decl(name const & n, name const & un, expr const & type, expr const & value) {
     return mk_local_decl(n, un, type, some_expr(value), binder_info());
-}
-
-optional<local_decl> local_context::find_local_decl(name const & n) const {
-    if (auto r = m_name2local_decl.find(n))
-        return optional<local_decl>(*r);
-    else
-        return optional<local_decl>();
-}
-
-optional<local_decl> local_context::find_local_decl(expr const & e) const {
-    lean_assert(is_local_decl_ref(e));
-    return find_local_decl(mlocal_name(e));
-}
-
-local_decl const & local_context::get_local_decl(name const & n) const {
-    if (local_decl const * r = m_name2local_decl.find(n))
-        return *r;
-    else
-        throw exception(sstream() << "unknown local constant: " << n);
-}
-
-local_decl const & local_context::get_local_decl(expr const & e) const {
-    lean_assert(is_local_decl_ref(e));
-    return get_local_decl(mlocal_name(e));
-}
-
-
-expr local_context::get_local(name const & n) const {
-    lean_assert(find_local_decl(n));
-    return get_local_decl(n).mk_ref();
-}
-
-void local_context::for_each(std::function<void(local_decl const &)> const & fn) const {
-    m_idx2local_decl.for_each([&](unsigned, local_decl const & d) { fn(d); });
-}
-
-optional<local_decl> local_context::find_if(std::function<bool(local_decl const &)> const & pred) const { // NOLINT
-    return m_idx2local_decl.find_if([&](unsigned, local_decl const & d) { return pred(d); });
-}
-
-optional<local_decl> local_context::back_find_if(std::function<bool(local_decl const &)> const & pred) const { // NOLINT
-    return m_idx2local_decl.back_find_if([&](unsigned, local_decl const & d) { return pred(d); });
 }
 
 optional<local_decl> local_context::find_local_decl_from_user_name(name const & n) const {
@@ -330,9 +247,7 @@ optional<local_decl> local_context::has_dependencies(local_decl const & d, metav
 }
 
 void local_context::clear(local_decl const & d) {
-    lean_assert(find_local_decl(d.get_name()));
-    m_idx2local_decl.erase(d.get_idx());
-    m_name2local_decl.erase(d.get_name());
+    local_ctx::clear(d);
     erase_user_name(d);
 }
 
@@ -530,16 +445,8 @@ expr zeta_expand(local_context const & lctx, expr const & e) {
 }
 
 void initialize_local_context() {
-    g_local_prefix = new name(name::mk_internal_unique_name());
-    g_dummy_type   = new expr(mk_constant(name::mk_internal_unique_name()));
-    g_dummy_decl   = new local_decl(std::numeric_limits<unsigned>::max(),
-                                    name("__local_decl_for_default_constructor"), name("__local_decl_for_default_constructor"),
-                                    *g_dummy_type, optional<expr>(), binder_info());
 }
 
 void finalize_local_context() {
-    delete g_local_prefix;
-    delete g_dummy_type;
-    delete g_dummy_decl;
 }
 }

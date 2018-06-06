@@ -7,53 +7,12 @@ Author: Leonardo de Moura
 #pragma once
 #include "util/name_map.h"
 #include "util/name_set.h"
+#include "kernel/local_ctx.h"
 #include "kernel/expr.h"
 #include "library/local_instances.h"
 #include "library/subscripted_name_set.h"
 
 namespace lean {
-/* TODO(Leo): implement using runtime objects */
-class local_decl {
-public:
-    struct cell {
-        /* <name> : <type> := <value>
-           m_user_name is used for interacting with the user, and it may not be not unique. */
-        name               m_name; /* this one is unique */
-        name               m_user_name;
-        expr               m_type;
-        optional<expr>     m_value;
-        binder_info        m_bi;
-        unsigned           m_idx;
-        MK_LEAN_RC(); // Declare m_rc counter
-        void dealloc();
-        cell(unsigned idx, name const & n, name const & un, expr const & t, optional<expr> const & v,
-             binder_info const & bi);
-    };
-private:
-    cell * m_ptr;
-    friend class local_context;
-    friend void initialize_local_context();
-    local_decl(unsigned idx, name const & n, name const & un, expr const & t, optional<expr> const & v, binder_info const & bi);
-    local_decl(local_decl const & d, expr const & t, optional<expr> const & v);
-public:
-    local_decl();
-    local_decl(local_decl const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
-    local_decl(local_decl && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
-    ~local_decl() { if (m_ptr) m_ptr->dec_ref(); }
-    local_decl & operator=(local_decl const & s) { LEAN_COPY_REF(s); }
-    local_decl & operator=(local_decl && s) { LEAN_MOVE_REF(s); }
-
-    friend bool is_eqp(local_decl const & a, local_decl const & b) { return a.m_ptr == b.m_ptr; }
-
-    name const & get_name() const { return m_ptr->m_name; }
-    name const & get_user_name() const { return m_ptr->m_user_name; }
-    expr const & get_type() const { return m_ptr->m_type; }
-    optional<expr> const & get_value() const { return m_ptr->m_value; }
-    binder_info const & get_info() const { return m_ptr->m_bi; }
-    expr mk_ref() const;
-    unsigned get_idx() const { return m_ptr->m_idx; }
-};
-
 bool is_local_decl_ref(expr const & e);
 
 class metavar_context;
@@ -77,12 +36,10 @@ name mk_local_decl_name();
 
 class metavar_context;
 
-class local_context {
-    typedef unsigned_map<local_decl> idx2local_decl;
+/* Extend kernel local context object with support for generating "unused" user-names and
+   "freezing" local instances. */
+class local_context : public local_ctx {
     typedef rb_tree<unsigned, unsigned_cmp> unsigned_set;
-    unsigned                  m_next_idx;
-    idx2local_decl            m_idx2local_decl;
-    name_map<local_decl>      m_name2local_decl;
     /* frozen local instances */
     optional<local_instances> m_local_instances;
     /* support for user names */
@@ -101,7 +58,7 @@ class local_context {
         return local_decl(d, t, v);
     }
 public:
-    local_context():m_next_idx(0) {}
+    local_context() {}
 
     void freeze_local_instances(local_instances const & lis);
     void unfreeze_local_instances();
@@ -121,30 +78,12 @@ public:
     expr mk_local_decl(name const & n, name const & un, expr const & type, binder_info const & bi = binder_info());
     expr mk_local_decl(name const & n, name const & un, expr const & type, expr const & value);
 
-    /** \brief Return the local declarations for the given reference.
-        \pre is_local_decl_ref(e) */
-    optional<local_decl> find_local_decl(expr const & e) const;
-    optional<local_decl> find_local_decl(name const & n) const;
-
-    local_decl const & get_local_decl(expr const & e) const;
-    local_decl const & get_local_decl(name const & n) const;
-
-    /** \brief Traverse local declarations based on the order they were created */
-    void for_each(std::function<void(local_decl const &)> const & fn) const;
-    optional<local_decl> find_if(std::function<bool(local_decl const &)> const & pred) const; // NOLINT
-    optional<local_decl> back_find_if(std::function<bool(local_decl const &)> const & pred) const; // NOLINT
-
     /** \brief Return the most recently added local_decl \c d s.t. d.get_user_name() == n
         \remark This method is used to implement tactics such as 'revert'. */
     optional<local_decl> find_local_decl_from_user_name(name const & n) const;
 
     optional<local_decl> find_last_local_decl() const;
     local_decl get_last_local_decl() const;
-
-    /** Return a local_decl_ref associated with the given name.
-
-        \pre get_local_decl(n) */
-    expr get_local(name const & n) const;
 
     bool rename_user_name(name const & from, name const & to);
 

@@ -444,7 +444,7 @@ meta constant has_attribute : name → name → tactic nat
 meta constant decl_name : tactic name
 
 /-- `save_type_info e ref` save (typeof e) at position associated with ref -/
-meta constant save_type_info {elab : bool} : expr → expr elab → tactic unit
+meta constant save_type_info : expr → expr → tactic unit
 meta constant save_info_thunk : pos → (unit → format) → tactic unit
 /-- Return list of currently open namespaces -/
 meta constant open_namespaces : tactic (list name)
@@ -898,7 +898,7 @@ do c ← mk_const c, apply c cfg, skip
 meta def eapplyc (c : name) : tactic unit :=
 do c ← mk_const c, eapply c, skip
 
-meta def save_const_type_info (n : name) {elab : bool} (ref : expr elab) : tactic unit :=
+meta def save_const_type_info (n : name) (ref : expr) : tactic unit :=
 try (do c ← mk_const n, save_type_info c ref)
 
 /-- Create a fresh universe `?u`, a metavariable `?T : Type.{?u}`,

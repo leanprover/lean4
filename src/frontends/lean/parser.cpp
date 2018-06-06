@@ -1821,7 +1821,7 @@ static expr elaborate_quote(parser & p, expr e) {
 
     e = instantiate_rev(body, aqs.size(), aqs.data());
     e = quote(e);
-    return mk_typed_expr(mk_app(mk_constant(get_expr_name()), mk_bool_tt()), e);
+    return mk_typed_expr(mk_constant(get_expr_name()), e);
 }
 
 expr parser::patexpr_to_pattern(expr const & pat_or_expr, bool skip_main_fn, buffer<expr> & new_locals) {

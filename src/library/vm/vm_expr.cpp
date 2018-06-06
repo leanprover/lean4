@@ -113,43 +113,43 @@ vm_obj to_obj(binder_info const & bi) {
 // with the expr_var class. This confuses GDB's python interface. The other
 // introduction rules have the suffix for the same reason.
 
-vm_obj expr_var_intro(vm_obj const &, vm_obj const & n) {
+vm_obj expr_var_intro(vm_obj const & n) {
     return to_obj(mk_var(to_unsigned(n)));
 }
 
-vm_obj expr_sort_intro(vm_obj const &, vm_obj const & l) {
+vm_obj expr_sort_intro(vm_obj const & l) {
     return to_obj(mk_sort(to_level(l)));
 }
 
-vm_obj expr_const_intro(vm_obj const &, vm_obj const & n, vm_obj const & ls) {
+vm_obj expr_const_intro(vm_obj const & n, vm_obj const & ls) {
     return to_obj(mk_constant(to_name(n), to_levels(ls)));
 }
 
-vm_obj expr_mvar_intro(vm_obj const &, vm_obj const & n, vm_obj const & pp_n, vm_obj const & t) {
+vm_obj expr_mvar_intro(vm_obj const & n, vm_obj const & pp_n, vm_obj const & t) {
     return to_obj(mk_metavar(to_name(n), to_name(pp_n), to_expr(t)));
 }
 
-vm_obj expr_local_const_intro(vm_obj const &, vm_obj const & n) {
+vm_obj expr_local_const_intro(vm_obj const & n) {
     return to_obj(mk_local(to_name(n), to_name(n), expr(), binder_info()));
 }
 
-vm_obj expr_app_intro(vm_obj const &, vm_obj const & f, vm_obj const & a) {
+vm_obj expr_app_intro(vm_obj const & f, vm_obj const & a) {
     return to_obj(mk_app(to_expr(f), to_expr(a)));
 }
 
-vm_obj expr_lam_intro(vm_obj const &, vm_obj const & n, vm_obj const & bi, vm_obj const & t, vm_obj const & b) {
+vm_obj expr_lam_intro(vm_obj const & n, vm_obj const & bi, vm_obj const & t, vm_obj const & b) {
     return to_obj(mk_lambda(to_name(n), to_expr(t), to_expr(b), to_binder_info(bi)));
 }
 
-vm_obj expr_pi_intro(vm_obj const &, vm_obj const & n, vm_obj const & bi, vm_obj const & t, vm_obj const & b) {
+vm_obj expr_pi_intro(vm_obj const & n, vm_obj const & bi, vm_obj const & t, vm_obj const & b) {
     return to_obj(mk_pi(to_name(n), to_expr(t), to_expr(b), to_binder_info(bi)));
 }
 
-vm_obj expr_elet_intro(vm_obj const &, vm_obj const & n, vm_obj const & t, vm_obj const & v, vm_obj const & b) {
+vm_obj expr_elet_intro(vm_obj const & n, vm_obj const & t, vm_obj const & v, vm_obj const & b) {
     return to_obj(mk_let(to_name(n), to_expr(t), to_expr(v), to_expr(b)));
 }
 
-vm_obj expr_macro_intro(vm_obj const &, vm_obj const & d, vm_obj const & es) {
+vm_obj expr_macro_intro(vm_obj const & d, vm_obj const & es) {
     buffer<expr> args;
     to_buffer_expr(es, args);
     return to_obj(mk_macro(to_macro_definition(d), args.size(), args.data()));
@@ -215,7 +215,7 @@ vm_obj expr_alpha_eqv(vm_obj const & o1, vm_obj const & o2) {
     return mk_vm_bool(to_expr(o1) == to_expr(o2));
 }
 
-vm_obj expr_to_string(vm_obj const &, vm_obj const & l) {
+vm_obj expr_to_string(vm_obj const & l) {
     std::ostringstream out;
     out << to_expr(l);
     return to_obj(out.str());
@@ -303,7 +303,7 @@ vm_obj expr_subst(vm_obj const & _e1, vm_obj const & _e2) {
     }
 }
 
-vm_obj expr_is_annotation(vm_obj const &, vm_obj const & _e) {
+vm_obj expr_is_annotation(vm_obj const & _e) {
     expr const & e = to_expr(_e);
     if (is_annotation(e)) {
         return mk_vm_some(mk_vm_pair(to_obj(get_annotation_kind(e)), to_obj(get_annotation_arg(e))));
@@ -312,11 +312,8 @@ vm_obj expr_is_annotation(vm_obj const &, vm_obj const & _e) {
     }
 }
 
-vm_obj reflect_expr(vm_obj const & elab, vm_obj const & e) {
-    if (to_bool(elab))
-        return to_obj(mk_elaborated_expr_quote(to_expr(e)));
-    else
-        return to_obj(mk_pexpr_quote_and_substs(to_expr(e), /* is_strict */ false));
+vm_obj reflect_expr(vm_obj const & e) {
+    return to_obj(mk_elaborated_expr_quote(to_expr(e)));
 }
 
 vm_obj reflect_string(vm_obj const & s) {

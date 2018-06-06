@@ -34,19 +34,17 @@ instance : has_repr binder_info :=
 meta constant macro_def : Type
 
 /-- Reflect a C++ expr object. The VM replaces it with the C++ implementation. -/
-meta inductive expr (elaborated : bool := tt)
-| bvar {} : nat → expr -- bound variables
-| fvar {} : name → expr -- free variables
-| sort     {} : level → expr
-| const    {} : name → list level → expr
-| mvar        : name → name → expr → expr
-| app         : expr → expr → expr
-| lam         : name → binder_info → expr → expr → expr
-| pi          : name → binder_info → expr → expr → expr
-| elet        : name → expr → expr → expr → expr
-| macro       : macro_def → list expr → expr
-
-variable {elab : bool}
+meta inductive expr
+| bvar  : nat → expr -- bound variables
+| fvar  : name → expr -- free variables
+| sort  : level → expr
+| const : name → list level → expr
+| mvar  : name → name → expr → expr
+| app   : expr → expr → expr
+| lam   : name → binder_info → expr → expr → expr
+| pi    : name → binder_info → expr → expr → expr
+| elet  : name → expr → expr → expr → expr
+| macro : macro_def → list expr → expr
 
 meta instance : inhabited expr :=
 ⟨expr.sort level.zero⟩
@@ -56,9 +54,9 @@ meta def expr.mk_bvar (n : nat) : expr :=
 expr.bvar n
 
 /- Expressions can be annotated using the annotation macro. -/
-meta constant expr.is_annotation : expr elab → option (name × expr elab)
+meta constant expr.is_annotation : expr → option (name × expr)
 
-meta def expr.erase_annotations : expr elab → expr elab
+meta def expr.erase_annotations : expr → expr
 | e :=
   match e.is_annotation with
   | some (_, a) := expr.erase_annotations a
@@ -72,14 +70,14 @@ attribute [instance] expr.has_decidable_eq
 meta constant expr.alpha_eqv : expr → expr → bool
 notation a ` =ₐ `:50 b:50 := expr.alpha_eqv a b = bool.tt
 
-protected meta constant expr.to_string : expr elab → string
+protected meta constant expr.to_string : expr → string
 
-meta instance : has_to_string (expr elab) := ⟨expr.to_string⟩
-meta instance : has_to_format (expr elab) := ⟨λ e, e.to_string⟩
+meta instance : has_to_string (expr) := ⟨expr.to_string⟩
+meta instance : has_to_format (expr) := ⟨λ e, e.to_string⟩
 
 /- Coercion for letting users write (f a) instead of (expr.app f a) -/
-meta instance : has_coe_to_fun (expr elab) :=
-{ F := λ e, expr elab → expr elab, coe := λ e, expr.app e }
+meta instance : has_coe_to_fun (expr) :=
+{ F := λ e, expr → expr, coe := λ e, expr.app e }
 
 meta constant expr.hash : expr → nat
 
@@ -166,7 +164,7 @@ meta def app_arg : expr → expr
 | (app f a) := a
 | a         := a
 
-meta def get_app_fn : expr elab → expr elab
+meta def get_app_fn : expr → expr
 | (app f a) := get_app_fn f
 | a         := a
 
@@ -193,11 +191,11 @@ meta def ith_arg_aux : expr → nat → expr
 meta def ith_arg (e : expr) (i : nat) : expr :=
 ith_arg_aux e (get_app_num_args e - i - 1)
 
-meta def const_name : expr elab → name
+meta def const_name : expr → name
 | (const n ls) := n
 | e            := name.anonymous
 
-meta def is_constant : expr elab → bool
+meta def is_constant : expr → bool
 | (const n ls) := tt
 | e            := ff
 
@@ -209,7 +207,7 @@ meta def fvar_id : expr → name
 | (fvar n) := n
 | e        := name.anonymous
 
-meta def is_constant_of : expr elab → name → bool
+meta def is_constant_of : expr → name → bool
 | (const n₁ ls) n₂ := n₁ = n₂
 | e             n  := ff
 
@@ -221,7 +219,7 @@ is_app_of e c ∧ get_app_num_args e = n
 
 meta def is_false : expr → bool
 | `(false) := tt
-| _         := ff
+| _        := ff
 
 meta def is_not : expr → option expr
 | `(not %%a)     := some a
@@ -324,7 +322,7 @@ open format
 
 private meta def p := λ xs, paren (format.join (list.intersperse " " xs))
 
-meta def to_raw_fmt : expr elab → format
+meta def to_raw_fmt : expr → format
 | (bvar n) := p ["bvar", to_fmt n]
 | (fvar n) := p ["fvar", to_fmt n]
 | (sort l) := p ["sort", to_fmt l]

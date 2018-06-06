@@ -94,4 +94,18 @@ def to_lower (c : char) : char :=
 let n := to_nat c in
 if n >= 65 ∧ n <= 90 then of_nat (n + 32) else c
 
+theorem val_of_nat_eq_of_is_valid {n : nat} : is_valid_char n → (of_nat n).val = n :=
+λ h, show (if h' : is_valid_char n then {char . val := n, valid := h'} else {val := 0, valid := or.inl zero_lt_d800}).val = n, from
+(@dif_pos _ _ h _ (λ h', {char . val := n, valid := h'}) (λ _, {val := 0, valid := or.inl zero_lt_d800})).symm ▸ rfl
+
+theorem val_of_nat_eq_of_not_is_valid {n : nat} : ¬ is_valid_char n → (of_nat n).val = 0 :=
+λ h, show (if h' : is_valid_char n then {char . val := n, valid := h'} else {val := 0, valid := or.inl zero_lt_d800}).val = 0, from
+(@dif_neg _ _ h _ (λ h', {char . val := n, valid := h'}) (λ _, {val := 0, valid := or.inl zero_lt_d800})).symm ▸ rfl
+
+theorem of_nat_eq_of_not_is_valid {n : nat} : ¬ is_valid_char n → of_nat n = of_nat 0 :=
+λ h, eq_of_veq ((val_of_nat_eq_of_not_is_valid h).symm ▸ rfl)
+
+theorem of_nat_ne_of_ne {n₁ n₂ : nat} (h₁ : n₁ ≠ n₂) (h₂ : is_valid_char n₁) (h₃ : is_valid_char n₂) : of_nat n₁ ≠ of_nat n₂ :=
+ne_of_vne ((val_of_nat_eq_of_is_valid h₂).symm ▸ (val_of_nat_eq_of_is_valid h₃).symm ▸ h₁)
+
 end char

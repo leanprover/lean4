@@ -426,16 +426,6 @@ meta def trivial : tactic unit :=
 tactic.triv <|> fail "trivial tactic failed"
 
 /--
-`iterate { t }` repeatedly applies tactic `t` until `t` fails. `iterate { t }` always succeeds.
-
-`iterate n { t }` applies `t` `n` times.
--/
-meta def iterate (n : parse small_nat?) (t : itactic) : tactic unit :=
-match n with
-| none   := tactic.iterate t
-| some n := iterate_exactly n t
-
-/--
 `repeat { t }` applies `t` to each goal. If the application succeeds,
 the tactic is applied recursively to all the generated subgoals until it eventually fails.
 The recursion stops in a subgoal when the tactic has failed to make progress.
@@ -461,30 +451,6 @@ tactic.skip
 -/
 meta def solve1 : itactic → tactic unit :=
 tactic.solve1
-
-/--
-`abstract id { t }` tries to use tactic `t` to solve the main goal. If it succeeds, it abstracts the goal as an independent definition or theorem with name `id`. If `id` is omitted, a name is generated automatically.
--/
-meta def abstract (id : parse ident?) (tac : itactic) : tactic unit :=
-tactic.abstract tac id
-
-/--
-`all_goals { t }` applies the tactic `t` to every goal, and succeeds if each application succeeds.
--/
-meta def all_goals : itactic → tactic unit :=
-tactic.all_goals
-
-/--
-`any_goals { t }` applies the tactic `t` to every goal, and succeeds if at least one application succeeds.
--/
-meta def any_goals : itactic → tactic unit :=
-tactic.any_goals
-
-/--
-`focus { t }` temporarily hides all goals other than the first, applies `t`, and then restores the other goals. It fails if there are no goals.
--/
-meta def focus (tac : itactic) : tactic unit :=
-tactic.focus1 tac
 
 /--
 This tactic displays the current state in the tracing buffer.

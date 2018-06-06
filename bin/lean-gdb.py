@@ -9,6 +9,27 @@
 import gdb
 import gdb.printing
 
+def is_scalar(ref):
+    return ref['m_obj'].cast(gdb.lookup_type('uintptr_t')) & 1 == 1
+
+def box(n):
+    return gdb.Value(n << 1 | 1).cast(gdb.lookup_type('lean::object_ref'))
+
+def unbox(ref):
+    return ref['m_obj'].cast(gdb.lookup_type('uintptr_t')) >> 1
+
+def to_cnstr(ref):
+    return ref['m_obj'].cast(gdb.lookup_type('lean::constructor_object').pointer())
+
+def get_cnstr_tag(ref):
+    return to_cnstr(ref).dereference()['m_tag']
+
+def get_cnstr_obj_arg(ref, i):
+    return (ref['m_obj'].cast(gdb.lookup_type('char').pointer()) + gdb.lookup_type('lean::constructor_object').sizeof).cast(gdb.lookup_type('lean::object_ref').pointer())[i]
+
+def get_c_str(ref):
+    return (ref['m_obj'].cast(gdb.lookup_type('char').pointer()) + gdb.lookup_type('lean::string_object').sizeof)
+
 class LeanOptionalPrinter:
     """Print a lean::optional object."""
 
@@ -37,17 +58,19 @@ class LeanNamePrinter:
         self.val = val
 
     def to_string(self):
-        def rec(imp):
-            s = ("'%s'" % imp['m_str'].string()) if imp['m_is_string'] else str(imp['m_k'])
-            if imp['m_prefix']:
-                return "%s.%s" % (rec(imp['m_prefix'].dereference()), s)
+        def rec(ref):
+            prefix = get_cnstr_obj_arg(ref, 0)
+            part = get_cnstr_obj_arg(ref, 1)
+            s = ("'%s'" % get_c_str(part).string()) if get_cnstr_tag(ref) == 1 else str(unbox(part))
+            if not is_scalar(prefix):
+                return "%s.%s" % (rec(prefix), s)
             else:
                 return s
 
-        if not self.val['m_ptr']:
+        if is_scalar(self.val):
             return ""
         else:
-            return rec(self.val['m_ptr'].dereference())
+            return rec(self.val)
 
 class LeanExprPrinter:
     """Print a lean::expr object."""
@@ -146,6 +169,26 @@ class LeanBufferPrinter:
     def display_hint(self):
         return 'array'
 
+class LeanObjListPrinter:
+    """Print a lean::obj_list object."""
+
+    def __init__(self, val):
+        self.val = val
+
+    def children(self):
+        l = self.val
+        i = 0
+        while not is_scalar(l):
+            yield ('[%s]' % i, get_cnstr_obj_arg(l, 0).cast(self.val.type.template_argument(0)))
+            l = get_cnstr_obj_arg(l, 1)
+            i += 1
+
+    def to_string(self):
+        return str(self.val.type)
+
+    def display_hint(self):
+        return 'array'
+
 class LeanRBTreePrinter:
     """Print a lean::rb_tree object."""
 
@@ -192,6 +235,7 @@ def build_pretty_printer():
     pp.add_printer('level', '^lean::level$', LeanLevelPrinter)
     pp.add_printer('list', '^lean::list', LeanListPrinter)
     pp.add_printer('buffer', '^lean::buffer', LeanBufferPrinter)
+    pp.add_printer('obj_list', '^lean::obj_list', LeanObjListPrinter)
     pp.add_printer('rb_tree', '^lean::rb_tree', LeanRBTreePrinter)
     pp.add_printer('rb_map', '^lean::rb_map', LeanRBMapPrinter)
     return pp

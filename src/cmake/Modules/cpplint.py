@@ -3312,13 +3312,18 @@ def CheckLanguage(filename, clean_lines, linenum, file_extension, include_state,
       # are missing context is if MOCK_METHOD was split across
       # multiple lines (for example http://go/hrfhr ), so we only need
       # to check the previous line for MOCK_METHOD.
-      if (linenum == 0 or
-          not Match(r'^\s*MOCK_(CONST_)?METHOD\d+(_T)?\(\S+,\s*$',
-                    clean_lines.elided[linenum - 1])):
-        error(filename, linenum, 'readability/casting', 4,
-              'Using deprecated casting style.  '
-              'Use static_cast<%s>(...) instead' %
-              match.group(2))
+      pass
+      # Disabled by Leo de Moura, 06/06/2018.
+      # This test was producing bogus error messages when using std::function
+      # Example: optional<local_decl> local_ctx::find_if(std::function<bool(local_decl const &)> const & pred) const {
+
+      # if (linenum == 0 or
+      #    not Match(r'^\s*MOCK_(CONST_)?METHOD\d+(_T)?\(\S+,\s*$',
+      #              clean_lines.elided[linenum - 1])):
+      #  error(filename, linenum, 'readability/casting', 4,
+      #        'Using deprecated casting style.  '
+      #        'Use static_cast<%s>(...) instead' %
+      #        match.group(2))
 
   CheckCStyleCast(filename, linenum, line, clean_lines.raw_lines[linenum],
                   'static_cast',

@@ -132,9 +132,15 @@ list.cons
 match_failed
 monad
 monad_fail
+lean.name
 lean.name.anonymous
 lean.name.mk_numeral
 lean.name.mk_string
+lean.name.no_confusion
+lean.name.mk_string_ne_mk_string_of_ne_prefix
+lean.name.mk_string_ne_mk_string_of_ne_string
+lean.name.mk_numeral_ne_mk_numeral_of_ne_prefix
+lean.name.mk_numeral_ne_mk_numeral_of_ne_numeral
 nat
 nat.succ
 nat.zero

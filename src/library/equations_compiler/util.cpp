@@ -405,6 +405,11 @@ static lbool compare_values(expr const & a, expr const & b) {
         return to_lbool(*v1 == *v2);
     }}
 
+    if (auto v1 = name_lit_to_name(a)) {
+    if (auto v2 = name_lit_to_name(b)) {
+        return to_lbool(*v1 == *v2);
+    }}
+
     return l_undef;
 }
 

@@ -25,6 +25,7 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/type_context.h"
 #include "library/string.h"
+#include "library/num.h"
 #include "version.h"
 #include "githash.h" // NOLINT
 
@@ -1101,6 +1102,11 @@ optional<name> name_lit_to_name(expr const & name_lit) {
         if (auto p   = name_lit_to_name(app_arg(app_fn(name_lit))))
         if (auto str = to_string(app_arg(name_lit)))
             return optional<name>(name(*p, str->c_str()));
+    }
+    if (is_app_of(name_lit, get_lean_name_mk_numeral_name(), 2)) {
+        if (auto p = name_lit_to_name(app_arg(app_fn(name_lit))))
+        if (auto n = to_num(app_arg(name_lit)))
+            return optional<name>(name(*p, n->get_unsigned_int()));
     }
     return optional<name>();
 }

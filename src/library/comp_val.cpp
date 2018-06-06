@@ -207,6 +207,54 @@ optional<expr> mk_string_val_ne_proof(expr a, expr b) {
     return none_expr();
 }
 
+static expr mk_name_no_confusion(expr const & a, expr const & b) {
+    return mk_app(mk_constant(get_lean_name_no_confusion_name(), {mk_level_zero()}),
+                  mk_false(), a, b);
+}
+
+optional<expr> mk_name_val_ne_proof(expr const & a, expr const & b) {
+    if (is_constant(a, get_lean_name_anonymous_name())) {
+        if (is_app_of(b, get_lean_name_mk_string_name(), 2)) {
+            return some_expr(mk_name_no_confusion(a, b));
+        } else if (is_app_of(b, get_lean_name_mk_numeral_name(), 2)) {
+            return some_expr(mk_name_no_confusion(a, b));
+        }
+    } else if (is_app_of(a, get_lean_name_mk_string_name(), 2)) {
+        if (is_constant(b, get_lean_name_anonymous_name())) {
+            return some_expr(mk_name_no_confusion(a, b));
+        } else if (is_app_of(b, get_lean_name_mk_string_name())) {
+            if (auto h = mk_string_val_ne_proof(app_arg(a), app_arg(b))) {
+                return some_expr(mk_app({mk_constant(get_lean_name_mk_string_ne_mk_string_of_ne_string_name()),
+                                         app_arg(app_fn(a)), app_arg(a),
+                                         app_arg(app_fn(b)), app_arg(b), *h}));
+            } else if (auto h = mk_name_val_ne_proof(app_arg(app_fn(a)), app_arg(app_fn(b)))) {
+                return some_expr(mk_app({mk_constant(get_lean_name_mk_string_ne_mk_string_of_ne_prefix_name()),
+                                         app_arg(app_fn(a)), app_arg(a),
+                                         app_arg(app_fn(b)), app_arg(b), *h}));
+            }
+        } else if (is_app_of(b, get_lean_name_mk_numeral_name(), 2)) {
+            return some_expr(mk_name_no_confusion(a, b));
+        }
+    } else if (is_app_of(a, get_lean_name_mk_numeral_name(), 2)) {
+        if (is_constant(b, get_lean_name_anonymous_name())) {
+            return some_expr(mk_name_no_confusion(a, b));
+        } else if (is_app_of(b, get_lean_name_mk_string_name())) {
+            return some_expr(mk_name_no_confusion(a, b));
+        } else if (is_app_of(b, get_lean_name_mk_numeral_name(), 2)) {
+            if (auto h = mk_nat_val_ne_proof(app_arg(a), app_arg(b))) {
+                return some_expr(mk_app({mk_constant(get_lean_name_mk_numeral_ne_mk_numeral_of_ne_numeral_name()),
+                                         app_arg(app_fn(a)), app_arg(a),
+                                         app_arg(app_fn(b)), app_arg(b), *h}));
+            } else if (auto h = mk_name_val_ne_proof(app_arg(app_fn(a)), app_arg(app_fn(b)))) {
+                return some_expr(mk_app({mk_constant(get_lean_name_mk_numeral_ne_mk_numeral_of_ne_prefix_name()),
+                                         app_arg(app_fn(a)), app_arg(a),
+                                         app_arg(app_fn(b)), app_arg(b), *h}));
+            }
+        }
+    }
+    return none_expr();
+}
+
 optional<expr> mk_val_ne_proof(type_context_old & ctx, expr const & a, expr const & b) {
     expr type = ctx.infer(a);
     if (ctx.is_def_eq(type, mk_nat_type()))
@@ -215,6 +263,8 @@ optional<expr> mk_val_ne_proof(type_context_old & ctx, expr const & a, expr cons
         return mk_char_val_ne_proof(a, b);
     if (ctx.is_def_eq(type, mk_constant(get_string_name())))
         return mk_string_val_ne_proof(a, b);
+    if (ctx.is_def_eq(type, mk_constant(get_lean_name_name())))
+        return mk_name_val_ne_proof(a, b);
     return none_expr();
 }
 

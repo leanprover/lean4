@@ -117,5 +117,17 @@ instance : has_to_string name :=
 instance : has_to_format name :=
 ⟨λ n, n.to_string⟩
 
+theorem mk_string_ne_mk_string_of_ne_prefix {p₁ : name} (s₁ : string) {p₂ : name} (s₂ : string) : p₁ ≠ p₂ → mk_string p₁ s₁ ≠ mk_string p₂ s₂ :=
+λ h₁ h₂, name.no_confusion h₂ (λ h _, absurd h h₁)
+
+theorem mk_string_ne_mk_string_of_ne_string (p₁ : name) {s₁ : string} (p₂ : name) {s₂ : string} : s₁ ≠ s₂ → mk_string p₁ s₁ ≠ mk_string p₂ s₂ :=
+λ h₁ h₂, name.no_confusion h₂ (λ _ h, absurd h h₁)
+
+theorem mk_numeral_ne_mk_numeral_of_ne_prefix {p₁ : name} (n₁ : nat) {p₂ : name} (n₂ : nat) : p₁ ≠ p₂ → mk_numeral p₁ n₁ ≠ mk_numeral p₂ n₂ :=
+λ h₁ h₂, name.no_confusion h₂ (λ h _, absurd h h₁)
+
+theorem mk_numeral_ne_mk_numeral_of_ne_numeral (p₁ : name) {n₁ : nat} (p₂ : name) {n₂ : nat} : n₁ ≠ n₂ → mk_numeral p₁ n₁ ≠ mk_numeral p₂ n₂ :=
+λ h₁ h₂, name.no_confusion h₂ (λ _ h, absurd h h₁)
+
 end name
 end lean

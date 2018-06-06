@@ -27,7 +27,6 @@ Author: Leonardo de Moura
 #include "util/sexpr/option_declarations.h"
 #include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
-#include "kernel/type_checker.h"
 #include "kernel/formatter.h"
 #include "kernel/standard_kernel.h"
 #include "library/st_task_queue.h"

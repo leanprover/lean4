@@ -8,7 +8,7 @@ Author: Daniel Selsam
 #include "runtime/sstream.h"
 #include "util/fresh_name.h"
 #include "kernel/environment.h"
-#include "kernel/type_checker.h"
+#include "kernel/old_type_checker.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/find_fn.h"

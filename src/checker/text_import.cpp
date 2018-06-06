@@ -10,7 +10,7 @@ Author: Gabriel Ebner
 #include "runtime/sstream.h"
 #include "kernel/environment.h"
 #include "kernel/inductive/inductive.h"
-#include "kernel/type_checker.h"
+#include "kernel/old_type_checker.h"
 #include "kernel/quot.h"
 #include "checker/text_import.h"
 
@@ -70,7 +70,7 @@ struct text_importer {
         auto ls = read_level_params(in);
 
         auto decl =
-            type_checker(m_env).is_prop(m_expr.at(type_idx)) ?
+            old_type_checker(m_env).is_prop(m_expr.at(type_idx)) ?
                 mk_theorem(m_name.at(name_idx), ls, m_expr.at(type_idx), m_expr.at(val_idx)) :
                 mk_definition(m_env, m_name.at(name_idx), ls, m_expr.at(type_idx), m_expr.at(val_idx), true, false);
 

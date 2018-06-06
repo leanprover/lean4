@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "util/lbool.h"
 #include "util/fresh_name.h"
 #include "util/task_builder.h"
-#include "kernel/type_checker.h"
+#include "kernel/old_type_checker.h"
 #include "kernel/expr_maps.h"
 #include "kernel/instantiate.h"
 #include "kernel/free_vars.h"
@@ -27,14 +27,14 @@ namespace lean {
 static name * g_kernel_fresh = nullptr;
 static expr * g_dont_care    = nullptr;
 
-optional<expr> type_checker::expand_macro(expr const & m) {
+optional<expr> old_type_checker::expand_macro(expr const & m) {
     lean_assert(is_macro(m));
     return macro_def(m).expand(m, *this);
 }
 
 /** \brief Return the body of the given binder, where the free variable #0 is replaced with a fresh local constant.
     It also returns the fresh local constant. */
-pair<expr, expr> type_checker::open_binding_body(expr const & e) {
+pair<expr, expr> old_type_checker::open_binding_body(expr const & e) {
     expr local     = mk_local(m_name_generator.next(), binding_name(e), binding_domain(e), binding_info(e));
     return mk_pair(instantiate(binding_body(e), local), local);
 }
@@ -44,7 +44,7 @@ pair<expr, expr> type_checker::open_binding_body(expr const & e) {
 
     \remark \c s is used to extract position (line number information) when an
     error message is produced */
-expr type_checker::ensure_sort_core(expr e, expr const & s) {
+expr old_type_checker::ensure_sort_core(expr e, expr const & s) {
     if (is_sort(e))
         return e;
     auto new_e = whnf(e);
@@ -56,7 +56,7 @@ expr type_checker::ensure_sort_core(expr e, expr const & s) {
 }
 
 /** \brief Similar to \c ensure_sort, but makes sure \c e "is" a Pi. */
-expr type_checker::ensure_pi_core(expr e, expr const & s) {
+expr old_type_checker::ensure_pi_core(expr e, expr const & s) {
     if (is_pi(e))
         return e;
     auto new_e = whnf(e);
@@ -67,7 +67,7 @@ expr type_checker::ensure_pi_core(expr e, expr const & s) {
     }
 }
 
-void type_checker::check_level(level const & l, expr const & s) {
+void old_type_checker::check_level(level const & l, expr const & s) {
     if (m_params) {
         if (auto n2 = get_undef_param(l, *m_params))
             throw_kernel_exception(m_env, sstream() << "invalid reference to undefined universe level parameter '"
@@ -75,7 +75,7 @@ void type_checker::check_level(level const & l, expr const & s) {
     }
 }
 
-expr type_checker::infer_constant(expr const & e, bool infer_only) {
+expr old_type_checker::infer_constant(expr const & e, bool infer_only) {
     declaration d    = m_env.get(const_name(e));
     auto const & ps = d.get_univ_params();
     auto const & ls = const_levels(e);
@@ -94,7 +94,7 @@ expr type_checker::infer_constant(expr const & e, bool infer_only) {
     return instantiate_type_univ_params(d, ls);
 }
 
-expr type_checker::infer_macro(expr const & e, bool infer_only) {
+expr old_type_checker::infer_macro(expr const & e, bool infer_only) {
     auto def = macro_def(e);
     auto t   = def.check_type(e, *this, infer_only);
 // TODO(Leo): macros will be deleted
@@ -105,7 +105,7 @@ expr type_checker::infer_macro(expr const & e, bool infer_only) {
     return t;
 }
 
-expr type_checker::infer_lambda(expr const & _e, bool infer_only) {
+expr old_type_checker::infer_lambda(expr const & _e, bool infer_only) {
     buffer<expr> es, ds, ls;
     expr e = _e;
     while (is_lambda(e)) {
@@ -131,7 +131,7 @@ expr type_checker::infer_lambda(expr const & _e, bool infer_only) {
     return r;
 }
 
-expr type_checker::infer_pi(expr const & _e, bool infer_only) {
+expr old_type_checker::infer_pi(expr const & _e, bool infer_only) {
     buffer<expr>  ls;
     buffer<level> us;
     expr e = _e;
@@ -156,7 +156,7 @@ expr type_checker::infer_pi(expr const & _e, bool infer_only) {
     return mk_sort(r);
 }
 
-expr type_checker::infer_app(expr const & e, bool infer_only) {
+expr old_type_checker::infer_app(expr const & e, bool infer_only) {
     if (!infer_only) {
         expr f_type = ensure_pi_core(infer_type_core(app_fn(e), infer_only), e);
         expr a_type = infer_type_core(app_arg(e), infer_only);
@@ -188,7 +188,7 @@ expr type_checker::infer_app(expr const & e, bool infer_only) {
     }
 }
 
-expr type_checker::infer_let(expr const & e, bool infer_only) {
+expr old_type_checker::infer_let(expr const & e, bool infer_only) {
     if (!infer_only) {
         if (let_name(e).is_anonymous())
             throw_kernel_exception(m_env, "invalid anonymous let var name", e);
@@ -207,7 +207,7 @@ expr type_checker::infer_let(expr const & e, bool infer_only) {
 
 /** \brief Return type of expression \c e, if \c infer_only is false, then it also check whether \c e is type correct or not.
     \pre closed(e) */
-expr type_checker::infer_type_core(expr const & e, bool infer_only) {
+expr old_type_checker::infer_type_core(expr const & e, bool infer_only) {
     if (is_var(e))
         throw_kernel_exception(m_env, "type checker does not support free variables, replace them with local constants before invoking it", e);
 
@@ -242,41 +242,41 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
     return r;
 }
 
-expr type_checker::infer_type(expr const & e) {
+expr old_type_checker::infer_type(expr const & e) {
     return infer_type_core(e, true);
 }
 
-expr type_checker::check(expr const & e, level_param_names const & ps) {
+expr old_type_checker::check(expr const & e, level_param_names const & ps) {
     flet<level_param_names const *> updt(m_params, &ps);
     return infer_type_core(e, false);
 }
 
-expr type_checker::check_ignore_undefined_universes(expr const & e) {
+expr old_type_checker::check_ignore_undefined_universes(expr const & e) {
     flet<level_param_names const *> updt(m_params, nullptr);
     return infer_type_core(e, false);
 }
 
-expr type_checker::ensure_sort(expr const & e, expr const & s) {
+expr old_type_checker::ensure_sort(expr const & e, expr const & s) {
     return ensure_sort_core(e, s);
 }
 
-expr type_checker::ensure_pi(expr const & e, expr const & s) {
+expr old_type_checker::ensure_pi(expr const & e, expr const & s) {
     return ensure_pi_core(e, s);
 }
 
-bool type_checker::is_def_eq_types(expr const & t, expr const & s) {
+bool old_type_checker::is_def_eq_types(expr const & t, expr const & s) {
     expr t1 = infer_type_core(t, true);
     expr t2 = infer_type_core(s, true);
     return is_def_eq(t1, t2);
 }
 
 /** \brief Return true iff \c e is a proposition */
-bool type_checker::is_prop(expr const & e) {
+bool old_type_checker::is_prop(expr const & e) {
     return whnf(infer_type(e)) == mk_Prop();
 }
 
 /** \brief Apply normalizer extensions to \c e. */
-optional<expr> type_checker::norm_ext(expr const & e) {
+optional<expr> old_type_checker::norm_ext(expr const & e) {
     if (m_env.is_quot_initialized()) {
         if (optional<expr> r = quot_reduce_rec(e, [&](expr const & e) { return whnf(e); })) {
             return r;
@@ -286,7 +286,7 @@ optional<expr> type_checker::norm_ext(expr const & e) {
 }
 
 /** \brief Weak head normal form core procedure. It does not perform delta reduction nor normalization extensions. */
-expr type_checker::whnf_core(expr const & e) {
+expr old_type_checker::whnf_core(expr const & e) {
     check_system("whnf");
 
     // handle easy cases
@@ -354,7 +354,7 @@ expr type_checker::whnf_core(expr const & e) {
 
 /** \brief Return some definition \c d iff \c e is a target for delta-reduction, and the given definition is the one
     to be expanded. */
-optional<declaration> type_checker::is_delta(expr const & e) const {
+optional<declaration> old_type_checker::is_delta(expr const & e) const {
     expr const & f = get_app_fn(e);
     if (is_constant(f)) {
         if (auto d = m_env.find(const_name(f)))
@@ -364,7 +364,7 @@ optional<declaration> type_checker::is_delta(expr const & e) const {
     return none_declaration();
 }
 
-optional<expr> type_checker::unfold_definition_core(expr const & e) {
+optional<expr> old_type_checker::unfold_definition_core(expr const & e) {
     if (is_constant(e)) {
         if (auto d = is_delta(e)) {
             if (length(const_levels(e)) == d->get_num_univ_params())
@@ -375,7 +375,7 @@ optional<expr> type_checker::unfold_definition_core(expr const & e) {
 }
 
 /* Unfold head(e) if it is a constant */
-optional<expr> type_checker::unfold_definition(expr const & e) {
+optional<expr> old_type_checker::unfold_definition(expr const & e) {
     if (is_app(e)) {
         expr f0 = get_app_fn(e);
         if (auto f  = unfold_definition_core(f0)) {
@@ -391,7 +391,7 @@ optional<expr> type_checker::unfold_definition(expr const & e) {
 }
 
 /** \brief Put expression \c t in weak head normal form */
-expr type_checker::whnf(expr const & e) {
+expr old_type_checker::whnf(expr const & e) {
     // Do not cache easy cases
     switch (e.kind()) {
     case expr_kind::Var: case expr_kind::Sort: case expr_kind::Meta: case expr_kind::Local: case expr_kind::Pi:
@@ -429,7 +429,7 @@ expr type_checker::whnf(expr const & e) {
         domain(t) is definitionally equal to domain(s)
         and
         body(t) is definitionally equal to body(s) */
-bool type_checker::is_def_eq_binding(expr t, expr s) {
+bool old_type_checker::is_def_eq_binding(expr t, expr s) {
     lean_assert(t.kind() == s.kind());
     lean_assert(is_binding(t));
     expr_kind k = t.kind();
@@ -457,7 +457,7 @@ bool type_checker::is_def_eq_binding(expr t, expr s) {
                      instantiate_rev(s, subst.size(), subst.data()));
 }
 
-bool type_checker::is_def_eq(level const & l1, level const & l2) {
+bool old_type_checker::is_def_eq(level const & l1, level const & l2) {
     if (is_equivalent(l1, l2)) {
         return true;
     } else {
@@ -465,7 +465,7 @@ bool type_checker::is_def_eq(level const & l1, level const & l2) {
     }
 }
 
-bool type_checker::is_def_eq(levels const & ls1, levels const & ls2) {
+bool old_type_checker::is_def_eq(levels const & ls1, levels const & ls2) {
     if (is_nil(ls1) && is_nil(ls2)) {
         return true;
     } else if (!is_nil(ls1) && !is_nil(ls2)) {
@@ -478,7 +478,7 @@ bool type_checker::is_def_eq(levels const & ls1, levels const & ls2) {
 }
 
 /** \brief This is an auxiliary method for is_def_eq. It handles the "easy cases". */
-lbool type_checker::quick_is_def_eq(expr const & t, expr const & s, bool use_hash) {
+lbool old_type_checker::quick_is_def_eq(expr const & t, expr const & s, bool use_hash) {
     if (m_eqv_manager.is_equiv(t, s, use_hash))
         return l_true;
     if (t.kind() == s.kind()) {
@@ -500,7 +500,7 @@ lbool type_checker::quick_is_def_eq(expr const & t, expr const & s, bool use_has
 
 /** \brief Return true if arguments of \c t are definitionally equal to arguments of \c s.
     This method is used to implement an optimization in the method \c is_def_eq. */
-bool type_checker::is_def_eq_args(expr t, expr s) {
+bool old_type_checker::is_def_eq_args(expr t, expr s) {
     while (is_app(t) && is_app(s)) {
         if (!is_def_eq(app_arg(t), app_arg(s)))
             return false;
@@ -511,7 +511,7 @@ bool type_checker::is_def_eq_args(expr t, expr s) {
 }
 
 /** \brief Try to solve (fun (x : A), B) =?= s by trying eta-expansion on s */
-bool type_checker::try_eta_expansion_core(expr const & t, expr const & s) {
+bool old_type_checker::try_eta_expansion_core(expr const & t, expr const & s) {
     if (is_lambda(t) && !is_lambda(s)) {
         expr s_type = whnf(infer_type(s));
         if (!is_pi(s_type))
@@ -529,7 +529,7 @@ bool type_checker::try_eta_expansion_core(expr const & t, expr const & s) {
     <tt>(f a_1 ... a_n)</tt> <tt>(g b_1 ... b_n)</tt>, and \c f and \c g are definitionally equal, and
     \c a_i and \c b_i are also definitionally equal for every 1 <= i <= n.
     Return false otherwise. */
-bool type_checker::is_def_eq_app(expr const & t, expr const & s) {
+bool old_type_checker::is_def_eq_app(expr const & t, expr const & s) {
     if (is_app(t) && is_app(s)) {
         buffer<expr> t_args;
         buffer<expr> s_args;
@@ -550,14 +550,14 @@ bool type_checker::is_def_eq_app(expr const & t, expr const & s) {
 
 /** \brief Return true if \c t and \c s are definitionally equal due to proof irrelevant.
     Return false otherwise. */
-bool type_checker::is_def_eq_proof_irrel(expr const & t, expr const & s) {
+bool old_type_checker::is_def_eq_proof_irrel(expr const & t, expr const & s) {
     // Proof irrelevance support for Prop (aka Type.{0})
     expr t_type = infer_type(t);
     expr s_type = infer_type(s);
     return is_prop(t_type) && is_def_eq(t_type, s_type);
 }
 
-bool type_checker::failed_before(expr const & t, expr const & s) const {
+bool old_type_checker::failed_before(expr const & t, expr const & s) const {
     if (t.hash() < s.hash()) {
         return m_failure_cache.find(mk_pair(t, s)) != m_failure_cache.end();
     } else if (t.hash() > s.hash()) {
@@ -569,7 +569,7 @@ bool type_checker::failed_before(expr const & t, expr const & s) const {
     }
 }
 
-void type_checker::cache_failure(expr const & t, expr const & s) {
+void old_type_checker::cache_failure(expr const & t, expr const & s) {
     if (t.hash() <= s.hash())
         m_failure_cache.insert(mk_pair(t, s));
     else
@@ -585,7 +585,7 @@ static name * g_id_delta = nullptr;
      - l_undef it the step did not manage to establish whether they are definitionally equal or not.
 
      \remark t_n, s_n and cs are updated. */
-auto type_checker::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> reduction_status {
+auto old_type_checker::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> reduction_status {
     auto d_t = is_delta(t_n);
     auto d_s = is_delta(s_n);
     if (!d_t && !d_s) {
@@ -650,7 +650,7 @@ auto type_checker::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> reductio
     lean_unreachable();
 }
 
-lbool type_checker::lazy_delta_reduction(expr & t_n, expr & s_n) {
+lbool old_type_checker::lazy_delta_reduction(expr & t_n, expr & s_n) {
     while (true) {
         switch (lazy_delta_reduction_step(t_n, s_n)) {
         case reduction_status::Continue:   break;
@@ -661,7 +661,7 @@ lbool type_checker::lazy_delta_reduction(expr & t_n, expr & s_n) {
     }
 }
 
-bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
+bool old_type_checker::is_def_eq_core(expr const & t, expr const & s) {
     check_system("is_definitionally_equal");
     bool use_hash = true;
     lbool r = quick_is_def_eq(t, s, use_hash);
@@ -709,18 +709,18 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     return false;
 }
 
-bool type_checker::is_def_eq(expr const & t, expr const & s) {
+bool old_type_checker::is_def_eq(expr const & t, expr const & s) {
     bool r = is_def_eq_core(t, s);
     if (r)
         m_eqv_manager.add_equiv(t, s);
     return r;
 }
 
-type_checker::type_checker(environment const & env, bool memoize, bool non_meta_only):
+old_type_checker::old_type_checker(environment const & env, bool memoize, bool non_meta_only):
     m_env(env), m_name_generator(*g_kernel_fresh), m_memoize(memoize), m_non_meta_only(non_meta_only), m_params(nullptr) {
 }
 
-type_checker::~type_checker() {}
+old_type_checker::~old_type_checker() {}
 
 void check_no_metavar(environment const & env, name const & n, expr const & e, bool is_type) {
     if (has_metavar(e))
@@ -755,7 +755,7 @@ static void check_duplicated_params(environment const & env, declaration const &
     }
 }
 
-static void check_definition(environment const & env, declaration const & d, type_checker & checker) {
+static void check_definition(environment const & env, declaration const & d, old_type_checker & checker) {
     check_no_mlocal(env, d.get_name(), d.get_value(), false);
     expr val_type = checker.check(d.get_value(), d.get_univ_params());
     if (!checker.is_def_eq(val_type, d.get_type())) {
@@ -763,7 +763,7 @@ static void check_definition(environment const & env, declaration const & d, typ
     }
 }
 
-static void check_decl_type(environment const & env, declaration const & d, type_checker & checker) {
+static void check_decl_type(environment const & env, declaration const & d, old_type_checker & checker) {
     check_no_mlocal(env, d.get_name(), d.get_type(), true);
     check_name(env, d.get_name());
     check_duplicated_params(env, d);
@@ -773,13 +773,13 @@ static void check_decl_type(environment const & env, declaration const & d, type
 
 void check_decl_type(environment const & env, declaration const & d) {
     bool memoize = true; bool non_meta_only = !d.is_meta();
-    type_checker checker(env, memoize, non_meta_only);
+    old_type_checker checker(env, memoize, non_meta_only);
     check_decl_type(env, d, checker);
 }
 
 void check_decl_value(environment const & env, declaration const & d) {
     bool memoize = true; bool non_meta_only = !d.is_meta();
-    type_checker checker(env, memoize, non_meta_only);
+    old_type_checker checker(env, memoize, non_meta_only);
     if (d.is_definition()) {
         check_definition(env, d, checker);
     }
@@ -787,7 +787,7 @@ void check_decl_value(environment const & env, declaration const & d) {
 
 certified_declaration check(environment const & env, declaration const & d) {
     bool memoize = true; bool non_meta_only = !d.is_meta();
-    type_checker checker(env, memoize, non_meta_only);
+    old_type_checker checker(env, memoize, non_meta_only);
     check_decl_type(env, d, checker);
     if (d.is_definition()) {
         check_definition(env, d, checker);
@@ -808,14 +808,14 @@ certified_declaration certify_unchecked::certify_or_check(environment const & en
         return certify(env, d);
 }
 
-void initialize_type_checker() {
+void initialize_old_type_checker() {
     g_id_delta     = new name("id_delta");
     g_dont_care    = new expr(Const("dontcare"));
     g_kernel_fresh = new name("_kernel_fresh");
     register_name_generator_prefix(*g_kernel_fresh);
 }
 
-void finalize_type_checker() {
+void finalize_old_type_checker() {
     delete g_dont_care;
     delete g_id_delta;
     delete g_kernel_fresh;

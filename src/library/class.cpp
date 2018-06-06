@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "util/lbool.h"
 #include "util/fresh_name.h"
 #include "util/name_set.h"
-#include "kernel/type_checker.h"
+#include "kernel/old_type_checker.h"
 #include "kernel/instantiate.h"
 #include "kernel/for_each_fn.h"
 #include "library/scoped_ext.h"
@@ -86,7 +86,7 @@ struct class_state {
             m_has_out_params.insert(c);
     }
 
-    void collect_symbols(type_checker & tc, name const & inst, name const & attr) {
+    void collect_symbols(old_type_checker & tc, name const & inst, name const & attr) {
         environment const & env = tc.env();
         name_set S;
         if (auto curr_S = m_attr_symbols.find(attr))
@@ -120,7 +120,7 @@ struct class_state {
         }
         m_priorities.insert(i, p);
         if (auto attrs = m_class_track_attrs.find(c)) {
-            type_checker tc(env);
+            old_type_checker tc(env);
             for (name const & attr : *attrs) {
                 collect_symbols(tc, i, attr);
             }

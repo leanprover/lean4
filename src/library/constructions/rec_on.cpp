@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
-#include "kernel/type_checker.h"
+#include "kernel/old_type_checker.h"
 #include "kernel/inductive/inductive.h"
 #include "library/module.h"
 #include "library/reducible.h"

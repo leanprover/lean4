@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/fresh_name.h"
-#include "kernel/type_checker.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"

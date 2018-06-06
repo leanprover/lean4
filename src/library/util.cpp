@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "kernel/instantiate.h"
 #include "kernel/error_msgs.h"
-#include "kernel/type_checker.h"
+#include "kernel/old_type_checker.h"
 #include "kernel/abstract.h"
 #include "kernel/abstract_type_context.h"
 #include "kernel/inductive/inductive.h"
@@ -246,7 +246,7 @@ level get_datatype_level(environment const & env, expr const & ind_type) {
     if (is_sort(it)) {
         return sort_level(it);
     } else {
-        type_checker ctx(env);
+        old_type_checker ctx(env);
         buffer<expr> telescope;
         expr it = ctx.whnf(to_telescope(ctx, ind_type, telescope));
         if (is_sort(it)) {
@@ -312,7 +312,7 @@ optional<name> is_constructor_app_ext(environment const & env, expr const & e) {
     return is_constructor_app_ext(env, *it);
 }
 
-static bool is_irrelevant_field_type(type_checker & tc, expr const & ftype) {
+static bool is_irrelevant_field_type(old_type_checker & tc, expr const & ftype) {
     if (tc.is_prop(ftype)) return true;
     buffer<expr> tele;
     expr n_ftype = to_telescope(tc, ftype, tele);
@@ -325,7 +325,7 @@ void get_constructor_relevant_fields(environment const & env, name const & n, bu
     name I_name      = *inductive::is_intro_rule(env, n);
     unsigned nparams = *inductive::get_num_params(env, I_name);
     buffer<expr> telescope;
-    type_checker tc(env);
+    old_type_checker tc(env);
     to_telescope(tc, type, telescope);
     lean_assert(telescope.size() >= nparams);
     for (unsigned i = nparams; i < telescope.size(); i++) {
@@ -423,7 +423,7 @@ expr fun_to_telescope(expr const & e, buffer<expr> & telescope,
     return to_telescope(false, e, telescope, binfo);
 }
 
-expr to_telescope(type_checker & ctx, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo) {
+expr to_telescope(old_type_checker & ctx, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo) {
     expr new_type = ctx.whnf(type);
     while (is_pi(new_type)) {
         type = new_type;
@@ -1024,7 +1024,7 @@ expr infer_implicit_params(expr const & type, unsigned nparams, implicit_infer_k
 }
 
 bool get_constructor_rec_args(environment const & env, expr const & e, buffer<pair<expr, unsigned>> & rec_args) {
-    type_checker ctx(env);
+    old_type_checker ctx(env);
     buffer<expr> args;
     expr const & fn = get_app_args(e, args);
     if (!is_constant(fn)) return false;

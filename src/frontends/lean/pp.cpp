@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "kernel/free_vars.h"
 #include "kernel/abstract.h"
+#include "kernel/old_type_checker.h"
 #include "kernel/instantiate.h"
 #include "library/sorry.h"
 #include "library/annotation.h"
@@ -1911,7 +1912,7 @@ static options mk_options(bool detail) {
 }
 
 static void pp_core(environment const & env, expr const & e, bool detail) {
-    type_checker tc(env);
+    old_type_checker tc(env);
     io_state ios(mk_pretty_formatter_factory(), mk_options(detail));
     regular(env, ios, tc) << e << "\n";
 }

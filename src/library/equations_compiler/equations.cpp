@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "util/list_fn.h"
 #include "util/fresh_name.h"
 #include "kernel/expr.h"
-#include "kernel/type_checker.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/error_msgs.h"

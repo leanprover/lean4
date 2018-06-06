@@ -22,7 +22,7 @@ Author: Leonardo de Moura
 namespace lean {
 /** \brief Lean Type Checker. It can also be used to infer types, check whether a
     type \c A is convertible to a type \c B, etc. */
-class type_checker : public abstract_type_context {
+class old_type_checker : public abstract_type_context {
     /* In the type checker cache, we must take into account binder information.
        Examples:
        The type of (lambda x : A, t)   is (Pi x : A, typeof(t))
@@ -82,8 +82,8 @@ public:
         memoize: if true, then inferred types are memoized/cached.
 
     */
-    type_checker(environment const & env, bool memoize = true, bool non_meta_only = true);
-    ~type_checker();
+    old_type_checker(environment const & env, bool memoize = true, bool non_meta_only = true);
+    ~old_type_checker();
 
     virtual environment const & env() const { return m_env; }
 
@@ -138,7 +138,7 @@ public:
     }
 };
 
-typedef std::shared_ptr<type_checker> type_checker_ref;
+typedef std::shared_ptr<old_type_checker> old_type_checker_ref;
 
 void check_no_metavar(environment const & env, name const & n, expr const & e, bool is_type);
 void check_no_mlocal(environment const & env, name const & n, expr const & e, bool is_type);
@@ -149,6 +149,6 @@ void check_decl_value(environment const & env, declaration const & d);
     Throw an exception if the declaration is type incorrect. */
 certified_declaration check(environment const & env, declaration const & d);
 
-void initialize_type_checker();
-void finalize_type_checker();
+void initialize_old_type_checker();
+void finalize_old_type_checker();
 }

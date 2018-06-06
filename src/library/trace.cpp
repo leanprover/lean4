@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/sexpr/option_declarations.h"
 #include "kernel/environment.h"
-#include "kernel/type_checker.h"
+#include "kernel/old_type_checker.h"
 #include "library/io_state.h"
 #include "library/trace.h"
 #include "library/messages.h"
@@ -175,7 +175,7 @@ struct silent_ios_helper {
 };
 
 MK_THREAD_LOCAL_GET_DEF(silent_ios_helper, get_silent_ios_helper);
-MK_THREAD_LOCAL_GET(type_checker, get_dummy_tc, get_dummy_env());
+MK_THREAD_LOCAL_GET(old_type_checker, get_dummy_tc, get_dummy_env());
 
 scope_trace_silent::scope_trace_silent(bool flag) {
     m_old_value = g_silent;

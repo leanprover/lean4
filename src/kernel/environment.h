@@ -25,7 +25,7 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
-class type_checker;
+class old_type_checker;
 class environment;
 class certified_declaration;
 namespace inductive { class certified_inductive_decl; }

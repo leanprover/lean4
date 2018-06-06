@@ -20,7 +20,6 @@ Author: Leonardo de Moura
 #include "util/buffer.h"
 #include "util/name_map.h"
 #include "util/file_lock.h"
-#include "kernel/type_checker.h"
 #include "library/module.h"
 #include "library/noncomputable.h"
 #include "library/constants.h"

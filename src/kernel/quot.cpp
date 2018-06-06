@@ -6,9 +6,9 @@ Author: Leonardo de Moura
 
 Quotient types.
 */
+#include "kernel/old_type_checker.h"
 #include "kernel/quot.h"
 #include "kernel/abstract.h"
-#include "kernel/type_checker.h"
 #include "kernel/inductive/inductive.h"
 
 namespace lean {

@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/expr.h"
 #include "kernel/expr_sets.h"
-#include "kernel/type_checker.h"
 #include "library/util.h"
 #include "library/locals.h"
 #include "library/vm/vm.h"

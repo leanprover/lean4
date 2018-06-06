@@ -7,7 +7,7 @@
 #include "kernel/inductive/inductive.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
-#include "kernel/type_checker.h"
+#include "kernel/old_type_checker.h"
 #include "util/sexpr/option_declarations.h"
 #include "library/locals.h"
 #include "library/module.h"
@@ -77,7 +77,7 @@ void assert_def_eq(environment const & DEBUG_CODE(env), expr const & DEBUG_CODE(
 }
 
 void assert_type_correct(environment const & env, expr const & e) {
-    type_checker checker(env, true, false /* allow untrusted/meta */);
+    old_type_checker checker(env, true, false /* allow untrusted/meta */);
     try {
         checker.check(e);
     } catch (exception ex) {

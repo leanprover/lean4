@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/fresh_name.h"
-#include "kernel/type_checker.h"
+#include "kernel/old_type_checker.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/inductive/inductive.h"
@@ -23,7 +23,7 @@ enum class drec_kind {DRec, DRecOn, DCasesOn};
 struct mk_drec_fn {
     environment const & env;
     name_generator      ngen;
-    type_checker        tc;
+    old_type_checker        tc;
     name const &        I;
     drec_kind           kind;
     inductive::inductive_decl      I_ind_decl;

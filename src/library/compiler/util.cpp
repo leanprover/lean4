@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include "kernel/find_fn.h"
-#include "kernel/type_checker.h"
+#include "kernel/old_type_checker.h"
 #include "kernel/inductive/inductive.h"
 #include "library/inverse.h"
 #include "library/aux_recursors.h"
@@ -53,7 +53,7 @@ static bool is_typeformer_app(buffer<name> const & typeformer_names, expr const 
 
 void get_rec_args(environment const & env, name const & n, buffer<buffer<bool>> & r) {
     lean_assert(inductive::is_inductive_decl(env, n));
-    type_checker tc(env);
+    old_type_checker tc(env);
     declaration ind_decl   = env.get(n);
     declaration rec_decl   = env.get(inductive::get_elim_name(n));
     unsigned nparams       = *inductive::get_num_params(env, n);

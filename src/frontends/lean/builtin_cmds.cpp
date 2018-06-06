@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "runtime/sstream.h"
 #include "util/timeit.h"
 #include "util/sexpr/option_declarations.h"
-#include "kernel/type_checker.h"
+#include "kernel/old_type_checker.h"
 #include "kernel/replace_fn.h"
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
@@ -195,7 +195,7 @@ environment check_cmd(parser & p) {
     expr e; level_param_names ls;
     transient_cmd_scope cmd_scope(p);
     std::tie(e, ls) = parse_local_expr(p, "_check");
-    type_checker tc(p.env(), true, false);
+    old_type_checker tc(p.env(), true, false);
     expr type = tc.check(e, ls);
     if (is_synthetic_sorry(e) && (is_synthetic_sorry(type) || is_metavar(type))) {
         // do not show useless type-checking results such as ?? : ?M_1

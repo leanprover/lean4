@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "runtime/sstream.h"
 #include "kernel/find_fn.h"
-#include "kernel/type_checker.h"
+#include "kernel/old_type_checker.h"
 #include "kernel/inductive/inductive.h"
 #include "library/util.h"
 #include "library/scoped_ext.h"
@@ -113,7 +113,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
         given_major_pos       = num_params + 1 /* motive */ + num_indices;
     }
     declaration d = env.get(r);
-    type_checker tc(env);
+    old_type_checker tc(env);
     buffer<expr> tele;
     expr rtype    = to_telescope(tc, d.get_type(), tele);
     buffer<expr> C_args;

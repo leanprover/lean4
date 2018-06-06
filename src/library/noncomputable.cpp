@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "runtime/sstream.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/instantiate.h"
-#include "kernel/type_checker.h"
+#include "kernel/old_type_checker.h"
 #include "library/module.h"
 #include "library/util.h"
 #include "library/fingerprint.h"
@@ -75,7 +75,7 @@ static bool is_builtin_extra(name const & n) {
         n == get_monad_io_random_impl_name();
 }
 
-static bool is_noncomputable(type_checker & tc, noncomputable_ext const & ext, name const & n) {
+static bool is_noncomputable(old_type_checker & tc, noncomputable_ext const & ext, name const & n) {
     environment const & env = tc.env();
     if (ext.m_noncomputable.contains(n))
         return true;
@@ -92,7 +92,7 @@ static bool is_noncomputable(type_checker & tc, noncomputable_ext const & ext, n
 }
 
 bool is_noncomputable(environment const & env, name const & n) {
-    type_checker tc(env);
+    old_type_checker tc(env);
     auto ext = get_extension(env);
     return is_noncomputable(tc, ext, n);
 }
@@ -115,11 +115,11 @@ struct get_noncomputable_reason_fn {
         found(name const & r):m_reason(r) {}
     };
 
-    type_checker &            m_tc;
+    old_type_checker &            m_tc;
     noncomputable_ext const & m_ext;
     expr_set                  m_cache;
 
-    get_noncomputable_reason_fn(type_checker & tc):
+    get_noncomputable_reason_fn(old_type_checker & tc):
         m_tc(tc), m_ext(get_extension(tc.env())) {
     }
 
@@ -211,7 +211,7 @@ optional<name> get_noncomputable_reason(environment const & env, name const & n)
     declaration const & d = env.get(n);
     if (!d.is_definition())
         return optional<name>();
-    type_checker tc(env);
+    old_type_checker tc(env);
     if (tc.is_prop(d.get_type()))
         return optional<name>(); // definition is a proposition, then do nothing
     expr const & v = d.get_value();

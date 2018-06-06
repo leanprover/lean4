@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include "kernel/replace_fn.h"
 #include "kernel/instantiate.h"
-#include "kernel/type_checker.h"
 #include "library/locals.h"
 #include "library/private.h"
 #include "library/aliases.h"

@@ -6,7 +6,7 @@ Author: Gabriel Ebner
 */
 #include "checker/simple_pp.h"
 #include "kernel/instantiate.h"
-#include "kernel/type_checker.h"
+#include "kernel/old_type_checker.h"
 #include "kernel/for_each_fn.h"
 
 namespace lean {
@@ -38,7 +38,7 @@ static format pp_name(name n) {
 }
 
 struct simple_pp_fn {
-    type_checker m_tc;
+    old_type_checker m_tc;
     lowlevel_notations m_notations;
     unsigned m_indent = 0;
 

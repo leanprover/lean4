@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <algorithm>
-#include "kernel/type_checker.h"
 #include "kernel/replace_fn.h"
+#include "kernel/old_type_checker.h"
 #include "library/locals.h"
 #include "library/placeholder.h"
 #include "library/module.h"

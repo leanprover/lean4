@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "library/unfold_macros.h"
-#include "kernel/type_checker.h"
+#include "kernel/old_type_checker.h"
 #include "kernel/inductive/inductive.h"
 #include "kernel/standard_kernel.h"
 #include "library/module.h"

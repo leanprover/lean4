@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "util/list_fn.h"
 #include "util/rb_map.h"
 #include "util/fresh_name.h"
-#include "kernel/type_checker.h"
+#include "kernel/old_type_checker.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
@@ -228,7 +228,7 @@ environment certified_inductive_decl::add(environment const & env) const {
 
 /** \brief Helper functional object for processing inductive datatype declarations. */
 struct add_inductive_fn {
-    typedef std::unique_ptr<type_checker> type_checker_ptr;
+    typedef std::unique_ptr<old_type_checker> old_type_checker_ptr;
     environment          m_env;
     name_generator       m_name_generator;
     inductive_decl       m_decl;
@@ -237,7 +237,7 @@ struct add_inductive_fn {
     // universe level instantiation
     bool                 m_is_not_zero;
     levels               m_levels;       // m_decl.m_level_params ==> m_levels
-    type_checker_ptr     m_tc;
+    old_type_checker_ptr     m_tc;
 
     level                m_elim_level;   // extra universe level for eliminator.
     bool                 m_dep_elim;     // true if using dependent elimination
@@ -262,7 +262,7 @@ struct add_inductive_fn {
                      inductive_decl const & decl,
                      bool is_meta):
         m_env(env), m_name_generator(*g_ind_fresh), m_decl(decl),
-        m_tc(new type_checker(m_env, true, false)) {
+        m_tc(new old_type_checker(m_env, true, false)) {
         m_is_not_zero = false;
         m_levels      = param_names_to_levels(decl.m_level_params);
         m_is_meta  = is_meta;
@@ -270,10 +270,10 @@ struct add_inductive_fn {
 
     /** \brief Make sure the latest environment is being used by m_tc. */
     void updt_type_checker() {
-        m_tc.reset(new type_checker(m_env, true, false));
+        m_tc.reset(new old_type_checker(m_env, true, false));
     }
 
-    type_checker & tc() { return *(m_tc.get()); }
+    old_type_checker & tc() { return *(m_tc.get()); }
     bool is_def_eq(expr const & t, expr const & s) { return tc().is_def_eq(t, s); }
     expr whnf(expr const & e) { return tc().whnf(e); }
     expr ensure_type(expr const & e) { return tc().ensure_type(e); }
@@ -902,7 +902,7 @@ optional<expr> is_elim_meta_app_core(Ctx & ctx, expr const & e) {
     }
 }
 
-bool is_elim_meta_app(type_checker & tc, expr const & e) {
+bool is_elim_meta_app(old_type_checker & tc, expr const & e) {
     return static_cast<bool>(is_elim_meta_app_core(tc, e));
 }
 

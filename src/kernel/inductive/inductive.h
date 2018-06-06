@@ -116,7 +116,7 @@ optional<name> is_elim_rule(environment const & env, name const & n);
 
 /** \brief Given the eliminator \c n, this function return the position of major premise */
 optional<unsigned> get_elim_major_idx(environment const & env, name const & n);
-bool is_elim_meta_app(type_checker & tc, expr const & e);
+bool is_elim_meta_app(old_type_checker & tc, expr const & e);
 
 /** \brief Return the number of parameters in the given inductive datatype.
     If \c n is not an inductive datatype in \c env, then return none. */

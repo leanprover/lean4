@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "kernel/type_checker.h"
 #include "library/module.h"
 #include "library/trace.h"
 #include "library/annotation.h"

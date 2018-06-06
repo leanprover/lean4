@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "runtime/interrupt.h"
 #include "util/fresh_name.h"
-#include "kernel/type_checker.h"
+#include "kernel/old_type_checker.h"
 #include "kernel/replace_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
@@ -154,7 +154,7 @@ public:
 };
 
 expr normalize(environment const & env, expr const & e, bool eta) {
-    type_checker ctx(env);
+    old_type_checker ctx(env);
     return normalize_fn(ctx, eta)(e);
 }
 

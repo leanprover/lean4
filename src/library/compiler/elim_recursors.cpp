@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "kernel/type_checker.h"
+#include "kernel/old_type_checker.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
@@ -30,7 +30,7 @@ protected:
         /* We should use a new type checker because m_env is updated by this object.
            It is safe to use type_checker because value does not contain local_decl_ref objects. */
         level_param_names ps = to_level_param_names(collect_univ_params(value));
-        type_checker tc(m_env);
+        old_type_checker tc(m_env);
         expr type         = tc.infer(value);
         bool meta         = true;
         /* We add declaration as a constant to make sure

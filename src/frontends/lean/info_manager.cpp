@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include <vector>
 #include <set>
 #include <string>
-#include "kernel/type_checker.h"
 #include "library/trace.h"
 #include "library/documentation.h"
 #include "library/vm/vm.h"

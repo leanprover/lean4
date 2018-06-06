@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "util/fresh_name.h"
 #include "kernel/environment.h"
 #include "kernel/instantiate.h"
-#include "kernel/type_checker.h"
+#include "kernel/old_type_checker.h"
 #include "kernel/abstract.h"
 #include "kernel/inductive/inductive.h"
 #include "library/module.h"

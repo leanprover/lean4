@@ -4,11 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Daniel Selsam
 */
-#include "kernel/inductive/inductive.h"
+#include "kernel/old_type_checker.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
-#include "kernel/type_checker.h"
 #include "kernel/find_fn.h"
+#include "kernel/inductive/inductive.h"
 #include "util/sexpr/option_declarations.h"
 #include "library/locals.h"
 #include "library/app_builder.h"

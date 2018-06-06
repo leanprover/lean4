@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "util/init_module.h"
 #include "util/sexpr/init_module.h"
 #include "kernel/environment.h"
-#include "kernel/type_checker.h"
+#include "kernel/old_type_checker.h"
 #include "kernel/abstract.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/init_module.h"
@@ -69,12 +69,12 @@ static void tst1() {
     expr Prop = mk_Prop();
     expr c  = mk_local("c", Prop);
     expr id = Const("id");
-    type_checker checker(env3);
+    old_type_checker checker(env3);
     lean_assert(checker.check(mk_app(id, Prop)) == Prop >> Prop);
     lean_assert(checker.whnf(mk_app(id, Prop, c)) == c);
     lean_assert(checker.whnf(mk_app(id, Prop, mk_app(id, Prop, mk_app(id, Prop, c)))) == c);
 
-    type_checker checker2(env2);
+    old_type_checker checker2(env2);
     lean_assert(checker2.whnf(mk_app(id, Prop, mk_app(id, Prop, mk_app(id, Prop, c)))) == mk_app(id, Prop, mk_app(id, Prop, mk_app(id, Prop, c))));
 }
 

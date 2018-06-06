@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "kernel/error_msgs.h"
 #include "kernel/for_each_fn.h"
-#include "kernel/type_checker.h"
+#include "kernel/old_type_checker.h"
 #include "library/kernel_serializer.h"
 #include "library/scoped_ext.h"
 #include "library/annotation.h"
@@ -382,7 +382,7 @@ expr mk_auto_param(expr const & t, name const & tac_name) {
 }
 
 static bool is_tactic_unit(environment const & env, expr const & c) {
-    type_checker tc(env);
+    old_type_checker tc(env);
     return tc.is_def_eq(tc.infer(c), mk_tactic_unit());
 }
 

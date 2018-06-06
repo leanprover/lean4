@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/inductive/inductive.h"
-#include "kernel/type_checker.h"
+#include "kernel/old_type_checker.h"
 #include "library/protected.h"
 #include "library/module.h"
 #include "library/util.h"
@@ -73,7 +73,7 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
     cases_on       = mk_app(cases_on, nindices, args.data() + nparams);
     expr cases_on1 = mk_app(cases_on, v1);
     expr cases_on2 = mk_app(cases_on, v2);
-    type_checker tc(env);
+    old_type_checker tc(env);
     expr t1        = tc.infer(cases_on1);
     expr t2        = tc.infer(cases_on2);
     buffer<expr> outer_cases_on_args;
@@ -134,7 +134,7 @@ environment mk_no_confusion(environment const & env, name const & n) {
     if (!env1)
         return env;
     environment new_env = *env1;
-    type_checker tc(new_env);
+    old_type_checker tc(new_env);
     name_generator ngen                = mk_constructions_name_generator();
     inductive::inductive_decl decl     = *inductive::is_inductive_decl(new_env, n);
     unsigned nparams                   = decl.m_num_params;

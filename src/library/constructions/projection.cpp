@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "runtime/sstream.h"
 #include "util/fresh_name.h"
 #include "kernel/abstract.h"
-#include "kernel/type_checker.h"
+#include "kernel/old_type_checker.h"
 #include "kernel/instantiate.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/inductive/inductive.h"
@@ -225,7 +225,7 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
         if (!is_pi(intro_type))
             throw exception(sstream() << "generating projection '" << proj_name << "', '"
                             << n << "' does not have sufficient data");
-        type_checker tc(new_env);
+        old_type_checker tc(new_env);
         expr result_type   = binding_domain(intro_type);
         if (is_predicate && !tc.is_prop(result_type)) {
             throw exception(sstream() << "failed to generate projection '" << proj_name << "' for '" << n << "', "

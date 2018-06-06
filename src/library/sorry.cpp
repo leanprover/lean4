@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include <string>
 #include "kernel/find_fn.h"
 #include "kernel/for_each_fn.h"
-#include "kernel/type_checker.h"
 #include "kernel/environment.h"
 #include "library/sorry.h"
 #include "library/constants.h"

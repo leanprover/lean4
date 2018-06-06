@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
-#include "kernel/type_checker.h"
+#include "kernel/old_type_checker.h"
 #include "library/util.h"
 #include "library/scoped_ext.h"
 #include "library/attribute_manager.h"
@@ -80,7 +80,7 @@ void throw_inverse_error() {
 }
 
 environment add_inverse_lemma(environment const & env, name const & lemma, bool persistent) {
-    type_checker tc(env);
+    old_type_checker tc(env);
     declaration d = env.get(lemma);
     buffer<expr> tele;
     expr type     = to_telescope(tc, d.get_type(), tele);

@@ -6,7 +6,7 @@ Author: Daniel Selsam, Leonardo de Moura
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/declaration.h"
-#include "kernel/type_checker.h"
+#include "kernel/old_type_checker.h"
 #include "kernel/inductive/inductive.h"
 #include "library/constructions/injective.h"
 #include "library/type_context.h"

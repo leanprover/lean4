@@ -570,7 +570,7 @@ meta def introv : list name → tactic (list expr)
 
 /-- Returns n fully qualified if it refers to a constant, or else fails. -/
 meta def resolve_constant (n : name) : tactic name :=
-do (expr.const n _) ← resolve_name n,
+do (expr.const n _) ← pexpr.to_expr <$> (resolve_name n),
    pure n
 
 meta def to_expr_strict (q : pexpr) : tactic expr :=
@@ -962,10 +962,6 @@ else do
       return ()),
   h ← tactic.intro1,
   focus1 (do r ← cases_core h ids md, all_goals (intron n), return $ r.map (λ t, t.1))
-
-meta def refine (e : pexpr) : tactic unit :=
-do tgt : expr ← target,
-   to_expr ``(%%e : %%tgt) tt >>= exact
 
 meta def by_cases (e : expr) (h : name) : tactic unit :=
 do dec_e ← (mk_app `decidable [e] <|> fail "by_cases tactic failed, type is not a proposition"),

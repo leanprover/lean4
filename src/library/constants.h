@@ -191,6 +191,8 @@ name const & get_of_iff_true_name();
 name const & get_opt_param_name();
 name const & get_or_name();
 name const & get_out_param_name();
+name const & get_pexpr_name();
+name const & get_pexpr_subst_name();
 name const & get_punit_name();
 name const & get_punit_cases_on_name();
 name const & get_punit_star_name();

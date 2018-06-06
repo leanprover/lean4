@@ -293,7 +293,7 @@ vm_obj vm_mk_string_val_ne_proof(vm_obj const & a, vm_obj const & b) {
     return to_obj(mk_string_val_ne_proof(to_expr(a), to_expr(b)));
 }
 
-vm_obj expr_subst(vm_obj const &, vm_obj const & _e1, vm_obj const & _e2) {
+vm_obj expr_subst(vm_obj const & _e1, vm_obj const & _e2) {
     expr const & e1 = to_expr(_e1);
     expr const & e2 = to_expr(_e2);
     if (is_lambda(e1)) {

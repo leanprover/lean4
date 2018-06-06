@@ -5,11 +5,16 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.meta.expr
-universe u
+universes u v
 
 /-- Quoted expressions. They can be converted into expressions by using a tactic. -/
-@[reducible] meta def pexpr := expr ff
+meta constant pexpr : Type
+-- @[reducible] meta def pexpr := expr ff
 protected meta constant pexpr.of_expr  : expr → pexpr
+protected meta constant pexpr.to_expr  : pexpr → expr
+@[instance] protected meta constant pexpr.reflect (e : pexpr) : reflected e
+
+protected meta constant pexpr.subst : pexpr → pexpr → pexpr
 
 meta class has_to_pexpr (α : Sort u) :=
 (to_pexpr : α → pexpr)
@@ -22,6 +27,3 @@ meta instance : has_to_pexpr pexpr :=
 
 meta instance : has_to_pexpr expr :=
 ⟨pexpr.of_expr⟩
-
-meta instance (α : Sort u) (a : α) : has_to_pexpr (reflected a) :=
-⟨pexpr.of_expr ∘ reflected.to_expr⟩

@@ -3331,7 +3331,7 @@ expr elaborator::visit_expr_quote(expr const & e, optional<expr> const & expecte
             throw elaborator_exception(e, "invalid quotation, contains local constant");
         q = mk_elaborated_expr_quote(new_s);
         q = mk_as_is(q);
-        expr subst_fn = mk_app(mk_explicit(mk_constant(get_expr_subst_name())), mk_bool_tt());
+        expr subst_fn = mk_constant(get_expr_subst_name());
         for (expr const & subst : substs) {
             q = mk_app(subst_fn, q, subst);
         }

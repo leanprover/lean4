@@ -184,6 +184,8 @@ of_iff_true
 opt_param
 or
 out_param
+pexpr
+pexpr.subst
 punit
 punit.cases_on
 punit.star

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
 prelude
-import init.meta.expr init.util
+import init.meta.expr init.util init.meta.pexpr
 
 @[reducible] meta def {u} has_reflect (α : Sort u) := Π a : α, reflected a
 

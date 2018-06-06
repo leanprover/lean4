@@ -69,10 +69,10 @@ to_expr q ff
 meta def i_to_expr_for_apply (q : pexpr) : tactic expr :=
 let aux (n : name) : tactic expr := do
   p ← resolve_name n,
-  match p with
-  | (expr.const c []) := do r ← mk_const c, save_type_info r q, return r
+  match p.to_expr with
+  | (expr.const c []) := do r ← mk_const c, return r
   | _                 := i_to_expr p
-in match q with
+in match q.to_expr with
 | (expr.const c []) := aux c
 | (expr.fvar c)     := aux c
 | _                 := i_to_expr q
@@ -189,14 +189,6 @@ meta def apply_instance : tactic unit :=
 tactic.apply_instance
 
 /--
-This tactic behaves like `exact`, but with a big difference: the user can put underscores `_` in the expression as placeholders for holes that need to be filled, and `refine` will generate as many subgoals as there are holes.
-
-Note that some holes may be implicit. The type of each hole must either be synthesized by the system or declared by an explicit type ascription like `(_ : nat → Prop)`.
--/
-meta def refine (q : parse texpr) : tactic unit :=
-tactic.refine q
-
-/--
 This tactic looks in the local context for a hypothesis whose type is equal to the goal target. If it finds one, it uses it to prove the goal, and otherwise it fails.
 -/
 meta def assumption : tactic unit :=
@@ -254,7 +246,7 @@ do hs ← ids.mmap tactic.get_local, revert_lst hs, skip
 private meta def resolve_name' (n : name) : tactic expr :=
 do {
   p ← resolve_name n,
-  match p with
+  match p.to_expr with
   | expr.const n _ := mk_const n -- create metavars for universe levels
   | _              := i_to_expr p }
 
@@ -263,9 +255,9 @@ do {
    Example: the elaborator will force any unassigned ?A that must have be an instance of (has_one ?A) to nat.
    Remark: another benefit is that auxiliary temporary metavariables do not appear in error messages. -/
 meta def to_expr' (p : pexpr) : tactic expr :=
-match p with
-| (const c [])  := do new_e ← resolve_name' c, save_type_info new_e p, return new_e
-| (fvar c)      := do new_e ← resolve_name' c, save_type_info new_e p, return new_e
+match p.to_expr with
+| (const c [])  := do new_e ← resolve_name' c, return new_e
+| (fvar c)      := do new_e ← resolve_name' c, return new_e
 | _             := i_to_expr p
 
 precedence `generalizing` : 0
@@ -285,8 +277,9 @@ do e_type ← infer_type e >>= whnf,
    (const I ls) ← return $ get_app_fn e_type,
    return I
 
-private meta def generalize_arg_p_aux : pexpr → parser (pexpr × name)
-| (app (app (macro _ [const `eq _ ]) h) (fvar x)) := pure (h, x)
+private meta def generalize_arg_p_aux (p : pexpr) : parser (pexpr × name) :=
+match p.to_expr with
+| (app (app (macro _ [const `eq _ ]) h) (fvar x)) := pure (to_pexpr h, x)
 | _ := fail "parse error"
 
 
@@ -296,7 +289,7 @@ with_desc "expr = id" $ parser.pexpr 0 >>= generalize_arg_p_aux
 meta def cases_arg_p : parser (option name × pexpr) :=
 with_desc "(id :)? expr" $ do
   t ← texpr,
-  match t with
+  match t.to_expr with
   | (fvar x) :=
     (tk ":" *> do t ← texpr, pure (some x, t)) <|> pure (none, t)
   | _ := pure (none, t)

@@ -189,6 +189,8 @@ name const * g_of_iff_true = nullptr;
 name const * g_opt_param = nullptr;
 name const * g_or = nullptr;
 name const * g_out_param = nullptr;
+name const * g_pexpr = nullptr;
+name const * g_pexpr_subst = nullptr;
 name const * g_punit = nullptr;
 name const * g_punit_cases_on = nullptr;
 name const * g_punit_star = nullptr;
@@ -441,6 +443,8 @@ void initialize_constants() {
     g_opt_param = new name{"opt_param"};
     g_or = new name{"or"};
     g_out_param = new name{"out_param"};
+    g_pexpr = new name{"pexpr"};
+    g_pexpr_subst = new name{"pexpr", "subst"};
     g_punit = new name{"punit"};
     g_punit_cases_on = new name{"punit", "cases_on"};
     g_punit_star = new name{"punit", "star"};
@@ -694,6 +698,8 @@ void finalize_constants() {
     delete g_opt_param;
     delete g_or;
     delete g_out_param;
+    delete g_pexpr;
+    delete g_pexpr_subst;
     delete g_punit;
     delete g_punit_cases_on;
     delete g_punit_star;
@@ -946,6 +952,8 @@ name const & get_of_iff_true_name() { return *g_of_iff_true; }
 name const & get_opt_param_name() { return *g_opt_param; }
 name const & get_or_name() { return *g_or; }
 name const & get_out_param_name() { return *g_out_param; }
+name const & get_pexpr_name() { return *g_pexpr; }
+name const & get_pexpr_subst_name() { return *g_pexpr_subst; }
 name const & get_punit_name() { return *g_punit; }
 name const & get_punit_cases_on_name() { return *g_punit_cases_on; }
 name const & get_punit_star_name() { return *g_punit_star; }

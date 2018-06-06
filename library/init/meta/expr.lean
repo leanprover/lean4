@@ -90,8 +90,6 @@ meta constant expr.lex_lt : expr → expr → bool
 
 meta constant expr.fold {α : Type} : expr → α → (expr → nat → α → α) → α
 
-protected meta constant expr.subst : expr elab → expr elab → expr elab
-
 /-- `has_var e` returns true iff e has free variables. -/
 meta constant expr.has_bvar_idx   : expr → nat → bool
 
@@ -108,16 +106,18 @@ meta constant expr.has_bvar_idx   : expr → nat → bool
 @[inline] meta def reflected.to_expr {α : Sort u} {a : α} : reflected a → expr :=
 id
 
+@[instance] protected meta constant expr.reflect (e : expr) : reflected e
+@[instance] protected meta constant string.reflect (s : string) : reflected s
+
+protected meta constant expr.subst : expr → expr → expr
+
 @[inline] meta def reflected.subst {α : Sort v} {β : α → Sort u} {f : Π a : α, β a} {a : α} :
   reflected f → reflected a → reflected (f a) :=
 λ ef ea, match ef with
-| (expr.lam _ _ _ _) := expr.subst ef ea
-| _                  := expr.app   ef ea
+| (expr.lam _ _ _ _) := (expr.subst ef ea)
+| _                  := expr.app ef ea
 
 attribute [irreducible] reflected reflected.subst reflected.to_expr
-
-@[instance] protected meta constant expr.reflect (e : expr elab) : reflected e
-@[instance] protected meta constant string.reflect (s : string) : reflected s
 
 @[inline] meta instance {α : Sort u} (a : α) : has_coe (reflected a) expr :=
 ⟨reflected.to_expr⟩

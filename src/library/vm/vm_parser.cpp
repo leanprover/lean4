@@ -67,7 +67,7 @@ expr parse_interactive_param(parser & p, expr const & param_ty) {
         vm_state S(env, p.get_options());
         auto vm_res = S.invoke(n, vm_parsed);
         expr r = to_expr(vm_res);
-        if (is_app_of(r, get_expr_subst_name())) {
+        if (is_app_of(r, get_pexpr_subst_name())) {
             return r; // HACK
         } else {
             return mk_as_is(r);

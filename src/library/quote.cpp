@@ -141,7 +141,7 @@ expr mk_pexpr_quote_and_substs(expr const & e, bool is_strict) {
             return none_expr();
         });
     expr r        = mk_pexpr_quote(Fun(locals, s));
-    expr subst    = mk_constant(get_expr_subst_name());
+    expr subst    = mk_constant(get_pexpr_subst_name());
     expr to_pexpr = mk_constant(get_to_pexpr_name());
     for (expr const & aq : aqs) {
         r = mk_app(subst, r, mk_app(to_pexpr, aq));
@@ -155,7 +155,7 @@ void initialize_quote() {
     g_expr_quote_macro    = new name("expr_quote_macro");
     g_expr_quote_opcode   = new std::string("Quote");
     g_expr           = new expr(mk_app(Const(get_expr_name()), mk_bool_tt()));
-    g_pexpr          = new expr(mk_app(Const(get_expr_name()), mk_bool_ff()));
+    g_pexpr          = new expr(mk_constant(get_pexpr_name()));
 
     g_antiquote      = new name("antiquote");
     g_expr_quote_pre = new name("expr_quote_pre");

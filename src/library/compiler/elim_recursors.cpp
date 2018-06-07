@@ -65,14 +65,14 @@ protected:
                 expr l       = d.mk_ref();
                 if (auto v = d.get_value()) {
                     collect_locals(*v, map);
-                    e = instantiate(abstract_local(e, l), *v);
+                    e = instantiate(abstract(e, l), *v);
                 } else {
                     collect_locals(d.get_type(), map);
                     if (is_comp_irrelevant(ctx(), l))
                         locals.push_back(mark_comp_irrelevant(l));
                     else
                         locals.push_back(l);
-                    e = abstract_local(e, l);
+                    e = abstract(e, l);
                     e = mk_lambda(d.get_name(), d.get_type(), e);
                 }
             }

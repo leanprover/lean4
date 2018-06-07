@@ -417,13 +417,13 @@ expr type_context_old::mk_binding(bool is_pi, local_context const & lctx, unsign
     for (unsigned i = 0; i < num_locals; i++) {
         local_decl decl = lctx.get_local_decl(locals[i]);
         decls.push_back(decl);
-        types.push_back(::lean::abstract_locals(elim_mvar_deps(decl.get_type(), i, locals), i, locals));
+        types.push_back(::lean::abstract(elim_mvar_deps(decl.get_type(), i, locals), i, locals));
         if (auto v = decl.get_value())
-            values.push_back(some_expr(::lean::abstract_locals(elim_mvar_deps(*v, i, locals), i, locals)));
+            values.push_back(some_expr(::lean::abstract(elim_mvar_deps(*v, i, locals), i, locals)));
         else
             values.push_back(none_expr());
     }
-    expr new_e = ::lean::abstract_locals(elim_mvar_deps(e, num_locals, locals), num_locals, locals);
+    expr new_e = ::lean::abstract(elim_mvar_deps(e, num_locals, locals), num_locals, locals);
     lean_assert(types.size() == values.size());
     unsigned i = types.size();
     while (i > 0) {
@@ -1103,7 +1103,7 @@ expr type_context_old::infer_lambda(expr e) {
     }
     check_system("infer_type");
     expr t = infer_core(instantiate_rev(e, ls.size(), ls.data()));
-    expr r = ::lean::abstract_locals(t, ls.size(), ls.data());
+    expr r = ::lean::abstract(t, ls.size(), ls.data());
     unsigned i = es.size();
     while (i > 0) {
         --i;

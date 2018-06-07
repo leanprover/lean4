@@ -65,11 +65,11 @@ expr subst(environment const & env, options const & opts, transparency_mode cons
     lhs                 = lctx.get_local(lhsH2[0]);
     expr H2             = lctx.get_local(lhsH2[1]);
     bool depH2          = depends_on(type, H2);
-    expr new_type       = instantiate(abstract_local(type, lhs), rhs);
+    expr new_type       = instantiate(abstract(type, lhs), rhs);
     type_context_old ctx2   = mk_type_context_for(env, opts, mctx, g2.get_context(), m);
     expr motive;
     if (depH2) {
-        new_type = instantiate(abstract_local(new_type, H2), mk_eq_refl(ctx2, rhs));
+        new_type = instantiate(abstract(new_type, H2), mk_eq_refl(ctx2, rhs));
         if (symm) {
             lean_subst_trace(tout() << "dep-elim and symm\n";);
             motive = ctx2.mk_lambda({lhs, H2}, type);
@@ -85,7 +85,7 @@ expr subst(environment const & env, options const & opts, transparency_mode cons
             expr H2_prime = locals.push_local("_h", mk_eq(ctx2, rhs, lhs));
             expr H2_prime_symm = mk_eq_symm(ctx2, H2_prime);
             /* replace H2 in type with H2'.symm, where H2' is a new local that is def-eq to H2.symm */
-            expr new_type = instantiate(abstract_local(type, H2), H2_prime_symm);
+            expr new_type = instantiate(abstract(type, H2), H2_prime_symm);
             motive = ctx2.mk_lambda({lhs, H2_prime}, new_type);
         }
     } else {

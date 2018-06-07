@@ -32,7 +32,7 @@ class normalize_fn {
     expr normalize_binding(expr const & e) {
         expr d = normalize(binding_domain(e));
         expr l = m_ctx.push_local(binding_name(e), d, binding_info(e));
-        expr b = m_ctx.abstract_locals(normalize(instantiate(binding_body(e), l)), 1, &l);
+        expr b = m_ctx.abstract(normalize(instantiate(binding_body(e), l)), 1, &l);
         m_ctx.pop_local();
         return update_binding(e, d, b);
     }

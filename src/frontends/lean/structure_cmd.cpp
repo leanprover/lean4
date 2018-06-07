@@ -894,7 +894,7 @@ struct structure_cmd_fn {
         expr type  = decl.get_type();
         auto const & value = decl.m_default_val;
         if (value && (!decl.m_has_new_default || is_placeholder(decl.get_type()))) {
-            new_tmp = elab(mk_let(decl.get_name(), type, *value, abstract_local(tmp, decl.m_local)));
+            new_tmp = elab(mk_let(decl.get_name(), type, *value, abstract(tmp, decl.m_local)));
             decl.m_local = update_mlocal(decl.m_local, let_type(new_tmp));
             decl.m_default_val = let_value(new_tmp);
             new_tmp = instantiate(let_body(new_tmp), m_subobjects ? let_value(new_tmp) : decl.m_local);
@@ -1026,7 +1026,7 @@ struct structure_cmd_fn {
         for (unsigned i = 0; i < m_fields.size(); i++) {
             auto const & decl = m_fields[m_fields.size() - 1 - i];
             if (decl.m_kind != field_kind::from_parent || !m_subobjects) {
-                r = abstract_local(r, decl.m_local);
+                r = abstract(r, decl.m_local);
                 name n = decl.get_name();
                 if (decl.m_kind == field_kind::subobject)
                     n = mk_internal_subobject_field_name(n);

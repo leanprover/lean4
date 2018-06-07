@@ -90,7 +90,7 @@ class lambda_lifting_fn : public compiler_step_visitor {
                 */
                 expr l       = d.mk_ref();
                 locals.push_back(l);
-                e = abstract_local(e, l);
+                e = abstract(e, l);
                 e = mk_lambda(d.get_name(), d.get_type(), e);
             }
             return e;

@@ -979,11 +979,11 @@ simp_result simplify_ext_core_fn::forall_congr(expr const & e) {
     expr body          = instantiate_rev(it, ls.size(), ls.data());
     simp_result body_r = visit(body, some_expr(e));
     expr new_body      = body_r.get_new();
-    expr abst_new_body = abstract_locals(new_body, ls.size(), ls.data());
+    expr abst_new_body = abstract(new_body, ls.size(), ls.data());
     name lemma_name    = m_rel == get_eq_name() ? get_forall_congr_eq_name() : get_forall_congr_name();
     if (body_r.has_proof()) {
         expr pr      = body_r.get_proof();
-        expr Pr      = abstract_locals(pr, ls.size(), ls.data());
+        expr Pr      = abstract(pr, ls.size(), ls.data());
         unsigned i   = pis.size();
         expr Q       = abst_new_body;
         expr R       = abst_new_body;

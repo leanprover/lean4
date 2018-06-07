@@ -797,7 +797,7 @@ struct elim_match_fn {
             new_P.m_goal           = new_goal;
             name const & C         = head(new_goal_cnames);
             new_P.m_example = map(P.m_example, [&] (expr ex) {
-                ex = instantiate(abstract_local(ex, head(P.m_var_stack)),
+                ex = instantiate(abstract(ex, head(P.m_var_stack)),
                     mk_app(mk_app(mk_constant(C, const_levels(x_type_const)), I_nparams, x_type_args.begin()), head(ilist)));
                 ex = apply(ex, head(slist));
                 return ex;
@@ -1191,8 +1191,8 @@ struct elim_match_fn {
         new_P.m_var_stack = map(P.m_var_stack,
                                 [&](expr const & x) { return replace_locals(x, to_revert, new_Hs); });
         new_P.m_example   = map(P.m_example, [&] (expr ex) {
-            auto f_x = instantiate(abstract_local(f_y1, y1), x);
-            ex = instantiate(abstract_local(ex, x), f_x);
+            auto f_x = instantiate(abstract(f_y1, y1), x);
+            ex = instantiate(abstract(ex, x), f_x);
             ex = replace_locals(ex, to_revert, new_Hs);
             return ex;
         });

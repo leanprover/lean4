@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 
 namespace lean {
-expr abstract_locals(expr const & e, unsigned n, expr const * subst) {
+expr abstract(expr const & e, unsigned n, expr const * subst) {
     lean_assert(std::all_of(subst, subst+n, [](expr const & e) { return closed(e) && is_local(e); }));
 #ifndef LEAN_NO_HAS_LOCAL_OPT
     if (!has_local(e))
@@ -36,10 +36,10 @@ expr abstract_locals(expr const & e, unsigned n, expr const * subst) {
         });
 }
 
-expr abstract_local(expr const & e, name const & l) {
+expr abstract(expr const & e, name const & l) {
     expr dummy = mk_Prop();
     expr local = mk_local(l, dummy);
-    return abstract_locals(e, 1, &local);
+    return abstract(e, 1, &local);
 }
 
 /**
@@ -62,7 +62,7 @@ public:
         for (unsigned i = 0; i < num; i++) {
             if (!(matching && m_locals[i] && *m_locals[i] == locals[i])) {
                 m_locals[i]         = locals[i];
-                m_abstract_types[i] = abstract_locals(mlocal_type(locals[i]), i, locals);
+                m_abstract_types[i] = ::lean::abstract(mlocal_type(locals[i]), i, locals);
                 matching            = false;
             }
         }
@@ -83,7 +83,7 @@ MK_THREAD_LOCAL_GET_DEF(mk_binding_cache, get_mk_binding_cache);
 
 template<bool is_lambda>
 expr mk_binding(unsigned num, expr const * locals, expr const & b, bool use_cache) {
-    expr r       = abstract_locals(b, num, locals);
+    expr r       = abstract(b, num, locals);
     auto & cache = get_mk_binding_cache();
     cache.abstract(num, locals, use_cache);
     unsigned i = num;

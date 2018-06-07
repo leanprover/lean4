@@ -174,7 +174,7 @@ static expr parse_let(parser & p, pos_info const & pos, bool in_do_block) {
         expr x = p.save_pos(mk_local(id, type), id_pos);
         p.add_local_expr(id, x);
         expr b = parse_let_body(p, pos, in_do_block);
-        return p.save_pos(mk_let(id, type, value, abstract_local(b, x)), pos);
+        return p.save_pos(mk_let(id, type, value, abstract(b, x)), pos);
     } else {
         buffer<expr> new_locals;
         expr lhs = p.parse_pattern(new_locals);
@@ -428,7 +428,7 @@ static expr parse_have(parser & p, unsigned, expr const *, pos_info const & pos)
     expr l = p.save_pos(mk_local(id, prop), pos);
     p.add_local(l);
     expr body = p.parse_expr();
-    body = abstract_local(body, l);
+    body = abstract(body, l);
     if (get_parser_checkpoint_have(p.get_options()))
         body = mk_checkpoint_annotation(body);
     expr r = p.save_pos(mk_have_annotation(p.save_pos(mk_lambda(id, prop, body), pos)), pos);

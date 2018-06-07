@@ -122,7 +122,7 @@ expr old_type_checker::infer_lambda(expr const & _e, bool infer_only) {
         e = binding_body(e);
     }
     expr r = infer_type_core(instantiate_rev(e, ls.size(), ls.data()), infer_only);
-    r = abstract_locals(r, ls.size(), ls.data());
+    r = abstract(r, ls.size(), ls.data());
     unsigned i = es.size();
     while (i > 0) {
         --i;

@@ -9,10 +9,10 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
-/** \brief Similar to abstract, but all values in s are local constants. */
-expr abstract_locals(expr const & e, unsigned n, expr const * s);
-inline expr abstract_local(expr const & e, expr const & s) { return abstract_locals(e, 1, &s); }
-expr abstract_local(expr const & e, name const & l);
+/** \brief Replace the free variables s[0], ..., s[n-1] in e with bound variables bvar(n-1), ..., bvar(0). */
+expr abstract(expr const & e, unsigned n, expr const * s);
+inline expr abstract(expr const & e, expr const & s) { return abstract(e, 1, &s); }
+expr abstract(expr const & e, name const & l);
 
 /** \brief Create a lambda-expression by abstracting the given local constants over b */
 expr Fun(unsigned num, expr const * locals, expr const & b, bool use_cache = true);

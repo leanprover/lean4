@@ -175,7 +175,7 @@ bool depends_on_any(expr const & e, unsigned hs_sz, expr const * hs) {
 }
 
 expr replace_locals(expr const & e, unsigned sz, expr const * locals, expr const * terms) {
-    return instantiate_rev(abstract_locals(e, sz, locals), sz, terms);
+    return instantiate_rev(abstract(e, sz, locals), sz, terms);
 }
 
 expr replace_locals(expr const & e, buffer<expr> const & locals, buffer<expr> const & terms) {

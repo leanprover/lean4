@@ -589,7 +589,7 @@ class add_nested_inductive_decl_fn {
         {
             expr new_dom = pack_nested_occs(binding_domain(e));
             expr l = mk_local_pp("x_new_dom", new_dom);
-            expr new_body = abstract_local(pack_nested_occs(instantiate(binding_body(e), l)), l);
+            expr new_body = abstract(pack_nested_occs(instantiate(binding_body(e), l)), l);
             return update_binding(e, new_dom, new_body);
         }
         case expr_kind::Constant:
@@ -643,7 +643,7 @@ class add_nested_inductive_decl_fn {
         {
             expr new_dom = unpack_nested_occs(binding_domain(e));
             expr l = mk_local_pp("x_new_dom", new_dom);
-            expr new_body = abstract_local(unpack_nested_occs(instantiate(binding_body(e), l)), l);
+            expr new_body = abstract(unpack_nested_occs(instantiate(binding_body(e), l)), l);
             return update_binding(e, new_dom, new_body);
         }
         case expr_kind::Constant:

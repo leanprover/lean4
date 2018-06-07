@@ -82,16 +82,16 @@ struct congr_lemma_manager {
                 use_drec  = true;
                 motive    = m_ctx.mk_lambda({rhs, *major}, type);
                 // We compute new_type by replacing rhs with lhs and *major with eq.refl(lhs) in type.
-                new_type  = instantiate(abstract_local(type, rhs), lhs);
+                new_type  = instantiate(abstract(type, rhs), lhs);
                 expr refl = mk_eq_refl(m_ctx, lhs);
-                new_type  = instantiate(abstract_local(new_type, *major), refl);
+                new_type  = instantiate(abstract(new_type, *major), refl);
             } else {
                 // type does not depend on the *major.
                 // So, the motive is just (fun rhs, type), and
                 // new_type just replaces rhs with lhs.
                 use_drec = false;
                 motive   = m_ctx.mk_lambda({rhs}, type);
-                new_type = instantiate(abstract_local(type, rhs), lhs);
+                new_type = instantiate(abstract(type, rhs), lhs);
             }
             expr minor = cast(e, new_type, tail(deps), eqs);
             if (use_drec) {
@@ -153,9 +153,9 @@ struct congr_lemma_manager {
             expr motive_eq = mk_eq(m_ctx, lhs, rhs);
             expr motive    = m_ctx.mk_lambda({x_2, major}, motive_eq);
             // We compute the new_rhs by replacing x_2 with x_1 and major with (eq.refl x_1) in rhs.
-            expr new_rhs = instantiate(abstract_local(rhs, x_2), x_1);
+            expr new_rhs = instantiate(abstract(rhs, x_2), x_1);
             expr x1_refl = mk_eq_refl(m_ctx, x_1);
-            new_rhs      = instantiate(abstract_local(new_rhs, major), x1_refl);
+            new_rhs      = instantiate(abstract(new_rhs, major), x1_refl);
             expr minor   = mk_congr_proof(i+1, lhs, new_rhs, eqs);
             return mk_eq_drec(m_ctx, motive, minor, major);
         }
@@ -216,7 +216,7 @@ struct congr_lemma_manager {
                     break;
                 case congr_arg_kind::Cast: {
                     expr rhs_type = m_ctx.infer(lhs);
-                    rhs_type = instantiate_rev(abstract_locals(rhs_type, lhss.size()-1, lhss.data()),
+                    rhs_type = instantiate_rev(abstract(rhs_type, lhss.size()-1, lhss.data()),
                                                rhss.size(), rhss.data());
                     expr rhs = cast(lhs, rhs_type, pinfos[i].get_back_deps(), eqs);
                     rhss.push_back(rhs);

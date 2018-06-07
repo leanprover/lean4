@@ -1,12 +1,16 @@
+lisp.lean:166:0: error: cannot evaluate (list "(" [] ")")
 reader:   (list "(" [] ")")
 expander: (list "(" [] ")")
 resolver: (list "(" [] ")")
-reader:   (list "(" [lambda (list "[" [x] "]") x] ")")
-expander: (lambda_core (bind [x] x))
-resolver: (lambda_core (bind [x] x:0))
-reader:   (list "(" [lambda (list "[" [x y] "]") x] ")")
-expander: (lambda_core (bind [x] (lambda_core (bind [y] x))))
-resolver: (lambda_core (bind [x] (lambda_core (bind [y] x:1))))
+reader:   (list "(" [(list "(" [lambda (list "[" [x] "]") x] ")") 1] ")")
+expander: (list "(" [(lambda_core (bind [x] x)) 1] ")")
+resolver: (list "(" [(lambda_core (bind [x] x:0)) 1] ")")
+evaluator: 1
+reader:   (list "(" [(list "(" [lambda (list "[" [x y] "]") x] ")") 1 2] ")")
+expander: (list "(" [(lambda_core (bind [x] (lambda_core (bind [y] x)))) 1 2] ")")
+resolver: (list "(" [(lambda_core (bind [x] (lambda_core (bind [y] x:1)))) 1 2] ")")
+evaluator: 1
 reader:   (list "(" [let (list "(" [(list "[" [x 1] "]")] ")") x] ")")
 expander: (let_core [1] (bind [x] x))
 resolver: (let_core [1] (bind [x] x:0))
+evaluator: 1

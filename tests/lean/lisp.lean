@@ -72,7 +72,6 @@ def parse : ℕ → read_m
 | 0 := unexpected "nesting limit exceeded"
 | (n+1) := ident <|> num <|> parse_list (parse n)
 
-
 def let_macro := {macro .
   name := `let,
   expand := some $ λ node,
@@ -113,6 +112,37 @@ def list_macro := {macro .
        syntax.node ⟨`let, [syntax.node ⟨name.anonymous, clauses⟩, body]⟩
   | _ := none}
 
+inductive value
+| number (n : nat)
+| list (l : list value)
+| closure (env : list value) (code : syntax)
+
+-- TODO(Sebastian): shouldn't be meta
+meta def value.to_string : value → string
+| (value.number n) := to_string n
+| (value.list l)   := (l.map (λ v, value.to_string v)).to_string
+| (value.closure _ _) := "#<function>"
+
+meta def eval : nat → syntax → list value → except string value
+| _        (syntax.atom ⟨_, atomic_val.number n⟩) env := except.ok $ value.number n
+| _        (syntax.ident {res := some {decl := sum.inl idx, ..}, ..}) env :=
+(match env.nth idx with
+| some v := except.ok v
+| none   := throw "aaah")
+| _        (syntax.node ⟨`lambda_core, [syntax.node ⟨`bind, [_, body]⟩]⟩) env :=
+  except.ok $ value.closure env body
+| (fuel+1) (syntax.node ⟨`let_core, [syntax.node ⟨_, [expr]⟩, syntax.node ⟨`bind, [_, body]⟩]⟩) env :=
+do v ← eval fuel expr env,
+   eval fuel body (v::env)
+| (fuel+1) (syntax.node ⟨`list, [lp, syntax.node ⟨_, f::args⟩, rp]⟩) env :=
+do f ← eval fuel f env,
+   args.mfoldl (λ f arg,
+   do value.closure cenv code ← pure f |
+        throw $ "not a function: " ++ f.to_string,
+      arg ← eval fuel arg env,
+      eval fuel code (arg::cenv)) f
+| _        stx env := throw $ "cannot evaluate " ++ to_string stx
+
 def cfg := {macro1.cfg with macros := (macro1.cfg.macros.insert `list list_macro).insert `let let_macro}
 meta def go (s) : tactic unit :=
 match ((parse 1000).parse_with_eoi s).run with
@@ -126,12 +156,16 @@ tactic.trace (to_fmt "expander: " ++ to_fmt stx) >>
 match (resolve' stx).run' cfg () with
 | except.error e := tactic.fail e
 | except.ok stx  :=
-tactic.trace (to_fmt "resolver: " ++ to_fmt stx)
+tactic.trace (to_fmt "resolver: " ++ to_fmt stx) >>
+match eval 1000 stx [] with
+| except.error e := tactic.fail e
+| except.ok val  :=
+tactic.trace (to_fmt "evaluator: " ++ val.to_string)
 
 
 #eval go "()"
-#eval go "(lambda [x] x)"
-#eval go "(lambda [x y] x)"
+#eval go "((lambda [x] x) 1)"
+#eval go "((lambda [x y] x) 1 2)"
 #eval go "(let ([x 1]) x)"
 
 end lisp

@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <string>
-#include "kernel/pos_info_provider.h"
+#include "library/pos_info_provider.h"
 
 namespace lean {
 class scope_pos_info_provider {

@@ -13,6 +13,7 @@ Author: Gabriel Ebner
 #include "kernel/inductive/inductive.h"
 #include "kernel/standard_kernel.h"
 #include "kernel/for_each_fn.h"
+#include "library/formatter.h"
 #include "checker/text_import.h"
 #include "checker/simple_pp.h"
 
@@ -106,14 +107,6 @@ int main(int argc, char ** argv) {
             finalize_util_module();
         }
     } initer;
-
-    set_print_fn([] (std::ostream & out, expr const & e) {
-        try {
-            out << simple_pp(environment(), e, lowlevel_notations());
-        } catch (throwable & e) {
-            out << "!!!" << e.what() << "!!!";
-        }
-    });
 
     try {
         std::ifstream in(argv[1]);

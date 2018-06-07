@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "util/fresh_name.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/old_type_checker.h"
-#include "kernel/error_msgs.h"
+#include "library/error_msgs.h"
 #include "library/trace.h"
 #include "library/util.h"
 #include "library/vm/vm.h"

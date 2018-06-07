@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "runtime/utf8.h"
 #include "util/name.h"
 #include "kernel/environment.h"
-#include "kernel/pos_info_provider.h"
+#include "library/pos_info_provider.h"
 #include "library/io_state.h"
 #include "frontends/lean/token_table.h"
 

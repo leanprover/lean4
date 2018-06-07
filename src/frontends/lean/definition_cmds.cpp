@@ -27,7 +27,7 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/aux_definition.h"
 #include "library/documentation.h"
-#include "kernel/scope_pos_info_provider.h"
+#include "library/scope_pos_info_provider.h"
 #include "library/replace_visitor.h"
 #include "library/equations_compiler/util.h"
 #include "library/equations_compiler/equations.h"

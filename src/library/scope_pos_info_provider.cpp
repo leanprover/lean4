@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "runtime/sstream.h"
-#include "kernel/scope_pos_info_provider.h"
+#include "library/scope_pos_info_provider.h"
 
 namespace lean {
 LEAN_THREAD_PTR(pos_info_provider, g_p);

@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "util/fresh_name.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/instantiate.h"
-#include "kernel/error_msgs.h"
+#include "library/error_msgs.h"
 #include "library/trace.h"
 #include "library/util.h"
 #include "library/user_recursors.h"

@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "util/name_set.h"
 #include "kernel/local_ctx.h"
 #include "kernel/expr.h"
+#include "library/formatter.h"
 #include "library/local_instances.h"
 #include "library/subscripted_name_set.h"
 

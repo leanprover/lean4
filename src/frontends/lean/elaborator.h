@@ -6,15 +6,15 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <vector>
-#include "kernel/pos_info_provider.h"
+#include "library/pos_info_provider.h"
 #include "library/local_context.h"
 #include "library/type_context.h"
 #include "library/context_cache.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/elaborate.h"
 #include "library/tactic/elaborator_exception.h"
-#include "frontends/lean/info_manager.h"
 #include "library/sorry.h"
+#include "frontends/lean/info_manager.h"
 
 namespace lean {
 enum class elaborator_strategy {

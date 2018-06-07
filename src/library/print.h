@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "kernel/formatter.h"
+#include "library/formatter.h"
 
 namespace lean {
 /** \brief Return true iff \c t contains a constant named \c n or a local constant with named (pp or not) \c n */

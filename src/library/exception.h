@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 #include <string>
 #include "runtime/sstream.h"
-#include "kernel/ext_exception.h"
-#include "kernel/scope_pos_info_provider.h"
+#include "library/ext_exception.h"
+#include "library/scope_pos_info_provider.h"
 
 namespace lean {
 class generic_exception : public ext_exception {

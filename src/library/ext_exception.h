@@ -8,8 +8,8 @@ Author: Leonardo de Moura
 #include "runtime/exception.h"
 #include "util/exception_with_pos.h"
 #include "util/sexpr/options.h"
-#include "kernel/formatter.h"
 #include "kernel/expr.h"
+#include "library/formatter.h"
 
 namespace lean {
 /** \brief Base class for exceptions with support for pretty printing on demand. */

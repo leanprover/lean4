@@ -5,11 +5,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <utility>
-#include "kernel/formatter.h"
 #include "kernel/environment.h"
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/free_vars.h"
+#include "library/formatter.h"
 #include "library/annotation.h"
 #include "library/util.h"
 #include "library/print.h"

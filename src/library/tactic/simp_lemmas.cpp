@@ -6,10 +6,10 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include <algorithm>
-#include "kernel/error_msgs.h"
 #include "kernel/instantiate.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/find_fn.h"
+#include "library/error_msgs.h"
 #include "library/constants.h"
 #include "library/trace.h"
 #include "library/util.h"

@@ -5,14 +5,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/instantiate.h"
-#include "kernel/error_msgs.h"
+#include "library/error_msgs.h"
 #include "library/type_context.h"
 #include "library/trace.h"
 #include "library/constants.h"
 #include "library/pp_options.h"
 #include "library/app_builder.h"
 #include "library/aux_definition.h"
-#include "frontends/lean/elaborator.h"
 #include "library/replace_visitor_with_tc.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_list.h"
@@ -23,6 +22,7 @@ Author: Leonardo de Moura
 #include "library/equations_compiler/pack_mutual.h"
 #include "library/equations_compiler/elim_match.h"
 #include "library/equations_compiler/util.h"
+#include "frontends/lean/elaborator.h"
 
 namespace lean {
 #define trace_wf(Code) lean_trace(name({"eqn_compiler", "wf_rec"}), type_context_old ctx = mk_type_context(); scope_trace_env _scope1(m_env, ctx); Code)

@@ -17,7 +17,7 @@ Author: Leonardo de Moura
 #include "runtime/compiler_hints.h"
 #include "util/rc.h"
 #include "kernel/environment.h"
-#include "kernel/pos_info_provider.h"
+#include "library/pos_info_provider.h"
 
 namespace lean {
 class vm_obj;

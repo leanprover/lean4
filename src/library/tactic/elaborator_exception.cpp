@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <library/sorry.h>
-#include "kernel/scope_pos_info_provider.h"
+#include "library/scope_pos_info_provider.h"
 #include "library/tactic/elaborator_exception.h"
 
 namespace lean {

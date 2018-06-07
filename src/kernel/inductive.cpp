@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 namespace lean {
 
 environment environment::add_inductive_decls(inductive_decls const & decls) const {
+#if 0
     std::cout << "add_inductive_decls\n";
     for (expr const & p : decls.m_params) {
         std::cout << "param>> " << p << " : " << mlocal_type(p) << "\n";
@@ -19,6 +20,7 @@ environment environment::add_inductive_decls(inductive_decls const & decls) cons
             std::cout << ">>       " << c << " : " << mlocal_type(c) << "\n";
         }
     }
+#endif
     // TODO(Leo)
     return *this;
 }

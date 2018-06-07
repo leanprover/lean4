@@ -7,13 +7,13 @@ Authors: Gabriel Ebner, Sebastian Ullrich
 #pragma once
 #include <string>
 #include <vector>
-#include "kernel/pos_info_provider.h"
+#include "util/cancellable.h"
 #include "kernel/environment.h"
+#include "library/pos_info_provider.h"
 #include "library/io_state.h"
 #include "library/module_mgr.h"
-#include "frontends/lean/json.h"
 #include "library/mt_task_queue.h"
-#include "util/cancellable.h"
+#include "frontends/lean/json.h"
 
 namespace lean {
 

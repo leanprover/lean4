@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "util/sexpr/format.h"
 #include "library/trace.h"
 #include "library/parray.h"
-#include "kernel/scope_pos_info_provider.h"
+#include "library/scope_pos_info_provider.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_array.h"
 #include "library/vm/vm_io.h"

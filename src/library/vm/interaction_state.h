@@ -7,7 +7,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #pragma once
 #include <algorithm>
 #include "kernel/environment.h"
-#include "kernel/scope_pos_info_provider.h"
+#include "library/scope_pos_info_provider.h"
 #include "library/type_context.h"
 #include "library/vm/vm.h"
 

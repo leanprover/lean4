@@ -21,7 +21,6 @@ Author: Leonardo de Moura
 #include "util/list_fn.h"
 #include "util/sexpr/format.h"
 #include "kernel/level.h"
-#include "kernel/formatter.h"
 #include "kernel/expr_eq_fn.h"
 
 namespace lean {

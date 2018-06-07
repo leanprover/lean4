@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "kernel/pos_info_provider.h"
+#include "library/pos_info_provider.h"
 
 namespace lean {
 char const * pos_info_provider::get_file_name() const {

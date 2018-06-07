@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include <memory>
 #include "util/rb_map.h"
-#include "kernel/pos_info_provider.h"
+#include "library/pos_info_provider.h"
 
 namespace lean {
 typedef rb_map<unsigned, pos_info, unsigned_cmp> pos_info_table;

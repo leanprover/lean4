@@ -8,7 +8,7 @@ Author: Sebastian Ullrich
 #include <string>
 #include "util/name_map.h"
 #include "util/exception_with_pos.h"
-#include "kernel/pos_info_provider.h"
+#include "library/pos_info_provider.h"
 
 namespace lean {
 /** \brief Exception used to track parsing erros, it does not leak outside of this class. */

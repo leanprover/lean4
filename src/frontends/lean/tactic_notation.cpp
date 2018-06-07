@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/placeholder.h"
 #include "library/explicit.h"
-#include "kernel/scope_pos_info_provider.h"
+#include "library/scope_pos_info_provider.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_format.h"
 #include "library/vm/vm_expr.h"

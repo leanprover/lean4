@@ -10,7 +10,8 @@ Author: Leonardo de Moura
 #include "util/sexpr/options.h"
 #include "util/exception_with_pos.h"
 #include "kernel/expr.h"
-#include "kernel/scope_pos_info_provider.h"
+#include "library/formatter.h"
+#include "library/scope_pos_info_provider.h"
 
 namespace lean {
 /**

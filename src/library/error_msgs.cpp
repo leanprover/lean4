@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "util/name_set.h"
 #include "kernel/replace_fn.h"
 #include "kernel/for_each_fn.h"
-#include "kernel/error_msgs.h"
+#include "library/error_msgs.h"
 
 namespace lean {
 format pp_indent_expr(formatter const & fmt, expr const & e) {

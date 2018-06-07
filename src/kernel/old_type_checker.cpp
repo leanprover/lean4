@@ -17,7 +17,6 @@ Author: Leonardo de Moura
 #include "kernel/expr_maps.h"
 #include "kernel/instantiate.h"
 #include "kernel/free_vars.h"
-#include "kernel/error_msgs.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"

@@ -12,9 +12,9 @@ Author: Leonardo de Moura
 #include "runtime/serializer.h"
 #include "runtime/optional.h"
 #include "util/task.h"
-#include "kernel/pos_info_provider.h"
 #include "kernel/inductive/inductive.h"
 #include "library/io_state.h"
+#include "library/pos_info_provider.h"
 
 namespace lean {
 class corrupted_file_exception : public exception {

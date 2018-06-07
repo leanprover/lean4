@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/expr.h"
-#include "kernel/formatter.h"
+#include "library/formatter.h"
 namespace lean {
 format pp_indent_expr(formatter const & fmt, expr const & e);
 format pp_type_expected(formatter const & fmt, expr const & e, expr const * fn_type = nullptr);

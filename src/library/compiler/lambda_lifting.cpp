@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "library/normalize.h"
 #include "library/util.h"
 #include "library/trace.h"
-#include "kernel/scope_pos_info_provider.h"
+#include "library/scope_pos_info_provider.h"
 #include "library/module.h"
 #include "library/vm/vm.h"
 #include "library/sorry.h"

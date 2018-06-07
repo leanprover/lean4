@@ -90,11 +90,30 @@ def let_macro := {macro .
        ]}
   | _ := none}
 
+def mk_list_stx (args : list syntax) : syntax :=
+syntax.node ⟨`list, [
+  syntax.atom ⟨none, atomic_val.string "("⟩,
+  syntax.node ⟨name.anonymous, args⟩,
+  syntax.atom ⟨none, atomic_val.string ")"⟩]⟩
+
+def mk_ident (n : name) : syntax :=
+syntax.ident ⟨none, n, none, none⟩
+
 def match_list_stx : syntax → option (list syntax)
-| (syntax.node ⟨`list, [lp, syntax.node ⟨name.anonymous,
-    args⟩,
-    rp]⟩) := some args
+| (syntax.node ⟨`list, [lp, syntax.node ⟨name.anonymous, args⟩, rp]⟩) := some args
 | _ := none
+
+/- From "Macros that Work Together" -/
+def or_macro := {macro .
+  name := `or,
+  expand := some $ λ n,
+  -- '(or e1 e2)'
+  do [e1, e2] ← pure n.args | none,
+     -- '(let ([tmp e1]) (if tmp tmp e2))'
+     mk_list_stx [
+       mk_ident `let,
+       mk_list_stx [mk_list_stx [mk_ident `tmp, e1]],
+       mk_list_stx [mk_ident `if, mk_ident `tmp, mk_ident `tmp, e2]]}
 
 /-- Recognizes and translates calls to built-in macros -/
 def list_macro := {macro .
@@ -104,6 +123,10 @@ def list_macro := {macro .
   | some [syntax.ident {name := `lambda, ..}, vars, body] :=
     do vars ← match_list_stx vars,
        syntax.node ⟨`lambda, [syntax.node ⟨name.anonymous, vars⟩, body]⟩
+  | some (syntax.ident {name := `or, ..}::args) :=
+    syntax.node ⟨`or, args⟩
+  | some (syntax.ident {name := `if, ..}::args) :=
+    syntax.node ⟨`if, args⟩
   | some [syntax.ident {name := `let, ..}, clauses, body] :=
     do clauses ← match_list_stx clauses,
        clauses ← clauses.mmap (λ cl, match match_list_stx cl with
@@ -134,6 +157,12 @@ meta def eval : nat → syntax → list value → except string value
 | (fuel+1) (syntax.node ⟨`let_core, [syntax.node ⟨_, [expr]⟩, syntax.node ⟨`bind, [_, body]⟩]⟩) env :=
 do v ← eval fuel expr env,
    eval fuel body (v::env)
+| (fuel+1) (syntax.node ⟨`if, [cond, t, e]⟩) env :=
+do cond ← eval fuel cond env,
+   eval fuel (match cond with
+     | value.number 0 := e
+     | value.list []  := e
+     | _              := t) env
 | (fuel+1) (syntax.node ⟨`list, [lp, syntax.node ⟨_, f::args⟩, rp]⟩) env :=
 do f ← eval fuel f env,
    args.mfoldl (λ f arg,
@@ -143,7 +172,10 @@ do f ← eval fuel f env,
       eval fuel code (arg::cenv)) f
 | _        stx env := throw $ "cannot evaluate " ++ to_string stx
 
-def cfg := {macro1.cfg with macros := (macro1.cfg.macros.insert `list list_macro).insert `let let_macro}
+def cfg := {macro1.cfg with macros :=
+  ((macro1.cfg.macros.insert `list list_macro)
+   .insert `let let_macro)
+  .insert `or or_macro}
 meta def go (s) : tactic unit :=
 match ((parse 1000).parse_with_eoi s).run with
 | except.error e := tactic.trace (e.to_string s)
@@ -167,5 +199,7 @@ tactic.trace (to_fmt "evaluator: " ++ val.to_string)
 #eval go "((lambda [x] x) 1)"
 #eval go "((lambda [x y] x) 1 2)"
 #eval go "(let ([x 1]) x)"
+
+#eval go "(let ([tmp 5]) (or 0 tmp))"
 
 end lisp

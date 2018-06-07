@@ -1,6 +1,6 @@
 import init.lean.parser.macro
 attribute [instance] lean.name.has_lt_quick
-namespace lean
+namespace macro1
 open lean.parser
 
 def sp : option span := none
@@ -9,19 +9,23 @@ def lambda_macro := {macro .
   name := `lambda,
   expand := some $ λ node,
   match node.args with
-  | [ident@(syntax.ident _), body] :=
+  | [syntax.node ⟨name.anonymous, [ident@(syntax.ident _)]⟩, body] :=
      syntax.node {macro := `lambda_core, args := [
        syntax.node {macro := `bind, args := [
          syntax.node {macro := name.anonymous, args := [ident]},
          body
        ]}
      ]}
-  | _ := syntax.node node}
+  | [syntax.node ⟨name.anonymous, id::ids⟩, body] :=
+    syntax.node ⟨`lambda, [syntax.node ⟨name.anonymous, [id]⟩,
+                           syntax.node ⟨`lambda, [syntax.node ⟨name.anonymous, ids⟩,
+                                                  body]⟩]⟩
+  | _ := none}
 
 def intro_x_macro := {macro .
   name := "intro_x",
   expand := some $ λ node,
-    syntax.node ⟨`lambda, syntax.ident ⟨sp, "x", none, none⟩ :: node.args⟩}
+    syntax.node ⟨`lambda, syntax.node ⟨name.anonymous, [syntax.ident ⟨sp, "x", none, none⟩]⟩ :: node.args⟩}
 
 def macros : name → option macro
 | `lambda := some lambda_macro
@@ -38,18 +42,18 @@ match (expand' stx >>= resolve').run' cfg () with
 | except.ok stx  := tactic.trace stx
 
 run_cmd test $ syntax.node ⟨`lambda, [
-  syntax.ident ⟨sp, `x, none, none⟩,
+  syntax.node ⟨name.anonymous, [syntax.ident ⟨sp, `x, none, none⟩]⟩,
   syntax.ident ⟨sp, `x, none, none⟩
 ]⟩
 
 run_cmd test $ syntax.node ⟨`lambda, [
-  syntax.ident ⟨sp, `x, none, none⟩,
+  syntax.node ⟨name.anonymous, [syntax.ident ⟨sp, `x, none, none⟩]⟩,
   syntax.ident ⟨sp, `y, none, none⟩
 ]⟩
 
 -- test macro shadowing
 run_cmd test $ syntax.node ⟨`lambda, [
-  syntax.ident ⟨sp, `x, none, none⟩,
+  syntax.node ⟨name.anonymous, [syntax.ident ⟨sp, `x, none, none⟩]⟩,
   syntax.node ⟨`intro_x, [
     syntax.ident ⟨sp, `x, none, none⟩
   ]⟩
@@ -57,8 +61,8 @@ run_cmd test $ syntax.node ⟨`lambda, [
 
 -- test field notation
 run_cmd test $ syntax.node ⟨`lambda, [
-  syntax.ident ⟨sp, `x.y, none, none⟩,
+  syntax.node ⟨name.anonymous, [syntax.ident ⟨sp, `x.y, none, none⟩]⟩,
   syntax.ident ⟨sp, `x.y.z, none, none⟩
 ]⟩
 
-end lean
+end macro1

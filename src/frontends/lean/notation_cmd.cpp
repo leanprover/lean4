@@ -296,7 +296,7 @@ static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_t
 static expr parse_notation_expr(parser & p, buffer<expr> const & locals) {
     auto pos = p.pos();
     expr r = p.parse_expr();
-    r = abstract(r, locals.size(), locals.data());
+    r = abstract_locals(r, locals.size(), locals.data());
     check_notation_expr(r, pos);
     return r;
 }

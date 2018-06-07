@@ -12,23 +12,6 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 
 namespace lean {
-expr abstract(expr const & e, unsigned s, unsigned n, expr const * subst) {
-    lean_assert(std::all_of(subst, subst+n, closed));
-    return replace(e, [=](expr const & e, unsigned offset) -> optional<expr> {
-            if (closed(e)) {
-                unsigned i = n;
-                while (i > 0) {
-                    --i;
-                    if (subst[i] == e)
-                        return some_expr(mk_var(offset + s + n - i - 1, e.get_tag()));
-                }
-            }
-            return none_expr();
-        });
-}
-expr abstract(expr const & e, unsigned n, expr const * subst) { return abstract(e, 0, n, subst); }
-expr abstract(expr const & e, expr const & s, unsigned i) { return abstract(e, i, 1, &s); }
-
 expr abstract_locals(expr const & e, unsigned n, expr const * subst) {
     lean_assert(std::all_of(subst, subst+n, [](expr const & e) { return closed(e) && is_local(e); }));
 #ifndef LEAN_NO_HAS_LOCAL_OPT

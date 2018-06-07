@@ -428,7 +428,7 @@ static expr parse_have(parser & p, unsigned, expr const *, pos_info const & pos)
     expr l = p.save_pos(mk_local(id, prop), pos);
     p.add_local(l);
     expr body = p.parse_expr();
-    body = abstract(body, l);
+    body = abstract_local(body, l);
     if (get_parser_checkpoint_have(p.get_options()))
         body = mk_checkpoint_annotation(body);
     expr r = p.save_pos(mk_have_annotation(p.save_pos(mk_lambda(id, prop, body), pos)), pos);

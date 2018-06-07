@@ -29,8 +29,13 @@ instance resolved.has_to_format : has_to_format resolved := ⟨λ r, to_fmt (r.d
 structure syntax_ident :=
 (span : option span) (name : name) (msc : option macro_scope_id) (res : option resolved)
 
+inductive atomic_val
+| string (s : string)
+| number (n : nat)
+| name   (n : name)
+
 structure syntax_atom :=
-(span : option span) (val : name)
+(span : option span) (val : atomic_val)
 
 structure syntax_node (syntax : Type) :=
 (macro : name) (args : list syntax)
@@ -69,12 +74,14 @@ with to_format : syntax → format
        else
          to_fmt ".(" ++ to_fmt (id.name.replace_prefix res.prefix name.anonymous) ++ ")"
      | none := "") in
-  paren ("ident " ++ n)
-| (atom a) := paren ("atom " ++ to_fmt a.val)
+  n
+| (atom ⟨_, atomic_val.string s⟩) := to_fmt $ repr s
+| (atom ⟨_, atomic_val.number n⟩) := to_fmt n
+| (atom ⟨_, atomic_val.name   n⟩) := to_fmt "`" ++ to_fmt n
 | (node {macro := name.anonymous, args := args, ..}) :=
   sbracket $ join_sep (to_format_lst args) line
 | (node {macro := n, args := args, ..}) :=
-  paren ("node " ++ to_fmt n ++ prefix_join line (to_format_lst args))
+  paren $ join_sep (to_fmt n :: to_format_lst args) line
 with to_format_lst : list syntax → list format
 | []      := []
 | (s::ss) := to_format s :: to_format_lst ss

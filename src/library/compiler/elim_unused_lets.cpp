@@ -21,7 +21,7 @@ class elim_unused_lets_fn : public compiler_step_visitor {
         }
         t = instantiate_rev(t, locals.size(), locals.data());
         t = visit(t);
-        return copy_tag(e, locals.mk_lambda(t));
+        return locals.mk_lambda(t);
     }
 
     virtual expr visit_let(expr const & e) override {
@@ -44,7 +44,7 @@ class elim_unused_lets_fn : public compiler_step_visitor {
             if (used_locals.contains(l))
                 new_locals.push_back(l);
         }
-        return copy_tag(e, m_ctx.mk_lambda(new_locals, t));
+        return m_ctx.mk_lambda(new_locals, t);
     }
 public:
     elim_unused_lets_fn(environment const & env, abstract_context_cache & cache):compiler_step_visitor(env, cache) {}

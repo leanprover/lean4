@@ -64,7 +64,7 @@ class lambda_lifting_fn : public compiler_step_visitor {
         }
         t = instantiate_rev(t, locals.size(), locals.data());
         t = visit(t);
-        return copy_tag(e, locals.mk_lambda(t));
+        return locals.mk_lambda(t);
     }
 
     expr abstract_locals(expr e, buffer<expr> & locals) {

@@ -94,7 +94,7 @@ optional<expr> to_nat_value(type_context_old & ctx, expr const & e) {
 class find_nat_values_fn : public replace_visitor_with_tc {
     expr visit_app(expr const & e) override {
         if (auto v = to_nat_value(m_ctx, e))
-            return copy_tag(e, expr(*v));
+            return expr(*v);
         return replace_visitor_with_tc::visit_app(e);
     }
 public:

@@ -104,11 +104,11 @@ class inline_simple_definitions_fn : public compiler_step_visitor {
             major_idx       = *inductive::get_elim_major_idx(env(), rec_name);
         }
         if (major_idx >= args.size())
-            return copy_tag(e, mk_app(fn, args));
+            return mk_app(fn, args);
         expr major = beta_reduce(args[major_idx]);
         if (is_constructor_app(env(), major)) {
             /* Major premise became a constructor. So, we should reduce. */
-            expr new_e = copy_tag(e, mk_app(fn, args));
+            expr new_e = mk_app(fn, args);
             if (is_cases_on) {
                 /* unfold cases_on */
                 if (auto r = unfold_term(env(), new_e))
@@ -118,9 +118,9 @@ class inline_simple_definitions_fn : public compiler_step_visitor {
             }
             /* reduce */
             if (auto r = ctx().norm_ext(new_e))
-                return copy_tag(e, visit(beta_reduce(*r)));
+                return visit(beta_reduce(*r));
         }
-        return copy_tag(e, mk_app(fn, args));
+        return mk_app(fn, args);
     }
 
     optional<expr> reduce_projection(expr const & e) {
@@ -151,7 +151,7 @@ class inline_simple_definitions_fn : public compiler_step_visitor {
 
         if (is_inline(env(), n) || (is_simple_application(v) && arity <= nargs)) {
             if (auto r = unfold_term(env(), e))
-                return visit(copy_tag(e, expr(*r)));
+                return visit(expr(*r));
         }
 
         if (arity <= nargs) {

@@ -19,7 +19,7 @@ static expr reduce_arity_of(expr const & e, unsigned i, std::vector<bool> const 
     lean_assert(is_lambda(e));
     expr new_body = reduce_arity_of(binding_body(e), i+1, keep_bv);
     if (keep_bv[i])
-        return copy_tag(e, mk_lambda(binding_name(e), binding_domain(e), new_body));
+        return mk_lambda(binding_name(e), binding_domain(e), new_body);
     else
         return lower_free_vars(new_body, 1);
 }

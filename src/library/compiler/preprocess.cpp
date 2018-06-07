@@ -137,7 +137,7 @@ class expand_aux_fn : public compiler_step_visitor {
             expr new_e;
             {
                 type_context_old::transparency_scope scope(ctx(), transparency_mode::Reducible);
-                new_e = copy_tag(e, ctx().whnf_head_pred(e, [&](expr const &) { return false; }));
+                new_e = ctx().whnf_head_pred(e, [&](expr const &) { return false; });
             }
             if (is_eqp(new_e, e))
                 return compiler_step_visitor::visit_app(new_e);
@@ -150,7 +150,7 @@ class expand_aux_fn : public compiler_step_visitor {
             expr new_e;
             {
                 type_context_old::transparency_scope scope(ctx(), transparency_mode::Reducible);
-                new_e = copy_tag(e, ctx().whnf_head_pred(e, [&](expr const & e) { return is_aux_recursor(e); }));
+                new_e = ctx().whnf_head_pred(e, [&](expr const & e) { return is_aux_recursor(e); });
             }
             return compiler_step_visitor::visit(new_e);
         }

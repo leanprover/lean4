@@ -109,8 +109,8 @@ class erase_irrelevant_fn : public compiler_step_visitor {
 
     expr erase_lambda_let_types_when_relevant(expr const & e) {
         if (is_lambda(e)) {
-            return copy_tag(e, mk_lambda(binding_name(e), erase_type(binding_domain(e)),
-                                         erase_lambda_let_types_when_relevant(binding_body(e))));
+            return mk_lambda(binding_name(e), erase_type(binding_domain(e)),
+                             erase_lambda_let_types_when_relevant(binding_body(e)));
         } else if (is_let(e)) {
             return mk_let(let_name(e), erase_type(let_type(e)), let_value(e), erase_lambda_let_types_when_relevant(let_body(e)));
         } else {
@@ -120,8 +120,8 @@ class erase_irrelevant_fn : public compiler_step_visitor {
 
     expr erase_lambda_let_types_when_irrelevant(expr const & e) {
         if (is_lambda(e)) {
-            return copy_tag(e, mk_lambda(binding_name(e), mk_neutral_expr(),
-                                         erase_lambda_let_types_when_irrelevant(binding_body(e))));
+            return mk_lambda(binding_name(e), mk_neutral_expr(),
+                             erase_lambda_let_types_when_irrelevant(binding_body(e)));
         } else if (is_let(e)) {
             return erase_lambda_let_types_when_irrelevant(let_body(e));
         } else {

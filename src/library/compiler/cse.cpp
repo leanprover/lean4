@@ -253,12 +253,12 @@ class cse_fn : public compiler_step_visitor {
         expr_set common_subexprs;
         collect_common_subexprs(let_values, t, common_subexprs);
         if (common_subexprs.empty())
-            return copy_tag(e, locals.mk_lambda(t));
+            return locals.mk_lambda(t);
 
         cse_processor_for_binding proc(m_counter, m_ctx, locals, common_subexprs);
         proc.process_locals();
         expr new_t = proc.process(t);
-        return copy_tag(e, proc.m_all_locals.mk_lambda(new_t));
+        return proc.m_all_locals.mk_lambda(new_t);
     }
 
     virtual expr visit_lambda(expr const & e) override {
@@ -284,7 +284,7 @@ class cse_fn : public compiler_step_visitor {
                 if (!common_subexprs.empty()) {
                     cse_processor proc(m_counter, m_ctx, common_subexprs);
                     m = proc.process(m);
-                    m = copy_tag(args[i], proc.m_all_locals.mk_lambda(m));
+                    m = proc.m_all_locals.mk_lambda(m);
                 }
                 args[i] = m;
             }

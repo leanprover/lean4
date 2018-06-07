@@ -47,7 +47,7 @@ expr compiler_step_visitor::visit_lambda_let(expr const & e) {
     }
     t = instantiate_rev(t, locals.size(), locals.data());
     t = visit(t);
-    return copy_tag(e, locals.mk_lambda(t));
+    return locals.mk_lambda(t);
 }
 
 expr compiler_step_visitor::visit_lambda(expr const & e) {
@@ -79,6 +79,6 @@ expr compiler_step_visitor::visit_app(expr const & e) {
     if (!modified)
         return e;
     else
-        return copy_tag(e, mk_app(new_fn, args));
+        return mk_app(new_fn, args);
 }
 }

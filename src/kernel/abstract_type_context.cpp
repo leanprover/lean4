@@ -17,10 +17,6 @@ void abstract_type_context::pop_local() {
     /* do nothing */
 }
 
-expr abstract_type_context::abstract(expr const & e, unsigned num_locals, expr const * locals) {
-    return ::lean::abstract(e, num_locals, locals);
-}
-
 push_local_fn::~push_local_fn() {
     for (unsigned i = 0; i < m_counter; i++)
         m_ctx.pop_local();

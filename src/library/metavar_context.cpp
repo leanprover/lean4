@@ -153,14 +153,14 @@ struct metavar_context::interface_impl {
             m_ctx.m_dassignment.erase(mlocal_name(e));
             buffer<expr> locals;
             to_buffer(d->m_locals, locals);
-            new_v = ::lean::abstract(new_v, locals.size(), locals.data());
+            new_v = abstract(new_v, locals.size(), locals.data());
             unsigned i = locals.size();
             while (i > 0) {
                 --i;
                 local_decl decl = d->m_lctx.get_local_decl(locals[i]);
-                expr type       = ::lean::abstract(decl.get_type(), i, locals.data());
+                expr type       = abstract(decl.get_type(), i, locals.data());
                 if (optional<expr> letval = decl.get_value()) {
-                    letval = ::lean::abstract(*letval, i, locals.data());
+                    letval = abstract(*letval, i, locals.data());
                     new_v  = mk_let(decl.get_user_name(), type, *letval, new_v);
                 } else {
                     new_v  = mk_lambda(decl.get_user_name(), type, new_v, decl.get_info());

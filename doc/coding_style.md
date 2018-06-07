@@ -232,33 +232,11 @@ from accidentally pushing the commits which contain style problems.
 
 [git-pre-push-hook]: https://github.com/git/git/blob/master/Documentation/RelNotes/1.8.2.txt
 
- - Create ``<PROJECT_ROOT>/.git/hooks/pre-push`` file with the following contents:
+To activate the hook, execute
 
-~~~~~~~~~~~~~~~~
-#!/usr/bin/env bash
-IFS=' '
-DIR="$( cd "$( dirname "$0" )" && pwd )"
-CHECKER=$DIR/../../src/cmake/Modules/cpplint.py
-while read local_ref local_sha remote_ref remote_sha;
-do
-    CHANGED_FILES=`git diff --name-only $local_sha $remote_sha | grep '\(cpp\|h\)$'`
-    if [ ! -z "$CHANGED_FILES" -a "$CHANGED_FILES" != " " ]; then
-        echo $CHANGED_FILES | xargs $CHECKER
-        RET=$?
-        if [ $RET -ne 0 ]; then
-            echo "There is error(s) from style-check. Please fix them before push to the repo."
-            exit $RET
-        fi
-    fi
-done
-exit 0
-~~~~~~~~~~~~~~~~
+```bash
+ln -s script/pre-push .git/hooks
+```
 
- - Give "exec" permission to the file
-
-~~~~~~~~~~~~~~~~
-chmod +x <PROJECT_ROOT>/.git/hooks/pre-push
-~~~~~~~~~~~~~~~~
-
-Note that you need to change ``CHECKER`` variable if you want to use other
+You can change the ``CHECKER`` variable in the script if you want to use other
 checkers.

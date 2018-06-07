@@ -61,12 +61,6 @@ else()
   endif()
 endif()
 
-add_test(NAME leanchecker
-        WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
-        COMMAND bash "${LEAN_SOURCE_DIR}/cmake/run_checker.sh" "${CMAKE_CROSSCOMPILING_EMULATOR}"
-            "$<TARGET_FILE:lean>" "$<TARGET_FILE:leanchecker>" "${CMAKE_CURRENT_BINARY_DIR}/library_export.out"
-            "${LEAN_SOURCE_DIR}/../library")
-
 # add_test(example1_stdin1 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")
 # add_test(lean_export ${CMAKE_CURRENT_BINARY_DIR}/lean "-o simple.olean" "${LEAN_SOURCE_DIR}/../tests/lean/run/simple.lean")
 add_test(lean_help1    "${CMAKE_CURRENT_BINARY_DIR}/lean" --help)

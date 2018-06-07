@@ -14,6 +14,14 @@ expr abstract(expr const & e, unsigned n, expr const * s);
 inline expr abstract(expr const & e, expr const & s) { return abstract(e, 1, &s); }
 expr abstract(expr const & e, name const & l);
 
+/* ------ LEGACY CODE -------------
+   The following API is to support legacy
+   code where the type of a local constant (aka free variable)
+   was stored in the local constant itself.
+   This approach was used in Lean2, and is being abandoned in Lean4.
+
+   TODO(Leo): delete */
+
 /** \brief Create a lambda-expression by abstracting the given local constants over b */
 expr Fun(unsigned num, expr const * locals, expr const & b);
 inline expr Fun(expr const & local, expr const & b) { return Fun(1, &local, b); }
@@ -25,4 +33,5 @@ expr Pi(unsigned num, expr const * locals, expr const & b);
 inline expr Pi(expr const & local, expr const & b) { return Pi(1, &local, b); }
 inline expr Pi(std::initializer_list<expr> const & locals, expr const & b) { return Pi(locals.size(), locals.begin(), b); }
 template<typename T> expr Pi(T const & locals, expr const & b) { return Pi(locals.size(), locals.data(), b); }
+
 }

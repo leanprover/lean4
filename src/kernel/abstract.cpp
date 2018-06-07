@@ -42,6 +42,14 @@ expr abstract(expr const & e, name const & l) {
     return abstract(e, 1, &local);
 }
 
+/* ------ LEGACY CODE -------------
+   The following API is to support legacy
+   code where the type of a local constant (aka free variable)
+   was stored in the local constant itself.
+   This approach was used in Lean2, and is being abandoned in Lean4.
+
+   TODO(Leo): delete */
+
 template<bool is_lambda>
 expr mk_binding(unsigned num, expr const * locals, expr const & b) {
     expr r     = abstract(b, num, locals);

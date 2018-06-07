@@ -1,4 +1,4 @@
-lisp.lean:166:0: error: cannot evaluate (list "(" [] ")")
+lisp.lean:198:0: error: cannot evaluate (list "(" [] ")")
 reader:   (list "(" [] ")")
 expander: (list "(" [] ")")
 resolver: (list "(" [] ")")
@@ -14,3 +14,7 @@ reader:   (list "(" [let (list "(" [(list "[" [x 1] "]")] ")") x] ")")
 expander: (let_core [1] (bind [x] x))
 resolver: (let_core [1] (bind [x] x:0))
 evaluator: 1
+reader:   (list "(" [let (list "(" [(list "[" [tmp 5] "]")] ")") (list "(" [or 0 tmp] ")")] ")")
+expander: (let_core [5] (bind [tmp] (let_core [0] (bind [tmp!3] (if tmp!3 tmp!3 tmp)))))
+resolver: (let_core [5] (bind [tmp] (let_core [0] (bind [tmp!3] (if tmp!3:0 tmp!3:0 tmp:1)))))
+evaluator: 5

@@ -42,7 +42,7 @@ structure macro :=
 (name : name)
 -- (read : reader)
 -- TODO: What else does an expander need? How to model recursive expansion?
-(expand : option (syntax_node syntax → syntax) := none)
+(expand : option (syntax_node syntax → option syntax) := none)
 -- (elaborate : list syntax → expr → tactic expr)
 
 structure parse_state :=
@@ -76,9 +76,11 @@ do cfg ← read,
    some {expand := some exp, ..} ← pure $ cfg.macros.find node.macro
      | (λ args, syntax.node {node with args := args}) <$> node.args.mmap (expand fuel),
    tag ← mk_tag,
-   let node := {node with args := node.args.map $ flip_tag tag},
-   -- expand recursively
-   expand fuel $ flip_tag tag $ exp node
+   let node' := {node with args := node.args.map $ flip_tag tag},
+   (match exp node' with
+    -- expand recursively
+    | some stx' := expand fuel $ flip_tag tag stx'
+    | none := (λ args, syntax.node {node with args := args}) <$> node.args.mmap (expand fuel))
 | _ stx := pure stx
 
 def scope := rbmap (name × option macro_scope_id) var_offset (<)

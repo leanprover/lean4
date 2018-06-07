@@ -237,8 +237,8 @@ private def str_aux (s : string) : nat → iterator → iterator → result stri
 
 /--
 `str s` parses a sequence of elements that match `s`. Returns the parsed string (i.e. `s`).
-This parser_t m consumes no input if it fails (even if a partial match).
-Note: The behaviour of this parser_t m is different to that the `string` parser_t m in the Parsec Haskell library,
+This parser consumes no input if it fails (even if a partial match).
+Note: The behaviour of this parser is different to that the `string` parser in the Parsec Haskell library,
 as this one is all-or-nothing.
 -/
 def str (s : string) : parser_t m string :=
@@ -270,7 +270,7 @@ private def take_while_aux (p : char → bool) : nat → string → iterator →
 
 /--
 Consume input as long as the predicate returns `tt`, and return the consumed input.
-This parser_t m does not fail. It will return an empty string if the predicate
+This parser does not fail. It will return an empty string if the predicate
 returns `ff` on the current character. -/
 def take_while (p : char → bool) : parser_t m string :=
 λ it, pure $ take_while_aux p it.remaining "" it
@@ -280,7 +280,7 @@ def take_while_cont (p : char → bool) (ini : string) : parser_t m string :=
 
 /--
 Consume input as long as the predicate returns `tt`, and return the consumed input.
-This parser_t m requires the predicate to succeed on at least once. -/
+This parser requires the predicate to succeed on at least once. -/
 def take_while1 (p : char → bool) : parser_t m string :=
 λ it, pure $
         if !it.has_next then eoi_error it.offset
@@ -292,7 +292,7 @@ def take_while1 (p : char → bool) : parser_t m string :=
 
 /--
 Consume input as long as the predicate returns `ff` (i.e. until it returns `tt`), and return the consumed input.
-This parser_t m does not fail. -/
+This parser does not fail. -/
 def take_until (p : char → bool) : parser_t m string :=
 take_while (λ c, !p c)
 
@@ -415,7 +415,7 @@ def lookahead (p : parser_t m α) : parser_t m α :=
            | ok a s' := mk_eps_result a it
            | other   := other
 
-/-- `not_followed_by p` succeeds when parser_t m `p` fails -/
+/-- `not_followed_by p` succeeds when parser `p` fails -/
 def not_followed_by (p : parser_t m α) (msg : string := "input") : parser_t m unit :=
 λ it, do r ← p it,
          pure $ match r with

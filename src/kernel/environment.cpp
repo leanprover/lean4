@@ -90,12 +90,12 @@ optional<declaration> environment::find(name const & n) const {
 declaration environment::get(name const & n) const {
     declaration const * r = m_declarations.find(n);
     if (!r)
-        throw_unknown_declaration(*this, n);
+        throw unknown_declaration_exception(*this, n);
     return *r;
 }
 
 [[ noreturn ]] void throw_incompatible_environment(environment const & env) {
-    throw_kernel_exception(env, "invalid declaration, it was checked/certified in an incompatible environment");
+    throw kernel_exception(env, "invalid declaration, it was checked/certified in an incompatible environment");
 }
 
 bool environment::is_recursor(name const & n) const {
@@ -119,13 +119,13 @@ environment environment::add(certified_declaration const & d) const {
         throw_incompatible_environment(*this);
     name const & n = d.get_declaration().get_name();
     if (find(n))
-        throw_already_declared(*this, n);
+        throw already_declared_exception(*this, n);
     return environment(*this, insert(m_declarations, n, d.get_declaration()));
 }
 
 environment environment::add_meta(buffer<declaration> const & ds, bool check) const {
     if (!check && trust_lvl() == 0)
-        throw_kernel_exception(*this, "invalid meta declarations, type checking cannot be skipped at trust level 0");
+        throw kernel_exception(*this, "invalid meta declarations, type checking cannot be skipped at trust level 0");
     environment new_env = *this;
     /* Check declarations header, and add them to new_env.m_declarations */
     for (declaration const & d : ds) {
@@ -148,15 +148,15 @@ environment environment::replace(certified_declaration const & t) const {
     name const & n = t.get_declaration().get_name();
     auto ax = find(n);
     if (!ax)
-        throw_kernel_exception(*this, "invalid replacement of axiom with theorem, the environment does not have an axiom with the given name");
+        throw kernel_exception(*this, "invalid replacement of axiom with theorem, the environment does not have an axiom with the given name");
     if (!ax->is_axiom())
-        throw_kernel_exception(*this, "invalid replacement of axiom with theorem, the current declaration in the environment is not an axiom");
+        throw kernel_exception(*this, "invalid replacement of axiom with theorem, the current declaration in the environment is not an axiom");
     if (!t.get_declaration().is_theorem())
-        throw_kernel_exception(*this, "invalid replacement of axiom with theorem, the new declaration is not a theorem");
+        throw kernel_exception(*this, "invalid replacement of axiom with theorem, the new declaration is not a theorem");
     if (ax->get_type() != t.get_declaration().get_type())
-        throw_kernel_exception(*this, "invalid replacement of axiom with theorem, the 'replace' operation can only be used when the axiom and theorem have the same type");
+        throw kernel_exception(*this, "invalid replacement of axiom with theorem, the 'replace' operation can only be used when the axiom and theorem have the same type");
     if (ax->get_univ_params() != t.get_declaration().get_univ_params())
-        throw_kernel_exception(*this, "invalid replacement of axiom with theorem, the 'replace' operation can only be used when the axiom and theorem have the same universe parameters");
+        throw kernel_exception(*this, "invalid replacement of axiom with theorem, the 'replace' operation can only be used when the axiom and theorem have the same universe parameters");
     return environment(*this, insert(m_declarations, n, t.get_declaration()));
 }
 
@@ -203,7 +203,7 @@ unsigned environment::register_extension(std::shared_ptr<environment_extension c
 }
 
 [[ noreturn ]] void throw_invalid_extension(environment const & env) {
-    throw_kernel_exception(env, "invalid environment extension identifier");
+    throw kernel_exception(env, "invalid environment extension identifier");
 }
 
 environment_extension const & environment::get_extension(unsigned id) const {

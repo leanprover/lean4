@@ -51,7 +51,7 @@ expr old_type_checker::ensure_sort_core(expr e, expr const & s) {
     if (is_sort(new_e)) {
         return new_e;
     } else {
-        throw_kernel_exception(m_env, s, [=](formatter const & fmt) { return pp_type_expected(fmt, s, &e); });
+        throw type_expected_exception(m_env, local_ctx(), s);
     }
 }
 
@@ -63,15 +63,15 @@ expr old_type_checker::ensure_pi_core(expr e, expr const & s) {
     if (is_pi(new_e)) {
         return new_e;
     } else {
-        throw_kernel_exception(m_env, s, [=](formatter const & fmt) { return pp_function_expected(fmt, s); });
+        throw function_expected_exception(m_env, local_ctx(), s);
     }
 }
 
-void old_type_checker::check_level(level const & l, expr const & s) {
+void old_type_checker::check_level(level const & l) {
     if (m_params) {
         if (auto n2 = get_undef_param(l, *m_params))
-            throw_kernel_exception(m_env, sstream() << "invalid reference to undefined universe level parameter '"
-                                   << *n2 << "'", s);
+            throw kernel_exception(m_env, sstream() << "invalid reference to undefined universe level parameter '"
+                                   << *n2 << "'");
     }
 }
 
@@ -80,16 +80,16 @@ expr old_type_checker::infer_constant(expr const & e, bool infer_only) {
     auto const & ps = d.get_univ_params();
     auto const & ls = const_levels(e);
     if (length(ps) != length(ls))
-        throw_kernel_exception(m_env, sstream() << "incorrect number of universe levels parameters for '"
+        throw kernel_exception(m_env, sstream() << "incorrect number of universe levels parameters for '"
                                << const_name(e) << "', #"
                                << length(ps)  << " expected, #" << length(ls) << " provided");
     if (!infer_only) {
         if (m_non_meta_only && d.is_meta()) {
-            throw_kernel_exception(m_env, sstream() << "invalid definition, it uses meta declaration '"
+            throw kernel_exception(m_env, sstream() << "invalid definition, it uses meta declaration '"
                                    << const_name(e) << "'");
         }
         for (level const & l : ls)
-            check_level(l, e);
+            check_level(l);
     }
     return instantiate_type_univ_params(d, ls);
 }
@@ -113,7 +113,7 @@ expr old_type_checker::infer_lambda(expr const & _e, bool infer_only) {
         ds.push_back(binding_domain(e));
         expr d = instantiate_rev(binding_domain(e), ls.size(), ls.data());
         if (binding_name(e).is_anonymous())
-            throw_kernel_exception(m_env, "invalid anonymous binder name", e);
+            throw kernel_exception(m_env, "invalid anonymous binder name");
         expr l = mk_local(m_name_generator.next(), binding_name(e), d, binding_info(e));
         ls.push_back(l);
         if (!infer_only) {
@@ -137,7 +137,7 @@ expr old_type_checker::infer_pi(expr const & _e, bool infer_only) {
     expr e = _e;
     while (is_pi(e)) {
         if (binding_name(e).is_anonymous())
-            throw_kernel_exception(m_env, "invalid anonymous binder name", e);
+            throw kernel_exception(m_env, "invalid anonymous binder name");
         expr d  = instantiate_rev(binding_domain(e), ls.size(), ls.data());
         expr t1 = ensure_sort_core(infer_type_core(d, infer_only), d);
         us.push_back(sort_level(t1));
@@ -162,10 +162,7 @@ expr old_type_checker::infer_app(expr const & e, bool infer_only) {
         expr a_type = infer_type_core(app_arg(e), infer_only);
         expr d_type = binding_domain(f_type);
         if (!is_def_eq(a_type, d_type)) {
-            throw_kernel_exception(m_env, e,
-                                   [=](formatter const & fmt) {
-                                       return pp_app_type_mismatch(fmt, e, f_type, app_arg(e), a_type);
-                                   });
+            throw app_type_mismatch_exception(m_env, local_ctx(), e);
         }
         return instantiate(binding_body(f_type), app_arg(e));
     } else {
@@ -191,15 +188,12 @@ expr old_type_checker::infer_app(expr const & e, bool infer_only) {
 expr old_type_checker::infer_let(expr const & e, bool infer_only) {
     if (!infer_only) {
         if (let_name(e).is_anonymous())
-            throw_kernel_exception(m_env, "invalid anonymous let var name", e);
+            throw kernel_exception(m_env, "invalid anonymous let var name");
         ensure_sort_core(infer_type_core(let_type(e), infer_only), e);
         expr v_type = infer_type_core(let_value(e), infer_only);
         // TODO(Leo): we will remove justifications in the future.
         if (!is_def_eq(v_type, let_type(e))) {
-            throw_kernel_exception(m_env, e,
-                                   [=](formatter const & fmt) {
-                                       return pp_def_type_mismatch(fmt, let_name(e), v_type, let_type(e));
-                                   });
+            throw def_type_mismatch_exception(m_env, local_ctx(), let_name(e), v_type, let_type(e));
         }
     }
     return infer_type_core(instantiate(let_body(e), let_value(e)), infer_only);
@@ -209,7 +203,7 @@ expr old_type_checker::infer_let(expr const & e, bool infer_only) {
     \pre closed(e) */
 expr old_type_checker::infer_type_core(expr const & e, bool infer_only) {
     if (is_var(e))
-        throw_kernel_exception(m_env, "type checker does not support free variables, replace them with local constants before invoking it", e);
+        throw kernel_exception(m_env, "type checker does not support dangling bound variables, replace them with free variables before invoking it");
 
     lean_assert(closed(e));
     check_system("type checker");
@@ -226,7 +220,7 @@ expr old_type_checker::infer_type_core(expr const & e, bool infer_only) {
     case expr_kind::Var:
         lean_unreachable();  // LCOV_EXCL_LINE
     case expr_kind::Sort:
-        if (!infer_only) check_level(sort_level(e), e);
+        if (!infer_only) check_level(sort_level(e));
         r = mk_sort(mk_succ(sort_level(e)));
         break;
     case expr_kind::Constant:  r = infer_constant(e, infer_only);       break;
@@ -722,24 +716,24 @@ old_type_checker::old_type_checker(environment const & env, bool memoize, bool n
 
 old_type_checker::~old_type_checker() {}
 
-void check_no_metavar(environment const & env, name const & n, expr const & e, bool is_type) {
+void check_no_metavar(environment const & env, name const & n, expr const & e) {
     if (has_metavar(e))
-        throw_kernel_exception(env, e, [=](formatter const & fmt) { return pp_decl_has_metavars(fmt, n, e, is_type); });
+        throw declaration_has_metavars_exception(env, n, e);
 }
 
-static void check_no_local(environment const & env, expr const & e) {
+static void check_no_local(environment const & env, name const & n, expr const & e) {
     if (has_local(e))
-        throw_kernel_exception(env, "failed to add declaration to environment, it contains local constants", e);
+        throw declaration_has_free_vars_exception(env, n, e);
 }
 
-void check_no_mlocal(environment const & env, name const & n, expr const & e, bool is_type) {
-    check_no_metavar(env, n, e, is_type);
-    check_no_local(env, e);
+void check_no_mlocal(environment const & env, name const & n, expr const & e) {
+    check_no_metavar(env, n, e);
+    check_no_local(env, n, e);
 }
 
 static void check_name(environment const & env, name const & n) {
     if (env.find(n))
-        throw_already_declared(env, n);
+        throw already_declared_exception(env, n);
 }
 
 static void check_duplicated_params(environment const & env, declaration const & d) {
@@ -748,15 +742,15 @@ static void check_duplicated_params(environment const & env, declaration const &
         auto const & p = head(ls);
         ls = tail(ls);
         if (std::find(ls.begin(), ls.end(), p) != ls.end()) {
-            throw_kernel_exception(env, sstream() << "failed to add declaration to environment, "
+            throw kernel_exception(env, sstream() << "failed to add declaration to environment, "
                                    << "duplicate universe level parameter: '"
-                                   << p << "'", d.get_type());
+                                   << p << "'");
         }
     }
 }
 
 static void check_definition(environment const & env, declaration const & d, old_type_checker & checker) {
-    check_no_mlocal(env, d.get_name(), d.get_value(), false);
+    check_no_mlocal(env, d.get_name(), d.get_value());
     expr val_type = checker.check(d.get_value(), d.get_univ_params());
     if (!checker.is_def_eq(val_type, d.get_type())) {
         throw definition_type_mismatch_exception(env, d, val_type);
@@ -764,7 +758,7 @@ static void check_definition(environment const & env, declaration const & d, old
 }
 
 static void check_decl_type(environment const & env, declaration const & d, old_type_checker & checker) {
-    check_no_mlocal(env, d.get_name(), d.get_type(), true);
+    check_no_mlocal(env, d.get_name(), d.get_type());
     check_name(env, d.get_name());
     check_duplicated_params(env, d);
     expr sort = checker.check(d.get_type(), d.get_univ_params());
@@ -797,7 +791,7 @@ certified_declaration check(environment const & env, declaration const & d) {
 
 certified_declaration certify_unchecked::certify(environment const & env, declaration const & d) {
     if (env.trust_lvl() == 0)
-        throw_kernel_exception(env, "environment trust level does not allow users to add declarations that were not type checked");
+        throw kernel_exception(env, "environment trust level does not allow users to add declarations that were not type checked");
     return certified_declaration(env.get_id(), d);
 }
 

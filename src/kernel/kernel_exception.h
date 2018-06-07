@@ -6,21 +6,32 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/environment.h"
-#include "kernel/ext_exception.h"
-#include "kernel/scope_pos_info_provider.h"
+#include "kernel/local_ctx.h"
 
 namespace lean {
-class environment;
 /** \brief Base class for all kernel exceptions. */
-class kernel_exception : public ext_exception {
+class kernel_exception : public exception {
 protected:
     environment m_env;
 public:
-    kernel_exception(environment const & env):m_env(env) {}
-    kernel_exception(environment const & env, char const * msg):ext_exception(msg), m_env(env) {}
-    kernel_exception(environment const & env, sstream const & strm):ext_exception(strm), m_env(env) {}
+    kernel_exception(environment const & env):exception("kernel exception"), m_env(env) {}
+    kernel_exception(environment const & env, char const * msg):exception(msg), m_env(env) {}
+    kernel_exception(environment const & env, sstream const & strm):exception(strm), m_env(env) {}
     environment const & get_environment() const { return m_env; }
-    virtual format pp(formatter const & fmt) const override;
+};
+
+class unknown_declaration_exception : public kernel_exception {
+    name m_name;
+public:
+    unknown_declaration_exception(environment const & env, name const & n):kernel_exception(env), m_name(n) {}
+    name const & get_name() const { return m_name; }
+};
+
+class already_declared_exception : public kernel_exception {
+    name m_name;
+public:
+    already_declared_exception(environment const & env, name const & n):kernel_exception(env), m_name(n) {}
+    name const & get_name() const { return m_name; }
 };
 
 class definition_type_mismatch_exception : public kernel_exception {
@@ -28,20 +39,88 @@ class definition_type_mismatch_exception : public kernel_exception {
     expr m_given_type;
 public:
     definition_type_mismatch_exception(environment const & env, declaration const & decl, expr const & given_type):
-            kernel_exception(env), m_decl(decl), m_given_type(given_type) {}
+        kernel_exception(env), m_decl(decl), m_given_type(given_type) {}
+    declaration const & get_declaration() const { return m_decl; }
     expr const & get_given_type() const { return m_given_type; }
-    virtual optional<pos_info> get_pos() const override { return get_pos_info(m_decl.get_value()); }
-    virtual format pp(formatter const & fmt) const override;
 };
 
-[[ noreturn ]] void throw_kernel_exception(environment const & env, char const * msg, optional<expr> const & m = none_expr());
-[[ noreturn ]] void throw_kernel_exception(environment const & env, sstream const & strm, optional<expr> const & m = none_expr());
-[[ noreturn ]] void throw_kernel_exception(environment const & env, char const * msg, expr const & m);
-[[ noreturn ]] void throw_kernel_exception(environment const & env, sstream const & strm, expr const & m);
-[[ noreturn ]] void throw_kernel_exception(environment const & env, char const * msg, optional<expr> const & m, pp_fn const & fn);
-[[ noreturn ]] void throw_kernel_exception(environment const & env, optional<expr> const & m, pp_fn const & fn);
-[[ noreturn ]] void throw_kernel_exception(environment const & env, char const * msg, expr const & m, pp_fn const & fn);
-[[ noreturn ]] void throw_kernel_exception(environment const & env, expr const & m, pp_fn const & fn);
-[[ noreturn ]] void throw_unknown_declaration(environment const & env, name const & n);
-[[ noreturn ]] void throw_already_declared(environment const & env, name const & n);
+class declaration_has_metavars_exception : public kernel_exception {
+    name m_name;
+    expr m_expr;
+public:
+    declaration_has_metavars_exception(environment const & env, name const & n, expr const & e):
+        kernel_exception(env), m_name(n), m_expr(e) {}
+    name const & get_decl_name() const { return m_name; }
+    expr const & get_expr() const { return m_expr; }
+};
+
+class declaration_has_free_vars_exception : public kernel_exception {
+    name m_name;
+    expr m_expr;
+public:
+    declaration_has_free_vars_exception(environment const & env, name const & n, expr const & e):
+        kernel_exception(env), m_name(n), m_expr(e) {}
+    name const & get_decl_name() const { return m_name; }
+    expr const & get_expr() const { return m_expr; }
+};
+
+class kernel_exception_with_lctx : public kernel_exception {
+    local_ctx m_lctx;
+public:
+    kernel_exception_with_lctx(environment const & env, local_ctx const & lctx):
+        kernel_exception(env), m_lctx(lctx) {}
+    local_ctx const & get_local_ctx() const { return m_lctx; }
+};
+
+class function_expected_exception : public kernel_exception_with_lctx {
+    expr m_fn;
+public:
+    function_expected_exception(environment const & env, local_ctx const & lctx, expr const & fn):
+        kernel_exception_with_lctx(env, lctx), m_fn(fn) {}
+    expr const & get_fn() const { return m_fn; }
+};
+
+class type_expected_exception : public kernel_exception_with_lctx {
+    expr m_type;
+public:
+    type_expected_exception(environment const & env, local_ctx const & lctx, expr const & type):
+        kernel_exception_with_lctx(env, lctx), m_type(type) {}
+    expr const & get_type() const { return m_type; }
+};
+
+class type_mismatch_exception : public kernel_exception_with_lctx {
+    expr m_given_type;
+    expr m_expected_type;
+public:
+    type_mismatch_exception(environment const & env, local_ctx const & lctx, expr const & given_type, expr const & expected_type):
+        kernel_exception_with_lctx(env, lctx), m_given_type(given_type), m_expected_type(expected_type) {}
+    expr const & get_given_type() const { return m_given_type; }
+    expr const & get_expected_type() const { return m_expected_type; }
+};
+
+class def_type_mismatch_exception : public type_mismatch_exception {
+    name m_name;
+public:
+    def_type_mismatch_exception(environment const & env, local_ctx const & lctx, name const & n, expr const & given_type, expr const & expected_type):
+        type_mismatch_exception(env, lctx, given_type, expected_type), m_name(n) {}
+    name const & get_name() const { return m_name; }
+};
+
+class expr_type_mismatch_exception : public kernel_exception_with_lctx {
+    expr m_expr;
+    expr m_expected_type;
+public:
+    expr_type_mismatch_exception(environment const & env, local_ctx const & lctx, expr const & e, expr const & expected_type):
+        kernel_exception_with_lctx(env, lctx), m_expr(e), m_expected_type(expected_type) {}
+    expr const & get_expr() const { return m_expr; }
+    expr const & get_expected_type() const { return m_expected_type; }
+};
+
+class app_type_mismatch_exception : public kernel_exception_with_lctx {
+    expr m_app;
+public:
+    app_type_mismatch_exception(environment const & env, local_ctx const & lctx, expr const & app):
+        kernel_exception_with_lctx(env, lctx), m_app(app) {}
+    expr const & get_app() const { return m_app; }
+};
 }

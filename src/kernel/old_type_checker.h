@@ -43,7 +43,7 @@ class old_type_checker : public abstract_type_context {
     pair<expr, expr> open_binding_body(expr const & e);
     expr ensure_sort_core(expr e, expr const & s);
     expr ensure_pi_core(expr e, expr const & s);
-    void check_level(level const & l, expr const & s);
+    void check_level(level const & l);
     expr infer_constant(expr const & e, bool infer_only);
     expr infer_macro(expr const & e, bool infer_only);
     expr infer_lambda(expr const & e, bool infer_only);
@@ -140,8 +140,8 @@ public:
 
 typedef std::shared_ptr<old_type_checker> old_type_checker_ref;
 
-void check_no_metavar(environment const & env, name const & n, expr const & e, bool is_type);
-void check_no_mlocal(environment const & env, name const & n, expr const & e, bool is_type);
+void check_no_metavar(environment const & env, name const & n, expr const & e);
+void check_no_mlocal(environment const & env, name const & n, expr const & e);
 void check_decl_type(environment const & env, declaration const & d);
 void check_decl_value(environment const & env, declaration const & d);
 

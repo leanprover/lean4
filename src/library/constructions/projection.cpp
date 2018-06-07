@@ -91,13 +91,14 @@ public:
         expr const & I = get_app_args(s_t, I_args);
         if (!is_constant(I)) {
             // remark: this is not an issue since this macro should not be used during elaboration.
-            throw_kernel_exception(env, sstream() << "projection macros do not support arbitrary terms "
-                                   << "containing metavariables yet (solution: use trust-level 0)", m);
+            throw kernel_exception(env,
+                                   "projection macros do not support arbitrary terms "
+                                   "containing metavariables yet (solution: use trust-level 0)");
         }
 
         if (length(const_levels(I)) != length(m_ps))
-            throw_kernel_exception(env, sstream() << "invalid projection application '" << m_proj_name
-                                   << "', incorrect number of universe parameters", m);
+            throw kernel_exception(env, sstream() << "invalid projection application '" << m_proj_name
+                                   << "', incorrect number of universe parameters");
         expr t = instantiate_univ_params(m_type, m_ps, const_levels(I));
         I_args.push_back(s);
         return instantiate_rev(t, I_args.size(), I_args.data());

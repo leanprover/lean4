@@ -1,0 +1,13 @@
+#!/bin/bash
+set -euo pipefail
+
+# exit on existing commit message
+[[ -z "$2" ]] || exit 0
+
+diff=$(git diff --staged --stat | head -n -1)
+[[ $(echo "$diff" | wc -l) == 1 ]] || exit 0
+
+file=$(echo "$diff" | cut -f 2 -d' ')
+orig=$(cat "$1")
+echo "feat($file):" > $1
+echo "$orig" >> $1

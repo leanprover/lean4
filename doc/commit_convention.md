@@ -76,3 +76,16 @@ but contains
 The compiler does not generate an error message. It silently uses the
 operator bool() to coerce the expression into a Boolean. This produces
 counter-intuitive behavior, and may confuse developers.
+
+"Prepare commit message" git hook
+=================================
+
+Execute the following to activate a little script that tries to synthesize
+the first part of the commit message:
+
+```bash
+ln -s script/prepare-commit-msg .git/hooks
+```
+
+Currently, if just a single file has changed, the hook will use it for the scope
+and default the change type to "feat".

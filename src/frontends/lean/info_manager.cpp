@@ -203,7 +203,7 @@ vm_obj tactic_save_info_thunk(vm_obj const & pos, vm_obj const & thunk, vm_obj c
         }
         return tactic::mk_success(tactic::to_state(s));
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, tactic::to_state(s));
+        return tactic::mk_exception(std::current_exception(), tactic::to_state(s));
     }
 }
 

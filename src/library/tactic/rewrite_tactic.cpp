@@ -93,7 +93,7 @@ static vm_obj rewrite_core(expr h, expr e, rewrite_cfg const & cfg, tactic_state
         type_context_old::transparency_scope scope(ctx, ensure_semireducible_mode(ctx.mode()));
         check(ctx, motive);
     } catch (exception & ex) {
-        throw nested_exception("rewrite tactic failed, motive is not type correct", ex);
+        throw nested_exception("rewrite tactic failed, motive is not type correct", std::current_exception());
     }
     expr prf           = mk_eq_rec(ctx, motive, mk_eq_refl(ctx, e), h);
     tactic_state new_s = set_mctx_goals(s, ctx.mctx(), append(cons(head(s.goals()), to_list(new_goals)), tail(s.goals())));

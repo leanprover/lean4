@@ -12,20 +12,20 @@ Author: Leonardo de Moura
 
 namespace lean {
 struct vm_throwable : public vm_external {
-    throwable * m_val;
-    vm_throwable(throwable const & ex):m_val(ex.clone()) {}
-    virtual ~vm_throwable() { delete m_val; }
+    std::exception_ptr m_val;
+    vm_throwable(std::exception_ptr const & ex):m_val(ex) {}
+    virtual ~vm_throwable() {}
     virtual void dealloc() override { delete this; }
-    virtual vm_external * ts_clone(vm_clone_fn const &) override { return new vm_throwable(*m_val); }
-    virtual vm_external * clone(vm_clone_fn const &) override { return new vm_throwable(*m_val); }
+    virtual vm_external * ts_clone(vm_clone_fn const &) override { return new vm_throwable(m_val); }
+    virtual vm_external * clone(vm_clone_fn const &) override { return new vm_throwable(m_val); }
 };
 
-throwable * to_throwable(vm_obj const & o) {
+std::exception_ptr const & to_throwable(vm_obj const & o) {
     lean_vm_check(dynamic_cast<vm_throwable*>(to_external(o)));
     return static_cast<vm_throwable*>(to_external(o))->m_val;
 }
 
-vm_obj to_obj(throwable const & ex) {
+vm_obj to_obj(std::exception_ptr const & ex) {
     return mk_vm_external(new vm_throwable(ex));
 }
 
@@ -33,26 +33,30 @@ vm_obj to_obj(throwable const & ex) {
     1) throwable -> options -> format
     2) throwable -> unit -> format */
 vm_obj throwable_to_format(vm_obj const & _ex, vm_obj const & _opts) {
-    throwable * ex = to_throwable(_ex);
+    std::exception_ptr const & ex = to_throwable(_ex);
     if (!ex)
         return to_obj(format("null-exception"));
 
-    if (auto kex = dynamic_cast<ext_exception*>(ex)) {
+    try {
+        std::rethrow_exception(ex);
+    } catch (ext_exception & ex) {
         if (is_simple(_opts)) {
             io_state_stream ios = tout();
             formatter fmt = ios.get_formatter();
-            return to_obj(kex->pp(fmt));
+            return to_obj(ex.pp(fmt));
         } else {
             options opts = to_options(_opts);
             scope_trace_env scope1(opts);
             io_state_stream ios = tout();
             formatter fmt = ios.get_formatter();
-            return to_obj(kex->pp(fmt));
+            return to_obj(ex.pp(fmt));
         }
-    } else if (auto fex = dynamic_cast<formatted_exception*>(ex)) {
-        return to_obj(fex->pp());
-    } else {
-        return to_obj(format(ex->what()));
+    } catch (formatted_exception & ex) {
+        return to_obj(ex.pp());
+    } catch (std::exception & ex) {
+        return to_obj(format(ex.what()));
+    } catch (...) {
+        return to_obj(format("unknown-exception"));
     }
 }
 
@@ -66,7 +70,7 @@ vm_obj mk_vm_exceptional_success(vm_obj const & a) {
     return mk_vm_constructor(0, a);
 }
 
-vm_obj mk_vm_exceptional_exception(throwable const & ex) {
+vm_obj mk_vm_exceptional_exception(std::exception_ptr const & ex) {
     vm_obj _ex = to_obj(ex);
     return mk_vm_constructor(1, mk_vm_closure(g_throwable_to_format_fun_idx, 1, &_ex));
 }

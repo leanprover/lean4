@@ -70,7 +70,7 @@ vm_obj tactic_kdepends_on(vm_obj const & e, vm_obj const & t, vm_obj const & md,
         type_context_old ctx = mk_type_context_for(s, md);
         return tactic::mk_success(mk_vm_bool(kdepends_on(ctx, to_expr(e), to_expr(t))), tactic::to_state(s));
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, tactic::to_state(s));
+        return tactic::mk_exception(std::current_exception(), tactic::to_state(s));
     }
 }
 
@@ -81,7 +81,7 @@ vm_obj tactic_kabstract(vm_obj const & e, vm_obj const & t, vm_obj const & md, v
         auto a = kabstract(ctx, to_expr(e), to_expr(t), occurrences(), to_bool(u));
         return tactic::mk_success(to_obj(a), set_mctx(s, ctx.mctx()));
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 

@@ -261,7 +261,7 @@ local_context erase_inaccessible_annotations(local_context const & lctx) {
     return r;
 }
 
-static void throw_mk_aux_definition_error(local_context const & lctx, name const & c, expr const & type, expr const & value, exception & ex) {
+static void throw_mk_aux_definition_error(local_context const & lctx, name const & c, expr const & type, expr const & value, std::exception_ptr const & ex) {
     sstream strm;
     strm << "equation compiler failed to create auxiliary declaration '" << c << "'";
     if (contains_let_local_decl(lctx, type) || contains_let_local_decl(lctx, value)) {
@@ -277,7 +277,7 @@ void compile_aux_definition(environment & env, equations_header const & header, 
         } catch (exception & ex) {
             if (!header.m_prev_errors) {
                 throw nested_exception(sstream() << "equation compiler failed to generate bytecode for "
-                                       << "auxiliary declaration '" << user_name << "'", ex);
+                                       << "auxiliary declaration '" << user_name << "'", std::current_exception());
             }
         }
     }
@@ -305,7 +305,7 @@ pair<environment, expr> mk_aux_definition(environment const & env, options const
             mk_aux_lemma(new_env, mctx, lctx, new_c, new_type, new_value) :
             mk_aux_definition(new_env, mctx, lctx, new_c, new_type, new_value);
     } catch (exception & ex) {
-        throw_mk_aux_definition_error(lctx, c, new_type, new_value, ex);
+        throw_mk_aux_definition_error(lctx, c, new_type, new_value, std::current_exception());
     }
     compile_aux_definition(new_env, header, c, new_c);
     return mk_pair(new_env, r);
@@ -362,7 +362,7 @@ static environment add_equation_lemma(environment const & env, options const & o
             new_env = mark_rfl_lemma(new_env, new_eqn_name);
         new_env = add_eqn_lemma(new_env, new_eqn_name);
     } catch (exception & ex) {
-        throw_mk_aux_definition_error(lctx, eqn_name, new_type, new_value, ex);
+        throw_mk_aux_definition_error(lctx, eqn_name, new_type, new_value, std::current_exception());
     }
     return new_env;
 }
@@ -1069,7 +1069,7 @@ environment mk_smart_unfolding_definition(environment const & env, options const
         auto cdef       = check(env, def);
         return module::add(env, cdef);
     } catch (exception & ex) {
-        throw nested_exception("failed to generate helper declaration for smart unfolding, type error", ex);
+        throw nested_exception("failed to generate helper declaration for smart unfolding, type error", std::current_exception());
     }
 }
 

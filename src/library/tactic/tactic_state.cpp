@@ -387,7 +387,7 @@ vm_obj tactic_infer_type(vm_obj const & e, vm_obj const & s0) {
         check_closed("infer_type", to_expr(e));
         return tactic::mk_success(to_obj(ctx.infer(to_expr(e))), s);
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 
@@ -403,7 +403,7 @@ vm_obj tactic_whnf(vm_obj const & e, vm_obj const & t, vm_obj const & unfold_gin
             return tactic::mk_success(to_obj(whnf_ginductive_gintro_rule(ctx, to_expr(e))), s);
         }
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 
@@ -415,7 +415,7 @@ vm_obj tactic_head_eta_expand(vm_obj const & e, vm_obj const & s0) {
         check_closed("head_eta_expand", to_expr(e));
         return tactic::mk_success(to_obj(ctx.eta_expand(to_expr(e))), s);
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 
@@ -424,7 +424,7 @@ vm_obj tactic_head_eta(vm_obj const & e, vm_obj const & s0) {
     try {
         return tactic::mk_success(to_obj(try_eta(to_expr(e))), s);
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 
@@ -433,7 +433,7 @@ vm_obj tactic_head_beta(vm_obj const & e, vm_obj const & s0) {
     try {
         return tactic::mk_success(to_obj(annotated_head_beta_reduce(to_expr(e))), s);
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 
@@ -450,7 +450,7 @@ vm_obj tactic_head_zeta(vm_obj const & e0, vm_obj const & s0) {
         if (!ldecl || !ldecl->get_value()) return tactic::mk_success(e0, s);
         return tactic::mk_success(to_obj(*ldecl->get_value()), s);
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 
@@ -464,7 +464,7 @@ vm_obj tactic_zeta(vm_obj const & e0, vm_obj const & s0) {
         local_context lctx = mdecl->get_context();
         return tactic::mk_success(to_obj(zeta_expand(lctx, e)), s);
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 
@@ -476,7 +476,7 @@ vm_obj tactic_is_class(vm_obj const & e, vm_obj const & s0) {
         check_closed("is_class", to_expr(e));
         return tactic::mk_success(mk_vm_bool(static_cast<bool>(ctx.is_class(to_expr(e)))), s);
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 
@@ -498,7 +498,7 @@ vm_obj tactic_mk_instance(vm_obj const & e, vm_obj const & s0) {
             return tactic::mk_exception(thunk, s);
         }
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 
@@ -539,7 +539,7 @@ vm_obj tactic_unify(vm_obj const & e1, vm_obj const & e2, vm_obj const & t, vm_o
                                       to_expr(e1), to_expr(e2), s);
         }
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 
@@ -560,7 +560,7 @@ vm_obj tactic_is_def_eq(vm_obj const & e1, vm_obj const & e2, vm_obj const & t, 
                                       to_expr(e1), to_expr(e2), s);
         }
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 
@@ -717,7 +717,7 @@ vm_obj tactic_add_decl(vm_obj const & _d, vm_obj const & _s) {
         new_env = vm_compile(new_env, d);
          return tactic::mk_success(set_env(s, new_env));
     } catch (throwable & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 
@@ -753,7 +753,7 @@ vm_obj tactic_add_doc_string(vm_obj const & n, vm_obj const & doc, vm_obj const 
         environment new_env = add_doc_string(s.env(), to_name(n), to_string(doc));
         return tactic::mk_success(set_env(s, new_env));
     } catch (throwable & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 
@@ -821,7 +821,7 @@ vm_obj tactic_add_aux_decl(vm_obj const & n, vm_obj const & type, vm_obj const &
             : mk_aux_definition(s.env(), s.mctx(), g->get_context(), to_name(n), to_expr(type), to_expr(val));
         return tactic::mk_success(to_obj(r.second), set_env(s, r.first));
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 
@@ -832,7 +832,7 @@ vm_obj tactic_unsafe_run_io(vm_obj const &, vm_obj const & a, vm_obj const & s) 
     } else {
         optional<vm_obj> e = is_io_error(r);
         lean_assert(e);
-        return tactic::mk_exception(io_error_to_string(*e), tactic::to_state(s));
+        return tactic::mk_exception(format(io_error_to_string(*e)), tactic::to_state(s));
     }
 }
 
@@ -906,7 +906,7 @@ vm_obj tactic_using_new_ref(vm_obj const &, vm_obj const &, vm_obj const & a, vm
             return r;
         }
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 
@@ -920,7 +920,7 @@ vm_obj tactic_read_ref(vm_obj const &, vm_obj const & ref, vm_obj const & s0) {
         vm_obj r = us.read(cidx(ref));
         return tactic::mk_success(r, s);
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 
@@ -935,7 +935,7 @@ vm_obj tactic_write_ref(vm_obj const &, vm_obj const & ref, vm_obj const & v, vm
         s = set_user_state(s, us);
         return tactic::mk_success(s);
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 
@@ -958,7 +958,7 @@ vm_obj tactic_type_check(vm_obj const & e, vm_obj const & m, vm_obj const & s0) 
         check(ctx, to_expr(e));
         return tactic::mk_success(s);
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 

@@ -59,7 +59,7 @@ vm_obj clear(expr const & H, tactic_state const & s) {
         expr new_mvar        = clear(mctx, *mvar, H);
         return tactic::mk_success(set_mctx_goals(s, mctx, cons(new_mvar, tail(s.goals()))));
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 

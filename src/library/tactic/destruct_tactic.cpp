@@ -166,7 +166,7 @@ vm_obj tactic_destruct(vm_obj const & e, vm_obj const & md, vm_obj const & _s) {
         tactic_state new_s = destruct(to_transparency_mode(md), to_expr(e), s);
         return tactic::mk_success(new_s);
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 

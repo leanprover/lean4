@@ -30,8 +30,6 @@ public:
     virtual ~generic_kernel_exception() noexcept {}
     virtual optional<pos_info> get_pos() const override { return m_pos; }
     virtual format pp(formatter const & fmt) const override { return m_pp_fn(fmt); }
-    virtual throwable * clone() const override { return new generic_kernel_exception(m_env, m_msg.c_str(), m_pos, m_pp_fn); }
-    virtual void rethrow() const override { throw *this; }
 };
 
 [[ noreturn ]] void throw_kernel_exception(environment const & env, char const * msg, optional<expr> const & m) {

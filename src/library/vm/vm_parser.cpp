@@ -41,7 +41,7 @@ typedef interaction_monad<lean_parser_state> lean_parser;
 
 #define TRY try {
 #define CATCH } catch (break_at_pos_exception const & ex) { throw; }\
-                catch (exception const & ex) { return lean_parser::mk_exception(ex, s); }
+    catch (exception const & ex) { return lean_parser::mk_exception(std::current_exception(), s); }
 
 vm_obj run_parser(parser & p, expr const & spec, buffer<vm_obj> const & args) {
     type_context_old ctx(p.env(), p.get_options());
@@ -314,7 +314,7 @@ static vm_obj vm_parser_of_tactic(vm_obj const &, vm_obj const & tac, vm_obj con
             return lean_parser::update_exception_state(r, s);
         }
     } catch (exception & ex) {
-        return lean_parser::mk_exception(ex, s);
+        return lean_parser::mk_exception(std::current_exception(), s);
     }
 }
 

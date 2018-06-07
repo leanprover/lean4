@@ -9,27 +9,31 @@ Author: Leonardo de Moura
 #include "library/tactic/elaborator_exception.h"
 
 namespace lean {
-throwable * elaborator_exception::clone() const {
-    return new elaborator_exception(m_pos, m_fmt);
-}
-
 format failed_to_synthesize_placeholder_exception::pp() const {
     return m_fmt + line() + format("context:") + line() + m_state.pp();
 }
 
-throwable * nested_elaborator_exception::clone() const {
-    return new nested_elaborator_exception(m_pos, m_fmt, m_exception);
-}
-
 optional<pos_info> nested_elaborator_exception::get_pos() const {
-    if (auto r = m_exception->get_pos()) return r;
-    else return m_pos;
+    try {
+        std::rethrow_exception(m_exception);
+    } catch (elaborator_exception & ex) {
+        if (auto r = ex.get_pos())
+            return r;
+    } catch (...) {
+    }
+    return m_pos;
 }
 
 format nested_elaborator_exception::pp() const {
-    format r = m_exception->pp();
-    if (dynamic_cast<nested_elaborator_exception*>(m_exception.get()) == nullptr) {
+    format r;
+    try {
+        std::rethrow_exception(m_exception);
+    } catch (nested_elaborator_exception & ex) {
+        r = ex.pp();
+    } catch (elaborator_exception & ex) {
+        r = ex.pp();
         r += line() + format("Additional information:");
+    } catch (...) {
     }
     pos_info_provider * pip = get_pos_info_provider();
     r += line();

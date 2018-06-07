@@ -33,8 +33,6 @@ struct cases_tactic_exception : public ext_exception {
         m_s(s), m_msg(msg) {}
 
     virtual format pp(formatter const &) const override { return m_msg(); }
-    virtual throwable * clone() const override { return new cases_tactic_exception(m_s, m_msg); }
-    virtual void rethrow() const override { throw cases_tactic_exception(m_s, m_msg); }
 };
 
 struct cases_tactic_fn {
@@ -671,9 +669,9 @@ vm_obj tactic_cases_core(vm_obj const & H, vm_obj const & ns, vm_obj const & m, 
         }
         return tactic::mk_success(to_obj(info_objs), set_mctx_goals(s, mctx, append(info.first, tail(s.goals()))));
     } catch (cases_tactic_exception & ex) {
-        return tactic::mk_exception(ex, ex.m_s);
+        return tactic::mk_exception(std::current_exception(), ex.m_s);
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 

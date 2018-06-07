@@ -127,7 +127,7 @@ struct wf_rec_fn {
             } catch (exception & ex) {
                 throw nested_exception(some_expr(m_ref),
                                        "failed to create well founded relation using tactic",
-                                       ex);
+                                       std::current_exception());
             }
         }
     }
@@ -186,7 +186,7 @@ struct wf_rec_fn {
                     return mk_app(m_ctx, get_wf_term_hack_name(), *m_parent.m_has_well_founded_inst, y, m_x);
                 } catch (exception & ex) {
                     throw nested_exception("failed to use wf_term_hack axiom",
-                                           ex);
+                                           std::current_exception());
                 }
             } else {
                 expr y_R_x = mk_app(m_parent.m_R, y, m_x);
@@ -229,7 +229,7 @@ struct wf_rec_fn {
                             r += line() + format("The nested exception contains the failure state for the decreasing tactic.");
                             return r;
                         },
-                        ex);
+                        std::current_exception());
                     if (!m_parent.m_elab.try_report(ex2)) throw ex2;
                 }
                 return m_parent.m_elab.mk_sorry(y_R_x);

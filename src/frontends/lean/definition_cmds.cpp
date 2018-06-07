@@ -192,7 +192,7 @@ static certified_declaration check(parser & p, environment const & env, name con
             msg += line() + format("elaborated value:");
             msg += nest(i, line() + pp_fn(d.get_value()));
         }
-        throw nested_exception(msg, ex);
+        throw nested_exception(msg, std::current_exception());
     }
 }
 

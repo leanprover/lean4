@@ -270,7 +270,7 @@ vm_obj tactic_apply_core(vm_obj const & e, vm_obj const & cfg0, vm_obj const & s
             return error_obj;
         return tactic::mk_success(new_metas, *new_s);
     } catch(exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 

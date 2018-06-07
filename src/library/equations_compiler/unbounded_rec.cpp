@@ -196,7 +196,7 @@ eqn_compiler_result unbounded_rec(environment & env, elaborator & elab,
             ss << "equation compiler failed to generate bytecode for";
             for (name const & n : header.m_fn_names)
                 ss << " '" << n << "'";
-            throw nested_exception(ss, ex);
+            throw nested_exception(ss, std::current_exception());
         }
 
         return { to_list(result_fns), to_list(counter_examples) };

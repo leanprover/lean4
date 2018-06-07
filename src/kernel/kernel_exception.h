@@ -21,8 +21,6 @@ public:
     kernel_exception(environment const & env, sstream const & strm):ext_exception(strm), m_env(env) {}
     environment const & get_environment() const { return m_env; }
     virtual format pp(formatter const & fmt) const override;
-    virtual throwable * clone() const override { return new kernel_exception(m_env, m_msg.c_str()); }
-    virtual void rethrow() const override { throw *this; }
 };
 
 class definition_type_mismatch_exception : public kernel_exception {
@@ -34,8 +32,6 @@ public:
     expr const & get_given_type() const { return m_given_type; }
     virtual optional<pos_info> get_pos() const override { return get_pos_info(m_decl.get_value()); }
     virtual format pp(formatter const & fmt) const override;
-    virtual throwable * clone() const override { return new definition_type_mismatch_exception(m_env, m_decl, m_given_type); }
-    virtual void rethrow() const override { throw *this; }
 };
 
 [[ noreturn ]] void throw_kernel_exception(environment const & env, char const * msg, optional<expr> const & m = none_expr());

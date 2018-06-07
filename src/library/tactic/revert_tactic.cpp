@@ -44,7 +44,7 @@ vm_obj revert(list<expr> const & ls, tactic_state const & s, bool preserve_local
         tactic_state new_s = revert(locals, s, preserve_locals_order);
         return tactic::mk_success(mk_vm_nat(locals.size()), new_s);
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 

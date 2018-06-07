@@ -1251,7 +1251,7 @@ vm_obj tactic_simplify(vm_obj const & slss, vm_obj const & u, vm_obj const & e, 
             return tactic::mk_exception("simplify tactic failed to simplify", s);
         }
     } catch (exception & e) {
-        return tactic::mk_exception(e, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 
@@ -1274,7 +1274,7 @@ static vm_obj ext_simplify_core(vm_obj const & a, vm_obj const & c, simp_lemmas 
             return tactic::mk_exception("simplify tactic failed to simplify", s);
         }
     } catch (exception & e) {
-        return tactic::mk_exception(e, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 

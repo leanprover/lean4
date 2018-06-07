@@ -156,12 +156,16 @@ vm_obj interaction_monad<State>::update_exception_state(vm_obj const & ex, State
 }
 
 template<typename State>
-vm_obj interaction_monad<State>::mk_exception(throwable const & ex, State const & s) {
+vm_obj interaction_monad<State>::mk_exception(std::exception_ptr const & ex, State const & s) {
     vm_obj _ex = lean::to_obj(ex);
     vm_obj fn = mk_vm_closure(get_throwable_to_format_fun_idx(), 1, &_ex);
     optional<pos_info> pos;
-    if (auto kex = dynamic_cast<exception_with_pos const *>(&ex))
-        pos = kex->get_pos();
+    try {
+        std::rethrow_exception(ex);
+    } catch (exception_with_pos & ex) {
+        pos = ex.get_pos();
+    } catch (...) {
+    }
     vm_obj _pos = pos ? mk_vm_some(mk_vm_pair(mk_vm_nat(pos->first), mk_vm_nat(pos->second))) : mk_vm_none();
     return mk_exception(fn, _pos, s);
 }

@@ -26,7 +26,5 @@ public:
     virtual optional<pos_info> get_pos() const override { return some(m_pos); }
     std::string const & get_file_name() const { return m_fname; }
     std::string const & get_msg() const { return m_msg; }
-    virtual throwable * clone() const override { return new parser_exception(m_msg, m_fname.c_str(), m_pos); }
-    virtual void rethrow() const override { throw *this; }
 };
 }

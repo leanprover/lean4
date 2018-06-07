@@ -64,7 +64,7 @@ vm_obj environment_add(vm_obj const & env, vm_obj const & decl) {
     try {
         return mk_vm_exceptional_success(to_obj(module::add(to_env(env), check(to_env(env), to_declaration(decl)))));
     } catch (throwable & ex) {
-        return mk_vm_exceptional_exception(ex);
+        return mk_vm_exceptional_exception(std::current_exception());
     }
 }
 
@@ -72,7 +72,7 @@ vm_obj environment_get(vm_obj const & env, vm_obj const & n) {
     try {
         return mk_vm_exceptional_success(to_obj(to_env(env).get(to_name(n))));
     } catch (throwable & ex) {
-        return mk_vm_exceptional_exception(ex);
+        return mk_vm_exceptional_exception(std::current_exception());
     }
 }
 
@@ -97,7 +97,7 @@ vm_obj environment_add_inductive(vm_obj const & env, vm_obj const & n, vm_obj co
                                                     !to_bool(is_meta));
         return mk_vm_exceptional_success(to_obj(new_env));
     } catch (throwable & ex) {
-        return mk_vm_exceptional_exception(ex);
+        return mk_vm_exceptional_exception(std::current_exception());
     }
 }
 

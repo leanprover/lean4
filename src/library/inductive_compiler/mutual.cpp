@@ -897,7 +897,7 @@ public:
         try {
             m_env = add_inner_inductive_declaration(m_env, m_ngen, m_opts, m_implicit_infer_map, m_basic_decl, m_is_meta);
         } catch (exception & ex) {
-            throw nested_exception(sstream() << "mutually inductive types compiled to invalid basic inductive type", ex);
+            throw nested_exception(sstream() << "mutually inductive types compiled to invalid basic inductive type", std::current_exception());
         }
 
         define_ind_types();

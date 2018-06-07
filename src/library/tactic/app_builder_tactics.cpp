@@ -22,7 +22,7 @@ vm_obj tactic_mk_app(vm_obj const & c, vm_obj const & as, vm_obj const & tmode, 
         expr r                 = mk_app(ctx, to_name(c), args.size(), args.data());
         return tactic::mk_success(to_obj(r), s);
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 
@@ -33,7 +33,7 @@ vm_obj tactic_mk_app(vm_obj const & c, vm_obj const & as, vm_obj const & tmode, 
         expr r = CODE;                                                  \
         return tactic::mk_success(to_obj(r), s);                         \
     } catch (exception & ex) {                                          \
-        return tactic::mk_exception(ex, s);                              \
+        return tactic::mk_exception(std::current_exception(), s);     \
     }                                                                   \
 }
 
@@ -89,7 +89,7 @@ vm_obj tactic_mk_mapp(vm_obj const & c, vm_obj const & as, vm_obj const & tmode,
         expr r = mk_app(ctx, to_name(c), mask.size(), mask.data(), args.data());
         return tactic::mk_success(to_obj(r), s);
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 

@@ -44,12 +44,12 @@ static vm_obj eval(expr const & A, expr a, tactic_state const & s) {
         } catch (kernel_exception & ex) {
             /* We use nested_exception_without_pos to make sure old position information nested in 'a' is not used
                in type error messages. */
-            return tactic::mk_exception(nested_exception_without_pos("eval_expr failed", ex), s);
+            return tactic::mk_exception(std::make_exception_ptr(nested_exception_without_pos("eval_expr failed", std::current_exception())), s);
         }
         try {
             aux_env = vm_compile(aux_env, aux_env.get(eval_aux_name));
         } catch (exception & ex) {
-            return tactic::mk_exception(nested_exception_without_pos("eval_expr failed to compile given expression into bytecode", ex), s);
+            return tactic::mk_exception(std::make_exception_ptr(nested_exception_without_pos("eval_expr failed to compile given expression into bytecode", std::current_exception())), s);
         }
         S.update_env(aux_env);
         /*

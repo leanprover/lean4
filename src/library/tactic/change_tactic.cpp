@@ -43,7 +43,7 @@ vm_obj change_core(expr const & e, bool check, tactic_state const & s) {
             return tactic::mk_exception(thunk, s);
         }
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 

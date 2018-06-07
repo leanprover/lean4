@@ -26,7 +26,7 @@ static vm_obj generalize(transparency_mode m, expr const & e, name const & id, t
     try {
         check(ctx, new_type);
     } catch (exception & ex) {
-        return tactic::mk_exception(nested_exception("generalize tactic failed, result is not type correct", ex), s);
+        return tactic::mk_exception(std::make_exception_ptr(nested_exception("generalize tactic failed, result is not type correct", std::current_exception())), s);
     }
     expr mvar     = ctx.mk_metavar_decl(g->get_context(), new_type);
     ctx.assign(head(s.goals()), mk_app(mvar, e));

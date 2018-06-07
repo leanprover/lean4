@@ -19,9 +19,8 @@ template<typename T>
 class worker_queue {
     typedef std::function<T()>                    task;
     typedef std::unique_ptr<interruptible_thread> thread_ptr;
-    typedef std::unique_ptr<throwable>            exception_ptr;
     std::vector<thread_ptr>    m_threads;
-    std::vector<exception_ptr> m_thread_exceptions;
+    std::vector<std::exception_ptr> m_thread_exceptions;
     std::vector<task>          m_todo;
     std::vector<T>             m_result;
     mutex                      m_result_mutex;
@@ -60,7 +59,7 @@ public:
         num_threads = 0;
 #endif
         for (unsigned i = 0; i < num_threads; i++)
-            m_thread_exceptions.push_back(exception_ptr(nullptr));
+            m_thread_exceptions.push_back(std::exception_ptr());
         for (unsigned i = 0; i < num_threads; i++) {
             m_threads.push_back(std::unique_ptr<interruptible_thread>(new interruptible_thread([=]() {
                             f();
@@ -70,11 +69,8 @@ public:
                                 }
                                 m_todo_cv.notify_all();
                             } catch (interrupted &) {
-                            } catch (throwable & ex) {
-                                m_thread_exceptions[i].reset(ex.clone());
-                                m_failed_thread = i;
                             } catch (...) {
-                                m_thread_exceptions[i].reset(new exception("thread failed for unknown reasons"));
+                                m_thread_exceptions[i] = std::current_exception();
                                 m_failed_thread = i;
                             }
                         })));
@@ -116,7 +112,7 @@ public:
                 throw;
             }
             if (m_failed_thread >= 0)
-                m_thread_exceptions[m_failed_thread]->rethrow();
+                std::rethrow_exception(m_thread_exceptions[m_failed_thread]);
             if (m_interrupted)
                 throw interrupted();
         }

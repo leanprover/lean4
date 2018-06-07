@@ -279,7 +279,7 @@ class add_nested_inductive_decl_fn {
         try {
             m_env = add_inner_inductive_declaration(m_env, m_ngen, m_opts, m_implicit_infer_map, m_inner_decl, m_is_meta);
         } catch (exception & ex) {
-            throw nested_exception(sstream() << "nested inductive type compiled to invalid inductive type", ex);
+            throw nested_exception(sstream() << "nested inductive type compiled to invalid inductive type", std::current_exception());
         }
         m_tctx.set_env(m_env);
     }
@@ -394,7 +394,7 @@ class add_nested_inductive_decl_fn {
             lean_trace(name({"inductive_compiler", "nested", "define", "success"}), tout() << n << " : " << ty << " :=\n  " << val << "\n";);
         } catch (exception & ex) {
             lean_trace(name({"inductive_compiler", "nested", "define", "failure"}), tout() << n << " : " << ty << " :=\n  " << val << "\n";);
-            throw nested_exception(sstream() << "error when adding '" << n << "' to the environment", ex);
+            throw nested_exception(sstream() << "error when adding '" << n << "' to the environment", std::current_exception());
         }
         m_tctx.set_env(m_env);
     }

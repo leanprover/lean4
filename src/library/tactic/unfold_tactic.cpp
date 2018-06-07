@@ -30,7 +30,7 @@ vm_obj tactic_unfold_projection(vm_obj const & _e, vm_obj const & m, vm_obj cons
             return tactic::mk_success(to_obj(*new_e), s);
         return tactic::mk_exception("unfold projection failed, failed to unfold", s);
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 
@@ -130,7 +130,7 @@ vm_obj tactic_dunfold(vm_obj const & cs, vm_obj const & _e, vm_obj const & _cfg,
             return tactic::mk_success(to_obj(new_e), new_s);
         }
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 
@@ -160,7 +160,7 @@ vm_obj tactic_dunfold_head(vm_obj const & _e, vm_obj const & m, vm_obj const & _
             return tactic::mk_exception("dunfold_expr failed, failed to unfold", s);
         }
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 

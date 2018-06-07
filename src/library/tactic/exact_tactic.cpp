@@ -50,7 +50,7 @@ static vm_obj exact(expr const & e, transparency_mode const & m, tactic_state s)
         auto mctx = ctx.mctx();
         return tactic::mk_success(set_mctx_goals(s, mctx, tail(s.goals())));
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 

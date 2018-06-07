@@ -50,7 +50,7 @@ struct interaction_monad {
     static vm_obj mk_exception(vm_obj const & fn, State const & s);
     static vm_obj mk_silent_exception(State const & s);
     static vm_obj mk_exception(vm_obj const & fn, vm_obj const & pos, State const & s);
-    static vm_obj mk_exception(throwable const & ex, State const & s);
+    static vm_obj mk_exception(std::exception_ptr const & ex, State const & s);
     static vm_obj mk_exception(format const & fmt, State const & s);
     static vm_obj mk_exception(char const * msg, State const & s);
     static vm_obj mk_exception(sstream const & strm, State const & s);

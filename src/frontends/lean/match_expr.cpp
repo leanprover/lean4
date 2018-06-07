@@ -79,7 +79,7 @@ expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
         }
     } catch (exception & ex) {
         consume_until_end_or_command(p);
-        ex.rethrow();
+        throw;
     }
     expr f = p.save_pos(mk_equations(header, eqns.size(), eqns.data()), pos);
     return p.mk_app(f, ts, pos);

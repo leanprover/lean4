@@ -1164,7 +1164,8 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
         return r;
     } catch (elaborator_exception & ex) {
         // TODO(gabriel): the additional information is not added in error-recovery mode
-        throw nested_elaborator_exception(ref, ex, format("the inferred motive for the eliminator-like application is") +
+        throw nested_elaborator_exception(ref, std::current_exception(),
+                                          format("the inferred motive for the eliminator-like application is") +
                                           pp_indent(motive));
     }
 }
@@ -1669,7 +1670,7 @@ expr elaborator::visit_base_app_core(expr const & fn, arg_mask amask, buffer<exp
         try {
             return visit_base_app_simple(fn, amask, args, args_already_visited, expected_type, ref);
         } catch (elaborator_exception & ex2) {
-            throw nested_elaborator_exception(ref, ex2,
+            throw nested_elaborator_exception(ref, std::current_exception(),
                                               format("switched to simple application elaboration procedure because "
                                                      "failed to use expected type to elaborate it, "
                                                      "error message") + nest(get_pp_indent(m_opts), line() + ex1.pp()));
@@ -1797,7 +1798,7 @@ expr elaborator::visit_overloaded_app_with_expected(buffer<expr> const & fns, bu
             msg += pp_indent(pp_fn, expected_type);
             msg += line() + format("this can happen because, for example, coercions were not considered in the process");
             msg += line() + mk_no_overload_applicable_msg(fns, error_msgs);
-            throw nested_elaborator_exception(ref, ex, msg);
+            throw nested_elaborator_exception(ref, std::current_exception(), msg);
         }
     }
 
@@ -1820,7 +1821,7 @@ expr elaborator::visit_overloaded_app_with_expected(buffer<expr> const & fns, bu
                 msg += line() + error_msg.pp();
             }
 
-            throw nested_elaborator_exception(ref, ex, msg);
+            throw nested_elaborator_exception(ref, std::current_exception(), msg);
         }
     }
 
@@ -1837,7 +1838,7 @@ expr elaborator::visit_overloaded_app_with_expected(buffer<expr> const & fns, bu
         msg += line() + format("the following overloaded terms were applicable");
         for (auto const & c : candidates)
             msg += pp_indent(pp_fn, std::get<0>(c));
-        throw nested_elaborator_exception(ref, ex, msg);
+        throw nested_elaborator_exception(ref, std::current_exception(), msg);
     }
 }
 
@@ -1854,7 +1855,7 @@ expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> con
         } catch (elaborator_exception & ex) {
             format msg = format("switched to basic overload resolution where arguments are elaborated without "
                                 "any information about the expected type because expected type was not available");
-            throw nested_elaborator_exception(ref, ex, msg);
+            throw nested_elaborator_exception(ref, std::current_exception(), msg);
         }
     }
 }
@@ -1990,7 +1991,7 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
                     try {
                         return visit_base_app(new_fn, amask, args, expected_type, ref);
                     } catch (elaborator_exception & ex) {
-                        throw nested_elaborator_exception(ref, ex,
+                        throw nested_elaborator_exception(ref, std::current_exception(),
                                                           format("'eliminator' elaboration was not used for '") +
                                                           pp(fn) + format("' because it is not fully applied, #") +
                                                           format(info->m_nexplicit) + format(" explicit arguments expected"));
@@ -2003,7 +2004,7 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
                     return visit_base_app(new_fn, amask, args, expected_type, ref);
                 } catch (elaborator_exception & ex) {
                     if (auto error_msg = m_elim_failure_info.find(const_name(new_fn))) {
-                        throw nested_elaborator_exception(ref, ex, *error_msg);
+                        throw nested_elaborator_exception(ref, std::current_exception(), *error_msg);
                     } else {
                         throw;
                     }
@@ -2222,7 +2223,7 @@ expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_ty
             throw nested_exception("invalid match/convoy expression, "
                                    "user did not provide type for the expression, "
                                    "lean tried to infer one using expected type information, "
-                                   "but result is not type correct", ex);
+                                   "but result is not type correct", std::current_exception());
         }
     } else {
         // User provided some typing information for the match
@@ -2836,10 +2837,11 @@ elaborator::field_resolution elaborator::find_field_fn(expr const & e, expr cons
         new_s_type = m_ctx.whnf_head_pred(new_s_type, [](expr const &) { return false; });
         if (new_s_type == s_type)
             throw;
+        std::exception_ptr ex1_ptr = std::current_exception();
         try {
             return find_field_fn(e, s, new_s_type);
         } catch (elaborator_exception & ex2) {
-            throw nested_elaborator_exception(ex2.get_pos(), ex1, ex2.pp());
+            throw nested_elaborator_exception(ex2.get_pos(), ex1_ptr, ex2.pp());
         }
     }
 }
@@ -4214,7 +4216,7 @@ vm_obj tactic_resolve_local_name(vm_obj const & vm_id, vm_obj const & vm_s) {
         bool ignore_aliases = false;
         return tactic::mk_success(to_obj(resolve_local_name(s.env(), g->get_context(), id, src, ignore_aliases, names())), s);
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 
@@ -4320,7 +4322,7 @@ static vm_obj tactic_save_type_info(vm_obj const &, vm_obj const & _e, vm_obj co
         else if (is_local(e))
             get_global_info_manager()->add_identifier_info(*pos, mlocal_pp_name(e));
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
     return tactic::mk_success(s);
 }

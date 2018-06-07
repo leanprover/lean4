@@ -19,24 +19,26 @@ generic_exception::generic_exception(optional<expr> const & m, char const * msg)
 optional<pos_info> nested_exception::get_pos() const {
     if (m_pos)
         return m_pos;
-    else if (ext_exception * ex = dynamic_cast<ext_exception *>(m_exception.get()))
-        return ex->get_pos();
-    else
-        return {};
+    try {
+        std::rethrow_exception(m_exception);
+    } catch (ext_exception & ex) {
+        return ex.get_pos();
+    } catch (...) {
+        return optional<pos_info>();
+    }
 }
 
 format nested_exception::pp(formatter const & fmt) const {
     format r = m_pp_fn(fmt);
     r += line() + format("nested exception message:") + line();
-    if (ext_exception * ex = dynamic_cast<ext_exception *>(m_exception.get())) {
-        r += ex->pp(fmt);
-    } else {
-        r += format(m_exception->what());
+    try {
+        std::rethrow_exception(m_exception);
+    } catch (ext_exception & ex) {
+        r += ex.pp(fmt);
+    } catch (std::exception & ex) {
+        r += format(ex.what());
+    } catch (...) {
     }
     return r;
-}
-
-throwable * nested_exception::clone() const {
-    return new nested_exception(m_pos, m_pp_fn, *m_exception);
 }
 }

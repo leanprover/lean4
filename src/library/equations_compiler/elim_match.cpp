@@ -779,7 +779,7 @@ struct elim_match_fn {
             lean_assert(length(new_goals) == length(slist));
         } catch (exception & ex) {
             throw nested_exception("equation compiler failed (use 'set_option trace.eqn_compiler.elim_match true' "
-                                   "for additional details)", ex);
+                                   "for additional details)", std::current_exception());
         }
         if (empty(new_goals)) {
             return some(list<lemma>());

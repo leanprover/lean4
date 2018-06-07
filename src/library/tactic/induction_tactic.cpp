@@ -413,7 +413,7 @@ vm_obj induction_tactic_core(transparency_mode const & m, expr const & H, name c
         }
         return tactic::mk_success(to_obj(info), new_s);
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 
@@ -431,7 +431,7 @@ vm_obj tactic_induction(vm_obj const & H, vm_obj const & ns, vm_obj const & rec,
                                             tactic::to_state(s));
             }
         } catch (exception & ex) {
-            return tactic::mk_exception(ex, tactic::to_state(s));
+            return tactic::mk_exception(std::current_exception(), tactic::to_state(s));
         }
     } else {
         return induction_tactic_core(to_transparency_mode(m), to_expr(H),

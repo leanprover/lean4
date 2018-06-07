@@ -54,9 +54,9 @@ vm_obj tactic_to_expr(vm_obj const & qe, vm_obj const & allow_mvars, vm_obj cons
             return tactic::mk_success(to_obj(r), set_env_mctx(s, env, mctx));
         }
     } catch (elaborator_exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 

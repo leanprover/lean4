@@ -258,7 +258,7 @@ expr prove_injective_eq(environment const & env, expr const & inj_eq_type, name 
             return mctx.instantiate_mvars(new_s->main());
         }
     } catch (exception & ex) {
-        throw nested_exception(sstream() << "failed to generate auxiliary lemma '" << inj_eq_name << "'", ex);
+        throw nested_exception(sstream() << "failed to generate auxiliary lemma '" << inj_eq_name << "'", std::current_exception());
     }
     throw exception(sstream() << "failed to generate auxiliary lemma '" << inj_eq_name << "'");
 }

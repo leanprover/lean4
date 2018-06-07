@@ -441,7 +441,7 @@ vm_obj tactic_dsimplify_core(vm_obj const &, vm_obj const & a,
             return tactic::mk_success(mk_vm_pair(F.get_a(), to_obj(new_e)), new_s);
         }
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 
@@ -465,7 +465,7 @@ vm_obj simp_lemmas_dsimplify(vm_obj const & lemmas, vm_obj const & u, vm_obj con
             return tactic::mk_success(to_obj(new_e), new_s);
         }
     } catch (exception & ex) {
-        return tactic::mk_exception(ex, s);
+        return tactic::mk_exception(std::current_exception(), s);
     }
 }
 

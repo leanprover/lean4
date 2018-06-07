@@ -70,8 +70,6 @@ public:
     formatted_exception(optional<expr> const & e, format const & fmt):formatted_exception(get_pos_info(e), fmt) {}
     formatted_exception(expr const & e, format const & fmt):formatted_exception(some(e), fmt) {}
     virtual char const * what() const noexcept override;
-    virtual throwable * clone() const override { return new formatted_exception(m_pos, m_fmt); }
-    virtual void rethrow() const override { throw *this; }
     virtual optional<pos_info> get_pos() const override { return m_pos; }
     virtual format pp() const { return m_fmt; }
 };

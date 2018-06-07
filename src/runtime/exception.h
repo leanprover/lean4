@@ -22,8 +22,6 @@ public:
     throwable(sstream const & strm);
     virtual ~throwable() noexcept;
     virtual char const * what() const noexcept;
-    virtual throwable * clone() const { return new throwable(m_msg); }
-    virtual void rethrow() const { throw *this; }
 };
 
 /** \brief Base class for all Lean "logical" exceptions, that is, exceptions not related
@@ -35,8 +33,6 @@ public:
     exception(char const * msg):throwable(msg) {}
     exception(std::string const & msg):throwable(msg) {}
     exception(sstream const & strm):throwable(strm) {}
-    virtual throwable * clone() const { return new exception(m_msg); }
-    virtual void rethrow() const { throw *this; }
 };
 
 /** \brief Exception used to sign that a computation was interrupted */
@@ -53,8 +49,6 @@ class stack_space_exception : public throwable {
 public:
     stack_space_exception(char const * component_name);
     virtual char const * what() const noexcept { return m_msg.c_str(); }
-    virtual throwable * clone() const { return new stack_space_exception(m_msg); }
-    virtual void rethrow() const { throw *this; }
 };
 
 class memory_exception : public throwable {
@@ -63,15 +57,11 @@ class memory_exception : public throwable {
 public:
     memory_exception(char const * component_name);
     virtual char const * what() const noexcept { return m_msg.c_str(); }
-    virtual throwable * clone() const { return new memory_exception(m_msg); }
-    virtual void rethrow() const { throw *this; }
 };
 
 class heartbeat_exception : public throwable {
 public:
     heartbeat_exception() {}
     virtual char const * what() const noexcept;
-    virtual throwable * clone() const { return new heartbeat_exception(); }
-    virtual void rethrow() const { throw *this; }
 };
 }

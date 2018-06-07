@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefail
+set -eo pipefail
 
 # exit on existing commit message
 [[ -z "$2" ]] || exit 0

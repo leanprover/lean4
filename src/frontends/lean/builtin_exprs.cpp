@@ -723,8 +723,7 @@ static expr parse_lambda_binder(parser & p, pos_info const & pos) {
         p.maybe_throw_error({"invalid lambda expression, ',' or '⟨' expected", p.pos()});
         body = p.parse_expr();
     }
-    bool use_cache = false;
-    return p.rec_save_pos(Fun(locals, body, use_cache), pos);
+    return p.rec_save_pos(Fun(locals, body), pos);
 }
 
 static name * g_lambda_match_name = nullptr;
@@ -750,8 +749,7 @@ static expr parse_lambda_constructor(parser & p, pos_info const & ini_pos) {
     expr eqn = Fun(fn, Fun(locals, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, pattern), pos), body), pos), p), p);
     equations_header h = mk_match_header(match_scope.get_name(), match_scope.get_actual_name());
     expr x = p.rec_save_pos(mk_local(p.next_name(), "_x", mk_expr_placeholder(), binder_info()), pos);
-    bool use_cache = false;
-    return p.rec_save_pos(Fun(x, mk_app(mk_equations(h, 1, &eqn), x), use_cache), pos);
+    return p.rec_save_pos(Fun(x, mk_app(mk_equations(h, 1, &eqn), x)), pos);
 }
 
 static expr parse_lambda_core(parser & p, pos_info const & pos) {

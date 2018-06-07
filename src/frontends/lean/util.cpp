@@ -214,23 +214,19 @@ expr update_local_ref(expr const & e, name_set const & lvls_to_remove, name_set 
 }
 
 expr Fun(buffer<expr> const & locals, expr const & e, parser & p) {
-    bool use_cache = false;
-    return p.rec_save_pos(Fun(locals, e, use_cache), p.get_pos_info(e));
+    return p.rec_save_pos(Fun(locals, e), p.get_pos_info(e));
 }
 
 expr Fun(expr const & local, expr const & e, parser & p) {
-    bool use_cache = false;
-    return p.rec_save_pos(Fun(local, e, use_cache), p.get_pos_info(e));
+    return p.rec_save_pos(Fun(local, e), p.get_pos_info(e));
 }
 
 expr Pi(buffer<expr> const & locals, expr const & e, parser & p) {
-    bool use_cache = false;
-    return p.rec_save_pos(Pi(locals, e, use_cache), p.get_pos_info(e));
+    return p.rec_save_pos(Pi(locals, e), p.get_pos_info(e));
 }
 
 expr Pi(expr const & local, expr const & e, parser & p) {
-    bool use_cache = false;
-    return p.rec_save_pos(Pi(local, e, use_cache), p.get_pos_info(e));
+    return p.rec_save_pos(Pi(local, e), p.get_pos_info(e));
 }
 
 template<bool is_lambda>

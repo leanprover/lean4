@@ -1196,15 +1196,14 @@ void parser::process_postponed(buffer<expr> const & args, bool is_left,
                 throw exception("ill-formed parsing tables");
             expr r = args[args_idx];
             notation::action const & a = head(it);
-            bool no_cache = false;
             unsigned ps_sz      = scoped_info[scoped_idx].first;
             pos_info binder_pos = scoped_info[scoped_idx].second;
             scoped_idx++;
             if (is_var(a.get_rec(), 0)) {
                 if (a.use_lambda_abstraction())
-                    r = Fun(ps_sz, ps.data(), r, no_cache);
+                    r = Fun(ps_sz, ps.data(), r);
                 else
-                    r = Pi(ps_sz, ps.data(), r, no_cache);
+                    r = Pi(ps_sz, ps.data(), r);
                 r = rec_save_pos(r, binder_pos);
             } else {
                 expr rec = copy_with_new_pos(a.get_rec(), p);
@@ -1213,9 +1212,9 @@ void parser::process_postponed(buffer<expr> const & args, bool is_left,
                     --i;
                     expr const & l = ps[i];
                     if (a.use_lambda_abstraction())
-                        r = Fun(l, r, no_cache);
+                        r = Fun(l, r);
                     else
-                        r = Pi(l, r, no_cache);
+                        r = Pi(l, r);
                     r = save_pos(r, binder_pos);
                     new_args.push_back(r);
                     r = instantiate_rev(rec, new_args.size(), new_args.data());
@@ -1426,8 +1425,7 @@ expr parser::parse_notation(parse_table t, expr * left) {
             r = instantiate_rev(r, args.size(), args.data());
         }
         if (create_lambdas) {
-            bool no_cache = false;
-            r = rec_save_pos(eta_reduce(Fun(args, r, no_cache)), p);
+            r = rec_save_pos(eta_reduce(Fun(args, r)), p);
         }
         cs.push_back(r);
     }

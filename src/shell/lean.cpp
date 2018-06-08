@@ -36,7 +36,6 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/type_context.h"
 #include "library/io_state_stream.h"
-#include "library/export.h"
 #include "library/message_builder.h"
 #include "library/time_task.h"
 #include "frontends/lean/parser.h"
@@ -47,7 +46,6 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "init/init.h"
 #include "shell/simple_pos_info_provider.h"
-#include "shell/leandoc.h"
 #ifdef _MSC_VER
 #include <io.h>
 #define STDOUT_FILENO 1
@@ -187,7 +185,6 @@ static void display_help(std::ostream & out) {
     std::cout << "  --version -v       display version number\n";
     std::cout << "  --githash          display the git commit hash number used to build this binary\n";
     std::cout << "  --run              executes the 'main' definition\n";
-    std::cout << "  --doc=file -r      generate module documentation based on module doc strings\n";
     std::cout << "  --make             create olean files\n";
     std::cout << "  --recursive        recursively find *.lean files in directory arguments\n";
     std::cout << "  --trust=num -t     trust level (default: max) 0 means do not trust any macro,\n"
@@ -213,9 +210,6 @@ static void display_help(std::ostream & out) {
     std::cout << "  --debug=tag        enable assertions with the given tag\n";
         )
     std::cout << "  -D name=value      set a configuration option (see set_option command)\n";
-    std::cout << "Exporting data:\n";
-    std::cout << "  --export=file -E   export final environment as textual low-level file\n";
-    std::cout << "  --only-export=decl_name   only export the specified declaration (+ dependencies)\n";
     std::cout << "  --test-suite       capture output and status code from each input file $f in $f.produced and $f.status, respectively\n";
 }
 
@@ -226,8 +220,6 @@ static struct option g_long_options[] = {
     {"githash",      no_argument,       0, 'g'},
     {"make",         no_argument,       0, 'm'},
     {"recursive",    no_argument,       0, 'R'},
-    {"export",       required_argument, 0, 'E'},
-    {"only-export",  required_argument, 0, 'o'},
     {"memory",       required_argument, 0, 'M'},
     {"trust",        required_argument, 0, 't'},
     {"profile",      no_argument,       0, 'P'},
@@ -241,7 +233,6 @@ static struct option g_long_options[] = {
     {"path",         no_argument,       0, 'p'},
     {"server",       optional_argument, 0, 'S'},
 #endif
-    {"doc",          required_argument, 0, 'r'},
 #if defined(LEAN_MULTI_THREAD)
     {"tstack",       required_argument, 0, 's'},
 #endif
@@ -454,9 +445,6 @@ int main(int argc, char ** argv) {
     standard_search_path path;
 
     options opts;
-    optional<std::string> export_txt;
-    buffer<name> only_export;
-    optional<std::string> doc;
     optional<std::string> server_in;
     optional<std::string> run_arg;
     std::string native_output;
@@ -492,9 +480,6 @@ int main(int argc, char ** argv) {
             break;
         case 'n':
             native_output         = optarg;
-            break;
-        case 'r':
-            doc = optarg;
             break;
         case 'M':
             opts = opts.update(get_max_memory_opt_name(), atoi(optarg));
@@ -544,12 +529,6 @@ int main(int argc, char ** argv) {
 #endif
         case 'P':
             opts = opts.update("profiler", true);
-            break;
-        case 'E':
-            export_txt = std::string(optarg);
-            break;
-        case 'o':
-            only_export.push_back(string_to_name(optarg));
             break;
         case 'e':
             test_suite = true;
@@ -744,32 +723,6 @@ int main(int argc, char ** argv) {
         }
 
         display_cumulative_profiling_times(std::cerr);
-
-        // if (!mods.empty() && export_native_objects) {
-        //     // this code is now broken
-        //     env = lean::set_native_module_path(env, lean::name(native_output));
-        // }
-
-        if (export_txt && !mods.empty()) {
-            buffer<std::shared_ptr<module_info const>> mod_infos;
-            for (auto & mod : mods) mod_infos.push_back(mod.m_mod_info);
-            auto combined_env = get_combined_environment(mod_mgr.get_initial_env(), mod_infos);
-
-            exclusive_file_lock export_lock(*export_txt);
-            std::ofstream out(*export_txt);
-            optional<names> decls;
-            if (!only_export.empty()) {
-                decls = names(only_export);
-            }
-            export_as_lowtext(out, combined_env, decls);
-        }
-
-        if (doc) {
-            exclusive_file_lock export_lock(*doc);
-            std::ofstream out(*doc);
-            gen_doc(env, opts, out);
-        }
-
         return ((ok && !get(has_errors(lt.get_root()))) || test_suite) ? 0 : 1;
     } catch (lean::throwable & ex) {
         lean::message_builder(env, ios, "<unknown>", lean::pos_info(1, 1), lean::ERROR).set_exception(ex).report();

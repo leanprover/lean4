@@ -7,37 +7,33 @@ Author: Leonardo de Moura
 #include "library/pos_info_provider.h"
 
 namespace lean {
-struct expr_ptr_eq {
-    bool operator()(expr const & e1, expr const & e2) const { return e1.raw() == e2.raw(); }
-};
-
-typedef std::unordered_map<expr, pos_info, expr_hash, expr_ptr_eq> pos_table;
+typedef std::unordered_map<void *, pos_info> pos_table;
 
 static pos_table * g_pos_table;
 static mutex *     g_pos_table_mutex;
 
 expr save_pos(expr const & e, pos_info const & pos) {
     lock_guard<mutex> _(*g_pos_table_mutex);
-    g_pos_table->insert(mk_pair(e, pos));
+    g_pos_table->insert(mk_pair(e.raw(), pos));
     return e;
 }
 
 expr copy_pos(expr const & src, expr const & dest) {
     lock_guard<mutex> _(*g_pos_table_mutex);
-    auto it = g_pos_table->find(src);
+    auto it = g_pos_table->find(src.raw());
     if (it != g_pos_table->end())
-        g_pos_table->insert(mk_pair(dest, it->second));
+        g_pos_table->insert(mk_pair(dest.raw(), it->second));
     return dest;
 }
 
 void erase_pos(expr const & e) {
     lock_guard<mutex> _(*g_pos_table_mutex);
-    g_pos_table->erase(e);
+    g_pos_table->erase(e.raw());
 }
 
 optional<pos_info> get_pos(expr const & e) {
     lock_guard<mutex> _(*g_pos_table_mutex);
-    auto it = g_pos_table->find(e);
+    auto it = g_pos_table->find(e.raw());
     if (it != g_pos_table->end())
         return optional<pos_info>(it->second);
     return optional<pos_info>();

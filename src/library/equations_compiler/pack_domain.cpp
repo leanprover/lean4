@@ -105,7 +105,7 @@ struct sigma_packer_fn {
             expr sigma_type  = binding_domain(new_fn_type);
             expr arg         = pack(0, arity, args, sigma_type);
             expr r           = mk_app(new_fn, arg);
-            return copy_tag(e, mk_app(r, args.size() - arity, args.data() + arity));
+            return copy_pos(e, mk_app(r, args.size() - arity, args.data() + arity));
         }
 
         virtual expr visit_local(expr const & e) override {

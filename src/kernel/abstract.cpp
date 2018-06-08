@@ -28,7 +28,7 @@ expr abstract(expr const & e, unsigned n, expr const * subst) {
                 while (i > 0) {
                     --i;
                     if (mlocal_name(subst[i]) == mlocal_name(m))
-                        return some_expr(mk_var(offset + n - i - 1, m.get_tag()));
+                        return some_expr(mk_var(offset + n - i - 1));
                 }
                 return none_expr();
             }

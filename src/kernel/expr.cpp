@@ -59,7 +59,7 @@ unsigned get_num_live_exprs() {
 #endif
 
 expr_cell::expr_cell(expr_kind k, unsigned h, bool has_expr_mv, bool has_univ_mv,
-                     bool has_local, bool has_param_univ, tag g):
+                     bool has_local, bool has_param_univ):
     m_flags(0),
     m_kind(static_cast<unsigned>(k)),
     m_has_expr_mv(has_expr_mv),
@@ -67,7 +67,6 @@ expr_cell::expr_cell(expr_kind k, unsigned h, bool has_expr_mv, bool has_univ_mv
     m_has_local(has_local),
     m_has_param_univ(has_param_univ),
     m_hash(h),
-    m_tag(g),
     m_rc(0) {
     #ifdef LEAN_TRACK_LIVE_EXPRS
     atomic_fetch_add_explicit(&g_num_live_exprs, 1u, memory_order_release);
@@ -83,9 +82,7 @@ expr_cell::expr_cell(expr_cell const & src):
     m_hash(src.m_hash),
     m_rc(0) {
     unsigned flgs = src.m_flags;
-    unsigned tag  = src.m_tag;
     m_flags = flgs;
-    m_tag   = tag;
     #ifdef LEAN_TRACK_LIVE_EXPRS
     atomic_fetch_add_explicit(&g_num_live_exprs, 1u, memory_order_release);
     #endif
@@ -119,17 +116,13 @@ void expr_cell::set_is_arrow(bool flag) {
     lean_assert(is_arrow() && *is_arrow() == flag);
 }
 
-void expr_cell::set_tag(tag t) {
-    m_tag = t;
-}
-
 bool is_meta(expr const & e) {
     return is_metavar(get_app_fn(e));
 }
 
 // Expr variables
-expr_var::expr_var(unsigned idx, tag g):
-    expr_cell(expr_kind::Var, idx, false, false, false, false, g),
+expr_var::expr_var(unsigned idx):
+    expr_cell(expr_kind::Var, idx, false, false, false, false),
     m_vidx(idx) {
     if (idx == std::numeric_limits<unsigned>::max())
         throw exception("invalid free variable index, de Bruijn index is too big");
@@ -139,9 +132,9 @@ void expr_var::dealloc() {
 }
 
 // Expr constants
-expr_const::expr_const(name const & n, levels const & ls, tag g):
+expr_const::expr_const(name const & n, levels const & ls):
     expr_cell(expr_kind::Constant, ::lean::hash(n.hash(), hash_levels(ls)), false,
-              has_meta(ls), false, has_param(ls), g),
+              has_meta(ls), false, has_param(ls)),
     m_name(n),
     m_levels(ls) {
 }
@@ -154,10 +147,10 @@ unsigned binder_info::hash() const {
 }
 
 // Expr metavariables and local variables
-expr_mlocal::expr_mlocal(bool is_meta, name const & n, name const & pp_n, expr const & t, tag g):
+expr_mlocal::expr_mlocal(bool is_meta, name const & n, name const & pp_n, expr const & t):
     expr_composite(is_meta ? expr_kind::Meta : expr_kind::Local, n.hash(), is_meta || t.has_expr_metavar(), t.has_univ_metavar(),
                    !is_meta || t.has_local(), t.has_param_univ(),
-                   1, get_free_var_range(t), g),
+                   1, get_free_var_range(t)),
     m_name(n),
     m_pp_name(pp_n),
     m_type(t) {}
@@ -170,8 +163,8 @@ void expr_mlocal::dealloc(buffer<expr_cell*> & todelete) {
 expr_mlocal::expr_mlocal(expr_mlocal const & src, expr const & new_type):
     expr_composite(src), m_name(src.m_name), m_pp_name(src.m_pp_name), m_type(new_type) {}
 
-expr_local::expr_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi, tag g):
-    expr_mlocal(false, n, pp_n, t, g), m_bi(bi) {}
+expr_local::expr_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi):
+    expr_mlocal(false, n, pp_n, t), m_bi(bi) {}
 
 expr_local::expr_local(expr_local const & src, expr const & new_type):
     expr_mlocal(src, new_type), m_bi(src.m_bi) {}
@@ -190,22 +183,21 @@ expr_composite::expr_composite(expr_composite const & src):
 
 // Composite expressions
 expr_composite::expr_composite(expr_kind k, unsigned h, bool has_expr_mv, bool has_univ_mv,
-                               bool has_local, bool has_param_univ, unsigned w, unsigned fv_range, tag g):
-    expr_cell(k, h, has_expr_mv, has_univ_mv, has_local, has_param_univ, g),
+                               bool has_local, bool has_param_univ, unsigned w, unsigned fv_range):
+    expr_cell(k, h, has_expr_mv, has_univ_mv, has_local, has_param_univ),
     m_weight(w),
     m_depth(0),
     m_free_var_range(fv_range) {}
 
 // Expr applications
-expr_app::expr_app(expr const & fn, expr const & arg, tag g):
+expr_app::expr_app(expr const & fn, expr const & arg):
     expr_composite(expr_kind::App, ::lean::hash(fn.hash(), arg.hash()),
                    fn.has_expr_metavar() || arg.has_expr_metavar(),
                    fn.has_univ_metavar() || arg.has_univ_metavar(),
                    fn.has_local()        || arg.has_local(),
                    fn.has_param_univ()   || arg.has_param_univ(),
                    inc_weight(add_weight(get_weight(fn), get_weight(arg))),
-                   std::max(get_free_var_range(fn), get_free_var_range(arg)),
-                   g),
+                   std::max(get_free_var_range(fn), get_free_var_range(arg))),
     m_fn(fn), m_arg(arg) {
     m_depth = std::max(get_depth(fn), get_depth(arg)) + 1;
     m_hash  = ::lean::hash(m_hash, m_weight);
@@ -232,15 +224,14 @@ bool operator==(binder_info const & i1, binder_info const & i2) {
 }
 
 // Expr binders (Lambda, Pi)
-expr_binding::expr_binding(expr_kind k, name const & n, expr const & t, expr const & b, binder_info const & i, tag g):
+expr_binding::expr_binding(expr_kind k, name const & n, expr const & t, expr const & b, binder_info const & i):
     expr_composite(k, ::lean::hash(t.hash(), b.hash()),
                    t.has_expr_metavar()   || b.has_expr_metavar(),
                    t.has_univ_metavar()   || b.has_univ_metavar(),
                    t.has_local()          || b.has_local(),
                    t.has_param_univ()     || b.has_param_univ(),
                    inc_weight(add_weight(get_weight(t), get_weight(b))),
-                   std::max(get_free_var_range(t), dec(get_free_var_range(b))),
-                   g),
+                   std::max(get_free_var_range(t), dec(get_free_var_range(b)))),
     m_binder(n, t, i),
     m_body(b) {
     m_depth = std::max(get_depth(t), get_depth(b)) + 1;
@@ -259,8 +250,8 @@ void expr_binding::dealloc(buffer<expr_cell*> & todelete) {
 }
 
 // Expr Sort
-expr_sort::expr_sort(level const & l, tag g):
-    expr_cell(expr_kind::Sort, ::lean::hash(l), false, has_meta(l), false, has_param(l), g),
+expr_sort::expr_sort(level const & l):
+    expr_cell(expr_kind::Sort, ::lean::hash(l), false, has_meta(l), false, has_param(l)),
     m_level(l) {
 }
 expr_sort::~expr_sort() {}
@@ -269,7 +260,7 @@ void expr_sort::dealloc() {
 }
 
 // Let expressions
-expr_let::expr_let(name const & n, expr const & t, expr const & v, expr const & b, tag g):
+expr_let::expr_let(name const & n, expr const & t, expr const & v, expr const & b):
     expr_composite(expr_kind::Let,
                    ::lean::hash(::lean::hash(t.hash(), v.hash()), b.hash()),
                    t.has_expr_metavar()   || v.has_expr_metavar() || b.has_expr_metavar(),
@@ -277,8 +268,7 @@ expr_let::expr_let(name const & n, expr const & t, expr const & v, expr const & 
                    t.has_local()          || v.has_local() || b.has_local(),
                    t.has_param_univ()     || v.has_param_univ() || b.has_param_univ(),
                    inc_weight(add_weight(add_weight(get_weight(t), get_weight(v)), get_weight(b))),
-                   std::max(std::max(get_free_var_range(t), get_free_var_range(v)), dec(get_free_var_range(b))),
-                   g),
+                   std::max(std::max(get_free_var_range(t), get_free_var_range(v)), dec(get_free_var_range(b)))),
     m_name(n), m_type(t), m_value(v), m_body(b) {
     m_depth = std::max(get_depth(t), std::max(get_depth(v), get_depth(b))) + 1;
     m_hash  = ::lean::hash(m_hash, m_weight);
@@ -341,7 +331,7 @@ expr_macro::expr_macro(expr_macro const & src, expr const * new_args):
     std::uninitialized_copy(new_args, new_args + m_num_args, data);
 }
 
-expr_macro::expr_macro(macro_definition const & m, unsigned num, expr const * args, tag g):
+expr_macro::expr_macro(macro_definition const & m, unsigned num, expr const * args):
     expr_composite(expr_kind::Macro,
                    lean::hash(num, [&](unsigned i) { return args[i].hash(); }, m.hash()),
                    std::any_of(args, args+num, [](expr const & e) { return e.has_expr_metavar(); }),
@@ -349,8 +339,7 @@ expr_macro::expr_macro(macro_definition const & m, unsigned num, expr const * ar
                    std::any_of(args, args+num, [](expr const & e) { return e.has_local(); }),
                    std::any_of(args, args+num, [](expr const & e) { return e.has_param_univ(); }),
                    inc_weight(add_weight(num, args)),
-                   get_free_var_range(num, args),
-                   g),
+                   get_free_var_range(num, args)),
     m_definition(m),
     m_num_args(num) {
     expr * data = get_args_ptr();
@@ -375,36 +364,36 @@ expr_macro::~expr_macro() {}
 // =======================================
 // Constructors
 
-expr mk_var(unsigned idx, tag g) {
-    return expr(new expr_var(idx, g));
+expr mk_var(unsigned idx) {
+    return expr(new expr_var(idx));
 }
-expr mk_constant(name const & n, levels const & ls, tag g) {
-    return expr(new expr_const(n, ls, g));
+expr mk_constant(name const & n, levels const & ls) {
+    return expr(new expr_const(n, ls));
 }
-expr mk_macro(macro_definition const & m, unsigned num, expr const * args, tag g) {
+expr mk_macro(macro_definition const & m, unsigned num, expr const * args) {
     char * mem = new char[sizeof(expr_macro) + num*sizeof(expr const *)];
-    return expr(new (mem) expr_macro(m, num, args, g));
+    return expr(new (mem) expr_macro(m, num, args));
 }
-expr mk_metavar(name const & n, name const & pp_n, expr const & t, tag g) {
-    return expr(new expr_mlocal(true, n, pp_n, t, g));
+expr mk_metavar(name const & n, name const & pp_n, expr const & t) {
+    return expr(new expr_mlocal(true, n, pp_n, t));
 }
-expr mk_metavar(name const & n, expr const & t, tag g) {
-    return mk_metavar(n, n, t, g);
+expr mk_metavar(name const & n, expr const & t) {
+    return mk_metavar(n, n, t);
 }
-expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi, tag g) {
-    return expr(new expr_local(n, pp_n, t, bi, g));
+expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi) {
+    return expr(new expr_local(n, pp_n, t, bi));
 }
-expr mk_app(expr const & f, expr const & a, tag g) {
-    return expr(new expr_app(f, a, g));
+expr mk_app(expr const & f, expr const & a) {
+    return expr(new expr_app(f, a));
 }
-expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & i, tag g) {
-    return expr(new expr_binding(k, n, t, e, i, g));
+expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & i) {
+    return expr(new expr_binding(k, n, t, e, i));
 }
-expr mk_let(name const & n, expr const & t, expr const & v, expr const & b, tag g) {
-    return expr(new expr_let(n, t, v, b, g));
+expr mk_let(name const & n, expr const & t, expr const & v, expr const & b) {
+    return expr(new expr_let(n, t, v, b));
 }
-expr mk_sort(level const & l, tag g) {
-    return expr(new expr_sort(l, g));
+expr mk_sort(level const & l) {
+    return expr(new expr_sort(l));
 }
 // =======================================
 
@@ -440,37 +429,37 @@ void expr_cell::dealloc() {
 }
 
 // Auxiliary constructors
-expr mk_app(expr const & f, unsigned num_args, expr const * args, tag g) {
+expr mk_app(expr const & f, unsigned num_args, expr const * args) {
     expr r = f;
     for (unsigned i = 0; i < num_args; i++)
-        r = mk_app(r, args[i], g);
+        r = mk_app(r, args[i]);
     return r;
 }
 
-expr mk_app(unsigned num_args, expr const * args, tag g) {
+expr mk_app(unsigned num_args, expr const * args) {
     lean_assert(num_args >= 2);
-    return mk_app(mk_app(args[0], args[1], g), num_args - 2, args+2, g);
+    return mk_app(mk_app(args[0], args[1]), num_args - 2, args+2);
 }
 
-expr mk_app(expr const & f, list<expr> const & args, tag g) {
+expr mk_app(expr const & f, list<expr> const & args) {
     buffer<expr> _args;
     to_buffer(args, _args);
-    return mk_app(f, _args, g);
+    return mk_app(f, _args);
 }
 
-expr mk_rev_app(expr const & f, unsigned num_args, expr const * args, tag g) {
+expr mk_rev_app(expr const & f, unsigned num_args, expr const * args) {
     expr r = f;
     unsigned i = num_args;
     while (i > 0) {
         --i;
-        r = mk_app(r, args[i], g);
+        r = mk_app(r, args[i]);
     }
     return r;
 }
 
-expr mk_rev_app(unsigned num_args, expr const * args, tag g) {
+expr mk_rev_app(unsigned num_args, expr const * args) {
     lean_assert(num_args >= 2);
-    return mk_rev_app(mk_app(args[num_args-1], args[num_args-2], g), num_args-2, args, g);
+    return mk_rev_app(mk_app(args[num_args-1], args[num_args-2]), num_args-2, args);
 }
 
 expr const & get_app_args(expr const & e, buffer<expr> & args) {
@@ -532,8 +521,8 @@ static name const & get_default_var_name() {
 }
 
 bool is_default_var_name(name const & n) { return n == get_default_var_name(); }
-expr mk_arrow(expr const & t, expr const & e, tag g) {
-    return mk_pi(get_default_var_name(), t, e, binder_info(), g);
+expr mk_arrow(expr const & t, expr const & e) {
+    return mk_pi(get_default_var_name(), t, e, binder_info());
 }
 
 static expr * g_Prop  = nullptr;
@@ -565,30 +554,23 @@ unsigned get_depth(expr const & e) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-expr copy_tag(expr const & e, expr && new_e) {
-    tag t = e.get_tag();
-    if (t != nulltag)
-        new_e.set_tag(t);
-    return new_e;
-}
-
 expr update_app(expr const & e, expr const & new_fn, expr const & new_arg) {
     if (!is_eqp(app_fn(e), new_fn) || !is_eqp(app_arg(e), new_arg))
-        return mk_app(new_fn, new_arg, e.get_tag());
+        return mk_app(new_fn, new_arg);
     else
         return e;
 }
 
 expr update_binding(expr const & e, expr const & new_domain, expr const & new_body) {
     if (!is_eqp(binding_domain(e), new_domain) || !is_eqp(binding_body(e), new_body))
-        return mk_binding(e.kind(), binding_name(e), new_domain, new_body, binding_info(e), e.get_tag());
+        return mk_binding(e.kind(), binding_name(e), new_domain, new_body, binding_info(e));
     else
         return e;
 }
 
 expr update_binding(expr const & e, expr const & new_domain, expr const & new_body, binder_info const & bi) {
     if (!is_eqp(binding_domain(e), new_domain) || !is_eqp(binding_body(e), new_body) || bi != binding_info(e))
-        return mk_binding(e.kind(), binding_name(e), new_domain, new_body, bi, e.get_tag());
+        return mk_binding(e.kind(), binding_name(e), new_domain, new_body, bi);
     else
         return e;
 }
@@ -597,16 +579,16 @@ expr update_mlocal(expr const & e, expr const & new_type) {
     if (is_eqp(mlocal_type(e), new_type))
         return e;
     else if (is_metavar(e))
-        return mk_metavar(mlocal_name(e), mlocal_pp_name(e), new_type, e.get_tag());
+        return mk_metavar(mlocal_name(e), mlocal_pp_name(e), new_type);
     else
-        return mk_local(mlocal_name(e), mlocal_pp_name(e), new_type, local_info(e), e.get_tag());
+        return mk_local(mlocal_name(e), mlocal_pp_name(e), new_type, local_info(e));
 }
 
 expr update_local(expr const & e, expr const & new_type, binder_info const & bi) {
     if (is_eqp(mlocal_type(e), new_type) && local_info(e) == bi)
         return e;
     else
-        return mk_local(mlocal_name(e), mlocal_pp_name(e), new_type, bi, e.get_tag());
+        return mk_local(mlocal_name(e), mlocal_pp_name(e), new_type, bi);
 }
 
 expr update_local(expr const & e, binder_info const & bi) {
@@ -615,14 +597,14 @@ expr update_local(expr const & e, binder_info const & bi) {
 
 expr update_sort(expr const & e, level const & new_level) {
     if (!is_eqp(sort_level(e), new_level))
-        return mk_sort(new_level, e.get_tag());
+        return mk_sort(new_level);
     else
         return e;
 }
 
 expr update_constant(expr const & e, levels const & new_levels) {
     if (!is_eqp(const_levels(e), new_levels))
-        return mk_constant(const_name(e), new_levels, e.get_tag());
+        return mk_constant(const_name(e), new_levels);
     else
         return e;
 }
@@ -637,7 +619,7 @@ expr update_macro(expr const & e, unsigned num, expr const * args) {
         if (i == num)
             return e;
     }
-    return mk_macro(to_macro(e)->m_definition, num, args, e.get_tag());
+    return mk_macro(to_macro(e)->m_definition, num, args);
 }
 
 expr update_let(expr const & e, expr const & new_type, expr const & new_value, expr const & new_body) {

@@ -119,7 +119,7 @@ struct pack_mutual_fn {
             if (optional<unsigned> fidx = get_fidx(app_fn(e))) {
                 expr arg = visit(app_arg(e));
                 expr new_arg = mk_new_arg(arg, *fidx);
-                return copy_tag(e, mk_app(m_new_fn, new_arg));
+                return copy_pos(e, mk_app(m_new_fn, new_arg));
             } else {
                 return replace_visitor::visit_app(e);
             }

@@ -60,7 +60,6 @@ class parser : public abstract_parser {
     pos_info                m_last_cmd_pos;
     unsigned                m_next_tag_idx;
     unsigned                m_next_inst_idx;
-    pos_info_table          m_pos_table;
     // By default, when the parser finds a unknown identifier, it signs an error.
     // When the following flag is true, it creates a constant.
     // This flag is when we are trying to parse mutually recursive declarations.
@@ -87,8 +86,6 @@ class parser : public abstract_parser {
     bool                   m_ignore_noncomputable;
 
     void sync_command();
-
-    tag get_tag(expr e);
 
     unsigned curr_level_lbp() const;
     level parse_max_imax(bool is_max);
@@ -267,7 +264,6 @@ public:
 
     /** \brief Return the current position information */
     virtual pos_info pos() const override final { return pos_info(m_scanner.get_line(), m_scanner.get_pos()); }
-    virtual expr save_pos(expr const & e, pos_info p) override final;
     expr rec_save_pos(expr const & e, pos_info p);
     expr rec_save_pos(expr const & e, optional<pos_info> p) { return p ? rec_save_pos(e, *p) : e; }
     expr update_pos(expr e, pos_info p);
@@ -278,7 +274,7 @@ public:
     name const & get_cmd_token() const { return m_cmd_token; }
 
     parser_pos_provider get_parser_pos_provider(pos_info const & some_pos) const {
-        return parser_pos_provider(m_pos_table, m_file_name, some_pos, m_next_tag_idx);
+        return parser_pos_provider(m_file_name, some_pos);
     }
 
     expr mk_app(expr fn, expr arg, pos_info const & p);
@@ -563,7 +559,6 @@ public:
 
 public:
     /* pos_info_provider API */
-    virtual optional<pos_info> get_pos_info(expr const & e) const override;
     virtual pos_info get_some_pos() const override;
     virtual char const * get_file_name() const override;
 };

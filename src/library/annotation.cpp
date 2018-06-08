@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract_type_context.h"
 #include "library/kernel_serializer.h"
 #include "library/annotation.h"
+#include "library/pos_info_provider.h"
 
 namespace lean {
 static name * g_annotation = nullptr;
@@ -68,18 +69,14 @@ void register_annotation(name const & n) {
     ms.insert(mk_pair(n, macro_definition(new annotation_macro_definition_cell(n))));
 }
 
-expr mk_annotation(name const & kind, expr const & e, tag g) {
+expr mk_annotation(name const & kind, expr const & e) {
     annotation_macros & ms = get_annotation_macros();
     auto it = ms.find(kind);
     if (it != ms.end()) {
-        return mk_macro(it->second, 1, &e, g);
+        return copy_pos(e, mk_macro(it->second, 1, &e));
     } else {
         throw exception(sstream() << "unknown annotation kind '" << kind << "'");
     }
-}
-
-expr mk_annotation(name const & kind, expr const & e) {
-    return mk_annotation(kind, e, e.get_tag());
 }
 
 bool is_annotation(expr const & e) {
@@ -128,7 +125,7 @@ expr copy_annotations(expr const & from, expr const & to) {
     unsigned i = trace.size();
     while (i > 0) {
         --i;
-        r = copy_tag(trace[i], mk_annotation(get_annotation_kind(trace[i]), r));
+        r = mk_annotation(get_annotation_kind(trace[i]), r);
     }
     return r;
 }

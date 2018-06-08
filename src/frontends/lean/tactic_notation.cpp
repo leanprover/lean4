@@ -54,8 +54,8 @@ Author: Leonardo de Moura
 */
 namespace lean {
 static expr mk_tactic_step(parser & p, expr tac, pos_info const & pos, name const & tac_class) {
-    if (tac.get_tag() == nulltag)
-        tac = p.save_pos(tac, pos);
+    if (!get_pos(tac))
+        save_pos(tac, pos);
     name step_name(tac_class, "step");
     if (!p.env().find(step_name))
         throw parser_error(sstream() << "invalid tactic class '" << tac_class << "', '" <<
@@ -66,8 +66,8 @@ static expr mk_tactic_step(parser & p, expr tac, pos_info const & pos, name cons
 static expr mk_tactic_istep(parser &p, expr tac, pos_info const & pos0, pos_info const & pos, name const &tac_class) {
     if (p.in_notation())
         return mk_tactic_step(p, tac, pos, tac_class);
-    if (tac.get_tag() == nulltag)
-        tac = p.save_pos(tac, pos);
+    if (!get_pos(tac))
+        save_pos(tac, pos);
     name c(tac_class, "istep");
     if (!p.env().find(c))
         return mk_tactic_step(p, tac, pos, tac_class);
@@ -96,8 +96,8 @@ static expr mk_tactic_save_info(parser & p, pos_info const & pos, name const & t
 }
 
 static expr mk_tactic_solve1(parser & p, expr tac, pos_info const & pos0, pos_info const & pos, name const & tac_class, bool use_istep) {
-    if (tac.get_tag() == nulltag)
-        tac = p.save_pos(tac, pos);
+    if (!get_pos(tac))
+        save_pos(tac, pos);
     name solve1_name(tac_class, "solve1");
     if (!p.env().find(solve1_name))
         throw parser_error(sstream() << "invalid tactic class '" << tac_class << "', '" <<
@@ -512,9 +512,9 @@ struct parse_begin_end_block_fn {
         if (!is_ext_tactic_class) {
             return r;
         } else if (cfg) {
-            return copy_tag(r, mk_app(mk_constant(name(m_tac_class, "execute_with")), *cfg, r));
+            return copy_pos(r, mk_app(mk_constant(name(m_tac_class, "execute_with")), *cfg, r));
         } else {
-            return copy_tag(r, mk_app(mk_constant(name(m_tac_class, "execute")), r));
+            return copy_pos(r, mk_app(mk_constant(name(m_tac_class, "execute")), r));
         }
     }
 };
@@ -529,7 +529,7 @@ expr parse_begin_end_expr_core(parser & p, pos_info const & pos, name const & en
     p.clear_expr_locals();
     bool use_istep = true;
     expr tac = parse_begin_end_block(p, pos, end_token, get_tactic_name(), use_istep);
-    return copy_tag(tac, mk_by(tac));
+    return copy_pos(tac, mk_by(tac));
 }
 
 expr parse_begin_end_expr(parser & p, pos_info const & pos) {

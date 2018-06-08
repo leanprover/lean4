@@ -601,7 +601,7 @@ class add_nested_inductive_decl_fn {
                 unsigned num_params = get_ginductive_num_params(m_env, const_name(fn));
                 expr candidate = mk_app(fn, num_params, args.data());
                 if (candidate == m_nested_occ) {
-                    return copy_tag(e, mk_app(m_replacement, args.size() - num_params, args.data() + num_params));
+                    return copy_pos(e, mk_app(m_replacement, args.size() - num_params, args.data() + num_params));
                 } else {
                     // We track whether it was updated just so we return a structurally equal expression if we never pack
                     bool updated = false;
@@ -613,7 +613,7 @@ class add_nested_inductive_decl_fn {
                         }
                     }
                     if (updated)
-                        return copy_tag(e, mk_app(fn, args));
+                        return copy_pos(e, mk_app(fn, args));
                     else
                         return _e;
                 }
@@ -655,7 +655,7 @@ class add_nested_inductive_decl_fn {
                 unsigned num_params = get_ginductive_num_params(m_env, const_name(fn));
                 expr candidate = mk_app(fn, num_params, args.data());
                 if (candidate == m_replacement) {
-                    return copy_tag(e, mk_app(m_nested_occ, args.size() - num_params, args.data() + num_params));
+                    return copy_pos(e, mk_app(m_nested_occ, args.size() - num_params, args.data() + num_params));
                 } else {
                     // We track whether it was updated so we can return a structurally equal expression if we never unpack
                     bool updated = false;
@@ -667,7 +667,7 @@ class add_nested_inductive_decl_fn {
                         }
                     }
                     if (updated)
-                        return copy_tag(e, mk_app(fn, args));
+                        return copy_pos(e, mk_app(fn, args));
                     else
                         return _e;
                 }

@@ -20,7 +20,6 @@ void register_annotation(name const & n);
 
     \remark Annotations have no real semantic meaning, but are useful for guiding pretty printer and/or automation.
 */
-expr mk_annotation(name const & kind, expr const & e, tag g);
 expr mk_annotation(name const & kind, expr const & e);
 /** \brief Return true iff \c e was created using #mk_annotation. */
 bool is_annotation(expr const & e);

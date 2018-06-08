@@ -459,7 +459,7 @@ struct structural_rec_fn {
             return std::find(m_indices_pos.begin(), m_indices_pos.end(), idx) != m_indices_pos.end();
         }
 
-        expr elim(expr const & e, buffer<expr> const & args, tag g) {
+        expr elim(expr const & e, buffer<expr> const & args) {
             /* Replace motives with abstract one m_C.
                We use the abstract motive m_C as "marker". */
             buffer<expr> below_args;
@@ -473,7 +473,7 @@ struct structural_rec_fn {
                 expr r = *b;
                 for (unsigned i = 0; i < args.size(); i++) {
                     if (i != m_arg_pos && !is_index_pos(i))
-                        r = mk_app(r, args[i], g);
+                        r = mk_app(r, args[i]);
                 }
                 return r;
             } else {
@@ -501,7 +501,7 @@ struct structural_rec_fn {
                 buffer<expr> new_args;
                 for (expr const & arg : args)
                     new_args.push_back(visit(arg));
-                return elim(e, new_args, e.get_tag());
+                return elim(e, new_args);
             } else {
                 return replace_visitor_with_tc::visit_app(e);
             }
@@ -587,9 +587,9 @@ struct structural_rec_fn {
                       Reason: the rhs should not contain recursive equations.
                       But, we need to update the locals. */
                    expr new_rhs = replace_locals(ue.rhs(), from, to);
-                   expr new_eqn = copy_tag(ue.get_nested_src(),
+                   expr new_eqn = copy_pos(ue.get_nested_src(),
                                            mk_equation(new_lhs, new_rhs, ue.ignore_if_unused()));
-                   new_eqns.push_back(copy_tag(eqn, ctx.mk_lambda(new_vars, new_eqn)));
+                   new_eqns.push_back(copy_pos(eqn, ctx.mk_lambda(new_vars, new_eqn)));
                 });
             } else {
                 expr new_lhs = mk_app(new_fn, lhs_args);

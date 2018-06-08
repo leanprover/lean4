@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 
-environment environment::add_inductive_decls(inductive_decls const & decls) const {
+environment environment::add_inductive_decls(inductive_decls const &) const {
 #if 0
     std::cout << "add_inductive_decls\n";
     for (expr const & p : decls.m_params) {

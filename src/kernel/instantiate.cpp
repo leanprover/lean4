@@ -72,7 +72,7 @@ struct instantiate_easy_fn {
         if (app && is_app(a))
         if (auto new_a = operator()(app_arg(a), false))
         if (auto new_f = operator()(app_fn(a), true))
-            return some_expr(mk_app(*new_f, *new_a, a.get_tag()));
+            return some_expr(mk_app(*new_f, *new_a));
         return none_expr();
     }
 };

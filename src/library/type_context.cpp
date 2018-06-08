@@ -352,7 +352,7 @@ expr type_context_old::revert_core(buffer<expr> & to_revert, expr const & mvar, 
     pair<local_context, expr> p = revert_core(to_revert, d.get_context(), d.get_type(), preserve_to_revert_order);
     /* Remark: we use copy_tag to make sure any position information
        associated wtih mvar is inherited by the new meta-variable. */
-    return copy_tag(mvar, mk_metavar_decl(p.first, p.second));
+    return mk_metavar_decl(p.first, p.second);
 }
 
 expr type_context_old::revert(buffer<expr> & to_revert, expr const & mvar, bool preserve_to_revert_order) {
@@ -2259,7 +2259,7 @@ struct check_assignment_fn : public replace_visitor {
                 /* Restrict context of the ?M' */
                 /* Remark: we use copy_tag to make sure any position information
                    associated wtih mvar is inherited by the new meta-variable. */
-                expr aux_mvar = copy_tag(e, m_ctx.mk_metavar_decl(mvar_lctx, e_type));
+                expr aux_mvar = m_ctx.mk_metavar_decl(mvar_lctx, e_type);
                 if (m_ctx.process_assignment(e, aux_mvar)) {
                     return aux_mvar;
                 } else {

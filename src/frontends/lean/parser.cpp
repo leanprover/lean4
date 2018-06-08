@@ -243,38 +243,18 @@ void parser::sync_command() {
         next();
 }
 
-tag parser::get_tag(expr e) {
-    tag t = e.get_tag();
-    if (t == nulltag) {
-        t = m_next_tag_idx;
-        e.set_tag(t);
-        m_next_tag_idx++;
-    }
-    return t;
-}
-
 name parser::mk_anonymous_inst_name() {
     name n = ::lean::mk_anonymous_inst_name(m_next_inst_idx);
     m_next_inst_idx++;
     return n;
 }
 
-expr parser::save_pos(expr const & e, pos_info p) {
-    auto t = get_tag(e);
-    if (!m_pos_table.contains(t))
-        m_pos_table.insert(t, p);
-    return e;
-}
-
 void parser::erase_pos(expr const & e) {
-    auto t = get_tag(e);
-    m_pos_table.erase(t);
+    ::lean::erase_pos(e);
 }
 
 expr parser::update_pos(expr e, pos_info p) {
-    auto t = get_tag(e);
-    m_pos_table.insert(t, p);
-    return e;
+    return ::lean::save_pos(e, p);
 }
 
 expr parser::rec_save_pos(expr const & e, pos_info p) {
@@ -334,11 +314,8 @@ expr parser::copy_with_new_pos(expr const & e, pos_info p) {
 }
 
 pos_info parser::pos_of(expr const & e, pos_info default_pos) const {
-    tag t = e.get_tag();
-    if (t == nulltag)
-        return default_pos;
-    if (auto it = m_pos_table.find(t))
-        return *it;
+    if (auto r = ::lean::get_pos(e))
+        return *r;
     else
         return default_pos;
 }
@@ -794,14 +771,14 @@ pair<expr, level_param_names> parser::elaborate(name const & decl_name, list<exp
 
 pair<expr, level_param_names> parser::elaborate_type(name const & decl_name, list<expr> const & ctx, expr const & e) {
     metavar_context mctx;
-    expr Type  = copy_tag(e, mk_sort(mk_level_placeholder()));
-    expr new_e = copy_tag(e, mk_typed_expr(Type, e));
+    expr Type  = copy_pos(e, mk_sort(mk_level_placeholder()));
+    expr new_e = copy_pos(e, mk_typed_expr(Type, e));
     return elaborate(decl_name, mctx, ctx, new_e, true);
 }
 
 pair<expr, level_param_names> parser::elaborate_type(name const & decl_name, metavar_context & mctx, expr const & e) {
-    expr Type  = copy_tag(e, mk_sort(mk_level_placeholder()));
-    expr new_e = copy_tag(e, mk_typed_expr(Type, e));
+    expr Type  = copy_pos(e, mk_sort(mk_level_placeholder()));
+    expr new_e = copy_pos(e, mk_typed_expr(Type, e));
     return elaborate(decl_name, mctx, new_e, true);
 }
 
@@ -1002,7 +979,7 @@ void parser::parse_binder_block(buffer<expr> & r, binder_info const & bi, unsign
     } else if (allow_default && curr_is_token(get_assign_tk())) {
         next();
         expr val = parse_expr(rbp);
-        type = mk_opt_param(copy_tag(val, mk_expr_placeholder()), val);
+        type = mk_opt_param(copy_pos(val, mk_expr_placeholder()), val);
     } else if (parse_binder_collection(names, bi, r)) {
         return;
     }
@@ -1544,7 +1521,7 @@ struct to_pattern_fn {
         } else if (!pattern_constants.empty()) {
             if (all_constant) {
                 /* Filter overloads that cannot occur in patterns. */
-                return some_expr(copy_tag(e, mk_choice(pattern_constants.size(), pattern_constants.data())));
+                return some_expr(copy_pos(e, mk_choice(pattern_constants.size(), pattern_constants.data())));
             } else {
                 m_parser.maybe_throw_error({
                         sstream() << "invalid pattern, '" << ref << "' is overloaded, "
@@ -1606,7 +1583,7 @@ struct to_pattern_fn {
         } else if (is_inaccessible(e)) {
             // do nothing
         } else if (is_placeholder(e)) {
-            expr r = copy_tag(e, mk_local(m_parser.next_name(), "_x", copy_tag(e, mk_expr_placeholder()), binder_info()));
+            expr r = copy_pos(e, mk_local(m_parser.next_name(), "_x", copy_pos(e, mk_expr_placeholder()), binder_info()));
             m_new_locals.push_back(r);
             m_anonymous_vars.insert(mk_pair(e, r));
         } else if (is_as_pattern(e)) {
@@ -1670,7 +1647,7 @@ struct to_pattern_fn {
         if (is_typed_expr(e)) {
             expr new_v = visit(get_typed_expr_expr(e));
             expr new_t = to_expr(get_typed_expr_type(e));
-            return copy_tag(e, mk_typed_expr(new_t, new_v));
+            return copy_pos(e, mk_typed_expr(new_t, new_v));
         } else if (is_prenum(e) || is_string_macro(e)) {
             return e;
         } else if (is_inaccessible(e)) {
@@ -1679,7 +1656,7 @@ struct to_pattern_fn {
             return m_anonymous_vars.find(e)->second;
         } else if (is_as_pattern(e)) {
             auto new_rhs = visit(get_as_pattern_rhs(e));
-            return copy_tag(e, mk_as_pattern(get_as_pattern_lhs(e), new_rhs));
+            return copy_pos(e, mk_as_pattern(get_as_pattern_lhs(e), new_rhs));
         } else if (is_app(e)) {
             if (is_inaccessible(app_fn(e))) {
                 return m_parser.parser_error_or_expr({
@@ -1713,16 +1690,16 @@ struct to_pattern_fn {
             lean_assert(is_placeholder(fn));
             for (expr & arg : args)
                 arg = visit(arg);
-            expr r = copy_tag(a, mk_app(fn, args));
-            return copy_tag(e, mk_anonymous_constructor(r));
+            expr r = copy_pos(a, mk_app(fn, args));
+            return copy_pos(e, mk_anonymous_constructor(r));
         } else if (is_structure_instance(e)) {
             auto info = get_structure_instance_info(e);
             lean_assert(info.m_sources.empty());
             for (expr & val : info.m_field_values)
                 val = visit(val);
-            return copy_tag(e, mk_structure_instance(info));
+            return copy_pos(e, mk_structure_instance(info));
         } else if (is_annotation(e)) {
-            return copy_tag(e, mk_annotation(get_annotation_kind(e), visit(get_annotation_arg(e))));
+            return copy_pos(e, mk_annotation(get_annotation_kind(e), visit(get_annotation_arg(e))));
         } else if (is_constant(e) && is_pattern_constant(const_name(e))) {
             return e;
         } else {
@@ -1804,7 +1781,7 @@ static expr elaborate_quote(parser & p, expr e) {
         }
         return none_expr();
     });
-    e = copy_tag(e, Fun(locals, e));
+    e = copy_pos(e, Fun(locals, e));
 
     metavar_context ctx;
     local_context lctx;
@@ -2222,7 +2199,7 @@ expr parser::parse_led(expr left) {
         lean_assert(sort_level(left) == mk_level_one() || sort_level(left) == mk_level_zero());
         if (sort_level(left) == mk_level_one())
             l = mk_succ(l);
-        return copy_tag(left, update_sort(left, l));
+        return copy_pos(left, update_sort(left, l));
     } else {
         switch (curr()) {
         case token_kind::Keyword:
@@ -2571,16 +2548,6 @@ std::shared_ptr<snapshot> parser::mk_snapshot() {
             m_ios.get_options(), m_imports_parsed, m_ignore_noncomputable, m_parser_scope_stack, m_next_inst_idx, pos());
 }
 
-optional<pos_info> parser::get_pos_info(expr const & e) const {
-    tag t = e.get_tag();
-    if (t == nulltag)
-        return optional<pos_info>();
-    if (auto it = m_pos_table.find(t))
-        return optional<pos_info>(*it);
-    else
-        return optional<pos_info>();
-}
-
 pos_info parser::get_some_pos() const {
     return m_last_cmd_pos;
 }
@@ -2638,6 +2605,7 @@ level parser::parser_error_or_level(parser_error && err) {
 }
 
 bool parse_commands(environment & env, io_state & ios, char const * fname) {
+    reset_positions();
 //    st_task_queue tq;
 //    scope_global_task_queue scope(&tq);
     fs_module_vfs vfs;

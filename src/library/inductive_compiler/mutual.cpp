@@ -236,7 +236,7 @@ class add_mutual_inductive_decl_fn {
         for (expr & arg : args)
             arg = translate_all_ind_apps(arg);
 
-        expr new_e = copy_tag(e, mk_app(fn, args));
+        expr new_e = copy_pos(e, mk_app(fn, args));
         if (auto res = translate_ind_app(new_e))
             return *res;
         else

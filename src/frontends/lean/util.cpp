@@ -370,11 +370,11 @@ expr mk_no_info(expr const & e) { return mk_annotation(get_no_info(), e); }
 bool is_no_info(expr const & e) { return is_annotation(e, get_no_info()); }
 
 expr mk_opt_param(expr const & t, expr const & val) {
-    return copy_tag(val, mk_app(copy_tag(val, mk_constant(get_opt_param_name())), t, val));
+    return copy_pos(val, mk_app(copy_pos(val, mk_constant(get_opt_param_name())), t, val));
 }
 
 expr mk_auto_param(expr const & t, name const & tac_name) {
-    return copy_tag(t, mk_app(copy_tag(t, mk_constant(get_auto_param_name())), t, quote(tac_name)));
+    return copy_pos(t, mk_app(copy_pos(t, mk_constant(get_auto_param_name())), t, quote(tac_name)));
 }
 
 static bool is_tactic_unit(environment const & env, expr const & c) {
@@ -453,7 +453,7 @@ expr mk_field_notation_compact(expr const & e, char const * field) {
         buffer<expr> new_es;
         for (unsigned i = 0; i < get_num_choices(e); i++) {
             expr const & c = get_choice(e, i);
-            new_es.push_back(copy_tag(c, mk_field_notation(c, fname)));
+            new_es.push_back(copy_pos(c, mk_field_notation(c, fname)));
         }
         return mk_choice(new_es.size(), new_es.data());
     } else {

@@ -236,7 +236,7 @@ expr replace_locals_preserving_pos_info(expr const & e, unsigned sz, expr const 
                 while (i > 0) {
                     --i;
                     if (mlocal_name(from[i]) == mlocal_name(e)) {
-                        return some_expr(copy_tag(e, copy(to[i])));
+                        return some_expr(copy_pos(e, copy(to[i])));
                     }
                 }
             }
@@ -290,9 +290,9 @@ void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> &
         expr type          = mlocal_type(param);
         expr new_type      = replace_locals_preserving_pos_info(type, i, old_params.data(), params.data());
         if (!given_params.contains(mlocal_name(param))) {
-            new_type = copy_tag(type, mk_as_is(new_type));
+            new_type = copy_pos(type, mk_as_is(new_type));
         }
-        param = copy_tag(param, update_mlocal(param, new_type));
+        param = copy_pos(param, update_mlocal(param, new_type));
     }
 }
 
@@ -360,7 +360,7 @@ environment add_local_ref(parser & p, environment const & env, name const & c_na
         if (is_as_is(type))
             type = get_as_is_arg(type);
         expr new_type      = replace_locals_preserving_pos_info(type, i, params.data(), new_params.data());
-        new_params.push_back(copy_tag(param, update_mlocal(param, new_type)));
+        new_params.push_back(copy_pos(param, update_mlocal(param, new_type)));
     }
     expr ref = mk_local_ref(c_real_name, param_names_to_levels(names(lps)), new_params);
     return p.add_local_ref(env, c_name, ref);

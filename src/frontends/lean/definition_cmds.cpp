@@ -534,7 +534,7 @@ static std::tuple<expr, expr, name> parse_definition(parser & p, buffer<name> & 
             p.add_local(fn);
             val = p.parse_expr();
             /* add fake equation */
-            expr eqn = copy_tag(val, mk_equation(fn, val));
+            expr eqn = copy_pos(val, mk_equation(fn, val));
             buffer<expr> eqns;
             eqns.push_back(eqn);
             val = mk_equations(p, fn, scope2.get_name(), scope2.get_actual_name(), eqns, {}, header_pos);

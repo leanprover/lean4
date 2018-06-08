@@ -183,14 +183,14 @@ expr mk_proj_app(environment const & env, name const & S_name, name const & fnam
     if (is_structure_like(env, S_name)) {
         name proj_name = S_name + fname;
         if (get_projection_info(env, proj_name)) {
-            auto proj    = mk_explicit(copy_tag(ref, mk_constant(proj_name)));
+            auto proj    = mk_explicit(copy_pos(ref, mk_constant(proj_name)));
             auto nparams = std::get<1>(get_structure_info(env, S_name));
             for (unsigned i = 0; i < nparams; i++)
                 proj = mk_app(proj, mk_expr_placeholder());
             return mk_app(proj, e);
         }
     }
-    return mk_app(copy_tag(ref, mk_constant(S_name + fname)), e);
+    return mk_app(copy_pos(ref, mk_constant(S_name + fname)), e);
 }
 
 optional<expr> mk_base_projections(environment const & env, name const & S_name, name const & base_S_name, expr const & e) {
@@ -491,7 +491,7 @@ struct structure_cmd_fn {
             return elab(tmp);
         } else {
             expr new_tmp = elab(mk_arrow(in_header ? parent : mk_as_is(parent), tmp));
-            parent       = copy_tag(parent, expr(binding_domain(new_tmp)));
+            parent       = copy_pos(parent, expr(binding_domain(new_tmp)));
 
             if (m_subobjects) {
                 // immediately register parent field so that we can use it in `mk_parent_expr` below

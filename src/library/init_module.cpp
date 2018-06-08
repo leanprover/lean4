@@ -53,9 +53,11 @@ Author: Leonardo de Moura
 #include "library/unique_id.h"
 #include "library/error_msgs.h"
 #include "library/formatter.h"
+#include "library/pos_info_provider.h"
 
 namespace lean {
 void initialize_library_core_module() {
+    initialize_pos_info_provider();
     initialize_error_msgs();
     initialize_formatter();
     initialize_constants();
@@ -75,6 +77,7 @@ void finalize_library_core_module() {
     finalize_constants();
     finalize_formatter();
     finalize_error_msgs();
+    finalize_pos_info_provider();
 }
 
 void initialize_library_module() {

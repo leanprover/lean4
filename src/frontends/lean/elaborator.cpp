@@ -244,7 +244,7 @@ bool elaborator::has_synth_sorry(std::initializer_list<expr> && es) {
 
 expr elaborator::mk_sorry(optional<expr> const & expected_type, expr const & ref, bool synthetic) {
     auto sorry_type = expected_type ? *expected_type : mk_type_metavar(ref);
-    return copy_tag(ref, mk_sorry(sorry_type, synthetic));
+    return copy_pos(ref, mk_sorry(sorry_type, synthetic));
 }
 
 expr elaborator::recoverable_error(optional<expr> const & expected_type, expr const & ref, elaborator_exception const & ex) {
@@ -258,11 +258,11 @@ level elaborator::mk_univ_metavar() {
 }
 
 expr elaborator::mk_metavar(expr const & A, expr const & ref) {
-    return copy_tag(ref, m_ctx.mk_metavar_decl(m_ctx.lctx(), A));
+    return copy_pos(ref, m_ctx.mk_metavar_decl(m_ctx.lctx(), A));
 }
 
 expr elaborator::mk_metavar(name const & pp_n, expr const & A, expr const & ref) {
-    return copy_tag(ref, m_ctx.mk_metavar_decl(pp_n, m_ctx.lctx(), A));
+    return copy_pos(ref, m_ctx.mk_metavar_decl(pp_n, m_ctx.lctx(), A));
 }
 
 expr elaborator::mk_metavar(optional<expr> const & A, expr const & ref) {
@@ -334,8 +334,8 @@ expr elaborator::mk_instance(expr const & C, expr const & ref) {
 
 expr elaborator::instantiate_mvars(expr const & e) {
     expr r = m_ctx.instantiate_mvars(e);
-    if (r.get_tag() == nulltag)
-        r.set_tag(e.get_tag());
+    if (!get_pos(r))
+        copy_pos(e, r);
     return r;
 }
 
@@ -868,7 +868,6 @@ expr elaborator::visit_prenum(expr const & e, optional<expr> const & expected_ty
     lean_assert(is_prenum(e));
     expr ref = e;
     mpz const & v  = prenum_value(e);
-    tag e_tag      = e.get_tag();
     expr A;
     if (expected_type) {
         A = *expected_type;
@@ -883,17 +882,17 @@ expr elaborator::visit_prenum(expr const & e, optional<expr> const & expected_ty
     if (v.is_neg())
         return recoverable_error(some_expr(A), ref, elaborator_exception(ref, "invalid pre-numeral, it must be a non-negative value"));
     if (v.is_zero()) {
-        expr has_zero_A = mk_app(mk_constant(get_has_zero_name(), ls), A, e_tag);
+        expr has_zero_A = copy_pos(ref, mk_app(mk_constant(get_has_zero_name(), ls), A));
         expr S          = mk_instance(has_zero_A, ref);
-        return mk_app(mk_app(mk_constant(get_has_zero_zero_name(), ls), A, e_tag), S, e_tag);
+        return copy_pos(ref, mk_app(copy_pos(ref, mk_app(mk_constant(get_has_zero_zero_name(), ls), A)), S));
     } else {
-        expr has_one_A = mk_app(mk_constant(get_has_one_name(), ls), A, e_tag);
+        expr has_one_A = copy_pos(ref, mk_app(mk_constant(get_has_one_name(), ls), A));
         expr S_one     = mk_instance(has_one_A, ref);
-        expr one       = mk_app(mk_app(mk_constant(get_has_one_one_name(), ls), A, e_tag), S_one, e_tag);
+        expr one       = copy_pos(ref, mk_app(copy_pos(ref, mk_app(mk_constant(get_has_one_one_name(), ls), A)), S_one));
         if (v == 1) {
             return one;
         } else {
-            expr has_add_A = mk_app(mk_constant(get_has_add_name(), ls), A, e_tag);
+            expr has_add_A = copy_pos(ref, mk_app(mk_constant(get_has_add_name(), ls), A));
             expr S_add     = mk_instance(has_add_A, ref);
             std::function<expr(mpz const & v)> convert = [&](mpz const & v) {
                 lean_assert(v > 0);
@@ -901,11 +900,10 @@ expr elaborator::visit_prenum(expr const & e, optional<expr> const & expected_ty
                     return one;
                 else if (v % mpz(2) == 0) {
                     expr r = convert(v / 2);
-                    return mk_app(mk_app(mk_app(mk_constant(get_bit0_name(), ls), A, e_tag), S_add, e_tag), r, e_tag);
+                    return copy_pos(ref, mk_app(copy_pos(ref, mk_app(copy_pos(ref, mk_app(mk_constant(get_bit0_name(), ls), A)), S_add)), r));
                 } else {
                     expr r = convert(v / 2);
-                    return mk_app(mk_app(mk_app(mk_app(mk_constant(get_bit1_name(), ls), A, e_tag), S_one, e_tag),
-                                         S_add, e_tag), r, e_tag);
+                    return copy_pos(ref, mk_app(copy_pos(ref, mk_app(copy_pos(ref, mk_app(copy_pos(ref, mk_app(mk_constant(get_bit1_name(), ls), A)), S_one)), S_add)), r));
                 }
             };
             return convert(v);
@@ -1213,7 +1211,7 @@ expr elaborator::mk_auto_param(expr const & name_lit, expr const & expected_type
         throw elaborator_exception(ref, format("invalid auto_param, invalid tactic '") + format(*c) +
                                    format("' type should be (tactic unit)") +
                                    pp_indent(d->get_type()));
-    expr t = copy_tag(ref, mk_by(copy_tag(ref, mk_constant(*c))));
+    expr t = copy_pos(ref, mk_by(copy_pos(ref, mk_constant(*c))));
     return visit(t, some_expr(expected_type));
 }
 
@@ -1264,7 +1262,7 @@ expr elaborator::post_process_implicit_arg(expr const & arg, expr const & ref) {
         // different mechanism in instantiate_pattern_mvars. We cannot
         // use the same mechanism for quote patterns because inst-implicit
         // arguments are usually not inferable there.
-        return copy_tag(ref, mk_inaccessible(arg));
+        return copy_pos(ref, mk_inaccessible(arg));
     } else {
         return arg;
     }
@@ -1705,7 +1703,7 @@ expr elaborator::visit_overloaded_app_core(buffer<expr> const & fns, buffer<expr
                                            optional<expr> const & expected_type, expr const & ref) {
     buffer<expr> new_args;
     for (expr const & arg : args) {
-        new_args.push_back(copy_tag(arg, visit(arg, none_expr())));
+        new_args.push_back(copy_pos(arg, visit(arg, none_expr())));
     }
 
     snapshot S(*this);
@@ -1896,12 +1894,12 @@ expr elaborator::visit_no_confusion_app(expr const & fn, buffer<expr> const & ar
     unsigned nindices = *inductive::get_num_indices(m_env, I_name);
     buffer<expr> new_args;
     for (unsigned i = 0; i < nparams + nindices; i++) {
-        new_args.push_back(copy_tag(ref, mk_expr_placeholder()));
+        new_args.push_back(copy_pos(ref, mk_expr_placeholder()));
     }
-    new_args.push_back(copy_tag(ref, mk_as_is(*expected_type)));
-    new_args.push_back(copy_tag(ref, mk_expr_placeholder())); // lhs
-    new_args.push_back(copy_tag(ref, mk_expr_placeholder())); // rhs
-    new_args.push_back(copy_tag(args[0], mk_as_is(Heq)));
+    new_args.push_back(copy_pos(ref, mk_as_is(*expected_type)));
+    new_args.push_back(copy_pos(ref, mk_expr_placeholder())); // lhs
+    new_args.push_back(copy_pos(ref, mk_expr_placeholder())); // rhs
+    new_args.push_back(copy_pos(args[0], mk_as_is(Heq)));
     for (unsigned i = 1; i < args.size(); i++)
         new_args.push_back(args[i]);
     return visit_base_app_core(fn, arg_mask::AllExplicit, new_args, false, expected_type, ref);
@@ -1948,10 +1946,10 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
         auto field_res   = find_field_fn(fn, s, s_type);
         expr proj, proj_type;
         if (field_res.m_ldecl) {
-            proj      = copy_tag(fn, field_res.m_ldecl->mk_ref());
+            proj      = copy_pos(fn, field_res.m_ldecl->mk_ref());
             proj_type = field_res.m_ldecl->get_type();
         } else {
-            proj      = copy_tag(fn, mk_constant(field_res.get_full_fname()));
+            proj      = copy_pos(fn, mk_constant(field_res.get_full_fname()));
             proj_type = m_env.get(field_res.get_full_fname()).get_type();
         }
         buffer<expr> new_args;
@@ -1961,7 +1959,7 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
                 if (is_app_of(binding_domain(proj_type), field_res.m_base_S_name)) {
                     /* found s location */
                     expr coerced_s = *mk_base_projections(m_env, field_res.m_S_name, field_res.m_base_S_name, mk_as_is(s));
-                    new_args.push_back(copy_tag(fn, std::move(coerced_s)));
+                    new_args.push_back(copy_pos(fn, std::move(coerced_s)));
                     for (; i < args.size(); i++)
                         new_args.push_back(args[i]);
                     expr new_proj = visit_function(proj, has_args, has_args ? none_expr() : expected_type, ref);
@@ -2032,11 +2030,11 @@ expr elaborator::visit_scope_trace(expr const & e, optional<expr> const & expect
         line         = pos.first;
         col          = pos.second;
     }
-    new_args.push_back(copy_tag(e, mk_expr_placeholder()));
-    new_args.push_back(copy_tag(e, mk_prenum(mpz(line))));
-    new_args.push_back(copy_tag(e, mk_prenum(mpz(col))));
+    new_args.push_back(copy_pos(e, mk_expr_placeholder()));
+    new_args.push_back(copy_pos(e, mk_prenum(mpz(line))));
+    new_args.push_back(copy_pos(e, mk_prenum(mpz(col))));
     new_args.push_back(app_arg(e));
-    return visit(mk_app(copy_tag(e, mk_explicit(app_fn(e))), new_args.size(), new_args.data()), expected_type);
+    return visit(mk_app(copy_pos(e, mk_explicit(app_fn(e))), new_args.size(), new_args.data()), expected_type);
 }
 
 expr elaborator::visit_app(expr const & e, optional<expr> const & expected_type) {
@@ -2047,7 +2045,7 @@ expr elaborator::visit_app(expr const & e, optional<expr> const & expected_type)
     if (is_infix_function(fn)) {
         expr infix_fn = get_annotation_arg(fn);
         lean_assert(is_lambda(infix_fn));
-        return visit(head_beta_reduce(copy_tag(e, mk_app(infix_fn, args))), expected_type);
+        return visit(head_beta_reduce(copy_pos(e, mk_app(infix_fn, args))), expected_type);
     } else if (is_equations(fn)) {
         return visit_convoy(e, expected_type);
     } else {
@@ -2132,12 +2130,12 @@ expr elaborator::visit_anonymous_constructor(expr const & e, optional<expr> cons
     }
     if (num_explicit > 1 && args.size() > num_explicit) {
         unsigned num_extra = args.size() - num_explicit;
-        expr rest = copy_tag(e, mk_app(c, num_extra + 1, args.data() + num_explicit - 1));
-        rest = copy_tag(e, mk_anonymous_constructor(rest));
+        expr rest = copy_pos(e, mk_app(c, num_extra + 1, args.data() + num_explicit - 1));
+        rest = copy_pos(e, mk_anonymous_constructor(rest));
         args.shrink(num_explicit);
         args.back() = rest;
     }
-    expr new_e = copy_tag(e, mk_app(mk_constant(head(c_names)), args));
+    expr new_e = copy_pos(e, mk_app(mk_constant(head(c_names)), args));
     return visit(new_e, expected_type);
 }
 
@@ -2165,9 +2163,9 @@ static expr instantiate_rev_locals(expr const & a, unsigned n, expr const * subs
                 if (h < offset /* overflow, h is bigger than any vidx */ || vidx < h) {
                     expr local = subst[n - (vidx - offset) - 1];
                     lean_assert(is_local(local));
-                    return some_expr(copy_tag(m, copy(local)));
+                    return some_expr(copy_pos(m, copy(local)));
                 } else {
-                    return some_expr(copy_tag(m, mk_var(vidx - n)));
+                    return some_expr(copy_pos(m, mk_var(vidx - n)));
                 }
             }
         }
@@ -2571,7 +2569,7 @@ static expr instantiate_pattern_mvars(type_context_old & ctx, expr const & lhs) 
             if (is_metavar_decl_ref(e) && ctx.is_assigned(e)) {
                 expr v = ctx.instantiate_mvars(e);
                 if (!is_local(v) && !is_metavar(v))
-                    return some_expr(copy_tag(e, mk_inaccessible(v)));
+                    return some_expr(copy_pos(e, mk_inaccessible(v)));
                 else
                     return some_expr(v);
             } else {
@@ -2590,7 +2588,7 @@ expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
         expr d     = instantiate_rev_locals(binding_domain(it), fns);
         expr new_d = visit(d, none_expr());
         expr ref_d = get_ref_for_child(binding_domain(it), it);
-        expr fn    = copy_tag(binding_domain(it), push_local(fns, binding_name(it), new_d, binding_info(it), ref_d));
+        expr fn    = copy_pos(binding_domain(it), push_local(fns, binding_name(it), new_d, binding_info(it), ref_d));
         save_identifier_info(fn);
         it = binding_body(it);
     }
@@ -2605,7 +2603,7 @@ expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
         while (is_lambda(it)) {
             expr type = mk_type_metavar(it);
             type_mvars.push_back(type);
-            expr mvar = copy_tag(binding_domain(it), m_ctx.mk_metavar_decl(binding_name(it), m_ctx.lctx(), type));
+            expr mvar = copy_pos(binding_domain(it), m_ctx.mk_metavar_decl(binding_name(it), m_ctx.lctx(), type));
             local_mvars.push_back(mvar);
             it = binding_body(it);
         }
@@ -2678,9 +2676,9 @@ expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
         // synthesize_no_tactics();
         // new_rhs       = instantiate_mvars(new_rhs);
         new_rhs       = enforce_type(new_rhs, new_lhs_type, "equation type mismatch", it);
-        expr new_eq = copy_tag(it, mk_equation(new_lhs, new_rhs, ignore_equation_if_unused(it)));
+        expr new_eq = copy_pos(it, mk_equation(new_lhs, new_rhs, ignore_equation_if_unused(it)));
         trace_elab_equation(tout() << new_eq << "\n";);
-        expr r = copy_tag(ref, fns.mk_lambda(new_locals.mk_lambda(new_eq)));
+        expr r = copy_pos(ref, fns.mk_lambda(new_locals.mk_lambda(new_eq)));
         return r;
     }
 }
@@ -2714,11 +2712,11 @@ expr elaborator::visit_equations(expr const & e) {
                 /* Replace first num_fns domains of eq with the ones in first_eq.
                    This is a trick/hack to ensure the fns in each equation have
                    the same elaborated type. */
-                new_eq   = copy_tag(eq, visit_equation(copy_domain(num_fns, *first_eq, eq), num_fns));
+                new_eq   = copy_pos(eq, visit_equation(copy_domain(num_fns, *first_eq, eq), num_fns));
                 new_eqs.push_back(new_eq);
             }
         } else {
-            new_eq   = copy_tag(eq, visit_equation(eq, num_fns));
+            new_eq   = copy_pos(eq, visit_equation(eq, num_fns));
             first_eq = new_eq;
             new_eqs.push_back(new_eq);
         }
@@ -2727,9 +2725,9 @@ expr elaborator::visit_equations(expr const & e) {
     synthesize();
     expr new_e;
     if (new_tacs) {
-        new_e = copy_tag(e, mk_equations(header, new_eqs.size(), new_eqs.data(), *new_tacs));
+        new_e = copy_pos(e, mk_equations(header, new_eqs.size(), new_eqs.data(), *new_tacs));
     } else {
-        new_e = copy_tag(e, mk_equations(header, new_eqs.size(), new_eqs.data()));
+        new_e = copy_pos(e, mk_equations(header, new_eqs.size(), new_eqs.data()));
     }
     new_e = instantiate_mvars(new_e);
     ensure_no_unassigned_metavars(new_e);
@@ -2750,7 +2748,7 @@ expr elaborator::visit_inaccessible(expr const & e, optional<expr> const & expec
         flet<bool> set(m_in_pattern, false);
         new_a = visit(a, expected_type);
     }
-    return copy_tag(e, mk_inaccessible(new_a));
+    return copy_pos(e, mk_inaccessible(new_a));
 }
 
 elaborator::field_resolution elaborator::field_to_decl(expr const & e, expr const & s, expr const & s_type) {
@@ -2853,7 +2851,7 @@ expr elaborator::visit_field(expr const & e, optional<expr> const & expected_typ
     auto field_res = find_field_fn(e, s, s_type);
     expr proj_app;
     if (field_res.m_ldecl) {
-        proj_app   = copy_tag(e, mk_app(field_res.m_ldecl->mk_ref(), mk_as_is(s)));
+        proj_app   = copy_pos(e, mk_app(field_res.m_ldecl->mk_ref(), mk_as_is(s)));
     } else {
         expr new_e = *mk_base_projections(m_env, field_res.m_S_name, field_res.m_base_S_name, mk_as_is(s));
         proj_app   = mk_proj_app(m_env, field_res.m_base_S_name, field_res.m_fname, new_e, e);
@@ -2996,7 +2994,7 @@ class visit_structure_instance_fn {
         buffer<name> c_names;
         get_intro_rule_names(m_env, nested_S_name, c_names);
         lean_assert(c_names.size() == 1);
-        expr c = m_elab.visit_const_core(copy_tag(m_e, mk_constant(c_names[0])));
+        expr c = m_elab.visit_const_core(copy_pos(m_e, mk_constant(c_names[0])));
         buffer<expr> c_args;
         expr c_type = m_elab.infer_type(c);
         unsigned nparams = *inductive::get_num_params(m_env, nested_S_name);
@@ -3152,7 +3150,7 @@ class visit_structure_instance_fn {
                                                             line() + format("which has type") +
                                                             m_elab.pp_indent(pp_fn, type)));
             } else {
-                m_sources.push_back(source {copy_tag(src, mk_as_is(src)), const_name(src_S)});
+                m_sources.push_back(source {copy_pos(src, mk_as_is(src)), const_name(src_S)});
             }
         }
     }
@@ -3463,7 +3461,7 @@ expr elaborator::visit_lambda(expr const & e, optional<expr> const & expected_ty
         }
         expr ref_d = get_ref_for_child(binding_domain(it), it);
         new_d      = ensure_type(new_d, ref_d);
-        expr l     = copy_tag(binding_domain(it), push_local(locals, binding_name(it), new_d, binding_info(it), ref_d));
+        expr l     = copy_pos(binding_domain(it), push_local(locals, binding_name(it), new_d, binding_info(it), ref_d));
         save_identifier_info(l);
         it = binding_body(it);
         if (has_expected) {
@@ -3493,7 +3491,7 @@ expr elaborator::visit_pi(expr const & e) {
         expr ref_d = get_ref_for_child(binding_domain(it), it);
         new_d      = ensure_type(new_d, ref_d);
         expr ref   = binding_domain(it);
-        expr l     = copy_tag(binding_domain(it), push_local(locals, binding_name(it), new_d, binding_info(it), ref));
+        expr l     = copy_pos(binding_domain(it), push_local(locals, binding_name(it), new_d, binding_info(it), ref));
         save_identifier_info(l);
         parent_it  = it;
         it         = binding_body(it);
@@ -3519,7 +3517,7 @@ expr elaborator::visit_let(expr const & e, optional<expr> const & expected_type)
     new_value      = instantiate_mvars(new_value);
     ensure_no_unassigned_metavars(new_value);
     type_context_old::tmp_locals locals(m_ctx);
-    expr l = copy_tag(let_type(e), push_let(locals, let_name(e), new_type, new_value, ref));
+    expr l = copy_pos(let_type(e), push_let(locals, let_name(e), new_type, new_value, ref));
     save_identifier_info(l);
     expr body      = instantiate_rev_locals(let_body(e), locals);
     expr new_body  = visit(body, expected_type);
@@ -3592,8 +3590,8 @@ expr elaborator::visit_suffices_expr(expr const & e, optional<expr> const & expe
 }
 
 static expr mk_emptyc(expr const & src) {
-    return copy_tag(src, mk_app(copy_tag(src, mk_constant(get_has_emptyc_emptyc_name())),
-                                copy_tag(src, mk_expr_placeholder())));
+    return copy_pos(src, mk_app(copy_pos(src, mk_constant(get_has_emptyc_emptyc_name())),
+                                copy_pos(src, mk_expr_placeholder())));
 }
 
 expr elaborator::visit_emptyc_or_emptys(expr const & e, optional<expr> const & expected_type) {
@@ -3606,7 +3604,7 @@ expr elaborator::visit_emptyc_or_emptys(expr const & e, optional<expr> const & e
             new_expected_type = app_arg(app_fn(new_expected_type));
         expr S = get_app_fn(new_expected_type);
         if (is_constant(S) && is_structure(m_env, const_name(S))) {
-            expr empty_struct = copy_tag(e, mk_structure_instance(name(), buffer<name>(), buffer<expr>()));
+            expr empty_struct = copy_pos(e, mk_structure_instance(name(), buffer<name>(), buffer<expr>()));
             return visit(empty_struct, expected_type);
         } else {
             return visit(mk_emptyc(e), expected_type);
@@ -3624,9 +3622,9 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
         } else if (is_typed_expr(e)) {
             return visit_typed_expr(e);
         } else if (is_have_expr(e)) {
-            return copy_tag(e, visit_have_expr(e, expected_type));
+            return copy_pos(e, visit_have_expr(e, expected_type));
         } else if (is_suffices_annotation(e)) {
-            return copy_tag(e, visit_suffices_expr(e, expected_type));
+            return copy_pos(e, visit_suffices_expr(e, expected_type));
         } else if (is_no_info(e)) {
             flet<bool> set(m_no_info, true);
             return visit(get_annotation_arg(e), expected_type);
@@ -3640,21 +3638,21 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
                 case expr_kind::Meta:
                     return e;
                 case expr_kind::Sort:
-                    return copy_tag(e, visit_sort(e));
+                    return copy_pos(e, visit_sort(e));
                 case expr_kind::Local:
-                    return copy_tag(e, visit_local(e, expected_type));
+                    return copy_pos(e, visit_local(e, expected_type));
                 case expr_kind::Constant:
-                    return copy_tag(e, visit_constant(e, expected_type));
+                    return copy_pos(e, visit_constant(e, expected_type));
                 case expr_kind::Macro:
-                    return copy_tag(e, visit_macro(e, expected_type, false));
+                    return copy_pos(e, visit_macro(e, expected_type, false));
                 case expr_kind::Lambda:
-                    return copy_tag(e, visit_lambda(e, expected_type));
+                    return copy_pos(e, visit_lambda(e, expected_type));
                 case expr_kind::Pi:
-                    return copy_tag(e, visit_pi(e));
+                    return copy_pos(e, visit_pi(e));
                 case expr_kind::App:
-                    return copy_tag(e, visit_app(e, expected_type));
+                    return copy_pos(e, visit_app(e, expected_type));
                 case expr_kind::Let:
-                    return copy_tag(e, visit_let(e, expected_type));
+                    return copy_pos(e, visit_let(e, expected_type));
             }
             lean_unreachable(); // LCOV_EXCL_LINE
         }
@@ -3827,7 +3825,7 @@ void elaborator::process_hole(expr const & mvar, expr const & hole) {
             m_info.add_identifier_info(*begin_pos, "[goal]");
         }
     }
-    m_ctx.assign(mvar, copy_tag(hole, mk_sorry(ty)));
+    m_ctx.assign(mvar, copy_pos(hole, mk_sorry(ty)));
 }
 
 void elaborator::process_holes() {
@@ -3874,7 +3872,7 @@ void elaborator::ensure_no_unassigned_metavars(expr & e) {
                     auto ty = m_ctx.mctx().get_metavar_decl(e).get_type();
                     if (!has_synth_sorry(ty))
                         report_error(s, "context:", "don't know how to synthesize placeholder", e);
-                    m_ctx.assign(e, copy_tag(e, mk_sorry(ty)));
+                    m_ctx.assign(e, copy_pos(e, mk_sorry(ty)));
                     ensure_no_unassigned_metavars(ty);
 
                     auto val = instantiate_mvars(e);
@@ -4033,7 +4031,7 @@ expr_pair elaborator::elaborate_with_type(expr const & e, expr const & e_type) {
     expr const & ref = e;
     expr new_e, new_e_type;
     {
-        expr Type  = visit(copy_tag(e_type, mk_sort(mk_level_placeholder())), none_expr());
+        expr Type  = visit(copy_pos(e_type, mk_sort(mk_level_placeholder())), none_expr());
         new_e_type = visit(e_type, some_expr(Type));
         new_e_type = ensure_type(new_e_type, e_type);
         new_e      = visit(e,      some_expr(new_e_type));
@@ -4115,19 +4113,19 @@ static optional<expr> resolve_local_name_core(environment const & env, local_con
     unsigned vidx = 0;
     for (name const & extra : extra_locals) {
         if (id == extra)
-            return some_expr(copy_tag(src, mk_var(vidx)));
+            return some_expr(copy_pos(src, mk_var(vidx)));
         vidx++;
     }
 
     /* check local context */
     if (auto decl = lctx.find_local_decl_from_user_name(id)) {
-        return some_expr(copy_tag(src, decl->mk_ref()));
+        return some_expr(copy_pos(src, decl->mk_ref()));
     }
 
     /* check local_refs */
     if (auto ref = get_local_ref(env, id)) {
         /* ref may contain local references that have new names at lctx. */
-        return some_expr(copy_tag(src, replace(*ref, [&](expr const & e, unsigned) {
+        return some_expr(copy_pos(src, replace(*ref, [&](expr const & e, unsigned) {
                         if (is_local(e)) {
                             if (auto decl = lctx.find_local_decl_from_user_name(mlocal_pp_name(e))) {
                                 return some_expr(decl->mk_ref());
@@ -4139,7 +4137,7 @@ static optional<expr> resolve_local_name_core(environment const & env, local_con
 
     if (!id.is_atomic() && id.is_string()) {
         if (auto r = resolve_local_name_core(env, lctx, id.get_prefix(), src, extra_locals)) {
-            return some_expr(copy_tag(src, mk_field_notation_compact(*r, id.get_string())));
+            return some_expr(copy_pos(src, mk_field_notation_compact(*r, id.get_string())));
         } else {
             return none_expr();
         }
@@ -4160,7 +4158,7 @@ static expr resolve_local_name(environment const & env, local_context const & lc
         auto new_id = ns + id;
         if (!ns.is_anonymous() && env.find(new_id) &&
             (!id.is_atomic() || !is_protected(env, new_id))) {
-            return copy_tag(src, mk_constant(new_id));
+            return copy_pos(src, mk_constant(new_id));
         }
     }
 
@@ -4169,14 +4167,14 @@ static expr resolve_local_name(environment const & env, local_context const & lc
         name new_id = id;
         new_id = remove_root_prefix(new_id);
         if (env.find(new_id)) {
-            return copy_tag(src, mk_constant(new_id));
+            return copy_pos(src, mk_constant(new_id));
         }
     }
 
     optional<expr> r;
     /* globals */
     if (env.find(id))
-        r = copy_tag(src, mk_constant(id));
+        r = copy_pos(src, mk_constant(id));
 
     if (!ignore_aliases) {
         // aliases
@@ -4186,9 +4184,9 @@ static expr resolve_local_name(environment const & env, local_context const & lc
             if (r)
                 new_as.push_back(*r);
             for (auto const & a : as) {
-                new_as.push_back(copy_tag(src, mk_constant(a)));
+                new_as.push_back(copy_pos(src, mk_constant(a)));
             }
-            r = copy_tag(src, mk_choice(new_as.size(), new_as.data()));
+            r = copy_pos(src, mk_choice(new_as.size(), new_as.data()));
         }
     }
     if (!r && !id.is_atomic() && id.is_string()) {
@@ -4234,7 +4232,7 @@ struct resolve_names_fn : public replace_visitor {
             /* universe level were provided, so the constant was already resolved at parsing time */
             return e;
         } else {
-            return copy_tag(e, resolve_local_name(m_env, m_lctx, const_name(e), e, ignore_aliases, m_locals));
+            return copy_pos(e, resolve_local_name(m_env, m_lctx, const_name(e), e, ignore_aliases, m_locals));
         }
     }
 
@@ -4243,7 +4241,7 @@ struct resolve_names_fn : public replace_visitor {
     }
 
     expr visit_local(expr const & e, bool ignore_aliases) {
-        return copy_tag(e, resolve_local_name(m_env, m_lctx, mlocal_pp_name(e), e, ignore_aliases, m_locals));
+        return copy_pos(e, resolve_local_name(m_env, m_lctx, mlocal_pp_name(e), e, ignore_aliases, m_locals));
     }
 
     virtual expr visit_local(expr const & e) override {

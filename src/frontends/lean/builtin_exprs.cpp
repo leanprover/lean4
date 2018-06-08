@@ -926,10 +926,9 @@ static expr parse_atomic_inaccessible(parser & p, unsigned, expr const *, pos_in
 static name * g_begin_hole = nullptr;
 static name * g_end_hole   = nullptr;
 
-expr mk_annotation_with_pos(parser & p, name const & a, expr const & e, pos_info const & pos) {
+expr mk_annotation_with_pos(parser &, name const & a, expr const & e, pos_info const & pos) {
     expr r = mk_annotation(a, e);
-    r.set_tag(nulltag); // mk_annotation copies e's tag
-    return p.save_pos(r, pos);
+    return save_pos(r, pos);
 }
 
 expr mk_hole(parser & p, expr const & e, pos_info const & begin_pos, pos_info const & end_pos) {
@@ -966,7 +965,7 @@ static expr parse_hole(parser & p, unsigned, expr const *, pos_info const & begi
             parser::quote_scope scope(p, false);
             e = p.parse_expr();
         }
-        ps.push_back(copy_tag(e, mk_pexpr_quote(e)));
+        ps.push_back(copy_pos(e, mk_pexpr_quote(e)));
         if (!p.curr_is_token(get_comma_tk()))
             break;
         p.next();

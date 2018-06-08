@@ -167,7 +167,7 @@ class instantiate_mvars_fn : public replace_visitor {
         if (!modified)
             return e;
         else
-            return mk_rev_app(new_f, new_args, e.get_tag());
+            return mk_rev_app(new_f, new_args);
     }
 
     virtual expr visit_macro(expr const & e) override {

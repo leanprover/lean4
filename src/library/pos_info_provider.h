@@ -11,19 +11,20 @@ Author: Leonardo de Moura
 #include "util/message_definitions.h"
 
 namespace lean {
-/**
-   \brief Abstract class for providing expression position information (line number and column).
-*/
+/* TEMPORARY HACK for getting position information until we have the new frontend */
+expr save_pos(expr const & e, pos_info const & pos);
+expr copy_pos(expr const & src, expr const & dest);
+void erase_pos(expr const & e);
+optional<pos_info> get_pos(expr const & e);
+void reset_positions();
+
 class pos_info_provider {
 public:
     virtual ~pos_info_provider() {}
-    /**
-       \brief Return the line number and position associated with the given expression.
-       Return none if the information is not available
-    */
-    virtual optional<pos_info> get_pos_info(expr const & e) const = 0;
+    virtual optional<pos_info> get_pos_info(expr const & e) const { return ::lean::get_pos(e); }
     virtual char const * get_file_name() const;
     virtual pos_info get_some_pos() const = 0;
+
     pos_info get_pos_info_or_some(expr const & e) const {
         if (auto it = get_pos_info(e))
             return *it;
@@ -31,9 +32,7 @@ public:
             return get_some_pos();
     }
 
-    virtual expr save_pos(expr const &, pos_info) {
-        lean_unreachable();
-    }
+    virtual expr save_pos(expr const & e, pos_info const & pos) { return ::lean::save_pos(e, pos); }
 
     /**
        \brief Pretty print position information for the given expression.
@@ -41,4 +40,7 @@ public:
     */
     virtual format pp(expr const & e) const;
 };
+
+void initialize_pos_info_provider();
+void finalize_pos_info_provider();
 }

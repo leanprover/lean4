@@ -241,10 +241,10 @@ expr update_equations(expr const & eqns, buffer<expr> const & new_eqs) {
     lean_assert(is_equations(eqns));
     lean_assert(!new_eqs.empty());
     if (is_wf_equations(eqns)) {
-        return copy_tag(eqns, mk_equations(get_equations_header(eqns), new_eqs.size(), new_eqs.data(),
+        return copy_pos(eqns, mk_equations(get_equations_header(eqns), new_eqs.size(), new_eqs.data(),
                                            equations_wf_tactics(eqns)));
     } else {
-        return copy_tag(eqns, mk_equations(get_equations_header(eqns), new_eqs.size(), new_eqs.data()));
+        return copy_pos(eqns, mk_equations(get_equations_header(eqns), new_eqs.size(), new_eqs.data()));
     }
 }
 
@@ -252,10 +252,10 @@ expr update_equations(expr const & eqns, equations_header const & header) {
     buffer<expr> eqs;
     to_equations(eqns, eqs);
     if (is_wf_equations(eqns)) {
-        return copy_tag(eqns, mk_equations(header, eqs.size(), eqs.data(),
+        return copy_pos(eqns, mk_equations(header, eqs.size(), eqs.data(),
                                            equations_wf_tactics(eqns)));
     } else {
-        return copy_tag(eqns, mk_equations(header, eqs.size(), eqs.data()));
+        return copy_pos(eqns, mk_equations(header, eqs.size(), eqs.data()));
     }
 }
 
@@ -263,7 +263,7 @@ expr remove_wf_annotation_from_equations(expr const & eqns) {
     if (is_wf_equations(eqns)) {
         buffer<expr> eqs;
         to_equations(eqns, eqs);
-        return copy_tag(eqns, mk_equations(get_equations_header(eqns), eqs.size(), eqs.data()));
+        return copy_pos(eqns, mk_equations(get_equations_header(eqns), eqs.size(), eqs.data()));
     } else {
         return eqns;
     }

@@ -169,10 +169,10 @@ class expr_composite : public expr_cell {
 protected:
     unsigned m_weight;
     unsigned m_depth;
-    unsigned m_free_var_range;
+    unsigned m_loose_bvar_range; /* dangling bound variables */
     friend unsigned get_weight(expr const & e);
     friend unsigned get_depth(expr const & e);
-    friend unsigned get_free_var_range(expr const & e);
+    friend unsigned get_loose_bvar_range(expr const & e);
     expr_composite(expr_composite const & src); // for hash_consing
 public:
     expr_composite(expr_kind k, unsigned h, bool has_expr_mv, bool has_univ_mv, bool has_local,
@@ -557,21 +557,17 @@ inline bool has_local(expr const & e) { return e.has_local(); }
 inline bool has_param_univ(expr const & e) { return e.has_param_univ(); }
 unsigned get_weight(expr const & e);
 unsigned get_depth(expr const & e);
-/**
-   \brief Return \c R s.t. the de Bruijn index of all free variables
-   occurring in \c e is in the interval <tt>[0, R)</tt>.
-*/
-inline unsigned get_free_var_range(expr const & e) {
+/** \brief Return \c R s.t. the de Bruijn index of all loose bound variables
+     occurring in \c e is in the interval <tt>[0, R)</tt>. */
+inline unsigned get_loose_bvar_range(expr const & e) {
     switch (e.kind()) {
     case expr_kind::Var:                            return var_idx(e) + 1;
     case expr_kind::Constant: case expr_kind::Sort: return 0;
-    default:                                        return static_cast<expr_composite*>(e.raw())->m_free_var_range;
+    default:                                        return static_cast<expr_composite*>(e.raw())->m_loose_bvar_range;
     }
 }
-/** \brief Return true iff the given expression has free variables. */
-inline bool has_free_vars(expr const & e) { return get_free_var_range(e) > 0; }
-/** \brief Return true iff the given expression does not have free variables. */
-inline bool closed(expr const & e) { return !has_free_vars(e); }
+/** \brief Return true iff the given expression has loose bound variables. */
+inline bool has_loose_bvars(expr const & e) { return get_loose_bvar_range(e) > 0; }
 /**
     \brief Given \c e of the form <tt>(...(f a1) ... an)</tt>, store a1 ... an in args.
     If \c e is not an application, then nothing is stored in args.
@@ -618,8 +614,28 @@ expr update_sort(expr const & e, level const & new_level);
 expr update_constant(expr const & e, levels const & new_levels);
 expr update_macro(expr const & e, unsigned num, expr const * args);
 expr update_let(expr const & e, expr const & new_type, expr const & new_value, expr const & new_body);
+// =======================================
+
 
 // =======================================
+// Loose bound variable management
+
+/** \brief Return true iff \c e contains the loose bound variable <tt>(var i)</tt>. */
+bool has_loose_bvar(expr const & e, unsigned i);
+
+/**
+   \brief Lower the loose bound variables >= s in \c e by \c d. That is, a loose bound variable <tt>(var i)</tt> s.t.
+   <tt>i >= s</tt> is mapped into <tt>(var i-d)</tt>.
+
+   \pre s >= d */
+expr lower_loose_bvars(expr const & e, unsigned s, unsigned d);
+expr lower_loose_bvars(expr const & e, unsigned d);
+
+/** \brief Lift loose bound variables >= s in \c e by d. */
+expr lift_loose_bvars(expr const & e, unsigned s, unsigned d);
+expr lift_loose_bvars(expr const & e, unsigned d);
+// =======================================
+
 
 // =======================================
 // Implicit argument inference

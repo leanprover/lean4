@@ -298,7 +298,7 @@ struct wf_rec_fn {
         it        = ctx.relaxed_whnf(instantiate(binding_body(it), x));
         lean_assert(is_pi(it));
         expr Cx   = binding_body(it);
-        lean_assert(closed(it));
+        lean_assert(!has_loose_bvars(it));
         expr C    = ctx.mk_lambda(x, Cx);
         level u_1 = get_level(ctx, x_ty);
         level u_2 = get_level(ctx, Cx);

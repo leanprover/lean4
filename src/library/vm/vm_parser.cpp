@@ -55,7 +55,7 @@ expr parse_interactive_param(parser & p, expr const & param_ty) {
     get_app_args(param_ty, param_args);
     // alpha, has_reflect alpha, parser alpha
     lean_assert(param_args.size() == 3);
-    if (!closed(param_args[2])) {
+    if (has_loose_bvars(param_args[2])) {
         throw elaborator_exception(param_args[2], "error running user-defined parser: must be closed expression");
     }
     try {

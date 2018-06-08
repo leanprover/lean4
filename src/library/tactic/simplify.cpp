@@ -998,7 +998,7 @@ simp_result simplify_ext_core_fn::forall_congr(expr const & e) {
             Pr           = mk_app(mk_constant(lemma_name, {A_lvl}), A, P, Q, H);
             R            = update_binding(pi, A, R);
         }
-        lean_assert(closed(Pr));
+        lean_assert(!has_loose_bvars(Pr));
         return simp_result(R, Pr);
     } else if (new_body == body) {
         return simp_result(e);

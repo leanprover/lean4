@@ -840,7 +840,7 @@ static expr parse_infix_paren(parser & p, list<notation::accepting> const & accs
     buffer<expr> cs;
     for (notation::accepting const & acc : accs) {
         expr r = p.copy_with_new_pos(acc.get_expr(), pos);
-        if (!fixed_second_arg && get_app_num_args(r) == 2 && closed(app_fn(app_fn(r))) &&
+        if (!fixed_second_arg && get_app_num_args(r) == 2 && !has_loose_bvars(app_fn(app_fn(r))) &&
             is_var(app_arg(app_fn(r)), 1) && is_var(app_arg(r), 0)) {
             /* r is of the form (f #1 #0).
                Thus, we add f to cs instead of (fun x y, f x y) */

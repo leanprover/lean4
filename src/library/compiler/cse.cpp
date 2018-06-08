@@ -68,7 +68,7 @@ class cse_fn : public compiler_step_visitor {
         expr_set m_candidates;
 
         void add_candidate(expr const & e) {
-            if (!closed(e)) return;
+            if (has_loose_bvars(e)) return;
             m_candidates.insert(e);
         }
 
@@ -102,7 +102,7 @@ class cse_fn : public compiler_step_visitor {
         expr_map<unsigned> m_num_occs;
 
         void add_occ(expr const & e) {
-            if (!closed(e)) return;
+            if (has_loose_bvars(e)) return;
             if (m_candidates.find(e) == m_candidates.end()) return;
             if (m_num_occs.find(e) == m_num_occs.end()) {
                 m_num_occs.insert(mk_pair(e, 1));
@@ -177,7 +177,7 @@ class cse_fn : public compiler_step_visitor {
             expr r = replace(e, [&](expr const & s, unsigned) {
                     if (main && s == *main) return none_expr();
                     if (!is_app(s) && !is_macro(s)) return none_expr();
-                    if (!closed(s)) return none_expr();
+                    if (has_loose_bvars(s)) return none_expr();
                     auto it1 = m_common_subexpr_to_local.find(s);
                     if (it1 != m_common_subexpr_to_local.end())
                         return some_expr(it1->second);

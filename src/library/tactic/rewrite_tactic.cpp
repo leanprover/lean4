@@ -68,7 +68,7 @@ static vm_obj rewrite_core(expr h, expr e, rewrite_cfg const & cfg, tactic_state
     expr pattern = lhs;
     lean_trace("rewrite", tout() << "before kabstract\n";);
     expr e_abst  = kabstract(ctx, e, pattern, cfg.m_occs, cfg.m_unify);
-    if (closed(e_abst)) {
+    if (!has_loose_bvars(e_abst)) {
         auto new_s = update_option_if_undef(s, get_pp_beta_name(), false);
         auto thunk = [=]() {
             format msg = format("rewrite tactic failed, did not find instance of the pattern in the target expression");

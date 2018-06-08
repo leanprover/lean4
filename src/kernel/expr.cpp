@@ -17,8 +17,8 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 #include "kernel/expr_eq_fn.h"
 #include "kernel/expr_sets.h"
-#include "kernel/free_vars.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/replace_fn.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 
@@ -125,7 +125,7 @@ expr_var::expr_var(unsigned idx):
     expr_cell(expr_kind::Var, idx, false, false, false, false),
     m_vidx(idx) {
     if (idx == std::numeric_limits<unsigned>::max())
-        throw exception("invalid free variable index, de Bruijn index is too big");
+        throw exception("invalid bound variable index, de Bruijn index is too big");
 }
 void expr_var::dealloc() {
     delete this;
@@ -150,7 +150,7 @@ unsigned binder_info::hash() const {
 expr_mlocal::expr_mlocal(bool is_meta, name const & n, name const & pp_n, expr const & t):
     expr_composite(is_meta ? expr_kind::Meta : expr_kind::Local, n.hash(), is_meta || t.has_expr_metavar(), t.has_univ_metavar(),
                    !is_meta || t.has_local(), t.has_param_univ(),
-                   1, get_free_var_range(t)),
+                   1, get_loose_bvar_range(t)),
     m_name(n),
     m_pp_name(pp_n),
     m_type(t) {}
@@ -178,16 +178,16 @@ expr_composite::expr_composite(expr_composite const & src):
     expr_cell(src),
     m_weight(src.m_weight),
     m_depth(src.m_depth),
-    m_free_var_range(src.m_free_var_range) {
+    m_loose_bvar_range(src.m_loose_bvar_range) {
 }
 
 // Composite expressions
 expr_composite::expr_composite(expr_kind k, unsigned h, bool has_expr_mv, bool has_univ_mv,
-                               bool has_local, bool has_param_univ, unsigned w, unsigned fv_range):
+                               bool has_local, bool has_param_univ, unsigned w, unsigned bv_range):
     expr_cell(k, h, has_expr_mv, has_univ_mv, has_local, has_param_univ),
     m_weight(w),
     m_depth(0),
-    m_free_var_range(fv_range) {}
+    m_loose_bvar_range(bv_range) {}
 
 // Expr applications
 expr_app::expr_app(expr const & fn, expr const & arg):
@@ -197,7 +197,7 @@ expr_app::expr_app(expr const & fn, expr const & arg):
                    fn.has_local()        || arg.has_local(),
                    fn.has_param_univ()   || arg.has_param_univ(),
                    inc_weight(add_weight(get_weight(fn), get_weight(arg))),
-                   std::max(get_free_var_range(fn), get_free_var_range(arg))),
+                   std::max(get_loose_bvar_range(fn), get_loose_bvar_range(arg))),
     m_fn(fn), m_arg(arg) {
     m_depth = std::max(get_depth(fn), get_depth(arg)) + 1;
     m_hash  = ::lean::hash(m_hash, m_weight);
@@ -231,7 +231,7 @@ expr_binding::expr_binding(expr_kind k, name const & n, expr const & t, expr con
                    t.has_local()          || b.has_local(),
                    t.has_param_univ()     || b.has_param_univ(),
                    inc_weight(add_weight(get_weight(t), get_weight(b))),
-                   std::max(get_free_var_range(t), dec(get_free_var_range(b)))),
+                   std::max(get_loose_bvar_range(t), dec(get_loose_bvar_range(b)))),
     m_binder(n, t, i),
     m_body(b) {
     m_depth = std::max(get_depth(t), get_depth(b)) + 1;
@@ -268,7 +268,7 @@ expr_let::expr_let(name const & n, expr const & t, expr const & v, expr const & 
                    t.has_local()          || v.has_local() || b.has_local(),
                    t.has_param_univ()     || v.has_param_univ() || b.has_param_univ(),
                    inc_weight(add_weight(add_weight(get_weight(t), get_weight(v)), get_weight(b))),
-                   std::max(std::max(get_free_var_range(t), get_free_var_range(v)), dec(get_free_var_range(b)))),
+                   std::max(std::max(get_loose_bvar_range(t), get_loose_bvar_range(v)), dec(get_loose_bvar_range(b)))),
     m_name(n), m_type(t), m_value(v), m_body(b) {
     m_depth = std::max(get_depth(t), std::max(get_depth(v), get_depth(b))) + 1;
     m_hash  = ::lean::hash(m_hash, m_weight);
@@ -313,10 +313,10 @@ static unsigned add_weight(unsigned num, expr const * args) {
     return r;
 }
 
-static unsigned get_free_var_range(unsigned num, expr const * args) {
+static unsigned get_loose_bvar_range(unsigned num, expr const * args) {
     unsigned r = 0;
     for (unsigned i = 0; i < num; i++) {
-        unsigned d = get_free_var_range(args[i]);
+        unsigned d = get_loose_bvar_range(args[i]);
         if (d > r)
             r = d;
     }
@@ -339,7 +339,7 @@ expr_macro::expr_macro(macro_definition const & m, unsigned num, expr const * ar
                    std::any_of(args, args+num, [](expr const & e) { return e.has_local(); }),
                    std::any_of(args, args+num, [](expr const & e) { return e.has_param_univ(); }),
                    inc_weight(add_weight(num, args)),
-                   get_free_var_range(num, args)),
+                   get_loose_bvar_range(num, args)),
     m_definition(m),
     m_num_args(num) {
     expr * data = get_args_ptr();
@@ -649,7 +649,7 @@ bool is_arrow(expr const & t) {
     if (r) {
         return *r;
     } else {
-        bool res = is_pi(t) && !has_free_var(binding_body(t), 0);
+        bool res = is_pi(t) && !has_loose_bvar(binding_body(t), 0);
         t.raw()->set_is_arrow(res);
         return res;
     }
@@ -668,16 +668,82 @@ optional<expr> has_expr_metavar_strict(expr const & e) {
     return r;
 }
 
-static bool has_free_var_in_domain(expr const & b, unsigned vidx, bool strict) {
+static bool has_loose_bvars_in_domain(expr const & b, unsigned vidx, bool strict) {
     if (is_pi(b)) {
         return
-            (has_free_var(binding_domain(b), vidx) && is_explicit(binding_info(b))) ||
-            has_free_var_in_domain(binding_body(b), vidx+1, strict);
+            (has_loose_bvar(binding_domain(b), vidx) && is_explicit(binding_info(b))) ||
+            has_loose_bvars_in_domain(binding_body(b), vidx+1, strict);
     } else if (!strict) {
-        return has_free_var(b, vidx);
+        return has_loose_bvar(b, vidx);
     } else {
         return false;
     }
+}
+
+bool has_loose_bvar(expr const & e, unsigned i) {
+    bool found = false;
+    for_each(e, [&](expr const & e, unsigned offset) {
+            if (found)
+                return false; // already found
+            unsigned n_i = i + offset;
+            if (n_i < i)
+                return false; // overflow, vidx can't be >= max unsigned
+            if (n_i >= get_loose_bvar_range(e))
+                return false; // expression e does not contain bound variables with idx >= n_i
+            if (is_var(e)) {
+                unsigned vidx = var_idx(e);
+                if (vidx == n_i)
+                    found = true;
+            }
+            return true; // continue search
+        });
+    return found;
+}
+
+expr lower_loose_bvars(expr const & e, unsigned s, unsigned d) {
+    if (d == 0 || s >= get_loose_bvar_range(e))
+        return e;
+    lean_assert(s >= d);
+    return replace(e, [=](expr const & e, unsigned offset) -> optional<expr> {
+            unsigned s1 = s + offset;
+            if (s1 < s)
+                return some_expr(e); // overflow, vidx can't be >= max unsigned
+            if (s1 >= get_loose_bvar_range(e))
+                return some_expr(e); // expression e does not contain bound variables with idx >= s1
+            if (is_var(e) && var_idx(e) >= s1) {
+                lean_assert(var_idx(e) >= offset + d);
+                return some_expr(mk_var(var_idx(e) - d));
+            } else {
+                return none_expr();
+            }
+        });
+}
+expr lower_loose_bvars(expr const & e, unsigned d) {
+    return lower_loose_bvars(e, d, d);
+}
+
+expr lift_loose_bvars(expr const & e, unsigned s, unsigned d) {
+    if (d == 0 || s >= get_loose_bvar_range(e))
+        return e;
+    return replace(e, [=](expr const & e, unsigned offset) -> optional<expr> {
+            unsigned s1 = s + offset;
+            if (s1 < s)
+                return some_expr(e); // overflow, vidx can't be >= max unsigned
+            if (s1 >= get_loose_bvar_range(e))
+                return some_expr(e); // expression e does not contain bound variables with idx >= s1
+            if (is_var(e) && var_idx(e) >= s + offset) {
+                unsigned new_idx = var_idx(e) + d;
+                if (new_idx < var_idx(e))
+                    throw exception("invalid lift_loose_bvars operation, index overflow");
+                return some_expr(mk_var(new_idx));
+            } else {
+                return none_expr();
+            }
+        });
+}
+
+expr lift_loose_bvars(expr const & e, unsigned d) {
+    return lift_loose_bvars(e, 0, d);
 }
 
 expr infer_implicit(expr const & t, unsigned num_params, bool strict) {
@@ -688,7 +754,7 @@ expr infer_implicit(expr const & t, unsigned num_params, bool strict) {
         if (binding_info(t).is_implicit() || binding_info(t).is_strict_implicit() || binding_info(t).is_inst_implicit()) {
             // argument is already marked as implicit
             return update_binding(t, binding_domain(t), new_body);
-        } else if (has_free_var_in_domain(new_body, 0, strict)) {
+        } else if (has_loose_bvars_in_domain(new_body, 0, strict)) {
             return update_binding(t, binding_domain(t), new_body, mk_implicit_binder_info());
         } else {
             return update_binding(t, binding_domain(t), new_body);

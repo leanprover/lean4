@@ -248,7 +248,7 @@ class vm_compiler_fn {
     };
 
     optional<expr> to_type_info(expr const & t) {
-        if (!is_neutral_expr(t) && closed(t) && !has_param_univ(t)) {
+        if (!is_neutral_expr(t) && !has_loose_bvars(t) && !has_param_univ(t)) {
             return some_expr(elim_comp_irrelevant_marks_fn()(t));
         } else {
             return none_expr();

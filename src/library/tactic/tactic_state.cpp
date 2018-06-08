@@ -373,7 +373,7 @@ type_context_old mk_cacheless_type_context_for(tactic_state const & s, transpare
 }
 
 static void check_closed(char const * tac_name, expr const & e) {
-    if (!closed(e))
+    if (has_loose_bvars(e))
         throw exception(sstream() << "tactic '" << tac_name << "' failed, "
                         "given expression should not contain de-Bruijn variables, "
                         "they should be replaced with local constants before using this tactic");

@@ -2333,7 +2333,7 @@ bool type_context_old::is_def_eq_binding(expr e1, expr e2) {
             if (!is_def_eq_core(*var_e1_type, var_e2_type))
                 return false;
         }
-        if (!closed(binding_body(e1)) || !closed(binding_body(e2))) {
+        if (has_loose_bvars(binding_body(e1)) || has_loose_bvars(binding_body(e2))) {
             // local is used inside t or s
             if (!var_e1_type)
                 var_e1_type = instantiate_rev(binding_domain(e1), subst.size(), subst.data());
@@ -2458,7 +2458,7 @@ static optional<expr> is_eta_expanded(expr const & e) {
             return none_expr();
         it = app_fn(it);
     }
-    if (closed(it))
+    if (!has_loose_bvars(it))
         return some_expr(it);
     else
         return none_expr();

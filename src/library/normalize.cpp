@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
-#include "kernel/free_vars.h"
 #include "kernel/inductive/inductive.h"
 #include "library/replace_visitor.h"
 #include "library/reducible.h"

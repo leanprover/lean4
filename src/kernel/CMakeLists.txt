@@ -1,5 +1,5 @@
 add_library(kernel OBJECT level.cpp expr.cpp expr_eq_fn.cpp
-for_each_fn.cpp replace_fn.cpp free_vars.cpp abstract.cpp
+for_each_fn.cpp replace_fn.cpp abstract.cpp
 instantiate.cpp local_ctx.cpp declaration.cpp environment.cpp
 old_type_checker.cpp normalizer_extension.cpp
 init_module.cpp expr_cache.cpp equiv_manager.cpp quot.cpp

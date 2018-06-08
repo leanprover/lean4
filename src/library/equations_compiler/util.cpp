@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/find_fn.h"
-#include "kernel/free_vars.h"
 #include "kernel/old_type_checker.h"
 #include "kernel/inductive/inductive.h"
 #include "library/scope_pos_info_provider.h"
@@ -94,7 +93,7 @@ unpack_eqns::unpack_eqns(type_context_old & ctx, expr const & e):
     expr eq = eqs[0];
     for (unsigned i = 0; i < num_fns; i++) {
         if (!is_lambda(eq)) throw_ill_formed_eqns();
-        if (!closed(binding_domain(eq))) throw_ill_formed_eqns();
+        if (has_loose_bvars(binding_domain(eq))) throw_ill_formed_eqns();
         m_fns.push_back(m_locals.push_local(binding_name(eq), binding_domain(eq)));
         eq = binding_body(eq);
     }
@@ -773,8 +772,8 @@ struct cleanup_equation_rhs_fn : public replace_visitor {
         if (is_have_annotation(app_fn(e)) &&
             is_lambda(get_annotation_arg(app_fn(e)))) {
             expr body = binding_body(get_annotation_arg(app_fn(e)));
-            if (!has_free_var(body, 0)) {
-                return visit(lower_free_vars(body, 1));
+            if (!has_loose_bvar(body, 0)) {
+                return visit(lower_loose_bvars(body, 1));
             }
         }
 
@@ -786,10 +785,10 @@ struct cleanup_equation_rhs_fn : public replace_visitor {
             if (args.size() >= 5) {
                 expr & t = args[3];
                 expr & e = args[4];
-                if (is_lambda(t) && !has_free_var(binding_body(t), 0) &&
-                    is_lambda(e) && !has_free_var(binding_body(e), 0)) {
-                    t = lower_free_vars(binding_body(t), 1);
-                    e = lower_free_vars(binding_body(e), 1);
+                if (is_lambda(t) && !has_loose_bvar(binding_body(t), 0) &&
+                    is_lambda(e) && !has_loose_bvar(binding_body(e), 0)) {
+                    t = lower_loose_bvars(binding_body(t), 1);
+                    e = lower_loose_bvars(binding_body(e), 1);
                     expr new_ite = mk_app(mk_constant(get_ite_name(), const_levels(dite)), args.size(), args.data());
                     return new_ite;
                 }

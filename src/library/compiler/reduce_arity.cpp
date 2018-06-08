@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include "util/name_map.h"
-#include "kernel/free_vars.h"
 #include "kernel/for_each_fn.h"
 #include "library/trace.h"
 #include "library/compiler/procedure.h"
@@ -21,7 +20,7 @@ static expr reduce_arity_of(expr const & e, unsigned i, std::vector<bool> const 
     if (keep_bv[i])
         return mk_lambda(binding_name(e), binding_domain(e), new_body);
     else
-        return lower_free_vars(new_body, 1);
+        return lower_loose_bvars(new_body, 1);
 }
 
 /* Auxiliary functor for removing arguments that are not needed in auxiliary function calls */
@@ -65,7 +64,7 @@ void reduce_arity(environment const & env, abstract_context_cache & cache, buffe
         bool reduced = false;
         while (is_lambda(fn)) {
             expr const & body = binding_body(fn);
-            if (has_free_var(body,  0)) {
+            if (has_loose_bvar(body,  0)) {
                 keep_bv.push_back(true);
             } else {
                 keep_bv.push_back(false);

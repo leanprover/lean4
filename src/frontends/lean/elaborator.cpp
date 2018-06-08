@@ -2151,10 +2151,10 @@ static expr get_equations_fn_type(expr const & eqns) {
     When replacing a variable with a local, we copy the local constant and inherit the tag
     associated with the variable. This is a trick for preserving position information. */
 static expr instantiate_rev_locals(expr const & a, unsigned n, expr const * subst) {
-    if (closed(a))
+    if (!has_loose_bvars(a))
         return a;
     auto fn = [=](expr const & m, unsigned offset) -> optional<expr> {
-        if (offset >= get_free_var_range(m))
+        if (offset >= get_loose_bvar_range(m))
             return some_expr(m); // expression m does not contain free variables with idx >= offset
         if (is_var(m)) {
             unsigned vidx = var_idx(m);
@@ -2335,7 +2335,7 @@ bool elaborator::keep_do_failure_eq(expr const & first_eq) {
     if (!is_pi(type))
         return false;
     type = binding_body(type);
-    if (!closed(type))
+    if (has_loose_bvars(type))
         return false;
     return is_app(type) && is_monad_fail(app_fn(type));
 }

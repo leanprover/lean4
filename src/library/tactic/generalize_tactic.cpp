@@ -19,7 +19,7 @@ static vm_obj generalize(transparency_mode m, expr const & e, name const & id, t
     type_context_old ctx = cache.mk_type_context(m);
     expr target = ctx.instantiate_mvars(g->get_type());
     expr target_abst = kabstract(ctx, target, e);
-    if (closed(target_abst))
+    if (!has_loose_bvars(target_abst))
         return tactic::mk_exception("generalize tactic failed, failed to find expression in the target", s);
     expr e_type   = ctx.infer(e);
     expr new_type = mk_pi(id, e_type, target_abst);

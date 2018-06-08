@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "runtime/flet.h"
 #include "util/fresh_name.h"
 #include "kernel/replace_fn.h"
-#include "kernel/free_vars.h"
 #include "kernel/abstract.h"
 #include "kernel/old_type_checker.h"
 #include "kernel/instantiate.h"
@@ -426,7 +425,7 @@ bool pretty_fn::is_implicit(expr const & f) {
     // when trying to infer type information
     if (m_implict || m_preterm)
         return false; // showing implicit arguments
-    if (!closed(f)) {
+    if (has_loose_bvars(f)) {
         // the Lean type checker assumes expressions are closed.
         return false;
     }
@@ -446,7 +445,7 @@ bool pretty_fn::is_implicit(expr const & f) {
 bool pretty_fn::is_default_arg_app(expr const & e) {
     if (m_implict || m_preterm)
         return false; // showing default arguments
-    if (!closed(app_fn(e))) {
+    if (has_loose_bvars(app_fn(e))) {
         // the Lean type checker assumes expressions are closed.
         return false;
     }
@@ -457,7 +456,7 @@ bool pretty_fn::is_default_arg_app(expr const & e) {
             t = binding_body(t);
             if (!is_pi(t) && !is_var(t) && is_app_of(arg_type, get_opt_param_name(), 2)) {
                 expr defval = app_arg(arg_type);
-                return closed(defval) && defval == app_arg(e);
+                return !has_loose_bvars(defval) && defval == app_arg(e);
             }
         }
     } catch (exception &) { }
@@ -775,7 +774,7 @@ auto pretty_fn::pp_local(expr const & e) -> result {
 }
 
 bool pretty_fn::has_implicit_args(expr const & f) {
-    if (!closed(f) || m_preterm) {
+    if (has_loose_bvars(f) || m_preterm) {
         // The Lean type checker assumes expressions are closed.
         // If preterms are being processed, then we assume
         // there are no implicit arguments.
@@ -975,7 +974,7 @@ static bool is_default_arrow(expr const & e) {
 auto pretty_fn::pp_pi(expr const & e) -> result {
     if (is_default_arrow(e)) {
         result lhs = pp_child(binding_domain(e), get_arrow_prec());
-        expr   b   = lift_free_vars(binding_body(e), 1);
+        expr   b   = lift_loose_bvars(binding_body(e), 1);
         result rhs = is_pi(b) ? pp(b) : pp_child(b, get_arrow_prec()-1);
         format r   = group(lhs.fmt() + space() + (m_unicode ? *g_arrow_n_fmt : *g_arrow_fmt) + line() + rhs.fmt());
         return result(get_arrow_prec(), get_arrow_prec()-1, r);
@@ -1064,7 +1063,7 @@ auto pretty_fn::pp_equations(expr const & e) -> optional<result> {
     expr eqn = eqns[0];
     for (unsigned i = 0; i < num_fns; i++) {
         if (!is_lambda(eqn)) return optional<result>();
-        if (!closed(binding_domain(eqn))) return optional<result>();
+        if (has_loose_bvars(binding_domain(eqn))) return optional<result>();
         auto p = binding_body_fresh(eqn, true);
         fns.push_back(p.second);
         eqn = p.first;
@@ -1742,7 +1741,7 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
         if (auto r = to_char(m_ctx, e)) return pp_char_literal(*r);
     }
     try {
-        if (!m_proofs && !is_constant(e) && !is_mlocal(e) && closed(e) && is_prop(m_ctx.infer(e))) {
+        if (!m_proofs && !is_constant(e) && !is_mlocal(e) && !has_loose_bvars(e) && is_prop(m_ctx.infer(e))) {
             return result(format("_"));
         }
     } catch (exception) {}
@@ -1872,7 +1871,7 @@ format pretty_fn::operator()(expr const & e) {
 
     if (!m_options.contains(get_pp_proofs_name()) && !get_pp_all(m_options)) {
         try {
-            m_proofs = !closed(purified) || is_prop(m_ctx.infer(purified));
+            m_proofs = has_loose_bvars(purified) || is_prop(m_ctx.infer(purified));
         } catch (exception) {
             m_proofs = true;
         }

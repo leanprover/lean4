@@ -494,7 +494,7 @@ struct congr_lemma_manager {
             expr eq_pr  = locals.push_local_from_binding(motive);
             type        = binding_body(type);
             motive      = binding_body(motive);
-            lean_assert(closed(type) && closed(motive));
+            lean_assert(!has_loose_bvars(type) && !has_loose_bvars(motive));
             expr minor  = mk_hcongr_proof(type);
             expr major  = eq_pr;
             if (is_heq(m_ctx.infer(eq_pr)))

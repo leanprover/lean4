@@ -8,12 +8,11 @@ Author: Leonardo de Moura
 #include <utility>
 #include <vector>
 #include "kernel/abstract.h"
-#include "kernel/free_vars.h"
 #include "kernel/replace_fn.h"
 
 namespace lean {
 expr abstract(expr const & e, unsigned n, expr const * subst) {
-    lean_assert(std::all_of(subst, subst+n, [](expr const & e) { return closed(e) && is_local(e); }));
+    lean_assert(std::all_of(subst, subst+n, [](expr const & e) { return !has_loose_bvars(e) && is_local(e); }));
 #ifndef LEAN_NO_HAS_LOCAL_OPT
     if (!has_local(e))
         return e;

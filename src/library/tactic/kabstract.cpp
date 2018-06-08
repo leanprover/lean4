@@ -18,12 +18,12 @@ Author: Leonardo de Moura
 
 namespace lean {
 expr kabstract(type_context_old & ctx, expr const & e, expr const & t, occurrences const & occs, bool unify) {
-    lean_assert(closed(e));
+    lean_assert(!has_loose_bvars(e));
     head_index idx1(t);
     unsigned i = 1;
     unsigned t_nargs = get_app_num_args(t);
     return replace(e, [&](expr const & s, unsigned offset) {
-            if (closed(s)) {
+            if (!has_loose_bvars(s)) {
                 head_index idx2(s);
                 if (idx1.kind() == idx2.kind() &&
                     idx1.get_name() == idx2.get_name() &&
@@ -50,7 +50,7 @@ bool kdepends_on(type_context_old & ctx, expr const & e, expr const & t) {
     unsigned t_nargs = get_app_num_args(t);
     for_each(e, [&](expr const & s, unsigned) {
             if (found) return false;
-            if (closed(s)) {
+            if (!has_loose_bvars(s)) {
                 head_index idx2(s);
                 if (idx1.kind() == idx2.kind() &&
                     idx1.get_name() == idx2.get_name() &&

@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include <vector>
 #include "runtime/interrupt.h"
 #include "kernel/cache_stack.h"
-#include "kernel/free_vars.h"
 #include "library/pos_info_provider.h"
 
 namespace lean {
@@ -187,7 +186,7 @@ struct instantiate_easy_fn2 {
     expr const * subst;
     instantiate_easy_fn2(unsigned _n, expr const * _subst):n(_n), subst(_subst) {}
     optional<expr> operator()(expr const & a, bool app) const {
-        if (closed(a))
+        if (!has_loose_bvars(a))
             return some_expr(a);
         if (is_var(a) && var_idx(a) < n)
             return some_expr(subst[rev ? n - var_idx(a) - 1 : var_idx(a)]);
@@ -202,7 +201,7 @@ struct instantiate_easy_fn2 {
 expr instantiate_propagating_pos(expr const & a, unsigned s, unsigned n, expr const * subst) {
     if (
 #ifndef LEAN_NO_FREE_VAR_RANGE_OPT
-        s >= get_free_var_range(a) ||
+        s >= get_loose_bvar_range(a) ||
 #endif
         n == 0)
         return a;
@@ -214,7 +213,7 @@ expr instantiate_propagating_pos(expr const & a, unsigned s, unsigned n, expr co
             if (s1 < s)
                 return some_expr(m); // overflow, vidx can't be >= max unsigned
 #ifndef LEAN_NO_FREE_VAR_RANGE_OPT
-            if (s1 >= get_free_var_range(m))
+            if (s1 >= get_loose_bvar_range(m))
                 return some_expr(m); // expression m does not contain free variables with idx >= s1
 #endif
             if (is_var(m)) {
@@ -222,7 +221,7 @@ expr instantiate_propagating_pos(expr const & a, unsigned s, unsigned n, expr co
                 if (vidx >= s1) {
                     unsigned h = s1 + n;
                     if (h < s1 /* overflow, h is bigger than any vidx */ || vidx < h) {
-                        return some_expr(lift_free_vars(subst[vidx - s1], offset));
+                        return some_expr(lift_loose_bvars(subst[vidx - s1], offset));
                     } else {
                         return some_expr(mk_var(vidx - n));
                     }
@@ -238,7 +237,7 @@ expr instantiate_propagating_pos(expr const & e, unsigned i, expr const & s) { r
 expr instantiate_propagating_pos(expr const & e, expr const & s) { return instantiate_propagating_pos(e, 0, s); }
 
 expr abstract_propagating_pos(expr const & e, unsigned n, expr const * subst) {
-    lean_assert(std::all_of(subst, subst+n, [](expr const & e) { return closed(e) && is_local(e); }));
+    lean_assert(std::all_of(subst, subst+n, [](expr const & e) { return !has_loose_bvars(e) && is_local(e); }));
 #ifndef LEAN_NO_HAS_LOCAL_OPT
     if (!has_local(e))
         return e;

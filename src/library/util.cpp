@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/fresh_name.h"
 #include "kernel/find_fn.h"
-#include "kernel/free_vars.h"
 #include "kernel/instantiate.h"
 #include "kernel/old_type_checker.h"
 #include "kernel/abstract.h"
@@ -952,13 +951,13 @@ expr try_eta(expr const & e) {
             expr new_b = try_eta(b);
             if (is_eqp(b, new_b)) {
                 return e;
-            } else if (is_app(new_b) && is_var(app_arg(new_b), 0) && !has_free_var(app_fn(new_b), 0)) {
-                return lower_free_vars(app_fn(new_b), 1);
+            } else if (is_app(new_b) && is_var(app_arg(new_b), 0) && !has_loose_bvar(app_fn(new_b), 0)) {
+                return lower_loose_bvars(app_fn(new_b), 1);
             } else {
                 return update_binding(e, binding_domain(e), new_b);
             }
-        } else if (is_app(b) && is_var(app_arg(b), 0) && !has_free_var(app_fn(b), 0)) {
-            return lower_free_vars(app_fn(b), 1);
+        } else if (is_app(b) && is_var(app_arg(b), 0) && !has_loose_bvar(app_fn(b), 0)) {
+            return lower_loose_bvars(app_fn(b), 1);
         } else {
             return e;
         }

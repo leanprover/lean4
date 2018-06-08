@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
-#include "kernel/free_vars.h"
 #include "library/formatter.h"
 #include "library/annotation.h"
 #include "library/util.h"
@@ -243,7 +242,7 @@ struct print_expr_fn {
             } else {
                 print_child(binding_domain(a));
                 out() << " -> ";
-                print_arrow_body(lower_free_vars(binding_body(a), 1));
+                print_arrow_body(lower_loose_bvars(binding_body(a), 1));
             }
             break;
         case expr_kind::Sort:

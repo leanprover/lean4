@@ -408,7 +408,7 @@ struct elim_match_fn {
         /* The function being defined is not recursive. So, E.m_rhs
            must be closed even if we "consumed" the fn header in
            the beginning of the method. */
-        lean_assert(closed(E.m_rhs));
+        lean_assert(!has_loose_bvars(E.m_rhs));
         buffer<expr> lhs_args;
         get_app_args(equation_lhs(it), lhs_args);
         buffer<expr> patterns;

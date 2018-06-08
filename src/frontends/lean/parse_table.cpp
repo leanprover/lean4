@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include <utility>
 #include "runtime/sstream.h"
 #include "util/rb_map.h"
-#include "kernel/free_vars.h"
 #include "kernel/replace_fn.h"
 #include "library/io_state_stream.h"
 #include "library/annotation.h"
@@ -274,9 +273,9 @@ action mk_binders_action(unsigned rbp) { return action(new binders_action_cell(r
 action mk_expr_action(unsigned rbp) { return action(new expr_action_cell(rbp)); }
 action mk_exprs_action(name const & sep, expr const & rec, optional<expr> const & ini,
                        optional<name> const & terminator, bool right, unsigned rbp) {
-    if (get_free_var_range(rec) > 2)
+    if (get_loose_bvar_range(rec) > 2)
         throw exception("invalid notation, the expression used to combine a sequence of expressions "
-                        "must not contain free variables with de Bruijn indices greater than 1");
+                        "must not contain bound variables with de Bruijn indices greater than 1");
     expr new_rec = annotate_macro_subterms(rec);
     optional<expr> new_ini = ini ? some_expr(annotate_macro_subterms(*ini)) : none_expr();
     return action(new exprs_action_cell(sep, new_rec, new_ini, terminator, right, rbp));
@@ -365,8 +364,8 @@ static void validate_transitions(bool nud, unsigned num, transition const * ts, 
             break;
         }
     }
-    if (get_free_var_range(a) > nargs)
-        throw exception("invalid notation declaration, expression template has more free variables than arguments");
+    if (get_loose_bvar_range(a) > nargs)
+        throw exception("invalid notation declaration, expression template has more bound variables than arguments");
 }
 
 static list<accepting> insert(list<accepting> const & l, unsigned priority, list<action> const & p, expr const & a) {
@@ -469,13 +468,13 @@ static expr expand_pp_pattern(unsigned num, transition const * ts, expr const & 
                         break;
                     case action_kind::Exprs:
                         if (vidx == 0)
-                            return some_expr(lift_free_vars(act.get_rec(), offset));
+                            return some_expr(lift_loose_bvars(act.get_rec(), offset));
                         offset++;
                         vidx--;
                         break;
                     case action_kind::ScopedExpr:
                         if (vidx == 0)
-                            return some_expr(lift_free_vars(act.get_rec(), offset));
+                            return some_expr(lift_loose_bvars(act.get_rec(), offset));
                         offset++;
                         vidx--;
                         break;

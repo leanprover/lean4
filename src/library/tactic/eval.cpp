@@ -19,7 +19,7 @@ namespace lean {
 static vm_obj eval(expr const & A, expr a, tactic_state const & s) {
     metavar_context mctx = s.mctx();
     a = mctx.instantiate_mvars(a);
-    if (has_local(a) || !closed(a))
+    if (has_local(a) || has_loose_bvars(a))
         return tactic::mk_exception("invalid eval_expr, expression must be closed", s);
     if (is_constant(a)) {
         type_context_old ctx = mk_type_context_for(s);

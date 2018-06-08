@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include <string>
 #include <iostream>
 #include "kernel/expr.h"
-#include "kernel/free_vars.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
@@ -240,7 +239,7 @@ vm_obj expr_fold(vm_obj const &, vm_obj const & e, vm_obj const & a, vm_obj cons
 
 vm_obj expr_has_bvar_idx(vm_obj const & e, vm_obj const & u) {
     if (auto n = try_to_unsigned(u)) {
-        return mk_vm_bool(has_free_var(to_expr(e), *n));
+        return mk_vm_bool(has_loose_bvar(to_expr(e), *n));
     } else {
         return mk_vm_false();
     }

@@ -90,7 +90,7 @@ class erase_irrelevant_fn : public compiler_step_visitor {
     }
 
     expr erase_type(expr const & e) {
-        if (closed(e) && !has_local(e))
+        if (!has_loose_bvars(e) && !has_local(e))
             return e; // keep closed types for runtime debugger
         else
             return *g_neutral_expr;

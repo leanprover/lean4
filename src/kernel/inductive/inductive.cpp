@@ -417,7 +417,7 @@ struct add_inductive_fn {
                     t = instantiate(binding_body(t), mk_local_for(t));
                 } else {
                     t = binding_body(t);
-                    if (!closed(t))
+                    if (has_loose_bvars(t))
                         throw kernel_exception(m_env, sstream() << "invalid occurrence of recursive arg#" << (i+1) <<
                                                " of '" << n << "', the body of the functional type depends on it.");
                 }

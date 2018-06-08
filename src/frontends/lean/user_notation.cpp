@@ -67,7 +67,7 @@ static environment add_user_notation(environment const & env, name const & d, un
                         parser = mk_app(parser, parse_interactive_param(p, arg_type));
                     } else {
                         expr e = p.parse_expr(get_max_prec());
-                        if (!closed(e) || has_local(e)) {
+                        if (has_loose_bvars(e) || has_local(e)) {
                             throw elaborator_exception(e, "invalid argument to user-defined notation, must be closed term");
                         }
                         parser = mk_app(parser, e);

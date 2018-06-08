@@ -16,7 +16,6 @@ Author: Leonardo de Moura
 #include "kernel/old_type_checker.h"
 #include "kernel/expr_maps.h"
 #include "kernel/instantiate.h"
-#include "kernel/free_vars.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
@@ -202,9 +201,9 @@ expr old_type_checker::infer_let(expr const & e, bool infer_only) {
     \pre closed(e) */
 expr old_type_checker::infer_type_core(expr const & e, bool infer_only) {
     if (is_var(e))
-        throw kernel_exception(m_env, "type checker does not support dangling bound variables, replace them with free variables before invoking it");
+        throw kernel_exception(m_env, "type checker does not support loose bound variables, replace them with free variables before invoking it");
 
-    lean_assert(closed(e));
+    lean_assert(!has_loose_bvars(e));
     check_system("type checker");
 
     if (m_memoize) {
@@ -435,7 +434,7 @@ bool old_type_checker::is_def_eq_binding(expr t, expr s) {
             if (!is_def_eq(var_t_type, *var_s_type))
                 return false;
         }
-        if (!closed(binding_body(t)) || !closed(binding_body(s))) {
+        if (has_loose_bvars(binding_body(t)) || has_loose_bvars(binding_body(s))) {
             // local is used inside t or s
             if (!var_s_type)
                 var_s_type = instantiate_rev(binding_domain(s), subst.size(), subst.data());

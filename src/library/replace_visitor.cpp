@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "library/replace_visitor.h"
+#include "library/pos_info_provider.h"
 
 namespace lean {
 expr replace_visitor::visit_sort(expr const & e) { lean_assert(is_sort(e)); return e; }
@@ -52,7 +53,7 @@ expr replace_visitor::visit_macro(expr const & e) {
 expr replace_visitor::save_result(expr const & e, expr && r, bool shared) {
     if (shared)
         m_cache.insert(std::make_pair(e, r));
-    return r;
+    return r; // copy_pos(e, r); <<<<
 }
 expr replace_visitor::visit(expr const & e) {
     check_system("expression replacer");

@@ -214,29 +214,29 @@ expr update_local_ref(expr const & e, name_set const & lvls_to_remove, name_set 
 }
 
 expr Fun(buffer<expr> const & locals, expr const & e, parser & p) {
-    return p.rec_save_pos(Fun(locals, e), p.get_pos_info(e));
+    return p.rec_save_pos(Fun_p(locals, e), p.get_pos_info(e));
 }
 
 expr Fun(expr const & local, expr const & e, parser & p) {
-    return p.rec_save_pos(Fun(local, e), p.get_pos_info(e));
+    return p.rec_save_pos(Fun_p(local, e), p.get_pos_info(e));
 }
 
 expr Pi(buffer<expr> const & locals, expr const & e, parser & p) {
-    return p.rec_save_pos(Pi(locals, e), p.get_pos_info(e));
+    return p.rec_save_pos(Pi_p(locals, e), p.get_pos_info(e));
 }
 
 expr Pi(expr const & local, expr const & e, parser & p) {
-    return p.rec_save_pos(Pi(local, e), p.get_pos_info(e));
+    return p.rec_save_pos(Pi_p(local, e), p.get_pos_info(e));
 }
 
 template<bool is_lambda>
 static expr mk_binding_as_is(unsigned num, expr const * locals, expr const & b) {
-    expr r     = abstract(b, num, locals);
+    expr r     = abstract_propagating_pos(b, num, locals);
     unsigned i = num;
     while (i > 0) {
         --i;
         expr const & l = locals[i];
-        expr t = abstract(mlocal_type(l), i, locals);
+        expr t = abstract_propagating_pos(mlocal_type(l), i, locals);
         if (is_lambda)
             r = mk_lambda(mlocal_pp_name(l), mk_as_is(t), r, local_info(l));
         else

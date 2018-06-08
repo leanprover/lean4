@@ -230,7 +230,7 @@ void update_univ_parameters(parser & p, buffer<name> & lp_names, name_set const 
 
 expr replace_locals_preserving_pos_info(expr const & e, unsigned sz, expr const * from, expr const * to) {
     bool use_cache = false;
-    return replace(e, [&](expr const & e, unsigned) {
+    return replace_propagating_pos(e, [&](expr const & e, unsigned) {
             if (is_local(e)) {
                 unsigned i = sz;
                 while (i > 0) {

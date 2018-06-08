@@ -43,4 +43,28 @@ public:
 
 void initialize_pos_info_provider();
 void finalize_pos_info_provider();
+
+expr replace_propagating_pos(expr const & e, std::function<optional<expr>(expr const &, unsigned)> const & f, bool use_cache = true);
+inline expr replace_propagating_pos(expr const & e, std::function<optional<expr>(expr const &)> const & f, bool use_cache = true) {
+    return replace_propagating_pos(e, [&](expr const & e, unsigned) { return f(e); }, use_cache);
+}
+expr instantiate_propagating_pos(expr const & a, unsigned s, unsigned n, expr const * subst);
+expr instantiate_propagating_pos(expr const & e, unsigned n, expr const * s);
+expr instantiate_propagating_pos(expr const & e, std::initializer_list<expr> const & l);
+expr instantiate_propagating_pos(expr const & e, unsigned i, expr const & s);
+expr instantiate_propagating_pos(expr const & e, expr const & s);
+
+expr abstract_propagating_pos(expr const & e, unsigned n, expr const * s);
+inline expr abstract_propagating_pos(expr const & e, expr const & s) { return abstract_propagating_pos(e, 1, &s); }
+expr abstract_propagating_pos(expr const & e, name const & l);
+
+expr Fun_p(unsigned num, expr const * locals, expr const & b);
+inline expr Fun_p(expr const & local, expr const & b) { return Fun_p(1, &local, b); }
+inline expr Fun_p(std::initializer_list<expr> const & locals, expr const & b) { return Fun_p(locals.size(), locals.begin(), b); }
+template<typename T> expr Fun_p(T const & locals, expr const & b) { return Fun_p(locals.size(), locals.data(), b); }
+
+expr Pi_p(unsigned num, expr const * locals, expr const & b);
+inline expr Pi_p(expr const & local, expr const & b) { return Pi_p(1, &local, b); }
+inline expr Pi_p(std::initializer_list<expr> const & locals, expr const & b) { return Pi_p(locals.size(), locals.begin(), b); }
+template<typename T> expr Pi_p(T const & locals, expr const & b) { return Pi_p(locals.size(), locals.data(), b); }
 }

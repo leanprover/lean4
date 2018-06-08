@@ -1632,7 +1632,7 @@ struct to_pattern_fn {
     }
 
     expr to_expr(expr const & e) {
-        return replace(e, [&](expr const & e, unsigned) {
+        return replace_propagating_pos(e, [&](expr const & e, unsigned) {
                 if (is_local(e)) {
                     if (auto r = m_locals_map.find(mlocal_pp_name(e)))
                         return some_expr(*r);
@@ -1771,7 +1771,7 @@ static expr elaborate_quote(parser & p, expr e) {
     name x("_x");
     buffer<expr> locals;
     buffer<expr> aqs;
-    e = replace(e, [&](expr const & t, unsigned) {
+    e = replace_propagating_pos(e, [&](expr const & t, unsigned) {
         if (is_antiquote(t)) {
             expr local = mk_local(p.next_name(), x.append_after(locals.size() + 1),
                                   mk_expr_placeholder(), binder_info());
@@ -1801,7 +1801,7 @@ static expr elaborate_quote(parser & p, expr e) {
 
 expr parser::patexpr_to_pattern(expr const & pat_or_expr, bool skip_main_fn, buffer<expr> & new_locals) {
     undef_id_to_local_scope scope(*this);
-    auto e = replace(pat_or_expr, [&](expr const & e) {
+    auto e = replace_propagating_pos(pat_or_expr, [&](expr const & e) {
         if (is_expr_quote(e)) {
             return some_expr(elaborate_quote(*this, e));
         } else {

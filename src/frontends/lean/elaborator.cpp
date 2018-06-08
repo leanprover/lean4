@@ -446,7 +446,7 @@ auto elaborator::use_elim_elab_core(name const & fn) -> optional<elim_info> {
     declaration d     = m_env.get(fn);
     expr type         = d.get_type();
     while (is_pi(type)) {
-        type = instantiate(binding_body(type), locals.push_local_from_binding(type));
+        type = instantiate_propagating_pos(binding_body(type), locals.push_local_from_binding(type));
     }
 
     buffer<expr> C_args;
@@ -1094,7 +1094,7 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
             }
             new_args.push_back(new_arg);
             postponed_args.push_back(postponed);
-            type = try_to_pi(instantiate(binding_body(type), new_arg));
+            type = try_to_pi(instantiate_propagating_pos(binding_body(type), new_arg));
             i++;
         }
 
@@ -1239,7 +1239,7 @@ optional<expr> elaborator::process_optional_and_auto_params(expr type, expr cons
             eta_args.push_back(new_arg);
         }
         new_args.push_back(new_arg);
-        type = instantiate(binding_body(type), new_arg);
+        type = instantiate_propagating_pos(binding_body(type), new_arg);
         if (found) {
             result_type = type;
             sz1 = eta_args.size();
@@ -1361,7 +1361,7 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
             }
             info.new_args.push_back(new_arg);
             /* See comment above at visit_base_app_core */
-            type_before_whnf = instantiate(binding_body(type), new_arg);
+            type_before_whnf = instantiate_propagating_pos(binding_body(type), new_arg);
             type             = whnf(type_before_whnf);
         }
         type = type_before_whnf;
@@ -1534,7 +1534,7 @@ expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<
                 }
                 new_args.push_back(new_arg);
                 /* See comment above at first type_before_whnf assignment */
-                type_before_whnf = instantiate(binding_body(type), new_arg);
+                type_before_whnf = instantiate_propagating_pos(binding_body(type), new_arg);
                 type             = whnf(type_before_whnf);
            } else if (i < args.size()) {
                 bool progress = false;
@@ -2064,7 +2064,7 @@ static level ground_uvars(level const & l) {
 }
 
 static expr ground_uvars(expr const & e) {
-    return replace(e, [] (expr const & e, unsigned) {
+    return replace_propagating_pos(e, [] (expr const & e, unsigned) {
         if (!e.has_univ_metavar()) {
             return some_expr(e);
         } else if (is_sort(e)) {
@@ -2171,7 +2171,7 @@ static expr instantiate_rev_locals(expr const & a, unsigned n, expr const * subs
         }
         return none_expr();
     };
-    return replace(a, fn);
+    return replace_propagating_pos(a, fn);
 }
 
 static expr instantiate_rev_locals(expr const & e, type_context_old::tmp_locals const & locals) {
@@ -2250,7 +2250,7 @@ expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_ty
             while (i > 0) {
                 --i;
                 new_args[i]  = instantiate_mvars(new_args[i]);
-                new_fn_type  = instantiate(kabstract(m_ctx, new_fn_type, new_args[i]), locals.as_buffer()[i]);
+                new_fn_type  = instantiate_propagating_pos(kabstract(m_ctx, new_fn_type, new_args[i]), locals.as_buffer()[i]);
             }
             new_fn_type = locals.mk_pi(new_fn_type);
         } else {
@@ -2454,7 +2454,7 @@ class validate_and_collect_lhs_mvars : public replace_visitor {
     }
 
     virtual expr visit_let(expr const & e) override {
-        return visit(instantiate(let_body(e), let_value(e)));
+        return visit(instantiate_propagating_pos(let_body(e), let_value(e)));
     }
 
     virtual expr visit_sort(expr const & e) override {
@@ -2565,7 +2565,7 @@ public:
 /* Similar to instantiate_mvars, but add an inaccessible pattern annotation around metavariables
    whose value has been fixed by type inference. */
 static expr instantiate_pattern_mvars(type_context_old & ctx, expr const & lhs) {
-    return replace(lhs, [&](expr const & e, unsigned) {
+    return replace_propagating_pos(lhs, [&](expr const & e, unsigned) {
             if (is_metavar_decl_ref(e) && ctx.is_assigned(e)) {
                 expr v = ctx.instantiate_mvars(e);
                 if (!is_local(v) && !is_metavar(v))
@@ -2759,7 +2759,7 @@ elaborator::field_resolution elaborator::field_to_decl(expr const & e, expr cons
             type_context_old::tmp_locals locals(m_ctx);
             expr t = whnf(s_type);
             while (is_pi(t)) {
-                t = whnf(instantiate(binding_body(t), locals.push_local_from_binding(t)));
+                t = whnf(instantiate_propagating_pos(binding_body(t), locals.push_local_from_binding(t)));
             }
             if (is_sort(t) && !is_anonymous_field_notation(e)) {
                 name fname = get_field_notation_field_name(e);
@@ -2877,7 +2877,7 @@ public:
 
 /* Predicated variant of `lean::instantiate_mvars`. It does not support universe mvars. */
 expr elaborator::instantiate_mvars(expr const & e, std::function<bool(expr const &)> pred) { // NOLINT
-    return replace(e, [&](expr const & e) {
+    return replace_propagating_pos(e, [&](expr const & e) {
         if (m_ctx.is_mvar(e) && pred(e))
             if (auto asn = m_ctx.get_assignment(e))
                 return some_expr(instantiate_mvars(*asn, pred));
@@ -2970,7 +2970,7 @@ class visit_structure_instance_fn {
                     declaration decl = m_env.get(const_name(fn));
                     expr default_val = instantiate_value_univ_params(decl, const_levels(fn));
                     // clean up 'id' application inserted by `structure_cmd::declare_defaults`
-                    default_val = replace(default_val, [](expr const & e) {
+                    default_val = replace_propagating_pos(default_val, [](expr const & e) {
                         if (is_app_of(e, get_id_name(), 2)) {
                             return some_expr(app_arg(e));
                         }
@@ -3096,7 +3096,7 @@ class visit_structure_instance_fn {
             }
 
             c_args.push_back(c_arg);
-            c_type = instantiate(binding_body(c_type), c_arg);
+            c_type = instantiate_propagating_pos(binding_body(c_type), c_arg);
         }
         return mk_pair(mk_app(c, c_args), c_type);
     }
@@ -3309,7 +3309,7 @@ expr elaborator::visit_expr_quote(expr const & e, optional<expr> const & expecte
         // antiquotations ~> return `expr`
         buffer<expr> locals;
         buffer<expr> substs;
-        s = replace(s, [&](expr const & t, unsigned) {
+        s = replace_propagating_pos(s, [&](expr const & t, unsigned) {
             if (is_antiquote(t)) {
                 expr local = mk_local(mk_fresh_name(), x.append_after(locals.size() + 1),
                                       mk_expr_placeholder(), binder_info());
@@ -3466,7 +3466,7 @@ expr elaborator::visit_lambda(expr const & e, optional<expr> const & expected_ty
         it = binding_body(it);
         if (has_expected) {
             lean_assert(is_pi(ex));
-            ex = instantiate(binding_body(ex), l);
+            ex = instantiate_propagating_pos(binding_body(ex), l);
         }
     }
     expr b = instantiate_rev_locals(it, locals);
@@ -3990,7 +3990,7 @@ struct sanitize_param_names_fn : public replace_visitor {
     into regular kernel meta-variables. */
 static expr replace_with_simple_metavars(metavar_context mctx, name_map<expr> & cache, expr const & e) {
     if (!has_expr_metavar(e)) return e;
-    return replace(e, [&](expr const & e, unsigned) {
+    return replace_propagating_pos(e, [&](expr const & e, unsigned) {
             if (is_metavar(e)) {
                 if (auto r = cache.find(mlocal_name(e))) {
                     return some_expr(*r);
@@ -4125,7 +4125,7 @@ static optional<expr> resolve_local_name_core(environment const & env, local_con
     /* check local_refs */
     if (auto ref = get_local_ref(env, id)) {
         /* ref may contain local references that have new names at lctx. */
-        return some_expr(copy_pos(src, replace(*ref, [&](expr const & e, unsigned) {
+        return some_expr(copy_pos(src, replace_propagating_pos(*ref, [&](expr const & e, unsigned) {
                         if (is_local(e)) {
                             if (auto decl = lctx.find_local_decl_from_user_name(mlocal_pp_name(e))) {
                                 return some_expr(decl->mk_ref());

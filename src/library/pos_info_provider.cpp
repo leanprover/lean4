@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <vector>
 #include "runtime/interrupt.h"
 #include "kernel/cache_stack.h"
 #include "kernel/free_vars.h"

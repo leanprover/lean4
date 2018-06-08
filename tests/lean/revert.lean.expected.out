@@ -1,6 +1,6 @@
 ?m_1
 ?m_1 h1 h2
-revert.lean:69:9: error: invalid type ascription, term has type
+revert.lean:69:2: error: invalid type ascription, term has type
   b = b
 but is expected to have type
   ?m_1 b = b

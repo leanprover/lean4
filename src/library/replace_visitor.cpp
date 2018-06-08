@@ -53,7 +53,7 @@ expr replace_visitor::visit_macro(expr const & e) {
 expr replace_visitor::save_result(expr const & e, expr && r, bool shared) {
     if (shared)
         m_cache.insert(std::make_pair(e, r));
-    return r; // copy_pos(e, r); <<<<
+    return copy_pos(e, r);
 }
 expr replace_visitor::visit(expr const & e) {
     check_system("expression replacer");

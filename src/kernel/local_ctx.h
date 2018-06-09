@@ -62,6 +62,8 @@ protected:
     idx2local_decl            m_idx2local_decl;
     name_map<local_decl>      m_name2local_decl; // mapping from unique identifier to local_decl
 
+    template<bool is_lambda> expr mk_binding(unsigned num, expr const * fvars, expr const & b) const;
+
     local_decl mk_local_decl(name const & n, name const & un, expr const & type,
                              optional<expr> const & value, binder_info const & bi);
 public:
@@ -86,7 +88,8 @@ public:
     }
 
     /** \brief Return the local declarations for the given reference.
-        \pre is_local_decl_ref(e) */
+
+        \pre is_fvar(e) */
     optional<local_decl> find_local_decl(expr const & e) const;
     optional<local_decl> find_local_decl(name const & n) const;
 
@@ -98,12 +101,21 @@ public:
     optional<local_decl> find_if(std::function<bool(local_decl const &)> const & pred) const; // NOLINT
     optional<local_decl> back_find_if(std::function<bool(local_decl const &)> const & pred) const; // NOLINT
 
-    /** Return a local_decl_ref associated with the given name.
+    /** Return the free variable associated with the given name.
         \pre get_local_decl(n) */
     expr get_local(name const & n) const;
 
     /** \brief Remove the given local decl. */
     void clear(local_decl const & d);
+
+    expr mk_lambda(unsigned num, expr const * fvars, expr const & e) const;
+    expr mk_pi(unsigned num, expr const * fvars, expr const & e) const;
+    expr mk_lambda(buffer<expr> const & fvars, expr const & e) const { return mk_lambda(fvars.size(), fvars.data(), e); }
+    expr mk_pi(buffer<expr> const & fvars, expr const & e) const { return mk_pi(fvars.size(), fvars.data(), e); }
+    expr mk_lambda(expr const & fvar, expr const & e) { return mk_lambda(1, &fvar, e); }
+    expr mk_pi(expr const & fvar, expr const & e) { return mk_pi(1, &fvar, e); }
+    expr mk_lambda(std::initializer_list<expr> const & fvars, expr const & e) { return mk_lambda(fvars.size(), fvars.begin(), e); }
+    expr mk_pi(std::initializer_list<expr> const & fvars, expr const & e) { return mk_pi(fvars.size(), fvars.begin(), e); }
 
     friend bool is_decl_eqp(local_ctx const & ctx1, local_ctx const & ctx2) {
         return is_eqp(ctx1.m_name2local_decl, ctx2.m_name2local_decl);

@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <limits>
 #include "runtime/sstream.h"
 #include "kernel/local_ctx.h"
+#include "kernel/abstract.h"
 
 namespace lean {
 static expr *       g_dummy_type;
@@ -89,6 +90,33 @@ void local_ctx::clear(local_decl const & d) {
     lean_assert(find_local_decl(d.get_name()));
     m_idx2local_decl.erase(d.get_idx());
     m_name2local_decl.erase(d.get_name());
+}
+
+template<bool is_lambda>
+expr local_ctx::mk_binding(unsigned num, expr const * fvars, expr const & b) const {
+    expr r     = abstract(b, num, fvars);
+    unsigned i = num;
+    while (i > 0) {
+        --i;
+        local_decl const & decl = get_local_decl(fvar_name(fvars[i]));
+        expr type = abstract(decl.get_type(), i, fvars);
+        if (optional<expr> const & val = decl.get_value()) {
+            r = ::lean::mk_let(decl.get_user_name(), type, abstract(*val, i, fvars), r);
+        } else if (is_lambda) {
+            r = ::lean::mk_lambda(decl.get_user_name(), type, r, decl.get_info());
+        } else {
+            r = ::lean::mk_pi(decl.get_user_name(), type, r, decl.get_info());
+        }
+    }
+    return r;
+}
+
+expr local_ctx::mk_lambda(unsigned num, expr const * fvars, expr const & e) const {
+    return mk_binding<true>(num, fvars, e);
+}
+
+expr local_ctx::mk_pi(unsigned num, expr const * fvars, expr const & e) const {
+    return mk_binding<false>(num, fvars, e);
 }
 
 void initialize_local_ctx() {

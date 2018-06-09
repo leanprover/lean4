@@ -66,7 +66,7 @@ void collect_locals(expr const & e, collected_locals & ls, bool restricted) {
     std::function<void(expr const & e)> visit = [&](expr const & e) {
         if (!has_local(e))
             return;
-        if (restricted && is_meta(e))
+        if (restricted && is_metavar_app(e))
             return;
         if (visited.find(e) != visited.end())
             return;

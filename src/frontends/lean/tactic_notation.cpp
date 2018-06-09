@@ -526,7 +526,7 @@ static expr parse_begin_end_block(parser & p, pos_info const & start_pos, name c
 expr parse_begin_end_expr_core(parser & p, pos_info const & pos, name const & end_token) {
     parser::local_scope scope1(p);
     meta_definition_scope scope2;
-    p.clear_expr_locals();
+    p.clear_expr_fvars();
     bool use_istep = true;
     expr tac = parse_begin_end_block(p, pos, end_token, get_tactic_name(), use_istep);
     return copy_pos(tac, mk_by(tac));
@@ -548,7 +548,7 @@ expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
     p.next();
     parser::local_scope scope1(p);
     meta_definition_scope scope2;
-    p.clear_expr_locals();
+    p.clear_expr_fvars();
     auto tac_pos = p.pos();
     try {
         bool use_istep    = true;

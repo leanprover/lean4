@@ -951,7 +951,7 @@ optional<expr> type_context_old::is_stuck_projection(expr const & e) {
 }
 
 optional<expr> type_context_old::is_stuck(expr const & e) {
-    if (is_meta(e)) {
+    if (is_metavar_app(e)) {
         return some_expr(e);
     } else if (auto r = is_stuck_projection(e)) {
         return r;
@@ -1866,7 +1866,7 @@ bool type_context_old::process_assignment(expr const & m, expr const & v) {
     for (unsigned i = 0; i < args.size(); i++) {
         expr arg = args[i];
         /* try to instantiate */
-        if (is_meta(arg))
+        if (is_metavar_app(arg))
             arg = instantiate_mvars(arg);
         arg = try_zeta(arg); /* unfold let-constant if needed. */
         args[i] = arg;

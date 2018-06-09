@@ -76,7 +76,7 @@ expr parse_equation(parser & p, expr const & fn) {
 optional<expr> parse_using_well_founded(parser & p) {
     if (p.curr_is_token(get_using_well_founded_tk())) {
         parser::local_scope _(p);
-        p.clear_expr_locals();
+        p.clear_expr_fvars();
         p.next();
         return some_expr(p.parse_expr(get_max_prec()));
     } else {

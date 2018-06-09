@@ -108,11 +108,11 @@ vm_obj to_obj(binder_info const & bi) {
         return mk_vm_simple(0);
 }
 
-// The expr_var_intro function has an _intro suffix so that it doesn't clash
-// with the expr_var class. This confuses GDB's python interface. The other
+// The expr_bvar_intro function has an _intro suffix so that it doesn't clash
+// with the expr_bvar class. This confuses GDB's python interface. The other
 // introduction rules have the suffix for the same reason.
 
-vm_obj expr_var_intro(vm_obj const & n) {
+vm_obj expr_bvar_intro(vm_obj const & n) {
     return to_obj(mk_var(to_unsigned(n)));
 }
 
@@ -128,7 +128,7 @@ vm_obj expr_mvar_intro(vm_obj const & n, vm_obj const & pp_n, vm_obj const & t) 
     return to_obj(mk_metavar(to_name(n), to_name(pp_n), to_expr(t)));
 }
 
-vm_obj expr_local_const_intro(vm_obj const & n) {
+vm_obj expr_fvar_const_intro(vm_obj const & n) {
     return to_obj(mk_local(to_name(n), to_name(n), expr(), binder_info()));
 }
 
@@ -320,8 +320,8 @@ vm_obj reflect_string(vm_obj const & s) {
 }
 
 void initialize_vm_expr() {
-    DECLARE_VM_BUILTIN(name({"expr", "var"}),              expr_var_intro);
-    DECLARE_VM_BUILTIN(name({"expr", "fvar"}),             expr_local_const_intro);
+    DECLARE_VM_BUILTIN(name({"expr", "var"}),              expr_bvar_intro);
+    DECLARE_VM_BUILTIN(name({"expr", "fvar"}),             expr_fvar_const_intro);
     DECLARE_VM_BUILTIN(name({"expr", "sort"}),             expr_sort_intro);
     DECLARE_VM_BUILTIN(name({"expr", "const"}),            expr_const_intro);
     DECLARE_VM_BUILTIN(name({"expr", "mvar"}),             expr_mvar_intro);

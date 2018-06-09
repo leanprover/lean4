@@ -345,7 +345,7 @@ level elaborator::get_level(expr const & A, expr const & ref) {
         return sort_level(A_type);
     }
 
-    if (is_meta(A_type)) {
+    if (is_metavar_app(A_type)) {
         level l = mk_univ_metavar();
         if (try_is_def_eq(A_type, mk_sort(l))) {
             return l;
@@ -816,7 +816,7 @@ expr elaborator::ensure_type(expr const & e, expr const & ref) {
         return e;
     }
 
-    if (is_meta(e_type) && is_def_eq(e_type, mk_sort(mk_univ_metavar()))) {
+    if (is_metavar_app(e_type) && is_def_eq(e_type, mk_sort(mk_univ_metavar()))) {
         return e;
     }
 
@@ -1564,7 +1564,7 @@ expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<
                    (tmp (env, r) mk_context).1
                    ```
                    or completely avoid `run`. */
-                if (is_meta(type)) {
+                if (is_metavar_app(type)) {
                     synthesize_type_class_instances();
                     expr new_type = instantiate_mvars(type);
                     if (new_type != type) {
@@ -3667,7 +3667,7 @@ expr elaborator::get_default_numeral_type() {
 void elaborator::synthesize_numeral_types() {
     for (expr const & A : m_numeral_types) {
         trace_elab_numeral(tout() << "synthesize num type: " << A << ", " << instantiate_mvars(A) << "\n";);
-        if (is_meta(instantiate_mvars(A))) {
+        if (is_metavar_app(instantiate_mvars(A))) {
             if (!is_def_eq(A, get_default_numeral_type()))
                 report_or_throw(elaborator_exception(A, "invalid numeral, failed to force numeral to be a nat"));
         }

@@ -120,7 +120,7 @@ parser::quote_scope::quote_scope(parser & p, bool q, id_behavior i):
         m_p.push_local_scope(false);
         m_p.m_quote_stack = cons(m_p.mk_parser_scope(), m_p.m_quote_stack);
         if (i != id_behavior::ErrorIfUndef)
-            m_p.clear_expr_locals();
+            m_p.clear_expr_fvars();
     } else if (!m_in_quote && m_old_in_quote) {
         lean_assert(m_p.m_quote_stack);
         m_p.m_id_behavior = g_outer_id_behavior;
@@ -457,7 +457,7 @@ void parser::pop_local_scope() {
     m_parser_scope_stack = tail(m_parser_scope_stack);
 }
 
-void parser::clear_expr_locals() {
+void parser::clear_expr_fvars() {
     m_local_decls       = local_expr_decls();
 }
 
@@ -1720,7 +1720,7 @@ struct to_pattern_fn {
 static expr quote(expr const & e) {
     switch (e.kind()) {
         case expr_kind::BVar:
-            return mk_app(mk_constant({"expr", "var"}), quote(var_idx(e)));
+            return mk_app(mk_constant({"expr", "bvar"}), quote(var_idx(e)));
         case expr_kind::Sort:
             return mk_app(mk_constant({"expr", "sort"}), mk_expr_placeholder());
         case expr_kind::Constant:
@@ -1731,7 +1731,7 @@ static expr quote(expr const & e) {
             throw elaborator_exception(e, sstream() << "invalid quotation, unexpected local constant '"
                                                     << mlocal_pp_name(e) << "'");
         case expr_kind::App:
-            if (is_meta(e)) {
+            if (is_metavar_app(e)) {
                 /* Remark: metavariable applications of the form `?m x1 ... xn` may be introduced
                    by type_context::elim_mvar_deps when we create lambda/pi-expressions. */
                 return mk_expr_placeholder();

@@ -116,18 +116,18 @@ void expr_cell::set_is_arrow(bool flag) {
     lean_assert(is_arrow() && *is_arrow() == flag);
 }
 
-bool is_meta(expr const & e) {
+bool is_metavar_app(expr const & e) {
     return is_metavar(get_app_fn(e));
 }
 
 // Expr variables
-expr_var::expr_var(unsigned idx):
+expr_bvar::expr_bvar(unsigned idx):
     expr_cell(expr_kind::BVar, idx, false, false, false, false),
     m_vidx(idx) {
     if (idx == std::numeric_limits<unsigned>::max())
         throw exception("invalid bound variable index, de Bruijn index is too big");
 }
-void expr_var::dealloc() {
+void expr_bvar::dealloc() {
     delete this;
 }
 
@@ -163,13 +163,13 @@ void expr_mlocal::dealloc(buffer<expr_cell*> & todelete) {
 expr_mlocal::expr_mlocal(expr_mlocal const & src, expr const & new_type):
     expr_composite(src), m_name(src.m_name), m_pp_name(src.m_pp_name), m_type(new_type) {}
 
-expr_local::expr_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi):
+expr_fvar::expr_fvar(name const & n, name const & pp_n, expr const & t, binder_info const & bi):
     expr_mlocal(false, n, pp_n, t), m_bi(bi) {}
 
-expr_local::expr_local(expr_local const & src, expr const & new_type):
+expr_fvar::expr_fvar(expr_fvar const & src, expr const & new_type):
     expr_mlocal(src, new_type), m_bi(src.m_bi) {}
 
-void expr_local::dealloc(buffer<expr_cell*> & todelete) {
+void expr_fvar::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_type, todelete);
     delete this;
 }
@@ -364,8 +364,11 @@ expr_macro::~expr_macro() {}
 // =======================================
 // Constructors
 
-expr mk_var(unsigned idx) {
-    return expr(new expr_var(idx));
+expr mk_bvar(unsigned idx) {
+    return expr(new expr_bvar(idx));
+}
+expr mk_fvar(name const & n) {
+    return expr(new expr_fvar(n, n, expr(), binder_info()));
 }
 expr mk_constant(name const & n, levels const & ls) {
     return expr(new expr_const(n, ls));
@@ -380,8 +383,9 @@ expr mk_metavar(name const & n, name const & pp_n, expr const & t) {
 expr mk_metavar(name const & n, expr const & t) {
     return mk_metavar(n, n, t);
 }
+
 expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi) {
-    return expr(new expr_local(n, pp_n, t, bi));
+    return expr(new expr_fvar(n, pp_n, t, bi));
 }
 expr mk_app(expr const & f, expr const & a) {
     return expr(new expr_app(f, a));
@@ -410,10 +414,10 @@ void expr_cell::dealloc() {
             #endif
             lean_assert(it->get_rc() == 0);
             switch (it->kind()) {
-            case expr_kind::BVar:       static_cast<expr_var*>(it)->dealloc(); break;
+            case expr_kind::BVar:       static_cast<expr_bvar*>(it)->dealloc(); break;
             case expr_kind::Macro:      static_cast<expr_macro*>(it)->dealloc(todo); break;
             case expr_kind::Meta:       static_cast<expr_mlocal*>(it)->dealloc(todo); break;
-            case expr_kind::FVar:       static_cast<expr_local*>(it)->dealloc(todo); break;
+            case expr_kind::FVar:       static_cast<expr_fvar*>(it)->dealloc(todo); break;
             case expr_kind::Constant:   static_cast<expr_const*>(it)->dealloc(); break;
             case expr_kind::Sort:       static_cast<expr_sort*>(it)->dealloc(); break;
             case expr_kind::App:        static_cast<expr_app*>(it)->dealloc(todo); break;
@@ -661,7 +665,7 @@ optional<expr> has_expr_metavar_strict(expr const & e) {
     optional<expr> r;
     for_each(e, [&](expr const & e, unsigned) {
             if (r || !has_expr_metavar(e)) return false;
-            if (is_meta(e)) { r = e; return false; }
+            if (is_metavar_app(e)) { r = e; return false; }
             if (is_local(e)) return false; // do not visit type
             return true;
         });
@@ -691,7 +695,7 @@ bool has_loose_bvar(expr const & e, unsigned i) {
             if (n_i >= get_loose_bvar_range(e))
                 return false; // expression e does not contain bound variables with idx >= n_i
             if (is_var(e)) {
-                unsigned vidx = var_idx(e);
+                unsigned vidx = bvar_idx(e);
                 if (vidx == n_i)
                     found = true;
             }
@@ -710,9 +714,9 @@ expr lower_loose_bvars(expr const & e, unsigned s, unsigned d) {
                 return some_expr(e); // overflow, vidx can't be >= max unsigned
             if (s1 >= get_loose_bvar_range(e))
                 return some_expr(e); // expression e does not contain bound variables with idx >= s1
-            if (is_var(e) && var_idx(e) >= s1) {
-                lean_assert(var_idx(e) >= offset + d);
-                return some_expr(mk_var(var_idx(e) - d));
+            if (is_var(e) && bvar_idx(e) >= s1) {
+                lean_assert(bvar_idx(e) >= offset + d);
+                return some_expr(mk_bvar(bvar_idx(e) - d));
             } else {
                 return none_expr();
             }
@@ -731,11 +735,11 @@ expr lift_loose_bvars(expr const & e, unsigned s, unsigned d) {
                 return some_expr(e); // overflow, vidx can't be >= max unsigned
             if (s1 >= get_loose_bvar_range(e))
                 return some_expr(e); // expression e does not contain bound variables with idx >= s1
-            if (is_var(e) && var_idx(e) >= s + offset) {
-                unsigned new_idx = var_idx(e) + d;
-                if (new_idx < var_idx(e))
+            if (is_var(e) && bvar_idx(e) >= s + offset) {
+                unsigned new_idx = bvar_idx(e) + d;
+                if (new_idx < bvar_idx(e))
                     throw exception("invalid lift_loose_bvars operation, index overflow");
-                return some_expr(mk_var(new_idx));
+                return some_expr(mk_bvar(new_idx));
             } else {
                 return none_expr();
             }

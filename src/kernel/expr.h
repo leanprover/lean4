@@ -118,16 +118,18 @@ public:
     operator expr_ptr() const { return m_ptr; }
     expr_cell * raw() const { return m_ptr; }
 
-    friend expr mk_var(unsigned idx);
+    friend expr mk_bvar(unsigned idx);
+    friend expr mk_fvar(name const & n);
     friend expr mk_sort(level const & l);
     friend expr mk_constant(name const & n, levels const & ls);
     friend expr mk_metavar(name const & n, name const & pp_n, expr const & t);
-    friend expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi);
     friend expr mk_app(expr const & f, expr const & a);
     friend expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & i);
     friend expr mk_let(name const & n, expr const & t, expr const & v, expr const & b);
-    friend expr mk_macro(macro_definition const & m, unsigned num, expr const * args);
     friend bool is_eqp(expr const & a, expr const & b) { return a.m_ptr == b.m_ptr; }
+
+    friend expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi);
+    friend expr mk_macro(macro_definition const & m, unsigned num, expr const * args);
 };
 
 SPECIALIZE_OPTIONAL_FOR_SMART_PTR(expr)
@@ -141,12 +143,12 @@ inline bool is_eqp(optional<expr> const & a, optional<expr> const & b) {
 }
 
 /** \brief Bounded variables. They are encoded using de Bruijn's indices. */
-class expr_var : public expr_cell {
+class expr_bvar : public expr_cell {
     unsigned m_vidx; // de Bruijn index
     friend expr_cell;
     void dealloc();
 public:
-    expr_var(unsigned idx);
+    expr_bvar(unsigned idx);
     unsigned get_vidx() const { return m_vidx; }
 };
 
@@ -237,14 +239,14 @@ inline bool operator!=(binder_info const & i1, binder_info const & i2) { return 
 unsigned hash_bi(expr const & e);
 
 /** \brief expr_mlocal subclass for local constants. */
-class expr_local : public expr_mlocal {
+class expr_fvar : public expr_mlocal {
     binder_info m_bi;
     friend expr_cell;
     void dealloc(buffer<expr_cell*> & todelete);
     friend struct cache_expr_insert_fn;
-    expr_local(expr_local const &, expr const & new_type); // for hash_consing
+    expr_fvar(expr_fvar const &, expr const & new_type); // for hash_consing
 public:
-    expr_local(name const & n, name const & pp_name, expr const & t, binder_info const & bi);
+    expr_fvar(name const & n, name const & pp_name, expr const & t, binder_info const & bi);
     binder_info const & get_info() const { return m_bi; }
 };
 
@@ -414,9 +416,9 @@ public:
 
 // =======================================
 // Testers
-inline bool is_var(expr_ptr e)         { return e->kind() == expr_kind::BVar; }
+inline bool is_bvar(expr_ptr e)        { return e->kind() == expr_kind::BVar; }
+inline bool is_fvar(expr_ptr e)       { return e->kind() == expr_kind::FVar; }
 inline bool is_constant(expr_ptr e)    { return e->kind() == expr_kind::Constant; }
-inline bool is_local(expr_ptr e)       { return e->kind() == expr_kind::FVar; }
 inline bool is_metavar(expr_ptr e)     { return e->kind() == expr_kind::Meta; }
 inline bool is_macro(expr_ptr e)       { return e->kind() == expr_kind::Macro; }
 inline bool is_app(expr_ptr e)         { return e->kind() == expr_kind::App; }
@@ -425,32 +427,23 @@ inline bool is_pi(expr_ptr e)          { return e->kind() == expr_kind::Pi; }
 inline bool is_let(expr_ptr e)         { return e->kind() == expr_kind::Let; }
 inline bool is_sort(expr_ptr e)        { return e->kind() == expr_kind::Sort; }
 inline bool is_binding(expr_ptr e)     { return is_lambda(e) || is_pi(e); }
-inline bool is_mlocal(expr_ptr e)      { return is_metavar(e) || is_local(e); }
 
 bool is_atomic(expr const & e);
 bool is_arrow(expr const & t);
 /** \brief Return true iff \c e is a metavariable or an application of a metavariable */
-bool is_meta(expr const & e);
+bool is_metavar_app(expr const & e);
 // =======================================
 
 // =======================================
 // Constructors
-expr mk_var(unsigned idx);
-inline expr Var(unsigned idx) { return mk_var(idx); }
+expr mk_bvar(unsigned idx);
+expr mk_fvar(name const & n);
+inline expr BVar(unsigned idx) { return mk_bvar(idx); }
 expr mk_constant(name const & n, levels const & ls);
 inline expr mk_constant(name const & n) { return mk_constant(n, levels()); }
 inline expr Const(name const & n) { return mk_constant(n); }
-expr mk_macro(macro_definition const & m, unsigned num = 0, expr const * args = nullptr);
 expr mk_metavar(name const & n, expr const & t);
 expr mk_metavar(name const & n, name const & pp_n, expr const & t);
-expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi);
-inline expr mk_local(name const & n, expr const & t) { return mk_local(n, n, t, binder_info()); }
-inline expr mk_local(name const & n, expr const & t, binder_info const & bi) {
-    return mk_local(n, n, t, bi);
-}
-inline expr Local(name const & n, expr const & t, binder_info const & bi = binder_info()) {
-    return mk_local(n, t, bi);
-}
 expr mk_app(expr const & f, expr const & a);
 expr mk_app(expr const & f, unsigned num_args, expr const * args);
 expr mk_app(unsigned num_args, expr const * args);
@@ -502,16 +495,14 @@ inline expr mk_app(expr const & e1, expr const & e2, expr const & e3, expr const
 
 // =======================================
 // Casting (these functions are only needed for low-level code)
-inline expr_var *         to_var(expr_ptr e)        { lean_assert(is_var(e));         return static_cast<expr_var*>(e); }
+inline expr_bvar *        to_bvar(expr_ptr e)       { lean_assert(is_bvar(e));        return static_cast<expr_bvar*>(e); }
+inline expr_fvar *        to_fvar(expr_ptr e)       { lean_assert(is_fvar(e));        return static_cast<expr_fvar*>(e); }
 inline expr_const *       to_constant(expr_ptr e)   { lean_assert(is_constant(e));    return static_cast<expr_const*>(e); }
 inline expr_app *         to_app(expr_ptr e)        { lean_assert(is_app(e));         return static_cast<expr_app*>(e); }
 inline expr_binding *     to_binding(expr_ptr e)    { lean_assert(is_binding(e));     return static_cast<expr_binding*>(e); }
 inline expr_sort *        to_sort(expr_ptr e)       { lean_assert(is_sort(e));        return static_cast<expr_sort*>(e); }
-inline expr_mlocal *      to_mlocal(expr_ptr e)     { lean_assert(is_mlocal(e));      return static_cast<expr_mlocal*>(e); }
-inline expr_local *       to_local(expr_ptr e)      { lean_assert(is_local(e));       return static_cast<expr_local*>(e); }
 inline expr_mlocal *      to_metavar(expr_ptr e)    { lean_assert(is_metavar(e));     return static_cast<expr_mlocal*>(e); }
 inline expr_let *         to_let(expr_ptr e)        { lean_assert(is_let(e));         return static_cast<expr_let*>(e); }
-inline expr_macro *       to_macro(expr_ptr e)      { lean_assert(is_macro(e));       return static_cast<expr_macro*>(e); }
 // =======================================
 
 
@@ -519,14 +510,12 @@ inline expr_macro *       to_macro(expr_ptr e)      { lean_assert(is_macro(e)); 
 // Accessors
 inline unsigned       get_rc(expr_ptr e)                { return e->get_rc(); }
 inline bool           is_shared(expr_ptr e)             { return get_rc(e) > 1; }
-inline unsigned       var_idx(expr_ptr e)               { return to_var(e)->get_vidx(); }
-inline bool           is_var(expr_ptr e, unsigned i)    { return is_var(e) && var_idx(e) == i; }
+inline unsigned       bvar_idx(expr_ptr e)              { return to_bvar(e)->get_vidx(); }
+inline bool           is_bvar(expr_ptr e, unsigned i)   { return is_bvar(e) && bvar_idx(e) == i; }
+inline name const &   fvar_name(expr_ptr e)             { return to_fvar(e)->get_name(); }
+inline level const &  sort_level(expr_ptr e)            { return to_sort(e)->get_level(); }
 inline name const &   const_name(expr_ptr e)            { return to_constant(e)->get_name(); }
 inline levels const & const_levels(expr_ptr e)          { return to_constant(e)->get_levels(); }
-inline macro_definition const & macro_def(expr_ptr e)   { return to_macro(e)->get_def(); }
-inline expr const *   macro_args(expr_ptr e)            { return to_macro(e)->get_args(); }
-inline expr const &   macro_arg(expr_ptr e, unsigned i) { return to_macro(e)->get_arg(i); }
-inline unsigned       macro_num_args(expr_ptr e)        { return to_macro(e)->get_num_args(); }
 inline expr const &   app_fn(expr_ptr e)                { return to_app(e)->get_fn(); }
 inline expr const &   app_arg(expr_ptr e)               { return to_app(e)->get_arg(); }
 inline name const &   binding_name(expr_ptr e)          { return to_binding(e)->get_name(); }
@@ -534,11 +523,6 @@ inline expr const &   binding_domain(expr_ptr e)        { return to_binding(e)->
 inline expr const &   binding_body(expr_ptr e)          { return to_binding(e)->get_body(); }
 inline binder_info const & binding_info(expr_ptr e)     { return to_binding(e)->get_info(); }
 inline binder const & binding_binder(expr_ptr e)        { return to_binding(e)->get_binder(); }
-inline level const &  sort_level(expr_ptr e)            { return to_sort(e)->get_level(); }
-inline name const &   mlocal_name(expr_ptr e)           { return to_mlocal(e)->get_name(); }
-inline expr const &   mlocal_type(expr_ptr e)           { return to_mlocal(e)->get_type(); }
-inline name const &   mlocal_pp_name(expr_ptr e)        { return to_mlocal(e)->get_pp_name(); }
-inline binder_info const & local_info(expr_ptr e)       { return to_local(e)->get_info(); }
 inline name const &   let_name(expr_ptr e)              { return to_let(e)->get_name(); }
 inline expr const &   let_type(expr_ptr e)              { return to_let(e)->get_type(); }
 inline expr const &   let_value(expr_ptr e)             { return to_let(e)->get_value(); }
@@ -561,7 +545,7 @@ unsigned get_depth(expr const & e);
      occurring in \c e is in the interval <tt>[0, R)</tt>. */
 inline unsigned get_loose_bvar_range(expr const & e) {
     switch (e.kind()) {
-    case expr_kind::BVar:                           return var_idx(e) + 1;
+    case expr_kind::BVar:                           return bvar_idx(e) + 1;
     case expr_kind::Constant: case expr_kind::Sort: return 0;
     default:                                        return static_cast<expr_composite*>(e.raw())->m_loose_bvar_range;
     }
@@ -658,4 +642,39 @@ unsigned get_num_live_exprs();
 
 void initialize_expr();
 void finalize_expr();
+
+
+
+/* ------ LEGACY CODE -------------
+   The following API is to support legacy code
+   -------------------------------- */
+
+inline bool is_var(expr_ptr e) { return is_bvar(e); }
+inline bool is_local(expr_ptr e) { return is_fvar(e); }
+inline bool is_mlocal(expr_ptr e) { return is_metavar(e) || is_local(e); }
+inline unsigned var_idx(expr_ptr e) { return bvar_idx(e); }
+inline bool is_var(expr_ptr e, unsigned i) { return is_bvar(e, i); }
+inline expr_bvar *        to_var(expr_ptr e)        { return to_bvar(e); }
+inline expr_mlocal *      to_mlocal(expr_ptr e)     { lean_assert(is_mlocal(e));      return static_cast<expr_mlocal*>(e); }
+inline expr_fvar *      to_local(expr_ptr e)     { return to_fvar(e); }
+inline expr_macro *       to_macro(expr_ptr e)      { lean_assert(is_macro(e));       return static_cast<expr_macro*>(e); }
+inline name const &   mlocal_name(expr_ptr e)  { return to_mlocal(e)->get_name(); }
+inline expr const &   mlocal_type(expr_ptr e)  { return to_mlocal(e)->get_type(); }
+inline name const &   mlocal_pp_name(expr_ptr e) { return to_mlocal(e)->get_pp_name(); }
+inline binder_info const & local_info(expr_ptr e) { return to_local(e)->get_info(); }
+inline macro_definition const & macro_def(expr_ptr e)   { return to_macro(e)->get_def(); }
+inline expr const *   macro_args(expr_ptr e)            { return to_macro(e)->get_args(); }
+inline expr const &   macro_arg(expr_ptr e, unsigned i) { return to_macro(e)->get_arg(i); }
+inline unsigned       macro_num_args(expr_ptr e)        { return to_macro(e)->get_num_args(); }
+inline expr mk_var(unsigned idx) { return mk_bvar(idx); }
+inline expr Var(unsigned idx) { return mk_bvar(idx); }
+expr mk_macro(macro_definition const & m, unsigned num = 0, expr const * args = nullptr);
+expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi);
+inline expr mk_local(name const & n, expr const & t) { return mk_local(n, n, t, binder_info()); }
+inline expr mk_local(name const & n, expr const & t, binder_info const & bi) {
+    return mk_local(n, n, t, bi);
+}
+inline expr Local(name const & n, expr const & t, binder_info const & bi = binder_info()) {
+    return mk_local(n, t, bi);
+}
 }

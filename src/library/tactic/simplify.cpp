@@ -288,7 +288,7 @@ simp_result simplify_core_fn::try_user_congr(expr const & e, simp_lemma const & 
             if (r_congr_hyp.has_proof())
                 simplified = true;
 
-            lean_assert(is_meta(h_rhs));
+            lean_assert(is_metavar_app(h_rhs));
             buffer<expr> new_val_meta_args;
             expr new_val_meta = get_app_args(h_rhs, new_val_meta_args);
             lean_assert(is_metavar(new_val_meta));

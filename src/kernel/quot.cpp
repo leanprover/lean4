@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 
 Quotient types.
 */
+#include "util/name_generator.h"
 #include "kernel/old_type_checker.h"
 #include "kernel/quot.h"
 #include "kernel/local_ctx.h"
@@ -28,14 +29,15 @@ static void check_eq_type(environment const & env) {
     if (length(decl->m_level_params) != 1)
         throw exception("failed to initialize quot module, unexpected number of universe params at 'eq' type");
     local_ctx lctx;
+    name_generator g;
     level u = mk_param_univ(head(decl->m_level_params));
-    expr alpha = lctx.mk_local_decl("α", "α", mk_sort(u), mk_implicit_binder_info());
+    expr alpha = lctx.mk_local_decl(g, "α", mk_sort(u), mk_implicit_binder_info());
     expr expected_eq_type = lctx.mk_pi(alpha, mk_arrow(alpha, mk_arrow(alpha, mk_Prop())));
     if (decl->m_type != expected_eq_type)
         throw exception("failed to initialize quot module, 'eq' has an expected type");
     if (length(decl->m_intro_rules) != 1)
         throw exception("failed to initialize quot module, unexpected number of constructors for 'eq' type");
-    expr a = lctx.mk_local_decl("a", alpha);
+    expr a = lctx.mk_local_decl(g, "a", alpha);
     expr expected_eq_refl_type = lctx.mk_pi({alpha, a}, mk_app(mk_constant("eq", {u}), alpha, a, a));
     if (mlocal_type(head(decl->m_intro_rules)) != expected_eq_refl_type) {
         throw exception("failed to initialize quot module, unexpected type for 'eq' type constructor");
@@ -47,25 +49,30 @@ environment quot_declare(environment const & env) {
     environment new_env = env;
     name u_name("u");
     local_ctx lctx;
+    name_generator g;
     level u         = mk_param_univ(u_name);
     expr Sort_u     = mk_sort(u);
-    expr alpha      = lctx.mk_local_decl("α", "α", Sort_u, mk_implicit_binder_info());
-    expr r          = lctx.mk_local_decl("r", mk_arrow(alpha, mk_arrow(alpha, mk_Prop())));
+    expr alpha      = lctx.mk_local_decl(g, "α", Sort_u, mk_implicit_binder_info());
+    expr r          = lctx.mk_local_decl(g, "r", mk_arrow(alpha, mk_arrow(alpha, mk_Prop())));
     /* constant {u} quot {α : Sort u} (r : α → α → Prop) : Sort u */
     new_env = add_constant(new_env, *quot_consts::g_quot, {u_name}, lctx.mk_pi({alpha, r}, Sort_u));
     expr quot_r     = mk_app(mk_constant(*quot_consts::g_quot, {u}), alpha, r);
-    expr a          = lctx.mk_local_decl("a", alpha);
+    expr a          = lctx.mk_local_decl(g, "a", alpha);
     /* constant {u} quot.mk {α : Sort u} (r : α → α → Prop) (a : α) : @quot.{u} α r */
     new_env = add_constant(new_env, *quot_consts::g_quot_mk, {u_name},
                            lctx.mk_pi({alpha, r, a}, quot_r));
     /* make r implicit */
-    r               = lctx.mk_local_decl("r", "r", mk_arrow(alpha, mk_arrow(alpha, mk_Prop())), mk_implicit_binder_info());
+    lctx = local_ctx();
+    alpha           = lctx.mk_local_decl(g, "α", Sort_u, mk_implicit_binder_info());
+    r               = lctx.mk_local_decl(g, "r", mk_arrow(alpha, mk_arrow(alpha, mk_Prop())), mk_implicit_binder_info());
+    quot_r          = mk_app(mk_constant(*quot_consts::g_quot, {u}), alpha, r);
+    a               = lctx.mk_local_decl(g, "a", alpha);
     name v_name("v");
     level v         = mk_param_univ(v_name);
     expr Sort_v     = mk_sort(v);
-    expr beta       = lctx.mk_local_decl("β", "β", Sort_v, mk_implicit_binder_info());
-    expr f          = lctx.mk_local_decl("f", mk_arrow(alpha, beta));
-    expr b          = lctx.mk_local_decl("b", alpha);
+    expr beta       = lctx.mk_local_decl(g, "β", Sort_v, mk_implicit_binder_info());
+    expr f          = lctx.mk_local_decl(g, "f", mk_arrow(alpha, beta));
+    expr b          = lctx.mk_local_decl(g, "b", alpha);
     expr r_a_b      = mk_app(r, a, b);
     /* f a = f b */
     expr f_a_eq_f_b = mk_app(mk_constant("eq", {v}), beta, mk_app(f, a), mk_app(f, b));
@@ -76,10 +83,10 @@ environment quot_declare(environment const & env) {
     new_env = add_constant(new_env, *quot_consts::g_quot_lift, {u_name, v_name},
                            lctx.mk_pi({alpha, r, beta, f}, mk_arrow(sanity, mk_arrow(quot_r, beta))));
     /* {β : @quot.{u} α r → Prop} */
-    beta            = lctx.mk_local_decl("β", "β", mk_arrow(quot_r, mk_Prop()), mk_implicit_binder_info());
+    beta            = lctx.mk_local_decl(g, "β", mk_arrow(quot_r, mk_Prop()), mk_implicit_binder_info());
     expr quot_mk_a  = mk_app(mk_constant(*quot_consts::g_quot_mk, {u}), alpha, r, a);
     expr all_quot   = lctx.mk_pi(a, mk_app(beta, quot_mk_a));
-    expr q          = lctx.mk_local_decl("q", quot_r);
+    expr q          = lctx.mk_local_decl(g, "q", quot_r);
     expr beta_q     = mk_app(beta, q);
     /* constant {u} quot.ind {α : Sort u} {r : α → α → Prop} {β : @quot.{u} α r → Prop}
                    : (∀ a : α, β (@quot.mk.{u} α r a)) → ∀ q : @quot.{u} α r, β q */

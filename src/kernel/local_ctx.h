@@ -87,6 +87,14 @@ public:
         return mk_local_decl(n, un, type, some_expr(value), binder_info()).mk_ref();
     }
 
+    expr mk_local_decl(name_generator & g, name const & un, expr const & type, binder_info const & bi = binder_info()) {
+        return mk_local_decl(g.next(), un, type, bi);
+    }
+
+    expr mk_local_decl(name_generator & g, name const & un, expr const & type, expr const & value) {
+        return mk_local_decl(g.next(), un, type, some_expr(value), binder_info()).mk_ref();
+    }
+
     /** \brief Return the local declarations for the given reference.
 
         \pre is_fvar(e) */

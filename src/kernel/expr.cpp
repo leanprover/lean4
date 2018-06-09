@@ -122,7 +122,7 @@ bool is_meta(expr const & e) {
 
 // Expr variables
 expr_var::expr_var(unsigned idx):
-    expr_cell(expr_kind::Var, idx, false, false, false, false),
+    expr_cell(expr_kind::BVar, idx, false, false, false, false),
     m_vidx(idx) {
     if (idx == std::numeric_limits<unsigned>::max())
         throw exception("invalid bound variable index, de Bruijn index is too big");
@@ -148,7 +148,7 @@ unsigned binder_info::hash() const {
 
 // Expr metavariables and local variables
 expr_mlocal::expr_mlocal(bool is_meta, name const & n, name const & pp_n, expr const & t):
-    expr_composite(is_meta ? expr_kind::Meta : expr_kind::Local, n.hash(), is_meta || t.has_expr_metavar(), t.has_univ_metavar(),
+    expr_composite(is_meta ? expr_kind::Meta : expr_kind::FVar, n.hash(), is_meta || t.has_expr_metavar(), t.has_univ_metavar(),
                    !is_meta || t.has_local(), t.has_param_univ(),
                    1, get_loose_bvar_range(t)),
     m_name(n),
@@ -410,10 +410,10 @@ void expr_cell::dealloc() {
             #endif
             lean_assert(it->get_rc() == 0);
             switch (it->kind()) {
-            case expr_kind::Var:        static_cast<expr_var*>(it)->dealloc(); break;
+            case expr_kind::BVar:       static_cast<expr_var*>(it)->dealloc(); break;
             case expr_kind::Macro:      static_cast<expr_macro*>(it)->dealloc(todo); break;
             case expr_kind::Meta:       static_cast<expr_mlocal*>(it)->dealloc(todo); break;
-            case expr_kind::Local:      static_cast<expr_local*>(it)->dealloc(todo); break;
+            case expr_kind::FVar:       static_cast<expr_local*>(it)->dealloc(todo); break;
             case expr_kind::Constant:   static_cast<expr_const*>(it)->dealloc(); break;
             case expr_kind::Sort:       static_cast<expr_sort*>(it)->dealloc(); break;
             case expr_kind::App:        static_cast<expr_app*>(it)->dealloc(todo); break;
@@ -532,8 +532,8 @@ expr mk_Type() { return *g_Type1; }
 
 unsigned get_weight(expr const & e) {
     switch (e.kind()) {
-    case expr_kind::Var:  case expr_kind::Constant: case expr_kind::Sort:
-    case expr_kind::Meta: case expr_kind::Local:
+    case expr_kind::BVar:  case expr_kind::Constant: case expr_kind::Sort:
+    case expr_kind::Meta: case expr_kind::FVar:
         return 1;
     case expr_kind::Lambda: case expr_kind::Pi:  case expr_kind::Macro:
     case expr_kind::App:    case expr_kind::Let:
@@ -544,8 +544,8 @@ unsigned get_weight(expr const & e) {
 
 unsigned get_depth(expr const & e) {
     switch (e.kind()) {
-    case expr_kind::Var:  case expr_kind::Constant: case expr_kind::Sort:
-    case expr_kind::Meta: case expr_kind::Local:
+    case expr_kind::BVar: case expr_kind::Constant: case expr_kind::Sort:
+    case expr_kind::Meta: case expr_kind::FVar:
         return 1;
     case expr_kind::Lambda: case expr_kind::Pi:  case expr_kind::Macro:
     case expr_kind::App:    case expr_kind::Let:
@@ -632,12 +632,12 @@ expr update_let(expr const & e, expr const & new_type, expr const & new_value, e
 bool is_atomic(expr const & e) {
     switch (e.kind()) {
     case expr_kind::Constant: case expr_kind::Sort:
-    case expr_kind::Var:
+    case expr_kind::BVar:
         return true;
     case expr_kind::Macro:
         return to_macro(e)->get_num_args() == 0;
     case expr_kind::App:      case expr_kind::Meta:
-    case expr_kind::Local:    case expr_kind::Lambda:
+    case expr_kind::FVar:     case expr_kind::Lambda:
     case expr_kind::Pi:       case expr_kind::Let:
         return false;
     }
@@ -786,11 +786,11 @@ unsigned hash_bi(expr const & e) {
 
 std::ostream & operator<<(std::ostream & out, expr_kind const & k) {
     switch (k) {
-    case expr_kind::Var:      out << "Var"; break;
+    case expr_kind::BVar:     out << "Var"; break;
     case expr_kind::Sort:     out << "Sort"; break;
     case expr_kind::Constant: out << "Constant"; break;
     case expr_kind::Meta:     out << "Meta"; break;
-    case expr_kind::Local:    out << "Local"; break;
+    case expr_kind::FVar:     out << "Local"; break;
     case expr_kind::App:      out << "App"; break;
     case expr_kind::Lambda:   out << "Lambda"; break;
     case expr_kind::Pi:       out << "Pi"; break;

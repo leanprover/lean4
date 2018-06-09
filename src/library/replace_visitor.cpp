@@ -69,9 +69,9 @@ expr replace_visitor::visit(expr const & e) {
     case expr_kind::Sort:      return save_result(e, visit_sort(e), shared);
     case expr_kind::Macro:     return save_result(e, visit_macro(e), shared);
     case expr_kind::Constant:  return save_result(e, visit_constant(e), shared);
-    case expr_kind::Var:       return save_result(e, visit_var(e), shared);
+    case expr_kind::BVar:      return save_result(e, visit_var(e), shared);
     case expr_kind::Meta:      return save_result(e, visit_meta(e), shared);
-    case expr_kind::Local:     return save_result(e, visit_local(e), shared);
+    case expr_kind::FVar:      return save_result(e, visit_local(e), shared);
     case expr_kind::App:       return save_result(e, visit_app(e), shared);
     case expr_kind::Lambda:    return save_result(e, visit_lambda(e), shared);
     case expr_kind::Pi:        return save_result(e, visit_pi(e), shared);

@@ -48,9 +48,9 @@ class cse_fn : public compiler_step_visitor {
 
         void visit(expr const & e) {
             switch (e.kind()) {
-            case expr_kind::Var:      case expr_kind::Sort:
+            case expr_kind::BVar:      case expr_kind::Sort:
             case expr_kind::Meta:     case expr_kind::Pi:
-            case expr_kind::Constant: case expr_kind::Local:
+            case expr_kind::Constant: case expr_kind::FVar:
                 break;
             case expr_kind::Lambda:   visit_lambda(e); break;
             case expr_kind::Macro:    visit_macro(e); break;

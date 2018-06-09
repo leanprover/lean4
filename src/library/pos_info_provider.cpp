@@ -136,9 +136,9 @@ class replace_rec_fn2 {
             return save_result(e, offset, *r, shared);
         } else {
             switch (e.kind()) {
-            case expr_kind::Constant: case expr_kind::Sort: case expr_kind::Var:
+            case expr_kind::Constant: case expr_kind::Sort: case expr_kind::BVar:
                 return save_result(e, offset, e, shared);
-            case expr_kind::Meta:     case expr_kind::Local: {
+            case expr_kind::Meta:     case expr_kind::FVar: {
                 expr new_t = apply(mlocal_type(e), offset);
                 return save_result(e, offset, copy_pos(e, update_mlocal(e, new_t)), shared);
             }

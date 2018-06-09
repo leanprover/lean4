@@ -254,12 +254,12 @@ expr dsimplify_core_fn::visit(expr const & e) {
     while (true) {
         expr new_e;
         switch (curr_e.kind()) {
-        case expr_kind::Local:
+        case expr_kind::FVar:
         case expr_kind::Sort:
         case expr_kind::Constant:
             new_e = curr_e;
             break;
-        case expr_kind::Var:
+        case expr_kind::BVar:
             lean_unreachable();
         case expr_kind::Meta:
             new_e = visit_meta(curr_e);

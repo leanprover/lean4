@@ -218,10 +218,10 @@ struct print_expr_fn {
         case expr_kind::Meta:
             out() << "?" << fix_name(mlocal_name(a));
             break;
-        case expr_kind::Local:
+        case expr_kind::FVar:
             out() << fix_name(mlocal_pp_name(a));
             break;
-        case expr_kind::Var:
+        case expr_kind::BVar:
             out() << "#" << var_idx(a);
             break;
         case expr_kind::Constant:

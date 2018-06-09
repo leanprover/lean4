@@ -29,18 +29,18 @@ class abstract_type_context;
 class expr;
 /* =======================================
    Expressions
-   expr ::=   Var           idx
+   expr ::=   BVar          idx
+          |   FVar          name
           |   Sort          level
           |   Constant      name [levels]
           |   Meta          name expr
-          |   Local         name expr
           |   App           expr expr
           |   Lambda        name expr expr
           |   Pi            name expr expr
           |   Let           name expr expr expr
           |   Macro         macro
 */
-enum class expr_kind { Var, Local, Sort, Constant, Meta, App, Lambda, Pi, Let, Macro };
+enum class expr_kind { BVar, FVar, Sort, Constant, Meta, App, Lambda, Pi, Let, Macro };
 class expr_cell {
 protected:
     // The bits of the following field mean:
@@ -414,9 +414,9 @@ public:
 
 // =======================================
 // Testers
-inline bool is_var(expr_ptr e)         { return e->kind() == expr_kind::Var; }
+inline bool is_var(expr_ptr e)         { return e->kind() == expr_kind::BVar; }
 inline bool is_constant(expr_ptr e)    { return e->kind() == expr_kind::Constant; }
-inline bool is_local(expr_ptr e)       { return e->kind() == expr_kind::Local; }
+inline bool is_local(expr_ptr e)       { return e->kind() == expr_kind::FVar; }
 inline bool is_metavar(expr_ptr e)     { return e->kind() == expr_kind::Meta; }
 inline bool is_macro(expr_ptr e)       { return e->kind() == expr_kind::Macro; }
 inline bool is_app(expr_ptr e)         { return e->kind() == expr_kind::App; }
@@ -561,7 +561,7 @@ unsigned get_depth(expr const & e);
      occurring in \c e is in the interval <tt>[0, R)</tt>. */
 inline unsigned get_loose_bvar_range(expr const & e) {
     switch (e.kind()) {
-    case expr_kind::Var:                            return var_idx(e) + 1;
+    case expr_kind::BVar:                           return var_idx(e) + 1;
     case expr_kind::Constant: case expr_kind::Sort: return 0;
     default:                                        return static_cast<expr_composite*>(e.raw())->m_loose_bvar_range;
     }

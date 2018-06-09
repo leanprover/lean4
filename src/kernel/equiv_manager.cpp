@@ -67,14 +67,14 @@ bool equiv_manager::is_equiv_core(expr const & a, expr const & b) {
     check_system("expression equivalence test");
     bool result = false;
     switch (a.kind()) {
-    case expr_kind::Var:
+    case expr_kind::BVar:
         lean_unreachable(); // LCOV_EXCL_LINE
     case expr_kind::Constant:
         result =
             const_name(a) == const_name(b) &&
             compare(const_levels(a), const_levels(b), [](level const & l1, level const & l2) { return l1 == l2; });
         break;
-    case expr_kind::Meta: case expr_kind::Local:
+    case expr_kind::Meta: case expr_kind::FVar:
         result =
             mlocal_name(a) == mlocal_name(b) &&
             is_equiv_core(mlocal_type(a), mlocal_type(b));

@@ -785,12 +785,12 @@ optional<expr> type_context_old::reduce_recursor(expr const & e) {
 expr type_context_old::whnf_core(expr const & e0, bool proj_reduce) {
     expr e = e0;
     while (true) { switch (e.kind()) {
-    case expr_kind::Var:      case expr_kind::Sort:
+    case expr_kind::BVar:     case expr_kind::Sort:
     case expr_kind::Pi:       case expr_kind::Lambda:
     case expr_kind::Constant:
         /* Remark: we do not unfold Constants eagerly in this method */
         return e;
-    case expr_kind::Local:
+    case expr_kind::FVar:
         if (use_zeta() && is_local_decl_ref(e)) {
             if (auto d = m_lctx.find_local_decl(e)) {
                 if (auto v = d->get_value()) {
@@ -887,7 +887,7 @@ expr type_context_old::whnf_core(expr const & e0, bool proj_reduce) {
 
 expr type_context_old::whnf(expr const & e) {
     switch (e.kind()) {
-    case expr_kind::Var:      case expr_kind::Sort:
+    case expr_kind::BVar:     case expr_kind::Sort:
     case expr_kind::Pi:       case expr_kind::Lambda:
         return e;
     default:
@@ -997,13 +997,13 @@ expr type_context_old::infer_core(expr const & e) {
 
     expr r;
     switch (e.kind()) {
-    case expr_kind::Local:
+    case expr_kind::FVar:
         r = infer_local(e);
         break;
     case expr_kind::Meta:
         r = infer_metavar(e);
         break;
-    case expr_kind::Var:
+    case expr_kind::BVar:
         throw exception("failed to infer type, unexpected bound variable occurrence");
     case expr_kind::Sort:
         r = mk_sort(mk_succ(sort_level(e)));
@@ -2702,8 +2702,8 @@ lbool type_context_old::quick_is_def_eq(expr const & e1, expr const & e2) {
             return to_lbool(is_def_eq_binding(e1, e2));
         case expr_kind::Sort:
             return to_lbool(is_def_eq(sort_level(e1), sort_level(e2)));
-        case expr_kind::Meta:     case expr_kind::Var:
-        case expr_kind::Local:    case expr_kind::App:
+        case expr_kind::Meta:     case expr_kind::BVar:
+        case expr_kind::FVar:     case expr_kind::App:
         case expr_kind::Constant: case expr_kind::Macro:
         case expr_kind::Let:
             // We do not handle these cases in this method.
@@ -3321,7 +3321,7 @@ lbool type_context_old::is_quick_class(expr const & type, name & result) {
     expr const * it = &type;
     while (true) {
         switch (it->kind()) {
-        case expr_kind::Var:  case expr_kind::Sort:   case expr_kind::Local:
+        case expr_kind::BVar: case expr_kind::Sort:   case expr_kind::FVar:
         case expr_kind::Meta: case expr_kind::Lambda:
             return l_false;
         case expr_kind::Let:

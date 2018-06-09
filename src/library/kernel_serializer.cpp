@@ -74,7 +74,7 @@ class expr_serializer : public object_serializer<expr, expr_hash, is_bi_equal_pr
         super::write_core(a, static_cast<char>(k), [&]() {
                 serializer & s = get_owner();
                 switch (k) {
-                case expr_kind::Var:
+                case expr_kind::BVar:
                     s << var_idx(a);
                     break;
                 case expr_kind::Constant:
@@ -107,7 +107,7 @@ class expr_serializer : public object_serializer<expr, expr_hash, is_bi_equal_pr
                     lean_assert(!mlocal_name(a).is_anonymous());
                     s << mlocal_name(a) << mlocal_pp_name(a); write_core(mlocal_type(a));
                     break;
-                case expr_kind::Local:
+                case expr_kind::FVar:
                     lean_assert(!mlocal_name(a).is_anonymous());
                     lean_assert(!mlocal_pp_name(a).is_anonymous());
                     s << mlocal_name(a) << mlocal_pp_name(a) << local_info(a); write_core(mlocal_type(a));
@@ -138,7 +138,7 @@ public:
                 deserializer & d = get_owner();
                 auto k = static_cast<expr_kind>(c);
                 switch (k) {
-                case expr_kind::Var:
+                case expr_kind::BVar:
                     return mk_var(d.read_unsigned());
                 case expr_kind::Constant: {
                     auto n = read_name(d);
@@ -171,7 +171,7 @@ public:
                     name pp_n = read_name(d);
                     return mk_metavar(n, pp_n, read());
                 }
-                case expr_kind::Local: {
+                case expr_kind::FVar: {
                     name n         = read_name(d);
                     name pp_n      = read_name(d);
                     binder_info bi = read_binder_info(d);

@@ -108,13 +108,13 @@ struct check_fn {
             return;
         m_visited.insert(e);
         switch (e.kind()) {
-        case expr_kind::Local:
+        case expr_kind::FVar:
         case expr_kind::Meta:
         case expr_kind::Sort:
             break; /* do nothing */
         case expr_kind::Constant:
             return visit_constant(e);
-        case expr_kind::Var:
+        case expr_kind::BVar:
             lean_unreachable();  // LCOV_EXCL_LINE
         case expr_kind::Macro:
             return visit_macro(e);

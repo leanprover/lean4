@@ -21,7 +21,7 @@ bool is_lt(expr const & a, expr const & b, bool use_hash, local_context const * 
     }
     if (a == b)                          return false;
     switch (a.kind()) {
-    case expr_kind::Var:
+    case expr_kind::BVar:
         return var_idx(a) < var_idx(b);
     case expr_kind::Constant:
         if (const_name(a) != const_name(b))
@@ -47,7 +47,7 @@ bool is_lt(expr const & a, expr const & b, bool use_hash, local_context const * 
             return is_lt(let_body(a), let_body(b), use_hash, lctx);
     case expr_kind::Sort:
         return is_lt(sort_level(a), sort_level(b), use_hash);
-    case expr_kind::Local:
+    case expr_kind::FVar:
         if (lctx) {
             if (auto d1 = lctx->find_local_decl(a))
             if (auto d2 = lctx->find_local_decl(b))
@@ -128,7 +128,7 @@ bool is_lt_no_level_params(expr const & a, expr const & b) {
     if (wa > wb)                         return false;
     if (a.kind() != b.kind())            return a.kind() < b.kind();
     switch (a.kind()) {
-    case expr_kind::Var:
+    case expr_kind::BVar:
         return var_idx(a) < var_idx(b);
     case expr_kind::Constant:
         if (const_name(a) != const_name(b))
@@ -162,7 +162,7 @@ bool is_lt_no_level_params(expr const & a, expr const & b) {
             return is_lt_no_level_params(let_body(a), let_body(b));
     case expr_kind::Sort:
         return is_lt_no_level_params(sort_level(a), sort_level(b));
-    case expr_kind::Local: case expr_kind::Meta:
+    case expr_kind::FVar: case expr_kind::Meta:
         if (mlocal_name(a) != mlocal_name(b))
             return mlocal_name(a) < mlocal_name(b);
         else

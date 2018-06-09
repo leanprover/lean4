@@ -581,7 +581,7 @@ class add_nested_inductive_decl_fn {
         expr e = safe_whnf(m_tctx, _e);
         switch (e.kind()) {
         case expr_kind::Sort:
-        case expr_kind::Local:
+        case expr_kind::FVar:
         case expr_kind::Macro:
             return _e;
         case expr_kind::Lambda:
@@ -620,7 +620,7 @@ class add_nested_inductive_decl_fn {
             }
             return _e;
         }
-        case expr_kind::Var:
+        case expr_kind::BVar:
         case expr_kind::Meta:
         case expr_kind::Let:
             lean_unreachable();
@@ -635,7 +635,7 @@ class add_nested_inductive_decl_fn {
         expr e = safe_whnf(m_tctx, _e);
         switch (e.kind()) {
         case expr_kind::Sort:
-        case expr_kind::Local:
+        case expr_kind::FVar:
         case expr_kind::Macro:
             return _e;
         case expr_kind::Lambda:
@@ -674,7 +674,7 @@ class add_nested_inductive_decl_fn {
             }
             return _e;
         }
-        case expr_kind::Var:
+        case expr_kind::BVar:
         case expr_kind::Meta:
         case expr_kind::Let:
             lean_unreachable();

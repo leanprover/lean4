@@ -1771,11 +1771,11 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
         if (auto k = to_unsigned(e))
             return format(*k);
     switch (e.kind()) {
-    case expr_kind::Var:       return pp_var(e);
+    case expr_kind::BVar:      return pp_var(e);
+    case expr_kind::FVar:      return pp_local(e);
     case expr_kind::Sort:      return pp_sort(e);
     case expr_kind::Constant:  return pp_const(e);
     case expr_kind::Meta:      return pp_meta(e);
-    case expr_kind::Local:     return pp_local(e);
     case expr_kind::App:       return pp_app(e);
     case expr_kind::Lambda:    return pp_lambda(e);
     case expr_kind::Pi:        return pp_pi(e);

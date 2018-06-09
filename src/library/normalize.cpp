@@ -116,8 +116,8 @@ class normalize_fn {
             return e;
         e = m_ctx.whnf(e);
         switch (e.kind()) {
-        case expr_kind::Var:  case expr_kind::Constant: case expr_kind::Sort:
-        case expr_kind::Meta: case expr_kind::Local: case expr_kind::Macro:
+        case expr_kind::BVar: case expr_kind::Constant: case expr_kind::Sort:
+        case expr_kind::Meta: case expr_kind::FVar: case expr_kind::Macro:
             return e;
         case expr_kind::Lambda: {
             e = normalize_binding(e);

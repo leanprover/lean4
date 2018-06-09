@@ -70,7 +70,7 @@ class expr_eq_fn {
         if (m_cache.check(a, b))
             return true;
         switch (a.kind()) {
-        case expr_kind::Var:
+        case expr_kind::BVar:
             lean_unreachable(); // LCOV_EXCL_LINE
         case expr_kind::Constant:
             return
@@ -81,7 +81,7 @@ class expr_eq_fn {
                 mlocal_name(a) == mlocal_name(b) &&
                 apply(mlocal_type(a), mlocal_type(b)) &&
                 (!CompareBinderInfo || mlocal_pp_name(a) == mlocal_pp_name(b));
-        case expr_kind::Local:
+        case expr_kind::FVar:
             return
                 mlocal_name(a) == mlocal_name(b) &&
                 apply(mlocal_type(a), mlocal_type(b)) &&

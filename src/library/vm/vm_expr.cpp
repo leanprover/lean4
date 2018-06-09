@@ -161,7 +161,7 @@ vm_obj expr_macro_def_name(vm_obj const & d) {
 unsigned expr_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
     expr const & e = to_expr(o);
     switch (e.kind()) {
-    case expr_kind::Var:
+    case expr_kind::BVar:
         data.push_back(mk_vm_nat(var_idx(e)));
         break;
     case expr_kind::Sort:
@@ -176,7 +176,7 @@ unsigned expr_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
         data.push_back(to_obj(mlocal_pp_name(e)));
         data.push_back(to_obj(mlocal_type(e)));
         break;
-    case expr_kind::Local:
+    case expr_kind::FVar:
         data.push_back(to_obj(mlocal_name(e)));
         break;
     case expr_kind::App:

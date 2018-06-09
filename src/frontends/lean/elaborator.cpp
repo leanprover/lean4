@@ -958,14 +958,14 @@ expr elaborator::visit_function(expr const & fn, bool has_args, optional<expr> c
         throw elaborator_exception(ref, "invalid occurrence of field notation");
     expr r;
     switch (fn.kind()) {
-    case expr_kind::Var:
+    case expr_kind::BVar:
     case expr_kind::Pi:
     case expr_kind::Meta:
     case expr_kind::Sort:
         throw elaborator_exception(ref, "invalid application, function expected");
     // The expr_kind::App case can only happen when nary notation is used
     case expr_kind::App:       r = visit(fn, expected_type); break;
-    case expr_kind::Local:     r = fn; break;
+    case expr_kind::FVar:      r = fn; break;
     case expr_kind::Constant:  r = visit_const_core(fn); break;
     case expr_kind::Macro:     r = visit_macro(fn, expected_type, true); break;
     case expr_kind::Lambda:    r = visit_lambda(fn, expected_type); break;
@@ -3634,12 +3634,12 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
             return visit(get_annotation_arg(e), expected_type);
         } else {
             switch (e.kind()) {
-                case expr_kind::Var: lean_unreachable();  // LCOV_EXCL_LINE
+                case expr_kind::BVar: lean_unreachable();  // LCOV_EXCL_LINE
                 case expr_kind::Meta:
                     return e;
                 case expr_kind::Sort:
                     return copy_pos(e, visit_sort(e));
-                case expr_kind::Local:
+                case expr_kind::FVar:
                     return copy_pos(e, visit_local(e, expected_type));
                 case expr_kind::Constant:
                     return copy_pos(e, visit_constant(e, expected_type));

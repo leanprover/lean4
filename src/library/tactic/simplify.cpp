@@ -644,7 +644,7 @@ simp_result simplify_core_fn::visit(expr const & e, optional<expr> const & paren
     while (true) {
         simp_result new_result;
         switch (curr_result.get_new().kind()) {
-        case expr_kind::Local:
+        case expr_kind::FVar:
         case expr_kind::Sort:
         case expr_kind::Constant:
             new_result = curr_result;
@@ -656,7 +656,7 @@ simp_result simplify_core_fn::visit(expr const & e, optional<expr> const & paren
         case expr_kind::Macro:
             new_result = join(curr_result, visit_macro(curr_result.get_new()));
             break;
-        case expr_kind::Var:
+        case expr_kind::BVar:
             lean_unreachable();
         case expr_kind::Lambda:
             new_result = join(curr_result, visit_lambda(curr_result.get_new()));

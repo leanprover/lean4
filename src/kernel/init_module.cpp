@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/environment.h"
 #include "kernel/old_type_checker.h"
+#include "kernel/type_checker.h"
 #include "kernel/expr.h"
 #include "kernel/level.h"
 #include "kernel/declaration.h"
@@ -18,6 +19,7 @@ void initialize_kernel_module() {
     initialize_expr();
     initialize_declaration();
     initialize_old_type_checker();
+    initialize_type_checker();
     initialize_environment();
     initialize_quot();
     initialize_local_ctx();
@@ -28,6 +30,7 @@ void finalize_kernel_module() {
     finalize_quot();
     finalize_environment();
     finalize_old_type_checker();
+    finalize_type_checker();
     finalize_declaration();
     finalize_expr();
     finalize_level();

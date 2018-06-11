@@ -81,8 +81,12 @@ class replace_rec_fn {
             switch (e.kind()) {
             case expr_kind::Constant: case expr_kind::Sort: case expr_kind::BVar:
                 return save_result(e, offset, e, shared);
-            case expr_kind::Meta:     case expr_kind::FVar: {
+            case expr_kind::Meta: {
                 expr new_t = apply(mlocal_type(e), offset);
+                return save_result(e, offset, update_mlocal(e, new_t), shared);
+            }
+            case expr_kind::FVar: {
+                expr new_t = apply(mlocal_type(e), offset); // TODO(Leo): delete after refactoring
                 return save_result(e, offset, update_mlocal(e, new_t), shared);
             }
             case expr_kind::App: {

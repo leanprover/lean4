@@ -88,7 +88,11 @@ class for_each_fn {
             case expr_kind::Constant: case expr_kind::BVar:
             case expr_kind::Sort:
                 goto begin_loop;
-            case expr_kind::Meta: case expr_kind::FVar:
+            case expr_kind::FVar:
+                // TODO(Leo): delete after refactoring
+                todo.emplace_back(mlocal_type(e), offset);
+                goto begin_loop;
+            case expr_kind::Meta:
                 todo.emplace_back(mlocal_type(e), offset);
                 goto begin_loop;
             case expr_kind::Macro: {

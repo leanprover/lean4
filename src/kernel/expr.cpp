@@ -59,12 +59,12 @@ unsigned get_num_live_exprs() {
 #endif
 
 expr_cell::expr_cell(expr_kind k, unsigned h, bool has_expr_mv, bool has_univ_mv,
-                     bool has_local, bool has_param_univ):
+                     bool has_fvar, bool has_param_univ):
     m_flags(0),
     m_kind(static_cast<unsigned>(k)),
     m_has_expr_mv(has_expr_mv),
     m_has_univ_mv(has_univ_mv),
-    m_has_local(has_local),
+    m_has_fvar(has_fvar),
     m_has_param_univ(has_param_univ),
     m_hash(h),
     m_rc(0) {
@@ -77,7 +77,7 @@ expr_cell::expr_cell(expr_cell const & src):
     m_kind(src.m_kind),
     m_has_expr_mv(src.m_has_expr_mv),
     m_has_univ_mv(src.m_has_univ_mv),
-    m_has_local(src.m_has_local),
+    m_has_fvar(src.m_has_fvar),
     m_has_param_univ(src.m_has_param_univ),
     m_hash(src.m_hash),
     m_rc(0) {
@@ -149,7 +149,7 @@ unsigned binder_info::hash() const {
 // Expr metavariables and local variables
 expr_mlocal::expr_mlocal(bool is_meta, name const & n, name const & pp_n, expr const & t):
     expr_composite(is_meta ? expr_kind::Meta : expr_kind::FVar, n.hash(), is_meta || t.has_expr_metavar(), t.has_univ_metavar(),
-                   !is_meta || t.has_local(), t.has_param_univ(),
+                   !is_meta || t.has_fvar(), t.has_param_univ(),
                    1, get_loose_bvar_range(t)),
     m_name(n),
     m_pp_name(pp_n),
@@ -183,8 +183,8 @@ expr_composite::expr_composite(expr_composite const & src):
 
 // Composite expressions
 expr_composite::expr_composite(expr_kind k, unsigned h, bool has_expr_mv, bool has_univ_mv,
-                               bool has_local, bool has_param_univ, unsigned w, unsigned bv_range):
-    expr_cell(k, h, has_expr_mv, has_univ_mv, has_local, has_param_univ),
+                               bool has_fvar, bool has_param_univ, unsigned w, unsigned bv_range):
+    expr_cell(k, h, has_expr_mv, has_univ_mv, has_fvar, has_param_univ),
     m_weight(w),
     m_depth(0),
     m_loose_bvar_range(bv_range) {}
@@ -194,7 +194,7 @@ expr_app::expr_app(expr const & fn, expr const & arg):
     expr_composite(expr_kind::App, ::lean::hash(fn.hash(), arg.hash()),
                    fn.has_expr_metavar() || arg.has_expr_metavar(),
                    fn.has_univ_metavar() || arg.has_univ_metavar(),
-                   fn.has_local()        || arg.has_local(),
+                   fn.has_fvar()         || arg.has_fvar(),
                    fn.has_param_univ()   || arg.has_param_univ(),
                    inc_weight(add_weight(get_weight(fn), get_weight(arg))),
                    std::max(get_loose_bvar_range(fn), get_loose_bvar_range(arg))),
@@ -228,7 +228,7 @@ expr_binding::expr_binding(expr_kind k, name const & n, expr const & t, expr con
     expr_composite(k, ::lean::hash(t.hash(), b.hash()),
                    t.has_expr_metavar()   || b.has_expr_metavar(),
                    t.has_univ_metavar()   || b.has_univ_metavar(),
-                   t.has_local()          || b.has_local(),
+                   t.has_fvar()           || b.has_fvar(),
                    t.has_param_univ()     || b.has_param_univ(),
                    inc_weight(add_weight(get_weight(t), get_weight(b))),
                    std::max(get_loose_bvar_range(t), dec(get_loose_bvar_range(b)))),
@@ -265,7 +265,7 @@ expr_let::expr_let(name const & n, expr const & t, expr const & v, expr const & 
                    ::lean::hash(::lean::hash(t.hash(), v.hash()), b.hash()),
                    t.has_expr_metavar()   || v.has_expr_metavar() || b.has_expr_metavar(),
                    t.has_univ_metavar()   || v.has_univ_metavar() || b.has_univ_metavar(),
-                   t.has_local()          || v.has_local() || b.has_local(),
+                   t.has_fvar()           || v.has_fvar() || b.has_fvar(),
                    t.has_param_univ()     || v.has_param_univ() || b.has_param_univ(),
                    inc_weight(add_weight(add_weight(get_weight(t), get_weight(v)), get_weight(b))),
                    std::max(std::max(get_loose_bvar_range(t), get_loose_bvar_range(v)), dec(get_loose_bvar_range(b)))),
@@ -336,7 +336,7 @@ expr_macro::expr_macro(macro_definition const & m, unsigned num, expr const * ar
                    lean::hash(num, [&](unsigned i) { return args[i].hash(); }, m.hash()),
                    std::any_of(args, args+num, [](expr const & e) { return e.has_expr_metavar(); }),
                    std::any_of(args, args+num, [](expr const & e) { return e.has_univ_metavar(); }),
-                   std::any_of(args, args+num, [](expr const & e) { return e.has_local(); }),
+                   std::any_of(args, args+num, [](expr const & e) { return e.has_fvar(); }),
                    std::any_of(args, args+num, [](expr const & e) { return e.has_param_univ(); }),
                    inc_weight(add_weight(num, args)),
                    get_loose_bvar_range(num, args)),

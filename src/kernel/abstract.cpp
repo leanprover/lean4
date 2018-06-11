@@ -12,22 +12,18 @@ Author: Leonardo de Moura
 
 namespace lean {
 expr abstract(expr const & e, unsigned n, expr const * subst) {
-    lean_assert(std::all_of(subst, subst+n, [](expr const & e) { return !has_loose_bvars(e) && is_local(e); }));
-#ifndef LEAN_NO_HAS_LOCAL_OPT
-    if (!has_local(e))
+    lean_assert(std::all_of(subst, subst+n, [](expr const & e) { return !has_loose_bvars(e) && is_fvar(e); }));
+    if (!has_fvar(e))
         return e;
-#endif
     return replace(e, [=](expr const & m, unsigned offset) -> optional<expr> {
-#ifndef LEAN_NO_HAS_LOCAL_OPT
-            if (!has_local(m))
-                return some_expr(m); // expression m does not contain local constants
-#endif
-            if (is_local(m)) {
+            if (!has_fvar(m))
+                return some_expr(m); // expression m does not contain free variables
+            if (is_fvar(m)) {
                 unsigned i = n;
                 while (i > 0) {
                     --i;
-                    if (mlocal_name(subst[i]) == mlocal_name(m))
-                        return some_expr(mk_var(offset + n - i - 1));
+                    if (fvar_name(subst[i]) == fvar_name(m))
+                        return some_expr(mk_bvar(offset + n - i - 1));
                 }
                 return none_expr();
             }
@@ -35,10 +31,9 @@ expr abstract(expr const & e, unsigned n, expr const * subst) {
         });
 }
 
-expr abstract(expr const & e, name const & l) {
-    expr dummy = mk_Prop();
-    expr local = mk_local(l, dummy);
-    return abstract(e, 1, &local);
+expr abstract(expr const & e, name const & n) {
+    expr fvar = mk_fvar(n);
+    return abstract(e, 1, &fvar);
 }
 
 /* ------ LEGACY CODE -------------

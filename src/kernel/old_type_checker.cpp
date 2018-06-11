@@ -711,7 +711,7 @@ old_type_checker::~old_type_checker() {}
 void initialize_old_type_checker() {
     g_id_delta     = new name("id_delta");
     g_dont_care    = new expr(Const("dontcare"));
-    g_kernel_fresh = new name("_kernel_fresh");
+    g_kernel_fresh = new name("_old_kernel_fresh");
     register_name_generator_prefix(*g_kernel_fresh);
 }
 

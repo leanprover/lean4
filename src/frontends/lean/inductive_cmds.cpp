@@ -719,11 +719,19 @@ public:
     }
 
     void add_inductive_decls(parse_result & r) {
+        unsigned num_params = r.m_params.size();
        buffer<inductive_decl> decls;
         for (unsigned i = 0; i < r.m_inds.size(); i++) {
-            decls.push_back(inductive_decl(mlocal_name(r.m_inds[i]), mlocal_type(r.m_inds[i]), to_list(r.m_intro_rules[i])));
+            buffer<constructor> constructors;
+            for (expr const & intro : r.m_intro_rules[i]) {
+                implicit_infer_kind kind = get_implicit_infer_kind(mlocal_name(intro));
+                expr type = Pi(r.m_params, mlocal_type(intro));
+                type = infer_implicit_params(type, num_params, kind);
+                constructors.push_back(constructor(mlocal_name(intro), type));
+            }
+            decls.push_back(inductive_decl(mlocal_name(r.m_inds[i]), Pi(r.m_params, mlocal_type(r.m_inds[i])), to_list(constructors)));
         }
-        m_env = m_env.add_inductive_decls(inductive_decls(names(m_lp_names), to_list(r.m_params), to_list(decls)));
+        m_env = m_env.add_inductive_decls(inductive_decls(names(m_lp_names), num_params, to_list(decls)));
     }
 
     environment inductive_cmd() {

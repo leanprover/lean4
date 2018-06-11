@@ -100,7 +100,7 @@ public:
     bool is_descendant(environment_id const & id) const;
 };
 
-typedef expr constructor;
+typedef std::pair<name, expr> constructor;
 
 struct inductive_decl {
     name                 m_name;
@@ -112,11 +112,11 @@ struct inductive_decl {
 
 struct inductive_decls {
     level_param_names    m_level_params;
-    list<expr>           m_params;
+    unsigned             m_num_params;
     list<inductive_decl> m_decls;
     inductive_decls() {}
-    inductive_decls(level_param_names const & lvls, list<expr> const & params, list<inductive_decl> const & decls):
-        m_level_params(lvls), m_params(params), m_decls(decls) {}
+    inductive_decls(level_param_names const & lvls, unsigned num_params, list<inductive_decl> const & decls):
+        m_level_params(lvls), m_num_params(num_params), m_decls(decls) {}
 };
 
 /** \brief Lean core environment. An environment object can be extended/customized in different ways:
@@ -134,6 +134,7 @@ class environment {
     bool                      m_quot_initialized{false};
     declarations              m_declarations;
     extensions                m_extensions;
+    // TODO(Leo): store inductive_decls at m_declarations
     name_map<inductive_decls> m_inductive_decls;
 
     environment(environment const & env, declarations const & ds):

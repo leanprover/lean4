@@ -256,12 +256,6 @@ expr old_type_checker::ensure_pi(expr const & e, expr const & s) {
     return ensure_pi_core(e, s);
 }
 
-bool old_type_checker::is_def_eq_types(expr const & t, expr const & s) {
-    expr t1 = infer_type_core(t, true);
-    expr t2 = infer_type_core(s, true);
-    return is_def_eq(t1, t2);
-}
-
 /** \brief Return true iff \c e is a proposition */
 bool old_type_checker::is_prop(expr const & e) {
     return whnf(infer_type(e)) == mk_Prop();

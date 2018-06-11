@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include <memory>
 #include <utility>
 #include <algorithm>
-#include "runtime/flet.h"
 #include "util/lbool.h"
 #include "util/name_set.h"
 #include "util/name_generator.h"
@@ -76,12 +75,13 @@ class old_type_checker : public abstract_type_context {
     reduction_status lazy_delta_reduction_step(expr & t_n, expr & s_n);
     lbool lazy_delta_reduction(expr & t_n, expr & s_n);
     bool is_def_eq_core(expr const & t, expr const & s);
+    optional<expr> expand_macro(expr const & m);
+    /** \brief Like \c check, but ignores undefined universes */
+    expr check_ignore_undefined_universes(expr const & e);
 
 public:
     /** \brief Create a type checker for the given environment.
-        memoize: if true, then inferred types are memoized/cached.
-
-    */
+        memoize: if true, then inferred types are memoized/cached. */
     old_type_checker(environment const & env, bool memoize = true, bool non_meta_only = true);
     ~old_type_checker();
 
@@ -100,13 +100,10 @@ public:
         Throw an exception if a type error is found.  */
     expr check(expr const & t, level_param_names const & ps);
     /** \brief Like \c check, but ignores undefined universes */
-    expr check_ignore_undefined_universes(expr const & e);
     virtual expr check(expr const & t) { return check_ignore_undefined_universes(t); }
 
     /** \brief Return true iff t is definitionally equal to s. */
     virtual bool is_def_eq(expr const & t, expr const & s);
-    /** \brief Return true iff types of \c t and \c s are (may be) definitionally equal. */
-    bool is_def_eq_types(expr const & t, expr const & s);
     /** \brief Return true iff t is a proposition. */
     bool is_prop(expr const & t);
     /** \brief Return the weak head normal form of \c t. */
@@ -127,14 +124,6 @@ public:
     /** \brief Mare sure type of \c e is a sort, and return it. Throw an exception otherwise. */
     expr ensure_type(expr const & e) {
         return ensure_sort(infer(e), e);
-    }
-
-    optional<expr> expand_macro(expr const & m);
-
-    template<typename F>
-    typename std::result_of<F()>::type with_params(level_param_names const & ps, F && f) {
-        flet<level_param_names const *> updt(m_params, &ps);
-        return f();
     }
 };
 

@@ -66,8 +66,8 @@ struct instantiate_easy_fn {
     optional<expr> operator()(expr const & a, bool app) const {
         if (!has_loose_bvars(a))
             return some_expr(a);
-        if (is_var(a) && var_idx(a) < n)
-            return some_expr(subst[rev ? n - var_idx(a) - 1 : var_idx(a)]);
+        if (is_bvar(a) && bvar_idx(a) < n)
+            return some_expr(subst[rev ? n - bvar_idx(a) - 1 : bvar_idx(a)]);
         if (app && is_app(a))
         if (auto new_a = operator()(app_arg(a), false))
         if (auto new_f = operator()(app_fn(a), true))
@@ -77,11 +77,7 @@ struct instantiate_easy_fn {
 };
 
 expr instantiate(expr const & a, unsigned s, unsigned n, expr const * subst) {
-    if (
-#ifndef LEAN_NO_BOUND_VAR_RANGE_OPT
-        s >= get_loose_bvar_range(a) ||
-#endif
-        n == 0)
+    if (s >= get_loose_bvar_range(a) || n == 0)
         return a;
     if (s == 0)
         if (auto r = instantiate_easy_fn<false>(n, subst)(a, true))
@@ -90,18 +86,16 @@ expr instantiate(expr const & a, unsigned s, unsigned n, expr const * subst) {
             unsigned s1 = s + offset;
             if (s1 < s)
                 return some_expr(m); // overflow, vidx can't be >= max unsigned
-#ifndef LEAN_NO_BOUND_VAR_RANGE_OPT
             if (s1 >= get_loose_bvar_range(m))
-                return some_expr(m); // expression m does not contain bound variables with idx >= s1
-#endif
-            if (is_var(m)) {
-                unsigned vidx = var_idx(m);
+                return some_expr(m); // expression m does not contain loose bound variables with idx >= s1
+            if (is_bvar(m)) {
+                unsigned vidx = bvar_idx(m);
                 if (vidx >= s1) {
                     unsigned h = s1 + n;
                     if (h < s1 /* overflow, h is bigger than any vidx */ || vidx < h) {
                         return some_expr(lift_loose_bvars(subst[vidx - s1], offset));
                     } else {
-                        return some_expr(mk_var(vidx - n));
+                        return some_expr(mk_bvar(vidx - n));
                     }
                 }
             }
@@ -120,18 +114,16 @@ expr instantiate_rev(expr const & a, unsigned n, expr const * subst) {
     if (auto r = instantiate_easy_fn<true>(n, subst)(a, true))
         return *r;
     return replace(a, [=](expr const & m, unsigned offset) -> optional<expr> {
-#ifndef LEAN_NO_BOUND_VAR_RANGE_OPT
             if (offset >= get_loose_bvar_range(m))
-                return some_expr(m); // expression m does not contain bound variables with idx >= offset
-#endif
-            if (is_var(m)) {
-                unsigned vidx = var_idx(m);
+                return some_expr(m); // expression m does not contain loose bound variables with idx >= offset
+            if (is_bvar(m)) {
+                unsigned vidx = bvar_idx(m);
                 if (vidx >= offset) {
                     unsigned h = offset + n;
                     if (h < offset /* overflow, h is bigger than any vidx */ || vidx < h) {
                         return some_expr(lift_loose_bvars(subst[n - (vidx - offset) - 1], offset));
                     } else {
-                        return some_expr(mk_var(vidx - n));
+                        return some_expr(mk_bvar(vidx - n));
                     }
                 }
             }
@@ -186,7 +178,6 @@ expr instantiate_univ_params(expr const & e, level_param_names const & ps, level
         });
 }
 
-/* CACHE_RESET: NO */
 MK_THREAD_LOCAL_GET(instantiate_univ_cache, get_type_univ_cache, LEAN_INST_UNIV_CACHE_SIZE);
 MK_THREAD_LOCAL_GET(instantiate_univ_cache, get_value_univ_cache, LEAN_INST_UNIV_CACHE_SIZE);
 

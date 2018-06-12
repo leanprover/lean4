@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/level.h"
 #include "kernel/declaration.h"
 #include "kernel/local_ctx.h"
+#include "kernel/inductive.h"
 #include "kernel/quot.h"
 
 namespace lean {
@@ -21,13 +22,15 @@ void initialize_kernel_module() {
     initialize_old_type_checker();
     initialize_type_checker();
     initialize_environment();
-    initialize_quot();
     initialize_local_ctx();
+    initialize_inductive();
+    initialize_quot();
 }
 
 void finalize_kernel_module() {
-    finalize_local_ctx();
     finalize_quot();
+    finalize_inductive();
+    finalize_local_ctx();
     finalize_environment();
     finalize_old_type_checker();
     finalize_type_checker();

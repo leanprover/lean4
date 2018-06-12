@@ -111,10 +111,9 @@ public:
         }
     }
 
-    void check_constructor(constructor const & cnstr, unsigned decl_idx) {
+    void check_constructor(constructor const & cnstr, unsigned /* decl_idx */) {
         check_no_metavar_no_fvar(m_env, cnstr.m_name, cnstr.m_type);
         type_checker(m_env).check(cnstr.m_type, m_level_params);
-
     }
 
     void check_constructors() {
@@ -135,7 +134,7 @@ public:
 };
 
 environment environment::add_inductive_decls(inductive_decls const & decls) const {
-    return add_inductive_fn(*this,decls)();
+    return add_inductive_fn(*this, decls)();
 }
 
 void initialize_inductive() {

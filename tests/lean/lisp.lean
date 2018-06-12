@@ -1,6 +1,8 @@
 import init.lean.parser.macro init.lean.parser.identifier system.io
 import .macro1
 
+set_option eqn_compiler.lemmas false
+
 attribute [instance] lean.name.has_lt_quick
 open lean.parser
 open lean.parser.parser_t

@@ -83,7 +83,7 @@ m + -n
 
 instance : has_sub int := ⟨int.sub⟩
 
-@[simp] def nat_abs : int → ℕ
+def nat_abs : int → ℕ
 | (of_nat m) := m
 | -[1+ m]    := succ m
 

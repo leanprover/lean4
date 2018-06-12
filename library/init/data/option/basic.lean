@@ -57,7 +57,7 @@ instance : alternative option :=
 { failure := @none,
   orelse  := @option.orelse }
 
-@[simp] protected def lt {α : Type u} (r : α → α → Prop) : option α → option α → Prop
+protected def lt {α : Type u} (r : α → α → Prop) : option α → option α → Prop
 | none (some x)     := true
 | (some x) (some y) := r x y
 | _ _               := false

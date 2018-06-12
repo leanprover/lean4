@@ -86,7 +86,7 @@ def replace_prefix : name → name → name → name
   else
     mk_numeral (p.replace_prefix query_p new_p) s
 
-@[simp] def quick_lt : name → name → bool
+def quick_lt : name → name → bool
 | anonymous        anonymous          := ff
 | anonymous        _                  := tt
 | (mk_numeral n v) (mk_numeral n' v') := v < v' || (v = v' && n.quick_lt n')

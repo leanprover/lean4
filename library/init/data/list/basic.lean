@@ -31,7 +31,7 @@ protected def has_dec_eq [s : decidable_eq α] : decidable_eq (list α)
 instance [decidable_eq α] : decidable_eq (list α) :=
 list.has_dec_eq
 
-@[simp] protected def append : list α → list α → list α
+protected def append : list α → list α → list α
 | []       l := l
 | (h :: s) t := h :: (append s t)
 
@@ -78,7 +78,7 @@ protected def diff {α} [decidable_eq α] : list α → list α → list α
 | l      []      := l
 | l₁     (a::l₂) := if a ∈ l₁ then diff (l₁.erase a) l₂ else diff l₁ l₂
 
-@[simp] def length : list α → nat
+def length : list α → nat
 | []       := 0
 | (a :: l) := length l + 1
 
@@ -88,21 +88,21 @@ def empty : list α → bool
 
 open option nat
 
-@[simp] def nth : list α → nat → option α
+def nth : list α → nat → option α
 | []       n     := none
 | (a :: l) 0     := some a
 | (a :: l) (n+1) := nth l n
 
-@[simp] def nth_le : Π (l : list α) (n), n < l.length → α
+def nth_le : Π (l : list α) (n), n < l.length → α
 | []       n     h := absurd h (not_lt_zero n)
 | (a :: l) 0     h := a
 | (a :: l) (n+1) h := nth_le l n (le_of_succ_le_succ h)
 
-@[simp] def head [inhabited α] : list α → α
+def head [inhabited α] : list α → α
 | []       := default α
 | (a :: l) := a
 
-@[simp] def tail : list α → list α
+def tail : list α → list α
 | []       := []
 | (a :: l) := l
 
@@ -113,11 +113,11 @@ def reverse_core : list α → list α → list α
 def reverse : list α → list α :=
 λ l, reverse_core l []
 
-@[simp] def map (f : α → β) : list α → list β
+def map (f : α → β) : list α → list β
 | []       := []
 | (a :: l) := f a :: map l
 
-@[simp] def map₂ (f : α → β → γ) : list α → list β → list γ
+def map₂ (f : α → β → γ) : list α → list β → list γ
 | []      _       := []
 | _       []      := []
 | (x::xs) (y::ys) := f x y :: map₂ xs ys
@@ -168,21 +168,21 @@ def remove_nth : list α → ℕ → list α
 | (x::xs) 0     := xs
 | (x::xs) (i+1) := x :: remove_nth xs i
 
-@[simp] def drop : ℕ → list α → list α
+def drop : ℕ → list α → list α
 | 0        a      := a
 | (succ n) []     := []
 | (succ n) (x::r) := drop n r
 
-@[simp] def take : ℕ → list α → list α
+def take : ℕ → list α → list α
 | 0        a        := []
 | (succ n) []       := []
 | (succ n) (x :: r) := x :: take n r
 
-@[simp] def foldl (f : α → β → α) : α → list β → α
+def foldl (f : α → β → α) : α → list β → α
 | a []       := a
 | a (b :: l) := foldl (f a b) l
 
-@[simp] def foldr (f : α → β → β) (b : β) : list α → β
+def foldr (f : α → β → β) (b : β) : list α → β
 | []       := b
 | (a :: l) := f a (foldr l)
 
@@ -225,7 +225,7 @@ filter (∈ l₂) l₁
 instance [decidable_eq α] : has_inter (list α) :=
 ⟨list.inter⟩
 
-@[simp] def repeat (a : α) : ℕ → list α
+def repeat (a : α) : ℕ → list α
 | 0 := []
 | (succ n) := a :: repeat n
 
@@ -246,7 +246,7 @@ def enum_from : ℕ → list α → list (ℕ × α)
 
 def enum : list α → list (ℕ × α) := enum_from 0
 
-@[simp] def last : Π l : list α, l ≠ [] → α
+def last : Π l : list α, l ≠ [] → α
 | []        h := absurd rfl h
 | [a]       h := a
 | (a::b::l) h := last (b::l) (λ h, list.no_confusion h)

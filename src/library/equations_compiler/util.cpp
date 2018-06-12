@@ -36,7 +36,7 @@ Author: Leonardo de Moura
 #include "library/equations_compiler/wf_rec.h"
 
 #ifndef LEAN_DEFAULT_EQN_COMPILER_LEMMAS
-#define LEAN_DEFAULT_EQN_COMPILER_LEMMAS true
+#define LEAN_DEFAULT_EQN_COMPILER_LEMMAS false
 #endif
 
 #ifndef LEAN_DEFAULT_EQN_COMPILER_ZETA

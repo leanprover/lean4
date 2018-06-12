@@ -87,5 +87,4 @@ the first part of the commit message:
 ln -s script/prepare-commit-msg .git/hooks
 ```
 
-Currently, if just a single file has changed, the hook will use it for the scope
-and default the change type to "feat".
+Currently, it will only activate if just a single file has changed.

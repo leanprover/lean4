@@ -734,14 +734,14 @@ void check_no_metavar(environment const & env, name const & n, expr const & e) {
         throw declaration_has_metavars_exception(env, n, e);
 }
 
-static void check_no_local(environment const & env, name const & n, expr const & e) {
-    if (has_local(e))
+static void check_no_fvar(environment const & env, name const & n, expr const & e) {
+    if (has_fvar(e))
         throw declaration_has_free_vars_exception(env, n, e);
 }
 
-void check_no_mlocal(environment const & env, name const & n, expr const & e) {
+void check_no_metavar_no_fvar(environment const & env, name const & n, expr const & e) {
     check_no_metavar(env, n, e);
-    check_no_local(env, n, e);
+    check_no_fvar(env, n, e);
 }
 
 static void check_name(environment const & env, name const & n) {
@@ -763,7 +763,7 @@ static void check_duplicated_params(environment const & env, declaration const &
 }
 
 static void check_definition(environment const & env, declaration const & d, type_checker & checker) {
-    check_no_mlocal(env, d.get_name(), d.get_value());
+    check_no_metavar_no_fvar(env, d.get_name(), d.get_value());
     expr val_type = checker.check(d.get_value(), d.get_univ_params());
     if (!checker.is_def_eq(val_type, d.get_type())) {
         throw definition_type_mismatch_exception(env, d, val_type);
@@ -771,7 +771,7 @@ static void check_definition(environment const & env, declaration const & d, typ
 }
 
 static void check_decl_type(environment const & env, declaration const & d, type_checker & checker) {
-    check_no_mlocal(env, d.get_name(), d.get_type());
+    check_no_metavar_no_fvar(env, d.get_name(), d.get_type());
     check_name(env, d.get_name());
     check_duplicated_params(env, d);
     expr sort = checker.check(d.get_type(), d.get_univ_params());

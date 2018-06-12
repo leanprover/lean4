@@ -130,7 +130,7 @@ public:
 typedef std::shared_ptr<old_type_checker> old_type_checker_ref;
 
 void check_no_metavar(environment const & env, name const & n, expr const & e);
-void check_no_mlocal(environment const & env, name const & n, expr const & e);
+void check_no_metavar_no_fvar(environment const & env, name const & n, expr const & e);
 void check_decl_type(environment const & env, declaration const & d);
 void check_decl_value(environment const & env, declaration const & d);
 

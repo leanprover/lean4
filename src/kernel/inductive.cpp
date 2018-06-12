@@ -43,7 +43,7 @@ public:
         for (inductive_decl const & d : m_decls) {
             std::cout << "ind>>   " << d.m_name << " : " << d.m_type << "\n";
             for (constructor const & c : d.m_constructors) {
-                std::cout << ">>       " << c.first << " : " << c.second << "\n";
+                std::cout << ">>       " << c.m_name << " : " << c.m_type << "\n";
             }
         }
     }
@@ -103,9 +103,33 @@ public:
         lean_assert(m_params.size() == m_num_params);
     }
 
+    /** \brief Add all datatype declarations to environment. */
+    void declare_inductive_types() {
+        for (inductive_decl const & decl : m_decls) {
+            /* TODO(Leo): we should not use constant_assumption, but a new kind of declaration. */
+            m_env = m_env.add(check(m_env, mk_constant_assumption(decl.m_name, m_level_params, decl.m_type)));
+        }
+    }
+
+    void check_constructor(constructor const & cnstr, unsigned decl_idx) {
+        check_no_metavar_no_fvar(m_env, cnstr.m_name, cnstr.m_type);
+        type_checker(m_env).check(cnstr.m_type, m_level_params);
+
+    }
+
+    void check_constructors() {
+        for (unsigned decl_idx = 0; decl_idx < m_decls.size(); decl_idx++) {
+            inductive_decl const & decl = m_decls[decl_idx];
+            for (constructor const & cnstr : decl.m_constructors) {
+                check_constructor(cnstr, decl_idx);
+            }
+        }
+    }
+
     environment operator()() {
         dump();
         check_inductive_types();
+        declare_inductive_types();
         return m_env;
     }
 };

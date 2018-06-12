@@ -100,7 +100,12 @@ public:
     bool is_descendant(environment_id const & id) const;
 };
 
-typedef std::pair<name, expr> constructor;
+struct constructor {
+    name m_name;
+    expr m_type;
+    constructor() {}
+    constructor(name const & n, expr const & t):m_name(n), m_type(t) {}
+};
 
 struct inductive_decl {
     name                 m_name;

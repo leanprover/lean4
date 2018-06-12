@@ -14,6 +14,14 @@ inductive less_than_or_equal (a : ℕ) : ℕ → Prop
 | refl : less_than_or_equal a
 | step : Π {b}, less_than_or_equal b → less_than_or_equal (succ b)
 
+@[elab_as_eliminator]
+theorem less_than_or_equal.ndrec  {a : nat} {C : nat → Prop} (m₁ : C a) (m₂ : ∀ (b : nat), less_than_or_equal a b → C b → C (succ b)) {b : ℕ} (h : less_than_or_equal a b) : C b :=
+@less_than_or_equal.rec a (λ b _, C b) m₁ m₂ b h
+
+@[elab_as_eliminator]
+theorem less_than_or_equal.ndrec_on {a : nat} {C : nat → Prop} {b : ℕ} (h : less_than_or_equal a b) (m₁ : C a) (m₂ : ∀ (b : nat), less_than_or_equal a b → C b → C (succ b)) : C b :=
+@less_than_or_equal.rec a (λ b _, C b) m₁ m₂ b h
+
 instance : has_le ℕ :=
 ⟨nat.less_than_or_equal⟩
 
@@ -66,7 +74,7 @@ lemma le_succ (n : ℕ) : n ≤ succ n :=
 less_than_or_equal.step (nat.le_refl n)
 
 lemma succ_le_succ {n m : ℕ} : n ≤ m → succ n ≤ succ m :=
-λ h, less_than_or_equal.rec (nat.le_refl (succ n)) (λ a b, less_than_or_equal.step) h
+λ h, less_than_or_equal.ndrec (nat.le_refl (succ n)) (λ a b, less_than_or_equal.step) h
 
 lemma zero_le : ∀ (n : ℕ), 0 ≤ n
 | 0     := nat.le_refl 0
@@ -83,7 +91,7 @@ lemma not_succ_le_zero : ∀ (n : ℕ), succ n ≤ 0 → false
 lemma not_lt_zero (a : ℕ) : ¬ a < 0 := not_succ_le_zero a
 
 lemma pred_le_pred {n m : ℕ} : n ≤ m → pred n ≤ pred m :=
-λ h, less_than_or_equal.rec_on h
+λ h, less_than_or_equal.ndrec_on h
   (nat.le_refl (pred n))
   (λ n, nat.rec (λ a b, b) (λ a b c, less_than_or_equal.step) n)
 
@@ -119,7 +127,7 @@ protected lemma lt_irrefl (n : ℕ) : ¬n < n :=
 not_succ_le_self n
 
 protected lemma le_trans {n m k : ℕ} (h1 : n ≤ m) : m ≤ k → n ≤ k :=
-less_than_or_equal.rec h1 (λ p h2, less_than_or_equal.step)
+less_than_or_equal.ndrec h1 (λ p h2, less_than_or_equal.step)
 
 lemma pred_le : ∀ (n : ℕ), pred n ≤ n
 | 0        := less_than_or_equal.refl 0

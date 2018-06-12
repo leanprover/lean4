@@ -1,4 +1,4 @@
-lisp.lean:198:0: error: cannot evaluate (list "(" [] ")")
+lisp.lean:200:0: error: cannot evaluate (list "(" [] ")")
 reader:   (list "(" [] ")")
 expander: (list "(" [] ")")
 resolver: (list "(" [] ")")

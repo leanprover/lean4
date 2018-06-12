@@ -102,8 +102,6 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
                              num_args, major_pos, params_pos, indices_pos, produce_motive);
     } else if (is_aux_recursor(env, r) &&
                (strcmp(r.get_string(), "cases_on") == 0 ||
-                strcmp(r.get_string(), "dcases_on") == 0 ||
-                strcmp(r.get_string(), "drec_on") == 0 ||
                 strcmp(r.get_string(), "rec_on") == 0   ||
                 strcmp(r.get_string(), "brec_on") == 0)) {
         name I = r.get_prefix();

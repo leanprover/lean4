@@ -455,7 +455,7 @@ static optional<expr> find_if_neg_hypothesis(type_context_old & ctx, expr const 
   @eq.rec
      A
      a
-     (fun x : A, (forall H : f x = f a, @eq.rec B (f x) C (h x) (f a) H = h a))
+     (fun (x : A) (_ : a = x), (forall H : f x = f a, @eq.rec B (f x) C (h x) (f a) H = h a))
      (fun H : f a = f a, eq.refl (h a))
      (g (f a))
      (eq.symm (g_f_eq a))
@@ -518,8 +518,10 @@ static optional<expr_pair> prove_eq_rec_invertible_aux(type_context_old & ctx, e
     expr eq_rec2    = mk_app(rec_fn, {B, f_x, C, h_x, f_a, H});
     /* (@eq.rec B (f x) C (h x) (f a) H) = h a */
     expr eq_rec2_eq = mk_eq(ctx, eq_rec2, h_a);
-    /* (fun x : A, (forall H : f x = f a, @eq.rec B (f x) C (h x) (f a) H = h a)) */
-    expr pr_motive  = ctx.mk_lambda(x, ctx.mk_pi(H, eq_rec2_eq));
+    expr a_eq_x     = mk_eq(ctx, a, x);
+    expr h_a_eq_x   = aux_locals.push_local("_h'", a_eq_x);
+    /* (fun (x : A) (h' : a = x), (forall H : f x = f a, @eq.rec B (f x) C (h x) (f a) H = h a)) */
+    expr pr_motive  = ctx.mk_lambda(x, ctx.mk_lambda(h_a_eq_x, ctx.mk_pi(H, eq_rec2_eq)));
     expr g_f_eq_a   = mk_app(ctx, g_f_name, a);
     /* (eq.symm (g_f_eq a)) */
     expr pr_major   = mk_eq_symm(ctx, g_f_eq_a);
@@ -564,6 +566,8 @@ static optional<expr_pair> prove_eq_rec_invertible(type_context_old & ctx, expr 
         if (optional<expr_pair> g_H = prove_eq_rec_invertible_aux(ctx, f)) {
             expr g, H;
             std::tie(g, H) = *g_H;
+            tout() << "H: " << H << "\n";
+            tout() << ">>>>> " << ctx.infer(H) << "\n";
             for (unsigned i = 6; i < args.size(); i++) {
                 // congr_fun : ∀ {α : Sort u_1} {β : α → Sort u_2} {f g : Π (x : α), β x}, f = g → ∀ (a : α), f a = g a
                 expr f_type = ctx.relaxed_whnf(ctx.infer(f));

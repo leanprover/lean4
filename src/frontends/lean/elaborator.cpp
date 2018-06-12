@@ -1137,6 +1137,7 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
     trace_elab_debug(tout() << "motive:\n  " << instantiate_mvars(motive) << "\n";);
 
     expr motive_arg = new_args[info.m_motive_idx];
+    trace_elab_debug(tout() << "motive_arg:\n  " << motive_arg << "\n";);
     if (!is_def_eq_all_approx(motive_arg, motive)) {
         throw elaborator_exception(ref, "\"eliminator\" elaborator failed to compute the motive");
     }

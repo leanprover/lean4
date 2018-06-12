@@ -1159,7 +1159,7 @@ struct elim_match_fn {
             expr id_M2         = mk_app(ctx1, get_id_name(), M_2);
             expr eqrec_minor   = mk_app(id_M2, g_x1);
             expr eqrec_major   = mk_app(ctx1, f_g_eq_name, x1);
-            eqrec              = mk_eq_rec(ctx1, eqrec_motive, eqrec_minor, eqrec_major);
+            eqrec              = mk_eq_ndrec(ctx1, eqrec_motive, eqrec_minor, eqrec_major);
         } catch (app_builder_exception &) {
             throw_error("equation compiler failed, when trying to build "
                         "'eq.rec'-application for transport step (use 'set_option trace.eqn_compiler.elim_match true' "

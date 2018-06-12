@@ -155,6 +155,14 @@ prefix `¬` := not
 inductive eq {α : Sort u} (a : α) : α → Prop
 | refl : eq a
 
+@[elab_as_eliminator, inline, reducible]
+def {u1 u2} eq.ndrec {α : Sort u2} {a : α} {C : α → Sort u1} (m : C a) {b : α} (h : eq a b) : C b :=
+@eq.rec α a (λ α _, C α) m b h
+
+@[elab_as_eliminator, inline, reducible]
+def {u1 u2} eq.ndrec_on {α : Sort u2} {a : α} {C : α → Sort u1} {b : α} (h : eq a b) (m : C a) : C b :=
+@eq.rec α a (λ α _, C α) m b h
+
 /-
 Initialize the quotient module, which effectively adds the following definitions:
 
@@ -201,7 +209,7 @@ attribute [refl] eq.refl
 
 @[elab_as_eliminator, subst]
 theorem eq.subst {α : Sort u} {P : α → Prop} {a b : α} (h₁ : a = b) (h₂ : P a) : P b :=
-eq.rec h₂ h₁
+eq.ndrec h₂ h₁
 
 notation h1 ▸ h2 := eq.subst h1 h2
 
@@ -218,7 +226,7 @@ infix == := heq
 theorem eq_of_heq {α : Sort u} {a a' : α} (h : a == a') : a = a' :=
 have ∀ (α' : Sort u) (a' : α') (h₁ : @heq α a α' a') (h₂ : α = α'), (eq.rec_on h₂ a : α') = a', from
   λ (α' : Sort u) (a' : α') (h₁ : @heq α a α' a'), heq.rec_on h₁ (λ h₂ : α = α, rfl),
-show (eq.rec_on (eq.refl α) a : α) = a', from
+show (eq.ndrec_on (eq.refl α) a : α) = a', from
   this α a' h (eq.refl α)
 
 /- The following four lemmas could not be automatically generated when the
@@ -616,17 +624,17 @@ assume hp, h₂ (h₁ hp)
 
 def trivial : true := ⟨⟩
 
+@[inline] def false.elim {C : Sort u} (h : false) : C :=
+false.rec (λ _, C) h
+
 @[inline] def absurd {a : Prop} {b : Sort v} (h₁ : a) (h₂ : ¬a) : b :=
-false.rec b (h₂ h₁)
+false.elim (h₂ h₁)
 
 theorem mt {a b : Prop} (h₁ : a → b) (h₂ : ¬b) : ¬a := assume ha : a, h₂ (h₁ ha)
 
 theorem not.intro {a : Prop} (h : a → false) : ¬ a := h
 
 theorem not_false : ¬false := id
-
-@[inline] def false.elim {C : Sort u} (h : false) : C :=
-false.rec C h
 
 -- proof irrelevance is built in
 theorem proof_irrel {a : Prop} (h₁ h₂ : a) : h₁ = h₂ := rfl
@@ -706,14 +714,22 @@ attribute [refl] heq.refl
 section
 variables {α β φ : Sort u} {a a' : α} {b b' : β} {c : φ}
 
+@[elab_as_eliminator]
+theorem {u1 u2} heq.ndrec {α : Sort u2} {a : α} {C : Π {β : Sort u2}, β → Sort u1} (m : C a) {β : Sort u2} {b : β} (h : a == b) : C b :=
+@heq.rec α a (λ β b _, C b) m β b h
+
+@[elab_as_eliminator]
+theorem {u1 u2} heq.ndrec_on {α : Sort u2} {a : α} {C : Π {β : Sort u2}, β → Sort u1} {β : Sort u2} {b : β} (h : a == b) (m : C a) : C b :=
+@heq.rec α a (λ β b _, C b) m β b h
+
 theorem heq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : a == b) (h₂ : p a) : p b :=
 eq.rec_on (eq_of_heq h₁) h₂
 
 theorem heq.subst {p : ∀ T : Sort u, T → Prop} (h₁ : a == b) (h₂ : p α a) : p β b :=
-heq.rec_on h₁ h₂
+heq.ndrec_on h₁ h₂
 
 @[symm] theorem heq.symm (h : a == b) : b == a :=
-heq.rec_on h (heq.refl a)
+heq.ndrec_on h (heq.refl a)
 
 theorem heq_of_eq (h : a = a') : a == a' :=
 eq.subst h (heq.refl a)
@@ -728,7 +744,7 @@ heq.trans h₁ (heq_of_eq h₂)
 heq.trans (heq_of_eq h₁) h₂
 
 def type_eq_of_heq (h : a == b) : α = β :=
-heq.rec_on h (eq.refl α)
+heq.ndrec_on h (eq.refl α)
 end
 
 theorem eq_rec_heq {α : Sort u} {φ : α → Sort v} : ∀ {a a' : α} (h : a = a') (p : φ a), (eq.rec_on h p : φ a') == p
@@ -744,9 +760,6 @@ theorem heq_of_eq_rec_right {α : Sort u} {φ : α → Sort v} : ∀ {a a' : α}
 
 theorem of_heq_true {a : Prop} (h : a == true) : a :=
 of_eq_true (eq_of_heq h)
-
-theorem eq_rec_compose : ∀ {α β φ : Sort u} (p₁ : β = φ) (p₂ : α = β) (a : α), (eq.rec_on p₁ (eq.rec_on p₂ a : β) : φ) = eq.rec_on (eq.trans p₂ p₁) a
-| α _ _ rfl rfl a := rfl
 
 theorem cast_heq : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a == a
 | α _ rfl a := heq.refl a
@@ -772,7 +785,8 @@ assume not_em : ¬(a ∨ ¬a),
 
 def not_not_em := non_contradictory_em
 
-theorem or.swap : a ∨ b → b ∨ a := or.rec or.inr or.inl
+theorem or.swap (h : a ∨ b) : b ∨ a :=
+or.elim h or.inr or.inl
 
 def or.symm := @or.swap
 
@@ -780,7 +794,8 @@ def or.symm := @or.swap
 def xor (a b : Prop) := (a ∧ ¬ b) ∨ (b ∧ ¬ a)
 
 @[recursor 5]
-theorem iff.elim : ((a → b) → (b → a) → c) → (a ↔ b) → c := iff.rec
+theorem iff.elim (h₁ : (a → b) → (b → a) → c) (h₂ : a ↔ b) : c :=
+iff.rec h₁ h₂
 
 theorem iff.elim_left : (a ↔ b) → a → b := iff.mp
 
@@ -833,7 +848,7 @@ iff.intro
   (λ hr, h)
 
 theorem iff_false_intro (h : ¬a) : a ↔ false :=
-iff.intro h (false.rec a)
+iff.intro h (false.rec (λ _, a))
 
 theorem imp_congr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a → b) ↔ (c → d) :=
 iff.intro
@@ -971,13 +986,13 @@ iff_true_intro (or.inr trivial)
 iff_true_intro (or.inl trivial)
 
 @[simp] theorem or_false (a : Prop) : a ∨ false ↔ a :=
-iff.intro (or.rec id false.elim) or.inl
+iff.intro (λ h, or.elim h id false.elim) or.inl
 
 @[simp] theorem false_or (a : Prop) : false ∨ a ↔ a :=
 iff.trans or_comm (or_false a)
 
 @[simp] theorem or_self (a : Prop) : a ∨ a ↔ a :=
-iff.intro (or.rec id id) or.inl
+iff.intro (λ h, or.elim h id id) or.inl
 
 theorem not_or {a b : Prop} : ¬ a → ¬ b → ¬ (a ∨ b)
 | hna hnb (or.inl ha) := absurd ha hna
@@ -1185,7 +1200,7 @@ else is_false (assume h : p ∧ q, hp (and.left h))
 instance [decidable p] [decidable q] : decidable (p ∨ q) :=
 if hp : p then is_true (or.inl hp) else
   if hq : q then is_true (or.inr hq) else
-    is_false (or.rec hp hq)
+    is_false (λ h, or.elim h hp hq)
 
 instance [decidable p] : decidable (¬p) :=
 if hp : p then is_false (absurd hp) else is_true hp
@@ -1206,11 +1221,11 @@ else
 
 instance [decidable p] [decidable q] : decidable (xor p q) :=
 if hp : p then
-  if hq : q then is_false (or.rec (λ ⟨_, h⟩, h hq : ¬(p ∧ ¬ q)) (λ ⟨_, h⟩, h hp : ¬(q ∧ ¬ p)))
+  if hq : q then is_false (λ h, or.elim h (λ ⟨_, h⟩, h hq : ¬(p ∧ ¬ q)) (λ ⟨_, h⟩, h hp : ¬(q ∧ ¬ p)))
   else is_true $ or.inl ⟨hp, hq⟩
 else
   if hq : q then is_true $ or.inr ⟨hq, hp⟩
-  else is_false (or.rec (λ ⟨h, _⟩, hp h : ¬(p ∧ ¬ q)) (λ ⟨h, _⟩, hq h : ¬(q ∧ ¬ p)))
+  else is_false (λ h, or.elim h (λ ⟨h, _⟩, hp h : ¬(p ∧ ¬ q)) (λ ⟨h, _⟩, hq h : ¬(q ∧ ¬ p)))
 
 instance exists_prop_decidable {p} (P : p → Prop) [decidable p] [s : ∀ h, decidable (P h)] : decidable (∃ h, P h) :=
 if h : p then decidable_of_decidable_of_iff (s h)
@@ -1240,7 +1255,7 @@ instance : decidable_eq bool
 def decidable_eq_of_bool_pred {α : Sort u} {p : α → α → bool} (h₁ : is_dec_eq p) (h₂ : is_dec_refl p) : decidable_eq α :=
 assume x y : α,
  if hp : p x y = tt then is_true (h₁ hp)
- else is_false (assume hxy : x = y, absurd (h₂ y) (@eq.rec_on _ _ (λ z, ¬p z y = tt) _ hxy hp))
+ else is_false (assume hxy : x = y, absurd (h₂ y) (@eq.rec_on _ _ (λ z _, ¬p z y = tt) _ hxy hp))
 
 theorem decidable_eq_inl_refl {α : Sort u} [h : decidable_eq α] (a : α) : h a a = is_true (eq.refl a) :=
 match (h a a) with
@@ -1272,10 +1287,10 @@ match h with
 | (is_false hnc) := rfl
 
 theorem implies_of_if_pos {c t e : Prop} [decidable c] (h : ite c t e) : c → t :=
-assume hc, eq.rec_on (if_pos hc : ite c t e = t) h
+assume hc, eq.ndrec_on (if_pos hc : ite c t e = t) h
 
 theorem implies_of_if_neg {c t e : Prop} [decidable c] (h : ite c t e) : ¬c → e :=
-assume hnc, eq.rec_on (if_neg hnc : ite c t e = e) h
+assume hnc, eq.ndrec_on (if_neg hnc : ite c t e = e) h
 
 theorem if_ctx_congr {α : Sort u} {b c : Prop} [dec_b : decidable b] [dec_c : decidable c]
                    {x y u v : α}
@@ -1495,11 +1510,11 @@ match h with
 /- Equalities for rewriting let-expressions -/
 theorem let_value_eq {α : Sort u} {β : Sort v} {a₁ a₂ : α} (b : α → β) :
                    a₁ = a₂ → (let x : α := a₁ in b x) = (let x : α := a₂ in b x) :=
-λ h, eq.rec_on h rfl
+λ h, eq.ndrec_on h rfl
 
 theorem let_value_heq {α : Sort v} {β : α → Sort u} {a₁ a₂ : α} (b : Π x : α, β x) :
                     a₁ = a₂ → (let x : α := a₁ in b x) == (let x : α := a₂ in b x) :=
-λ h, eq.rec_on h (heq.refl (b a₁))
+λ h, eq.ndrec_on h (heq.refl (b a₁))
 
 theorem let_body_eq {α : Sort v} {β : α → Sort u} (a : α) {b₁ b₂ : Π x : α, β x} :
                   (∀ x, b₁ x = b₂ x) → (let x : α := a in b₁ x) = (let x : α := a in b₂ x) :=
@@ -1507,7 +1522,7 @@ theorem let_body_eq {α : Sort v} {β : α → Sort u} (a : α) {b₁ b₂ : Π 
 
 theorem let_eq {α : Sort v} {β : Sort u} {a₁ a₂ : α} {b₁ b₂ : α → β} :
              a₁ = a₂ → (∀ x, b₁ x = b₂ x) → (let x : α := a₁ in b₁ x) = (let x : α := a₂ in b₂ x) :=
-λ h₁ h₂, eq.rec_on h₁ (h₂ a₁)
+λ h₁ h₂, eq.ndrec_on h₁ (h₂ a₁)
 
 section relation
 variables {α : Sort u} {β : Sort v} (r : β → β → Prop)
@@ -1546,6 +1561,22 @@ theorem inv_image.irreflexive (f : α → β) (h : irreflexive r) : irreflexive 
 inductive tc {α : Sort u} (r : α → α → Prop) : α → α → Prop
 | base  : ∀ a b, r a b → tc a b
 | trans : ∀ a b c, tc a b → tc b c → tc a c
+
+@[elab_as_eliminator]
+theorem {u1 u2} tc.ndrec {α : Sort u} {r : α → α → Prop} {C : α → α → Prop}
+                (m₁ : ∀ (a b : α), r a b → C a b)
+                (m₂ : ∀ (a b c : α), tc r a b → tc r b c → C a b → C b c → C a c)
+                {a b : α} (h : tc r a b) : C a b :=
+@tc.rec α r (λ a b _, C a b) m₁ m₂ a b h
+
+@[elab_as_eliminator]
+theorem {u1 u2} tc.ndrec_on {α : Sort u} {r : α → α → Prop} {C : α → α → Prop}
+                {a b : α} (h : tc r a b)
+                (m₁ : ∀ (a b : α), r a b → C a b)
+                (m₂ : ∀ (a b c : α), tc r a b → tc r b c → C a b → C b c → C a c)
+                : C a b :=
+@tc.rec α r (λ a b _, C a b) m₁ m₂ a b h
+
 end relation
 
 section binary
@@ -1822,7 +1853,7 @@ quot.ind (λ (a : α), eq.refl (quot.indep f a).1) q
 protected def rec
    (f : Π a, β ⟦a⟧) (h : ∀ (a b : α) (p : r a b), (eq.rec (f a) (sound p) : β ⟦b⟧) = f b)
    (q : quot r) : β q :=
-eq.rec_on (quot.lift_indep_pr1 f h q) ((lift (quot.indep f) (quot.indep_coherent f h) q).2)
+eq.ndrec_on (quot.lift_indep_pr1 f h q) ((lift (quot.indep f) (quot.indep_coherent f h) q).2)
 
 @[reducible, elab_as_eliminator]
 protected def rec_on
@@ -1965,7 +1996,7 @@ private theorem rel.refl : ∀ q : quotient s, q ~ q :=
 λ q, quot.induction_on q (λ a, setoid.refl a)
 
 private theorem eq_imp_rel {q₁ q₂ : quotient s} : q₁ = q₂ → q₁ ~ q₂ :=
-assume h, eq.rec_on h (rel.refl q₁)
+assume h, eq.ndrec_on h (rel.refl q₁)
 
 theorem exact {a b : α} : ⟦a⟧ = ⟦b⟧ → a ≈ b :=
 assume h, eq_imp_rel h

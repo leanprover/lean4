@@ -604,7 +604,7 @@ public:
         return ::lean::mk_app({mk_constant(get_heq_trans_name(), {lvl}), A1, B1, B2, a1, b1, b2, H1, H2});
     }
 
-    expr mk_eq_rec(expr const & motive, expr const & H1, expr const & H2) {
+    expr mk_eq_ndrec(expr const & motive, expr const & H1, expr const & H2) {
         if (is_constant(get_app_fn(H2), get_eq_refl_name()))
             return H1;
         expr p       = m_ctx.relaxed_whnf(m_ctx.infer(H2));
@@ -620,11 +620,11 @@ public:
             throw app_builder_exception();
         }
         level l_1    = sort_level(binding_body(mtype));
-        name const & eqrec = get_eq_rec_name();
+        name const & eqrec = get_eq_ndrec_name();
         return ::lean::mk_app({mk_constant(eqrec, {l_1, A_lvl}), A, lhs, motive, H1, rhs, H2});
     }
 
-    expr mk_eq_drec(expr const & motive, expr const & H1, expr const & H2) {
+    expr mk_eq_rec(expr const & motive, expr const & H1, expr const & H2) {
         if (is_constant(get_app_fn(H2), get_eq_refl_name()))
             return H1;
         expr p       = m_ctx.relaxed_whnf(m_ctx.infer(H2));
@@ -640,7 +640,7 @@ public:
             throw app_builder_exception();
         }
         level l_1    = sort_level(binding_body(binding_body(mtype)));
-        name const & eqrec = get_eq_drec_name();
+        name const & eqrec = get_eq_rec_name();
         return ::lean::mk_app({mk_constant(eqrec, {l_1, A_lvl}), A, lhs, motive, H1, rhs, H2});
     }
 
@@ -856,12 +856,12 @@ expr mk_heq_trans(type_context_old & ctx, expr const & H1, expr const & H2) {
     return app_builder(ctx).mk_heq_trans(H1, H2);
 }
 
-expr mk_eq_rec(type_context_old & ctx, expr const & C, expr const & H1, expr const & H2) {
-    return app_builder(ctx).mk_eq_rec(C, H1, H2);
+expr mk_eq_ndrec(type_context_old & ctx, expr const & C, expr const & H1, expr const & H2) {
+    return app_builder(ctx).mk_eq_ndrec(C, H1, H2);
 }
 
-expr mk_eq_drec(type_context_old & ctx, expr const & C, expr const & H1, expr const & H2) {
-    return app_builder(ctx).mk_eq_drec(C, H1, H2);
+expr mk_eq_rec(type_context_old & ctx, expr const & C, expr const & H1, expr const & H2) {
+    return app_builder(ctx).mk_eq_rec(C, H1, H2);
 }
 
 expr mk_eq_of_heq(type_context_old & ctx, expr const & H) {

@@ -44,10 +44,10 @@ name const * g_empty = nullptr;
 name const * g_Exists = nullptr;
 name const * g_eq = nullptr;
 name const * g_eq_cases_on = nullptr;
-name const * g_eq_drec = nullptr;
+name const * g_eq_rec = nullptr;
 name const * g_eq_mp = nullptr;
 name const * g_eq_mpr = nullptr;
-name const * g_eq_rec = nullptr;
+name const * g_eq_ndrec = nullptr;
 name const * g_eq_refl = nullptr;
 name const * g_eq_subst = nullptr;
 name const * g_eq_symm = nullptr;
@@ -298,10 +298,10 @@ void initialize_constants() {
     g_Exists = new name{"Exists"};
     g_eq = new name{"eq"};
     g_eq_cases_on = new name{"eq", "cases_on"};
-    g_eq_drec = new name{"eq", "drec"};
+    g_eq_rec = new name{"eq", "rec"};
     g_eq_mp = new name{"eq", "mp"};
     g_eq_mpr = new name{"eq", "mpr"};
-    g_eq_rec = new name{"eq", "rec"};
+    g_eq_ndrec = new name{"eq", "ndrec"};
     g_eq_refl = new name{"eq", "refl"};
     g_eq_subst = new name{"eq", "subst"};
     g_eq_symm = new name{"eq", "symm"};
@@ -553,10 +553,10 @@ void finalize_constants() {
     delete g_Exists;
     delete g_eq;
     delete g_eq_cases_on;
-    delete g_eq_drec;
+    delete g_eq_rec;
     delete g_eq_mp;
     delete g_eq_mpr;
-    delete g_eq_rec;
+    delete g_eq_ndrec;
     delete g_eq_refl;
     delete g_eq_subst;
     delete g_eq_symm;
@@ -807,10 +807,10 @@ name const & get_empty_name() { return *g_empty; }
 name const & get_Exists_name() { return *g_Exists; }
 name const & get_eq_name() { return *g_eq; }
 name const & get_eq_cases_on_name() { return *g_eq_cases_on; }
-name const & get_eq_drec_name() { return *g_eq_drec; }
+name const & get_eq_rec_name() { return *g_eq_rec; }
 name const & get_eq_mp_name() { return *g_eq_mp; }
 name const & get_eq_mpr_name() { return *g_eq_mpr; }
-name const & get_eq_rec_name() { return *g_eq_rec; }
+name const & get_eq_ndrec_name() { return *g_eq_ndrec; }
 name const & get_eq_refl_name() { return *g_eq_refl; }
 name const & get_eq_subst_name() { return *g_eq_subst; }
 name const & get_eq_symm_name() { return *g_eq_symm; }

@@ -39,10 +39,10 @@ empty
 Exists
 eq
 eq.cases_on
-eq.drec
+eq.rec
 eq.mp
 eq.mpr
-eq.rec
+eq.ndrec
 eq.refl
 eq.subst
 eq.symm

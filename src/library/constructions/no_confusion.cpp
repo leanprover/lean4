@@ -215,10 +215,10 @@ environment mk_no_confusion(environment const & env, name const & n) {
     gen = Fun(H11, gen);
     // Now, we use gen to build the final proof using eq.rec
     //
-    //  eq.rec InductiveType v1 (fun (a : InductiveType), v1 = a -> no_confusion_type Params Indices v1 a) gen v2 H12 H12
+    //  eq.ndrec InductiveType v1 (fun (a : InductiveType), v1 = a -> no_confusion_type Params Indices v1 a) gen v2 H12 H12
     //
     level eq_rec_l1 = head(ls);
-    expr eq_rec = mk_app(mk_constant(get_eq_rec_name(), {eq_rec_l1, v_lvl}), v_type, v1);
+    expr eq_rec = mk_app(mk_constant(get_eq_ndrec_name(), {eq_rec_l1, v_lvl}), v_type, v1);
     // create eq_rec type_former
     //    (fun (a : InductiveType), v1 = a -> no_confusion_type Params Indices v1 a)
     expr a   = mk_local(ngen.next(), "a",   v_type, binder_info());

@@ -11,6 +11,19 @@ universes u v
 inductive acc {α : Sort u} (r : α → α → Prop) : α → Prop
 | intro (x : α) (h : ∀ y, r y x → acc y) : acc x
 
+@[elab_as_eliminator, inline, reducible]
+def {u1 u2} acc.ndrec {α : Sort u2} {r : α → α → Prop} {C : α → Sort u1}
+    (m : Π (x : α) (h : ∀ (y : α), r y x → acc r y), (Π (y : α) (a : r y x), C y) → C x)
+    {a : α} (n : acc r a) : C a :=
+@acc.rec α r (λ α _, C α) m a n
+
+@[elab_as_eliminator, inline, reducible]
+def {u1 u2} acc.ndrec_on {α : Sort u2} {r : α → α → Prop} {C : α → Sort u1}
+    {a : α} (n : acc r a)
+    (m : Π (x : α) (h : ∀ (y : α), r y x → acc r y), (Π (y : α) (a : r y x), C y) → C x)
+    : C a :=
+@acc.rec α r (λ α _, C α) m a n
+
 namespace acc
 variables {α : Sort u} {r : α → α → Prop}
 
@@ -49,7 +62,7 @@ acc.rec_on a (λ x₁ ac₁ ih, F x₁ ih)
 
 theorem fix_F_eq (x : α) (acx : acc r x) :
   fix_F F x acx = F x (λ (y : α) (p : y ≺ x), fix_F F y (acc.inv acx p)) :=
-acc.drec (λ x r ih, rfl) acx
+acc.rec (λ x r ih, rfl) acx
 end
 
 variables {α : Sort u} {C : α → Sort v} {r : α → α → Prop}
@@ -95,8 +108,8 @@ parameters (f : α → β)
 parameters (h : well_founded r)
 
 private def acc_aux {b : β} (ac : acc r b) : ∀ (x : α), f x = b → acc (inv_image r f) x :=
-acc.rec_on ac (λ x acx ih z e,
-  acc.intro z (λ y lt, eq.rec_on e (λ acx ih, ih (f y) lt y rfl) acx ih))
+acc.ndrec_on ac (λ x acx ih z e,
+  acc.intro z (λ y lt, eq.ndrec_on e (λ acx ih, ih (f y) lt y rfl) acx ih))
 
 def accessible {a : α} (ac : acc r (f a)) : acc (inv_image r f) a :=
 acc_aux ac a rfl
@@ -113,9 +126,9 @@ parameters {α : Sort u} {r : α → α → Prop}
 local notation `r⁺` := tc r
 
 def accessible {z : α} (ac : acc r z) : acc (tc r) z :=
-acc.rec_on ac (λ x acx ih,
+acc.ndrec_on ac (λ x acx ih,
   acc.intro x (λ y rel,
-    tc.rec_on rel
+    tc.ndrec_on rel
       (λ a b rab acx ih, ih a rab)
       (λ a b c rab rbc ih₁ ih₂ acx ih, acc.inv (ih₂ acx ih) rab)
       acx ih))
@@ -172,11 +185,11 @@ parameters {ra  : α → α → Prop} {rb  : β → β → Prop}
 local infix `≺`:50 := lex ra rb
 
 def lex_accessible {a} (aca : acc ra a) (acb : ∀ b, acc rb b): ∀ b, acc (lex ra rb) (a, b) :=
-acc.rec_on aca (λ xa aca iha b,
-  acc.rec_on (acb b) (λ xb acb ihb,
+acc.ndrec_on aca (λ xa aca iha b,
+  acc.ndrec_on (acb b) (λ xb acb ihb,
     acc.intro (xa, xb) (λ p lt,
       have aux : xa = xa → xb = xb → acc (lex ra rb) p, from
-        @prod.lex.rec_on α β ra rb (λ p₁ p₂, fst p₂ = xa → snd p₂ = xb → acc (lex ra rb) p₁)
+        @prod.lex.rec_on α β ra rb (λ p₁ p₂ _, fst p₂ = xa → snd p₂ = xb → acc (lex ra rb) p₁)
                          p (xa, xb) lt
           (λ a₁ b₁ a₂ b₂ h (eq₂ : a₂ = xa) (eq₃ : b₂ = xb), iha a₁ (eq.rec_on eq₂ h) b₁)
           (λ a b₁ b₂ h (eq₂ : a = xa) (eq₃ : b₂ = xb), eq.rec_on eq₂.symm (ihb b₁ (eq.rec_on eq₃ h))),
@@ -188,7 +201,7 @@ def lex_wf (ha : well_founded ra) (hb : well_founded rb) : well_founded (lex ra 
 
 -- relational product is a subrelation of the lex
 def rprod_sub_lex : ∀ a b, rprod ra rb a b → lex ra rb a b :=
-λ a b h, prod.rprod.rec_on h (λ a₁ b₁ a₂ b₂ h₁ h₂, lex.left rb b₁ b₂ h₁)
+@prod.rprod.rec _ _ ra rb (λ a b _, lex ra rb a b) (λ a₁ b₁ a₂ b₂ h₁ h₂, lex.left rb b₁ b₂ h₁)
 
 -- The relational product of well founded relations is well-founded
 def rprod_wf (ha : well_founded ra) (hb : well_founded rb) : well_founded (rprod ra rb) :=
@@ -219,14 +232,14 @@ local infix `≺`:50 := lex r s
 
 def lex_accessible {a} (aca : acc r a) (acb : ∀ a, well_founded (s a))
                      : ∀ (b : β a), acc (lex r s) ⟨a, b⟩ :=
-acc.rec_on aca
+acc.ndrec_on aca
   (λ xa aca (iha : ∀ y, r y xa → ∀ b : β y, acc (lex r s) ⟨y, b⟩),
-    λ b : β xa, acc.rec_on (well_founded.apply (acb xa) b)
+    λ b : β xa, acc.ndrec_on (well_founded.apply (acb xa) b)
       (λ xb acb
         (ihb : ∀ (y : β xa), s xa y xb → acc (lex r s) ⟨xa, y⟩),
         acc.intro ⟨xa, xb⟩ (λ p (lt : p ≺ ⟨xa, xb⟩),
           have aux : xa = xa → xb == xb → acc (lex r s) p, from
-            @psigma.lex.rec_on α β r s (λ p₁ p₂, p₂.1 = xa → p₂.2 == xb → acc (lex r s) p₁)
+            @psigma.lex.rec_on α β r s (λ p₁ p₂ _, p₂.1 = xa → p₂.2 == xb → acc (lex r s) p₁)
                                p ⟨xa, xb⟩ lt
               (λ (a₁ : α) (b₁ : β a₁) (a₂ : α) (b₂ : β a₂) (h : r a₁ a₂) (eq₂ : a₂ = xa) (eq₃ : b₂ == xb),
                 have aux : (∀ (y : α), r y xa → ∀ (b : β y), acc (lex r s) ⟨y, b⟩) →
@@ -286,7 +299,7 @@ acc.rec_on acb
       (λ xa aca (iha : ∀ y, r y xa → acc (rev_lex r s) (mk y xb)),
         acc.intro ⟨xa, xb⟩ (λ p (lt : p ≺ ⟨xa, xb⟩),
           have aux : xa = xa → xb = xb → acc (rev_lex r s) p, from
-            @rev_lex.rec_on α β r s (λ p₁ p₂, fst p₂ = xa → snd p₂ = xb → acc (rev_lex r s) p₁)
+            @rev_lex.rec_on α β r s (λ p₁ p₂ _, fst p₂ = xa → snd p₂ = xb → acc (rev_lex r s) p₁)
                             p ⟨xa, xb⟩ lt
              (λ a₁ a₂ b (h : r a₁ a₂) (eq₂ : a₂ = xa) (eq₃ : b = xb),
                show acc (rev_lex r s) ⟨a₁, b⟩, from

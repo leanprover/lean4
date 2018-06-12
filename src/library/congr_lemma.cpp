@@ -95,9 +95,9 @@ struct congr_lemma_manager {
             }
             expr minor = cast(e, new_type, tail(deps), eqs);
             if (use_drec) {
-                return mk_eq_drec(m_ctx, motive, minor, *major);
-            } else {
                 return mk_eq_rec(m_ctx, motive, minor, *major);
+            } else {
+                return mk_eq_ndrec(m_ctx, motive, minor, *major);
             }
         }
     }
@@ -157,7 +157,7 @@ struct congr_lemma_manager {
             expr x1_refl = mk_eq_refl(m_ctx, x_1);
             new_rhs      = instantiate(abstract(new_rhs, major), x1_refl);
             expr minor   = mk_congr_proof(i+1, lhs, new_rhs, eqs);
-            return mk_eq_drec(m_ctx, motive, minor, major);
+            return mk_eq_rec(m_ctx, motive, minor, major);
         }
     }
 
@@ -500,7 +500,7 @@ struct congr_lemma_manager {
             if (is_heq(m_ctx.infer(eq_pr)))
                 major  = mk_eq_of_heq(m_ctx, eq_pr);
             motive      = m_ctx.mk_lambda({b}, motive);
-            return m_ctx.mk_lambda({a, b, eq_pr}, mk_eq_rec(m_ctx, motive, minor, major));
+            return m_ctx.mk_lambda({a, b, eq_pr}, mk_eq_ndrec(m_ctx, motive, minor, major));
         }
     }
 

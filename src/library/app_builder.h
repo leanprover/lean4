@@ -113,7 +113,7 @@ expr mk_heq_trans(type_context_old & ctx, expr const & H1, expr const & H2);
     H2 : a = b
     The resultant application is
     @eq.rec A a C H1 b H2 */
-expr mk_eq_rec(type_context_old & ctx, expr const & C, expr const & H1, expr const & H2);
+expr mk_eq_ndrec(type_context_old & ctx, expr const & C, expr const & H1, expr const & H2);
 
 /** \brief Create a (dependent) eq.drec application.
     C is the motive. The expected types for C, H1 and H2 are
@@ -122,7 +122,7 @@ expr mk_eq_rec(type_context_old & ctx, expr const & C, expr const & H1, expr con
     H2 : a = b
     The resultant application is
     @eq.drec A a C H1 b H2 */
-expr mk_eq_drec(type_context_old & ctx, expr const & C, expr const & H1, expr const & H2);
+expr mk_eq_rec(type_context_old & ctx, expr const & C, expr const & H1, expr const & H2);
 
 expr mk_eq_of_heq(type_context_old & ctx, expr const & H);
 expr mk_heq_of_eq(type_context_old & ctx, expr const & H);

@@ -80,34 +80,39 @@ class add_basic_inductive_decl_fn {
         bool gen_cases_on     = get_inductive_cases_on(m_opts);
         bool gen_no_confusion = get_inductive_no_confusion(m_opts);
 
-        if (is_inductive_predicate(m_env, ind_name))
-            m_env = mk_drec(m_env, ind_name);
+        // if (is_inductive_predicate(m_env, ind_name))
+            // m_env = mk_drec(m_env, ind_name);
 
+        lean_trace(name({"inductive_compiler"}), tout() << ">> generate rec_on\n";);
         if (gen_rec_on)
             m_env = mk_rec_on(m_env, ind_name);
 
         if (has_unit) {
+            lean_trace(name({"inductive_compiler"}), tout() << ">> generate cases_on\n";);
             if (gen_cases_on)
                 m_env = mk_cases_on(m_env, ind_name);
 
             if (gen_cases_on && gen_no_confusion && has_eq && has_heq) {
+                lean_trace(name({"inductive_compiler"}), tout() << ">> generate no_confusion\n";);
                 m_env = mk_no_confusion(m_env, ind_name);
+                lean_trace(name({"inductive_compiler"}), tout() << ">> generate injective\n";);
                 m_env = mk_injective_lemmas(m_env, ind_name);
             }
 
             if (gen_brec_on && has_prod) {
+                lean_trace(name({"inductive_compiler"}), tout() << ">> generate below\n";);
                 m_env = mk_below(m_env, ind_name);
+                lean_trace(name({"inductive_compiler"}), tout() << ">> generate ibelow\n";);
                 m_env = mk_ibelow(m_env, ind_name);
             }
         }
 
         if (gen_brec_on && has_unit && has_prod) {
+            lean_trace(name({"inductive_compiler"}), tout() << ">> generate brec_on\n";);
             m_env = mk_brec_on(m_env, ind_name);
+            lean_trace(name({"inductive_compiler"}), tout() << ">> generate binduction_on\n";);
             m_env = mk_binduction_on(m_env, ind_name);
         }
-
-        // if (!m_is_meta)
-        // m_env = mk_has_sizeof(m_env, ind_name);
     }
 
     void send_to_kernel() {
@@ -151,6 +156,7 @@ environment add_basic_inductive_decl(environment const & env, options const & op
 }
 
 void initialize_inductive_compiler_basic() {
+    register_trace_class(name({"inductive_compiler"}));
     register_trace_class(name({"inductive_compiler", "basic"}));
     register_trace_class(name({"inductive_compiler", "basic", "ind"}));
     register_trace_class(name({"inductive_compiler", "basic", "irs"}));

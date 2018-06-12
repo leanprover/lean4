@@ -720,9 +720,16 @@ expr mk_heq(abstract_type_context & ctx, expr const & lhs, expr const & rhs) {
     return mk_app(mk_constant(get_heq_name(), {lvl}), A, lhs, B, rhs);
 }
 
-bool is_eq_rec_core(expr const & e) {
+bool is_eq_ndrec_core(expr const & e) {
     expr const & fn = get_app_fn(e);
-    return is_constant(fn) && const_name(fn) == get_eq_rec_name();
+    return is_constant(fn) && const_name(fn) == get_eq_ndrec_name();
+}
+
+bool is_eq_ndrec(expr const & e) {
+    expr const & fn = get_app_fn(e);
+    if (!is_constant(fn))
+        return false;
+    return const_name(fn) == get_eq_ndrec_name();
 }
 
 bool is_eq_rec(expr const & e) {
@@ -730,13 +737,6 @@ bool is_eq_rec(expr const & e) {
     if (!is_constant(fn))
         return false;
     return const_name(fn) == get_eq_rec_name();
-}
-
-bool is_eq_drec(expr const & e) {
-    expr const & fn = get_app_fn(e);
-    if (!is_constant(fn))
-        return false;
-    return const_name(fn) == get_eq_drec_name();
 }
 
 bool is_eq(expr const & e) {
@@ -1066,18 +1066,12 @@ expr mk_bool_tt() { return *g_bool_tt; }
 expr mk_bool_ff() { return *g_bool_ff; }
 expr to_bool_expr(bool b) { return b ? mk_bool_tt() : mk_bool_ff(); }
 
-name get_dep_recursor(environment const & env, name const & n) {
-    if (is_inductive_predicate(env, n))
-        return name(n, "drec");
-    else
-        return name(n, "rec");
+name get_dep_recursor(environment const &, name const & n) {
+    return name(n, "rec");
 }
 
-name get_dep_cases_on(environment const & env, name const & n) {
-    if (is_inductive_predicate(env, n))
-        return name(n, "dcases_on");
-    else
-        return name(n, "cases_on");
+name get_dep_cases_on(environment const &, name const & n) {
+    return name(n, "cases_on");
 }
 
 static char const * g_aux_meta_rec_prefix = "_meta_aux";

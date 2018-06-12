@@ -95,7 +95,7 @@ expr subst(environment const & env, options const & opts, transparency_mode cons
     expr major   = symm ? H2 : mk_eq_symm(ctx2, H2);
     expr mvar3   = ctx2.mk_metavar_decl(lctx, new_type);
     expr minor   = mvar3;
-    expr new_val = depH2 ? mk_eq_drec(ctx2, motive, minor, major) : mk_eq_rec(ctx2, motive, minor, major);
+    expr new_val = depH2 ? mk_eq_rec(ctx2, motive, minor, major) : mk_eq_ndrec(ctx2, motive, minor, major);
     mctx = ctx2.mctx();
     mctx.assign(*mvar2, new_val);
     expr mvar4   = clear(mctx, mvar3, H2);

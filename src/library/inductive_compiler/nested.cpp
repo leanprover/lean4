@@ -1242,7 +1242,7 @@ class add_nested_inductive_decl_fn {
         expr e = m_tctx.relaxed_whnf(lhs);
         buffer<expr> rec_args;
         expr rec_fn = get_app_args(e, rec_args);
-        if (is_constant(rec_fn, get_eq_rec_name())) {
+        if (is_constant(rec_fn, get_eq_ndrec_name())) {
             lean_assert(rec_args.size() == 6);
             simp_result r_first = force_eq_rec(rec_fn, rec_args);
             simp_result r_rest = force_recursors_core(r_first.get_new());
@@ -1254,7 +1254,7 @@ class add_nested_inductive_decl_fn {
 
     simp_result force_eq_rec(expr const & rec_fn, buffer<expr> const & rec_args) {
         // See comments above prove_eq_rec_invertible(type_context_old & ctx, expr const & e) at equation_compiler/util.cpp.
-        lean_assert(is_constant(rec_fn, get_eq_rec_name()) && rec_args.size() == 6);
+        lean_assert(is_constant(rec_fn, get_eq_ndrec_name()) && rec_args.size() == 6);
         expr B      = rec_args[0];
         expr from   = rec_args[1]; /* (f (g (f a))) */
         expr C      = rec_args[2];
@@ -1300,16 +1300,16 @@ class add_nested_inductive_decl_fn {
         expr f_x_eq_f_a = mk_eq(m_tctx, f_x, f_a);
         expr H          = aux_locals.push_local("_H", f_x_eq_f_a);
         expr h_x        = mk_app(h, x);
-        /* (@eq.rec B (f x) C (h x) (f a) H) */
+        /* (@eq.ndrec B (f x) C (h x) (f a) H) */
         expr eq_rec2    = mk_app(rec_fn, {B, f_x, C, h_x, f_a, H});
-        /* (@eq.rec B (f x) C (h x) (f a) H) = h a */
+        /* (@eq.ndrec B (f x) C (h x) (f a) H) = h a */
         expr eq_rec2_eq = mk_eq(m_tctx, eq_rec2, h_a);
         /* (fun x : A, (forall H : f x = f a, @eq.rec B (f x) C (h x) (f a) H = h a)) */
         expr pr_motive  = m_tctx.mk_lambda(x, m_tctx.mk_pi(H, eq_rec2_eq));
         expr g_f_eq_a   = mk_app(m_tctx, g_f_name, a);
         /* (eq.symm (g_f_eq a)) */
         expr pr_major   = mk_eq_symm(m_tctx, g_f_eq_a);
-        expr pr         = mk_app(mk_constant(get_eq_rec_name(), {mk_level_zero(), A_lvl}),
+        expr pr         = mk_app(mk_constant(get_eq_ndrec_name(), {mk_level_zero(), A_lvl}),
                                  {A, a, pr_motive, pr_minor, g_f_a, pr_major, major});
         return simp_result(h_a, pr);
     }
@@ -1668,7 +1668,7 @@ class add_nested_inductive_decl_fn {
             assert_type_correct(m_outer.m_env, rest);
             assert_type_correct(m_outer.m_env, equality_proof);
 
-            return mk_eq_rec(m_outer.m_tctx, motive, rest, equality_proof);
+            return mk_eq_ndrec(m_outer.m_tctx, motive, rest, equality_proof);
         }
 
     public:

@@ -95,7 +95,7 @@ static vm_obj rewrite_core(expr h, expr e, rewrite_cfg const & cfg, tactic_state
     } catch (exception & ex) {
         throw nested_exception("rewrite tactic failed, motive is not type correct", std::current_exception());
     }
-    expr prf           = mk_eq_rec(ctx, motive, mk_eq_refl(ctx, e), h);
+    expr prf           = mk_eq_ndrec(ctx, motive, mk_eq_refl(ctx, e), h);
     tactic_state new_s = set_mctx_goals(s, ctx.mctx(), append(cons(head(s.goals()), to_list(new_goals)), tail(s.goals())));
     return tactic::mk_success(mk_vm_pair(to_obj(new_e), mk_vm_pair(to_obj(prf), to_obj(to_list(metas)))), new_s);
 }

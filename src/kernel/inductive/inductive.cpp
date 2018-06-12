@@ -518,10 +518,7 @@ struct add_inductive_fn {
 
     /** \brief Initialize m_dep_elim flag. */
     void set_dep_elim() {
-        if (is_zero(m_it_level))
-            m_dep_elim = false;
-        else
-            m_dep_elim = true;
+        m_dep_elim = true;
     }
 
     /** \brief Given t of the form (I As is) where I is the inductive datatypes being defined,
@@ -734,6 +731,7 @@ struct add_inductive_fn {
         declare_intro_rules();
         certified_inductive_decl c = mk_certified_decl(declare_elim_rule());
         m_env = c.add_core(m_env, true);
+        // std::cout << ">> " << m_decl.m_name << " declared\n";
         return mk_pair(m_env, c);
     }
 };

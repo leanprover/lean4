@@ -13,6 +13,11 @@ Author: Leonardo de Moura
 namespace lean {
 static name * g_ind_fresh = nullptr;
 
+/**\ brief Return recursor name for the given inductive datatype name */
+name mk_rec_name(name const & I) {
+    return I + name("rec");
+}
+
 class add_inductive_fn {
     environment            m_env;
     name_generator         m_ngen;
@@ -31,6 +36,24 @@ class add_inductive_fn {
     buffer<expr>           m_params;
     /* A constant for each inductive type */
     buffer<expr>           m_decl_consts;
+
+    level                  m_elim_level;
+
+    struct rec_info {
+        name         m_name;
+        local_ctx    m_lctx;
+        buffer<expr> m_Cs;       /* free variables for all motives */
+        expr         m_C;        /* free variable for "main" motive */
+        buffer<expr> m_minor;    /* minor premises */
+        buffer<expr> m_indices;
+        expr         m_major;    /* major premise */
+        bool         m_K_target;
+    };
+
+    /* We have an entry for each inductive datatype being declared,
+       and for nested inductive datatypes. */
+    buffer<rec_info>       m_rec_infos;
+
 public:
     add_inductive_fn(environment const & env, inductive_decls const & decls):
         m_env(env), m_ngen(*g_ind_fresh), m_level_params(decls.m_level_params),
@@ -111,6 +134,81 @@ public:
         }
     }
 
+    /** \brief Return true if recursor can only map into Prop */
+    bool elim_only_at_universe_zero() {
+        if (m_is_not_zero) {
+            /* For every universe parameter assignment, the resultant universe is not 0.
+               So, it is not an inductive predicate */
+            return false;
+        }
+
+        if (m_decls.size() > 1) {
+            /* Mutually recursive inductive predicates only eliminate into Prop. */
+            return true;
+        }
+
+        unsigned num_intros = length(m_decls[0].m_constructors);
+        if (num_intros > 1) {
+            /* We have more than one constructor, then recursor for inductive predicate
+               can only eliminate intro Prop. */
+            return true;
+        }
+
+        if (num_intros == 0) {
+            /* empty inductive predicate (e.g., `false`) can eliminate into any universe */
+            return false;
+        }
+
+        /* We have only one constructor, the final check is, the type of each argument
+           that is not a parameter:
+            1- It must live in Prop, *OR*
+            2- It must occur in the return type. (this is essentially what is called a non-uniform parameter in Coq).
+               We can justify 2 by observing that this information is not a *secret* it is part of the type.
+               By eliminating to a non-proposition, we would not be revealing anything that is not already known. */
+        constructor const & cnstr = head(m_decls[0].m_constructors);
+        expr type  = cnstr.m_type;
+        unsigned i = 0;
+        buffer<expr> to_check; /* Arguments that we must check if occur in the result type */
+        local_ctx lctx;
+        while (is_pi(type)) {
+            expr fvar = lctx.mk_local_decl(m_ngen, binding_name(type), binding_domain(type), binding_info(type));
+            if (i >= m_num_params) {
+                expr s = type_checker(m_env, lctx).ensure_type(binding_domain(type));
+                if (!is_zero(sort_level(s))) {
+                    /* Current argument is not in Prop (i.e., condition 1 failed).
+                       We save it in to_check to be able to try condition 2 above. */
+                    to_check.push_back(fvar);
+                }
+            }
+            type = instantiate(binding_body(type), fvar);
+            i++;
+        }
+        buffer<expr> result_args;
+        get_app_args(type, result_args);
+        /* Check condition 2: every argument in to_check must occur in result_args */
+        for (expr const & arg : to_check) {
+            if (std::find(result_args.begin(), result_args.end(), arg) == result_args.end())
+                return true; /* Condition 2 failed */
+        }
+        return false;
+    }
+
+    /** \brief Initialize m_elim_level. */
+    void init_elim_level() {
+        if (elim_only_at_universe_zero()) {
+            m_elim_level = mk_level_zero();
+        } else {
+            name u("u");
+            int i = 1;
+            while (std::find(m_level_params.begin(), m_level_params.end(), u) != m_level_params.end()) {
+                u = name("u").append_after(i);
+                i++;
+            }
+            m_elim_level = mk_param_univ(u);
+        }
+        std::cout << ">> elim_level: " << m_elim_level << "\n";
+    }
+
     void check_constructor(constructor const & cnstr, unsigned /* decl_idx */) {
         check_no_metavar_no_fvar(m_env, cnstr.m_name, cnstr.m_type);
         type_checker(m_env).check(cnstr.m_type, m_level_params);
@@ -129,6 +227,8 @@ public:
         dump();
         check_inductive_types();
         declare_inductive_types();
+        init_elim_level();
+
         return m_env;
     }
 };

@@ -108,6 +108,8 @@ class expr_eq_fn {
                 (!CompareBinderInfo || let_name(a) == let_name(b));
         case expr_kind::Sort:
             return sort_level(a) == sort_level(b);
+
+
         case expr_kind::Macro:
             check_system();
             if (macro_def(a) != macro_def(b) || macro_num_args(a) != macro_num_args(b))
@@ -117,6 +119,10 @@ class expr_eq_fn {
                     return false;
             }
             return true;
+        case expr_kind::Quote:
+            /* Hack: we do *not* compare m_value's because quoted expressions may contain
+               relevant position information that is ignored by the equality predicate for expressions. */
+            return a.raw() == b.raw();
         }
         lean_unreachable(); // LCOV_EXCL_LINE
     }

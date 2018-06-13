@@ -117,7 +117,7 @@ class normalize_fn {
         e = m_ctx.whnf(e);
         switch (e.kind()) {
         case expr_kind::BVar: case expr_kind::Constant: case expr_kind::Sort:
-        case expr_kind::Meta: case expr_kind::FVar: case expr_kind::Macro:
+        case expr_kind::Meta: case expr_kind::FVar:
             return e;
         case expr_kind::Lambda: {
             e = normalize_binding(e);
@@ -133,6 +133,10 @@ class normalize_fn {
         case expr_kind::Let:
             // whnf unfolds let-exprs
             lean_unreachable();
+
+        case expr_kind::Macro:
+        case expr_kind::Quote:
+            return e;
         }
         lean_unreachable(); // LCOV_EXCL_LINE
     }

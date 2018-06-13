@@ -653,9 +653,6 @@ simp_result simplify_core_fn::visit(expr const & e, optional<expr> const & paren
             new_result = curr_result;
             new_result.update(m_ctx.instantiate_mvars(new_result.get_new()));
             break;
-        case expr_kind::Macro:
-            new_result = join(curr_result, visit_macro(curr_result.get_new()));
-            break;
         case expr_kind::BVar:
             lean_unreachable();
         case expr_kind::Lambda:
@@ -669,6 +666,13 @@ simp_result simplify_core_fn::visit(expr const & e, optional<expr> const & paren
             break;
         case expr_kind::Let:
             new_result = join(curr_result, visit_let(curr_result.get_new()));
+            break;
+
+        case expr_kind::Macro:
+            new_result = join(curr_result, visit_macro(curr_result.get_new()));
+            break;
+        case expr_kind::Quote:
+            new_result = curr_result;
             break;
         }
 

@@ -227,11 +227,20 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
         r = mk_sort(mk_succ(sort_level(e)));
         break;
     case expr_kind::Constant:  r = infer_constant(e, infer_only);       break;
-    case expr_kind::Macro:     r = infer_macro(e, infer_only);          break;
     case expr_kind::Lambda:    r = infer_lambda(e, infer_only);         break;
     case expr_kind::Pi:        r = infer_pi(e, infer_only);             break;
     case expr_kind::App:       r = infer_app(e, infer_only);            break;
     case expr_kind::Let:       r = infer_let(e, infer_only);            break;
+
+    case expr_kind::Macro:     r = infer_macro(e, infer_only);          break;
+    case expr_kind::Quote:
+        if (quote_is_reflected(e)) {
+            expr type = infer_type_core(quote_value(e), true);
+            level u   = sort_level(ensure_sort_core(infer_type_core(type, true), e));
+            return mk_app(mk_constant(name("reflected"), {u}), type, quote_value(e));
+        } else {
+            return mk_constant(name("pexpr"));
+        }
     }
 
     if (m_memoize)
@@ -299,6 +308,9 @@ expr type_checker::whnf_core(expr const & e) {
         return whnf_fvar(e);
     case expr_kind::Macro: case expr_kind::App: case expr_kind::Let:
         break;
+
+    case expr_kind::Quote:
+        return e;
     }
 
     // check cache
@@ -314,6 +326,10 @@ expr type_checker::whnf_core(expr const & e) {
     case expr_kind::BVar:  case expr_kind::Sort: case expr_kind::Meta: case expr_kind::FVar:
     case expr_kind::Pi:   case expr_kind::Constant: case expr_kind::Lambda:
         lean_unreachable(); // LCOV_EXCL_LINE
+
+    case expr_kind::Quote:
+        lean_unreachable();
+
     case expr_kind::Macro:
         if (auto m = expand_macro(e))
             r = whnf_core(*m);
@@ -404,6 +420,9 @@ expr type_checker::whnf(expr const & e) {
     case expr_kind::Lambda:   case expr_kind::Macro: case expr_kind::App:
     case expr_kind::Constant: case expr_kind::Let:
         break;
+
+    case expr_kind::Quote:
+        return e;
     }
 
     // check cache
@@ -499,6 +518,9 @@ lbool type_checker::quick_is_def_eq(expr const & t, expr const & s, bool use_has
         case expr_kind::Constant: case expr_kind::Macro: case expr_kind::Let:
             // We do not handle these cases in this method.
             break;
+
+        case expr_kind::Quote:
+            return to_lbool(t.raw() == s.raw());
         }
     }
     return l_undef; // This is not an "easy case"

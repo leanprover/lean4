@@ -289,6 +289,10 @@ class vm_compiler_fn {
         }
     }
 
+    void compile_quote(expr const & e) {
+        emit(mk_expr_instr(quote_value(e)));
+    }
+
     void compile(expr const & e, unsigned bpz, name_map<unsigned> const & m) {
         switch (e.kind()) {
         case expr_kind::BVar:     lean_unreachable();
@@ -301,6 +305,7 @@ class vm_compiler_fn {
         case expr_kind::FVar:     compile_local(e, m);       break;
         case expr_kind::App:      compile_app(e, bpz, m);    break;
         case expr_kind::Let:      compile_let(e, bpz, m);    break;
+        case expr_kind::Quote:    compile_quote(e); break;
         }
     }
 

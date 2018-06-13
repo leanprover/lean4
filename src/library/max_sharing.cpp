@@ -90,7 +90,11 @@ struct max_sharing_fn::imp {
                 new_args.push_back(macro_arg(a, i));
             res = update_macro(a, new_args.size(), new_args.data());
             break;
-        }}
+        }
+        case expr_kind::Quote:
+            res = a;
+            break;
+        }
         m_expr_cache.insert(res);
         return res;
     }

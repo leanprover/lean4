@@ -1781,6 +1781,11 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
     case expr_kind::Pi:        return pp_pi(e);
     case expr_kind::Macro:     return pp_macro(e);
     case expr_kind::Let:       return pp_let(e);
+    case expr_kind::Quote:
+        if (quote_is_reflected(e))
+            return result(format("`(") + nest(4, pp(quote_value(e)).fmt()) + format(")"));
+        else
+            return result(format("``(") + nest(2, pp(quote_value(e)).fmt()) + format(")"));
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }

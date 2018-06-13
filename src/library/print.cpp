@@ -251,6 +251,10 @@ struct print_expr_fn {
         case expr_kind::Macro:
             print_macro(a);
             break;
+        case expr_kind::Quote:
+            out() << "quote " << quote_is_reflected(a) << " ";
+            print(quote_value(a));
+            break;
         }
     }
 

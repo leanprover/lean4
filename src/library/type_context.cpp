@@ -820,14 +820,6 @@ expr type_context_old::whnf_core(expr const & e0, bool proj_reduce) {
             }
         }
         return e;
-    case expr_kind::Macro:
-        if (auto m = expand_macro(e)) {
-            check_system("whnf");
-            e = *m;
-            continue;
-        } else {
-            return e;
-        }
     case expr_kind::Let:
         check_system("whnf");
         if (use_zeta()) {
@@ -882,7 +874,19 @@ expr type_context_old::whnf_core(expr const & e0, bool proj_reduce) {
             e = mk_rev_app(f, args.size(), args.data());
             continue;
         }
-    }}}
+    }
+
+    case expr_kind::Macro:
+        if (auto m = expand_macro(e)) {
+            check_system("whnf");
+            e = *m;
+            continue;
+        } else {
+            return e;
+        }
+    case expr_kind::Quote:
+        return e;
+    }}
 }
 
 expr type_context_old::whnf(expr const & e) {
@@ -1011,9 +1015,6 @@ expr type_context_old::infer_core(expr const & e) {
     case expr_kind::Constant:
         r = infer_constant(e);
         break;
-    case expr_kind::Macro:
-        r = infer_macro(e);
-        break;
     case expr_kind::Lambda:
         r = infer_lambda(e);
         break;
@@ -1026,6 +1027,17 @@ expr type_context_old::infer_core(expr const & e) {
     case expr_kind::Let:
         r = infer_let(e);
         break;
+
+    case expr_kind::Macro:
+        r = infer_macro(e);
+        break;
+    case expr_kind::Quote:
+        if (quote_is_reflected(e)) {
+            expr type = infer_core(quote_value(e));
+            return mk_app(mk_constant(get_reflected_name(), {get_level(type)}), type, quote_value(e));
+        } else {
+            return mk_constant(get_pexpr_name());
+        }
     }
 
     if ((!in_tmp_mode() || (!has_expr_metavar(e) && !has_expr_metavar(r))) &&
@@ -2704,10 +2716,16 @@ lbool type_context_old::quick_is_def_eq(expr const & e1, expr const & e2) {
             return to_lbool(is_def_eq(sort_level(e1), sort_level(e2)));
         case expr_kind::Meta:     case expr_kind::BVar:
         case expr_kind::FVar:     case expr_kind::App:
-        case expr_kind::Constant: case expr_kind::Macro:
+        case expr_kind::Constant:
         case expr_kind::Let:
             // We do not handle these cases in this method.
             break;
+
+        case expr_kind::Macro:
+            // We do not handle these cases in this method.
+            break;
+        case expr_kind::Quote:
+            return to_lbool(quote_is_reflected(e1) == quote_is_reflected(e2) && quote_value(e1) == quote_value(e2));
         }
     }
     return l_undef; // This is not an "easy case"
@@ -3326,8 +3344,6 @@ lbool type_context_old::is_quick_class(expr const & type, name & result) {
             return l_false;
         case expr_kind::Let:
             return l_undef;
-        case expr_kind::Macro:
-            return l_undef;
         case expr_kind::Constant:
             if (auto r = constant_is_class(*it)) {
                 result = *r;
@@ -3357,6 +3373,10 @@ lbool type_context_old::is_quick_class(expr const & type, name & result) {
         case expr_kind::Pi:
             it = &binding_body(*it);
             break;
+        case expr_kind::Macro:
+            return l_undef;
+        case expr_kind::Quote:
+            return l_false;
         }
     }
 }

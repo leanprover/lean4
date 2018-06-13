@@ -116,8 +116,6 @@ struct check_fn {
             return visit_constant(e);
         case expr_kind::BVar:
             lean_unreachable();  // LCOV_EXCL_LINE
-        case expr_kind::Macro:
-            return visit_macro(e);
         case expr_kind::Lambda:
             return visit_lambda(e);
         case expr_kind::Pi:
@@ -126,6 +124,10 @@ struct check_fn {
             return visit_app(e);
         case expr_kind::Let:
             return visit_let(e);
+        case expr_kind::Macro:
+            return visit_macro(e);
+        case expr_kind::Quote:
+            break; /* do nothing */
         }
     }
 

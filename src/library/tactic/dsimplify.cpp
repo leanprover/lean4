@@ -264,9 +264,6 @@ expr dsimplify_core_fn::visit(expr const & e) {
         case expr_kind::Meta:
             new_e = visit_meta(curr_e);
             break;
-        case expr_kind::Macro:
-            new_e = visit_macro(curr_e);
-            break;
         case expr_kind::Lambda:
         case expr_kind::Pi:
             new_e = visit_binding(curr_e);
@@ -276,6 +273,14 @@ expr dsimplify_core_fn::visit(expr const & e) {
             break;
         case expr_kind::Let:
             new_e = visit_let(curr_e);
+            break;
+
+
+        case expr_kind::Macro:
+            new_e = visit_macro(curr_e);
+            break;
+        case expr_kind::Quote:
+            new_e = curr_e;
             break;
         }
 

@@ -196,11 +196,17 @@ unsigned expr_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
         data.push_back(to_obj(let_value(e)));
         data.push_back(to_obj(let_body(e)));
         break;
-    case expr_kind::Macro:
+
+    case expr_kind::Macro: {
         data.push_back(to_obj(macro_def(e)));
         buffer<expr> args;
         args.append(macro_num_args(e), macro_args(e));
         data.push_back(to_obj(args));
+        break;
+    }
+    case expr_kind::Quote:
+        data.push_back(to_obj(quote_is_reflected(e)));
+        data.push_back(to_obj(quote_value(e)));
         break;
     }
     return static_cast<unsigned>(e.kind());

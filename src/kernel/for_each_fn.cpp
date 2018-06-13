@@ -95,14 +95,6 @@ class for_each_fn {
             case expr_kind::Meta:
                 todo.emplace_back(mlocal_type(e), offset);
                 goto begin_loop;
-            case expr_kind::Macro: {
-                unsigned i = macro_num_args(e);
-                while (i > 0) {
-                    --i;
-                    todo.emplace_back(macro_arg(e, i), offset);
-                }
-                goto begin_loop;
-            }
             case expr_kind::App:
                 todo.emplace_back(app_arg(e), offset);
                 todo.emplace_back(app_fn(e), offset);
@@ -115,6 +107,16 @@ class for_each_fn {
                 todo.emplace_back(let_body(e), offset + 1);
                 todo.emplace_back(let_value(e), offset);
                 todo.emplace_back(let_type(e), offset);
+                goto begin_loop;
+            case expr_kind::Macro: {
+                unsigned i = macro_num_args(e);
+                while (i > 0) {
+                    --i;
+                    todo.emplace_back(macro_arg(e, i), offset);
+                }
+                goto begin_loop;
+            }
+            case expr_kind::Quote:
                 goto begin_loop;
             }
         }

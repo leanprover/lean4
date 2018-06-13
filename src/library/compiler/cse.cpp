@@ -56,7 +56,8 @@ class cse_fn : public compiler_step_visitor {
             case expr_kind::Macro:    visit_macro(e); break;
             case expr_kind::App:      visit_app(e); break;
             case expr_kind::Let:      visit_let(e); break;
-            default: break;
+            case expr_kind::Quote:
+                break;
             }
         }
     public:

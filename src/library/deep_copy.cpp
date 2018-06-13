@@ -21,6 +21,7 @@ expr copy(expr const & a) {
     case expr_kind::Meta:     return mk_metavar(mlocal_name(a), mlocal_pp_name(a), mlocal_type(a));
     case expr_kind::FVar:     return mk_local(mlocal_name(a), mlocal_pp_name(a), mlocal_type(a), local_info(a));
     case expr_kind::Let:      return mk_let(let_name(a), let_type(a), let_value(a), let_body(a));
+    case expr_kind::Quote:    return mk_quote(quote_is_reflected(a), quote_value(a));
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }

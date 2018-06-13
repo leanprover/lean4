@@ -83,10 +83,6 @@ void collect_locals(expr const & e, collected_locals & ls, bool restricted) {
             lean_assert(!restricted);
             visit(mlocal_type(e));
             break;
-        case expr_kind::Macro:
-            for (unsigned i = 0; i < macro_num_args(e); i++)
-                visit(macro_arg(e, i));
-            break;
         case expr_kind::App:
             visit(app_fn(e));
             visit(app_arg(e));
@@ -101,6 +97,14 @@ void collect_locals(expr const & e, collected_locals & ls, bool restricted) {
             visit(let_value(e));
             visit(let_body(e));
             break;
+
+        case expr_kind::Macro:
+            for (unsigned i = 0; i < macro_num_args(e); i++)
+                visit(macro_arg(e, i));
+            break;
+        case expr_kind::Quote:
+            break; // do nothing
+
         }
     };
     visit(e);

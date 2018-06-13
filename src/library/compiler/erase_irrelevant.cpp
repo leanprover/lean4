@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "library/normalize.h"
 #include "library/inverse.h"
 #include "library/aux_recursors.h"
-#include "library/quote.h"
 #include "library/inductive_compiler/ginductive.h"
 #include "library/compiler/util.h"
 #include "library/compiler/nat_value.h"

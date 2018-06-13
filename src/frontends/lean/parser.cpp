@@ -309,6 +309,12 @@ expr parser::copy_with_new_pos(expr const & e, pos_info p) {
                 args.push_back(copy_with_new_pos(macro_arg(e, i), p));
             return save_pos(::lean::mk_macro(macro_def(e), args.size(), args.data()), p);
         }
+    case expr_kind::Quote:
+        if (is_pexpr_quote(e)) {
+            return save_pos(mk_pexpr_quote(copy_with_new_pos(get_pexpr_quote_value(e), p)), p);
+        } else {
+            return save_pos(e, p);
+        }
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
@@ -1719,43 +1725,45 @@ struct to_pattern_fn {
 
 static expr quote(expr const & e) {
     switch (e.kind()) {
-        case expr_kind::BVar:
-            return mk_app(mk_constant({"expr", "bvar"}), quote(var_idx(e)));
-        case expr_kind::Sort:
-            return mk_app(mk_constant({"expr", "sort"}), mk_expr_placeholder());
-        case expr_kind::Constant:
-            return mk_app(mk_constant({"expr", "const"}), quote(const_name(e)), mk_expr_placeholder());
-        case expr_kind::Meta:
+    case expr_kind::BVar:
+        return mk_app(mk_constant({"expr", "bvar"}), quote(var_idx(e)));
+    case expr_kind::Sort:
+        return mk_app(mk_constant({"expr", "sort"}), mk_expr_placeholder());
+    case expr_kind::Constant:
+        return mk_app(mk_constant({"expr", "const"}), quote(const_name(e)), mk_expr_placeholder());
+    case expr_kind::Meta:
+        return mk_expr_placeholder();
+    case expr_kind::FVar:
+        throw elaborator_exception(e, sstream() << "invalid quotation, unexpected local constant '"
+                                   << mlocal_pp_name(e) << "'");
+    case expr_kind::App:
+        if (is_metavar_app(e)) {
+            /* Remark: metavariable applications of the form `?m x1 ... xn` may be introduced
+               by type_context::elim_mvar_deps when we create lambda/pi-expressions. */
             return mk_expr_placeholder();
-        case expr_kind::FVar:
-            throw elaborator_exception(e, sstream() << "invalid quotation, unexpected local constant '"
-                                                    << mlocal_pp_name(e) << "'");
-        case expr_kind::App:
-            if (is_metavar_app(e)) {
-                /* Remark: metavariable applications of the form `?m x1 ... xn` may be introduced
-                   by type_context::elim_mvar_deps when we create lambda/pi-expressions. */
-                return mk_expr_placeholder();
-            } else {
-                return mk_app(mk_constant({"expr", "app"}), quote(app_fn(e)), quote(app_arg(e)));
-            }
-        case expr_kind::Lambda:
-            return mk_app(mk_constant({"expr", "lam"}), mk_expr_placeholder(), mk_expr_placeholder(),
-                          quote(binding_domain(e)), quote(binding_body(e)));
-        case expr_kind::Pi:
-            return mk_app(mk_constant({"expr", "pi"}), mk_expr_placeholder(), mk_expr_placeholder(),
-                          quote(binding_domain(e)), quote(binding_body(e)));
-        case expr_kind::Let:
-            return mk_app(mk_constant({"expr", "elet"}), mk_expr_placeholder(), quote(let_type(e)),
-                          quote(let_value(e)), quote(let_body(e)));
-        case expr_kind::Macro:
-            if (is_antiquote(e))
-                return get_antiquote_expr(e);
-            if (is_typed_expr(e))
-                return mk_typed_expr(quote(get_typed_expr_expr(e)), quote(get_typed_expr_type(e)));
-            if (is_inaccessible(e))
-                return mk_expr_placeholder();
-            throw elaborator_exception(e, sstream() << "invalid quotation, unsupported macro '"
-                                                    << macro_def(e).get_name() << "'");
+        } else {
+            return mk_app(mk_constant({"expr", "app"}), quote(app_fn(e)), quote(app_arg(e)));
+        }
+    case expr_kind::Lambda:
+        return mk_app(mk_constant({"expr", "lam"}), mk_expr_placeholder(), mk_expr_placeholder(),
+                      quote(binding_domain(e)), quote(binding_body(e)));
+    case expr_kind::Pi:
+        return mk_app(mk_constant({"expr", "pi"}), mk_expr_placeholder(), mk_expr_placeholder(),
+                      quote(binding_domain(e)), quote(binding_body(e)));
+    case expr_kind::Let:
+        return mk_app(mk_constant({"expr", "elet"}), mk_expr_placeholder(), quote(let_type(e)),
+                      quote(let_value(e)), quote(let_body(e)));
+    case expr_kind::Macro:
+        if (is_antiquote(e))
+            return get_antiquote_expr(e);
+        if (is_typed_expr(e))
+            return mk_typed_expr(quote(get_typed_expr_expr(e)), quote(get_typed_expr_type(e)));
+        if (is_inaccessible(e))
+            return mk_expr_placeholder();
+        throw elaborator_exception(e, sstream() << "invalid quotation, unsupported macro '"
+                                   << macro_def(e).get_name() << "'");
+    case expr_kind::Quote:
+        throw elaborator_exception(e, sstream() << "invalid quotation, quote found");
     }
     lean_unreachable();
 }

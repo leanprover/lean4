@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 namespace lean {
 expr replace_visitor::visit_sort(expr const & e) { lean_assert(is_sort(e)); return e; }
 expr replace_visitor::visit_var(expr const & e) { lean_assert(is_var(e)); return e; }
+expr replace_visitor::visit_quote(expr const & e) { lean_assert(is_quote(e)); return e; }
 expr replace_visitor::visit_constant(expr const & e) { lean_assert(is_constant(e)); return e; }
 expr replace_visitor::visit_mlocal(expr const & e) {
     lean_assert(is_mlocal(e));
@@ -67,7 +68,6 @@ expr replace_visitor::visit(expr const & e) {
 
     switch (e.kind()) {
     case expr_kind::Sort:      return save_result(e, visit_sort(e), shared);
-    case expr_kind::Macro:     return save_result(e, visit_macro(e), shared);
     case expr_kind::Constant:  return save_result(e, visit_constant(e), shared);
     case expr_kind::BVar:      return save_result(e, visit_var(e), shared);
     case expr_kind::Meta:      return save_result(e, visit_meta(e), shared);
@@ -76,8 +76,10 @@ expr replace_visitor::visit(expr const & e) {
     case expr_kind::Lambda:    return save_result(e, visit_lambda(e), shared);
     case expr_kind::Pi:        return save_result(e, visit_pi(e), shared);
     case expr_kind::Let:       return save_result(e, visit_let(e), shared);
-    }
 
+    case expr_kind::Macro:     return save_result(e, visit_macro(e), shared);
+    case expr_kind::Quote:     return save_result(e, visit_quote(e), shared);
+    }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 }

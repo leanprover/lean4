@@ -118,11 +118,6 @@ struct structural_rec_fn {
             case expr_kind::FVar: case expr_kind::Constant:
             case expr_kind::Sort:
                 return true;
-            case expr_kind::Macro:
-                for (unsigned i = 0; i < macro_num_args(e); i++)
-                    if (!check_rhs(macro_arg(e, i)))
-                        return false;
-                return true;
             case expr_kind::App: {
                 buffer<expr> args;
                 expr const & fn = get_app_args(e, args);
@@ -171,6 +166,15 @@ struct structural_rec_fn {
                     type_context_old::tmp_locals locals(m_ctx);
                     return check_rhs(instantiate(binding_body(e), locals.push_local_from_binding(e)));
                 }
+
+
+            case expr_kind::Macro:
+                for (unsigned i = 0; i < macro_num_args(e); i++)
+                    if (!check_rhs(macro_arg(e, i)))
+                        return false;
+                return true;
+            case expr_kind::Quote:
+                return true;
             }
             lean_unreachable();
         }

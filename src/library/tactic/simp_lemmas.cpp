@@ -665,6 +665,8 @@ static bool is_permutation(expr const & lhs, expr const & rhs, unsigned offset, 
                 return false;
         }
         return true;
+    case expr_kind::Quote:
+        return lhs == rhs;
     }
     lean_unreachable();
 }

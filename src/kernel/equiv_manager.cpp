@@ -107,6 +107,11 @@ bool equiv_manager::is_equiv_core(expr const & a, expr const & b) {
         }
         result = true;
         break;
+    case expr_kind::Quote:
+        if (quote_is_reflected(a) != quote_is_reflected(b) || quote_value(a) != quote_value(b))
+            return false;
+        result = true;
+        break;
     }
     if (result)
         merge(r1, r2);

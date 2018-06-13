@@ -19,7 +19,6 @@ protected:
     cache   m_cache;
     expr save_result(expr const & e, expr && r, bool shared);
     virtual expr visit_sort(expr const &);
-    virtual expr visit_macro(expr const &);
     virtual expr visit_constant(expr const &);
     virtual expr visit_var(expr const &);
     virtual expr visit_mlocal(expr const &);
@@ -31,6 +30,9 @@ protected:
     virtual expr visit_pi(expr const &);
     virtual expr visit_let(expr const & e);
     virtual expr visit(expr const &);
+
+    virtual expr visit_macro(expr const &);
+    virtual expr visit_quote(expr const &);
 public:
     expr operator()(expr const & e) { return visit(e); }
     void clear() { m_cache.clear(); }

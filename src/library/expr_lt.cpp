@@ -69,6 +69,8 @@ bool is_lt(expr const & a, expr const & b, bool use_hash, local_context const * 
                 return is_lt(macro_arg(a, i), macro_arg(b, i), use_hash, lctx);
         }
         return false;
+    case expr_kind::Quote:
+        return quote_value(a) < quote_value(b);
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
@@ -179,6 +181,8 @@ bool is_lt_no_level_params(expr const & a, expr const & b) {
                 return false;
         }
         return false;
+    case expr_kind::Quote:
+        return quote_value(a) < quote_value(b);
     }
     lean_unreachable();
 }

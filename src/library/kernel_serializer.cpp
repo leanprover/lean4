@@ -84,13 +84,6 @@ class expr_serializer : public object_serializer<expr, expr_hash, is_bi_equal_pr
                 case expr_kind::Sort:
                     s << sort_level(a);
                     break;
-                case expr_kind::Macro:
-                    s << macro_num_args(a);
-                    for (unsigned i = 0; i < macro_num_args(a); i++) {
-                        write_core(macro_arg(a, i));
-                    }
-                    macro_def(a).write(s);
-                    break;
                 case expr_kind::App:
                     write_core(app_fn(a)); write_core(app_arg(a));
                     break;
@@ -111,6 +104,18 @@ class expr_serializer : public object_serializer<expr, expr_hash, is_bi_equal_pr
                     lean_assert(!mlocal_name(a).is_anonymous());
                     lean_assert(!mlocal_pp_name(a).is_anonymous());
                     s << mlocal_name(a) << mlocal_pp_name(a) << local_info(a); write_core(mlocal_type(a));
+                    break;
+
+                case expr_kind::Macro:
+                    s << macro_num_args(a);
+                    for (unsigned i = 0; i < macro_num_args(a); i++) {
+                        write_core(macro_arg(a, i));
+                    }
+                    macro_def(a).write(s);
+                    break;
+                case expr_kind::Quote:
+                    s << quote_is_reflected(a);
+                    write_core(quote_value(a));
                     break;
                 }
             });
@@ -146,14 +151,6 @@ public:
                 }
                 case expr_kind::Sort:
                     return mk_sort(read_level(d));
-                case expr_kind::Macro: {
-                    unsigned n = d.read_unsigned();
-                    buffer<expr> args;
-                    for (unsigned i = 0; i < n; i++) {
-                        args.push_back(read());
-                    }
-                    return read_macro_definition(d, args.size(), args.data());
-                }
                 case expr_kind::App: {
                     expr f = read();
                     return mk_app(f, read());
@@ -176,7 +173,22 @@ public:
                     name pp_n      = read_name(d);
                     binder_info bi = read_binder_info(d);
                     return mk_local(n, pp_n, read(), bi);
-                }}
+                }
+
+                case expr_kind::Macro: {
+                    unsigned n = d.read_unsigned();
+                    buffer<expr> args;
+                    for (unsigned i = 0; i < n; i++) {
+                        args.push_back(read());
+                    }
+                    return read_macro_definition(d, args.size(), args.data());
+                }
+                case expr_kind::Quote: {
+                    bool r = d.read_bool();
+                    expr v = read();
+                    return mk_quote(r, v);
+                }
+                }
                 throw corrupted_stream_exception(); // LCOV_EXCL_LINE
             });
     }

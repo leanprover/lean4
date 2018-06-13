@@ -25,6 +25,10 @@ namespace lean {
 static name * g_kernel_fresh = nullptr;
 static expr * g_dont_care    = nullptr;
 
+[[noreturn]] static void throw_found_quote(environment const & env) {
+    throw kernel_exception(env, "unexpected quoted expression");
+}
+
 optional<expr> old_type_checker::expand_macro(expr const & m) {
     lean_assert(is_macro(m));
     return macro_def(m).expand(m, *this);
@@ -227,6 +231,8 @@ expr old_type_checker::infer_type_core(expr const & e, bool infer_only) {
     case expr_kind::Pi:        r = infer_pi(e, infer_only);             break;
     case expr_kind::App:       r = infer_app(e, infer_only);            break;
     case expr_kind::Let:       r = infer_let(e, infer_only);            break;
+
+    case expr_kind::Quote: throw_found_quote(m_env);
     }
 
     if (m_memoize)
@@ -282,6 +288,7 @@ expr old_type_checker::whnf_core(expr const & e) {
         return e;
     case expr_kind::Macro: case expr_kind::App: case expr_kind::Let:
         break;
+    case expr_kind::Quote: throw_found_quote(m_env);
     }
 
     // check cache
@@ -331,6 +338,7 @@ expr old_type_checker::whnf_core(expr const & e) {
     case expr_kind::Let:
         r = whnf_core(instantiate(let_body(e), let_value(e)));
         break;
+    case expr_kind::Quote: throw_found_quote(m_env);
     }
 
     if (m_memoize)
@@ -385,6 +393,7 @@ expr old_type_checker::whnf(expr const & e) {
     case expr_kind::Lambda:   case expr_kind::Macro: case expr_kind::App:
     case expr_kind::Constant: case expr_kind::Let:
         break;
+    case expr_kind::Quote: throw_found_quote(m_env);
     }
 
     // check cache
@@ -479,6 +488,7 @@ lbool old_type_checker::quick_is_def_eq(expr const & t, expr const & s, bool use
         case expr_kind::Constant: case expr_kind::Macro: case expr_kind::Let:
             // We do not handle these cases in this method.
             break;
+        case expr_kind::Quote: throw_found_quote(m_env);
         }
     }
     return l_undef; // This is not an "easy case"

@@ -164,7 +164,10 @@ class replace_rec_fn2 {
                 for (unsigned i = 0; i < nargs; i++)
                     new_args.push_back(apply(macro_arg(e, i), offset));
                 return save_result(e, offset, copy_pos(e, update_macro(e, new_args.size(), new_args.data())), shared);
-            }}
+            }
+            case expr_kind::Quote:
+                return save_result(e, offset, e, shared);
+            }
             lean_unreachable();
         }
     }

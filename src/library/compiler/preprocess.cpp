@@ -16,7 +16,6 @@ Author: Leonardo de Moura
 #include "library/aux_recursors.h"
 #include "library/user_recursors.h"
 #include "library/util.h"
-#include "library/quote.h"
 #include "library/noncomputable.h"
 #include "library/context_cache.h"
 #include "library/module.h"

@@ -970,6 +970,8 @@ expr elaborator::visit_function(expr const & fn, bool has_args, optional<expr> c
     case expr_kind::Macro:     r = visit_macro(fn, expected_type, true); break;
     case expr_kind::Lambda:    r = visit_lambda(fn, expected_type); break;
     case expr_kind::Let:       r = visit_let(fn, expected_type); break;
+    case expr_kind::Quote:
+        throw elaborator_exception(ref, "invalid application, function expected");
     }
     save_identifier_info(r);
     if (has_args)
@@ -3654,6 +3656,8 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
                     return copy_pos(e, visit_app(e, expected_type));
                 case expr_kind::Let:
                     return copy_pos(e, visit_let(e, expected_type));
+                case expr_kind::Quote:
+                    return copy_pos(e, visit_expr_quote(e, expected_type));
             }
             lean_unreachable(); // LCOV_EXCL_LINE
         }

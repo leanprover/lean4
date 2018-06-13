@@ -120,7 +120,6 @@ class add_nested_inductive_decl_fn {
     expr mk_local_pp(name const & n, expr const & ty) { return mk_local(m_ngen.next(), n, ty, binder_info()); }
 
     // For sizeof
-    bool                          m_has_sizeof{false};
     local_context                 m_synth_lctx;
     buffer<expr>                  m_param_insts;
 

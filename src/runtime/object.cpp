@@ -189,6 +189,12 @@ object * string_append(object * s1, object * s2) {
     return r;
 }
 
+bool string_eq(object * s1, object * s2) {
+    if (string_size(s1) != string_size(s2))
+        return false;
+    return std::memcmp(c_str(s1), c_str(s2), string_size(s1)) == 0;
+}
+
 /* Natural numbers */
 
 object * nat_big_add(object * a1, object * a2) {

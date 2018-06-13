@@ -332,6 +332,8 @@ inline size_t string_len(object * o) { return to_string(o)->m_length; }
 inline size_t string_byte_size(object * o) { return sizeof(string_object) + string_capacity(o); } // NOLINT
 object * string_push(object * s, unsigned c);
 object * string_append(object * s1, object * s2);
+bool string_eq(object * s1, object * s2);
+inline bool string_ne(object * s1, object * s2) { return !string_eq(s1, s2); }
 
 /* Natural numbers */
 

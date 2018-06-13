@@ -144,7 +144,7 @@ static expr parse_mutual_definition(parser & p, buffer<name> & lp_names, buffer<
             }
             check_valid_end_of_equations(p);
         }
-        expr fn      = mk_local(mlocal_name(pre_fn), mlocal_pp_name(pre_fn), fn_type, mk_rec_info(true));
+        expr fn      = mk_local(mlocal_name(pre_fn), mlocal_pp_name(pre_fn), fn_type, mk_rec_info());
         fns.push_back(fn);
     }
     if (p.curr_is_token(get_with_tk()))
@@ -530,7 +530,7 @@ static std::tuple<expr, expr, name> parse_definition(parser & p, buffer<name> & 
         p.next();
         if (is_meta) {
             declaration_name_scope scope2("_main");
-            fn = mk_local(mlocal_name(fn), mlocal_pp_name(fn), mlocal_type(fn), mk_rec_info(true));
+            fn = mk_local(mlocal_name(fn), mlocal_pp_name(fn), mlocal_type(fn), mk_rec_info());
             p.add_local(fn);
             val = p.parse_expr();
             /* add fake equation */
@@ -545,7 +545,7 @@ static std::tuple<expr, expr, name> parse_definition(parser & p, buffer<name> & 
         if (is_abbrev)
             throw exception("invalid abbreviation, abbreviations should not be defined using pattern matching");
         declaration_name_scope scope2("_main");
-        fn = mk_local(mlocal_name(fn), mlocal_pp_name(fn), mlocal_type(fn), mk_rec_info(true));
+        fn = mk_local(mlocal_name(fn), mlocal_pp_name(fn), mlocal_type(fn), mk_rec_info());
         p.add_local(fn);
         buffer<expr> eqns;
         if (p.curr_is_token(get_period_tk())) {

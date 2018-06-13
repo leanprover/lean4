@@ -142,10 +142,6 @@ void expr_const::dealloc() {
     delete this;
 }
 
-unsigned binder_info::hash() const {
-    return (m_rec << 3) |  (m_implicit << 2) | (m_strict_implicit << 1) | m_inst_implicit;
-}
-
 // Expr metavariables and local variables
 expr_mlocal::expr_mlocal(bool is_meta, name const & n, name const & pp_n, expr const & t):
     expr_composite(is_meta ? expr_kind::Meta : expr_kind::FVar, n.hash(), is_meta || t.has_expr_metavar(), t.has_univ_metavar(),
@@ -214,14 +210,6 @@ void expr_app::dealloc(buffer<expr_cell*> & todelete) {
 }
 
 static unsigned dec(unsigned k) { return k == 0 ? 0 : k - 1; }
-
-bool operator==(binder_info const & i1, binder_info const & i2) {
-    return
-        i1.is_implicit() == i2.is_implicit() &&
-        i1.is_strict_implicit() == i2.is_strict_implicit() &&
-        i1.is_inst_implicit() == i2.is_inst_implicit() &&
-        i1.is_rec() == i2.is_rec();
-}
 
 // Expr binders (Lambda, Pi)
 expr_binding::expr_binding(expr_kind k, name const & n, expr const & t, expr const & b, binder_info const & i):

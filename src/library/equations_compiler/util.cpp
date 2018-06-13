@@ -144,7 +144,7 @@ unpack_eqns::unpack_eqns(type_context_old & ctx, expr const & e):
 }
 
 expr unpack_eqns::update_fn_type(unsigned fidx, expr const & type) {
-    expr new_fn = m_locals.push_local(mlocal_pp_name(m_fns[fidx]), type, mk_rec_info(true));
+    expr new_fn = m_locals.push_local(mlocal_pp_name(m_fns[fidx]), type, mk_rec_info());
     m_fns[fidx] = new_fn;
     return new_fn;
 }

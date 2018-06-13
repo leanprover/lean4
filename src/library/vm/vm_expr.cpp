@@ -91,7 +91,7 @@ binder_info to_binder_info(vm_obj const & o) {
     case 1:  return mk_implicit_binder_info();
     case 2:  return mk_strict_implicit_binder_info();
     case 3:  return mk_inst_implicit_binder_info();
-    default: return mk_rec_info(true);
+    default: return mk_rec_info();
     }
 }
 
@@ -205,7 +205,7 @@ unsigned expr_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
         break;
     }
     case expr_kind::Quote:
-        data.push_back(to_obj(quote_is_reflected(e)));
+        data.push_back(mk_vm_bool(quote_is_reflected(e)));
         data.push_back(to_obj(quote_value(e)));
         break;
     }

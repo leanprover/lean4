@@ -204,41 +204,38 @@ public:
     expr const & get_type() const { return m_type; }
 };
 
-/**
-   \brief Auxiliary annotation for binders (Lambda and Pi). This information
-   is only used for elaboration.
-*/
+/** \brief Auxiliary annotation for binders (Lambda and Pi). */
 class binder_info {
-    unsigned m_implicit:1;        //! if true, binder argument is an implicit argument
-    unsigned m_strict_implicit:1; //! if true, binder argument is assumed to be a strict implicit argument
-    /** \brief if m_inst_implicit is true, binder argument is an implicit argument, and should be
-        inferred by class-instance resolution. */
-    unsigned m_inst_implicit:1;
-    /** \brief Auxiliary internal attribute used to mark local constants representing recursive functions
-        in recursive equations. TODO(Leo): rename to eqn_decl since we also mark non recursive equations
-        (e.g., `match ... with ... end`) with this flag. */
-    unsigned m_rec:1;
+    enum kind { Default, Implicit, StrictImplicit, InstImplicit, Rec };
+    object * m_val;
+    binder_info(object * v):m_val(v) {}
 public:
-    binder_info(bool implicit = false, bool strict_implicit = false, bool inst_implicit = false, bool rec = false):
-        m_implicit(implicit), m_strict_implicit(strict_implicit), m_inst_implicit(inst_implicit), m_rec(rec) {}
-    bool is_implicit() const { return m_implicit; }
-    bool is_strict_implicit() const { return m_strict_implicit; }
-    bool is_inst_implicit() const { return m_inst_implicit; }
-    bool is_rec() const { return m_rec; }
-    unsigned hash() const;
+    binder_info():m_val(box(static_cast<unsigned>(Default))) {}
+    friend binder_info mk_implicit_binder_info();
+    friend binder_info mk_strict_implicit_binder_info();
+    friend binder_info mk_inst_implicit_binder_info();
+    friend binder_info mk_rec_info();
+    bool is_implicit() const { return unbox(m_val) == static_cast<unsigned>(Implicit); }
+    bool is_strict_implicit() const { return unbox(m_val) == static_cast<unsigned>(StrictImplicit); }
+    bool is_inst_implicit() const { return unbox(m_val) == static_cast<unsigned>(InstImplicit); }
+    bool is_rec() const { return unbox(m_val) == static_cast<unsigned>(Rec); }
+    unsigned hash() const { return unbox(m_val); }
+    friend bool operator==(binder_info const & i1, binder_info const & i2) { return i1.m_val == i2.m_val; }
+    friend bool operator!=(binder_info const & i1, binder_info const & i2) { return !(i1 == i2); }
+    friend binder_info read_binder_info(deserializer & d);
+    void serialize(serializer & s) const { s.write_object(m_val); }
 };
 
-inline binder_info mk_implicit_binder_info()        { return binder_info(true); }
-inline binder_info mk_strict_implicit_binder_info() { return binder_info(false, true); }
-inline binder_info mk_inst_implicit_binder_info()   { return binder_info(false, false, true); }
-inline binder_info mk_rec_info(bool f)              { return binder_info(false, false, false, f); }
-
+inline binder_info mk_implicit_binder_info() { return binder_info(box(static_cast<unsigned>(binder_info::Implicit))); }
+inline binder_info mk_strict_implicit_binder_info() { return binder_info(box(static_cast<unsigned>(binder_info::StrictImplicit))); }
+inline binder_info mk_inst_implicit_binder_info() { return binder_info(box(static_cast<unsigned>(binder_info::InstImplicit))); }
+inline binder_info mk_rec_info() { return binder_info(box(static_cast<unsigned>(binder_info::Rec))); }
 inline bool is_explicit(binder_info const & bi) {
     return !bi.is_implicit() && !bi.is_strict_implicit() && !bi.is_inst_implicit();
 }
-
-bool operator==(binder_info const & i1, binder_info const & i2);
-inline bool operator!=(binder_info const & i1, binder_info const & i2) { return !(i1 == i2); }
+inline serializer & operator<<(serializer & s, binder_info const & bi) { bi.serialize(s); return s; }
+inline binder_info read_binder_info(deserializer & d) { return binder_info(d.read_object()); }
+inline deserializer & operator>>(deserializer & d, binder_info & bi) { bi = read_binder_info(d); return d; }
 
 /** \brief Compute a hash code that takes binder_info into account.
     \remark This information is not cached like hash(). */

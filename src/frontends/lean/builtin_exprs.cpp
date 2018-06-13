@@ -184,7 +184,7 @@ static expr parse_let(parser & p, pos_info const & pos, bool in_do_block) {
             p.add_local(l);
         expr body  = parse_let_body(p, pos, in_do_block);
         match_definition_scope match_scope(p.env());
-        expr fn = p.save_pos(mk_local(p.next_name(), *g_let_match_name, mk_expr_placeholder(), mk_rec_info(true)), pos);
+        expr fn = p.save_pos(mk_local(p.next_name(), *g_let_match_name, mk_expr_placeholder(), mk_rec_info()), pos);
         expr eqn = Fun(fn, Fun(new_locals, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, lhs), pos), body), pos), p), p);
         equations_header h = mk_match_header(match_scope.get_name(), match_scope.get_actual_name());
         expr eqns  = p.save_pos(mk_equations(h, 1, &eqn), pos);
@@ -317,7 +317,7 @@ static expr parse_do(parser & p, bool has_braces) {
                 // must introduce a "fake" match
                 auto pos   = ps[i];
                 match_definition_scope match_scope(p.env());
-                expr fn = p.save_pos(mk_local(p.next_name(), *g_do_match_name, mk_expr_placeholder(), mk_rec_info(true)), pos);
+                expr fn = p.save_pos(mk_local(p.next_name(), *g_do_match_name, mk_expr_placeholder(), mk_rec_info()), pos);
                 buffer<expr> locals;
                 to_buffer(lhss_locals[i], locals);
                 buffer<expr> eqs;
@@ -745,7 +745,7 @@ static expr parse_lambda_constructor(parser & p, pos_info const & ini_pos) {
         body = parse_lambda_core(p, ini_pos);
     }
     match_definition_scope match_scope(p.env());
-    expr fn  = p.save_pos(mk_local(p.next_name(), *g_lambda_match_name, mk_expr_placeholder(), mk_rec_info(true)), pos);
+    expr fn  = p.save_pos(mk_local(p.next_name(), *g_lambda_match_name, mk_expr_placeholder(), mk_rec_info()), pos);
     expr eqn = Fun(fn, Fun(locals, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, pattern), pos), body), pos), p), p);
     equations_header h = mk_match_header(match_scope.get_name(), match_scope.get_actual_name());
     expr x = p.rec_save_pos(mk_local(p.next_name(), "_x", mk_expr_placeholder(), binder_info()), pos);

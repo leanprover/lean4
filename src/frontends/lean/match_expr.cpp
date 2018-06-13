@@ -36,9 +36,9 @@ expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
         if (p.curr_is_token(get_colon_tk())) {
             p.next();
             expr type = p.parse_expr();
-            fn = mk_local(p.next_name(), *g_match_name, type, mk_rec_info(true));
+            fn = mk_local(p.next_name(), *g_match_name, type, mk_rec_info());
         } else {
-            fn = mk_local(p.next_name(), *g_match_name, mk_expr_placeholder(), mk_rec_info(true));
+            fn = mk_local(p.next_name(), *g_match_name, mk_expr_placeholder(), mk_rec_info());
         }
 
         p.check_token_next(get_with_tk(), "invalid 'match' expression, 'with' expected");

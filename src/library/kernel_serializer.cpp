@@ -34,25 +34,6 @@ static expr read_macro_definition(deserializer & d, unsigned num, expr const * a
     return it->second(d, num, args);
 }
 
-serializer & operator<<(serializer & s, binder_info const & i) {
-    unsigned w =
-        (i.is_rec() ?             8 : 0) +
-        (i.is_implicit() ?        4 : 0) +
-        (i.is_strict_implicit() ? 2 : 0) +
-        (i.is_inst_implicit() ?   1 : 0);
-    s.write_char(w);
-    return s;
-}
-
-static binder_info read_binder_info(deserializer & d) {
-    unsigned w = d.read_char();
-    bool rec   = (w & 8) != 0;
-    bool imp   = (w & 4)  != 0;
-    bool s_imp = (w & 2)  != 0;
-    bool i_imp = (w & 1)  != 0;
-    return binder_info(imp, s_imp, i_imp, rec);
-}
-
 static name * g_binder_name = nullptr;
 
 class expr_serializer : public object_serializer<expr, expr_hash, is_bi_equal_proc> {

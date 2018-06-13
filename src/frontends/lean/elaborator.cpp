@@ -3657,7 +3657,10 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
                 case expr_kind::Let:
                     return copy_pos(e, visit_let(e, expected_type));
                 case expr_kind::Quote:
-                    return copy_pos(e, visit_expr_quote(e, expected_type));
+                    if (is_expr_quote(e))
+                        return copy_pos(e, visit_expr_quote(e, expected_type));
+                    else
+                        return e;
             }
             lean_unreachable(); // LCOV_EXCL_LINE
         }

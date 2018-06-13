@@ -149,7 +149,7 @@ bool name::eq_core(object * i1, object * i2) {
         if (cnstr_tag(i1) != cnstr_tag(i2))
             return false;
         if (static_cast<name_kind>(cnstr_tag(i1)) == name_kind::STRING) {
-            if (strcmp(get_string(i1), get_string(i2)) != 0)
+            if (string_ne(get_string_obj(i1), get_string_obj(i2)))
                 return false;
         } else {
             if (!nat_eq(get_num_obj(i1), get_num_obj(i2)))

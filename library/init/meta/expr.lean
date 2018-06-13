@@ -45,6 +45,7 @@ meta inductive expr
 | pi    : name → binder_info → expr → expr → expr
 | elet  : name → expr → expr → expr → expr
 | macro : macro_def → list expr → expr
+| quote : bool → expr → expr
 
 meta instance : inhabited expr :=
 ⟨expr.sort level.zero⟩
@@ -333,6 +334,7 @@ meta def to_raw_fmt : expr → format
 | (pi n bi e t) := p ["pi", to_fmt n, repr bi, to_raw_fmt e, to_raw_fmt t]
 | (elet n g e f) := p ["elet", to_fmt n, to_raw_fmt g, to_raw_fmt e, to_raw_fmt f]
 | (macro d args) := sbracket (format.join (list.intersperse " " ("macro" :: to_fmt (macro_def_name d) :: args.map to_raw_fmt)))
+| (quote b v) := p ["quote", to_fmt b, to_raw_fmt v]
 
 meta def mfold {α : Type} {m : Type → Type} [monad m] (e : expr) (a : α) (fn : expr → nat → α → m α) : m α :=
 fold e (return a) (λ e n a, a >>= fn e n)

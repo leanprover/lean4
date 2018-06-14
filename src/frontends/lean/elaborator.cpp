@@ -3640,7 +3640,13 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
                 case expr_kind::MVar:
                     return e;
                 case expr_kind::Lit:
-                    return visit_prenum(e, expected_type);
+                    switch (lit_value(e).kind()) {
+                    case literal_kind::Nat:
+                        return visit_prenum(e, expected_type);
+                    case literal_kind::String:
+                        return e;
+                    }
+                    lean_unreachable();
                 case expr_kind::Sort:
                     return copy_pos(e, visit_sort(e));
                 case expr_kind::FVar:

@@ -15,8 +15,6 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 
 namespace lean {
-static name * g_string_macro         = nullptr;
-static std::string * g_string_opcode = nullptr;
 static expr * g_nat                  = nullptr;
 static expr * g_char                 = nullptr;
 static expr * g_char_mk              = nullptr;
@@ -78,50 +76,15 @@ format pp_char_literal(unsigned c) {
     return format(out.str());
 }
 
-/** \brief The string macro is a compact way of encoding strings inside Lean expressions. */
-class string_macro : public macro_definition_cell {
-    std::string m_value;
-public:
-    string_macro(std::string const & v):m_value(v) {}
-    virtual bool lt(macro_definition_cell const & d) const {
-        return m_value < static_cast<string_macro const &>(d).m_value;
-    }
-    virtual name get_name() const { return *g_string_macro; }
-    virtual expr check_type(expr const &, abstract_type_context &, bool) const {
-        return *g_string;
-    }
-    virtual optional<expr> expand(expr const &, abstract_type_context &) const {
-        return some_expr(from_string_core(m_value));
-    }
-    virtual unsigned trust_level() const { return 0; }
-    virtual bool operator==(macro_definition_cell const & other) const {
-        string_macro const * other_ptr = dynamic_cast<string_macro const *>(&other);
-        return other_ptr && m_value == other_ptr->m_value;
-    }
-    virtual void display(std::ostream & out) const {
-        display_string_literal(out, m_value);
-    }
-    virtual unsigned hash() const { return std::hash<std::string>()(m_value); }
-    virtual void write(serializer & s) const { s << *g_string_opcode << m_value; }
-    std::string const & get_value() const { return m_value; }
-};
-
-expr mk_string_macro(std::string const & v) {
-    return mk_macro(macro_definition(new string_macro(v)));
+expr mk_string_literal(std::string const & v) {
+    return mk_lit(literal(v.c_str()));
 }
 
-bool is_string_macro(expr const & e) {
-    return is_macro(e) && dynamic_cast<string_macro const *>(macro_def(e).raw()) != nullptr;
-}
-
-string_macro const & to_string_macro(expr const & e) {
-    lean_assert(is_string_macro(e));
-    return *static_cast<string_macro const *>(macro_def(e).raw());
+bool is_string_literal(expr const & e) {
+    return is_lit(e) && lit_value(e).kind() == literal_kind::String;
 }
 
 void initialize_string() {
-    g_string_macro    = new name("string_macro");
-    g_string_opcode   = new std::string("Str");
     g_nat             = new expr(Const(get_nat_name()));
     g_char            = new expr(Const(get_char_name()));
     g_char_mk         = new expr(Const(get_char_mk_name()));
@@ -130,18 +93,11 @@ void initialize_string() {
     g_empty           = new expr(Const(get_string_empty_name()));
     g_str             = new expr(Const(get_string_str_name()));
     g_fin_mk          = new expr(Const(get_fin_mk_name()));
-    register_macro_deserializer(*g_string_opcode,
-                                [](deserializer & d, unsigned num, expr const *) {
-                                    if (num != 0)
-                                        throw corrupted_stream_exception();
-                                    std::string v = d.read_string();
-                                    return mk_string_macro(v);
-                                });
 }
 
-optional<expr> expand_string_macro(expr const & e) {
-    if (!is_string_macro(e)) return none_expr();
-    return some_expr(from_string_core(to_string_macro(e).get_value()));
+optional<expr> expand_string_literal(expr const & e) {
+    if (!is_string_literal(e)) return none_expr();
+    return some_expr(from_string_core(lit_value(e).get_string_value()));
 }
 
 void finalize_string() {
@@ -152,8 +108,6 @@ void finalize_string() {
     delete g_char_of_nat;
     delete g_char;
     delete g_char_mk;
-    delete g_string_opcode;
-    delete g_string_macro;
     delete g_fin_mk;
 }
 
@@ -170,7 +124,7 @@ expr from_string_core(std::string const & s) {
 }
 
 expr from_string(std::string const & s) {
-    return mk_string_macro(s);
+    return mk_string_literal(s);
 }
 
 optional<unsigned> to_char_core(expr const & e) {
@@ -226,8 +180,8 @@ static bool append_char(expr const & e, std::string & r) {
 bool to_string_core(expr const & e, std::string & r) {
     if (e == *g_empty) {
         return true;
-    } else if (is_string_macro(e)) {
-        r = to_string_macro(e).get_value();
+    } else if (is_string_literal(e)) {
+        r = lit_value(e).get_string_value();
         return true;
     } else {
         buffer<expr> args;
@@ -241,8 +195,8 @@ bool to_string_core(expr const & e, std::string & r) {
 }
 
 optional<std::string> to_string(expr const & e) {
-    if (is_string_macro(e)) {
-        return optional<std::string>(to_string_macro(e).get_value());
+    if (is_string_literal(e)) {
+        return optional<std::string>(std::string(lit_value(e).get_string_value()));
     } else {
         std::string tmp;
         if (to_string_core(e, tmp)) {

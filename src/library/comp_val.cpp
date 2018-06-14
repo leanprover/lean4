@@ -183,9 +183,9 @@ static bool is_string_empty(expr const & e) {
 }
 
 optional<expr> mk_string_val_ne_proof(expr a, expr b) {
-    if (auto new_a = expand_string_macro(a))
+    if (auto new_a = expand_string_literal(a))
         a = *new_a;
-    if (auto new_b = expand_string_macro(b))
+    if (auto new_b = expand_string_literal(b))
         b = *new_b;
     expr c_a, s_a;
     expr c_b, s_b;

@@ -18,9 +18,9 @@ expr from_string(std::string const & s);
 optional<std::string> to_string(expr const & e);
 bool is_string_value(expr const & e);
 
-bool is_string_macro(expr const & e);
-/** \brief Expand string macro if 'e' is a string macro */
-optional<expr> expand_string_macro(expr const & e);
+bool is_string_literal(expr const & e);
+/** \brief Expand string literal if 'e' is a string literal */
+optional<expr> expand_string_literal(expr const & e);
 
 optional<unsigned> to_char_core(expr const & e);
 bool is_char_value_core(expr const & e);

@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
 #include "library/util.h"
+#include "library/string.h"
 #include "library/constants.h"
 #include "library/normalize.h"
 #include "library/inverse.h"
@@ -56,6 +57,13 @@ class erase_irrelevant_fn : public compiler_step_visitor {
         } catch (exception &) {
             return false;
         }
+    }
+
+    virtual expr visit_lit(expr const & e) override {
+        if (is_string_literal(e))
+            return visit(*expand_string_literal(e));
+        else
+            return e;
     }
 
     virtual expr visit_macro(expr const & e) override {

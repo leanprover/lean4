@@ -56,7 +56,7 @@ bool is_lt(expr const & a, expr const & b, bool use_hash, local_context const * 
                 return d1->get_idx() < d2->get_idx();
         }
         /* fall-thru */
-    case expr_kind::Meta:
+    case expr_kind::MVar:
         if (mlocal_name(a) != mlocal_name(b))
             return mlocal_name(a) < mlocal_name(b);
         else
@@ -168,7 +168,7 @@ bool is_lt_no_level_params(expr const & a, expr const & b) {
             return is_lt_no_level_params(let_body(a), let_body(b));
     case expr_kind::Sort:
         return is_lt_no_level_params(sort_level(a), sort_level(b));
-    case expr_kind::FVar: case expr_kind::Meta:
+    case expr_kind::FVar: case expr_kind::MVar:
         if (mlocal_name(a) != mlocal_name(b))
             return mlocal_name(a) < mlocal_name(b);
         else

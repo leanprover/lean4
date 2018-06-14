@@ -630,7 +630,7 @@ static bool is_permutation(expr const & lhs, expr const & rhs, unsigned offset, 
         return false;
     switch (lhs.kind()) {
     case expr_kind::Constant: case expr_kind::Sort:
-    case expr_kind::Meta: case expr_kind::FVar: case expr_kind::Lit:
+    case expr_kind::MVar:     case expr_kind::FVar: case expr_kind::Lit:
         return lhs == rhs;
     case expr_kind::BVar:
         if (var_idx(lhs) < offset) {

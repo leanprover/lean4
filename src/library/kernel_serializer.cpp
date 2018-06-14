@@ -80,7 +80,7 @@ class expr_serializer : public object_serializer<expr, expr_hash, is_bi_equal_pr
                     s << let_name(a);
                     write_core(let_type(a)); write_core(let_value(a)); write_core(let_body(a));
                     break;
-                case expr_kind::Meta:
+                case expr_kind::MVar:
                     lean_assert(!mlocal_name(a).is_anonymous());
                     s << mlocal_name(a) << mlocal_pp_name(a); write_core(mlocal_type(a));
                     break;
@@ -149,7 +149,7 @@ public:
                     expr v = read();
                     return mk_let(n, t, v, read());
                 }
-                case expr_kind::Meta: {
+                case expr_kind::MVar: {
                     name n    = read_name(d);
                     name pp_n = read_name(d);
                     return mk_metavar(n, pp_n, read());

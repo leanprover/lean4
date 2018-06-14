@@ -960,7 +960,7 @@ expr elaborator::visit_function(expr const & fn, bool has_args, optional<expr> c
     switch (fn.kind()) {
     case expr_kind::BVar:
     case expr_kind::Pi:
-    case expr_kind::Meta:
+    case expr_kind::MVar:
     case expr_kind::Sort:
     case expr_kind::Lit:
         throw elaborator_exception(ref, "invalid application, function expected");
@@ -3639,7 +3639,7 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
         } else {
             switch (e.kind()) {
                 case expr_kind::BVar: lean_unreachable();  // LCOV_EXCL_LINE
-                case expr_kind::Meta:
+                case expr_kind::MVar:
                     return e;
                 case expr_kind::Lit:
                     return e;

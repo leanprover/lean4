@@ -572,7 +572,7 @@ class add_nested_inductive_decl_fn {
             return _e;
         }
         case expr_kind::BVar:
-        case expr_kind::Meta:
+        case expr_kind::MVar:
         case expr_kind::Let:
             lean_unreachable();
         }
@@ -628,7 +628,7 @@ class add_nested_inductive_decl_fn {
             return _e;
         }
         case expr_kind::BVar:
-        case expr_kind::Meta:
+        case expr_kind::MVar:
         case expr_kind::Let:
             lean_unreachable();
         }

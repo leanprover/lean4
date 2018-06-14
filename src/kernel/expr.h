@@ -34,7 +34,7 @@ class expr;
           |   FVar          name
           |   Sort          level
           |   Constant      name [levels]
-          |   Meta          name expr
+          |   MVar          name expr
           |   App           expr expr
           |   Lambda        name expr expr
           |   Pi            name expr expr
@@ -46,7 +46,7 @@ class expr;
           |   Quote         bool expr
           |   Macro         macro
 */
-enum class expr_kind { BVar, FVar, Sort, Constant, Meta, App, Lambda, Pi, Let, Lit, Macro, Quote };
+enum class expr_kind { BVar, FVar, Sort, Constant, MVar, App, Lambda, Pi, Let, Lit, Macro, Quote };
 class expr_cell {
 protected:
     // The bits of the following field mean:
@@ -371,7 +371,7 @@ public:
 inline bool is_bvar(expr_ptr e)        { return e->kind() == expr_kind::BVar; }
 inline bool is_fvar(expr_ptr e)        { return e->kind() == expr_kind::FVar; }
 inline bool is_constant(expr_ptr e)    { return e->kind() == expr_kind::Constant; }
-inline bool is_metavar(expr_ptr e)     { return e->kind() == expr_kind::Meta; }
+inline bool is_metavar(expr_ptr e)     { return e->kind() == expr_kind::MVar; }
 inline bool is_app(expr_ptr e)         { return e->kind() == expr_kind::App; }
 inline bool is_lambda(expr_ptr e)      { return e->kind() == expr_kind::Lambda; }
 inline bool is_pi(expr_ptr e)          { return e->kind() == expr_kind::Pi; }

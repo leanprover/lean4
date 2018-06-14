@@ -220,7 +220,7 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
     switch (e.kind()) {
     case expr_kind::Lit:       r = lit_type(e);    break;
     case expr_kind::FVar:      r = infer_fvar(e);  break;
-    case expr_kind::Meta:      r = mlocal_type(e); break;
+    case expr_kind::MVar:      r = mlocal_type(e); break;
     case expr_kind::BVar:
         lean_unreachable();  // LCOV_EXCL_LINE
     case expr_kind::Sort:
@@ -302,7 +302,7 @@ expr type_checker::whnf_core(expr const & e) {
 
     // handle easy cases
     switch (e.kind()) {
-    case expr_kind::BVar: case expr_kind::Sort: case expr_kind::Meta:
+    case expr_kind::BVar: case expr_kind::Sort:     case expr_kind::MVar:
     case expr_kind::Pi:   case expr_kind::Constant: case expr_kind::Lambda:
     case expr_kind::Lit:
         return e;
@@ -325,7 +325,7 @@ expr type_checker::whnf_core(expr const & e) {
     // do the actual work
     expr r;
     switch (e.kind()) {
-    case expr_kind::BVar:  case expr_kind::Sort: case expr_kind::Meta: case expr_kind::FVar:
+    case expr_kind::BVar:  case expr_kind::Sort:    case expr_kind::MVar: case expr_kind::FVar:
     case expr_kind::Pi:   case expr_kind::Constant: case expr_kind::Lambda:
     case expr_kind::Lit:
         lean_unreachable(); // LCOV_EXCL_LINE
@@ -416,7 +416,7 @@ optional<expr> type_checker::unfold_definition(expr const & e) {
 expr type_checker::whnf(expr const & e) {
     // Do not cache easy cases
     switch (e.kind()) {
-    case expr_kind::BVar: case expr_kind::Sort: case expr_kind::Meta: case expr_kind::Pi:
+    case expr_kind::BVar: case expr_kind::Sort: case expr_kind::MVar: case expr_kind::Pi:
     case expr_kind::Lit:
         return e;
     case expr_kind::FVar:
@@ -516,7 +516,7 @@ lbool type_checker::quick_is_def_eq(expr const & t, expr const & s, bool use_has
             return to_lbool(is_def_eq_binding(t, s));
         case expr_kind::Sort:
             return to_lbool(is_def_eq(sort_level(t), sort_level(s)));
-        case expr_kind::Meta:
+        case expr_kind::MVar:
             lean_unreachable(); // LCOV_EXCL_LINE
         case expr_kind::BVar:      case expr_kind::FVar: case expr_kind::App:
         case expr_kind::Constant: case expr_kind::Macro: case expr_kind::Let:

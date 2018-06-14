@@ -216,7 +216,7 @@ struct print_expr_fn {
 
     void print(expr const & a) {
         switch (a.kind()) {
-        case expr_kind::Meta:
+        case expr_kind::MVar:
             out() << "?" << fix_name(mlocal_name(a));
             break;
         case expr_kind::FVar:

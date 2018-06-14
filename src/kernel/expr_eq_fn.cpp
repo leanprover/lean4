@@ -78,7 +78,7 @@ class expr_eq_fn {
             return
                 const_name(a) == const_name(b) &&
                 compare(const_levels(a), const_levels(b), [](level const & l1, level const & l2) { return l1 == l2; });
-        case expr_kind::Meta:
+        case expr_kind::MVar:
             return
                 mlocal_name(a) == mlocal_name(b) &&
                 apply(mlocal_type(a), mlocal_type(b)) &&

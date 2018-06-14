@@ -262,7 +262,7 @@ expr dsimplify_core_fn::visit(expr const & e) {
             break;
         case expr_kind::BVar:
             lean_unreachable();
-        case expr_kind::Meta:
+        case expr_kind::MVar:
             new_e = visit_meta(curr_e);
             break;
         case expr_kind::Lambda:

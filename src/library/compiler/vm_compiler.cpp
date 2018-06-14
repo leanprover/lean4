@@ -308,7 +308,7 @@ class vm_compiler_fn {
         switch (e.kind()) {
         case expr_kind::BVar:     lean_unreachable();
         case expr_kind::Sort:     lean_unreachable();
-        case expr_kind::Meta:     lean_unreachable();
+        case expr_kind::MVar:     lean_unreachable();
         case expr_kind::Pi:       lean_unreachable();
         case expr_kind::Lambda:   lean_unreachable();
         case expr_kind::Macro:    compile_macro(e, bpz, m);  break;

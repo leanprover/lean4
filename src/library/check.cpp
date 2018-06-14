@@ -109,7 +109,7 @@ struct check_fn {
         m_visited.insert(e);
         switch (e.kind()) {
         case expr_kind::FVar:
-        case expr_kind::Meta:
+        case expr_kind::MVar:
         case expr_kind::Sort:
         case expr_kind::Lit:
             break; /* do nothing */

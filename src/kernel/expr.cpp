@@ -147,7 +147,7 @@ void expr_const::dealloc() {
 
 // Expr metavariables and local variables
 expr_mlocal::expr_mlocal(bool is_meta, name const & n, name const & pp_n, expr const & t):
-    expr_composite(is_meta ? expr_kind::Meta : expr_kind::FVar, n.hash(), is_meta || t.has_expr_metavar(), t.has_univ_metavar(),
+    expr_composite(is_meta ? expr_kind::MVar : expr_kind::FVar, n.hash(), is_meta || t.has_expr_metavar(), t.has_univ_metavar(),
                    !is_meta || t.has_fvar(), t.has_param_univ(),
                    1, get_loose_bvar_range(t)),
     m_name(n),
@@ -399,7 +399,7 @@ void expr_cell::dealloc() {
             switch (it->kind()) {
             case expr_kind::Lit:        static_cast<expr_lit*>(it)->dealloc(); break;
             case expr_kind::BVar:       static_cast<expr_bvar*>(it)->dealloc(); break;
-            case expr_kind::Meta:       static_cast<expr_mlocal*>(it)->dealloc(todo); break;
+            case expr_kind::MVar:       static_cast<expr_mlocal*>(it)->dealloc(todo); break;
             case expr_kind::FVar:       static_cast<expr_fvar*>(it)->dealloc(todo); break;
             case expr_kind::Constant:   static_cast<expr_const*>(it)->dealloc(); break;
             case expr_kind::Sort:       static_cast<expr_sort*>(it)->dealloc(); break;
@@ -523,7 +523,7 @@ expr mk_Type() { return *g_Type1; }
 unsigned get_weight(expr const & e) {
     switch (e.kind()) {
     case expr_kind::BVar:  case expr_kind::Constant: case expr_kind::Sort:
-    case expr_kind::Meta: case expr_kind::FVar:      case expr_kind::Lit:
+    case expr_kind::MVar:  case expr_kind::FVar:     case expr_kind::Lit:
         return 1;
     case expr_kind::Lambda: case expr_kind::Pi:
     case expr_kind::App:    case expr_kind::Let:
@@ -541,7 +541,7 @@ unsigned get_weight(expr const & e) {
 unsigned get_depth(expr const & e) {
     switch (e.kind()) {
     case expr_kind::BVar: case expr_kind::Constant: case expr_kind::Sort:
-    case expr_kind::Meta: case expr_kind::FVar:     case expr_kind::Lit:
+    case expr_kind::MVar: case expr_kind::FVar:     case expr_kind::Lit:
         return 1;
     case expr_kind::Lambda: case expr_kind::Pi:
     case expr_kind::App:    case expr_kind::Let:
@@ -623,7 +623,7 @@ bool is_atomic(expr const & e) {
     case expr_kind::Constant: case expr_kind::Sort:
     case expr_kind::BVar:     case expr_kind::Lit:
         return true;
-    case expr_kind::App:      case expr_kind::Meta:
+    case expr_kind::App:      case expr_kind::MVar:
     case expr_kind::FVar:     case expr_kind::Lambda:
     case expr_kind::Pi:       case expr_kind::Let:
         return false;
@@ -782,7 +782,7 @@ std::ostream & operator<<(std::ostream & out, expr_kind const & k) {
     case expr_kind::Lit:      out << "Lit"; break;
     case expr_kind::BVar:     out << "BVar"; break;
     case expr_kind::FVar:     out << "FVar"; break;
-    case expr_kind::Meta:     out << "MVar"; break;
+    case expr_kind::MVar:     out << "MVar"; break;
     case expr_kind::Sort:     out << "Sort"; break;
     case expr_kind::Constant: out << "Constant"; break;
     case expr_kind::App:      out << "App"; break;

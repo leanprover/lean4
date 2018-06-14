@@ -227,7 +227,7 @@ simp_result simplify_core_fn::try_user_congrs(expr const & e) {
         }
     }
 
-    if (auto cls = sls->find_congr(head_index(expr_kind::Meta))) {
+    if (auto cls = sls->find_congr(head_index(expr_kind::MVar))) {
         for (simp_lemma const & cl : *cls) {
             simp_result r = try_user_congr(e, cl);
             if (r.get_new() != e)
@@ -650,7 +650,7 @@ simp_result simplify_core_fn::visit(expr const & e, optional<expr> const & paren
         case expr_kind::Constant:
             new_result = curr_result;
             break;
-        case expr_kind::Meta:
+        case expr_kind::MVar:
             new_result = curr_result;
             new_result.update(m_ctx.instantiate_mvars(new_result.get_new()));
             break;

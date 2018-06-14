@@ -194,7 +194,7 @@ struct get_noncomputable_reason_fn {
         case expr_kind::Macro:     visit_macro(e);    return;
         case expr_kind::Constant:  visit_constant(e); return;
         case expr_kind::BVar:      lean_unreachable();
-        case expr_kind::Meta:      lean_unreachable();
+        case expr_kind::MVar:      lean_unreachable();
         case expr_kind::FVar:      return;
         case expr_kind::App:       visit_app(e);      return;
         case expr_kind::Lambda:    visit_binding(e);  return;

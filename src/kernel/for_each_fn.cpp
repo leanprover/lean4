@@ -92,7 +92,7 @@ class for_each_fn {
                 // TODO(Leo): delete after refactoring
                 todo.emplace_back(mlocal_type(e), offset);
                 goto begin_loop;
-            case expr_kind::Meta:
+            case expr_kind::MVar:
                 todo.emplace_back(mlocal_type(e), offset);
                 goto begin_loop;
             case expr_kind::App:

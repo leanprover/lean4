@@ -181,7 +181,7 @@ unsigned expr_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
         data.push_back(to_obj(const_name(e)));
         data.push_back(to_obj(const_levels(e)));
         break;
-    case expr_kind::Meta:
+    case expr_kind::MVar:
         data.push_back(to_obj(mlocal_name(e)));
         data.push_back(to_obj(mlocal_pp_name(e)));
         data.push_back(to_obj(mlocal_type(e)));

@@ -81,7 +81,7 @@ struct max_sharing_fn::imp {
             res = update_let(a, new_t, new_v, new_b);
             break;
         }
-        case expr_kind::Meta:  case expr_kind::FVar:
+        case expr_kind::MVar:  case expr_kind::FVar:
             res = update_mlocal(a, apply(mlocal_type(a)));
             break;
         case expr_kind::Macro: {

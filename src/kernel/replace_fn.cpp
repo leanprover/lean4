@@ -82,7 +82,7 @@ class replace_rec_fn {
             case expr_kind::Constant: case expr_kind::Sort:
             case expr_kind::BVar:     case expr_kind::Lit:
                 return save_result(e, offset, e, shared);
-            case expr_kind::Meta: {
+            case expr_kind::MVar: {
                 expr new_t = apply(mlocal_type(e), offset);
                 return save_result(e, offset, update_mlocal(e, new_t), shared);
             }

@@ -74,7 +74,7 @@ bool equiv_manager::is_equiv_core(expr const & a, expr const & b) {
             const_name(a) == const_name(b) &&
             compare(const_levels(a), const_levels(b), [](level const & l1, level const & l2) { return l1 == l2; });
         break;
-    case expr_kind::Meta: case expr_kind::FVar:
+    case expr_kind::MVar: case expr_kind::FVar:
         result =
             mlocal_name(a) == mlocal_name(b) &&
             is_equiv_core(mlocal_type(a), mlocal_type(b));

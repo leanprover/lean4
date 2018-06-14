@@ -80,7 +80,7 @@ void collect_locals(expr const & e, collected_locals & ls, bool restricted) {
                 visit(mlocal_type(e));
             ls.insert(e);
             break;
-        case expr_kind::Meta:
+        case expr_kind::MVar:
             lean_assert(!restricted);
             visit(mlocal_type(e));
             break;

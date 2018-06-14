@@ -17,7 +17,7 @@ expr mk_prenum(mpz const & v);
 bool is_prenum(expr const & e);
 /** \brief Return the value stored in the pre-numeral
     \pre is_prenum(e) */
-mpz const & prenum_value(expr const & e);
+mpz prenum_value(expr const & e);
 void initialize_prenum();
 void finalize_prenum();
 }

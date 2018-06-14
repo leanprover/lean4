@@ -3361,8 +3361,6 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
         if (is_app_fn)
             throw elaborator_exception(e, "invalid constructor ⟨...⟩, function expected");
         return visit_anonymous_constructor(e, expected_type);
-    } else if (is_prenum(e)) {
-        return visit_prenum(e, expected_type);
     } else if (is_choice(e) || is_explicit(e) || is_partial_explicit(e)) {
         return visit_app_core(e, buffer<expr>(), expected_type, e);
     } else if (is_by(e)) {
@@ -3642,7 +3640,7 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
                 case expr_kind::MVar:
                     return e;
                 case expr_kind::Lit:
-                    return e;
+                    return visit_prenum(e, expected_type);
                 case expr_kind::Sort:
                     return copy_pos(e, visit_sort(e));
                 case expr_kind::FVar:

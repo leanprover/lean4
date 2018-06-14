@@ -9,18 +9,17 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 
 namespace lean {
-/** \brief Replace nat numerals encoded using bit0, bit1, one with an auxiliary nat_value macro.
-    This macro wraps a mpz number. */
+/** \brief Replace nat numerals encoded using bit0, bit1, one with an expression literal.*/
 expr find_nat_values(environment const & env, expr const & e);
-/** \brief Create a nat_value macro expression. This macro should only be used in the compiler. */
+/** \brief Create a nat literal */
 expr mk_nat_value(mpz const & v);
-/** \brief Return true iff \c e is a nat_value macro expression. */
+/** \brief Return true iff \c e is a nat literal */
 bool is_nat_value(expr const & e);
-/** \brief Return the mpz stored in the nat_value macro.
+/** \brief Return the mpz stored in the nat literal.
     \pre is_nat_value(e) */
-mpz const & get_nat_value_value(expr const & e);
+mpz get_nat_value_value(expr const & e);
 
-/** \brief If \c e encodes a nat numeral, then convert it into a nat_value macro */
+/** \brief If \c e encodes a nat numeral, then convert it into an expression literal. */
 optional<expr> to_nat_value(type_context_old & ctx, expr const & e);
 
 void initialize_nat_value();

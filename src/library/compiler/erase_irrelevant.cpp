@@ -63,8 +63,6 @@ class erase_irrelevant_fn : public compiler_step_visitor {
             return *g_neutral_expr;
         } else if (is_comp_irrelevant(e)) {
             return *g_neutral_expr;
-        } else if (is_nat_value(e)) {
-            return e;
         } else if (auto r = macro_def(e).expand(e, m_ctx)) {
             return visit(*r);
         } else {

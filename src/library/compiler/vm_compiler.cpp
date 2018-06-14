@@ -275,9 +275,7 @@ class vm_compiler_fn {
     }
 
     void compile_macro(expr const & e, unsigned bpz, name_map<unsigned> const & m) {
-        if (is_nat_value(e)) {
-            emit(mk_num_instr(get_nat_value_value(e)));
-        } else if (is_annotation(e)) {
+        if (is_annotation(e)) {
             compile(get_annotation_arg(e), bpz, m);
         } else if (is_expr_quote(e)) {
             emit(mk_expr_instr(get_expr_quote_value(e)));

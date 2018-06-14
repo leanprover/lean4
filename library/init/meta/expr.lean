@@ -34,8 +34,8 @@ instance : has_repr binder_info :=
 meta constant macro_def : Type
 
 inductive literal
-| str_val (val : string)
 | nat_val (val : nat)
+| str_val (val : string)
 
 /-- Reflect a C++ expr object. The VM replaces it with the C++ implementation. -/
 meta inductive expr

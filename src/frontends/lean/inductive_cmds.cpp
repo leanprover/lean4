@@ -14,7 +14,6 @@ Authors: Daniel Selsam, Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
-#include "kernel/old_type_checker.h"
 #include "kernel/abstract.h"
 #include "kernel/inductive/inductive.h"
 #include "library/locals.h"
@@ -360,12 +359,12 @@ class inductive_cmd_fn {
     }
 
     void check_constant_resultant_universe(expr const & ir, level const & constant_resultant_level) {
+        type_context_old ctx(m_env);
         expr ty = mlocal_type(ir);
         unsigned ir_arg = 0;
         while (is_pi(ty)) {
             ir_arg++;
             expr arg_ty = binding_domain(ty);
-            old_type_checker ctx(m_env);
             level arg_level = get_level(ctx, arg_ty);
             if (!(is_geq(constant_resultant_level, arg_level) || is_zero(constant_resultant_level))) {
                 throw exception(sstream() << "universe level of type_of(arg #" << ir_arg << ") "

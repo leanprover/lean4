@@ -22,13 +22,10 @@ structure equations_header :=
 
 /-
 Cases missing:
-1- quote       -- It will be a literal
-2- projection  -- It will be a primitive
+1- projection  -- It will be a primitive
 -/
 
 inductive macro_definition
-| nat_lit         : nat → macro_definition
-| string_lit      : string → macro_definition
 | annotation      : name → macro_definition
 /- The following macros will be Syntax object in Lean4 -/
 | struct_instance : name → bool → list name → macro_definition

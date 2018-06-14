@@ -10,26 +10,47 @@ notation `ℕ` := nat
 
 namespace nat
 
-inductive less_than_or_equal (a : nat) : nat → Prop
-| refl : less_than_or_equal a
-| step : Π {b}, less_than_or_equal b → less_than_or_equal (succ b)
+def beq : nat → nat → bool
+| zero     zero     := tt
+| zero     (succ m) := ff
+| (succ n) zero     := ff
+| (succ n) (succ m) := beq n m
 
-@[elab_as_eliminator]
-theorem less_than_or_equal.ndrec  {a : nat} {C : nat → Prop} (m₁ : C a) (m₂ : ∀ (b : nat), less_than_or_equal a b → C b → C (succ b)) {b : ℕ} (h : less_than_or_equal a b) : C b :=
-@less_than_or_equal.rec a (λ b _, C b) m₁ m₂ b h
+theorem eq_of_beq_eq_tt : ∀ {n m : nat}, beq n m = tt → n = m
+| zero     zero     h := rfl
+| zero     (succ m) h := bool.no_confusion h
+| (succ n) zero     h := bool.no_confusion h
+| (succ n) (succ m) h :=
+  have beq n m = tt, from h,
+  have n = m, from eq_of_beq_eq_tt this,
+  congr_arg succ this
 
-@[elab_as_eliminator]
-theorem less_than_or_equal.ndrec_on {a : nat} {C : nat → Prop} {b : ℕ} (h : less_than_or_equal a b) (m₁ : C a) (m₂ : ∀ (b : nat), less_than_or_equal a b → C b → C (succ b)) : C b :=
-@less_than_or_equal.rec a (λ b _, C b) m₁ m₂ b h
+theorem ne_of_beq_eq_ff : ∀ {n m : nat}, beq n m = ff → n ≠ m
+| zero     zero     h₁ h₂ := bool.no_confusion h₁
+| zero     (succ m) h₁ h₂ := nat.no_confusion h₂
+| (succ n) zero     h₁ h₂ := nat.no_confusion h₂
+| (succ n) (succ m) h₁ h₂ :=
+  have beq n m = ff, from h₁,
+  have n ≠ m, from ne_of_beq_eq_ff this,
+  nat.no_confusion h₂ (λ h₂, absurd h₂ this)
+
+instance : decidable_eq nat :=
+λ n m, if h : beq n m = tt then is_true (eq_of_beq_eq_tt h) else is_false (ne_of_beq_eq_ff (eq_ff_of_ne_tt h))
+
+def ble : nat → nat → bool
+| zero     zero     := tt
+| zero     (succ m) := tt
+| (succ n) zero     := ff
+| (succ n) (succ m) := ble n m
+
+protected def le (n m : nat) : Prop :=
+ble n m = tt
 
 instance : has_le nat :=
-⟨nat.less_than_or_equal⟩
+⟨nat.le⟩
 
-protected def le (n m : nat) :=
-nat.less_than_or_equal n m
-
-protected def lt (n m : nat) :=
-nat.less_than_or_equal (succ n) m
+protected def lt (n m : nat) : Prop :=
+nat.le (succ n) m
 
 instance : has_lt nat :=
 ⟨nat.lt⟩
@@ -51,15 +72,6 @@ instance : has_sub nat :=
 
 instance : has_mul nat :=
 ⟨nat.mul⟩
-
-instance : decidable_eq nat
-| zero     zero     := is_true rfl
-| (succ x) zero     := is_false (λ h, nat.no_confusion h)
-| zero     (succ y) := is_false (λ h, nat.no_confusion h)
-| (succ x) (succ y) :=
-    match decidable_eq x y with
-    | is_true xeqy := is_true (xeqy ▸ eq.refl (succ x))
-    | is_false xney := is_false (λ h, nat.no_confusion h (λ xeqy, absurd xeqy xney))
 
 def {u} repeat {α : Type u} (f : nat → α → α) : nat → α → α
 | 0         m := m
@@ -184,21 +196,32 @@ protected theorem mul_assoc : ∀ (n m k : nat), (n * m) * k = n * (m * k)
 
 /- Inequalities -/
 
-@[refl] protected def le_refl : ∀ n : nat, n ≤ n :=
-less_than_or_equal.refl
+@[refl] protected def le_refl : ∀ n : nat, n ≤ n
+| zero     := rfl
+| (succ n) := le_refl n
 
-theorem le_succ (n : nat) : n ≤ succ n :=
-less_than_or_equal.step (nat.le_refl n)
+theorem le_succ : ∀ (n : nat), n ≤ succ n
+| zero     := rfl
+| (succ n) := le_succ n
 
-theorem succ_le_succ {n m : nat} : n ≤ m → succ n ≤ succ m :=
-λ h, less_than_or_equal.ndrec (nat.le_refl (succ n)) (λ a b, less_than_or_equal.step) h
+theorem succ_le_succ {n m : nat} (h : n ≤ m) : succ n ≤ succ m :=
+h
 
 theorem succ_lt_succ {n m : nat} : n < m → succ n < succ m :=
 succ_le_succ
 
+theorem le_step : ∀ {n m : nat}, n ≤ m → n ≤ succ m
+| zero     zero     h := rfl
+| zero     (succ n) h := rfl
+| (succ n) zero     h := bool.no_confusion h
+| (succ n) (succ m) h :=
+  have n ≤ m, from h,
+  have n ≤ succ m, from le_step this,
+  succ_le_succ this
+
 theorem zero_le : ∀ (n : nat), 0 ≤ n
-| 0     := nat.le_refl 0
-| (n+1) := less_than_or_equal.step (zero_le n)
+| zero     := rfl
+| (succ n) := rfl
 
 theorem zero_lt_succ (n : nat) : 0 < succ n :=
 succ_le_succ (zero_le n)
@@ -211,27 +234,31 @@ theorem not_succ_le_zero : ∀ (n : nat), succ n ≤ 0 → false
 theorem not_lt_zero (n : nat) : ¬ n < 0 :=
 not_succ_le_zero n
 
-theorem pred_le_pred {n m : nat} : n ≤ m → pred n ≤ pred m :=
-λ h, less_than_or_equal.ndrec_on h
-  (nat.le_refl (pred n))
-  (λ n, nat.rec (λ a b, b) (λ a b c, less_than_or_equal.step) n)
+theorem pred_le_pred : ∀ {n m : nat}, n ≤ m → pred n ≤ pred m
+| zero     zero     h := rfl
+| zero     (succ n) h := zero_le n
+| (succ n) zero     h := bool.no_confusion h
+| (succ n) (succ m) h := h
 
 theorem le_of_succ_le_succ {n m : nat} : succ n ≤ succ m → n ≤ m :=
 pred_le_pred
 
-instance decidable_le : ∀ n m : nat, decidable (n ≤ m)
-| 0     m     := is_true (zero_le m)
-| (n+1) 0     := is_false (not_succ_le_zero n)
-| (n+1) (m+1) :=
-  match decidable_le n m with
-  | is_true h  := is_true (succ_le_succ h)
-  | is_false h := is_false (λ a, h (le_of_succ_le_succ a))
+instance decidable_le : ∀ n m : nat, decidable (n ≤ m) :=
+λ n m, bool.decidable_eq _ _
 
-instance decidable_lt (n m : nat) : decidable (n < m) :=
-nat.decidable_le (succ n) m
+instance decidable_lt : ∀ n m : nat, decidable (n < m) :=
+λ n m, nat.decidable_le (succ n) m
 
-protected theorem eq_or_lt_of_le {n m: nat} (h : n ≤ m) : n = m ∨ n < m :=
-less_than_or_equal.cases_on h (or.inl rfl) (λ n h, or.inr (succ_le_succ h))
+protected theorem eq_or_lt_of_le : ∀ {n m: nat}, n ≤ m → n = m ∨ n < m
+| zero     zero     h := or.inl rfl
+| zero     (succ n) h := or.inr $ zero_le n
+| (succ n) zero     h := bool.no_confusion h
+| (succ n) (succ m) h :=
+  have n ≤ m, from h,
+  have n = m ∨ n < m, from eq_or_lt_of_le this,
+  or.elim this
+   (λ h, or.inl $ congr_arg succ h)
+   (λ h, or.inr $ succ_lt_succ h)
 
 theorem lt_succ_of_le {n m : nat} : n ≤ m → n < succ m :=
 succ_le_succ
@@ -250,16 +277,23 @@ theorem not_succ_le_self : ∀ n : nat, ¬succ n ≤ n :=
 protected theorem lt_irrefl (n : nat) : ¬n < n :=
 not_succ_le_self n
 
-protected theorem le_trans {n m k : nat} (h1 : n ≤ m) : m ≤ k → n ≤ k :=
-less_than_or_equal.ndrec h1 (λ p h2, less_than_or_equal.step)
+protected theorem le_trans : ∀ {n m k : nat}, n ≤ m → m ≤ k → n ≤ k
+| zero     m        k        h₁ h₂ := zero_le _
+| (succ n) zero     k        h₁ h₂ := bool.no_confusion h₁
+| (succ n) (succ m) zero     h₁ h₂ := bool.no_confusion h₂
+| (succ n) (succ m) (succ k) h₁ h₂ :=
+  have h₁' : n ≤ m, from h₁,
+  have h₂' : m ≤ k, from h₂,
+  have n ≤ k, from le_trans h₁' h₂',
+  succ_le_succ this
 
 theorem pred_le : ∀ (n : nat), pred n ≤ n
-| 0        := less_than_or_equal.refl 0
-| (succ a) := less_than_or_equal.step (less_than_or_equal.refl a)
+| zero     := rfl
+| (succ n) := le_succ _
 
 theorem pred_lt : ∀ {n : nat}, n ≠ 0 → pred n < n
-| 0        h := absurd rfl h
-| (succ a) h := lt_succ_of_le (less_than_or_equal.refl _)
+| zero     h := absurd rfl h
+| (succ n) h := lt_succ_of_le (nat.le_refl _)
 
 theorem sub_le (n m : nat) : n - m ≤ n :=
 nat.rec_on m (nat.le_refl (n - 0)) (λ m, nat.le_trans (pred_le (n - m)))
@@ -276,7 +310,7 @@ protected theorem lt_of_lt_of_le {n m k : nat} : n < m → m ≤ k → n < k :=
 nat.le_trans
 
 protected theorem le_of_eq {n m : nat} (p : n = m) : n ≤ m :=
-p ▸ less_than_or_equal.refl n
+p ▸ nat.le_refl n
 
 theorem le_succ_of_le {n m : nat} (h : n ≤ m) : n ≤ succ m :=
 nat.le_trans h (le_succ m)
@@ -287,14 +321,14 @@ nat.le_trans (le_succ n) h
 protected theorem le_of_lt {n m : nat} (h : n < m) : n ≤ m :=
 le_of_succ_le h
 
-def lt.step {n m : nat} : n < m → n < succ m := less_than_or_equal.step
+def lt.step {n m : nat} : n < m → n < succ m := le_step
 
 theorem eq_zero_or_pos : ∀ (n : nat), n = 0 ∨ n > 0
 | 0     := or.inl rfl
 | (n+1) := or.inr (succ_pos _)
 
 protected theorem lt_trans {n m k : nat} (h₁ : n < m) : m < k → n < k :=
-nat.le_trans (less_than_or_equal.step h₁)
+nat.le_trans (le_step h₁)
 
 protected theorem lt_of_le_of_lt {n m k : nat} (h₁ : n ≤ m) : m < k → n < k :=
 nat.le_trans (succ_le_succ h₁)
@@ -303,8 +337,15 @@ def lt.base (n : nat) : n < succ n := nat.le_refl (succ n)
 
 theorem lt_succ_self (n : nat) : n < succ n := lt.base n
 
-protected theorem le_antisymm {n m : nat} (h₁ : n ≤ m) : m ≤ n → n = m :=
-less_than_or_equal.cases_on h₁ (λ a, rfl) (λ a b c, absurd (nat.lt_of_le_of_lt b c) (nat.lt_irrefl n))
+protected theorem le_antisymm : ∀ {n m : nat}, n ≤ m → m ≤ n → n = m
+| zero     zero     h₁ h₂ := rfl
+| (succ n) zero     h₁ h₂ := bool.no_confusion h₁
+| zero     (succ m) h₁ h₂ := bool.no_confusion h₂
+| (succ n) (succ m) h₁ h₂ :=
+  have h₁' : n ≤ m, from h₁,
+  have h₂' : m ≤ n, from h₂,
+  have n = m, from le_antisymm h₁' h₂',
+  congr_arg succ this
 
 protected theorem lt_or_ge : ∀ (n m : nat), n < m ∨ n ≥ m
 | n 0     := or.inr (zero_le n)
@@ -355,10 +396,14 @@ theorem le_add_left (n m : nat): n ≤ m + n :=
 nat.add_comm n m ▸ le_add_right n m
 
 theorem le.dest : ∀ {n m : nat}, n ≤ m → ∃ k, n + k = m
-| n ._ (less_than_or_equal.refl ._)  := ⟨0, rfl⟩
-| n ._ (@less_than_or_equal.step ._ m h) :=
-  match le.dest h with
-  | ⟨w, hw⟩ := ⟨succ w, hw ▸ add_succ n w⟩
+| zero     zero     h := ⟨0, rfl⟩
+| zero     (succ n) h := ⟨succ n, show 0 + succ n = succ n, from (nat.add_comm 0 (succ n)).symm ▸ rfl⟩
+| (succ n) zero     h := bool.no_confusion h
+| (succ n) (succ m) h :=
+  have n ≤ m, from h,
+  have ∃ k, n + k = m, from le.dest this,
+  match this with
+  | ⟨k, h⟩ := ⟨k, show succ n + k = succ m, from ((succ_add n k).symm ▸ h ▸ rfl)⟩
 
 theorem le.intro {n m k : nat} (h : n + k = m) : n ≤ m :=
 h ▸ le_add_right n k

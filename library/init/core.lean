@@ -709,6 +709,14 @@ theorem true_ne_false : ¬true = false :=
 ne_false_of_self trivial
 end ne
 
+theorem eq_ff_of_ne_tt : ∀ {b : bool}, b ≠ tt → b = ff
+| tt h := false.elim (h rfl)
+| ff h := rfl
+
+theorem eq_tt_of_ne_ff : ∀ {b : bool}, b ≠ ff → b = tt
+| tt h := rfl
+| ff h := false.elim (h rfl)
+
 attribute [refl] heq.refl
 
 section

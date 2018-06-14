@@ -33,8 +33,8 @@ meta constant add             : environment → declaration → exceptional envi
 meta constant get             : environment → name → exceptional declaration
 meta def      contains (env : environment) (d : name) : bool :=
 match env.get d with
-| exceptional.success _      := tt
-| exceptional.exception ._ _ := ff
+| exceptional.success _     := tt
+| exceptional.exception _ _ := ff
 
 /-- Register the given name as a namespace, making it available to the `open` command -/
 meta constant add_namespace   : environment → name → environment

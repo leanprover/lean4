@@ -108,8 +108,8 @@ private meta def parser_desc_aux : expr → tactic (list format)
 | `(parser.pexpr %%v) := return ["expr"]
 | `(tk %%c) := list.ret <$> to_fmt <$> eval_expr string c
 | `(cur_pos) := return []
-| `(pure ._) := return []
-| `(._ <$> %%p) := parser_desc_aux p
+| `(pure _) := return []
+| `(_ <$> %%p) := parser_desc_aux p
 | `(skip_info %%p) := parser_desc_aux p
 | `(set_goal_info_pos %%p) := parser_desc_aux p
 | `(with_desc %%desc %%p) := list.ret <$> eval_expr format desc
@@ -157,7 +157,7 @@ private meta def parser_desc_aux : expr → tactic (list format)
 
 meta def param_desc : expr → tactic format
 | `(parse %%p) := join <$> parser_desc_aux p
-| `(opt_param %%t ._) := (++ "?") <$> pp t
+| `(opt_param %%t _) := (++ "?") <$> pp t
 | e := if is_constant e ∧ (const_name e).components.ilast = `itactic
   then return $ to_fmt "{ tactic }"
   else paren <$> pp e

@@ -331,7 +331,7 @@ public:
 enum class literal_kind { Nat, String };
 
 class literal : public object_ref {
-    explicit literal(object * o):object_ref(o) {}
+    explicit literal(object * o):object_ref(o) { inc(o); }
 public:
     explicit literal(char const * v);
     explicit literal(unsigned v);

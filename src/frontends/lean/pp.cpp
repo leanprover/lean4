@@ -1914,14 +1914,4 @@ static options mk_options(bool detail) {
     }
     return opts;
 }
-
-static void pp_core(environment const & env, expr const & e, bool detail) {
-    old_type_checker tc(env);
-    io_state ios(mk_pretty_formatter_factory(), mk_options(detail));
-    regular(env, ios, tc) << e << "\n";
 }
-
-}
-// for debugging purposes
-void pp(lean::environment const & env, lean::expr const & e) { lean::pp_core(env, e, false); }
-void pp_detail(lean::environment const & env, lean::expr const & e) { lean::pp_core(env, e, true); }

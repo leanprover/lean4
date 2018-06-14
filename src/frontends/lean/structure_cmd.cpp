@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
-#include "kernel/old_type_checker.h"
+#include "kernel/type_checker.h"
 #include "kernel/inductive/inductive.h"
 #include "library/error_msgs.h"
 #include "library/replace_visitor.h"

@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "util/sexpr/option_declarations.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/quot.h"
-#include "kernel/old_type_checker.h"
 #include "kernel/inductive/inductive.h"
 #include "library/trace.h"
 #include "library/sorry.h"
@@ -323,7 +322,6 @@ static void print_recursor_info(parser & p, message_builder & out) {
 }
 
 static bool print_constant(parser const & p, message_builder & out, char const * kind, declaration const & d, bool is_def = false) {
-    old_type_checker tc(p.env());
     print_attributes(p, out, d.get_name());
     if (is_protected(p.env(), d.get_name()))
         out << "protected ";

@@ -341,7 +341,7 @@ public:
     literal & operator=(literal const & other) { object_ref::operator=(other); return *this; }
     literal & operator=(literal && other) { object_ref::operator=(other); return *this; }
 
-    literal_kind kind() const { return static_cast<literal_kind>(get_kind(raw())); }
+    literal_kind kind() const { return static_cast<literal_kind>(cnstr_tag(raw())); }
     char const * get_string_value() const { lean_assert(kind() == literal_kind::String); return c_str(cnstr_obj(raw(), 0)); }
     nat const & get_nat_value() const { lean_assert(kind() == literal_kind::Nat); return static_cast<nat const &>(cnstr_obj_ref(*this, 0)); }
     friend bool operator==(literal const & a, literal const & b);

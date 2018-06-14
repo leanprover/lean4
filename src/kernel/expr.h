@@ -504,6 +504,7 @@ inline unsigned get_loose_bvar_range(expr const & e) {
     case expr_kind::BVar:                           return bvar_idx(e) + 1;
     case expr_kind::Constant: case expr_kind::Sort: return 0;
     case expr_kind::Quote:                          return 0;
+    case expr_kind::Lit:                            return 0;
     default:                                        return static_cast<expr_composite*>(e.raw())->m_loose_bvar_range;
     }
 }

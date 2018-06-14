@@ -86,7 +86,7 @@ class for_each_fn {
 
             switch (e.kind()) {
             case expr_kind::Constant: case expr_kind::BVar:
-            case expr_kind::Sort:
+            case expr_kind::Sort:     case expr_kind::Lit:
                 goto begin_loop;
             case expr_kind::FVar:
                 // TODO(Leo): delete after refactoring

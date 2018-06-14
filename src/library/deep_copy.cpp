@@ -11,7 +11,9 @@ Author: Leonardo de Moura
 namespace lean {
 expr copy(expr const & a) {
     switch (a.kind()) {
+    case expr_kind::Lit:      return mk_lit(lit_value(a));
     case expr_kind::BVar:     return mk_var(var_idx(a));
+    case expr_kind::FVar:     return mk_local(mlocal_name(a), mlocal_pp_name(a), mlocal_type(a), local_info(a));
     case expr_kind::Constant: return mk_constant(const_name(a), const_levels(a));
     case expr_kind::Sort:     return mk_sort(sort_level(a));
     case expr_kind::Macro:    return mk_macro(to_macro(a)->m_definition, macro_num_args(a), macro_args(a));
@@ -19,7 +21,6 @@ expr copy(expr const & a) {
     case expr_kind::Lambda:   return mk_lambda(binding_name(a), binding_domain(a), binding_body(a), binding_info(a));
     case expr_kind::Pi:       return mk_pi(binding_name(a), binding_domain(a), binding_body(a), binding_info(a));
     case expr_kind::Meta:     return mk_metavar(mlocal_name(a), mlocal_pp_name(a), mlocal_type(a));
-    case expr_kind::FVar:     return mk_local(mlocal_name(a), mlocal_pp_name(a), mlocal_type(a), local_info(a));
     case expr_kind::Let:      return mk_let(let_name(a), let_type(a), let_value(a), let_body(a));
     case expr_kind::Quote:    return mk_quote(quote_is_reflected(a), quote_value(a));
     }

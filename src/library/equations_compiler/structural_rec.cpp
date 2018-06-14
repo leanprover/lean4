@@ -116,7 +116,7 @@ struct structural_rec_fn {
             switch (e.kind()) {
             case expr_kind::BVar: case expr_kind::Meta:
             case expr_kind::FVar: case expr_kind::Constant:
-            case expr_kind::Sort:
+            case expr_kind::Sort: case expr_kind::Lit:
                 return true;
             case expr_kind::App: {
                 buffer<expr> args;

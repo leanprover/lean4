@@ -1722,6 +1722,16 @@ auto pretty_fn::pp_prod(expr const & e) -> result {
     return result(paren(group(r)));
 }
 
+auto pretty_fn::pp_lit(expr const & e) -> result {
+    switch (lit_value(e).kind()) {
+    case literal_kind::Nat:
+        return pp_num(lit_value(e).get_nat_value().to_mpz(), 0);
+    case literal_kind::String:
+        return pp_string_literal(lit_value(e).get_string_value());
+    }
+    lean_unreachable();
+}
+
 auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
     check_system("pretty printer");
     if ((m_depth >= m_max_depth ||
@@ -1781,6 +1791,7 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
     case expr_kind::Pi:        return pp_pi(e);
     case expr_kind::Macro:     return pp_macro(e);
     case expr_kind::Let:       return pp_let(e);
+    case expr_kind::Lit:       return pp_lit(e);
     case expr_kind::Quote:
         if (quote_is_reflected(e))
             return result(format("`(") + nest(4, pp(quote_value(e)).fmt()) + format(")"));
@@ -1904,14 +1915,5 @@ formatter_factory mk_pretty_formatter_factory() {
                 return (*fn_ptr)(e);
             });
     };
-}
-
-static options mk_options(bool detail) {
-    options opts;
-    if (detail) {
-        opts = opts.update(name{"pp", "implicit"}, true);
-        opts = opts.update(name{"pp", "notation"}, false);
-    }
-    return opts;
 }
 }

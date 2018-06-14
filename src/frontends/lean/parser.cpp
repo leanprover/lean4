@@ -275,7 +275,7 @@ expr parser::rec_save_pos(expr const & e, pos_info p) {
 expr parser::copy_with_new_pos(expr const & e, pos_info p) {
     switch (e.kind()) {
     case expr_kind::Sort: case expr_kind::Constant: case expr_kind::Meta:
-    case expr_kind::BVar: case expr_kind::FVar:
+    case expr_kind::BVar: case expr_kind::FVar:     case expr_kind::Lit:
         return save_pos(copy(e), p);
     case expr_kind::App:
         return save_pos(::lean::mk_app(copy_with_new_pos(app_fn(e), p),
@@ -1725,6 +1725,16 @@ struct to_pattern_fn {
 
 static expr quote(expr const & e) {
     switch (e.kind()) {
+    case expr_kind::Lit:
+        switch (lit_value(e).kind()) {
+        case literal_kind::Nat:
+            return mk_app(mk_constant({"expr", "lit"}),
+                          mk_app(mk_constant({"literal", "nat_value"}), quote(lit_value(e).get_nat_value().to_mpz().get_unsigned_int())));
+        case literal_kind::String:
+            return mk_app(mk_constant({"expr", "lit"}),
+                          mk_app(mk_constant({"literal", "str_value"}), quote(lit_value(e).get_string_value())));
+        }
+        lean_unreachable();
     case expr_kind::BVar:
         return mk_app(mk_constant({"expr", "bvar"}), quote(var_idx(e)));
     case expr_kind::Sort:

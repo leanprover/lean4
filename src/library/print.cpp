@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <utility>
+#include "util/escaped.h"
 #include "kernel/environment.h"
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
@@ -247,6 +248,12 @@ struct print_expr_fn {
             break;
         case expr_kind::Sort:
             print_sort(a);
+            break;
+        case expr_kind::Lit:
+            switch (lit_value(a).kind()) {
+            case literal_kind::Nat: out() << lit_value(a).get_nat_value().to_mpz();
+            case literal_kind::String: out() << escaped(lit_value(a).get_string_value());
+            }
             break;
         case expr_kind::Macro:
             print_macro(a);

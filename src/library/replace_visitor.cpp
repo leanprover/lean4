@@ -16,6 +16,7 @@ namespace lean {
 expr replace_visitor::visit_sort(expr const & e) { lean_assert(is_sort(e)); return e; }
 expr replace_visitor::visit_var(expr const & e) { lean_assert(is_var(e)); return e; }
 expr replace_visitor::visit_quote(expr const & e) { lean_assert(is_quote(e)); return e; }
+expr replace_visitor::visit_lit(expr const & e) { lean_assert(is_lit(e)); return e; }
 expr replace_visitor::visit_constant(expr const & e) { lean_assert(is_constant(e)); return e; }
 expr replace_visitor::visit_mlocal(expr const & e) {
     lean_assert(is_mlocal(e));
@@ -67,6 +68,7 @@ expr replace_visitor::visit(expr const & e) {
     }
 
     switch (e.kind()) {
+    case expr_kind::Lit:       return save_result(e, visit_lit(e), shared);
     case expr_kind::Sort:      return save_result(e, visit_sort(e), shared);
     case expr_kind::Constant:  return save_result(e, visit_constant(e), shared);
     case expr_kind::BVar:      return save_result(e, visit_var(e), shared);

@@ -155,6 +155,7 @@ private:
     result pp_let(expr e);
     result pp_num(mpz const & n, unsigned bp);
     result pp_prod(expr const & e);
+    result pp_lit(expr const & e);
     void set_options_core(options const & o);
 
     expr infer_type(expr const & e);

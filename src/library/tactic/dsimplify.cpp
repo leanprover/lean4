@@ -256,6 +256,7 @@ expr dsimplify_core_fn::visit(expr const & e) {
         switch (curr_e.kind()) {
         case expr_kind::FVar:
         case expr_kind::Sort:
+        case expr_kind::Lit:
         case expr_kind::Constant:
             new_e = curr_e;
             break;

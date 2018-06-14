@@ -58,6 +58,9 @@ class expr_serializer : public object_serializer<expr, expr_hash, is_bi_equal_pr
                 case expr_kind::BVar:
                     s << var_idx(a);
                     break;
+                case expr_kind::Lit:
+                    s << lit_value(a);
+                    break;
                 case expr_kind::Constant:
                     lean_assert(!const_name(a).is_anonymous());
                     s << const_name(a) << const_levels(a);
@@ -126,6 +129,8 @@ public:
                 switch (k) {
                 case expr_kind::BVar:
                     return mk_var(d.read_unsigned());
+                case expr_kind::Lit:
+                    return mk_lit(read_literal(d));
                 case expr_kind::Constant: {
                     auto n = read_name(d);
                     return mk_constant(n, read_levels(d));

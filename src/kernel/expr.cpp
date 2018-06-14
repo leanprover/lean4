@@ -41,6 +41,9 @@ unsigned inc_weight(unsigned w) {
         return w;
 }
 
+static expr * g_nat_type    = nullptr;
+static expr * g_string_type = nullptr;
+
 static expr * g_dummy = nullptr;
 expr::expr():expr(*g_dummy) {}
 
@@ -247,6 +250,55 @@ void expr_sort::dealloc() {
     delete this;
 }
 
+// Expr literals
+
+literal::literal(char const * v):
+    object_ref(mk_cnstr(static_cast<unsigned>(literal_kind::String), mk_string(v))) {
+}
+
+literal::literal(unsigned v):
+    object_ref(mk_cnstr(static_cast<unsigned>(literal_kind::Nat), mk_nat_obj(v))) {
+}
+
+literal::literal(mpz const & v):
+    object_ref(mk_cnstr(static_cast<unsigned>(literal_kind::Nat), mk_nat_obj(v))) {
+}
+
+bool operator==(literal const & a, literal const & b) {
+    if (a.kind() != b.kind()) return false;
+    switch (a.kind()) {
+    case literal_kind::String: return string_eq(cnstr_obj(a.raw(), 0), cnstr_obj(b.raw(), 0));
+    case literal_kind::Nat:    return a.get_nat_value() == b.get_nat_value();
+    }
+    lean_unreachable();
+}
+
+bool operator<(literal const & a, literal const & b) {
+    if (a.kind() != b.kind()) return static_cast<unsigned>(a.kind()) < static_cast<unsigned>(b.kind());
+    switch (a.kind()) {
+    case literal_kind::String: return std::strcmp(a.get_string_value(), b.get_string_value()) < 0;
+    case literal_kind::Nat:    return a.get_nat_value() < b.get_nat_value();
+    }
+    lean_unreachable();
+}
+
+expr_lit::expr_lit(literal const & lit):
+    expr_cell(expr_kind::Lit, false, false, false, false, false),
+    m_lit(lit) {
+}
+expr_lit::~expr_lit() {}
+void expr_lit::dealloc() {
+    delete this;
+}
+
+expr lit_type(expr_ptr e) {
+    switch (lit_value(e).kind()) {
+    case literal_kind::String: return *g_string_type;
+    case literal_kind::Nat:    return *g_nat_type;
+    }
+    lean_unreachable();
+}
+
 // Let expressions
 expr_let::expr_let(name const & n, expr const & t, expr const & v, expr const & b):
     expr_composite(expr_kind::Let,
@@ -272,6 +324,8 @@ void expr_let::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_type,  todelete);
     delete this;
 }
+
+// Aux functions
 
 static unsigned add_weight(unsigned num, expr const * args) {
     unsigned r = 0;
@@ -324,6 +378,10 @@ expr mk_let(name const & n, expr const & t, expr const & v, expr const & b) {
 expr mk_sort(level const & l) {
     return expr(new expr_sort(l));
 }
+expr mk_lit(literal const & l) {
+    return expr(new expr_lit(l));
+}
+
 // =======================================
 
 typedef buffer<expr_cell*> del_buffer;
@@ -339,6 +397,7 @@ void expr_cell::dealloc() {
             #endif
             lean_assert(it->get_rc() == 0);
             switch (it->kind()) {
+            case expr_kind::Lit:        static_cast<expr_lit*>(it)->dealloc(); break;
             case expr_kind::BVar:       static_cast<expr_bvar*>(it)->dealloc(); break;
             case expr_kind::Meta:       static_cast<expr_mlocal*>(it)->dealloc(todo); break;
             case expr_kind::FVar:       static_cast<expr_fvar*>(it)->dealloc(todo); break;
@@ -464,7 +523,7 @@ expr mk_Type() { return *g_Type1; }
 unsigned get_weight(expr const & e) {
     switch (e.kind()) {
     case expr_kind::BVar:  case expr_kind::Constant: case expr_kind::Sort:
-    case expr_kind::Meta: case expr_kind::FVar:
+    case expr_kind::Meta: case expr_kind::FVar:      case expr_kind::Lit:
         return 1;
     case expr_kind::Lambda: case expr_kind::Pi:
     case expr_kind::App:    case expr_kind::Let:
@@ -482,7 +541,7 @@ unsigned get_weight(expr const & e) {
 unsigned get_depth(expr const & e) {
     switch (e.kind()) {
     case expr_kind::BVar: case expr_kind::Constant: case expr_kind::Sort:
-    case expr_kind::Meta: case expr_kind::FVar:
+    case expr_kind::Meta: case expr_kind::FVar:     case expr_kind::Lit:
         return 1;
     case expr_kind::Lambda: case expr_kind::Pi:
     case expr_kind::App:    case expr_kind::Let:
@@ -562,7 +621,7 @@ expr update_let(expr const & e, expr const & new_type, expr const & new_value, e
 bool is_atomic(expr const & e) {
     switch (e.kind()) {
     case expr_kind::Constant: case expr_kind::Sort:
-    case expr_kind::BVar:
+    case expr_kind::BVar:     case expr_kind::Lit:
         return true;
     case expr_kind::App:      case expr_kind::Meta:
     case expr_kind::FVar:     case expr_kind::Lambda:
@@ -720,11 +779,12 @@ unsigned hash_bi(expr const & e) {
 
 std::ostream & operator<<(std::ostream & out, expr_kind const & k) {
     switch (k) {
-    case expr_kind::BVar:     out << "Var"; break;
+    case expr_kind::Lit:      out << "Lit"; break;
+    case expr_kind::BVar:     out << "BVar"; break;
+    case expr_kind::FVar:     out << "FVar"; break;
+    case expr_kind::Meta:     out << "MVar"; break;
     case expr_kind::Sort:     out << "Sort"; break;
     case expr_kind::Constant: out << "Constant"; break;
-    case expr_kind::Meta:     out << "Meta"; break;
-    case expr_kind::FVar:     out << "Local"; break;
     case expr_kind::App:      out << "App"; break;
     case expr_kind::Lambda:   out << "Lambda"; break;
     case expr_kind::Pi:       out << "Pi"; break;
@@ -742,6 +802,10 @@ void initialize_expr() {
     g_default_name = new name("a");
     g_Type1        = new expr(mk_sort(mk_level_one()));
     g_Prop         = new expr(mk_sort(mk_level_zero()));
+    /* TODO(Leo): add support for builtin constants in the kernel.
+       Something similar to what we have in the library directory. */
+    g_nat_type     = new expr(mk_constant("nat"));
+    g_string_type  = new expr(mk_constant("string"));
 }
 
 void finalize_expr() {
@@ -749,6 +813,8 @@ void finalize_expr() {
     delete g_Type1;
     delete g_dummy;
     delete g_default_name;
+    delete g_nat_type;
+    delete g_string_type;
 }
 
 /* ================ LEGACY CODE ================ */

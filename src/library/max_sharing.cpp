@@ -53,7 +53,7 @@ struct max_sharing_fn::imp {
             return *r;
         expr res;
         switch (a.kind()) {
-        case expr_kind::BVar:
+        case expr_kind::BVar: case expr_kind::Lit:
             res = a;
             break;
         case expr_kind::Constant:

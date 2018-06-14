@@ -33,6 +33,10 @@ instance : has_repr binder_info :=
 
 meta constant macro_def : Type
 
+inductive literal
+| str_val (val : string)
+| nat_val (val : nat)
+
 /-- Reflect a C++ expr object. The VM replaces it with the C++ implementation. -/
 meta inductive expr
 | bvar  : nat → expr -- bound variables
@@ -44,6 +48,7 @@ meta inductive expr
 | lam   : name → binder_info → expr → expr → expr
 | pi    : name → binder_info → expr → expr → expr
 | elet  : name → expr → expr → expr → expr
+| lit   : literal → expr
 | macro : macro_def → list expr → expr
 | quote : bool → expr → expr
 
@@ -325,6 +330,7 @@ private meta def p := λ xs, paren (format.join (list.intersperse " " xs))
 
 meta def to_raw_fmt : expr → format
 | (bvar n) := p ["bvar", to_fmt n]
+| (lit l)  := "lit"
 | (fvar n) := p ["fvar", to_fmt n]
 | (sort l) := p ["sort", to_fmt l]
 | (const n ls) := p ["const", to_fmt n, to_fmt ls]

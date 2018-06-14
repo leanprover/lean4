@@ -92,6 +92,9 @@ bool equiv_manager::is_equiv_core(expr const & a, expr const & b) {
     case expr_kind::Sort:
         result = sort_level(a) == sort_level(b);
         break;
+    case expr_kind::Lit:
+        result = lit_value(a) == lit_value(b);
+        break;
     case expr_kind::Let:
         result =
             is_equiv_core(let_type(a), let_type(b)) &&

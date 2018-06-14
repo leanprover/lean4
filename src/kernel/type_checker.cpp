@@ -218,6 +218,7 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
 
     expr r;
     switch (e.kind()) {
+    case expr_kind::Lit:       r = lit_type(e);    break;
     case expr_kind::FVar:      r = infer_fvar(e);  break;
     case expr_kind::Meta:      r = mlocal_type(e); break;
     case expr_kind::BVar:
@@ -303,6 +304,7 @@ expr type_checker::whnf_core(expr const & e) {
     switch (e.kind()) {
     case expr_kind::BVar: case expr_kind::Sort: case expr_kind::Meta:
     case expr_kind::Pi:   case expr_kind::Constant: case expr_kind::Lambda:
+    case expr_kind::Lit:
         return e;
     case expr_kind::FVar:
         return whnf_fvar(e);
@@ -325,6 +327,7 @@ expr type_checker::whnf_core(expr const & e) {
     switch (e.kind()) {
     case expr_kind::BVar:  case expr_kind::Sort: case expr_kind::Meta: case expr_kind::FVar:
     case expr_kind::Pi:   case expr_kind::Constant: case expr_kind::Lambda:
+    case expr_kind::Lit:
         lean_unreachable(); // LCOV_EXCL_LINE
 
     case expr_kind::Quote:
@@ -351,7 +354,7 @@ expr type_checker::whnf_core(expr const & e) {
             r = whnf_core(mk_rev_app(instantiate(binding_body(f), m, args.data() + (num_args - m)), num_args - m, args.data()));
         } else if (f == f0) {
             if (auto r = norm_ext(e)) {
-                /* mainly iota-reduction, it also applies HIT and quotient reduction rules */
+                /* iota-reduction and quotient reduction rules */
                 return whnf_core(*r);
             } else {
                 return e;
@@ -414,6 +417,7 @@ expr type_checker::whnf(expr const & e) {
     // Do not cache easy cases
     switch (e.kind()) {
     case expr_kind::BVar: case expr_kind::Sort: case expr_kind::Meta: case expr_kind::Pi:
+    case expr_kind::Lit:
         return e;
     case expr_kind::FVar:
         return whnf_fvar(e);
@@ -518,6 +522,8 @@ lbool type_checker::quick_is_def_eq(expr const & t, expr const & s, bool use_has
         case expr_kind::Constant: case expr_kind::Macro: case expr_kind::Let:
             // We do not handle these cases in this method.
             break;
+        case expr_kind::Lit:
+            return to_lbool(lit_value(t) == lit_value(s));
 
         case expr_kind::Quote:
             return to_lbool(t.raw() == s.raw());

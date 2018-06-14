@@ -21,6 +21,8 @@ bool is_lt(expr const & a, expr const & b, bool use_hash, local_context const * 
     }
     if (a == b)                          return false;
     switch (a.kind()) {
+    case expr_kind::Lit:
+        return lit_value(a) < lit_value(b);
     case expr_kind::BVar:
         return var_idx(a) < var_idx(b);
     case expr_kind::Constant:
@@ -130,6 +132,8 @@ bool is_lt_no_level_params(expr const & a, expr const & b) {
     if (wa > wb)                         return false;
     if (a.kind() != b.kind())            return a.kind() < b.kind();
     switch (a.kind()) {
+    case expr_kind::Lit:
+        return lit_value(a) < lit_value(b);
     case expr_kind::BVar:
         return var_idx(a) < var_idx(b);
     case expr_kind::Constant:

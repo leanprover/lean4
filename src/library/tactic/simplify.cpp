@@ -646,6 +646,7 @@ simp_result simplify_core_fn::visit(expr const & e, optional<expr> const & paren
         switch (curr_result.get_new().kind()) {
         case expr_kind::FVar:
         case expr_kind::Sort:
+        case expr_kind::Lit:
         case expr_kind::Constant:
             new_result = curr_result;
             break;

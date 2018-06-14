@@ -16,7 +16,6 @@ inductive binder_info
 | default | implicit | strict_implicit | inst_implicit | aux_decl
 
 inductive expr
-| lit   : literal → expr                             -- literals
 | bvar  : nat → expr                                 -- bound variables
 | fvar  : name → expr                                -- free variables
 | mvar  : name → expr → expr                         -- (temporary) meta variables
@@ -27,6 +26,7 @@ inductive expr
 | lam   : name → binder_info → expr → expr → expr    -- lambda abstraction
 | pi    : name → binder_info → expr → expr → expr    -- Pi
 | elet  : name → expr → expr → expr → expr           -- let expressions
+| lit   : literal → expr                             -- literals
 | mdata : name → list (name × literal) → expr → expr -- metadata
 -- TODO: quote constructor will be deleted.
 | quote : bool → expr → expr

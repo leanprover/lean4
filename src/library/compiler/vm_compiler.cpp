@@ -293,6 +293,17 @@ class vm_compiler_fn {
         emit(mk_expr_instr(quote_value(e)));
     }
 
+    void compile_lit(expr const & e) {
+        switch (lit_value(e).kind()) {
+        case literal_kind::Nat:
+            emit(mk_num_instr(lit_value(e).get_nat_value().to_mpz()));
+            break;
+        case literal_kind::String:
+            // TODO(Leo):
+            lean_unreachable();
+        }
+    }
+
     void compile(expr const & e, unsigned bpz, name_map<unsigned> const & m) {
         switch (e.kind()) {
         case expr_kind::BVar:     lean_unreachable();
@@ -305,7 +316,8 @@ class vm_compiler_fn {
         case expr_kind::FVar:     compile_local(e, m);       break;
         case expr_kind::App:      compile_app(e, bpz, m);    break;
         case expr_kind::Let:      compile_let(e, bpz, m);    break;
-        case expr_kind::Quote:    compile_quote(e); break;
+        case expr_kind::Lit:      compile_lit(e);            break;
+        case expr_kind::Quote:    compile_quote(e);          break;
         }
     }
 

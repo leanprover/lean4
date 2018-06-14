@@ -962,6 +962,7 @@ expr elaborator::visit_function(expr const & fn, bool has_args, optional<expr> c
     case expr_kind::Pi:
     case expr_kind::Meta:
     case expr_kind::Sort:
+    case expr_kind::Lit:
         throw elaborator_exception(ref, "invalid application, function expected");
     // The expr_kind::App case can only happen when nary notation is used
     case expr_kind::App:       r = visit(fn, expected_type); break;
@@ -3639,6 +3640,8 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
             switch (e.kind()) {
                 case expr_kind::BVar: lean_unreachable();  // LCOV_EXCL_LINE
                 case expr_kind::Meta:
+                    return e;
+                case expr_kind::Lit:
                     return e;
                 case expr_kind::Sort:
                     return copy_pos(e, visit_sort(e));

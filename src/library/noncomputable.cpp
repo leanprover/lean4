@@ -190,6 +190,7 @@ struct get_noncomputable_reason_fn {
     void visit(expr const & e) {
         switch (e.kind()) {
         case expr_kind::Sort:      return;
+        case expr_kind::Lit:       return;
         case expr_kind::Macro:     visit_macro(e);    return;
         case expr_kind::Constant:  visit_constant(e); return;
         case expr_kind::BVar:      lean_unreachable();

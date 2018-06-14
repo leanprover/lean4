@@ -72,7 +72,8 @@ void collect_locals(expr const & e, collected_locals & ls, bool restricted) {
             return;
         visited.insert(e);
         switch (e.kind()) {
-        case expr_kind::BVar: case expr_kind::Constant: case expr_kind::Sort:
+        case expr_kind::BVar: case expr_kind::Constant:
+        case expr_kind::Sort: case expr_kind::Lit:
             break; // do nothing
         case expr_kind::FVar:
             if (!restricted)

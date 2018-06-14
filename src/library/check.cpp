@@ -111,6 +111,7 @@ struct check_fn {
         case expr_kind::FVar:
         case expr_kind::Meta:
         case expr_kind::Sort:
+        case expr_kind::Lit:
             break; /* do nothing */
         case expr_kind::Constant:
             return visit_constant(e);

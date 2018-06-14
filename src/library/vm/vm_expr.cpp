@@ -120,6 +120,16 @@ vm_obj expr_sort_intro(vm_obj const & l) {
     return to_obj(mk_sort(to_level(l)));
 }
 
+vm_obj expr_lit_intro(vm_obj const & l) {
+    switch (cidx(l)) {
+    case 0:
+        return to_obj(mk_lit(literal(to_string(cfield(l, 0)).c_str())));
+    case 1:
+        return to_obj(mk_lit(literal(vm_nat_to_mpz1(cfield(l, 0)))));
+    }
+    lean_unreachable();
+}
+
 vm_obj expr_const_intro(vm_obj const & n, vm_obj const & ls) {
     return to_obj(mk_constant(to_name(n), to_levels(ls)));
 }
@@ -196,7 +206,16 @@ unsigned expr_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
         data.push_back(to_obj(let_value(e)));
         data.push_back(to_obj(let_body(e)));
         break;
-
+    case expr_kind::Lit:
+        switch (lit_value(e).kind()) {
+        case literal_kind::String:
+            data.push_back(mk_vm_constructor(0, to_obj(std::string(lit_value(e).get_string_value()))));
+            break;
+        case literal_kind::Nat:
+            data.push_back(mk_vm_constructor(1, mk_vm_nat(lit_value(e).get_nat_value().to_mpz())));
+            break;
+        }
+        break;
     case expr_kind::Macro: {
         data.push_back(to_obj(macro_def(e)));
         buffer<expr> args;
@@ -327,6 +346,7 @@ vm_obj reflect_string(vm_obj const & s) {
 
 void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "var"}),              expr_bvar_intro);
+    DECLARE_VM_BUILTIN(name({"expr", "lit"}),              expr_lit_intro);
     DECLARE_VM_BUILTIN(name({"expr", "fvar"}),             expr_fvar_const_intro);
     DECLARE_VM_BUILTIN(name({"expr", "sort"}),             expr_sort_intro);
     DECLARE_VM_BUILTIN(name({"expr", "const"}),            expr_const_intro);

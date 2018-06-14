@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "runtime/serializer.h"
 #include "util/rc.h"
 #include "util/name.h"
+#include "util/nat.h"
 #include "util/hash.h"
 #include "util/buffer.h"
 #include "util/list_fn.h"
@@ -38,13 +39,14 @@ class expr;
           |   Lambda        name expr expr
           |   Pi            name expr expr
           |   Let           name expr expr expr
+          |   Lit           literal
 
           The following constructors will be deleted in the future
 
           |   Quote         bool expr
           |   Macro         macro
 */
-enum class expr_kind { BVar, FVar, Sort, Constant, Meta, App, Lambda, Pi, Let, Macro, Quote };
+enum class expr_kind { BVar, FVar, Sort, Constant, Meta, App, Lambda, Pi, Let, Lit, Macro, Quote };
 class expr_cell {
 protected:
     // The bits of the following field mean:
@@ -80,6 +82,7 @@ typedef expr_cell * expr_ptr;
 
 class macro_definition;
 class binder_info;
+class literal;
 
 /**
    \brief Exprs for encoding formulas/expressions, types and proofs.
@@ -89,7 +92,6 @@ private:
     expr_cell * m_ptr;
     explicit expr(expr_cell * ptr):m_ptr(ptr) { if (m_ptr) m_ptr->inc_ref(); }
     friend class expr_cell;
-    friend struct cache_expr_insert_fn;
     expr_cell * steal_ptr() { expr_cell * r = m_ptr; m_ptr = nullptr; return r; }
     friend class optional<expr>;
 public:
@@ -130,6 +132,7 @@ public:
     friend expr mk_app(expr const & f, expr const & a);
     friend expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & i);
     friend expr mk_let(name const & n, expr const & t, expr const & v, expr const & b);
+    friend expr mk_lit(literal const & lit);
     friend bool is_eqp(expr const & a, expr const & b) { return a.m_ptr == b.m_ptr; }
 
     // TODO(Leo): delete
@@ -164,7 +167,6 @@ class expr_const : public expr_cell {
     levels     m_levels;
     friend expr_cell;
     void dealloc();
-    friend struct cache_expr_insert_fn;
     expr_const(expr_const const &, levels const & new_levels); // for hash_consing
 public:
     expr_const(name const & n, levels const & ls);
@@ -195,7 +197,6 @@ protected:
     expr   m_type;
     friend expr_cell;
     void dealloc(buffer<expr_cell*> & todelete);
-    friend struct cache_expr_insert_fn;
     expr_mlocal(expr_mlocal const &, expr const & new_type); // for hash_consing
 public:
     expr_mlocal(bool is_meta, name const & n, name const & pp_n, expr const & t);
@@ -246,7 +247,6 @@ class expr_fvar : public expr_mlocal {
     binder_info m_bi;
     friend expr_cell;
     void dealloc(buffer<expr_cell*> & todelete);
-    friend struct cache_expr_insert_fn;
     expr_fvar(expr_fvar const &, expr const & new_type); // for hash_consing
 public:
     expr_fvar(name const & n, name const & pp_name, expr const & t, binder_info const & bi);
@@ -259,7 +259,6 @@ class expr_app : public expr_composite {
     expr     m_arg;
     friend expr_cell;
     void dealloc(buffer<expr_cell*> & todelete);
-    friend struct cache_expr_insert_fn;
     expr_app(expr_app const &, expr const & new_fn, expr const & new_arg); // for hash_consing
 public:
     expr_app(expr const & fn, expr const & arg);
@@ -289,7 +288,6 @@ class expr_binding : public expr_composite {
     expr             m_body;
     friend class expr_cell;
     void dealloc(buffer<expr_cell*> & todelete);
-    friend struct cache_expr_insert_fn;
     expr_binding(expr_binding const &, expr const & new_domain, expr const & new_body); // for hash_consing
 public:
     expr_binding(expr_kind k, name const & n, expr const & t, expr const & e,
@@ -309,7 +307,6 @@ class expr_let : public expr_composite {
     expr m_body;
     friend class expr_cell;
     void dealloc(buffer<expr_cell*> & todelete);
-    friend struct cache_expr_insert_fn;
     expr_let(expr_let const &, expr const & new_type, expr const & new_value, expr const & new_body); // for hash_consing
 public:
     expr_let(name const & n, expr const & t, expr const & v, expr const & b);
@@ -324,7 +321,6 @@ class expr_sort : public expr_cell {
     level    m_level;
     friend expr_cell;
     void dealloc();
-    friend struct cache_expr_insert_fn;
     expr_sort(expr_sort const &, level const & new_level); // for hash_consing
 public:
     expr_sort(level const & l);
@@ -332,6 +328,43 @@ public:
     level const & get_level() const { return m_level; }
 };
 
+enum class literal_kind { Nat, String };
+
+class literal : public object_ref {
+    explicit literal(object * o):object_ref(o) {}
+public:
+    explicit literal(char const * v);
+    explicit literal(unsigned v);
+    explicit literal(mpz const & v);
+    literal(literal const & other):object_ref(other) {}
+    literal(literal && other):object_ref(other) {}
+    literal & operator=(literal const & other) { object_ref::operator=(other); return *this; }
+    literal & operator=(literal && other) { object_ref::operator=(other); return *this; }
+
+    literal_kind kind() const { return static_cast<literal_kind>(get_kind(raw())); }
+    char const * get_string_value() const { lean_assert(kind() == literal_kind::String); return c_str(cnstr_obj(raw(), 0)); }
+    nat const & get_nat_value() const { lean_assert(kind() == literal_kind::Nat); return static_cast<nat const &>(cnstr_obj_ref(*this, 0)); }
+    friend bool operator==(literal const & a, literal const & b);
+    friend bool operator<(literal const & a, literal const & b);
+
+    void serialize(serializer & s) const { s.write_object(raw()); }
+    static literal deserialize(deserializer & d) { return literal(d.read_object()); }
+};
+
+inline bool operator!=(literal const & a, literal const & b) { return !(a == b); }
+inline serializer & operator<<(serializer & s, literal const & l) { l.serialize(s); return s; }
+inline literal read_literal(deserializer & d) { return literal::deserialize(d); }
+inline deserializer & operator>>(deserializer & d, literal & l) { l = read_literal(d); return d; }
+
+class expr_lit : public expr_cell {
+    literal m_lit;
+    friend expr_cell;
+    void dealloc();
+public:
+    expr_lit(literal const & lit);
+    ~expr_lit();
+    literal const & get_literal() const { return m_lit; }
+};
 
 // =======================================
 // Testers
@@ -344,6 +377,7 @@ inline bool is_lambda(expr_ptr e)      { return e->kind() == expr_kind::Lambda; 
 inline bool is_pi(expr_ptr e)          { return e->kind() == expr_kind::Pi; }
 inline bool is_let(expr_ptr e)         { return e->kind() == expr_kind::Let; }
 inline bool is_sort(expr_ptr e)        { return e->kind() == expr_kind::Sort; }
+inline bool is_lit(expr_ptr e)         { return e->kind() == expr_kind::Lit; }
 inline bool is_binding(expr_ptr e)     { return is_lambda(e) || is_pi(e); }
 
 bool is_atomic(expr const & e);
@@ -354,6 +388,7 @@ bool is_metavar_app(expr const & e);
 
 // =======================================
 // Constructors
+expr mk_lit(literal const & lit);
 expr mk_bvar(unsigned idx);
 expr mk_fvar(name const & n);
 inline expr BVar(unsigned idx) { return mk_bvar(idx); }
@@ -413,6 +448,7 @@ inline expr mk_app(expr const & e1, expr const & e2, expr const & e3, expr const
 
 // =======================================
 // Casting (these functions are only needed for low-level code)
+inline expr_lit *         to_lit(expr_ptr e)        { lean_assert(is_lit(e));         return static_cast<expr_lit*>(e); }
 inline expr_bvar *        to_bvar(expr_ptr e)       { lean_assert(is_bvar(e));        return static_cast<expr_bvar*>(e); }
 inline expr_fvar *        to_fvar(expr_ptr e)       { lean_assert(is_fvar(e));        return static_cast<expr_fvar*>(e); }
 inline expr_const *       to_constant(expr_ptr e)   { lean_assert(is_constant(e));    return static_cast<expr_const*>(e); }
@@ -426,25 +462,27 @@ inline expr_let *         to_let(expr_ptr e)        { lean_assert(is_let(e));   
 
 // =======================================
 // Accessors
-inline unsigned       get_rc(expr_ptr e)                { return e->get_rc(); }
-inline bool           is_shared(expr_ptr e)             { return get_rc(e) > 1; }
-inline unsigned       bvar_idx(expr_ptr e)              { return to_bvar(e)->get_vidx(); }
-inline bool           is_bvar(expr_ptr e, unsigned i)   { return is_bvar(e) && bvar_idx(e) == i; }
-inline name const &   fvar_name(expr_ptr e)             { return to_fvar(e)->get_name(); }
-inline level const &  sort_level(expr_ptr e)            { return to_sort(e)->get_level(); }
-inline name const &   const_name(expr_ptr e)            { return to_constant(e)->get_name(); }
-inline levels const & const_levels(expr_ptr e)          { return to_constant(e)->get_levels(); }
-inline expr const &   app_fn(expr_ptr e)                { return to_app(e)->get_fn(); }
-inline expr const &   app_arg(expr_ptr e)               { return to_app(e)->get_arg(); }
-inline name const &   binding_name(expr_ptr e)          { return to_binding(e)->get_name(); }
-inline expr const &   binding_domain(expr_ptr e)        { return to_binding(e)->get_domain(); }
-inline expr const &   binding_body(expr_ptr e)          { return to_binding(e)->get_body(); }
-inline binder_info const & binding_info(expr_ptr e)     { return to_binding(e)->get_info(); }
-inline binder const & binding_binder(expr_ptr e)        { return to_binding(e)->get_binder(); }
-inline name const &   let_name(expr_ptr e)              { return to_let(e)->get_name(); }
-inline expr const &   let_type(expr_ptr e)              { return to_let(e)->get_type(); }
-inline expr const &   let_value(expr_ptr e)             { return to_let(e)->get_value(); }
-inline expr const &   let_body(expr_ptr e)              { return to_let(e)->get_body(); }
+inline unsigned        get_rc(expr_ptr e)                { return e->get_rc(); }
+inline bool            is_shared(expr_ptr e)             { return get_rc(e) > 1; }
+inline literal const & lit_value(expr_ptr e)             { return to_lit(e)->get_literal(); }
+expr lit_type(expr_ptr e);
+inline unsigned        bvar_idx(expr_ptr e)              { return to_bvar(e)->get_vidx(); }
+inline bool            is_bvar(expr_ptr e, unsigned i)   { return is_bvar(e) && bvar_idx(e) == i; }
+inline name const &    fvar_name(expr_ptr e)             { return to_fvar(e)->get_name(); }
+inline level const &   sort_level(expr_ptr e)            { return to_sort(e)->get_level(); }
+inline name const &    const_name(expr_ptr e)            { return to_constant(e)->get_name(); }
+inline levels const &  const_levels(expr_ptr e)          { return to_constant(e)->get_levels(); }
+inline expr const &    app_fn(expr_ptr e)                { return to_app(e)->get_fn(); }
+inline expr const &    app_arg(expr_ptr e)               { return to_app(e)->get_arg(); }
+inline name const &    binding_name(expr_ptr e)          { return to_binding(e)->get_name(); }
+inline expr const &    binding_domain(expr_ptr e)        { return to_binding(e)->get_domain(); }
+inline expr const &    binding_body(expr_ptr e)          { return to_binding(e)->get_body(); }
+inline binder_info const & binding_info(expr_ptr e)      { return to_binding(e)->get_info(); }
+inline binder const &  binding_binder(expr_ptr e)        { return to_binding(e)->get_binder(); }
+inline name const &    let_name(expr_ptr e)              { return to_let(e)->get_name(); }
+inline expr const &    let_type(expr_ptr e)              { return to_let(e)->get_type(); }
+inline expr const &    let_value(expr_ptr e)             { return to_let(e)->get_value(); }
+inline expr const &    let_body(expr_ptr e)              { return to_let(e)->get_body(); }
 
 
 inline bool is_constant(expr const & e, name const & n) { return is_constant(e) && const_name(e) == n; }
@@ -653,7 +691,6 @@ class expr_macro : public expr_composite {
     expr const * get_args_ptr() const {
         return reinterpret_cast<expr const *>(reinterpret_cast<char const *>(this)+sizeof(expr_macro));
     }
-    friend struct cache_expr_insert_fn;
     expr_macro(expr_macro const & src, expr const * new_args); // for hash_consing
 public:
     expr_macro(macro_definition const & v, unsigned num, expr const * args);

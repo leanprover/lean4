@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <string>
 #include "util/object_ref.h"
 namespace lean {
 /* Wrapper for Lean string objects */

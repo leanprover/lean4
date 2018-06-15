@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <cstring>
 #include <sstream>
+#include <string>
 #include "util/test.h"
 #include "util/name.h"
 #include "util/name_set.h"

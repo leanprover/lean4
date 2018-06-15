@@ -32,6 +32,7 @@ optional<unsigned> is_utf8_first_byte(unsigned char c);
 /* "Read" next unicode character starting at position i in a string using UTF-8 encoding.
    Return the unicode character and update i. */
 unsigned next_utf8(std::string const & str, size_t & i);
+unsigned next_utf8(char const * str, size_t size, size_t & i);
 
 /* Decode a UTF-8 encoded string `str` into unicode scalar values */
 void utf8_decode(std::string const & str, buffer<unsigned> & out);

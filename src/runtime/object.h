@@ -325,7 +325,7 @@ inline object * alloc_string(size_t size, size_t capacity, size_t len) {
 }
 object * mk_string(char const * s);
 object * mk_string(std::string const & s);
-inline char const * c_str(object * o) { lean_assert(is_string(o)); return reinterpret_cast<char*>(o) + sizeof(string_object); }
+inline char const * string_data(object * o) { lean_assert(is_string(o)); return reinterpret_cast<char*>(o) + sizeof(string_object); }
 inline size_t string_capacity(object * o) { return to_string(o)->m_capacity; }
 inline size_t string_size(object * o) { return to_string(o)->m_size; }
 inline size_t string_len(object * o) { return to_string(o)->m_length; }
@@ -334,6 +334,8 @@ object * string_push(object * s, unsigned c);
 object * string_append(object * s1, object * s2);
 bool string_eq(object * s1, object * s2);
 inline bool string_ne(object * s1, object * s2) { return !string_eq(s1, s2); }
+bool string_eq(object * s1, char const * s2);
+bool string_lt(object * s1, object * s2);
 
 /* Natural numbers */
 

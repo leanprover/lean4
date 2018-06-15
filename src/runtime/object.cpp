@@ -132,7 +132,7 @@ static object * sarray_ensure_capacity(object * o, size_t extra) {
 #endif
 
 /* Strings */
-static inline char * w_c_str(object * o) { lean_assert(is_string(o)); return reinterpret_cast<char *>(o) + sizeof(string_object); }
+static inline char * w_string_data(object * o) { lean_assert(is_string(o)); return reinterpret_cast<char *>(o) + sizeof(string_object); }
 
 static object * string_ensure_capacity(object * o, size_t extra) {
     lean_assert(!is_shared(o));
@@ -141,7 +141,7 @@ static object * string_ensure_capacity(object * o, size_t extra) {
     if (sz + extra > cap) {
         object * new_o = alloc_string(sz, cap + sz + extra, string_len(o));
         lean_assert(string_capacity(new_o) >= sz + extra);
-        memcpy(w_c_str(new_o), c_str(o), sz);
+        memcpy(w_string_data(new_o), string_data(o), sz);
         free(o);
         return new_o;
     } else {
@@ -154,11 +154,12 @@ object * mk_string(char const * s) {
     size_t len = utf8_strlen(s);
     size_t rsz = sz + 1;
     object * r = alloc_string(rsz, rsz, len);
-    memcpy(w_c_str(r), s, sz+1);
+    memcpy(w_string_data(r), s, sz+1);
     return r;
 }
 
 object * mk_string(std::string const & s) {
+    // TODO(Leo): fix... std::string may contain null characters
     return mk_string(s.c_str());
 }
 
@@ -166,10 +167,10 @@ object * string_push(object * s, unsigned c) {
     lean_assert(!is_shared(s));
     object * r = string_ensure_capacity(s, 5);
     size_t sz  = string_size(r);
-    unsigned consumed = push_unicode_scalar(w_c_str(r) + sz - 1, c);
+    unsigned consumed = push_unicode_scalar(w_string_data(r) + sz - 1, c);
     to_string(r)->m_size   = sz + consumed;
     to_string(r)->m_length++;
-    w_c_str(r)[sz + consumed - 1] = 0;
+    w_string_data(r)[sz + consumed - 1] = 0;
     return r;
 }
 
@@ -181,18 +182,42 @@ object * string_append(object * s1, object * s2) {
     size_t len2 = string_len(s2);
     object * r = string_ensure_capacity(s1, sz2-1);
     if (s1 == s2) s2 = r;
-    memcpy(w_c_str(r) + sz1 - 1, c_str(s2), sz2 - 1);
+    memcpy(w_string_data(r) + sz1 - 1, string_data(s2), sz2 - 1);
     unsigned new_sz = sz1 + sz2 - 1;
     to_string(r)->m_size   = new_sz;
     to_string(r)->m_length = len1 + len2;
-    w_c_str(r)[new_sz - 1] = 0;
+    w_string_data(r)[new_sz - 1] = 0;
     return r;
 }
 
 bool string_eq(object * s1, object * s2) {
     if (string_size(s1) != string_size(s2))
         return false;
-    return std::memcmp(c_str(s1), c_str(s2), string_size(s1)) == 0;
+    return std::memcmp(string_data(s1), string_data(s2), string_size(s1)) == 0;
+}
+
+bool string_eq(object * s1, char const * s2) {
+    if (string_size(s1) != strlen(s2) + 1)
+        return false;
+    return std::memcmp(string_data(s1), s2, string_size(s1)) == 0;
+}
+
+bool string_lt(object * s1, object * s2) {
+    char const * d1  = string_data(s1);
+    char const * d2  = string_data(s2);
+    size_t i1  = 0;
+    size_t i2  = 0;
+    size_t sz1 = string_size(s1);
+    size_t sz2 = string_size(s2);
+    while (i1 < sz1 && i2 < sz2) {
+        unsigned c1 = next_utf8(d1, sz1, i1);
+        unsigned c2 = next_utf8(d2, sz2, i2);
+        if (c1 < c2)
+            return true;
+        if (c1 > c2)
+            return false;
+    }
+    return i1 == sz1 && i2 < sz2;
 }
 
 /* Natural numbers */
@@ -411,7 +436,7 @@ bool int_big_lt(object * a1, object * a2) {
 
 void dbg_print_str(object * o) {
     lean_assert(is_string(o));
-    std::cout << c_str(o) << "\n";
+    std::cout << string_data(o) << "\n";
 }
 
 void dbg_print_num(object * o) {

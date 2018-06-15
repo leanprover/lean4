@@ -188,7 +188,7 @@ bool is_prefix_of(name const & n1, name const & n2) {
         if (cnstr_tag(i1) != cnstr_tag(i2))
             return false;
         if (static_cast<name_kind>(cnstr_tag(i1)) == name_kind::STRING) {
-            if (strcmp(name::get_string(i1), name::get_string(i2)) != 0)
+            if (string_ne(name::get_string_obj(i1), name::get_string_obj(i2)))
                 return false;
         } else if (!nat_eq(name::get_num_obj(i1), name::get_num_obj(i2))) {
             return false;
@@ -201,7 +201,7 @@ bool operator==(name const & a, char const * b) {
     return
         a.kind() == name_kind::STRING &&
         is_scalar(name::get_prefix(a.raw())) &&
-        strcmp(a.get_string(), b) == 0;
+        string_eq(name::get_string_obj(a.raw()), b);
 }
 
 int name::cmp_core(object * i1, object * i2) {
@@ -219,9 +219,10 @@ int name::cmp_core(object * i1, object * i2) {
             return k1 == name_kind::STRING ? 1 : -1;
 
         if (k1 == name_kind::STRING) {
-            int c = strcmp(get_string(i1), get_string(i2));
-            if (c != 0)
-                return c;
+            if (string_lt(get_string_obj(i1), get_string_obj(i2)))
+                return -1;
+            if (string_lt(get_string_obj(i2), get_string_obj(i1)))
+                return 1;
         } else {
             object * n1 = get_num_obj(i1);
             object * n2 = get_num_obj(i2);

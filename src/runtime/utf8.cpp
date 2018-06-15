@@ -139,7 +139,7 @@ optional<unsigned> is_utf8_first_byte(unsigned char c) {
     }
 }
 
-unsigned next_utf8(std::string const & str, size_t & i) {
+unsigned next_utf8(char const * str, size_t size, size_t & i) {
     unsigned c = static_cast<unsigned char>(str[i]);
     /* zero continuation (0 to 127) */
     if ((c & 0x80) == 0) {
@@ -148,7 +148,7 @@ unsigned next_utf8(std::string const & str, size_t & i) {
     }
 
     /* one continuation (128 to 2047) */
-    if ((c & 0xe0) == 0xc0 && i + 1 < str.size()) {
+    if ((c & 0xe0) == 0xc0 && i + 1 < size) {
         unsigned c1 = static_cast<unsigned char>(str[i+1]);
         unsigned r = ((c & 0x1f) << 6) | (c1 & 0x3f);
         if (r >= 128) {
@@ -158,7 +158,7 @@ unsigned next_utf8(std::string const & str, size_t & i) {
     }
 
     /* two continuations (2048 to 55295 and 57344 to 65535) */
-    if ((c & 0xf0) == 0xe0 && i + 2 < str.size()) {
+    if ((c & 0xf0) == 0xe0 && i + 2 < size) {
         unsigned c1 = static_cast<unsigned char>(str[i+1]);
         unsigned c2 = static_cast<unsigned char>(str[i+2]);
         unsigned r = ((c & 0x0f) << 12) | ((c1 & 0x3f) << 6) | (c2 & 0x3f);
@@ -169,7 +169,7 @@ unsigned next_utf8(std::string const & str, size_t & i) {
     }
 
     /* three continuations (65536 to 1114111) */
-    if ((c & 0xf8) == 0xf0 && i + 3 < str.size()) {
+    if ((c & 0xf8) == 0xf0 && i + 3 < size) {
         unsigned c1 = static_cast<unsigned char>(str[i+1]);
         unsigned c2 = static_cast<unsigned char>(str[i+2]);
         unsigned c3 = static_cast<unsigned char>(str[i+3]);
@@ -183,6 +183,11 @@ unsigned next_utf8(std::string const & str, size_t & i) {
     /* invalid UTF-8 encoded string */
     i++;
     return c;
+}
+
+
+unsigned next_utf8(std::string const & str, size_t & i) {
+    return next_utf8(str.data(), str.size(), i);
 }
 
 void utf8_decode(std::string const & str, buffer<unsigned> & out) {

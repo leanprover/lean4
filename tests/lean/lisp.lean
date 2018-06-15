@@ -5,15 +5,15 @@ set_option eqn_compiler.lemmas false
 
 attribute [instance] lean.name.has_lt_quick
 open lean.parser
-open lean.parser.parser_t
+open lean.parser.monad_parser
 
 def test {α} [decidable_eq α] (p : parser α) (s : string) (e : α) : io unit :=
-match parse p s with
+match parser_t.parse p s with
 | except.ok a    := if a = e then return () else io.print_ln "unexpected result"
 | except.error e := io.print_ln (e.to_string s)
 
 def test_failure {α} (p : parser α) (s : string) : io unit :=
-match parse p s with
+match parser_t.parse p s with
 | except.ok a    := io.print_ln "unexpected success"
 | except.error e := return ()
 
@@ -41,7 +41,7 @@ do start ← pos,
 
 def num : parser_t m syntax :=
 do start ← pos,
-   n ← parser_t.num,
+   n ← monad_parser.num,
    stop ← pos,
    whitespace,
    pure $ syntax.atom ⟨some ⟨start, stop⟩, atomic_val.number n⟩

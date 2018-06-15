@@ -8,7 +8,7 @@ import init.lean.parser.parser_t
 
 namespace lean
 namespace parser
-open parser_t
+open monad_parser
 
 def parse_hex_digit : parser nat :=
 (    (do d ← digit, return $ d.val - '0'.val)

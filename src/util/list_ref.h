@@ -66,6 +66,25 @@ public:
     }
     friend bool operator!=(list_ref const & l1, list_ref const & l2) { return !(l1 == l2); }
 
+    // lexicographical order
+    friend bool operator<(list_ref const & l1, list_ref const & l2) {
+        object * it1 = l1.raw();
+        object * it2 = l2.raw();
+        while (!is_scalar(it1) && !is_scalar(it2)) {
+            if (it1 == it2)
+                return false;
+            T const & h1 = ::lean::head<T>(it1);
+            T const & h2 = ::lean::head<T>(it2);
+            if (h1 < h2)
+                return true;
+            if (h2 > h1)
+                return false;
+            it1 = cnstr_obj(it1, 1);
+            it2 = cnstr_obj(it2, 1);
+        }
+        return is_scalar(it1) && !is_scalar(it2);
+    }
+
     class iterator {
         friend class list_ref;
         object * m_it;

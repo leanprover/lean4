@@ -57,11 +57,11 @@ list<A> to_list(vm_obj const & o, F const & fn) {
 }
 
 template<typename A, typename F>
-obj_list<A> to_obj_list(vm_obj const & o, F const & fn) {
+list_ref<A> to_list_ref(vm_obj const & o, F const & fn) {
     if (is_simple(o)) {
-        return obj_list<A>();
+        return list_ref<A>();
     } else if (is_constructor(o)) {
-        return obj_list<A>(fn(cfield(o, 0)), to_obj_list<A>(cfield(o, 1), fn));
+        return list_ref<A>(fn(cfield(o, 0)), to_list_ref<A>(cfield(o, 1), fn));
     } else {
         lean_unreachable();
     }

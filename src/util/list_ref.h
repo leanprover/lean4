@@ -12,44 +12,44 @@ template<typename T> T const & head(object * o) { return static_cast<T const &>(
 
 /* Wrapper for manipulating Lean lists in C++ */
 template<typename T>
-class obj_list : public object_ref {
-    explicit obj_list(object * o):object_ref(o) { inc(o); }
+class list_ref : public object_ref {
+    explicit list_ref(object * o):object_ref(o) { inc(o); }
 public:
-    obj_list():object_ref(box(0)) {}
-    explicit obj_list(T const & a):object_ref(mk_cnstr(1, a.raw(), box(0))) { inc(a.raw()); }
-    explicit obj_list(T const * a) { if (a) *this = obj_list(*a); }
-    explicit obj_list(obj_list<T> const * l) { if (l) *this = *l; }
-    obj_list(T const & h, obj_list<T> const & t):object_ref(mk_cnstr(1, h.raw(), t.raw())) { inc(h.raw()); inc(t.raw()); }
-    obj_list(obj_list const & other):object_ref(other) {}
-    obj_list(obj_list && other):object_ref(other) {}
-    template<typename It> obj_list(It const & begin, It const & end):obj_list() {
+    list_ref():object_ref(box(0)) {}
+    explicit list_ref(T const & a):object_ref(mk_cnstr(1, a.raw(), box(0))) { inc(a.raw()); }
+    explicit list_ref(T const * a) { if (a) *this = list_ref(*a); }
+    explicit list_ref(list_ref<T> const * l) { if (l) *this = *l; }
+    list_ref(T const & h, list_ref<T> const & t):object_ref(mk_cnstr(1, h.raw(), t.raw())) { inc(h.raw()); inc(t.raw()); }
+    list_ref(list_ref const & other):object_ref(other) {}
+    list_ref(list_ref && other):object_ref(other) {}
+    template<typename It> list_ref(It const & begin, It const & end):list_ref() {
         auto it = end;
         while (it != begin) {
             --it;
-            *this = obj_list(*it, *this);
+            *this = list_ref(*it, *this);
         }
     }
-    obj_list(std::initializer_list<T> const & l):obj_list(l.begin(), l.end()) {}
-    obj_list(buffer<T> const & b):obj_list(b.begin(), b.end()) {}
+    list_ref(std::initializer_list<T> const & l):list_ref(l.begin(), l.end()) {}
+    list_ref(buffer<T> const & b):list_ref(b.begin(), b.end()) {}
 
-    obj_list & operator=(obj_list const & other) { object_ref::operator=(other); return *this; }
-    obj_list & operator=(obj_list && other) { object_ref::operator=(other); return *this; }
+    list_ref & operator=(list_ref const & other) { object_ref::operator=(other); return *this; }
+    list_ref & operator=(list_ref && other) { object_ref::operator=(other); return *this; }
 
     explicit operator bool() const { return !is_scalar(raw()); }
-    friend bool is_nil(obj_list const & l) { return is_scalar(l.raw()); }
-    friend bool empty(obj_list const & l) { return is_nil(l); }
-    friend T const & head(obj_list const & l) { lean_assert(!is_nil(l)); return static_cast<T const &>(cnstr_obj_ref(l, 0)); }
-    friend obj_list const & tail(obj_list const & l) { lean_assert(!is_nil(l)); return static_cast<obj_list const &>(cnstr_obj_ref(l, 1)); }
-    friend T const & car(obj_list const & l) { return head(l); }
-    friend obj_list const & cdr(obj_list const & l) { return tail(l); }
-    friend obj_list cons(T const & h, obj_list<T> const & t) { return obj_list(h, t); }
+    friend bool is_nil(list_ref const & l) { return is_scalar(l.raw()); }
+    friend bool empty(list_ref const & l) { return is_nil(l); }
+    friend T const & head(list_ref const & l) { lean_assert(!is_nil(l)); return static_cast<T const &>(cnstr_obj_ref(l, 0)); }
+    friend list_ref const & tail(list_ref const & l) { lean_assert(!is_nil(l)); return static_cast<list_ref const &>(cnstr_obj_ref(l, 1)); }
+    friend T const & car(list_ref const & l) { return head(l); }
+    friend list_ref const & cdr(list_ref const & l) { return tail(l); }
+    friend list_ref cons(T const & h, list_ref<T> const & t) { return list_ref(h, t); }
 
-    friend bool is_eqp(obj_list const & l1, obj_list const & l2) { return l1.raw() == l2.raw(); }
+    friend bool is_eqp(list_ref const & l1, list_ref const & l2) { return l1.raw() == l2.raw(); }
     void serialize(serializer & s) const { s.write_object(raw()); }
-    static obj_list deserialize(deserializer & d) { return obj_list(d.read_object()); }
+    static list_ref deserialize(deserializer & d) { return list_ref(d.read_object()); }
 
     /** \brief Structural equality. */
-    friend bool operator==(obj_list const & l1, obj_list const & l2) {
+    friend bool operator==(list_ref const & l1, list_ref const & l2) {
         object * it1 = l1.raw();
         object * it2 = l2.raw();
         while (!is_scalar(it1) && !is_scalar(it2)) {
@@ -64,10 +64,10 @@ public:
         }
         return is_scalar(it1) && is_scalar(it2);
     }
-    friend bool operator!=(obj_list const & l1, obj_list const & l2) { return !(l1 == l2); }
+    friend bool operator!=(list_ref const & l1, list_ref const & l2) { return !(l1 == l2); }
 
     class iterator {
-        friend class obj_list;
+        friend class list_ref;
         object * m_it;
         iterator(object * o):m_it(o) {}
     public:
@@ -96,9 +96,9 @@ public:
     }
 };
 
-template<typename T> obj_list<T> const & tail(object * o) { return static_cast<obj_list<T> const &>(cnstr_obj_ref(o, 1)); }
+template<typename T> list_ref<T> const & tail(object * o) { return static_cast<list_ref<T> const &>(cnstr_obj_ref(o, 1)); }
 
-template<typename T> size_t length(obj_list<T> const & l) {
+template<typename T> size_t length(list_ref<T> const & l) {
     size_t r    = 0;
     object * it = l.raw();
     while (!is_scalar(it)) {
@@ -108,32 +108,32 @@ template<typename T> size_t length(obj_list<T> const & l) {
     return r;
 }
 
-template<typename T> serializer & operator<<(serializer & s, obj_list<T> const & l) { l.serialize(s); return s; }
-template<typename T> obj_list<T> read_obj_list(deserializer & d) { return obj_list<T>::deserialize(d); }
+template<typename T> serializer & operator<<(serializer & s, list_ref<T> const & l) { l.serialize(s); return s; }
+template<typename T> list_ref<T> read_list_ref(deserializer & d) { return list_ref<T>::deserialize(d); }
 
-template<typename T> optional<T> head_opt(obj_list<T> const & l) { return is_nil(l) ? optional<T>() : some(head(l)); }
+template<typename T> optional<T> head_opt(list_ref<T> const & l) { return is_nil(l) ? optional<T>() : some(head(l)); }
 
 /** \brief Given `[a_0, ..., a_k]`, return `[f a_0, ..., f a_k]`. */
 template<typename To, typename From, typename F>
-obj_list<To> map2(obj_list<From> const & l, F && f) {
+list_ref<To> map2(list_ref<From> const & l, F && f) {
     if (is_nil(l)) {
-        return obj_list<To>();
+        return list_ref<To>();
     } else {
         buffer<To> new_vs;
         for (To const & v : l)
             new_vs.push_back(f(v));
-        return obj_list<To>(new_vs);
+        return list_ref<To>(new_vs);
     }
 }
 
 /** \brief Given `[a_0, ..., a_k]`, return `[f a_0, ..., f a_k]`. */
 template<typename T, typename F>
-obj_list<T> map(obj_list<T> const & l, F && f) {
+list_ref<T> map(list_ref<T> const & l, F && f) {
     return map2<T, T, F>(l, std::move(f));
 }
 
 template<typename T, typename F>
-obj_list<T> map_reuse(obj_list<T> const & l, F && f) {
+list_ref<T> map_reuse(list_ref<T> const & l, F && f) {
     if (is_nil(l))
         return l;
     buffer<object*> tmp;
@@ -146,8 +146,8 @@ obj_list<T> map_reuse(obj_list<T> const & l, F && f) {
         T const & h = head<T>(curr);
         T new_h = f(h);
         if (new_h.raw() != h.raw()) {
-            obj_list<T> const & t = tail<T>(curr);
-            obj_list<T> r(new_h, t);
+            list_ref<T> const & t = tail<T>(curr);
+            list_ref<T> r(new_h, t);
             while (it != begin) {
                 --it;
                 object * curr  = *it;
@@ -162,7 +162,7 @@ obj_list<T> map_reuse(obj_list<T> const & l, F && f) {
 
 /** \brief Compare two lists using the binary predicate p. */
 template<typename T, typename P>
-bool compare(obj_list<T> const & l1, obj_list<T> const & l2, P && p) {
+bool compare(list_ref<T> const & l1, list_ref<T> const & l2, P && p) {
     auto it1 = l1.begin();
     auto it2 = l2.begin();
     auto end1 = l1.end();
@@ -175,14 +175,14 @@ bool compare(obj_list<T> const & l1, obj_list<T> const & l2, P && p) {
 }
 
 template<typename T>
-void to_buffer(obj_list<T> const & l, buffer<T> & r) {
+void to_buffer(list_ref<T> const & l, buffer<T> & r) {
     for (T const & h : l) r.push_back(h);
 }
 
 /** \brief Filter/Remove elements from the list
     that do not satisfy the given predicate. */
 template<typename T, typename P>
-obj_list<T> filter(obj_list<T> const & l, P && p) {
+list_ref<T> filter(list_ref<T> const & l, P && p) {
     if (is_nil(l))
         return l;
     buffer<object*> tmp;
@@ -191,7 +191,7 @@ obj_list<T> filter(obj_list<T> const & l, P && p) {
     while (i > 0) {
         --i;
         if (!p(head<T>(tmp[i]))) {
-            obj_list<T> r;
+            list_ref<T> r;
             r = tail<T>(tmp[i]);
             while (i > 0) {
                 --i;
@@ -206,7 +206,7 @@ obj_list<T> filter(obj_list<T> const & l, P && p) {
 }
 
 /** \brief Append two lists */
-template<typename T> obj_list<T> append(obj_list<T> const & l1, obj_list<T> const & l2) {
+template<typename T> list_ref<T> append(list_ref<T> const & l1, list_ref<T> const & l2) {
     if (!l1) {
         return l2;
     } else if (!l2) {
@@ -214,7 +214,7 @@ template<typename T> obj_list<T> append(obj_list<T> const & l1, obj_list<T> cons
     } else {
         buffer<object*> tmp;
         l1.get_cons_cells(tmp);
-        obj_list<T> r = l2;
+        list_ref<T> r = l2;
         unsigned i = tmp.size();
         while (i > 0) {
             --i;

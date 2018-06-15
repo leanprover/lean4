@@ -2243,18 +2243,6 @@ or.elim (em a)
   (λ t, or.inl (eq_true_intro t))
   (λ f, or.inr (eq_false_intro f))
 
-def eq_true_or_eq_false := prop_complete
-
-section aux
-attribute [elab_as_eliminator]
-theorem cases_true_false (p : Prop → Prop) (h1 : p true) (h2 : p false) (a : Prop) : p a :=
-or.elim (prop_complete a)
-  (assume ht : a = true,  ht.symm ▸ h1)
-  (assume hf : a = false, hf.symm ▸ h2)
-
-theorem cases_on (a : Prop) {p : Prop → Prop} (h1 : p true) (h2 : p false) : p a :=
-cases_true_false p h1 h2 a
-
 -- this supercedes by_cases in decidable
 def by_cases {p q : Prop} (hpq : p → q) (hnpq : ¬p → q) : q :=
 decidable.by_cases hpq hnpq
@@ -2262,10 +2250,6 @@ decidable.by_cases hpq hnpq
 -- this supercedes by_contradiction in decidable
 theorem by_contradiction {p : Prop} (h : ¬p → false) : p :=
 decidable.by_contradiction h
-
-theorem eq_false_or_eq_true (a : Prop) : a = false ∨ a = true :=
-(prop_complete a).symm
-end aux
 
 end classical
 

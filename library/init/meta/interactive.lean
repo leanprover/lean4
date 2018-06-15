@@ -262,16 +262,6 @@ match p.to_expr with
 
 precedence `generalizing` : 0
 
-private meta def collect_hyps_uids : tactic name_set :=
-do ctx ← local_context,
-   return $ ctx.foldl (λ r h, r.insert h.fvar_id) mk_name_set
-
-private meta def revert_new_hyps (input_hyp_uids : name_set) : tactic unit :=
-do ctx ← local_context,
-   let to_revert := ctx.foldr (λ h r, if input_hyp_uids.contains h.fvar_id then r else h::r) [],
-   m   ← revert_lst to_revert,
-   return ()
-
 private meta def get_type_name (e : expr) : tactic name :=
 do e_type ← infer_type e >>= whnf,
    (const I ls) ← return $ get_app_fn e_type,

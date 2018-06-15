@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_options.h"
 #include "library/vm/vm_format.h"
-#include "library/vm/vm_rb_map.h"
 #include "library/vm/vm_level.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_pexpr.h"
@@ -35,7 +34,6 @@ void initialize_vm_core_module() {
     initialize_vm_name();
     initialize_vm_options();
     initialize_vm_format();
-    initialize_vm_rb_map();
     initialize_vm_level();
     initialize_vm_expr();
     initialize_vm_pexpr();
@@ -61,7 +59,6 @@ void finalize_vm_core_module() {
     finalize_vm_pexpr();
     finalize_vm_expr();
     finalize_vm_level();
-    finalize_vm_rb_map();
     finalize_vm_format();
     finalize_vm_options();
     finalize_vm_name();

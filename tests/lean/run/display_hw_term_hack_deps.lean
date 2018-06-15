@@ -8,6 +8,8 @@ meta def is_eqn_theorem : name → bool
 | (name.mk_string (name.mk_string "equations" _) _) := tt
 | _                                                 := ff
 
+#exit
+
 meta def display_hw_term_hack_dependencies : tactic unit :=
 do env ← get_env,
    env.fold (return mk_name_set) $ λ d tac, do {

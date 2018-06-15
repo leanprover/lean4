@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.meta.declaration init.meta.exceptional init.data.option.basic
-import init.meta.rb_map
 
 meta constant environment : Type
 
@@ -85,10 +84,6 @@ meta constant decl_olean : environment → name → option string
 meta constant decl_pos : environment → name → option pos
 /-- Return the fields of the structure with the given name, or `none` if it is not a structure -/
 meta constant structure_fields : environment → name → option (list name)
-/-- `get_class_attribute_symbols env attr_name` return symbols
-   occurring in instances of type classes tagged with the attribute `attr_name`.
-   Example: [algebra] -/
-meta constant get_class_attribute_symbols : environment → name → name_set
 meta constant fingerprint : environment → nat
 open expr
 

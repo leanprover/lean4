@@ -31,7 +31,6 @@ Author: Leonardo de Moura
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_string.h"
 #include "library/vm/vm_pos_info.h"
-#include "library/vm/vm_rb_map.h"
 #include "library/compiler/simp_inductive.h"
 #include "library/compiler/nat_value.h"
 

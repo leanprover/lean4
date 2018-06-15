@@ -37,7 +37,7 @@ static name replace_base_prefix(name const & p, name const & new_base) {
     } else if (p.is_numeral()) {
         return name(replace_base_prefix(p.get_prefix(), new_base), p.get_numeral());
     } else if (p.is_string()) {
-        return name(replace_base_prefix(p.get_prefix(), new_base), p.get_numeral());
+        return name(replace_base_prefix(p.get_prefix(), new_base), p.get_string());
     } else {
         lean_unreachable();
     }
@@ -72,11 +72,11 @@ static void sanitize_name_generator_name(sstream & strm, name const & n) {
         return;
     } else if (n.is_numeral()) {
         sanitize_name_generator_name(strm, n.get_prefix());
-        strm << "_" << n.get_numeral();
+        strm << "_" << n.get_numeral().to_std_string();
     } else {
         lean_assert(n.is_string());
         sanitize_name_generator_name(strm, n.get_prefix());
-        strm << "_" << n.get_string();
+        strm << "_" << n.get_string().to_std_string();
     }
 }
 
@@ -85,7 +85,7 @@ name sanitize_name_generator_name(name const & n) {
         return n;
     sstream strm;
     sanitize_name_generator_name(strm, n);
-    return name(strm.str());
+    return name(strm.str().c_str());
 }
 
 void initialize_name_generator() {

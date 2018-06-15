@@ -1081,7 +1081,7 @@ name mk_aux_meta_rec_name(name const & n) {
 }
 
 optional<name> is_aux_meta_rec_name(name const & n) {
-    if (!n.is_atomic() && n.is_string() && strcmp(n.get_string(), g_aux_meta_rec_prefix) == 0) {
+    if (!n.is_atomic() && n.is_string() && n.get_string() == g_aux_meta_rec_prefix) {
         return optional<name>(n.get_prefix());
     } else {
         return optional<name>();

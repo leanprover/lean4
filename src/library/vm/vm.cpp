@@ -3473,7 +3473,7 @@ auto vm_state::profiler::get_snapshots() -> snapshots {
             while (true) {
                 if (decl_name.is_atomic()) break;
                 if (!decl_name.is_string()) break;
-                char const * str = decl_name.get_string();
+                char const * str = decl_name.get_string().data(); // <<< HACK: processing Lean string as C string
                 if (str[0] != '_') break;
                 if (strncmp(str, "_lambda", 7) == 0) break;
                 decl_name = decl_name.get_prefix();

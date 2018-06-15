@@ -311,7 +311,7 @@ static expr remove_aux_main_name(expr const & e) {
     expr fn = get_app_args(e, args);
     if (!is_constant(fn)) return e;
     name n = const_name(fn);
-    if (n.is_string() && n.get_string() == std::string("_main")) {
+    if (n.is_string() && n.get_string() == "_main") {
         n = n.get_prefix();
         fn = mk_constant(n, const_levels(fn));
         return mk_app(fn, args);

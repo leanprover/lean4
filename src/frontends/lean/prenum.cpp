@@ -19,7 +19,7 @@ bool is_prenum(expr const & e) {
 
 mpz prenum_value(expr const & e) {
     lean_assert(is_prenum(e));
-    return lit_value(e).get_nat_value().to_mpz();
+    return lit_value(e).get_nat().to_mpz();
 }
 
 void initialize_prenum() {

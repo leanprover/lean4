@@ -344,8 +344,8 @@ std::vector<json> get_interactive_tactic_completions(std::string const & pattern
     name namespc = tac_class + name("interactive");
     env.for_each_declaration([&](declaration const & d) {
         auto const & n = d.get_name();
-        if (n.get_prefix() == namespc && n.is_string() && matcher.match(n.get_string())) {
-            selected.emplace_back(n.get_string(), n);
+        if (n.get_prefix() == namespc && n.is_string() && matcher.match(n.get_string().data())) { // HACK: accessing Lean string as C String
+            selected.emplace_back(n.get_string().data(), n); // HACK: accessing Lean string as C String
         }
     });
     filter_completions<name>(pattern, selected, completions, max_results, [&](name const & n) {

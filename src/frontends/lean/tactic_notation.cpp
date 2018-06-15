@@ -158,12 +158,12 @@ static optional<name> is_itactic(expr const & type) {
     name const & n = const_name(type);
     if (n.is_atomic() ||
         !n.is_string() ||
-        strcmp(n.get_string(), "itactic") != 0)
+        n.get_string() == "itactic")
         return optional<name>();
     name const & pre = n.get_prefix();
     if (pre.is_atomic() ||
         !pre.is_string() ||
-        strcmp(pre.get_string(), "interactive") != 0)
+        pre.get_string() == "interactive")
         return optional<name>();
     return optional<name>(pre.get_prefix());
 }

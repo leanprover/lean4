@@ -80,12 +80,12 @@ static auto get_structure_info(environment const & env, name const & S)
 
 // We mark subobject fields by prefixing them with "_" in the structure's intro rule
 bool is_internal_subobject_field(name const & field_name) {
-    return field_name.is_string() && strncmp(field_name.get_string(), "_", 1) == 0;
+    return field_name.is_string() && field_name.get_string().data()[0] == '_';
 }
 
 name deinternalize_field_name(name const & fname) {
     if (is_internal_subobject_field(fname))
-        return std::string(fname.get_string()).substr(1);
+        return fname.get_string().to_std_string().substr(1);
     return fname;
 }
 

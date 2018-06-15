@@ -450,7 +450,7 @@ equations_header mk_match_header(name const & n, name const & actual_n) {
    We avoid propagating the suffix `_main` used by the top-level equations
    to the nested declarations. */
 static name mk_decl_name(name const & prefix, name const & n) {
-    if (!prefix.is_atomic() && prefix.is_string() && strcmp(prefix.get_string(), "_main") == 0) {
+    if (!prefix.is_atomic() && prefix.is_string() && prefix.get_string() == "_main") {
         return prefix.get_prefix() + n;
     } else {
         return prefix + n;

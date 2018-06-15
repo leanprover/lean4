@@ -101,9 +101,9 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
         return recursor_info(r, *I, universe_pos, inductive::has_dep_elim(env, *I), is_rec,
                              num_args, major_pos, params_pos, indices_pos, produce_motive);
     } else if (is_aux_recursor(env, r) &&
-               (strcmp(r.get_string(), "cases_on") == 0 ||
-                strcmp(r.get_string(), "rec_on") == 0   ||
-                strcmp(r.get_string(), "brec_on") == 0)) {
+               (r.get_string() == "cases_on" ||
+                r.get_string() == "rec_on"   ||
+                r.get_string() == "brec_on")) {
         name I = r.get_prefix();
         unsigned num_indices  = *inductive::get_num_indices(env, I);
         unsigned num_params   = *inductive::get_num_params(env, I);

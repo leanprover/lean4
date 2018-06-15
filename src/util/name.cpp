@@ -62,20 +62,20 @@ static void display_name_core(std::ostream & out, name const & n, bool escape, c
         out << sep;
     }
     if (n.is_string()) {
-        char const * str = n.get_string();
-        size_t sz = strlen(str);
+        std::string str = n.get_string().to_std_string();
+        size_t sz       = str.size();
         bool must_escape = false;
-        if (escape && *str) {
-            if (!is_id_first(str, str + sz))
+        if (escape) {
+            if (sz == 0)
+                must_escape = true;
+            if (!is_id_first(str.data(), str.data() + sz))
                 must_escape = true;
             // don't escape names produced by server::display_decl
-            if (must_escape && str[0] == '?')
+            if (must_escape && str[0] == '?')  // TODO(Kha, Leo): do we need this hack
                 must_escape = false;
-            if (escape) {
-                for (char const * s = str + get_utf8_size(str[0]); !must_escape && *s; s += get_utf8_size(*s)) {
-                    if (!is_id_rest(s, str + sz))
-                        must_escape = true;
-                }
+            for (size_t i = get_utf8_size(str[0]); !must_escape && i < sz; i += get_utf8_size(str[i])) {
+                if (!is_id_rest(str.data() + i, str.data() + sz))
+                    must_escape = true;
             }
         }
         if (must_escape || sz == 0)
@@ -83,7 +83,7 @@ static void display_name_core(std::ostream & out, name const & n, bool escape, c
         else
             out << str;
     } else {
-        out << n.get_numeral();
+        out << n.get_numeral().to_std_string();
     }
 }
 
@@ -108,6 +108,24 @@ name::name(name const & prefix, unsigned k):
                         prefix.raw(), mk_nat_obj(k), sizeof(unsigned))) {
     inc(prefix.raw());
     unsigned h = ::lean::hash(k, prefix.hash());
+    cnstr_set_scalar<unsigned>(raw(), 2*sizeof(object*), h); // NOLINT
+}
+
+name::name(name const & prefix, string_ref const & s):
+    object_ref(mk_cnstr(static_cast<unsigned>(name_kind::STRING),
+                        prefix.raw(), s.raw(), sizeof(unsigned))) {
+    inc(prefix.raw());
+    inc(s.raw());
+    unsigned h = hash_str(static_cast<unsigned>(s.num_bytes()), s.data(), prefix.hash());
+    cnstr_set_scalar<unsigned>(raw(), 2*sizeof(object*), h); // NOLINT
+}
+
+name::name(name const & prefix, nat const & k):
+    object_ref(mk_cnstr(static_cast<unsigned>(name_kind::NUMERAL),
+                        prefix.raw(), k.raw(), sizeof(unsigned))) {
+    inc(prefix.raw());
+    inc(k.raw());
+    unsigned h = ::lean::hash(k.hash(), prefix.hash());
     cnstr_set_scalar<unsigned>(raw(), 2*sizeof(object*), h); // NOLINT
 }
 
@@ -149,10 +167,10 @@ bool name::eq_core(object * i1, object * i2) {
         if (cnstr_tag(i1) != cnstr_tag(i2))
             return false;
         if (static_cast<name_kind>(cnstr_tag(i1)) == name_kind::STRING) {
-            if (string_ne(get_string_obj(i1), get_string_obj(i2)))
+            if (get_string(i1) != get_string(i2))
                 return false;
         } else {
-            if (!nat_eq(get_num_obj(i1), get_num_obj(i2)))
+            if (get_numeral(i1) != get_numeral(i2))
                 return false;
         }
         i1 = get_prefix(i1);
@@ -188,9 +206,9 @@ bool is_prefix_of(name const & n1, name const & n2) {
         if (cnstr_tag(i1) != cnstr_tag(i2))
             return false;
         if (static_cast<name_kind>(cnstr_tag(i1)) == name_kind::STRING) {
-            if (string_ne(name::get_string_obj(i1), name::get_string_obj(i2)))
+            if (name::get_string(i1) != name::get_string(i2))
                 return false;
-        } else if (!nat_eq(name::get_num_obj(i1), name::get_num_obj(i2))) {
+        } else if (name::get_numeral(i1) != name::get_numeral(i2)) {
             return false;
         }
     }
@@ -201,7 +219,7 @@ bool operator==(name const & a, char const * b) {
     return
         a.kind() == name_kind::STRING &&
         is_scalar(name::get_prefix(a.raw())) &&
-        string_eq(name::get_string_obj(a.raw()), b);
+        name::get_string(a.raw()) == b;
 }
 
 int name::cmp_core(object * i1, object * i2) {
@@ -219,15 +237,15 @@ int name::cmp_core(object * i1, object * i2) {
             return k1 == name_kind::STRING ? 1 : -1;
 
         if (k1 == name_kind::STRING) {
-            if (string_lt(get_string_obj(i1), get_string_obj(i2)))
+            if (get_string(i1) < get_string(i2))
                 return -1;
-            if (string_lt(get_string_obj(i2), get_string_obj(i1)))
+            if (get_string(i2) < get_string(i1))
                 return 1;
         } else {
-            object * n1 = get_num_obj(i1);
-            object * n2 = get_num_obj(i2);
-            if (nat_ne(n1, n2))
-                return nat_lt(n1, n2) ? -1 : 1;
+            if (get_numeral(i1) < get_numeral(i2))
+                return -1;
+            if (get_numeral(i2) < get_numeral(i1))
+                return 1;
         }
     }
     if (it1 == limbs1.end() && it2 == limbs2.end())
@@ -235,12 +253,12 @@ int name::cmp_core(object * i1, object * i2) {
     else return it1 == limbs1.end() ? -1 : 1;
 }
 
-static unsigned num_digits(unsigned k) {
-    if (k == 0)
+static unsigned num_digits(nat k) {
+    if (k == nat(0))
         return 1;
     int r = 0;
-    while (k != 0) {
-        k /= 10;
+    while (k != nat(0)) {
+        k = k / nat(10);
         r++;
     }
     return r;
@@ -256,7 +274,7 @@ size_t name::size_core(bool unicode) const {
         while (true) {
             lean_assert(!is_scalar(i));
             if (kind(i) == name_kind::STRING) {
-                r += unicode ? string_len(get_string_obj(i)) : strlen(get_string(i));
+                r += unicode ? get_string(i).length() : get_string(i).num_bytes();
             } else {
                 // TODO(Leo): we are ignoring the case the numeral is not small.
                 r += num_digits(get_numeral(i));
@@ -282,7 +300,7 @@ bool name::is_safe_ascii() const {
     object * i = raw();
     while (!is_scalar(i)) {
         if (kind(i) == name_kind::STRING) {
-            if (!::lean::is_safe_ascii(get_string(i)))
+            if (!::lean::is_safe_ascii(get_string(i).data(), get_string(i).num_bytes()))
                 return false;
         }
         i  = get_prefix(i);
@@ -337,7 +355,7 @@ name name::append_before(char const * p) const {
     if (is_anonymous()) {
         return name(p);
     } else if (is_string()) {
-        return name(get_prefix(), (std::string(p) + std::string(get_string())).c_str());
+        return name(get_prefix(), string_ref(std::string(p) + get_string().to_std_string()));
     } else {
         return name(name(get_prefix(), p), get_numeral());
     }
@@ -347,7 +365,7 @@ name name::append_after(char const * s) const {
     if (is_anonymous()) {
         return name(s);
     } else if (is_string()) {
-        return name(get_prefix(), (std::string(get_string()) + std::string(s)).c_str());
+        return name(get_prefix(), string_ref(get_string().to_std_string() + std::string(s)));
     } else {
         return name(*this, s);
     }
@@ -364,15 +382,15 @@ name name::get_subscript_base() const {
 name name::append_after(unsigned i) const {
     name b = get_subscript_base();
     std::ostringstream s;
-    s << b.get_string() << "_" << i;
-    return name(b.get_prefix(), s.str().c_str());
+    s << b.get_string().to_std_string() << "_" << i;
+    return name(b.get_prefix(), string_ref(s.str()));
 }
 
 optional<pair<name, unsigned>> name::is_subscripted() const {
     optional<pair<name, unsigned>> none;
     if (!is_string()) return none;
 
-    std::string s = get_string();
+    std::string s = get_string().to_std_string();
     auto underscore_pos = s.find_last_of('_');
     if (underscore_pos == std::string::npos) return none;
 
@@ -383,7 +401,7 @@ optional<pair<name, unsigned>> name::is_subscripted() const {
         idx = 10*idx + (*it - '0');
     if (it != s.end()) return none;
 
-    name prefix(get_prefix(), s.substr(0, underscore_pos).c_str());
+    name prefix(get_prefix(), string_ref(s.substr(0, underscore_pos)));
     return optional<pair<name, unsigned>>(prefix, idx);
 }
 
@@ -404,7 +422,7 @@ name name::replace_prefix(name const & prefix, name const & new_prefix) const {
 bool is_part_of(std::string const & p, name n) {
     while (true) {
         if (n.is_string()) {
-            std::string s(n.get_string());
+            std::string s = n.get_string().to_std_string();
             if (s.find(p) != std::string::npos)
                 return true;
         }
@@ -432,7 +450,7 @@ name string_to_name(std::string const & str) {
 bool is_internal_name(name const & n) {
     name it = n;
     while (!it.is_anonymous()) {
-        if (!it.is_anonymous() && it.is_string() && it.get_string() && it.get_string()[0] == '_')
+        if (!it.is_anonymous() && it.is_string() && it.get_string().data() && it.get_string().data()[0] == '_')
             return true;
         it = it.get_prefix();
     }

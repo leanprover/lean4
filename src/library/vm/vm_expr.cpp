@@ -208,10 +208,10 @@ unsigned expr_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
     case expr_kind::Lit:
         switch (lit_value(e).kind()) {
         case literal_kind::String:
-            data.push_back(mk_vm_constructor(0, to_obj(std::string(lit_value(e).get_string_value()))));
+            data.push_back(mk_vm_constructor(0, to_obj(std::string(lit_value(e).get_string().to_std_string()))));
             break;
         case literal_kind::Nat:
-            data.push_back(mk_vm_constructor(1, mk_vm_nat(lit_value(e).get_nat_value().to_mpz())));
+            data.push_back(mk_vm_constructor(1, mk_vm_nat(lit_value(e).get_nat().to_mpz())));
             break;
         }
         break;

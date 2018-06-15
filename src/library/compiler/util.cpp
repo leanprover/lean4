@@ -83,7 +83,7 @@ void get_rec_args(environment const & env, name const & n, buffer<buffer<bool>> 
 }
 
 bool is_cases_on_recursor(environment const & env, name const & n) {
-    return ::lean::is_aux_recursor(env, n) && strcmp(n.get_string(), "cases_on") == 0;
+    return ::lean::is_aux_recursor(env, n) && n.get_string() == "cases_on";
 }
 
 unsigned get_constructor_arity(environment const & env, name const & n) {

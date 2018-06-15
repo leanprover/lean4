@@ -290,7 +290,7 @@ struct elim_match_fn {
         if (!is_constant(fn)) return false;
         name const & fn_name = const_name(fn);
         if (fn_name.is_atomic() || !fn_name.is_string()) return false;
-        std::string s(fn_name.get_string());
+        std::string s = fn_name.get_string().to_std_string();
         return is_inductive(fn_name.get_prefix()) && (s == "below" || s == "ibelow");
     }
 

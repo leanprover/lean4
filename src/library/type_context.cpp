@@ -512,7 +512,7 @@ name mk_smart_unfolding_name_for(name const & n) {
 }
 
 static bool is_smart_unfolding_target(environment const & env, name const & fn_name) {
-    if (!fn_name.is_atomic() && fn_name.is_string() && strncmp(fn_name.get_string(), "_match", 6) == 0)
+    if (!fn_name.is_atomic() && fn_name.is_string() && strncmp(fn_name.get_string().data(), "_match", 6) == 0)
         return true;
     bool r = static_cast<bool>(env.find(mk_smart_unfolding_name_for(fn_name)));
     return r;
@@ -715,7 +715,7 @@ optional<expr> type_context_old::reduce_aux_recursor(expr const & e) {
            This fix is a little bit hackish and non modular because `brec_on` auxiliary recursors are defined in
            a completely different module, and type_context should not be aware of them.
         */
-        if (r && strcmp(const_name(f).get_string(), "brec_on") == 0) {
+        if (r && const_name(f).get_string() == "brec_on") {
             if (auto r2 = reduce_projection(*r))
                 return r2;
         }

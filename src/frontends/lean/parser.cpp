@@ -1729,10 +1729,10 @@ static expr quote(expr const & e) {
         switch (lit_value(e).kind()) {
         case literal_kind::Nat:
             return mk_app(mk_constant({"expr", "lit"}),
-                          mk_app(mk_constant({"literal", "nat_value"}), quote(lit_value(e).get_nat_value().to_mpz().get_unsigned_int())));
+                          mk_app(mk_constant({"literal", "nat_value"}), quote(lit_value(e).get_nat().get_small_value()))); // HACK: it will crash if not small
         case literal_kind::String:
             return mk_app(mk_constant({"expr", "lit"}),
-                          mk_app(mk_constant({"literal", "str_value"}), quote(lit_value(e).get_string_value())));
+                          mk_app(mk_constant({"literal", "str_value"}), quote(lit_value(e).get_string().data()))); // HACK: Lean string as C String
         }
         lean_unreachable();
     case expr_kind::BVar:
@@ -1920,7 +1920,7 @@ optional<expr> parser::resolve_local(name const & id, pos_info const & p, names 
         if (auto r = resolve_local(id.get_prefix(), p, extra_locals)) {
             auto field_pos = p;
             field_pos.second += id.get_prefix().utf8_size();
-            return some_expr(save_pos(mk_field_notation_compact(*r, id.get_string()), field_pos));
+            return some_expr(save_pos(mk_field_notation_compact(*r, id.get_string().data()), field_pos)); // HACK: accessing Lean string as C String
         } else {
             return none_expr();
         }
@@ -2017,7 +2017,7 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only, 
             expr s = id_to_expr(id.get_prefix(), p, resolve_only, allow_field_notation, extra_locals);
             auto field_pos = p;
             field_pos.second += id.get_prefix().utf8_size();
-            r = save_pos(mk_field_notation_compact(s, id.get_string()), field_pos);
+            r = save_pos(mk_field_notation_compact(s, id.get_string().data()), field_pos); // HACK: accessing Lean string as C String
         } catch (exception &) {}
     }
     if (!r) {

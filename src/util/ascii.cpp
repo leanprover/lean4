@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <initializer_list>
+#include <cstring>
 namespace lean {
 static char g_safe_ascii[256];
 
@@ -37,6 +38,14 @@ bool is_safe_ascii(char const * str) {
                 return false;
             str++;
         }
+    }
+    return true;
+}
+
+bool is_safe_ascii(char const * str, size_t sz) {
+    for (size_t i = 0; i < sz; i++) {
+        if (!is_safe_ascii(str[i]))
+            return false;
     }
     return true;
 }

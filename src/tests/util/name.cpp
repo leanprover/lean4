@@ -82,8 +82,8 @@ static void tst5() {
     lean_assert(name({"foo", "bla", "boing"}).get_prefix() == name({"foo", "bla"}));
     lean_assert(!name({"foo", "bla", "boing"}).is_atomic());
     lean_assert(name({"foo"}).is_atomic());
-    lean_assert(strcmp(name({"foo", "bla", "boing"}).get_string(), "boing") == 0);
-    lean_assert(name(name("foo"), 1u).get_numeral() == 1u);
+    lean_assert(name({"foo", "bla", "boing"}).get_string() == "boing");
+    lean_assert(name(name("foo"), 1u).get_numeral() == nat(1));
     lean_assert(name::anonymous().is_anonymous());
     name n1("foo");
     name n2 = n1;
@@ -157,6 +157,30 @@ static void tst13() {
     lean_assert(s1 == s2);
 }
 
+static void tst14() {
+    name a("a");
+    name b(a, nat("100000000000000000000000000"));
+    lean_assert(b.get_numeral() == nat("100000000000000000000000000"));
+}
+
+static void tst15() {
+    std::string s("a");
+    s.push_back(0);
+    s.push_back('b');
+    std::cout << ">> " << static_cast<unsigned>(s[0]) << "\n";
+    std::cout << ">> " << static_cast<unsigned>(s[1]) << "\n";
+    std::cout << ">> " << static_cast<unsigned>(s[2]) << "\n";
+    std::cout << "------\n";
+    string_ref v(s);
+    std::cout << ">> " << static_cast<unsigned>(v.data()[0]) << "\n";
+    std::cout << ">> " << static_cast<unsigned>(v.data()[1]) << "\n";
+    std::cout << ">> " << static_cast<unsigned>(v.data()[2]) << "\n";
+    lean_assert(v.to_std_string() == s);
+    name a(s);
+    lean_assert(a.get_string().to_std_string() == s);
+    lean_assert(a.get_string().num_bytes() == 3);
+}
+
 int main() {
     save_stack_info();
     initialize_util_module();
@@ -171,6 +195,8 @@ int main() {
     tst11();
     tst12();
     tst13();
+    tst14();
+    tst15();
     finalize_util_module();
     return has_violations() ? 1 : 0;
 }

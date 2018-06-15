@@ -50,7 +50,7 @@ static void set_intron(expr & R, type_context_old & ctx, options const & opts, e
                                       if (prefix) {
                                           if (n > 1) {
                                               if (b_name.is_atomic() && b_name.is_string())
-                                                  r = prefix->append_after("_").append_after(b_name.get_string());
+                                                  r = prefix->append_after("_").append_after(b_name.get_string().data());
                                               else
                                                   r = *prefix + b_name;
                                           } else {
@@ -367,12 +367,12 @@ static bool has_one_minor_per_constructor(environment const & env, name const & 
     if (rec_name.is_atomic() || !rec_name.is_string())
         return false;
     // kernel recursor and/or generalized inductive
-    if (strcmp(rec_name.get_string(), "rec") == 0 &&
+    if (rec_name.get_string() == "rec" &&
         is_ginductive(env, rec_name.get_prefix()))
         return true;
     // cases_on, dcases_on, rec_on, drec_on
     if (is_aux_recursor(env, rec_name) &&
-        strcmp(rec_name.get_string(), "brec_on") != 0)
+        rec_name.get_string() != "brec_on")
         return true;
     return false;
 }

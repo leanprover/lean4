@@ -38,7 +38,7 @@ static void sanitize_fresh(sstream & strm, name const & n) {
         strm << "_fresh";
     } else if (n.is_numeral()) {
         sanitize_fresh(strm, n.get_prefix());
-        strm << "_" << n.get_numeral();
+        strm << "_" << n.get_numeral().to_std_string();
     } else {
         lean_unreachable();
     }
@@ -49,7 +49,7 @@ name sanitize_if_fresh(name const & n) {
         return n;
     sstream strm;
     sanitize_fresh(strm, n);
-    return name(strm.str());
+    return name(strm.str().c_str());
 }
 
 name mk_tagged_fresh_name(name const & tag) {

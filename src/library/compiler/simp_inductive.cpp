@@ -42,7 +42,7 @@ static optional<unsigned> is_internal_symbol(expr const & e, name const & prefix
     if (n.is_atomic() || !n.is_numeral())
         return optional<unsigned>();
     if (n.get_prefix() == prefix)
-        return optional<unsigned>(n.get_numeral());
+        return optional<unsigned>(n.get_numeral().get_small_value()); /// <<< HACK
     else
         return optional<unsigned>();
 }

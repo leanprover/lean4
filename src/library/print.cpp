@@ -251,8 +251,8 @@ struct print_expr_fn {
             break;
         case expr_kind::Lit:
             switch (lit_value(a).kind()) {
-            case literal_kind::Nat: out() << lit_value(a).get_nat_value().to_mpz();
-            case literal_kind::String: out() << escaped(lit_value(a).get_string_value());
+            case literal_kind::Nat: out() << lit_value(a).get_nat().to_mpz();
+            case literal_kind::String: out() << escaped(lit_value(a).get_string().data()); // HACK Lean string as C string
             }
             break;
         case expr_kind::Macro:

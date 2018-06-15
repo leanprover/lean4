@@ -12,10 +12,10 @@ Author: Leonardo de Moura
 #include <utility>
 #include "runtime/optional.h"
 #include "runtime/serializer.h"
-#include "util/rc.h"
+#include "util/buffer.h"
 #include "util/pair.h"
-#include "util/list.h"
-#include "util/object_ref.h"
+#include "util/nat.h"
+#include "util/string_ref.h"
 #include "util/list_ref.h"
 
 namespace lean {
@@ -48,10 +48,8 @@ public:
     static name_kind kind(object * o) { return static_cast<name_kind>(obj_tag(o)); }
     static bool is_anonymous(object * o) { return is_scalar(o); }
     static object * get_prefix(object * o) { return cnstr_obj(o, 0); }
-    static object * get_string_obj(object * o) { return cnstr_obj(o, 1); }
-    static char const * get_string(object * o) { return string_data(get_string_obj(o)); }
-    static object * get_num_obj(object * o) { return cnstr_obj(o, 1); }
-    static unsigned get_numeral(object * o) { return unbox(cnstr_obj(o, 1)); }
+    static string_ref const & get_string(object * o) { return static_cast<string_ref const &>(cnstr_obj_ref(o, 1)); }
+    static nat const & get_numeral(object * o) { return static_cast<nat const &>(cnstr_obj_ref(o, 1)); }
     static unsigned hash(object * o) { return cnstr_scalar<unsigned>(o, 2*sizeof(object*)); } // NOLINT
     static bool eq_core(object * o1, object * o2);
     static int cmp_core(object * o1, object * o2);
@@ -64,8 +62,11 @@ public:
     name():object_ref(box(static_cast<unsigned>(name_kind::ANONYMOUS))) {}
     name(name const & prefix, char const * name);
     name(name const & prefix, unsigned k);
+    name(name const & prefix, nat const & n);
+    name(name const & prefix, string_ref const & s);
     name(char const * n):name(name(), n) {}
-    name(std::string const & s):name(s.c_str()) {}
+    name(std::string const & s):name(name(), string_ref(s)) {}
+    name(string_ref const & s):name(name(), s) {}
     name(name const & other):object_ref(other) {}
     name(name && other):object_ref(other) {}
     /**
@@ -117,8 +118,8 @@ public:
     bool is_string() const    { return kind() == name_kind::STRING; }
     bool is_numeral() const   { return kind() == name_kind::NUMERAL; }
     explicit operator bool() const { return kind() != name_kind::ANONYMOUS; }
-    unsigned get_numeral() const { lean_assert(is_numeral()); return get_numeral(raw()); }
-    char const * get_string() const { lean_assert(is_string()); return get_string(raw()); }
+    nat const & get_numeral() const { lean_assert(is_numeral()); return get_numeral(raw()); }
+    string_ref const & get_string() const { lean_assert(is_string()); return get_string(raw()); }
     name const & get_prefix() const {
         if (is_anonymous()) return *this;
         else return static_cast<name const &>(cnstr_obj_ref(*this, 0));

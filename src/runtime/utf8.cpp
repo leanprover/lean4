@@ -42,6 +42,17 @@ size_t utf8_strlen(char const * str) {
     return r;
 }
 
+size_t utf8_strlen(std::string const & str) {
+    size_t r = 0;
+    size_t i = 0;
+    while (i < str.size()) {
+        unsigned d = get_utf8_size(str[i]);
+        r++;
+        i += d;
+    }
+    return r;
+}
+
 optional<size_t> utf8_char_pos(char const * str, size_t char_idx) {
     size_t r = 0;
     while (*str != 0) {

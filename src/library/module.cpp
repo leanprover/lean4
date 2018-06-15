@@ -512,7 +512,7 @@ static void import_module(environment & env, std::string const & module_file_nam
         auto res = mod_ldr(module_file_name, ref);
 
         auto & ext0 = get_extension(env);
-        if (ext0.m_imported.contains(res->m_module_name)) return;
+        if (ext0.m_imported.contains(name(res->m_module_name))) return;
 
         if (ext0.m_imported.empty() && res->m_env) {
             env = get(res->m_env);
@@ -524,7 +524,7 @@ static void import_module(environment & env, std::string const & module_file_nam
         }
 
         auto ext = get_extension(env);
-        ext.m_imported.insert(res->m_module_name);
+        ext.m_imported.insert(name(res->m_module_name));
         env = update(env, ext);
     } catch (throwable) {
         import_errors.push_back({module_file_name, ref, std::current_exception()});

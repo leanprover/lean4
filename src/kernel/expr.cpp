@@ -267,8 +267,8 @@ literal::literal(mpz const & v):
 bool operator==(literal const & a, literal const & b) {
     if (a.kind() != b.kind()) return false;
     switch (a.kind()) {
-    case literal_kind::String: return string_eq(cnstr_obj(a.raw(), 0), cnstr_obj(b.raw(), 0));
-    case literal_kind::Nat:    return a.get_nat_value() == b.get_nat_value();
+    case literal_kind::String: return a.get_string() == b.get_string();
+    case literal_kind::Nat:    return a.get_nat() == b.get_nat();
     }
     lean_unreachable();
 }
@@ -276,8 +276,8 @@ bool operator==(literal const & a, literal const & b) {
 bool operator<(literal const & a, literal const & b) {
     if (a.kind() != b.kind()) return static_cast<unsigned>(a.kind()) < static_cast<unsigned>(b.kind());
     switch (a.kind()) {
-    case literal_kind::String: return string_lt(cnstr_obj(a.raw(), 0), cnstr_obj(b.raw(), 0));
-    case literal_kind::Nat:    return a.get_nat_value() < b.get_nat_value();
+    case literal_kind::String: return a.get_string() < b.get_string();
+    case literal_kind::Nat:    return a.get_nat() < b.get_nat();
     }
     lean_unreachable();
 }

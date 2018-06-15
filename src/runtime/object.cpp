@@ -159,8 +159,13 @@ object * mk_string(char const * s) {
 }
 
 object * mk_string(std::string const & s) {
-    // TODO(Leo): fix... std::string may contain null characters
-    return mk_string(s.c_str());
+    size_t sz  = s.size();
+    size_t len = utf8_strlen(s);
+    size_t rsz = sz + 1;
+    object * r = alloc_string(rsz, rsz, len);
+    memcpy(w_string_data(r), s.data(), sz);
+    w_string_data(r)[sz] = 0;
+    return r;
 }
 
 object * string_push(object * s, unsigned c) {

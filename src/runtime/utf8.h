@@ -14,7 +14,11 @@ using uchar = unsigned char;
 
 bool is_utf8_next(unsigned char c);
 unsigned get_utf8_size(unsigned char c);
+/* Return the length of the null terminated string encoded using UTF8 */
 size_t utf8_strlen(char const * str);
+/* Return the length of the string `str` encoded using UTF8.
+   `str` may contain null characters. */
+size_t utf8_strlen(std::string const & str);
 optional<size_t> utf8_char_pos(char const * str, size_t char_idx);
 char const * get_utf8_last_char(char const * str);
 std::string utf8_trim(std::string const & s);

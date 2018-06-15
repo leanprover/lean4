@@ -105,9 +105,9 @@ json json_of_name(name const & n0) {
     name n = n0;
     while (!n.is_anonymous()) {
         if (n.is_numeral()) {
-            j.push_back(n.get_numeral());
+            j.push_back(n.get_numeral().get_small_value()); // HACK: it will crash if nat is not small
         } else if (n.is_string()) {
-            j.push_back(n.get_string());
+            j.push_back(n.get_string().to_std_string());
         } else {
             j.push_back(json());
         }

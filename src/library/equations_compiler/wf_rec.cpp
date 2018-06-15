@@ -620,7 +620,7 @@ eqn_compiler_result wf_rec(environment & env, elaborator & elab,
 
 bool uses_well_founded_recursion(environment const & env, name const & n) {
     if (!n.is_atomic() && n.is_string() &&
-        (strcmp(n.get_string(), "_mutual") == 0 || strcmp(n.get_string(), "_pack") == 0)) {
+        (n.get_string() == "_mutual" || n.get_string() == "_pack")) {
         return true;
     }
     declaration d = env.get(n);
@@ -631,7 +631,7 @@ bool uses_well_founded_recursion(environment const & env, name const & n) {
     if (!is_constant(fn))
         return false;
     name const & fn_name = const_name(fn);
-    if (!fn_name.is_string() || fn_name.get_string()[0] != '_')
+    if (!fn_name.is_string() || fn_name.get_string().data()[0] != '_')
         return false;
     return uses_well_founded_recursion(env, fn_name);
 }

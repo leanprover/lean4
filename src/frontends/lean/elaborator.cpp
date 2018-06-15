@@ -397,7 +397,7 @@ bool elaborator::is_elim_elab_candidate(name const & fn) {
 static bool is_basic_aux_recursor(environment const & env, name const & n) {
     if (!is_aux_recursor(env, n))
         return false;
-    return strcmp(n.get_string(), "drec") != 0;
+    return n.get_string() != "drec";
 }
 
 /** See comment at elim_info */
@@ -413,7 +413,7 @@ auto elaborator::get_elim_info_for_builtin(name const & fn) -> elim_info {
     unsigned nindices = *inductive::get_num_indices(m_env, I_name);
     unsigned nminors  = length(decl->m_intro_rules);
     elim_info r;
-    if (strcmp(fn.get_string(), "brec_on") == 0 || strcmp(fn.get_string(), "binduction_on") == 0) {
+    if (fn.get_string() == "brec_on" || fn.get_string() == "binduction_on") {
         r.m_arity      = nparams + 1 /* motive */ + nindices + 1 /* major */ + 1;
     } else {
         r.m_arity      = nparams + 1 /* motive */ + nindices + 1 /* major */ + nminors;
@@ -4152,7 +4152,7 @@ static optional<expr> resolve_local_name_core(environment const & env, local_con
 
     if (!id.is_atomic() && id.is_string()) {
         if (auto r = resolve_local_name_core(env, lctx, id.get_prefix(), src, extra_locals)) {
-            return some_expr(copy_pos(src, mk_field_notation_compact(*r, id.get_string())));
+            return some_expr(copy_pos(src, mk_field_notation_compact(*r, id.get_string().data()))); // HACK: accessing Lean string as C String
         } else {
             return none_expr();
         }
@@ -4207,7 +4207,7 @@ static expr resolve_local_name(environment const & env, local_context const & lc
     if (!r && !id.is_atomic() && id.is_string()) {
         try {
             expr s = resolve_local_name(env, lctx, id.get_prefix(), src, ignore_aliases, extra_locals);
-            r      = mk_field_notation_compact(s, id.get_string());
+            r      = mk_field_notation_compact(s, id.get_string().data()); // HACK: accessing Lean string as C String
             if (auto pos = get_pos_info(src)) {
                 pos->second += id.get_prefix().utf8_size();
                 r  = get_pos_info_provider()->save_pos(*r, *pos);

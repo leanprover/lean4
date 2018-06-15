@@ -22,7 +22,7 @@ bool is_inline(environment const & env, name const & n) {
         return true;
     }
     // decl._main is an auxiliary declaration, check decl instead
-    if (n.is_string() && n.get_string()[0] == '_') {
+    if (n.is_string() && n.get_string().data()[0] == '_') {
         return is_inline(env, n.get_prefix());
     }
     return false;

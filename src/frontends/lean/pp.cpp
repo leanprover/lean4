@@ -667,9 +667,9 @@ optional<name> pretty_fn::is_aliased(name const & n) const {
 
 format pretty_fn::escape(name const & n) {
     // also escape keyword-like names
-    if (n.is_atomic() && n.is_string() && find(m_token_table, n.get_string())) {
+    if (n.is_atomic() && n.is_string() && find(m_token_table, n.get_string().data())) { // HACK: accessing Lean string as C String
         sstream ss;
-        ss << "«" << n.get_string() << "»";
+        ss << "«" << n.get_string().to_std_string() << "»";
         return format(ss.str());
     }
     return format(n.escape());
@@ -1334,10 +1334,10 @@ bool pretty_fn::match(expr const & p, expr const & e, buffer<optional<expr>> & a
 
 static unsigned get_some_precedence(token_table const & t, name const & tk) {
     if (tk.is_atomic() && tk.is_string()) {
-        if (auto p = get_expr_precedence(t, tk.get_string()))
+        if (auto p = get_expr_precedence(t, tk.get_string().data())) // HACK: accessing Lean string as C String
             return *p;
     } else {
-        if (auto p = get_expr_precedence(t, tk.to_string().c_str()))
+        if (auto p = get_expr_precedence(t, tk.to_string().c_str())) // HACK: accessing C++ string as C String
             return *p;
     }
     return 0;
@@ -1725,9 +1725,9 @@ auto pretty_fn::pp_prod(expr const & e) -> result {
 auto pretty_fn::pp_lit(expr const & e) -> result {
     switch (lit_value(e).kind()) {
     case literal_kind::Nat:
-        return pp_num(lit_value(e).get_nat_value().to_mpz(), 0);
+        return pp_num(lit_value(e).get_nat().to_mpz(), 0);
     case literal_kind::String:
-        return pp_string_literal(lit_value(e).get_string_value());
+        return pp_string_literal(lit_value(e).get_string().to_std_string());
     }
     lean_unreachable();
 }

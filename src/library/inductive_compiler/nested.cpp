@@ -190,7 +190,7 @@ class add_nested_inductive_decl_fn {
             // Note: the + 1 is for the '_' that `append_after` adds
             std::string rest = s1.substr(nest_prefix_len + 1);
 
-            if (s2 == g_nest_prefix->get_string()) {
+            if (string_ref(s2) == g_nest_prefix->get_string()) {
                 try {
                     // <shared_depth>_<indiv_depth>
                     std::string::size_type sep = rest.find("_");

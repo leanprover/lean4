@@ -97,7 +97,7 @@ void initialize_string() {
 
 optional<expr> expand_string_literal(expr const & e) {
     if (!is_string_literal(e)) return none_expr();
-    return some_expr(from_string_core(lit_value(e).get_string_value()));
+    return some_expr(from_string_core(lit_value(e).get_string().to_std_string()));
 }
 
 void finalize_string() {
@@ -181,7 +181,7 @@ bool to_string_core(expr const & e, std::string & r) {
     if (e == *g_empty) {
         return true;
     } else if (is_string_literal(e)) {
-        r = lit_value(e).get_string_value();
+        r = lit_value(e).get_string().to_std_string();
         return true;
     } else {
         buffer<expr> args;
@@ -196,7 +196,7 @@ bool to_string_core(expr const & e, std::string & r) {
 
 optional<std::string> to_string(expr const & e) {
     if (is_string_literal(e)) {
-        return optional<std::string>(std::string(lit_value(e).get_string_value()));
+        return optional<std::string>(std::string(lit_value(e).get_string().to_std_string()));
     } else {
         std::string tmp;
         if (to_string_core(e, tmp)) {

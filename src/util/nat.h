@@ -34,7 +34,8 @@ public:
     unsigned get_small_value() const { lean_assert(is_small()); return unbox(raw()); }
     mpz const & get_big_value() const { lean_assert(!is_small()); return mpz_value(raw()); }
     mpz to_mpz() const { return is_small() ? mpz(unbox(raw())) : mpz_value(raw()); }
-    std::string to_string() const { return to_mpz().to_string(); }
+    std::string to_std_string() const { return to_mpz().to_string(); }
+    unsigned hash() const { return is_small() ? unbox(raw()) : mpz_value(raw()).hash(); }
 
     friend bool operator==(nat const & a, nat const & b) { return nat_eq(a.raw(), b.raw()); }
     friend bool operator!=(nat const & a, nat const & b) { return !(a == b); }

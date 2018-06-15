@@ -602,7 +602,7 @@ struct add_inductive_fn {
                 if (u.size() > 1) {
                     name const & u_i_name = mlocal_pp_name(u_i);
                     if (u_i_name.is_atomic() && u_i_name.is_string()) {
-                        ih = ih.append_after("_").append_after(u_i_name.get_string());
+                        ih = ih.append_after("_").append_after(u_i_name.get_string().to_std_string().c_str());
                     } else {
                         ih = ih.append_after(i+1);
                     }

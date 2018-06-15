@@ -24,7 +24,7 @@ bool is_nat_value(expr const & e) {
 
 mpz get_nat_value_value(expr const & e) {
     lean_assert(is_nat_value(e));
-    return lit_value(e).get_nat_value().to_mpz();
+    return lit_value(e).get_nat().to_mpz();
 }
 
 optional<expr> to_nat_value(type_context_old & ctx, expr const & e) {

@@ -55,11 +55,11 @@ unsigned name_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
         return 0;
     } else if (n.is_string()) {
         data.push_back(to_obj(n.get_prefix()));
-        data.push_back(to_obj(std::string(n.get_string())));
+        data.push_back(to_obj(n.get_string().to_std_string()));
         return 1;
     } else {
         data.push_back(to_obj(n.get_prefix()));
-        data.push_back(mk_vm_nat(n.get_numeral()));
+        data.push_back(mk_vm_nat(n.get_numeral().to_mpz()));
         return 2;
     }
 }

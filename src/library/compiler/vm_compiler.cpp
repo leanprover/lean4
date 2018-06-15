@@ -294,7 +294,7 @@ class vm_compiler_fn {
     void compile_lit(expr const & e) {
         switch (lit_value(e).kind()) {
         case literal_kind::Nat:
-            emit(mk_num_instr(lit_value(e).get_nat_value().to_mpz()));
+            emit(mk_num_instr(lit_value(e).get_nat().to_mpz()));
             break;
         case literal_kind::String:
             // TODO(Leo):

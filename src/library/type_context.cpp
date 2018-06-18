@@ -737,24 +737,10 @@ optional<expr> type_context_old::reduce_large_elim_recursor(expr const & e) {
     return none_expr();
 }
 
-bool type_context_old::should_unfold_macro(expr const &) {
-    /* If m_transparency_mode is set to ALL, then we unfold all
-       macros. In this way, we make sure type inference does not fail.
-       We also unfold macros when reducing inside of is_def_eq. */
-    if (m_transparency_mode == transparency_mode::All || m_in_is_def_eq) {
-        return true;
-    } else {
-        return true;
-    }
-}
 
 optional<expr> type_context_old::expand_macro(expr const & e) {
     lean_assert(is_macro(e));
-    if (should_unfold_macro(e)) {
-        return macro_def(e).expand(e, *this);
-    } else {
-        return none_expr();
-    }
+    return macro_def(e).expand(e, *this);
 }
 
 bool type_context_old::use_zeta() const {

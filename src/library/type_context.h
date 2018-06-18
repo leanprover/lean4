@@ -865,7 +865,6 @@ public:
 private:
     void init_core(transparency_mode m);
     optional<expr> unfold_definition_core(expr const & e);
-    bool should_unfold_macro(expr const & e);
     expr whnf_core(expr const & e, bool iota_proj_reduce);
     optional<declaration> get_decl(transparency_mode m, name const & n);
     optional<declaration> get_decl(name const & n);

@@ -2528,6 +2528,13 @@ class validate_and_collect_lhs_mvars : public replace_visitor {
     virtual expr visit_mdata(expr const & e) override {
         if (is_inaccessible(e)) {
             return e;
+        } else if (is_structure_instance(e)) {
+            auto info = get_structure_instance_info(e);
+            if (info.m_sources.size())
+                throw elaborator_exception(info.m_sources[0], "invalid occurrence of structure notation source in pattern");
+            for (expr & val : info.m_field_values)
+                val = visit(val);
+            return mk_structure_instance(info);
         } else {
             return visit(mdata_expr(e));
         }
@@ -2538,13 +2545,6 @@ class validate_and_collect_lhs_mvars : public replace_visitor {
             expr new_lhs = visit(get_as_pattern_lhs(e));
             expr new_rhs = visit(get_as_pattern_rhs(e));
             return mk_as_pattern(new_lhs, new_rhs);
-        } else if (is_structure_instance(e)) {
-            auto info = get_structure_instance_info(e);
-            if (info.m_sources.size())
-                throw elaborator_exception(info.m_sources[0], "invalid occurrence of structure notation source in pattern");
-            for (expr & val : info.m_field_values)
-                val = visit(val);
-            return mk_structure_instance(info);
         } else if (auto r = ctx().expand_macro(e)) {
             return visit(*r);
         } else {
@@ -3390,6 +3390,8 @@ expr elaborator::visit_mdata(expr const & e, optional<expr> const & expected_typ
         return visit_inaccessible(e, expected_type);
     } else if (is_frozen_name(e)) {
         return visit(get_annotation_arg(e), expected_type);
+    } else if (is_structure_instance(e)) {
+        return visit_structure_instance(e, expected_type);
     } else {
         expr new_e = visit(mdata_expr(e), expected_type);
         return update_mdata(e, new_e);
@@ -3412,8 +3414,6 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
         return new_rhs;
     } else if (is_field_notation(e)) {
         return visit_field(e, expected_type);
-    } else if (is_structure_instance(e)) {
-        return visit_structure_instance(e, expected_type);
     } else {
         buffer<expr> args;
         for (unsigned i = 0; i < macro_num_args(e); i++)

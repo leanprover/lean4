@@ -12,52 +12,27 @@ Author: Leonardo de Moura
 #include "frontends/lean/structure_instance.h"
 
 namespace lean {
-static name * g_structure_instance_name          = nullptr;
-static std::string * g_structure_instance_opcode = nullptr;
-
-[[ noreturn ]] static void throw_se_ex() { throw exception("unexpected occurrence of 'structure instance' expression"); }
-
-/*
-  We encode a 'structure instance' expression using a macro.
-  This is a trick to avoid creating a new kind of expression.
-  'Structure instance' expressions are temporary objects used by the elaborator.
-  Example: Given
-     structure point (A B : Type) := (x : A) (y : B)
-  the structure instance
-     { point . x := 10, y := 20 }
-  is compiled into
-     point.mk 10 20
-*/
-class structure_instance_macro_cell : public macro_definition_cell {
-    name       m_struct;
-    bool       m_catchall;
-    names m_fields;
-public:
-    structure_instance_macro_cell(name const & s, bool ca, names const & fs):
-        m_struct(s), m_catchall(ca), m_fields(fs) {}
-    virtual name get_name() const override { return *g_structure_instance_name; }
-    virtual expr check_type(expr const &, abstract_type_context &, bool) const override { throw_se_ex(); }
-    virtual optional<expr> expand(expr const &, abstract_type_context &) const override { throw_se_ex(); }
-    virtual void write(serializer & s) const override {
-        s << *g_structure_instance_opcode << m_struct << m_catchall;
-        s << m_fields;
-    }
-    name const & get_struct() const { return m_struct; }
-    bool get_catchall() const { return m_catchall; }
-    names const & get_field_names() const { return m_fields; }
-    virtual bool operator==(macro_definition_cell const & other) const override {
-        if (auto other_ptr = dynamic_cast<structure_instance_macro_cell const *>(&other)) {
-            return m_struct == other_ptr->m_struct && m_catchall == other_ptr->m_catchall && m_fields == other_ptr->m_fields;
-        } else {
-            return false;
-        }
-    }
-};
+static name * g_structure_instance         = nullptr;
+static name * g_catchall                   = nullptr;
+static name * g_struct                     = nullptr;
+static name * g_field                      = nullptr;
 
 static expr mk_structure_instance_core(name const & s, bool ca, names const & fs, unsigned num, expr const * args) {
-    lean_assert(num >= length(fs));
-    macro_definition def(new structure_instance_macro_cell(s, ca, fs));
-    return mk_macro(def, num, args);
+    kvmap m = set_nat(kvmap(), *g_structure_instance, num);
+    m = set_bool(m, *g_catchall, ca);
+    m = set_name(m, *g_struct, s);
+    expr nil    = mk_Prop();
+    expr r      = nil;
+    names it_fs = fs;
+    for (unsigned i = 0; i < num; i++) {
+        name f;
+        if (it_fs)
+            f = head(it_fs);
+        r = mk_app(mk_mdata(set_name(kvmap(), *g_field, f), args[i]), r);
+        if (it_fs)
+            it_fs = tail(it_fs);
+    }
+    return mk_mdata(m, r);
 }
 
 expr mk_structure_instance(name const & s, buffer<name> const & fns, buffer<expr> const & fvs,
@@ -75,43 +50,46 @@ expr mk_structure_instance(structure_instance_info const & info) {
 }
 
 bool is_structure_instance(expr const & e) {
-    return is_macro(e) && macro_def(e).get_name() == *g_structure_instance_name;
+    return is_mdata(e) && get_nat(mdata_data(e), *g_structure_instance);
 }
 
 structure_instance_info get_structure_instance_info(expr const & e) {
     lean_assert(is_structure_instance(e));
     structure_instance_info info;
-    auto m = static_cast<structure_instance_macro_cell const*>(macro_def(e).raw());
-    info.m_struct_name = m->get_struct();
-    to_buffer(m->get_field_names(), info.m_field_names);
-    unsigned num_fields = info.m_field_names.size();
-    for (unsigned i = 0; i < num_fields; i++)
-        info.m_field_values.push_back(macro_arg(e, i));
-    for (unsigned i = num_fields; i < macro_num_args(e); i++)
-        info.m_sources.push_back(macro_arg(e, i));
-    info.m_catchall = m->get_catchall();
+    info.m_struct_name = *get_name(mdata_data(e), *g_struct);
+    info.m_catchall    = *get_bool(mdata_data(e), *g_catchall);
+    unsigned num = get_nat(mdata_data(e), *g_structure_instance)->get_small_value();
+    expr it = mdata_expr(e);
+    for (unsigned i = 0; i < num; i++) {
+        expr curr  = app_fn(it);
+        lean_assert(is_mdata(curr));
+        name fname = *get_name(mdata_data(curr), *g_field);
+        expr arg   = mdata_expr(curr);
+        if (fname.is_anonymous()) {
+            info.m_sources.push_back(arg);
+        } else {
+            info.m_field_names.push_back(fname);
+            info.m_field_values.push_back(arg);
+        }
+        it = app_arg(it);
+    }
+    std::reverse(info.m_sources.begin(), info.m_sources.end());
+    std::reverse(info.m_field_values.begin(), info.m_field_values.end());
+    std::reverse(info.m_field_names.begin(), info.m_field_names.end());
     return info;
 }
 
 void initialize_structure_instance() {
-    g_structure_instance_name   = new name("structure instance");
-    g_structure_instance_opcode = new std::string("STI");
-    register_macro_deserializer(*g_structure_instance_opcode,
-                                [](deserializer & d, unsigned num, expr const * args) {
-                                    names fns;
-                                    name s;
-                                    bool ca;
-                                    d >> s >> ca;
-                                    fns = read_names(d);
-                                    unsigned len = length(fns);
-                                    if (num < len)
-                                        throw corrupted_stream_exception();
-                                    return mk_structure_instance_core(s, ca, fns, num, args);
-                                });
+    g_structure_instance = new name("structure instance");
+    g_struct             = new name("struct");
+    g_catchall           = new name("catchall");
+    g_field              = new name("field");
 }
 
 void finalize_structure_instance() {
-    delete g_structure_instance_opcode;
-    delete g_structure_instance_name;
+    delete g_structure_instance;
+    delete g_struct;
+    delete g_catchall;
+    delete g_field;
 }
 }

@@ -27,7 +27,6 @@ Cases missing:
 
 inductive macro_definition
 /- The following macros will be Syntax object in Lean4 -/
-| struct_instance : name → bool → list name → macro_definition
 | field_notation  : name → nat → macro_definition
 | as_pattern      : macro_definition
 | equations       : equations_header → macro_definition

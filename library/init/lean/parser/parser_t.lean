@@ -203,8 +203,12 @@ def not_followed_by (p : parser_t m α) (msg : string := "input") : parser_t m u
            | error _ _    := mk_eps () it
 end parser_t
 
+/- Type class for abstracting from concrete monad stacks containing a `parser_t` somewhere. -/
 class monad_parser (m : Type → Type) :=
+-- analogous to e.g. `monad_state.lift`
 (lift {} {α : Type} : parser α → m α)
+-- Analogous to e.g. `monad_reader_adapter.map` before simplification (see there).
+-- Its usage seems to be way too common to justify moving it into a separate type class.
 (map {} {α : Type} : (∀ {n α} [monad n], parser_t n α → parser_t n α) → m α → m α)
 
 instance {m : Type → Type} [monad m] : monad_parser (parser_t m) :=

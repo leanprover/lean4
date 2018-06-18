@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "util/nat.h"
 #include "util/hash.h"
 #include "util/buffer.h"
+#include "util/kvmap.h"
 #include "util/list_fn.h"
 #include "util/sexpr/format.h"
 #include "kernel/level.h"
@@ -40,13 +41,14 @@ class expr;
           |   Pi            name expr expr
           |   Let           name expr expr expr
           |   Lit           literal
+          |   MData         kvmap expr
 
           The following constructors will be deleted in the future
 
           |   Quote         bool expr
           |   Macro         macro
 */
-enum class expr_kind { BVar, FVar, Sort, Constant, MVar, App, Lambda, Pi, Let, Lit, Macro, Quote };
+enum class expr_kind { BVar, FVar, Sort, Constant, MVar, App, Lambda, Pi, Let, Lit, MData, Macro, Quote };
 class expr_cell {
 protected:
     // The bits of the following field mean:
@@ -133,6 +135,7 @@ public:
     friend expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & i);
     friend expr mk_let(name const & n, expr const & t, expr const & v, expr const & b);
     friend expr mk_lit(literal const & lit);
+    friend expr mk_mdata(kvmap const & m, expr const & e);
     friend bool is_eqp(expr const & a, expr const & b) { return a.m_ptr == b.m_ptr; }
 
     // TODO(Leo): delete
@@ -366,6 +369,18 @@ public:
     literal const & get_literal() const { return m_lit; }
 };
 
+class expr_mdata : public expr_composite {
+    kvmap m_data;
+    expr  m_expr;
+    friend expr_cell;
+    void dealloc(buffer<expr_cell*> & todelete);
+public:
+    expr_mdata(kvmap const & m, expr const & e);
+    ~expr_mdata() {}
+    kvmap const & get_data() const { return m_data; }
+    expr const & get_expr() const { return m_expr; }
+};
+
 // =======================================
 // Testers
 inline bool is_bvar(expr_ptr e)        { return e->kind() == expr_kind::BVar; }
@@ -378,6 +393,7 @@ inline bool is_pi(expr_ptr e)          { return e->kind() == expr_kind::Pi; }
 inline bool is_let(expr_ptr e)         { return e->kind() == expr_kind::Let; }
 inline bool is_sort(expr_ptr e)        { return e->kind() == expr_kind::Sort; }
 inline bool is_lit(expr_ptr e)         { return e->kind() == expr_kind::Lit; }
+inline bool is_mdata(expr_ptr e)       { return e->kind() == expr_kind::MData; }
 inline bool is_binding(expr_ptr e)     { return is_lambda(e) || is_pi(e); }
 
 bool is_atomic(expr const & e);
@@ -389,6 +405,7 @@ bool is_metavar_app(expr const & e);
 // =======================================
 // Constructors
 expr mk_lit(literal const & lit);
+expr mk_mdata(kvmap const & d, expr const & e);
 expr mk_bvar(unsigned idx);
 expr mk_fvar(name const & n);
 inline expr BVar(unsigned idx) { return mk_bvar(idx); }
@@ -449,6 +466,7 @@ inline expr mk_app(expr const & e1, expr const & e2, expr const & e3, expr const
 // =======================================
 // Casting (these functions are only needed for low-level code)
 inline expr_lit *         to_lit(expr_ptr e)        { lean_assert(is_lit(e));         return static_cast<expr_lit*>(e); }
+inline expr_mdata *       to_mdata(expr_ptr e)      { lean_assert(is_mdata(e));       return static_cast<expr_mdata*>(e); }
 inline expr_bvar *        to_bvar(expr_ptr e)       { lean_assert(is_bvar(e));        return static_cast<expr_bvar*>(e); }
 inline expr_fvar *        to_fvar(expr_ptr e)       { lean_assert(is_fvar(e));        return static_cast<expr_fvar*>(e); }
 inline expr_const *       to_constant(expr_ptr e)   { lean_assert(is_constant(e));    return static_cast<expr_const*>(e); }
@@ -466,6 +484,8 @@ inline unsigned        get_rc(expr_ptr e)                { return e->get_rc(); }
 inline bool            is_shared(expr_ptr e)             { return get_rc(e) > 1; }
 inline literal const & lit_value(expr_ptr e)             { return to_lit(e)->get_literal(); }
 expr lit_type(expr_ptr e);
+inline expr const &    mdata_expr(expr_ptr e)            { return to_mdata(e)->get_expr(); }
+inline kvmap const &   mdata_data(expr_ptr e)            { return to_mdata(e)->get_data(); }
 inline unsigned        bvar_idx(expr_ptr e)              { return to_bvar(e)->get_vidx(); }
 inline bool            is_bvar(expr_ptr e, unsigned i)   { return is_bvar(e) && bvar_idx(e) == i; }
 inline name const &    fvar_name(expr_ptr e)             { return to_fvar(e)->get_name(); }
@@ -555,6 +575,7 @@ expr update_local(expr const & e, binder_info const & bi);
 expr update_sort(expr const & e, level const & new_level);
 expr update_constant(expr const & e, levels const & new_levels);
 expr update_let(expr const & e, expr const & new_type, expr const & new_value, expr const & new_body);
+expr update_mdata(expr const & e, expr const & t);
 // =======================================
 
 

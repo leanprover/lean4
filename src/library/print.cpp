@@ -222,6 +222,9 @@ struct print_expr_fn {
         case expr_kind::FVar:
             out() << fix_name(mlocal_pp_name(a));
             break;
+        case expr_kind::MData:
+            out() << "[mdata "; print(mdata_expr(a)); out() << "]";
+            break;
         case expr_kind::BVar:
             out() << "#" << var_idx(a);
             break;

@@ -25,6 +25,11 @@ bool is_lt(expr const & a, expr const & b, bool use_hash, local_context const * 
         return lit_value(a) < lit_value(b);
     case expr_kind::BVar:
         return var_idx(a) < var_idx(b);
+    case expr_kind::MData:
+        if (mdata_expr(a) != mdata_expr(b))
+            return is_lt(mdata_expr(a), mdata_expr(b), use_hash, lctx);
+        else
+            return mdata_data(a) < mdata_data(b);
     case expr_kind::Constant:
         if (const_name(a) != const_name(b))
             return const_name(a) < const_name(b);
@@ -136,6 +141,11 @@ bool is_lt_no_level_params(expr const & a, expr const & b) {
         return lit_value(a) < lit_value(b);
     case expr_kind::BVar:
         return var_idx(a) < var_idx(b);
+    case expr_kind::MData:
+        if (mdata_expr(a) != mdata_expr(b))
+            return is_lt_no_level_params(mdata_expr(a), mdata_expr(b));
+        else
+            return mdata_data(a) < mdata_data(b);
     case expr_kind::Constant:
         if (const_name(a) != const_name(b))
             return const_name(a) < const_name(b);

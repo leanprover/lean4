@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.level init.control.monad
+import init.meta.level init.control.monad init.lean.expr
 universes u v
 
 structure pos :=
@@ -49,6 +49,7 @@ meta inductive expr
 | pi    : name → binder_info → expr → expr → expr
 | elet  : name → expr → expr → expr → expr
 | lit   : literal → expr
+| mdata : lean.kvmap → expr → expr
 | macro : macro_def → list expr → expr
 | quote : bool → expr → expr
 
@@ -339,6 +340,7 @@ meta def to_raw_fmt : expr → format
 | (lam n bi e t) := p ["lam", to_fmt n, repr bi, to_raw_fmt e, to_raw_fmt t]
 | (pi n bi e t) := p ["pi", to_fmt n, repr bi, to_raw_fmt e, to_raw_fmt t]
 | (elet n g e f) := p ["elet", to_fmt n, to_raw_fmt g, to_raw_fmt e, to_raw_fmt f]
+| (mdata d e) := p ["mdata", to_raw_fmt e]
 | (macro d args) := sbracket (format.join (list.intersperse " " ("macro" :: to_fmt (macro_def_name d) :: args.map to_raw_fmt)))
 | (quote b v) := p ["quote", to_fmt b, to_raw_fmt v]
 

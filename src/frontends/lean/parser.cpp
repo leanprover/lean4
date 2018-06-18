@@ -277,6 +277,8 @@ expr parser::copy_with_new_pos(expr const & e, pos_info p) {
     case expr_kind::Sort: case expr_kind::Constant: case expr_kind::MVar:
     case expr_kind::BVar: case expr_kind::FVar:     case expr_kind::Lit:
         return save_pos(copy(e), p);
+    case expr_kind::MData:
+        return save_pos(::lean::mk_mdata(mdata_data(e), copy_with_new_pos(mdata_expr(e), p)), p);
     case expr_kind::App:
         return save_pos(::lean::mk_app(copy_with_new_pos(app_fn(e), p),
                                        copy_with_new_pos(app_arg(e), p)),
@@ -1743,6 +1745,8 @@ static expr quote(expr const & e) {
         return mk_app(mk_constant({"expr", "const"}), quote(const_name(e)), mk_expr_placeholder());
     case expr_kind::MVar:
         return mk_expr_placeholder();
+    case expr_kind::MData:
+        throw exception("expr.mdata is not supported at quote function");
     case expr_kind::FVar:
         throw elaborator_exception(e, sstream() << "invalid quotation, unexpected local constant '"
                                    << mlocal_pp_name(e) << "'");

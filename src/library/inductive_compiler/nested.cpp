@@ -534,6 +534,7 @@ class add_nested_inductive_decl_fn {
         case expr_kind::Macro:
         case expr_kind::Quote:
         case expr_kind::Lit:
+        case expr_kind::MData:
             return _e;
         case expr_kind::Lambda:
         case expr_kind::Pi:
@@ -590,6 +591,7 @@ class add_nested_inductive_decl_fn {
         case expr_kind::Macro:
         case expr_kind::Quote:
         case expr_kind::Lit:
+        case expr_kind::MData:
             return _e;
         case expr_kind::Lambda:
         case expr_kind::Pi:

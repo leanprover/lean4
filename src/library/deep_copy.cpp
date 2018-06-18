@@ -12,6 +12,7 @@ namespace lean {
 expr copy(expr const & a) {
     switch (a.kind()) {
     case expr_kind::Lit:      return mk_lit(lit_value(a));
+    case expr_kind::MData:    return mk_mdata(mdata_data(a), mdata_expr(a));
     case expr_kind::BVar:     return mk_var(var_idx(a));
     case expr_kind::FVar:     return mk_local(mlocal_name(a), mlocal_pp_name(a), mlocal_type(a), local_info(a));
     case expr_kind::Constant: return mk_constant(const_name(a), const_levels(a));

@@ -219,6 +219,7 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
     expr r;
     switch (e.kind()) {
     case expr_kind::Lit:       r = lit_type(e);    break;
+    case expr_kind::MData:     r = infer_type_core(mdata_expr(e), infer_only); break;
     case expr_kind::FVar:      r = infer_fvar(e);  break;
     case expr_kind::MVar:      r = mlocal_type(e); break;
     case expr_kind::BVar:
@@ -306,6 +307,8 @@ expr type_checker::whnf_core(expr const & e) {
     case expr_kind::Pi:   case expr_kind::Constant: case expr_kind::Lambda:
     case expr_kind::Lit:
         return e;
+    case expr_kind::MData:
+        return whnf_core(mdata_expr(e));
     case expr_kind::FVar:
         return whnf_fvar(e);
     case expr_kind::Macro: case expr_kind::App: case expr_kind::Let:
@@ -325,9 +328,9 @@ expr type_checker::whnf_core(expr const & e) {
     // do the actual work
     expr r;
     switch (e.kind()) {
-    case expr_kind::BVar:  case expr_kind::Sort:    case expr_kind::MVar: case expr_kind::FVar:
-    case expr_kind::Pi:   case expr_kind::Constant: case expr_kind::Lambda:
-    case expr_kind::Lit:
+    case expr_kind::BVar:  case expr_kind::Sort:     case expr_kind::MVar: case expr_kind::FVar:
+    case expr_kind::Pi:    case expr_kind::Constant: case expr_kind::Lambda:
+    case expr_kind::Lit:   case expr_kind::MData:
         lean_unreachable(); // LCOV_EXCL_LINE
 
     case expr_kind::Quote:
@@ -419,6 +422,8 @@ expr type_checker::whnf(expr const & e) {
     case expr_kind::BVar: case expr_kind::Sort: case expr_kind::MVar: case expr_kind::Pi:
     case expr_kind::Lit:
         return e;
+    case expr_kind::MData:
+        return whnf(mdata_expr(e));
     case expr_kind::FVar:
         return whnf_fvar(e);
     case expr_kind::Lambda:   case expr_kind::Macro: case expr_kind::App:
@@ -516,6 +521,8 @@ lbool type_checker::quick_is_def_eq(expr const & t, expr const & s, bool use_has
             return to_lbool(is_def_eq_binding(t, s));
         case expr_kind::Sort:
             return to_lbool(is_def_eq(sort_level(t), sort_level(s)));
+        case expr_kind::MData:
+            return to_lbool(is_def_eq(mdata_expr(t), mdata_expr(s)));
         case expr_kind::MVar:
             lean_unreachable(); // LCOV_EXCL_LINE
         case expr_kind::BVar:      case expr_kind::FVar: case expr_kind::App:

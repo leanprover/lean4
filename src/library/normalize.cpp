@@ -119,6 +119,8 @@ class normalize_fn {
         case expr_kind::BVar: case expr_kind::Constant: case expr_kind::Sort:
         case expr_kind::MVar: case expr_kind::FVar:     case expr_kind::Lit:
             return e;
+        case expr_kind::MData:
+            lean_unreachable();
         case expr_kind::Lambda: {
             e = normalize_binding(e);
             if (m_use_eta)

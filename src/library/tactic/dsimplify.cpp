@@ -260,6 +260,9 @@ expr dsimplify_core_fn::visit(expr const & e) {
         case expr_kind::Constant:
             new_e = curr_e;
             break;
+        case expr_kind::MData:
+            new_e = mdata_expr(curr_e);
+            break;
         case expr_kind::BVar:
             lean_unreachable();
         case expr_kind::MVar:

@@ -77,7 +77,7 @@ public:
             T const & h2 = ::lean::head<T>(it2);
             if (h1 < h2)
                 return true;
-            if (h2 > h1)
+            if (h2 < h1)
                 return false;
             it1 = cnstr_obj(it1, 1);
             it2 = cnstr_obj(it2, 1);

@@ -143,6 +143,10 @@ class replace_rec_fn2 {
                 expr new_t = apply(mlocal_type(e), offset);
                 return save_result(e, offset, copy_pos(e, update_mlocal(e, new_t)), shared);
             }
+            case expr_kind::MData: {
+                expr new_e = apply(mdata_expr(e), offset);
+                return save_result(e, offset, copy_pos(e, update_mdata(e, new_e)), shared);
+            }
             case expr_kind::App: {
                 expr new_f = apply(app_fn(e), offset);
                 expr new_a = apply(app_arg(e), offset);

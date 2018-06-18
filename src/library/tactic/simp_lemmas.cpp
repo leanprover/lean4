@@ -645,6 +645,8 @@ static bool is_permutation(expr const & lhs, expr const & rhs, unsigned offset, 
         } else {
             return lhs == rhs; // free variable
         }
+    case expr_kind::MData:
+        return is_permutation(mdata_expr(lhs), mdata_expr(rhs), offset, p);
     case expr_kind::Lambda: case expr_kind::Pi:
         return
             is_permutation(binding_domain(lhs), binding_domain(rhs), offset, p) &&

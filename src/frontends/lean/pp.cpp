@@ -1784,6 +1784,7 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
     case expr_kind::BVar:      return pp_var(e);
     case expr_kind::FVar:      return pp_local(e);
     case expr_kind::Sort:      return pp_sort(e);
+    case expr_kind::MData:     return pp(mdata_expr(e), ignore_hide);
     case expr_kind::Constant:  return pp_const(e);
     case expr_kind::MVar:      return pp_meta(e);
     case expr_kind::App:       return pp_app(e);

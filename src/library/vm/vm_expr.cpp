@@ -167,6 +167,31 @@ vm_obj expr_macro_def_name(vm_obj const & d) {
     return to_obj(to_macro_definition(d).get_name());
 }
 
+/*
+inductive data_value
+| of_string (v : string)
+| of_nat    (v : nat)
+| of_bool   (v : bool)
+| of_name   (v : name)
+*/
+vm_obj to_obj(data_value const & d) {
+    switch (d.kind()) {
+    case data_value_kind::String: return mk_vm_constructor(0, to_obj(d.get_string().to_std_string()));
+    case data_value_kind::Nat:    return mk_vm_constructor(1, mk_vm_nat(d.get_nat().to_mpz()));
+    case data_value_kind::Bool:   return mk_vm_constructor(2, mk_vm_bool(d.get_bool()));
+    case data_value_kind::Name:   return mk_vm_constructor(3, to_obj(d.get_name()));
+    }
+    lean_unreachable();
+}
+
+vm_obj to_obj(kvmap const & m) {
+    buffer<vm_obj> objs;
+    for (pair_ref<name, data_value> const & p : m) {
+        objs.push_back(mk_vm_pair(to_obj(p.fst()), to_obj(p.snd())));
+    }
+    return to_obj(objs);
+}
+
 unsigned expr_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
     expr const & e = to_expr(o);
     switch (e.kind()) {
@@ -214,6 +239,10 @@ unsigned expr_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
             data.push_back(mk_vm_constructor(1, mk_vm_nat(lit_value(e).get_nat().to_mpz())));
             break;
         }
+        break;
+    case expr_kind::MData:
+        data.push_back(to_obj(mdata_data(e)));
+        data.push_back(to_obj(mdata_expr(e)));
         break;
     case expr_kind::Macro: {
         data.push_back(to_obj(macro_def(e)));

@@ -30,6 +30,7 @@ protected:
     virtual expr visit_pi(expr const &);
     virtual expr visit_let(expr const & e);
     virtual expr visit_lit(expr const & e);
+    virtual expr visit_mdata(expr const & e);
     virtual expr visit(expr const &);
 
     virtual expr visit_macro(expr const &);

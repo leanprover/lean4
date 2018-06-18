@@ -72,6 +72,10 @@ class expr_eq_fn {
         switch (a.kind()) {
         case expr_kind::BVar:
             lean_unreachable(); // LCOV_EXCL_LINE
+        case expr_kind::MData:
+            return
+                apply(mdata_expr(a), mdata_expr(b)) &&
+                mdata_data(a) == mdata_data(b);
         case expr_kind::Lit:
             return lit_value(a) == lit_value(b);
         case expr_kind::Constant:

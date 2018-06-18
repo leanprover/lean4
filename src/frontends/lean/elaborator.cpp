@@ -969,6 +969,7 @@ expr elaborator::visit_function(expr const & fn, bool has_args, optional<expr> c
     case expr_kind::FVar:      r = fn; break;
     case expr_kind::Constant:  r = visit_const_core(fn); break;
     case expr_kind::Macro:     r = visit_macro(fn, expected_type, true); break;
+    case expr_kind::MData:     r = visit_mdata(fn, expected_type); break;
     case expr_kind::Lambda:    r = visit_lambda(fn, expected_type); break;
     case expr_kind::Let:       r = visit_let(fn, expected_type); break;
     case expr_kind::Quote:
@@ -3354,6 +3355,11 @@ expr elaborator::visit_expr_quote(expr const & e, optional<expr> const & expecte
     return visit(q, expected_type);
 }
 
+expr elaborator::visit_mdata(expr const & e, optional<expr> const & expected_type) {
+    expr new_e = visit(mdata_expr(e), expected_type);
+    return update_mdata(e, new_e);
+}
+
 expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_type, bool is_app_fn) {
     if (is_as_is(e)) {
         return get_as_is_arg(e);
@@ -3647,6 +3653,8 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
                         return e;
                     }
                     lean_unreachable();
+                case expr_kind::MData:
+                    return copy_pos(e, visit_mdata(e, expected_type));
                 case expr_kind::Sort:
                     return copy_pos(e, visit_sort(e));
                 case expr_kind::FVar:

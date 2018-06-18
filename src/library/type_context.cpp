@@ -790,6 +790,9 @@ expr type_context_old::whnf_core(expr const & e0, bool proj_reduce) {
     case expr_kind::Constant: case expr_kind::Lit:
         /* Remark: we do not unfold Constants eagerly in this method */
         return e;
+    case expr_kind::MData:
+        e = mdata_expr(e);
+        continue;
     case expr_kind::FVar:
         if (use_zeta() && is_local_decl_ref(e)) {
             if (auto d = m_lctx.find_local_decl(e)) {
@@ -1009,6 +1012,9 @@ expr type_context_old::infer_core(expr const & e) {
         break;
     case expr_kind::MVar:
         r = infer_metavar(e);
+        break;
+    case expr_kind::MData:
+        r = infer_core(mdata_expr(e));
         break;
     case expr_kind::BVar:
         throw exception("failed to infer type, unexpected bound variable occurrence");
@@ -2717,6 +2723,8 @@ lbool type_context_old::quick_is_def_eq(expr const & e1, expr const & e2) {
             return to_lbool(is_def_eq_binding(e1, e2));
         case expr_kind::Sort:
             return to_lbool(is_def_eq(sort_level(e1), sort_level(e2)));
+        case expr_kind::MData:
+            return to_lbool(is_def_eq_core(mdata_expr(e1), mdata_expr(e2)));
         case expr_kind::Lit:
             return to_lbool(lit_value(e1) == lit_value(e2));
         case expr_kind::MVar:     case expr_kind::BVar:
@@ -3377,6 +3385,9 @@ lbool type_context_old::is_quick_class(expr const & type, name & result) {
         }
         case expr_kind::Pi:
             it = &binding_body(*it);
+            break;
+        case expr_kind::MData:
+            it = &mdata_expr(*it);
             break;
         case expr_kind::Macro:
             return l_undef;

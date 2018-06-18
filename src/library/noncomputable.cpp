@@ -200,6 +200,7 @@ struct get_noncomputable_reason_fn {
         case expr_kind::Lambda:    visit_binding(e);  return;
         case expr_kind::Pi:        visit_binding(e);  return;
         case expr_kind::Let:       visit_let(e);      return;
+        case expr_kind::MData:     visit(mdata_expr(e)); return;
         case expr_kind::Quote:     return;
         }
     }

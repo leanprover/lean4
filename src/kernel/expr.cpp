@@ -299,6 +299,26 @@ expr lit_type(expr_ptr e) {
     lean_unreachable();
 }
 
+// Expr metadata
+expr_mdata::expr_mdata(kvmap const & data, expr const & e):
+    expr_composite(expr_kind::MData, e.hash(),
+                   e.has_expr_metavar(),
+                   e.has_univ_metavar(),
+                   e.has_fvar(),
+                   e.has_param_univ(),
+                   inc_weight(get_weight(e)),
+                   get_loose_bvar_range(e)),
+    m_data(data), m_expr(e) {
+    m_depth = get_depth(e) + 1;
+    m_hash  = ::lean::hash(m_hash, m_weight);
+    m_hash  = ::lean::hash(m_hash, m_depth);
+}
+
+void expr_mdata::dealloc(buffer<expr_cell*> & todelete) {
+    dec_ref(m_expr,  todelete);
+    delete this;
+}
+
 // Let expressions
 expr_let::expr_let(name const & n, expr const & t, expr const & v, expr const & b):
     expr_composite(expr_kind::Let,
@@ -362,7 +382,9 @@ expr mk_metavar(name const & n, name const & pp_n, expr const & t) {
 expr mk_metavar(name const & n, expr const & t) {
     return mk_metavar(n, n, t);
 }
-
+expr mk_mdata(kvmap const & d, expr const & e) {
+    return expr(new expr_mdata(d, e));
+}
 expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi) {
     return expr(new expr_fvar(n, pp_n, t, bi));
 }
@@ -398,6 +420,7 @@ void expr_cell::dealloc() {
             lean_assert(it->get_rc() == 0);
             switch (it->kind()) {
             case expr_kind::Lit:        static_cast<expr_lit*>(it)->dealloc(); break;
+            case expr_kind::MData:      static_cast<expr_mdata*>(it)->dealloc(todo); break;
             case expr_kind::BVar:       static_cast<expr_bvar*>(it)->dealloc(); break;
             case expr_kind::MVar:       static_cast<expr_mlocal*>(it)->dealloc(todo); break;
             case expr_kind::FVar:       static_cast<expr_fvar*>(it)->dealloc(todo); break;
@@ -527,6 +550,7 @@ unsigned get_weight(expr const & e) {
         return 1;
     case expr_kind::Lambda: case expr_kind::Pi:
     case expr_kind::App:    case expr_kind::Let:
+    case expr_kind::MData:
         return static_cast<expr_composite*>(e.raw())->m_weight;
 
 
@@ -545,6 +569,7 @@ unsigned get_depth(expr const & e) {
         return 1;
     case expr_kind::Lambda: case expr_kind::Pi:
     case expr_kind::App:    case expr_kind::Let:
+    case expr_kind::MData:
         return static_cast<expr_composite*>(e.raw())->m_depth;
 
 
@@ -554,6 +579,13 @@ unsigned get_depth(expr const & e) {
         return 1;
     }
     lean_unreachable(); // LCOV_EXCL_LINE
+}
+
+expr update_mdata(expr const & e, expr const & t) {
+    if (!is_eqp(mdata_expr(e), t))
+        return mk_mdata(mdata_data(e), t);
+    else
+        return e;
 }
 
 expr update_app(expr const & e, expr const & new_fn, expr const & new_arg) {
@@ -626,6 +658,7 @@ bool is_atomic(expr const & e) {
     case expr_kind::App:      case expr_kind::MVar:
     case expr_kind::FVar:     case expr_kind::Lambda:
     case expr_kind::Pi:       case expr_kind::Let:
+    case expr_kind::MData:
         return false;
 
 
@@ -779,6 +812,7 @@ unsigned hash_bi(expr const & e) {
 
 std::ostream & operator<<(std::ostream & out, expr_kind const & k) {
     switch (k) {
+    case expr_kind::MData:    out << "MData"; break;
     case expr_kind::Lit:      out << "Lit"; break;
     case expr_kind::BVar:     out << "BVar"; break;
     case expr_kind::FVar:     out << "FVar"; break;

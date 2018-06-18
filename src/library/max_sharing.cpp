@@ -62,10 +62,15 @@ struct max_sharing_fn::imp {
         case expr_kind::Sort:
             res = update_sort(a, apply(sort_level(a)));
             break;
+        case expr_kind::MData: {
+            expr new_e = apply(mdata_expr(a));
+            res = update_mdata(a, new_e);
+            break;
+        }
         case expr_kind::App: {
             expr new_f = apply(app_fn(a));
             expr new_a = apply(app_arg(a));
-                res = update_app(a, new_f, new_a);
+            res = update_app(a, new_f, new_a);
             break;
         }
         case expr_kind::Lambda: case expr_kind::Pi: {

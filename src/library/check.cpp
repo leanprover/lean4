@@ -125,6 +125,8 @@ struct check_fn {
             return visit_app(e);
         case expr_kind::Let:
             return visit_let(e);
+        case expr_kind::MData:
+            return visit(mdata_expr(e));
         case expr_kind::Macro:
             return visit_macro(e);
         case expr_kind::Quote:

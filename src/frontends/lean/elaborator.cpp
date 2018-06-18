@@ -3362,6 +3362,8 @@ expr elaborator::visit_expr_quote(expr const & e, optional<expr> const & expecte
 expr elaborator::visit_mdata(expr const & e, optional<expr> const & expected_type, bool is_app_fn) {
     if (is_as_is(e)) {
         return get_as_is_arg(e);
+    } else if (is_choice(e)) {
+        return visit_app_core(e, buffer<expr>(), expected_type, e);
     } else if (is_hole(e)) {
         return visit_hole(e, expected_type);
     } else if (is_explicit(e) || is_partial_explicit(e)) {
@@ -3395,9 +3397,7 @@ expr elaborator::visit_mdata(expr const & e, optional<expr> const & expected_typ
 }
 
 expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_type, bool is_app_fn) {
-    if (is_choice(e)) {
-        return visit_app_core(e, buffer<expr>(), expected_type, e);
-    } else if (is_equations(e)) {
+    if (is_equations(e)) {
         lean_assert(!is_app_fn); // visit_convoy is used in this case
         return visit_equations(e);
     } else if (is_equation(e)) {

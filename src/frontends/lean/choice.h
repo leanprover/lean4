@@ -32,7 +32,7 @@ unsigned get_num_choices(expr const & e);
    \pre is_choice(e)
    \pre i < get_num_choices(e)
 */
-expr const & get_choice(expr const & e, unsigned i);
+expr get_choice(expr const & e, unsigned i);
 
 void initialize_choice();
 void finalize_choice();

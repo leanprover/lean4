@@ -5,70 +5,66 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
-#include "runtime/sstream.h"
-#include "kernel/for_each_fn.h"
-#include "library/kernel_serializer.h"
 #include "frontends/lean/choice.h"
 
 namespace lean {
-static name * g_choice_name = nullptr;
-static std::string * g_choice_opcode = nullptr;
+static name * g_choice      = nullptr;
 
-[[ noreturn ]] static void throw_ex() { throw exception("unexpected occurrence of 'choice' expression"); }
+/*
+  `choice`s will be implemented using syntax objects in Lean4.
+  This is a temporary hack to keep the Lean3 frontend alive.
+*/
 
-// We encode a 'choice' expression using a macro.
-// This is a trick to avoid creating a new kind of expression.
-// 'Choice' expressions are temporary objects used by the elaborator,
-// and have no semantic significance.
-class choice_macro_cell : public macro_definition_cell {
-public:
-    virtual name get_name() const override { return *g_choice_name; }
-    // Choice expressions must be replaced with metavariables before invoking the type checker.
-    // Choice expressions cannot be exported. They are transient/auxiliary objects.
-    virtual expr check_type(expr const &, abstract_type_context &, bool) const override { throw_ex(); }
-    virtual optional<expr> expand(expr const &, abstract_type_context &) const override { throw_ex(); }
-    virtual void write(serializer & s) const override {
-        // we should be able to write choice expressions because of notation declarations
-        s.write_string(*g_choice_opcode);
-    }
-};
-
-static macro_definition * g_choice = nullptr;
 expr mk_choice(unsigned num_es, expr const * es) {
     lean_assert(num_es > 0);
     if (num_es == 1)
         return es[0];
-    else
-        return mk_macro(*g_choice, num_es, es);
+    expr r     = es[num_es - 1];
+    unsigned i = num_es - 1;
+    while (i > 0) {
+        --i;
+        r = mk_app(es[i], r);
+    }
+    kvmap m = set_nat(kvmap(), *g_choice, nat(num_es));
+    r = mk_mdata(m, r);
+    lean_assert(get_num_choices(r) == num_es);
+    return r;
 }
 
 void initialize_choice() {
-    g_choice_name   = new name("choice");
-    g_choice_opcode = new std::string("Choice");
-    g_choice        = new macro_definition(new choice_macro_cell());
-    register_macro_deserializer(*g_choice_opcode,
-                                [](deserializer &, unsigned num, expr const * args) {
-                                    return mk_choice(num, args);
-                                });
+    g_choice      = new name("choice");
 }
 
 void finalize_choice() {
     delete g_choice;
-    delete g_choice_opcode;
-    delete g_choice_name;
 }
 
 bool is_choice(expr const & e) {
-    return is_macro(e) && macro_def(e) == *g_choice;
+    return is_mdata(e) && get_nat(mdata_data(e), *g_choice);
+}
+
+static void get_choices(expr const & e, buffer<expr> & r) {
+    lean_assert(is_choice(e));
+    expr it    = mdata_expr(e);
+    unsigned i = get_nat(mdata_data(e), *g_choice)->get_small_value();
+    while (i > 1) {
+        --i;
+        lean_assert(is_app(it));
+        r.push_back(app_fn(it));
+        it = app_arg(it);
+    }
+    r.push_back(it);
 }
 
 unsigned get_num_choices(expr const & e) {
-    lean_assert(is_choice(e));
-    return macro_num_args(e);
+    buffer<expr> choices;
+    get_choices(e, choices);
+    return choices.size();
 }
 
-expr const & get_choice(expr const & e, unsigned i) {
-    lean_assert(is_choice(e));
-    return macro_arg(e, i);
+expr get_choice(expr const & e, unsigned i) {
+    buffer<expr> choices;
+    get_choices(e, choices);
+    return choices[i];
 }
 }

@@ -42,46 +42,6 @@ expr mk_choice(unsigned num_es, expr const * es) {
         return mk_macro(*g_choice, num_es, es);
 }
 
-list<names> collect_choice_symbols(expr const & e) {
-    buffer<names> r;
-    for_each(e, [&](expr const & e, unsigned) {
-            if (is_choice(e)) {
-                buffer<name> cs;
-                for (unsigned i = 0; i < get_num_choices(e); i++) {
-                    expr const & c = get_app_fn(get_choice(e, i));
-                    if (is_constant(c))
-                        cs.push_back(const_name(c));
-                    else if (is_local(c))
-                        cs.push_back(mlocal_pp_name(c));
-                }
-                if (cs.size() > 1)
-                    r.push_back(names(cs));
-            }
-            return true;
-        });
-    return to_list(r);
-}
-
-format pp_choice_symbols(expr const & e) {
-    list<names> symbols = collect_choice_symbols(e);
-    if (symbols) {
-        format r;
-        bool first = true;
-        for (auto cs : symbols) {
-            format aux("overloads:");
-            for (auto s : cs)
-                aux += space() + format(s);
-            if (!first)
-                r += line();
-            r += aux;
-            first = false;
-        }
-        return r;
-    } else {
-        return format();
-    }
-}
-
 void initialize_choice() {
     g_choice_name   = new name("choice");
     g_choice_opcode = new std::string("Choice");

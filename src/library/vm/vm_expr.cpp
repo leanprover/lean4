@@ -17,7 +17,6 @@ Author: Leonardo de Moura
 #include "library/expr_lt.h"
 #include "library/deep_copy.h"
 #include "library/comp_val.h"
-#include "library/choice.h"
 #include "library/annotation.h"
 #include "library/quote.h"
 #include "library/string.h"

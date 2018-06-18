@@ -17,7 +17,6 @@ Author: Leonardo de Moura
 #include "library/relation_manager.h"
 #include "library/module.h"
 #include "library/constants.h"
-#include "library/choice.h"
 #include "library/placeholder.h"
 #include "library/explicit.h"
 #include "library/annotation.h"
@@ -26,6 +25,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/typed_expr.h"
+#include "frontends/lean/choice.h"
 
 namespace lean {
 static name * g_calc_name  = nullptr;

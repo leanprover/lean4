@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #include <string>
 #include "runtime/sstream.h"
 #include "kernel/for_each_fn.h"
-#include "library/choice.h"
 #include "library/kernel_serializer.h"
+#include "frontends/lean/choice.h"
 
 namespace lean {
 static name * g_choice_name = nullptr;

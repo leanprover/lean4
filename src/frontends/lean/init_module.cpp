@@ -26,12 +26,14 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/brackets.h"
+#include "frontends/lean/choice.h"
 #include "frontends/lean/interactive.h"
 #include "frontends/lean/completion.h"
 #include "frontends/lean/user_notation.h"
 
 namespace lean {
 void initialize_frontend_lean_module() {
+    initialize_choice();
     initialize_decl_attributes();
     initialize_prenum();
     initialize_tokens();
@@ -84,5 +86,6 @@ void finalize_frontend_lean_module() {
     finalize_tokens();
     finalize_prenum();
     finalize_decl_attributes();
+    finalize_choice();
 }
 }

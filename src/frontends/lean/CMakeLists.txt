@@ -8,4 +8,4 @@ init_module.cpp type_util.cpp decl_attributes.cpp
 prenum.cpp print_cmd.cpp elaborator.cpp
 match_expr.cpp local_context_adapter.cpp decl_util.cpp definition_cmds.cpp
 brackets.cpp tactic_notation.cpp info_manager.cpp json.cpp module_parser.cpp
-interactive.cpp completion.cpp user_notation.cpp typed_expr.cpp)
+interactive.cpp completion.cpp user_notation.cpp typed_expr.cpp choice.cpp)

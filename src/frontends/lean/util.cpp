@@ -23,7 +23,6 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/placeholder.h"
 #include "library/unfold_macros.h"
-#include "library/choice.h"
 #include "library/string.h"
 #include "library/num.h"
 #include "library/util.h"
@@ -36,6 +35,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/decl_util.h" // TODO(Leo): remove
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/typed_expr.h"
+#include "frontends/lean/choice.h"
 
 #ifndef LEAN_DEFAULT_AUTO_PARAM_CHECK_EXISTS
 #define LEAN_DEFAULT_AUTO_PARAM_CHECK_EXISTS true

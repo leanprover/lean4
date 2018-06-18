@@ -24,7 +24,6 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/placeholder.h"
 #include "library/explicit.h"
-#include "library/choice.h"
 #include "library/string.h"
 #include "library/class.h"
 #include "library/sorry.h"
@@ -61,6 +60,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/structure_instance.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/typed_expr.h"
+#include "frontends/lean/choice.h"
 
 #ifndef LEAN_DEFAULT_ELABORATOR_COERCIONS
 #define LEAN_DEFAULT_ELABORATOR_COERCIONS true

@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "library/placeholder.h"
 #include "library/explicit.h"
-#include "library/choice.h"
 #include "library/quote.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_expr.h"

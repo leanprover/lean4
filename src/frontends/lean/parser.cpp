@@ -35,7 +35,6 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/local_context.h"
 #include "library/protected.h"
-#include "library/choice.h"
 #include "library/placeholder.h"
 #include "library/deep_copy.h"
 #include "library/module.h"
@@ -64,6 +63,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/local_context_adapter.h"
 #include "frontends/lean/structure_instance.h"
 #include "frontends/lean/typed_expr.h"
+#include "frontends/lean/choice.h"
 
 #ifndef LEAN_DEFAULT_PARSER_SHOW_ERRORS
 #define LEAN_DEFAULT_PARSER_SHOW_ERRORS true

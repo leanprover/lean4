@@ -170,6 +170,10 @@ class instantiate_mvars_fn : public replace_visitor {
             return mk_rev_app(new_f, new_args);
     }
 
+    virtual expr visit_mdata(expr const & e) override {
+        return update_mdata(e, visit(mdata_expr(e)));
+    }
+
     virtual expr visit_macro(expr const & e) override {
         lean_assert(is_macro(e));
         buffer<expr> new_args;

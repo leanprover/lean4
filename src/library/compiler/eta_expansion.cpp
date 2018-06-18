@@ -165,22 +165,6 @@ class eta_expand_fn : public compiler_step_visitor {
         return expand_if_needed(e);
     }
 
-    virtual expr visit_macro(expr const & e) override {
-        if (is_sorry(e)) {
-            /* We η-expand sorrys to be able to execute tactic scripts with syntax errors.
-
-               For example, when we parse and elaborate `by { simp, simmp }`, we get
-               something like `simp >> ??`.
-               With η-expansion, the composite tactic becomes `simp >> (λ s, ?? s)`,
-               and the execution only fails when we arrive at the syntax error.
-            */
-            m_saw_sorry = true;
-            return eta_expand(e);
-        } else {
-            return compiler_step_visitor::visit_macro(e);
-        }
-    }
-
     virtual expr visit_app(expr const & e) override {
         if (is_constant(get_app_fn(e)))
             return expand_if_needed(e);

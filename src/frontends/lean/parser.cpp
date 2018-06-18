@@ -302,15 +302,12 @@ expr parser::copy_with_new_pos(expr const & e, pos_info p) {
                                        copy_with_new_pos(let_value(e), p),
                                        copy_with_new_pos(let_body(e), p)),
                         p);
-    case expr_kind::Macro:
-        if (is_pexpr_quote(e)) {
-            return save_pos(mk_pexpr_quote(copy_with_new_pos(get_pexpr_quote_value(e), p)), p);
-        } else {
-            buffer<expr> args;
-            for (unsigned i = 0; i < macro_num_args(e); i++)
-                args.push_back(copy_with_new_pos(macro_arg(e, i), p));
-            return save_pos(::lean::mk_macro(macro_def(e), args.size(), args.data()), p);
-        }
+    case expr_kind::Macro: {
+        buffer<expr> args;
+        for (unsigned i = 0; i < macro_num_args(e); i++)
+            args.push_back(copy_with_new_pos(macro_arg(e, i), p));
+        return save_pos(::lean::mk_macro(macro_def(e), args.size(), args.data()), p);
+    }
     case expr_kind::Quote:
         if (is_pexpr_quote(e)) {
             return save_pos(mk_pexpr_quote(copy_with_new_pos(get_pexpr_quote_value(e), p)), p);
@@ -1745,8 +1742,6 @@ static expr quote(expr const & e) {
         return mk_app(mk_constant({"expr", "const"}), quote(const_name(e)), mk_expr_placeholder());
     case expr_kind::MVar:
         return mk_expr_placeholder();
-    case expr_kind::MData:
-        throw exception("expr.mdata is not supported at quote function");
     case expr_kind::FVar:
         throw elaborator_exception(e, sstream() << "invalid quotation, unexpected local constant '"
                                    << mlocal_pp_name(e) << "'");
@@ -1767,13 +1762,14 @@ static expr quote(expr const & e) {
     case expr_kind::Let:
         return mk_app(mk_constant({"expr", "elet"}), mk_expr_placeholder(), quote(let_type(e)),
                       quote(let_value(e)), quote(let_body(e)));
-    case expr_kind::Macro:
+    case expr_kind::MData:
         if (is_antiquote(e))
             return get_antiquote_expr(e);
-        if (is_typed_expr(e))
-            return mk_typed_expr(quote(get_typed_expr_expr(e)), quote(get_typed_expr_type(e)));
-        if (is_inaccessible(e))
+        else if (is_inaccessible(e))
             return mk_expr_placeholder();
+        else
+            throw exception("expr.mdata is not supported at quote function");
+    case expr_kind::Macro:
         throw elaborator_exception(e, sstream() << "invalid quotation, unsupported macro '"
                                    << macro_def(e).get_name() << "'");
     case expr_kind::Quote:
@@ -1874,11 +1870,11 @@ class patexpr_to_expr_fn : public replace_visitor {
         return update_let(e, new_type, new_val, new_body);
     }
 
-    virtual expr visit_macro(expr const & e) override {
+    virtual expr visit_mdata(expr const & e) override {
         if (is_inaccessible(e) && is_placeholder(get_annotation_arg(e))) {
             return get_annotation_arg(e);
         } else {
-            return replace_visitor::visit_macro(e);
+            return replace_visitor::visit_mdata(e);
         }
     }
 

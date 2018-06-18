@@ -1071,11 +1071,7 @@ simp_result simplify_ext_core_fn::visit_pi(expr const & e) {
 }
 
 simp_result simplify_ext_core_fn::visit_macro(expr const & e) {
-    if (is_annotation(e)) {
-        return visit(get_annotation_arg(e), none_expr());
-    } else {
-        return simplify_core_fn::visit_macro(e);
-    }
+    return simplify_core_fn::visit_macro(e);
 }
 
 simp_result simplify_ext_core_fn::visit_let(expr const & e) {

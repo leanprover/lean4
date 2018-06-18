@@ -24,7 +24,9 @@ expr replace_visitor::visit_mlocal(expr const & e) {
 }
 expr replace_visitor::visit_meta(expr const & e) { return visit_mlocal(e); }
 expr replace_visitor::visit_local(expr const & e) { return visit_mlocal(e); }
-expr replace_visitor::visit_mdata(expr const & e) { return visit(mdata_expr(e)); }
+expr replace_visitor::visit_mdata(expr const & e) {
+    return update_mdata(e, visit(mdata_expr(e)));
+}
 expr replace_visitor::visit_app(expr const & e) {
     lean_assert(is_app(e));
     expr new_fn  = visit(app_fn(e));

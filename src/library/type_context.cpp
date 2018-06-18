@@ -737,7 +737,6 @@ optional<expr> type_context_old::reduce_large_elim_recursor(expr const & e) {
     return none_expr();
 }
 
-
 optional<expr> type_context_old::expand_macro(expr const & e) {
     lean_assert(is_macro(e));
     return macro_def(e).expand(e, *this);
@@ -776,9 +775,6 @@ expr type_context_old::whnf_core(expr const & e0, bool proj_reduce) {
     case expr_kind::Constant: case expr_kind::Lit:
         /* Remark: we do not unfold Constants eagerly in this method */
         return e;
-    case expr_kind::MData:
-        e = mdata_expr(e);
-        continue;
     case expr_kind::FVar:
         if (use_zeta() && is_local_decl_ref(e)) {
             if (auto d = m_lctx.find_local_decl(e)) {
@@ -864,7 +860,9 @@ expr type_context_old::whnf_core(expr const & e0, bool proj_reduce) {
             continue;
         }
     }
-
+    case expr_kind::MData:
+        e = mdata_expr(e);
+        continue;
     case expr_kind::Macro:
         if (auto m = expand_macro(e)) {
             check_system("whnf");
@@ -2304,10 +2302,6 @@ struct check_assignment_fn : public replace_visitor {
         }
     }
 
-    expr visit_macro(expr const & e) override {
-        return replace_visitor::visit_macro(e);
-    }
-
     expr operator()(expr const & v) {
         if (!has_expr_metavar(v) && !has_local(v)) {
             return v;
@@ -3343,6 +3337,9 @@ lbool type_context_old::is_quick_class(expr const & type, name & result) {
             return l_false;
         case expr_kind::Let:
             return l_undef;
+        case expr_kind::MData:
+            it = &mdata_expr(*it);
+            break;
         case expr_kind::Constant:
             if (auto r = constant_is_class(*it)) {
                 result = *r;
@@ -3371,9 +3368,6 @@ lbool type_context_old::is_quick_class(expr const & type, name & result) {
         }
         case expr_kind::Pi:
             it = &binding_body(*it);
-            break;
-        case expr_kind::MData:
-            it = &mdata_expr(*it);
             break;
         case expr_kind::Macro:
             return l_undef;

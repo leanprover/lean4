@@ -274,17 +274,9 @@ class vm_compiler_fn {
         emit(mk_drop_instr(counter));
     }
 
-    void compile_macro(expr const & e, unsigned bpz, name_map<unsigned> const & m) {
-        if (is_annotation(e)) {
-            compile(get_annotation_arg(e), bpz, m);
-        } else if (is_expr_quote(e)) {
-            emit(mk_expr_instr(get_expr_quote_value(e)));
-        } else if (is_pexpr_quote(e)) {
-            emit(mk_expr_instr(get_pexpr_quote_value(e)));
-        } else {
-            throw exception(sstream() << "code generation failed, unexpected kind of macro has been found: '"
-                            << macro_def(e).get_name() << "'");
-        }
+    void compile_macro(expr const & e, unsigned /* bpz */, name_map<unsigned> const & /* m */) {
+        throw exception(sstream() << "code generation failed, unexpected kind of macro has been found: '"
+                        << macro_def(e).get_name() << "'");
     }
 
     void compile_quote(expr const & e) {

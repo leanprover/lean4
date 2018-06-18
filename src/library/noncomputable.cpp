@@ -142,6 +142,14 @@ struct get_noncomputable_reason_fn {
         return !is_sort(type);
     }
 
+    void visit_mdata(expr const & e) {
+        if (is_expr_quote(e) || is_pexpr_quote(e))
+            return;
+        if (should_visit(e)) {
+            visit(mdata_expr(e));
+        }
+    }
+
     void visit_macro(expr const & e) {
         if (is_expr_quote(e) || is_pexpr_quote(e))
             return;
@@ -200,7 +208,7 @@ struct get_noncomputable_reason_fn {
         case expr_kind::Lambda:    visit_binding(e);  return;
         case expr_kind::Pi:        visit_binding(e);  return;
         case expr_kind::Let:       visit_let(e);      return;
-        case expr_kind::MData:     visit(mdata_expr(e)); return;
+        case expr_kind::MData:     visit_mdata(e);    return;
         case expr_kind::Quote:     return;
         }
     }

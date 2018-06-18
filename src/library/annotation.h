@@ -10,8 +10,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 /** \brief Declare a new kind of annotation. It must only be invoked at startup time
-    Use helper obect #register_annotation_fn.
-*/
+    Use helper obect #register_annotation_fn. */
 void register_annotation(name const & n);
 
 /** \brief Create an annotated expression with tag \c kind based on \c e.
@@ -41,7 +40,7 @@ expr const & get_annotation_arg(expr const & e);
 
     \post get_annotation_arg(mk_annotation(k, e)) == k
 */
-name const & get_annotation_kind(expr const & e);
+name get_annotation_kind(expr const & e);
 
 /** \brief Return the nested annotated expression, \c e must have been created using #mk_annotation.
     This function is the "transitive" version of #get_annotation_arg.

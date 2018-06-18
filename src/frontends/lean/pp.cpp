@@ -1130,16 +1130,7 @@ auto pretty_fn::pp_macro_default(expr const & e) -> result {
 }
 
 auto pretty_fn::pp_macro(expr const & e) -> result {
-    if (is_explicit(e)) {
-        return pp_explicit(e);
-    } else if (is_expr_quote(e)) {
-        return result(format("`(") + nest(4, pp(get_expr_quote_value(e)).fmt()) + format(")"));
-    } else if (is_pexpr_quote(e)) {
-        return result(format("``(") + nest(2, pp(get_pexpr_quote_value(e)).fmt()) + format(")"));
-    } else if (is_inaccessible(e)) {
-        format r = format(".") + pp_child(get_annotation_arg(e), max_bp()).fmt();
-        return result(r);
-    } else if (is_as_pattern(e)) {
+    if (is_as_pattern(e)) {
         auto lhs_fmt = pp_child(get_as_pattern_lhs(e), max_bp()).fmt();
         auto rhs_fmt = pp_child(get_as_pattern_rhs(e), max_bp()).fmt();
         return result(lhs_fmt + format("@") + rhs_fmt);
@@ -1152,25 +1143,31 @@ auto pretty_fn::pp_macro(expr const & e) -> result {
             return m_unicode ? format("◾") : format("irrel");
         else
             return pp(get_annotation_arg(e));
-    } else if (!m_strings && to_string(e)) {
-        expr n = *macro_def(e).expand(e, m_ctx);
-        return pp(n);
     } else if (is_equations(e)) {
         if (auto r = pp_equations(e))
             return *r;
         else
             return pp_macro_default(e);
+    } else {
+        return pp_macro_default(e);
+    }
+}
+
+auto pretty_fn::pp_mdata(expr const & e) -> result {
+    if (is_explicit(e)) {
+        return pp_explicit(e);
+    } else if (is_expr_quote(e)) {
+        return result(format("`(") + nest(4, pp(get_expr_quote_value(e)).fmt()) + format(")"));
+    } else if (is_inaccessible(e)) {
+        format r = format(".") + pp_child(get_annotation_arg(e), max_bp()).fmt();
+        return result(r);
     } else if (is_annotation(e)) {
         if (m_annotations)
             return format("[") + format(get_annotation_kind(e)) + space() + pp(get_annotation_arg(e)).fmt() + format("]");
         else
             return pp(get_annotation_arg(e));
-    } else if (is_synthetic_sorry(e)) {
-        return m_unicode ? format("⁇") : format("??");
-    } else if (is_sorry(e)) {
-        return format("sorry");
     } else {
-        return pp_macro_default(e);
+        return pp(mdata_expr(e));
     }
 }
 
@@ -1784,7 +1781,7 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
     case expr_kind::BVar:      return pp_var(e);
     case expr_kind::FVar:      return pp_local(e);
     case expr_kind::Sort:      return pp_sort(e);
-    case expr_kind::MData:     return pp(mdata_expr(e), ignore_hide);
+    case expr_kind::MData:     return pp_mdata(e);
     case expr_kind::Constant:  return pp_const(e);
     case expr_kind::MVar:      return pp_meta(e);
     case expr_kind::App:       return pp_app(e);

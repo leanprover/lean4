@@ -205,11 +205,6 @@ class lambda_lifting_fn : public compiler_step_visitor {
         }
     }
 
-    virtual expr visit_macro(expr const & e) override {
-        if (is_sorry(e)) m_saw_sorry = true;
-        return compiler_step_visitor::visit_macro(e);
-    }
-
 public:
     lambda_lifting_fn(environment const & env, abstract_context_cache & cache, name const & prefix):
         compiler_step_visitor(env, cache), m_prefix(prefix), m_idx(1) {

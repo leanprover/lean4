@@ -969,7 +969,7 @@ expr elaborator::visit_function(expr const & fn, bool has_args, optional<expr> c
     case expr_kind::FVar:      r = fn; break;
     case expr_kind::Constant:  r = visit_const_core(fn); break;
     case expr_kind::Macro:     r = visit_macro(fn, expected_type, true); break;
-    case expr_kind::MData:     r = visit_mdata(fn, expected_type); break;
+    case expr_kind::MData:     r = visit_mdata(fn, expected_type, true); break;
     case expr_kind::Lambda:    r = visit_lambda(fn, expected_type); break;
     case expr_kind::Let:       r = visit_let(fn, expected_type); break;
     case expr_kind::Quote:
@@ -2525,10 +2525,16 @@ class validate_and_collect_lhs_mvars : public replace_visitor {
         return visit_app(e);
     }
 
-    virtual expr visit_macro(expr const & e) override {
+    virtual expr visit_mdata(expr const & e) override {
         if (is_inaccessible(e)) {
             return e;
-        } else if (is_as_pattern(e)) {
+        } else {
+            return visit(mdata_expr(e));
+        }
+    }
+
+    virtual expr visit_macro(expr const & e) override {
+        if (is_as_pattern(e)) {
             expr new_lhs = visit(get_as_pattern_lhs(e));
             expr new_rhs = visit(get_as_pattern_rhs(e));
             return mk_as_pattern(new_lhs, new_rhs);
@@ -2541,8 +2547,6 @@ class validate_and_collect_lhs_mvars : public replace_visitor {
             return mk_structure_instance(info);
         } else if (auto r = ctx().expand_macro(e)) {
             return visit(*r);
-        } else if (is_synthetic_sorry(e)) {
-            return e;
         } else {
             throw_invalid_pattern("invalid occurrence of macro expression in pattern", e);
             return e;
@@ -2652,7 +2656,7 @@ expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
         for (expr const & local_mvar : local_mvars) {
             expr s = instantiate_mvars(local_mvar);
             if (!is_local(s)) {
-                /* The `as_is` macro affects how applications are elaborated.
+                /* The `as_is` annotation affects how applications are elaborated.
                    See comment at first_pass method.
                    So, we only use it if it is really needed. That is,
                    the metavariable was fixed to a non trivial term by type inference rules.
@@ -3355,24 +3359,44 @@ expr elaborator::visit_expr_quote(expr const & e, optional<expr> const & expecte
     return visit(q, expected_type);
 }
 
-expr elaborator::visit_mdata(expr const & e, optional<expr> const & expected_type) {
-    expr new_e = visit(mdata_expr(e), expected_type);
-    return update_mdata(e, new_e);
-}
-
-expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_type, bool is_app_fn) {
+expr elaborator::visit_mdata(expr const & e, optional<expr> const & expected_type, bool is_app_fn) {
     if (is_as_is(e)) {
         return get_as_is_arg(e);
+    } else if (is_hole(e)) {
+        return visit_hole(e, expected_type);
+    } else if (is_explicit(e) || is_partial_explicit(e)) {
+        return visit_app_core(e, buffer<expr>(), expected_type, e);
     } else if (is_anonymous_constructor(e)) {
         if (is_app_fn)
             throw elaborator_exception(e, "invalid constructor ⟨...⟩, function expected");
         return visit_anonymous_constructor(e, expected_type);
-    } else if (is_choice(e) || is_explicit(e) || is_partial_explicit(e)) {
-        return visit_app_core(e, buffer<expr>(), expected_type, e);
     } else if (is_by(e)) {
         return visit_by(e, expected_type);
-    } else if (is_hole(e)) {
-        return visit_hole(e, expected_type);
+    } else if (is_as_atomic(e)) {
+        /* ignore annotation */
+        expr new_e = visit(get_as_atomic_arg(e), none_expr());
+        if (is_app_fn)
+            return new_e;
+        /* If the as_atomic macro is not the the function in a function application, then we need to consume
+           implicit arguments. */
+        return visit_base_app_core(new_e, arg_mask::Default, buffer<expr>(), true, expected_type, e);
+    } else if (is_expr_quote(e)) {
+        return visit_expr_quote(e, expected_type);
+    } else if (is_inaccessible(e)) {
+        if (is_app_fn)
+            throw elaborator_exception(e, "invalid inaccessible term, function expected");
+        return visit_inaccessible(e, expected_type);
+    } else if (is_frozen_name(e)) {
+        return visit(get_annotation_arg(e), expected_type);
+    } else {
+        expr new_e = visit(mdata_expr(e), expected_type);
+        return update_mdata(e, new_e);
+    }
+}
+
+expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_type, bool is_app_fn) {
+    if (is_choice(e)) {
+        return visit_app_core(e, buffer<expr>(), expected_type, e);
     } else if (is_equations(e)) {
         lean_assert(!is_app_fn); // visit_convoy is used in this case
         return visit_equations(e);
@@ -3388,29 +3412,8 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
         return new_rhs;
     } else if (is_field_notation(e)) {
         return visit_field(e, expected_type);
-    } else if (is_expr_quote(e)) {
-        return visit_expr_quote(e, expected_type);
-    } else if (is_inaccessible(e)) {
-        if (is_app_fn)
-            throw elaborator_exception(e, "invalid inaccessible term, function expected");
-        return visit_inaccessible(e, expected_type);
-    } else if (is_as_atomic(e)) {
-        /* ignore annotation */
-        expr new_e = visit(get_as_atomic_arg(e), none_expr());
-        if (is_app_fn)
-            return new_e;
-        /* If the as_atomic macro is not the the function in a function application, then we need to consume
-           implicit arguments. */
-        return visit_base_app_core(new_e, arg_mask::Default, buffer<expr>(), true, expected_type, e);
-    } else if (is_sorry(e)) {
-        return mk_sorry(expected_type, e, is_synthetic_sorry(e));
     } else if (is_structure_instance(e)) {
         return visit_structure_instance(e, expected_type);
-    } else if (is_frozen_name(e)) {
-        return visit(get_annotation_arg(e), expected_type);
-    } else if (is_annotation(e)) {
-        expr r = visit(get_annotation_arg(e), expected_type);
-        return update_macro(e, 1, &r);
     } else {
         buffer<expr> args;
         for (unsigned i = 0; i < macro_num_args(e); i++)
@@ -3654,7 +3657,7 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
                     }
                     lean_unreachable();
                 case expr_kind::MData:
-                    return copy_pos(e, visit_mdata(e, expected_type));
+                    return copy_pos(e, visit_mdata(e, expected_type, false));
                 case expr_kind::Sort:
                     return copy_pos(e, visit_sort(e));
                 case expr_kind::FVar:

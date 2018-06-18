@@ -223,11 +223,11 @@ bool has_inaccessible_annotation(expr const & e) {
 }
 
 class erase_inaccessible_annotations_fn : public replace_visitor {
-    virtual expr visit_macro(expr const & e) override {
+    virtual expr visit_mdata(expr const & e) override {
         if (is_inaccessible(e)) {
             return visit(get_annotation_arg(e));
         } else {
-            return replace_visitor::visit_macro(e);
+            return replace_visitor::visit_mdata(e);
         }
     }
 };

@@ -43,6 +43,11 @@ bool is_choice(expr const & e) {
     return is_mdata(e) && get_nat(mdata_data(e), *g_choice);
 }
 
+unsigned get_num_choices(expr const & e) {
+    lean_assert(is_choice(e));
+    return get_nat(mdata_data(e), *g_choice)->get_small_value();
+}
+
 static void get_choices(expr const & e, buffer<expr> & r) {
     lean_assert(is_choice(e));
     expr it    = mdata_expr(e);
@@ -54,12 +59,6 @@ static void get_choices(expr const & e, buffer<expr> & r) {
         it = app_arg(it);
     }
     r.push_back(it);
-}
-
-unsigned get_num_choices(expr const & e) {
-    buffer<expr> choices;
-    get_choices(e, choices);
-    return choices.size();
 }
 
 expr get_choice(expr const & e, unsigned i) {

@@ -2528,6 +2528,10 @@ class validate_and_collect_lhs_mvars : public replace_visitor {
     virtual expr visit_mdata(expr const & e) override {
         if (is_inaccessible(e)) {
             return e;
+        } else if (is_as_pattern(e)) {
+            expr new_lhs = visit(get_as_pattern_lhs(e));
+            expr new_rhs = visit(get_as_pattern_rhs(e));
+            return mk_as_pattern(new_lhs, new_rhs);
         } else if (is_structure_instance(e)) {
             auto info = get_structure_instance_info(e);
             if (info.m_sources.size())
@@ -2541,11 +2545,7 @@ class validate_and_collect_lhs_mvars : public replace_visitor {
     }
 
     virtual expr visit_macro(expr const & e) override {
-        if (is_as_pattern(e)) {
-            expr new_lhs = visit(get_as_pattern_lhs(e));
-            expr new_rhs = visit(get_as_pattern_rhs(e));
-            return mk_as_pattern(new_lhs, new_rhs);
-        } else if (auto r = ctx().expand_macro(e)) {
+        if (auto r = ctx().expand_macro(e)) {
             return visit(*r);
         } else {
             throw_invalid_pattern("invalid occurrence of macro expression in pattern", e);
@@ -3394,6 +3394,14 @@ expr elaborator::visit_mdata(expr const & e, optional<expr> const & expected_typ
         return visit_structure_instance(e, expected_type);
     } else if (is_field_notation(e)) {
         return visit_field(e, expected_type);
+    } else if (is_as_pattern(e)) {
+        if (!m_in_pattern)
+            throw elaborator_exception(e, "invalid occurrence of aliasing pattern, it must only occur in patterns");
+        expr new_rhs = visit(get_as_pattern_rhs(e), expected_type);
+        expr lhs = get_as_pattern_lhs(e);
+        if (!is_def_eq(lhs, new_rhs))
+            throw elaborator_exception(e, "cannot unify terms of aliasing pattern");
+        return new_rhs;
     } else {
         expr new_e = visit(mdata_expr(e), expected_type);
         return update_mdata(e, new_e);
@@ -3406,14 +3414,6 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
         return visit_equations(e);
     } else if (is_equation(e)) {
         throw elaborator_exception(e, "unexpected occurrence of equation");
-    } else if (is_as_pattern(e)) {
-        if (!m_in_pattern)
-            throw elaborator_exception(e, "invalid occurrence of aliasing pattern, it must only occur in patterns");
-        expr new_rhs = visit(get_as_pattern_rhs(e), expected_type);
-        expr lhs = get_as_pattern_lhs(e);
-        if (!is_def_eq(lhs, new_rhs))
-            throw elaborator_exception(e, "cannot unify terms of aliasing pattern");
-        return new_rhs;
     } else {
         buffer<expr> args;
         for (unsigned i = 0; i < macro_num_args(e); i++)

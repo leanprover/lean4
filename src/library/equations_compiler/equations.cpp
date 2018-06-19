@@ -38,17 +38,8 @@ static std::string * g_equations_opcode        = nullptr;
 static std::string * g_equation_opcode         = nullptr;
 static std::string * g_no_equation_opcode      = nullptr;
 static std::string * g_equations_result_opcode = nullptr;
-static std::string * g_as_pattern_opcode       = nullptr;
 
 [[ noreturn ]] static void throw_asp_ex() { throw exception("unexpected occurrence of 'equations' expression"); }
-
-class as_pattern_macro_cell : public macro_definition_cell {
-public:
-    virtual name get_name() const override { return *g_as_pattern_name; }
-    virtual expr check_type(expr const &, abstract_type_context &, bool) const override { throw_asp_ex(); }
-    virtual optional<expr> expand(expr const &, abstract_type_context &) const override { throw_asp_ex(); }
-    virtual void write(serializer & s) const override { s << *g_as_pattern_opcode; }
-};
 
 bool operator==(equations_header const & h1, equations_header const & h2) {
     return
@@ -128,7 +119,7 @@ public:
     virtual void write(serializer & s) const override { s.write_string(*g_no_equation_opcode); }
 };
 
-static macro_definition * g_as_pattern                = nullptr;
+static kvmap * g_as_pattern = nullptr;
 static macro_definition * g_equation                  = nullptr;
 static macro_definition * g_equation_ignore_if_unused = nullptr;
 static macro_definition * g_no_equation               = nullptr;
@@ -172,19 +163,18 @@ expr mk_inaccessible(expr const & e) { return mk_annotation(*g_inaccessible_name
 bool is_inaccessible(expr const & e) { return is_annotation(e, *g_inaccessible_name); }
 
 expr mk_as_pattern(expr const & lhs, expr const & rhs) {
-    expr args[2] = {lhs, rhs};
-    return mk_macro(*g_as_pattern, 2, args);
+    return mk_mdata(*g_as_pattern, mk_app(lhs, rhs));
 }
 bool is_as_pattern(expr const & e) {
-    return is_macro(e) && macro_def(e) == *g_as_pattern;
+    return is_mdata(e) && get_bool(mdata_data(e), *g_as_pattern_name);
 }
 expr get_as_pattern_lhs(expr const & e) {
     lean_assert(is_as_pattern(e));
-    return macro_arg(e, 0);
+    return app_fn(mdata_expr(e));
 }
 expr get_as_pattern_rhs(expr const & e) {
     lean_assert(is_as_pattern(e));
-    return macro_arg(e, 1);
+    return app_arg(mdata_expr(e));
 }
 
 bool is_equations(expr const & e) { return is_macro(e) && macro_def(e).get_name() == *g_equations_name; }
@@ -304,12 +294,11 @@ void initialize_equations() {
     g_equation_ignore_if_unused = new macro_definition(new equation_macro_cell(true));
     g_no_equation               = new macro_definition(new no_equation_macro_cell());
     g_equations_result          = new macro_definition(new equations_result_macro_cell());
-    g_as_pattern                = new macro_definition(new as_pattern_macro_cell());
+    g_as_pattern                = new kvmap(set_bool(kvmap(), *g_as_pattern_name, true));
     g_equations_opcode          = new std::string("Eqns");
     g_equation_opcode           = new std::string("Eqn");
     g_no_equation_opcode        = new std::string("NEqn");
     g_equations_result_opcode   = new std::string("EqnR");
-    g_as_pattern_opcode         = new std::string("AsPat");
     register_annotation(*g_inaccessible_name);
     register_macro_deserializer(*g_equations_opcode,
                                 [](deserializer & d, unsigned num, expr const * args) {
@@ -346,16 +335,9 @@ void initialize_equations() {
                                 [](deserializer &, unsigned num, expr const * args) {
                                     return mk_equations_result(num, args);
                                 });
-    register_macro_deserializer(*g_as_pattern_opcode,
-                                [](deserializer &, unsigned num, expr const * args) {
-                                    if (num != 2)
-                                        throw corrupted_stream_exception();
-                                    return mk_as_pattern(args[0], args[1]);
-                                });
 }
 
 void finalize_equations() {
-    delete g_as_pattern_opcode;
     delete g_equations_result_opcode;
     delete g_equation_opcode;
     delete g_no_equation_opcode;

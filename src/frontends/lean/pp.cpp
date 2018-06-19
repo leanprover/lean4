@@ -1130,15 +1130,7 @@ auto pretty_fn::pp_macro_default(expr const & e) -> result {
 }
 
 auto pretty_fn::pp_macro(expr const & e) -> result {
-    if (is_as_pattern(e)) {
-        auto lhs_fmt = pp_child(get_as_pattern_lhs(e), max_bp()).fmt();
-        auto rhs_fmt = pp_child(get_as_pattern_rhs(e), max_bp()).fmt();
-        return result(lhs_fmt + format("@") + rhs_fmt);
-/*
-    } else if (is_pattern_hint(e)) {
-        return result(group(nest(2, format("(:") + pp(get_pattern_hint_arg(e)).fmt() + format(":)"))));
-*/
-    } else if (is_marked_as_comp_irrelevant(e)) {
+    if (is_marked_as_comp_irrelevant(e)) {
         if (m_hide_comp_irrel)
             return m_unicode ? format("◾") : format("irrel");
         else
@@ -1166,6 +1158,10 @@ auto pretty_fn::pp_mdata(expr const & e) -> result {
             return format("[") + format(get_annotation_kind(e)) + space() + pp(get_annotation_arg(e)).fmt() + format("]");
         else
             return pp(get_annotation_arg(e));
+    } else if (is_as_pattern(e)) {
+        auto lhs_fmt = pp_child(get_as_pattern_lhs(e), max_bp()).fmt();
+        auto rhs_fmt = pp_child(get_as_pattern_rhs(e), max_bp()).fmt();
+        return result(lhs_fmt + format("@") + rhs_fmt);
     } else {
         return pp(mdata_expr(e));
     }

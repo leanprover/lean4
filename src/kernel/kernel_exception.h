@@ -123,4 +123,12 @@ public:
         kernel_exception_with_lctx(env, lctx), m_app(app) {}
     expr const & get_app() const { return m_app; }
 };
+
+class invalid_proj_exception : public kernel_exception_with_lctx {
+    expr m_proj;
+public:
+    invalid_proj_exception(environment const & env, local_ctx const & lctx, expr const & proj):
+        kernel_exception_with_lctx(env, lctx), m_proj(proj) {}
+    expr const & get_proj() const { return m_proj; }
+};
 }

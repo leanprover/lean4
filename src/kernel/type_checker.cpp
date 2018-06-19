@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
 #include "kernel/quot.h"
+#include "kernel/inductive/inductive.h"
 
 namespace lean {
 static name * g_kernel_fresh = nullptr;
@@ -201,9 +202,40 @@ expr type_checker::infer_let(expr const & _e, bool infer_only) {
     return m_lctx.mk_pi(fvars, r);
 }
 
-expr type_checker::infer_proj(expr const &, bool /* infer_only */) {
-    // TODO(Leo)
-    lean_unreachable();
+expr type_checker::infer_proj(expr const & e, bool infer_only) {
+    expr type = whnf(infer_type_core(proj_expr(e), infer_only));
+    if (!proj_idx(e).is_small())
+        throw invalid_proj_exception(m_env, m_lctx, e);
+    unsigned idx = proj_idx(e).get_small_value();
+    buffer<expr> args;
+    expr const & I = get_app_args(type, args);
+    if (!is_constant(I))
+        throw invalid_proj_exception(m_env, m_lctx, e);
+    optional<inductive::inductive_decl> decl = inductive::is_inductive_decl(m_env, const_name(I));
+    if (!decl)
+        throw invalid_proj_exception(m_env, m_lctx, e);
+    if (length(decl->m_intro_rules) != 1 || args.size() != decl->m_num_params)
+        throw invalid_proj_exception(m_env, m_lctx, e);
+
+    inductive::intro_rule cnstr = head(decl->m_intro_rules);
+    declaration c_decl = m_env.get(inductive::intro_rule_name(cnstr));
+    expr r = instantiate_type_univ_params(c_decl, const_levels(I));
+    for (expr const & arg : args) {
+        r = whnf(r);
+        if (!is_pi(r)) throw invalid_proj_exception(m_env, m_lctx, e);
+        r = instantiate(binding_body(r), arg);
+    }
+    for (unsigned i = 0; i < idx; i++) {
+        r = whnf(r);
+        if (!is_pi(r)) throw invalid_proj_exception(m_env, m_lctx, e);
+        if (has_loose_bvars(binding_body(r)))
+            r = instantiate(binding_body(r), mk_proj(i, proj_expr(e)));
+        else
+            r = binding_body(r);
+    }
+    r = whnf(r);
+    if (!is_pi(r)) throw invalid_proj_exception(m_env, m_lctx, e);
+    return binding_domain(r);
 }
 
 /** \brief Return type of expression \c e, if \c infer_only is false, then it also check whether \c e is type correct or not.
@@ -303,9 +335,23 @@ expr type_checker::whnf_fvar(expr const & e) {
     return e;
 }
 
-optional<expr> type_checker::reduce_proj(expr const & /* e */) {
-    // TODO(Leo):
-    lean_unreachable();
+optional<expr> type_checker::reduce_proj(expr const & e) {
+    if (!proj_idx(e).is_small())
+        return none_expr();
+    unsigned idx = proj_idx(e).get_small_value();
+    expr c = whnf(proj_expr(e));
+    buffer<expr> args;
+    expr const & mk = get_app_args(c, args);
+    if (!is_constant(mk))
+        return none_expr();
+    optional<name> I = inductive::is_intro_rule(m_env, const_name(mk));
+    if (!I)
+        return none_expr();
+    inductive::inductive_decl decl = *inductive::is_inductive_decl(m_env, *I);
+    if (decl.m_num_params + idx < args.size())
+        return some_expr(args[decl.m_num_params + idx]);
+    else
+        return none_expr();
 }
 
 /** \brief Weak head normal form core procedure. It does not perform delta reduction nor normalization extensions. */

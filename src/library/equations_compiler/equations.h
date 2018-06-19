@@ -66,7 +66,7 @@ expr remove_wf_annotation_from_equations(expr const & eqns);
 bool is_equations(expr const & e);
 bool is_wf_equations(expr const & e);
 unsigned equations_size(expr const & e);
-equations_header const & get_equations_header(expr const & e);
+equations_header get_equations_header(expr const & e);
 unsigned equations_num_fns(expr const & e);
 void to_equations(expr const & e, buffer<expr> & eqns);
 expr const & equations_wf_tactics(expr const & e);

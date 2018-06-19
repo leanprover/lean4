@@ -1130,19 +1130,7 @@ auto pretty_fn::pp_macro_default(expr const & e) -> result {
 }
 
 auto pretty_fn::pp_macro(expr const & e) -> result {
-    if (is_marked_as_comp_irrelevant(e)) {
-        if (m_hide_comp_irrel)
-            return m_unicode ? format("◾") : format("irrel");
-        else
-            return pp(get_annotation_arg(e));
-    } else if (is_equations(e)) {
-        if (auto r = pp_equations(e))
-            return *r;
-        else
-            return pp_macro_default(e);
-    } else {
-        return pp_macro_default(e);
-    }
+    return pp_macro_default(e);
 }
 
 auto pretty_fn::pp_mdata(expr const & e) -> result {
@@ -1162,6 +1150,11 @@ auto pretty_fn::pp_mdata(expr const & e) -> result {
         auto lhs_fmt = pp_child(get_as_pattern_lhs(e), max_bp()).fmt();
         auto rhs_fmt = pp_child(get_as_pattern_rhs(e), max_bp()).fmt();
         return result(lhs_fmt + format("@") + rhs_fmt);
+    } else if (is_equations(e)) {
+        if (auto r = pp_equations(e))
+            return *r;
+        else
+            return pp_macro_default(e);
     } else {
         return pp(mdata_expr(e));
     }

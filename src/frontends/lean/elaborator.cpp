@@ -3404,6 +3404,9 @@ expr elaborator::visit_mdata(expr const & e, optional<expr> const & expected_typ
         return new_rhs;
     } else if (is_equation(e)) {
         throw elaborator_exception(e, "unexpected occurrence of equation");
+    } else if (is_equations(e)) {
+        lean_assert(!is_app_fn); // visit_convoy is used in this case
+        return visit_equations(e);
     } else {
         expr new_e = visit(mdata_expr(e), expected_type);
         return update_mdata(e, new_e);
@@ -3411,15 +3414,10 @@ expr elaborator::visit_mdata(expr const & e, optional<expr> const & expected_typ
 }
 
 expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_type, bool is_app_fn) {
-    if (is_equations(e)) {
-        lean_assert(!is_app_fn); // visit_convoy is used in this case
-        return visit_equations(e);
-    } else {
-        buffer<expr> args;
-        for (unsigned i = 0; i < macro_num_args(e); i++)
-            args.push_back(visit(macro_arg(e, i), none_expr()));
-        return update_macro(e, args.size(), args.data());
-    }
+    buffer<expr> args;
+    for (unsigned i = 0; i < macro_num_args(e); i++)
+        args.push_back(visit(macro_arg(e, i), none_expr()));
+    return update_macro(e, args.size(), args.data());
 }
 
 /* If the instance fingerprint has been set, then make sure `type` is not a local instance.

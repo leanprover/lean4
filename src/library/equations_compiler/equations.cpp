@@ -34,9 +34,6 @@ static name * g_no_equation_name               = nullptr;
 static name * g_inaccessible_name              = nullptr;
 static name * g_equations_result_name          = nullptr;
 static name * g_as_pattern_name                = nullptr;
-static std::string * g_equations_opcode        = nullptr;
-
-[[ noreturn ]] static void throw_asp_ex() { throw exception("unexpected occurrence of 'equations' expression"); }
 
 bool operator==(equations_header const & h1, equations_header const & h2) {
     return
@@ -51,31 +48,6 @@ bool operator==(equations_header const & h1, equations_header const & h2) {
         h1.m_prev_errors == h2.m_prev_errors &&
         h1.m_gen_code == h2.m_gen_code;
 }
-
-[[ noreturn ]] static void throw_eqs_ex() { throw exception("unexpected occurrence of 'equations' expression"); }
-
-class equations_macro_cell : public macro_definition_cell {
-    equations_header m_header;
-public:
-    equations_macro_cell(equations_header const & h):m_header(h) {}
-    virtual name get_name() const override { return *g_equations_name; }
-    virtual expr check_type(expr const &, abstract_type_context &, bool) const override { throw_eqs_ex(); }
-    virtual optional<expr> expand(expr const &, abstract_type_context &) const override { throw_eqs_ex(); }
-    virtual void write(serializer & s) const override {
-        s << *g_equations_opcode << m_header.m_num_fns << m_header.m_is_private << m_header.m_is_meta
-          << m_header.m_is_noncomputable << m_header.m_is_lemma << m_header.m_aux_lemmas << m_header.m_prev_errors << m_header.m_gen_code;
-        s << m_header.m_fn_names;
-        s << m_header.m_fn_actual_names;
-    }
-    virtual bool operator==(macro_definition_cell const & other) const override {
-        if (auto other_ptr = dynamic_cast<equations_macro_cell const *>(&other)) {
-            return m_header == other_ptr->m_header;
-        } else {
-            return false;
-        }
-    }
-    equations_header const & get_header() const { return m_header; }
-};
 
 static kvmap * g_as_pattern = nullptr;
 static kvmap * g_equation                  = nullptr;
@@ -135,46 +107,125 @@ expr get_as_pattern_rhs(expr const & e) {
     return app_arg(mdata_expr(e));
 }
 
-bool is_equations(expr const & e) { return is_macro(e) && macro_def(e).get_name() == *g_equations_name; }
+bool is_equations(expr const & e) { return is_mdata(e) && get_nat(mdata_data(e), *g_equations_name); }
+
+static void get_equations_args(expr const & e, buffer<expr> & r) {
+    lean_assert(is_equations(e));
+    expr it    = mdata_expr(e);
+    unsigned i = get_nat(mdata_data(e), *g_equations_name)->get_small_value();
+    while (i > 1) {
+        --i;
+        lean_assert(is_app(it));
+        r.push_back(app_fn(it));
+        it = app_arg(it);
+    }
+    r.push_back(it);
+}
+
 bool is_wf_equations_core(expr const & e) {
     lean_assert(is_equations(e));
-    return macro_num_args(e) >= 2 && !is_lambda_equation(macro_arg(e, macro_num_args(e) - 1));
+    unsigned n = get_nat(mdata_data(e), *g_equations_name)->get_small_value();
+    if (n >= 2) {
+        buffer<expr> args;
+        get_equations_args(e, args);
+        return !is_lambda_equation(args[n - 1]);
+    } else {
+        return false;
+    }
 }
-bool is_wf_equations(expr const & e) { return is_equations(e) && is_wf_equations_core(e); }
+
+bool is_wf_equations(expr const & e) {
+    return is_equations(e) && is_wf_equations_core(e);
+}
+
 unsigned equations_size(expr const & e) {
     lean_assert(is_equations(e));
     if (is_wf_equations_core(e))
-        return macro_num_args(e) - 1;
+        return get_nat(mdata_data(e), *g_equations_name)->get_small_value() - 1;
     else
-        return macro_num_args(e);
+        return get_nat(mdata_data(e), *g_equations_name)->get_small_value();
 }
-equations_header const & get_equations_header(expr const & e) {
+
+equations_header get_equations_header(expr const & e) {
     lean_assert(is_equations(e));
-    return static_cast<equations_macro_cell const*>(macro_def(e).raw())->get_header();
+    equations_header h;
+    kvmap const & m = mdata_data(e);
+    h.m_num_fns          = get_nat(m, name(*g_equations_name, "num_fns"))->get_small_value();
+    h.m_is_private       = *get_bool(m, name(*g_equations_name, "is_private"));
+    h.m_is_lemma         = *get_bool(m, name(*g_equations_name, "is_lemma"));
+    h.m_is_meta          = *get_bool(m, name(*g_equations_name, "is_meta"));
+    h.m_is_noncomputable = *get_bool(m, name(*g_equations_name, "is_noncomputable"));
+    h.m_aux_lemmas       = *get_bool(m, name(*g_equations_name, "aux_lemmas"));
+    h.m_prev_errors      = *get_bool(m, name(*g_equations_name, "prev_errors"));
+    h.m_gen_code         = *get_bool(m, name(*g_equations_name, "gen_code"));
+    buffer<name> ns;
+    buffer<name> as;
+    for (unsigned i = 0; i < h.m_num_fns; i++) {
+        ns.push_back(*get_name(m, name(name(*g_equations_name, "name"), i)));
+        as.push_back(*get_name(m, name(name(*g_equations_name, "actual"), i)));
+    }
+    h.m_fn_names        = names(ns);
+    h.m_fn_actual_names = names(as);
+    return h;
 }
+
 unsigned equations_num_fns(expr const & e) {
-    return get_equations_header(e).m_num_fns;
+    lean_assert(is_equations(e));
+    return get_nat(mdata_data(e), name(*g_equations_name, "num_fns"))->get_small_value();
 }
+
 expr const & equations_wf_tactics(expr const & e) {
     lean_assert(is_wf_equations(e));
-    return macro_arg(e, macro_num_args(e) - 1);
+    buffer<expr> args;
+    get_equations_args(e, args);
+    return args.back();
 }
 
 void to_equations(expr const & e, buffer<expr> & eqns) {
     lean_assert(is_equations(e));
-    unsigned sz = equations_size(e);
-    for (unsigned i = 0; i < sz; i++)
-        eqns.push_back(macro_arg(e, i));
+    unsigned n = get_nat(mdata_data(e), *g_equations_name)->get_small_value();
+    get_equations_args(e, eqns);
+    if (n >= 2 && !is_lambda_equation(eqns.back()))
+        eqns.pop_back();
 }
+
 expr mk_equations(equations_header const & h, unsigned num_eqs, expr const * eqs) {
+    kvmap m;
+    m = set_nat(m, *g_equations_name, num_eqs);
+    m = set_nat(m, name(*g_equations_name, "num_fns"), h.m_num_fns);
+    m = set_bool(m, name(*g_equations_name, "is_private"), h.m_is_private);
+    m = set_bool(m, name(*g_equations_name, "is_lemma"), h.m_is_lemma);
+    m = set_bool(m, name(*g_equations_name, "is_meta"), h.m_is_meta);
+    m = set_bool(m, name(*g_equations_name, "is_noncomputable"), h.m_is_noncomputable);
+    m = set_bool(m, name(*g_equations_name, "aux_lemmas"), h.m_aux_lemmas);
+    m = set_bool(m, name(*g_equations_name, "prev_errors"), h.m_prev_errors);
+    m = set_bool(m, name(*g_equations_name, "gen_code"), h.m_gen_code);
+    lean_assert(length(h.m_fn_names) == h.m_num_fns);
+    lean_assert(length(h.m_fn_actual_names) == h.m_num_fns);
+    names it1 = h.m_fn_names;
+    names it2 = h.m_fn_actual_names;
+    for (unsigned i = 0; i < h.m_num_fns; i++) {
+        m = set_name(m, name(name(*g_equations_name, "name"), i), head(it1));
+        m = set_name(m, name(name(*g_equations_name, "actual"), i), head(it2));
+        it1 = tail(it1);
+        it2 = tail(it2);
+    }
     lean_assert(h.m_num_fns > 0);
     lean_assert(num_eqs > 0);
     lean_assert(std::all_of(eqs, eqs+num_eqs, [](expr const & e) {
                 return is_lambda_equation(e) || is_lambda_no_equation(e);
             }));
-    macro_definition def(new equations_macro_cell(h));
-    return mk_macro(def, num_eqs, eqs);
+    expr r     = eqs[num_eqs - 1];
+    unsigned i = num_eqs - 1;
+    while (i > 0) {
+        --i;
+        r = mk_app(eqs[i], r);
+    }
+    r = mk_mdata(m, r);
+    lean_assert(get_equations_header(r) == h);
+    return r;
 }
+
 expr mk_equations(equations_header const & h, unsigned num_eqs, expr const * eqs, expr const & tacs) {
     lean_assert(h.m_num_fns > 0);
     lean_assert(num_eqs > 0);
@@ -182,9 +233,9 @@ expr mk_equations(equations_header const & h, unsigned num_eqs, expr const * eqs
     buffer<expr> args;
     args.append(num_eqs, eqs);
     args.push_back(tacs);
-    macro_definition def(new equations_macro_cell(h));
-    return mk_macro(def, args.size(), args.data());
+    return mk_equations(h, args.size(), args.data());
 }
+
 expr update_equations(expr const & eqns, buffer<expr> const & new_eqs) {
     lean_assert(is_equations(eqns));
     lean_assert(!new_eqs.empty());
@@ -265,29 +316,10 @@ void initialize_equations() {
     g_equation_ignore_if_unused = new kvmap(set_bool(kvmap(), *g_equation_name, true));
     g_no_equation               = new kvmap(set_bool(kvmap(), *g_no_equation_name, false));
     g_as_pattern                = new kvmap(set_bool(kvmap(), *g_as_pattern_name, true));
-    g_equations_opcode          = new std::string("Eqns");
     register_annotation(*g_inaccessible_name);
-    register_macro_deserializer(*g_equations_opcode,
-                                [](deserializer & d, unsigned num, expr const * args) {
-                                    equations_header h;
-                                    d >> h.m_num_fns >> h.m_is_private >> h.m_is_meta >> h.m_is_noncomputable
-                                      >> h.m_is_lemma >> h.m_aux_lemmas >> h.m_prev_errors >> h.m_gen_code;
-                                    h.m_fn_names = read_names(d);
-                                    h.m_fn_actual_names = read_names(d);
-                                    if (num == 0 || h.m_num_fns == 0)
-                                        throw corrupted_stream_exception();
-                                    if (!is_lambda_equation(args[num-1]) && !is_lambda_no_equation(args[num-1])) {
-                                        if (num <= 1)
-                                            throw corrupted_stream_exception();
-                                        return mk_equations(h, num-1, args, args[num-1]);
-                                    } else {
-                                        return mk_equations(h, num, args);
-                                    }
-                                });
 }
 
 void finalize_equations() {
-    delete g_equations_opcode;
     delete g_as_pattern;
     delete g_equation;
     delete g_equation_ignore_if_unused;

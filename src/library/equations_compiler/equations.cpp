@@ -35,8 +35,6 @@ static name * g_inaccessible_name              = nullptr;
 static name * g_equations_result_name          = nullptr;
 static name * g_as_pattern_name                = nullptr;
 static std::string * g_equations_opcode        = nullptr;
-static std::string * g_equation_opcode         = nullptr;
-static std::string * g_no_equation_opcode      = nullptr;
 static std::string * g_equations_result_opcode = nullptr;
 
 [[ noreturn ]] static void throw_asp_ex() { throw exception("unexpected occurrence of 'equations' expression"); }
@@ -80,57 +78,26 @@ public:
     equations_header const & get_header() const { return m_header; }
 };
 
-class equation_base_macro_cell :
-public macro_definition_cell {
-public:
-    virtual expr check_type(expr const &, abstract_type_context &, bool) const override {
-        expr dummy = mk_Prop();
-        return dummy;
-    }
-    virtual optional<expr> expand(expr const &, abstract_type_context &) const override {
-        expr dummy = mk_Type();
-        return some_expr(dummy);
-    }
-};
-
-class equation_macro_cell : public equation_base_macro_cell {
-    bool m_ignore_if_unused;
-public:
-    equation_macro_cell(bool ignore_if_unused):m_ignore_if_unused(ignore_if_unused) {}
-    virtual name get_name() const override { return *g_equation_name; }
-    virtual void write(serializer & s) const override {
-        s.write_string(*g_equation_opcode);
-        s.write_bool(m_ignore_if_unused);
-    }
-    virtual bool operator==(macro_definition_cell const & other) const override {
-        if (auto other_ptr = dynamic_cast<equation_macro_cell const *>(&other)) {
-            return m_ignore_if_unused == other_ptr->m_ignore_if_unused;
-        } else {
-            return false;
-        }
-    }
-    bool ignore_if_unused() const { return m_ignore_if_unused; }
-};
-
-// This is just a placeholder to indicate no equations were provided
-class no_equation_macro_cell : public equation_base_macro_cell {
-public:
-    virtual name get_name() const override { return *g_no_equation_name; }
-    virtual void write(serializer & s) const override { s.write_string(*g_no_equation_opcode); }
-};
-
 static kvmap * g_as_pattern = nullptr;
-static macro_definition * g_equation                  = nullptr;
-static macro_definition * g_equation_ignore_if_unused = nullptr;
-static macro_definition * g_no_equation               = nullptr;
+static kvmap * g_equation                  = nullptr;
+static kvmap * g_equation_ignore_if_unused = nullptr;
+static kvmap * g_no_equation               = nullptr;
+
+expr mk_equation(expr const & lhs, expr const & rhs, bool ignore_if_unused) {
+    if (ignore_if_unused)
+        return mk_mdata(*g_equation_ignore_if_unused, mk_app(lhs, rhs));
+    else
+        return mk_mdata(*g_equation, mk_app(lhs, rhs));
+}
+expr mk_no_equation() { return mk_mdata(*g_no_equation, mk_Prop()); }
 
 bool is_equation(expr const & e) {
-    return is_macro(e) && dynamic_cast<equation_macro_cell const *>(macro_def(e).raw());
+    return is_mdata(e) && get_bool(mdata_data(e), *g_equation_name);
 }
 
 bool ignore_equation_if_unused(expr const & e) {
     lean_assert(is_equation(e));
-    return static_cast<equation_macro_cell const *>(macro_def(e).raw())->ignore_if_unused();
+    return *get_bool(mdata_data(e), *g_equation_name);
 }
 
 bool is_lambda_equation(expr const & e) {
@@ -140,17 +107,9 @@ bool is_lambda_equation(expr const & e) {
         return is_equation(e);
 }
 
-expr const & equation_lhs(expr const & e) { lean_assert(is_equation(e)); return macro_arg(e, 0); }
-expr const & equation_rhs(expr const & e) { lean_assert(is_equation(e)); return macro_arg(e, 1); }
-expr mk_equation(expr const & lhs, expr const & rhs, bool ignore_if_unused) {
-    expr args[2] = { lhs, rhs };
-    if (ignore_if_unused)
-        return mk_macro(*g_equation_ignore_if_unused, 2, args);
-    else
-        return mk_macro(*g_equation, 2, args);
-}
-expr mk_no_equation() { return mk_macro(*g_no_equation); }
-bool is_no_equation(expr const & e) { return is_macro(e) && macro_def(e) == *g_no_equation; }
+expr const & equation_lhs(expr const & e) { lean_assert(is_equation(e)); return app_fn(mdata_expr(e)); }
+expr const & equation_rhs(expr const & e) { lean_assert(is_equation(e)); return app_arg(mdata_expr(e)); }
+bool is_no_equation(expr const & e) { return is_mdata(e) && get_bool(mdata_data(e), *g_no_equation_name); }
 
 bool is_lambda_no_equation(expr const & e) {
     if (is_lambda(e))
@@ -290,14 +249,12 @@ void initialize_equations() {
     g_inaccessible_name         = new name("innaccessible");
     g_equations_result_name     = new name("equations_result");
     g_as_pattern_name           = new name("as_pattern");
-    g_equation                  = new macro_definition(new equation_macro_cell(false));
-    g_equation_ignore_if_unused = new macro_definition(new equation_macro_cell(true));
-    g_no_equation               = new macro_definition(new no_equation_macro_cell());
+    g_equation                  = new kvmap(set_bool(kvmap(), *g_equation_name, false));
+    g_equation_ignore_if_unused = new kvmap(set_bool(kvmap(), *g_equation_name, true));
+    g_no_equation               = new kvmap(set_bool(kvmap(), *g_no_equation_name, false));
     g_equations_result          = new macro_definition(new equations_result_macro_cell());
     g_as_pattern                = new kvmap(set_bool(kvmap(), *g_as_pattern_name, true));
     g_equations_opcode          = new std::string("Eqns");
-    g_equation_opcode           = new std::string("Eqn");
-    g_no_equation_opcode        = new std::string("NEqn");
     g_equations_result_opcode   = new std::string("EqnR");
     register_annotation(*g_inaccessible_name);
     register_macro_deserializer(*g_equations_opcode,
@@ -317,20 +274,6 @@ void initialize_equations() {
                                         return mk_equations(h, num, args);
                                     }
                                 });
-    register_macro_deserializer(*g_equation_opcode,
-                                [](deserializer & d, unsigned num, expr const * args) {
-                                    bool ignore_if_unused;
-                                    d >> ignore_if_unused;
-                                    if (num != 2)
-                                        throw corrupted_stream_exception();
-                                    return mk_equation(args[0], args[1], ignore_if_unused);
-                                });
-    register_macro_deserializer(*g_no_equation_opcode,
-                                [](deserializer &, unsigned num, expr const *) {
-                                    if (num != 0)
-                                        throw corrupted_stream_exception();
-                                    return mk_no_equation();
-                                });
     register_macro_deserializer(*g_equations_result_opcode,
                                 [](deserializer &, unsigned num, expr const * args) {
                                     return mk_equations_result(num, args);
@@ -339,8 +282,6 @@ void initialize_equations() {
 
 void finalize_equations() {
     delete g_equations_result_opcode;
-    delete g_equation_opcode;
-    delete g_no_equation_opcode;
     delete g_equations_opcode;
     delete g_as_pattern;
     delete g_equations_result;

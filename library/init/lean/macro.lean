@@ -28,7 +28,6 @@ Cases missing:
 inductive macro_definition
 /- The following macros will be Syntax object in Lean4 -/
 | equations       : equations_header → macro_definition
-| equation        : bool → macro_definition
-| no_equation     : bool → macro_definition
+
 
 end lean

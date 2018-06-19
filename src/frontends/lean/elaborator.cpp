@@ -3402,6 +3402,8 @@ expr elaborator::visit_mdata(expr const & e, optional<expr> const & expected_typ
         if (!is_def_eq(lhs, new_rhs))
             throw elaborator_exception(e, "cannot unify terms of aliasing pattern");
         return new_rhs;
+    } else if (is_equation(e)) {
+        throw elaborator_exception(e, "unexpected occurrence of equation");
     } else {
         expr new_e = visit(mdata_expr(e), expected_type);
         return update_mdata(e, new_e);
@@ -3412,8 +3414,6 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
     if (is_equations(e)) {
         lean_assert(!is_app_fn); // visit_convoy is used in this case
         return visit_equations(e);
-    } else if (is_equation(e)) {
-        throw elaborator_exception(e, "unexpected occurrence of equation");
     } else {
         buffer<expr> args;
         for (unsigned i = 0; i < macro_num_args(e); i++)

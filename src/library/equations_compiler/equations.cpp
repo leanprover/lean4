@@ -35,7 +35,6 @@ static name * g_inaccessible_name              = nullptr;
 static name * g_equations_result_name          = nullptr;
 static name * g_as_pattern_name                = nullptr;
 static std::string * g_equations_opcode        = nullptr;
-static std::string * g_equations_result_opcode = nullptr;
 
 [[ noreturn ]] static void throw_asp_ex() { throw exception("unexpected occurrence of 'equations' expression"); }
 
@@ -218,29 +217,42 @@ expr remove_wf_annotation_from_equations(expr const & eqns) {
     }
 }
 
-// Auxiliary macro used to store the result of a set of equations defining a mutually recursive
-// definition.
-class equations_result_macro_cell : public macro_definition_cell {
-public:
-    virtual name get_name() const { return *g_equations_result_name; }
-    virtual expr check_type(expr const & m, abstract_type_context & ctx, bool infer_only) const {
-        return ctx.check(macro_arg(m, 0), infer_only);
-    }
-    virtual optional<expr> expand(expr const & m, abstract_type_context &) const {
-        return some_expr(macro_arg(m, 0));
-    }
-    virtual void write(serializer & s) const { s << *g_equations_result_opcode; }
-};
-
-static macro_definition * g_equations_result = nullptr;
-
 expr mk_equations_result(unsigned n, expr const * rs) {
-    return mk_macro(*g_equations_result, n, rs);
+    lean_assert(n > 0);
+    expr r     = rs[n - 1];
+    unsigned i = n - 1;
+    while (i > 0) {
+        --i;
+        r = mk_app(rs[i], r);
+    }
+    kvmap m = set_nat(kvmap(), *g_equations_result_name, nat(n));
+    r = mk_mdata(m, r);
+    lean_assert(get_equations_result_size(r) == n);
+    return r;
 }
 
-bool is_equations_result(expr const & e) { return is_macro(e) && macro_def(e) == *g_equations_result; }
-unsigned get_equations_result_size(expr const & e) { return macro_num_args(e); }
-expr const & get_equations_result(expr const & e, unsigned i) { return macro_arg(e, i); }
+bool is_equations_result(expr const & e) { return is_mdata(e) && get_nat(mdata_data(e), *g_equations_result_name); }
+
+unsigned get_equations_result_size(expr const & e) { return get_nat(mdata_data(e), *g_equations_result_name)->get_small_value(); }
+
+static void get_equations_result(expr const & e, buffer<expr> & r) {
+    lean_assert(is_equations_result(e));
+    expr it    = mdata_expr(e);
+    unsigned i = get_nat(mdata_data(e), *g_equations_result_name)->get_small_value();
+    while (i > 1) {
+        --i;
+        lean_assert(is_app(it));
+        r.push_back(app_fn(it));
+        it = app_arg(it);
+    }
+    r.push_back(it);
+}
+
+expr get_equations_result(expr const & e, unsigned i) {
+    buffer<expr> tmp;
+    get_equations_result(e, tmp);
+    return tmp[i];
+}
 
 void initialize_equations() {
     g_equations_name            = new name("equations");
@@ -252,10 +264,8 @@ void initialize_equations() {
     g_equation                  = new kvmap(set_bool(kvmap(), *g_equation_name, false));
     g_equation_ignore_if_unused = new kvmap(set_bool(kvmap(), *g_equation_name, true));
     g_no_equation               = new kvmap(set_bool(kvmap(), *g_no_equation_name, false));
-    g_equations_result          = new macro_definition(new equations_result_macro_cell());
     g_as_pattern                = new kvmap(set_bool(kvmap(), *g_as_pattern_name, true));
     g_equations_opcode          = new std::string("Eqns");
-    g_equations_result_opcode   = new std::string("EqnR");
     register_annotation(*g_inaccessible_name);
     register_macro_deserializer(*g_equations_opcode,
                                 [](deserializer & d, unsigned num, expr const * args) {
@@ -274,17 +284,11 @@ void initialize_equations() {
                                         return mk_equations(h, num, args);
                                     }
                                 });
-    register_macro_deserializer(*g_equations_result_opcode,
-                                [](deserializer &, unsigned num, expr const * args) {
-                                    return mk_equations_result(num, args);
-                                });
 }
 
 void finalize_equations() {
-    delete g_equations_result_opcode;
     delete g_equations_opcode;
     delete g_as_pattern;
-    delete g_equations_result;
     delete g_equation;
     delete g_equation_ignore_if_unused;
     delete g_no_equation;

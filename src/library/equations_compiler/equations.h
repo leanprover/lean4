@@ -78,7 +78,7 @@ bool is_equations_result(expr const & e);
 expr mk_equations_result(unsigned n, expr const * rs);
 inline expr mk_equations_result(expr const & e) { return mk_equations_result(1, &e); }
 unsigned get_equations_result_size(expr const & e);
-expr const & get_equations_result(expr const & e, unsigned i);
+expr get_equations_result(expr const & e, unsigned i);
 
 void initialize_equations();
 void finalize_equations();

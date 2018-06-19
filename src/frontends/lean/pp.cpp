@@ -1160,6 +1160,12 @@ auto pretty_fn::pp_mdata(expr const & e) -> result {
     }
 }
 
+auto pretty_fn::pp_proj(expr const & e) -> result {
+    format arg_fmt = pp_child(proj_expr(e), max_bp()).fmt();
+    format idx_fmt(proj_idx(e).get_small_value());
+    return result(arg_fmt + format(".") + idx_fmt);
+}
+
 auto pretty_fn::pp_let(expr e) -> result {
     buffer<std::tuple<expr, expr, expr>> decls;
     while (true) {
@@ -1771,6 +1777,7 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
     case expr_kind::FVar:      return pp_local(e);
     case expr_kind::Sort:      return pp_sort(e);
     case expr_kind::MData:     return pp_mdata(e);
+    case expr_kind::Proj:      return pp_proj(e);
     case expr_kind::Constant:  return pp_const(e);
     case expr_kind::MVar:      return pp_meta(e);
     case expr_kind::App:       return pp_app(e);

@@ -121,6 +121,8 @@ class normalize_fn {
             return e;
         case expr_kind::MData:
             lean_unreachable();
+        case expr_kind::Proj:
+            lean_unreachable();
         case expr_kind::Lambda: {
             e = normalize_binding(e);
             if (m_use_eta)

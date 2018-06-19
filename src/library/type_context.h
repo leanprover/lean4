@@ -685,6 +685,7 @@ public:
     optional<expr> reduce_aux_recursor(expr const & e);
     optional<expr> reduce_large_elim_recursor(expr const & e);
     optional<expr> reduce_projection(expr const & e);
+    optional<expr> reduce_proj(expr const & e);
     optional<expr> norm_ext(expr const & e);
     optional<expr> reduce_recursor(expr const & e);
 
@@ -933,6 +934,7 @@ private:
     level get_level(expr const & A);
     expr infer_pi(expr e);
     expr infer_app(expr const & e);
+    expr infer_proj(expr const & e);
     expr infer_let(expr e);
 
 public:

@@ -76,6 +76,10 @@ class expr_eq_fn {
             return
                 apply(mdata_expr(a), mdata_expr(b)) &&
                 mdata_data(a) == mdata_data(b);
+        case expr_kind::Proj:
+            return
+                apply(proj_expr(a), proj_expr(b)) &&
+                proj_idx(a) == proj_idx(b);
         case expr_kind::Lit:
             return lit_value(a) == lit_value(b);
         case expr_kind::Constant:

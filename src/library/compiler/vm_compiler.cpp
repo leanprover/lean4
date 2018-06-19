@@ -294,6 +294,10 @@ class vm_compiler_fn {
         }
     }
 
+    void compile_proj_cnstr(expr const & /* e */, unsigned /* bpz */, name_map<unsigned> const & /* m */) {
+        lean_unreachable();
+    }
+
     void compile(expr const & e, unsigned bpz, name_map<unsigned> const & m) {
         switch (e.kind()) {
         case expr_kind::BVar:     lean_unreachable();
@@ -303,6 +307,7 @@ class vm_compiler_fn {
         case expr_kind::Lambda:   lean_unreachable();
         case expr_kind::Macro:    compile_macro(e, bpz, m);  break;
         case expr_kind::MData:    compile(mdata_expr(e), bpz, m); break;
+        case expr_kind::Proj:     compile_proj_cnstr(e, bpz, m);  break;
         case expr_kind::Constant: compile_constant(e);       break;
         case expr_kind::FVar:     compile_local(e, m);       break;
         case expr_kind::App:      compile_app(e, bpz, m);    break;

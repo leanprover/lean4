@@ -153,6 +153,8 @@ struct structural_rec_fn {
             }
             case expr_kind::MData:
                 return check_rhs(mdata_expr(e));
+            case expr_kind::Proj:
+                return check_rhs(proj_expr(e));
             case expr_kind::Let:
                 if (!check_rhs(let_value(e))) {
                     return false;

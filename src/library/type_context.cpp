@@ -676,6 +676,11 @@ optional<expr> type_context_old::reduce_projection(expr const & e) {
     return reduce_projection_core(info, e);
 }
 
+optional<expr> type_context_old::reduce_proj(expr const & /* e */) {
+    // TODO(Leo):
+    lean_unreachable();
+}
+
 optional<expr> type_context_old::reduce_aux_recursor(expr const & e) {
     expr const & f = get_app_fn(e);
     if (!is_constant(f))
@@ -860,6 +865,12 @@ expr type_context_old::whnf_core(expr const & e0, bool proj_reduce) {
             continue;
         }
     }
+    case expr_kind::Proj:
+        if (auto r = reduce_proj(e)) {
+            e = *r;
+            continue;
+        }
+        return e;
     case expr_kind::MData:
         e = mdata_expr(e);
         continue;
@@ -980,6 +991,11 @@ expr type_context_old::infer(expr const & e) {
     return infer_core(e);
 }
 
+expr type_context_old::infer_proj(expr const & e) {
+    // TODO(Leo):
+    lean_unreachable();
+}
+
 expr type_context_old::infer_core(expr const & e) {
     if (auto r = m_cache->get_infer(e))
         return *r;
@@ -999,6 +1015,9 @@ expr type_context_old::infer_core(expr const & e) {
         break;
     case expr_kind::MData:
         r = infer_core(mdata_expr(e));
+        break;
+    case expr_kind::Proj:
+        r = infer_proj(e);
         break;
     case expr_kind::BVar:
         throw exception("failed to infer type, unexpected bound variable occurrence");
@@ -2709,7 +2728,7 @@ lbool type_context_old::quick_is_def_eq(expr const & e1, expr const & e2) {
             return to_lbool(lit_value(e1) == lit_value(e2));
         case expr_kind::MVar:     case expr_kind::BVar:
         case expr_kind::FVar:     case expr_kind::App:
-        case expr_kind::Constant:
+        case expr_kind::Constant: case expr_kind::Proj:
         case expr_kind::Let:
             // We do not handle these cases in this method.
             break;
@@ -3336,6 +3355,8 @@ lbool type_context_old::is_quick_class(expr const & type, name & result) {
         case expr_kind::MVar: case expr_kind::Lambda: case expr_kind::Lit:
             return l_false;
         case expr_kind::Let:
+            return l_undef;
+        case expr_kind::Proj:
             return l_undef;
         case expr_kind::MData:
             it = &mdata_expr(*it);

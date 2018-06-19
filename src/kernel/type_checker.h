@@ -51,12 +51,14 @@ class type_checker : public abstract_type_context {
     expr infer_lambda(expr const & e, bool infer_only);
     expr infer_pi(expr const & e, bool infer_only);
     expr infer_app(expr const & e, bool infer_only);
+    expr infer_proj(expr const & e, bool infer_only);
     expr infer_let(expr const & e, bool infer_only);
     expr infer_type_core(expr const & e, bool infer_only);
     expr infer_type(expr const & e);
 
     enum class reduction_status { Continue, DefUnknown, DefEqual, DefDiff };
     optional<expr> norm_ext(expr const & e);
+    optional<expr> reduce_proj(expr const & e);
     expr whnf_fvar(expr const & e);
     expr whnf_core(expr const & e);
     optional<declaration> is_delta(expr const & e) const;

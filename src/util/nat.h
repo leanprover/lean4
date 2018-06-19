@@ -48,5 +48,10 @@ public:
     friend nat operator*(nat const & a, nat const & b) { return wrap(nat_mul(a.raw(), b.raw())); }
     friend nat operator/(nat const & a, nat const & b) { return wrap(nat_div(a.raw(), b.raw())); }
     friend nat operator%(nat const & a, nat const & b) { return wrap(nat_mod(a.raw(), b.raw())); }
+    void serialize(serializer & s) const { s.write_object(raw()); }
 };
+
+inline serializer & operator<<(serializer & s, nat const & n) { n.serialize(s); return s; }
+inline nat read_nat(deserializer & d) { return nat(d.read_object()); }
+inline deserializer & operator>>(deserializer & d, nat & n) { n = read_nat(d); return d; }
 };

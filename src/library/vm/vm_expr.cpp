@@ -243,6 +243,10 @@ unsigned expr_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
         data.push_back(to_obj(mdata_data(e)));
         data.push_back(to_obj(mdata_expr(e)));
         break;
+    case expr_kind::Proj:
+        data.push_back(to_obj(proj_idx(e)));
+        data.push_back(to_obj(proj_expr(e)));
+        break;
     case expr_kind::Macro: {
         data.push_back(to_obj(macro_def(e)));
         buffer<expr> args;

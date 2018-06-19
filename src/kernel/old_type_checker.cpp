@@ -225,6 +225,7 @@ expr old_type_checker::infer_type_core(expr const & e, bool infer_only) {
         if (!infer_only) check_level(sort_level(e));
         r = mk_sort(mk_succ(sort_level(e)));
         break;
+    case expr_kind::Proj: lean_unreachable();
     case expr_kind::MData:     r = infer_type_core(mdata_expr(e), infer_only); break;
     case expr_kind::Constant:  r = infer_constant(e, infer_only);       break;
     case expr_kind::Macro:     r = infer_macro(e, infer_only);          break;
@@ -290,6 +291,7 @@ expr old_type_checker::whnf_core(expr const & e) {
         return e;
     case expr_kind::MData:
         return whnf_core(mdata_expr(e));
+    case expr_kind::Proj: lean_unreachable();
     case expr_kind::Macro: case expr_kind::App: case expr_kind::Let:
         break;
     case expr_kind::Quote: throw_found_quote(m_env);
@@ -306,8 +308,8 @@ expr old_type_checker::whnf_core(expr const & e) {
     expr r;
     switch (e.kind()) {
     case expr_kind::BVar:  case expr_kind::Sort:    case expr_kind::MVar:   case expr_kind::FVar:
-    case expr_kind::Pi:   case expr_kind::Constant: case expr_kind::Lambda: case expr_kind::Lit:
-    case expr_kind::MData:
+    case expr_kind::Pi:    case expr_kind::Constant: case expr_kind::Lambda: case expr_kind::Lit:
+    case expr_kind::MData: case expr_kind::Proj:
         lean_unreachable(); // LCOV_EXCL_LINE
     case expr_kind::Macro:
         if (auto m = expand_macro(e))
@@ -398,6 +400,8 @@ expr old_type_checker::whnf(expr const & e) {
         return e;
     case expr_kind::MData:
         return whnf(mdata_expr(e));
+    case expr_kind::Proj:
+        lean_unreachable();
     case expr_kind::Lambda:   case expr_kind::Macro: case expr_kind::App:
     case expr_kind::Constant: case expr_kind::Let:
         break;
@@ -498,6 +502,8 @@ lbool old_type_checker::quick_is_def_eq(expr const & t, expr const & s, bool use
         case expr_kind::Constant: case expr_kind::Macro: case expr_kind::Let:
             // We do not handle these cases in this method.
             break;
+        case expr_kind::Proj:
+            lean_unreachable();
         case expr_kind::Lit:
             return to_lbool(lit_value(t) == lit_value(s));
         case expr_kind::Quote:

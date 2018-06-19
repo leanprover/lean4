@@ -96,7 +96,10 @@ bool equiv_manager::is_equiv_core(expr const & a, expr const & b) {
         result = lit_value(a) == lit_value(b);
         break;
     case expr_kind::MData:
-        result = mdata_expr(a) == mdata_expr(b);
+        result = is_equiv_core(mdata_expr(a), mdata_expr(b));
+        break;
+    case expr_kind::Proj:
+        result = is_equiv_core(proj_expr(a), proj_expr(b)) && proj_idx(a) == proj_idx(b);
         break;
     case expr_kind::Let:
         result =

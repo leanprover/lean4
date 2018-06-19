@@ -65,6 +65,10 @@ class expr_serializer : public object_serializer<expr, expr_hash, is_bi_equal_pr
                     s << mdata_data(a);
                     write_core(mdata_expr(a));
                     break;
+                case expr_kind::Proj:
+                    s << proj_idx(a);
+                    write_core(proj_expr(a));
+                    break;
                 case expr_kind::Constant:
                     lean_assert(!const_name(a).is_anonymous());
                     s << const_name(a) << const_levels(a);
@@ -138,6 +142,10 @@ public:
                 case expr_kind::MData: {
                     kvmap m = read_list_ref<pair_ref<name, data_value>>(d);
                     return mk_mdata(m, read());
+                }
+                case expr_kind::Proj: {
+                    nat idx = read_nat(d);
+                    return mk_proj(idx, read());
                 }
                 case expr_kind::Constant: {
                     auto n = read_name(d);

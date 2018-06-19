@@ -225,6 +225,9 @@ struct print_expr_fn {
         case expr_kind::MData:
             out() << "[mdata "; print(mdata_expr(a)); out() << "]";
             break;
+        case expr_kind::Proj:
+            print(proj_expr(a)); out() << "." << proj_idx(a).to_mpz();
+            break;
         case expr_kind::BVar:
             out() << "#" << var_idx(a);
             break;

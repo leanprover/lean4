@@ -279,6 +279,8 @@ expr parser::copy_with_new_pos(expr const & e, pos_info p) {
         return save_pos(copy(e), p);
     case expr_kind::MData:
         return save_pos(::lean::mk_mdata(mdata_data(e), copy_with_new_pos(mdata_expr(e), p)), p);
+    case expr_kind::Proj:
+        return save_pos(::lean::mk_proj(proj_idx(e), copy_with_new_pos(proj_expr(e), p)), p);
     case expr_kind::App:
         return save_pos(::lean::mk_app(copy_with_new_pos(app_fn(e), p),
                                        copy_with_new_pos(app_arg(e), p)),
@@ -1762,6 +1764,8 @@ static expr quote(expr const & e) {
     case expr_kind::Let:
         return mk_app(mk_constant({"expr", "elet"}), mk_expr_placeholder(), quote(let_type(e)),
                       quote(let_value(e)), quote(let_body(e)));
+    case expr_kind::Proj:
+        return mk_app(mk_constant({"expr", "proj"}), quote(proj_idx(e).get_small_value()), quote(proj_expr(e)));
     case expr_kind::MData:
         if (is_antiquote(e))
             return get_antiquote_expr(e);

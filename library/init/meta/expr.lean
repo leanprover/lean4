@@ -50,6 +50,7 @@ meta inductive expr
 | elet  : name → expr → expr → expr → expr
 | lit   : literal → expr
 | mdata : lean.kvmap → expr → expr
+| proj  : nat → expr → expr
 | macro : macro_def → list expr → expr
 | quote : bool → expr → expr
 
@@ -341,6 +342,7 @@ meta def to_raw_fmt : expr → format
 | (pi n bi e t) := p ["pi", to_fmt n, repr bi, to_raw_fmt e, to_raw_fmt t]
 | (elet n g e f) := p ["elet", to_fmt n, to_raw_fmt g, to_raw_fmt e, to_raw_fmt f]
 | (mdata d e) := p ["mdata", to_raw_fmt e]
+| (proj idx e) := p ["proj", to_fmt idx, to_raw_fmt e]
 | (macro d args) := sbracket (format.join (list.intersperse " " ("macro" :: to_fmt (macro_def_name d) :: args.map to_raw_fmt)))
 | (quote b v) := p ["quote", to_fmt b, to_raw_fmt v]
 

@@ -86,6 +86,10 @@ class replace_rec_fn {
                 expr new_e = apply(mdata_expr(e), offset);
                 return save_result(e, offset, update_mdata(e, new_e), shared);
             }
+            case expr_kind::Proj: {
+                expr new_e = apply(proj_expr(e), offset);
+                return save_result(e, offset, update_proj(e, new_e), shared);
+            }
             case expr_kind::MVar: {
                 expr new_t = apply(mlocal_type(e), offset);
                 return save_result(e, offset, update_mlocal(e, new_t), shared);

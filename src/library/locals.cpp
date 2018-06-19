@@ -78,6 +78,9 @@ void collect_locals(expr const & e, collected_locals & ls, bool restricted) {
         case expr_kind::MData:
             visit(mdata_expr(e));
             break;
+        case expr_kind::Proj:
+            visit(proj_expr(e));
+            break;
         case expr_kind::FVar:
             if (!restricted)
                 visit(mlocal_type(e));

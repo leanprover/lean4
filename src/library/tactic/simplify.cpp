@@ -671,6 +671,9 @@ simp_result simplify_core_fn::visit(expr const & e, optional<expr> const & paren
         case expr_kind::MData:
             new_result = join(curr_result, visit(mdata_expr(e), some_expr(e)));
             break;
+        case expr_kind::Proj:
+            new_result = curr_result;
+            break;
         case expr_kind::Macro:
             new_result = join(curr_result, visit_macro(curr_result.get_new()));
             break;

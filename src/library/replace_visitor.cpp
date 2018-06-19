@@ -27,6 +27,9 @@ expr replace_visitor::visit_local(expr const & e) { return visit_mlocal(e); }
 expr replace_visitor::visit_mdata(expr const & e) {
     return update_mdata(e, visit(mdata_expr(e)));
 }
+expr replace_visitor::visit_proj(expr const & e) {
+    return update_proj(e, visit(proj_expr(e)));
+}
 expr replace_visitor::visit_app(expr const & e) {
     lean_assert(is_app(e));
     expr new_fn  = visit(app_fn(e));
@@ -73,6 +76,7 @@ expr replace_visitor::visit(expr const & e) {
     switch (e.kind()) {
     case expr_kind::Lit:       return save_result(e, visit_lit(e), shared);
     case expr_kind::MData:     return save_result(e, visit_mdata(e), shared);
+    case expr_kind::Proj:      return save_result(e, visit_proj(e), shared);
     case expr_kind::Sort:      return save_result(e, visit_sort(e), shared);
     case expr_kind::Constant:  return save_result(e, visit_constant(e), shared);
     case expr_kind::BVar:      return save_result(e, visit_var(e), shared);

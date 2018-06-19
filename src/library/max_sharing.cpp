@@ -67,6 +67,11 @@ struct max_sharing_fn::imp {
             res = update_mdata(a, new_e);
             break;
         }
+        case expr_kind::Proj: {
+            expr new_e = apply(proj_expr(a));
+            res = update_proj(a, new_e);
+            break;
+        }
         case expr_kind::App: {
             expr new_f = apply(app_fn(a));
             expr new_a = apply(app_arg(a));

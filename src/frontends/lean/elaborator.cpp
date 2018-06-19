@@ -972,6 +972,7 @@ expr elaborator::visit_function(expr const & fn, bool has_args, optional<expr> c
     case expr_kind::MData:     r = visit_mdata(fn, expected_type, true); break;
     case expr_kind::Lambda:    r = visit_lambda(fn, expected_type); break;
     case expr_kind::Let:       r = visit_let(fn, expected_type); break;
+    case expr_kind::Proj:      throw elaborator_exception(ref, "unexpected occurrence of proj constructor");
     case expr_kind::Quote:
         throw elaborator_exception(ref, "invalid application, function expected");
     }
@@ -3656,6 +3657,8 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
                     lean_unreachable();
                 case expr_kind::MData:
                     return copy_pos(e, visit_mdata(e, expected_type, false));
+                case expr_kind::Proj:
+                    throw elaborator_exception(e, "unexpected occurrence of proj constructor");
                 case expr_kind::Sort:
                     return copy_pos(e, visit_sort(e));
                 case expr_kind::FVar:

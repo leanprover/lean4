@@ -201,6 +201,11 @@ expr type_checker::infer_let(expr const & _e, bool infer_only) {
     return m_lctx.mk_pi(fvars, r);
 }
 
+expr type_checker::infer_proj(expr const &, bool /* infer_only */) {
+    // TODO(Leo)
+    lean_unreachable();
+}
+
 /** \brief Return type of expression \c e, if \c infer_only is false, then it also check whether \c e is type correct or not.
     \pre closed(e) */
 expr type_checker::infer_type_core(expr const & e, bool infer_only) {
@@ -220,6 +225,7 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
     switch (e.kind()) {
     case expr_kind::Lit:       r = lit_type(e);    break;
     case expr_kind::MData:     r = infer_type_core(mdata_expr(e), infer_only); break;
+    case expr_kind::Proj:      r = infer_proj(e, infer_only); break;
     case expr_kind::FVar:      r = infer_fvar(e);  break;
     case expr_kind::MVar:      r = mlocal_type(e); break;
     case expr_kind::BVar:
@@ -297,6 +303,11 @@ expr type_checker::whnf_fvar(expr const & e) {
     return e;
 }
 
+optional<expr> type_checker::reduce_proj(expr const & /* e */) {
+    // TODO(Leo):
+    lean_unreachable();
+}
+
 /** \brief Weak head normal form core procedure. It does not perform delta reduction nor normalization extensions. */
 expr type_checker::whnf_core(expr const & e) {
     check_system("whnf");
@@ -312,6 +323,7 @@ expr type_checker::whnf_core(expr const & e) {
     case expr_kind::FVar:
         return whnf_fvar(e);
     case expr_kind::Macro: case expr_kind::App: case expr_kind::Let:
+    case expr_kind::Proj:
         break;
 
     case expr_kind::Quote:
@@ -342,6 +354,14 @@ expr type_checker::whnf_core(expr const & e) {
         else
             r = e;
         break;
+
+    case expr_kind::Proj: {
+        if (auto m = reduce_proj(e))
+            r = whnf_core(*m);
+        else
+            r = e;
+        break;
+    }
     case expr_kind::App: {
         buffer<expr> args;
         expr f0 = get_app_rev_args(e, args);
@@ -427,7 +447,7 @@ expr type_checker::whnf(expr const & e) {
     case expr_kind::FVar:
         return whnf_fvar(e);
     case expr_kind::Lambda:   case expr_kind::Macro: case expr_kind::App:
-    case expr_kind::Constant: case expr_kind::Let:
+    case expr_kind::Constant: case expr_kind::Let:   case expr_kind::Proj:
         break;
 
     case expr_kind::Quote:
@@ -527,6 +547,7 @@ lbool type_checker::quick_is_def_eq(expr const & t, expr const & s, bool use_has
             lean_unreachable(); // LCOV_EXCL_LINE
         case expr_kind::BVar:      case expr_kind::FVar: case expr_kind::App:
         case expr_kind::Constant: case expr_kind::Macro: case expr_kind::Let:
+        case expr_kind::Proj:
             // We do not handle these cases in this method.
             break;
         case expr_kind::Lit:
@@ -728,6 +749,9 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
         return true;
 
     if (is_fvar(t_n) && is_fvar(s_n) && fvar_name(t_n) == fvar_name(s_n))
+        return true;
+
+    if (is_proj(t_n) && is_proj(s_n) && proj_idx(t_n) == proj_idx(s_n) && is_def_eq(proj_expr(t_n), proj_expr(s_n)))
         return true;
 
     if (is_macro(t_n) && is_macro(s_n) && macro_def(t_n) == macro_def(s_n) && macro_num_args(t_n) == macro_num_args(s_n)) {

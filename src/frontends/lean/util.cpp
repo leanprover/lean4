@@ -416,35 +416,10 @@ expr freeze_names(expr const & e) {
 }
 
 static name * g_field_notation_name          = nullptr;
-static std::string * g_field_notation_opcode = nullptr;
-
-[[ noreturn ]] static void throw_pn_ex() { throw exception("unexpected occurrence of field notation expression"); }
-
-class field_notation_macro_cell : public macro_definition_cell {
-    name     m_field;
-    unsigned m_field_idx;
-public:
-    field_notation_macro_cell(name const & f):m_field(f), m_field_idx(0) {}
-    field_notation_macro_cell(unsigned fidx):m_field_idx(fidx) {}
-    virtual name get_name() const override { return *g_field_notation_name; }
-    virtual expr check_type(expr const &, abstract_type_context &, bool) const override { throw_pn_ex(); }
-    virtual optional<expr> expand(expr const &, abstract_type_context &) const override { throw_pn_ex(); }
-    virtual void write(serializer & s) const override { s << *g_field_notation_opcode << m_field << m_field_idx; }
-    bool is_anonymous() const { return m_field.is_anonymous(); }
-    name const & get_field_name() const { lean_assert(!is_anonymous()); return m_field; }
-    unsigned get_field_idx() const { lean_assert(is_anonymous()); return m_field_idx; }
-    virtual bool operator==(macro_definition_cell const & other) const override {
-        if (auto other_ptr = dynamic_cast<field_notation_macro_cell const *>(&other)) {
-            return m_field == other_ptr->m_field && m_field_idx == other_ptr->m_field_idx;
-        } else {
-            return false;
-        }
-    }
-};
 
 expr mk_field_notation(expr const & e, name const & field) {
-    macro_definition def(new field_notation_macro_cell(field));
-    return mk_macro(def, 1, &e);
+    kvmap m = set_name(kvmap(), *g_field_notation_name, field);
+    return mk_mdata(m, e);
 }
 
 expr mk_field_notation_compact(expr const & e, char const * field) {
@@ -462,27 +437,33 @@ expr mk_field_notation_compact(expr const & e, char const * field) {
 }
 
 expr mk_field_notation(expr const & e, unsigned fidx) {
-    macro_definition def(new field_notation_macro_cell(fidx));
-    return mk_macro(def, 1, &e);
+    kvmap m = set_nat(kvmap(), *g_field_notation_name, nat(fidx));
+    return mk_mdata(m, e);
 }
 
 bool is_field_notation(expr const & e) {
-    return is_macro(e) && macro_def(e).get_name() == *g_field_notation_name;
+    return is_mdata(e) && (get_name(mdata_data(e), *g_field_notation_name) || get_nat(mdata_data(e), *g_field_notation_name));
 }
 
 bool is_anonymous_field_notation(expr const & e) {
     lean_assert(is_field_notation(e));
-    return static_cast<field_notation_macro_cell const*>(macro_def(e).raw())->is_anonymous();
+    return !get_name(mdata_data(e), *g_field_notation_name);
 }
 
-name const & get_field_notation_field_name(expr const & e) {
+name get_field_notation_field_name(expr const & e) {
     lean_assert(is_field_notation(e));
-    return static_cast<field_notation_macro_cell const*>(macro_def(e).raw())->get_field_name();
+    if (optional<name> r = get_name(mdata_data(e), *g_field_notation_name))
+        return *r;
+    else
+        return name();
 }
 
 unsigned get_field_notation_field_idx(expr const & e) {
     lean_assert(is_field_notation(e));
-    return static_cast<field_notation_macro_cell const*>(macro_def(e).raw())->get_field_idx();
+    if (optional<nat> r = get_nat(mdata_data(e), *g_field_notation_name))
+        return r->get_small_value();
+    else
+        return 0;
 }
 
 void initialize_frontend_lean_util() {
@@ -494,18 +475,6 @@ void initialize_frontend_lean_util() {
     register_bool_option(*g_auto_param_check_exists, LEAN_DEFAULT_AUTO_PARAM_CHECK_EXISTS,
                          "Eagerly check that a tactic declaration of the given name exists when declaring an auto param");
     g_field_notation_name   = new name("field_notation");
-    g_field_notation_opcode = new std::string("fieldN");
-    register_macro_deserializer(*g_field_notation_opcode,
-                                [](deserializer & d, unsigned num, expr const * args) {
-                                    if (num != 1)
-                                        throw corrupted_stream_exception();
-                                    name fname; unsigned fidx;
-                                    d >> fname >> fidx;
-                                    if (fname.is_anonymous())
-                                        return mk_field_notation(args[0], fidx);
-                                    else
-                                        return mk_field_notation(args[0], fname);
-                                });
 }
 
 environment compile_expr(environment const & env, name const & n, level_param_names const & ls, expr const & type, expr const & e, pos_info const & pos) {
@@ -553,7 +522,6 @@ void finalize_frontend_lean_util() {
     delete g_auto_param_check_exists;
     delete g_no_info;
     delete g_frozen_name;
-    delete g_field_notation_opcode;
     delete g_field_notation_name;
 }
 }

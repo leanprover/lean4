@@ -129,7 +129,7 @@ expr mk_field_notation_compact(expr const & e, char const * field);
 expr mk_field_notation(expr const & e, unsigned fidx);
 bool is_field_notation(expr const & e);
 bool is_anonymous_field_notation(expr const & e);
-name const & get_field_notation_field_name(expr const & e);
+name get_field_notation_field_name(expr const & e);
 unsigned get_field_notation_field_idx(expr const & e);
 
 environment compile_expr(environment const & env, name const & n, level_param_names const & ls, expr const & type, expr const & e, pos_info const & pos);

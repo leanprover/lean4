@@ -1946,7 +1946,7 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
         validate_overloads(fns, ref);
         return visit_overloaded_app(fns, args, expected_type, ref);
     } else if (is_field_notation(fn) && amask == arg_mask::Default) {
-        expr s           = visit(macro_arg(fn, 0), none_expr());
+        expr s           = visit(mdata_expr(fn), none_expr());
         expr s_type      = head_beta_reduce(instantiate_mvars(infer_type(s)));
         auto field_res   = find_field_fn(fn, s, s_type);
         expr proj, proj_type;
@@ -2763,7 +2763,7 @@ expr elaborator::visit_inaccessible(expr const & e, optional<expr> const & expec
 elaborator::field_resolution elaborator::field_to_decl(expr const & e, expr const & s, expr const & s_type) {
     // prefer 'unknown identifier' error when lhs is a constant of non-value type
     if (is_field_notation(e)) {
-        auto lhs = macro_arg(e, 0);
+        auto lhs = mdata_expr(e);
         if (is_constant(lhs)) {
             type_context_old::tmp_locals locals(m_ctx);
             expr t = whnf(s_type);
@@ -2855,7 +2855,7 @@ elaborator::field_resolution elaborator::find_field_fn(expr const & e, expr cons
 
 expr elaborator::visit_field(expr const & e, optional<expr> const & expected_type) {
     lean_assert(is_field_notation(e));
-    expr s         = visit(macro_arg(e, 0), none_expr());
+    expr s         = visit(mdata_expr(e), none_expr());
     expr s_type    = head_beta_reduce(instantiate_mvars(infer_type(s)));
     auto field_res = find_field_fn(e, s, s_type);
     expr proj_app;
@@ -3392,6 +3392,8 @@ expr elaborator::visit_mdata(expr const & e, optional<expr> const & expected_typ
         return visit(get_annotation_arg(e), expected_type);
     } else if (is_structure_instance(e)) {
         return visit_structure_instance(e, expected_type);
+    } else if (is_field_notation(e)) {
+        return visit_field(e, expected_type);
     } else {
         expr new_e = visit(mdata_expr(e), expected_type);
         return update_mdata(e, new_e);
@@ -3412,8 +3414,6 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
         if (!is_def_eq(lhs, new_rhs))
             throw elaborator_exception(e, "cannot unify terms of aliasing pattern");
         return new_rhs;
-    } else if (is_field_notation(e)) {
-        return visit_field(e, expected_type);
     } else {
         buffer<expr> args;
         for (unsigned i = 0; i < macro_num_args(e); i++)

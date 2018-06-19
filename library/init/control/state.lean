@@ -80,19 +80,22 @@ end state_t
 
 /-- An implementation of [MonadState](https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-State-Class.html).
     In contrast to the Haskell implementation, we use overlapping instances to derive instances
-    automatically from `monad_lift`.
-
-    Note: This class can be seen as a simplification of the more "principled" definition
-    ```
-    class monad_state_lift (σ : out_param (Type u)) (n : Type u → Type u) :=
-    (lift {} {α : Type u} : (∀ {m : Type u → Type u} [monad m], state_t σ m α) → n α)
-    ```
-    which better describes the intent of "we can lift a `state_t` from anywhere in the monad stack".
-    However, by parametricity the types `∀ m [monad m], σ → m (α × σ)` and `σ → α × σ` should be
-    equivalent because the only way to obtain an `m` is through `pure`.
-    -/
+    automatically from `monad_lift`. -/
 class monad_state (σ : out_param (Type u)) (m : Type u → Type v) :=
+-- MonadState's `state`, may be useful for linearly extracting state parts
+/- Embed a primitive state operation. -/
 (lift {} {α : Type u} : state σ α → m α)
+/- Obtain the top-most state of a monad stack. -/
+(get {} : m σ                  := lift state_t.get)
+/- Set the top-most state of a monad stack. -/
+(put {} : σ → m punit          := λ st, lift (state_t.put st))
+/- Map the top-most state of a monad stack.
+
+   Note: `modify f` may be preferable to `f <$> get >>= put` because the latter
+   does not use the state linearly (without sufficient inlining). -/
+(modify {} : (σ → σ) → m punit := λ f, lift (state_t.modify f))
+
+export monad_state (get put modify)
 
 section
 variables {σ : Type u} {m : Type u → Type v}
@@ -100,27 +103,16 @@ variables {σ : Type u} {m : Type u → Type v}
 -- NOTE: The ordering of the following two instances determines that the top-most `state_t` monad layer
 -- will be picked first
 instance monad_state_trans {n : Type u → Type w} [has_monad_lift m n] [monad_state σ m] : monad_state σ n :=
-⟨λ α x, monad_lift (monad_state.lift x : m α)⟩
+{ get := monad_lift (monad_state.get : m _),
+  put := λ st, monad_lift (monad_state.put st : m _),
+  modify := λ f, monad_lift (monad_state.modify f : m _),
+  lift := λ α x, monad_lift (monad_state.lift x : m _) }
 
 instance [monad m] : monad_state σ (state_t σ m) :=
-⟨λ α x, ⟨λ s, pure (x.run s)⟩⟩
-
-variables [monad_state σ m]
-
-/-- Obtain the top-most state of a monad stack. -/
-@[inline] def get : m σ :=
-monad_state.lift state_t.get
-
-/-- Set the top-most state of a monad stack. -/
-@[inline] def put (st : σ) : m punit :=
-monad_state.lift (state_t.put st)
-
-/-- Map the top-most state of a monad stack.
-
-    Note: `modify f` may be preferable to `f <$> get >>= put` because the latter
-    does not use the state linearly (without sufficient inlining). -/
-@[inline] def modify (f : σ → σ) : m punit :=
-monad_state.lift (state_t.modify f)
+{ get := state_t.get,
+  put := state_t.put,
+  modify := state_t.modify,
+  lift := λ α x, ⟨λ s, pure (x.run s)⟩ }
 end
 
 /-- Adapt a monad stack, changing the type of its top-most state.

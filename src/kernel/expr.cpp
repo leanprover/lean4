@@ -27,6 +27,7 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
+/* Expression literal values */
 literal::literal(char const * v):
     object_ref(mk_cnstr(static_cast<unsigned>(literal_kind::String), mk_string(v))) {
 }
@@ -57,14 +58,59 @@ bool operator<(literal const & a, literal const & b) {
     lean_unreachable();
 }
 
-unsigned add_weight(unsigned w1, unsigned w2) {
+/* Auxiliary functions for computing scalar data offset into expression objects. */
+inline constexpr unsigned num_obj_fields(expr_kind k) {
+    switch (k) {
+    case expr_kind::BVar:     return 1;
+    case expr_kind::FVar:     return 3; // TODO(Leo): it should be 1 after we remove support for legacy code
+    case expr_kind::Sort:     return 1;
+    case expr_kind::Constant: return 2;
+    case expr_kind::MVar:     return 3; // TODO(Leo): it should be 2 after we remove support for legacy code
+    case expr_kind::App:      return 2;
+    case expr_kind::Lambda:   return 3;
+    case expr_kind::Pi:       return 3;
+    case expr_kind::Let:      return 4;
+    case expr_kind::Lit:      return 1;
+    case expr_kind::MData:    return 2;
+    case expr_kind::Proj:     return 2;
+    case expr_kind::Quote:    return 1;
+    }
+    lean_unreachable();
+}
+
+/* Expression scalar data offset. */
+inline constexpr unsigned scalar_offset(expr_kind k) { return num_obj_fields(k) * sizeof(object*); }
+
+inline constexpr unsigned hash_offset(expr_kind k) {
+    /* Remark: the hidden extra cached data (hash, weight, depth, loose_bvar_range) must be stored AFTER the real fields. */
+    switch (k) {
+    case expr_kind::FVar:     return scalar_offset(k) + sizeof(unsigned char); // for binder_info, TODO(Leo): delete after we remove support for legacy code
+    case expr_kind::Lambda:   return scalar_offset(k) + sizeof(unsigned char); // for binder_info
+    case expr_kind::Pi:       return scalar_offset(k) + sizeof(unsigned char); // for binder_info
+    default:                  return scalar_offset(k);
+    }
+    lean_unreachable();
+}
+
+inline constexpr size_t flags_offset(expr_kind k) { return hash_offset(k) + sizeof(unsigned); }
+inline constexpr size_t weight_offset(expr_kind k) { return flags_offset(k) + sizeof(unsigned char); }
+inline constexpr size_t depth_offset(expr_kind k) { return weight_offset(k) + sizeof(unsigned); }
+inline constexpr size_t loose_bvar_range_offset(expr_kind k) { return depth_offset(k) + sizeof(unsigned); }
+/* Size for scalar value area for non recursive expression. */
+inline constexpr size_t expr_scalar_size(expr_kind k) { return flags_offset(k) + sizeof(unsigned char); }
+/* Size for scalar value area for recursive expression. */
+inline constexpr size_t recursive_expr_scalar_size(expr_kind k) { return loose_bvar_range_offset(k) + sizeof(unsigned); }
+
+
+/* Weight safe arith functions */
+static unsigned add_weight(unsigned w1, unsigned w2) {
     unsigned r = w1 + w2;
     if (r < w1)
         r = std::numeric_limits<unsigned>::max(); // overflow
     return r;
 }
 
-unsigned inc_weight(unsigned w) {
+static unsigned inc_weight(unsigned w) {
     if (w < std::numeric_limits<unsigned>::max())
         return w+1;
     else

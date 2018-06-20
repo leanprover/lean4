@@ -27,6 +27,36 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
+literal::literal(char const * v):
+    object_ref(mk_cnstr(static_cast<unsigned>(literal_kind::String), mk_string(v))) {
+}
+
+literal::literal(unsigned v):
+    object_ref(mk_cnstr(static_cast<unsigned>(literal_kind::Nat), mk_nat_obj(v))) {
+}
+
+literal::literal(mpz const & v):
+    object_ref(mk_cnstr(static_cast<unsigned>(literal_kind::Nat), mk_nat_obj(v))) {
+}
+
+bool operator==(literal const & a, literal const & b) {
+    if (a.kind() != b.kind()) return false;
+    switch (a.kind()) {
+    case literal_kind::String: return a.get_string() == b.get_string();
+    case literal_kind::Nat:    return a.get_nat() == b.get_nat();
+    }
+    lean_unreachable();
+}
+
+bool operator<(literal const & a, literal const & b) {
+    if (a.kind() != b.kind()) return static_cast<unsigned>(a.kind()) < static_cast<unsigned>(b.kind());
+    switch (a.kind()) {
+    case literal_kind::String: return a.get_string() < b.get_string();
+    case literal_kind::Nat:    return a.get_nat() < b.get_nat();
+    }
+    lean_unreachable();
+}
+
 unsigned add_weight(unsigned w1, unsigned w2) {
     unsigned r = w1 + w2;
     if (r < w1)
@@ -251,36 +281,6 @@ void expr_sort::dealloc() {
 }
 
 // Expr literals
-
-literal::literal(char const * v):
-    object_ref(mk_cnstr(static_cast<unsigned>(literal_kind::String), mk_string(v))) {
-}
-
-literal::literal(unsigned v):
-    object_ref(mk_cnstr(static_cast<unsigned>(literal_kind::Nat), mk_nat_obj(v))) {
-}
-
-literal::literal(mpz const & v):
-    object_ref(mk_cnstr(static_cast<unsigned>(literal_kind::Nat), mk_nat_obj(v))) {
-}
-
-bool operator==(literal const & a, literal const & b) {
-    if (a.kind() != b.kind()) return false;
-    switch (a.kind()) {
-    case literal_kind::String: return a.get_string() == b.get_string();
-    case literal_kind::Nat:    return a.get_nat() == b.get_nat();
-    }
-    lean_unreachable();
-}
-
-bool operator<(literal const & a, literal const & b) {
-    if (a.kind() != b.kind()) return static_cast<unsigned>(a.kind()) < static_cast<unsigned>(b.kind());
-    switch (a.kind()) {
-    case literal_kind::String: return a.get_string() < b.get_string();
-    case literal_kind::Nat:    return a.get_nat() < b.get_nat();
-    }
-    lean_unreachable();
-}
 
 expr_lit::expr_lit(literal const & lit):
     expr_cell(expr_kind::Lit, false, false, false, false, false),

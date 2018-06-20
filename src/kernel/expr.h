@@ -42,24 +42,53 @@ inline bool is_inst_implicit(binder_info bi) { return bi == binder_info::InstImp
 inline bool is_explicit(binder_info bi) { return !is_implicit(bi) && !is_strict_implicit(bi) && !is_inst_implicit(bi); }
 inline bool is_rec(binder_info bi) { return bi == binder_info::Rec; }
 
+/* Expression literal values */
+enum class literal_kind { Nat, String };
+class literal : public object_ref {
+    explicit literal(object * o):object_ref(o) { inc(o); }
+public:
+    explicit literal(char const * v);
+    explicit literal(unsigned v);
+    explicit literal(mpz const & v);
+    literal(literal const & other):object_ref(other) {}
+    literal(literal && other):object_ref(other) {}
+    literal & operator=(literal const & other) { object_ref::operator=(other); return *this; }
+    literal & operator=(literal && other) { object_ref::operator=(other); return *this; }
+
+    literal_kind kind() const { return static_cast<literal_kind>(cnstr_tag(raw())); }
+    string_ref const & get_string() const { lean_assert(kind() == literal_kind::String); return static_cast<string_ref const &>(cnstr_obj_ref(*this, 0)); }
+    nat const & get_nat() const { lean_assert(kind() == literal_kind::Nat); return static_cast<nat const &>(cnstr_obj_ref(*this, 0)); }
+    friend bool operator==(literal const & a, literal const & b);
+    friend bool operator<(literal const & a, literal const & b);
+
+    void serialize(serializer & s) const { s.write_object(raw()); }
+    static literal deserialize(deserializer & d) { return literal(d.read_object()); }
+};
+inline bool operator!=(literal const & a, literal const & b) { return !(a == b); }
+inline serializer & operator<<(serializer & s, literal const & l) { l.serialize(s); return s; }
+inline literal read_literal(deserializer & d) { return literal::deserialize(d); }
+inline deserializer & operator>>(deserializer & d, literal & l) { l = read_literal(d); return d; }
+
+
 /* =======================================
    Expressions
-   expr ::=   BVar          idx
-          |   FVar          name
-          |   Sort          level
-          |   Constant      name [levels]
-          |   MVar          name expr
-          |   App           expr expr
-          |   Lambda        name expr expr
-          |   Pi            name expr expr
-          |   Let           name expr expr expr
-          |   Lit           literal
-          |   MData         kvmap expr
-          |   Proj          nat expr
 
-          The following constructors will be deleted in the future
+inductive expr
+| bvar  : nat → expr   -- bound variables
+| fvar  : name → expr  -- free variables
+| sort  : level → expr
+| const : name → list level → expr
+| mvar  : name → name → expr → expr
+| app   : expr → expr → expr
+| lam   : name → binder_info → expr → expr → expr
+| pi    : name → binder_info → expr → expr → expr
+| elet  : name → expr → expr → expr → expr
+| lit   : literal → expr
+| mdata : kvmap → expr → expr
+| proj  : nat → expr → expr
+-- The following constructor will be deleted
+| quote : bool → expr → expr
 
-          |   Quote         bool expr
 */
 class expr;
 enum class expr_kind { BVar, FVar, Sort, Constant, MVar, App, Lambda, Pi, Let, Lit, MData, Proj, Quote };
@@ -95,8 +124,6 @@ public:
 };
 
 typedef expr_cell * expr_ptr;
-
-class literal;
 
 /**
    \brief Exprs for encoding formulas/expressions, types and proofs.
@@ -304,34 +331,6 @@ public:
     ~expr_sort();
     level const & get_level() const { return m_level; }
 };
-
-enum class literal_kind { Nat, String };
-
-class literal : public object_ref {
-    explicit literal(object * o):object_ref(o) { inc(o); }
-public:
-    explicit literal(char const * v);
-    explicit literal(unsigned v);
-    explicit literal(mpz const & v);
-    literal(literal const & other):object_ref(other) {}
-    literal(literal && other):object_ref(other) {}
-    literal & operator=(literal const & other) { object_ref::operator=(other); return *this; }
-    literal & operator=(literal && other) { object_ref::operator=(other); return *this; }
-
-    literal_kind kind() const { return static_cast<literal_kind>(cnstr_tag(raw())); }
-    string_ref const & get_string() const { lean_assert(kind() == literal_kind::String); return static_cast<string_ref const &>(cnstr_obj_ref(*this, 0)); }
-    nat const & get_nat() const { lean_assert(kind() == literal_kind::Nat); return static_cast<nat const &>(cnstr_obj_ref(*this, 0)); }
-    friend bool operator==(literal const & a, literal const & b);
-    friend bool operator<(literal const & a, literal const & b);
-
-    void serialize(serializer & s) const { s.write_object(raw()); }
-    static literal deserialize(deserializer & d) { return literal(d.read_object()); }
-};
-
-inline bool operator!=(literal const & a, literal const & b) { return !(a == b); }
-inline serializer & operator<<(serializer & s, literal const & l) { l.serialize(s); return s; }
-inline literal read_literal(deserializer & d) { return literal::deserialize(d); }
-inline deserializer & operator>>(deserializer & d, literal & l) { l = read_literal(d); return d; }
 
 class expr_lit : public expr_cell {
     literal m_lit;

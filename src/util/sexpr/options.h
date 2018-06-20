@@ -87,9 +87,6 @@ public:
     friend format pp(options const & o);
     friend std::ostream & operator<<(std::ostream & out, options const & o);
 
-    friend serializer & operator<<(serializer & s, options const & o) { s << o.m_value; return s; }
-    friend options read_options(deserializer & d);
-
     friend bool operator==(options const & a, options const & b) { return a.m_value == b.m_value; }
 };
 bool get_verbose(options const & opts);
@@ -97,8 +94,6 @@ name const & get_verbose_opt_name();
 name const & get_max_memory_opt_name();
 name const & get_timeout_opt_name();
 
-inline options read_options(deserializer & d) { return options(read_sexpr(d)); }
-inline deserializer & operator>>(deserializer & d, options & o) { o = read_options(d); return d; }
 template<typename T> options update(options const & o, name const & n, T const & v) { return o.update(n, sexpr(v)); }
 
 inline options operator+(options const & opts1, options const & opts2) {

@@ -277,79 +277,10 @@ std::ostream & operator<<(std::ostream & out, sexpr const & s) {
 
 bool operator==(sexpr const & a, name const & b) { return is_name(a) && to_name(a) == b; }
 
-class sexpr_serializer : public object_serializer<sexpr, sexpr::ptr_hash, sexpr::ptr_eq> {
-    typedef object_serializer<sexpr, sexpr::ptr_hash, sexpr::ptr_eq> super;
-public:
-    void write(sexpr const & a) {
-        super::write(a, [&]() {
-                serializer & s = get_owner();
-                auto k = a.kind();
-                s << static_cast<char>(k);
-                switch (k) {
-                case sexpr_kind::Nil:                                  break;
-                case sexpr_kind::String: s << to_string(a);            break;
-                case sexpr_kind::Bool:   s << to_bool(a);              break;
-                case sexpr_kind::Int:    s << to_int(a);               break;
-                case sexpr_kind::Double: s << to_double(a);            break;
-                case sexpr_kind::Name:   s << to_name(a);              break;
-                case sexpr_kind::Cons:   write(car(a)); write(cdr(a)); break;
-                case sexpr_kind::Ext:
-                    throw exception("s-expressions constaining external atoms cannot be serialized");
-                }
-            });
-    }
-};
-
-class sexpr_deserializer : public object_deserializer<sexpr> {
-    typedef object_deserializer<sexpr> super;
-public:
-    sexpr read() {
-        return super::read([&]() {
-                deserializer & d = get_owner();
-                auto k = static_cast<sexpr_kind>(d.read_char());
-                switch (k) {
-                case sexpr_kind::Nil:    return sexpr();
-                case sexpr_kind::String: return sexpr(d.read_string());
-                case sexpr_kind::Bool:   return sexpr(d.read_bool());
-                case sexpr_kind::Int:    return sexpr(d.read_int());
-                case sexpr_kind::Double: return sexpr(d.read_double());
-                case sexpr_kind::Name:   return sexpr(read_name(d));
-                case sexpr_kind::Ext:    lean_unreachable(); // LCOV_EXCL_LINE
-                case sexpr_kind::Cons:   {
-                    sexpr h = read();
-                    sexpr t = read();
-                    return sexpr(h, t);
-                }}
-                throw corrupted_stream_exception();
-            });
-    }
-};
-
-struct sexpr_sd {
-    unsigned m_s_extid;
-    unsigned m_d_extid;
-    sexpr_sd() {
-        m_s_extid = serializer::register_extension([](){ return std::unique_ptr<serializer::extension>(new sexpr_serializer()); });
-        m_d_extid = deserializer::register_extension([](){ return std::unique_ptr<deserializer::extension>(new sexpr_deserializer()); });
-    }
-};
-static sexpr_sd * g_sexpr_sd = nullptr;
-
 void initialize_sexpr() {
-    g_sexpr_sd = new sexpr_sd();
 }
 
 void finalize_sexpr() {
-    delete g_sexpr_sd;
-}
-
-serializer & operator<<(serializer & s, sexpr const & n) {
-    s.get_extension<sexpr_serializer>(g_sexpr_sd->m_s_extid).write(n);
-    return s;
-}
-
-sexpr read_sexpr(deserializer & d) {
-    return d.get_extension<sexpr_deserializer>(g_sexpr_sd->m_d_extid).read();
 }
 }
 

@@ -167,10 +167,6 @@ inline bool operator>(sexpr const & a, sexpr const & b) { return cmp(a, b) > 0; 
 inline bool operator<=(sexpr const & a, sexpr const & b) { return cmp(a, b) <= 0; }
 inline bool operator>=(sexpr const & a, sexpr const & b) { return cmp(a, b) >= 0; }
 
-serializer & operator<<(serializer & s, sexpr const & a);
-sexpr read_sexpr(deserializer & d);
-inline deserializer & operator>>(deserializer & d, sexpr & a) { a = read_sexpr(d); return d; }
-
 void initialize_sexpr();
 void finalize_sexpr();
 }

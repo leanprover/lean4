@@ -157,13 +157,6 @@ static void tst6() {
 }
 
 static void tst7() {
-    sexpr s = sexpr{ sexpr(1, 2), sexpr(2, 3), sexpr(0, 1) };
-    std::cout << pp(sexpr{s, s, s, s, s}) << "\n";
-    std::cout << pp(sexpr{sexpr(name{"test", "name"}), sexpr(10), sexpr(10.20)}) << "\n";
-    format f = highlight(pp(sexpr{s, s, s, s, s}));
-    std::cout << f << "\n";
-    std::cout << mk_pair(f, options({"pp", "width"}, 1000)) << "\n";
-    std::cout << mk_pair(f, update(options({"pp", "width"}, 1000), {"pp", "colors"}, false)) << "\n";
 }
 
 static void tst8() {
@@ -208,16 +201,6 @@ static sexpr mk_shared(unsigned n) {
 static void tst10() {
     sexpr r = mk_shared(20);
     std::ostringstream out;
-    serializer s(out);
-    s << r << r;
-    std::cout << "Stream Size: " << out.str().size() << "\n";
-    std::istringstream in(out.str());
-    deserializer d(in);
-    sexpr r2, r3;
-    d >> r2 >> r3;
-    lean_assert(is_eqp(head(tail(r2)), tail(tail(r2))));
-    lean_assert(is_eqp(r2, r3));
-    lean_assert(r == r2);
 }
 
 int main() {

@@ -22,17 +22,7 @@ static void tst1() {
     std::cout << opt << "\n";
 }
 
-static void check_serializer(options const & o) {
-    std::ostringstream out;
-    serializer s(out);
-    s << o << o;
-    std::istringstream in(out.str());
-    deserializer d(in);
-    options n1, n2;
-    d >> n1 >> n2;
-    lean_assert(o == n1);
-    lean_assert(o == n2);
-    lean_assert(is_eqp(n1, n2));
+static void check_serializer(options const &) {
 }
 
 static void tst2() {

@@ -58,27 +58,6 @@ public:
     }
 };
 
-struct list_int_initializer {
-    unsigned m_serializer_extid;
-    unsigned m_deserializer_extid;
-    list_int_initializer() {
-        m_serializer_extid   = serializer::register_extension([](){ return std::unique_ptr<serializer::extension>(new list_int_serializer()); });
-        m_deserializer_extid = deserializer::register_extension([](){ return std::unique_ptr<deserializer::extension>(new list_int_deserializer()); });
-    }
-};
-
-std::unique_ptr<list_int_initializer> g_list_int_initializer;
-
-serializer & operator<<(serializer & s, list<int> const & l) {
-    s.get_extension<list_int_serializer>(g_list_int_initializer->m_serializer_extid).write(l);
-    return s;
-}
-
-deserializer & operator>>(deserializer & d, list<int> & l) {
-    l = d.get_extension<list_int_deserializer>(g_list_int_initializer->m_deserializer_extid).read();
-    return d;
-}
-
 void display(std::ostringstream const & out) {
     std::cout << "OUT: ";
     auto str = out.str();
@@ -103,29 +82,6 @@ static void tst1() {
 }
 
 static void tst2() {
-    std::ostringstream out;
-    serializer s(out);
-    list<int> l1{1, 2, 3, 4};
-    list<int> l2;
-    l2 = cons(10, l1);
-    list<int> l3;
-    l3 = cons(20, cons(30, l2));
-    s << l1 << l2 << l3 << l2 << l3;
-    display(out);
-
-    std::istringstream in(out.str());
-    deserializer d(in);
-    list<int> new_l1, new_l2, new_l3, new_l4, new_l5;
-    d >> new_l1 >> new_l2 >> new_l3 >> new_l4 >> new_l5;
-    lean_assert_eq(l1, new_l1);
-    lean_assert_eq(l2, new_l2);
-    lean_assert_eq(l3, new_l3);
-    lean_assert_eq(l2, new_l4);
-    lean_assert_eq(l3, new_l5);
-    lean_assert(is_eqp(new_l1, tail(new_l2)));
-    lean_assert(is_eqp(new_l2, tail(tail(new_l3))));
-    lean_assert(is_eqp(new_l4, new_l2));
-    lean_assert(is_eqp(new_l5, new_l3));
 }
 
 static void tst3() {
@@ -174,7 +130,6 @@ static void tst4() {
 int main() {
     save_stack_info();
     initialize_util_module();
-    g_list_int_initializer.reset(new list_int_initializer());
     tst1();
     tst2();
     tst3();

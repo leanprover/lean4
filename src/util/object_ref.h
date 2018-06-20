@@ -42,6 +42,10 @@ inline object_ref mk_cnstr(unsigned tag, object * o1, object * o2, unsigned scal
     object * os[] = { o1, o2 };
     return mk_cnstr(tag, 2, os, scalar_sz);
 }
+inline object_ref mk_cnstr(unsigned tag, object * o1, object * o2, object * o3, unsigned scalar_sz = 0) {
+    object * os[] = { o1, o2, o3 };
+    return mk_cnstr(tag, 3, os, scalar_sz);
+}
 
 /* The following definition is a low level hack that relies on the fact that sizeof(object_ref) == sizeof(object *). */
 inline object_ref const & cnstr_obj_ref(object * o, unsigned i) {

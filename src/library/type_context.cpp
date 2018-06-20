@@ -103,7 +103,7 @@ void type_context_old::init_local_instances() {
                meta def nat_has_false : has_false ℕ :=
                by apply_instance
             */
-            if (!decl.get_info().is_rec()) {
+            if (!is_rec(decl.get_info())) {
                 if (auto cls_name = is_class(decl.get_type())) {
                     m_local_instances = local_instances(local_instance(*cls_name, decl.mk_ref()), m_local_instances);
                 }
@@ -192,7 +192,7 @@ void type_context_old::update_local_instances(expr const & new_local, expr const
     }
 }
 
-expr type_context_old::push_local(name const & pp_name, expr const & type, binder_info const & bi) {
+expr type_context_old::push_local(name const & pp_name, expr const & type, binder_info bi) {
     expr local = m_lctx.mk_local_decl(pp_name, type, bi);
     update_local_instances(local, type);
     return local;
@@ -307,7 +307,7 @@ pair<local_context, expr> type_context_old::revert_core(buffer<expr> & to_revert
                We don't need to follow the value of local definitions (x := v) here because
                we are using for_each_after. */
             if (depends_on(d, m_mctx, to_revert)) {
-                if (d.get_info().is_rec()) {
+                if (is_rec(d.get_info())) {
                     /* We should not revert auxiliary declarations added by the equation compiler.
                        See discussion at issue #1258 at github. */
                     sstream out;
@@ -3465,7 +3465,7 @@ struct instance_synthesizer {
                     break;
                 type          = new_type;
                 expr new_mvar = m_ctx.mk_tmp_mvar(locals.mk_pi(binding_domain(type)));
-                if (binding_info(type).is_inst_implicit()) {
+                if (is_inst_implicit(binding_info(type))) {
                     new_inst_mvars.push_back(new_mvar);
                 }
                 expr new_arg = mk_app(new_mvar, locals.as_buffer());

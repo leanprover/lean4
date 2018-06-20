@@ -109,7 +109,7 @@ private:
     format pp_level(level const & l);
 
     format pp_binder(expr const & local);
-    format pp_binder_block(buffer<name> const & names, expr const & type, binder_info const & bi);
+    format pp_binder_block(buffer<name> const & names, expr const & type, binder_info bi);
     format pp_binders(buffer<expr> const & locals);
 
     bool match(level const & p, level const & l);

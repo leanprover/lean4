@@ -585,7 +585,7 @@ static bool is_ceqv(type_context_old & ctx, name const & id, expr e) {
             for_each(binding_domain(e), visitor_fn);
         }
         expr local = locals.push_local(name(), binding_domain(e));
-        if (binding_info(e).is_inst_implicit()) {
+        if (is_inst_implicit(binding_info(e))) {
             // If the argument can be instantiated by type class resolution, then
             // we don't need to find it in the lhs
         } else if (ctx.is_prop(binding_domain(e))) {
@@ -720,7 +720,7 @@ static simp_lemmas add_core(type_context_old & ctx, simp_lemmas const & s, name 
         while (is_pi(rule)) {
             expr mvar = ctx.mk_tmp_mvar(binding_domain(rule));
             emetas.push_back(mvar);
-            instances.push_back(binding_info(rule).is_inst_implicit());
+            instances.push_back(is_inst_implicit(binding_info(rule)));
             rule = instantiate(binding_body(rule), mvar);
             proof = mk_app(proof, mvar);
         }
@@ -791,7 +791,7 @@ static simp_lemmas add_core(type_context_old & ctx, simp_lemmas const & s, name 
         while (is_pi(type)) {
             expr mvar = ctx.mk_tmp_mvar(binding_domain(type));
             emetas.push_back(mvar);
-            instances.push_back(binding_info(type).is_inst_implicit());
+            instances.push_back(is_inst_implicit(binding_info(type)));
             type = instantiate(binding_body(type), mvar);
             proof = mk_app(proof, mvar);
         }
@@ -902,7 +902,7 @@ static simp_lemmas add_congr_core(type_context_old & ctx, simp_lemmas const & s,
         expr mvar = ctx.mk_tmp_mvar(binding_domain(rule));
         emetas.push_back(mvar);
         explicits.push_back(is_explicit(binding_info(rule)));
-        instances.push_back(binding_info(rule).is_inst_implicit());
+        instances.push_back(is_inst_implicit(binding_info(rule)));
         rule  = instantiate(binding_body(rule), mvar);
         proof = mk_app(proof, mvar);
     }

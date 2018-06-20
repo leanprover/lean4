@@ -72,8 +72,9 @@ static list<unsigned> get_core(type_context_old & ctx,
         expr new_type   = ctx.relaxed_try_to_pi(instantiate(binding_body(type), local));
         bool is_prop    = ctx.is_prop(local_type);
         bool is_dep     = false; /* it is set by collect_deps */
-        pinfos.emplace_back(binding_info(type).is_implicit(),
-                            binding_info(type).is_inst_implicit(),
+        binder_info bi  = binding_info(type);
+        pinfos.emplace_back(is_implicit(bi),
+                            is_inst_implicit(bi),
                             is_prop, is_dep, collect_deps(local_type, locals.as_buffer(), pinfos));
         type = new_type;
         i++;

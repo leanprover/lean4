@@ -556,7 +556,7 @@ struct structural_rec_fn {
     void update_eqs(type_context_old & ctx, unpack_eqns & ues, expr const & fn, expr const & new_fn) {
         /* C is a temporary "abstract" motive, we use it to access the "brec_on dictionary".
            The "brec_on dictionary is an element of type below, and it is the last argument of the new function. */
-        expr C = mk_local(ctx.next_name(), "_C", m_motive_type, binder_info());
+        expr C = mk_local(ctx.next_name(), "_C", m_motive_type, mk_binder_info());
         buffer<expr> & eqns = ues.get_eqns_of(0);
         buffer<expr> new_eqns;
         bool complete = must_complete_rec_arg(ctx, ues);

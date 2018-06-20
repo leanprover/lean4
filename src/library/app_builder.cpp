@@ -163,7 +163,7 @@ class app_builder {
         expr type   = m_ctx.relaxed_whnf(instantiate_type_univ_params(d, lvls));
         while (is_pi(type)) {
             expr mvar = m_ctx.mk_tmp_mvar(binding_domain(type));
-            if (binding_info(type).is_inst_implicit())
+            if (is_inst_implicit(binding_info(type)))
                 inst_args.push_back(some_expr(mvar));
             else
                 inst_args.push_back(none_expr());
@@ -215,7 +215,7 @@ class app_builder {
                 throw app_builder_exception();
             }
             expr mvar = m_ctx.mk_tmp_mvar(binding_domain(type));
-            if (binding_info(type).is_inst_implicit())
+            if (is_inst_implicit(binding_info(type)))
                 inst_args.push_back(some_expr(mvar));
             else
                 inst_args.push_back(none_expr());

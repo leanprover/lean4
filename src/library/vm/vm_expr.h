@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 binder_info to_binder_info(vm_obj const & o);
-vm_obj to_obj(binder_info const & bi);
+vm_obj to_obj(binder_info bi);
 bool is_expr(vm_obj const & o);
 expr const & to_expr(vm_obj const & o);
 vm_obj to_obj(expr const & e);

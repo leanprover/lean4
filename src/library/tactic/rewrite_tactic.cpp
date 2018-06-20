@@ -44,7 +44,7 @@ static vm_obj rewrite_core(expr h, expr e, rewrite_cfg const & cfg, tactic_state
         if (!is_pi(h_type))
             break;
         expr meta = ctx.mk_metavar_decl(ctx.lctx(), binding_domain(h_type));
-        is_instance.push_back(binding_info(h_type).is_inst_implicit());
+        is_instance.push_back(is_inst_implicit(binding_info(h_type)));
         metas.push_back(meta);
         h          = mk_app(h, meta);
         h_type     = instantiate(binding_body(h_type), meta);

@@ -26,9 +26,22 @@ Author: Leonardo de Moura
 #include "kernel/expr_eq_fn.h"
 
 namespace lean {
-class abstract_type_context;
+/* Binder annotations for Pi/lambda expressions */
+enum class binder_info { Default, Implicit, StrictImplicit, InstImplicit, Rec };
 
-class expr;
+inline binder_info mk_binder_info() { return binder_info::Default; }
+inline binder_info mk_implicit_binder_info() { return binder_info::Implicit; }
+inline binder_info mk_strict_implicit_binder_info() { return binder_info::StrictImplicit; }
+inline binder_info mk_inst_implicit_binder_info() { return binder_info::InstImplicit; }
+inline binder_info mk_rec_info() { return binder_info::Rec; }
+
+inline bool is_default(binder_info bi) { return bi == binder_info::Default; }
+inline bool is_implicit(binder_info bi) { return bi == binder_info::Implicit; }
+inline bool is_strict_implicit(binder_info bi) { return bi == binder_info::StrictImplicit; }
+inline bool is_inst_implicit(binder_info bi) { return bi == binder_info::InstImplicit; }
+inline bool is_explicit(binder_info bi) { return !is_implicit(bi) && !is_strict_implicit(bi) && !is_inst_implicit(bi); }
+inline bool is_rec(binder_info bi) { return bi == binder_info::Rec; }
+
 /* =======================================
    Expressions
    expr ::=   BVar          idx
@@ -48,6 +61,7 @@ class expr;
 
           |   Quote         bool expr
 */
+class expr;
 enum class expr_kind { BVar, FVar, Sort, Constant, MVar, App, Lambda, Pi, Let, Lit, MData, Proj, Quote };
 class expr_cell {
 protected:
@@ -82,7 +96,6 @@ public:
 
 typedef expr_cell * expr_ptr;
 
-class binder_info;
 class literal;
 
 /**
@@ -131,14 +144,14 @@ public:
     friend expr mk_constant(name const & n, levels const & ls);
     friend expr mk_metavar(name const & n, name const & pp_n, expr const & t);
     friend expr mk_app(expr const & f, expr const & a);
-    friend expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & i);
+    friend expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info i);
     friend expr mk_let(name const & n, expr const & t, expr const & v, expr const & b);
     friend expr mk_lit(literal const & lit);
     friend expr mk_mdata(kvmap const & m, expr const & e);
     friend expr mk_proj(nat const & idx, expr const & e);
     friend bool is_eqp(expr const & a, expr const & b) { return a.m_ptr == b.m_ptr; }
     // TODO(Leo): delete
-    friend expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi);
+    friend expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info bi);
     friend expr mk_quote(bool reflected, expr const & val);
 };
 
@@ -206,43 +219,6 @@ public:
     expr const & get_type() const { return m_type; }
 };
 
-/** \brief Auxiliary annotation for binders (Lambda and Pi). */
-class binder_info {
-    enum kind { Default, Implicit, StrictImplicit, InstImplicit, Rec };
-    object * m_val;
-    binder_info(object * v):m_val(v) {}
-public:
-    binder_info():m_val(box(static_cast<unsigned>(Default))) {}
-    friend binder_info mk_implicit_binder_info();
-    friend binder_info mk_strict_implicit_binder_info();
-    friend binder_info mk_inst_implicit_binder_info();
-    friend binder_info mk_rec_info();
-    bool is_implicit() const { return unbox(m_val) == static_cast<unsigned>(Implicit); }
-    bool is_strict_implicit() const { return unbox(m_val) == static_cast<unsigned>(StrictImplicit); }
-    bool is_inst_implicit() const { return unbox(m_val) == static_cast<unsigned>(InstImplicit); }
-    bool is_rec() const { return unbox(m_val) == static_cast<unsigned>(Rec); }
-    unsigned hash() const { return unbox(m_val); }
-    friend bool operator==(binder_info const & i1, binder_info const & i2) { return i1.m_val == i2.m_val; }
-    friend bool operator!=(binder_info const & i1, binder_info const & i2) { return !(i1 == i2); }
-    friend binder_info read_binder_info(deserializer & d);
-    void serialize(serializer & s) const { s.write_object(m_val); }
-};
-
-inline binder_info mk_implicit_binder_info() { return binder_info(box(static_cast<unsigned>(binder_info::Implicit))); }
-inline binder_info mk_strict_implicit_binder_info() { return binder_info(box(static_cast<unsigned>(binder_info::StrictImplicit))); }
-inline binder_info mk_inst_implicit_binder_info() { return binder_info(box(static_cast<unsigned>(binder_info::InstImplicit))); }
-inline binder_info mk_rec_info() { return binder_info(box(static_cast<unsigned>(binder_info::Rec))); }
-inline bool is_explicit(binder_info const & bi) {
-    return !bi.is_implicit() && !bi.is_strict_implicit() && !bi.is_inst_implicit();
-}
-inline serializer & operator<<(serializer & s, binder_info const & bi) { bi.serialize(s); return s; }
-inline binder_info read_binder_info(deserializer & d) { return binder_info(d.read_object()); }
-inline deserializer & operator>>(deserializer & d, binder_info & bi) { bi = read_binder_info(d); return d; }
-
-/** \brief Compute a hash code that takes binder_info into account.
-    \remark This information is not cached like hash(). */
-unsigned hash_bi(expr const & e);
-
 /** \brief expr_mlocal subclass for local constants. */
 class expr_fvar : public expr_mlocal {
     binder_info m_bi;
@@ -250,8 +226,8 @@ class expr_fvar : public expr_mlocal {
     void dealloc(buffer<expr_cell*> & todelete);
     expr_fvar(expr_fvar const &, expr const & new_type); // for hash_consing
 public:
-    expr_fvar(name const & n, name const & pp_name, expr const & t, binder_info const & bi);
-    binder_info const & get_info() const { return m_bi; }
+    expr_fvar(name const & n, name const & pp_name, expr const & t, binder_info bi);
+    binder_info get_info() const { return m_bi; }
 };
 
 /** \brief Applications */
@@ -275,11 +251,11 @@ class binder {
     binder(binder const & src, expr const & new_type): // for hash_consing
         m_name(src.m_name), m_type(new_type), m_info(src.m_info) {}
 public:
-    binder(name const & n, expr const & t, binder_info const & bi):
+    binder(name const & n, expr const & t, binder_info bi):
         m_name(n), m_type(t), m_info(bi) {}
     name const & get_name() const { return m_name; }
     expr const & get_type() const { return m_type; }
-    binder_info const & get_info() const { return m_info; }
+    binder_info get_info() const { return m_info; }
     binder update_type(expr const & t) const { return binder(m_name, t, m_info); }
 };
 
@@ -292,11 +268,11 @@ class expr_binding : public expr_composite {
     expr_binding(expr_binding const &, expr const & new_domain, expr const & new_body); // for hash_consing
 public:
     expr_binding(expr_kind k, name const & n, expr const & t, expr const & e,
-                 binder_info const & i);
+                 binder_info i);
     name const & get_name() const   { return m_binder.get_name(); }
     expr const & get_domain() const { return m_binder.get_type(); }
     expr const & get_body() const   { return m_body; }
-    binder_info const & get_info() const { return m_binder.get_info(); }
+    binder_info get_info() const { return m_binder.get_info(); }
     binder const & get_binder() const { return m_binder; }
 };
 
@@ -444,13 +420,11 @@ inline expr mk_rev_app(buffer<expr> const & args) { return mk_rev_app(args.size(
 inline expr mk_rev_app(expr const & f, buffer<expr> const & args) {
     return mk_rev_app(f, args.size(), args.data());
 }
-expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e,
-                binder_info const & i = binder_info());
-inline expr mk_lambda(name const & n, expr const & t, expr const & e,
-                      binder_info const & i = binder_info()) {
+expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info i = mk_binder_info());
+inline expr mk_lambda(name const & n, expr const & t, expr const & e, binder_info i = mk_binder_info()) {
     return mk_binding(expr_kind::Lambda, n, t, e, i);
 }
-inline expr mk_pi(name const & n, expr const & t, expr const & e, binder_info const & i = binder_info()) {
+inline expr mk_pi(name const & n, expr const & t, expr const & e, binder_info i = mk_binder_info()) {
     return mk_binding(expr_kind::Pi, n, t, e, i);
 }
 expr mk_let(name const & n, expr const & t, expr const & v, expr const & b);
@@ -513,7 +487,7 @@ inline expr const &    app_arg(expr_ptr e)               { return to_app(e)->get
 inline name const &    binding_name(expr_ptr e)          { return to_binding(e)->get_name(); }
 inline expr const &    binding_domain(expr_ptr e)        { return to_binding(e)->get_domain(); }
 inline expr const &    binding_body(expr_ptr e)          { return to_binding(e)->get_body(); }
-inline binder_info const & binding_info(expr_ptr e)      { return to_binding(e)->get_info(); }
+inline binder_info binding_info(expr_ptr e)      { return to_binding(e)->get_info(); }
 inline binder const &  binding_binder(expr_ptr e)        { return to_binding(e)->get_binder(); }
 inline name const &    let_name(expr_ptr e)              { return to_let(e)->get_name(); }
 inline expr const &    let_type(expr_ptr e)              { return to_let(e)->get_type(); }
@@ -584,10 +558,10 @@ struct expr_hash { unsigned operator()(expr const & e) const { return e.hash(); 
 // Update
 expr update_app(expr const & e, expr const & new_fn, expr const & new_arg);
 expr update_binding(expr const & e, expr const & new_domain, expr const & new_body);
-expr update_binding(expr const & e, expr const & new_domain, expr const & new_body, binder_info const & bi);
+expr update_binding(expr const & e, expr const & new_domain, expr const & new_body, binder_info bi);
 expr update_mlocal(expr const & e, expr const & new_type);
-expr update_local(expr const & e, expr const & new_type, binder_info const & bi);
-expr update_local(expr const & e, binder_info const & bi);
+expr update_local(expr const & e, expr const & new_type, binder_info bi);
+expr update_local(expr const & e, binder_info bi);
 expr update_sort(expr const & e, level const & new_level);
 expr update_constant(expr const & e, levels const & new_levels);
 expr update_let(expr const & e, expr const & new_type, expr const & new_value, expr const & new_body);
@@ -671,16 +645,16 @@ inline expr_quote *       to_quote(expr_ptr e)      { lean_assert(is_quote(e)); 
 inline name const &   mlocal_name(expr_ptr e)  { return to_mlocal(e)->get_name(); }
 inline expr const &   mlocal_type(expr_ptr e)  { return to_mlocal(e)->get_type(); }
 inline name const &   mlocal_pp_name(expr_ptr e) { return to_mlocal(e)->get_pp_name(); }
-inline binder_info const & local_info(expr_ptr e) { return to_local(e)->get_info(); }
+inline binder_info local_info(expr_ptr e) { return to_local(e)->get_info(); }
 inline expr mk_var(unsigned idx) { return mk_bvar(idx); }
 inline expr Var(unsigned idx) { return mk_bvar(idx); }
 expr mk_quote(bool reflected, expr const & val);
-expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi);
-inline expr mk_local(name const & n, expr const & t) { return mk_local(n, n, t, binder_info()); }
-inline expr mk_local(name const & n, expr const & t, binder_info const & bi) {
+expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info bi);
+inline expr mk_local(name const & n, expr const & t) { return mk_local(n, n, t, mk_binder_info()); }
+inline expr mk_local(name const & n, expr const & t, binder_info bi) {
     return mk_local(n, n, t, bi);
 }
-inline expr Local(name const & n, expr const & t, binder_info const & bi = binder_info()) {
+inline expr Local(name const & n, expr const & t, binder_info bi = mk_binder_info()) {
     return mk_local(n, t, bi);
 }
 inline bool has_local(expr const & e) { return has_fvar(e); }

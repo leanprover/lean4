@@ -256,9 +256,9 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
         to_telescope(mlocal_type(C), F_args);
         expr F_result = mk_app(C, F_args);
         expr F_below  = mk_app(belows[j], F_args);
-        F_args.push_back(mk_local(ngen.next(), "f", F_below, binder_info()));
+        F_args.push_back(mk_local(ngen.next(), "f", F_below, mk_binder_info()));
         expr F_type   = Pi(F_args, F_result);
-        expr F        = mk_local(ngen.next(), F_name, F_type, binder_info());
+        expr F        = mk_local(ngen.next(), F_name, F_type, mk_binder_info());
         Fs.push_back(F);
         args.push_back(F);
     }

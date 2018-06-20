@@ -171,7 +171,7 @@ void collect_annonymous_inst_implicit(parser const & p, collected_locals & local
     while (i > 0) {
         --i;
         auto const & entry = entries[i];
-        if (is_local(entry.second) && !locals.contains(entry.second) && local_info(entry.second).is_inst_implicit() &&
+        if (is_local(entry.second) && !locals.contains(entry.second) && is_inst_implicit(local_info(entry.second)) &&
             // remark: remove the following condition condition, if we want to auto inclusion also for non anonymous ones.
             is_anonymous_inst_name(entry.first)) {
             bool ok = true;

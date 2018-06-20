@@ -123,7 +123,7 @@ private:
     bool is_mvar_assigned(expr const & e) const { return m_ctx.is_assigned(e); }
 
     expr push_local(type_context_old::tmp_locals & locals, name const & n, expr const & type,
-                    binder_info const & binfo, expr const & ref);
+                    binder_info binfo, expr const & ref);
     expr push_let(type_context_old::tmp_locals & locals,
                   name const & n, expr const & type, expr const & value, expr const & ref);
 
@@ -307,7 +307,7 @@ public:
         m_ctx.set_env(m_env);
     }
 
-    expr push_local(name const & n, expr const & type, binder_info const & bi = binder_info()) {
+    expr push_local(name const & n, expr const & type, binder_info bi = mk_binder_info()) {
         return m_ctx.push_local(n, type, bi);
     }
     expr mk_pi(buffer<expr> const & params, expr const & type) { return m_ctx.mk_pi(params, type); }

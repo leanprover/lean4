@@ -61,7 +61,8 @@ class expr_serializer : public object_serializer<expr, expr_hash, is_bi_equal_pr
                 case expr_kind::Lambda: case expr_kind::Pi:
                     lean_assert(!binding_name(a).is_anonymous());
                     write_binder_name(s, binding_name(a));
-                    s << binding_info(a); write_core(binding_domain(a)); write_core(binding_body(a));
+                    s.write_char(static_cast<char>(binding_info(a)));
+                    write_core(binding_domain(a)); write_core(binding_body(a));
                     break;
                 case expr_kind::Let:
                     s << let_name(a);
@@ -74,7 +75,8 @@ class expr_serializer : public object_serializer<expr, expr_hash, is_bi_equal_pr
                 case expr_kind::FVar:
                     lean_assert(!mlocal_name(a).is_anonymous());
                     lean_assert(!mlocal_pp_name(a).is_anonymous());
-                    s << mlocal_name(a) << mlocal_pp_name(a) << local_info(a); write_core(mlocal_type(a));
+                    s << mlocal_name(a) << mlocal_pp_name(a);
+                    s.write_char(static_cast<char>(local_info(a))); write_core(mlocal_type(a));
                     break;
 
                 case expr_kind::Quote:
@@ -97,7 +99,7 @@ public:
     expr read_binding(expr_kind k) {
         deserializer & d   = get_owner();
         name n             = read_name(d);
-        binder_info i      = read_binder_info(d);
+        binder_info i      = static_cast<binder_info>(d.read_char());
         expr t             = read();
         return mk_binding(k, n, t, read(), i);
     }
@@ -145,7 +147,7 @@ public:
                 case expr_kind::FVar: {
                     name n         = read_name(d);
                     name pp_n      = read_name(d);
-                    binder_info bi = read_binder_info(d);
+                    binder_info bi = static_cast<binder_info>(d.read_char());
                     return mk_local(n, pp_n, read(), bi);
                 }
 

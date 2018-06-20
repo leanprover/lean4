@@ -292,7 +292,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
             name b_name    = binding_name(rec_type);
             expr new_type  = annotated_head_beta_reduce(binding_domain(rec_type));
             expr rec_arg;
-            if (binding_info(rec_type).is_inst_implicit()) {
+            if (is_inst_implicit(binding_info(rec_type))) {
                 if (optional<expr> inst = ctx2.mk_class_instance(new_type)) {
                     rec_arg = *inst;
                 } else {

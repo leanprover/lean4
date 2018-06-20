@@ -95,8 +95,8 @@ environment open_prec_aliases(environment const & env);
 environment open_priority_aliases(environment const & env);
 name get_priority_namespace();
 
-char const * open_binder_string(binder_info const & bi, bool unicode);
-char const * close_binder_string(binder_info const & bi, bool unicode);
+char const * open_binder_string(binder_info bi, bool unicode);
+char const * close_binder_string(binder_info bi, bool unicode);
 
 /** \brief Parse option name */
 pair<name, option_kind> parse_option_name(parser & p, char const * error_msg);

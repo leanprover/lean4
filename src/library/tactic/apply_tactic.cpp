@@ -191,7 +191,7 @@ static optional<tactic_state> apply(type_context_old & ctx, expr e, apply_cfg co
     for (unsigned i = 0; i < num_e_t; i++) {
         e_type    = ctx.relaxed_whnf(e_type);
         expr meta = ctx.mk_metavar_decl(lctx, binding_domain(e_type));
-        is_instance.push_back(binding_info(e_type).is_inst_implicit());
+        is_instance.push_back(is_inst_implicit(binding_info(e_type)));
         metas.push_back(meta);
         meta_names.push_back(binding_name(e_type));
         e          = mk_app(e, meta);

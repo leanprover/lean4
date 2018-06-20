@@ -29,7 +29,7 @@ public:
     virtual expr check(expr const & e) { return infer(e); }
     virtual optional<expr> is_stuck(expr const &) { return none_expr(); }
 
-    virtual expr push_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info());
+    virtual expr push_local(name const & pp_name, expr const & type, binder_info bi = mk_binder_info());
     virtual void pop_local();
 
     expr check(expr const & e, bool infer_only) { return infer_only ? infer(e) : check(e); }
@@ -46,7 +46,7 @@ class push_local_fn {
 public:
     push_local_fn(abstract_type_context & ctx):m_ctx(ctx), m_counter(0) {}
     ~push_local_fn();
-    expr operator()(name const & pp_name, expr const & type, binder_info const & bi = binder_info()) {
+    expr operator()(name const & pp_name, expr const & type, binder_info bi = mk_binder_info()) {
         m_counter++;
         return m_ctx.push_local(pp_name, type, bi);
     }

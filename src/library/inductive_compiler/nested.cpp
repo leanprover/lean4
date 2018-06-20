@@ -117,7 +117,7 @@ class add_nested_inductive_decl_fn {
 
     expr mk_local_for(expr const & b) { return mk_local(m_ngen.next(), binding_name(b), binding_domain(b), binding_info(b)); }
     expr mk_local_for(expr const & b, name const & n) { return mk_local(m_ngen.next(), n, binding_domain(b), binding_info(b)); }
-    expr mk_local_pp(name const & n, expr const & ty) { return mk_local(m_ngen.next(), n, ty, binder_info()); }
+    expr mk_local_pp(name const & n, expr const & ty) { return mk_local(m_ngen.next(), n, ty, mk_binder_info()); }
 
     // For sizeof
     local_context                 m_synth_lctx;

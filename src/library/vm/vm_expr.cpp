@@ -62,30 +62,11 @@ vm_obj to_obj(optional<expr> const & e) {
 
 binder_info to_binder_info(vm_obj const & o) {
     lean_assert(is_simple(o));
-    /*
-      inductive binder_info :=
-      | default | implicit | strict_implicit | inst_implicit | aux_decl
-    */
-    switch (cidx(o)) {
-    case 0:  return binder_info();
-    case 1:  return mk_implicit_binder_info();
-    case 2:  return mk_strict_implicit_binder_info();
-    case 3:  return mk_inst_implicit_binder_info();
-    default: return mk_rec_info();
-    }
+    return static_cast<binder_info>(cidx(o));
 }
 
-vm_obj to_obj(binder_info const & bi) {
-    if (bi.is_implicit())
-        return mk_vm_simple(1);
-    else if (bi.is_strict_implicit())
-        return mk_vm_simple(2);
-    else if (bi.is_inst_implicit())
-        return mk_vm_simple(3);
-    else if (bi.is_rec())
-        return mk_vm_simple(4);
-    else
-        return mk_vm_simple(0);
+vm_obj to_obj(binder_info bi) {
+    return mk_vm_simple(static_cast<unsigned>(bi));
 }
 
 // The expr_bvar_intro function has an _intro suffix so that it doesn't clash
@@ -119,7 +100,7 @@ vm_obj expr_mvar_intro(vm_obj const & n, vm_obj const & pp_n, vm_obj const & t) 
 }
 
 vm_obj expr_fvar_const_intro(vm_obj const & n) {
-    return to_obj(mk_local(to_name(n), to_name(n), expr(), binder_info()));
+    return to_obj(mk_local(to_name(n), to_name(n), expr(), mk_binder_info()));
 }
 
 vm_obj expr_app_intro(vm_obj const & f, vm_obj const & a) {

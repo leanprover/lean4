@@ -114,9 +114,9 @@ class parser : public abstract_parser {
     expr parse_char_expr();
     expr parse_inst_implicit_decl();
     void parse_inst_implicit_decl(buffer<expr> & r);
-    expr parse_binder_core(binder_info const & bi, unsigned rbp);
-    bool parse_binder_collection(buffer<pair<pos_info, name>> const & names, binder_info const & bi, buffer<expr> & r);
-    void parse_binder_block(buffer<expr> & r, binder_info const & bi, unsigned rbp, bool allow_default);
+    expr parse_binder_core(binder_info bi, unsigned rbp);
+    bool parse_binder_collection(buffer<pair<pos_info, name>> const & names, binder_info bi, buffer<expr> & r);
+    void parse_binder_block(buffer<expr> & r, binder_info bi, unsigned rbp, bool allow_default);
     struct parse_binders_config {
         /* (input) If m_allow_empty is true, then parse_binders will succeed even if not binder is parsed. */
         bool     m_allow_empty{false};
@@ -395,7 +395,7 @@ public:
 
     binder_info parse_binder_info(bool simple_only = false);
     void parse_close_binder_info(optional<binder_info> const & bi);
-    void parse_close_binder_info(binder_info const & bi) { return parse_close_binder_info(optional<binder_info>(bi)); }
+    void parse_close_binder_info(binder_info bi) { return parse_close_binder_info(optional<binder_info>(bi)); }
 
     /** \brief Convert an identifier into an expression (constant or local constant) based on the current scope */
     expr id_to_expr(name const & id, pos_info const & p, bool resolve_only = false, bool allow_field_notation = true,
@@ -487,7 +487,7 @@ public:
             return false;
     }
     /** \brief Update binder information for the section parameter n, return true if success, and false if n is not a section parameter. */
-    bool update_local_binder_info(name const & n, binder_info const & bi);
+    bool update_local_binder_info(name const & n, binder_info bi);
     void include_variable(name const & n) { m_include_vars.insert(n); }
     void omit_variable(name const & n) { m_include_vars.erase(n); }
     bool is_include_variable(name const & n) const { return m_include_vars.contains(n); }

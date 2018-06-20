@@ -13,7 +13,7 @@ namespace lean {
 static expr *       g_dummy_type;
 static local_decl * g_dummy_decl;
 
-static expr mk_local_ref(name const & n, name const & un, binder_info const & bi) {
+static expr mk_local_ref(name const & n, name const & un, binder_info bi) {
     return mk_local(n, un, *g_dummy_type, bi); // TODO(Leo): fix after we remove legacy code
 }
 
@@ -25,12 +25,12 @@ void local_decl::cell::dealloc() {
     delete this;
 }
 
-local_decl::cell::cell(unsigned idx, name const & n, name const & un, expr const & t, optional<expr> const & v, binder_info const & bi):
+local_decl::cell::cell(unsigned idx, name const & n, name const & un, expr const & t, optional<expr> const & v, binder_info bi):
     m_name(n), m_user_name(un), m_type(t), m_value(v), m_bi(bi), m_idx(idx), m_rc(1) {}
 
 local_decl::local_decl():local_decl(*g_dummy_decl) {}
 
-local_decl::local_decl(unsigned idx, name const & n, name const & un, expr const & t, optional<expr> const & v, binder_info const & bi) {
+local_decl::local_decl(unsigned idx, name const & n, name const & un, expr const & t, optional<expr> const & v, binder_info bi) {
     m_ptr = new cell(idx, n, un, t, v, bi);
 }
 
@@ -41,7 +41,7 @@ expr local_decl::mk_ref() const {
     return mk_local_ref(m_ptr->m_name, m_ptr->m_user_name, m_ptr->m_bi);
 }
 
-local_decl local_ctx::mk_local_decl(name const & n, name const & un, expr const & type, optional<expr> const & value, binder_info const & bi) {
+local_decl local_ctx::mk_local_decl(name const & n, name const & un, expr const & type, optional<expr> const & value, binder_info bi) {
     lean_assert(!m_name2local_decl.contains(n));
     unsigned idx = m_next_idx;
     m_next_idx++;
@@ -123,7 +123,7 @@ void initialize_local_ctx() {
     g_dummy_type   = new expr(mk_constant(name::mk_internal_unique_name()));
     g_dummy_decl   = new local_decl(std::numeric_limits<unsigned>::max(),
                                     name("__local_decl_for_default_constructor"), name("__local_decl_for_default_constructor"),
-                                    mk_Prop(), optional<expr>(), binder_info());
+                                    mk_Prop(), optional<expr>(), mk_binder_info());
 }
 
 void finalize_local_ctx() {

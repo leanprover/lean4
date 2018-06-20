@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 
 namespace lean {
-expr abstract_type_context::push_local(name const & pp_name, expr const & type, binder_info const & bi) {
+expr abstract_type_context::push_local(name const & pp_name, expr const & type, binder_info bi) {
     return mk_local(next_name(), pp_name, type, bi);
 }
 

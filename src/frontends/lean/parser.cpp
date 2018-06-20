@@ -545,7 +545,7 @@ bool parser::is_local_decl(expr const & l) {
     return false;
 }
 
-bool parser::update_local_binder_info(name const & n, binder_info const & bi) {
+bool parser::update_local_binder_info(name const & n, binder_info bi) {
     auto it = get_local(n);
     if (!it || !is_local(*it)) return false;
 
@@ -800,7 +800,7 @@ void parser::throw_invalid_open_binder(pos_info const & pos) {
 optional<binder_info> parser::parse_optional_binder_info(bool simple_only) {
     if (curr_is_token(get_lparen_tk())) {
         next();
-        return some(binder_info());
+        return some(mk_binder_info());
     } else if (simple_only) {
         return optional<binder_info>();
     } else if (curr_is_token(get_lcurly_tk())) {
@@ -834,7 +834,7 @@ binder_info parser::parse_binder_info(bool simple_only) {
         return *bi;
     } else {
         throw_invalid_open_binder(p);
-        return binder_info();
+        return mk_binder_info();
     }
 }
 
@@ -849,11 +849,11 @@ binder_info parser::parse_binder_info(bool simple_only) {
 void parser::parse_close_binder_info(optional<binder_info> const & bi) {
     if (!bi) {
         return;
-    } else if (bi->is_implicit()) {
+    } else if (is_implicit(*bi)) {
         check_token_next(get_rcurly_tk(), "invalid declaration, '}' expected");
-    } else if (bi->is_inst_implicit()) {
+    } else if (is_inst_implicit(*bi)) {
         check_token_next(get_rbracket_tk(), "invalid declaration, ']' expected");
-    } else if (bi->is_strict_implicit()) {
+    } else if (is_strict_implicit(*bi)) {
         if (curr_is_token(get_rcurly_tk())) {
             next();
             check_token_next(get_rcurly_tk(), "invalid declaration, '}' expected");
@@ -866,7 +866,7 @@ void parser::parse_close_binder_info(optional<binder_info> const & bi) {
 }
 
 /** \brief Parse <tt>ID ':' expr</tt>, where the expression represents the type of the identifier. */
-expr parser::parse_binder_core(binder_info const & bi, unsigned rbp) {
+expr parser::parse_binder_core(binder_info bi, unsigned rbp) {
     auto p  = pos();
     name id;
     if (curr_is_token(get_placeholder_tk())) {
@@ -887,7 +887,7 @@ expr parser::parse_binder_core(binder_info const & bi, unsigned rbp) {
 
 expr parser::parse_binder(unsigned rbp) {
     if (curr_is_identifier()) {
-        return parse_binder_core(binder_info(), rbp);
+        return parse_binder_core(mk_binder_info(), rbp);
     } else {
         bool simple_only = false;
         binder_info bi = parse_binder_info(simple_only);
@@ -906,7 +906,7 @@ expr parser::parse_binder(unsigned rbp) {
    This method return true if the next token is an infix operator,
    and populates r with the locals above.
 */
-bool parser::parse_binder_collection(buffer<pair<pos_info, name>> const & names, binder_info const & bi, buffer<expr> & r) {
+bool parser::parse_binder_collection(buffer<pair<pos_info, name>> const & names, binder_info bi, buffer<expr> & r) {
     if (!curr_is_keyword())
         return false;
     name tk = get_token_info().value();
@@ -953,7 +953,7 @@ bool parser::parse_binder_collection(buffer<pair<pos_info, name>> const & names,
    \brief Parse <tt>ID ... ID ':' expr</tt>, where the expression
    represents the type of the identifiers.
 */
-void parser::parse_binder_block(buffer<expr> & r, binder_info const & bi, unsigned rbp, bool allow_default) {
+void parser::parse_binder_block(buffer<expr> & r, binder_info bi, unsigned rbp, bool allow_default) {
     buffer<pair<pos_info, name>> names;
     while (curr_is_identifier() || curr_is_token(get_placeholder_tk())) {
         auto p = pos();
@@ -1038,7 +1038,7 @@ void parser::parse_binders_core(buffer<expr> & r, parse_binders_config & cfg) {
             /* We only allow the default parameter value syntax for declarations with
                surrounded by () */
             bool new_allow_default = false;
-            parse_binder_block(r, binder_info(), cfg.m_rbp, new_allow_default);
+            parse_binder_block(r, mk_binder_info(), cfg.m_rbp, new_allow_default);
             cfg.m_last_block_delimited = false;
         } else {
             /* We only allow the default parameter value syntax for declarations with
@@ -1048,7 +1048,7 @@ void parser::parse_binders_core(buffer<expr> & r, parse_binders_config & cfg) {
             if (bi) {
                 if (first && cfg.m_infer_kind != nullptr) {
                     /* Parse {} or () prefix */
-                    if (bi->is_implicit() && curr_is_token(get_rcurly_tk())) {
+                    if (is_implicit(*bi) && curr_is_token(get_rcurly_tk())) {
                         next();
                         *cfg.m_infer_kind = implicit_infer_kind::RelaxedImplicit;
                         first             = false;
@@ -1064,7 +1064,7 @@ void parser::parse_binders_core(buffer<expr> & r, parse_binders_config & cfg) {
                 }
                 unsigned rbp = 0;
                 cfg.m_last_block_delimited = true;
-                if (bi->is_inst_implicit()) {
+                if (is_inst_implicit(*bi)) {
                     parse_inst_implicit_decl(r);
                 } else {
                     if (cfg.m_simple_only || !parse_local_notation_decl(cfg.m_nentries))
@@ -1383,7 +1383,7 @@ expr parser::parse_notation(parse_table t, expr * left) {
         unsigned idx = 1;
         for (expr & arg : args) {
             actual_args.push_back(arg);
-            arg = mk_local(next_name(), x.append_after(idx), mk_expr_placeholder(), binder_info());
+            arg = mk_local(next_name(), x.append_after(idx), mk_expr_placeholder(), mk_binder_info());
             idx++;
         }
     }
@@ -1434,7 +1434,7 @@ expr parser::parse_placeholder() {
 expr parser::parse_anonymous_var_pattern() {
     auto p = pos();
     next();
-    expr t = mk_local(next_name(), "_x", mk_expr_placeholder(), binder_info());
+    expr t = mk_local(next_name(), "_x", mk_expr_placeholder(), mk_binder_info());
     return save_pos(t, p);
 }
 
@@ -1584,7 +1584,7 @@ struct to_pattern_fn {
         } else if (is_inaccessible(e)) {
             // do nothing
         } else if (is_placeholder(e)) {
-            expr r = copy_pos(e, mk_local(m_parser.next_name(), "_x", copy_pos(e, mk_expr_placeholder()), binder_info()));
+            expr r = copy_pos(e, mk_local(m_parser.next_name(), "_x", copy_pos(e, mk_expr_placeholder()), mk_binder_info()));
             m_new_locals.push_back(r);
             m_anonymous_vars.insert(mk_pair(e, r));
         } else if (is_as_pattern(e)) {
@@ -1787,7 +1787,7 @@ static expr elaborate_quote(parser & p, expr e) {
     e = replace_propagating_pos(e, [&](expr const & t, unsigned) {
         if (is_antiquote(t)) {
             expr local = mk_local(p.next_name(), x.append_after(locals.size() + 1),
-                                  mk_expr_placeholder(), binder_info());
+                                  mk_expr_placeholder(), mk_binder_info());
             locals.push_back(local);
             aqs.push_back(t);
             return some_expr(local);

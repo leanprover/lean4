@@ -92,7 +92,7 @@ struct mk_drec_fn {
             motive_params.push_back(local);
         }
         expr new_param_type  = mk_app(mk_app(mk_constant(I, I_lvls), num_params, rec_params.data()), motive_params);
-        expr new_param       = mk_local(ngen.next(), "h", new_param_type, binder_info());
+        expr new_param       = mk_local(ngen.next(), "h", new_param_type, mk_binder_info());
         expr new_motive_type = Pi(motive_params, Pi(new_param, rec_motive_type));
         expr new_motive      = update_mlocal(rec_motive, new_motive_type);
         expr motive_arg      = Fun(motive_params, Pi(new_param, mk_app(mk_app(new_motive, motive_params), new_param)));
@@ -149,7 +149,7 @@ struct mk_drec_fn {
                     while (is_pi(h_type))
                         h_type = binding_body(h_type);
                     h_type = instantiate_rev(h_type, ih_params);
-                    expr h           = mk_local(ngen.next(), "_h", h_type, binder_info());
+                    expr h           = mk_local(ngen.next(), "_h", h_type, mk_binder_info());
                     expr app_ih_type = Pi(ih_params, Pi(h, mk_app(new_C_pre, h)));
                     expr app_ih      = update_mlocal(local, app_ih_type);
                     app_params.push_back(app_ih);
@@ -173,7 +173,7 @@ struct mk_drec_fn {
             expr new_minor       = update_mlocal(minor, new_minor_type);
             drec_params.push_back(new_minor);
             expr _h_type         = tc.infer(constructor_app);
-            expr _h              = mk_local(ngen.next(), "_", _h_type, binder_info());
+            expr _h              = mk_local(ngen.next(), "_", _h_type, mk_binder_info());
             rec_args.push_back(Fun(app_params, Fun(_h, mk_app(new_minor, app_args))));
             i++;
         }

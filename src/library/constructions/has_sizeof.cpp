@@ -63,7 +63,7 @@ class mk_has_sizeof_fn {
     }
 
     expr mk_local_pp(name const & n, expr const & ty) {
-        return mk_local(m_ngen.next(), n, ty, binder_info());
+        return mk_local(m_ngen.next(), n, ty, mk_binder_info());
     }
 
     optional<expr> mk_has_sizeof(type_context_old & ctx, expr const & type) {

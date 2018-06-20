@@ -500,7 +500,7 @@ struct structure_cmd_fn {
                     fname = *ref;
                 else
                     fname = name(parent_name.get_string()).append_before("to_");
-                binder_info bi;
+                binder_info bi = mk_binder_info();
                 if (m_meta_info.m_attrs.has_class() && is_class(m_env, parent_name))
                     // make superclass fields inst implicit
                     bi = mk_inst_implicit_binder_info();
@@ -653,7 +653,7 @@ struct structure_cmd_fn {
                         if (i == nparams + 1)
                             return mk_as_is(e);
                         return mk_lambda(binding_name(e), mk_as_is(binding_domain(e)), pi_to_lam(binding_body(e), i + 1),
-                                         i < nparams ? mk_implicit_binder_info() : binder_info());
+                                         i < nparams ? mk_implicit_binder_info() : mk_binder_info());
                     };
                     type = pi_to_lam(type, 0);
                     type = mk_app(type, base_obj);
@@ -793,7 +793,7 @@ struct structure_cmd_fn {
         }
     }
 
-    void parse_field_block(binder_info const & bi) {
+    void parse_field_block(binder_info bi) {
         buffer<pair<pos_info, name>> names;
         auto start_pos = m_p.pos();
         while (m_p.curr_is_identifier()) {
@@ -1127,7 +1127,7 @@ struct structure_cmd_fn {
                 /* Copy fields it depends on */
                 for (expr const & local : used_locals.get_collected()) {
                     if (!is_param(local))
-                        args.push_back(update_local(local, binder_info()));
+                        args.push_back(update_local(local, mk_binder_info()));
                 }
                 name decl_name  = name(m_name + field.get_name(), "_default");
                 name decl_prv_name;
@@ -1238,7 +1238,7 @@ struct structure_cmd_fn {
                 throw_ill_formed_parent(parent_name);
             level parent_rlvl              = sort_level(parent_type);
             expr st_type                   = mk_app(mk_constant(m_name, st_ls), m_params);
-            binder_info bi;
+            binder_info bi = mk_binder_info();
             if (m_meta_info.m_attrs.has_class())
                 bi = mk_inst_implicit_binder_info();
             expr st                        = mk_local(m_p.next_name(), "s", st_type, bi);

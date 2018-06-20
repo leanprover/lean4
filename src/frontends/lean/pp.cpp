@@ -433,7 +433,7 @@ bool pretty_fn::is_implicit(expr const & f) {
         expr t = m_ctx.relaxed_whnf(m_ctx.infer(f));
         if (is_pi(t)) {
             binder_info bi = binding_info(t);
-            return bi.is_implicit() || bi.is_strict_implicit() || bi.is_inst_implicit();
+            return !is_explicit(bi);
         } else {
             return false;
         }
@@ -785,7 +785,7 @@ bool pretty_fn::has_implicit_args(expr const & f) {
         push_local_fn push_local(m_ctx);
         while (is_pi(type)) {
             binder_info bi = binding_info(type);
-            if (bi.is_implicit() || bi.is_strict_implicit() || bi.is_inst_implicit())
+            if (!is_explicit(bi))
                 return true;
             expr local = push_local(binding_name(type), binding_domain(type), binding_info(type));
             type = m_ctx.relaxed_whnf(instantiate(binding_body(type), local));
@@ -898,21 +898,21 @@ auto pretty_fn::pp_app(expr const & e) -> result {
 format pretty_fn::pp_binder(expr const & local) {
     format r;
     auto bi = local_info(local);
-    if (bi != binder_info())
+    if (!is_default(bi))
         r += format(open_binder_string(bi, m_unicode));
     r += escape(mlocal_pp_name(local));
     if (m_binder_types) {
         r += space();
         r += compose(colon(), nest(m_indent, compose(line(), pp_child(mlocal_type(local), 0).fmt())));
     }
-    if (bi != binder_info())
+    if (!is_default(bi))
         r += format(close_binder_string(bi, m_unicode));
     return r;
 }
 
-format pretty_fn::pp_binder_block(buffer<name> const & names, expr const & type, binder_info const & bi) {
+format pretty_fn::pp_binder_block(buffer<name> const & names, expr const & type, binder_info bi) {
     format r;
-    if (m_binder_types || bi != binder_info())
+    if (m_binder_types || !is_default(bi))
         r += format(open_binder_string(bi, m_unicode));
     for (name const & n : names) {
         r += escape(n);
@@ -921,7 +921,7 @@ format pretty_fn::pp_binder_block(buffer<name> const & names, expr const & type,
         r += space();
         r += compose(colon(), nest(m_indent, compose(line(), pp_child(type, 0).fmt())));
     }
-    if (m_binder_types || bi != binder_info())
+    if (m_binder_types || !is_default(bi))
         r += format(close_binder_string(bi, m_unicode));
     return group(r);
 }
@@ -936,7 +936,7 @@ format pretty_fn::pp_binders(buffer<expr> const & locals) {
     format r;
     for (unsigned i = 1; i < num; i++) {
         expr local = locals[i];
-        if (!bi.is_inst_implicit() && mlocal_type(local) == type && local_info(local) == bi) {
+        if (!is_inst_implicit(bi) && mlocal_type(local) == type && local_info(local) == bi) {
             names.push_back(mlocal_pp_name(local));
         } else {
             r += group(compose(line(), pp_binder_block(names, type, bi)));
@@ -968,7 +968,7 @@ auto pretty_fn::pp_lambda(expr const & e) -> result {
     That is, we don't want to lose binder info when pretty printing.
 */
 static bool is_default_arrow(expr const & e) {
-    return is_arrow(e) && binding_info(e) == binder_info();
+    return is_arrow(e) && is_default(binding_info(e));
 }
 
 auto pretty_fn::pp_pi(expr const & e) -> result {
@@ -1286,8 +1286,8 @@ bool pretty_fn::match(expr const & p, expr const & e, buffer<optional<expr>> & a
                     fn_type = m_ctx.relaxed_whnf(fn_type);
                     if (!is_pi(fn_type))
                         return false;
-                    expr const & body        = binding_body(fn_type);
-                    binder_info const & info = binding_info(fn_type);
+                    expr const & body = binding_body(fn_type);
+                    binder_info info  = binding_info(fn_type);
                     if (is_explicit(info)) {
                         if (j >= p_args.size())
                             return false;

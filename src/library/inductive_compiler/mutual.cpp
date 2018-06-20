@@ -60,7 +60,7 @@ class add_mutual_inductive_decl_fn {
     expr punit_star() const { return mk_constant(get_punit_star_name(), {m_elim_level}); }
 
     expr mk_local_for(expr const & b) { return mk_local(m_ngen.next(), binding_name(b), binding_domain(b), binding_info(b)); }
-    expr mk_local_pp(name const & n, expr const & ty) { return mk_local(m_ngen.next(), n, ty, binder_info()); }
+    expr mk_local_pp(name const & n, expr const & ty) { return mk_local(m_ngen.next(), n, ty, mk_binder_info()); }
 
     expr to_sigma_type(expr const & _ty) {
         expr ty = m_tctx.whnf(_ty);

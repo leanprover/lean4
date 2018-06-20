@@ -162,7 +162,7 @@ void expr_mlocal::dealloc(buffer<expr_cell*> & todelete) {
 expr_mlocal::expr_mlocal(expr_mlocal const & src, expr const & new_type):
     expr_composite(src), m_name(src.m_name), m_pp_name(src.m_pp_name), m_type(new_type) {}
 
-expr_fvar::expr_fvar(name const & n, name const & pp_n, expr const & t, binder_info const & bi):
+expr_fvar::expr_fvar(name const & n, name const & pp_n, expr const & t, binder_info bi):
     expr_mlocal(false, n, pp_n, t), m_bi(bi) {}
 
 expr_fvar::expr_fvar(expr_fvar const & src, expr const & new_type):
@@ -215,7 +215,7 @@ void expr_app::dealloc(buffer<expr_cell*> & todelete) {
 static unsigned dec(unsigned k) { return k == 0 ? 0 : k - 1; }
 
 // Expr binders (Lambda, Pi)
-expr_binding::expr_binding(expr_kind k, name const & n, expr const & t, expr const & b, binder_info const & i):
+expr_binding::expr_binding(expr_kind k, name const & n, expr const & t, expr const & b, binder_info i):
     expr_composite(k, ::lean::hash(t.hash(), b.hash()),
                    t.has_expr_metavar()   || b.has_expr_metavar(),
                    t.has_univ_metavar()   || b.has_univ_metavar(),
@@ -372,7 +372,7 @@ expr mk_bvar(unsigned idx) {
     return expr(new expr_bvar(idx));
 }
 expr mk_fvar(name const & n) {
-    return expr(new expr_fvar(n, n, expr(), binder_info()));
+    return expr(new expr_fvar(n, n, expr(), mk_binder_info()));
 }
 expr mk_constant(name const & n, levels const & ls) {
     return expr(new expr_const(n, ls));
@@ -389,13 +389,13 @@ expr mk_mdata(kvmap const & d, expr const & e) {
 expr mk_proj(nat const & idx, expr const & e) {
     return expr(new expr_proj(idx, e));
 }
-expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi) {
+expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info bi) {
     return expr(new expr_fvar(n, pp_n, t, bi));
 }
 expr mk_app(expr const & f, expr const & a) {
     return expr(new expr_app(f, a));
 }
-expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & i) {
+expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info i) {
     return expr(new expr_binding(k, n, t, e, i));
 }
 expr mk_let(name const & n, expr const & t, expr const & v, expr const & b) {
@@ -539,7 +539,7 @@ static name const & get_default_var_name() {
 
 bool is_default_var_name(name const & n) { return n == get_default_var_name(); }
 expr mk_arrow(expr const & t, expr const & e) {
-    return mk_pi(get_default_var_name(), t, e, binder_info());
+    return mk_pi(get_default_var_name(), t, e, mk_binder_info());
 }
 
 static expr * g_Prop  = nullptr;
@@ -608,7 +608,7 @@ expr update_binding(expr const & e, expr const & new_domain, expr const & new_bo
         return e;
 }
 
-expr update_binding(expr const & e, expr const & new_domain, expr const & new_body, binder_info const & bi) {
+expr update_binding(expr const & e, expr const & new_domain, expr const & new_body, binder_info bi) {
     if (!is_eqp(binding_domain(e), new_domain) || !is_eqp(binding_body(e), new_body) || bi != binding_info(e))
         return mk_binding(e.kind(), binding_name(e), new_domain, new_body, bi);
     else
@@ -624,14 +624,14 @@ expr update_mlocal(expr const & e, expr const & new_type) {
         return mk_local(mlocal_name(e), mlocal_pp_name(e), new_type, local_info(e));
 }
 
-expr update_local(expr const & e, expr const & new_type, binder_info const & bi) {
+expr update_local(expr const & e, expr const & new_type, binder_info bi) {
     if (is_eqp(mlocal_type(e), new_type) && local_info(e) == bi)
         return e;
     else
         return mk_local(mlocal_name(e), mlocal_pp_name(e), new_type, bi);
 }
 
-expr update_local(expr const & e, binder_info const & bi) {
+expr update_local(expr const & e, binder_info bi) {
     return update_local(e, mlocal_type(e), bi);
 }
 
@@ -781,7 +781,7 @@ expr infer_implicit(expr const & t, unsigned num_params, bool strict) {
         return t;
     } else if (is_pi(t)) {
         expr new_body = infer_implicit(binding_body(t), num_params-1, strict);
-        if (binding_info(t).is_implicit() || binding_info(t).is_strict_implicit() || binding_info(t).is_inst_implicit()) {
+        if (!is_explicit(binding_info(t))) {
             // argument is already marked as implicit
             return update_binding(t, binding_domain(t), new_body);
         } else if (has_loose_bvars_in_domain(new_body, 0, strict)) {
@@ -796,22 +796,6 @@ expr infer_implicit(expr const & t, unsigned num_params, bool strict) {
 
 expr infer_implicit(expr const & t, bool strict) {
     return infer_implicit(t, std::numeric_limits<unsigned>::max(), strict);
-}
-
-unsigned hash_bi(expr const & e) {
-    unsigned h = e.hash();
-    for_each(e, [&](expr const & e, unsigned) {
-            if (is_binding(e)) {
-                h = hash(h, hash(binding_name(e).hash(), binding_info(e).hash()));
-            } else if (is_local(e)) {
-                h = hash(h, hash(mlocal_name(e).hash(), local_info(e).hash()));
-                return false; // do not visit type
-            } else if (is_metavar(e)) {
-                return false; // do not visit type
-            }
-            return true;
-        });
-    return h;
 }
 
 std::ostream & operator<<(std::ostream & out, expr_kind const & k) {

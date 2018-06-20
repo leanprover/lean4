@@ -53,9 +53,9 @@ expr erase_binder_info(expr const & e) {
     return replace(e, [](expr const & e) {
             if (is_local(e) || is_metavar(e)) {
                 return some_expr(e);
-            } else if (is_binding(e) && binding_info(e) != binder_info()) {
+            } else if (is_binding(e) && binding_info(e) != mk_binder_info()) {
                 return some_expr(update_binding(e, erase_binder_info(binding_domain(e)),
-                                                erase_binder_info(binding_body(e)), binder_info()));
+                                                erase_binder_info(binding_body(e)), mk_binder_info()));
             } else {
                 return none_expr();
             }

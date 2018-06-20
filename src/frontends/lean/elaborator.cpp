@@ -1061,7 +1061,7 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
     {
         while (is_pi(type)) {
             expr const & d = binding_domain(type);
-            binder_info const & bi = binding_info(type);
+            binder_info bi = binding_info(type);
             expr new_arg;
             optional<expr> postponed;
             if (std::find(main_idxs.begin(), main_idxs.end(), i) != main_idxs.end()) {
@@ -1091,7 +1091,7 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
                 new_arg      = mk_metavar(d, arg_ref);
                 postponed    = args[j];
                 j++;
-            } else if (bi.is_inst_implicit()) {
+            } else if (is_inst_implicit(bi)) {
                 new_arg = mk_instance(d, ref);
             } else {
                 new_arg = mk_metavar(d, ref);
@@ -1292,15 +1292,15 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
     /* Outer loop is used to make sure we consume implicit arguments occurring after auto/option params. */
     while (true) {
         while (is_pi(type)) {
-            binder_info const & bi = binding_info(type);
+            binder_info bi = binding_info(type);
             expr const & d = binding_domain(type);
-            if (bi.is_strict_implicit() && i == args.size())
+            if (is_strict_implicit(bi) && i == args.size())
                 break;
             expr new_arg;
             if (!is_explicit(bi)) {
                 // implicit argument
                 new_arg = mk_metavar(d, ref);
-                if (bi.is_inst_implicit())
+                if (is_inst_implicit(bi))
                     info.new_instances.push_back(new_arg);
                 new_arg = post_process_implicit_arg(new_arg, ref);
             } else if (i < args.size()) {
@@ -1494,15 +1494,15 @@ expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<
     while (true) {
         while (true) {
             if (is_pi(type)) {
-                binder_info const & bi = binding_info(type);
+                binder_info bi = binding_info(type);
                 expr const & d = binding_domain(type);
                 expr new_arg;
-                if (amask == arg_mask::Default && bi.is_strict_implicit() && i == args.size())
+                if (amask == arg_mask::Default && is_strict_implicit(bi) && i == args.size())
                     break;
                 if ((amask == arg_mask::Default && !is_explicit(bi)) ||
-                    (amask == arg_mask::InstHoExplicit && !is_explicit(bi) && !bi.is_inst_implicit() && !is_pi(d))) {
+                    (amask == arg_mask::InstHoExplicit && !is_explicit(bi) && !is_inst_implicit(bi) && !is_pi(d))) {
                     // implicit argument
-                    if (bi.is_inst_implicit())
+                    if (is_inst_implicit(bi))
                         new_arg = mk_instance(d, ref);
                     else
                         new_arg = mk_metavar(d, ref);
@@ -1516,7 +1516,7 @@ expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<
                     expr ref_arg = get_ref_for_child(args[i], ref);
                     if (args_already_visited) {
                         new_arg = mk_thunk_if_needed(args[i], thunk_of);
-                    } else if (bi.is_inst_implicit() && is_placeholder(args[i])) {
+                    } else if (is_inst_implicit(bi) && is_placeholder(args[i])) {
                         lean_assert(amask != arg_mask::Default);
                     /* If '@' or '@@' have been used, and the argument is '_', then
                        we use type class resolution. */
@@ -2636,7 +2636,7 @@ expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
         type_context_old::tmp_locals new_locals(m_ctx);
         for (expr & m : unassigned_mvars) {
             expr type      = instantiate_mvars(m_ctx.infer(m));
-            expr new_local = new_locals.push_local(mlocal_pp_name(m), type, binder_info());
+            expr new_local = new_locals.push_local(mlocal_pp_name(m), type, mk_binder_info());
             m_ctx.assign(m, new_local);
         }
         // replace metavariables with new locals
@@ -2807,7 +2807,7 @@ elaborator::field_resolution elaborator::field_to_decl(expr const & e, expr cons
         name full_fname = const_name(I) + fname;
         name local_name = full_fname.replace_prefix(get_namespace(env()), {});
         if (auto ldecl = m_ctx.lctx().find_if([&](local_decl const & decl) {
-            return decl.get_info().is_rec() && decl.get_user_name() == local_name;
+            return is_rec(decl.get_info()) && decl.get_user_name() == local_name;
         })) {
             // projection is recursive call
             return field_resolution(full_fname, ldecl);
@@ -3075,7 +3075,7 @@ class visit_structure_instance_fn {
                 } else if (!is_explicit(binding_info(c_type))) {
                     /* implicit field */
                     m_field2elab.insert(S_fname, [=](expr const & d) {
-                        return binding_info(c_type).is_inst_implicit() ? m_elab.mk_instance(d, m_ref) : m_elab.mk_metavar(d, m_ref);
+                        return is_inst_implicit(binding_info(c_type)) ? m_elab.mk_instance(d, m_ref) : m_elab.mk_metavar(d, m_ref);
                     });
                 } else if (m_info.m_catchall) {
                     /* catchall: insert placeholder */
@@ -3312,7 +3312,7 @@ expr elaborator::visit_expr_quote(expr const & e, optional<expr> const & expecte
         s = replace_propagating_pos(s, [&](expr const & t, unsigned) {
             if (is_antiquote(t)) {
                 expr local = mk_local(mk_fresh_name(), x.append_after(locals.size() + 1),
-                                      mk_expr_placeholder(), binder_info());
+                                      mk_expr_placeholder(), mk_binder_info());
                 locals.push_back(local);
                 substs.push_back(get_antiquote_expr(t));
                 return some_expr(local);
@@ -3407,7 +3407,7 @@ expr elaborator::visit_mdata(expr const & e, optional<expr> const & expected_typ
 /* If the instance fingerprint has been set, then make sure `type` is not a local instance.
    Then, add a new local declaration to locals. */
 expr elaborator::push_local(type_context_old::tmp_locals & locals,
-                            name const & n, expr const & type, binder_info const & binfo, expr const & /* ref */) {
+                            name const & n, expr const & type, binder_info binfo, expr const & /* ref */) {
 #if 0 // TODO(Leo): the following check is too restrictive
     if (m_ctx.lctx().get_instance_fingerprint() &&
         m_ctx.is_class(type)) {

@@ -667,7 +667,7 @@ public:
     optional<expr> is_stuck_projection(expr const & e);
     virtual optional<expr> is_stuck(expr const &) override;
 
-    virtual expr push_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info()) override;
+    virtual expr push_local(name const & pp_name, expr const & type, binder_info bi = mk_binder_info()) override;
     virtual expr push_local_from_binding(expr const & e) {
         lean_assert(is_binding(e));
         return push_local(binding_name(e), binding_domain(e), binding_info(e));
@@ -1021,7 +1021,7 @@ public:
 
         type_context_old & ctx() { return m_ctx; }
 
-        expr push_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info()) {
+        expr push_local(name const & pp_name, expr const & type, binder_info bi = mk_binder_info()) {
             expr r = m_ctx.push_local(pp_name, type, bi);
             m_locals.push_back(r);
             return r;

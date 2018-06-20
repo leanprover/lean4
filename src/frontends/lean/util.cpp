@@ -307,19 +307,19 @@ environment open_prec_aliases(environment const & env) {
     return overwrite_aliases(env, prec, name());
 }
 
-char const * open_binder_string(binder_info const & bi, bool unicode) {
-    if (bi.is_implicit()) return "{";
-    else if (bi.is_inst_implicit()) return "[";
-    else if (bi.is_strict_implicit() && unicode) return "⦃";
-    else if (bi.is_strict_implicit() && !unicode) return "{{";
+char const * open_binder_string(binder_info bi, bool unicode) {
+    if (is_implicit(bi)) return "{";
+    else if (is_inst_implicit(bi)) return "[";
+    else if (is_strict_implicit(bi) && unicode) return "⦃";
+    else if (is_strict_implicit(bi) && !unicode) return "{{";
     else return "(";
 }
 
-char const * close_binder_string(binder_info const & bi, bool unicode) {
-    if (bi.is_implicit()) return "}";
-    else if (bi.is_inst_implicit()) return "]";
-    else if (bi.is_strict_implicit() && unicode) return "⦄";
-    else if (bi.is_strict_implicit() && !unicode) return "}}";
+char const * close_binder_string(binder_info bi, bool unicode) {
+    if (is_implicit(bi)) return "}";
+    else if (is_inst_implicit(bi)) return "]";
+    else if (is_strict_implicit(bi) && unicode) return "⦄";
+    else if (is_strict_implicit(bi) && !unicode) return "}}";
     else return ")";
 }
 

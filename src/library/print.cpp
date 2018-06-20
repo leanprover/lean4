@@ -157,21 +157,22 @@ struct print_expr_fn {
             out() << " ";
             auto p = binding_body_fresh(e);
             expr const & n = p.second;
-            if (binding_info(e).is_implicit())
+            binder_info bi = binding_info(e);
+            if (is_implicit(bi))
                 out() << "{";
-            else if (binding_info(e).is_inst_implicit())
+            else if (is_inst_implicit(bi))
                 out() << "[";
-            else if (binding_info(e).is_strict_implicit())
+            else if (is_strict_implicit(bi))
                 out() << "{{";
             else
                 out() << "(";
             out() << n << " : ";
             print(binding_domain(e));
-            if (binding_info(e).is_implicit())
+            if (is_implicit(bi))
                 out() << "}";
-            else if (binding_info(e).is_inst_implicit())
+            else if (is_inst_implicit(bi))
                 out() << "]";
-            else if (binding_info(e).is_strict_implicit())
+            else if (is_strict_implicit(bi))
                 out() << "}}";
             else
                 out() << ")";

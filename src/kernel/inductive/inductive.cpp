@@ -536,13 +536,13 @@ struct add_inductive_fn {
     void mk_elim_info() {
         // First, populate the fields m_C and m_major_premise
         m_elim_info.m_major_premise = mk_local(m_name_generator.next(), "n",
-                                               mk_app(mk_app(m_it_const, m_param_consts), m_elim_info.m_indices), binder_info());
+                                               mk_app(mk_app(m_it_const, m_param_consts), m_elim_info.m_indices), mk_binder_info());
         expr C_ty = mk_sort(m_elim_level);
         if (m_dep_elim)
             C_ty = Pi(m_elim_info.m_major_premise, C_ty);
         C_ty = Pi(m_elim_info.m_indices, C_ty);
         name C_name("C");
-        m_elim_info.m_C = mk_local(m_name_generator.next(), C_name, C_ty, binder_info());
+        m_elim_info.m_C = mk_local(m_name_generator.next(), C_name, C_ty, mk_binder_info());
 
         // Populate the field m_minor_premises
         unsigned minor_idx = 1;
@@ -607,11 +607,11 @@ struct add_inductive_fn {
                         ih = ih.append_after(i+1);
                     }
                 }
-                expr v_i    = mk_local(m_name_generator.next(), ih, v_i_ty, binder_info());
+                expr v_i    = mk_local(m_name_generator.next(), ih, v_i_ty, mk_binder_info());
                 v.push_back(v_i);
             }
             expr minor_ty = Pi(b_u, Pi(v, C_app));
-            expr minor = mk_local(m_name_generator.next(), name("e").append_after(minor_idx), minor_ty, binder_info());
+            expr minor = mk_local(m_name_generator.next(), name("e").append_after(minor_idx), minor_ty, mk_binder_info());
             m_elim_info.m_minor_premises.push_back(minor);
             minor_idx++;
         }

@@ -53,7 +53,7 @@ class local_context : public local_ctx {
 
     local_context remove(buffer<expr> const & locals) const;
     expr mk_local_decl(name const & n, name const & un, expr const & type,
-                       optional<expr> const & value, binder_info const & bi);
+                       optional<expr> const & value, binder_info bi);
     static local_decl update_local_decl(local_decl const & d, expr const & t,
                                         optional<expr> const & v) {
         return local_decl(d, t, v);
@@ -67,16 +67,16 @@ public:
 
     bool empty() const { return m_idx2local_decl.empty(); }
 
-    expr mk_local_decl(expr const & type, binder_info const & bi = binder_info());
+    expr mk_local_decl(expr const & type, binder_info bi = mk_binder_info());
     expr mk_local_decl(expr const & type, expr const & value);
-    expr mk_local_decl(name const & un, expr const & type, binder_info const & bi = binder_info());
+    expr mk_local_decl(name const & un, expr const & type, binder_info bi = mk_binder_info());
     expr mk_local_decl(name const & un, expr const & type, expr const & value);
 
     /* Low-level version of the methods above.
 
        \pre `n` was created using mk_local_decl_name
        \pre there is no local_decl named `n` in this local_context. */
-    expr mk_local_decl(name const & n, name const & un, expr const & type, binder_info const & bi = binder_info());
+    expr mk_local_decl(name const & n, name const & un, expr const & type, binder_info bi = mk_binder_info());
     expr mk_local_decl(name const & n, name const & un, expr const & type, expr const & value);
 
     /** \brief Return the most recently added local_decl \c d s.t. d.get_user_name() == n

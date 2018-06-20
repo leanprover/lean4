@@ -333,7 +333,7 @@ static expr parse_do(parser & p, bool has_braces) {
                 }
                 // add case
                 //    _ := else_case
-                expr x = mk_local(p.next_name(), "_x", mk_expr_placeholder(), binder_info());
+                expr x = mk_local(p.next_name(), "_x", mk_expr_placeholder(), mk_binder_info());
                 expr else_eq = Fun(fn, Fun(x, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, x), pos),
                                                                      else_case,
                                                                      ignore_if_unused),
@@ -748,7 +748,7 @@ static expr parse_lambda_constructor(parser & p, pos_info const & ini_pos) {
     expr fn  = p.save_pos(mk_local(p.next_name(), *g_lambda_match_name, mk_expr_placeholder(), mk_rec_info()), pos);
     expr eqn = Fun(fn, Fun(locals, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, pattern), pos), body), pos), p), p);
     equations_header h = mk_match_header(match_scope.get_name(), match_scope.get_actual_name());
-    expr x = p.rec_save_pos(mk_local(p.next_name(), "_x", mk_expr_placeholder(), binder_info()), pos);
+    expr x = p.rec_save_pos(mk_local(p.next_name(), "_x", mk_expr_placeholder(), mk_binder_info()), pos);
     return p.rec_save_pos(Fun(x, mk_app(mk_equations(h, 1, &eqn), x)), pos);
 }
 
@@ -825,12 +825,12 @@ static expr parse_infix_paren(parser & p, list<notation::accepting> const & accs
     expr args[2];
     buffer<expr> vars;
     bool fixed_second_arg = false;
-    args[0] = mk_local(p.next_name(), "_x", mk_expr_placeholder(), binder_info());
+    args[0] = mk_local(p.next_name(), "_x", mk_expr_placeholder(), mk_binder_info());
     vars.push_back(args[0]);
     p.next();
     if (p.curr_is_token(get_rparen_tk())) {
         p.next();
-        args[1] = mk_local(p.next_name(), "_y", mk_expr_placeholder(), binder_info());
+        args[1] = mk_local(p.next_name(), "_y", mk_expr_placeholder(), mk_binder_info());
         vars.push_back(args[1]);
     } else {
         fixed_second_arg = true;
@@ -893,9 +893,9 @@ static expr parse_lambda_cons(parser & p, unsigned, expr const *, pos_info const
         throw parser_error("invalid '(::)' notation, declaration for operator '::' is not compatible with the `(::)` syntactic sugar", pos);
     expr args[2];
     buffer<expr> vars;
-    args[0] = mk_local(p.next_name(), "_x", mk_expr_placeholder(), binder_info());
+    args[0] = mk_local(p.next_name(), "_x", mk_expr_placeholder(), mk_binder_info());
     vars.push_back(args[0]);
-    args[1] = mk_local(p.next_name(), "_y", mk_expr_placeholder(), binder_info());
+    args[1] = mk_local(p.next_name(), "_y", mk_expr_placeholder(), mk_binder_info());
     vars.push_back(args[1]);
     buffer<expr> cs;
     for (notation::accepting const & acc : head(ts).second.is_accepting()) {

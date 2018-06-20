@@ -78,9 +78,9 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
             throw_ill_formed(n);
         auto bi = binding_info(intro_type);
         auto type = binding_domain(intro_type);
-        if (!bi.is_inst_implicit())
+        if (!is_inst_implicit(bi))
             // We reset implicit binders in favor of having them inferred by `infer_implicit_params` later
-            bi = binder_info();
+            bi = mk_binder_info();
         if (is_class_out_param(type)) {
             // hide `out_param`
             type = app_arg(type);
@@ -92,7 +92,7 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
         params.push_back(param);
     }
     expr C_A                     = mk_app(mk_constant(n, lvls), params);
-    binder_info c_bi             = inst_implicit ? mk_inst_implicit_binder_info() : binder_info();
+    binder_info c_bi             = inst_implicit ? mk_inst_implicit_binder_info() : mk_binder_info();
     expr c                       = mk_local(ngen.next(), name("c"), C_A, c_bi);
     buffer<expr> intro_type_args; // arguments that are not parameters
     expr it = intro_type;

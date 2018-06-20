@@ -158,36 +158,36 @@ void local_context::erase_user_name(local_decl const & d) {
     }
 }
 
-expr local_context::mk_local_decl(name const & n, name const & un, expr const & type, optional<expr> const & value, binder_info const & bi) {
+expr local_context::mk_local_decl(name const & n, name const & un, expr const & type, optional<expr> const & value, binder_info bi) {
     local_decl d = local_ctx::mk_local_decl(n, un, type, value, bi);
     insert_user_name(d);
     return d.mk_ref();
 }
 
-expr local_context::mk_local_decl(expr const & type, binder_info const & bi) {
+expr local_context::mk_local_decl(expr const & type, binder_info bi) {
     name n = mk_local_decl_name();
     return mk_local_decl(n, n, type, none_expr(), bi);
 }
 
 expr local_context::mk_local_decl(expr const & type, expr const & value) {
     name n = mk_local_decl_name();
-    return mk_local_decl(n, n, type, some_expr(value), binder_info());
+    return mk_local_decl(n, n, type, some_expr(value), mk_binder_info());
 }
 
-expr local_context::mk_local_decl(name const & un, expr const & type, binder_info const & bi) {
+expr local_context::mk_local_decl(name const & un, expr const & type, binder_info bi) {
     return mk_local_decl(mk_local_decl_name(), un, type, none_expr(), bi);
 }
 
 expr local_context::mk_local_decl(name const & un, expr const & type, expr const & value) {
-    return mk_local_decl(mk_local_decl_name(), un, type, some_expr(value), binder_info());
+    return mk_local_decl(mk_local_decl_name(), un, type, some_expr(value), mk_binder_info());
 }
 
-expr local_context::mk_local_decl(name const & n, name const & un, expr const & type, binder_info const & bi) {
+expr local_context::mk_local_decl(name const & n, name const & un, expr const & type, binder_info bi) {
     return mk_local_decl(n, un, type, none_expr(), bi);
 }
 
 expr local_context::mk_local_decl(name const & n, name const & un, expr const & type, expr const & value) {
-    return mk_local_decl(n, un, type, some_expr(value), binder_info());
+    return mk_local_decl(n, un, type, some_expr(value), mk_binder_info());
 }
 
 optional<local_decl> local_context::find_local_decl_from_user_name(name const & n) const {

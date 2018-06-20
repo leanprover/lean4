@@ -25,7 +25,7 @@ namespace lean {
 
 static bool has_nested_rec(expr const & eqns) {
     return static_cast<bool>(find(eqns, [&](expr const & e, unsigned) {
-                return is_local(e) && local_info(e).is_rec();
+                return is_local(e) && is_rec(local_info(e));
             }));
 }
 
@@ -213,7 +213,7 @@ struct pull_nested_rec_fn : public replace_visitor {
         lctx().for_each([&](local_decl const & d) {
                 if (!base_lctx().find_local_decl(d.get_name()) &&
                     !found.contains(d.get_name()) &&
-                    !d.get_info().is_rec() &&
+                    !is_rec(d.get_info()) &&
                     ctx.is_prop(d.get_type())) {
                     found.insert(d.get_name());
                     R.push_back(d.mk_ref());
@@ -253,7 +253,7 @@ struct pull_nested_rec_fn : public replace_visitor {
 
     virtual expr visit_app(expr const & _e) override {
         expr const & fn = get_app_fn(_e);
-        if (is_local(fn) && local_info(fn).is_rec() && base_lctx().find_local_decl(fn)) {
+        if (is_local(fn) && is_rec(local_info(fn)) && base_lctx().find_local_decl(fn)) {
             /* `_e` may contain references to let-variables.
                Here is an example from issue #1917
 

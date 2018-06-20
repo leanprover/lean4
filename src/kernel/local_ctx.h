@@ -26,14 +26,14 @@ public:
         MK_LEAN_RC(); // Declare m_rc counter
         void dealloc();
         cell(unsigned idx, name const & n, name const & un, expr const & t, optional<expr> const & v,
-             binder_info const & bi);
+             binder_info bi);
     };
 private:
     cell * m_ptr;
     friend class local_ctx;
     friend class local_context;
     friend void initialize_local_ctx();
-    local_decl(unsigned idx, name const & n, name const & un, expr const & t, optional<expr> const & v, binder_info const & bi);
+    local_decl(unsigned idx, name const & n, name const & un, expr const & t, optional<expr> const & v, binder_info bi);
     local_decl(local_decl const & d, expr const & t, optional<expr> const & v);
 public:
     local_decl();
@@ -49,7 +49,7 @@ public:
     name const & get_user_name() const { return m_ptr->m_user_name; }
     expr const & get_type() const { return m_ptr->m_type; }
     optional<expr> const & get_value() const { return m_ptr->m_value; }
-    binder_info const & get_info() const { return m_ptr->m_bi; }
+    binder_info get_info() const { return m_ptr->m_bi; }
     expr mk_ref() const;
     unsigned get_idx() const { return m_ptr->m_idx; }
 };
@@ -65,34 +65,34 @@ protected:
     template<bool is_lambda> expr mk_binding(unsigned num, expr const * fvars, expr const & b) const;
 
     local_decl mk_local_decl(name const & n, name const & un, expr const & type,
-                             optional<expr> const & value, binder_info const & bi);
+                             optional<expr> const & value, binder_info bi);
 public:
     local_ctx():m_next_idx(0) {}
 
     bool empty() const { return m_idx2local_decl.empty(); }
 
-    expr mk_local_decl(name const & n, expr const & type, binder_info const & bi = binder_info()) {
+    expr mk_local_decl(name const & n, expr const & type, binder_info bi = mk_binder_info()) {
         return mk_local_decl(n, n, type, none_expr(), bi).mk_ref();
     }
 
     expr mk_local_decl(name const & n, expr const & type, expr const & value) {
-        return mk_local_decl(n, n, type, some_expr(value), binder_info()).mk_ref();
+        return mk_local_decl(n, n, type, some_expr(value), mk_binder_info()).mk_ref();
     }
 
-    expr mk_local_decl(name const & n, name const & un, expr const & type, binder_info const & bi = binder_info()) {
+    expr mk_local_decl(name const & n, name const & un, expr const & type, binder_info bi = mk_binder_info()) {
         return mk_local_decl(n, un, type, none_expr(), bi).mk_ref();
     }
 
     expr mk_local_decl(name const & n, name const & un, expr const & type, expr const & value) {
-        return mk_local_decl(n, un, type, some_expr(value), binder_info()).mk_ref();
+        return mk_local_decl(n, un, type, some_expr(value), mk_binder_info()).mk_ref();
     }
 
-    expr mk_local_decl(name_generator & g, name const & un, expr const & type, binder_info const & bi = binder_info()) {
+    expr mk_local_decl(name_generator & g, name const & un, expr const & type, binder_info bi = mk_binder_info()) {
         return mk_local_decl(g.next(), un, type, bi);
     }
 
     expr mk_local_decl(name_generator & g, name const & un, expr const & type, expr const & value) {
-        return mk_local_decl(g.next(), un, type, some_expr(value), binder_info()).mk_ref();
+        return mk_local_decl(g.next(), un, type, some_expr(value), mk_binder_info()).mk_ref();
     }
 
     /** \brief Return the local declarations for the given reference.

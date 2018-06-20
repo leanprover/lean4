@@ -183,7 +183,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
                 break;
         }
         if (j == I_args.size()) {
-            if (local_info(tele[i]).is_inst_implicit()) {
+            if (is_inst_implicit(local_info(tele[i]))) {
                 params_pos.push_back(optional<unsigned>());
             } else {
                 throw exception(sstream() << "invalid user defined recursor, type of the major premise '" << major

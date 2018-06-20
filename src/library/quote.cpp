@@ -79,7 +79,7 @@ expr mk_pexpr_quote_and_substs(expr const & e, bool is_strict) {
     expr s = replace(e, [&](expr const & t, unsigned) {
             if (is_antiquote(t)) {
                 expr local = mk_local(ngen.next(), x.append_after(locals.size() + 1),
-                                      mk_expr_placeholder(), binder_info());
+                                      mk_expr_placeholder(), mk_binder_info());
                 locals.push_back(local);
                 aqs.push_back(get_antiquote_expr(t));
                 return some_expr(local);

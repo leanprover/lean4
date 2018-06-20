@@ -94,7 +94,7 @@ static environment declare_var(parser & p, environment env,
                                variable_kind k, optional<binder_info> const & _bi, pos_info const & pos,
                                cmd_meta const & meta) {
     binder_info bi;
-    if (_bi) bi = *_bi;
+    if (_bi) bi = *_bi; else bi = mk_binder_info();
     if (k == variable_kind::Parameter || k == variable_kind::Variable) {
         if (k == variable_kind::Parameter) {
             check_in_section(p);
@@ -171,7 +171,7 @@ static void check_variable_kind(parser & p, variable_kind k) {
 static void update_local_binder_info(parser & p, variable_kind k, name const & n,
                                      optional<binder_info> const & bi, pos_info const & pos) {
     binder_info new_bi;
-    if (bi) new_bi = *bi;
+    if (bi) new_bi = *bi; else new_bi = mk_binder_info();
     if (k == variable_kind::Parameter) {
         if (p.is_local_variable_user_name(n))
             throw parser_error(sstream() << "invalid parameter binder type update, '"
@@ -221,7 +221,7 @@ static environment variable_cmd_core(parser & p, variable_kind k, cmd_meta const
     name n;
     expr type;
     buffer<name> ls_buffer;
-    if (bi && bi->is_inst_implicit() && (k == variable_kind::Parameter || k == variable_kind::Variable)) {
+    if (bi && is_inst_implicit(*bi) && (k == variable_kind::Parameter || k == variable_kind::Variable)) {
         var_decl_scope var_scope(p, meta.m_modifiers);
         /* instance implicit */
         if (p.curr_is_identifier()) {
@@ -351,7 +351,7 @@ static environment variables_cmd_core(parser & p, variable_kind k, cmd_meta cons
     buffer<name> ids;
     optional<parser::local_scope> scope1;
     expr type;
-    if (bi && bi->is_inst_implicit() && (k == variable_kind::Parameter || k == variable_kind::Variable)) {
+    if (bi && is_inst_implicit(*bi) && (k == variable_kind::Parameter || k == variable_kind::Variable)) {
         /* instance implicit */
         if (p.curr_is_identifier()) {
             auto id_pos = p.pos();

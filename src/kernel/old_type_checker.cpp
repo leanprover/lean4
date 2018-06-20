@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
 #include "kernel/quot.h"
+#include "kernel/inductive/inductive.h"
 
 namespace lean {
 static name * g_kernel_fresh = nullptr;
@@ -225,7 +226,43 @@ expr old_type_checker::infer_type_core(expr const & e, bool infer_only) {
         if (!infer_only) check_level(sort_level(e));
         r = mk_sort(mk_succ(sort_level(e)));
         break;
-    case expr_kind::Proj: lean_unreachable();
+    case expr_kind::Proj: {
+        // COPY&PASTE from type_checker
+        expr type = whnf(infer_type_core(proj_expr(e), infer_only));
+        if (!proj_idx(e).is_small())
+            throw invalid_proj_exception(m_env, local_ctx(), e);
+        unsigned idx = proj_idx(e).get_small_value();
+        buffer<expr> args;
+        expr const & I = get_app_args(type, args);
+        if (!is_constant(I))
+            throw invalid_proj_exception(m_env, local_ctx(), e);
+        optional<inductive::inductive_decl> decl = inductive::is_inductive_decl(m_env, const_name(I));
+        if (!decl)
+            throw invalid_proj_exception(m_env, local_ctx(), e);
+        if (length(decl->m_intro_rules) != 1 || args.size() != decl->m_num_params)
+            throw invalid_proj_exception(m_env, local_ctx(), e);
+
+        inductive::intro_rule cnstr = head(decl->m_intro_rules);
+        declaration c_decl = m_env.get(inductive::intro_rule_name(cnstr));
+        r = instantiate_type_univ_params(c_decl, const_levels(I));
+        for (expr const & arg : args) {
+            r = whnf(r);
+            if (!is_pi(r)) throw invalid_proj_exception(m_env, local_ctx(), e);
+            r = instantiate(binding_body(r), arg);
+        }
+        for (unsigned i = 0; i < idx; i++) {
+            r = whnf(r);
+            if (!is_pi(r)) throw invalid_proj_exception(m_env, local_ctx(), e);
+            if (has_loose_bvars(binding_body(r)))
+                r = instantiate(binding_body(r), mk_proj(i, proj_expr(e)));
+            else
+                r = binding_body(r);
+        }
+        r = whnf(r);
+        if (!is_pi(r)) throw invalid_proj_exception(m_env, local_ctx(), e);
+        r = binding_domain(r);
+        break;
+    }
     case expr_kind::MData:     r = infer_type_core(mdata_expr(e), infer_only); break;
     case expr_kind::Constant:  r = infer_constant(e, infer_only);       break;
     case expr_kind::Macro:     r = infer_macro(e, infer_only);          break;
@@ -291,7 +328,7 @@ expr old_type_checker::whnf_core(expr const & e) {
         return e;
     case expr_kind::MData:
         return whnf_core(mdata_expr(e));
-    case expr_kind::Proj: lean_unreachable();
+    case expr_kind::Proj:
     case expr_kind::Macro: case expr_kind::App: case expr_kind::Let:
         break;
     case expr_kind::Quote: throw_found_quote(m_env);
@@ -309,7 +346,7 @@ expr old_type_checker::whnf_core(expr const & e) {
     switch (e.kind()) {
     case expr_kind::BVar:  case expr_kind::Sort:    case expr_kind::MVar:   case expr_kind::FVar:
     case expr_kind::Pi:    case expr_kind::Constant: case expr_kind::Lambda: case expr_kind::Lit:
-    case expr_kind::MData: case expr_kind::Proj:
+    case expr_kind::MData:
         lean_unreachable(); // LCOV_EXCL_LINE
     case expr_kind::Macro:
         if (auto m = expand_macro(e))
@@ -317,6 +354,32 @@ expr old_type_checker::whnf_core(expr const & e) {
         else
             r = e;
         break;
+    case expr_kind::Proj: {
+        // COPY&PASTE from type_checker
+        if (!proj_idx(e).is_small()) {
+            r = e;
+            break;
+        }
+        unsigned idx = proj_idx(e).get_small_value();
+        expr c = whnf(proj_expr(e));
+        buffer<expr> args;
+        expr const & mk = get_app_args(c, args);
+        if (!is_constant(mk)) {
+            r = e;
+            break;
+        }
+        optional<name> I = inductive::is_intro_rule(m_env, const_name(mk));
+        if (!I) {
+            r = e;
+            break;
+        }
+        inductive::inductive_decl decl = *inductive::is_inductive_decl(m_env, *I);
+        if (decl.m_num_params + idx < args.size())
+            r = args[decl.m_num_params + idx];
+        else
+            r = e;
+        break;
+    }
     case expr_kind::App: {
         buffer<expr> args;
         expr f0 = get_app_rev_args(e, args);

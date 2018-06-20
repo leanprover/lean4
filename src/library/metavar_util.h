@@ -174,14 +174,6 @@ class instantiate_mvars_fn : public replace_visitor {
         return update_mdata(e, visit(mdata_expr(e)));
     }
 
-    virtual expr visit_macro(expr const & e) override {
-        lean_assert(is_macro(e));
-        buffer<expr> new_args;
-        for (unsigned i = 0; i < macro_num_args(e); i++)
-            new_args.push_back(visit(macro_arg(e, i)));
-        return update_macro(e, new_args.size(), new_args.data());
-    }
-
     virtual expr visit(expr const & e) override {
         if (!has_expr_metavar(e) && !has_univ_metavar(e))
             return e;

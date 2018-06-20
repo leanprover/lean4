@@ -105,10 +105,6 @@ void collect_locals(expr const & e, collected_locals & ls, bool restricted) {
             visit(let_body(e));
             break;
 
-        case expr_kind::Macro:
-            for (unsigned i = 0; i < macro_num_args(e); i++)
-                visit(macro_arg(e, i));
-            break;
         case expr_kind::Quote:
             break; // do nothing
         }

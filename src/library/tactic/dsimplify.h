@@ -56,7 +56,6 @@ protected:
     virtual optional<pair<expr, bool>> pre(expr const &);
     virtual optional<pair<expr, bool>> post(expr const &);
 
-    expr visit_macro(expr const & e);
     expr visit_binding(expr const & e);
     expr visit_let(expr const & e);
     expr visit_app(expr const & e);

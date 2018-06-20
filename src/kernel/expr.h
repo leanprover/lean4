@@ -47,9 +47,8 @@ class expr;
           The following constructors will be deleted in the future
 
           |   Quote         bool expr
-          |   Macro         macro
 */
-enum class expr_kind { BVar, FVar, Sort, Constant, MVar, App, Lambda, Pi, Let, Lit, MData, Proj, Macro, Quote };
+enum class expr_kind { BVar, FVar, Sort, Constant, MVar, App, Lambda, Pi, Let, Lit, MData, Proj, Quote };
 class expr_cell {
 protected:
     // The bits of the following field mean:
@@ -83,7 +82,6 @@ public:
 
 typedef expr_cell * expr_ptr;
 
-class macro_definition;
 class binder_info;
 class literal;
 
@@ -141,7 +139,6 @@ public:
     friend bool is_eqp(expr const & a, expr const & b) { return a.m_ptr == b.m_ptr; }
     // TODO(Leo): delete
     friend expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi);
-    friend expr mk_macro(macro_definition const & m, unsigned num, expr const * args);
     friend expr mk_quote(bool reflected, expr const & val);
 };
 
@@ -660,114 +657,23 @@ public:
     expr const & get_value() const { return m_value; }
 };
 
-/** \brief Abstract class for macro_definitions */
-class macro_definition_cell {
-protected:
-    void dealloc() { delete this; }
-    MK_LEAN_RC();
-    /**
-       \brief Auxiliary method used for implementing a total order on macro
-       attachments. It is invoked by operator<, and it is only invoked when
-       <tt>get_name() == other.get_name()</tt>
-    */
-    virtual bool lt(macro_definition_cell const &) const;
-public:
-    macro_definition_cell():m_rc(0) {}
-    virtual ~macro_definition_cell() {}
-    virtual name get_name() const = 0;
-    virtual expr check_type(expr const & m, abstract_type_context & ctx, bool infer_only) const = 0;
-    virtual optional<expr> expand(expr const & m, abstract_type_context & ctx) const = 0;
-    virtual optional<expr> expand1(expr const & m, abstract_type_context & ctx) const { return expand(m, ctx); }
-    virtual unsigned trust_level() const;
-    virtual bool operator==(macro_definition_cell const & other) const;
-    virtual void display(std::ostream & out) const;
-    virtual unsigned hash() const;
-    virtual void write(serializer & s) const = 0;
-    typedef std::function<expr(deserializer&, unsigned, expr const *)> reader;
-};
-
-/** \brief Smart pointer for macro definitions */
-class macro_definition {
-public:
-    macro_definition_cell * m_ptr;
-public:
-    explicit macro_definition(macro_definition_cell * ptr);
-    macro_definition(macro_definition const & s);
-    macro_definition(macro_definition && s);
-    ~macro_definition();
-
-    macro_definition & operator=(macro_definition const & s);
-    macro_definition & operator=(macro_definition && s);
-
-    name get_name() const { return m_ptr->get_name(); }
-    expr check_type(expr const & m, abstract_type_context & ctx, bool infer_only) const {
-        return m_ptr->check_type(m, ctx, infer_only);
-    }
-    optional<expr> expand(expr const & m, abstract_type_context & ctx) const { return m_ptr->expand(m, ctx); }
-    optional<expr> expand1(expr const & m, abstract_type_context & ctx) const { return m_ptr->expand1(m, ctx); }
-    unsigned trust_level() const { return m_ptr->trust_level(); }
-    bool operator==(macro_definition const & other) const { return m_ptr->operator==(*other.m_ptr); }
-    bool operator!=(macro_definition const & other) const { return !operator==(other); }
-    bool operator<(macro_definition const & other) const;
-    void display(std::ostream & out) const { return m_ptr->display(out); }
-    unsigned hash() const { return m_ptr->hash(); }
-    void write(serializer & s) const { return m_ptr->write(s); }
-    macro_definition_cell const * raw() const { return m_ptr; }
-
-    friend bool is_eqp(macro_definition const & d1, macro_definition const & d2) {
-        return d1.m_ptr == d2.m_ptr;
-    }
-};
-
-/** \brief Macro attachments */
-class expr_macro : public expr_composite {
-    macro_definition m_definition;
-    unsigned         m_num_args;
-    friend class expr_cell;
-    friend expr copy(expr const & a);
-    friend expr update_macro(expr const & e, unsigned num, expr const * args);
-    void dealloc(buffer<expr_cell*> & todelete);
-    expr * get_args_ptr() {
-        return reinterpret_cast<expr *>(reinterpret_cast<char *>(this)+sizeof(expr_macro));
-    }
-    expr const * get_args_ptr() const {
-        return reinterpret_cast<expr const *>(reinterpret_cast<char const *>(this)+sizeof(expr_macro));
-    }
-    expr_macro(expr_macro const & src, expr const * new_args); // for hash_consing
-public:
-    expr_macro(macro_definition const & v, unsigned num, expr const * args);
-    ~expr_macro();
-
-    macro_definition const & get_def() const { return m_definition; }
-    expr const * get_args() const { return get_args_ptr(); }
-    expr const & get_arg(unsigned idx) const { lean_assert(idx < m_num_args); return get_args_ptr()[idx]; }
-    unsigned get_num_args() const { return m_num_args; }
-};
-
 inline bool is_var(expr_ptr e) { return is_bvar(e); }
 inline bool is_local(expr_ptr e) { return is_fvar(e); }
 inline bool is_mlocal(expr_ptr e) { return is_metavar(e) || is_local(e); }
 inline bool is_quote(expr_ptr e)       { return e->kind() == expr_kind::Quote; }
-inline bool is_macro(expr_ptr e)       { return e->kind() == expr_kind::Macro; }
 inline unsigned var_idx(expr_ptr e) { return bvar_idx(e); }
 inline bool is_var(expr_ptr e, unsigned i) { return is_bvar(e, i); }
 inline expr_bvar *        to_var(expr_ptr e)        { return to_bvar(e); }
 inline expr_mlocal *      to_mlocal(expr_ptr e)     { lean_assert(is_mlocal(e));      return static_cast<expr_mlocal*>(e); }
 inline expr_fvar *      to_local(expr_ptr e)     { return to_fvar(e); }
-inline expr_macro *       to_macro(expr_ptr e)      { lean_assert(is_macro(e));       return static_cast<expr_macro*>(e); }
 inline expr_quote *       to_quote(expr_ptr e)      { lean_assert(is_quote(e));       return static_cast<expr_quote*>(e); }
 
 inline name const &   mlocal_name(expr_ptr e)  { return to_mlocal(e)->get_name(); }
 inline expr const &   mlocal_type(expr_ptr e)  { return to_mlocal(e)->get_type(); }
 inline name const &   mlocal_pp_name(expr_ptr e) { return to_mlocal(e)->get_pp_name(); }
 inline binder_info const & local_info(expr_ptr e) { return to_local(e)->get_info(); }
-inline macro_definition const & macro_def(expr_ptr e)   { return to_macro(e)->get_def(); }
-inline expr const *   macro_args(expr_ptr e)            { return to_macro(e)->get_args(); }
-inline expr const &   macro_arg(expr_ptr e, unsigned i) { return to_macro(e)->get_arg(i); }
-inline unsigned       macro_num_args(expr_ptr e)        { return to_macro(e)->get_num_args(); }
 inline expr mk_var(unsigned idx) { return mk_bvar(idx); }
 inline expr Var(unsigned idx) { return mk_bvar(idx); }
-expr mk_macro(macro_definition const & m, unsigned num = 0, expr const * args = nullptr);
 expr mk_quote(bool reflected, expr const & val);
 expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi);
 inline expr mk_local(name const & n, expr const & t) { return mk_local(n, n, t, binder_info()); }
@@ -778,7 +684,6 @@ inline expr Local(name const & n, expr const & t, binder_info const & bi = binde
     return mk_local(n, t, bi);
 }
 inline bool has_local(expr const & e) { return has_fvar(e); }
-expr update_macro(expr const & e, unsigned num, expr const * args);
 
 inline bool quote_is_reflected(expr const & e) { return to_quote(e)->is_reflected(); }
 inline expr const & quote_value(expr const & e) { return to_quote(e)->get_value(); }

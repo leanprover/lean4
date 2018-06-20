@@ -114,14 +114,6 @@ class for_each_fn {
                 todo.emplace_back(let_value(e), offset);
                 todo.emplace_back(let_type(e), offset);
                 goto begin_loop;
-            case expr_kind::Macro: {
-                unsigned i = macro_num_args(e);
-                while (i > 0) {
-                    --i;
-                    todo.emplace_back(macro_arg(e, i), offset);
-                }
-                goto begin_loop;
-            }
             case expr_kind::Quote:
                 goto begin_loop;
             }

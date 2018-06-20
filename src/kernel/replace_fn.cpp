@@ -114,13 +114,6 @@ class replace_rec_fn {
                 expr new_b = apply(let_body(e), offset+1);
                 return save_result(e, offset, update_let(e, new_t, new_v, new_b), shared);
             }
-            case expr_kind::Macro: {
-                buffer<expr> new_args;
-                unsigned nargs = macro_num_args(e);
-                for (unsigned i = 0; i < nargs; i++)
-                    new_args.push_back(apply(macro_arg(e, i), offset));
-                return save_result(e, offset, update_macro(e, new_args.size(), new_args.data()), shared);
-            }
             case expr_kind::Quote:
                 return save_result(e, offset, e, shared);
             }

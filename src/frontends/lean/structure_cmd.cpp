@@ -30,7 +30,6 @@ Author: Leonardo de Moura
 #include "library/aliases.h"
 #include "library/annotation.h"
 #include "library/explicit.h"
-#include "library/unfold_macros.h"
 #include "library/protected.h"
 #include "library/private.h"
 #include "library/class.h"
@@ -1038,8 +1037,7 @@ struct structure_cmd_fn {
 
     expr mk_intro_type() {
         expr r = Pi(m_params, mk_intro_type_no_params(), m_p);
-        r      = infer_implicit_params(r, m_params.size(), m_mk_infer);
-        return unfold_untrusted_macros(m_env, r);
+        return infer_implicit_params(r, m_params.size(), m_mk_infer);
     }
 
     void add_alias(name const & given, name const & n) {
@@ -1140,9 +1138,9 @@ struct structure_cmd_fn {
                 }
                 /* TODO(Leo): add helper function for adding definition.
                    It should unfold_untrusted_macros */
-                expr decl_type  = unfold_untrusted_macros(m_env, Pi(args, type));
+                expr decl_type  = Pi(args, type);
                 val             = mk_app(m_ctx, get_id_name(), val);
-                expr decl_value = unfold_untrusted_macros(m_env, Fun(args, val));
+                expr decl_value = Fun(args, val);
                 name_set used_univs;
                 used_univs = collect_univ_params(decl_value, used_univs);
                 used_univs = collect_univ_params(decl_type, used_univs);

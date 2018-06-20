@@ -24,7 +24,6 @@ Author: Leonardo de Moura
 #include "library/noncomputable.h"
 #include "library/constants.h"
 #include "library/kernel_serializer.h"
-#include "library/unfold_macros.h"
 #include "library/module_mgr.h"
 #include "library/library_task_builder.h"
 

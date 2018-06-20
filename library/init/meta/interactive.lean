@@ -267,15 +267,6 @@ do e_type ← infer_type e >>= whnf,
    (const I ls) ← return $ get_app_fn e_type,
    return I
 
-private meta def generalize_arg_p_aux (p : pexpr) : parser (pexpr × name) :=
-match p.to_expr with
-| (app (app (macro _ [const `eq _ ]) h) (fvar x)) := pure (to_pexpr h, x)
-| _ := fail "parse error"
-
-
-private meta def generalize_arg_p : parser (pexpr × name) :=
-with_desc "expr = id" $ parser.pexpr 0 >>= generalize_arg_p_aux
-
 meta def cases_arg_p : parser (option name × pexpr) :=
 with_desc "(id :)? expr" $ do
   t ← texpr,

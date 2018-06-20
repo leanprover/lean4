@@ -968,7 +968,6 @@ expr elaborator::visit_function(expr const & fn, bool has_args, optional<expr> c
     case expr_kind::App:       r = visit(fn, expected_type); break;
     case expr_kind::FVar:      r = fn; break;
     case expr_kind::Constant:  r = visit_const_core(fn); break;
-    case expr_kind::Macro:     r = visit_macro(fn, expected_type, true); break;
     case expr_kind::MData:     r = visit_mdata(fn, expected_type, true); break;
     case expr_kind::Lambda:    r = visit_lambda(fn, expected_type); break;
     case expr_kind::Let:       r = visit_let(fn, expected_type); break;
@@ -2545,15 +2544,6 @@ class validate_and_collect_lhs_mvars : public replace_visitor {
         }
     }
 
-    virtual expr visit_macro(expr const & e) override {
-        if (auto r = ctx().expand_macro(e)) {
-            return visit(*r);
-        } else {
-            throw_invalid_pattern("invalid occurrence of macro expression in pattern", e);
-            return e;
-        }
-    }
-
 public:
     validate_and_collect_lhs_mvars(elaborator & elab, expr const & ref, metavar_context const & mctx0,
                                    buffer<expr> & unassigned_mvars):
@@ -3380,7 +3370,7 @@ expr elaborator::visit_mdata(expr const & e, optional<expr> const & expected_typ
         expr new_e = visit(get_as_atomic_arg(e), none_expr());
         if (is_app_fn)
             return new_e;
-        /* If the as_atomic macro is not the the function in a function application, then we need to consume
+        /* If the as_atomic is not the the function in a function application, then we need to consume
            implicit arguments. */
         return visit_base_app_core(new_e, arg_mask::Default, buffer<expr>(), true, expected_type, e);
     } else if (is_expr_quote(e)) {
@@ -3412,13 +3402,6 @@ expr elaborator::visit_mdata(expr const & e, optional<expr> const & expected_typ
         expr new_e = visit(mdata_expr(e), expected_type);
         return update_mdata(e, new_e);
     }
-}
-
-expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_type, bool is_app_fn) {
-    buffer<expr> args;
-    for (unsigned i = 0; i < macro_num_args(e); i++)
-        args.push_back(visit(macro_arg(e, i), none_expr()));
-    return update_macro(e, args.size(), args.data());
 }
 
 /* If the instance fingerprint has been set, then make sure `type` is not a local instance.
@@ -3665,8 +3648,6 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
                     return copy_pos(e, visit_local(e, expected_type));
                 case expr_kind::Constant:
                     return copy_pos(e, visit_constant(e, expected_type));
-                case expr_kind::Macro:
-                    return copy_pos(e, visit_macro(e, expected_type, false));
                 case expr_kind::Lambda:
                     return copy_pos(e, visit_lambda(e, expected_type));
                 case expr_kind::Pi:

@@ -33,7 +33,6 @@ inline deserializer & operator>>(deserializer & d, declaration & decl) { decl = 
 serializer & operator<<(serializer & s, inductive::certified_inductive_decl const & d);
 inductive::certified_inductive_decl read_certified_inductive_decl(deserializer & d);
 
-void register_macro_deserializer(std::string const & k, macro_definition_cell::reader rd);
 void initialize_kernel_serializer();
 void finalize_kernel_serializer();
 }

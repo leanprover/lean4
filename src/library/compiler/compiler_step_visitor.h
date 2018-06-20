@@ -24,7 +24,7 @@ protected:
     environment const & env() const { return m_env; }
     type_context_old & ctx() { return m_ctx; }
 
-    virtual expr visit_macro(expr const & e) override;
+    virtual expr visit_mdata(expr const & e) override;
 
     virtual expr visit_pi(expr const & e) override {
         /* Compiler steps ignore types. */

@@ -148,8 +148,6 @@ private:
     result pp_show(expr const & e);
     format pp_equation(expr const & e);
     optional<result> pp_equations(expr const & e);
-    result pp_macro_default(expr const & e);
-    result pp_macro(expr const & e);
     result pp_explicit(expr const & e);
     result pp_delayed_abstraction(expr const & e);
     result pp_let(expr e);

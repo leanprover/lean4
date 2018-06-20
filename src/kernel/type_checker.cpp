@@ -26,11 +26,6 @@ namespace lean {
 static name * g_kernel_fresh = nullptr;
 static expr * g_dont_care    = nullptr;
 
-optional<expr> type_checker::expand_macro(expr const & m) {
-    lean_assert(is_macro(m));
-    return macro_def(m).expand(m, *this);
-}
-
 /** \brief Return the body of the given binder, where the bound variable #0 is replaced with a fresh free variable.
     It also returns the fresh variable. */
 pair<expr, expr> type_checker::open_binding_body(expr const & e) {
@@ -101,13 +96,6 @@ expr type_checker::infer_constant(expr const & e, bool infer_only) {
             check_level(l);
     }
     return instantiate_type_univ_params(d, ls);
-}
-
-expr type_checker::infer_macro(expr const & e, bool infer_only) {
-    auto def = macro_def(e);
-    expr t   = def.check_type(e, *this, infer_only);
-    /* TODO(Leo): macros will be deleted */
-    return t;
 }
 
 expr type_checker::infer_lambda(expr const & _e, bool infer_only) {
@@ -272,7 +260,6 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
     case expr_kind::App:       r = infer_app(e, infer_only);            break;
     case expr_kind::Let:       r = infer_let(e, infer_only);            break;
 
-    case expr_kind::Macro:     r = infer_macro(e, infer_only);          break;
     case expr_kind::Quote:
         if (quote_is_reflected(e)) {
             expr type = infer_type_core(quote_value(e), true);
@@ -368,7 +355,7 @@ expr type_checker::whnf_core(expr const & e) {
         return whnf_core(mdata_expr(e));
     case expr_kind::FVar:
         return whnf_fvar(e);
-    case expr_kind::Macro: case expr_kind::App: case expr_kind::Let:
+    case expr_kind::App: case expr_kind::Let:
     case expr_kind::Proj:
         break;
 
@@ -393,13 +380,6 @@ expr type_checker::whnf_core(expr const & e) {
 
     case expr_kind::Quote:
         lean_unreachable();
-
-    case expr_kind::Macro:
-        if (auto m = expand_macro(e))
-            r = whnf_core(*m);
-        else
-            r = e;
-        break;
 
     case expr_kind::Proj: {
         if (auto m = reduce_proj(e))
@@ -492,7 +472,7 @@ expr type_checker::whnf(expr const & e) {
         return whnf(mdata_expr(e));
     case expr_kind::FVar:
         return whnf_fvar(e);
-    case expr_kind::Lambda:   case expr_kind::Macro: case expr_kind::App:
+    case expr_kind::Lambda:   case expr_kind::App:
     case expr_kind::Constant: case expr_kind::Let:   case expr_kind::Proj:
         break;
 
@@ -591,8 +571,8 @@ lbool type_checker::quick_is_def_eq(expr const & t, expr const & s, bool use_has
             return to_lbool(is_def_eq(mdata_expr(t), mdata_expr(s)));
         case expr_kind::MVar:
             lean_unreachable(); // LCOV_EXCL_LINE
-        case expr_kind::BVar:      case expr_kind::FVar: case expr_kind::App:
-        case expr_kind::Constant: case expr_kind::Macro: case expr_kind::Let:
+        case expr_kind::BVar:     case expr_kind::FVar: case expr_kind::App:
+        case expr_kind::Constant: case expr_kind::Let:
         case expr_kind::Proj:
             // We do not handle these cases in this method.
             break;
@@ -799,16 +779,6 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
 
     if (is_proj(t_n) && is_proj(s_n) && proj_idx(t_n) == proj_idx(s_n) && is_def_eq(proj_expr(t_n), proj_expr(s_n)))
         return true;
-
-    if (is_macro(t_n) && is_macro(s_n) && macro_def(t_n) == macro_def(s_n) && macro_num_args(t_n) == macro_num_args(s_n)) {
-        unsigned i = 0;
-        for (; i < macro_num_args(t_n); i++) {
-            if (!is_def_eq_core(macro_arg(t_n, i), macro_arg(s_n, i)))
-                break;
-        }
-        if (i == macro_num_args(t_n))
-            return true;
-    }
 
     // At this point, t_n and s_n are in weak head normal form (modulo meta-variables and proof irrelevance)
     if (is_def_eq_app(t_n, s_n))

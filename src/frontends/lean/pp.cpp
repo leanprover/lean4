@@ -1116,23 +1116,6 @@ auto pretty_fn::pp_equations(expr const & e) -> optional<result> {
     return optional<result>(r);
 }
 
-auto pretty_fn::pp_macro_default(expr const & e) -> result {
-    // TODO(Leo): have macro annotations
-    // fix macro<->pp interface
-    if (is_prenum(e)) {
-        return format(prenum_value(e).to_string());
-    }
-    format r = compose(format("["), format(macro_def(e).get_name()));
-    for (unsigned i = 0; i < macro_num_args(e); i++)
-        r += nest(m_indent, compose(line(), pp_child(macro_arg(e, i), max_bp()).fmt()));
-    r += format("]");
-    return result(group(r));
-}
-
-auto pretty_fn::pp_macro(expr const & e) -> result {
-    return pp_macro_default(e);
-}
-
 auto pretty_fn::pp_mdata(expr const & e) -> result {
     if (is_explicit(e)) {
         return pp_explicit(e);
@@ -1154,7 +1137,7 @@ auto pretty_fn::pp_mdata(expr const & e) -> result {
         if (auto r = pp_equations(e))
             return *r;
         else
-            return pp_macro_default(e);
+            return pp(mdata_expr(e));
     } else {
         return pp(mdata_expr(e));
     }
@@ -1586,7 +1569,6 @@ static bool is_pp_atomic(expr const & e) {
     case expr_kind::App:
     case expr_kind::Lambda:
     case expr_kind::Pi:
-    case expr_kind::Macro:
         return false;
     default:
         return true;
@@ -1783,7 +1765,6 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
     case expr_kind::App:       return pp_app(e);
     case expr_kind::Lambda:    return pp_lambda(e);
     case expr_kind::Pi:        return pp_pi(e);
-    case expr_kind::Macro:     return pp_macro(e);
     case expr_kind::Let:       return pp_let(e);
     case expr_kind::Lit:       return pp_lit(e);
     case expr_kind::Quote:
@@ -1808,14 +1789,14 @@ class pp_beta_reduce_fn : public replace_visitor {
     virtual expr visit_meta(expr const & e) override { return e; }
     virtual expr visit_local(expr const & e) override { return e; }
 
-    virtual expr visit_macro(expr const & e) override {
+    virtual expr visit_mdata(expr const & e) override {
         if (is_show_annotation(e) && is_app(get_annotation_arg(e))) {
             expr const & n = get_annotation_arg(e);
             expr new_fn  = visit(app_fn(n));
             expr new_arg = visit(app_arg(n));
             return mk_show_annotation(mk_app(new_fn, new_arg));
         } else {
-            return replace_visitor::visit_macro(e);
+            return replace_visitor::visit_mdata(e);
         }
     }
 

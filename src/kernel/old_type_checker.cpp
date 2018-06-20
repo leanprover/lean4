@@ -30,11 +30,6 @@ static expr * g_dont_care    = nullptr;
     throw kernel_exception(env, "unexpected quoted expression");
 }
 
-optional<expr> old_type_checker::expand_macro(expr const & m) {
-    lean_assert(is_macro(m));
-    return macro_def(m).expand(m, *this);
-}
-
 /** \brief Return the body of the given binder, where the free variable #0 is replaced with a fresh local constant.
     It also returns the fresh local constant. */
 pair<expr, expr> old_type_checker::open_binding_body(expr const & e) {
@@ -95,17 +90,6 @@ expr old_type_checker::infer_constant(expr const & e, bool infer_only) {
             check_level(l);
     }
     return instantiate_type_univ_params(d, ls);
-}
-
-expr old_type_checker::infer_macro(expr const & e, bool infer_only) {
-    auto def = macro_def(e);
-    auto t   = def.check_type(e, *this, infer_only);
-// TODO(Leo): macros will be deleted
-//    if (!infer_only && m_trusted_only && def.trust_level() >= m_env.trust_lvl()) {
-//        throw_kernel_exception(m_env, "declaration contains macro with trust-level higher than the one allowed "
-//                               "(possible solution: unfold macro, or increase trust-level)", e);
-//    }
-    return t;
 }
 
 expr old_type_checker::infer_lambda(expr const & _e, bool infer_only) {
@@ -265,7 +249,6 @@ expr old_type_checker::infer_type_core(expr const & e, bool infer_only) {
     }
     case expr_kind::MData:     r = infer_type_core(mdata_expr(e), infer_only); break;
     case expr_kind::Constant:  r = infer_constant(e, infer_only);       break;
-    case expr_kind::Macro:     r = infer_macro(e, infer_only);          break;
     case expr_kind::Lambda:    r = infer_lambda(e, infer_only);         break;
     case expr_kind::Pi:        r = infer_pi(e, infer_only);             break;
     case expr_kind::App:       r = infer_app(e, infer_only);            break;
@@ -329,7 +312,7 @@ expr old_type_checker::whnf_core(expr const & e) {
     case expr_kind::MData:
         return whnf_core(mdata_expr(e));
     case expr_kind::Proj:
-    case expr_kind::Macro: case expr_kind::App: case expr_kind::Let:
+    case expr_kind::App: case expr_kind::Let:
         break;
     case expr_kind::Quote: throw_found_quote(m_env);
     }
@@ -348,12 +331,6 @@ expr old_type_checker::whnf_core(expr const & e) {
     case expr_kind::Pi:    case expr_kind::Constant: case expr_kind::Lambda: case expr_kind::Lit:
     case expr_kind::MData:
         lean_unreachable(); // LCOV_EXCL_LINE
-    case expr_kind::Macro:
-        if (auto m = expand_macro(e))
-            r = whnf_core(*m);
-        else
-            r = e;
-        break;
     case expr_kind::Proj: {
         // COPY&PASTE from type_checker
         if (!proj_idx(e).is_small()) {
@@ -465,7 +442,7 @@ expr old_type_checker::whnf(expr const & e) {
         return whnf(mdata_expr(e));
     case expr_kind::Proj:
         lean_unreachable();
-    case expr_kind::Lambda:   case expr_kind::Macro: case expr_kind::App:
+    case expr_kind::Lambda:   case expr_kind::App:
     case expr_kind::Constant: case expr_kind::Let:
         break;
     case expr_kind::Quote: throw_found_quote(m_env);
@@ -561,8 +538,8 @@ lbool old_type_checker::quick_is_def_eq(expr const & t, expr const & s, bool use
             return to_lbool(is_def_eq(sort_level(t), sort_level(s)));
         case expr_kind::MVar:
             lean_unreachable(); // LCOV_EXCL_LINE
-        case expr_kind::BVar:      case expr_kind::FVar: case expr_kind::App:
-        case expr_kind::Constant: case expr_kind::Macro: case expr_kind::Let:
+        case expr_kind::BVar:     case expr_kind::FVar: case expr_kind::App:
+        case expr_kind::Constant: case expr_kind::Let:
             // We do not handle these cases in this method.
             break;
         case expr_kind::Proj:
@@ -766,16 +743,6 @@ bool old_type_checker::is_def_eq_core(expr const & t, expr const & s) {
 
     if (is_local(t_n) && is_local(s_n) && mlocal_name(t_n) == mlocal_name(s_n))
         return true;
-
-    if (is_macro(t_n) && is_macro(s_n) && macro_def(t_n) == macro_def(s_n) && macro_num_args(t_n) == macro_num_args(s_n)) {
-        unsigned i = 0;
-        for (; i < macro_num_args(t_n); i++) {
-            if (!is_def_eq_core(macro_arg(t_n, i), macro_arg(s_n, i)))
-                break;
-        }
-        if (i == macro_num_args(t_n))
-            return true;
-    }
 
     // At this point, t_n and s_n are in weak head normal form (modulo meta-variables and proof irrelevance)
     if (is_def_eq_app(t_n, s_n))

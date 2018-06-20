@@ -531,7 +531,6 @@ class add_nested_inductive_decl_fn {
         switch (e.kind()) {
         case expr_kind::Sort:
         case expr_kind::FVar:
-        case expr_kind::Macro:
         case expr_kind::Quote:
         case expr_kind::Lit:
         case expr_kind::MData:
@@ -589,7 +588,6 @@ class add_nested_inductive_decl_fn {
         switch (e.kind()) {
         case expr_kind::Sort:
         case expr_kind::FVar:
-        case expr_kind::Macro:
         case expr_kind::Quote:
         case expr_kind::Lit:
         case expr_kind::MData:

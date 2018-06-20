@@ -22,7 +22,6 @@ Author: Leonardo de Moura
 #include "library/private.h"
 #include "library/protected.h"
 #include "library/scoped_ext.h"
-#include "library/unfold_macros.h"
 #include "library/noncomputable.h"
 #include "library/module.h"
 #include "library/aux_definition.h"
@@ -159,7 +158,7 @@ static expr parse_mutual_definition(parser & p, buffer<name> & lp_names, buffer<
 }
 
 static void finalize_definition(elaborator & elab, buffer<expr> const & params, expr & type,
-                                expr & val, buffer<name> & lp_names, bool is_meta) {
+                                expr & val, buffer<name> & lp_names) {
     type = elab.mk_pi(params, type);
     val  = elab.mk_lambda(params, val);
     buffer<expr> type_val;
@@ -167,13 +166,8 @@ static void finalize_definition(elaborator & elab, buffer<expr> const & params, 
     type_val.push_back(type);
     type_val.push_back(val);
     elab.finalize(type_val, implicit_lp_names, true, false);
-    if (!is_meta) {
-        type = unfold_untrusted_macros(elab.env(), type_val[0]);
-        val  = unfold_untrusted_macros(elab.env(), type_val[1]);
-    } else {
-        type = type_val[0];
-        val  = type_val[1];
-    }
+    type = type_val[0];
+    val  = type_val[1];
     lp_names.append(implicit_lp_names);
 }
 
@@ -491,7 +485,7 @@ static environment mutual_definition_cmd_core(parser & p, decl_cmd_kind kind, cm
     for (unsigned i = 0; i < num_defs; i++) {
         expr curr      = get_equations_result(val, i);
         expr curr_type = head_beta_reduce(elab.infer_type(curr));
-        finalize_definition(elab, new_params, curr_type, curr, lp_names, meta.m_modifiers.m_is_meta);
+        finalize_definition(elab, new_params, curr_type, curr, lp_names);
         environment env = elab.env();
         name c_name = mlocal_name(fns[i]);
         name c_real_name;
@@ -604,7 +598,6 @@ static void finalize_theorem_type(elaborator & elab, buffer<expr> const & params
     type = elab.mk_pi(params, type);
     buffer<name> implicit_lp_names;
     std::tie(type, info) = elab.finalize_theorem_type(type, implicit_lp_names);
-    type = unfold_untrusted_macros(elab.env(), type);
     lp_names.append(implicit_lp_names);
 }
 
@@ -612,7 +605,6 @@ static void finalize_theorem_proof(elaborator & elab, buffer<expr> const & param
                                    elaborator::theorem_finalization_info const & info) {
     val  = elab.mk_lambda(params, val);
     val = elab.finalize_theorem_proof(val, info);
-    val = unfold_untrusted_macros(elab.env(), val);
 }
 
 static expr inline_new_defs(environment const & old_env, environment const & new_env, name const & n, expr const & e) {
@@ -698,7 +690,7 @@ static void check_example(environment const & decl_env, options const & opts,
         std::tie(val, type) = elab.elaborate_with_type(val0, mlocal_type(fn));
         buffer<expr> params_buf; for (auto & p : params) params_buf.push_back(p);
         buffer<name> univ_params_buf; to_buffer(univ_params, univ_params_buf);
-        finalize_definition(elab, params_buf, type, val, univ_params_buf, modifiers.m_is_meta);
+        finalize_definition(elab, params_buf, type, val, univ_params_buf);
 
         bool use_conv_opt = true;
         bool is_meta      = modifiers.m_is_meta;
@@ -810,7 +802,7 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
                 lean_assert(get_equations_result_size(val) == 1);
                 val = get_equations_result(val, 0);
             }
-            finalize_definition(elab, new_params, type, val, lp_names, meta.m_modifiers.m_is_meta);
+            finalize_definition(elab, new_params, type, val, lp_names);
             env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, prv_name, type, some_expr(val), meta, is_abbrev, header_pos);
         }
         time_task _("decl post-processing", p.mk_message(header_pos, INFORMATION), p.get_options(), c_name);

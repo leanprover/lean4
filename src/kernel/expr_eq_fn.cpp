@@ -120,15 +120,7 @@ class expr_eq_fn {
             return sort_level(a) == sort_level(b);
 
 
-        case expr_kind::Macro:
-            check_system();
-            if (macro_def(a) != macro_def(b) || macro_num_args(a) != macro_num_args(b))
-                return false;
-            for (unsigned i = 0; i < macro_num_args(a); i++) {
-                if (!apply(macro_arg(a, i), macro_arg(b, i)))
-                    return false;
-            }
-            return true;
+
         case expr_kind::Quote:
             /* Hack: we do *not* compare m_value's because quoted expressions may contain
                relevant position information that is ignored by the equality predicate for expressions. */

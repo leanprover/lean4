@@ -18,7 +18,6 @@ expr copy(expr const & a) {
     case expr_kind::FVar:     return mk_local(mlocal_name(a), mlocal_pp_name(a), mlocal_type(a), local_info(a));
     case expr_kind::Constant: return mk_constant(const_name(a), const_levels(a));
     case expr_kind::Sort:     return mk_sort(sort_level(a));
-    case expr_kind::Macro:    return mk_macro(to_macro(a)->m_definition, macro_num_args(a), macro_args(a));
     case expr_kind::App:      return mk_app(app_fn(a), app_arg(a));
     case expr_kind::Lambda:   return mk_lambda(binding_name(a), binding_domain(a), binding_body(a), binding_info(a));
     case expr_kind::Pi:       return mk_pi(binding_name(a), binding_domain(a), binding_body(a), binding_info(a));

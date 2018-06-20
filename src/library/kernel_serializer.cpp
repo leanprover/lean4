@@ -13,27 +13,6 @@ Author: Leonardo de Moura
 // Procedures for serializing and deserializing kernel objects (levels, exprs, declarations)
 namespace lean {
 // Expression serialization
-typedef std::unordered_map<std::string, macro_definition_cell::reader> macro_readers;
-static macro_readers * g_macro_readers = nullptr;
-
-macro_readers & get_macro_readers() {
-    return *g_macro_readers;
-}
-
-void register_macro_deserializer(std::string const & k, macro_definition_cell::reader rd) {
-    macro_readers & readers = get_macro_readers();
-    lean_assert(readers.find(k) == readers.end());
-    readers[k] = rd;
-}
-
-static expr read_macro_definition(deserializer & d, unsigned num, expr const * args) {
-    auto k  = d.read_string();
-    macro_readers & readers = get_macro_readers();
-    auto it = readers.find(k);
-    if (it == readers.end()) throw corrupted_stream_exception();
-    return it->second(d, num, args);
-}
-
 static name * g_binder_name = nullptr;
 
 class expr_serializer : public object_serializer<expr, expr_hash, is_bi_equal_proc> {
@@ -98,13 +77,6 @@ class expr_serializer : public object_serializer<expr, expr_hash, is_bi_equal_pr
                     s << mlocal_name(a) << mlocal_pp_name(a) << local_info(a); write_core(mlocal_type(a));
                     break;
 
-                case expr_kind::Macro:
-                    s << macro_num_args(a);
-                    for (unsigned i = 0; i < macro_num_args(a); i++) {
-                        write_core(macro_arg(a, i));
-                    }
-                    macro_def(a).write(s);
-                    break;
                 case expr_kind::Quote:
                     s << quote_is_reflected(a);
                     write_core(quote_value(a));
@@ -177,14 +149,6 @@ public:
                     return mk_local(n, pp_n, read(), bi);
                 }
 
-                case expr_kind::Macro: {
-                    unsigned n = d.read_unsigned();
-                    buffer<expr> args;
-                    for (unsigned i = 0; i < n; i++) {
-                        args.push_back(read());
-                    }
-                    return read_macro_definition(d, args.size(), args.data());
-                }
                 case expr_kind::Quote: {
                     bool r = d.read_bool();
                     expr v = read();
@@ -344,7 +308,6 @@ inductive::certified_inductive_decl read_certified_inductive_decl(deserializer &
 }
 
 void initialize_kernel_serializer() {
-    g_macro_readers = new macro_readers();
     g_binder_name   = new name("a");
     g_expr_sd       = new expr_sd();
 }
@@ -352,6 +315,5 @@ void initialize_kernel_serializer() {
 void finalize_kernel_serializer() {
     delete g_expr_sd;
     delete g_binder_name;
-    delete g_macro_readers;
 }
 }

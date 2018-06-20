@@ -742,11 +742,6 @@ optional<expr> type_context_old::reduce_large_elim_recursor(expr const & e) {
     return none_expr();
 }
 
-optional<expr> type_context_old::expand_macro(expr const & e) {
-    lean_assert(is_macro(e));
-    return macro_def(e).expand(e, *this);
-}
-
 bool type_context_old::use_zeta() const {
     return m_zeta;
 }
@@ -763,7 +758,7 @@ optional<expr> type_context_old::reduce_recursor(expr const & e) {
 
 /*
   Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
-  unfold macros, expand let-expressions, expand assigned meta-variables.
+  expand let-expressions, expand assigned meta-variables.
 
   This method does *not* apply delta-reduction at the head.
   Reason: we want to perform these reductions lazily at is_def_eq.
@@ -874,14 +869,6 @@ expr type_context_old::whnf_core(expr const & e0, bool proj_reduce) {
     case expr_kind::MData:
         e = mdata_expr(e);
         continue;
-    case expr_kind::Macro:
-        if (auto m = expand_macro(e)) {
-            check_system("whnf");
-            e = *m;
-            continue;
-        } else {
-            return e;
-        }
     case expr_kind::Quote:
         return e;
     }}
@@ -991,7 +978,7 @@ expr type_context_old::infer(expr const & e) {
     return infer_core(e);
 }
 
-expr type_context_old::infer_proj(expr const & e) {
+expr type_context_old::infer_proj(expr const &) {
     // TODO(Leo):
     lean_unreachable();
 }
@@ -1040,9 +1027,6 @@ expr type_context_old::infer_core(expr const & e) {
         r = infer_let(e);
         break;
 
-    case expr_kind::Macro:
-        r = infer_macro(e);
-        break;
     case expr_kind::Quote:
         if (quote_is_reflected(e)) {
             expr type = infer_core(quote_value(e));
@@ -1107,12 +1091,6 @@ expr type_context_old::infer_constant(expr const & e) {
             });
     }
     return instantiate_type_univ_params(d, ls);
-}
-
-expr type_context_old::infer_macro(expr const & e) {
-    auto def = macro_def(e);
-    bool infer_only = true;
-    return def.check_type(e, *this, infer_only);
 }
 
 expr type_context_old::infer_lambda(expr e) {
@@ -2733,9 +2711,6 @@ lbool type_context_old::quick_is_def_eq(expr const & e1, expr const & e2) {
             // We do not handle these cases in this method.
             break;
 
-        case expr_kind::Macro:
-            // We do not handle these cases in this method.
-            break;
         case expr_kind::Quote:
             return to_lbool(quote_is_reflected(e1) == quote_is_reflected(e2) && quote_value(e1) == quote_value(e2));
         }
@@ -3212,7 +3187,7 @@ bool type_context_old::is_def_eq_core_core(expr t, expr s) {
                scope_trace_env scope(env(), *this);
                tout() << "[" << m_is_def_eq_depth << "]: " << t << " =?= " << s << "\n";);
 
-    /* Apply beta/zeta/iota/macro reduction to t and s */
+    /* Apply beta/zeta/iota reduction to t and s */
     {
         /* We do not reduce projections here. */
         expr t_n = whnf_core(t, false);
@@ -3246,19 +3221,6 @@ bool type_context_old::is_def_eq_core_core(expr t, expr s) {
 
     r = is_def_eq_proj(t, s);
     if (r != l_undef) return r == l_true;
-
-    if (is_macro(t) && is_macro(s) && macro_def(t) == macro_def(s) && macro_num_args(t) == macro_num_args(s)) {
-        scope S(*this);
-        unsigned i = 0;
-        for (; i < macro_num_args(t); i++) {
-            if (!is_def_eq_core(macro_arg(t, i), macro_arg(s, i)))
-                break;
-        }
-        if (i == macro_num_args(t)) {
-            S.commit();
-            return true;
-        }
-    }
 
     if (is_app(t) && is_app(s)) {
         scope S(*this);
@@ -3381,7 +3343,7 @@ lbool type_context_old::is_quick_class(expr const & type, name & result) {
                 } else {
                     return l_undef;
                 }
-            } else if (is_lambda(f) || is_macro(f)) {
+            } else if (is_lambda(f)) {
                 return l_undef;
             } else {
                 return l_false;
@@ -3390,8 +3352,6 @@ lbool type_context_old::is_quick_class(expr const & type, name & result) {
         case expr_kind::Pi:
             it = &binding_body(*it);
             break;
-        case expr_kind::Macro:
-            return l_undef;
         case expr_kind::Quote:
             return l_false;
         }

@@ -107,15 +107,6 @@ bool equiv_manager::is_equiv_core(expr const & a, expr const & b) {
             is_equiv_core(let_value(a), let_value(b)) &&
             is_equiv_core(let_body(a), let_body(b));
         break;
-    case expr_kind::Macro:
-        if (macro_def(a) != macro_def(b) || macro_num_args(a) != macro_num_args(b))
-            return false;
-        for (unsigned i = 0; i < macro_num_args(a); i++) {
-            if (!is_equiv_core(macro_arg(a, i), macro_arg(b, i)))
-                return false;
-        }
-        result = true;
-        break;
     case expr_kind::Quote:
         if (quote_is_reflected(a) != quote_is_reflected(b) || quote_value(a) != quote_value(b))
             return false;

@@ -71,16 +71,6 @@ bool is_lt(expr const & a, expr const & b, bool use_hash, local_context const * 
             return mlocal_name(a) < mlocal_name(b);
         else
             return is_lt(mlocal_type(a), mlocal_type(b), use_hash, lctx);
-    case expr_kind::Macro:
-        if (macro_def(a) != macro_def(b))
-            return macro_def(a) < macro_def(b);
-        if (macro_num_args(a) != macro_num_args(b))
-            return macro_num_args(a) < macro_num_args(b);
-        for (unsigned i = 0; i < macro_num_args(a); i++) {
-            if (macro_arg(a, i) != macro_arg(b, i))
-                return is_lt(macro_arg(a, i), macro_arg(b, i), use_hash, lctx);
-        }
-        return false;
     case expr_kind::Quote:
         return quote_value(a) < quote_value(b);
     }
@@ -193,18 +183,6 @@ bool is_lt_no_level_params(expr const & a, expr const & b) {
             return mlocal_name(a) < mlocal_name(b);
         else
             return is_lt_no_level_params(mlocal_type(a), mlocal_type(b));
-    case expr_kind::Macro:
-        if (macro_def(a) != macro_def(b))
-            return macro_def(a) < macro_def(b);
-        if (macro_num_args(a) != macro_num_args(b))
-            return macro_num_args(a) < macro_num_args(b);
-        for (unsigned i = 0; i < macro_num_args(a); i++) {
-            if (is_lt_no_level_params(macro_arg(a, i), macro_arg(b, i)))
-                return true;
-            else if (is_lt_no_level_params(macro_arg(b, i), macro_arg(a, i)))
-                return false;
-        }
-        return false;
     case expr_kind::Quote:
         return quote_value(a) < quote_value(b);
     }

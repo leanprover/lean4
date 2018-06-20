@@ -21,7 +21,6 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "library/locals.h"
 #include "library/explicit.h"
-#include "library/unfold_macros.h"
 #include "library/documentation.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/decl_util.h"
@@ -121,7 +120,6 @@ static environment declare_var(parser & p, environment env,
         buffer<expr> new_params;
         collect_implicit_locals(p, new_ls, new_params, type);
         expr new_type = Pi(new_params, type);
-        new_type = unfold_untrusted_macros(env, new_type);
 
         if (k == variable_kind::Axiom) {
             env = module::add(env, check(env, mk_axiom(full_n, ls, new_type)));

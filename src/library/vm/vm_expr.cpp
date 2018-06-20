@@ -34,24 +34,6 @@ Author: Leonardo de Moura
 #include "library/compiler/nat_value.h"
 
 namespace lean {
-struct vm_macro_definition : public vm_external {
-    macro_definition m_val;
-    vm_macro_definition(macro_definition const & v):m_val(v) {}
-    virtual ~vm_macro_definition() {}
-    virtual void dealloc() override { delete this;  }
-    virtual vm_external * ts_clone(vm_clone_fn const &) override { return new vm_macro_definition(m_val); }
-    virtual vm_external * clone(vm_clone_fn const &) override { return new vm_macro_definition(m_val); }
-};
-
-macro_definition const & to_macro_definition(vm_obj const & o) {
-    lean_vm_check(dynamic_cast<vm_macro_definition*>(to_external(o)));
-    return static_cast<vm_macro_definition*>(to_external(o))->m_val;
-}
-
-vm_obj to_obj(macro_definition const & d) {
-    return mk_vm_external(new vm_macro_definition(d));
-}
-
 struct vm_expr : public vm_external {
     expr m_val;
     vm_expr(expr const & v):m_val(v) {}
@@ -156,16 +138,6 @@ vm_obj expr_elet_intro(vm_obj const & n, vm_obj const & t, vm_obj const & v, vm_
     return to_obj(mk_let(to_name(n), to_expr(t), to_expr(v), to_expr(b)));
 }
 
-vm_obj expr_macro_intro(vm_obj const & d, vm_obj const & es) {
-    buffer<expr> args;
-    to_buffer_expr(es, args);
-    return to_obj(mk_macro(to_macro_definition(d), args.size(), args.data()));
-}
-
-vm_obj expr_macro_def_name(vm_obj const & d) {
-    return to_obj(to_macro_definition(d).get_name());
-}
-
 /*
 inductive data_value
 | of_string (v : string)
@@ -247,13 +219,6 @@ unsigned expr_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
         data.push_back(to_obj(proj_idx(e)));
         data.push_back(to_obj(proj_expr(e)));
         break;
-    case expr_kind::Macro: {
-        data.push_back(to_obj(macro_def(e)));
-        buffer<expr> args;
-        args.append(macro_num_args(e), macro_args(e));
-        data.push_back(to_obj(args));
-        break;
-    }
     case expr_kind::Quote:
         data.push_back(mk_vm_bool(quote_is_reflected(e)));
         data.push_back(to_obj(quote_value(e)));
@@ -386,8 +351,6 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "lam"}),              expr_lam_intro);
     DECLARE_VM_BUILTIN(name({"expr", "pi"}),               expr_pi_intro);
     DECLARE_VM_BUILTIN(name({"expr", "elet"}),             expr_elet_intro);
-    DECLARE_VM_BUILTIN(name({"expr", "macro"}),            expr_macro_intro);
-    DECLARE_VM_BUILTIN(name({"expr", "macro_def_name"}),   expr_macro_def_name);
     DECLARE_VM_BUILTIN(name({"expr", "has_decidable_eq"}), expr_has_decidable_eq);
     DECLARE_VM_BUILTIN(name({"expr", "alpha_eqv"}),        expr_alpha_eqv);
     DECLARE_VM_BUILTIN(name({"expr", "to_string"}),        expr_to_string);

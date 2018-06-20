@@ -44,7 +44,6 @@ class old_type_checker : public abstract_type_context {
     expr ensure_pi_core(expr e, expr const & s);
     void check_level(level const & l);
     expr infer_constant(expr const & e, bool infer_only);
-    expr infer_macro(expr const & e, bool infer_only);
     expr infer_lambda(expr const & e, bool infer_only);
     expr infer_pi(expr const & e, bool infer_only);
     expr infer_app(expr const & e, bool infer_only);
@@ -75,7 +74,6 @@ class old_type_checker : public abstract_type_context {
     reduction_status lazy_delta_reduction_step(expr & t_n, expr & s_n);
     lbool lazy_delta_reduction(expr & t_n, expr & s_n);
     bool is_def_eq_core(expr const & t, expr const & s);
-    optional<expr> expand_macro(expr const & m);
     /** \brief Like \c check, but ignores undefined universes */
     expr check_ignore_undefined_universes(expr const & e);
 

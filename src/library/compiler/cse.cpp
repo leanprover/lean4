@@ -32,7 +32,6 @@ class cse_fn : public compiler_step_visitor {
             return false;
         }
 
-        virtual void visit_macro(expr const & e) = 0;
         virtual void visit_app(expr const & e) = 0;
 
         void visit_let(expr const & e) {
@@ -54,7 +53,6 @@ class cse_fn : public compiler_step_visitor {
             case expr_kind::Lit:
                 break;
             case expr_kind::Lambda:   visit_lambda(e); break;
-            case expr_kind::Macro:    visit_macro(e); break;
             case expr_kind::App:      visit_app(e); break;
             case expr_kind::Let:      visit_let(e); break;
             case expr_kind::MData:    visit(mdata_expr(e)); break;
@@ -74,13 +72,6 @@ class cse_fn : public compiler_step_visitor {
         void add_candidate(expr const & e) {
             if (has_loose_bvars(e)) return;
             m_candidates.insert(e);
-        }
-
-        virtual void visit_macro(expr const & e) override {
-            if (check_visited(e)) return;
-            if (macro_num_args(e) > 0) add_candidate(e);
-            for (unsigned i = 0; i < macro_num_args(e); i++)
-                visit(macro_arg(e, i));
         }
 
         virtual void visit_app(expr const & e) override {
@@ -113,13 +104,6 @@ class cse_fn : public compiler_step_visitor {
             } else {
                 m_num_occs[e]++;
             }
-        }
-
-        virtual void visit_macro(expr const & e) override {
-            add_occ(e);
-            if (check_visited(e)) return;
-            for (unsigned i = 0; i < macro_num_args(e); i++)
-                visit(macro_arg(e, i));
         }
 
         virtual void visit_app(expr const & e) override {
@@ -180,7 +164,7 @@ class cse_fn : public compiler_step_visitor {
         expr process(expr const & e, optional<expr> const & main = none_expr()) {
             expr r = replace(e, [&](expr const & s, unsigned) {
                     if (main && s == *main) return none_expr();
-                    if (!is_app(s) && !is_macro(s)) return none_expr();
+                    if (!is_app(s)) return none_expr();
                     if (has_loose_bvars(s)) return none_expr();
                     auto it1 = m_common_subexpr_to_local.find(s);
                     if (it1 != m_common_subexpr_to_local.end())

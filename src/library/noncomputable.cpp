@@ -150,15 +150,6 @@ struct get_noncomputable_reason_fn {
         }
     }
 
-    void visit_macro(expr const & e) {
-        if (is_expr_quote(e) || is_pexpr_quote(e))
-            return;
-        if (should_visit(e)) {
-            for (unsigned i = 0; i < macro_num_args(e); i++)
-                visit(macro_arg(e, i));
-        }
-    }
-
     void visit_app(expr const & e) {
         if (should_visit(e)) {
             buffer<expr> args;
@@ -199,7 +190,6 @@ struct get_noncomputable_reason_fn {
         switch (e.kind()) {
         case expr_kind::Sort:      return;
         case expr_kind::Lit:       return;
-        case expr_kind::Macro:     visit_macro(e);    return;
         case expr_kind::Constant:  visit_constant(e); return;
         case expr_kind::BVar:      lean_unreachable();
         case expr_kind::MVar:      lean_unreachable();

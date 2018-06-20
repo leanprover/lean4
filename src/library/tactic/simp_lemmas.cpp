@@ -660,15 +660,6 @@ static bool is_permutation(expr const & lhs, expr const & rhs, unsigned offset, 
         return
             is_permutation(app_fn(lhs), app_fn(rhs), offset, p) &&
             is_permutation(app_arg(lhs), app_arg(rhs), offset, p);
-    case expr_kind::Macro:
-        if (macro_def(lhs) != macro_def(rhs) ||
-            macro_num_args(lhs) != macro_num_args(rhs))
-            return false;
-        for (unsigned i = 0; i < macro_num_args(lhs); i++) {
-            if (!is_permutation(macro_arg(lhs, i), macro_arg(rhs, i), offset, p))
-                return false;
-        }
-        return true;
     case expr_kind::Quote:
         return lhs == rhs;
     }

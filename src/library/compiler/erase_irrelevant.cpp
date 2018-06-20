@@ -66,15 +66,13 @@ class erase_irrelevant_fn : public compiler_step_visitor {
             return e;
     }
 
-    virtual expr visit_macro(expr const & e) override {
+    virtual expr visit_mdata(expr const & e) override {
         if (is_marked_as_comp_irrelevant(e)) {
             return *g_neutral_expr;
         } else if (is_comp_irrelevant(e)) {
             return *g_neutral_expr;
-        } else if (auto r = macro_def(e).expand(e, m_ctx)) {
-            return visit(*r);
         } else {
-            return compiler_step_visitor::visit_macro(e);
+            return visit(mdata_expr(e));
         }
     }
 

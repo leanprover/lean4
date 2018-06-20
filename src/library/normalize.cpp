@@ -138,7 +138,6 @@ class normalize_fn {
             // whnf unfolds let-exprs
             lean_unreachable();
 
-        case expr_kind::Macro:
         case expr_kind::Quote:
             return e;
         }

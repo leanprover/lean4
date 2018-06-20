@@ -131,13 +131,6 @@ optional<pair<expr, bool>> dsimplify_core_fn::post(expr const &) {
     return optional<pair<expr, bool>>();
 }
 
-expr dsimplify_core_fn::visit_macro(expr const & e) {
-    buffer<expr> new_args;
-    for (unsigned i = 0; i < macro_num_args(e); i++)
-        new_args.push_back(visit(macro_arg(e, i)));
-    return update_macro(e, new_args.size(), new_args.data());
-}
-
 expr dsimplify_core_fn::visit_binding(expr const & e) {
     expr_kind k = e.kind();
     type_context_old::tmp_locals locals(m_ctx);
@@ -283,9 +276,6 @@ expr dsimplify_core_fn::visit(expr const & e) {
             break;
 
 
-        case expr_kind::Macro:
-            new_e = visit_macro(curr_e);
-            break;
         case expr_kind::Quote:
             new_e = curr_e;
             break;

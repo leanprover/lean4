@@ -60,13 +60,13 @@ protected:
         return mark_comp_irrelevant(e);
     }
 
-    virtual expr visit_macro(expr const & e) override {
+    virtual expr visit_mdata(expr const & e) override {
         if (is_marked_as_comp_irrelevant(e))
             return e;
         else if (auto v = mark_if_irrel_core(e))
             return *v;
         else
-            return compiler_step_visitor::visit_macro(e);
+            return compiler_step_visitor::visit_mdata(e);
     }
 
     virtual expr visit_constant(expr const & e) override {

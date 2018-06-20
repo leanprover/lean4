@@ -31,8 +31,6 @@ instance : has_repr binder_info :=
 | binder_info.inst_implicit := "inst_implicit"
 | binder_info.aux_decl := "aux_decl"⟩
 
-meta constant macro_def : Type
-
 inductive literal
 | nat_val (val : nat)
 | str_val (val : string)
@@ -51,13 +49,11 @@ meta inductive expr
 | lit   : literal → expr
 | mdata : lean.kvmap → expr → expr
 | proj  : nat → expr → expr
-| macro : macro_def → list expr → expr
 | quote : bool → expr → expr
 
 meta instance : inhabited expr :=
 ⟨expr.sort level.zero⟩
 
-meta constant expr.macro_def_name (d : macro_def) : name
 meta def expr.mk_bvar (n : nat) : expr :=
 expr.bvar n
 
@@ -307,10 +303,6 @@ meta def binding_body : expr → expr
 | (lam _ _ _ b) := b
 | e             := e
 
-meta def is_macro : expr → bool
-| (macro d a) := tt
-| e           := ff
-
 meta def is_numeral : expr → bool
 | `(@has_zero.zero %%α %%s)  := tt
 | `(@has_one.one %%α %%s)    := tt
@@ -343,7 +335,6 @@ meta def to_raw_fmt : expr → format
 | (elet n g e f) := p ["elet", to_fmt n, to_raw_fmt g, to_raw_fmt e, to_raw_fmt f]
 | (mdata d e) := p ["mdata", to_raw_fmt e]
 | (proj idx e) := p ["proj", to_fmt idx, to_raw_fmt e]
-| (macro d args) := sbracket (format.join (list.intersperse " " ("macro" :: to_fmt (macro_def_name d) :: args.map to_raw_fmt)))
 | (quote b v) := p ["quote", to_fmt b, to_raw_fmt v]
 
 meta def mfold {α : Type} {m : Type → Type} [monad m] (e : expr) (a : α) (fn : expr → nat → α → m α) : m α :=

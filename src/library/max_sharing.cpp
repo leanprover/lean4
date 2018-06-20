@@ -94,13 +94,6 @@ struct max_sharing_fn::imp {
         case expr_kind::MVar:  case expr_kind::FVar:
             res = update_mlocal(a, apply(mlocal_type(a)));
             break;
-        case expr_kind::Macro: {
-            buffer<expr> new_args;
-            for (unsigned i = 0; i < macro_num_args(a); i++)
-                new_args.push_back(macro_arg(a, i));
-            res = update_macro(a, new_args.size(), new_args.data());
-            break;
-        }
         case expr_kind::Quote:
             res = a;
             break;

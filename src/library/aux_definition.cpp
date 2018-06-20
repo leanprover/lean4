@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/trace.h"
 #include "library/aux_definition.h"
-#include "library/unfold_macros.h"
 #include "library/replace_visitor_with_tc.h"
 
 namespace lean {

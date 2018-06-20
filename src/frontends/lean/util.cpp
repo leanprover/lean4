@@ -22,7 +22,6 @@ Author: Leonardo de Moura
 #include "library/aliases.h"
 #include "library/constants.h"
 #include "library/placeholder.h"
-#include "library/unfold_macros.h"
 #include "library/string.h"
 #include "library/num.h"
 #include "library/util.h"

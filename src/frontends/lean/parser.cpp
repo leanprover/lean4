@@ -304,12 +304,6 @@ expr parser::copy_with_new_pos(expr const & e, pos_info p) {
                                        copy_with_new_pos(let_value(e), p),
                                        copy_with_new_pos(let_body(e), p)),
                         p);
-    case expr_kind::Macro: {
-        buffer<expr> args;
-        for (unsigned i = 0; i < macro_num_args(e); i++)
-            args.push_back(copy_with_new_pos(macro_arg(e, i), p));
-        return save_pos(::lean::mk_macro(macro_def(e), args.size(), args.data()), p);
-    }
     case expr_kind::Quote:
         if (is_pexpr_quote(e)) {
             return save_pos(mk_pexpr_quote(copy_with_new_pos(get_pexpr_quote_value(e), p)), p);
@@ -1681,9 +1675,9 @@ struct to_pattern_fn {
                 return visit(*new_e);
             } else {
                 buffer<expr> new_args;
-                for (unsigned i = 0; i < macro_num_args(e); i++)
-                    new_args.push_back(visit(macro_arg(e, i)));
-                return update_macro(e, new_args.size(), new_args.data());
+                for (unsigned i = 0; i < get_num_choices(e); i++)
+                    new_args.push_back(visit(get_choice(e, i)));
+                return mk_choice(new_args.size(), new_args.data());
             }
         } else if (is_local(e)) {
             if (auto r = m_locals_map.find(mlocal_pp_name(e)))
@@ -1773,9 +1767,6 @@ static expr quote(expr const & e) {
             return mk_expr_placeholder();
         else
             throw exception("expr.mdata is not supported at quote function");
-    case expr_kind::Macro:
-        throw elaborator_exception(e, sstream() << "invalid quotation, unsupported macro '"
-                                   << macro_def(e).get_name() << "'");
     case expr_kind::Quote:
         throw elaborator_exception(e, sstream() << "invalid quotation, quote found");
     }

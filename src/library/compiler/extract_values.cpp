@@ -48,12 +48,6 @@ class extract_values_fn : public compiler_step_visitor {
             return compiler_step_visitor::visit_app(e);
     }
 
-    virtual expr visit_macro(expr const & e) override {
-        if (!has_local(e) && !is_eqp(e, m_root) && macro_num_args(e) > 0 && !is_sorry(e))
-            return mk_aux_decl(e);
-        else
-            return compiler_step_visitor::visit_macro(e);
-    }
 public:
     extract_values_fn(environment const & env, abstract_context_cache & cache, name const & prefix):
         compiler_step_visitor(env, cache), m_prefix(prefix) {}

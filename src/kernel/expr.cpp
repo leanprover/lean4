@@ -365,25 +365,6 @@ void expr_let::dealloc(buffer<expr_cell*> & todelete) {
     delete this;
 }
 
-// Aux functions
-
-static unsigned add_weight(unsigned num, expr const * args) {
-    unsigned r = 0;
-    for (unsigned i = 0; i < num; i++)
-        r = add_weight(r, get_weight(args[i]));
-    return r;
-}
-
-static unsigned get_loose_bvar_range(unsigned num, expr const * args) {
-    unsigned r = 0;
-    for (unsigned i = 0; i < num; i++) {
-        unsigned d = get_loose_bvar_range(args[i]);
-        if (d > r)
-            r = d;
-    }
-    return r;
-}
-
 // =======================================
 // Constructors
 
@@ -455,7 +436,6 @@ void expr_cell::dealloc() {
             case expr_kind::Pi:         static_cast<expr_binding*>(it)->dealloc(todo); break;
             case expr_kind::Let:        static_cast<expr_let*>(it)->dealloc(todo); break;
 
-            case expr_kind::Macro:      static_cast<expr_macro*>(it)->dealloc(todo); break;
             case expr_kind::Quote:      static_cast<expr_quote*>(it)->dealloc(todo); break;
            }
         }
@@ -577,9 +557,6 @@ unsigned get_weight(expr const & e) {
     case expr_kind::MData:  case expr_kind::Proj:
         return static_cast<expr_composite*>(e.raw())->m_weight;
 
-
-    case expr_kind::Macro:
-        return static_cast<expr_composite*>(e.raw())->m_weight;
     case expr_kind::Quote:
         return 1;
     }
@@ -597,8 +574,6 @@ unsigned get_depth(expr const & e) {
         return static_cast<expr_composite*>(e.raw())->m_depth;
 
 
-    case expr_kind::Macro:
-        return static_cast<expr_composite*>(e.raw())->m_depth;
     case expr_kind::Quote:
         return 1;
     }
@@ -693,8 +668,6 @@ bool is_atomic(expr const & e) {
         return false;
 
 
-    case expr_kind::Macro:
-        return to_macro(e)->get_num_args() == 0;
     case expr_kind::Quote:
         return true;
     }
@@ -857,7 +830,6 @@ std::ostream & operator<<(std::ostream & out, expr_kind const & k) {
     case expr_kind::Let:      out << "Let"; break;
 
 
-    case expr_kind::Macro:    out << "Macro"; break;
     case expr_kind::Quote:    out << "Quote"; break;
     }
     return out;
@@ -884,83 +856,6 @@ void finalize_expr() {
 }
 
 /* ================ LEGACY CODE ================ */
-
-// Macro definition
-bool macro_definition_cell::lt(macro_definition_cell const &) const { return false; }
-bool macro_definition_cell::operator==(macro_definition_cell const & other) const { return typeid(*this) == typeid(other); }
-unsigned macro_definition_cell::trust_level() const { return 0; }
-
-void macro_definition_cell::display(std::ostream & out) const { out << get_name(); }
-unsigned macro_definition_cell::hash() const { return get_name().hash(); }
-
-macro_definition::macro_definition(macro_definition_cell * ptr):m_ptr(ptr) { lean_assert(m_ptr); m_ptr->inc_ref(); }
-macro_definition::macro_definition(macro_definition const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
-macro_definition::macro_definition(macro_definition && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
-macro_definition::~macro_definition() { if (m_ptr) m_ptr->dec_ref(); }
-macro_definition & macro_definition::operator=(macro_definition const & s) { LEAN_COPY_REF(s); }
-macro_definition & macro_definition::operator=(macro_definition && s) { LEAN_MOVE_REF(s); }
-bool macro_definition::operator<(macro_definition const & other) const {
-    if (get_name() == other.get_name())
-        return m_ptr->lt(*other.m_ptr);
-    else
-        return get_name() < other.get_name();
-}
-
-expr_macro::expr_macro(expr_macro const & src, expr const * new_args):
-    expr_composite(src),
-    m_definition(src.m_definition),
-    m_num_args(src.m_num_args) {
-    expr * data = get_args_ptr();
-    std::uninitialized_copy(new_args, new_args + m_num_args, data);
-}
-
-expr_macro::expr_macro(macro_definition const & m, unsigned num, expr const * args):
-    expr_composite(expr_kind::Macro,
-                   lean::hash(num, [&](unsigned i) { return args[i].hash(); }, m.hash()),
-                   std::any_of(args, args+num, [](expr const & e) { return e.has_expr_metavar(); }),
-                   std::any_of(args, args+num, [](expr const & e) { return e.has_univ_metavar(); }),
-                   std::any_of(args, args+num, [](expr const & e) { return e.has_fvar(); }),
-                   std::any_of(args, args+num, [](expr const & e) { return e.has_param_univ(); }),
-                   inc_weight(add_weight(num, args)),
-                   get_loose_bvar_range(num, args)),
-    m_definition(m),
-    m_num_args(num) {
-    expr * data = get_args_ptr();
-    m_depth = 0;
-    for (unsigned i = 0; i < num; i++) {
-        unsigned d = get_depth(args[i]);
-        if (d > m_depth)
-            m_depth = d;
-    }
-    m_depth++;
-    std::uninitialized_copy(args, args + num, data);
-}
-void expr_macro::dealloc(buffer<expr_cell*> & todelete) {
-    expr * args = get_args_ptr();
-    for (unsigned i = 0; i < m_num_args; i++) dec_ref(args[i], todelete);
-    this->~expr_macro();
-    char * mem = reinterpret_cast<char*>(this);
-    delete[] mem;
-}
-expr_macro::~expr_macro() {}
-
-expr mk_macro(macro_definition const & m, unsigned num, expr const * args) {
-    char * mem = new char[sizeof(expr_macro) + num*sizeof(expr const *)];
-    return expr(new (mem) expr_macro(m, num, args));
-}
-
-expr update_macro(expr const & e, unsigned num, expr const * args) {
-    if (num == macro_num_args(e)) {
-        unsigned i = 0;
-        for (i = 0; i < num; i++) {
-            if (!is_eqp(macro_arg(e, i), args[i]))
-                break;
-        }
-        if (i == num)
-            return e;
-    }
-    return mk_macro(to_macro(e)->m_definition, num, args);
-}
 
 expr_quote::expr_quote(bool r, expr const & v):
     expr_cell(expr_kind::Quote, v.hash(), false, false, false, false),

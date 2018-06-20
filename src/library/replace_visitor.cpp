@@ -51,13 +51,6 @@ expr replace_visitor::visit_let(expr const & e) {
     expr new_b = visit(let_body(e));
     return update_let(e, new_t, new_v, new_b);
 }
-expr replace_visitor::visit_macro(expr const & e) {
-    lean_assert(is_macro(e));
-    buffer<expr> new_args;
-    for (unsigned i = 0; i < macro_num_args(e); i++)
-        new_args.push_back(visit(macro_arg(e, i)));
-    return update_macro(e, new_args.size(), new_args.data());
-}
 expr replace_visitor::save_result(expr const & e, expr && r, bool shared) {
     if (shared)
         m_cache.insert(std::make_pair(e, r));
@@ -87,7 +80,6 @@ expr replace_visitor::visit(expr const & e) {
     case expr_kind::Pi:        return save_result(e, visit_pi(e), shared);
     case expr_kind::Let:       return save_result(e, visit_let(e), shared);
 
-    case expr_kind::Macro:     return save_result(e, visit_macro(e), shared);
     case expr_kind::Quote:     return save_result(e, visit_quote(e), shared);
     }
     lean_unreachable(); // LCOV_EXCL_LINE

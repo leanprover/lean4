@@ -730,8 +730,6 @@ public:
     bool is_prop(expr const & e);
     bool is_proof(expr const & e);
 
-    optional<expr> expand_macro(expr const & e);
-
     optional<name> is_class(expr const & type);
     optional<expr> mk_class_instance(expr const & type);
     optional<expr> mk_subsingleton_instance(expr const & type);
@@ -928,7 +926,6 @@ private:
     expr infer_local(expr const & e);
     expr infer_metavar(expr const & e);
     expr infer_constant(expr const & e);
-    expr infer_macro(expr const & e);
     expr infer_lambda(expr e);
     optional<level> get_level_core(expr const & A);
     level get_level(expr const & A);

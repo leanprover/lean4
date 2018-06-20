@@ -239,11 +239,11 @@ class vm_compiler_fn {
     }
 
     class elim_comp_irrelevant_marks_fn : public replace_visitor {
-        virtual expr visit_macro(expr const & e) override {
+        virtual expr visit_mdata(expr const & e) override {
             if (is_marked_as_comp_irrelevant(e))
                 return visit(get_annotation_arg(e));
             else
-                return replace_visitor::visit_macro(e);
+                return replace_visitor::visit_mdata(e);
         }
     };
 
@@ -274,11 +274,6 @@ class vm_compiler_fn {
         emit(mk_drop_instr(counter));
     }
 
-    void compile_macro(expr const & e, unsigned /* bpz */, name_map<unsigned> const & /* m */) {
-        throw exception(sstream() << "code generation failed, unexpected kind of macro has been found: '"
-                        << macro_def(e).get_name() << "'");
-    }
-
     void compile_quote(expr const & e) {
         emit(mk_expr_instr(quote_value(e)));
     }
@@ -305,7 +300,6 @@ class vm_compiler_fn {
         case expr_kind::MVar:     lean_unreachable();
         case expr_kind::Pi:       lean_unreachable();
         case expr_kind::Lambda:   lean_unreachable();
-        case expr_kind::Macro:    compile_macro(e, bpz, m);  break;
         case expr_kind::MData:    compile(mdata_expr(e), bpz, m); break;
         case expr_kind::Proj:     compile_proj_cnstr(e, bpz, m);  break;
         case expr_kind::Constant: compile_constant(e);       break;

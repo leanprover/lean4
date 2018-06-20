@@ -172,11 +172,6 @@ struct structural_rec_fn {
                 }
 
 
-            case expr_kind::Macro:
-                for (unsigned i = 0; i < macro_num_args(e); i++)
-                    if (!check_rhs(macro_arg(e, i)))
-                        return false;
-                return true;
             case expr_kind::Quote:
                 return true;
             }

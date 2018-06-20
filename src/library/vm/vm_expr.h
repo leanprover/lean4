@@ -11,8 +11,6 @@ Author: Leonardo de Moura
 namespace lean {
 binder_info to_binder_info(vm_obj const & o);
 vm_obj to_obj(binder_info const & bi);
-macro_definition const & to_macro_definition(vm_obj const & o);
-vm_obj to_obj(macro_definition const & d);
 bool is_expr(vm_obj const & o);
 expr const & to_expr(vm_obj const & o);
 vm_obj to_obj(expr const & e);

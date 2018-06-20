@@ -121,13 +121,6 @@ struct print_expr_fn {
         }
     }
 
-    void print_macro(expr const & a) {
-        macro_def(a).display(out());
-        for (unsigned i = 0; i < macro_num_args(a); i++) {
-            out() << " "; print_child(macro_arg(a, i));
-        }
-    }
-
     void print_sort(expr const & a) {
         if (is_zero(sort_level(a))) {
             out() << "Prop";
@@ -260,9 +253,6 @@ struct print_expr_fn {
             case literal_kind::Nat: out() << lit_value(a).get_nat().to_mpz();
             case literal_kind::String: out() << escaped(lit_value(a).get_string().data()); // HACK Lean string as C string
             }
-            break;
-        case expr_kind::Macro:
-            print_macro(a);
             break;
         case expr_kind::Quote:
             out() << "quote " << quote_is_reflected(a) << " ";

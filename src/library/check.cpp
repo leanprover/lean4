@@ -24,11 +24,6 @@ struct check_fn {
         }
     }
 
-    void visit_macro(expr const & e) {
-        for (unsigned i = 0; i < macro_num_args(e); i++)
-            visit(macro_arg(e, i));
-    }
-
     void ensure_type(expr const & e) {
         expr S = m_ctx.relaxed_whnf(m_ctx.infer(e));
         if (is_sort(S)) return;
@@ -129,8 +124,6 @@ struct check_fn {
             return visit(mdata_expr(e));
         case expr_kind::Proj:
             return visit(proj_expr(e));
-        case expr_kind::Macro:
-            return visit_macro(e);
         case expr_kind::Quote:
             break; /* do nothing */
         }

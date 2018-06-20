@@ -18,7 +18,6 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/annotation.h"
 #include "library/constants.h"
-#include "library/unfold_macros.h"
 #include "library/pp_options.h"
 #include "library/projection.h"
 #include "library/replace_visitor.h"

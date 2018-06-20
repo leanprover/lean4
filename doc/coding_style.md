@@ -235,8 +235,10 @@ from accidentally pushing the commits which contain style problems.
 To activate the hook, execute
 
 ```bash
-ln -s script/pre-push .git/hooks
+ln -s ../../script/pre-push .git/hooks
 ```
+
+in the project root directory.
 
 You can change the ``CHECKER`` variable in the script if you want to use other
 checkers.

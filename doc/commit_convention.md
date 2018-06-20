@@ -80,11 +80,12 @@ counter-intuitive behavior, and may confuse developers.
 "Prepare commit message" git hook
 =================================
 
-Execute the following to activate a little script that tries to synthesize
+Execute the following in the project root directory
+to activate a little script that tries to synthesize
 the first part of the commit message:
 
 ```bash
-ln -s script/prepare-commit-msg .git/hooks
+ln -s ../../script/prepare-commit-msg .git/hooks
 ```
 
 Currently, it will only activate if just a single file has changed.

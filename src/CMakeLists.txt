@@ -235,7 +235,7 @@ if(TESTCOV)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
 endif()
 
-# Compiler-specific C++11 activation.
+# Compiler-specific C++14 activation.
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
     execute_process(
         COMMAND "${CMAKE_CXX_COMPILER}" -dumpversion OUTPUT_VARIABLE GCC_VERSION)
@@ -245,7 +245,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
 elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__CLANG__")
   if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    # In OSX, clang requires "-stdlib=libc++" to support C++11
+    # In OSX, clang requires "-stdlib=libc++" to support C++14
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
     set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -stdlib=libc++")
   endif ()
@@ -260,13 +260,13 @@ elseif (MSVC)
     set(LEAN_EXTRA_LINKER_FLAGS        "/LTCG:INCREMENTAL ${LEAN_EXTRA_LINKER_FLAGS}")
     set(CMAKE_STATIC_LINKER_FLAGS      "${CMAKE_STATIC_LINKER_FLAGS} ${LEAN_EXTRA_LINKER_FLAGS}")
 elseif (EMSCRIPTEN)
-    message(STATUS "Emscripten is detected: Make sure the wraped compiler supports C++11")
+    message(STATUS "Emscripten is detected: Make sure the wraped compiler supports C++14")
 else()
     message(FATAL_ERROR "Unsupported compiler: ${CMAKE_CXX_COMPILER_ID}")
 endif ()
 
 if (NOT MSVC)
-    set(CMAKE_CXX_FLAGS                "-Wall -Wextra -std=c++11 ${CMAKE_CXX_FLAGS}")
+    set(CMAKE_CXX_FLAGS                "-Wall -Wextra -std=c++14 ${CMAKE_CXX_FLAGS}")
     set(CMAKE_CXX_FLAGS_DEBUG          "-g3 ${CMAKE_CXX_FLAGS_DEBUG}")
     set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os ${CMAKE_CXX_FLAGS_MINSIZEREL}")
     set(CMAKE_CXX_FLAGS_RELEASE        "-O3 ${CMAKE_CXX_FLAGS_RELEASE}")

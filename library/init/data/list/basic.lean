@@ -280,7 +280,7 @@ protected def lt [has_lt α] : list α → list α → Prop
 | []      []      := false
 | []      (b::bs) := true
 | (a::as) []      := false
-| (a::as) (b::bs) := a < b ∨ lt as bs
+| (a::as) (b::bs) := a < b ∨ (¬ b < a ∧ lt as bs)
 
 instance [has_lt α] : has_lt (list α) :=
 ⟨list.lt⟩
@@ -293,9 +293,12 @@ instance has_decidable_lt [has_lt α] [h : decidable_rel ((<) : α → α → Pr
   match h a b with
   | is_true h₁  := is_true (or.inl h₁)
   | is_false h₁ :=
-    match has_decidable_lt as bs with
-    | is_true h₂  := is_true (or.inr h₂)
-    | is_false h₂ := is_false (λ hd, or.elim hd (λ n₁, absurd n₁ h₁) (λ n₂, absurd n₂ h₂))
+    match h b a with
+    | is_true h₂  := is_false (λ h, or.elim h (λ h, absurd h h₁) (λ ⟨h, _⟩, absurd h₂ h))
+    | is_false h₂ :=
+      match has_decidable_lt as bs with
+      | is_true h₃  := is_true (or.inr ⟨h₂, h₃⟩)
+      | is_false h₃ := is_false (λ h, or.elim h (λ h, absurd h h₁) (λ ⟨_, h⟩, absurd h h₃))
 
 @[reducible] protected def le [has_lt α] (a b : list α) : Prop :=
 ¬ b < a

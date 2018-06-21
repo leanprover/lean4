@@ -807,7 +807,8 @@ struct structure_cmd_fn {
             throw parser_error("invalid field, identifier expected", m_p.pos());
 
         expr type;
-        optional<expr> default_value;
+        expr default_value;
+        bool default_value_initialized = false;
         implicit_infer_kind kind = implicit_infer_kind::Implicit;
         {
             parser::local_scope scope(m_p);
@@ -821,31 +822,33 @@ struct structure_cmd_fn {
             if (m_p.curr_is_token(get_assign_tk())) {
                 type = m_p.save_pos(mk_expr_placeholder(), m_p.pos());
                 m_p.next();
-                default_value = m_p.parse_expr();
+                default_value             = m_p.parse_expr();
+                default_value_initialized = true;
             } else {
                 m_p.check_token_next(get_colon_tk(), "invalid field, ':' expected");
                 type = m_p.parse_expr();
                 if (m_p.curr_is_token(get_assign_tk())) {
                     m_p.next();
-                    default_value = m_p.parse_expr();
+                    default_value             = m_p.parse_expr();
+                    default_value_initialized = true;
                 } else if (m_p.curr_is_token(get_period_tk())) {
                     type = parse_auto_param(m_p, type);
                 }
             }
             type = Pi(params, type);
-            if (default_value)
-                *default_value = Fun(params, *default_value);
+            if (default_value_initialized)
+                default_value = Fun(params, default_value);
         }
 
-        if (default_value && !is_explicit(bi)) {
+        if (default_value_initialized && !is_explicit(bi)) {
             throw parser_error("invalid field, it is not explicit, but it has a default value", start_pos);
         }
         for (auto p : names) {
             if (auto old_field = get_field_by_name(p.second)) {
-                if (default_value && is_placeholder(type)) {
+                if (default_value_initialized && is_placeholder(type)) {
                     if (m_subobjects) {
                         expr local = mk_local(p.second, old_field->get_type(), bi);
-                        field_decl field(local, default_value, field_kind::from_parent);
+                        field_decl field(local, some_expr(default_value), field_kind::from_parent);
                         field.m_has_new_default = true;
                         m_fields.push_back(field);
                     } else {
@@ -859,14 +862,17 @@ struct structure_cmd_fn {
                         msg << "' has been declared in parent structure";
                     else
                         msg <<"' has already been declared";
-                    if (default_value)
+                    if (default_value_initialized)
                         msg << " (omit its type to set a new default value)";
                     throw parser_error(msg, start_pos);
                 }
             } else {
                 expr local = m_p.save_pos(mk_local(p.second, type, bi), p.first);
                 m_p.add_local(local);
-                m_fields.emplace_back(local, default_value, field_kind::new_field, kind);
+                m_fields.push_back(field_decl(local,
+                                              default_value_initialized ? some_expr(default_value) : none_expr(),
+                                              field_kind::new_field,
+                                              kind));
             }
         }
     }

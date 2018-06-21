@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <iostream>
 #include <string>
+#include <algorithm>
 #include "runtime/object.h"
 #include "runtime/utf8.h"
 
@@ -208,21 +209,10 @@ bool string_eq(object * s1, char const * s2) {
 }
 
 bool string_lt(object * s1, object * s2) {
-    char const * d1  = string_data(s1);
-    char const * d2  = string_data(s2);
-    size_t i1  = 0;
-    size_t i2  = 0;
-    size_t sz1 = string_size(s1);
-    size_t sz2 = string_size(s2);
-    while (i1 < sz1 && i2 < sz2) {
-        unsigned c1 = next_utf8(d1, sz1, i1);
-        unsigned c2 = next_utf8(d2, sz2, i2);
-        if (c1 < c2)
-            return true;
-        if (c1 > c2)
-            return false;
-    }
-    return i1 == sz1 && i2 < sz2;
+    size_t sz1 = string_size(s1) - 1; // ignore null char in the end
+    size_t sz2 = string_size(s2) - 1; // ignore null char in the end
+    int r      = std::memcmp(string_data(s1), string_data(s2), std::min(sz1, sz2));
+    return r < 0 || (r == 0 && sz1 < sz2);
 }
 
 /* Natural numbers */

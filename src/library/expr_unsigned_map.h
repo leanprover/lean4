@@ -15,7 +15,7 @@ struct expr_unsigned {
     unsigned     m_nargs;
     unsigned     m_hash;
     expr_unsigned(expr const & fn, unsigned nargs):
-        m_expr(fn), m_nargs(nargs), m_hash(hash(m_expr.hash(), m_nargs)) {}
+        m_expr(fn), m_nargs(nargs), m_hash(hash(hash(m_expr), m_nargs)) {}
 };
 
 struct expr_unsigned_hash_fn {

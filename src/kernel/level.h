@@ -90,6 +90,7 @@ inline serializer & operator<<(serializer & s, level const & l) { l.serialize(s)
 inline serializer & operator<<(serializer & s, levels const & ls) { ls.serialize(s); return s; }
 inline level read_level(deserializer & d) { return level::deserialize(d); }
 inline levels read_levels(deserializer & d) { return read_list_ref<level>(d); }
+inline deserializer & operator>>(deserializer & d, level & l) { l = read_level(d); return d; }
 
 inline optional<level> none_level() { return optional<level>(); }
 inline optional<level> some_level(level const & e) { return optional<level>(e); }

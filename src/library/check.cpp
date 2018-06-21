@@ -108,7 +108,7 @@ struct check_fn {
         case expr_kind::Sort:
         case expr_kind::Lit:
             break; /* do nothing */
-        case expr_kind::Constant:
+        case expr_kind::Const:
             return visit_constant(e);
         case expr_kind::BVar:
             lean_unreachable();  // LCOV_EXCL_LINE

@@ -13,17 +13,12 @@ Author: Leonardo de Moura
 #include <unordered_map>
 #include <cstring>
 #include "runtime/int64.h"
-#include "runtime/extensible_object.h"
 #include "runtime/optional.h"
 
 namespace lean {
 struct object;
 class mpz;
-/** \brief Serializer
-
-    TODO(Leo): rename it to `serializer`. We can do it after we remove `extensible_object`.
-*/
-class serializer_core {
+class serializer {
     std::ostream & m_out;
     std::unordered_map<object*, unsigned, std::hash<object*>, std::equal_to<object*>> m_obj_table;
     void write_constructor(object * o);
@@ -33,8 +28,8 @@ class serializer_core {
     void write_string_object(object * o);
     void write_external(object * o);
 public:
-    serializer_core(std::ostream & out):m_out(out) {}
-    ~serializer_core();
+    serializer(std::ostream & out):m_out(out) {}
+    ~serializer();
     void write_string(char const * str) { m_out.write(str, strlen(str) + 1); }
     void write_string(std::string const & str) { write_string(str.c_str()); }
     void write_unsigned_short(unsigned short i);
@@ -50,8 +45,6 @@ public:
     void write_blob(std::string const &);
 };
 
-typedef extensible_object<serializer_core> serializer;
-
 inline serializer & operator<<(serializer & s, char const * str) { s.write_string(str); return s; }
 inline serializer & operator<<(serializer & s, std::string const & str) { s.write_string(str); return s; }
 inline serializer & operator<<(serializer & s, unsigned i) { s.write_unsigned(i); return s; }
@@ -62,12 +55,7 @@ inline serializer & operator<<(serializer & s, bool b) { s.write_bool(b); return
 inline serializer & operator<<(serializer & s, double b) { s.write_double(b); return s; }
 inline serializer & operator<<(serializer & s, object * o) { s.write_object(o); return s; }
 
-/**
-   \brief Deserializer.
-
-   TODO(Leo): rename it to `deserializer`. We can do it after we remove `extensible_object`.
-*/
-class deserializer_core {
+class deserializer {
     std::istream &        m_in;
     std::vector<object*>  m_objs;
     optional<std::string> m_fname;
@@ -79,9 +67,9 @@ class deserializer_core {
     object * read_string_object();
     object * read_external();
 public:
-    deserializer_core(std::istream & in):m_in(in) {}
-    deserializer_core(std::istream & in, optional<std::string> const & fname):m_in(in), m_fname(fname) {}
-    ~deserializer_core();
+    deserializer(std::istream & in):m_in(in) {}
+    deserializer(std::istream & in, optional<std::string> const & fname):m_in(in), m_fname(fname) {}
+    ~deserializer();
     std::string read_string();
     unsigned read_unsigned() {
         unsigned r = static_cast<unsigned>(m_in.get());
@@ -99,8 +87,6 @@ public:
     object * read_object();
     optional<std::string> get_fname() const { return m_fname; }
 };
-
-typedef extensible_object<deserializer_core> deserializer;
 
 inline deserializer & operator>>(deserializer & d, std::string & str) { str = d.read_string(); return d; }
 inline deserializer & operator>>(deserializer & d, unsigned & i) { i = d.read_unsigned(); return d; }

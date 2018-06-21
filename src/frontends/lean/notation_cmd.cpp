@@ -339,7 +339,7 @@ static action parse_action(parser & p, name const & prev_token, unsigned default
             return mk_expr_action(get_precedence(p.env(), new_tokens, prev_token));
         } else if (p.curr_is_token_or_id(get_scoped_tk())) {
             p.next();
-            return mk_scoped_expr_action(mk_var(0));
+            return mk_scoped_expr_action(mk_bvar(0));
         } else {
             p.check_token_next(get_lparen_tk(), "invalid notation declaration, '(', numeral or 'scoped' expected");
             if (p.curr_is_token_or_id(get_foldl_tk()) || p.curr_is_token_or_id(get_foldr_tk())) {

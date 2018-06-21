@@ -11,19 +11,19 @@ Author: Leonardo de Moura
 namespace lean {
 expr copy(expr const & a) {
     switch (a.kind()) {
-    case expr_kind::Lit:      return mk_lit(lit_value(a));
-    case expr_kind::MData:    return mk_mdata(mdata_data(a), mdata_expr(a));
-    case expr_kind::Proj:     return mk_proj(proj_idx(a), proj_expr(a));
-    case expr_kind::BVar:     return mk_var(var_idx(a));
-    case expr_kind::FVar:     return mk_local(mlocal_name(a), mlocal_pp_name(a), mlocal_type(a), local_info(a));
-    case expr_kind::Constant: return mk_constant(const_name(a), const_levels(a));
-    case expr_kind::Sort:     return mk_sort(sort_level(a));
-    case expr_kind::App:      return mk_app(app_fn(a), app_arg(a));
-    case expr_kind::Lambda:   return mk_lambda(binding_name(a), binding_domain(a), binding_body(a), binding_info(a));
-    case expr_kind::Pi:       return mk_pi(binding_name(a), binding_domain(a), binding_body(a), binding_info(a));
-    case expr_kind::MVar:     return mk_metavar(mlocal_name(a), mlocal_pp_name(a), mlocal_type(a));
-    case expr_kind::Let:      return mk_let(let_name(a), let_type(a), let_value(a), let_body(a));
-    case expr_kind::Quote:    return mk_quote(quote_is_reflected(a), quote_value(a));
+    case expr_kind::Lit:    return mk_lit(lit_value(a));
+    case expr_kind::MData:  return mk_mdata(mdata_data(a), mdata_expr(a));
+    case expr_kind::Proj:   return mk_proj(proj_idx(a), proj_expr(a));
+    case expr_kind::BVar:   return mk_bvar(bvar_idx(a));
+    case expr_kind::FVar:   return mk_local(mlocal_name(a), mlocal_pp_name(a), mlocal_type(a), local_info(a));
+    case expr_kind::Const:  return mk_const(const_name(a), const_levels(a));
+    case expr_kind::Sort:   return mk_sort(sort_level(a));
+    case expr_kind::App:    return mk_app(app_fn(a), app_arg(a));
+    case expr_kind::Lambda: return mk_lambda(binding_name(a), binding_domain(a), binding_body(a), binding_info(a));
+    case expr_kind::Pi:     return mk_pi(binding_name(a), binding_domain(a), binding_body(a), binding_info(a));
+    case expr_kind::MVar:   return mk_metavar(mlocal_name(a), mlocal_pp_name(a), mlocal_type(a));
+    case expr_kind::Let:    return mk_let(let_name(a), let_type(a), let_value(a), let_body(a));
+    case expr_kind::Quote:  return mk_quote(quote_is_reflected(a), quote_value(a));
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }

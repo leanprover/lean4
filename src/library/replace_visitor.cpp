@@ -67,18 +67,18 @@ expr replace_visitor::visit(expr const & e) {
     }
 
     switch (e.kind()) {
-    case expr_kind::Lit:       return save_result(e, visit_lit(e), shared);
-    case expr_kind::MData:     return save_result(e, visit_mdata(e), shared);
-    case expr_kind::Proj:      return save_result(e, visit_proj(e), shared);
-    case expr_kind::Sort:      return save_result(e, visit_sort(e), shared);
-    case expr_kind::Constant:  return save_result(e, visit_constant(e), shared);
-    case expr_kind::BVar:      return save_result(e, visit_var(e), shared);
-    case expr_kind::MVar:      return save_result(e, visit_meta(e), shared);
-    case expr_kind::FVar:      return save_result(e, visit_local(e), shared);
-    case expr_kind::App:       return save_result(e, visit_app(e), shared);
-    case expr_kind::Lambda:    return save_result(e, visit_lambda(e), shared);
-    case expr_kind::Pi:        return save_result(e, visit_pi(e), shared);
-    case expr_kind::Let:       return save_result(e, visit_let(e), shared);
+    case expr_kind::Lit:     return save_result(e, visit_lit(e), shared);
+    case expr_kind::MData:   return save_result(e, visit_mdata(e), shared);
+    case expr_kind::Proj:    return save_result(e, visit_proj(e), shared);
+    case expr_kind::Sort:    return save_result(e, visit_sort(e), shared);
+    case expr_kind::Const:   return save_result(e, visit_constant(e), shared);
+    case expr_kind::BVar:    return save_result(e, visit_var(e), shared);
+    case expr_kind::MVar:    return save_result(e, visit_meta(e), shared);
+    case expr_kind::FVar:    return save_result(e, visit_local(e), shared);
+    case expr_kind::App:     return save_result(e, visit_app(e), shared);
+    case expr_kind::Lambda:  return save_result(e, visit_lambda(e), shared);
+    case expr_kind::Pi:      return save_result(e, visit_pi(e), shared);
+    case expr_kind::Let:     return save_result(e, visit_let(e), shared);
 
     case expr_kind::Quote:     return save_result(e, visit_quote(e), shared);
     }

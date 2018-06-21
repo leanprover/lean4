@@ -34,7 +34,7 @@ expr kabstract(type_context_old & ctx, expr const & e, expr const & t, occurrenc
                         lean_trace("kabstract", scope_trace_env _(ctx.env(), ctx);
                                    tout() << "found target:\n" << s << "\n";);
                         i++;
-                        return some_expr(mk_var(offset));
+                        return some_expr(mk_bvar(offset));
                     } else {
                         i++;
                     }

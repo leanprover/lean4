@@ -15,7 +15,7 @@ struct head_index {
     expr_kind m_kind;
     name      m_name;
     explicit head_index(expr_kind k = expr_kind::BVar):m_kind(k) {}
-    explicit head_index(name const & c):m_kind(expr_kind::Constant), m_name(c) {}
+    explicit head_index(name const & c):m_kind(expr_kind::Const), m_name(c) {}
     head_index(expr const & e);
     expr_kind kind() const { return m_kind; }
     name const & get_name() const { return m_name; }

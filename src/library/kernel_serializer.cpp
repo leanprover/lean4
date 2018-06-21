@@ -5,182 +5,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
-#include "util/object_serializer.h"
 #include "kernel/expr.h"
 #include "kernel/declaration.h"
 #include "library/kernel_serializer.h"
 
 // Procedures for serializing and deserializing kernel objects (levels, exprs, declarations)
 namespace lean {
-// Expression serialization
-static name * g_binder_name = nullptr;
-
-class expr_serializer : public object_serializer<expr, expr_hash, is_bi_equal_proc> {
-    typedef object_serializer<expr, expr_hash, is_bi_equal_proc> super;
-    unsigned       m_next_id;
-
-    void write_binder_name(serializer & s, name const & a) {
-        // make sure binding names are atomic string
-        if (!a.is_atomic() || a.is_numeral()) {
-            s << g_binder_name->append_after(m_next_id);
-            m_next_id++;
-        } else {
-            s << a;
-        }
-    }
-
-    void write_core(expr const & a) {
-        auto k = a.kind();
-        super::write_core(a, static_cast<char>(k), [&]() {
-                serializer & s = get_owner();
-                switch (k) {
-                case expr_kind::BVar:
-                    s << var_idx(a);
-                    break;
-                case expr_kind::Lit:
-                    s << lit_value(a);
-                    break;
-                case expr_kind::MData:
-                    s << mdata_data(a);
-                    write_core(mdata_expr(a));
-                    break;
-                case expr_kind::Proj:
-                    s << proj_idx(a);
-                    write_core(proj_expr(a));
-                    break;
-                case expr_kind::Constant:
-                    lean_assert(!const_name(a).is_anonymous());
-                    s << const_name(a) << const_levels(a);
-                    break;
-                case expr_kind::Sort:
-                    s << sort_level(a);
-                    break;
-                case expr_kind::App:
-                    write_core(app_fn(a)); write_core(app_arg(a));
-                    break;
-                case expr_kind::Lambda: case expr_kind::Pi:
-                    lean_assert(!binding_name(a).is_anonymous());
-                    write_binder_name(s, binding_name(a));
-                    s.write_char(static_cast<char>(binding_info(a)));
-                    write_core(binding_domain(a)); write_core(binding_body(a));
-                    break;
-                case expr_kind::Let:
-                    s << let_name(a);
-                    write_core(let_type(a)); write_core(let_value(a)); write_core(let_body(a));
-                    break;
-                case expr_kind::MVar:
-                    lean_assert(!mlocal_name(a).is_anonymous());
-                    s << mlocal_name(a) << mlocal_pp_name(a); write_core(mlocal_type(a));
-                    break;
-                case expr_kind::FVar:
-                    lean_assert(!mlocal_name(a).is_anonymous());
-                    lean_assert(!mlocal_pp_name(a).is_anonymous());
-                    s << mlocal_name(a) << mlocal_pp_name(a);
-                    s.write_char(static_cast<char>(local_info(a))); write_core(mlocal_type(a));
-                    break;
-
-                case expr_kind::Quote:
-                    s << quote_is_reflected(a);
-                    write_core(quote_value(a));
-                    break;
-                }
-            });
-    }
-public:
-    expr_serializer() { m_next_id = 0; }
-    void write(expr const & a) {
-        write_core(a);
-    }
-};
-
-class expr_deserializer : public object_deserializer<expr> {
-    typedef object_deserializer<expr> super;
-public:
-    expr read_binding(expr_kind k) {
-        deserializer & d   = get_owner();
-        name n             = read_name(d);
-        binder_info i      = static_cast<binder_info>(d.read_char());
-        expr t             = read();
-        return mk_binding(k, n, t, read(), i);
-    }
-
-    expr read() {
-        return super::read_core([&](char c) {
-                deserializer & d = get_owner();
-                auto k = static_cast<expr_kind>(c);
-                switch (k) {
-                case expr_kind::BVar:
-                    return mk_var(d.read_unsigned());
-                case expr_kind::Lit:
-                    return mk_lit(read_literal(d));
-                case expr_kind::MData: {
-                    kvmap m = read_list_ref<pair_ref<name, data_value>>(d);
-                    return mk_mdata(m, read());
-                }
-                case expr_kind::Proj: {
-                    nat idx = read_nat(d);
-                    return mk_proj(idx, read());
-                }
-                case expr_kind::Constant: {
-                    auto n = read_name(d);
-                    return mk_constant(n, read_levels(d));
-                }
-                case expr_kind::Sort:
-                    return mk_sort(read_level(d));
-                case expr_kind::App: {
-                    expr f = read();
-                    return mk_app(f, read());
-                }
-                case expr_kind::Lambda: case expr_kind::Pi:
-                    return read_binding(k);
-                case expr_kind::Let: {
-                    name n = read_name(d);
-                    expr t = read();
-                    expr v = read();
-                    return mk_let(n, t, v, read());
-                }
-                case expr_kind::MVar: {
-                    name n    = read_name(d);
-                    name pp_n = read_name(d);
-                    return mk_metavar(n, pp_n, read());
-                }
-                case expr_kind::FVar: {
-                    name n         = read_name(d);
-                    name pp_n      = read_name(d);
-                    binder_info bi = static_cast<binder_info>(d.read_char());
-                    return mk_local(n, pp_n, read(), bi);
-                }
-
-                case expr_kind::Quote: {
-                    bool r = d.read_bool();
-                    expr v = read();
-                    return mk_quote(r, v);
-                }
-                }
-                throw corrupted_stream_exception(); // LCOV_EXCL_LINE
-            });
-    }
-};
-
-struct expr_sd {
-    unsigned m_s_extid;
-    unsigned m_d_extid;
-    expr_sd() {
-        m_s_extid = serializer::register_extension([](){ return std::unique_ptr<serializer::extension>(new expr_serializer()); });
-        m_d_extid = deserializer::register_extension([](){ return std::unique_ptr<deserializer::extension>(new expr_deserializer()); });
-    }
-};
-static expr_sd * g_expr_sd = nullptr;
-
-serializer & operator<<(serializer & s, expr const & n) {
-    s.get_extension<expr_serializer>(g_expr_sd->m_s_extid).write(n);
-    return s;
-}
-
-expr read_expr(deserializer & d) {
-    return d.get_extension<expr_deserializer>(g_expr_sd->m_d_extid).read();
-}
-
 serializer & operator<<(serializer & s, reducibility_hints const & h) {
     s << static_cast<char>(h.get_kind());
     if (h.is_regular())
@@ -310,12 +140,8 @@ inductive::certified_inductive_decl read_certified_inductive_decl(deserializer &
 }
 
 void initialize_kernel_serializer() {
-    g_binder_name   = new name("a");
-    g_expr_sd       = new expr_sd();
 }
 
 void finalize_kernel_serializer() {
-    delete g_expr_sd;
-    delete g_binder_name;
 }
 }

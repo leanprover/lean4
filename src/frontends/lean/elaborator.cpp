@@ -967,7 +967,7 @@ expr elaborator::visit_function(expr const & fn, bool has_args, optional<expr> c
     // The expr_kind::App case can only happen when nary notation is used
     case expr_kind::App:       r = visit(fn, expected_type); break;
     case expr_kind::FVar:      r = fn; break;
-    case expr_kind::Constant:  r = visit_const_core(fn); break;
+    case expr_kind::Const:     r = visit_const_core(fn); break;
     case expr_kind::MData:     r = visit_mdata(fn, expected_type, true); break;
     case expr_kind::Lambda:    r = visit_lambda(fn, expected_type); break;
     case expr_kind::Let:       r = visit_let(fn, expected_type); break;
@@ -2070,7 +2070,7 @@ static level ground_uvars(level const & l) {
 
 static expr ground_uvars(expr const & e) {
     return replace_propagating_pos(e, [] (expr const & e, unsigned) {
-        if (!e.has_univ_metavar()) {
+        if (!has_univ_metavar(e)) {
             return some_expr(e);
         } else if (is_sort(e)) {
             return some_expr(mk_sort(ground_uvars(sort_level(e))));
@@ -2162,7 +2162,7 @@ static expr instantiate_rev_locals(expr const & a, unsigned n, expr const * subs
         if (offset >= get_loose_bvar_range(m))
             return some_expr(m); // expression m does not contain free variables with idx >= offset
         if (is_var(m)) {
-            unsigned vidx = var_idx(m);
+            unsigned vidx = bvar_idx(m).get_small_value();
             if (vidx >= offset) {
                 unsigned h = offset + n;
                 if (h < offset /* overflow, h is bigger than any vidx */ || vidx < h) {
@@ -2170,7 +2170,7 @@ static expr instantiate_rev_locals(expr const & a, unsigned n, expr const * subs
                     lean_assert(is_local(local));
                     return some_expr(copy_pos(m, copy(local)));
                 } else {
-                    return some_expr(copy_pos(m, mk_var(vidx - n)));
+                    return some_expr(copy_pos(m, mk_bvar(vidx - n)));
                 }
             }
         }
@@ -2312,9 +2312,9 @@ static void check_equations_arity(buffer<expr> const & eqns) {
             expr const & lhs = equation_lhs(eqn);
             expr const & fn  = get_app_fn(lhs);
             unsigned arity   = get_app_num_args(lhs);
-            if (!is_var(fn) || var_idx(fn) >= nbinders)
+            if (!is_var(fn) || bvar_idx(fn) >= nbinders)
                 throw_ill_formed_equation(eqn);
-            unsigned fidx    = nbinders - var_idx(fn) - 1;
+            unsigned fidx    = nbinders - bvar_idx(fn).get_small_value() - 1;
             if (fidx >= fidx2arity.size())
                 fidx2arity.resize(fidx+1, optional<unsigned>());
             if (auto r = fidx2arity[fidx]) {
@@ -3646,7 +3646,7 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
                     return copy_pos(e, visit_sort(e));
                 case expr_kind::FVar:
                     return copy_pos(e, visit_local(e, expected_type));
-                case expr_kind::Constant:
+                case expr_kind::Const:
                     return copy_pos(e, visit_constant(e, expected_type));
                 case expr_kind::Lambda:
                     return copy_pos(e, visit_lambda(e, expected_type));
@@ -4121,7 +4121,7 @@ static optional<expr> resolve_local_name_core(environment const & env, local_con
     unsigned vidx = 0;
     for (name const & extra : extra_locals) {
         if (id == extra)
-            return some_expr(copy_pos(src, mk_var(vidx)));
+            return some_expr(copy_pos(src, mk_bvar(vidx)));
         vidx++;
     }
 

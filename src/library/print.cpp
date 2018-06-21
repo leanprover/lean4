@@ -223,9 +223,9 @@ struct print_expr_fn {
             print(proj_expr(a)); out() << "." << proj_idx(a).to_mpz();
             break;
         case expr_kind::BVar:
-            out() << "#" << var_idx(a);
+            out() << "#" << bvar_idx(a);
             break;
-        case expr_kind::Constant:
+        case expr_kind::Const:
             print_const(a);
             break;
         case expr_kind::App:

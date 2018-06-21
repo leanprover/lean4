@@ -40,18 +40,25 @@ public:
     friend bool operator==(nat const & a, nat const & b) { return nat_eq(a.raw(), b.raw()); }
     friend bool operator!=(nat const & a, nat const & b) { return !(a == b); }
     friend bool operator<=(nat const & a, nat const & b) { return nat_le(a.raw(), b.raw()); }
-    friend bool operator<(nat const & a, nat const & b) { return nat_lt(a.raw(), b.raw()); }
+    friend bool operator<(nat const & a,  nat const & b) { return nat_lt(a.raw(), b.raw()); }
     friend bool operator>=(nat const & a, nat const & b) { return b <= a; }
-    friend bool operator>(nat const & a, nat const & b) { return b < a; }
-    friend nat operator+(nat const & a, nat const & b) { return wrap(nat_add(a.raw(), b.raw())); }
-    friend nat operator-(nat const & a, nat const & b) { return wrap(nat_sub(a.raw(), b.raw())); }
-    friend nat operator*(nat const & a, nat const & b) { return wrap(nat_mul(a.raw(), b.raw())); }
-    friend nat operator/(nat const & a, nat const & b) { return wrap(nat_div(a.raw(), b.raw())); }
-    friend nat operator%(nat const & a, nat const & b) { return wrap(nat_mod(a.raw(), b.raw())); }
+    friend bool operator>(nat const & a,  nat const & b) { return b < a; }
+    friend bool operator==(nat const & a, unsigned b)    { return a == nat(b); }
+    friend bool operator!=(nat const & a, unsigned b)    { return !(a == b); }
+    friend bool operator<=(nat const & a, unsigned b)    { return a <= nat(b); }
+    friend bool operator<(nat const & a,  unsigned b)    { return a < nat(b); }
+    friend bool operator>=(nat const & a, unsigned b)    { return a >= nat(b); }
+    friend bool operator>(nat const & a,  unsigned b)    { return a > nat(b); }
+    friend nat operator+(nat const & a, nat const & b)   { return wrap(nat_add(a.raw(), b.raw())); }
+    friend nat operator-(nat const & a, nat const & b)   { return wrap(nat_sub(a.raw(), b.raw())); }
+    friend nat operator*(nat const & a, nat const & b)   { return wrap(nat_mul(a.raw(), b.raw())); }
+    friend nat operator/(nat const & a, nat const & b)   { return wrap(nat_div(a.raw(), b.raw())); }
+    friend nat operator%(nat const & a, nat const & b)   { return wrap(nat_mod(a.raw(), b.raw())); }
     void serialize(serializer & s) const { s.write_object(raw()); }
 };
 
 inline serializer & operator<<(serializer & s, nat const & n) { n.serialize(s); return s; }
 inline nat read_nat(deserializer & d) { return nat(d.read_object()); }
 inline deserializer & operator>>(deserializer & d, nat & n) { n = read_nat(d); return d; }
+inline std::ostream & operator<<(std::ostream & out, nat const & n) { out << n.to_mpz(); return out; }
 };

@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "runtime/compiler_hints.h"
 #include "runtime/mpz.h"
 #include "runtime/int64.h"
+#include "runtime/thread.h"
 
 namespace lean {
 inline void * alloca(size_t s) {

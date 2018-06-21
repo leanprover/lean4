@@ -647,7 +647,7 @@ simp_result simplify_core_fn::visit(expr const & e, optional<expr> const & paren
         case expr_kind::FVar:
         case expr_kind::Sort:
         case expr_kind::Lit:
-        case expr_kind::Constant:
+        case expr_kind::Const:
             new_result = curr_result;
             break;
         case expr_kind::MVar:

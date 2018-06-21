@@ -449,8 +449,8 @@ static expr expand_pp_pattern(unsigned num, transition const * ts, expr const & 
     if (!is_var(a))
         return a;
     return replace(a, [&](expr const & e) {
-            if (is_var(e)) {
-                unsigned vidx = var_idx(e);
+            if (is_bvar(e) && bvar_idx(e).is_small()) {
+                unsigned vidx = bvar_idx(e).get_small_value();
                 unsigned i = num;
                 unsigned offset = 0;
                 while (i > 0) {

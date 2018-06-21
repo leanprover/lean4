@@ -17,28 +17,24 @@ Author: Leonardo de Moura
 
 namespace lean {
 void initialize_serializer() {
-    serializer::initialize();
-    deserializer::initialize();
 }
 
 void finalize_serializer() {
-    deserializer::finalize();
-    serializer::finalize();
 }
 
-serializer_core::~serializer_core() {
+serializer::~serializer() {
     for (std::pair<object*, unsigned> const & it : m_obj_table) {
         dec_ref(it.first);
     }
 }
 
-void serializer_core::write_unsigned_short(unsigned short i) {
+void serializer::write_unsigned_short(unsigned short i) {
     static_assert(sizeof(i) == 2, "unexpected unsigned short size");
     m_out.put((i >> 8) & 0xff);
     m_out.put(i & 0xff);
 }
 
-void serializer_core::write_unsigned(unsigned i) {
+void serializer::write_unsigned(unsigned i) {
     static_assert(sizeof(i) == 4, "unexpected unsigned size");
     if (i < 255) {
         m_out.put(i & 0xff);
@@ -51,13 +47,13 @@ void serializer_core::write_unsigned(unsigned i) {
     }
 }
 
-void serializer_core::write_uint64(uint64 i) {
+void serializer::write_uint64(uint64 i) {
     static_assert(sizeof(i) == 8, "unexpected uint64 size");
     write_unsigned((i >> 32) & 0xffffffff);
     write_unsigned(i & 0xffffffff);
 }
 
-void serializer_core::write_size_t(size_t i) {
+void serializer::write_size_t(size_t i) {
     if (sizeof(i) == 8) {
         write_uint64(static_cast<uint64>(i));
     } else {
@@ -66,17 +62,17 @@ void serializer_core::write_size_t(size_t i) {
     }
 }
 
-void serializer_core::write_int(int i) {
+void serializer::write_int(int i) {
     static_assert(sizeof(i) == 4, "unexpected int size");
     write_unsigned(i);
 }
 
-void serializer_core::write_blob(std::string const & s) {
+void serializer::write_blob(std::string const & s) {
     write_unsigned(s.size());
     m_out.write(&s[0], s.size());
 }
 
-void serializer_core::write_constructor(object * o) {
+void serializer::write_constructor(object * o) {
     lean_assert(is_cnstr(o));
     unsigned num_objs  = cnstr_num_objs(o);
     unsigned scalar_sz = cnstr_scalar_size(o);
@@ -93,7 +89,7 @@ void serializer_core::write_constructor(object * o) {
         m_out.put(*sit);
 }
 
-void serializer_core::write_closure(object *) { // NOLINT
+void serializer::write_closure(object *) { // NOLINT
     /* TODO(Leo): we need a table from function pointer to unique name id.
 
        For serializing bytecode, we will need to retrieve the unique name id too.
@@ -104,7 +100,7 @@ void serializer_core::write_closure(object *) { // NOLINT
     throw exception("serializer for closures has not been implemented yet");
 }
 
-void serializer_core::write_array(object * o) {
+void serializer::write_array(object * o) {
     lean_assert(is_array(o));
     size_t sz    = sarray_size(o);
     write_size_t(sz);
@@ -114,7 +110,7 @@ void serializer_core::write_array(object * o) {
         write_object(*it);
 }
 
-void serializer_core::write_scalar_array(object * o) {
+void serializer::write_scalar_array(object * o) {
     lean_assert(is_sarray(o));
     unsigned esz = sarray_elem_size(o);
     size_t sz    = sarray_size(o);
@@ -127,7 +123,7 @@ void serializer_core::write_scalar_array(object * o) {
         m_out.put(*it);
 }
 
-void serializer_core::write_string_object(object * o) {
+void serializer::write_string_object(object * o) {
     size_t sz  = string_size(o);
     size_t len = string_len(o);
     write_size_t(sz);
@@ -138,20 +134,20 @@ void serializer_core::write_string_object(object * o) {
         m_out.put(*it);
 }
 
-void serializer_core::write_mpz(mpz const & n) {
+void serializer::write_mpz(mpz const & n) {
     std::ostringstream out;
     out << n;
     write_string(out.str());
 }
 
-void serializer_core::write_external(object *) { // NOLINT
+void serializer::write_external(object *) { // NOLINT
     /* TODO(Leo): we need support for registering serializers/deserializers
        for external objects.
     */
     throw exception("serializer for external objects has not been implemented yet");
 }
 
-void serializer_core::write_object(object * o) {
+void serializer::write_object(object * o) {
     if (is_scalar(o)) {
         m_out.put(0);
         write_unsigned(unbox(o));
@@ -182,7 +178,7 @@ void serializer_core::write_object(object * o) {
 corrupted_stream_exception::corrupted_stream_exception():
     exception("corrupted binary file") {}
 
-void serializer_core::write_double(double d) {
+void serializer::write_double(double d) {
     std::ostringstream out;
     // TODO(Leo): the following code may miss precision.
     // We should use std::ios::hexfloat, but it is not supported by
@@ -193,12 +189,12 @@ void serializer_core::write_double(double d) {
     write_string(out.str());
 }
 
-deserializer_core::~deserializer_core() {
+deserializer::~deserializer() {
     for (object * o : m_objs)
         dec_ref(o);
 }
 
-std::string deserializer_core::read_string() {
+std::string deserializer::read_string() {
     std::string r;
     while (true) {
         char c = m_in.get();
@@ -211,7 +207,7 @@ std::string deserializer_core::read_string() {
     return r;
 }
 
-unsigned deserializer_core::read_unsigned_ext() {
+unsigned deserializer::read_unsigned_ext() {
     unsigned r;
     static_assert(sizeof(r) == 4, "unexpected unsigned size");
     r  = static_cast<unsigned>(m_in.get()) << 24;
@@ -221,7 +217,7 @@ unsigned deserializer_core::read_unsigned_ext() {
     return r;
 }
 
-unsigned short deserializer_core::read_unsigned_short() {
+unsigned short deserializer::read_unsigned_short() {
     unsigned short r;
     static_assert(sizeof(r) == 2, "unexpected unsigned short size");
     r  = static_cast<unsigned short>(m_in.get()) << 8;
@@ -229,7 +225,7 @@ unsigned short deserializer_core::read_unsigned_short() {
     return r;
 }
 
-uint64 deserializer_core::read_uint64() {
+uint64 deserializer::read_uint64() {
     uint64 r;
     static_assert(sizeof(r) == 8, "unexpected uint64 size");
     r  = static_cast<uint64>(read_unsigned()) << 32;
@@ -237,7 +233,7 @@ uint64 deserializer_core::read_uint64() {
     return r;
 }
 
-size_t deserializer_core::read_size_t() {
+size_t deserializer::read_size_t() {
     if (sizeof(size_t) == 8) {
         return static_cast<size_t>(read_uint64());
     } else {
@@ -246,7 +242,7 @@ size_t deserializer_core::read_size_t() {
     }
 }
 
-double deserializer_core::read_double() {
+double deserializer::read_double() {
     // TODO(Leo): use std::hexfloat as soon as it is supported by g++
     std::istringstream in(read_string());
     double r;
@@ -254,18 +250,18 @@ double deserializer_core::read_double() {
     return r;
 }
 
-mpz deserializer_core::read_mpz() {
+mpz deserializer::read_mpz() {
     return mpz(read_string().c_str());
 }
 
-std::string deserializer_core::read_blob() {
+std::string deserializer::read_blob() {
     unsigned sz = read_unsigned();
     std::string s(sz, '\0');
     m_in.read(&s[0], sz);
     return s;
 }
 
-object * deserializer_core::read_constructor() {
+object * deserializer::read_constructor() {
     unsigned tag       = read_unsigned_short();
     unsigned num_objs  = read_unsigned_short();
     unsigned scalar_sz = read_unsigned_short();
@@ -282,11 +278,11 @@ object * deserializer_core::read_constructor() {
     return r;
 }
 
-object * deserializer_core::read_closure() {
+object * deserializer::read_closure() {
     throw exception("serializer for closures has not been implemented yet");
 }
 
-object * deserializer_core::read_array() {
+object * deserializer::read_array() {
     size_t sz    = read_size_t();
     object * r   = alloc_array(sz, sz);
     for (size_t i = 0; i < sz; i++) {
@@ -297,7 +293,7 @@ object * deserializer_core::read_array() {
     return r;
 }
 
-object * deserializer_core::read_scalar_array() {
+object * deserializer::read_scalar_array() {
     unsigned esz         = read_unsigned();
     size_t sz            = read_size_t();
     object * r           = alloc_sarray(esz, sz, sz);
@@ -308,7 +304,7 @@ object * deserializer_core::read_scalar_array() {
     return r;
 }
 
-object * deserializer_core::read_string_object() {
+object * deserializer::read_string_object() {
     size_t sz            = read_size_t();
     size_t len           = read_size_t();
     object * r           = alloc_string(sz, sz, len);
@@ -319,11 +315,11 @@ object * deserializer_core::read_string_object() {
     return r;
 }
 
-object * deserializer_core::read_external() {
+object * deserializer::read_external() {
     throw exception("serializer for external objects has not been implemented yet");
 }
 
-object * deserializer_core::read_object() {
+object * deserializer::read_object() {
     unsigned c = m_in.get();
     if (c == 0) {
         return box(read_unsigned());

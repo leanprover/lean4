@@ -16,9 +16,9 @@ Author: Leonardo de Moura
 namespace lean {
 struct replace_cache {
     struct entry {
-        expr_cell * m_cell;
-        unsigned    m_offset;
-        expr        m_result;
+        object  *  m_cell;
+        unsigned   m_offset;
+        expr       m_result;
         entry():m_cell(nullptr) {}
     };
     unsigned              m_capacity;
@@ -27,7 +27,7 @@ struct replace_cache {
     replace_cache(unsigned c):m_capacity(c), m_cache(c) {}
 
     expr * find(expr const & e, unsigned offset) {
-        unsigned i = hash(e.hash(), offset) % m_capacity;
+        unsigned i = hash(hash(e), offset) % m_capacity;
         if (m_cache[i].m_cell == e.raw() && m_cache[i].m_offset == offset)
             return &m_cache[i].m_result;
         else
@@ -35,7 +35,7 @@ struct replace_cache {
     }
 
     void insert(expr const & e, unsigned offset, expr const & v) {
-        unsigned i = hash(e.hash(), offset) % m_capacity;
+        unsigned i = hash(hash(e), offset) % m_capacity;
         if (m_cache[i].m_cell == nullptr)
             m_used.push_back(i);
         m_cache[i].m_cell   = e.raw();
@@ -79,8 +79,8 @@ class replace_rec_fn {
             return save_result(e, offset, *r, shared);
         } else {
             switch (e.kind()) {
-            case expr_kind::Constant: case expr_kind::Sort:
-            case expr_kind::BVar:     case expr_kind::Lit:
+            case expr_kind::Const: case expr_kind::Sort:
+            case expr_kind::BVar:  case expr_kind::Lit:
                 return save_result(e, offset, e, shared);
             case expr_kind::MData: {
                 expr new_e = apply(mdata_expr(e), offset);

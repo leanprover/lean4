@@ -770,9 +770,9 @@ optional<expr> type_context_old::reduce_recursor(expr const & e) {
 expr type_context_old::whnf_core(expr const & e0, bool proj_reduce) {
     expr e = e0;
     while (true) { switch (e.kind()) {
-    case expr_kind::BVar:     case expr_kind::Sort:
-    case expr_kind::Pi:       case expr_kind::Lambda:
-    case expr_kind::Constant: case expr_kind::Lit:
+    case expr_kind::BVar:  case expr_kind::Sort:
+    case expr_kind::Pi:    case expr_kind::Lambda:
+    case expr_kind::Const: case expr_kind::Lit:
         /* Remark: we do not unfold Constants eagerly in this method */
         return e;
     case expr_kind::FVar:
@@ -1011,7 +1011,7 @@ expr type_context_old::infer_core(expr const & e) {
     case expr_kind::Sort:
         r = mk_sort(mk_succ(sort_level(e)));
         break;
-    case expr_kind::Constant:
+    case expr_kind::Const:
         r = infer_constant(e);
         break;
     case expr_kind::Lambda:
@@ -2452,7 +2452,7 @@ static optional<expr> is_eta_expanded(expr const & e) {
         if (!is_app(it))
             return none_expr();
         expr const & a = app_arg(it);
-        if (!is_var(a) || var_idx(a) != i)
+        if (!is_bvar(a) || bvar_idx(a) != i)
             return none_expr();
         it = app_fn(it);
     }
@@ -2704,9 +2704,9 @@ lbool type_context_old::quick_is_def_eq(expr const & e1, expr const & e2) {
             return to_lbool(is_def_eq_core(mdata_expr(e1), mdata_expr(e2)));
         case expr_kind::Lit:
             return to_lbool(lit_value(e1) == lit_value(e2));
-        case expr_kind::MVar:     case expr_kind::BVar:
-        case expr_kind::FVar:     case expr_kind::App:
-        case expr_kind::Constant: case expr_kind::Proj:
+        case expr_kind::MVar:  case expr_kind::BVar:
+        case expr_kind::FVar:  case expr_kind::App:
+        case expr_kind::Const: case expr_kind::Proj:
         case expr_kind::Let:
             // We do not handle these cases in this method.
             break;
@@ -3323,7 +3323,7 @@ lbool type_context_old::is_quick_class(expr const & type, name & result) {
         case expr_kind::MData:
             it = &mdata_expr(*it);
             break;
-        case expr_kind::Constant:
+        case expr_kind::Const:
             if (auto r = constant_is_class(*it)) {
                 result = *r;
                 return l_true;

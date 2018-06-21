@@ -544,7 +544,7 @@ class add_nested_inductive_decl_fn {
             expr new_body = abstract(pack_nested_occs(instantiate(binding_body(e), l)), l);
             return update_binding(e, new_dom, new_body);
         }
-        case expr_kind::Constant:
+        case expr_kind::Const:
         case expr_kind::App:
         {
             buffer<expr> args;
@@ -601,7 +601,7 @@ class add_nested_inductive_decl_fn {
             expr new_body = abstract(unpack_nested_occs(instantiate(binding_body(e), l)), l);
             return update_binding(e, new_dom, new_body);
         }
-        case expr_kind::Constant:
+        case expr_kind::Const:
         case expr_kind::App:
         {
             buffer<expr> args;

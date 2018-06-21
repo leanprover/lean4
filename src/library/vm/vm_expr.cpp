@@ -74,7 +74,7 @@ vm_obj to_obj(binder_info bi) {
 // introduction rules have the suffix for the same reason.
 
 vm_obj expr_bvar_intro(vm_obj const & n) {
-    return to_obj(mk_var(to_unsigned(n)));
+    return to_obj(mk_bvar(nat(vm_nat_to_mpz1(n))));
 }
 
 vm_obj expr_sort_intro(vm_obj const & l) {
@@ -148,12 +148,12 @@ unsigned expr_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
     expr const & e = to_expr(o);
     switch (e.kind()) {
     case expr_kind::BVar:
-        data.push_back(mk_vm_nat(var_idx(e)));
+        data.push_back(mk_vm_nat(bvar_idx(e).to_mpz()));
         break;
     case expr_kind::Sort:
         data.push_back(to_obj(sort_level(e)));
         break;
-    case expr_kind::Constant:
+    case expr_kind::Const:
         data.push_back(to_obj(const_name(e)));
         data.push_back(to_obj(const_levels(e)));
         break;
@@ -248,7 +248,7 @@ vm_obj expr_has_bvar_idx(vm_obj const & e, vm_obj const & u) {
 }
 
 vm_obj expr_hash(vm_obj const & e) {
-    unsigned r = to_expr(e).hash() % LEAN_VM_MAX_SMALL_NAT;
+    unsigned r = hash(to_expr(e)) % LEAN_VM_MAX_SMALL_NAT;
     return mk_vm_simple(r); // make sure it is a simple value
 }
 

@@ -18,8 +18,8 @@ Author: Leonardo de Moura
 namespace lean {
 struct eq_cache {
     struct entry {
-        expr_ptr m_a;
-        expr_ptr m_b;
+        object * m_a;
+        object * m_b;
         entry():m_a(nullptr), m_b(nullptr) {}
     };
     unsigned              m_capacity;
@@ -30,7 +30,7 @@ struct eq_cache {
     bool check(expr const & a, expr const & b) {
         if (!is_shared(a) || !is_shared(b))
             return false;
-        unsigned i = hash(a.hash(), b.hash()) % m_capacity;
+        unsigned i = hash(hash(a), hash(b)) % m_capacity;
         if (m_cache[i].m_a == a.raw() && m_cache[i].m_b == b.raw()) {
             return true;
         } else {
@@ -64,9 +64,9 @@ class expr_eq_fn {
 
     bool apply(expr const & a, expr const & b) {
         if (is_eqp(a, b))          return true;
-        if (a.hash() != b.hash())  return false;
+        if (hash(a) != hash(b))    return false;
         if (a.kind() != b.kind())  return false;
-        if (is_var(a))             return var_idx(a) == var_idx(b);
+        if (is_bvar(a))            return bvar_idx(a) == bvar_idx(b);
         if (m_cache.check(a, b))
             return true;
         switch (a.kind()) {
@@ -82,7 +82,7 @@ class expr_eq_fn {
                 proj_idx(a) == proj_idx(b);
         case expr_kind::Lit:
             return lit_value(a) == lit_value(b);
-        case expr_kind::Constant:
+        case expr_kind::Const:
             return
                 const_name(a) == const_name(b) &&
                 compare(const_levels(a), const_levels(b), [](level const & l1, level const & l2) { return l1 == l2; });

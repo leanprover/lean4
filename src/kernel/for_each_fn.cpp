@@ -19,7 +19,7 @@ Author: Leonardo de Moura
 namespace lean {
 struct for_each_cache {
     struct entry {
-        expr_cell const * m_cell;
+        object const *    m_cell;
         unsigned          m_offset;
         entry():m_cell(nullptr) {}
     };
@@ -29,7 +29,7 @@ struct for_each_cache {
     for_each_cache(unsigned c):m_capacity(c), m_cache(c) {}
 
     bool visited(expr const & e, unsigned offset) {
-        unsigned i = hash(e.hash(), offset) % m_capacity;
+        unsigned i = hash(hash(e), offset) % m_capacity;
         if (m_cache[i].m_cell == e.raw() && m_cache[i].m_offset == offset) {
             return true;
         } else {
@@ -70,7 +70,7 @@ class for_each_fn {
             unsigned offset = p.second;
 
             switch (e.kind()) {
-            case expr_kind::Constant: case expr_kind::BVar:
+            case expr_kind::Const: case expr_kind::BVar:
             case expr_kind::Sort:
                 m_f(e, offset);
                 goto begin_loop;
@@ -85,8 +85,8 @@ class for_each_fn {
                 goto begin_loop;
 
             switch (e.kind()) {
-            case expr_kind::Constant: case expr_kind::BVar:
-            case expr_kind::Sort:     case expr_kind::Lit:
+            case expr_kind::Const: case expr_kind::BVar:
+            case expr_kind::Sort:  case expr_kind::Lit:
                 goto begin_loop;
             case expr_kind::MData:
                 todo.emplace_back(mdata_expr(e), offset);

@@ -71,9 +71,9 @@ void context_cache::set_equiv(transparency_mode m, expr const & e1, expr const &
 
 bool context_cache::get_is_def_eq_failure(transparency_mode m, expr const & t, expr const & s) {
     auto const & fcache = m_failure_cache[static_cast<unsigned>(m)];
-    if (t.hash() < s.hash()) {
+    if (hash(t) < hash(s)) {
         return fcache.find(mk_pair(t, s)) != fcache.end();
-    } else if (t.hash() > s.hash()) {
+    } else if (hash(t) > hash(s)) {
         return fcache.find(mk_pair(s, t)) != fcache.end();
     } else {
         return
@@ -84,7 +84,7 @@ bool context_cache::get_is_def_eq_failure(transparency_mode m, expr const & t, e
 
 void context_cache::set_is_def_eq_failure(transparency_mode m, expr const & t, expr const & s) {
     auto & fcache = m_failure_cache[static_cast<unsigned>(m)];
-    if (t.hash() <= s.hash())
+    if (hash(t) <= hash(s))
         fcache.insert(mk_pair(t, s));
     else
         fcache.insert(mk_pair(s, t));

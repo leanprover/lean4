@@ -26,14 +26,14 @@ head_index::head_index(expr const & e) {
 }
 
 int head_index::cmp::operator()(head_index const & i1, head_index const & i2) const {
-    if (i1.m_kind != i2.m_kind || (i1.m_kind != expr_kind::Constant && i1.m_kind != expr_kind::FVar))
+    if (i1.m_kind != i2.m_kind || (i1.m_kind != expr_kind::Const && i1.m_kind != expr_kind::FVar))
         return static_cast<int>(i1.m_kind) - static_cast<int>(i2.m_kind);
     else
         return quick_cmp(i1.m_name, i2.m_name);
 }
 
 std::ostream & operator<<(std::ostream & out, head_index const & head_idx) {
-    if (head_idx.m_kind == expr_kind::Constant || head_idx.m_kind == expr_kind::FVar)
+    if (head_idx.m_kind == expr_kind::Const || head_idx.m_kind == expr_kind::FVar)
         out << head_idx.m_name;
     else
         out << head_idx.m_kind;

@@ -74,7 +74,7 @@ void finalize_pos_info_provider() {
 
 struct replace_cache2 {
     struct entry {
-        expr_cell * m_cell;
+        object  *   m_cell;
         unsigned    m_offset;
         expr        m_result;
         entry():m_cell(nullptr) {}
@@ -85,7 +85,7 @@ struct replace_cache2 {
     replace_cache2(unsigned c):m_capacity(c), m_cache(c) {}
 
     expr * find(expr const & e, unsigned offset) {
-        unsigned i = hash(e.hash(), offset) % m_capacity;
+        unsigned i = hash(hash(e), offset) % m_capacity;
         if (m_cache[i].m_cell == e.raw() && m_cache[i].m_offset == offset)
             return &m_cache[i].m_result;
         else
@@ -93,7 +93,7 @@ struct replace_cache2 {
     }
 
     void insert(expr const & e, unsigned offset, expr const & v) {
-        unsigned i = hash(e.hash(), offset) % m_capacity;
+        unsigned i = hash(hash(e), offset) % m_capacity;
         if (m_cache[i].m_cell == nullptr)
             m_used.push_back(i);
         m_cache[i].m_cell   = e.raw();
@@ -136,10 +136,10 @@ class replace_rec_fn2 {
             return save_result(e, offset, *r, shared);
         } else {
             switch (e.kind()) {
-            case expr_kind::Constant: case expr_kind::Sort: case expr_kind::BVar:
+            case expr_kind::Const: case expr_kind::Sort: case expr_kind::BVar:
             case expr_kind::Lit:
                 return save_result(e, offset, e, shared);
-            case expr_kind::MVar:     case expr_kind::FVar: {
+            case expr_kind::MVar:  case expr_kind::FVar: {
                 expr new_t = apply(mlocal_type(e), offset);
                 return save_result(e, offset, copy_pos(e, update_mlocal(e, new_t)), shared);
             }
@@ -193,8 +193,8 @@ struct instantiate_easy_fn2 {
     optional<expr> operator()(expr const & a, bool app) const {
         if (!has_loose_bvars(a))
             return some_expr(a);
-        if (is_var(a) && var_idx(a) < n)
-            return some_expr(subst[rev ? n - var_idx(a) - 1 : var_idx(a)]);
+        if (is_bvar(a) && bvar_idx(a) < n)
+            return some_expr(subst[rev ? n - bvar_idx(a).get_small_value() - 1 : bvar_idx(a).get_small_value()]);
         if (app && is_app(a))
         if (auto new_a = operator()(app_arg(a), false))
         if (auto new_f = operator()(app_fn(a), true))
@@ -222,13 +222,13 @@ expr instantiate_propagating_pos(expr const & a, unsigned s, unsigned n, expr co
                 return some_expr(m); // expression m does not contain free variables with idx >= s1
 #endif
             if (is_var(m)) {
-                unsigned vidx = var_idx(m);
+                nat const & vidx = bvar_idx(m);
                 if (vidx >= s1) {
                     unsigned h = s1 + n;
                     if (h < s1 /* overflow, h is bigger than any vidx */ || vidx < h) {
-                        return some_expr(lift_loose_bvars(subst[vidx - s1], offset));
+                        return some_expr(lift_loose_bvars(subst[vidx.get_small_value() - s1], offset));
                     } else {
-                        return some_expr(mk_var(vidx - n));
+                        return some_expr(mk_bvar(vidx - nat(n)));
                     }
                 }
             }
@@ -257,7 +257,7 @@ expr abstract_propagating_pos(expr const & e, unsigned n, expr const * subst) {
                 while (i > 0) {
                     --i;
                     if (mlocal_name(subst[i]) == mlocal_name(m))
-                        return some_expr(mk_var(offset + n - i - 1));
+                        return some_expr(mk_bvar(offset + n - i - 1));
                 }
                 return none_expr();
             }

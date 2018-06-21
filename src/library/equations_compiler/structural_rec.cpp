@@ -115,7 +115,7 @@ struct structural_rec_fn {
         bool check_rhs(expr const & e) {
             switch (e.kind()) {
             case expr_kind::BVar: case expr_kind::MVar:
-            case expr_kind::FVar: case expr_kind::Constant:
+            case expr_kind::FVar: case expr_kind::Const:
             case expr_kind::Sort: case expr_kind::Lit:
                 return true;
             case expr_kind::App: {

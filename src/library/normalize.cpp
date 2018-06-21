@@ -116,8 +116,8 @@ class normalize_fn {
             return e;
         e = m_ctx.whnf(e);
         switch (e.kind()) {
-        case expr_kind::BVar: case expr_kind::Constant: case expr_kind::Sort:
-        case expr_kind::MVar: case expr_kind::FVar:     case expr_kind::Lit:
+        case expr_kind::BVar: case expr_kind::Const: case expr_kind::Sort:
+        case expr_kind::MVar: case expr_kind::FVar:  case expr_kind::Lit:
             return e;
         case expr_kind::MData:
             lean_unreachable();

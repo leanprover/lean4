@@ -18,7 +18,6 @@ Author: Leonardo de Moura
 #include "util/buffer.h"
 #include "util/hash.h"
 #include "util/ascii.h"
-#include "util/object_serializer.h"
 
 namespace lean {
 constexpr char const * anonymous_str = "[anonymous]";
@@ -254,10 +253,10 @@ int name::cmp_core(object * i1, object * i2) {
 }
 
 static unsigned num_digits(nat k) {
-    if (k == nat(0))
+    if (k == 0)
         return 1;
     int r = 0;
-    while (k != nat(0)) {
+    while (k != 0) {
         k = k / nat(10);
         r++;
     }

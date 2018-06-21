@@ -53,10 +53,13 @@ class inline_simple_definitions_fn : public compiler_step_visitor {
         if (!is_constant(g) && !is_var(g))
             return false;
         for (expr const & y : ys) {
-            if (!is_var(y) && !is_constant(y))
+            if (!is_bvar(y) && !is_constant(y))
                 return false;
-            if (is_var(y)) {
-                unsigned vidx = var_idx(y);
+            if (is_bvar(y)) {
+                nat const & n_vidx = bvar_idx(y);
+                if (!n_vidx.is_small())
+                    return false;
+                unsigned vidx = n_vidx.get_small_value();
                 if (vidx >= bitmap.size())
                     bitmap.resize(vidx+1, false);
                 if (bitmap[vidx]) {

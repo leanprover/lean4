@@ -56,7 +56,7 @@ struct max_sharing_fn::imp {
         case expr_kind::BVar: case expr_kind::Lit:
             res = a;
             break;
-        case expr_kind::Constant:
+        case expr_kind::Const:
             res = update_constant(a, map(const_levels(a), [&](level const & l) { return apply(l); }));
             break;
         case expr_kind::Sort:

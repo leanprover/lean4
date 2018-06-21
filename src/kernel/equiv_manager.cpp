@@ -54,9 +54,9 @@ auto equiv_manager::to_node(expr const & e) -> node_ref {
 }
 
 bool equiv_manager::is_equiv_core(expr const & a, expr const & b) {
-    if (is_eqp(a, b))                       return true;
-    if (m_use_hash && a.hash() != b.hash()) return false;
-    if (is_var(a) && is_var(b))             return var_idx(a) == var_idx(b);
+    if (is_eqp(a, b))                      return true;
+    if (m_use_hash && hash(a) != hash(b))  return false;
+    if (is_bvar(a) && is_bvar(b))          return bvar_idx(a) == bvar_idx(b);
     node_ref r1 = find(to_node(a));
     node_ref r2 = find(to_node(b));
     if (r1 == r2)
@@ -69,7 +69,7 @@ bool equiv_manager::is_equiv_core(expr const & a, expr const & b) {
     switch (a.kind()) {
     case expr_kind::BVar:
         lean_unreachable(); // LCOV_EXCL_LINE
-    case expr_kind::Constant:
+    case expr_kind::Const:
         result =
             const_name(a) == const_name(b) &&
             compare(const_levels(a), const_levels(b), [](level const & l1, level const & l2) { return l1 == l2; });

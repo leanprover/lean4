@@ -188,19 +188,19 @@ struct get_noncomputable_reason_fn {
 
     void visit(expr const & e) {
         switch (e.kind()) {
-        case expr_kind::Sort:      return;
-        case expr_kind::Lit:       return;
-        case expr_kind::Constant:  visit_constant(e); return;
-        case expr_kind::BVar:      lean_unreachable();
-        case expr_kind::MVar:      lean_unreachable();
-        case expr_kind::FVar:      return;
-        case expr_kind::App:       visit_app(e);      return;
-        case expr_kind::Lambda:    visit_binding(e);  return;
-        case expr_kind::Pi:        visit_binding(e);  return;
-        case expr_kind::Let:       visit_let(e);      return;
-        case expr_kind::MData:     visit_mdata(e);    return;
-        case expr_kind::Proj:      visit(proj_expr(e)); return;
-        case expr_kind::Quote:     return;
+        case expr_kind::Sort:    return;
+        case expr_kind::Lit:     return;
+        case expr_kind::Const:   visit_constant(e); return;
+        case expr_kind::BVar:    lean_unreachable();
+        case expr_kind::MVar:    lean_unreachable();
+        case expr_kind::FVar:    return;
+        case expr_kind::App:     visit_app(e);      return;
+        case expr_kind::Lambda:  visit_binding(e);  return;
+        case expr_kind::Pi:      visit_binding(e);  return;
+        case expr_kind::Let:     visit_let(e);      return;
+        case expr_kind::MData:   visit_mdata(e);    return;
+        case expr_kind::Proj:    visit(proj_expr(e)); return;
+        case expr_kind::Quote:   return;
         }
     }
 

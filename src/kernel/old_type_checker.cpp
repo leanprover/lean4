@@ -247,13 +247,13 @@ expr old_type_checker::infer_type_core(expr const & e, bool infer_only) {
         r = binding_domain(r);
         break;
     }
-    case expr_kind::MData:     r = infer_type_core(mdata_expr(e), infer_only); break;
-    case expr_kind::Constant:  r = infer_constant(e, infer_only);       break;
-    case expr_kind::Lambda:    r = infer_lambda(e, infer_only);         break;
-    case expr_kind::Pi:        r = infer_pi(e, infer_only);             break;
-    case expr_kind::App:       r = infer_app(e, infer_only);            break;
-    case expr_kind::Let:       r = infer_let(e, infer_only);            break;
-    case expr_kind::Lit:       r = infer_let(e, infer_only);            break;
+    case expr_kind::MData:   r = infer_type_core(mdata_expr(e), infer_only); break;
+    case expr_kind::Const:   r = infer_constant(e, infer_only);       break;
+    case expr_kind::Lambda:  r = infer_lambda(e, infer_only);         break;
+    case expr_kind::Pi:      r = infer_pi(e, infer_only);             break;
+    case expr_kind::App:     r = infer_app(e, infer_only);            break;
+    case expr_kind::Let:     r = infer_let(e, infer_only);            break;
+    case expr_kind::Lit:     r = infer_let(e, infer_only);            break;
 
     case expr_kind::Quote: throw_found_quote(m_env);
     }
@@ -306,8 +306,8 @@ expr old_type_checker::whnf_core(expr const & e) {
 
     // handle easy cases
     switch (e.kind()) {
-    case expr_kind::BVar: case expr_kind::Sort:     case expr_kind::MVar:   case expr_kind::FVar:
-    case expr_kind::Pi:   case expr_kind::Constant: case expr_kind::Lambda: case expr_kind::Lit:
+    case expr_kind::BVar: case expr_kind::Sort:  case expr_kind::MVar:   case expr_kind::FVar:
+    case expr_kind::Pi:   case expr_kind::Const: case expr_kind::Lambda: case expr_kind::Lit:
         return e;
     case expr_kind::MData:
         return whnf_core(mdata_expr(e));
@@ -327,8 +327,8 @@ expr old_type_checker::whnf_core(expr const & e) {
     // do the actual work
     expr r;
     switch (e.kind()) {
-    case expr_kind::BVar:  case expr_kind::Sort:    case expr_kind::MVar:   case expr_kind::FVar:
-    case expr_kind::Pi:    case expr_kind::Constant: case expr_kind::Lambda: case expr_kind::Lit:
+    case expr_kind::BVar:  case expr_kind::Sort:  case expr_kind::MVar:   case expr_kind::FVar:
+    case expr_kind::Pi:    case expr_kind::Const: case expr_kind::Lambda: case expr_kind::Lit:
     case expr_kind::MData:
         lean_unreachable(); // LCOV_EXCL_LINE
     case expr_kind::Proj: {
@@ -442,8 +442,8 @@ expr old_type_checker::whnf(expr const & e) {
         return whnf(mdata_expr(e));
     case expr_kind::Proj:
         lean_unreachable();
-    case expr_kind::Lambda:   case expr_kind::App:
-    case expr_kind::Constant: case expr_kind::Let:
+    case expr_kind::Lambda: case expr_kind::App:
+    case expr_kind::Const:  case expr_kind::Let:
         break;
     case expr_kind::Quote: throw_found_quote(m_env);
     }
@@ -538,8 +538,8 @@ lbool old_type_checker::quick_is_def_eq(expr const & t, expr const & s, bool use
             return to_lbool(is_def_eq(sort_level(t), sort_level(s)));
         case expr_kind::MVar:
             lean_unreachable(); // LCOV_EXCL_LINE
-        case expr_kind::BVar:     case expr_kind::FVar: case expr_kind::App:
-        case expr_kind::Constant: case expr_kind::Let:
+        case expr_kind::BVar:  case expr_kind::FVar: case expr_kind::App:
+        case expr_kind::Const: case expr_kind::Let:
             // We do not handle these cases in this method.
             break;
         case expr_kind::Proj:
@@ -613,9 +613,9 @@ bool old_type_checker::is_def_eq_proof_irrel(expr const & t, expr const & s) {
 }
 
 bool old_type_checker::failed_before(expr const & t, expr const & s) const {
-    if (t.hash() < s.hash()) {
+    if (hash(t) < hash(s)) {
         return m_failure_cache.find(mk_pair(t, s)) != m_failure_cache.end();
-    } else if (t.hash() > s.hash()) {
+    } else if (hash(t) > hash(s)) {
         return m_failure_cache.find(mk_pair(s, t)) != m_failure_cache.end();
     } else {
         return
@@ -625,7 +625,7 @@ bool old_type_checker::failed_before(expr const & t, expr const & s) const {
 }
 
 void old_type_checker::cache_failure(expr const & t, expr const & s) {
-    if (t.hash() <= s.hash())
+    if (hash(t) <= hash(s))
         m_failure_cache.insert(mk_pair(t, s));
     else
         m_failure_cache.insert(mk_pair(s, t));

@@ -13,7 +13,6 @@ Author: Leonardo de Moura
 #include "util/name.h"
 #include "util/escaped.h"
 #include "util/buffer.h"
-#include "util/object_serializer.h"
 #include "util/sexpr/sexpr.h"
 
 namespace lean {

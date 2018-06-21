@@ -39,12 +39,16 @@ public:
 object_ref mk_cnstr(unsigned tag, unsigned num_objs, object ** objs, unsigned scalar_sz = 0);
 inline object_ref mk_cnstr(unsigned tag, object * o, unsigned scalar_sz = 0) { return mk_cnstr(tag, 1, &o, scalar_sz); }
 inline object_ref mk_cnstr(unsigned tag, object * o1, object * o2, unsigned scalar_sz = 0) {
-    object * os[] = { o1, o2 };
+    object * os[2] = { o1, o2 };
     return mk_cnstr(tag, 2, os, scalar_sz);
 }
 inline object_ref mk_cnstr(unsigned tag, object * o1, object * o2, object * o3, unsigned scalar_sz = 0) {
-    object * os[] = { o1, o2, o3 };
+    object * os[3] = { o1, o2, o3 };
     return mk_cnstr(tag, 3, os, scalar_sz);
+}
+inline object_ref mk_cnstr(unsigned tag, object * o1, object * o2, object * o3, object * o4, unsigned scalar_sz = 0) {
+    object * os[4] = { o1, o2, o3, o4 };
+    return mk_cnstr(tag, 4, os, scalar_sz);
 }
 
 /* The following definition is a low level hack that relies on the fact that sizeof(object_ref) == sizeof(object *). */

@@ -250,7 +250,7 @@ expr dsimplify_core_fn::visit(expr const & e) {
         case expr_kind::FVar:
         case expr_kind::Sort:
         case expr_kind::Lit:
-        case expr_kind::Constant:
+        case expr_kind::Const:
             new_e = curr_e;
             break;
         case expr_kind::MData:

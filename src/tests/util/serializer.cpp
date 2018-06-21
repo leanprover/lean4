@@ -13,50 +13,10 @@ Author: Leonardo de Moura
 #include <cmath>
 #include "runtime/debug.h"
 #include "util/test.h"
-#include "util/object_serializer.h"
 #include "util/list.h"
 #include "util/name.h"
 #include "util/init_module.h"
 using namespace lean;
-
-template<typename T>
-struct list_ptr_hash { unsigned operator()(list<T> const & l) const { return std::hash<typename list<T>::cell*>()(l.raw()); } };
-template<typename T>
-struct list_ptr_eq { bool operator()(list<T> const & l1, list<T> const & l2) const { return l1.raw() == l2.raw(); } };
-
-class list_int_serializer : public object_serializer<list<int>, list_ptr_hash<int>, list_ptr_eq<int>> {
-    typedef object_serializer<list<int>, list_ptr_hash<int>, list_ptr_eq<int>> super;
-public:
-    void write(list<int> const & l) {
-        super::write(l, [&]() {
-                serializer & s = get_owner();
-                if (l) {
-                    s.write_bool(true);
-                    s.write_int(head(l));
-                    write(tail(l));
-                } else {
-                    s.write_bool(false);
-                }
-            });
-    }
-};
-
-class list_int_deserializer : public object_deserializer<list<int>> {
-    typedef object_deserializer<list<int>> super;
-public:
-    list<int> read() {
-        return super::read([&]() {
-                deserializer & d = get_owner();
-                if (d.read_bool()) {
-                    int h       = d.read_int();
-                    list<int> t = read();
-                    return cons(h, t);
-                } else {
-                    return list<int>();
-                }
-            });
-    }
-};
 
 void display(std::ostringstream const & out) {
     std::cout << "OUT: ";

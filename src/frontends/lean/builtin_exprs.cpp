@@ -1012,7 +1012,7 @@ parse_table init_nud_table() {
     action Expr(mk_expr_action());
     action Skip(mk_skip_action());
     action Binders(mk_binders_action());
-    expr x0 = mk_var(0);
+    expr x0 = mk_bvar(0);
     parse_table r;
     r = r.add({transition("by", mk_ext_action_core(parse_by))}, x0);
     r = r.add({transition("have", mk_ext_action(parse_have))}, x0);

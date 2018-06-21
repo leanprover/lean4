@@ -243,22 +243,22 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
 
     expr r;
     switch (e.kind()) {
-    case expr_kind::Lit:       r = lit_type(e);    break;
-    case expr_kind::MData:     r = infer_type_core(mdata_expr(e), infer_only); break;
-    case expr_kind::Proj:      r = infer_proj(e, infer_only); break;
-    case expr_kind::FVar:      r = infer_fvar(e);  break;
-    case expr_kind::MVar:      r = mlocal_type(e); break;
+    case expr_kind::Lit:      r = lit_type(e);    break;
+    case expr_kind::MData:    r = infer_type_core(mdata_expr(e), infer_only); break;
+    case expr_kind::Proj:     r = infer_proj(e, infer_only); break;
+    case expr_kind::FVar:     r = infer_fvar(e);  break;
+    case expr_kind::MVar:     r = mlocal_type(e); break;
     case expr_kind::BVar:
         lean_unreachable();  // LCOV_EXCL_LINE
     case expr_kind::Sort:
         if (!infer_only) check_level(sort_level(e));
         r = mk_sort(mk_succ(sort_level(e)));
         break;
-    case expr_kind::Constant:  r = infer_constant(e, infer_only);       break;
-    case expr_kind::Lambda:    r = infer_lambda(e, infer_only);         break;
-    case expr_kind::Pi:        r = infer_pi(e, infer_only);             break;
-    case expr_kind::App:       r = infer_app(e, infer_only);            break;
-    case expr_kind::Let:       r = infer_let(e, infer_only);            break;
+    case expr_kind::Const:    r = infer_constant(e, infer_only);       break;
+    case expr_kind::Lambda:   r = infer_lambda(e, infer_only);         break;
+    case expr_kind::Pi:       r = infer_pi(e, infer_only);             break;
+    case expr_kind::App:      r = infer_app(e, infer_only);            break;
+    case expr_kind::Let:      r = infer_let(e, infer_only);            break;
 
     case expr_kind::Quote:
         if (quote_is_reflected(e)) {
@@ -347,8 +347,8 @@ expr type_checker::whnf_core(expr const & e) {
 
     // handle easy cases
     switch (e.kind()) {
-    case expr_kind::BVar: case expr_kind::Sort:     case expr_kind::MVar:
-    case expr_kind::Pi:   case expr_kind::Constant: case expr_kind::Lambda:
+    case expr_kind::BVar: case expr_kind::Sort:  case expr_kind::MVar:
+    case expr_kind::Pi:   case expr_kind::Const: case expr_kind::Lambda:
     case expr_kind::Lit:
         return e;
     case expr_kind::MData:
@@ -373,8 +373,8 @@ expr type_checker::whnf_core(expr const & e) {
     // do the actual work
     expr r;
     switch (e.kind()) {
-    case expr_kind::BVar:  case expr_kind::Sort:     case expr_kind::MVar: case expr_kind::FVar:
-    case expr_kind::Pi:    case expr_kind::Constant: case expr_kind::Lambda:
+    case expr_kind::BVar:  case expr_kind::Sort:  case expr_kind::MVar: case expr_kind::FVar:
+    case expr_kind::Pi:    case expr_kind::Const: case expr_kind::Lambda:
     case expr_kind::Lit:   case expr_kind::MData:
         lean_unreachable(); // LCOV_EXCL_LINE
 
@@ -465,15 +465,15 @@ optional<expr> type_checker::unfold_definition(expr const & e) {
 expr type_checker::whnf(expr const & e) {
     // Do not cache easy cases
     switch (e.kind()) {
-    case expr_kind::BVar: case expr_kind::Sort: case expr_kind::MVar: case expr_kind::Pi:
+    case expr_kind::BVar:  case expr_kind::Sort: case expr_kind::MVar: case expr_kind::Pi:
     case expr_kind::Lit:
         return e;
     case expr_kind::MData:
         return whnf(mdata_expr(e));
     case expr_kind::FVar:
         return whnf_fvar(e);
-    case expr_kind::Lambda:   case expr_kind::App:
-    case expr_kind::Constant: case expr_kind::Let:   case expr_kind::Proj:
+    case expr_kind::Lambda: case expr_kind::App:
+    case expr_kind::Const:  case expr_kind::Let: case expr_kind::Proj:
         break;
 
     case expr_kind::Quote:
@@ -571,8 +571,8 @@ lbool type_checker::quick_is_def_eq(expr const & t, expr const & s, bool use_has
             return to_lbool(is_def_eq(mdata_expr(t), mdata_expr(s)));
         case expr_kind::MVar:
             lean_unreachable(); // LCOV_EXCL_LINE
-        case expr_kind::BVar:     case expr_kind::FVar: case expr_kind::App:
-        case expr_kind::Constant: case expr_kind::Let:
+        case expr_kind::BVar:   case expr_kind::FVar: case expr_kind::App:
+        case expr_kind::Const:  case expr_kind::Let:
         case expr_kind::Proj:
             // We do not handle these cases in this method.
             break;
@@ -646,9 +646,9 @@ bool type_checker::is_def_eq_proof_irrel(expr const & t, expr const & s) {
 }
 
 bool type_checker::failed_before(expr const & t, expr const & s) const {
-    if (t.hash() < s.hash()) {
+    if (hash(t) < hash(s)) {
         return m_failure_cache.find(mk_pair(t, s)) != m_failure_cache.end();
-    } else if (t.hash() > s.hash()) {
+    } else if (hash(t) > hash(s)) {
         return m_failure_cache.find(mk_pair(s, t)) != m_failure_cache.end();
     } else {
         return
@@ -658,7 +658,7 @@ bool type_checker::failed_before(expr const & t, expr const & s) const {
 }
 
 void type_checker::cache_failure(expr const & t, expr const & s) {
-    if (t.hash() <= s.hash())
+    if (hash(t) <= hash(s))
         m_failure_cache.insert(mk_pair(t, s));
     else
         m_failure_cache.insert(mk_pair(s, t));

@@ -67,7 +67,7 @@ struct instantiate_easy_fn {
         if (!has_loose_bvars(a))
             return some_expr(a);
         if (is_bvar(a) && bvar_idx(a) < n)
-            return some_expr(subst[rev ? n - bvar_idx(a) - 1 : bvar_idx(a)]);
+            return some_expr(subst[rev ? n - bvar_idx(a).get_small_value() - 1 : bvar_idx(a).get_small_value()]);
         if (app && is_app(a))
         if (auto new_a = operator()(app_arg(a), false))
         if (auto new_f = operator()(app_fn(a), true))
@@ -89,13 +89,13 @@ expr instantiate(expr const & a, unsigned s, unsigned n, expr const * subst) {
             if (s1 >= get_loose_bvar_range(m))
                 return some_expr(m); // expression m does not contain loose bound variables with idx >= s1
             if (is_bvar(m)) {
-                unsigned vidx = bvar_idx(m);
+                nat const & vidx = bvar_idx(m);
                 if (vidx >= s1) {
                     unsigned h = s1 + n;
                     if (h < s1 /* overflow, h is bigger than any vidx */ || vidx < h) {
-                        return some_expr(lift_loose_bvars(subst[vidx - s1], offset));
+                        return some_expr(lift_loose_bvars(subst[vidx.get_small_value() - s1], offset));
                     } else {
-                        return some_expr(mk_bvar(vidx - n));
+                        return some_expr(mk_bvar(vidx - nat(n)));
                     }
                 }
             }
@@ -117,13 +117,13 @@ expr instantiate_rev(expr const & a, unsigned n, expr const * subst) {
             if (offset >= get_loose_bvar_range(m))
                 return some_expr(m); // expression m does not contain loose bound variables with idx >= offset
             if (is_bvar(m)) {
-                unsigned vidx = bvar_idx(m);
+                nat const & vidx = bvar_idx(m);
                 if (vidx >= offset) {
                     unsigned h = offset + n;
                     if (h < offset /* overflow, h is bigger than any vidx */ || vidx < h) {
-                        return some_expr(lift_loose_bvars(subst[n - (vidx - offset) - 1], offset));
+                        return some_expr(lift_loose_bvars(subst[n - (vidx.get_small_value() - offset) - 1], offset));
                     } else {
-                        return some_expr(mk_bvar(vidx - n));
+                        return some_expr(mk_bvar(vidx - nat(n)));
                     }
                 }
             }

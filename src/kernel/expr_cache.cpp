@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 expr * expr_cache::find(expr const & e) {
-    unsigned i = e.hash() % m_capacity;
+    unsigned i = hash(e) % m_capacity;
     if (m_cache[i].m_expr && is_bi_equal(*m_cache[i].m_expr, e))
         return &m_cache[i].m_result;
     else
@@ -16,7 +16,7 @@ expr * expr_cache::find(expr const & e) {
 }
 
 void expr_cache::insert(expr const & e, expr const & v) {
-    unsigned i = e.hash() % m_capacity;
+    unsigned i = hash(e) % m_capacity;
     if (!m_cache[i].m_expr)
         m_used.push_back(i);
     m_cache[i].m_expr   = e;

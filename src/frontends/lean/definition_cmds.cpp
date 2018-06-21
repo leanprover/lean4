@@ -334,9 +334,9 @@ static void get_args_for_instantiating_lemma(unsigned arity,
                                              buffer<expr> const & args,
                                              buffer<expr> & result) {
     for (unsigned i = 0; i < args.size(); i++) {
-        if (!is_var(lhs_args[i]) || var_idx(lhs_args[i]) >= arity)
+        if (!is_bvar(lhs_args[i]) || bvar_idx(lhs_args[i]) >= arity)
             throw_unexpected_error_at_copy_lemmas();
-        result.push_back(args[arity - var_idx(lhs_args[i]) - 1]);
+        result.push_back(args[arity - bvar_idx(lhs_args[i]).get_small_value() - 1]);
     }
 }
 

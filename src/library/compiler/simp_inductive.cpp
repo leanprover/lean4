@@ -280,7 +280,7 @@ class simp_inductive_fn : public simp_inductive_core_fn {
         /* Process major premise */
         args[0] = visit(args[0]);
         unsigned num_reachable = 0;
-        optional<expr> reachable_case;
+        expr reachable_case;
         unsigned last_reachable_idx = 0;
         /* Process minor premises */
         for (unsigned i = 0; i < cnames.size(); i++) {
@@ -300,7 +300,7 @@ class simp_inductive_fn : public simp_inductive_core_fn {
             return mk_unreachable_expr();
         } else if (num_reachable == 1 && !is_builtin) {
             /* Use _cases.1 */
-            return mk_app(mk_cases(1), args[0], *reachable_case);
+            return mk_app(mk_cases(1), args[0], reachable_case);
         } else if (is_builtin) {
             return mk_app(mk_constant(fn), args);
         } else {

@@ -60,36 +60,31 @@ bool operator<(literal const & a, literal const & b) {
 
 /* Auxiliary functions for computing scalar data offset into expression objects. */
 inline constexpr unsigned num_obj_fields(expr_kind k) {
-    switch (k) {
-    case expr_kind::BVar:     return 1;
-    case expr_kind::FVar:     return 3; // TODO(Leo): it should be 1 after we remove support for legacy code
-    case expr_kind::Sort:     return 1;
-    case expr_kind::Constant: return 2;
-    case expr_kind::MVar:     return 3; // TODO(Leo): it should be 2 after we remove support for legacy code
-    case expr_kind::App:      return 2;
-    case expr_kind::Lambda:   return 3;
-    case expr_kind::Pi:       return 3;
-    case expr_kind::Let:      return 4;
-    case expr_kind::Lit:      return 1;
-    case expr_kind::MData:    return 2;
-    case expr_kind::Proj:     return 2;
-    case expr_kind::Quote:    return 1;
-    }
-    lean_unreachable();
+    return
+        k == expr_kind::App      ?  2 :
+        k == expr_kind::Constant ?  2 :
+        k == expr_kind::FVar     ?  3 : // TODO(Leo): it should be 1 after we remove support for legacy code
+        k == expr_kind::Lambda   ?  3 :
+        k == expr_kind::Pi       ?  3 :
+        k == expr_kind::BVar     ?  1 :
+        k == expr_kind::Let      ?  4 :
+        k == expr_kind::MVar     ?  3 : // TODO(Leo): it should be 2 after we remove support for legacy code
+        k == expr_kind::Sort     ?  1 :
+        k == expr_kind::Lit      ?  1 :
+        k == expr_kind::MData    ?  2 :
+        k == expr_kind::Proj     ?  2 :
+        /* k == expr_kind::Quote */ 1;
 }
 
 /* Expression scalar data offset. */
 inline constexpr unsigned scalar_offset(expr_kind k) { return num_obj_fields(k) * sizeof(object*); }
 
 inline constexpr unsigned hash_offset(expr_kind k) {
-    /* Remark: the hidden extra cached data (hash, weight, depth, loose_bvar_range) must be stored AFTER the real fields. */
-    switch (k) {
-    case expr_kind::FVar:     return scalar_offset(k) + sizeof(unsigned char); // for binder_info, TODO(Leo): delete after we remove support for legacy code
-    case expr_kind::Lambda:   return scalar_offset(k) + sizeof(unsigned char); // for binder_info
-    case expr_kind::Pi:       return scalar_offset(k) + sizeof(unsigned char); // for binder_info
-    default:                  return scalar_offset(k);
-    }
-    lean_unreachable();
+    return
+        k == expr_kind::FVar   ? scalar_offset(k) + sizeof(unsigned char) : // for binder_info, TODO(Leo): delete after we remove support for legacy code
+        k == expr_kind::Lambda ? scalar_offset(k) + sizeof(unsigned char) : // for binder_info
+        k == expr_kind::Pi     ? scalar_offset(k) + sizeof(unsigned char) : // for binder_info
+        scalar_offset(k);
 }
 
 inline constexpr size_t flags_offset(expr_kind k) { return hash_offset(k) + sizeof(unsigned); }

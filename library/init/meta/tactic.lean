@@ -533,7 +533,7 @@ change e ff
 
 meta def intro (n : name) : tactic expr :=
 do t ← target,
-   if expr.is_pi t ∨ expr.is_let t then intro_core n
+   if lean.expr.is_pi t ∨ lean.expr.is_let t then intro_core n
    else whnf_target >> intro_core n
 
 meta def intro1 : tactic expr :=
@@ -560,8 +560,8 @@ do t ← target,
         -- body doesn't depend on new hypothesis
         return [],
    match t with
-   | expr.pi _ _ _ b   := proc b
-   | expr.elet _ _ _ b := proc b
+   | lean.expr.pi _ _ _ b   := proc b
+   | lean.expr.elet _ _ _ b := proc b
    | _                 := return []
 
 meta def introv : list name → tactic (list expr)
@@ -973,7 +973,7 @@ do dec_e ← (mk_app `decidable [e] <|> fail "by_cases tactic failed, type is no
 meta def funext_core : list name → bool → tactic unit
 | []  tt       := return ()
 | ids only_ids := try $
-   do some (lhs, rhs) ← expr.is_eq <$> (target >>= whnf),
+   do some (lhs, rhs) ← lean.expr.is_eq <$> (target >>= whnf),
       applyc `funext,
       id ← if ids.empty ∨ ids.head = `_ then do
              (expr.lam n _ _ _) ← whnf lhs

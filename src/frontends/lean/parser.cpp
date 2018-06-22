@@ -1723,19 +1723,19 @@ static expr quote(expr const & e) {
     case expr_kind::Lit:
         switch (lit_value(e).kind()) {
         case literal_kind::Nat:
-            return mk_app(mk_constant({"expr", "lit"}),
-                          mk_app(mk_constant({"literal", "nat_value"}), quote(lit_value(e).get_nat().get_small_value()))); // HACK: it will crash if not small
+            return mk_app(mk_constant({"lean", "expr", "lit"}),
+                          mk_app(mk_constant({"lean", "literal", "nat_value"}), quote(lit_value(e).get_nat().get_small_value()))); // HACK: it will crash if not small
         case literal_kind::String:
-            return mk_app(mk_constant({"expr", "lit"}),
-                          mk_app(mk_constant({"literal", "str_value"}), quote(lit_value(e).get_string().data()))); // HACK: Lean string as C String
+            return mk_app(mk_constant({"lean", "expr", "lit"}),
+                          mk_app(mk_constant({"lean", "literal", "str_value"}), quote(lit_value(e).get_string().data()))); // HACK: Lean string as C String
         }
         lean_unreachable();
     case expr_kind::BVar:
-        return mk_app(mk_constant({"expr", "bvar"}), quote(bvar_idx(e).get_small_value()));
+        return mk_app(mk_constant({"lean", "expr", "bvar"}), quote(bvar_idx(e).get_small_value()));
     case expr_kind::Sort:
-        return mk_app(mk_constant({"expr", "sort"}), mk_expr_placeholder());
+        return mk_app(mk_constant({"lean", "expr", "sort"}), mk_expr_placeholder());
     case expr_kind::Const:
-        return mk_app(mk_constant({"expr", "const"}), quote(const_name(e)), mk_expr_placeholder());
+        return mk_app(mk_constant({"lean", "expr", "const"}), quote(const_name(e)), mk_expr_placeholder());
     case expr_kind::MVar:
         return mk_expr_placeholder();
     case expr_kind::FVar:
@@ -1747,26 +1747,26 @@ static expr quote(expr const & e) {
                by type_context::elim_mvar_deps when we create lambda/pi-expressions. */
             return mk_expr_placeholder();
         } else {
-            return mk_app(mk_constant({"expr", "app"}), quote(app_fn(e)), quote(app_arg(e)));
+            return mk_app(mk_constant({"lean", "expr", "app"}), quote(app_fn(e)), quote(app_arg(e)));
         }
     case expr_kind::Lambda:
-        return mk_app(mk_constant({"expr", "lam"}), mk_expr_placeholder(), mk_expr_placeholder(),
+        return mk_app(mk_constant({"lean", "expr", "lam"}), mk_expr_placeholder(), mk_expr_placeholder(),
                       quote(binding_domain(e)), quote(binding_body(e)));
     case expr_kind::Pi:
-        return mk_app(mk_constant({"expr", "pi"}), mk_expr_placeholder(), mk_expr_placeholder(),
+        return mk_app(mk_constant({"lean", "expr", "pi"}), mk_expr_placeholder(), mk_expr_placeholder(),
                       quote(binding_domain(e)), quote(binding_body(e)));
     case expr_kind::Let:
-        return mk_app(mk_constant({"expr", "elet"}), mk_expr_placeholder(), quote(let_type(e)),
+        return mk_app(mk_constant({"lean", "expr", "elet"}), mk_expr_placeholder(), quote(let_type(e)),
                       quote(let_value(e)), quote(let_body(e)));
     case expr_kind::Proj:
-        return mk_app(mk_constant({"expr", "proj"}), quote(proj_idx(e).get_small_value()), quote(proj_expr(e)));
+        return mk_app(mk_constant({"lean", "expr", "proj"}), quote(proj_idx(e).get_small_value()), quote(proj_expr(e)));
     case expr_kind::MData:
         if (is_antiquote(e))
             return get_antiquote_expr(e);
         else if (is_inaccessible(e))
             return mk_expr_placeholder();
         else
-            throw exception("expr.mdata is not supported at quote function");
+            throw exception("lean.expr.mdata is not supported at quote function");
     case expr_kind::Quote:
         throw elaborator_exception(e, sstream() << "invalid quotation, quote found");
     }
@@ -1809,7 +1809,7 @@ static expr elaborate_quote(parser & p, expr e) {
 
     e = instantiate_rev(body, aqs.size(), aqs.data());
     e = quote(e);
-    return mk_typed_expr(mk_constant(get_expr_name()), e);
+    return mk_typed_expr(mk_constant(get_lean_expr_name()), e);
 }
 
 expr parser::patexpr_to_pattern(expr const & pat_or_expr, bool skip_main_fn, buffer<expr> & new_locals) {

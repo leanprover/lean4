@@ -85,7 +85,7 @@ meta constant decl_pos : environment → name → option pos
 /-- Return the fields of the structure with the given name, or `none` if it is not a structure -/
 meta constant structure_fields : environment → name → option (list name)
 meta constant fingerprint : environment → nat
-open expr
+open lean.expr
 
 meta constant unfold_untrusted_macros : environment → expr → expr
 meta constant unfold_all_macros : environment → expr → expr

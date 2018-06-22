@@ -78,7 +78,7 @@ in match q.to_expr with
 | _                 := i_to_expr q
 
 namespace interactive
-open interactive interactive.types expr
+open interactive interactive.types lean.expr
 
 /--
 itactic: parse a nested "interactive" tactic. That is, parse
@@ -371,7 +371,7 @@ meta def cases : parse cases_arg_p → parse with_ident_list → tactic unit
 
 private meta def try_cases_for_types (type_names : list name) (at_most_one : bool) : tactic unit :=
 any_hyp $ λ h, do
-  I ← expr.get_app_fn <$> (infer_type h >>= head_beta),
+  I ← lean.expr.get_app_fn <$> (infer_type h >>= head_beta),
   guard I.is_constant,
   guard (I.const_name ∈ type_names),
   tactic.focus1 (cases_core h >> if at_most_one then do n ← num_goals, guard (n <= 1) else skip)

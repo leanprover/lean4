@@ -101,7 +101,7 @@ expr mk_pexpr_quote_and_substs(expr const & e, bool is_strict) {
 void initialize_quote() {
     g_quote_fresh         = new name("_quote_fresh");
     register_name_generator_prefix(*g_quote_fresh);
-    g_expr           = new expr(mk_app(Const(get_expr_name()), mk_bool_tt()));
+    g_expr           = new expr(mk_const(get_lean_expr_name()));
     g_pexpr          = new expr(mk_constant(get_pexpr_name()));
 
     g_antiquote      = new name("antiquote");

@@ -7,6 +7,7 @@ prelude
 import init.meta.level init.control.monad init.lean.expr init.meta.format
 universes u v
 
+-- TODO(Leo): move this stuff to a different place
 structure pos :=
 (line   : nat)
 (column : nat)
@@ -20,8 +21,8 @@ else is_false (λ contra, pos.no_confusion contra (λ e₁ e₂, absurd e₁ h�
 meta instance : has_to_format pos :=
 ⟨λ ⟨l, c⟩, "⟨" ++ l ++ ", " ++ c ++ "⟩"⟩
 
-inductive binder_info
-| default | implicit | strict_implicit | inst_implicit | aux_decl
+export lean (expr binder_info kvmap expr.bvar expr.fvar expr.sort expr.const expr.mvar expr.app expr.lam expr.pi expr.elet expr.lit expr.mdata expr.proj expr.quote
+             binder_info.default binder_info.implicit binder_info.strict_implicit binder_info.inst_implicit binder_info.aux_decl)
 
 instance : has_repr binder_info :=
 ⟨λ bi, match bi with
@@ -31,69 +32,46 @@ instance : has_repr binder_info :=
 | binder_info.inst_implicit := "inst_implicit"
 | binder_info.aux_decl := "aux_decl"⟩
 
-inductive literal
-| nat_val (val : nat)
-| str_val (val : string)
-
-/-- Reflect a C++ expr object. The VM replaces it with the C++ implementation. -/
-meta inductive expr
-| bvar  : nat → expr -- bound variables
-| fvar  : name → expr -- free variables
-| sort  : level → expr
-| const : name → list level → expr
-| mvar  : name → name → expr → expr
-| app   : expr → expr → expr
-| lam   : name → binder_info → expr → expr → expr
-| pi    : name → binder_info → expr → expr → expr
-| elet  : name → expr → expr → expr → expr
-| lit   : literal → expr
-| mdata : lean.kvmap → expr → expr
-| proj  : nat → expr → expr
-| quote : bool → expr → expr
-
-meta instance : inhabited expr :=
-⟨expr.sort level.zero⟩
-
 meta def expr.mk_bvar (n : nat) : expr :=
 expr.bvar n
 
 /- Expressions can be annotated using the annotation macro. -/
-meta constant expr.is_annotation : expr → option (name × expr)
+meta constant lean.expr.is_annotation : expr → option (name × expr)
 
-meta def expr.erase_annotations : expr → expr
+meta def lean.expr.erase_annotations : expr → expr
 | e :=
   match e.is_annotation with
-  | some (_, a) := expr.erase_annotations a
+  | some (_, a) := lean.expr.erase_annotations a
   | none        := e
 
 /-- Compares expressions, including binder names. -/
-meta constant expr.has_decidable_eq : decidable_eq expr
-attribute [instance] expr.has_decidable_eq
+meta constant lean.expr.has_decidable_eq : decidable_eq expr
+attribute [instance] lean.expr.has_decidable_eq
 
 /-- Compares expressions while ignoring binder names. -/
-meta constant expr.alpha_eqv : expr → expr → bool
-notation a ` =ₐ `:50 b:50 := expr.alpha_eqv a b = bool.tt
+meta constant lean.expr.alpha_eqv : expr → expr → bool
+notation a ` =ₐ `:50 b:50 := lean.expr.alpha_eqv a b = bool.tt
 
-protected meta constant expr.to_string : expr → string
+protected meta constant lean.expr.to_string : expr → string
 
-meta instance : has_to_string (expr) := ⟨expr.to_string⟩
+meta instance : has_to_string (expr) := ⟨lean.expr.to_string⟩
 meta instance : has_to_format (expr) := ⟨λ e, e.to_string⟩
 
 /- Coercion for letting users write (f a) instead of (expr.app f a) -/
 meta instance : has_coe_to_fun (expr) :=
 { F := λ e, expr → expr, coe := λ e, expr.app e }
 
-meta constant expr.hash : expr → nat
+meta constant lean.expr.hash : expr → nat
 
 /-- Compares expressions, ignoring binder names, and sorting by hash. -/
-meta constant expr.lt : expr → expr → bool
+meta constant lean.expr.lt : expr → expr → bool
 /-- Compares expressions, ignoring binder names. -/
-meta constant expr.lex_lt : expr → expr → bool
+meta constant lean.expr.lex_lt : expr → expr → bool
 
-meta constant expr.fold {α : Type} : expr → α → (expr → nat → α → α) → α
+meta constant lean.expr.fold {α : Type} : expr → α → (expr → nat → α → α) → α
 
 /-- `has_var e` returns true iff e has free variables. -/
-meta constant expr.has_bvar_idx   : expr → nat → bool
+meta constant lean.expr.has_bvar_idx   : expr → nat → bool
 
 /-- (reflected a) is a special opaque container for a closed `expr` representing `a`.
     It can only be obtained via type class inference, which will use the representation
@@ -108,15 +86,15 @@ meta constant expr.has_bvar_idx   : expr → nat → bool
 @[inline] meta def reflected.to_expr {α : Sort u} {a : α} : reflected a → expr :=
 id
 
-@[instance] protected meta constant expr.reflect (e : expr) : reflected e
+@[instance] protected meta constant lean.expr.reflect (e : expr) : reflected e
 @[instance] protected meta constant string.reflect (s : string) : reflected s
 
-protected meta constant expr.subst : expr → expr → expr
+protected meta constant lean.expr.subst : expr → expr → expr
 
 @[inline] meta def reflected.subst {α : Sort v} {β : α → Sort u} {f : Π a : α, β a} {a : α} :
   reflected f → reflected a → reflected (f a) :=
 λ ef ea, match ef with
-| (expr.lam _ _ _ _) := (expr.subst ef ea)
+| (expr.lam _ _ _ _) := (lean.expr.subst ef ea)
 | _                  := expr.app ef ea
 
 attribute [irreducible] reflected reflected.subst reflected.to_expr
@@ -129,18 +107,18 @@ protected meta def reflect {α : Sort u} (a : α) [h : reflected a] : reflected 
 meta instance {α} (a : α) : has_to_format (reflected a) :=
 ⟨λ h, to_fmt h.to_expr⟩
 
-namespace expr
+namespace lean.expr
 open decidable
 
-meta def expr.lt_prop (a b : expr) : Prop :=
-expr.lt a b = tt
+meta def lean.expr.lt_prop (a b : expr) : Prop :=
+lean.expr.lt a b = tt
 
-meta instance : decidable_rel expr.lt_prop :=
+meta instance : decidable_rel lean.expr.lt_prop :=
 λ a b, bool.decidable_eq _ _
 
 /-- Compares expressions, ignoring binder names, and sorting by hash. -/
 meta instance : has_lt expr :=
-⟨ expr.lt_prop ⟩
+⟨ lean.expr.lt_prop ⟩
 
 meta def mk_true : expr :=
 const `true []
@@ -328,7 +306,7 @@ meta def to_raw_fmt : expr → format
 | (fvar n) := p ["fvar", to_fmt n]
 | (sort l) := p ["sort", to_fmt l]
 | (const n ls) := p ["const", to_fmt n, to_fmt ls]
-| (mvar n m t)   := p ["mvar", to_fmt n, to_fmt m, to_raw_fmt t]
+| (mvar n t)   := p ["mvar", to_fmt n, to_raw_fmt t]
 | (app e f) := p ["app", to_raw_fmt e, to_raw_fmt f]
 | (lam n bi e t) := p ["lam", to_fmt n, repr bi, to_raw_fmt e, to_raw_fmt t]
 | (pi n bi e t) := p ["pi", to_fmt n, repr bi, to_raw_fmt e, to_raw_fmt t]
@@ -338,6 +316,6 @@ meta def to_raw_fmt : expr → format
 | (quote b v) := p ["quote", to_fmt b, to_raw_fmt v]
 
 meta def mfold {α : Type} {m : Type → Type} [monad m] (e : expr) (a : α) (fn : expr → nat → α → m α) : m α :=
-fold e (return a) (λ e n a, a >>= fn e n)
+lean.expr.fold e (return a) (λ e n a, a >>= fn e n)
 
-end expr
+end lean.expr

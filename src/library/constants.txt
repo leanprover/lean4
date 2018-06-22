@@ -51,8 +51,8 @@ eq_of_heq
 eq_true_intro
 eq_false_intro
 eq_self_iff_true
-expr
-expr.subst
+lean.expr
+lean.expr.subst
 false
 false_of_true_iff_false
 false_of_true_eq_false

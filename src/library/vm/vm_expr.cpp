@@ -95,8 +95,8 @@ vm_obj expr_const_intro(vm_obj const & n, vm_obj const & ls) {
     return to_obj(mk_constant(to_name(n), to_levels(ls)));
 }
 
-vm_obj expr_mvar_intro(vm_obj const & n, vm_obj const & pp_n, vm_obj const & t) {
-    return to_obj(mk_metavar(to_name(n), to_name(pp_n), to_expr(t)));
+vm_obj expr_mvar_intro(vm_obj const & n, vm_obj const & t) {
+    return to_obj(mk_metavar(to_name(n), to_expr(t)));
 }
 
 vm_obj expr_fvar_const_intro(vm_obj const & n) {
@@ -159,7 +159,6 @@ unsigned expr_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
         break;
     case expr_kind::MVar:
         data.push_back(to_obj(mlocal_name(e)));
-        data.push_back(to_obj(mlocal_pp_name(e)));
         data.push_back(to_obj(mlocal_type(e)));
         break;
     case expr_kind::FVar:
@@ -322,30 +321,30 @@ vm_obj reflect_string(vm_obj const & s) {
 }
 
 void initialize_vm_expr() {
-    DECLARE_VM_BUILTIN(name({"expr", "var"}),              expr_bvar_intro);
-    DECLARE_VM_BUILTIN(name({"expr", "lit"}),              expr_lit_intro);
-    DECLARE_VM_BUILTIN(name({"expr", "fvar"}),             expr_fvar_const_intro);
-    DECLARE_VM_BUILTIN(name({"expr", "sort"}),             expr_sort_intro);
-    DECLARE_VM_BUILTIN(name({"expr", "const"}),            expr_const_intro);
-    DECLARE_VM_BUILTIN(name({"expr", "mvar"}),             expr_mvar_intro);
-    DECLARE_VM_BUILTIN(name({"expr", "app"}),              expr_app_intro);
-    DECLARE_VM_BUILTIN(name({"expr", "lam"}),              expr_lam_intro);
-    DECLARE_VM_BUILTIN(name({"expr", "pi"}),               expr_pi_intro);
-    DECLARE_VM_BUILTIN(name({"expr", "elet"}),             expr_elet_intro);
-    DECLARE_VM_BUILTIN(name({"expr", "has_decidable_eq"}), expr_has_decidable_eq);
-    DECLARE_VM_BUILTIN(name({"expr", "alpha_eqv"}),        expr_alpha_eqv);
-    DECLARE_VM_BUILTIN(name({"expr", "to_string"}),        expr_to_string);
-    DECLARE_VM_BUILTIN(name({"expr", "lt"}),               expr_lt);
-    DECLARE_VM_BUILTIN(name({"expr", "lex_lt"}),           expr_lex_lt);
-    DECLARE_VM_BUILTIN(name({"expr", "fold"}),             expr_fold);
-    DECLARE_VM_BUILTIN(name({"expr", "subst"}),            expr_subst);
-    DECLARE_VM_BUILTIN(name({"expr", "has_bvar_idx"}),     expr_has_bvar_idx);
-    DECLARE_VM_BUILTIN(name({"expr", "hash"}),             expr_hash);
+    DECLARE_VM_BUILTIN(name({"lean", "expr", "var"}),              expr_bvar_intro);
+    DECLARE_VM_BUILTIN(name({"lean", "expr", "lit"}),              expr_lit_intro);
+    DECLARE_VM_BUILTIN(name({"lean", "expr", "fvar"}),             expr_fvar_const_intro);
+    DECLARE_VM_BUILTIN(name({"lean", "expr", "sort"}),             expr_sort_intro);
+    DECLARE_VM_BUILTIN(name({"lean", "expr", "const"}),            expr_const_intro);
+    DECLARE_VM_BUILTIN(name({"lean", "expr", "mvar"}),             expr_mvar_intro);
+    DECLARE_VM_BUILTIN(name({"lean", "expr", "app"}),              expr_app_intro);
+    DECLARE_VM_BUILTIN(name({"lean", "expr", "lam"}),              expr_lam_intro);
+    DECLARE_VM_BUILTIN(name({"lean", "expr", "pi"}),               expr_pi_intro);
+    DECLARE_VM_BUILTIN(name({"lean", "expr", "elet"}),             expr_elet_intro);
+    DECLARE_VM_BUILTIN(name({"lean", "expr", "has_decidable_eq"}), expr_has_decidable_eq);
+    DECLARE_VM_BUILTIN(name({"lean", "expr", "alpha_eqv"}),        expr_alpha_eqv);
+    DECLARE_VM_BUILTIN(name({"lean", "expr", "to_string"}),        expr_to_string);
+    DECLARE_VM_BUILTIN(name({"lean", "expr", "lt"}),               expr_lt);
+    DECLARE_VM_BUILTIN(name({"lean", "expr", "lex_lt"}),           expr_lex_lt);
+    DECLARE_VM_BUILTIN(name({"lean", "expr", "fold"}),             expr_fold);
+    DECLARE_VM_BUILTIN(name({"lean", "expr", "subst"}),            expr_subst);
+    DECLARE_VM_BUILTIN(name({"lean", "expr", "has_bvar_idx"}),     expr_has_bvar_idx);
+    DECLARE_VM_BUILTIN(name({"lean", "expr", "hash"}),             expr_hash);
 
-    DECLARE_VM_CASES_BUILTIN(name({"expr", "cases_on"}),   expr_cases_on);
+    DECLARE_VM_CASES_BUILTIN(name({"lean", "expr", "cases_on"}),   expr_cases_on);
 
     DECLARE_VM_BUILTIN(name("string", "reflect"),           reflect_string);
-    DECLARE_VM_BUILTIN(name("expr", "reflect"),             reflect_expr);
+    DECLARE_VM_BUILTIN(name({"lean", "expr", "reflect"}),   reflect_expr);
 
     DECLARE_VM_BUILTIN(name("mk_nat_val_ne_proof"),        vm_mk_nat_val_ne_proof);
     DECLARE_VM_BUILTIN(name("mk_nat_val_lt_proof"),        vm_mk_nat_val_lt_proof);
@@ -354,7 +353,7 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name("mk_char_val_ne_proof"),       vm_mk_char_val_ne_proof);
     DECLARE_VM_BUILTIN(name("mk_string_val_ne_proof"),     vm_mk_string_val_ne_proof);
 
-    DECLARE_VM_BUILTIN(name("expr", "is_annotation"),      expr_is_annotation);
+    DECLARE_VM_BUILTIN(name({"lean", "expr", "is_annotation"}),      expr_is_annotation);
 }
 
 void finalize_vm_expr() {

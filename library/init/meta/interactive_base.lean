@@ -97,7 +97,7 @@ do (expr.const f_name f_lvls) ← return e.get_app_fn | failed,
    env   ← get_env,
    decl  ← env.get f_name,
    new_f ← decl.instantiate_value_univ_params f_lvls,
-   head_beta (expr.mk_app new_f e.get_app_args)
+   head_beta (lean.expr.mk_app new_f e.get_app_args)
 
 private meta def concat (f₁ f₂ : list format) :=
 if f₁.empty then f₂ else if f₂.empty then f₁ else f₁ ++ [" "] ++ f₂
@@ -158,7 +158,7 @@ private meta def parser_desc_aux : expr → tactic (list format)
 meta def param_desc : expr → tactic format
 | `(parse %%p) := join <$> parser_desc_aux p
 | `(opt_param %%t _) := (++ "?") <$> pp t
-| e := if is_constant e ∧ (const_name e).components.ilast = `itactic
+| e := if e.is_constant ∧ e.const_name.components.ilast = `itactic
   then return $ to_fmt "{ tactic }"
   else paren <$> pp e
 

@@ -2100,8 +2100,8 @@ expr elaborator::visit_hole(expr const & e, optional<expr> const & expected_type
     expr const & ref = e;
     expr args; optional<pos_info> begin_pos, end_pos;
     std::tie(args, begin_pos, end_pos) = get_hole_info(e);
-    expr args_type   = mk_app(mk_constant(get_list_name(), {mk_level_zero()}),
-                              mk_app(mk_constant(get_expr_name()), mk_constant(get_bool_ff_name())));
+    expr args_type   = mk_app(mk_const(get_list_name(), {mk_level_zero()}),
+                              mk_const(get_lean_expr_name()));
     expr new_args    = ground_uvars(strict_visit(args, some_expr(args_type)));
     expr mvar        = mk_metavar(expected_type, ref);
     m_holes          = cons(mk_pair(mvar, update_hole_args(e, new_args)), m_holes);
@@ -3331,7 +3331,7 @@ expr elaborator::visit_expr_quote(expr const & e, optional<expr> const & expecte
             throw elaborator_exception(e, "invalid quotation, contains local constant");
         q = mk_elaborated_expr_quote(new_s);
         q = mk_as_is(q);
-        expr subst_fn = mk_constant(get_expr_subst_name());
+        expr subst_fn = mk_constant(get_lean_expr_subst_name());
         for (expr const & subst : substs) {
             q = mk_app(subst_fn, q, subst);
         }

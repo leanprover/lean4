@@ -433,16 +433,16 @@ expr mk_quote(bool reflected, expr const & val) {
 }
 
 /* Legacy */
-expr mk_metavar(name const & n, name const & pp_n, expr const & t) {
-    inc(n.raw()); inc(pp_n.raw()); inc(t.raw());
-    expr r(mk_cnstr(static_cast<unsigned>(expr_kind::MVar), n.raw(), pp_n.raw(), t.raw(), rec_expr_scalar_size(expr_kind::MVar)));
+expr mk_metavar(name const & n, expr const & t) {
+    inc(n.raw()); inc(n.raw()); inc(t.raw());
+    expr r(mk_cnstr(static_cast<unsigned>(expr_kind::MVar), n.raw(), n.raw(), t.raw(), rec_expr_scalar_size(expr_kind::MVar)));
     set_scalar<expr_kind::MVar>(r, n.hash(), true, has_univ_mvar(t), has_fvar(t), has_univ_param(t));
     set_rec_scalar<expr_kind::MVar>(r, 1, 1, get_loose_bvar_range(t));
     return r;
 }
 
 expr mk_mvar(name const & n, expr const & t) {
-    return mk_metavar(n, n, t);
+    return mk_metavar(n, t);
 }
 
 static expr * g_Prop  = nullptr;
@@ -652,7 +652,7 @@ expr update_mlocal(expr const & e, expr const & new_type) {
     if (is_eqp(mlocal_type(e), new_type))
         return e;
     else if (is_metavar(e))
-        return mk_metavar(mlocal_name(e), mlocal_pp_name(e), new_type);
+        return mk_metavar(mlocal_name(e), new_type);
     else
         return mk_local(mlocal_name(e), mlocal_pp_name(e), new_type, local_info(e));
 }

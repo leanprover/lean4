@@ -75,7 +75,7 @@ inline deserializer & operator>>(deserializer & d, literal & l) { l = read_liter
 inductive expr
 | bvar  : nat → expr          -- bound variables
 | fvar  : name → expr         -- free variables
-| mvar  : name → expr → expr
+| mvar  : name → expr → expr  -- meta variables
 | sort  : level → expr
 | const : name → list level → expr
 | app   : expr → expr → expr

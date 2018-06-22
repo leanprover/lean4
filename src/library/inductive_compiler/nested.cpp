@@ -334,7 +334,7 @@ class add_nested_inductive_decl_fn {
     void define_theorem(name const & n, expr const & ty, expr const & val) {
         assert_no_locals(n, ty);
         assert_no_locals(n, val);
-        declaration d = mk_definition_inferring_meta(m_env, n, names(m_nested_decl.get_lp_names()), ty, val, true);
+        declaration d = mk_definition_inferring_meta(m_env, n, names(m_nested_decl.get_lp_names()), ty, val);
         try {
             m_env = module::add(m_env, check(m_env, d));
             lean_trace(name({"inductive_compiler", "nested", "define", "success"}), tout() << n << " : " << ty << "\n";);
@@ -352,7 +352,7 @@ class add_nested_inductive_decl_fn {
     void define(name const & n, expr const & ty, expr const & val, level_param_names const & lp_names) {
         assert_no_locals(n, ty);
         assert_no_locals(n, val);
-        declaration d = mk_definition_inferring_meta(m_env, n, lp_names, ty, val, true);
+        declaration d = mk_definition_inferring_meta(m_env, n, lp_names, ty, val);
         try {
             m_env = module::add(m_env, check(m_env, d));
             lean_trace(name({"inductive_compiler", "nested", "define", "success"}), tout() << n << " : " << ty << " :=\n  " << val << "\n";);
@@ -1424,7 +1424,7 @@ class add_nested_inductive_decl_fn {
         args.push_back(to_obj(mk_primitive_name(fn_type::UNPACK_PACK)));
         args.push_back(to_obj(mk_primitive_name(fn_type::UNPACK)));
         expr proof = prove_pack_injective(lemma_name, goal, mk_primitive_name(fn_type::UNPACK), mk_primitive_name(fn_type::UNPACK_PACK));
-        m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, lemma_name, names(m_nested_decl.get_lp_names()), goal, proof, true)));
+        m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, lemma_name, names(m_nested_decl.get_lp_names()), goal, proof)));
         m_tctx.set_env(m_env);
         m_inj_lemmas = add(m_tctx, m_inj_lemmas, lemma_name, LEAN_DEFAULT_PRIORITY);
     }
@@ -1462,7 +1462,7 @@ class add_nested_inductive_decl_fn {
         args.push_back(to_obj(mk_nested_name(fn_type::UNPACK_PACK, nest_idx)));
         args.push_back(to_obj(mk_nested_name(fn_type::UNPACK, nest_idx)));
         expr proof = prove_pack_injective(lemma_name, goal, mk_nested_name(fn_type::UNPACK, nest_idx), mk_nested_name(fn_type::UNPACK_PACK, nest_idx));
-        m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, lemma_name, names(m_nested_decl.get_lp_names()), goal, proof, true)));
+        m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, lemma_name, names(m_nested_decl.get_lp_names()), goal, proof)));
         m_tctx.set_env(m_env);
         m_inj_lemmas = add(m_tctx, m_inj_lemmas, lemma_name, LEAN_DEFAULT_PRIORITY);
     }
@@ -1530,7 +1530,7 @@ class add_nested_inductive_decl_fn {
         args.push_back(to_obj(mk_pi_name(fn_type::UNPACK_PACK)));
         args.push_back(to_obj(mk_pi_name(fn_type::UNPACK)));
         expr proof = prove_pack_injective(lemma_name, goal, mk_pi_name(fn_type::UNPACK), mk_pi_name(fn_type::UNPACK_PACK));
-        m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, lemma_name, names(m_nested_decl.get_lp_names()), goal, proof, true)));
+        m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, lemma_name, names(m_nested_decl.get_lp_names()), goal, proof)));
         m_tctx.set_env(m_env);
         m_inj_lemmas = add(m_tctx, m_inj_lemmas, lemma_name, LEAN_DEFAULT_PRIORITY);
     }
@@ -2003,13 +2003,13 @@ class add_nested_inductive_decl_fn {
                 expr inj_val = prove_nested_injective(inj_type, m_inj_lemmas, inj_arrow_name);
                 m_env = module::add(m_env,
                                     check(m_env,
-                                          mk_definition_inferring_meta(m_env, inj_name, lp_names, inj_type, inj_val, true)));
+                                          mk_definition_inferring_meta(m_env, inj_name, lp_names, inj_type, inj_val)));
                 m_env = mk_injective_arrow(m_env, ir_name);
                 if (m_env.find(get_tactic_mk_inj_eq_name())) {
                     name inj_eq_name  = mk_injective_eq_name(ir_name);
                     expr inj_eq_type  = mk_injective_eq_type(m_env, ir_name, ir_type, num_params, lp_names);
                     expr inj_eq_value = prove_injective_eq(m_env, inj_eq_type, inj_eq_name);
-                    m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, inj_eq_name, lp_names, inj_eq_type, inj_eq_value, true)));
+                    m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, inj_eq_name, lp_names, inj_eq_type, inj_eq_value)));
                 }
             }
         }

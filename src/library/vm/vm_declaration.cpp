@@ -23,7 +23,7 @@ vm_obj to_obj(reducibility_hints const & h) {
     switch (h.get_kind()) {
     case reducibility_hints::Opaque:       return mk_vm_simple(0);
     case reducibility_hints::Abbreviation: return mk_vm_simple(1);
-    case reducibility_hints::Regular:      return mk_vm_constructor(2, mk_vm_nat(h.get_height()), mk_vm_bool(h.use_self_opt()));
+    case reducibility_hints::Regular:      return mk_vm_constructor(2, mk_vm_nat(h.get_height()));
     }
     lean_unreachable();
 }
@@ -32,7 +32,7 @@ reducibility_hints to_reducibility_hints(vm_obj const & o) {
     switch (cidx(o)) {
     case 0: return reducibility_hints::mk_opaque();
     case 1: return reducibility_hints::mk_abbreviation();
-    case 2: return reducibility_hints::mk_regular(force_to_unsigned(cfield(o, 0), 0), to_bool(cfield(o, 1)));
+    case 2: return reducibility_hints::mk_regular(force_to_unsigned(cfield(o, 0), 0));
     }
     lean_unreachable();
 }

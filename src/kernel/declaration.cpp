@@ -83,9 +83,9 @@ static unsigned get_max_height(environment const & env, expr const & v) {
 }
 
 declaration mk_definition(environment const & env, name const & n, level_param_names const & params, expr const & t,
-                          expr const & v, bool use_self_opt, bool meta) {
+                          expr const & v, bool meta) {
     unsigned h = get_max_height(env, v);
-    return mk_definition(n, params, t, v, reducibility_hints::mk_regular(h+1, use_self_opt), meta);
+    return mk_definition(n, params, t, v, reducibility_hints::mk_regular(h+1), meta);
 }
 declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v) {
     return declaration(new declaration::cell(n, params, t, v));
@@ -121,10 +121,10 @@ declaration mk_definition_inferring_meta(environment const & env, name const & n
 }
 
 declaration mk_definition_inferring_meta(environment const & env, name const & n, level_param_names const & params,
-                                         expr const & t, expr const & v, bool use_self_opt) {
+                                         expr const & t, expr const & v) {
     bool meta  = use_meta(env, t) && use_meta(env, v);
     unsigned h = get_max_height(env, v);
-    return mk_definition(n, params, t, v, reducibility_hints::mk_regular(h+1, use_self_opt), meta);
+    return mk_definition(n, params, t, v, reducibility_hints::mk_regular(h+1), meta);
 }
 
 declaration mk_constant_assumption_inferring_meta(environment const & env, name const & n,

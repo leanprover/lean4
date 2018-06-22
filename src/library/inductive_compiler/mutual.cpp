@@ -293,7 +293,7 @@ class add_mutual_inductive_decl_fn {
                        << mlocal_name(ind) << " : " << new_ind_type << " :=\n  " << new_ind_val << "\n";);
             lean_assert(!has_local(new_ind_type));
             lean_assert(!has_local(new_ind_val));
-            m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, mlocal_name(ind), names(m_mut_decl.get_lp_names()), new_ind_type, new_ind_val, true)));
+            m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, mlocal_name(ind), names(m_mut_decl.get_lp_names()), new_ind_type, new_ind_val)));
             m_tctx.set_env(m_env);
         }
     }
@@ -327,14 +327,14 @@ class add_mutual_inductive_decl_fn {
                 expr inj_and_type = mk_injective_type(m_env, ir_name, ir_type, num_params, lp_names);
                 expr inj_and_val = mk_constant(mk_injective_name(mlocal_name(m_basic_decl.get_intro_rule(0, basic_ir_idx))), m_mut_decl.get_levels());
                 lean_trace(name({"inductive_compiler", "mutual", "injective"}), tout() << mk_injective_name(ir_name) << " : " << inj_and_type << " :=\n  " << inj_and_val << "\n";);
-                m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, mk_injective_name(ir_name), lp_names, inj_and_type, inj_and_val, true)));
+                m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, mk_injective_name(ir_name), lp_names, inj_and_type, inj_and_val)));
                 m_env = mk_injective_arrow(m_env, ir_name);
 
                 if (m_env.find(get_tactic_mk_inj_eq_name())) {
                     name inj_eq_name  = mk_injective_eq_name(ir_name);
                     expr inj_eq_type  = mk_injective_eq_type(m_env, ir_name, ir_type, num_params, lp_names);
                     expr inj_eq_value = prove_injective_eq(m_env, inj_eq_type, inj_eq_name);
-                    m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, inj_eq_name, lp_names, inj_eq_type, inj_eq_value, true)));
+                    m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, inj_eq_name, lp_names, inj_eq_type, inj_eq_value)));
                 }
 
                 m_tctx.set_env(m_env);
@@ -358,7 +358,7 @@ class add_mutual_inductive_decl_fn {
                 lean_assert(!has_local(new_ir_val));
                 lean_trace(name({"inductive_compiler", "mutual", "ir"}), tout() << mlocal_name(ir) << " : " << new_ir_type << "\n";);
 
-                m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, mlocal_name(ir), names(m_mut_decl.get_lp_names()), new_ir_type, new_ir_val, true)));
+                m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, mlocal_name(ir), names(m_mut_decl.get_lp_names()), new_ir_type, new_ir_val)));
                 m_env = set_pattern_attribute(m_env, mlocal_name(ir));
                 m_tctx.set_env(m_env);
                 basic_ir_idx++;
@@ -638,7 +638,7 @@ class add_mutual_inductive_decl_fn {
 
         lean_assert(!has_local(rec_type));
         lean_assert(!has_local(rec_val));
-        m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, get_dep_recursor(m_env, mlocal_name(ind)), rec_lp_names, rec_type, rec_val, true)));
+        m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, get_dep_recursor(m_env, mlocal_name(ind)), rec_lp_names, rec_type, rec_val)));
     }
 
     void define_cases_on(name const & rec_name, level_param_names const & rec_lp_names, unsigned ind_idx) {
@@ -712,7 +712,7 @@ class add_mutual_inductive_decl_fn {
 
         lean_assert(!has_local(cases_on_type));
         lean_assert(!has_local(cases_on_val));
-        m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, name(mlocal_name(ind), "cases_on"), rec_lp_names, cases_on_type, cases_on_val, true)));
+        m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, name(mlocal_name(ind), "cases_on"), rec_lp_names, cases_on_type, cases_on_val)));
     }
 
     void define_recursors() {

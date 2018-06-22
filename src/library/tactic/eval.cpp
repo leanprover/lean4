@@ -32,7 +32,7 @@ static vm_obj eval(expr const & A, expr a, tactic_state const & s) {
         environment aux_env = S.env();
         name eval_aux_name = mk_unused_name(aux_env, "_eval_expr");
         try {
-            auto cd = check(aux_env, mk_definition(aux_env, eval_aux_name, {}, A, a, true, false));
+            auto cd = check(aux_env, mk_definition(aux_env, eval_aux_name, {}, A, a, false));
             aux_env = aux_env.add(cd);
         } catch (definition_type_mismatch_exception & ex) {
             expr given_type = ex.get_given_type();

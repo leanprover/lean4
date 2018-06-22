@@ -24,13 +24,6 @@ The definitional height is by default computed by the kernel. It only takes into
 other regular definitions used in a definition. When creating declarations using meta-programming,
 we can specify the definitional depth manually.
 
-For definitions marked as regular, we also have a hint for constraints such as
-
-          (f a) =?= (f b)
-
-if self_opt == true, then checker will first try to solve (a =?= b), only if it fails,
-it unfolds f.
-
 Remark: the hint only affects performance. None of the hints prevent the kernel from unfolding a
 declaration during type checking.
 
@@ -41,7 +34,7 @@ Moreover, the reducibility_hints cannot be changed after a declaration is added 
 inductive reducibility_hints
 | opaque  : reducibility_hints
 | abbrev  : reducibility_hints
-| regular : nat → bool → reducibility_hints
+| regular : nat → reducibility_hints
 
 /-- Reflect a C++ declaration object. The VM replaces it with the C++ implementation. -/
 meta inductive declaration
@@ -57,7 +50,7 @@ meta inductive declaration
 open declaration
 
 meta def mk_definition (n : name) (ls : list name) (v : expr) (e : expr) : declaration :=
-defn n ls v e (reducibility_hints.regular 1 tt) tt
+defn n ls v e (reducibility_hints.regular 1) tt
 
 namespace declaration
 

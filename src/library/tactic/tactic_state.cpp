@@ -793,10 +793,9 @@ format tactic_state::pp() const {
             expr code            = mk_app(mk_constant("to_fmt", {mk_level_zero()}), ts_expr, *to_fmt_inst);
             expr type            = ctx.infer(code);
             environment new_env  = ctx.env();
-            bool use_conv_opt    = true;
             bool is_meta         = true;
             name pp_name("_pp_tactic_state");
-            auto cd              = check(new_env, mk_definition(new_env, pp_name, {}, type, code, use_conv_opt, is_meta));
+            auto cd              = check(new_env, mk_definition(new_env, pp_name, {}, type, code, is_meta));
             new_env              = new_env.add(cd);
             new_env              = vm_compile(new_env, new_env.get(pp_name));
             vm_state S(new_env, get_options());

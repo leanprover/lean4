@@ -14,7 +14,7 @@ namespace lean {
 serializer & operator<<(serializer & s, reducibility_hints const & h) {
     s << static_cast<char>(h.get_kind());
     if (h.is_regular())
-        s << static_cast<char>(h.use_self_opt()) << h.get_height();
+        s << h.get_height();
     return s;
 }
 
@@ -23,9 +23,9 @@ reducibility_hints read_hints(deserializer & d) {
     d >> k;
     reducibility_hints::kind kind = static_cast<reducibility_hints::kind>(k);
     if (kind == reducibility_hints::Regular) {
-        char use_conv; unsigned height;
-        d >> use_conv >> height;
-        return reducibility_hints::mk_regular(height, static_cast<bool>(use_conv));
+        unsigned height;
+        d >> height;
+        return reducibility_hints::mk_regular(height);
     } else if (kind == reducibility_hints::Opaque) {
         return reducibility_hints::mk_opaque();
     } else {

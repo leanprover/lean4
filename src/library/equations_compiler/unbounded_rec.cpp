@@ -156,9 +156,8 @@ eqn_compiler_result unbounded_rec(environment & env, elaborator & elab,
             fn = fix_rec_apps(fn, aux_rec_fn_name2actual_name, lvls, params);
             fn = helper.mk_lambda_closure(fn);
 
-            bool use_self_opt = true;
             bool is_meta      = true;
-            declaration d     = mk_definition(env, fn_name, lvl_names, fn_type, fn, use_self_opt, is_meta);
+            declaration d     = mk_definition(env, fn_name, lvl_names, fn_type, fn, is_meta);
 
             new_declarations.push_back(d);
             fn_actual_names   = tail(fn_actual_names);

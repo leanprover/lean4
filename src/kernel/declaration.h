@@ -26,13 +26,6 @@ namespace lean {
      The definitional height is by default computed by the kernel. It only takes into account
      other Regular definitions used in a definition.
 
-     For definitions marked as regular, we also have a hint for constraints such as
-
-          (f a) =?= (f b)
-
-     if self_opt == true, then checker will first try to solve (a =?= b), only if it fails,
-     it unfolds f.
-
      Remark: the hint only affects performance. */
 class reducibility_hints {
 public:
@@ -44,10 +37,9 @@ public:
 private:
     kind      m_kind;
     unsigned  m_height; /* definitional height */
-    bool      m_self_opt;
-    reducibility_hints(kind k, unsigned h = 0, bool self_opt = false):m_kind(k), m_height(h), m_self_opt(self_opt) {}
+    reducibility_hints(kind k, unsigned h = 0):m_kind(k), m_height(h) {}
 public:
-    static reducibility_hints mk_regular(unsigned h, bool self_opt = true) { return reducibility_hints(Regular, h, self_opt); }
+    static reducibility_hints mk_regular(unsigned h) { return reducibility_hints(Regular, h); }
     static reducibility_hints mk_opaque() { return reducibility_hints(Opaque); }
     static reducibility_hints mk_abbreviation() { return reducibility_hints(Abbreviation); }
 
@@ -61,7 +53,6 @@ public:
     unsigned get_height() const { return m_height; }
     kind get_kind() const { return m_kind; }
     bool is_regular() const { return m_kind == Regular; }
-    bool use_self_opt() const { return m_self_opt; }
 };
 
 int compare(reducibility_hints const & h1, reducibility_hints const & h2);
@@ -133,7 +124,7 @@ public:
     friend declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v,
                                      reducibility_hints const & hints, bool meta);
     friend declaration mk_definition(environment const & env, name const & n, level_param_names const & params, expr const & t,
-                                     expr const & v, bool use_conv_opt, bool meta);
+                                     expr const & v, bool meta);
     friend declaration mk_theorem(name const &, level_param_names const &, expr const &, expr const &);
     friend declaration mk_axiom(name const & n, level_param_names const & params, expr const & t);
     friend declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t, bool meta);
@@ -146,7 +137,7 @@ inline optional<declaration> some_declaration(declaration && o) { return optiona
 declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v,
                           reducibility_hints const & hints, bool meta = false);
 declaration mk_definition(environment const & env, name const & n, level_param_names const & params, expr const & t, expr const & v,
-                          bool use_conv_opt = true, bool meta = false);
+                          bool meta = false);
 declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v);
 declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v);
 declaration mk_axiom(name const & n, level_param_names const & params, expr const & t);
@@ -160,7 +151,7 @@ bool use_meta(environment const & env, expr const & e);
 declaration mk_definition_inferring_meta(environment const & env, name const & n, level_param_names const & params,
                                          expr const & t, expr const & v, reducibility_hints const & hints);
 declaration mk_definition_inferring_meta(environment const & env, name const & n, level_param_names const & params,
-                                         expr const & t, expr const & v, bool use_self_opt);
+                                         expr const & t, expr const & v);
 /** \brief Similar to mk_constant_assumption but infer the value of meta flag.
     That is, set it to true if \c t or \c v contains a meta declaration. */
 declaration mk_constant_assumption_inferring_meta(environment const & env, name const & n,

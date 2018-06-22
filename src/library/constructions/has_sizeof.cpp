@@ -233,7 +233,7 @@ class mk_has_sizeof_fn {
                        << "[sizeof]: " << sizeof_name << " : " << sizeof_type << "\n"
                        << sizeof_val << "\n";);
 
-            m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, sizeof_name, lp_names, sizeof_type, sizeof_val, true)));
+            m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, sizeof_name, lp_names, sizeof_type, sizeof_val)));
             m_env = set_reducible(m_env, sizeof_name, reducible_status::Irreducible, true);
             m_env = add_protected(m_env, sizeof_name);
 
@@ -263,7 +263,7 @@ class mk_has_sizeof_fn {
                        << "[has_sizeof]: " << has_sizeof_name << " : " << has_sizeof_type << "\n"
                        << has_sizeof_val << "\n";);
 
-            m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, has_sizeof_name, lp_names, has_sizeof_type, has_sizeof_val, true)));
+            m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, has_sizeof_name, lp_names, has_sizeof_type, has_sizeof_val)));
             m_env = add_instance(m_env, has_sizeof_name, LEAN_DEFAULT_PRIORITY, true);
             m_env = add_protected(m_env, has_sizeof_name);
 
@@ -307,7 +307,7 @@ class mk_has_sizeof_fn {
                                << dsimp_rule_name << " : " << dsimp_rule_type << "\n"
                                << dsimp_rule_val << "\n";);
 
-                    m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, dsimp_rule_name, lp_names, dsimp_rule_type, dsimp_rule_val, true)));
+                    m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, dsimp_rule_name, lp_names, dsimp_rule_type, dsimp_rule_val)));
                     m_env = mark_rfl_lemma(m_env, dsimp_rule_name);
                     m_env = add_eqn_lemma(m_env, dsimp_rule_name);
                     m_env = add_protected(m_env, dsimp_rule_name);

@@ -1257,9 +1257,8 @@ struct structure_cmd_fn {
             }
             coercion_value                 = Fun(m_params, Fun(st, coercion_value, m_p), m_p);
             name coercion_name             = coercion_names[i];
-            bool use_conv_opt              = false;
             declaration coercion_decl      = mk_definition_inferring_meta(m_env, coercion_name, lnames,
-                                                                          coercion_type, coercion_value, use_conv_opt);
+                                                                          coercion_type, coercion_value);
             m_env = module::add(m_env, check(m_env, coercion_decl));
             add_alias(coercion_name);
             m_env = vm_compile(m_env, m_env.get(coercion_name));

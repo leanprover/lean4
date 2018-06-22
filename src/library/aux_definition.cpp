@@ -166,8 +166,7 @@ struct mk_aux_definition_fn : public closure_helper {
         if (is_lemma) {
             d = mk_theorem(c, get_norm_level_names(), def_type, def_value);
         } else {
-            bool use_self_opt = true;
-            d = mk_definition(env, c, get_norm_level_names(), def_type, def_value, use_self_opt, *is_meta);
+            d = mk_definition(env, c, get_norm_level_names(), def_type, def_value, *is_meta);
         }
         environment new_env = module::add(env, check(env, d));
         buffer<level> ls;

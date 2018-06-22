@@ -1067,7 +1067,7 @@ environment mk_smart_unfolding_definition(environment const & env, options const
 
     helper_value = locals.mk_lambda(helper_value);
     try {
-        declaration def = mk_definition(env, mk_smart_unfolding_name_for(n), d.get_univ_params(), d.get_type(), helper_value, true, true);
+        declaration def = mk_definition(env, mk_smart_unfolding_name_for(n), d.get_univ_params(), d.get_type(), helper_value, true);
         auto cdef       = check(env, def);
         return module::add(env, cdef);
     } catch (exception & ex) {

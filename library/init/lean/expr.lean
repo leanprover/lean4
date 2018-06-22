@@ -18,9 +18,9 @@ inductive binder_info
 inductive expr
 | bvar  : nat → expr                                -- bound variables
 | fvar  : name → expr                               -- free variables
+| mvar  : name → expr → expr                        -- (temporary) meta variables
 | sort  : level → expr                              -- Sort
 | const : name → list level → expr                  -- constants
-| mvar  : name → expr → expr                        -- (temporary) meta variables
 | app   : expr → expr → expr                        -- application
 | lam   : name → binder_info → expr → expr → expr   -- lambda abstraction
 | pi    : name → binder_info → expr → expr → expr   -- Pi

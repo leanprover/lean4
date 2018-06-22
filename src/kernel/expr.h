@@ -73,11 +73,11 @@ inline deserializer & operator>>(deserializer & d, literal & l) { l = read_liter
    Expressions
 
 inductive expr
-| bvar  : nat → expr   -- bound variables
-| fvar  : name → expr  -- free variables
+| bvar  : nat → expr          -- bound variables
+| fvar  : name → expr         -- free variables
+| mvar  : name → expr → expr
 | sort  : level → expr
 | const : name → list level → expr
-| mvar  : name → name → expr → expr
 | app   : expr → expr → expr
 | lam   : name → binder_info → expr → expr → expr
 | pi    : name → binder_info → expr → expr → expr
@@ -89,7 +89,7 @@ inductive expr
 | quote : bool → expr → expr
 
 */
-enum class expr_kind { BVar, FVar, Sort, Const, MVar, App, Lambda, Pi, Let, Lit, MData, Proj, Quote };
+enum class expr_kind { BVar, FVar, MVar, Sort, Const, App, Lambda, Pi, Let, Lit, MData, Proj, Quote };
 class expr : public object_ref {
     explicit expr(object * o):object_ref(o) { inc(o); }
     explicit expr(object_ref && o):object_ref(o) {}

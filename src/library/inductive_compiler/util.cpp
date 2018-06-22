@@ -28,7 +28,7 @@ unsigned get_num_indices(environment const & env, expr const & ind) {
     unsigned num_indices = 0;
     type_context_old tctx(env);
     lean_assert(is_local(ind));
-    expr ind_type = tctx.relaxed_whnf(mlocal_type(ind));
+    expr ind_type = tctx.relaxed_whnf(local_type(ind));
     type_context_old::tmp_locals locals(tctx);
     while (is_pi(ind_type)) {
         ind_type = instantiate(binding_body(ind_type), locals.push_local_from_binding(ind_type));
@@ -59,7 +59,7 @@ void assert_no_locals(name const & n, expr const & e) {
     lean_trace(name({"debug", "inductive_compiler"}),
                tout() << "\n\nerror: found locals in '" << n << "'\n" << e << "\n";
                for (expr const & l : ls.get_collected()) {
-                   tout() << mlocal_name(l) << "." << mlocal_pp_name(l) << " : " << mlocal_type(l) << "\n";
+                   tout() << local_name(l) << "." << local_pp_name(l) << " : " << local_type(l) << "\n";
                });
     lean_assert(false);
 }

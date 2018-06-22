@@ -17,7 +17,7 @@ static vm_obj exact(expr const & e, transparency_mode const & m, tactic_state s)
         tactic_state_context_cache cache(s);
         type_context_old ctx     = cache.mk_type_context(m);
         expr mvar            = head(s.goals());
-        if (is_metavar(e) && mlocal_name(mvar) == mlocal_name(e)) {
+        if (is_mvar(e) && mvar_name(mvar) == mvar_name(e)) {
             return tactic::mk_exception("invalid exact tactic, trying to solve goal using itself", s);
         }
         if (!ctx.is_def_eq(mvar, e)) {

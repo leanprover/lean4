@@ -143,7 +143,7 @@ unpack_eqns::unpack_eqns(type_context_old & ctx, expr const & e):
 }
 
 expr unpack_eqns::update_fn_type(unsigned fidx, expr const & type) {
-    expr new_fn = m_locals.push_local(mlocal_pp_name(m_fns[fidx]), type, mk_rec_info());
+    expr new_fn = m_locals.push_local(local_pp_name(m_fns[fidx]), type, mk_rec_info());
     m_fns[fidx] = new_fn;
     return new_fn;
 }
@@ -203,7 +203,7 @@ bool is_recursive_eqns(type_context_old & ctx, expr const & e) {
                 if (find(rhs, [&](expr const & e, unsigned) {
                             if (is_local(e)) {
                                 for (unsigned fidx = 0; fidx < ues.get_num_fns(); fidx++) {
-                                    if (mlocal_name(e) == mlocal_name(ues.get_fn(fidx)))
+                                    if (local_name(e) == local_name(ues.get_fn(fidx)))
                                         return true;
                                 }
                             }
@@ -973,7 +973,7 @@ void update_telescope(type_context_old & ctx, buffer<expr> const & vars, expr co
             if (curr_type == new_curr_type) {
                 new_vars.push_back(curr);
             } else {
-                expr new_curr = ctx.push_local(mlocal_pp_name(curr), new_curr_type);
+                expr new_curr = ctx.push_local(local_pp_name(curr), new_curr_type);
                 from.push_back(curr);
                 to.push_back(new_curr);
                 new_vars.push_back(new_curr);

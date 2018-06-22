@@ -207,7 +207,7 @@ expr type_context_old::push_let(name const & ppn, expr const & type, expr const 
 void type_context_old::pop_local() {
     if (!m_cache->get_frozen_local_instances() && m_local_instances) {
         optional<local_decl> decl = m_lctx.find_last_local_decl();
-        if (decl && decl->get_name() == mlocal_name(head(m_local_instances).get_local())) {
+        if (decl && decl->get_name() == local_name(head(m_local_instances).get_local())) {
             m_local_instances = tail(m_local_instances);
             flush_instance_cache();
         }
@@ -238,7 +238,7 @@ Moreover, if must_sort == false, d is at to_revert[i] and there is j > i s.t. d 
 static bool process_to_revert(metavar_context const & mctx, buffer<expr> & to_revert, unsigned num,
                               local_decl const & d, bool preserve_to_revert_order, bool & must_sort) {
     for (unsigned i = 0; i < num; i++) {
-        if (mlocal_name(to_revert[i]) == d.get_name()) {
+        if (local_name(to_revert[i]) == d.get_name()) {
             if (!must_sort &&
                 depends_on(d, mctx, to_revert.size() - i - 1, to_revert.data() + i + 1)) {
                 /* to_revert[i] depends on to_revert[j] for j > i.
@@ -336,7 +336,7 @@ pair<local_context, expr> type_context_old::revert_core(buffer<expr> & to_revert
     if (optional<local_instances> lis = m_lctx.get_frozen_local_instances()) {
         for (expr const & h : to_revert) {
             for (local_instance const & li : *lis) {
-                if (mlocal_name(h) == mlocal_name(li.get_local())) {
+                if (local_name(h) == local_name(li.get_local())) {
                     throw exception(sstream() << "failed to revert '" << h << "', it is a frozen local instance (possible solution: use tactic `tactic.unfreeze_local_instances` to reset the set of local instances)");
                 }
             }
@@ -1057,7 +1057,7 @@ expr type_context_old::infer_local(expr const & e) {
     } else {
         /* Remark: depending on how we re-organize the parser, we may be able
            to remove this branch. */
-        return mlocal_type(e);
+        return local_type(e);
     }
 }
 
@@ -1076,7 +1076,7 @@ expr type_context_old::infer_metavar(expr const & e) {
         /* tmp metavariables should only occur in tmp_mode.
            The following assertion was commented because the pretty printer may violate it. */
         // lean_assert(!is_idx_metavar(e) || in_tmp_mode());
-        return mlocal_type(e);
+        return mvar_type(e);
     }
 }
 
@@ -1883,7 +1883,7 @@ bool type_context_old::process_assignment(expr const & m, expr const & v) {
             }
         } else {
             if (std::any_of(locals.begin(), locals.end(),
-                            [&](expr const & local) { return mlocal_name(local) == mlocal_name(arg); })) {
+                            [&](expr const & local) { return local_name(local) == local_name(arg); })) {
                 /* m is of the form (?M ... l ... l ...) where l is a local constant. */
                 if (quasi_pattern_unif_approx()) {
                     /* workaround A3 */
@@ -2167,7 +2167,7 @@ struct check_assignment_fn : public replace_visitor {
                 }
             }
             if (std::all_of(m_locals.begin(), m_locals.end(), [&](expr const & a) {
-                        return mlocal_name(a) != mlocal_name(e); })) {
+                        return local_name(a) != local_name(e); })) {
                 lean_trace(name({"type_context", "is_def_eq_detail"}),
                            scope_trace_env scope(m_ctx.env(), m_ctx);
                            tout() << "failed to assign " << m_mvar << " to\n" << m_value << "\n" <<
@@ -2586,9 +2586,8 @@ bool type_context_old::is_def_eq_proof_irrel(expr const & e1, expr const & e2) {
     return false;
 }
 
-static bool mvar_has_user_facing_name(expr const & m) {
-    lean_assert(is_metavar(m));
-    return mlocal_name(m) != mlocal_pp_name(m);
+static bool mvar_has_user_facing_name(expr const &) {
+    return false;
 }
 
 lbool type_context_old::quick_is_def_eq(expr const & e1, expr const & e2) {
@@ -3216,7 +3215,7 @@ bool type_context_old::is_def_eq_core_core(expr t, expr s) {
         return is_def_eq(const_levels(t), const_levels(s));
     }
 
-    if (is_local(t) && is_local(s) && mlocal_name(t) == mlocal_name(s))
+    if (is_local(t) && is_local(s) && local_name(t) == local_name(s))
         return true;
 
     r = is_def_eq_proj(t, s);
@@ -3534,11 +3533,11 @@ struct instance_synthesizer {
         // When it is used, it creates a subproblem for
         //    is_nsubg : @is_normal_subgroup A s ?N
         // where ?N is not known. Actually, we can only find the value for ?N by constructing the instance is_nsubg.
-        expr mvar_type       = m_ctx.instantiate_mvars(mlocal_type(mvar));
+        expr mvar_ty       = m_ctx.instantiate_mvars(mvar_type(mvar));
         m_choices.push_back(choice());
         push_scope();
         choice & r = m_choices.back();
-        auto cname = m_ctx.is_class(mvar_type);
+        auto cname = m_ctx.is_class(mvar_ty);
         if (!cname)
             return false;
         r.m_local_instances = get_local_instances(*cname);

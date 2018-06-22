@@ -105,7 +105,7 @@ struct pack_mutual_fn {
             if (!is_local(fn))
                 return optional<unsigned>();
             for (unsigned fidx = 0; fidx < m_ues.get_num_fns(); fidx++) {
-                if (mlocal_name(m_ues.get_fn(fidx)) == mlocal_name(fn))
+                if (local_name(m_ues.get_fn(fidx)) == local_name(fn))
                     return optional<unsigned>(fidx);
             }
             return optional<unsigned>();
@@ -159,8 +159,8 @@ struct pack_mutual_fn {
         }
         for (unsigned fidx = 0; fidx < ues.get_num_fns(); fidx++) {
             expr const & fn = ues.get_fn(fidx);
-            new_fn_name        = new_fn_name + mlocal_pp_name(fn);
-            new_fn_actual_name = new_fn_actual_name + mlocal_pp_name(fn);
+            new_fn_name        = new_fn_name + local_pp_name(fn);
+            new_fn_actual_name = new_fn_actual_name + local_pp_name(fn);
             lean_assert(ues.get_arity_of(fidx) == 1);
             expr fn_type       = m_ctx.relaxed_whnf(m_ctx.infer(fn));
             lean_assert(is_pi(fn_type));

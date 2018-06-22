@@ -41,10 +41,10 @@ vm_obj tactic_to_expr(vm_obj const & qe, vm_obj const & allow_mvars, vm_obj cons
             name_set found;
             for_each(r, [&](expr const & e, unsigned) {
                     if (!has_expr_metavar(e)) return false;
-                    if (is_metavar_decl_ref(e) && !found.contains(mlocal_name(e))) {
+                    if (is_metavar_decl_ref(e) && !found.contains(mvar_name(e))) {
                         mctx.instantiate_mvars_at_type_of(e);
                         new_goals.push_back(e);
-                        found.insert(mlocal_name(e));
+                        found.insert(local_name(e));
                     }
                     return true;
                 });

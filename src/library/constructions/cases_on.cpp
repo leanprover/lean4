@@ -22,7 +22,7 @@ Author: Leonardo de Moura
 namespace lean {
 static bool is_type_former_arg(name const & C_name, expr const & arg) {
     expr const & fn = get_app_fn(arg);
-    return is_local(fn) && mlocal_name(fn) == C_name;
+    return is_local(fn) && local_name(fn) == C_name;
 }
 
 environment mk_cases_on(environment const & env, name const & n) {
@@ -68,7 +68,7 @@ environment mk_cases_on(environment const & env, name const & n) {
     unsigned i = num_params;
     cases_on_params.push_back(rec_params[i]);
     rec_args.push_back(rec_params[i]);
-    name C_main = mlocal_name(rec_params[i]);
+    name C_main = local_name(rec_params[i]);
     i++;
 
     // Add indices and major-premise to rec_params
@@ -81,11 +81,11 @@ environment mk_cases_on(environment const & env, name const & n) {
         // A cases_on minor premise does not contain "recursive" arguments
         buffer<expr> minor_non_rec_params;
         buffer<expr> minor_params;
-        expr minor_type = mlocal_type(minor);
+        expr minor_type = local_type(minor);
         while (is_pi(minor_type)) {
             expr local = mk_local(ngen.next(), binding_name(minor_type), binding_domain(minor_type),
                                   binding_info(minor_type));
-            expr curr_type = mlocal_type(local);
+            expr curr_type = local_type(local);
             while (is_pi(curr_type))
                 curr_type = binding_body(curr_type);
             if (is_type_former_arg(C_main, curr_type)) {
@@ -96,7 +96,7 @@ environment mk_cases_on(environment const & env, name const & n) {
             }
             minor_type = instantiate(binding_body(minor_type), local);
         }
-        expr new_C = update_mlocal(minor, Pi(minor_non_rec_params, minor_type));
+        expr new_C = update_local(minor, Pi(minor_non_rec_params, minor_type));
         cases_on_params.push_back(new_C);
         expr new_C_app = mk_app(new_C, minor_non_rec_params);
         expr rec_arg   = Fun(minor_params, new_C_app);

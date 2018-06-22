@@ -139,9 +139,13 @@ class replace_rec_fn2 {
             case expr_kind::Const: case expr_kind::Sort: case expr_kind::BVar:
             case expr_kind::Lit:
                 return save_result(e, offset, e, shared);
-            case expr_kind::MVar:  case expr_kind::FVar: {
-                expr new_t = apply(mlocal_type(e), offset);
-                return save_result(e, offset, copy_pos(e, update_mlocal(e, new_t)), shared);
+            case expr_kind::MVar: {
+                expr new_t = apply(mvar_type(e), offset);
+                return save_result(e, offset, copy_pos(e, update_mvar(e, new_t)), shared);
+            }
+            case expr_kind::FVar: {
+                expr new_t = apply(local_type(e), offset);
+                return save_result(e, offset, copy_pos(e, update_local(e, new_t)), shared);
             }
             case expr_kind::MData: {
                 expr new_e = apply(mdata_expr(e), offset);
@@ -256,7 +260,7 @@ expr abstract_propagating_pos(expr const & e, unsigned n, expr const * subst) {
                 unsigned i = n;
                 while (i > 0) {
                     --i;
-                    if (mlocal_name(subst[i]) == mlocal_name(m))
+                    if (local_name(subst[i]) == local_name(m))
                         return some_expr(mk_bvar(offset + n - i - 1));
                 }
                 return none_expr();
@@ -278,11 +282,11 @@ expr mk_binding_p(unsigned num, expr const * locals, expr const & b) {
     while (i > 0) {
         --i;
         expr const & l = locals[i];
-        expr t = abstract_propagating_pos(mlocal_type(l), i, locals);
+        expr t = abstract_propagating_pos(local_type(l), i, locals);
         if (is_lambda)
-            r = mk_lambda(mlocal_pp_name(l), t, r, local_info(l));
+            r = mk_lambda(local_pp_name(l), t, r, local_info(l));
         else
-            r = mk_pi(mlocal_pp_name(l), t, r, local_info(l));
+            r = mk_pi(local_pp_name(l), t, r, local_info(l));
     }
     return r;
 }

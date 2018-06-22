@@ -187,7 +187,7 @@ format simp_lemma::pp(formatter const & fmt) const {
     if (kind() == simp_lemma_kind::Congr) {
         format r1;
         for (expr const & h : get_congr_hyps()) {
-            r1 += space() + paren(fmt(mlocal_type(h)));
+            r1 += space() + paren(fmt(local_type(h)));
         }
         r += group(r1);
     }
@@ -566,7 +566,7 @@ static bool is_ceqv(type_context_old & ctx, name const & id, expr e) {
     // Define a procedure for removing arguments from to_find.
     auto visitor_fn = [&](expr const & e, unsigned) {
         if (is_local(e)) {
-            to_find.erase(mlocal_name(e));
+            to_find.erase(local_name(e));
             return false;
         } else if (is_metavar(e)) {
             return false;
@@ -593,7 +593,7 @@ static bool is_ceqv(type_context_old & ctx, name const & id, expr e) {
             // We check whether the lhs occurs in hypotheses or not.
             hypotheses.push_back(binding_domain(e));
         } else {
-            to_find.insert(mlocal_name(local));
+            to_find.insert(local_name(local));
         }
         e = instantiate(binding_body(e), local);
     }
@@ -839,13 +839,13 @@ static bool is_valid_congr_rule_binding_lhs(expr const & lhs, name_set & found_m
     if (!is_metavar(d))
         return false;
     if (is_metavar(b) && b != d) {
-        found_mvars.insert(mlocal_name(b));
-        found_mvars.insert(mlocal_name(d));
+        found_mvars.insert(mvar_name(b));
+        found_mvars.insert(mvar_name(d));
         return true;
     }
     if (is_app(b) && is_metavar(app_fn(b)) && is_var(app_arg(b), 0) && app_fn(b) != d) {
-        found_mvars.insert(mlocal_name(app_fn(b)));
-        found_mvars.insert(mlocal_name(d));
+        found_mvars.insert(mvar_name(app_fn(b)));
+        found_mvars.insert(mvar_name(d));
         return true;
     }
     return false;
@@ -855,8 +855,8 @@ static bool is_valid_congr_rule_binding_lhs(expr const & lhs, name_set & found_m
 static bool only_found_mvars(expr const & e, name_set const & found_mvars) {
     bool contains_non_found_mvar = false;
     for_each(e, [&](expr const & m, unsigned) {
-        if (is_metavar(m)) {
-            if (!found_mvars.contains(mlocal_name(m))) {
+        if (is_mvar(m)) {
+            if (!found_mvars.contains(mvar_name(m))) {
                 contains_non_found_mvar = true;
             } else {
                 // ignore metavariables in types of metavariables
@@ -874,12 +874,12 @@ static bool only_found_mvars(expr const & e, name_set const & found_mvars) {
 static bool is_valid_congr_hyp_rhs(expr const & rhs, name_set & found_mvars) {
     buffer<expr> rhs_args;
     expr const & rhs_fn = get_app_args(rhs, rhs_args);
-    if (!is_metavar(rhs_fn) || found_mvars.contains(mlocal_name(rhs_fn)))
+    if (!is_metavar(rhs_fn) || found_mvars.contains(mvar_name(rhs_fn)))
         return false;
     for (expr const & arg : rhs_args)
         if (!is_local(arg))
             return false;
-    found_mvars.insert(mlocal_name(rhs_fn));
+    found_mvars.insert(mvar_name(rhs_fn));
     return true;
 }
 
@@ -924,12 +924,12 @@ static simp_lemmas add_congr_core(type_context_old & ctx, simp_lemmas const & s,
         for (expr const & lhs_arg : lhs_args) {
             if (is_sort(lhs_arg))
                 continue;
-            if (!is_metavar(lhs_arg) || found_mvars.contains(mlocal_name(lhs_arg))) {
+            if (!is_mvar(lhs_arg) || found_mvars.contains(mvar_name(lhs_arg))) {
                 report_failure(sstream() << "invalid congruence lemma, '" << n
                                << "' the left-hand-side of the congruence resulting type must be of the form ("
                                << const_name(lhs_fn) << " x_1 ... x_n), where each x_i is a distinct variable or a sort");
             }
-            found_mvars.insert(mlocal_name(lhs_arg));
+            found_mvars.insert(mvar_name(lhs_arg));
         }
     } else if (is_binding(lhs)) {
         if (lhs.kind() != rhs.kind()) {
@@ -942,17 +942,17 @@ static simp_lemmas add_congr_core(type_context_old & ctx, simp_lemmas const & s,
                            << "' left-hand-side of the congruence resulting type must "
                            << "be of the form (fun/Pi (x : A), B x)");
         }
-    } else if (is_metavar(lhs_fn)) {
-        found_mvars.insert(mlocal_name(lhs_fn));
+    } else if (is_mvar(lhs_fn)) {
+        found_mvars.insert(mvar_name(lhs_fn));
         for (expr const & lhs_arg : lhs_args) {
             if (is_sort(lhs_arg))
                 continue;
-            if (!is_metavar(lhs_arg) || found_mvars.contains(mlocal_name(lhs_arg))) {
+            if (!is_metavar(lhs_arg) || found_mvars.contains(mvar_name(lhs_arg))) {
                 report_failure(sstream() << "invalid congruence lemma, '" << n
                                << "' the left-hand-side of the congruence resulting type must be of the form ("
                                << "x_1 ... x_n), where each x_i is a distinct variable or a sort");
             }
-            found_mvars.insert(mlocal_name(lhs_arg));
+            found_mvars.insert(mvar_name(lhs_arg));
         }
     } else {
         report_failure(sstream() << "invalid congruence lemma, '" << n
@@ -963,8 +963,8 @@ static simp_lemmas add_congr_core(type_context_old & ctx, simp_lemmas const & s,
     lean_assert(emetas.size() == explicits.size());
     for (unsigned i = 0; i < emetas.size(); i++) {
         expr const & mvar = emetas[i];
-        if (explicits[i] && !found_mvars.contains(mlocal_name(mvar))) {
-            expr type = mlocal_type(mvar);
+        if (explicits[i] && !found_mvars.contains(mvar_name(mvar))) {
+            expr type = mvar_type(mvar);
             type_context_old::tmp_locals locals(ctx);
             while (is_pi(type)) {
                 expr local = locals.push_local_from_binding(type);
@@ -976,7 +976,7 @@ static simp_lemmas add_congr_core(type_context_old & ctx, simp_lemmas const & s,
             unsigned j = 0;
             for (expr const & local : locals.as_buffer()) {
                 j++;
-                if (!only_found_mvars(mlocal_type(local), found_mvars)) {
+                if (!only_found_mvars(local_type(local), found_mvars)) {
                     report_failure(sstream() << "invalid congruence lemma, '" << n
                                    << "' argument #" << j << " of parameter #" << (i+1) << " contains "
                                    << "unresolved parameters");
@@ -993,7 +993,7 @@ static simp_lemmas add_congr_core(type_context_old & ctx, simp_lemmas const & s,
                                << "of the form (m l_1 ... l_n) where m is parameter that was not "
                                << "'assigned/resolved' yet and l_i's are locals");
             }
-            found_mvars.insert(mlocal_name(mvar));
+            found_mvars.insert(mvar_name(mvar));
             congr_hyps.push_back(mvar);
         }
     }
@@ -1339,7 +1339,7 @@ vm_obj simp_lemmas_add(vm_obj const & lemmas, vm_obj const & lemma, vm_obj const
     if (is_constant(e))
         id = const_name(e);
     else if (is_local(e))
-        id = mlocal_pp_name(e);
+        id = local_pp_name(e);
 
     // TODO(dhs): accept priority as an argument
     // Reason for postponing: better plumbing of numerals through the vm

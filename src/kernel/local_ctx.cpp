@@ -18,7 +18,7 @@ static expr mk_local_ref(name const & n, name const & un, binder_info bi) {
 }
 
 bool is_local_decl_ref(expr const & e) { // TODO(Leo): delete
-    return is_local(e) && mlocal_type(e) == *g_dummy_type;
+    return is_local(e) && local_type(e) == *g_dummy_type;
 }
 
 void local_decl::cell::dealloc() {
@@ -59,7 +59,7 @@ optional<local_decl> local_ctx::find_local_decl(name const & n) const {
 }
 
 optional<local_decl> local_ctx::find_local_decl(expr const & e) const {
-    return find_local_decl(mlocal_name(e));
+    return find_local_decl(local_name(e));
 }
 
 local_decl const & local_ctx::get_local_decl(name const & n) const {

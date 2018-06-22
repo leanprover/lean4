@@ -102,7 +102,7 @@ public:
     optional<local_decl> find_local_decl(name const & n) const;
 
     local_decl const & get_local_decl(name const & n) const;
-    local_decl const & get_local_decl(expr const & e) const { return get_local_decl(mlocal_name(e)); }
+    local_decl const & get_local_decl(expr const & e) const { return get_local_decl(fvar_name(e)); }
 
     /** \brief Traverse local declarations based on the order they were created */
     void for_each(std::function<void(local_decl const &)> const & fn) const;

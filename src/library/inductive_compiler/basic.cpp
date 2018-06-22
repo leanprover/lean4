@@ -68,7 +68,7 @@ class add_basic_inductive_decl_fn {
     ginductive_decl const &               m_decl;
     bool                                  m_is_meta;
     void mk_basic_aux_decls() {
-        name ind_name = mlocal_name(m_decl.get_inds()[0]);
+        name ind_name = local_name(m_decl.get_inds()[0]);
 
         bool has_eq   = has_eq_decls(m_env);
         bool has_heq  = has_heq_decls(m_env);
@@ -121,20 +121,20 @@ class add_basic_inductive_decl_fn {
         expr const & ind = m_decl.get_inds()[0];
         buffer<expr> const & intro_rules = m_decl.get_intro_rules()[0];
 
-        expr new_ind_type = Pi(params, mlocal_type(ind));
+        expr new_ind_type = Pi(params, local_type(ind));
         lean_assert(!has_local(new_ind_type));
 
-        lean_trace(name({"inductive_compiler", "basic", "ind"}), tout() << mlocal_name(ind) << "\n";);
+        lean_trace(name({"inductive_compiler", "basic", "ind"}), tout() << local_name(ind) << "\n";);
 
         buffer<inductive::intro_rule> new_intro_rules;
         for (expr const & ir : intro_rules) {
-            implicit_infer_kind k = get_implicit_infer_kind(m_implicit_infer_map, mlocal_name(ir));
-            expr new_ir_type = infer_implicit_params(Pi(params, mlocal_type(ir)), params.size(), k);
+            implicit_infer_kind k = get_implicit_infer_kind(m_implicit_infer_map, local_name(ir));
+            expr new_ir_type = infer_implicit_params(Pi(params, local_type(ir)), params.size(), k);
             lean_assert(!has_local(new_ir_type));
-            new_intro_rules.push_back(inductive::mk_intro_rule(mlocal_name(ir), new_ir_type));
-            lean_trace(name({"inductive_compiler", "basic", "irs"}), tout() << mlocal_name(ir) << " : " << new_ir_type << "\n";);
+            new_intro_rules.push_back(inductive::mk_intro_rule(local_name(ir), new_ir_type));
+            lean_trace(name({"inductive_compiler", "basic", "irs"}), tout() << local_name(ir) << " : " << new_ir_type << "\n";);
         }
-        inductive::inductive_decl kdecl(mlocal_name(ind), names(lp_names), params.size(), new_ind_type, to_list(new_intro_rules));
+        inductive::inductive_decl kdecl(local_name(ind), names(lp_names), params.size(), new_ind_type, to_list(new_intro_rules));
         m_env = module::add_inductive(m_env, kdecl, m_is_meta);
     }
 

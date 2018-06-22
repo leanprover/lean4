@@ -86,8 +86,8 @@ class add_mutual_inductive_decl_fn {
 
     void compute_index_types() {
         for (expr const & ind : m_mut_decl.get_inds()) {
-            m_index_types.push_back(to_sigma_type(mlocal_type(ind)));
-            lean_trace(name({"inductive_compiler", "mutual", "index_types"}), tout() << mlocal_name(ind) << " ==> " << m_index_types.back() << "\n";);
+            m_index_types.push_back(to_sigma_type(local_type(ind)));
+            lean_trace(name({"inductive_compiler", "mutual", "index_types"}), tout() << local_name(ind) << " ==> " << m_index_types.back() << "\n";);
         }
         m_full_index_type = mk_sum(m_index_types.size(), m_index_types.data());
         lean_trace(name({"inductive_compiler", "mutual", "full_index_type"}), tout() << m_full_index_type << "\n";);
@@ -107,7 +107,7 @@ class add_mutual_inductive_decl_fn {
 
         for (int i = locals.size() - 1; i >= 0; --i) {
             expr const & l = locals[i];
-            expr A = mlocal_type(l);
+            expr A = local_type(l);
             level l1 = get_level(m_tctx, A);
             level l2 = get_level(m_tctx, stype);
             stype = Fun(l, stype);
@@ -127,8 +127,8 @@ class add_mutual_inductive_decl_fn {
 
     void compute_makers() {
         for (expr const & ind : m_mut_decl.get_inds()) {
-            m_makers.push_back(to_maker(mlocal_type(ind)));
-            lean_trace(name({"inductive_compiler", "mutual", "makers"}), tout() << mlocal_name(ind) << " ==> " << m_makers.back() << "\n";);
+            m_makers.push_back(to_maker(local_type(ind)));
+            lean_trace(name({"inductive_compiler", "mutual", "makers"}), tout() << local_name(ind) << " ==> " << m_makers.back() << "\n";);
         }
     }
 
@@ -161,20 +161,20 @@ class add_mutual_inductive_decl_fn {
     void compute_putters() {
         for (unsigned i = 0; i < m_mut_decl.get_inds().size(); ++i) {
             m_putters.push_back(to_putter(i));
-            lean_trace(name({"inductive_compiler", "mutual", "putters"}), tout() << mlocal_name(m_mut_decl.get_ind(i)) << " ==> " << m_putters.back() << "\n";);
+            lean_trace(name({"inductive_compiler", "mutual", "putters"}), tout() << local_name(m_mut_decl.get_ind(i)) << " ==> " << m_putters.back() << "\n";);
         }
     }
 
     void compute_basic_ind_name() {
-        name prefix = mlocal_name(m_mut_decl.get_ind(0));
+        name prefix = local_name(m_mut_decl.get_ind(0));
         while (!prefix.is_anonymous()
                && std::any_of(m_mut_decl.get_inds().begin(), m_mut_decl.get_inds().end(), [&](expr const & ind) {
-                    return !is_prefix_of(prefix, mlocal_name(ind));
+                    return !is_prefix_of(prefix, local_name(ind));
                    })) {
             prefix = prefix.get_prefix();
         }
 
-        m_basic_ind_name = prefix + mlocal_name(m_mut_decl.get_ind(0)) + *g_mutual_suffix;
+        m_basic_ind_name = prefix + local_name(m_mut_decl.get_ind(0)) + *g_mutual_suffix;
         m_basic_prefix = prefix;
     }
 
@@ -190,7 +190,7 @@ class add_mutual_inductive_decl_fn {
 
     void compute_new_ind() {
         expr ind = mk_local(m_basic_ind_name, mk_arrow(m_full_index_type, get_ind_result_type(m_tctx, m_mut_decl.get_ind(0))));
-        lean_trace(name({"inductive_compiler", "mutual", "basic_ind"}), tout() << mlocal_name(ind) << " : " << mlocal_type(ind) << "\n";);
+        lean_trace(name({"inductive_compiler", "mutual", "basic_ind"}), tout() << local_name(ind) << " : " << local_type(ind) << "\n";);
         m_basic_decl.get_inds().push_back(ind);
     }
 
@@ -244,9 +244,9 @@ class add_mutual_inductive_decl_fn {
     }
 
     expr translate_ir(unsigned ind_idx, expr const & ir) {
-        name ir_name = m_basic_ind_name + name(mlocal_name(ir).get_string()).append_after(ind_idx);
+        name ir_name = m_basic_ind_name + name(local_name(ir).get_string()).append_after(ind_idx);
         buffer<expr> locals;
-        expr ty = m_tctx.whnf(mlocal_type(ir));
+        expr ty = m_tctx.whnf(local_type(ir));
         while (is_pi(ty)) {
             expr l = mk_local_pp(binding_name(ty), translate_ir_arg(binding_domain(ty)));
             locals.push_back(l);
@@ -254,7 +254,7 @@ class add_mutual_inductive_decl_fn {
             ty = m_tctx.whnf(ty);
         }
         if (!m_mut_decl.is_ind_app(ty, ind_idx))
-            throw exception(sstream() << "introduction rule '" << mlocal_name(ir) << "' returns element of type '" << ty
+            throw exception(sstream() << "introduction rule '" << local_name(ir) << "' returns element of type '" << ty
                             << "' but must return element of type '" << m_mut_decl.get_c_ind_params(ind_idx) << "'");
         expr result_type = translate_all_ind_apps(ty);
         return mk_local(ir_name, Pi(locals, result_type));
@@ -268,7 +268,7 @@ class add_mutual_inductive_decl_fn {
                 expr const & ir = irs[ir_idx];
                 expr new_ir = translate_ir(ind_idx, ir);
                 m_basic_decl.get_intro_rules().back().push_back(new_ir);
-                lean_trace(name({"inductive_compiler", "mutual", "basic_irs"}), tout() << mlocal_name(new_ir) << " : " << mlocal_type(new_ir) << "\n";);
+                lean_trace(name({"inductive_compiler", "mutual", "basic_irs"}), tout() << local_name(new_ir) << " : " << local_type(new_ir) << "\n";);
             }
         }
     }
@@ -277,23 +277,23 @@ class add_mutual_inductive_decl_fn {
         for (unsigned ind_idx = 0; ind_idx < m_mut_decl.get_inds().size(); ++ind_idx) {
             expr const & ind = m_mut_decl.get_ind(ind_idx);
             buffer<expr> locals;
-            expr ty = m_tctx.whnf(mlocal_type(ind));
+            expr ty = m_tctx.whnf(local_type(ind));
             while (is_pi(ty)) {
                 expr l = mk_local_for(ty);
                 locals.push_back(l);
                 ty = m_tctx.whnf(instantiate(binding_body(ty), l));
             }
             expr new_ind_val = Fun(locals, mk_basic_ind(ind_idx, locals));
-            expr new_ind_type = mlocal_type(ind);
+            expr new_ind_type = local_type(ind);
 
             new_ind_val = Fun(m_mut_decl.get_params(), new_ind_val);
             new_ind_type = Pi(m_mut_decl.get_params(), new_ind_type);
 
             lean_trace(name({"inductive_compiler", "mutual", "new_inds"}), tout()
-                       << mlocal_name(ind) << " : " << new_ind_type << " :=\n  " << new_ind_val << "\n";);
+                       << local_name(ind) << " : " << new_ind_type << " :=\n  " << new_ind_val << "\n";);
             lean_assert(!has_local(new_ind_type));
             lean_assert(!has_local(new_ind_val));
-            m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, mlocal_name(ind), names(m_mut_decl.get_lp_names()), new_ind_type, new_ind_val)));
+            m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, local_name(ind), names(m_mut_decl.get_lp_names()), new_ind_type, new_ind_val)));
             m_tctx.set_env(m_env);
         }
     }
@@ -317,15 +317,15 @@ class add_mutual_inductive_decl_fn {
         for (unsigned ind_idx = 0; ind_idx < m_mut_decl.get_inds().size(); ++ind_idx) {
             buffer<expr> const & irs = m_mut_decl.get_intro_rules(ind_idx);
             for (expr const & ir : irs) {
-                if (!static_cast<bool>(m_env.find(mk_injective_name(mlocal_name(m_basic_decl.get_intro_rule(0, basic_ir_idx)))))) {
+                if (!static_cast<bool>(m_env.find(mk_injective_name(local_name(m_basic_decl.get_intro_rule(0, basic_ir_idx)))))) {
                     return;
                 }
                 level_param_names lp_names = names(m_mut_decl.get_lp_names());
                 unsigned num_params = m_mut_decl.get_num_params();
-                name ir_name  = mlocal_name(ir);
-                expr ir_type  = Pi(m_mut_decl.get_params(), mlocal_type(ir));
+                name ir_name  = local_name(ir);
+                expr ir_type  = Pi(m_mut_decl.get_params(), local_type(ir));
                 expr inj_and_type = mk_injective_type(m_env, ir_name, ir_type, num_params, lp_names);
-                expr inj_and_val = mk_constant(mk_injective_name(mlocal_name(m_basic_decl.get_intro_rule(0, basic_ir_idx))), m_mut_decl.get_levels());
+                expr inj_and_val = mk_constant(mk_injective_name(local_name(m_basic_decl.get_intro_rule(0, basic_ir_idx))), m_mut_decl.get_levels());
                 lean_trace(name({"inductive_compiler", "mutual", "injective"}), tout() << mk_injective_name(ir_name) << " : " << inj_and_type << " :=\n  " << inj_and_val << "\n";);
                 m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, mk_injective_name(ir_name), lp_names, inj_and_type, inj_and_val)));
                 m_env = mk_injective_arrow(m_env, ir_name);
@@ -348,18 +348,18 @@ class add_mutual_inductive_decl_fn {
         for (unsigned ind_idx = 0; ind_idx < m_mut_decl.get_inds().size(); ++ind_idx) {
             buffer<expr> const & irs = m_mut_decl.get_intro_rules(ind_idx);
             for (expr const & ir : irs) {
-                expr new_ir_val = Fun(m_mut_decl.get_params(), mk_app(mk_constant(mlocal_name(m_basic_decl.get_intro_rule(0, basic_ir_idx)),
+                expr new_ir_val = Fun(m_mut_decl.get_params(), mk_app(mk_constant(local_name(m_basic_decl.get_intro_rule(0, basic_ir_idx)),
                                                                                   m_mut_decl.get_levels()),
                                                                       m_mut_decl.get_params()));
-                expr new_ir_type = Pi(m_mut_decl.get_params(), mlocal_type(ir));
-                implicit_infer_kind k = get_implicit_infer_kind(m_implicit_infer_map, mlocal_name(ir));
+                expr new_ir_type = Pi(m_mut_decl.get_params(), local_type(ir));
+                implicit_infer_kind k = get_implicit_infer_kind(m_implicit_infer_map, local_name(ir));
                 new_ir_type = infer_implicit_params(new_ir_type, m_mut_decl.get_params().size(), k);
                 lean_assert(!has_local(new_ir_type));
                 lean_assert(!has_local(new_ir_val));
-                lean_trace(name({"inductive_compiler", "mutual", "ir"}), tout() << mlocal_name(ir) << " : " << new_ir_type << "\n";);
+                lean_trace(name({"inductive_compiler", "mutual", "ir"}), tout() << local_name(ir) << " : " << new_ir_type << "\n";);
 
-                m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, mlocal_name(ir), names(m_mut_decl.get_lp_names()), new_ir_type, new_ir_val)));
-                m_env = set_pattern_attribute(m_env, mlocal_name(ir));
+                m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, local_name(ir), names(m_mut_decl.get_lp_names()), new_ir_type, new_ir_val)));
+                m_env = set_pattern_attribute(m_env, local_name(ir));
                 m_tctx.set_env(m_env);
                 basic_ir_idx++;
             }
@@ -372,7 +372,7 @@ class add_mutual_inductive_decl_fn {
         expr sigma = idx;
         expr stype = m_tctx.infer(sigma);
         for (expr const & sarg : rev_sigma_args) {
-            expr A = mlocal_type(sarg);
+            expr A = local_type(sarg);
             level l1 = get_level(m_tctx, A);
             level l2 = get_level(m_tctx, stype);
             stype = Fun(sarg, stype);
@@ -435,7 +435,7 @@ class add_mutual_inductive_decl_fn {
     expr unpack_sigma_and_apply_C(unsigned ind_idx, expr const & idx, expr const & C) {
         expr const & ind = m_mut_decl.get_ind(ind_idx);
         list<expr> rev_unpacked_sigma_args;
-        return unpack_sigma_and_apply_C_core(ind_idx, mlocal_type(ind), rev_unpacked_sigma_args, idx, C);
+        return unpack_sigma_and_apply_C_core(ind_idx, local_type(ind), rev_unpacked_sigma_args, idx, C);
     }
 
     expr construct_inner_C_core(expr const & C, expr const & index, unsigned i, unsigned ind_idx) {
@@ -501,7 +501,7 @@ class add_mutual_inductive_decl_fn {
         expr const & ind = m_mut_decl.get_ind(ind_idx);
         {
             buffer<expr> C_args;
-            expr ind_ty = m_tctx.whnf(mlocal_type(ind));
+            expr ind_ty = m_tctx.whnf(local_type(ind));
             while (is_pi(ind_ty)) {
                 expr C_arg = mk_local_for(ind_ty);
                 C_args.push_back(C_arg);
@@ -516,7 +516,7 @@ class add_mutual_inductive_decl_fn {
             expr const & ir = m_mut_decl.get_intro_rule(ind_idx, ir_idx);
             buffer<expr> ir_args;
             buffer<expr> rec_args;
-            expr ir_ty = m_tctx.whnf(mlocal_type(ir));
+            expr ir_ty = m_tctx.whnf(local_type(ir));
             while (is_pi(ir_ty)) {
                 expr minor_premise_arg = mk_local_for(ir_ty);
                 ir_args.push_back(minor_premise_arg);
@@ -547,7 +547,7 @@ class add_mutual_inductive_decl_fn {
         }
 
         {
-            expr ind_ty = m_tctx.whnf(mlocal_type(ind));
+            expr ind_ty = m_tctx.whnf(local_type(ind));
             while (is_pi(ind_ty)) {
                 expr index = mk_local_for(ind_ty);
                 indices.push_back(index);
@@ -583,7 +583,7 @@ class add_mutual_inductive_decl_fn {
                 buffer<expr> rec_args;
                 buffer<expr> return_args;
                 buffer<expr> return_rec_args;
-                expr ir_type = mlocal_type(ir);
+                expr ir_type = local_type(ir);
                 while (is_pi(ir_type)) {
                     expr l = mk_local_for(ir_type);
                     locals.push_back(l);
@@ -638,7 +638,7 @@ class add_mutual_inductive_decl_fn {
 
         lean_assert(!has_local(rec_type));
         lean_assert(!has_local(rec_val));
-        m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, get_dep_recursor(m_env, mlocal_name(ind)), rec_lp_names, rec_type, rec_val)));
+        m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, get_dep_recursor(m_env, local_name(ind)), rec_lp_names, rec_type, rec_val)));
     }
 
     void define_cases_on(name const & rec_name, level_param_names const & rec_lp_names, unsigned ind_idx) {
@@ -660,7 +660,7 @@ class add_mutual_inductive_decl_fn {
                 buffer<expr> locals;
                 buffer<expr> rec_args;
                 buffer<expr> return_args;
-                expr ir_type = mlocal_type(ir);
+                expr ir_type = local_type(ir);
                 while (is_pi(ir_type)) {
                     expr l = mk_local_for(ir_type);
                     locals.push_back(l);
@@ -712,11 +712,11 @@ class add_mutual_inductive_decl_fn {
 
         lean_assert(!has_local(cases_on_type));
         lean_assert(!has_local(cases_on_val));
-        m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, name(mlocal_name(ind), "cases_on"), rec_lp_names, cases_on_type, cases_on_val)));
+        m_env = module::add(m_env, check(m_env, mk_definition_inferring_meta(m_env, name(local_name(ind), "cases_on"), rec_lp_names, cases_on_type, cases_on_val)));
     }
 
     void define_recursors() {
-        name rec_name          = get_dep_recursor(m_env, mlocal_name(m_basic_decl.get_ind(0)));
+        name rec_name          = get_dep_recursor(m_env, local_name(m_basic_decl.get_ind(0)));
         declaration rec_decl   = m_env.get(rec_name);
 
         level_param_names rec_lp_names = rec_decl.get_univ_params();

@@ -91,12 +91,12 @@ class replace_rec_fn {
                 return save_result(e, offset, update_proj(e, new_e), shared);
             }
             case expr_kind::MVar: {
-                expr new_t = apply(mlocal_type(e), offset);
-                return save_result(e, offset, update_mlocal(e, new_t), shared);
+                expr new_t = apply(mvar_type(e), offset);
+                return save_result(e, offset, update_mvar(e, new_t), shared);
             }
             case expr_kind::FVar: {
-                expr new_t = apply(mlocal_type(e), offset); // TODO(Leo): delete after refactoring
-                return save_result(e, offset, update_mlocal(e, new_t), shared);
+                expr new_t = apply(local_type(e), offset); // TODO(Leo): delete after refactoring
+                return save_result(e, offset, update_local(e, new_t), shared);
             }
             case expr_kind::App: {
                 expr new_f = apply(app_fn(e), offset);

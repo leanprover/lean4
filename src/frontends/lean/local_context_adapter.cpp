@@ -20,9 +20,9 @@ bool local_context_adapter::has_regular_local(expr const & e) {
 }
 
 void local_context_adapter::add_local(expr const & local) {
-    expr const & local_type = mlocal_type(local);
-    expr new_local_type = translate_to(local_type);
-    expr new_local_ref  = m_lctx.mk_local_decl(mlocal_pp_name(local), new_local_type, local_info(local));
+    expr const & _local_type = local_type(local);
+    expr new_local_type = translate_to(_local_type);
+    expr new_local_ref  = m_lctx.mk_local_decl(local_pp_name(local), new_local_type, local_info(local));
     m_locals.push_back(local);
     m_local_refs.push_back(new_local_ref);
 }

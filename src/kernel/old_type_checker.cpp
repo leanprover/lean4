@@ -203,7 +203,8 @@ expr old_type_checker::infer_type_core(expr const & e, bool infer_only) {
 
     expr r;
     switch (e.kind()) {
-    case expr_kind::FVar: case expr_kind::MVar:  r = mlocal_type(e);  break;
+    case expr_kind::FVar: r = local_type(e);  break;
+    case expr_kind::MVar: throw kernel_exception(m_env, "kernel type checker does not support meta variables");
     case expr_kind::BVar:
         lean_unreachable();  // LCOV_EXCL_LINE
     case expr_kind::Sort:
@@ -740,7 +741,7 @@ bool old_type_checker::is_def_eq_core(expr const & t, expr const & s) {
         is_def_eq(const_levels(t_n), const_levels(s_n)))
         return true;
 
-    if (is_local(t_n) && is_local(s_n) && mlocal_name(t_n) == mlocal_name(s_n))
+    if (is_local(t_n) && is_local(s_n) && local_name(t_n) == local_name(s_n))
         return true;
 
     // At this point, t_n and s_n are in weak head normal form (modulo meta-variables and proof irrelevance)

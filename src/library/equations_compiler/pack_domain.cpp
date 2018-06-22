@@ -62,7 +62,7 @@ struct sigma_packer_fn {
         optional<unsigned> get_fn_idx(expr const & fn) {
             if (!is_local(fn)) return optional<unsigned>();
             for (unsigned fnidx = 0; fnidx < m_old_fns.size(); fnidx++) {
-                if (mlocal_name(fn) == mlocal_name(m_old_fns[fnidx]))
+                if (local_name(fn) == local_name(m_old_fns[fnidx]))
                     return optional<unsigned>(fnidx);
             }
             return optional<unsigned>();

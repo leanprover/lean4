@@ -266,7 +266,7 @@ class app_builder {
             --i;
             if (!m_ctx.get_tmp_mvar_assignment(i)) {
                 if (inst_arg) {
-                    expr type = m_ctx.instantiate_mvars(mlocal_type(*inst_arg));
+                    expr type = m_ctx.instantiate_mvars(mvar_type(*inst_arg));
                     if (auto v = m_ctx.mk_class_instance(type)) {
                         if (!m_ctx.is_def_eq(*inst_arg, *v)) {
                             // failed to assign instance

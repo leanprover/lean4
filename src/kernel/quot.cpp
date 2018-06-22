@@ -39,7 +39,7 @@ static void check_eq_type(environment const & env) {
         throw exception("failed to initialize quot module, unexpected number of constructors for 'eq' type");
     expr a = lctx.mk_local_decl(g, "a", alpha);
     expr expected_eq_refl_type = lctx.mk_pi({alpha, a}, mk_app(mk_constant("eq", {u}), alpha, a, a));
-    if (mlocal_type(head(decl->m_intro_rules)) != expected_eq_refl_type) {
+    if (local_type(head(decl->m_intro_rules)) != expected_eq_refl_type) {
         throw exception("failed to initialize quot module, unexpected type for 'eq' type constructor");
     }
 }

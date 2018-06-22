@@ -96,10 +96,10 @@ class for_each_fn {
                 goto begin_loop;
             case expr_kind::FVar:
                 // TODO(Leo): delete after refactoring
-                todo.emplace_back(mlocal_type(e), offset);
+                todo.emplace_back(local_type(e), offset);
                 goto begin_loop;
             case expr_kind::MVar:
-                todo.emplace_back(mlocal_type(e), offset);
+                todo.emplace_back(mvar_type(e), offset);
                 goto begin_loop;
             case expr_kind::App:
                 todo.emplace_back(app_arg(e), offset);

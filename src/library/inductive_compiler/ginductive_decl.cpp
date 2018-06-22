@@ -11,7 +11,7 @@ namespace lean {
 
 bool ginductive_decl::is_ind_name(name const & n) const {
     return std::any_of(m_inds.begin(), m_inds.end(), [&](expr const & ind) {
-            return n == mlocal_name(ind);
+            return n == local_name(ind);
         });
 }
 
@@ -45,7 +45,7 @@ bool ginductive_decl::is_ind_app(expr const & e, buffer<expr> & indices) const {
 
 bool ginductive_decl::is_ir_name(name const & n, unsigned ind_idx) const {
     return std::any_of(m_intro_rules[ind_idx].begin(), m_intro_rules[ind_idx].end(), [&](expr const & ir) {
-            return n == mlocal_name(ir);
+            return n == local_name(ir);
         });
 }
 
@@ -87,7 +87,7 @@ bool ginductive_decl::is_param(expr const & e) const {
 }
 
 level ginductive_decl::get_result_level(environment const & env) const {
-    return get_datatype_level(env, mlocal_type(m_inds[0]));
+    return get_datatype_level(env, local_type(m_inds[0]));
 }
 
 }

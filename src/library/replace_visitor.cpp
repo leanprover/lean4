@@ -18,12 +18,14 @@ expr replace_visitor::visit_var(expr const & e) { lean_assert(is_var(e)); return
 expr replace_visitor::visit_quote(expr const & e) { lean_assert(is_quote(e)); return e; }
 expr replace_visitor::visit_lit(expr const & e) { lean_assert(is_lit(e)); return e; }
 expr replace_visitor::visit_constant(expr const & e) { lean_assert(is_constant(e)); return e; }
-expr replace_visitor::visit_mlocal(expr const & e) {
-    lean_assert(is_mlocal(e));
-    return update_mlocal(e, visit(mlocal_type(e)));
+expr replace_visitor::visit_meta(expr const & e) {
+    lean_assert(is_mvar(e));
+    return update_mvar(e, visit(mvar_type(e)));
 }
-expr replace_visitor::visit_meta(expr const & e) { return visit_mlocal(e); }
-expr replace_visitor::visit_local(expr const & e) { return visit_mlocal(e); }
+expr replace_visitor::visit_local(expr const & e) {
+    lean_assert(is_local(e));
+    return update_local(e, visit(local_type(e)));
+}
 expr replace_visitor::visit_mdata(expr const & e) {
     return update_mdata(e, visit(mdata_expr(e)));
 }

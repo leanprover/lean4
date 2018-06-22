@@ -21,7 +21,6 @@ protected:
     virtual expr visit_sort(expr const &);
     virtual expr visit_constant(expr const &);
     virtual expr visit_var(expr const &);
-    virtual expr visit_mlocal(expr const &);
     virtual expr visit_meta(expr const &);
     virtual expr visit_local(expr const &);
     virtual expr visit_app(expr const &);

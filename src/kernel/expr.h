@@ -333,18 +333,18 @@ expr mk_metavar(name const & n, expr const & t);
 expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info bi);
 inline expr mk_local(name const & n, expr const & t) { return mk_local(n, n, t, mk_binder_info()); }
 inline expr mk_local(name const & n, expr const & t, binder_info bi) { return mk_local(n, n, t, bi); }
-inline name const & mlocal_name(expr const & e) { return static_cast<name const &>(cnstr_obj_ref(e, 0)); }
-inline name const & mlocal_pp_name(expr const & e) { return static_cast<name const &>(cnstr_obj_ref(e, 1)); }
-inline expr const & mlocal_type(expr const & e) { return static_cast<expr const &>(cnstr_obj_ref(e, 2)); }
+inline bool is_local(expr const & e) { return is_fvar(e); }
+inline name const & local_name(expr const & e) { lean_assert(is_local(e)); return static_cast<name const &>(cnstr_obj_ref(e, 0)); }
+inline name const & local_pp_name(expr const & e) { lean_assert(is_local(e)); return static_cast<name const &>(cnstr_obj_ref(e, 1)); }
+inline expr const & local_type(expr const & e) { lean_assert(is_local(e)); return static_cast<expr const &>(cnstr_obj_ref(e, 2)); }
 inline expr mk_constant(name const & n, levels const & ls) { return mk_const(n, ls); }
 inline expr mk_constant(name const & n) { return mk_constant(n, levels()); }
 inline bool is_constant(expr const & e) { return is_const(e); }
 expr mk_quote(bool is_reflected, expr const & e);
 inline expr const & quote_value(expr const & e) { return static_cast<expr const &>(cnstr_obj_ref(e, 0)); }
-inline bool is_local(expr const & e) { return is_fvar(e); }
 bool quote_is_reflected(expr const & e);
-expr update_mlocal(expr const & e, expr const & new_type);
 expr update_local(expr const & e, expr const & new_type, binder_info bi);
+expr update_local(expr const & e, expr const & new_type);
 expr update_local(expr const & e, binder_info bi);
 binder_info local_info(expr const & e);
 inline expr update_constant(expr const & e, levels const & new_levels) { return update_const(e, new_levels); }

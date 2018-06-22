@@ -44,7 +44,7 @@ static bool is_typeformer_app(buffer<name> const & typeformer_names, expr const 
         return false;
     unsigned r = 0;
     for (name const & n : typeformer_names) {
-        if (mlocal_name(fn) == n)
+        if (local_name(fn) == n)
             return true;
         r++;
     }
@@ -63,7 +63,7 @@ void get_rec_args(environment const & env, name const & n, buffer<buffer<bool>> 
     to_telescope(rec_decl.get_type(), rec_args);
     buffer<name> typeformer_names;
     for (unsigned i = nparams; i < nparams + ntypeformers; i++) {
-        typeformer_names.push_back(mlocal_name(rec_args[i]));
+        typeformer_names.push_back(local_name(rec_args[i]));
     }
     lean_assert(typeformer_names.size() == ntypeformers);
     r.clear();
@@ -71,12 +71,12 @@ void get_rec_args(environment const & env, name const & n, buffer<buffer<bool>> 
     for (unsigned i = nparams + ntypeformers; i < nparams + ntypeformers + nminors; i++) {
         r.push_back(buffer<bool>());
         buffer<bool> & bv = r.back();
-        expr minor_type = mlocal_type(rec_args[i]);
+        expr minor_type = local_type(rec_args[i]);
         buffer<expr> minor_args;
         to_telescope(minor_type, minor_args);
         for (expr & minor_arg : minor_args) {
             buffer<expr> minor_arg_args;
-            expr minor_arg_type = to_telescope(tc, mlocal_type(minor_arg), minor_arg_args);
+            expr minor_arg_type = to_telescope(tc, local_type(minor_arg), minor_arg_args);
             bv.push_back(is_typeformer_app(typeformer_names, minor_arg_type));
         }
     }

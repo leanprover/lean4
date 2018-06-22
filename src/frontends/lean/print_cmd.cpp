@@ -397,9 +397,9 @@ void print_id_info(parser & p, message_builder & out, name const & id, bool show
     if (expr const * type = p.get_local(id)) {
         if (is_local(*type)) {
             if (p.is_local_variable(*type)) {
-                out << "variable " << id << " : " << mlocal_type(*type) << "\n";
+                out << "variable " << id << " : " << local_type(*type) << "\n";
             } else {
-                out << "parameter " << id << " : " << mlocal_type(*type) << "\n";
+                out << "parameter " << id << " : " << local_type(*type) << "\n";
             }
             return;
         }

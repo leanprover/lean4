@@ -74,10 +74,15 @@ bool equiv_manager::is_equiv_core(expr const & a, expr const & b) {
             const_name(a) == const_name(b) &&
             compare(const_levels(a), const_levels(b), [](level const & l1, level const & l2) { return l1 == l2; });
         break;
-    case expr_kind::MVar: case expr_kind::FVar:
+    case expr_kind::MVar:
         result =
-            mlocal_name(a) == mlocal_name(b) &&
-            is_equiv_core(mlocal_type(a), mlocal_type(b));
+            mvar_name(a) == mvar_name(b) &&
+            is_equiv_core(mvar_type(a), mvar_type(b));
+        break;
+    case expr_kind::FVar:
+        result =
+            fvar_name(a) == fvar_name(b) &&
+            is_equiv_core(local_type(a), local_type(b));
         break;
     case expr_kind::App:
         result =

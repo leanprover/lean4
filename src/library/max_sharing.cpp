@@ -91,8 +91,11 @@ struct max_sharing_fn::imp {
             res = update_let(a, new_t, new_v, new_b);
             break;
         }
-        case expr_kind::MVar:  case expr_kind::FVar:
-            res = update_mlocal(a, apply(mlocal_type(a)));
+        case expr_kind::MVar:
+            res = update_mvar(a, apply(mvar_type(a)));
+            break;
+        case expr_kind::FVar:
+            res = update_local(a, apply(local_type(a)));
             break;
         case expr_kind::Quote:
             res = a;

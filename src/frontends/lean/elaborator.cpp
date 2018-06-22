@@ -944,7 +944,7 @@ expr elaborator::visit_const_core(expr const & e) {
 void elaborator::save_identifier_info(expr const & f) {
     if (!m_no_info && m_uses_infom && get_pos_info_provider() && (is_constant(f) || is_local(f))) {
         if (auto p = get_pos_info_provider()->get_pos_info(f)) {
-            m_info.add_identifier_info(*p, is_constant(f) ? const_name(f) : mlocal_pp_name(f));
+            m_info.add_identifier_info(*p, is_constant(f) ? const_name(f) : local_pp_name(f));
             m_info.add_type_info(*p, infer_type(f));
         }
     }
@@ -2364,10 +2364,10 @@ expr elaborator::mk_aux_meta_def(expr const & e, expr const & ref) {
 
 static void mvar_dep_sort_aux(type_context_old & ctx, expr const & m,
                               name_set const & mvar_names, name_set & visited, buffer<expr> & result) {
-    if (visited.contains(mlocal_name(m)))
+    if (visited.contains(mvar_name(m)))
         return;
     for_each(ctx.instantiate_mvars(ctx.infer(m)), [&](expr const & e, unsigned) {
-            if (is_metavar(e) && mvar_names.contains(mlocal_name(e))) {
+            if (is_mvar(e) && mvar_names.contains(mvar_name(e))) {
                 mvar_dep_sort_aux(ctx, e, mvar_names, visited, result);
                 return false; // do not visit types
             }
@@ -2376,7 +2376,7 @@ static void mvar_dep_sort_aux(type_context_old & ctx, expr const & m,
             }
             return true;
         });
-    visited.insert(mlocal_name(m));
+    visited.insert(mvar_name(m));
     result.push_back(m);
 }
 
@@ -2386,7 +2386,7 @@ static void mvar_dep_sort(type_context_old & ctx, buffer<expr> & mvars) {
     buffer<expr> result;
     name_set mvar_names;
     for (expr const & m : mvars)
-        mvar_names.insert(mlocal_name(m));
+        mvar_names.insert(mvar_name(m));
     for (expr const & m : mvars)
         mvar_dep_sort_aux(ctx, m, mvar_names, visited, result);
     mvars.clear();
@@ -2469,9 +2469,9 @@ class validate_and_collect_lhs_mvars : public replace_visitor {
 
     virtual expr visit_meta(expr const & m) override {
         if (is_metavar_decl_ref(m) && !m_mctx0.find_metavar_decl(m)) {
-            if (!m_collected.contains(mlocal_name(m))) {
+            if (!m_collected.contains(mvar_name(m))) {
                 m_unassigned_mvars.push_back(m);
-                m_collected.insert(mlocal_name(m));
+                m_collected.insert(mvar_name(m));
             }
             return m;
         } else {
@@ -2636,7 +2636,7 @@ expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
         type_context_old::tmp_locals new_locals(m_ctx);
         for (expr & m : unassigned_mvars) {
             expr type      = instantiate_mvars(m_ctx.infer(m));
-            expr new_local = new_locals.push_local(mlocal_pp_name(m), type, mk_binder_info());
+            expr new_local = new_locals.push_local(mvar_name(m), type, mk_binder_info());
             m_ctx.assign(m, new_local);
         }
         // replace metavariables with new locals
@@ -3092,7 +3092,7 @@ class visit_structure_instance_fn {
                 }
 
                 m_field2mvar.insert(S_fname, c_arg);
-                m_mvar2field.insert(mlocal_name(c_arg), S_fname);
+                m_mvar2field.insert(mvar_name(c_arg), S_fname);
             }
 
             c_args.push_back(c_arg);
@@ -3112,7 +3112,7 @@ class visit_structure_instance_fn {
         e = m_elab.instantiate_mvars(e);
         for_each(e, [&](expr const & e, unsigned) {
             name const *n;
-            if (is_metavar(e) && (n = m_mvar2field.find(mlocal_name(e))) && !m_ctx.is_assigned(e))
+            if (is_metavar(e) && (n = m_mvar2field.find(mvar_name(e))) && !m_ctx.is_assigned(e))
                 deps.insert(*n);
             return has_expr_metavar(e);
         });
@@ -3189,8 +3189,8 @@ class visit_structure_instance_fn {
             // metavars unreachable from e because of backtracking.
             expr e2 = m_elab.instantiate_mvars(e);
             for_each(e2, [&](expr const & e, unsigned) {
-                if (is_metavar(e) && m_mvar2field.contains(mlocal_name(e))) {
-                    name S_fname = m_mvar2field[mlocal_name(e)];
+                if (is_metavar(e) && m_mvar2field.contains(mvar_name(e))) {
+                    name S_fname = m_mvar2field[mvar_name(e)];
                     name full_S_fname = m_S_name + S_fname;
                     expr expected_type = m_elab.infer_type(e);
                     expr reduced_expected_type = m_elab.instantiate_mvars(expected_type);
@@ -3285,7 +3285,7 @@ public:
              * For example, the pattern `{a := a}` will result in the input `m_e = {a := ?a}` and result `e2 = foo.mk ?m` with
              * the assignment `?m := ?a` from field elaboration. We want the return value to be `foo.mk ?a` regardless of
              * whether ?a has an assignment (from a dependent pattern) or not. */
-            e2 = m_elab.instantiate_mvars(e2, [&](expr const & e) { return m_mvar2field.contains(mlocal_name(e)); });
+            e2 = m_elab.instantiate_mvars(e2, [&](expr const & e) { return m_mvar2field.contains(mvar_name(e)); });
         }
         return e2;
     }
@@ -4000,12 +4000,12 @@ static expr replace_with_simple_metavars(metavar_context mctx, name_map<expr> & 
     if (!has_expr_metavar(e)) return e;
     return replace_propagating_pos(e, [&](expr const & e, unsigned) {
             if (is_metavar(e)) {
-                if (auto r = cache.find(mlocal_name(e))) {
+                if (auto r = cache.find(mvar_name(e))) {
                     return some_expr(*r);
                 } else if (auto decl = mctx.find_metavar_decl(e)) {
                     expr new_type = replace_with_simple_metavars(mctx, cache, mctx.instantiate_mvars(decl->get_type()));
-                    expr new_mvar = mk_metavar(mlocal_name(e), new_type);
-                    cache.insert(mlocal_name(e), new_mvar);
+                    expr new_mvar = mk_metavar(mvar_name(e), new_type);
+                    cache.insert(mvar_name(e), new_mvar);
                     return some_expr(new_mvar);
                 } else if (is_metavar_decl_ref(e)) {
                     throw exception("unexpected occurrence of internal elaboration metavariable");
@@ -4135,7 +4135,7 @@ static optional<expr> resolve_local_name_core(environment const & env, local_con
         /* ref may contain local references that have new names at lctx. */
         return some_expr(copy_pos(src, replace_propagating_pos(*ref, [&](expr const & e, unsigned) {
                         if (is_local(e)) {
-                            if (auto decl = lctx.find_local_decl_from_user_name(mlocal_pp_name(e))) {
+                            if (auto decl = lctx.find_local_decl_from_user_name(local_pp_name(e))) {
                                 return some_expr(decl->mk_ref());
                             }
                         }
@@ -4249,7 +4249,7 @@ struct resolve_names_fn : public replace_visitor {
     }
 
     expr visit_local(expr const & e, bool ignore_aliases) {
-        return copy_pos(e, resolve_local_name(m_env, m_lctx, mlocal_pp_name(e), e, ignore_aliases, m_locals));
+        return copy_pos(e, resolve_local_name(m_env, m_lctx, local_pp_name(e), e, ignore_aliases, m_locals));
     }
 
     virtual expr visit_local(expr const & e) override {
@@ -4326,7 +4326,7 @@ static vm_obj tactic_save_type_info(vm_obj const &, vm_obj const & _e, vm_obj co
         if (is_constant(e))
             get_global_info_manager()->add_identifier_info(*pos, const_name(e));
         else if (is_local(e))
-            get_global_info_manager()->add_identifier_info(*pos, mlocal_pp_name(e));
+            get_global_info_manager()->add_identifier_info(*pos, local_pp_name(e));
     } catch (exception & ex) {
         return tactic::mk_exception(std::current_exception(), s);
     }

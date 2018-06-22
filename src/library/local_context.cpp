@@ -42,12 +42,12 @@ struct depends_on_fn {
     bool visit_local(expr const & e) {
         lean_assert(is_local_decl_ref(e));
         if (std::any_of(m_locals, m_locals + m_num,
-                        [&](expr const & l) { return mlocal_name(e) == mlocal_name(l); }))
+                        [&](expr const & l) { return local_name(e) == local_name(l); }))
             return true;
 
-        if (!m_lctx || m_visited_decls.contains(mlocal_name(e)))
+        if (!m_lctx || m_visited_decls.contains(local_name(e)))
             return false;
-        m_visited_decls.insert(mlocal_name(e));
+        m_visited_decls.insert(local_name(e));
         optional<local_decl> decl = m_lctx->find_local_decl(e);
         if (!decl)
             return false;
@@ -61,9 +61,9 @@ struct depends_on_fn {
 
     bool visit_metavar(expr const & e) {
         lean_assert(is_metavar_decl_ref(e));
-        if (m_visited_mvars.contains(mlocal_name(e)))
+        if (m_visited_mvars.contains(mvar_name(e)))
             return false;
-        m_visited_mvars.insert(mlocal_name(e));
+        m_visited_mvars.insert(mvar_name(e));
         optional<metavar_decl> decl = m_mctx.find_metavar_decl(e);
         if (!decl)
             return false;
@@ -128,7 +128,7 @@ bool depends_on(expr const & e, metavar_context const & mctx, local_context cons
 void local_context::freeze_local_instances(local_instances const & lis) {
     m_local_instances = lis;
     lean_assert(std::all_of(lis.begin(), lis.end(), [&](local_instance const & inst) {
-                return m_name2local_decl.contains(mlocal_name(inst.get_local()));
+                return m_name2local_decl.contains(local_name(inst.get_local()));
             }));
 }
 
@@ -279,11 +279,11 @@ local_context local_context::remove(buffer<expr> const & locals) const {
         /* frozen local instances cannot be deleted */
         if (m_local_instances) {
             lean_assert(std::all_of(m_local_instances->begin(), m_local_instances->end(), [&](local_instance const & inst) {
-                        return mlocal_name(inst.get_local()) != d.get_name();
+                        return local_name(inst.get_local()) != d.get_name();
                 }));
         }
 
-        r.m_name2local_decl.erase(mlocal_name(l));
+        r.m_name2local_decl.erase(local_name(l));
         r.m_idx2local_decl.erase(d.get_idx());
         r.erase_user_name(d);
     }
@@ -296,7 +296,7 @@ static bool locals_subset_of(expr const & e, name_set const & s) {
     bool ok = true;
     for_each(e, [&](expr const & e, unsigned) {
             if (!ok) return false; // stop search
-            if (is_local_decl_ref(e) && !s.contains(mlocal_name(e))) {
+            if (is_local_decl_ref(e) && !s.contains(local_name(e))) {
                 ok = false;
                 return false;
             }

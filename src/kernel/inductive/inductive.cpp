@@ -282,7 +282,7 @@ struct add_inductive_fn {
     expr mk_local_for(expr const & b) { return mk_local(m_name_generator.next(), binding_name(b), binding_domain(b), binding_info(b)); }
 
     /** \brief Return type of the i-th global parameter. */
-    expr get_param_type(unsigned i) { return mlocal_type(m_param_consts[i]); }
+    expr get_param_type(unsigned i) { return local_type(m_param_consts[i]); }
 
     /** \brief Check if the type of datatype is well typed,
         and the number of parameters match the argument num_params.
@@ -583,7 +583,7 @@ struct add_inductive_fn {
             // populate v using u
             for (unsigned i = 0; i < u.size(); i++) {
                 expr u_i    = u[i];
-                expr u_i_ty = whnf(mlocal_type(u_i));
+                expr u_i_ty = whnf(local_type(u_i));
                 buffer<expr> xs;
                 while (is_pi(u_i_ty)) {
                     expr x = mk_local_for(u_i_ty);
@@ -600,7 +600,7 @@ struct add_inductive_fn {
                 expr v_i_ty = Pi(xs, C_app);
                 name ih("ih");
                 if (u.size() > 1) {
-                    name const & u_i_name = mlocal_pp_name(u_i);
+                    name const & u_i_name = local_pp_name(u_i);
                     if (u_i_name.is_atomic() && u_i_name.is_string()) {
                         ih = ih.append_after("_").append_after(u_i_name.get_string().to_std_string().c_str());
                     } else {
@@ -698,7 +698,7 @@ struct add_inductive_fn {
             buffer<expr> v;
             for (unsigned i = 0; i < u.size(); i++) {
                 expr u_i    = u[i];
-                expr u_i_ty = whnf(mlocal_type(u_i));
+                expr u_i_ty = whnf(local_type(u_i));
                 buffer<expr> xs;
                 while (is_pi(u_i_ty)) {
                     expr x = mk_local_for(u_i_ty);

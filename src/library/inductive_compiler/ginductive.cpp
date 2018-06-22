@@ -345,7 +345,7 @@ environment register_ginductive_decl(environment const & env, ginductive_decl co
 
     buffer<name> inds;
     for (expr const & ind : decl.get_inds()) {
-        inds.push_back(mlocal_name(ind));
+        inds.push_back(local_name(ind));
     }
     entry.m_inds = names(inds);
 
@@ -353,7 +353,7 @@ environment register_ginductive_decl(environment const & env, ginductive_decl co
     for (buffer<expr> const & irs : decl.get_intro_rules()) {
         buffer<name> ir_names;
         for (expr const & ir : irs)
-            ir_names.push_back(mlocal_name(ir));
+            ir_names.push_back(local_name(ir));
         intro_rules.push_back(names(ir_names));
     }
     entry.m_intro_rules = to_list(intro_rules);

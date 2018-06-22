@@ -132,7 +132,7 @@ static environment redeclare_aliases(environment env, parser & p,
         if (is_local_ref(entry.second))
             to_redeclare.push_back(entry);
         else if (is_local(entry.second))
-            popped_locals.insert(mlocal_name(entry.second));
+            popped_locals.insert(local_name(entry.second));
         old_entries = tail(old_entries);
         old_len--;
     }
@@ -398,11 +398,11 @@ static expr convert_metavars(metavar_context & mctx, expr const & e) {
 
     std::function<expr(expr const & e)> convert = [&](expr const & e) {
         return replace(e, [&](expr const e, unsigned) {
-                if (is_metavar(e)) {
+                if (is_mvar(e)) {
                     auto it = cache.find(e);
                     if (it != cache.end())
                         return some_expr(it->second);
-                    expr m = mctx.mk_metavar_decl(local_context(), convert(mlocal_type(e)));
+                    expr m = mctx.mk_metavar_decl(local_context(), convert(mvar_type(e)));
                     cache.insert(mk_pair(e, m));
                     return some_expr(m);
                 } else {

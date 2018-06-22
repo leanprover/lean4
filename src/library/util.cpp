@@ -327,7 +327,7 @@ void get_constructor_relevant_fields(environment const & env, name const & n, bu
     to_telescope(tc, type, telescope);
     lean_assert(telescope.size() >= nparams);
     for (unsigned i = nparams; i < telescope.size(); i++) {
-        result.push_back(!is_irrelevant_field_type(tc, mlocal_type(telescope[i])));
+        result.push_back(!is_irrelevant_field_type(tc, local_type(telescope[i])));
     }
 }
 
@@ -1035,7 +1035,7 @@ bool get_constructor_rec_args(environment const & env, expr const & e, buffer<pa
     for (unsigned i = 0; i < tele.size(); i++) {
         expr d = tele[i];
         buffer<expr> tele_tele;
-        expr r  = to_telescope(ctx, mlocal_type(d), tele_tele);
+        expr r  = to_telescope(ctx, local_type(d), tele_tele);
         expr fn = get_app_fn(r);
         if (is_constant(fn, *I_name)) {
             rec_args.push_back(mk_pair(args[i], tele_tele.size()));

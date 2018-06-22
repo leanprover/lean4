@@ -636,25 +636,23 @@ expr update_let(expr const & e, expr const & new_type, expr const & new_value, e
 
 /* Legacy */
 expr update_local(expr const & e, expr const & new_type, binder_info bi) {
-    if (is_eqp(mlocal_type(e), new_type) && local_info(e) == bi)
+    if (is_eqp(local_type(e), new_type) && local_info(e) == bi)
         return e;
     else
-        return mk_local(mlocal_name(e), mlocal_pp_name(e), new_type, bi);
+        return mk_local(local_name(e), local_pp_name(e), new_type, bi);
 }
 
 /* Legacy */
 expr update_local(expr const & e, binder_info bi) {
-    return update_local(e, mlocal_type(e), bi);
+    return update_local(e, local_type(e), bi);
 }
 
 /* Legacy */
-expr update_mlocal(expr const & e, expr const & new_type) {
-    if (is_eqp(mlocal_type(e), new_type))
+expr update_local(expr const & e, expr const & new_type) {
+    if (is_eqp(local_type(e), new_type))
         return e;
-    else if (is_metavar(e))
-        return mk_metavar(mlocal_name(e), new_type);
     else
-        return mk_local(mlocal_name(e), mlocal_pp_name(e), new_type, local_info(e));
+        return mk_local(local_name(e), local_pp_name(e), new_type, local_info(e));
 }
 
 // =======================================

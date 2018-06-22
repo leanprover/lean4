@@ -68,16 +68,16 @@ static level mk_succn(level const & l, unsigned offset) {
 static void convert_params_to_kernel(elaborator & elab, buffer<expr> const & lctx_params, buffer<expr> & kernel_params) {
     for (unsigned i = 0; i < lctx_params.size(); ++i) {
         expr new_type = replace_locals(elab.infer_type(lctx_params[i]), i, lctx_params.data(), kernel_params.data());
-        kernel_params.push_back(update_mlocal(lctx_params[i], new_type));
+        kernel_params.push_back(update_local(lctx_params[i], new_type));
     }
 }
 
 static void replace_params(buffer<expr> const & params, buffer<expr> const & new_params, buffer<expr> const & inds, buffer<expr> const & new_inds,
                            buffer<expr> const & intro_rules, buffer<expr> & new_intro_rules) {
     for (expr const & ir : intro_rules) {
-        expr new_type = replace_locals(mlocal_type(ir), params, new_params);
+        expr new_type = replace_locals(local_type(ir), params, new_params);
         new_type = replace_locals(new_type, inds, new_inds);
-        new_intro_rules.push_back(update_mlocal(ir, new_type));
+        new_intro_rules.push_back(update_local(ir, new_type));
     }
 }
 
@@ -143,8 +143,8 @@ class inductive_cmd_fn {
         for (unsigned i = 0; i < params.size(); i++) {
             expr const & param = params[i];
             if (m_p.is_local_decl_user_name(param) &&
-                !m_p.is_local_variable_user_name(mlocal_pp_name(param))) {
-                expr const * klocal = m_p.get_local(mlocal_pp_name(param));
+                !m_p.is_local_variable_user_name(local_pp_name(param))) {
+                expr const * klocal = m_p.get_local(local_pp_name(param));
                 lean_assert(klocal);
                 params[j] = *klocal;
                 j++;
@@ -188,9 +188,9 @@ class inductive_cmd_fn {
     bool has_explicit_level(buffer<buffer<expr> > const & intro_rules) {
         for (buffer<expr> const & irs : intro_rules) {
             for (expr const & ir : irs) {
-                name_set ls = collect_univ_params_ignoring_locals(mlocal_type(ir), name_set());
+                name_set ls = collect_univ_params_ignoring_locals(local_type(ir), name_set());
                 if (!ls.empty()) {
-                    lean_trace(name({"inductive", "lp_names"}), tout() << "explicit universe in '" << mlocal_name(ir) << "': " << mlocal_type(ir) << "\n";);
+                    lean_trace(name({"inductive", "lp_names"}), tout() << "explicit universe in '" << local_name(ir) << "': " << local_type(ir) << "\n";);
                     return true;
                 }
             }
@@ -205,7 +205,7 @@ class inductive_cmd_fn {
         // Create aliases/local refs
         levels ctx_levels = collect_local_nonvar_levels(m_p, names(m_lp_names));
         for (expr const & ind : inds) {
-            name d_name = mlocal_name(ind);
+            name d_name = local_name(ind);
             name d_short_name(d_name.get_string());
             m_env = add_alias(m_p, m_env, false, d_name, ctx_levels, params_only);
             name rec_name = mk_rec_name(d_name);
@@ -217,7 +217,7 @@ class inductive_cmd_fn {
         }
         for (buffer<expr> const & irs : intro_rules) {
             for (expr const & ir : irs) {
-                name ir_name = mlocal_name(ir);
+                name ir_name = local_name(ir);
                 m_env = add_alias(m_p, m_env, true, ir_name, ctx_levels, params_only);
             }
         }
@@ -310,7 +310,7 @@ class inductive_cmd_fn {
         lean_assert(m_infer_result_universe);
         buffer<level> r_lvls;
         for (unsigned i = 0; i < num_intro_rules; i++) {
-            accumulate_levels(mlocal_type(intro_rules[i]), r_lvls);
+            accumulate_levels(local_type(intro_rules[i]), r_lvls);
         }
         return mk_result_level(r_lvls);
     }
@@ -345,7 +345,7 @@ class inductive_cmd_fn {
         while (is_pi(ty)) {
             expr arg_ty = binding_domain(ty);
             for (expr const & ind : inds) {
-                if (static_cast<bool>(find(arg_ty, [&](expr const & e, unsigned) { return is_mlocal(e) && mlocal_name(e) == mlocal_name(ind); }))) {
+                if (static_cast<bool>(find(arg_ty, [&](expr const & e, unsigned) { return is_mlocal(e) && local_name(e) == local_name(ind); }))) {
                     level nested_level = get_level(ctx, arg_ty);
                     lean_trace(name({"inductive", "unify"}), tout() << nested_level << " =?= " << resultant_level << "\n";);
                     if (!ctx.is_def_eq(mk_sort(nested_level), mk_sort(resultant_level))) {
@@ -360,7 +360,7 @@ class inductive_cmd_fn {
 
     void check_constant_resultant_universe(expr const & ir, level const & constant_resultant_level) {
         type_context_old ctx(m_env);
-        expr ty = mlocal_type(ir);
+        expr ty = local_type(ir);
         unsigned ir_arg = 0;
         while (is_pi(ty)) {
             ir_arg++;
@@ -368,7 +368,7 @@ class inductive_cmd_fn {
             level arg_level = get_level(ctx, arg_ty);
             if (!(is_geq(constant_resultant_level, arg_level) || is_zero(constant_resultant_level))) {
                 throw exception(sstream() << "universe level of type_of(arg #" << ir_arg << ") "
-                                << "of '" << mlocal_name(ir) << "' is too big for the corresponding inductive datatype");
+                                << "of '" << local_name(ir) << "' is too big for the corresponding inductive datatype");
             }
             expr local = ctx.push_local(binding_name(ty), arg_ty, binding_info(ty));
             ty = instantiate(binding_body(ty), local);
@@ -381,7 +381,7 @@ class inductive_cmd_fn {
             m_p.next();
             while (true) {
                 m_pos = m_p.pos();
-                name ir_name = mlocal_name(ind) + m_p.check_atomic_id_next("invalid introduction rule, atomic identifier expected");
+                name ir_name = local_name(ind) + m_p.check_atomic_id_next("invalid introduction rule, atomic identifier expected");
                 if (prepend_ns)
                     ir_name = get_namespace(m_env) + ir_name;
                 parser::local_scope S(m_p);
@@ -411,7 +411,7 @@ class inductive_cmd_fn {
     /** \brief Add a namespace for each inductive datatype */
     void add_namespaces(buffer<expr> const & inds) {
         for (expr const & ind : inds) {
-            m_env = add_namespace(m_env, mlocal_name(ind));
+            m_env = add_namespace(m_env, local_name(ind));
         }
     }
 
@@ -425,11 +425,11 @@ class inductive_cmd_fn {
                                    buffer<expr> & new_params, buffer<expr> & new_inds, buffer<buffer<expr> > & new_intro_rules) {
         options opts = m_p.get_options();
         bool recover_from_errors = true;
-        elaborator elab(m_env, opts, mlocal_pp_name(inds[0]), metavar_context(), local_context(), recover_from_errors);
+        elaborator elab(m_env, opts, local_pp_name(inds[0]), metavar_context(), local_context(), recover_from_errors);
 
         buffer<expr> params_no_inds;
         for (expr const & p : params) {
-            if (!std::any_of(inds.begin(), inds.end(), [&](expr const & ind) { return mlocal_name(ind) == mlocal_name(p); }))
+            if (!std::any_of(inds.begin(), inds.end(), [&](expr const & ind) { return local_name(ind) == local_name(p); }))
                 params_no_inds.push_back(p);
         }
 
@@ -441,7 +441,7 @@ class inductive_cmd_fn {
         level result_level;
         bool first = true;
         for (expr const & ind : inds) {
-            expr new_ind_type = mlocal_type(ind);
+            expr new_ind_type = local_type(ind);
             if (is_placeholder(new_ind_type))
                 new_ind_type = mk_sort(mk_level_placeholder());
             new_ind_type = elab.elaborate(replace_locals(new_ind_type, params_no_inds, new_params));
@@ -461,17 +461,17 @@ class inductive_cmd_fn {
                     throw_error("mutually inductive types must live in the same universe");
                 }
             }
-            new_inds.push_back(update_mlocal(ind, new_ind_type));
+            new_inds.push_back(update_local(ind, new_ind_type));
         }
 
         for (buffer<expr> const & irs : intro_rules) {
             new_intro_rules.emplace_back();
             replace_params(params_no_inds, new_params, inds, new_inds, irs, new_intro_rules.back());
             for (expr & new_ir : new_intro_rules.back()) {
-                expr new_ir_type = elab.elaborate(mlocal_type(new_ir));
+                expr new_ir_type = elab.elaborate(local_type(new_ir));
                 new_ir_type      = normalize(new_ir_type);
-                new_ir = update_mlocal(new_ir, new_ir_type);
-                lean_trace(name({"inductive", "infer_resultant"}), tout() << "[elaborated ir]: " << mlocal_type(new_ir) << "\n";);
+                new_ir = update_local(new_ir, new_ir_type);
+                lean_trace(name({"inductive", "infer_resultant"}), tout() << "[elaborated ir]: " << local_type(new_ir) << "\n";);
             }
         }
 
@@ -536,8 +536,8 @@ class inductive_cmd_fn {
             lean_trace(name({"inductive", "infer_resultant"}), tout() << "[resultant_level]: " << resultant_level << "\n";);
             lean_trace(name({"inductive", "infer_resultant"}), tout() << "[replacement_level]: " << replacement_level << "\n";);
             for (unsigned i = offsets[0]; i < offsets[0] + offsets[1]; ++i) {
-                expr ind_type = replace_u(mlocal_type(all_exprs[i]), replacement_level);
-                new_inds.push_back(update_mlocal(all_exprs[i], ind_type));
+                expr ind_type = replace_u(local_type(all_exprs[i]), replacement_level);
+                new_inds.push_back(update_local(all_exprs[i], ind_type));
             }
         } else {
             for (unsigned i = offsets[0]; i < offsets[0] + offsets[1]; ++i) {
@@ -552,7 +552,7 @@ class inductive_cmd_fn {
         // We replace the inds appearing in the types of introduction rules with constants
         buffer<expr> c_inds;
         for (expr const & ind : inds) {
-            c_inds.push_back(mk_app(mk_constant(mlocal_name(ind), param_names_to_levels(names(m_lp_names))), new_params));
+            c_inds.push_back(mk_app(mk_constant(local_name(ind), param_names_to_levels(names(m_lp_names))), new_params));
         }
 
         unsigned offset = offsets[0] + offsets[1];
@@ -561,10 +561,10 @@ class inductive_cmd_fn {
             for (unsigned j = 0; j < offsets[i]; ++j) {
                 expr new_ir = all_exprs[offset+j];
                 if (m_infer_result_universe) {
-                    new_ir = update_mlocal(new_ir, replace_u(mlocal_type(new_ir), replacement_level));
-                    unify_nested_occurrences(m_ctx, mlocal_type(new_ir), inds, resultant_level);
+                    new_ir = update_local(new_ir, replace_u(local_type(new_ir), replacement_level));
+                    unify_nested_occurrences(m_ctx, local_type(new_ir), inds, resultant_level);
                 } else if (is_constant) {
-                    unify_nested_occurrences(m_ctx, mlocal_type(new_ir), inds, m_u_meta_assignment);
+                    unify_nested_occurrences(m_ctx, local_type(new_ir), inds, m_u_meta_assignment);
                 }
                 new_ir = replace_locals(new_ir, offsets[1], all_exprs.data() + offsets[0], c_inds.data());
                 new_intro_rules.back().push_back(new_ir);
@@ -582,7 +582,7 @@ class inductive_cmd_fn {
 
         for (expr const & e : all_exprs) {
             lean_trace(name({"inductive", "finalize"}),
-                       tout() << mlocal_name(e) << " (" << mlocal_pp_name(e) << ") : " << mlocal_type(e) << "\n";);
+                       tout() << local_name(e) << " (" << local_pp_name(e) << ") : " << local_type(e) << "\n";);
         }
     }
 
@@ -595,10 +595,10 @@ class inductive_cmd_fn {
         m_explicit_levels = !m_lp_names.empty();
         m_mut_attrs.push_back({});
 
-        ind = mk_local(get_namespace(m_p.env()) + mlocal_name(ind), mlocal_name(ind), mlocal_type(ind), local_info(ind));
+        ind = mk_local(get_namespace(m_p.env()) + local_name(ind), local_name(ind), local_type(ind), local_info(ind));
 
         lean_trace(name({"inductive", "parse"}),
-                   tout() << mlocal_name(ind) << " : " << mlocal_type(ind) << "\n";);
+                   tout() << local_name(ind) << " : " << local_type(ind) << "\n";);
 
         m_p.add_local(ind);
         m_p.parse_local_notation_decl();
@@ -613,7 +613,7 @@ class inductive_cmd_fn {
 
         for (expr const & e : params) {
             lean_trace(name({"inductive", "params"}),
-                       tout() << mlocal_name(e) << " (" << mlocal_pp_name(e) << ") : " << mlocal_type(e) << "\n";);
+                       tout() << local_name(e) << " (" << local_pp_name(e) << ") : " << local_type(e) << "\n";);
         }
 
         return ind;
@@ -630,13 +630,13 @@ class inductive_cmd_fn {
         for (expr const & pre_ind : pre_inds) {
             m_pos = m_p.pos();
             expr ind_type; decl_attributes attrs;
-            std::tie(ind_type, attrs) = parse_inner_header(m_p, mlocal_pp_name(pre_ind));
+            std::tie(ind_type, attrs) = parse_inner_header(m_p, local_pp_name(pre_ind));
             check_attrs(attrs);
             m_mut_attrs.push_back(attrs);
-            lean_trace(name({"inductive", "parse"}), tout() << mlocal_name(pre_ind) << " : " << ind_type << "\n";);
+            lean_trace(name({"inductive", "parse"}), tout() << local_name(pre_ind) << " : " << ind_type << "\n";);
             intro_rules.emplace_back();
             parse_intro_rules(!params.empty(), pre_ind, intro_rules.back(), true);
-            expr ind = mk_local(get_namespace(m_p.env()) + mlocal_name(pre_ind), ind_type);
+            expr ind = mk_local(get_namespace(m_p.env()) + local_name(pre_ind), ind_type);
             inds.push_back(ind);
         }
 
@@ -683,13 +683,13 @@ public:
                We are currently using the same doc string for all elements.
             */
             if (m_meta_info.m_doc_string)
-                m_env = add_doc_string(m_env, mlocal_name(ind), *m_meta_info.m_doc_string);
+                m_env = add_doc_string(m_env, local_name(ind), *m_meta_info.m_doc_string);
             /* Apply attributes last so that they may access any information on the new decl */
-            m_env = m_meta_info.m_attrs.apply(m_env, m_p.ios(), mlocal_name(ind));
+            m_env = m_meta_info.m_attrs.apply(m_env, m_p.ios(), local_name(ind));
         }
         lean_assert(new_inds.size() == m_mut_attrs.size());
         for (unsigned i = 0; i < new_inds.size(); ++i)
-            m_env = m_mut_attrs[i].apply(m_env, m_p.ios(), mlocal_name(new_inds[i]));
+            m_env = m_mut_attrs[i].apply(m_env, m_p.ios(), local_name(new_inds[i]));
     }
 
     struct parse_result {
@@ -723,12 +723,12 @@ public:
         for (unsigned i = 0; i < r.m_inds.size(); i++) {
             buffer<constructor> constructors;
             for (expr const & intro : r.m_intro_rules[i]) {
-                implicit_infer_kind kind = get_implicit_infer_kind(mlocal_name(intro));
-                expr type = Pi(r.m_params, mlocal_type(intro));
+                implicit_infer_kind kind = get_implicit_infer_kind(local_name(intro));
+                expr type = Pi(r.m_params, local_type(intro));
                 type = infer_implicit_params(type, num_params, kind);
-                constructors.push_back(constructor(mlocal_name(intro), type));
+                constructors.push_back(constructor(local_name(intro), type));
             }
-            decls.push_back(inductive_decl(mlocal_name(r.m_inds[i]), Pi(r.m_params, mlocal_type(r.m_inds[i])), to_list(constructors)));
+            decls.push_back(inductive_decl(local_name(r.m_inds[i]), Pi(r.m_params, local_type(r.m_inds[i])), to_list(constructors)));
         }
         m_env = m_env.add_inductive_decls(inductive_decls(names(m_lp_names), num_params, to_list(decls)));
     }

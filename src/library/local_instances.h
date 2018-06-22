@@ -17,7 +17,7 @@ public:
     name const & get_class_name() const { return m_class_name; }
     expr const & get_local() const { return m_local; }
     friend bool operator==(local_instance const & l1, local_instance const & l2) {
-        return mlocal_name(l1.m_local) == mlocal_name(l2.m_local);
+        return local_name(l1.m_local) == local_name(l2.m_local);
     }
 };
 

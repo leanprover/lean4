@@ -84,7 +84,7 @@ static void check_parameter_type(parser & p, name const & n, expr const & type, 
     for_each(type, [&](expr const & e, unsigned) {
             if (is_local(e) && p.is_local_variable(e))
                 throw parser_error(sstream() << "invalid parameter declaration '" << n << "', it depends on " <<
-                                   "variable '" << mlocal_pp_name(e) << "'", pos);
+                                   "variable '" << local_pp_name(e) << "'", pos);
             return true;
         });
 }

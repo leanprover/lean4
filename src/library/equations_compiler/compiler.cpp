@@ -194,8 +194,8 @@ struct pull_nested_rec_fn : public replace_visitor {
 
     void collect_locals_core(expr const & e, name_set & found, buffer<expr> & R) {
         for_each(e, [&](expr const & e, unsigned) {
-                if (is_local(e) && !base_lctx().find_local_decl(e) && !found.contains(mlocal_name(e))) {
-                    found.insert(mlocal_name(e));
+                if (is_local(e) && !base_lctx().find_local_decl(e) && !found.contains(local_name(e))) {
+                    found.insert(local_name(e));
                     R.push_back(e);
                 }
                 return true;

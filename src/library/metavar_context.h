@@ -80,12 +80,12 @@ public:
 
     bool is_assigned(expr const & m) const {
         lean_assert(is_metavar_decl_ref(m));
-        return m_eassignment.contains(mlocal_name(m));
+        return m_eassignment.contains(mvar_name(m));
     }
 
     bool is_delayed_assigned(expr const & m) const {
         lean_assert(is_metavar_decl_ref(m));
-        return m_dassignment.contains(mlocal_name(m));
+        return m_dassignment.contains(mvar_name(m));
     }
 
     void assign(level const & u, level const & l);

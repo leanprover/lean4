@@ -74,7 +74,7 @@ expr type_checker::infer_fvar(expr const & e) {
         return decl->get_type();
     } else {
         // TODO(Leo): delete after we refactor inductive datatype module
-        return mlocal_type(e);
+        return local_type(e);
         throw kernel_exception(m_env, "unknown free variable");
     }
 }
@@ -247,7 +247,7 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
     case expr_kind::MData:    r = infer_type_core(mdata_expr(e), infer_only); break;
     case expr_kind::Proj:     r = infer_proj(e, infer_only); break;
     case expr_kind::FVar:     r = infer_fvar(e);  break;
-    case expr_kind::MVar:     r = mlocal_type(e); break;
+    case expr_kind::MVar:     throw kernel_exception(m_env, "kernel type checker does not support meta variables");
     case expr_kind::BVar:
         lean_unreachable();  // LCOV_EXCL_LINE
     case expr_kind::Sort:

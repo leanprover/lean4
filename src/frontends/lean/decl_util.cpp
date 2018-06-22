@@ -175,7 +175,7 @@ void collect_annonymous_inst_implicit(parser const & p, collected_locals & local
             // remark: remove the following condition condition, if we want to auto inclusion also for non anonymous ones.
             is_anonymous_inst_name(entry.first)) {
             bool ok = true;
-            for_each(mlocal_type(entry.second), [&](expr const & e, unsigned) {
+            for_each(local_type(entry.second), [&](expr const & e, unsigned) {
                     if (!ok) return false; // stop
                     if (is_local(e) && !locals.contains(e))
                         ok = false;
@@ -192,11 +192,11 @@ void sort_locals(buffer<expr> const & locals, parser const & p, buffer<expr> & p
     buffer<expr> extra;
     name_set     explicit_param_names;
     for (expr const & p : ps) {
-        explicit_param_names.insert(mlocal_name(p));
+        explicit_param_names.insert(local_name(p));
     }
     for (expr const & l : locals) {
         // we only copy the locals that are in p's local context
-        if (p.is_local_decl_user_name(l) && !explicit_param_names.contains(mlocal_name(l)))
+        if (p.is_local_decl_user_name(l) && !explicit_param_names.contains(local_name(l)))
             extra.push_back(l);
     }
     std::sort(extra.begin(), extra.end(), [&](expr const & p1, expr const & p2) {
@@ -235,7 +235,7 @@ expr replace_locals_preserving_pos_info(expr const & e, unsigned sz, expr const 
                 unsigned i = sz;
                 while (i > 0) {
                     --i;
-                    if (mlocal_name(from[i]) == mlocal_name(e)) {
+                    if (local_name(from[i]) == local_name(e)) {
                         return some_expr(copy_pos(e, copy(to[i])));
                     }
                 }
@@ -262,17 +262,17 @@ void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> &
     p.get_include_variables(include_vars);
     for (expr const & param : include_vars) {
         if (is_local(param)) {
-            collect_locals_ignoring_tactics(mlocal_type(param), locals);
-            lp_found = collect_univ_params_ignoring_tactics(mlocal_type(param), lp_found);
+            collect_locals_ignoring_tactics(local_type(param), locals);
+            lp_found = collect_univ_params_ignoring_tactics(local_type(param), lp_found);
             locals.insert(param);
         }
     }
     /* Process explicit parameters */
     for (expr const & param : params) {
-        collect_locals_ignoring_tactics(mlocal_type(param), locals);
-        lp_found = collect_univ_params_ignoring_tactics(mlocal_type(param), lp_found);
+        collect_locals_ignoring_tactics(local_type(param), locals);
+        lp_found = collect_univ_params_ignoring_tactics(local_type(param), lp_found);
         locals.insert(param);
-        given_params.insert(mlocal_name(param));
+        given_params.insert(local_name(param));
     }
     /* Process expressions used to define declaration. */
     for (expr const & e : all_exprs) {
@@ -287,12 +287,12 @@ void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> &
     for (unsigned i = 0; i < params.size(); i++) {
         expr & param = params[i];
         old_params.push_back(param);
-        expr type          = mlocal_type(param);
+        expr type          = local_type(param);
         expr new_type      = replace_locals_preserving_pos_info(type, i, old_params.data(), params.data());
-        if (!given_params.contains(mlocal_name(param))) {
+        if (!given_params.contains(local_name(param))) {
             new_type = copy_pos(type, mk_as_is(new_type));
         }
-        param = copy_pos(param, update_mlocal(param, new_type));
+        param = copy_pos(param, update_local(param, new_type));
     }
 }
 
@@ -309,9 +309,9 @@ void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> &
 void elaborate_params(elaborator & elab, buffer<expr> const & params, buffer<expr> & new_params) {
     for (unsigned i = 0; i < params.size(); i++) {
         expr const & param = params[i];
-        expr type          = replace_locals_preserving_pos_info(mlocal_type(param), i, params.data(), new_params.data());
+        expr type          = replace_locals_preserving_pos_info(local_type(param), i, params.data(), new_params.data());
         expr new_type      = elab.elaborate_type(type);
-        expr new_param     = elab.push_local(mlocal_pp_name(param), new_type, local_info(param));
+        expr new_param     = elab.push_local(local_pp_name(param), new_type, local_info(param));
         new_params.push_back(new_param);
     }
 }
@@ -356,11 +356,11 @@ environment add_local_ref(parser & p, environment const & env, name const & c_na
     buffer<expr> new_params;
     for (unsigned i = 0; i < params.size(); i++) {
         expr & param = params[i];
-        expr type          = mlocal_type(param);
+        expr type          = local_type(param);
         if (is_as_is(type))
             type = get_as_is_arg(type);
         expr new_type      = replace_locals_preserving_pos_info(type, i, params.data(), new_params.data());
-        new_params.push_back(copy_pos(param, update_mlocal(param, new_type)));
+        new_params.push_back(copy_pos(param, update_local(param, new_type)));
     }
     expr ref = mk_local_ref(c_real_name, param_names_to_levels(names(lps)), new_params);
     return p.add_local_ref(env, c_name, ref);

@@ -67,10 +67,10 @@ bool is_lt(expr const & a, expr const & b, bool use_hash, local_context const * 
         }
         /* fall-thru */
     case expr_kind::MVar:
-        if (mlocal_name(a) != mlocal_name(b))
-            return mlocal_name(a) < mlocal_name(b);
+        if (mvar_name(a) != mvar_name(b))
+            return mvar_name(a) < mvar_name(b);
         else
-            return is_lt(mlocal_type(a), mlocal_type(b), use_hash, lctx);
+            return is_lt(mvar_type(a), mvar_type(b), use_hash, lctx);
     case expr_kind::Quote:
         return quote_value(a) < quote_value(b);
     }
@@ -178,11 +178,16 @@ bool is_lt_no_level_params(expr const & a, expr const & b) {
             return is_lt_no_level_params(let_body(a), let_body(b));
     case expr_kind::Sort:
         return is_lt_no_level_params(sort_level(a), sort_level(b));
-    case expr_kind::FVar: case expr_kind::MVar:
-        if (mlocal_name(a) != mlocal_name(b))
-            return mlocal_name(a) < mlocal_name(b);
+    case expr_kind::FVar:
+        if (local_name(a) != local_name(b))
+            return local_name(a) < local_name(b);
         else
-            return is_lt_no_level_params(mlocal_type(a), mlocal_type(b));
+            return is_lt_no_level_params(local_type(a), local_type(b));
+    case expr_kind::MVar:
+        if (mvar_name(a) != mvar_name(b))
+            return mvar_name(a) < mvar_name(b);
+        else
+            return is_lt_no_level_params(mvar_type(a), mvar_type(b));
     case expr_kind::Quote:
         return quote_value(a) < quote_value(b);
     }

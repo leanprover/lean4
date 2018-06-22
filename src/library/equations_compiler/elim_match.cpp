@@ -631,7 +631,7 @@ struct elim_match_fn {
     expr apply_renaming(expr const & e, name_map<expr> const & renaming) {
         return replace(e, [&](expr const & e, unsigned) {
                 if (is_local(e)) {
-                    if (auto new_e = renaming.find(mlocal_name(e)))
+                    if (auto new_e = renaming.find(local_name(e)))
                         return some_expr(*new_e);
                 }
                 return none_expr();
@@ -649,8 +649,8 @@ struct elim_match_fn {
 
     hsubstitution add_subst(hsubstitution subst, expr const & src, expr const & target) {
         lean_assert(is_local(src));
-        if (!subst.contains(mlocal_name(src)))
-            subst.insert(mlocal_name(src), target);
+        if (!subst.contains(local_name(src)))
+            subst.insert(local_name(src), target);
         return subst;
     }
 
@@ -881,7 +881,7 @@ struct elim_match_fn {
                             if (curr_type == new_curr_type) {
                                 new_vars.push_back(curr);
                             } else {
-                                expr new_curr = ctx.push_local(mlocal_pp_name(curr), new_curr_type);
+                                expr new_curr = ctx.push_local(local_pp_name(curr), new_curr_type);
                                 from.push_back(curr);
                                 to.push_back(new_curr);
                                 new_vars.push_back(new_curr);

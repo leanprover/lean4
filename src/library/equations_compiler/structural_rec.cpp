@@ -126,7 +126,7 @@ struct structural_rec_fn {
                 for (unsigned i = 0; i < args.size(); i++)
                     if (!check_rhs(args[i]))
                         return false;
-                if (is_local(fn) && mlocal_name(fn) == mlocal_name(m_fn)) {
+                if (is_local(fn) && local_name(fn) == local_name(m_fn)) {
                     /* recusive application */
                     if (m_arg_idx < args.size()) {
                         expr const & arg = args[m_arg_idx];
@@ -260,7 +260,7 @@ struct structural_rec_fn {
                 buffer<expr> const & xs = locals.as_buffer();
                 for (; idx_pos < xs.size(); idx_pos++) {
                     expr const & x = xs[idx_pos];
-                    if (mlocal_name(x) == mlocal_name(idx)) {
+                    if (local_name(x) == local_name(idx)) {
                         break;
                     }
                 }
@@ -289,7 +289,7 @@ struct structural_rec_fn {
                 /* Each index can only occur once */
                 for (unsigned j = first_index_pos; j < i; j++) {
                     expr const & prev_idx = I_args[j];
-                    if (mlocal_name(prev_idx) == mlocal_name(idx)) {
+                    if (local_name(prev_idx) == local_name(idx)) {
                         trace_struct(tout() << "structural recursion on argument #" << (arg_idx+1) << " was not used "
                                      << "for '" << fn << "' because the inductive type '" << I << "' is an indexed family, "
                                      << "and index #" << (i+1) << " and #" << (j+1) << " must be different variables\n  "
@@ -443,7 +443,7 @@ struct structural_rec_fn {
                 else
                     return none_expr();
             } else if (is_local(fn)) {
-                if (mlocal_name(m_C) == mlocal_name(fn) && m_ctx.is_def_eq(app_arg(d), a))
+                if (local_name(m_C) == local_name(fn) && m_ctx.is_def_eq(app_arg(d), a))
                     return some_expr(F);
                 return none_expr();
             } else if (is_pi(d)) {
@@ -487,7 +487,7 @@ struct structural_rec_fn {
         }
 
         virtual expr visit_local(expr const & e) {
-            if (mlocal_name(e) == mlocal_name(m_fn)) {
+            if (local_name(e) == local_name(m_fn)) {
                 /* unexpected occurrence of recursive function */
                 trace_struct_aux(tout() << "unexpected occurrence of recursive function: " << e << "\n";);
                 throw elim_rec_apps_failed();
@@ -497,7 +497,7 @@ struct structural_rec_fn {
 
         virtual expr visit_app(expr const & e) {
             expr const & fn = get_app_fn(e);
-            if (is_local(fn) && mlocal_name(fn) == mlocal_name(m_fn)) {
+            if (is_local(fn) && local_name(fn) == local_name(m_fn)) {
                 buffer<expr> args;
                 get_app_args(e, args);
                 if (m_arg_pos >= args.size()) throw elim_rec_apps_failed();

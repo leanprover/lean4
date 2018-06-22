@@ -102,7 +102,7 @@ class vm_compiler_fn {
     }
 
     void compile_local(expr const & e, name_map<unsigned> const & m) {
-        unsigned idx = *m.find(mlocal_name(e));
+        unsigned idx = *m.find(local_name(e));
         emit(mk_push_instr(idx));
     }
 

@@ -127,8 +127,8 @@ static expr parse_mutual_definition(parser & p, buffer<name> & lp_names, buffer<
     buffer<name> full_actual_names;
     for (expr const & pre_fn : pre_fns) {
         // TODO(leo, dhs): make use of attributes
-        expr fn_type = parse_inner_header(p, mlocal_pp_name(pre_fn)).first;
-        declaration_name_scope scope2(mlocal_pp_name(pre_fn));
+        expr fn_type = parse_inner_header(p, local_pp_name(pre_fn)).first;
+        declaration_name_scope scope2(local_pp_name(pre_fn));
         declaration_name_scope scope3("_main");
         full_names.push_back(scope3.get_name());
         full_actual_names.push_back(scope3.get_actual_name());
@@ -143,7 +143,7 @@ static expr parse_mutual_definition(parser & p, buffer<name> & lp_names, buffer<
             }
             check_valid_end_of_equations(p);
         }
-        expr fn      = mk_local(mlocal_name(pre_fn), mlocal_pp_name(pre_fn), fn_type, mk_rec_info());
+        expr fn      = mk_local(local_name(pre_fn), local_pp_name(pre_fn), fn_type, mk_rec_info());
         fns.push_back(fn);
     }
     if (p.curr_is_token(get_with_tk()))
@@ -466,7 +466,7 @@ static environment mutual_definition_cmd_core(parser & p, decl_cmd_kind kind, cm
         return p.env();
 
     bool recover_from_errors = true;
-    elaborator elab(env, p.get_options(), get_namespace(env) + mlocal_pp_name(fns[0]), metavar_context(), local_context(), recover_from_errors);
+    elaborator elab(env, p.get_options(), get_namespace(env) + local_pp_name(fns[0]), metavar_context(), local_context(), recover_from_errors);
     buffer<expr> new_params;
     elaborate_params(elab, params, new_params);
     val = replace_locals_preserving_pos_info(val, params, new_params);
@@ -486,7 +486,7 @@ static environment mutual_definition_cmd_core(parser & p, decl_cmd_kind kind, cm
         expr curr_type = head_beta_reduce(elab.infer_type(curr));
         finalize_definition(elab, new_params, curr_type, curr, lp_names);
         environment env = elab.env();
-        name c_name = mlocal_name(fns[i]);
+        name c_name = local_name(fns[i]);
         name c_real_name;
         bool is_abbrev = false;
         std::tie(env, c_real_name) = declare_definition(p, env, kind, lp_names, c_name, prv_names[i],
@@ -523,7 +523,7 @@ static std::tuple<expr, expr, name> parse_definition(parser & p, buffer<name> & 
         p.next();
         if (is_meta) {
             declaration_name_scope scope2("_main");
-            fn = mk_local(mlocal_name(fn), mlocal_pp_name(fn), mlocal_type(fn), mk_rec_info());
+            fn = mk_local(local_name(fn), local_pp_name(fn), local_type(fn), mk_rec_info());
             p.add_local(fn);
             val = p.parse_expr();
             /* add fake equation */
@@ -538,7 +538,7 @@ static std::tuple<expr, expr, name> parse_definition(parser & p, buffer<name> & 
         if (is_abbrev)
             throw exception("invalid abbreviation, abbreviations should not be defined using pattern matching");
         declaration_name_scope scope2("_main");
-        fn = mk_local(mlocal_name(fn), mlocal_pp_name(fn), mlocal_type(fn), mk_rec_info());
+        fn = mk_local(local_name(fn), local_pp_name(fn), local_type(fn), mk_rec_info());
         p.add_local(fn);
         buffer<expr> eqns;
         if (p.curr_is_token(get_period_tk())) {
@@ -556,22 +556,22 @@ static std::tuple<expr, expr, name> parse_definition(parser & p, buffer<name> & 
     } else {
         val = p.parser_error_or_expr({"invalid definition, '|' or ':=' expected", p.pos()});
     }
-    collect_implicit_locals(p, lp_names, params, {mlocal_type(fn), val});
+    collect_implicit_locals(p, lp_names, params, {local_type(fn), val});
     return std::make_tuple(fn, val, scope2.get_actual_name());
 }
 
 static void replace_params(buffer<expr> const & params, buffer<expr> const & new_params, expr & fn, expr & val) {
-    expr fn_type = replace_locals_preserving_pos_info(mlocal_type(fn), params, new_params);
-    expr new_fn  = update_mlocal(fn, fn_type);
+    expr fn_type = replace_locals_preserving_pos_info(local_type(fn), params, new_params);
+    expr new_fn  = update_local(fn, fn_type);
     val          = replace_locals_preserving_pos_info(val, params, new_params);
     val          = replace_local_preserving_pos_info(val, fn, new_fn);
     fn           = new_fn;
 }
 
 static expr_pair elaborate_theorem(elaborator & elab, expr const & fn, expr val) {
-    expr fn_type = elab.elaborate_type(mlocal_type(fn));
+    expr fn_type = elab.elaborate_type(local_type(fn));
     elab.ensure_no_unassigned_metavars(fn_type);
-    expr new_fn  = update_mlocal(fn, fn_type);
+    expr new_fn  = update_local(fn, fn_type);
     val = replace_local_preserving_pos_info(val, fn, new_fn);
     return elab.elaborate_with_type(val, mk_as_is(fn_type));
 }
@@ -579,15 +579,15 @@ static expr_pair elaborate_theorem(elaborator & elab, expr const & fn, expr val)
 static expr_pair elaborate_definition_core(elaborator & elab, decl_cmd_kind kind, expr const & fn, expr const & val) {
     // We elaborate `fn` and `val` separately if `fn` is a theorem or its return type
     // was specified explicitly
-    if (kind == decl_cmd_kind::Theorem || !is_placeholder(mlocal_type(fn))) {
+    if (kind == decl_cmd_kind::Theorem || !is_placeholder(local_type(fn))) {
         return elaborate_theorem(elab, fn, val);
     } else {
-        return elab.elaborate_with_type(val, mlocal_type(fn));
+        return elab.elaborate_with_type(val, local_type(fn));
     }
 }
 
 static expr_pair elaborate_definition(parser & p, elaborator & elab, decl_cmd_kind kind, expr const & fn, expr const & val, pos_info const & pos) {
-    time_task _("elaboration", p.mk_message(pos, INFORMATION), p.get_options(), mlocal_pp_name(fn));
+    time_task _("elaboration", p.mk_message(pos, INFORMATION), p.get_options(), local_pp_name(fn));
     return elaborate_definition_core(elab, kind, fn, val);
 }
 
@@ -642,13 +642,13 @@ static expr elaborate_proof(
 
     try {
         bool recover_from_errors = true;
-        elaborator elab(decl_env, opts, get_namespace(decl_env) + mlocal_pp_name(fn), mctx, lctx, recover_from_errors);
+        elaborator elab(decl_env, opts, get_namespace(decl_env) + local_pp_name(fn), mctx, lctx, recover_from_errors);
 
         expr val, type;
         {
             time_task _("elaboration", message_builder(tc, decl_env, get_global_ios(), file_name, header_pos, INFORMATION),
-                        opts, mlocal_pp_name(fn));
-            std::tie(val, type) = elab.elaborate_with_type(val0, mk_as_is(mlocal_type(fn)));
+                        opts, local_pp_name(fn));
+            std::tie(val, type) = elab.elaborate_with_type(val0, mk_as_is(local_type(fn)));
         }
 
         if (is_equations_result(val))
@@ -657,7 +657,7 @@ static expr elaborate_proof(
         finalize_theorem_proof(elab, params, val, finfo);
         if (is_rfl_lemma && !lean::is_rfl_lemma(final_type, val))
             throw exception("not a rfl-lemma, even though marked as rfl");
-        return inline_new_defs(decl_env, elab.env(), mlocal_pp_name(fn), val);
+        return inline_new_defs(decl_env, elab.env(), local_pp_name(fn), val);
     } catch (exception & ex) {
         /* Remark: we need the catch to be able to produce correct line information */
         message_builder(tc, decl_env, get_global_ios(), file_name, header_pos, ERROR)
@@ -686,7 +686,7 @@ static void check_example(environment const & decl_env, options const & opts,
         elaborator elab(decl_env, opts, decl_name, mctx, lctx, recover_from_errors);
 
         expr val, type;
-        std::tie(val, type) = elab.elaborate_with_type(val0, mlocal_type(fn));
+        std::tie(val, type) = elab.elaborate_with_type(val0, local_type(fn));
         buffer<expr> params_buf; for (auto & p : params) params_buf.push_back(p);
         buffer<name> univ_params_buf; to_buffer(univ_params, univ_params_buf);
         finalize_definition(elab, params_buf, type, val, univ_params_buf);
@@ -737,7 +737,7 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
 
     auto begin_pos = p.cmd_pos();
     auto end_pos = p.pos();
-    scope_log_tree lt(logtree().mk_child({}, (get_namespace(env) + mlocal_pp_name(fn)).to_string(),
+    scope_log_tree lt(logtree().mk_child({}, (get_namespace(env) + local_pp_name(fn)).to_string(),
                                          {logtree().get_location().m_file_name, {begin_pos, end_pos}}));
 
     // skip elaboration of definitions during reparsing
@@ -745,7 +745,7 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
         return p.env();
 
     bool recover_from_errors = true;
-    elaborator elab(env, p.get_options(), get_namespace(env) + mlocal_pp_name(fn), metavar_context(), local_context(), recover_from_errors);
+    elaborator elab(env, p.get_options(), get_namespace(env) + local_pp_name(fn), metavar_context(), local_context(), recover_from_errors);
     buffer<expr> new_params;
     elaborate_params(elab, params, new_params);
     elab.freeze_local_instances();
@@ -755,13 +755,13 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
         expr type;
         optional<expr> opt_val;
         bool eqns = false;
-        name c_name = mlocal_name(fn);
+        name c_name = local_name(fn);
         pair<environment, name> env_n;
         if (kind == decl_cmd_kind::Theorem) {
             is_rfl = is_rfl_preexpr(val);
-            type = elab.elaborate_type(mlocal_type(fn));
+            type = elab.elaborate_type(local_type(fn));
             elab.ensure_no_unassigned_metavars(type);
-            expr new_fn = update_mlocal(fn, type);
+            expr new_fn = update_local(fn, type);
             val = replace_local_preserving_pos_info(val, fn, new_fn);
             elaborator::theorem_finalization_info thm_finfo;
             finalize_theorem_type(elab, new_params, type, lp_names, thm_finfo);

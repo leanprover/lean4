@@ -69,17 +69,17 @@ bool is_placeholder(level const & e) { return is_param(e) && is_placeholder(para
 bool is_one_placeholder(level const & e) { return is_param(e) && param_id(e) == *g_placeholder_one_name; }
 
 bool is_placeholder(expr const & e) {
-    return (is_constant(e) && is_placeholder(const_name(e))) || (is_local(e) && is_placeholder(mlocal_name(e)));
+    return (is_constant(e) && is_placeholder(const_name(e))) || (is_local(e) && is_placeholder(local_name(e)));
 }
 bool is_strict_placeholder(expr const & e) {
-    return (is_constant(e) && is_strict_placeholder(const_name(e))) || (is_local(e) && is_strict_placeholder(mlocal_name(e)));
+    return (is_constant(e) && is_strict_placeholder(const_name(e))) || (is_local(e) && is_strict_placeholder(local_name(e)));
 }
 bool is_explicit_placeholder(expr const & e) {
-    return (is_constant(e) && is_explicit_placeholder(const_name(e))) || (is_local(e) && is_explicit_placeholder(mlocal_name(e)));
+    return (is_constant(e) && is_explicit_placeholder(const_name(e))) || (is_local(e) && is_explicit_placeholder(local_name(e)));
 }
 optional<expr> placeholder_type(expr const & e) {
     if (is_local(e) && is_placeholder(e))
-        return some_expr(mlocal_type(e));
+        return some_expr(local_type(e));
     else
         return none_expr();
 }

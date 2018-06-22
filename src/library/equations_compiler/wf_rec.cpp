@@ -166,7 +166,7 @@ struct wf_rec_fn {
             replace_visitor_with_tc(ctx), m_parent(parent), m_fn_name(fn_name), m_fn(fn), m_x(x), m_F(F) {}
 
         virtual expr visit_local(expr const & e) {
-            if (mlocal_name(e) == mlocal_name(m_fn)) {
+            if (local_name(e) == local_name(m_fn)) {
                 /* unexpected occurrence of recursive function */
                 throw generic_exception(e, "unexpected occurrence of recursive function\n");
             }
@@ -238,7 +238,7 @@ struct wf_rec_fn {
 
         virtual expr visit_app(expr const & e) {
             expr const & fn = app_fn(e);
-            if (is_local(fn) && mlocal_name(fn) == mlocal_name(m_fn)) {
+            if (is_local(fn) && local_name(fn) == local_name(m_fn)) {
                 expr y   = visit(app_arg(e));
                 expr hlt = mk_dec_proof(y, e);
                 return mk_app(m_F, y, hlt);

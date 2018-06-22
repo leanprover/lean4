@@ -14,7 +14,7 @@ expr apply(expr const & e, hsubstitution const & s) {
     return replace(e, [&](expr const & e, unsigned) {
             if (!has_local(e)) return some_expr(e);
             if (is_local(e)) {
-                if (auto r = s.find(mlocal_name(e)))
+                if (auto r = s.find(local_name(e)))
                     return some_expr(*r);
             }
             return none_expr();

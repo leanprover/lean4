@@ -22,7 +22,7 @@ head_index::head_index(expr const & e) {
     if (is_constant(f))
         m_name = const_name(f);
     else if (is_local(f))
-        m_name = mlocal_name(f);
+        m_name = local_name(f);
 }
 
 int head_index::cmp::operator()(head_index const & i1, head_index const & i2) const {

@@ -48,13 +48,13 @@ unsigned to_meta_idx(level const & l) {
 bool is_idx_metavar(expr const & e) {
     if (!is_metavar(e))
         return false;
-    name const & n = mlocal_name(e);
+    name const & n = mvar_name(e);
     return !n.is_atomic() && n.is_numeral() && n.get_prefix() == *g_tmp_prefix;
 }
 
 unsigned to_meta_idx(expr const & e) {
     lean_assert(is_idx_metavar(e));
-    return mlocal_name(e).get_numeral().get_small_value();
+    return mvar_name(e).get_numeral().get_small_value();
 }
 
 bool has_idx_metauniv(level const & l) {

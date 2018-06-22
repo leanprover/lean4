@@ -23,7 +23,7 @@ bool is_metavar_decl_ref(level const & u) {
 }
 
 bool is_metavar_decl_ref(expr const & e) {
-    return is_metavar(e) && mlocal_type(e) == *g_dummy_type;
+    return is_mvar(e) && mvar_type(e) == *g_dummy_type;
 }
 
 name get_metavar_decl_ref_suffix(level const & u) {
@@ -33,7 +33,7 @@ name get_metavar_decl_ref_suffix(level const & u) {
 
 name get_metavar_decl_ref_suffix(expr const & e) {
     lean_assert(is_metavar_decl_ref(e));
-    return mlocal_name(e).replace_prefix(*g_meta_prefix, name());
+    return mvar_name(e).replace_prefix(*g_meta_prefix, name());
 }
 
 // TODO(Leo): fix this
@@ -55,14 +55,14 @@ expr metavar_context::mk_metavar_decl(name const & user_name, local_context cons
 
 optional<metavar_decl> metavar_context::find_metavar_decl(expr const & e) const {
     lean_assert(is_metavar_decl_ref(e));
-    if (auto r = m_decls.find(mlocal_name(e)))
+    if (auto r = m_decls.find(mvar_name(e)))
         return optional<metavar_decl>(*r);
     else
         return optional<metavar_decl>();
 }
 
 metavar_decl const & metavar_context::get_metavar_decl(expr const & e) const {
-    if (auto r = m_decls.find(mlocal_name(e)))
+    if (auto r = m_decls.find(mvar_name(e)))
         return *r;
     else
         throw exception("unknown metavariable");
@@ -88,11 +88,11 @@ void metavar_context::assign(level const & u, level const & l) {
 
 void metavar_context::assign(expr const & e, expr const & v) {
     lean_assert(!is_delayed_assigned(e));
-    m_eassignment.insert(mlocal_name(e), v);
+    m_eassignment.insert(mvar_name(e), v);
 }
 
 void metavar_context::assign(expr const & e, local_context const & lctx, list<expr> const & locals, expr const & v) {
-    m_dassignment.insert(mlocal_name(e), delayed_assignment(lctx, locals, v));
+    m_dassignment.insert(mvar_name(e), delayed_assignment(lctx, locals, v));
 }
 
 optional<level> metavar_context::get_assignment(level const & l) const {
@@ -105,7 +105,7 @@ optional<level> metavar_context::get_assignment(level const & l) const {
 
 optional<expr> metavar_context::get_assignment(expr const & e) const {
     lean_assert(is_metavar_decl_ref(e));
-    if (auto v = m_eassignment.find(mlocal_name(e)))
+    if (auto v = m_eassignment.find(mvar_name(e)))
         return some_expr(*v);
     else
         return none_expr();
@@ -113,7 +113,7 @@ optional<expr> metavar_context::get_assignment(expr const & e) const {
 
 optional<metavar_context::delayed_assignment> metavar_context::get_delayed_assignment(expr const & e) const {
     lean_assert(is_metavar_decl_ref(e));
-    if (auto v = m_dassignment.find(mlocal_name(e)))
+    if (auto v = m_dassignment.find(mvar_name(e)))
         return optional<delayed_assignment>(*v);
     else
         return optional<delayed_assignment>();
@@ -138,19 +138,19 @@ struct metavar_context::interface_impl {
         optional<delayed_assignment> d = m_ctx.get_delayed_assignment(e);
         if (!d)
             return none_expr();
-        if (m_delayed_found.contains(mlocal_name(e)))
+        if (m_delayed_found.contains(mvar_name(e)))
             return none_expr();
         /* Remark: a delayed assignment can be transformed in a regular assignment
            as soon as all metavariables occurring in the assigned value have
            been assigned. */
         expr new_v = m_ctx.instantiate_mvars(d->m_val);
         if (has_expr_metavar(new_v)) {
-            m_delayed_found.insert(mlocal_name(e));
+            m_delayed_found.insert(mvar_name(e));
             if (!is_eqp(new_v, d->m_val))
                 m_ctx.assign(e, d->m_lctx, d->m_locals, new_v);
             return none_expr();
         } else {
-            m_ctx.m_dassignment.erase(mlocal_name(e));
+            m_ctx.m_dassignment.erase(mvar_name(e));
             buffer<expr> locals;
             to_buffer(d->m_locals, locals);
             new_v = abstract(new_v, locals.size(), locals.data());
@@ -212,7 +212,7 @@ void metavar_context::instantiate_mvars_at_type_of(expr const & m) {
     expr type      = d.get_type();
     expr new_type  = instantiate_mvars(type);
     if (new_type != type) {
-        m_decls.insert(mlocal_name(m), metavar_decl(d.get_user_name(), d.get_context(), new_type));
+        m_decls.insert(mvar_name(m), metavar_decl(d.get_user_name(), d.get_context(), new_type));
     }
 }
 

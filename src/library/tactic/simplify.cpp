@@ -148,9 +148,9 @@ simp_lemmas simplify_core_fn::add_to_slss(simp_lemmas const & _slss, buffer<expr
     for (unsigned i = 0; i < ls.size(); i++) {
         expr const & l = ls[i];
         try {
-            slss = add(m_ctx, slss, mlocal_name(l), m_ctx.infer(l), l, LEAN_DEFAULT_PRIORITY);
+            slss = add(m_ctx, slss, local_name(l), m_ctx.infer(l), l, LEAN_DEFAULT_PRIORITY);
             lean_simp_trace(m_ctx, name({"simplify", "context"}),
-                            tout() << mlocal_name(l) << " : " << m_ctx.infer(l) << "\n";);
+                            tout() << local_name(l) << " : " << m_ctx.infer(l) << "\n";);
         } catch (exception & e) {}
     }
     return slss;

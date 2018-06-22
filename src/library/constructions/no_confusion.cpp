@@ -98,9 +98,9 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
                 for (unsigned i = 0; i < minor1_args.size(); i++) {
                     expr lhs      = minor1_args[i];
                     expr rhs      = minor2_args[i];
-                    expr lhs_type = mlocal_type(lhs);
+                    expr lhs_type = local_type(lhs);
                     if (!tc.is_prop(lhs_type)) {
-                        expr rhs_type = mlocal_type(rhs);
+                        expr rhs_type = local_type(rhs);
                         level l       = sort_level(tc.ensure_type(lhs_type));
                         expr h_type;
                         if (tc.is_def_eq(lhs_type, rhs_type)) {
@@ -108,7 +108,7 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
                         } else {
                             h_type = mk_app(mk_constant(get_heq_name(), levels(l)), lhs_type, lhs, rhs_type, rhs);
                         }
-                        rtype_hyp.push_back(mk_local(ngen.next(), mlocal_pp_name(lhs).append_after("_eq"), h_type, mk_binder_info()));
+                        rtype_hyp.push_back(mk_local(ngen.next(), local_pp_name(lhs).append_after("_eq"), h_type, mk_binder_info()));
                     }
                 }
                 inner_cases_on_args.push_back(Fun(minor2_args, mk_arrow(Pi(rtype_hyp, P), Pres)));
@@ -155,7 +155,7 @@ environment mk_no_confusion(environment const & env, name const & n) {
     expr P            = args[args.size()-3];
     expr v1           = args[args.size()-2];
     expr v2           = args[args.size()-1];
-    expr v_type       = mlocal_type(v1);
+    expr v_type       = local_type(v1);
     level v_lvl       = sort_level(tc.ensure_type(v_type));
     expr eq_v         = mk_app(mk_constant(get_eq_name(), levels(v_lvl)), v_type);
     expr H12          = mk_local(ngen.next(), "h12", mk_app(eq_v, v1, v2), mk_binder_info());
@@ -195,7 +195,7 @@ environment mk_no_confusion(environment const & env, name const & n) {
         expr minor = to_telescope(tc, binding_domain(cot), minor_args);
         lean_assert(!minor_args.empty());
         expr H  = minor_args.back();
-        expr Ht = mlocal_type(H);
+        expr Ht = local_type(H);
         buffer<expr> refl_args;
         while (is_pi(Ht)) {
             buffer<expr> eq_args;

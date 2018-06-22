@@ -145,7 +145,7 @@ struct cases_tactic_fn {
             if (!is_local(args[i]))
                 return false; // the indices must be local constants
             for (unsigned j = 0; j < i; j++) {
-                if (is_local(args[j]) && mlocal_name(args[j]) == mlocal_name(args[i]))
+                if (is_local(args[j]) && local_name(args[j]) == local_name(args[i]))
                     return false; // the indices must be distinct local constants
             }
         }
@@ -231,7 +231,7 @@ struct cases_tactic_fn {
             expr const & index = I_args[i];
             add_eq(index, t);
         }
-        name h_new_name = mlocal_pp_name(h);
+        name h_new_name = local_pp_name(h);
         expr h_new      = ctx.push_local(h_new_name, h_new_type);
         add_eq(h, h_new);
         /* aux_type is  Pi (j' : J) (h' : I A j'), j == j' -> h == h' -> T */
@@ -270,7 +270,7 @@ struct cases_tactic_fn {
                 removed.insert(idx_name);
                 if (auto ridx = subst.find(idx_name)) {
                     lean_assert(is_local(*ridx));
-                    name new_name = mlocal_name(*ridx);
+                    name new_name = local_name(*ridx);
                     subst.erase(idx_name);
                     idx_name = new_name;
                 }
@@ -280,7 +280,7 @@ struct cases_tactic_fn {
             hsubstitution new_subst;
             subst.for_each([&](name const & from, expr const & to) {
                     lean_assert(is_local(to));
-                    if (!removed.contains(mlocal_name(to)))
+                    if (!removed.contains(local_name(to)))
                         new_subst.insert(from, to);
                 });
             new_goals.push_back(mvar);

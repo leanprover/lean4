@@ -109,11 +109,11 @@ expr subst(environment const & env, options const & opts, transparency_mode cons
         local_context lctx = mctx.get_metavar_decl(*mvar6).get_context();
         hsubstitution new_subst;
         for (unsigned i = 0; i < to_revert.size() - 2; i++) {
-            lean_assert(check_hypothesis_in_context(mctx, mvar, mlocal_name(to_revert[i+2])));
+            lean_assert(check_hypothesis_in_context(mctx, mvar, local_name(to_revert[i+2])));
             lean_assert(check_hypothesis_in_context(mctx, *mvar6, new_Hnames[i]));
-            new_subst.insert(mlocal_name(to_revert[i+2]), lctx.get_local(new_Hnames[i]));
+            new_subst.insert(local_name(to_revert[i+2]), lctx.get_local(new_Hnames[i]));
         }
-        new_subst.insert(mlocal_name(init_lhs), apply(rhs, new_subst));
+        new_subst.insert(local_name(init_lhs), apply(rhs, new_subst));
         *subst = new_subst;
     }
     lean_subst_trace_state(*mvar6, "after intro remaining reverted hypotheses:\n");
@@ -142,7 +142,7 @@ vm_obj tactic_subst(expr const & l, tactic_state const & s) {
         return tactic::mk_exception(sstream() << "subst tactic failed, given expression is not a local constant", s);
     optional<local_decl> d     = lctx.find_local_decl(l);
     if (!d)
-        return tactic::mk_exception(sstream() << "subst tactic failed, unknown '" << mlocal_pp_name(l) << "' hypothesis", s);
+        return tactic::mk_exception(sstream() << "subst tactic failed, unknown '" << local_pp_name(l) << "' hypothesis", s);
     expr type = mctx.instantiate_mvars(d->get_type());
     expr lhs, rhs;
     if (is_eq(type, lhs, rhs)) {
@@ -152,7 +152,7 @@ vm_obj tactic_subst(expr const & l, tactic_state const & s) {
             return tactic_subst_core(d->get_name(), false, s);
         } else {
             return tactic::mk_exception(sstream() << "subst tactic failed, hypothesis '"
-                                        << mlocal_pp_name(l) << "' is not of the form (x = t) or (t = x)", s);
+                                        << local_pp_name(l) << "' is not of the form (x = t) or (t = x)", s);
         }
     } else {
         bool found = false;
@@ -162,10 +162,10 @@ vm_obj tactic_subst(expr const & l, tactic_state const & s) {
                 expr lhs, rhs;
                 expr type = mctx.instantiate_mvars(d2.get_type());
                 if (is_eq(type, lhs, rhs)) {
-                    if (is_local(lhs) && mlocal_name(lhs) == d->get_name() && !depends_on(rhs, mctx, lctx, lhs)) {
+                    if (is_local(lhs) && local_name(lhs) == d->get_name() && !depends_on(rhs, mctx, lctx, lhs)) {
                         found = true;
                         r     = tactic_subst_core(d2.get_name(), false, s);
-                    } else if (is_local(rhs) && mlocal_name(rhs) == d->get_name() && !depends_on(lhs, mctx, lctx, rhs)) {
+                    } else if (is_local(rhs) && local_name(rhs) == d->get_name() && !depends_on(lhs, mctx, lctx, rhs)) {
                         found = true;
                         r     = tactic_subst_core(d2.get_name(), true, s);
                     }
@@ -175,7 +175,7 @@ vm_obj tactic_subst(expr const & l, tactic_state const & s) {
             return r;
         } else {
             return tactic::mk_exception(sstream() << "subst tactic failed, hypothesis '"
-                                       << mlocal_pp_name(l) << "' is not a variable nor an equation of the form (x = t) or (t = x)", s);
+                                       << local_pp_name(l) << "' is not a variable nor an equation of the form (x = t) or (t = x)", s);
         }
     }
 }

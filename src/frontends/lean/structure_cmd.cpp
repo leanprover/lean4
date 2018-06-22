@@ -251,8 +251,8 @@ struct structure_cmd_fn {
                 m_local(local), m_default_val(default_val), m_kind(kind), m_infer_kind(infer_kind),
                 m_has_new_default(default_val && kind == field_kind::new_field) {}
 
-        name const & get_name() const { return mlocal_name(m_local); }
-        expr const & get_type() const { return mlocal_type(m_local); }
+        name const & get_name() const { return local_name(m_local); }
+        expr const & get_type() const { return local_type(m_local); }
     };
 
     parser &                    m_p;
@@ -518,7 +518,7 @@ struct structure_cmd_fn {
 
     expr elaborate_local(bool as_is, expr & local, unsigned, expr const & tmp, tele_elab elab) {
         expr new_tmp   = elab(as_is ? Pi_as_is(local, tmp) : Pi(local, tmp));
-        expr new_local = update_mlocal(local, binding_domain(new_tmp));
+        expr new_local = update_local(local, binding_domain(new_tmp));
         local          = new_local;
         return instantiate(binding_body(new_tmp), new_local);
     }
@@ -900,12 +900,12 @@ struct structure_cmd_fn {
         auto const & value = decl.m_default_val;
         if (value && (!decl.m_has_new_default || is_placeholder(decl.get_type()))) {
             new_tmp = elab(mk_let(decl.get_name(), type, *value, abstract(tmp, decl.m_local)));
-            decl.m_local = update_mlocal(decl.m_local, let_type(new_tmp));
+            decl.m_local = update_local(decl.m_local, let_type(new_tmp));
             decl.m_default_val = let_value(new_tmp);
             new_tmp = instantiate(let_body(new_tmp), m_subobjects ? let_value(new_tmp) : decl.m_local);
         } else if (!value || decl.m_kind == field_kind::new_field) {
             new_tmp = elab(Pi(decl.m_local, tmp));
-            decl.m_local = update_mlocal(decl.m_local, binding_domain(new_tmp));
+            decl.m_local = update_local(decl.m_local, binding_domain(new_tmp));
             new_tmp = instantiate(binding_body(new_tmp), decl.m_local);
         } else {
             new_tmp = elab(tmp);
@@ -1092,7 +1092,7 @@ struct structure_cmd_fn {
         buffer<implicit_infer_kind> infer_kinds;
         for (field_decl const & field : m_fields) {
             if (!m_subobjects || field.m_kind != field_kind::from_parent) {
-                proj_names.push_back(m_name + mlocal_name(field.m_local));
+                proj_names.push_back(m_name + local_name(field.m_local));
                 infer_kinds.push_back(
                         field.m_infer_kind != implicit_infer_kind::Implicit ? field.m_infer_kind : m_mk_infer);
             }
@@ -1104,7 +1104,7 @@ struct structure_cmd_fn {
 
     bool is_param(expr const & local) {
         for (auto const & param : m_params) {
-            if (mlocal_name(param) == mlocal_name(local))
+            if (local_name(param) == local_name(local))
                 return true;
         }
         return false;

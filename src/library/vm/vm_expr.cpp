@@ -158,11 +158,11 @@ unsigned expr_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
         data.push_back(to_obj(const_levels(e)));
         break;
     case expr_kind::MVar:
-        data.push_back(to_obj(mlocal_name(e)));
-        data.push_back(to_obj(mlocal_type(e)));
+        data.push_back(to_obj(mvar_name(e)));
+        data.push_back(to_obj(mvar_type(e)));
         break;
     case expr_kind::FVar:
-        data.push_back(to_obj(mlocal_name(e)));
+        data.push_back(to_obj(fvar_name(e)));
         break;
     case expr_kind::App:
         data.push_back(to_obj(app_fn(e)));

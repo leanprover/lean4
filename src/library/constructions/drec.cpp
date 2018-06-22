@@ -83,8 +83,8 @@ struct mk_drec_fn {
     expr mk_motive() {
         // Construct motive
         expr rec_motive = rec_params[num_params];
-        name C_name     = mlocal_name(rec_motive);
-        expr rec_motive_type = mlocal_type(rec_motive);
+        name C_name     = local_name(rec_motive);
+        expr rec_motive_type = local_type(rec_motive);
         buffer<expr> motive_params;
         while (is_pi(rec_motive_type)) {
             expr local = mk_local_from_binding(rec_motive_type);
@@ -94,7 +94,7 @@ struct mk_drec_fn {
         expr new_param_type  = mk_app(mk_app(mk_constant(I, I_lvls), num_params, rec_params.data()), motive_params);
         expr new_param       = mk_local(ngen.next(), "h", new_param_type, mk_binder_info());
         expr new_motive_type = Pi(motive_params, Pi(new_param, rec_motive_type));
-        expr new_motive      = update_mlocal(rec_motive, new_motive_type);
+        expr new_motive      = update_local(rec_motive, new_motive_type);
         expr motive_arg      = Fun(motive_params, Pi(new_param, mk_app(mk_app(new_motive, motive_params), new_param)));
         drec_params.push_back(new_motive);
         rec_args.push_back(motive_arg);
@@ -110,7 +110,7 @@ struct mk_drec_fn {
             get_constructor_rec_arg_mask(env, ir_name, rec_mask);
             unsigned num_fields = rec_mask.size() - num_params;
             expr const & minor  = rec_params[i];
-            expr minor_type     = mlocal_type(minor);
+            expr minor_type     = local_type(minor);
             buffer<expr> new_minor_params;
             buffer<expr> recursive_params;
             buffer<expr> app_params;
@@ -129,7 +129,7 @@ struct mk_drec_fn {
                     // inductive hypothesis
                     lean_assert(j - num_fields < recursive_params.size());
                     expr const & recursive_param = recursive_params[j - num_fields];
-                    expr ih_type = mlocal_type(local);
+                    expr ih_type = local_type(local);
                     buffer<expr> ih_params;
                     while (is_pi(ih_type)) {
                         expr ih_param = mk_local_from_binding(ih_type);
@@ -142,16 +142,16 @@ struct mk_drec_fn {
                     if (kind != drec_kind::DCasesOn) {
                         expr new_C       = mk_app(new_C_pre, mk_app(recursive_param, ih_params));
                         expr new_ih_type = Pi(ih_params, new_C);
-                        expr new_ih      = update_mlocal(local, new_ih_type);
+                        expr new_ih      = update_local(local, new_ih_type);
                         new_minor_params.push_back(new_ih);
                     }
-                    expr h_type = mlocal_type(recursive_param);
+                    expr h_type = local_type(recursive_param);
                     while (is_pi(h_type))
                         h_type = binding_body(h_type);
                     h_type = instantiate_rev(h_type, ih_params);
                     expr h           = mk_local(ngen.next(), "_h", h_type, mk_binder_info());
                     expr app_ih_type = Pi(ih_params, Pi(h, mk_app(new_C_pre, h)));
-                    expr app_ih      = update_mlocal(local, app_ih_type);
+                    expr app_ih      = update_local(local, app_ih_type);
                     app_params.push_back(app_ih);
                     if (kind != drec_kind::DCasesOn) {
                         app_args.push_back(Fun(ih_params, mk_app(mk_app(app_ih, ih_params),
@@ -170,7 +170,7 @@ struct mk_drec_fn {
             new_C_args.push_back(constructor_app);
             expr new_C = mk_app(motive, new_C_args);
             expr new_minor_type  = Pi(new_minor_params, new_C);
-            expr new_minor       = update_mlocal(minor, new_minor_type);
+            expr new_minor       = update_local(minor, new_minor_type);
             drec_params.push_back(new_minor);
             expr _h_type         = tc.infer(constructor_app);
             expr _h              = mk_local(ngen.next(), "_", _h_type, mk_binder_info());

@@ -88,14 +88,13 @@ class expr_eq_fn {
                 compare(const_levels(a), const_levels(b), [](level const & l1, level const & l2) { return l1 == l2; });
         case expr_kind::MVar:
             return
-                mlocal_name(a) == mlocal_name(b) &&
-                apply(mlocal_type(a), mlocal_type(b)) &&
-                (!CompareBinderInfo || mlocal_pp_name(a) == mlocal_pp_name(b));
+                mvar_name(a) == mvar_name(b) &&
+                apply(mvar_type(a), mvar_type(b));
         case expr_kind::FVar:
             return
-                mlocal_name(a) == mlocal_name(b) &&
-                apply(mlocal_type(a), mlocal_type(b)) &&
-                (!CompareBinderInfo || mlocal_pp_name(a) == mlocal_pp_name(b)) &&
+                local_name(a) == local_name(b) &&
+                apply(local_type(a), local_type(b)) &&
+                (!CompareBinderInfo || local_pp_name(a) == local_pp_name(b)) &&
                 (!CompareBinderInfo || local_info(a) == local_info(b));
         case expr_kind::App:
             check_system();

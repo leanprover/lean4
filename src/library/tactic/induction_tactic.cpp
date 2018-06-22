@@ -133,9 +133,9 @@ list<expr> induction(environment const & env, options const & opts, transparency
     lean_assert(g);
     optional<name> H_name;
     if (is_local(H) &&
-        !is_internal_name(mlocal_pp_name(H)) && !is_fresh_name(mlocal_pp_name(H)) &&
+        !is_internal_name(local_pp_name(H)) && !is_fresh_name(local_pp_name(H)) &&
         opts.get_bool(*g_induction_concat, true)) {
-        H_name = mlocal_pp_name(H);
+        H_name = local_pp_name(H);
     }
     recursor_info rec_info = get_recursor_info(env, rec_name);
 
@@ -160,7 +160,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
             throw_invalid_major_premise_type(pos+1, H_type, "is not a variable");
         }
         for (unsigned i = 0; i < H_type_args.size(); i++) {
-            if (i != pos && is_local(H_type_args[i]) && mlocal_name(H_type_args[i]) == mlocal_name(idx)) {
+            if (i != pos && is_local(H_type_args[i]) && local_name(H_type_args[i]) == local_name(idx)) {
                 throw_invalid_major_premise_type(pos+1, H_type, "is an index, but it occurs more than once");
             }
             if (i < pos && depends_on(H_type_args[i], idx)) {
@@ -169,7 +169,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
             if (i > pos && // occurs after idx
                 std::find(idx_pos.begin(), idx_pos.end(), i) != idx_pos.end() && // it is also an index
                 is_local(H_type_args[i]) && // if it is not an index, it will fail anyway.
-                depends_on(mlocal_type(idx), H_type_args[i])) {
+                depends_on(local_type(idx), H_type_args[i])) {
                 throw_invalid_major_premise_type(pos+1, H_type,
                                                  sstream() << "is an index, but its type depends on index at position #" << i+1);
             }
@@ -198,7 +198,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
         local_context lctx = mctx.get_metavar_decl(*mvar2).get_context();
         /* store old index name -> new index name */
         for (unsigned i = 0; i < indices.size(); i++) {
-            base_subst.insert(mlocal_name(indices[i]), lctx.get_local(indices_H[i]));
+            base_subst.insert(local_name(indices[i]), lctx.get_local(indices_H[i]));
         }
     }
     optional<metavar_decl> g2 = mctx.find_metavar_decl(*mvar2);
@@ -329,7 +329,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
                     hsubstitution S = base_subst;
                     lean_assert(extra_names.size() == nextra);
                     for (unsigned i = indices.size() + 1, j = 0; i < to_revert.size(); i++, j++) {
-                        S.insert(mlocal_name(to_revert[i]), aux_M_lctx.get_local(extra_names[j]));
+                        S.insert(local_name(to_revert[i]), aux_M_lctx.get_local(extra_names[j]));
                     }
                     subst_buffer.push_back(S);
                 }

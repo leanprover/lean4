@@ -290,12 +290,12 @@ expr pretty_fn::purify(expr const & e) {
     return replace(e, [&](expr const & e, unsigned) {
             if (!has_expr_metavar(e) && !has_local(e) && (!m_universes || !has_univ_metavar(e))) {
                 return some_expr(e);
-            } else if (m_purify_metavars && is_metavar_decl_ref(e) && mlocal_name(e) == mlocal_pp_name(e)) {
-                return some_expr(mk_metavar(mk_metavar_name(mlocal_name(e), "m"), infer_type(e)));
-            } else if (m_purify_metavars && is_metavar(e) && mlocal_name(e) == mlocal_pp_name(e) && !is_idx_metavar(e)) {
-                return some_expr(mk_metavar(mk_metavar_name(mlocal_name(e)), infer_type(e)));
+            } else if (m_purify_metavars && is_metavar_decl_ref(e)) {
+                return some_expr(mk_metavar(mk_metavar_name(mvar_name(e), "m"), infer_type(e)));
+            } else if (m_purify_metavars && is_metavar(e) && !is_idx_metavar(e)) {
+                return some_expr(mk_metavar(mk_metavar_name(mvar_name(e)), infer_type(e)));
             } else if (is_local(e)) {
-                return some_expr(mk_local(mlocal_name(e), mk_local_name(mlocal_name(e), mlocal_pp_name(e)),
+                return some_expr(mk_local(local_name(e), mk_local_name(local_name(e), local_pp_name(e)),
                                           infer_type(e), local_info(e)));
             } else if (is_constant(e)) {
                 return some_expr(update_constant(e, map(const_levels(e), [&](level const & l) { return purify(l); })));
@@ -511,7 +511,7 @@ static local_ref_kind check_local_ref(environment const & env, expr const & e, u
     for (unsigned i = 0; i < e_args.size(); i++) {
         expr e_arg   = e_args[i];
         expr ref_arg = consume_ref_annotations(ref_args[i]);
-        if (!is_local(e_arg) || !is_local(ref_arg) || mlocal_pp_name(e_arg) != mlocal_pp_name(ref_arg))
+        if (!is_local(e_arg) || !is_local(ref_arg) || local_pp_name(e_arg) != local_pp_name(ref_arg))
             return OverridenLocalRef;
     }
     num_ref_univ_params = length(const_levels(ref_fn));
@@ -750,24 +750,22 @@ auto pretty_fn::pp_const(expr const & e, optional<unsigned> const & num_ref_univ
 }
 
 auto pretty_fn::pp_meta(expr const & e) -> result {
-    if (mlocal_name(e) != mlocal_pp_name(e)) {
-        return result(format(mlocal_pp_name(e)));
-    } else if (is_idx_metavar(e)) {
+    if (is_idx_metavar(e)) {
         return result(format((sstream() << "?x_" << to_meta_idx(e)).str()));
     } else if (is_metavar_decl_ref(e) && !m_purify_metavars) {
         return result(format((sstream() << "?m_" << get_metavar_decl_ref_suffix(e)).str()));
     } else if (m_purify_metavars) {
-        return result(compose(format("?"), format(mlocal_name(e))));
+        return result(compose(format("?"), format(mvar_name(e))));
     } else {
-        return result(compose(format("?M."), format(mlocal_name(e))));
+        return result(compose(format("?M."), format(mvar_name(e))));
     }
 }
 
 auto pretty_fn::pp_local(expr const & e) -> result {
-    name n = sanitize_if_fresh(mlocal_pp_name(e));
+    name n = sanitize_if_fresh(local_pp_name(e));
     n = sanitize_name_generator_name(n);
     if (m_locals_full_names)
-        return result(format("<") + format(n + mlocal_name(e)) + format(">"));
+        return result(format("<") + format(n + local_name(e)) + format(">"));
     else
         return format(escape(n));
 }
@@ -899,10 +897,10 @@ format pretty_fn::pp_binder(expr const & local) {
     auto bi = local_info(local);
     if (!is_default(bi))
         r += format(open_binder_string(bi, m_unicode));
-    r += escape(mlocal_pp_name(local));
+    r += escape(local_pp_name(local));
     if (m_binder_types) {
         r += space();
-        r += compose(colon(), nest(m_indent, compose(line(), pp_child(mlocal_type(local), 0).fmt())));
+        r += compose(colon(), nest(m_indent, compose(line(), pp_child(local_type(local), 0).fmt())));
     }
     if (!is_default(bi))
         r += format(close_binder_string(bi, m_unicode));
@@ -929,20 +927,20 @@ format pretty_fn::pp_binders(buffer<expr> const & locals) {
     unsigned num     = locals.size();
     buffer<name> names;
     expr local       = locals[0];
-    expr   type      = mlocal_type(local);
+    expr   type      = local_type(local);
     binder_info bi   = local_info(local);
-    names.push_back(mlocal_pp_name(local));
+    names.push_back(local_pp_name(local));
     format r;
     for (unsigned i = 1; i < num; i++) {
         expr local = locals[i];
-        if (!is_inst_implicit(bi) && mlocal_type(local) == type && local_info(local) == bi) {
-            names.push_back(mlocal_pp_name(local));
+        if (!is_inst_implicit(bi) && local_type(local) == type && local_info(local) == bi) {
+            names.push_back(local_pp_name(local));
         } else {
             r += group(compose(line(), pp_binder_block(names, type, bi)));
             names.clear();
-            type = mlocal_type(local);
+            type = local_type(local);
             bi   = local_info(local);
-            names.push_back(mlocal_pp_name(local));
+            names.push_back(local_pp_name(local));
         }
     }
     r += group(compose(line(), pp_binder_block(names, type, bi)));
@@ -1010,8 +1008,8 @@ auto pretty_fn::pp_have(expr const & e) -> result {
     auto p       = binding_body_fresh(binding, true);
     expr local   = p.second;
     expr body    = p.first;
-    name const & n = mlocal_pp_name(local);
-    format type_fmt  = pp_child(mlocal_type(local), 0).fmt();
+    name const & n = local_pp_name(local);
+    format type_fmt  = pp_child(local_type(local), 0).fmt();
     format proof_fmt = pp_child(proof, 0).fmt();
     format body_fmt  = pp_child(body, 0).fmt();
     format head_fmt  = *g_have_fmt;
@@ -1076,14 +1074,14 @@ auto pretty_fn::pp_equations(expr const & e) -> optional<result> {
         }
         r += line();
     } else {
-        r = format("def") + space() + pp(fns[0]).fmt() + space() + colon() + space() + pp(mlocal_type(fns[0])).fmt();
+        r = format("def") + space() + pp(fns[0]).fmt() + space() + colon() + space() + pp(local_type(fns[0])).fmt();
     }
     unsigned eqnidx = 0;
     for (unsigned fidx = 0; fidx < num_fns; fidx++) {
         if (num_fns > 1) {
             if (fidx > 0) r += line();
             r += format("with") + space() + pp(fns[fidx]).fmt() + space() + colon() +
-                space() + pp(mlocal_type(fns[fidx])).fmt();
+                space() + pp(local_type(fns[fidx])).fmt();
         }
         if (eqnidx >= eqns.size()) return optional<result>();
         expr eqn = eqns[eqnidx];
@@ -1166,7 +1164,7 @@ auto pretty_fn::pp_let(expr e) -> result {
     for (unsigned i = 0; i < sz; i++) {
         expr l, t, v;
         std::tie(l, t, v) = decls[i];
-        name const & n = mlocal_pp_name(l);
+        name const & n = local_pp_name(l);
         format beg     = i == 0 ? space() : line();
         format sep     = i < sz - 1 ? comma() : format();
         format entry   = format(n);
@@ -1588,7 +1586,7 @@ auto pretty_fn::pp_subtype(expr const & e) -> result {
     auto p     = binding_body_fresh(pred, true);
     expr body  = p.first;
     expr local = p.second;
-    format r   = bracket("{", format(mlocal_pp_name(local)) + space() + format("//") + space() + pp_child(body, 0).fmt(), "}");
+    format r   = bracket("{", format(local_pp_name(local)) + space() + format("//") + space() + pp_child(body, 0).fmt(), "}");
     return result(r);
 }
 
@@ -1676,7 +1674,7 @@ auto pretty_fn::pp_sep(expr const & e) -> result {
     expr local = p.second;
     format in  = format(m_unicode ? "∈" : "in");
     format r   = bracket("{",
-                         format(mlocal_pp_name(local)) + space() + in + space() +
+                         format(local_pp_name(local)) + space() + in + space() +
                          pp_child(s, 0).fmt() + space() + format("|") + space() +
                          pp_child(body, 0).fmt(), "}");
     return result(r);

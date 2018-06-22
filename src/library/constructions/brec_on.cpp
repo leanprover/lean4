@@ -31,7 +31,7 @@ static optional<unsigned> is_typeformer_app(buffer<name> const & typeformer_name
         return optional<unsigned>();
     unsigned r = 0;
     for (name const & n : typeformer_names) {
-        if (mlocal_name(fn) == n)
+        if (local_name(fn) == n)
             return optional<unsigned>(r);
         r++;
     }
@@ -94,7 +94,7 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
         args.push_back(ref_args[i]);
     for (unsigned i = nparams; i < nparams + ntypeformers; i++) {
         args.push_back(ref_args[i]);
-        typeformer_names.push_back(mlocal_name(ref_args[i]));
+        typeformer_names.push_back(local_name(ref_args[i]));
     }
     // make motive explicit
     args[0] = update_local(args[0], {});
@@ -110,22 +110,22 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
     // add type formers
     for (unsigned i = nparams; i < nparams + ntypeformers; i++) {
         buffer<expr> targs;
-        to_telescope(mlocal_type(args[i]), targs);
+        to_telescope(local_type(args[i]), targs);
         rec = mk_app(rec, Fun(targs, Type_result));
     }
     // add minor premises
     for (unsigned i = nparams + ntypeformers; i < nparams + ntypeformers + nminors; i++) {
         expr minor = ref_args[i];
-        expr minor_type = mlocal_type(minor);
+        expr minor_type = local_type(minor);
         buffer<expr> minor_args;
         minor_type = to_telescope(minor_type, minor_args);
         buffer<expr> prod_pairs;
         for (expr & minor_arg : minor_args) {
             buffer<expr> minor_arg_args;
-            expr minor_arg_type = to_telescope(tc, mlocal_type(minor_arg), minor_arg_args);
+            expr minor_arg_type = to_telescope(tc, local_type(minor_arg), minor_arg_args);
             if (is_typeformer_app(typeformer_names, minor_arg_type)) {
-                expr fst  = mlocal_type(minor_arg);
-                minor_arg = update_mlocal(minor_arg, Pi(minor_arg_args, Type_result));
+                expr fst  = local_type(minor_arg);
+                minor_arg = update_local(minor_arg, Pi(minor_arg_args, Type_result));
                 expr snd = Pi(minor_arg_args, mk_app(minor_arg, minor_arg_args));
                 prod_pairs.push_back(mk_pprod(tc, fst, snd, ibelow));
             }
@@ -224,7 +224,7 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
         args.push_back(ref_args[i]);
     for (unsigned i = nparams; i < nparams + ntypeformers; i++) {
         args.push_back(ref_args[i]);
-        typeformer_names.push_back(mlocal_name(ref_args[i]));
+        typeformer_names.push_back(local_name(ref_args[i]));
     }
     // add indices and major premise
     for (unsigned i = nparams + ntypeformers + nminors; i < ref_args.size(); i++)
@@ -253,7 +253,7 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
     for (unsigned i = nparams, j = 0; i < nparams + ntypeformers; i++, j++) {
         expr const & C = ref_args[i];
         buffer<expr> F_args;
-        to_telescope(mlocal_type(C), F_args);
+        to_telescope(local_type(C), F_args);
         expr F_result = mk_app(C, F_args);
         expr F_below  = mk_app(belows[j], F_args);
         F_args.push_back(mk_local(ngen.next(), "f", F_below, mk_binder_info()));
@@ -273,7 +273,7 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
     for (unsigned i = nparams, j = 0; i < nparams + ntypeformers; i++, j++) {
         expr const & C = ref_args[i];
         buffer<expr> C_args;
-        to_telescope(mlocal_type(C), C_args);
+        to_telescope(local_type(C), C_args);
         expr C_t     = mk_app(C, C_args);
         expr below_t = mk_app(belows[j], C_args);
         expr prod    = mk_pprod(tc, C_t, below_t, ind);
@@ -282,18 +282,18 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
     // add minor premises to rec
     for (unsigned i = nparams + ntypeformers, j = 0; i < nparams + ntypeformers + nminors; i++, j++) {
         expr minor = ref_args[i];
-        expr minor_type = mlocal_type(minor);
+        expr minor_type = local_type(minor);
         buffer<expr> minor_args;
         minor_type = to_telescope(minor_type, minor_args);
         buffer<expr> pairs;
         for (expr & minor_arg : minor_args) {
             buffer<expr> minor_arg_args;
-            expr minor_arg_type = to_telescope(tc, mlocal_type(minor_arg), minor_arg_args);
+            expr minor_arg_type = to_telescope(tc, local_type(minor_arg), minor_arg_args);
             if (auto k = is_typeformer_app(typeformer_names, minor_arg_type)) {
                 buffer<expr> C_args;
                 get_app_args(minor_arg_type, C_args);
                 expr new_minor_arg_type = mk_pprod(tc, minor_arg_type, mk_app(belows[*k], C_args), ind);
-                minor_arg = update_mlocal(minor_arg, Pi(minor_arg_args, new_minor_arg_type));
+                minor_arg = update_local(minor_arg, Pi(minor_arg_args, new_minor_arg_type));
                 if (minor_arg_args.empty()) {
                     pairs.push_back(minor_arg);
                 } else {

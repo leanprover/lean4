@@ -486,7 +486,7 @@ void parser::add_local_expr(name const & n, expr const & p, bool is_variable) {
     m_local_decls.insert(n, p);
     if (is_variable) {
         lean_assert(is_local(p));
-        m_variables.insert(mlocal_name(p));
+        m_variables.insert(local_name(p));
     }
 }
 
@@ -516,7 +516,7 @@ static void check_no_metavars(name const & n, expr const & e) {
                 format r("failed to add declaration '");
                 r += format(n);
                 r += format("' to local context, type has metavariables");
-                r += pp_until_meta_visible(fmt, mlocal_type(e));
+                r += pp_until_meta_visible(fmt, mvar_type(e));
                 return r;
             });
     }
@@ -539,7 +539,7 @@ bool parser::is_local_decl(expr const & l) {
     lean_assert(is_local(l));
     // TODO(Leo): add a name_set with internal ids if this is a bottleneck
     for (pair<name, expr> const & p : m_local_decls.get_entries()) {
-        if (is_local(p.second) && mlocal_name(p.second) == mlocal_name(l))
+        if (is_local(p.second) && local_name(p.second) == local_name(l))
             return true;
     }
     return false;
@@ -565,11 +565,11 @@ bool parser::update_local_binder_info(name const & n, binder_info bi) {
 
     for (unsigned i = idx; i < entries.size(); i++) {
         expr const & curr_e = entries[i].second;
-        expr r = is_local(curr_e) ? mlocal_type(curr_e) : curr_e;
+        expr r = is_local(curr_e) ? local_type(curr_e) : curr_e;
         if (std::any_of(old_locals.begin(), old_locals.end(), [&](expr const & l) { return depends_on(r, l); })) {
             r  = replace_locals(r, old_locals, new_locals);
             if (is_local(curr_e)) {
-                expr new_e = update_mlocal(curr_e, r);
+                expr new_e = update_local(curr_e, r);
                 entries[i].second = new_e;
                 old_locals.push_back(curr_e);
                 new_locals.push_back(new_e);
@@ -1537,7 +1537,7 @@ struct to_pattern_fn {
     }
 
     void add_new_local(expr const & l) {
-        name const & n = mlocal_pp_name(l);
+        name const & n = local_pp_name(l);
         if (!n.is_atomic()) {
             return m_parser.maybe_throw_error({
                 "invalid pattern: variable, constructor or constant tagged as pattern expected",
@@ -1553,7 +1553,7 @@ struct to_pattern_fn {
     }
 
     void collect_new_local(expr const & e) {
-        name const & n = mlocal_pp_name(e);
+        name const & n = local_pp_name(e);
         bool resolve_only = true;
         expr new_e = m_parser.id_to_expr(n, m_parser.pos_of(e), resolve_only);
         if (is_as_atomic(new_e)) {
@@ -1635,7 +1635,7 @@ struct to_pattern_fn {
     expr to_expr(expr const & e) {
         return replace_propagating_pos(e, [&](expr const & e, unsigned) {
                 if (is_local(e)) {
-                    if (auto r = m_locals_map.find(mlocal_pp_name(e)))
+                    if (auto r = m_locals_map.find(local_pp_name(e)))
                         return some_expr(*r);
                     else
                         return some_expr(m_parser.patexpr_to_expr(e));
@@ -1680,7 +1680,7 @@ struct to_pattern_fn {
                 return mk_choice(new_args.size(), new_args.data());
             }
         } else if (is_local(e)) {
-            if (auto r = m_locals_map.find(mlocal_pp_name(e)))
+            if (auto r = m_locals_map.find(local_pp_name(e)))
                 return *r;
             else
                 return e;
@@ -1740,7 +1740,7 @@ static expr quote(expr const & e) {
         return mk_expr_placeholder();
     case expr_kind::FVar:
         throw elaborator_exception(e, sstream() << "invalid quotation, unexpected local constant '"
-                                   << mlocal_pp_name(e) << "'");
+                                   << local_pp_name(e) << "'");
     case expr_kind::App:
         if (is_metavar_app(e)) {
             /* Remark: metavariable applications of the form `?m x1 ... xn` may be introduced
@@ -1874,7 +1874,7 @@ class patexpr_to_expr_fn : public replace_visitor {
     }
 
     virtual expr visit_local(expr const & e) override {
-        return m_p.id_to_expr(mlocal_pp_name(e), m_p.pos_of(e), true, true, m_locals);
+        return m_p.id_to_expr(local_pp_name(e), m_p.pos_of(e), true, true, m_locals);
     }
 
 public:

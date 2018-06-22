@@ -99,13 +99,13 @@ public:
 
     expr mk_const(name const & n) const { return mk_constant(n, get_levels()); }
     expr mk_const_params(name const & n) const { return mk_app(mk_const(n), m_params); }
-    expr get_c_ind(unsigned ind_idx) const { return mk_const(mlocal_name(m_inds[ind_idx])); }
-    expr get_c_ind_params(unsigned ind_idx) const { return mk_const_params(mlocal_name(m_inds[ind_idx])); }
-    expr get_c_ir(unsigned ind_idx, unsigned ir_idx) const { return mk_const(mlocal_name(m_intro_rules[ind_idx][ir_idx])); }
-    expr get_c_ir_params(unsigned ind_idx, unsigned ir_idx) const { return mk_const_params(mlocal_name(m_intro_rules[ind_idx][ir_idx])); }
+    expr get_c_ind(unsigned ind_idx) const { return mk_const(local_name(m_inds[ind_idx])); }
+    expr get_c_ind_params(unsigned ind_idx) const { return mk_const_params(local_name(m_inds[ind_idx])); }
+    expr get_c_ir(unsigned ind_idx, unsigned ir_idx) const { return mk_const(local_name(m_intro_rules[ind_idx][ir_idx])); }
+    expr get_c_ir_params(unsigned ind_idx, unsigned ir_idx) const { return mk_const_params(local_name(m_intro_rules[ind_idx][ir_idx])); }
 
     bool is_ind_name(name const & n) const;
-    bool is_ind_name(name const & n, unsigned ind_idx) { return n == mlocal_name(m_inds[ind_idx]); }
+    bool is_ind_name(name const & n, unsigned ind_idx) { return n == local_name(m_inds[ind_idx]); }
     bool is_ind(expr const & e, unsigned ind_idx) const { return e == get_c_ind(ind_idx); }
     bool is_ind(expr const & e) const { return is_constant(e) && is_ind_name(const_name(e)); }
     bool has_ind_occ(expr const & t) const;

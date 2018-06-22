@@ -27,8 +27,8 @@ public:
 /** \brief Introduction rule */
 typedef expr intro_rule;
 inline intro_rule mk_intro_rule(name const & n, expr const & t) { return mk_local(n, t); }
-inline name const & intro_rule_name(intro_rule const & r) { return mlocal_name(r); }
-inline expr const & intro_rule_type(intro_rule const & r) { return mlocal_type(r); }
+inline name const & intro_rule_name(intro_rule const & r) { return local_name(r); }
+inline expr const & intro_rule_type(intro_rule const & r) { return local_type(r); }
 
 /** \brief Inductive datatype */
 struct inductive_decl {

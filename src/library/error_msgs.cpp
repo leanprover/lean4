@@ -95,8 +95,10 @@ static void check_alias(name const & n, name const & id, name_map<name> & name_t
 
 static void collect_aliased_locals(expr const & e, name_map<name> & name_to_id, name_set & aliased) {
     for_each(e, [&](expr const & t, unsigned) {
-            if (is_local(t) || is_metavar(t)) {
-                check_alias(mlocal_pp_name(t), mlocal_name(t), name_to_id, aliased);
+            if (is_local(t)) {
+                check_alias(local_pp_name(t), local_name(t), name_to_id, aliased);
+            } else if (is_mvar(t)) {
+                check_alias(mvar_name(t), mvar_name(t), name_to_id, aliased);
             } else if (is_constant(t)) {
                 check_alias(const_name(t), const_name(t), name_to_id, aliased);
             }

@@ -121,7 +121,7 @@ class instantiate_mvars_fn : public replace_visitor {
     }
 
     virtual expr visit_local(expr const & e) override {
-        return update_mlocal(e, visit(mlocal_type(e)));
+        return update_local(e, visit(local_type(e)));
     }
 
     virtual expr visit_meta(expr const & m) override {

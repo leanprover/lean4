@@ -20,7 +20,7 @@ bool is_used_name(expr const & t, name const & n) {
     for_each(t, [&](expr const & e, unsigned) {
             if (found) return false; // already found
             if ((is_constant(e) && const_name(e).get_root() == n)  // t has a constant starting with n
-                || (is_local(e) && (mlocal_name(e) == n || mlocal_pp_name(e) == n))) { // t has a local constant named n
+                || (is_local(e) && (local_name(e) == n || local_pp_name(e) == n))) { // t has a local constant named n
                 found = true;
                 return false; // found it
             }
@@ -211,10 +211,10 @@ struct print_expr_fn {
     void print(expr const & a) {
         switch (a.kind()) {
         case expr_kind::MVar:
-            out() << "?" << fix_name(mlocal_name(a));
+            out() << "?" << fix_name(mvar_name(a));
             break;
         case expr_kind::FVar:
-            out() << fix_name(mlocal_pp_name(a));
+            out() << fix_name(local_pp_name(a));
             break;
         case expr_kind::MData:
             out() << "[mdata "; print(mdata_expr(a)); out() << "]";

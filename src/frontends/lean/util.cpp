@@ -197,7 +197,7 @@ expr update_local_ref(expr const & e, name_set const & lvls_to_remove, name_set 
         unsigned j = 0;
         for (unsigned i = 0; i < locals.size(); i++) {
             expr const & l = locals[i];
-            if (!locals_to_remove.contains(mlocal_name(get_explicit_arg(l)))) {
+            if (!locals_to_remove.contains(local_name(get_explicit_arg(l)))) {
                 locals[j] = l;
                 j++;
             }
@@ -235,11 +235,11 @@ static expr mk_binding_as_is(unsigned num, expr const * locals, expr const & b) 
     while (i > 0) {
         --i;
         expr const & l = locals[i];
-        expr t = abstract_propagating_pos(mlocal_type(l), i, locals);
+        expr t = abstract_propagating_pos(local_type(l), i, locals);
         if (is_lambda)
-            r = mk_lambda(mlocal_pp_name(l), mk_as_is(t), r, local_info(l));
+            r = mk_lambda(local_pp_name(l), mk_as_is(t), r, local_info(l));
         else
-            r = mk_pi(mlocal_pp_name(l), mk_as_is(t), r, local_info(l));
+            r = mk_pi(local_pp_name(l), mk_as_is(t), r, local_info(l));
     }
     return r;
 }

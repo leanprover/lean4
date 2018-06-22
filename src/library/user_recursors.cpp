@@ -125,7 +125,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
     // We assume a parameter is anything that occurs before the motive.
     unsigned num_params  = 0;
     for (expr const & x : tele) {
-        if (mlocal_name(x) == mlocal_name(C))
+        if (local_name(x) == local_name(C))
             break;
         num_params++;
     }
@@ -167,7 +167,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
                         << major << "'");
 
     buffer<expr> I_args;
-    expr I = get_app_args(mlocal_type(major), I_args);
+    expr I = get_app_args(local_type(major), I_args);
     if (!is_constant(I)) {
         throw exception(sstream() << "invalid user defined recursor, type of the major premise '" << major
                         << "' must be for the form (I ...), where I is a constant");
@@ -212,7 +212,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
 
 
     buffer<expr> C_tele;
-    expr C_rtype  = to_telescope(tc, mlocal_type(C), C_tele);
+    expr C_rtype  = to_telescope(tc, local_type(C), C_tele);
     if (!is_sort(C_rtype) || C_tele.size() != C_args.size()) {
         throw_invalid_motive(C);
     }
@@ -258,19 +258,19 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
         if (i < major_pos - nindices || i > major_pos) {
             // i is a minor premise
             buffer<expr> minor_args;
-            expr res = get_app_fn(to_telescope(tc, mlocal_type(tele[i]), minor_args));
+            expr res = get_app_fn(to_telescope(tc, local_type(tele[i]), minor_args));
             if (!is_rec) {
                 for (expr const & minor_arg : minor_args) {
                     lean_assert(is_local(minor_arg));
-                    if (find(mlocal_type(minor_arg), [&](expr const & e, unsigned) {
-                                return is_local(e) && mlocal_name(C) == mlocal_name(e);
+                    if (find(local_type(minor_arg), [&](expr const & e, unsigned) {
+                                return is_local(e) && local_name(C) == local_name(e);
                             })) {
                         is_rec = true;
                         break;
                     }
                 }
             }
-            if (is_local(res) && mlocal_name(C) == mlocal_name(res)) {
+            if (is_local(res) && local_name(C) == local_name(res)) {
                 produce_motive.push_back(true);
             } else {
                 produce_motive.push_back(false);

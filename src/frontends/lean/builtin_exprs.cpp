@@ -214,7 +214,7 @@ static std::tuple<optional<expr>, expr, expr, optional<expr>> parse_do_action(pa
             p.maybe_throw_error({"invalid 'do' block, unexpected ':' the left hand side is a pattern", lhs_pos});
             lhs = mk_local("_x", type);
         }
-        lhs = p.save_pos(mk_local(mlocal_pp_name(*lhs), type), lhs_pos);
+        lhs = p.save_pos(mk_local(local_pp_name(*lhs), type), lhs_pos);
         new_locals.clear();
         new_locals.push_back(*lhs);
         p.check_token_next(get_larrow_tk(), "invalid 'do' block, '←' expected");
@@ -541,7 +541,7 @@ static expr parse_explicit_core(parser & p, pos_info const & pos, bool partial) 
             if (is_constant(c))
                 s << const_name(c);
             else if (is_local(c))
-                s << mlocal_pp_name(c);
+                s << local_pp_name(c);
             else
                 s << "[other]";
         }
@@ -656,7 +656,7 @@ static expr parse_quoted_name(parser & p, unsigned, expr const *, pos_info const
         if (is_constant(e)) {
             id = const_name(e);
         } else if (is_local(e)) {
-            id = mlocal_pp_name(e);
+            id = local_pp_name(e);
         } else if (is_choice(e)) {
             sstream ss;
             ss << "invalid resolved quoted symbol, it is ambiguous, possible interpretations:";

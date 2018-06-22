@@ -204,7 +204,7 @@ expr old_type_checker::infer_type_core(expr const & e, bool infer_only) {
     expr r;
     switch (e.kind()) {
     case expr_kind::FVar: r = local_type(e);  break;
-    case expr_kind::MVar: throw kernel_exception(m_env, "kernel type checker does not support meta variables");
+    case expr_kind::MVar: r = mvar_type(e); break;
     case expr_kind::BVar:
         lean_unreachable();  // LCOV_EXCL_LINE
     case expr_kind::Sort:

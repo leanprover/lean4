@@ -45,11 +45,11 @@ vm_obj level_succ(vm_obj const & o) {
 }
 
 vm_obj level_max(vm_obj const & o1, vm_obj const & o2) {
-    return to_obj(mk_max(to_level(o1), to_level(o2)));
+    return to_obj(mk_max_core(to_level(o1), to_level(o2)));
 }
 
 vm_obj level_imax(vm_obj const & o1, vm_obj const & o2) {
-    return to_obj(mk_imax(to_level(o1), to_level(o2)));
+    return to_obj(mk_imax_core(to_level(o1), to_level(o2)));
 }
 
 vm_obj level_param(vm_obj const & n) {
@@ -145,23 +145,21 @@ vm_obj level_instantiate(vm_obj const & o, vm_obj const & lst) {
 }
 
 void initialize_vm_level() {
-    DECLARE_VM_BUILTIN(name({"level", "zero"}),             level_zero);
-    DECLARE_VM_BUILTIN(name({"level", "succ"}),             level_succ);
-    DECLARE_VM_BUILTIN(name({"level", "max"}),              level_max);
-    DECLARE_VM_BUILTIN(name({"level", "imax"}),             level_imax);
-    DECLARE_VM_BUILTIN(name({"level", "param"}),            level_param);
-    DECLARE_VM_BUILTIN(name({"level", "mvar"}),             level_mvar);
+    DECLARE_VM_BUILTIN(name({"lean", "level", "zero"}),             level_zero);
+    DECLARE_VM_BUILTIN(name({"lean", "level", "succ"}),             level_succ);
+    DECLARE_VM_BUILTIN(name({"lean", "level", "max"}),              level_max);
+    DECLARE_VM_BUILTIN(name({"lean", "level", "imax"}),             level_imax);
+    DECLARE_VM_BUILTIN(name({"lean", "level", "param"}),            level_param);
+    DECLARE_VM_BUILTIN(name({"lean", "level", "mvar"}),             level_mvar);
     DECLARE_VM_BUILTIN(name({"level", "has_decidable_eq"}), level_has_decidable_eq);
+    DECLARE_VM_CASES_BUILTIN(name({"lean", "level", "cases_on"}),   level_cases_on);
     DECLARE_VM_BUILTIN(name({"level", "lt"}),               level_lt);
     DECLARE_VM_BUILTIN(name({"level", "lex_lt"}),           level_lex_lt);
     DECLARE_VM_BUILTIN(name({"level", "eqv"}),              level_eqv);
     DECLARE_VM_BUILTIN(name({"level", "normalize"}),        level_normalize);
     DECLARE_VM_BUILTIN(name({"level", "occurs"}),           level_occurs);
-    DECLARE_VM_BUILTIN(name({"level", "to_format"}),        level_to_format);
-    DECLARE_VM_BUILTIN(name({"level", "to_string"}),        level_to_string);
     DECLARE_VM_BUILTIN(name({"level", "fold"}),             level_fold);
     DECLARE_VM_BUILTIN(name({"level", "instantiate"}),      level_instantiate);
-    DECLARE_VM_CASES_BUILTIN(name({"level", "cases_on"}),   level_cases_on);
 }
 
 void finalize_vm_level() {

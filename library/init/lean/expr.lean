@@ -15,6 +15,23 @@ inductive literal
 inductive binder_info
 | default | implicit | strict_implicit | inst_implicit | aux_decl
 
+/-
+TODO(Leo): fix the `mvar` constructor.
+In Lean3 (and Lean4), we have two kinds of metavariables: regular and temporary.
+The type of regular metavariables is stored in the metavar_context.
+The type of temporary metavariables is stored in the metavar itself. This decision is legacy from Lean2.
+Moreover, the `name` in temporary metavariables are supposed to be (small) numerals. So,
+we can store their assignment as an array. Actually, it is a numeral with a hidden unique prefix.
+The decision of storing the type of the tmp metavar is also debatable.
+For example, we can avoid this by have another array with their types.
+For regular metavariables, the `expr` field is a dummy value.
+
+We should have two different constructors:
+`| mvar : name → expr` for regular metavariables
+and
+`| tmvar : usize → expr` for temporary metavariables
+The `usize` makes it clear that we can use arrays to store tmp metavar assignments and their types.
+-/
 inductive expr
 | bvar  : nat → expr                                -- bound variables
 | fvar  : name → expr                               -- free variables

@@ -86,64 +86,6 @@ unsigned level_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
     return static_cast<unsigned>(l.kind());
 }
 
-vm_obj level_has_decidable_eq(vm_obj const & o1, vm_obj const & o2) {
-    return mk_vm_bool(to_level(o1) == to_level(o2));
-}
-
-vm_obj level_lt(vm_obj const & o1, vm_obj const & o2) {
-    return mk_vm_bool(is_lt(to_level(o1), to_level(o2), true));
-}
-
-vm_obj level_lex_lt(vm_obj const & o1, vm_obj const & o2) {
-    return mk_vm_bool(is_lt(to_level(o1), to_level(o2), false));
-}
-
-vm_obj level_eqv(vm_obj const & o1, vm_obj const & o2) {
-    return mk_vm_bool(is_equivalent(to_level(o1), to_level(o2)));
-}
-
-vm_obj level_normalize(vm_obj const & o) {
-    return to_obj(normalize(to_level(o)));
-}
-
-vm_obj level_occurs(vm_obj const & o1, vm_obj const & o2) {
-    return mk_vm_bool(occurs(to_level(o1), to_level(o2)));
-}
-
-vm_obj level_to_format(vm_obj const & l, vm_obj const & o) {
-    return to_obj(pp(to_level(l), to_options(o)));
-}
-
-vm_obj level_to_string(vm_obj const & l) {
-    std::ostringstream out;
-    out << to_level(l);
-    return to_obj(out.str());
-}
-
-vm_obj level_fold(vm_obj const &, vm_obj const & l, vm_obj const & a, vm_obj const & fn) {
-    vm_obj r = a;
-    for_each(to_level(l), [&](level const & o) {
-            r = invoke(fn, to_obj(o), r);
-            return true;
-        });
-    return r;
-}
-
-// meta_constant level.instantiate : level → list (name × level) → list level
-vm_obj level_instantiate(vm_obj const & o, vm_obj const & lst) {
-    level const & l = to_level(o);
-    buffer<name> ns;
-    buffer<level> ls;
-    vm_obj it = lst;
-    while (!is_simple(it)) {
-        vm_obj const & h = cfield(it, 0);
-        ns.push_back(to_name(cfield(h, 0)));
-        ls.push_back(to_level(cfield(h, 1)));
-        it = cfield(it, 1);
-    }
-    return to_obj(instantiate(l, names(ns), levels(ls)));
-}
-
 void initialize_vm_level() {
     DECLARE_VM_BUILTIN(name({"lean", "level", "zero"}),             level_zero);
     DECLARE_VM_BUILTIN(name({"lean", "level", "succ"}),             level_succ);
@@ -151,15 +93,7 @@ void initialize_vm_level() {
     DECLARE_VM_BUILTIN(name({"lean", "level", "imax"}),             level_imax);
     DECLARE_VM_BUILTIN(name({"lean", "level", "param"}),            level_param);
     DECLARE_VM_BUILTIN(name({"lean", "level", "mvar"}),             level_mvar);
-    DECLARE_VM_BUILTIN(name({"level", "has_decidable_eq"}), level_has_decidable_eq);
     DECLARE_VM_CASES_BUILTIN(name({"lean", "level", "cases_on"}),   level_cases_on);
-    DECLARE_VM_BUILTIN(name({"level", "lt"}),               level_lt);
-    DECLARE_VM_BUILTIN(name({"level", "lex_lt"}),           level_lex_lt);
-    DECLARE_VM_BUILTIN(name({"level", "eqv"}),              level_eqv);
-    DECLARE_VM_BUILTIN(name({"level", "normalize"}),        level_normalize);
-    DECLARE_VM_BUILTIN(name({"level", "occurs"}),           level_occurs);
-    DECLARE_VM_BUILTIN(name({"level", "fold"}),             level_fold);
-    DECLARE_VM_BUILTIN(name({"level", "instantiate"}),      level_instantiate);
 }
 
 void finalize_vm_level() {

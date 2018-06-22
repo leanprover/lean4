@@ -303,15 +303,6 @@ vm_obj expr_subst(vm_obj const & _e1, vm_obj const & _e2) {
     }
 }
 
-vm_obj expr_is_annotation(vm_obj const & _e) {
-    expr const & e = to_expr(_e);
-    if (is_annotation(e)) {
-        return mk_vm_some(mk_vm_pair(to_obj(get_annotation_kind(e)), to_obj(get_annotation_arg(e))));
-    } else {
-        return mk_vm_none();
-    }
-}
-
 vm_obj reflect_expr(vm_obj const & e) {
     return to_obj(mk_elaborated_expr_quote(to_expr(e)));
 }
@@ -352,8 +343,6 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name("mk_fin_val_ne_proof"),        vm_mk_fin_val_ne_proof);
     DECLARE_VM_BUILTIN(name("mk_char_val_ne_proof"),       vm_mk_char_val_ne_proof);
     DECLARE_VM_BUILTIN(name("mk_string_val_ne_proof"),     vm_mk_string_val_ne_proof);
-
-    DECLARE_VM_BUILTIN(name({"lean", "expr", "is_annotation"}),      expr_is_annotation);
 }
 
 void finalize_vm_expr() {

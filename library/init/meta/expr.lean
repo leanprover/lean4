@@ -21,28 +21,10 @@ else is_false (λ contra, pos.no_confusion contra (λ e₁ e₂, absurd e₁ h�
 meta instance : has_to_format pos :=
 ⟨λ ⟨l, c⟩, "⟨" ++ l ++ ", " ++ c ++ "⟩"⟩
 
-export lean (expr binder_info kvmap expr.bvar expr.fvar expr.sort expr.const expr.mvar expr.app expr.lam expr.pi expr.elet expr.lit expr.mdata expr.proj expr.quote
-             binder_info.default binder_info.implicit binder_info.strict_implicit binder_info.inst_implicit binder_info.aux_decl)
+export lean (expr binder_info kvmap expr.bvar expr.fvar expr.sort expr.const expr.mvar expr.app expr.lam expr.pi expr.elet expr.lit expr.mdata expr.proj expr.quote)
 
-instance : has_repr binder_info :=
-⟨λ bi, match bi with
-| binder_info.default := "default"
-| binder_info.implicit := "implicit"
-| binder_info.strict_implicit := "strict_implicit"
-| binder_info.inst_implicit := "inst_implicit"
-| binder_info.aux_decl := "aux_decl"⟩
-
-meta def expr.mk_bvar (n : nat) : expr :=
+def expr.mk_bvar (n : nat) : expr :=
 expr.bvar n
-
-/- Expressions can be annotated using the annotation macro. -/
-meta constant lean.expr.is_annotation : expr → option (name × expr)
-
-meta def lean.expr.erase_annotations : expr → expr
-| e :=
-  match e.is_annotation with
-  | some (_, a) := lean.expr.erase_annotations a
-  | none        := e
 
 /-- Compares expressions, including binder names. -/
 meta constant lean.expr.has_decidable_eq : decidable_eq expr
@@ -110,212 +92,71 @@ meta instance {α} (a : α) : has_to_format (reflected a) :=
 namespace lean.expr
 open decidable
 
-meta def lean.expr.lt_prop (a b : expr) : Prop :=
-lean.expr.lt a b = tt
-
-meta instance : decidable_rel lean.expr.lt_prop :=
-λ a b, bool.decidable_eq _ _
-
-/-- Compares expressions, ignoring binder names, and sorting by hash. -/
-meta instance : has_lt expr :=
-⟨ lean.expr.lt_prop ⟩
-
-meta def mk_true : expr :=
-const `true []
-
-meta def mk_false : expr :=
-const `false []
-
-meta def is_bvar : expr → bool
-| (bvar _) := tt
-| _       := ff
-
-meta def app_of_list : expr → list expr → expr
-| f []      := f
-| f (p::ps) := app_of_list (f p) ps
-
-meta def is_app : expr → bool
-| (app f a) := tt
-| e         := ff
-
-meta def app_fn : expr → expr
+def app_fn : expr → expr
 | (app f a) := f
 | a         := a
 
-meta def app_arg : expr → expr
+def app_arg : expr → expr
 | (app f a) := a
 | a         := a
 
-meta def get_app_fn : expr → expr
+def get_app_fn : expr → expr
 | (app f a) := get_app_fn f
 | a         := a
 
-meta def get_app_num_args : expr → nat
+def get_app_num_args : expr → nat
 | (app f a) := get_app_num_args f + 1
 | e         := 0
 
-meta def get_app_args_aux : list expr → expr → list expr
+def get_app_args_aux : list expr → expr → list expr
 | r (app f a) := get_app_args_aux (a::r) f
 | r e         := r
 
-meta def get_app_args : expr → list expr :=
+def get_app_args : expr → list expr :=
 get_app_args_aux []
 
-meta def mk_app : expr → list expr → expr
+def mk_app : expr → list expr → expr
 | e []      := e
-| e (x::xs) := mk_app (e x) xs
+| e (x::xs) := mk_app (lean.expr.app e x) xs
 
-meta def ith_arg_aux : expr → nat → expr
-| (app f a) 0     := a
-| (app f a) (n+1) := ith_arg_aux f n
-| e         _     := e
-
-meta def ith_arg (e : expr) (i : nat) : expr :=
-ith_arg_aux e (get_app_num_args e - i - 1)
-
-meta def const_name : expr → name
+def const_name : expr → name
 | (const n ls) := n
 | e            := name.anonymous
 
-meta def is_constant : expr → bool
+def is_constant : expr → bool
 | (const n ls) := tt
 | e            := ff
 
-meta def is_fvar : expr → bool
+def is_fvar : expr → bool
 | (fvar n) := tt
 | e        := ff
 
-meta def fvar_id : expr → name
+def fvar_id : expr → name
 | (fvar n) := n
 | e        := name.anonymous
 
-meta def is_constant_of : expr → name → bool
+def is_constant_of : expr → name → bool
 | (const n₁ ls) n₂ := n₁ = n₂
 | e             n  := ff
 
-meta def is_app_of (e : expr) (n : name) : bool :=
+def is_app_of (e : expr) (n : name) : bool :=
 is_constant_of (get_app_fn e) n
 
-meta def is_napp_of (e : expr) (c : name) (n : nat) : bool :=
+def is_napp_of (e : expr) (c : name) (n : nat) : bool :=
 is_app_of e c ∧ get_app_num_args e = n
 
-meta def is_false : expr → bool
-| `(false) := tt
-| _        := ff
-
-meta def is_not : expr → option expr
-| `(not %%a)     := some a
-| `(%%a → false) := some a
-| e              := none
-
-meta def is_and : expr → option (expr × expr)
-| `(and %%α %%β) := some (α, β)
-| _              := none
-
-meta def is_or : expr → option (expr × expr)
-| `(or %%α %%β) := some (α, β)
-| _             := none
-
-meta def is_iff : expr → option (expr × expr)
-| `((%%a : Prop) ↔ %%b) := some (a, b)
-| _                     := none
-
-meta def is_eq : expr → option (expr × expr)
+def is_eq : expr → option (expr × expr)
 | `((%%a : %%_) = %%b) := some (a, b)
 | _                    := none
 
-meta def is_ne : expr → option (expr × expr)
-| `((%%a : %%_) ≠ %%b) := some (a, b)
-| _                    := none
-
-meta def is_bin_arith_app (e : expr) (op : name) : option (expr × expr) :=
-if is_napp_of e op 4
-then some (app_arg (app_fn e), app_arg e)
-else none
-
-meta def is_lt (e : expr) : option (expr × expr) :=
-is_bin_arith_app e ``has_lt.lt
-
-meta def is_gt (e : expr) : option (expr × expr) :=
-is_bin_arith_app e ``gt
-
-meta def is_le (e : expr) : option (expr × expr) :=
-is_bin_arith_app e ``has_le.le
-
-meta def is_ge (e : expr) : option (expr × expr) :=
-is_bin_arith_app e ``ge
-
-meta def is_heq : expr → option (expr × expr × expr × expr)
-| `(@heq %%α %%a %%β %%b) := some (α, a, β, b)
-| _                       := none
-
-meta def is_lambda : expr → bool
-| (lam _ _ _ _) := tt
-| e             := ff
-
-meta def is_pi : expr → bool
+def is_pi : expr → bool
 | (pi _ _ _ _) := tt
 | e            := ff
 
-meta def is_let : expr → bool
+def is_let : expr → bool
 | (elet _ _ _ _) := tt
 | e              := ff
 
-meta def binding_name : expr → name
-| (pi n _ _ _)  := n
-| (lam n _ _ _) := n
-| e             := name.anonymous
-
-meta def binding_info : expr → binder_info
-| (pi _ bi _ _)  := bi
-| (lam _ bi _ _) := bi
-| e              := binder_info.default
-
-meta def binding_domain : expr → expr
-| (pi _ _ d _)  := d
-| (lam _ _ d _) := d
-| e             := e
-
-meta def binding_body : expr → expr
-| (pi _ _ _ b)  := b
-| (lam _ _ _ b) := b
-| e             := e
-
-meta def is_numeral : expr → bool
-| `(@has_zero.zero %%α %%s)  := tt
-| `(@has_one.one %%α %%s)    := tt
-| `(@bit0 %%α %%s %%v)       := is_numeral v
-| `(@bit1 %%α %%s₁ %%s₂ %%v) := is_numeral v
-| _                          := ff
-
-meta def imp (a b : expr) : expr :=
-pi `_ binder_info.default a b
-
-meta def extract_opt_auto_param : expr → expr
-| `(@opt_param %%t _)  := extract_opt_auto_param t
-| `(@auto_param %%t _) := extract_opt_auto_param t
-| e                    := e
-
 open format
-
-private meta def p := λ xs, paren (format.join (list.intersperse " " xs))
-
-meta def to_raw_fmt : expr → format
-| (bvar n) := p ["bvar", to_fmt n]
-| (lit l)  := "lit"
-| (fvar n) := p ["fvar", to_fmt n]
-| (sort l) := p ["sort", to_fmt l]
-| (const n ls) := p ["const", to_fmt n, to_fmt ls]
-| (mvar n t)   := p ["mvar", to_fmt n, to_raw_fmt t]
-| (app e f) := p ["app", to_raw_fmt e, to_raw_fmt f]
-| (lam n bi e t) := p ["lam", to_fmt n, repr bi, to_raw_fmt e, to_raw_fmt t]
-| (pi n bi e t) := p ["pi", to_fmt n, repr bi, to_raw_fmt e, to_raw_fmt t]
-| (elet n g e f) := p ["elet", to_fmt n, to_raw_fmt g, to_raw_fmt e, to_raw_fmt f]
-| (mdata d e) := p ["mdata", to_raw_fmt e]
-| (proj idx e) := p ["proj", to_fmt idx, to_raw_fmt e]
-| (quote b v) := p ["quote", to_fmt b, to_raw_fmt v]
-
-meta def mfold {α : Type} {m : Type → Type} [monad m] (e : expr) (a : α) (fn : expr → nat → α → m α) : m α :=
-lean.expr.fold e (return a) (λ e n a, a >>= fn e n)
 
 end lean.expr

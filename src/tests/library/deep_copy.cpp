@@ -15,14 +15,14 @@ Author: Leonardo de Moura
 using namespace lean;
 
 static void tst1() {
-    expr f = Const("f");
-    expr a = Const("a");
-    expr x = Var(0);
+    expr f = mk_const("f");
+    expr a = mk_const("a");
+    expr x = mk_bvar(0);
     expr Type = mk_Type();
     expr t = Type;
-    expr z = Const("z");
+    expr z = mk_const("z");
     expr m = mk_metavar("a", Type);
-    expr F = mk_pi("y", t, mk_lambda("x", t, mk_app(f, mk_app(f, mk_app(f, x, a), Const("10")), mk_app(f, x, m))));
+    expr F = mk_pi("y", t, mk_lambda("x", t, mk_app(f, mk_app(f, mk_app(f, x, a), mk_const("10")), mk_app(f, x, m))));
     expr G = deep_copy(F);
     lean_assert(F == G);
     lean_assert(!is_eqp(F, G));

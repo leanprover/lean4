@@ -334,15 +334,11 @@ inline expr mk_metavar(name const & n, expr const & t) { return mk_metavar(n, n,
 expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info bi);
 inline expr mk_local(name const & n, expr const & t) { return mk_local(n, n, t, mk_binder_info()); }
 inline expr mk_local(name const & n, expr const & t, binder_info bi) { return mk_local(n, n, t, bi); }
-inline expr Local(name const & n, expr const & t, binder_info bi = mk_binder_info()) { return mk_local(n, t, bi); }
 inline name const & mlocal_name(expr const & e) { return static_cast<name const &>(cnstr_obj_ref(e, 0)); }
 inline name const & mlocal_pp_name(expr const & e) { return static_cast<name const &>(cnstr_obj_ref(e, 1)); }
 inline expr const & mlocal_type(expr const & e) { return static_cast<expr const &>(cnstr_obj_ref(e, 2)); }
 inline expr mk_constant(name const & n, levels const & ls) { return mk_const(n, ls); }
 inline expr mk_constant(name const & n) { return mk_constant(n, levels()); }
-inline expr Const(name const & n) { return mk_constant(n); }
-inline expr BVar(unsigned idx) { return mk_bvar(idx); }
-inline expr Var(unsigned idx) { return mk_bvar(idx); }
 inline bool is_constant(expr const & e) { return is_const(e); }
 expr mk_quote(bool is_reflected, expr const & e);
 inline expr const & quote_value(expr const & e) { return static_cast<expr const &>(cnstr_obj_ref(e, 0)); }

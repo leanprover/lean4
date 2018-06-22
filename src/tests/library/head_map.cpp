@@ -15,11 +15,11 @@ using namespace lean;
 
 static void tst1() {
     head_map<expr> map;
-    expr a = Const("a");
-    expr f = Const("f");
-    expr b = Const("b");
+    expr a = mk_const("a");
+    expr f = mk_const("f");
+    expr b = mk_const("b");
     expr Prop = mk_Prop();
-    expr x = Local("x", Prop);
+    expr x = mk_local("x", Prop);
     expr l1 = Fun(x, x);
     expr l2 = Fun(x, mk_app(f, x));
     lean_assert(l1 != l2);

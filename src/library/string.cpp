@@ -85,14 +85,14 @@ bool is_string_literal(expr const & e) {
 }
 
 void initialize_string() {
-    g_nat             = new expr(Const(get_nat_name()));
-    g_char            = new expr(Const(get_char_name()));
-    g_char_mk         = new expr(Const(get_char_mk_name()));
-    g_char_of_nat     = new expr(Const(get_char_of_nat_name()));
-    g_string          = new expr(Const(get_string_name()));
-    g_empty           = new expr(Const(get_string_empty_name()));
-    g_str             = new expr(Const(get_string_str_name()));
-    g_fin_mk          = new expr(Const(get_fin_mk_name()));
+    g_nat             = new expr(mk_const(get_nat_name()));
+    g_char            = new expr(mk_const(get_char_name()));
+    g_char_mk         = new expr(mk_const(get_char_mk_name()));
+    g_char_of_nat     = new expr(mk_const(get_char_of_nat_name()));
+    g_string          = new expr(mk_const(get_string_name()));
+    g_empty           = new expr(mk_const(get_string_empty_name()));
+    g_str             = new expr(mk_const(get_string_str_name()));
+    g_fin_mk          = new expr(mk_const(get_fin_mk_name()));
 }
 
 optional<expr> expand_string_literal(expr const & e) {

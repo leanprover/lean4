@@ -439,7 +439,7 @@ static expr parse_show(parser & p, unsigned, expr const *, pos_info const & pos)
     expr prop  = p.parse_expr();
     p.check_token_next(get_comma_tk(), "invalid 'show' declaration, ',' expected");
     expr proof = parse_proof(p);
-    expr b = p.save_pos(mk_lambda(get_this_tk(), prop, Var(0)), pos);
+    expr b = p.save_pos(mk_lambda(get_this_tk(), prop, mk_bvar(0)), pos);
     expr r = p.mk_app(b, proof, pos);
     return p.save_pos(mk_show_annotation(r), pos);
 }
@@ -1090,8 +1090,8 @@ static expr parse_field(parser & p, unsigned, expr const * args, pos_info const 
 
 parse_table init_led_table() {
     parse_table r(false);
-    r = r.add({transition("->", mk_expr_action(get_arrow_prec()-1))},    mk_arrow(Var(1), Var(1)));
-    r = r.add({transition("^.", mk_ext_action(parse_field))}, Var(0));
+    r = r.add({transition("->", mk_expr_action(get_arrow_prec()-1))},    mk_arrow(mk_bvar(1), mk_bvar(1)));
+    r = r.add({transition("^.", mk_ext_action(parse_field))}, mk_bvar(0));
     return r;
 }
 

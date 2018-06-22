@@ -14,12 +14,12 @@ Author: Leonardo de Moura
 using namespace lean;
 
 static void tst1() {
-    expr f = Const("f");
-    expr a = Const("a");
-    expr b = Const("b");
+    expr f = mk_const("f");
+    expr a = mk_const("a");
+    expr b = mk_const("b");
     expr Type = mk_Type();
     expr T = Type;
-    expr a1 = Local("a", T);
+    expr a1 = mk_local("a", T);
     lean_assert(occurs(f, f));
     lean_assert(!occurs(a, f));
     lean_assert(occurs(a, mk_app(f, a)));

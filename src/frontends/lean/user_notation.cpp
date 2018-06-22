@@ -83,7 +83,7 @@ static environment add_user_notation(environment const & env, name const & d, un
                         throw formatted_exception(some(pos), ex.pp());
                     }
                 }
-            }))}, Var(0), /* overload */ persistent, prio, notation_entry_group::Main, /* parse_only */ true), persist);
+            }))}, mk_bvar(0), /* overload */ persistent, prio, notation_entry_group::Main, /* parse_only */ true), persist);
 }
 
 struct user_notation_modification : public modification {

@@ -571,7 +571,7 @@ bool old_type_checker::try_eta_expansion_core(expr const & t, expr const & s) {
         expr s_type = whnf(infer_type(s));
         if (!is_pi(s_type))
             return false;
-        expr new_s  = mk_lambda(binding_name(s_type), binding_domain(s_type), mk_app(s, Var(0)), binding_info(s_type));
+        expr new_s  = mk_lambda(binding_name(s_type), binding_domain(s_type), mk_app(s, mk_bvar(0)), binding_info(s_type));
         if (!is_def_eq(t, new_s))
             return false;
         return true;
@@ -768,7 +768,7 @@ old_type_checker::~old_type_checker() {}
 
 void initialize_old_type_checker() {
     g_id_delta     = new name("id_delta");
-    g_dont_care    = new expr(Const("dontcare"));
+    g_dont_care    = new expr(mk_const("dontcare"));
     g_kernel_fresh = new name("_old_kernel_fresh");
     register_name_generator_prefix(*g_kernel_fresh);
 }

@@ -2562,7 +2562,7 @@ bool type_context_old::is_def_eq_eta(expr const & e1, expr const & e2) {
             // e2_type may not be a Pi because it is a stuck term.
             // We are ignoring this case and just failing.
             expr new_e2 = ::lean::mk_lambda(binding_name(e2_type), binding_domain(e2_type),
-                                            mk_app(e2, Var(0)), binding_info(e2_type));
+                                            mk_app(e2, mk_bvar(0)), binding_info(e2_type));
             scope s(*this);
             if (is_def_eq_core(e1, new_e2) && process_postponed(s)) {
                 s.commit();

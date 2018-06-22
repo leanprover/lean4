@@ -16,20 +16,20 @@ static void lt(expr const & e1, expr const & e2, bool expected) {
 }
 
 static void tst1() {
-    lt(Var(0), Var(0), false);
-    lt(Var(0), Var(1), true);
-    lt(Const("a"), Const("b"), true);
-    lt(Const("a"), Const("a"), false);
-    lt(Var(1), Const("a"), true);
-    lt(mk_app(Const("f"), Var(0)), mk_app(Const("f"), Var(0), Const("a")), true);
-    lt(mk_app(Const("f"), Var(0), Const("a"), Const("b")), mk_app(Const("f"), Var(0), Const("a")), false);
-    lt(mk_app(Const("f"), Var(0), Const("a")), mk_app(Const("g"), Var(0), Const("a")), true);
-    lt(mk_app(Const("f"), Var(0), Const("a")), mk_app(Const("f"), Var(1), Const("a")), true);
-    lt(mk_app(Const("f"), Var(0), Const("a")), mk_app(Const("f"), Var(0), Const("b")), true);
-    lt(mk_app(Const("f"), Var(0), Const("a")), mk_app(Const("f"), Var(0), Const("a")), false);
-    lt(mk_app(Const("g"), Var(0), Const("a")), mk_app(Const("f"), Var(0), Const("a")), false);
-    lt(mk_app(Const("f"), Var(1), Const("a")), mk_app(Const("f"), Var(0), Const("a")), false);
-    lt(mk_app(Const("f"), Var(0), Const("b")), mk_app(Const("f"), Var(0), Const("a")), false);
+    lt(mk_bvar(0), mk_bvar(0), false);
+    lt(mk_bvar(0), mk_bvar(1), true);
+    lt(mk_const("a"), mk_const("b"), true);
+    lt(mk_const("a"), mk_const("a"), false);
+    lt(mk_bvar(1), mk_const("a"), true);
+    lt(mk_app(mk_const("f"), mk_bvar(0)), mk_app(mk_const("f"), mk_bvar(0), mk_const("a")), true);
+    lt(mk_app(mk_const("f"), mk_bvar(0), mk_const("a"), mk_const("b")), mk_app(mk_const("f"), mk_bvar(0), mk_const("a")), false);
+    lt(mk_app(mk_const("f"), mk_bvar(0), mk_const("a")), mk_app(mk_const("g"), mk_bvar(0), mk_const("a")), true);
+    lt(mk_app(mk_const("f"), mk_bvar(0), mk_const("a")), mk_app(mk_const("f"), mk_bvar(1), mk_const("a")), true);
+    lt(mk_app(mk_const("f"), mk_bvar(0), mk_const("a")), mk_app(mk_const("f"), mk_bvar(0), mk_const("b")), true);
+    lt(mk_app(mk_const("f"), mk_bvar(0), mk_const("a")), mk_app(mk_const("f"), mk_bvar(0), mk_const("a")), false);
+    lt(mk_app(mk_const("g"), mk_bvar(0), mk_const("a")), mk_app(mk_const("f"), mk_bvar(0), mk_const("a")), false);
+    lt(mk_app(mk_const("f"), mk_bvar(1), mk_const("a")), mk_app(mk_const("f"), mk_bvar(0), mk_const("a")), false);
+    lt(mk_app(mk_const("f"), mk_bvar(0), mk_const("b")), mk_app(mk_const("f"), mk_bvar(0), mk_const("a")), false);
 }
 
 int main() {

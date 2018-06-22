@@ -17,12 +17,12 @@ using namespace lean;
 
 static void tst1() {
     max_sharing_fn max_fn;
-    expr a1 = Const("a");
-    expr a2 = Const("a");
-    expr N = Const("N");
-    expr x = Local("x", N);
-    expr y = Local("y", N);
-    expr f = Const("f");
+    expr a1 = mk_const("a");
+    expr a2 = mk_const("a");
+    expr N = mk_const("N");
+    expr x = mk_local("x", N);
+    expr y = mk_local("y", N);
+    expr f = mk_const("f");
     expr F1, F2;
     F1 = mk_app(f, Fun(x, mk_app(f, x, x)), Fun(y, mk_app(f, y, y)));
     lean_assert(!is_eqp(app_arg(app_fn(F1)), app_arg(F1)));
@@ -35,9 +35,9 @@ static void tst1() {
 static void tst2() {
     max_sharing_fn max_fn1;
     max_sharing_fn max_fn2;
-    expr x   = Const("x");
-    expr f   = Const("f");
-    expr g   = Const("g");
+    expr x   = mk_const("x");
+    expr f   = mk_const("f");
+    expr g   = mk_const("g");
     expr t1  = max_fn2(max_fn1(mk_app(f, mk_app(g, x))));
     expr t2  = max_fn2(mk_app(f, t1, mk_app(g, x)));
     expr arg1 = app_arg(app_arg(app_fn(t2)));
@@ -47,11 +47,11 @@ static void tst2() {
 
 static void tst3() {
     max_sharing_fn max_fn;
-    expr a1 = Const("a");
-    expr a2 = Const("a");
-    expr a3 = Const("a");
-    expr g  = Const("g");
-    expr f  = Const("f");
+    expr a1 = mk_const("a");
+    expr a2 = mk_const("a");
+    expr a3 = mk_const("a");
+    expr g  = mk_const("g");
+    expr f  = mk_const("f");
     expr new_a1 = max_fn(a1);
     lean_assert(is_eqp(new_a1, a1));
     expr t1 = max_fn(mk_app(f, a2));

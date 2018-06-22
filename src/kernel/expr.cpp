@@ -106,7 +106,7 @@ inline constexpr unsigned num_obj_fields(expr_kind k) {
         k == expr_kind::Pi      ?  3 :
         k == expr_kind::BVar    ?  1 :
         k == expr_kind::Let     ?  4 :
-        k == expr_kind::MVar    ?  3 : // TODO(Leo): it should be 2 after we remove support for legacy code
+        k == expr_kind::MVar    ?  2 :
         k == expr_kind::Sort    ?  1 :
         k == expr_kind::Lit     ?  1 :
         k == expr_kind::MData   ?  2 :
@@ -432,17 +432,12 @@ expr mk_quote(bool reflected, expr const & val) {
     return r;
 }
 
-/* Legacy */
-expr mk_metavar(name const & n, expr const & t) {
-    inc(n.raw()); inc(n.raw()); inc(t.raw());
-    expr r(mk_cnstr(static_cast<unsigned>(expr_kind::MVar), n.raw(), n.raw(), t.raw(), rec_expr_scalar_size(expr_kind::MVar)));
+expr mk_mvar(name const & n, expr const & t) {
+    inc(n.raw()); inc(t.raw());
+    expr r(mk_cnstr(static_cast<unsigned>(expr_kind::MVar), n.raw(), t.raw(), rec_expr_scalar_size(expr_kind::MVar)));
     set_scalar<expr_kind::MVar>(r, n.hash(), true, has_univ_mvar(t), has_fvar(t), has_univ_param(t));
     set_rec_scalar<expr_kind::MVar>(r, 1, 1, get_loose_bvar_range(t));
     return r;
-}
-
-expr mk_mvar(name const & n, expr const & t) {
-    return mk_metavar(n, t);
 }
 
 static expr * g_Prop  = nullptr;

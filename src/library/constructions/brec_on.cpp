@@ -53,7 +53,7 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
     unsigned ntypeformers  = 1;
     level_param_names lps  = rec_decl.get_univ_params();
     bool is_reflexive      = is_reflexive_datatype(tc, n);
-    level  lvl             = mk_param_univ(head(lps));
+    level  lvl             = mk_univ_param(head(lps));
     levels lvls            = param_names_to_levels(tail(lps));
     level_param_names blvls; // universe level parameters of ibelow/below
     level  rlvl;  // universe level of the resultant type
@@ -179,7 +179,7 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
     unsigned ntypeformers  = 1;
     level_param_names lps  = rec_decl.get_univ_params();
     bool is_reflexive      = is_reflexive_datatype(tc, n);
-    level  lvl             = mk_param_univ(head(lps));
+    level  lvl             = mk_univ_param(head(lps));
     levels lvls            = param_names_to_levels(tail(lps));
     level rlvl;
     level_param_names blps;

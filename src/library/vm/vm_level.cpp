@@ -53,11 +53,11 @@ vm_obj level_imax(vm_obj const & o1, vm_obj const & o2) {
 }
 
 vm_obj level_param(vm_obj const & n) {
-    return to_obj(mk_param_univ(to_name(n)));
+    return to_obj(mk_univ_param(to_name(n)));
 }
 
 vm_obj level_mvar(vm_obj const & n) {
-    return to_obj(mk_meta_univ(to_name(n)));
+    return to_obj(mk_univ_mvar(to_name(n)));
 }
 
 unsigned level_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
@@ -79,8 +79,8 @@ unsigned level_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
     case level_kind::Param:
         data.push_back(to_obj(param_id(l)));
         break;
-    case level_kind::Meta:
-        data.push_back(to_obj(meta_id(l)));
+    case level_kind::MVar:
+        data.push_back(to_obj(mvar_id(l)));
         break;
     }
     return static_cast<unsigned>(l.kind());

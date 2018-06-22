@@ -447,7 +447,7 @@ class inductive_cmd_fn {
             new_ind_type = elab.elaborate(replace_locals(new_ind_type, params_no_inds, new_params));
             new_ind_type = normalize(new_ind_type);
             level l = get_datatype_result_level(new_ind_type);
-            if (is_meta(l)) {
+            if (is_mvar(l)) {
                 if (m_explicit_levels)
                     throw_error("resultant universe must be provided, when using explicit universe levels");
                 new_ind_type = update_result_sort(new_ind_type, m_u_meta);
@@ -457,7 +457,7 @@ class inductive_cmd_fn {
                 result_level = l;
                 first = false;
             } else {
-                if (!is_meta(l) && result_level != l) {
+                if (!is_mvar(l) && result_level != l) {
                     throw_error("mutually inductive types must live in the same universe");
                 }
             }

@@ -19,7 +19,7 @@ static expr mk_meta_ref(name const & n) {
 }
 
 bool is_metavar_decl_ref(level const & u) {
-    return is_meta(u) && is_prefix_of(*g_meta_prefix, meta_id(u));
+    return is_mvar(u) && is_prefix_of(*g_meta_prefix, mvar_id(u));
 }
 
 bool is_metavar_decl_ref(expr const & e) {
@@ -28,7 +28,7 @@ bool is_metavar_decl_ref(expr const & e) {
 
 name get_metavar_decl_ref_suffix(level const & u) {
     lean_assert(is_metavar_decl_ref(u));
-    return meta_id(u).replace_prefix(*g_meta_prefix, name());
+    return mvar_id(u).replace_prefix(*g_meta_prefix, name());
 }
 
 name get_metavar_decl_ref_suffix(expr const & e) {
@@ -43,7 +43,7 @@ static name mk_meta_decl_name() {
 
 level metavar_context::mk_univ_metavar_decl() {
     // TODO(Leo): should use name_generator
-    return mk_meta_univ(mk_meta_decl_name());
+    return mk_univ_mvar(mk_meta_decl_name());
 }
 
 expr metavar_context::mk_metavar_decl(name const & user_name, local_context const & lctx, expr const & type) {
@@ -83,7 +83,7 @@ expr metavar_context::get_local(expr const & mvar, name const & n) const {
 }
 
 void metavar_context::assign(level const & u, level const & l) {
-    m_uassignment.insert(meta_id(u), l);
+    m_uassignment.insert(mvar_id(u), l);
 }
 
 void metavar_context::assign(expr const & e, expr const & v) {
@@ -97,7 +97,7 @@ void metavar_context::assign(expr const & e, local_context const & lctx, list<ex
 
 optional<level> metavar_context::get_assignment(level const & l) const {
     lean_assert(is_metavar_decl_ref(l));
-    if (auto v = m_uassignment.find(meta_id(l)))
+    if (auto v = m_uassignment.find(mvar_id(l)))
         return some_level(*v);
     else
         return none_level();

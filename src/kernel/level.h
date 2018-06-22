@@ -18,30 +18,24 @@ namespace lean {
 class environment;
 struct level_cell;
 /**
-   \brief Universe level kinds.
+inductive level
+| zero   : level
+| succ   : level → level
+| max    : level → level → level
+| imax   : level → level → level
+| param  : name → level
+| mvar   : name → level
 
-   - Zero         : It is also Prop level if env.impredicative() is true
-   - Succ(l)      : successor level
-   - Max(l1, l2)  : maximum of two levels
-   - IMax(l1, l2) : IMax(x, zero)    = zero             for all x
-                    IMax(x, succ(y)) = Max(x, succ(y))  for all x, y
-
-                    We use IMax to handle Pi-types, and Max for Sigma-types.
-                    Their definitions "mirror" the typing rules for Pi and Sigma.
-
-   - Param(n)     : A parameter. In Lean, we have universe polymorphic definitions.
-   - Meta(n)      : Placeholder. It is the equivalent of a metavariable for universe levels.
-                    The elaborator is responsible for replacing Meta with level expressions
-                    that do not contain Meta.
+We level.imax to handle Pi-types.
 */
-enum class level_kind { Zero, Succ, Max, IMax, Param, Meta };
+enum class level_kind { Zero, Succ, Max, IMax, Param, MVar };
 
 /** \brief Universe level. */
 class level : public object_ref {
     friend level mk_succ(level const & l);
     friend level mk_max_imax(level_kind k, level const & l1, level const & l2);
-    friend level mk_param_univ(name const & n);
-    friend level mk_meta_univ(name const & n);
+    friend level mk_univ_param(name const & n);
+    friend level mk_univ_mvar(name const & n);
     explicit level(object * o):object_ref(o) { inc(o); }
     explicit level(object_ref && o):object_ref(o) {}
 public:
@@ -64,7 +58,7 @@ public:
     bool is_max() const { return kind() == level_kind::Max; }
     bool is_imax() const { return kind() == level_kind::IMax; }
     bool is_param() const { return kind() == level_kind::Param; }
-    bool is_meta() const { return kind() == level_kind::Meta; }
+    bool is_mvar() const { return kind() == level_kind::MVar; }
 
     friend inline level const & max_lhs(level const & l) { lean_assert(l.is_max()); return static_cast<level const &>(cnstr_obj_ref(l, 0)); }
     friend inline level const & max_rhs(level const & l) { lean_assert(l.is_max()); return static_cast<level const &>(cnstr_obj_ref(l, 1)); }
@@ -74,8 +68,8 @@ public:
     friend inline level const & level_rhs(level const & l) { lean_assert(l.is_max() || l.is_imax()); return static_cast<level const &>(cnstr_obj_ref(l, 1)); }
     friend inline level const & succ_of(level const & l) { lean_assert(l.is_succ()); return static_cast<level const &>(cnstr_obj_ref(l, 0)); }
     friend inline name const & param_id(level const & l) { lean_assert(l.is_param()); return static_cast<name const &>(cnstr_obj_ref(l, 0)); }
-    friend inline name const & meta_id(level const & l)  { lean_assert(l.is_meta()); return static_cast<name const &>(cnstr_obj_ref(l, 0)); }
-    friend inline name const & level_id(level const & l) { lean_assert(l.is_param() || l.is_meta()); return static_cast<name const &>(cnstr_obj_ref(l, 0)); }
+    friend inline name const & mvar_id(level const & l)  { lean_assert(l.is_mvar()); return static_cast<name const &>(cnstr_obj_ref(l, 0)); }
+    friend inline name const & level_id(level const & l) { lean_assert(l.is_param() || l.is_mvar()); return static_cast<name const &>(cnstr_obj_ref(l, 0)); }
 };
 
 typedef list_ref<level> levels;
@@ -103,8 +97,8 @@ inline level mk_imax_core(level const & l1, level const & l2) { return mk_max_im
 level mk_max(level const & l1, level const & l2);
 level mk_imax(level const & l1, level const & l2);
 level mk_succ(level const & l);
-level mk_param_univ(name const & n);
-level mk_meta_univ(name const & n);
+level mk_univ_param(name const & n);
+level mk_univ_mvar(name const & n);
 
 /** \brief Convert (succ^k l) into (l, k). If l is not a succ, then return (l, 0) */
 pair<level, unsigned> to_offset(level l);
@@ -113,7 +107,7 @@ inline unsigned hash(level const & l) { return l.hash(); }
 inline level_kind kind(level const & l) { return l.kind(); }
 inline bool is_zero(level const & l)   { return l.is_zero(); }
 inline bool is_param(level const & l)  { return l.is_param(); }
-inline bool is_meta(level const & l)   { return l.is_meta(); }
+inline bool is_mvar(level const & l)   { return l.is_mvar(); }
 inline bool is_succ(level const & l)   { return l.is_succ(); }
 inline bool is_max(level const & l)    { return l.is_max(); }
 inline bool is_imax(level const & l)   { return l.is_imax(); }
@@ -130,7 +124,7 @@ bool is_explicit(level const & l);
     \pre is_explicit(l) */
 unsigned to_explicit(level const & l);
 /** \brief Return true iff \c l contains placeholder (aka meta parameters). */
-bool has_meta(level const & l);
+bool has_mvar(level const & l);
 /** \brief Return true iff \c l contains parameters */
 bool has_param(level const & l);
 
@@ -158,7 +152,7 @@ bool is_geq_core(level l1, level l2);
 
 bool is_geq(level const & l1, level const & l2);
 
-bool has_meta(levels const & ls);
+bool has_mvar(levels const & ls);
 bool has_param(levels const & ls);
 
 /** \brief An arbitrary (monotonic) total order on universe level terms. */

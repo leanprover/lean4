@@ -38,11 +38,11 @@ void update_univ_parameters(parser & p, buffer<name> & lp_names, name_set const 
 
 static environment declare_universe(parser & p, environment env, name const & n, bool local) {
     if (local) {
-        p.add_local_level(n, mk_param_univ(n), local);
+        p.add_local_level(n, mk_univ_param(n), local);
     } else if (in_section(env)) {
-        p.add_local_level(n, mk_param_univ(n), false);
+        p.add_local_level(n, mk_univ_param(n), false);
     } else {
-        p.add_local_level(n, mk_param_univ(n), true);
+        p.add_local_level(n, mk_univ_param(n), true);
     }
     return env;
 }
@@ -147,7 +147,7 @@ static environment declare_var(parser & p, environment env,
 /** \brief If we are in a section, then add the new local levels to it. */
 static void update_local_levels(parser & p, level_param_names const & new_ls, bool is_variable) {
     for (auto const & l : new_ls)
-        p.add_local_level(l, mk_param_univ(l), is_variable);
+        p.add_local_level(l, mk_univ_param(l), is_variable);
 }
 
 optional<binder_info> parse_binder_info(parser & p, variable_kind k) {

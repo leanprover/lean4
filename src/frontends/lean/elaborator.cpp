@@ -2060,7 +2060,7 @@ expr elaborator::visit_app(expr const & e, optional<expr> const & expected_type)
 
 static level ground_uvars(level const & l) {
     return replace(l, [] (level const & l) {
-        if (is_meta(l)) {
+        if (is_mvar(l)) {
             return some_level(mk_level_zero());
         } else {
             return none_level();
@@ -3943,7 +3943,7 @@ struct sanitize_param_names_fn : public replace_visitor {
             m_idx++;
             if (!m_L.contains(new_n)) {
                 m_new_param_names.push_back(new_n);
-                return mk_param_univ(new_n);
+                return mk_univ_param(new_n);
             }
         }
     }
@@ -3951,7 +3951,7 @@ struct sanitize_param_names_fn : public replace_visitor {
     level sanitize(level const & l) {
         name p("u");
         return replace(l, [&](level const & l) -> optional<level> {
-                if (is_meta(l)) {
+                if (is_mvar(l)) {
                     if (is_metavar_decl_ref(l) && m_ctx.is_assigned(l)) {
                         return some_level(sanitize(*m_ctx.get_assignment(l)));
                     } else {

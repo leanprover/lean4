@@ -721,7 +721,7 @@ class add_mutual_inductive_decl_fn {
 
         level_param_names rec_lp_names = rec_decl.get_univ_params();
         bool elim_to_prop = rec_decl.get_num_univ_params() == m_basic_decl.get_lp_names().size();
-        m_elim_level      = elim_to_prop ? mk_level_zero() : mk_param_univ(head(rec_lp_names));
+        m_elim_level      = elim_to_prop ? mk_level_zero() : mk_univ_param(head(rec_lp_names));
 
         levels rec_levels = param_names_to_levels(rec_lp_names);
         expr rec_const = mk_constant(rec_name, rec_levels);

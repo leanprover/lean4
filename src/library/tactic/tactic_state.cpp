@@ -655,7 +655,7 @@ vm_obj tactic_mk_meta_var(vm_obj const & t, vm_obj const & s0) {
 vm_obj tactic_get_univ_assignment(vm_obj const & u, vm_obj const & s0) {
     tactic_state const & s   = tactic::to_state(s0);
     metavar_context mctx     = s.mctx();
-    if (!is_meta(to_level(u))) {
+    if (!is_mvar(to_level(u))) {
         return tactic::mk_exception("get_univ_assignment tactic failed, argument is not an universe metavariable", s);
     } else if (auto r = mctx.get_assignment(to_level(u))) {
         return tactic::mk_success(to_obj(*r), s);

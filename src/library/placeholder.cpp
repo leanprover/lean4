@@ -36,8 +36,8 @@ static unsigned next_placeholder_id() {
     g_placeholder_id++;
     return r;
 }
-level mk_level_placeholder() { return mk_param_univ(name(*g_placeholder_name, next_placeholder_id())); }
-level mk_level_one_placeholder() { return mk_param_univ(*g_placeholder_one_name); }
+level mk_level_placeholder() { return mk_univ_param(name(*g_placeholder_name, next_placeholder_id())); }
+level mk_level_one_placeholder() { return mk_univ_param(*g_placeholder_one_name); }
 static name const & to_prefix(expr_placeholder_kind k) {
     switch (k) {
     case expr_placeholder_kind::Implicit:       return *g_implicit_placeholder_name;

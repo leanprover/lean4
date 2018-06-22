@@ -204,7 +204,7 @@ public:
                 u = name("u").append_after(i);
                 i++;
             }
-            m_elim_level = mk_param_univ(u);
+            m_elim_level = mk_univ_param(u);
         }
         std::cout << ">> elim_level: " << m_elim_level << "\n";
     }

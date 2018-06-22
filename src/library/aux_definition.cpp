@@ -18,14 +18,14 @@ namespace lean {
 level closure_helper::collect(level const & l) {
     lean_assert(!m_finalized_collection);
     return replace(l, [&](level const & l) {
-            if (is_meta(l)) {
-                name const & id = meta_id(l);
+            if (is_mvar(l)) {
+                name const & id = mvar_id(l);
                 if (auto r = m_univ_meta_to_param.find(id)) {
                     return some_level(*r);
                 } else {
                     name n      = m_prefix.append_after(m_next_idx);
                     m_next_idx++;
-                    level new_r = mk_param_univ(n);
+                    level new_r = mk_univ_param(n);
                     m_univ_meta_to_param.insert(id, new_r);
                     m_univ_meta_to_param_inv.insert(n, l);
                     m_level_params.push_back(n);
@@ -129,7 +129,7 @@ void closure_helper::get_level_closure(buffer<level> & ls) {
         if (level const * l = m_univ_meta_to_param_inv.find(n))
             ls.push_back(*l);
         else
-            ls.push_back(mk_param_univ(n));
+            ls.push_back(mk_univ_param(n));
     }
 }
 

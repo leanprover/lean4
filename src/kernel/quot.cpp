@@ -30,7 +30,7 @@ static void check_eq_type(environment const & env) {
         throw exception("failed to initialize quot module, unexpected number of universe params at 'eq' type");
     local_ctx lctx;
     name_generator g;
-    level u = mk_param_univ(head(decl->m_level_params));
+    level u = mk_univ_param(head(decl->m_level_params));
     expr alpha = lctx.mk_local_decl(g, "α", mk_sort(u), mk_implicit_binder_info());
     expr expected_eq_type = lctx.mk_pi(alpha, mk_arrow(alpha, mk_arrow(alpha, mk_Prop())));
     if (decl->m_type != expected_eq_type)
@@ -50,7 +50,7 @@ environment quot_declare(environment const & env) {
     name u_name("u");
     local_ctx lctx;
     name_generator g;
-    level u         = mk_param_univ(u_name);
+    level u         = mk_univ_param(u_name);
     expr Sort_u     = mk_sort(u);
     expr alpha      = lctx.mk_local_decl(g, "α", Sort_u, mk_implicit_binder_info());
     expr r          = lctx.mk_local_decl(g, "r", mk_arrow(alpha, mk_arrow(alpha, mk_Prop())));
@@ -68,7 +68,7 @@ environment quot_declare(environment const & env) {
     quot_r          = mk_app(mk_constant(*quot_consts::g_quot, {u}), alpha, r);
     a               = lctx.mk_local_decl(g, "a", alpha);
     name v_name("v");
-    level v         = mk_param_univ(v_name);
+    level v         = mk_univ_param(v_name);
     expr Sort_v     = mk_sort(v);
     expr beta       = lctx.mk_local_decl(g, "β", Sort_v, mk_implicit_binder_info());
     expr f          = lctx.mk_local_decl(g, "f", mk_arrow(alpha, beta));

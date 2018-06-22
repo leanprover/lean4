@@ -97,7 +97,7 @@ levels collect_local_nonvar_levels(parser & p, level_param_names const & ls) {
     buffer<level> section_ls_buffer;
     for (name const & l : ls) {
         if (p.is_local_level(l) && !p.is_local_level_variable(l))
-            section_ls_buffer.push_back(mk_param_univ(l));
+            section_ls_buffer.push_back(mk_univ_param(l));
         else
             break;
     }

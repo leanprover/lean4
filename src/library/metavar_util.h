@@ -28,11 +28,11 @@ bool in_tmp_mode() const;
 
 template<typename CTX>
 bool has_assigned(CTX const & ctx, level const & l) {
-    if (!has_meta(l))
+    if (!has_mvar(l))
         return false;
     bool found = false;
     for_each(l, [&](level const & l) {
-            if (!has_meta(l))
+            if (!has_mvar(l))
                 return false; // stop search
             if (found)
                 return false;  // stop search
@@ -82,7 +82,7 @@ level instantiate_mvars(CTX & ctx, level const & l) {
     if (!has_assigned(ctx, l))
         return l;
     return replace(l, [&](level const & l) {
-            if (!has_meta(l)) {
+            if (!has_mvar(l)) {
                 return some_level(l);
             } else if (ctx.is_mvar(l)) {
                 if (auto v1 = ctx.get_assignment(l)) {

@@ -26,7 +26,7 @@ void finalize_idx_metavar() {
 }
 
 level mk_idx_metauniv(unsigned i) {
-    return mk_meta_univ(name(*g_tmp_prefix, i));
+    return mk_univ_mvar(name(*g_tmp_prefix, i));
 }
 
 expr mk_idx_metavar(unsigned i, expr const & type) {
@@ -34,15 +34,15 @@ expr mk_idx_metavar(unsigned i, expr const & type) {
 }
 
 bool is_idx_metauniv(level const & l) {
-    if (!is_meta(l))
+    if (!is_mvar(l))
         return false;
-    name const & n = meta_id(l);
+    name const & n = mvar_id(l);
     return !n.is_atomic() && n.is_numeral() && n.get_prefix() == *g_tmp_prefix;
 }
 
 unsigned to_meta_idx(level const & l) {
     lean_assert(is_idx_metauniv(l));
-    return meta_id(l).get_numeral().get_small_value();
+    return mvar_id(l).get_numeral().get_small_value();
 }
 
 bool is_idx_metavar(expr const & e) {
@@ -58,12 +58,12 @@ unsigned to_meta_idx(expr const & e) {
 }
 
 bool has_idx_metauniv(level const & l) {
-    if (!has_meta(l))
+    if (!has_mvar(l))
         return false;
     bool found = false;
     for_each(l, [&](level const & l) {
             if (found) return false;
-            if (!has_meta(l)) return false;
+            if (!has_mvar(l)) return false;
             if (is_idx_metauniv(l))
                 found = true;
             return true;
@@ -111,13 +111,13 @@ struct to_idx_metavars_fn : public replace_visitor {
         m_mctx(mctx), m_new_us(new_us), m_new_ms(new_ms) {}
 
     level visit(level const & l) {
-        if (!has_meta(l)) return l;
+        if (!has_mvar(l)) return l;
         return replace(l, [&](level const & l) {
-                if (is_meta(l) && !is_idx_metauniv(l)) {
-                    if (auto it = m_lvl_cache.find(meta_id(l)))
+                if (is_mvar(l) && !is_idx_metauniv(l)) {
+                    if (auto it = m_lvl_cache.find(mvar_id(l)))
                         return some_level(*it);
                     level new_l = mk_idx_metauniv(m_new_us.size());
-                    m_lvl_cache.insert(meta_id(l), new_l);
+                    m_lvl_cache.insert(mvar_id(l), new_l);
                     m_new_us.push_back(new_l);
                     return some_level(new_l);
                 }

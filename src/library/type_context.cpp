@@ -1452,7 +1452,7 @@ static bool is_max_like(level const & l) {
     such that l_i's do not contain m.
     If the result is true, then all l_i's are stored in rest. */
 static bool generalized_check_meta(level const & m, level const & rhs, bool & found_m, buffer<level> & rest) {
-    lean_assert(is_meta(m));
+    lean_assert(is_mvar(m));
     if (is_max(rhs)) {
         return
             generalized_check_meta(m, max_lhs(rhs), found_m, rest) &&
@@ -1475,7 +1475,7 @@ static bool generalized_check_meta(level const & m, level const & rhs, bool & fo
             ?u := max v ?w
 */
 bool type_context_old::solve_u_eq_max_u_v(level const & lhs, level const & rhs) {
-    lean_assert(is_meta(lhs));
+    lean_assert(is_mvar(lhs));
     lean_assert(occurs(lhs, rhs));
     buffer<level> rest;
     bool found_lhs = false;
@@ -1559,7 +1559,7 @@ lbool type_context_old::is_def_eq_core(level const & l1, level const & l2, bool 
     case level_kind::Succ:
         return is_def_eq_core(succ_of(l1), succ_of(l2), partial);
     case level_kind::Param:
-    case level_kind::Meta:
+    case level_kind::MVar:
         /* This can happen, for example, when we are in tmp_mode, but l1 and l2 are not tmp universe metavariables. */
         return l_false;
     case level_kind::Zero:
@@ -3885,7 +3885,7 @@ expr type_context_old::preprocess_class(expr const & type,
         return type;
     buffer<level> C_levels;
     for (level const & l : const_levels(C)) {
-        if (has_meta(l)) {
+        if (has_mvar(l)) {
             level new_uvar = mk_tmp_univ_mvar();
             u_replacements.emplace_back(l, new_uvar);
             C_levels.push_back(new_uvar);

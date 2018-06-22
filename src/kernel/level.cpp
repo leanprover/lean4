@@ -31,12 +31,12 @@ inline static void set_level_scalar_fields(object * lvl, unsigned num_objs, unsi
 inline static unsigned get_hash(object * lvl, unsigned num_objs) { return cnstr_scalar<unsigned>(lvl, num_objs*sizeof(object*)); }
 inline static unsigned get_depth(object * lvl, unsigned num_objs) { return cnstr_scalar<unsigned>(lvl, num_objs*sizeof(object*) + sizeof(unsigned)); }
 inline static bool get_has_param(object * lvl, unsigned num_objs) { return cnstr_scalar<unsigned char>(lvl, num_objs*sizeof(object*) + 2*sizeof(unsigned)); }
-inline static bool get_has_meta(object * lvl, unsigned num_objs) { return cnstr_scalar<unsigned char>(lvl, num_objs*sizeof(object*) + 2*sizeof(unsigned) + sizeof(unsigned char)); }
+inline static bool get_has_mvar(object * lvl, unsigned num_objs) { return cnstr_scalar<unsigned char>(lvl, num_objs*sizeof(object*) + 2*sizeof(unsigned) + sizeof(unsigned char)); }
 
 level mk_succ(level const & l) {
     inc(l.raw());
     level r(mk_cnstr(static_cast<unsigned>(level_kind::Succ), l.raw(), g_level_num_scalars));
-    set_level_scalar_fields(r.raw(), 1, hash(hash(l), 17u), get_depth(l)+1, has_param(l), has_meta(l));
+    set_level_scalar_fields(r.raw(), 1, hash(hash(l), 17u), get_depth(l)+1, has_param(l), has_mvar(l));
     return r;
 }
 
@@ -47,25 +47,25 @@ level mk_max_imax(level_kind k, level const & l1, level const & l2) {
                             hash(hash(l1), hash(l2)),
                             std::max(get_depth(l1), get_depth(l2)) + 1,
                             has_param(l1) || has_param(l2),
-                            has_meta(l1) || has_meta(l2));
+                            has_mvar(l1) || has_mvar(l2));
     return level(r);
 }
 
-level mk_param_univ(name const & n) {
+level mk_univ_param(name const & n) {
     inc(n.raw());
     return level(mk_cnstr(static_cast<unsigned>(level_kind::Param), n.raw()));
 }
 
-level mk_meta_univ(name const & n) {
+level mk_univ_mvar(name const & n) {
     inc(n.raw());
-    return level(mk_cnstr(static_cast<unsigned>(level_kind::Meta), n.raw()));
+    return level(mk_cnstr(static_cast<unsigned>(level_kind::MVar), n.raw()));
 }
 
 unsigned level::hash() const {
     switch (kind()) {
     case level_kind::Zero:
         return 31;
-    case level_kind::Param: case level_kind::Meta:
+    case level_kind::Param: case level_kind::MVar:
         return level_id(*this).hash();
     case level_kind::Succ:
         return get_hash(raw(), 1);
@@ -77,7 +77,7 @@ unsigned level::hash() const {
 
 unsigned get_depth(level const & l) {
     switch (kind(l)) {
-    case level_kind::Zero: case level_kind::Param: case level_kind::Meta:
+    case level_kind::Zero: case level_kind::Param: case level_kind::MVar:
         return 1;
     case level_kind::Succ:
         return get_depth(l.raw(), 1);
@@ -89,7 +89,7 @@ unsigned get_depth(level const & l) {
 
 bool has_param(level const & l) {
     switch (kind(l)) {
-    case level_kind::Zero: case level_kind::Meta:
+    case level_kind::Zero: case level_kind::MVar:
         return false;
     case level_kind::Param:
         return true;
@@ -101,16 +101,16 @@ bool has_param(level const & l) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-bool has_meta(level const & l) {
+bool has_mvar(level const & l) {
     switch (kind(l)) {
     case level_kind::Zero: case level_kind::Param:
         return false;
-    case level_kind::Meta:
+    case level_kind::MVar:
         return true;
     case level_kind::Succ:
-        return get_has_meta(l.raw(), 1);
+        return get_has_mvar(l.raw(), 1);
     case level_kind::Max: case level_kind::IMax:
-        return get_has_meta(l.raw(), 2);
+        return get_has_mvar(l.raw(), 2);
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
@@ -120,7 +120,7 @@ bool is_explicit(level const & l) {
     switch (kind(l)) {
     case level_kind::Zero:
         return true;
-    case level_kind::Param: case level_kind::Meta: case level_kind::Max: case level_kind::IMax:
+    case level_kind::Param: case level_kind::MVar: case level_kind::Max: case level_kind::IMax:
         return false;
     case level_kind::Succ:
         return is_explicit(succ_of(l));
@@ -194,7 +194,7 @@ bool operator==(level const & l1, level const & l2) {
     switch (kind(l1)) {
     case level_kind::Zero:
         return true;
-    case level_kind::Param: case level_kind::Meta:
+    case level_kind::Param: case level_kind::MVar:
         return level_id(l1) == level_id(l2);
     case level_kind::Max: case level_kind::IMax: case level_kind::Succ:
         if (get_depth(l1) != get_depth(l2))
@@ -202,7 +202,7 @@ bool operator==(level const & l1, level const & l2) {
         break;
     }
     switch (kind(l1)) {
-    case level_kind::Zero: case level_kind::Param: case level_kind::Meta:
+    case level_kind::Zero: case level_kind::Param: case level_kind::MVar:
         lean_unreachable(); // LCOV_EXCL_LINE
     case level_kind::Max: case level_kind::IMax:
         return
@@ -216,7 +216,7 @@ bool operator==(level const & l1, level const & l2) {
 
 bool is_not_zero(level const & l) {
     switch (kind(l)) {
-    case level_kind::Zero: case level_kind::Param: case level_kind::Meta:
+    case level_kind::Zero: case level_kind::Param: case level_kind::MVar:
         return false;
     case level_kind::Succ:
         return true;
@@ -243,7 +243,7 @@ bool is_lt(level const & a, level const & b, bool use_hash) {
     switch (kind(a)) {
     case level_kind::Zero:
         lean_unreachable(); // LCOV_EXCL_LINE
-    case level_kind::Param: case level_kind::Meta:
+    case level_kind::Param: case level_kind::MVar:
         return level_id(a) < level_id(b);
     case level_kind::Max: case level_kind::IMax:
         if (level_lhs(a) != level_lhs(b))
@@ -268,7 +268,7 @@ bool is_lt(levels const & as, levels const & bs, bool use_hash) {
 }
 
 bool has_param(levels const & ls) { return std::any_of(ls.begin(), ls.end(), [](level const & l) { return has_param(l); }); }
-bool has_meta(levels const & ls) { return std::any_of(ls.begin(), ls.end(), [](level const & l) { return has_meta(l); }); }
+bool has_mvar(levels const & ls) { return std::any_of(ls.begin(), ls.end(), [](level const & l) { return has_mvar(l); }); }
 
 void for_each_level_fn::apply(level const & l) {
     if (!m_f(l))
@@ -279,7 +279,7 @@ void for_each_level_fn::apply(level const & l) {
     case level_kind::Max: case level_kind::IMax:
         apply(level_lhs(l)); apply(level_rhs(l)); break;
     case level_kind::Zero: case level_kind::Param:
-    case level_kind::Meta:
+    case level_kind::MVar:
         break;
     }
 }
@@ -296,7 +296,7 @@ level replace_level_fn::apply(level const & l) {
         level l2 = apply(level_rhs(l));
         return update_max(l, l1, l2);
     }
-    case level_kind::Zero: case level_kind::Param: case level_kind::Meta:
+    case level_kind::Zero: case level_kind::Param: case level_kind::MVar:
         return l;
     }
     lean_unreachable(); // LCOV_EXCL_LINE
@@ -365,7 +365,7 @@ level instantiate(level const & l, level_param_names const & ps, levels const & 
 static void print(std::ostream & out, level l);
 
 static void print_child(std::ostream & out, level const & l) {
-    if (is_explicit(l) || is_param(l) || is_meta(l)) {
+    if (is_explicit(l) || is_param(l) || is_mvar(l)) {
         print(out, l);
     } else {
         out << "(";
@@ -384,8 +384,8 @@ static void print(std::ostream & out, level l) {
             lean_unreachable(); // LCOV_EXCL_LINE
         case level_kind::Param:
             out << param_id(l); break;
-        case level_kind::Meta:
-            out << "?" << meta_id(l); break;
+        case level_kind::MVar:
+            out << "?" << mvar_id(l); break;
         case level_kind::Succ:
             out << "succ "; print_child(out, succ_of(l)); break;
         case level_kind::Max: case level_kind::IMax:
@@ -415,7 +415,7 @@ std::ostream & operator<<(std::ostream & out, level const & l) {
 format pp(level l, bool unicode, unsigned indent);
 
 static format pp_child(level const & l, bool unicode, unsigned indent) {
-    if (is_explicit(l) || is_param(l) || is_meta(l)) {
+    if (is_explicit(l) || is_param(l) || is_mvar(l)) {
         return pp(l, unicode, indent);
     } else {
         return paren(pp(l, unicode, indent));
@@ -432,8 +432,8 @@ format pp(level l, bool unicode, unsigned indent) {
             lean_unreachable(); // LCOV_EXCL_LINE
         case level_kind::Param:
             return format(param_id(l));
-        case level_kind::Meta:
-            return format("?") + format(meta_id(l));
+        case level_kind::MVar:
+            return format("?") + format(mvar_id(l));
         case level_kind::Succ: {
             auto p    = to_offset(l);
             auto fmt1 = pp_child(p.first, unicode, indent);
@@ -482,7 +482,7 @@ static bool is_norm_lt(level const & a, level const & b) {
         switch (kind(l1)) {
         case level_kind::Zero: case level_kind::Succ:
             lean_unreachable(); // LCOV_EXCL_LINE
-        case level_kind::Param: case level_kind::Meta:
+        case level_kind::Param: case level_kind::MVar:
             return level_id(l1) < level_id(l2);
         case level_kind::Max: case level_kind::IMax:
             if (level_lhs(l1) != level_lhs(l2))
@@ -537,7 +537,7 @@ level normalize(level const & l) {
     case level_kind::Succ:
         lean_unreachable(); // LCOV_EXCL_LINE
     case level_kind::Zero:   case level_kind::Param:
-    case level_kind::Meta:
+    case level_kind::MVar:
         return l;
     case level_kind::IMax: {
         auto l1 = normalize(imax_lhs(r));
@@ -627,7 +627,7 @@ bool is_geq(level const & l1, level const & l2) {
 levels param_names_to_levels(level_param_names const & ps) {
     buffer<level> ls;
     for (auto const & p : ps)
-        ls.push_back(mk_param_univ(p));
+        ls.push_back(mk_univ_param(p));
     return levels(ls);
 }
 

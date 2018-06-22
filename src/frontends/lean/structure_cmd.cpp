@@ -779,7 +779,7 @@ struct structure_cmd_fn {
     void add_locals() {
         if (m_explicit_universe_params) {
             for (name const & l : m_level_names)
-                m_p.add_local_level(l, mk_param_univ(l));
+                m_p.add_local_level(l, mk_univ_param(l));
         }
         for (expr const & param : m_params)
             m_p.add_local(param);

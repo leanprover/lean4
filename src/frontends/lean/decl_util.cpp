@@ -35,7 +35,7 @@ bool parse_univ_params(parser & p, buffer<name> & lp_names) {
             auto pos0 = p.pos();
             name l = p.check_atomic_id_next("invalid declaration, identifier expected");
             lp_names.push_back(l);
-            p.add_local_level(l, mk_param_univ(l));
+            p.add_local_level(l, mk_univ_param(l));
             if (p.pos() == pos0) break;
         }
         p.next();

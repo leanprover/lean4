@@ -512,7 +512,7 @@ struct add_inductive_fn {
                 l = name("l").append_after(i);
                 i++;
             }
-            m_elim_level = mk_param_univ(l);
+            m_elim_level = mk_univ_param(l);
         }
     }
 

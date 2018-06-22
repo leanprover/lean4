@@ -212,7 +212,7 @@ environment mk_injective_arrow(environment const & env, name const & ir_name) {
     type_context_old tctx(env);
 
     name P_lp_name = mk_fresh_lp_name(d.get_univ_params());
-    expr P = tctx.push_local(name("P"), mk_sort(mk_param_univ(P_lp_name)), mk_strict_implicit_binder_info());
+    expr P = tctx.push_local(name("P"), mk_sort(mk_univ_param(P_lp_name)), mk_strict_implicit_binder_info());
 
     expr ty = d.get_type();
     buffer<expr> args;

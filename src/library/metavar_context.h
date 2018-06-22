@@ -75,7 +75,7 @@ public:
 
     bool is_assigned(level const & l) const {
         lean_assert(is_metavar_decl_ref(l));
-        return m_uassignment.contains(meta_id(l));
+        return m_uassignment.contains(mvar_id(l));
     }
 
     bool is_assigned(expr const & m) const {

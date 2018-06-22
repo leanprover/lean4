@@ -36,7 +36,7 @@ static void tst1() {
     lean_assert(mk_imax(two, zero) == zero);
     check_serializer(two);
     check_serializer(one);
-    level p = mk_param_univ("p");
+    level p = mk_univ_param("p");
     lean_assert(mk_imax(p, zero) == zero);
     lean_assert(mk_max(zero, p) == p);
     lean_assert(mk_max(p, zero) == p);
@@ -45,16 +45,16 @@ static void tst1() {
     check_serializer(mk_imax(p, one));
     check_serializer(mk_imax(one, p));
     check_serializer(mk_imax(mk_succ(p), p));
-    std::cout << pp(mk_max(p, mk_max(mk_succ(mk_param_univ("a")), one))) << "\n";
+    std::cout << pp(mk_max(p, mk_max(mk_succ(mk_univ_param("a")), one))) << "\n";
 }
 
 static void tst2() {
     level zero;
     level one = mk_succ(zero);
     level two = mk_succ(one);
-    level p1 = mk_param_univ("p1");
-    level p2 = mk_param_univ("p2");
-    level m1 = mk_meta_univ("m1");
+    level p1 = mk_univ_param("p1");
+    level p2 = mk_univ_param("p2");
+    level m1 = mk_univ_mvar("m1");
     lean_assert(is_equivalent(mk_succ(p2), mk_max(p2, mk_succ(p2))));
     lean_assert(is_equivalent(mk_max(p1, p2), mk_max(p2, p1)));
     lean_assert(!is_equivalent(mk_imax(p1, p2), mk_imax(p2, p1)));

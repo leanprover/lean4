@@ -133,7 +133,7 @@ optional<expr> unfold_app(environment const & env, expr const & e) {
 
 optional<level> dec_level(level const & l) {
     switch (kind(l)) {
-    case level_kind::Zero: case level_kind::Param: case level_kind::Meta:
+    case level_kind::Zero: case level_kind::Param: case level_kind::MVar:
         return none_level();
     case level_kind::Succ:
         return some_level(succ_of(l));

@@ -367,7 +367,7 @@ expr mk_fvar(name const & n) {
 expr mk_const(name const & n, levels const & ls) {
     inc(n.raw()); inc(ls.raw());
     expr r(mk_cnstr(static_cast<unsigned>(expr_kind::Const), n.raw(), ls.raw(), expr_scalar_size(expr_kind::Const)));
-    set_scalar<expr_kind::Const>(r, hash(n.hash(), hash(ls)), false, has_meta(ls), false, has_param(ls));
+    set_scalar<expr_kind::Const>(r, hash(n.hash(), hash(ls)), false, has_mvar(ls), false, has_param(ls));
     return r;
 }
 
@@ -389,7 +389,7 @@ expr mk_app(expr const & f, expr const & a) {
 expr mk_sort(level const & l) {
     inc(l.raw());
     expr r(mk_cnstr(static_cast<unsigned>(expr_kind::Sort), l.raw(), expr_scalar_size(expr_kind::Sort)));
-    set_scalar<expr_kind::Sort>(r, hash(l), false, has_meta(l), false, has_param(l));
+    set_scalar<expr_kind::Sort>(r, hash(l), false, has_mvar(l), false, has_param(l));
     return r;
 }
 

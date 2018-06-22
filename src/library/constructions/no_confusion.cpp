@@ -36,7 +36,7 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
     declaration ind_decl   = env.get(n);
     declaration cases_decl = env.get(name(n, "cases_on"));
     level_param_names lps  = cases_decl.get_univ_params();
-    level  plvl            = mk_param_univ(head(lps));
+    level  plvl            = mk_univ_param(head(lps));
     levels ilvls           = param_names_to_levels(tail(lps));
     level rlvl             = plvl;
     expr ind_type          = instantiate_type_univ_params(ind_decl, ilvls);

@@ -252,15 +252,15 @@ name pretty_fn::mk_local_name(name const & n, name const & suggested) {
 }
 
 level pretty_fn::purify(level const & l) {
-    if (!m_universes || !m_purify_metavars || !has_meta(l))
+    if (!m_universes || !m_purify_metavars || !has_mvar(l))
         return l;
     return replace(l, [&](level const & l) {
-            if (!has_meta(l))
+            if (!has_mvar(l))
                 return some_level(l);
             if (is_metavar_decl_ref(l))
-                return some_level(mk_meta_univ(mk_metavar_name(meta_id(l), "l")));
-            if (is_meta(l) && !is_idx_metauniv(l))
-                return some_level(mk_meta_univ(mk_metavar_name(meta_id(l))));
+                return some_level(mk_univ_mvar(mk_metavar_name(mvar_id(l), "l")));
+            if (is_mvar(l) && !is_idx_metauniv(l))
+                return some_level(mk_univ_mvar(mk_metavar_name(mvar_id(l))));
             return none_level();
         });
 }
@@ -358,7 +358,7 @@ void pretty_fn::set_options(options const & o) {
 }
 
 format pretty_fn::pp_child(level const & l) {
-    if (is_explicit(l) || is_param(l) || is_meta(l)) {
+    if (is_explicit(l) || is_param(l) || is_mvar(l)) {
         return pp_level(l);
     } else {
         return paren(pp_level(l));
@@ -388,7 +388,7 @@ format pretty_fn::pp_meta(level const & l) {
         } else if (is_metavar_decl_ref(l)) {
             return format((sstream() << "?l_" << get_metavar_decl_ref_suffix(l)).str());
         } else {
-            return compose(format("?"), format(meta_id(l)));
+            return compose(format("?"), format(mvar_id(l)));
         }
     } else {
         return format("?");
@@ -405,7 +405,7 @@ format pretty_fn::pp_level(level const & l) {
             lean_unreachable(); // LCOV_EXCL_LINE
         case level_kind::Param:
             return format(param_id(l));
-        case level_kind::Meta:
+        case level_kind::MVar:
             return pp_meta(l);
         case level_kind::Succ: {
             auto p = to_offset(l);

@@ -314,7 +314,6 @@ expr infer_implicit(expr const & t, bool strict);
 
 // =======================================
 // Low level (raw) printing
-std::ostream & operator<<(std::ostream & out, expr_kind const & k);
 std::ostream & operator<<(std::ostream & out, expr const & e);
 // =======================================
 

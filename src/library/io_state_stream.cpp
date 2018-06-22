@@ -19,11 +19,6 @@ io_state_stream const & operator<<(io_state_stream const & out, option_kind k) {
     return out;
 }
 
-io_state_stream const & operator<<(io_state_stream const & out, expr_kind const & k) {
-    out.get_stream() << k;
-    return out;
-}
-
 io_state_stream const & operator<<(io_state_stream const & out, expr const & e) {
     options const & opts = out.get_options();
     out.get_stream() << mk_pair(group(out.get_formatter()(e)), opts);

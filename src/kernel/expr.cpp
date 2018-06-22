@@ -72,25 +72,6 @@ static unsigned hash(levels const & ls) {
     return r;
 }
 
-std::ostream & operator<<(std::ostream & out, expr_kind const & k) {
-    switch (k) {
-    case expr_kind::MData:    out << "expr.mdata"; break;
-    case expr_kind::Proj:     out << "expr.proj"; break;
-    case expr_kind::Lit:      out << "expr.lit"; break;
-    case expr_kind::BVar:     out << "expr.bvar"; break;
-    case expr_kind::FVar:     out << "expr.fvar"; break;
-    case expr_kind::MVar:     out << "expr.mvar"; break;
-    case expr_kind::Sort:     out << "expr.sort"; break;
-    case expr_kind::Const:    out << "expr.const"; break;
-    case expr_kind::App:      out << "expr.app"; break;
-    case expr_kind::Lambda:   out << "expr.lam"; break;
-    case expr_kind::Pi:       out << "expr.pi"; break;
-    case expr_kind::Let:      out << "expr.elet"; break;
-    case expr_kind::Quote:    out << "expr.quote"; break;
-    }
-    return out;
-}
-
 // =======================================
 // Safe arithmetic
 

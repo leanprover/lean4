@@ -27,8 +27,6 @@ struct head_index {
     friend std::ostream & operator<<(std::ostream & out, head_index const & head_idx);
 };
 
-io_state_stream const & operator<<(io_state_stream const & out, head_index const & head_idx);
-
 /**
     \brief Very simple indexing data-structure that allow us to map the head symbol of an expression to
     a list of values.

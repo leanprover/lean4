@@ -59,43 +59,59 @@ vm_obj to_obj(declaration const & n) {
     return mk_vm_external(new vm_declaration(n));
 }
 
-vm_obj declaration_defn(vm_obj const & n, vm_obj const & ls, vm_obj const & type, vm_obj const & value,
-                        vm_obj const & hints, vm_obj const & meta) {
-    return to_obj(mk_definition(to_name(n), to_names(ls), to_expr(type), to_expr(value), to_reducibility_hints(hints), to_bool(meta)));
+vm_obj declaration_defn(vm_obj const & val) {
+    return to_obj(mk_definition(to_name(cfield(cfield(val, 0), 0)),
+                                to_names(cfield(cfield(val, 0), 1)),
+                                to_expr(cfield(cfield(val, 0), 2)),
+                                to_expr(cfield(val, 1)),
+                                to_reducibility_hints(cfield(val, 2)),
+                                to_bool(cfield(val, 3))));
 }
 
-vm_obj declaration_thm(vm_obj const & n, vm_obj const & ls, vm_obj const & type, vm_obj const & value) {
-    return to_obj(mk_theorem(to_name(n), to_names(ls), to_expr(type), to_expr(value)));
+vm_obj declaration_thm(vm_obj const & val) {
+    return to_obj(mk_theorem(to_name(cfield(cfield(val, 0), 0)),
+                             to_names(cfield(cfield(val, 0), 1)),
+                             to_expr(cfield(cfield(val, 0), 2)),
+                             to_expr(cfield(val, 1))));
 }
 
-vm_obj declaration_cnst(vm_obj const & n, vm_obj const & ls, vm_obj const & type, vm_obj const & meta) {
-    return to_obj(mk_constant_assumption(to_name(n), to_names(ls), to_expr(type), to_bool(meta)));
+vm_obj declaration_cnst(vm_obj const & val) {
+    return to_obj(mk_constant_assumption(to_name(cfield(cfield(val, 0), 0)),
+                                         to_names(cfield(cfield(val, 0), 1)),
+                                         to_expr(cfield(cfield(val, 0), 2)),
+                                         to_bool(cfield(val, 1))));
 }
 
-vm_obj declaration_ax(vm_obj const & n, vm_obj const & ls, vm_obj const & type) {
-    return to_obj(mk_axiom(to_name(n), to_names(ls), to_expr(type)));
+vm_obj declaration_ax(vm_obj const & val) {
+    return to_obj(mk_axiom(to_name(cfield(val, 0)),
+                           to_names(cfield(val, 1)),
+                           to_expr(cfield(val, 2))));
+}
+
+vm_obj mk_declaration_val(declaration const & d) {
+    return mk_vm_constructor(0, to_obj(d.get_name()), to_obj(d.get_univ_params()), to_obj(d.get_type()));
 }
 
 unsigned declaration_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
     declaration const & d = to_declaration(o);
-    data.push_back(to_obj(d.get_name()));
-    data.push_back(to_obj(d.get_univ_params()));
-    data.push_back(to_obj(d.get_type()));
-    if (d.is_theorem()) {
-        data.push_back(to_obj(d.get_value()));
-        return 1;
-    } else if (d.is_axiom()) {
-        return 3;
-    } else if (d.is_definition()) {
-        data.push_back(to_obj(d.get_value()));
-        data.push_back(to_obj(d.get_hints()));
-        data.push_back(mk_vm_bool(d.is_meta()));
-        return 0;
-    } else {
-        lean_assert(d.is_constant_assumption());
-        data.push_back(mk_vm_bool(d.is_meta()));
-        return 2;
+    switch (d.kind()) {
+    case declaration_kind::Constant:
+        data.push_back(mk_vm_constructor(0, mk_declaration_val(d), mk_vm_bool(d.is_meta())));
+        break;
+    case declaration_kind::Definition:
+        data.push_back(mk_vm_constructor(0, mk_declaration_val(d), to_obj(d.get_value()), to_obj(d.get_hints()), mk_vm_bool(d.is_meta())));
+        break;
+    case declaration_kind::Axiom:
+        data.push_back(mk_declaration_val(d));
+        break;
+    case declaration_kind::Theorem:
+        data.push_back(mk_vm_constructor(0, mk_declaration_val(d), to_obj(d.get_value())));
+        break;
+    case declaration_kind::Inductive:   lean_unreachable(); // TODO(Leo):
+    case declaration_kind::Constructor: lean_unreachable(); // TODO(Leo):
+    case declaration_kind::Recursor:    lean_unreachable(); // TODO(Leo):
     }
+    return static_cast<unsigned>(d.kind());
 }
 
 /*
@@ -125,13 +141,13 @@ vm_obj declaration_instantiate_value_univ_params(vm_obj const & _d, vm_obj const
 }
 
 void initialize_vm_declaration() {
-    DECLARE_VM_BUILTIN(name({"declaration", "defn"}),           declaration_defn);
-    DECLARE_VM_BUILTIN(name({"declaration", "thm"}),            declaration_thm);
-    DECLARE_VM_BUILTIN(name({"declaration", "cnst"}),           declaration_cnst);
-    DECLARE_VM_BUILTIN(name({"declaration", "ax"}),             declaration_ax);
-    DECLARE_VM_BUILTIN(name({"declaration", "instantiate_type_univ_params"}), declaration_instantiate_type_univ_params);
-    DECLARE_VM_BUILTIN(name({"declaration", "instantiate_value_univ_params"}), declaration_instantiate_value_univ_params);
-    DECLARE_VM_CASES_BUILTIN(name({"declaration", "cases_on"}), declaration_cases_on);
+    DECLARE_VM_BUILTIN(name({"lean", "declaration", "defn_decl"}),  declaration_defn);
+    DECLARE_VM_BUILTIN(name({"lean", "declaration", "thm_decl"}),   declaration_thm);
+    DECLARE_VM_BUILTIN(name({"lean", "declaration", "const_decl"}), declaration_cnst);
+    DECLARE_VM_BUILTIN(name({"lean", "declaration", "ax"}),         declaration_ax);
+    DECLARE_VM_BUILTIN(name({"lean", "declaration", "instantiate_type_univ_params"}),  declaration_instantiate_type_univ_params);
+    DECLARE_VM_BUILTIN(name({"lean", "declaration", "instantiate_value_univ_params"}), declaration_instantiate_value_univ_params);
+    DECLARE_VM_CASES_BUILTIN(name({"lean", "declaration", "cases_on"}), declaration_cases_on);
 }
 
 void finalize_vm_declaration() {

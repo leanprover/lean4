@@ -44,15 +44,15 @@ structure axiom_val extends declaration_val
 structure constant_val extends declaration_val :=
 (is_meta : bool)
 
-/- TODO(Leo): the `val` field for `definition_val` and `theorem_val` should be a thunk. We will make this change
+/- TODO(Leo): the `value` field for `definition_val` and `theorem_val` should be a thunk. We will make this change
    as soon as we add support for serializing thunks.
    We need this feature to be able to load their values on demand in the kernel. -/
 
 structure definition_val extends declaration_val :=
-(val : expr) (hints : reducibility_hints) (is_meta : bool)
+(value : expr) (hints : reducibility_hints) (is_meta : bool)
 
 structure theorem_val extends declaration_val :=
-(val : expr)
+(value : expr)
 
 structure inductive_val extends declaration_val :=
 (nparams : nat)       -- Number of parameters
@@ -95,4 +95,42 @@ inductive declaration
 | cnstr_decl  (val : constructor_val)
 | rec_decl    (val : recursor_val)
 
+namespace declaration
+
+def to_declaration_val : declaration → declaration_val
+| (const_decl  {to_declaration_val := d, ..}) := d
+| (defn_decl   {to_declaration_val := d, ..}) := d
+| (axiom_decl  {to_declaration_val := d, ..}) := d
+| (thm_decl    {to_declaration_val := d, ..}) := d
+| (induct_decl {to_declaration_val := d, ..}) := d
+| (cnstr_decl  {to_declaration_val := d, ..}) := d
+| (rec_decl    {to_declaration_val := d, ..}) := d
+
+def id (d : declaration) : name :=
+d.to_declaration_val.id
+
+def lparams (d : declaration) : list name :=
+d.to_declaration_val.lparams
+
+def type (d : declaration) : expr :=
+d.to_declaration_val.type
+
+def value : declaration → option expr
+| (defn_decl {value := r, ..}) := some r
+| (thm_decl  {value := r, ..}) := some r
+| _                            := none
+
+def hints : declaration → reducibility_hints
+| (defn_decl {hints := r, ..}) := r
+| _                            := reducibility_hints.opaque
+
+def is_meta : declaration → bool
+| (const_decl  {is_meta := r, ..}) := r
+| (defn_decl   {is_meta := r, ..}) := r
+| (induct_decl {is_meta := r, ..}) := r
+| (cnstr_decl  {is_meta := r, ..}) := r
+| (rec_decl    {is_meta := r, ..}) := r
+| _                                := ff
+
+end declaration
 end lean

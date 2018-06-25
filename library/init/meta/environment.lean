@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.declaration init.meta.exceptional init.data.option.basic
+import init.meta.declaration init.meta.expr init.meta.exceptional init.data.option.basic
 
 meta constant environment : Type
 
@@ -107,7 +107,7 @@ meta def in_current_file (env : environment) (n : name) : bool :=
 
 meta def is_definition (env : environment) (n : name) : bool :=
 match env.get n with
-| exceptional.success (declaration.defn _ _ _ _ _ _) := tt
+| exceptional.success (lean.declaration.defn_decl _) := tt
 | _                                                  := ff
 
 end environment

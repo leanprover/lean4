@@ -887,7 +887,7 @@ meta def mk_num_meta_univs : nat → tactic (list level)
 meta def mk_const (c : name) : tactic expr :=
 do env  ← get_env,
    decl ← env.get c,
-   let num := decl.univ_params.length,
+   let num := decl.lparams.length,
    ls   ← mk_num_meta_univs num,
    return (expr.const c ls)
 
@@ -1055,7 +1055,7 @@ meta def add_inductive (n : name) (ls : list name) (p : nat) (ty : expr) (is : l
 updateex_env $ λe, e.add_inductive n ls p ty is is_meta
 
 meta def add_meta_definition (n : name) (lvls : list name) (type value : expr) : tactic unit :=
-add_decl (declaration.defn n lvls type value reducibility_hints.abbrev ff)
+add_decl (lean.declaration.defn_decl { id := n, lparams := lvls, type := type, value := value, hints := lean.reducibility_hints.abbrev, is_meta := tt })
 
 meta def rename (curr : name) (new : name) : tactic unit :=
 do h ← get_local curr,

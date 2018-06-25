@@ -77,7 +77,7 @@ structure recursor_rule :=
 (rhs : expr)    -- Right hand side of the reduction rule
 
 structure recursor_val extends declaration_val :=
-(induct : list name)         -- List of all inductive datatypes in the mutual declaration that generated this recursor
+(all : list name)            -- List of all inductive datatypes in the mutual declaration that generated this recursor
 (nparams : nat)              -- Number of parameters
 (nindices : nat)             -- Number of indices
 (nmotives : nat)             -- Number of motives

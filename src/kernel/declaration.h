@@ -63,6 +63,67 @@ inline deserializer & operator>>(deserializer & d, reducibility_hints & l) { l =
 int compare(reducibility_hints const & h1, reducibility_hints const & h2);
 
 /*
+structure declaration_val :=
+(id : name) (lparams : list name) (type : expr)
+*/
+class declaration_val : public object_ref {
+public:
+    declaration_val(declaration_val const & other):object_ref(other) {}
+    declaration_val(declaration_val && other):object_ref(other) {}
+    declaration_val & operator=(declaration_val const & other) { object_ref::operator=(other); return *this; }
+    declaration_val & operator=(declaration_val && other) { object_ref::operator=(other); return *this; }
+    name const & get_name() const { return static_cast<name const &>(cnstr_obj_ref(*this, 0)); }
+    level_param_names const & get_lparams() const { return static_cast<level_param_names const &>(cnstr_obj_ref(*this, 1)); }
+    expr const & get_type() const { return static_cast<expr const &>(cnstr_obj_ref(*this, 2)); }
+};
+
+/*
+structure inductive_val extends declaration_val :=
+(nparams : nat)       -- Number of parameters
+(nindices : nat)      -- Number of indices
+(all : list name)     -- List of all (including this one) inductive datatypes in the mutual declaration containing this one
+(cnstrs : list name)  -- List of all constructors for this inductive datatype
+(recs : list name)    -- List of all recursors generated when the mutual inductive declaration containing this declaration was accepted by the kernel
+                      -- Remark: `recs.length` may be greater than `all.length` if declaration contains nested inductives
+                      -- The first element in the list is the recursor of this inductive declaration
+(is_rec : bool)       -- `tt` iff it is recursive
+(is_meta : bool)
+*/
+class inductive_val : public object_ref {
+public:
+    inductive_val(inductive_val const & other):object_ref(other) {}
+    inductive_val(inductive_val && other):object_ref(other) {}
+    inductive_val & operator=(inductive_val const & other) { object_ref::operator=(other); return *this; }
+    inductive_val & operator=(inductive_val && other) { object_ref::operator=(other); return *this; }
+    declaration_val const & to_declaration_val() const { return static_cast<declaration_val const &>(cnstr_obj_ref(*this, 0)); }
+    nat const & get_nparams() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 1)); }
+    nat const & get_nindices() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 2)); }
+    names const & get_all() const { return static_cast<names const &>(cnstr_obj_ref(*this, 3)); }
+    names const & get_cnstrs() const { return static_cast<names const &>(cnstr_obj_ref(*this, 4)); }
+    names const & get_recs() const { return static_cast<names const &>(cnstr_obj_ref(*this, 5)); }
+    bool is_rec() const;
+    bool is_meta() const;
+};
+
+/*
+structure constructor_val extends declaration_val :=
+(induct  : name)  -- Inductive type this constructor is a member of
+(nparams : nat)   -- Number of parameters in inductive datatype `induct`
+(is_meta : bool)
+*/
+class constructor_val : public object_ref {
+public:
+    constructor_val(constructor_val const & other):object_ref(other) {}
+    constructor_val(constructor_val && other):object_ref(other) {}
+    constructor_val & operator=(constructor_val const & other) { object_ref::operator=(other); return *this; }
+    constructor_val & operator=(constructor_val && other) { object_ref::operator=(other); return *this; }
+    declaration_val const & to_declaration_val() const { return static_cast<declaration_val const &>(cnstr_obj_ref(*this, 0)); }
+    name const & get_induct() const { return static_cast<name const &>(cnstr_obj_ref(*this, 1)); }
+    nat const & get_nparams() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 2)); }
+    bool is_meta() const;
+};
+
+/*
 structure recursor_rule :=
 (cnstr : name)  -- Reduction rule for this constructor
 (nfields : nat) -- Number of fields (i.e., without counting inductive datatype parameters)
@@ -82,8 +143,35 @@ public:
 
 typedef list_ref<recursor_rule> recursor_rules;
 
-/**
+/*
+structure recursor_val extends declaration_val :=
+(all : list name)            -- List of all inductive datatypes in the mutual declaration that generated this recursor
+(nparams : nat)              -- Number of parameters
+(nindices : nat)             -- Number of indices
+(nmotives : nat)             -- Number of motives
+(nminors : nat)              -- Number of minor premises
+(k : bool)                   -- It supports K-like reduction
+(rules : list recursor_rule) -- A reduction for each constructor
+(is_meta : bool)
+*/
+class recursor_val : public object_ref {
+public:
+    recursor_val(recursor_val const & other):object_ref(other) {}
+    recursor_val(recursor_val && other):object_ref(other) {}
+    recursor_val & operator=(recursor_val const & other) { object_ref::operator=(other); return *this; }
+    recursor_val & operator=(recursor_val && other) { object_ref::operator=(other); return *this; }
+    declaration_val const & to_declaration_val() const { return static_cast<declaration_val const &>(cnstr_obj_ref(*this, 0)); }
+    names const & get_all() const { return static_cast<names const &>(cnstr_obj_ref(*this, 1)); }
+    nat const & get_nparams() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 2)); }
+    nat const & get_nindices() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 3)); }
+    nat const & get_nmotives() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 4)); }
+    nat const & get_nminors() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 5)); }
+    recursor_rules const & get_rules() const { return static_cast<recursor_rules const &>(cnstr_obj_ref(*this, 6)); }
+    bool is_k() const;
+    bool is_meta() const;
+};
 
+/*
 inductive declaration
 | const_decl  (val : constant_val)
 | defn_decl   (val : definition_val)
@@ -92,7 +180,6 @@ inductive declaration
 | induct_decl (val : inductive_val)
 | cnstr_decl  (val : constructor_val)
 | rec_decl    (val : recursor_val)
-
 */
 enum class declaration_kind { Constant, Definition, Axiom, Theorem, Inductive, Constructor, Recursor };
 class declaration : public object_ref {
@@ -110,8 +197,8 @@ class declaration : public object_ref {
                                     unsigned nindices, unsigned nmotives, unsigned nminor, bool k, recursor_rules const & rules, bool is_meta);
 
     object * get_val_obj() const { return cnstr_obj(raw(), 0); }
-    object_ref const & get_val() const { return cnstr_obj_ref(*this, 0); }
-    object_ref const & get_declaration_val() const { return (kind() == declaration_kind::Axiom) ? get_val() : cnstr_obj_ref(get_val(), 0); }
+    object_ref const & to_val() const { return cnstr_obj_ref(*this, 0); }
+    declaration_val const & to_declaration_val() const { return static_cast<declaration_val const &>(kind() == declaration_kind::Axiom ? to_val() : cnstr_obj_ref(to_val(), 0)); }
 public:
     declaration();
     declaration(declaration const & other):object_ref(other) {}
@@ -127,15 +214,22 @@ public:
     bool is_definition() const { return kind() == declaration_kind::Definition; }
     bool is_axiom() const { return kind() == declaration_kind::Axiom; }
     bool is_theorem() const { return kind() == declaration_kind::Theorem; }
+    bool is_inductive() const { return kind() == declaration_kind::Inductive; }
+    bool is_constructor() const { return kind() == declaration_kind::Constructor; }
+    bool is_recursor() const { return kind() == declaration_kind::Recursor; }
     bool is_meta() const;
     bool has_value() const { return is_theorem() || is_definition(); }
 
-    name const & get_name() const { return static_cast<name const &>(cnstr_obj_ref(get_declaration_val(), 0)); }
-    level_param_names const & get_univ_params() const { return static_cast<level_param_names const &>(cnstr_obj_ref(get_declaration_val(), 1)); }
+    name const & get_name() const { return to_declaration_val().get_name(); }
+    level_param_names const & get_univ_params() const { return to_declaration_val().get_lparams(); }
     unsigned get_num_univ_params() const { return length(get_univ_params()); }
-    expr const & get_type() const { return static_cast<expr const &>(cnstr_obj_ref(get_declaration_val(), 2)); }
-    expr const & get_value() const { lean_assert(has_value()); return static_cast<expr const &>(cnstr_obj_ref(get_val(), 1)); }
+    expr const & get_type() const { return to_declaration_val().get_type(); }
+    expr const & get_value() const { lean_assert(has_value()); return static_cast<expr const &>(cnstr_obj_ref(to_val(), 1)); }
     reducibility_hints const & get_hints() const;
+
+    inductive_val const & to_inductive_val() const { lean_assert(is_inductive()); return static_cast<inductive_val const &>(to_val()); }
+    constructor_val const & to_constructor_val() const { lean_assert(is_constructor()); return static_cast<constructor_val const &>(to_val()); }
+    recursor_val const & to_recursor_val() const { lean_assert(is_recursor()); return static_cast<recursor_val const &>(to_val()); }
 
     friend declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v,
                                      reducibility_hints const & hints, bool meta);

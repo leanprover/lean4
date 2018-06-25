@@ -49,6 +49,12 @@ static unsigned inductive_scalar_offset() { return sizeof(object*)*6; }
 static unsigned constructor_scalar_offset() { return sizeof(object*)*3; }
 static unsigned recursor_scalar_offset() { return sizeof(object*)*7; }
 
+bool inductive_val::is_rec() const { return (cnstr_scalar<unsigned char>(raw(), inductive_scalar_offset()) & 1) != 0; }
+bool inductive_val::is_meta() const { return (cnstr_scalar<unsigned char>(raw(), inductive_scalar_offset()) & 2) != 0; }
+bool constructor_val::is_meta() const { return cnstr_scalar<unsigned char>(raw(), constructor_scalar_offset()); }
+bool recursor_val::is_k() const { return (cnstr_scalar<unsigned char>(raw(), recursor_scalar_offset()) & 1) != 0; }
+bool recursor_val::is_meta() const { return (cnstr_scalar<unsigned char>(raw(), recursor_scalar_offset()) & 2) != 0; }
+
 object * declaration::mk_declaration_val(name const & n, level_param_names const & params, expr const & t) {
     object * r = alloc_cnstr(0, 3, 0);
     inc(n.raw());      cnstr_set_obj(r, 0, n.raw());
@@ -127,9 +133,9 @@ bool declaration::is_meta() const {
     switch (kind()) {
     case declaration_kind::Definition:  return cnstr_scalar<unsigned char>(get_val_obj(), definition_scalar_offset()) != 0;
     case declaration_kind::Constant:    return cnstr_scalar<unsigned char>(get_val_obj(), constant_scalar_offset()) != 0;
-    case declaration_kind::Inductive:   return (cnstr_scalar<unsigned char>(get_val_obj(), inductive_scalar_offset()) & 2) != 0;
-    case declaration_kind::Constructor: return cnstr_scalar<unsigned char>(get_val_obj(), constructor_scalar_offset()) != 0;
-    case declaration_kind::Recursor:    return (cnstr_scalar<unsigned char>(get_val_obj(), recursor_scalar_offset()) & 2) != 0;
+    case declaration_kind::Inductive:   return to_inductive_val().is_meta();
+    case declaration_kind::Constructor: return to_constructor_val().is_meta();
+    case declaration_kind::Recursor:    return to_recursor_val().is_meta();
     case declaration_kind::Axiom:       return false;
     case declaration_kind::Theorem:     return false;
     }
@@ -140,7 +146,7 @@ static reducibility_hints * g_opaque = nullptr;
 
 reducibility_hints const & declaration::get_hints() const {
     if (is_definition())
-        return static_cast<reducibility_hints const &>(cnstr_obj_ref(get_val(), 2));
+        return static_cast<reducibility_hints const &>(cnstr_obj_ref(to_val(), 2));
     else
         return *g_opaque;
 }

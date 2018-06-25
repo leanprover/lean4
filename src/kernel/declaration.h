@@ -62,6 +62,25 @@ inline deserializer & operator>>(deserializer & d, reducibility_hints & l) { l =
     >  0 If f2 should be unfolded */
 int compare(reducibility_hints const & h1, reducibility_hints const & h2);
 
+/*
+structure recursor_rule :=
+(cnstr : name)  -- Reduction rule for this constructor
+(nfields : nat) -- Number of fields (i.e., without counting inductive datatype parameters)
+(rhs : expr)    -- Right hand side of the reduction rule
+*/
+class recursor_rule : public object_ref {
+public:
+    recursor_rule(name const & cnstr, unsigned nfields, expr const & rhs);
+    recursor_rule(recursor_rule const & other):object_ref(other) {}
+    recursor_rule(recursor_rule && other):object_ref(other) {}
+    recursor_rule & operator=(recursor_rule const & other) { object_ref::operator=(other); return *this; }
+    recursor_rule & operator=(recursor_rule && other) { object_ref::operator=(other); return *this; }
+    name const & get_constructor() const { return static_cast<name const &>(cnstr_obj_ref(*this, 0)); }
+    nat const & get_nfields() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 1)); }
+    expr const & get_rhs() const { return static_cast<expr const &>(cnstr_obj_ref(*this, 2)); }
+};
+
+typedef list_ref<recursor_rule> recursor_rules;
 
 /**
 
@@ -84,6 +103,12 @@ class declaration : public object_ref {
     static object * mk_definition_val(name const & n, level_param_names const & params, expr const & t, expr const & v, reducibility_hints const & h, bool meta);
     static object * mk_axiom_val(name const & n, level_param_names const & params, expr const & t);
     static object * mk_theorem_val(name const & n, level_param_names const & params, expr const & t, expr const & v);
+    static object * mk_inductive_val(name const & n, level_param_names const & params, expr const & t, unsigned nparams, unsigned nindices,
+                                     names const & all, names const & cnstrs, names const & recs, bool is_rec, bool is_meta);
+    static object * mk_constructor_val(name const & n, level_param_names const & params, expr const & t, name const & induct, unsigned nparams, bool is_meta);
+    static object * mk_recursor_val(name const & id, level_param_names const & params, expr const & t, name const & induct, unsigned nparams,
+                                    unsigned nindices, unsigned nmotives, unsigned nminor, bool k, recursor_rules const & rules, bool is_meta);
+
     object * get_val_obj() const { return cnstr_obj(raw(), 0); }
     object_ref const & get_val() const { return cnstr_obj_ref(*this, 0); }
     object_ref const & get_declaration_val() const { return (kind() == declaration_kind::Axiom) ? get_val() : cnstr_obj_ref(get_val(), 0); }
@@ -119,6 +144,12 @@ public:
     friend declaration mk_theorem(name const &, level_param_names const &, expr const &, expr const &);
     friend declaration mk_axiom(name const & n, level_param_names const & params, expr const & t);
     friend declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t, bool meta);
+    friend declaration mk_inductive(name const & n, level_param_names const & params, expr const & t, unsigned nparams, unsigned nindices,
+                                    names const & all, names const & cnstrs, names const & recs, bool is_rec, bool is_meta);
+    friend declaration mk_constructor(name const & n, level_param_names const & params, expr const & t, name const & induct, unsigned nparams,
+                                      bool is_meta);
+    friend declaration mk_recursor(name const & id, level_param_names const & params, expr const & t, name const & induct, unsigned nparams,
+                                   unsigned nindices, unsigned nmotives, unsigned nminor, bool k, recursor_rules const & rules, bool is_meta);
 
     void serialize(serializer & s) const { s.write_object(raw()); }
     static declaration deserialize(deserializer & d) { object * o = d.read_object(); inc(o); return declaration(o); }

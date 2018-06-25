@@ -139,8 +139,6 @@ class environment {
     bool                      m_quot_initialized{false};
     declarations              m_declarations;
     extensions                m_extensions;
-    // TODO(Leo): store inductive_decls at m_declarations
-    name_map<inductive_decls> m_inductive_decls;
 
     environment(environment const & env, declarations const & ds):
         m_header(env.m_header), m_id(environment_id::mk_descendant(env.m_id)), m_quot_initialized(env.m_quot_initialized), m_declarations(ds), m_extensions(env.m_extensions) {}

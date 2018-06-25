@@ -37,6 +37,12 @@ int compare(reducibility_hints const & h1, reducibility_hints const & h2) {
     }
 }
 
+recursor_rule::recursor_rule(name const & cnstr, unsigned nfields, expr const & rhs):
+    object_ref(mk_cnstr(0, cnstr.raw(), mk_nat_obj(nfields), rhs.raw())) {
+    inc(cnstr.raw());
+    inc(rhs.raw());
+}
+
 static unsigned definition_scalar_offset() { return sizeof(object*)*3; }
 static unsigned constant_scalar_offset() { return sizeof(object*); }
 static unsigned inductive_scalar_offset() { return sizeof(object*)*6; }
@@ -76,6 +82,44 @@ object * declaration::mk_theorem_val(name const & n, level_param_names const & p
     object * r = alloc_cnstr(0, 2, 0);
     cnstr_set_obj(r, 0, mk_declaration_val(n, params, t));
     inc(v.raw()); cnstr_set_obj(r, 1, v.raw());
+    return r;
+}
+
+object * declaration::mk_inductive_val(name const & n, level_param_names const & params, expr const & t, unsigned nparams, unsigned nindices,
+                                       names const & all, names const & cnstrs, names const & recs, bool is_rec, bool is_meta) {
+    object * r = alloc_cnstr(0, 6, 1);
+    cnstr_set_obj(r, 0, mk_declaration_val(n, params, t));
+    cnstr_set_obj(r, 1, mk_nat_obj(nparams));
+    cnstr_set_obj(r, 2, mk_nat_obj(nindices));
+    inc(all.raw()); cnstr_set_obj(r, 3, all.raw());
+    inc(cnstrs.raw()); cnstr_set_obj(r, 4, cnstrs.raw());
+    inc(recs.raw()); cnstr_set_obj(r, 5, recs.raw());
+    cnstr_set_scalar<unsigned char>(r, inductive_scalar_offset(), (is_rec ? 1 : 0) + (is_meta ? 2 : 0));
+    return r;
+}
+
+object * declaration::mk_constructor_val(name const & n, level_param_names const & params, expr const & t, name const & induct, unsigned nparams,
+                                         bool is_meta) {
+    object * r = alloc_cnstr(0, 3, 1);
+    cnstr_set_obj(r, 0, mk_declaration_val(n, params, t));
+    inc(induct.raw()); cnstr_set_obj(r, 1, induct.raw());
+    cnstr_set_obj(r, 2, mk_nat_obj(nparams));
+    cnstr_set_scalar<unsigned char>(r, inductive_scalar_offset(), static_cast<unsigned char>(is_meta));
+    return r;
+}
+
+object * declaration::mk_recursor_val(name const & n, level_param_names const & params, expr const & t, name const & induct, unsigned nparams,
+                                      unsigned nindices, unsigned nmotives, unsigned nminor, bool k, recursor_rules const & rules, bool is_meta) {
+    object * r = alloc_cnstr(0, 7, 1);
+    cnstr_set_obj(r, 0, mk_declaration_val(n, params, t));
+    cnstr_set_obj(r, 0, mk_declaration_val(n, params, t));
+    inc(induct.raw()); cnstr_set_obj(r, 1, induct.raw());
+    cnstr_set_obj(r, 2, mk_nat_obj(nparams));
+    cnstr_set_obj(r, 3, mk_nat_obj(nindices));
+    cnstr_set_obj(r, 4, mk_nat_obj(nmotives));
+    cnstr_set_obj(r, 5, mk_nat_obj(nminor));
+    inc(rules.raw()); cnstr_set_obj(r, 6, rules.raw());
+    cnstr_set_scalar<unsigned char>(r, recursor_scalar_offset(), (k ? 1 : 0) + (is_meta ? 2 : 0));
     return r;
 }
 
@@ -173,6 +217,22 @@ declaration mk_definition_inferring_meta(environment const & env, name const & n
 declaration mk_constant_assumption_inferring_meta(environment const & env, name const & n,
                                                   level_param_names const & params, expr const & t) {
     return mk_constant_assumption(n, params, t, use_meta(env, t));
+}
+
+declaration mk_inductive(name const & n, level_param_names const & params, expr const & t, unsigned nparams, unsigned nindices,
+                         names const & all, names const & cnstrs, names const & recs, bool is_rec, bool is_meta) {
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Inductive),
+                                declaration::mk_inductive_val(n, params, t, nparams, nindices, all, cnstrs, recs, is_rec, is_meta)));
+}
+
+declaration mk_constructor(name const & n, level_param_names const & params, expr const & t, name const & induct, unsigned nparams, bool is_meta) {
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Constructor), declaration::mk_constructor_val(n, params, t, induct, nparams, is_meta)));
+}
+
+declaration mk_recursor(name const & n, level_param_names const & params, expr const & t, name const & induct, unsigned nparams,
+                        unsigned nindices, unsigned nmotives, unsigned nminor, bool k, recursor_rules const & rules, bool is_meta) {
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Constructor),
+                                declaration::mk_recursor_val(n, params, t, induct, nparams, nindices, nmotives, nminor, k, rules, is_meta)));
 }
 
 void initialize_declaration() {

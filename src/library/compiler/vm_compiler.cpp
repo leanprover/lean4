@@ -394,7 +394,7 @@ static optional<environment> try_reuse_aux_meta_code(environment const & env, na
 }
 
 environment vm_compile(environment const & env, declaration const & d, bool optimize_bytecode) {
-    if (!d.is_definition() || d.is_theorem() || is_noncomputable(env, d.get_name()) || is_vm_builtin_function(d.get_name()))
+    if (!d.is_definition() || is_noncomputable(env, d.get_name()) || is_vm_builtin_function(d.get_name()))
         return env;
 
     if (auto new_env = try_reuse_aux_meta_code(env, d.get_name()))

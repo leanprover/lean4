@@ -94,7 +94,7 @@ bool context_cacheless::is_transparent(type_context_old & ctx, transparency_mode
 
 optional<declaration> context_cacheless::get_decl(type_context_old & ctx, transparency_mode m, name const & n) {
     if (auto d = ctx.env().find(n)) {
-        if (d->is_definition() && is_transparent(ctx, m, *d)) {
+        if (d->has_value() && is_transparent(ctx, m, *d)) {
             return d;
         }
     }

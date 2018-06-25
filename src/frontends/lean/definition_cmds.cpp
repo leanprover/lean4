@@ -182,7 +182,7 @@ static certified_declaration check(parser & p, environment const & env, name con
             format("this is usually due to a buggy tactic or a bug in the builtin elaborator");
         msg += line() + format("elaborated type:");
         msg += nest(i, line() + pp_fn(d.get_type()));
-        if (d.is_definition()) {
+        if (d.has_value()) {
             msg += line() + format("elaborated value:");
             msg += nest(i, line() + pp_fn(d.get_value()));
         }
@@ -612,9 +612,8 @@ static expr inline_new_defs(environment const & old_env, environment const & new
             return none_expr();
         } else if (is_constant(e) && !old_env.find(const_name(e))) {
             auto decl = new_env.get(const_name(e));
-            if (decl.is_definition()) {
+            if (decl.has_value()) {
                 expr val  = instantiate_value_univ_params(decl, const_levels(e));
-                lean_assert(decl.is_definition());
                 return some_expr(inline_new_defs(old_env, new_env, n, val));
             } else {
                 throw exception(sstream() << "invalid theorem '" << n << "', theorems should not depend on axioms introduced using "

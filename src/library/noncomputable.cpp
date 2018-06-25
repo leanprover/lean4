@@ -211,7 +211,7 @@ struct get_noncomputable_reason_fn {
 
 optional<name> get_noncomputable_reason(environment const & env, name const & n) {
     declaration const & d = env.get(n);
-    if (!d.is_definition())
+    if (!d.has_value())
         return optional<name>();
     old_type_checker tc(env);
     if (tc.is_prop(d.get_type()))

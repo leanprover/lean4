@@ -37,38 +37,95 @@ int compare(reducibility_hints const & h1, reducibility_hints const & h2) {
     }
 }
 
-static declaration * g_dummy = nullptr;
+static unsigned definition_scalar_offset() { return sizeof(object*)*3; }
+static unsigned constant_scalar_offset() { return sizeof(object*); }
+static unsigned inductive_scalar_offset() { return sizeof(object*)*6; }
+static unsigned constructor_scalar_offset() { return sizeof(object*)*3; }
+static unsigned recursor_scalar_offset() { return sizeof(object*)*7; }
 
-declaration::declaration():declaration(*g_dummy) {}
-declaration::declaration(cell * ptr):m_ptr(ptr) {}
-declaration::declaration(declaration const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
-declaration::declaration(declaration && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
-declaration::~declaration() { if (m_ptr) m_ptr->dec_ref(); }
-
-declaration & declaration::operator=(declaration const & s) { LEAN_COPY_REF(s); }
-declaration & declaration::operator=(declaration && s) { LEAN_MOVE_REF(s); }
-
-bool declaration::is_definition() const    { return static_cast<bool>(m_ptr->m_value); }
-bool declaration::is_constant_assumption() const { return !is_definition(); }
-bool declaration::is_axiom() const         { return is_constant_assumption() && m_ptr->m_theorem; }
-bool declaration::is_theorem() const       { return is_definition() && m_ptr->m_theorem; }
-bool declaration::is_meta() const          { return m_ptr->m_meta; }
-
-name const & declaration::get_name() const { return m_ptr->m_name; }
-level_param_names const & declaration::get_univ_params() const { return m_ptr->m_params; }
-unsigned declaration::get_num_univ_params() const { return length(get_univ_params()); }
-expr const & declaration::get_type() const { return m_ptr->m_type; }
-
-expr const & declaration::get_value() const {
-    lean_assert(is_definition());
-    return *(m_ptr->m_value);
+object * declaration::mk_declaration_val(name const & n, level_param_names const & params, expr const & t) {
+    object * r = alloc_cnstr(0, 3, 0);
+    inc(n.raw());      cnstr_set_obj(r, 0, n.raw());
+    inc(params.raw()); cnstr_set_obj(r, 1, params.raw());
+    inc(t.raw());      cnstr_set_obj(r, 2, t.raw());
+    return r;
 }
-reducibility_hints const & declaration::get_hints() const { return m_ptr->m_hints; }
+
+object * declaration::mk_constant_val(name const & n, level_param_names const & params, expr const & t, bool meta) {
+    object * r = alloc_cnstr(0, 1, sizeof(unsigned char));
+    cnstr_set_obj(r, 0, mk_declaration_val(n, params, t));
+    cnstr_set_scalar<unsigned char>(r, constant_scalar_offset(), static_cast<unsigned char>(meta));
+    return r;
+}
+
+object * declaration::mk_definition_val(name const & n, level_param_names const & params, expr const & t, expr const & v,
+                                        reducibility_hints const & h, bool meta) {
+    object * r = alloc_cnstr(0, 3, sizeof(unsigned char));
+    cnstr_set_obj(r, 0, mk_declaration_val(n, params, t));
+    inc(v.raw()); cnstr_set_obj(r, 1, v.raw());
+    inc(h.raw()); cnstr_set_obj(r, 2, h.raw());
+    cnstr_set_scalar<unsigned char>(r, definition_scalar_offset(), static_cast<unsigned char>(meta));
+    return r;
+}
+
+object * declaration::mk_axiom_val(name const & n, level_param_names const & params, expr const & t) {
+    return mk_declaration_val(n, params, t);
+}
+
+object * declaration::mk_theorem_val(name const & n, level_param_names const & params, expr const & t, expr const & v) {
+    object * r = alloc_cnstr(0, 2, 0);
+    cnstr_set_obj(r, 0, mk_declaration_val(n, params, t));
+    inc(v.raw()); cnstr_set_obj(r, 1, v.raw());
+    return r;
+}
+
+bool declaration::is_meta() const {
+    switch (kind()) {
+    case declaration_kind::Definition:  return cnstr_scalar<unsigned char>(get_val_obj(), definition_scalar_offset()) != 0;
+    case declaration_kind::Constant:    return cnstr_scalar<unsigned char>(get_val_obj(), constant_scalar_offset()) != 0;
+    case declaration_kind::Inductive:   return (cnstr_scalar<unsigned char>(get_val_obj(), inductive_scalar_offset()) & 2) != 0;
+    case declaration_kind::Constructor: return cnstr_scalar<unsigned char>(get_val_obj(), constructor_scalar_offset()) != 0;
+    case declaration_kind::Recursor:    return (cnstr_scalar<unsigned char>(get_val_obj(), recursor_scalar_offset()) & 2) != 0;
+    case declaration_kind::Axiom:       return false;
+    case declaration_kind::Theorem:     return false;
+    }
+    lean_unreachable();
+}
+
+static reducibility_hints * g_opaque = nullptr;
+
+reducibility_hints const & declaration::get_hints() const {
+    if (is_definition())
+        return static_cast<reducibility_hints const &>(cnstr_obj_ref(get_val(), 2));
+    else
+        return *g_opaque;
+}
+
+bool use_meta(environment const & env, expr const & e) {
+    bool found = false;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (found) return false;
+            if (is_constant(e)) {
+                if (auto d = env.find(const_name(e))) {
+                    if (d->is_meta()) {
+                        found = true;
+                        return false;
+                    }
+                }
+            }
+            return true;
+        });
+    return found;
+}
+
+static declaration * g_dummy = nullptr;
+declaration::declaration():declaration(*g_dummy) {}
 
 declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v,
                           reducibility_hints const & h, bool meta) {
-    return declaration(new declaration::cell(n, params, t, v, h, meta));
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Definition), declaration::mk_definition_val(n, params, t, v, h, meta)));
 }
+
 static unsigned get_max_height(environment const & env, expr const & v) {
     unsigned h = 0;
     for_each(v, [&](expr const & e, unsigned) {
@@ -87,31 +144,17 @@ declaration mk_definition(environment const & env, name const & n, level_param_n
     unsigned h = get_max_height(env, v);
     return mk_definition(n, params, t, v, reducibility_hints::mk_regular(h+1), meta);
 }
+
 declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v) {
-    return declaration(new declaration::cell(n, params, t, v));
-}
-declaration mk_axiom(name const & n, level_param_names const & params, expr const & t) {
-    return declaration(new declaration::cell(n, params, t, true, false));
-}
-declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t, bool meta) {
-    return declaration(new declaration::cell(n, params, t, false, meta));
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Theorem), declaration::mk_theorem_val(n, params, t, v)));
 }
 
-bool use_meta(environment const & env, expr const & e) {
-    bool found = false;
-    for_each(e, [&](expr const & e, unsigned) {
-            if (found) return false;
-            if (is_constant(e)) {
-                if (auto d = env.find(const_name(e))) {
-                    if (d->is_meta()) {
-                        found = true;
-                        return false;
-                    }
-                }
-            }
-            return true;
-        });
-    return found;
+declaration mk_axiom(name const & n, level_param_names const & params, expr const & t) {
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Axiom), declaration::mk_axiom_val(n, params, t)));
+}
+
+declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t, bool meta) {
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Constant), declaration::mk_constant_val(n, params, t, meta)));
 }
 
 declaration mk_definition_inferring_meta(environment const & env, name const & n, level_param_names const & params,
@@ -133,10 +176,12 @@ declaration mk_constant_assumption_inferring_meta(environment const & env, name 
 }
 
 void initialize_declaration() {
-    g_dummy = new declaration(mk_axiom(name(), level_param_names(), expr()));
+    g_opaque = new reducibility_hints(reducibility_hints::mk_opaque());
+    g_dummy  = new declaration(mk_axiom(name(), level_param_names(), expr()));
 }
 
 void finalize_declaration() {
     delete g_dummy;
+    delete g_opaque;
 }
 }

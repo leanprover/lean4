@@ -33,9 +33,8 @@ void initialize_inliner() {
             "inline", "mark definition to always be inlined",
             [](environment const & env, name const & d, bool) -> void {
                 auto decl = env.get(d);
-                if (!decl.is_definition() || decl.is_theorem())
-                    throw exception(
-                            "invalid 'inline' use, only definitions can be marked as inline");
+                if (!decl.is_definition())
+                    throw exception("invalid 'inline' use, only definitions can be marked as inline");
             }));
 }
 
@@ -143,7 +142,7 @@ class inline_simple_definitions_fn : public compiler_step_visitor {
             return visit_cases_on_app(e);
         unsigned nargs  = get_app_num_args(e);
         declaration d   = env().get(n);
-        if (!d.is_definition() || d.is_theorem())
+        if (!d.is_definition())
             return default_visit_app(e);
         expr v = d.get_value();
         unsigned arity = 0;

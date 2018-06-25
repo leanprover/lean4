@@ -118,7 +118,7 @@ meta_constant declaration.instantiate_value_univ_params : declaration → list l
 vm_obj declaration_instantiate_value_univ_params(vm_obj const & _d, vm_obj const & _ls) {
     declaration const & d  = to_declaration(_d);
     levels ls = to_levels(_ls);
-    if (!d.is_definition() || d.get_num_univ_params() != length(ls))
+    if (!d.has_value() || d.get_num_univ_params() != length(ls))
         return mk_vm_none();
     else
         return mk_vm_some(to_obj(instantiate_value_univ_params(d, ls)));

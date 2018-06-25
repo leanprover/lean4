@@ -117,7 +117,7 @@ optional<expr> unfold_term(environment const & env, expr const & e) {
     if (!is_constant(f))
         return none_expr();
     auto decl = env.find(const_name(f));
-    if (!decl || !decl->is_definition())
+    if (!decl || !decl->has_value())
         return none_expr();
     expr d = instantiate_value_univ_params(*decl, const_levels(f));
     buffer<expr> args;
@@ -159,7 +159,7 @@ optional<level> dec_level(level const & l) {
     an element of the inductive datatype named \c I, and \c c must have \c nparams parameters. */
 bool has_constructor(environment const & env, name const & c, name const & I, unsigned nparams) {
     auto d = env.find(c);
-    if (!d || d->is_definition())
+    if (!d || d->has_value())
         return false;
     expr type = d->get_type();
     unsigned i = 0;
@@ -302,7 +302,7 @@ optional<name> is_constructor_app_ext(environment const & env, expr const & e) {
     if (!is_constant(f))
         return optional<name>();
     auto decl = env.find(const_name(f));
-    if (!decl || !decl->is_definition())
+    if (!decl || !decl->has_value())
         return optional<name>();
     expr const * it = &decl->get_value();
     while (is_lambda(*it))

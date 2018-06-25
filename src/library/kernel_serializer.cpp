@@ -9,51 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/declaration.h"
 #include "library/kernel_serializer.h"
 
-// Procedures for serializing and deserializing kernel objects (levels, exprs, declarations)
 namespace lean {
-
-// Declaration serialization
-level_param_names read_level_params(deserializer & d) { return read_names(d); }
-serializer & operator<<(serializer & s, declaration const & d) {
-    char k = 0;
-    if (d.is_definition())
-        k |= 1;
-    if (d.is_theorem() || d.is_axiom())
-        k |= 2;
-    if (d.is_meta())
-        k |= 4;
-    s << k << d.get_name() << d.get_univ_params() << d.get_type();
-    if (d.is_definition()) {
-        s << d.get_value();
-        if (!d.is_theorem())
-            s << d.get_hints();
-    }
-    return s;
-}
-
-declaration read_declaration(deserializer & d) {
-    char k               = d.read_char();
-    bool has_value       = (k & 1) != 0;
-    bool is_th_ax        = (k & 2) != 0;
-    bool is_meta         = (k & 4) != 0;
-    name n               = read_name(d);
-    level_param_names ps = read_level_params(d);
-    expr t               = read_expr(d);
-    if (has_value) {
-        expr v      = read_expr(d);
-        if (is_th_ax) {
-            return mk_theorem(n, ps, t, v);
-        } else {
-            reducibility_hints hints = read_reducibility_hints(d);
-            return mk_definition(n, ps, t, v, hints, is_meta);
-        }
-    } else {
-        if (is_th_ax)
-            return mk_axiom(n, ps, t);
-        else
-            return mk_constant_assumption(n, ps, t, is_meta);
-    }
-}
 
 serializer & operator<<(serializer & s, inductive::certified_inductive_decl::comp_rule const & r) {
     s << r.m_num_bu << r.m_comp_rhs;
@@ -75,7 +31,7 @@ serializer & operator<<(serializer & s, inductive::inductive_decl const & d) {
 
 inductive::inductive_decl read_inductive_decl(deserializer & d) {
     name d_name                 = read_name(d);
-    level_param_names d_lparams = read_level_params(d);
+    level_param_names d_lparams = read_names(d);
     unsigned d_nparams          = d.read_unsigned();
     expr d_type                 = read_expr(d);
     unsigned num_intros         = d.read_unsigned();

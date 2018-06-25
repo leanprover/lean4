@@ -38,7 +38,7 @@ bool has_sorry(expr const & ex) {
 }
 
 bool has_sorry(declaration const & decl) {
-    return has_sorry(decl.get_type()) || (decl.is_definition() && has_sorry(decl.get_value()));
+    return has_sorry(decl.get_type()) || (decl.has_value() && has_sorry(decl.get_value()));
 }
 
 expr const & sorry_type(expr const & sry) {

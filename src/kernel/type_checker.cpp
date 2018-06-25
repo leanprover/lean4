@@ -429,7 +429,7 @@ optional<declaration> type_checker::is_delta(expr const & e) const {
     expr const & f = get_app_fn(e);
     if (is_constant(f)) {
         if (auto d = m_env.find(const_name(f)))
-            if (d->is_definition())
+            if (d->has_value())
                 return d;
     }
     return none_declaration();
@@ -861,7 +861,7 @@ void check_decl_type(environment const & env, declaration const & d) {
 void check_decl_value(environment const & env, declaration const & d) {
     bool memoize = true; bool non_meta_only = !d.is_meta();
     type_checker checker(env, memoize, non_meta_only);
-    if (d.is_definition()) {
+    if (d.has_value()) {
         check_definition(env, d, checker);
     }
 }
@@ -870,7 +870,7 @@ certified_declaration check(environment const & env, declaration const & d) {
     bool memoize = true; bool non_meta_only = !d.is_meta();
     type_checker checker(env, memoize, non_meta_only);
     check_decl_type(env, d, checker);
-    if (d.is_definition()) {
+    if (d.has_value()) {
         check_definition(env, d, checker);
     }
     return certified_declaration(env.get_id(), d);

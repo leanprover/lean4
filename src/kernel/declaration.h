@@ -48,7 +48,7 @@ public:
     bool is_regular() const { return kind() == reducibility_hints_kind::Regular; }
     unsigned get_height() const { return is_regular() ? cnstr_scalar<unsigned>(raw(), 0) : 0; }
     void serialize(serializer & s) const { s.write_object(raw()); }
-    static reducibility_hints deserialize(deserializer & d) { return reducibility_hints(d.read_object()); }
+    static reducibility_hints deserialize(deserializer & d) { object * o = d.read_object(); inc(o); return reducibility_hints(o); }
 };
 
 inline serializer & operator<<(serializer & s, reducibility_hints const & l) { l.serialize(s); return s; }
@@ -62,68 +62,54 @@ inline deserializer & operator>>(deserializer & d, reducibility_hints & l) { l =
     >  0 If f2 should be unfolded */
 int compare(reducibility_hints const & h1, reducibility_hints const & h2);
 
-/** \brief Environment definitions, theorems, axioms and variable declarations. */
-class declaration {
-    struct cell {
-        MK_LEAN_RC();
-        name               m_name;
-        level_param_names  m_params;
-        expr               m_type;
-        bool               m_theorem;
-        optional<expr>     m_value;        // if none, then declaration is actually a postulate
-        reducibility_hints m_hints;
-        /* Definitions are non-meta by default. We use this feature to define tactical-definitions. */
-        bool               m_meta;
-        void dealloc() { delete this; }
 
-        cell(name const & n, level_param_names const & params, expr const & t, bool is_axiom, bool meta):
-            m_rc(1), m_name(n), m_params(params), m_type(t), m_theorem(is_axiom),
-            m_hints(reducibility_hints::mk_opaque()), m_meta(meta) {}
-        cell(name const & n, level_param_names const & params, expr const & t, expr const & v,
-             reducibility_hints const & h, bool meta):
-            m_rc(1), m_name(n), m_params(params), m_type(t), m_theorem(false),
-            m_value(v), m_hints(h), m_meta(meta) {}
-        cell(name const & n, level_param_names const & params, expr const & t, expr const & v):
-            m_rc(1), m_name(n), m_params(params), m_type(t), m_theorem(true),
-            m_value(v), m_hints(reducibility_hints::mk_opaque()), m_meta(false) {}
-    };
-    cell * m_ptr;
-    explicit declaration(cell * ptr);
-    friend struct cell;
+/**
+
+inductive declaration
+| const_decl  (val : constant_val)
+| defn_decl   (val : definition_val)
+| axiom_decl  (val : axiom_val)
+| thm_decl    (val : theorem_val)
+| induct_decl (val : inductive_val)
+| cnstr_decl  (val : constructor_val)
+| rec_decl    (val : recursor_val)
+
+*/
+enum class declaration_kind { Constant, Definition, Axiom, Theorem, Inductive, Constructor, Recursor };
+class declaration : public object_ref {
+    explicit declaration(object * o):object_ref(o) {}
+    explicit declaration(object_ref const & o):object_ref(o) {}
+    static object * mk_declaration_val(name const & n, level_param_names const & params, expr const & t);
+    static object * mk_constant_val(name const & n, level_param_names const & params, expr const & t, bool meta);
+    static object * mk_definition_val(name const & n, level_param_names const & params, expr const & t, expr const & v, reducibility_hints const & h, bool meta);
+    static object * mk_axiom_val(name const & n, level_param_names const & params, expr const & t);
+    static object * mk_theorem_val(name const & n, level_param_names const & params, expr const & t, expr const & v);
+    object * get_val_obj() const { return cnstr_obj(raw(), 0); }
+    object_ref const & get_val() const { return cnstr_obj_ref(*this, 0); }
+    object_ref const & get_declaration_val() const { return (kind() == declaration_kind::Axiom) ? get_val() : cnstr_obj_ref(get_val(), 0); }
 public:
-    /**
-       \brief The default constructor creates a reference to a "dummy"
-       declaration.  The actual "dummy" declaration is not relevant, and
-       no procedure should rely on the kind of declaration used.
-
-       We have a default constructor because some collections only work
-       with types that have a default constructor.
-    */
     declaration();
-    declaration(declaration const & s);
-    declaration(declaration && s);
-    ~declaration();
+    declaration(declaration const & other):object_ref(other) {}
+    declaration(declaration && other):object_ref(other) {}
+    declaration_kind kind() const { return static_cast<declaration_kind>(cnstr_tag(raw())); }
 
-    friend void swap(declaration & a, declaration & b) { std::swap(a.m_ptr, b.m_ptr); }
+    declaration & operator=(declaration const & other) { object_ref::operator=(other); return *this; }
+    declaration & operator=(declaration && other) { object_ref::operator=(other); return *this; }
 
-    declaration & operator=(declaration const & s);
-    declaration & operator=(declaration && s);
+    friend bool is_eqp(declaration const & d1, declaration const & d2) { return d1.raw() == d2.raw(); }
 
-    friend bool is_eqp(declaration const & d1, declaration const & d2) { return d1.m_ptr == d2.m_ptr; }
-
-    bool is_definition() const;
-    bool is_axiom() const;
-    bool is_theorem() const;
-    bool is_constant_assumption() const;
-
+    bool is_constant_assumption() const { return kind() == declaration_kind::Constant; }
+    bool is_definition() const { return kind() == declaration_kind::Definition; }
+    bool is_axiom() const { return kind() == declaration_kind::Axiom; }
+    bool is_theorem() const { return kind() == declaration_kind::Theorem; }
     bool is_meta() const;
+    bool has_value() const { return is_theorem() || is_definition(); }
 
-    name const & get_name() const;
-    level_param_names const & get_univ_params() const;
-    unsigned get_num_univ_params() const;
-    expr const & get_type() const;
-    expr const & get_value() const;
-
+    name const & get_name() const { return static_cast<name const &>(cnstr_obj_ref(get_declaration_val(), 0)); }
+    level_param_names const & get_univ_params() const { return static_cast<level_param_names const &>(cnstr_obj_ref(get_declaration_val(), 1)); }
+    unsigned get_num_univ_params() const { return length(get_univ_params()); }
+    expr const & get_type() const { return static_cast<expr const &>(cnstr_obj_ref(get_declaration_val(), 2)); }
+    expr const & get_value() const { lean_assert(has_value()); return static_cast<expr const &>(cnstr_obj_ref(get_val(), 1)); }
     reducibility_hints const & get_hints() const;
 
     friend declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v,
@@ -133,7 +119,14 @@ public:
     friend declaration mk_theorem(name const &, level_param_names const &, expr const &, expr const &);
     friend declaration mk_axiom(name const & n, level_param_names const & params, expr const & t);
     friend declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t, bool meta);
+
+    void serialize(serializer & s) const { s.write_object(raw()); }
+    static declaration deserialize(deserializer & d) { object * o = d.read_object(); inc(o); return declaration(o); }
 };
+
+inline serializer & operator<<(serializer & s, declaration const & l) { l.serialize(s); return s; }
+inline declaration read_declaration(deserializer & d) { return declaration::deserialize(d); }
+inline deserializer & operator>>(deserializer & d, declaration & l) { l = read_declaration(d); return d; }
 
 inline optional<declaration> none_declaration() { return optional<declaration>(); }
 inline optional<declaration> some_declaration(declaration const & o) { return optional<declaration>(o); }

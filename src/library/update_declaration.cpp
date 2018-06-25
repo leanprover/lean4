@@ -12,7 +12,7 @@ static declaration update_declaration(declaration d, optional<level_param_names>
     level_param_names _ps = ps ? *ps : d.get_univ_params();
     expr _type = type ? *type : d.get_type();
     expr _value;
-    if (d.is_definition()) {
+    if (d.has_value()) {
         _value = value ? *value : d.get_value();
     } else {
         lean_assert(!value);

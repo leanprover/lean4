@@ -599,7 +599,7 @@ optional<expr> type_context_old::unfold_definition(expr const & e) {
                         return none_expr();
                     }
                     optional<declaration> new_it_d = env().find(const_name(new_it_fn));
-                    if (!new_it_d || !new_it_d->is_definition() || length(const_levels(new_it_fn)) != new_it_d->get_num_univ_params()) {
+                    if (!new_it_d || !new_it_d->has_value() || length(const_levels(new_it_fn)) != new_it_d->get_num_univ_params()) {
                         lean_trace(name({"type_context", "smart_unfolding"}), tout() << "fail 2 [" << m_unfold_depth << "] " << whnf_core(new_it, true) << "\n";);
                         return none_expr();
                     }

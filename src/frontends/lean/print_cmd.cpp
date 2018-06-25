@@ -49,12 +49,12 @@ struct print_axioms_deps {
             return;
         m_visited.insert(n);
         declaration const & d = m_env.get(n);
-        if (!d.is_definition() && !m_env.is_builtin(n)) {
+        if ((d.is_axiom() || d.is_constant_assumption()) && !m_env.is_builtin(n)) {
             m_use_axioms = true;
             m_ios << d.get_name() << "\n";
         }
         visit(d.get_type());
-        if (d.is_definition())
+        if (d.has_value())
             visit(d.get_value());
     }
 
@@ -88,7 +88,7 @@ static void print_axioms(parser & p, message_builder & out) {
         bool has_axioms = false;
         p.env().for_each_declaration([&](declaration const & d) {
                 name const & n = d.get_name();
-                if (!d.is_definition() && !p.env().is_builtin(n) && !d.is_meta()) {
+                if ((d.is_axiom() || d.is_constant_assumption()) && !p.env().is_builtin(n) && !d.is_meta()) {
                     out << n << " : " << d.get_type() << endl;
                     has_axioms = true;
                 }
@@ -220,7 +220,7 @@ static name to_user_name(environment const & env, name const & n) {
 
 static void print_definition(environment const & env, message_builder & out, name const & n, pos_info const & pos) {
     declaration d = env.get(n);
-    if (!d.is_definition())
+    if (!d.has_value())
         throw parser_error(sstream() << "invalid '#print definition', '" << to_user_name(env, n) << "' is not a definition", pos);
     options opts        = out.get_text_stream().get_options();
     opts                = opts.update_if_undef(get_pp_beta_name(), false);

@@ -400,7 +400,7 @@ optional<declaration> old_type_checker::is_delta(expr const & e) const {
     expr const & f = get_app_fn(e);
     if (is_constant(f)) {
         if (auto d = m_env.find(const_name(f)))
-            if (d->is_definition())
+            if (d->has_value())
                 return d;
     }
     return none_declaration();

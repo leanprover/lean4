@@ -398,7 +398,7 @@ environment add_and_perform(environment const & env, std::shared_ptr<modificatio
 }
 
 environment update_module_defs(environment const & env, declaration const & d) {
-    if (d.is_definition() && !d.is_theorem()) {
+    if (d.is_definition()) {
         module_ext ext = get_extension(env);
         ext.m_module_decls = cons(d.get_name(), ext.m_module_decls);
         ext.m_module_defs.insert(d.get_name());

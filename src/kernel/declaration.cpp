@@ -10,26 +10,26 @@ Author: Leonardo de Moura
 
 namespace lean {
 int compare(reducibility_hints const & h1, reducibility_hints const & h2) {
-    if (h1.m_kind == h2.m_kind) {
-        if (h1.m_kind == reducibility_hints::Regular) {
-            if (h1.m_height == h2.m_height)
+    if (h1.kind() == h2.kind()) {
+        if (h1.kind() == reducibility_hints_kind::Regular) {
+            if (h1.get_height() == h2.get_height())
                 return 0; /* unfold both */
-            else if (h1.m_height > h2.m_height)
+            else if (h1.get_height() > h2.get_height())
                 return -1; /* unfold f1 */
             else
                 return 1;  /* unfold f2 */
-            return h1.m_height > h2.m_height ? -1 : 1;
+            return h1.get_height() > h2.get_height() ? -1 : 1;
         } else {
             return 0; /* reduce both */
         }
     } else {
-        if (h1.m_kind == reducibility_hints::Opaque) {
+        if (h1.kind() == reducibility_hints_kind::Opaque) {
             return 1; /* reduce f2 */
-        } else if (h2.m_kind == reducibility_hints::Opaque) {
+        } else if (h2.kind() == reducibility_hints_kind::Opaque) {
             return -1; /* reduce f1 */
-        } else if (h1.m_kind == reducibility_hints::Abbreviation) {
+        } else if (h1.kind() == reducibility_hints_kind::Abbreviation) {
             return -1; /* reduce f1 */
-        } else if (h2.m_kind == reducibility_hints::Abbreviation) {
+        } else if (h2.kind() == reducibility_hints_kind::Abbreviation) {
             return 1; /* reduce f2 */
         } else {
             lean_unreachable();

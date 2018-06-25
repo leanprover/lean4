@@ -34,7 +34,7 @@ Moreover, the reducibility_hints cannot be changed after a declaration is added 
 inductive reducibility_hints
 | opaque  : reducibility_hints
 | abbrev  : reducibility_hints
-| regular : nat → reducibility_hints
+| regular : uint32 → reducibility_hints
 
 structure declaration_val :=
 (id : name) (lparams : list name) (type : expr)

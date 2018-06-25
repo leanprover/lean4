@@ -12,49 +12,54 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
-/** \brief Reducibility hints are used in the convertibility checker (aka is_def_eq predicate),
-     whenever checking a constraint such as
+/**
+inductive reducibility_hints
+| opaque  : reducibility_hints
+| abbrev  : reducibility_hints
+| regular : nat → reducibility_hints
+
+Reducibility hints are used in the convertibility checker (aka is_def_eq predicate),
+whenever checking a constraint such as
 
            (f ...) =?= (g ...)
 
-     where f and g are definitions, and the checker has to decide which one will be unfolded.
-     If f (g) is Opaque,             then g (f) is unfolded if it is also not marked as Opaque.
-     Else if f (g) is Abbreviation,  then f (g) is unfolded if g (f) is also not marked as Abbreviation.
-     Else if f and g are Regular,    then we unfold the one with the biggest definitional height.
-     Otherwise unfold both.
+where f and g are definitions, and the checker has to decide which one will be unfolded.
+If f (g) is Opaque,             then g (f) is unfolded if it is also not marked as Opaque.
+Else if f (g) is Abbreviation,  then f (g) is unfolded if g (f) is also not marked as Abbreviation.
+Else if f and g are Regular,    then we unfold the one with the biggest definitional height.
+Otherwise unfold both.
 
-     The definitional height is by default computed by the kernel. It only takes into account
-     other Regular definitions used in a definition.
+The definitional height is by default computed by the kernel. It only takes into account
+other Regular definitions used in a definition.
 
-     Remark: the hint only affects performance. */
-class reducibility_hints {
+Remark: the hint only affects performance. */
+enum class reducibility_hints_kind { Opaque, Abbreviation, Regular };
+class reducibility_hints : public object_ref {
+    explicit reducibility_hints(object * r):object_ref(r) {}
 public:
-    enum kind {
-        Regular,
-        Opaque,
-        Abbreviation
-    };
-private:
-    kind      m_kind;
-    unsigned  m_height; /* definitional height */
-    reducibility_hints(kind k, unsigned h = 0):m_kind(k), m_height(h) {}
-public:
-    static reducibility_hints mk_regular(unsigned h) { return reducibility_hints(Regular, h); }
-    static reducibility_hints mk_opaque() { return reducibility_hints(Opaque); }
-    static reducibility_hints mk_abbreviation() { return reducibility_hints(Abbreviation); }
-
-    /** Given h1 and h2 the hints for definitions f1 and f2, then
-        result is
-            <  0 If f1 should be unfolded
-            == 0 If f1 and f2 should be unfolded
-            >  0 If f2 should be unfolded */
-    friend int compare(reducibility_hints const & h1, reducibility_hints const & h2);
-
-    unsigned get_height() const { return m_height; }
-    kind get_kind() const { return m_kind; }
-    bool is_regular() const { return m_kind == Regular; }
+    static reducibility_hints mk_opaque() { return reducibility_hints(box(static_cast<unsigned>(reducibility_hints_kind::Opaque))); }
+    static reducibility_hints mk_abbreviation() { return reducibility_hints(box(static_cast<unsigned>(reducibility_hints_kind::Abbreviation))); }
+    static reducibility_hints mk_regular(unsigned h) {
+        object * r = alloc_cnstr(static_cast<unsigned>(reducibility_hints_kind::Regular), 0, sizeof(unsigned));
+        cnstr_set_scalar<unsigned>(r, 0, h);
+        return reducibility_hints(r);
+    }
+    reducibility_hints_kind kind() const { return static_cast<reducibility_hints_kind>(obj_tag(raw())); }
+    bool is_regular() const { return kind() == reducibility_hints_kind::Regular; }
+    unsigned get_height() const { return is_regular() ? cnstr_scalar<unsigned>(raw(), 0) : 0; }
+    void serialize(serializer & s) const { s.write_object(raw()); }
+    static reducibility_hints deserialize(deserializer & d) { return reducibility_hints(d.read_object()); }
 };
 
+inline serializer & operator<<(serializer & s, reducibility_hints const & l) { l.serialize(s); return s; }
+inline reducibility_hints read_reducibility_hints(deserializer & d) { return reducibility_hints::deserialize(d); }
+inline deserializer & operator>>(deserializer & d, reducibility_hints & l) { l = read_reducibility_hints(d); return d; }
+
+/** Given h1 and h2 the hints for definitions f1 and f2, then
+    result is
+    <  0 If f1 should be unfolded
+    == 0 If f1 and f2 should be unfolded
+    >  0 If f2 should be unfolded */
 int compare(reducibility_hints const & h1, reducibility_hints const & h2);
 
 /** \brief Environment definitions, theorems, axioms and variable declarations. */

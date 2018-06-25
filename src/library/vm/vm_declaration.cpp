@@ -20,10 +20,10 @@ inductive reducibility_hint
 | regular : nat → bool → reducibility_hint
 */
 vm_obj to_obj(reducibility_hints const & h) {
-    switch (h.get_kind()) {
-    case reducibility_hints::Opaque:       return mk_vm_simple(0);
-    case reducibility_hints::Abbreviation: return mk_vm_simple(1);
-    case reducibility_hints::Regular:      return mk_vm_constructor(2, mk_vm_nat(h.get_height()));
+    switch (h.kind()) {
+    case reducibility_hints_kind::Opaque:       return mk_vm_simple(0);
+    case reducibility_hints_kind::Abbreviation: return mk_vm_simple(1);
+    case reducibility_hints_kind::Regular:      return mk_vm_constructor(2, mk_vm_nat(h.get_height()));
     }
     lean_unreachable();
 }

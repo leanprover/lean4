@@ -11,27 +11,6 @@ Author: Leonardo de Moura
 
 // Procedures for serializing and deserializing kernel objects (levels, exprs, declarations)
 namespace lean {
-serializer & operator<<(serializer & s, reducibility_hints const & h) {
-    s << static_cast<char>(h.get_kind());
-    if (h.is_regular())
-        s << h.get_height();
-    return s;
-}
-
-reducibility_hints read_hints(deserializer & d) {
-    char k;
-    d >> k;
-    reducibility_hints::kind kind = static_cast<reducibility_hints::kind>(k);
-    if (kind == reducibility_hints::Regular) {
-        unsigned height;
-        d >> height;
-        return reducibility_hints::mk_regular(height);
-    } else if (kind == reducibility_hints::Opaque) {
-        return reducibility_hints::mk_opaque();
-    } else {
-        return reducibility_hints::mk_abbreviation();
-    }
-}
 
 // Declaration serialization
 level_param_names read_level_params(deserializer & d) { return read_names(d); }
@@ -65,7 +44,7 @@ declaration read_declaration(deserializer & d) {
         if (is_th_ax) {
             return mk_theorem(n, ps, t, v);
         } else {
-            reducibility_hints hints = read_hints(d);
+            reducibility_hints hints = read_reducibility_hints(d);
             return mk_definition(n, ps, t, v, hints, is_meta);
         }
     } else {

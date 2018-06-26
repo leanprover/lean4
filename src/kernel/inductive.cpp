@@ -22,12 +22,12 @@ class add_inductive_fn {
     environment            m_env;
     name_generator         m_ngen;
     local_ctx              m_lctx;
-    level_param_names      m_level_params;
-    unsigned               m_num_params;
-    buffer<inductive_decl> m_decls;
-    buffer<unsigned>       m_num_indices;
+    level_param_names      m_lparams;
+    unsigned               m_nparams;
+    buffer<inductive_type> m_ind_types;
+    buffer<unsigned>       m_nindices;
     level                  m_result_level;
-    /* m_level_params ==> m_levels */
+    /* m_lparams ==> m_levels */
     levels                 m_levels;
     /* We track whether the resultant universe cannot be zero for any
        universe level instantiation */
@@ -35,9 +35,10 @@ class add_inductive_fn {
     /* A free variable for each parameter */
     buffer<expr>           m_params;
     /* A constant for each inductive type */
-    buffer<expr>           m_decl_consts;
+    buffer<expr>           m_ind_cnsts;
 
     level                  m_elim_level;
+    bool                   m_K_target;
 
     struct rec_info {
         name         m_name;
@@ -47,7 +48,6 @@ class add_inductive_fn {
         buffer<expr> m_minor;    /* minor premises */
         buffer<expr> m_indices;
         expr         m_major;    /* major premise */
-        bool         m_K_target;
     };
 
     /* We have an entry for each inductive datatype being declared,
@@ -55,56 +55,58 @@ class add_inductive_fn {
     buffer<rec_info>       m_rec_infos;
 
 public:
-    add_inductive_fn(environment const & env, inductive_decls const & decls):
-        m_env(env), m_ngen(*g_ind_fresh), m_level_params(decls.m_level_params),
-        m_num_params(decls.m_num_params) {
-        to_buffer(decls.m_decls, m_decls);
+    add_inductive_fn(environment const & env, inductive_decl const & decl):
+        m_env(env), m_ngen(*g_ind_fresh), m_lparams(decl.get_lparams()) {
+        if (!decl.get_nparams().is_small())
+            throw kernel_exception(env, "invalid inductive datatype, number of parameters is too big");
+        m_nparams = decl.get_nparams().get_small_value();
+        to_buffer(decl.get_types(), m_ind_types);
     }
 
     void dump() {
-        std::cout << "add_inductive_decls\n";
-        for (inductive_decl const & d : m_decls) {
-            std::cout << "ind>>   " << d.m_name << " : " << d.m_type << "\n";
-            for (constructor const & c : d.m_constructors) {
-                std::cout << ">>       " << c.m_name << " : " << c.m_type << "\n";
+        std::cout << "add_inductive_decl\n";
+        for (inductive_type const & ind_type : m_ind_types) {
+            std::cout << "ind>>   " << ind_type.get_name() << " : " << ind_type.get_type() << "\n";
+            for (constructor const & c : ind_type.get_cnstrs()) {
+                std::cout << ">>       " << constructor_name(c) << " : " << constructor_type(c) << "\n";
             }
         }
     }
 
     /**
        \brief Check whether the type of each datatype is well typed, and do not contain free variables or meta variables,
-       all inductive datatypes have the same parameters, the number of parameters match the argument m_num_params,
+       all inductive datatypes have the same parameters, the number of parameters match the argument m_nparams,
        and the result universes are equivalent.
 
        This method also initializes the fields:
        - m_levels
        - m_result_level
-       - m_num_indices
-       - m_decl_consts
+       - m_nindices
+       - m_ind_cnsts
        - m_params
 
        \remark The local context m_lctx contains the free variables in m_params. */
     void check_inductive_types() {
-        m_levels   = param_names_to_levels(m_level_params);
+        m_levels   = param_names_to_levels(m_lparams);
         bool first = true;
-        for (inductive_decl const & decl : m_decls) {
-            expr type = decl.m_type;
-            check_no_metavar_no_fvar(m_env, decl.m_name, type);
-            type_checker(m_env).check(type, m_level_params);
-            m_num_indices.push_back(0);
+        for (inductive_type const & ind_type : m_ind_types) {
+            expr type = ind_type.get_type();
+            check_no_metavar_no_fvar(m_env, ind_type.get_name(), type);
+            type_checker(m_env).check(type, m_lparams);
+            m_nindices.push_back(0);
             unsigned i = 0;
             while (is_pi(type)) {
-                if (i < m_num_params) {
+                if (i < m_nparams) {
                     expr param = m_lctx.mk_local_decl(m_ngen, binding_name(type), binding_domain(type), binding_info(type));
                     m_params.push_back(param);
                     type = instantiate(binding_body(type), param);
                     i++;
                 } else {
                     type = binding_body(type);
-                    m_num_indices.back()++;
+                    m_nindices.back()++;
                 }
             }
-            if (i != m_num_params)
+            if (i != m_nparams)
                 throw kernel_exception(m_env, "number of parameters mismatch in inductive datatype declaration");
 
             type = type_checker(m_env, m_lctx).ensure_sort(type);
@@ -116,21 +118,26 @@ public:
                 throw kernel_exception(m_env, "mutually inductive types must live in the same universe");
             }
 
-            m_decl_consts.push_back(mk_constant(decl.m_name, m_levels));
+            m_ind_cnsts.push_back(mk_constant(ind_type.get_name(), m_levels));
             first = false;
         }
 
-        lean_assert(length(m_levels) == length(m_level_params));
-        lean_assert(m_num_indices.size() == m_decls.size());
-        lean_assert(m_decl_consts.size() == m_decls.size());
-        lean_assert(m_params.size() == m_num_params);
+        lean_assert(length(m_levels) == length(m_lparams));
+        lean_assert(m_nindices.size() == m_ind_types.size());
+        lean_assert(m_ind_cnsts.size() == m_ind_types.size());
+        lean_assert(m_params.size() == m_nparams);
     }
 
-    /** \brief Add all datatype declarations to environment. */
-    void declare_inductive_types() {
-        for (inductive_decl const & decl : m_decls) {
-            /* TODO(Leo): we should not use constant_assumption, but a new kind of declaration. */
-            m_env = m_env.add(check(m_env, mk_constant_assumption(decl.m_name, m_level_params, decl.m_type)));
+    /** \brief Add all datatype declarations to environment as constant_assumptions.
+
+        We will update them later using `mk_inductive` when we know the exact number of
+        recursors. */
+    void declare_inductive_types_as_constants() {
+        for (inductive_type const & ind_type : m_ind_types) {
+            name const & n = ind_type.get_name();
+            if (m_env.m_declarations.find(n))
+                throw already_declared_exception(m_env, n);
+            m_env.m_declarations.insert(n, mk_constant_assumption(n, m_lparams, ind_type.get_type()));
         }
     }
 
@@ -142,12 +149,12 @@ public:
             return false;
         }
 
-        if (m_decls.size() > 1) {
+        if (m_ind_types.size() > 1) {
             /* Mutually recursive inductive predicates only eliminate into Prop. */
             return true;
         }
 
-        unsigned num_intros = length(m_decls[0].m_constructors);
+        unsigned num_intros = length(m_ind_types[0].get_cnstrs());
         if (num_intros > 1) {
             /* We have more than one constructor, then recursor for inductive predicate
                can only eliminate intro Prop. */
@@ -165,14 +172,14 @@ public:
             2- It must occur in the return type. (this is essentially what is called a non-uniform parameter in Coq).
                We can justify 2 by observing that this information is not a *secret* it is part of the type.
                By eliminating to a non-proposition, we would not be revealing anything that is not already known. */
-        constructor const & cnstr = head(m_decls[0].m_constructors);
-        expr type  = cnstr.m_type;
+        constructor const & cnstr = head(m_ind_types[0].get_cnstrs());
+        expr type  = constructor_type(cnstr);
         unsigned i = 0;
         buffer<expr> to_check; /* Arguments that we must check if occur in the result type */
         local_ctx lctx;
         while (is_pi(type)) {
             expr fvar = lctx.mk_local_decl(m_ngen, binding_name(type), binding_domain(type), binding_info(type));
-            if (i >= m_num_params) {
+            if (i >= m_nparams) {
                 expr s = type_checker(m_env, lctx).ensure_type(binding_domain(type));
                 if (!is_zero(sort_level(s))) {
                     /* Current argument is not in Prop (i.e., condition 1 failed).
@@ -200,7 +207,7 @@ public:
         } else {
             name u("u");
             int i = 1;
-            while (std::find(m_level_params.begin(), m_level_params.end(), u) != m_level_params.end()) {
+            while (std::find(m_lparams.begin(), m_lparams.end(), u) != m_lparams.end()) {
                 u = name("u").append_after(i);
                 i++;
             }
@@ -209,16 +216,40 @@ public:
         std::cout << ">> elim_level: " << m_elim_level << "\n";
     }
 
-    void check_constructor(constructor const & cnstr, unsigned /* decl_idx */) {
-        check_no_metavar_no_fvar(m_env, cnstr.m_name, cnstr.m_type);
-        type_checker(m_env).check(cnstr.m_type, m_level_params);
+    void init_K_target() {
+        /* A declaration is target for K-like reduction when
+           it has one intro, the intro has 0 arguments, and it is an inductive predicate.
+           In the following for-loop we check if the intro rule has 0 fields. */
+        m_K_target =
+            m_ind_types.size() == 1 &&              /* It is not a mutual declaration (for simplicity, we don't gain anything by supporting K in mutual declarations. */
+            is_zero(m_result_level) &&              /* It is an inductive predicate. */
+            length(m_ind_types[0].get_cnstrs()) == 1; /* Inductive datatype has only one constructor. */
+        if (!m_K_target)
+            return;
+        expr it = constructor_type(head(m_ind_types[0].get_cnstrs()));
+        unsigned i = 0;
+        while (is_pi(it)) {
+            if (i < m_nparams) {
+                it = binding_body(it);
+            } else {
+                /* See comment above */
+                m_K_target = false;
+                break;
+            }
+            i++;
+        }
+    }
+
+    void check_constructor(constructor const & cnstr, unsigned /* idx */) {
+        check_no_metavar_no_fvar(m_env, constructor_name(cnstr), constructor_type(cnstr));
+        type_checker(m_env).check(constructor_type(cnstr), m_lparams);
     }
 
     void check_constructors() {
-        for (unsigned decl_idx = 0; decl_idx < m_decls.size(); decl_idx++) {
-            inductive_decl const & decl = m_decls[decl_idx];
-            for (constructor const & cnstr : decl.m_constructors) {
-                check_constructor(cnstr, decl_idx);
+        for (unsigned idx = 0; idx < m_ind_types.size(); idx++) {
+            inductive_type const & ind_type = m_ind_types[idx];
+            for (constructor const & cnstr : ind_type.get_cnstrs()) {
+                check_constructor(cnstr, idx);
             }
         }
     }
@@ -226,15 +257,16 @@ public:
     environment operator()() {
         dump();
         check_inductive_types();
-        declare_inductive_types();
+        declare_inductive_types_as_constants();
         init_elim_level();
+        init_K_target();
 
         return m_env;
     }
 };
 
-environment environment::add_inductive_decls(inductive_decls const & decls) const {
-    return add_inductive_fn(*this, decls)();
+environment environment::add(inductive_decl const & decl) const {
+    return add_inductive_fn(*this, decl)();
 }
 
 void initialize_inductive() {

@@ -393,7 +393,6 @@ struct add_inductive_fn {
         check_no_metavar_no_fvar(m_env, n, t);
         tc().check(t, m_decl.m_level_params);
         unsigned i     = 0;
-        bool found_rec = false;
         while (is_pi(t)) {
             if (i < m_decl.m_num_params) {
                 if (!is_def_eq(binding_domain(t), get_param_type(i)))
@@ -410,17 +409,7 @@ struct add_inductive_fn {
                                            << "of '" << n << "' is too big for the corresponding inductive datatype");
                 if (!m_is_meta)
                     check_positivity(binding_domain(t), n, i);
-                bool is_rec = (bool)is_rec_argument(binding_domain(t)); // NOLINT
-                if (is_rec)
-                    found_rec = true;
-                if (!found_rec) {
-                    t = instantiate(binding_body(t), mk_local_for(t));
-                } else {
-                    t = binding_body(t);
-                    if (has_loose_bvars(t))
-                        throw kernel_exception(m_env, sstream() << "invalid occurrence of recursive arg#" << (i+1) <<
-                                               " of '" << n << "', the body of the functional type depends on it.");
-                }
+                t = instantiate(binding_body(t), mk_local_for(t));
             }
             i++;
         }

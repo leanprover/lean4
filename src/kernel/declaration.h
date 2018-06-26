@@ -280,6 +280,52 @@ declaration mk_definition_inferring_meta(environment const & env, name const & n
 declaration mk_constant_assumption_inferring_meta(environment const & env, name const & n,
                                                   level_param_names const & params, expr const & t);
 
+declaration mk_inductive(name const & n, level_param_names const & params, expr const & t, unsigned nparams, unsigned nindices,
+                         names const & all, names const & cnstrs, names const & recs, bool is_rec, bool is_meta);
+declaration mk_constructor(name const & n, level_param_names const & params, expr const & t, name const & induct, unsigned nparams,
+                           bool is_meta);
+declaration mk_recursor(name const & id, level_param_names const & params, expr const & t, name const & induct, unsigned nparams,
+                        unsigned nindices, unsigned nmotives, unsigned nminor, bool k, recursor_rules const & rules, bool is_meta);
+
+typedef pair_ref<name, expr> constructor;
+inline name const & constructor_name(constructor const & c) { return c.fst(); }
+inline expr const & constructor_type(constructor const & c) { return c.snd(); }
+typedef list_ref<constructor> constructors;
+
+/**
+structure inductive_type :=
+(id : name) (type : expr) (cnstrs : list constructor)
+*/
+class inductive_type : public object_ref {
+public:
+    inductive_type(name const & id, expr const & type, constructors const & cnstrs);
+    inductive_type(inductive_type const & other):object_ref(other) {}
+    inductive_type(inductive_type && other):object_ref(other) {}
+    inductive_type & operator=(inductive_type const & other) { object_ref::operator=(other); return *this; }
+    inductive_type & operator=(inductive_type && other) { object_ref::operator=(other); return *this; }
+    name const & get_name() const { return static_cast<name const &>(cnstr_obj_ref(*this, 0)); }
+    expr const & get_type() const { return static_cast<expr const &>(cnstr_obj_ref(*this, 1)); }
+    constructors const & get_cnstrs() const { return static_cast<constructors const &>(cnstr_obj_ref(*this, 2)); }
+};
+typedef list_ref<inductive_type> inductive_types;
+
+/**
+structure inductive_decl :=
+(lparams : list name) (nparams : nat) (types : list inductive_type)
+*/
+class inductive_decl : public object_ref {
+public:
+    inductive_decl(names const & lparams, nat const & nparams, inductive_types const & types, bool is_meta);
+    inductive_decl(inductive_decl const & other):object_ref(other) {}
+    inductive_decl(inductive_decl && other):object_ref(other) {}
+    inductive_decl & operator=(inductive_decl const & other) { object_ref::operator=(other); return *this; }
+    inductive_decl & operator=(inductive_decl && other) { object_ref::operator=(other); return *this; }
+    names const & get_lparams() const { return static_cast<names const &>(cnstr_obj_ref(*this, 0)); }
+    nat const & get_nparams() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 1)); }
+    inductive_types const & get_types() const { return static_cast<inductive_types const &>(cnstr_obj_ref(*this, 2)); }
+    bool is_meta() const;
+};
+
 void initialize_declaration();
 void finalize_declaration();
 }

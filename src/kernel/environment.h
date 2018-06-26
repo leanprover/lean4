@@ -100,30 +100,6 @@ public:
     bool is_descendant(environment_id const & id) const;
 };
 
-struct constructor {
-    name m_name;
-    expr m_type;
-    constructor() {}
-    constructor(name const & n, expr const & t):m_name(n), m_type(t) {}
-};
-
-struct inductive_decl {
-    name                 m_name;
-    expr                 m_type;
-    list<constructor>    m_constructors;
-    inductive_decl(name const & n, expr const & ty, list<constructor> const & constructors):
-        m_name(n), m_type(ty), m_constructors(constructors) {}
-};
-
-struct inductive_decls {
-    level_param_names    m_level_params;
-    unsigned             m_num_params;
-    list<inductive_decl> m_decls;
-    inductive_decls() {}
-    inductive_decls(level_param_names const & lvls, unsigned num_params, list<inductive_decl> const & decls):
-        m_level_params(lvls), m_num_params(num_params), m_decls(decls) {}
-};
-
 /** \brief Lean core environment. An environment object can be extended/customized in different ways:
 
     1- By providing a normalizer_extension when creating an empty environment.
@@ -133,6 +109,7 @@ class environment {
     typedef std::shared_ptr<environment_header const>     header;
     typedef name_map<declaration>                         declarations;
     typedef std::shared_ptr<environment_extensions const> extensions;
+    friend class add_inductive_fn;
 
     header                    m_header;
     environment_id            m_id;
@@ -164,12 +141,6 @@ public:
 
     bool is_quot_initialized() const { return m_quot_initialized; }
 
-    /* \brief Add `quot` type. */
-    environment add_quot() const;
-
-    /* \brief Add (mutually recursive) inductive declarations */
-    environment add_inductive_decls(inductive_decls const & decls) const;
-
     /** \brief Return reference to the normalizer extension associatied with this environment. */
     normalizer_extension const & norm_ext() const { return m_header->norm_ext(); }
 
@@ -198,6 +169,12 @@ public:
 
         If \c check is false, then type checking is skipped. */
     environment add_meta(buffer<declaration> const & ds, bool check = true) const;
+
+    /* \brief Add `quot` type. */
+    environment add_quot() const;
+
+    /* \brief Add (mutually recursive) inductive declarations */
+    environment add(inductive_decl const & decl) const;
 
     /** \brief Register an environment extension. Every environment
         object may contain this extension. The argument \c initial is

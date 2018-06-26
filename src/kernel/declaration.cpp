@@ -241,6 +241,21 @@ declaration mk_recursor(name const & n, level_param_names const & params, expr c
                                 declaration::mk_recursor_val(n, params, t, induct, nparams, nindices, nmotives, nminor, k, rules, is_meta)));
 }
 
+inductive_type::inductive_type(name const & id, expr const & type, constructors const & cnstrs):
+    object_ref(mk_cnstr(0, id.raw(), type.raw(), cnstrs.raw())) {
+    inc(id.raw()); inc(type.raw()); inc(cnstrs.raw());
+}
+
+static unsigned inductive_decl_scalar_offset() { return sizeof(object*)*3; }
+
+inductive_decl::inductive_decl(names const & lparams, nat const & nparams, inductive_types const & types, bool is_meta):
+    object_ref(mk_cnstr(0, lparams.raw(), nparams.raw(), types.raw(), sizeof(unsigned char))) {
+    inc(lparams.raw()), inc(nparams.raw()); inc(types.raw());
+    cnstr_set_scalar<unsigned char>(raw(), inductive_decl_scalar_offset(), static_cast<unsigned char>(is_meta));
+}
+
+bool inductive_decl::is_meta() const { return cnstr_scalar<unsigned char>(raw(), inductive_decl_scalar_offset()) != 0; }
+
 void initialize_declaration() {
     g_opaque = new reducibility_hints(reducibility_hints::mk_opaque());
     g_dummy  = new declaration(mk_axiom(name(), level_param_names(), expr()));

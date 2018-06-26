@@ -54,6 +54,16 @@ structure definition_val extends declaration_val :=
 structure theorem_val extends declaration_val :=
 (value : expr)
 
+/-- The kernel compiles (mutual) inductive declarations (see `inductive_decls`) into a set of
+    - `declaration.induct_decl` (for each inductive datatype in the mutual declaration),
+    - `declaration.cnstr_decl` (for each constructor in the mutual declaration),
+    - `declaration.rec_decl` (automatically generated recursors).
+
+    This data is used to implement iota-reduction efficiently and compile nested inductive
+    declarations.
+
+    A series of checks are performed by the kernel to check whether a `inductive_decls`
+    is valid or not. -/
 structure inductive_val extends declaration_val :=
 (nparams : nat)       -- Number of parameters
 (nindices : nat)      -- Number of indices
@@ -133,4 +143,16 @@ def is_meta : declaration → bool
 | _                                := ff
 
 end declaration
+
+structure constructor :=
+(id : name) (type : expr)
+
+structure inductive_type :=
+(id : name) (type : expr) (cnstrs : list constructor)
+
+/-- A (mutual) inductive declaration. This declaration created by the frontend is compiled by the kernel
+    into a set of `declaration.induct_decl`, `declaration.cnstr_decl` and `declaration.rec_decl`. -/
+structure inductive_decl :=
+(lparams : list name) (nparams : nat) (types : list inductive_type) (is_meta : bool)
+
 end lean

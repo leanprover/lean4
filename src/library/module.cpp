@@ -289,7 +289,7 @@ struct import_helper {
         return env.add(certify_or_check(env, decl));
     }
     static certified_declaration certify_or_check(environment const & env, declaration const & decl) {
-        return certify_unchecked::certify_or_check(env, decl);
+        return certified_declaration::certify_or_check(env, decl);
     }
 };
 

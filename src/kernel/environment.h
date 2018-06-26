@@ -230,11 +230,6 @@ public:
     /** \brief Return the id of the environment that was used to type check this declaration. */
     environment_id const & get_id() const { return m_id; }
     declaration const & get_declaration() const { return m_declaration; }
-};
-
-class certify_unchecked {
-    friend struct import_helper;
-    friend class inductive::certified_inductive_decl;
     /** \brief Certifies a declaration without type-checking.
 
        \remark This method throws an excetion if trust_lvl() == 0

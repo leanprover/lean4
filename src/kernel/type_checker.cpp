@@ -876,13 +876,13 @@ certified_declaration check(environment const & env, declaration const & d) {
     return certified_declaration(env.get_id(), d);
 }
 
-certified_declaration certify_unchecked::certify(environment const & env, declaration const & d) {
+certified_declaration certified_declaration::certify(environment const & env, declaration const & d) {
     if (env.trust_lvl() == 0)
         throw kernel_exception(env, "environment trust level does not allow users to add declarations that were not type checked");
     return certified_declaration(env.get_id(), d);
 }
 
-certified_declaration certify_unchecked::certify_or_check(environment const & env, declaration const & d) {
+certified_declaration certified_declaration::certify_or_check(environment const & env, declaration const & d) {
     if (env.trust_lvl() == 0)
         return check(env, d);
     else

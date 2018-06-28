@@ -82,18 +82,15 @@ end state_t
     In contrast to the Haskell implementation, we use overlapping instances to derive instances
     automatically from `monad_lift`. -/
 class monad_state (σ : out_param (Type u)) (m : Type u → Type v) :=
--- MonadState's `state`, may be useful for linearly extracting state parts
-/- Embed a primitive state operation. -/
-(lift {} {α : Type u} : state σ α → m α)
 /- Obtain the top-most state of a monad stack. -/
-(get {} : m σ                  := lift state_t.get)
+(get {} : m σ)
 /- Set the top-most state of a monad stack. -/
-(put {} : σ → m punit          := λ st, lift (state_t.put st))
+(put {} : σ → m punit)
 /- Map the top-most state of a monad stack.
 
    Note: `modify f` may be preferable to `f <$> get >>= put` because the latter
    does not use the state linearly (without sufficient inlining). -/
-(modify {} : (σ → σ) → m punit := λ f, lift (state_t.modify f))
+(modify {} : (σ → σ) → m punit)
 
 export monad_state (get put modify)
 
@@ -105,14 +102,12 @@ variables {σ : Type u} {m : Type u → Type v}
 instance monad_state_trans {n : Type u → Type w} [has_monad_lift m n] [monad_state σ m] : monad_state σ n :=
 { get := monad_lift (monad_state.get : m _),
   put := λ st, monad_lift (monad_state.put st : m _),
-  modify := λ f, monad_lift (monad_state.modify f : m _),
-  lift := λ α x, monad_lift (monad_state.lift x : m _) }
+  modify := λ f, monad_lift (monad_state.modify f : m _) }
 
 instance [monad m] : monad_state σ (state_t σ m) :=
 { get := state_t.get,
   put := state_t.put,
-  modify := state_t.modify,
-  lift := λ α x, ⟨λ s, pure (x.run s)⟩ }
+  modify := state_t.modify }
 end
 
 /-- Adapt a monad stack, changing the type of its top-most state.

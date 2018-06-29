@@ -34,7 +34,7 @@ match parser_t.parse p s with
 
 #eval test_failure ((ch 'a' >> ch 'b') <|> (ch 'a' >> ch 'c')) "ac"
 #eval test ((lookahead (str "ab") >> ch 'a' >> ch 'b') <|> (ch 'a' >> ch 'c')) "ac" 'c'
-#eval test (str "ab" >> eps <|> (ch 'a' >> ch 'c' >> eps)) "ac" ()
+#eval test (str "ab" >> pure () <|> (ch 'a' >> ch 'c' >> pure ())) "ac" ()
 #eval test (try (ch 'a' >> ch 'b') <|> (ch 'a' >> ch 'c')) "ac" 'c'
 #eval test (lookahead (ch 'a')) "abc" 'a'
 #eval test_failure (parser_t.not_followed_by (lookahead (ch 'a'))) "abc"

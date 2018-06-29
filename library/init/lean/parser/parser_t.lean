@@ -55,8 +55,6 @@ inductive result (α : Type)
 @[inline] def result.mk_eps {α : Type} (a : α) (it : iterator) : result α :=
 result.ok_eps a it dlist.empty
 
-open result
-
 def parser_t (m : Type → Type) (α : Type) :=
 iterator → m (result α)
 
@@ -64,6 +62,7 @@ abbreviation parser (α : Type) := parser_t id α
 
 namespace parser_t
 variables {m : Type → Type} [monad m] {α β : Type}
+open result
 
 def run (p : parser_t m α) (s : string) (fname := "") : m (except message α) :=
 do r ← p s.mk_iterator,
@@ -222,11 +221,11 @@ instance monad_parser_trans {m n : Type → Type} [has_monad_lift m n] [monad_fu
 namespace monad_parser
 variables {m : Type → Type} [monad m] [monad_parser m] [alternative m] {α β : Type}
 
-@[inline] def eps : m unit :=
-lift $ parser_t.eps
+@[inline] def error {α : Type} (unexpected : string := "") (expected : dlist string := dlist.empty) : m α :=
+lift $ λ it, result.error ⟨it.offset, unexpected, expected⟩ ff
 
 def left_over : m iterator :=
-lift $ λ it, mk_eps it it
+lift $ λ it, result.mk_eps it it
 
 @[inline] def label (p : m α) (ex : string) : m α :=
 map (λ _ _ inst p, @parser_t.label _ inst _ p ex) p
@@ -266,17 +265,17 @@ map (λ _ _ inst p, @parser_t.not_followed_by _ inst _ p msg) p
 
 /-- Faster version of `not_followed_by (satisfy p)` -/
 @[inline] def not_followed_by_sat (p : char → bool) : m unit :=
-lift $ λ it,
-  if !it.has_next then mk_eps () it
-  else let c := it.curr in
-      if p c then error { pos := it.offset, unexpected := repr c } ff
-      else mk_eps () it
+do it ← left_over,
+   if !it.has_next then pure ()
+   else let c := it.curr in
+       if p c then error (repr c)
+       else pure ()
 
 @[inline] def eoi_error (pos : position) : result α :=
-error { pos := pos, unexpected := "end of input" } ff
+result.error { pos := pos, unexpected := "end of input" } ff
 
 def curr : m char :=
-lift $ λ it, mk_eps it.curr it
+string.iterator.curr <$> left_over
 
 @[inline] def cond (p : char → bool) (t : m α) (e : m α) : m α :=
 mcond (p <$> curr) t e
@@ -289,8 +288,8 @@ generate error message with current position and character. -/
 lift $ λ it,
   if !it.has_next then eoi_error it.offset
   else let c := it.curr in
-      if p c then ok c it.next
-      else error { pos := it.offset, unexpected := repr c } ff
+      if p c then result.ok c it.next
+      else result.error { pos := it.offset, unexpected := repr c } ff
 
 def ch (c : char) : m char :=
 satisfy (= c)
@@ -308,15 +307,14 @@ def lower : m char :=
 satisfy char.is_lower
 
 def any : m char :=
-lift $ λ it, if !it.has_next then error { pos := it.offset, unexpected := "end of input" } ff
-             else ok it.curr it.next
+satisfy (λ _, true)
 
 private def str_aux (s : string) : nat → iterator → iterator → result string
-| 0     _    it := ok s it
+| 0     _    it := result.ok s it
 | (n+1) s_it it :=
   if !it.has_next then eoi_error it.offset
   else if s_it.curr = it.curr then str_aux n s_it.next it.next
-       else error { pos := it.offset, unexpected := repr (it.curr) } ff
+       else result.error { pos := it.offset, unexpected := repr (it.curr) } ff
 
 /--
 `str s` parses a sequence of elements that match `s`. Returns the parsed string (i.e. `s`).
@@ -325,23 +323,23 @@ Note: The behaviour of this parser is different to that the `string` parser in t
 as this one is all-or-nothing.
 -/
 def str (s : string) : m string :=
-lift $ λ it, if s.is_empty then mk_eps "" it
-             else str_aux s s.length s.mk_iterator it
+if s.is_empty then pure ""
+else lift $ str_aux s s.length s.mk_iterator
 
 private def take_aux : nat → string → iterator → result string
-| 0     r it := ok r it
+| 0     r it := result.ok r it
 | (n+1) r it :=
   if !it.has_next then eoi_error it.offset
   else take_aux n (r.push (it.curr)) it.next
 
 /-- Consume `n` characters. -/
 def take (n : nat) : m string :=
-lift $ λ it, if n = 0 then mk_eps "" it
-             else take_aux n "" it
+if n = 0 then pure ""
+else lift $ take_aux n ""
 
 @[inline] private def mk_string_result (r : string) (it : iterator) : result string :=
-if r.is_empty then mk_eps r it
-else ok r it
+if r.is_empty then result.mk_eps r it
+else result.ok r it
 
 private def take_while_aux (p : char → bool) : nat → string → iterator → result string
 | 0     r it := mk_string_result r it
@@ -371,7 +369,7 @@ lift $ λ it,
       if p c
       then let input := it.next in
             take_while_aux p input.remaining (to_string c) input
-      else error { pos := it.offset, unexpected := repr c } ff
+      else result.error { pos := it.offset, unexpected := repr c } ff
 
 /--
 Consume input as long as the predicate returns `ff` (i.e. until it returns `tt`), and return the consumed input.
@@ -383,8 +381,8 @@ def take_until1 (p : char → bool) : m string :=
 take_while1 (λ c, !p c)
 
 @[inline] private def mk_consumed_result (consumed : bool) (it : iterator) : result unit :=
-if consumed then ok () it
-else mk_eps () it
+if consumed then result.ok () it
+else result.mk_eps () it
 
 private def take_while_aux' (p : char → bool) : nat → bool → iterator → result unit
 | 0     consumed it := mk_consumed_result consumed it
@@ -406,7 +404,7 @@ lift $ λ it,
       if p c
       then let input := it.next in
             take_while_aux' p input.remaining tt input
-      else error { pos := it.offset, unexpected := repr c } ff
+      else result.error { pos := it.offset, unexpected := repr c } ff
 
 /-- Consume zero or more whitespaces. -/
 def whitespace : m unit :=
@@ -422,16 +420,17 @@ string.to_nat <$> (take_while1 char.is_digit)
 
 /-- Return the number of characters left to be parsed. -/
 def remaining : m nat :=
-lift $ λ it, mk_eps it.remaining it
+string.iterator.remaining <$> left_over
 
 /-- Succeed only if there are at least `n` characters left. -/
 def ensure (n : nat) : m unit :=
-lift $ λ it, if n ≤ it.remaining then mk_eps () it
-             else error { pos := it.offset, unexpected := "end of input", expected := dlist.singleton ("at least " ++ to_string n ++ " characters") } ff
+do it ← left_over,
+   if n ≤ it.remaining then pure ()
+   else error "end of input" (dlist.singleton ("at least " ++ to_string n ++ " characters"))
 
 /-- Return the current position. -/
 def pos : m position :=
-lift $ λ it, mk_eps it.offset it
+string.iterator.offset <$> left_over
 
 def many1_aux (p : m α) : nat → m (list α)
 | 0     := do a ← p, return [a]
@@ -456,8 +455,9 @@ def many' (p : m α) : m unit :=
 many1' p <|> return ()
 
 def eoi : m unit :=
-lift $ λ it, if it.remaining = 0 then mk_eps () it
-             else error { pos := it.offset, unexpected := repr it.curr, expected := dlist.singleton ("end of input") } ff
+do it ← left_over,
+   if it.remaining = 0 then pure ()
+   else error (repr it.curr) (dlist.singleton ("end of input"))
 
 def sep_by1 (p : m α) (sep : m β) : m (list α) :=
 (::) <$> p <*> many (sep >> p)
@@ -491,10 +491,10 @@ do it ← left_over,
    foldl_aux f p a it.remaining
 
 def unexpected (msg : string) : m α :=
-lift $ λ it, error {unexpected := msg, pos := it.offset} ff
+error msg
 
 def unexpected_at (msg : string) (pos : position) : m α :=
-lift $ λ it, error {unexpected := msg, pos := pos} ff
+lift $ λ _, result.error {unexpected := msg, pos := pos} ff
 
 end monad_parser
 

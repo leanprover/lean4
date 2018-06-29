@@ -42,10 +42,9 @@ comp.do Get.mk
 comp.do (Put.mk s)
 
 instance (h σ) [handler h] [handles h Get σ] [handles h Put σ] : monad_state σ (comp h) :=
-{ lift := λ α x, do s ← get,
-                    let (a, s') := x.run s,
-                    put s,
-                    pure a }
+{ get := get,
+  put := put,
+  modify := λ f, f <$> get >>= put }
 
 structure state_h (h : Type) (σ : Type) (α : Type) := mk {} ::
 (state : σ)

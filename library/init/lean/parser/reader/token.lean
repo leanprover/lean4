@@ -35,8 +35,9 @@ private def finish_comment_block_aux : nat → nat → reader unit
 | nesting (n+1) :=
   str "/-" *> finish_comment_block_aux (nesting + 1) n <|>
   str "-/" *>
-    if nesting = 1 then pure ()
-    else finish_comment_block_aux (nesting - 1) n
+    (if nesting = 1 then pure ()
+     else finish_comment_block_aux (nesting - 1) n) <|>
+  any *> finish_comment_block_aux nesting n
 | _ _ := error
 
 def finish_comment_block (nesting := 1) : reader unit :=

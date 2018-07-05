@@ -18,3 +18,8 @@ match p.parse ⟨⟩ ⟨[
 #eval show_result module.reader "prelude
 import ..a b
 import c"
+
+-- slowly progressing...
+#eval do
+  s ← io.fs.read_file "../../library/init/core.lean",
+  show_result (many token) s

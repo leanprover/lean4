@@ -7,3 +7,6 @@ result:
  [(prelude "prelude")]
  [(import "import" [(import_path ["." "."] a) (import_path [] b)])
  (import "import" [(import_path [] c)])])
+error at line 10, column 9:
+unexpected '`'
+expected identifier

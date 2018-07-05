@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 prelude
 import init.data.list.basic
 import init.data.char.basic
+import init.data.option.basic
 
 /- In the VM, strings are implemented using a dynamic array and UTF-8 encoding.
 
@@ -110,6 +111,10 @@ def remove : iterator → nat → iterator
 def to_string : iterator → string
 | ⟨p, n⟩ := ⟨p.reverse ++ n⟩
 
+def forward : iterator → nat → iterator
+| it 0     := it
+| it (n+1) := forward it.next n
+
 def to_end : iterator → iterator
 | ⟨p, n⟩ := ⟨n.reverse ++ p, []⟩
 
@@ -134,6 +139,15 @@ def extract : iterator → iterator → option string
   else (match iterator.extract_core n₁ n₂ with
         | none := none
         | some r := some ⟨r⟩)
+
+/- (is_prefix_of_remaining it₁ it₂) is true iff `it₁.next_to_string` is a prefix
+   of `it₂.next_to_string`. -/
+def is_prefix_of_remaining (it₁ it₂ : iterator) : Prop :=
+it₂.extract (it₂.forward it₁.remaining) = some it₁.next_to_string
+
+instance : decidable_rel is_prefix_of_remaining :=
+λ it₁ it₂, infer_instance_as $ decidable $
+  it₂.extract (it₂.forward it₁.remaining) = some it₁.next_to_string
 
 end iterator
 end string

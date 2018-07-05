@@ -424,7 +424,7 @@ static vm_obj io_get_cwd(vm_obj const &) {
     char buffer[PATH_MAX];
     auto cwd = getcwd(buffer, sizeof(buffer));
     if (cwd) {
-        return mk_io_result(mk_vm_some(to_obj(std::string(cwd))));
+        return mk_io_result(to_obj(std::string(cwd)));
     } else {
         return mk_io_failure("get_cwd failed");
     }

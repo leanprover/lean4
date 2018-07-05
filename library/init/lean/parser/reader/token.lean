@@ -20,7 +20,7 @@ namespace reader
 open lean.parser.monad_parser
 open string
 
-def match_token : reader (option token_config) :=
+def match_token : read_m (option token_config) :=
 do st ← get,
    it ← left_over,
    -- the slowest longest prefix matcher on Earth
@@ -31,7 +31,7 @@ do st ← get,
        | none     := tk
      else acc) none
 
-private def finish_comment_block_aux : nat → nat → reader unit
+private def finish_comment_block_aux : nat → nat → read_m unit
 | nesting (n+1) :=
   str "/-" *> finish_comment_block_aux (nesting + 1) n <|>
   str "-/" *>
@@ -40,10 +40,10 @@ private def finish_comment_block_aux : nat → nat → reader unit
   any *> finish_comment_block_aux nesting n
 | _ _ := error
 
-def finish_comment_block (nesting := 1) : reader unit :=
+def finish_comment_block (nesting := 1) : read_m unit :=
 remaining >>= finish_comment_block_aux nesting
 
-private def whitespace_aux : nat → reader unit
+private def whitespace_aux : nat → read_m unit
 | (n+1) :=
 do start ← pos,
    tk ← whitespace *> match_token,
@@ -55,30 +55,32 @@ do start ← pos,
 
 /-- Skip whitespace and comments. -/
 --TODO(Sebastian): store whitespace prefix and suffix in syntax objects
-def whitespace : reader unit :=
+def whitespace : read_m unit :=
 -- every `whitespace_aux` loop reads at least one char
 do r ← remaining,
    whitespace_aux r
 
 /-- Match a string literally without consulting the token table. -/
-def raw_symbol (sym : string) : reader syntax :=
-do start ← pos,
-   try (whitespace *> str sym),
-   stop ← pos,
-   pure $ syntax.atom ⟨some ⟨start, stop⟩, atomic_val.string sym⟩
+def raw_symbol (sym : string) : reader :=
+{ tokens := [], -- no additional tokens
+  read := do
+    start ← pos,
+    try (whitespace *> str sym),
+    stop ← pos,
+    pure $ syntax.atom ⟨some ⟨start, stop⟩, atomic_val.string sym⟩ }
 
 --TODO(Sebastian): other bases
-private def number' (start : position) : reader syntax :=
+private def number' (start : position) : read_m syntax :=
 do num ← take_while1 char.is_digit,
    stop ← pos,
    pure $ syntax.node ⟨`base10_lit, [syntax.atom ⟨some ⟨start, stop⟩, atomic_val.string num⟩]⟩
 
-private def ident' (start : position) : reader syntax :=
+private def ident' (start : position) : read_m syntax :=
 do n ← identifier,
    stop ← pos,
    pure $ syntax.ident ⟨some ⟨start, stop⟩, n, none, none⟩
 
-def token : reader syntax :=
+def token : read_m syntax :=
 do start ← pos,
    tk ← whitespace *> match_token,
    match tk with
@@ -92,21 +94,25 @@ do start ← pos,
    | none              := number' start <|> ident' start
 
 --TODO(Sebastian): error messages
-def symbol (sym : string) : reader syntax := try $
-do stx@(syntax.atom ⟨_, atomic_val.string sym'⟩) ← token | error "" (dlist.singleton sym),
-   when (sym ≠ sym') $
-     error "" (dlist.singleton sym),
-   pure stx
+def symbol (sym : string) : reader :=
+{ tokens := [⟨sym, none⟩],
+  read := try $ do
+    stx@(syntax.atom ⟨_, atomic_val.string sym'⟩) ← token | error "" (dlist.singleton sym),
+    when (sym ≠ sym') $
+      error "" (dlist.singleton sym),
+    pure stx }
 
-def keyword (kw : string) : reader syntax := symbol kw
+def keyword (kw : string) : reader := symbol kw
 
-def number : reader syntax := try $
-do stx@(syntax.node ⟨`base10_lit, _⟩) ← token | error,
-   pure stx
+def number : reader :=
+{ read := try $ do
+    stx@(syntax.node ⟨`base10_lit, _⟩) ← token | error,
+    pure stx }
 
-def ident : reader syntax := try $
-do stx@(syntax.ident _) ← token | error,
-   pure stx
+def ident : reader :=
+{ read := try $ do
+    stx@(syntax.ident _) ← token | error,
+    pure stx }
 
 end reader
 end lean.parser

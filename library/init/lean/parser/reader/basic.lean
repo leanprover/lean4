@@ -30,41 +30,54 @@ def reader_state.empty : reader_state :=
 
 structure reader_config := mk
 
-@[irreducible] def reader := reader_t reader_config $ state_t reader_state $ parser
+@[irreducible] def read_m := reader_t reader_config $ state_t reader_state $ parser
+
+structure reader :=
+(read : read_m syntax)
+(tokens : list token_config := [])
 
 namespace reader
-local attribute [reducible] reader
-instance : monad reader := infer_instance
-instance : alternative reader := infer_instance
-instance : monad_reader reader_config reader := infer_instance
-instance : monad_state reader_state reader := infer_instance
-instance : monad_parser reader := infer_instance
+local attribute [reducible] read_m
+instance : monad read_m := infer_instance
+instance : alternative read_m := infer_instance
+instance : monad_reader reader_config read_m := infer_instance
+instance : monad_state reader_state read_m := infer_instance
+instance : monad_parser read_m := infer_instance
 
-protected def parse (cfg : reader_config) (st : reader_state) (s : string) (r : reader syntax) :
+--TODO(Sebastian): expose `reader_state.errors`
+protected def parse (cfg : reader_config) (s : string) (r : reader) :
   except parser.message syntax :=
-prod.fst <$> ((r.run cfg).run st).parse_with_eoi s
+-- the only hardcoded tokens, because they are never directly mentioned by a `reader`
+let tokens : list token_config := [⟨"/-", none⟩, ⟨"--", none⟩] in
+prod.fst <$> ((r.read.run cfg).run ⟨r.tokens ++ tokens, ff, []⟩).parse_with_eoi s
 end reader
 
 namespace reader
 open monad_parser
 
-def node (m : macro) (ps : list (reader syntax)) : reader syntax :=
-do args ← ps.mmap id,
-   pure $ syntax.node ⟨m.name, args⟩
+def node (m : macro) (ps : list reader) : reader :=
+{ read := do {
+    args ← ps.mmap reader.read,
+    pure $ syntax.node ⟨m.name, args⟩
+  },
+  tokens := ps.bind reader.tokens }
 
-def many (p : reader syntax) : reader syntax :=
-do args ← many p,
-   pure $ syntax.node ⟨name.anonymous, args⟩
+def many (p : reader) : reader :=
+{ p with read := do
+    args ← many p.read,
+    pure $ syntax.node ⟨name.anonymous, args⟩ }
 
-def many1 (p : reader syntax) : reader syntax :=
-do args ← many1 p,
-   pure $ syntax.node ⟨name.anonymous, args⟩
+def many1 (p : reader) : reader :=
+{ p with read := do
+    args ← many1 p.read,
+    pure $ syntax.node ⟨name.anonymous, args⟩ }
 
-def optional (p : reader syntax) : reader syntax :=
-do r ← optional p,
-   pure $ match r with
-   | some r := syntax.node ⟨name.anonymous, [r]⟩
-   | none   := syntax.node ⟨name.anonymous, []⟩
+def optional (p : reader) : reader :=
+{ p with read := do
+    r ← optional p.read,
+    pure $ match r with
+    | some r := syntax.node ⟨name.anonymous, [r]⟩
+    | none   := syntax.node ⟨name.anonymous, []⟩ }
 
 end reader
 end parser

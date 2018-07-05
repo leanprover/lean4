@@ -30,7 +30,7 @@ def expected.to_string : list string → string
 protected def message.to_string (input : string) (msg : message) : string :=
 let (line, col) := input.line_column msg.pos in
 "error at line " ++ to_string line ++ ", column " ++ to_string col ++ ":\n" ++
-"unexpected " ++ msg.unexpected ++ "\n" ++
+(if msg.unexpected = "" then "" else "unexpected " ++ msg.unexpected ++ "\n") ++
 let ex_list := msg.expected.to_list in
 if ex_list = [] then "" else "expected " ++ expected.to_string ex_list
 
@@ -309,12 +309,11 @@ satisfy char.is_lower
 def any : m char :=
 satisfy (λ _, true)
 
-private def str_aux (s : string) : nat → iterator → iterator → result string
-| 0     _    it := result.ok s it
+private def str_aux : nat → iterator → iterator → option iterator
+| 0     _    it := some it
 | (n+1) s_it it :=
-  if !it.has_next then eoi_error it.offset
-  else if s_it.curr = it.curr then str_aux n s_it.next it.next
-       else result.error { pos := it.offset, unexpected := repr (it.curr) } ff
+  if it.has_next ∧ s_it.curr = it.curr then str_aux n s_it.next it.next
+  else none
 
 /--
 `str s` parses a sequence of elements that match `s`. Returns the parsed string (i.e. `s`).
@@ -324,7 +323,9 @@ as this one is all-or-nothing.
 -/
 def str (s : string) : m string :=
 if s.is_empty then pure ""
-else lift $ str_aux s s.length s.mk_iterator
+else lift $ λ it, match str_aux s.length s.mk_iterator it with
+  | some it' := result.ok s it'
+  | none     := result.error { pos := it.offset, expected := dlist.singleton (repr s) } ff
 
 private def take_aux : nat → string → iterator → result string
 | 0     r it := result.ok r it

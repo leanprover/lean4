@@ -369,9 +369,9 @@ vm_obj string_iterator_to_end(vm_obj const & it) {
 }
 
 /*
-def next_to_string : iterator → string
+def remaining_to_string : iterator → string
 */
-vm_obj string_iterator_next_to_string(vm_obj const & it) {
+vm_obj string_iterator_remaining_to_string(vm_obj const & it) {
     vm_string const & s = it_string(it);
     size_t i            = it_pos(it);
     std::string r;
@@ -423,7 +423,7 @@ vm_obj string_iterator_imp_mk(vm_obj const & l1, vm_obj const & l2) {
 
 unsigned string_iterator_imp_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
     vm_obj p = string_iterator_prev_to_string(o);
-    vm_obj n = string_iterator_next_to_string(o);
+    vm_obj n = string_iterator_remaining_to_string(o);
     data.push_back(string_to_list_core(to_vm_string(p).m_value, true /* reverse */));
     data.push_back(string_to_list_core(to_vm_string(n).m_value));
     return 0;
@@ -435,7 +435,7 @@ vm_obj string_iterator_imp_fst(vm_obj const & o) {
 }
 
 vm_obj string_iterator_imp_snd(vm_obj const & o) {
-    vm_obj n = string_iterator_next_to_string(o);
+    vm_obj n = string_iterator_remaining_to_string(o);
     return string_to_list_core(to_vm_string(n).m_value);
 }
 
@@ -525,7 +525,7 @@ void initialize_vm_string() {
     DECLARE_VM_BUILTIN(name({"string", "iterator", "offset"}),         string_iterator_offset);
     DECLARE_VM_BUILTIN(name({"string", "iterator", "to_string"}),      string_iterator_to_string);
     DECLARE_VM_BUILTIN(name({"string", "iterator", "to_end"}),         string_iterator_to_end);
-    DECLARE_VM_BUILTIN(name({"string", "iterator", "next_to_string"}), string_iterator_next_to_string);
+    DECLARE_VM_BUILTIN(name({"string", "iterator", "remaining_to_string"}), string_iterator_remaining_to_string);
     DECLARE_VM_BUILTIN(name({"string", "iterator", "prev_to_string"}), string_iterator_prev_to_string);
     DECLARE_VM_BUILTIN(name({"string", "iterator", "extract"}),        string_iterator_extract);
 

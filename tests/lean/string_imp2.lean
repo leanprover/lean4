@@ -7,7 +7,7 @@ s.push ' ' ++ s.push '-'
 def h (s : string) : string :=
 let it₁ := s.mk_iterator in
 let it₂ := it₁.next in
-it₁.next_to_string ++ "-" ++ it₂.next_to_string
+it₁.remaining_to_string ++ "-" ++ it₂.remaining_to_string
 
 def r (s : string) : string :=
 let it₁ := s.mk_iterator.to_end in
@@ -48,7 +48,7 @@ let it₂ := it₁.prev in
 #eval ((("abc".mk_iterator.set_curr '0').next.set_curr '1').prev.set_curr '2').to_string
 #eval ("abc".mk_iterator.set_curr (char.of_nat 955)).to_string
 #eval h "abc"
-#eval "abc".mk_iterator.next_to_string
+#eval "abc".mk_iterator.remaining_to_string
 #eval ("a".push (char.of_nat 0)) ++ "bb"
 #eval (("a".push (char.of_nat 0)) ++ "αb").length
 #eval r "abc"

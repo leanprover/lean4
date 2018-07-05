@@ -118,7 +118,7 @@ def forward : iterator → nat → iterator
 def to_end : iterator → iterator
 | ⟨p, n⟩ := ⟨n.reverse ++ p, []⟩
 
-def next_to_string : iterator → string
+def remaining_to_string : iterator → string
 | ⟨p, n⟩ := ⟨n⟩
 
 def prev_to_string : iterator → string
@@ -140,14 +140,14 @@ def extract : iterator → iterator → option string
         | none := none
         | some r := some ⟨r⟩)
 
-/- (is_prefix_of_remaining it₁ it₂) is true iff `it₁.next_to_string` is a prefix
-   of `it₂.next_to_string`. -/
+/- (is_prefix_of_remaining it₁ it₂) is true iff `it₁.remaining_to_string` is a prefix
+   of `it₂.remaining_to_string`. -/
 def is_prefix_of_remaining (it₁ it₂ : iterator) : Prop :=
-it₂.extract (it₂.forward it₁.remaining) = some it₁.next_to_string
+it₂.extract (it₂.forward it₁.remaining) = some it₁.remaining_to_string
 
 instance : decidable_rel is_prefix_of_remaining :=
 λ it₁ it₂, infer_instance_as $ decidable $
-  it₂.extract (it₂.forward it₁.remaining) = some it₁.next_to_string
+  it₂.extract (it₂.forward it₁.remaining) = some it₁.remaining_to_string
 
 end iterator
 end string
@@ -204,7 +204,7 @@ def popn_back (s : string) (n : nat) : string :=
 (s.mk_iterator.to_end.prevn n).prev_to_string
 
 def backn (s : string) (n : nat) : string :=
-(s.mk_iterator.to_end.prevn n).next_to_string
+(s.mk_iterator.to_end.prevn n).remaining_to_string
 
 private def line_column_aux : nat → string.iterator → nat × nat → nat × nat
 | 0     it r           := r

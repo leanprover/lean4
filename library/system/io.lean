@@ -142,7 +142,8 @@ iterate "" $ λ r,
     if done
     then return none
     else do
-      c ← read h 1024,
+      -- HACK: use less efficient `get_line` while `read` is broken
+      c ← get_line h,
       return $ some (r ++ c)
 
 def read_file (fname : string) (bin := ff) : io string :=

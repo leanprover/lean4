@@ -28,18 +28,12 @@ def «import» := {macro . name := `import}
 def import.reader : reader syntax :=
 node «import» [keyword "import", many1 import_path.reader]
 
-def «theory» := {macro . name := `theory}
-
-def theory.reader : reader syntax :=
-node «theory» [optional (keyword "noncomputable"), keyword "theory"]
-
 def module := {macro . name := `module}
 
 def module.reader : reader syntax :=
 node module [
   optional prelude.reader,
-  many import.reader,
-  optional theory.reader
+  many import.reader
 ]
 
 end reader

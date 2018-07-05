@@ -6,8 +6,6 @@ def show_result (p : lean.parser.reader syntax) (s : string) : io unit :=
 match p.parse ⟨⟩ ⟨[
   ⟨"prelude", none⟩,
   ⟨"import", none⟩,
-  ⟨"noncomputable", none⟩,
-  ⟨"theory", none⟩,
   ⟨"/-", none⟩,
   ⟨"--", none⟩
 ], ff, []⟩ s with
@@ -16,8 +14,7 @@ match p.parse ⟨⟩ ⟨[
 
 #eval show_result module.reader "prelude"
 #eval show_result module.reader "import me"
-#eval show_result module.reader "noncomputable theory"
 
 #eval show_result module.reader "prelude
 import ..a b
-noncomputable theory"
+import c"

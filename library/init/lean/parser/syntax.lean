@@ -13,9 +13,15 @@ namespace parser
 @[reducible] def var_offset := ℕ
 @[reducible] def macro_scope_id := ℕ
 
-structure span :=
-(left  : position)
-(right : position)
+--TODO(Sebastian): move
+structure substring :=
+(start : string.iterator)
+(stop : string.iterator)
+
+structure source_info :=
+(leading  : substring)
+(pos      : position)
+(trailing : substring)
 
 structure resolved :=
 -- local or (overloaded) global
@@ -27,15 +33,14 @@ structure resolved :=
 instance resolved.has_to_format : has_to_format resolved := ⟨λ r, to_fmt (r.decl, r.prefix)⟩
 
 structure syntax_ident :=
-(span : option span) (name : name) (msc : option macro_scope_id) (res : option resolved)
+(info : option source_info) (name : name) (msc : option macro_scope_id) (res : option resolved)
 
 inductive atomic_val
 | string (s : string)
-| number (n : nat)
 | name   (n : name)
 
 structure syntax_atom :=
-(span : option span) (val : atomic_val)
+(info : option source_info) (val : atomic_val)
 
 structure syntax_node (syntax : Type) :=
 (macro : name) (args : list syntax)
@@ -46,13 +51,11 @@ inductive syntax
 | atom (val : syntax_atom)
 | node (val : syntax_node syntax)
 
+def substring.to_string (s : substring) : string :=
+(s.start.extract s.stop).get_or_else ""
+
 namespace syntax
 open format
-
-protected def span : syntax → option span
-| (ident val) := val.span
-| (atom val)  := val.span
-| (node val)  := none -- should perhaps be the 'join' of all sub-spans?
 
 protected mutual def to_format, to_format_lst
 with to_format : syntax → format
@@ -76,7 +79,6 @@ with to_format : syntax → format
      | none := "") in
   n
 | (atom ⟨_, atomic_val.string s⟩) := to_fmt $ repr s
-| (atom ⟨_, atomic_val.number n⟩) := to_fmt n
 | (atom ⟨_, atomic_val.name   n⟩) := to_fmt "`" ++ to_fmt n
 | (node {macro := name.anonymous, args := args, ..}) :=
   sbracket $ join_sep (to_format_lst args) line

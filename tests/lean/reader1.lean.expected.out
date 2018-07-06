@@ -9,4 +9,4 @@ result:
  (import "import" [(import_path [] c)])])
 error at line 10, column 9:
 unexpected '`'
-expected identifier
+expected end of input

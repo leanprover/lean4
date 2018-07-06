@@ -18,7 +18,11 @@ namespace parser
 structure token_config :=
 («prefix» : string)
 -- reading a token should not need any state
-(token_reader : option (position → parser syntax) := none)
+/- An optional parser that is activated after matching `prefix`.
+   It should return a syntax tree with a "hole" for the
+   `source_info` surrounding the token, which will be supplied
+   by the `token` reader. -/
+(token_reader : option (parser (source_info → syntax)) := none)
 
 structure reader_state :=
 (tokens : list token_config)
@@ -36,7 +40,7 @@ structure reader :=
 (read : read_m syntax)
 (tokens : list token_config := [])
 
-namespace reader
+namespace read_m
 local attribute [reducible] read_m
 instance : monad read_m := infer_instance
 instance : alternative read_m := infer_instance
@@ -45,15 +49,19 @@ instance : monad_state reader_state read_m := infer_instance
 instance : monad_parser read_m := infer_instance
 
 --TODO(Sebastian): expose `reader_state.errors`
+protected def run {α : Type} (cfg : reader_config) (st : reader_state) (s : string) (r : read_m α) :
+  except parser.message α :=
+prod.fst <$> ((r.run cfg).run st).parse_with_eoi s
+end read_m
+
+namespace reader
+open monad_parser
+
 protected def parse (cfg : reader_config) (s : string) (r : reader) :
   except parser.message syntax :=
 -- the only hardcoded tokens, because they are never directly mentioned by a `reader`
 let tokens : list token_config := [⟨"/-", none⟩, ⟨"--", none⟩] in
-prod.fst <$> ((r.read.run cfg).run ⟨r.tokens ++ tokens, ff, []⟩).parse_with_eoi s
-end reader
-
-namespace reader
-open monad_parser
+r.read.run cfg ⟨r.tokens ++ tokens, ff, []⟩ s
 
 def node (m : macro) (ps : list reader) : reader :=
 { read := do {

@@ -46,8 +46,7 @@ do r ← remaining,
 
 private def whitespace_aux : nat → read_m unit
 | (n+1) :=
-do start ← pos,
-   tk ← whitespace *> match_token,
+do tk ← whitespace *> match_token,
    (match tk with
     | some ⟨"--", _⟩    := str "--" *> take_while' (= '\n') *> whitespace_aux n
     | some ⟨"/-", _⟩    := str "/-" *> finish_comment_block *> whitespace_aux n
@@ -55,44 +54,51 @@ do start ← pos,
 | 0 := error "unreachable"
 
 /-- Skip whitespace and comments. -/
---TODO(Sebastian): store whitespace prefix and suffix in syntax objects
-def whitespace : read_m unit :=
+def whitespace : read_m substring :=
 -- every `whitespace_aux` loop reads at least one char
-do r ← remaining,
-   whitespace_aux (r+1)
+do start ← left_over,
+   whitespace_aux (start.remaining+1),
+   stop ← left_over,
+   pure ⟨start, stop⟩
+
+def with_source_info {α : Type} (r : read_m α) : read_m (α × source_info) :=
+do leading ← whitespace,
+   p ← pos,
+   a ← r,
+   -- TODO(Sebastian): less greedy, more natural whitespace assignement
+   -- E.g. only read up to the next line break
+   trailing ← whitespace,
+   pure (a, ⟨leading, p, trailing⟩)
 
 /-- Match a string literally without consulting the token table. -/
 def raw_symbol (sym : string) : reader :=
 { tokens := [], -- no additional tokens
-  read := do
-    start ← pos,
-    try (whitespace *> str sym),
-    stop ← pos,
-    pure $ syntax.atom ⟨some ⟨start, stop⟩, atomic_val.string sym⟩ }
+  read := try $ do
+    (_, info) ← with_source_info $ str sym,
+    pure $ syntax.atom ⟨info, atomic_val.string sym⟩ }
 
 --TODO(Sebastian): other bases
-private def number' (start : position) : read_m syntax :=
+private def number' : read_m (source_info → syntax) :=
 do num ← take_while1 char.is_digit,
-   stop ← pos,
-   pure $ syntax.node ⟨`base10_lit, [syntax.atom ⟨some ⟨start, stop⟩, atomic_val.string num⟩]⟩
+   pure $ λ i, syntax.node ⟨`base10_lit, [syntax.atom ⟨i, atomic_val.string num⟩]⟩
 
-private def ident' (start : position) : read_m syntax :=
+private def ident' : read_m (source_info → syntax) :=
 do n ← identifier,
-   stop ← pos,
-   pure $ syntax.ident ⟨some ⟨start, stop⟩, n, none, none⟩
+   pure $ λ i, syntax.ident ⟨i, n, none, none⟩
 
 def token : read_m syntax :=
-do start ← pos,
-   tk ← whitespace *> match_token,
-   match tk with
-   -- constant-length token
-   | some ⟨tk, none⟩   :=
-     do str tk,
-        stop ← pos,
-        pure $ syntax.atom ⟨some ⟨start, stop⟩, atomic_val.string tk⟩
-   -- variable-length token
-   | some ⟨tk, some r⟩ := str tk *> monad_parser.lift (r start)
-   | none              := number' start <|> ident' start
+do (r, i) ← with_source_info $ do {
+     tk ← match_token,
+     match tk with
+     -- constant-length token
+     | some ⟨tk, none⟩   :=
+       do str tk,
+          pure $ λ i, syntax.atom ⟨some i, atomic_val.string tk⟩
+     -- variable-length token
+     | some ⟨tk, some r⟩ := str tk *> monad_parser.lift r
+     | none              := number' <|> ident'
+   },
+   pure (r i)
 
 --TODO(Sebastian): error messages
 def symbol (sym : string) : reader :=

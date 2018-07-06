@@ -38,10 +38,11 @@ private def finish_comment_block_aux : nat → nat → read_m unit
     (if nesting = 1 then pure ()
      else finish_comment_block_aux (nesting - 1) n) <|>
   any *> finish_comment_block_aux nesting n
-| _ _ := error
+| _ _ := error "unreachable"
 
 def finish_comment_block (nesting := 1) : read_m unit :=
-remaining >>= finish_comment_block_aux nesting
+do r ← remaining,
+   finish_comment_block_aux nesting (r+1) <?> "end of comment block"
 
 private def whitespace_aux : nat → read_m unit
 | (n+1) :=
@@ -51,14 +52,14 @@ do start ← pos,
     | some ⟨"--", _⟩    := str "--" *> take_while' (= '\n') *> whitespace_aux n
     | some ⟨"/-", _⟩    := str "/-" *> finish_comment_block *> whitespace_aux n
     | _                 := pure ())
-| 0 := error
+| 0 := error "unreachable"
 
 /-- Skip whitespace and comments. -/
 --TODO(Sebastian): store whitespace prefix and suffix in syntax objects
 def whitespace : read_m unit :=
 -- every `whitespace_aux` loop reads at least one char
 do r ← remaining,
-   whitespace_aux r
+   whitespace_aux (r+1)
 
 /-- Match a string literally without consulting the token table. -/
 def raw_symbol (sym : string) : reader :=

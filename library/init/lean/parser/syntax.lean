@@ -87,6 +87,20 @@ with to_format : syntax → format
 with to_format_lst : list syntax → list format
 | []      := []
 | (s::ss) := to_format s :: to_format_lst ss
+
+def reprint_with_info : option source_info → string → string
+| (some info) inner := info.leading.to_string ++ inner ++ info.trailing.to_string
+| none        inner := inner
+
+mutual def reprint, reprint_lst
+with reprint : syntax → string
+| (ident id) := reprint_with_info id.info id.name.to_string
+| (atom ⟨info, atomic_val.string s⟩) := reprint_with_info info s
+| (atom ⟨info, atomic_val.name   n⟩) := reprint_with_info info n.to_string
+| (node n) := reprint_lst n.args
+with reprint_lst : list syntax → string
+| []      := ""
+| (s::ss) := reprint s ++ reprint_lst ss
 end syntax
 
 instance : has_to_format syntax := ⟨syntax.to_format⟩

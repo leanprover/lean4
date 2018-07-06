@@ -4,7 +4,10 @@ open lean.parser.reader
 
 def show_result (p : lean.parser.reader) (s : string) : io unit :=
 match p.parse ⟨⟩ s with
-| except.ok a    := io.print_ln "result: " >> io.print_ln (to_string a)
+| except.ok stx  := do
+  guard $ stx.reprint = s,
+  io.print_ln "result: ",
+  io.print_ln (to_string stx)
 | except.error e := io.print_ln (e.to_string s)
 
 #eval show_result module.reader "prelude"

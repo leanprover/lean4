@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich
 -/
 prelude
-import init.lean.name init.lean.parser.parser_t
+import init.lean.name init.lean.parser.parsec
 
 namespace lean
 namespace parser

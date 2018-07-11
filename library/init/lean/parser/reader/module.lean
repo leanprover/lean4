@@ -10,7 +10,7 @@ import init.lean.parser.reader.token
 
 namespace lean.parser
 namespace reader
-open monad_parser
+open monad_parsec
 
 def «prelude» := {macro . name := `prelude}
 

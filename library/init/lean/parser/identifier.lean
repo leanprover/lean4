@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.char.basic init.lean.parser.parser_t
+import init.data.char.basic init.lean.parser.parsec
 
 namespace lean
 
@@ -38,8 +38,8 @@ def is_id_end_escape (c : char) : bool :=
 c = id_end_escape
 
 namespace parser
-variables {m : Type → Type} [monad m] [monad_parser m] [alternative m]
-open monad_parser
+variables {m : Type → Type} [monad m] [monad_parsec m] [alternative m]
+open monad_parsec
 
 def id_part_default : m string :=
 do c ← satisfy is_id_first,

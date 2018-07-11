@@ -15,9 +15,9 @@ We use it for testing.
 namespace lean
 namespace ir
 open lean.parser
-open lean.parser.monad_parser
+open lean.parser.monad_parsec
 
-def parse_input_aux : nat → list decl → fnid2string → parser (list decl × fnid2string)
+def parse_input_aux : nat → list decl → fnid2string → parsec (list decl × fnid2string)
 | 0     ds m := return (ds.reverse, m)
 | (n+1) ds m :=
   (eoi >> return (ds.reverse, m))
@@ -29,7 +29,7 @@ def parse_input_aux : nat → list decl → fnid2string → parser (list decl ×
       | none     := parse_input_aux n (d::ds) m)
 
 def parse_input (s : string) : except format (list decl × fnid2string) :=
-match parser.parse (whitespace >> parse_input_aux s.length [] mk_fnid2string) s with
+match parsec.parse (whitespace >> parse_input_aux s.length [] mk_fnid2string) s with
 | except.ok r    := return r
 | except.error m := throw (m.to_string s)
 

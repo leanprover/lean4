@@ -6,7 +6,7 @@ Author: Sebastian Ullrich
 Reader for the Lean language
 -/
 prelude
-import init.lean.parser.parser_t init.lean.parser.syntax init.lean.parser.macro
+import init.lean.parser.parsec init.lean.parser.syntax init.lean.parser.macro
 import init.lean.parser.identifier
 
 namespace lean
@@ -22,7 +22,7 @@ structure token_config :=
    It should return a syntax tree with a "hole" for the
    `source_info` surrounding the token, which will be supplied
    by the `token` reader. -/
-(token_reader : option (parser (source_info → syntax)) := none)
+(token_reader : option (parsec (source_info → syntax)) := none)
 
 structure reader_state :=
 (tokens : list token_config)
@@ -34,7 +34,7 @@ def reader_state.empty : reader_state :=
 
 structure reader_config := mk
 
-@[irreducible] def read_m := reader_t reader_config $ state_t reader_state $ parser
+@[irreducible] def read_m := reader_t reader_config $ state_t reader_state $ parsec
 
 structure reader :=
 (read : read_m syntax)
@@ -46,7 +46,7 @@ instance : monad read_m := infer_instance
 instance : alternative read_m := infer_instance
 instance : monad_reader reader_config read_m := infer_instance
 instance : monad_state reader_state read_m := infer_instance
-instance : monad_parser read_m := infer_instance
+instance : monad_parsec read_m := infer_instance
 
 --TODO(Sebastian): expose `reader_state.errors`
 protected def run {α : Type} (cfg : reader_config) (st : reader_state) (s : string) (r : read_m α) :
@@ -55,7 +55,7 @@ prod.fst <$> ((r.run cfg).run st).parse_with_eoi s
 end read_m
 
 namespace reader
-open monad_parser
+open monad_parsec
 
 protected def parse (cfg : reader_config) (s : string) (r : reader) :
   except parser.message syntax :=

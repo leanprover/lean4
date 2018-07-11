@@ -17,7 +17,7 @@ import init.lean.parser.reader.basic init.util
 
 namespace lean.parser
 namespace reader
-open lean.parser.monad_parser
+open lean.parser.monad_parsec
 open string
 
 def match_token : read_m (option token_config) :=
@@ -95,7 +95,7 @@ do (r, i) ← with_source_info $ do {
        do str tk,
           pure $ λ i, syntax.atom ⟨some i, atomic_val.string tk⟩
      -- variable-length token
-     | some ⟨tk, some r⟩ := str tk *> monad_parser.lift r
+     | some ⟨tk, some r⟩ := str tk *> monad_parsec.lift r
      | none              := number' <|> ident'
    },
    pure (r i)

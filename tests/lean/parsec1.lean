@@ -1,19 +1,19 @@
 import system.io init.lean.parser.identifier init.lean.ir.parser init.lean.ir.format
 open lean.parser
-open lean.parser.monad_parser
+open lean.parser.monad_parsec
 
-def test {α} [decidable_eq α] (p : parser α) (s : string) (e : α) : io unit :=
-match parser.parse p s with
+def test {α} [decidable_eq α] (p : parsec α) (s : string) (e : α) : io unit :=
+match parsec.parse p s with
 | except.ok a    := if a = e then return () else io.print_ln "unexpected result"
 | except.error e := io.print_ln (e.to_string s)
 
-def test_failure {α} (p : parser α) (s : string) : io unit :=
-match parser.parse p s with
+def test_failure {α} (p : parsec α) (s : string) : io unit :=
+match parsec.parse p s with
 | except.ok a    := io.print_ln "unexpected success"
 | except.error e := return ()
 
-def show_result {α} [has_to_string α] (p : parser α) (s : string) : io unit :=
-match parser.parse p s with
+def show_result {α} [has_to_string α] (p : parsec α) (s : string) : io unit :=
+match parsec.parse p s with
 | except.ok a    := io.print_ln "result: " >> io.print_ln (repr $ to_string a)
 | except.error e := io.print_ln (e.to_string s)
 
@@ -37,12 +37,12 @@ match parser.parse p s with
 #eval test (str "ab" >> pure () <|> (ch 'a' >> ch 'c' >> pure ())) "ac" ()
 #eval test (try (ch 'a' >> ch 'b') <|> (ch 'a' >> ch 'c')) "ac" 'c'
 #eval test (lookahead (ch 'a')) "abc" 'a'
-#eval test_failure (parser.not_followed_by (lookahead (ch 'a'))) "abc"
+#eval test_failure (parsec.not_followed_by (lookahead (ch 'a'))) "abc"
 
-def symbol (c : char) : parser char :=
+def symbol (c : char) : parsec char :=
 lexeme (ch c) <?> repr c
 
-def paren {α} (p : parser α) : parser α :=
+def paren {α} (p : parsec α) : parsec α :=
 symbol '(' >> lexeme p <* symbol ')'
 
 #eval test (paren num) "(   10 )" 10
@@ -50,7 +50,7 @@ symbol '(' >> lexeme p <* symbol ')'
 #eval test (paren num) "(0)" 0
 #eval test (paren num) "(0    )" 0
 
-def var : parser string :=
+def var : parsec string :=
 do c ← satisfy (λ a, a.is_alpha || a = '_'),
    r ← lexeme $ take_while (λ a, a.is_digit || a.is_alpha || a = '_'),
    return (c.to_string ++ r)
@@ -96,7 +96,7 @@ open lean
 #eval test_failure parse_string_literal "\"\\u03b\\u03b1\""
 #eval test_failure parse_string_literal "\"\\u03bz\\u03b1\""
 
-def parse_instr_pp : parser string :=
+def parse_instr_pp : parsec string :=
 do cmd ← lean.ir.parse_instr,
    return $ to_string cmd
 
@@ -151,18 +151,18 @@ instance eq_expr : decidable_eq Expr
                     | is_false h' := is_false (λ he, Expr.no_confusion he (λ h₁ h₂, absurd h₂ h')))
   | is_false h := is_false (λ he, Expr.no_confusion he (λ h₁ h₂, absurd h₁ h))
 
-def parse_atom (p : parser Expr) : parser Expr :=
+def parse_atom (p : parsec Expr) : parsec Expr :=
 (Var <$> lexeme var <?> "variable")
 <|>
 (Num <$> lexeme num <?> "numeral")
 <|>
 (paren p)
 
-def parse_add (p : parser Expr) : parser Expr :=
+def parse_add (p : parsec Expr) : parsec Expr :=
 do l ← parse_atom p,
    (do symbol '+', r ← p, return $ Add l r) <|> return l
 
-def parse_expr : parser Expr :=
+def parse_expr : parsec Expr :=
 whitespace >> fix (λ F, parse_add F) <* eoi
 
 #eval test parse_expr "10" (Num 10)
@@ -181,9 +181,9 @@ whitespace >> fix (λ F, parse_add F) <* eoi
 
 namespace paper_ex
 #print "Failure 3"
-def digit  : parser char := monad_parser.digit <?> "digit"
-def letter : parser char := monad_parser.alpha <?> "letter"
-def tst    : parser char := (digit <|> return '0') >> letter
+def digit  : parsec char := monad_parsec.digit <?> "digit"
+def letter : parsec char := monad_parsec.alpha <?> "letter"
+def tst    : parsec char := (digit <|> return '0') >> letter
 #eval test tst "*" 'a'
 #print "---------"
 end paper_ex

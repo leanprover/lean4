@@ -1,5 +1,5 @@
 import init.lean.parser.syntax
-import init.lean.parser.parser_t
+import init.lean.parser.parsec
 import init.lean.ir.type_check init.lean.ir.ssa_check init.lean.ir.elim_phi init.lean.ir.parser
 
 open tactic

@@ -13,7 +13,7 @@ match type_check d with
 | except.error e := io.print_ln (to_string e)
 
 def show_result (p : parser decl) (s : string) : io unit :=
-match parser_t.parse p s with
+match parser.parse p s with
 | except.ok d    := io.print_ln (lean.to_fmt d) >> check_decl d
 | except.error e := io.print_ln (e.to_string s)
 
@@ -45,7 +45,7 @@ end:
 #eval show_result (whitespace >> parse_def) IR2
 
 def tst_elim_phi (s : string) : io unit :=
-do (except.ok d) ← return $ parser_t.parse (whitespace >> parse_def) s,
+do (except.ok d) ← return $ parser.parse (whitespace >> parse_def) s,
    check_decl d,
    io.print_ln (lean.to_fmt (elim_phi d))
 
@@ -66,7 +66,7 @@ main:
 #eval show_result (whitespace >> parse_def) IR3
 
 def tst_extract_cpp (s : string) : io unit :=
-do (except.ok d) ← return $ parser_t.parse (whitespace >> parse_def) s,
+do (except.ok d) ← return $ parser.parse (whitespace >> parse_def) s,
    check_decl d,
    match extract_cpp [elim_phi d] with
    | except.ok code := io.print_ln code

@@ -53,7 +53,7 @@ private def parse_mangled_string : parser string :=
 do r ← remaining, parse_mangled_string_aux r ""
 
 def string.demangle (s : string) : option string :=
-(parser_t.parse parse_mangled_string s).to_option
+(parser.parse parse_mangled_string s).to_option
 
 private def name.mangle_aux (pre : string) : name → string
 | name.anonymous       := pre
@@ -82,6 +82,6 @@ private def parse_mangled_name (pre : string) : parser name :=
 do str pre, r ← remaining, parse_mangled_name_aux r name.anonymous
 
 def name.demangle (s : string) (pre : string := "_l") : option name :=
-(parser_t.parse (parse_mangled_name pre) s).to_option
+(parser.parse (parse_mangled_name pre) s).to_option
 
 end lean

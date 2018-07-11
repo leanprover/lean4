@@ -3,17 +3,17 @@ open lean.parser
 open lean.parser.monad_parser
 
 def test {α} [decidable_eq α] (p : parser α) (s : string) (e : α) : io unit :=
-match parser_t.parse p s with
+match parser.parse p s with
 | except.ok a    := if a = e then return () else io.print_ln "unexpected result"
 | except.error e := io.print_ln (e.to_string s)
 
 def test_failure {α} (p : parser α) (s : string) : io unit :=
-match parser_t.parse p s with
+match parser.parse p s with
 | except.ok a    := io.print_ln "unexpected success"
 | except.error e := return ()
 
 def show_result {α} [has_to_string α] (p : parser α) (s : string) : io unit :=
-match parser_t.parse p s with
+match parser.parse p s with
 | except.ok a    := io.print_ln "result: " >> io.print_ln (repr $ to_string a)
 | except.error e := io.print_ln (e.to_string s)
 
@@ -37,7 +37,7 @@ match parser_t.parse p s with
 #eval test (str "ab" >> pure () <|> (ch 'a' >> ch 'c' >> pure ())) "ac" ()
 #eval test (try (ch 'a' >> ch 'b') <|> (ch 'a' >> ch 'c')) "ac" 'c'
 #eval test (lookahead (ch 'a')) "abc" 'a'
-#eval test_failure (parser_t.not_followed_by (lookahead (ch 'a'))) "abc"
+#eval test_failure (parser.not_followed_by (lookahead (ch 'a'))) "abc"
 
 def symbol (c : char) : parser char :=
 lexeme (ch c) <?> repr c

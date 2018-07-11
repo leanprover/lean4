@@ -29,7 +29,7 @@ def parse_input_aux : nat → list decl → fnid2string → parser (list decl ×
       | none     := parse_input_aux n (d::ds) m)
 
 def parse_input (s : string) : except format (list decl × fnid2string) :=
-match parser_t.parse (whitespace >> parse_input_aux s.length [] mk_fnid2string) s with
+match parser.parse (whitespace >> parse_input_aux s.length [] mk_fnid2string) s with
 | except.ok r    := return r
 | except.error m := throw (m.to_string s)
 

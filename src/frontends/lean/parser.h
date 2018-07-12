@@ -378,8 +378,9 @@ public:
         return parse_binders(r, cfg);
     }
 
-    local_environment parse_optional_binders(buffer<expr> & r, implicit_infer_kind & kind) {
+    local_environment parse_optional_binders(buffer<expr> & r, implicit_infer_kind & kind, bool allow_default = false) {
         parse_binders_config cfg;
+        cfg.m_allow_default = allow_default;
         cfg.m_allow_empty   = true;
         cfg.m_infer_kind    = &kind;
         return parse_binders(r, cfg);

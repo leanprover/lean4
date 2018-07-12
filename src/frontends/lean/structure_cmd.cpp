@@ -814,7 +814,7 @@ struct structure_cmd_fn {
             parser::local_scope scope(m_p);
             buffer<expr> params;
             if (names.size() == 1) {
-                m_p.parse_optional_binders(params, kind);
+                m_p.parse_optional_binders(params, kind, /* allow_default */ true);
                 for (expr const & param : params)
                     m_p.add_local(param);
             }

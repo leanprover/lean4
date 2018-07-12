@@ -12,14 +12,15 @@ import init.data.to_string init.data.string.basic init.data.list.basic init.cont
 import init.data.repr init.lean.name init.data.dlist init.control.monad_fail init.control.combinators
 namespace lean
 namespace parser
+open string (iterator)
+
+namespace parsec
 @[reducible] def position : Type := nat
 
 structure message :=
 (pos        : position     := 0)
 (unexpected : string       := "")          -- unexpected input
 (expected   : dlist string := dlist.empty) -- expected productions
-
-open string (iterator)
 
 def expected.to_string : list string → string
 | []       := ""
@@ -54,9 +55,10 @@ inductive result (α : Type)
 
 @[inline] def result.mk_eps {α : Type} (a : α) (it : iterator) : result α :=
 result.ok_eps a it dlist.empty
+end parsec
 
 def parsec (α : Type) :=
-iterator → result α
+iterator → parsec.result α
 
 namespace parsec
 open result
@@ -202,6 +204,7 @@ instance monad_parsec_trans {m n : Type → Type} [has_monad_lift m n] [monad_fu
   map  := λ α f x, monad_map (λ β x, (monad_parsec.map @f x : m β)) x }
 
 namespace monad_parsec
+open parsec
 variables {m : Type → Type} [monad m] [monad_parsec m] [alternative m] {α β : Type}
 
 @[inline] def error {α : Type} (unexpected : string := "") (expected : dlist string := dlist.empty) : m α :=

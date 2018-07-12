@@ -20,7 +20,7 @@ structure substring :=
 
 structure source_info :=
 (leading  : substring)
-(pos      : position)
+(pos      : parsec.position)
 (trailing : substring)
 
 structure resolved :=

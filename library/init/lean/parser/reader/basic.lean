@@ -50,7 +50,7 @@ instance : monad_parsec read_m := infer_instance
 
 --TODO(Sebastian): expose `reader_state.errors`
 protected def run {α : Type} (cfg : reader_config) (st : reader_state) (s : string) (r : read_m α) :
-  except parser.message α :=
+  except parsec.message α :=
 prod.fst <$> ((r.run cfg).run st).parse_with_eoi s
 end read_m
 
@@ -58,7 +58,7 @@ namespace reader
 open monad_parsec
 
 protected def parse (cfg : reader_config) (s : string) (r : reader) :
-  except parser.message syntax :=
+  except parsec.message syntax :=
 -- the only hardcoded tokens, because they are never directly mentioned by a `reader`
 let tokens : list token_config := [⟨"/-", none⟩, ⟨"--", none⟩] in
 r.read.run cfg ⟨r.tokens ++ tokens, ff, []⟩ s

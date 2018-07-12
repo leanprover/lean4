@@ -254,7 +254,7 @@ expr old_type_checker::infer_type_core(expr const & e, bool infer_only) {
     case expr_kind::Pi:      r = infer_pi(e, infer_only);             break;
     case expr_kind::App:     r = infer_app(e, infer_only);            break;
     case expr_kind::Let:     r = infer_let(e, infer_only);            break;
-    case expr_kind::Lit:     r = infer_let(e, infer_only);            break;
+    case expr_kind::Lit:     r = lit_type(e);                         break;
 
     case expr_kind::Quote: throw_found_quote(m_env);
     }

@@ -95,7 +95,7 @@ do (r, i) ← with_source_info $ do {
        do str tk,
           pure $ λ i, syntax.atom ⟨some i, atomic_val.string tk⟩
      -- variable-length token
-     | some ⟨tk, some r⟩ := str tk *> monad_parsec.lift r
+     | some ⟨tk, some r⟩ := error "not implemented" --str tk *> monad_parsec.lift r
      | none              := number' <|> ident'
    },
    pure (r i)

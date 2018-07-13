@@ -108,21 +108,21 @@ do (r, i) ← with_source_info $
 def symbol (sym : string) : reader :=
 { tokens := [⟨sym, none⟩],
   read := try $ do
-    stx@(syntax.atom ⟨_, atomic_val.string sym'⟩) ← token | error "" (dlist.singleton sym),
+    stx@(syntax.atom ⟨_, atomic_val.string sym'⟩) ← token | error "" (dlist.singleton (repr sym)),
     when (sym ≠ sym') $
-      error "" (dlist.singleton sym),
+      error "" (dlist.singleton (repr sym)),
     pure stx }
 
 def keyword (kw : string) : reader := symbol kw
 
 def number : reader :=
 { read := try $ do
-    stx@(syntax.node ⟨`base10_lit, _⟩) ← token | error,
+    stx@(syntax.node ⟨`base10_lit, _⟩) ← token | error "" (dlist.singleton "number"),
     pure stx }
 
 def ident : reader :=
 { read := try $ do
-    stx@(syntax.ident _) ← token | error,
+    stx@(syntax.ident _) ← token | error "" (dlist.singleton "identifier"),
     pure stx }
 
 end reader

@@ -189,9 +189,6 @@ def not_followed_by (p : parsec α) (msg : string := "input") : parsec unit :=
 def left_over : parsec iterator :=
 λ it, result.mk_eps it it
 
-def error (unexpected : string := "") (expected : dlist string := dlist.empty) (pos : option position := none) : parsec α :=
-λ it, error { unexpected := unexpected, expected := expected, pos := pos.get_or_else it.offset } ff
-
 @[inline] def eoi_error (pos : position) : result α :=
 result.error { pos := pos, unexpected := "end of input" } ff
 
@@ -253,6 +250,30 @@ private def take_while_aux' (p : char → bool) : nat → bool → iterator → 
 
 def take_while' (p : char → bool) : parsec unit :=
 λ it, take_while_aux' p it.remaining ff it
+
+def observing (p : parsec α) : parsec (except message α) :=
+λ it, match p it with
+      | ok a it'        := ok (except.ok a) it'
+      | ok_eps a it' ex := ok_eps (except.ok a) it' ex
+      | error msg _     := ok (except.error msg) it
+
+private def pos_of : result α → nat
+| (ok _ it)       := it.offset
+| (ok_eps _ it _) := it.offset
+| (error msg _)   := msg.pos
+
+private def merge_errors : result α → result α → result α
+| (error msg ff) (error msg' ff) := error (merge msg msg') ff
+| r              _               := r
+
+def longest_match (ps : list (parsec α)) : parsec α :=
+λ it, ps.foldl (λ r p,
+  let r' := p it in if pos_of r ≥ pos_of r'
+  then merge_errors r r'
+  else merge_errors r' r) (parsec.failure it)
+
+def error (unexpected : string := "") (expected : dlist string := dlist.empty) (pos : option position := none) : parsec α :=
+λ it, error { unexpected := unexpected, expected := expected, pos := pos.get_or_else it.offset } ff
 end parsec
 
 
@@ -299,14 +320,22 @@ as this one is all-or-nothing.
 (take_while_cont {} (p : char → bool) (ini : string) : m string)
 /- Similar to `take_while` but it does not return the consumed input. -/
 (take_while' {} (p : char → bool) : m unit)
+/- Parse `p`, returning errors explicitly.
+   If `p` does not fail, `observing p` behaves like `except.ok <$> p`. -/
+(observing {} {α : Type} (p : m α) : m (except parsec.message α))
+/- Execute all parsers in `ps` and return the result of the longest parse,
+   regardless of whether it was successful. If there are two parses of
+   equal length, the first parse wins. -/
+(longest_match {} {α : Type} (ps : list (m α)) : m α)
 
 open monad_parsec
 
 instance {m : Type → Type} [monad m] : monad_parsec parsec :=
 ⟨@parsec.error, @parsec.left_over, @parsec.label, @parsec.try, @parsec.lookahead, @parsec.satisfy,
- @parsec.str, @parsec.take, @parsec.take_while_cont, @parsec.take_while'⟩
+ @parsec.str, @parsec.take, @parsec.take_while_cont, @parsec.take_while', @parsec.observing,
+ @parsec.longest_match⟩
 
-instance monad_parsec_trans {m n : Type → Type} [has_monad_lift m n] [monad_functor m m n n] [monad_parsec m] [monad n] [has_orelse n] : monad_parsec n :=
+def monad_parsec_trans (m n : Type → Type) [has_monad_lift m n] [monad_functor m m n n] [monad_parsec m] [monad n] [has_orelse n] (observing longest_match) : monad_parsec n :=
 { error := λ α un ex pos, monad_lift (error un ex pos : m _),
   left_over := monad_lift (left_over : m _),
   label := λ α p ex, monad_map (λ α (p : m α), label p ex) p,
@@ -316,7 +345,24 @@ instance monad_parsec_trans {m n : Type → Type} [has_monad_lift m n] [monad_fu
   str := λ s, monad_lift (str s : m _),
   take := λ n, monad_lift (take n : m _),
   take_while_cont := λ p ini, monad_lift (take_while_cont p ini : m _),
-  take_while' := λ p, monad_lift (take_while' p : m _) }
+  take_while' := λ p, monad_lift (take_while' p : m _),
+  observing := observing,
+  longest_match := longest_match }
+
+instance reader_t.monad_parsec (ρ m) [monad m] [alternative m] [monad_parsec m] : monad_parsec (reader_t ρ m) :=
+monad_parsec_trans m _
+(λ α p, ⟨λ r, observing (p.run r)⟩)
+(λ α ps, ⟨λ r, longest_match (ps.map (λ p, p.run r))⟩)
+
+instance state_t.monad_parsec (σ m) [monad m] [alternative m] [monad_parsec m] : monad_parsec (state_t σ m) :=
+monad_parsec_trans m _
+(λ α p, ⟨λ st,
+  do ex ← observing (p.run st),
+     match ex with
+     | except.ok (a, st') := pure (except.ok a, st')
+     | except.error e    := pure (except.error e, st)⟩)
+(λ α ps, ⟨λ st,
+   longest_match (ps.map (λ p, p.run st))⟩)
 
 namespace monad_parsec
 open parsec
@@ -472,7 +518,6 @@ error msg
 
 def unexpected_at (msg : string) (pos : position) : m α :=
 error msg dlist.empty pos
-
 end monad_parsec
 
 namespace parsec

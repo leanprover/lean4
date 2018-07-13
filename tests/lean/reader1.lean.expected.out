@@ -2,6 +2,9 @@ result:
 (module [(prelude "prelude")] [])
 result: 
 (module [] [(import "import" [(import_path [] me)])])
+error at line 1, column 0:
+unexpected 'i'
+expected prelude, import or end of input
 result: 
 (module
  [(prelude "prelude")]

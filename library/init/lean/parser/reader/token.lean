@@ -86,18 +86,22 @@ private def ident' : read_m (source_info → syntax) :=
 do n ← identifier,
    pure $ λ i, syntax.ident ⟨i, n, none, none⟩
 
+private def symbol' : read_m (source_info → syntax) :=
+do tk ← match_token,
+   match tk with
+   -- constant-length token
+   | some ⟨tk, none⟩   :=
+     do str tk,
+         pure $ λ i, syntax.atom ⟨some i, atomic_val.string tk⟩
+   -- variable-length token
+   | some ⟨tk, some r⟩ := error "not implemented" --str tk *> monad_parsec.lift r
+   | none              := failure
+
 def token : read_m syntax :=
-do (r, i) ← with_source_info $ do {
-     tk ← match_token,
-     match tk with
-     -- constant-length token
-     | some ⟨tk, none⟩   :=
-       do str tk,
-          pure $ λ i, syntax.atom ⟨some i, atomic_val.string tk⟩
-     -- variable-length token
-     | some ⟨tk, some r⟩ := error "not implemented" --str tk *> monad_parsec.lift r
-     | none              := number' <|> ident'
-   },
+do (r, i) ← with_source_info $
+     -- NOTE the order: if a token is both a symbol and a valid identifier (i.e. a keyword),
+     -- we want it to be recognized as a symbol
+     longest_match [symbol', ident', number'],
    pure (r i)
 
 --TODO(Sebastian): error messages

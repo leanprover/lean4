@@ -12,6 +12,7 @@ match p.parse ⟨⟩ s with
 
 #eval show_result module.reader "prelude"
 #eval show_result module.reader "import me"
+#eval show_result module.reader "importme"
 
 #eval show_result module.reader "prelude
 import ..a b

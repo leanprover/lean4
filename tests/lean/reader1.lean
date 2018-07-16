@@ -18,7 +18,10 @@ match p.parse ⟨⟩ s with
 import ..a b
 import c"
 
+#eval show_result module.reader "open me you"
+#eval show_result module.reader "open me as you (a b c) (renaming a->b c->d) (hiding a b)"
+
 -- slowly progressing...
 #eval do
   s ← io.fs.read_file "../../library/init/core.lean",
-  show_result (many { read := token }) s
+  show_result (combinators.many { read := token }) s

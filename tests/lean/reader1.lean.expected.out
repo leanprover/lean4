@@ -1,15 +1,29 @@
 result: 
-(module [(prelude "prelude")] [])
+(module [(prelude "prelude")] [] [])
 result: 
-(module [] [(import "import" [(import_path [] me)])])
+(module [] [(import "import" [(import_path [] me)])] [])
 error at line 1, column 0:
 unexpected 'i'
-expected "prelude", "import" or end of input
+expected "prelude", "import", "open" or end of input
 result: 
 (module
  [(prelude "prelude")]
  [(import "import" [(import_path ["." "."] a) (import_path [] b)])
- (import "import" [(import_path [] c)])])
+ (import "import" [(import_path [] c)])]
+ [])
+result: 
+(module [] [] [(open "open" [[me [] [] [] []] [you [] [] [] []]])])
+result: 
+(module
+ []
+ []
+ [(open
+ "open"
+ [[me
+ [["as" you]]
+ [[["(" a] [b c] ")"]]
+ [[["(" "renaming"] [[a "->" b] [c "->" d]] ")"]]
+ [["(" "hiding" [a b] ")"]]]])])
 error at line 10, column 9:
 unexpected '`'
 expected end of input

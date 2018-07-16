@@ -95,7 +95,7 @@ do tk ← match_token,
          pure $ λ i, syntax.atom ⟨some i, atomic_val.string tk⟩
    -- variable-length token
    | some ⟨tk, some r⟩ := error "not implemented" --str tk *> monad_parsec.lift r
-   | none              := failure
+   | none              := error
 
 def token : read_m syntax :=
 do (r, i) ← with_source_info $

@@ -63,12 +63,16 @@ protected def parse (cfg : reader_config) (s : string) (r : reader) :
 let tokens : list token_config := [⟨"/-", none⟩, ⟨"--", none⟩] in
 r.read.run cfg ⟨r.tokens ++ tokens, ff, []⟩ s
 
-def node (m : macro) (ps : list reader) : reader :=
+namespace combinators
+def node' (m : name) (ps : list reader) : reader :=
 { read := do {
     args ← ps.mmap reader.read,
-    pure $ syntax.node ⟨m.name, args⟩
+    pure $ syntax.node ⟨m, args⟩
   },
   tokens := ps.bind reader.tokens }
+
+def seq := node' name.anonymous
+def node (m : macro) := node' m.name
 
 def many (p : reader) : reader :=
 { p with read := do
@@ -87,6 +91,9 @@ def optional (p : reader) : reader :=
     | some r := syntax.node ⟨name.anonymous, [r]⟩
     | none   := syntax.node ⟨name.anonymous, []⟩ }
 
+def try (p : reader) : reader :=
+{ p with read := try p.read }
+end combinators
 end reader
 end parser
 end lean

@@ -60,12 +60,19 @@ many1 $ seq [
 def open.reader : reader :=
 node «open» [keyword "open", open_export.reader]
 
-def command.reader :=
-open.reader
-end commands
-
 def «section» := {macro . name := `section}
 
+def section.reader : reader :=
+node «section» [
+  keyword "section",
+  optional ident,
+  many recurse,
+  keyword "end",
+  optional ident]
+
+def command.reader :=
+with_recurse $ any_of [open.reader, section.reader] <?> "command"
+end commands
 
 def module := {macro . name := `module}
 

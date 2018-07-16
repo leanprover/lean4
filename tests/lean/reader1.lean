@@ -21,6 +21,17 @@ import c"
 #eval show_result module.reader "open me you"
 #eval show_result module.reader "open me as you (a b c) (renaming a->b c->d) (hiding a b)"
 
+#eval show_result module.reader "open a
+section b
+  open c
+  section d
+    open e
+  end d
+end b"
+
+-- should not be a reader error
+#eval show_result module.reader "section a end"
+
 -- slowly progressing...
 #eval do
   s ← io.fs.read_file "../../library/init/core.lean",

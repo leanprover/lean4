@@ -9,6 +9,37 @@ prelude
 import init.lean.parser.parsec init.lean.parser.syntax init.lean.parser.macro
 import init.lean.parser.identifier
 
+/-- A small wrapper of `reader_t` that simplifies introducing and invoking
+    recursion points in a computation. -/
+-- TODO(Sebastian): move?
+def rec_t (r : Type) (m : Type → Type) (α : Type) :=
+reader_t (m r) m α
+
+namespace rec_t
+variables {m : Type → Type} {r α : Type} [monad m]
+local attribute [reducible] rec_t
+
+/-- Continue at the recursion point stored at `with_recurse`. -/
+def recurse : rec_t r m r :=
+⟨λ rec, rec⟩
+
+variables (base : m r) (rec : rec_t r m r)
+private def with_recurse_aux : nat → m r
+| 0     := base
+| (n+1) := rec.run (with_recurse_aux n)
+
+/-- Execute `rec`, re-executing it whenever `recurse` is called.
+    After `max_rec` recursion steps, `base` is executed instead. -/
+def with_recurse (max_rec := 1000) : rec_t r m r :=
+⟨λ _, rec.run (with_recurse_aux base rec max_rec)⟩
+
+instance : monad (rec_t r m) := infer_instance
+instance [alternative m] : alternative (rec_t r m) := infer_instance
+instance : has_monad_lift m (rec_t r m) := infer_instance
+instance [alternative m] [lean.parser.monad_parsec m] : lean.parser.monad_parsec (rec_t r m) :=
+infer_instance
+end rec_t
+
 namespace lean
 -- TODO: enhance massively
 def message := string
@@ -34,7 +65,7 @@ def reader_state.empty : reader_state :=
 
 structure reader_config := mk
 
-@[irreducible] def read_m := reader_t reader_config $ state_t reader_state $ parsec
+@[irreducible] def read_m := rec_t syntax $ reader_t reader_config $ state_t reader_state $ parsec
 
 structure reader :=
 (read : read_m syntax)
@@ -51,7 +82,7 @@ instance : monad_parsec read_m := infer_instance
 --TODO(Sebastian): expose `reader_state.errors`
 protected def run {α : Type} (cfg : reader_config) (st : reader_state) (s : string) (r : read_m α) :
   except parsec.message α :=
-prod.fst <$> ((r.run cfg).run st).parse_with_eoi s
+prod.fst <$> (((r.run (monad_parsec.error "no recursive parser at top level")).run cfg).run st).parse_with_eoi s
 end read_m
 
 namespace reader
@@ -64,35 +95,57 @@ let tokens : list token_config := [⟨"/-", none⟩, ⟨"--", none⟩] in
 r.read.run cfg ⟨r.tokens ++ tokens, ff, []⟩ s
 
 namespace combinators
-def node' (m : name) (ps : list reader) : reader :=
+def node' (m : name) (rs : list reader) : reader :=
 { read := do {
-    args ← ps.mmap reader.read,
+    args ← rs.mmap reader.read,
     pure $ syntax.node ⟨m, args⟩
   },
-  tokens := ps.bind reader.tokens }
+  tokens := rs.bind reader.tokens }
 
 def seq := node' name.anonymous
 def node (m : macro) := node' m.name
 
-def many (p : reader) : reader :=
-{ p with read := do
-    args ← many p.read,
+def many (r : reader) : reader :=
+{ r with read := do
+    args ← many r.read,
     pure $ syntax.node ⟨name.anonymous, args⟩ }
 
-def many1 (p : reader) : reader :=
-{ p with read := do
-    args ← many1 p.read,
+def many1 (r : reader) : reader :=
+{ r with read := do
+    args ← many1 r.read,
     pure $ syntax.node ⟨name.anonymous, args⟩ }
 
-def optional (p : reader) : reader :=
-{ p with read := do
-    r ← optional p.read,
+def optional (r : reader) : reader :=
+{ r with read := do
+    r ← optional r.read,
     pure $ match r with
     | some r := syntax.node ⟨name.anonymous, [r]⟩
     | none   := syntax.node ⟨name.anonymous, []⟩ }
 
-def try (p : reader) : reader :=
-{ p with read := try p.read }
+/-- Parse a list `[p1, ..., pn]` of readers as `p1 <|> ... <|> pn`.
+    Note that there is NO explicit encoding of which reader was chosen;
+    readers should instead produce distinct node names for disambiguation. -/
+def any_of (rs : list reader) : reader :=
+{ read   := (match rs with
+    | [] := failure
+    | (r::rs) := (rs.map reader.read).foldl (<|>) r.read),
+  tokens := (rs.map reader.tokens).join }
+
+def try (r : reader) : reader :=
+{ r with read := try r.read }
+
+def label (r : reader) (l : string) : reader :=
+{ r with read := label r.read l }
+
+infixr <?> := label
+
+local attribute [reducible] read_m
+def recurse : reader :=
+{ read   := rec_t.recurse,
+  tokens := [] } -- recursive use should not contribute any new tokens
+
+def with_recurse (r : reader) : reader :=
+{ r with read := rec_t.with_recurse (error "recursion limit") r.read }
 end combinators
 end reader
 end parser

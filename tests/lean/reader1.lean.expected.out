@@ -4,7 +4,7 @@ result:
 (module [] [(import "import" [(import_path [] me)])] [])
 error at line 1, column 0:
 unexpected 'i'
-expected "prelude", "import", "open" or end of input
+expected "prelude", "import", command or end of input
 result: 
 (module
  [(prelude "prelude")]
@@ -24,6 +24,20 @@ result:
      [[["(" a] [b c] ")"]]
      [[["(" "renaming"] [[a "->" b] [c "->" d]] ")"]]
      [["(" "hiding" [a b] ")"]]]])])
+result: 
+(module
+ []
+ []
+ [(open "open" [[a [] [] [] []]])
+  (section
+   "section"
+   [b]
+   [(open "open" [[c [] [] [] []]])
+    (section "section" [d] [(open "open" [[e [] [] [] []]])] "end" [d])]
+   "end"
+   [b])])
+result: 
+(module [] [] [(section "section" [a] [] "end" [])])
 error at line 10, column 9:
 unexpected '`'
 expected end of input

@@ -98,14 +98,15 @@ class has_to_format (α : Type u) :=
 
 export lean.has_to_format (to_format)
 
-instance format_has_to_format : has_to_format format :=
-⟨id⟩
-
 def to_fmt {α : Type u} [has_to_format α] : α → format :=
 to_format
 
 instance to_string_to_format {α : Type u} [has_to_string α] : has_to_format α :=
 ⟨text ∘ to_string⟩
+
+-- note: must take precendence over the above instance to avoid premature formatting
+instance format_has_to_format : has_to_format format :=
+⟨id⟩
 
 instance string_has_to_format : has_to_format string := ⟨format.text⟩
 
@@ -139,5 +140,15 @@ instance uint64_has_to_format : has_to_format uint64 := ⟨λ n, to_string n⟩
 instance usize_has_to_format : has_to_format usize := ⟨λ n, to_string n⟩
 
 instance format_has_to_string : has_to_string format := ⟨pretty⟩
+
+protected def format.repr : format → format
+| nil := "format.nil"
+| line := "format.line"
+| (text s) := paren $ "format.text" ++ line ++ repr s
+| (nest n f) := paren $ "format.nest" ++ line ++ repr n ++ line ++ format.repr f
+| (compose b f₁ f₂) := paren $ "format.compose " ++ repr b ++ line ++ format.repr f₁ ++ line ++ format.repr f₂
+| (choice f₁ f₂) := paren $ "format.choice" ++ line ++ format.repr f₁ ++ line ++ format.repr f₂
+
+instance : has_repr format := ⟨format.pretty ∘ format.repr⟩
 
 end lean

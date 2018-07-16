@@ -9,7 +9,7 @@ result:
 (module
  [(prelude "prelude")]
  [(import "import" [(import_path ["." "."] a) (import_path [] b)])
- (import "import" [(import_path [] c)])]
+  (import "import" [(import_path [] c)])]
  [])
 result: 
 (module [] [] [(open "open" [[me [] [] [] []] [you [] [] [] []]])])
@@ -18,12 +18,12 @@ result:
  []
  []
  [(open
- "open"
- [[me
- [["as" you]]
- [[["(" a] [b c] ")"]]
- [[["(" "renaming"] [[a "->" b] [c "->" d]] ")"]]
- [["(" "hiding" [a b] ")"]]]])])
+   "open"
+   [[me
+     [["as" you]]
+     [[["(" a] [b c] ")"]]
+     [[["(" "renaming"] [[a "->" b] [c "->" d]] ")"]]
+     [["(" "hiding" [a b] ")"]]]])])
 error at line 10, column 9:
 unexpected '`'
 expected end of input

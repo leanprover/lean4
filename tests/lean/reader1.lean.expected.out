@@ -38,6 +38,7 @@ result:
    [b])])
 result: 
 (module [] [] [(section "section" [a] [] "end" [])])
-error at line 10, column 9:
-unexpected '`'
-expected end of input
+result: 
+(module [] [] [["notation" [[] [[["`" "Prop" "`" []] []]]] ":=" (hole "_")]])
+error at line 10, column 24:
+expected "_"

@@ -6,7 +6,7 @@ Author: Sebastian Ullrich
 Module-level readers and macros
 -/
 prelude
-import init.lean.parser.reader.token
+import init.lean.parser.reader.token init.lean.parser.reader.term
 
 namespace lean.parser
 namespace reader
@@ -68,10 +68,64 @@ node «section» [
   optional ident,
   many recurse,
   keyword "end",
-  optional ident]
+  optional ident
+]
+
+def «notation» := {macro . name := `notation}
+
+def prec := seq [keyword ":", number/-TODO <|> expr-/]
+
+def quoted_symbol : read_m syntax :=
+do (s, info) ← with_source_info $ monad_parsec.take_until (= '`'),
+   pure $ syntax.atom ⟨info, atomic_val.string s⟩
+
+def notation_tk :=
+any_of [
+  seq [
+    raw_symbol "`",
+    {read := quoted_symbol},
+    raw_symbol "`",
+    optional prec
+  ]
+  --TODO, {read := do tk ← token, /- check if reserved token-/}
+]
+
+def action :=
+seq [
+  keyword ":",
+  any_of [
+    number,
+    keyword "max",
+    keyword "prev",
+    keyword "scoped"
+    /-TODO seq [
+      symbol "(",
+      any_of [keyword "foldl", keyword "foldr"],
+      optional prec,
+      notation_tk,-/]
+]
+
+def notation_reader : reader :=
+any_of [
+  number,
+  seq [
+    optional ident,
+    many $ seq [
+      notation_tk,
+      optional $ any_of [
+        seq [keyword "binder", optional prec],
+        seq [keyword "binders", optional prec],
+        seq [ident, optional action]
+      ]
+    ]
+  ]
+]
+
+def notation.reader :=
+seq [keyword "notation", notation_reader, keyword ":=", term.reader]
 
 def command.reader :=
-with_recurse $ any_of [open.reader, section.reader] <?> "command"
+with_recurse $ any_of [open.reader, section.reader, notation.reader] <?> "command"
 end commands
 
 def module := {macro . name := `module}

@@ -32,7 +32,9 @@ end b"
 -- should not be a reader error
 #eval show_result module.reader "section a end"
 
+#eval show_result module.reader "notation `Prop` := _"
+
 -- slowly progressing...
 #eval do
   s ← io.fs.read_file "../../library/init/core.lean",
-  show_result (combinators.many { read := token }) s
+  show_result module.reader s

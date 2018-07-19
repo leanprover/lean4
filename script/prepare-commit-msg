@@ -4,10 +4,12 @@ set -eo pipefail
 # exit on existing commit message
 [[ -z "$2" ]] || exit 0
 
+# remove last line "$n files changed [...]"
 diff=$(git diff --staged --stat | head -n -1)
-[[ $(echo "$diff" | wc -l) == 1 ]] || exit 0
-
-file=$(echo "$diff" | cut -f 2 -d' ')
+# take file with most changes
+file=$(echo "$diff" | sort -n -k 3 | tail -n 1)
+# extract filename
+file=$(echo "$file" | cut -f 2 -d' ')
 file="${file%.*}"
 case $file in
     tests/*)

@@ -36,6 +36,7 @@ def with_recurse (max_rec := 1000) : rec_t r m r :=
 instance : monad (rec_t r m) := infer_instance
 instance [alternative m] : alternative (rec_t r m) := infer_instance
 instance : has_monad_lift m (rec_t r m) := infer_instance
+instance (ε) [monad_except ε m] : monad_except ε (rec_t r m) := infer_instance
 instance [alternative m] [lean.parser.monad_parsec m] : lean.parser.monad_parsec (rec_t r m) :=
 infer_instance
 end rec_t
@@ -78,6 +79,7 @@ instance : alternative read_m := infer_instance
 instance : monad_reader reader_config read_m := infer_instance
 instance : monad_state reader_state read_m := infer_instance
 instance : monad_parsec read_m := infer_instance
+instance : monad_except parsec.message read_m := infer_instance
 
 --TODO(Sebastian): expose `reader_state.errors`
 protected def run {α : Type} (cfg : reader_config) (st : reader_state) (s : string) (r : read_m α) :

@@ -211,7 +211,7 @@ instance monad_parsec_trans {m n : Type → Type} [has_monad_lift m n] [monad_fu
 
 namespace monad_parsec
 open parsec
-variables {m : Type → Type} [monad m] [monad_parsec m] [alternative m] {α β : Type}
+variables {m : Type → Type} [monad m] [monad_parsec m] {α β : Type}
 
 @[inline] def error {α : Type} (unexpected : string := "") (expected : dlist string := dlist.empty) (pos : option position := none) : m α :=
 lift $ λ it, result.error { unexpected := unexpected, expected := expected, pos := pos.get_or_else it.offset } ff
@@ -411,61 +411,61 @@ string.iterator.offset <$> left_over
 @[inline] def not_followed_by [monad_except message m] (p : m α) (msg : string := "input") : m unit :=
 do init ← pos, catch (p >> return ff) (λ _, return tt) >>= λ b, if b then pure () else error msg dlist.empty (some init)
 
-def many1_aux (p : m α) : nat → m (list α)
-| 0     := do a ← p, return [a]
-| (n+1) := do a ← p,
-              as ← (many1_aux n <|> return []),
-              return (a::as)
-
-def many1 (p : m α) : m (list α) :=
-do r ← remaining, many1_aux p r
-
-def many (p : m α) : m (list α) :=
-many1 p <|> return []
-
-def many1_aux' (p : m α) : nat → m unit
-| 0     := p >> return ()
-| (n+1) := p >> (many1_aux' n <|> return ())
-
-def many1' (p : m α) : m unit :=
-do r ← remaining, many1_aux' p r
-
-def many' (p : m α) : m unit :=
-many1' p <|> return ()
-
 def eoi : m unit :=
 do it ← left_over,
    if it.remaining = 0 then pure ()
    else error (repr it.curr) (dlist.singleton ("end of input"))
 
-def sep_by1 (p : m α) (sep : m β) : m (list α) :=
+def many1_aux [alternative m] (p : m α) : nat → m (list α)
+| 0     := do a ← p, return [a]
+| (n+1) := do a ← p,
+              as ← (many1_aux n <|> return []),
+              return (a::as)
+
+def many1 [alternative m] (p : m α) : m (list α) :=
+do r ← remaining, many1_aux p r
+
+def many [alternative m] (p : m α) : m (list α) :=
+many1 p <|> return []
+
+def many1_aux' [alternative m] (p : m α) : nat → m unit
+| 0     := p >> return ()
+| (n+1) := p >> (many1_aux' n <|> return ())
+
+def many1' [alternative m] (p : m α) : m unit :=
+do r ← remaining, many1_aux' p r
+
+def many' [alternative m] (p : m α) : m unit :=
+many1' p <|> return ()
+
+def sep_by1 [alternative m] (p : m α) (sep : m β) : m (list α) :=
 (::) <$> p <*> many (sep >> p)
 
-def sep_by (p : m α) (sep : m β) : m (list α) :=
+def sep_by [alternative m] (p : m α) (sep : m β) : m (list α) :=
 sep_by1 p sep <|> return []
 
-def fix_aux (f : m α → m α) : nat → m α
+def fix_aux [alternative m] (f : m α → m α) : nat → m α
 | 0     := failure
 | (n+1) := f (fix_aux n)
 
-def fix (f : m α → m α) : m α :=
+def fix [alternative m] (f : m α → m α) : m α :=
 do n ← remaining, fix_aux f (n+1)
 
-def foldr_aux (f : α → β → β) (p : m α) (b : β) : nat → m β
+def foldr_aux [alternative m] (f : α → β → β) (p : m α) (b : β) : nat → m β
 | 0     := return b
 | (n+1) := (f <$> p <*> foldr_aux n) <|> return b
 
 /-- Matches zero or more occurrences of `p`, and folds the result. -/
-def foldr (f : α → β → β) (p : m α) (b : β) : m β :=
+def foldr [alternative m] (f : α → β → β) (p : m α) (b : β) : m β :=
 do it ← left_over,
    foldr_aux f p b it.remaining
 
-def foldl_aux (f : α → β → α) (p : m β) : α → nat → m α
+def foldl_aux [alternative m] (f : α → β → α) (p : m β) : α → nat → m α
 | a 0     := return a
 | a (n+1) := (do x ← p, foldl_aux (f a x) n) <|> return a
 
 /-- Matches zero or more occurrences of `p`, and folds the result. -/
-def foldl (f : α → β → α) (a : α) (p : m β) : m α :=
+def foldl [alternative m] (f : α → β → α) (a : α) (p : m β) : m α :=
 do it ← left_over,
    foldl_aux f p a it.remaining
 

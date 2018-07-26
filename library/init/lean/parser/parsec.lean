@@ -249,13 +249,6 @@ map (λ _ p, parsec.try p) p
 @[inline] def lookahead (p : m α) : m α :=
 map (λ _ p, parsec.lookahead p) p
 
--- TODO(Sebastian): `monad_functor` is too weak to lift this, probably needs something like `monad_control`
-/-
-/-- `not_followed_by p` succeeds when parser `p` fails -/
-@[inline] def not_followed_by (p : m α) (msg : string := "input") : m unit :=
-map (λ _ _ inst p, @parsec_t.not_followed_by _ inst _ p msg) p
--/
-
 /-- Faster version of `not_followed_by (satisfy p)` -/
 @[inline] def not_followed_by_sat (p : char → bool) : m unit :=
 do it ← left_over,
@@ -414,6 +407,9 @@ do it ← left_over,
 /-- Return the current position. -/
 def pos : m position :=
 string.iterator.offset <$> left_over
+
+@[inline] def not_followed_by [monad_except message m] (p : m α) (msg : string := "input") : m unit :=
+do init ← pos, catch (p >> return ff) (λ _, return tt) >>= λ b, if b then pure () else error msg dlist.empty (some init)
 
 def many1_aux (p : m α) : nat → m (list α)
 | 0     := do a ← p, return [a]

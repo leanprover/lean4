@@ -6,7 +6,7 @@ Authors: Luke Nelson, Jared Roesch and Leonardo de Moura
 import system.io_interface
 
 /- The following constants have a builtin implementation -/
-constant io_core : Type → Type → Type
+constant io_core : Type → Type → Type 1
 
 /- Auxiliary definition used in the builtin implementation of monad_io_random_impl -/
 -- def io_rand_nat : std_gen → nat → nat → nat × std_gen :=
@@ -202,7 +202,7 @@ do child ← io.proc.spawn { stdout := io.process.stdio.piped, ..args },
   s ← io.fs.read_to_end child.stdout,
   io.fs.close child.stdout,
   exitv ← io.proc.wait child,
-  when (exitv ≠ 0) $ io.fail $ "process exited with status " ++ repr exitv,
+  if exitv ≠ 0 then io.fail $ "process exited with status " ++ repr exitv else pure (),
   return s
 
 /--

@@ -115,8 +115,6 @@ def symbol (sym : string) : reader :=
       error "" (dlist.singleton (repr sym)),
     pure stx }
 
-def keyword (kw : string) : reader := symbol kw
-
 def number : reader :=
 { read := try $ do
     stx@(syntax.node ⟨`base10_lit, _⟩) ← token | error "" (dlist.singleton "number"),

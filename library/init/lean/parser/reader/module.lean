@@ -12,10 +12,14 @@ namespace lean.parser
 namespace reader
 open combinators
 
+def symbol_coe : has_coe string reader :=
+⟨symbol⟩
+local attribute [instance] symbol_coe
+
 def «prelude» := {macro . name := `prelude}
 
 def prelude.reader : reader :=
-node «prelude» [keyword "prelude"]
+node «prelude» ["prelude"]
 
 def import_path := {macro . name := `import_path}
 
@@ -26,7 +30,7 @@ node import_path [many (raw_symbol "."), ident]
 def «import» := {macro . name := `import}
 
 def import.reader : reader :=
-node «import» [keyword "import", many1 import_path.reader]
+node «import» ["import", many1 import_path.reader]
 
 section commands
 
@@ -36,44 +40,44 @@ def open_export.reader : reader :=
 many1 $ seq [
   ident,
   optional $ seq [
-    keyword "as",
+    "as",
     ident
   ],
   optional $ seq [
-    try $ seq [symbol "(", ident],
+    try $ seq ["(", ident],
     many ident,
-    symbol ")"
+    ")"
   ],
   optional $ seq [
-    try $ seq [symbol "(", keyword "renaming"],
-    many1 $ seq [ident, symbol "->", ident],
-    symbol ")"
+    try $ seq ["(", "renaming"],
+    many1 $ seq [ident, "->", ident],
+    ")"
   ],
   optional $ seq [
-    symbol "(",
-    keyword "hiding",
+    "(",
+    "hiding",
     many1 ident,
-    symbol ")"
+    ")"
   ]
 ]
 
 def open.reader : reader :=
-node «open» [keyword "open", open_export.reader]
+node «open» ["open", open_export.reader]
 
 def «section» := {macro . name := `section}
 
 def section.reader : reader :=
 node «section» [
-  keyword "section",
+  "section",
   optional ident,
   many recurse,
-  keyword "end",
+  "end",
   optional ident
 ]
 
 def «notation» := {macro . name := `notation}
 
-def prec := seq [keyword ":", number/-TODO <|> expr-/]
+def prec := seq [":", number/-TODO <|> expr-/]
 
 def quoted_symbol : read_m syntax :=
 do (s, info) ← with_source_info $ monad_parsec.take_until (= '`'),
@@ -92,15 +96,15 @@ any_of [
 
 def action :=
 seq [
-  keyword ":",
+  ":",
   any_of [
     number,
-    keyword "max",
-    keyword "prev",
-    keyword "scoped"
+    "max",
+    "prev",
+    "scoped"
     /-TODO seq [
-      symbol "(",
-      any_of [keyword "foldl", keyword "foldr"],
+      "(",
+      any_of ["foldl", "foldr"],
       optional prec,
       notation_tk,-/]
 ]
@@ -113,8 +117,8 @@ any_of [
     many $ seq [
       notation_tk,
       optional $ any_of [
-        seq [keyword "binder", optional prec],
-        seq [keyword "binders", optional prec],
+        seq ["binder", optional prec],
+        seq ["binders", optional prec],
         seq [ident, optional action]
       ]
     ]
@@ -122,7 +126,7 @@ any_of [
 ]
 
 def notation.reader :=
-seq [keyword "notation", notation_reader, keyword ":=", term.reader]
+seq ["notation", notation_reader, ":=", term.reader]
 
 def command.reader :=
 with_recurse $ any_of [open.reader, section.reader, notation.reader] <?> "command"

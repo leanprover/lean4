@@ -394,8 +394,8 @@ static vm_obj io_fail(vm_obj const &, vm_obj const &, vm_obj const & e, vm_obj c
     return mk_io_failure(e);
 }
 
-/* (iterate  : Π e α, α → (α → m e (option α)) → m e α) */
-static vm_obj io_iterate(vm_obj const &, vm_obj const &, vm_obj const & a, vm_obj const & fn, vm_obj const &) {
+/* (iterate  : Π e (α β : Type), α → (α → m e (sum α β)) → m e β) */
+static vm_obj io_iterate(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const & a, vm_obj const & fn, vm_obj const &) {
     vm_obj r = a;
     while (true) {
         vm_obj p = invoke(fn, r, mk_vm_unit());
@@ -403,10 +403,10 @@ static vm_obj io_iterate(vm_obj const &, vm_obj const &, vm_obj const & a, vm_ob
             return p;
         } else {
             vm_obj v = cfield(p, 0);
-            if (is_none(v)) {
-                return mk_io_result(r);
+            if (cidx(v) == 1) {
+                return mk_io_result(cfield(v, 0));
             } else {
-                r = get_some_value(v);
+                r = cfield(v, 0);
             }
         }
     }

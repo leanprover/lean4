@@ -36,7 +36,7 @@ class monad_io (m : Type → Type → Type 1) :=
 -- TODO(Leo): use monad_except after it is merged
 (catch    : Π e₁ e₂ α, m e₁ α → (e₁ → m e₂ α) → m e₂ α)
 (fail     : Π e α, e → m e α)
-(iterate  : Π e α, α → (α → m e (option α)) → m e α)
+(iterate  : Π e (α β : Type), α → (α → m e (sum α β)) → m e β)
 -- Primitive Types
 (handle   : Type)
 

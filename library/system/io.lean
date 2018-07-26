@@ -31,15 +31,15 @@ monad_io_is_alternative io_core
 io_core io.error α
 
 namespace io
-/- Remark: the following definitions can be generalized and defined for any (m : Type -> Type -> Type)
+/- Remark: the following definitions can be generalized and defined for any (m : Type -> Type -> Type 1)
    that implements the required type classes. However, the generalized versions are very inconvenient to use,
    (example: `#eval io.put_str "hello world"` does not work because we don't have enough information to infer `m`.).
 -/
-def iterate {e α} (a : α) (f : α → io_core e (option α)) : io_core e α :=
-monad_io.iterate e α a f
+def iterate {e} {α β : Type} (a : α) (f : α → io_core e (sum α β)) : io_core e β :=
+monad_io.iterate e α β a f
 
 def forever {e} (a : io_core e unit) : io_core e unit :=
-iterate () $ λ _, a >> return (some ())
+iterate () $ λ _, a >> return (sum.inl ())
 
 -- TODO(Leo): delete after we merge #1881
 def catch {e₁ e₂ α} (a : io_core e₁ α) (b : e₁ → io_core e₂ α) : io_core e₂ α :=
@@ -140,11 +140,11 @@ def read_to_end (h : handle) : io string :=
 iterate "" $ λ r,
   do done ← is_eof h,
     if done
-    then return none
+    then return (sum.inr r) -- stop
     else do
       -- HACK: use less efficient `get_line` while `read` is broken
       c ← get_line h,
-      return $ some (r ++ c)
+      return $ sum.inl (r ++ c) -- continue
 
 def read_file (fname : string) (bin := ff) : io string :=
 do h ← mk_file_handle fname io.mode.read bin,

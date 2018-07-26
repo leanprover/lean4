@@ -479,21 +479,23 @@ error msg
 def unexpected_at (msg : string) (pos : position) : m α :=
 error msg dlist.empty pos
 
-/- Execute all parsers in `ps` and return the result of the longest parse if any,
+/- Execute all parsers in `ps` and return the result of the longest parse(s) if any,
    or else the result of the furthest error. If there are two parses of
    equal length, the first parse wins. -/
-def longest_match [monad_except message m] (ps : list (m α)) : m α :=
+def longest_match [monad_except message m] (ps : list (m α)) : m (list α) :=
 do it ← left_over,
-   r ← ps.mfoldl (λ (r : result α) p,
+   r ← ps.mfoldr (λ p r,
      catch
        (lookahead $ do
          a ← p,
          it ← left_over,
          pure $ match r with
-         | result.ok _ it' := if it'.offset ≥ it.offset then r else result.ok a it
-         | _               := result.ok a it)
+         | result.ok as it' := if it'.offset > it.offset then r
+             else if it.offset > it'.offset then result.ok [a] it
+             else result.ok (a::as) it
+         | _                := result.ok [a] it)
        (λ msg, pure $ match r with
-           | result.error msg' _ := if nat.lt msg.pos msg'.pos then r
+           | result.error msg' _ := if nat.lt msg.pos msg'.pos then r -- FIXME
              else if nat.lt msg'.pos msg.pos then result.error msg tt
              else result.error (merge msg msg') tt
            | _ := r))

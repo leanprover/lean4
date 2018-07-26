@@ -98,10 +98,12 @@ do tk ← match_token,
    | none              := error
 
 def token : read_m syntax :=
-do (r, i) ← with_source_info $
+do (r, i) ← with_source_info $ do {
      -- NOTE the order: if a token is both a symbol and a valid identifier (i.e. a keyword),
      -- we want it to be recognized as a symbol
-     longest_match [symbol', ident', number'],
+     f::_ ← longest_match [symbol', ident', number'] | failure,
+     pure f
+   },
    pure (r i)
 
 --TODO(Sebastian): error messages

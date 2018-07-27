@@ -163,10 +163,15 @@ name_set collect_univ_params_ignoring_tactics(expr const & e, name_set const & l
 /** \brief Collect annonymous instances in section/namespace declarations such as:
 
         variable [decidable_eq A]
+
+    Instances are included only if all section variables/parameters they reference have already
+    been included. For variables in out_param position, the logic is inverted: If the instance is
+    included, we also include those arguments.
 */
 void collect_annonymous_inst_implicit(parser const & p, collected_locals & locals) {
     buffer<pair<name, expr>> entries;
     to_buffer(p.get_local_entries(), entries);
+    type_context_old ctx(p.env());
     unsigned i = entries.size();
     while (i > 0) {
         --i;
@@ -174,15 +179,36 @@ void collect_annonymous_inst_implicit(parser const & p, collected_locals & local
         if (is_local(entry.second) && !locals.contains(entry.second) && is_inst_implicit(local_info(entry.second)) &&
             // remark: remove the following condition condition, if we want to auto inclusion also for non anonymous ones.
             is_anonymous_inst_name(entry.first)) {
+            expr type = local_type(entry.second);
+            buffer<expr> C_args;
+            expr C = get_app_args(type, C_args);
+            if (!is_const(C))
+                continue;
+            expr it2 = ctx.infer(C);
+            collected_locals new_locals;
             bool ok = true;
-            for_each(local_type(entry.second), [&](expr const & e, unsigned) {
-                    if (!ok) return false; // stop
-                    if (is_local(e) && !locals.contains(e))
-                        ok = false;
-                    return true;
-                });
-            if (ok)
+            for (expr & C_arg : C_args) {
+                it2  = ctx.relaxed_whnf(it2);
+                lean_assert(is_pi(it2));
+                expr const & d = binding_domain(it2);
+                if (is_local(C_arg) && is_class_out_param(d)) {
+                    new_locals.insert(C_arg);
+                } else {
+                    for_each(C_arg, [&](expr const & e, unsigned) {
+                        if (!ok) return false; // stop
+                        if (is_local(e) && !(locals.contains(e) || new_locals.contains(e)))
+                            ok = false;
+                        return true;
+                    });
+                }
+                it2 = instantiate(binding_body(it2), C_arg);
+            }
+            if (ok) {
+                for (auto & l : new_locals.get_collected()) {
+                    locals.insert(l);
+                }
                 locals.insert(entry.second);
+            }
         }
     }
 }

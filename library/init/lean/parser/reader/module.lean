@@ -89,17 +89,18 @@ def notation_reader : reader :=
 any_of [
   number,
   [ident?,
-   notation_tk,
-   (any_of [
-     ["binder", prec?],
-     ["binders", prec?],
-     [ident, action?]
-   ])?
-  ]*
+   [notation_tk,
+    (any_of [
+      ["binder", prec?],
+      ["binders", prec?],
+      [ident, action?]
+    ])?
+   ]*
+  ]
 ]
 
 def notation.reader : reader :=
-node «notation» $ "notation" notation_reader ":=" term.reader
+node «notation» ["notation", notation_reader, ":=", term.reader]
 
 def command.reader :=
 with_recurse $ any_of [open.reader, section.reader, notation.reader] <?> "command"
@@ -108,8 +109,7 @@ end commands
 def module := {macro . name := `module}
 
 def module.reader : reader :=
-node module $
-  prelude.reader? import.reader* command.reader*
+node module [prelude.reader?, import.reader*, command.reader*]
 
 end reader
 end lean.parser

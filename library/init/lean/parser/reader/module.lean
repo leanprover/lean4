@@ -12,9 +12,16 @@ namespace lean.parser
 namespace reader
 open combinators
 
-def symbol_coe : has_coe string reader :=
-⟨symbol⟩
-local attribute [instance] symbol_coe
+def symbol_coe : has_coe string reader := ⟨symbol⟩
+def seq_coe : has_coe_t (list reader) reader := ⟨seq⟩
+local attribute [instance] symbol_coe seq_coe
+
+-- coerce all list literals to `list reader`
+local notation `[` l:(foldr `, ` (h t, @list.cons reader h t) list.nil `]`) := l
+
+local postfix `?`:10000 := optional
+local postfix *:10000 := many
+local postfix +:10000 := many1
 
 def «prelude» := {macro . name := `prelude}
 
@@ -25,41 +32,24 @@ def import_path := {macro . name := `import_path}
 
 def import_path.reader : reader :=
 -- use `raw_symbol` to ignore registered tokens like ".."
-node import_path [many (raw_symbol "."), ident]
+node import_path [(raw_symbol ".")*, ident]
 
 def «import» := {macro . name := `import}
 
 def import.reader : reader :=
-node «import» ["import", many1 import_path.reader]
+node «import» ["import", import_path.reader+]
 
 section commands
 
 def «open» := {macro . name := `open}
 
 def open_export.reader : reader :=
-many1 $ seq [
-  ident,
-  optional $ seq [
-    "as",
-    ident
-  ],
-  optional $ seq [
-    try $ seq ["(", ident],
-    many ident,
-    ")"
-  ],
-  optional $ seq [
-    try $ seq ["(", "renaming"],
-    many1 $ seq [ident, "->", ident],
-    ")"
-  ],
-  optional $ seq [
-    "(",
-    "hiding",
-    many1 ident,
-    ")"
-  ]
-]
+[ident,
+ ["as", ident]?,
+ [try ["(", ident], ident*, ")"]?,
+ [try ["(", "renaming"], [ident, "->", ident]+, ")"]?,
+ ["(", "hiding", ident+, ")"]?
+]+
 
 def open.reader : reader :=
 node «open» ["open", open_export.reader]
@@ -67,17 +57,11 @@ node «open» ["open", open_export.reader]
 def «section» := {macro . name := `section}
 
 def section.reader : reader :=
-node «section» [
-  "section",
-  optional ident,
-  many recurse,
-  "end",
-  optional ident
-]
+node «section» ["section", ident?, recurse*, "end", ident?]
 
 def «notation» := {macro . name := `notation}
 
-def prec := seq [":", number/-TODO <|> expr-/]
+def prec : reader := [":", number]/-TODO <|> expr-/
 
 def quoted_symbol : read_m syntax :=
 do (s, info) ← with_source_info $ monad_parsec.take_until (= '`'),
@@ -85,48 +69,37 @@ do (s, info) ← with_source_info $ monad_parsec.take_until (= '`'),
 
 def notation_tk :=
 any_of [
-  seq [
-    raw_symbol "`",
-    {read := quoted_symbol},
-    raw_symbol "`",
-    optional prec
-  ]
+  [raw_symbol "`", {read := quoted_symbol}, raw_symbol "`", prec?]
   --TODO, {read := do tk ← token, /- check if reserved token-/}
 ]
 
-def action :=
-seq [
-  ":",
-  any_of [
-    number,
-    "max",
-    "prev",
-    "scoped"
-    /-TODO seq [
-      "(",
-      any_of ["foldl", "foldr"],
-      optional prec,
-      notation_tk,-/]
-]
+def action : reader :=
+[":", any_of [
+  number,
+  "max",
+  "prev",
+  "scoped"
+  /-TODO seq [
+    "(",
+    any_of ["foldl", "foldr"],
+    optional prec,
+    notation_tk,-/]]
 
 def notation_reader : reader :=
 any_of [
   number,
-  seq [
-    optional ident,
-    many $ seq [
-      notation_tk,
-      optional $ any_of [
-        seq ["binder", optional prec],
-        seq ["binders", optional prec],
-        seq [ident, optional action]
-      ]
-    ]
-  ]
+  [ident?,
+   notation_tk,
+   (any_of [
+     ["binder", prec?],
+     ["binders", prec?],
+     [ident, action?]
+   ])?
+  ]*
 ]
 
-def notation.reader :=
-seq ["notation", notation_reader, ":=", term.reader]
+def notation.reader : reader :=
+node «notation» $ "notation" notation_reader ":=" term.reader
 
 def command.reader :=
 with_recurse $ any_of [open.reader, section.reader, notation.reader] <?> "command"
@@ -135,11 +108,8 @@ end commands
 def module := {macro . name := `module}
 
 def module.reader : reader :=
-node module [
-  optional prelude.reader,
-  many import.reader,
-  many command.reader
-]
+node module $
+  prelude.reader? import.reader* command.reader*
 
 end reader
 end lean.parser

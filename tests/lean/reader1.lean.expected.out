@@ -39,6 +39,9 @@ result:
 result: 
 (module [] [] [(section "section" [a] [] "end" [])])
 result: 
-(module [] [] [["notation" [[] [[["`" "Prop" "`" []] []]]] ":=" (hole "_")]])
+(module
+ []
+ []
+ [(notation "notation" [[] [[["`" "Prop" "`" []] []]]] ":=" (hole "_"))])
 error at line 10, column 24:
 expected "_"

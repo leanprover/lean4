@@ -29,19 +29,20 @@ def expected.to_string : list string → string
 | [e1, e2] := e1 ++ " or " ++ e2
 | (e::es)  := e ++ ", " ++ expected.to_string es
 
-protected def message.to_string (input : string) (msg : message) : string :=
+protected def message.to_string {μ : Type} (input : string) (msg : message μ) : string :=
 let (line, col) := input.line_column msg.pos in
 "error at line " ++ to_string line ++ ", column " ++ to_string col ++ ":\n" ++
 (if msg.unexpected = "" then "" else "unexpected " ++ msg.unexpected ++ "\n") ++
 let ex_list := msg.expected.to_list in
 if ex_list = [] then "" else "expected " ++ expected.to_string ex_list
 
-def message.repr (msg : message) : string :=
+def message.repr {μ : Type} [has_repr μ] (msg : message μ) : string :=
 "{pos := " ++ repr msg.pos ++ ", " ++
  "unexpected := " ++ repr msg.unexpected ++ ", " ++
- "expected := dlist.of_list " ++ repr msg.expected.to_list ++ "}"
+ "expected := dlist.of_list " ++ repr msg.expected.to_list ++ ", " ++
+ "custom := " ++ repr msg.custom ++ "}"
 
-instance message_has_repr : has_repr message :=
+instance message_has_repr {μ : Type} [has_repr μ] : has_repr (message μ) :=
 ⟨message.repr⟩
 
 /-

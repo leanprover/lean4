@@ -3,7 +3,7 @@ open lean lean.parser
 open tactic
 
 meta def check (s : string) : tactic unit :=
-match id.run $ parsec.parse identifier s with
+match id.run $ parsec.parse (identifier : parsec' _) s with
 | except.ok n     :=
   trace (name.mangle n) >>
   if name.demangle (name.mangle n) = some n then exact `(true)

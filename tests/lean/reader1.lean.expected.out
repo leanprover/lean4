@@ -3,8 +3,9 @@ result:
 result: 
 (module [] [(import "import" [(import_path [] me)])] [])
 error at line 1, column 0:
-unexpected 'i'
-expected "prelude", "import", command or end of input
+expected end of input
+partial syntax tree:
+(module [] [] [])
 result: 
 (module
  [(prelude "prelude")]
@@ -24,6 +25,10 @@ result:
      [[["(" a] [b c] ")"]]
      [[["(" "renaming"] [[a "->" b] [c "->" d]] ")"]]
      [["(" "hiding" [a b] ")"]]]])])
+error at line 1, column 8:
+expected end of input
+partial syntax tree:
+(module [] [] [(open "open" [[me [] [] [] []]])])
 result: 
 (module
  []
@@ -43,5 +48,7 @@ result:
  []
  []
  [(notation "notation" [[] [[["`" "Prop" "`" []] []]]] ":=" (hole "_"))])
-error at line 10, column 24:
-expected "_"
+error at line 10, column 0:
+expected end of input
+partial syntax tree:
+(module [(prelude "prelude")] [] [])

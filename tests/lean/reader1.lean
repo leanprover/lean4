@@ -8,7 +8,10 @@ match p.parse ⟨⟩ s with
   guard $ stx.reprint = s,
   io.print_ln "result: ",
   io.print_ln (to_string stx)
-| except.error e := io.print_ln (e.to_string s)
+| except.error e := do
+  io.print_ln (e.to_string s),
+  io.print_ln "partial syntax tree:",
+  io.print_ln (to_string e.custom)
 
 #eval show_result module.reader "prelude"
 #eval show_result module.reader "import me"
@@ -20,6 +23,7 @@ import c"
 
 #eval show_result module.reader "open me you"
 #eval show_result module.reader "open me as you (a b c) (renaming a->b c->d) (hiding a b)"
+#eval show_result module.reader "open me you."
 
 #eval show_result module.reader "open a
 section b

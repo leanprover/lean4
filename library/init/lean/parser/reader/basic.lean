@@ -102,27 +102,34 @@ r.read.run cfg ⟨r.tokens ++ tokens, ff, []⟩ s
 namespace combinators
 def node' (m : name) (rs : list reader) : reader :=
 { read := do {
-    args ← rs.mmap reader.read,
-    pure $ syntax.node ⟨m, args⟩
+    args ← rs.mfoldl (λ args r, do
+      -- on error, append partial syntax tree to previous successful ones and rethrow
+      a ← catch r.read (λ msg, throw {msg with custom := syntax.node ⟨m, (msg.custom::args).reverse⟩}),
+      pure (a::args)
+    ) [],
+    pure $ syntax.node ⟨m, args.reverse⟩
   },
   tokens := rs.bind reader.tokens }
 
 def seq := node' name.anonymous
 def node (m : macro) := node' m.name
 
-def many (r : reader) : reader :=
-{ r with read := do
-    args ← many r.read,
-    pure $ syntax.node ⟨name.anonymous, args⟩ }
+private def many1_aux (p : read_m syntax) : list syntax → nat → read_m syntax
+| as 0     := error "unreachable"
+| as (n+1) := do a ← catch p (λ msg, throw {msg with custom := syntax.node ⟨name.anonymous, (msg.custom::as).reverse⟩}),
+              many1_aux (a::as) n <|> pure (syntax.node ⟨name.anonymous, (a::as).reverse⟩)
 
 def many1 (r : reader) : reader :=
-{ r with read := do
-    args ← many1 r.read,
-    pure $ syntax.node ⟨name.anonymous, args⟩ }
+{ r with read := remaining >>= many1_aux r.read [] }
+
+def many (r : reader) : reader :=
+{ r with read := (many1 r).read <|> pure (syntax.node ⟨name.anonymous, []⟩) }
 
 def optional (r : reader) : reader :=
 { r with read := do
-    r ← optional r.read,
+    r ← optional $
+      -- on error, wrap in "some"
+      catch r.read (λ msg, throw {msg with custom := syntax.node ⟨name.anonymous, [msg.custom]⟩}),
     pure $ match r with
     | some r := syntax.node ⟨name.anonymous, [r]⟩
     | none   := syntax.node ⟨name.anonymous, []⟩ }

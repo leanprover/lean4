@@ -21,7 +21,8 @@ local attribute [reducible] rec_t
 
 /-- Continue at the recursion point stored at `with_recurse`. -/
 def recurse : rec_t r m r :=
-⟨λ rec, rec⟩
+do x ← read,
+   monad_lift x
 
 variables (base : m r) (rec : rec_t r m r)
 private def with_recurse_aux : nat → m r

@@ -37,7 +37,7 @@ private def string.mangle_aux : nat → string.iterator → string → string
 def string.mangle (s : string) : string :=
 string.mangle_aux s.length s.mk_iterator ""
 
-private def parse_mangled_string_aux : nat → string → parsec string
+private def parse_mangled_string_aux : nat → string → parsec' string
 | 0     r := return r
 | (i+1) r :=
      (eoi >> return r)
@@ -49,7 +49,7 @@ private def parse_mangled_string_aux : nat → string → parsec string
  <|> (do str "_u", d₄ ← parse_hex_digit, d₃ ← parse_hex_digit, d₂ ← parse_hex_digit, d₁ ← parse_hex_digit,
          parse_mangled_string_aux i (r.push (char.of_nat (d₄ * 4096 + d₃ * 256 + d₂ * 16 + d₁))))
 
-private def parse_mangled_string : parsec string :=
+private def parse_mangled_string : parsec' string :=
 do r ← remaining, parse_mangled_string_aux r ""
 
 def string.demangle (s : string) : option string :=
@@ -68,7 +68,7 @@ private def name.mangle_aux (pre : string) : name → string
 def name.mangle (n : name) (pre : string := "_l") : string :=
 name.mangle_aux pre n
 
-private def parse_mangled_name_aux : nat → name → parsec name
+private def parse_mangled_name_aux : nat → name → parsec' name
 | 0 r     := return r
 | (i+1) r :=
       (eoi >> return r)
@@ -78,7 +78,7 @@ private def parse_mangled_name_aux : nat → name → parsec name
   <|> (do ch '_', n ← num, ch '_',
           parse_mangled_name_aux i (r.mk_numeral n))
 
-private def parse_mangled_name (pre : string) : parsec name :=
+private def parse_mangled_name (pre : string) : parsec' name :=
 do str pre, r ← remaining, parse_mangled_name_aux r name.anonymous
 
 def name.demangle (s : string) (pre : string := "_l") : option name :=

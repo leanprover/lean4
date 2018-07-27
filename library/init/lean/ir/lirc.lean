@@ -17,7 +17,7 @@ namespace ir
 open lean.parser
 open lean.parser.monad_parsec
 
-def parse_input_aux : nat → list decl → fnid2string → parsec (list decl × fnid2string)
+def parse_input_aux : nat → list decl → fnid2string → parsec' (list decl × fnid2string)
 | 0     ds m := return (ds.reverse, m)
 | (n+1) ds m :=
   (eoi >> return (ds.reverse, m))

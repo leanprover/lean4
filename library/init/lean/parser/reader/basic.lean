@@ -38,7 +38,7 @@ instance : monad (rec_t r m) := infer_instance
 instance [alternative m] : alternative (rec_t r m) := infer_instance
 instance : has_monad_lift m (rec_t r m) := infer_instance
 instance (ε) [monad_except ε m] : monad_except ε (rec_t r m) := infer_instance
-instance [alternative m] [lean.parser.monad_parsec m] : lean.parser.monad_parsec (rec_t r m) :=
+instance (μ) [alternative m] [lean.parser.monad_parsec μ m] : lean.parser.monad_parsec μ (rec_t r m) :=
 infer_instance
 end rec_t
 
@@ -55,7 +55,7 @@ structure token_config :=
    It should return a syntax tree with a "hole" for the
    `source_info` surrounding the token, which will be supplied
    by the `token` reader. -/
-(token_reader : option (parsec (source_info → syntax)) := none)
+(token_reader : option (parsec' (source_info → syntax)) := none)
 
 structure reader_state :=
 (tokens : list token_config)
@@ -67,7 +67,7 @@ def reader_state.empty : reader_state :=
 
 structure reader_config := mk
 
-@[irreducible] def read_m := rec_t syntax $ reader_t reader_config $ state_t reader_state $ parsec
+@[irreducible] def read_m := rec_t syntax $ reader_t reader_config $ state_t reader_state $ parsec'
 
 structure reader :=
 (read : read_m syntax)
@@ -79,13 +79,13 @@ instance : monad read_m := infer_instance
 instance : alternative read_m := infer_instance
 instance : monad_reader reader_config read_m := infer_instance
 instance : monad_state reader_state read_m := infer_instance
-instance : monad_parsec read_m := infer_instance
+instance : monad_parsec' read_m := infer_instance
 instance : monad_except parsec.message read_m := infer_instance
 
 --TODO(Sebastian): expose `reader_state.errors`
 protected def run {α : Type} (cfg : reader_config) (st : reader_state) (s : string) (r : read_m α) :
   except parsec.message α :=
-prod.fst <$> (((r.run (monad_parsec.error "no recursive parser at top level")).run cfg).run st).parse_with_eoi s
+prod.fst <$> (((r.run (monad_parsec.error' "no recursive parser at top level")).run cfg).run st <* monad_parsec.eoi).parse s
 end read_m
 
 namespace reader
@@ -148,7 +148,7 @@ def recurse : reader :=
   tokens := [] } -- recursive use should not contribute any new tokens
 
 def with_recurse (r : reader) : reader :=
-{ r with read := rec_t.with_recurse (error "recursion limit") r.read }
+{ r with read := rec_t.with_recurse (error' "recursion limit") r.read }
 end combinators
 end reader
 end parser

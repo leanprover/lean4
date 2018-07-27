@@ -12,7 +12,7 @@ match type_check d with
 | except.ok _    := return ()
 | except.error e := io.print_ln (to_string e)
 
-def show_result (p : parsec decl) (s : string) : io unit :=
+def show_result (p : parsec' decl) (s : string) : io unit :=
 match parsec.parse p s with
 | except.ok d    := io.print_ln (lean.to_fmt d) >> check_decl d
 | except.error e := io.print_ln (e.to_string s)

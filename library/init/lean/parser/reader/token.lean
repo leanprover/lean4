@@ -38,7 +38,7 @@ private def finish_comment_block_aux : nat → nat → read_m unit
     (if nesting = 1 then pure ()
      else finish_comment_block_aux (nesting - 1) n) <|>
   any *> finish_comment_block_aux nesting n
-| _ _ := error "unreachable"
+| _ _ := error' "unreachable"
 
 def finish_comment_block (nesting := 1) : read_m unit :=
 do r ← remaining,
@@ -51,7 +51,7 @@ do tk ← whitespace *> match_token,
     | some ⟨"--", _⟩    := str "--" *> take_while' (= '\n') *> whitespace_aux n
     | some ⟨"/-", _⟩    := str "/-" *> finish_comment_block *> whitespace_aux n
     | _                 := pure ())
-| 0 := error "unreachable"
+| 0 := error' "unreachable"
 
 /-- Skip whitespace and comments. -/
 def whitespace : read_m substring :=
@@ -94,8 +94,8 @@ do tk ← match_token,
      do str tk,
          pure $ λ i, syntax.atom ⟨some i, atomic_val.string tk⟩
    -- variable-length token
-   | some ⟨tk, some r⟩ := error "not implemented" --str tk *> monad_parsec.lift r
-   | none              := error
+   | some ⟨tk, some r⟩ := error' "not implemented" --str tk *> monad_parsec.lift r
+   | none              := error'
 
 def token : read_m syntax :=
 do (r, i) ← with_source_info $ do {
@@ -110,19 +110,19 @@ do (r, i) ← with_source_info $ do {
 def symbol (sym : string) : reader :=
 { tokens := [⟨sym, none⟩],
   read := try $ do
-    stx@(syntax.atom ⟨_, atomic_val.string sym'⟩) ← token | error "" (dlist.singleton (repr sym)),
+    stx@(syntax.atom ⟨_, atomic_val.string sym'⟩) ← token | error' "" (dlist.singleton (repr sym)),
     when (sym ≠ sym') $
-      error "" (dlist.singleton (repr sym)),
+      error' "" (dlist.singleton (repr sym)),
     pure stx }
 
 def number : reader :=
 { read := try $ do
-    stx@(syntax.node ⟨`base10_lit, _⟩) ← token | error "" (dlist.singleton "number"),
+    stx@(syntax.node ⟨`base10_lit, _⟩) ← token | error' "" (dlist.singleton "number"),
     pure stx }
 
 def ident : reader :=
 { read := try $ do
-    stx@(syntax.ident _) ← token | error "" (dlist.singleton "identifier"),
+    stx@(syntax.ident _) ← token | error' "" (dlist.singleton "identifier"),
     pure stx }
 
 end reader

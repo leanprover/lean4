@@ -51,6 +51,9 @@ inductive syntax
 | atom (val : syntax_atom)
 | node (val : syntax_node syntax)
 
+instance : inhabited syntax :=
+⟨syntax.node ⟨name.anonymous, []⟩⟩
+
 def substring.to_string (s : substring) : string :=
 (s.start.extract s.stop).get_or_else ""
 

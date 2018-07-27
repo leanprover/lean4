@@ -220,14 +220,17 @@ instance monad_parsec_trans {m n : Type → Type} [has_monad_lift m n] [monad_fu
 
 namespace monad_parsec
 open parsec
-variables {m : Type → Type} [monad m] [monad_parsec μ m] {α β : Type}
-include μ
+variables {m : Type → Type} [monad m] [monad_parsec μ m] [inhabited μ] {α β : Type}
 
-@[inline] def error {α : Type} (custom : μ) (unexpected : string := "") (expected : dlist string := dlist.empty) (pos : option position := none) : m α :=
+@[inline] def error {α : Type} (unexpected : string := "") (expected : dlist string := dlist.empty) (pos : option position := none) (custom : μ := default _) : m α :=
 lift $ λ it, result.error { unexpected := unexpected, expected := expected, pos := pos.get_or_else it.offset, custom := custom } ff
 
 def left_over : m iterator :=
 lift $ λ it, result.mk_eps it it
+
+/-- Return the number of characters left to be parsed. -/
+def remaining : m nat :=
+string.iterator.remaining <$> left_over
 
 @[inline] def label (p : m α) (ex : string) : m α :=
 map (λ _ p, @parsec.label _ _ p ex) p
@@ -259,47 +262,16 @@ map (λ _ p, parsec.try p) p
 @[inline] def lookahead (p : m α) : m α :=
 map (λ _ p, parsec.lookahead p) p
 
-/- Execute all parsers in `ps` and return the result of the longest parse(s) if any,
-   or else the result of the furthest error. If there are two parses of
-   equal length, the first parse wins. -/
-def longest_match [monad_except (message μ) m] [inhabited μ] (ps : list (m α)) : m (list α) :=
-do it ← left_over,
-   r ← ps.mfoldr (λ p (r : result μ (list α)),
-     catch
-       (lookahead $ do
-         a ← p,
-         it ← left_over,
-         pure $ match r with
-         | result.ok as it' := if it'.offset > it.offset then r
-             else if it.offset > it'.offset then result.ok [a] it
-             else result.ok (a::as) it
-         | _                := result.ok [a] it)
-       (λ msg, pure $ match r with
-           | result.error msg' _ := if nat.lt msg.pos msg'.pos then r -- FIXME
-             else if nat.lt msg'.pos msg.pos then result.error msg tt
-             else result.error (merge msg msg') tt
-           | _ := r))
-    (parsec.failure it),
-    lift $ λ _, r
-end monad_parsec
-
-namespace monad_parsec
-open parsec
-variables {m : Type → Type} [monad m] [monad_parsec unit m] {α β : Type}
-
-@[inline] def error' {α : Type} (unexpected : string := "") (expected : dlist string := dlist.empty) (pos : option position := none) : m α :=
-lift $ λ it, result.error { unexpected := unexpected, expected := expected, pos := pos.get_or_else it.offset, custom := () } ff
-
 /-- Faster version of `not_followed_by (satisfy p)` -/
 @[inline] def not_followed_by_sat (p : char → bool) : m unit :=
 do it ← left_over,
    if !it.has_next then pure ()
    else let c := it.curr in
-       if p c then error' (repr c)
+       if p c then error (repr c)
        else pure ()
 
-@[inline] def eoi_error (pos : position) : result unit α :=
-result.error { pos := pos, unexpected := "end of input", custom := () } ff
+@[inline] def eoi_error (pos : position) : result μ α :=
+result.error { pos := pos, unexpected := "end of input", custom := default _ } ff
 
 def curr : m char :=
 string.iterator.curr <$> left_over
@@ -312,11 +284,11 @@ If the next character `c` satisfies `p`, then
 update position and return `c`. Otherwise,
 generate error message with current position and character. -/
 @[inline] def satisfy (p : char → bool) : m char :=
-lift $ λ it,
-  if !it.has_next then eoi_error it.offset
-  else let c := it.curr in
-      if p c then result.ok c it.next
-      else result.error { pos := it.offset, unexpected := repr c, custom := () } ff
+do it ← left_over,
+   if !it.has_next then error "end of input"
+   else let c := it.curr in
+       if p c then lift $ λ _, result.ok c it.next
+       else error (repr c)
 
 def ch (c : char) : m char :=
 satisfy (= c)
@@ -352,9 +324,9 @@ def str (s : string) : m string :=
 if s.is_empty then pure ""
 else lift $ λ it, match str_aux s.length s.mk_iterator it with
   | some it' := result.ok s it'
-  | none     := result.error { pos := it.offset, expected := dlist.singleton (repr s), custom := () } ff
+  | none     := result.error { pos := it.offset, expected := dlist.singleton (repr s), custom := default μ } ff
 
-private def take_aux : nat → string → iterator → result unit string
+private def take_aux : nat → string → iterator → result μ string
 | 0     r it := result.ok r it
 | (n+1) r it :=
   if !it.has_next then eoi_error it.offset
@@ -365,11 +337,11 @@ def take (n : nat) : m string :=
 if n = 0 then pure ""
 else lift $ take_aux n ""
 
-@[inline] private def mk_string_result (r : string) (it : iterator) : result unit string :=
+@[inline] private def mk_string_result (r : string) (it : iterator) : result μ string :=
 if r.is_empty then result.mk_eps r it
 else result.ok r it
 
-private def take_while_aux (p : char → bool) : nat → string → iterator → result unit string
+private def take_while_aux (p : char → bool) : nat → string → iterator → result μ string
 | 0     r it := mk_string_result r it
 | (n+1) r it :=
   if !it.has_next then mk_string_result r it
@@ -403,11 +375,11 @@ take_while (λ c, !p c)
 def take_until1 (p : char → bool) : m string :=
 take_while1 (λ c, !p c)
 
-@[inline] private def mk_consumed_result (consumed : bool) (it : iterator) : result unit unit :=
+@[inline] private def mk_consumed_result (consumed : bool) (it : iterator) : result μ unit :=
 if consumed then result.ok () it
 else result.mk_eps () it
 
-private def take_while_aux' (p : char → bool) : nat → bool → iterator → result unit unit
+private def take_while_aux' (p : char → bool) : nat → bool → iterator → result μ unit
 | 0     consumed it := mk_consumed_result consumed it
 | (n+1) consumed it :=
   if !it.has_next then mk_consumed_result consumed it
@@ -435,27 +407,23 @@ p <* whitespace
 def num : m nat :=
 string.to_nat <$> (take_while1 char.is_digit)
 
-/-- Return the number of characters left to be parsed. -/
-def remaining : m nat :=
-string.iterator.remaining <$> left_over
-
 /-- Succeed only if there are at least `n` characters left. -/
 def ensure (n : nat) : m unit :=
 do it ← left_over,
    if n ≤ it.remaining then pure ()
-   else error' "end of input" (dlist.singleton ("at least " ++ to_string n ++ " characters"))
+   else error "end of input" (dlist.singleton ("at least " ++ to_string n ++ " characters"))
 
 /-- Return the current position. -/
 def pos : m position :=
 string.iterator.offset <$> left_over
 
 @[inline] def not_followed_by [monad_except message m] (p : m α) (msg : string := "input") : m unit :=
-do init ← pos, catch (p >> return ff) (λ _, return tt) >>= λ b, if b then pure () else error' msg dlist.empty (some init)
+do init ← pos, catch (p >> return ff) (λ _, return tt) >>= λ b, if b then pure () else error msg dlist.empty (some init)
 
 def eoi : m unit :=
 do it ← left_over,
    if it.remaining = 0 then pure ()
-   else error' (repr it.curr) (dlist.singleton ("end of input"))
+   else error (repr it.curr) (dlist.singleton ("end of input"))
 
 def many1_aux [alternative m] (p : m α) : nat → m (list α)
 | 0     := do a ← p, return [a]
@@ -511,10 +479,38 @@ do it ← left_over,
    foldl_aux f p a it.remaining
 
 def unexpected (msg : string) : m α :=
-error' msg
+error msg
 
 def unexpected_at (msg : string) (pos : position) : m α :=
-error' msg dlist.empty pos
+error msg dlist.empty pos
+
+/- Execute all parsers in `ps` and return the result of the longest parse(s) if any,
+   or else the result of the furthest error. If there are two parses of
+   equal length, the first parse wins. -/
+def longest_match [monad_except (message μ) m] (ps : list (m α)) : m (list α) :=
+do it ← left_over,
+   r ← ps.mfoldr (λ p (r : result μ (list α)),
+     catch
+       (lookahead $ do
+         a ← p,
+         it ← left_over,
+         pure $ match r with
+         | result.ok as it' := if it'.offset > it.offset then r
+             else if it.offset > it'.offset then result.ok [a] it
+             else result.ok (a::as) it
+         | _                := result.ok [a] it)
+       (λ msg, pure $ match r with
+           | result.error msg' _ := if nat.lt msg.pos msg'.pos then r -- FIXME
+             else if nat.lt msg'.pos msg.pos then result.error msg tt
+             else result.error (merge msg msg') tt
+           | _ := r))
+    (parsec.failure it),
+    lift $ λ _, r
+end monad_parsec
+
+namespace monad_parsec
+open parsec
+variables {m : Type → Type} [monad m] [monad_parsec unit m] {α β : Type}
 
 end monad_parsec
 
@@ -528,7 +524,7 @@ run p s fname
 def parse_with_eoi (p : parsec' α) (s : string) (fname := "") : except (message unit) α :=
 run (p <* eoi) s fname
 
-def parse_with_left_over (p : parsec μ α) (s : string) (fname := "") : except (message μ) (α × iterator) :=
+def parse_with_left_over [inhabited μ] (p : parsec μ α) (s : string) (fname := "") : except (message μ) (α × iterator) :=
 run (prod.mk <$> p <*> left_over) s fname
 
 end parsec

@@ -85,7 +85,7 @@ instance : monad_except parsec.message read_m := infer_instance
 --TODO(Sebastian): expose `reader_state.errors`
 protected def run {α : Type} (cfg : reader_config) (st : reader_state) (s : string) (r : read_m α) :
   except parsec.message α :=
-prod.fst <$> (((r.run (monad_parsec.error' "no recursive parser at top level")).run cfg).run st <* monad_parsec.eoi).parse s
+prod.fst <$> (((r.run (monad_parsec.error "no recursive parser at top level")).run cfg).run st <* monad_parsec.eoi).parse s
 end read_m
 
 namespace reader
@@ -148,7 +148,7 @@ def recurse : reader :=
   tokens := [] } -- recursive use should not contribute any new tokens
 
 def with_recurse (r : reader) : reader :=
-{ r with read := rec_t.with_recurse (error' "recursion limit") r.read }
+{ r with read := rec_t.with_recurse (error "recursion limit") r.read }
 end combinators
 end reader
 end parser

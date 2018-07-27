@@ -67,7 +67,7 @@ def reader_state.empty : reader_state :=
 
 structure reader_config := mk
 
-@[irreducible] def read_m := rec_t syntax $ reader_t reader_config $ state_t reader_state $ parsec'
+@[irreducible] def read_m := rec_t syntax $ reader_t reader_config $ state_t reader_state $ parsec syntax
 
 structure reader :=
 (read : read_m syntax)
@@ -79,20 +79,22 @@ instance : monad read_m := infer_instance
 instance : alternative read_m := infer_instance
 instance : monad_reader reader_config read_m := infer_instance
 instance : monad_state reader_state read_m := infer_instance
-instance : monad_parsec' read_m := infer_instance
-instance : monad_except parsec.message read_m := infer_instance
+instance : monad_parsec syntax read_m := infer_instance
+instance : monad_except (parsec.message syntax) read_m := infer_instance
 
 --TODO(Sebastian): expose `reader_state.errors`
-protected def run {α : Type} (cfg : reader_config) (st : reader_state) (s : string) (r : read_m α) :
-  except parsec.message α :=
-prod.fst <$> (((r.run (monad_parsec.error "no recursive parser at top level")).run cfg).run st <* monad_parsec.eoi).parse s
+protected def run (cfg : reader_config) (st : reader_state) (s : string) (r : read_m syntax) :
+  except (parsec.message syntax) syntax :=
+do ((a, _), it) ← (((r.run (monad_parsec.error "no recursive parser at top level")).run cfg).run st).parse_with_left_over s,
+   if it.remaining = 0 then except.ok a
+   else except.error { pos := it.offset, expected := dlist.singleton ("end of input"), custom := a }
 end read_m
 
 namespace reader
 open monad_parsec
 
 protected def parse (cfg : reader_config) (s : string) (r : reader) :
-  except parsec.message syntax :=
+  except (parsec.message syntax) syntax :=
 -- the only hardcoded tokens, because they are never directly mentioned by a `reader`
 let tokens : list token_config := [⟨"/-", none⟩, ⟨"--", none⟩] in
 r.read.run cfg ⟨r.tokens ++ tokens, ff, []⟩ s

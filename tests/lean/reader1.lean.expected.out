@@ -3,7 +3,7 @@ result:
 result: 
 (module [] [(import "import" [(import_path [] me)])] [])
 error at line 1, column 0:
-expected end of input
+expected command
 partial syntax tree:
 (module [] [] [])
 result: 
@@ -26,7 +26,7 @@ result:
      [[["(" "renaming"] [[a "->" b] [c "->" d]] ")"]]
      [["(" "hiding" [a b] ")"]]]])])
 error at line 1, column 8:
-expected end of input
+expected command
 partial syntax tree:
 (module [] [] [(open "open" [[me [] [] [] []]])])
 result: 
@@ -48,7 +48,17 @@ result:
  []
  []
  [(notation "notation" [[] [[["`" "Prop" "`" []] []]]] ":=" (hole "_"))])
-error at line 10, column 0:
-expected end of input
+error at line 10, column 19:
+expected "_"
+error at line 11, column 26:
+expected "_"
 partial syntax tree:
-(module [(prelude "prelude")] [] [])
+(module
+ [(prelude "prelude")]
+ []
+ [(notation "notation" [[] [[["`" "Prop" "`" []] []]]] ":=" (hole []))
+  (notation
+   "notation"
+   [[f] [[["`" "$ " "`" [[":" (base10_lit "1")]]] [[a [[":" (base10_lit "0")]]]]]]]
+   ":="
+   (hole []))])

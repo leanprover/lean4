@@ -215,6 +215,11 @@ lift $ λ it', result.error { unexpected := unexpected, expected := expected, it
 def left_over : m iterator :=
 lift $ λ it, result.mk_eps it it
 
+/-- Replace the input iterator. This is usually used to change the parser
+    position inside the same input string. -/
+def set_iterator (it : iterator) : m unit :=
+lift $ λ _, result.ok () it
+
 /-- Return the number of characters left to be parsed. -/
 def remaining : m nat :=
 string.iterator.remaining <$> left_over

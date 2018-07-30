@@ -6,11 +6,11 @@ Author: Sebastian Ullrich
 Module-level readers and macros
 -/
 prelude
-import init.lean.parser.reader.token init.lean.parser.reader.term
+import init.lean.parser.reader.token init.lean.parser.reader.term init.data.list.instances
 
 namespace lean.parser
 namespace reader
-open combinators
+open combinators monad_parsec
 
 def symbol_coe : has_coe string reader := ⟨symbol⟩
 def seq_coe : has_coe_t (list reader) reader := ⟨seq⟩
@@ -64,7 +64,7 @@ def «notation» := {macro . name := `notation}
 def prec : reader := [":", number]/-TODO <|> expr-/
 
 def quoted_symbol : read_m syntax :=
-do (s, info) ← with_source_info $ monad_parsec.take_until (= '`'),
+do (s, info) ← with_source_info $ take_until (= '`'),
    pure $ syntax.atom ⟨info, atomic_val.string s⟩
 
 def notation_tk :=
@@ -104,12 +104,42 @@ node «notation» ["notation", notation_reader, ":=", term.reader]
 
 def command.reader :=
 with_recurse $ any_of [open.reader, section.reader, notation.reader] <?> "command"
+
+/-- Read commands, recovering from errors inside commands (attach partial syntax tree)
+    as well as unknown commands (skip input). -/
+private def commands_aux : bool → list syntax → nat → read_m syntax
+| recovering cs 0            := error "unreachable"
+-- on end of input, return list of parsed commands
+| recovering cs (nat.succ n) := (eoi *> pure (syntax.node ⟨name.anonymous, cs.reverse⟩)) <|> do
+  (recovering, c) ← catch (do {
+    c ← command.reader.read,
+    pure (ff, some c)
+  } <|> do {
+      -- unknown command: try to skip token, or else single character
+      when (¬ recovering) $ do {
+        it ← left_over,
+        log_error $ to_string { parsec.message . expected := dlist.singleton "command", it := it, custom := () }
+      },
+      catch (token *> pure ()) (λ _,  any *> pure ()),
+      pure (tt, none)
+    }) $ λ msg, do {
+      -- error inside command: advance input to error position, log error, return partial syntax tree
+      set_iterator msg.it,
+      modify (λ st, {st with errors := to_string msg :: st.errors}),
+      pure (tt, some msg.custom)
+    },
+  commands_aux recovering (c.to_monad++cs) n
+
+def commands.reader : reader :=
+{ read := do { rem ← remaining, commands_aux ff [] rem.succ },
+  tokens := command.reader.tokens }
+
 end commands
 
 def module := {macro . name := `module}
 
 def module.reader : reader :=
-node module [prelude.reader?, import.reader*, command.reader*]
+node module [prelude.reader?, import.reader*, commands.reader]
 
 end reader
 end lean.parser

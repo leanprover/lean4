@@ -8,7 +8,7 @@ match id.run $ parsec.parse (identifier : parsec' _) s with
   trace (name.mangle n) >>
   if name.demangle (name.mangle n) = some n then exact `(true)
   else trace ("mangling failed at " ++ s) >> exact `(false)
-| except.error ex := trace (ex.to_string s) >> exact `(false)
+| except.error ex := trace ex >> exact `(false)
 
 example : by check "_αβ"                 := trivial
 example : by check "αβ"                  := trivial

@@ -5,7 +5,7 @@ open lean.parser.monad_parsec
 def test {α} [decidable_eq α] (p : parsec' α) (s : string) (e : α) : io unit :=
 match parsec.parse p s with
 | except.ok a    := if a = e then return () else io.print_ln "unexpected result"
-| except.error e := io.print_ln (e.to_string s)
+| except.error e := io.print_ln e
 
 def test_failure {α} (p : parsec' α) (s : string) : io unit :=
 match parsec.parse p s with
@@ -15,7 +15,7 @@ match parsec.parse p s with
 def show_result {α} [has_to_string α] (p : parsec' α) (s : string) : io unit :=
 match parsec.parse p s with
 | except.ok a    := io.print_ln "result: " >> io.print_ln (repr $ to_string a)
-| except.error e := io.print_ln (e.to_string s)
+| except.error e := io.print_ln e
 
 #eval test (ch 'a') "a" 'a'
 #eval test any "a" 'a'

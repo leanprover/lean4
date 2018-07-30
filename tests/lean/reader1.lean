@@ -9,7 +9,7 @@ match p.parse ⟨⟩ s with
   io.print_ln "result: ",
   io.print_ln (to_string stx)
 | except.error e := do
-  io.print_ln (e.to_string s),
+  io.print_ln e,
   io.print_ln "partial syntax tree:",
   io.print_ln (to_string e.custom)
 

@@ -15,7 +15,7 @@ match type_check d with
 def show_result (p : parsec' decl) (s : string) : io unit :=
 match parsec.parse p s with
 | except.ok d    := io.print_ln (lean.to_fmt d) >> check_decl d
-| except.error e := io.print_ln (e.to_string s)
+| except.error e := io.print_ln e
 
 def IR1 := "
 def succ (x : uint32) : uint32 :=

@@ -87,7 +87,7 @@ protected def run (cfg : reader_config) (st : reader_state) (s : string) (r : re
   except (parsec.message syntax) syntax :=
 do ((a, _), it) ← (((r.run (monad_parsec.error "no recursive parser at top level")).run cfg).run st).parse_with_left_over s,
    if it.remaining = 0 then except.ok a
-   else except.error { pos := it.offset, expected := dlist.singleton ("end of input"), custom := a }
+   else except.error { it := it, expected := dlist.singleton ("end of input"), custom := a }
 end read_m
 
 namespace reader

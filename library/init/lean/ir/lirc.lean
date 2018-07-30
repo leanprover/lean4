@@ -31,7 +31,7 @@ def parse_input_aux : nat → list decl → fnid2string → parsec' (list decl �
 def parse_input (s : string) : except format (list decl × fnid2string) :=
 match parsec.parse (whitespace >> parse_input_aux s.length [] mk_fnid2string) s with
 | except.ok r    := return r
-| except.error m := throw (m.to_string s)
+| except.error m := throw m.to_string
 
 def check (env : environment) (ssa : bool) (d : decl) : except format unit :=
 when ssa (d.valid_ssa >> return ()) >> check_blockids d >> type_check d env >> return ()

@@ -17,7 +17,7 @@ def parse_hex_digit : parsec' nat :=
 <?> "hexadecimal"
 
 def parse_quoted_char : parsec' char :=
-do p ← pos,
+do it ← left_over,
    c ← any,
    if c = '\\'      then return '\\'
    else if c = '\"' then return '\"'
@@ -34,7 +34,7 @@ do p ← pos,
      d₃ ← parse_hex_digit,
      d₄ ← parse_hex_digit,
      return $ char.of_nat (16*(16*(16*d₁ + d₂) + d₃) + d₄) }
-   else unexpected_at "quoted character" p
+   else unexpected_at "quoted character" it
 
 def parse_string_literal_aux : nat → string → parsec' string
 | 0     s := ch '\"' >> return s

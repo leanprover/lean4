@@ -101,23 +101,23 @@ def parse_literal : parsec' literal :=
 <|> literal.str <$> parse_string_literal
 
 def parse_uint16 : parsec' uint16 :=
-try (do p ← pos,
+try (do it ← left_over,
         n ← lexeme num,
-        when (n ≥ uint16_sz) $ unexpected_at "big numeral, it does not fit in an uint16" p,
+        when (n ≥ uint16_sz) $ unexpected_at "big numeral, it does not fit in an uint16" it,
         return $ uint16.of_nat n)
 <?> "uint16"
 
 def parse_usize : parsec' usize :=
-try (do p ← pos,
+try (do it ← left_over,
         n ← lexeme num,
-        when (n ≥ usize_sz) $ unexpected_at "big numeral, it does not fit in an usize" p,
+        when (n ≥ usize_sz) $ unexpected_at "big numeral, it does not fit in an usize" it,
         return $ usize.of_nat n)
 <?> "usize"
 
 def identifier : parsec' name :=
-try (do p ← pos,
+try (do it ← left_over,
         n ← lean.parser.identifier,
-        when (is_reserved_name n) $ unexpected_at "keyword" p,
+        when (is_reserved_name n) $ unexpected_at "keyword" it,
         return n)
 <?> "identifier"
 

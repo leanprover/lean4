@@ -18,7 +18,7 @@ namespace parsec
 @[reducible] def position : Type := nat
 
 structure message (μ : Type := unit) :=
-(pos        : position     := 0)
+(it         : iterator)
 (unexpected : string       := "")          -- unexpected input
 (expected   : dlist string := dlist.empty) -- expected productions
 (custom     : μ)
@@ -29,21 +29,15 @@ def expected.to_string : list string → string
 | [e1, e2] := e1 ++ " or " ++ e2
 | (e::es)  := e ++ ", " ++ expected.to_string es
 
-protected def message.to_string {μ : Type} (input : string) (msg : message μ) : string :=
-let (line, col) := input.line_column msg.pos in
+protected def message.to_string {μ : Type} (msg : message μ) : string :=
+let (line, col) := msg.it.to_string.line_column msg.it.offset in
 "error at line " ++ to_string line ++ ", column " ++ to_string col ++ ":\n" ++
 (if msg.unexpected = "" then "" else "unexpected " ++ msg.unexpected ++ "\n") ++
 let ex_list := msg.expected.to_list in
 if ex_list = [] then "" else "expected " ++ expected.to_string ex_list
 
-def message.repr {μ : Type} [has_repr μ] (msg : message μ) : string :=
-"{pos := " ++ repr msg.pos ++ ", " ++
- "unexpected := " ++ repr msg.unexpected ++ ", " ++
- "expected := dlist.of_list " ++ repr msg.expected.to_list ++ ", " ++
- "custom := " ++ repr msg.custom ++ "}"
-
-instance message_has_repr {μ : Type} [has_repr μ] : has_repr (message μ) :=
-⟨message.repr⟩
+instance {μ : Type} : has_to_string (message μ) :=
+⟨message.to_string⟩
 
 /-
 Remark: we store expected "error" messages in `ok_eps` results.
@@ -82,7 +76,7 @@ def eps : parsec μ unit :=
 parsec.pure ()
 
 protected def failure [inhabited μ] : parsec μ α :=
-λ it, error { unexpected := "failure", pos := it.offset, custom := default μ } ff
+λ it, error { unexpected := "failure", it := it, custom := default μ } ff
 
 def merge (msg₁ msg₂ : message μ) : message μ :=
 { expected := msg₁.expected ++ msg₂.expected, ..msg₁ }
@@ -112,7 +106,7 @@ instance : monad (parsec μ) :=
 { bind := λ _ _, parsec.bind, pure := λ _, parsec.pure }
 
 instance : monad_fail parsec' :=
-{ fail := λ _ s it, error { unexpected := s, pos := it.offset, custom := () } ff }
+{ fail := λ _ s it, error { unexpected := s, it := it, custom := () } ff }
 
 instance : monad_except (message μ) (parsec μ) :=
 { throw := λ _ msg it, error msg ff,
@@ -185,8 +179,8 @@ def lookahead (p : parsec μ α) : parsec μ α :=
 /-- `not_followed_by p` succeeds when parser `p` fails -/
 def not_followed_by (p : parsec' α) (msg : string := "input") : parsec' unit :=
 λ it, match p it with
-      | ok _ _       := error { pos := it.offset, unexpected := msg, custom := () } ff
-      | ok_eps _ _ _ := error { pos := it.offset, unexpected := msg, custom := () } ff
+      | ok _ _       := error { it := it, unexpected := msg, custom := () } ff
+      | ok_eps _ _ _ := error { it := it, unexpected := msg, custom := () } ff
       | error _ _    := mk_eps () it
 end parsec
 
@@ -215,8 +209,8 @@ namespace monad_parsec
 open parsec
 variables {m : Type → Type} [monad m] [monad_parsec μ m] [inhabited μ] {α β : Type}
 
-@[inline] def error {α : Type} (unexpected : string := "") (expected : dlist string := dlist.empty) (pos : option position := none) (custom : μ := default _) : m α :=
-lift $ λ it, result.error { unexpected := unexpected, expected := expected, pos := pos.get_or_else it.offset, custom := custom } ff
+@[inline] def error {α : Type} (unexpected : string := "") (expected : dlist string := dlist.empty) (it : option iterator := none) (custom : μ := default _) : m α :=
+lift $ λ it', result.error { unexpected := unexpected, expected := expected, it := it.get_or_else it', custom := custom } ff
 
 def left_over : m iterator :=
 lift $ λ it, result.mk_eps it it
@@ -263,8 +257,8 @@ do it ← left_over,
        if p c then error (repr c)
        else pure ()
 
-@[inline] def eoi_error (pos : position) : result μ α :=
-result.error { pos := pos, unexpected := "end of input", custom := default _ } ff
+@[inline] def eoi_error (it : iterator) : result μ α :=
+result.error { it := it, unexpected := "end of input", custom := default _ } ff
 
 def curr : m char :=
 string.iterator.curr <$> left_over
@@ -317,12 +311,12 @@ def str (s : string) : m string :=
 if s.is_empty then pure ""
 else lift $ λ it, match str_aux s.length s.mk_iterator it with
   | some it' := result.ok s it'
-  | none     := result.error { pos := it.offset, expected := dlist.singleton (repr s), custom := default μ } ff
+  | none     := result.error { it := it, expected := dlist.singleton (repr s), custom := default μ } ff
 
 private def take_aux : nat → string → iterator → result μ string
 | 0     r it := result.ok r it
 | (n+1) r it :=
-  if !it.has_next then eoi_error it.offset
+  if !it.has_next then eoi_error it
   else take_aux n (r.push (it.curr)) it.next
 
 /-- Consume `n` characters. -/
@@ -411,7 +405,9 @@ def pos : m position :=
 string.iterator.offset <$> left_over
 
 @[inline] def not_followed_by [monad_except message m] (p : m α) (msg : string := "input") : m unit :=
-do init ← pos, catch (p >> return ff) (λ _, return tt) >>= λ b, if b then pure () else error msg dlist.empty (some init)
+do it ← left_over,
+   b ← catch (p >> return ff) (λ _, return tt),
+   if b then pure () else error msg dlist.empty it
 
 def eoi : m unit :=
 do it ← left_over,
@@ -474,8 +470,8 @@ do it ← left_over,
 def unexpected (msg : string) : m α :=
 error msg
 
-def unexpected_at (msg : string) (pos : position) : m α :=
-error msg dlist.empty pos
+def unexpected_at (msg : string) (it : iterator) : m α :=
+error msg dlist.empty it
 
 /- Execute all parsers in `ps` and return the result of the longest parse(s) if any,
    or else the result of the furthest error. If there are two parses of
@@ -493,8 +489,8 @@ do it ← left_over,
              else result.ok (a::as) it
          | _                := result.ok [a] it)
        (λ msg, pure $ match r with
-           | result.error msg' _ := if nat.lt msg.pos msg'.pos then r -- FIXME
-             else if nat.lt msg'.pos msg.pos then result.error msg tt
+           | result.error msg' _ := if nat.lt msg.it.offset msg'.it.offset then r -- FIXME
+             else if nat.lt msg'.it.offset msg.it.offset then result.error msg tt
              else result.error (merge msg msg') tt
            | _ := r))
     (parsec.failure it),

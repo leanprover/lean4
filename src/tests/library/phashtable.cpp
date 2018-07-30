@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "util/test.h"
 #include "util/timeit.h"
 #include "util/init_module.h"
+#include "util/rb_map.h"
 #include "util/sexpr/init_module.h"
 #include "kernel/init_module.h"
 #include "library/init_module.h"
@@ -167,6 +168,68 @@ static void tst6() {
     lean_assert(m.size() == 1);
 }
 
+void tst7(unsigned num, unsigned seed) {
+    timeit t(std::cout, "phash_map + finalization");
+    umap m;
+    {
+        timeit t(std::cout, "phash_map");
+        std::mt19937   rng;
+        rng.seed(seed);
+        std::uniform_int_distribution<unsigned int> uint_dist;
+        for (unsigned i = 0; i < num; i++) {
+            m.insert(uint_dist(rng), uint_dist(rng));
+        }
+    }
+}
+
+void tst8(unsigned num, unsigned seed) {
+    timeit t(std::cout, "phash_map with trail and num/100 snapshots + finalization");
+    umap m;
+    std::vector<umap> snapshots;
+    {
+        timeit t(std::cout, "phash_map with trail and num/100 snapshots");
+        std::mt19937   rng;
+        rng.seed(seed);
+        std::uniform_int_distribution<unsigned int> uint_dist;
+        for (unsigned k = 0; k < 100; k++) {
+            snapshots.push_back(m);
+            for (unsigned i = 0; i < num / 100; i++) {
+                m.insert(uint_dist(rng), uint_dist(rng));
+            }
+        }
+    }
+}
+
+void tst9(unsigned num, unsigned seed) {
+    timeit t(std::cout, "phash_map with trail and 1 snapshot + finalization");
+    umap m;
+    {
+        timeit t(std::cout, "phash_map with trail and 1 snapshot");
+        std::mt19937   rng;
+        rng.seed(seed);
+        std::uniform_int_distribution<unsigned int> uint_dist;
+        m.insert(uint_dist(rng), uint_dist(rng));
+        umap m2 = m;
+        for (unsigned i = 1; i < num; i++) {
+            m.insert(uint_dist(rng), uint_dist(rng));
+        }
+    }
+}
+
+void tst10(unsigned num, unsigned seed) {
+    timeit t(std::cout, "rb_map + finalization");
+    unsigned_map<unsigned> m;
+    {
+        timeit t(std::cout, "rb_map");
+        std::mt19937   rng;
+        rng.seed(seed);
+        std::uniform_int_distribution<unsigned int> uint_dist;
+        for (unsigned i = 0; i < num; i++) {
+            m.insert(uint_dist(rng), uint_dist(rng));
+        }
+    }
+}
+
 int main() {
     save_stack_info();
     initialize_util_module();
@@ -182,7 +245,12 @@ int main() {
     tst4();
     tst5();
     tst6();
-
+#if 0
+    tst7(10000000, 2);
+    tst8(10000000, 2);
+    tst9(10000000, 2);
+    tst10(10000000, 2);
+#endif
     finalize_library_module();
     finalize_library_core_module();
     finalize_kernel_module();

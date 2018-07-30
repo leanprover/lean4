@@ -60,14 +60,14 @@ def list.mforall {m : Type → Type u} [monad m] {α : Type v} (f : α → m boo
 | []      := return tt
 | (a::as) := do b ← f a, if b then list.mforall as else return ff
 
-@[inline] def when {m : Type → Type} [monad m] (c : Prop) [h : decidable c] (t : m unit) : m unit :=
+@[inline] def when {m : Type → Type u} [monad m] (c : Prop) [h : decidable c] (t : m unit) : m unit :=
 ite c t (pure ())
 
-@[inline] def unless {m : Type → Type} [monad m] (c : Prop) [h : decidable c] (e : m unit) : m unit :=
+@[inline] def unless {m : Type → Type u} [monad m] (c : Prop) [h : decidable c] (e : m unit) : m unit :=
 ite c (pure ()) e
 
-def mcond {m : Type → Type} [monad m] {α : Type} (mbool : m bool) (tm fm : m α) : m α :=
+def mcond {m : Type → Type u} [monad m] {α : Type} (mbool : m bool) (tm fm : m α) : m α :=
 do b ← mbool, cond b tm fm
 
-def mwhen {m : Type → Type} [monad m] (c : m bool) (t : m unit) : m unit :=
+def mwhen {m : Type → Type u} [monad m] (c : m bool) (t : m unit) : m unit :=
 mcond c t (return ())

@@ -24,6 +24,8 @@ import c"
 #eval show_result module.reader "open me you"
 #eval show_result module.reader "open me as you (a b c) (renaming a->b c->d) (hiding a b)"
 #eval show_result module.reader "open me you."
+#eval show_result module.reader "open open"
+#eval show_result module.reader "open me import open you"
 
 #eval show_result module.reader "open a
 section b

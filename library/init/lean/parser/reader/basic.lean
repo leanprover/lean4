@@ -125,7 +125,7 @@ private def many1_aux (p : read_m syntax) : list syntax → nat → read_m synta
               many1_aux (a::as) n <|> pure (syntax.node ⟨name.anonymous, (a::as).reverse⟩)
 
 def many1 (r : reader) : reader :=
-{ r with read := remaining >>= many1_aux r.read [] }
+{ r with read := do rem ← remaining, many1_aux r.read [] (rem+1) }
 
 def many (r : reader) : reader :=
 { r with read := (many1 r).read <|> pure (syntax.node ⟨name.anonymous, []⟩) }

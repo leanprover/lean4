@@ -29,6 +29,19 @@ error at line 1, column 8:
 expected command
 partial syntax tree:
 (module [] [] [(open "open" [[me [] [] [] []]])])
+error at line 1, column 5:
+expected identifier
+error at line 1, column 9:
+expected identifier
+partial syntax tree:
+(module [] [] [(open "open" [[[]]]) (open "open" [[[]]])])
+error at line 1, column 8:
+expected command
+partial syntax tree:
+(module
+ []
+ []
+ [(open "open" [[me [] [] [] []]]) (open "open" [[you [] [] [] []]])])
 result: 
 (module
  []

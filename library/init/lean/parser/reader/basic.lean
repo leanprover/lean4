@@ -44,7 +44,7 @@ end rec_t
 
 namespace lean
 -- TODO: enhance massively
-def message := string
+abbreviation message := string
 
 namespace parser
 
@@ -59,11 +59,11 @@ structure token_config :=
 
 structure reader_state :=
 (tokens : list token_config)
-(fatal : bool)
+-- note: stored in reverse for efficient append
 (errors : list lean.message)
 
 def reader_state.empty : reader_state :=
-⟨[], ff, []⟩
+⟨[], []⟩
 
 structure reader_config := mk
 
@@ -82,22 +82,27 @@ instance : monad_state reader_state read_m := infer_instance
 instance : monad_parsec syntax read_m := infer_instance
 instance : monad_except (parsec.message syntax) read_m := infer_instance
 
---TODO(Sebastian): expose `reader_state.errors`
 protected def run (cfg : reader_config) (st : reader_state) (s : string) (r : read_m syntax) :
-  except (parsec.message syntax) syntax :=
-do ((a, _), it) ← (((r.run (monad_parsec.error "no recursive parser at top level")).run cfg).run st).parse_with_left_over s,
-   if it.remaining = 0 then except.ok a
-   else except.error { it := it, expected := dlist.singleton ("end of input"), custom := a }
+  syntax × list message :=
+match (((r.run (monad_parsec.error "no recursive parser at top level")).run cfg).run st).parse_with_left_over s with
+| except.ok ((a, st), it) :=
+  let errors :=
+    if it.remaining = 0 then st.errors
+    else to_string { parsec.message . expected := dlist.singleton "end of input", it := it, custom := () } :: st.errors in
+    (a, errors.reverse)
+| except.error msg        := (msg.custom, [to_string msg])
 end read_m
 
+def log_error (e : message) : read_m unit :=
+modify (λ st, {st with errors := to_string e :: st.errors})
 namespace reader
 open monad_parsec
 
 protected def parse (cfg : reader_config) (s : string) (r : reader) :
-  except (parsec.message syntax) syntax :=
+  syntax × list message :=
 -- the only hardcoded tokens, because they are never directly mentioned by a `reader`
 let tokens : list token_config := [⟨"/-", none⟩, ⟨"--", none⟩] in
-r.read.run cfg ⟨r.tokens ++ tokens, ff, []⟩ s
+r.read.run cfg ⟨r.tokens ++ tokens, []⟩ s
 
 namespace combinators
 def node' (m : name) (rs : list reader) : reader :=

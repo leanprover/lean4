@@ -3,15 +3,15 @@ open lean.parser
 open lean.parser.reader
 
 def show_result (p : lean.parser.reader) (s : string) : io unit :=
-match p.parse ⟨⟩ s with
-| except.ok stx  := do
-  guard $ stx.reprint = s,
+let (stx, errors) := p.parse ⟨⟩ s in
+match errors with
+| [] := do
   io.print_ln "result: ",
   io.print_ln (to_string stx)
-| except.error e := do
-  io.print_ln e,
+| _ := do
+  errors.mfor $ λ e, io.print_ln e,
   io.print_ln "partial syntax tree:",
-  io.print_ln (to_string e.custom)
+  io.print_ln (to_string stx)
 
 #eval show_result module.reader "prelude"
 #eval show_result module.reader "import me"

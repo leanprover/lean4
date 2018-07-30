@@ -510,7 +510,7 @@ variables {m : Type → Type} [monad m] {α β : Type}
 def parse (p : parsec μ α) (s : string) (fname := "") : except (message μ) α :=
 run p s fname
 
-def parse_with_eoi (p : parsec' α) (s : string) (fname := "") : except (message unit) α :=
+def parse_with_eoi [inhabited μ] (p : parsec μ α) (s : string) (fname := "") : except (message μ) α :=
 run (p <* eoi) s fname
 
 def parse_with_left_over [inhabited μ] (p : parsec μ α) (s : string) (fname := "") : except (message μ) (α × iterator) :=

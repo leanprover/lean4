@@ -5,7 +5,7 @@ set -eo pipefail
 [[ -z "$2" ]] || exit 0
 
 # remove last line "$n files changed [...]"
-diff=$(git diff --staged --stat | head -n -1)
+diff=$(git diff --staged --stat | grep -v '.*.expected.out' | head -n -1)
 # take file with most changes
 file=$(echo "$diff" | sort -n -k 3 | tail -n 1)
 # extract filename

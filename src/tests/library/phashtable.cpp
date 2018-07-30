@@ -230,6 +230,20 @@ void tst10(unsigned num, unsigned seed) {
     }
 }
 
+void tst11(unsigned num, unsigned seed) {
+    timeit t(std::cout, "unordered_map + finalization");
+    std::unordered_map<unsigned, unsigned, std::hash<unsigned>, std::equal_to<unsigned>> m;
+    {
+        timeit t(std::cout, "unordered_map");
+        std::mt19937   rng;
+        rng.seed(seed);
+        std::uniform_int_distribution<unsigned int> uint_dist;
+        for (unsigned i = 0; i < num; i++) {
+            m.insert(std::make_pair(uint_dist(rng), uint_dist(rng)));
+        }
+    }
+}
+
 int main() {
     save_stack_info();
     initialize_util_module();
@@ -250,6 +264,7 @@ int main() {
     tst8(10000000, 2);
     tst9(10000000, 2);
     tst10(10000000, 2);
+    tst11(10000000, 2);
 #endif
     finalize_library_module();
     finalize_library_core_module();

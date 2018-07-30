@@ -4,6 +4,10 @@ open lean.parser.reader
 
 def show_result (p : lean.parser.reader) (s : string) : io unit :=
 let (stx, errors) := p.parse ⟨⟩ s in
+when (stx.reprint ≠ s) (
+  io.print_ln "reprint fail:" *>
+  io.print_ln stx.reprint
+) *>
 match errors with
 | [] := do
   io.print_ln "result: ",

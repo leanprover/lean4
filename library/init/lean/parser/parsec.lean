@@ -443,7 +443,7 @@ def sep_by [alternative m] (p : m α) (sep : m β) : m (list α) :=
 sep_by1 p sep <|> return []
 
 def fix_aux [alternative m] (f : m α → m α) : nat → m α
-| 0     := failure
+| 0     := error "fix_aux: no progress"
 | (n+1) := f (fix_aux n)
 
 def fix [alternative m] (f : m α → m α) : m α :=
@@ -493,7 +493,7 @@ do it ← left_over,
              else if nat.lt msg'.it.offset msg.it.offset then result.error msg tt
              else result.error (merge msg msg') tt
            | _ := r))
-    (parsec.failure it),
+    ((error "longest_match: empty list" : parsec _ _) it),
     lift $ λ _, r
 end monad_parsec
 

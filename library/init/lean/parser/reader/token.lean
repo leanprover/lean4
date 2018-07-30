@@ -110,19 +110,22 @@ do (r, i) ← with_source_info $ do {
 def symbol (sym : string) : reader :=
 { tokens := [⟨sym, none⟩],
   read := try $ do
-    stx@(syntax.atom ⟨_, atomic_val.string sym'⟩) ← token | error "" (dlist.singleton (repr sym)),
+    it ← left_over,
+    stx@(syntax.atom ⟨_, atomic_val.string sym'⟩) ← token | error "" (dlist.singleton (repr sym)) it,
     when (sym ≠ sym') $
-      error "" (dlist.singleton (repr sym)),
+      error "" (dlist.singleton (repr sym)) it,
     pure stx }
 
 def number : reader :=
 { read := try $ do
-    stx@(syntax.node ⟨`base10_lit, _⟩) ← token | error "" (dlist.singleton "number"),
+    it ← left_over,
+    stx@(syntax.node ⟨`base10_lit, _⟩) ← token | error "" (dlist.singleton "number") it,
     pure stx }
 
 def ident : reader :=
 { read := try $ do
-    stx@(syntax.ident _) ← token | error "" (dlist.singleton "identifier"),
+    it ← left_over,
+    stx@(syntax.ident _) ← token | error "" (dlist.singleton "identifier") it,
     pure stx }
 
 end reader

@@ -139,7 +139,7 @@ def optional (r : reader) : reader :=
     readers should instead produce distinct node names for disambiguation. -/
 def any_of (rs : list reader) : reader :=
 { read   := (match rs with
-    | [] := failure
+    | [] := error "any_of"
     | (r::rs) := (rs.map reader.read).foldl (<|>) r.read),
   tokens := (rs.map reader.tokens).join }
 

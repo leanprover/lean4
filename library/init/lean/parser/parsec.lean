@@ -153,26 +153,18 @@ def try (p : parsec μ α) : parsec μ α :=
 
 /--
   The `orelse p q` combinator behaves as follows:
-  1- If `p` consumed input, then return result produced by `p`
-     even if it produced an error.
+  1- If `p` succeeds *or* consumes input, return
+     its result. Otherwise, execute `q` and return its
+     result.
      Recall that the `try p` combinator can be used to
      pretend that `p` did not consume any input, and
      simulate infinite lookahead.
-  2- If `p` did not consume any input, and `q` consumed
-     input, then return result produced by `q`.
-     Note that, `q`'s result is returned even if
-     `p` succeeded without consuming input.
-  3- If `p` and `q` did not consume any input, then
-     it combines their error messages (even if one of
+  2- If both `p` and `q` did not consume any input, then
+     combine their error messages (even if one of
      them succeeded).
 -/
 protected def orelse (p q : parsec μ α) : parsec μ α :=
 λ it, match p it with
-      | ok_eps a it' ex₁ :=
-        (match q it with
-         | ok_eps _ _ ex₂ := ok_eps a it' (ex₁ ++ ex₂)
-         | error msg₂ ff  := ok_eps a it' (ex₁ ++ msg₂.expected)
-         | other          := other)
       | error msg₁ ff :=
         (match q it with
          | ok_eps a it' ex₂ := ok_eps a it' (msg₁.expected ++ ex₂)

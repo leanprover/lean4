@@ -118,14 +118,19 @@ private def commands_aux : bool → list syntax → nat → read_m syntax
       -- unknown command: try to skip token, or else single character
       when (¬ recovering) $ do {
         it ← left_over,
-        log_error $ to_string { parsec.message . expected := dlist.singleton "command", it := it, custom := () }
+        read_m.log_error $ to_string { parsec.message . expected := dlist.singleton "command", it := it, custom := () }
       },
-      catch (token *> pure ()) (λ _,  any *> pure ()),
+      tk_start ← reader_state.token_start <$> get,
+      -- since the output of the following parser is never captured in a syntax tree...
+      try (token *> pure ()) <|> (any *> pure ()),
+      -- ...restore `token_start` after it
+      modify $ λ st, {st with token_start := tk_start},
       pure (tt, none)
     }) $ λ msg, do {
       -- error inside command: advance input to error position, log error, return partial syntax tree
       set_iterator msg.it,
-      modify (λ st, {st with errors := to_string msg :: st.errors}),
+      modify $ λ st, {st with token_start := msg.it},
+      read_m.log_error (to_string msg),
       pure (tt, some msg.custom)
     },
   commands_aux recovering (c.to_monad++cs) n

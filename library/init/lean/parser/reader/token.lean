@@ -62,13 +62,16 @@ do start ← left_over,
    pure ⟨start, stop⟩
 
 def with_source_info {α : Type} (r : read_m α) : read_m (α × source_info) :=
-do leading ← whitespace,
-   p ← pos,
+do token_start ← reader_state.token_start <$> get,
+   whitespace,
+   it ← left_over,
    a ← r,
    -- TODO(Sebastian): less greedy, more natural whitespace assignement
    -- E.g. only read up to the next line break
    trailing ← whitespace,
-   pure (a, ⟨leading, p, trailing⟩)
+   it2 ← left_over,
+   modify $ λ st, {st with token_start := it2},
+   pure (a, ⟨⟨token_start, it⟩, it.offset, trailing⟩)
 
 /-- Match a string literally without consulting the token table. -/
 def raw_symbol (sym : string) : reader :=

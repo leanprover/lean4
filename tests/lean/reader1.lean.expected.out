@@ -1,77 +1,83 @@
 result: 
-(module [(prelude "prelude")] [] [])
+[(module [(prelude "prelude")] [] []) (eoi "")]
 result: 
-(module [] [(import "import" [(import_path [] me)])] [])
+[(module [] [(import "import" [(import_path [] me)])] []) (eoi "")]
 error at line 1, column 0:
 expected command
 partial syntax tree:
-(module [] [] [])
+[(module [] [] []) (eoi "")]
 result: 
-(module
- [(prelude "prelude")]
- [(import "import" [(import_path ["." "."] a) (import_path [] b)])
-  (import "import" [(import_path [] c)])]
- [])
+[(module
+  [(prelude "prelude")]
+  [(import "import" [(import_path ["." "."] a) (import_path [] b)])
+   (import "import" [(import_path [] c)])]
+  [])
+ (eoi "")]
 result: 
-(module [] [] [(open "open" [[me [] [] [] []] [you [] [] [] []]])])
+[(module [] [] [(open "open" [[me [] [] [] []] [you [] [] [] []]])]) (eoi "")]
 result: 
-(module
- []
- []
- [(open
-   "open"
-   [[me
-     [["as" you]]
-     [[["(" a] [b c] ")"]]
-     [[["(" "renaming"] [[a "->" b] [c "->" d]] ")"]]
-     [["(" "hiding" [a b] ")"]]]])])
+[(module
+  []
+  []
+  [(open
+    "open"
+    [[me
+      [["as" you]]
+      [[["(" a] [b c] ")"]]
+      [[["(" "renaming"] [[a "->" b] [c "->" d]] ")"]]
+      [["(" "hiding" [a b] ")"]]]])])
+ (eoi "")]
 error at line 1, column 8:
 expected command
 partial syntax tree:
-(module [] [] [(open "open" [[me [] [] [] []]])])
+[(module [] [] [(open "open" [[me [] [] [] []]])]) (eoi "")]
 error at line 1, column 5:
 expected identifier
 error at line 1, column 9:
 expected identifier
 partial syntax tree:
-(module [] [] [(open "open" [[[]]]) (open "open" [[[]]])])
+[(module [] [] [(open "open" [[[]]]) (open "open" [[[]]])]) (eoi "")]
 error at line 1, column 8:
 expected command
 partial syntax tree:
-(module
- []
- []
- [(open "open" [[me [] [] [] []]]) (open "open" [[you [] [] [] []]])])
+[(module
+  []
+  []
+  [(open "open" [[me [] [] [] []]]) (open "open" [[you [] [] [] []]])])
+ (eoi "")]
 result: 
-(module
- []
- []
- [(open "open" [[a [] [] [] []]])
-  (section
-   "section"
-   [b]
-   [(open "open" [[c [] [] [] []]])
-    (section "section" [d] [(open "open" [[e [] [] [] []]])] "end" [d])]
-   "end"
-   [b])])
+[(module
+  []
+  []
+  [(open "open" [[a [] [] [] []]])
+   (section
+    "section"
+    [b]
+    [(open "open" [[c [] [] [] []]])
+     (section "section" [d] [(open "open" [[e [] [] [] []]])] "end" [d])]
+    "end"
+    [b])])
+ (eoi "")]
 result: 
-(module [] [] [(section "section" [a] [] "end" [])])
+[(module [] [] [(section "section" [a] [] "end" [])]) (eoi "")]
 result: 
-(module
- []
- []
- [(notation "notation" [[] [[["`" "Prop" "`" []] []]]] ":=" (hole "_"))])
+[(module
+  []
+  []
+  [(notation "notation" [[] [[["`" "Prop" "`" []] []]]] ":=" (hole "_"))])
+ (eoi "")]
 error at line 10, column 19:
 expected "_"
 error at line 11, column 26:
 expected "_"
 partial syntax tree:
-(module
- [(prelude "prelude")]
- []
- [(notation "notation" [[] [[["`" "Prop" "`" []] []]]] ":=" (hole []))
-  (notation
-   "notation"
-   [[f] [[["`" "$ " "`" [[":" (base10_lit "1")]]] [[a [[":" (base10_lit "0")]]]]]]]
-   ":="
-   (hole []))])
+[(module
+  [(prelude "prelude")]
+  []
+  [(notation "notation" [[] [[["`" "Prop" "`" []] []]]] ":=" (hole []))
+   (notation
+    "notation"
+    [[f] [[["`" "$ " "`" [[":" (base10_lit "1")]]] [[a [[":" (base10_lit "0")]]]]]]]
+    ":="
+    (hole []))])
+ (eoi "")]

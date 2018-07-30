@@ -61,9 +61,11 @@ structure reader_state :=
 (tokens : list token_config)
 -- note: stored in reverse for efficient append
 (errors : list lean.message)
-
-def reader_state.empty : reader_state :=
-⟨[], []⟩
+/- Start position of the current token. This might not be equal to the parser
+   position for two reasons:
+   * We plan to eagerly parse leading whitespace so as not to do so multiple times
+   * During error recovery, skipped input should be associated to the next token -/
+(token_start : string.iterator)
 
 structure reader_config := mk
 
@@ -84,17 +86,14 @@ instance : monad_except (parsec.message syntax) read_m := infer_instance
 
 protected def run (cfg : reader_config) (st : reader_state) (s : string) (r : read_m syntax) :
   syntax × list message :=
-match (((r.run (monad_parsec.error "no recursive parser at top level")).run cfg).run st).parse_with_left_over s with
-| except.ok ((a, st), it) :=
-  let errors :=
-    if it.remaining = 0 then st.errors
-    else to_string { parsec.message . expected := dlist.singleton "end of input", it := it, custom := () } :: st.errors in
-    (a, errors.reverse)
-| except.error msg        := (msg.custom, [to_string msg])
-end read_m
+match (((r.run (monad_parsec.error "no recursive parser at top level")).run cfg).run st).parse_with_eoi s with
+| except.ok (a, st) := (a, st.errors.reverse)
+| except.error msg  := (msg.custom, [to_string msg])
 
 def log_error (e : message) : read_m unit :=
 modify (λ st, {st with errors := to_string e :: st.errors})
+end read_m
+
 namespace reader
 open monad_parsec
 
@@ -102,7 +101,18 @@ protected def parse (cfg : reader_config) (s : string) (r : reader) :
   syntax × list message :=
 -- the only hardcoded tokens, because they are never directly mentioned by a `reader`
 let tokens : list token_config := [⟨"/-", none⟩, ⟨"--", none⟩] in
-r.read.run cfg ⟨r.tokens ++ tokens, []⟩ s
+do {
+  stx ← catch r.read $ λ (msg : parsec.message _), read_m.log_error (to_string msg) *> pure msg.custom,
+  whitespace,
+  -- add `eoi` node and store any residual input in its prefix
+  catch eoi $ λ msg, read_m.log_error (to_string msg),
+  tk_start ← reader_state.token_start <$> get,
+  let stop := tk_start.to_end in
+  pure $ syntax.node ⟨name.anonymous, [
+    stx,
+    syntax.node ⟨`eoi, [syntax.atom ⟨some ⟨⟨tk_start, stop⟩, stop.offset, ⟨stop, stop⟩⟩, atomic_val.string ""⟩]⟩
+  ]⟩
+}.run cfg ⟨r.tokens ++ tokens, [], s.mk_iterator⟩ s
 
 namespace combinators
 def node' (m : name) (rs : list reader) : reader :=

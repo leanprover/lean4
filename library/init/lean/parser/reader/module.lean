@@ -59,6 +59,16 @@ def «section» := {macro . name := `section}
 def section.reader : reader :=
 node «section» ["section", ident?, recurse*, "end", ident?]
 
+def «universe» := {macro . name := `universe}
+
+def universe.reader :=
+node «universe» [any_of [
+  -- local
+  [try ["universe", "variables"], ident+],
+  -- global
+  [any_of [["universes", ident+], ["universe", ident]]]
+]]
+
 def «notation» := {macro . name := `notation}
 
 def prec : reader := [":", number]/-TODO <|> expr-/
@@ -67,7 +77,7 @@ def quoted_symbol : read_m syntax :=
 do (s, info) ← with_source_info $ take_until (= '`'),
    pure $ syntax.atom ⟨info, atomic_val.string s⟩
 
-def notation_tk :=
+def notation_symbol :=
 any_of [
   [raw_symbol "`", {read := quoted_symbol}, raw_symbol "`", prec?]
   --TODO, {read := do tk ← token, /- check if reserved token-/}
@@ -89,7 +99,7 @@ def notation_reader : reader :=
 any_of [
   number,
   [ident?,
-   [notation_tk,
+   [notation_symbol,
     (any_of [
       ["binder", prec?],
       ["binders", prec?],
@@ -102,8 +112,28 @@ any_of [
 def notation.reader : reader :=
 node «notation» ["notation", notation_reader, ":=", term.reader]
 
+def reserve_notation : macro := {macro . name := `reserve_notation}
+
+def reserve_notation.reader : reader :=
+node «reserve_notation» [try ["reserve", "notation"], notation_reader]
+
+def mixfix : macro := {macro . name := `mixfix}
+
+def mixfix.reader : reader :=
+node «mixfix» [
+  any_of ["prefix", "infix", "infixl", "infixr", "postfix"],
+  notation_symbol, ":=", term.reader]
+
+def reserve_mixfix : macro := {macro . name := `reserve_mixfix}
+
+def reserve_mixfix.reader : reader :=
+node «reserve_mixfix» [
+  try ["reserve", any_of ["prefix", "infix", "infixl", "infixr", "postfix"]],
+  notation_symbol]
+
 def command.reader :=
-with_recurse $ any_of [open.reader, section.reader, notation.reader] <?> "command"
+with_recurse $ any_of [open.reader, section.reader, universe.reader, notation.reader, reserve_notation.reader,
+  mixfix.reader, reserve_mixfix.reader] <?> "command"
 
 /-- Read commands, recovering from errors inside commands (attach partial syntax tree)
     as well as unknown commands (skip input). -/

@@ -70,6 +70,8 @@ error at line 10, column 19:
 expected "_"
 error at line 11, column 26:
 expected "_"
+error at line 85, column 0:
+expected command
 partial syntax tree:
 [(module
   [(prelude "prelude")]
@@ -79,5 +81,56 @@ partial syntax tree:
     "notation"
     [[f] [[["`" "$ " "`" [[":" (base10_lit "1")]]] [[a [[":" (base10_lit "0")]]]]]]]
     ":="
-    (hole []))])
+    (hole []))
+   (reserve_mixfix ["reserve" "prefix"] ["`" "¬" "`" [[":" (base10_lit "40")]]])
+   (reserve_mixfix ["reserve" "prefix"] ["`" "~" "`" [[":" (base10_lit "40")]]])
+   (reserve_mixfix ["reserve" "infixr"] ["`" "∧ " "`" [[":" (base10_lit "35")]]])
+   (reserve_mixfix ["reserve" "infixr"] ["`" "/\\ " "`" [[":" (base10_lit "35")]]])
+   (reserve_mixfix ["reserve" "infixr"] ["`" "\\/ " "`" [[":" (base10_lit "30")]]])
+   (reserve_mixfix ["reserve" "infixr"] ["`" "∨ " "`" [[":" (base10_lit "30")]]])
+   (reserve_mixfix ["reserve" "infix"] ["`" "<-> " "`" [[":" (base10_lit "20")]]])
+   (reserve_mixfix ["reserve" "infix"] ["`" "↔ " "`" [[":" (base10_lit "20")]]])
+   (reserve_mixfix ["reserve" "infix"] ["`" "= " "`" [[":" (base10_lit "50")]]])
+   (reserve_mixfix ["reserve" "infix"] ["`" "== " "`" [[":" (base10_lit "50")]]])
+   (reserve_mixfix ["reserve" "infix"] ["`" "≠ " "`" [[":" (base10_lit "50")]]])
+   (reserve_mixfix ["reserve" "infix"] ["`" "≈ " "`" [[":" (base10_lit "50")]]])
+   (reserve_mixfix ["reserve" "infix"] ["`" "~ " "`" [[":" (base10_lit "50")]]])
+   (reserve_mixfix ["reserve" "infix"] ["`" "≡ " "`" [[":" (base10_lit "50")]]])
+   (reserve_mixfix ["reserve" "infixl"] ["`" "⬝ " "`" [[":" (base10_lit "75")]]])
+   (reserve_mixfix ["reserve" "infixr"] ["`" "▸ " "`" [[":" (base10_lit "75")]]])
+   (reserve_mixfix ["reserve" "infixr"] ["`" "▹ " "`" [[":" (base10_lit "75")]]])
+   (reserve_mixfix ["reserve" "infixr"] ["`" "⊕ " "`" [[":" (base10_lit "30")]]])
+   (reserve_mixfix ["reserve" "infixr"] ["`" "× " "`" [[":" (base10_lit "35")]]])
+   (reserve_mixfix ["reserve" "infixl"] ["`" "+ " "`" [[":" (base10_lit "65")]]])
+   (reserve_mixfix ["reserve" "infixl"] ["`" "- " "`" [[":" (base10_lit "65")]]])
+   (reserve_mixfix ["reserve" "infixl"] ["`" "* " "`" [[":" (base10_lit "70")]]])
+   (reserve_mixfix ["reserve" "infixl"] ["`" "/ " "`" [[":" (base10_lit "70")]]])
+   (reserve_mixfix ["reserve" "infixl"] ["`" "% " "`" [[":" (base10_lit "70")]]])
+   (reserve_mixfix ["reserve" "infixl"] ["`" "%ₙ " "`" [[":" (base10_lit "70")]]])
+   (reserve_mixfix ["reserve" "prefix"] ["`" "-" "`" [[":" (base10_lit "100")]]])
+   (reserve_mixfix ["reserve" "infixr"] ["`" "^ " "`" [[":" (base10_lit "80")]]])
+   (reserve_mixfix ["reserve" "infixr"] ["`" "∘ " "`" [[":" (base10_lit "90")]]])
+   (reserve_mixfix ["reserve" "infix"] ["`" "<= " "`" [[":" (base10_lit "50")]]])
+   (reserve_mixfix ["reserve" "infix"] ["`" "≤ " "`" [[":" (base10_lit "50")]]])
+   (reserve_mixfix ["reserve" "infix"] ["`" "< " "`" [[":" (base10_lit "50")]]])
+   (reserve_mixfix ["reserve" "infix"] ["`" ">= " "`" [[":" (base10_lit "50")]]])
+   (reserve_mixfix ["reserve" "infix"] ["`" "≥ " "`" [[":" (base10_lit "50")]]])
+   (reserve_mixfix ["reserve" "infix"] ["`" "> " "`" [[":" (base10_lit "50")]]])
+   (reserve_mixfix ["reserve" "prefix"] ["`" "!" "`" [[":" (base10_lit "40")]]])
+   (reserve_mixfix ["reserve" "infixl"] ["`" "&& " "`" [[":" (base10_lit "35")]]])
+   (reserve_mixfix ["reserve" "infixl"] ["`" "|| " "`" [[":" (base10_lit "30")]]])
+   (reserve_mixfix ["reserve" "infix"] ["`" "∈ " "`" [[":" (base10_lit "50")]]])
+   (reserve_mixfix ["reserve" "infix"] ["`" "∉ " "`" [[":" (base10_lit "50")]]])
+   (reserve_mixfix ["reserve" "infixl"] ["`" "∩ " "`" [[":" (base10_lit "70")]]])
+   (reserve_mixfix ["reserve" "infixl"] ["`" "∪ " "`" [[":" (base10_lit "65")]]])
+   (reserve_mixfix ["reserve" "infix"] ["`" "⊆ " "`" [[":" (base10_lit "50")]]])
+   (reserve_mixfix ["reserve" "infix"] ["`" "⊇ " "`" [[":" (base10_lit "50")]]])
+   (reserve_mixfix ["reserve" "infix"] ["`" "⊂ " "`" [[":" (base10_lit "50")]]])
+   (reserve_mixfix ["reserve" "infix"] ["`" "⊃ " "`" [[":" (base10_lit "50")]]])
+   (reserve_mixfix ["reserve" "infix"] ["`" "\\ " "`" [[":" (base10_lit "70")]]])
+   (reserve_mixfix ["reserve" "infix"] ["`" "∣ " "`" [[":" (base10_lit "50")]]])
+   (reserve_mixfix ["reserve" "infixl"] ["`" "++ " "`" [[":" (base10_lit "65")]]])
+   (reserve_mixfix ["reserve" "infixr"] ["`" ":: " "`" [[":" (base10_lit "67")]]])
+   (reserve_mixfix ["reserve" "infixl"] ["`" "; " "`" [[":" (base10_lit "1")]]])
+   (universe [["universes" [u v w]]])])
  (eoi "")]

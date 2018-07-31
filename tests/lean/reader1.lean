@@ -47,4 +47,4 @@ end b"
 -- slowly progressing...
 #eval do
   s ← io.fs.read_file "../../library/init/core.lean",
-  show_result module.reader $ (s.mk_iterator.nextn 300).prev_to_string
+  show_result module.reader $ (s.mk_iterator.nextn 1700).prev_to_string

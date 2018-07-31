@@ -3457,7 +3457,7 @@ auto vm_state::profiler::get_snapshots() -> snapshots {
     stop();
     snapshots r;
     r.m_total_time = chrono::milliseconds(0);
-    std::unordered_map<name, chrono::milliseconds, name_hash> cum_times;
+    std::unordered_map<name, pair<chrono::milliseconds, chrono::milliseconds>, name_hash> timings;
     for (snapshot_core const & s : m_snapshots) {
         snapshot new_s;
         new_s.m_duration       = s.m_duration;
@@ -3465,7 +3465,8 @@ auto vm_state::profiler::get_snapshots() -> snapshots {
         r.m_total_time        += s.m_duration;
         auto & new_stack = new_s.m_stack;
         std::unordered_set<name, name_hash> decl_already_seen_in_this_stack;
-        for (auto const & p : s.m_stack) {
+        for (unsigned i = 0; i < s.m_stack.size(); i++) {
+            auto const & p = s.m_stack[i];
             vm_decl const * decl = m_state.m_decl_map.find(p.first);
             lean_assert(decl);
             name decl_name = decl->get_name();
@@ -3485,16 +3486,19 @@ auto vm_state::profiler::get_snapshots() -> snapshots {
 
             if (decl_already_seen_in_this_stack.insert(decl_name).second) {
                 // not seen before in this stack
-                cum_times[decl_name] += s.m_duration;
+                timings[decl_name].first += s.m_duration;
             }
+
+            if (i == s.m_stack.size() - 1)
+                // self time
+                timings[decl_name].second += s.m_duration;
         }
         r.m_snapshots.push_back(new_s);
     }
 
-    for (auto & cum_time_entry : cum_times) r.m_cum_times.push_back(cum_time_entry);
-    std::sort(r.m_cum_times.begin(), r.m_cum_times.end(),
-              [] (pair<name, chrono::milliseconds> & a, pair<name, chrono::milliseconds> & b) {
-                  return b.second < a.second; });
+    for (auto & t : timings) r.m_timings.push_back(timing { t.first, t.second.first, t.second.second });
+    std::sort(r.m_timings.begin(), r.m_timings.end(), [] (timing & a, timing & b) {
+        return b.m_cum_time < a.m_cum_time; });
 
     return r;
 }
@@ -3520,11 +3524,14 @@ void vm_state::profiler::snapshots::display(std::ostream & out) const {
         if (c.m_num_mpz_allocs > 0)
             out << "num. allocated big nums: " << c.m_num_mpz_allocs << "\n";
     }
-    for (auto & cum_time : m_cum_times) {
-        out << std::setw(5) << cum_time.second.count() << "ms   "
+    for (auto & timing : m_timings) {
+        out << std::setw(5) << timing.m_cum_time.count() << "ms   "
             << std::setw(5) << std::fixed << std::setprecision(1)
-            << (100.0f * cum_time.second.count()) / m_total_time.count() << "%   "
-            << cum_time.first << "\n";
+            << (100.0f * timing.m_cum_time.count()) / m_total_time.count() << "%   "
+            << std::setw(5) << timing.m_self_time.count() << "ms   "
+            << std::setw(5) << std::fixed << std::setprecision(1)
+            << (100.0f * timing.m_self_time.count()) / m_total_time.count() << "%   "
+            << timing.m_name << "\n";
     }
 #if 0
     unsigned i = 0;

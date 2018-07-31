@@ -826,10 +826,15 @@ public:
             performance_counters              m_perf_counters;
         };
 
+        struct timing {
+            name                 m_name;
+            chrono::milliseconds m_cum_time, m_self_time;
+        };
+
         struct snapshots {
-            std::vector<snapshot>                         m_snapshots;
-            std::vector<pair<name, chrono::milliseconds>> m_cum_times;
-            chrono::milliseconds                          m_total_time;
+            std::vector<snapshot> m_snapshots;
+            std::vector<timing>   m_timings;
+            chrono::milliseconds  m_total_time;
             bool display(std::string const & what, options const & opts, std::ostream & out) const;
             void display(std::ostream & out) const;
         };

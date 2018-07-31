@@ -157,8 +157,7 @@ private def commands_aux : bool → list syntax → nat → read_m syntax
       modify $ λ st, {st with token_start := tk_start},
       pure (tt, none)
     }) $ λ msg, do {
-      -- error inside command: advance input to error position, log error, return partial syntax tree
-      set_iterator msg.it,
+      -- error inside command: log error, return partial syntax tree
       modify $ λ st, {st with token_start := msg.it},
       read_m.log_error (to_string msg),
       pure (tt, some msg.custom)

@@ -111,7 +111,10 @@ instance : monad_fail parsec' :=
 instance : monad_except (message μ) (parsec μ) :=
 { throw := λ _ msg it, error msg ff,
   catch := λ _ p c it, match p it with
-    | error msg _ := c msg it
+    | error msg cns :=
+      (match c msg msg.it with
+       | error msg' cns' := error msg' (cns || cns')
+       | other := other)
     | other       := other }
 
 def expect (msg : message μ) (exp : string) : message μ :=
@@ -214,11 +217,6 @@ lift $ λ it', result.error { unexpected := unexpected, expected := expected, it
 
 def left_over : m iterator :=
 lift $ λ it, result.mk_eps it it
-
-/-- Replace the input iterator. This is usually used to change the parser
-    position inside the same input string. -/
-def set_iterator (it : iterator) : m unit :=
-lift $ λ _, result.ok () it
 
 /-- Return the number of characters left to be parsed. -/
 def remaining : m nat :=
@@ -411,7 +409,7 @@ string.iterator.offset <$> left_over
 
 @[inline] def not_followed_by [monad_except message m] (p : m α) (msg : string := "input") : m unit :=
 do it ← left_over,
-   b ← catch (p >> return ff) (λ _, return tt),
+   b ← lookahead $ catch (p >> return ff) (λ _, return tt),
    if b then pure () else error msg dlist.empty it
 
 def eoi : m unit :=
@@ -484,8 +482,8 @@ error msg dlist.empty it
 def longest_match [monad_except (message μ) m] (ps : list (m α)) : m (list α) :=
 do it ← left_over,
    r ← ps.mfoldr (λ p (r : result μ (list α)),
-     catch
-       (lookahead $ do
+     lookahead $ catch
+       (do
          a ← p,
          it ← left_over,
          pure $ match r with

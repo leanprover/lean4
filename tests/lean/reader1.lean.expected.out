@@ -6,6 +6,12 @@ error at line 1, column 0:
 expected command
 partial syntax tree:
 [(module [] [] []) (eoi "")]
+reprint fail:
+importimport
+error at line 1, column 6:
+expected "." or identifier
+partial syntax tree:
+[(module [] [(import "import" [(import_path [] [])])]) (eoi "")]
 result: 
 [(module
   [(prelude "prelude")]

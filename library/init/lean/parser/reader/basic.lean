@@ -102,7 +102,11 @@ protected def parse (cfg : reader_config) (s : string) (r : reader) :
 -- the only hardcoded tokens, because they are never directly mentioned by a `reader`
 let tokens : list token_config := [⟨"/-", none⟩, ⟨"--", none⟩] in
 do {
-  stx ← catch r.read $ λ (msg : parsec.message _), read_m.log_error (to_string msg) *> pure msg.custom,
+  stx ← catch r.read $ λ (msg : parsec.message _), do {
+    modify $ λ st, {st with token_start := msg.it},
+    read_m.log_error (to_string msg),
+    pure msg.custom
+  },
   whitespace,
   -- add `eoi` node and store any residual input in its prefix
   catch eoi $ λ msg, read_m.log_error (to_string msg),

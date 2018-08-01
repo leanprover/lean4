@@ -19,7 +19,7 @@ name * quot_consts::g_quot_ind  = nullptr;
 name * quot_consts::g_quot_mk   = nullptr;
 
 static environment add_constant(environment const & env, name const & n, std::initializer_list<name> lvls, expr const & type) {
-    auto cd = check(env, mk_constant_assumption(n, level_param_names(lvls), type));
+    auto cd = check(env, mk_axiom(n, level_param_names(lvls), type));
     return env.add(cd);
 }
 

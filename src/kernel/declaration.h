@@ -173,22 +173,20 @@ public:
 
 /*
 inductive declaration
-| const_decl  (val : constant_val)
-| defn_decl   (val : definition_val)
 | axiom_decl  (val : axiom_val)
+| defn_decl   (val : definition_val)
 | thm_decl    (val : theorem_val)
 | induct_decl (val : inductive_val)
 | cnstr_decl  (val : constructor_val)
 | rec_decl    (val : recursor_val)
 */
-enum class declaration_kind { Constant, Definition, Axiom, Theorem, Inductive, Constructor, Recursor };
+enum class declaration_kind { Axiom, Definition, Theorem, Inductive, Constructor, Recursor };
 class declaration : public object_ref {
     explicit declaration(object * o):object_ref(o) {}
     explicit declaration(object_ref const & o):object_ref(o) {}
     static object * mk_declaration_val(name const & n, level_param_names const & params, expr const & t);
-    static object * mk_constant_val(name const & n, level_param_names const & params, expr const & t, bool meta);
     static object * mk_definition_val(name const & n, level_param_names const & params, expr const & t, expr const & v, reducibility_hints const & h, bool meta);
-    static object * mk_axiom_val(name const & n, level_param_names const & params, expr const & t);
+    static object * mk_axiom_val(name const & n, level_param_names const & params, expr const & t, bool meta);
     static object * mk_theorem_val(name const & n, level_param_names const & params, expr const & t, expr const & v);
     static object * mk_inductive_val(name const & n, level_param_names const & params, expr const & t, unsigned nparams, unsigned nindices,
                                      names const & all, names const & cnstrs, names const & recs, bool is_rec, bool is_meta);
@@ -198,7 +196,7 @@ class declaration : public object_ref {
 
     object * get_val_obj() const { return cnstr_obj(raw(), 0); }
     object_ref const & to_val() const { return cnstr_obj_ref(*this, 0); }
-    declaration_val const & to_declaration_val() const { return static_cast<declaration_val const &>(kind() == declaration_kind::Axiom ? to_val() : cnstr_obj_ref(to_val(), 0)); }
+    declaration_val const & to_declaration_val() const { return static_cast<declaration_val const &>(cnstr_obj_ref(to_val(), 0)); }
 public:
     declaration();
     declaration(declaration const & other):object_ref(other) {}
@@ -210,7 +208,6 @@ public:
 
     friend bool is_eqp(declaration const & d1, declaration const & d2) { return d1.raw() == d2.raw(); }
 
-    bool is_constant_assumption() const { return kind() == declaration_kind::Constant; }
     bool is_definition() const { return kind() == declaration_kind::Definition; }
     bool is_axiom() const { return kind() == declaration_kind::Axiom; }
     bool is_theorem() const { return kind() == declaration_kind::Theorem; }
@@ -236,8 +233,7 @@ public:
     friend declaration mk_definition(environment const & env, name const & n, level_param_names const & params, expr const & t,
                                      expr const & v, bool meta);
     friend declaration mk_theorem(name const &, level_param_names const &, expr const &, expr const &);
-    friend declaration mk_axiom(name const & n, level_param_names const & params, expr const & t);
-    friend declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t, bool meta);
+    friend declaration mk_axiom(name const & n, level_param_names const & params, expr const & t, bool meta);
     friend declaration mk_inductive(name const & n, level_param_names const & params, expr const & t, unsigned nparams, unsigned nindices,
                                     names const & all, names const & cnstrs, names const & recs, bool is_rec, bool is_meta);
     friend declaration mk_constructor(name const & n, level_param_names const & params, expr const & t, name const & induct, unsigned nparams,
@@ -263,8 +259,7 @@ declaration mk_definition(environment const & env, name const & n, level_param_n
                           bool meta = false);
 declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v);
 declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v);
-declaration mk_axiom(name const & n, level_param_names const & params, expr const & t);
-declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t, bool meta = false);
+declaration mk_axiom(name const & n, level_param_names const & params, expr const & t, bool meta = false);
 
 /** \brief Return true iff \c e depends on meta-declarations */
 bool use_meta(environment const & env, expr const & e);
@@ -275,10 +270,10 @@ declaration mk_definition_inferring_meta(environment const & env, name const & n
                                          expr const & t, expr const & v, reducibility_hints const & hints);
 declaration mk_definition_inferring_meta(environment const & env, name const & n, level_param_names const & params,
                                          expr const & t, expr const & v);
-/** \brief Similar to mk_constant_assumption but infer the value of meta flag.
+/** \brief Similar to mk_axiom but infer the value of meta flag.
     That is, set it to true if \c t or \c v contains a meta declaration. */
-declaration mk_constant_assumption_inferring_meta(environment const & env, name const & n,
-                                                  level_param_names const & params, expr const & t);
+declaration mk_axiom_inferring_meta(environment const & env, name const & n,
+                                    level_param_names const & params, expr const & t);
 
 declaration mk_inductive(name const & n, level_param_names const & params, expr const & t, unsigned nparams, unsigned nindices,
                          names const & all, names const & cnstrs, names const & recs, bool is_rec, bool is_meta);

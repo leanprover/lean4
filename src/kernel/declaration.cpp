@@ -44,7 +44,7 @@ recursor_rule::recursor_rule(name const & cnstr, unsigned nfields, expr const & 
 }
 
 static unsigned definition_scalar_offset() { return sizeof(object*)*3; }
-static unsigned constant_scalar_offset() { return sizeof(object*); }
+static unsigned axiom_scalar_offset() { return sizeof(object*); }
 static unsigned inductive_scalar_offset() { return sizeof(object*)*6; }
 static unsigned constructor_scalar_offset() { return sizeof(object*)*3; }
 static unsigned recursor_scalar_offset() { return sizeof(object*)*7; }
@@ -63,10 +63,10 @@ object * declaration::mk_declaration_val(name const & n, level_param_names const
     return r;
 }
 
-object * declaration::mk_constant_val(name const & n, level_param_names const & params, expr const & t, bool meta) {
+object * declaration::mk_axiom_val(name const & n, level_param_names const & params, expr const & t, bool meta) {
     object * r = alloc_cnstr(0, 1, sizeof(unsigned char));
     cnstr_set_obj(r, 0, mk_declaration_val(n, params, t));
-    cnstr_set_scalar<unsigned char>(r, constant_scalar_offset(), static_cast<unsigned char>(meta));
+    cnstr_set_scalar<unsigned char>(r, axiom_scalar_offset(), static_cast<unsigned char>(meta));
     return r;
 }
 
@@ -78,10 +78,6 @@ object * declaration::mk_definition_val(name const & n, level_param_names const 
     inc(h.raw()); cnstr_set_obj(r, 2, h.raw());
     cnstr_set_scalar<unsigned char>(r, definition_scalar_offset(), static_cast<unsigned char>(meta));
     return r;
-}
-
-object * declaration::mk_axiom_val(name const & n, level_param_names const & params, expr const & t) {
-    return mk_declaration_val(n, params, t);
 }
 
 object * declaration::mk_theorem_val(name const & n, level_param_names const & params, expr const & t, expr const & v) {
@@ -132,11 +128,10 @@ object * declaration::mk_recursor_val(name const & n, level_param_names const & 
 bool declaration::is_meta() const {
     switch (kind()) {
     case declaration_kind::Definition:  return cnstr_scalar<unsigned char>(get_val_obj(), definition_scalar_offset()) != 0;
-    case declaration_kind::Constant:    return cnstr_scalar<unsigned char>(get_val_obj(), constant_scalar_offset()) != 0;
     case declaration_kind::Inductive:   return to_inductive_val().is_meta();
     case declaration_kind::Constructor: return to_constructor_val().is_meta();
     case declaration_kind::Recursor:    return to_recursor_val().is_meta();
-    case declaration_kind::Axiom:       return false;
+    case declaration_kind::Axiom:       return cnstr_scalar<unsigned char>(get_val_obj(), axiom_scalar_offset()) != 0;
     case declaration_kind::Theorem:     return false;
     }
     lean_unreachable();
@@ -199,12 +194,8 @@ declaration mk_theorem(name const & n, level_param_names const & params, expr co
     return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Theorem), declaration::mk_theorem_val(n, params, t, v)));
 }
 
-declaration mk_axiom(name const & n, level_param_names const & params, expr const & t) {
-    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Axiom), declaration::mk_axiom_val(n, params, t)));
-}
-
-declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t, bool meta) {
-    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Constant), declaration::mk_constant_val(n, params, t, meta)));
+declaration mk_axiom(name const & n, level_param_names const & params, expr const & t, bool meta) {
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Axiom), declaration::mk_axiom_val(n, params, t, meta)));
 }
 
 declaration mk_definition_inferring_meta(environment const & env, name const & n, level_param_names const & params,
@@ -220,9 +211,9 @@ declaration mk_definition_inferring_meta(environment const & env, name const & n
     return mk_definition(n, params, t, v, reducibility_hints::mk_regular(h+1), meta);
 }
 
-declaration mk_constant_assumption_inferring_meta(environment const & env, name const & n,
-                                                  level_param_names const & params, expr const & t) {
-    return mk_constant_assumption(n, params, t, use_meta(env, t));
+declaration mk_axiom_inferring_meta(environment const & env, name const & n,
+                                    level_param_names const & params, expr const & t) {
+    return mk_axiom(n, params, t, use_meta(env, t));
 }
 
 declaration mk_inductive(name const & n, level_param_names const & params, expr const & t, unsigned nparams, unsigned nindices,

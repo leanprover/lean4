@@ -17,13 +17,10 @@ static declaration update_declaration(declaration d, optional<level_param_names>
     } else {
         lean_assert(!value);
     }
-    if (d.is_constant_assumption()) {
+    if (d.is_axiom()) {
         if (is_eqp(d.get_type(), _type) && is_eqp(d.get_univ_params(), _ps))
             return d;
-        if (d.is_axiom())
-            return mk_axiom(d.get_name(), _ps, _type);
-        else
-            return mk_constant_assumption(d.get_name(), _ps, _type);
+        return mk_axiom(d.get_name(), _ps, _type, d.is_meta());
     } else {
         if (is_eqp(d.get_type(), _type) && is_eqp(d.get_value(), _value) && is_eqp(d.get_univ_params(), _ps))
             return d;

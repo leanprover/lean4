@@ -49,7 +49,7 @@ struct print_axioms_deps {
             return;
         m_visited.insert(n);
         declaration const & d = m_env.get(n);
-        if ((d.is_axiom() || d.is_constant_assumption()) && !m_env.is_builtin(n)) {
+        if (d.is_axiom() && !m_env.is_builtin(n)) {
             m_use_axioms = true;
             m_ios << d.get_name() << "\n";
         }
@@ -88,7 +88,7 @@ static void print_axioms(parser & p, message_builder & out) {
         bool has_axioms = false;
         p.env().for_each_declaration([&](declaration const & d) {
                 name const & n = d.get_name();
-                if ((d.is_axiom() || d.is_constant_assumption()) && !p.env().is_builtin(n) && !d.is_meta()) {
+                if (d.is_axiom() && !p.env().is_builtin(n) && !d.is_meta()) {
                     out << n << " : " << d.get_type() << endl;
                     has_axioms = true;
                 }
@@ -362,7 +362,7 @@ void print_id_info(parser & p, message_builder & out, name const & id, bool show
                 bool use_pos = false;
                 out.set_exception(ex, use_pos);
             }
-        } else if (d.is_axiom() || d.is_constant_assumption()) {
+        } else if (d.is_axiom()) {
             if (inductive::is_inductive_decl(env, c)) {
                 print_inductive(p, out, c, pos);
             } else if (inductive::is_intro_rule(env, c)) {
@@ -371,10 +371,8 @@ void print_id_info(parser & p, message_builder & out, name const & id, bool show
                 print_constant(p, out, "eliminator", d);
             } else if (quot_is_decl(c)) {
                 print_constant(p, out, "builtin-quotient-type-constant", d);
-            } else if (d.is_axiom()) {
-                print_constant(p, out, "axiom", d);
             } else {
-                print_constant(p, out, "constant", d);
+                print_constant(p, out, "axiom", d);
             }
         } else if (d.is_definition()) {
             print_constant(p, out, "def", d, show_value);

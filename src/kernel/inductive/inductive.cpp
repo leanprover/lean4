@@ -187,7 +187,7 @@ name get_elim_name(name const & n) {
 
 environment certified_inductive_decl::add_constant(environment const & env, name const & n, level_param_names const & ls,
                                                    expr const & t) const {
-    return env.add(certified_declaration::certify_or_check(env, mk_constant_assumption(n, ls, t, m_is_meta)));
+    return env.add(certified_declaration::certify_or_check(env, mk_axiom(n, ls, t, m_is_meta)));
 }
 
 environment certified_inductive_decl::add_core(environment const & env, bool update_ext_only) const {
@@ -322,8 +322,8 @@ struct add_inductive_fn {
 
     /** \brief Add all datatype declarations to environment. */
     void declare_inductive_type() {
-        m_env = m_env.add(check(m_env, mk_constant_assumption(m_decl.m_name, m_decl.m_level_params, m_decl.m_type,
-                                                              m_is_meta)));
+        m_env = m_env.add(check(m_env, mk_axiom(m_decl.m_name, m_decl.m_level_params, m_decl.m_type,
+                                                m_is_meta)));
         updt_type_checker();
     }
 
@@ -432,9 +432,9 @@ struct add_inductive_fn {
     /** \brief Add all introduction rules (aka constructors) to environment. */
     void declare_intro_rules() {
         for (auto ir : m_decl.m_intro_rules) {
-            m_env = m_env.add(check(m_env, mk_constant_assumption(intro_rule_name(ir),
-                                                                  m_decl.m_level_params, intro_rule_type(ir),
-                                                                  m_is_meta)));
+            m_env = m_env.add(check(m_env, mk_axiom(intro_rule_name(ir),
+                                                    m_decl.m_level_params, intro_rule_type(ir),
+                                                    m_is_meta)));
         }
         updt_type_checker();
     }
@@ -645,8 +645,8 @@ struct add_inductive_fn {
         // parameters
         elim_ty   = Pi(m_param_consts, elim_ty);
         elim_ty   = infer_implicit(elim_ty, true /* strict */);
-        m_env = m_env.add(check(m_env, mk_constant_assumption(get_elim_name(), get_elim_level_param_names(), elim_ty,
-                                                              m_is_meta)));
+        m_env = m_env.add(check(m_env, mk_axiom(get_elim_name(), get_elim_level_param_names(), elim_ty,
+                                                m_is_meta)));
         return elim_ty;
     }
 

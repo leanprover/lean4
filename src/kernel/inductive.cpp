@@ -128,7 +128,7 @@ public:
         lean_assert(m_params.size() == m_nparams);
     }
 
-    /** \brief Add all datatype declarations to environment as constant_assumptions.
+    /** \brief Add all datatype declarations to environment as axioms.
 
         We will update them later using `mk_inductive` when we know the exact number of
         recursors. */
@@ -137,7 +137,7 @@ public:
             name const & n = ind_type.get_name();
             if (m_env.m_declarations.find(n))
                 throw already_declared_exception(m_env, n);
-            m_env.m_declarations.insert(n, mk_constant_assumption(n, m_lparams, ind_type.get_type()));
+            m_env.m_declarations.insert(n, mk_axiom(n, m_lparams, ind_type.get_type()));
         }
     }
 

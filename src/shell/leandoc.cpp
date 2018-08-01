@@ -25,7 +25,7 @@ static char const * get_decl_kind(environment const & env, name const & id) {
     declaration const & d = env.get(id);
     if (d.is_theorem()) return "Theorem";
 
-    if (d.is_axiom() || d.is_constant_assumption()) {
+    if (d.is_axiom()) {
         if (inductive::is_inductive_decl(env, id)) {
             if (is_structure(env, id) && is_class(env, id)) return "Class";
             if (is_structure(env, id) && !is_class(env, id))  return "Structure";
@@ -39,9 +39,7 @@ static char const * get_decl_kind(environment const & env, name const & id) {
 
         if (quot_is_decl(id)) return "Builtin quot type";
 
-        if (d.is_axiom()) return "Axiom";
-
-        return "Constant";
+        return "Axiom";
     } else if (d.is_definition()) {
         if (is_instance(env, id)) return "Instance";
         if (is_class(env, id)) return "Class";
@@ -140,7 +138,7 @@ static void print_id_info(std::ostream & out, environment const & env, formatter
     declaration const & d = env.get(id);
     if (d.is_theorem()) {
         print_constant(out, env, fmt, "theorem", d);
-    } else if (d.is_axiom() || d.is_constant_assumption()) {
+    } else if (d.is_axiom()) {
         if (inductive::is_inductive_decl(env, id)) {
             print_inductive(out, env, fmt, id);
         } else if (inductive::is_intro_rule(env, id)) {
@@ -149,10 +147,8 @@ static void print_id_info(std::ostream & out, environment const & env, formatter
             print_constant(out, env, fmt, "eliminator", d);
         } else if (quot_is_decl(id)) {
             print_constant(out, env, fmt, "builtin-quotient-type-constant", d);
-        } else if (d.is_axiom()) {
-            print_constant(out, env, fmt, "axiom", d);
         } else {
-            print_constant(out, env, fmt, "constant", d);
+            print_constant(out, env, fmt, "axiom", d);
         }
     } else if (d.is_definition()) {
         if (is_instance(env, id))

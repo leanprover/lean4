@@ -39,9 +39,7 @@ inductive reducibility_hints
 structure declaration_val :=
 (id : name) (lparams : list name) (type : expr)
 
-structure axiom_val extends declaration_val
-
-structure constant_val extends declaration_val :=
+structure axiom_val extends declaration_val :=
 (is_meta : bool)
 
 /- TODO(Leo): the `value` field for `definition_val` and `theorem_val` should be a thunk. We will make this change
@@ -97,9 +95,8 @@ structure recursor_val extends declaration_val :=
 (is_meta : bool)
 
 inductive declaration
-| const_decl  (val : constant_val)
-| defn_decl   (val : definition_val)
 | axiom_decl  (val : axiom_val)
+| defn_decl   (val : definition_val)
 | thm_decl    (val : theorem_val)
 | induct_decl (val : inductive_val)
 | cnstr_decl  (val : constructor_val)
@@ -108,7 +105,6 @@ inductive declaration
 namespace declaration
 
 def to_declaration_val : declaration → declaration_val
-| (const_decl  {to_declaration_val := d, ..}) := d
 | (defn_decl   {to_declaration_val := d, ..}) := d
 | (axiom_decl  {to_declaration_val := d, ..}) := d
 | (thm_decl    {to_declaration_val := d, ..}) := d
@@ -135,7 +131,6 @@ def hints : declaration → reducibility_hints
 | _                            := reducibility_hints.opaque
 
 def is_meta : declaration → bool
-| (const_decl  {is_meta := r, ..}) := r
 | (defn_decl   {is_meta := r, ..}) := r
 | (induct_decl {is_meta := r, ..}) := r
 | (cnstr_decl  {is_meta := r, ..}) := r

@@ -75,17 +75,11 @@ vm_obj declaration_thm(vm_obj const & val) {
                              to_expr(cfield(val, 1))));
 }
 
-vm_obj declaration_cnst(vm_obj const & val) {
-    return to_obj(mk_constant_assumption(to_name(cfield(cfield(val, 0), 0)),
-                                         to_names(cfield(cfield(val, 0), 1)),
-                                         to_expr(cfield(cfield(val, 0), 2)),
-                                         to_bool(cfield(val, 1))));
-}
-
 vm_obj declaration_ax(vm_obj const & val) {
-    return to_obj(mk_axiom(to_name(cfield(val, 0)),
-                           to_names(cfield(val, 1)),
-                           to_expr(cfield(val, 2))));
+    return to_obj(mk_axiom(to_name(cfield(cfield(val, 0), 0)),
+                           to_names(cfield(cfield(val, 0), 1)),
+                           to_expr(cfield(cfield(val, 0), 2)),
+                           to_bool(cfield(val, 1))));
 }
 
 vm_obj mk_declaration_val(declaration const & d) {
@@ -95,14 +89,11 @@ vm_obj mk_declaration_val(declaration const & d) {
 unsigned declaration_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
     declaration const & d = to_declaration(o);
     switch (d.kind()) {
-    case declaration_kind::Constant:
-        data.push_back(mk_vm_constructor(0, mk_declaration_val(d), mk_vm_bool(d.is_meta())));
-        break;
     case declaration_kind::Definition:
         data.push_back(mk_vm_constructor(0, mk_declaration_val(d), to_obj(d.get_value()), to_obj(d.get_hints()), mk_vm_bool(d.is_meta())));
         break;
     case declaration_kind::Axiom:
-        data.push_back(mk_declaration_val(d));
+        data.push_back(mk_vm_constructor(0, mk_declaration_val(d), mk_vm_bool(d.is_meta())));
         break;
     case declaration_kind::Theorem:
         data.push_back(mk_vm_constructor(0, mk_declaration_val(d), to_obj(d.get_value())));
@@ -143,8 +134,7 @@ vm_obj declaration_instantiate_value_univ_params(vm_obj const & _d, vm_obj const
 void initialize_vm_declaration() {
     DECLARE_VM_BUILTIN(name({"lean", "declaration", "defn_decl"}),  declaration_defn);
     DECLARE_VM_BUILTIN(name({"lean", "declaration", "thm_decl"}),   declaration_thm);
-    DECLARE_VM_BUILTIN(name({"lean", "declaration", "const_decl"}), declaration_cnst);
-    DECLARE_VM_BUILTIN(name({"lean", "declaration", "ax"}),         declaration_ax);
+    DECLARE_VM_BUILTIN(name({"lean", "declaration", "axion_decl"}), declaration_ax);
     DECLARE_VM_BUILTIN(name({"lean", "declaration", "instantiate_type_univ_params"}),  declaration_instantiate_type_univ_params);
     DECLARE_VM_BUILTIN(name({"lean", "declaration", "instantiate_value_univ_params"}), declaration_instantiate_value_univ_params);
     DECLARE_VM_CASES_BUILTIN(name({"lean", "declaration", "cases_on"}), declaration_cases_on);

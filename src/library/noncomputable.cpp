@@ -82,9 +82,7 @@ static bool is_noncomputable(old_type_checker & tc, noncomputable_ext const & ex
     declaration const & d = env.get(n);
     if (d.is_meta()) {
         return false; /* ignore nontrusted definitions */
-    } else if (d.is_axiom() && !tc.is_prop(d.get_type())) {
-        return true;
-    } else if (d.is_constant_assumption()) {
+    } else if (d.is_axiom()) {
         return !env.is_builtin(d.get_name()) && !tc.is_prop(d.get_type()) && !is_builtin_extra(d.get_name());
     } else {
         return false;

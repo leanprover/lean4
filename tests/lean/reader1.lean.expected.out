@@ -9,7 +9,11 @@ partial syntax tree:
 error at line 1, column 6:
 expected "." or identifier
 partial syntax tree:
-[(module [] [(import "import" [(import_path [] [])])]) (eoi "")]
+[(module
+  []
+  [(import "import" [(import_path [] <missing>) <missing>]) <missing>]
+  <missing>)
+ (eoi "")]
 result: 
 [(module
   [(prelude "prelude")]
@@ -40,7 +44,12 @@ expected identifier
 error at line 1, column 9:
 expected identifier
 partial syntax tree:
-[(module [] [] [(open "open" [[[]]]) (open "open" [[[]]])]) (eoi "")]
+[(module
+  []
+  []
+  [(open "open" [[<missing> <missing> <missing> <missing> <missing>] <missing>])
+   (open "open" [[<missing> <missing> <missing> <missing> <missing>] <missing>])])
+ (eoi "")]
 error at line 1, column 8:
 expected command
 partial syntax tree:
@@ -80,12 +89,12 @@ partial syntax tree:
 [(module
   [(prelude "prelude")]
   []
-  [(notation "notation" [[] [[["`" "Prop" "`" []] []]]] ":=" (hole []))
+  [(notation "notation" [[] [[["`" "Prop" "`" []] []]]] ":=" (hole <missing>))
    (notation
     "notation"
     [[f] [[["`" "$ " "`" [[":" (base10_lit "1")]]] [[a [[":" (base10_lit "0")]]]]]]]
     ":="
-    (hole []))
+    (hole <missing>))
    (reserve_mixfix ["reserve" "prefix"] ["`" "¬" "`" [[":" (base10_lit "40")]]])
    (reserve_mixfix ["reserve" "prefix"] ["`" "~" "`" [[":" (base10_lit "40")]]])
    (reserve_mixfix ["reserve" "infixr"] ["`" "∧ " "`" [[":" (base10_lit "35")]]])

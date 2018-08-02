@@ -116,11 +116,14 @@ do {
 namespace combinators
 def node' (m : name) (rs : list reader) : reader :=
 { read := do {
-    args ← rs.mfoldl (λ args r, do
-      -- on error, append partial syntax tree to previous successful ones and rethrow
-      a ← catch r.read (λ msg, throw {msg with custom := syntax.node ⟨m, (msg.custom::args).reverse⟩}),
-      pure (a::args)
-    ) [],
+    (args, _) ← rs.mfoldl (λ (p : list syntax × nat) r, do
+      (args, remaining) ← pure p,
+      -- on error, append partial syntax tree and `missing` objects to previous successful parses and rethrow
+      a ← catch r.read $ λ msg,
+        let args := list.repeat syntax.missing (remaining-1) ++ msg.custom :: args in
+        throw {msg with custom := syntax.node ⟨m, args.reverse⟩},
+      pure (a::args, remaining - 1)
+    ) ([], rs.length),
     pure $ syntax.node ⟨m, args.reverse⟩
   },
   tokens := rs.bind reader.tokens }
@@ -130,7 +133,9 @@ def node (m : macro) := node' m.name
 
 private def many1_aux (p : read_m syntax) : list syntax → nat → read_m syntax
 | as 0     := error "unreachable"
-| as (n+1) := do a ← catch p (λ msg, throw {msg with custom := syntax.node ⟨name.anonymous, (msg.custom::as).reverse⟩}),
+| as (n+1) := do a ← catch p (λ msg, throw {msg with custom :=
+                       -- append `syntax.missing` to make clear that list is incomplete
+                       syntax.node ⟨name.anonymous, (syntax.missing::msg.custom::as).reverse⟩}),
               many1_aux (a::as) n <|> pure (syntax.node ⟨name.anonymous, (a::as).reverse⟩)
 
 def many1 (r : reader) : reader :=

@@ -50,15 +50,16 @@ inductive syntax
 /- any non-ident atom -/
 | atom (val : syntax_atom)
 | node (val : syntax_node syntax)
+| missing
 
 instance : inhabited syntax :=
-⟨syntax.node ⟨name.anonymous, []⟩⟩
+⟨syntax.missing⟩
 
 def substring.to_string (s : substring) : string :=
 (s.start.extract s.stop).get_or_else ""
 
 namespace syntax
-open format
+open lean.format
 
 protected mutual def to_format, to_format_lst
 with to_format : syntax → format
@@ -87,6 +88,7 @@ with to_format : syntax → format
   sbracket $ join_sep (to_format_lst args) line
 | (node {macro := n, args := args, ..}) :=
   paren $ join_sep (to_fmt n :: to_format_lst args) line
+| missing := "<missing>"
 with to_format_lst : list syntax → list format
 | []      := []
 | (s::ss) := to_format s :: to_format_lst ss
@@ -101,6 +103,7 @@ with reprint : syntax → string
 | (atom ⟨info, atomic_val.string s⟩) := reprint_with_info info s
 | (atom ⟨info, atomic_val.name   n⟩) := reprint_with_info info n.to_string
 | (node n) := reprint_lst n.args
+| missing := ""
 with reprint_lst : list syntax → string
 | []      := ""
 | (s::ss) := reprint s ++ reprint_lst ss

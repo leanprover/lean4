@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "library/app_builder.h"
 #include "library/class.h"
 #include "library/protected.h"
+#include "library/sorry.h"
 
 namespace lean {
 struct exprs_attribute_data : public attr_data {
@@ -43,7 +44,10 @@ struct exprs_attribute_data : public attr_data {
     }
     void parse(abstract_parser & p) override {
         while (!p.curr_is_token("]")) {
-            m_args = cons(p.parse_expr(10000), m_args);
+            expr e = p.parse_expr(10000);
+            if (has_sorry(e))
+                break;
+            m_args = cons(e, m_args);
         }
     }
     virtual void print(std::ostream & out) override {

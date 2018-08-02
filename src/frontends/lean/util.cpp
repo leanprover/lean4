@@ -88,8 +88,8 @@ name remove_root_prefix(name const & n) {
     return n.replace_prefix(get_root_tk(), name());
 }
 
-bool is_eqn_prefix(parser & p, bool bar_only = false) {
-    return p.curr_is_token(get_bar_tk()) || (!bar_only && p.curr_is_token(get_comma_tk()));
+bool is_eqn_prefix(parser & p, bool) {
+    return p.curr_is_token(get_bar_tk());
 }
 
 // Return the local levels in \c ls that are not associated with variables

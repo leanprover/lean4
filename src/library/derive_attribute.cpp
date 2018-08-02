@@ -96,16 +96,26 @@ static environment derive(environment env, name const & n, exprs const & clss) {
             tgt_ty = instantiate(binding_body(tgt_ty), param);
         }
         ctx.unify(tgt_ty, expected_tgt_ty);
-        buffer<expr> params;
+        buffer<expr> params, more_params;
         while (is_pi(cls_ty) && is_class_out_param(binding_domain(cls_ty))) {
             params.push_back(ctx.mk_metavar_decl(ctx.lctx(), binding_domain(cls_ty)));
             cls_ty = binding_body(cls_ty);
         }
-        params.push_back(tgt);
-        tgt = mk_app(ctx, const_name(cls), params.size(), &params[0]);
-        params.pop_back();
-        params.push_back(real_tgt);
-        real_tgt = mk_app(ctx, const_name(cls), params.size(), &params[0]);
+        if (is_pi(cls_ty))
+            cls_ty = binding_body(cls_ty);
+        while (is_pi(cls_ty) && is_class_out_param(binding_domain(cls_ty))) {
+            more_params.push_back(ctx.mk_metavar_decl(ctx.lctx(), binding_domain(cls_ty)));
+            cls_ty = binding_body(cls_ty);
+        }
+        auto apply_target = [&](expr const & tgt) {
+            buffer<expr> b;
+            b.append(params);
+            b.push_back(tgt);
+            b.append(more_params);
+            return mk_app(ctx, const_name(cls), b.size(), &b[0]);
+        };
+        tgt = apply_target(tgt);
+        real_tgt = apply_target(real_tgt);
         auto inst = ctx.mk_class_instance(real_tgt);
         if (!inst)
             throw exception(sstream() << "failed to derive " << tgt);

@@ -11,17 +11,14 @@ namespace parser
 
 local attribute [instance] name.has_lt_quick
 
-@[irreducible] def parse_m (r σ) := except_t string $ reader_t r $ state σ
+@[irreducible, derive monad monad_except monad_reader monad_state]
+def parse_m (r σ) := except_t string $ reader_t r $ state σ
 
 namespace parse_m
 section
 local attribute [reducible] parse_m
 
-instance (r σ) : monad (parse_m r σ) := infer_instance
---instance (r σ) : monad_run _ (parse_m r σ) := by apply_instance
-instance (r σ) : monad_except string (parse_m r σ) := infer_instance
-instance (r σ) : monad_reader r (parse_m r σ)      := infer_instance
-instance (r σ) : monad_state σ (parse_m r σ)       := infer_instance
+-- not clear how to auto-derive these
 instance (r σ σ') : monad_state_adapter σ σ' (parse_m r σ) (parse_m r σ')  := infer_instance
 instance (r r' σ) : monad_reader_adapter r r' (parse_m r σ) (parse_m r' σ) := infer_instance
 

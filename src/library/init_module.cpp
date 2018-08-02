@@ -53,6 +53,7 @@ Author: Leonardo de Moura
 #include "library/error_msgs.h"
 #include "library/formatter.h"
 #include "library/pos_info_provider.h"
+#include "library/derive_attribute.h"
 
 namespace lean {
 void initialize_library_core_module() {
@@ -65,9 +66,11 @@ void initialize_library_core_module() {
     initialize_module();
     initialize_scoped_ext();
     initialize_attribute_manager();
+    initialize_derive_attribute();
 }
 
 void finalize_library_core_module() {
+    finalize_derive_attribute();
     finalize_attribute_manager();
     finalize_scoped_ext();
     finalize_module();

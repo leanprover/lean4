@@ -403,7 +403,7 @@ public:
                     names const & extra_locals = names());
 
     /** Always parses an expression.  Returns a synthetic sorry even if no input is consumed. */
-    expr parse_expr(unsigned rbp = 0);
+    virtual expr parse_expr(unsigned rbp = 0) override final;
     /** Tries to parse an expression, or else consumes no input. */
     optional<expr> maybe_parse_expr(unsigned rbp = 0);
     /** \brief Parse an (optionally) qualified expression.

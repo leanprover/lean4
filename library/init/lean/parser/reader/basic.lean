@@ -34,6 +34,7 @@ private def with_recurse_aux : nat → m r
 def with_recurse (max_rec := 1000) : rec_t r m r :=
 ⟨λ _, rec.run (with_recurse_aux base rec max_rec)⟩
 
+-- not clear how to auto-derive these given the additional constraints
 instance : monad (rec_t r m) := infer_instance
 instance [alternative m] : alternative (rec_t r m) := infer_instance
 instance : has_monad_lift m (rec_t r m) := infer_instance
@@ -69,7 +70,8 @@ structure reader_state :=
 
 structure reader_config := mk
 
-@[irreducible] def read_m := rec_t syntax $ reader_t reader_config $ state_t reader_state $ parsec syntax
+@[irreducible, derive monad alternative monad_reader monad_state monad_parsec monad_except]
+def read_m := rec_t syntax $ reader_t reader_config $ state_t reader_state $ parsec syntax
 
 structure reader :=
 (read : read_m syntax)
@@ -77,13 +79,6 @@ structure reader :=
 
 namespace read_m
 local attribute [reducible] read_m
-instance : monad read_m := infer_instance
-instance : alternative read_m := infer_instance
-instance : monad_reader reader_config read_m := infer_instance
-instance : monad_state reader_state read_m := infer_instance
-instance : monad_parsec syntax read_m := infer_instance
-instance : monad_except (parsec.message syntax) read_m := infer_instance
-
 protected def run (cfg : reader_config) (st : reader_state) (s : string) (r : read_m syntax) :
   syntax × list message :=
 match (((r.run (monad_parsec.error "no recursive parser at top level")).run cfg).run st).parse_with_eoi s with

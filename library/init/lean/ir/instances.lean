@@ -42,13 +42,7 @@ instance var_has_lt : has_lt var := (name.has_lt_quick : has_lt name)
 instance blockid_has_lt : has_lt blockid := (name.has_lt_quick : has_lt name)
 instance fnid_has_lt : has_lt fnid := (name.has_lt_quick : has_lt name)
 
-instance var_has_dec_eq : decidable_eq var := infer_instance_as (decidable_eq name)
-instance blockid_has_dec_eq : decidable_eq blockid := infer_instance_as (decidable_eq name)
-instance fnid_has_dec_eq : decidable_eq fnid := infer_instance_as (decidable_eq name)
-
-instance var_hashable : hashable var := infer_instance_as (hashable name)
-instance blockid_hashable : hashable blockid := infer_instance_as (hashable name)
-instance fnid_hashable : hashable fnid := infer_instance_as (hashable name)
+attribute [derive decidable_eq hashable] var blockid fnid
 
 def var_set        := rbtree var (<)
 def blockid_set    := rbtree blockid (<)

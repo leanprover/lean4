@@ -170,6 +170,9 @@ def label (r : reader) (l : string) : reader :=
 
 infixr <?> := label
 
+def dbg (label : string) (r : reader) : reader :=
+{ r with read := dbg label r.read }
+
 local attribute [reducible] read_m
 def recurse : reader :=
 { read   := rec_t.recurse,

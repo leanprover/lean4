@@ -10,6 +10,8 @@ https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/parsec-paper
 prelude
 import init.data.to_string init.data.string.basic init.data.list.basic init.control.except
 import init.data.repr init.lean.name init.data.dlist init.control.monad_fail init.control.combinators
+import init.util
+
 namespace lean
 namespace parser
 open string (iterator)
@@ -185,6 +187,14 @@ def not_followed_by (p : parsec' α) (msg : string := "input") : parsec' unit :=
       | ok _ _       := error { it := it, unexpected := msg, custom := () } ff
       | ok_eps _ _ _ := error { it := it, unexpected := msg, custom := () } ff
       | error _ _    := mk_eps () it
+
+def parsec.dbg (label : string) (p : parsec μ α) : parsec μ α :=
+λ it, trace ("DBG " ++ label ++ ": '" ++ (it.extract (it.nextn 40)).get_or_else "" ++ "'") $
+      match p it with
+      | ok a it' := trace ("consumed ok : '" ++ (it.extract it').get_or_else "" ++ "'") $ ok a it'
+      | ok_eps a it' ex := trace ("empty ok : '" ++ (it.extract it').get_or_else "" ++ "'") $ ok_eps a it' ex
+      | error msg tt := trace ("consumed error : '" ++ (it.extract msg.it).get_or_else "" ++ "'\n" ++ to_string msg) $ error msg tt
+      | error msg ff := trace ("empty error : '" ++ (it.extract msg.it).get_or_else "" ++ "'\n" ++ to_string msg) $ error msg ff
 end parsec
 
 /- Type class for abstracting from concrete monad stacks containing a `parsec` somewhere. -/
@@ -498,6 +508,11 @@ do it ← left_over,
            | _ := r))
     ((error "longest_match: empty list" : parsec _ _) it),
     lift $ λ _, r
+
+/-- Add trace information about `p`'s input and output. -/
+def dbg (label : string) (p : m α) : m α :=
+map (λ β, parsec.dbg label) p
+
 end monad_parsec
 
 namespace monad_parsec

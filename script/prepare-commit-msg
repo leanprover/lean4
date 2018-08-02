@@ -10,6 +10,7 @@ diff=$(git diff --staged --stat | grep -v '.*.expected.out' | head -n -1)
 file=$(echo "$diff" | sort -n -k 3 | tail -n 1)
 # extract filename
 file=$(echo "$file" | cut -f 2 -d' ')
+file="${file#'src/'}"
 file="${file%.*}"
 case $file in
     tests/*)

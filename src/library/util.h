@@ -134,8 +134,7 @@ bool get_constructor_rec_args(environment const & env, expr const & e, buffer<pa
 
 /** \brief Given an expression \c e, return the number of arguments expected arguments.
 
-    \remark This function computes the type of \c e, and then counts the number of nested
-    Pi's. Weak-head-normal-forms are computed for the type of \c e.
+    \remark This function counts the number of nested Pi's in \c e. Weak-head-normal-forms are computed for the type of \c e.
     \remark The type and whnf are computed using \c tc. */
 unsigned get_expect_num_args(abstract_type_context & ctx, expr e);
 

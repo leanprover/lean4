@@ -77,6 +77,18 @@ structure reader :=
 (read : read_m syntax)
 (tokens : list token_config := [])
 
+class reader.has_view (r : reader) (α : out_param Type) :=
+(view : syntax → option α)
+(review : α → syntax)
+
+@[priority 0] instance reader.has_view.default (r) : reader.has_view r syntax :=
+{ view := some,
+  review := id }
+
+class macro.has_view (m : macro) (α : out_param Type) :=
+(view : syntax → option α)
+(review : α → syntax)
+
 namespace read_m
 local attribute [reducible] read_m
 protected def run (cfg : reader_config) (st : reader_state) (s : string) (r : read_m syntax) :
@@ -91,6 +103,8 @@ end read_m
 
 namespace reader
 open monad_parsec
+open reader.has_view
+variable {α : Type}
 
 protected def parse (cfg : reader_config) (s : string) (r : reader) :
   syntax × list message :=
@@ -113,6 +127,14 @@ do {
   ]⟩
 }.run cfg ⟨r.tokens ++ tokens, [], s.mk_iterator⟩ s
 
+structure parse.view_ty :=
+(root : syntax)
+(eoi  : syntax)
+
+def parse.view : syntax → option parse.view_ty
+| (syntax.node ⟨name.anonymous, [root, eoi]⟩) := some ⟨root, eoi⟩
+| _ := none
+
 namespace combinators
 def node' (m : name) (rs : list reader) : reader :=
 { read := do {
@@ -128,8 +150,30 @@ def node' (m : name) (rs : list reader) : reader :=
   },
   tokens := rs.bind reader.tokens }
 
-def seq := node' name.anonymous
-def node (m : macro) := node' m.name
+@[reducible] def seq := node' name.anonymous
+@[reducible] def node (m : macro) := node' m.name
+
+instance node'.view_cons (β m r rs) [reader.has_view r α] [reader.has_view (node' m rs) β] : reader.has_view (node' m (r::rs)) (α × β) :=
+{ view := λ stx, do {
+    syntax.node ⟨m', (stx::stxs)⟩ ← pure stx | failure,
+    guard (m' = m),
+    a ← view r stx,
+    b ← view (node' m rs) $ syntax.node ⟨m, stxs⟩,
+    pure (a, b)
+  },
+  review := λ ⟨a, b⟩, match review (node' m rs) b with
+    | syntax.node ⟨_, stxs⟩ := syntax.node ⟨m, review r a::stxs⟩
+    | _ := syntax.missing /- unreachable -/ }
+
+instance node'.view_nil (m r) [reader.has_view r α] : reader.has_view (node' m [r]) α :=
+{ view := λ stx, do {
+    syntax.node ⟨m', [stx]⟩ ← pure stx | failure,
+    guard (m' = m),
+    a ← view r stx,
+    pure a
+  },
+  review := λ a, syntax.node ⟨m, [review r a]⟩ }
+
 
 private def many1_aux (p : read_m syntax) : list syntax → nat → read_m syntax
 | as 0     := error "unreachable"
@@ -141,8 +185,26 @@ private def many1_aux (p : read_m syntax) : list syntax → nat → read_m synta
 def many1 (r : reader) : reader :=
 { r with read := do rem ← remaining, many1_aux r.read [] (rem+1) }
 
+/-
+instance many1.view (r) [reader.has_view r α] : reader.has_view (many1 r) (list α) :=
+{ view := λ stx, match stx with
+    | syntax.missing := list.ret <$> view r syntax.missing
+    | syntax.node ⟨name.anonymous, stxs⟩ := stxs.mmap (view r)
+    | _ := failure,
+  review := λ as, syntax.node ⟨name.anonymous, as.map (review r)⟩ }
+-/
+instance many1.view (r) : reader.has_view (many1 r) (list syntax) :=
+{ view := λ stx, match stx with
+    | syntax.missing := [syntax.missing]
+    | syntax.node ⟨name.anonymous, stxs⟩ := stxs
+    | _ := failure,
+  review := λ stxs, syntax.node ⟨name.anonymous, stxs⟩ }
+
 def many (r : reader) : reader :=
 { r with read := (many1 r).read <|> pure (syntax.node ⟨name.anonymous, []⟩) }
+
+instance many.view (r) : reader.has_view (many r) (list syntax) :=
+{..many1.view r}
 
 def optional (r : reader) : reader :=
 { r with read := do
@@ -152,6 +214,22 @@ def optional (r : reader) : reader :=
     pure $ match r with
     | some r := syntax.node ⟨name.anonymous, [r]⟩
     | none   := syntax.node ⟨name.anonymous, []⟩ }
+
+inductive optional_view (α : Type)
+| some (a : α) : optional_view
+| none {} : optional_view
+| missing {} : optional_view
+
+instance optional.view (r) [reader.has_view r α] : reader.has_view (optional r) (optional_view α) :=
+{ view := λ stx, match stx with
+    | syntax.missing := pure optional_view.missing
+    | syntax.node ⟨name.anonymous, []⟩ := pure optional_view.none
+    | syntax.node ⟨name.anonymous, [stx]⟩ := optional_view.some <$> view r stx
+    | _ := failure,
+  review := λ a, match a with
+    | optional_view.some a  := syntax.node ⟨name.anonymous, [review r a]⟩
+    | optional_view.none    := syntax.node ⟨name.anonymous, []⟩
+    | optional_view.missing := syntax.missing }
 
 /-- Parse a list `[p1, ..., pn]` of readers as `p1 <|> ... <|> pn`.
     Note that there is NO explicit encoding of which reader was chosen;
@@ -165,13 +243,22 @@ def any_of (rs : list reader) : reader :=
 def try (r : reader) : reader :=
 { r with read := try r.read }
 
+instance try.view (r) [i : reader.has_view r α] : reader.has_view (try r) α :=
+{..i}
+
 def label (r : reader) (l : string) : reader :=
 { r with read := label r.read l }
+
+instance label.view (r l) [i : reader.has_view r α] : reader.has_view (label r l) α :=
+{..i}
 
 infixr <?> := label
 
 def dbg (label : string) (r : reader) : reader :=
 { r with read := dbg label r.read }
+
+instance dbg.view (r l) [i : reader.has_view r α] : reader.has_view (dbg l r) α :=
+{..i}
 
 local attribute [reducible] read_m
 def recurse : reader :=

@@ -45,6 +45,15 @@ end b"
 
 #eval show_result module.reader "notation `Prop` := _"
 
+#eval show_result mixfix.reader "prefix `+`:10 := _"
+#eval (do {
+  let (stx, _) := mixfix.reader.parse ⟨⟩ "prefix `+`:10 := _",
+  some {root := stx, ..} ← pure $ reader.parse.view stx,
+  some stx ← pure $ mixfix.expand stx | io.fail "expand fail",
+  io.print_ln stx,
+  io.print_ln stx.reprint
+} : io unit)
+
 -- slowly progressing...
 #eval do
   s ← io.fs.read_file "../../library/init/core.lean",

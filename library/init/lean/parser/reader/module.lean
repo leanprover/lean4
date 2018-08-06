@@ -269,12 +269,6 @@ end reader
 namespace reader
 open macro.has_view combinators
 
-instance string_syntax_coe : has_coe string syntax :=
-⟨λ s, syntax.atom ⟨none, atomic_val.string s⟩⟩
-
-instance name_syntax_coe : has_coe name syntax :=
-⟨λ n, syntax.ident ⟨none, n, none, none⟩⟩
-
 def mixfix.expand (stx : syntax) : option syntax :=
 do v ← view mixfix stx,
    syntax.atom ⟨_, atomic_val.string kind⟩ ← pure v.kind | failure,

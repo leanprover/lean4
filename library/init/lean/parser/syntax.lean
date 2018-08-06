@@ -55,6 +55,12 @@ inductive syntax
 instance : inhabited syntax :=
 ⟨syntax.missing⟩
 
+instance coe_string_syntax : has_coe string syntax :=
+⟨λ s, syntax.atom ⟨none, atomic_val.string s⟩⟩
+
+instance coe_name_syntax : has_coe name syntax :=
+⟨λ n, syntax.ident ⟨none, n, none, none⟩⟩
+
 def substring.to_string (s : substring) : string :=
 (s.start.extract s.stop).get_or_else ""
 

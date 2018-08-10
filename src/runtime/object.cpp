@@ -66,7 +66,7 @@ inline object * pop_back(object * & todo) {
     return r;
 }
 
-inline void dec_ref(object * o, object* & todo) {
+inline void dec(object * o, object* & todo) {
     if (!is_scalar(o) && dec_ref_core(o))
         push_back(todo, o);
 }
@@ -78,21 +78,21 @@ void del(object * o) {
         case object_kind::Constructor: {
             object ** it  = cnstr_obj_cptr(o);
             object ** end = it + cnstr_num_objs(o);
-            for (; it != end; ++it) dec_ref(*it, todo);
+            for (; it != end; ++it) dec(*it, todo);
             free(o);
             break;
         }
         case object_kind::Closure: {
             object ** it  = closure_arg_cptr(o);
             object ** end = it + closure_num_fixed(o);
-            for (; it != end; ++it) dec_ref(*it, todo);
+            for (; it != end; ++it) dec(*it, todo);
             free(o);
             break;
         }
         case object_kind::Array: {
             object ** it  = array_cptr(o);
             object ** end = it + array_size(o);
-            for (; it != end; ++it) dec_ref(*it, todo);
+            for (; it != end; ++it) dec(*it, todo);
             free(o);
             break;
         }
@@ -103,8 +103,8 @@ void del(object * o) {
         case object_kind::MPZ:
             dealloc_mpz(o); break;
         case object_kind::Thunk:
-            dec_ref(to_thunk(o)->m_closure, todo);
-            if (object * v = to_thunk(o)->m_value) dec_ref(v, todo);
+            dec(to_thunk(o)->m_closure, todo);
+            if (object * v = to_thunk(o)->m_value) dec(v, todo);
             free(o);
             break;
         case object_kind::External:

@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include "runtime/object.h"
 #include "runtime/utf8.h"
+#include "runtime/apply.h"
 
 namespace lean {
 size_t obj_byte_size(object * o) {
@@ -19,6 +20,7 @@ size_t obj_byte_size(object * o) {
     case object_kind::ScalarArray:     return sarray_byte_size(o);
     case object_kind::String:          return string_byte_size(o);
     case object_kind::MPZ:             return sizeof(mpz_object);
+    case object_kind::Thunk:           return sizeof(thunk_object);
     case object_kind::External:        lean_unreachable();
     }
     lean_unreachable();
@@ -32,6 +34,7 @@ size_t obj_header_size(object * o) {
     case object_kind::ScalarArray:     return sizeof(sarray_object);
     case object_kind::String:          return sizeof(string_object);
     case object_kind::MPZ:             return sizeof(mpz_object);
+    case object_kind::Thunk:           return sizeof(thunk_object);
     case object_kind::External:        lean_unreachable();
     }
     lean_unreachable();
@@ -99,6 +102,11 @@ void del(object * o) {
             free(o); break;
         case object_kind::MPZ:
             dealloc_mpz(o); break;
+        case object_kind::Thunk:
+            dec_ref(to_thunk(o)->m_closure, todo);
+            if (object * v = to_thunk(o)->m_value) dec_ref(v, todo);
+            free(o);
+            break;
         case object_kind::External:
             dealloc_external(o); break;
         }

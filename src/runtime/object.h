@@ -24,7 +24,7 @@ inline void * alloca(size_t s) {
 #endif
 }
 
-enum class object_kind { Constructor, Closure, Array, ScalarArray, String, MPZ, External };
+enum class object_kind { Constructor, Closure, Array, ScalarArray, String, MPZ, Thunk, External };
 
 /* The reference counter is a uintptr_t, because at deletion time, we use this field to implement
    a linked list of objects to be deleted. */
@@ -108,6 +108,12 @@ struct mpz_object : public object {
         object(object_kind::MPZ), m_value(v) {}
 };
 
+struct thunk_object : public object {
+    object *         m_closure;
+    atomic<object *> m_value;
+    thunk_object(object * c);
+};
+
 /* Base class for wrapping external_object data.
    For example, we use it to wrap the Lean environment object. */
 struct external_object : public object {
@@ -153,6 +159,7 @@ inline bool is_array(object * o) { return get_kind(o) == object_kind::Array; }
 inline bool is_sarray(object * o) { return get_kind(o) == object_kind::ScalarArray; }
 inline bool is_string(object * o) { return get_kind(o) == object_kind::String; }
 inline bool is_mpz(object * o) { return get_kind(o) == object_kind::MPZ; }
+inline bool is_thunk(object * o) { return get_kind(o) == object_kind::Thunk; }
 inline bool is_external(object * o) { return get_kind(o) == object_kind::External; }
 
 /* Casting */
@@ -162,6 +169,7 @@ inline array_object * to_array(object * o) { lean_assert(is_array(o)); return st
 inline sarray_object * to_sarray(object * o) { lean_assert(is_sarray(o)); return static_cast<sarray_object*>(o); }
 inline string_object * to_string(object * o) { lean_assert(is_string(o)); return static_cast<string_object*>(o); }
 inline mpz_object * to_mpz(object * o) { lean_assert(is_mpz(o)); return static_cast<mpz_object*>(o); }
+inline thunk_object * to_thunk(object * o) { lean_assert(is_thunk(o)); return static_cast<thunk_object*>(o); }
 inline external_object * to_external(object * o) { lean_assert(is_external(o)); return static_cast<external_object*>(o); }
 
 /* The memory associated with all Lean objects but `mpz_object` and `external_object` can be deallocated using `free`.
@@ -319,6 +327,30 @@ inline void sarray_set_size(object * o, size_t sz) {
 
 inline object * alloc_mpz(mpz const & m) { return new mpz_object(m); }
 inline mpz const & mpz_value(object * o) { return to_mpz(o)->m_value; }
+
+/* Thunks */
+
+inline thunk_object::thunk_object(object * c):
+    object(object_kind::Thunk), m_closure(c), m_value(nullptr) {
+    /* Remark: the implementation relies on the fact that nullptr is not a valid lean object. */
+    lean_assert(is_closure(c));
+    inc_ref(c);
+}
+
+inline object * alloc_thunk(object * c) {
+    return new (malloc(sizeof(thunk_object))) thunk_object(c); // NOLINT
+}
+
+object * apply_1(object * f, object * a1);
+
+inline object * thunk_get(object * t) {
+   if (object * r = to_thunk(t)->m_value)
+       return r;
+   object * r = apply_1(to_thunk(t)->m_closure, box(0));
+   lean_assert(r != nullptr); /* Closure must return a valid lean object */
+   to_thunk(t)->m_value = r;
+   return r;
+}
 
 /* String */
 inline object * alloc_string(size_t size, size_t capacity, size_t len) {

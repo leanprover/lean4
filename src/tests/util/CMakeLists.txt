@@ -1,3 +1,6 @@
+add_executable(object object.cpp $<TARGET_OBJECTS:util> $<TARGET_OBJECTS:runtime>)
+target_link_libraries(object ${EXTRA_LIBS})
+add_exec_test(object "object")
 add_executable(name name.cpp $<TARGET_OBJECTS:util> $<TARGET_OBJECTS:runtime>)
 target_link_libraries(name ${EXTRA_LIBS})
 add_exec_test(name "name")

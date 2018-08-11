@@ -15,9 +15,14 @@ object * f(object *) {
     return box(10);
 }
 
+object_ref mk_thunk_ref(object_ref const & c) {
+    inc(c.raw());
+    return object_ref(mk_thunk(c.raw()));
+}
+
 static void tst1() {
     object_ref c(alloc_closure(f, 1, 0));
-    object_ref t(alloc_thunk(c.raw()));
+    object_ref t = mk_thunk_ref(c);
     object * r1 = thunk_get(t.raw());
     object * r2 = thunk_get(t.raw());
     std::cout << "thunk value: " << unbox(r1) << "\n";
@@ -37,7 +42,7 @@ static void tst2() {
     object * r2 = apply_1(c.raw(), box(0));
     lean_assert(unbox(r1) == 1);
     lean_assert(unbox(r2) == 2);
-    object_ref t(alloc_thunk(c.raw()));
+    object_ref t = mk_thunk_ref(c);
     object * r3 = thunk_get(t.raw());
     object * r4 = thunk_get(t.raw());
     lean_assert(unbox(r3) == 3);
@@ -57,7 +62,7 @@ object * h(object *) {
    Lean object. */
 static void tst3() {
     object_ref c(alloc_closure(h, 1, 0));
-    object_ref t(alloc_thunk(c.raw()));
+    object_ref t = mk_thunk_ref(c);
     lean_assert(g_h_counter == 0);
     object * r3 = thunk_get(t.raw());
     lean_assert(g_h_counter == 1);
@@ -67,12 +72,26 @@ static void tst3() {
     lean_assert(unbox(r4) == 0);
 }
 
+object * r(object *) {
+    return mk_string("hello world");
+}
+
+static void tst4() {
+    object_ref c(alloc_closure(r, 1, 0));
+    object_ref t = mk_thunk_ref(c);
+    object * r3  = thunk_get(t.raw());
+    object * r4  = thunk_get(t.raw());
+    lean_assert(string_eq(r3, "hello world"));
+    lean_assert(string_eq(r4, "hello world"));
+}
+
 int main() {
     save_stack_info();
     initialize_util_module();
     tst1();
     tst2();
     tst3();
+    tst4();
     finalize_util_module();
     return has_violations() ? 1 : 0;
 }

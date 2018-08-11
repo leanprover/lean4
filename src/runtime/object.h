@@ -334,22 +334,25 @@ inline thunk_object::thunk_object(object * c):
     object(object_kind::Thunk), m_closure(c), m_value(nullptr) {
     /* Remark: the implementation relies on the fact that nullptr is not a valid lean object. */
     lean_assert(is_closure(c));
-    inc_ref(c);
 }
 
-inline object * alloc_thunk(object * c) {
+/* Remark: `c`'s RC is not modified. Result object has RC == 1. */
+inline object * mk_thunk(object * c) {
     return new (malloc(sizeof(thunk_object))) thunk_object(c); // NOLINT
 }
 
 object * apply_1(object * f, object * a1);
 
+/* Primitive for implementing the IR instruction for thunk.get : thunk A -> A
+
+   The `t`'s RC is not modified, and the result object RC should not be consumed by caller. */
 inline object * thunk_get(object * t) {
-   if (object * r = to_thunk(t)->m_value)
-       return r;
-   object * r = apply_1(to_thunk(t)->m_closure, box(0));
-   lean_assert(r != nullptr); /* Closure must return a valid lean object */
-   to_thunk(t)->m_value = r;
-   return r;
+    if (object * r = to_thunk(t)->m_value)
+        return r;
+    object * r = apply_1(to_thunk(t)->m_closure, box(0));
+    lean_assert(r != nullptr); /* Closure must return a valid lean object */
+    to_thunk(t)->m_value = r;
+    return r;
 }
 
 /* String */

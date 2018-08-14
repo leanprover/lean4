@@ -11,6 +11,8 @@ Author: Leonardo de Moura
 #include "util/init_module.h"
 using namespace lean;
 
+#define USED(x) (void)(x)
+
 object * f(object *) {
     std::cout << "executing f...\n";
     return box(10);
@@ -48,6 +50,7 @@ static void tst2() {
     object * r4 = thunk_get(t.raw());
     lean_assert(unbox(r3) == 3);
     lean_assert(unbox(r4) == 3);
+    USED(r1); USED(r2); USED(r3); USED(r4);
 }
 
 static unsigned g_h_counter = 0;
@@ -71,6 +74,7 @@ static void tst3() {
     lean_assert(g_h_counter == 1);
     lean_assert(unbox(r3) == 0);
     lean_assert(unbox(r4) == 0);
+    USED(r3); USED(r4);
 }
 
 object * r(object *) {
@@ -84,6 +88,7 @@ static void tst4() {
     object * r4  = thunk_get(t.raw());
     lean_assert(string_eq(r3, "hello world"));
     lean_assert(string_eq(r4, "hello world"));
+    USED(r3); USED(r4);
 }
 
 static void tst5() {
@@ -104,6 +109,7 @@ static void tst5() {
     lean_assert(is_thunk(r1));
     object * str = thunk_get(r1);
     lean_assert(strcmp(string_data(str), "hello world") == 0);
+    USED(r2); USED(str);
 }
 
 int main() {

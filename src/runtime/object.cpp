@@ -103,7 +103,7 @@ void del(object * o) {
         case object_kind::MPZ:
             dealloc_mpz(o); break;
         case object_kind::Thunk:
-            dec(to_thunk(o)->m_closure, todo);
+            if (object * c = to_thunk(o)->m_closure) dec(c, todo);
             if (object * v = to_thunk(o)->m_value) dec(v, todo);
             free(o);
             break;

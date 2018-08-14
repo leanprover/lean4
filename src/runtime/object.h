@@ -111,7 +111,7 @@ struct mpz_object : public object {
 struct thunk_object : public object {
     object *         m_closure;
     atomic<object *> m_value;
-    thunk_object(object * c);
+    thunk_object(object * c, bool is_value = false);
 };
 
 /* Base class for wrapping external_object data.
@@ -330,15 +330,26 @@ inline mpz const & mpz_value(object * o) { return to_mpz(o)->m_value; }
 
 /* Thunks */
 
-inline thunk_object::thunk_object(object * c):
-    object(object_kind::Thunk), m_closure(c), m_value(nullptr) {
-    /* Remark: the implementation relies on the fact that nullptr is not a valid lean object. */
-    lean_assert(is_closure(c));
+inline thunk_object::thunk_object(object * c, bool is_value):
+    object(object_kind::Thunk) {
+    if (is_value) {
+        m_closure = nullptr;
+        m_value   = c;
+    } else {
+        lean_assert(is_closure(c));
+        m_closure = c;
+        m_value   = nullptr;
+    }
 }
 
 /* Remark: `c`'s RC is not modified. Result object has RC == 1. */
 inline object * mk_thunk(object * c) {
-    return new (malloc(sizeof(thunk_object))) thunk_object(c); // NOLINT
+    return new (malloc(sizeof(thunk_object))) thunk_object(c, false); // NOLINT
+}
+
+/* Remark: `v`'s RC is not modified. Result object has RC == 1. */
+inline object * mk_thunk_from_value(object * v) {
+    return new (malloc(sizeof(thunk_object))) thunk_object(v, true); // NOLINT
 }
 
 object * apply_1(object * f, object * a1);

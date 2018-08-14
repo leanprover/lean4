@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <iostream>
+#include "runtime/serializer.h"
 #include "util/test.h"
 #include "util/object_ref.h"
 #include "util/init_module.h"
@@ -85,6 +86,26 @@ static void tst4() {
     lean_assert(string_eq(r4, "hello world"));
 }
 
+static void tst5() {
+    object_ref c(alloc_closure(r, 1, 0));
+    object_ref t = mk_thunk_ref(c);
+    std::ostringstream out;
+    serializer s(out);
+    object_ref o(mk_string("bla bla"));
+    s.write_object(o.raw());
+    s.write_object(t.raw());
+    s.write_object(t.raw());
+    std::istringstream in(out.str());
+    deserializer d(in);
+    d.read_object();
+    object * r1 = d.read_object();
+    object * r2 = d.read_object();
+    lean_assert(r1 == r2);
+    lean_assert(is_thunk(r1));
+    object * str = thunk_get(r1);
+    lean_assert(strcmp(string_data(str), "hello world") == 0);
+}
+
 int main() {
     save_stack_info();
     initialize_util_module();
@@ -92,6 +113,7 @@ int main() {
     tst2();
     tst3();
     tst4();
+    tst5();
     finalize_util_module();
     return has_violations() ? 1 : 0;
 }

@@ -16,6 +16,30 @@ Author: Leonardo de Moura
 #include "runtime/thread.h"
 
 namespace lean {
+/*
+In our runtime, a Lean function or a primitive may consume the reference counter (RC) of its argument or not.
+We say this behavior is part of the "calling convention" for the function/primitive. We say an argument uses:
+
+1- "standard" calling convention if it consumes/decrements the RC.
+   In this calling convention each argument should be viewed as a resource that is consumed by the function/primitive.
+   This is roughly equivalent to `S && a` in C++, where `S` is a smart pointer, and `a` is the argument.
+   When this calling convention is used for an argument `x`, then it is safe to perform destructive updates to
+   `x` if its RC is 1.
+
+2- "borrowed" calling convention if it doesn't consume/decrement the RC, and it is the responsability of the caller
+   to decrement the RC.
+   This is roughly equivalent to `S const & a` in C++, where `S` is a smart pointer, and `a` is the argument.
+
+For returning objects, we also have two conventions
+
+1- "standard" result. The caller is responsible for consuming the RC of the result.
+   This is roughly equivalent to returning a smart point `S` by value in C++.
+
+2- "borrowed" result. The caller is not responsible for decreasing the RC.
+   This is roughly equivalent to returning a smart point reference `S const &` in C++.
+
+*/
+
 inline void * alloca(size_t s) {
 #ifdef _MSC_VER
     return ::_alloca(s);

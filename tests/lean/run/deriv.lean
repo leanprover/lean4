@@ -1,5 +1,5 @@
 /- Benchmark for new code generator -/
-import system.io
+import init.io
 
 inductive Expr
 | Val : int → Expr

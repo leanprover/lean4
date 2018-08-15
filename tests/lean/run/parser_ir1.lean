@@ -1,4 +1,4 @@
-import system.io
+import init.io
 import init.lean.ir.parser init.lean.ir.format
 import init.lean.ir.elim_phi init.lean.ir.type_check
 import init.lean.ir.extract_cpp

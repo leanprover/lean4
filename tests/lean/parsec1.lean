@@ -1,4 +1,4 @@
-import system.io init.lean.parser.identifier init.lean.ir.parser init.lean.ir.format
+import init.io init.lean.parser.identifier init.lean.ir.parser init.lean.ir.format
 open lean.parser
 open lean.parser.monad_parsec
 

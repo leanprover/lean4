@@ -1,2 +1,2 @@
-import system.io
+import init.io
 #print trust

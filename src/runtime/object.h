@@ -17,11 +17,11 @@ Author: Leonardo de Moura
 
 namespace lean {
 /*
-In our runtime, a Lean function or a primitive may consume the reference counter (RC) of its argument or not.
-We say this behavior is part of the "calling convention" for the function/primitive. We say an argument uses:
+In our runtime, a Lean function consume the reference counter (RC) of its argument or not.
+We say this behavior is part of the "calling convention" for the function. We say an argument uses:
 
 1- "standard" calling convention if it consumes/decrements the RC.
-   In this calling convention each argument should be viewed as a resource that is consumed by the function/primitive.
+   In this calling convention each argument should be viewed as a resource that is consumed by the function.
    This is roughly equivalent to `S && a` in C++, where `S` is a smart pointer, and `a` is the argument.
    When this calling convention is used for an argument `x`, then it is safe to perform destructive updates to
    `x` if its RC is 1.
@@ -38,6 +38,10 @@ For returning objects, we also have two conventions
 2- "borrowed" result. The caller is not responsible for decreasing the RC.
    This is roughly equivalent to returning a smart point reference `S const &` in C++.
 
+The primitives implemented in the runtime do not modify the RC of its arguments.
+Callers are responsible for increasing/decreasing the RCs using the `inc`/`dec` operations.
+All new objects allocated by the primitives have RC == 1.
+Functions stored in closures use the "standard" calling convention.
 */
 
 inline void * alloca(size_t s) {
@@ -133,7 +137,7 @@ struct mpz_object : public object {
 };
 
 struct thunk_object : public object {
-    object *         m_closure;
+    atomic<object *> m_closure;
     atomic<object *> m_value;
     thunk_object(object * c, bool is_value = false);
 };
@@ -366,28 +370,24 @@ inline thunk_object::thunk_object(object * c, bool is_value):
     }
 }
 
-/* Remark: `c`'s RC is not modified. Result object has RC == 1. */
 inline object * mk_thunk(object * c) {
     return new (malloc(sizeof(thunk_object))) thunk_object(c, false); // NOLINT
 }
 
-/* Remark: `v`'s RC is not modified. Result object has RC == 1. */
 inline object * mk_thunk_from_value(object * v) {
     return new (malloc(sizeof(thunk_object))) thunk_object(v, true); // NOLINT
 }
 
 object * apply_1(object * f, object * a1);
 
-/* Primitive for implementing the IR instruction for thunk.get : thunk A -> A
+/* Expensive version of thunk_get which tries to execute the nested closure */
+object * thunk_get_core(object * t);
 
-   The `t`'s RC is not modified, and the result object RC should not be consumed by caller. */
+/* Primitive for implementing the IR instruction for thunk.get : thunk A -> A */
 inline object * thunk_get(object * t) {
     if (object * r = to_thunk(t)->m_value)
         return r;
-    object * r = apply_1(to_thunk(t)->m_closure, box(0));
-    lean_assert(r != nullptr); /* Closure must return a valid lean object */
-    to_thunk(t)->m_value = r;
-    return r;
+    return thunk_get_core(t);
 }
 
 /* String */
@@ -401,7 +401,12 @@ inline size_t string_capacity(object * o) { return to_string(o)->m_capacity; }
 inline size_t string_size(object * o) { return to_string(o)->m_size; }
 inline size_t string_len(object * o) { return to_string(o)->m_length; }
 inline size_t string_byte_size(object * o) { return sizeof(string_object) + string_capacity(o); } // NOLINT
+/* \pre !is_shared(s)
+   The result is `s` if it contains space for storing `c` or a new string object `new_s` otherwise, and `s` is deleted.
+   In both cases, the result object has RC == 1.
+   Both arguments use the standard calling convention. */
 object * string_push(object * s, unsigned c);
+
 object * string_append(object * s1, object * s2);
 bool string_eq(object * s1, object * s2);
 inline bool string_ne(object * s1, object * s2) { return !string_eq(s1, s2); }

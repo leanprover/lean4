@@ -223,6 +223,34 @@ bool string_lt(object * s1, object * s2) {
     return r < 0 || (r == 0 && sz1 < sz2);
 }
 
+/* Thunks */
+
+object * thunk_get_core(object * t) {
+    object * c = to_thunk(t)->m_closure.exchange(nullptr);
+    if (c != nullptr) {
+        /* Recall that a closure uses the standard calling convention.
+           `thunk_get` "consumes" the result `r` by storing it at `to_thunk(t)->m_value`.
+           Then, it returns a reference to this result to the caller.
+           The behavior is compatible with `cnstr_obj` with also returns a reference
+           to be object stored in the constructor object.
+
+           Recall that `apply_1` also consumes `c`'s RC. */
+        object * r = apply_1(c, box(0));
+        lean_assert(r != nullptr); /* Closure must return a valid lean object */
+        lean_assert(to_thunk(t)->m_value == nullptr);
+        to_thunk(t)->m_value = r;
+        return r;
+    } else {
+        lean_assert(c == nullptr);
+        /* There is another thread executing the closure. We keep waiting for the m_value to be
+           set by another thread. */
+        while (!to_thunk(t)->m_value) {
+            this_thread::yield();
+        }
+        return to_thunk(t)->m_value;
+    }
+}
+
 /* Natural numbers */
 
 object * nat_big_add(object * a1, object * a2) {

@@ -131,8 +131,12 @@ catch t₁ $ λ _, t₂
 
 /-- Alternative orelse operator that allows to select which exception should be used.
     The default is to use the first exception since the standard `orelse` uses the second. -/
-meta def orelse' [monad_except ε m] {α : Type v} (t₁ t₂ : m α) (use_first_ex := tt) : m α :=
+def orelse' [monad_except ε m] {α : Type v} (t₁ t₂ : m α) (use_first_ex := tt) : m α :=
 catch t₁ $ λ e₁, catch t₂ $ λ e₂, throw (if use_first_ex then e₁ else e₂)
+
+def lift_except [monad_except ε m] [monad m] {α : Type v} : except ε α → m α
+| (except.error e) := throw e
+| (except.ok a)    := pure a
 end monad_except
 
 export monad_except (throw catch)

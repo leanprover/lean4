@@ -19,15 +19,21 @@ static obj* fix_args(obj* f, unsigned n, obj*const* as) {
     obj * r = alloc_closure(closure_fun(f), arity, new_fixed);
     obj ** source = closure_arg_cptr(f);
     obj ** target = closure_arg_cptr(r);
-    for (unsigned i = 0; i < fixed; i++, source++, target++) {
-        *target = *source;
-        inc(*target);
+    if (is_shared(f)) {
+      for (unsigned i = 0; i < fixed; i++, source++, target++) {
+          *target = *source;
+          inc(*target);
+      }
+      dec_ref(f);
+    } else {
+      for (unsigned i = 0; i < fixed; i++, source++, target++) {
+          *target = *source;
+      }
+      free(f);
     }
     for (unsigned i = 0; i < n; i++, as++, target++) {
         *target = *as;
-        inc(*target);
     }
-    inc_ref(r);
     return r;
 }
 
@@ -91,35 +97,56 @@ default: return FNN(f)(as);
 }
 }
 obj* apply_n(obj*, unsigned, obj**);
-static inline obj* apply_nc(obj* f, unsigned n, obj** as) { obj* r = apply_n(f, n, as); dec_ref_core(f); return r; }
 obj* apply_1(obj* f, obj* a1) {
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 1) {
+  if (!is_shared(f)) {
+    switch (arity) {
+    case 1: { obj* r = FN1(f)(a1); free(f); return r; }
+    case 2: { obj* r = FN2(f)(fx(0), a1); free(f); return r; }
+    case 3: { obj* r = FN3(f)(fx(0), fx(1), a1); free(f); return r; }
+    case 4: { obj* r = FN4(f)(fx(0), fx(1), fx(2), a1); free(f); return r; }
+    case 5: { obj* r = FN5(f)(fx(0), fx(1), fx(2), fx(3), a1); free(f); return r; }
+    case 6: { obj* r = FN6(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1); free(f); return r; }
+    case 7: { obj* r = FN7(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1); free(f); return r; }
+    case 8: { obj* r = FN8(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1); free(f); return r; }
+    case 9: { obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1); free(f); return r; }
+    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1); free(f); return r; }
+    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1); free(f); return r; }
+    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1); free(f); return r; }
+    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1); free(f); return r; }
+    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), a1); free(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), a1); free(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), fx(14), a1); free(f); return r; }
+    }
+  }
   switch (arity) {
-  case 1: return FN1(f)(a1);
-  case 2: return FN2(f)(fx(0), a1);
-  case 3: return FN3(f)(fx(0), fx(1), a1);
-  case 4: return FN4(f)(fx(0), fx(1), fx(2), a1);
-  case 5: return FN5(f)(fx(0), fx(1), fx(2), fx(3), a1);
-  case 6: return FN6(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1);
-  case 7: return FN7(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1);
-  case 8: return FN8(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1);
-  case 9: return FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1);
-  case 10: return FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1);
-  case 11: return FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1);
-  case 12: return FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1);
-  case 13: return FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1);
-  case 14: return FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), a1);
-  case 15: return FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), a1);
-  case 16: return FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), fx(14), a1);
+  case 1: { obj* r = FN1(f)(a1); dec_ref(f); return r; }
+  case 2: { inc(fx(0)); obj* r = FN2(f)(fx(0), a1); dec_ref(f); return r; }
+  case 3: { inc(fx(0)); inc(fx(1)); obj* r = FN3(f)(fx(0), fx(1), a1); dec_ref(f); return r; }
+  case 4: { inc(fx(0)); inc(fx(1)); inc(fx(2)); obj* r = FN4(f)(fx(0), fx(1), fx(2), a1); dec_ref(f); return r; }
+  case 5: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); obj* r = FN5(f)(fx(0), fx(1), fx(2), fx(3), a1); dec_ref(f); return r; }
+  case 6: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); obj* r = FN6(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1); dec_ref(f); return r; }
+  case 7: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); obj* r = FN7(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1); dec_ref(f); return r; }
+  case 8: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); obj* r = FN8(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1); dec_ref(f); return r; }
+  case 9: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1); dec_ref(f); return r; }
+  case 10: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1); dec_ref(f); return r; }
+  case 11: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); inc(fx(9)); obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1); dec_ref(f); return r; }
+  case 12: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); inc(fx(9)); inc(fx(10)); obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1); dec_ref(f); return r; }
+  case 13: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); inc(fx(9)); inc(fx(10)); inc(fx(11)); obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1); dec_ref(f); return r; }
+  case 14: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); inc(fx(9)); inc(fx(10)); inc(fx(11)); inc(fx(12)); obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), a1); dec_ref(f); return r; }
+  case 15: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); inc(fx(9)); inc(fx(10)); inc(fx(11)); inc(fx(12)); inc(fx(13)); obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), a1); dec_ref(f); return r; }
+  case 16: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); inc(fx(9)); inc(fx(10)); inc(fx(11)); inc(fx(12)); inc(fx(13)); inc(fx(14)); obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), fx(14), a1); dec_ref(f); return r; }
   default:
     lean_assert(arity > 16);
     obj * as[1] = { a1 };
     obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); } 
     for (unsigned i = 0; i < 1; i++) args[fixed+i] = as[i];
-    return FNN(f)(args);
+    obj * r = FNN(f)(args);
+    dec_ref(f);
+    return r;
   }
 } else if (arity < fixed + 1) {
   lean_assert(fixed < arity);
@@ -132,36 +159,59 @@ obj* apply_2(obj* f, obj* a1, obj* a2) {
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 2) {
+  if (!is_shared(f)) {
+    switch (arity) {
+    case 2: { obj* r = FN2(f)(a1, a2); free(f); return r; }
+    case 3: { obj* r = FN3(f)(fx(0), a1, a2); free(f); return r; }
+    case 4: { obj* r = FN4(f)(fx(0), fx(1), a1, a2); free(f); return r; }
+    case 5: { obj* r = FN5(f)(fx(0), fx(1), fx(2), a1, a2); free(f); return r; }
+    case 6: { obj* r = FN6(f)(fx(0), fx(1), fx(2), fx(3), a1, a2); free(f); return r; }
+    case 7: { obj* r = FN7(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2); free(f); return r; }
+    case 8: { obj* r = FN8(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2); free(f); return r; }
+    case 9: { obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2); free(f); return r; }
+    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2); free(f); return r; }
+    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2); free(f); return r; }
+    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2); free(f); return r; }
+    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2); free(f); return r; }
+    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1, a2); free(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), a1, a2); free(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), a1, a2); free(f); return r; }
+    }
+  }
   switch (arity) {
-  case 2: return FN2(f)(a1, a2);
-  case 3: return FN3(f)(fx(0), a1, a2);
-  case 4: return FN4(f)(fx(0), fx(1), a1, a2);
-  case 5: return FN5(f)(fx(0), fx(1), fx(2), a1, a2);
-  case 6: return FN6(f)(fx(0), fx(1), fx(2), fx(3), a1, a2);
-  case 7: return FN7(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2);
-  case 8: return FN8(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2);
-  case 9: return FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2);
-  case 10: return FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2);
-  case 11: return FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2);
-  case 12: return FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2);
-  case 13: return FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2);
-  case 14: return FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1, a2);
-  case 15: return FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), a1, a2);
-  case 16: return FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), a1, a2);
+  case 2: { obj* r = FN2(f)(a1, a2); dec_ref(f); return r; }
+  case 3: { inc(fx(0)); obj* r = FN3(f)(fx(0), a1, a2); dec_ref(f); return r; }
+  case 4: { inc(fx(0)); inc(fx(1)); obj* r = FN4(f)(fx(0), fx(1), a1, a2); dec_ref(f); return r; }
+  case 5: { inc(fx(0)); inc(fx(1)); inc(fx(2)); obj* r = FN5(f)(fx(0), fx(1), fx(2), a1, a2); dec_ref(f); return r; }
+  case 6: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); obj* r = FN6(f)(fx(0), fx(1), fx(2), fx(3), a1, a2); dec_ref(f); return r; }
+  case 7: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); obj* r = FN7(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2); dec_ref(f); return r; }
+  case 8: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); obj* r = FN8(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2); dec_ref(f); return r; }
+  case 9: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2); dec_ref(f); return r; }
+  case 10: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2); dec_ref(f); return r; }
+  case 11: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2); dec_ref(f); return r; }
+  case 12: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); inc(fx(9)); obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2); dec_ref(f); return r; }
+  case 13: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); inc(fx(9)); inc(fx(10)); obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2); dec_ref(f); return r; }
+  case 14: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); inc(fx(9)); inc(fx(10)); inc(fx(11)); obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1, a2); dec_ref(f); return r; }
+  case 15: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); inc(fx(9)); inc(fx(10)); inc(fx(11)); inc(fx(12)); obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), a1, a2); dec_ref(f); return r; }
+  case 16: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); inc(fx(9)); inc(fx(10)); inc(fx(11)); inc(fx(12)); inc(fx(13)); obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), a1, a2); dec_ref(f); return r; }
   default:
     lean_assert(arity > 16);
     obj * as[2] = { a1, a2 };
     obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); } 
     for (unsigned i = 0; i < 2; i++) args[fixed+i] = as[i];
-    return FNN(f)(args);
+    obj * r = FNN(f)(args);
+    dec_ref(f);
+    return r;
   }
 } else if (arity < fixed + 2) {
   obj * as[2] = { a1, a2 };
   obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+  for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  return apply_nc(curry(f, arity, args), 2+fixed-arity, as+arity-fixed);
+  obj * new_f = curry(f, arity, args);
+  dec_ref(f);
+  return apply_n(new_f, 2+fixed-arity, as+arity-fixed);
 } else {
   return fix_args(f, {a1, a2});
 }
@@ -170,35 +220,57 @@ obj* apply_3(obj* f, obj* a1, obj* a2, obj* a3) {
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 3) {
+  if (!is_shared(f)) {
+    switch (arity) {
+    case 3: { obj* r = FN3(f)(a1, a2, a3); free(f); return r; }
+    case 4: { obj* r = FN4(f)(fx(0), a1, a2, a3); free(f); return r; }
+    case 5: { obj* r = FN5(f)(fx(0), fx(1), a1, a2, a3); free(f); return r; }
+    case 6: { obj* r = FN6(f)(fx(0), fx(1), fx(2), a1, a2, a3); free(f); return r; }
+    case 7: { obj* r = FN7(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3); free(f); return r; }
+    case 8: { obj* r = FN8(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3); free(f); return r; }
+    case 9: { obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3); free(f); return r; }
+    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3); free(f); return r; }
+    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3); free(f); return r; }
+    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3); free(f); return r; }
+    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3); free(f); return r; }
+    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2, a3); free(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1, a2, a3); free(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), a1, a2, a3); free(f); return r; }
+    }
+  }
   switch (arity) {
-  case 3: return FN3(f)(a1, a2, a3);
-  case 4: return FN4(f)(fx(0), a1, a2, a3);
-  case 5: return FN5(f)(fx(0), fx(1), a1, a2, a3);
-  case 6: return FN6(f)(fx(0), fx(1), fx(2), a1, a2, a3);
-  case 7: return FN7(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3);
-  case 8: return FN8(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3);
-  case 9: return FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3);
-  case 10: return FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3);
-  case 11: return FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3);
-  case 12: return FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3);
-  case 13: return FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3);
-  case 14: return FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2, a3);
-  case 15: return FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1, a2, a3);
-  case 16: return FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), a1, a2, a3);
+  case 3: { obj* r = FN3(f)(a1, a2, a3); dec_ref(f); return r; }
+  case 4: { inc(fx(0)); obj* r = FN4(f)(fx(0), a1, a2, a3); dec_ref(f); return r; }
+  case 5: { inc(fx(0)); inc(fx(1)); obj* r = FN5(f)(fx(0), fx(1), a1, a2, a3); dec_ref(f); return r; }
+  case 6: { inc(fx(0)); inc(fx(1)); inc(fx(2)); obj* r = FN6(f)(fx(0), fx(1), fx(2), a1, a2, a3); dec_ref(f); return r; }
+  case 7: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); obj* r = FN7(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3); dec_ref(f); return r; }
+  case 8: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); obj* r = FN8(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3); dec_ref(f); return r; }
+  case 9: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3); dec_ref(f); return r; }
+  case 10: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3); dec_ref(f); return r; }
+  case 11: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3); dec_ref(f); return r; }
+  case 12: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3); dec_ref(f); return r; }
+  case 13: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); inc(fx(9)); obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3); dec_ref(f); return r; }
+  case 14: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); inc(fx(9)); inc(fx(10)); obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2, a3); dec_ref(f); return r; }
+  case 15: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); inc(fx(9)); inc(fx(10)); inc(fx(11)); obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1, a2, a3); dec_ref(f); return r; }
+  case 16: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); inc(fx(9)); inc(fx(10)); inc(fx(11)); inc(fx(12)); obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), a1, a2, a3); dec_ref(f); return r; }
   default:
     lean_assert(arity > 16);
     obj * as[3] = { a1, a2, a3 };
     obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); } 
     for (unsigned i = 0; i < 3; i++) args[fixed+i] = as[i];
-    return FNN(f)(args);
+    obj * r = FNN(f)(args);
+    dec_ref(f);
+    return r;
   }
 } else if (arity < fixed + 3) {
   obj * as[3] = { a1, a2, a3 };
   obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+  for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  return apply_nc(curry(f, arity, args), 3+fixed-arity, as+arity-fixed);
+  obj * new_f = curry(f, arity, args);
+  dec_ref(f);
+  return apply_n(new_f, 3+fixed-arity, as+arity-fixed);
 } else {
   return fix_args(f, {a1, a2, a3});
 }
@@ -207,34 +279,55 @@ obj* apply_4(obj* f, obj* a1, obj* a2, obj* a3, obj* a4) {
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 4) {
+  if (!is_shared(f)) {
+    switch (arity) {
+    case 4: { obj* r = FN4(f)(a1, a2, a3, a4); free(f); return r; }
+    case 5: { obj* r = FN5(f)(fx(0), a1, a2, a3, a4); free(f); return r; }
+    case 6: { obj* r = FN6(f)(fx(0), fx(1), a1, a2, a3, a4); free(f); return r; }
+    case 7: { obj* r = FN7(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4); free(f); return r; }
+    case 8: { obj* r = FN8(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4); free(f); return r; }
+    case 9: { obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4); free(f); return r; }
+    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4); free(f); return r; }
+    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4); free(f); return r; }
+    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4); free(f); return r; }
+    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4); free(f); return r; }
+    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3, a4); free(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2, a3, a4); free(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1, a2, a3, a4); free(f); return r; }
+    }
+  }
   switch (arity) {
-  case 4: return FN4(f)(a1, a2, a3, a4);
-  case 5: return FN5(f)(fx(0), a1, a2, a3, a4);
-  case 6: return FN6(f)(fx(0), fx(1), a1, a2, a3, a4);
-  case 7: return FN7(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4);
-  case 8: return FN8(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4);
-  case 9: return FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4);
-  case 10: return FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4);
-  case 11: return FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4);
-  case 12: return FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4);
-  case 13: return FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4);
-  case 14: return FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3, a4);
-  case 15: return FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2, a3, a4);
-  case 16: return FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1, a2, a3, a4);
+  case 4: { obj* r = FN4(f)(a1, a2, a3, a4); dec_ref(f); return r; }
+  case 5: { inc(fx(0)); obj* r = FN5(f)(fx(0), a1, a2, a3, a4); dec_ref(f); return r; }
+  case 6: { inc(fx(0)); inc(fx(1)); obj* r = FN6(f)(fx(0), fx(1), a1, a2, a3, a4); dec_ref(f); return r; }
+  case 7: { inc(fx(0)); inc(fx(1)); inc(fx(2)); obj* r = FN7(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4); dec_ref(f); return r; }
+  case 8: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); obj* r = FN8(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4); dec_ref(f); return r; }
+  case 9: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4); dec_ref(f); return r; }
+  case 10: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4); dec_ref(f); return r; }
+  case 11: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4); dec_ref(f); return r; }
+  case 12: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4); dec_ref(f); return r; }
+  case 13: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4); dec_ref(f); return r; }
+  case 14: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); inc(fx(9)); obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3, a4); dec_ref(f); return r; }
+  case 15: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); inc(fx(9)); inc(fx(10)); obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2, a3, a4); dec_ref(f); return r; }
+  case 16: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); inc(fx(9)); inc(fx(10)); inc(fx(11)); obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1, a2, a3, a4); dec_ref(f); return r; }
   default:
     lean_assert(arity > 16);
     obj * as[4] = { a1, a2, a3, a4 };
     obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); } 
     for (unsigned i = 0; i < 4; i++) args[fixed+i] = as[i];
-    return FNN(f)(args);
+    obj * r = FNN(f)(args);
+    dec_ref(f);
+    return r;
   }
 } else if (arity < fixed + 4) {
   obj * as[4] = { a1, a2, a3, a4 };
   obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+  for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  return apply_nc(curry(f, arity, args), 4+fixed-arity, as+arity-fixed);
+  obj * new_f = curry(f, arity, args);
+  dec_ref(f);
+  return apply_n(new_f, 4+fixed-arity, as+arity-fixed);
 } else {
   return fix_args(f, {a1, a2, a3, a4});
 }
@@ -243,33 +336,53 @@ obj* apply_5(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5) {
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 5) {
+  if (!is_shared(f)) {
+    switch (arity) {
+    case 5: { obj* r = FN5(f)(a1, a2, a3, a4, a5); free(f); return r; }
+    case 6: { obj* r = FN6(f)(fx(0), a1, a2, a3, a4, a5); free(f); return r; }
+    case 7: { obj* r = FN7(f)(fx(0), fx(1), a1, a2, a3, a4, a5); free(f); return r; }
+    case 8: { obj* r = FN8(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5); free(f); return r; }
+    case 9: { obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5); free(f); return r; }
+    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5); free(f); return r; }
+    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5); free(f); return r; }
+    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5); free(f); return r; }
+    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5); free(f); return r; }
+    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4, a5); free(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3, a4, a5); free(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2, a3, a4, a5); free(f); return r; }
+    }
+  }
   switch (arity) {
-  case 5: return FN5(f)(a1, a2, a3, a4, a5);
-  case 6: return FN6(f)(fx(0), a1, a2, a3, a4, a5);
-  case 7: return FN7(f)(fx(0), fx(1), a1, a2, a3, a4, a5);
-  case 8: return FN8(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5);
-  case 9: return FN9(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5);
-  case 10: return FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5);
-  case 11: return FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5);
-  case 12: return FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5);
-  case 13: return FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5);
-  case 14: return FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4, a5);
-  case 15: return FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3, a4, a5);
-  case 16: return FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2, a3, a4, a5);
+  case 5: { obj* r = FN5(f)(a1, a2, a3, a4, a5); dec_ref(f); return r; }
+  case 6: { inc(fx(0)); obj* r = FN6(f)(fx(0), a1, a2, a3, a4, a5); dec_ref(f); return r; }
+  case 7: { inc(fx(0)); inc(fx(1)); obj* r = FN7(f)(fx(0), fx(1), a1, a2, a3, a4, a5); dec_ref(f); return r; }
+  case 8: { inc(fx(0)); inc(fx(1)); inc(fx(2)); obj* r = FN8(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5); dec_ref(f); return r; }
+  case 9: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5); dec_ref(f); return r; }
+  case 10: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5); dec_ref(f); return r; }
+  case 11: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5); dec_ref(f); return r; }
+  case 12: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5); dec_ref(f); return r; }
+  case 13: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5); dec_ref(f); return r; }
+  case 14: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4, a5); dec_ref(f); return r; }
+  case 15: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); inc(fx(9)); obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3, a4, a5); dec_ref(f); return r; }
+  case 16: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); inc(fx(9)); inc(fx(10)); obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2, a3, a4, a5); dec_ref(f); return r; }
   default:
     lean_assert(arity > 16);
     obj * as[5] = { a1, a2, a3, a4, a5 };
     obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); } 
     for (unsigned i = 0; i < 5; i++) args[fixed+i] = as[i];
-    return FNN(f)(args);
+    obj * r = FNN(f)(args);
+    dec_ref(f);
+    return r;
   }
 } else if (arity < fixed + 5) {
   obj * as[5] = { a1, a2, a3, a4, a5 };
   obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+  for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  return apply_nc(curry(f, arity, args), 5+fixed-arity, as+arity-fixed);
+  obj * new_f = curry(f, arity, args);
+  dec_ref(f);
+  return apply_n(new_f, 5+fixed-arity, as+arity-fixed);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5});
 }
@@ -278,32 +391,51 @@ obj* apply_6(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6) {
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 6) {
+  if (!is_shared(f)) {
+    switch (arity) {
+    case 6: { obj* r = FN6(f)(a1, a2, a3, a4, a5, a6); free(f); return r; }
+    case 7: { obj* r = FN7(f)(fx(0), a1, a2, a3, a4, a5, a6); free(f); return r; }
+    case 8: { obj* r = FN8(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6); free(f); return r; }
+    case 9: { obj* r = FN9(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6); free(f); return r; }
+    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6); free(f); return r; }
+    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6); free(f); return r; }
+    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6); free(f); return r; }
+    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6); free(f); return r; }
+    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5, a6); free(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4, a5, a6); free(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3, a4, a5, a6); free(f); return r; }
+    }
+  }
   switch (arity) {
-  case 6: return FN6(f)(a1, a2, a3, a4, a5, a6);
-  case 7: return FN7(f)(fx(0), a1, a2, a3, a4, a5, a6);
-  case 8: return FN8(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6);
-  case 9: return FN9(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6);
-  case 10: return FN10(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6);
-  case 11: return FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6);
-  case 12: return FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6);
-  case 13: return FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6);
-  case 14: return FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5, a6);
-  case 15: return FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4, a5, a6);
-  case 16: return FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3, a4, a5, a6);
+  case 6: { obj* r = FN6(f)(a1, a2, a3, a4, a5, a6); dec_ref(f); return r; }
+  case 7: { inc(fx(0)); obj* r = FN7(f)(fx(0), a1, a2, a3, a4, a5, a6); dec_ref(f); return r; }
+  case 8: { inc(fx(0)); inc(fx(1)); obj* r = FN8(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6); dec_ref(f); return r; }
+  case 9: { inc(fx(0)); inc(fx(1)); inc(fx(2)); obj* r = FN9(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6); dec_ref(f); return r; }
+  case 10: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6); dec_ref(f); return r; }
+  case 11: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6); dec_ref(f); return r; }
+  case 12: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6); dec_ref(f); return r; }
+  case 13: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6); dec_ref(f); return r; }
+  case 14: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5, a6); dec_ref(f); return r; }
+  case 15: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4, a5, a6); dec_ref(f); return r; }
+  case 16: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); inc(fx(9)); obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3, a4, a5, a6); dec_ref(f); return r; }
   default:
     lean_assert(arity > 16);
     obj * as[6] = { a1, a2, a3, a4, a5, a6 };
     obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); } 
     for (unsigned i = 0; i < 6; i++) args[fixed+i] = as[i];
-    return FNN(f)(args);
+    obj * r = FNN(f)(args);
+    dec_ref(f);
+    return r;
   }
 } else if (arity < fixed + 6) {
   obj * as[6] = { a1, a2, a3, a4, a5, a6 };
   obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+  for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  return apply_nc(curry(f, arity, args), 6+fixed-arity, as+arity-fixed);
+  obj * new_f = curry(f, arity, args);
+  dec_ref(f);
+  return apply_n(new_f, 6+fixed-arity, as+arity-fixed);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6});
 }
@@ -312,31 +444,49 @@ obj* apply_7(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj* 
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 7) {
+  if (!is_shared(f)) {
+    switch (arity) {
+    case 7: { obj* r = FN7(f)(a1, a2, a3, a4, a5, a6, a7); free(f); return r; }
+    case 8: { obj* r = FN8(f)(fx(0), a1, a2, a3, a4, a5, a6, a7); free(f); return r; }
+    case 9: { obj* r = FN9(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7); free(f); return r; }
+    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7); free(f); return r; }
+    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7); free(f); return r; }
+    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7); free(f); return r; }
+    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7); free(f); return r; }
+    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6, a7); free(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5, a6, a7); free(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4, a5, a6, a7); free(f); return r; }
+    }
+  }
   switch (arity) {
-  case 7: return FN7(f)(a1, a2, a3, a4, a5, a6, a7);
-  case 8: return FN8(f)(fx(0), a1, a2, a3, a4, a5, a6, a7);
-  case 9: return FN9(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7);
-  case 10: return FN10(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7);
-  case 11: return FN11(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7);
-  case 12: return FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7);
-  case 13: return FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7);
-  case 14: return FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6, a7);
-  case 15: return FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5, a6, a7);
-  case 16: return FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4, a5, a6, a7);
+  case 7: { obj* r = FN7(f)(a1, a2, a3, a4, a5, a6, a7); dec_ref(f); return r; }
+  case 8: { inc(fx(0)); obj* r = FN8(f)(fx(0), a1, a2, a3, a4, a5, a6, a7); dec_ref(f); return r; }
+  case 9: { inc(fx(0)); inc(fx(1)); obj* r = FN9(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7); dec_ref(f); return r; }
+  case 10: { inc(fx(0)); inc(fx(1)); inc(fx(2)); obj* r = FN10(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7); dec_ref(f); return r; }
+  case 11: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7); dec_ref(f); return r; }
+  case 12: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7); dec_ref(f); return r; }
+  case 13: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7); dec_ref(f); return r; }
+  case 14: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6, a7); dec_ref(f); return r; }
+  case 15: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5, a6, a7); dec_ref(f); return r; }
+  case 16: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); inc(fx(8)); obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4, a5, a6, a7); dec_ref(f); return r; }
   default:
     lean_assert(arity > 16);
     obj * as[7] = { a1, a2, a3, a4, a5, a6, a7 };
     obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); } 
     for (unsigned i = 0; i < 7; i++) args[fixed+i] = as[i];
-    return FNN(f)(args);
+    obj * r = FNN(f)(args);
+    dec_ref(f);
+    return r;
   }
 } else if (arity < fixed + 7) {
   obj * as[7] = { a1, a2, a3, a4, a5, a6, a7 };
   obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+  for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  return apply_nc(curry(f, arity, args), 7+fixed-arity, as+arity-fixed);
+  obj * new_f = curry(f, arity, args);
+  dec_ref(f);
+  return apply_n(new_f, 7+fixed-arity, as+arity-fixed);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7});
 }
@@ -345,30 +495,47 @@ obj* apply_8(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj* 
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 8) {
+  if (!is_shared(f)) {
+    switch (arity) {
+    case 8: { obj* r = FN8(f)(a1, a2, a3, a4, a5, a6, a7, a8); free(f); return r; }
+    case 9: { obj* r = FN9(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8); free(f); return r; }
+    case 10: { obj* r = FN10(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8); free(f); return r; }
+    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8); free(f); return r; }
+    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8); free(f); return r; }
+    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8); free(f); return r; }
+    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7, a8); free(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6, a7, a8); free(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5, a6, a7, a8); free(f); return r; }
+    }
+  }
   switch (arity) {
-  case 8: return FN8(f)(a1, a2, a3, a4, a5, a6, a7, a8);
-  case 9: return FN9(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8);
-  case 10: return FN10(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8);
-  case 11: return FN11(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8);
-  case 12: return FN12(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8);
-  case 13: return FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8);
-  case 14: return FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7, a8);
-  case 15: return FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6, a7, a8);
-  case 16: return FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5, a6, a7, a8);
+  case 8: { obj* r = FN8(f)(a1, a2, a3, a4, a5, a6, a7, a8); dec_ref(f); return r; }
+  case 9: { inc(fx(0)); obj* r = FN9(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8); dec_ref(f); return r; }
+  case 10: { inc(fx(0)); inc(fx(1)); obj* r = FN10(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8); dec_ref(f); return r; }
+  case 11: { inc(fx(0)); inc(fx(1)); inc(fx(2)); obj* r = FN11(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8); dec_ref(f); return r; }
+  case 12: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8); dec_ref(f); return r; }
+  case 13: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8); dec_ref(f); return r; }
+  case 14: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7, a8); dec_ref(f); return r; }
+  case 15: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6, a7, a8); dec_ref(f); return r; }
+  case 16: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); inc(fx(7)); obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5, a6, a7, a8); dec_ref(f); return r; }
   default:
     lean_assert(arity > 16);
     obj * as[8] = { a1, a2, a3, a4, a5, a6, a7, a8 };
     obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); } 
     for (unsigned i = 0; i < 8; i++) args[fixed+i] = as[i];
-    return FNN(f)(args);
+    obj * r = FNN(f)(args);
+    dec_ref(f);
+    return r;
   }
 } else if (arity < fixed + 8) {
   obj * as[8] = { a1, a2, a3, a4, a5, a6, a7, a8 };
   obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+  for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  return apply_nc(curry(f, arity, args), 8+fixed-arity, as+arity-fixed);
+  obj * new_f = curry(f, arity, args);
+  dec_ref(f);
+  return apply_n(new_f, 8+fixed-arity, as+arity-fixed);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8});
 }
@@ -377,29 +544,45 @@ obj* apply_9(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj* 
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 9) {
+  if (!is_shared(f)) {
+    switch (arity) {
+    case 9: { obj* r = FN9(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9); free(f); return r; }
+    case 10: { obj* r = FN10(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9); free(f); return r; }
+    case 11: { obj* r = FN11(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9); free(f); return r; }
+    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9); free(f); return r; }
+    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9); free(f); return r; }
+    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8, a9); free(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7, a8, a9); free(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6, a7, a8, a9); free(f); return r; }
+    }
+  }
   switch (arity) {
-  case 9: return FN9(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9);
-  case 10: return FN10(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9);
-  case 11: return FN11(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9);
-  case 12: return FN12(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9);
-  case 13: return FN13(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9);
-  case 14: return FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8, a9);
-  case 15: return FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7, a8, a9);
-  case 16: return FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6, a7, a8, a9);
+  case 9: { obj* r = FN9(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9); dec_ref(f); return r; }
+  case 10: { inc(fx(0)); obj* r = FN10(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9); dec_ref(f); return r; }
+  case 11: { inc(fx(0)); inc(fx(1)); obj* r = FN11(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9); dec_ref(f); return r; }
+  case 12: { inc(fx(0)); inc(fx(1)); inc(fx(2)); obj* r = FN12(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9); dec_ref(f); return r; }
+  case 13: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9); dec_ref(f); return r; }
+  case 14: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8, a9); dec_ref(f); return r; }
+  case 15: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7, a8, a9); dec_ref(f); return r; }
+  case 16: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); inc(fx(6)); obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6, a7, a8, a9); dec_ref(f); return r; }
   default:
     lean_assert(arity > 16);
     obj * as[9] = { a1, a2, a3, a4, a5, a6, a7, a8, a9 };
     obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); } 
     for (unsigned i = 0; i < 9; i++) args[fixed+i] = as[i];
-    return FNN(f)(args);
+    obj * r = FNN(f)(args);
+    dec_ref(f);
+    return r;
   }
 } else if (arity < fixed + 9) {
   obj * as[9] = { a1, a2, a3, a4, a5, a6, a7, a8, a9 };
   obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+  for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  return apply_nc(curry(f, arity, args), 9+fixed-arity, as+arity-fixed);
+  obj * new_f = curry(f, arity, args);
+  dec_ref(f);
+  return apply_n(new_f, 9+fixed-arity, as+arity-fixed);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9});
 }
@@ -408,28 +591,43 @@ obj* apply_10(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj*
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 10) {
+  if (!is_shared(f)) {
+    switch (arity) {
+    case 10: { obj* r = FN10(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); free(f); return r; }
+    case 11: { obj* r = FN11(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); free(f); return r; }
+    case 12: { obj* r = FN12(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); free(f); return r; }
+    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); free(f); return r; }
+    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); free(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); free(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); free(f); return r; }
+    }
+  }
   switch (arity) {
-  case 10: return FN10(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
-  case 11: return FN11(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
-  case 12: return FN12(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
-  case 13: return FN13(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
-  case 14: return FN14(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
-  case 15: return FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
-  case 16: return FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
+  case 10: { obj* r = FN10(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); dec_ref(f); return r; }
+  case 11: { inc(fx(0)); obj* r = FN11(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); dec_ref(f); return r; }
+  case 12: { inc(fx(0)); inc(fx(1)); obj* r = FN12(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); dec_ref(f); return r; }
+  case 13: { inc(fx(0)); inc(fx(1)); inc(fx(2)); obj* r = FN13(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); dec_ref(f); return r; }
+  case 14: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); dec_ref(f); return r; }
+  case 15: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); dec_ref(f); return r; }
+  case 16: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); inc(fx(5)); obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); dec_ref(f); return r; }
   default:
     lean_assert(arity > 16);
     obj * as[10] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10 };
     obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); } 
     for (unsigned i = 0; i < 10; i++) args[fixed+i] = as[i];
-    return FNN(f)(args);
+    obj * r = FNN(f)(args);
+    dec_ref(f);
+    return r;
   }
 } else if (arity < fixed + 10) {
   obj * as[10] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10 };
   obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+  for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  return apply_nc(curry(f, arity, args), 10+fixed-arity, as+arity-fixed);
+  obj * new_f = curry(f, arity, args);
+  dec_ref(f);
+  return apply_n(new_f, 10+fixed-arity, as+arity-fixed);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10});
 }
@@ -438,27 +636,41 @@ obj* apply_11(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj*
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 11) {
+  if (!is_shared(f)) {
+    switch (arity) {
+    case 11: { obj* r = FN11(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); free(f); return r; }
+    case 12: { obj* r = FN12(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); free(f); return r; }
+    case 13: { obj* r = FN13(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); free(f); return r; }
+    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); free(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); free(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); free(f); return r; }
+    }
+  }
   switch (arity) {
-  case 11: return FN11(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
-  case 12: return FN12(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
-  case 13: return FN13(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
-  case 14: return FN14(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
-  case 15: return FN15(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
-  case 16: return FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
+  case 11: { obj* r = FN11(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); dec_ref(f); return r; }
+  case 12: { inc(fx(0)); obj* r = FN12(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); dec_ref(f); return r; }
+  case 13: { inc(fx(0)); inc(fx(1)); obj* r = FN13(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); dec_ref(f); return r; }
+  case 14: { inc(fx(0)); inc(fx(1)); inc(fx(2)); obj* r = FN14(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); dec_ref(f); return r; }
+  case 15: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); dec_ref(f); return r; }
+  case 16: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); inc(fx(4)); obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); dec_ref(f); return r; }
   default:
     lean_assert(arity > 16);
     obj * as[11] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11 };
     obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); } 
     for (unsigned i = 0; i < 11; i++) args[fixed+i] = as[i];
-    return FNN(f)(args);
+    obj * r = FNN(f)(args);
+    dec_ref(f);
+    return r;
   }
 } else if (arity < fixed + 11) {
   obj * as[11] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11 };
   obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+  for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  return apply_nc(curry(f, arity, args), 11+fixed-arity, as+arity-fixed);
+  obj * new_f = curry(f, arity, args);
+  dec_ref(f);
+  return apply_n(new_f, 11+fixed-arity, as+arity-fixed);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11});
 }
@@ -467,26 +679,39 @@ obj* apply_12(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj*
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 12) {
+  if (!is_shared(f)) {
+    switch (arity) {
+    case 12: { obj* r = FN12(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); free(f); return r; }
+    case 13: { obj* r = FN13(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); free(f); return r; }
+    case 14: { obj* r = FN14(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); free(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); free(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); free(f); return r; }
+    }
+  }
   switch (arity) {
-  case 12: return FN12(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12);
-  case 13: return FN13(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12);
-  case 14: return FN14(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12);
-  case 15: return FN15(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12);
-  case 16: return FN16(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12);
+  case 12: { obj* r = FN12(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); dec_ref(f); return r; }
+  case 13: { inc(fx(0)); obj* r = FN13(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); dec_ref(f); return r; }
+  case 14: { inc(fx(0)); inc(fx(1)); obj* r = FN14(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); dec_ref(f); return r; }
+  case 15: { inc(fx(0)); inc(fx(1)); inc(fx(2)); obj* r = FN15(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); dec_ref(f); return r; }
+  case 16: { inc(fx(0)); inc(fx(1)); inc(fx(2)); inc(fx(3)); obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); dec_ref(f); return r; }
   default:
     lean_assert(arity > 16);
     obj * as[12] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12 };
     obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); } 
     for (unsigned i = 0; i < 12; i++) args[fixed+i] = as[i];
-    return FNN(f)(args);
+    obj * r = FNN(f)(args);
+    dec_ref(f);
+    return r;
   }
 } else if (arity < fixed + 12) {
   obj * as[12] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12 };
   obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+  for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  return apply_nc(curry(f, arity, args), 12+fixed-arity, as+arity-fixed);
+  obj * new_f = curry(f, arity, args);
+  dec_ref(f);
+  return apply_n(new_f, 12+fixed-arity, as+arity-fixed);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12});
 }
@@ -495,25 +720,37 @@ obj* apply_13(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj*
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 13) {
+  if (!is_shared(f)) {
+    switch (arity) {
+    case 13: { obj* r = FN13(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); free(f); return r; }
+    case 14: { obj* r = FN14(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); free(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); free(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); free(f); return r; }
+    }
+  }
   switch (arity) {
-  case 13: return FN13(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
-  case 14: return FN14(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
-  case 15: return FN15(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
-  case 16: return FN16(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
+  case 13: { obj* r = FN13(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); dec_ref(f); return r; }
+  case 14: { inc(fx(0)); obj* r = FN14(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); dec_ref(f); return r; }
+  case 15: { inc(fx(0)); inc(fx(1)); obj* r = FN15(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); dec_ref(f); return r; }
+  case 16: { inc(fx(0)); inc(fx(1)); inc(fx(2)); obj* r = FN16(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); dec_ref(f); return r; }
   default:
     lean_assert(arity > 16);
     obj * as[13] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13 };
     obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); } 
     for (unsigned i = 0; i < 13; i++) args[fixed+i] = as[i];
-    return FNN(f)(args);
+    obj * r = FNN(f)(args);
+    dec_ref(f);
+    return r;
   }
 } else if (arity < fixed + 13) {
   obj * as[13] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13 };
   obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+  for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  return apply_nc(curry(f, arity, args), 13+fixed-arity, as+arity-fixed);
+  obj * new_f = curry(f, arity, args);
+  dec_ref(f);
+  return apply_n(new_f, 13+fixed-arity, as+arity-fixed);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13});
 }
@@ -522,24 +759,35 @@ obj* apply_14(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj*
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 14) {
+  if (!is_shared(f)) {
+    switch (arity) {
+    case 14: { obj* r = FN14(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); free(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); free(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); free(f); return r; }
+    }
+  }
   switch (arity) {
-  case 14: return FN14(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14);
-  case 15: return FN15(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14);
-  case 16: return FN16(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14);
+  case 14: { obj* r = FN14(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); dec_ref(f); return r; }
+  case 15: { inc(fx(0)); obj* r = FN15(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); dec_ref(f); return r; }
+  case 16: { inc(fx(0)); inc(fx(1)); obj* r = FN16(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); dec_ref(f); return r; }
   default:
     lean_assert(arity > 16);
     obj * as[14] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14 };
     obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); } 
     for (unsigned i = 0; i < 14; i++) args[fixed+i] = as[i];
-    return FNN(f)(args);
+    obj * r = FNN(f)(args);
+    dec_ref(f);
+    return r;
   }
 } else if (arity < fixed + 14) {
   obj * as[14] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14 };
   obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+  for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  return apply_nc(curry(f, arity, args), 14+fixed-arity, as+arity-fixed);
+  obj * new_f = curry(f, arity, args);
+  dec_ref(f);
+  return apply_n(new_f, 14+fixed-arity, as+arity-fixed);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14});
 }
@@ -548,23 +796,33 @@ obj* apply_15(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj*
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 15) {
+  if (!is_shared(f)) {
+    switch (arity) {
+    case 15: { obj* r = FN15(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15); free(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15); free(f); return r; }
+    }
+  }
   switch (arity) {
-  case 15: return FN15(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15);
-  case 16: return FN16(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15);
+  case 15: { obj* r = FN15(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15); dec_ref(f); return r; }
+  case 16: { inc(fx(0)); obj* r = FN16(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15); dec_ref(f); return r; }
   default:
     lean_assert(arity > 16);
     obj * as[15] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15 };
     obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); } 
     for (unsigned i = 0; i < 15; i++) args[fixed+i] = as[i];
-    return FNN(f)(args);
+    obj * r = FNN(f)(args);
+    dec_ref(f);
+    return r;
   }
 } else if (arity < fixed + 15) {
   obj * as[15] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15 };
   obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+  for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  return apply_nc(curry(f, arity, args), 15+fixed-arity, as+arity-fixed);
+  obj * new_f = curry(f, arity, args);
+  dec_ref(f);
+  return apply_n(new_f, 15+fixed-arity, as+arity-fixed);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15});
 }
@@ -573,22 +831,31 @@ obj* apply_16(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj*
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 16) {
+  if (!is_shared(f)) {
+    switch (arity) {
+    case 16: { obj* r = FN16(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16); free(f); return r; }
+    }
+  }
   switch (arity) {
-  case 16: return FN16(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16);
+  case 16: { obj* r = FN16(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16); dec_ref(f); return r; }
   default:
     lean_assert(arity > 16);
     obj * as[16] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16 };
     obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); } 
     for (unsigned i = 0; i < 16; i++) args[fixed+i] = as[i];
-    return FNN(f)(args);
+    obj * r = FNN(f)(args);
+    dec_ref(f);
+    return r;
   }
 } else if (arity < fixed + 16) {
   obj * as[16] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16 };
   obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+  for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  return apply_nc(curry(f, arity, args), 16+fixed-arity, as+arity-fixed);
+  obj * new_f = curry(f, arity, args);
+  dec_ref(f);
+  return apply_n(new_f, 16+fixed-arity, as+arity-fixed);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16});
 }
@@ -599,14 +866,18 @@ unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + n) {
   obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+  for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < n; i++) args[fixed+i] = as[i];
-  return FNN(f)(args);
+  obj * r = FNN(f)(args);
+  dec_ref(f);
+  return r;
 } else if (arity < fixed + n) {
   obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+  for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  return apply_nc(FNN(f)(args), n+fixed-arity, as+arity-fixed);
+  obj * new_f = FNN(f)(args);
+  dec_ref(f);
+  return apply_n(new_f, n+fixed-arity, as+arity-fixed);
 } else {
   return fix_args(f, n, as);
 }

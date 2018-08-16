@@ -39,6 +39,11 @@ string.join $ (n.repeat (λ i r, r ++ [sformat! "as[{i}]"]) []).intersperse ", "
 def mk_fs_args (n : nat) : string :=
 string.join $ (n.repeat (λ i r, r ++ [sformat! "fx({i})"]) []).intersperse ", "
 
+-- Make string: "inc(fx(0)); ...; inc(fx(n-1))"
+def mk_inc_fs (n : nat) : string :=
+string.join $ (n.repeat (λ i r, r ++ [sformat! "inc(fx({i})); "]) [])
+
+
 def mk_apply_i (n : nat) (max : nat) : m unit :=
 let arg_decls := mk_arg_decls n in
 let args := mk_args n in
@@ -46,29 +51,45 @@ do emit $ sformat! "obj* apply_{n}(obj* f, {arg_decls}) {{\n",
    emit "unsigned arity = closure_arity(f);\n",
    emit "unsigned fixed = closure_num_fixed(f);\n",
    emit $ sformat! "if (arity == fixed + {n}) {{\n",
-     emit $ sformat! "  switch (arity) {{\n",
+     emit $ sformat! "  if (!is_shared(f)) {{\n",
+     emit $ sformat! "    switch (arity) {{\n",
      max.mrepeat $ λ i, do {
        let j := i + 1,
        when (j ≥ n) $
          let fs := mk_fs_args (j - n) in
          let sep := if j = n then "" else ", " in
-         emit $ sformat! "  case {j}: return FN{j}(f)({fs}{sep}{args});\n"
+         emit $ sformat! "    case {j}: {{ obj* r = FN{j}(f)({fs}{sep}{args}); free(f); return r; }\n"
+     },
+     emit "    }\n",
+     emit "  }\n",
+     emit $ sformat! "  switch (arity) {{\n",
+     max.mrepeat $ λ i, do {
+       let j := i + 1,
+       when (j ≥ n) $
+         let incfs := mk_inc_fs (j - n) in
+         let fs := mk_fs_args (j - n) in
+         let sep := if j = n then "" else ", " in
+         emit $ sformat! "  case {j}: {{ {incfs}obj* r = FN{j}(f)({fs}{sep}{args}); dec_ref(f); return r; }\n"
      },
      emit "  default:\n",
        emit $ sformat! "    lean_assert(arity > {max});\n",
        emit $ sformat! "    obj * as[{n}] = {{ {args} };\n",
        emit "    obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT\n",
-       emit "    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);\n",
+       emit "    for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); } \n",
        emit $ sformat! "    for (unsigned i = 0; i < {n}; i++) args[fixed+i] = as[i];\n",
-       emit "    return FNN(f)(args);\n",
+       emit "    obj * r = FNN(f)(args);\n",
+       emit "    dec_ref(f);\n",
+       emit "    return r;\n",
      emit "  }\n",
    emit $ sformat! "} else if (arity < fixed + {n}) {{\n",
      if n ≥ 2 then do
        emit $ sformat! "  obj * as[{n}] = {{ {args} };\n",
        emit "  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT\n",
-       emit "  for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);\n",
+       emit "  for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); }\n",
        emit "  for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];\n",
-       emit $ sformat! "  return apply_nc(curry(f, arity, args), {n}+fixed-arity, as+arity-fixed);\n"
+       emit "  obj * new_f = curry(f, arity, args);\n",
+       emit "  dec_ref(f);\n",
+       emit $ sformat! "  return apply_n(new_f, {n}+fixed-arity, as+arity-fixed);\n"
      else emit "  lean_assert(fixed < arity);\n  lean_unreachable();\n",
    emit "} else {\n",
      emit $ sformat! "  return fix_args(f, {{{args}});\n",
@@ -104,14 +125,18 @@ do emit "obj* apply_m(obj* f, unsigned n, obj** as) {\n",
    emit "unsigned fixed = closure_num_fixed(f);\n",
    emit $ sformat! "if (arity == fixed + n) {{\n",
      emit "  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT\n",
-     emit "  for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);\n",
+     emit "  for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); }\n",
      emit "  for (unsigned i = 0; i < n; i++) args[fixed+i] = as[i];\n",
-     emit "  return FNN(f)(args);\n",
+     emit "  obj * r = FNN(f)(args);\n",
+     emit "  dec_ref(f);\n",
+     emit "  return r;\n",
    emit $ sformat! "} else if (arity < fixed + n) {{\n",
      emit "  obj ** args = static_cast<obj**>(lean::alloca(arity*sizeof(obj*))); // NOLINT\n",
-     emit "  for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);\n",
+     emit "  for (unsigned i = 0; i < fixed; i++) { inc(fx(i)); args[i] = fx(i); }\n",
      emit "  for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];\n",
-     emit "  return apply_nc(FNN(f)(args), n+fixed-arity, as+arity-fixed);\n",
+     emit "  obj * new_f = FNN(f)(args);\n",
+     emit "  dec_ref(f);\n",
+     emit "  return apply_n(new_f, n+fixed-arity, as+arity-fixed);\n",
    emit "} else {\n",
      emit "  return fix_args(f, n, as);\n",
    emit "}\n",
@@ -127,15 +152,21 @@ static obj* fix_args(obj* f, unsigned n, obj*const* as) {
     obj * r = alloc_closure(closure_fun(f), arity, new_fixed);
     obj ** source = closure_arg_cptr(f);
     obj ** target = closure_arg_cptr(r);
-    for (unsigned i = 0; i < fixed; i++, source++, target++) {
-        *target = *source;
-        inc(*target);
+    if (is_shared(f)) {
+      for (unsigned i = 0; i < fixed; i++, source++, target++) {
+          *target = *source;
+          inc(*target);
+      }
+      dec_ref(f);
+    } else {
+      for (unsigned i = 0; i < fixed; i++, source++, target++) {
+          *target = *source;
+      }
+      free(f);
     }
     for (unsigned i = 0; i < n; i++, as++, target++) {
         *target = *as;
-        inc(*target);
     }
-    inc_ref(r);
     return r;
 }
 
@@ -168,7 +199,6 @@ do mk_copyright,
    emit "#define FNN(f) reinterpret_cast<fnn>(closure_fun(f))\n",
    mk_curry max,
    emit "obj* apply_n(obj*, unsigned, obj**);\n",
-   emit "static inline obj* apply_nc(obj* f, unsigned n, obj** as) { obj* r = apply_n(f, n, as); dec_ref_core(f); return r; }\n",
    max.mrepeat $ λ i, do { mk_apply_i (i+1) max },
    mk_apply_m max,
    mk_apply_n max,
@@ -193,7 +223,7 @@ do mk_copyright,
    emit "object* apply_m(object* f, unsigned n, object** args);\n",
    emit "}\n"
 
--- #eval (mk_apply_cpp lean.closure_max_args).run none
+-- #eval (mk_apply_cpp 4).run none
 
 #eval (mk_apply_cpp lean.closure_max_args).run "..//src//runtime//apply.cpp"
 #eval (mk_apply_h lean.closure_max_args).run "..//src//runtime//apply.h"

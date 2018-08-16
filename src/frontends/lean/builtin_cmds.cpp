@@ -455,6 +455,18 @@ static environment eval_cmd(parser & p) {
 
     type_context_old tc(p.env(), transparency_mode::All);
     auto type = tc.infer(e);
+
+    /* Check if resultant type has an instance of has_eval */
+    try {
+        expr has_eval_type = mk_app(tc, get_has_eval_name(), type);
+        optional<expr> eval_instance = tc.mk_class_instance(has_eval_type);
+        if (eval_instance) {
+            /* Modify the 'program' to (has_eval.eval e) */
+            e             = mk_app(tc, get_has_eval_eval_name(), 3, type, *eval_instance, e);
+            type          = tc.infer(e);
+        }
+    } catch (exception &) {}
+
     bool has_repr_inst = false;
 
     /* Check if resultant type has an instance of has_repr */

@@ -301,3 +301,42 @@ meta constant tactic.unsafe_run_io {α : Type} : io α → tactic α
    This action is mainly useful for writing tactics that inspect
    the environment. -/
 meta constant io.run_tactic {α : Type} (a : tactic α) : except_t format io α
+
+
+universe u
+
+/-- Typeclass used for presenting the output of an `#eval` command. -/
+meta class has_eval (α : Type u) :=
+(eval : α → tactic unit)
+
+meta instance has_repr.has_eval {α : Type u} [has_repr α] : has_eval α :=
+⟨tactic.trace ∘ repr⟩
+
+meta instance tactic.has_eval {α : Type} [has_eval α] : has_eval (tactic α) :=
+⟨(>>= has_eval.eval)⟩
+
+-- special case: do not print `()`
+meta instance tactic_unit.has_eval : has_eval (tactic unit) :=
+⟨id⟩
+
+meta instance io.has_eval {α : Type} [has_eval α] : has_eval (io α) :=
+⟨λ x, tactic.unsafe_run_io x >>= has_eval.eval⟩
+
+-- special case: do not print `()`
+meta instance io_unit.has_eval : has_eval (io unit) :=
+⟨tactic.unsafe_run_io⟩
+
+meta instance eio.has_eval {ε α : Type} [has_to_format ε] [has_eval α] : has_eval (except_t ε io α) :=
+⟨λ x, do
+  r ← tactic.unsafe_run_io x.run,
+  match r with
+  | except.error e := tactic.fail e
+  | except.ok a    := has_eval.eval a⟩
+
+-- special case: do not print `()`
+meta instance eio_unit.has_eval {ε : Type} [has_to_format ε] : has_eval (except_t ε io unit) :=
+⟨λ x, do
+  r ← tactic.unsafe_run_io x.run,
+  match r with
+  | except.error e := tactic.fail e
+  | except.ok a    := pure ()⟩

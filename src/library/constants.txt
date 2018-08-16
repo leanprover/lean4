@@ -69,6 +69,8 @@ has_bind.and_then
 has_bind.seq
 has_div.div
 has_emptyc.emptyc
+has_eval
+has_eval.eval
 has_insert.insert
 has_neg.neg
 has_one

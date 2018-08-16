@@ -18,14 +18,8 @@ object * f(object *) {
     return box(10);
 }
 
-object_ref mk_thunk_ref(object_ref const & c) {
-    inc(c.raw());
-    return object_ref(mk_thunk(c.raw()));
-}
-
 static void tst1() {
-    object_ref c(alloc_closure(f, 1, 0));
-    object_ref t = mk_thunk_ref(c);
+    object_ref t(mk_thunk(alloc_closure(f, 1, 0)));
     object * r1 = thunk_get(t.raw());
     object * r2 = thunk_get(t.raw());
     std::cout << "thunk value: " << unbox(r1) << "\n";
@@ -40,12 +34,14 @@ object * g(object *) {
 }
 
 static void tst2() {
-    object_ref c(alloc_closure(g, 1, 0));
-    object * r1 = apply_1(c.raw(), box(0));
-    object * r2 = apply_1(c.raw(), box(0));
+    object * c = alloc_closure(g, 1, 0);
+    inc(c);
+    object * r1 = apply_1(c, box(0));
+    inc(c);
+    object * r2 = apply_1(c, box(0));
     lean_assert(unbox(r1) == 1);
     lean_assert(unbox(r2) == 2);
-    object_ref t = mk_thunk_ref(c);
+    object_ref t(mk_thunk(c));
     object * r3 = thunk_get(t.raw());
     object * r4 = thunk_get(t.raw());
     lean_assert(unbox(r3) == 3);
@@ -65,8 +61,7 @@ object * h(object *) {
    The thunk implementation relies on the fact that nullptr is not a scalar nor a valid
    Lean object. */
 static void tst3() {
-    object_ref c(alloc_closure(h, 1, 0));
-    object_ref t = mk_thunk_ref(c);
+    object_ref t(mk_thunk(alloc_closure(h, 1, 0)));
     lean_assert(g_h_counter == 0);
     object * r3 = thunk_get(t.raw());
     lean_assert(g_h_counter == 1);
@@ -82,8 +77,7 @@ object * r(object *) {
 }
 
 static void tst4() {
-    object_ref c(alloc_closure(r, 1, 0));
-    object_ref t = mk_thunk_ref(c);
+    object_ref t(mk_thunk(alloc_closure(r, 1, 0)));
     object * r3  = thunk_get(t.raw());
     object * r4  = thunk_get(t.raw());
     lean_assert(string_eq(r3, "hello world"));
@@ -92,8 +86,7 @@ static void tst4() {
 }
 
 static void tst5() {
-    object_ref c(alloc_closure(r, 1, 0));
-    object_ref t = mk_thunk_ref(c);
+    object_ref t(mk_thunk(alloc_closure(r, 1, 0)));
     std::ostringstream out;
     serializer s(out);
     object_ref o(mk_string("bla bla"));

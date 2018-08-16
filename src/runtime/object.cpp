@@ -190,12 +190,12 @@ object * string_push(object * s, unsigned c) {
 
 object * string_append(object * s1, object * s2) {
     lean_assert(!is_shared(s1));
+    lean_assert(s1 != s2);
     size_t sz1 = string_size(s1);
     size_t sz2 = string_size(s2);
     size_t len1 = string_len(s1);
     size_t len2 = string_len(s2);
     object * r = string_ensure_capacity(s1, sz2-1);
-    if (s1 == s2) s2 = r;
     memcpy(w_string_data(r) + sz1 - 1, string_data(s2), sz2 - 1);
     unsigned new_sz = sz1 + sz2 - 1;
     to_string(r)->m_size   = new_sz;

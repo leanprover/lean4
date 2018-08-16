@@ -17,31 +17,9 @@ Author: Leonardo de Moura
 
 namespace lean {
 /*
-In our runtime, a Lean function consume the reference counter (RC) of its argument or not.
-We say this behavior is part of the "calling convention" for the function. We say an argument uses:
-
-1- "standard" calling convention if it consumes/decrements the RC.
-   In this calling convention each argument should be viewed as a resource that is consumed by the function.
-   This is roughly equivalent to `S && a` in C++, where `S` is a smart pointer, and `a` is the argument.
-   When this calling convention is used for an argument `x`, then it is safe to perform destructive updates to
-   `x` if its RC is 1.
-
-2- "borrowed" calling convention if it doesn't consume/decrement the RC, and it is the responsability of the caller
-   to decrement the RC.
-   This is roughly equivalent to `S const & a` in C++, where `S` is a smart pointer, and `a` is the argument.
-
-For returning objects, we also have two conventions
-
-1- "standard" result. The caller is responsible for consuming the RC of the result.
-   This is roughly equivalent to returning a smart point `S` by value in C++.
-
-2- "borrowed" result. The caller is not responsible for decreasing the RC.
-   This is roughly equivalent to returning a smart point reference `S const &` in C++.
-
 The primitives implemented in the runtime do not modify the RC of its arguments.
 Callers are responsible for increasing/decreasing the RCs using the `inc`/`dec` operations.
 All new objects allocated by the primitives have RC == 1.
-Functions stored in closures use the "standard" calling convention.
 */
 
 inline void * alloca(size_t s) {
@@ -217,6 +195,8 @@ inline void dealloc(object * o) {
     }
 }
 
+/* Object auxiliary functions */
+
 /* Size of the object in bytes. This function is used for debugging purposes.
    \pre !is_scalar(o) && !is_external(o) */
 size_t obj_byte_size(object * o);
@@ -242,121 +222,32 @@ inline void obj_set_data(object * o, size_t offset, T v) {
     *(reinterpret_cast<T *>(reinterpret_cast<char *>(o) + offset)) = v;
 }
 
-/* Constructor objects */
-inline object * alloc_cnstr(unsigned tag, unsigned num_objs, unsigned scalar_sz) {
-    lean_assert(tag < 65536 && num_objs < 65536 && scalar_sz < 65536);
-    return new (malloc(sizeof(constructor_object) + num_objs * sizeof(object *) + scalar_sz)) constructor_object(tag, num_objs, scalar_sz); // NOLINT
-}
-inline unsigned cnstr_tag(object * o) { return to_cnstr(o)->m_tag; }
+/* Constructor auxiliary functions */
+
 inline unsigned cnstr_num_objs(object * o) { return to_cnstr(o)->m_num_objs; }
 inline unsigned cnstr_scalar_size(object * o) { return to_cnstr(o)->m_scalar_size; }
 inline size_t cnstr_byte_size(object * o) { return sizeof(constructor_object) + cnstr_num_objs(o)*sizeof(object*) + cnstr_scalar_size(o); } // NOLINT
-inline object * cnstr_obj(object * o, unsigned i) {
-    lean_assert(i < cnstr_num_objs(o));
-    return obj_data<object*>(o, sizeof(constructor_object) + sizeof(object*)*i); // NOLINT
-}
 inline object ** cnstr_obj_cptr(object * o) {
     lean_assert(is_cnstr(o));
     return reinterpret_cast<object**>(reinterpret_cast<char*>(o) + sizeof(constructor_object));
-}
-template<typename T>
-inline T cnstr_scalar(object * o, size_t offset) {
-    return obj_data<T>(o, sizeof(constructor_object) + offset);
 }
 inline unsigned char * cnstr_scalar_cptr(object * o) {
     lean_assert(is_cnstr(o));
     return reinterpret_cast<unsigned char*>(reinterpret_cast<char*>(o) + sizeof(constructor_object) + cnstr_num_objs(o)*sizeof(object*)); // NOLINT
 }
-inline void cnstr_set_obj(object * o, unsigned i, object * v) {
-    lean_assert(i < cnstr_num_objs(o));
-    obj_set_data(o, sizeof(constructor_object) + sizeof(object*)*i, v); // NOLINT
-}
-template<typename T>
-inline void cnstr_set_scalar(object * o, unsigned i, T v) {
-    obj_set_data(o, sizeof(constructor_object) + i, v);
-}
 
-inline unsigned obj_tag(object * o) { if (is_scalar(o)) return unbox(o); else return cnstr_tag(o); }
+/* Closure auxiliary functions */
 
-/* Closures */
-inline object * alloc_closure(lean_cfun fun, unsigned arity, unsigned num_fixed) {
-    lean_assert(arity > 0);
-    lean_assert(num_fixed < arity);
-    return new (malloc(sizeof(closure_object) + num_fixed * sizeof(object *))) closure_object(fun, arity, num_fixed); // NOLINT
-}
 inline lean_cfun closure_fun(object * o) { return to_closure(o)->m_fun; }
 inline unsigned closure_arity(object * o) { return to_closure(o)->m_arity; }
 inline unsigned closure_num_fixed(object * o) { return to_closure(o)->m_num_fixed; }
 inline size_t closure_byte_size(object * o) { return sizeof(closure_object) + (closure_arity(o) - 1)*sizeof(object*); } // NOLINT
-inline object * closure_arg(object * o, unsigned i) {
-    lean_assert(i < closure_num_fixed(o));
-    return obj_data<object*>(o, sizeof(closure_object) + sizeof(object*)*i); // NOLINT
-}
-
 inline object ** closure_arg_cptr(object * o) {
     lean_assert(is_closure(o));
     return reinterpret_cast<object**>(reinterpret_cast<char*>(o) + sizeof(closure_object));
 }
-inline void closure_set_arg(object * o, unsigned i, object * a) {
-    lean_assert(i < closure_num_fixed(o));
-    obj_set_data(o, sizeof(closure_object) + sizeof(object*)*i, a); // NOLINT
-}
 
-/* Array of objects */
-inline object * alloc_array(size_t size, size_t capacity) {
-    return new (malloc(sizeof(array_object) + capacity * sizeof(object *))) array_object(size, capacity); // NOLINT
-}
-inline size_t array_size(object * o) { return to_array(o)->m_size; }
-inline size_t array_capacity(object * o) { return to_array(o)->m_capacity; }
-inline size_t array_byte_size(object * o) { return sizeof(array_object) + array_capacity(o)*sizeof(object*); } // NOLINT
-inline object * array_obj(object * o, size_t i) {
-    lean_assert(i < array_size(o));
-    return obj_data<object*>(o, sizeof(array_object) + sizeof(object*)*i); // NOLINT
-}
-inline object ** array_cptr(object * o) {
-    lean_assert(is_array(o));
-    return reinterpret_cast<object**>(reinterpret_cast<char*>(o) + sizeof(array_object));
-}
-inline void array_set_size(object * o, size_t sz) {
-    lean_assert(is_array(o));
-    lean_assert(!is_shared(o));
-    lean_assert(sz <= array_capacity(o));
-    to_array(o)->m_size = sz;
-}
-inline void array_set_obj(object * o, size_t i, object * v) {
-    lean_assert(i < array_size(o));
-    obj_set_data(o, sizeof(array_object) + sizeof(object*)*i, v); // NOLINT
-}
-
-/* Array of scalars */
-inline object * alloc_sarray(unsigned elem_size, size_t size, size_t capacity) {
-    return new (malloc(sizeof(sarray_object) + capacity * elem_size)) sarray_object(elem_size, size, capacity); // NOLINT
-}
-inline unsigned sarray_elem_size(object * o) { return to_sarray(o)->m_elem_size; }
-inline size_t sarray_size(object * o) { return to_sarray(o)->m_size; }
-inline size_t sarray_capacity(object * o) { return to_sarray(o)->m_capacity; }
-inline size_t sarray_byte_size(object * o) { return sizeof(sarray_object) + sarray_capacity(o)*sarray_elem_size(o); } // NOLINT
-template<typename T>
-T * sarray_cptr_core(object * o) { lean_assert(is_sarray(o)); return reinterpret_cast<T*>(reinterpret_cast<char*>(o) + sizeof(sarray_object)); }
-template<typename T>
-T * sarray_cptr(object * o) { lean_assert(sarray_elem_size(o) == sizeof(T)); return sarray_cptr_core<T>(o); }
-template<typename T> T sarray_data(object * o, size_t i) { return sarray_cptr<T>(o)[i]; }
-template<typename T> void sarray_set_data(object * o, size_t i, T v) {
-    obj_set_data(o, sizeof(sarray_object) + sizeof(T)*i, v);
-}
-inline void sarray_set_size(object * o, size_t sz) {
-    lean_assert(is_sarray(o));
-    lean_assert(!is_shared(o));
-    lean_assert(sz <= sarray_capacity(o));
-    to_sarray(o)->m_size = sz;
-}
-
-/* MPZ */
-
-inline object * alloc_mpz(mpz const & m) { return new mpz_object(m); }
-inline mpz const & mpz_value(object * o) { return to_mpz(o)->m_value; }
-
-/* Thunks */
+/* Thunk auxiliary functions */
 
 inline thunk_object::thunk_object(object * c, bool is_value):
     object(object_kind::Thunk) {
@@ -369,67 +260,229 @@ inline thunk_object::thunk_object(object * c, bool is_value):
         m_value   = nullptr;
     }
 }
-
-inline object * mk_thunk(object * c) {
-    return new (malloc(sizeof(thunk_object))) thunk_object(c, false); // NOLINT
-}
-
-inline object * mk_thunk_from_value(object * v) {
-    return new (malloc(sizeof(thunk_object))) thunk_object(v, true); // NOLINT
-}
-
 object * apply_1(object * f, object * a1);
-
 /* Expensive version of thunk_get which tries to execute the nested closure */
 object * thunk_get_core(object * t);
 
+
+/* Array auxiliary functions */
+
+inline size_t array_capacity(object * o) { return to_array(o)->m_capacity; }
+inline size_t array_byte_size(object * o) { return sizeof(array_object) + array_capacity(o)*sizeof(object*); } // NOLINT
+inline object ** array_cptr(object * o) {
+    lean_assert(is_array(o));
+    return reinterpret_cast<object**>(reinterpret_cast<char*>(o) + sizeof(array_object));
+}
+
+/* Array of scalars auxiliary functions */
+
+inline unsigned sarray_elem_size(object * o) { return to_sarray(o)->m_elem_size; }
+inline size_t sarray_capacity(object * o) { return to_sarray(o)->m_capacity; }
+inline size_t sarray_byte_size(object * o) { return sizeof(sarray_object) + sarray_capacity(o)*sarray_elem_size(o); } // NOLINT
+template<typename T>
+T * sarray_cptr_core(object * o) { lean_assert(is_sarray(o)); return reinterpret_cast<T*>(reinterpret_cast<char*>(o) + sizeof(sarray_object)); }
+template<typename T>
+T * sarray_cptr(object * o) { lean_assert(sarray_elem_size(o) == sizeof(T)); return sarray_cptr_core<T>(o); }
+
+/* String auxiliary functions */
+
+inline size_t string_capacity(object * o) { return to_string(o)->m_capacity; }
+inline size_t string_byte_size(object * o) { return sizeof(string_object) + string_capacity(o); } // NOLINT
+
+/* MPZ auxiliary function */
+inline object * alloc_mpz(mpz const & m) { return new mpz_object(m); }
+
+/* Natural numbers auxiliary functions */
+
+#define LEAN_MAX_SMALL_NAT (sizeof(void*) == 8 ? std::numeric_limits<unsigned>::max() : (std::numeric_limits<unsigned>::max() >> 1)) // NOLINT
+inline object * mk_nat_obj_core(mpz const & m) {
+    lean_assert(m > LEAN_MAX_SMALL_NAT);
+    return alloc_mpz(m);
+}
+object * nat_big_add(object * a1, object * a2);
+object * nat_big_sub(object * a1, object * a2);
+object * nat_big_mul(object * a1, object * a2);
+object * nat_big_div(object * a1, object * a2);
+object * nat_big_mod(object * a1, object * a2);
+bool nat_big_eq(object * a1, object * a2);
+bool nat_big_le(object * a1, object * a2);
+bool nat_big_lt(object * a1, object * a2);
+object * nat_big_land(object * a1, object * a2);
+object * nat_big_lor(object * a1, object * a2);
+object * nat_big_xor(object * a1, object * a2);
+
+
+/* Integers auxiliary functions */
+
+#define LEAN_MAX_SMALL_INT (sizeof(void*) == 8 ? std::numeric_limits<int>::max() : (1 << 30)) // NOLINT
+#define LEAN_MIN_SMALL_INT (sizeof(void*) == 8 ? std::numeric_limits<int>::min() : -(1 << 30)) // NOLINT
+inline object * mk_int_obj_core(mpz const & m) {
+    lean_assert(m < LEAN_MIN_SMALL_INT || m > LEAN_MAX_SMALL_INT);
+    return alloc_mpz(m);
+}
+object * int_big_add(object * a1, object * a2);
+object * int_big_sub(object * a1, object * a2);
+object * int_big_mul(object * a1, object * a2);
+object * int_big_div(object * a1, object * a2);
+object * int_big_rem(object * a1, object * a2);
+bool int_big_eq(object * a1, object * a2);
+bool int_big_le(object * a1, object * a2);
+bool int_big_lt(object * a1, object * a2);
+
+/*
+In our runtime, a Lean function consume the reference counter (RC) of its argument or not.
+We say this behavior is part of the "calling convention" for the function. We say an argument uses:
+
+1- "standard" calling convention if it consumes/decrements the RC.
+   In this calling convention each argument should be viewed as a resource that is consumed by the function.
+   This is roughly equivalent to `S && a` in C++, where `S` is a smart pointer, and `a` is the argument.
+   When this calling convention is used for an argument `x`, then it is safe to perform destructive updates to
+   `x` if its RC is 1.
+
+2- "borrowed" calling convention if it doesn't consume/decrement the RC, and it is the responsability of the caller
+   to decrement the RC.
+   This is roughly equivalent to `S const & a` in C++, where `S` is a smart pointer, and `a` is the argument.
+
+For returning objects, we also have two conventions
+
+1- "standard" result. The caller is responsible for consuming the RC of the result.
+   This is roughly equivalent to returning a smart point `S` by value in C++.
+
+2- "borrowed" result. The caller is not responsible for decreasing the RC.
+   This is roughly equivalent to returning a smart point reference `S const &` in C++.
+
+Functions stored in closures use the "standard" calling convention.
+*/
+
+/* The following typedef's are used to document the calling convention for the primitives. */
+typedef object * obj_arg;   /* Standard object argument. */
+typedef object * b_obj_arg; /* Borrowed object argument. */
+typedef object * u_obj_arg; /* Unique (aka non shared) object argument. */
+typedef object * obj_res;   /* Standard object result. */
+typedef object * b_obj_res; /* Borrowed object result. */
+
+/* Constructor objects */
+inline obj_res alloc_cnstr(unsigned tag, unsigned num_objs, unsigned scalar_sz) {
+    lean_assert(tag < 65536 && num_objs < 65536 && scalar_sz < 65536);
+    return new (malloc(sizeof(constructor_object) + num_objs * sizeof(object *) + scalar_sz)) constructor_object(tag, num_objs, scalar_sz); // NOLINT
+}
+inline unsigned cnstr_tag(b_obj_arg o) { return to_cnstr(o)->m_tag; }
+/* Access constructor object field `i` */
+inline b_obj_res cnstr_obj(b_obj_arg o, unsigned i) {
+    lean_assert(i < cnstr_num_objs(o));
+    return obj_data<object*>(o, sizeof(constructor_object) + sizeof(object*)*i); // NOLINT
+}
+/* Access scalar data at the given offset. */
+template<typename T> inline T cnstr_scalar(b_obj_arg o, size_t offset) {
+    return obj_data<T>(o, sizeof(constructor_object) + offset);
+}
+/* Update constructor field `i` */
+inline void cnstr_set_obj(u_obj_arg o, unsigned i, obj_arg v) {
+    lean_assert(!is_shared(o));
+    lean_assert(i < cnstr_num_objs(o));
+    obj_set_data(o, sizeof(constructor_object) + sizeof(object*)*i, v); // NOLINT
+}
+template<typename T> inline void cnstr_set_scalar(b_obj_arg o, unsigned i, T v) {
+    obj_set_data(o, sizeof(constructor_object) + i, v);
+}
+
+inline unsigned obj_tag(b_obj_arg o) { if (is_scalar(o)) return unbox(o); else return cnstr_tag(o); }
+
+/* Closures */
+inline obj_res alloc_closure(lean_cfun fun, unsigned arity, unsigned num_fixed) {
+    lean_assert(arity > 0);
+    lean_assert(num_fixed < arity);
+    return new (malloc(sizeof(closure_object) + num_fixed * sizeof(object *))) closure_object(fun, arity, num_fixed); // NOLINT
+}
+inline b_obj_res closure_arg(b_obj_arg o, unsigned i) {
+    lean_assert(i < closure_num_fixed(o));
+    return obj_data<object*>(o, sizeof(closure_object) + sizeof(object*)*i); // NOLINT
+}
+
+/* Array of objects */
+inline obj_res alloc_array(size_t size, size_t capacity) {
+    return new (malloc(sizeof(array_object) + capacity * sizeof(object *))) array_object(size, capacity); // NOLINT
+}
+inline size_t array_size(b_obj_arg o) { return to_array(o)->m_size; }
+inline b_obj_res array_obj(b_obj_arg o, size_t i) {
+    lean_assert(i < array_size(o));
+    return obj_data<object*>(o, sizeof(array_object) + sizeof(object*)*i); // NOLINT
+}
+inline void array_set_size(u_obj_arg o, size_t sz) {
+    lean_assert(is_array(o));
+    lean_assert(!is_shared(o));
+    lean_assert(sz <= array_capacity(o));
+    to_array(o)->m_size = sz;
+}
+inline void array_set_obj(u_obj_arg o, size_t i, obj_arg v) {
+    lean_assert(!is_shared(o));
+    lean_assert(i < array_size(o));
+    obj_set_data(o, sizeof(array_object) + sizeof(object*)*i, v); // NOLINT
+}
+
+/* Array of scalars */
+inline obj_res alloc_sarray(unsigned elem_size, size_t size, size_t capacity) {
+    return new (malloc(sizeof(sarray_object) + capacity * elem_size)) sarray_object(elem_size, size, capacity); // NOLINT
+}
+inline size_t sarray_size(b_obj_arg o) { return to_sarray(o)->m_size; }
+template<typename T> T sarray_data(b_obj_arg o, size_t i) { return sarray_cptr<T>(o)[i]; }
+template<typename T> void sarray_set_data(u_obj_arg o, size_t i, T v) {
+    obj_set_data(o, sizeof(sarray_object) + sizeof(T)*i, v);
+}
+inline void sarray_set_size(u_obj_arg o, size_t sz) {
+    lean_assert(is_sarray(o));
+    lean_assert(!is_shared(o));
+    lean_assert(sz <= sarray_capacity(o));
+    to_sarray(o)->m_size = sz;
+}
+
+/* MPZ */
+inline mpz const & mpz_value(b_obj_arg o) { return to_mpz(o)->m_value; }
+
+/* Thunks */
+
+inline obj_res mk_thunk(obj_arg c) {
+    return new (malloc(sizeof(thunk_object))) thunk_object(c, false); // NOLINT
+}
+
+inline obj_res mk_thunk_from_value(obj_arg v) {
+    return new (malloc(sizeof(thunk_object))) thunk_object(v, true); // NOLINT
+}
+
 /* Primitive for implementing the IR instruction for thunk.get : thunk A -> A */
-inline object * thunk_get(object * t) {
+inline b_obj_res thunk_get(b_obj_arg t) {
     if (object * r = to_thunk(t)->m_value)
         return r;
     return thunk_get_core(t);
 }
 
 /* String */
-inline object * alloc_string(size_t size, size_t capacity, size_t len) {
+inline obj_res alloc_string(size_t size, size_t capacity, size_t len) {
     return new (malloc(sizeof(string_object) + capacity)) string_object(size, capacity, len); // NOLINT
 }
-object * mk_string(char const * s);
-object * mk_string(std::string const & s);
-inline char const * string_data(object * o) { lean_assert(is_string(o)); return reinterpret_cast<char*>(o) + sizeof(string_object); }
-inline size_t string_capacity(object * o) { return to_string(o)->m_capacity; }
-inline size_t string_size(object * o) { return to_string(o)->m_size; }
-inline size_t string_len(object * o) { return to_string(o)->m_length; }
-inline size_t string_byte_size(object * o) { return sizeof(string_object) + string_capacity(o); } // NOLINT
-/* \pre !is_shared(s)
-   The result is `s` if it contains space for storing `c` or a new string object `new_s` otherwise, and `s` is deleted.
-   In both cases, the result object has RC == 1.
-   Both arguments use the standard calling convention. */
-object * string_push(object * s, unsigned c);
+obj_res mk_string(char const * s);
+obj_res mk_string(std::string const & s);
+inline char const * string_data(b_obj_arg o) { lean_assert(is_string(o)); return reinterpret_cast<char*>(o) + sizeof(string_object); }
+inline size_t string_size(b_obj_arg o) { return to_string(o)->m_size; }
+inline size_t string_len(b_obj_arg o) { return to_string(o)->m_length; }
+obj_res string_push(u_obj_arg s, unsigned c);
+obj_res string_append(u_obj_arg s1, b_obj_arg s2);
 
-object * string_append(object * s1, object * s2);
-bool string_eq(object * s1, object * s2);
-inline bool string_ne(object * s1, object * s2) { return !string_eq(s1, s2); }
-bool string_eq(object * s1, char const * s2);
-bool string_lt(object * s1, object * s2);
+bool string_eq(b_obj_arg s1, b_obj_arg s2);
+inline bool string_ne(b_obj_arg s1, b_obj_arg s2) { return !string_eq(s1, s2); }
+bool string_eq(b_obj_arg s1, char const * s2);
+bool string_lt(b_obj_arg s1, b_obj_arg s2);
 
 /* Natural numbers */
 
-#define LEAN_MAX_SMALL_NAT (sizeof(void*) == 8 ? std::numeric_limits<unsigned>::max() : (std::numeric_limits<unsigned>::max() >> 1)) // NOLINT
-
-inline object * mk_nat_obj_core(mpz const & m) {
-    lean_assert(m > LEAN_MAX_SMALL_NAT);
-    return alloc_mpz(m);
-}
-
-inline object * mk_nat_obj(mpz const & m) {
+inline obj_res mk_nat_obj(mpz const & m) {
     if (m > LEAN_MAX_SMALL_NAT)
         return mk_nat_obj_core(m);
     else
         return box(m.get_unsigned_int());
 }
 
-inline object * mk_nat_obj(unsigned n) {
+inline obj_res mk_nat_obj(unsigned n) {
     if (sizeof(void*) == 8) { // NOLINT
         return box(n);
     } else if (n <= LEAN_MAX_SMALL_NAT) {
@@ -439,7 +492,7 @@ inline object * mk_nat_obj(unsigned n) {
     }
 }
 
-inline object * mk_nat_obj(uint64 n) {
+inline obj_res mk_nat_obj(uint64 n) {
     if (LEAN_LIKELY(n <= LEAN_MAX_SMALL_NAT)) {
         return box(n);
     } else {
@@ -447,12 +500,12 @@ inline object * mk_nat_obj(uint64 n) {
     }
 }
 
-inline uint64 nat2uint64(object * a) {
+inline uint64 nat2uint64(b_obj_arg a) {
     lean_assert(is_scalar(a));
     return unbox(a);
 }
 
-inline object * nat_succ(object * a) {
+inline obj_res nat_succ(b_obj_arg a) {
     if (LEAN_LIKELY(is_scalar(a))) {
         return mk_nat_obj(nat2uint64(a) + 1);
     } else {
@@ -460,9 +513,7 @@ inline object * nat_succ(object * a) {
     }
 }
 
-object * nat_big_add(object * a1, object * a2);
-
-inline object * nat_add(object * a1, object * a2) {
+inline obj_res nat_add(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return mk_nat_obj(nat2uint64(a1) + nat2uint64(a2));
     } else {
@@ -470,9 +521,7 @@ inline object * nat_add(object * a1, object * a2) {
     }
 }
 
-object * nat_big_sub(object * a1, object * a2);
-
-inline object * nat_sub(object * a1, object * a2) {
+inline obj_res nat_sub(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         unsigned n1 = unbox(a1);
         unsigned n2 = unbox(a2);
@@ -485,9 +534,7 @@ inline object * nat_sub(object * a1, object * a2) {
     }
 }
 
-object * nat_big_mul(object * a1, object * a2);
-
-inline object * nat_mul(object * a1, object * a2) {
+inline obj_res nat_mul(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return mk_nat_obj(nat2uint64(a1) * nat2uint64(a2));
     } else {
@@ -495,9 +542,7 @@ inline object * nat_mul(object * a1, object * a2) {
     }
 }
 
-object * nat_big_div(object * a1, object * a2);
-
-inline object * nat_div(object * a1, object * a2) {
+inline obj_res nat_div(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         unsigned n1 = unbox(a1);
         unsigned n2 = unbox(a2);
@@ -510,9 +555,7 @@ inline object * nat_div(object * a1, object * a2) {
     }
 }
 
-object * nat_big_mod(object * a1, object * a2);
-
-inline object * nat_mod(object * a1, object * a2) {
+inline obj_res nat_mod(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         unsigned n1 = unbox(a1);
         unsigned n2 = unbox(a2);
@@ -525,9 +568,7 @@ inline object * nat_mod(object * a1, object * a2) {
     }
 }
 
-bool nat_big_eq(object * a1, object * a2);
-
-inline bool nat_eq(object * a1, object * a2) {
+inline bool nat_eq(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return a1 == a2;
     } else {
@@ -535,13 +576,11 @@ inline bool nat_eq(object * a1, object * a2) {
     }
 }
 
-inline bool nat_ne(object * a1, object * a2) {
+inline bool nat_ne(b_obj_arg a1, b_obj_arg a2) {
     return !nat_eq(a1, a2);
 }
 
-bool nat_big_le(object * a1, object * a2);
-
-inline bool nat_le(object * a1, object * a2) {
+inline bool nat_le(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return a1 <= a2;
     } else {
@@ -549,9 +588,7 @@ inline bool nat_le(object * a1, object * a2) {
     }
 }
 
-bool nat_big_lt(object * a1, object * a2);
-
-inline bool nat_lt(object * a1, object * a2) {
+inline bool nat_lt(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return a1 < a2;
     } else {
@@ -559,9 +596,7 @@ inline bool nat_lt(object * a1, object * a2) {
     }
 }
 
-object * nat_big_land(object * a1, object * a2);
-
-inline object * nat_land(object * a1, object * a2) {
+inline obj_res nat_land(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return reinterpret_cast<object*>(reinterpret_cast<uintptr_t>(a1) & reinterpret_cast<uintptr_t>(a2));
     } else {
@@ -569,9 +604,7 @@ inline object * nat_land(object * a1, object * a2) {
     }
 }
 
-object * nat_big_lor(object * a1, object * a2);
-
-inline object * nat_lor(object * a1, object * a2) {
+inline obj_res nat_lor(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return reinterpret_cast<object*>(reinterpret_cast<uintptr_t>(a1) | reinterpret_cast<uintptr_t>(a2));
     } else {
@@ -579,9 +612,7 @@ inline object * nat_lor(object * a1, object * a2) {
     }
 }
 
-object * nat_big_xor(object * a1, object * a2);
-
-inline object * nat_lxor(object * a1, object * a2) {
+inline obj_res nat_lxor(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return box(unbox(a1) ^ unbox(a2));
     } else {
@@ -591,22 +622,14 @@ inline object * nat_lxor(object * a1, object * a2) {
 
 /* Integers */
 
-#define LEAN_MAX_SMALL_INT (sizeof(void*) == 8 ? std::numeric_limits<int>::max() : (1 << 30)) // NOLINT
-#define LEAN_MIN_SMALL_INT (sizeof(void*) == 8 ? std::numeric_limits<int>::min() : -(1 << 30)) // NOLINT
-
-inline object * mk_int_obj_core(mpz const & m) {
-    lean_assert(m < LEAN_MIN_SMALL_INT || m > LEAN_MAX_SMALL_INT);
-    return alloc_mpz(m);
-}
-
-inline object * mk_int_obj(mpz const & m) {
+inline obj_res mk_int_obj(mpz const & m) {
     if (m < LEAN_MIN_SMALL_INT || m > LEAN_MAX_SMALL_INT)
         return mk_int_obj_core(m);
     else
         return box(static_cast<unsigned>(m.get_int()));
 }
 
-inline object * mk_int_obj(int n) {
+inline obj_res mk_int_obj(int n) {
     if (sizeof(void*) == 8) { // NOLINT
         return box(static_cast<unsigned>(n));
     } else if (LEAN_MIN_SMALL_INT <= n && n <= LEAN_MAX_SMALL_INT) {
@@ -616,7 +639,7 @@ inline object * mk_int_obj(int n) {
     }
 }
 
-inline object * mk_int_obj(int64 n) {
+inline obj_res mk_int_obj(int64 n) {
     if (LEAN_LIKELY(LEAN_MIN_SMALL_INT <= n && n <= LEAN_MAX_SMALL_INT)) {
         return box(static_cast<unsigned>(static_cast<int>(n)));
     } else {
@@ -624,7 +647,7 @@ inline object * mk_int_obj(int64 n) {
     }
 }
 
-inline int64 int2int64(object * a) {
+inline int64 int2int64(b_obj_arg a) {
     lean_assert(is_scalar(a));
     if (sizeof(void*) == 8) { // NOLINT
         return static_cast<int>(unbox(a));
@@ -633,7 +656,7 @@ inline int64 int2int64(object * a) {
     }
 }
 
-inline int int2int(object * a) {
+inline int int2int(b_obj_arg a) {
     lean_assert(is_scalar(a));
     if (sizeof(void*) == 8) { // NOLINT
         return static_cast<int>(unbox(a));
@@ -642,7 +665,7 @@ inline int int2int(object * a) {
     }
 }
 
-inline object * nat2int(object * a) {
+inline obj_res nat2int(b_obj_arg a) {
     if (is_scalar(a)) {
         unsigned v = unbox(a);
         if (v <= LEAN_MAX_SMALL_INT) {
@@ -655,7 +678,7 @@ inline object * nat2int(object * a) {
     }
 }
 
-inline object * int_neg(object * a) {
+inline obj_res int_neg(b_obj_arg a) {
     if (LEAN_LIKELY(is_scalar(a))) {
         return mk_int_obj(-int2int64(a));
     } else {
@@ -663,9 +686,7 @@ inline object * int_neg(object * a) {
     }
 }
 
-object * int_big_add(object * a1, object * a2);
-
-inline object * int_add(object * a1, object * a2) {
+inline obj_res int_add(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return mk_int_obj(int2int64(a1) + int2int64(a2));
     } else {
@@ -673,9 +694,7 @@ inline object * int_add(object * a1, object * a2) {
     }
 }
 
-object * int_big_sub(object * a1, object * a2);
-
-inline object * int_sub(object * a1, object * a2) {
+inline obj_res int_sub(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return mk_int_obj(int2int64(a1) - int2int64(a2));
     } else {
@@ -683,9 +702,7 @@ inline object * int_sub(object * a1, object * a2) {
     }
 }
 
-object * int_big_mul(object * a1, object * a2);
-
-inline object * int_mul(object * a1, object * a2) {
+inline obj_res int_mul(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return mk_int_obj(int2int64(a1) * int2int64(a2));
     } else {
@@ -693,9 +710,7 @@ inline object * int_mul(object * a1, object * a2) {
     }
 }
 
-object * int_big_div(object * a1, object * a2);
-
-inline object * int_div(object * a1, object * a2) {
+inline obj_res int_div(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         int v1 = int2int(a1);
         int v2 = int2int(a2);
@@ -708,9 +723,7 @@ inline object * int_div(object * a1, object * a2) {
     }
 }
 
-object * int_big_rem(object * a1, object * a2);
-
-inline object * int_rem(object * a1, object * a2) {
+inline obj_res int_rem(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         int v1 = int2int(a1);
         int v2 = int2int(a2);
@@ -723,9 +736,7 @@ inline object * int_rem(object * a1, object * a2) {
     }
 }
 
-bool int_big_eq(object * a1, object * a2);
-
-inline bool int_eq(object * a1, object * a2) {
+inline bool int_eq(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return a1 == a2;
     } else {
@@ -733,13 +744,11 @@ inline bool int_eq(object * a1, object * a2) {
     }
 }
 
-inline bool int_ne(object * a1, object * a2) {
+inline bool int_ne(b_obj_arg a1, b_obj_arg a2) {
     return !int_eq(a1, a2);
 }
 
-bool int_big_le(object * a1, object * a2);
-
-inline bool int_le(object * a1, object * a2) {
+inline bool int_le(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return int2int(a1) <= int2int(a2);
     } else {
@@ -747,9 +756,7 @@ inline bool int_le(object * a1, object * a2) {
     }
 }
 
-bool int_big_lt(object * a1, object * a2);
-
-inline bool int_lt(object * a1, object * a2) {
+inline bool int_lt(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return int2int(a1) < int2int(a2);
     } else {

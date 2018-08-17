@@ -8,10 +8,10 @@ instance lift_io {α} : has_coe (io α) (my_io α) :=
 
 def tst : my_io unit :=
 do x ← get,
-   print_ln x,
+   println x,
    put (x+10),
    y ← get,
-   print_ln y,
+   println y,
    put_str "end of program"
 
 #eval tst.run 5

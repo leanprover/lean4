@@ -5,17 +5,17 @@ open lean.parser.reader
 def show_result (p : lean.parser.reader) (s : string) : eio unit :=
 let (stx, errors) := p.parse ⟨⟩ s in
 when (stx.reprint ≠ s) (
-  io.print_ln "reprint fail:" *>
-  io.print_ln stx.reprint
+  io.println "reprint fail:" *>
+  io.println stx.reprint
 ) *>
 match errors with
 | [] := do
-  io.print_ln "result: ",
-  io.print_ln (to_string stx)
+  io.println "result: ",
+  io.println (to_string stx)
 | _ := do
-  errors.mfor $ λ e, io.print_ln e,
-  io.print_ln "partial syntax tree:",
-  io.print_ln (to_string stx)
+  errors.mfor $ λ e, io.println e,
+  io.println "partial syntax tree:",
+  io.println (to_string stx)
 
 #eval show_result module.reader "prelude"
 #eval show_result module.reader "import me"
@@ -50,8 +50,8 @@ end b"
   let (stx, _) := mixfix.reader.parse ⟨⟩ "prefix `+`:10 := _",
   some {root := stx, ..} ← pure $ reader.parse.view stx,
   some stx ← pure $ mixfix.expand stx | throw "expand fail",
-  io.print_ln stx,
-  io.print_ln stx.reprint
+  io.println stx,
+  io.println stx.reprint
 } : except_t string io unit)
 
 -- slowly progressing...

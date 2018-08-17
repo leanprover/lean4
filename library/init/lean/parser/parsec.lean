@@ -41,6 +41,10 @@ if ex_list = [] then "" else "expected " ++ expected.to_string ex_list
 instance {μ : Type} : has_to_string (message μ) :=
 ⟨message.to_string⟩
 
+-- use for e.g. upcasting parsec errors with `monad_except.lift_except`
+instance {μ : Type} : has_lift (message μ) string :=
+⟨to_string⟩
+
 /-
 Remark: we store expected "error" messages in `ok_eps` results.
 They contain the error that would have occurred if a

@@ -7,6 +7,7 @@ The except monad transformer.
 -/
 prelude
 import init.control.alternative init.control.lift init.data.to_string
+import init.control.monad_fail
 universes u v w
 
 inductive except (ε : Type u) (α : Type v)
@@ -134,8 +135,8 @@ catch t₁ $ λ _, t₂
 def orelse' [monad_except ε m] {α : Type v} (t₁ t₂ : m α) (use_first_ex := tt) : m α :=
 catch t₁ $ λ e₁, catch t₂ $ λ e₂, throw (if use_first_ex then e₁ else e₂)
 
-def lift_except [monad_except ε m] [monad m] {α : Type v} : except ε α → m α
-| (except.error e) := throw e
+def lift_except {ε' : Type u} [monad_except ε m] [has_lift_t ε' ε] [monad m] {α : Type v} : except ε' α → m α
+| (except.error e) := throw ↑e
 | (except.ok a)    := pure a
 end monad_except
 
@@ -171,3 +172,7 @@ end
 
 instance (ε m out) [monad_run out m] : monad_run (λ α, out (except ε α)) (except_t ε m) :=
 ⟨λ α, run ∘ except_t.run⟩
+
+-- useful for implicit failures in do-notation
+instance (m) [monad m] : monad_fail (except_t string m) :=
+⟨λ _, throw⟩

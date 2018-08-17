@@ -6,12 +6,14 @@ open lean.parser
 open lean.parser.monad_parsec
 open lean.ir
 
-def check_decl (d : decl) : eio unit :=
+abbreviation m := except_t string io
+
+def check_decl (d : decl) : m unit :=
 match type_check d with
 | except.ok _    := return ()
 | except.error e := io.print_ln (to_string e)
 
-def show_result (p : parsec' decl) (s : string) : eio unit :=
+def show_result (p : parsec' decl) (s : string) : m unit :=
 match parsec.parse p s with
 | except.ok d    := io.print_ln (lean.to_fmt d) >> check_decl d
 | except.error e := io.print_ln e
@@ -43,8 +45,8 @@ end:
 
 #eval show_result (whitespace >> parse_def) IR2
 
-def tst_elim_phi (s : string) : eio unit :=
-do (except.ok d) ← return $ parsec.parse (whitespace >> parse_def) s,
+def tst_elim_phi (s : string) : m unit :=
+do d ← monad_except.lift_except $ parsec.parse (whitespace >> parse_def) s,
    check_decl d,
    io.print_ln (lean.to_fmt (elim_phi d))
 
@@ -64,8 +66,8 @@ main:
 "
 #eval show_result (whitespace >> parse_def) IR3
 
-def tst_extract_cpp (s : string) : io unit :=
-do (except.ok d) ← return $ parsec.parse (whitespace >> parse_def) s,
+def tst_extract_cpp (s : string) : m unit :=
+do d ← monad_except.lift_except $ parsec.parse (whitespace >> parse_def) s,
    check_decl d,
    match extract_cpp [elim_phi d] with
    | except.ok code := io.print_ln code

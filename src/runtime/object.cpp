@@ -390,13 +390,14 @@ class task_manager {
                             flet<task_object *> update_task(this_worker->m_task, t);
                             scoped_current_task_object scope_cur_task(t);
                             notify_queue_changed();
+                            object * c = t->m_closure;
+                            t->m_closure = nullptr;
                             lock.unlock();
-                            v = apply_1(t->m_closure, box(0));
+                            v = apply_1(c, box(0));
                             lock.lock();
                         }
                         if (v != nullptr) {
-                            dec_ref(t->m_closure);
-                            t->m_closure = nullptr;
+                            lean_assert(t->m_closure == nullptr);
                             t->m_value   = v;
                             handle_finished(t);
                         }
@@ -413,7 +414,7 @@ class task_manager {
 
     void handle_finished(task_object * t) {
         object * rev_deps = t->m_reverse_deps;
-        t->m_reverse_deps = nullptr;
+        t->m_reverse_deps = box(0);
 
         while (!is_scalar(rev_deps)) {
             object * head = cnstr_obj(rev_deps, 0);
@@ -423,7 +424,7 @@ class task_manager {
                 to_task(head)->m_interrupted = true;
             enqueue_core(to_task(head));
             dec_ref(head);
-            del(rev_deps);
+            free(rev_deps);
             rev_deps = tail;
         }
 
@@ -489,13 +490,10 @@ public:
 
 static task_manager * g_task_manager = nullptr;
 
-static unsigned g_num_workers = 0;
 scoped_task_manager::scoped_task_manager(unsigned num_workers) {
     lean_assert(g_task_manager == nullptr);
 #if defined(LEAN_MULTI_THREAD)
-    g_num_workers = num_workers;
-#else
-    g_task_manager = new task_object_queue(num_workers);
+    g_task_manager = new task_manager(num_workers);
 #endif
 }
 
@@ -530,7 +528,7 @@ static task_object * alloc_task(obj_arg v) {
 
 obj_res task_start(obj_arg c, unsigned prio) {
     if (!g_task_manager) {
-        return c;
+        return mk_thunk(c);
     } else {
         task_object * new_task = alloc_task(c, prio);
         g_task_manager->enqueue(new_task);
@@ -589,9 +587,8 @@ static obj_res task_bind_fn1(obj_arg x, obj_arg f, obj_arg) {
     b_obj_res v = to_task(x)->m_value;
     inc(v);
     obj_res new_task          = apply_1(f, v);
-    object * old_closure      = g_current_task_object->m_closure;
+    lean_assert(g_current_task_object->m_closure == nullptr);
     g_current_task_object->m_closure = mk_closure_2_1(task_bind_fn2, new_task);
-    dec_ref(old_closure);
     g_task_manager->add_dep(to_task(new_task), g_current_task_object);
     /* add_dep increased new_task's RC. Thus, since we don't return new_task,
        we must consume its RC */

@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <iostream>
-#include "runtime/serializer.h"
 #include "util/test.h"
+#include "runtime/serializer.h"
 #include "util/object_ref.h"
 #include "util/init_module.h"
 using namespace lean;
@@ -105,6 +105,37 @@ static void tst5() {
     USED(r2); USED(str);
 }
 
+unsigned g_counter = 0;
+
+object * task1_fn(object *) {
+    g_counter++;
+    std::cout << "task 1 - started\n";
+    this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::cout << "task 1 - executed\n";
+    return box(10);
+}
+
+object * add_10(object * a) {
+    std::cout << "task 2 - started\n";
+    this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::cout << "task 2 - executed\n";
+    return box(unbox(a) + 10);
+}
+
+static void tst6() {
+    scoped_task_manager m(8);
+    {
+        object_ref task1(task_start(alloc_closure(task1_fn, 1, 0)));
+        {
+            inc(task1.raw());
+            object_ref task2(task_map(alloc_closure(add_10, 1, 0), task1.raw()));
+            object * r = task_get(task2.raw());
+            std::cout << ">> " << unbox(r) << "\n";
+            lean_assert(unbox(r) == 20);
+        }
+    }
+}
+
 int main() {
     save_stack_info();
     initialize_util_module();
@@ -113,6 +144,7 @@ int main() {
     tst3();
     tst4();
     tst5();
+    tst6();
     finalize_util_module();
     return has_violations() ? 1 : 0;
 }

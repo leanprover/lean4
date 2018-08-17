@@ -124,16 +124,11 @@ object * add_10(object * a) {
 
 static void tst6() {
     scoped_task_manager m(8);
-    {
-        object_ref task1(task_start(alloc_closure(task1_fn, 1, 0)));
-        {
-            inc(task1.raw());
-            object_ref task2(task_map(alloc_closure(add_10, 1, 0), task1.raw()));
-            object * r = task_get(task2.raw());
-            std::cout << ">> " << unbox(r) << "\n";
-            lean_assert(unbox(r) == 20);
-        }
-    }
+    object_ref task1(task_start(alloc_closure(task1_fn, 1, 0)));
+    inc(task1.raw());
+    object_ref task2(task_map(alloc_closure(add_10, 1, 0), task1.raw()));
+    object * r = task_get(task2.raw());
+    lean_assert(unbox(r) == 20);
 }
 
 int main() {

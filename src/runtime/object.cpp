@@ -542,6 +542,7 @@ static obj_res task_map_fn(obj_arg f, obj_arg t, obj_arg) {
     lean_assert(to_task(t)->m_value);
     b_obj_res v = to_task(t)->m_value;
     inc(v);
+    dec_ref(t);
     return apply_1(f, v);
 }
 
@@ -574,12 +575,14 @@ static obj_res task_bind_fn2(obj_arg t, obj_arg) {
     lean_assert(to_task(t)->m_value);
     b_obj_res v = to_task(t)->m_value;
     inc(v);
+    dec_ref(t);
     return v;
 }
 
 static obj_res task_bind_fn1(obj_arg x, obj_arg f, obj_arg) {
     b_obj_res v = to_task(x)->m_value;
     inc(v);
+    dec_ref(x);
     obj_res new_task          = apply_1(f, v);
     lean_assert(g_current_task_object->m_closure == nullptr);
     g_current_task_object->m_closure = mk_closure_2_1(task_bind_fn2, new_task);

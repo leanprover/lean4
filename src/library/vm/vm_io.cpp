@@ -249,16 +249,16 @@ static vm_obj fs_get_line(vm_obj const & h, vm_obj const &) {
     return mk_ioe_result(to_obj(r));
 }
 
-static vm_obj fs_stdin() {
-    return to_obj(std::make_shared<handle>(stdin));
+static vm_obj fs_stdin(vm_obj const &) {
+    return mk_io_result(to_obj(std::make_shared<handle>(stdin)));
 }
 
-static vm_obj fs_stdout() {
-    return to_obj(std::make_shared<handle>(stdout));
+static vm_obj fs_stdout(vm_obj const &) {
+    return mk_io_result(to_obj(std::make_shared<handle>(stdout)));
 }
 
-static vm_obj fs_stderr() {
-    return to_obj(std::make_shared<handle>(stderr));
+static vm_obj fs_stderr(vm_obj const &) {
+    return mk_io_result(to_obj(std::make_shared<handle>(stderr)));
 }
 
 /*

@@ -116,7 +116,7 @@ monad_io_environment.set_cwd io_core cwd
 end env
 -/
 
-constant cmdline_args : list string
+constant cmdline_args : io (list string)
 
 inductive fs.mode
 | read | write | read_write | append
@@ -218,9 +218,9 @@ do h ← handle.mk fname mode.write bin,
 
 end fs
 
-constant stdin : fs.handle
-constant stderr : fs.handle
-constant stdout : fs.handle
+constant stdin : io fs.handle
+constant stderr : io fs.handle
+constant stdout : io fs.handle
 
 /-
 namespace proc

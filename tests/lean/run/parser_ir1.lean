@@ -1,4 +1,3 @@
-import init.io
 import init.lean.ir.parser init.lean.ir.format
 import init.lean.ir.elim_phi init.lean.ir.type_check
 import init.lean.ir.extract_cpp
@@ -7,12 +6,12 @@ open lean.parser
 open lean.parser.monad_parsec
 open lean.ir
 
-def check_decl (d : decl) : io unit :=
+def check_decl (d : decl) : eio unit :=
 match type_check d with
 | except.ok _    := return ()
 | except.error e := io.print_ln (to_string e)
 
-def show_result (p : parsec' decl) (s : string) : io unit :=
+def show_result (p : parsec' decl) (s : string) : eio unit :=
 match parsec.parse p s with
 | except.ok d    := io.print_ln (lean.to_fmt d) >> check_decl d
 | except.error e := io.print_ln e
@@ -44,7 +43,7 @@ end:
 
 #eval show_result (whitespace >> parse_def) IR2
 
-def tst_elim_phi (s : string) : io unit :=
+def tst_elim_phi (s : string) : eio unit :=
 do (except.ok d) ← return $ parsec.parse (whitespace >> parse_def) s,
    check_decl d,
    io.print_ln (lean.to_fmt (elim_phi d))

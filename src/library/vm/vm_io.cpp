@@ -70,7 +70,7 @@ static vm_obj io_put_str(vm_obj const & str, vm_obj const &) {
     if ((get_global_ios().get_regular_stream() << to_string(str)).bad())
         return mk_ioe_failure("io.put_str failed");
     else
-        return mk_io_result(mk_vm_unit());
+        return mk_ioe_result(mk_vm_unit());
 }
 
 static vm_obj io_get_line(vm_obj const &) {
@@ -280,11 +280,11 @@ static vm_obj io_process_wait(vm_obj const & ch, vm_obj const &) {
 }
 */
 
-/* (iterate  : Π e (α β : Type), α → (α → io e (sum α β)) → io e β) */
-static vm_obj io_iterate(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const & a, vm_obj const & fn, vm_obj const &) {
+/* (iterate  : Π (α β : Type), α → (α → io (sum α β)) → io β) */
+static vm_obj io_iterate(vm_obj const &, vm_obj const &, vm_obj const & a, vm_obj const & fn, vm_obj const &) {
     vm_obj r = a;
     while (true) {
-        vm_obj sum = invoke(fn, r, REAL_WORLD);
+        vm_obj sum = cfield(invoke(fn, r, REAL_WORLD), 0);
         if (cidx(sum) == 1) {
             return mk_io_result(cfield(sum, 0));
         } else {

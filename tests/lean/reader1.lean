@@ -2,7 +2,7 @@ import init.lean.parser.reader.module init.io
 open lean.parser
 open lean.parser.reader
 
-def show_result (p : lean.parser.reader) (s : string) : io unit :=
+def show_result (p : lean.parser.reader) (s : string) : eio unit :=
 let (stx, errors) := p.parse ⟨⟩ s in
 when (stx.reprint ≠ s) (
   io.print_ln "reprint fail:" *>
@@ -49,10 +49,10 @@ end b"
 #eval (do {
   let (stx, _) := mixfix.reader.parse ⟨⟩ "prefix `+`:10 := _",
   some {root := stx, ..} ← pure $ reader.parse.view stx,
-  some stx ← pure $ mixfix.expand stx | io.fail "expand fail",
+  some stx ← pure $ mixfix.expand stx | throw "expand fail",
   io.print_ln stx,
   io.print_ln stx.reprint
-} : io unit)
+} : eio unit)
 
 -- slowly progressing...
 #eval do

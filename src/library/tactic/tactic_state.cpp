@@ -824,8 +824,8 @@ vm_obj tactic_add_aux_decl(vm_obj const & n, vm_obj const & type, vm_obj const &
     }
 }
 
-vm_obj tactic_unsafe_run_io(vm_obj const &, vm_obj const & a, vm_obj const &) {
-    return run_io(a);
+vm_obj tactic_unsafe_run_io(vm_obj const &, vm_obj const & a, vm_obj const & s) {
+    return tactic::mk_success(run_io(a), s);
 }
 
 vm_obj io_run_tactic(vm_obj const &, vm_obj const & tac, vm_obj const &) {

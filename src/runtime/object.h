@@ -501,6 +501,8 @@ bool io_check_interrupt_core();
 void io_request_interrupt_core(b_obj_arg t);
 /* primitive for implementing `io.has_finished : task A -> io unit` */
 bool io_has_finished_core(b_obj_arg t);
+/* primitive for implementing `io.wait_any : list (task A) -> io (task A) */
+b_obj_res io_wait_any_core(b_obj_arg task_list);
 
 /* String */
 inline obj_res alloc_string(size_t size, size_t capacity, size_t len) {

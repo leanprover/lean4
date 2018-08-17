@@ -7,9 +7,9 @@ Author: Leonardo de Moura
 #include <iostream>
 #include "util/test.h"
 #include "runtime/serializer.h"
+#include "runtime/sstream.h"
 #include "util/object_ref.h"
 #include "util/init_module.h"
-#include "runtime/sstream.h"
 using namespace lean;
 
 #define USED(x) (void)(x)
@@ -216,6 +216,45 @@ void tst8() {
     }
 }
 
+obj_res loop_until_interrupt_fn(obj_arg) {
+    while (!io_check_interrupt_core()) {
+        this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+    return box(0);
+}
+
+obj_res task6_fn(obj_arg) {
+    show_msg("task 6 started...\n");
+    this_thread::sleep_for(std::chrono::milliseconds(100));
+    return box(42);
+}
+
+obj_res mk_cons(b_obj_arg h, obj_arg t) {
+    object * r = alloc_cnstr(1, 2, 0);
+    inc(h);
+    cnstr_set_obj(r, 0, h);
+    cnstr_set_obj(r, 1, t);
+    return r;
+}
+
+void tst9() {
+    scoped_task_manager m(8);
+    std::cout << "tst9 started...\n";
+    object_ref t1(task_start(alloc_closure(loop_until_interrupt_fn, 1, 0)));
+    object_ref t2(task_start(alloc_closure(loop_until_interrupt_fn, 1, 0)));
+    object_ref t3(task_start(alloc_closure(task6_fn, 1, 0)));
+    object_ref ts(mk_cons(t1.raw(), mk_cons(t2.raw(), mk_cons(t3.raw(), box(0)))));
+    show_msg("invoke wait_any...\n");
+    object * t = io_wait_any_core(ts.raw());
+    show_msg("wait_any returned...\n");
+    object * v = task_get(t);
+    lean_assert(unbox(v) == 42);
+    io_request_interrupt_core(t1.raw());
+    io_request_interrupt_core(t2.raw());
+    task_get(t1.raw());
+    task_get(t2.raw());
+}
+
 int main() {
     save_stack_info();
     initialize_util_module();
@@ -227,6 +266,7 @@ int main() {
     tst6();
     tst7();
     tst8();
+    tst9();
     finalize_util_module();
     return has_violations() ? 1 : 0;
 }

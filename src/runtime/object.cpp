@@ -333,6 +333,7 @@ class task_manager {
     workers                                       m_workers;
     std::map<unsigned, std::deque<task_object *>> m_queue;
     condition_variable                            m_queue_cv;
+    condition_variable                            m_task_finished_cv;
     bool                                          m_shutting_down{false};
 
 
@@ -391,6 +392,7 @@ class task_manager {
                             lean_assert(t->m_closure == nullptr);
                             t->m_value   = v;
                             handle_finished(t);
+                            m_task_finished_cv.notify_all();
                         }
                         dec_ref(t);
                         reset_heartbeat();
@@ -419,6 +421,17 @@ class task_manager {
 
         if (t->m_finished_cv)
             t->m_finished_cv->notify_all();
+    }
+
+    object * wait_any_check(object * task_list) {
+        object * it = task_list;
+        while (!is_scalar(it)) {
+            object * head = cnstr_obj(it, 0);
+            if (to_task(head)->m_value)
+                return head;
+            it = cnstr_obj(it, 1);
+        }
+        return nullptr;
     }
 
 public:
@@ -478,6 +491,17 @@ public:
         if (t->m_finished_cv == nullptr)
             t->m_finished_cv = new condition_variable();
         t->m_finished_cv->wait(lock, [&]() { return t->m_value != nullptr; });
+    }
+
+    object * wait_any(object * task_list) {
+        if (object * t = wait_any_check(task_list))
+            return t;
+        unique_lock<mutex> lock(m_mutex);
+        while (true) {
+            if (object * t = wait_any_check(task_list))
+                return t;
+            m_task_finished_cv.wait(lock);
+        }
     }
 };
 
@@ -610,6 +634,10 @@ void io_request_interrupt_core(b_obj_arg t) {
 
 bool io_has_finished_core(b_obj_arg t) {
     return to_task(t)->m_value != nullptr;
+}
+
+b_obj_res io_wait_any_core(b_obj_arg task_list) {
+    return g_task_manager->wait_any(task_list);
 }
 
 /* Natural numbers */

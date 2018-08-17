@@ -179,10 +179,12 @@ void tst7() {
     scoped_task_manager m(8);
     std::cout << "tst7 started...\n";
     object_ref task4(task_start(alloc_closure(task4_fn, 1, 0)));
+    std::cout << "task4 has finished: " << io_has_finished_core(task4.raw()) << "\n";
     this_thread::sleep_for(std::chrono::milliseconds(100));
     show_msg("request interrupt...\n");
     io_request_interrupt_core(task4.raw());
     object * r = task_get(task4.raw());
+    std::cout << "task4 has finished after get: " << io_has_finished_core(task4.raw()) << "\n";
     std::cout << "r: " << unbox(r) << "\n";
 }
 

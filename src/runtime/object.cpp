@@ -608,6 +608,10 @@ void io_request_interrupt_core(b_obj_arg t) {
     to_task(t)->m_interrupted = true;
 }
 
+bool io_has_finished_core(b_obj_arg t) {
+    return to_task(t)->m_value != nullptr;
+}
+
 /* Natural numbers */
 
 object * nat_big_add(object * a1, object * a2) {

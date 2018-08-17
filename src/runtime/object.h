@@ -497,8 +497,10 @@ b_obj_res task_get(b_obj_arg t);
 
 /* primitive for implementing `io.check_interrupt : io bool` */
 bool io_check_interrupt_core();
-/* primitive for implementing `io.request_interrupt : task -> io unit` */
+/* primitive for implementing `io.request_interrupt : task A -> io unit` */
 void io_request_interrupt_core(b_obj_arg t);
+/* primitive for implementing `io.has_finished : task A -> io unit` */
+bool io_has_finished_core(b_obj_arg t);
 
 /* String */
 inline obj_res alloc_string(size_t size, size_t capacity, size_t len) {

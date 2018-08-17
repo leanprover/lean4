@@ -11,12 +11,12 @@ abbreviation m := except_t string io
 def check_decl (d : decl) : m unit :=
 match type_check d with
 | except.ok _    := return ()
-| except.error e := io.print_ln (to_string e)
+| except.error e := io.println (to_string e)
 
 def show_result (p : parsec' decl) (s : string) : m unit :=
 match parsec.parse p s with
-| except.ok d    := io.print_ln (lean.to_fmt d) >> check_decl d
-| except.error e := io.print_ln e
+| except.ok d    := io.println (lean.to_fmt d) >> check_decl d
+| except.error e := io.println e
 
 def IR1 := "
 def succ (x : uint32) : uint32 :=
@@ -48,7 +48,7 @@ end:
 def tst_elim_phi (s : string) : m unit :=
 do d ← monad_except.lift_except $ parsec.parse (whitespace >> parse_def) s,
    check_decl d,
-   io.print_ln (lean.to_fmt (elim_phi d))
+   io.println (lean.to_fmt (elim_phi d))
 
 #eval tst_elim_phi IR2
 
@@ -70,8 +70,8 @@ def tst_extract_cpp (s : string) : m unit :=
 do d ← monad_except.lift_except $ parsec.parse (whitespace >> parse_def) s,
    check_decl d,
    match extract_cpp [elim_phi d] with
-   | except.ok code := io.print_ln code
-   | except.error s := io.print_ln s
+   | except.ok code := io.println code
+   | except.error s := io.println s
 
 #eval tst_extract_cpp IR3
 #eval tst_extract_cpp IR2

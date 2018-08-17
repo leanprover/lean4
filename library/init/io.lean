@@ -164,7 +164,7 @@ put_str s >> put_str "\n"
 def print {α} [has_to_string α] (s : α) : m unit :=
 put_str ∘ to_string $ s
 
-def print_ln {α} [has_to_string α] (s : α) : m unit :=
+def println {α} [has_to_string α] (s : α) : m unit :=
 print s >> put_str "\n"
 end
 

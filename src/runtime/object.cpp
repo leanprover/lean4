@@ -394,6 +394,7 @@ class task_manager {
                             t->m_value   = v;
                             handle_finished(t);
                         }
+                        dec_ref(t);
                         reset_heartbeat();
                     }
 
@@ -420,8 +421,6 @@ class task_manager {
 
         if (t->m_finished_cv)
             t->m_finished_cv->notify_all();
-
-        dec_ref(t);
     }
 
 public:
@@ -587,9 +586,6 @@ static obj_res task_bind_fn1(obj_arg x, obj_arg f, obj_arg) {
     lean_assert(g_current_task_object->m_closure == nullptr);
     g_current_task_object->m_closure = mk_closure_2_1(task_bind_fn2, new_task);
     g_task_manager->add_dep(to_task(new_task), g_current_task_object);
-    /* add_dep increased new_task's RC. Thus, since we don't return new_task,
-       we must consume its RC */
-    dec_ref(new_task);
     return nullptr; /* notify queue that task did not finish yet. */
 }
 

@@ -1,5 +1,4 @@
-import init.control.coroutine
-import system.io
+import init.control.coroutine init.control.coroutine_io
 
 universes u v
 open coroutine
@@ -18,7 +17,7 @@ def visit {α : Type v} : tree α → coroutine unit α unit
   yield a,
   visit r
 
-def tst {α : Type} [has_to_string α] (t : tree α) : io unit :=
+def tst {α : Type} [has_to_string α] (t : tree α) : except_t string io unit :=
 do c  ← pure $ visit t,
    (yielded v₁ c) ← pure $ resume c (),
    (yielded v₂ c) ← pure $ resume c (),
@@ -43,7 +42,7 @@ do
   yield ("2) val: " ++ to_string (x+y)),
   return ()
 
-def tst2 : io unit :=
+def tst2 : except_t string io unit :=
 do let c := state_t.run ex 5,
    (yielded r c₁) ← pure $ resume c 10,
    io.print_ln r,
@@ -56,4 +55,31 @@ do let c := state_t.run ex 5,
    return ()
 
 #eval tst2
+
+def ex3 : except_t string (coroutine_io nat string) unit :=
+do
+  x ← read,
+  io.print_ln $ "got " ++ to_string x,
+  yield ("1) val: " ++ to_string x),
+  x ← read,
+  io.print_ln $ "got " ++ to_string x,
+  yield ("2) val: " ++ to_string x),
+  throw "my_error"
+
+open coroutine_io
+def tst3 : except_t string io unit :=
+do let c := ex3.run,
+   (yielded r c₁) ← monad_lift $ c.resume 10,
+   io.print_ln r,
+   (yielded r c₂) ← monad_lift $ c₁.resume 20,
+   io.print_ln r,
+   (done (except.error e)) ← monad_lift $ c₂.resume 30,
+   io.print_ln $ "error: " ++ e,
+   (yielded r c₃) ← monad_lift $ c₁.resume 100,
+   io.print_ln r,
+   io.print_ln "done",
+   return ()
+
+#eval tst3
+
 end ex2

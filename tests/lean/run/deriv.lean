@@ -78,18 +78,18 @@ def Expr.to_string : Expr → string
 instance : has_to_string Expr :=
 ⟨Expr.to_string⟩
 
-meta def nest (f : Expr → io Expr) : nat → Expr → io Expr
+meta def nest (f : Expr → eio Expr) : nat → Expr → eio Expr
 | 0     x := return x
 | (n+1) x := f x >>= nest n
 
-meta def deriv (f : Expr) : io Expr :=
+meta def deriv (f : Expr) : eio Expr :=
 do
   let d := d "x" f,
   io.put_str "count: ",
   io.put_str_ln (to_string (count f)),
   return d
 
-meta def main : io unit :=
+meta def main : eio unit :=
 do let x := Var "x",
    let f := pow x x,
    nest deriv 9 f,

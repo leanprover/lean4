@@ -202,13 +202,11 @@ prim.lift_ioe $ prim.iterate_ioe "" $ λ r, except_t.run $ do
     c ← h.get_line,
     return $ sum.inl (r ++ c) -- continue
 
-/-
 def read_file (fname : string) (bin := ff) : m string :=
 do h ← handle.mk fname mode.read bin,
    r ← h.read_to_end,
-   close h,
+   h.close,
    return r
--/
 
 def write_file (fname : string) (data : string) (bin := ff) : m unit :=
 do h ← handle.mk fname mode.write bin,

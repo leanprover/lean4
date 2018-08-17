@@ -473,6 +473,8 @@ public:
         if (t->m_value)
             return;
         unique_lock<mutex> lock(m_mutex);
+        if (t->m_value)
+            return;
         if (t->m_finished_cv == nullptr)
             t->m_finished_cv = new condition_variable();
         t->m_finished_cv->wait(lock, [&]() { return t->m_value != nullptr; });
@@ -559,11 +561,9 @@ b_obj_res task_get(b_obj_arg t) {
     } else {
         if (object * v = to_task(t)->m_value)
             return v;
-        inc_ref(t);
         g_task_manager->wait_for(to_task(t));
         lean_assert(to_task(t)->m_value != nullptr);
         object * r = to_task(t)->m_value;
-        dec_ref(t);
         return r;
     }
 }

@@ -127,6 +127,7 @@ struct task_object : public object {
     task_object *         m_next_dep{nullptr};  /* next element in the reverse dependency list. Each task can be in at most one reverse dependency list. */
     condition_variable *  m_finished_cv{nullptr};
     unsigned              m_prio;
+    atomic<bool>          m_deleted{false};
     atomic<bool>          m_interrupted{false};
     task_object(object * c, unsigned prio);
     task_object(object * v);

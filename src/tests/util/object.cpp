@@ -157,6 +157,7 @@ void tst6() {
     object_ref task1(task_start(alloc_closure(task1_fn, 1, 0)));
     object_ref task2(mk_task2(task1.raw()));
     object_ref task3(mk_task3(task1.raw()));
+    std::cout << "tst6 started...\n";
     object * r1 = task_get(task2.raw());
     object * r2 = task_get(task3.raw());
     std::cout << "r1: " << unbox(r1) << "\n";
@@ -278,6 +279,32 @@ void tst11() {
     std::cout << "tst11 done...\n";
 }
 
+static atomic<bool> g_finished;
+
+obj_res loop_until_interrupt_fn2(obj_arg) {
+    while (!io_check_interrupt_core()) {
+        this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+    g_finished = true;
+    return box(0);
+}
+
+
+void tst12() {
+    std::cout << ">> tst12 started...\n";
+    g_finished = false;
+    scoped_task_manager m(8);
+    {
+        object_ref t(task_start(alloc_closure(loop_until_interrupt_fn2, 1, 0)));
+        this_thread::sleep_for(std::chrono::milliseconds(10));
+        /* task t must be interrupted automatically */
+    }
+    while (g_finished) {
+        this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+    std::cout << "tst12 done...\n";
+}
+
 int main() {
     save_stack_info();
     initialize_util_module();
@@ -292,6 +319,7 @@ int main() {
     tst9();
     tst10();
     tst11();
+    tst12();
     finalize_util_module();
     return has_violations() ? 1 : 0;
 }

@@ -79,6 +79,8 @@ inline void dec(object * o, object* & todo) {
         push_back(todo, o);
 }
 
+void deactivate_task(task_object * t);
+
 void del(object * o) {
     object * todo = nullptr;
     while (true) {
@@ -116,9 +118,7 @@ void del(object * o) {
             free(o);
             break;
         case object_kind::Task:
-            if (object * c = to_task(o)->m_closure) dec(c, todo);
-            if (object * v = to_task(o)->m_value) dec(v, todo);
-            dealloc_task(o);
+            deactivate_task(to_task(o));
             break;
         case object_kind::External:
             dealloc_external(o); break;
@@ -347,7 +347,6 @@ class task_manager {
     }
 
     void enqueue_core(task_object * t) {
-        inc_ref(t);
         m_queue[t->m_prio].push_back(t);
         if (m_workers_to_be_created > 0)
             spawn_worker();
@@ -374,7 +373,10 @@ class task_manager {
                         }
 
                         task_object * t = dequeue();
-                        lean_assert(get_rc(t) > 0);
+                        if (t->m_deleted) {
+                            dealloc_task(t);
+                            continue;
+                        }
                         reset_heartbeat();
                         object * v = nullptr;
                         {
@@ -391,8 +393,10 @@ class task_manager {
                             t->m_value   = v;
                             handle_finished(t);
                             m_task_finished_cv.notify_all();
+                            if (t->m_deleted) {
+                                dealloc_task(t);
+                            }
                         }
-                        dec_ref(t);
                         reset_heartbeat();
                     }
 
@@ -409,7 +413,6 @@ class task_manager {
         handle_finished_rec(it->m_next_dep, interrupted);
         enqueue_core(it);
         it->m_next_dep = nullptr;
-        dec(it);
     }
 
     void handle_finished(task_object * t) {
@@ -454,7 +457,8 @@ public:
         }
         for (std::pair<const unsigned, std::deque<task_object *>> & entry : m_queue) {
             for (task_object * o : entry.second) {
-                dec_ref(o);
+                lean_assert(o->m_deleted);
+                dealloc_task(o);
             }
         }
     }
@@ -475,7 +479,6 @@ public:
             return;
         }
         t2->m_next_dep = t1->m_head_dep;
-        inc(t2);
         t1->m_head_dep = t2;
     }
 
@@ -500,6 +503,37 @@ public:
             m_task_finished_cv.wait(lock);
         }
     }
+
+    void deactivate_task(task_object * t) {
+        object * c;
+        object * v;
+        task_object * it;
+        {
+            unique_lock<mutex> lock(m_mutex);
+            c = t->m_closure;
+            v = t->m_value;
+            it = t->m_head_dep;
+            lean_assert(!v || !it);
+            t->m_closure  = nullptr;
+            t->m_value    = nullptr;
+            t->m_head_dep = nullptr;
+        }
+        bool del = v != nullptr;
+        while (it) {
+            lean_assert(it->m_deleted);
+            task_object * next_it = it->m_next_dep;
+            dealloc_task(it);
+            it = next_it;
+        }
+        if (del) {
+            dealloc_task(t);
+        } else {
+            t->m_interrupted = true;
+            t->m_deleted     = true;
+        }
+        if (c) dec_ref(c);
+        if (v) dec(v);
+    }
 };
 
 static task_manager * g_task_manager = nullptr;
@@ -516,6 +550,11 @@ scoped_task_manager::~scoped_task_manager() {
         delete g_task_manager;
         g_task_manager = nullptr;
     }
+}
+
+void deactivate_task(task_object * t) {
+    lean_assert(g_task_manager);
+    g_task_manager->deactivate_task(t);
 }
 
 task_object::task_object(obj_arg c, unsigned prio):

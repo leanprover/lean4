@@ -52,7 +52,7 @@ end b"
   some stx ← pure $ mixfix.expand stx | throw "expand fail",
   io.print_ln stx,
   io.print_ln stx.reprint
-} : eio unit)
+} : except_t string io unit)
 
 -- slowly progressing...
 #eval do

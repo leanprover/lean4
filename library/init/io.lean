@@ -23,6 +23,11 @@ abbreviation monad_io (m : Type → Type) := has_monad_lift_t io m
 @[irreducible, derive has_to_string]
 def io.error := string
 
+-- The `io` primitives can also be used with [monad_except string m]
+-- via this error conversion
+instance : has_lift io.error string :=
+⟨to_string⟩
+
 /-- 'io with errors'. A useful default monad stack to use for operations
     in the `io` namespace if there is no need for additional layers or
     a more specific error type than `io.error`. -/
@@ -143,14 +148,14 @@ constant handle.close : handle → ioe unit
 constant handle.write : handle → string → ioe unit
 constant handle.get_line : handle → ioe string
 
-def lift_ioe {m : Type → Type} [monad_io m] [monad_except io.error m] [monad m] {α : Type}
+def lift_ioe {m : Type → Type} {ε α : Type} [monad_io m] [monad_except ε m] [has_lift_t io.error ε] [monad m]
   (x : ioe α) : m α :=
 monad_lift x >>= monad_except.lift_except
 
 end prim
 
 section
-variables {m : Type → Type} [monad_io m] [monad_except io.error m] [monad m]
+variables {m : Type → Type} {ε : Type} [monad_io m] [monad_except ε m] [has_lift_t io.error ε] [monad m]
 
 def put_str : string → m unit :=
 prim.lift_ioe ∘ prim.put_str
@@ -166,7 +171,7 @@ print s >> put_str "\n"
 end
 
 namespace fs
-variables {m : Type → Type} [monad_io m] [monad_except io.error m] [monad m]
+variables {m : Type → Type} {ε : Type} [monad_io m] [monad_except ε m] [has_lift_t io.error ε] [monad m]
 
 def handle.mk (s : string) (mode : mode) (bin : bool := ff) : m handle := prim.lift_ioe (prim.handle.mk s mode bin)
 def handle.is_eof : handle → m bool := prim.lift_ioe ∘ prim.handle.is_eof

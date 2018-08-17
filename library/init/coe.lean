@@ -88,8 +88,8 @@ universes u₁ u₂ u₃
 instance lift_trans {a : Sort u₁} {b : Sort u₂} {c : Sort u₃} [has_lift a b] [has_lift_t b c] : has_lift_t a c :=
 ⟨λ x, lift_t (lift x : b)⟩
 
-instance lift_base {a : Sort u} {b : Sort v} [has_lift a b] : has_lift_t a b :=
-⟨lift⟩
+instance lift_refl {a : Sort u} : has_lift_t a a :=
+⟨id⟩
 
 instance coe_trans {a : Sort u₁} {b : Sort u₂} {c : Sort u₃} [has_coe a b] [has_coe_t b c] : has_coe_t a c :=
 ⟨λ x, coe_t (coe_b x : b)⟩

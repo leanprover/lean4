@@ -125,32 +125,30 @@ constant fs.handle : Type
 namespace prim
 open fs
 
-local notation `ioe` α := io (except io.error α)
-
 constant iterate {α β : Type} : α → (α → io (sum α β)) → io β
 
-def iterate_ioe {α β : Type} (a : α) (f : α → ioe (sum α β)) : ioe β :=
-iterate a $ λ r, do
-  r ← f r,
+def iterate_eio {α β : Type} (a : α) (f : α → eio (sum α β)) : eio β :=
+except_t.mk $ iterate a $ λ r, do
+  r ← (f r).run,
   match r with
   | except.ok (sum.inl r) := pure (sum.inl r)
   | except.ok (sum.inr r) := pure (sum.inr (except.ok r))
   | except.error e        := pure (sum.inr (except.error e))
 
-constant put_str : string → ioe unit
-constant get_line : ioe string
-constant handle.mk (s : string) (m : mode) (bin : bool := ff) : ioe handle
-constant handle.is_eof : handle → ioe bool
-constant handle.flush : handle → ioe unit
-constant handle.close : handle → ioe unit
+constant put_str : string → eio unit
+constant get_line : eio string
+constant handle.mk (s : string) (m : mode) (bin : bool := ff) : eio handle
+constant handle.is_eof : handle → eio bool
+constant handle.flush : handle → eio unit
+constant handle.close : handle → eio unit
 -- TODO: replace `string` with byte buffer
---constant handle.read : handle → nat → ioe string
-constant handle.write : handle → string → ioe unit
-constant handle.get_line : handle → ioe string
+--constant handle.read : handle → nat → eio string
+constant handle.write : handle → string → eio unit
+constant handle.get_line : handle → eio string
 
-def lift_ioe {m : Type → Type} {ε α : Type} [monad_io m] [monad_except ε m] [has_lift_t io.error ε] [monad m]
-  (x : ioe α) : m α :=
-monad_lift x >>= monad_except.lift_except
+def lift_eio {m : Type → Type} {ε α : Type} [monad_io m] [monad_except ε m] [has_lift_t io.error ε] [monad m]
+  (x : eio α) : m α :=
+monad_lift x.run >>= monad_except.lift_except
 
 end prim
 
@@ -158,7 +156,7 @@ section
 variables {m : Type → Type} {ε : Type} [monad_io m] [monad_except ε m] [has_lift_t io.error ε] [monad m]
 
 def put_str : string → m unit :=
-prim.lift_ioe ∘ prim.put_str
+prim.lift_eio ∘ prim.put_str
 
 def put_str_ln (s : string) : m unit :=
 put_str s >> put_str "\n"
@@ -173,13 +171,13 @@ end
 namespace fs
 variables {m : Type → Type} {ε : Type} [monad_io m] [monad_except ε m] [has_lift_t io.error ε] [monad m]
 
-def handle.mk (s : string) (mode : mode) (bin : bool := ff) : m handle := prim.lift_ioe (prim.handle.mk s mode bin)
-def handle.is_eof : handle → m bool := prim.lift_ioe ∘ prim.handle.is_eof
-def handle.flush : handle → m unit := prim.lift_ioe ∘ prim.handle.flush
-def handle.close : handle → m unit := prim.lift_ioe ∘ prim.handle.flush
---def handle.read (h : handle) (bytes : nat) : m string := prim.lift_ioe (prim.handle.read h bytes)
-def handle.write (h : handle) (s : string) : m unit := prim.lift_ioe (prim.handle.write h s)
-def handle.get_line : handle → m string := prim.lift_ioe ∘ prim.handle.get_line
+def handle.mk (s : string) (mode : mode) (bin : bool := ff) : m handle := prim.lift_eio (prim.handle.mk s mode bin)
+def handle.is_eof : handle → m bool := prim.lift_eio ∘ prim.handle.is_eof
+def handle.flush : handle → m unit := prim.lift_eio ∘ prim.handle.flush
+def handle.close : handle → m unit := prim.lift_eio ∘ prim.handle.flush
+--def handle.read (h : handle) (bytes : nat) : m string := prim.lift_eio (prim.handle.read h bytes)
+def handle.write (h : handle) (s : string) : m unit := prim.lift_eio (prim.handle.write h s)
+def handle.get_line : handle → m string := prim.lift_eio ∘ prim.handle.get_line
 
 /-
 def get_char (h : handle) : m char :=
@@ -198,7 +196,7 @@ def handle.put_str_ln (h : handle) (s : string) : m unit :=
 h.put_str s >> h.put_str "\n"
 
 def handle.read_to_end (h : handle) : m string :=
-prim.lift_ioe $ prim.iterate_ioe "" $ λ r, except_t.run $ do
+prim.lift_eio $ prim.iterate_eio "" $ λ r, do
   done ← h.is_eof,
   if done
   then return (sum.inr r) -- stop

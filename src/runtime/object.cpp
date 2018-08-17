@@ -331,17 +331,12 @@ class task_manager {
     typedef std::unordered_set<std::shared_ptr<worker_info>> workers;
 
     mutex                                         m_mutex;
-    std::map<unsigned, std::deque<task_object *>> m_queue;
-    condition_variable                            m_queue_added;
-    condition_variable                            m_queue_changed;
-    condition_variable                            m_shut_down_cv;
-    workers                                       m_workers;
     unsigned                                      m_required_workers;
+    workers                                       m_workers;
+    std::map<unsigned, std::deque<task_object *>> m_queue;
+    condition_variable                            m_queue_insert_cv;
+    condition_variable                            m_shut_down_cv;
     bool                                          m_shutting_down{false};
-
-    void notify_queue_changed() {
-        m_queue_changed.notify_all();
-    }
 
     task_object * dequeue() {
         lean_assert(!m_queue.empty());
@@ -360,8 +355,7 @@ class task_manager {
         if (m_required_workers > 0)
             spawn_worker();
         else
-            m_queue_added.notify_one();
-        notify_queue_changed();
+            m_queue_insert_cv.notify_one();
     }
 
     void spawn_worker() {
@@ -378,7 +372,7 @@ class task_manager {
                         }
 
                         if (m_queue.empty()) {
-                            m_queue_added.wait_for(lock, g_worker_max_idle_time);
+                            m_queue_insert_cv.wait_for(lock, g_worker_max_idle_time);
                             continue;
                         }
 
@@ -389,7 +383,6 @@ class task_manager {
                         {
                             flet<task_object *> update_task(this_worker->m_task, t);
                             scoped_current_task_object scope_cur_task(t);
-                            notify_queue_changed();
                             object * c = t->m_closure;
                             t->m_closure = nullptr;
                             lock.unlock();
@@ -402,7 +395,6 @@ class task_manager {
                             handle_finished(t);
                         }
                         reset_heartbeat();
-                        notify_queue_changed();
                     }
 
                     run_thread_finalizers();
@@ -446,8 +438,7 @@ public:
             if (info->m_task)
                 info->m_task->m_interrupted = true;
         }
-        m_queue_added.notify_all();
-        m_queue_changed.notify_all();
+        m_queue_insert_cv.notify_all();
         m_shut_down_cv.wait(lock, [=] { return m_workers.empty(); });
         for (std::pair<const unsigned, std::deque<task_object *>> & entry : m_queue) {
             for (task_object * o : entry.second) {
@@ -519,11 +510,11 @@ task_object::~task_object() {
 }
 
 static task_object * alloc_task(obj_arg c, unsigned prio) {
-    return new (malloc(sizeof(task_object))) task_object(c, prio); // NOLINT
+    return new task_object(c, prio); // NOLINT
 }
 
 static task_object * alloc_task(obj_arg v) {
-    return new (malloc(sizeof(task_object))) task_object(v); // NOLINT
+    return new task_object(v); // NOLINT
 }
 
 obj_res task_start(obj_arg c, unsigned prio) {

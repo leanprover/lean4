@@ -106,29 +106,62 @@ static void tst5() {
 }
 
 unsigned g_counter = 0;
+mutex g_io_mutex;
+
+void show_msg(char const * msg) {
+    unique_lock<mutex> lock(g_io_mutex);
+    std::cout << msg;
+}
 
 object * task1_fn(object *) {
     g_counter++;
-    std::cout << "task 1 - started\n";
+    show_msg("task 1 - started\n");
     this_thread::sleep_for(std::chrono::milliseconds(100));
-    std::cout << "task 1 - executed\n";
+    show_msg("task 1 - executed\n");
     return box(10);
 }
 
 object * add_10(object * a) {
-    std::cout << "task 2 - started\n";
-    this_thread::sleep_for(std::chrono::milliseconds(100));
-    std::cout << "task 2 - executed\n";
+    show_msg("task 2 - started\n");
+    this_thread::sleep_for(std::chrono::milliseconds(200));
+    show_msg("task 2 - executed\n");
     return box(unbox(a) + 10);
+}
+
+obj_res task3_fn(obj_arg val, obj_arg) {
+    show_msg("task 3 - started\n");
+    this_thread::sleep_for(std::chrono::milliseconds(100));
+    show_msg("task 3 - executed\n");
+    return box(unbox(val)+100);
+}
+
+obj_res mk_task3_fn(obj_arg val) {
+    object * c     = alloc_closure(reinterpret_cast<lean_cfun>(task3_fn), 2, 1);
+    closure_set_arg(c, 0, val);
+    return task_start(c);
+}
+
+obj_res mk_task2(b_obj_arg task1) {
+    inc(task1);
+    return task_map(alloc_closure(add_10, 1, 0), task1);
+ }
+
+obj_res mk_task3(b_obj_arg task1) {
+    inc_ref(task1);
+    return task_bind(task1, alloc_closure(mk_task3_fn, 1, 0));
 }
 
 static void tst6() {
     scoped_task_manager m(8);
     object_ref task1(task_start(alloc_closure(task1_fn, 1, 0)));
-    inc(task1.raw());
-    object_ref task2(task_map(alloc_closure(add_10, 1, 0), task1.raw()));
-    object * r = task_get(task2.raw());
-    lean_assert(unbox(r) == 20);
+    object_ref task2(mk_task2(task1.raw()));
+    object_ref task3(mk_task3(task1.raw()));
+    object * r1 = task_get(task2.raw());
+    object * r2 = task_get(task3.raw());
+    std::cout << "r1: " << unbox(r1) << "\n";
+    std::cout << "r2: " << unbox(r2) << "\n";
+    lean_assert(unbox(r1) == 20);
+    lean_assert(unbox(r2) == 110);
 }
 
 int main() {

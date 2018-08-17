@@ -341,3 +341,13 @@ meta instance eio_unit.has_eval {ε : Type} [has_to_format ε] : has_eval (excep
   match r with
   | except.error e := tactic.fail e
   | except.ok a    := pure ()⟩
+
+
+local attribute [reducible] io
+/-- A variant of `coroutine` on top of `io` -/
+mutual inductive coroutine_io, coroutine_result_io (α δ β: Type)
+with coroutine_io : Type
+| mk    {} : (α → io coroutine_result_io) → coroutine_io
+with coroutine_result_io : Type
+| done     {} : β → coroutine_result_io
+| yielded {}  : δ → coroutine_io → coroutine_result_io

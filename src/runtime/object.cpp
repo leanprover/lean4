@@ -118,7 +118,6 @@ void del(object * o) {
         case object_kind::Task:
             if (object * c = to_task(o)->m_closure) dec(c, todo);
             if (object * v = to_task(o)->m_value) dec(v, todo);
-            dec(to_task(o)->m_reverse_deps, todo);
             dealloc_task(o);
             break;
         case object_kind::External:
@@ -336,7 +335,6 @@ class task_manager {
     condition_variable                            m_task_finished_cv;
     bool                                          m_shutting_down{false};
 
-
     task_object * dequeue() {
         lean_assert(!m_queue.empty());
         auto it                   = m_queue.begin();
@@ -403,22 +401,23 @@ class task_manager {
                 }));
     }
 
+    void handle_finished_rec(task_object * it, bool interrupted) {
+        if (it == nullptr)
+            return;
+        if (interrupted)
+            it->m_interrupted = true;
+        handle_finished_rec(it->m_next_dep, interrupted);
+        enqueue_core(it);
+        it->m_next_dep = nullptr;
+        dec(it);
+    }
+
     void handle_finished(task_object * t) {
-        object * rev_deps = t->m_reverse_deps;
-        t->m_reverse_deps = box(0);
-
-        while (!is_scalar(rev_deps)) {
-            object * head = cnstr_obj(rev_deps, 0);
-            object * tail = cnstr_obj(rev_deps, 1);
-            lean_assert(is_task(head));
-            if (t->m_interrupted)
-                to_task(head)->m_interrupted = true;
-            enqueue_core(to_task(head));
-            dec_ref(head);
-            free(rev_deps);
-            rev_deps = tail;
-        }
-
+        /* Remark: `t->m_head_dep` is the head of the reverse dependency list for `t`.
+           The list is in reverse order. So, we use the auxiliary function `handle_finished_rec`
+           to enqueue the elements in reverse order. */
+        handle_finished_rec(t->m_head_dep, t->m_interrupted);
+        t->m_head_dep = nullptr;
         if (t->m_finished_cv)
             t->m_finished_cv->notify_all();
     }
@@ -475,11 +474,9 @@ public:
             enqueue_core(t2);
             return;
         }
-        object * new_list = alloc_cnstr(1, 2, 0);
-        inc_ref(t2);
-        cnstr_set_obj(new_list, 0, t2);
-        cnstr_set_obj(new_list, 1, t1->m_reverse_deps);
-        t1->m_reverse_deps = new_list;
+        t2->m_next_dep = t1->m_head_dep;
+        inc(t2);
+        t1->m_head_dep = t2;
     }
 
     void wait_for(task_object * t) {
@@ -522,12 +519,12 @@ scoped_task_manager::~scoped_task_manager() {
 }
 
 task_object::task_object(obj_arg c, unsigned prio):
-    object(object_kind::Task), m_closure(c), m_value(nullptr), m_reverse_deps(box(0)), m_prio(prio), m_interrupted(false) {
+    object(object_kind::Task), m_closure(c), m_value(nullptr), m_prio(prio), m_interrupted(false) {
     lean_assert(is_closure(c));
 }
 
 task_object::task_object(obj_arg v):
-    object(object_kind::Task), m_closure(nullptr), m_value(v), m_reverse_deps(box(0)), m_prio(0), m_interrupted(false) {
+    object(object_kind::Task), m_closure(nullptr), m_value(v), m_prio(0), m_interrupted(false) {
 }
 
 task_object::~task_object() {

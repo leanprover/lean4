@@ -123,7 +123,8 @@ struct thunk_object : public object {
 struct task_object : public object {
     object *              m_closure;
     atomic<object *>      m_value;
-    object *              m_reverse_deps; /* List of closures */
+    task_object *         m_head_dep{nullptr};  /* head of the reverse dependency list of this task. */
+    task_object *         m_next_dep{nullptr};  /* next element in the reverse dependency list. Each task can be in at most one reverse dependency list. */
     condition_variable *  m_finished_cv{nullptr};
     unsigned              m_prio;
     atomic<bool>          m_interrupted{false};

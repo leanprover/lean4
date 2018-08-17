@@ -177,7 +177,7 @@ obj_res task4_fn(obj_arg) {
 
 void tst7() {
     scoped_task_manager m(8);
-    std::cout << "tst7 started...\n";
+    std::cout << ">> tst7 started...\n";
     object_ref task4(task_start(alloc_closure(task4_fn, 1, 0)));
     std::cout << "task4 has finished: " << io_has_finished_core(task4.raw()) << "\n";
     this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -203,7 +203,7 @@ obj_res mk_task5(obj_arg id) {
 
 void tst8() {
     scoped_task_manager m(8);
-    std::cout << "tst8 started...\n";
+    std::cout << ">> tst8 started...\n";
     std::vector<object_ref> tasks;
     for (unsigned i = 0; i < 100; i++) {
         tasks.push_back(object_ref(mk_task5(box(i))));
@@ -239,7 +239,7 @@ obj_res mk_cons(b_obj_arg h, obj_arg t) {
 
 void tst9() {
     scoped_task_manager m(8);
-    std::cout << "tst9 started...\n";
+    std::cout << ">> tst9 started...\n";
     object_ref t1(task_start(alloc_closure(loop_until_interrupt_fn, 1, 0)));
     object_ref t2(task_start(alloc_closure(loop_until_interrupt_fn, 1, 0)));
     object_ref t3(task_start(alloc_closure(task6_fn, 1, 0)));
@@ -255,6 +255,29 @@ void tst9() {
     task_get(t2.raw());
 }
 
+void tst10() {
+    scoped_task_manager m(8);
+    std::cout << ">> tst10 started...\n";
+    object_ref t1(task_start(alloc_closure(task6_fn, 1, 0)));
+    {
+        object_ref t2(mk_task2(t1.raw()));
+    }
+    task_get(t1.raw());
+}
+
+void tst11() {
+    std::cout << ">> tst11 started...\n";
+    {
+        scoped_task_manager m(2);
+        std::vector<object_ref> tasks;
+        for (unsigned i = 0; i < 100; i++) {
+            tasks.push_back(object_ref(task_start(alloc_closure(loop_until_interrupt_fn, 1, 0))));
+        }
+        this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    std::cout << "tst11 done...\n";
+}
+
 int main() {
     save_stack_info();
     initialize_util_module();
@@ -267,6 +290,8 @@ int main() {
     tst7();
     tst8();
     tst9();
+    tst10();
+    tst11();
     finalize_util_module();
     return has_violations() ? 1 : 0;
 }

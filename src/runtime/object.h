@@ -280,7 +280,6 @@ object * apply_1(object * f, object * a1);
 /* Expensive version of thunk_get which tries to execute the nested closure */
 object * thunk_get_core(object * t);
 
-
 /* Array auxiliary functions */
 
 inline size_t array_capacity(object * o) { return to_array(o)->m_capacity; }
@@ -326,7 +325,6 @@ bool nat_big_lt(object * a1, object * a2);
 object * nat_big_land(object * a1, object * a2);
 object * nat_big_lor(object * a1, object * a2);
 object * nat_big_xor(object * a1, object * a2);
-
 
 /* Integers auxiliary functions */
 
@@ -497,7 +495,10 @@ obj_res task_map(obj_arg f, obj_arg t, unsigned prio = 0);
 /* task.get (t : task A) : A */
 b_obj_res task_get(b_obj_arg t);
 
-/* TODO(Leo): task IO primitives task.start_io and task.is_done */
+/* primitive for implementing `io.check_interrupt : io bool` */
+bool io_check_interrupt_core();
+/* primitive for implementing `io.request_interrupt : task -> io unit` */
+void io_request_interrupt_core(b_obj_arg t);
 
 /* String */
 inline obj_res alloc_string(size_t size, size_t capacity, size_t len) {

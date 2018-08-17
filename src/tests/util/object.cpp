@@ -18,7 +18,7 @@ object * f(object *) {
     return box(10);
 }
 
-static void tst1() {
+void tst1() {
     object_ref t(mk_thunk(alloc_closure(f, 1, 0)));
     object * r1 = thunk_get(t.raw());
     object * r2 = thunk_get(t.raw());
@@ -33,7 +33,7 @@ object * g(object *) {
     return box(g_g_counter);
 }
 
-static void tst2() {
+void tst2() {
     object * c = alloc_closure(g, 1, 0);
     inc(c);
     object * r1 = apply_1(c, box(0));
@@ -60,7 +60,7 @@ object * h(object *) {
 
    The thunk implementation relies on the fact that nullptr is not a scalar nor a valid
    Lean object. */
-static void tst3() {
+void tst3() {
     object_ref t(mk_thunk(alloc_closure(h, 1, 0)));
     lean_assert(g_h_counter == 0);
     object * r3 = thunk_get(t.raw());
@@ -76,7 +76,7 @@ object * r(object *) {
     return mk_string("hello world");
 }
 
-static void tst4() {
+void tst4() {
     object_ref t(mk_thunk(alloc_closure(r, 1, 0)));
     object * r3  = thunk_get(t.raw());
     object * r4  = thunk_get(t.raw());
@@ -85,7 +85,7 @@ static void tst4() {
     USED(r3); USED(r4);
 }
 
-static void tst5() {
+void tst5() {
     object_ref t(mk_thunk(alloc_closure(r, 1, 0)));
     std::ostringstream out;
     serializer s(out);
@@ -151,7 +151,7 @@ obj_res mk_task3(b_obj_arg task1) {
     return task_bind(task1, alloc_closure(mk_task3_fn, 1, 0));
 }
 
-static void tst6() {
+void tst6() {
     scoped_task_manager m(8);
     object_ref task1(task_start(alloc_closure(task1_fn, 1, 0)));
     object_ref task2(mk_task2(task1.raw()));
@@ -164,6 +164,28 @@ static void tst6() {
     lean_assert(unbox(r2) == 110);
 }
 
+obj_res task4_fn(obj_arg) {
+    show_msg("task 4 started...\n");
+    while (!io_check_interrupt_core()) {
+        show_msg("task 4 loop...\n");
+        this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    show_msg("task 4 was interrupted...\n");
+    return box(1);
+}
+
+void tst7() {
+    scoped_task_manager m(8);
+    std::cout << "start tst7...\n";
+    object_ref task4(task_start(alloc_closure(task4_fn, 1, 0)));
+    this_thread::sleep_for(std::chrono::milliseconds(100));
+    show_msg("request interrupt...\n");
+    io_request_interrupt_core(task4.raw());
+    object * r = task_get(task4.raw());
+    std::cout << "r: " << unbox(r) << "\n";
+}
+
+
 int main() {
     save_stack_info();
     initialize_util_module();
@@ -173,6 +195,7 @@ int main() {
     tst4();
     tst5();
     tst6();
+    tst7();
     finalize_util_module();
     return has_violations() ? 1 : 0;
 }

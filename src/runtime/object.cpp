@@ -582,7 +582,7 @@ static obj_res task_bind_fn1(obj_arg x, obj_arg f, obj_arg) {
     b_obj_res v = to_task(x)->m_value;
     inc(v);
     dec_ref(x);
-    obj_res new_task          = apply_1(f, v);
+    obj_res new_task = apply_1(f, v);
     lean_assert(g_current_task_object->m_closure == nullptr);
     g_current_task_object->m_closure = mk_closure_2_1(task_bind_fn2, new_task);
     g_task_manager->add_dep(to_task(new_task), g_current_task_object);
@@ -597,6 +597,17 @@ obj_res task_bind(obj_arg x, obj_arg f, unsigned prio) {
         g_task_manager->add_dep(to_task(x), new_task);
         return new_task;
     }
+}
+
+bool io_check_interrupt_core() {
+    if (task_object * t = g_current_task_object) {
+        return t->m_interrupted;
+    }
+    return false;
+}
+
+void io_request_interrupt_core(b_obj_arg t) {
+    to_task(t)->m_interrupted = true;
 }
 
 /* Natural numbers */

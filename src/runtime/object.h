@@ -121,12 +121,10 @@ struct thunk_object : public object {
 };
 
 struct task_object : public object {
-    enum state { Created, Waiting, Queued, Running, Done };
     object *              m_closure;
     atomic<object *>      m_value;
     object *              m_reverse_deps; /* List of closures */
     condition_variable *  m_finished_cv{nullptr};
-    atomic<state>         m_state;
     unsigned              m_prio;
     atomic<bool>          m_interrupted{false};
     task_object(object * c, unsigned prio);

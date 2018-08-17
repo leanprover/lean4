@@ -356,7 +356,6 @@ class task_manager {
 
     void enqueue_core(task_object * t) {
         inc_ref(t);
-        t->m_state = task_object::Queued;
         m_queue[t->m_prio].push_back(t);
         if (m_required_workers > 0)
             spawn_worker();
@@ -385,8 +384,6 @@ class task_manager {
 
                         task_object * t = dequeue();
                         lean_assert(get_rc(t) > 0);
-                        lean_assert(t->m_state == task_object::Queued);
-                        t->m_state = task_object::Running;
                         reset_heartbeat();
                         object * v = nullptr;
                         {
@@ -402,8 +399,6 @@ class task_manager {
                             t->m_closure = nullptr;
                             t->m_value   = v;
                             handle_finished(t);
-                        } else {
-                            t->m_state   = task_object::Waiting;
                         }
                         reset_heartbeat();
                         notify_queue_changed();
@@ -417,7 +412,6 @@ class task_manager {
     }
 
     void handle_finished(task_object * t) {
-        t->m_state = task_object::Done;
         object * rev_deps = t->m_reverse_deps;
         t->m_reverse_deps = nullptr;
 
@@ -467,12 +461,12 @@ public:
     }
 
     void add_dep(task_object * t1, task_object * t2) {
-        if (t1->m_state == task_object::Done) {
+        if (t1->m_value) {
             enqueue(t2);
             return;
         }
         unique_lock<mutex> lock(m_mutex);
-        if (t1->m_state == task_object::Done) {
+        if (t1->m_value) {
             enqueue_core(t2);
             return;
         }
@@ -480,17 +474,16 @@ public:
         inc_ref(t2);
         cnstr_set_obj(new_list, 0, t2);
         cnstr_set_obj(new_list, 1, t1->m_reverse_deps);
-        t2->m_state        = task_object::Waiting;
         t1->m_reverse_deps = new_list;
     }
 
     void wait_for(task_object * t) {
-        if (t->m_state == task_object::Done)
+        if (t->m_value)
             return;
         unique_lock<mutex> lock(m_mutex);
         if (t->m_finished_cv == nullptr)
             t->m_finished_cv = new condition_variable();
-        t->m_finished_cv->wait(lock, [&]() { return t->m_state == task_object::Done; });
+        t->m_finished_cv->wait(lock, [&]() { return t->m_value != nullptr; });
     }
 };
 
@@ -514,12 +507,12 @@ scoped_task_manager::~scoped_task_manager() {
 }
 
 task_object::task_object(obj_arg c, unsigned prio):
-    object(object_kind::Task), m_closure(c), m_value(nullptr), m_reverse_deps(box(0)), m_state(Created), m_prio(prio), m_interrupted(false) {
+    object(object_kind::Task), m_closure(c), m_value(nullptr), m_reverse_deps(box(0)), m_prio(prio), m_interrupted(false) {
     lean_assert(is_closure(c));
 }
 
 task_object::task_object(obj_arg v):
-    object(object_kind::Task), m_closure(nullptr), m_value(v), m_reverse_deps(box(0)), m_state(Done), m_prio(0), m_interrupted(false) {
+    object(object_kind::Task), m_closure(nullptr), m_value(v), m_reverse_deps(box(0)), m_prio(0), m_interrupted(false) {
 }
 
 task_object::~task_object() {
@@ -586,7 +579,7 @@ b_obj_res task_get(b_obj_arg t) {
 }
 
 static obj_res task_bind_fn2(obj_arg t, obj_arg) {
-    lean_assert(to_task(t)->m_state == task_object::Done);
+    lean_assert(to_task(t)->m_value);
     b_obj_res v = to_task(t)->m_value;
     inc(v);
     return v;

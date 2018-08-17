@@ -388,14 +388,13 @@ class task_manager {
                             v = apply_1(c, box(0));
                             lock.lock();
                         }
-                        if (v != nullptr) {
+                        if (t->m_deleted) {
+                            dealloc_task(t);
+                        } else if (v != nullptr) {
                             lean_assert(t->m_closure == nullptr);
-                            t->m_value   = v;
+                            t->m_value = v;
                             handle_finished(t);
                             m_task_finished_cv.notify_all();
-                            if (t->m_deleted) {
-                                dealloc_task(t);
-                            }
                         }
                         reset_heartbeat();
                     }
@@ -514,23 +513,19 @@ public:
             v = t->m_value;
             it = t->m_head_dep;
             lean_assert(!v || !it);
-            t->m_closure  = nullptr;
-            t->m_value    = nullptr;
-            t->m_head_dep = nullptr;
+            t->m_closure     = nullptr;
+            t->m_value       = nullptr;
+            t->m_head_dep    = nullptr;
+            t->m_interrupted = true;
+            t->m_deleted     = true;
         }
-        bool del = v != nullptr;
         while (it) {
             lean_assert(it->m_deleted);
             task_object * next_it = it->m_next_dep;
             dealloc_task(it);
             it = next_it;
         }
-        if (del) {
-            dealloc_task(t);
-        } else {
-            t->m_interrupted = true;
-            t->m_deleted     = true;
-        }
+        if (v != nullptr) dealloc_task(t);
         if (c) dec_ref(c);
         if (v) dec(v);
     }

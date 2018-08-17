@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "runtime/serializer.h"
 #include "util/object_ref.h"
 #include "util/init_module.h"
+#include "runtime/sstream.h"
 using namespace lean;
 
 #define USED(x) (void)(x)
@@ -176,7 +177,7 @@ obj_res task4_fn(obj_arg) {
 
 void tst7() {
     scoped_task_manager m(8);
-    std::cout << "start tst7...\n";
+    std::cout << "tst7 started...\n";
     object_ref task4(task_start(alloc_closure(task4_fn, 1, 0)));
     this_thread::sleep_for(std::chrono::milliseconds(100));
     show_msg("request interrupt...\n");
@@ -185,6 +186,33 @@ void tst7() {
     std::cout << "r: " << unbox(r) << "\n";
 }
 
+obj_res task5_fn(obj_arg id, obj_arg) {
+    show_msg((sstream() << "task 5[" << unbox(id) << "] started \n").str().c_str());
+    this_thread::sleep_for(std::chrono::milliseconds(10));
+    show_msg((sstream() << "task 5[" << unbox(id) << "] finished \n").str().c_str());
+    return id;
+}
+
+obj_res mk_task5(obj_arg id) {
+    object * c = alloc_closure(reinterpret_cast<lean_cfun>(task5_fn), 2, 1);
+    closure_set_arg(c, 0, id);
+    return task_start(c);
+}
+
+void tst8() {
+    scoped_task_manager m(8);
+    std::cout << "tst8 started...\n";
+    std::vector<object_ref> tasks;
+    for (unsigned i = 0; i < 100; i++) {
+        tasks.push_back(object_ref(mk_task5(box(i))));
+    }
+    unsigned i = 0;
+    for (object_ref const & t : tasks) {
+        object * r = task_get(t.raw());
+        lean_assert(unbox(r) == i);
+        i++;
+    }
+}
 
 int main() {
     save_stack_info();
@@ -196,6 +224,7 @@ int main() {
     tst5();
     tst6();
     tst7();
+    tst8();
     finalize_util_module();
     return has_violations() ? 1 : 0;
 }

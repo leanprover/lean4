@@ -315,8 +315,6 @@ obj_res thunk_bind(obj_arg x, obj_arg f) {
 
 /* Tasks */
 
-constexpr chrono::milliseconds g_worker_max_idle_time = chrono::milliseconds(1000);
-
 LEAN_THREAD_PTR(task_object, g_current_task_object);
 
 struct scoped_current_task_object : flet<task_object *> {
@@ -372,7 +370,7 @@ class task_manager {
                         }
 
                         if (m_queue.empty()) {
-                            m_queue_cv.wait_for(lock, g_worker_max_idle_time);
+                            m_queue_cv.wait(lock);
                             continue;
                         }
 

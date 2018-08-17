@@ -7,9 +7,15 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <map>
+#include <unordered_set>
+#include <deque>
+#include "runtime/stackinfo.h"
 #include "runtime/object.h"
 #include "runtime/utf8.h"
 #include "runtime/apply.h"
+#include "runtime/flet.h"
+#include "runtime/interrupt.h"
 
 namespace lean {
 size_t obj_byte_size(object * o) {
@@ -21,6 +27,7 @@ size_t obj_byte_size(object * o) {
     case object_kind::String:          return string_byte_size(o);
     case object_kind::MPZ:             return sizeof(mpz_object);
     case object_kind::Thunk:           return sizeof(thunk_object);
+    case object_kind::Task:            return sizeof(task_object);
     case object_kind::External:        lean_unreachable();
     }
     lean_unreachable();
@@ -35,6 +42,7 @@ size_t obj_header_size(object * o) {
     case object_kind::String:          return sizeof(string_object);
     case object_kind::MPZ:             return sizeof(mpz_object);
     case object_kind::Thunk:           return sizeof(thunk_object);
+    case object_kind::Task:            return sizeof(task_object);
     case object_kind::External:        lean_unreachable();
     }
     lean_unreachable();
@@ -106,6 +114,12 @@ void del(object * o) {
             if (object * c = to_thunk(o)->m_closure) dec(c, todo);
             if (object * v = to_thunk(o)->m_value) dec(v, todo);
             free(o);
+            break;
+        case object_kind::Task:
+            if (object * c = to_task(o)->m_closure) dec(c, todo);
+            if (object * v = to_task(o)->m_value) dec(v, todo);
+            dec(to_task(o)->m_reverse_deps, todo);
+            dealloc_task(o);
             break;
         case object_kind::External:
             dealloc_external(o); break;
@@ -223,9 +237,31 @@ bool string_lt(object * s1, object * s2) {
     return r < 0 || (r == 0 && sz1 < sz2);
 }
 
+/* Closures */
+
+typedef object * (*lean_cfun2)(object *, object *); // NOLINT
+typedef object * (*lean_cfun3)(object *, object *, object *); // NOLINT
+
+static obj_res mk_closure_2_1(lean_cfun2 fn, obj_arg a) {
+    object * c = alloc_closure(reinterpret_cast<lean_cfun>(fn), 2, 1);
+    closure_set_arg(c, 0, a);
+    return c;
+}
+
+static obj_res mk_closure_3_2(lean_cfun3 fn, obj_arg a1, obj_arg a2) {
+    object * c = alloc_closure(reinterpret_cast<lean_cfun>(fn), 3, 2);
+    closure_set_arg(c, 0, a1);
+    closure_set_arg(c, 1, a2);
+    return c;
+}
+
 /* Thunks */
 
-object * thunk_get_core(object * t) {
+static obj_res mk_thunk_3_2(lean_cfun3 fn, obj_arg a1, obj_arg a2) {
+    return mk_thunk(mk_closure_3_2(fn, a1, a2));
+}
+
+b_obj_res thunk_get_core(b_obj_arg t) {
     object * c = to_thunk(t)->m_closure.exchange(nullptr);
     if (c != nullptr) {
         /* Recall that a closure uses the standard calling convention.
@@ -248,6 +284,335 @@ object * thunk_get_core(object * t) {
             this_thread::yield();
         }
         return to_thunk(t)->m_value;
+    }
+}
+
+static obj_res thunk_map_fn_closure(obj_arg f, obj_arg t, obj_arg /* u */) {
+    b_obj_res v = thunk_get(t);
+    inc(v);
+    obj_res r = apply_1(f, v);
+    dec(v);
+    return r;
+}
+
+obj_res thunk_map(obj_arg f, obj_arg t) {
+    lean_assert(is_closure(f));
+    lean_assert(is_thunk(t));
+    return mk_thunk_3_2(thunk_map_fn_closure, f, t);
+}
+
+static obj_res thunk_bind_fn_closure(obj_arg x, obj_arg f, obj_arg /* u */) {
+    b_obj_res v = thunk_get(x);
+    inc(v);
+    obj_res r = apply_1(f, v);
+    dec(x);
+    return r;
+}
+
+obj_res thunk_bind(obj_arg x, obj_arg f) {
+    return mk_thunk_3_2(thunk_bind_fn_closure, x, f);
+}
+
+/* Tasks */
+
+constexpr chrono::milliseconds g_worker_max_idle_time = chrono::milliseconds(1000);
+
+LEAN_THREAD_PTR(task_object, g_current_task_object);
+
+struct scoped_current_task_object : flet<task_object *> {
+    scoped_current_task_object(task_object * t):flet(g_current_task_object, t) {}
+};
+
+class task_manager {
+    struct worker_info {
+        std::unique_ptr<lthread> m_thread;
+        task_object *            m_task;
+    };
+    typedef std::unordered_set<std::shared_ptr<worker_info>> workers;
+
+    mutex                                         m_mutex;
+    std::map<unsigned, std::deque<task_object *>> m_queue;
+    condition_variable                            m_queue_added;
+    condition_variable                            m_queue_changed;
+    condition_variable                            m_shut_down_cv;
+    workers                                       m_workers;
+    unsigned                                      m_required_workers;
+    bool                                          m_shutting_down{false};
+
+    void notify_queue_changed() {
+        m_queue_changed.notify_all();
+    }
+
+    task_object * dequeue() {
+        lean_assert(!m_queue.empty());
+        auto it                   = m_queue.begin();
+        auto & highest_prio_deque = it->second;
+        task_object * result      = highest_prio_deque.front();
+        highest_prio_deque.pop_front();
+        if (highest_prio_deque.empty())
+            m_queue.erase(it);
+        return result;
+    }
+
+    void enqueue_core(task_object * t) {
+        inc_ref(t);
+        t->m_state = task_object::Queued;
+        m_queue[t->m_prio].push_back(t);
+        if (m_required_workers > 0)
+            spawn_worker();
+        else
+            m_queue_added.notify_one();
+        notify_queue_changed();
+    }
+
+    void spawn_worker() {
+        lean_assert(m_required_workers > 0);
+        std::shared_ptr<worker_info> this_worker = std::make_shared<worker_info>();
+        m_workers.insert(this_worker);
+        m_required_workers--;
+        this_worker->m_thread.reset(new lthread([this, this_worker]() {
+                    save_stack_info(false);
+                    unique_lock<mutex> lock(m_mutex);
+                    while (true) {
+                        if (m_shutting_down) {
+                            break;
+                        }
+
+                        if (m_queue.empty()) {
+                            m_queue_added.wait_for(lock, g_worker_max_idle_time);
+                            continue;
+                        }
+
+                        task_object * t = dequeue();
+                        lean_assert(get_rc(t) > 0);
+                        lean_assert(t->m_state == task_object::Queued);
+                        t->m_state = task_object::Running;
+                        reset_heartbeat();
+                        object * v = nullptr;
+                        {
+                            flet<task_object *> update_task(this_worker->m_task, t);
+                            scoped_current_task_object scope_cur_task(t);
+                            notify_queue_changed();
+                            lock.unlock();
+                            v = apply_1(t->m_closure, box(0));
+                            lock.lock();
+                        }
+                        if (v != nullptr) {
+                            dec_ref(t->m_closure);
+                            t->m_closure = nullptr;
+                            t->m_value   = v;
+                            handle_finished(t);
+                        } else {
+                            t->m_state   = task_object::Waiting;
+                        }
+                        reset_heartbeat();
+                        notify_queue_changed();
+                    }
+
+                    run_thread_finalizers();
+                    run_post_thread_finalizers();
+                    m_workers.erase(this_worker);
+                    m_shut_down_cv.notify_all();
+                }));
+    }
+
+    void handle_finished(task_object * t) {
+        t->m_state = task_object::Done;
+        object * rev_deps = t->m_reverse_deps;
+        t->m_reverse_deps = nullptr;
+
+        while (!is_scalar(rev_deps)) {
+            object * head = cnstr_obj(rev_deps, 0);
+            object * tail = cnstr_obj(rev_deps, 1);
+            lean_assert(is_task(head));
+            if (t->m_interrupted)
+                to_task(head)->m_interrupted = true;
+            enqueue_core(to_task(head));
+            dec_ref(head);
+            del(rev_deps);
+            rev_deps = tail;
+        }
+
+        if (t->m_finished_cv)
+            t->m_finished_cv->notify_all();
+
+        dec_ref(t);
+    }
+
+public:
+    task_manager(unsigned num_workers):
+        m_required_workers(num_workers) {
+    }
+
+    ~task_manager() {
+        unique_lock<mutex> lock(m_mutex);
+        m_shutting_down = true;
+        for (std::shared_ptr<worker_info> const & info : m_workers) {
+            if (info->m_task)
+                info->m_task->m_interrupted = true;
+        }
+        m_queue_added.notify_all();
+        m_queue_changed.notify_all();
+        m_shut_down_cv.wait(lock, [=] { return m_workers.empty(); });
+        for (std::pair<const unsigned, std::deque<task_object *>> & entry : m_queue) {
+            for (task_object * o : entry.second) {
+                dec_ref(o);
+            }
+        }
+    }
+
+    void enqueue(task_object * t) {
+        unique_lock<mutex> lock(m_mutex);
+        enqueue_core(t);
+    }
+
+    void add_dep(task_object * t1, task_object * t2) {
+        if (t1->m_state == task_object::Done) {
+            enqueue(t2);
+            return;
+        }
+        unique_lock<mutex> lock(m_mutex);
+        if (t1->m_state == task_object::Done) {
+            enqueue_core(t2);
+            return;
+        }
+        object * new_list = alloc_cnstr(1, 2, 0);
+        inc_ref(t2);
+        cnstr_set_obj(new_list, 0, t2);
+        cnstr_set_obj(new_list, 1, t1->m_reverse_deps);
+        t2->m_state        = task_object::Waiting;
+        t1->m_reverse_deps = new_list;
+    }
+
+    void wait_for(task_object * t) {
+        if (t->m_state == task_object::Done)
+            return;
+        unique_lock<mutex> lock(m_mutex);
+        if (t->m_finished_cv == nullptr)
+            t->m_finished_cv = new condition_variable();
+        t->m_finished_cv->wait(lock, [&]() { return t->m_state == task_object::Done; });
+    }
+};
+
+static task_manager * g_task_manager = nullptr;
+
+static unsigned g_num_workers = 0;
+scoped_task_manager::scoped_task_manager(unsigned num_workers) {
+    lean_assert(g_task_manager == nullptr);
+#if defined(LEAN_MULTI_THREAD)
+    g_num_workers = num_workers;
+#else
+    g_task_manager = new task_object_queue(num_workers);
+#endif
+}
+
+scoped_task_manager::~scoped_task_manager() {
+    if (g_task_manager) {
+        delete g_task_manager;
+        g_task_manager = nullptr;
+    }
+}
+
+task_object::task_object(obj_arg c, unsigned prio):
+    object(object_kind::Task), m_closure(c), m_value(nullptr), m_reverse_deps(box(0)), m_state(Created), m_prio(prio), m_interrupted(false) {
+    lean_assert(is_closure(c));
+}
+
+task_object::task_object(obj_arg v):
+    object(object_kind::Task), m_closure(nullptr), m_value(v), m_reverse_deps(box(0)), m_state(Done), m_prio(0), m_interrupted(false) {
+}
+
+task_object::~task_object() {
+    if (m_finished_cv)
+        delete m_finished_cv;
+}
+
+static task_object * alloc_task(obj_arg c, unsigned prio) {
+    return new (malloc(sizeof(task_object))) task_object(c, prio); // NOLINT
+}
+
+static task_object * alloc_task(obj_arg v) {
+    return new (malloc(sizeof(task_object))) task_object(v); // NOLINT
+}
+
+obj_res task_start(obj_arg c, unsigned prio) {
+    if (!g_task_manager) {
+        return c;
+    } else {
+        task_object * new_task = alloc_task(c, prio);
+        g_task_manager->enqueue(new_task);
+        return new_task;
+    }
+}
+
+obj_res task_pure(obj_arg a) {
+    if (!g_task_manager) {
+        return mk_thunk_from_value(a);
+    } else {
+        return alloc_task(a);
+    }
+}
+
+static obj_res task_map_fn(obj_arg f, obj_arg t, obj_arg) {
+    lean_assert(to_task(t)->m_value);
+    b_obj_res v = to_task(t)->m_value;
+    inc(v);
+    return apply_1(f, v);
+}
+
+obj_res task_map(obj_arg f, obj_arg t, unsigned prio) {
+    if (!g_task_manager) {
+        return thunk_map(f, t);
+    } else {
+        task_object * new_task = alloc_task(mk_closure_3_2(task_map_fn, f, t), prio);
+        g_task_manager->add_dep(to_task(t), new_task);
+        return new_task;
+    }
+}
+
+b_obj_res task_get(b_obj_arg t) {
+    if (!g_task_manager) {
+        return thunk_get(t);
+    } else {
+        if (object * v = to_task(t)->m_value)
+            return v;
+        inc_ref(t);
+        g_task_manager->wait_for(to_task(t));
+        lean_assert(to_task(t)->m_value != nullptr);
+        object * r = to_task(t)->m_value;
+        dec_ref(t);
+        return r;
+    }
+}
+
+static obj_res task_bind_fn2(obj_arg t, obj_arg) {
+    lean_assert(to_task(t)->m_state == task_object::Done);
+    b_obj_res v = to_task(t)->m_value;
+    inc(v);
+    return v;
+}
+
+static obj_res task_bind_fn1(obj_arg x, obj_arg f, obj_arg) {
+    b_obj_res v = to_task(x)->m_value;
+    inc(v);
+    obj_res new_task          = apply_1(f, v);
+    object * old_closure      = g_current_task_object->m_closure;
+    g_current_task_object->m_closure = mk_closure_2_1(task_bind_fn2, new_task);
+    dec_ref(old_closure);
+    g_task_manager->add_dep(to_task(new_task), g_current_task_object);
+    /* add_dep increased new_task's RC. Thus, since we don't return new_task,
+       we must consume its RC */
+    dec_ref(new_task);
+    return nullptr; /* notify queue that task did not finish yet. */
+}
+
+obj_res task_bind(obj_arg x, obj_arg f, unsigned prio) {
+    if (!g_task_manager) {
+        return thunk_bind(x, f);
+    } else {
+        task_object * new_task = alloc_task(mk_closure_3_2(task_bind_fn1, x, f), prio);
+        g_task_manager->add_dep(to_task(x), new_task);
+        return new_task;
     }
 }
 

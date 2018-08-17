@@ -30,7 +30,7 @@ inline void * alloca(size_t s) {
 #endif
 }
 
-enum class object_kind { Constructor, Closure, Array, ScalarArray, String, MPZ, Thunk, External };
+enum class object_kind { Constructor, Closure, Array, ScalarArray, String, MPZ, Thunk, Task, External };
 
 /* The reference counter is a uintptr_t, because at deletion time, we use this field to implement
    a linked list of objects to be deleted. */
@@ -120,6 +120,20 @@ struct thunk_object : public object {
     thunk_object(object * c, bool is_value = false);
 };
 
+struct task_object : public object {
+    enum state { Created, Waiting, Queued, Running, Done };
+    object *              m_closure;
+    atomic<object *>      m_value;
+    object *              m_reverse_deps; /* List of closures */
+    condition_variable *  m_finished_cv{nullptr};
+    atomic<state>         m_state;
+    unsigned              m_prio;
+    atomic<bool>          m_interrupted{false};
+    task_object(object * c, unsigned prio);
+    task_object(object * v);
+    ~task_object();
+};
+
 /* Base class for wrapping external_object data.
    For example, we use it to wrap the Lean environment object. */
 struct external_object : public object {
@@ -166,6 +180,7 @@ inline bool is_sarray(object * o) { return get_kind(o) == object_kind::ScalarArr
 inline bool is_string(object * o) { return get_kind(o) == object_kind::String; }
 inline bool is_mpz(object * o) { return get_kind(o) == object_kind::MPZ; }
 inline bool is_thunk(object * o) { return get_kind(o) == object_kind::Thunk; }
+inline bool is_task(object * o) { return get_kind(o) == object_kind::Task; }
 inline bool is_external(object * o) { return get_kind(o) == object_kind::External; }
 
 /* Casting */
@@ -176,9 +191,10 @@ inline sarray_object * to_sarray(object * o) { lean_assert(is_sarray(o)); return
 inline string_object * to_string(object * o) { lean_assert(is_string(o)); return static_cast<string_object*>(o); }
 inline mpz_object * to_mpz(object * o) { lean_assert(is_mpz(o)); return static_cast<mpz_object*>(o); }
 inline thunk_object * to_thunk(object * o) { lean_assert(is_thunk(o)); return static_cast<thunk_object*>(o); }
+inline task_object * to_task(object * o) { lean_assert(is_task(o)); return static_cast<task_object*>(o); }
 inline external_object * to_external(object * o) { lean_assert(is_external(o)); return static_cast<external_object*>(o); }
 
-/* The memory associated with all Lean objects but `mpz_object` and `external_object` can be deallocated using `free`.
+/* The memory associated with all Lean objects but `mpz_object`, `task_object` and `external_object` can be deallocated using `free`.
    All fields in these objects are integral types, but `std::atomic<uintptr_t> m_rc`.
    However, `std::atomic<Integral>` has a trivial destructor.
    In the C++ reference manual (http://en.cppreference.com/w/cpp/atomic/atomic), we find the following sentence:
@@ -186,11 +202,13 @@ inline external_object * to_external(object * o) { lean_assert(is_external(o)); 
    "Additionally, the resulting std::atomic<Integral> specialization has standard layout, a trivial default constructor,
    and a trivial destructor." */
 inline void dealloc_mpz(object * o) { delete to_mpz(o); }
+inline void dealloc_task(object * o) { delete to_task(o); }
 inline void dealloc_external(object * o) { delete to_external(o); }
 inline void dealloc(object * o) {
     switch (get_kind(o)) {
     case object_kind::External: dealloc_external(o); break;
-    case object_kind::MPZ: dealloc_mpz(o); break;
+    case object_kind::MPZ:      dealloc_mpz(o); break;
+    case object_kind::Task:     dealloc_task(o); break;
     default: free(o); break;
     }
 }
@@ -398,6 +416,10 @@ inline b_obj_res closure_arg(b_obj_arg o, unsigned i) {
     lean_assert(i < closure_num_fixed(o));
     return obj_data<object*>(o, sizeof(closure_object) + sizeof(object*)*i); // NOLINT
 }
+inline void closure_set_arg(u_obj_arg o, unsigned i, obj_arg a) {
+    lean_assert(i < closure_num_fixed(o));
+    obj_set_data(o, sizeof(closure_object) + sizeof(object*)*i, a); // NOLINT
+}
 
 /* Array of objects */
 inline obj_res alloc_array(size_t size, size_t capacity) {
@@ -455,6 +477,29 @@ inline b_obj_res thunk_get(b_obj_arg t) {
         return r;
     return thunk_get_core(t);
 }
+
+/* Tasks */
+
+/* If num_workers == 0, then tasks primitives will just create thunks.
+   It must not be used if task objects have already been created. */
+class scoped_task_manager {
+public:
+    scoped_task_manager(unsigned num_workers);
+    ~scoped_task_manager();
+};
+
+/* Convert a closure (unit -> A) into a task A */
+obj_res task_start(obj_arg c, unsigned prio = 0);
+/* Convert a value `a : A` into `task A` */
+obj_res task_pure(obj_arg a);
+/* task.bind (x : task A) (f : A -> task B) : task B */
+obj_res task_bind(obj_arg x, obj_arg f, unsigned prio = 0);
+/* task.map (f : A -> B) (t : task A) : task B */
+obj_res task_map(obj_arg f, obj_arg t, unsigned prio = 0);
+/* task.get (t : task A) : A */
+b_obj_res task_get(b_obj_arg t);
+
+/* TODO(Leo): task IO primitives task.start_io and task.is_done */
 
 /* String */
 inline obj_res alloc_string(size_t size, size_t capacity, size_t len) {

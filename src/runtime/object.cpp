@@ -328,15 +328,15 @@ class task_manager {
         std::unique_ptr<lthread> m_thread;
         task_object *            m_task;
     };
-    typedef std::unordered_set<std::shared_ptr<worker_info>> workers;
+    typedef std::vector<worker_info *> workers;
 
     mutex                                         m_mutex;
-    unsigned                                      m_required_workers;
+    unsigned                                      m_workers_to_be_created;
     workers                                       m_workers;
     std::map<unsigned, std::deque<task_object *>> m_queue;
-    condition_variable                            m_queue_insert_cv;
-    condition_variable                            m_shut_down_cv;
+    condition_variable                            m_queue_cv;
     bool                                          m_shutting_down{false};
+
 
     task_object * dequeue() {
         lean_assert(!m_queue.empty());
@@ -352,17 +352,17 @@ class task_manager {
     void enqueue_core(task_object * t) {
         inc_ref(t);
         m_queue[t->m_prio].push_back(t);
-        if (m_required_workers > 0)
+        if (m_workers_to_be_created > 0)
             spawn_worker();
         else
-            m_queue_insert_cv.notify_one();
+            m_queue_cv.notify_one();
     }
 
     void spawn_worker() {
-        lean_assert(m_required_workers > 0);
-        std::shared_ptr<worker_info> this_worker = std::make_shared<worker_info>();
-        m_workers.insert(this_worker);
-        m_required_workers--;
+        lean_assert(m_workers_to_be_created > 0);
+        worker_info * this_worker = new worker_info();
+        m_workers.push_back(this_worker);
+        m_workers_to_be_created--;
         this_worker->m_thread.reset(new lthread([this, this_worker]() {
                     save_stack_info(false);
                     unique_lock<mutex> lock(m_mutex);
@@ -372,7 +372,7 @@ class task_manager {
                         }
 
                         if (m_queue.empty()) {
-                            m_queue_insert_cv.wait_for(lock, g_worker_max_idle_time);
+                            m_queue_cv.wait_for(lock, g_worker_max_idle_time);
                             continue;
                         }
 
@@ -399,8 +399,6 @@ class task_manager {
 
                     run_thread_finalizers();
                     run_post_thread_finalizers();
-                    m_workers.erase(this_worker);
-                    m_shut_down_cv.notify_all();
                 }));
     }
 
@@ -428,18 +426,23 @@ class task_manager {
 
 public:
     task_manager(unsigned num_workers):
-        m_required_workers(num_workers) {
+        m_workers_to_be_created(num_workers) {
     }
 
     ~task_manager() {
-        unique_lock<mutex> lock(m_mutex);
-        m_shutting_down = true;
-        for (std::shared_ptr<worker_info> const & info : m_workers) {
-            if (info->m_task)
-                info->m_task->m_interrupted = true;
+        {
+            unique_lock<mutex> lock(m_mutex);
+            for (worker_info * info : m_workers) {
+                if (info->m_task)
+                    info->m_task->m_interrupted = true;
+            }
+            m_shutting_down = true;
+            m_queue_cv.notify_all();
         }
-        m_queue_insert_cv.notify_all();
-        m_shut_down_cv.wait(lock, [=] { return m_workers.empty(); });
+        for (worker_info * w : m_workers) {
+            w->m_thread->join();
+            delete w;
+        }
         for (std::pair<const unsigned, std::deque<task_object *>> & entry : m_queue) {
             for (task_object * o : entry.second) {
                 dec_ref(o);

@@ -405,22 +405,17 @@ class task_manager {
                 }));
     }
 
-    void handle_finished_rec(task_object * it, bool interrupted) {
-        if (it == nullptr)
-            return;
-        if (interrupted)
-            it->m_interrupted = true;
-        handle_finished_rec(it->m_next_dep, interrupted);
-        enqueue_core(it);
-        it->m_next_dep = nullptr;
-    }
-
     void handle_finished(task_object * t) {
-        /* Remark: `t->m_head_dep` is the head of the reverse dependency list for `t`.
-           The list is in reverse order. So, we use the auxiliary function `handle_finished_rec`
-           to enqueue the elements in reverse order. */
-        handle_finished_rec(t->m_head_dep, t->m_interrupted);
+        task_object * it = t->m_head_dep;
         t->m_head_dep = nullptr;
+        while (it) {
+            if (t->m_interrupted)
+                it->m_interrupted = true;
+            enqueue_core(it);
+            task_object * next_it = it->m_next_dep;
+            it->m_next_dep = nullptr;
+            it = next_it;
+        }
         if (t->m_finished_cv)
             t->m_finished_cv->notify_all();
     }

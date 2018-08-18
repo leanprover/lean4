@@ -105,6 +105,11 @@ void serializer::write_thunk(object * o) {
     write_object(r);
 }
 
+void serializer::write_task(object * o) {
+    object * r = task_get(o);
+    write_object(r);
+}
+
 void serializer::write_array(object * o) {
     lean_assert(is_array(o));
     size_t sz    = sarray_size(o);
@@ -167,6 +172,7 @@ void serializer::write_object(object * o) {
             switch (k) {
             case object_kind::Constructor:  write_constructor(o); break;
             case object_kind::Closure:      write_closure(o); break;
+            case object_kind::Task:         write_task(o); break;
             case object_kind::Thunk:        write_thunk(o); break;
             case object_kind::Array:        write_array(o); break;
             case object_kind::ScalarArray:  write_scalar_array(o); break;
@@ -294,6 +300,12 @@ object * deserializer::read_thunk() {
     return mk_thunk_from_value(v);
 }
 
+object * deserializer::read_task() {
+    object * v = read_object();
+    inc(v);
+    return task_pure(v);
+}
+
 object * deserializer::read_array() {
     size_t sz    = read_size_t();
     object * r   = alloc_array(sz, sz);
@@ -347,6 +359,7 @@ object * deserializer::read_object() {
         case object_kind::Constructor:  r = read_constructor(); break;
         case object_kind::Closure:      r = read_closure(); break;
         case object_kind::Thunk:        r = read_thunk(); break;
+        case object_kind::Task:         r = read_task(); break;
         case object_kind::Array:        r = read_array(); break;
         case object_kind::ScalarArray:  r = read_scalar_array(); break;
         case object_kind::String:       r = read_string_object(); break;

@@ -24,6 +24,7 @@ class serializer {
     void write_constructor(object * o);
     void write_closure(object * o);
     void write_thunk(object * o);
+    void write_task(object * o);
     void write_array(object * o);
     void write_scalar_array(object * o);
     void write_string_object(object * o);
@@ -64,6 +65,7 @@ class deserializer {
     object * read_constructor();
     object * read_closure();
     object * read_thunk();
+    object * read_task();
     object * read_array();
     object * read_scalar_array();
     object * read_string_object();

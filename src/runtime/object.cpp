@@ -389,6 +389,7 @@ class task_manager {
                             lock.lock();
                         }
                         if (t->m_deleted) {
+                            if (v) dec(v);
                             dealloc_task(t);
                         } else if (v != nullptr) {
                             lean_assert(t->m_closure == nullptr);

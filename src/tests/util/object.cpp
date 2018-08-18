@@ -305,6 +305,58 @@ void tst12() {
     std::cout << "tst12 done...\n";
 }
 
+
+static atomic<unsigned> g_task7_counter(1);
+
+obj_res task7_fn(obj_arg val, obj_arg) {
+    if (g_task7_counter % 10 == 0)
+        show_msg((sstream() << "task 7[" << g_task7_counter << "]\n").str().c_str());
+    g_task7_counter++;
+    this_thread::sleep_for(std::chrono::milliseconds(1));
+    return box(unbox(val)+1);
+}
+
+obj_res mk_task7_fn(obj_arg val) {
+    object * c     = alloc_closure(reinterpret_cast<lean_cfun>(task7_fn), 2, 1);
+    closure_set_arg(c, 0, val);
+    return task_start(c);
+}
+
+obj_res mk_task7(obj_arg t) {
+    return task_bind(t, alloc_closure(mk_task7_fn, 1, 0));
+}
+
+object * mul2(object * a) {
+    return box(unbox(a) * 2);
+}
+
+void tst13() {
+    scoped_task_manager m(8);
+    std::cout << "tst13 started ...\n";
+    object * curr = task_start(alloc_closure(task1_fn, 1, 0));
+    std::vector<object *> children;
+    for (unsigned i = 0; i < 1000; i++) {
+        curr = mk_task7(curr);
+        inc(curr);
+        children.push_back(task_map(alloc_closure(mul2, 1, 0), curr));
+    }
+    inc(curr);
+    object * it = curr;
+    for (unsigned i = 0; i < 10000; i++) {
+        it = mk_task7(it);
+    }
+    dec(it); // it will force the 10000 tasks created above to die...
+    object * v = task_get(curr);
+    dec(curr);
+    show_msg((sstream() << "v: " << unbox(v) << "\n").str().c_str());
+    object * vc = task_get(children.back());
+    for (object * c : children)
+        dec(c);
+    lean_assert(unbox(v) == 1010);
+    lean_assert(unbox(vc) == 2020);
+    std::cout << g_task7_counter << "\n";
+}
+
 int main() {
     save_stack_info();
     initialize_util_module();
@@ -320,6 +372,7 @@ int main() {
     tst10();
     tst11();
     tst12();
+    tst13();
     finalize_util_module();
     return has_violations() ? 1 : 0;
 }

@@ -125,13 +125,11 @@ struct task_object : public object {
     atomic<object *>      m_value;
     task_object *         m_head_dep{nullptr};  /* head of the reverse dependency list of this task. */
     task_object *         m_next_dep{nullptr};  /* next element in the reverse dependency list. Each task can be in at most one reverse dependency list. */
-    condition_variable *  m_finished_cv{nullptr};
     unsigned              m_prio;
     atomic<bool>          m_deleted{false};
     atomic<bool>          m_interrupted{false};
     task_object(object * c, unsigned prio);
     task_object(object * v);
-    ~task_object();
 };
 
 /* Base class for wrapping external_object data.
@@ -194,7 +192,7 @@ inline thunk_object * to_thunk(object * o) { lean_assert(is_thunk(o)); return st
 inline task_object * to_task(object * o) { lean_assert(is_task(o)); return static_cast<task_object*>(o); }
 inline external_object * to_external(object * o) { lean_assert(is_external(o)); return static_cast<external_object*>(o); }
 
-/* The memory associated with all Lean objects but `mpz_object`, `task_object` and `external_object` can be deallocated using `free`.
+/* The memory associated with all Lean objects but `mpz_object` and `external_object` can be deallocated using `free`.
    All fields in these objects are integral types, but `std::atomic<uintptr_t> m_rc`.
    However, `std::atomic<Integral>` has a trivial destructor.
    In the C++ reference manual (http://en.cppreference.com/w/cpp/atomic/atomic), we find the following sentence:
@@ -202,13 +200,11 @@ inline external_object * to_external(object * o) { lean_assert(is_external(o)); 
    "Additionally, the resulting std::atomic<Integral> specialization has standard layout, a trivial default constructor,
    and a trivial destructor." */
 inline void dealloc_mpz(object * o) { delete to_mpz(o); }
-inline void dealloc_task(object * o) { delete to_task(o); }
 inline void dealloc_external(object * o) { delete to_external(o); }
 inline void dealloc(object * o) {
     switch (get_kind(o)) {
     case object_kind::External: dealloc_external(o); break;
     case object_kind::MPZ:      dealloc_mpz(o); break;
-    case object_kind::Task:     dealloc_task(o); break;
     default: free(o); break;
     }
 }

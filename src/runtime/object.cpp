@@ -347,11 +347,15 @@ class task_manager {
     }
 
     void enqueue_core(task_object * t) {
-        m_queue[t->m_prio].push_back(t);
-        if (m_workers_to_be_created > 0)
-            spawn_worker();
-        else
-            m_queue_cv.notify_one();
+        if (t->m_deleted) {
+            free(t);
+        } else {
+            m_queue[t->m_prio].push_back(t);
+            if (m_workers_to_be_created > 0)
+                spawn_worker();
+            else
+                m_queue_cv.notify_one();
+        }
     }
 
     void spawn_worker() {
@@ -374,7 +378,7 @@ class task_manager {
 
                         task_object * t = dequeue();
                         if (t->m_deleted) {
-                            dealloc_task(t);
+                            free(t);
                             continue;
                         }
                         reset_heartbeat();
@@ -390,7 +394,7 @@ class task_manager {
                         }
                         if (t->m_deleted) {
                             if (v) dec(v);
-                            dealloc_task(t);
+                            free(t);
                         } else if (v != nullptr) {
                             lean_assert(t->m_closure == nullptr);
                             t->m_value = v;
@@ -416,8 +420,6 @@ class task_manager {
             it->m_next_dep = nullptr;
             it = next_it;
         }
-        if (t->m_finished_cv)
-            t->m_finished_cv->notify_all();
     }
 
     object * wait_any_check(object * task_list) {
@@ -453,7 +455,7 @@ public:
         for (std::pair<const unsigned, std::deque<task_object *>> & entry : m_queue) {
             for (task_object * o : entry.second) {
                 lean_assert(o->m_deleted);
-                dealloc_task(o);
+                free(o);
             }
         }
     }
@@ -483,9 +485,7 @@ public:
         unique_lock<mutex> lock(m_mutex);
         if (t->m_value)
             return;
-        if (t->m_finished_cv == nullptr)
-            t->m_finished_cv = new condition_variable();
-        t->m_finished_cv->wait(lock, [&]() { return t->m_value != nullptr; });
+        m_task_finished_cv.wait(lock, [&]() { return t->m_value != nullptr; });
     }
 
     object * wait_any(object * task_list) {
@@ -518,10 +518,10 @@ public:
         while (it) {
             lean_assert(it->m_deleted);
             task_object * next_it = it->m_next_dep;
-            dealloc_task(it);
+            free(it);
             it = next_it;
         }
-        if (v != nullptr) dealloc_task(t);
+        if (v != nullptr) free(t);
         if (c) dec_ref(c);
         if (v) dec(v);
     }
@@ -557,17 +557,12 @@ task_object::task_object(obj_arg v):
     object(object_kind::Task), m_closure(nullptr), m_value(v), m_prio(0), m_interrupted(false) {
 }
 
-task_object::~task_object() {
-    if (m_finished_cv)
-        delete m_finished_cv;
-}
-
 static task_object * alloc_task(obj_arg c, unsigned prio) {
-    return new task_object(c, prio); // NOLINT
+    return new (malloc(sizeof(task_object))) task_object(c, prio); // NOLINT
 }
 
 static task_object * alloc_task(obj_arg v) {
-    return new task_object(v); // NOLINT
+    return new (malloc(sizeof(task_object))) task_object(v); // NOLINT
 }
 
 obj_res task_start(obj_arg c, unsigned prio) {

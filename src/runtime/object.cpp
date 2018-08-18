@@ -316,6 +316,11 @@ obj_res thunk_bind(obj_arg x, obj_arg f) {
 
 LEAN_THREAD_PTR(task_object, g_current_task_object);
 
+void dealloc_task(task_object * t) {
+    if (t->m_imp) delete t->m_imp;
+    free(t);
+}
+
 struct scoped_current_task_object : flet<task_object *> {
     scoped_current_task_object(task_object * t):flet(g_current_task_object, t) {}
 };
@@ -347,15 +352,12 @@ class task_manager {
     }
 
     void enqueue_core(task_object * t) {
-        if (t->m_deleted) {
-            free(t);
-        } else {
-            m_queue[t->m_prio].push_back(t);
-            if (m_workers_to_be_created > 0)
-                spawn_worker();
-            else
-                m_queue_cv.notify_one();
-        }
+        lean_assert(t->m_imp);
+        m_queue[t->m_imp->m_prio].push_back(t);
+        if (m_workers_to_be_created > 0)
+            spawn_worker();
+        else
+            m_queue_cv.notify_one();
     }
 
     void spawn_worker() {
@@ -377,8 +379,9 @@ class task_manager {
                         }
 
                         task_object * t = dequeue();
-                        if (t->m_deleted) {
-                            free(t);
+                        lean_assert(t->m_imp);
+                        if (t->m_imp->m_deleted) {
+                            dealloc_task(t);
                             continue;
                         }
                         reset_heartbeat();
@@ -386,19 +389,24 @@ class task_manager {
                         {
                             flet<task_object *> update_task(this_worker->m_task, t);
                             scoped_current_task_object scope_cur_task(t);
-                            object * c = t->m_closure;
-                            t->m_closure = nullptr;
+                            object * c = t->m_imp->m_closure;
+                            t->m_imp->m_closure = nullptr;
                             lock.unlock();
                             v = apply_1(c, box(0));
                             lock.lock();
                         }
-                        if (t->m_deleted) {
+                        lean_assert(t->m_imp);
+                        if (t->m_imp->m_deleted) {
                             if (v) dec(v);
-                            free(t);
+                            dealloc_task(t);
                         } else if (v != nullptr) {
-                            lean_assert(t->m_closure == nullptr);
-                            t->m_value = v;
+                            lean_assert(t->m_imp->m_closure == nullptr);
                             handle_finished(t);
+                            t->m_value = v;
+                            /* After the task has been finished and we propagated
+                               dependecies, we can release `m_imp` and keep just the value */
+                            delete t->m_imp;
+                            t->m_imp   = nullptr;
                             m_task_finished_cv.notify_all();
                         }
                         reset_heartbeat();
@@ -410,14 +418,18 @@ class task_manager {
     }
 
     void handle_finished(task_object * t) {
-        task_object * it = t->m_head_dep;
-        t->m_head_dep = nullptr;
+        task_object * it = t->m_imp->m_head_dep;
+        t->m_imp->m_head_dep = nullptr;
         while (it) {
-            if (t->m_interrupted)
-                it->m_interrupted = true;
-            enqueue_core(it);
-            task_object * next_it = it->m_next_dep;
-            it->m_next_dep = nullptr;
+            if (t->m_imp->m_interrupted)
+                it->m_imp->m_interrupted = true;
+            task_object * next_it = it->m_imp->m_next_dep;
+            it->m_imp->m_next_dep = nullptr;
+            if (it->m_imp->m_deleted) {
+                dealloc_task(it);
+            } else {
+                enqueue_core(it);
+            }
             it = next_it;
         }
     }
@@ -439,23 +451,24 @@ public:
     }
 
     ~task_manager() {
-        {
-            unique_lock<mutex> lock(m_mutex);
-            for (worker_info * info : m_workers) {
-                if (info->m_task)
-                    info->m_task->m_interrupted = true;
+        unique_lock<mutex> lock(m_mutex);
+        for (worker_info * info : m_workers) {
+            if (info->m_task) {
+                lean_assert(info->m_task->m_imp);
+                info->m_task->m_imp->m_interrupted = true;
             }
-            m_shutting_down = true;
-            m_queue_cv.notify_all();
         }
+        m_shutting_down = true;
+        m_queue_cv.notify_all();
+        lock.unlock();
         for (worker_info * w : m_workers) {
             w->m_thread->join();
             delete w;
         }
         for (std::pair<const unsigned, std::deque<task_object *>> & entry : m_queue) {
             for (task_object * o : entry.second) {
-                lean_assert(o->m_deleted);
-                free(o);
+                lean_assert(o->m_imp && o->m_imp->m_deleted);
+                dealloc_task(o);
             }
         }
     }
@@ -466,17 +479,19 @@ public:
     }
 
     void add_dep(task_object * t1, task_object * t2) {
+        lean_assert(t2->m_value == nullptr);
         if (t1->m_value) {
             enqueue(t2);
             return;
         }
         unique_lock<mutex> lock(m_mutex);
+        lean_assert(t2->m_value == nullptr);
         if (t1->m_value) {
             enqueue_core(t2);
             return;
         }
-        t2->m_next_dep = t1->m_head_dep;
-        t1->m_head_dep = t2;
+        t2->m_imp->m_next_dep = t1->m_imp->m_head_dep;
+        t1->m_imp->m_head_dep = t2;
     }
 
     void wait_for(task_object * t) {
@@ -500,30 +515,36 @@ public:
     }
 
     void deactivate_task(task_object * t) {
-        object * c;
-        object * v;
-        task_object * it;
-        {
-            unique_lock<mutex> lock(m_mutex);
-            c = t->m_closure;
-            v = t->m_value;
-            it = t->m_head_dep;
-            lean_assert(!v || !it);
-            t->m_closure     = nullptr;
-            t->m_value       = nullptr;
-            t->m_head_dep    = nullptr;
-            t->m_interrupted = true;
-            t->m_deleted     = true;
+        unique_lock<mutex> lock(m_mutex);
+        if (object * v = t->m_value) {
+            lean_assert(t->m_imp == nullptr);
+            lock.unlock();
+            dec(v);
+            free(t);
+            return;
+        } else {
+            lean_assert(t->m_imp);
+            object * c       = t->m_imp->m_closure;
+            task_object * it = t->m_imp->m_head_dep;
+            t->m_imp->m_closure     = nullptr;
+            t->m_imp->m_head_dep    = nullptr;
+            t->m_imp->m_interrupted = true;
+            t->m_imp->m_deleted     = true;
+            lock.unlock();
+            while (it) {
+                lean_assert(it->m_imp->m_deleted);
+                task_object * next_it = it->m_imp->m_next_dep;
+                dealloc_task(it);
+                it = next_it;
+            }
+            if (c) dec_ref(c);
         }
-        while (it) {
-            lean_assert(it->m_deleted);
-            task_object * next_it = it->m_next_dep;
-            free(it);
-            it = next_it;
-        }
-        if (v != nullptr) free(t);
-        if (c) dec_ref(c);
-        if (v) dec(v);
+    }
+
+    void request_interrupt(task_object * t) {
+        unique_lock<mutex> lock(m_mutex);
+        if (t->m_imp)
+            t->m_imp->m_interrupted = true;
     }
 };
 
@@ -549,12 +570,12 @@ void deactivate_task(task_object * t) {
 }
 
 task_object::task_object(obj_arg c, unsigned prio):
-    object(object_kind::Task), m_closure(c), m_value(nullptr), m_prio(prio), m_interrupted(false) {
+    object(object_kind::Task), m_value(nullptr), m_imp(new imp(c, prio)) {
     lean_assert(is_closure(c));
 }
 
 task_object::task_object(obj_arg v):
-    object(object_kind::Task), m_closure(nullptr), m_value(v), m_prio(0), m_interrupted(false) {
+    object(object_kind::Task), m_value(v), m_imp(nullptr) {
 }
 
 static task_object * alloc_task(obj_arg c, unsigned prio) {
@@ -627,8 +648,9 @@ static obj_res task_bind_fn1(obj_arg x, obj_arg f, obj_arg) {
     inc(v);
     dec_ref(x);
     obj_res new_task = apply_1(f, v);
-    lean_assert(g_current_task_object->m_closure == nullptr);
-    g_current_task_object->m_closure = mk_closure_2_1(task_bind_fn2, new_task);
+    lean_assert(g_current_task_object->m_imp);
+    lean_assert(g_current_task_object->m_imp->m_closure == nullptr);
+    g_current_task_object->m_imp->m_closure = mk_closure_2_1(task_bind_fn2, new_task);
     g_task_manager->add_dep(to_task(new_task), g_current_task_object);
     return nullptr; /* notify queue that task did not finish yet. */
 }
@@ -645,13 +667,16 @@ obj_res task_bind(obj_arg x, obj_arg f, unsigned prio) {
 
 bool io_check_interrupt_core() {
     if (task_object * t = g_current_task_object) {
-        return t->m_interrupted;
+        lean_assert(t->m_imp); // task is being executed
+        return t->m_imp->m_interrupted;
     }
     return false;
 }
 
 void io_request_interrupt_core(b_obj_arg t) {
-    to_task(t)->m_interrupted = true;
+    if (to_task(t)->m_value)
+        return;
+    g_task_manager->request_interrupt(to_task(t));
 }
 
 bool io_has_finished_core(b_obj_arg t) {

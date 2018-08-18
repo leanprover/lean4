@@ -121,13 +121,19 @@ struct thunk_object : public object {
 };
 
 struct task_object : public object {
-    object *              m_closure;
-    atomic<object *>      m_value;
-    task_object *         m_head_dep{nullptr};  /* head of the reverse dependency list of this task. */
-    task_object *         m_next_dep{nullptr};  /* next element in the reverse dependency list. Each task can be in at most one reverse dependency list. */
-    unsigned              m_prio;
-    atomic<bool>          m_deleted{false};
-    atomic<bool>          m_interrupted{false};
+    /* Data required for executing a task. It is released as soon as
+       the task terminates. */
+    struct imp {
+        object *              m_closure;
+        task_object *         m_head_dep{nullptr};  /* head of the reverse dependency list of this task. */
+        task_object *         m_next_dep{nullptr};  /* next element in the reverse dependency list. Each task can be in at most one reverse dependency list. */
+        unsigned              m_prio;
+        bool                  m_interrupted{false};
+        bool                  m_deleted{false};
+        imp(object * c, unsigned prio):m_closure(c), m_prio(prio) {}
+    };
+    atomic<object *>          m_value;
+    imp *                     m_imp;
     task_object(object * c, unsigned prio);
     task_object(object * v);
 };
@@ -205,6 +211,7 @@ inline void dealloc(object * o) {
     switch (get_kind(o)) {
     case object_kind::External: dealloc_external(o); break;
     case object_kind::MPZ:      dealloc_mpz(o); break;
+    case object_kind::Task:     lean_unreachable(); // only the task manager can deallocate tasks.
     default: free(o); break;
     }
 }

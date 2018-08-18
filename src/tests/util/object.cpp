@@ -153,17 +153,29 @@ obj_res mk_task3(b_obj_arg task1) {
 }
 
 void tst6() {
-    scoped_task_manager m(8);
-    object_ref task1(task_start(alloc_closure(task1_fn, 1, 0)));
-    object_ref task2(mk_task2(task1.raw()));
-    object_ref task3(mk_task3(task1.raw()));
-    std::cout << "tst6 started...\n";
-    object * r1 = task_get(task2.raw());
-    object * r2 = task_get(task3.raw());
-    std::cout << "r1: " << unbox(r1) << "\n";
-    std::cout << "r2: " << unbox(r2) << "\n";
-    lean_assert(unbox(r1) == 20);
-    lean_assert(unbox(r2) == 110);
+    {
+        scoped_task_manager m(8);
+        object_ref task1(task_start(alloc_closure(task1_fn, 1, 0)));
+        object_ref task2(mk_task2(task1.raw()));
+        object_ref task3(mk_task3(task1.raw()));
+        std::cout << "tst6 started...\n";
+        object * r1 = task_get(task2.raw());
+        object * r2 = task_get(task3.raw());
+        std::cout << "r1: " << unbox(r1) << "\n";
+        std::cout << "r2: " << unbox(r2) << "\n";
+        lean_assert(unbox(r1) == 20);
+        lean_assert(unbox(r2) == 110);
+    }
+    {
+        scoped_task_manager m(8);
+        object_ref task1(task_pure(box(10)));
+        object_ref task2(mk_task2(task1.raw()));
+        object_ref task3(mk_task3(task1.raw()));
+        object * r1 = task_get(task2.raw());
+        object * r2 = task_get(task3.raw());
+        lean_assert(unbox(r1) == 20);
+        lean_assert(unbox(r2) == 110);
+    }
 }
 
 obj_res task4_fn(obj_arg) {
@@ -227,6 +239,7 @@ obj_res loop_until_interrupt_fn(obj_arg) {
 obj_res task6_fn(obj_arg) {
     show_msg("task 6 started...\n");
     this_thread::sleep_for(std::chrono::milliseconds(100));
+    show_msg("task 6 done...\n");
     return box(42);
 }
 

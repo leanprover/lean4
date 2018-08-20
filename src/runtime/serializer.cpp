@@ -297,7 +297,7 @@ object * deserializer::read_closure() {
 object * deserializer::read_thunk() {
     object * v = read_object();
     inc(v);
-    return mk_thunk_from_value(v);
+    return thunk_pure(v);
 }
 
 object * deserializer::read_task() {

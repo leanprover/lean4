@@ -56,7 +56,6 @@ public:
     size_t size_core(bool unicode) const;
 private:
     friend name read_name(deserializer & d);
-    explicit name(object * r):object_ref(r) { inc(r); }
     explicit name(object_ref && r):object_ref(r) {}
 public:
     name():object_ref(box(static_cast<unsigned>(name_kind::ANONYMOUS))) {}
@@ -75,6 +74,7 @@ public:
        name <tt>foo::bla::tst</tt>.
     */
     name(std::initializer_list<char const *> const & l);
+    explicit name(object * r):object_ref(r) { inc(r); }
     static name const & anonymous();
     /**
         \brief Create a unique internal name that is not meant to exposed

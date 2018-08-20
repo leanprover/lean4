@@ -115,8 +115,8 @@ struct mpz_object : public object {
 };
 
 struct thunk_object : public object {
-    atomic<object *> m_closure;
     atomic<object *> m_value;
+    atomic<object *> m_closure;
     thunk_object(object * c, bool is_value = false);
 };
 
@@ -132,6 +132,14 @@ struct task_object : public object {
         bool                  m_deleted{false};
         imp(object * c, unsigned prio):m_closure(c), m_prio(prio) {}
     };
+    /* Important: When multi-threading is disabled the task primitives
+       create thunk objects instead of task objects. Thus, the implemention of
+       the object compactor and region require that thunk and task objects
+       have the same size and the field `m_value` is the first one.
+       For example, we have multi-threading enabled, and compact task objects,
+       and then save the compacted region on disk. Then, another Lean process
+       with multi-threading disabled loads the image, and the object region
+       manager needs to "convert" the task objects into thunk objects. */
     atomic<object *>          m_value;
     imp *                     m_imp;
     task_object(object * c, unsigned prio);
@@ -244,7 +252,6 @@ inline void obj_set_data(object * o, size_t offset, T v) {
 }
 
 /* Constructor auxiliary functions */
-
 inline unsigned cnstr_num_objs(object * o) { return to_cnstr(o)->m_num_objs; }
 inline unsigned cnstr_scalar_size(object * o) { return to_cnstr(o)->m_scalar_size; }
 inline size_t cnstr_byte_size(object * o) { return sizeof(constructor_object) + cnstr_num_objs(o)*sizeof(object*) + cnstr_scalar_size(o); } // NOLINT
@@ -468,7 +475,8 @@ inline obj_res mk_thunk(obj_arg c) {
     return new (malloc(sizeof(thunk_object))) thunk_object(c, false); // NOLINT
 }
 
-inline obj_res mk_thunk_from_value(obj_arg v) {
+/* thunk.pure : A -> thunk A */
+inline obj_res thunk_pure(obj_arg v) {
     return new (malloc(sizeof(thunk_object))) thunk_object(v, true); // NOLINT
 }
 

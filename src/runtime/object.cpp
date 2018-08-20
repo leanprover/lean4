@@ -598,7 +598,7 @@ obj_res task_start(obj_arg c, unsigned prio) {
 
 obj_res task_pure(obj_arg a) {
     if (!g_task_manager) {
-        return mk_thunk_from_value(a);
+        return thunk_pure(a);
     } else {
         return alloc_task(a);
     }

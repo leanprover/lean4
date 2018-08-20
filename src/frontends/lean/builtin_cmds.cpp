@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <string>
 #include "runtime/sstream.h"
+#include "runtime/compact.h"
 #include "util/timeit.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/old_type_checker.h"
@@ -564,6 +565,66 @@ environment hide_cmd(parser & p) {
     return new_env;
 }
 
+environment compact_tst_cmd(parser & p) {
+    environment env = p.env();
+    {
+        std::ostringstream out;
+        object_compactor compactor;
+        unsigned num_root_objects = 0;
+        {
+            timeit timer(out, "compacting objects");
+            env.for_each_declaration([&](declaration const & d) {
+                    compactor(d.get_name().raw()); num_root_objects++;
+                    compactor(d.get_type().raw()); num_root_objects++;
+                    if (d.is_definition()) {
+                       compactor(d.get_value().raw());
+                       num_root_objects++;
+                    }
+                });
+            tout() << "compactor size: " << compactor.size() << "\n";
+        }
+        {
+            timeit timer(out, "compacted region time");
+            compacted_region r(compactor);
+            unsigned i = 0;
+            while (r.read() != nullptr) {
+                i++;
+            }
+            tout() << "number of root objects: " << i << "\n";
+            lean_assert(num_root_objects == i);
+        }
+        tout() << out.str() << "\n";
+    }
+    {
+        std::ostringstream out;
+        std::ostringstream sout;
+        unsigned counter = 0;
+        {
+            serializer s(sout);
+            timeit timer1(out, "serializing objects");
+            env.for_each_declaration([&](declaration const & d) {
+                    s << d.get_name(); counter++;
+                    s << d.get_type(); counter++;
+                    if (d.is_definition()) {
+                        s << d.get_value(); counter++;
+                    }
+                });
+            tout() << "serialization size: " << sout.str().size() << "\n";
+            tout() << "number of objects:  " << counter << "\n";
+        }
+        {
+            std::istringstream in(sout.str());
+            deserializer d(in);
+            timeit timer1(out, "deserializing objects");
+            for (unsigned i = 0; i < counter; i++) {
+                d.read_object();
+            }
+        }
+        tout() << out.str() << "\n";
+    }
+    return env;
+}
+
 void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("open",              "create aliases for declarations, and use objects defined in other namespaces",
                         open_cmd));
@@ -585,7 +646,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("hide",              "hide aliases in the current scope", hide_cmd));
     add_cmd(r, cmd_info("#unify",            "(for debugging purposes)", unify_cmd));
     add_cmd(r, cmd_info("#compile",          "(for debugging purposes)", compile_cmd));
-
+    add_cmd(r, cmd_info("#compact_tst",      "(for debugging purposes)", compact_tst_cmd));
     register_decl_cmds(r);
     register_inductive_cmds(r);
     register_structure_cmd(r);

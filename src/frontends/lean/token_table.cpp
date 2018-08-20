@@ -110,7 +110,7 @@ void init_token_table(token_table & t) {
          "set_option", "open", "export", "@[",
          "attribute", "instance", "include", "omit", "init_quot",
          "run_cmd", "#check", "#reduce", "#eval", "#print", "#help", "#exit",
-         "#compile", "#unify", nullptr};
+         "#compile", "#unify", "#compact_tst", nullptr};
 
     pair<char const *, char const *> aliases[] =
         {{"λ", "fun"}, {"forall", "Pi"},

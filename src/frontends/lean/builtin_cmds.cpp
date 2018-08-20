@@ -589,9 +589,9 @@ environment compact_tst_cmd(parser & p) {
             }
             tout() << "compactor size: " << compactor.size() << "\n";
         }
+        compacted_region r(compactor);
         {
             timeit timer(out, "compacted region time");
-            compacted_region r(compactor);
             unsigned i = 0;
             while (r.read() != nullptr) {
                 i++;
@@ -611,9 +611,9 @@ environment compact_tst_cmd(parser & p) {
                 s << e;
             tout() << "serialization size: " << sout.str().size() << "\n";
         }
+        std::istringstream in(sout.str());
+        deserializer d(in);
         {
-            std::istringstream in(sout.str());
-            deserializer d(in);
             timeit timer1(out, "deserializing objects");
             for (unsigned i = 0; i < objects_to_write.size(); i++) {
                 d.read_object();

@@ -146,14 +146,15 @@ bool object_compactor::insert_task(object * o) {
 }
 
 void object_compactor::insert_mpz(object * o) {
-    void * mem     = alloc(sizeof(mpz_object));
-    object * new_o = new (mem) object(object_kind::MPZ);
-    save(o, new_o);
-    std::string s = mpz_value(o).to_string();
+    std::string s       = mpz_value(o).to_string();
     /* Remark: in the compacted_region object, we use the space after the mpz_object
        to store the next mpz_object in the region AFTER we convert the string back
        into an mpz number. So, we use std::max to make sure we have enough space for both. */
-    void * data = alloc(std::max(s.size() + 1, sizeof(mpz_object*)));
+    size_t extra_space  = std::max(s.size() + 1, sizeof(mpz_object*));
+    void * mem     = alloc(sizeof(mpz_object) + extra_space);
+    object * new_o = new (mem) object(object_kind::MPZ);
+    save(o, new_o);
+    void * data    = reinterpret_cast<char*>(new_o) + sizeof(mpz_object);
     memcpy(data, s.c_str(), s.size() + 1);
 }
 

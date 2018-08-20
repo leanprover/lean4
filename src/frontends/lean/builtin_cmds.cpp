@@ -589,9 +589,31 @@ environment compact_tst_cmd(parser & p) {
             }
             tout() << "compactor size: " << compactor.size() << "\n";
         }
-        compacted_region r(compactor);
         {
-            timeit timer(out, "compacted region time");
+            timeit timer(out, "saving file 'compact.out'");
+            FILE * fp = fopen("compact.out", "wb");
+            if (fp == nullptr) throw exception("failed to open file 'compact.out'");
+            size_t sz = compactor.size();
+            fwrite(&sz, sizeof(size_t), 1, fp);
+            if (fwrite(compactor.data(), 1, sz, fp) != sz)
+                throw exception("failed to write file 'compact.out'");
+            fclose(fp);
+        }
+        void * in_buffer;
+        size_t in_sz;
+        {
+            timeit timer(out, "reading file 'compact.out'");
+            FILE * fp = fopen("compact.out", "rb");
+            if (fp == nullptr) throw exception("failed to open file 'compact.out'");
+            fread(&in_sz, sizeof(size_t), 1, fp);
+            in_buffer = malloc(in_sz);
+            if (fread(in_buffer, 1, in_sz, fp) != in_sz)
+                throw exception("failed to read file 'compact.out'");
+            fclose(fp);
+        }
+        compacted_region r(in_sz, in_buffer);
+        {
+            timeit timer(out, "compacted region fixing pointers time");
             unsigned i = 0;
             while (r.read() != nullptr) {
                 i++;

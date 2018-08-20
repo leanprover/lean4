@@ -132,14 +132,6 @@ struct task_object : public object {
         bool                  m_deleted{false};
         imp(object * c, unsigned prio):m_closure(c), m_prio(prio) {}
     };
-    /* Important: When multi-threading is disabled the task primitives
-       create thunk objects instead of task objects. Thus, the implemention of
-       the object compactor and region require that thunk and task objects
-       have the same size and the field `m_value` is the first one.
-       For example, we have multi-threading enabled, and compact task objects,
-       and then save the compacted region on disk. Then, another Lean process
-       with multi-threading disabled loads the image, and the object region
-       manager needs to "convert" the task objects into thunk objects. */
     atomic<object *>          m_value;
     imp *                     m_imp;
     task_object(object * c, unsigned prio);

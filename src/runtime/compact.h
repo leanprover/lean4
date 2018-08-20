@@ -10,9 +10,6 @@ Author: Leonardo de Moura
 #include "runtime/object.h"
 
 namespace lean {
-static_assert(sizeof(thunk_object) == sizeof(task_object),
-              "the object compactor requires thunk and task object have the same size");
-
 typedef object * object_offset;
 
 class object_compactor {

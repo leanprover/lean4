@@ -129,8 +129,18 @@ bool object_compactor::insert_task(object * o) {
     object_offset c = to_offset(v);
     if (c == g_null_offset)
         return false;
-    object * r = copy_object(o);
-    to_task(r)->m_value = c;
+    /* We save the task as a thunk.
+       Reason: when multi-threading is disabled the task primitives
+       create thunk objects instead of task objects. This may create
+       problems when there is a mismatch when creating and reading a
+       compacted region. For example, multi-threading support was
+       enabled when creating the region, and disabled when reading it.
+       To cope with this issue, we always save tasks as thunks,
+       and rely on the fact that all task API accepts thunks as arguments
+       even when multi-threading is enabled. */
+    void * mem     = alloc(sizeof(thunk_object));
+    object * new_o = new (mem) thunk_object(c, true);
+    save(o, new_o);
     return true;
 }
 

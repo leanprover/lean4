@@ -30,6 +30,7 @@ void * object_compactor::alloc(size_t sz) {
     while (static_cast<char*>(m_end) + sz > m_capacity) {
         size_t new_capacity = capacity()*2;
         void * new_begin = malloc(new_capacity);
+        memcpy(new_begin, m_begin, size());
         m_end      = static_cast<char*>(new_begin) + size();
         m_capacity = static_cast<char*>(new_begin) + new_capacity;
         free(m_begin);

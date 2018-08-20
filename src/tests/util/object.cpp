@@ -152,29 +152,42 @@ obj_res mk_task3(b_obj_arg task1) {
     return task_bind(task1, alloc_closure(mk_task3_fn, 1, 0));
 }
 
+void tst6_core(object * task1) {
+    object_ref task2(mk_task2(task1));
+    object_ref task3(mk_task3(task1));
+    std::cout << "tst6 started...\n";
+    object * r1 = task_get(task2.raw());
+    object * r2 = task_get(task3.raw());
+    std::cout << "r1: " << unbox(r1) << "\n";
+    std::cout << "r2: " << unbox(r2) << "\n";
+    lean_assert(unbox(r1) == 20);
+    lean_assert(unbox(r2) == 110);
+}
+
 void tst6() {
     {
         scoped_task_manager m(8);
         object_ref task1(task_start(alloc_closure(task1_fn, 1, 0)));
-        object_ref task2(mk_task2(task1.raw()));
-        object_ref task3(mk_task3(task1.raw()));
-        std::cout << "tst6 started...\n";
-        object * r1 = task_get(task2.raw());
-        object * r2 = task_get(task3.raw());
-        std::cout << "r1: " << unbox(r1) << "\n";
-        std::cout << "r2: " << unbox(r2) << "\n";
-        lean_assert(unbox(r1) == 20);
-        lean_assert(unbox(r2) == 110);
+        tst6_core(task1.raw());
     }
     {
         scoped_task_manager m(8);
         object_ref task1(task_pure(box(10)));
-        object_ref task2(mk_task2(task1.raw()));
-        object_ref task3(mk_task3(task1.raw()));
-        object * r1 = task_get(task2.raw());
-        object * r2 = task_get(task3.raw());
-        lean_assert(unbox(r1) == 20);
-        lean_assert(unbox(r2) == 110);
+        tst6_core(task1.raw());
+
+    }
+    {
+        scoped_task_manager m(8);
+        object_ref task1(thunk_pure(box(10)));
+        lean_assert(unbox(task_get(task1.raw())) == 10);
+        lean_assert(io_has_finished_core(task1.raw()));
+        tst6_core(task1.raw());
+    }
+    {
+        scoped_task_manager m(8);
+        object_ref task1(mk_thunk(alloc_closure(f, 1, 0)));
+        lean_assert(io_has_finished_core(task1.raw()));
+        tst6_core(task1.raw());
     }
 }
 

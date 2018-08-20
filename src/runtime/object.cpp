@@ -438,7 +438,8 @@ class task_manager {
         object * it = task_list;
         while (!is_scalar(it)) {
             object * head = cnstr_obj(it, 0);
-            if (to_task(head)->m_value)
+            lean_assert(is_thunk(head) || is_task(head));
+            if (is_thunk(head) || to_task(head)->m_value)
                 return head;
             it = cnstr_obj(it, 1);
         }
@@ -605,8 +606,10 @@ obj_res task_pure(obj_arg a) {
 }
 
 static obj_res task_map_fn(obj_arg f, obj_arg t, obj_arg) {
-    lean_assert(to_task(t)->m_value);
-    b_obj_res v = to_task(t)->m_value;
+    lean_assert(is_thunk(t) || is_task(t));
+    b_obj_res v;
+    if (is_thunk(t)) v = thunk_get(t); else v = to_task(t)->m_value;
+    lean_assert(v != nullptr);
     inc(v);
     dec_ref(t);
     return apply_1(f, v);
@@ -614,16 +617,20 @@ static obj_res task_map_fn(obj_arg f, obj_arg t, obj_arg) {
 
 obj_res task_map(obj_arg f, obj_arg t, unsigned prio) {
     if (!g_task_manager) {
+        lean_assert(is_thunk(t));
         return thunk_map(f, t);
     } else {
         task_object * new_task = alloc_task(mk_closure_3_2(task_map_fn, f, t), prio);
-        g_task_manager->add_dep(to_task(t), new_task);
+        if (is_thunk(t))
+            g_task_manager->enqueue(new_task);
+        else
+            g_task_manager->add_dep(to_task(t), new_task);
         return new_task;
     }
 }
 
 b_obj_res task_get(b_obj_arg t) {
-    if (!g_task_manager) {
+    if (is_thunk(t)) {
         return thunk_get(t);
     } else {
         if (object * v = to_task(t)->m_value)
@@ -644,23 +651,39 @@ static obj_res task_bind_fn2(obj_arg t, obj_arg) {
 }
 
 static obj_res task_bind_fn1(obj_arg x, obj_arg f, obj_arg) {
-    b_obj_res v = to_task(x)->m_value;
+    lean_assert(is_thunk(x) || is_task(x));
+    b_obj_res v;
+    if (is_thunk(x)) v = thunk_get(x); else v = to_task(x)->m_value;
+    lean_assert(v != nullptr);
     inc(v);
     dec_ref(x);
     obj_res new_task = apply_1(f, v);
-    lean_assert(g_current_task_object->m_imp);
-    lean_assert(g_current_task_object->m_imp->m_closure == nullptr);
-    g_current_task_object->m_imp->m_closure = mk_closure_2_1(task_bind_fn2, new_task);
-    g_task_manager->add_dep(to_task(new_task), g_current_task_object);
-    return nullptr; /* notify queue that task did not finish yet. */
+    lean_assert(is_thunk(new_task) || is_task(new_task));
+    if (is_thunk(new_task)) {
+        b_obj_res r = thunk_get(new_task);
+        inc(r);
+        dec_ref(new_task);
+        return r;
+    } else {
+        lean_assert(is_task(new_task));
+        lean_assert(g_current_task_object->m_imp);
+        lean_assert(g_current_task_object->m_imp->m_closure == nullptr);
+        g_current_task_object->m_imp->m_closure = mk_closure_2_1(task_bind_fn2, new_task);
+        g_task_manager->add_dep(to_task(new_task), g_current_task_object);
+        return nullptr; /* notify queue that task did not finish yet. */
+    }
 }
 
 obj_res task_bind(obj_arg x, obj_arg f, unsigned prio) {
+    lean_assert(is_thunk(x) || is_task(x));
     if (!g_task_manager) {
         return thunk_bind(x, f);
     } else {
         task_object * new_task = alloc_task(mk_closure_3_2(task_bind_fn1, x, f), prio);
-        g_task_manager->add_dep(to_task(x), new_task);
+        if (is_thunk(x))
+            g_task_manager->enqueue(new_task);
+        else
+            g_task_manager->add_dep(to_task(x), new_task);
         return new_task;
     }
 }
@@ -674,13 +697,15 @@ bool io_check_interrupt_core() {
 }
 
 void io_request_interrupt_core(b_obj_arg t) {
-    if (to_task(t)->m_value)
+    lean_assert(is_thunk(t) || is_task(t));
+    if (is_thunk(t) || to_task(t)->m_value)
         return;
     g_task_manager->request_interrupt(to_task(t));
 }
 
 bool io_has_finished_core(b_obj_arg t) {
-    return to_task(t)->m_value != nullptr;
+    lean_assert(is_thunk(t) || is_task(t));
+    return is_thunk(t) || to_task(t)->m_value != nullptr;
 }
 
 b_obj_res io_wait_any_core(b_obj_arg task_list) {

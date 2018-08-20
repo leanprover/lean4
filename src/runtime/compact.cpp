@@ -224,7 +224,7 @@ inline object * compacted_region::fix_object_ptr(object * o) {
     return reinterpret_cast<object*>(static_cast<char*>(m_begin) + reinterpret_cast<size_t>(o));
 }
 
-void compacted_region::fix_constructor(object * o) {
+inline void compacted_region::fix_constructor(object * o) {
     object ** it  = cnstr_obj_cptr(o);
     object ** end = it + cnstr_num_objs(o);
     for (; it != end; it++) {
@@ -233,7 +233,7 @@ void compacted_region::fix_constructor(object * o) {
     move(cnstr_byte_size(o));
 }
 
-void compacted_region::fix_array(object * o) {
+inline void compacted_region::fix_array(object * o) {
     object ** it  = array_cptr(o);
     object ** end = it + array_size(o);
     for (; it != end; it++) {
@@ -242,7 +242,7 @@ void compacted_region::fix_array(object * o) {
     move(array_byte_size(o));
 }
 
-void compacted_region::fix_thunk(object * o) {
+inline void compacted_region::fix_thunk(object * o) {
     to_thunk(o)->m_value = fix_object_ptr(to_thunk(o)->m_value);
     move(sizeof(thunk_object));
 }

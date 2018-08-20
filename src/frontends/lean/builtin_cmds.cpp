@@ -567,20 +567,26 @@ environment hide_cmd(parser & p) {
 
 environment compact_tst_cmd(parser & p) {
     environment env = p.env();
+    unsigned num_copies = 0;
+    if (p.curr_is_numeral())
+        num_copies = p.parse_small_nat();
+    buffer<expr> objects_to_write;
+    env.for_each_declaration([&](declaration const & d) {
+            for (unsigned i = 0; i < num_copies + 1; i++) {
+                objects_to_write.push_back(deep_copy(d.get_type()));
+                if (d.is_definition())
+                    objects_to_write.push_back(deep_copy(d.get_value()));
+            }
+        });
+    tout() << "number of root objects: " << objects_to_write.size() << "\n";
     {
         std::ostringstream out;
         object_compactor compactor;
-        unsigned num_root_objects = 0;
         {
             timeit timer(out, "compacting objects");
-            env.for_each_declaration([&](declaration const & d) {
-                    compactor(d.get_name().raw()); num_root_objects++;
-                    compactor(d.get_type().raw()); num_root_objects++;
-                    if (d.is_definition()) {
-                       compactor(d.get_value().raw());
-                       num_root_objects++;
-                    }
-                });
+            for (expr const & e : objects_to_write) {
+                compactor(e.raw());
+            }
             tout() << "compactor size: " << compactor.size() << "\n";
         }
         {
@@ -590,7 +596,7 @@ environment compact_tst_cmd(parser & p) {
             while (r.read() != nullptr) {
                 i++;
             }
-            tout() << "number of root objects: " << i << "\n";
+            tout() << "number of read root objects: " << i << "\n";
             lean_assert(num_root_objects == i);
         }
         tout() << out.str() << "\n";
@@ -598,25 +604,18 @@ environment compact_tst_cmd(parser & p) {
     {
         std::ostringstream out;
         std::ostringstream sout;
-        unsigned counter = 0;
         {
             serializer s(sout);
             timeit timer1(out, "serializing objects");
-            env.for_each_declaration([&](declaration const & d) {
-                    s << d.get_name(); counter++;
-                    s << d.get_type(); counter++;
-                    if (d.is_definition()) {
-                        s << d.get_value(); counter++;
-                    }
-                });
+            for (expr const & e : objects_to_write)
+                s << e;
             tout() << "serialization size: " << sout.str().size() << "\n";
-            tout() << "number of objects:  " << counter << "\n";
         }
         {
             std::istringstream in(sout.str());
             deserializer d(in);
             timeit timer1(out, "deserializing objects");
-            for (unsigned i = 0; i < counter; i++) {
+            for (unsigned i = 0; i < objects_to_write.size(); i++) {
                 d.read_object();
             }
         }

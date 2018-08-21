@@ -55,7 +55,7 @@ bool constructor_val::is_meta() const { return cnstr_scalar<unsigned char>(raw()
 bool recursor_val::is_k() const { return (cnstr_scalar<unsigned char>(raw(), recursor_scalar_offset()) & 1) != 0; }
 bool recursor_val::is_meta() const { return (cnstr_scalar<unsigned char>(raw(), recursor_scalar_offset()) & 2) != 0; }
 
-object * declaration::mk_declaration_val(name const & n, level_param_names const & params, expr const & t) {
+static object * mk_declaration_val(name const & n, level_param_names const & params, expr const & t) {
     object * r = alloc_cnstr(0, 3, 0);
     inc(n.raw());      cnstr_set_obj(r, 0, n.raw());
     inc(params.raw()); cnstr_set_obj(r, 1, params.raw());
@@ -63,15 +63,15 @@ object * declaration::mk_declaration_val(name const & n, level_param_names const
     return r;
 }
 
-object * declaration::mk_axiom_val(name const & n, level_param_names const & params, expr const & t, bool meta) {
+static object * mk_axiom_val(name const & n, level_param_names const & params, expr const & t, bool meta) {
     object * r = alloc_cnstr(0, 1, sizeof(unsigned char));
     cnstr_set_obj(r, 0, mk_declaration_val(n, params, t));
     cnstr_set_scalar<unsigned char>(r, axiom_scalar_offset(), static_cast<unsigned char>(meta));
     return r;
 }
 
-object * declaration::mk_definition_val(name const & n, level_param_names const & params, expr const & t, expr const & v,
-                                        reducibility_hints const & h, bool meta) {
+static object * mk_definition_val(name const & n, level_param_names const & params, expr const & t, expr const & v,
+                                  reducibility_hints const & h, bool meta) {
     object * r = alloc_cnstr(0, 3, sizeof(unsigned char));
     cnstr_set_obj(r, 0, mk_declaration_val(n, params, t));
     inc(v.raw()); cnstr_set_obj(r, 1, v.raw());
@@ -80,15 +80,15 @@ object * declaration::mk_definition_val(name const & n, level_param_names const 
     return r;
 }
 
-object * declaration::mk_theorem_val(name const & n, level_param_names const & params, expr const & t, expr const & v) {
+static object * mk_theorem_val(name const & n, level_param_names const & params, expr const & t, expr const & v) {
     object * r = alloc_cnstr(0, 2, 0);
     cnstr_set_obj(r, 0, mk_declaration_val(n, params, t));
     inc(v.raw()); cnstr_set_obj(r, 1, v.raw());
     return r;
 }
 
-object * declaration::mk_inductive_val(name const & n, level_param_names const & params, expr const & t, unsigned nparams, unsigned nindices,
-                                       names const & all, names const & cnstrs, names const & recs, bool is_rec, bool is_meta) {
+static object * mk_inductive_val(name const & n, level_param_names const & params, expr const & t, unsigned nparams, unsigned nindices,
+                                 names const & all, names const & cnstrs, names const & recs, bool is_rec, bool is_meta) {
     object * r = alloc_cnstr(0, 6, 1);
     cnstr_set_obj(r, 0, mk_declaration_val(n, params, t));
     cnstr_set_obj(r, 1, mk_nat_obj(nparams));
@@ -100,8 +100,8 @@ object * declaration::mk_inductive_val(name const & n, level_param_names const &
     return r;
 }
 
-object * declaration::mk_constructor_val(name const & n, level_param_names const & params, expr const & t, name const & induct, unsigned nparams,
-                                         bool is_meta) {
+static object * mk_constructor_val(name const & n, level_param_names const & params, expr const & t, name const & induct, unsigned nparams,
+                                   bool is_meta) {
     object * r = alloc_cnstr(0, 3, 1);
     cnstr_set_obj(r, 0, mk_declaration_val(n, params, t));
     inc(induct.raw()); cnstr_set_obj(r, 1, induct.raw());
@@ -110,8 +110,8 @@ object * declaration::mk_constructor_val(name const & n, level_param_names const
     return r;
 }
 
-object * declaration::mk_recursor_val(name const & n, level_param_names const & params, expr const & t, name const & induct, unsigned nparams,
-                                      unsigned nindices, unsigned nmotives, unsigned nminor, bool k, recursor_rules const & rules, bool is_meta) {
+static object * mk_recursor_val(name const & n, level_param_names const & params, expr const & t, name const & induct, unsigned nparams,
+                                unsigned nindices, unsigned nmotives, unsigned nminor, bool k, recursor_rules const & rules, bool is_meta) {
     object * r = alloc_cnstr(0, 7, 1);
     cnstr_set_obj(r, 0, mk_declaration_val(n, params, t));
     cnstr_set_obj(r, 0, mk_declaration_val(n, params, t));
@@ -168,7 +168,7 @@ declaration::declaration():declaration(*g_dummy) {}
 
 declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v,
                           reducibility_hints const & h, bool meta) {
-    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Definition), declaration::mk_definition_val(n, params, t, v, h, meta)));
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Definition), mk_definition_val(n, params, t, v, h, meta)));
 }
 
 static unsigned get_max_height(environment const & env, expr const & v) {
@@ -191,11 +191,11 @@ declaration mk_definition(environment const & env, name const & n, level_param_n
 }
 
 declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v) {
-    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Theorem), declaration::mk_theorem_val(n, params, t, v)));
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Theorem), mk_theorem_val(n, params, t, v)));
 }
 
 declaration mk_axiom(name const & n, level_param_names const & params, expr const & t, bool meta) {
-    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Axiom), declaration::mk_axiom_val(n, params, t, meta)));
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Axiom), mk_axiom_val(n, params, t, meta)));
 }
 
 declaration mk_definition_inferring_meta(environment const & env, name const & n, level_param_names const & params,
@@ -219,17 +219,17 @@ declaration mk_axiom_inferring_meta(environment const & env, name const & n,
 declaration mk_inductive(name const & n, level_param_names const & params, expr const & t, unsigned nparams, unsigned nindices,
                          names const & all, names const & cnstrs, names const & recs, bool is_rec, bool is_meta) {
     return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Inductive),
-                                declaration::mk_inductive_val(n, params, t, nparams, nindices, all, cnstrs, recs, is_rec, is_meta)));
+                                mk_inductive_val(n, params, t, nparams, nindices, all, cnstrs, recs, is_rec, is_meta)));
 }
 
 declaration mk_constructor(name const & n, level_param_names const & params, expr const & t, name const & induct, unsigned nparams, bool is_meta) {
-    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Constructor), declaration::mk_constructor_val(n, params, t, induct, nparams, is_meta)));
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Constructor), mk_constructor_val(n, params, t, induct, nparams, is_meta)));
 }
 
 declaration mk_recursor(name const & n, level_param_names const & params, expr const & t, name const & induct, unsigned nparams,
                         unsigned nindices, unsigned nmotives, unsigned nminor, bool k, recursor_rules const & rules, bool is_meta) {
     return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Constructor),
-                                declaration::mk_recursor_val(n, params, t, induct, nparams, nindices, nmotives, nminor, k, rules, is_meta)));
+                                mk_recursor_val(n, params, t, induct, nparams, nindices, nmotives, nminor, k, rules, is_meta)));
 }
 
 inductive_type::inductive_type(name const & id, expr const & type, constructors const & cnstrs):

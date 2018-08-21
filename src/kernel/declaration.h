@@ -184,16 +184,6 @@ enum class declaration_kind { Axiom, Definition, Theorem, Inductive, Constructor
 class declaration : public object_ref {
     explicit declaration(object * o):object_ref(o) {}
     explicit declaration(object_ref const & o):object_ref(o) {}
-    static object * mk_declaration_val(name const & n, level_param_names const & params, expr const & t);
-    static object * mk_definition_val(name const & n, level_param_names const & params, expr const & t, expr const & v, reducibility_hints const & h, bool meta);
-    static object * mk_axiom_val(name const & n, level_param_names const & params, expr const & t, bool meta);
-    static object * mk_theorem_val(name const & n, level_param_names const & params, expr const & t, expr const & v);
-    static object * mk_inductive_val(name const & n, level_param_names const & params, expr const & t, unsigned nparams, unsigned nindices,
-                                     names const & all, names const & cnstrs, names const & recs, bool is_rec, bool is_meta);
-    static object * mk_constructor_val(name const & n, level_param_names const & params, expr const & t, name const & induct, unsigned nparams, bool is_meta);
-    static object * mk_recursor_val(name const & id, level_param_names const & params, expr const & t, name const & induct, unsigned nparams,
-                                    unsigned nindices, unsigned nmotives, unsigned nminor, bool k, recursor_rules const & rules, bool is_meta);
-
     object * get_val_obj() const { return cnstr_obj(raw(), 0); }
     object_ref const & to_val() const { return cnstr_obj_ref(*this, 0); }
     declaration_val const & to_declaration_val() const { return static_cast<declaration_val const &>(cnstr_obj_ref(to_val(), 0)); }

@@ -58,6 +58,7 @@ vm_obj environment_trust_lvl(vm_obj const & env) {
     return mk_vm_nat(to_env(env).trust_lvl());
 }
 
+/*
 vm_obj environment_add(vm_obj const & env, vm_obj const & decl) {
     try {
         return mk_vm_exceptional_success(to_obj(module::add(to_env(env), check(to_env(env), to_declaration(decl)))));
@@ -65,6 +66,7 @@ vm_obj environment_add(vm_obj const & env, vm_obj const & decl) {
         return mk_vm_exceptional_exception(std::current_exception());
     }
 }
+*/
 
 vm_obj environment_get(vm_obj const & env, vm_obj const & n) {
     try {
@@ -253,7 +255,7 @@ vm_obj environment_fingerprint(vm_obj const & env) {
 void initialize_vm_environment() {
     DECLARE_VM_BUILTIN(name({"environment", "mk_std"}),                environment_mk_std);
     DECLARE_VM_BUILTIN(name({"environment", "trust_lvl"}),             environment_trust_lvl);
-    DECLARE_VM_BUILTIN(name({"environment", "add"}),                   environment_add);
+    // DECLARE_VM_BUILTIN(name({"environment", "add"}),                   environment_add);
     DECLARE_VM_BUILTIN(name({"environment", "get"}),                   environment_get);
     DECLARE_VM_BUILTIN(name({"environment", "fold"}),                  environment_fold);
     DECLARE_VM_BUILTIN(name({"environment", "add_inductive"}),         environment_add_inductive);

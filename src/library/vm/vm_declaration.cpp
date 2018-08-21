@@ -132,12 +132,12 @@ vm_obj declaration_instantiate_value_univ_params(vm_obj const & _d, vm_obj const
 }
 
 void initialize_vm_declaration() {
-    DECLARE_VM_BUILTIN(name({"lean", "declaration", "defn_decl"}),  declaration_defn);
-    DECLARE_VM_BUILTIN(name({"lean", "declaration", "thm_decl"}),   declaration_thm);
-    DECLARE_VM_BUILTIN(name({"lean", "declaration", "axion_decl"}), declaration_ax);
-    DECLARE_VM_BUILTIN(name({"lean", "declaration", "instantiate_type_univ_params"}),  declaration_instantiate_type_univ_params);
-    DECLARE_VM_BUILTIN(name({"lean", "declaration", "instantiate_value_univ_params"}), declaration_instantiate_value_univ_params);
-    DECLARE_VM_CASES_BUILTIN(name({"lean", "declaration", "cases_on"}), declaration_cases_on);
+    DECLARE_VM_BUILTIN(name({"lean", "constant_info", "defn_info"}),  declaration_defn);
+    DECLARE_VM_BUILTIN(name({"lean", "constant_info", "thm_info"}),   declaration_thm);
+    DECLARE_VM_BUILTIN(name({"lean", "constant_info", "axiom_info"}), declaration_ax);
+    DECLARE_VM_BUILTIN(name({"lean", "constant_info", "instantiate_type_univ_params"}),  declaration_instantiate_type_univ_params);
+    DECLARE_VM_BUILTIN(name({"lean", "constant_info", "instantiate_value_univ_params"}), declaration_instantiate_value_univ_params);
+    DECLARE_VM_CASES_BUILTIN(name({"lean", "constant_info", "cases_on"}), declaration_cases_on);
 }
 
 void finalize_vm_declaration() {

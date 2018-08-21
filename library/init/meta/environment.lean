@@ -26,10 +26,10 @@ structure projection_info :=
 meta constant mk_std          : nat → environment
 /-- Return the trust level of the given environment -/
 meta constant trust_lvl       : environment → nat
-/-- Add a new declaration to the environment -/
-meta constant add             : environment → declaration → exceptional environment
+-- /-- Add a new declaration to the environment -/
+-- meta constant add             : environment → declaration → exceptional environment
 /-- Retrieve a declaration from the environment -/
-meta constant get             : environment → name → exceptional declaration
+meta constant get             : environment → name → exceptional constant_info
 meta def      contains (env : environment) (d : name) : bool :=
 match env.get d with
 | exceptional.success _     := tt
@@ -67,7 +67,7 @@ meta constant inductive_dep_elim : environment → name → bool
 meta constant is_ginductive : environment → name → bool
 meta constant is_projection : environment → name → option projection_info
 /-- Fold over declarations in the environment -/
-meta constant fold {α :Type} : environment → α → (declaration → α → α) → α
+meta constant fold {α :Type} : environment → α → (constant_info → α → α) → α
 /-- `relation_info env n` returns some value if n is marked as a relation in the given environment.
    the tuple contains: total number of arguments of the relation, lhs position and rhs position. -/
 meta constant relation_info : environment → name → option (nat × nat × nat)
@@ -107,8 +107,8 @@ meta def in_current_file (env : environment) (n : name) : bool :=
 
 meta def is_definition (env : environment) (n : name) : bool :=
 match env.get n with
-| exceptional.success (lean.declaration.defn_decl _) := tt
-| _                                                  := ff
+| exceptional.success (lean.constant_info.defn_info _) := tt
+| _                                                    := ff
 
 end environment
 

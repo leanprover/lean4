@@ -209,7 +209,7 @@ meta def get_env : tactic environment :=
 do s ← read,
    return $ env s
 
-meta def get_decl (n : name) : tactic declaration :=
+meta def get_decl (n : name) : tactic constant_info :=
 do s ← read,
    (env s).get n
 
@@ -412,8 +412,8 @@ meta constant destruct (e : expr) (md := semireducible) : tactic unit
 meta constant generalize (e : expr) (n : name := `_x) (md := semireducible) : tactic unit
 /-- instantiate assigned metavariables in the given expression -/
 meta constant instantiate_mvars : expr → tactic expr
-/-- Add the given declaration to the environment -/
-meta constant add_decl : declaration → tactic unit
+-- /-- Add the given declaration to the environment -/
+-- meta constant add_decl : declaration → tactic unit
 /-- Changes the environment to the `new_env`. `new_env` needs to be a descendant from the current environment. -/
 meta constant set_env : environment → tactic unit
 /-- (doc_string env d k) return the doc string for d (if available) -/
@@ -1054,8 +1054,8 @@ meta def add_inductive (n : name) (ls : list name) (p : nat) (ty : expr) (is : l
   (is_meta : bool := ff) : tactic unit :=
 updateex_env $ λe, e.add_inductive n ls p ty is is_meta
 
-meta def add_meta_definition (n : name) (lvls : list name) (type value : expr) : tactic unit :=
-add_decl (lean.declaration.defn_decl { id := n, lparams := lvls, type := type, value := value, hints := lean.reducibility_hints.abbrev, is_meta := tt })
+-- meta def add_meta_definition (n : name) (lvls : list name) (type value : expr) : tactic unit :=
+-- add_decl (lean.declaration.defn_decl { id := n, lparams := lvls, type := type, value := value, hints := lean.reducibility_h-- ints.abbrev, is_meta := tt })
 
 meta def rename (curr : name) (new : name) : tactic unit :=
 do h ← get_local curr,

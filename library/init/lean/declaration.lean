@@ -94,50 +94,55 @@ structure recursor_val extends declaration_val :=
 (rules : list recursor_rule) -- A reduction for each constructor
 (is_meta : bool)
 
-inductive declaration
-| axiom_decl  (val : axiom_val)
-| defn_decl   (val : definition_val)
-| thm_decl    (val : theorem_val)
-| induct_decl (val : inductive_val)
-| cnstr_decl  (val : constructor_val)
-| rec_decl    (val : recursor_val)
+inductive quot_kind
+| type  -- `quot`
+| cnstr -- `quot.mk`
+| lift  -- `quot.lift`
+| ind   -- `quot.ind`
 
-namespace declaration
+structure quot_val extends declaration_val :=
+(kind : quot_kind)
 
-def to_declaration_val : declaration → declaration_val
-| (defn_decl   {to_declaration_val := d, ..}) := d
-| (axiom_decl  {to_declaration_val := d, ..}) := d
-| (thm_decl    {to_declaration_val := d, ..}) := d
-| (induct_decl {to_declaration_val := d, ..}) := d
-| (cnstr_decl  {to_declaration_val := d, ..}) := d
-| (rec_decl    {to_declaration_val := d, ..}) := d
+/-- Information associated with constant declarations. -/
+inductive constant_info
+| axiom_info    (val : axiom_val)
+| defn_info     (val : definition_val)
+| thm_info      (val : theorem_val)
+| quot_info     (val : quot_val)
+| induct_info   (val : inductive_val)
+| cnstr_info    (val : constructor_val)
+| rec_info      (val : recursor_val)
 
-def id (d : declaration) : name :=
+namespace constant_info
+
+def to_declaration_val : constant_info → declaration_val
+| (defn_info     {to_declaration_val := d, ..}) := d
+| (axiom_info    {to_declaration_val := d, ..}) := d
+| (thm_info      {to_declaration_val := d, ..}) := d
+| (quot_info     {to_declaration_val := d, ..}) := d
+| (induct_info   {to_declaration_val := d, ..}) := d
+| (cnstr_info    {to_declaration_val := d, ..}) := d
+| (rec_info      {to_declaration_val := d, ..}) := d
+
+def id (d : constant_info) : name :=
 d.to_declaration_val.id
 
-def lparams (d : declaration) : list name :=
+def lparams (d : constant_info) : list name :=
 d.to_declaration_val.lparams
 
-def type (d : declaration) : expr :=
+def type (d : constant_info) : expr :=
 d.to_declaration_val.type
 
-def value : declaration → option expr
-| (defn_decl {value := r, ..}) := some r
-| (thm_decl  {value := r, ..}) := some r
+def value : constant_info → option expr
+| (defn_info {value := r, ..}) := some r
+| (thm_info  {value := r, ..}) := some r
 | _                            := none
 
-def hints : declaration → reducibility_hints
-| (defn_decl {hints := r, ..}) := r
+def hints : constant_info → reducibility_hints
+| (defn_info {hints := r, ..}) := r
 | _                            := reducibility_hints.opaque
 
-def is_meta : declaration → bool
-| (defn_decl   {is_meta := r, ..}) := r
-| (induct_decl {is_meta := r, ..}) := r
-| (cnstr_decl  {is_meta := r, ..}) := r
-| (rec_decl    {is_meta := r, ..}) := r
-| _                                := ff
-
-end declaration
+end constant_info
 
 structure constructor :=
 (id : name) (type : expr)

@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "runtime/thread.h"
 #include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
-#include "kernel/old_type_checker.h"
+#include "kernel/type_checker.h"
 #include "kernel/quot.h"
 
 namespace lean {

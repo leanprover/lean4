@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "util/rb_map.h"
 #include "util/fresh_name.h"
 #include "kernel/old_type_checker.h"
+#include "kernel/type_checker.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"

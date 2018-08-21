@@ -156,12 +156,6 @@ public:
           - The environment already contains a declaration with the given name. */
     environment add(certified_declaration const & d) const;
 
-    /** \brief Replace the axiom with name <tt>t.get_declaration().get_name()</tt> with the theorem t.get_declaration().
-        This method throws an exception if:
-          - The theorem was certified in an environment which is not an ancestor of this one.
-          - The environment does not contain an axiom named <tt>t.get_declaration().get_name()</tt> */
-    environment replace(certified_declaration const & t) const;
-
     /** \brief Add a sequence of (possibly mutually recursive) meta declarations.
         The type checking occurs in two phases:
         1- We type check each declaration type and add to a new environment.

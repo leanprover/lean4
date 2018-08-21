@@ -142,24 +142,6 @@ environment environment::add_meta(buffer<declaration> const & ds, bool check) co
     return new_env;
 }
 
-environment environment::replace(certified_declaration const & t) const {
-    if (!m_id.is_descendant(t.get_id()))
-        throw_incompatible_environment(*this);
-    name const & n = t.get_declaration().get_name();
-    auto ax = find(n);
-    if (!ax)
-        throw kernel_exception(*this, "invalid replacement of axiom with theorem, the environment does not have an axiom with the given name");
-    if (!ax->is_axiom())
-        throw kernel_exception(*this, "invalid replacement of axiom with theorem, the current declaration in the environment is not an axiom");
-    if (!t.get_declaration().is_theorem())
-        throw kernel_exception(*this, "invalid replacement of axiom with theorem, the new declaration is not a theorem");
-    if (ax->get_type() != t.get_declaration().get_type())
-        throw kernel_exception(*this, "invalid replacement of axiom with theorem, the 'replace' operation can only be used when the axiom and theorem have the same type");
-    if (ax->get_univ_params() != t.get_declaration().get_univ_params())
-        throw kernel_exception(*this, "invalid replacement of axiom with theorem, the 'replace' operation can only be used when the axiom and theorem have the same universe parameters");
-    return environment(*this, insert(m_declarations, n, t.get_declaration()));
-}
-
 environment environment::forget() const {
     environment new_env = *this;
     new_env.m_id = environment_id();

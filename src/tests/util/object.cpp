@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <iostream>
+#include <vector>
 #include "util/test.h"
 #include "runtime/serializer.h"
 #include "runtime/sstream.h"
@@ -145,7 +146,7 @@ obj_res mk_task3_fn(obj_arg val) {
 obj_res mk_task2(b_obj_arg task1) {
     inc(task1);
     return task_map(alloc_closure(add_10, 1, 0), task1);
- }
+}
 
 obj_res mk_task3(b_obj_arg task1) {
     inc_ref(task1);
@@ -174,7 +175,6 @@ void tst6() {
         scoped_task_manager m(8);
         object_ref task1(task_pure(box(10)));
         tst6_core(task1.raw());
-
     }
     {
         scoped_task_manager m(8);

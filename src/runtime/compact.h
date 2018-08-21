@@ -5,8 +5,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include <unordered_map>
+#include <functional>
 #include <vector>
+#include <unordered_map>
 #include "runtime/object.h"
 
 namespace lean {

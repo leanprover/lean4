@@ -8,6 +8,8 @@ Author: Leonardo de Moura
 #include <string>
 #include <algorithm>
 #include <map>
+#include <vector>
+#include <utility>
 #include <unordered_set>
 #include <deque>
 #include "runtime/stackinfo.h"

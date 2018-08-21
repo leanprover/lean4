@@ -4,6 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <algorithm>
+#include <string>
+#include <vector>
 #include "runtime/compact.h"
 
 #define LEAN_COMPACTOR_INIT_SZ 1024*1024

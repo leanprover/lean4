@@ -617,7 +617,8 @@ environment compact_tst_cmd(parser & p) {
             timeit timer(out, "reading file 'compact.out'");
             FILE * fp = fopen("compact.out", "rb");
             if (fp == nullptr) throw exception("failed to open file 'compact.out'");
-            fread(&in_sz, sizeof(size_t), 1, fp);
+            if (fread(&in_sz, sizeof(size_t), 1, fp) != 1)
+                throw exception("failed to read file 'compact.out'");
             in_buffer = malloc(in_sz);
             if (fread(in_buffer, 1, in_sz, fp) != in_sz)
                 throw exception("failed to read file 'compact.out'");

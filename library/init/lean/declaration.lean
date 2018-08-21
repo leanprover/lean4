@@ -52,6 +52,21 @@ structure definition_val extends declaration_val :=
 structure theorem_val extends declaration_val :=
 (value : expr)
 
+structure constructor :=
+(id : name) (type : expr)
+
+structure inductive_type :=
+(id : name) (type : expr) (cnstrs : list constructor)
+
+/-- Declaration object that can be sent to the kernel. -/
+inductive declaration
+| axiom_decl       (val : axiom_val)
+| defn_decl        (val : definition_val)
+| thm_decl         (val : theorem_val)
+| quot_decl
+| mutual_defn_decl (defns : list definition_val) -- All definitions must be marked as `meta`
+| induct_decl      (lparams : list name) (nparams : nat) (types : list inductive_type) (is_meta : bool)
+
 /-- The kernel compiles (mutual) inductive declarations (see `inductive_decls`) into a set of
     - `declaration.induct_decl` (for each inductive datatype in the mutual declaration),
     - `declaration.cnstr_decl` (for each constructor in the mutual declaration),
@@ -143,16 +158,4 @@ def hints : constant_info → reducibility_hints
 | _                            := reducibility_hints.opaque
 
 end constant_info
-
-structure constructor :=
-(id : name) (type : expr)
-
-structure inductive_type :=
-(id : name) (type : expr) (cnstrs : list constructor)
-
-/-- A (mutual) inductive declaration. This declaration created by the frontend is compiled by the kernel
-    into a set of `declaration.induct_decl`, `declaration.cnstr_decl` and `declaration.rec_decl`. -/
-structure inductive_decl :=
-(lparams : list name) (nparams : nat) (types : list inductive_type) (is_meta : bool)
-
 end lean

@@ -49,7 +49,7 @@ TODO: mark as `@[inline]` as soon as we fix the code inliner.
 -/
 private def merge (w : nat) (r₁ : space_result) (r₂ : thunk space_result) : space_result :=
 if r₁.exceeded || r₁.found then r₁
-else let y := r₂ () in
+else let y := r₂.get in
      if y.exceeded || y.found then y
      else let new_space := r₁.space + y.space in
           { space := new_space, exceeded := new_space > w }

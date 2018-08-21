@@ -9,23 +9,23 @@ universes u
 
 /-- This function has a native implementation that tracks time. -/
 def timeit {α : Type u} (s : string) (f : thunk α) : α :=
-f ()
+f.get
 
 /-- This function has a native implementation that displays the given string in the regular output stream. -/
 def trace {α : Type u} (s : string) (f : thunk α) : α :=
-f ()
+f.get
 
 meta def trace_val {α : Type u} [has_to_format α] (f : α) : α :=
 trace (to_fmt f).to_string f
 
 /-- This function has a native implementation that shows the VM call stack. -/
 def trace_call_stack {α : Type u} (f : thunk α) : α :=
-f ()
+f.get
 
 /-- This function has a native implementation that displays in the given position all trace messages used in f.
    The arguments line and col are filled by the elaborator. -/
 def scope_trace {α : Type u} {line col: nat} (f : thunk α) : α :=
-f ()
+f.get
 
 /--
   This function has a native implementation where
@@ -33,7 +33,7 @@ f ()
   The heartbeat is approx. the maximum number of memory allocations (in thousands) performed by 'f ()'.
   This is a deterministic way of interrupting long running tasks. -/
 meta def try_for {α : Type u} (max : nat) (f : thunk α) : option α :=
-some (f ())
+some f.get
 
 meta constant undefined_core {α : Sort u} (message : string) : α
 

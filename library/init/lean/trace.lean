@@ -45,26 +45,26 @@ class monad_tracer (m : Type → Type u) :=
 export monad_tracer (trace_root trace_ctx)
 
 def trace {m} [monad m] [monad_tracer m] (cls : name) (msg : message) : m unit :=
-trace_ctx cls msg (pure ())
+trace_ctx cls msg (pure () : m unit)
 
 instance (m) [monad m] : monad_tracer (trace_t m) :=
 { trace_root := λ α pos cls msg ctx, do {
     st ← get,
     if st.opts.get_bool cls = some tt then do {
       modify $ λ st, {cur_pos := pos, cur_traces := [], ..st},
-      a ← ctx (),
+      a ← ctx.get,
       modify $ λ (st : trace_state), {roots := st.roots.insert pos ⟨msg, st.cur_traces⟩, ..st},
       pure a
-    } else ctx ()
+    } else ctx.get
   },
   trace_ctx := λ α cls msg ctx, do {
     st ← get,
     -- tracing enabled?
-    some _ ← pure st.cur_pos | ctx (),
+    some _ ← pure st.cur_pos | ctx.get,
     -- trace class enabled?
     if st.opts.get_bool cls = some tt then do {
       put {cur_traces := [], ..st},
-      a ← ctx (),
+      a ← ctx.get,
       modify $ λ (st' : trace_state), {cur_traces := st.cur_traces ++ [⟨msg, st'.cur_traces⟩], ..st'},
       pure a
     } else
@@ -72,7 +72,7 @@ instance (m) [monad m] : monad_tracer (trace_t m) :=
       adapt_state'
         (λ _, {cur_pos := none, ..st})
         (λ st', {cur_pos := st.cur_pos, ..st'})
-        (ctx ())
+        ctx.get
   }
 }
 

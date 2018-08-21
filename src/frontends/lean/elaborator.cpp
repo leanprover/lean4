@@ -555,9 +555,17 @@ optional<expr> elaborator::mk_Prop_to_bool_coercion(expr const & e, expr const &
     return some_expr(r);
 }
 
+static bool is_thunk(expr const & e) {
+    return is_app_of(e, get_thunk_name(), 1);
+}
+
 optional<expr> elaborator::mk_coercion_core(expr const & e, expr const & e_type, expr const & type, expr const & ref) {
     if (e_type == mk_Prop() && m_ctx.is_def_eq(type, mk_bool())) {
         return mk_Prop_to_bool_coercion(e, ref);
+    } else if (is_thunk(type) && m_ctx.is_def_eq(e_type, app_arg(type))) {
+        return some_expr(::lean::mk_app(mk_constant(name{"thunk", "mk"}, const_levels(app_fn(type))),
+                                        app_arg(type),
+                                        ::lean::mk_lambda("_", mk_constant(get_unit_name()), e)));
     } else if (!has_expr_metavar(e_type) && !has_expr_metavar(type)) {
         expr has_coe_t;
         try {
@@ -1189,21 +1197,6 @@ struct elaborator::first_pass_info {
     buffer<expr>     eta_args;
 };
 
-static optional<expr> is_thunk(expr const & e) {
-    if (is_app_of(e, get_thunk_name(), 1)) {
-        return some_expr(app_arg(e));
-    } else {
-        return none_expr();
-    }
-}
-
-static expr mk_thunk_if_needed(expr const & e, optional<expr> const & is_thunk) {
-    if (is_thunk)
-        return mk_lambda("_", mk_constant(get_unit_name()), e);
-    else
-        return e;
-}
-
 expr elaborator::mk_auto_param(expr const & name_lit, expr const & expected_type, expr const & ref) {
     auto c = name_lit_to_name(name_lit);
     if (!c)
@@ -1337,14 +1330,8 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
                        See discussion at #1403
                     */
                     new_arg = get_as_is_arg(args[i]);
-                    optional<expr> thunk_of;
-                    if (!m_in_pattern) thunk_of = is_thunk(d);
                     expr arg_expected_type;
-                    if (thunk_of)
-                        arg_expected_type = *thunk_of;
-                    else
-                        arg_expected_type = d;
-                    new_arg = mk_thunk_if_needed(new_arg, thunk_of);
+                    arg_expected_type = d;
                     expr new_arg_type = infer_type(new_arg);
                     optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, arg_expected_type, arg_ref);
                     if (!new_new_arg) {
@@ -1401,11 +1388,8 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
 }
 
 std::tuple<expr, expr, optional<expr>> elaborator::elaborate_arg(expr const & arg, expr const & expected_type, expr const & ref) {
-    optional<expr> thunk_of;
-    if (!m_in_pattern) thunk_of = is_thunk(expected_type);
-    expr aux_expected_type = thunk_of ? *thunk_of : expected_type;
+    expr aux_expected_type = expected_type;
     expr new_arg = visit(arg, some_expr(aux_expected_type));
-    new_arg = mk_thunk_if_needed(new_arg, thunk_of);
     expr new_arg_type = infer_type(new_arg);
     return std::make_tuple(new_arg, new_arg_type, ensure_has_type(new_arg, new_arg_type, expected_type, ref));
 }
@@ -1509,13 +1493,10 @@ expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<
                     new_arg = post_process_implicit_arg(new_arg, ref);
                 } else if (i < args.size()) {
                     expr expected_type = d;
-                    optional<expr> thunk_of;
-                    if (!m_in_pattern && amask == arg_mask::Default) thunk_of = is_thunk(d);
-                    if (thunk_of) expected_type = *thunk_of;
                     // explicit argument
                     expr ref_arg = get_ref_for_child(args[i], ref);
                     if (args_already_visited) {
-                        new_arg = mk_thunk_if_needed(args[i], thunk_of);
+                        new_arg = args[i];
                     } else if (is_inst_implicit(bi) && is_placeholder(args[i])) {
                         lean_assert(amask != arg_mask::Default);
                     /* If '@' or '@@' have been used, and the argument is '_', then
@@ -1523,7 +1504,6 @@ expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<
                         new_arg = mk_instance(d, ref);
                     } else {
                         new_arg = visit(args[i], some_expr(expected_type));
-                        new_arg = mk_thunk_if_needed(new_arg, thunk_of);
                     }
                     expr new_arg_type = infer_type(new_arg);
                     if (optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, d, ref_arg)) {

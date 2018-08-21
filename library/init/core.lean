@@ -130,17 +130,15 @@ abbreviation unit : Type := punit
 
 @[pattern] abbreviation unit.star : unit := punit.star
 
-/--
-Gadget for defining thunks, thunk parameters have special treatment.
-Example: given
-      def f (s : string) (t : thunk nat) : nat
-an application
-     f "hello" 10
- is converted into
-     f "hello" (λ _, 10)
--/
-@[reducible] def thunk (α : Type u) : Type u :=
-unit → α
+-- TODO(Leo): mark as opaque, it is implemented by the new runtime
+structure thunk (α : Type u) : Type u :=
+(fn : unit → α)
+
+def thunk.pure {α : Type u} (a : α) : thunk α :=
+⟨λ _, a⟩
+
+def thunk.get {α : Type u} (t : thunk α) : α :=
+t.fn ()
 
 inductive true : Prop
 | intro : true

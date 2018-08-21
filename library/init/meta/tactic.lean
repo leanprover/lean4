@@ -221,7 +221,7 @@ meta def trace_call_stack : tactic unit :=
 assume state, _root_.trace_call_stack (success () state)
 
 meta def timetac {α : Type u} (desc : string) (t : thunk (tactic α)) : tactic α :=
-λ s, timeit desc (t () s)
+λ s, timeit desc (t.get s)
 
 meta def trace_state : tactic unit :=
 do s ← read,
@@ -501,7 +501,7 @@ meta def step {α : Type u} (t : tactic α) : tactic unit :=
 t >>[tactic] cleanup
 
 meta def istep {α : Type u} (line0 col0 : ℕ) (line col : ℕ) (t : tactic α) : tactic unit :=
-λ s, (@scope_trace _ line col (λ _, step t s)).clamp_pos line0 line col
+λ s, (@scope_trace _ line col ⟨λ _, step t s⟩).clamp_pos line0 line col
 
 meta def is_prop (e : expr) : tactic bool :=
 do t ← infer_type e,
@@ -1039,7 +1039,7 @@ do ns  ← open_namespaces,
     long running tactics. -/
 meta def try_for {α} (max : nat) (tac : tactic α) : tactic α :=
 λ s,
-match _root_.try_for max (tac s) with
+match _root_.try_for max ⟨λ _, tac s⟩ with
 | some r := r
 | none   := mk_exception "try_for tactic failed, timeout" none s
 

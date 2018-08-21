@@ -194,11 +194,12 @@ def not_followed_by (p : parsec' α) (msg : string := "input") : parsec' unit :=
 
 def parsec.dbg (label : string) (p : parsec μ α) : parsec μ α :=
 λ it, trace ("DBG " ++ label ++ ": '" ++ (it.extract (it.nextn 40)).get_or_else "" ++ "'") $
-      match p it with
-      | ok a it' := trace ("consumed ok : '" ++ (it.extract it').get_or_else "" ++ "'") $ ok a it'
-      | ok_eps a it' ex := trace ("empty ok : '" ++ (it.extract it').get_or_else "" ++ "'") $ ok_eps a it' ex
-      | error msg tt := trace ("consumed error : '" ++ (it.extract msg.it).get_or_else "" ++ "'\n" ++ to_string msg) $ error msg tt
-      | error msg ff := trace ("empty error : '" ++ (it.extract msg.it).get_or_else "" ++ "'\n" ++ to_string msg) $ error msg ff
+      match p it : _ → result μ α with
+      | ok a it' := trace ("consumed ok : '" ++ (it.extract it').get_or_else "" ++ "'") $ @ok μ α a it'
+      | ok_eps a it' ex := trace ("empty ok : '" ++ (it.extract it').get_or_else "" ++ "'") $ @ok_eps μ α a it' ex
+      | error msg tt := trace ("consumed error : '" ++ (it.extract msg.it).get_or_else "" ++ "'\n" ++ to_string msg) $ @error μ α msg tt
+      | error msg ff := trace ("empty error : '" ++ (it.extract msg.it).get_or_else "" ++ "'\n" ++ to_string msg) $ @error μ α msg ff
+
 end parsec
 
 /- Type class for abstracting from concrete monad stacks containing a `parsec` somewhere. -/

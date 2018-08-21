@@ -97,7 +97,7 @@ void init_token_table(token_table & t) {
          {"@@", g_max_prec}, {"@", g_max_prec},
          {"sorry", g_max_prec}, {"+", g_plus_prec}, {"->", g_arrow_prec}, {"<-", 0},
          {"match", 0}, {"^.", g_max_prec+1},
-         {"renaming", 0}, {"extends", 0}, {nullptr, 0}};
+         {"renaming", 0}, {"extends", 0}, {"node!", g_max_prec}, {nullptr, 0}};
 
     char const * commands[] =
         {"theorem", "axiom", "axioms", "variable", "protected", "private", "hide",

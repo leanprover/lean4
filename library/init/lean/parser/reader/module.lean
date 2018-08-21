@@ -18,7 +18,7 @@ def seq_coe : has_coe_t (list reader) reader := ⟨seq⟩
 local attribute [instance] symbol_coe seq_coe
 
 -- coerce all list literals to `list reader`
-local notation `[` l:(foldr `, ` (h t, @list.cons reader h t) list.nil `]`) := l
+--local notation `[` l:(foldr `, ` (h t, @list.cons reader h t) list.nil `]`) := l
 
 instance (r rs α) [i : reader.has_view (seq (r::rs)) α] : reader.has_view (r::rs : list reader) α := i
 
@@ -26,54 +26,44 @@ local postfix `?`:10000 := optional
 local postfix *:10000 := many
 local postfix +:10000 := many1
 
-def «prelude» := {macro . name := `prelude}
+instance symbol.view (s) : reader.has_view (symbol s) syntax :=
+{ view := some, review := id }
+
+instance raw_symbol.view (s) : reader.has_view (symbol s) syntax :=
+{ view := some, review := id }
+
+instance raw_symbol.ident : reader.has_view ident syntax :=
+{ view := some, review := id }
 
 def prelude.reader : reader :=
-node «prelude» ["prelude"]
-
-def import_path := {macro . name := `import_path}
+node! «prelude» ["prelude"]
 
 @[derive reader.has_view]
 def import_path.reader : reader :=
 -- use `raw_symbol` to ignore registered tokens like ".."
-node import_path [(raw_symbol ".")*, ident]
+node! import_path [
+  dirups: (raw_symbol ".")*,
+  module: ident]
 
-structure import_path.view :=
-(dirups : list syntax)
-(ident  : syntax)
-
-instance import_path.has_view : import_path.has_view import_path.view :=
-{ view := λ stx, function.uncurry import_path.view.mk <$> view import_path.reader stx,
-  review := λ ⟨a, b⟩, review import_path.reader (a, b) }
-
-def «import» := {macro . name := `import}
-
-@[derive reader.has_view]
 def import.reader : reader :=
-node «import» ["import", import_path.reader+]
-
-structure import.view :=
-(«import» : syntax)
-(paths : list syntax)
-
-instance import.has_view : import.has_view import.view :=
-{ view := λ stx, function.uncurry import.view.mk <$> view import.reader stx,
-  review := λ ⟨a, b⟩, review import.reader (a, b) }
+node! «import» ["import", imports: import_path.reader+]
 
 section commands
 
-def «open» := {macro . name := `open}
-
-def open_export.reader : reader :=
-[ident,
- ["as", ident]?,
- [try ["(", ident], ident*, ")"]?,
- [try ["(", "renaming"], [ident, "->", ident]+, ")"]?,
- ["(", "hiding", ident+, ")"]?
+@[derive reader.has_view]
+def open_spec.reader : reader :=
+node! open_spec [
+ id: ident,
+ as: node! open_spec.as ["as", id: ident]?,
+ only: node! open_spec.only [id: try node! open_spec.only' ["(", id: ident], ids: ident*, ")"]?,
+ «renaming»: node! open_spec.renaming [prfx: try node! open_spec.renaming' ["(", "renaming"], items: node! open_spec.renaming.item [«from»: ident, "->", to: ident]+, ")"]?,
+ «hiding»: node! open_spec.hiding ["(", "hiding", ids: ident+, ")"]?
 ]+
 
 def open.reader : reader :=
-node «open» ["open", open_export.reader]
+node! «open» ["open", spec: open_spec.reader]
+
+#print open.view
 
 def «section» := {macro . name := `section}
 
@@ -111,8 +101,10 @@ structure notation_quoted_symbol.view :=
 (right_quote : syntax)
 (prec : optional_view (syntax × syntax))
 
+#check prod.rec
 instance notation_quoted_symbol.has_view : notation_quoted_symbol.has_view notation_quoted_symbol.view :=
-{ view := λ stx, do { (a, b, c, d) ← view notation_quoted_symbol.reader stx, pure $ notation_quoted_symbol.view.mk a b c d },
+{ view := λ stx, function.uncurry (function.uncurry (function.uncurry notation_quoted_symbol.view.mk)) <$> view notation_quoted_symbol.reader stx,
+  --view := λ stx, do { (a, b, c, d) ← view notation_quoted_symbol.reader stx, pure $ notation_quoted_symbol.view.mk a b c d },
   review := λ ⟨a, b, c, d⟩, review notation_quoted_symbol.reader (a, b, c, d) }
 
 @[derive reader.has_view]

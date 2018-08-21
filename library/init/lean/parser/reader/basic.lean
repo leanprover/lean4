@@ -81,9 +81,9 @@ class reader.has_view (r : reader) (α : out_param Type) :=
 (view : syntax → option α)
 (review : α → syntax)
 
-@[priority 0] instance reader.has_view.default (r) : reader.has_view r syntax :=
-{ view := some,
-  review := id }
+--@[priority 0] instance reader.has_view.default (r) : reader.has_view r syntax :=
+--{ view := some,
+--  review := id }
 
 class macro.has_view (m : macro) (α : out_param Type) :=
 (view : syntax → option α)
@@ -153,6 +153,10 @@ def node' (m : name) (rs : list reader) : reader :=
 @[reducible] def seq := node' name.anonymous
 @[reducible] def node (m : macro) := node' m.name
 
+instance node.view (m rs) [i : macro.has_view m α] : reader.has_view (node m rs) α :=
+{ view := i.view, review := i.review }
+
+/-
 instance node'.view_cons (β m r rs) [reader.has_view r α] [reader.has_view (node' m rs) β] : reader.has_view (node' m (r::rs)) (α × β) :=
 { view := λ stx, do {
     syntax.node ⟨m', (stx::stxs)⟩ ← pure stx | failure,
@@ -173,7 +177,7 @@ instance node'.view_nil (m r) [reader.has_view r α] : reader.has_view (node' m 
     pure a
   },
   review := λ a, syntax.node ⟨m, [review r a]⟩ }
-
+-/
 
 private def many1_aux (p : read_m syntax) : list syntax → nat → read_m syntax
 | as 0     := error "unreachable"
@@ -185,20 +189,21 @@ private def many1_aux (p : read_m syntax) : list syntax → nat → read_m synta
 def many1 (r : reader) : reader :=
 { r with read := do rem ← remaining, many1_aux r.read [] (rem+1) }
 
-/-
 instance many1.view (r) [reader.has_view r α] : reader.has_view (many1 r) (list α) :=
 { view := λ stx, match stx with
     | syntax.missing := list.ret <$> view r syntax.missing
     | syntax.node ⟨name.anonymous, stxs⟩ := stxs.mmap (view r)
     | _ := failure,
   review := λ as, syntax.node ⟨name.anonymous, as.map (review r)⟩ }
--/
+
+/-
 instance many1.view (r) : reader.has_view (many1 r) (list syntax) :=
 { view := λ stx, match stx with
     | syntax.missing := [syntax.missing]
     | syntax.node ⟨name.anonymous, stxs⟩ := stxs
     | _ := failure,
   review := λ stxs, syntax.node ⟨name.anonymous, stxs⟩ }
+  -/
 
 def many (r : reader) : reader :=
 { r with read := (many1 r).read <|> pure (syntax.node ⟨name.anonymous, []⟩) }

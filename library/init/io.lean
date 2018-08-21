@@ -33,88 +33,7 @@ instance : has_lift io.error string :=
     a more specific error type than `io.error`. -/
 abbreviation eio := except_t io.error io
 
-/-
-inductive io.process.stdio
-| piped
-| inherit
-| null
-
-structure io.process.spawn_args :=
-/- Command name. -/
-(cmd : string)
-/- Arguments for the process -/
-(args : list string := [])
-/- Configuration for the process' stdin handle. -/
-(stdin := stdio.inherit)
-/- Configuration for the process' stdout handle. -/
-(stdout := stdio.inherit)
-/- Configuration for the process' stderr handle. -/
-(stderr := stdio.inherit)
-/- Working directory for the process. -/
-(cwd : option string := none)
-/- Environment variables for the process. -/
-(env : list (string × option string) := [])
-
-class monad_io_file_system (m : Type → Type → Type 1) [monad_io m] :=
-/- Remark: in Haskell, they also provide  (Maybe TextEncoding) and  NewlineMode -/
-(mk_file_handle : string → io.mode → bool → m io.error (handle m))
-(is_eof         : (handle m) → m io.error bool)
-(flush          : (handle m) → m io.error unit)
-(close          : (handle m) → m io.error unit)
-(read           : (handle m) → nat → m io.error string)
-(write          : (handle m) → string → m io.error unit)
-(get_line       : (handle m) → m io.error string)
-(stdin          : m io.error (handle m))
-(stdout         : m io.error (handle m))
-(stderr         : m io.error (handle m))
-
-class monad_io_environment (m : Type → Type → Type 1) :=
-(get_env : string → m io.error (option string))
--- we don't provide set_env as it is (thread-)unsafe (at least with glibc)
-(get_cwd : m io.error string)
-(set_cwd : string → m io.error unit)
-
-class monad_io_process (m : Type → Type → Type 1) [monad_io m] :=
-(child  : Type)
-(stdin  : child → (handle m))
-(stdout : child → (handle m))
-(stderr : child → (handle m))
-(spawn  : io.process.spawn_args → m io.error child)
-(wait   : child → m io.error nat)
--/
-
 namespace io
-/-
-constant iterate {α β : Type} (a : α) (f : α → io (sum α β)) : io β
-
-def forever (a : io unit) : io unit :=
-iterate () $ λ _, a >> return (sum.inl ())
-
-def finally {α e} (a : io α) (cleanup : io unit) : io α := do
-res ← catch (sum.inr <$> a) (return ∘ sum.inl),
-cleanup,
-match res with
-| sum.inr res := return res
-| sum.inl error := monad_io.fail _ _ _ error
-
-protected def fail {α : Type} (s : string) : io α :=
-monad_io.fail io_core _ _ (io.error.other s)
-
-namespace env
-
-def get (env_var : string) : io (option string) :=
-monad_io_environment.get_env ionv_var
-
-/-- get the current working directory -/
-def get_cwd : io string :=
-monad_io_environment.get_cwd io_core
-
-/-- set the current working directory -/
-def set_cwd (cwd : string) : io unit :=
-monad_io_environment.set_cwd io_core cwd
-
-end env
--/
 
 constant cmdline_args : io (list string)
 
@@ -148,7 +67,8 @@ constant handle.get_line : handle → eio string
 
 def lift_eio {m : Type → Type} {ε α : Type} [monad_io m] [monad_except ε m] [has_lift_t io.error ε] [monad m]
   (x : eio α) : m α :=
-monad_lift x.run >>= monad_except.lift_except
+do e : except io.error α ← monad_lift x.run, -- uses [monad_io m] instance
+   monad_except.lift_except e                -- uses [monad_except ε m] [has_lift_t io.error ε] instances
 
 end prim
 

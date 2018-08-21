@@ -873,13 +873,13 @@ certified_declaration check(environment const & env, declaration const & d) {
     if (d.has_value()) {
         check_definition(env, d, checker);
     }
-    return certified_declaration(env.get_id(), d);
+    return certified_declaration(d);
 }
 
 certified_declaration certified_declaration::certify(environment const & env, declaration const & d) {
     if (env.trust_lvl() == 0)
         throw kernel_exception(env, "environment trust level does not allow users to add declarations that were not type checked");
-    return certified_declaration(env.get_id(), d);
+    return certified_declaration(d);
 }
 
 certified_declaration certified_declaration::certify_or_check(environment const & env, declaration const & d) {

@@ -724,10 +724,7 @@ vm_obj tactic_add_decl(vm_obj const & _d, vm_obj const & _s) {
 vm_obj tactic_set_env(vm_obj const & _env, vm_obj const & _s) {
     tactic_state const & s      = tactic::to_state(_s);
     environment const & new_env = to_env(_env);
-    if (new_env.is_descendant(s.env()))
-        return tactic::mk_success(set_env(s, new_env));
-    else
-        return tactic::mk_exception(sstream() << "new environment is not a descendent from old environment.", s);
+    return tactic::mk_success(set_env(s, new_env));
 }
 
 vm_obj tactic_open_namespaces(vm_obj const & s) {

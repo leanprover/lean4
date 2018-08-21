@@ -1164,8 +1164,8 @@ public:
     }
 
     bool is_compatible(entry const & C, environment const & env, simp_lemmas_token tk) {
-        if (!env.is_descendant(C.m_env))
-            return false;
+        // if (!env.is_descendant(C.m_env))
+        // return false;
         auto & cfg = get_simp_lemmas_config(tk);
         unsigned i = 0;
         for (name const & attr_name : cfg.m_simp_attrs) {

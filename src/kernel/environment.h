@@ -57,49 +57,6 @@ public:
 
 typedef std::vector<std::shared_ptr<environment_extension const>> environment_extensions;
 
-/** \brief environment identifier for tracking descendants of a given environment.
-
-    It is used in the following places:
-    1) `environment::add`: to check whether the certified declaration has been type checked
-       in an "ancestor" of the `this` environment.
-
-    2) `environment::replace`: (similar to previous case) to check whether the new declaration
-       has been type checked in an "ancestor" of the `this` environment.
-
-    3) `tactic.set_env`: to check whether the new environment is a descendant of the environment
-       in the current `tactic_state` object.
-
-    4) `vm::update_env`: similar to case 3.
-
-    5) To check whether user_attribute and simp_lemmas thread local caches needs to be reset or not.
-
-    Cases 1 and 2 are needed for soundness. Cases 3 and 4 are necessary to enforce invariants that
-    we assume in the frontend, otherwise user defined tactics may break the system. Case 5 can
-    be avoided after we stop using thread local caches. */
-class environment_id {
-    friend class environment_id_tester;
-    friend class environment; // Only the environment class can create object of this type.
-    struct path;
-    path *   m_ptr;
-    unsigned m_depth;
-    /** \brief Create an identifier for an environment that is a direct descendant of the given one.
-        The bool field is just to make sure this constructor is not confused with a copy constructor */
-    environment_id(environment_id const & ancestor, bool);
-    /** \brief Create an identifier for an environment without ancestors (e.g., empty environment) */
-    environment_id();
-    /** Create an identifier for an environment that is a direct descendant of the given one. */
-    static environment_id mk_descendant(environment_id const & ancestor) { return environment_id(ancestor, true); }
-public:
-    environment_id(environment_id const & id);
-    environment_id(environment_id && id);
-    ~environment_id();
-    environment_id & operator=(environment_id const & s);
-    environment_id & operator=(environment_id && s);
-
-    /** \brief Return true iff this object is a descendant of the given one. */
-    bool is_descendant(environment_id const & id) const;
-};
-
 /** \brief Lean core environment. An environment object can be extended/customized in different ways:
 
     1- By providing a normalizer_extension when creating an empty environment.
@@ -112,25 +69,18 @@ class environment {
     friend class add_inductive_fn;
 
     header                    m_header;
-    environment_id            m_id;
     bool                      m_quot_initialized{false};
     declarations              m_declarations;
     extensions                m_extensions;
 
     environment(environment const & env, declarations const & ds):
-        m_header(env.m_header), m_id(environment_id::mk_descendant(env.m_id)), m_quot_initialized(env.m_quot_initialized), m_declarations(ds), m_extensions(env.m_extensions) {}
+        m_header(env.m_header), m_quot_initialized(env.m_quot_initialized), m_declarations(ds), m_extensions(env.m_extensions) {}
     environment(environment const & env, extensions const & exts):
-        m_header(env.m_header), m_id(environment_id::mk_descendant(env.m_id)), m_quot_initialized(env.m_quot_initialized), m_declarations(env.m_declarations), m_extensions(exts) {}
+        m_header(env.m_header), m_quot_initialized(env.m_quot_initialized), m_declarations(env.m_declarations), m_extensions(exts) {}
 public:
     environment(unsigned trust_lvl = 0);
     environment(unsigned trust_lvl, std::unique_ptr<normalizer_extension> ext);
     ~environment();
-
-    /** \brief Return the environment unique identifier. */
-    environment_id const & get_id() const { return m_id; }
-
-    /** \brief Return true iff this environment is a descendant of \c env. */
-    bool is_descendant(environment const & env) const { return m_id.is_descendant(env.m_id); }
 
     /** \brief Return the trust level of this environment. */
     unsigned trust_lvl() const { return m_header->trust_lvl(); }
@@ -187,11 +137,6 @@ public:
     /** \brief Update the environment extension with the given id. */
     environment update(unsigned extid, std::shared_ptr<environment_extension const> const & ext) const;
 
-    /** \brief Return a new environment, where its "history" has been truncated/forgotten.
-        That is, <tt>is_descendant(e)</tt> will return false for any environment \c e that
-        is not pointer equal to the result. */
-    environment forget() const;
-
     /** \brief Apply the function \c f to each declaration */
     void for_each_declaration(std::function<void(declaration const & d)> const & f) const;
 
@@ -217,12 +162,10 @@ class name_generator;
 class certified_declaration {
     friend class certify_unchecked;
     friend certified_declaration check(environment const & env, declaration const & d);
-    environment_id m_id;
     declaration    m_declaration;
-    certified_declaration(environment_id const & id, declaration const & d):m_id(id), m_declaration(d) {}
+    certified_declaration(declaration const & d):m_declaration(d) {}
 public:
     /** \brief Return the id of the environment that was used to type check this declaration. */
-    environment_id const & get_id() const { return m_id; }
     declaration const & get_declaration() const { return m_declaration; }
     /** \brief Certifies a declaration without type-checking.
 

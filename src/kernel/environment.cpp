@@ -20,57 +20,6 @@ environment_header::environment_header(unsigned trust_lvl, std::unique_ptr<norma
 
 environment_extension::~environment_extension() {}
 
-struct environment_id::path {
-    unsigned m_next_depth;
-    unsigned m_start_depth;
-    mutex    m_mutex;
-    path *   m_prev;
-    MK_LEAN_RC(); // Declare m_rc counter
-    void dealloc() { delete this; }
-
-    path():m_next_depth(1), m_start_depth(0), m_prev(nullptr), m_rc(1) {}
-    path(unsigned start_depth, path * prev):m_next_depth(start_depth + 1), m_start_depth(start_depth), m_prev(prev), m_rc(1) {
-        if (prev) prev->inc_ref();
-    }
-    ~path() { if (m_prev) m_prev->dec_ref(); }
-};
-
-environment_id::environment_id():m_ptr(new path()), m_depth(0) {}
-environment_id::environment_id(environment_id const & ancestor, bool) {
-    if (ancestor.m_depth == std::numeric_limits<unsigned>::max())
-        throw exception("maximal depth in is_descendant tree has been reached, use 'forget' method to workaround this limitation");
-    lock_guard<mutex> lock(ancestor.m_ptr->m_mutex);
-    if (ancestor.m_ptr->m_next_depth == ancestor.m_depth + 1) {
-        m_ptr   = ancestor.m_ptr;
-        m_depth = ancestor.m_depth + 1;
-        m_ptr->m_next_depth++;
-        m_ptr->inc_ref();
-    } else {
-        m_ptr   = new path(ancestor.m_depth+1, ancestor.m_ptr);
-        m_depth = ancestor.m_depth + 1;
-    }
-    lean_assert(m_depth == ancestor.m_depth+1);
-    lean_assert(m_ptr->m_next_depth == m_depth+1);
-}
-environment_id::environment_id(environment_id const & id):m_ptr(id.m_ptr), m_depth(id.m_depth) { if (m_ptr) m_ptr->inc_ref(); }
-environment_id::environment_id(environment_id && id):m_ptr(id.m_ptr), m_depth(id.m_depth) { id.m_ptr = nullptr; }
-environment_id::~environment_id() { if (m_ptr) m_ptr->dec_ref(); }
-environment_id & environment_id::operator=(environment_id const & s) { m_depth = s.m_depth; LEAN_COPY_REF(s); }
-environment_id & environment_id::operator=(environment_id && s) { m_depth = s.m_depth; LEAN_MOVE_REF(s); }
-bool environment_id::is_descendant(environment_id const & id) const {
-    if (m_depth < id.m_depth)
-        return false;
-    path * p = m_ptr;
-    while (p != nullptr) {
-        if (p == id.m_ptr)
-            return true;
-        if (p->m_start_depth <= id.m_depth)
-            return false;
-        p = p->m_prev;
-    }
-    return false;
-}
-
 environment::environment(unsigned trust_lvl):
     environment(trust_lvl, mk_id_normalizer_extension())
 {}
@@ -115,8 +64,6 @@ environment environment::add_quot() const {
 }
 
 environment environment::add(certified_declaration const & d) const {
-    if (!m_id.is_descendant(d.get_id()))
-        throw_incompatible_environment(*this);
     name const & n = d.get_declaration().get_name();
     if (find(n))
         throw already_declared_exception(*this, n);
@@ -139,12 +86,6 @@ environment environment::add_meta(buffer<declaration> const & ds, bool check) co
             check_decl_value(new_env, d);
         }
     }
-    return new_env;
-}
-
-environment environment::forget() const {
-    environment new_env = *this;
-    new_env.m_id = environment_id();
     return new_env;
 }
 

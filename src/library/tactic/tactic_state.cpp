@@ -320,7 +320,9 @@ vm_obj tactic_target(vm_obj const & o) {
     tactic_state const & s = tactic::to_state(o);
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
-    return tactic::mk_success(to_obj(g->get_type()), s);
+    metavar_context mctx = s.mctx();
+    expr r = mctx.instantiate_mvars(g->get_type());
+    return tactic::mk_success(to_obj(r), s);
 }
 
 tactic_state_context_cache::tactic_state_context_cache(tactic_state & s):

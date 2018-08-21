@@ -1,4 +1,4 @@
-import system.io
+import init.io
 
 /- Based on https://github.com/slindley/effect-handlers -/
 

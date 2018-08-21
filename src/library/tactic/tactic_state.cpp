@@ -37,6 +37,7 @@ Author: Leonardo de Moura
 #include "library/compiler/vm_compiler.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/simp_lemmas.h"
+#include "library/tactic/tactic_evaluator.h"
 
 namespace lean {
 /* is_ts_safe is required by the interaction_state implementation. */
@@ -824,14 +825,7 @@ vm_obj tactic_add_aux_decl(vm_obj const & n, vm_obj const & type, vm_obj const &
 }
 
 vm_obj tactic_unsafe_run_io(vm_obj const &, vm_obj const & a, vm_obj const & s) {
-    vm_obj r = invoke(a, mk_vm_unit());
-    if (optional<vm_obj> a = is_io_result(r)) {
-        return tactic::mk_success(*a, tactic::to_state(s));
-    } else {
-        optional<vm_obj> e = is_io_error(r);
-        lean_assert(e);
-        return tactic::mk_exception(format(io_error_to_string(*e)), tactic::to_state(s));
-    }
+    return tactic::mk_success(run_io(a), s);
 }
 
 vm_obj io_run_tactic(vm_obj const &, vm_obj const & tac, vm_obj const &) {
@@ -839,11 +833,10 @@ vm_obj io_run_tactic(vm_obj const &, vm_obj const & tac, vm_obj const &) {
     tactic_state s = mk_tactic_state_for(vm.env(), vm.get_options(), "_io_run_tactic",
                                          metavar_context(), local_context(), mk_true());
     vm_obj r = invoke(tac, to_obj(s));
-    if (tactic::is_result_success(r)) {
-        return mk_io_result(tactic::get_success_value(r));
-    } else {
-        return mk_io_failure("tactic failed"); // TODO(Leo): improve exception message
-    }
+    if (auto ex = tactic::is_exception(vm, r))
+        return mk_ioe_failure(to_obj(mk_tactic_error_msg(std::get<2>(*ex), std::get<0>(*ex))));
+    else
+        return mk_ioe_result(tactic::get_success_value(r));
 }
 
 unsigned tactic_user_state::alloc(vm_obj const & v) {

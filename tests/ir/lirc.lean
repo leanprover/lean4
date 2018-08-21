@@ -1,4 +1,4 @@
-import system.io
+import init.io
 import init.lean.ir.lirc
 open lean.ir io
 

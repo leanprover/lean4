@@ -1,21 +1,21 @@
-import system.io init.lean.parser.identifier init.lean.ir.parser init.lean.ir.format
+import init.lean.parser.identifier init.lean.ir.parser init.lean.ir.format
 open lean.parser
 open lean.parser.monad_parsec
 
-def test {α} [decidable_eq α] (p : parsec' α) (s : string) (e : α) : io unit :=
+def test {α} [decidable_eq α] (p : parsec' α) (s : string) (e : α) : eio unit :=
 match parsec.parse p s with
-| except.ok a    := if a = e then return () else io.print_ln "unexpected result"
-| except.error e := io.print_ln e
+| except.ok a    := if a = e then return () else io.println "unexpected result"
+| except.error e := io.println e
 
-def test_failure {α} (p : parsec' α) (s : string) : io unit :=
+def test_failure {α} (p : parsec' α) (s : string) : eio unit :=
 match parsec.parse p s with
-| except.ok a    := io.print_ln "unexpected success"
+| except.ok a    := io.println "unexpected success"
 | except.error e := return ()
 
-def show_result {α} [has_to_string α] (p : parsec' α) (s : string) : io unit :=
+def show_result {α} [has_to_string α] (p : parsec' α) (s : string) : eio unit :=
 match parsec.parse p s with
-| except.ok a    := io.print_ln "result: " >> io.print_ln (repr $ to_string a)
-| except.error e := io.print_ln e
+| except.ok a    := io.println "result: " >> io.println (repr $ to_string a)
+| except.error e := io.println e
 
 #eval test (ch 'a') "a" 'a'
 #eval test any "a" 'a'

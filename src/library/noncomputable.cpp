@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/quote.h"
 #include "library/constants.h"
+#include "library/vm/vm.h"
 // TODO(Leo): move inline attribute declaration to library
 #include "library/compiler/inliner.h"
 namespace lean {
@@ -62,17 +63,10 @@ struct noncomputable_modification : public modification {
     }
 };
 
-// TODO(Leo): implement better support for extending this set of builtin constants
 static bool is_builtin_extra(name const & n) {
     return
-        n == get_io_core_name() ||
         n == get_sorry_ax_name() ||
-        n == get_monad_io_impl_name() ||
-        n == get_monad_io_terminal_impl_name() ||
-        n == get_monad_io_file_system_impl_name() ||
-        n == get_monad_io_environment_impl_name() ||
-        n == get_monad_io_process_impl_name() ||
-        n == get_monad_io_random_impl_name();
+        is_vm_builtin_function(n);
 }
 
 static bool is_noncomputable(old_type_checker & tc, noncomputable_ext const & ext, name const & n) {
@@ -83,7 +77,8 @@ static bool is_noncomputable(old_type_checker & tc, noncomputable_ext const & ex
     if (d.is_meta()) {
         return false; /* ignore nontrusted definitions */
     } else if (d.is_axiom()) {
-        return !env.is_builtin(d.get_name()) && !tc.is_prop(d.get_type()) && !is_builtin_extra(d.get_name());
+        return !env.is_builtin(d.get_name()) && !tc.is_prop(d.get_type()) && !is_sort(d.get_type()) &&
+               !is_builtin_extra(d.get_name());
     } else {
         return false;
     }

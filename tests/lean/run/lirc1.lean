@@ -1,8 +1,7 @@
-import system.io
 import init.lean.ir.lirc
 open lean.ir
 
-def comp (s : string) : io unit :=
+def comp (s : string) : eio unit :=
 match lirc s with
 | except.ok r    := io.print r
 | except.error e := io.print "Error: " >> io.print e

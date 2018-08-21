@@ -1,6 +1,6 @@
 -- TODO: renable test after we restore tactic framework
 #exit
-import system.io
+import init.io
 
 /- An extensible effects library, inspired by "Freer Monads, More Extensible Effects" (O. Kiselyov, H. Ishii)
    and https://github.com/lexi-lambda/freer-simple -/
@@ -190,8 +190,8 @@ def test1 :=
      r ← monad_lift $ exfn x,
      modify (λ xs, "end"::xs),
      pure r in
-  do repr <$> eff.run_m (tf tt) >>= io.print_ln,
-     repr <$> eff.run_m (tf ff) >>= io.print_ln
+  do repr <$> eff.run_m (tf tt) >>= io.println,
+     repr <$> eff.run_m (tf ff) >>= io.println
 
 #eval test1
 
@@ -203,8 +203,8 @@ def test2 :=
      r ← monad_lift $ exfn x,
      modify (λ xs, "end"::xs),
      pure r in
-  do repr <$> eff.run_m (tf tt) >>= io.print_ln,
-     repr <$> eff.run_m (tf ff) >>= io.print_ln
+  do repr <$> eff.run_m (tf tt) >>= io.println,
+     repr <$> eff.run_m (tf ff) >>= io.println
 
 #eval test2
 

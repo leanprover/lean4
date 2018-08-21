@@ -1,4 +1,4 @@
-import init.lean.config system.io
+import init.lean.config init.io
 open io
 
 @[reducible] def m := reader_t handle io

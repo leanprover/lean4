@@ -491,7 +491,7 @@ public:
 };
 
 /* Convert a closure (unit -> A) into a task A */
-obj_res task_start(obj_arg c, unsigned prio = 0);
+obj_res mk_task(obj_arg c, unsigned prio = 0);
 /* Convert a value `a : A` into `task A` */
 obj_res task_pure(obj_arg a);
 /* task.bind (x : task A) (f : A -> task B) : task B */

@@ -589,7 +589,7 @@ static task_object * alloc_task(obj_arg v) {
     return new (malloc(sizeof(task_object))) task_object(v); // NOLINT
 }
 
-obj_res task_start(obj_arg c, unsigned prio) {
+obj_res mk_task(obj_arg c, unsigned prio) {
     if (!g_task_manager) {
         return mk_thunk(c);
     } else {

@@ -133,7 +133,6 @@ public:
     }
 };
 
-void check_no_metavar(environment const & env, name const & n, expr const & e);
 void check_no_metavar_no_fvar(environment const & env, name const & n, expr const & e);
 void check_decl_type(environment const & env, declaration const & d);
 void check_decl_value(environment const & env, declaration const & d);

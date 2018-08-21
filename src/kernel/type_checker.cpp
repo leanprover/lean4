@@ -803,7 +803,7 @@ type_checker::type_checker(environment const & env, local_ctx const & lctx, bool
 
 type_checker::~type_checker() {}
 
-void check_no_metavar(environment const & env, name const & n, expr const & e) {
+static void check_no_metavar(environment const & env, name const & n, expr const & e) {
     if (has_metavar(e))
         throw declaration_has_metavars_exception(env, n, e);
 }

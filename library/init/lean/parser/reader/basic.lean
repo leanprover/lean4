@@ -81,9 +81,9 @@ class reader.has_view (r : reader) (α : out_param Type) :=
 (view : syntax → option α)
 (review : α → syntax)
 
---@[priority 0] instance reader.has_view.default (r) : reader.has_view r syntax :=
---{ view := some,
---  review := id }
+@[priority 0] instance reader.has_view.default (r) : reader.has_view r syntax :=
+{ view := some,
+  review := id }
 
 class macro.has_view (m : macro) (α : out_param Type) :=
 (view : syntax → option α)
@@ -208,7 +208,12 @@ instance many1.view (r) : reader.has_view (many1 r) (list syntax) :=
 def many (r : reader) : reader :=
 { r with read := (many1 r).read <|> pure (syntax.node ⟨name.anonymous, []⟩) }
 
+/-
 instance many.view (r) : reader.has_view (many r) (list syntax) :=
+{..many1.view r}
+-/
+
+instance many.view (r) [has_view r α] : reader.has_view (many r) (list α) :=
 {..many1.view r}
 
 def optional (r : reader) : reader :=
@@ -224,6 +229,14 @@ inductive optional_view (α : Type)
 | some (a : α) : optional_view
 | none {} : optional_view
 | missing {} : optional_view
+
+namespace optional_view
+instance : functor optional_view :=
+{ map := λ _ _ f v, match v with
+  | some a  := some (f a)
+  | none    := none
+  | missing := missing }
+end optional_view
 
 instance optional.view (r) [reader.has_view r α] : reader.has_view (optional r) (optional_view α) :=
 { view := λ stx, match stx with

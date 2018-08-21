@@ -3335,7 +3335,7 @@ expr elaborator::visit_node_macro(expr const & e) {
     expr e2 = mdata_expr(e);
     expr macro_e = app_arg(app_fn(e2));
     name full_macro = const_name(macro_e);
-    sstream struc, pat, binds, mk_args, reviews;
+    sstream struc, stx_pat, binds, mk_args, view_pat, reviews;
     unsigned i = 0;
     struc << "prelude\n";
     if (macro.is_atomic())
@@ -3347,32 +3347,55 @@ expr elaborator::visit_node_macro(expr const & e) {
     buffer<expr> new_args;
     for (expr args = app_arg(e2); is_app(args); args = app_arg(args)) {
         expr r = app_arg(app_fn(args));
-        name fname = *get_name(mdata_data(r), "fname");
-        r = mdata_expr(r);
-        auto m = mk_metavar(mk_Type(), r);
-        r = visit(r, none_expr());
-        new_args.push_back(mk_as_is(r));
-        auto inst = m_ctx.mk_class_instance(mk_app(mk_const(name {"lean", "parser", "reader", "has_view"}), r, m));
-        if (!inst)
-            throw elaborator_exception(e, sstream() << "Could not infer instance of reader.has_view for '" << r << "'");
-        struc << "(«" << fname << "» : " << instantiate_mvars(m) << ")\n";
+        std::function<expr(expr)> add_field;
+        add_field = [&](expr r) {
+            name fname = *get_name(mdata_data(r), "fname");
+            r = mdata_expr(r);
+            auto m = mk_metavar(mk_Type(), r);
+            r = visit(r, some(mk_const({"lean", "parser", "reader"})));
+            auto inst = m_ctx.mk_class_instance(mk_app(mk_const(name{"lean", "parser", "reader", "has_view"}), r, m));
+            if (!inst)
+                throw elaborator_exception(e, sstream() << "Could not infer instance of reader.has_view for '" << r
+                                                        << "'");
+            struc << "(«" << fname << "» : " << instantiate_mvars(m) << ")\n";
 
-        if (i != 0)
-            pat << ", ";
-        pat << "stx" << i;
-        binds << "a" << i << " <- view (" << pp(r) << ") stx" << i << ",\n";
-        mk_args << "a" << i << " ";
-        if (i != 0)
-            reviews << ", ";
-        reviews << "review (" << pp(r) << ") stx" << i;
-        i++;
+            if (i != 0)
+                stx_pat << ", ";
+            stx_pat << "stx" << i;
+            binds << "a" << i << " <- view (" << pp(r) << ") stx" << i << ",\n";
+            mk_args << "a" << i << " ";
+            if (i != 0)
+                view_pat << ", ";
+            view_pat << "a" << i;
+            if (i != 0)
+                reviews << ", ";
+            reviews << "review (" << pp(r) << ") a" << i;
+            i++;
+            return mk_as_is(r);
+        };
+        if (is_mdata(r)) {
+            new_args.push_back(add_field(r));
+        } else {// try block
+            stx_pat << "syntax.node (syntax_node.mk _ [";
+            reviews << "syntax.node (syntax_node.mk name.anonymous [";
+            buffer<expr> new_try_args;
+            for (expr args = app_arg(app_arg(r)); is_app(args); args = app_arg(args)) {
+                expr r = app_arg(app_fn(args));
+                new_try_args.push_back(add_field(r));
+            }
+            stx_pat << "])";
+            reviews << "])";
+            new_args.push_back(mk_app(mk_const({"lean", "parser", "reader", "combinators", "try"}),
+                                      mk_app(mk_const({"lean", "parser", "reader", "combinators", "seq"}),
+                                             mk_lean_list(new_try_args))));
+        }
     }
     struc << "instance " << macro.to_string() << ".has_view : " << macro.to_string() << ".has_view " << macro.to_string() << ".view :=\n"
             << "{ view := fun stx, do {\n"
-            << "syntax.node (syntax_node.mk `" << macro.to_string() << " [" << pat.str() << "]) <- pure stx | failure,\n"
+            << "syntax.node (syntax_node.mk `" << macro.to_string() << " [" << stx_pat.str() << "]) <- pure stx | failure,\n"
             << binds.str()
             << "pure (" << macro.to_string() << ".view.mk " << mk_args.str() << ") },\n"
-            << "review := fun ⟨" << pat.str() << "⟩, syntax.node (syntax_node.mk `" << macro.to_string() << " [" << reviews.str() << "]) }";
+            << "review := fun ⟨" << view_pat.str() << "⟩, syntax.node (syntax_node.mk `" << macro.to_string() << " [" << reviews.str() << "]) }";
     std::istringstream in(struc.str());
     parser p(m_env, get_global_ios(), nullptr, in, "foo");
     p.parse_command_like();

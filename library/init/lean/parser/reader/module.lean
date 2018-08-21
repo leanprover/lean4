@@ -14,26 +14,11 @@ open combinators monad_parsec
 open reader.has_view
 
 def symbol_coe : has_coe string reader := ⟨symbol⟩
-def seq_coe : has_coe_t (list reader) reader := ⟨seq⟩
-local attribute [instance] symbol_coe seq_coe
-
--- coerce all list literals to `list reader`
---local notation `[` l:(foldr `, ` (h t, @list.cons reader h t) list.nil `]`) := l
-
-instance (r rs α) [i : reader.has_view (seq (r::rs)) α] : reader.has_view (r::rs : list reader) α := i
+local attribute [instance] symbol_coe
 
 local postfix `?`:10000 := optional
 local postfix *:10000 := many
 local postfix +:10000 := many1
-
-instance symbol.view (s) : reader.has_view (symbol s) syntax :=
-{ view := some, review := id }
-
-instance raw_symbol.view (s) : reader.has_view (symbol s) syntax :=
-{ view := some, review := id }
-
-instance raw_symbol.ident : reader.has_view ident syntax :=
-{ view := some, review := id }
 
 def prelude.reader : reader :=
 node! «prelude» ["prelude"]
@@ -55,57 +40,40 @@ def open_spec.reader : reader :=
 node! open_spec [
  id: ident,
  as: node! open_spec.as ["as", id: ident]?,
- only: node! open_spec.only [id: try node! open_spec.only' ["(", id: ident], ids: ident*, ")"]?,
- «renaming»: node! open_spec.renaming [prfx: try node! open_spec.renaming' ["(", "renaming"], items: node! open_spec.renaming.item [«from»: ident, "->", to: ident]+, ")"]?,
+ only: node! open_spec.only [try ["(", id: ident], ids: ident*, ")"]?,
+ «renaming»: node! open_spec.renaming [try ["(", "renaming"], items: node! open_spec.renaming.item [«from»: ident, "->", to: ident]+, ")"]?,
  «hiding»: node! open_spec.hiding ["(", "hiding", ids: ident+, ")"]?
 ]+
 
 def open.reader : reader :=
 node! «open» ["open", spec: open_spec.reader]
 
-#print open.view
-
-def «section» := {macro . name := `section}
-
 def section.reader : reader :=
-node «section» ["section", ident?, recurse*, "end", ident?]
-
-def «universe» := {macro . name := `universe}
+node! «section» ["section", name: ident?, commands: recurse*, "end", end_name: ident?]
 
 def universe.reader :=
-node «universe» [any_of [
+any_of [
   -- local
-  [try ["universe", "variables"], ident+],
+  node! universe_variables [try ["universe", "variables"], ids: ident+],
   -- global
-  [any_of [["universes", ident+], ["universe", ident]]]
-]]
-
-def «notation» := {macro . name := `notation}
+  node! «universes» ["universes", ids: ident+],
+  node! «universe» ["universe", id: ident]
+]
 
 @[derive reader.has_view]
-def prec : reader := [":", number]/-TODO <|> expr-/
+def prec : reader := node! notation_spec.prec [":", prec: number]/-TODO <|> expr-/
 
-def quoted_symbol : read_m syntax :=
-do (s, info) ← with_source_info $ take_until (= '`'),
-   pure $ syntax.atom ⟨info, atomic_val.string s⟩
-
-def notation_quoted_symbol := {macro . name := `notation_symbol}
+def quoted_symbol : reader :=
+{ read := do (s, info) ← with_source_info $ take_until (= '`'),
+   pure $ syntax.atom ⟨info, atomic_val.string s⟩ }
 
 @[derive reader.has_view]
 def notation_quoted_symbol.reader : reader :=
-[raw_symbol "`", {read := quoted_symbol}, raw_symbol "`", prec?]
-
-structure notation_quoted_symbol.view :=
-(left_quote : syntax)
-(symbol : syntax)
-(right_quote : syntax)
-(prec : optional_view (syntax × syntax))
-
-#check prod.rec
-instance notation_quoted_symbol.has_view : notation_quoted_symbol.has_view notation_quoted_symbol.view :=
-{ view := λ stx, function.uncurry (function.uncurry (function.uncurry notation_quoted_symbol.view.mk)) <$> view notation_quoted_symbol.reader stx,
-  --view := λ stx, do { (a, b, c, d) ← view notation_quoted_symbol.reader stx, pure $ notation_quoted_symbol.view.mk a b c d },
-  review := λ ⟨a, b, c, d⟩, review notation_quoted_symbol.reader (a, b, c, d) }
+node! notation_quoted_symbol [
+  left_quote: raw_symbol "`",
+  sym: quoted_symbol,
+  right_quote: raw_symbol "`",
+  prec: prec?]
 
 @[derive reader.has_view]
 def notation_symbol : reader :=
@@ -116,7 +84,7 @@ any_of [
 
 @[derive reader.has_view]
 def action : reader :=
-[":", any_of [
+node! notation_spec.action [":", action: any_of [
   number,
   "max",
   "prev",
@@ -129,23 +97,23 @@ def action : reader :=
 
 @[derive reader.has_view]
 def arg_transition : reader :=
-[ident, action?]
+node! notation_spec.arg_transition [id: ident, action: action?]
 
 @[derive reader.has_view]
 def transition :=
 any_of [
- ["binder", prec?],
- ["binders", prec?],
+ node! notation_spec.binder ["binder", prec: prec?],
+ node! notation_spec.binders ["binders", prec: prec?],
  arg_transition
 ]
 
 @[derive reader.has_view]
 def rule : reader :=
-[notation_symbol, transition?]
+node! notation_spec.rule [sym: notation_symbol, transition: transition?]
 
 @[derive reader.has_view]
 def rules : reader :=
-[ident?, rule*]
+node! notation_spec.rules [id: ident?, rules: rule*]
 
 @[derive reader.has_view]
 def notation_spec : reader :=
@@ -156,47 +124,21 @@ any_of [
 
 @[derive has_view]
 def notation.reader : reader :=
-node «notation» ["notation", notation_spec, ":=", term.reader]
-
-structure notation.view :=
-(«notation» : syntax)
-(spec : syntax)
-(assign : syntax)
-(term : syntax)
-
-instance notation.has_view : notation.has_view notation.view :=
-{ view := λ stx, do { (a, b, c, d) ← view notation.reader stx, pure $ notation.view.mk a b c d },
-  review := λ ⟨a, b, c, d⟩, review notation.reader (a, b, c, d) }
-
-def reserve_notation : macro := {macro . name := `reserve_notation}
+node! «notation» ["notation", spec: notation_spec, ":=", term: term.reader]
 
 def reserve_notation.reader : reader :=
-node «reserve_notation» [try ["reserve", "notation"], notation_spec]
-
-def mixfix : macro := {macro . name := `mixfix}
+node! «reserve_notation» [try ["reserve", "notation"], spec: notation_spec]
 
 @[derive has_view]
 def mixfix.reader : reader :=
-node «mixfix» [
-  any_of ["prefix", "infix", "infixl", "infixr", "postfix"],
-  notation_symbol, ":=", term.reader]
-
-structure mixfix.view :=
-(kind : syntax)
-(notation_symbol : syntax)
-(assign : syntax)
-(term : syntax)
-
-instance mixfix.has_view : mixfix.has_view mixfix.view :=
-{ view := λ stx, do { (a, b, c, d) ← view mixfix.reader stx, pure $ mixfix.view.mk a b c d },
-  review := λ ⟨a, b, c, d⟩, review mixfix.reader (a, b, c, d) }
-
-def reserve_mixfix : macro := {macro . name := `reserve_mixfix}
+node! «mixfix» [
+  kind: any_of ["prefix", "infix", "infixl", "infixr", "postfix"],
+  sym: notation_symbol, ":=", term: term.reader]
 
 def reserve_mixfix.reader : reader :=
-node «reserve_mixfix» [
-  try ["reserve", any_of ["prefix", "infix", "infixl", "infixr", "postfix"]],
-  notation_symbol]
+node! «reserve_mixfix» [
+  try ["reserve", kind: any_of ["prefix", "infix", "infixl", "infixr", "postfix"]],
+  sym: notation_symbol]
 
 def command.reader :=
 with_recurse $ any_of [open.reader, section.reader, universe.reader, notation.reader, reserve_notation.reader,
@@ -241,21 +183,9 @@ instance commands.reader.has_view : commands.reader.has_view (list syntax) :=
 
 end commands
 
-def module := {macro . name := `module}
-
 @[derive reader.has_view]
 def module.reader : reader :=
-node module [prelude.reader?, import.reader*, commands.reader]
-
-structure module.view :=
-(«prelude» : optional_view syntax)
-(imports   : list syntax)
-(commands  : list syntax)
-
-instance module.has_view : module.has_view module.view :=
-{ view := λ stx, do { (a, b, c) ← view module.reader stx, pure $ module.view.mk a b c },
-  review := λ ⟨a, b, c⟩, review module.reader (a, b, c) }
-
+node! module [«prelude»: prelude.reader?, imports: import.reader*, commands: commands.reader]
 end reader
 
 namespace reader
@@ -265,12 +195,12 @@ def mixfix.expand (stx : syntax) : option syntax :=
 do v ← view mixfix stx,
    syntax.atom ⟨_, atomic_val.string kind⟩ ← pure v.kind | failure,
    -- TODO: reserved token case
-   prec ← notation_quoted_symbol.view.prec <$> view notation_quoted_symbol v.notation_symbol,
-   let spec := reader.has_view.review notation_spec $ match kind with
-     | "prefix" := reader.has_view.review rules (optional_view.none, [
-         reader.has_view.review rule (v.notation_symbol, optional_view.some $
-           reader.has_view.review arg_transition (`b, prec))
-       ])
+   prec ← notation_quoted_symbol.view.prec <$> view notation_quoted_symbol v.sym,
+   let spec := review notation_spec.rules $ match kind with
+     | "prefix" := ⟨optional_view.none, [⟨v.sym, optional_view.some $
+       review notation_spec.arg_transition ⟨`b, (λ (prec : notation_spec.prec.view),
+         {action := prec.prec, ..prec}
+       ) <$> prec⟩⟩]⟩
      | _ := sorry,
    pure $ review «notation» (⟨"notation", spec, ":=", v.term⟩ : notation.view)
 

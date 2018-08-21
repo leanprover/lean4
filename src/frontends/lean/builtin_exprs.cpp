@@ -1008,28 +1008,40 @@ static expr parse_bin_tree(parser & p, unsigned, expr const *, pos_info const & 
     }
 }
 
-static expr parse_node(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_node(parser & p, unsigned, expr const *, pos_info const &) {
     name macro = p.check_id_next("identifier expected");
-    p.check_token_next("[", "'[' expected");
-    buffer<expr> args;
-    while (!p.curr_is_token("]")) {
-        name fname;
-        expr reader;
-        if (p.curr_is_string()) {
-            fname = p.get_str_val();
+    std::function<buffer<expr>()> go;
+    go = [&]() {
+        buffer<expr> args;
+        p.check_token_next("[", "'[' expected");
+        while (!p.curr_is_token("]")) {
+            name fname;
+            expr reader;
+            if (p.curr_is_string()) {
+                fname = p.get_str_val();
+                p.next();
+                reader = mk_app(mk_const({"lean", "parser", "reader", "symbol"}), from_string(p.get_str_val()));
+                args.push_back(mk_mdata(set_name(kvmap(), "fname", fname), reader));
+            } else if (p.curr_is_token_or_id("try")) {
+                p.next();
+                auto try_args = go();
+                args.push_back(mk_app(mk_const({"lean", "parser", "reader", "combinators", "try"}),
+                                      mk_app(mk_const({"lean", "parser", "reader", "combinators", "seq"}),
+                                             mk_lean_list(try_args))));
+            } else {
+                fname = p.check_id_next("identifier expected");
+                p.check_token_next(":", "':' expected");
+                reader = p.parse_expr();
+                args.push_back(mk_mdata(set_name(kvmap(), "fname", fname), reader));
+            }
+            if (!p.curr_is_token(get_comma_tk()))
+                break;
             p.next();
-            reader = mk_app(mk_const({"lean", "parser", "reader", "symbol"}), from_string(p.get_str_val()));
-        } else {
-            fname = p.check_id_next("identifier expected");
-            p.check_token_next(":", "':' expected");
-            reader = p.parse_expr();
         }
-        args.push_back(mk_mdata(set_name(kvmap(), "fname", fname), reader));
-        if (!p.curr_is_token(get_comma_tk()))
-            break;
-        p.next();
-    }
-    p.check_token_next(get_rbracket_tk(), "`]` expected");
+        p.check_token_next(get_rbracket_tk(), "`]` expected");
+        return args;
+    };
+    auto args = go();
     return mk_mdata(set_name(kvmap(), "node!", macro),
                     mk_app(mk_const({"lean", "parser", "reader", "combinators", "node"}), mk_const(get_namespace(p.env()) + macro), mk_lean_list(args)));
 }

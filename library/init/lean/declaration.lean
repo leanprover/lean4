@@ -47,10 +47,10 @@ structure axiom_val extends declaration_val :=
    We need this feature to be able to load their values on demand in the kernel. -/
 
 structure definition_val extends declaration_val :=
-(value : expr) (hints : reducibility_hints) (is_meta : bool)
+(value : task expr) (hints : reducibility_hints) (is_meta : bool)
 
 structure theorem_val extends declaration_val :=
-(value : expr)
+(value : task expr)
 
 structure constructor :=
 (id : name) (type : expr)
@@ -149,8 +149,8 @@ def type (d : constant_info) : expr :=
 d.to_declaration_val.type
 
 def value : constant_info → option expr
-| (defn_info {value := r, ..}) := some r
-| (thm_info  {value := r, ..}) := some r
+| (defn_info {value := r, ..}) := some r.get
+| (thm_info  {value := r, ..}) := some r.get
 | _                            := none
 
 def hints : constant_info → reducibility_hints

@@ -130,35 +130,27 @@ abbreviation unit : Type := punit
 
 @[pattern] abbreviation unit.star : unit := punit.star
 
--- TODO(Leo): mark as opaque, it is implemented by the new runtime
+/- Remark: thunks have an efficient implementation in the runtime. -/
 structure thunk (α : Type u) : Type u :=
 (fn : unit → α)
--- TODO(Leo): mark as opaque
 protected def thunk.pure {α : Type u} (a : α) : thunk α :=
 ⟨λ _, a⟩
--- TODO(Leo): mark as opaque
 protected def thunk.get {α : Type u} (x : thunk α) : α :=
 x.fn ()
--- TODO(Leo): mark as opaque
 protected def thunk.map {α : Type u} {β : Type v} (f : α → β) (x : thunk α) : thunk β :=
 ⟨λ _, f x.get⟩
--- TODO(Leo): mark as opaque
 protected def thunk.bind {α : Type u} {β : Type v} (x : thunk α) (f : α → thunk β) : thunk β :=
 ⟨λ _, (f x.get).get⟩
 
--- TODO(Leo): mark as opaque, it is implemented by the new runtime
+/- Remark: tasks have an efficient implementation in the runtime. -/
 structure task (α : Type u) : Type u :=
 (fn : unit → α)
--- TODO(Leo): mark as opaque
 protected def task.pure {α : Type u} (a : α) : task α :=
 ⟨λ _, a⟩
--- TODO(Leo): mark as opaque
 protected def task.get {α : Type u} (x : task α) : α :=
 x.fn ()
--- TODO(Leo): mark as opaque
 protected def task.map {α : Type u} {β : Type v} (f : α → β) (x : task α) : task β :=
 ⟨λ _, f x.get⟩
--- TODO(Leo): mark as opaque
 protected def task.bind {α : Type u} {β : Type v} (x : task α) (f : α → task β) : task β :=
 ⟨λ _, (f x.get).get⟩
 

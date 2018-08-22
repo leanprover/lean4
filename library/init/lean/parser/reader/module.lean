@@ -13,39 +13,27 @@ namespace reader
 open combinators monad_parsec
 open reader.has_view
 
-def symbol_coe : has_coe string reader := ⟨symbol⟩
-local attribute [instance] symbol_coe
-
 local postfix `?`:10000 := optional
 local postfix *:10000 := many
 local postfix +:10000 := many1
 
-instance symbol.view (s) : reader.has_view (symbol s) syntax := default _
-instance raw_symbol.view (s) : reader.has_view (raw_symbol s) syntax := default _
-instance number.view : reader.has_view number syntax := default _
-instance ident.view : reader.has_view ident syntax := default _
-instance recurse.view : reader.has_view recurse syntax := default _
-instance with_recurse.view (r) : reader.has_view (with_recurse r) syntax := default _
-
 @[derive reader.has_view]
-def prelude.reader : reader :=
+def prelude.reader :=
 node! «prelude» ["prelude"]
 
 @[derive reader.has_view]
-def import_path.reader : reader :=
+def import_path.reader :=
 -- use `raw_symbol` to ignore registered tokens like ".."
 node! import_path [
   dirups: (raw_symbol ".")*,
   module: ident]
 
 @[derive reader.has_view]
-def import.reader : reader :=
+def import.reader :=
 node! «import» ["import", imports: import_path.reader+]
 
-section commands
-
 @[derive reader.has_view]
-def open_spec.reader : reader :=
+def open_spec.reader :=
 node! open_spec [
  id: ident,
  as: node! open_spec.as ["as", id: ident]?,
@@ -54,10 +42,10 @@ node! open_spec [
  «hiding»: node! open_spec.hiding ["(", "hiding", ids: ident+, ")"]?
 ]+
 
-def open.reader : reader :=
+def open.reader :=
 node! «open» ["open", spec: open_spec.reader]
 
-def section.reader : reader :=
+def section.reader :=
 node! «section» ["section", name: ident?, commands: recurse*, "end", end_name: ident?]
 
 def universe.reader :=
@@ -69,33 +57,35 @@ any_of [
   node! «universe» ["universe", id: ident]
 ]
 
+namespace notation_spec
 @[derive reader.has_view]
-def prec : reader := node! notation_spec.prec [":", prec: number]/-TODO <|> expr-/
+def prec.reader := node! prec [":", prec: number]/-TODO <|> expr-/
 
-def quoted_symbol : reader :=
+def quoted_symbol.reader : reader :=
 { read := do (s, info) ← with_source_info $ take_until (= '`'),
    pure $ syntax.atom ⟨info, atomic_val.string s⟩ }
 
-instance quoted_symbol.view : reader.has_view quoted_symbol syntax := default _
+instance quoted_symbol.view : reader.has_view quoted_symbol.reader syntax := default _
 
 @[derive reader.has_view]
-def notation_quoted_symbol.reader : reader :=
+def symbol_quote.reader :=
 node! notation_quoted_symbol [
   left_quote: raw_symbol "`",
-  sym: quoted_symbol,
+  symbol: quoted_symbol.reader,
   right_quote: raw_symbol "`",
-  prec: prec?]
+  prec: prec.reader?]
 
+--TODO(Sebastian): cannot be called `symbol` because of hygiene problems
 @[derive reader.has_view]
-def notation_symbol.reader : reader :=
+def notation_symbol.reader :=
 node_choice! notation_symbol {
-  quoted: notation_quoted_symbol.reader
+  quoted: symbol_quote.reader
   --TODO, {read := do tk ← token, /- check if reserved token-/}
 }
 
 @[derive reader.has_view]
-def action : reader :=
-node! notation_spec.action [":", action: node_choice! notation_spec.action_kind {
+def action.reader :=
+node! action [":", action: node_choice! action_kind {
   prec: number,
   "max",
   "prev",
@@ -107,53 +97,47 @@ node! notation_spec.action [":", action: node_choice! notation_spec.action_kind 
     notation_tk,-/}]
 
 @[derive reader.has_view]
-def arg_transition : reader :=
-node! notation_spec.arg_transition [id: ident, action: action?]
-
-@[derive reader.has_view]
 def transition.reader :=
-node_choice! notation_spec.transition {
- binder: node! notation_spec.binder ["binder", prec: prec?],
- binders: node! notation_spec.binders ["binders", prec: prec?],
- transition: arg_transition
+node_choice! transition {
+  binder: node! binder ["binder", prec: prec.reader?],
+  binders: node! binders ["binders", prec: prec.reader?],
+  arg: node! argument [id: ident, action: action.reader?]
 }
 
 @[derive reader.has_view]
-def rule : reader :=
-node! notation_spec.rule [sym: notation_symbol.reader, transition: transition.reader?]
+def rule.reader :=
+node! rule [symbol: notation_symbol.reader, transition: transition.reader?]
+
+end notation_spec
 
 @[derive reader.has_view]
-def rules : reader :=
-node! notation_spec.rules [id: ident?, rules: rule*]
-
-@[derive reader.has_view]
-def notation_spec.reader : reader :=
+def notation_spec.reader :=
 node_choice! notation_spec {
-  number: number,
-  rules: rules
+  number_literal: number,
+  rules: node! notation_spec.rules [id: ident?, rules: notation_spec.rule.reader*]
 }
 
 @[derive has_view]
-def notation.reader : reader :=
+def notation.reader :=
 node! «notation» ["notation", spec: notation_spec.reader, ":=", term: term.reader]
 
-def reserve_notation.reader : reader :=
+def reserve_notation.reader :=
 node! «reserve_notation» [try ["reserve", "notation"], spec: notation_spec.reader]
 
 @[derive has_view]
-def mixfix.kind.reader : reader :=
+def mixfix.kind.reader :=
 node_choice! mixfix.kind {"prefix", "infix", "infixl", "infixr", "postfix"}
 
 @[derive has_view]
-def mixfix.reader : reader :=
+def mixfix.reader :=
 node! «mixfix» [
   kind: mixfix.kind.reader,
-  sym: notation_symbol.reader, ":=", term: term.reader]
+  symbol: notation_spec.notation_symbol.reader, ":=", term: term.reader]
 
-def reserve_mixfix.reader : reader :=
+def reserve_mixfix.reader :=
 node! «reserve_mixfix» [
   try ["reserve", kind: mixfix.kind.reader],
-  sym: notation_symbol.reader]
+  symbol: notation_spec.notation_symbol.reader]
 
 @[derive reader.has_view]
 def command.reader :=
@@ -197,27 +181,31 @@ def commands.reader : reader :=
 instance commands.reader.has_view : commands.reader.has_view (list syntax) :=
 {..many.view command.reader}
 
-end commands
-
 @[derive reader.has_view]
-def module.reader : reader :=
+def module.reader :=
 node! module [«prelude»: prelude.reader?, imports: import.reader*, commands: commands.reader]
 end reader
 
 namespace reader
-open macro.has_view combinators
+open macro.has_view combinators notation_spec
 
 def mixfix.expand (stx : syntax) : option syntax :=
 do v ← view mixfix stx,
    -- TODO: reserved token case
-   notation_symbol.view.quoted {prec:=prec, ..} ← pure v.sym,
-   let spec := notation_spec.view.rules $ match v.kind with
-     | mixfix.kind.view.prefix _ := ⟨optional_view.none, [⟨v.sym, optional_view.some $ notation_spec.transition.view.transition $
-       ⟨`b, (λ (prec : notation_spec.prec.view),
-         {action := notation_spec.action_kind.view.prec prec.prec, ..prec}
-       ) <$> prec⟩⟩]⟩
+   notation_symbol.view.quoted {prec:=prec, ..} ← pure v.symbol,
+   -- `notation` allows more syntax after `:` than mixfix commands, so we have to do a small conversion
+   let prec_to_action : notation_spec.prec.view → action.view :=
+     λ prec, {action := action_kind.view.prec prec.prec, ..prec},
+   let spec := view.rules $ match v.kind with
+     | mixfix.kind.view.prefix _ := {
+       id := optional_view.none,
+       rules := [{
+         symbol := v.symbol,
+         transition := optional_view.some $ transition.view.arg $ {
+           id := `b,
+           action := prec_to_action <$> prec}}]}
      | _ := sorry,
-   pure $ review «notation» (⟨"notation", spec, ":=", v.term⟩ : notation.view)
+   pure $ review «notation» ⟨"notation", spec, ":=", v.term⟩
 
 end reader
 end lean.parser

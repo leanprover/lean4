@@ -155,29 +155,6 @@ def node' (m : name) (rs : list reader) : reader :=
 instance node.view (m rs) [i : macro.has_view m α] : reader.has_view (node m rs) α :=
 { view := i.view, review := i.review }
 
-/-
-instance node'.view_cons (β m r rs) [reader.has_view r α] [reader.has_view (node' m rs) β] : reader.has_view (node' m (r::rs)) (α × β) :=
-{ view := λ stx, do {
-    syntax.node ⟨m', (stx::stxs)⟩ ← pure stx | failure,
-    guard (m' = m),
-    a ← view r stx,
-    b ← view (node' m rs) $ syntax.node ⟨m, stxs⟩,
-    pure (a, b)
-  },
-  review := λ ⟨a, b⟩, match review (node' m rs) b with
-    | syntax.node ⟨_, stxs⟩ := syntax.node ⟨m, review r a::stxs⟩
-    | _ := syntax.missing /- unreachable -/ }
-
-instance node'.view_nil (m r) [reader.has_view r α] : reader.has_view (node' m [r]) α :=
-{ view := λ stx, do {
-    syntax.node ⟨m', [stx]⟩ ← pure stx | failure,
-    guard (m' = m),
-    a ← view r stx,
-    pure a
-  },
-  review := λ a, syntax.node ⟨m, [review r a]⟩ }
--/
-
 private def many1_aux (p : read_m syntax) : list syntax → nat → read_m syntax
 | as 0     := error "unreachable"
 | as (n+1) := do a ← catch p (λ msg, throw {msg with custom :=
@@ -195,22 +172,8 @@ instance many1.view (r) [reader.has_view r α] : reader.has_view (many1 r) (list
     | _ := failure,
   review := λ as, syntax.node ⟨name.anonymous, as.map (review r)⟩ }
 
-/-
-instance many1.view (r) : reader.has_view (many1 r) (list syntax) :=
-{ view := λ stx, match stx with
-    | syntax.missing := [syntax.missing]
-    | syntax.node ⟨name.anonymous, stxs⟩ := stxs
-    | _ := failure,
-  review := λ stxs, syntax.node ⟨name.anonymous, stxs⟩ }
-  -/
-
 def many (r : reader) : reader :=
 { r with read := (many1 r).read <|> pure (syntax.node ⟨name.anonymous, []⟩) }
-
-/-
-instance many.view (r) : reader.has_view (many r) (list syntax) :=
-{..many1.view r}
--/
 
 instance many.view (r) [has_view r α] : reader.has_view (many r) (list α) :=
 {..many1.view r}
@@ -295,8 +258,13 @@ def recurse : reader :=
 { read   := rec_t.recurse,
   tokens := [] } -- recursive use should not contribute any new tokens
 
+instance recurse.view : reader.has_view recurse syntax := default _
+
 def with_recurse (r : reader) : reader :=
 { r with read := rec_t.with_recurse (error "recursion limit") r.read }
+
+instance with_recurse.view (r) : reader.has_view (with_recurse r) syntax := default _
+
 end combinators
 end reader
 end parser

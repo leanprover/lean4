@@ -17,6 +17,7 @@ def hole := {macro . name := `hole}
 def hole.reader : reader :=
 node hole [symbol "_"]
 
+@[derive reader.has_view]
 def term.reader :=
 any_of [
   hole.reader

@@ -20,6 +20,14 @@ local postfix `?`:10000 := optional
 local postfix *:10000 := many
 local postfix +:10000 := many1
 
+instance symbol.view (s) : reader.has_view (symbol s) syntax := default _
+instance raw_symbol.view (s) : reader.has_view (raw_symbol s) syntax := default _
+instance number.view : reader.has_view number syntax := default _
+instance ident.view : reader.has_view ident syntax := default _
+instance recurse.view : reader.has_view recurse syntax := default _
+instance with_recurse.view (r) : reader.has_view (with_recurse r) syntax := default _
+
+@[derive reader.has_view]
 def prelude.reader : reader :=
 node! «prelude» ["prelude"]
 
@@ -30,6 +38,7 @@ node! import_path [
   dirups: (raw_symbol ".")*,
   module: ident]
 
+@[derive reader.has_view]
 def import.reader : reader :=
 node! «import» ["import", imports: import_path.reader+]
 
@@ -66,6 +75,8 @@ def prec : reader := node! notation_spec.prec [":", prec: number]/-TODO <|> expr
 def quoted_symbol : reader :=
 { read := do (s, info) ← with_source_info $ take_until (= '`'),
    pure $ syntax.atom ⟨info, atomic_val.string s⟩ }
+
+instance quoted_symbol.view : reader.has_view quoted_symbol syntax := default _
 
 @[derive reader.has_view]
 def notation_quoted_symbol.reader : reader :=
@@ -144,6 +155,7 @@ node! «reserve_mixfix» [
   try ["reserve", kind: mixfix.kind.reader],
   sym: notation_symbol.reader]
 
+@[derive reader.has_view]
 def command.reader :=
 with_recurse $ any_of [open.reader, section.reader, universe.reader, notation.reader, reserve_notation.reader,
   mixfix.reader, reserve_mixfix.reader] <?> "command"

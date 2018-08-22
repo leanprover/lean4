@@ -81,9 +81,8 @@ class reader.has_view (r : reader) (α : out_param Type) :=
 (view : syntax → option α)
 (review : α → syntax)
 
-@[priority 0] instance reader.has_view.default (r) : reader.has_view r syntax :=
-{ view := some,
-  review := id }
+instance reader.has_view.default (r : reader) : inhabited (reader.has_view r syntax) :=
+⟨{ view := some, review := id }⟩
 
 class macro.has_view (m : macro) (α : out_param Type) :=
 (view : syntax → option α)
@@ -257,6 +256,8 @@ def any_of (rs : list reader) : reader :=
     | [] := error "any_of"
     | (r::rs) := (rs.map reader.read).foldl (<|>) r.read),
   tokens := (rs.map reader.tokens).join }
+
+instance any_of.view (rs) : reader.has_view (any_of rs) syntax := default _
 
 /-- Parse a list `[p1, ..., pn]` of readers as `p1 <|> ... <|> pn`.
     The result will be wrapped in a node with the the index of the successful

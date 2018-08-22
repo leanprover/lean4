@@ -176,7 +176,9 @@ inline void dec_ref(object * o) { if (dec_ref_core(o)) del(o); }
 inline void inc(object * o) { if (!is_scalar(o)) inc_ref(o); }
 inline void dec(object * o) { if (!is_scalar(o)) dec_ref(o); }
 
-/* Testers */
+// =======================================
+// Testers
+
 inline object_kind get_kind(object * o) { return static_cast<object_kind>(o->m_kind); }
 inline bool is_cnstr(object * o) { return get_kind(o) == object_kind::Constructor; }
 inline bool is_closure(object * o) { return get_kind(o) == object_kind::Closure; }
@@ -188,7 +190,9 @@ inline bool is_thunk(object * o) { return get_kind(o) == object_kind::Thunk; }
 inline bool is_task(object * o) { return get_kind(o) == object_kind::Task; }
 inline bool is_external(object * o) { return get_kind(o) == object_kind::External; }
 
-/* Casting */
+// =======================================
+// Casting
+
 inline constructor_object * to_cnstr(object * o) { lean_assert(is_cnstr(o)); return static_cast<constructor_object*>(o); }
 inline closure_object * to_closure(object * o) { lean_assert(is_closure(o)); return static_cast<closure_object*>(o); }
 inline array_object * to_array(object * o) { lean_assert(is_array(o)); return static_cast<array_object*>(o); }
@@ -217,7 +221,8 @@ inline void dealloc(object * o) {
     }
 }
 
-/* Object auxiliary functions */
+// =======================================
+// Object auxiliary functions
 
 /* Size of the object in bytes. This function is used for debugging purposes.
    \pre !is_scalar(o) && !is_external(o) */
@@ -244,7 +249,9 @@ inline void obj_set_data(object * o, size_t offset, T v) {
     *(reinterpret_cast<T *>(reinterpret_cast<char *>(o) + offset)) = v;
 }
 
-/* Constructor auxiliary functions */
+// =======================================
+// Constructor auxiliary functions
+
 inline unsigned cnstr_num_objs(object * o) { return to_cnstr(o)->m_num_objs; }
 inline unsigned cnstr_scalar_size(object * o) { return to_cnstr(o)->m_scalar_size; }
 inline size_t cnstr_byte_size(object * o) { return sizeof(constructor_object) + cnstr_num_objs(o)*sizeof(object*) + cnstr_scalar_size(o); } // NOLINT
@@ -257,7 +264,8 @@ inline unsigned char * cnstr_scalar_cptr(object * o) {
     return reinterpret_cast<unsigned char*>(reinterpret_cast<char*>(o) + sizeof(constructor_object) + cnstr_num_objs(o)*sizeof(object*)); // NOLINT
 }
 
-/* Closure auxiliary functions */
+// =======================================
+// Closure auxiliary functions
 
 inline lean_cfun closure_fun(object * o) { return to_closure(o)->m_fun; }
 inline unsigned closure_arity(object * o) { return to_closure(o)->m_arity; }
@@ -268,7 +276,8 @@ inline object ** closure_arg_cptr(object * o) {
     return reinterpret_cast<object**>(reinterpret_cast<char*>(o) + sizeof(closure_object));
 }
 
-/* Thunk auxiliary functions */
+// =======================================
+// Thunk auxiliary functions
 
 inline thunk_object::thunk_object(object * c, bool is_value):
     object(object_kind::Thunk) {
@@ -285,7 +294,8 @@ object * apply_1(object * f, object * a1);
 /* Expensive version of thunk_get which tries to execute the nested closure */
 object * thunk_get_core(object * t);
 
-/* Array auxiliary functions */
+// =======================================
+// Array auxiliary functions
 
 inline size_t array_capacity(object * o) { return to_array(o)->m_capacity; }
 inline size_t array_byte_size(object * o) { return sizeof(array_object) + array_capacity(o)*sizeof(object*); } // NOLINT
@@ -294,7 +304,8 @@ inline object ** array_cptr(object * o) {
     return reinterpret_cast<object**>(reinterpret_cast<char*>(o) + sizeof(array_object));
 }
 
-/* Array of scalars auxiliary functions */
+// =======================================
+// Array of scalars auxiliary functions
 
 inline unsigned sarray_elem_size(object * o) { return to_sarray(o)->m_elem_size; }
 inline size_t sarray_capacity(object * o) { return to_sarray(o)->m_capacity; }
@@ -304,15 +315,19 @@ T * sarray_cptr_core(object * o) { lean_assert(is_sarray(o)); return reinterpret
 template<typename T>
 T * sarray_cptr(object * o) { lean_assert(sarray_elem_size(o) == sizeof(T)); return sarray_cptr_core<T>(o); }
 
-/* String auxiliary functions */
+// =======================================
+// String auxiliary functions
 
 inline size_t string_capacity(object * o) { return to_string(o)->m_capacity; }
 inline size_t string_byte_size(object * o) { return sizeof(string_object) + string_capacity(o); } // NOLINT
 
-/* MPZ auxiliary function */
+// =======================================
+// MPZ auxiliary function
+
 inline object * alloc_mpz(mpz const & m) { return new mpz_object(m); }
 
-/* Natural numbers auxiliary functions */
+// =======================================
+// Natural numbers auxiliary functions
 
 #define LEAN_MAX_SMALL_NAT (sizeof(void*) == 8 ? std::numeric_limits<unsigned>::max() : (std::numeric_limits<unsigned>::max() >> 1)) // NOLINT
 inline object * mk_nat_obj_core(mpz const & m) {
@@ -331,7 +346,8 @@ object * nat_big_land(object * a1, object * a2);
 object * nat_big_lor(object * a1, object * a2);
 object * nat_big_xor(object * a1, object * a2);
 
-/* Integers auxiliary functions */
+// =======================================
+// Integers auxiliary functions
 
 #define LEAN_MAX_SMALL_INT (sizeof(void*) == 8 ? std::numeric_limits<int>::max() : (1 << 30)) // NOLINT
 #define LEAN_MIN_SMALL_INT (sizeof(void*) == 8 ? std::numeric_limits<int>::min() : -(1 << 30)) // NOLINT
@@ -380,7 +396,9 @@ typedef object * u_obj_arg; /* Unique (aka non shared) object argument. */
 typedef object * obj_res;   /* Standard object result. */
 typedef object * b_obj_res; /* Borrowed object result. */
 
-/* Constructor objects */
+// =======================================
+// Constructor objects
+
 inline obj_res alloc_cnstr(unsigned tag, unsigned num_objs, unsigned scalar_sz) {
     lean_assert(tag < 65536 && num_objs < 65536 && scalar_sz < 65536);
     return new (malloc(sizeof(constructor_object) + num_objs * sizeof(object *) + scalar_sz)) constructor_object(tag, num_objs, scalar_sz); // NOLINT
@@ -407,7 +425,9 @@ template<typename T> inline void cnstr_set_scalar(b_obj_arg o, unsigned i, T v) 
 
 inline unsigned obj_tag(b_obj_arg o) { if (is_scalar(o)) return unbox(o); else return cnstr_tag(o); }
 
-/* Closures */
+// =======================================
+// Closures
+
 inline obj_res alloc_closure(lean_cfun fun, unsigned arity, unsigned num_fixed) {
     lean_assert(arity > 0);
     lean_assert(num_fixed < arity);
@@ -422,7 +442,9 @@ inline void closure_set_arg(u_obj_arg o, unsigned i, obj_arg a) {
     obj_set_data(o, sizeof(closure_object) + sizeof(object*)*i, a); // NOLINT
 }
 
-/* Array of objects */
+// =======================================
+// Array of objects
+
 inline obj_res alloc_array(size_t size, size_t capacity) {
     return new (malloc(sizeof(array_object) + capacity * sizeof(object *))) array_object(size, capacity); // NOLINT
 }
@@ -443,7 +465,9 @@ inline void array_set_obj(u_obj_arg o, size_t i, obj_arg v) {
     obj_set_data(o, sizeof(array_object) + sizeof(object*)*i, v); // NOLINT
 }
 
-/* Array of scalars */
+// =======================================
+// Array of scalars
+
 inline obj_res alloc_sarray(unsigned elem_size, size_t size, size_t capacity) {
     return new (malloc(sizeof(sarray_object) + capacity * elem_size)) sarray_object(elem_size, size, capacity); // NOLINT
 }
@@ -459,10 +483,13 @@ inline void sarray_set_size(u_obj_arg o, size_t sz) {
     to_sarray(o)->m_size = sz;
 }
 
-/* MPZ */
+// =======================================
+// MPZ
+
 inline mpz const & mpz_value(b_obj_arg o) { return to_mpz(o)->m_value; }
 
-/* Thunks */
+// =======================================
+// Thunks
 
 inline obj_res mk_thunk(obj_arg c) {
     return new (malloc(sizeof(thunk_object))) thunk_object(c, false); // NOLINT
@@ -480,7 +507,8 @@ inline b_obj_res thunk_get(b_obj_arg t) {
     return thunk_get_core(t);
 }
 
-/* Tasks */
+// =======================================
+// Tasks
 
 /* If num_workers == 0, then tasks primitives will just create thunks.
    It must not be used if task objects have already been created. */
@@ -510,7 +538,9 @@ bool io_has_finished_core(b_obj_arg t);
 /* primitive for implementing `io.wait_any : list (task A) -> io (task A) */
 b_obj_res io_wait_any_core(b_obj_arg task_list);
 
-/* String */
+// =======================================
+// String
+
 inline obj_res alloc_string(size_t size, size_t capacity, size_t len) {
     return new (malloc(sizeof(string_object) + capacity)) string_object(size, capacity, len); // NOLINT
 }
@@ -527,7 +557,8 @@ inline bool string_ne(b_obj_arg s1, b_obj_arg s2) { return !string_eq(s1, s2); }
 bool string_eq(b_obj_arg s1, char const * s2);
 bool string_lt(b_obj_arg s1, b_obj_arg s2);
 
-/* Natural numbers */
+// =======================================
+// Natural numbers
 
 inline obj_res mk_nat_obj(mpz const & m) {
     if (m > LEAN_MAX_SMALL_NAT)
@@ -674,7 +705,8 @@ inline obj_res nat_lxor(b_obj_arg a1, b_obj_arg a2) {
     }
 }
 
-/* Integers */
+// =======================================
+// Integers
 
 inline obj_res mk_int_obj(mpz const & m) {
     if (m < LEAN_MIN_SMALL_INT || m > LEAN_MAX_SMALL_INT)

@@ -135,7 +135,8 @@ void del(object * o) {
     }
 }
 
-/* Scalar arrays */
+// =======================================
+// Scalar arrays
 
 #if 0
 static object * sarray_ensure_capacity(object * o, size_t extra) {
@@ -155,7 +156,9 @@ static object * sarray_ensure_capacity(object * o, size_t extra) {
 }
 #endif
 
-/* Strings */
+// =======================================
+// Strings
+
 static inline char * w_string_data(object * o) { lean_assert(is_string(o)); return reinterpret_cast<char *>(o) + sizeof(string_object); }
 
 static object * string_ensure_capacity(object * o, size_t extra) {
@@ -238,7 +241,8 @@ bool string_lt(object * s1, object * s2) {
     return r < 0 || (r == 0 && sz1 < sz2);
 }
 
-/* Closures */
+// =======================================
+// Closures
 
 typedef object * (*lean_cfun2)(object *, object *); // NOLINT
 typedef object * (*lean_cfun3)(object *, object *, object *); // NOLINT
@@ -256,7 +260,8 @@ static obj_res mk_closure_3_2(lean_cfun3 fn, obj_arg a1, obj_arg a2) {
     return c;
 }
 
-/* Thunks */
+// =======================================
+// Thunks
 
 static obj_res mk_thunk_3_2(lean_cfun3 fn, obj_arg a1, obj_arg a2) {
     return mk_thunk(mk_closure_3_2(fn, a1, a2));
@@ -314,7 +319,8 @@ obj_res thunk_bind(obj_arg x, obj_arg f) {
     return mk_thunk_3_2(thunk_bind_fn_closure, x, f);
 }
 
-/* Tasks */
+// =======================================
+// Tasks
 
 LEAN_THREAD_PTR(task_object, g_current_task_object);
 
@@ -714,7 +720,8 @@ b_obj_res io_wait_any_core(b_obj_arg task_list) {
     return g_task_manager->wait_any(task_list);
 }
 
-/* Natural numbers */
+// =======================================
+// Natural numbers
 
 object * nat_big_add(object * a1, object * a2) {
     lean_assert(!is_scalar(a1) || !is_scalar(a2));
@@ -847,7 +854,8 @@ object * nat_big_lxor(object * a1, object * a2) {
         return mk_nat_obj(mpz_value(a1) ^ mpz_value(a2));
 }
 
-/* Integers */
+// =======================================
+// Integers
 
 object * int_big_add(object * a1, object * a2) {
     if (is_scalar(a1))
@@ -926,7 +934,8 @@ bool int_big_lt(object * a1, object * a2) {
     }
 }
 
-/* Debugging helper functions */
+// =======================================
+// Debugging helper functions
 
 void dbg_print_str(object * o) {
     lean_assert(is_string(o));

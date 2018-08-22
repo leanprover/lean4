@@ -22,23 +22,31 @@ result:
   [])
  (eoi "")]
 result: 
-[(module [] [] [(open "open" [[me [] [] [] []] [you [] [] [] []]])]) (eoi "")]
+[(module
+  []
+  []
+  [(open "open" [(open_spec me [] [] [] []) (open_spec you [] [] [] [])])])
+ (eoi "")]
 result: 
 [(module
   []
   []
   [(open
     "open"
-    [[me
-      [["as" you]]
-      [[["(" a] [b c] ")"]]
-      [[["(" "renaming"] [[a "->" b] [c "->" d]] ")"]]
-      [["(" "hiding" [a b] ")"]]]])])
+    [(open_spec
+      me
+      [(open_spec.as "as" you)]
+      [(open_spec.only ["(" a] [b c] ")")]
+      [(open_spec.renaming
+        ["(" "renaming"]
+        [(open_spec.renaming.item a "->" b) (open_spec.renaming.item c "->" d)]
+        ")")]
+      [(open_spec.hiding "(" "hiding" [a b] ")")])])])
  (eoi "")]
 error at line 1, column 8:
 expected command
 partial syntax tree:
-[(module [] [] [(open "open" [[me [] [] [] []]])]) (eoi "")]
+[(module [] [] [(open "open" [(open_spec me [] [] [] [])])]) (eoi "")]
 error at line 1, column 5:
 expected identifier
 error at line 1, column 9:
@@ -47,8 +55,12 @@ partial syntax tree:
 [(module
   []
   []
-  [(open "open" [[<missing> <missing> <missing> <missing> <missing>] <missing>])
-   (open "open" [[<missing> <missing> <missing> <missing> <missing>] <missing>])])
+  [(open
+    "open"
+    [(open_spec <missing> <missing> <missing> <missing> <missing>) <missing>])
+   (open
+    "open"
+    [(open_spec <missing> <missing> <missing> <missing> <missing>) <missing>])])
  (eoi "")]
 error at line 1, column 8:
 expected command
@@ -56,18 +68,19 @@ partial syntax tree:
 [(module
   []
   []
-  [(open "open" [[me [] [] [] []]]) (open "open" [[you [] [] [] []]])])
+  [(open "open" [(open_spec me [] [] [] [])])
+   (open "open" [(open_spec you [] [] [] [])])])
  (eoi "")]
 result: 
 [(module
   []
   []
-  [(open "open" [[a [] [] [] []]])
+  [(open "open" [(open_spec a [] [] [] [])])
    (section
     "section"
     [b]
-    [(open "open" [[c [] [] [] []]])
-     (section "section" [d] [(open "open" [[e [] [] [] []]])] "end" [d])]
+    [(open "open" [(open_spec c [] [] [] [])])
+     (section "section" [d] [(open "open" [(open_spec e [] [] [] [])])] "end" [d])]
     "end"
     [b])])
  (eoi "")]
@@ -77,14 +90,50 @@ result:
 [(module
   []
   []
-  [(notation "notation" [[] [[["`" "Prop" "`" []] []]]] ":=" (hole "_"))])
+  [(notation
+    "notation"
+    (notation_spec
+     (1
+      (notation_spec.rules
+       []
+       [(notation_spec.rule
+         (notation_symbol (0 (notation_quoted_symbol "`" "Prop" "`" [])))
+         [])])))
+    ":="
+    (hole "_"))])
  (eoi "")]
 result: 
-[(mixfix "prefix" ["`" "+" "`" [[":" (base10_lit "10")]]] ":=" (hole "_"))
+[(mixfix
+  (mixfix.kind (0 "prefix"))
+  (notation_symbol
+   (0
+    (notation_quoted_symbol
+     "`"
+     "+"
+     "`"
+     [(notation_spec.prec ":" (base10_lit "10"))])))
+  ":="
+  (hole "_"))
  (eoi "")]
 (notation
  "notation"
- [[] [[["`" "+" "`" [[":" (base10_lit "10")]]] [[b [[":" (base10_lit "10")]]]]]]]
+ (notation_spec
+  (1
+   (notation_spec.rules
+    []
+    [(notation_spec.rule
+      (notation_symbol
+       (0
+        (notation_quoted_symbol
+         "`"
+         "+"
+         "`"
+         [(notation_spec.prec ":" (base10_lit "10"))])))
+      [(notation_spec.transition
+        (2
+         (notation_spec.arg_transition
+          b
+          [(notation_spec.action ":" (notation_spec.action_kind (0 (base10_lit "10"))))])))])])))
  ":="
  (hole "_"))
 notation`+`:10 b:10 :=_
@@ -98,61 +147,487 @@ partial syntax tree:
 [(module
   [(prelude "prelude")]
   []
-  [(notation "notation" [[] [[["`" "Prop" "`" []] []]]] ":=" (hole <missing>))
-   (notation
+  [(notation
     "notation"
-    [[f] [[["`" "$ " "`" [[":" (base10_lit "1")]]] [[a [[":" (base10_lit "0")]]]]]]]
+    (notation_spec
+     (1
+      (notation_spec.rules
+       []
+       [(notation_spec.rule
+         (notation_symbol (0 (notation_quoted_symbol "`" "Prop" "`" [])))
+         [])])))
     ":="
     (hole <missing>))
-   (reserve_mixfix ["reserve" "prefix"] ["`" "¬" "`" [[":" (base10_lit "40")]]])
-   (reserve_mixfix ["reserve" "prefix"] ["`" "~" "`" [[":" (base10_lit "40")]]])
-   (reserve_mixfix ["reserve" "infixr"] ["`" "∧ " "`" [[":" (base10_lit "35")]]])
-   (reserve_mixfix ["reserve" "infixr"] ["`" "/\\ " "`" [[":" (base10_lit "35")]]])
-   (reserve_mixfix ["reserve" "infixr"] ["`" "\\/ " "`" [[":" (base10_lit "30")]]])
-   (reserve_mixfix ["reserve" "infixr"] ["`" "∨ " "`" [[":" (base10_lit "30")]]])
-   (reserve_mixfix ["reserve" "infix"] ["`" "<-> " "`" [[":" (base10_lit "20")]]])
-   (reserve_mixfix ["reserve" "infix"] ["`" "↔ " "`" [[":" (base10_lit "20")]]])
-   (reserve_mixfix ["reserve" "infix"] ["`" "= " "`" [[":" (base10_lit "50")]]])
-   (reserve_mixfix ["reserve" "infix"] ["`" "== " "`" [[":" (base10_lit "50")]]])
-   (reserve_mixfix ["reserve" "infix"] ["`" "≠ " "`" [[":" (base10_lit "50")]]])
-   (reserve_mixfix ["reserve" "infix"] ["`" "≈ " "`" [[":" (base10_lit "50")]]])
-   (reserve_mixfix ["reserve" "infix"] ["`" "~ " "`" [[":" (base10_lit "50")]]])
-   (reserve_mixfix ["reserve" "infix"] ["`" "≡ " "`" [[":" (base10_lit "50")]]])
-   (reserve_mixfix ["reserve" "infixl"] ["`" "⬝ " "`" [[":" (base10_lit "75")]]])
-   (reserve_mixfix ["reserve" "infixr"] ["`" "▸ " "`" [[":" (base10_lit "75")]]])
-   (reserve_mixfix ["reserve" "infixr"] ["`" "▹ " "`" [[":" (base10_lit "75")]]])
-   (reserve_mixfix ["reserve" "infixr"] ["`" "⊕ " "`" [[":" (base10_lit "30")]]])
-   (reserve_mixfix ["reserve" "infixr"] ["`" "× " "`" [[":" (base10_lit "35")]]])
-   (reserve_mixfix ["reserve" "infixl"] ["`" "+ " "`" [[":" (base10_lit "65")]]])
-   (reserve_mixfix ["reserve" "infixl"] ["`" "- " "`" [[":" (base10_lit "65")]]])
-   (reserve_mixfix ["reserve" "infixl"] ["`" "* " "`" [[":" (base10_lit "70")]]])
-   (reserve_mixfix ["reserve" "infixl"] ["`" "/ " "`" [[":" (base10_lit "70")]]])
-   (reserve_mixfix ["reserve" "infixl"] ["`" "% " "`" [[":" (base10_lit "70")]]])
-   (reserve_mixfix ["reserve" "infixl"] ["`" "%ₙ " "`" [[":" (base10_lit "70")]]])
-   (reserve_mixfix ["reserve" "prefix"] ["`" "-" "`" [[":" (base10_lit "100")]]])
-   (reserve_mixfix ["reserve" "infixr"] ["`" "^ " "`" [[":" (base10_lit "80")]]])
-   (reserve_mixfix ["reserve" "infixr"] ["`" "∘ " "`" [[":" (base10_lit "90")]]])
-   (reserve_mixfix ["reserve" "infix"] ["`" "<= " "`" [[":" (base10_lit "50")]]])
-   (reserve_mixfix ["reserve" "infix"] ["`" "≤ " "`" [[":" (base10_lit "50")]]])
-   (reserve_mixfix ["reserve" "infix"] ["`" "< " "`" [[":" (base10_lit "50")]]])
-   (reserve_mixfix ["reserve" "infix"] ["`" ">= " "`" [[":" (base10_lit "50")]]])
-   (reserve_mixfix ["reserve" "infix"] ["`" "≥ " "`" [[":" (base10_lit "50")]]])
-   (reserve_mixfix ["reserve" "infix"] ["`" "> " "`" [[":" (base10_lit "50")]]])
-   (reserve_mixfix ["reserve" "prefix"] ["`" "!" "`" [[":" (base10_lit "40")]]])
-   (reserve_mixfix ["reserve" "infixl"] ["`" "&& " "`" [[":" (base10_lit "35")]]])
-   (reserve_mixfix ["reserve" "infixl"] ["`" "|| " "`" [[":" (base10_lit "30")]]])
-   (reserve_mixfix ["reserve" "infix"] ["`" "∈ " "`" [[":" (base10_lit "50")]]])
-   (reserve_mixfix ["reserve" "infix"] ["`" "∉ " "`" [[":" (base10_lit "50")]]])
-   (reserve_mixfix ["reserve" "infixl"] ["`" "∩ " "`" [[":" (base10_lit "70")]]])
-   (reserve_mixfix ["reserve" "infixl"] ["`" "∪ " "`" [[":" (base10_lit "65")]]])
-   (reserve_mixfix ["reserve" "infix"] ["`" "⊆ " "`" [[":" (base10_lit "50")]]])
-   (reserve_mixfix ["reserve" "infix"] ["`" "⊇ " "`" [[":" (base10_lit "50")]]])
-   (reserve_mixfix ["reserve" "infix"] ["`" "⊂ " "`" [[":" (base10_lit "50")]]])
-   (reserve_mixfix ["reserve" "infix"] ["`" "⊃ " "`" [[":" (base10_lit "50")]]])
-   (reserve_mixfix ["reserve" "infix"] ["`" "\\ " "`" [[":" (base10_lit "70")]]])
-   (reserve_mixfix ["reserve" "infix"] ["`" "∣ " "`" [[":" (base10_lit "50")]]])
-   (reserve_mixfix ["reserve" "infixl"] ["`" "++ " "`" [[":" (base10_lit "65")]]])
-   (reserve_mixfix ["reserve" "infixr"] ["`" ":: " "`" [[":" (base10_lit "67")]]])
-   (reserve_mixfix ["reserve" "infixl"] ["`" "; " "`" [[":" (base10_lit "1")]]])
-   (universe [["universes" [u v w]]])])
+   (notation
+    "notation"
+    (notation_spec
+     (1
+      (notation_spec.rules
+       [f]
+       [(notation_spec.rule
+         (notation_symbol
+          (0
+           (notation_quoted_symbol
+            "`"
+            "$ "
+            "`"
+            [(notation_spec.prec ":" (base10_lit "1"))])))
+         [(notation_spec.transition
+           (2
+            (notation_spec.arg_transition
+             a
+             [(notation_spec.action ":" (notation_spec.action_kind (0 (base10_lit "0"))))])))])])))
+    ":="
+    (hole <missing>))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (0 "prefix"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "¬"
+       "`"
+       [(notation_spec.prec ":" (base10_lit "40"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (0 "prefix"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "~"
+       "`"
+       [(notation_spec.prec ":" (base10_lit "40"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (3 "infixr"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "∧ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "35"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (3 "infixr"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "/\\ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "35"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (3 "infixr"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "\\/ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "30"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (3 "infixr"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "∨ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "30"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "<-> "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "20"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "↔ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "20"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "= "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "== "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "≠ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "≈ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "~ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "≡ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (2 "infixl"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "⬝ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "75"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (3 "infixr"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "▸ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "75"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (3 "infixr"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "▹ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "75"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (3 "infixr"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "⊕ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "30"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (3 "infixr"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "× "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "35"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (2 "infixl"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "+ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "65"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (2 "infixl"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "- "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "65"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (2 "infixl"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "* "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "70"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (2 "infixl"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "/ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "70"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (2 "infixl"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "% "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "70"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (2 "infixl"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "%ₙ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "70"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (0 "prefix"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "-"
+       "`"
+       [(notation_spec.prec ":" (base10_lit "100"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (3 "infixr"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "^ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "80"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (3 "infixr"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "∘ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "90"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "<= "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "≤ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "< "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       ">= "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "≥ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "> "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (0 "prefix"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "!"
+       "`"
+       [(notation_spec.prec ":" (base10_lit "40"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (2 "infixl"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "&& "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "35"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (2 "infixl"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "|| "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "30"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "∈ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "∉ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (2 "infixl"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "∩ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "70"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (2 "infixl"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "∪ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "65"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "⊆ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "⊇ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "⊂ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "⊃ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "\\ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "70"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "∣ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (2 "infixl"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "++ "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "65"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (3 "infixr"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       ":: "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "67"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (2 "infixl"))]
+    (notation_symbol
+     (0
+      (notation_quoted_symbol
+       "`"
+       "; "
+       "`"
+       [(notation_spec.prec ":" (base10_lit "1"))]))))
+   (universes "universes" [u v w])])
  (eoi "")]

@@ -1046,6 +1046,33 @@ static expr parse_node(parser & p, unsigned, expr const *, pos_info const &) {
                     mk_app(mk_const({"lean", "parser", "reader", "combinators", "node"}), mk_const(get_namespace(p.env()) + macro), mk_lean_list(args)));
 }
 
+static expr parse_choice(parser & p, unsigned, expr const *, pos_info const &) {
+    name macro = p.check_id_next("identifier expected");
+    std::function<buffer<expr>()> go;
+    buffer<expr> args;
+    p.check_token_next("{", "'{' expected");
+    while (!p.curr_is_token("}")) {
+        name fname;
+        expr reader;
+        if (p.curr_is_string()) {
+            fname = p.get_str_val();
+            p.next();
+            reader = mk_app(mk_const({"lean", "parser", "reader", "symbol"}), from_string(p.get_str_val()));
+            args.push_back(mk_mdata(set_name(kvmap(), "fname", fname), reader));
+        } else {
+            fname = p.check_id_next("identifier expected");
+            p.check_token_next(":", "':' expected");
+            reader = p.parse_expr();
+            args.push_back(mk_mdata(set_name(kvmap(), "fname", fname), reader));
+        }
+        if (!p.curr_is_token(get_comma_tk()))
+            break;
+        p.next();
+    }
+    p.check_token_next("}", "`}` expected");
+    return mk_mdata(set_name(kvmap(), "node_choice!", macro), mk_lean_list(args));
+}
+
 parse_table init_nud_table() {
     action Expr(mk_expr_action());
     action Skip(mk_skip_action());
@@ -1089,6 +1116,7 @@ parse_table init_nud_table() {
     r = r.add({transition("match", mk_ext_action(parse_match))}, x0);
     r = r.add({transition("do", mk_ext_action(parse_do_expr))}, x0);
     r = r.add({transition("node!", mk_ext_action(parse_node))}, x0);
+    r = r.add({transition("node_choice!", mk_ext_action(parse_choice))}, x0);
     return r;
 }
 

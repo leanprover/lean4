@@ -258,6 +258,17 @@ def any_of (rs : list reader) : reader :=
     | (r::rs) := (rs.map reader.read).foldl (<|>) r.read),
   tokens := (rs.map reader.tokens).join }
 
+/-- Parse a list `[p1, ..., pn]` of readers as `p1 <|> ... <|> pn`.
+    The result will be wrapped in a node with the the index of the successful
+    parser as the name. -/
+def choice (rs : list reader) : reader :=
+{ read   :=
+    (rs.map reader.read).enum.foldr
+      (λ ⟨i, r⟩ r', (λ stx, syntax.node ⟨name.mk_numeral name.anonymous i, [stx]⟩) <$> r <|> r')
+      -- use `foldr` so that any other error is preferred over this one
+      (error "choice: empty list"),
+  tokens := (rs.map reader.tokens).join }
+
 def try (r : reader) : reader :=
 { r with read := try r.read }
 

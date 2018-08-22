@@ -3408,6 +3408,65 @@ expr elaborator::visit_node_macro(expr const & e) {
                  none_expr());
 }
 
+expr elaborator::visit_node_choice_macro(expr const & e) {
+    name macro = *get_name(mdata_data(e), "node_choice!");
+    expr args = mdata_expr(e);
+    sstream struc, view_cases, review_cases;
+    unsigned i = 0;
+    struc << "prelude\n";
+    if (macro.is_atomic())
+        struc << "def «" << macro.to_string() << "»";
+    else
+        struc << "def " << macro.to_string();
+    struc << " := {macro . name := `" << macro.to_string() << "}\n"
+          << "inductive " << macro.to_string() << ".view\n";
+    buffer<expr> new_args;
+    for (expr e = args; is_app(e); e = app_arg(e)) {
+        expr r = app_arg(app_fn(e));
+        name fname = *get_name(mdata_data(r), "fname");
+        r = mdata_expr(r);
+        auto m = mk_metavar(mk_Type(), r);
+        r = visit(r, some(mk_const({"lean", "parser", "reader"})));
+        auto inst = m_ctx.mk_class_instance(mk_app(mk_const(name{"lean", "parser", "reader", "has_view"}), r, m));
+        if (!inst)
+            throw elaborator_exception(e, sstream() << "Could not infer instance of reader.has_view for '" << r
+                                                    << "'");
+        struc << "| «" << fname << "» : " << instantiate_mvars(m) << " -> " << macro.to_string() << ".view\n";
+
+        view_cases << "| " << i << " := " << macro.to_string() << ".view." << fname << " <$> view  (" << pp(r)
+                   << ") stx\n";
+        review_cases << "| " << macro.to_string() << ".view." << fname << " a := "
+                << "syntax.node (syntax_node.mk (name.mk_numeral name.anonymous " << i << ") [review (" << pp(r) << ") a])\n";
+        i++;
+        new_args.push_back(mk_as_is(r));
+    }
+    struc << "instance " << macro.to_string() << ".has_view : " << macro.to_string() << ".has_view "
+          << macro.to_string() << ".view :=\n"
+          << "{ view := fun stx, do {\n"
+          << "syntax.node (syntax_node.mk `" << macro.to_string()
+          << " [syntax.node (syntax_node.mk (name.mk_numeral name.anonymous i) [stx])]) <- pure stx | failure,\n"
+          << "match i with\n"
+          << view_cases.str()
+          << "| _ := none},\n"
+          << "review := fun v, syntax.node (syntax_node.mk `" << macro.to_string()
+          << " [match v with\n"
+          << review_cases.str()
+          << "]) }";
+    std::istringstream in(struc.str());
+    parser p(m_env, get_global_ios(), nullptr, in, "foo");
+    p.parse_command_like();
+    p.parse_command_like();
+    p.parse_command_like();
+    p.parse_command_like();
+    m_env = p.env();
+    m_ctx.set_env(m_env);
+    return visit(mk_app(mk_const({"lean", "parser", "reader", "combinators", "node"}),
+                        mk_const(get_namespace(p.env()) + macro),
+                        mk_app(mk_const({"list", "ret"}),
+                               mk_app(mk_const({"lean", "parser", "reader", "combinators", "choice"}),
+                                      mk_lean_list(new_args)))), none_expr());
+}
+
 expr elaborator::visit_mdata(expr const & e, optional<expr> const & expected_type, bool is_app_fn) {
     if (is_as_is(e)) {
         return get_as_is_arg(e);
@@ -3458,6 +3517,8 @@ expr elaborator::visit_mdata(expr const & e, optional<expr> const & expected_typ
         return visit_equations(e);
     } else if (get_name(mdata_data(e), "node!")) {
         return visit_node_macro(e);
+    } else if (get_name(mdata_data(e), "node_choice!")) {
+        return visit_node_choice_macro(e);
     } else {
         expr new_e = visit(mdata_expr(e), expected_type);
         return update_mdata(e, new_e);

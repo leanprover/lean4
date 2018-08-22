@@ -76,16 +76,16 @@ node! notation_quoted_symbol [
   prec: prec?]
 
 @[derive reader.has_view]
-def notation_symbol : reader :=
-any_of [
-  notation_quoted_symbol.reader
+def notation_symbol.reader : reader :=
+node_choice! notation_symbol {
+  quoted: notation_quoted_symbol.reader
   --TODO, {read := do tk ← token, /- check if reserved token-/}
-]
+}
 
 @[derive reader.has_view]
 def action : reader :=
-node! notation_spec.action [":", action: any_of [
-  number,
+node! notation_spec.action [":", action: node_choice! notation_spec.action_kind {
+  prec: number,
   "max",
   "prev",
   "scoped"
@@ -93,52 +93,56 @@ node! notation_spec.action [":", action: any_of [
     "(",
     any_of ["foldl", "foldr"],
     optional prec,
-    notation_tk,-/]]
+    notation_tk,-/}]
 
 @[derive reader.has_view]
 def arg_transition : reader :=
 node! notation_spec.arg_transition [id: ident, action: action?]
 
 @[derive reader.has_view]
-def transition :=
-any_of [
- node! notation_spec.binder ["binder", prec: prec?],
- node! notation_spec.binders ["binders", prec: prec?],
- arg_transition
-]
+def transition.reader :=
+node_choice! notation_spec.transition {
+ binder: node! notation_spec.binder ["binder", prec: prec?],
+ binders: node! notation_spec.binders ["binders", prec: prec?],
+ transition: arg_transition
+}
 
 @[derive reader.has_view]
 def rule : reader :=
-node! notation_spec.rule [sym: notation_symbol, transition: transition?]
+node! notation_spec.rule [sym: notation_symbol.reader, transition: transition.reader?]
 
 @[derive reader.has_view]
 def rules : reader :=
 node! notation_spec.rules [id: ident?, rules: rule*]
 
 @[derive reader.has_view]
-def notation_spec : reader :=
-any_of [
-  number,
-  rules
-]
+def notation_spec.reader : reader :=
+node_choice! notation_spec {
+  number: number,
+  rules: rules
+}
 
 @[derive has_view]
 def notation.reader : reader :=
-node! «notation» ["notation", spec: notation_spec, ":=", term: term.reader]
+node! «notation» ["notation", spec: notation_spec.reader, ":=", term: term.reader]
 
 def reserve_notation.reader : reader :=
-node! «reserve_notation» [try ["reserve", "notation"], spec: notation_spec]
+node! «reserve_notation» [try ["reserve", "notation"], spec: notation_spec.reader]
+
+@[derive has_view]
+def mixfix.kind.reader : reader :=
+node_choice! mixfix.kind {"prefix", "infix", "infixl", "infixr", "postfix"}
 
 @[derive has_view]
 def mixfix.reader : reader :=
 node! «mixfix» [
-  kind: any_of ["prefix", "infix", "infixl", "infixr", "postfix"],
-  sym: notation_symbol, ":=", term: term.reader]
+  kind: mixfix.kind.reader,
+  sym: notation_symbol.reader, ":=", term: term.reader]
 
 def reserve_mixfix.reader : reader :=
 node! «reserve_mixfix» [
-  try ["reserve", kind: any_of ["prefix", "infix", "infixl", "infixr", "postfix"]],
-  sym: notation_symbol]
+  try ["reserve", kind: mixfix.kind.reader],
+  sym: notation_symbol.reader]
 
 def command.reader :=
 with_recurse $ any_of [open.reader, section.reader, universe.reader, notation.reader, reserve_notation.reader,
@@ -193,13 +197,12 @@ open macro.has_view combinators
 
 def mixfix.expand (stx : syntax) : option syntax :=
 do v ← view mixfix stx,
-   syntax.atom ⟨_, atomic_val.string kind⟩ ← pure v.kind | failure,
    -- TODO: reserved token case
-   prec ← notation_quoted_symbol.view.prec <$> view notation_quoted_symbol v.sym,
-   let spec := review notation_spec.rules $ match kind with
-     | "prefix" := ⟨optional_view.none, [⟨v.sym, optional_view.some $
-       review notation_spec.arg_transition ⟨`b, (λ (prec : notation_spec.prec.view),
-         {action := prec.prec, ..prec}
+   notation_symbol.view.quoted {prec:=prec, ..} ← pure v.sym,
+   let spec := notation_spec.view.rules $ match v.kind with
+     | mixfix.kind.view.prefix _ := ⟨optional_view.none, [⟨v.sym, optional_view.some $ notation_spec.transition.view.transition $
+       ⟨`b, (λ (prec : notation_spec.prec.view),
+         {action := notation_spec.action_kind.view.prec prec.prec, ..prec}
        ) <$> prec⟩⟩]⟩
      | _ := sorry,
    pure $ review «notation» (⟨"notation", spec, ":=", v.term⟩ : notation.view)

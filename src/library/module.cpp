@@ -284,15 +284,6 @@ void register_module_object_reader(std::string const & k, module_modification_re
     readers[k] = r;
 }
 
-struct import_helper {
-    static environment add_unchecked(environment const & env, declaration const & decl) {
-        return env.add(certify_or_check(env, decl));
-    }
-    static certified_declaration certify_or_check(environment const & env, declaration const & decl) {
-        return certified_declaration::certify_or_check(env, decl);
-    }
-};
-
 struct decl_modification : public modification {
     LEAN_MODIFICATION("decl")
     declaration m_decl;
@@ -302,8 +293,7 @@ struct decl_modification : public modification {
         m_decl(decl) {}
 
     void perform(environment & env) const override {
-        // TODO(gabriel): this might be a bit more unsafe here than before
-        env = import_helper::add_unchecked(env, m_decl);
+        env = env.add(m_decl, false);
     }
 
     void serialize(serializer & s) const override {
@@ -410,14 +400,13 @@ environment update_module_defs(environment const & env, declaration const & d) {
     }
 }
 
-environment add(environment const & env, certified_declaration const & d) {
+environment add(environment const & env, declaration const & d) {
     environment new_env = env.add(d);
-    declaration _d = d.get_declaration();
-    if (!check_computable(new_env, _d.get_name()))
-        new_env = mark_noncomputable(new_env, _d.get_name());
-    new_env = update_module_defs(new_env, _d);
-    new_env = add(new_env, std::make_shared<decl_modification>(_d));
-    return add_decl_pos_info(new_env, _d.get_name());
+    if (!check_computable(new_env, d.get_name()))
+        new_env = mark_noncomputable(new_env, d.get_name());
+    new_env = update_module_defs(new_env, d);
+    new_env = add(new_env, std::make_shared<decl_modification>(d));
+    return add_decl_pos_info(new_env, d.get_name());
 }
 
 environment add_meta(environment const & env, buffer<declaration> const & ds) {

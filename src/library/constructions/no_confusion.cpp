@@ -124,7 +124,7 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
 
     declaration new_d = mk_definition_inferring_meta(env, no_confusion_type_name, lps, no_confusion_type_type, no_confusion_type_value,
                                                      reducibility_hints::mk_abbreviation());
-    environment new_env = module::add(env, check(env, new_d));
+    environment new_env = module::add(env, new_d);
     new_env = set_reducible(new_env, no_confusion_type_name, reducible_status::Reducible, true);
     return some(add_protected(new_env, no_confusion_type_name));
 }
@@ -234,7 +234,7 @@ environment mk_no_confusion(environment const & env, name const & n) {
     expr no_confusion_val = Fun(args, eq_rec);
     declaration new_d = mk_definition_inferring_meta(new_env, no_confusion_name, lps, no_confusion_ty, no_confusion_val,
                                                      reducibility_hints::mk_abbreviation());
-    new_env = module::add(new_env, check(new_env, new_d));
+    new_env = module::add(new_env, new_d);
     new_env = set_reducible(new_env, no_confusion_name, reducible_status::Reducible, true);
     new_env = add_no_confusion(new_env, no_confusion_name);
     return add_protected(new_env, no_confusion_name);

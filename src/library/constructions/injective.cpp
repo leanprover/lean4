@@ -242,8 +242,8 @@ environment mk_injective_arrow(environment const & env, name const & ir_name) {
     expr inj_arrow_type = tctx.mk_pi(args, tctx.mk_pi(P, mk_arrow(antecedent, P)));
     expr inj_arrow_val = prove_injective_arrow(env, inj_arrow_type, mk_injective_name(ir_name), d.get_univ_params());
     lean_trace(name({"constructions", "injective"}), tout() << inj_arrow_name << " : " << inj_arrow_type << "\n";);
-    environment new_env = module::add(env, check(env, mk_definition_inferring_meta(env, inj_arrow_name,
-                                                                                   cons(P_lp_name, d.get_univ_params()), inj_arrow_type, inj_arrow_val)));
+    environment new_env = module::add(env, mk_definition_inferring_meta(env, inj_arrow_name,
+                                                                        cons(P_lp_name, d.get_univ_params()), inj_arrow_type, inj_arrow_val));
     return new_env;
 }
 
@@ -286,13 +286,13 @@ environment mk_injective_lemmas(environment const & _env, name const & ind_name,
         expr inj_type = mk_injective_type(env, ir_name, ir_type, num_params, lp_names);
         expr inj_val = prove_injective(env, inj_type, ind_name);
         lean_trace(name({"constructions", "injective"}), tout() << ir_name << " : " << inj_type << " :=\n  " << inj_val << "\n";);
-        env = module::add(env, check(env, mk_definition_inferring_meta(env, mk_injective_name(ir_name), lp_names, inj_type, inj_val)));
+        env = module::add(env, mk_definition_inferring_meta(env, mk_injective_name(ir_name), lp_names, inj_type, inj_val));
         env = mk_injective_arrow(env, ir_name);
         if (gen_inj_eq && env.find(get_tactic_mk_inj_eq_name())) {
             name inj_eq_name  = mk_injective_eq_name(ir_name);
             expr inj_eq_type  = mk_injective_eq_type(env, ir_name, ir_type, num_params, lp_names);
             expr inj_eq_value = prove_injective_eq(env, inj_eq_type, inj_eq_name);
-            env = module::add(env, check(env, mk_definition_inferring_meta(env, inj_eq_name, lp_names, inj_eq_type, inj_eq_value)));
+            env = module::add(env, mk_definition_inferring_meta(env, inj_eq_name, lp_names, inj_eq_type, inj_eq_value));
         }
     }
     return env;

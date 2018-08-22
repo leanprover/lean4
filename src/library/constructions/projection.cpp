@@ -122,7 +122,7 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
         proj_val = Fun(proj_args, proj_val);
         declaration new_d = mk_definition_inferring_meta(env, proj_name, lvl_params, proj_type, proj_val,
                                                          reducibility_hints::mk_abbreviation());
-        new_env = module::add(new_env, check(new_env, new_d));
+        new_env = module::add(new_env, new_d);
         new_env = set_reducible(new_env, proj_name, reducible_status::Reducible, true);
         new_env = save_projection_info(new_env, proj_name, inductive::intro_rule_name(intro), nparams, i, inst_implicit);
         expr proj         = mk_app(mk_app(mk_constant(proj_name, lvls), params), c);

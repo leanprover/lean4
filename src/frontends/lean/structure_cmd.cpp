@@ -1153,7 +1153,7 @@ struct structure_cmd_fn {
                 level_param_names decl_lvls = to_level_param_names(used_univs);
                 declaration new_decl = mk_definition_inferring_meta(m_env, decl_name, decl_lvls,
                                                                        decl_type, decl_value, reducibility_hints::mk_abbreviation());
-                m_env = module::add(m_env, check(m_env, new_decl));
+                m_env = module::add(m_env, new_decl);
                 if (!m_meta_info.m_modifiers.m_is_meta)
                     m_env = mk_simple_equation_lemma_for(m_env, m_p.get_options(), is_private(), decl_name, decl_prv_name, args.size());
                 m_env = set_reducible(m_env, decl_name, reducible_status::Reducible, true);
@@ -1167,7 +1167,7 @@ struct structure_cmd_fn {
         declaration new_decl = mk_definition_inferring_meta(m_env, n, rec_on_decl.get_univ_params(),
                                                                rec_on_decl.get_type(), rec_on_decl.get_value(),
                                                                reducibility_hints::mk_abbreviation());
-        m_env = module::add(m_env, check(m_env, new_decl));
+        m_env = module::add(m_env, new_decl);
         m_env = set_reducible(m_env, n, reducible_status::Reducible, true);
         add_alias(n);
     }
@@ -1259,7 +1259,7 @@ struct structure_cmd_fn {
             name coercion_name             = coercion_names[i];
             declaration coercion_decl      = mk_definition_inferring_meta(m_env, coercion_name, lnames,
                                                                           coercion_type, coercion_value);
-            m_env = module::add(m_env, check(m_env, coercion_decl));
+            m_env = module::add(m_env, coercion_decl);
             add_alias(coercion_name);
             m_env = vm_compile(m_env, m_env.get(coercion_name));
             if (!m_private_parents[i]) {

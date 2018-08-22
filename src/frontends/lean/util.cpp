@@ -479,8 +479,7 @@ void initialize_frontend_lean_util() {
 environment compile_expr(environment const & env, name const & n, level_param_names const & ls, expr const & type, expr const & e, pos_info const & pos) {
     environment new_env = env;
     bool is_meta        = true;
-    auto cd = check(new_env, mk_definition(new_env, n, ls, type, e, is_meta));
-    new_env = new_env.add(cd);
+    new_env = new_env.add(mk_definition(new_env, n, ls, type, e, is_meta));
     new_env = add_transient_decl_pos_info(new_env, n, pos);
     return vm_compile(new_env, new_env.get(n));
 }

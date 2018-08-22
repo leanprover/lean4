@@ -168,7 +168,7 @@ struct mk_aux_definition_fn : public closure_helper {
         } else {
             d = mk_definition(env, c, get_norm_level_names(), def_type, def_value, *is_meta);
         }
-        environment new_env = module::add(env, check(env, d));
+        environment new_env = module::add(env, d);
         buffer<level> ls;
         get_level_closure(ls);
         buffer<expr> ps;

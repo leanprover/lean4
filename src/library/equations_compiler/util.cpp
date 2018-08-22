@@ -1068,8 +1068,7 @@ environment mk_smart_unfolding_definition(environment const & env, options const
     helper_value = locals.mk_lambda(helper_value);
     try {
         declaration def = mk_definition(env, mk_smart_unfolding_name_for(n), d.get_univ_params(), d.get_type(), helper_value, true);
-        auto cdef       = check(env, def);
-        return module::add(env, cdef);
+        return module::add(env, def);
     } catch (exception & ex) {
         throw nested_exception("failed to generate helper declaration for smart unfolding, type error", std::current_exception());
     }

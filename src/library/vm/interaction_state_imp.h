@@ -240,9 +240,7 @@ environment interaction_monad<State>::evaluator::compile(name const & interactio
     expr interaction_type = m_ctx.infer(interaction);
     environment new_env = m_ctx.env();
     bool is_meta      = true;
-    auto cd = check(new_env,
-                    mk_definition(new_env, interaction_name, {}, interaction_type, interaction, is_meta));
-    new_env = new_env.add(cd);
+    new_env = new_env.add(mk_definition(new_env, interaction_name, {}, interaction_type, interaction, is_meta));
     if (provider) {
         if (auto pos = provider->get_pos_info(interaction))
             new_env = add_transient_decl_pos_info(new_env, interaction_name, *pos);

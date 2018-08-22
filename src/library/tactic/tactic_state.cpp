@@ -713,7 +713,7 @@ vm_obj tactic_add_decl(vm_obj const & _d, vm_obj const & _s) {
     tactic_state const & s  = tactic::to_state(_s);
     try {
         declaration d       = to_declaration(_d);
-        environment new_env = module::add(s.env(), check(s.env(), d));
+        environment new_env = module::add(s.env(), d);
         new_env = vm_compile(new_env, d);
          return tactic::mk_success(set_env(s, new_env));
     } catch (throwable & ex) {
@@ -793,8 +793,7 @@ format tactic_state::pp() const {
             environment new_env  = ctx.env();
             bool is_meta         = true;
             name pp_name("_pp_tactic_state");
-            auto cd              = check(new_env, mk_definition(new_env, pp_name, {}, type, code, is_meta));
-            new_env              = new_env.add(cd);
+            new_env              = new_env.add(mk_definition(new_env, pp_name, {}, type, code, is_meta));
             new_env              = vm_compile(new_env, new_env.get(pp_name));
             vm_state S(new_env, get_options());
             vm_obj r             = S.invoke(pp_name, to_obj(*this));

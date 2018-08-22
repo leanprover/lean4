@@ -198,7 +198,7 @@ struct mk_drec_fn {
         declaration new_d = mk_definition_inferring_meta(env, drec_name, I_rec_decl.get_univ_params(),
                                                          drec_type, drec_value,
                                                          reducibility_hints::mk_abbreviation());
-        environment new_env = module::add(env, check(env, new_d));
+        environment new_env = module::add(env, new_d);
         new_env = set_reducible(new_env, drec_name, reducible_status::Reducible, true);
         new_env = add_aux_recursor(new_env, drec_name);
         return add_protected(new_env, drec_name);

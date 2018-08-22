@@ -171,25 +171,6 @@ static void finalize_definition(elaborator & elab, buffer<expr> const & params, 
     lp_names.append(implicit_lp_names);
 }
 
-static certified_declaration check(parser & p, environment const & env, name const & c_name, declaration const & d, pos_info const & pos) {
-    try {
-        time_task _("type checking", p.mk_message(pos, INFORMATION), p.get_options(), c_name);
-        return ::lean::check(env, d);
-    } catch (kernel_exception & ex) {
-        unsigned i = get_pp_indent(p.get_options());
-        auto pp_fn = ::lean::mk_pp_ctx(env, p.get_options(), metavar_context(), local_context());
-        format msg = format("kernel failed to type check declaration '") + format(c_name) + format("' ") +
-            format("this is usually due to a buggy tactic or a bug in the builtin elaborator");
-        msg += line() + format("elaborated type:");
-        msg += nest(i, line() + pp_fn(d.get_type()));
-        if (d.has_value()) {
-            msg += line() + format("elaborated value:");
-            msg += nest(i, line() + pp_fn(d.get_value()));
-        }
-        throw nested_exception(msg, std::current_exception());
-    }
-}
-
 static bool check_noncomputable(bool ignore_noncomputable, environment const & env, name const & c_name, name const & c_real_name, bool is_noncomputable,
                                 std::string const & file_name, pos_info const & pos) {
     if (ignore_noncomputable)
@@ -249,8 +230,7 @@ declare_definition(parser & p, environment const & env, decl_cmd_kind kind, buff
          mk_theorem(c_real_name, names(lp_names), type, *val) :
          (is_abbrev ? mk_definition(c_real_name, names(lp_names), type, *val, reducibility_hints::mk_abbreviation(), is_meta) :
           mk_definition(new_env, c_real_name, names(lp_names), type, *val, is_meta)));
-    auto cdef         = check(p, new_env, c_name, def, pos);
-    new_env           = module::add(new_env, cdef);
+    new_env           = module::add(new_env, def);
 
     check_noncomputable(p.ignore_noncomputable(), new_env, c_name, c_real_name, meta.m_modifiers.m_is_noncomputable, p.get_file_name(), pos);
 
@@ -427,7 +407,7 @@ static environment copy_equation_lemmas(environment const & env, buffer<name> co
             new_eqn_value = mk_app(mk_constant(eqn_name, eqn_levels), args);
             new_eqn_value = locals.mk_lambda(new_eqn_value);
             declaration new_decl = mk_theorem(new_eqn_name, lps, new_eqn_type, new_eqn_value);
-            new_env = module::add(new_env, check(new_env, new_decl));
+            new_env = module::add(new_env, new_decl);
             if (is_rfl_lemma(env, eqn_name))
                 new_env = mark_rfl_lemma(new_env, new_eqn_name);
             new_env = add_eqn_lemma(new_env, new_eqn_name);
@@ -693,8 +673,7 @@ static void check_example(environment const & decl_env, options const & opts,
         bool is_meta      = modifiers.m_is_meta;
         auto new_env = elab.env();
         auto def = mk_definition(new_env, decl_name, names(univ_params_buf), type, val, is_meta);
-        auto cdef = check(new_env, def);
-        new_env = module::add(new_env, cdef);
+        new_env = module::add(new_env, def);
         check_noncomputable(noncomputable_theory, new_env, decl_name, def.get_name(), modifiers.m_is_noncomputable,
                                  pos_provider.get_file_name(), pos_provider.get_some_pos());
     } catch (throwable & ex) {

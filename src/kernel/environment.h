@@ -77,6 +77,8 @@ class environment {
         m_header(env.m_header), m_quot_initialized(env.m_quot_initialized), m_declarations(ds), m_extensions(env.m_extensions) {}
     environment(environment const & env, extensions const & exts):
         m_header(env.m_header), m_quot_initialized(env.m_quot_initialized), m_declarations(env.m_declarations), m_extensions(exts) {}
+
+    environment add_defn_thm_axiom(declaration const & d, bool check) const;
 public:
     environment(unsigned trust_lvl = 0);
     environment(unsigned trust_lvl, std::unique_ptr<normalizer_extension> ext);
@@ -100,11 +102,8 @@ public:
     /** \brief Return declaration with name \c n. Throws and exception if declaration does not exist in this environment. */
     declaration get(name const & n) const;
 
-    /** \brief Extends the current environment with the given (certified) declaration
-        This method throws an exception if:
-          - The declaration was certified in an environment which is not an ancestor of this one.
-          - The environment already contains a declaration with the given name. */
-    environment add(certified_declaration const & d) const;
+    /** \brief Extends the current environment with the given declaration */
+    environment add(declaration const & d, bool check = true) const;
 
     /** \brief Add a sequence of (possibly mutually recursive) meta declarations.
         The type checking occurs in two phases:
@@ -152,26 +151,8 @@ public:
     }
 };
 
+void check_no_metavar_no_fvar(environment const & env, name const & n, expr const & e);
+
 void initialize_environment();
 void finalize_environment();
-
-class name_generator;
-
-/** \brief A certified declaration is one that has been type checked.
-    Only the type_checker class can create certified declarations. */
-class certified_declaration {
-    friend class certify_unchecked;
-    friend certified_declaration check(environment const & env, declaration const & d);
-    declaration    m_declaration;
-    certified_declaration(declaration const & d):m_declaration(d) {}
-public:
-    /** \brief Return the id of the environment that was used to type check this declaration. */
-    declaration const & get_declaration() const { return m_declaration; }
-    /** \brief Certifies a declaration without type-checking.
-
-       \remark This method throws an excetion if trust_lvl() == 0
-       It is only used when importing pre-compiled .olean files and for inductive definitions, and trust_lvl() > 0. */
-    static certified_declaration certify(environment const & env, declaration const & d);
-    static certified_declaration certify_or_check(environment const & env, declaration const & d);
-};
 }

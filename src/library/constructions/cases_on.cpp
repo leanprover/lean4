@@ -113,7 +113,7 @@ environment mk_cases_on(environment const & env, name const & n) {
 
     declaration new_d = mk_definition_inferring_meta(env, cases_on_name, rec_decl.get_univ_params(), cases_on_type, cases_on_value,
                                                      reducibility_hints::mk_abbreviation());
-    environment new_env = module::add(env, check(env, new_d));
+    environment new_env = module::add(env, new_d);
     new_env = set_reducible(new_env, cases_on_name, reducible_status::Reducible, true);
     new_env = add_aux_recursor(new_env, cases_on_name);
     return add_protected(new_env, cases_on_name);

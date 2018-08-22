@@ -122,10 +122,8 @@ static environment derive(environment env, name const & n, exprs const & clss) {
         tgt = ctx.mk_pi(n_params, tgt);
         auto inst2 = ctx.mk_lambda(n_params, inst.value());
         auto new_n = n + const_name(cls);
-        auto def = mk_definition(env, new_n, d.get_univ_params(),
-                                 ctx.instantiate_mvars(tgt), inst2, d.is_meta());
-        auto cdef = check(env, def);
-        env = module::add(env, cdef);
+        env = module::add(env, mk_definition(env, new_n, d.get_univ_params(),
+                                             ctx.instantiate_mvars(tgt), inst2, d.is_meta()));
         env = add_instance(env, new_n, LEAN_DEFAULT_PRIORITY, true);
         env = add_protected(env, new_n);
     }

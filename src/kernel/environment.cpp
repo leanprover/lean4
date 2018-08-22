@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include <vector>
 #include <limits>
-#include <util/task_builder.h>
+#include "runtime/sstream.h"
 #include "runtime/thread.h"
 #include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
@@ -63,11 +63,89 @@ environment environment::add_quot() const {
     return new_env;
 }
 
-environment environment::add(certified_declaration const & d) const {
-    name const & n = d.get_declaration().get_name();
-    if (find(n))
-        throw already_declared_exception(*this, n);
-    return environment(*this, insert(m_declarations, n, d.get_declaration()));
+static void check_no_metavar(environment const & env, name const & n, expr const & e) {
+    if (has_metavar(e))
+        throw declaration_has_metavars_exception(env, n, e);
+}
+
+static void check_no_fvar(environment const & env, name const & n, expr const & e) {
+    if (has_fvar(e))
+        throw declaration_has_free_vars_exception(env, n, e);
+}
+
+void check_no_metavar_no_fvar(environment const & env, name const & n, expr const & e) {
+    check_no_metavar(env, n, e);
+    check_no_fvar(env, n, e);
+}
+
+static void check_name(environment const & env, name const & n) {
+    if (env.find(n))
+        throw already_declared_exception(env, n);
+}
+
+static void check_duplicated_univ_params(environment const & env, declaration const & d) {
+    level_param_names ls = d.get_univ_params();
+    while (!is_nil(ls)) {
+        auto const & p = head(ls);
+        ls = tail(ls);
+        if (std::find(ls.begin(), ls.end(), p) != ls.end()) {
+            throw kernel_exception(env, sstream() << "failed to add declaration to environment, "
+                                   << "duplicate universe level parameter: '"
+                                   << p << "'");
+        }
+    }
+}
+
+static void check_definition_value(environment const & env, declaration const & d, type_checker & checker) {
+    check_no_metavar_no_fvar(env, d.get_name(), d.get_value());
+    expr val_type = checker.check(d.get_value(), d.get_univ_params());
+    if (!checker.is_def_eq(val_type, d.get_type())) {
+        throw definition_type_mismatch_exception(env, d, val_type);
+    }
+}
+
+static void check_definition_value(environment const & env, declaration const & d) {
+    bool memoize = true; bool non_meta_only = !d.is_meta();
+    type_checker checker(env, memoize, non_meta_only);
+    if (d.has_value()) {
+        check_definition_value(env, d, checker);
+    }
+}
+
+static void check_declaration_type(environment const & env, declaration const & d, type_checker & checker) {
+    check_no_metavar_no_fvar(env, d.get_name(), d.get_type());
+    check_duplicated_univ_params(env, d);
+    expr sort = checker.check(d.get_type(), d.get_univ_params());
+    checker.ensure_sort(sort, d.get_type());
+}
+
+static void check_declaration_type(environment const & env, declaration const & d) {
+    bool memoize = true; bool non_meta_only = !d.is_meta();
+    type_checker checker(env, memoize, non_meta_only);
+    check_declaration_type(env, d, checker);
+}
+
+environment environment::add_defn_thm_axiom(declaration const & d, bool check) const {
+    if (check) {
+        bool memoize = true; bool non_meta_only = !d.is_meta();
+        check_name(*this, d.get_name());
+        type_checker checker(*this, memoize, non_meta_only);
+        check_declaration_type(*this, d, checker);
+        if (d.has_value()) {
+            check_definition_value(*this, d, checker);
+        }
+    }
+    return environment(*this, insert(m_declarations, d.get_name(), d));
+}
+
+environment environment::add(declaration const & d, bool check) const {
+    switch (d.kind()) {
+    case declaration_kind::Axiom: case declaration_kind::Definition: case declaration_kind::Theorem:
+        return add_defn_thm_axiom(d, check);
+    default:
+        // NOT IMPLEMENTED YET.
+        lean_unreachable();
+    }
 }
 
 environment environment::add_meta(buffer<declaration> const & ds, bool check) const {
@@ -77,13 +155,13 @@ environment environment::add_meta(buffer<declaration> const & ds, bool check) co
     /* Check declarations header, and add them to new_env.m_declarations */
     for (declaration const & d : ds) {
         if (check)
-            check_decl_type(new_env, d);
+            check_declaration_type(new_env, d);
         new_env.m_declarations.insert(d.get_name(), d);
     }
     /* Check actual definitions */
     if (check) {
         for (declaration const & d : ds) {
-            check_decl_value(new_env, d);
+            check_definition_value(new_env, d);
         }
     }
     return new_env;

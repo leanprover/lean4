@@ -3337,7 +3337,6 @@ expr elaborator::visit_node_macro(expr const & e) {
     name full_macro = const_name(macro_e);
     sstream struc, stx_pat, binds, mk_args, view_pat, reviews;
     unsigned i = 0;
-    struc << "prelude\n";
     if (macro.is_atomic())
         struc << "def «" << macro.to_string() << "»";
     else
@@ -3398,7 +3397,7 @@ expr elaborator::visit_node_macro(expr const & e) {
             << "review := fun ⟨" << view_pat.str() << "⟩, syntax.node (syntax_node.mk `" << macro.to_string() << " [" << reviews.str() << "]) }";
     std::istringstream in(struc.str());
     parser p(m_env, get_global_ios(), nullptr, in, "foo");
-    p.parse_command_like();
+    p.set_imports_parsed();
     p.parse_command_like();
     p.parse_command_like();
     p.parse_command_like();
@@ -3413,7 +3412,6 @@ expr elaborator::visit_node_choice_macro(expr const & e) {
     expr args = mdata_expr(e);
     sstream struc, view_cases, review_cases;
     unsigned i = 0;
-    struc << "prelude\n";
     if (macro.is_atomic())
         struc << "def «" << macro.to_string() << "»";
     else
@@ -3454,7 +3452,7 @@ expr elaborator::visit_node_choice_macro(expr const & e) {
           << "]) }";
     std::istringstream in(struc.str());
     parser p(m_env, get_global_ios(), nullptr, in, "foo");
-    p.parse_command_like();
+    p.set_imports_parsed();
     p.parse_command_like();
     p.parse_command_like();
     p.parse_command_like();

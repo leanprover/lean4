@@ -236,6 +236,7 @@ public:
         position. */
     void check_break_before(break_at_pos_exception::token_context ctxt = break_at_pos_exception::token_context::none);
 
+    void set_imports_parsed() { m_imports_parsed = true; }
     bool ignore_noncomputable() const { return m_ignore_noncomputable; }
     void set_ignore_noncomputable() { m_ignore_noncomputable = true; }
 

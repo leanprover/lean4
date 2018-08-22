@@ -632,7 +632,6 @@ environment compact_tst_cmd(parser & p) {
                 i++;
             }
             tout() << "number of read root objects: " << i << "\n";
-            lean_assert(num_root_objects == i);
         }
         tout() << out.str() << "\n";
     }

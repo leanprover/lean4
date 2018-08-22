@@ -1484,7 +1484,6 @@ void vm_state::debugger_step() {
 }
 
 void vm_state::update_env(environment const & env) {
-    lean_assert(env.is_descendant(env));
     m_env         = env;
     auto ext      = get_extension(env);
     m_decl_map    = ext.m_decls;

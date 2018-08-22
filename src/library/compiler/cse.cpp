@@ -76,8 +76,15 @@ class cse_fn : public compiler_step_visitor {
 
         virtual void visit_app(expr const & e) override {
             if (check_visited(e)) return;
-            add_candidate(e);
             expr const & fn = get_app_fn(e);
+            if (is_internal_cnstr(fn)) {
+                /* Eliminating `_cnstr` applications is problematic because they cannot be curried.
+                  We would have to adjust the replacement logic in `cse_processor::process` to
+                  never replace partial applications of `_cnstr`. Instead, we simply deactivate
+                  CSE for `_cnstr` applications for the time being. (#1968) */
+                return;
+            }
+            add_candidate(e);
             if (is_vm_supported_cases(m_env, fn)) {
                 /* We do not eliminate a common subexpression if it *only* occurs inside of a cases */
                 return;

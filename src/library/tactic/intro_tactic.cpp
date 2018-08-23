@@ -110,57 +110,7 @@ optional<tactic_state> intron(unsigned n, tactic_state const & s, bool use_unuse
     return intron(n, s, tmp, use_unused_names);
 }
 
-vm_obj tactic_intron(vm_obj const & num, vm_obj const & s) {
-    optional<metavar_decl> g = tactic::to_state(s).get_main_goal_decl();
-    if (!g) return mk_no_goals_exception(tactic::to_state(s));
-    buffer<name> new_Hs;
-    bool use_unused_names = true;
-    if (auto new_s = intron(force_to_unsigned(num, 0), tactic::to_state(s), new_Hs, use_unused_names))
-        return tactic::mk_success(*new_s);
-    else
-        return tactic::mk_exception("intron tactic failed, insufficient binders", tactic::to_state(s));
-}
-
-vm_obj intro(name const & n, tactic_state const & s) {
-    optional<metavar_decl> g = s.get_main_goal_decl();
-    if (!g) return mk_no_goals_exception(s);
-    type_context_old ctx     = mk_type_context_for(s);
-    expr type            = g->get_type();
-    if (!is_pi(type) && !is_let(type)) {
-        type             = ctx.whnf(type);
-        if (!is_pi(type))
-            return tactic::mk_exception("intro tactic failed, Pi/let expression expected", s);
-    }
-    local_context lctx   = g->get_context();
-    if (is_pi(type)) {
-        name n1              = n == "_" ? lctx.get_unused_name(binding_name(type)) : n;
-        expr H               = lctx.mk_local_decl(n1, annotated_head_beta_reduce(binding_domain(type)), binding_info(type));
-        expr new_type        = instantiate(binding_body(type), H);
-        expr new_M           = ctx.mk_metavar_decl(lctx, new_type);
-        metavar_context mctx = ctx.mctx();
-        mctx.assign(head(s.goals()), lctx, to_list(H), new_M);
-        list<expr> new_gs(new_M, tail(s.goals()));
-        return tactic::mk_success(to_obj(H), set_mctx_goals(s, mctx, new_gs));
-    } else {
-        lean_assert(is_let(type));
-        name n1              = n == "_" ? lctx.get_unused_name(let_name(type)) : n;
-        expr H               = lctx.mk_local_decl(n1, annotated_head_beta_reduce(let_type(type)), let_value(type));
-        expr new_type        = instantiate(let_body(type), H);
-        expr new_M           = ctx.mk_metavar_decl(lctx, new_type);
-        metavar_context mctx = ctx.mctx();
-        mctx.assign(head(s.goals()), lctx, to_list(H), new_M);
-        list<expr> new_gs(new_M, tail(s.goals()));
-        return tactic::mk_success(to_obj(H), set_mctx_goals(s, mctx, new_gs));
-    }
-}
-
-vm_obj tactic_intro(vm_obj const & n, vm_obj const & s) {
-    return intro(to_name(n), tactic::to_state(s));
-}
-
 void initialize_intro_tactic() {
-    DECLARE_VM_BUILTIN(name({"tactic", "intro_core"}), tactic_intro);
-    DECLARE_VM_BUILTIN(name({"tactic", "intron"}),     tactic_intron);
 }
 
 void finalize_intro_tactic() {

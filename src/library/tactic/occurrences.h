@@ -24,10 +24,5 @@ public:
 
     bool operator==(occurrences const & o) const { return m_kind == o.m_kind && m_occs == o.m_occs; }
     bool operator!=(occurrences const & o) const { return !operator==(o); }
-
-    vm_obj to_obj() const;
 };
-
-occurrences to_occurrences(vm_obj const &);
-inline vm_obj to_obj(occurrences const & occs) { return occs.to_obj(); }
 }

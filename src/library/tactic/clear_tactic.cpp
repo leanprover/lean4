@@ -50,40 +50,7 @@ expr clear_recs(metavar_context & mctx, expr const & mvar) {
     }
 }
 
-vm_obj clear(expr const & H, tactic_state const & s) {
-    lean_assert(is_local(H));
-    try {
-        optional<expr> mvar  = s.get_main_goal();
-        if (!mvar) return mk_no_goals_exception(s);
-        metavar_context mctx = s.mctx();
-        expr new_mvar        = clear(mctx, *mvar, H);
-        return tactic::mk_success(set_mctx_goals(s, mctx, cons(new_mvar, tail(s.goals()))));
-    } catch (exception & ex) {
-        return tactic::mk_exception(std::current_exception(), s);
-    }
-}
-
-vm_obj clear_internal(name const & n, tactic_state const & s) {
-     optional<metavar_decl> g   = s.get_main_goal_decl();
-     if (!g) return mk_no_goals_exception(s);
-     metavar_context mctx       = s.mctx();
-     local_context lctx         = g->get_context();
-     optional<local_decl> d     = lctx.find_local_decl(n);
-     if (!d)
-         return tactic::mk_exception(sstream() << "clear tactic failed, unknown '" << n << "' hypothesis", s);
-     return clear(d->mk_ref(), s);
-}
-
-vm_obj tactic_clear(vm_obj const & e0, vm_obj const & s) {
-    expr const & e = to_expr(e0);
-    if (!is_local(e))
-        return tactic::mk_exception(sstream() << "clear tactic failed, given expression is not a local constant",
-                                   tactic::to_state(s));
-    return clear(e, tactic::to_state(s));
-}
-
 void initialize_clear_tactic() {
-    DECLARE_VM_BUILTIN(name({"tactic", "clear"}),    tactic_clear);
 }
 
 void finalize_clear_tactic() {

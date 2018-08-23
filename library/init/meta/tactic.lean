@@ -96,57 +96,6 @@ meta def trace {α : Type u} [has_to_tactic_format α] (a : α) : tactic unit :=
 do fmt ← pp a,
    return $ _root_.trace_fmt fmt (λ u, ())
 
-inductive transparency
-| all | semireducible | instances | reducible | none
-
-export transparency (reducible semireducible)
-
-/-- Return target type of the main goal. Fail if tactic_state does not have any goal left. -/
-meta constant target        : tactic expr
-/-- Succeeds if `t` and `s` can be unified using the given transparency setting. -/
-meta constant unify (t s : expr) (md := semireducible) (approx := ff) : tactic unit
-/-- Similar to `unify`, but it treats metavariables as constants. -/
-meta constant is_def_eq (t s : expr) (md := semireducible) (approx := ff) : tactic unit
-/-- Infer the type of the given expression.
-   Remark: transparency does not affect type inference -/
-meta constant infer_type    : expr → tactic expr
-/-- Return the hypothesis in the main goal. Fail if tactic_state does not have any goal left. -/
-meta constant local_context : tactic (list expr)
-meta constant get_unused_name (n : name := `_x) (i : option nat := none) : tactic name
-/-- Close the current goal using `e`. Fail is the type of `e` is not definitionally equal to
-    the target type. -/
-meta constant exact (e : expr) (md := semireducible) : tactic unit
-/-- Return true if the given expression is a type class. -/
-meta constant is_class      : expr → tactic bool
-/-- Try to create an instance of the given type class. -/
-meta constant mk_instance   : expr → tactic expr
-/-- instantiate assigned metavariables in the given expression -/
-meta constant instantiate_mvars : expr → tactic expr
-
-/-- `find_same_type t es` tries to find in es an expression with type definitionally equal to t -/
-meta def find_same_type : expr → list expr → tactic expr
-| e []         := failed
-| e (H :: Hs) :=
-  do t ← infer_type H,
-     (unify e t >> return H) <|> find_same_type e Hs
-
-meta def find_assumption (e : expr) : tactic expr :=
-do ctx ← local_context, find_same_type e ctx
-
-meta def assumption : tactic unit :=
-do { ctx ← local_context,
-     t   ← target,
-     H   ← find_same_type t ctx,
-     exact H }
-<|> fail "assumption tactic failed"
-
-/-- Try to solve the main goal using type class resolution. -/
-meta def apply_instance : tactic unit :=
-do tgt ← target >>= instantiate_mvars,
-   b   ← is_class tgt,
-   if b then mk_instance tgt >>= exact
-   else fail "apply_instance tactic fail, target is not a type class"
-
 end tactic
 
 notation [parsing_only] `command`:max := tactic unit

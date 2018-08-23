@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "library/tactic/revert_tactic.h"
 #include "library/tactic/clear_tactic.h"
 #include "library/tactic/subst_tactic.h"
-#include "library/tactic/exact_tactic.h"
 #include "library/tactic/induction_tactic.h"
 #include "library/tactic/cases_tactic.h"
 #include "library/tactic/elaborate.h"
@@ -21,7 +20,6 @@ void initialize_tactic_module() {
     initialize_revert_tactic();
     initialize_clear_tactic();
     initialize_subst_tactic();
-    initialize_exact_tactic();
     initialize_induction_tactic();
     initialize_cases_tactic();
     initialize_elaborate();
@@ -30,7 +28,6 @@ void finalize_tactic_module() {
     finalize_elaborate();
     finalize_cases_tactic();
     finalize_induction_tactic();
-    finalize_exact_tactic();
     finalize_subst_tactic();
     finalize_clear_tactic();
     finalize_revert_tactic();

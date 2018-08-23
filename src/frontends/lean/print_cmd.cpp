@@ -24,7 +24,6 @@ Author: Leonardo de Moura
 #include "library/noncomputable.h"
 #include "library/type_context.h"
 #include "library/reducible.h"
-#include "library/tactic/kabstract.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"

@@ -85,8 +85,8 @@ meta def nest (f : Expr → eio Expr) : nat → Expr → eio Expr
 meta def deriv (f : Expr) : eio Expr :=
 do
   let d := d "x" f,
-  io.put_str "count: ",
-  io.put_str_ln (to_string (count f)),
+  io.print "count: ",
+  io.println (count f),
   return d
 
 meta def main : eio unit :=

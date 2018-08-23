@@ -13,7 +13,7 @@ universes u v w r s
 namespace coroutine_io
 variables {α δ β γ : Type}
 
-export coroutine_result_io (done yielded)
+export coroutine_result_core (done yielded)
 
 /-- `resume c a` resumes/invokes the coroutine_io `c` with input `a`. -/
 @[inline] def resume : coroutine_io α δ β → α → io (coroutine_result_io α δ β)

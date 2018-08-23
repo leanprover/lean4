@@ -8,6 +8,10 @@ import init.control.monad init.wf init.control.reader
 
 universes u v w r s
 
+inductive coroutine_result_core (coroutine : Type (max u v w)) (α : Type u) (δ : Type v) (β : Type w) : Type (max u v w)
+| done     {} : β → coroutine_result_core
+| yielded {}  : δ → coroutine → coroutine_result_core
+
 /--
    Asymmetric coroutines `coroutine α δ β` takes inputs of type `α`, yields elements of type `δ`,
    and produces an element of type `β`.
@@ -18,17 +22,16 @@ universes u v w r s
    to its caller, the relationship between them being similar to that between a called and
    a calling routine.
  -/
-mutual inductive coroutine, coroutine_result (α : Type u) (δ : Type v) (β : Type w)
-with coroutine : Type (max u v w)
-| mk    {} : (α → coroutine_result) → coroutine
-with coroutine_result : Type (max u v w)
-| done     {} : β → coroutine_result
-| yielded {}  : δ → coroutine → coroutine_result
+inductive coroutine (α : Type u) (δ : Type v) (β : Type w) : Type (max u v w)
+| mk    {} : (α → coroutine_result_core coroutine α δ β) → coroutine
+
+abbreviation coroutine_result (α : Type u) (δ : Type v) (β : Type w) : Type (max u v w) :=
+coroutine_result_core (coroutine α δ β) α δ β
 
 namespace coroutine
 variables {α : Type u} {δ : Type v} {β γ : Type w}
 
-export coroutine_result (done yielded)
+export coroutine_result_core (done yielded)
 
 /-- `resume c a` resumes/invokes the coroutine `c` with input `a`. -/
 @[inline] def resume : coroutine α δ β → α → coroutine_result α δ β

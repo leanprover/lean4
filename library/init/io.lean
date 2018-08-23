@@ -5,7 +5,7 @@ Authors: Luke Nelson, Jared Roesch, Leonardo de Moura, Sebastian Ullrich
 -/
 
 prelude
-import init.control.state init.control.except init.data.string.basic
+import init.control.state init.control.except init.data.string.basic init.control.coroutine
 import init.meta.tactic
 
 /-- Like https://hackage.haskell.org/package/ghc-prim-0.5.2.0/docs/GHC-Prim.html#t:RealWorld.
@@ -259,12 +259,10 @@ meta instance eio_unit.has_eval {ε : Type} [has_to_format ε] : has_eval (excep
   | except.error e := tactic.fail e
   | except.ok a    := pure ()⟩
 
-
 local attribute [reducible] io
 /-- A variant of `coroutine` on top of `io` -/
-mutual inductive coroutine_io, coroutine_result_io (α δ β: Type)
-with coroutine_io : Type
-| mk    {} : (α → io coroutine_result_io) → coroutine_io
-with coroutine_result_io : Type
-| done     {} : β → coroutine_result_io
-| yielded {}  : δ → coroutine_io → coroutine_result_io
+inductive coroutine_io (α δ β: Type) : Type
+| mk    {} : (α → io (coroutine_result_core.{0 0 0} coroutine_io α δ β)) → coroutine_io
+
+abbreviation coroutine_result_io (α δ β: Type) : Type :=
+coroutine_result_core.{0 0 0} (coroutine_io α δ β) α δ β

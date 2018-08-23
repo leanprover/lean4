@@ -38,9 +38,6 @@ Author: Leonardo de Moura
 #include "library/vm/vm_io.h"
 #include "library/vm/vm_string.h"
 #include "library/compiler/vm_compiler.h"
-#include "library/tactic/kabstract.h"
-#include "library/tactic/elaborate.h"
-#include "library/tactic/tactic_state.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/calc.h"
@@ -535,22 +532,6 @@ static environment eval_cmd(parser & p) {
     return p.env();
 }
 
-static environment run_command_cmd(parser & p) {
-    transient_cmd_scope cmd_scope(p);
-    module::scope_pos_info scope_pos(p.pos());
-    environment env      = p.env();
-    options opts         = p.get_options();
-    metavar_context mctx;
-    expr tactic          = p.parse_expr();
-    expr try_triv        = mk_app(mk_constant(get_tactic_try_name()), mk_constant(get_tactic_triv_name()));
-    tactic               = mk_app(mk_constant(get_has_bind_and_then_name()), tactic, try_triv);
-    expr val             = mk_typed_expr(mk_true(), mk_by(tactic));
-    bool check_unassigned = false;
-    bool recover_from_errors = true;
-    elaborate(env, opts, "_run_command", mctx, local_context(), val, check_unassigned, recover_from_errors);
-    return env;
-}
-
 environment import_cmd(parser & p) {
     throw parser_error("invalid 'import' command, it must be used in the beginning of the file", p.cmd_pos());
 }
@@ -674,7 +655,6 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("local",             "define local attributes or notation", local_cmd));
     add_cmd(r, cmd_info("#help",             "brief description of available commands and options", help_cmd));
     add_cmd(r, cmd_info("init_quot",         "initialize `quot` type computational rules", init_quot_cmd));
-    add_cmd(r, cmd_info("run_cmd",           "execute an user defined command at top-level", run_command_cmd));
     add_cmd(r, cmd_info("import",            "import module(s)", import_cmd));
     add_cmd(r, cmd_info("hide",              "hide aliases in the current scope", hide_cmd));
     add_cmd(r, cmd_info("#unify",            "(for debugging purposes)", unify_cmd));

@@ -21,7 +21,6 @@ Author: Leonardo de Moura
 #include "library/idx_metavar.h"
 #include "library/constants.h"
 #include "library/annotation.h"
-#include "library/inverse.h"
 #include "library/num.h"
 #include "library/string.h"
 #include "library/replace_visitor.h"
@@ -434,160 +433,6 @@ static optional<expr> find_if_neg_hypothesis(type_context_old & ctx, expr const 
     return none_expr();
 }
 
-/*
-  If `e` is of the form
-
-      (@eq.rec B (f (g (f a))) C (h (g (f a))) (f a) (f_g_eq (f a)))
-
-  such that
-
-      f_g_eq : forall x, f (g x) = x
-
-  and there is a lemma
-
-      g_f_eq : forall x, g (f x) = x
-
-  Return (h a) and a proof that (e = h a)
-
-  The proof is of the form
-
-  @eq.rec
-     A
-     a
-     (fun (x : A) (_ : a = x), (forall H : f x = f a, @eq.rec B (f x) C (h x) (f a) H = h a))
-     (fun H : f a = f a, eq.refl (h a))
-     (g (f a))
-     (eq.symm (g_f_eq a))
-     (f_g_eq a)
-*/
-static optional<expr_pair> prove_eq_rec_invertible_aux(type_context_old & ctx, expr const & e) {
-    buffer<expr> rec_args;
-    expr rec_fn = get_app_args(e, rec_args);
-    if (!is_constant(rec_fn, get_eq_rec_name()) || rec_args.size() != 6) return optional<expr_pair>();
-    expr B      = rec_args[0];
-    expr from   = rec_args[1]; /* (f (g (f a))) */
-    expr C      = rec_args[2];
-    expr minor  = rec_args[3]; /* (h (g (f a))) */
-    expr to     = rec_args[4]; /* (f a) */
-    expr major  = rec_args[5]; /* (f_g_eq (f a)) */
-    /* If minor is (@id A h (g (f a))), reduce it to (h (g (f a))) */
-    if (is_app_of(minor, get_id_name()) && get_app_num_args(minor) >= 2) {
-        buffer<expr> args;
-        get_app_args(minor, args);
-        minor = mk_app(args[1], args.size() - 2, args.data() + 2);
-    }
-    if (!is_app(from) || !is_app(minor)) return optional<expr_pair>();
-    if (!ctx.is_def_eq(app_arg(from), app_arg(minor))) return optional<expr_pair>();
-    expr h     = app_fn(minor);
-    expr g_f_a = app_arg(from);
-    if (!is_app(g_f_a) || !ctx.is_def_eq(app_arg(g_f_a), to)) return optional<expr_pair>();
-    expr g     = get_app_fn(g_f_a);
-    if (!is_constant(g)) return optional<expr_pair>();
-    expr f_a   = to;
-    if (!is_app(f_a)) return optional<expr_pair>();
-    expr f     = get_app_fn(f_a);
-    expr a     = app_arg(f_a);
-    if (!is_constant(f)) return optional<expr_pair>();
-    optional<inverse_info> info = has_inverse(ctx.env(), const_name(f));
-    if (!info || info->m_inv != const_name(g)) return optional<expr_pair>();
-    name g_f_name = info->m_lemma;
-    optional<inverse_info> info_inv = has_inverse(ctx.env(), const_name(g));
-    if (!info_inv || info_inv->m_inv != const_name(f)) return optional<expr_pair>();
-    buffer<expr> major_args;
-    expr f_g_eq = get_app_args(major, major_args);
-    if (!is_constant(f_g_eq) || major_args.empty() || !ctx.is_def_eq(f_a, major_args.back())) return optional<expr_pair>();
-    if (const_name(f_g_eq) != info_inv->m_lemma) return optional<expr_pair>();
-    expr A          = ctx.infer(a);
-    level A_lvl     = get_level(ctx, A);
-    expr h_a        = mk_app(h, a);
-    expr refl_h_a   = mk_eq_refl(ctx, h_a);
-    expr f_a_eq_f_a = mk_eq(ctx, f_a, f_a);
-    /* (fun H : f a = f a, eq.refl (h a)) */
-    expr pr_minor   = mk_lambda("_H", f_a_eq_f_a, refl_h_a);
-    type_context_old::tmp_locals aux_locals(ctx);
-    expr x          = aux_locals.push_local("_x", A);
-    /* Remark: we cannot use mk_app(f, x) in the following line.
-       Reason: f may have implicit arguments. So, app_fn(f_x) is not equal to f in general,
-       and app_fn(f_a) is f + implicit arguments. */
-    expr f_x        = mk_app(app_fn(f_a), x);
-    expr f_x_eq_f_a = mk_eq(ctx, f_x, f_a);
-    expr H          = aux_locals.push_local("_H", f_x_eq_f_a);
-    expr h_x        = mk_app(h, x);
-    /* (@eq.rec B (f x) C (h x) (f a) H) */
-    expr eq_rec2    = mk_app(rec_fn, {B, f_x, C, h_x, f_a, H});
-    /* (@eq.rec B (f x) C (h x) (f a) H) = h a */
-    expr eq_rec2_eq = mk_eq(ctx, eq_rec2, h_a);
-    expr a_eq_x     = mk_eq(ctx, a, x);
-    expr h_a_eq_x   = aux_locals.push_local("_h'", a_eq_x);
-    /* (fun (x : A) (h' : a = x), (forall H : f x = f a, @eq.rec B (f x) C (h x) (f a) H = h a)) */
-    expr pr_motive  = ctx.mk_lambda(x, ctx.mk_lambda(h_a_eq_x, ctx.mk_pi(H, eq_rec2_eq)));
-    expr g_f_eq_a   = mk_app(ctx, g_f_name, a);
-    /* (eq.symm (g_f_eq a)) */
-    expr pr_major   = mk_eq_symm(ctx, g_f_eq_a);
-    expr pr         = mk_app(mk_constant(get_eq_rec_name(), {mk_level_zero(), A_lvl}),
-                             {A, a, pr_motive, pr_minor, g_f_a, pr_major, major});
-
-    return optional<expr_pair>(mk_pair(h_a, pr));
-}
-
-/* See prove_eq_rec_invertible_aux
-
-  If `e` is of the form
-
-      F b_1 ... b_n
-
-  where F is of the form
-
-     (@eq.rec B (f (g (f a))) C (h (g (f a))) (f a) (f_g_eq (f a)))
-
-  and n may be 0, and
-
-      f_g_eq : forall x, f (g x) = x
-
-  and there is a lemma
-
-      g_f_eq : forall x, g (f x) = x
-
-  Return (h a b_1 ... b_n) and a proof that (F b_1 ... b_n = h a b_1 ... b_n)
-
-  We build an auxiliary proof for (F = h a) using prove_eq_rec_invertible_aux.
-  Then, we use congr_fun to build the final proof if n > 0
-*/
-static optional<expr_pair> prove_eq_rec_invertible(type_context_old & ctx, expr const & e) {
-    buffer<expr> args;
-    expr const & fn = get_app_args(e, args);
-    if (args.size() == 6) {
-        return prove_eq_rec_invertible_aux(ctx, e);
-    } else if (args.size() < 6) {
-        return optional<expr_pair>();
-    } else {
-        expr f = mk_app(fn, 6, args.data());
-        if (optional<expr_pair> g_H = prove_eq_rec_invertible_aux(ctx, f)) {
-            expr g, H;
-            std::tie(g, H) = *g_H;
-            tout() << "H: " << H << "\n";
-            tout() << ">>>>> " << ctx.infer(H) << "\n";
-            for (unsigned i = 6; i < args.size(); i++) {
-                // congr_fun : ∀ {α : Sort u_1} {β : α → Sort u_2} {f g : Π (x : α), β x}, f = g → ∀ (a : α), f a = g a
-                expr f_type = ctx.relaxed_whnf(ctx.infer(f));
-                lean_assert(is_pi(f_type));
-                expr alpha    = binding_domain(f_type);
-                level u_1     = get_level(ctx, alpha);
-                expr beta     = mk_lambda(binding_name(f_type), binding_domain(f_type), binding_body(f_type));
-                expr a        = args[i];
-                expr f_a      = mk_app(f, a);
-                level u_2     = get_level(ctx, ctx.infer(f_a));
-                H             = mk_app({mk_constant(get_congr_fun_name(), {u_1, u_2}), alpha, beta, f, g, H, a});
-                f             = f_a;
-                g             = mk_app(g, a);
-            }
-            return optional<expr_pair>(mk_pair(g, H));
-        } else {
-            return optional<expr_pair>();
-        }
-    }
-}
-
 static expr prove_eqn_lemma_core(type_context_old & ctx, buffer<expr> const & Hs, expr const & lhs, expr const & rhs, bool root) {
     buffer<expr> ite_args;
     expr new_lhs = whnf_ite(ctx, lhs);
@@ -621,13 +466,6 @@ static expr prove_eqn_lemma_core(type_context_old & ctx, buffer<expr> const & Hs
                 return mk_app(mk_constant(get_eq_trans_name(), {A_lvl}), {A, lhs, lhs_else, rhs, H1, H2});
             }
         }
-    }
-
-    if (optional<expr_pair> p = prove_eq_rec_invertible(ctx, new_lhs)) {
-        expr new_new_lhs = p->first;
-        expr H1          = p->second;
-        expr H2          = prove_eqn_lemma_core(ctx, Hs, new_new_lhs, rhs, false);
-        return mk_eq_trans(ctx, H1, H2);
     }
 
     /* Check if lhs =?= rhs, and create a reflexivity proof if this is the case.

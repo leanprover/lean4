@@ -1,5 +1,7 @@
 import init.io
 
+#exit
+
 /- Based on https://github.com/slindley/effect-handlers -/
 
 def N := 100 -- Default number of interations for testing

@@ -1,5 +1,8 @@
 import init.lean.name_mangling init.lean.parser.identifier
 open lean lean.parser
+
+#exit
+
 open tactic
 
 meta def check (s : string) : tactic unit :=

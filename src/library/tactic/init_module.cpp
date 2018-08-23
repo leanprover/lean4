@@ -13,7 +13,6 @@ Author: Leonardo de Moura
 #include "library/tactic/induction_tactic.h"
 #include "library/tactic/cases_tactic.h"
 #include "library/tactic/elaborate.h"
-#include "library/tactic/eval.h"
 
 namespace lean {
 void initialize_tactic_module() {
@@ -26,10 +25,8 @@ void initialize_tactic_module() {
     initialize_induction_tactic();
     initialize_cases_tactic();
     initialize_elaborate();
-    initialize_eval();
 }
 void finalize_tactic_module() {
-    finalize_eval();
     finalize_elaborate();
     finalize_cases_tactic();
     finalize_induction_tactic();

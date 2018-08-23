@@ -15,7 +15,7 @@ trace_root ⟨1, 0⟩ `trace.type_context.is_def_eq "type_context.is_def_eq trac
   ⟩
 ⟩)
 
-run_cmd
+#eval
 do let test opts := tactic.trace $ format.join $ list.intersperse format.line $ (test opts).to_list.map $ λ ⟨pos, tr⟩, to_fmt pos ++ ": " ++ tr.pp,
    test options.mk,
    tactic.trace "---",

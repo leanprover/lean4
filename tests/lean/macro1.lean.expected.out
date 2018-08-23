@@ -1,6 +1,4 @@
 (lambda_core (bind [x] x:0))
 macro1.lean:49:0: error: unknown identifier y
-state:
-⊢ true
 (lambda_core (bind [x] (lambda_core (bind [x!1] x:1))))
 (lambda_core (bind [x.y] x.y.z:0.(z)))

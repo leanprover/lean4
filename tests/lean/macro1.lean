@@ -41,18 +41,18 @@ match (expand' stx >>= resolve').run' cfg () with
 | except.error e := tactic.fail e
 | except.ok stx  := tactic.trace stx
 
-run_cmd test $ syntax.node ⟨`lambda, [
+#eval test $ syntax.node ⟨`lambda, [
   syntax.node ⟨name.anonymous, [syntax.ident ⟨info, `x, none, none⟩]⟩,
   syntax.ident ⟨info, `x, none, none⟩
 ]⟩
 
-run_cmd test $ syntax.node ⟨`lambda, [
+#eval test $ syntax.node ⟨`lambda, [
   syntax.node ⟨name.anonymous, [syntax.ident ⟨info, `x, none, none⟩]⟩,
   syntax.ident ⟨info, `y, none, none⟩
 ]⟩
 
 -- test macro shadowing
-run_cmd test $ syntax.node ⟨`lambda, [
+#eval test $ syntax.node ⟨`lambda, [
   syntax.node ⟨name.anonymous, [syntax.ident ⟨info, `x, none, none⟩]⟩,
   syntax.node ⟨`intro_x, [
     syntax.ident ⟨info, `x, none, none⟩
@@ -60,7 +60,7 @@ run_cmd test $ syntax.node ⟨`lambda, [
 ]⟩
 
 -- test field notation
-run_cmd test $ syntax.node ⟨`lambda, [
+#eval test $ syntax.node ⟨`lambda, [
   syntax.node ⟨name.anonymous, [syntax.ident ⟨info, `x.y, none, none⟩]⟩,
   syntax.ident ⟨info, `x.y.z, none, none⟩
 ]⟩

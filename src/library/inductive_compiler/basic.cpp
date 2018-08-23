@@ -19,7 +19,6 @@ Author: Daniel Selsam
 #include "library/constructions/cases_on.h"
 #include "library/constructions/brec_on.h"
 #include "library/constructions/no_confusion.h"
-#include "library/constructions/has_sizeof.h"
 #include "library/constructions/injective.h"
 
 #ifndef LEAN_DEFAULT_XINDUCTIVE_REC_ON

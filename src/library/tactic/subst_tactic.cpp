@@ -12,8 +12,6 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/locals.h"
 #include "library/app_builder.h"
-#include "library/vm/vm.h"
-#include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/revert_tactic.h"
 #include "library/tactic/intro_tactic.h"

@@ -29,7 +29,6 @@ Author: Leonardo de Moura
 #include "library/vm/vm.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_option.h"
-#include "library/vm/vm_expr.h"
 #include "library/normalize.h"
 
 #ifndef LEAN_DEFAULT_PROFILER_FREQ
@@ -2978,17 +2977,6 @@ void vm_state::run() {
                                    n
             */
             m_stack.push_back(mk_vm_mpz(instr.get_mpz()));
-            m_pc++;
-            goto main_loop;
-        case opcode::Expr:
-            /** Instruction: pexpr e
-
-                stack before,      after
-                ...                ...
-                v    ==>           v
-                                   e
-            */
-            m_stack.push_back(to_obj(instr.get_expr()));
             m_pc++;
             goto main_loop;
         case opcode::LocalInfo:

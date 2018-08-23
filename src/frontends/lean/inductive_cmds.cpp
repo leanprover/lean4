@@ -32,8 +32,6 @@ Authors: Daniel Selsam, Leonardo de Moura
 #include "library/normalize.h"
 #include "library/inductive_compiler/add_decl.h"
 #include "library/tactic/tactic_evaluator.h"
-#include "library/vm/vm_list.h"
-#include "library/vm/vm_expr.h"
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/decl_util.h"
 #include "frontends/lean/util.h"

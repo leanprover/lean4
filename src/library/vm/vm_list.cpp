@@ -6,8 +6,6 @@ Author: Leonardo de Moura
 */
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_nat.h"
-#include "library/vm/vm_level.h"
-#include "library/vm/vm_expr.h"
 #include "library/vm/vm_list.h"
 
 namespace lean {
@@ -42,14 +40,10 @@ vm_obj list_ref_to_obj(list_ref<A> const & l) {
 }
 
 vm_obj to_obj(names const & ls) { return list_ref_to_obj(ls); }
-vm_obj to_obj(levels const & ls) { return list_ref_to_obj(ls); }
-vm_obj to_obj(list<expr> const & ls) { return list_to_obj(ls); }
 
 vm_obj to_obj(list<list<expr>> const & ls) { return list_to_obj(ls); }
 
 vm_obj to_obj(buffer<name> const & ls) { return to_obj(names(ls)); }
-vm_obj to_obj(buffer<level> const & ls) { return to_obj(levels(ls)); }
-vm_obj to_obj(buffer<expr> const & ls) { return to_obj(to_list(ls)); }
 
 #define MK_TO_LIST(A, ToA)                                              \
 list<A> to_list_ ## A(vm_obj const & o) {                               \
@@ -76,11 +70,8 @@ static list_ref<A> to_list_ref_ ## A(vm_obj const & o) {                       \
 }
 
 MK_TO_LIST_REF(name, to_name)
-MK_TO_LIST_REF(level, to_level)
-MK_TO_LIST(expr, to_expr)
 
 names to_names(vm_obj const & o) { return to_list_ref_name(o); }
-levels to_levels(vm_obj const & o) { return to_list_ref_level(o); }
 
 #define MK_TO_BUFFER(A, ToA)                                            \
 void to_buffer_ ## A(vm_obj const & o, buffer<A> & r) {                 \
@@ -96,8 +87,6 @@ void to_buffer_ ## A(vm_obj const & o, buffer<A> & r) {                 \
 }
 
 MK_TO_BUFFER(name, to_name)
-MK_TO_BUFFER(level, to_level)
-MK_TO_BUFFER(expr, to_expr)
 
 template<typename A>
 unsigned list_cases_on_core(list<A> const & l, buffer<vm_obj> & data) {
@@ -129,10 +118,6 @@ unsigned list_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
         return 1;
     } else {
         if (auto l = dynamic_cast<vm_list_ref<name>*>(to_external(o))) {
-            return list_ref_cases_on_core(l->m_val, data);
-        } else if (auto l = dynamic_cast<vm_list<expr>*>(to_external(o))) {
-            return list_cases_on_core(l->m_val, data);
-        } else if (auto l = dynamic_cast<vm_list_ref<level>*>(to_external(o))) {
             return list_ref_cases_on_core(l->m_val, data);
         } else {
             lean_unreachable();

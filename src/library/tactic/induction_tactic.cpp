@@ -15,7 +15,6 @@ Author: Leonardo de Moura
 #include "library/aux_recursors.h"
 #include "library/locals.h"
 #include "library/app_builder.h"
-#include "library/vm/vm_expr.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_option.h"
 #include "library/vm/vm_list.h"

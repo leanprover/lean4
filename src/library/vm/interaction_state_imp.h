@@ -14,15 +14,11 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include "library/message_builder.h"
 #include "library/time_task.h"
 #include "library/vm/interaction_state.h"
-#include "library/vm/vm_exceptional.h"
 #include "library/vm/vm_format.h"
 #include "library/vm/vm_string.h"
 #include "library/vm/vm_options.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_nat.h"
-#include "library/vm/vm_level.h"
-#include "library/vm/vm_declaration.h"
-#include "library/vm/vm_expr.h"
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_option.h"
 #include "library/vm/vm_pos_info.h"
@@ -155,18 +151,9 @@ vm_obj interaction_monad<State>::update_exception_state(vm_obj const & ex, State
 }
 
 template<typename State>
-vm_obj interaction_monad<State>::mk_exception(std::exception_ptr const & ex, State const & s) {
-    vm_obj _ex = lean::to_obj(ex);
-    vm_obj fn = mk_vm_closure(get_throwable_to_format_fun_idx(), 1, &_ex);
-    optional<pos_info> pos;
-    try {
-        std::rethrow_exception(ex);
-    } catch (exception_with_pos & ex) {
-        pos = ex.get_pos();
-    } catch (...) {
-    }
-    vm_obj _pos = pos ? mk_vm_some(mk_vm_pair(mk_vm_nat(pos->first), mk_vm_nat(pos->second))) : mk_vm_none();
-    return mk_exception(fn, _pos, s);
+vm_obj interaction_monad<State>::mk_exception(std::exception_ptr const &, State const &) {
+    // vm_exceptional has been deleted
+    lean_unreachable();
 }
 
 template<typename State>

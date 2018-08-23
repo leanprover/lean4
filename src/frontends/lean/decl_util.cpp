@@ -19,7 +19,6 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/reducible.h"
 #include "library/scoped_ext.h"
-#include "library/tactic/elaborate.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/decl_util.h"
 #include "frontends/lean/tokens.h"
@@ -135,7 +134,6 @@ void collect_locals_ignoring_tactics(expr const & e, collected_locals & ls) {
     if (!has_local(e)) return;
     for_each(e, [&](expr const & e, unsigned) {
             if (!has_local(e)) return false;
-            if (is_by(e))      return false; // do not visit children
             if (is_local(e))   ls.insert(e);
             return true;
         });
@@ -146,8 +144,6 @@ name_set collect_univ_params_ignoring_tactics(expr const & e, name_set const & l
     name_set r = ls;
     for_each(e, [&](expr const & e, unsigned) {
             if (!has_param_univ(e)) {
-                return false;
-            } else if (is_by(e)) {
                 return false;
             } else if (is_sort(e)) {
                 collect_univ_params_core(sort_level(e), r);

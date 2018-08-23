@@ -16,7 +16,6 @@ Author: Sebastian Ullrich
 #include "library/documentation.h"
 #include "library/attribute_manager.h"
 #include "library/vm/vm.h"
-#include "library/vm/vm_expr.h"
 #include "library/vm/vm_string.h"
 #include "library/vm/vm_format.h"
 #include "frontends/lean/completion.h"

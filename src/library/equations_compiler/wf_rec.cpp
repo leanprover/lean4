@@ -13,9 +13,6 @@ Author: Leonardo de Moura
 #include "library/app_builder.h"
 #include "library/aux_definition.h"
 #include "library/replace_visitor_with_tc.h"
-#include "library/vm/vm.h"
-#include "library/vm/vm_list.h"
-#include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/tactic_evaluator.h"
 #include "library/equations_compiler/pack_domain.h"
@@ -84,7 +81,7 @@ struct wf_rec_fn {
         m_R_wf = mk_app(ctx, get_has_well_founded_wf_name(), 2, mask, args);
     }
 
-    void mk_wf_relation(expr const & eqns, expr const & wf_tacs) {
+    void mk_wf_relation(expr const & eqns, expr const & /* wf_tacs */) {
         lean_assert(get_equations_header(eqns).m_num_fns == 1);
         type_context_old ctx = mk_type_context();
         unpack_eqns ues(ctx, eqns);
@@ -105,6 +102,8 @@ struct wf_rec_fn {
             }
             init_R_R_wf(ctx, d, *m_has_well_founded_inst);
         } else {
+            throw exception("well_founded_tactics has been removed");
+            /*
             expr rel_tac = mk_app(mk_constant(get_well_founded_tactics_rel_tac_name()), wf_tacs);
 
             vm_obj vm_fn   = to_obj(ues.get_fn(0));
@@ -129,6 +128,7 @@ struct wf_rec_fn {
                                        "failed to create well founded relation using tactic",
                                        std::current_exception());
             }
+            */
         }
     }
 

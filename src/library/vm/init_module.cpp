@@ -12,12 +12,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_options.h"
 #include "library/vm/vm_format.h"
-#include "library/vm/vm_level.h"
-#include "library/vm/vm_expr.h"
-#include "library/vm/vm_pexpr.h"
 #include "library/vm/vm_list.h"
-#include "library/vm/vm_exceptional.h"
-#include "library/vm/vm_declaration.h"
 #include "library/vm/vm_array.h"
 #include "library/vm/vm_string.h"
 #include "library/vm/vm_platform.h"
@@ -32,12 +27,7 @@ void initialize_vm_core_module() {
     initialize_vm_name();
     initialize_vm_options();
     initialize_vm_format();
-    initialize_vm_level();
-    initialize_vm_expr();
-    initialize_vm_pexpr();
     initialize_vm_list();
-    initialize_vm_exceptional();
-    initialize_vm_declaration();
     initialize_vm_array();
     initialize_vm_string();
     initialize_vm_platform();
@@ -47,12 +37,7 @@ void finalize_vm_core_module() {
     finalize_vm_platform();
     finalize_vm_string();
     finalize_vm_array();
-    finalize_vm_declaration();
-    finalize_vm_exceptional();
     finalize_vm_list();
-    finalize_vm_pexpr();
-    finalize_vm_expr();
-    finalize_vm_level();
     finalize_vm_format();
     finalize_vm_options();
     finalize_vm_name();
@@ -65,8 +50,6 @@ void finalize_vm_core_module() {
 
 void initialize_vm_module() {
     initialize_vm();
-    initialize_vm_expr_builtin_idxs();
-    initialize_vm_exceptional_builtin_idxs();
     initialize_vm_format_builtin_idxs();
     initialize_vm_array_builtin_idxs();
 }

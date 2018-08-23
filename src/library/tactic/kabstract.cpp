@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "library/head_map.h"
 #include "library/trace.h"
 #include "library/type_context.h"
-#include "library/vm/vm_expr.h"
 #include "library/tactic/occurrences.h"
 #include "library/tactic/tactic_state.h"
 

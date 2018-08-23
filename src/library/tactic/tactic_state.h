@@ -214,9 +214,6 @@ type_context_old mk_cacheless_type_context_for(tactic_state const & s, transpare
     Code                                                \
 })
 
-#define LEAN_TACTIC_TRY try {
-#define LEAN_TACTIC_CATCH(S) } catch (exception const & ex) { return tactic::mk_exception(std::current_exception(), S); }
-
 void initialize_tactic_state();
 void finalize_tactic_state();
 }

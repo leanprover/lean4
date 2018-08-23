@@ -1289,7 +1289,6 @@ eqn_compiler_result mk_nonrec(environment & env, elaborator & elab, metavar_cont
     expr fn;
     std::tie(env, fn) = mk_aux_definition(env, elab.get_options(), mctx, lctx, header,
                                           fn_name, fn_actual_name, fn_type, R.m_fn);
-    unsigned eqn_idx     = 1;
     type_context_old ctx2(env, mctx, lctx, elab.get_cache(), transparency_mode::Semireducible);
     auto counter_examples = map2<expr>(R.m_counter_examples, [&] (list<expr> const & e) { return mk_app(fn, e); });
     return { {fn}, counter_examples };

@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_nat.h"
-#include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
 
 namespace lean {

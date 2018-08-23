@@ -41,11 +41,9 @@ Author: Leonardo de Moura
 #include "library/aux_definition.h"
 #include "library/check.h"
 #include "library/vm/vm_name.h"
-#include "library/vm/vm_expr.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/tactic/kabstract.h"
 #include "library/tactic/tactic_state.h"
-#include "library/tactic/elaborate.h"
 #include "library/tactic/tactic_evaluator.h"
 #include "library/equations_compiler/compiler.h"
 #include "library/equations_compiler/util.h"
@@ -1195,20 +1193,8 @@ struct elaborator::first_pass_info {
     buffer<expr>     eta_args;
 };
 
-expr elaborator::mk_auto_param(expr const & name_lit, expr const & expected_type, expr const & ref) {
-    auto c = name_lit_to_name(name_lit);
-    if (!c)
-        throw elaborator_exception(ref, format("invalid auto_param, name literal expected for identifying tactic") +
-                                   pp_indent(name_lit));
-    auto d = m_env.find(*c);
-    if (!d)
-        throw elaborator_exception(ref, sstream() << "invalid auto_param, unknown tactic '" << *c << "'");
-    if (!m_ctx.is_def_eq(d->get_type(), mk_tactic_unit()))
-        throw elaborator_exception(ref, format("invalid auto_param, invalid tactic '") + format(*c) +
-                                   format("' type should be (tactic unit)") +
-                                   pp_indent(d->get_type()));
-    expr t = copy_pos(ref, mk_by(copy_pos(ref, mk_constant(*c))));
-    return visit(t, some_expr(expected_type));
+expr elaborator::mk_auto_param(expr const &, expr const &, expr const &) {
+    throw exception("auto_param has been disabled (we removed the tactic framework");
 }
 
 
@@ -4165,20 +4151,6 @@ static expr resolve_local_name(environment const & env, local_context const & lc
     return *r;
 }
 
-vm_obj tactic_resolve_local_name(vm_obj const & vm_id, vm_obj const & vm_s) {
-    name const & id        = to_name(vm_id);
-    tactic_state const & s = tactic::to_state(vm_s);
-    try {
-        optional<metavar_decl> g = s.get_main_goal_decl();
-        if (!g) return mk_no_goals_exception(s);
-        expr src; // dummy
-        bool ignore_aliases = false;
-        return tactic::mk_success(to_obj(resolve_local_name(s.env(), g->get_context(), id, src, ignore_aliases, names())), s);
-    } catch (exception & ex) {
-        return tactic::mk_exception(std::current_exception(), s);
-    }
-}
-
 struct resolve_names_fn : public replace_visitor {
     environment const &   m_env;
     local_context const & m_lctx;
@@ -4249,7 +4221,7 @@ struct resolve_names_fn : public replace_visitor {
     }
 
     virtual expr visit(expr const & e) override {
-        if (is_placeholder(e) || is_by(e) || is_as_is(e) || is_emptyc_or_emptys(e) || is_as_atomic(e)) {
+        if (is_placeholder(e) || is_as_is(e) || is_emptyc_or_emptys(e) || is_as_atomic(e)) {
             return e;
         } else if (is_choice(e)) {
             return visit_choice(e);
@@ -4263,27 +4235,6 @@ struct resolve_names_fn : public replace_visitor {
 
 expr resolve_names(environment const & env, local_context const & lctx, expr const & e) {
     return resolve_names_fn(env, lctx)(e);
-}
-
-static vm_obj tactic_save_type_info(vm_obj const &, vm_obj const & _e, vm_obj const & ref, vm_obj const & _s) {
-    expr const & e = to_expr(_e);
-    tactic_state s = tactic::to_state(_s);
-    if (!get_global_info_manager() || !get_pos_info_provider()) return tactic::mk_success(s);
-    auto pos = get_pos_info_provider()->get_pos_info(to_expr(ref));
-    if (!pos) return tactic::mk_success(s);
-    tactic_state_context_cache cache(s);
-    type_context_old ctx = cache.mk_type_context();
-    try {
-        expr type = ctx.infer(e);
-        get_global_info_manager()->add_type_info(*pos, type);
-        if (is_constant(e))
-            get_global_info_manager()->add_identifier_info(*pos, const_name(e));
-        else if (is_local(e))
-            get_global_info_manager()->add_identifier_info(*pos, local_pp_name(e));
-    } catch (exception & ex) {
-        return tactic::mk_exception(std::current_exception(), s);
-    }
-    return tactic::mk_success(s);
 }
 
 void initialize_elaborator() {
@@ -4325,9 +4276,6 @@ void initialize_elaborator() {
     register_incompatible("elab_simple", "elab_with_expected_type");
     register_incompatible("elab_simple", "elab_as_eliminator");
     register_incompatible("elab_with_expected_type", "elab_as_eliminator");
-
-    DECLARE_VM_BUILTIN(name({"tactic", "save_type_info"}), tactic_save_type_info);
-    DECLARE_VM_BUILTIN(name({"tactic", "resolve_name"}),   tactic_resolve_local_name);
 
     g_elaborator_coercions          = new name{"elaborator", "coercions"};
     register_bool_option(*g_elaborator_coercions, LEAN_DEFAULT_ELABORATOR_COERCIONS,

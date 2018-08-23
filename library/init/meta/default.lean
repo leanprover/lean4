@@ -5,4 +5,4 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.meta.name init.meta.options init.meta.format
-import init.meta.level init.meta.expr init.meta.tactic
+import init.meta.tactic

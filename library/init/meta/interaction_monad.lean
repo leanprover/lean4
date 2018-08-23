@@ -6,8 +6,8 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 prelude
 import init.function init.data.option.basic init.util
 import init.control.combinators init.control.monad init.control.alternative init.control.monad_fail
-import init.data.nat.div init.meta.exceptional init.meta.format
-import init.meta.pexpr init.data.repr init.data.string.basic init.data.to_string
+import init.data.nat.div init.meta.format
+import init.data.repr init.data.string.basic init.data.to_string init.meta.pos
 
 universes u v
 
@@ -70,11 +70,11 @@ interaction_monad_bind t₁ (λ a, t₂)
 meta instance interaction_monad.monad : monad m :=
 {map := @interaction_monad_fmap, pure := @interaction_monad_return, bind := @interaction_monad_bind}
 
-meta def interaction_monad.mk_exception {α : Type u} {β : Type v} [has_to_format β] (msg : β) (ref : option expr) (s : state) : result state α :=
+meta def interaction_monad.mk_exception {α : Type u} {β : Type v} [has_to_format β] (msg : β) (s : state) : result state α :=
 exception (some (λ _, to_fmt msg)) none s
 
 meta def interaction_monad.fail {α : Type u} {β : Type v} [has_to_format β] (msg : β) : m α :=
-λ s, interaction_monad.mk_exception msg none s
+λ s, interaction_monad.mk_exception msg s
 
 meta def interaction_monad.silent_fail {α : Type u} : m α :=
 λ s, exception none none s

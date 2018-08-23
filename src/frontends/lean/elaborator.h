@@ -50,7 +50,6 @@ private:
     list<expr>        m_instances;
     list<expr>        m_numeral_types;
     list<expr_pair>   m_tactics;
-    list<expr_pair>   m_holes;
 
     /* m_depth is only used for tracing */
     unsigned          m_depth{0};
@@ -64,7 +63,6 @@ private:
         list<expr>             m_saved_instances;
         list<expr>             m_saved_numeral_types;
         list<expr_pair>        m_saved_tactics;
-        list<expr_pair>        m_saved_holes;
 
         snapshot(elaborator const & elab);
         void restore(elaborator & elab);
@@ -191,7 +189,6 @@ private:
     expr visit_have_expr(expr const & e, optional<expr> const & expected_type);
     expr visit_suffices_expr(expr const & e, optional<expr> const & expected_type);
     expr visit_by(expr const & e, optional<expr> const & expected_type);
-    expr visit_hole(expr const & e, optional<expr> const & expected_type);
     expr visit_anonymous_constructor(expr const & e, optional<expr> const & expected_type);
     expr visit_emptyc_or_emptys(expr const & e, optional<expr> const & expected_type);
 
@@ -273,9 +270,6 @@ private:
     void invoke_tactic(expr const & mvar, expr const & tac);
 
     bool ready_to_synthesize(expr inst_type);
-
-    void process_hole(expr const & mvar, expr const & arg);
-    void process_holes();
 
     bool synthesize_type_class_instance_core(expr const & mvar, expr const & inferred_inst, expr const & inst_type);
     bool try_synthesize_type_class_instance(expr const & mvar);

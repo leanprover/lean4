@@ -46,7 +46,7 @@ struct snapshot;
 class break_at_pos_exception : public std::exception {
 public:
     enum class token_context {
-        none, expr, notation, option, import, interactive_tactic, attribute, namespc, field, single_completion };
+        none, expr, notation, option, import, attribute, namespc, field, single_completion };
     struct token_info {
         pos_info           m_pos;
         name               m_token;

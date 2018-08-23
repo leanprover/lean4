@@ -1901,9 +1901,6 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
 
     bool has_args = !args.empty();
 
-    if (is_hole(fn))
-        throw elaborator_exception(ref, "holes {! ... !} cannot be used where a function is expected");
-
     while (is_annotation(fn))
         fn = get_annotation_arg(fn);
 
@@ -2070,19 +2067,6 @@ expr elaborator::visit_by(expr const & e, optional<expr> const & expected_type) 
     m_tactics = cons(mk_pair(mvar, tac), m_tactics);
     trace_elab(tout() << "tactic for ?m_" << get_metavar_decl_ref_suffix(mvar) << " at " <<
                pos_string_for(mvar) << "\n" << tac << "\n";);
-    return mvar;
-}
-
-expr elaborator::visit_hole(expr const & e, optional<expr> const & expected_type) {
-    lean_assert(is_hole(e));
-    expr const & ref = e;
-    expr args; optional<pos_info> begin_pos, end_pos;
-    std::tie(args, begin_pos, end_pos) = get_hole_info(e);
-    expr args_type   = mk_app(mk_const(get_list_name(), {mk_level_zero()}),
-                              mk_const(get_lean_expr_name()));
-    expr new_args    = ground_uvars(strict_visit(args, some_expr(args_type)));
-    expr mvar        = mk_metavar(expected_type, ref);
-    m_holes          = cons(mk_pair(mvar, update_hole_args(e, new_args)), m_holes);
     return mvar;
 }
 
@@ -3467,8 +3451,6 @@ expr elaborator::visit_mdata(expr const & e, optional<expr> const & expected_typ
         return get_as_is_arg(e);
     } else if (is_choice(e)) {
         return visit_app_core(e, buffer<expr>(), expected_type, e);
-    } else if (is_hole(e)) {
-        return visit_hole(e, expected_type);
     } else if (is_explicit(e) || is_partial_explicit(e)) {
         return visit_app_core(e, buffer<expr>(), expected_type, e);
     } else if (is_anonymous_constructor(e)) {
@@ -3929,39 +3911,6 @@ void elaborator::synthesize_no_tactics() {
     synthesize_type_class_instances();
 }
 
-void elaborator::process_hole(expr const & mvar, expr const & hole) {
-    lean_assert(is_hole(hole));
-    expr val = instantiate_mvars(mvar);
-    if (!is_metavar(val)) {
-        auto pp_fn = mk_pp_ctx();
-        throw elaborator_exception(mvar,
-                                   format("invalid use of hole, type inference and elaboration rules force the hole to be")
-                                   + pp_indent(pp_fn, val));
-    }
-    expr ty = m_ctx.instantiate_mvars(m_ctx.infer(mvar));
-    if (m_uses_infom) {
-        expr args; optional<pos_info> begin_pos, end_pos;
-        std::tie(args, begin_pos, end_pos) = get_hole_info(hole);
-        if (begin_pos && end_pos) {
-            tactic_state s = elaborator::mk_tactic_state_for(val);
-            m_info.add_hole_info(*begin_pos, *end_pos, s, args);
-            /* The following command is a hack to make sure we see the hole's type in Emacs */
-            m_info.add_identifier_info(*begin_pos, "[goal]");
-        }
-    }
-    m_ctx.assign(mvar, copy_pos(hole, mk_sorry(ty)));
-}
-
-void elaborator::process_holes() {
-    buffer<expr_pair> to_process;
-    to_buffer(m_holes, to_process);
-    m_holes = list<expr_pair>();
-    for (expr_pair const & p : to_process) {
-        lean_assert(is_metavar(p.first));
-        process_hole(p.first, p.second);
-    }
-}
-
 void elaborator::synthesize() {
     synthesize_numeral_types();
     synthesize_type_class_instances();
@@ -3970,7 +3919,6 @@ void elaborator::synthesize() {
        We don't need a loop here because synthesize_using_tactics resets m_tactics.
     */
     synthesize_type_class_instances();
-    process_holes();
 }
 
 void elaborator::report_error(tactic_state const & s, char const * state_header,
@@ -4016,7 +3964,6 @@ elaborator::snapshot::snapshot(elaborator const & e) {
     m_saved_instances          = e.m_instances;
     m_saved_numeral_types      = e.m_numeral_types;
     m_saved_tactics            = e.m_tactics;
-    m_saved_holes              = e.m_holes;
 }
 
 void elaborator::snapshot::restore(elaborator & e) {
@@ -4025,7 +3972,6 @@ void elaborator::snapshot::restore(elaborator & e) {
     e.m_instances          = m_saved_instances;
     e.m_numeral_types      = m_saved_numeral_types;
     e.m_tactics            = m_saved_tactics;
-    e.m_holes              = m_saved_holes;
 }
 
 /**
@@ -4412,7 +4358,7 @@ struct resolve_names_fn : public replace_visitor {
     }
 
     virtual expr visit(expr const & e) override {
-        if (is_placeholder(e) || is_by(e) || is_hole(e) || is_as_is(e) || is_emptyc_or_emptys(e) || is_as_atomic(e)) {
+        if (is_placeholder(e) || is_by(e) || is_as_is(e) || is_emptyc_or_emptys(e) || is_as_atomic(e)) {
             return e;
         } else if (is_choice(e)) {
             return visit_choice(e);

@@ -32,7 +32,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/match_expr.h"
 #include "frontends/lean/decl_util.h"
 #include "frontends/lean/brackets.h"
-#include "frontends/lean/tactic_notation.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/typed_expr.h"
 #include "frontends/lean/choice.h"
@@ -378,17 +377,8 @@ static expr parse_proof(parser & p) {
         // parse: 'from' expr
         p.next();
         return p.parse_expr();
-    } else if (p.curr_is_token(get_begin_tk())) {
-        auto pos = p.pos();
-        return parse_begin_end_expr(p, pos);
-    } else if (p.curr_is_token(get_lcurly_tk())) {
-        auto pos = p.pos();
-        return parse_curly_begin_end_expr(p, pos);
-    } else if (p.curr_is_token(get_by_tk())) {
-        auto pos = p.pos();
-        return parse_by(p, 0, nullptr, pos);
     } else {
-        return p.parser_error_or_expr({"invalid expression, 'by', 'begin', '{', or 'from' expected", p.pos()});
+        return p.parser_error_or_expr({"invalid expression, 'from' expected", p.pos()});
     }
 }
 
@@ -923,60 +913,10 @@ static expr parse_atomic_inaccessible(parser & p, unsigned, expr const *, pos_in
     return p.save_pos(mk_inaccessible(p.save_pos(mk_expr_placeholder(), pos)), pos);
 }
 
-static name * g_begin_hole = nullptr;
-static name * g_end_hole   = nullptr;
-
 expr mk_annotation_with_pos(parser &, name const & a, expr const & e, pos_info const & pos) {
     expr r = mk_annotation(a, e);
     return save_pos(r, pos);
 }
-
-expr mk_hole(parser & p, expr const & e, pos_info const & begin_pos, pos_info const & end_pos) {
-    return mk_annotation_with_pos(p, *g_begin_hole, mk_annotation_with_pos(p, *g_end_hole, e, end_pos), begin_pos);
-}
-
-bool is_hole(expr const & e) {
-    return is_annotation(e, *g_begin_hole);
-}
-
-std::tuple<expr, optional<pos_info>, optional<pos_info>> get_hole_info(expr const & e) {
-    lean_assert(is_hole(e));
-    optional<pos_info> begin_pos, end_pos;
-    if (get_pos_info_provider()) {
-        begin_pos = get_pos_info_provider()->get_pos_info(e);
-        end_pos   = get_pos_info_provider()->get_pos_info(get_annotation_arg(e));
-    }
-    expr args = get_annotation_arg(get_annotation_arg(e));
-    return std::make_tuple(args, begin_pos, end_pos);
-}
-
-expr update_hole_args(expr const & e, expr const & new_args) {
-    lean_assert(is_hole(e));
-    return copy_annotations(e, new_args);
-}
-
-static expr parse_hole(parser & p, unsigned, expr const *, pos_info const & begin_pos) {
-    buffer<expr> ps;
-    while (!p.curr_is_token(get_rcurlybang_tk())) {
-        expr e;
-        if (p.in_quote()) {
-            e = p.parse_expr();
-        } else {
-            parser::quote_scope scope(p, false);
-            e = p.parse_expr();
-        }
-        ps.push_back(copy_pos(e, mk_pexpr_quote(e)));
-        if (!p.curr_is_token(get_comma_tk()))
-            break;
-        p.next();
-    }
-    auto end_pos = p.pos();
-    p.check_token_next(get_rcurlybang_tk(), "invalid hole, `!}` expected");
-    end_pos.second += 2;
-    expr r = mk_hole(p, mk_lean_list(ps), begin_pos, end_pos);
-    return r;
-}
-
 
 static expr mk_bin_tree(parser & p, buffer<expr> const & args, unsigned start, unsigned end, pos_info const & pos) {
     lean_assert(start < end);
@@ -1079,7 +1019,6 @@ parse_table init_nud_table() {
     action Binders(mk_binders_action());
     expr x0 = mk_bvar(0);
     parse_table r;
-    r = r.add({transition("by", mk_ext_action_core(parse_by))}, x0);
     r = r.add({transition("have", mk_ext_action(parse_have))}, x0);
     r = r.add({transition("assume", mk_ext_action(parse_assume))}, x0);
     r = r.add({transition("show", mk_ext_action(parse_show))}, x0);
@@ -1088,13 +1027,11 @@ parse_table init_nud_table() {
     r = r.add({transition("(", mk_ext_action(parse_lparen))}, x0);
     r = r.add({transition("⟨", mk_ext_action(parse_constructor))}, x0);
     r = r.add({transition("{", mk_ext_action(parse_curly_bracket))}, x0);
-    r = r.add({transition("{!", mk_ext_action(parse_hole))}, x0);
     r = r.add({transition(".(", mk_ext_action(parse_inaccessible))}, x0);
     r = r.add({transition("._", mk_ext_action(parse_atomic_inaccessible))}, x0);
     r = r.add({transition("```(", mk_ext_action(parse_lazy_quoted_pexpr))}, x0);
     r = r.add({transition("``(", mk_ext_action(parse_quoted_pexpr))}, x0);
     r = r.add({transition("`(", mk_ext_action(parse_quoted_expr))}, x0);
-    r = r.add({transition("`[", mk_ext_action(parse_interactive_tactic_block))}, x0);
     r = r.add({transition("`", mk_ext_action(parse_quoted_name))}, x0);
     r = r.add({transition("%%", mk_ext_action(parse_antiquote_expr))}, x0);
     r = r.add({transition("#[", mk_ext_action(parse_bin_tree))}, x0);
@@ -1111,7 +1048,6 @@ parse_table init_nud_table() {
     r = r.add({transition("calc", mk_ext_action(parse_calc_expr))}, x0);
     r = r.add({transition("@", mk_ext_action(parse_explicit_expr))}, x0);
     r = r.add({transition("@@", mk_ext_action(parse_partial_explicit_expr))}, x0);
-    r = r.add({transition("begin", mk_ext_action_core(parse_begin_end))}, x0);
     r = r.add({transition("sorry", mk_ext_action(parse_sorry))}, x0);
     r = r.add({transition("match", mk_ext_action(parse_match))}, x0);
     r = r.add({transition("do", mk_ext_action(parse_do_expr))}, x0);
@@ -1183,12 +1119,6 @@ void initialize_builtin_exprs() {
     g_infix_function    = new name("infix_fn");
     register_annotation(*g_infix_function);
 
-    g_begin_hole = new name("begin_hole");
-    register_annotation(*g_begin_hole);
-
-    g_end_hole = new name("end_hole");
-    register_annotation(*g_end_hole);
-
     g_not               = new expr(mk_constant(get_not_name()));
     g_nud_table         = new parse_table();
     *g_nud_table        = init_nud_table();
@@ -1207,8 +1137,6 @@ void initialize_builtin_exprs() {
 }
 
 void finalize_builtin_exprs() {
-    delete g_begin_hole;
-    delete g_end_hole;
     delete g_do_failure_eq;
     delete g_infix_function;
     delete g_led_table;

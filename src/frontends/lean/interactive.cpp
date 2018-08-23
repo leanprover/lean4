@@ -19,36 +19,15 @@ Author: Sebastian Ullrich
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_string.h"
 #include "library/vm/vm_format.h"
-#include "library/tactic/tactic_evaluator.h"
 #include "frontends/lean/completion.h"
 #include "frontends/lean/interactive.h"
 #include "frontends/lean/pp.h"
-#include "frontends/lean/tactic_notation.h"
 
 namespace lean {
 LEAN_THREAD_VALUE(break_at_pos_exception::token_context, g_context, break_at_pos_exception::token_context::none);
 
 void interactive_report_type(environment const & env, options const & opts, expr const & e, json & j) {
     type_context_old tc(env);
-    if (g_context == break_at_pos_exception::token_context::interactive_tactic) {
-        vm_state vm(env, options());
-        tactic_state s = mk_tactic_state_for(env, opts, "_interactive_report_type", local_context(), mk_true());
-        std::vector<std::string> params;
-
-        for (expr d = e; is_pi(d); d = binding_body(d)) {
-            vm_obj r = vm.invoke(get_interactive_param_desc_name(), {to_obj(s), to_obj(binding_domain(d))});
-            format f;
-            if (tactic::is_result_success(r))
-                f = to_format(tactic::get_success_value(r));
-            else
-                f = format("<error while executing ") + format(get_interactive_param_desc_name()) + format(": ") +
-                    std::get<0>(*tactic::is_exception(vm, r)) + format(">");
-            sstream ss;
-            ss << mk_pair(flatten(f), opts);
-            params.push_back(ss.str());
-        }
-        j["tactic_params"] = params;
-    }
     format f = mk_pretty_formatter_factory()(env, opts, tc)(e);
     sstream ss;
     ss << mk_pair(flatten(f), opts);
@@ -82,10 +61,6 @@ void report_completions(environment const & env, options const & opts, pos_info 
         case break_at_pos_exception::token_context::import:
             if (!skip_completions)
                 j["completions"] = get_import_completions(prefix, dirname(mod_path), path, opts);
-            break;
-        case break_at_pos_exception::token_context::interactive_tactic:
-            if (!skip_completions)
-                j["completions"] = get_interactive_tactic_completions(prefix, e.m_token_info.m_param, env, opts);
             break;
         case break_at_pos_exception::token_context::attribute:
             if (!skip_completions)
@@ -141,16 +116,7 @@ void report_info(environment const & env, options const & opts, io_state const &
                 if (auto it = get_option_declarations().find(tk))
                     record["doc"] = it->get_description();
                 break;
-            case break_at_pos_exception::token_context::interactive_tactic: {
-                auto n = get_interactive_tactic_full_name(e.m_token_info.m_param, e.m_token_info.m_token);
-                if (env.find(n)) {
-                    record = serialize_decl(e.m_token_info.m_token, n, env, opts);
-                    if (auto idx = e.m_token_info.m_tac_param_idx)
-                        record["tactic_param_idx"] = *idx;
-                    has_token_info = true;
-                }
-                break;
-            } case break_at_pos_exception::token_context::field: {
+            case break_at_pos_exception::token_context::field: {
                 auto name = e.m_token_info.m_param + e.m_token_info.m_token;
                 record["full-id"] = name.to_string();
                 add_source_info(env, name, record);

@@ -633,8 +633,6 @@ meta def save_info (p : pos) : tactic unit :=
 do s ← read,
    tactic.save_info_thunk p (λ _, tactic_state.to_format s)
 
-notation `‹` p `›` := (by assumption : p)
-
 /-- Swap first two goals, do nothing if tactic state does not have at least two goals. -/
 meta def swap : tactic unit :=
 do gs ← get_goals,
@@ -911,8 +909,6 @@ do u ← mk_meta_univ,
    mk_meta_var t
 
 meta def triv : tactic unit := mk_const `trivial >>= exact
-
-notation `dec_trivial` := of_as_true (by tactic.triv)
 
 private meta def generalizes_aux (md : transparency) : list expr → tactic unit
 | []      := skip

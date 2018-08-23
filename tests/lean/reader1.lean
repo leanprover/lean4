@@ -2,7 +2,7 @@ import init.lean.parser.reader.module init.io
 open lean.parser
 open lean.parser.reader
 
-def show_result (p : lean.parser.reader) (s : string) : eio unit :=
+def show_result (p : lean.parser.reader) [has_tokens p] (s : string) : eio unit :=
 let (stx, errors) := p.parse ⟨⟩ s in
 when (stx.reprint ≠ s) (
   io.println "reprint fail:" *>

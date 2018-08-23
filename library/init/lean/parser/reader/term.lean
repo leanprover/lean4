@@ -14,10 +14,11 @@ open combinators
 
 def hole := {macro . name := `hole}
 
+@[derive reader.has_tokens]
 def hole.reader : reader :=
 node hole [symbol "_"]
 
-@[derive reader.has_view]
+@[derive reader.has_tokens reader.has_view]
 def term.reader :=
 any_of [
   hole.reader

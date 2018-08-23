@@ -3384,7 +3384,7 @@ expr elaborator::visit_node_macro(expr const & e) {
             }
             stx_pat << "])";
             reviews << "])";
-            new_args.push_back(mk_app(mk_const({"lean", "parser", "reader", "combinators", "try"}),
+            new_args.push_back(mk_app(mk_const({"lean", "parser", "monad_parsec", "try"}),
                                       mk_app(mk_const({"lean", "parser", "reader", "combinators", "seq"}),
                                              mk_lean_list(new_try_args))));
         }
@@ -3460,9 +3460,10 @@ expr elaborator::visit_node_choice_macro(expr const & e) {
     m_ctx.set_env(m_env);
     return visit(mk_app(mk_const({"lean", "parser", "reader", "combinators", "node"}),
                         mk_const(get_namespace(p.env()) + macro),
-                        mk_app(mk_const({"list", "ret"}),
+                        mk_app(mk_const({"list", "cons"}),
                                mk_app(mk_const({"lean", "parser", "reader", "combinators", "choice"}),
-                                      mk_lean_list(new_args)))), none_expr());
+                                      mk_lean_list(new_args)),
+                               mk_const({"list", "nil"}))), none_expr());
 }
 
 expr elaborator::visit_mdata(expr const & e, optional<expr> const & expected_type, bool is_app_fn) {

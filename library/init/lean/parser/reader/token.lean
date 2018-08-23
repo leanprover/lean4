@@ -75,11 +75,11 @@ do token_start ← reader_state.token_start <$> get,
 
 /-- Match a string literally without consulting the token table. -/
 def raw_symbol (sym : string) : reader :=
-{ tokens := [], -- no additional tokens
-  read := try $ do
-    (_, info) ← with_source_info $ str sym,
-    pure $ syntax.atom ⟨info, atomic_val.string sym⟩ }
+try $ do
+  (_, info) ← with_source_info $ str sym,
+  pure $ syntax.atom ⟨info, atomic_val.string sym⟩
 
+instance raw_symbol.tokens (s) : reader.has_tokens (raw_symbol s) := ⟨[]⟩
 instance raw_symbol.view (s) : reader.has_view (raw_symbol s) syntax := default _
 
 --TODO(Sebastian): other bases
@@ -113,31 +113,34 @@ do (r, i) ← with_source_info $ do {
 
 --TODO(Sebastian): error messages
 def symbol (sym : string) : reader :=
-{ tokens := [⟨sym, none⟩],
-  read := try $ do
-    it ← left_over,
-    stx@(syntax.atom ⟨_, atomic_val.string sym'⟩) ← token | error "" (dlist.singleton (repr sym)) it,
-    when (sym ≠ sym') $
-      error "" (dlist.singleton (repr sym)) it,
-    pure stx }
+try $ do
+  it ← left_over,
+  stx@(syntax.atom ⟨_, atomic_val.string sym'⟩) ← token | error "" (dlist.singleton (repr sym)) it,
+  when (sym ≠ sym') $
+    error "" (dlist.singleton (repr sym)) it,
+  pure stx
 
+instance symbol.tokens (sym : string) : reader.has_tokens (symbol sym) :=
+⟨[⟨sym, none⟩]⟩
 instance symbol.view (s) : reader.has_view (symbol s) syntax := default _
 instance symbol_coe : has_coe string reader := ⟨symbol⟩
 
 def number : reader :=
-{ read := try $ do
-    it ← left_over,
-    stx@(syntax.node ⟨`base10_lit, _⟩) ← token | error "" (dlist.singleton "number") it,
-    pure stx }
+try $ do
+  it ← left_over,
+  stx@(syntax.node ⟨`base10_lit, _⟩) ← token | error "" (dlist.singleton "number") it,
+  pure stx
 
+instance number.tokens : reader.has_tokens number := ⟨[]⟩
 instance number.view : reader.has_view number syntax := default _
 
 def ident : reader :=
-{ read := try $ do
-    it ← left_over,
-    stx@(syntax.ident _) ← token | error "" (dlist.singleton "identifier") it,
-    pure stx }
+try $ do
+  it ← left_over,
+  stx@(syntax.ident _) ← token | error "" (dlist.singleton "identifier") it,
+  pure stx
 
+instance ident.tokens : reader.has_tokens ident := ⟨[]⟩
 instance ident.view : reader.has_view ident syntax := default _
 
 end reader

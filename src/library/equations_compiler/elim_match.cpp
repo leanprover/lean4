@@ -25,7 +25,6 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/annotation.h"
 #include "library/private.h"
-#include "library/inverse.h"
 #include "library/aux_definition.h"
 #include "library/app_builder.h"
 #include "library/sorry.h"

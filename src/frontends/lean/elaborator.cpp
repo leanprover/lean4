@@ -38,7 +38,6 @@ Author: Leonardo de Moura
 #include "library/protected.h"
 #include "library/message_builder.h"
 #include "library/aliases.h"
-#include "library/inverse.h"
 #include "library/aux_definition.h"
 #include "library/check.h"
 #include "library/vm/vm_name.h"
@@ -2486,9 +2485,6 @@ class validate_and_collect_lhs_mvars : public replace_visitor {
                 for (unsigned i = num_params; i < args.size(); i++) {
                     visit(args[i]);
                 }
-                return e;
-            } else if (optional<inverse_info> info = has_inverse(env(), const_name(fn))) {
-                visit(args.back());
                 return e;
             } else {
                 if (auto r = expand(it)) {

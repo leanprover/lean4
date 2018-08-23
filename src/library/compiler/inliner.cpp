@@ -136,7 +136,7 @@ class inline_simple_definitions_fn : public compiler_step_visitor {
         if (!is_constant(fn))
             return default_visit_app(e);
         name const & n  = const_name(fn);
-        if (is_vm_builtin_function(n) || is_pack_unpack(env(), e))
+        if (is_vm_builtin_function(n))
             return default_visit_app(e);
         if (is_cases_on_recursor(env(), n) || is_nonrecursive_recursor(n))
             return visit_cases_on_app(e);

@@ -39,7 +39,6 @@ Author: Leonardo de Moura
 #include "library/attribute_manager.h"
 #include "library/app_builder.h"
 #include "library/fun_info.h"
-#include "library/inverse.h"
 #include "library/pattern_attribute.h"
 #include "library/comp_val.h"
 #include "library/documentation.h"
@@ -114,7 +113,6 @@ void initialize_library_module() {
     initialize_fun_info();
     initialize_abstract_context_cache();
     initialize_type_context();
-    initialize_inverse();
     initialize_pattern_attribute();
     initialize_comp_val();
     initialize_documentation();
@@ -134,7 +132,6 @@ void finalize_library_module() {
     finalize_documentation();
     finalize_comp_val();
     finalize_pattern_attribute();
-    finalize_inverse();
     finalize_type_context();
     finalize_abstract_context_cache();
     finalize_fun_info();

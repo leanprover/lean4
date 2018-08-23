@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/locals.h"
 #include "library/app_builder.h"
-#include "library/inverse.h"
 #include "library/trace.h"
 #include "library/constructions/injective.h"
 #include "library/vm/vm_list.h"
@@ -292,30 +291,6 @@ struct cases_tactic_fn {
         return to_list(new_goals);
     }
 
-    optional<inverse_info> invertible(expr const & lhs, expr const & rhs) {
-        expr const & lhs_fn = get_app_fn(lhs);
-        if (!is_constant(lhs_fn))
-            return optional<inverse_info>();
-        optional<inverse_info> r = has_inverse(m_env, const_name(lhs_fn));
-        if (!r)
-            return r;
-        unsigned lhs_num_args = get_app_num_args(lhs);
-        if (r->m_arity != lhs_num_args ||
-            get_app_fn(rhs) != lhs_fn ||
-            get_app_num_args(rhs) != lhs_num_args)
-            return optional<inverse_info>();
-        return r;
-    }
-
-    /* Create (f ... x) with the given arity, where the other arguments are inferred using
-       type inference */
-    expr mk_inverse(type_context_old & ctx, inverse_info const & inv, expr const & x) {
-        buffer<bool> mask;
-        mask.resize(inv.m_arity - 1, false);
-        mask.push_back(true);
-        return mk_app(ctx, inv.m_inv, mask.size(), mask.data(), &x);
-    }
-
     optional<expr> unify_eqs(expr const & input_H, expr mvar, unsigned num_eqs, bool updating,
                              list<expr> & new_intros, hsubstitution & subst) {
         if (num_eqs == 0) {
@@ -395,33 +370,6 @@ struct cases_tactic_fn {
                 new_intros = apply(new_intros, extra_subst);
                 subst      = merge(apply(subst, extra_subst), extra_subst);
                 return unify_eqs(input_H, mvar2, num_eqs - 1, updating, new_intros, subst);
-            } else if (auto info = invertible(lhs, rhs)) {
-                lean_cases_trace(mvar, tout() << "invertible\n";);
-                /* This branch is mainly used for equalities of the form
-                       pack x = pack y
-                   where pack is an auxiliary declaration introduced by
-                   the equation compiler.
-                */
-                try {
-                    expr lhs_arg            = app_arg(lhs);
-                    expr rhs_arg            = app_arg(rhs);
-                    expr inv_lhs            = mk_inverse(ctx, *info, lhs);
-                    expr inv_fn             = app_fn(inv_lhs);
-                    expr inv_lhs_eq_inv_rhs = mk_congr_arg(ctx, inv_fn, H);
-                    expr inv_lhs_eq_lhs_arg = mk_app(ctx, info->m_lemma, lhs_arg);
-                    expr inv_rhs_eq_rhs_arg = mk_app(ctx, info->m_lemma, rhs_arg);
-                    expr lhs_arg_eq_rhs_arg = mk_eq_trans(ctx,
-                                                          mk_eq_trans(ctx, mk_eq_symm(ctx, inv_lhs_eq_lhs_arg),
-                                                                      inv_lhs_eq_inv_rhs),
-                                                          inv_rhs_eq_rhs_arg);
-                    expr new_target         = mk_arrow(::lean::mk_eq(ctx, lhs_arg, rhs_arg), g1.get_type());
-                    expr mvar2              = m_mctx.mk_metavar_decl(lctx, new_target);
-                    expr val                = mk_app(mvar2, lhs_arg_eq_rhs_arg);
-                    m_mctx.assign(*mvar1, val);
-                    return unify_eqs(input_H, mvar2, num_eqs, updating, new_intros, subst);
-                } catch (app_builder_exception & ex) {
-                    throw_exception(mvar, "cases tactic failed, unexpected failure when using inverse");
-                }
             } else {
                 optional<name> c1 = is_gintro_rule_app(m_env, lhs);
                 optional<name> c2 = is_gintro_rule_app(m_env, rhs);

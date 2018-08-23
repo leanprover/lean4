@@ -87,10 +87,6 @@ class expand_aux_fn : public compiler_step_visitor {
         return !is_vm_function(env(), n);
     }
 
-    bool is_pack_unpack(expr const & e) {
-        return ::lean::is_pack_unpack(m_env, e);
-    }
-
     bool is_noncomputable_const(expr const & e) {
         return is_constant(e) && is_noncomputable(env(), const_name(e));
     }
@@ -107,7 +103,7 @@ class expand_aux_fn : public compiler_step_visitor {
     bool should_unfold(expr const & e) {
         return
             !is_function_being_compiled(e) &&
-            ((is_not_vm_function(e) && !ctx().is_proof(e) && !is_pack_unpack(e) && !is_noncomputable_const(e)) ||
+            ((is_not_vm_function(e) && !ctx().is_proof(e) && !is_noncomputable_const(e)) ||
              (is_inline(e)));
     }
 

@@ -14,13 +14,10 @@ Author: Leonardo de Moura
 #include "library/tactic/exact_tactic.h"
 #include "library/tactic/change_tactic.h"
 #include "library/tactic/assert_tactic.h"
-#include "library/tactic/apply_tactic.h"
 #include "library/tactic/fun_info_tactics.h"
-#include "library/tactic/congr_lemma_tactics.h"
 #include "library/tactic/induction_tactic.h"
 #include "library/tactic/cases_tactic.h"
 #include "library/tactic/generalize_tactic.h"
-#include "library/tactic/rewrite_tactic.h"
 #include "library/tactic/elaborate.h"
 #include "library/tactic/eval.h"
 #include "library/tactic/destruct_tactic.h"
@@ -37,13 +34,10 @@ void initialize_tactic_module() {
     initialize_exact_tactic();
     initialize_change_tactic();
     initialize_assert_tactic();
-    initialize_apply_tactic();
     initialize_fun_info_tactics();
-    initialize_congr_lemma_tactics();
     initialize_induction_tactic();
     initialize_cases_tactic();
     initialize_generalize_tactic();
-    initialize_rewrite_tactic();
     initialize_elaborate();
     initialize_eval();
     initialize_destruct_tactic();
@@ -52,13 +46,10 @@ void finalize_tactic_module() {
     finalize_destruct_tactic();
     finalize_eval();
     finalize_elaborate();
-    finalize_rewrite_tactic();
     finalize_generalize_tactic();
     finalize_cases_tactic();
     finalize_induction_tactic();
-    finalize_congr_lemma_tactics();
     finalize_fun_info_tactics();
-    finalize_apply_tactic();
     finalize_assert_tactic();
     finalize_change_tactic();
     finalize_exact_tactic();

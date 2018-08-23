@@ -342,33 +342,6 @@ meta constant get_goals     : tactic (list expr)
 meta constant set_goals     : list expr → tactic unit
 inductive new_goals
 | non_dep_first | non_dep_only | all
-/-- Configuration options for the `apply` tactic.
-
-- `new_goals` is the strategy for ordering new goals.
-- `instances` if `tt`, then `apply` tries to synthesize unresolved `[...]` arguments using type class resolution.
-- `auto_param` if `tt`, then `apply` tries to synthesize unresolved `(h : p . tac_id)` arguments using tactic `tac_id`.
-- `opt_param` if `tt`, then `apply` tries to synthesize unresolved `(a : t := v)` arguments by setting them to `v`.
-- `unify` if `tt`, then `apply` is free to assign existing metavariables in the goal when solving unification constraints.
-   For example, in the goal `|- ?x < succ 0`, the tactic `apply succ_lt_succ` succeeds with the default configuration,
-   but `apply_with succ_lt_succ {unify := ff}` doesn't since it would require Lean to assign `?x` to `succ ?y` where
-   `?y` is a fresh metavariable.
--/
-structure apply_cfg :=
-(md            := semireducible)
-(approx        := tt)
-(new_goals     := new_goals.non_dep_first)
-(instances     := tt)
-(auto_param    := tt)
-(opt_param     := tt)
-(unify         := tt)
-/-- Apply the expression `e` to the main goal,
-    the unification is performed using the transparency mode in `cfg`.
-    If `cfg.approx` is `tt`, then fallback to first-order unification, and approximate context during unification.
-    `cfg.new_goals` specifies which unassigned metavariables become new goals, and their order.
-    If `cfg.instances` is `tt`, then use type class resolution to instantiate unassigned meta-variables.
-    The fields `cfg.auto_param` and `cfg.opt_param` are ignored by this tactic (See `tactic.apply`).
-    It returns a list of all introduced meta variables and the parameter name associated with them, even the assigned ones. -/
-meta constant apply_core (e : expr) (cfg : apply_cfg := {}) : tactic (list (name × expr))
 /- Create a fresh meta universe variable. -/
 meta constant mk_meta_univ  : tactic level
 /- Create a fresh meta-variable with the given type.
@@ -830,42 +803,6 @@ ms.mfoldl
             return $ r || type.is_napp_of `opt_param 2 || type.is_napp_of `auto_param 2)
  ff
 
-meta def try_apply_opt_auto_param (cfg : apply_cfg) (ms : list expr) : tactic unit :=
-when (cfg.auto_param || cfg.opt_param) $
-mwhen (has_opt_auto_param ms) $ do
-  gs ← get_goals,
-  ms.mfor (λ m, mwhen (bnot <$> is_assigned m) $
-                   set_goals [m] >>
-                   when cfg.opt_param (try apply_opt_param) >>
-                   when cfg.auto_param (try apply_auto_param)),
-  set_goals gs
-
-meta def has_opt_auto_param_for_apply (ms : list (name × expr)) : tactic bool :=
-ms.mfoldl
- (λ r m, do type ← infer_type m.2,
-            return $ r || type.is_napp_of `opt_param 2 || type.is_napp_of `auto_param 2)
- ff
-
-meta def try_apply_opt_auto_param_for_apply (cfg : apply_cfg) (ms : list (name × expr)) : tactic unit :=
-mwhen (has_opt_auto_param_for_apply ms) $ do
-  gs ← get_goals,
-  ms.mfor (λ m, mwhen (bnot <$> (is_assigned m.2)) $
-                   set_goals [m.2] >>
-                   when cfg.opt_param (try apply_opt_param) >>
-                   when cfg.auto_param (try apply_auto_param)),
-  set_goals gs
-
-meta def apply (e : expr) (cfg : apply_cfg := {}) : tactic (list (name × expr)) :=
-do r ← apply_core e cfg,
-   try_apply_opt_auto_param_for_apply cfg r,
-   return r
-
-meta def fapply (e : expr) : tactic (list (name × expr)) :=
-apply e {new_goals := new_goals.all}
-
-meta def eapply (e : expr) : tactic (list (name × expr)) :=
-apply e {new_goals := new_goals.non_dep_only}
-
 /-- Try to solve the main goal using type class resolution. -/
 meta def apply_instance : tactic unit :=
 do tgt ← target >>= instantiate_mvars,
@@ -888,13 +825,6 @@ do env  ← get_env,
    let num := decl.lparams.length,
    ls   ← mk_num_meta_univs num,
    return (expr.const c ls)
-
-/-- Apply the constant `c` -/
-meta def applyc (c : name) (cfg : apply_cfg := {}) : tactic unit :=
-do c ← mk_const c, apply c cfg, skip
-
-meta def eapplyc (c : name) : tactic unit :=
-do c ← mk_const c, eapply c, skip
 
 meta def save_const_type_info (n : name) (ref : expr) : tactic unit :=
 try (do c ← mk_const n, save_type_info c ref)
@@ -958,32 +888,6 @@ else do
       return ()),
   h ← tactic.intro1,
   focus1 (do r ← cases_core h ids md, all_goals (intron n), return $ r.map (λ t, t.1))
-
-meta def by_cases (e : expr) (h : name) : tactic unit :=
-do dec_e ← (mk_app `decidable [e] <|> fail "by_cases tactic failed, type is not a proposition"),
-   inst  ← (mk_instance dec_e <|> fail "by_cases tactic failed, type of given expression is not decidable"),
-   t     ← target,
-   tm    ← mk_mapp `dite [some e, some inst, some t],
-   seq (apply tm >> skip) (intro h >> skip)
-
-meta def funext_core : list name → bool → tactic unit
-| []  tt       := return ()
-| ids only_ids := try $
-   do some (lhs, rhs) ← lean.expr.is_eq <$> (target >>= whnf),
-      applyc `funext,
-      id ← if ids.empty ∨ ids.head = `_ then do
-             (expr.lam n _ _ _) ← whnf lhs
-               | pure `_,
-             return n
-           else return ids.head,
-      intro id,
-      funext_core ids.tail only_ids
-
-meta def funext : tactic unit :=
-funext_core [] ff
-
-meta def funext_lst (ids : list name) : tactic unit :=
-funext_core ids tt
 
 private meta def get_undeclared_const (env : environment) (base : name) : ℕ → name | i :=
 let n := base <.> ("_aux_" ++ repr i) in

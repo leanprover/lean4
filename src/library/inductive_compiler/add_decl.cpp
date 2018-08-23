@@ -25,7 +25,7 @@ environment add_inductive_declaration(environment const & old_env, options const
 
 environment add_structure_declaration_aux(environment const & old_env, options const &, buffer <name> const & lp_names,
                                           buffer <expr> const & params, expr const & ind, expr const & intro_rule,
-                                          bool is_meta) {
+                                          bool /* is_meta */) {
     buffer<expr> inds;
     inds.push_back(ind);
 

@@ -357,8 +357,6 @@ environment register_ginductive_decl(environment const & env, ginductive_decl co
         intro_rules.push_back(names(ir_names));
     }
     entry.m_intro_rules = to_list(intro_rules);
-    entry.m_packs = names(decl.get_packs());
-    entry.m_unpacks = names(decl.get_unpacks());
 
     entry.m_ir_offsets = to_list(decl.get_ir_offsets());
     entry.m_idx_to_ir_range = to_list(decl.get_idx_to_ir_range());

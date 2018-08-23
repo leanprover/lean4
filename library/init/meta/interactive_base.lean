@@ -31,23 +31,6 @@ meta def loc.include_goal : loc → bool
 | loc.wildcard := tt
 | (loc.ns ls)  := (ls.map option.is_none).bor
 
-meta def loc.get_locals : loc → tactic (list expr)
-| loc.wildcard := tactic.local_context
-| (loc.ns xs)  := xs.mfoldl (λ ls n, match n with
-  | none := pure ls
-  | some n := do l ← tactic.get_local n, pure $ l :: ls)
-  []
-
-meta def loc.apply (hyp_tac : expr → tactic unit) (goal_tac : tactic unit) (l : loc) : tactic unit :=
-do hs ← l.get_locals,
-   hs.mfor hyp_tac,
-   if l.include_goal then goal_tac else pure ()
-
-meta def loc.try_apply (hyp_tac : expr → tactic unit) (goal_tac : tactic unit) (l : loc) : tactic unit :=
-do hs ← l.get_locals,
-   let hts := hs.map hyp_tac,
-   tactic.try_lst $ if l.include_goal then hts ++ [goal_tac] else hts
-
 /-- Use `desc` as the interactive description of `p`. -/
 meta def with_desc {α : Type} (desc : format) (p : parser α) : parser α := p
 

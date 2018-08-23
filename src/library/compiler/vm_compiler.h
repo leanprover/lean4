@@ -8,9 +8,9 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
-environment vm_compile(environment const & env, declaration const & d, bool optimize_bytecode = true);
+environment vm_compile(environment const & env, constant_info const & d, bool optimize_bytecode = true);
 /* Similar to previous function. It is used to compile meta mutually recursive definitions. */
-environment vm_compile(environment const & env, buffer<declaration> const & ds, bool optimize_bytecode = true);
+environment vm_compile(environment const & env, buffer<constant_info> const & ds, bool optimize_bytecode = true);
 
 void initialize_vm_compiler();
 void finalize_vm_compiler();

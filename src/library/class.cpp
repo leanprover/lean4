@@ -251,8 +251,8 @@ bool has_class_out_params(environment const & env, name const & c) {
 }
 
 environment add_instance_core(environment const & env, name const & n, unsigned priority, bool persistent) {
-    declaration d = env.get(n);
-    expr type = d.get_type();
+    constant_info info = env.get(n);
+    expr type = info.get_type();
     type_context_old ctx(env, transparency_mode::All);
     class_state S = class_ext::get_state(env);
     type_context_old::tmp_locals locals(ctx);

@@ -43,14 +43,14 @@ tactic_state destruct(transparency_mode md, expr const & e, tactic_state const &
         !env.find(name{const_name(I), "cases_on"}))
         throw exception("destruct tactic failed, type of given expression is not an inductive datatype");
 
-    name const & I_name       = const_name(I);
-    levels const I_lvls       = const_levels(I);
-    bool dep_elim             = inductive::has_dep_elim(env, I_name);
-    unsigned nindices         = *inductive::get_num_indices(env, I_name);
-    unsigned nparams          = *inductive::get_num_params(env, I_name);
-    unsigned nminors          = *inductive::get_num_intro_rules(env, I_name);
-    declaration I_decl        = env.get(I_name);
-    declaration cases_on_decl = env.get({I_name, "cases_on"});
+    name const & I_name         = const_name(I);
+    levels const I_lvls         = const_levels(I);
+    bool dep_elim               = inductive::has_dep_elim(env, I_name);
+    unsigned nindices           = *inductive::get_num_indices(env, I_name);
+    unsigned nparams            = *inductive::get_num_params(env, I_name);
+    unsigned nminors            = *inductive::get_num_intro_rules(env, I_name);
+    constant_info I_info        = env.get(I_name);
+    constant_info cases_on_info = env.get({I_name, "cases_on"});
 
     if (I_args.size() != nindices + nparams)
         throw exception("destruct tactic failed, ill-formed inductive datatype");
@@ -61,14 +61,14 @@ tactic_state destruct(transparency_mode md, expr const & e, tactic_state const &
         lvls = cons(target_lvl, I_lvls);
     } else {
         if (!is_zero(target_lvl)) {
-            throw exception(sstream() << "destruct tactic failed, recursor '" << cases_on_decl.get_name()
+            throw exception(sstream() << "destruct tactic failed, recursor '" << cases_on_info.get_name()
                             << "' can only eliminate into Prop");
         }
         lvls = I_lvls;
     }
 
     /* cases will contain the cases_on application that we will assing to the main goal */
-    cases                     = mk_constant(cases_on_decl.get_name(), lvls);
+    cases                     = mk_constant(cases_on_info.get_name(), lvls);
     /* add params */
     cases                     = mk_app(cases, I_args.size() - nindices, I_args.data());
     buffer<expr> new_goals;

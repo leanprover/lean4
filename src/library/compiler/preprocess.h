@@ -12,11 +12,11 @@ namespace lean {
     put definition in eta-expanded normal form, and
     eliminate nested (recursive) recursor applications.
     Nested recurse applications become new procedures. */
-void preprocess(environment const & env, declaration const & d, buffer<procedure> & result);
+void preprocess(environment const & env, constant_info const & info, buffer<procedure> & result);
 
 /** \brief Similar to previous function, but supports a collection \c ds of potentially mutually recursive
     definitions. */
-void preprocess(environment const & env, buffer<declaration> const & ds, buffer<procedure> & result);
+void preprocess(environment const & env, buffer<constant_info> const & infos, buffer<procedure> & result);
 
 void initialize_preprocess();
 void finalize_preprocess();

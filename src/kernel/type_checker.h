@@ -60,7 +60,7 @@ class type_checker : public abstract_type_context {
     optional<expr> reduce_proj(expr const & e);
     expr whnf_fvar(expr const & e);
     expr whnf_core(expr const & e);
-    optional<declaration> is_delta(expr const & e) const;
+    optional<constant_info> is_delta(expr const & e) const;
     optional<expr> unfold_definition_core(expr const & e);
     optional<expr> unfold_definition(expr const & e);
 

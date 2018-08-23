@@ -61,7 +61,7 @@ unsigned get_fuzzy_match_max_errors(unsigned prefix_sz) {
     return r;
 }
 
-optional<name> exact_prefix_match(environment const & env, std::string const & pattern, declaration const & d) {
+optional<name> exact_prefix_match(environment const & env, std::string const & pattern, constant_info const & d) {
     if (auto it = is_essentially_atomic(env, d.get_name())) {
         std::string it_str = it->to_string();
         // if pattern "perfectly" matches beginning of declaration name, we just display d on the top of the list
@@ -129,7 +129,7 @@ std::vector<json> get_decl_completions(std::string const & pattern, environment 
     std::vector<pair<name, name>> exact_matches;
     std::vector<pair<std::string, name>> selected;
     bitap_fuzzy_search matcher(pattern, max_errors);
-    env.for_each_declaration([&](declaration const & d) {
+    env.for_each_constant([&](constant_info const & d) {
         if (is_projection(env, d.get_name())) {
             auto s_name = d.get_name().get_prefix();
             if (is_class(env, s_name))
@@ -176,7 +176,7 @@ void search_decls(std::string const & pattern, std::vector<pair<std::string, env
 
     for (auto & env_file : envs) {
         auto & env = env_file.second;
-        env.for_each_declaration([&](declaration const & d) {
+        env.for_each_constant([&](constant_info const & d) {
             if (name2env.find(d.get_name())) return;
             name2env.insert(d.get_name(), env_file);
             if (is_projection(env, d.get_name())) {
@@ -235,7 +235,7 @@ std::vector<json> get_field_completions(name const & s, std::string const & patt
     std::vector<pair<std::string, name>> selected;
     bitap_fuzzy_search matcher(new_pattern, max_errors);
 
-    env.for_each_declaration([&](declaration const & d) {
+    env.for_each_constant([&](constant_info const & d) {
         if (d.get_name() == s ||
             !is_prefix_of(s, d.get_name()) ||
             is_internal_name(d.get_name())) {
@@ -342,7 +342,7 @@ std::vector<json> get_interactive_tactic_completions(std::string const & pattern
     std::vector<pair<std::string, name>> selected;
     bitap_fuzzy_search matcher(pattern, max_errors);
     name namespc = tac_class + name("interactive");
-    env.for_each_declaration([&](declaration const & d) {
+    env.for_each_constant([&](constant_info const & d) {
         auto const & n = d.get_name();
         if (n.get_prefix() == namespc && n.is_string() && matcher.match(n.get_string().data())) { // HACK: accessing Lean string as C String
             selected.emplace_back(n.get_string().data(), n); // HACK: accessing Lean string as C String

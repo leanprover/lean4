@@ -54,13 +54,12 @@ static bool is_typeformer_app(buffer<name> const & typeformer_names, expr const 
 void get_rec_args(environment const & env, name const & n, buffer<buffer<bool>> & r) {
     lean_assert(inductive::is_inductive_decl(env, n));
     old_type_checker tc(env);
-    declaration ind_decl   = env.get(n);
-    declaration rec_decl   = env.get(inductive::get_elim_name(n));
-    unsigned nparams       = *inductive::get_num_params(env, n);
-    unsigned nminors       = *inductive::get_num_minor_premises(env, n);
-    unsigned ntypeformers  = 1;
+    constant_info rec_info   = env.get(inductive::get_elim_name(n));
+    unsigned nparams         = *inductive::get_num_params(env, n);
+    unsigned nminors         = *inductive::get_num_minor_premises(env, n);
+    unsigned ntypeformers    = 1;
     buffer<expr> rec_args;
-    to_telescope(rec_decl.get_type(), rec_args);
+    to_telescope(rec_info.get_type(), rec_args);
     buffer<name> typeformer_names;
     for (unsigned i = nparams; i < nparams + ntypeformers; i++) {
         typeformer_names.push_back(local_name(rec_args[i]));
@@ -87,8 +86,8 @@ bool is_cases_on_recursor(environment const & env, name const & n) {
 }
 
 unsigned get_constructor_arity(environment const & env, name const & n) {
-    declaration d = env.get(n);
-    expr e = d.get_type();
+    constant_info info = env.get(n);
+    expr e = info.get_type();
     unsigned r = 0;
     while (is_pi(e)) {
         r++;

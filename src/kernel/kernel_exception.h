@@ -20,10 +20,10 @@ public:
     environment const & get_environment() const { return m_env; }
 };
 
-class unknown_declaration_exception : public kernel_exception {
+class unknown_constant_exception : public kernel_exception {
     name m_name;
 public:
-    unknown_declaration_exception(environment const & env, name const & n):kernel_exception(env), m_name(n) {}
+    unknown_constant_exception(environment const & env, name const & n):kernel_exception(env), m_name(n) {}
     name const & get_name() const { return m_name; }
 };
 

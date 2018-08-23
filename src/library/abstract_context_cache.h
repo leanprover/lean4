@@ -178,7 +178,7 @@ public:
     /* Operations for accessing environment data more efficiently.
        The default implementation provided by this class does not have any optimization. */
 
-    virtual optional<declaration> get_decl(type_context_old &, transparency_mode, name const &) = 0;
+    virtual optional<constant_info> get_decl(type_context_old &, transparency_mode, name const &) = 0;
     virtual projection_info const * get_proj_info(type_context_old &, name const &) = 0;
     virtual bool get_aux_recursor(type_context_old &, name const &) = 0;
 
@@ -258,7 +258,7 @@ public:
 /* Dummy implementation of the abstract_context_cache interface that does not do cache anything but configuration options. */
 class context_cacheless : public abstract_context_cache {
 protected:
-    bool is_transparent(type_context_old & ctx, transparency_mode m, declaration const & d);
+    bool is_transparent(type_context_old & ctx, transparency_mode m, constant_info const & info);
 private:
     options                   m_options;
     bool                      m_unfold_lemmas;
@@ -293,7 +293,7 @@ public:
     /* Operations for accessing environment data more efficiently.
        The default implementation provided by this class does not have any optimization. */
 
-    virtual optional<declaration> get_decl(type_context_old &, transparency_mode, name const &) override;
+    virtual optional<constant_info> get_decl(type_context_old &, transparency_mode, name const &) override;
     virtual projection_info const * get_proj_info(type_context_old &, name const &) override;
     virtual bool get_aux_recursor(type_context_old &, name const &) override;
 

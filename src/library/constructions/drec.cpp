@@ -28,8 +28,8 @@ struct mk_drec_fn {
     drec_kind           kind;
     inductive::inductive_decl      I_ind_decl;
     name                I_rec_name;
-    declaration         I_rec_decl;
-    declaration         I_decl;
+    constant_info       I_rec_info;
+    constant_info       I_info;
     unsigned            num_idx_major;
     unsigned            num_minors;
     unsigned            major_idx;
@@ -47,14 +47,14 @@ struct mk_drec_fn {
         tc(env), I(_I), kind(k),
         I_ind_decl(*inductive::is_inductive_decl(env, I)),
         I_rec_name(inductive::get_elim_name(I)),
-        I_rec_decl(env.get(I_rec_name)),
-        I_decl(env.get(I)),
+        I_rec_info(env.get(I_rec_name)),
+        I_info(env.get(I)),
         num_idx_major(*inductive::get_num_indices(env, I) + 1),
         num_minors(*inductive::get_num_minor_premises(env, I)),
         major_idx(*inductive::get_elim_major_idx(env, I_rec_name)),
         num_params(I_ind_decl.m_num_params),
-        lvls(param_names_to_levels(I_rec_decl.get_univ_params())),
-        elim_to_prop(I_rec_decl.get_num_univ_params() == I_decl.get_num_univ_params()),
+        lvls(param_names_to_levels(I_rec_info.get_univ_params())),
+        elim_to_prop(I_rec_info.get_num_univ_params() == I_info.get_num_univ_params()),
         I_lvls(elim_to_prop ? lvls : tail(lvls)) {
     }
 
@@ -64,7 +64,7 @@ struct mk_drec_fn {
     }
 
     expr init_rec_params() {
-        expr rec_type = I_rec_decl.get_type();
+        expr rec_type = I_rec_info.get_type();
         while (is_pi(rec_type)) {
             expr local = mk_local_from_binding(rec_type);
             rec_type   = instantiate(binding_body(rec_type), local);
@@ -195,7 +195,7 @@ struct mk_drec_fn {
         expr rec_cnst     = mk_constant(I_rec_name, lvls);
         expr drec_value   = Fun(drec_params, mk_app(rec_cnst, rec_args));
         name drec_name    = mk_drec_name();
-        declaration new_d = mk_definition_inferring_meta(env, drec_name, I_rec_decl.get_univ_params(),
+        declaration new_d = mk_definition_inferring_meta(env, drec_name, I_rec_info.get_univ_params(),
                                                          drec_type, drec_value,
                                                          reducibility_hints::mk_abbreviation());
         environment new_env = module::add(env, new_d);

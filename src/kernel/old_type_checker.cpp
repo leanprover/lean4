@@ -74,22 +74,22 @@ void old_type_checker::check_level(level const & l) {
 }
 
 expr old_type_checker::infer_constant(expr const & e, bool infer_only) {
-    declaration d    = m_env.get(const_name(e));
-    auto const & ps = d.get_univ_params();
+    constant_info info = m_env.get(const_name(e));
+    auto const & ps = info.get_univ_params();
     auto const & ls = const_levels(e);
     if (length(ps) != length(ls))
         throw kernel_exception(m_env, sstream() << "incorrect number of universe levels parameters for '"
                                << const_name(e) << "', #"
                                << length(ps)  << " expected, #" << length(ls) << " provided");
     if (!infer_only) {
-        if (m_non_meta_only && d.is_meta()) {
+        if (m_non_meta_only && info.is_meta()) {
             throw kernel_exception(m_env, sstream() << "invalid definition, it uses meta declaration '"
                                    << const_name(e) << "'");
         }
         for (level const & l : ls)
             check_level(l);
     }
-    return instantiate_type_univ_params(d, ls);
+    return instantiate_type_univ_params(info, ls);
 }
 
 expr old_type_checker::infer_lambda(expr const & _e, bool infer_only) {
@@ -228,8 +228,8 @@ expr old_type_checker::infer_type_core(expr const & e, bool infer_only) {
             throw invalid_proj_exception(m_env, local_ctx(), e);
 
         inductive::intro_rule cnstr = head(decl->m_intro_rules);
-        declaration c_decl = m_env.get(inductive::intro_rule_name(cnstr));
-        r = instantiate_type_univ_params(c_decl, const_levels(I));
+        constant_info c_info = m_env.get(inductive::intro_rule_name(cnstr));
+        r = instantiate_type_univ_params(c_info, const_levels(I));
         for (expr const & arg : args) {
             r = whnf(r);
             if (!is_pi(r)) throw invalid_proj_exception(m_env, local_ctx(), e);
@@ -396,14 +396,14 @@ expr old_type_checker::whnf_core(expr const & e) {
 
 /** \brief Return some definition \c d iff \c e is a target for delta-reduction, and the given definition is the one
     to be expanded. */
-optional<declaration> old_type_checker::is_delta(expr const & e) const {
+optional<constant_info> old_type_checker::is_delta(expr const & e) const {
     expr const & f = get_app_fn(e);
     if (is_constant(f)) {
-        if (auto d = m_env.find(const_name(f)))
-            if (d->has_value())
-                return d;
+        if (optional<constant_info> info = m_env.find(const_name(f)))
+            if (info->has_value())
+                return info;
     }
-    return none_declaration();
+    return none_constant_info();
 }
 
 optional<expr> old_type_checker::unfold_definition_core(expr const & e) {

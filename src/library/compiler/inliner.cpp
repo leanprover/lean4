@@ -140,11 +140,11 @@ class inline_simple_definitions_fn : public compiler_step_visitor {
             return default_visit_app(e);
         if (is_cases_on_recursor(env(), n) || is_nonrecursive_recursor(n))
             return visit_cases_on_app(e);
-        unsigned nargs  = get_app_num_args(e);
-        declaration d   = env().get(n);
-        if (!d.is_definition())
+        unsigned nargs     = get_app_num_args(e);
+        constant_info info = env().get(n);
+        if (!info.is_definition())
             return default_visit_app(e);
-        expr v = d.get_value();
+        expr v = info.get_value();
         unsigned arity = 0;
         while (is_lambda(v)) {
             arity++;

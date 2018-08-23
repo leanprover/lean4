@@ -51,8 +51,8 @@ struct cases_tactic_fn {
     unsigned                      m_nparams;
     unsigned                      m_nindices;
     unsigned                      m_nminors;
-    declaration                   m_I_decl;
-    declaration                   m_cases_on_decl;
+    constant_info                 m_I_decl;
+    constant_info                 m_cases_on_decl;
 
     type_context_old mk_type_context_for(metavar_decl const & g) {
         return ::lean::mk_type_context_for(m_env, m_opts, m_mctx, g.get_context(), m_mode);
@@ -450,12 +450,12 @@ struct cases_tactic_fn {
                         if (!is_constant(A_fn) || !is_ginductive(m_env, const_name(A_fn)))
                             throw_ill_formed_datatype();
                         name inj_arrow_name = mk_injective_arrow_name(*c1);
-                        optional<declaration> inj_arrow_decl = m_env.find(inj_arrow_name);
-                        if (!inj_arrow_decl) {
+                        optional<constant_info> inj_arrow_info = m_env.find(inj_arrow_name);
+                        if (!inj_arrow_info) {
                             throw exception(sstream() << "cases tactic failed, construction '"
                                             << inj_arrow_name << "' is not available in the environment");
                         }
-                        unsigned inj_arrow_arity = get_arity(inj_arrow_decl->get_type());
+                        unsigned inj_arrow_arity = get_arity(inj_arrow_info->get_type());
                         expr target       = g1.get_type();
                         if (!ctx.is_prop(target)) {
                             /* TODO(Leo): refine this limitation.

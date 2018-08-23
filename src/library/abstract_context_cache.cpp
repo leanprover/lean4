@@ -72,19 +72,19 @@ context_cacheless::context_cacheless(abstract_context_cache const & c, bool):
     m_class_instance_max_depth(c.get_class_instance_max_depth()) {
 }
 
-bool context_cacheless::is_transparent(type_context_old & ctx, transparency_mode m, declaration const & d) {
+bool context_cacheless::is_transparent(type_context_old & ctx, transparency_mode m, constant_info const & info) {
     if (m == transparency_mode::None)
         return false;
-    name const & n = d.get_name();
+    name const & n = info.get_name();
     if (get_proj_info(ctx, n) != nullptr)
         return false;
     if (m == transparency_mode::All)
         return true;
-    if (d.is_theorem() && !get_unfold_lemmas())
+    if (info.is_theorem() && !get_unfold_lemmas())
         return false;
-    if (m == transparency_mode::Instances && is_instance(ctx.env(), d.get_name()))
+    if (m == transparency_mode::Instances && is_instance(ctx.env(), info.get_name()))
         return true;
-    auto s = get_reducible_status(ctx.env(), d.get_name());
+    auto s = get_reducible_status(ctx.env(), info.get_name());
     if (s == reducible_status::Reducible && (m == transparency_mode::Reducible || m == transparency_mode::Instances))
         return true;
     if (s != reducible_status::Irreducible && m == transparency_mode::Semireducible)
@@ -92,13 +92,13 @@ bool context_cacheless::is_transparent(type_context_old & ctx, transparency_mode
     return false;
 }
 
-optional<declaration> context_cacheless::get_decl(type_context_old & ctx, transparency_mode m, name const & n) {
-    if (auto d = ctx.env().find(n)) {
-        if (d->has_value() && is_transparent(ctx, m, *d)) {
-            return d;
+optional<constant_info> context_cacheless::get_decl(type_context_old & ctx, transparency_mode m, name const & n) {
+    if (optional<constant_info> info = ctx.env().find(n)) {
+        if (info->has_value() && is_transparent(ctx, m, *info)) {
+            return info;
         }
     }
-    return optional<declaration>();
+    return none_constant_info();
 }
 
 projection_info const * context_cacheless::get_proj_info(type_context_old & ctx, name const & n) {

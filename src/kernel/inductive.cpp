@@ -135,9 +135,9 @@ public:
     void declare_inductive_types_as_constants() {
         for (inductive_type const & ind_type : m_ind_types) {
             name const & n = ind_type.get_name();
-            if (m_env.m_declarations.find(n))
+            if (m_env.m_constants.find(n))
                 throw already_declared_exception(m_env, n);
-            m_env.m_declarations.insert(n, mk_axiom(n, m_lparams, ind_type.get_type()));
+            m_env.m_constants.insert(n, constant_info(mk_axiom(n, m_lparams, ind_type.get_type())));
         }
     }
 

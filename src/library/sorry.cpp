@@ -41,6 +41,10 @@ bool has_sorry(declaration const & decl) {
     return has_sorry(decl.get_type()) || (decl.has_value() && has_sorry(decl.get_value()));
 }
 
+bool has_sorry(constant_info const & info) {
+    return has_sorry(info.get_type()) || (info.has_value() && has_sorry(info.get_value()));
+}
+
 expr const & sorry_type(expr const & sry) {
     lean_assert(is_sorry(sry));
     buffer<expr> args;
@@ -50,8 +54,8 @@ expr const & sorry_type(expr const & sry) {
 
 bool has_sorry(environment const & env) {
     bool found_sorry = false;
-    env.for_each_declaration([&] (declaration const & decl) {
-            if (!found_sorry && has_sorry(decl)) found_sorry = true;
+    env.for_each_constant([&] (constant_info const & info) {
+            if (!found_sorry && has_sorry(info)) found_sorry = true;
         });
     return found_sorry;
 }

@@ -51,7 +51,7 @@ unsigned persistent_context_cache::get_class_instance_max_depth() const {
     return m_cache_ptr->get_class_instance_max_depth();
 }
 
-optional<declaration> persistent_context_cache::get_decl(type_context_old & ctx, transparency_mode m, name const & n) {
+optional<constant_info> persistent_context_cache::get_decl(type_context_old & ctx, transparency_mode m, name const & n) {
     return m_cache_ptr->get_decl(ctx, m, n);
 }
 

@@ -161,8 +161,8 @@ vm_obj environment_is_ginductive(vm_obj const & env, vm_obj const & n) {
 
 vm_obj environment_fold(vm_obj const &, vm_obj const & env, vm_obj const & a, vm_obj const & fn) {
     vm_obj r = a;
-    to_env(env).for_each_declaration([&](declaration const & d) {
-            r = invoke(fn, to_obj(d), r);
+    to_env(env).for_each_constant([&](constant_info const & info) {
+            r = invoke(fn, to_obj(info), r);
         });
     return r;
 }

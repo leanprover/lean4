@@ -184,7 +184,7 @@ eqn_compiler_result unbounded_rec(environment & env, elaborator & elab,
 
         /* 5. Compile. Remark: we need a separate pass because we need to reserve the functions
            and their arities in the VM. */
-        buffer<declaration> new_decls;
+        buffer<constant_info> new_decls;
         for (name const & n : header.m_fn_actual_names) {
             new_decls.push_back(env.get(n));
         }

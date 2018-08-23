@@ -60,8 +60,8 @@ public:
 
     virtual environment set(environment const & env, io_state const & ios, name const & n,
                             unsigned prio, bool persistent) const override {
-        declaration const & d = env.get(n);
-        if (!d.is_definition())
+        constant_info info = env.get(n);
+        if (!info.is_definition())
             throw exception(sstream() << "invalid reducible command, '" << n << "' is not a definition");
         return parent::set(env, ios, n, prio, persistent);
     }

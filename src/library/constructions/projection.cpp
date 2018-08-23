@@ -67,10 +67,9 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
     inductive::intro_rule intro  = p.second;
     expr intro_type              = inductive::intro_rule_type(intro);
     name rec_name                = inductive::get_elim_name(n);
-    declaration ind_decl         = env.get(n);
-    declaration rec_decl         = env.get(rec_name);
-    bool is_predicate            = is_prop(ind_decl.get_type());
-    level_param_names lvl_params = ind_decl.get_univ_params();
+    constant_info ind_info       = env.get(n);
+    bool is_predicate            = is_prop(ind_info.get_type());
+    level_param_names lvl_params = ind_info.get_univ_params();
     levels lvls                  = param_names_to_levels(lvl_params);
     buffer<expr> params; // datatype parameters
     for (unsigned i = 0; i < nparams; i++) {

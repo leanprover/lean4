@@ -198,12 +198,12 @@ bool is_exception(name const & n, name const & prefix, unsigned num_exceptions, 
 environment add_aliases(environment const & env, name const & prefix, name const & new_prefix,
                         unsigned num_exceptions, name const * exceptions, bool overwrite) {
     aliases_ext ext = get_extension(env);
-    env.for_each_declaration([&](declaration const & d) {
-            if (is_prefix_of(prefix, d.get_name()) && !is_exception(d.get_name(), prefix, num_exceptions, exceptions)) {
-                name a        = d.get_name().replace_prefix(prefix, new_prefix);
-                if (!(is_protected(env, d.get_name()) && a.is_atomic()) &&
+    env.for_each_constant([&](constant_info const & info) {
+            if (is_prefix_of(prefix, info.get_name()) && !is_exception(info.get_name(), prefix, num_exceptions, exceptions)) {
+                name a        = info.get_name().replace_prefix(prefix, new_prefix);
+                if (!(is_protected(env, info.get_name()) && a.is_atomic()) &&
                     !(a.is_anonymous()))
-                    ext.add_expr_alias(a, d.get_name(), overwrite);
+                    ext.add_expr_alias(a, info.get_name(), overwrite);
             }
         });
     return update(env, ext);

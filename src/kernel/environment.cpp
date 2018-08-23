@@ -31,20 +31,16 @@ environment::environment(unsigned trust_lvl, std::unique_ptr<normalizer_extensio
 
 environment::~environment() {}
 
-optional<declaration> environment::find(name const & n) const {
-    declaration const * r = m_declarations.find(n);
-    return r ? some_declaration(*r) : none_declaration();
+optional<constant_info> environment::find(name const & n) const {
+    constant_info const * r = m_constants.find(n);
+    return r ? some_constant_info(*r) : none_constant_info();
 }
 
-declaration environment::get(name const & n) const {
-    declaration const * r = m_declarations.find(n);
+constant_info environment::get(name const & n) const {
+    constant_info const * r = m_constants.find(n);
     if (!r)
-        throw unknown_declaration_exception(*this, n);
+        throw unknown_constant_exception(*this, n);
     return *r;
-}
-
-[[ noreturn ]] void throw_incompatible_environment(environment const & env) {
-    throw kernel_exception(env, "invalid declaration, it was checked/certified in an incompatible environment");
 }
 
 bool environment::is_recursor(name const & n) const {
@@ -135,7 +131,7 @@ environment environment::add_defn_thm_axiom(declaration const & d, bool check) c
             check_definition_value(*this, d, checker);
         }
     }
-    return environment(*this, insert(m_declarations, d.get_name(), d));
+    return environment(*this, insert(m_constants, d.get_name(), constant_info(d)));
 }
 
 environment environment::add(declaration const & d, bool check) const {
@@ -152,11 +148,12 @@ environment environment::add_meta(buffer<declaration> const & ds, bool check) co
     if (!check && trust_lvl() == 0)
         throw kernel_exception(*this, "invalid meta declarations, type checking cannot be skipped at trust level 0");
     environment new_env = *this;
-    /* Check declarations header, and add them to new_env.m_declarations */
+    /* Check declarations header, and add them to new_env.m_constants */
     for (declaration const & d : ds) {
+        check_name(new_env, d.get_name());
         if (check)
             check_declaration_type(new_env, d);
-        new_env.m_declarations.insert(d.get_name(), d);
+        new_env.m_constants.insert(d.get_name(), constant_info(d));
     }
     /* Check actual definitions */
     if (check) {
@@ -225,7 +222,7 @@ environment environment::update(unsigned id, std::shared_ptr<environment_extensi
     return environment(*this, new_exts);
 }
 
-void environment::for_each_declaration(std::function<void(declaration const & d)> const & f) const {
-    m_declarations.for_each([&](name const &, declaration const & d) { return f(d); });
+void environment::for_each_constant(std::function<void(constant_info const & d)> const & f) const {
+    m_constants.for_each([&](name const &, constant_info const & c) { return f(c); });
 }
 }

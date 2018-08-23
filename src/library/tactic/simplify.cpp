@@ -807,16 +807,16 @@ bool simplify_core_fn::simplify_constructor_eq_constructor(simp_result & r) {
         if (get_app_num_args(lhs) <= A_nparams)
             return false;
         name inj_eq_name = mk_injective_eq_name(*c1);
-        optional<declaration> inj_eq_decl = m_ctx.env().find(inj_eq_name);
-        if (!inj_eq_decl)
+        optional<constant_info> inj_eq_info = m_ctx.env().find(inj_eq_name);
+        if (!inj_eq_info)
             return false;
         /* We use the `*.inj` lemma for computing the arguments for `*.inj_eq` lemma. */
         try {
             name inj_name = mk_injective_name(*c1);
-            optional<declaration> inj_decl = m_ctx.env().find(inj_name);
-            if (!inj_decl)
+            optional<constant_info> inj_info = m_ctx.env().find(inj_name);
+            if (!inj_info)
                 return false;
-            unsigned inj_arity = get_arity(inj_decl->get_type());
+            unsigned inj_arity = get_arity(inj_info->get_type());
             type_context_old::tmp_locals locals(m_ctx);
             expr H   = locals.push_local("_h", r.get_new());
             expr inj = mk_app(m_ctx, inj_name, inj_arity, H);

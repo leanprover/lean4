@@ -443,7 +443,7 @@ auto elaborator::use_elim_elab_core(name const & fn) -> optional<elim_info> {
         return optional<elim_info>(get_elim_info_for_builtin(fn));
     }
     type_context_old::tmp_locals locals(m_ctx);
-    declaration d     = m_env.get(fn);
+    constant_info d   = m_env.get(fn);
     expr type         = d.get_type();
     while (is_pi(type)) {
         type = instantiate_propagating_pos(binding_body(type), locals.push_local_from_binding(type));
@@ -928,7 +928,7 @@ expr elaborator::visit_sort(expr const & e) {
 }
 
 expr elaborator::visit_const_core(expr const & e) {
-    declaration d = m_env.get(const_name(e));
+    constant_info d = m_env.get(const_name(e));
     buffer<level> ls;
     for (level const & l : const_levels(e)) {
         level new_l = replace_univ_placeholder(l);
@@ -2947,7 +2947,7 @@ class visit_structure_instance_fn {
                 buffer<expr> args;
                 expr fn = get_app_args(fval, args);
                 if (is_constant(fn)) {
-                    declaration decl = m_env.get(const_name(fn));
+                    constant_info decl = m_env.get(const_name(fn));
                     expr default_val = instantiate_value_univ_params(decl, const_levels(fn));
                     // clean up 'id' application inserted by `structure_cmd::declare_defaults`
                     default_val = replace_propagating_pos(default_val, [](expr const & e) {

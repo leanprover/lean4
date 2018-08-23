@@ -12,6 +12,10 @@ namespace lean {
 bool is_declaration(vm_obj const & o);
 declaration const & to_declaration(vm_obj const & o);
 vm_obj to_obj(declaration const & n);
+bool is_constant_info(vm_obj const & o);
+constant_info const & to_constant_info(vm_obj const & o);
+vm_obj to_obj(constant_info const & n);
+
 void initialize_vm_declaration();
 void finalize_vm_declaration();
 }

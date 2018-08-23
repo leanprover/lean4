@@ -440,7 +440,7 @@ static environment unify_cmd(parser & p) {
 static environment compile_cmd(parser & p) {
     auto pos = p.pos();
     name n = p.check_constant_next("invalid #compile command, constant expected");
-    declaration d = p.env().get(n);
+    constant_info d = p.env().get(n);
     if (!d.is_definition())
         throw parser_error("invalid #compile command, declaration is not a definition", pos);
     return vm_compile(p.env(), d);
@@ -583,7 +583,7 @@ environment compact_tst_cmd(parser & p) {
     if (p.curr_is_numeral())
         num_copies = p.parse_small_nat();
     buffer<expr> objects_to_write;
-    env.for_each_declaration([&](declaration const & d) {
+    env.for_each_constant([&](constant_info const & d) {
             for (unsigned i = 0; i < num_copies + 1; i++) {
                 objects_to_write.push_back(deep_copy(d.get_type()));
                 if (d.is_definition())

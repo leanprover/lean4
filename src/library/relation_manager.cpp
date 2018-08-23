@@ -24,13 +24,13 @@ static name const & get_fn_const(expr const & e, char const * msg) {
 }
 
 static pair<expr, unsigned> extract_arg_types_core(environment const & env, name const & f, buffer<expr> & arg_types) {
-    declaration d = env.get(f);
-    expr f_type = d.get_type();
+    constant_info info = env.get(f);
+    expr f_type = info.get_type();
     while (is_pi(f_type)) {
         arg_types.push_back(binding_domain(f_type));
         f_type = binding_body(f_type);
     }
-    return mk_pair(f_type, d.get_num_univ_params());
+    return mk_pair(f_type, info.get_num_univ_params());
 }
 
 enum class op_kind { Relation, Subst, Trans, Refl, Symm };
@@ -67,11 +67,11 @@ struct rel_state {
     void register_rop(environment const & env, name const & rop) {
         if (m_rop_table.contains(rop))
             return;
-        declaration const & d = env.get(rop);
+        constant_info info = env.get(rop);
         optional<unsigned> lhs_pos;
         optional<unsigned> rhs_pos;
         unsigned i = 0;
-        expr type = d.get_type();
+        expr type = info.get_type();
         while (is_pi(type)) {
             if (is_explicit(binding_info(type))) {
                 if (!lhs_pos) {

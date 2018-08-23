@@ -45,16 +45,16 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
         return env;
     inductive::inductive_decl decl = *inductive::is_inductive_decl(env, n);
     old_type_checker tc(env);
-    unsigned nparams       = decl.m_num_params;
-    declaration ind_decl   = env.get(n);
-    declaration rec_decl   = env.get(inductive::get_elim_name(n));
-    unsigned nindices      = *inductive::get_num_indices(env, n);
-    unsigned nminors       = *inductive::get_num_minor_premises(env, n);
-    unsigned ntypeformers  = 1;
-    level_param_names lps  = rec_decl.get_univ_params();
-    bool is_reflexive      = is_reflexive_datatype(tc, n);
-    level  lvl             = mk_univ_param(head(lps));
-    levels lvls            = param_names_to_levels(tail(lps));
+    unsigned nparams         = decl.m_num_params;
+    constant_info ind_info   = env.get(n);
+    constant_info rec_info   = env.get(inductive::get_elim_name(n));
+    unsigned nindices        = *inductive::get_num_indices(env, n);
+    unsigned nminors         = *inductive::get_num_minor_premises(env, n);
+    unsigned ntypeformers    = 1;
+    level_param_names lps    = rec_info.get_univ_params();
+    bool is_reflexive        = is_reflexive_datatype(tc, n);
+    level  lvl               = mk_univ_param(head(lps));
+    levels lvls              = param_names_to_levels(tail(lps));
     level_param_names blvls; // universe level parameters of ibelow/below
     level  rlvl;  // universe level of the resultant type
     // The arguments of below (ibelow) are the ones in the recursor - minor premises.
@@ -65,20 +65,20 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
         // we are eliminating to Prop
         blvls      = tail(lps);
         rlvl       = mk_level_zero();
-        ref_type   = instantiate_univ_param(rec_decl.get_type(), param_id(lvl), mk_level_zero());
+        ref_type   = instantiate_univ_param(rec_info.get_type(), param_id(lvl), mk_level_zero());
     } else if (is_reflexive) {
         blvls = lps;
-        rlvl  = get_datatype_level(env, ind_decl.get_type());
+        rlvl  = get_datatype_level(env, ind_info.get_type());
         // if rlvl is of the form (max 1 l), then rlvl <- l
         if (is_max(rlvl) && is_one(max_lhs(rlvl)))
             rlvl = max_rhs(rlvl);
         rlvl       = mk_max(mk_succ(lvl), rlvl);
-        ref_type   = instantiate_univ_param(rec_decl.get_type(), param_id(lvl), mk_succ(lvl));
+        ref_type   = instantiate_univ_param(rec_info.get_type(), param_id(lvl), mk_succ(lvl));
     } else {
         // we can simplify the universe levels for non-reflexive datatypes
         blvls       = lps;
         rlvl        = mk_max(mk_level_one(), lvl);
-        ref_type    = rec_decl.get_type();
+        ref_type    = rec_info.get_type();
     }
     Type_result        = mk_sort(rlvl);
     buffer<expr> ref_args;
@@ -104,7 +104,7 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
 
     // We define below/ibelow using the recursor for this type
     levels rec_lvls       = cons(mk_succ(rlvl), lvls);
-    expr rec              = mk_constant(rec_decl.get_name(), rec_lvls);
+    expr rec              = mk_constant(rec_info.get_name(), rec_lvls);
     for (unsigned i = 0; i < nparams; i++)
         rec = mk_app(rec, args[i]);
     // add type formers
@@ -169,15 +169,15 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
     inductive::inductive_decl decl = *inductive::is_inductive_decl(env, n);
     old_type_checker tc(env);
     unsigned nparams       = decl.m_num_params;
-    declaration ind_decl   = env.get(n);
-    declaration rec_decl   = env.get(inductive::get_elim_name(n));
+    constant_info ind_info = env.get(n);
+    constant_info rec_info = env.get(inductive::get_elim_name(n));
     // declaration below_decl = env.get(name(n, ind ? "ibelow" : "below"));
     unsigned nindices      = *inductive::get_num_indices(env, n);
     unsigned nminors       = *inductive::get_num_minor_premises(env, n);
     /* TODO(Leo): code can be simplified, it contains leftovers from the time the kernel had support
        for mutually inductive types */
     unsigned ntypeformers  = 1;
-    level_param_names lps  = rec_decl.get_univ_params();
+    level_param_names lps  = rec_info.get_univ_params();
     bool is_reflexive      = is_reflexive_datatype(tc, n);
     level  lvl             = mk_univ_param(head(lps));
     levels lvls            = param_names_to_levels(tail(lps));
@@ -192,24 +192,24 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
         blps       = tail(lps);
         blvls      = lvls;
         rlvl       = mk_level_zero();
-        ref_type   = instantiate_univ_param(rec_decl.get_type(), param_id(lvl), mk_level_zero());
+        ref_type   = instantiate_univ_param(rec_info.get_type(), param_id(lvl), mk_level_zero());
     } else if (is_reflexive) {
         blps    = lps;
         blvls   = cons(lvl, lvls);
-        rlvl    = get_datatype_level(env, ind_decl.get_type());
+        rlvl    = get_datatype_level(env, ind_info.get_type());
         // if rlvl is of the form (max 1 l), then rlvl <- l
         if (is_max(rlvl) && is_one(max_lhs(rlvl)))
             rlvl = max_rhs(rlvl);
         rlvl       = mk_max(mk_succ(lvl), rlvl);
         // inner_prod, inner_prod_intro, pr1, pr2 do not use the same universe levels for
         // reflective datatypes.
-        ref_type   = instantiate_univ_param(rec_decl.get_type(), param_id(lvl), mk_succ(lvl));
+        ref_type   = instantiate_univ_param(rec_info.get_type(), param_id(lvl), mk_succ(lvl));
     } else {
         // we can simplify the universe levels for non-reflexive datatypes
         blps        = lps;
         blvls       = cons(lvl, lvls);
         rlvl        = mk_max(mk_level_one(), lvl);
-        ref_type    = rec_decl.get_type();
+        ref_type    = rec_info.get_type();
     }
     buffer<expr> ref_args;
     to_telescope(ref_type, ref_args);
@@ -264,7 +264,7 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
     }
     // We define brec_on/binduction_on using the recursor for this type
     levels rec_lvls       = cons(rlvl, lvls);
-    expr rec              = mk_constant(rec_decl.get_name(), rec_lvls);
+    expr rec              = mk_constant(rec_info.get_name(), rec_lvls);
     // add parameters to rec
     for (unsigned i = 0; i < nparams; i++)
         rec = mk_app(rec, ref_args[i]);

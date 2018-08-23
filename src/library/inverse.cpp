@@ -81,18 +81,18 @@ void throw_inverse_error() {
 
 environment add_inverse_lemma(environment const & env, name const & lemma, bool persistent) {
     old_type_checker tc(env);
-    declaration d = env.get(lemma);
+    constant_info info = env.get(lemma);
     buffer<expr> tele;
-    expr type     = to_telescope(tc, d.get_type(), tele);
+    expr type     = to_telescope(tc, info.get_type(), tele);
     expr lhs, rhs;
     if (!is_eq(type, lhs, rhs) || !is_app(lhs) || !is_constant(get_app_fn(lhs)) || !is_local(rhs))
         throw_inverse_error();
-    inverse_info info;
+    inverse_info inv_info;
     buffer<expr> lhs_args;
     expr const & lhs_fn = get_app_args(lhs, lhs_args);
-    info.m_inv       = const_name(lhs_fn);
-    info.m_inv_arity = lhs_args.size();
-    info.m_lemma     = lemma;
+    inv_info.m_inv       = const_name(lhs_fn);
+    inv_info.m_inv_arity = lhs_args.size();
+    inv_info.m_lemma     = lemma;
     expr const & last_arg = lhs_args.back();
     if (!is_app(last_arg) || !is_constant(get_app_fn(last_arg)))
         throw_inverse_error();
@@ -100,8 +100,8 @@ environment add_inverse_lemma(environment const & env, name const & lemma, bool 
     expr const & fn = get_app_args(last_arg, last_arg_args);
     if (last_arg_args.back() != rhs)
         throw_inverse_error();
-    info.m_arity = last_arg_args.size();
-    return inverse_ext::add_entry(env, get_dummy_ios(), inverse_entry(const_name(fn), info), persistent);
+    inv_info.m_arity = last_arg_args.size();
+    return inverse_ext::add_entry(env, get_dummy_ios(), inverse_entry(const_name(fn), inv_info), persistent);
 }
 
 void initialize_inverse() {

@@ -9,9 +9,9 @@ Author: Leonardo de Moura
 namespace lean {
 expr gexpr::to_expr(type_context_old & ctx) const {
     if (m_univ_poly) {
-        declaration const & fdecl = ctx.env().get(const_name(m_expr));
+        constant_info finfo = ctx.env().get(const_name(m_expr));
         buffer<level> ls_buffer;
-        unsigned num_univ_ps = fdecl.get_num_univ_params();
+        unsigned num_univ_ps = finfo.get_num_univ_params();
         for (unsigned i = 0; i < num_univ_ps; i++)
             ls_buffer.push_back(ctx.mk_univ_metavar_decl());
         return mk_constant(const_name(m_expr), levels(ls_buffer));

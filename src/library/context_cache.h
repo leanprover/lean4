@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 class context_cache : public context_cacheless {
-    typedef std::unordered_map<name, optional<declaration>, name_hash> transparency_cache;
+    typedef std::unordered_map<name, optional<constant_info>, name_hash> transparency_cache;
     typedef std::unordered_map<name, bool, name_hash> name2bool;
 
     /** We use expr_cond_bi_struct_map because sometimes we want the inferred type to
@@ -40,7 +40,7 @@ class context_cache : public context_cacheless {
        This restriction is sufficient to make sure the cached information can be reused. */
     infer_cache                   m_infer_cache;
 
-    /* Mapping from name to optional<declaration>, this mapping is faster than the one
+    /* Mapping from name to optional<constant_info>, this mapping is faster than the one
        at environment. Moreover, it takes into account constant reducibility annotations.
        We have four different modes.
        - All (everything is transparent).
@@ -113,7 +113,7 @@ public:
     context_cache & operator=(context_cache const &) = delete;
     context_cache & operator=(context_cache &&) = default;
 
-    virtual optional<declaration> get_decl(type_context_old &, transparency_mode, name const &) override;
+    virtual optional<constant_info> get_decl(type_context_old &, transparency_mode, name const &) override;
     virtual projection_info const * get_proj_info(type_context_old &, name const &) override;
     virtual bool get_aux_recursor(type_context_old &, name const &) override;
 

@@ -219,8 +219,8 @@ optional<name> has_default_value(environment const & env, name const & S_name, n
 expr mk_field_default_value(environment const & env, name const & full_field_name, std::function<expr(name const &)> const & get_field_value) {
     optional<name> default_name = has_default_value(env, full_field_name.get_prefix(), full_field_name.get_string());
     lean_assert(default_name);
-    declaration decl = env.get(*default_name);
-    expr value = decl.get_value();
+    constant_info info = env.get(*default_name);
+    expr value = info.get_value();
     buffer<expr> args;
     while (is_lambda(value)) {
         if (is_explicit(binding_info(value))) {
@@ -1163,10 +1163,10 @@ struct structure_cmd_fn {
 
     void add_rec_on_alias(name const & n) {
         name rec_on_name(m_name, "rec_on");
-        declaration rec_on_decl = m_env.get(rec_on_name);
+        constant_info rec_on_decl = m_env.get(rec_on_name);
         declaration new_decl = mk_definition_inferring_meta(m_env, n, rec_on_decl.get_univ_params(),
-                                                               rec_on_decl.get_type(), rec_on_decl.get_value(),
-                                                               reducibility_hints::mk_abbreviation());
+                                                            rec_on_decl.get_type(), rec_on_decl.get_value(),
+                                                            reducibility_hints::mk_abbreviation());
         m_env = module::add(m_env, new_decl);
         m_env = set_reducible(m_env, n, reducible_status::Reducible, true);
         add_alias(n);

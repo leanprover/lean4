@@ -208,13 +208,13 @@ expr prove_injective_arrow(environment const & env, expr const & inj_arrow_type,
 }
 
 environment mk_injective_arrow(environment const & env, name const & ir_name) {
-    declaration d = env.get(mk_injective_name(ir_name));
+    constant_info info = env.get(mk_injective_name(ir_name));
     type_context_old tctx(env);
 
-    name P_lp_name = mk_fresh_lp_name(d.get_univ_params());
+    name P_lp_name = mk_fresh_lp_name(info.get_univ_params());
     expr P = tctx.push_local(name("P"), mk_sort(mk_univ_param(P_lp_name)), mk_strict_implicit_binder_info());
 
-    expr ty = d.get_type();
+    expr ty = info.get_type();
     buffer<expr> args;
     while (is_pi(ty)) {
         expr arg = tctx.push_local_from_binding(ty);
@@ -240,10 +240,10 @@ environment mk_injective_arrow(environment const & env, name const & ir_name) {
 
     name inj_arrow_name = mk_injective_arrow_name(ir_name);
     expr inj_arrow_type = tctx.mk_pi(args, tctx.mk_pi(P, mk_arrow(antecedent, P)));
-    expr inj_arrow_val = prove_injective_arrow(env, inj_arrow_type, mk_injective_name(ir_name), d.get_univ_params());
+    expr inj_arrow_val = prove_injective_arrow(env, inj_arrow_type, mk_injective_name(ir_name), info.get_univ_params());
     lean_trace(name({"constructions", "injective"}), tout() << inj_arrow_name << " : " << inj_arrow_type << "\n";);
     environment new_env = module::add(env, mk_definition_inferring_meta(env, inj_arrow_name,
-                                                                        cons(P_lp_name, d.get_univ_params()), inj_arrow_type, inj_arrow_val));
+                                                                        cons(P_lp_name, info.get_univ_params()), inj_arrow_type, inj_arrow_val));
     return new_env;
 }
 

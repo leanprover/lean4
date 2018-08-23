@@ -308,7 +308,7 @@ struct elim_match_fn {
             result = false;
         } else {
             for (name const & c_name : c_names) {
-                declaration d = m_env.get(c_name);
+                constant_info d = m_env.get(c_name);
                 expr type = d.get_type();
                 if (!is_constant(type) || const_name(type) != I_name) {
                     result = false;

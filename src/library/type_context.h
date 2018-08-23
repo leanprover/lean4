@@ -865,8 +865,8 @@ private:
     void init_core(transparency_mode m);
     optional<expr> unfold_definition_core(expr const & e);
     expr whnf_core(expr const & e, bool iota_proj_reduce);
-    optional<declaration> get_decl(transparency_mode m, name const & n);
-    optional<declaration> get_decl(name const & n);
+    optional<constant_info> get_decl(transparency_mode m, name const & n);
+    optional<constant_info> get_decl(name const & n);
     bool use_zeta() const;
 
 private:
@@ -965,7 +965,7 @@ private:
     bool process_assignment_fo_approx(expr const & mvar, buffer<expr> const & args, expr const & new_v);
     bool process_assignment_fo_approx_core(expr const & mvar, buffer<expr> const & args, expr const & v);
 
-    optional<declaration> is_delta(expr const & e);
+    optional<constant_info> is_delta(expr const & e);
     enum class reduction_status { Continue, DefUnknown, DefEqual, DefDiff };
 
     bool solve_u_eq_max_u_v(level const & lhs, level const & rhs);

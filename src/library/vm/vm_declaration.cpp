@@ -105,12 +105,81 @@ unsigned declaration_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
     return static_cast<unsigned>(d.kind());
 }
 
+struct vm_constant_info : public vm_external {
+    constant_info m_val;
+    vm_constant_info(constant_info const & v):m_val(v) {}
+    virtual ~vm_constant_info() {}
+    virtual void dealloc() override { delete this; }
+    virtual vm_external * ts_clone(vm_clone_fn const &) override { return new vm_constant_info(m_val); }
+    virtual vm_external * clone(vm_clone_fn const &) override { return new vm_constant_info(m_val); }
+};
+
+bool is_constant_info(vm_obj const & o) {
+    return is_external(o) && dynamic_cast<vm_constant_info*>(to_external(o));
+}
+
+constant_info const & to_constant_info(vm_obj const & o) {
+    lean_vm_check(dynamic_cast<vm_constant_info*>(to_external(o)));
+    return static_cast<vm_constant_info*>(to_external(o))->m_val;
+}
+
+vm_obj to_obj(constant_info const & n) {
+    return mk_vm_external(new vm_constant_info(n));
+}
+
+vm_obj constant_info_defn(vm_obj const & val) {
+    return to_obj(mk_definition(to_name(cfield(cfield(val, 0), 0)),
+                                to_names(cfield(cfield(val, 0), 1)),
+                                to_expr(cfield(cfield(val, 0), 2)),
+                                to_expr(cfield(val, 1)),
+                                to_reducibility_hints(cfield(val, 2)),
+                                to_bool(cfield(val, 3))));
+}
+
+vm_obj constant_info_thm(vm_obj const & val) {
+    return to_obj(mk_theorem(to_name(cfield(cfield(val, 0), 0)),
+                             to_names(cfield(cfield(val, 0), 1)),
+                             to_expr(cfield(cfield(val, 0), 2)),
+                             to_expr(cfield(val, 1))));
+}
+
+vm_obj constant_info_ax(vm_obj const & val) {
+    return to_obj(mk_axiom(to_name(cfield(cfield(val, 0), 0)),
+                           to_names(cfield(cfield(val, 0), 1)),
+                           to_expr(cfield(cfield(val, 0), 2)),
+                           to_bool(cfield(val, 1))));
+}
+
+vm_obj mk_constant_info_val(constant_info const & d) {
+    return mk_vm_constructor(0, to_obj(d.get_name()), to_obj(d.get_univ_params()), to_obj(d.get_type()));
+}
+
+unsigned constant_info_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
+    constant_info const & d = to_constant_info(o);
+    switch (d.kind()) {
+    case constant_info_kind::Definition:
+        data.push_back(mk_vm_constructor(0, mk_constant_info_val(d), to_obj(d.get_value()), to_obj(d.get_hints()), mk_vm_bool(d.is_meta())));
+        break;
+    case constant_info_kind::Axiom:
+        data.push_back(mk_vm_constructor(0, mk_constant_info_val(d), mk_vm_bool(d.is_meta())));
+        break;
+    case constant_info_kind::Theorem:
+        data.push_back(mk_vm_constructor(0, mk_constant_info_val(d), to_obj(d.get_value())));
+        break;
+    case constant_info_kind::Quot:        lean_unreachable(); // TODO(Leo):
+    case constant_info_kind::Inductive:   lean_unreachable(); // TODO(Leo):
+    case constant_info_kind::Constructor: lean_unreachable(); // TODO(Leo):
+    case constant_info_kind::Recursor:    lean_unreachable(); // TODO(Leo):
+    }
+    return static_cast<unsigned>(d.kind());
+}
+
 /*
-/- Instantiate a universe polymorphic declaration type with the given universes. -/
-meta_constant declaration.instantiate_type_univ_params : declaration → list level → option expr
+/- Instantiate a universe polymorphic constant_info type with the given universes. -/
+meta_constant constant_info.instantiate_type_univ_params : constant_info → list level → option expr
 */
-vm_obj declaration_instantiate_type_univ_params(vm_obj const & _d, vm_obj const & _ls) {
-    declaration const & d  = to_declaration(_d);
+vm_obj constant_info_instantiate_type_univ_params(vm_obj const & _d, vm_obj const & _ls) {
+    constant_info const & d  = to_constant_info(_d);
     levels ls = to_levels(_ls);
     if (d.get_num_univ_params() != length(ls))
         return mk_vm_none();
@@ -119,11 +188,11 @@ vm_obj declaration_instantiate_type_univ_params(vm_obj const & _d, vm_obj const 
 }
 
 /*
-/- Instantiate a universe polymorphic declaration type with the given universes. -/
-meta_constant declaration.instantiate_value_univ_params : declaration → list level → option expr
+/- Instantiate a universe polymorphic constant_info type with the given universes. -/
+meta_constant constant_info.instantiate_value_univ_params : constant_info → list level → option expr
 */
-vm_obj declaration_instantiate_value_univ_params(vm_obj const & _d, vm_obj const & _ls) {
-    declaration const & d  = to_declaration(_d);
+vm_obj constant_info_instantiate_value_univ_params(vm_obj const & _d, vm_obj const & _ls) {
+    constant_info const & d  = to_constant_info(_d);
     levels ls = to_levels(_ls);
     if (!d.has_value() || d.get_num_univ_params() != length(ls))
         return mk_vm_none();
@@ -132,12 +201,12 @@ vm_obj declaration_instantiate_value_univ_params(vm_obj const & _d, vm_obj const
 }
 
 void initialize_vm_declaration() {
-    DECLARE_VM_BUILTIN(name({"lean", "constant_info", "defn_info"}),  declaration_defn);
-    DECLARE_VM_BUILTIN(name({"lean", "constant_info", "thm_info"}),   declaration_thm);
-    DECLARE_VM_BUILTIN(name({"lean", "constant_info", "axiom_info"}), declaration_ax);
-    DECLARE_VM_BUILTIN(name({"lean", "constant_info", "instantiate_type_univ_params"}),  declaration_instantiate_type_univ_params);
-    DECLARE_VM_BUILTIN(name({"lean", "constant_info", "instantiate_value_univ_params"}), declaration_instantiate_value_univ_params);
-    DECLARE_VM_CASES_BUILTIN(name({"lean", "constant_info", "cases_on"}), declaration_cases_on);
+    DECLARE_VM_BUILTIN(name({"lean", "constant_info", "defn_info"}),  constant_info_defn);
+    DECLARE_VM_BUILTIN(name({"lean", "constant_info", "thm_info"}),   constant_info_thm);
+    DECLARE_VM_BUILTIN(name({"lean", "constant_info", "axiom_info"}), constant_info_ax);
+    DECLARE_VM_BUILTIN(name({"lean", "constant_info", "instantiate_type_univ_params"}),  constant_info_instantiate_type_univ_params);
+    DECLARE_VM_BUILTIN(name({"lean", "constant_info", "instantiate_value_univ_params"}), constant_info_instantiate_value_univ_params);
+    DECLARE_VM_CASES_BUILTIN(name({"lean", "constant_info", "cases_on"}), constant_info_cases_on);
 }
 
 void finalize_vm_declaration() {

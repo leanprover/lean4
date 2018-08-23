@@ -79,9 +79,9 @@ class expand_aux_fn : public compiler_step_visitor {
         expr const & fn = get_app_fn(e);
         if (!is_constant(fn))
             return false;
-        name const & n = const_name(fn);
-        declaration d   = env().get(n);
-        if (!d.is_definition() || is_projection(env(), n) || is_no_confusion(env(), n) ||
+        name const & n  = const_name(fn);
+        constant_info info = env().get(n);
+        if (!info.is_definition() || is_projection(env(), n) || is_no_confusion(env(), n) ||
             ::lean::is_aux_recursor(env(), n) || is_user_defined_recursor(env(), n))
             return false;
         return !is_vm_function(env(), n);
@@ -173,7 +173,7 @@ class preprocess_fn {
     context_cache  m_cache;
     name_set       m_decl_names; /* name of the functions being compiled */
 
-    bool check(declaration const & d, expr const & v) {
+    bool check(constant_info const & d, expr const & v) {
         bool memoize       = true;
         bool non_meta_only = false;
         old_type_checker tc(m_env, memoize, non_meta_only);
@@ -200,7 +200,7 @@ class preprocess_fn {
 
        This procedure returns true if type of d is a proposition or return a type,
        and store the dummy code above in */
-    bool compile_irrelevant(declaration const & d, buffer<procedure> & procs) {
+    bool compile_irrelevant(constant_info const & d, buffer<procedure> & procs) {
         type_context_old ctx(m_env, transparency_mode::All);
         expr type = d.get_type();
         type_context_old::tmp_locals locals(ctx);
@@ -221,18 +221,18 @@ class preprocess_fn {
     }
 
 public:
-    preprocess_fn(environment const & env, declaration const & d):
+    preprocess_fn(environment const & env, constant_info const & d):
         m_env(env) {
         m_decl_names.insert(d.get_name());
     }
 
-    preprocess_fn(environment const & env, buffer<declaration> const & ds):
+    preprocess_fn(environment const & env, buffer<constant_info> const & ds):
         m_env(env) {
-        for (declaration const & d : ds)
+        for (constant_info const & d : ds)
             m_decl_names.insert(d.get_name());
     }
 
-    void operator()(declaration const & d, buffer<procedure> & procs) {
+    void operator()(constant_info const & d, buffer<procedure> & procs) {
         if (compile_irrelevant(d, procs))
             return;
         expr v = d.get_value();
@@ -274,13 +274,13 @@ public:
     }
 };
 
-void preprocess(environment const & env, declaration const & d, buffer<procedure> & result) {
+void preprocess(environment const & env, constant_info const & d, buffer<procedure> & result) {
     return preprocess_fn(env, d)(d, result);
 }
 
-void preprocess(environment const & env, buffer<declaration> const & ds, buffer<procedure> & result) {
+void preprocess(environment const & env, buffer<constant_info> const & ds, buffer<procedure> & result) {
     preprocess_fn F(env, ds);
-    for (declaration const & d : ds) {
+    for (constant_info const & d : ds) {
         buffer<procedure> procs;
         F(d, procs);
         result.append(procs);

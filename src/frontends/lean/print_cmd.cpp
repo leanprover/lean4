@@ -48,14 +48,14 @@ struct print_axioms_deps {
         if (m_visited.contains(n))
             return;
         m_visited.insert(n);
-        declaration const & d = m_env.get(n);
-        if (d.is_axiom() && !m_env.is_builtin(n)) {
+        constant_info info = m_env.get(n);
+        if (info.is_axiom() && !m_env.is_builtin(n)) {
             m_use_axioms = true;
-            m_ios << d.get_name() << "\n";
+            m_ios << info.get_name() << "\n";
         }
-        visit(d.get_type());
-        if (d.has_value())
-            visit(d.get_value());
+        visit(info.get_type());
+        if (info.has_value())
+            visit(info.get_value());
     }
 
     void visit(expr const & e) {
@@ -86,10 +86,10 @@ static void print_axioms(parser & p, message_builder & out) {
         print_axioms_deps(env, new_out)(c);
     } else {
         bool has_axioms = false;
-        p.env().for_each_declaration([&](declaration const & d) {
-                name const & n = d.get_name();
-                if (d.is_axiom() && !p.env().is_builtin(n) && !d.is_meta()) {
-                    out << n << " : " << d.get_type() << endl;
+        p.env().for_each_constant([&](constant_info const & info) {
+                name const & n = info.get_name();
+                if (info.is_axiom() && !p.env().is_builtin(n) && !info.is_meta()) {
+                    out << n << " : " << info.get_type() << endl;
                     has_axioms = true;
                 }
             });
@@ -100,14 +100,14 @@ static void print_axioms(parser & p, message_builder & out) {
 
 static void print_prefix(parser & p, message_builder & out) {
     name prefix = p.check_id_next("invalid '#print prefix' command, identifier expected");
-    buffer<declaration> to_print;
-    p.env().for_each_declaration([&](declaration const & d) {
-            if (is_prefix_of(prefix, d.get_name())) {
-                to_print.push_back(d);
+    buffer<constant_info> to_print;
+    p.env().for_each_constant([&](constant_info const & info) {
+            if (is_prefix_of(prefix, info.get_name())) {
+                to_print.push_back(info);
             }
         });
-    std::sort(to_print.begin(), to_print.end(), [](declaration const & d1, declaration const & d2) { return d1.get_name() < d2.get_name(); });
-    for (declaration const & d : to_print) {
+    std::sort(to_print.begin(), to_print.end(), [](constant_info const & d1, constant_info const & d2) { return d1.get_name() < d2.get_name(); });
+    for (constant_info const & d : to_print) {
         out << d.get_name() << " : " << d.get_type() << "\n";
     }
     if (to_print.empty())
@@ -119,7 +119,7 @@ static void print_fields(parser const & p, message_builder & out, name const & S
     if (!is_structure(env, S))
         throw parser_error(sstream() << "invalid '#print fields' command, '" << S << "' is not a structure", pos);
     for (name const & field_name : get_structure_fields(env, S)) {
-        declaration d = env.get(S + field_name);
+        constant_info d = env.get(S + field_name);
         out << d.get_name() << " : " << d.get_type() << endl;
     }
 }
@@ -219,7 +219,7 @@ static name to_user_name(environment const & env, name const & n) {
 }
 
 static void print_definition(environment const & env, message_builder & out, name const & n, pos_info const & pos) {
-    declaration d = env.get(n);
+    constant_info d = env.get(n);
     if (!d.has_value())
         throw parser_error(sstream() << "invalid '#print definition', '" << to_user_name(env, n) << "' is not a definition", pos);
     options opts        = out.get_text_stream().get_options();
@@ -321,7 +321,7 @@ static void print_recursor_info(parser & p, message_builder & out) {
     }
 }
 
-static bool print_constant(parser const & p, message_builder & out, char const * kind, declaration const & d, bool is_def = false) {
+static bool print_constant(parser const & p, message_builder & out, char const * kind, constant_info const & d, bool is_def = false) {
     print_attributes(p, out, d.get_name());
     if (is_protected(p.env(), d.get_name()))
         out << "protected ";
@@ -351,7 +351,7 @@ void print_id_info(parser & p, message_builder & out, name const & id, bool show
     bool first = true;
     for (name const & c : cs) {
         if (first) first = false; else out << "\n";
-        declaration const & d = env.get(c);
+        constant_info d = env.get(c);
         if (d.is_theorem()) {
             print_constant(p, out, "theorem", d, show_value);
             try {
@@ -516,7 +516,7 @@ environment print_cmd(parser & p) {
                 first = false;
             else
                 out << "\n";
-            declaration const & d = p.env().get(c);
+            constant_info d = p.env().get(c);
             if (d.is_theorem()) {
                 print_constant(p, out, "theorem", d);
                 print_definition(env, out, c, pos);

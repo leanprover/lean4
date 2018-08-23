@@ -54,7 +54,7 @@ class old_type_checker : public abstract_type_context {
     enum class reduction_status { Continue, DefUnknown, DefEqual, DefDiff };
     optional<expr> norm_ext(expr const & e);
     expr whnf_core(expr const & e);
-    optional<declaration> is_delta(expr const & e) const;
+    optional<constant_info> is_delta(expr const & e) const;
     optional<expr> unfold_definition_core(expr const & e);
     optional<expr> unfold_definition(expr const & e);
 

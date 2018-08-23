@@ -491,19 +491,19 @@ expr type_context_old::mk_pi(std::initializer_list<expr> const & locals, expr co
    Normalization
    -------------------- */
 
-optional<declaration> type_context_old::get_decl(transparency_mode m, name const & n) {
+optional<constant_info> type_context_old::get_decl(transparency_mode m, name const & n) {
     if (m_transparency_pred) {
         if ((*m_transparency_pred)(n)) {
             return env().find(n);
         } else {
-            return optional<declaration>();
+            return none_constant_info();
         }
     } else {
         return m_cache->get_decl(*this, m, n);
     }
 }
 
-optional<declaration> type_context_old::get_decl(name const & n) {
+optional<constant_info> type_context_old::get_decl(name const & n) {
     return get_decl(m_transparency_mode, n);
 }
 
@@ -520,10 +520,10 @@ static bool is_smart_unfolding_target(environment const & env, name const & fn_n
 
 static expr ext_unfold_fn(environment const & env, expr const & fn) {
     lean_assert(is_constant(fn));
-    if (optional<declaration> meta_d = env.find(mk_smart_unfolding_name_for(const_name(fn)))) {
-        return instantiate_value_univ_params(*meta_d, const_levels(fn));
-    } else if (optional<declaration> d = env.find(const_name(fn))) {
-        return instantiate_value_univ_params(*d, const_levels(fn));
+    if (optional<constant_info> meta_info = env.find(mk_smart_unfolding_name_for(const_name(fn)))) {
+        return instantiate_value_univ_params(*meta_info, const_levels(fn));
+    } else if (optional<constant_info> info = env.find(const_name(fn))) {
+        return instantiate_value_univ_params(*info, const_levels(fn));
     } else {
         lean_unreachable();
     }
@@ -561,8 +561,8 @@ optional<expr> type_context_old::unfold_definition(expr const & e) {
         expr f0 = get_app_fn(e);
         if (!is_constant(f0))
             return none_expr();
-        optional<declaration> d = get_decl(const_name(f0));
-        if (!d || length(const_levels(f0)) != d->get_num_univ_params())
+        optional<constant_info> info = get_decl(const_name(f0));
+        if (!info || length(const_levels(f0)) != info->get_num_univ_params())
             return none_expr();
         if (m_smart_unfolding && is_smart_unfolding_target(env(), const_name(f0))) {
             expr it = e;
@@ -598,8 +598,8 @@ optional<expr> type_context_old::unfold_definition(expr const & e) {
                         lean_trace(name({"type_context", "smart_unfolding"}), tout() << "fail 1 [" << m_unfold_depth << "]\n";);
                         return none_expr();
                     }
-                    optional<declaration> new_it_d = env().find(const_name(new_it_fn));
-                    if (!new_it_d || !new_it_d->has_value() || length(const_levels(new_it_fn)) != new_it_d->get_num_univ_params()) {
+                    optional<constant_info> new_it_info = env().find(const_name(new_it_fn));
+                    if (!new_it_info || !new_it_info->has_value() || length(const_levels(new_it_fn)) != new_it_info->get_num_univ_params()) {
                         lean_trace(name({"type_context", "smart_unfolding"}), tout() << "fail 2 [" << m_unfold_depth << "] " << whnf_core(new_it, true) << "\n";);
                         return none_expr();
                     }
@@ -609,7 +609,7 @@ optional<expr> type_context_old::unfold_definition(expr const & e) {
         } else {
             /* TODO(Leo): should we block unfolding of constants defined using well founded recursion? */
             lean_trace(name({"type_context", "smart_unfolding"}), tout() << "using simple unfolding [" << m_unfold_depth << "]\n" << e << "\n";);
-            expr f = instantiate_value_univ_params(*d, const_levels(f0));
+            expr f = instantiate_value_univ_params(*info, const_levels(f0));
             buffer<expr> args;
             get_app_rev_args(e, args);
             expr r = apply_beta(f, args.size(), args.data());
@@ -1081,8 +1081,8 @@ expr type_context_old::infer_metavar(expr const & e) {
 }
 
 expr type_context_old::infer_constant(expr const & e) {
-    declaration d   = env().get(const_name(e));
-    auto const & ps = d.get_univ_params();
+    constant_info info = env().get(const_name(e));
+    auto const & ps = info.get_univ_params();
     auto const & ls = const_levels(e);
     if (length(ps) != length(ls)) {
         throw generic_exception(e, [=](formatter const & fmt) {
@@ -1090,7 +1090,7 @@ expr type_context_old::infer_constant(expr const & e) {
                 return format("infer type failed, incorrect number of universe levels") + pp_indent_expr(new_fmt, e);
             });
     }
-    return instantiate_type_univ_params(d, ls);
+    return instantiate_type_univ_params(info, ls);
 }
 
 expr type_context_old::infer_lambda(expr e) {
@@ -1661,12 +1661,12 @@ bool type_context_old::process_postponed(scope const & s) {
 
 /** \brief Return some definition \c d iff \c e is a target for delta-reduction,
     and the given definition is the one to be expanded. */
-optional<declaration> type_context_old::is_delta(expr const & e) {
+optional<constant_info> type_context_old::is_delta(expr const & e) {
     expr const & f = get_app_fn(e);
     if (is_constant(f)) {
         return get_decl(const_name(f));
     } else {
-        return none_declaration();
+        return none_constant_info();
     }
 }
 
@@ -3018,26 +3018,26 @@ lbool type_context_old::try_nat_offset_cnstrs(expr const & t, expr const & s) {
 }
 
 lbool type_context_old::is_def_eq_delta(expr const & t, expr const & s) {
-    optional<declaration> d_t = is_delta(t);
-    optional<declaration> d_s = is_delta(s);
+    optional<constant_info> t_info = is_delta(t);
+    optional<constant_info> s_info = is_delta(s);
 
-    if (d_t && !d_s) {
+    if (t_info && !s_info) {
         /* Only t can be delta reduced */
-        lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold left: " << d_t->get_name() << "\n";);
+        lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold left: " << t_info->get_name() << "\n";);
         if (auto new_t = unfold_definition(t))
             return to_lbool(is_def_eq_core_core(*new_t, s));
         else
             return l_undef;
-    } else if (!d_t && d_s) {
+    } else if (!t_info && s_info) {
         /* Only s can be delta reduced */
-        lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold right: " << d_s->get_name() << "\n";);
+        lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold right: " << s_info->get_name() << "\n";);
         if (auto new_s = unfold_definition(s))
             return to_lbool(is_def_eq_core_core(t, *new_s));
         else
             return l_undef;
-    } else if (d_t && d_s) {
+    } else if (t_info && s_info) {
         /* Both can be delta reduced */
-        if (is_eqp(*d_t, *d_s)) {
+        if (is_eqp(*t_info, *s_info)) {
             /* Same constant */
             if (is_app(t) && is_app(s)) {
                 bool has_postponed = !m_postponed.empty();
@@ -3054,7 +3054,7 @@ lbool type_context_old::is_def_eq_delta(expr const & t, expr const & s) {
                     }
                 }
                 /* Heuristic failed, then unfold both of them */
-                lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold left&right: " << d_t->get_name() << "\n";);
+                lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold left&right: " << t_info->get_name() << "\n";);
                 auto new_t = unfold_definition(t);
                 auto new_s = unfold_definition(s);
                 if (new_s && new_t)
@@ -3083,14 +3083,14 @@ lbool type_context_old::is_def_eq_delta(expr const & t, expr const & s) {
                    Remark: this can only happen if transparency_mode
                    is Semireducible or All
                 */
-                auto rd_t = get_decl(transparency_mode::Instances, d_t->get_name());
-                auto rd_s = get_decl(transparency_mode::Instances, d_s->get_name());
-                if (rd_t && !rd_s) {
-                    lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold (reducible) left: " << d_t->get_name() << "\n";);
+                auto rt_info = get_decl(transparency_mode::Instances, t_info->get_name());
+                auto rs_info = get_decl(transparency_mode::Instances, s_info->get_name());
+                if (rt_info && !rs_info) {
+                    lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold (reducible) left: " << t_info->get_name() << "\n";);
                     if (auto new_t = unfold_definition(t))
                         return to_lbool(is_def_eq_core_core(*new_t, s));
-                } else if (!rd_t && rd_s) {
-                    lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold (reducible) right: " << d_s->get_name() << "\n";);
+                } else if (!rt_info && rs_info) {
+                    lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold (reducible) right: " << s_info->get_name() << "\n";);
                     if (auto new_s = unfold_definition(s))
                         return to_lbool(is_def_eq_core_core(t, *new_s));
                 }
@@ -3100,7 +3100,7 @@ lbool type_context_old::is_def_eq_delta(expr const & t, expr const & s) {
                then we try to use the definitional height to decide which one we will unfold
                (i.e., we mimic the behavior of the kernel type checker. */
             if (!has_expr_metavar(t) && !has_expr_metavar(s)) {
-                int c = compare(d_t->get_hints(), d_s->get_hints());
+                int c = compare(t_info->get_hints(), s_info->get_hints());
                 if (c < 0) {
                     if (auto new_t = unfold_definition(t))
                         return to_lbool(is_def_eq_core_core(*new_t, s));

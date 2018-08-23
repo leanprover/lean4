@@ -33,15 +33,13 @@ expr head_beta_reduce(expr const & t);
 */
 expr instantiate_univ_params(expr const & e, level_param_names const & ps, levels const & ls);
 
-class declaration;
-/** \brief Instantiate the universe level parameters of the type of the given declaration.
-    \pre d.get_num_univ_params() == length(ls)
-*/
-expr instantiate_type_univ_params(declaration const & d, levels const & ls);
-/** \brief Instantiate the universe level parameters of the value of the given declaration.
-    \pre d.get_num_univ_params() == length(ls)
-*/
-expr instantiate_value_univ_params(declaration const & d, levels const & ls);
+class constant_info;
+/** \brief Instantiate the universe level parameters of the type of the given constant.
+    \pre d.get_num_univ_params() == length(ls) */
+expr instantiate_type_univ_params(constant_info const & info, levels const & ls);
+/** \brief Instantiate the universe level parameters of the value of the given constant.
+    \pre d.get_num_univ_params() == length(ls) */
+expr instantiate_value_univ_params(constant_info const & info, levels const & ls);
 
 /** \brief Clear thread local caches used by instantiate_value_univ_params and instantiate_type_univ_params.
     We clear the caches whenever we enable expression caching (aka max sharing).

@@ -73,12 +73,12 @@ static bool is_noncomputable(old_type_checker & tc, noncomputable_ext const & ex
     environment const & env = tc.env();
     if (ext.m_noncomputable.contains(n))
         return true;
-    declaration const & d = env.get(n);
-    if (d.is_meta()) {
+    constant_info info = env.get(n);
+    if (info.is_meta()) {
         return false; /* ignore nontrusted definitions */
-    } else if (d.is_axiom()) {
-        return !env.is_builtin(d.get_name()) && !tc.is_prop(d.get_type()) && !is_sort(d.get_type()) &&
-               !is_builtin_extra(d.get_name());
+    } else if (info.is_axiom()) {
+        return !env.is_builtin(info.get_name()) && !tc.is_prop(info.get_type()) && !is_sort(info.get_type()) &&
+               !is_builtin_extra(info.get_name());
     } else {
         return false;
     }
@@ -203,13 +203,13 @@ struct get_noncomputable_reason_fn {
 };
 
 optional<name> get_noncomputable_reason(environment const & env, name const & n) {
-    declaration const & d = env.get(n);
-    if (!d.has_value())
+    constant_info info = env.get(n);
+    if (!info.has_value())
         return optional<name>();
     old_type_checker tc(env);
-    if (tc.is_prop(d.get_type()))
+    if (tc.is_prop(info.get_type()))
         return optional<name>(); // definition is a proposition, then do nothing
-    expr const & v = d.get_value();
+    expr const & v = info.get_value();
     auto ext = get_extension(env);
     bool ok  = true;
     /* quick check */

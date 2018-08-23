@@ -249,10 +249,10 @@ class add_nested_inductive_decl_fn {
     }
 
     void check_elim_to_type() {
-        declaration d_nest = m_env.get(get_dep_recursor(m_env, const_name(get_app_fn(m_nested_occ))));
-        declaration d_inner = m_env.get(get_dep_recursor(m_env, mk_inner_name(const_name(get_app_fn(m_nested_occ)))));
-        bool nest_elim_to_type = d_nest.get_num_univ_params() > length(const_levels(get_app_fn(m_nested_occ)));
-        bool inner_elim_to_type = d_inner.get_num_univ_params() > m_inner_decl.get_lp_names().size();
+        constant_info nest_info = m_env.get(get_dep_recursor(m_env, const_name(get_app_fn(m_nested_occ))));
+        constant_info inner_info = m_env.get(get_dep_recursor(m_env, mk_inner_name(const_name(get_app_fn(m_nested_occ)))));
+        bool nest_elim_to_type = nest_info.get_num_univ_params() > length(const_levels(get_app_fn(m_nested_occ)));
+        bool inner_elim_to_type = inner_info.get_num_univ_params() > m_inner_decl.get_lp_names().size();
         // Note: this exception may not be needed once the kernel is updated so that all inductive types that may or may not live in Prop must
         // eliminate to Type.
         if (nest_elim_to_type != inner_elim_to_type)
@@ -875,9 +875,9 @@ class add_nested_inductive_decl_fn {
         // Elim levels
         levels elim_levels = const_levels(fn);
         {
-            declaration d = m_env.get(get_dep_recursor(m_env, const_name(fn)));
-            if (length(elim_levels) < d.get_num_univ_params()) {
-                lean_assert(length(elim_levels) + 1 == d.get_num_univ_params());
+            constant_info info = m_env.get(get_dep_recursor(m_env, const_name(fn)));
+            if (length(elim_levels) < info.get_num_univ_params()) {
+                lean_assert(length(elim_levels) + 1 == info.get_num_univ_params());
                 level unpacked_level = get_level(m_tctx, mk_app(start, indices));
                 level packed_level = get_level(m_tctx, mk_app(end, indices));
                 lean_assert(unpacked_level == packed_level);
@@ -1544,8 +1544,8 @@ class add_nested_inductive_decl_fn {
             expr const & nested_ind = m_nested_decl.get_ind(ind_idx);
             expr const & inner_ind = m_inner_decl.get_ind(ind_idx);
 
-            declaration d = m_env.get(get_dep_recursor(m_env, local_name(inner_ind)));
-            level_param_names lp_names = d.get_univ_params();
+            constant_info info = m_env.get(get_dep_recursor(m_env, local_name(inner_ind)));
+            level_param_names lp_names = info.get_univ_params();
             levels lvls = param_names_to_levels(lp_names);
 
             expr inner_recursor = mk_app(mk_constant(get_dep_recursor(m_env, local_name(inner_ind)), lvls), m_nested_decl.get_params());
@@ -1704,8 +1704,8 @@ class add_nested_inductive_decl_fn {
             expr const & nested_ind = m_nested_decl.get_ind(ind_idx);
             expr const & inner_ind = m_inner_decl.get_ind(ind_idx);
 
-            declaration d = m_env.get(inductive::get_elim_name(local_name(inner_ind)));
-            level_param_names lp_names = d.get_univ_params();
+            constant_info info = m_env.get(inductive::get_elim_name(local_name(inner_ind)));
+            level_param_names lp_names = info.get_univ_params();
             levels lvls = param_names_to_levels(lp_names);
 
             expr inner_cases_on = mk_app(mk_constant(name(local_name(inner_ind), "cases_on"), lvls), m_nested_decl.get_params());

@@ -769,9 +769,9 @@ bool is_rfl_lemma(environment const & env, name const & cname) {
     return get_refl_lemma_attribute().is_instance(env, cname);
 }
 
-static levels mk_tmp_levels_for(type_context_old & ctx, declaration const & d) {
+static levels mk_tmp_levels_for(type_context_old & ctx, constant_info const & info) {
     buffer<level> us;
-    unsigned num_univs = d.get_num_univ_params();
+    unsigned num_univs = info.get_num_univ_params();
     for (unsigned i = 0; i < num_univs; i++) {
         us.push_back(ctx.mk_tmp_univ_mvar());
     }
@@ -781,9 +781,9 @@ static levels mk_tmp_levels_for(type_context_old & ctx, declaration const & d) {
 static simp_lemmas add_core(type_context_old & ctx, simp_lemmas const & s, name const & cname, unsigned priority) {
     environment const & env = ctx.env();
     type_context_old::tmp_mode_scope scope(ctx);
-    declaration const & d = env.get(cname);
-    levels ls = mk_tmp_levels_for(ctx, d);
-    expr type = instantiate_type_univ_params(d, ls);
+    constant_info info = env.get(cname);
+    levels ls = mk_tmp_levels_for(ctx, info);
+    expr type = instantiate_type_univ_params(info, ls);
     expr proof = mk_constant(cname, ls);
     if (is_rfl_lemma(env, cname)) {
         buffer<expr> emetas;
@@ -885,14 +885,14 @@ static bool is_valid_congr_hyp_rhs(expr const & rhs, name_set & found_mvars) {
 
 static simp_lemmas add_congr_core(type_context_old & ctx, simp_lemmas const & s, name const & n, unsigned prio) {
     type_context_old::tmp_mode_scope scope(ctx);
-    declaration const & d = ctx.env().get(n);
+    constant_info info = ctx.env().get(n);
     buffer<level> us;
-    unsigned num_univs = d.get_num_univ_params();
+    unsigned num_univs = info.get_num_univ_params();
     for (unsigned i = 0; i < num_univs; i++) {
         us.push_back(ctx.mk_tmp_univ_mvar());
     }
     levels ls(us);
-    expr rule    = instantiate_type_univ_params(d, ls);
+    expr rule    = instantiate_type_univ_params(info, ls);
     expr proof   = mk_constant(n, ls);
 
     buffer<expr> emetas;
@@ -1514,9 +1514,9 @@ static bool is_valid_simp_lemma_cnst(name const & cname, tactic_state s) {
         tactic_state_context_cache cache(s);
         type_context_old ctx = cache.mk_type_context();
         type_context_old::tmp_mode_scope scope(ctx);
-        declaration const & d = ctx.env().get(cname);
-        levels ls  = mk_tmp_levels_for(ctx, d);
-        expr type  = instantiate_type_univ_params(d, ls);
+        constant_info info = ctx.env().get(cname);
+        levels ls  = mk_tmp_levels_for(ctx, info);
+        expr type  = instantiate_type_univ_params(info, ls);
         expr proof = mk_constant(cname, ls);
         return !is_nil(to_ceqvs(ctx, cname, type, proof));
     } catch (exception &) {

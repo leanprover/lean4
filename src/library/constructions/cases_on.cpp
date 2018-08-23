@@ -34,21 +34,21 @@ environment mk_cases_on(environment const & env, name const & n) {
     name cases_on_name(n, "cases_on");
     name_generator ngen    = mk_constructions_name_generator();
     name rec_name          = inductive::get_elim_name(n);
-    declaration rec_decl   = env.get(rec_name);
-    declaration ind_decl   = env.get(n);
+    constant_info rec_info = env.get(rec_name);
+    constant_info ind_info = env.get(n);
     unsigned num_idx_major = *inductive::get_num_indices(env, n) + 1;
     unsigned num_minors    = *inductive::get_num_minor_premises(env, n);
     unsigned num_params    = decl->m_num_params;
     buffer<expr> rec_params;
-    expr rec_type = rec_decl.get_type();
+    expr rec_type = rec_info.get_type();
     while (is_pi(rec_type)) {
         expr local = mk_local(ngen.next(), binding_name(rec_type), binding_domain(rec_type), binding_info(rec_type));
         rec_type   = instantiate(binding_body(rec_type), local);
         rec_params.push_back(local);
     }
 
-    levels lvls       = param_names_to_levels(rec_decl.get_univ_params());
-    bool elim_to_prop = rec_decl.get_num_univ_params() == ind_decl.get_num_univ_params();
+    levels lvls       = param_names_to_levels(rec_info.get_univ_params());
+    bool elim_to_prop = rec_info.get_num_univ_params() == ind_info.get_num_univ_params();
     level elim_univ   = elim_to_prop ? mk_level_zero() : head(lvls);
 
     optional<expr> unit;
@@ -111,7 +111,7 @@ environment mk_cases_on(environment const & env, name const & n) {
     expr cases_on_type  = Pi(cases_on_params, rec_type);
     expr cases_on_value = Fun(cases_on_params,  mk_app(rec_cnst, rec_args));
 
-    declaration new_d = mk_definition_inferring_meta(env, cases_on_name, rec_decl.get_univ_params(), cases_on_type, cases_on_value,
+    declaration new_d = mk_definition_inferring_meta(env, cases_on_name, rec_info.get_univ_params(), cases_on_type, cases_on_value,
                                                      reducibility_hints::mk_abbreviation());
     environment new_env = module::add(env, new_d);
     new_env = set_reducible(new_env, cases_on_name, reducible_status::Reducible, true);

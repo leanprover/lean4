@@ -133,8 +133,8 @@ class inductive_cmd_fn {
 
     /** \brief Return true if eliminator/recursor can eliminate into any universe */
     bool has_general_eliminator(name const & d_name) {
-        declaration d = m_env.get(d_name);
-        declaration r = m_env.get(mk_rec_name(d_name));
+        constant_info d = m_env.get(d_name);
+        constant_info r = m_env.get(mk_rec_name(d_name));
         return d.get_num_univ_params() != r.get_num_univ_params();
     }
 

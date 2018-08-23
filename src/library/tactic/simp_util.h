@@ -19,9 +19,9 @@ class instantiate_emetas_fn {
         if (!p) return none_expr();
         optional<name> c = name_lit_to_name(p->second);
         if (!c) return none_expr();
-        optional<declaration> d = tmp_ctx.env().find(*c);
-        if (!d) return none_expr();
-        if (!tmp_ctx.is_def_eq(d->get_type(), mk_tactic_unit())) return none_expr();
+        optional<constant_info> info = tmp_ctx.env().find(*c);
+        if (!info) return none_expr();
+        if (!tmp_ctx.is_def_eq(info->get_type(), mk_tactic_unit())) return none_expr();
 
         vm_obj tac = get_vm_state().get_constant(*c);
         tactic_state s  = mk_tactic_state_for(tmp_ctx.env(), tmp_ctx.ctx().get_options(), name("_simp_auto_param"), tmp_ctx.ctx().lctx(), p->first);

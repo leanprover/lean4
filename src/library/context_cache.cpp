@@ -19,13 +19,13 @@ context_cache::context_cache(options const & o):
 context_cache::~context_cache() {
 }
 
-optional<declaration> context_cache::get_decl(type_context_old & ctx, transparency_mode m, name const & n) {
+optional<constant_info> context_cache::get_decl(type_context_old & ctx, transparency_mode m, name const & n) {
     auto & cache = m_transparency_cache[static_cast<unsigned>(m)];
     auto it = cache.find(n);
     if (it != cache.end()) {
         return it->second;
     }
-    optional<declaration> r = context_cacheless::get_decl(ctx, m, n);
+    optional<constant_info> r = context_cacheless::get_decl(ctx, m, n);
     cache.insert(mk_pair(n, r));
     return r;
 }

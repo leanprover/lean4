@@ -823,11 +823,11 @@ environment mk_equation_lemma(environment const & env, options const & opts, met
 environment mk_simple_equation_lemma_for(environment const & env, options const & opts, bool is_private, name const & c, name const & c_actual, unsigned arity) {
     if (!env.find(get_eq_name())) return env;
     if (!get_eqn_compiler_lemmas(opts)) return env;
-    declaration d = env.get(c_actual);
+    constant_info info = env.get(c_actual);
     type_context_old ctx(env, transparency_mode::All);
-    expr type  = d.get_type();
-    expr value = d.get_value();
-    expr lhs   = mk_constant(c_actual, param_names_to_levels(d.get_univ_params()));
+    expr type  = info.get_type();
+    expr value = info.get_value();
+    expr lhs   = mk_constant(c_actual, param_names_to_levels(info.get_univ_params()));
     type_context_old::tmp_locals locals(ctx);
     for (unsigned i = 0; i < arity; i++) {
         type  = ctx.relaxed_whnf(type);
@@ -1028,9 +1028,9 @@ struct replace_aux_meta_fn : public replace_visitor {
 
 environment mk_smart_unfolding_definition(environment const & env, options const & o, name const & n) {
     type_context_old ctx(env, o, metavar_context(), local_context());
-    declaration const & d = env.get(n);
-    expr val  = d.get_value();
-    levels ls = param_names_to_levels(d.get_univ_params());
+    constant_info info = env.get(n);
+    expr val  = info.get_value();
+    levels ls = param_names_to_levels(info.get_univ_params());
     type_context_old::tmp_locals locals(ctx);
     while (is_lambda(val)) {
         val = instantiate(binding_body(val), locals.push_local_from_binding(val));
@@ -1052,9 +1052,9 @@ environment mk_smart_unfolding_definition(environment const & env, options const
     name meta_aux_fn_name = mk_aux_meta_rec_name(fn_name);
 
     expr helper_value;
-    if (optional<declaration> aux_d = env.find(meta_aux_fn_name)) {
+    if (optional<constant_info> aux_info = env.find(meta_aux_fn_name)) {
         expr new_fn  = mk_app(mk_constant(n, ls), locals.size(), locals.data());
-        helper_value = instantiate_value_univ_params(*aux_d, const_levels(fn));
+        helper_value = instantiate_value_univ_params(*aux_info, const_levels(fn));
         helper_value = apply_beta(helper_value, args.size(), args.data());
         replace_aux_meta_fn proc(meta_aux_fn_name, new_fn, args.size());
         helper_value = proc(helper_value);
@@ -1067,7 +1067,7 @@ environment mk_smart_unfolding_definition(environment const & env, options const
 
     helper_value = locals.mk_lambda(helper_value);
     try {
-        declaration def = mk_definition(env, mk_smart_unfolding_name_for(n), d.get_univ_params(), d.get_type(), helper_value, true);
+        declaration def = mk_definition(env, mk_smart_unfolding_name_for(n), info.get_univ_params(), info.get_type(), helper_value, true);
         return module::add(env, def);
     } catch (exception & ex) {
         throw nested_exception("failed to generate helper declaration for smart unfolding, type error", std::current_exception());

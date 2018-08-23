@@ -153,14 +153,14 @@ class app_builder {
 
     environment const & env() const { return m_ctx.env(); }
 
-    levels mk_metavars(declaration const & d, buffer<expr> & mvars, buffer<optional<expr>> & inst_args) {
-        unsigned num_univ = d.get_num_univ_params();
+    levels mk_metavars(constant_info const & info, buffer<expr> & mvars, buffer<optional<expr>> & inst_args) {
+        unsigned num_univ = info.get_num_univ_params();
         buffer<level> lvls_buffer;
         for (unsigned i = 0; i < num_univ; i++) {
             lvls_buffer.push_back(m_ctx.mk_tmp_univ_mvar());
         }
         levels lvls(lvls_buffer);
-        expr type   = m_ctx.relaxed_whnf(instantiate_type_univ_params(d, lvls));
+        expr type   = m_ctx.relaxed_whnf(instantiate_type_univ_params(info, lvls));
         while (is_pi(type)) {
             expr mvar = m_ctx.mk_tmp_mvar(binding_domain(type));
             if (is_inst_implicit(binding_info(type)))
@@ -178,14 +178,14 @@ class app_builder {
         lean_assert(k.check_invariant());
         auto it = m_cache.m_map.find(k);
         if (it == m_cache.m_map.end()) {
-            if (auto d = env().find(c)) {
+            if (optional<constant_info> info = env().find(c)) {
                 buffer<expr> mvars;
                 buffer<optional<expr>> inst_args;
-                levels lvls = mk_metavars(*d, mvars, inst_args);
+                levels lvls = mk_metavars(*info, mvars, inst_args);
                 if (nargs > mvars.size())
                     return optional<entry>(); // insufficient number of arguments
                 entry e;
-                e.m_num_umeta = d->get_num_univ_params();
+                e.m_num_umeta = info->get_num_univ_params();
                 e.m_num_emeta = mvars.size();
                 e.m_app       = ::lean::mk_app(mk_constant(c, lvls), mvars);
                 e.m_inst_args = reverse_to_list(inst_args.begin(), inst_args.end());
@@ -200,18 +200,18 @@ class app_builder {
         }
     }
 
-    levels mk_metavars(declaration const & d, unsigned arity, buffer<expr> & mvars, buffer<optional<expr>> & inst_args) {
-        unsigned num_univ = d.get_num_univ_params();
+    levels mk_metavars(constant_info const & info, unsigned arity, buffer<expr> & mvars, buffer<optional<expr>> & inst_args) {
+        unsigned num_univ = info.get_num_univ_params();
         buffer<level> lvls_buffer;
         for (unsigned i = 0; i < num_univ; i++) {
             lvls_buffer.push_back(m_ctx.mk_tmp_univ_mvar());
         }
         levels lvls(lvls_buffer);
-        expr type   = instantiate_type_univ_params(d, lvls);
+        expr type   = instantiate_type_univ_params(info, lvls);
         for (unsigned i = 0; i < arity; i++) {
             type   = m_ctx.relaxed_whnf(type);
             if (!is_pi(type)) {
-                trace_failure(d.get_name(), arity, "too many arguments");
+                trace_failure(info.get_name(), arity, "too many arguments");
                 throw app_builder_exception();
             }
             expr mvar = m_ctx.mk_tmp_mvar(binding_domain(type));

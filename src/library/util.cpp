@@ -274,9 +274,9 @@ bool is_inductive_predicate(environment const & env, name const & n) {
 bool can_elim_to_type(environment const & env, name const & n) {
     if (!inductive::is_inductive_decl(env, n))
         return false; // n is not inductive datatype
-    declaration ind_decl = env.get(n);
-    declaration rec_decl = env.get(inductive::get_elim_name(n));
-    return rec_decl.get_num_univ_params() > ind_decl.get_num_univ_params();
+    constant_info ind_info = env.get(n);
+    constant_info rec_info = env.get(inductive::get_elim_name(n));
+    return rec_info.get_num_univ_params() > ind_info.get_num_univ_params();
 }
 
 void get_intro_rule_names(environment const & env, name const & n, buffer<name> & result) {
@@ -301,10 +301,10 @@ optional<name> is_constructor_app_ext(environment const & env, expr const & e) {
     expr const & f = get_app_fn(e);
     if (!is_constant(f))
         return optional<name>();
-    auto decl = env.find(const_name(f));
-    if (!decl || !decl->has_value())
+    optional<constant_info> info = env.find(const_name(f));
+    if (!info || !info->has_value())
         return optional<name>();
-    expr const * it = &decl->get_value();
+    expr const * it = &info->get_value();
     while (is_lambda(*it))
         it = &binding_body(*it);
     return is_constructor_app_ext(env, *it);

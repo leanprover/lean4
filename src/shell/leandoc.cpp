@@ -22,7 +22,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 static char const * get_decl_kind(environment const & env, name const & id) {
-    declaration const & d = env.get(id);
+    constant_info d = env.get(id);
     if (d.is_theorem()) return "Theorem";
 
     if (d.is_axiom()) {
@@ -59,7 +59,7 @@ static void add_string(format & r, char const * s) {
     r += format(s) + space();
 }
 
-static void print_constant(std::ostream & out, environment const & env, formatter const & fmt, char const * kind, declaration const & d) {
+static void print_constant(std::ostream & out, environment const & env, formatter const & fmt, char const * kind, constant_info const & d) {
     options const & o = fmt.get_options();
     out << "```lean\n";
     format r;
@@ -84,7 +84,7 @@ static void print_fields(std::ostream & out, environment const & env, formatter 
     options const & o = fmt.get_options();
     out << "```lean\n";
     for (name const & field_name : get_structure_fields(env, S)) {
-        declaration d = env.get(S + field_name);
+        constant_info d = env.get(S + field_name);
         format r;
         r += format(d.get_name());
         r += space() + colon() + space();
@@ -135,7 +135,7 @@ static void print_inductive(std::ostream & out, environment const & env, formatt
 }
 
 static void print_id_info(std::ostream & out, environment const & env, formatter const & fmt, name const & id) {
-    declaration const & d = env.get(id);
+    constant_info d = env.get(id);
     if (d.is_theorem()) {
         print_constant(out, env, fmt, "theorem", d);
     } else if (d.is_axiom()) {

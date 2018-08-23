@@ -506,10 +506,10 @@ struct wf_rec_fn {
             name prev_fn_name;
             while (true) {
                 name packed_eqn_name = mk_equation_name(packed_name, i);
-                optional<declaration> packed_eqn_decl = m_env.find(packed_eqn_name);
-                if (!packed_eqn_decl) break;
-                levels packed_eqn_levels = param_names_to_levels(packed_eqn_decl->get_univ_params());
-                expr packed_eqn_type = instantiate_type_univ_params(*packed_eqn_decl, packed_eqn_levels);
+                optional<constant_info> packed_eqn_info = m_env.find(packed_eqn_name);
+                if (!packed_eqn_info) break;
+                levels packed_eqn_levels = param_names_to_levels(packed_eqn_info->get_univ_params());
+                expr packed_eqn_type = instantiate_type_univ_params(*packed_eqn_info, packed_eqn_levels);
                 type_context_old::tmp_locals args(ctx);
                 expr packed_eqn = packed_eqn_type;
                 while (true) {
@@ -538,7 +538,7 @@ struct wf_rec_fn {
                 has_prev_fn_name = true;
                 expr new_eqn     = mk_eq(ctx, *new_lhs, new_rhs);
                 expr new_type    = args.mk_pi(new_eqn);
-                expr new_proof   = args.mk_lambda(mk_app(mk_constant(packed_eqn_decl->get_name(), packed_eqn_levels),
+                expr new_proof   = args.mk_lambda(mk_app(mk_constant(packed_eqn_info->get_name(), packed_eqn_levels),
                                                        args.size(), args.data()));
                 m_env = mk_aux_lemma(m_env, ctx.mctx(), ctx.lctx(),
                                      mk_equation_name(fn_name, next_eqn_idx),
@@ -623,8 +623,8 @@ bool uses_well_founded_recursion(environment const & env, name const & n) {
         (n.get_string() == "_mutual" || n.get_string() == "_pack")) {
         return true;
     }
-    declaration d = env.get(n);
-    expr val = d.get_value();
+    constant_info info = env.get(n);
+    expr val = info.get_value();
     while (is_lambda(val))
         val = binding_body(val);
     expr const & fn = get_app_fn(val);

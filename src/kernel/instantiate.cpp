@@ -17,7 +17,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 class instantiate_univ_cache {
-    typedef std::tuple<declaration, levels, expr> entry;
+    typedef std::tuple<constant_info, levels, expr> entry;
     unsigned                     m_capacity;
     std::vector<optional<entry>> m_cache;
 public:
@@ -26,15 +26,15 @@ public:
             m_capacity++;
     }
 
-    optional<expr> is_cached(declaration const & d, levels const & ls) {
+    optional<expr> is_cached(constant_info const & d, levels const & ls) {
         if (m_cache.empty())
             return none_expr();
         lean_assert(m_cache.size() == m_capacity);
         unsigned idx = d.get_name().hash() % m_capacity;
         if (auto it = m_cache[idx]) {
-            declaration d_c; levels ls_c; expr r_c;
-            std::tie(d_c, ls_c, r_c) = *it;
-            if (!is_eqp(d_c, d))
+            constant_info info_c; levels ls_c; expr r_c;
+            std::tie(info_c, ls_c, r_c) = *it;
+            if (!is_eqp(info_c, d))
                 return none_expr();
             if (ls == ls_c)
                 return some_expr(r_c);
@@ -44,7 +44,7 @@ public:
         return none_expr();
     }
 
-    void save(declaration const & d, levels const & ls, expr const & r) {
+    void save(constant_info const & d, levels const & ls, expr const & r) {
         if (m_cache.empty())
             m_cache.resize(m_capacity);
         lean_assert(m_cache.size() == m_capacity);
@@ -181,27 +181,27 @@ expr instantiate_univ_params(expr const & e, level_param_names const & ps, level
 MK_THREAD_LOCAL_GET(instantiate_univ_cache, get_type_univ_cache, LEAN_INST_UNIV_CACHE_SIZE);
 MK_THREAD_LOCAL_GET(instantiate_univ_cache, get_value_univ_cache, LEAN_INST_UNIV_CACHE_SIZE);
 
-expr instantiate_type_univ_params(declaration const & d, levels const & ls) {
-    lean_assert(d.get_num_univ_params() == length(ls));
-    if (is_nil(ls) || !has_param_univ(d.get_type()))
-        return d.get_type();
+expr instantiate_type_univ_params(constant_info const & info, levels const & ls) {
+    lean_assert(info.get_num_univ_params() == length(ls));
+    if (is_nil(ls) || !has_param_univ(info.get_type()))
+        return info.get_type();
     instantiate_univ_cache & cache = get_type_univ_cache();
-    if (auto r = cache.is_cached(d, ls))
+    if (auto r = cache.is_cached(info, ls))
         return *r;
-    expr r = instantiate_univ_params(d.get_type(), d.get_univ_params(), ls);
-    cache.save(d, ls, r);
+    expr r = instantiate_univ_params(info.get_type(), info.get_univ_params(), ls);
+    cache.save(info, ls, r);
     return r;
 }
 
-expr instantiate_value_univ_params(declaration const & d, levels const & ls) {
-    lean_assert(d.get_num_univ_params() == length(ls));
-    if (is_nil(ls) || !has_param_univ(d.get_value()))
-        return d.get_value();
+expr instantiate_value_univ_params(constant_info const & info, levels const & ls) {
+    lean_assert(info.get_num_univ_params() == length(ls));
+    if (is_nil(ls) || !has_param_univ(info.get_value()))
+        return info.get_value();
     instantiate_univ_cache & cache = get_value_univ_cache();
-    if (auto r = cache.is_cached(d, ls))
+    if (auto r = cache.is_cached(info, ls))
         return *r;
-    expr r = instantiate_univ_params(d.get_value(), d.get_univ_params(), ls);
-    cache.save(d, ls, r);
+    expr r = instantiate_univ_params(info.get_value(), info.get_univ_params(), ls);
+    cache.save(info, ls, r);
     return r;
 }
 

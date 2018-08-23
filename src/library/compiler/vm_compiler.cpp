@@ -371,7 +371,7 @@ static environment vm_compile(environment const & env, buffer<procedure> const &
     return new_env;
 }
 
-environment vm_compile(environment const & env, buffer<declaration> const & ds, bool optimize_bytecode) {
+environment vm_compile(environment const & env, buffer<constant_info> const & ds, bool optimize_bytecode) {
     buffer<procedure> procs;
     preprocess(env, ds, procs);
     return vm_compile(env, procs, optimize_bytecode);
@@ -393,16 +393,16 @@ static optional<environment> try_reuse_aux_meta_code(environment const & env, na
                                              v_decl->get_args_info(), v_decl->get_pos_info()));
 }
 
-environment vm_compile(environment const & env, declaration const & d, bool optimize_bytecode) {
-    if (!d.is_definition() || is_noncomputable(env, d.get_name()) || is_vm_builtin_function(d.get_name()))
+environment vm_compile(environment const & env, constant_info const & info, bool optimize_bytecode) {
+    if (!info.is_definition() || is_noncomputable(env, info.get_name()) || is_vm_builtin_function(info.get_name()))
         return env;
 
-    if (auto new_env = try_reuse_aux_meta_code(env, d.get_name()))
+    if (auto new_env = try_reuse_aux_meta_code(env, info.get_name()))
         return *new_env;
 
-    buffer<declaration> ds;
-    ds.push_back(d);
-    return vm_compile(env, ds, optimize_bytecode);
+    buffer<constant_info> infos;
+    infos.push_back(info);
+    return vm_compile(env, infos, optimize_bytecode);
 }
 
 void initialize_vm_compiler() {

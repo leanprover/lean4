@@ -717,10 +717,10 @@ class add_mutual_inductive_decl_fn {
 
     void define_recursors() {
         name rec_name          = get_dep_recursor(m_env, local_name(m_basic_decl.get_ind(0)));
-        declaration rec_decl   = m_env.get(rec_name);
+        constant_info rec_info = m_env.get(rec_name);
 
-        level_param_names rec_lp_names = rec_decl.get_univ_params();
-        bool elim_to_prop = rec_decl.get_num_univ_params() == m_basic_decl.get_lp_names().size();
+        level_param_names rec_lp_names = rec_info.get_univ_params();
+        bool elim_to_prop = rec_info.get_num_univ_params() == m_basic_decl.get_lp_names().size();
         m_elim_level      = elim_to_prop ? mk_level_zero() : mk_univ_param(head(rec_lp_names));
 
         levels rec_levels = param_names_to_levels(rec_lp_names);

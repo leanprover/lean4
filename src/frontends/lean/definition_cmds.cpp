@@ -334,7 +334,7 @@ static environment copy_equation_lemmas(environment const & env, buffer<name> co
     buffer<expr> vals;
     buffer<expr> new_vals;
     for (unsigned d_idx = 0; d_idx < d_names.size(); d_idx++) {
-        declaration const & d = env.get(d_names[d_idx]);
+        constant_info d = env.get(d_names[d_idx]);
         expr val;
         if (d_idx == 0) {
             lps = d.get_univ_params();
@@ -372,17 +372,17 @@ static environment copy_equation_lemmas(environment const & env, buffer<name> co
         unsigned i = 1;
         while (true) {
             name eqn_name = mk_equation_name(const_name(fn), i);
-            optional<declaration> eqn_decl = env.find(eqn_name);
-            if (!eqn_decl) break;
+            optional<constant_info> eqn_info = env.find(eqn_name);
+            if (!eqn_info) break;
             expr lhs; unsigned num_eqn_params;
-            std::tie(lhs, num_eqn_params) = get_lemma_lhs(eqn_decl->get_type());
+            std::tie(lhs, num_eqn_params) = get_lemma_lhs(eqn_info->get_type());
             buffer<expr> lhs_args;
             expr const & lhs_fn = get_app_args(lhs, lhs_args);
             if (!is_constant(lhs_fn) || const_name(lhs_fn) != const_name(fn) || lhs_args.size() < args.size())
                 throw_unexpected_error_at_copy_lemmas();
             /* Get levels for instantiating the lemma */
             buffer<level> eqn_level_buffer;
-            get_levels_for_instantiating_lemma(eqn_decl->get_univ_params(),
+            get_levels_for_instantiating_lemma(eqn_info->get_univ_params(),
                                                const_levels(lhs_fn),
                                                const_levels(fn),
                                                eqn_level_buffer);
@@ -391,7 +391,7 @@ static environment copy_equation_lemmas(environment const & env, buffer<name> co
             buffer<expr> eqn_args;
             get_args_for_instantiating_lemma(num_eqn_params, lhs_args, args, eqn_args);
             /* Convert type */
-            expr eqn_type = instantiate_type_univ_params(*eqn_decl, eqn_levels);
+            expr eqn_type = instantiate_type_univ_params(*eqn_info, eqn_levels);
             for (unsigned j = 0; j < eqn_args.size(); j++) eqn_type = binding_body(eqn_type);
             eqn_type = instantiate_rev(eqn_type, eqn_args);
             expr new_eqn_type = replace(eqn_type, [&](expr const & e, unsigned) {

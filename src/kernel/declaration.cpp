@@ -151,8 +151,8 @@ bool use_meta(environment const & env, expr const & e) {
     for_each(e, [&](expr const & e, unsigned) {
             if (found) return false;
             if (is_constant(e)) {
-                if (auto d = env.find(const_name(e))) {
-                    if (d->is_meta()) {
+                if (auto info = env.find(const_name(e))) {
+                    if (info->is_meta()) {
                         found = true;
                         return false;
                     }
@@ -246,6 +246,35 @@ inductive_decl::inductive_decl(names const & lparams, nat const & nparams, induc
 }
 
 bool inductive_decl::is_meta() const { return cnstr_scalar<unsigned char>(raw(), inductive_decl_scalar_offset()) != 0; }
+
+// =======================================
+// Constant info
+constant_info::constant_info():constant_info(*g_dummy) {}
+
+constant_info::constant_info(declaration const & d):object_ref(d.raw()) {
+    lean_assert(d.is_definition() || d.is_theorem() || d.is_axiom());
+    inc_ref(d.raw());
+}
+
+reducibility_hints const & constant_info::get_hints() const {
+    if (is_definition())
+        return static_cast<reducibility_hints const &>(cnstr_obj_ref(to_val(), 2));
+    else
+        return *g_opaque;
+}
+
+bool constant_info::is_meta() const {
+    switch (kind()) {
+    case constant_info_kind::Definition:  return cnstr_scalar<unsigned char>(get_val_obj(), definition_scalar_offset()) != 0;
+    case constant_info_kind::Inductive:   return false; // TODO(Leo): to_inductive_val().is_meta();
+    case constant_info_kind::Quot:        return false;
+    case constant_info_kind::Constructor: return false; // TODO(Leo): to_constructor_val().is_meta();
+    case constant_info_kind::Recursor:    return false; // TODO(Leo): to_recursor_val().is_meta();
+    case constant_info_kind::Axiom:       return cnstr_scalar<unsigned char>(get_val_obj(), axiom_scalar_offset()) != 0;
+    case constant_info_kind::Theorem:     return false;
+    }
+    lean_unreachable();
+}
 
 void initialize_declaration() {
     g_opaque = new reducibility_hints(reducibility_hints::mk_opaque());

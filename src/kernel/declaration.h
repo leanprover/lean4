@@ -172,6 +172,18 @@ public:
 };
 
 /*
+inductive quot_kind
+| type  -- `quot`
+| cnstr -- `quot.mk`
+| lift  -- `quot.lift`
+| ind   -- `quot.ind`
+
+structure quot_val extends declaration_val :=
+(kind : quot_kind)
+*/
+
+
+/*
 inductive declaration
 | axiom_decl  (val : axiom_val)
 | defn_decl   (val : definition_val)
@@ -310,6 +322,61 @@ public:
     inductive_types const & get_types() const { return static_cast<inductive_types const &>(cnstr_obj_ref(*this, 2)); }
     bool is_meta() const;
 };
+
+/*
+/-- Information associated with constant declarations. -/
+inductive constant_info
+| axiom_info    (val : axiom_val)
+| defn_info     (val : definition_val)
+| thm_info      (val : theorem_val)
+| quot_info     (val : quot_val)
+| induct_info   (val : inductive_val)
+| cnstr_info    (val : constructor_val)
+| rec_info      (val : recursor_val)
+*/
+enum class constant_info_kind { Axiom, Definition, Theorem, Quot, Inductive, Constructor, Recursor };
+class constant_info : public object_ref {
+    object * get_val_obj() const { return cnstr_obj(raw(), 0); }
+    object_ref const & to_val() const { return cnstr_obj_ref(*this, 0); }
+    declaration_val const & to_declaration_val() const { return static_cast<declaration_val const &>(cnstr_obj_ref(to_val(), 0)); }
+public:
+    constant_info();
+    constant_info(declaration const & d);
+    constant_info(constant_info const & other):object_ref(other) {}
+    constant_info(constant_info && other):object_ref(other) {}
+    constant_info_kind kind() const { return static_cast<constant_info_kind>(cnstr_tag(raw())); }
+
+    constant_info & operator=(constant_info const & other) { object_ref::operator=(other); return *this; }
+    constant_info & operator=(constant_info && other) { object_ref::operator=(other); return *this; }
+
+    friend bool is_eqp(constant_info const & d1, constant_info const & d2) { return d1.raw() == d2.raw(); }
+
+    bool is_meta() const;
+
+    bool is_definition() const { return kind() == constant_info_kind::Definition; }
+    bool is_axiom() const { return kind() == constant_info_kind::Axiom; }
+    bool is_theorem() const { return kind() == constant_info_kind::Theorem; }
+
+    name const & get_name() const { return to_declaration_val().get_name(); }
+    level_param_names const & get_univ_params() const { return to_declaration_val().get_lparams(); }
+    unsigned get_num_univ_params() const { return length(get_univ_params()); }
+    expr const & get_type() const { return to_declaration_val().get_type(); }
+    bool has_value() const { return is_theorem() || is_definition(); }
+    expr const & get_value() const { lean_assert(has_value()); return static_cast<expr const &>(cnstr_obj_ref(to_val(), 1)); }
+    reducibility_hints const & get_hints() const;
+
+    // inductive_val const & to_inductive_val() const { lean_assert(is_inductive()); return static_cast<inductive_val const &>(to_val()); }
+    // constructor_val const & to_constructor_val() const { lean_assert(is_constructor()); return static_cast<constructor_val const &>(to_val()); }
+    // recursor_val const & to_recursor_val() const { lean_assert(is_recursor()); return static_cast<recursor_val const &>(to_val()); }
+};
+
+inline optional<constant_info> none_constant_info() { return optional<constant_info>(); }
+inline optional<constant_info> some_constant_info(constant_info const & o) { return optional<constant_info>(o); }
+inline optional<constant_info> some_constant_info(constant_info && o) { return optional<constant_info>(std::forward<constant_info>(o)); }
+
+static_assert(static_cast<unsigned>(declaration_kind::Axiom) == static_cast<unsigned>(constant_info_kind::Axiom), "declaration vs constant_info tag mismatch");
+static_assert(static_cast<unsigned>(declaration_kind::Definition) == static_cast<unsigned>(constant_info_kind::Definition), "declaration vs constant_info tag mismatch");
+static_assert(static_cast<unsigned>(declaration_kind::Theorem) == static_cast<unsigned>(constant_info_kind::Theorem), "declaration vs constant_info tag mismatch");
 
 void initialize_declaration();
 void finalize_declaration();

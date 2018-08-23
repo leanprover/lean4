@@ -31,16 +31,16 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
         throw exception(sstream() << "error in 'no_confusion' generation, '" << n << "' is not an inductive datatype");
     if (is_inductive_predicate(env, n) || !can_elim_to_type(env, n))
         return optional<environment>();
-    name_generator ngen    = mk_constructions_name_generator();
-    unsigned nparams       = decl->m_num_params;
-    declaration ind_decl   = env.get(n);
-    declaration cases_decl = env.get(name(n, "cases_on"));
-    level_param_names lps  = cases_decl.get_univ_params();
-    level  plvl            = mk_univ_param(head(lps));
-    levels ilvls           = param_names_to_levels(tail(lps));
-    level rlvl             = plvl;
-    expr ind_type          = instantiate_type_univ_params(ind_decl, ilvls);
-    level ind_lvl          = get_datatype_level(env, ind_type);
+    name_generator ngen      = mk_constructions_name_generator();
+    unsigned nparams         = decl->m_num_params;
+    constant_info ind_info   = env.get(n);
+    constant_info cases_info = env.get(name(n, "cases_on"));
+    level_param_names lps    = cases_info.get_univ_params();
+    level  plvl              = mk_univ_param(head(lps));
+    levels ilvls             = param_names_to_levels(tail(lps));
+    level rlvl               = plvl;
+    expr ind_type            = instantiate_type_univ_params(ind_info, ilvls);
+    level ind_lvl            = get_datatype_level(env, ind_type);
     // All inductive datatype parameters and indices are arguments
     buffer<expr> args;
     ind_type = to_telescope(ind_type, args, some(mk_implicit_binder_info()));
@@ -69,7 +69,7 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
     expr type_former = Fun(type_former_args, R);
     // Create cases_on
     levels clvls   = levels(mk_succ(rlvl), ilvls);
-    expr cases_on  = mk_app(mk_app(mk_constant(cases_decl.get_name(), clvls), nparams, args.data()), type_former);
+    expr cases_on  = mk_app(mk_app(mk_constant(cases_info.get_name(), clvls), nparams, args.data()), type_former);
     cases_on       = mk_app(cases_on, nindices, args.data() + nparams);
     expr cases_on1 = mk_app(cases_on, v1);
     expr cases_on2 = mk_app(cases_on, v2);
@@ -135,23 +135,23 @@ environment mk_no_confusion(environment const & env, name const & n) {
         return env;
     environment new_env = *env1;
     old_type_checker tc(new_env);
-    name_generator ngen                = mk_constructions_name_generator();
-    inductive::inductive_decl decl     = *inductive::is_inductive_decl(new_env, n);
-    unsigned nparams                   = decl.m_num_params;
-    declaration ind_decl               = env.get(n);
-    declaration no_confusion_type_decl = new_env.get(name{n, "no_confusion_type"});
-    declaration cases_decl             = new_env.get(name(n, "cases_on"));
-    level_param_names lps              = no_confusion_type_decl.get_univ_params();
-    levels ls                          = param_names_to_levels(lps);
-    expr ind_type                      = instantiate_type_univ_params(ind_decl, tail(ls));
-    level ind_lvl                      = get_datatype_level(env, ind_type);
-    expr no_confusion_type_type        = instantiate_type_univ_params(no_confusion_type_decl, ls);
+    name_generator ngen                  = mk_constructions_name_generator();
+    inductive::inductive_decl decl       = *inductive::is_inductive_decl(new_env, n);
+    unsigned nparams                     = decl.m_num_params;
+    constant_info ind_info               = env.get(n);
+    constant_info no_confusion_type_info = new_env.get(name{n, "no_confusion_type"});
+    constant_info cases_info             = new_env.get(name(n, "cases_on"));
+    level_param_names lps                = no_confusion_type_info.get_univ_params();
+    levels ls                            = param_names_to_levels(lps);
+    expr ind_type                        = instantiate_type_univ_params(ind_info, tail(ls));
+    level ind_lvl                        = get_datatype_level(env, ind_type);
+    expr no_confusion_type_type          = instantiate_type_univ_params(no_confusion_type_info, ls);
     buffer<expr> args;
     expr type = no_confusion_type_type;
     type = to_telescope(type, args, some(mk_implicit_binder_info()));
     lean_assert(args.size() >= nparams + 3);
     unsigned nindices = args.size() - nparams - 3; // 3 is for P v1 v2
-    expr range        = mk_app(mk_constant(no_confusion_type_decl.get_name(), ls), args);
+    expr range        = mk_app(mk_constant(no_confusion_type_info.get_name(), ls), args);
     expr P            = args[args.size()-3];
     expr v1           = args[args.size()-2];
     expr v2           = args[args.size()-1];
@@ -182,11 +182,11 @@ environment mk_no_confusion(environment const & env, name const & n) {
     no_confusion_type_args.push_back(P);
     no_confusion_type_args.push_back(v1);
     no_confusion_type_args.push_back(v1);
-    expr no_confusion_type_app = mk_app(mk_constant(no_confusion_type_decl.get_name(), ls), no_confusion_type_args);
+    expr no_confusion_type_app = mk_app(mk_constant(no_confusion_type_info.get_name(), ls), no_confusion_type_args);
     expr type_former = Fun(type_former_args, no_confusion_type_app);
     // create cases_on
     levels clvls   = ls;
-    expr cases_on  = mk_app(mk_app(mk_constant(cases_decl.get_name(), clvls), nparams, args.data()), type_former);
+    expr cases_on  = mk_app(mk_app(mk_constant(cases_info.get_name(), clvls), nparams, args.data()), type_former);
     cases_on       = mk_app(mk_app(cases_on, nindices, args.data() + nparams), v1);
     expr cot       = tc.infer(cases_on);
 
@@ -226,7 +226,7 @@ environment mk_no_confusion(environment const & env, name const & n) {
     // reusing no_confusion_type_args... we just replace the last argument with a
     no_confusion_type_args.pop_back();
     no_confusion_type_args.push_back(a);
-    expr no_confusion_type_app_1a = mk_app(mk_constant(no_confusion_type_decl.get_name(), ls), no_confusion_type_args);
+    expr no_confusion_type_app_1a = mk_app(mk_constant(no_confusion_type_info.get_name(), ls), no_confusion_type_args);
     expr rec_type_former = Fun(a, Pi(H1a, no_confusion_type_app_1a));
     // finalize eq_rec
     eq_rec = mk_app(mk_app(eq_rec, rec_type_former, gen, v2, H12), H12);

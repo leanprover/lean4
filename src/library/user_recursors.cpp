@@ -110,10 +110,10 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
         has_given_major_pos   = true;
         given_major_pos       = num_params + 1 /* motive */ + num_indices;
     }
-    declaration d = env.get(r);
+    constant_info info = env.get(r);
     old_type_checker tc(env);
     buffer<expr> tele;
-    expr rtype    = to_telescope(tc, d.get_type(), tele);
+    expr rtype    = to_telescope(tc, info.get_type(), tele);
     buffer<expr> C_args;
     expr C        = get_app_args(rtype, C_args);
     if (!is_local(C) || !std::all_of(C_args.begin(), C_args.end(), is_local)) {
@@ -229,7 +229,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
 
     // A universe parameter must occur in the major premise or in the motive
     buffer<unsigned> univ_param_pos;
-    for (name const & p : d.get_univ_params()) {
+    for (name const & p : info.get_univ_params()) {
         if (!is_zero(motive_lvl) && param_id(motive_lvl) == p) {
             univ_param_pos.push_back(recursor_info::get_motive_univ_idx());
         } else {

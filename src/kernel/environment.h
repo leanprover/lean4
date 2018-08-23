@@ -64,19 +64,19 @@ typedef std::vector<std::shared_ptr<environment_extension const>> environment_ex
        at any time. They contain information used by the automation (e.g., rewriting sets, unification hints, etc). */
 class environment {
     typedef std::shared_ptr<environment_header const>     header;
-    typedef name_map<declaration>                         declarations;
+    typedef name_map<constant_info>                       constants;
     typedef std::shared_ptr<environment_extensions const> extensions;
     friend class add_inductive_fn;
 
     header                    m_header;
     bool                      m_quot_initialized{false};
-    declarations              m_declarations;
+    constants                 m_constants;
     extensions                m_extensions;
 
-    environment(environment const & env, declarations const & ds):
-        m_header(env.m_header), m_quot_initialized(env.m_quot_initialized), m_declarations(ds), m_extensions(env.m_extensions) {}
+    environment(environment const & env, constants const & cs):
+        m_header(env.m_header), m_quot_initialized(env.m_quot_initialized), m_constants(cs), m_extensions(env.m_extensions) {}
     environment(environment const & env, extensions const & exts):
-        m_header(env.m_header), m_quot_initialized(env.m_quot_initialized), m_declarations(env.m_declarations), m_extensions(exts) {}
+        m_header(env.m_header), m_quot_initialized(env.m_quot_initialized), m_constants(env.m_constants), m_extensions(exts) {}
 
     environment add_defn_thm_axiom(declaration const & d, bool check) const;
 public:
@@ -96,11 +96,11 @@ public:
     /** \brief Return reference to the normalizer extension associatied with this environment. */
     normalizer_extension const & norm_ext() const { return m_header->norm_ext(); }
 
-    /** \brief Return declaration with name \c n (if it is defined in this environment). */
-    optional<declaration> find(name const & n) const;
+    /** \brief Return information for the constant with name \c n (if it is defined in this environment). */
+    optional<constant_info> find(name const & n) const;
 
-    /** \brief Return declaration with name \c n. Throws and exception if declaration does not exist in this environment. */
-    declaration get(name const & n) const;
+    /** \brief Return information for the constant with name \c n. Throws and exception if constant declaration does not exist in this environment. */
+    constant_info get(name const & n) const;
 
     /** \brief Extends the current environment with the given declaration */
     environment add(declaration const & d, bool check = true) const;
@@ -136,18 +136,18 @@ public:
     /** \brief Update the environment extension with the given id. */
     environment update(unsigned extid, std::shared_ptr<environment_extension const> const & ext) const;
 
-    /** \brief Apply the function \c f to each declaration */
-    void for_each_declaration(std::function<void(declaration const & d)> const & f) const;
+    /** \brief Apply the function \c f to each constant */
+    void for_each_constant(std::function<void(constant_info const & d)> const & f) const;
 
     /** \brief Return true iff declarations and extensions of e1 and e2 are pointer equal */
     friend bool is_eqp(environment const & e1, environment const & e2) {
         return
-            is_eqp(e1.m_declarations, e2.m_declarations) &&
+            is_eqp(e1.m_constants, e2.m_constants) &&
             e1.m_extensions.get() == e2.m_extensions.get();
     }
 
     friend bool is_decl_eqp(environment const & e1, environment const & e2) {
-        return is_eqp(e1.m_declarations, e2.m_declarations);
+        return is_eqp(e1.m_constants, e2.m_constants);
     }
 };
 

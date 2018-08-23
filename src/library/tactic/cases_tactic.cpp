@@ -591,40 +591,7 @@ cases(environment const & env, options const & opts, transparency_mode const & m
     return r;
 }
 
-vm_obj tactic_cases_core(vm_obj const & H, vm_obj const & ns, vm_obj const & m, vm_obj const & _s) {
-    tactic_state const & s   = tactic::to_state(_s);
-    try {
-        if (!s.goals()) return mk_no_goals_exception(s);
-        names ids       = to_names(ns);
-        metavar_context mctx = s.mctx();
-        list<list<expr>> hyps;
-        hsubstitution_list substs;
-        bool unfold_ginductive = false;
-        pair<list<expr>, names> info = cases(s.env(), s.get_options(), to_transparency_mode(m), mctx,
-                                                  head(s.goals()), to_expr(H), ids, &hyps, &substs,
-                                                  unfold_ginductive);
-        names constrs = info.second;
-        buffer<vm_obj> info_objs;
-        while (!is_nil(hyps)) {
-            buffer<vm_obj> substs_objs;
-            head(substs).for_each([&](name const & from, expr const & to) {
-                    substs_objs.push_back(mk_vm_pair(to_obj(from), to_obj(to)));
-                });
-            info_objs.push_back(mk_vm_pair(to_obj(head(constrs)), mk_vm_pair(to_obj(head(hyps)), to_obj(substs_objs))));
-            hyps    = tail(hyps);
-            substs  = tail(substs);
-            constrs = tail(constrs);
-        }
-        return tactic::mk_success(to_obj(info_objs), set_mctx_goals(s, mctx, append(info.first, tail(s.goals()))));
-    } catch (cases_tactic_exception & ex) {
-        return tactic::mk_exception(std::current_exception(), ex.m_s);
-    } catch (exception & ex) {
-        return tactic::mk_exception(std::current_exception(), s);
-    }
-}
-
 void initialize_cases_tactic() {
-    DECLARE_VM_BUILTIN(name({"tactic", "cases_core"}), tactic_cases_core);
     register_trace_class(name{"tactic", "cases"});
 }
 

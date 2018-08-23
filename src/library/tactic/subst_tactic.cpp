@@ -120,73 +120,7 @@ expr subst(environment const & env, options const & opts, transparency_mode cons
     return *mvar6;
 }
 
-/* n is the internal name of a hypothesis that represents an equality */
-vm_obj tactic_subst_core(name const & n, bool symm, tactic_state const & s) {
-    try {
-        metavar_context mctx = s.mctx();
-        expr mvar = head(s.goals());
-        expr H    = mctx.get_local(mvar, n);
-        expr new_mvar = subst(s.env(), s.get_options(), transparency_mode::Semireducible, mctx, mvar, H, symm, nullptr);
-        return tactic::mk_success(set_mctx_goals(s, mctx, cons(new_mvar, tail(s.goals()))));
-    } catch (exception & ex) {
-        return tactic::mk_exception(std::current_exception(), s);
-    }
-}
-
-vm_obj tactic_subst(expr const & l, tactic_state const & s) {
-    optional<metavar_decl> g   = s.get_main_goal_decl();
-    if (!g) return mk_no_goals_exception(s);
-    metavar_context mctx       = s.mctx();
-    local_context lctx         = g->get_context();
-    if (!is_local(l))
-        return tactic::mk_exception(sstream() << "subst tactic failed, given expression is not a local constant", s);
-    optional<local_decl> d     = lctx.find_local_decl(l);
-    if (!d)
-        return tactic::mk_exception(sstream() << "subst tactic failed, unknown '" << local_pp_name(l) << "' hypothesis", s);
-    expr type = mctx.instantiate_mvars(d->get_type());
-    expr lhs, rhs;
-    if (is_eq(type, lhs, rhs)) {
-        if (is_local(rhs) && !depends_on(lhs, mctx, lctx, rhs)) {
-            return tactic_subst_core(d->get_name(), true, s);
-        } else if (is_local(lhs) && !depends_on(rhs, mctx, lctx, lhs)) {
-            return tactic_subst_core(d->get_name(), false, s);
-        } else {
-            return tactic::mk_exception(sstream() << "subst tactic failed, hypothesis '"
-                                        << local_pp_name(l) << "' is not of the form (x = t) or (t = x)", s);
-        }
-    } else {
-        bool found = false;
-        vm_obj r;
-        lctx.for_each_after(*d, [&](local_decl const & d2) {
-                if (found) return;
-                expr lhs, rhs;
-                expr type = mctx.instantiate_mvars(d2.get_type());
-                if (is_eq(type, lhs, rhs)) {
-                    if (is_local(lhs) && local_name(lhs) == d->get_name() && !depends_on(rhs, mctx, lctx, lhs)) {
-                        found = true;
-                        r     = tactic_subst_core(d2.get_name(), false, s);
-                    } else if (is_local(rhs) && local_name(rhs) == d->get_name() && !depends_on(lhs, mctx, lctx, rhs)) {
-                        found = true;
-                        r     = tactic_subst_core(d2.get_name(), true, s);
-                    }
-                }
-            });
-        if (found) {
-            return r;
-        } else {
-            return tactic::mk_exception(sstream() << "subst tactic failed, hypothesis '"
-                                       << local_pp_name(l) << "' is not a variable nor an equation of the form (x = t) or (t = x)", s);
-        }
-    }
-}
-
-vm_obj tactic_subst(vm_obj const & e, vm_obj const & s) {
-    return tactic_subst(to_expr(e), tactic::to_state(s));
-}
-
 void initialize_subst_tactic() {
-    DECLARE_VM_BUILTIN(name({"tactic", "subst_core"}), tactic_subst);
-    register_trace_class(name{"tactic", "subst"});
 }
 
 void finalize_subst_tactic() {

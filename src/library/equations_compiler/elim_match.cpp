@@ -1291,23 +1291,6 @@ eqn_compiler_result mk_nonrec(environment & env, elaborator & elab, metavar_cont
                                           fn_name, fn_actual_name, fn_type, R.m_fn);
     unsigned eqn_idx     = 1;
     type_context_old ctx2(env, mctx, lctx, elab.get_cache(), transparency_mode::Semireducible);
-    for (expr type : R.m_lemmas) {
-        type_context_old::tmp_locals locals(ctx2);
-        type = ctx2.relaxed_whnf(type);
-        while (is_pi(type)) {
-            expr local = locals.push_local_from_binding(type);
-            type = instantiate(binding_body(type), local);
-        }
-        lean_assert(is_eq(type));
-        expr lhs = app_arg(app_fn(type));
-        expr rhs = app_arg(type);
-        buffer<expr> lhs_args;
-        get_app_args(lhs, lhs_args);
-        expr new_lhs = mk_app(fn, lhs_args);
-        env = mk_equation_lemma(env, elab.get_options(), mctx, ctx2.lctx(), fn_name, fn_actual_name,
-                                eqn_idx, header.m_is_private, locals.as_buffer(), new_lhs, rhs);
-        eqn_idx++;
-    }
     auto counter_examples = map2<expr>(R.m_counter_examples, [&] (list<expr> const & e) { return mk_app(fn, e); });
     return { {fn}, counter_examples };
 }

@@ -94,29 +94,6 @@ void compile_aux_definition(environment & env, equations_header const & header, 
 pair<environment, expr> mk_aux_definition(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
                                           equations_header const & header, name const & n, name const & actual_n, expr const & type, expr const & value);
 
-/* Create an equation lemma #eqn_idx for f_name/f_actual_name. */
-environment mk_equation_lemma(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
-                              name const & f_name, name const & f_actual_name, unsigned eqn_idx, bool is_private,
-                              buffer<expr> const & Hs, expr const & lhs, expr const & rhs);
-
-/* Create an equational lemma for definition c based on its value.
-   Example: Given
-      def foo (x y : nat) := x + 10
-   we create
-      forall x y, foo x y = x + 10
-
-   The proof is by reflexivity.
-
-   This function is used to make sure we have equations for all definitions.
-
-
-   Remark: `c` is the local name, and `c_actual` the kernel unique name.
-   `c` and `c_actual` are different for scoped/private declarations.
-*/
-environment mk_simple_equation_lemma_for(environment const & env, options const & opts, bool is_private, name const & c, name const & c_actual, unsigned arity);
-
-name mk_equation_name(name const & f_name, unsigned eqn_idx);
-
 /* Return true iff e is a nat, int, char or string value. */
 bool is_nat_int_char_string_name_value(type_context_old & ctx, expr const & e);
 

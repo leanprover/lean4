@@ -317,63 +317,6 @@ struct wf_rec_fn {
         return r;
     }
 
-    struct mk_lemma_rhs_fn : public replace_visitor_with_tc {
-        expr m_fn;
-        expr m_F;
-
-        mk_lemma_rhs_fn(type_context_old & ctx, expr const & fn, expr const & F):
-            replace_visitor_with_tc(ctx), m_fn(fn), m_F(F) {}
-
-        virtual expr visit_local(expr const & e) override {
-            if (e == m_F) {
-                throw exception("equation compiler failed to generate equational lemmas");
-            } else {
-                return e;
-            }
-        }
-
-        virtual expr visit_app(expr const & e) override {
-            if (is_app(app_fn(e)) && app_fn(app_fn(e)) == m_F) {
-                return mk_app(m_fn, visit(app_arg(app_fn(e))));
-            } else {
-                return replace_visitor::visit_app(e);
-            }
-        }
-    };
-
-    expr mk_lemma_rhs(type_context_old & ctx, expr const & fn, expr rhs) {
-        rhs = ctx.relaxed_whnf(rhs);
-        lean_assert(is_lambda(rhs));
-        type_context_old::tmp_locals locals(ctx);
-        expr F = locals.push_local_from_binding(rhs);
-        rhs    = instantiate(binding_body(rhs), F);
-        return mk_lemma_rhs_fn(ctx, fn, F)(rhs);
-    }
-
-    void mk_lemmas(name const & fn_name, expr const & fn, list<expr> const & lemmas) {
-        name const & fn_prv_name = const_name(get_app_fn(fn));
-        unsigned eqn_idx     = 1;
-        type_context_old ctx     = mk_type_context();
-        for (expr type : lemmas) {
-            type_context_old::tmp_locals locals(ctx);
-            type = ctx.relaxed_whnf(type);
-            while (is_pi(type)) {
-                expr local = locals.push_local_from_binding(type);
-                type = instantiate(binding_body(type), local);
-            }
-            lean_assert(is_eq(type));
-            expr lhs = app_arg(app_fn(type));
-            expr rhs = app_arg(type);
-            expr new_lhs = mk_app(fn, app_arg(lhs));
-            expr new_rhs = mk_lemma_rhs(ctx, fn, rhs);
-            trace_debug_wf_aux(tout() << "aux equation [" << eqn_idx << "]:\n" << new_lhs << "\n=\n" << new_rhs << "\n";);
-            m_env = mk_equation_lemma(m_env, get_options(), m_mctx, ctx.lctx(), fn_name, fn_prv_name,
-                                      eqn_idx, m_header.m_is_private, locals.as_buffer(), new_lhs, new_rhs);
-            eqn_idx++;
-        }
-        m_mctx = ctx.mctx();
-    }
-
     expr_pair mk_sigma(type_context_old & ctx, unsigned i, buffer<expr> const & args) {
         lean_assert(args.size() > 0);
         if (i == args.size() - 1) {
@@ -499,53 +442,6 @@ struct wf_rec_fn {
         name const & packed_name   = const_name(get_app_fn(packed_fn));
         unsigned packed_num_params = get_app_num_args(packed_fn);
         /* unpack equations */
-        if (m_header.m_aux_lemmas) {
-            unsigned i = 1;
-            unsigned next_eqn_idx = 1;
-            bool has_prev_fn_name = false;
-            name prev_fn_name;
-            while (true) {
-                name packed_eqn_name = mk_equation_name(packed_name, i);
-                optional<constant_info> packed_eqn_info = m_env.find(packed_eqn_name);
-                if (!packed_eqn_info) break;
-                levels packed_eqn_levels = param_names_to_levels(packed_eqn_info->get_univ_params());
-                expr packed_eqn_type = instantiate_type_univ_params(*packed_eqn_info, packed_eqn_levels);
-                type_context_old::tmp_locals args(ctx);
-                expr packed_eqn = packed_eqn_type;
-                while (true) {
-                    packed_eqn = ctx.relaxed_whnf(packed_eqn);
-                    if (!is_pi(packed_eqn))
-                        break;
-                    expr arg   = args.push_local_from_binding(packed_eqn);
-                    packed_eqn = instantiate(binding_body(packed_eqn), arg);
-                }
-                expr lhs, rhs;
-                lean_verify(is_eq(packed_eqn, lhs, rhs));
-                trace_debug_wf(tout() << "unpacking: " << packed_eqn_name << "\n";
-                               tout() << lhs << " = " << rhs << "\n";);
-                optional<expr> new_lhs = unpack_app(lhs, packed_name, packed_num_params, ues, result_fns);
-                lean_assert(new_lhs);
-                expr           new_rhs = unpack_apps_fn(ctx, packed_name, packed_num_params, ues, result_fns)(rhs);
-                trace_debug_wf(tout() << "after unpacking\n";
-                               tout() << *new_lhs << " = " << new_rhs << "\n";);
-                name fn_name   = const_name(get_app_fn(*new_lhs));
-                if (!has_prev_fn_name || fn_name != prev_fn_name) {
-                    next_eqn_idx = 1;
-                } else {
-                    next_eqn_idx++;
-                }
-                prev_fn_name     = fn_name;
-                has_prev_fn_name = true;
-                expr new_eqn     = mk_eq(ctx, *new_lhs, new_rhs);
-                expr new_type    = args.mk_pi(new_eqn);
-                expr new_proof   = args.mk_lambda(mk_app(mk_constant(packed_eqn_info->get_name(), packed_eqn_levels),
-                                                       args.size(), args.data()));
-                m_env = mk_aux_lemma(m_env, ctx.mctx(), ctx.lctx(),
-                                     mk_equation_name(fn_name, next_eqn_idx),
-                                     new_type, new_proof).first;
-                i++;
-            }
-        }
 
         list<expr> counter_examples = map2<expr>(counter_example_args,
             [&] (list<expr> const & es) {
@@ -595,13 +491,6 @@ struct wf_rec_fn {
         expr fn = mk_fix_aux_function(get_equations_header(eqns), r.m_fn);
 
         trace_debug_wf(tout() << "after mk_fix\n" << fn << " :\n  " << mk_type_context().infer(fn) << "\n";);
-        if (m_header.m_aux_lemmas) {
-            lean_assert(!m_header.m_is_meta);
-            equations_header const & header = get_equations_header(eqns);
-            name const & fn_name = head(header.m_fn_names);
-            mk_lemmas(fn_name, fn, r.m_lemmas);
-        }
-
         return unpack(fn, before_pack, r.m_counter_examples);
     }
 };

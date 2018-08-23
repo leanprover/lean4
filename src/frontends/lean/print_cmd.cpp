@@ -24,7 +24,6 @@ Author: Leonardo de Moura
 #include "library/noncomputable.h"
 #include "library/type_context.h"
 #include "library/reducible.h"
-#include "library/tactic/simp_lemmas.h"
 #include "library/tactic/kabstract.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
@@ -446,18 +445,6 @@ void print_polymorphic(parser & p, message_builder & out) {
     print_id_info(p, out, id, show_value, pos);
 }
 
-static void print_simp_rules(parser & p, message_builder & out) {
-    name attr = p.check_id_next("invalid '#print [simp]' command, identifier expected");
-    simp_lemmas slss = get_simp_lemmas(p.env(), attr);
-    out << slss.pp_simp(out.get_formatter());
-}
-
-static void print_congr_rules(parser & p, message_builder & out) {
-    name attr = p.check_id_next("invalid '#print [congr]' command, identifier expected");
-    simp_lemmas slss = get_simp_lemmas(p.env(), attr);
-    out << slss.pp_congr(out.get_formatter());
-}
-
 static void print_aliases(parser const & p, message_builder & out) {
     for_each_expr_alias(p.env(), [&](name const & n, names const & as) {
             out << n << " -> {";
@@ -581,10 +568,6 @@ environment print_cmd(parser & p) {
 
         if (name == "recursor") {
             print_recursor_info(p, out);
-        } else if (name == "simp") {
-            print_simp_rules(p, out);
-        } else if (name == "congr") {
-            print_congr_rules(p, out);
         } else {
             if (!is_attribute(p.env(), name))
                 throw parser_error(sstream() << "unknown attribute [" << name << "]", pos);

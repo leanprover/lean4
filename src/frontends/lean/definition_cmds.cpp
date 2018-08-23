@@ -31,7 +31,6 @@ Author: Leonardo de Moura
 #include "library/equations_compiler/util.h"
 #include "library/equations_compiler/equations.h"
 #include "library/compiler/vm_compiler.h"
-#include "library/tactic/eqn_lemmas.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/elaborator.h"
@@ -250,185 +249,6 @@ declare_definition(parser & p, environment const & env, decl_cmd_kind kind, buff
     return mk_pair(new_env, c_real_name);
 }
 
-static void throw_unexpected_error_at_copy_lemmas() {
-    throw exception("unexpected error, failed to generate equational lemmas in the front-end");
-}
-
-/* Given e of the form Pi (a_1 : A_1) ... (a_n : A_n), lhs = rhs,
-   return the pair (lhs, n) */
-static pair<expr, unsigned> get_lemma_lhs(expr e) {
-    unsigned nparams = 0;
-    while (is_pi(e)) {
-        nparams++;
-        e = binding_body(e);
-    }
-    expr lhs, rhs;
-    if (!is_eq(e, lhs, rhs))
-        throw_unexpected_error_at_copy_lemmas();
-    return mk_pair(lhs, nparams);
-}
-
-/*
-   Given a lemma with parameters lp_names:
-      [lp_1 ... lp_n]
-   and the levels in the function application on the lemma left-hand-side lhs_fn_levels:
-      [u_1 ... u_n] s.t. there is a permutation p s.t. p([u_1 ... u_n] = [(mk_univ_param lp_1) ... (mk_univ_param lp_n)],
-   and levels fn_levels
-      [v_1 ... v_n]
-   Then, store
-      p([v_1 ... v_n])
-   in result.
-*/
-static void get_levels_for_instantiating_lemma(level_param_names const & lp_names,
-                                               levels const & lhs_fn_levels,
-                                               levels const & fn_levels,
-                                               buffer<level> & result) {
-    buffer<level> fn_levels_buffer;
-    buffer<level> lhs_fn_levels_buffer;
-    to_buffer(fn_levels, fn_levels_buffer);
-    to_buffer(lhs_fn_levels, lhs_fn_levels_buffer);
-    lean_assert(fn_levels_buffer.size() == lhs_fn_levels_buffer.size());
-    for (name const & lp_name : lp_names) {
-        unsigned j = 0;
-        for (; j < lhs_fn_levels_buffer.size(); j++) {
-            if (!is_param(lhs_fn_levels_buffer[j])) throw_unexpected_error_at_copy_lemmas();
-            if (param_id(lhs_fn_levels_buffer[j]) == lp_name) {
-                result.push_back(fn_levels_buffer[j]);
-                break;
-            }
-        }
-        lean_assert(j < lhs_fn_levels_buffer.size());
-    }
-}
-
-/**
-   Given a lemma with the given arity (i.e., number of nested Pi-terms),
-   n = args.size() <= lhs_args.size(), and the first n
-   arguments in lhs_args.size() are a permutation p of
-     (var #0) ... (var #n-1)
-   Then, store in result p(args)
-*/
-static void get_args_for_instantiating_lemma(unsigned arity,
-                                             buffer<expr> const & lhs_args,
-                                             buffer<expr> const & args,
-                                             buffer<expr> & result) {
-    for (unsigned i = 0; i < args.size(); i++) {
-        if (!is_bvar(lhs_args[i]) || bvar_idx(lhs_args[i]) >= arity)
-            throw_unexpected_error_at_copy_lemmas();
-        result.push_back(args[arity - bvar_idx(lhs_args[i]).get_small_value() - 1]);
-    }
-}
-
-/**
-   Given declarations d_1, ..., d_n defined as
-     (fun (a_1 : A_1) ... (a_n : A_n), d_1._main a_1' ... a_n')
-   where a_1' ... a_n' is a permutation of a subset of a_1 ... a_n.
-   Moreover, the parameters A_1 ... A_n are the same in all d_i's.
-   Then, copy the equation lemmas from d._main to d.
-*/
-static environment copy_equation_lemmas(environment const & env, buffer<name> const & d_names) {
-    type_context_old ctx(env, transparency_mode::All);
-    type_context_old::tmp_locals locals(ctx);
-    level_param_names lps;
-    levels ls;
-    buffer<expr> vals;
-    buffer<expr> new_vals;
-    for (unsigned d_idx = 0; d_idx < d_names.size(); d_idx++) {
-        constant_info d = env.get(d_names[d_idx]);
-        expr val;
-        if (d_idx == 0) {
-            lps = d.get_univ_params();
-            ls  = param_names_to_levels(lps);
-            val = instantiate_value_univ_params(d, ls);
-            while (is_lambda(val)) {
-                expr local = locals.push_local_from_binding(val);
-                val = instantiate(binding_body(val), local);
-            }
-        } else {
-            val   = instantiate_value_univ_params(d, ls);
-            for (expr const & local : locals.as_buffer()) {
-                lean_assert(is_lambda(val));
-                lean_assert(ctx.is_def_eq(ctx.infer(local), binding_domain(val)));
-                val = instantiate(binding_body(val), local);
-            }
-        }
-        buffer<expr> args;
-        expr const & fn = get_app_args(val, args);
-        if (!is_constant(fn) ||
-            !std::all_of(args.begin(), args.end(), is_local)) {
-            throw_unexpected_error_at_copy_lemmas();
-        }
-        vals.push_back(val);
-        /* We want to create new equations where we replace val with new_val in the equations
-           associated with fn. */
-        expr new_val = mk_app(mk_constant(d_names[d_idx], ls), locals.as_buffer());
-        new_vals.push_back(new_val);
-    }
-    /* Copy equations */
-    environment new_env = env;
-    for (unsigned d_idx = 0; d_idx < d_names.size(); d_idx++) {
-        buffer<expr> args;
-        expr const & fn = get_app_args(vals[d_idx], args);
-        unsigned i = 1;
-        while (true) {
-            name eqn_name = mk_equation_name(const_name(fn), i);
-            optional<constant_info> eqn_info = env.find(eqn_name);
-            if (!eqn_info) break;
-            expr lhs; unsigned num_eqn_params;
-            std::tie(lhs, num_eqn_params) = get_lemma_lhs(eqn_info->get_type());
-            buffer<expr> lhs_args;
-            expr const & lhs_fn = get_app_args(lhs, lhs_args);
-            if (!is_constant(lhs_fn) || const_name(lhs_fn) != const_name(fn) || lhs_args.size() < args.size())
-                throw_unexpected_error_at_copy_lemmas();
-            /* Get levels for instantiating the lemma */
-            buffer<level> eqn_level_buffer;
-            get_levels_for_instantiating_lemma(eqn_info->get_univ_params(),
-                                               const_levels(lhs_fn),
-                                               const_levels(fn),
-                                               eqn_level_buffer);
-            levels eqn_levels(eqn_level_buffer);
-            /* Get arguments for instantiating the lemma */
-            buffer<expr> eqn_args;
-            get_args_for_instantiating_lemma(num_eqn_params, lhs_args, args, eqn_args);
-            /* Convert type */
-            expr eqn_type = instantiate_type_univ_params(*eqn_info, eqn_levels);
-            for (unsigned j = 0; j < eqn_args.size(); j++) eqn_type = binding_body(eqn_type);
-            eqn_type = instantiate_rev(eqn_type, eqn_args);
-            expr new_eqn_type = replace(eqn_type, [&](expr const & e, unsigned) {
-                    for (unsigned i = 0; i < vals.size(); i++) {
-                        if (e == vals[i])
-                            return some_expr(new_vals[i]);
-                    }
-                    return none_expr();
-                });
-            new_eqn_type = locals.mk_pi(new_eqn_type);
-            name new_eqn_name    = mk_equation_name(d_names[d_idx], i);
-            expr new_eqn_value;
-            new_eqn_value = mk_app(mk_constant(eqn_name, eqn_levels), args);
-            new_eqn_value = locals.mk_lambda(new_eqn_value);
-            declaration new_decl = mk_theorem(new_eqn_name, lps, new_eqn_type, new_eqn_value);
-            new_env = module::add(new_env, new_decl);
-            if (is_rfl_lemma(env, eqn_name))
-                new_env = mark_rfl_lemma(new_env, new_eqn_name);
-            new_env = add_eqn_lemma(new_env, new_eqn_name);
-            i++;
-        }
-    }
-    return new_env;
-}
-
-/**
-   Given a declaration d defined as
-     (fun (a_1 : A_1) ... (a_n : A_n), d._main a_1' ... a_n')
-   where a_1' ... a_n' is a permutation of a subset of a_1 ... a_n.
-   Then, copy the equation lemmas from d._main to d.
-*/
-static environment copy_equation_lemmas(environment const & env, name const & d_name) {
-    buffer<name> d_names;
-    d_names.push_back(d_name);
-    return copy_equation_lemmas(env, d_names);
-}
-
 static environment mutual_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta const & meta) {
     buffer<name> lp_names;
     buffer<expr> fns, params;
@@ -475,8 +295,6 @@ static environment mutual_definition_cmd_core(parser & p, decl_cmd_kind kind, cm
         new_d_names.push_back(c_real_name);
         elab.set_env(env);
     }
-    /* Add lemmas */
-    elab.set_env(copy_equation_lemmas(elab.env(), new_d_names));
     /* Apply attributes last so that they may access any information on the new decl */
     for (auto const & c_real_name : new_d_names) {
         elab.set_env(meta.m_attrs.apply(elab.env(), p.ios(), c_real_name));
@@ -610,7 +428,7 @@ static expr elaborate_proof(
         pos_info const & header_pos,
         list<expr> const & params_list,
         expr const & fn, expr const & val0, elaborator::theorem_finalization_info const & finfo,
-        bool is_rfl_lemma, expr const & final_type,
+        bool /* is_rfl_lemma */, expr const & final_type,
         metavar_context const & mctx, local_context const & lctx,
         parser_pos_provider pos_provider, bool use_info_manager, std::string const & file_name) {
     auto tc = std::make_shared<type_context_old>(decl_env, opts, mctx, lctx);
@@ -634,8 +452,6 @@ static expr elaborate_proof(
             val = get_equations_result(val, 0);
         buffer<expr> params; for (auto & e : params_list) params.push_back(e);
         finalize_theorem_proof(elab, params, val, finfo);
-        if (is_rfl_lemma && !lean::is_rfl_lemma(final_type, val))
-            throw exception("not a rfl-lemma, even though marked as rfl");
         return inline_new_defs(decl_env, elab.env(), local_pp_name(fn), val);
     } catch (exception & ex) {
         /* Remark: we need the catch to be able to produce correct line information */
@@ -702,7 +518,6 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
     bool is_example   = (kind == decl_cmd_kind::Example);
     bool is_instance  = (kind == decl_cmd_kind::Instance);
     bool is_abbrev    = (kind == decl_cmd_kind::Abbreviation);
-    bool aux_lemmas   = scope.gen_aux_lemmas();
     bool is_rfl       = false;
     if (is_instance)
         meta.m_attrs.set_attribute(env, "instance");
@@ -784,18 +599,9 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
         time_task _("decl post-processing", p.mk_message(header_pos, INFORMATION), p.get_options(), c_name);
         environment new_env = env_n.first;
         name c_real_name    = env_n.second;
-        if (is_rfl) new_env = mark_rfl_lemma(new_env, c_real_name);
         new_env = add_local_ref(p, new_env, c_name, c_real_name, lp_names, params);
-        if (eqns && aux_lemmas) {
-            new_env = copy_equation_lemmas(new_env, c_real_name);
-        }
         if (!meta.m_modifiers.m_is_meta && (kind == decl_cmd_kind::Definition || kind == decl_cmd_kind::Instance)) {
-            if (!eqns) {
-                unsigned arity = new_params.size();
-                new_env = mk_simple_equation_lemma_for(new_env, p.get_options(), meta.m_modifiers.m_is_private, c_name, c_real_name, arity);
-            } else {
-                new_env = mk_smart_unfolding_definition(new_env, p.get_options(), c_real_name);
-            }
+            new_env = mk_smart_unfolding_definition(new_env, p.get_options(), c_real_name);
         }
         /* Apply attributes last so that they may access any information on the new decl */
         return meta.m_attrs.apply(new_env, p.ios(), c_real_name);

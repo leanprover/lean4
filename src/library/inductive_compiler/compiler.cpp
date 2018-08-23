@@ -13,7 +13,6 @@ Author: Daniel Selsam
 #include "library/inductive_compiler/compiler.h"
 #include "library/inductive_compiler/basic.h"
 #include "library/inductive_compiler/mutual.h"
-#include "library/inductive_compiler/nested.h"
 #include "library/inductive_compiler/ginductive.h"
 
 namespace lean {
@@ -21,12 +20,6 @@ environment add_inner_inductive_declaration(environment const & env, name_genera
                                             name_map<implicit_infer_kind> implicit_infer_map,
                                             ginductive_decl & decl, bool is_meta) {
     lean_assert(decl.get_inds().size() == decl.get_intro_rules().size());
-    if (!is_meta) {
-        if (optional<environment> new_env = add_nested_inductive_decl(env, ngen, opts, implicit_infer_map, decl,
-                                                                      is_meta)) {
-            return register_ginductive_decl(*new_env, decl, ginductive_kind::NESTED);
-        }
-    }
     if (decl.is_mutual()) {
         return register_ginductive_decl(add_mutual_inductive_decl(env, ngen, opts, implicit_infer_map, decl, is_meta),
                                         decl, ginductive_kind::MUTUAL);

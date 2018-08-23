@@ -380,8 +380,9 @@ struct add_inductive_fn {
         } else if (is_valid_it_app(t)) {
             // recursive argument
         } else {
-            throw kernel_exception(m_env, sstream() << "arg #" << (arg_idx + 1) << " of '" << intro_name << "' "
-                                   "contains a non valid occurrence of the datatypes being declared");
+            // TEMPORARY HACK: allow nested inductive
+            // throw kernel_exception(m_env, sstream() << "arg #" << (arg_idx + 1) << " of '" << intro_name << "' "
+            // "contains a non valid occurrence of the datatypes being declared");
         }
     }
 

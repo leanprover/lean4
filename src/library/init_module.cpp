@@ -43,7 +43,6 @@ Author: Leonardo de Moura
 #include "library/comp_val.h"
 #include "library/documentation.h"
 #include "library/defeq_canonizer.h"
-#include "library/congr_lemma.h"
 #include "library/check.h"
 #include "library/parray.h"
 #include "library/profiling.h"
@@ -118,7 +117,6 @@ void initialize_library_module() {
     initialize_documentation();
     initialize_defeq_canonizer();
     initialize_check();
-    initialize_congr_lemma();
     initialize_parray();
     initialize_time_task();
 }
@@ -126,7 +124,6 @@ void initialize_library_module() {
 void finalize_library_module() {
     finalize_time_task();
     finalize_parray();
-    finalize_congr_lemma();
     finalize_check();
     finalize_defeq_canonizer();
     finalize_documentation();

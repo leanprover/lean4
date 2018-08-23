@@ -175,46 +175,6 @@ void persistent_context_cache::set_specialization_subsingleton_info_nargs(transp
     return m_cache_ptr->set_specialization_subsingleton_info_nargs(m, e, k, r);
 }
 
-optional<congr_lemma> persistent_context_cache::get_simp_congr_lemma(expr const & e, unsigned k) {
-    return m_cache_ptr->get_simp_congr_lemma(e, k);
-}
-
-void persistent_context_cache::set_simp_congr_lemma(expr const & e, unsigned k, congr_lemma const & r) {
-    return m_cache_ptr->set_simp_congr_lemma(e, k, r);
-}
-
-optional<congr_lemma> persistent_context_cache::get_specialized_simp_congr_lemma(expr const & e, unsigned k) {
-    return m_cache_ptr->get_specialized_simp_congr_lemma(e, k);
-}
-
-void persistent_context_cache::set_specialized_simp_congr_lemma(expr const & e, unsigned k, congr_lemma const & r) {
-    return m_cache_ptr->set_specialized_simp_congr_lemma(e, k, r);
-}
-
-optional<congr_lemma> persistent_context_cache::get_congr_lemma(expr const & e, unsigned k) {
-    return m_cache_ptr->get_congr_lemma(e, k);
-}
-
-void persistent_context_cache::set_congr_lemma(expr const & e, unsigned k, congr_lemma const & r) {
-    return m_cache_ptr->set_congr_lemma(e, k, r);
-}
-
-optional<congr_lemma> persistent_context_cache::get_specialized_congr_lemma(expr const & e, unsigned k) {
-    return m_cache_ptr->get_specialized_congr_lemma(e, k);
-}
-
-void persistent_context_cache::set_specialized_congr_lemma(expr const & e, unsigned k, congr_lemma const & r) {
-    return m_cache_ptr->set_specialized_congr_lemma(e, k, r);
-}
-
-optional<congr_lemma> persistent_context_cache::get_hcongr_lemma(expr const & e, unsigned k) {
-    return m_cache_ptr->get_hcongr_lemma(e, k);
-}
-
-void persistent_context_cache::set_hcongr_lemma(expr const & e, unsigned k, congr_lemma const & r) {
-    return m_cache_ptr->set_hcongr_lemma(e, k, r);
-}
-
 optional<app_builder_info> persistent_context_cache::get_app_builder_info(expr const & e, unsigned k) {
     return m_cache_ptr->get_app_builder_info(e, k);
 }

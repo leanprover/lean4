@@ -94,23 +94,6 @@ public:
     virtual optional<ss_param_infos> get_specialized_subsingleton_info_nargs(transparency_mode, expr const &, unsigned) override;
     virtual void set_specialization_subsingleton_info_nargs(transparency_mode, expr const &, unsigned, ss_param_infos const &) override;
 
-    /* Cache support for congr_lemma module */
-
-    virtual optional<congr_lemma> get_simp_congr_lemma(expr const &, unsigned) override;
-    virtual void set_simp_congr_lemma(expr const &, unsigned, congr_lemma const &) override;
-
-    virtual optional<congr_lemma> get_specialized_simp_congr_lemma(expr const &, unsigned) override;
-    virtual void set_specialized_simp_congr_lemma(expr const &, unsigned, congr_lemma const &) override;
-
-    virtual optional<congr_lemma> get_congr_lemma(expr const &, unsigned) override;
-    virtual void set_congr_lemma(expr const &, unsigned, congr_lemma const &) override;
-
-    virtual optional<congr_lemma> get_specialized_congr_lemma(expr const &, unsigned) override;
-    virtual void set_specialized_congr_lemma(expr const &, unsigned, congr_lemma const &) override;
-
-    virtual optional<congr_lemma> get_hcongr_lemma(expr const &, unsigned) override;
-    virtual void set_hcongr_lemma(expr const &, unsigned, congr_lemma const &) override;
-
     /* Cache support for app_builder */
 
     virtual optional<app_builder_info> get_app_builder_info(expr const &, unsigned) override;

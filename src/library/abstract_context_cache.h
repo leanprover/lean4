@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "util/lbool.h"
 #include "kernel/expr.h"
 #include "kernel/declaration.h"
-#include "library/congr_lemma.h"
 #include "library/projection.h"
 #include "library/fun_info.h"
 #include "library/local_instances.h"
@@ -56,7 +55,7 @@ struct app_builder_info {
    without the overhead of many caches.
 
    We use contextual caches for the operations performed in the following modules:
-   type_context_old, app_builder, fun_info and congr_lemma.
+   type_context_old, app_builder, fun_info.
    In the type_context_old, we cache inferred types, whnf, type class instances,
    to cite a few.
 
@@ -64,7 +63,7 @@ struct app_builder_info {
    The `type_context_old_cache_manager` objects were stored in thread local objects.
    The correctness of this cache relied on the fact we used to never reuse fresh names in the whole system.
    This is not true in the new name_generator refactoring (for addressing issue #1601).
-   The caches for the modules app_builder, congr_lemma and fun_info have the same problem.
+   The caches for the modules app_builder, fun_info have the same problem.
 
    We have implemented a thread local cache reset operation, but it is
    not sufficient for fixing this issue since we only reset the cache
@@ -229,23 +228,6 @@ public:
     virtual optional<ss_param_infos> get_specialized_subsingleton_info_nargs(transparency_mode, expr const &, unsigned) = 0;
     virtual void set_specialization_subsingleton_info_nargs(transparency_mode, expr const &, unsigned, ss_param_infos const &) = 0;
 
-    /* Cache support for congr_lemma module */
-
-    virtual optional<congr_lemma> get_simp_congr_lemma(expr const &, unsigned) = 0;
-    virtual void set_simp_congr_lemma(expr const &, unsigned, congr_lemma const &) = 0;
-
-    virtual optional<congr_lemma> get_specialized_simp_congr_lemma(expr const &, unsigned) = 0;
-    virtual void set_specialized_simp_congr_lemma(expr const &, unsigned, congr_lemma const &) = 0;
-
-    virtual optional<congr_lemma> get_congr_lemma(expr const &, unsigned) = 0;
-    virtual void set_congr_lemma(expr const &, unsigned, congr_lemma const &) = 0;
-
-    virtual optional<congr_lemma> get_specialized_congr_lemma(expr const &, unsigned) = 0;
-    virtual void set_specialized_congr_lemma(expr const &, unsigned, congr_lemma const &) = 0;
-
-    virtual optional<congr_lemma> get_hcongr_lemma(expr const &, unsigned) = 0;
-    virtual void set_hcongr_lemma(expr const &, unsigned, congr_lemma const &) = 0;
-
     /* Cache support for app_builder */
 
     virtual optional<app_builder_info> get_app_builder_info(expr const &, unsigned) = 0;
@@ -338,23 +320,6 @@ public:
 
     virtual optional<ss_param_infos> get_specialized_subsingleton_info_nargs(transparency_mode, expr const &, unsigned) override { return optional<ss_param_infos>(); }
     virtual void set_specialization_subsingleton_info_nargs(transparency_mode, expr const &, unsigned, ss_param_infos const &) override {}
-
-    /* Cache support for congr_lemma module */
-
-    virtual optional<congr_lemma> get_simp_congr_lemma(expr const &, unsigned) override { return optional<congr_lemma>(); }
-    virtual void set_simp_congr_lemma(expr const &, unsigned, congr_lemma const &) override {}
-
-    virtual optional<congr_lemma> get_specialized_simp_congr_lemma(expr const &, unsigned) override { return optional<congr_lemma>(); }
-    virtual void set_specialized_simp_congr_lemma(expr const &, unsigned, congr_lemma const &) override {}
-
-    virtual optional<congr_lemma> get_congr_lemma(expr const &, unsigned) override { return optional<congr_lemma>(); }
-    virtual void set_congr_lemma(expr const &, unsigned, congr_lemma const &) override {}
-
-    virtual optional<congr_lemma> get_specialized_congr_lemma(expr const &, unsigned) override { return optional<congr_lemma>(); }
-    virtual void set_specialized_congr_lemma(expr const &, unsigned, congr_lemma const &) override {}
-
-    virtual optional<congr_lemma> get_hcongr_lemma(expr const &, unsigned) override { return optional<congr_lemma>(); }
-    virtual void set_hcongr_lemma(expr const &, unsigned, congr_lemma const &) override {}
 
     /* Cache support for app_builder */
 

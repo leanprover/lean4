@@ -3300,7 +3300,9 @@ void vm_state::run() {
             vm_decl decl = get_decl(instr.get_fn_idx());
             invoke_cfun(decl);
             goto main_loop;
-        }}
+        }
+        case opcode::Expr: throw exception("Expr support has been deleted from the VM");
+        }
     }
 }
 

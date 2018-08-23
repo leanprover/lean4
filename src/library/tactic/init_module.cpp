@@ -27,7 +27,6 @@ Author: Leonardo de Moura
 #include "library/tactic/simp_lemmas.h"
 #include "library/tactic/eqn_lemmas.h"
 #include "library/tactic/dsimplify.h"
-#include "library/tactic/simplify.h"
 #include "library/tactic/destruct_tactic.h"
 
 namespace lean {
@@ -50,7 +49,6 @@ void initialize_tactic_module() {
     initialize_generalize_tactic();
     initialize_rewrite_tactic();
     initialize_unfold_tactic();
-    initialize_simplify();
     initialize_elaborate();
     initialize_eval();
     initialize_simp_lemmas();
@@ -65,7 +63,6 @@ void finalize_tactic_module() {
     finalize_simp_lemmas();
     finalize_eval();
     finalize_elaborate();
-    finalize_simplify();
     finalize_unfold_tactic();
     finalize_rewrite_tactic();
     finalize_generalize_tactic();

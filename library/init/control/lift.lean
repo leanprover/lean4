@@ -40,7 +40,7 @@ instance has_monad_lift_t_trans (m n o) [has_monad_lift n o] [has_monad_lift_t m
 instance has_monad_lift_t_refl (m) : has_monad_lift_t m m :=
 ⟨λ α, id⟩
 
-@[simp] lemma monad_lift_refl {m : Type u → Type v} {α} : (monad_lift : m α → m α) = id := rfl
+lemma monad_lift_refl {m : Type u → Type v} {α} : (monad_lift : m α → m α) = id := rfl
 
 
 /-- A functor in the control of monads. Can be used to lift monad-transforming functions.
@@ -69,7 +69,7 @@ instance monad_functor_t_trans (m m' n n' o o') [monad_functor n n' o o'] [monad
 instance monad_functor_t_refl (m m') : monad_functor_t m m' m m' :=
 ⟨λ α f, f⟩
 
-@[simp] lemma monad_map_refl {m m' : Type u → Type v} (f : ∀ {β}, m β → m' β) {α} : (monad_map @f : m α → m' α) = f := rfl
+lemma monad_map_refl {m m' : Type u → Type v} (f : ∀ {β}, m β → m' β) {α} : (monad_map @f : m α → m' α) = f := rfl
 
 /-- Run a monad stack to completion.
     `run` should be the composition of the transformers' individual `run` functions.

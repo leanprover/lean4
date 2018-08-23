@@ -62,7 +62,7 @@ def {u} repeat {α : Type u} (f : ℕ → α → α) : ℕ → α → α
 | 0         a := a
 | (succ n)  a := f n (repeat n a)
 
-@[simp] lemma nat_zero_eq_zero : nat.zero = 0 :=
+lemma nat_zero_eq_zero : nat.zero = 0 :=
 rfl
 
 /- properties of inequality -/
@@ -115,7 +115,7 @@ less_than_or_equal.cases_on h (or.inl rfl) (λ n h, or.inr (succ_le_succ h))
 lemma lt_succ_of_le {a b : ℕ} : a ≤ b → a < succ b :=
 succ_le_succ
 
-@[simp] lemma succ_sub_succ_eq_sub (a b : ℕ) : succ a - succ b = a - b :=
+lemma succ_sub_succ_eq_sub (a b : ℕ) : succ a - succ b = a - b :=
 nat.rec_on b
   (show succ a - succ zero = a - zero, from (eq.refl (succ a - succ zero)))
   (λ b, congr_arg pred)

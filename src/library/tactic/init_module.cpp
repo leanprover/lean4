@@ -23,8 +23,6 @@ Author: Leonardo de Moura
 #include "library/tactic/rewrite_tactic.h"
 #include "library/tactic/elaborate.h"
 #include "library/tactic/eval.h"
-#include "library/tactic/simp_lemmas.h"
-#include "library/tactic/eqn_lemmas.h"
 #include "library/tactic/destruct_tactic.h"
 
 namespace lean {
@@ -48,14 +46,10 @@ void initialize_tactic_module() {
     initialize_rewrite_tactic();
     initialize_elaborate();
     initialize_eval();
-    initialize_simp_lemmas();
-    initialize_eqn_lemmas();
     initialize_destruct_tactic();
 }
 void finalize_tactic_module() {
     finalize_destruct_tactic();
-    finalize_eqn_lemmas();
-    finalize_simp_lemmas();
     finalize_eval();
     finalize_elaborate();
     finalize_rewrite_tactic();

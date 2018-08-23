@@ -36,7 +36,6 @@ Author: Leonardo de Moura
 #include "library/vm/interaction_state_imp.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/tactic/tactic_state.h"
-#include "library/tactic/simp_lemmas.h"
 #include "library/tactic/tactic_evaluator.h"
 
 namespace lean {
@@ -193,7 +192,7 @@ static format pp_tag(names const & tag) {
     return format("case") + space() + r + line();
 }
 
-format tactic_state::pp_goal(formatter_factory const & fmtf, expr const & g, bool target_lhs_only) const {
+format tactic_state::pp_goal(formatter_factory const & fmtf, expr const & g, bool /* target_lhs_only */) const {
     options opts               = get_options().update_if_undef(get_pp_purify_locals_name(), false);
     bool inst_mvars            = get_pp_instantiate_mvars(opts);
     metavar_decl decl          = mctx().get_metavar_decl(g);
@@ -216,12 +215,8 @@ format tactic_state::pp_goal(formatter_factory const & fmtf, expr const & g, boo
     if (inst_mvars)
         type                   = mctx_tmp.instantiate_mvars(type);
     expr rel, lhs, rhs;
-    if (target_lhs_only && is_simp_relation(env(), type, rel, lhs, rhs)) {
-        r += format("|") + space() + nest(indent, fmt(lhs));
-    } else {
-        format turnstile(unicode ? "⊢" : "|-");
-        r += turnstile + space() + nest(indent, fmt(type));
-    }
+    format turnstile(unicode ? "⊢" : "|-");
+    r += turnstile + space() + nest(indent, fmt(type));
     if (get_pp_goal_compact(get_options()))
         r = group(r);
     return r;

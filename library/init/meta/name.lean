@@ -15,7 +15,7 @@ export lean (name name.anonymous name.mk_string name.mk_numeral mk_str_name mk_n
 @[reducible] def {u} auto_param (α : Sort u) (tac_name : name) : Sort u :=
 α
 
-@[simp] lemma {u} auto_param_eq (α : Sort u) (n : name) : auto_param α n = α :=
+lemma {u} auto_param_eq (α : Sort u) (n : name) : auto_param α n = α :=
 rfl
 
 infix ` <.> `:65 := mk_str_name

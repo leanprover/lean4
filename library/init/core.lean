@@ -575,7 +575,7 @@ def K {α : Type u₁} {β : Type u₂} (a : α) (b : β) := a
 def S {α : Type u₁} {β : Type u₂} {γ : Type u₃} (x : α → β → γ) (y : α → β) (z : α) := x z (y z)
 end combinator
 
-@[simp] theorem opt_param_eq (α : Sort u) (default : α) : opt_param α default = α := rfl
+theorem opt_param_eq (α : Sort u) (default : α) : opt_param α default = α := rfl
 
 /-- Auxiliary datatype for #[ ... ] notation.
     #[1, 2, 3, 4] is notation for
@@ -651,7 +651,7 @@ theorem not_false : ¬false := id
 -- proof irrelevance is built in
 theorem proof_irrel {a : Prop} (h₁ h₂ : a) : h₁ = h₂ := rfl
 
-@[simp] theorem id.def {α : Sort u} (a : α) : id a = a := rfl
+theorem id.def {α : Sort u} (a : α) : id a = a := rfl
 
 @[inline] def eq.mp {α β : Sort u} (h₁ : α = β) (h₂ : α) : β :=
 eq.rec_on h₁ h₂
@@ -694,7 +694,7 @@ theorem cast_eq {α : Sort u} (h : α = α) (a : α) : cast h a = a := rfl
 @[reducible] def ne {α : Sort u} (a b : α) := ¬(a = b)
 notation a ≠ b := ne a b
 
-@[simp] theorem ne.def {α : Sort u} (a b : α) : a ≠ b = ¬ (a = b) := rfl
+theorem ne.def {α : Sort u} (a b : α) : a ≠ b = ¬ (a = b) := rfl
 
 section ne
 variable {α : Sort u}
@@ -895,40 +895,40 @@ assume hna : ¬a, hna ha
 theorem not_of_not_not_not (h : ¬¬¬a) : ¬a :=
 λ ha, absurd (not_not_intro ha) h
 
-@[simp] theorem not_true : (¬ true) ↔ false :=
+theorem not_true : (¬ true) ↔ false :=
 iff_false_intro (not_not_intro trivial)
 
 def not_true_iff := not_true
 
-@[simp] theorem not_false_iff : (¬ false) ↔ true :=
+theorem not_false_iff : (¬ false) ↔ true :=
 iff_true_intro not_false
 
-@[congr] theorem not_congr (h : a ↔ b) : ¬a ↔ ¬b :=
+theorem not_congr (h : a ↔ b) : ¬a ↔ ¬b :=
 iff.intro (λ h₁ h₂, h₁ (iff.mpr h h₂)) (λ h₁ h₂, h₁ (iff.mp h h₂))
 
-@[simp] theorem ne_self_iff_false {α : Sort u} (a : α) : (not (a = a)) ↔ false :=
+theorem ne_self_iff_false {α : Sort u} (a : α) : (not (a = a)) ↔ false :=
 iff.intro false_of_ne false.elim
 
-@[simp] theorem eq_self_iff_true {α : Sort u} (a : α) : (a = a) ↔ true :=
+theorem eq_self_iff_true {α : Sort u} (a : α) : (a = a) ↔ true :=
 iff_true_intro rfl
 
-@[simp] theorem heq_self_iff_true {α : Sort u} (a : α) : (a == a) ↔ true :=
+theorem heq_self_iff_true {α : Sort u} (a : α) : (a == a) ↔ true :=
 iff_true_intro (heq.refl a)
 
-@[simp] theorem iff_not_self (a : Prop) : (a ↔ ¬a) ↔ false :=
+theorem iff_not_self (a : Prop) : (a ↔ ¬a) ↔ false :=
 iff_false_intro (λ h,
    have h' : ¬a, from (λ ha, (iff.mp h ha) ha),
    h' (iff.mpr h h'))
 
-@[simp] theorem not_iff_self (a : Prop) : (¬a ↔ a) ↔ false :=
+theorem not_iff_self (a : Prop) : (¬a ↔ a) ↔ false :=
 iff_false_intro (λ h,
    have h' : ¬a, from (λ ha, (iff.mpr h ha) ha),
    h' (iff.mp h h'))
 
-@[simp] theorem true_iff_false : (true ↔ false) ↔ false :=
+theorem true_iff_false : (true ↔ false) ↔ false :=
 iff_false_intro (λ h, iff.mp h trivial)
 
-@[simp] theorem false_iff_true : (false ↔ true) ↔ false :=
+theorem false_iff_true : (false ↔ true) ↔ false :=
 iff_false_intro (λ h, iff.mpr h trivial)
 
 theorem false_of_true_iff_false : (true ↔ false) → false :=
@@ -949,7 +949,7 @@ assume ⟨ha, hb⟩, ⟨hac ha, hbd hb⟩
 
 def and_implies := @and.imp
 
-@[congr] theorem and_congr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a ∧ b) ↔ (c ∧ d) :=
+theorem and_congr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a ∧ b) ↔ (c ∧ d) :=
 iff.intro (and.imp (iff.mp h₁) (iff.mp h₂)) (and.imp (iff.mpr h₁) (iff.mpr h₂))
 
 theorem and_comm : a ∧ b ↔ b ∧ a :=
@@ -963,30 +963,30 @@ iff.intro
 theorem and_left_comm : a ∧ (b ∧ c) ↔ b ∧ (a ∧ c) :=
 iff.trans (iff.symm and_assoc) (iff.trans (and_congr and_comm (iff.refl c)) and_assoc)
 
-@[simp] theorem and_true (a : Prop) : a ∧ true ↔ a :=
+theorem and_true (a : Prop) : a ∧ true ↔ a :=
 iff.intro and.left (λ ha, ⟨ha, trivial⟩)
 
-@[simp] theorem true_and (a : Prop) : true ∧ a ↔ a :=
+theorem true_and (a : Prop) : true ∧ a ↔ a :=
 iff.intro and.right (λ h, ⟨trivial, h⟩)
 
-@[simp] theorem and_false (a : Prop) : a ∧ false ↔ false :=
+theorem and_false (a : Prop) : a ∧ false ↔ false :=
 iff_false_intro and.right
 
-@[simp] theorem false_and (a : Prop) : false ∧ a ↔ false :=
+theorem false_and (a : Prop) : false ∧ a ↔ false :=
 iff_false_intro and.left
 
-@[simp] theorem not_and_self (a : Prop) : (¬a ∧ a) ↔ false :=
+theorem not_and_self (a : Prop) : (¬a ∧ a) ↔ false :=
 iff_false_intro (λ h, and.elim h (λ h₁ h₂, absurd h₂ h₁))
 
-@[simp] theorem and_not_self (a : Prop) : (a ∧ ¬a) ↔ false :=
+theorem and_not_self (a : Prop) : (a ∧ ¬a) ↔ false :=
 iff_false_intro (assume ⟨h₁, h₂⟩, absurd h₁ h₂)
 
-@[simp] theorem and_self (a : Prop) : a ∧ a ↔ a :=
+theorem and_self (a : Prop) : a ∧ a ↔ a :=
 iff.intro and.left (assume h, ⟨h, h⟩)
 
 /- or simp rules -/
 
-@[congr] theorem or_congr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a ∨ b) ↔ (c ∨ d) :=
+theorem or_congr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a ∨ b) ↔ (c ∨ d) :=
 iff.intro (λ h, or.elim h (λ h, or.inl (iff.mp h₁ h)) (λ h, or.inr (iff.mp h₂ h)))
           (λ h, or.elim h (λ h, or.inl (iff.mpr h₁ h)) (λ h, or.inr (iff.mpr h₂ h)))
 
@@ -999,19 +999,19 @@ iff.intro (λ h, or.elim h (λ h, or.elim h or.inl (λ h, or.inr (or.inl h))) (�
 theorem or_left_comm : a ∨ (b ∨ c) ↔ b ∨ (a ∨ c) :=
 iff.trans (iff.symm or_assoc) (iff.trans (or_congr or_comm (iff.refl c)) or_assoc)
 
-@[simp] theorem or_true (a : Prop) : a ∨ true ↔ true :=
+theorem or_true (a : Prop) : a ∨ true ↔ true :=
 iff_true_intro (or.inr trivial)
 
-@[simp] theorem true_or (a : Prop) : true ∨ a ↔ true :=
+theorem true_or (a : Prop) : true ∨ a ↔ true :=
 iff_true_intro (or.inl trivial)
 
-@[simp] theorem or_false (a : Prop) : a ∨ false ↔ a :=
+theorem or_false (a : Prop) : a ∨ false ↔ a :=
 iff.intro (λ h, or.elim h id false.elim) or.inl
 
-@[simp] theorem false_or (a : Prop) : false ∨ a ↔ a :=
+theorem false_or (a : Prop) : false ∨ a ↔ a :=
 iff.trans or_comm (or_false a)
 
-@[simp] theorem or_self (a : Prop) : a ∨ a ↔ a :=
+theorem or_self (a : Prop) : a ∨ a ↔ a :=
 iff.intro (λ h, or.elim h id id) or.inl
 
 theorem not_or {a b : Prop} : ¬ a → ¬ b → ¬ (a ∨ b)
@@ -1034,34 +1034,34 @@ or.elim h id (λ nb, absurd hb nb)
 
 /- iff simp rules -/
 
-@[simp] theorem iff_true (a : Prop) : (a ↔ true) ↔ a :=
+theorem iff_true (a : Prop) : (a ↔ true) ↔ a :=
 iff.intro (assume h, iff.mpr h trivial) iff_true_intro
 
-@[simp] theorem true_iff (a : Prop) : (true ↔ a) ↔ a :=
+theorem true_iff (a : Prop) : (true ↔ a) ↔ a :=
 iff.trans iff.comm (iff_true a)
 
-@[simp] theorem iff_false (a : Prop) : (a ↔ false) ↔ ¬ a :=
+theorem iff_false (a : Prop) : (a ↔ false) ↔ ¬ a :=
 iff.intro iff.mp iff_false_intro
 
-@[simp] theorem false_iff (a : Prop) : (false ↔ a) ↔ ¬ a :=
+theorem false_iff (a : Prop) : (false ↔ a) ↔ ¬ a :=
 iff.trans iff.comm (iff_false a)
 
-@[simp] theorem iff_self (a : Prop) : (a ↔ a) ↔ true :=
+theorem iff_self (a : Prop) : (a ↔ a) ↔ true :=
 iff_true_intro iff.rfl
 
-@[congr] theorem iff_congr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a ↔ b) ↔ (c ↔ d) :=
+theorem iff_congr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a ↔ b) ↔ (c ↔ d) :=
 (iff_iff_implies_and_implies a b).trans
   ((and_congr (imp_congr h₁ h₂) (imp_congr h₂ h₁)).trans
     (iff_iff_implies_and_implies c d).symm)
 
 /- implies simp rule -/
-@[simp] theorem implies_true_iff (α : Sort u) : (α → true) ↔ true :=
+theorem implies_true_iff (α : Sort u) : (α → true) ↔ true :=
 iff.intro (λ h, trivial) (λ ha h, trivial)
 
-@[simp] theorem false_implies_iff (a : Prop) : (false → a) ↔ true :=
+theorem false_implies_iff (a : Prop) : (false → a) ↔ true :=
 iff.intro (λ h, trivial) (λ ha h, false.elim h)
 
-@[simp] theorem true_implies_iff (α : Prop) : (true → α) ↔ α :=
+theorem true_implies_iff (α : Prop) : (true → α) ↔ α :=
 iff.intro (λ h, h trivial) (λ h h', h)
 
 /- exists -/
@@ -1099,18 +1099,18 @@ exists_unique.elim h
     show y₁ = y₂, from eq.trans (unique _ py₁) (eq.symm (unique _ py₂)))
 
 /- exists, forall, exists unique congruences -/
-@[congr] theorem forall_congr {α : Sort u} {p q : α → Prop} (h : ∀ a, (p a ↔ q a)) : (∀ a, p a) ↔ ∀ a, q a :=
+theorem forall_congr {α : Sort u} {p q : α → Prop} (h : ∀ a, (p a ↔ q a)) : (∀ a, p a) ↔ ∀ a, q a :=
 iff.intro (λ p a, iff.mp (h a) (p a)) (λ q a, iff.mpr (h a) (q a))
 
 theorem exists_imp_exists {α : Sort u} {p q : α → Prop} (h : ∀ a, (p a → q a)) (p : ∃ a, p a) : ∃ a, q a :=
 exists.elim p (λ a hp, ⟨a, h a hp⟩)
 
-@[congr] theorem exists_congr {α : Sort u} {p q : α → Prop} (h : ∀ a, (p a ↔ q a)) : (Exists p) ↔ ∃ a, q a :=
+theorem exists_congr {α : Sort u} {p q : α → Prop} (h : ∀ a, (p a ↔ q a)) : (Exists p) ↔ ∃ a, q a :=
 iff.intro
   (exists_imp_exists (λ a, iff.mp (h a)))
   (exists_imp_exists (λ a, iff.mpr (h a)))
 
-@[congr] theorem exists_unique_congr {α : Sort u} {p₁ p₂ : α → Prop} (h : ∀ x, p₁ x ↔ p₂ x) : (exists_unique p₁) ↔ (∃! x, p₂ x) := --
+theorem exists_unique_congr {α : Sort u} {p₁ p₂ : α → Prop} (h : ∀ x, p₁ x ↔ p₂ x) : (exists_unique p₁) ↔ (∃! x, p₂ x) := --
 exists_congr (λ x, and_congr (h x) (forall_congr (λ y, imp_congr (h y) iff.rfl)))
 
 theorem forall_not_of_not_exists {α : Sort u} {p : α → Prop} : ¬(∃ x, p x) → (∀ x, ¬p x) :=
@@ -1123,10 +1123,10 @@ decidable.cases_on h (λ h₁, bool.ff) (λ h₂, bool.tt)
 
 export decidable (is_true is_false to_bool)
 
-@[simp] theorem to_bool_true_eq_tt (h : decidable true) : @to_bool true h = tt :=
+theorem to_bool_true_eq_tt (h : decidable true) : @to_bool true h = tt :=
 decidable.cases_on h (λ h, false.elim (iff.mp not_true h)) (λ _, rfl)
 
-@[simp] theorem to_bool_false_eq_ff (h : decidable false) : @to_bool false h = ff :=
+theorem to_bool_false_eq_ff (h : decidable false) : @to_bool false h = ff :=
 decidable.cases_on h (λ h, rfl) (λ h, false.elim h)
 
 instance : decidable true :=
@@ -1300,7 +1300,6 @@ match h with
 | (is_true hc)   := absurd hc hnc
 | (is_false hnc) := rfl
 
-@[simp]
 theorem if_t_t (c : Prop) [h : decidable c] {α : Sort u} (t : α) : (ite c t t) = t :=
 match h with
 | (is_true hc)   := rfl
@@ -1322,7 +1321,6 @@ match dec_b, dec_c with
 | (is_false h₁), (is_true h₂)  := absurd h₂ (iff.mp (not_iff_not_of_iff h_c) h₁)
 | (is_true h₁),  (is_false h₂) := absurd h₁ (iff.mpr (not_iff_not_of_iff h_c) h₂)
 
-@[congr]
 theorem if_congr {α : Sort u} {b c : Prop} [dec_b : decidable b] [dec_c : decidable c]
                {x y u v : α}
                (h_c : b ↔ c) (h_t : x = u) (h_e : y = v) :
@@ -1334,17 +1332,14 @@ theorem if_ctx_simp_congr {α : Sort u} {b c : Prop} [dec_b : decidable b] {x y 
         ite b x y = (@ite c (decidable_of_decidable_of_iff dec_b h_c) α u v) :=
 @if_ctx_congr α b c dec_b (decidable_of_decidable_of_iff dec_b h_c) x y u v h_c h_t h_e
 
-@[congr]
 theorem if_simp_congr {α : Sort u} {b c : Prop} [dec_b : decidable b] {x y u v : α}
                     (h_c : b ↔ c) (h_t : x = u) (h_e : y = v) :
         ite b x y = (@ite c (decidable_of_decidable_of_iff dec_b h_c) α u v) :=
 @if_ctx_simp_congr α b c dec_b x y u v h_c (λ h, h_t) (λ h, h_e)
 
-@[simp]
 theorem if_true {α : Sort u} {h : decidable true} (t e : α) : (@ite true h α t e) = t :=
 if_pos trivial
 
-@[simp]
 theorem if_false {α : Sort u} {h : decidable false} (t e : α) : (@ite false h α t e) = e :=
 if_neg not_false
 
@@ -1357,7 +1352,6 @@ match dec_b, dec_c with
 | (is_false h₁), (is_true h₂)  := absurd h₂ (iff.mp (not_iff_not_of_iff h_c) h₁)
 | (is_true h₁),  (is_false h₂) := absurd h₁ (iff.mpr (not_iff_not_of_iff h_c) h₂)
 
-@[congr]
 theorem if_congr_prop {b c x y u v : Prop} [dec_b : decidable b] [dec_c : decidable c]
                     (h_c : b ↔ c) (h_t : x ↔ u) (h_e : y ↔ v) :
         ite b x y ↔ ite c u v :=
@@ -1368,18 +1362,17 @@ theorem if_ctx_simp_congr_prop {b c x y u v : Prop} [dec_b : decidable b]
         ite b x y ↔ (@ite c (decidable_of_decidable_of_iff dec_b h_c) Prop u v) :=
 @if_ctx_congr_prop b c x y u v dec_b (decidable_of_decidable_of_iff dec_b h_c) h_c h_t h_e
 
-@[congr]
 theorem if_simp_congr_prop {b c x y u v : Prop} [dec_b : decidable b]
                            (h_c : b ↔ c) (h_t : x ↔ u) (h_e : y ↔ v) :
         ite b x y ↔ (@ite c (decidable_of_decidable_of_iff dec_b h_c) Prop u v) :=
 @if_ctx_simp_congr_prop b c x y u v dec_b h_c (λ h, h_t) (λ h, h_e)
 
-@[simp] theorem dif_pos {c : Prop} [h : decidable c] (hc : c) {α : Sort u} {t : c → α} {e : ¬ c → α} : dite c t e = t hc :=
+theorem dif_pos {c : Prop} [h : decidable c] (hc : c) {α : Sort u} {t : c → α} {e : ¬ c → α} : dite c t e = t hc :=
 match h with
 | (is_true hc)   := rfl
 | (is_false hnc) := absurd hc hnc
 
-@[simp] theorem dif_neg {c : Prop} [h : decidable c] (hnc : ¬c) {α : Sort u} {t : c → α} {e : ¬ c → α} : dite c t e = e hnc :=
+theorem dif_neg {c : Prop} [h : decidable c] (hnc : ¬c) {α : Sort u} {t : c → α} {e : ¬ c → α} : dite c t e = e hnc :=
 match h with
 | (is_true hc)   := absurd hc hnc
 | (is_false hnc) := rfl
@@ -1648,7 +1641,7 @@ rfl
 protected theorem eq : ∀ {a1 a2 : {x // p x}}, val a1 = val a2 → a1 = a2
 | ⟨x, h1⟩ ⟨.(x), h2⟩ rfl := rfl
 
-@[simp] theorem eta (a : {x // p x}) (h : p (val a)) : mk (val a) h = a :=
+theorem eta (a : {x // p x}) (h : p (val a)) : mk (val a) h = a :=
 subtype.eq rfl
 
 instance {α : Type u} {p : α → Prop} {a : α} (h : p a) : inhabited {x // p x} :=
@@ -1687,7 +1680,7 @@ end
 section
 variables {α : Type u} {β : Type v}
 
-@[simp] theorem prod.mk.eta : ∀{p : α × β}, (p.1, p.2) = p
+theorem prod.mk.eta : ∀{p : α × β}, (p.1, p.2) = p
 | (a, b) := rfl
 
 instance [inhabited α] [inhabited β] : inhabited (prod α β) :=

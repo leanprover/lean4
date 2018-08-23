@@ -75,11 +75,8 @@ end prim
 section
 variables {m : Type → Type} {ε : Type} [monad_io m] [monad_except ε m] [has_lift_t io.error ε] [monad m]
 
-def put_str : string → m unit :=
+private def put_str : string → m unit :=
 prim.lift_eio ∘ prim.put_str
-
-def put_str_ln (s : string) : m unit :=
-put_str s >> put_str "\n"
 
 def print {α} [has_to_string α] (s : α) : m unit :=
 put_str ∘ to_string $ s

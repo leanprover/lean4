@@ -96,9 +96,7 @@ result:
      (1
       (notation_spec.rules
        []
-       [(notation_spec.rule
-         (notation_symbol (0 (notation_quoted_symbol "`" "Prop" "`" [])))
-         [])])))
+       [(rule (notation_symbol (0 (notation_quoted_symbol "`" "Prop" "`" []))) [])])))
     ":="
     (hole "_"))])
  (eoi "")]
@@ -106,12 +104,7 @@ result:
 [(mixfix
   (mixfix.kind (0 "prefix"))
   (notation_symbol
-   (0
-    (notation_quoted_symbol
-     "`"
-     "+"
-     "`"
-     [(notation_spec.prec ":" (base10_lit "10"))])))
+   (0 (notation_quoted_symbol "`" "+" "`" [(prec ":" (base10_lit "10"))])))
   ":="
   (hole "_"))
  (eoi "")]
@@ -121,19 +114,10 @@ result:
   (1
    (notation_spec.rules
     []
-    [(notation_spec.rule
+    [(rule
       (notation_symbol
-       (0
-        (notation_quoted_symbol
-         "`"
-         "+"
-         "`"
-         [(notation_spec.prec ":" (base10_lit "10"))])))
-      [(notation_spec.transition
-        (2
-         (notation_spec.arg_transition
-          b
-          [(notation_spec.action ":" (notation_spec.action_kind (0 (base10_lit "10"))))])))])])))
+       (0 (notation_quoted_symbol "`" "+" "`" [(prec ":" (base10_lit "10"))])))
+      [(transition (2 (argument b [(action ":" (action_kind (0 (base10_lit "10"))))])))])])))
  ":="
  (hole "_"))
 notation`+`:10 b:10 :=_
@@ -153,9 +137,7 @@ partial syntax tree:
      (1
       (notation_spec.rules
        []
-       [(notation_spec.rule
-         (notation_symbol (0 (notation_quoted_symbol "`" "Prop" "`" [])))
-         [])])))
+       [(rule (notation_symbol (0 (notation_quoted_symbol "`" "Prop" "`" []))) [])])))
     ":="
     (hole <missing>))
    (notation
@@ -164,470 +146,211 @@ partial syntax tree:
      (1
       (notation_spec.rules
        [f]
-       [(notation_spec.rule
+       [(rule
          (notation_symbol
-          (0
-           (notation_quoted_symbol
-            "`"
-            "$ "
-            "`"
-            [(notation_spec.prec ":" (base10_lit "1"))])))
-         [(notation_spec.transition
-           (2
-            (notation_spec.arg_transition
-             a
-             [(notation_spec.action ":" (notation_spec.action_kind (0 (base10_lit "0"))))])))])])))
+          (0 (notation_quoted_symbol "`" "$ " "`" [(prec ":" (base10_lit "1"))])))
+         [(transition (2 (argument a [(action ":" (action_kind (0 (base10_lit "0"))))])))])])))
     ":="
     (hole <missing>))
    (reserve_mixfix
     ["reserve" (mixfix.kind (0 "prefix"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "¬"
-       "`"
-       [(notation_spec.prec ":" (base10_lit "40"))]))))
+     (0 (notation_quoted_symbol "`" "¬" "`" [(prec ":" (base10_lit "40"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (0 "prefix"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "~"
-       "`"
-       [(notation_spec.prec ":" (base10_lit "40"))]))))
+     (0 (notation_quoted_symbol "`" "~" "`" [(prec ":" (base10_lit "40"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (3 "infixr"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "∧ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "35"))]))))
+     (0 (notation_quoted_symbol "`" "∧ " "`" [(prec ":" (base10_lit "35"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (3 "infixr"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "/\\ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "35"))]))))
+     (0 (notation_quoted_symbol "`" "/\\ " "`" [(prec ":" (base10_lit "35"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (3 "infixr"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "\\/ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "30"))]))))
+     (0 (notation_quoted_symbol "`" "\\/ " "`" [(prec ":" (base10_lit "30"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (3 "infixr"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "∨ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "30"))]))))
+     (0 (notation_quoted_symbol "`" "∨ " "`" [(prec ":" (base10_lit "30"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "<-> "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "20"))]))))
+     (0 (notation_quoted_symbol "`" "<-> " "`" [(prec ":" (base10_lit "20"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "↔ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "20"))]))))
+     (0 (notation_quoted_symbol "`" "↔ " "`" [(prec ":" (base10_lit "20"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "= "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "50"))]))))
+     (0 (notation_quoted_symbol "`" "= " "`" [(prec ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "== "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "50"))]))))
+     (0 (notation_quoted_symbol "`" "== " "`" [(prec ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "≠ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "50"))]))))
+     (0 (notation_quoted_symbol "`" "≠ " "`" [(prec ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "≈ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "50"))]))))
+     (0 (notation_quoted_symbol "`" "≈ " "`" [(prec ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "~ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "50"))]))))
+     (0 (notation_quoted_symbol "`" "~ " "`" [(prec ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "≡ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "50"))]))))
+     (0 (notation_quoted_symbol "`" "≡ " "`" [(prec ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (2 "infixl"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "⬝ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "75"))]))))
+     (0 (notation_quoted_symbol "`" "⬝ " "`" [(prec ":" (base10_lit "75"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (3 "infixr"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "▸ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "75"))]))))
+     (0 (notation_quoted_symbol "`" "▸ " "`" [(prec ":" (base10_lit "75"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (3 "infixr"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "▹ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "75"))]))))
+     (0 (notation_quoted_symbol "`" "▹ " "`" [(prec ":" (base10_lit "75"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (3 "infixr"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "⊕ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "30"))]))))
+     (0 (notation_quoted_symbol "`" "⊕ " "`" [(prec ":" (base10_lit "30"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (3 "infixr"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "× "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "35"))]))))
+     (0 (notation_quoted_symbol "`" "× " "`" [(prec ":" (base10_lit "35"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (2 "infixl"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "+ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "65"))]))))
+     (0 (notation_quoted_symbol "`" "+ " "`" [(prec ":" (base10_lit "65"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (2 "infixl"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "- "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "65"))]))))
+     (0 (notation_quoted_symbol "`" "- " "`" [(prec ":" (base10_lit "65"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (2 "infixl"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "* "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "70"))]))))
+     (0 (notation_quoted_symbol "`" "* " "`" [(prec ":" (base10_lit "70"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (2 "infixl"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "/ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "70"))]))))
+     (0 (notation_quoted_symbol "`" "/ " "`" [(prec ":" (base10_lit "70"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (2 "infixl"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "% "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "70"))]))))
+     (0 (notation_quoted_symbol "`" "% " "`" [(prec ":" (base10_lit "70"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (2 "infixl"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "%ₙ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "70"))]))))
+     (0 (notation_quoted_symbol "`" "%ₙ " "`" [(prec ":" (base10_lit "70"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (0 "prefix"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "-"
-       "`"
-       [(notation_spec.prec ":" (base10_lit "100"))]))))
+     (0 (notation_quoted_symbol "`" "-" "`" [(prec ":" (base10_lit "100"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (3 "infixr"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "^ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "80"))]))))
+     (0 (notation_quoted_symbol "`" "^ " "`" [(prec ":" (base10_lit "80"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (3 "infixr"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "∘ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "90"))]))))
+     (0 (notation_quoted_symbol "`" "∘ " "`" [(prec ":" (base10_lit "90"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "<= "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "50"))]))))
+     (0 (notation_quoted_symbol "`" "<= " "`" [(prec ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "≤ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "50"))]))))
+     (0 (notation_quoted_symbol "`" "≤ " "`" [(prec ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "< "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "50"))]))))
+     (0 (notation_quoted_symbol "`" "< " "`" [(prec ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       ">= "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "50"))]))))
+     (0 (notation_quoted_symbol "`" ">= " "`" [(prec ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "≥ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "50"))]))))
+     (0 (notation_quoted_symbol "`" "≥ " "`" [(prec ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "> "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "50"))]))))
+     (0 (notation_quoted_symbol "`" "> " "`" [(prec ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (0 "prefix"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "!"
-       "`"
-       [(notation_spec.prec ":" (base10_lit "40"))]))))
+     (0 (notation_quoted_symbol "`" "!" "`" [(prec ":" (base10_lit "40"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (2 "infixl"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "&& "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "35"))]))))
+     (0 (notation_quoted_symbol "`" "&& " "`" [(prec ":" (base10_lit "35"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (2 "infixl"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "|| "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "30"))]))))
+     (0 (notation_quoted_symbol "`" "|| " "`" [(prec ":" (base10_lit "30"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "∈ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "50"))]))))
+     (0 (notation_quoted_symbol "`" "∈ " "`" [(prec ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "∉ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "50"))]))))
+     (0 (notation_quoted_symbol "`" "∉ " "`" [(prec ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (2 "infixl"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "∩ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "70"))]))))
+     (0 (notation_quoted_symbol "`" "∩ " "`" [(prec ":" (base10_lit "70"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (2 "infixl"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "∪ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "65"))]))))
+     (0 (notation_quoted_symbol "`" "∪ " "`" [(prec ":" (base10_lit "65"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "⊆ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "50"))]))))
+     (0 (notation_quoted_symbol "`" "⊆ " "`" [(prec ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "⊇ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "50"))]))))
+     (0 (notation_quoted_symbol "`" "⊇ " "`" [(prec ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "⊂ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "50"))]))))
+     (0 (notation_quoted_symbol "`" "⊂ " "`" [(prec ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "⊃ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "50"))]))))
+     (0 (notation_quoted_symbol "`" "⊃ " "`" [(prec ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "\\ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "70"))]))))
+     (0 (notation_quoted_symbol "`" "\\ " "`" [(prec ":" (base10_lit "70"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "∣ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "50"))]))))
+     (0 (notation_quoted_symbol "`" "∣ " "`" [(prec ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (2 "infixl"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "++ "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "65"))]))))
+     (0 (notation_quoted_symbol "`" "++ " "`" [(prec ":" (base10_lit "65"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (3 "infixr"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       ":: "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "67"))]))))
+     (0 (notation_quoted_symbol "`" ":: " "`" [(prec ":" (base10_lit "67"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (2 "infixl"))]
     (notation_symbol
-     (0
-      (notation_quoted_symbol
-       "`"
-       "; "
-       "`"
-       [(notation_spec.prec ":" (base10_lit "1"))]))))
+     (0 (notation_quoted_symbol "`" "; " "`" [(prec ":" (base10_lit "1"))]))))
    (universes "universes" [u v w])])
  (eoi "")]

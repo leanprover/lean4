@@ -18,8 +18,6 @@ Author: Leonardo de Moura
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_exceptional.h"
 #include "library/vm/vm_declaration.h"
-#include "library/vm/vm_environment.h"
-#include "library/vm/vm_parser.h"
 #include "library/vm/vm_array.h"
 #include "library/vm/vm_string.h"
 #include "library/vm/vm_platform.h"
@@ -40,8 +38,6 @@ void initialize_vm_core_module() {
     initialize_vm_list();
     initialize_vm_exceptional();
     initialize_vm_declaration();
-    initialize_vm_environment();
-    initialize_vm_parser();
     initialize_vm_array();
     initialize_vm_string();
     initialize_vm_platform();
@@ -51,8 +47,6 @@ void finalize_vm_core_module() {
     finalize_vm_platform();
     finalize_vm_string();
     finalize_vm_array();
-    finalize_vm_parser();
-    finalize_vm_environment();
     finalize_vm_declaration();
     finalize_vm_exceptional();
     finalize_vm_list();

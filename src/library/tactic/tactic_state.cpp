@@ -20,7 +20,6 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/aux_definition.h"
 #include "library/inductive_compiler/ginductive.h"
-#include "library/vm/vm_environment.h"
 #include "library/vm/vm_exceptional.h"
 #include "library/vm/vm_format.h"
 #include "library/vm/vm_string.h"
@@ -263,10 +262,6 @@ transparency_mode to_transparency_mode(vm_obj const & o) {
 
 vm_obj to_obj(transparency_mode m) {
     return mk_vm_simple(static_cast<unsigned>(m));
-}
-
-vm_obj tactic_state_env(vm_obj const & s) {
-    return to_obj(tactic::to_state(s).env());
 }
 
 vm_obj tactic_state_to_format(vm_obj const & s, vm_obj const & target_lhs_only) {
@@ -716,12 +711,6 @@ vm_obj tactic_add_decl(vm_obj const & _d, vm_obj const & _s) {
     }
 }
 
-vm_obj tactic_set_env(vm_obj const & _env, vm_obj const & _s) {
-    tactic_state const & s      = tactic::to_state(_s);
-    environment const & new_env = to_env(_env);
-    return tactic::mk_success(set_env(s, new_env));
-}
-
 vm_obj tactic_open_namespaces(vm_obj const & s) {
     environment env = tactic::to_state(s).env();
     buffer<name> b;
@@ -974,7 +963,6 @@ vm_obj tactic_frozen_local_instances(vm_obj const & s0) {
 }
 
 void initialize_tactic_state() {
-    DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),            tactic_state_env);
     DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}),    tactic_state_format_expr);
     DECLARE_VM_BUILTIN(name({"tactic_state", "to_format"}),      tactic_state_to_format);
     DECLARE_VM_BUILTIN(name({"tactic_state", "get_options"}),    tactic_state_get_options);
@@ -1008,7 +996,6 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "is_trace_enabled_for"}), tactic_is_trace_enabled_for);
     DECLARE_VM_BUILTIN(name({"tactic", "instantiate_mvars"}),    tactic_instantiate_mvars);
     DECLARE_VM_BUILTIN(name({"tactic", "add_decl"}),             tactic_add_decl);
-    DECLARE_VM_BUILTIN(name({"tactic", "set_env"}),              tactic_set_env);
     DECLARE_VM_BUILTIN(name({"tactic", "doc_string"}),           tactic_doc_string);
     DECLARE_VM_BUILTIN(name({"tactic", "add_doc_string"}),       tactic_add_doc_string);
     DECLARE_VM_BUILTIN(name({"tactic", "module_doc_strings"}),   tactic_module_doc_strings);

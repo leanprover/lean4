@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.function init.data.option.basic init.util
 import init.control.combinators init.control.monad init.control.alternative init.control.monad_fail
-import init.data.nat.div init.meta.exceptional init.meta.format init.meta.environment
+import init.data.nat.div init.meta.exceptional init.meta.format
 import init.meta.pexpr init.data.repr init.data.string.basic init.meta.interaction_monad
 
 meta constant tactic_state : Type
@@ -14,7 +14,6 @@ meta constant tactic_state : Type
 universes u v
 
 namespace tactic_state
-meta constant env         : tactic_state → environment
 /-- Format the given tactic state. If `target_lhs_only` is true and the target
     is of the form `lhs ~ rhs`, where `~` is a simplification relation,
     then only the `lhs` is displayed.

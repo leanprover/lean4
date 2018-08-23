@@ -14,7 +14,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include "library/message_builder.h"
 #include "library/time_task.h"
 #include "library/vm/interaction_state.h"
-#include "library/vm/vm_environment.h"
 #include "library/vm/vm_exceptional.h"
 #include "library/vm/vm_format.h"
 #include "library/vm/vm_string.h"

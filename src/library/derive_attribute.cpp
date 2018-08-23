@@ -61,13 +61,13 @@ static exprs_attribute const & get_derive_attribute() {
     return static_cast<exprs_attribute const &>(get_system_attribute("derive"));
 }
 
-static environment derive(environment env, name const & n, exprs const & clss) {
+static environment derive(environment env, options const & opts, name const & n, exprs const & clss) {
     for (auto const & cls : clss) {
         auto const & d = env.get(n);
         if (!is_constant(cls) || !d.is_definition())
             throw exception("don't know how to derive this");
         auto const & cls_d = env.get(const_name(cls));
-        type_context_old ctx(env);
+        type_context_old ctx(env, opts);
         auto ls = param_names_to_levels(d.get_univ_params());
         auto tgt = mk_const(n, ls);
         auto real_tgt = instantiate_univ_params(d.get_value(), d.get_univ_params(), ls);
@@ -118,7 +118,7 @@ static environment derive(environment env, name const & n, exprs const & clss) {
         real_tgt = apply_target(real_tgt);
         auto inst = ctx.mk_class_instance(real_tgt);
         if (!inst)
-            throw exception(sstream() << "failed to derive " << tgt);
+            throw exception(sstream() << "failed to derive " << real_tgt);
         tgt = ctx.mk_pi(n_params, tgt);
         auto inst2 = ctx.mk_lambda(n_params, inst.value());
         auto new_n = n + const_name(cls);
@@ -132,12 +132,12 @@ static environment derive(environment env, name const & n, exprs const & clss) {
 
 void initialize_derive_attribute() {
     register_system_attribute(exprs_attribute("derive", "auto-derive type classes",
-                                                [](environment const & env, io_state const &, name const & n, unsigned,
+                                                [](environment const & env, io_state const & ios, name const & n, unsigned,
                                                    bool persistent) {
                                                     if (!persistent)
                                                         throw exception("invalid [derive] attribute, must be persistent");
                                                     auto const & data = *get_derive_attribute().get(env, n);
-                                                    return derive(env, n, data.m_args);
+                                                    return derive(env, ios.get_options(), n, data.m_args);
                                                 }));
 }
 

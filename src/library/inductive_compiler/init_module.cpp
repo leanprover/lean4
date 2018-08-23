@@ -9,7 +9,6 @@ Author: Daniel Selsam
 #include "library/inductive_compiler/ginductive.h"
 #include "library/inductive_compiler/compiler.h"
 #include "library/inductive_compiler/basic.h"
-#include "library/inductive_compiler/mutual.h"
 #include "library/inductive_compiler/add_decl.h"
 
 namespace lean {
@@ -20,11 +19,9 @@ void initialize_inductive_compiler_module() {
     initialize_inductive_compiler();
     initialize_inductive_compiler_ginductive();
     initialize_inductive_compiler_basic();
-    initialize_inductive_compiler_mutual();
 }
 
 void finalize_inductive_compiler_module() {
-    finalize_inductive_compiler_mutual();
     finalize_inductive_compiler_basic();
     finalize_inductive_compiler_ginductive();
     finalize_inductive_compiler();

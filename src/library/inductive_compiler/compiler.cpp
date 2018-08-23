@@ -12,22 +12,17 @@ Author: Daniel Selsam
 #include "library/attribute_manager.h"
 #include "library/inductive_compiler/compiler.h"
 #include "library/inductive_compiler/basic.h"
-#include "library/inductive_compiler/mutual.h"
 #include "library/inductive_compiler/ginductive.h"
 
 namespace lean {
-environment add_inner_inductive_declaration(environment const & env, name_generator & ngen, options const & opts,
+environment add_inner_inductive_declaration(environment const & env, name_generator &, options const & opts,
                                             name_map<implicit_infer_kind> implicit_infer_map,
                                             ginductive_decl & decl, bool is_meta) {
     lean_assert(decl.get_inds().size() == decl.get_intro_rules().size());
-    if (decl.is_mutual()) {
-        return register_ginductive_decl(add_mutual_inductive_decl(env, ngen, opts, implicit_infer_map, decl, is_meta),
-                                        decl, ginductive_kind::MUTUAL);
-    } else {
-        lean_assert(!decl.is_mutual());
-        return register_ginductive_decl(add_basic_inductive_decl(env, opts, implicit_infer_map, decl, is_meta),
-                                        decl, ginductive_kind::BASIC);
-    }
+    if (decl.is_mutual())
+        throw exception("mutual inductive declarations have been disabled");
+    return register_ginductive_decl(add_basic_inductive_decl(env, opts, implicit_infer_map, decl, is_meta),
+                                    decl, ginductive_kind::BASIC);
 }
 
 void initialize_inductive_compiler() {}

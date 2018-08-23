@@ -5,6 +5,5 @@ add_library(inductive_compiler OBJECT
   ginductive_decl.cpp
   ginductive.cpp
   basic.cpp
-  mutual.cpp
   util.cpp
   )

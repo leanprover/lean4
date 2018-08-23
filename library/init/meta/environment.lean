@@ -87,9 +87,6 @@ meta constant structure_fields : environment → name → option (list name)
 meta constant fingerprint : environment → nat
 open lean.expr
 
-meta constant unfold_untrusted_macros : environment → expr → expr
-meta constant unfold_all_macros : environment → expr → expr
-
 meta def is_constructor_app (env : environment) (e : expr) : bool :=
 is_constant (get_app_fn e) && is_constructor env (const_name (get_app_fn e))
 

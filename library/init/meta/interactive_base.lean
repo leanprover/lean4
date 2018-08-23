@@ -92,75 +92,8 @@ private meta def maybe_paren : list format → format
 | [f] := f
 | fs  := paren (join fs)
 
-private meta def unfold (e : expr) : tactic expr :=
-do (expr.const f_name f_lvls) ← return e.get_app_fn | failed,
-   env   ← get_env,
-   decl  ← env.get f_name,
-   new_f ← decl.instantiate_value_univ_params f_lvls,
-   head_beta (lean.expr.mk_app new_f e.get_app_args)
-
 private meta def concat (f₁ f₂ : list format) :=
 if f₁.empty then f₂ else if f₂.empty then f₁ else f₁ ++ [" "] ++ f₂
-
-private meta def parser_desc_aux : expr → tactic (list format)
-| `(ident)  := return ["id"]
-| `(ident_) := return ["id"]
-| `(parser.pexpr %%v) := return ["expr"]
-| `(tk %%c) := list.ret <$> to_fmt <$> eval_expr string c
-| `(cur_pos) := return []
-| `(pure _) := return []
-| `(_ <$> %%p) := parser_desc_aux p
-| `(skip_info %%p) := parser_desc_aux p
-| `(set_goal_info_pos %%p) := parser_desc_aux p
-| `(with_desc %%desc %%p) := list.ret <$> eval_expr format desc
-| `(%%p₁ <*> %%p₂) := do
-  f₁ ← parser_desc_aux p₁,
-  f₂ ← parser_desc_aux p₂,
-  return $ concat f₁ f₂
-| `(%%p₁ <* %%p₂) := do
-  f₁ ← parser_desc_aux p₁,
-  f₂ ← parser_desc_aux p₂,
-  return $ concat f₁ f₂
-| `(%%p₁ *> %%p₂) := do
-  f₁ ← parser_desc_aux p₁,
-  f₂ ← parser_desc_aux p₂,
-  return $ concat f₁ f₂
-| `(many %%p) := do
-  f ← parser_desc_aux p,
-  return [maybe_paren f ++ "*"]
-| `(optional %%p) := do
-  f ← parser_desc_aux p,
-  return [maybe_paren f ++ "?"]
-| `(sep_by %%sep %%p) := do
-  f₁ ← parser_desc_aux sep,
-  f₂ ← parser_desc_aux p,
-  return [maybe_paren f₂ ++ join f₁, " ..."]
-| `(%%p₁ <|> %%p₂) := do
-  f₁ ← parser_desc_aux p₁,
-  f₂ ← parser_desc_aux p₂,
-  return $ if f₁.empty then [maybe_paren f₂ ++ "?"] else
-    if f₂.empty then [maybe_paren f₁ ++ "?"] else
-    [paren $ join $ f₁ ++ [to_fmt " | "] ++ f₂]
-| `(brackets %%l %%r %%p) := do
-  f ← parser_desc_aux p,
-  l ← eval_expr string l,
-  r ← eval_expr string r,
-  -- much better than the naive [l, " ", f, " ", r]
-  return [to_fmt l ++ join f ++ to_fmt r]
-| e          := do
-  e' ← (do e' ← unfold e,
-        guard $ e' ≠ e,
-        return e') <|>
-       (do f ← pp e,
-        fail $ to_fmt "don't know how to pretty print " ++ f),
-  parser_desc_aux e'
-
-meta def param_desc : expr → tactic format
-| `(parse %%p) := join <$> parser_desc_aux p
-| `(opt_param %%t _) := (++ "?") <$> pp t
-| e := if e.is_constant ∧ e.const_name.components.ilast = `itactic
-  then return $ to_fmt "{ tactic }"
-  else paren <$> pp e
 
 
 private meta constant parse_binders_core (rbp : ℕ) : parser (list pexpr)

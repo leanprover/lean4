@@ -45,7 +45,6 @@ Author: Leonardo de Moura
 #include "library/vm/vm_expr.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/tactic/kabstract.h"
-#include "library/tactic/unfold_tactic.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/elaborate.h"
 #include "library/tactic/tactic_evaluator.h"
@@ -2406,9 +2405,10 @@ class validate_and_collect_lhs_mvars : public replace_visitor {
         }
         if (auto new_e = ctx().reduce_projection(e))
             return new_e;
-        /* Try to unfold using refl equations */
-        if (auto new_e = dunfold(ctx(), e))
-            return new_e;
+        // HACK: trying to delete `dunfold`
+        // /* Try to unfold using refl equations */
+        // if (auto new_e = dunfold(ctx(), e))
+        // return new_e;
         /* Last resort, whnf using current setting */
         expr new_e = ctx().whnf(e);
         if (new_e != e) return some_expr(new_e);

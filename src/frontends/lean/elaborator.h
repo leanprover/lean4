@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 #include "library/context_cache.h"
 #include "library/tactic/tactic_state.h"
-#include "library/tactic/elaborate.h"
 #include "library/tactic/elaborator_exception.h"
 #include "library/sorry.h"
 #include "frontends/lean/info_manager.h"
@@ -49,7 +48,6 @@ private:
 
     list<expr>        m_instances;
     list<expr>        m_numeral_types;
-    list<expr_pair>   m_tactics;
 
     /* m_depth is only used for tracing */
     unsigned          m_depth{0};
@@ -62,7 +60,6 @@ private:
         info_manager           m_saved_info;
         list<expr>             m_saved_instances;
         list<expr>             m_saved_numeral_types;
-        list<expr_pair>        m_saved_tactics;
 
         snapshot(elaborator const & elab);
         void restore(elaborator & elab);
@@ -267,8 +264,6 @@ private:
     expr visit(expr const & e, optional<expr> const & expected_type);
 
     tactic_state mk_tactic_state_for(expr const & mvar);
-    void invoke_tactic(expr const & mvar, expr const & tac);
-
     bool ready_to_synthesize(expr inst_type);
 
     bool synthesize_type_class_instance_core(expr const & mvar, expr const & inferred_inst, expr const & inst_type);
@@ -276,8 +271,6 @@ private:
     void synthesize_numeral_types();
     void synthesize_type_class_instances_step();
     void synthesize_type_class_instances();
-    void synthesize_using_tactics();
-    void synthesize_no_tactics();
     void synthesize();
 
     void finalize_core(sanitize_param_names_fn & S, buffer<expr> & es,

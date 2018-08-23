@@ -2033,43 +2033,6 @@ expr elaborator::visit_app(expr const & e, optional<expr> const & expected_type)
     }
 }
 
-static level ground_uvars(level const & l) {
-    return replace(l, [] (level const & l) {
-        if (is_mvar(l)) {
-            return some_level(mk_level_zero());
-        } else {
-            return none_level();
-        }
-    });
-}
-
-static expr ground_uvars(expr const & e) {
-    return replace_propagating_pos(e, [] (expr const & e, unsigned) {
-        if (!has_univ_metavar(e)) {
-            return some_expr(e);
-        } else if (is_sort(e)) {
-            return some_expr(mk_sort(ground_uvars(sort_level(e))));
-        } else if (is_constant(e)) {
-            return some_expr(mk_constant(const_name(e),
-                map(const_levels(e), [] (level const & l) { return ground_uvars(l); })));
-        } else {
-            return none_expr();
-        }
-    });
-}
-
-expr elaborator::visit_by(expr const & e, optional<expr> const & expected_type) {
-    lean_assert(is_by(e));
-    expr tac = strict_visit(get_by_arg(e), none_expr());
-    tac = ground_uvars(tac);
-    expr const & ref = e;
-    expr mvar        = mk_metavar(expected_type, ref);
-    m_tactics = cons(mk_pair(mvar, tac), m_tactics);
-    trace_elab(tout() << "tactic for ?m_" << get_metavar_decl_ref_suffix(mvar) << " at " <<
-               pos_string_for(mvar) << "\n" << tac << "\n";);
-    return mvar;
-}
-
 expr elaborator::visit_anonymous_constructor(expr const & e, optional<expr> const & expected_type) {
     lean_assert(is_anonymous_constructor(e));
     buffer<expr> args;
@@ -2582,7 +2545,7 @@ expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
              * mvars in `new_lhs` will be turned into pattern variables below, so care must be taken when instantiating
              * or introducing them. See the very end of `visit_structure_instance` for an example. */
             new_lhs = visit(lhs, none_expr());
-            synthesize_no_tactics();
+            synthesize();
         }
         trace_elab_equation(tout() << "new_lhs:\n" << new_lhs << "\n";);
         new_lhs = instantiate_pattern_mvars(m_ctx, new_lhs);
@@ -2633,7 +2596,7 @@ expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
         }
         expr rhs     = instantiate_rev(equation_rhs(it), rhs_subst);
         expr new_rhs = visit(rhs, some_expr(new_lhs_type));
-        // synthesize_no_tactics();
+        // synthesize();
         // new_rhs       = instantiate_mvars(new_rhs);
         new_rhs       = enforce_type(new_rhs, new_lhs_type, "equation type mismatch", it);
         expr new_eq = copy_pos(it, mk_equation(new_lhs, new_rhs, ignore_equation_if_unused(it)));
@@ -3457,8 +3420,6 @@ expr elaborator::visit_mdata(expr const & e, optional<expr> const & expected_typ
         if (is_app_fn)
             throw elaborator_exception(e, "invalid constructor ⟨...⟩, function expected");
         return visit_anonymous_constructor(e, expected_type);
-    } else if (is_by(e)) {
-        return visit_by(e, expected_type);
     } else if (is_as_atomic(e)) {
         /* ignore annotation */
         expr new_e = visit(get_as_atomic_arg(e), none_expr());
@@ -3599,7 +3560,7 @@ expr elaborator::visit_pi(expr const & e) {
 expr elaborator::visit_let(expr const & e, optional<expr> const & expected_type) {
     expr ref = e;
     expr new_type  = visit(let_type(e), none_expr());
-    synthesize_no_tactics();
+    synthesize();
     expr new_value = visit(let_value(e), some_expr(new_type));
     expr ref_value = get_ref_for_child(let_value(e), ref);
     new_value      = enforce_type(new_value, new_type, "invalid let-expression", ref_value);
@@ -3640,7 +3601,7 @@ expr elaborator::visit_have_expr(expr const & e, optional<expr> const & expected
     expr type       = binding_domain(lambda);
     expr proof      = app_arg(e);
     expr new_type   = visit(type, none_expr());
-    synthesize_no_tactics();
+    synthesize();
     new_type        = ensure_type(new_type, type);
     expr new_proof  = visit(proof, some_expr(new_type));
     new_proof       = enforce_type(new_proof, new_type, "invalid have-expression", proof);
@@ -3665,7 +3626,7 @@ expr elaborator::visit_suffices_expr(expr const & e, optional<expr> const & expe
     expr new_fn;
     expr type     = binding_domain(fn);
     expr new_type = visit(type, none_expr());
-    synthesize_no_tactics();
+    synthesize();
     {
         type_context_old::tmp_locals locals(m_ctx);
         expr ref        = binding_domain(fn);
@@ -3848,76 +3809,8 @@ tactic_state elaborator::mk_tactic_state_for(expr const & mvar) {
     return ::lean::mk_tactic_state_for(m_env, m_opts, m_decl_name, mctx, lctx, type);
 }
 
-void elaborator::invoke_tactic(expr const & mvar, expr const & tactic) {
-    expr const & ref       = mvar;
-    metavar_decl mvar_decl = m_ctx.mctx().get_metavar_decl(mvar);
-    expr type              = mvar_decl.get_type();
-    tactic_state s         = mk_tactic_state_for(mvar);
-    if (has_synth_sorry({type, tactic})) {
-        // Skip if tactic or goal is broken. It is unlikely we will obtain
-        // any additional useful error messages.
-        m_ctx.assign(mvar, mk_sorry(some_expr(type), ref));
-        return;
-    }
-
-    try {
-        vm_obj r = tactic_evaluator(m_ctx, m_opts, ref, /* allow_profiler */ true)(tactic, s);
-        expr val;
-        if (auto new_s = tactic::is_success(r)) {
-            metavar_context mctx = new_s->mctx();
-            val = mctx.instantiate_mvars(new_s->main());
-            if (has_expr_metavar(val)) {
-                val = recoverable_error(some_expr(type), ref,
-                                        unsolved_tactic_state(*new_s, "tactic failed, result contains meta-variables", ref));
-            }
-            m_env = new_s->env();
-            m_ctx.set_env(m_env);
-            m_ctx.set_mctx(mctx);
-        } else {
-            val = mk_sorry(some_expr(type), ref);
-            m_has_errors = true;
-        }
-
-        /* assign mvar := val */
-        expr mvar1 = instantiate_mvars(mvar);
-        if (is_metavar(mvar1)) {
-            /* small optimization: avoid is_def_eq because it infer types and checks whether they are def-eq */
-            m_ctx.assign(mvar1, val);
-        } else if (!m_ctx.is_def_eq_at(mvar_decl.get_context(), mvar1, val)) {
-            /* TODO(Leo): improve following error message. It should not happen very often. */
-            throw exception("tactic failed, type mismatch");
-        }
-    } catch (std::exception & ex) {
-        if (try_report(ex, some_expr(ref))) {
-            m_ctx.assign(mvar, mk_sorry(some_expr(type), ref));
-        } else {
-            throw;
-        }
-    }
-}
-
-void elaborator::synthesize_using_tactics() {
-    buffer<expr_pair> to_process;
-    to_buffer(m_tactics, to_process);
-    m_tactics = list<expr_pair>();
-    for (expr_pair const & p : to_process) {
-        lean_assert(is_metavar(p.first));
-        invoke_tactic(p.first, p.second);
-    }
-}
-
-void elaborator::synthesize_no_tactics() {
-    synthesize_numeral_types();
-    synthesize_type_class_instances();
-}
-
 void elaborator::synthesize() {
     synthesize_numeral_types();
-    synthesize_type_class_instances();
-    synthesize_using_tactics();
-    /* After we execute tactics we may be able to solve more type class resolution problems.
-       We don't need a loop here because synthesize_using_tactics resets m_tactics.
-    */
     synthesize_type_class_instances();
 }
 
@@ -3963,7 +3856,6 @@ elaborator::snapshot::snapshot(elaborator const & e) {
     m_saved_info               = e.m_info;
     m_saved_instances          = e.m_instances;
     m_saved_numeral_types      = e.m_numeral_types;
-    m_saved_tactics            = e.m_tactics;
 }
 
 void elaborator::snapshot::restore(elaborator & e) {
@@ -3971,7 +3863,6 @@ void elaborator::snapshot::restore(elaborator & e) {
     e.m_info               = m_saved_info;
     e.m_instances          = m_saved_instances;
     e.m_numeral_types      = m_saved_numeral_types;
-    e.m_tactics            = m_saved_tactics;
 }
 
 /**

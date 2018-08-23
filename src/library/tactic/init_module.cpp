@@ -21,12 +21,10 @@ Author: Leonardo de Moura
 #include "library/tactic/cases_tactic.h"
 #include "library/tactic/generalize_tactic.h"
 #include "library/tactic/rewrite_tactic.h"
-#include "library/tactic/unfold_tactic.h"
 #include "library/tactic/elaborate.h"
 #include "library/tactic/eval.h"
 #include "library/tactic/simp_lemmas.h"
 #include "library/tactic/eqn_lemmas.h"
-#include "library/tactic/dsimplify.h"
 #include "library/tactic/destruct_tactic.h"
 
 namespace lean {
@@ -48,22 +46,18 @@ void initialize_tactic_module() {
     initialize_cases_tactic();
     initialize_generalize_tactic();
     initialize_rewrite_tactic();
-    initialize_unfold_tactic();
     initialize_elaborate();
     initialize_eval();
     initialize_simp_lemmas();
     initialize_eqn_lemmas();
-    initialize_dsimplify();
     initialize_destruct_tactic();
 }
 void finalize_tactic_module() {
     finalize_destruct_tactic();
-    finalize_dsimplify();
     finalize_eqn_lemmas();
     finalize_simp_lemmas();
     finalize_eval();
     finalize_elaborate();
-    finalize_unfold_tactic();
     finalize_rewrite_tactic();
     finalize_generalize_tactic();
     finalize_cases_tactic();

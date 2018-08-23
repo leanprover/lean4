@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "library/trace.h"
-#include "library/vm/vm_list.h"
 #include "library/tactic/tactic_state.h"
 
 namespace lean {

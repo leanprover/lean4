@@ -35,8 +35,6 @@ optional<expr> intron_core(environment const & env, options const & opts, metava
                            expr const & mvar, unsigned n, buffer<name> & new_Hns,
                            std::function<name(local_context const & lctx, name const & n)> const & mk_name);
 
-vm_obj intro(name const & n, tactic_state const & s);
-
 void initialize_intro_tactic();
 void finalize_intro_tactic();
 }

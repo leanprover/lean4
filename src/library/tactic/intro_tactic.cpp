@@ -7,8 +7,6 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "library/util.h"
-#include "library/vm/vm_name.h"
-#include "library/vm/vm_nat.h"
 #include "library/tactic/tactic_state.h"
 
 namespace lean {

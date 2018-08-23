@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/trace.h"
 #include "library/locals.h"
+#include "library/app_builder.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
@@ -18,7 +19,6 @@ Author: Leonardo de Moura
 #include "library/tactic/intro_tactic.h"
 #include "library/tactic/clear_tactic.h"
 #include "library/tactic/subst_tactic.h"
-#include "library/tactic/app_builder_tactics.h"
 
 namespace lean {
 /* For debugging purposes, make sure H is in the local context for mvar */

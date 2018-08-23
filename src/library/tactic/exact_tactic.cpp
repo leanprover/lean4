@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
-#include "library/tactic/app_builder_tactics.h"
 
 namespace lean {
 static vm_obj exact(expr const & e, transparency_mode const & m, tactic_state s) {

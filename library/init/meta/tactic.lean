@@ -278,40 +278,6 @@ meta constant resolve_name  : name → tactic pexpr
 /-- Return the hypothesis in the main goal. Fail if tactic_state does not have any goal left. -/
 meta constant local_context : tactic (list expr)
 meta constant get_unused_name (n : name := `_x) (i : option nat := none) : tactic name
-/--  Helper tactic for creating simple applications where some arguments are inferred using
-    type inference.
-
-    Example, given
-    ```
-        rel.{l_1 l_2} : Pi (α : Type.{l_1}) (β : α -> Type.{l_2}), (Pi x : α, β x) -> (Pi x : α, β x) -> , Prop
-        nat     : Type
-        real    : Type
-        vec.{l} : Pi (α : Type l) (n : nat), Type.{l1}
-        f g     : Pi (n : nat), vec real n
-    ```
-    then
-    ```
-    mk_app_core semireducible "rel" [f, g]
-    ```
-    returns the application
-    ```
-    rel.{1 2} nat (fun n : nat, vec real n) f g
-    ```
-
-    The unification constraints due to type inference are solved using the transparency `md`.
--/
-meta constant mk_app (fn : name) (args : list expr) (md := semireducible) : tactic expr
-/-- Similar to `mk_app`, but allows to specify which arguments are explicit/implicit.
-   Example, given `(a b : nat)` then
-   ```
-   mk_mapp "ite" [some (a > b), none, none, some a, some b]
-   ```
-   returns the application
-   ```
-   @ite.{1} (a > b) (nat.decidable_gt a b) nat a b
-   ```
--/
-meta constant mk_mapp (fn : name) (args : list (option expr)) (md := semireducible) : tactic expr
 /-- Close the current goal using `e`. Fail is the type of `e` is not definitionally equal to
     the target type. -/
 meta constant exact (e : expr) (md := semireducible) : tactic unit

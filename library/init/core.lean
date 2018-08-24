@@ -404,7 +404,9 @@ infix <->      := iff
 infix ↔        := iff
 notation `exists` binders `, ` r:(scoped P, Exists P) := r
 notation `∃` binders `, ` r:(scoped P, Exists P) := r
-notation `∃!` binders `, ` r:(scoped P, exists_unique P) := r
+/- NOTE: Does not accept multiple binders. `∃! a b, p` would expand to
+   `∃! a, ∃! b, p`, which is weaker than the intended meaning `∃! (a, b), p`. -/
+notation `∃!` binder `, ` r:(scoped P, exists_unique P) := r
 
 export has_append (append)
 

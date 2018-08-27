@@ -80,7 +80,6 @@ struct module_ext : public environment_extension {
     list<std::shared_ptr<modification const>> m_modifications;
     names        m_module_univs;
     names        m_module_decls;
-    name_set          m_module_defs;
     name_set          m_imported;
     // Map from declaration name to olean file where it was defined
     name_map<std::string>     m_decl2olean;
@@ -391,7 +390,6 @@ environment update_module_defs(environment const & env, declaration const & d) {
     if (d.is_definition()) {
         module_ext ext = get_extension(env);
         ext.m_module_decls = cons(d.get_name(), ext.m_module_decls);
-        ext.m_module_defs.insert(d.get_name());
         return update(env, ext);
     } else {
         module_ext ext = get_extension(env);
@@ -418,11 +416,6 @@ environment add_meta(environment const & env, buffer<declaration> const & ds) {
         new_env = add_decl_pos_info(new_env, d.get_name());
     }
     return add(new_env, std::make_shared<meta_decls_modification>(to_list(ds)));
-}
-
-bool is_definition(environment const & env, name const & n) {
-    module_ext const & ext = get_extension(env);
-    return ext.m_module_defs.contains(n);
 }
 
 environment add_quot(environment const & env) {

@@ -8,10 +8,10 @@ Author: Leonardo de Moura
 
 namespace lean {
 object_ref mk_cnstr(unsigned tag, unsigned num_objs, object ** objs, unsigned scalar_sz) {
-    object_ref r(alloc_cnstr(tag, num_objs, scalar_sz));
+    object * r = alloc_cnstr(tag, num_objs, scalar_sz);
     for (unsigned i = 0; i < num_objs; i++) {
-        cnstr_set_obj(r.raw(), i, objs[i]);
+        cnstr_set_obj(r, i, objs[i]);
     }
-    return r;
+    return object_ref(r);
 }
 }

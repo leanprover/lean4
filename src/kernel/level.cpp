@@ -34,15 +34,13 @@ inline static bool get_has_param(object * lvl, unsigned num_objs) { return cnstr
 inline static bool get_has_mvar(object * lvl, unsigned num_objs) { return cnstr_scalar<unsigned char>(lvl, num_objs*sizeof(object*) + 2*sizeof(unsigned) + sizeof(unsigned char)); }
 
 level mk_succ(level const & l) {
-    inc(l.raw());
-    level r(mk_cnstr(static_cast<unsigned>(level_kind::Succ), l.raw(), g_level_num_scalars));
+    level r(mk_cnstr(static_cast<unsigned>(level_kind::Succ), l, g_level_num_scalars));
     set_level_scalar_fields(r.raw(), 1, hash(hash(l), 17u), get_depth(l)+1, has_param(l), has_mvar(l));
     return r;
 }
 
 level mk_max_imax(level_kind k, level const & l1, level const & l2) {
-    inc(l1.raw()); inc(l2.raw());
-    level r(mk_cnstr(static_cast<unsigned>(k), l1.raw(), l2.raw(), g_level_num_scalars));
+    level r(mk_cnstr(static_cast<unsigned>(k), l1, l2, g_level_num_scalars));
     set_level_scalar_fields(r.raw(), 2,
                             hash(hash(l1), hash(l2)),
                             std::max(get_depth(l1), get_depth(l2)) + 1,
@@ -52,13 +50,11 @@ level mk_max_imax(level_kind k, level const & l1, level const & l2) {
 }
 
 level mk_univ_param(name const & n) {
-    inc(n.raw());
-    return level(mk_cnstr(static_cast<unsigned>(level_kind::Param), n.raw()));
+    return level(mk_cnstr(static_cast<unsigned>(level_kind::Param), n));
 }
 
 level mk_univ_mvar(name const & n) {
-    inc(n.raw());
-    return level(mk_cnstr(static_cast<unsigned>(level_kind::MVar), n.raw()));
+    return level(mk_cnstr(static_cast<unsigned>(level_kind::MVar), n));
 }
 
 unsigned level::hash() const {

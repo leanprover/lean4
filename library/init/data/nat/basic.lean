@@ -164,35 +164,37 @@ nat.zero_add
 protected theorem one_mul (n : nat) : 1 * n = n :=
 nat.mul_comm n 1 ▸ nat.mul_one n
 
+local infix `◾`:50 := eq.trans
+
 protected theorem left_distrib : ∀ (n m k : nat), n * (m + k) = n * m + n * k
 | 0        m k := (nat.zero_mul (m + k)).symm ▸ (nat.zero_mul m).symm ▸ (nat.zero_mul k).symm ▸ rfl
-| (succ n) m k := calc
-  succ n * (m + k)
-        = n * (m + k) + (m + k)      : succ_mul _ _
-    ... = (n * m + n * k) + (m + k)  : left_distrib n m k ▸ rfl
-    ... = n * m + (n * k + (m + k))  : nat.add_assoc _ _ _
-    ... = n * m + (m + (n * k + k))  : congr_arg (λ x, n*m + x) (nat.add_left_comm _ _ _)
-    ... = (n * m + m) + (n * k + k)  : (nat.add_assoc _ _ _).symm
-    ... = (n * m + m) + succ n * k   : succ_mul n k ▸ rfl
-    ... = succ n * m + succ n * k    : succ_mul n m ▸ rfl
+| (succ n) m k :=
+  have h₁ : succ n * (m + k) = n * (m + k) + (m + k),              from succ_mul _ _,
+  have h₂ : n * (m + k) + (m + k) = (n * m + n * k) + (m + k),     from left_distrib n m k ▸ rfl,
+  have h₃ : (n * m + n * k) + (m + k) = n * m + (n * k + (m + k)), from nat.add_assoc _ _ _,
+  have h₄ : n * m + (n * k + (m + k)) = n * m + (m + (n * k + k)), from congr_arg (λ x, n*m + x) (nat.add_left_comm _ _ _),
+  have h₅ : n * m + (m + (n * k + k)) = (n * m + m) + (n * k + k), from (nat.add_assoc _ _ _).symm,
+  have h₆ : (n * m + m) + (n * k + k) = (n * m + m) + succ n * k,  from succ_mul n k ▸ rfl,
+  have h₇ : (n * m + m) + succ n * k = succ n * m + succ n * k,    from succ_mul n m ▸ rfl,
+  h₁ ◾ h₂ ◾ h₃ ◾ h₄ ◾ h₅ ◾ h₆ ◾ h₇
 
 protected theorem right_distrib (n m k : nat) : (n + m) * k = n * k + m * k :=
-calc (n + m) * k
-       = k * (n + m)   : nat.mul_comm _ _
-  ...  = k * n + k * m : nat.left_distrib _ _ _
-  ...  = n * k + k * m : nat.mul_comm n k ▸ rfl
-  ...  = n * k + m * k : nat.mul_comm m k ▸ rfl
+have h₁ : (n + m) * k = k * (n + m),     from nat.mul_comm _ _,
+have h₂ : k * (n + m) = k * n + k * m,   from nat.left_distrib _ _ _,
+have h₃ : k * n + k * m = n * k + k * m, from nat.mul_comm n k ▸ rfl,
+have h₄ : n * k + k * m = n * k + m * k, from nat.mul_comm m k ▸ rfl,
+h₁ ◾ h₂ ◾ h₃ ◾ h₄
 
 protected theorem mul_assoc : ∀ (n m k : nat), (n * m) * k = n * (m * k)
 | n m 0        := rfl
-| n m (succ k) := calc
-  n * m * succ k
-       = n * m * (k + 1)           : rfl
-   ... = (n * m * k) + n * m * 1   : nat.left_distrib _ _ _
-   ... = (n * m * k) + n * m       : (nat.mul_one (n*m)).symm ▸ rfl
-   ... = (n * (m * k)) + n * m     : (mul_assoc n m k).symm ▸ rfl
-   ... = n * (m * k + m)           : (nat.left_distrib n (m*k) m).symm
-   ... = n * (m * succ k)          : nat.mul_succ m k ▸ rfl
+| n m (succ k) :=
+  have h₁ : n * m * succ k = n * m * (k + 1),              from rfl,
+  have h₂ : n * m * (k + 1) = (n * m * k) + n * m * 1,     from nat.left_distrib _ _ _,
+  have h₃ : (n * m * k) + n * m * 1 = (n * m * k) + n * m, from (nat.mul_one (n*m)).symm ▸ rfl,
+  have h₄ : (n * m * k) + n * m = (n * (m * k)) + n * m,   from (mul_assoc n m k).symm ▸ rfl,
+  have h₅ : (n * (m * k)) + n * m = n * (m * k + m),       from (nat.left_distrib n (m*k) m).symm,
+  have h₆ : n * (m * k + m) = n * (m * succ k),            from nat.mul_succ m k ▸ rfl,
+h₁ ◾ h₂ ◾ h₃ ◾ h₄ ◾ h₅ ◾ h₆
 
 /- Inequalities -/
 
@@ -426,16 +428,15 @@ or.elim (nat.lt_or_ge n m)
 protected theorem add_le_add_left {n m : nat} (h : n ≤ m) (k : nat) : k + n ≤ k + m :=
 match le.dest h with
 | ⟨w, hw⟩ :=
-  have k + n + w = k + m, from
-    calc k + n + w = k + (n + w) : nat.add_assoc _ _ _
-            ...    = k + m       : congr_arg _ hw,
-  le.intro this
+  have h₁ : k + n + w = k + (n + w), from nat.add_assoc _ _ _,
+  have h₂ : k + (n + w) = k + m,     from congr_arg _ hw,
+  le.intro $ h₁ ◾ h₂
 
 protected theorem add_le_add_right {n m : nat} (h : n ≤ m) (k : nat) : n + k ≤ m + k :=
-calc
-  n + k = k + n : nat.add_comm _ _
-    ... ≤ k + m : nat.add_le_add_left h k
-    ... = m + k : nat.add_comm _ _
+have h₁ : n + k = k + n, from nat.add_comm _ _,
+have h₂ : k + n ≤ k + m, from nat.add_le_add_left h k,
+have h₃ : k + m = m + k, from nat.add_comm _ _,
+trans_rel_left (≤) (trans_rel_right (≤) h₁ h₂) h₃
 
 protected theorem add_lt_add_left {n m : nat} (h : n < m) (k : nat) : k + n < k + m :=
 lt_of_succ_le (add_succ k n ▸ nat.add_le_add_left (succ_le_of_lt h) k)
@@ -476,8 +477,9 @@ congr_arg succ (succ_add n n)
 protected theorem zero_lt_bit0 : ∀ {n : nat}, n ≠ 0 → 0 < bit0 n
 | 0        h := absurd rfl h
 | (succ n) h :=
-  calc 0 < succ (succ (bit0 n)) : zero_lt_succ _
-     ... = bit0 (succ n)        : (nat.bit0_succ_eq n).symm
+  have h₁ : 0 < succ (succ (bit0 n)),             from zero_lt_succ _,
+  have h₂ : succ (succ (bit0 n)) = bit0 (succ n), from (nat.bit0_succ_eq n).symm,
+  trans_rel_left (<) h₁ h₂
 
 protected theorem zero_lt_bit1 (n : nat) : 0 < bit1 n :=
 zero_lt_succ _

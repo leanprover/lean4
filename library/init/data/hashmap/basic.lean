@@ -13,8 +13,7 @@ def bucket_array (α : Type u) (β : α → Type v) :=
 
 def bucket_array.uwrite {α : Type u} {β : α → Type v} (data : bucket_array α β) (i : usize) (d : list (Σ a, β a)) (h : i.to_nat < data.val.sz) : bucket_array α β :=
 ⟨ data.val.uwrite i d h,
-  calc (data.val.uwrite i d h).sz = data.val.sz : array.sz_write_eq _ _ _
-                     ...          > 0           : data.property ⟩
+  trans_rel_right gt (array.sz_write_eq (data.val) ⟨usize.to_nat i, h⟩ d) data.property ⟩
 
 structure hashmap_imp (α : Type u) (β : α → Type v) :=
 (size       : nat)
@@ -25,12 +24,13 @@ let n := if nbuckets = 0 then 8 else nbuckets in
 { size       := 0,
   buckets    :=
   ⟨ mk_array n [],
-    calc (mk_array n []).sz = n                                    : sz_mk_array_eq _ _
-           ...              = if nbuckets = 0 then 8 else nbuckets : rfl
-           ...              > 0                                    :
+    have p₁ : (mk_array n []).sz = n, from sz_mk_array_eq _ _,
+    have p₂ : n = (if nbuckets = 0 then 8 else nbuckets), from rfl,
+    have p₃ : (if nbuckets = 0 then 8 else nbuckets) > 0, from
               match nbuckets with
               | 0            := nat.zero_lt_succ _
-              | (nat.succ x) := nat.zero_lt_succ _ ⟩ }
+              | (nat.succ x) := nat.zero_lt_succ _,
+    trans_rel_right gt (eq.trans p₁ p₂) p₃ ⟩ }
 
 namespace hashmap_imp
 variables {α : Type u} {β : α → Type v}

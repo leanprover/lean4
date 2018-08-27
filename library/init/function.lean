@@ -110,10 +110,11 @@ lemma surjective_of_has_right_inverse {f : α → β} : has_right_inverse f → 
 lemma left_inverse_of_surjective_of_right_inverse {f : α → β} {g : β → α}
     (surjf : surjective f) (rfg : right_inverse f g) :
   left_inverse f g :=
-assume y, exists.elim (surjf y) (λ x hx, calc
-  f (g y) = f (g (f x)) : hx ▸ rfl
-      ... = f x         : eq.symm (rfg x) ▸ rfl
-      ... = y           : hx)
+assume y, exists.elim (surjf y) $ λ x hx,
+  have h₁ : f (g y) = f (g (f x)), from hx ▸ rfl,
+  have h₂ : f (g (f x)) = f x,     from eq.symm (rfg x) ▸ rfl,
+  have h₃ : f x = y,               from hx,
+  eq.trans h₁ $ eq.trans h₂ h₃
 
 lemma injective_id : injective (@id α) := assume a₁ a₂ h, h
 

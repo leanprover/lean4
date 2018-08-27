@@ -1614,17 +1614,20 @@ def right_distributive := ∀ a b c, (a + b) * c = a * c + b * c
 def right_commutative (h : β → α → β) := ∀ b a₁ a₂, h (h b a₁) a₂ = h (h b a₂) a₁
 def left_commutative  (h : α → β → β) := ∀ a₁ a₂ b, h a₁ (h a₂ b) = h a₂ (h a₁ b)
 
+local infix `◾`:50 := eq.trans
+
 theorem left_comm : commutative f → associative f → left_commutative f :=
-assume hcomm hassoc, assume a b c, calc
-  a*(b*c) = (a*b)*c  : eq.symm (hassoc a b c)
-    ...   = (b*a)*c  : hcomm a b ▸ rfl
-    ...   = b*(a*c)  : hassoc b a c
+assume hcomm hassoc, assume a b c,
+  eq.symm (hassoc a b c)
+◾ (hcomm a b ▸ rfl : (a*b)*c = (b*a)*c)
+◾ hassoc b a c
 
 theorem right_comm : commutative f → associative f → right_commutative f :=
-assume hcomm hassoc, assume a b c, calc
-  (a*b)*c = a*(b*c) : hassoc a b c
-    ...   = a*(c*b) : hcomm b c ▸ rfl
-    ...   = (a*c)*b : eq.symm (hassoc a c b)
+assume hcomm hassoc, assume a b c,
+  hassoc a b c
+◾ (hcomm b c ▸ rfl : a*(b*c) = a*(c*b))
+◾ eq.symm (hassoc a c b)
+
 end binary
 
 /- Subtype -/
@@ -1881,10 +1884,11 @@ quot.rec f (λ a b h, subsingleton.elim _ (f b)) q
 @[reducible, elab_as_eliminator]
 protected def hrec_on
    (q : quot r) (f : Π a, β ⟦a⟧) (c : ∀ (a b : α) (p : r a b), f a == f b) : β q :=
-quot.rec_on q f
-  (λ a b p, eq_of_heq (calc
-    (eq.rec (f a) (sound p) : β ⟦b⟧) == f a : eq_rec_heq (sound p) (f a)
-                                 ... == f b : c a b p))
+quot.rec_on q f $
+  λ a b p, eq_of_heq $
+    have p₁ : (eq.rec (f a) (sound p) : β ⟦b⟧) == f a, from eq_rec_heq (sound p) (f a),
+    heq.trans p₁ (c a b p)
+
 end
 end quot
 

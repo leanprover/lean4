@@ -78,8 +78,6 @@ corrupted_file_exception::corrupted_file_exception(std::string const & fname):
 struct module_ext : public environment_extension {
     std::vector<module_name> m_direct_imports;
     list<std::shared_ptr<modification const>> m_modifications;
-    names        m_module_univs;
-    names        m_module_decls;
     name_set          m_imported;
     // Map from declaration name to olean file where it was defined
     name_map<std::string>     m_decl2olean;
@@ -98,18 +96,6 @@ static module_ext const & get_extension(environment const & env) {
 }
 static environment update(environment const & env, module_ext const & ext) {
     return env.update(g_ext->m_ext_id, std::make_shared<module_ext>(ext));
-}
-
-names const & get_curr_module_decl_names(environment const & env) {
-    return get_extension(env).m_module_decls;
-}
-
-names const & get_curr_module_univ_names(environment const & env) {
-    return get_extension(env).m_module_univs;
-}
-
-std::vector<module_name> get_curr_module_imports(environment const & env) {
-    return get_extension(env).m_direct_imports;
 }
 
 /* Add the entry decl_name -> fname to the environment. fname is the name of the .olean file
@@ -386,23 +372,10 @@ environment add_and_perform(environment const & env, std::shared_ptr<modificatio
     return update(new_env, ext);
 }
 
-environment update_module_defs(environment const & env, declaration const & d) {
-    if (d.is_definition()) {
-        module_ext ext = get_extension(env);
-        ext.m_module_decls = cons(d.get_name(), ext.m_module_decls);
-        return update(env, ext);
-    } else {
-        module_ext ext = get_extension(env);
-        ext.m_module_decls = cons(d.get_name(), ext.m_module_decls);
-        return update(env, ext);
-    }
-}
-
 environment add(environment const & env, declaration const & d) {
     environment new_env = env.add(d);
     if (!check_computable(new_env, d.get_name()))
         new_env = mark_noncomputable(new_env, d.get_name());
-    new_env = update_module_defs(new_env, d);
     new_env = add(new_env, std::make_shared<decl_modification>(d));
     return add_decl_pos_info(new_env, d.get_name());
 }
@@ -412,7 +385,6 @@ environment add_meta(environment const & env, buffer<declaration> const & ds) {
     for (declaration const & d : ds) {
         if (!check_computable(new_env, d.get_name()))
             new_env = mark_noncomputable(new_env, d.get_name());
-        new_env = update_module_defs(new_env, d);
         new_env = add_decl_pos_info(new_env, d.get_name());
     }
     return add(new_env, std::make_shared<meta_decls_modification>(to_list(ds)));
@@ -431,7 +403,6 @@ environment add_inductive(environment                       env,
     environment new_env             = r.first;
     certified_inductive_decl cidecl = r.second;
     module_ext ext = get_extension(env);
-    ext.m_module_decls = cons(decl.m_name, ext.m_module_decls);
     new_env = update(new_env, ext);
     new_env = add_decl_pos_info(new_env, decl.m_name);
     return add(new_env, std::make_shared<inductive_modification>(cidecl));

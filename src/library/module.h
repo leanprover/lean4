@@ -44,13 +44,6 @@ using module_loader = std::function<std::shared_ptr<loaded_module const> (std::s
 module_loader mk_olean_loader(std::vector<std::string> const &);
 module_loader mk_dummy_loader();
 
-/** \brief Return the list of declarations performed in the current module */
-names const & get_curr_module_decl_names(environment const & env);
-/** \brief Return the list of universes declared in the current module */
-names const & get_curr_module_univ_names(environment const & env);
-/** \brief Return the list of modules directly imported by the current module */
-std::vector<module_name> get_curr_module_imports(environment const & env);
-
 /** \brief Return an environment based on \c env, where all modules in \c modules are imported.
     Modules included directly or indirectly by them are also imported.
     The environment \c env is usually an empty environment.

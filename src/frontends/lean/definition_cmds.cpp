@@ -472,7 +472,6 @@ static void check_example(environment const & decl_env, options const & opts,
     scope_traces_as_messages scope2a(file_name, pos_provider.get_some_pos());
     scope_pos_info_provider scope3(pos_provider);
     auto_reporting_info_manager_scope scope4(file_name, use_info_manager);
-    module::scope_pos_info scope_pos(pos_provider.get_some_pos());
 
     name decl_name = "_example";
 
@@ -511,7 +510,6 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
     buffer<expr> params;
     expr fn, val;
     auto header_pos = p.pos();
-    module::scope_pos_info scope_pos(header_pos);
     declaration_info_scope scope(p, kind, meta.m_modifiers);
     environment env   = p.env();
     private_name_scope prv_scope(meta.m_modifiers.m_is_private, env);

@@ -79,9 +79,6 @@ struct module_ext : public environment_extension {
     std::vector<module_name> m_direct_imports;
     list<std::shared_ptr<modification const>> m_modifications;
     name_set          m_imported;
-    // Map from declaration name to olean file where it was defined
-    name_map<std::string>     m_decl2olean;
-    name_map<pos_info>        m_decl2pos_info;
 };
 
 struct module_ext_reg {
@@ -94,98 +91,9 @@ static module_ext_reg * g_ext = nullptr;
 static module_ext const & get_extension(environment const & env) {
     return static_cast<module_ext const &>(env.get_extension(g_ext->m_ext_id));
 }
+
 static environment update(environment const & env, module_ext const & ext) {
     return env.update(g_ext->m_ext_id, std::make_shared<module_ext>(ext));
-}
-
-/* Add the entry decl_name -> fname to the environment. fname is the name of the .olean file
-   where decl_name was defined. */
-static environment add_decl_olean(environment const & env, name const & decl_name, std::string const & fname) {
-    module_ext ext = get_extension(env);
-    ext.m_decl2olean.insert(decl_name, fname);
-    return update(env, ext);
-}
-
-optional<std::string> get_decl_olean(environment const & env, name const & decl_name) {
-    module_ext const & ext = get_extension(env);
-    name d;
-    if (auto r = inductive::is_intro_rule(env, decl_name))
-        d = *r;
-    else if (auto r = inductive::is_elim_rule(env, decl_name))
-        d = *r;
-    else
-        d = decl_name;
-    if (auto r = ext.m_decl2olean.find(d))
-        return optional<std::string>(*r);
-    else
-        return optional<std::string>();
-}
-
-LEAN_THREAD_VALUE(bool, g_has_pos, false);
-LEAN_THREAD_VALUE(unsigned, g_curr_line, 0);
-LEAN_THREAD_VALUE(unsigned, g_curr_column, 0);
-
-module::scope_pos_info::scope_pos_info(pos_info const & pos_info) {
-    g_has_pos     = true;
-    g_curr_line   = pos_info.first;
-    g_curr_column = pos_info.second;
-}
-
-module::scope_pos_info::~scope_pos_info() {
-    g_has_pos = false;
-}
-
-struct pos_info_mod : public modification {
-    LEAN_MODIFICATION("PInfo")
-
-    name m_decl_name;
-    pos_info m_pos_info;
-
-    pos_info_mod(name const & decl_name, pos_info const & pos) :
-        m_decl_name(decl_name), m_pos_info(pos) {}
-
-    void perform(environment & env) const override {
-        auto ext = get_extension(env);
-        ext.m_decl2pos_info.insert(m_decl_name, m_pos_info);
-        env = update(env, ext);
-    }
-
-    void serialize(serializer & s) const override {
-        s << m_decl_name << m_pos_info.first << m_pos_info.second;
-    }
-
-    static std::shared_ptr<modification const> deserialize(deserializer & d) {
-        name decl_name; unsigned line, column;
-        d >> decl_name >> line >> column;
-        return std::make_shared<pos_info_mod>(decl_name, pos_info {line, column});
-    }
-};
-
-static environment add_decl_pos_info(environment const & env, name const & decl_name) {
-    if (!g_has_pos)
-        return env;
-    return module::add_and_perform(env, std::make_shared<pos_info_mod>(decl_name, pos_info {g_curr_line, g_curr_column}));
-}
-
-optional<pos_info> get_decl_pos_info(environment const & env, name const & decl_name) {
-    module_ext const & ext = get_extension(env);
-    name d;
-    if (auto r = inductive::is_intro_rule(env, decl_name))
-        d = *r;
-    else if (auto r = inductive::is_elim_rule(env, decl_name))
-        d = *r;
-    else
-        d = decl_name;
-    if (auto r = ext.m_decl2pos_info.find(d))
-        return optional<pos_info>(*r);
-    else
-        return optional<pos_info>();
-}
-
-environment add_transient_decl_pos_info(environment const & env, name const & decl_name, pos_info const & pos) {
-    module_ext ext = get_extension(env);
-    ext.m_decl2pos_info.insert(decl_name, pos);
-    return update(env, ext);
 }
 
 static char const * g_olean_end_file = "EndFile";
@@ -376,8 +284,7 @@ environment add(environment const & env, declaration const & d) {
     environment new_env = env.add(d);
     if (!check_computable(new_env, d.get_name()))
         new_env = mark_noncomputable(new_env, d.get_name());
-    new_env = add(new_env, std::make_shared<decl_modification>(d));
-    return add_decl_pos_info(new_env, d.get_name());
+    return add(new_env, std::make_shared<decl_modification>(d));
 }
 
 environment add_meta(environment const & env, buffer<declaration> const & ds) {
@@ -385,7 +292,6 @@ environment add_meta(environment const & env, buffer<declaration> const & ds) {
     for (declaration const & d : ds) {
         if (!check_computable(new_env, d.get_name()))
             new_env = mark_noncomputable(new_env, d.get_name());
-        new_env = add_decl_pos_info(new_env, d.get_name());
     }
     return add(new_env, std::make_shared<meta_decls_modification>(to_list(ds)));
 }
@@ -404,7 +310,6 @@ environment add_inductive(environment                       env,
     certified_inductive_decl cidecl = r.second;
     module_ext ext = get_extension(env);
     new_env = update(new_env, ext);
-    new_env = add_decl_pos_info(new_env, decl.m_name);
     return add(new_env, std::make_shared<inductive_modification>(cidecl));
 }
 } // end of namespace module
@@ -558,15 +463,9 @@ modification_list parse_olean_modifications(std::string const & olean_code, std:
     return ms;
 }
 
-void import_module(modification_list const & modifications, std::string const & file_name, environment & env) {
+void import_module(modification_list const & modifications, std::string const & /* file_name */, environment & env) {
     for (auto & m : modifications) {
         m->perform(env);
-
-        if (auto dm = dynamic_cast<decl_modification const *>(m.get())) {
-            env = add_decl_olean(env, dm->m_decl.get_name(), file_name);
-        } else if (auto im = dynamic_cast<inductive_modification const *>(m.get())) {
-            env = add_decl_olean(env, im->m_decl.get_decl().m_name, file_name);
-        }
     }
 }
 
@@ -596,12 +495,10 @@ void initialize_module() {
     meta_decls_modification::init();
     inductive_modification::init();
     quot_modification::init();
-    pos_info_mod::init();
 }
 
 void finalize_module() {
     quot_modification::finalize();
-    pos_info_mod::finalize();
     inductive_modification::finalize();
     meta_decls_modification::finalize();
     decl_modification::finalize();

@@ -227,10 +227,6 @@ environment interaction_monad<State>::evaluator::compile(name const & interactio
     environment new_env = m_ctx.env();
     bool is_meta      = true;
     new_env = new_env.add(mk_definition(new_env, interaction_name, {}, interaction_type, interaction, is_meta));
-    if (provider) {
-        if (auto pos = provider->get_pos_info(interaction))
-            new_env = add_transient_decl_pos_info(new_env, interaction_name, *pos);
-    }
     try {
         bool optimize_bytecode = false;
         if (provider) {

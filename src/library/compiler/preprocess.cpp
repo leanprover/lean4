@@ -247,7 +247,7 @@ public:
         lean_cond_assert("compiler", check(d, v));
         lean_trace(name({"compiler", "eta_expansion"}), tout() << "\n" << v << "\n";);
         v = elim_recursors(m_env, m_cache, d.get_name(), v, procs);
-        procs.emplace_back(d.get_name(), get_decl_pos_info(m_env, d.get_name()), v);
+        procs.emplace_back(d.get_name(), optional<pos_info>(), v);
         lean_cond_assert("compiler", check(d, procs.back().m_code));
         lean_trace(name({"compiler", "elim_recursors"}), tout() << "\n"; display(procs););
         erase_irrelevant(procs);

@@ -480,7 +480,6 @@ environment compile_expr(environment const & env, name const & n, level_param_na
     environment new_env = env;
     bool is_meta        = true;
     new_env = new_env.add(mk_definition(new_env, n, ls, type, e, is_meta));
-    new_env = add_transient_decl_pos_info(new_env, n, pos);
     return vm_compile(new_env, new_env.get(n));
 }
 

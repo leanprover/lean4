@@ -210,7 +210,6 @@ public:
 static environment variable_cmd_core(parser & p, variable_kind k, cmd_meta const & meta) {
     check_variable_kind(p, k);
     auto pos = p.pos();
-    module::scope_pos_info scope_pos(pos);
     optional<binder_info> bi;
     if (k == variable_kind::Parameter || k == variable_kind::Variable)
         bi = parse_binder_info(p, k);
@@ -342,7 +341,6 @@ static void ensure_no_match_in_variables_cmd(pos_info const & pos) {
 static environment variables_cmd_core(parser & p, variable_kind k, cmd_meta const & meta) {
     check_variable_kind(p, k);
     auto pos = p.pos();
-    module::scope_pos_info scope_pos(pos);
     declaration_info_scope d_scope(p, decl_cmd_kind::Var, meta.m_modifiers);
     optional<binder_info> bi = parse_binder_info(p, k);
     buffer<name> ids;

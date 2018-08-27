@@ -45,13 +45,13 @@ json json_of_message(message const & msg) {
 
 #define LEAN_COMPLETE_CONSUME_IMPLICIT true // lean will add metavariables for implicit arguments in serialize_decl()
 
-void add_source_info(environment const & env, name const & d, json & record) {
-    if (auto olean = get_decl_olean(env, d))
-        record["source"]["file"] = *olean;
-    if (auto pos = get_decl_pos_info(env, d)) {
-        record["source"]["line"] = pos->first;
-        record["source"]["column"] = pos->second;
-    }
+void add_source_info(environment const & /* env */, name const & /* d */, json & /* record */) {
+    // if (auto olean = get_decl_olean(env, d))
+    //     record["source"]["file"] = *olean;
+    // if (auto pos = get_decl_pos_info(env, d)) {
+    //     record["source"]["line"] = pos->first;
+    //     record["source"]["column"] = pos->second;
+    // }
 }
 
 json serialize_decl(name const & short_name, name const & long_name, environment const & env, options const & o) {

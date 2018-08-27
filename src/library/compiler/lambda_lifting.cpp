@@ -27,18 +27,8 @@ class lambda_lifting_fn : public compiler_step_visitor {
     unsigned          m_idx;
     bool              m_saw_sorry = false;
 
-    optional<pos_info> get_pos_info(expr e) {
-        pos_info_provider * pip = get_pos_info_provider();
-        if (!pip) {
-            /* Try position for main application */
-            return get_decl_pos_info(m_ctx.env(), m_prefix);
-        }
-        while (is_lambda(e)) {
-            if (auto r = pip->get_pos_info(e))
-                return r;
-            e = binding_body(e);
-        }
-        return get_decl_pos_info(m_ctx.env(), m_prefix);
+    optional<pos_info> get_pos_info(expr ) {
+        return optional<pos_info>();
     }
 
     typedef rb_map<unsigned, local_decl, unsigned_rev_cmp> idx2decls;

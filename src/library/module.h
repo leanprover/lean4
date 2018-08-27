@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "util/task.h"
 #include "kernel/inductive/inductive.h"
 #include "library/io_state.h"
-#include "library/pos_info_provider.h"
 
 namespace lean {
 class corrupted_file_exception : public exception {
@@ -64,17 +63,6 @@ environment
 import_modules(environment const & env,
                std::string const & current_mod, std::vector<module_name> const & ref,
                module_loader const & mod_ldr, buffer<import_error> & errors);
-
-/** \brief Return the .olean file where decl_name was defined. The result is none if the declaration
-    was not defined in an imported file. */
-optional<std::string> get_decl_olean(environment const & env, name const & decl_name);
-
-/** \brief Return position (line and column number) where the given declaration was defined. */
-optional<pos_info> get_decl_pos_info(environment const & env, name const & decl_name);
-
-/** \brief Associate the given position with the given declaration. The information is not saved on
-    .olean files. We use this function for attaching position information to temporary functions. */
-environment add_transient_decl_pos_info(environment const & env, name const & decl_name, pos_info const & pos);
 
 /** \brief Store/Export module using \c env. */
 loaded_module export_module(environment const & env, std::string const & mod_name);
@@ -139,14 +127,6 @@ environment add_inductive(environment                       env,
 
 /** \brief The following function must be invoked to register the `quot` type computation rules in the kernel. */
 environment add_quot(environment const & env);
-
-/* Auxiliary object for setting position information for module declarations.
-   It affects module::add and module::add_inductive methods. */
-class scope_pos_info {
-public:
-    scope_pos_info(pos_info const & pos_info);
-    ~scope_pos_info();
-};
 }
 void initialize_module();
 void finalize_module();

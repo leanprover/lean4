@@ -26,7 +26,7 @@ class elim_recursors_fn : public compiler_step_visitor {
     buffer<procedure> & m_new_decls;
 protected:
     expr declare_aux_def(name const & n, expr const & value) {
-        m_new_decls.emplace_back(n, get_decl_pos_info(m_ctx.env(), m_prefix), value);
+        m_new_decls.emplace_back(n, optional<pos_info>(), value);
         /* We should use a new type checker because m_env is updated by this object.
            It is safe to use type_checker because value does not contain local_decl_ref objects. */
         level_param_names ps = to_level_param_names(collect_univ_params(value));

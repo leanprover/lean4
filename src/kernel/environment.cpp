@@ -136,7 +136,9 @@ environment environment::add_defn_thm_axiom(declaration const & d, bool check) c
 
 environment environment::add(declaration const & d, bool check) const {
     switch (d.kind()) {
-    case declaration_kind::Axiom: case declaration_kind::Definition: case declaration_kind::Theorem:
+    case declaration_kind::Axiom:
+    case declaration_kind::Definition:
+    case declaration_kind::Theorem:
         return add_defn_thm_axiom(d, check);
     default:
         // NOT IMPLEMENTED YET.

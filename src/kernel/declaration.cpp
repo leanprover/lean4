@@ -128,11 +128,11 @@ static object * mk_recursor_val(name const & n, level_param_names const & params
 bool declaration::is_meta() const {
     switch (kind()) {
     case declaration_kind::Definition:  return cnstr_scalar<unsigned char>(get_val_obj(), definition_scalar_offset()) != 0;
-    case declaration_kind::Inductive:   return to_inductive_val().is_meta();
-    case declaration_kind::Constructor: return to_constructor_val().is_meta();
-    case declaration_kind::Recursor:    return to_recursor_val().is_meta();
     case declaration_kind::Axiom:       return cnstr_scalar<unsigned char>(get_val_obj(), axiom_scalar_offset()) != 0;
     case declaration_kind::Theorem:     return false;
+    case declaration_kind::Inductive:   lean_unreachable(); // TODO(Leo):
+    case declaration_kind::Quot:        return false;
+    case declaration_kind::MutualDefinition: return true;
     }
     lean_unreachable();
 }
@@ -216,20 +216,9 @@ declaration mk_axiom_inferring_meta(environment const & env, name const & n,
     return mk_axiom(n, params, t, use_meta(env, t));
 }
 
-declaration mk_inductive(name const & n, level_param_names const & params, expr const & t, unsigned nparams, unsigned nindices,
-                         names const & all, names const & cnstrs, names const & recs, bool is_rec, bool is_meta) {
-    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Inductive),
-                                mk_inductive_val(n, params, t, nparams, nindices, all, cnstrs, recs, is_rec, is_meta)));
-}
-
-declaration mk_constructor(name const & n, level_param_names const & params, expr const & t, name const & induct, unsigned nparams, bool is_meta) {
-    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Constructor), mk_constructor_val(n, params, t, induct, nparams, is_meta)));
-}
-
-declaration mk_recursor(name const & n, level_param_names const & params, expr const & t, name const & induct, unsigned nparams,
-                        unsigned nindices, unsigned nmotives, unsigned nminor, bool k, recursor_rules const & rules, bool is_meta) {
-    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Constructor),
-                                mk_recursor_val(n, params, t, induct, nparams, nindices, nmotives, nminor, k, rules, is_meta)));
+declaration mk_quot_decl(name const & n) {
+    inc(n.raw());
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Quot), n.raw()));
 }
 
 inductive_type::inductive_type(name const & id, expr const & type, constructors const & cnstrs):
@@ -239,10 +228,12 @@ inductive_type::inductive_type(name const & id, expr const & type, constructors 
 
 static unsigned inductive_decl_scalar_offset() { return sizeof(object*)*3; }
 
-inductive_decl::inductive_decl(names const & lparams, nat const & nparams, inductive_types const & types, bool is_meta):
-    object_ref(mk_cnstr(0, lparams.raw(), nparams.raw(), types.raw(), sizeof(unsigned char))) {
-    inc(lparams.raw()), inc(nparams.raw()); inc(types.raw());
-    cnstr_set_scalar<unsigned char>(raw(), inductive_decl_scalar_offset(), static_cast<unsigned char>(is_meta));
+declaration mk_inductive_decl(names const & lparams, nat const & nparams, inductive_types const & types, bool is_meta) {
+    declaration r(mk_cnstr(static_cast<unsigned>(declaration_kind::Inductive),
+                           lparams.raw(), nparams.raw(), types.raw(), 1));
+    inc(lparams.raw()); inc(nparams.raw()); inc(types.raw());
+    cnstr_set_scalar<unsigned char>(r.raw(), inductive_decl_scalar_offset(), static_cast<unsigned char>(is_meta));
+    return r;
 }
 
 bool inductive_decl::is_meta() const { return cnstr_scalar<unsigned char>(raw(), inductive_decl_scalar_offset()) != 0; }

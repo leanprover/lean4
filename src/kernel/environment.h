@@ -79,6 +79,8 @@ class environment {
         m_header(env.m_header), m_quot_initialized(env.m_quot_initialized), m_constants(env.m_constants), m_extensions(exts) {}
 
     environment add_defn_thm_axiom(declaration const & d, bool check) const;
+    environment add_quot(declaration const & d) const;
+
 public:
     environment(unsigned trust_lvl = 0);
     environment(unsigned trust_lvl, std::unique_ptr<normalizer_extension> ext);

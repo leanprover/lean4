@@ -78,6 +78,126 @@ public:
 };
 
 /*
+structure constructor :=
+(id : name) (type : expr)
+*/
+typedef pair_ref<name, expr> constructor;
+inline name const & constructor_name(constructor const & c) { return c.fst(); }
+inline expr const & constructor_type(constructor const & c) { return c.snd(); }
+typedef list_ref<constructor> constructors;
+
+/**
+structure inductive_type :=
+(id : name) (type : expr) (cnstrs : list constructor)
+*/
+class inductive_type : public object_ref {
+public:
+    inductive_type(name const & id, expr const & type, constructors const & cnstrs);
+    inductive_type(inductive_type const & other):object_ref(other) {}
+    inductive_type(inductive_type && other):object_ref(other) {}
+    inductive_type & operator=(inductive_type const & other) { object_ref::operator=(other); return *this; }
+    inductive_type & operator=(inductive_type && other) { object_ref::operator=(other); return *this; }
+    name const & get_name() const { return static_cast<name const &>(cnstr_obj_ref(*this, 0)); }
+    expr const & get_type() const { return static_cast<expr const &>(cnstr_obj_ref(*this, 1)); }
+    constructors const & get_cnstrs() const { return static_cast<constructors const &>(cnstr_obj_ref(*this, 2)); }
+};
+typedef list_ref<inductive_type> inductive_types;
+
+/*
+inductive declaration
+| axiom_decl       (val : axiom_val)
+| defn_decl        (val : definition_val)
+| thm_decl         (val : theorem_val)
+| quot_decl        (id : name)
+| mutual_defn_decl (defns : list definition_val) -- All definitions must be marked as `meta`
+| induct_decl      (lparams : list name) (nparams : nat) (types : list inductive_type) (is_meta : bool)
+*/
+enum class declaration_kind { Axiom, Definition, Theorem, Quot, MutualDefinition, Inductive };
+class declaration : public object_ref {
+    object * get_val_obj() const { return cnstr_obj(raw(), 0); }
+    object_ref const & to_val() const { return cnstr_obj_ref(*this, 0); }
+
+    declaration_val const & to_declaration_val() const {
+        lean_assert(is_axiom() || is_definition() || is_theorem());
+        return static_cast<declaration_val const &>(cnstr_obj_ref(to_val(), 0));
+    }
+
+public:
+    declaration();
+    declaration(declaration const & other):object_ref(other) {}
+    declaration(declaration && other):object_ref(other) {}
+    /* low-level constructors */
+    explicit declaration(object * o):object_ref(o) {}
+    explicit declaration(object_ref const & o):object_ref(o) {}
+    declaration_kind kind() const { return static_cast<declaration_kind>(cnstr_tag(raw())); }
+
+    declaration & operator=(declaration const & other) { object_ref::operator=(other); return *this; }
+    declaration & operator=(declaration && other) { object_ref::operator=(other); return *this; }
+
+    friend bool is_eqp(declaration const & d1, declaration const & d2) { return d1.raw() == d2.raw(); }
+
+    bool is_definition() const { return kind() == declaration_kind::Definition; }
+    bool is_axiom() const { return kind() == declaration_kind::Axiom; }
+    bool is_theorem() const { return kind() == declaration_kind::Theorem; }
+    bool is_inductive() const { return kind() == declaration_kind::Inductive; }
+    bool is_meta() const;
+    bool has_value() const { return is_theorem() || is_definition(); }
+
+    name const & get_name() const { return to_declaration_val().get_name(); }
+    level_param_names const & get_univ_params() const { return to_declaration_val().get_lparams(); }
+    unsigned get_num_univ_params() const { return length(get_univ_params()); }
+    expr const & get_type() const { return to_declaration_val().get_type(); }
+    expr const & get_value() const { lean_assert(has_value()); return static_cast<expr const &>(cnstr_obj_ref(to_val(), 1)); }
+    reducibility_hints const & get_hints() const;
+
+    void serialize(serializer & s) const { s.write_object(raw()); }
+    static declaration deserialize(deserializer & d) { object * o = d.read_object(); inc(o); return declaration(o); }
+};
+
+inline serializer & operator<<(serializer & s, declaration const & l) { l.serialize(s); return s; }
+inline declaration read_declaration(deserializer & d) { return declaration::deserialize(d); }
+inline deserializer & operator>>(deserializer & d, declaration & l) { l = read_declaration(d); return d; }
+
+inline optional<declaration> none_declaration() { return optional<declaration>(); }
+inline optional<declaration> some_declaration(declaration const & o) { return optional<declaration>(o); }
+inline optional<declaration> some_declaration(declaration && o) { return optional<declaration>(std::forward<declaration>(o)); }
+
+declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v,
+                          reducibility_hints const & hints, bool meta = false);
+declaration mk_definition(environment const & env, name const & n, level_param_names const & params, expr const & t, expr const & v,
+                          bool meta = false);
+declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v);
+declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v);
+declaration mk_axiom(name const & n, level_param_names const & params, expr const & t, bool meta = false);
+declaration mk_inductive_decl(names const & lparams, nat const & nparams, inductive_types const & types, bool is_meta);
+declaration mk_quot_decl(name const & n);
+
+/** \brief Return true iff \c e depends on meta-declarations */
+bool use_meta(environment const & env, expr const & e);
+
+/** \brief Similar to mk_definition but infer the value of meta flag.
+    That is, set it to true if \c t or \c v contains a meta declaration. */
+declaration mk_definition_inferring_meta(environment const & env, name const & n, level_param_names const & params,
+                                         expr const & t, expr const & v, reducibility_hints const & hints);
+declaration mk_definition_inferring_meta(environment const & env, name const & n, level_param_names const & params,
+                                         expr const & t, expr const & v);
+/** \brief Similar to mk_axiom but infer the value of meta flag.
+    That is, set it to true if \c t or \c v contains a meta declaration. */
+declaration mk_axiom_inferring_meta(environment const & env, name const & n,
+                                    level_param_names const & params, expr const & t);
+
+/** \brief View for manipulating declaration.induct_decl constructor.
+    | induct_decl      (lparams : list name) (nparams : nat) (types : list inductive_type) (is_meta : bool) */
+class inductive_decl : public object_ref {
+public:
+    inductive_decl(declaration const & d):object_ref(d) { lean_assert(d.is_inductive()); }
+    names const & get_lparams() const { return static_cast<names const &>(cnstr_obj_ref(raw(), 0)); }
+    nat const & get_nparams() const { return static_cast<nat const &>(cnstr_obj_ref(raw(), 1)); }
+    inductive_types const & get_types() const { return static_cast<inductive_types const &>(cnstr_obj_ref(raw(), 2)); }
+    bool is_meta() const;
+};
+
+/*
 structure inductive_val extends declaration_val :=
 (nparams : nat)       -- Number of parameters
 (nindices : nat)      -- Number of indices
@@ -181,147 +301,6 @@ inductive quot_kind
 structure quot_val extends declaration_val :=
 (kind : quot_kind)
 */
-
-
-/*
-inductive declaration
-| axiom_decl  (val : axiom_val)
-| defn_decl   (val : definition_val)
-| thm_decl    (val : theorem_val)
-| induct_decl (val : inductive_val)
-| cnstr_decl  (val : constructor_val)
-| rec_decl    (val : recursor_val)
-*/
-enum class declaration_kind { Axiom, Definition, Theorem, Inductive, Constructor, Recursor };
-class declaration : public object_ref {
-    explicit declaration(object * o):object_ref(o) {}
-    explicit declaration(object_ref const & o):object_ref(o) {}
-    object * get_val_obj() const { return cnstr_obj(raw(), 0); }
-    object_ref const & to_val() const { return cnstr_obj_ref(*this, 0); }
-    declaration_val const & to_declaration_val() const { return static_cast<declaration_val const &>(cnstr_obj_ref(to_val(), 0)); }
-public:
-    declaration();
-    declaration(declaration const & other):object_ref(other) {}
-    declaration(declaration && other):object_ref(other) {}
-    declaration_kind kind() const { return static_cast<declaration_kind>(cnstr_tag(raw())); }
-
-    declaration & operator=(declaration const & other) { object_ref::operator=(other); return *this; }
-    declaration & operator=(declaration && other) { object_ref::operator=(other); return *this; }
-
-    friend bool is_eqp(declaration const & d1, declaration const & d2) { return d1.raw() == d2.raw(); }
-
-    bool is_definition() const { return kind() == declaration_kind::Definition; }
-    bool is_axiom() const { return kind() == declaration_kind::Axiom; }
-    bool is_theorem() const { return kind() == declaration_kind::Theorem; }
-    bool is_inductive() const { return kind() == declaration_kind::Inductive; }
-    bool is_constructor() const { return kind() == declaration_kind::Constructor; }
-    bool is_recursor() const { return kind() == declaration_kind::Recursor; }
-    bool is_meta() const;
-    bool has_value() const { return is_theorem() || is_definition(); }
-
-    name const & get_name() const { return to_declaration_val().get_name(); }
-    level_param_names const & get_univ_params() const { return to_declaration_val().get_lparams(); }
-    unsigned get_num_univ_params() const { return length(get_univ_params()); }
-    expr const & get_type() const { return to_declaration_val().get_type(); }
-    expr const & get_value() const { lean_assert(has_value()); return static_cast<expr const &>(cnstr_obj_ref(to_val(), 1)); }
-    reducibility_hints const & get_hints() const;
-
-    inductive_val const & to_inductive_val() const { lean_assert(is_inductive()); return static_cast<inductive_val const &>(to_val()); }
-    constructor_val const & to_constructor_val() const { lean_assert(is_constructor()); return static_cast<constructor_val const &>(to_val()); }
-    recursor_val const & to_recursor_val() const { lean_assert(is_recursor()); return static_cast<recursor_val const &>(to_val()); }
-
-    friend declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v,
-                                     reducibility_hints const & hints, bool meta);
-    friend declaration mk_definition(environment const & env, name const & n, level_param_names const & params, expr const & t,
-                                     expr const & v, bool meta);
-    friend declaration mk_theorem(name const &, level_param_names const &, expr const &, expr const &);
-    friend declaration mk_axiom(name const & n, level_param_names const & params, expr const & t, bool meta);
-    friend declaration mk_inductive(name const & n, level_param_names const & params, expr const & t, unsigned nparams, unsigned nindices,
-                                    names const & all, names const & cnstrs, names const & recs, bool is_rec, bool is_meta);
-    friend declaration mk_constructor(name const & n, level_param_names const & params, expr const & t, name const & induct, unsigned nparams,
-                                      bool is_meta);
-    friend declaration mk_recursor(name const & id, level_param_names const & params, expr const & t, name const & induct, unsigned nparams,
-                                   unsigned nindices, unsigned nmotives, unsigned nminor, bool k, recursor_rules const & rules, bool is_meta);
-
-    void serialize(serializer & s) const { s.write_object(raw()); }
-    static declaration deserialize(deserializer & d) { object * o = d.read_object(); inc(o); return declaration(o); }
-};
-
-inline serializer & operator<<(serializer & s, declaration const & l) { l.serialize(s); return s; }
-inline declaration read_declaration(deserializer & d) { return declaration::deserialize(d); }
-inline deserializer & operator>>(deserializer & d, declaration & l) { l = read_declaration(d); return d; }
-
-inline optional<declaration> none_declaration() { return optional<declaration>(); }
-inline optional<declaration> some_declaration(declaration const & o) { return optional<declaration>(o); }
-inline optional<declaration> some_declaration(declaration && o) { return optional<declaration>(std::forward<declaration>(o)); }
-
-declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v,
-                          reducibility_hints const & hints, bool meta = false);
-declaration mk_definition(environment const & env, name const & n, level_param_names const & params, expr const & t, expr const & v,
-                          bool meta = false);
-declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v);
-declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v);
-declaration mk_axiom(name const & n, level_param_names const & params, expr const & t, bool meta = false);
-
-/** \brief Return true iff \c e depends on meta-declarations */
-bool use_meta(environment const & env, expr const & e);
-
-/** \brief Similar to mk_definition but infer the value of meta flag.
-    That is, set it to true if \c t or \c v contains a meta declaration. */
-declaration mk_definition_inferring_meta(environment const & env, name const & n, level_param_names const & params,
-                                         expr const & t, expr const & v, reducibility_hints const & hints);
-declaration mk_definition_inferring_meta(environment const & env, name const & n, level_param_names const & params,
-                                         expr const & t, expr const & v);
-/** \brief Similar to mk_axiom but infer the value of meta flag.
-    That is, set it to true if \c t or \c v contains a meta declaration. */
-declaration mk_axiom_inferring_meta(environment const & env, name const & n,
-                                    level_param_names const & params, expr const & t);
-
-declaration mk_inductive(name const & n, level_param_names const & params, expr const & t, unsigned nparams, unsigned nindices,
-                         names const & all, names const & cnstrs, names const & recs, bool is_rec, bool is_meta);
-declaration mk_constructor(name const & n, level_param_names const & params, expr const & t, name const & induct, unsigned nparams,
-                           bool is_meta);
-declaration mk_recursor(name const & id, level_param_names const & params, expr const & t, name const & induct, unsigned nparams,
-                        unsigned nindices, unsigned nmotives, unsigned nminor, bool k, recursor_rules const & rules, bool is_meta);
-
-typedef pair_ref<name, expr> constructor;
-inline name const & constructor_name(constructor const & c) { return c.fst(); }
-inline expr const & constructor_type(constructor const & c) { return c.snd(); }
-typedef list_ref<constructor> constructors;
-
-/**
-structure inductive_type :=
-(id : name) (type : expr) (cnstrs : list constructor)
-*/
-class inductive_type : public object_ref {
-public:
-    inductive_type(name const & id, expr const & type, constructors const & cnstrs);
-    inductive_type(inductive_type const & other):object_ref(other) {}
-    inductive_type(inductive_type && other):object_ref(other) {}
-    inductive_type & operator=(inductive_type const & other) { object_ref::operator=(other); return *this; }
-    inductive_type & operator=(inductive_type && other) { object_ref::operator=(other); return *this; }
-    name const & get_name() const { return static_cast<name const &>(cnstr_obj_ref(*this, 0)); }
-    expr const & get_type() const { return static_cast<expr const &>(cnstr_obj_ref(*this, 1)); }
-    constructors const & get_cnstrs() const { return static_cast<constructors const &>(cnstr_obj_ref(*this, 2)); }
-};
-typedef list_ref<inductive_type> inductive_types;
-
-/**
-structure inductive_decl :=
-(lparams : list name) (nparams : nat) (types : list inductive_type)
-*/
-class inductive_decl : public object_ref {
-public:
-    inductive_decl(names const & lparams, nat const & nparams, inductive_types const & types, bool is_meta);
-    inductive_decl(inductive_decl const & other):object_ref(other) {}
-    inductive_decl(inductive_decl && other):object_ref(other) {}
-    inductive_decl & operator=(inductive_decl const & other) { object_ref::operator=(other); return *this; }
-    inductive_decl & operator=(inductive_decl && other) { object_ref::operator=(other); return *this; }
-    names const & get_lparams() const { return static_cast<names const &>(cnstr_obj_ref(*this, 0)); }
-    nat const & get_nparams() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 1)); }
-    inductive_types const & get_types() const { return static_cast<inductive_types const &>(cnstr_obj_ref(*this, 2)); }
-    bool is_meta() const;
-};
 
 /*
 /-- Information associated with constant declarations. -/

@@ -42,12 +42,8 @@ structure declaration_val :=
 structure axiom_val extends declaration_val :=
 (is_meta : bool)
 
-/- TODO(Leo): the `value` field for `definition_val` and `theorem_val` should be a thunk. We will make this change
-   as soon as we add support for serializing thunks.
-   We need this feature to be able to load their values on demand in the kernel. -/
-
 structure definition_val extends declaration_val :=
-(value : task expr) (hints : reducibility_hints) (is_meta : bool)
+(value : expr) (hints : reducibility_hints) (is_meta : bool)
 
 structure theorem_val extends declaration_val :=
 (value : task expr)
@@ -63,7 +59,7 @@ inductive declaration
 | axiom_decl       (val : axiom_val)
 | defn_decl        (val : definition_val)
 | thm_decl         (val : theorem_val)
-| quot_decl
+| quot_decl        (id : name)
 | mutual_defn_decl (defns : list definition_val) -- All definitions must be marked as `meta`
 | induct_decl      (lparams : list name) (nparams : nat) (types : list inductive_type) (is_meta : bool)
 
@@ -149,7 +145,7 @@ def type (d : constant_info) : expr :=
 d.to_declaration_val.type
 
 def value : constant_info → option expr
-| (defn_info {value := r, ..}) := some r.get
+| (defn_info {value := r, ..}) := some r
 | (thm_info  {value := r, ..}) := some r.get
 | _                            := none
 

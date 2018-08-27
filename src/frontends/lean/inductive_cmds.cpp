@@ -728,7 +728,7 @@ public:
             }
             ind_types.push_back(inductive_type(local_name(r.m_inds[i]), Pi(r.m_params, local_type(r.m_inds[i])), constructors(cnstrs)));
         }
-        m_env = m_env.add(inductive_decl(names(m_lp_names), nat(num_params), inductive_types(ind_types), m_meta_info.m_modifiers.m_is_meta));
+        m_env = m_env.add(mk_inductive_decl(names(m_lp_names), nat(num_params), inductive_types(ind_types), m_meta_info.m_modifiers.m_is_meta));
     }
 
     environment inductive_cmd() {

@@ -40,7 +40,6 @@ Author: Leonardo de Moura
 #include "library/compiler/vm_compiler.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
-#include "frontends/lean/calc.h"
 #include "frontends/lean/notation_cmd.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/inductive_cmds.h"

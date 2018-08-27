@@ -24,7 +24,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/token_table.h"
-#include "frontends/lean/calc.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
@@ -511,10 +510,6 @@ static expr parse_if_then_else(parser & p, unsigned, expr const *, pos_info cons
         return parse_dite(p, *ie.first, ie.second, pos);
     else
         return parse_ite(p, ie.second, pos);
-}
-
-static expr parse_calc_expr(parser & p, unsigned, expr const *, pos_info const &) {
-    return parse_calc(p);
 }
 
 static expr parse_explicit_core(parser & p, pos_info const & pos, bool partial) {
@@ -1044,7 +1039,6 @@ parse_table init_nud_table() {
     r = r.add({transition("Sort", mk_ext_action(parse_Sort))}, x0);
     r = r.add({transition("Sort*", mk_ext_action(parse_Sort_star))}, x0);
     r = r.add({transition("let", mk_ext_action(parse_let_expr))}, x0);
-    r = r.add({transition("calc", mk_ext_action(parse_calc_expr))}, x0);
     r = r.add({transition("@", mk_ext_action(parse_explicit_expr))}, x0);
     r = r.add({transition("@@", mk_ext_action(parse_partial_explicit_expr))}, x0);
     r = r.add({transition("sorry", mk_ext_action(parse_sorry))}, x0);

@@ -36,16 +36,17 @@ inductive reducibility_hints
 | abbrev  : reducibility_hints
 | regular : uint32 → reducibility_hints
 
-structure declaration_val :=
+/-- Base structure for `axiom_val`, `definition_val`, `theorem_val`, `inductive_val`, `constructor_val`, `recursor_val` and `quot_val`. -/
+structure constant_val :=
 (id : name) (lparams : list name) (type : expr)
 
-structure axiom_val extends declaration_val :=
+structure axiom_val extends constant_val :=
 (is_meta : bool)
 
-structure definition_val extends declaration_val :=
+structure definition_val extends constant_val :=
 (value : expr) (hints : reducibility_hints) (is_meta : bool)
 
-structure theorem_val extends declaration_val :=
+structure theorem_val extends constant_val :=
 (value : task expr)
 
 structure constructor :=
@@ -73,7 +74,7 @@ inductive declaration
 
     A series of checks are performed by the kernel to check whether a `inductive_decls`
     is valid or not. -/
-structure inductive_val extends declaration_val :=
+structure inductive_val extends constant_val :=
 (nparams : nat)       -- Number of parameters
 (nindices : nat)      -- Number of indices
 (all : list name)     -- List of all (including this one) inductive datatypes in the mutual declaration containing this one
@@ -84,7 +85,7 @@ structure inductive_val extends declaration_val :=
 (is_rec : bool)       -- `tt` iff it is recursive
 (is_meta : bool)
 
-structure constructor_val extends declaration_val :=
+structure constructor_val extends constant_val :=
 (induct  : name)  -- Inductive type this constructor is a member of
 (nparams : nat)   -- Number of parameters in inductive datatype `induct`
 (is_meta : bool)
@@ -95,7 +96,7 @@ structure recursor_rule :=
 (nfields : nat) -- Number of fields (i.e., without counting inductive datatype parameters)
 (rhs : expr)    -- Right hand side of the reduction rule
 
-structure recursor_val extends declaration_val :=
+structure recursor_val extends constant_val :=
 (all : list name)            -- List of all inductive datatypes in the mutual declaration that generated this recursor
 (nparams : nat)              -- Number of parameters
 (nindices : nat)             -- Number of indices
@@ -111,7 +112,7 @@ inductive quot_kind
 | lift  -- `quot.lift`
 | ind   -- `quot.ind`
 
-structure quot_val extends declaration_val :=
+structure quot_val extends constant_val :=
 (kind : quot_kind)
 
 /-- Information associated with constant declarations. -/
@@ -126,23 +127,23 @@ inductive constant_info
 
 namespace constant_info
 
-def to_declaration_val : constant_info → declaration_val
-| (defn_info     {to_declaration_val := d, ..}) := d
-| (axiom_info    {to_declaration_val := d, ..}) := d
-| (thm_info      {to_declaration_val := d, ..}) := d
-| (quot_info     {to_declaration_val := d, ..}) := d
-| (induct_info   {to_declaration_val := d, ..}) := d
-| (cnstr_info    {to_declaration_val := d, ..}) := d
-| (rec_info      {to_declaration_val := d, ..}) := d
+def to_constant_val : constant_info → constant_val
+| (defn_info     {to_constant_val := d, ..}) := d
+| (axiom_info    {to_constant_val := d, ..}) := d
+| (thm_info      {to_constant_val := d, ..}) := d
+| (quot_info     {to_constant_val := d, ..}) := d
+| (induct_info   {to_constant_val := d, ..}) := d
+| (cnstr_info    {to_constant_val := d, ..}) := d
+| (rec_info      {to_constant_val := d, ..}) := d
 
 def id (d : constant_info) : name :=
-d.to_declaration_val.id
+d.to_constant_val.id
 
 def lparams (d : constant_info) : list name :=
-d.to_declaration_val.lparams
+d.to_constant_val.lparams
 
 def type (d : constant_info) : expr :=
-d.to_declaration_val.type
+d.to_constant_val.type
 
 def value : constant_info → option expr
 | (defn_info {value := r, ..}) := some r

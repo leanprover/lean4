@@ -176,6 +176,7 @@ static_assert(sizeof(atomic<rc_type>) == sizeof(rc_type),  "atomic<rc_type> and 
 
 inline void * alloc_heap_object(size_t sz) {
     void * r = malloc(sizeof(rc_type) + sz);
+    if (r == nullptr) throw std::bad_alloc();
     *static_cast<rc_type *>(r) = 1;
     return static_cast<char *>(r) + sizeof(rc_type);
 }
@@ -278,7 +279,8 @@ inline void obj_set_data(object * o, size_t offset, T v) {
 
 inline unsigned cnstr_num_objs(object * o) { return to_cnstr(o)->m_num_objs; }
 inline unsigned cnstr_scalar_size(object * o) { return to_cnstr(o)->m_scalar_size; }
-inline size_t cnstr_byte_size(object * o) { return sizeof(constructor_object) + cnstr_num_objs(o)*sizeof(object*) + cnstr_scalar_size(o); } // NOLINT
+inline size_t cnstr_byte_size(unsigned num_objs, unsigned scalar_sz) { return sizeof(constructor_object) + num_objs*sizeof(object*) + scalar_sz; } // NOLINT
+inline size_t cnstr_byte_size(object * o) { return cnstr_byte_size(cnstr_num_objs(o), cnstr_scalar_size(o)); }
 inline object ** cnstr_obj_cptr(object * o) {
     lean_assert(is_cnstr(o));
     return reinterpret_cast<object**>(reinterpret_cast<char*>(o) + sizeof(constructor_object));
@@ -294,7 +296,8 @@ inline unsigned char * cnstr_scalar_cptr(object * o) {
 inline lean_cfun closure_fun(object * o) { return to_closure(o)->m_fun; }
 inline unsigned closure_arity(object * o) { return to_closure(o)->m_arity; }
 inline unsigned closure_num_fixed(object * o) { return to_closure(o)->m_num_fixed; }
-inline size_t closure_byte_size(object * o) { return sizeof(closure_object) + (closure_arity(o) - 1)*sizeof(object*); } // NOLINT
+inline size_t closure_byte_size(unsigned num_fixed) { return sizeof(closure_object) + num_fixed*sizeof(object*); } // NOLINT
+inline size_t closure_byte_size(object * o) { return closure_byte_size(closure_num_fixed(o)); }
 inline object ** closure_arg_cptr(object * o) {
     lean_assert(is_closure(o));
     return reinterpret_cast<object**>(reinterpret_cast<char*>(o) + sizeof(closure_object));
@@ -322,7 +325,8 @@ object * thunk_get_core(object * t);
 // Array auxiliary functions
 
 inline size_t array_capacity(object * o) { return to_array(o)->m_capacity; }
-inline size_t array_byte_size(object * o) { return sizeof(array_object) + array_capacity(o)*sizeof(object*); } // NOLINT
+inline size_t array_byte_size(size_t capacity) { return sizeof(array_object) + capacity*sizeof(object*); } // NOLINT
+inline size_t array_byte_size(object * o) { return array_byte_size(array_capacity(o)); }
 inline object ** array_cptr(object * o) {
     lean_assert(is_array(o));
     return reinterpret_cast<object**>(reinterpret_cast<char*>(o) + sizeof(array_object));
@@ -333,7 +337,8 @@ inline object ** array_cptr(object * o) {
 
 inline unsigned sarray_elem_size(object * o) { return to_sarray(o)->m_elem_size; }
 inline size_t sarray_capacity(object * o) { return to_sarray(o)->m_capacity; }
-inline size_t sarray_byte_size(object * o) { return sizeof(sarray_object) + sarray_capacity(o)*sarray_elem_size(o); } // NOLINT
+inline size_t sarray_byte_size(size_t capacity, unsigned elem_size) { return sizeof(sarray_object) + capacity*elem_size; } // NOLINT
+inline size_t sarray_byte_size(object * o) { return sarray_byte_size(sarray_capacity(o), sarray_elem_size(o)); }
 template<typename T>
 T * sarray_cptr_core(object * o) { lean_assert(is_sarray(o)); return reinterpret_cast<T*>(reinterpret_cast<char*>(o) + sizeof(sarray_object)); }
 template<typename T>
@@ -343,7 +348,8 @@ T * sarray_cptr(object * o) { lean_assert(sarray_elem_size(o) == sizeof(T)); ret
 // String auxiliary functions
 
 inline size_t string_capacity(object * o) { return to_string(o)->m_capacity; }
-inline size_t string_byte_size(object * o) { return sizeof(string_object) + string_capacity(o); } // NOLINT
+inline size_t string_byte_size(size_t capacity) { return sizeof(string_object) + capacity; } // NOLINT
+inline size_t string_byte_size(object * o) { return string_byte_size(string_capacity(o)); }
 
 // =======================================
 // MPZ auxiliary function
@@ -424,7 +430,7 @@ typedef object * b_obj_res; /* Borrowed object result. */
 // Constructor objects
 inline obj_res alloc_cnstr(unsigned tag, unsigned num_objs, unsigned scalar_sz) {
     lean_assert(tag < 65536 && num_objs < 65536 && scalar_sz < 65536);
-    return new (alloc_heap_object(sizeof(constructor_object) + num_objs * sizeof(object *) + scalar_sz)) constructor_object(tag, num_objs, scalar_sz); // NOLINT
+    return new (alloc_heap_object(cnstr_byte_size(num_objs, scalar_sz))) constructor_object(tag, num_objs, scalar_sz); // NOLINT
 }
 inline unsigned cnstr_tag(b_obj_arg o) { return to_cnstr(o)->m_tag; }
 /* Access constructor object field `i` */
@@ -454,7 +460,7 @@ inline unsigned obj_tag(b_obj_arg o) { if (is_scalar(o)) return unbox(o); else r
 inline obj_res alloc_closure(lean_cfun fun, unsigned arity, unsigned num_fixed) {
     lean_assert(arity > 0);
     lean_assert(num_fixed < arity);
-    return new (alloc_heap_object(sizeof(closure_object) + num_fixed * sizeof(object *))) closure_object(fun, arity, num_fixed); // NOLINT
+    return new (alloc_heap_object(closure_byte_size(num_fixed))) closure_object(fun, arity, num_fixed); // NOLINT
 }
 inline b_obj_res closure_arg(b_obj_arg o, unsigned i) {
     lean_assert(i < closure_num_fixed(o));
@@ -469,7 +475,7 @@ inline void closure_set_arg(u_obj_arg o, unsigned i, obj_arg a) {
 // Array of objects
 
 inline obj_res alloc_array(size_t size, size_t capacity) {
-    return new (alloc_heap_object(sizeof(array_object) + capacity * sizeof(object *))) array_object(size, capacity); // NOLINT
+    return new (alloc_heap_object(array_byte_size(capacity))) array_object(size, capacity); // NOLINT
 }
 inline size_t array_size(b_obj_arg o) { return to_array(o)->m_size; }
 inline b_obj_res array_obj(b_obj_arg o, size_t i) {
@@ -492,7 +498,7 @@ inline void array_set_obj(u_obj_arg o, size_t i, obj_arg v) {
 // Array of scalars
 
 inline obj_res alloc_sarray(unsigned elem_size, size_t size, size_t capacity) {
-    return new (alloc_heap_object(sizeof(sarray_object) + capacity * elem_size)) sarray_object(elem_size, size, capacity); // NOLINT
+    return new (alloc_heap_object(sarray_byte_size(capacity, elem_size))) sarray_object(elem_size, size, capacity); // NOLINT
 }
 inline size_t sarray_size(b_obj_arg o) { return to_sarray(o)->m_size; }
 template<typename T> T sarray_data(b_obj_arg o, size_t i) { return sarray_cptr<T>(o)[i]; }
@@ -565,7 +571,7 @@ b_obj_res io_wait_any_core(b_obj_arg task_list);
 // String
 
 inline obj_res alloc_string(size_t size, size_t capacity, size_t len) {
-    return new (alloc_heap_object(sizeof(string_object) + capacity)) string_object(size, capacity, len); // NOLINT
+    return new (alloc_heap_object(string_byte_size(capacity))) string_object(size, capacity, len); // NOLINT
 }
 obj_res mk_string(char const * s);
 obj_res mk_string(std::string const & s);

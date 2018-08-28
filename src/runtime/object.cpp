@@ -50,19 +50,17 @@ size_t obj_header_size(object * o) {
     lean_unreachable();
 }
 
-/* We use the field m_rc to implement a linked list of lean objects to be deleted.
-   This hack is safe because m_rc has type uintptr_t. */
+/* We use the RC memory to implement a linked list of lean objects to be deleted.
+   This hack is safe because rc_type is uintptr_t. */
 
 static_assert(sizeof(atomic<rc_type>) == sizeof(object*),  "unexpected atomic<rc_type> size, the object GC assumes these two types have the same size"); // NOLINT
 
 inline object * get_next(object * o) {
-    lean_assert(o == static_cast<void*>(&(o->m_rc))); // The object GC relies on the fact that the first field of a structure is stored at offset 0
-    return *reinterpret_cast<object**>(o);
+    return *reinterpret_cast<object**>(rc_addr(o));
 }
 
 inline void set_next(object * o, object * n) {
-    lean_assert(o == static_cast<void*>(&(o->m_rc))); // The object GC relies on the fact that the first field of a structure is stored at offset 0
-    *reinterpret_cast<object**>(o) = n;
+    *reinterpret_cast<object**>(rc_addr(o)) = n;
 }
 
 inline void push_back(object * & todo, object * v) {
@@ -86,38 +84,39 @@ void deactivate_task(task_object * t);
 void del(object * o) {
     object * todo = nullptr;
     while (true) {
+        lean_assert(is_heap_obj(o));
         switch (get_kind(o)) {
         case object_kind::Constructor: {
             object ** it  = cnstr_obj_cptr(o);
             object ** end = it + cnstr_num_objs(o);
             for (; it != end; ++it) dec(*it, todo);
-            free(o);
+            free_heap_obj(o);
             break;
         }
         case object_kind::Closure: {
             object ** it  = closure_arg_cptr(o);
             object ** end = it + closure_num_fixed(o);
             for (; it != end; ++it) dec(*it, todo);
-            free(o);
+            free_heap_obj(o);
             break;
         }
         case object_kind::Array: {
             object ** it  = array_cptr(o);
             object ** end = it + array_size(o);
             for (; it != end; ++it) dec(*it, todo);
-            free(o);
+            free_heap_obj(o);
             break;
         }
         case object_kind::ScalarArray:
-            free(o); break;
+            free_heap_obj(o); break;
         case object_kind::String:
-            free(o); break;
+            free_heap_obj(o); break;
         case object_kind::MPZ:
             dealloc_mpz(o); break;
         case object_kind::Thunk:
             if (object * c = to_thunk(o)->m_closure) dec(c, todo);
             if (object * v = to_thunk(o)->m_value) dec(v, todo);
-            free(o);
+            free_heap_obj(o);
             break;
         case object_kind::Task:
             deactivate_task(to_task(o));
@@ -148,7 +147,7 @@ static object * sarray_ensure_capacity(object * o, size_t extra) {
         object * new_o = alloc_sarray(esize, sz, cap + sz + extra);
         lean_assert(sarray_capacity(new_o) >= sz + extra);
         memcpy(sarray_cptr<char>(new_o), sarray_cptr<char>(o), esize * sz);
-        free(o);
+        free_heap_obj(o);
         return new_o;
     } else {
         return o;
@@ -169,7 +168,7 @@ static object * string_ensure_capacity(object * o, size_t extra) {
         object * new_o = alloc_string(sz, cap + sz + extra, string_len(o));
         lean_assert(string_capacity(new_o) >= sz + extra);
         memcpy(w_string_data(new_o), string_data(o), sz);
-        free(o);
+        free_heap_obj(o);
         return new_o;
     } else {
         return o;
@@ -326,7 +325,7 @@ LEAN_THREAD_PTR(task_object, g_current_task_object);
 
 void dealloc_task(task_object * t) {
     if (t->m_imp) delete t->m_imp;
-    free(t);
+    free_heap_obj(t);
 }
 
 struct scoped_current_task_object : flet<task_object *> {
@@ -529,7 +528,7 @@ public:
             lean_assert(t->m_imp == nullptr);
             lock.unlock();
             dec(v);
-            free(t);
+            free_heap_obj(t);
             return;
         } else {
             lean_assert(t->m_imp);
@@ -579,20 +578,20 @@ void deactivate_task(task_object * t) {
 }
 
 task_object::task_object(obj_arg c, unsigned prio):
-    object(object_kind::Task), m_value(nullptr), m_imp(new imp(c, prio)) {
+    object(object_kind::Task, object_memory_kind::Heap), m_value(nullptr), m_imp(new imp(c, prio)) {
     lean_assert(is_closure(c));
 }
 
 task_object::task_object(obj_arg v):
-    object(object_kind::Task), m_value(v), m_imp(nullptr) {
+    object(object_kind::Task, object_memory_kind::Heap), m_value(v), m_imp(nullptr) {
 }
 
 static task_object * alloc_task(obj_arg c, unsigned prio) {
-    return new (malloc(sizeof(task_object))) task_object(c, prio); // NOLINT
+    return new (alloc_heap_object(sizeof(task_object))) task_object(c, prio); // NOLINT
 }
 
 static task_object * alloc_task(obj_arg v) {
-    return new (malloc(sizeof(task_object))) task_object(v); // NOLINT
+    return new (alloc_heap_object(sizeof(task_object))) task_object(v); // NOLINT
 }
 
 obj_res mk_task(obj_arg c, unsigned prio) {

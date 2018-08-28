@@ -61,7 +61,7 @@ object_offset object_compactor::to_offset(object * o) {
 
 void object_compactor::insert_terminator(object * o) {
     void * mem = alloc(sizeof(object) + sizeof(object*));
-    object * r = new (mem) object(object_kind::External);
+    object * r = new (mem) object(object_kind::External, object_memory_kind::Region);
     r->m_kind  = TERMINATOR_ID;
     object** ptr = reinterpret_cast<object**>(reinterpret_cast<char*>(r) + sizeof(object));
     *ptr = to_offset(o);
@@ -72,7 +72,7 @@ object * object_compactor::copy_object(object * o) {
     void * mem = alloc(sz);
     memcpy(mem, o, sz);
     object * r = static_cast<object*>(mem);
-    r->m_rc = 1;
+    r->m_mem_kind = static_cast<unsigned>(object_memory_kind::Region);
     save(o, r);
     return r;
 }
@@ -110,7 +110,7 @@ bool object_compactor::insert_array(object * o) {
     if (missing_children)
         return false;
     void * mem = alloc(sizeof(array_object) + sz * sizeof(object *));
-    object * new_o = new (mem) array_object(sz, sz);
+    object * new_o = new (mem) array_object(sz, sz, object_memory_kind::Region);
     for (size_t i = 0; i < sz; i++) {
         array_set_obj(new_o, i, offsets[i]);
     }
@@ -143,7 +143,7 @@ bool object_compactor::insert_task(object * o) {
        and rely on the fact that all task API accepts thunks as arguments
        even when multi-threading is enabled. */
     void * mem     = alloc(sizeof(thunk_object));
-    object * new_o = new (mem) thunk_object(c, true);
+    object * new_o = new (mem) thunk_object(c, true, object_memory_kind::Region);
     save(o, new_o);
     return true;
 }
@@ -155,7 +155,7 @@ void object_compactor::insert_mpz(object * o) {
        into an mpz number. So, we use std::max to make sure we have enough space for both. */
     size_t extra_space  = std::max(s.size() + 1, sizeof(mpz_object*));
     void * mem     = alloc(sizeof(mpz_object) + extra_space);
-    object * new_o = new (mem) object(object_kind::MPZ);
+    object * new_o = new (mem) object(object_kind::MPZ, object_memory_kind::Region);
     save(o, new_o);
     void * data    = reinterpret_cast<char*>(new_o) + sizeof(mpz_object);
     memcpy(data, s.c_str(), s.size() + 1);

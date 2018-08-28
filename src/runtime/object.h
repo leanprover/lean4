@@ -31,16 +31,21 @@ inline void * alloca(size_t s) {
 #endif
 }
 
+enum class object_memory_kind { Heap = 0, Stack, Region };
 enum class object_kind { Constructor, Closure, Array, ScalarArray, String, MPZ, Thunk, Task, External };
 
 /* The reference counter is a uintptr_t, because at deletion time, we use this field to implement
    a linked list of objects to be deleted. */
 typedef uintptr_t rc_type;
 
+/* Base class for all runtime objects.
+
+   \remark If m_mem_kind == Heap, then we store the reference counter before the object. */
 struct object {
-    atomic<rc_type> m_rc;
-    unsigned        m_kind:16;
-    object(object_kind k):m_rc(1), m_kind(static_cast<unsigned>(k)) {}
+    unsigned        m_kind:8;
+    unsigned        m_mem_kind:8;
+    object(object_kind k, object_memory_kind m = object_memory_kind::Heap):
+        m_kind(static_cast<unsigned>(k)), m_mem_kind(static_cast<unsigned>(m)) {}
 };
 
 /* We can represent inductive datatypes that have:
@@ -55,8 +60,8 @@ struct constructor_object : public object {
     unsigned    m_tag:16;
     unsigned    m_num_objs:16;
     unsigned    m_scalar_size:16;
-    constructor_object(unsigned tag, unsigned num_objs, unsigned scalar_sz):
-        object(object_kind::Constructor), m_tag(tag), m_num_objs(num_objs), m_scalar_size(scalar_sz) {}
+    constructor_object(unsigned tag, unsigned num_objs, unsigned scalar_sz, object_memory_kind m = object_memory_kind::Heap):
+        object(object_kind::Constructor, m), m_tag(tag), m_num_objs(num_objs), m_scalar_size(scalar_sz) {}
 };
 
 /* Array of objects.
@@ -64,8 +69,8 @@ struct constructor_object : public object {
 struct array_object : public object {
     size_t   m_size;
     size_t   m_capacity;
-    array_object(size_t sz, size_t c):
-        object(object_kind::Array), m_size(sz), m_capacity(c) {}
+    array_object(size_t sz, size_t c, object_memory_kind m = object_memory_kind::Heap):
+        object(object_kind::Array, m), m_size(sz), m_capacity(c) {}
 };
 
 /* Array of scalar values.
@@ -77,16 +82,16 @@ struct sarray_object : public object {
     unsigned m_elem_size:16; // in bytes
     size_t   m_size;
     size_t   m_capacity;
-    sarray_object(unsigned esz, size_t sz, size_t c):
-        object(object_kind::ScalarArray), m_elem_size(esz), m_size(sz), m_capacity(c) {}
+    sarray_object(unsigned esz, size_t sz, size_t c, object_memory_kind m = object_memory_kind::Heap):
+        object(object_kind::ScalarArray, m), m_elem_size(esz), m_size(sz), m_capacity(c) {}
 };
 
 struct string_object : public object {
     size_t m_size;
     size_t m_capacity;
     size_t m_length;   // UTF8 length
-    string_object(size_t sz, size_t c, size_t len):
-        object(object_kind::String), m_size(sz), m_capacity(c), m_length(len) {}
+    string_object(size_t sz, size_t c, size_t len, object_memory_kind m = object_memory_kind::Heap):
+        object(object_kind::String, m), m_size(sz), m_capacity(c), m_length(len) {}
 };
 
 typedef object * (*lean_cfun)(object *); // NOLINT
@@ -105,20 +110,20 @@ struct closure_object : public object {
     unsigned  m_arity:16;     // number of arguments expected by m_fun.
     unsigned  m_num_fixed:16; // number of arguments that have been already fixed.
     lean_cfun m_fun;
-    closure_object(lean_cfun f, unsigned arity, unsigned n):
-        object(object_kind::Closure), m_arity(arity), m_num_fixed(n), m_fun(f) {}
+    closure_object(lean_cfun f, unsigned arity, unsigned n, object_memory_kind m = object_memory_kind::Heap):
+        object(object_kind::Closure, m), m_arity(arity), m_num_fixed(n), m_fun(f) {}
 };
 
 struct mpz_object : public object {
     mpz m_value;
-    mpz_object(mpz const & v):
-        object(object_kind::MPZ), m_value(v) {}
+    mpz_object(mpz const & v, object_memory_kind m = object_memory_kind::Heap):
+        object(object_kind::MPZ, m), m_value(v) {}
 };
 
 struct thunk_object : public object {
     atomic<object *> m_value;
     atomic<object *> m_closure;
-    thunk_object(object * c, bool is_value = false);
+    thunk_object(object * c, bool is_value = false, object_memory_kind m = object_memory_kind::Heap);
 };
 
 struct task_object : public object {
@@ -167,11 +172,30 @@ inline unsigned unbox(object * o) { return reinterpret_cast<uintptr_t>(o) >> 1; 
    \pre !is_scalar(o); */
 void del(object * o);
 
-inline unsigned get_rc(object * o) { lean_assert(!is_scalar(o)); return atomic_load_explicit(&(o->m_rc), memory_order_acquire); }
+static_assert(sizeof(atomic<rc_type>) == sizeof(rc_type),  "atomic<rc_type> and rc_type must have the same size"); // NOLINT
+
+
+inline void * alloc_heap_object(size_t sz) {
+    void * r = malloc(sizeof(rc_type) + sz);
+    *static_cast<rc_type *>(r) = 1;
+    return static_cast<char *>(r) + sizeof(rc_type);
+}
+
+inline atomic<rc_type> * rc_addr(object * o) {
+    return reinterpret_cast<atomic<rc_type> *>(reinterpret_cast<char *>(o) - sizeof(rc_type));
+}
+
+inline void free_heap_obj(object * o) {
+    free(reinterpret_cast<char *>(o) - sizeof(rc_type));
+}
+
+inline bool is_heap_obj(object * o) { return o->m_mem_kind == static_cast<unsigned>(object_memory_kind::Heap); }
+
+inline unsigned get_rc(object * o) { lean_assert(!is_scalar(o) && is_heap_obj(o)); return atomic_load_explicit(rc_addr(o), memory_order_acquire); }
 inline bool is_shared(object * o) { return get_rc(o) > 1; }
-inline void inc_ref(object * o) { atomic_fetch_add_explicit(&o->m_rc, static_cast<rc_type>(1), memory_order_relaxed); }
-inline void dec_shared_ref(object * o) { lean_assert(is_shared(o)); atomic_fetch_sub_explicit(&o->m_rc, static_cast<rc_type>(1), memory_order_acq_rel); }
-inline bool dec_ref_core(object * o) { lean_assert(get_rc(o) > 0); return atomic_fetch_sub_explicit(&o->m_rc, static_cast<rc_type>(1), memory_order_acq_rel) == 1; }
+inline void inc_ref(object * o) { if (is_heap_obj(o)) { atomic_fetch_add_explicit(rc_addr(o), static_cast<rc_type>(1), memory_order_relaxed); } }
+inline void dec_shared_ref(object * o) { lean_assert(is_shared(o)); atomic_fetch_sub_explicit(rc_addr(o), static_cast<rc_type>(1), memory_order_acq_rel); }
+inline bool dec_ref_core(object * o) { if (is_heap_obj(o)) { lean_assert(get_rc(o) > 0); return atomic_fetch_sub_explicit(rc_addr(o), static_cast<rc_type>(1), memory_order_acq_rel) == 1; } else { return false; } }
 inline void dec_ref(object * o) { if (dec_ref_core(o)) del(o); }
 inline void inc(object * o) { if (!is_scalar(o)) inc_ref(o); }
 inline void dec(object * o) { if (!is_scalar(o)) dec_ref(o); }
@@ -204,20 +228,21 @@ inline task_object * to_task(object * o) { lean_assert(is_task(o)); return stati
 inline external_object * to_external(object * o) { lean_assert(is_external(o)); return static_cast<external_object*>(o); }
 
 /* The memory associated with all Lean objects but `mpz_object` and `external_object` can be deallocated using `free`.
-   All fields in these objects are integral types, but `std::atomic<uintptr_t> m_rc`.
+   All fields in these objects are integral types, but the reference counter.
    However, `std::atomic<Integral>` has a trivial destructor.
    In the C++ reference manual (http://en.cppreference.com/w/cpp/atomic/atomic), we find the following sentence:
 
    "Additionally, the resulting std::atomic<Integral> specialization has standard layout, a trivial default constructor,
    and a trivial destructor." */
-inline void dealloc_mpz(object * o) { delete to_mpz(o); }
+inline void dealloc_mpz(object * o) { to_mpz(o)->~mpz_object(); free_heap_obj(o); }
 inline void dealloc_external(object * o) { delete to_external(o); }
 inline void dealloc(object * o) {
+    lean_assert(is_heap_obj(o));
     switch (get_kind(o)) {
     case object_kind::External: dealloc_external(o); break;
     case object_kind::MPZ:      dealloc_mpz(o); break;
     case object_kind::Task:     lean_unreachable(); // only the task manager can deallocate tasks.
-    default: free(o); break;
+    default: free_heap_obj(o); break;
     }
 }
 
@@ -279,8 +304,8 @@ inline object ** closure_arg_cptr(object * o) {
 // =======================================
 // Thunk auxiliary functions
 
-inline thunk_object::thunk_object(object * c, bool is_value):
-    object(object_kind::Thunk) {
+inline thunk_object::thunk_object(object * c, bool is_value, object_memory_kind m):
+    object(object_kind::Thunk, m) {
     if (is_value) {
         m_closure = nullptr;
         m_value   = c;
@@ -324,7 +349,7 @@ inline size_t string_byte_size(object * o) { return sizeof(string_object) + stri
 // =======================================
 // MPZ auxiliary function
 
-inline object * alloc_mpz(mpz const & m) { return new mpz_object(m); }
+inline object * alloc_mpz(mpz const & m) { return new (alloc_heap_object(sizeof(mpz_object))) mpz_object(m); }
 
 // =======================================
 // Natural numbers auxiliary functions
@@ -398,10 +423,9 @@ typedef object * b_obj_res; /* Borrowed object result. */
 
 // =======================================
 // Constructor objects
-
 inline obj_res alloc_cnstr(unsigned tag, unsigned num_objs, unsigned scalar_sz) {
     lean_assert(tag < 65536 && num_objs < 65536 && scalar_sz < 65536);
-    return new (malloc(sizeof(constructor_object) + num_objs * sizeof(object *) + scalar_sz)) constructor_object(tag, num_objs, scalar_sz); // NOLINT
+    return new (alloc_heap_object(sizeof(constructor_object) + num_objs * sizeof(object *) + scalar_sz)) constructor_object(tag, num_objs, scalar_sz); // NOLINT
 }
 inline unsigned cnstr_tag(b_obj_arg o) { return to_cnstr(o)->m_tag; }
 /* Access constructor object field `i` */
@@ -431,7 +455,7 @@ inline unsigned obj_tag(b_obj_arg o) { if (is_scalar(o)) return unbox(o); else r
 inline obj_res alloc_closure(lean_cfun fun, unsigned arity, unsigned num_fixed) {
     lean_assert(arity > 0);
     lean_assert(num_fixed < arity);
-    return new (malloc(sizeof(closure_object) + num_fixed * sizeof(object *))) closure_object(fun, arity, num_fixed); // NOLINT
+    return new (alloc_heap_object(sizeof(closure_object) + num_fixed * sizeof(object *))) closure_object(fun, arity, num_fixed); // NOLINT
 }
 inline b_obj_res closure_arg(b_obj_arg o, unsigned i) {
     lean_assert(i < closure_num_fixed(o));
@@ -446,7 +470,7 @@ inline void closure_set_arg(u_obj_arg o, unsigned i, obj_arg a) {
 // Array of objects
 
 inline obj_res alloc_array(size_t size, size_t capacity) {
-    return new (malloc(sizeof(array_object) + capacity * sizeof(object *))) array_object(size, capacity); // NOLINT
+    return new (alloc_heap_object(sizeof(array_object) + capacity * sizeof(object *))) array_object(size, capacity); // NOLINT
 }
 inline size_t array_size(b_obj_arg o) { return to_array(o)->m_size; }
 inline b_obj_res array_obj(b_obj_arg o, size_t i) {
@@ -469,7 +493,7 @@ inline void array_set_obj(u_obj_arg o, size_t i, obj_arg v) {
 // Array of scalars
 
 inline obj_res alloc_sarray(unsigned elem_size, size_t size, size_t capacity) {
-    return new (malloc(sizeof(sarray_object) + capacity * elem_size)) sarray_object(elem_size, size, capacity); // NOLINT
+    return new (alloc_heap_object(sizeof(sarray_object) + capacity * elem_size)) sarray_object(elem_size, size, capacity); // NOLINT
 }
 inline size_t sarray_size(b_obj_arg o) { return to_sarray(o)->m_size; }
 template<typename T> T sarray_data(b_obj_arg o, size_t i) { return sarray_cptr<T>(o)[i]; }
@@ -492,12 +516,12 @@ inline mpz const & mpz_value(b_obj_arg o) { return to_mpz(o)->m_value; }
 // Thunks
 
 inline obj_res mk_thunk(obj_arg c) {
-    return new (malloc(sizeof(thunk_object))) thunk_object(c, false); // NOLINT
+    return new (alloc_heap_object(sizeof(thunk_object))) thunk_object(c, false); // NOLINT
 }
 
 /* thunk.pure : A -> thunk A */
 inline obj_res thunk_pure(obj_arg v) {
-    return new (malloc(sizeof(thunk_object))) thunk_object(v, true); // NOLINT
+    return new (alloc_heap_object(sizeof(thunk_object))) thunk_object(v, true); // NOLINT
 }
 
 /* Primitive for implementing the IR instruction for thunk.get : thunk A -> A */
@@ -542,7 +566,7 @@ b_obj_res io_wait_any_core(b_obj_arg task_list);
 // String
 
 inline obj_res alloc_string(size_t size, size_t capacity, size_t len) {
-    return new (malloc(sizeof(string_object) + capacity)) string_object(size, capacity, len); // NOLINT
+    return new (alloc_heap_object(sizeof(string_object) + capacity)) string_object(size, capacity, len); // NOLINT
 }
 obj_res mk_string(char const * s);
 obj_res mk_string(std::string const & s);

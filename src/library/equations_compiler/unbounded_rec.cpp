@@ -144,7 +144,7 @@ eqn_compiler_result unbounded_rec(environment & env, elaborator & elab,
         }
 
         /* 3. Fix recursive applications, and create definitions */
-        buffer<declaration> new_declarations;
+        buffer<definition_val> new_defs;
         fn_actual_names      = header.m_fn_actual_names;
         for (unsigned fidx = 0; fidx < es.size(); fidx++) {
             name fn_name = head(fn_actual_names);
@@ -157,13 +157,11 @@ eqn_compiler_result unbounded_rec(environment & env, elaborator & elab,
             fn = helper.mk_lambda_closure(fn);
 
             bool is_meta      = true;
-            declaration d     = mk_definition(env, fn_name, lvl_names, fn_type, fn, is_meta);
-
-            new_declarations.push_back(d);
+            new_defs.push_back(mk_definition_val(env, fn_name, lvl_names, fn_type, fn, is_meta));
             fn_actual_names   = tail(fn_actual_names);
         }
 
-        env = module::add_meta(env, new_declarations);
+        env = module::add(env, mk_mutual_definitions(definition_vals(new_defs)));
 
         /* 4. Create result and add private/alias info */
         buffer<expr> result_fns;

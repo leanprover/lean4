@@ -81,6 +81,7 @@ class environment {
     environment add_axiom(declaration const & d, bool check) const;
     environment add_definition(declaration const & d, bool check) const;
     environment add_theorem(declaration const & d, bool check) const;
+    environment add_mutual(declaration const & d, bool check) const;
     environment add_quot(declaration const & d) const;
 
 public:
@@ -108,14 +109,6 @@ public:
 
     /** \brief Extends the current environment with the given declaration */
     environment add(declaration const & d, bool check = true) const;
-
-    /** \brief Add a sequence of (possibly mutually recursive) meta declarations.
-        The type checking occurs in two phases:
-        1- We type check each declaration type and add to a new environment.
-        2- We type check the definitions body.
-
-        If \c check is false, then type checking is skipped. */
-    environment add_meta(buffer<declaration> const & ds, bool check = true) const;
 
     /* \brief Add `quot` type. */
     environment add_quot() const;

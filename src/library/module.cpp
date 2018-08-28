@@ -202,33 +202,6 @@ struct decl_modification : public modification {
     }
 };
 
-struct meta_decls_modification : public modification {
-    LEAN_MODIFICATION("meta_decl")
-    list<declaration> m_decls;
-
-    meta_decls_modification() {}
-    meta_decls_modification(list<declaration> const & decl):
-        m_decls(decl) {}
-
-    void perform(environment & env) const override {
-        buffer<declaration> decls;
-        to_buffer(m_decls, decls);
-        env = env.add_meta(decls, env.trust_lvl() == 0);
-    }
-
-    void serialize(serializer & s) const override {
-        write_list(s, m_decls);
-    }
-
-    static std::shared_ptr<modification const> deserialize(deserializer & d) {
-        list<declaration> decls = read_list<declaration>(d);
-        return std::make_shared<meta_decls_modification>(std::move(decls));
-    }
-
-    void get_task_dependencies(buffer<gtask> &) const override {
-    }
-};
-
 struct inductive_modification : public modification {
     LEAN_MODIFICATION("ind")
 
@@ -288,17 +261,6 @@ environment add(environment const & env, declaration const & d) {
             new_env = mark_noncomputable(new_env, v.get_name());
     }
     return add(new_env, std::make_shared<decl_modification>(d));
-}
-
-environment add_meta(environment const & env, buffer<declaration> const & ds) {
-    environment new_env = env.add_meta(ds);
-    for (declaration const & d : ds) {
-        lean_assert(d.is_definition());
-        definition_val const & v = d.to_definition_val();
-        if (!check_computable(new_env, v.get_name()))
-            new_env = mark_noncomputable(new_env, v.get_name());
-    }
-    return add(new_env, std::make_shared<meta_decls_modification>(to_list(ds)));
 }
 
 environment add_quot(environment const & env) {
@@ -497,7 +459,6 @@ void initialize_module() {
     g_ext            = new module_ext_reg();
     g_object_readers = new object_readers();
     decl_modification::init();
-    meta_decls_modification::init();
     inductive_modification::init();
     quot_modification::init();
 }
@@ -505,7 +466,6 @@ void initialize_module() {
 void finalize_module() {
     quot_modification::finalize();
     inductive_modification::finalize();
-    meta_decls_modification::finalize();
     decl_modification::finalize();
     delete g_object_readers;
     delete g_ext;

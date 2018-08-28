@@ -115,6 +115,7 @@ public:
     reducibility_hints const & get_hints() const { return static_cast<reducibility_hints const &>(cnstr_obj_ref(*this, 2)); }
     bool is_meta() const;
 };
+typedef list_ref<definition_val> definition_vals;
 
 /*
 structure theorem_val extends constant_val :=
@@ -190,6 +191,7 @@ public:
     bool is_definition() const { return kind() == declaration_kind::Definition; }
     bool is_axiom() const { return kind() == declaration_kind::Axiom; }
     bool is_theorem() const { return kind() == declaration_kind::Theorem; }
+    bool is_mutual() const { return kind() == declaration_kind::MutualDefinition; }
     bool is_inductive() const { return kind() == declaration_kind::Inductive; }
     bool is_meta() const;
     bool has_value() const { return is_theorem() || is_definition(); }
@@ -197,6 +199,7 @@ public:
     axiom_val const & to_axiom_val() const { lean_assert(is_axiom()); return static_cast<axiom_val const &>(cnstr_obj_ref(raw(), 0)); }
     definition_val const & to_definition_val() const { lean_assert(is_definition()); return static_cast<definition_val const &>(cnstr_obj_ref(raw(), 0)); }
     theorem_val const & to_theorem_val() const { lean_assert(is_theorem()); return static_cast<theorem_val const &>(cnstr_obj_ref(raw(), 0)); }
+    definition_vals const & to_definition_vals() const { lean_assert(is_mutual()); return static_cast<definition_vals const &>(cnstr_obj_ref(raw(), 0)); }
 
     void serialize(serializer & s) const { s.write_object(raw()); }
     static declaration deserialize(deserializer & d) { object * o = d.read_object(); inc(o); return declaration(o); }
@@ -210,6 +213,7 @@ inline optional<declaration> none_declaration() { return optional<declaration>()
 inline optional<declaration> some_declaration(declaration const & o) { return optional<declaration>(o); }
 inline optional<declaration> some_declaration(declaration && o) { return optional<declaration>(std::forward<declaration>(o)); }
 
+definition_val mk_definition_val(environment const & env, name const & n, level_param_names const & params, expr const & t, expr const & v, bool meta);
 declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v,
                           reducibility_hints const & hints, bool meta = false);
 declaration mk_definition(environment const & env, name const & n, level_param_names const & params, expr const & t, expr const & v,
@@ -217,6 +221,7 @@ declaration mk_definition(environment const & env, name const & n, level_param_n
 declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v);
 declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v);
 declaration mk_axiom(name const & n, level_param_names const & params, expr const & t, bool meta = false);
+declaration mk_mutual_definitions(definition_vals const & ds);
 declaration mk_inductive_decl(names const & lparams, nat const & nparams, inductive_types const & types, bool is_meta);
 declaration mk_quot_decl(name const & n);
 
@@ -373,6 +378,7 @@ class constant_info : public object_ref {
 public:
     constant_info();
     constant_info(declaration const & d);
+    constant_info(definition_val const & v);
     constant_info(constant_info const & other):object_ref(other) {}
     constant_info(constant_info && other):object_ref(other) {}
     constant_info_kind kind() const { return static_cast<constant_info_kind>(cnstr_tag(raw())); }

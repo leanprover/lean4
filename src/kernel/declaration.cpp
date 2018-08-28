@@ -105,11 +105,6 @@ bool use_meta(environment const & env, expr const & e) {
 static declaration * g_dummy = nullptr;
 declaration::declaration():declaration(*g_dummy) {}
 
-declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v,
-                          reducibility_hints const & h, bool meta) {
-    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Definition), definition_val(n, params, t, v, h, meta)));
-}
-
 static unsigned get_max_height(environment const & env, expr const & v) {
     unsigned h = 0;
     for_each(v, [&](expr const & e, unsigned) {
@@ -123,10 +118,19 @@ static unsigned get_max_height(environment const & env, expr const & v) {
     return h;
 }
 
+definition_val mk_definition_val(environment const & env, name const & n, level_param_names const & params, expr const & t, expr const & v, bool meta) {
+    unsigned h = get_max_height(env, v);
+    return definition_val(n, params, t, v, reducibility_hints::mk_regular(h+1), meta);
+}
+
+declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v,
+                          reducibility_hints const & h, bool meta) {
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Definition), definition_val(n, params, t, v, h, meta)));
+}
+
 declaration mk_definition(environment const & env, name const & n, level_param_names const & params, expr const & t,
                           expr const & v, bool meta) {
-    unsigned h = get_max_height(env, v);
-    return mk_definition(n, params, t, v, reducibility_hints::mk_regular(h+1), meta);
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Definition), mk_definition_val(env, n, params, t, v, meta)));
 }
 
 declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v) {
@@ -155,6 +159,13 @@ declaration mk_axiom_inferring_meta(environment const & env, name const & n,
     return mk_axiom(n, params, t, use_meta(env, t));
 }
 
+declaration mk_mutual_definitions(definition_vals const & ds) {
+    if (length(ds) == 1)
+        return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Definition), head(ds)));
+    else
+        return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::MutualDefinition), ds));
+}
+
 declaration mk_quot_decl(name const & n) {
     inc(n.raw());
     return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Quot), n.raw()));
@@ -181,6 +192,10 @@ constant_info::constant_info():constant_info(*g_dummy) {}
 constant_info::constant_info(declaration const & d):object_ref(d.raw()) {
     lean_assert(d.is_definition() || d.is_theorem() || d.is_axiom());
     inc_ref(d.raw());
+}
+
+constant_info::constant_info(definition_val const & v):
+    object_ref(mk_cnstr(static_cast<unsigned>(constant_info_kind::Definition), v)) {
 }
 
 static reducibility_hints * g_opaque = nullptr;

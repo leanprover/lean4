@@ -294,9 +294,6 @@ structure subtype {α : Sort u} (p : α → Prop) :=
 inductive Exists {α : Sort u} (p : α → Prop) : Prop
 | intro (w : α) (h : p w) : Exists
 
-def exists_unique {α : Sort u} (p : α → Prop) :=
-Exists (λ x, and (p x) (∀ y, p y → y = x))
-
 attribute [pp_using_anonymous_constructor] sigma psigma subtype pprod and
 
 class inductive decidable (p : Prop)
@@ -404,9 +401,6 @@ infix <->      := iff
 infix ↔        := iff
 notation `exists` binders `, ` r:(scoped P, Exists P) := r
 notation `∃` binders `, ` r:(scoped P, Exists P) := r
-/- NOTE: Does not accept multiple binders. `∃! a b, p` would expand to
-   `∃! a, ∃! b, p`, which is weaker than the intended meaning `∃! (a, b), p`. -/
-notation `∃!` binder `, ` r:(scoped P, exists_unique P) := r
 
 export has_append (append)
 
@@ -1075,32 +1069,7 @@ theorem exists.elim {α : Sort u} {p : α → Prop} {b : Prop}
   (h₁ : ∃ x, p x) (h₂ : ∀ (a : α), p a → b) : b :=
 Exists.rec h₂ h₁
 
-/- exists unique -/
-
-theorem exists_unique.intro {α : Sort u} {p : α → Prop} (w : α) (h₁ : p w) (h₂ : ∀ y, p y → y = w) :
-  ∃! x, p x :=
-exists.intro w ⟨h₁, h₂⟩
-
-attribute [recursor 4]
-theorem exists_unique.elim {α : Sort u} {p : α → Prop} {b : Prop}
-    (h₂ : ∃! x, p x) (h₁ : ∀ x, p x → (∀ y, p y → y = x) → b) : b :=
-exists.elim h₂ (λ w hw, h₁ w (and.left hw) (and.right hw))
-
-theorem exists_unique_of_exists_of_unique {α : Type u} {p : α → Prop}
-    (hex : ∃ x, p x) (hunique : ∀ y₁ y₂, p y₁ → p y₂ → y₁ = y₂) :  ∃! x, p x :=
-exists.elim hex (λ x px, exists_unique.intro x px (assume y, assume : p y, hunique y x this px))
-
-theorem exists_of_exists_unique {α : Sort u} {p : α → Prop} (h : ∃! x, p x) : ∃ x, p x :=
-exists.elim h (λ x hx, ⟨x, and.left hx⟩)
-
-theorem unique_of_exists_unique {α : Sort u} {p : α → Prop}
-    (h : ∃! x, p x) {y₁ y₂ : α} (py₁ : p y₁) (py₂ : p y₂) : y₁ = y₂ :=
-exists_unique.elim h
-  (assume x, assume : p x,
-    assume unique : ∀ y, p y → y = x,
-    show y₁ = y₂, from eq.trans (unique _ py₁) (eq.symm (unique _ py₂)))
-
-/- exists, forall, exists unique congruences -/
+/- exists and forall congruences -/
 theorem forall_congr {α : Sort u} {p q : α → Prop} (h : ∀ a, (p a ↔ q a)) : (∀ a, p a) ↔ ∀ a, q a :=
 iff.intro (λ p a, iff.mp (h a) (p a)) (λ q a, iff.mpr (h a) (q a))
 
@@ -1111,9 +1080,6 @@ theorem exists_congr {α : Sort u} {p q : α → Prop} (h : ∀ a, (p a ↔ q a)
 iff.intro
   (exists_imp_exists (λ a, iff.mp (h a)))
   (exists_imp_exists (λ a, iff.mpr (h a)))
-
-theorem exists_unique_congr {α : Sort u} {p₁ p₂ : α → Prop} (h : ∀ x, p₁ x ↔ p₂ x) : (exists_unique p₁) ↔ (∃! x, p₂ x) := --
-exists_congr (λ x, and_congr (h x) (forall_congr (λ y, imp_congr (h y) iff.rfl)))
 
 theorem forall_not_of_not_exists {α : Sort u} {p : α → Prop} : ¬(∃ x, p x) → (∀ x, ¬p x) :=
 λ hne x hp, hne ⟨x, hp⟩

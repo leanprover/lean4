@@ -63,7 +63,7 @@ any_of [
 
 namespace notation_spec
 @[derive reader.has_tokens reader.has_view]
-def prec.reader := node! prec [":", prec: number]/-TODO <|> expr-/
+def precedence.reader := node! «precedence» [":", prec: number]/-TODO <|> expr-/
 
 def quoted_symbol.reader : reader :=
 do (s, info) ← with_source_info $ take_until (= '`'),
@@ -78,7 +78,7 @@ node! notation_quoted_symbol [
   left_quote: raw_symbol "`",
   symbol: quoted_symbol.reader,
   right_quote: raw_symbol "`",
-  prec: prec.reader?]
+  prec: precedence.reader?]
 
 --TODO(Sebastian): cannot be called `symbol` because of hygiene problems
 @[derive reader.has_tokens reader.has_view]
@@ -104,8 +104,8 @@ node! action [":", action: node_choice! action_kind {
 @[derive reader.has_tokens reader.has_view]
 def transition.reader :=
 node_choice! transition {
-  binder: node! binder ["binder", prec: prec.reader?],
-  binders: node! binders ["binders", prec: prec.reader?],
+  binder: node! binder ["binder", prec: precedence.reader?],
+  binders: node! binders ["binders", prec: precedence.reader?],
   arg: node! argument [id: ident, action: action.reader?]
 }
 
@@ -156,7 +156,7 @@ with_recurse $ any_of [open.reader, section.reader, universe.reader, notation.re
 private def commands_aux : bool → list syntax → nat → reader
 | recovering cs 0            := error "unreachable"
 -- on end of input, return list of parsed commands
-| recovering cs (nat.succ n) := (eoi *> pure (syntax.node ⟨name.anonymous, cs.reverse⟩)) <|> do
+| recovering cs (nat.succ n) := (monad_parsec.eoi *> pure (syntax.node ⟨none, cs.reverse⟩)) <|> do
   (recovering, c) ← catch (do {
     c ← command.reader,
     pure (ff, some c)
@@ -196,14 +196,14 @@ node! module [«prelude»: prelude.reader?, imports: import.reader*, commands: c
 end reader
 
 namespace reader
-open macro.has_view combinators notation_spec
+open syntax_node_kind.has_view combinators notation_spec
 
 def mixfix.expand (stx : syntax) : option syntax :=
 do v ← view mixfix stx,
    -- TODO: reserved token case
    notation_symbol.view.quoted {prec:=prec, ..} ← pure v.symbol,
    -- `notation` allows more syntax after `:` than mixfix commands, so we have to do a small conversion
-   let prec_to_action : notation_spec.prec.view → action.view :=
+   let prec_to_action : precedence.view → action.view :=
      λ prec, {action := action_kind.view.prec prec.prec, ..prec},
    let spec := view.rules $ match v.kind with
      | mixfix.kind.view.prefix _ := {

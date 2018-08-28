@@ -3261,16 +3261,14 @@ expr elaborator::visit_expr_quote(expr const & e, optional<expr> const & expecte
 
 expr elaborator::visit_node_macro(expr const & e) {
     name macro = *get_name(mdata_data(e), "node!");
+    name esc_macro = macro.is_atomic() ? "«" + macro.to_string() + "»" : macro;
     expr e2 = mdata_expr(e);
     expr macro_e = app_arg(app_fn(e2));
     name full_macro = const_name(macro_e);
     sstream struc, stx_pat, binds, mk_args, view_pat, reviews;
     unsigned i = 0;
-    if (macro.is_atomic())
-        struc << "def «" << macro.to_string() << "»";
-    else
-        struc << "def " << macro.to_string();
-    struc << " := {macro . name := `" << macro.to_string() << "}\n"
+    struc << "@[pattern] def " << esc_macro.to_string();
+    struc << " := {syntax_node_kind . name := `" << full_macro.to_string() << "}\n"
             << "structure " << macro.to_string() << ".view :=\n";
     buffer<expr> new_args;
     for (expr args = app_arg(e2); is_app(args); args = app_arg(args)) {
@@ -3305,7 +3303,7 @@ expr elaborator::visit_node_macro(expr const & e) {
             new_args.push_back(add_field(r));
         } else {// try block
             stx_pat << "syntax.node (syntax_node.mk _ [";
-            reviews << "syntax.node (syntax_node.mk name.anonymous [";
+            reviews << "syntax.node (syntax_node.mk none [";
             buffer<expr> new_try_args;
             for (expr args = app_arg(app_arg(r)); is_app(args); args = app_arg(args)) {
                 expr r = app_arg(app_fn(args));
@@ -3320,10 +3318,11 @@ expr elaborator::visit_node_macro(expr const & e) {
     }
     struc << "instance " << macro.to_string() << ".has_view : " << macro.to_string() << ".has_view " << macro.to_string() << ".view :=\n"
             << "{ view := fun stx, do {\n"
-            << "syntax.node (syntax_node.mk `" << macro.to_string() << " [" << stx_pat.str() << "]) <- pure stx | failure,\n"
+            << "syntax.node (syntax_node.mk " << esc_macro.to_string() << " [" << stx_pat.str() << "]) <- pure stx | failure,\n"
             << binds.str()
             << "pure (" << macro.to_string() << ".view.mk " << mk_args.str() << ") },\n"
-            << "review := fun ⟨" << view_pat.str() << "⟩, syntax.node (syntax_node.mk `" << macro.to_string() << " [" << reviews.str() << "]) }";
+            << "review := fun ⟨" << view_pat.str() << "⟩, syntax.node (syntax_node.mk " << esc_macro.to_string() << " [" << reviews.str() << "]) }";
+    trace_elab_detail(tout() << "expansion of node! macro:\n" << struc.str(););
     std::istringstream in(struc.str());
     parser p(m_env, get_global_ios(), nullptr, in, "foo");
     p.set_imports_parsed();
@@ -3338,14 +3337,13 @@ expr elaborator::visit_node_macro(expr const & e) {
 
 expr elaborator::visit_node_choice_macro(expr const & e) {
     name macro = *get_name(mdata_data(e), "node_choice!");
+    name esc_macro = macro.is_atomic() ? "«" + macro.to_string() + "»" : macro;
     expr args = mdata_expr(e);
+    name full_macro = get_namespace(m_env) + macro;
     sstream struc, view_cases, review_cases;
     unsigned i = 0;
-    if (macro.is_atomic())
-        struc << "def «" << macro.to_string() << "»";
-    else
-        struc << "def " << macro.to_string();
-    struc << " := {macro . name := `" << macro.to_string() << "}\n"
+    struc << "@[pattern] def " << esc_macro.to_string();
+    struc << " := {syntax_node_kind . name := `" << full_macro.to_string() << "}\n"
           << "inductive " << macro.to_string() << ".view\n";
     buffer<expr> new_args;
     for (expr e = args; is_app(e); e = app_arg(e)) {
@@ -3363,19 +3361,19 @@ expr elaborator::visit_node_choice_macro(expr const & e) {
         view_cases << "| " << i << " := " << macro.to_string() << ".view." << fname << " <$> view  (" << pp(r)
                    << ") stx\n";
         review_cases << "| " << macro.to_string() << ".view." << fname << " a := "
-                << "syntax.node (syntax_node.mk (name.mk_numeral name.anonymous " << i << ") [review (" << pp(r) << ") a])\n";
+                << "syntax.node (syntax_node.mk (some (syntax_node_kind.mk (name.mk_numeral name.anonymous " << i << "))) [review (" << pp(r) << ") a])\n";
         i++;
         new_args.push_back(mk_as_is(r));
     }
     struc << "instance " << macro.to_string() << ".has_view : " << macro.to_string() << ".has_view "
           << macro.to_string() << ".view :=\n"
           << "{ view := fun stx, do {\n"
-          << "syntax.node (syntax_node.mk `" << macro.to_string()
-          << " [syntax.node (syntax_node.mk (name.mk_numeral name.anonymous i) [stx])]) <- pure stx | failure,\n"
+          << "syntax.node (syntax_node.mk " << esc_macro.to_string()
+          << " [syntax.node (syntax_node.mk (some (syntax_node_kind.mk (name.mk_numeral name.anonymous i))) [stx])]) <- pure stx | failure,\n"
           << "match i with\n"
           << view_cases.str()
           << "| _ := none},\n"
-          << "review := fun v, syntax.node (syntax_node.mk `" << macro.to_string()
+          << "review := fun v, syntax.node (syntax_node.mk " << esc_macro.to_string()
           << " [match v with\n"
           << review_cases.str()
           << "]) }";
@@ -3388,7 +3386,7 @@ expr elaborator::visit_node_choice_macro(expr const & e) {
     m_env = p.env();
     m_ctx.set_env(m_env);
     return visit(mk_app(mk_const({"lean", "parser", "reader", "combinators", "node"}),
-                        mk_const(get_namespace(p.env()) + macro),
+                        mk_const(full_macro),
                         mk_app(mk_const({"list", "cons"}),
                                mk_app(mk_const({"lean", "parser", "reader", "combinators", "choice"}),
                                       mk_lean_list(new_args)),

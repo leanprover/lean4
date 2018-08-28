@@ -12,7 +12,7 @@ namespace lean.parser
 namespace reader
 open combinators
 
-def hole := {macro . name := `hole}
+@[pattern] def hole := {syntax_node_kind . name := `lean.parser.reader.hole}
 
 @[derive reader.has_tokens]
 def hole.reader : reader :=

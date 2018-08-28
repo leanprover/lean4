@@ -82,10 +82,12 @@ try $ do
 instance raw_symbol.tokens (s) : reader.has_tokens (raw_symbol s) := ⟨[]⟩
 instance raw_symbol.view (s) : reader.has_view (raw_symbol s) syntax := default _
 
+@[pattern] def base10_lit : syntax_node_kind := ⟨`lean.parser.reader.base10_lit⟩
+
 --TODO(Sebastian): other bases
 private def number' : read_m (source_info → syntax) :=
 do num ← take_while1 char.is_digit,
-   pure $ λ i, syntax.node ⟨`base10_lit, [syntax.atom ⟨i, atomic_val.string num⟩]⟩
+   pure $ λ i, syntax.node ⟨base10_lit, [syntax.atom ⟨i, atomic_val.string num⟩]⟩
 
 private def ident' : read_m (source_info → syntax) :=
 do n ← identifier,
@@ -128,7 +130,7 @@ instance symbol_coe : has_coe string reader := ⟨symbol⟩
 def number : reader :=
 try $ do
   it ← left_over,
-  stx@(syntax.node ⟨`base10_lit, _⟩) ← token | error "" (dlist.singleton "number") it,
+  stx@(syntax.node ⟨base10_lit, _⟩) ← token | error "" (dlist.singleton "number") it,
   pure stx
 
 instance number.tokens : reader.has_tokens number := ⟨[]⟩

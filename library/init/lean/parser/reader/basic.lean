@@ -93,7 +93,7 @@ class reader.has_view (r : reader) (α : out_param Type) :=
 instance reader.has_view.default (r : reader) : inhabited (reader.has_view r syntax) :=
 ⟨{ view := some, review := id }⟩
 
-class macro.has_view (m : macro) (α : out_param Type) :=
+class syntax_node_kind.has_view (k : syntax_node_kind) (α : out_param Type) :=
 (view : syntax → option α)
 (review : α → syntax)
 
@@ -114,6 +114,8 @@ open monad_parsec
 open reader.has_view
 variable {α : Type}
 
+def eoi : syntax_node_kind := ⟨`lean.parser.reader.eoi⟩
+
 protected def parse (cfg : reader_config) (s : string) (r : reader) [reader.has_tokens r] :
   syntax × list message :=
 -- the only hardcoded tokens, because they are never directly mentioned by a `reader`
@@ -126,12 +128,12 @@ do {
   },
   whitespace,
   -- add `eoi` node and store any residual input in its prefix
-  catch eoi $ λ msg, read_m.log_error (to_string msg),
+  catch monad_parsec.eoi $ λ msg, read_m.log_error (to_string msg),
   tk_start ← reader_state.token_start <$> get,
   let stop := tk_start.to_end in
-  pure $ syntax.node ⟨name.anonymous, [
+  pure $ syntax.node ⟨none, [
     stx,
-    syntax.node ⟨`eoi, [syntax.atom ⟨some ⟨⟨tk_start, stop⟩, stop.offset, ⟨stop, stop⟩⟩, atomic_val.string ""⟩]⟩
+    syntax.node ⟨eoi, [syntax.atom ⟨some ⟨⟨tk_start, stop⟩, stop.offset, ⟨stop, stop⟩⟩, atomic_val.string ""⟩]⟩
   ]⟩
 }.run cfg ⟨tokens r ++ builtin_tokens, [], s.mk_iterator⟩ s
 
@@ -140,36 +142,36 @@ structure parse.view_ty :=
 (eoi  : syntax)
 
 def parse.view : syntax → option parse.view_ty
-| (syntax.node ⟨name.anonymous, [root, eoi]⟩) := some ⟨root, eoi⟩
+| (syntax.node ⟨none, [root, eoi]⟩) := some ⟨root, eoi⟩
 | _ := none
 
 namespace combinators
-def node' (m : name) (rs : list reader) : reader :=
+def node' (k : option syntax_node_kind) (rs : list reader) : reader :=
 do (args, _) ← rs.mfoldl (λ (p : list syntax × nat) r, do
      (args, remaining) ← pure p,
      -- on error, append partial syntax tree and `missing` objects to previous successful parses and rethrow
      a ← catch r $ λ msg,
        let args := list.repeat syntax.missing (remaining-1) ++ msg.custom :: args in
-       throw {msg with custom := syntax.node ⟨m, args.reverse⟩},
+       throw {msg with custom := syntax.node ⟨k, args.reverse⟩},
      pure (a::args, remaining - 1)
    ) ([], rs.length),
-   pure $ syntax.node ⟨m, args.reverse⟩
+   pure $ syntax.node ⟨k, args.reverse⟩
 
-@[reducible] def seq := node' name.anonymous
-@[reducible] def node (m : macro) := node' m.name
+@[reducible] def seq := node' none
+@[reducible] def node (k : syntax_node_kind) := node' k
 
 instance node'.tokens (m rs) [reader.has_tokens rs] : reader.has_tokens (node' m rs) :=
 ⟨tokens rs⟩
 
-instance node.view (m rs) [i : macro.has_view m α] : reader.has_view (node m rs) α :=
+instance node.view (k rs) [i : syntax_node_kind.has_view k α] : reader.has_view (node k rs) α :=
 { view := i.view, review := i.review }
 
 private def many1_aux (p : reader) : list syntax → nat → reader
 | as 0     := error "unreachable"
 | as (n+1) := do a ← catch p (λ msg, throw {msg with custom :=
                        -- append `syntax.missing` to make clear that list is incomplete
-                       syntax.node ⟨name.anonymous, (syntax.missing::msg.custom::as).reverse⟩}),
-              many1_aux (a::as) n <|> pure (syntax.node ⟨name.anonymous, (a::as).reverse⟩)
+                       syntax.node ⟨none, (syntax.missing::msg.custom::as).reverse⟩}),
+              many1_aux (a::as) n <|> pure (syntax.node ⟨none, (a::as).reverse⟩)
 
 def many1 (r : reader) : reader :=
 do rem ← remaining, many1_aux r [] (rem+1)
@@ -180,12 +182,12 @@ instance many1.tokens (r) [reader.has_tokens r] : reader.has_tokens (many1 r) :=
 instance many1.view (r) [reader.has_view r α] : reader.has_view (many1 r) (list α) :=
 { view := λ stx, match stx with
     | syntax.missing := list.ret <$> view r syntax.missing
-    | syntax.node ⟨name.anonymous, stxs⟩ := stxs.mmap (view r)
+    | syntax.node ⟨none, stxs⟩ := stxs.mmap (view r)
     | _ := failure,
-  review := λ as, syntax.node ⟨name.anonymous, as.map (review r)⟩ }
+  review := λ as, syntax.node ⟨none, as.map (review r)⟩ }
 
 def many (r : reader) : reader :=
-many1 r <|> pure (syntax.node ⟨name.anonymous, []⟩)
+many1 r <|> pure (syntax.node ⟨none, []⟩)
 
 instance many.tokens (r) [reader.has_tokens r] : reader.has_tokens (many r) :=
 ⟨tokens r⟩
@@ -196,10 +198,10 @@ instance many.view (r) [has_view r α] : reader.has_view (many r) (list α) :=
 def optional (r : reader) : reader :=
 do r ← optional $
      -- on error, wrap in "some"
-     catch r (λ msg, throw {msg with custom := syntax.node ⟨name.anonymous, [msg.custom]⟩}),
+     catch r (λ msg, throw {msg with custom := syntax.node ⟨none, [msg.custom]⟩}),
    pure $ match r with
-   | some r := syntax.node ⟨name.anonymous, [r]⟩
-   | none   := syntax.node ⟨name.anonymous, []⟩
+   | some r := syntax.node ⟨none, [r]⟩
+   | none   := syntax.node ⟨none, []⟩
 
 instance optional.tokens (r) [reader.has_tokens r] : reader.has_tokens (optional r) :=
 ⟨tokens r⟩
@@ -220,12 +222,12 @@ end optional_view
 instance optional.view (r) [reader.has_view r α] : reader.has_view (optional r) (optional_view α) :=
 { view := λ stx, match stx with
     | syntax.missing := pure optional_view.missing
-    | syntax.node ⟨name.anonymous, []⟩ := pure optional_view.none
-    | syntax.node ⟨name.anonymous, [stx]⟩ := optional_view.some <$> view r stx
+    | syntax.node ⟨none, []⟩ := pure optional_view.none
+    | syntax.node ⟨none, [stx]⟩ := optional_view.some <$> view r stx
     | _ := failure,
   review := λ a, match a with
-    | optional_view.some a  := syntax.node ⟨name.anonymous, [review r a]⟩
-    | optional_view.none    := syntax.node ⟨name.anonymous, []⟩
+    | optional_view.some a  := syntax.node ⟨none, [review r a]⟩
+    | optional_view.none    := syntax.node ⟨none, []⟩
     | optional_view.missing := syntax.missing }
 
 /-- Parse a list `[p1, ..., pn]` of readers as `p1 <|> ... <|> pn`.
@@ -246,7 +248,7 @@ instance any_of.view (rs) : reader.has_view (any_of rs) syntax := default _
     parser as the name. -/
 def choice (rs : list reader) : reader :=
 rs.enum.foldr
-  (λ ⟨i, r⟩ r', (λ stx, syntax.node ⟨name.mk_numeral name.anonymous i, [stx]⟩) <$> r <|> r')
+  (λ ⟨i, r⟩ r', (λ stx, syntax.node ⟨some ⟨name.mk_numeral name.anonymous i⟩, [stx]⟩) <$> r <|> r')
   -- use `foldr` so that any other error is preferred over this one
   (error "choice: empty list")
 

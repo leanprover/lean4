@@ -33,17 +33,14 @@ end parse_m
 structure resolve_cfg :=
 (global_scope : rbmap name syntax (<))
 
+abbreviation transformer :=
+--- TODO: What else does an expander need? How to model recursive expansion?
+syntax_node syntax → option syntax
+
 def exp_fuel := 1000
 
-structure macro :=
-(name : name)
--- (read : reader)
--- TODO: What else does an expander need? How to model recursive expansion?
-(expand : option (syntax_node syntax → option syntax) := none)
--- (elaborate : list syntax → expr → tactic expr)
-
 structure parse_state :=
-(macros : rbmap name macro (<))
+(transformers : rbmap name transformer (<))
 (resolve_cfg : resolve_cfg)
 
 -- identifiers in macro expansions are annotated with incremental tags
@@ -70,11 +67,11 @@ def expand : ℕ → syntax → exp_m syntax
 | 0 _ := throw "macro expansion limit exceeded"
 | (fuel + 1) (syntax.node node) :=
 do cfg ← read,
-   some {expand := some exp, ..} ← pure $ cfg.macros.find node.macro
+   some t ← pure $ do { k ← node.kind, cfg.transformers.find k.name }
      | (λ args, syntax.node {node with args := args}) <$> node.args.mmap (expand fuel),
    tag ← mk_tag,
    let node' := {node with args := node.args.map $ flip_tag tag},
-   (match exp node' with
+   (match t node' with
     -- expand recursively
     | some stx' := expand fuel $ flip_tag tag stx'
     | none := (λ args, syntax.node {node with args := args}) <$> node.args.mmap (expand fuel))
@@ -96,12 +93,12 @@ do {
 def resolve : scope → syntax → parse_m parse_state unit syntax
 -- TODO(Sebastian): move `match` back into primary pattern, use fuel if necessary
 | sc (syntax.node n) := (match n with
-  | ({macro := `bind, args := [syntax.node {macro := name.anonymous, args := vars}, body], ..}) :=
+  | ({kind := some ⟨`bind⟩, args := [syntax.node {kind := none, args := vars}, body], ..}) :=
   do sc ← vars.mfoldl (λ sc var,
-       do syntax.ident var ← pure var | throw "ill-shaped 'bind' macro",
+       do syntax.ident var ← pure var | throw "ill-shaped 'bind' node",
           pure $ scope.insert sc var) sc,
      body ← resolve sc body,
-     pure $ syntax.node {n with args := [syntax.node {macro := name.anonymous, args := vars}, body]}
+     pure $ syntax.node {n with args := [syntax.node {kind := none, args := vars}, body]}
   | _ :=
   do args ← n.args.mmap (resolve sc),
      pure $ syntax.node {n with args := args})

@@ -42,8 +42,14 @@ inductive atomic_val
 structure syntax_atom :=
 (info : option source_info) (val : atomic_val)
 
+/-- A simple wrapper that should remind you to use the static declaration instead
+    of hard-coding the node name. -/
+structure syntax_node_kind :=
+-- should be equal to the name of the declaration this structure instance was bound to
+(name : name)
+
 structure syntax_node (syntax : Type) :=
-(macro : name) (args : list syntax)
+(kind : option syntax_node_kind) (args : list syntax)
 
 inductive syntax
 | ident (val : syntax_ident)
@@ -90,10 +96,10 @@ with to_format : syntax → format
   n
 | (atom ⟨_, atomic_val.string s⟩) := to_fmt $ repr s
 | (atom ⟨_, atomic_val.name   n⟩) := to_fmt "`" ++ to_fmt n
-| (node {macro := name.anonymous, args := args, ..}) :=
+| (node {kind := none, args := args, ..}) :=
   sbracket $ join_sep (to_format_lst args) line
-| (node {macro := n, args := args, ..}) :=
-  paren $ join_sep (to_fmt n :: to_format_lst args) line
+| (node {kind := some kind, args := args, ..}) :=
+  paren $ join_sep (to_fmt kind.name :: to_format_lst args) line
 | missing := "<missing>"
 with to_format_lst : list syntax → list format
 | []      := []

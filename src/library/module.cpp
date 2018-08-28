@@ -224,20 +224,6 @@ struct inductive_modification : public modification {
     }
 };
 
-struct quot_modification : public modification {
-    LEAN_MODIFICATION("quot")
-
-    void perform(environment & env) const override {
-        env = env.add_quot();
-    }
-
-    void serialize(serializer &) const override {}
-
-    static std::shared_ptr<modification const> deserialize(deserializer &) {
-        return std::make_shared<quot_modification>();
-    }
-};
-
 namespace module {
 environment add(environment const & env, std::shared_ptr<modification const> const & modf) {
     module_ext ext = get_extension(env);
@@ -261,10 +247,6 @@ environment add(environment const & env, declaration const & d) {
             new_env = mark_noncomputable(new_env, v.get_name());
     }
     return add(new_env, std::make_shared<decl_modification>(d));
-}
-
-environment add_quot(environment const & env) {
-    return add_and_perform(env, std::make_shared<quot_modification>());
 }
 
 using inductive::certified_inductive_decl;
@@ -460,11 +442,9 @@ void initialize_module() {
     g_object_readers = new object_readers();
     decl_modification::init();
     inductive_modification::init();
-    quot_modification::init();
 }
 
 void finalize_module() {
-    quot_modification::finalize();
     inductive_modification::finalize();
     decl_modification::finalize();
     delete g_object_readers;

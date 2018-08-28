@@ -20,7 +20,7 @@ class quot_consts {
     friend bool quot_is_rec(name const & n);
     template<typename WHNF> friend optional<expr> quot_reduce_rec(expr const & e, WHNF const & whnf);
     template<typename WHNF, typename IS_STUCK> friend optional<expr> quot_is_stuck(expr const & e, WHNF const & whnf, IS_STUCK const & is_stuck);
-    friend environment quot_declare(environment const & env);
+    friend class environment;
     friend void initialize_quot();
     friend void finalize_quot();
 };
@@ -93,9 +93,6 @@ template<typename WHNF, typename IS_STUCK> optional<expr> quot_is_stuck(expr con
 
     return is_stuck(whnf(args[mk_pos]));
 }
-
-/** Declare `quot` type. */
-environment quot_declare(environment const & env);
 
 void initialize_quot();
 void finalize_quot();

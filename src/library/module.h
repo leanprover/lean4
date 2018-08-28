@@ -123,9 +123,6 @@ environment add(environment const & env, declaration const & d);
 environment add_inductive(environment                       env,
                           inductive::inductive_decl const & decl,
                           bool                              is_meta);
-
-/** \brief The following function must be invoked to register the `quot` type computation rules in the kernel. */
-environment add_quot(environment const & env);
 }
 void initialize_module();
 void finalize_module();

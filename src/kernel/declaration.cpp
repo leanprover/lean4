@@ -59,6 +59,13 @@ theorem_val::theorem_val(name const & n, level_param_names const & lparams, expr
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), val)) {
 }
 
+quot_val::quot_val(name const & n, level_param_names const & lparams, expr const & type, quot_kind k):
+    object_ref(mk_cnstr(0, constant_val(n, lparams, type), 1)) {
+    cnstr_set_scalar<unsigned char>(raw(), sizeof(object*), static_cast<unsigned char>(k));
+}
+
+quot_kind quot_val::get_quot_kind() const { return static_cast<quot_kind>(cnstr_scalar<unsigned char>(raw(), sizeof(object*))); }
+
 recursor_rule::recursor_rule(name const & cnstr, unsigned nfields, expr const & rhs):
     object_ref(mk_cnstr(0, cnstr, nat(nfields), rhs)) {
 }
@@ -166,9 +173,8 @@ declaration mk_mutual_definitions(definition_vals const & ds) {
         return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::MutualDefinition), ds));
 }
 
-declaration mk_quot_decl(name const & n) {
-    inc(n.raw());
-    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Quot), n.raw()));
+declaration mk_quot_decl() {
+    return declaration(box(static_cast<unsigned>(declaration_kind::Quot)));
 }
 
 inductive_type::inductive_type(name const & id, expr const & type, constructors const & cnstrs):
@@ -198,6 +204,10 @@ constant_info::constant_info(definition_val const & v):
     object_ref(mk_cnstr(static_cast<unsigned>(constant_info_kind::Definition), v)) {
 }
 
+constant_info::constant_info(quot_val const & v):
+    object_ref(mk_cnstr(static_cast<unsigned>(constant_info_kind::Quot), v)) {
+}
+
 static reducibility_hints * g_opaque = nullptr;
 
 reducibility_hints const & constant_info::get_hints() const {
@@ -212,8 +222,8 @@ bool constant_info::is_meta() const {
     case constant_info_kind::Axiom:       return to_axiom_val().is_meta();
     case constant_info_kind::Definition:  return to_definition_val().is_meta();
     case constant_info_kind::Theorem:     return false;
-    case constant_info_kind::Inductive:   return false; // TODO(Leo): to_inductive_val().is_meta();
     case constant_info_kind::Quot:        return false;
+    case constant_info_kind::Inductive:   return false; // TODO(Leo): to_inductive_val().is_meta();
     case constant_info_kind::Constructor: return false; // TODO(Leo): to_constructor_val().is_meta();
     case constant_info_kind::Recursor:    return false; // TODO(Leo): to_recursor_val().is_meta();
     }

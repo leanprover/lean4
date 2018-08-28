@@ -383,7 +383,7 @@ static environment help_cmd(parser & p) {
 }
 
 static environment init_quot_cmd(parser & p) {
-    return module::add_quot(p.env());
+    return module::add(p.env(), mk_quot_decl());
 }
 
 /*

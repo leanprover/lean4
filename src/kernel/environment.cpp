@@ -51,14 +51,6 @@ bool environment::is_builtin(name const & n) const {
     return m_header->is_builtin(*this, n) || (m_quot_initialized && quot_is_decl(n));
 }
 
-environment environment::add_quot() const {
-    if (m_quot_initialized)
-        return *this;
-    environment new_env = quot_declare(*this);
-    new_env.m_quot_initialized = true;
-    return new_env;
-}
-
 static void check_no_metavar(environment const & env, name const & n, expr const & e) {
     if (has_metavar(e))
         throw declaration_has_metavars_exception(env, n, e);
@@ -109,7 +101,7 @@ environment environment::add_axiom(declaration const & d, bool check) const {
     axiom_val const & v = d.to_axiom_val();
     if (check)
         check_constant_val(*this, v.to_constant_val(), !d.is_meta());
-    return environment(*this, insert(m_constants, v.get_name(), constant_info(d)));
+    return add(constant_info(d));
 }
 
 environment environment::add_definition(declaration const & d, bool check) const {
@@ -122,7 +114,7 @@ environment environment::add_definition(declaration const & d, bool check) const
             type_checker checker(*this, memoize, non_meta_only);
             check_constant_val(*this, v.to_constant_val(), checker);
         }
-        environment new_env(*this, insert(m_constants, v.get_name(), constant_info(d)));
+        environment new_env = add(constant_info(d));
         if (check) {
             bool memoize = true; bool non_meta_only = false;
             type_checker checker(new_env, memoize, non_meta_only);
@@ -140,7 +132,7 @@ environment environment::add_definition(declaration const & d, bool check) const
             if (!checker.is_def_eq(val_type, v.get_type()))
                 throw definition_type_mismatch_exception(*this, d, val_type);
         }
-        return environment(*this, insert(m_constants, v.get_name(), constant_info(d)));
+        return add(constant_info(d));
     }
 }
 
@@ -155,7 +147,7 @@ environment environment::add_theorem(declaration const & d, bool check) const {
         if (!checker.is_def_eq(val_type, v.get_type()))
             throw definition_type_mismatch_exception(*this, d, val_type);
     }
-    return environment(*this, insert(m_constants, v.get_name(), constant_info(d)));
+    return add(constant_info(d));
 }
 
 environment environment::add_mutual(declaration const & d, bool check) const {
@@ -173,7 +165,7 @@ environment environment::add_mutual(declaration const & d, bool check) const {
     /* Add declarations */
     environment new_env = *this;
     for (definition_val const & v : vs) {
-        new_env.m_constants.insert(v.get_name(), constant_info(v));
+        new_env.add_core(constant_info(v));
     }
     /* Check actual definitions */
     if (check) {
@@ -194,6 +186,7 @@ environment environment::add(declaration const & d, bool check) const {
     case declaration_kind::Definition:       return add_definition(d, check);
     case declaration_kind::Theorem:          return add_theorem(d, check);
     case declaration_kind::MutualDefinition: return add_mutual(d, check);
+    case declaration_kind::Quot:             return add_quot();
     default:
         // NOT IMPLEMENTED YET.
         lean_unreachable();

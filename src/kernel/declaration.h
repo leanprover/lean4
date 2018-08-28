@@ -181,7 +181,7 @@ public:
     /* low-level constructors */
     explicit declaration(object * o):object_ref(o) {}
     explicit declaration(object_ref const & o):object_ref(o) {}
-    declaration_kind kind() const { return static_cast<declaration_kind>(cnstr_tag(raw())); }
+    declaration_kind kind() const { return static_cast<declaration_kind>(obj_tag(raw())); }
 
     declaration & operator=(declaration const & other) { object_ref::operator=(other); return *this; }
     declaration & operator=(declaration && other) { object_ref::operator=(other); return *this; }
@@ -223,7 +223,7 @@ declaration mk_theorem(name const & n, level_param_names const & params, expr co
 declaration mk_axiom(name const & n, level_param_names const & params, expr const & t, bool meta = false);
 declaration mk_mutual_definitions(definition_vals const & ds);
 declaration mk_inductive_decl(names const & lparams, nat const & nparams, inductive_types const & types, bool is_meta);
-declaration mk_quot_decl(name const & n);
+declaration mk_quot_decl();
 
 /** \brief Return true iff \c e depends on meta-declarations */
 bool use_meta(environment const & env, expr const & e);
@@ -348,6 +348,8 @@ public:
     bool is_meta() const;
 };
 
+enum class quot_kind { Type, Mk, Lift, Ind };
+
 /*
 inductive quot_kind
 | type  -- `quot`
@@ -358,6 +360,19 @@ inductive quot_kind
 structure quot_val extends constant_val :=
 (kind : quot_kind)
 */
+class quot_val : public object_ref {
+public:
+    quot_val(name const & n, level_param_names const & lparams, expr const & type, quot_kind k);
+    quot_val(quot_val const & other):object_ref(other) {}
+    quot_val(quot_val && other):object_ref(other) {}
+    quot_val & operator=(quot_val const & other) { object_ref::operator=(other); return *this; }
+    quot_val & operator=(quot_val && other) { object_ref::operator=(other); return *this; }
+    constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_obj_ref(*this, 0)); }
+    name const & get_name() const { return to_constant_val().get_name(); }
+    level_param_names const & get_lparams() const { return to_constant_val().get_lparams(); }
+    expr const & get_type() const { return to_constant_val().get_type(); }
+    quot_kind get_quot_kind() const;
+};
 
 /*
 /-- Information associated with constant declarations. -/
@@ -379,8 +394,10 @@ public:
     constant_info();
     constant_info(declaration const & d);
     constant_info(definition_val const & v);
+    constant_info(quot_val const & v);
     constant_info(constant_info const & other):object_ref(other) {}
     constant_info(constant_info && other):object_ref(other) {}
+
     constant_info_kind kind() const { return static_cast<constant_info_kind>(cnstr_tag(raw())); }
 
     constant_info & operator=(constant_info const & other) { object_ref::operator=(other); return *this; }

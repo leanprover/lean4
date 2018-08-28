@@ -60,7 +60,7 @@ inductive declaration
 | axiom_decl       (val : axiom_val)
 | defn_decl        (val : definition_val)
 | thm_decl         (val : theorem_val)
-| quot_decl        (id : name)
+| quot_decl
 | mutual_defn_decl (defns : list definition_val) -- All definitions must be marked as `meta`
 | induct_decl      (lparams : list name) (nparams : nat) (types : list inductive_type) (is_meta : bool)
 

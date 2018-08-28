@@ -73,16 +73,20 @@ class environment {
     constants                 m_constants;
     extensions                m_extensions;
 
-    environment(environment const & env, constants const & cs):
-        m_header(env.m_header), m_quot_initialized(env.m_quot_initialized), m_constants(cs), m_extensions(env.m_extensions) {}
     environment(environment const & env, extensions const & exts):
         m_header(env.m_header), m_quot_initialized(env.m_quot_initialized), m_constants(env.m_constants), m_extensions(exts) {}
 
+    void add_core(constant_info const & info) { m_constants.insert(info.get_name(), info); }
+    environment add(constant_info const & info) const {
+        environment new_env(*this);
+        new_env.add_core(info);
+        return new_env;
+    }
     environment add_axiom(declaration const & d, bool check) const;
     environment add_definition(declaration const & d, bool check) const;
     environment add_theorem(declaration const & d, bool check) const;
     environment add_mutual(declaration const & d, bool check) const;
-    environment add_quot(declaration const & d) const;
+    environment add_quot() const;
 
 public:
     environment(unsigned trust_lvl = 0);
@@ -109,9 +113,6 @@ public:
 
     /** \brief Extends the current environment with the given declaration */
     environment add(declaration const & d, bool check = true) const;
-
-    /* \brief Add `quot` type. */
-    environment add_quot() const;
 
     /* \brief Add (mutually recursive) inductive declarations */
     environment add(inductive_decl const & decl) const;

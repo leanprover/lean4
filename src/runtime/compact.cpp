@@ -280,9 +280,8 @@ object * compacted_region::read() {
         lean_assert(static_cast<char*>(m_next) + sizeof(object) <= m_end);
         object * curr = reinterpret_cast<object*>(m_next);
         if (curr->m_kind == TERMINATOR_ID) {
-            move(sizeof(object));
-            object * r = *static_cast<object**>(m_next);
-            move(sizeof(object*));
+            object * r = *reinterpret_cast<object**>(static_cast<char*>(m_next) + sizeof(object));
+            move(sizeof(object) + sizeof(object*));
             return fix_object_ptr(r);
         } else {
             switch (get_kind(curr)) {

@@ -487,9 +487,9 @@ static void check_example(environment const & decl_env, options const & opts,
 
         bool is_meta      = modifiers.m_is_meta;
         auto new_env = elab.env();
-        auto def = mk_definition(new_env, decl_name, names(univ_params_buf), type, val, is_meta);
+        declaration def = mk_definition(new_env, decl_name, names(univ_params_buf), type, val, is_meta);
         new_env = module::add(new_env, def);
-        check_noncomputable(noncomputable_theory, new_env, decl_name, def.get_name(), modifiers.m_is_noncomputable,
+        check_noncomputable(noncomputable_theory, new_env, decl_name, decl_name, modifiers.m_is_noncomputable,
                                  pos_provider.get_file_name(), pos_provider.get_some_pos());
     } catch (throwable & ex) {
         message_builder error_msg(tc, decl_env, get_global_ios(),

@@ -78,7 +78,9 @@ class environment {
     environment(environment const & env, extensions const & exts):
         m_header(env.m_header), m_quot_initialized(env.m_quot_initialized), m_constants(env.m_constants), m_extensions(exts) {}
 
-    environment add_defn_thm_axiom(declaration const & d, bool check) const;
+    environment add_axiom(declaration const & d, bool check) const;
+    environment add_definition(declaration const & d, bool check) const;
+    environment add_theorem(declaration const & d, bool check) const;
     environment add_quot(declaration const & d) const;
 
 public:

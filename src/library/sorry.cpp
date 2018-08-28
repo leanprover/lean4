@@ -38,7 +38,15 @@ bool has_sorry(expr const & ex) {
 }
 
 bool has_sorry(declaration const & decl) {
-    return has_sorry(decl.get_type()) || (decl.has_value() && has_sorry(decl.get_value()));
+    switch (decl.kind()) {
+    case declaration_kind::Axiom:            return has_sorry(decl.to_axiom_val().get_type());
+    case declaration_kind::Definition:       return has_sorry(decl.to_definition_val().get_type()) || has_sorry(decl.to_definition_val().get_value());
+    case declaration_kind::Theorem:          return has_sorry(decl.to_theorem_val().get_type()) || has_sorry(decl.to_theorem_val().get_value());
+    case declaration_kind::Quot:             return false;
+    case declaration_kind::Inductive:        return false; // TODO(Leo):
+    case declaration_kind::MutualDefinition: return false; // TODO(Leo):
+    }
+    lean_unreachable();
 }
 
 bool has_sorry(constant_info const & info) {

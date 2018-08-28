@@ -756,13 +756,11 @@ public:
 };
 
 void parse_inductive_decl(parser & p, cmd_meta const & meta) {
-    auto pos = p.pos();
     inductive_cmd_fn(p, meta).parse_and_elaborate();
 }
 
 environment inductive_cmd(parser & p, cmd_meta const & meta) {
     p.next();
-    auto pos = p.pos();
     return inductive_cmd_fn(p, meta).inductive_cmd();
 }
 

@@ -2127,7 +2127,7 @@ namespace classical
 
 axiom choice {α : Sort u} : nonempty α → α
 
-noncomputable theorem indefinite_description {α : Sort u} (p : α → Prop)
+noncomputable def indefinite_description {α : Sort u} (p : α → Prop)
   (h : ∃ x, p x) : {x // p x} :=
 choice $ let ⟨x, px⟩ := h in ⟨⟨x, px⟩⟩
 
@@ -2214,7 +2214,7 @@ match (prop_decidable (nonempty α)) with
 | (is_true hp)  := psum.inl (@inhabited.default _ (inhabited_of_nonempty hp))
 | (is_false hn) := psum.inr (λ a, absurd (nonempty.intro a) hn)
 
-noncomputable theorem strong_indefinite_description {α : Sort u} (p : α → Prop)
+noncomputable def strong_indefinite_description {α : Sort u} (p : α → Prop)
   (h : nonempty α) : {x : α // (∃ y : α, p y) → p x} :=
 if hp : ∃ x : α, p x then
   let xp := indefinite_description _ hp in

@@ -79,8 +79,7 @@ static void check_name(environment const & env, name const & n) {
         throw already_declared_exception(env, n);
 }
 
-static void check_duplicated_univ_params(environment const & env, declaration const & d) {
-    level_param_names ls = d.get_univ_params();
+static void check_duplicated_univ_params(environment const & env, level_param_names ls) {
     while (!is_nil(ls)) {
         auto const & p = head(ls);
         ls = tail(ls);
@@ -92,54 +91,59 @@ static void check_duplicated_univ_params(environment const & env, declaration co
     }
 }
 
-static void check_definition_value(environment const & env, declaration const & d, type_checker & checker) {
-    check_no_metavar_no_fvar(env, d.get_name(), d.get_value());
-    expr val_type = checker.check(d.get_value(), d.get_univ_params());
-    if (!checker.is_def_eq(val_type, d.get_type())) {
-        throw definition_type_mismatch_exception(env, d, val_type);
-    }
+static void check_constant_val(environment const & env, constant_val const & v, type_checker & checker) {
+    check_name(env, v.get_name());
+    check_duplicated_univ_params(env, v.get_lparams());
+    check_no_metavar_no_fvar(env, v.get_name(), v.get_type());
+    expr sort = checker.check(v.get_type(), v.get_lparams());
+    checker.ensure_sort(sort, v.get_type());
 }
 
-static void check_definition_value(environment const & env, declaration const & d) {
-    bool memoize = true; bool non_meta_only = !d.is_meta();
+static void check_constant_val(environment const & env, constant_val const & v, bool non_meta_only) {
+    bool memoize = true;
     type_checker checker(env, memoize, non_meta_only);
-    if (d.has_value()) {
-        check_definition_value(env, d, checker);
-    }
+    check_constant_val(env, v, checker);
 }
 
-static void check_declaration_type(environment const & env, declaration const & d, type_checker & checker) {
-    check_no_metavar_no_fvar(env, d.get_name(), d.get_type());
-    check_duplicated_univ_params(env, d);
-    expr sort = checker.check(d.get_type(), d.get_univ_params());
-    checker.ensure_sort(sort, d.get_type());
+environment environment::add_axiom(declaration const & d, bool check) const {
+    axiom_val const & v = d.to_axiom_val();
+    if (check)
+        check_constant_val(*this, v.to_constant_val(), !d.is_meta());
+    return environment(*this, insert(m_constants, v.get_name(), constant_info(d)));
 }
 
-static void check_declaration_type(environment const & env, declaration const & d) {
-    bool memoize = true; bool non_meta_only = !d.is_meta();
-    type_checker checker(env, memoize, non_meta_only);
-    check_declaration_type(env, d, checker);
-}
-
-environment environment::add_defn_thm_axiom(declaration const & d, bool check) const {
+environment environment::add_definition(declaration const & d, bool check) const {
+    definition_val const & v = d.to_definition_val();
     if (check) {
         bool memoize = true; bool non_meta_only = !d.is_meta();
-        check_name(*this, d.get_name());
         type_checker checker(*this, memoize, non_meta_only);
-        check_declaration_type(*this, d, checker);
-        if (d.has_value()) {
-            check_definition_value(*this, d, checker);
-        }
+        check_constant_val(*this, v.to_constant_val(), checker);
+        expr val_type = checker.check(v.get_value(), v.get_lparams());
+        if (!checker.is_def_eq(val_type, v.get_type()))
+            throw definition_type_mismatch_exception(*this, d, val_type);
     }
-    return environment(*this, insert(m_constants, d.get_name(), constant_info(d)));
+    return environment(*this, insert(m_constants, v.get_name(), constant_info(d)));
+}
+
+environment environment::add_theorem(declaration const & d, bool check) const {
+    theorem_val const & v = d.to_theorem_val();
+    if (check) {
+        // TODO(Leo): we must add support for handling tasks here
+        bool memoize = true; bool non_meta_only = !d.is_meta();
+        type_checker checker(*this, memoize, non_meta_only);
+        check_constant_val(*this, v.to_constant_val(), checker);
+        expr val_type = checker.check(v.get_value(), v.get_lparams());
+        if (!checker.is_def_eq(val_type, v.get_type()))
+            throw definition_type_mismatch_exception(*this, d, val_type);
+    }
+    return environment(*this, insert(m_constants, v.get_name(), constant_info(d)));
 }
 
 environment environment::add(declaration const & d, bool check) const {
     switch (d.kind()) {
-    case declaration_kind::Axiom:
-    case declaration_kind::Definition:
-    case declaration_kind::Theorem:
-        return add_defn_thm_axiom(d, check);
+    case declaration_kind::Axiom:       return add_axiom(d, check);
+    case declaration_kind::Definition:  return add_definition(d, check);
+    case declaration_kind::Theorem:     return add_theorem(d, check);
     default:
         // NOT IMPLEMENTED YET.
         lean_unreachable();
@@ -149,18 +153,31 @@ environment environment::add(declaration const & d, bool check) const {
 environment environment::add_meta(buffer<declaration> const & ds, bool check) const {
     if (!check && trust_lvl() == 0)
         throw kernel_exception(*this, "invalid meta declarations, type checking cannot be skipped at trust level 0");
+    /* Check declarations header */
+    if (check) {
+        bool memoize = true; bool non_meta_only = false;
+        type_checker checker(*this, memoize, non_meta_only);
+        for (declaration const & d : ds) {
+            definition_val const & v = d.to_definition_val();
+            if (check)
+                check_constant_val(*this, v.to_constant_val(), checker);
+        }
+    }
+    /* Add declarations */
     environment new_env = *this;
-    /* Check declarations header, and add them to new_env.m_constants */
     for (declaration const & d : ds) {
-        check_name(new_env, d.get_name());
-        if (check)
-            check_declaration_type(new_env, d);
-        new_env.m_constants.insert(d.get_name(), constant_info(d));
+        definition_val const & v = d.to_definition_val();
+        new_env.m_constants.insert(v.get_name(), constant_info(d));
     }
     /* Check actual definitions */
     if (check) {
+        bool memoize = true; bool non_meta_only = false;
+        type_checker checker(new_env, memoize, non_meta_only);
         for (declaration const & d : ds) {
-            check_definition_value(new_env, d);
+            definition_val const & v = d.to_definition_val();
+            expr val_type = checker.check(v.get_value(), v.get_lparams());
+            if (!checker.is_def_eq(val_type, v.get_type()))
+                throw definition_type_mismatch_exception(new_env, d, val_type);
         }
     }
     return new_env;

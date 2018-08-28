@@ -476,7 +476,7 @@ void initialize_frontend_lean_util() {
     g_field_notation_name   = new name("field_notation");
 }
 
-environment compile_expr(environment const & env, name const & n, level_param_names const & ls, expr const & type, expr const & e, pos_info const & pos) {
+environment compile_expr(environment const & env, name const & n, level_param_names const & ls, expr const & type, expr const & e, pos_info const & /* pos */) {
     environment new_env = env;
     bool is_meta        = true;
     new_env = new_env.add(mk_definition(new_env, n, ls, type, e, is_meta));

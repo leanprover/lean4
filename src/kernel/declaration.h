@@ -63,18 +63,75 @@ inline deserializer & operator>>(deserializer & d, reducibility_hints & l) { l =
 int compare(reducibility_hints const & h1, reducibility_hints const & h2);
 
 /*
-structure declaration_val :=
+structure constant_val :=
 (id : name) (lparams : list name) (type : expr)
 */
-class declaration_val : public object_ref {
+class constant_val : public object_ref {
 public:
-    declaration_val(declaration_val const & other):object_ref(other) {}
-    declaration_val(declaration_val && other):object_ref(other) {}
-    declaration_val & operator=(declaration_val const & other) { object_ref::operator=(other); return *this; }
-    declaration_val & operator=(declaration_val && other) { object_ref::operator=(other); return *this; }
+    constant_val(name const & n, level_param_names const & lparams, expr const & type);
+    constant_val(constant_val const & other):object_ref(other) {}
+    constant_val(constant_val && other):object_ref(other) {}
+    constant_val & operator=(constant_val const & other) { object_ref::operator=(other); return *this; }
+    constant_val & operator=(constant_val && other) { object_ref::operator=(other); return *this; }
     name const & get_name() const { return static_cast<name const &>(cnstr_obj_ref(*this, 0)); }
     level_param_names const & get_lparams() const { return static_cast<level_param_names const &>(cnstr_obj_ref(*this, 1)); }
     expr const & get_type() const { return static_cast<expr const &>(cnstr_obj_ref(*this, 2)); }
+};
+
+/*
+structure axiom_val extends constant_val :=
+(is_meta : bool)
+*/
+class axiom_val : public object_ref {
+public:
+    axiom_val(name const & n, level_param_names const & lparams, expr const & type, bool is_meta);
+    axiom_val(axiom_val const & other):object_ref(other) {}
+    axiom_val(axiom_val && other):object_ref(other) {}
+    axiom_val & operator=(axiom_val const & other) { object_ref::operator=(other); return *this; }
+    axiom_val & operator=(axiom_val && other) { object_ref::operator=(other); return *this; }
+    constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_obj_ref(*this, 0)); }
+    name const & get_name() const { return to_constant_val().get_name(); }
+    level_param_names const & get_lparams() const { return to_constant_val().get_lparams(); }
+    expr const & get_type() const { return to_constant_val().get_type(); }
+    bool is_meta() const;
+};
+
+/*
+structure definition_val extends constant_val :=
+(value : expr) (hints : reducibility_hints) (is_meta : bool)
+*/
+class definition_val : public object_ref {
+public:
+    definition_val(name const & n, level_param_names const & lparams, expr const & type, expr const & val, reducibility_hints const & hints, bool is_meta);
+    definition_val(definition_val const & other):object_ref(other) {}
+    definition_val(definition_val && other):object_ref(other) {}
+    definition_val & operator=(definition_val const & other) { object_ref::operator=(other); return *this; }
+    definition_val & operator=(definition_val && other) { object_ref::operator=(other); return *this; }
+    constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_obj_ref(*this, 0)); }
+    name const & get_name() const { return to_constant_val().get_name(); }
+    level_param_names const & get_lparams() const { return to_constant_val().get_lparams(); }
+    expr const & get_type() const { return to_constant_val().get_type(); }
+    expr const & get_value() const { return static_cast<expr const &>(cnstr_obj_ref(*this, 1)); }
+    reducibility_hints const & get_hints() const { return static_cast<reducibility_hints const &>(cnstr_obj_ref(*this, 2)); }
+    bool is_meta() const;
+};
+
+/*
+structure theorem_val extends constant_val :=
+(value : task expr)
+*/
+class theorem_val : public object_ref {
+public:
+    theorem_val(name const & n, level_param_names const & lparams, expr const & type, expr const & val);
+    theorem_val(theorem_val const & other):object_ref(other) {}
+    theorem_val(theorem_val && other):object_ref(other) {}
+    theorem_val & operator=(theorem_val const & other) { object_ref::operator=(other); return *this; }
+    theorem_val & operator=(theorem_val && other) { object_ref::operator=(other); return *this; }
+    constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_obj_ref(*this, 0)); }
+    name const & get_name() const { return to_constant_val().get_name(); }
+    level_param_names const & get_lparams() const { return to_constant_val().get_lparams(); }
+    expr const & get_type() const { return to_constant_val().get_type(); }
+    expr const & get_value() const { return static_cast<expr const &>(cnstr_obj_ref(*this, 1)); }
 };
 
 /*
@@ -116,12 +173,6 @@ enum class declaration_kind { Axiom, Definition, Theorem, Quot, MutualDefinition
 class declaration : public object_ref {
     object * get_val_obj() const { return cnstr_obj(raw(), 0); }
     object_ref const & to_val() const { return cnstr_obj_ref(*this, 0); }
-
-    declaration_val const & to_declaration_val() const {
-        lean_assert(is_axiom() || is_definition() || is_theorem());
-        return static_cast<declaration_val const &>(cnstr_obj_ref(to_val(), 0));
-    }
-
 public:
     declaration();
     declaration(declaration const & other):object_ref(other) {}
@@ -143,12 +194,9 @@ public:
     bool is_meta() const;
     bool has_value() const { return is_theorem() || is_definition(); }
 
-    name const & get_name() const { return to_declaration_val().get_name(); }
-    level_param_names const & get_univ_params() const { return to_declaration_val().get_lparams(); }
-    unsigned get_num_univ_params() const { return length(get_univ_params()); }
-    expr const & get_type() const { return to_declaration_val().get_type(); }
-    expr const & get_value() const { lean_assert(has_value()); return static_cast<expr const &>(cnstr_obj_ref(to_val(), 1)); }
-    reducibility_hints const & get_hints() const;
+    axiom_val const & to_axiom_val() const { lean_assert(is_axiom()); return static_cast<axiom_val const &>(cnstr_obj_ref(raw(), 0)); }
+    definition_val const & to_definition_val() const { lean_assert(is_definition()); return static_cast<definition_val const &>(cnstr_obj_ref(raw(), 0)); }
+    theorem_val const & to_theorem_val() const { lean_assert(is_theorem()); return static_cast<theorem_val const &>(cnstr_obj_ref(raw(), 0)); }
 
     void serialize(serializer & s) const { s.write_object(raw()); }
     static declaration deserialize(deserializer & d) { object * o = d.read_object(); inc(o); return declaration(o); }
@@ -190,7 +238,11 @@ declaration mk_axiom_inferring_meta(environment const & env, name const & n,
     | induct_decl      (lparams : list name) (nparams : nat) (types : list inductive_type) (is_meta : bool) */
 class inductive_decl : public object_ref {
 public:
+    inductive_decl(inductive_decl const & other):object_ref(other) {}
+    inductive_decl(inductive_decl && other):object_ref(other) {}
     inductive_decl(declaration const & d):object_ref(d) { lean_assert(d.is_inductive()); }
+    inductive_decl & operator=(inductive_decl const & other) { object_ref::operator=(other); return *this; }
+    inductive_decl & operator=(inductive_decl && other) { object_ref::operator=(other); return *this; }
     names const & get_lparams() const { return static_cast<names const &>(cnstr_obj_ref(raw(), 0)); }
     nat const & get_nparams() const { return static_cast<nat const &>(cnstr_obj_ref(raw(), 1)); }
     inductive_types const & get_types() const { return static_cast<inductive_types const &>(cnstr_obj_ref(raw(), 2)); }
@@ -198,7 +250,7 @@ public:
 };
 
 /*
-structure inductive_val extends declaration_val :=
+structure inductive_val extends constant_val :=
 (nparams : nat)       -- Number of parameters
 (nindices : nat)      -- Number of indices
 (all : list name)     -- List of all (including this one) inductive datatypes in the mutual declaration containing this one
@@ -215,7 +267,7 @@ public:
     inductive_val(inductive_val && other):object_ref(other) {}
     inductive_val & operator=(inductive_val const & other) { object_ref::operator=(other); return *this; }
     inductive_val & operator=(inductive_val && other) { object_ref::operator=(other); return *this; }
-    declaration_val const & to_declaration_val() const { return static_cast<declaration_val const &>(cnstr_obj_ref(*this, 0)); }
+    constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_obj_ref(*this, 0)); }
     nat const & get_nparams() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 1)); }
     nat const & get_nindices() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 2)); }
     names const & get_all() const { return static_cast<names const &>(cnstr_obj_ref(*this, 3)); }
@@ -226,7 +278,7 @@ public:
 };
 
 /*
-structure constructor_val extends declaration_val :=
+structure constructor_val extends constant_val :=
 (induct  : name)  -- Inductive type this constructor is a member of
 (nparams : nat)   -- Number of parameters in inductive datatype `induct`
 (is_meta : bool)
@@ -237,7 +289,7 @@ public:
     constructor_val(constructor_val && other):object_ref(other) {}
     constructor_val & operator=(constructor_val const & other) { object_ref::operator=(other); return *this; }
     constructor_val & operator=(constructor_val && other) { object_ref::operator=(other); return *this; }
-    declaration_val const & to_declaration_val() const { return static_cast<declaration_val const &>(cnstr_obj_ref(*this, 0)); }
+    constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_obj_ref(*this, 0)); }
     name const & get_induct() const { return static_cast<name const &>(cnstr_obj_ref(*this, 1)); }
     nat const & get_nparams() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 2)); }
     bool is_meta() const;
@@ -264,7 +316,7 @@ public:
 typedef list_ref<recursor_rule> recursor_rules;
 
 /*
-structure recursor_val extends declaration_val :=
+structure recursor_val extends constant_val :=
 (all : list name)            -- List of all inductive datatypes in the mutual declaration that generated this recursor
 (nparams : nat)              -- Number of parameters
 (nindices : nat)             -- Number of indices
@@ -280,7 +332,7 @@ public:
     recursor_val(recursor_val && other):object_ref(other) {}
     recursor_val & operator=(recursor_val const & other) { object_ref::operator=(other); return *this; }
     recursor_val & operator=(recursor_val && other) { object_ref::operator=(other); return *this; }
-    declaration_val const & to_declaration_val() const { return static_cast<declaration_val const &>(cnstr_obj_ref(*this, 0)); }
+    constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_obj_ref(*this, 0)); }
     names const & get_all() const { return static_cast<names const &>(cnstr_obj_ref(*this, 1)); }
     nat const & get_nparams() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 2)); }
     nat const & get_nindices() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 3)); }
@@ -298,7 +350,7 @@ inductive quot_kind
 | lift  -- `quot.lift`
 | ind   -- `quot.ind`
 
-structure quot_val extends declaration_val :=
+structure quot_val extends constant_val :=
 (kind : quot_kind)
 */
 
@@ -317,7 +369,7 @@ enum class constant_info_kind { Axiom, Definition, Theorem, Quot, Inductive, Con
 class constant_info : public object_ref {
     object * get_val_obj() const { return cnstr_obj(raw(), 0); }
     object_ref const & to_val() const { return cnstr_obj_ref(*this, 0); }
-    declaration_val const & to_declaration_val() const { return static_cast<declaration_val const &>(cnstr_obj_ref(to_val(), 0)); }
+    constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_obj_ref(to_val(), 0)); }
 public:
     constant_info();
     constant_info(declaration const & d);
@@ -336,13 +388,17 @@ public:
     bool is_axiom() const { return kind() == constant_info_kind::Axiom; }
     bool is_theorem() const { return kind() == constant_info_kind::Theorem; }
 
-    name const & get_name() const { return to_declaration_val().get_name(); }
-    level_param_names const & get_univ_params() const { return to_declaration_val().get_lparams(); }
+    name const & get_name() const { return to_constant_val().get_name(); }
+    level_param_names const & get_univ_params() const { return to_constant_val().get_lparams(); }
     unsigned get_num_univ_params() const { return length(get_univ_params()); }
-    expr const & get_type() const { return to_declaration_val().get_type(); }
+    expr const & get_type() const { return to_constant_val().get_type(); }
     bool has_value() const { return is_theorem() || is_definition(); }
     expr const & get_value() const { lean_assert(has_value()); return static_cast<expr const &>(cnstr_obj_ref(to_val(), 1)); }
     reducibility_hints const & get_hints() const;
+
+    axiom_val const & to_axiom_val() const { lean_assert(is_axiom()); return static_cast<axiom_val const &>(cnstr_obj_ref(raw(), 0)); }
+    definition_val const & to_definition_val() const { lean_assert(is_definition()); return static_cast<definition_val const &>(cnstr_obj_ref(raw(), 0)); }
+    theorem_val const & to_theorem_val() const { lean_assert(is_theorem()); return static_cast<theorem_val const &>(cnstr_obj_ref(raw(), 0)); }
 
     // inductive_val const & to_inductive_val() const { lean_assert(is_inductive()); return static_cast<inductive_val const &>(to_val()); }
     // constructor_val const & to_constructor_val() const { lean_assert(is_constructor()); return static_cast<constructor_val const &>(to_val()); }

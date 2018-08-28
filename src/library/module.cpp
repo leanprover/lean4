@@ -282,16 +282,21 @@ environment add_and_perform(environment const & env, std::shared_ptr<modificatio
 
 environment add(environment const & env, declaration const & d) {
     environment new_env = env.add(d);
-    if (!check_computable(new_env, d.get_name()))
-        new_env = mark_noncomputable(new_env, d.get_name());
+    if (d.is_definition()) {
+        definition_val const & v = d.to_definition_val();
+        if (!check_computable(new_env, v.get_name()))
+            new_env = mark_noncomputable(new_env, v.get_name());
+    }
     return add(new_env, std::make_shared<decl_modification>(d));
 }
 
 environment add_meta(environment const & env, buffer<declaration> const & ds) {
     environment new_env = env.add_meta(ds);
     for (declaration const & d : ds) {
-        if (!check_computable(new_env, d.get_name()))
-            new_env = mark_noncomputable(new_env, d.get_name());
+        lean_assert(is_definition(d));
+        definition_val const & v = d.to_definition_val();
+        if (!check_computable(new_env, v.get_name()))
+            new_env = mark_noncomputable(new_env, v.get_name());
     }
     return add(new_env, std::make_shared<meta_decls_modification>(to_list(ds)));
 }

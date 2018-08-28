@@ -139,7 +139,7 @@ void del(object * o) {
 
 #if 0
 static object * sarray_ensure_capacity(object * o, size_t extra) {
-    lean_assert(!is_shared(o));
+    lean_assert(!is_heap_obj(o) || !is_shared(o));
     size_t sz  = sarray_size(o);
     size_t cap = sarray_capacity(o);
     if (sz + extra > cap) {
@@ -161,7 +161,7 @@ static object * sarray_ensure_capacity(object * o, size_t extra) {
 static inline char * w_string_data(object * o) { lean_assert(is_string(o)); return reinterpret_cast<char *>(o) + sizeof(string_object); }
 
 static object * string_ensure_capacity(object * o, size_t extra) {
-    lean_assert(!is_shared(o));
+    lean_assert(!is_heap_obj(o) || !is_shared(o));
     size_t sz  = string_size(o);
     size_t cap = string_capacity(o);
     if (sz + extra > cap) {
@@ -195,7 +195,7 @@ object * mk_string(std::string const & s) {
 }
 
 object * string_push(object * s, unsigned c) {
-    lean_assert(!is_shared(s));
+    lean_assert(!is_heap_obj(s) || !is_shared(s));
     object * r = string_ensure_capacity(s, 5);
     size_t sz  = string_size(r);
     unsigned consumed = push_unicode_scalar(w_string_data(r) + sz - 1, c);
@@ -206,7 +206,7 @@ object * string_push(object * s, unsigned c) {
 }
 
 object * string_append(object * s1, object * s2) {
-    lean_assert(!is_shared(s1));
+    lean_assert(!is_heap_obj(s1) || !is_shared(s1));
     lean_assert(s1 != s2);
     size_t sz1 = string_size(s1);
     size_t sz2 = string_size(s2);

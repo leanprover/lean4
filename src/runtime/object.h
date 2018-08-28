@@ -174,7 +174,6 @@ void del(object * o);
 
 static_assert(sizeof(atomic<rc_type>) == sizeof(rc_type),  "atomic<rc_type> and rc_type must have the same size"); // NOLINT
 
-
 inline void * alloc_heap_object(size_t sz) {
     void * r = malloc(sizeof(rc_type) + sz);
     *static_cast<rc_type *>(r) = 1;
@@ -268,7 +267,7 @@ inline T obj_data(object * o, size_t offset) {
 /* Set object data of type T */
 template<typename T>
 inline void obj_set_data(object * o, size_t offset, T v) {
-    lean_assert(!is_shared(o));
+    lean_assert(!is_heap_obj(o) || !is_shared(o));
     lean_assert(obj_header_size(o) <= offset);
     lean_assert(offset + sizeof(T) <= obj_byte_size(o));
     *(reinterpret_cast<T *>(reinterpret_cast<char *>(o) + offset)) = v;
@@ -439,7 +438,7 @@ template<typename T> inline T cnstr_scalar(b_obj_arg o, size_t offset) {
 }
 /* Update constructor field `i` */
 inline void cnstr_set_obj(u_obj_arg o, unsigned i, obj_arg v) {
-    lean_assert(!is_shared(o));
+    lean_assert(!is_heap_obj(o) || !is_shared(o));
     lean_assert(i < cnstr_num_objs(o));
     obj_set_data(o, sizeof(constructor_object) + sizeof(object*)*i, v); // NOLINT
 }
@@ -479,12 +478,12 @@ inline b_obj_res array_obj(b_obj_arg o, size_t i) {
 }
 inline void array_set_size(u_obj_arg o, size_t sz) {
     lean_assert(is_array(o));
-    lean_assert(!is_shared(o));
+    lean_assert(!is_heap_obj(o) || !is_shared(o));
     lean_assert(sz <= array_capacity(o));
     to_array(o)->m_size = sz;
 }
 inline void array_set_obj(u_obj_arg o, size_t i, obj_arg v) {
-    lean_assert(!is_shared(o));
+    lean_assert(!is_heap_obj(o) || !is_shared(o));
     lean_assert(i < array_size(o));
     obj_set_data(o, sizeof(array_object) + sizeof(object*)*i, v); // NOLINT
 }
@@ -502,7 +501,7 @@ template<typename T> void sarray_set_data(u_obj_arg o, size_t i, T v) {
 }
 inline void sarray_set_size(u_obj_arg o, size_t sz) {
     lean_assert(is_sarray(o));
-    lean_assert(!is_shared(o));
+    lean_assert(!is_heap_obj(o) || !is_shared(o));
     lean_assert(sz <= sarray_capacity(o));
     to_sarray(o)->m_size = sz;
 }

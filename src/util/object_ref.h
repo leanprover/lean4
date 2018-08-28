@@ -14,7 +14,7 @@ class object_ref {
     object * m_obj;
 public:
     object_ref():m_obj(box(0)) {}
-    explicit object_ref(object * o):m_obj(o) { lean_assert(is_scalar(o) || get_rc(o) > 0); }
+    explicit object_ref(object * o):m_obj(o) { lean_assert(is_scalar(o) || !is_heap_obj(o) || get_rc(o) > 0); }
     object_ref(object_ref const & s):m_obj(s.m_obj) { inc(m_obj); }
     object_ref(object_ref && s):m_obj(s.m_obj) { s.m_obj = box(0); }
     ~object_ref() { dec(m_obj); }

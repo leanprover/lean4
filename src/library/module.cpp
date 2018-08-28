@@ -293,7 +293,7 @@ environment add(environment const & env, declaration const & d) {
 environment add_meta(environment const & env, buffer<declaration> const & ds) {
     environment new_env = env.add_meta(ds);
     for (declaration const & d : ds) {
-        lean_assert(is_definition(d));
+        lean_assert(d.is_definition());
         definition_val const & v = d.to_definition_val();
         if (!check_computable(new_env, v.get_name()))
             new_env = mark_noncomputable(new_env, v.get_name());

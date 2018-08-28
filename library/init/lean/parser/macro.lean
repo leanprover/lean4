@@ -82,38 +82,8 @@ def scope := rbmap (name × option macro_scope_id) var_offset (<)
 def scope.insert (sc : scope) (id : syntax_ident) : scope :=
 (sc.map (λ _ idx, idx + 1)).insert (id.name, id.msc) 0
 
-def resolve_name (msc : option macro_scope_id) (sc : scope) : name → option resolved
-| n@(name.mk_string n' s) :=
-do {
-  decl ← sc.find (n, msc),
-  pure ⟨sum.inl decl, n⟩
-} <|> resolve_name n'
-| _ := none
-
-def resolve : scope → syntax → parse_m parse_state unit syntax
--- TODO(Sebastian): move `match` back into primary pattern, use fuel if necessary
-| sc (syntax.node n) := (match n with
-  | ({kind := some ⟨`bind⟩, args := [syntax.node {kind := none, args := vars}, body], ..}) :=
-  do sc ← vars.mfoldl (λ sc var,
-       do syntax.ident var ← pure var | throw "ill-shaped 'bind' node",
-          pure $ scope.insert sc var) sc,
-     body ← resolve sc body,
-     pure $ syntax.node {n with args := [syntax.node {kind := none, args := vars}, body]}
-  | _ :=
-  do args ← n.args.mmap (resolve sc),
-     pure $ syntax.node {n with args := args})
-| sc (syntax.ident id) :=
-do some res ← pure $ resolve_name id.msc sc id.name
-     | throw ("unknown identifier " ++ id.name.to_string),
-   pure $ syntax.ident {id with res := some res}
-| _ stx := pure stx
-
 def expand' (stx : syntax) : parse_m parse_state unit syntax :=
 adapt_state (λ _, ({expand_state . next_tag := 0}, ())) (λ _, id) (expand 1000 stx)
-
-def resolve' (stx : syntax) : parse_m parse_state unit syntax :=
-let sc : scope := mk_rbmap _ _ _ in
-resolve sc stx
 
 end parser
 end lean

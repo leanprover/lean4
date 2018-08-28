@@ -87,6 +87,7 @@ class environment {
     environment add_theorem(declaration const & d, bool check) const;
     environment add_mutual(declaration const & d, bool check) const;
     environment add_quot() const;
+    environment add_inductive(declaration const & d) const;
 
 public:
     environment(unsigned trust_lvl = 0);
@@ -113,9 +114,6 @@ public:
 
     /** \brief Extends the current environment with the given declaration */
     environment add(declaration const & d, bool check = true) const;
-
-    /* \brief Add (mutually recursive) inductive declarations */
-    environment add(inductive_decl const & decl) const;
 
     /** \brief Register an environment extension. Every environment
         object may contain this extension. The argument \c initial is

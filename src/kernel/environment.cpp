@@ -187,10 +187,9 @@ environment environment::add(declaration const & d, bool check) const {
     case declaration_kind::Theorem:          return add_theorem(d, check);
     case declaration_kind::MutualDefinition: return add_mutual(d, check);
     case declaration_kind::Quot:             return add_quot();
-    default:
-        // NOT IMPLEMENTED YET.
-        lean_unreachable();
+    case declaration_kind::Inductive:        return add_inductive(d);
     }
+    lean_unreachable();
 }
 
 class extension_manager {

@@ -265,8 +265,8 @@ public:
     }
 };
 
-environment environment::add(inductive_decl const & decl) const {
-    return add_inductive_fn(*this, decl)();
+environment environment::add_inductive(declaration const & d) const {
+    return add_inductive_fn(*this, inductive_decl(d))();
 }
 
 void initialize_inductive() {

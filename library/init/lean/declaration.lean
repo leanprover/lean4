@@ -79,9 +79,6 @@ structure inductive_val extends constant_val :=
 (nindices : nat)      -- Number of indices
 (all : list name)     -- List of all (including this one) inductive datatypes in the mutual declaration containing this one
 (cnstrs : list name)  -- List of all constructors for this inductive datatype
-(recs : list name)    -- List of all recursors generated when the mutual inductive declaration containing this declaration was accepted by the kernel
-                      -- Remark: `recs.length` may be greater than `all.length` if declaration contains nested inductives
-                      -- The first element in the list is the recursor of this inductive declaration
 (is_rec : bool)       -- `tt` iff it is recursive
 (is_meta : bool)
 

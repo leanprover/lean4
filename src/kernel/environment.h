@@ -76,6 +76,9 @@ class environment {
     environment(environment const & env, extensions const & exts):
         m_header(env.m_header), m_quot_initialized(env.m_quot_initialized), m_constants(env.m_constants), m_extensions(exts) {}
 
+    void check_duplicated_univ_params(level_param_names ls) const;
+    void check_name(name const & n) const;
+
     void add_core(constant_info const & info) { m_constants.insert(info.get_name(), info); }
     environment add(constant_info const & info) const {
         environment new_env(*this);

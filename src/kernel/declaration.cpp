@@ -70,15 +70,19 @@ recursor_rule::recursor_rule(name const & cnstr, unsigned nfields, expr const & 
     object_ref(mk_cnstr(0, cnstr, nat(nfields), rhs)) {
 }
 
-static unsigned inductive_scalar_offset() { return sizeof(object*)*6; }
-static unsigned constructor_scalar_offset() { return sizeof(object*)*3; }
-static unsigned recursor_scalar_offset() { return sizeof(object*)*7; }
+inductive_val::inductive_val(name const & n, level_param_names const & lparams, expr const & type, unsigned nparams,
+                             unsigned nindices, names const & all, names const & cnstrs, bool rec, bool meta):
+    object_ref(mk_cnstr(0, constant_val(n, lparams, type), nat(nparams), nat(nindices), all, cnstrs, 2)) {
+    cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*5, static_cast<unsigned char>(rec));
+    cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*5 + 1, static_cast<unsigned char>(meta));
+    lean_assert(is_meta() == meta);
+    lean_assert(is_rec() == rec);
+}
 
-bool inductive_val::is_rec() const { return (cnstr_scalar<unsigned char>(raw(), inductive_scalar_offset()) & 1) != 0; }
-bool inductive_val::is_meta() const { return (cnstr_scalar<unsigned char>(raw(), inductive_scalar_offset()) & 2) != 0; }
-bool constructor_val::is_meta() const { return cnstr_scalar<unsigned char>(raw(), constructor_scalar_offset()); }
-bool recursor_val::is_k() const { return (cnstr_scalar<unsigned char>(raw(), recursor_scalar_offset()) & 1) != 0; }
-bool recursor_val::is_meta() const { return (cnstr_scalar<unsigned char>(raw(), recursor_scalar_offset()) & 2) != 0; }
+constructor_val::constructor_val(name const & n, level_param_names const & lparams, expr const & type, name const & induct, unsigned nparams, bool is_meta):
+    object_ref(mk_cnstr(0, constant_val(n, lparams, type), induct, nat(nparams), 1)) {
+    cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*3, static_cast<unsigned char>(is_meta));
+}
 
 bool declaration::is_meta() const {
     switch (kind()) {
@@ -208,6 +212,14 @@ constant_info::constant_info(quot_val const & v):
     object_ref(mk_cnstr(static_cast<unsigned>(constant_info_kind::Quot), v)) {
 }
 
+constant_info::constant_info(inductive_val const & v):
+    object_ref(mk_cnstr(static_cast<unsigned>(constant_info_kind::Inductive), v)) {
+}
+
+constant_info::constant_info(constructor_val const & v):
+    object_ref(mk_cnstr(static_cast<unsigned>(constant_info_kind::Constructor), v)) {
+}
+
 static reducibility_hints * g_opaque = nullptr;
 
 reducibility_hints const & constant_info::get_hints() const {
@@ -223,8 +235,8 @@ bool constant_info::is_meta() const {
     case constant_info_kind::Definition:  return to_definition_val().is_meta();
     case constant_info_kind::Theorem:     return false;
     case constant_info_kind::Quot:        return false;
-    case constant_info_kind::Inductive:   return false; // TODO(Leo): to_inductive_val().is_meta();
-    case constant_info_kind::Constructor: return false; // TODO(Leo): to_constructor_val().is_meta();
+    case constant_info_kind::Inductive:   return to_inductive_val().is_meta();
+    case constant_info_kind::Constructor: return to_constructor_val().is_meta();
     case constant_info_kind::Recursor:    return false; // TODO(Leo): to_recursor_val().is_meta();
     }
     lean_unreachable();

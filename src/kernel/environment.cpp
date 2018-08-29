@@ -71,6 +71,10 @@ static void check_name(environment const & env, name const & n) {
         throw already_declared_exception(env, n);
 }
 
+void environment::check_name(name const & n) const {
+    ::lean::check_name(*this, n);
+}
+
 static void check_duplicated_univ_params(environment const & env, level_param_names ls) {
     while (!is_nil(ls)) {
         auto const & p = head(ls);
@@ -81,6 +85,10 @@ static void check_duplicated_univ_params(environment const & env, level_param_na
                                    << p << "'");
         }
     }
+}
+
+void environment::check_duplicated_univ_params(level_param_names ls) const {
+    ::lean::check_duplicated_univ_params(*this, ls);
 }
 
 static void check_constant_val(environment const & env, constant_val const & v, type_checker & checker) {

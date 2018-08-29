@@ -376,6 +376,13 @@ void print_id_info(parser & p, message_builder & out, name const & id, bool show
             print_constant(p, out, "def", d, show_value);
             if (show_value)
                 print_definition(env, out, c, pos);
+        } else if (d.is_inductive()) {
+            print_constant(p, out, "(new) inductive", d);
+            out << "constructors:\n";
+            for (name const & n : d.to_inductive_val().get_cnstrs())
+                out << n << "\n";
+        } else if (d.is_constructor()) {
+            print_constant(p, out, "(new) constructor", d);
         }
         // print_patterns(p, c);
     }

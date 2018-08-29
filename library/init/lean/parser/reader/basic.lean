@@ -80,8 +80,8 @@ structure reader_state :=
 
 structure reader_config := mk
 
-@[irreducible, derive monad alternative monad_reader monad_state monad_parsec monad_except]
-def read_t (m : Type → Type) [monad m] := reader_t reader_config $ state_t reader_state $ parsec_t syntax m
+@[derive monad alternative monad_reader monad_state monad_parsec monad_except]
+abbreviation read_t (m : Type → Type) [monad m] := reader_t reader_config $ state_t reader_state $ parsec_t syntax m
 abbreviation basic_read_m := read_t id
 abbreviation basic_reader := basic_read_m syntax
 
@@ -131,8 +131,8 @@ modify (λ st, {st with errors := to_string e :: st.errors})
 
 def eoi : syntax_node_kind := ⟨`lean.parser.reader.eoi⟩
 
-protected def parse (cfg : reader_config) (s : string) (r : basic_reader) [reader.has_tokens r] :
-  syntax × list message :=
+protected def parse [monad m] (cfg : reader_config) (s : string) (r : read_t m syntax) [reader.has_tokens r] :
+  m (syntax × list message) :=
 -- the only hardcoded tokens, because they are never directly mentioned by a `reader`
 let builtin_tokens : list token_config := [⟨"/-", none⟩, ⟨"--", none⟩] in
 reader.run cfg ⟨tokens r ++ builtin_tokens, [], s.mk_iterator⟩ s $ do
@@ -295,7 +295,15 @@ rec_t.run (error "recursion limit") r
 
 instance with_recurse.tokens (r : rec_t syntax m syntax) [reader.has_tokens r] : reader.has_tokens (with_recurse r) :=
 ⟨tokens r⟩
-instance with_recurse.view (r : rec_t syntax m syntax) : reader.has_view (with_recurse r) syntax := default _
+instance with_recurse.view (r : rec_t syntax m syntax) [i : reader.has_view r α] : reader.has_view (with_recurse r) α :=
+{..i}
+
+instance monad_lift.tokens {m' : Type → Type} [has_monad_lift_t m m'] (r : m syntax) [reader.has_tokens r] :
+  reader.has_tokens (monad_lift r : m' syntax) :=
+⟨tokens r⟩
+instance monad_lift.view {m' : Type → Type} [has_monad_lift_t m m'] (r : m syntax) [i : reader.has_view r α] :
+  reader.has_view (monad_lift r : m' syntax) α :=
+{..i}
 
 end combinators
 end «reader»

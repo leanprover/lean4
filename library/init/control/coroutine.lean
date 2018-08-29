@@ -113,6 +113,13 @@ def pipe : coroutine α δ β → coroutine δ γ β → coroutine α γ β
       yielded r (pipe k₁' k₂')
 -- using_well_founded { dec_tac := unfold_wf_rel >> process_lex (tactic.assumption) }
 
+/-- Run a coroutine to completion, feeding back yielded items after transforming them with `f`. -/
+def finish (f : δ → α) : coroutine α δ β → α → β
+| (mk k) a :=
+  match k a with
+  | done b       := b
+  | yielded d k' := finish k' (f d)
+
 instance : monad (coroutine α δ) :=
 { pure := @coroutine.pure _ _,
   bind := @coroutine.bind _ _ }

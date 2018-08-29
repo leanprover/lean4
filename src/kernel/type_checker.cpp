@@ -89,7 +89,7 @@ expr type_checker::infer_constant(expr const & e, bool infer_only) {
                                << length(ps)  << " expected, #" << length(ls) << " provided");
     if (!infer_only) {
         if (m_non_meta_only && info.is_meta()) {
-            throw kernel_exception(m_env, sstream() << "invalid definition, it uses meta declaration '"
+            throw kernel_exception(m_env, sstream() << "invalid declaration, it uses meta declaration '"
                                    << const_name(e) << "'");
         }
         for (level const & l : ls)

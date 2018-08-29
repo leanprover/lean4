@@ -88,7 +88,7 @@ static environment derive(environment env, options const & opts, name const & n,
         auto expected_tgt_num_args = get_expect_num_args(ctx, expected_tgt_ty);
         buffer<expr> n_params;
         // use lower arity for instance like `monad` where the class expects a partially applied argument
-        for (unsigned i = 0; i < tgt_num_args - expected_tgt_num_args; i++) {
+        for (unsigned i = 0; i < tgt_num_args - expected_tgt_num_args && is_binding(tgt_ty); i++) {
             auto param = ctx.push_local_from_binding(tgt_ty);
             tgt = mk_app(tgt, param);
             real_tgt = mk_app(real_tgt, param);

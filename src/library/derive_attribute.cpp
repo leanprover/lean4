@@ -80,38 +80,48 @@ static environment derive(environment env, options const & opts, name const & n,
         if (!is_pi(cls_ty))
             throw exception("don't know how to derive this");
         auto expected_tgt_ty = cls_ty;
-        while (is_pi(expected_tgt_ty) && is_class_out_param(binding_domain(expected_tgt_ty))) {
-            expected_tgt_ty = binding_body(expected_tgt_ty);
+        while (is_pi(expected_tgt_ty) &&
+                (is_class_out_param(binding_domain(expected_tgt_ty)) || is_implicit(binding_info(expected_tgt_ty)))) {
+            expected_tgt_ty = instantiate(binding_body(expected_tgt_ty), ctx.push_local_from_binding(expected_tgt_ty));
         }
         expected_tgt_ty = binding_domain(expected_tgt_ty);
         auto tgt_num_args = get_expect_num_args(ctx, tgt_ty);
         auto expected_tgt_num_args = get_expect_num_args(ctx, expected_tgt_ty);
-        buffer<expr> n_params;
+        buffer<expr> params;
         // use lower arity for instance like `monad` where the class expects a partially applied argument
         for (unsigned i = 0; i < tgt_num_args - expected_tgt_num_args && is_binding(tgt_ty); i++) {
             auto param = ctx.push_local_from_binding(tgt_ty);
             tgt = mk_app(tgt, param);
             real_tgt = mk_app(real_tgt, param);
-            n_params.push_back(param);
+            params.push_back(param);
             tgt_ty = instantiate(binding_body(tgt_ty), param);
         }
         ctx.unify(tgt_ty, expected_tgt_ty);
-        buffer<expr> params, more_params;
-        while (is_pi(cls_ty) && is_class_out_param(binding_domain(cls_ty))) {
-            params.push_back(ctx.mk_metavar_decl(ctx.lctx(), binding_domain(cls_ty)));
-            cls_ty = binding_body(cls_ty);
+        buffer<expr> cls_args, more_cls_args;
+        while (is_pi(cls_ty)) {
+            if (is_class_out_param(binding_domain(cls_ty))) {
+                cls_args.push_back(ctx.mk_metavar_decl(ctx.lctx(), binding_domain(cls_ty)));
+                cls_ty = binding_body(cls_ty);
+            } else if (is_implicit(binding_info(cls_ty))) {
+                auto param = ctx.push_local_from_binding(cls_ty);
+                if (has_fvar(binding_body(cls_ty)))
+                    params.push_back(param);
+                cls_ty = instantiate(binding_body(cls_ty), param);
+            } else {
+                break;
+            }
         }
         if (is_pi(cls_ty))
             cls_ty = binding_body(cls_ty);
         while (is_pi(cls_ty) && is_class_out_param(binding_domain(cls_ty))) {
-            more_params.push_back(ctx.mk_metavar_decl(ctx.lctx(), binding_domain(cls_ty)));
+            more_cls_args.push_back(ctx.mk_metavar_decl(ctx.lctx(), binding_domain(cls_ty)));
             cls_ty = binding_body(cls_ty);
         }
         auto apply_target = [&](expr const & tgt) {
             buffer<expr> b;
-            b.append(params);
+            b.append(cls_args);
             b.push_back(tgt);
-            b.append(more_params);
+            b.append(more_cls_args);
             return mk_app(ctx, const_name(cls), b.size(), &b[0]);
         };
         tgt = apply_target(tgt);
@@ -119,8 +129,8 @@ static environment derive(environment env, options const & opts, name const & n,
         auto inst = ctx.mk_class_instance(real_tgt);
         if (!inst)
             throw exception(sstream() << "failed to derive " << real_tgt);
-        tgt = ctx.mk_pi(n_params, tgt);
-        auto inst2 = ctx.mk_lambda(n_params, inst.value());
+        tgt = ctx.mk_pi(params, tgt);
+        auto inst2 = ctx.mk_lambda(params, inst.value());
         auto new_n = n + const_name(cls);
         env = module::add(env, mk_definition(env, new_n, d.get_univ_params(),
                                              ctx.instantiate_mvars(tgt), inst2, d.is_meta()));

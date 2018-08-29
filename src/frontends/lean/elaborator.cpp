@@ -3259,12 +3259,15 @@ expr elaborator::visit_expr_quote(expr const & e, optional<expr> const & expecte
     return visit(q, expected_type);
 }
 
-expr elaborator::visit_node_macro(expr const & e) {
+expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expected_type) {
     name macro = *get_name(mdata_data(e), "node!");
     name esc_macro = macro.is_atomic() ? "«" + macro.to_string() + "»" : macro;
     expr e2 = mdata_expr(e);
     expr macro_e = app_arg(app_fn(e2));
     name full_macro = const_name(macro_e);
+    if (!expected_type)
+        throw elaborator_exception(e, "node!: expected type must be known");
+    expr exp = expected_type.value();
     sstream struc, stx_pat, binds, mk_args, view_pat, reviews;
     unsigned i = 0;
     struc << "@[pattern] def " << esc_macro.to_string();
@@ -3277,9 +3280,9 @@ expr elaborator::visit_node_macro(expr const & e) {
         add_field = [&](expr r) {
             name fname = *get_name(mdata_data(r), "fname");
             r = mdata_expr(r);
+            r = visit(r, expected_type);
             auto m = mk_metavar(mk_Type(), r);
-            r = visit(r, some(mk_const({"lean", "parser", "reader"})));
-            auto inst = m_ctx.mk_class_instance(mk_app(mk_const(name{"lean", "parser", "reader", "has_view"}), r, m));
+            auto inst = m_ctx.mk_class_instance(mk_app(mk_const(name{"lean", "parser", "reader", "has_view"}), exp, r, m));
             if (!inst)
                 throw elaborator_exception(e, sstream() << "Could not infer instance of reader.has_view for '" << r
                                                         << "'");
@@ -3288,14 +3291,14 @@ expr elaborator::visit_node_macro(expr const & e) {
             if (i != 0)
                 stx_pat << ", ";
             stx_pat << "stx" << i;
-            binds << "a" << i << " <- view (" << pp(r) << ") stx" << i << ",\n";
+            binds << "a" << i << " <- view (" << pp(r) << " : " << pp(exp) << ") stx" << i << ",\n";
             mk_args << "a" << i << " ";
             if (i != 0)
                 view_pat << ", ";
             view_pat << "a" << i;
             if (i != 0)
                 reviews << ", ";
-            reviews << "review (" << pp(r) << ") a" << i;
+            reviews << "review (" << pp(r) << " : " << pp(exp) << ") a" << i;
             i++;
             return mk_as_is(r);
         };
@@ -3332,14 +3335,17 @@ expr elaborator::visit_node_macro(expr const & e) {
     m_env = p.env();
     m_ctx.set_env(m_env);
     return visit(mk_app(mk_const({"lean", "parser", "reader", "combinators", "node"}), mk_const(get_namespace(p.env()) + macro), mk_lean_list(new_args)),
-                 none_expr());
+                 expected_type);
 }
 
-expr elaborator::visit_node_choice_macro(expr const & e) {
+expr elaborator::visit_node_choice_macro(expr const & e, optional<expr> const & expected_type) {
     name macro = *get_name(mdata_data(e), "node_choice!");
     name esc_macro = macro.is_atomic() ? "«" + macro.to_string() + "»" : macro;
     expr args = mdata_expr(e);
     name full_macro = get_namespace(m_env) + macro;
+    if (!expected_type)
+        throw elaborator_exception(e, "node_choice!: expected type must be known");
+    expr exp = expected_type.value();
     sstream struc, view_cases, review_cases;
     unsigned i = 0;
     struc << "@[pattern] def " << esc_macro.to_string();
@@ -3351,17 +3357,18 @@ expr elaborator::visit_node_choice_macro(expr const & e) {
         name fname = *get_name(mdata_data(r), "fname");
         r = mdata_expr(r);
         auto m = mk_metavar(mk_Type(), r);
-        r = visit(r, some(mk_const({"lean", "parser", "reader"})));
-        auto inst = m_ctx.mk_class_instance(mk_app(mk_const(name{"lean", "parser", "reader", "has_view"}), r, m));
+        r = visit(r, expected_type);
+        auto inst = m_ctx.mk_class_instance(mk_app(mk_const(name{"lean", "parser", "reader", "has_view"}), exp, r, m));
         if (!inst)
             throw elaborator_exception(e, sstream() << "Could not infer instance of reader.has_view for '" << r
                                                     << "'");
         struc << "| «" << fname << "» : " << instantiate_mvars(m) << " -> " << macro.to_string() << ".view\n";
 
         view_cases << "| " << i << " := " << macro.to_string() << ".view." << fname << " <$> view  (" << pp(r)
-                   << ") stx\n";
+                << " : " << pp(exp) << ") stx\n";
         review_cases << "| " << macro.to_string() << ".view." << fname << " a := "
-                << "syntax.node (syntax_node.mk (some (syntax_node_kind.mk (name.mk_numeral name.anonymous " << i << "))) [review (" << pp(r) << ") a])\n";
+                << "syntax.node (syntax_node.mk (some (syntax_node_kind.mk (name.mk_numeral name.anonymous " << i << "))) "
+                << "[review (" << pp(r) << " : " << pp(exp) << ") a])\n";
         i++;
         new_args.push_back(mk_as_is(r));
     }
@@ -3390,7 +3397,7 @@ expr elaborator::visit_node_choice_macro(expr const & e) {
                         mk_app(mk_const({"list", "cons"}),
                                mk_app(mk_const({"lean", "parser", "reader", "combinators", "choice"}),
                                       mk_lean_list(new_args)),
-                               mk_const({"list", "nil"}))), none_expr());
+                               mk_const({"list", "nil"}))), expected_type);
 }
 
 expr elaborator::visit_mdata(expr const & e, optional<expr> const & expected_type, bool is_app_fn) {
@@ -3438,9 +3445,9 @@ expr elaborator::visit_mdata(expr const & e, optional<expr> const & expected_typ
         lean_assert(!is_app_fn); // visit_convoy is used in this case
         return visit_equations(e);
     } else if (get_name(mdata_data(e), "node!")) {
-        return visit_node_macro(e);
+        return visit_node_macro(e, expected_type);
     } else if (get_name(mdata_data(e), "node_choice!")) {
-        return visit_node_choice_macro(e);
+        return visit_node_choice_macro(e, expected_type);
     } else {
         expr new_e = visit(mdata_expr(e), expected_type);
         return update_mdata(e, new_e);

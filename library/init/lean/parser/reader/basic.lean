@@ -19,20 +19,20 @@ namespace rec_t
 variables {m : Type → Type} {r α : Type} [monad m]
 local attribute [reducible] rec_t
 
-/-- Continue at the recursion point stored at `with_recurse`. -/
+/-- Continue at the recursion point stored at `run`. -/
 def recurse : rec_t r m r :=
 do x ← read,
    monad_lift x
 
 variables (base : m r) (rec : rec_t r m r)
-private def with_recurse_aux : nat → m r
+private def run_aux : nat → m r
 | 0     := base
-| (n+1) := rec.run (with_recurse_aux n)
+| (n+1) := rec.run (run_aux n)
 
 /-- Execute `rec`, re-executing it whenever `recurse` is called.
     After `max_rec` recursion steps, `base` is executed instead. -/
-def with_recurse (max_rec := 1000) : rec_t r m r :=
-⟨λ _, rec.run (with_recurse_aux base rec max_rec)⟩
+protected def run (max_rec := 1000) : m r :=
+rec.run (run_aux base rec max_rec)
 
 -- not clear how to auto-derive these given the additional constraints
 instance : monad (rec_t r m) := infer_instance
@@ -42,6 +42,16 @@ instance (ε) [monad_except ε m] : monad_except ε (rec_t r m) := infer_instanc
 instance (μ) [alternative m] [lean.parser.monad_parsec μ m] : lean.parser.monad_parsec μ (rec_t r m) :=
 infer_instance
 end rec_t
+
+class monad_rec (r : out_param Type) (m : Type → Type) :=
+(recurse {} : m r)
+export monad_rec (recurse)
+
+instance monad_rec.base (r m) [monad m] : monad_rec r (rec_t r m) :=
+{ recurse := rec_t.recurse }
+
+instance monad_rec.trans (r m m') [has_monad_lift m m'] [monad_rec r m] [monad m] : monad_rec r m' :=
+{ recurse := monad_lift (recurse : m r) }
 
 namespace lean
 -- TODO: enhance massively
@@ -70,75 +80,76 @@ structure reader_state :=
 
 structure reader_config := mk
 
-section
-set_option class.instance_max_depth 37
 @[irreducible, derive monad alternative monad_reader monad_state monad_parsec monad_except]
-def read_m := rec_t syntax $ reader_t reader_config $ state_t reader_state $ parsec syntax
-end
+def read_t (m : Type → Type) [monad m] := reader_t reader_config $ state_t reader_state $ parsec_t syntax m
+abbreviation basic_read_m := read_t id
+abbreviation basic_reader := basic_read_m syntax
 
-abbreviation reader := read_m syntax
+ -- an arbitrary `reader` type; readers are usually some monad stack based on `basic_read_m` returning `syntax`
+variable {ρ : Type}
 
-class reader.has_tokens {ρ : Type} (r : ρ) := mk {} ::
+class reader.has_tokens (r : ρ) := mk {} ::
 (tokens : list token_config)
 
 open reader.has_tokens (tokens)
 
-instance list.nil.tokens (ρ) : reader.has_tokens ([] : list ρ) :=
+instance list.nil.tokens : reader.has_tokens ([] : list ρ) :=
 ⟨[]⟩
-instance list.cons.tokens (ρ) (r : ρ) (rs : list ρ) [reader.has_tokens r] [reader.has_tokens rs] :
+instance list.cons.tokens (r : ρ) (rs : list ρ) [reader.has_tokens r] [reader.has_tokens rs] :
   reader.has_tokens (r::rs) :=
 ⟨tokens r ++ tokens rs⟩
 
-class reader.has_view (r : reader) (α : out_param Type) :=
+class reader.has_view (r : ρ) (α : out_param Type) :=
 (view : syntax → option α)
 (review : α → syntax)
 
-instance reader.has_view.default (r : reader) : inhabited (reader.has_view r syntax) :=
+instance reader.has_view.default (r : ρ) : inhabited (reader.has_view r syntax) :=
 ⟨{ view := some, review := id }⟩
 
 class syntax_node_kind.has_view (k : syntax_node_kind) (α : out_param Type) :=
 (view : syntax → option α)
 (review : α → syntax)
 
-namespace read_m
-local attribute [reducible] read_m
-protected def run (cfg : reader_config) (st : reader_state) (s : string) (r : read_m syntax) :
-  syntax × list message :=
-match (((r.run (monad_parsec.error "no recursive parser at top level")).run cfg).run st).parse_with_eoi s with
-| except.ok (a, st) := (a, st.errors.reverse)
-| except.error msg  := (msg.custom, [to_string msg])
-
-def log_error (e : message) : read_m unit :=
-modify (λ st, {st with errors := to_string e :: st.errors})
-end read_m
+section
+local attribute [reducible] read_t
+protected def reader.run {m : Type → Type} [monad m] (cfg : reader_config) (st : reader_state) (s : string) (r : read_t m syntax) :
+  m (syntax × list message) :=
+do r ← ((r.run cfg).run st).parse_with_eoi s,
+   pure $ match r with
+   | except.ok (a, st) := (a, st.errors.reverse)
+   | except.error msg  := (msg.custom, [to_string msg])
+end
 
 namespace reader
 open monad_parsec
 open reader.has_view
-variable {α : Type}
+variables {α : Type} {m : Type → Type}
+local notation `reader` := m syntax
+
+def log_error [monad_state reader_state m] (e : message) : m unit :=
+modify (λ st, {st with errors := to_string e :: st.errors})
 
 def eoi : syntax_node_kind := ⟨`lean.parser.reader.eoi⟩
 
-protected def parse (cfg : reader_config) (s : string) (r : reader) [reader.has_tokens r] :
+protected def parse (cfg : reader_config) (s : string) (r : basic_reader) [reader.has_tokens r] :
   syntax × list message :=
 -- the only hardcoded tokens, because they are never directly mentioned by a `reader`
 let builtin_tokens : list token_config := [⟨"/-", none⟩, ⟨"--", none⟩] in
-do {
+reader.run cfg ⟨tokens r ++ builtin_tokens, [], s.mk_iterator⟩ s $ do
   stx ← catch r $ λ (msg : parsec.message _), do {
     modify $ λ st, {st with token_start := msg.it},
-    read_m.log_error (to_string msg),
+    reader.log_error (to_string msg),
     pure msg.custom
   },
   whitespace,
   -- add `eoi` node and store any residual input in its prefix
-  catch monad_parsec.eoi $ λ msg, read_m.log_error (to_string msg),
+  catch monad_parsec.eoi $ λ msg, reader.log_error (to_string msg),
   tk_start ← reader_state.token_start <$> get,
   let stop := tk_start.to_end in
   pure $ syntax.node ⟨none, [
     stx,
     syntax.node ⟨eoi, [syntax.atom ⟨some ⟨⟨tk_start, stop⟩, stop.offset, ⟨stop, stop⟩⟩, atomic_val.string ""⟩]⟩
   ]⟩
-}.run cfg ⟨tokens r ++ builtin_tokens, [], s.mk_iterator⟩ s
 
 structure parse.view_ty :=
 (root : syntax)
@@ -149,6 +160,8 @@ def parse.view : syntax → option parse.view_ty
 | _ := none
 
 namespace combinators
+variables [monad m] [monad_except (parsec.message syntax) m] [monad_parsec syntax m] [alternative m]
+
 def node' (k : option syntax_node_kind) (rs : list reader) : reader :=
 do (args, _) ← rs.mfoldl (λ (p : list syntax × nat) r, do
      (args, remaining) ← pure p,
@@ -160,13 +173,13 @@ do (args, _) ← rs.mfoldl (λ (p : list syntax × nat) r, do
    ) ([], rs.length),
    pure $ syntax.node ⟨k, args.reverse⟩
 
-@[reducible] def seq := node' none
-@[reducible] def node (k : syntax_node_kind) := node' k
+@[reducible] def seq : list reader → reader := node' none
+@[reducible] def node (k : syntax_node_kind) : list reader → reader := node' k
 
-instance node'.tokens (m rs) [reader.has_tokens rs] : reader.has_tokens (node' m rs) :=
+instance node'.tokens (k) (rs : list reader) [reader.has_tokens rs] : reader.has_tokens (node' k rs) :=
 ⟨tokens rs⟩
 
-instance node.view (k rs) [i : syntax_node_kind.has_view k α] : reader.has_view (node k rs) α :=
+instance node.view (k) (rs : list reader) [i : syntax_node_kind.has_view k α] : reader.has_view (node k rs) α :=
 { view := i.view, review := i.review }
 
 private def many1_aux (p : reader) : list syntax → nat → reader
@@ -179,10 +192,10 @@ private def many1_aux (p : reader) : list syntax → nat → reader
 def many1 (r : reader) : reader :=
 do rem ← remaining, many1_aux r [] (rem+1)
 
-instance many1.tokens (r) [reader.has_tokens r] : reader.has_tokens (many1 r) :=
+instance many1.tokens (r : reader) [reader.has_tokens r] : reader.has_tokens (many1 r) :=
 ⟨tokens r⟩
 
-instance many1.view (r) [reader.has_view r α] : reader.has_view (many1 r) (list α) :=
+instance many1.view (r : reader) [reader.has_view r α] : reader.has_view (many1 r) (list α) :=
 { view := λ stx, match stx with
     | syntax.missing := list.ret <$> view r syntax.missing
     | syntax.node ⟨none, stxs⟩ := stxs.mmap (view r)
@@ -192,10 +205,10 @@ instance many1.view (r) [reader.has_view r α] : reader.has_view (many1 r) (list
 def many (r : reader) : reader :=
 many1 r <|> pure (syntax.node ⟨none, []⟩)
 
-instance many.tokens (r) [reader.has_tokens r] : reader.has_tokens (many r) :=
+instance many.tokens (r : reader) [reader.has_tokens r] : reader.has_tokens (many r) :=
 ⟨tokens r⟩
 
-instance many.view (r) [has_view r α] : reader.has_view (many r) (list α) :=
+instance many.view (r : reader) [has_view r α] : reader.has_view (many r) (list α) :=
 {..many1.view r}
 
 def optional (r : reader) : reader :=
@@ -206,7 +219,7 @@ do r ← optional $
    | some r := syntax.node ⟨none, [r]⟩
    | none   := syntax.node ⟨none, []⟩
 
-instance optional.tokens (r) [reader.has_tokens r] : reader.has_tokens (optional r) :=
+instance optional.tokens (r : reader) [reader.has_tokens r] : reader.has_tokens (optional r) :=
 ⟨tokens r⟩
 
 inductive optional_view (α : Type)
@@ -222,7 +235,7 @@ instance : functor optional_view :=
   | missing := missing }
 end optional_view
 
-instance optional.view (r) [reader.has_view r α] : reader.has_view (optional r) (optional_view α) :=
+instance optional.view (r : reader) [reader.has_view r α] : reader.has_view (optional r) (optional_view α) :=
 { view := λ stx, match stx with
     | syntax.missing := pure optional_view.missing
     | syntax.node ⟨none, []⟩ := pure optional_view.none
@@ -241,10 +254,10 @@ match rs with
 | [] := error "any_of"
 | (r::rs) := rs.foldl (<|>) r
 
-instance any_of.tokens (rs) [reader.has_tokens rs] : reader.has_tokens (any_of rs) :=
+instance any_of.tokens (rs : list reader) [reader.has_tokens rs] : reader.has_tokens (any_of rs) :=
 ⟨tokens rs⟩
 
-instance any_of.view (rs) : reader.has_view (any_of rs) syntax := default _
+instance any_of.view (rs : list reader) : reader.has_view (any_of rs) syntax := default _
 
 /-- Parse a list `[p1, ..., pn]` of readers as `p1 <|> ... <|> pn`.
     The result will be wrapped in a node with the the index of the successful
@@ -255,7 +268,7 @@ rs.enum.foldr
   -- use `foldr` so that any other error is preferred over this one
   (error "choice: empty list")
 
-instance choice.tokens (rs) [reader.has_tokens rs] : reader.has_tokens (choice rs) :=
+instance choice.tokens (rs : list reader) [reader.has_tokens rs] : reader.has_tokens (choice rs) :=
 ⟨tokens rs⟩
 
 instance try.tokens (r : reader) [reader.has_tokens r] : reader.has_tokens (try r) :=
@@ -270,25 +283,21 @@ instance label.view (r : reader) (l) [i : reader.has_view r α] : reader.has_vie
 
 instance dbg.tokens (r : reader) (l) [reader.has_tokens r] : reader.has_tokens (dbg l r) :=
 ⟨tokens r⟩
-instance dbg.view (r l) [i : reader.has_view r α] : reader.has_view (dbg l r) α :=
+instance dbg.view (r  : reader) (l) [i : reader.has_view r α] : reader.has_view (dbg l r) α :=
 {..i}
 
-local attribute [reducible] read_m
-def recurse : reader :=
-rec_t.recurse
-
-instance recurse.tokens : reader.has_tokens recurse :=
+instance recurse.tokens (r m) [monad_rec r m] : reader.has_tokens (recurse : m r) :=
 ⟨[]⟩ -- recursive use should not contribute any new tokens
-instance recurse.view : reader.has_view recurse syntax := default _
+instance recurse.view (r m) [monad_rec r m] : reader.has_view (recurse : m r) syntax := default _
 
-def with_recurse (r : reader) : reader :=
-rec_t.with_recurse (error "recursion limit") r
+def with_recurse (r : rec_t syntax m syntax) : reader :=
+rec_t.run (error "recursion limit") r
 
-instance with_recurse.tokens (r : reader) [reader.has_tokens r] : reader.has_tokens (with_recurse r) :=
+instance with_recurse.tokens (r : rec_t syntax m syntax) [reader.has_tokens r] : reader.has_tokens (with_recurse r) :=
 ⟨tokens r⟩
-instance with_recurse.view (r) : reader.has_view (with_recurse r) syntax := default _
+instance with_recurse.view (r : rec_t syntax m syntax) : reader.has_view (with_recurse r) syntax := default _
 
 end combinators
-end reader
+end «reader»
 end parser
 end lean

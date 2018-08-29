@@ -135,21 +135,6 @@ result:
     ":="
     (lean.parser.reader.hole "_"))])
  (lean.parser.reader.eoi "")]
-result: 
-[(lean.parser.reader.mixfix
-  (lean.parser.reader.mixfix.kind (0 "prefix"))
-  (lean.parser.reader.notation_spec.notation_symbol
-   (0
-    (lean.parser.reader.notation_spec.notation_quoted_symbol
-     "`"
-     "+"
-     "`"
-     [(lean.parser.reader.notation_spec.precedence
-       ":"
-       (lean.parser.reader.base10_lit "10"))])))
-  ":="
-  (lean.parser.reader.hole "_"))
- (lean.parser.reader.eoi "")]
 (lean.parser.reader.notation
  "notation"
  (lean.parser.reader.notation_spec

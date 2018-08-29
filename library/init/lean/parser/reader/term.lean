@@ -10,17 +10,25 @@ import init.lean.parser.reader.token
 
 namespace lean.parser
 namespace reader
-open combinators
+open combinators reader.has_view
 
-@[pattern] def hole := {syntax_node_kind . name := `lean.parser.reader.hole}
+@[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec]
+abbreviation command_read_m := rec_t syntax basic_read_m
+abbreviation command_reader := command_read_m syntax
 
-@[derive reader.has_tokens]
-def hole.reader : reader :=
-node hole [symbol "_"]
+@[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec]
+abbreviation term_read_m := rec_t syntax command_read_m
+abbreviation term_reader := term_read_m syntax
 
 @[derive reader.has_tokens reader.has_view]
-def term.reader :=
-any_of [
+def hole.reader : term_reader :=
+node! hole [hole: symbol "_"]
+
+@[derive reader.has_tokens reader.has_view]
+-- While term.reader does not actually read a command, it does share the same effect set
+-- with command readers, introducing the term-level recursion effect only for nested readers
+def term.reader : command_reader :=
+with_recurse $ any_of [
   hole.reader
 ]
 

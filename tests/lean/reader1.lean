@@ -2,8 +2,8 @@ import init.lean.parser.reader.module init.io
 open lean.parser
 open lean.parser.reader
 
-def show_result (p : lean.parser.reader) [has_tokens p] (s : string) : eio unit :=
-let (stx, errors) := p.parse ⟨⟩ s in
+def show_result (p : module_reader) [has_tokens p] (s : string) : eio unit :=
+let (stx, errors) := reader.parse ⟨⟩ s p in
 when (stx.reprint ≠ s) (
   io.println "reprint fail:" *>
   io.println stx.reprint
@@ -45,9 +45,8 @@ end b"
 
 #eval show_result module.reader "notation `Prop` := _"
 
-#eval show_result mixfix.reader "prefix `+`:10 := _"
 #eval (do {
-  let (stx, _) := mixfix.reader.parse ⟨⟩ "prefix `+`:10 := _",
+  let (stx, _) := reader.parse ⟨⟩ "prefix `+`:10 := _" $ combinators.with_recurse mixfix.reader,
   some {root := stx, ..} ← pure $ reader.parse.view stx,
   some stx ← pure $ mixfix.expand stx | throw "expand fail",
   io.println stx,

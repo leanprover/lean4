@@ -70,8 +70,11 @@ structure reader_state :=
 
 structure reader_config := mk
 
+section
+set_option class.instance_max_depth 37
 @[irreducible, derive monad alternative monad_reader monad_state monad_parsec monad_except]
 def read_m := rec_t syntax $ reader_t reader_config $ state_t reader_state $ parsec syntax
+end
 
 abbreviation reader := read_m syntax
 

@@ -59,30 +59,34 @@ inductive result (μ α : Type)
 result.ok_eps a it dlist.empty
 end parsec
 
-def parsec (μ α : Type) :=
-iterator → parsec.result μ α
+open parsec
 
+def parsec_t (μ : Type) (m : Type → Type) (α : Type) :=
+iterator → m (result μ α)
+
+abbreviation parsec (μ : Type) := parsec_t μ id
 /-- `parsec` without custom error message type -/
 abbreviation parsec' := parsec unit
 
-namespace parsec
-open result
-variables {μ α β : Type}
+namespace parsec_t
+open parsec.result
+variables {m : Type → Type} [monad m] {μ α β : Type}
 
-def run (p : parsec μ α) (s : string) (fname := "") : except (message μ) α :=
-match p s.mk_iterator with
-| ok a _       := except.ok a
-| ok_eps a _ _ := except.ok a
-| error msg _  := except.error msg
+def run (p : parsec_t μ m α) (s : string) (fname := "") : m (except (message μ) α) :=
+do r ← p s.mk_iterator,
+   pure $ match r with
+   | ok a _       := except.ok a
+   | ok_eps a _ _ := except.ok a
+   | error msg _  := except.error msg
 
-protected def pure (a : α) : parsec μ α :=
-λ it, mk_eps a it
+protected def pure (a : α) : parsec_t μ m α :=
+λ it, pure (mk_eps a it)
 
-def eps : parsec μ unit :=
-parsec.pure ()
+def eps : parsec_t μ m unit :=
+parsec_t.pure ()
 
-protected def failure [inhabited μ] : parsec μ α :=
-λ it, error { unexpected := "failure", it := it, custom := default μ } ff
+protected def failure [inhabited μ] : parsec_t μ m α :=
+λ it, pure (error { unexpected := "failure", it := it, custom := default μ } ff)
 
 def merge (msg₁ msg₂ : message μ) : message μ :=
 { expected := msg₁.expected ++ msg₂.expected, ..msg₁ }
@@ -94,43 +98,54 @@ def merge (msg₁ msg₂ : message μ) : message μ :=
   3- If `q` succeeds but does not consume input, then execute `q`
      and merge error messages if both do not consume any input.
 -/
-protected def bind (p : parsec μ α) (q : α → parsec μ β) : parsec μ β :=
-λ it, match p it with
-     | ok a it :=
-       (match q a it with
+protected def bind (p : parsec_t μ m α) (q : α → parsec_t μ m β) : parsec_t μ m β :=
+λ it, do r ← p it,
+      match r with
+      | ok a it := do {
+        r ← q a it,
+        pure $ match r with
         | ok_eps b it msg₂ := ok b it
         | error msg ff     := error msg tt
-        | other            := other)
-     | ok_eps a it ex₁ :=
-       (match q a it with
+        | other            := other }
+      | ok_eps a it ex₁ := do {
+        r ← q a it,
+        pure $ match r with
         | ok_eps b it ex₂ := ok_eps b it (ex₁ ++ ex₂)
         | error msg₂ ff   := error { expected := ex₁ ++ msg₂.expected, .. msg₂ } ff
-        | other           := other)
-     | error msg c := error msg c
+        | other           := other }
+      | error msg c := pure (error msg c)
 
-instance : monad (parsec μ) :=
-{ bind := λ _ _, parsec.bind, pure := λ _, parsec.pure }
+instance : monad (parsec_t μ m) :=
+{ bind := λ _ _, parsec_t.bind, pure := λ _, parsec_t.pure }
 
 instance : monad_fail parsec' :=
 { fail := λ _ s it, error { unexpected := s, it := it, custom := () } ff }
 
-instance : monad_except (message μ) (parsec μ) :=
-{ throw := λ _ msg it, error msg ff,
-  catch := λ _ p c it, match p it with
-    | error msg cns :=
-      (match c msg msg.it with
-       | error msg' cns' := error msg' (cns || cns')
-       | other := other)
-    | other       := other }
+instance : monad_except (message μ) (parsec_t μ m) :=
+{ throw := λ _ msg it, pure (error msg ff),
+  catch := λ _ p c it, do
+    r ← p it,
+    match r with
+    | error msg cns := do {
+      r ← c msg msg.it,
+      pure $ match r with
+      | error msg' cns' := error msg' (cns || cns')
+      | other := other }
+    | other       := pure other }
+
+instance : has_monad_lift m (parsec_t μ m) :=
+{ monad_lift := λ α x it, do a ← x, pure (mk_eps a it) }
 
 def expect (msg : message μ) (exp : string) : message μ :=
 {expected := dlist.singleton exp, ..msg}
 
-@[inline] def label (p : parsec μ α) (ex : string) : parsec μ α :=
-λ it, match p it with
-      | ok_eps a it _  := ok_eps a it (dlist.singleton ex)
-      | error msg ff   := error (expect msg ex) ff
-      | other          := other
+@[inline] def label (p : parsec_t μ m α) (ex : string) : parsec_t μ m α :=
+λ it, do
+  r ← p it,
+  pure $ match r with
+  | ok_eps a it _  := ok_eps a it (dlist.singleton ex)
+  | error msg ff   := error (expect msg ex) ff
+  | other          := other
 
 /--
 `try p` behaves like `p`, but it pretends `p` hasn't
@@ -149,10 +164,12 @@ together.
 ```
 Without the `try` combinator we will not be able to backtrack on the `let` keyword.
 -/
-def try (p : parsec μ α) : parsec μ α :=
-λ it, match p it with
-      | error msg _  := error msg ff
-      | other        := other
+def try (p : parsec_t μ m α) : parsec_t μ m α :=
+λ it, do
+  r ← p it,
+  pure $ match r with
+  | error msg _  := error msg ff
+  | other        := other
 
 /--
   The `orelse p q` combinator behaves as follows:
@@ -166,57 +183,65 @@ def try (p : parsec μ α) : parsec μ α :=
      combine their error messages (even if one of
      them succeeded).
 -/
-protected def orelse (p q : parsec μ α) : parsec μ α :=
-λ it, match p it with
-      | error msg₁ ff :=
-        (match q it with
-         | ok_eps a it' ex₂ := ok_eps a it' (msg₁.expected ++ ex₂)
-         | error msg₂ ff    := error (merge msg₁ msg₂) ff
-         | other            := other)
-      | other              := other
+protected def orelse (p q : parsec_t μ m α) : parsec_t μ m α :=
+λ it, do
+  r ← p it,
+  match r with
+  | error msg₁ ff := do {
+    r ← q it,
+    pure $ match r with
+    | ok_eps a it' ex₂ := ok_eps a it' (msg₁.expected ++ ex₂)
+    | error msg₂ ff    := error (merge msg₁ msg₂) ff
+    | other            := other }
+  | other              := pure other
 
-instance [inhabited μ] : alternative (parsec μ) :=
-{ orelse  := λ _, parsec.orelse,
-  failure := λ _, parsec.failure }
+instance [inhabited μ] : alternative (parsec_t μ m) :=
+{ orelse  := λ _, parsec_t.orelse,
+  failure := λ _, parsec_t.failure }
 
 /-- Parse `p` without consuming any input. -/
-def lookahead (p : parsec μ α) : parsec μ α :=
-λ it, match p it with
-      | ok a s' := mk_eps a it
-      | other   := other
+def lookahead (p : parsec_t μ m α) : parsec_t μ m α :=
+λ it, do
+  r ← p it,
+  pure $ match r with
+  | ok a s' := mk_eps a it
+  | other   := other
 
 /-- `not_followed_by p` succeeds when parser `p` fails -/
 def not_followed_by (p : parsec' α) (msg : string := "input") : parsec' unit :=
-λ it, match p it with
-      | ok _ _       := error { it := it, unexpected := msg, custom := () } ff
-      | ok_eps _ _ _ := error { it := it, unexpected := msg, custom := () } ff
-      | error _ _    := mk_eps () it
+λ it, do
+  r ← p it,
+  pure $ match r with
+  | ok _ _       := error { it := it, unexpected := msg, custom := () } ff
+  | ok_eps _ _ _ := error { it := it, unexpected := msg, custom := () } ff
+  | error _ _    := mk_eps () it
 
-def parsec.dbg (label : string) (p : parsec μ α) : parsec μ α :=
-λ it, trace ("DBG " ++ label ++ ": '" ++ (it.extract (it.nextn 40)).get_or_else "" ++ "'") $
-      match p it : _ → result μ α with
-      | ok a it' := trace ("consumed ok : '" ++ (it.extract it').get_or_else "" ++ "'") $ @ok μ α a it'
-      | ok_eps a it' ex := trace ("empty ok : '" ++ (it.extract it').get_or_else "" ++ "'") $ @ok_eps μ α a it' ex
-      | error msg tt := trace ("consumed error : '" ++ (it.extract msg.it).get_or_else "" ++ "'\n" ++ to_string msg) $ @error μ α msg tt
-      | error msg ff := trace ("empty error : '" ++ (it.extract msg.it).get_or_else "" ++ "'\n" ++ to_string msg) $ @error μ α msg ff
+def dbg (label : string) (p : parsec_t μ m α) : parsec_t μ m α :=
+λ it, do
+  r ← p it,
+  pure $ trace ("DBG " ++ label ++ ": '" ++ (it.extract (it.nextn 40)).get_or_else "" ++ "'") $ match r : _ → result μ α with
+  | ok a it' := trace ("consumed ok : '" ++ (it.extract it').get_or_else "" ++ "'") $ @ok μ α a it'
+  | ok_eps a it' ex := trace ("empty ok : '" ++ (it.extract it').get_or_else "" ++ "'") $ @ok_eps μ α a it' ex
+  | error msg tt := trace ("consumed error : '" ++ (it.extract msg.it).get_or_else "" ++ "'\n" ++ to_string msg) $ @error μ α msg tt
+  | error msg ff := trace ("empty error : '" ++ (it.extract msg.it).get_or_else "" ++ "'\n" ++ to_string msg) $ @error μ α msg ff
 
-end parsec
+end parsec_t
 
 /- Type class for abstracting from concrete monad stacks containing a `parsec` somewhere. -/
 class monad_parsec (μ : out_param Type) (m : Type → Type) :=
--- analogous to e.g. `monad_state.lift`
+-- analogous to e.g. `monad_reader.lift` before simplification (see there)
 (lift {} {α : Type} : parsec μ α → m α)
 -- Analogous to e.g. `monad_reader_adapter.map` before simplification (see there).
 -- Its usage seems to be way too common to justify moving it into a separate type class.
-(map {} {α : Type} : (∀ {α}, parsec μ α → parsec μ α) → m α → m α)
+(map {} {α : Type} : (∀ {m'} [monad m'] {α}, parsec_t μ m' α → parsec_t μ m' α) → m α → m α)
 
 /-- `parsec` without custom error message type -/
 abbreviation monad_parsec' := monad_parsec unit
 
-variable {μ : Type}
+variables {μ : Type}
 
-instance : monad_parsec μ (parsec μ) :=
-{ lift := λ α p, p,
+instance {m : Type → Type} [monad m] : monad_parsec μ (parsec_t μ m) :=
+{ lift := λ α p it, pure (p it),
   map  := λ α f x, f x }
 
 instance monad_parsec_trans {m n : Type → Type} [has_monad_lift m n] [monad_functor m m n n] [monad_parsec μ m] : monad_parsec μ n :=
@@ -224,7 +249,7 @@ instance monad_parsec_trans {m n : Type → Type} [has_monad_lift m n] [monad_fu
   map  := λ α f x, monad_map (λ β x, (monad_parsec.map @f x : m β)) x }
 
 namespace monad_parsec
-open parsec
+open parsec_t
 variables {m : Type → Type} [monad m] [monad_parsec μ m] [inhabited μ] {α β : Type}
 
 @[inline] def error {α : Type} (unexpected : string := "") (expected : dlist string := dlist.empty) (it : option iterator := none) (custom : μ := default _) : m α :=
@@ -238,7 +263,7 @@ def remaining : m nat :=
 string.iterator.remaining <$> left_over
 
 @[inline] def label (p : m α) (ex : string) : m α :=
-map (λ _ p, @parsec.label _ _ p ex) p
+map (λ m' inst β p, @parsec_t.label m' inst μ β p ex) p
 
 infixr ` <?> `:2 := label
 
@@ -261,11 +286,11 @@ Without the `try` combinator we will not be able to backtrack on the `let` keywo
 -/
 
 @[inline] def try (p : m α) : m α :=
-map (λ _ p, parsec.try p) p
+map (λ m' inst β p, @parsec_t.try m' inst μ β p) p
 
 /-- Parse `p` without consuming any input. -/
 @[inline] def lookahead (p : m α) : m α :=
-map (λ _ p, parsec.lookahead p) p
+map (λ m' inst β p, @parsec_t.lookahead m' inst μ β p) p
 
 /-- Faster version of `not_followed_by (satisfy p)` -/
 @[inline] def not_followed_by_sat (p : char → bool) : m unit :=
@@ -322,7 +347,7 @@ private def str_aux : nat → iterator → iterator → option iterator
 /--
 `str s` parses a sequence of elements that match `s`. Returns the parsed string (i.e. `s`).
 This parser consumes no input if it fails (even if a partial match).
-Note: The behaviour of this parser is different to that the `string` parser in the Parsec Μ Haskell library,
+Note: The behaviour of this parser is different to that the `string` parser in the Parsec_t Μ M Haskell library,
 as this one is all-or-nothing.
 -/
 def str (s : string) : m string :=
@@ -516,29 +541,33 @@ do it ← left_over,
 
 /-- Add trace information about `p`'s input and output. -/
 def dbg (label : string) (p : m α) : m α :=
-map (λ β, parsec.dbg label) p
+map (λ m' inst β, @parsec_t.dbg m' inst μ β label) p
 
 end monad_parsec
 
 namespace monad_parsec
-open parsec
+open parsec_t
 variables {m : Type → Type} [monad m] [monad_parsec unit m] {α β : Type}
 
 end monad_parsec
 
-namespace parsec
+namespace parsec_t
 open monad_parsec
 variables {m : Type → Type} [monad m] {α β : Type}
 
-def parse (p : parsec μ α) (s : string) (fname := "") : except (message μ) α :=
+def parse (p : parsec_t μ m α) (s : string) (fname := "") : m (except (message μ) α) :=
 run p s fname
 
-def parse_with_eoi [inhabited μ] (p : parsec μ α) (s : string) (fname := "") : except (message μ) α :=
+def parse_with_eoi [inhabited μ] (p : parsec_t μ m α) (s : string) (fname := "") : m (except (message μ) α) :=
 run (p <* eoi) s fname
 
-def parse_with_left_over [inhabited μ] (p : parsec μ α) (s : string) (fname := "") : except (message μ) (α × iterator) :=
+def parse_with_left_over [inhabited μ] (p : parsec_t μ m α) (s : string) (fname := "") : m (except (message μ) (α × iterator)) :=
 run (prod.mk <$> p <*> left_over) s fname
 
-end parsec
+end parsec_t
+
+def parsec.parse {α : Type} (p : parsec μ α) (s : string) (fname := "") : except (message μ) α :=
+parsec_t.parse p s fname
+
 end parser
 end lean

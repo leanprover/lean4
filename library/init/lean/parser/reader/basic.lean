@@ -81,7 +81,7 @@ structure reader_state :=
 structure reader_config := mk
 
 @[derive monad alternative monad_reader monad_state monad_parsec monad_except]
-abbreviation read_t (m : Type → Type) [monad m] := reader_t reader_config $ state_t reader_state $ parsec_t syntax m
+def read_t (m : Type → Type) [monad m] := reader_t reader_config $ state_t reader_state $ parsec_t syntax m
 abbreviation basic_read_m := read_t id
 abbreviation basic_reader := basic_read_m syntax
 

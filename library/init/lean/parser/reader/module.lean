@@ -11,14 +11,18 @@ import init.control.coroutine
 
 namespace lean.parser
 namespace reader
-open combinators monad_parsec
+open combinators monad_parsec coroutine
 open reader.has_tokens reader.has_view
 
 local postfix `?`:10000 := optional
 local postfix *:10000 := combinators.many
 local postfix +:10000 := combinators.many1
 
-abbreviation module_read_m := read_t (coroutine unit syntax)
+section
+local attribute [reducible] read_t
+@[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_coroutine]
+def module_read_m := read_t (coroutine unit syntax)
+end
 abbreviation module_reader := module_read_m syntax
 
 instance module_read_m.lift_basic_read_m : has_monad_lift_t basic_read_m module_read_m :=
@@ -39,7 +43,7 @@ node! import_path [
 def import.reader : module_reader :=
 node! «import» ["import", imports: import_path.reader+]
 
-set_option class.instance_max_depth 300
+set_option class.instance_max_depth 200
 @[derive reader.has_view reader.has_tokens]
 def open_spec.reader : command_reader :=
 node! open_spec [
@@ -188,7 +192,7 @@ private def commands_aux : bool → list syntax → nat → module_reader
       pure (tt, some msg.custom)
     },
   match c with
-  | some c := coroutine.monad_coroutine.yield c >> commands_aux recovering (c :: cs) n
+  | some c := yield c >> commands_aux recovering (c :: cs) n
   | none   := commands_aux recovering cs n
 
 def commands.reader : module_reader :=

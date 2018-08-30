@@ -12,12 +12,12 @@ namespace lean.parser
 namespace reader
 open combinators reader.has_view
 
-@[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec]
-abbreviation command_read_m := rec_t syntax basic_read_m
+@[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec monad_basic_read]
+def command_read_m := rec_t syntax basic_read_m
 abbreviation command_reader := command_read_m syntax
 
-@[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec]
-abbreviation term_read_m := rec_t syntax command_read_m
+@[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec monad_basic_read]
+def term_read_m := rec_t syntax command_read_m
 abbreviation term_reader := term_read_m syntax
 
 @[derive reader.has_tokens reader.has_view]

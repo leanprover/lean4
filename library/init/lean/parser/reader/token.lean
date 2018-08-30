@@ -53,7 +53,8 @@ do tk ← whitespace *> match_token,
     | _                 := pure ())
 | 0 := error "unreachable"
 
-variables {m : Type → Type} [has_monad_lift_t basic_read_m m]
+abbreviation monad_basic_read := has_monad_lift_t basic_read_m
+variables {m : Type → Type} [monad_basic_read m]
 local notation `reader` := m syntax
 local notation `lift` := @monad_lift basic_read_m _ _ _
 

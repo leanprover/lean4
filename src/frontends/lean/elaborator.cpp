@@ -3282,9 +3282,9 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
             r = mdata_expr(r);
             r = visit(r, expected_type);
             auto m = mk_metavar(mk_Type(), r);
-            auto inst = m_ctx.mk_class_instance(mk_app(mk_const(name{"lean", "parser", "reader", "has_view"}), exp, r, m));
+            auto inst = m_ctx.mk_class_instance(mk_app(mk_const(name{"lean", "parser", "has_view"}), exp, r, m));
             if (!inst)
-                throw elaborator_exception(e, sstream() << "Could not infer instance of reader.has_view for '" << r
+                throw elaborator_exception(e, sstream() << "Could not infer instance of parser.has_view for '" << r
                                                         << "'");
             struc << "(«" << fname << "» : " << instantiate_mvars(m) << ")\n";
 
@@ -3315,7 +3315,7 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
             stx_pat << "])";
             reviews << "])";
             new_args.push_back(mk_app(mk_const({"lean", "parser", "monad_parsec", "try"}),
-                                      mk_app(mk_const({"lean", "parser", "reader", "combinators", "seq"}),
+                                      mk_app(mk_const({"lean", "parser", "combinators", "seq"}),
                                              mk_lean_list(new_try_args))));
         }
     }
@@ -3334,7 +3334,7 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
     p.parse_command_like();
     m_env = p.env();
     m_ctx.set_env(m_env);
-    return visit(mk_app(mk_const({"lean", "parser", "reader", "combinators", "node"}), mk_const(get_namespace(p.env()) + macro), mk_lean_list(new_args)),
+    return visit(mk_app(mk_const({"lean", "parser", "combinators", "node"}), mk_const(get_namespace(p.env()) + macro), mk_lean_list(new_args)),
                  expected_type);
 }
 
@@ -3358,9 +3358,9 @@ expr elaborator::visit_node_choice_macro(expr const & e, optional<expr> const & 
         r = mdata_expr(r);
         auto m = mk_metavar(mk_Type(), r);
         r = visit(r, expected_type);
-        auto inst = m_ctx.mk_class_instance(mk_app(mk_const(name{"lean", "parser", "reader", "has_view"}), exp, r, m));
+        auto inst = m_ctx.mk_class_instance(mk_app(mk_const(name{"lean", "parser", "has_view"}), exp, r, m));
         if (!inst)
-            throw elaborator_exception(e, sstream() << "Could not infer instance of reader.has_view for '" << r
+            throw elaborator_exception(e, sstream() << "Could not infer instance of parser.has_view for '" << r
                                                     << "'");
         struc << "| «" << fname << "» : " << instantiate_mvars(m) << " -> " << macro.to_string() << ".view\n";
 
@@ -3392,10 +3392,10 @@ expr elaborator::visit_node_choice_macro(expr const & e, optional<expr> const & 
     p.parse_command_like();
     m_env = p.env();
     m_ctx.set_env(m_env);
-    return visit(mk_app(mk_const({"lean", "parser", "reader", "combinators", "node"}),
+    return visit(mk_app(mk_const({"lean", "parser", "combinators", "node"}),
                         mk_const(full_macro),
                         mk_app(mk_const({"list", "cons"}),
-                               mk_app(mk_const({"lean", "parser", "reader", "combinators", "choice"}),
+                               mk_app(mk_const({"lean", "parser", "combinators", "choice"}),
                                       mk_lean_list(new_args)),
                                mk_const({"list", "nil"}))), expected_type);
 }

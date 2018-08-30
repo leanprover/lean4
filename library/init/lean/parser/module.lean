@@ -3,49 +3,49 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich
 
-Module-level readers and macros
+Module-level parsers and macros
 -/
 prelude
-import init.lean.parser.reader.token init.lean.parser.reader.term init.data.list.instances
+import init.lean.parser.token init.lean.parser.term init.data.list.instances
 import init.control.coroutine
 
-namespace lean.parser
-namespace reader
+namespace lean
+namespace parser
 open combinators monad_parsec coroutine
-open reader.has_tokens reader.has_view
+open parser.has_tokens parser.has_view
 
 local postfix `?`:10000 := optional
 local postfix *:10000 := combinators.many
 local postfix +:10000 := combinators.many1
 
 section
-local attribute [reducible] read_t
+local attribute [reducible] parser_t
 @[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_coroutine]
-def module_read_m := read_t (coroutine unit syntax)
+def module_parser_m := parser_t (coroutine unit syntax)
 end
-abbreviation module_reader := module_read_m syntax
+abbreviation module_parser := module_parser_m syntax
 
-instance module_read_m.lift_basic_read_m : has_monad_lift_t basic_read_m module_read_m :=
+instance module_parser_m.lift_basic_parser_m : has_monad_lift_t basic_parser_m module_parser_m :=
 { monad_lift := λ α x, ⟨λ r, ⟨λ st it, pure (((x.run r).run st) it)⟩⟩ }
 
-@[derive reader.has_view reader.has_tokens]
-def prelude.reader : module_reader :=
+@[derive parser.has_view parser.has_tokens]
+def prelude.parser : module_parser :=
 node! «prelude» ["prelude"]
 
-@[derive reader.has_view reader.has_tokens]
-def import_path.reader : module_reader :=
+@[derive parser.has_view parser.has_tokens]
+def import_path.parser : module_parser :=
 -- use `raw_symbol` to ignore registered tokens like ".."
 node! import_path [
   dirups: (raw_symbol ".")*,
   module: ident]
 
-@[derive reader.has_view reader.has_tokens]
-def import.reader : module_reader :=
-node! «import» ["import", imports: import_path.reader+]
+@[derive parser.has_view parser.has_tokens]
+def import.parser : module_parser :=
+node! «import» ["import", imports: import_path.parser+]
 
 set_option class.instance_max_depth 200
-@[derive reader.has_view reader.has_tokens]
-def open_spec.reader : command_reader :=
+@[derive parser.has_view parser.has_tokens]
+def open_spec.parser : command_parser :=
 node! open_spec [
  id: ident,
  as: node! open_spec.as ["as", id: ident]?,
@@ -54,16 +54,16 @@ node! open_spec [
  «hiding»: node! open_spec.hiding ["(", "hiding", ids: ident+, ")"]?
 ]+
 
-@[derive reader.has_tokens]
-def open.reader : command_reader :=
-node! «open» ["open", spec: open_spec.reader]
+@[derive parser.has_tokens]
+def open.parser : command_parser :=
+node! «open» ["open", spec: open_spec.parser]
 
-@[derive reader.has_tokens]
-def section.reader : command_reader :=
+@[derive parser.has_tokens]
+def section.parser : command_parser :=
 node! «section» ["section", name: ident?, commands: recurse*, "end", end_name: ident?]
 
-@[derive reader.has_tokens]
-def universe.reader : command_reader :=
+@[derive parser.has_tokens]
+def universe.parser : command_parser :=
 any_of [
   -- local
   node! universe_variables [try ["universe", "variables"], ids: ident+],
@@ -73,35 +73,35 @@ any_of [
 ]
 
 namespace notation_spec
-@[derive reader.has_tokens reader.has_view]
-def precedence.reader : command_reader :=
+@[derive parser.has_tokens parser.has_view]
+def precedence.parser : command_parser :=
 node! «precedence» [":", prec: number]/-TODO <|> expr-/
 
-def quoted_symbol.reader : command_reader :=
+def quoted_symbol.parser : command_parser :=
 do (s, info) ← with_source_info $ take_until (= '`'),
    pure $ syntax.atom ⟨info, atomic_val.string s⟩
 
-instance quoted_symbol.tokens : reader.has_tokens quoted_symbol.reader := ⟨[]⟩
-instance quoted_symbol.view : reader.has_view quoted_symbol.reader syntax := default _
+instance quoted_symbol.tokens : parser.has_tokens quoted_symbol.parser := ⟨[]⟩
+instance quoted_symbol.view : parser.has_view quoted_symbol.parser syntax := default _
 
-@[derive reader.has_tokens reader.has_view]
-def symbol_quote.reader : command_reader :=
+@[derive parser.has_tokens parser.has_view]
+def symbol_quote.parser : command_parser :=
 node! notation_quoted_symbol [
   left_quote: raw_symbol "`",
-  symbol: quoted_symbol.reader,
+  symbol: quoted_symbol.parser,
   right_quote: raw_symbol "`",
-  prec: precedence.reader?]
+  prec: precedence.parser?]
 
 --TODO(Sebastian): cannot be called `symbol` because of hygiene problems
-@[derive reader.has_tokens reader.has_view]
-def notation_symbol.reader : command_reader :=
+@[derive parser.has_tokens parser.has_view]
+def notation_symbol.parser : command_parser :=
 node_choice! notation_symbol {
-  quoted: symbol_quote.reader
+  quoted: symbol_quote.parser
   --TODO, {read := do tk ← token, /- check if reserved token-/}
 }
 
-@[derive reader.has_tokens reader.has_view]
-def action.reader : command_reader :=
+@[derive parser.has_tokens parser.has_view]
+def action.parser : command_parser :=
 node! action [":", action: node_choice! action_kind {
   prec: number,
   "max",
@@ -113,65 +113,65 @@ node! action [":", action: node_choice! action_kind {
     optional prec,
     notation_tk,-/}]
 
-@[derive reader.has_tokens reader.has_view]
-def transition.reader : command_reader :=
+@[derive parser.has_tokens parser.has_view]
+def transition.parser : command_parser :=
 node_choice! transition {
-  binder: node! binder ["binder", prec: precedence.reader?],
-  binders: node! binders ["binders", prec: precedence.reader?],
-  arg: node! argument [id: ident, action: action.reader?]
+  binder: node! binder ["binder", prec: precedence.parser?],
+  binders: node! binders ["binders", prec: precedence.parser?],
+  arg: node! argument [id: ident, action: action.parser?]
 }
 
-@[derive reader.has_tokens reader.has_view]
-def rule.reader : command_reader :=
-node! rule [symbol: notation_symbol.reader, transition: transition.reader?]
+@[derive parser.has_tokens parser.has_view]
+def rule.parser : command_parser :=
+node! rule [symbol: notation_symbol.parser, transition: transition.parser?]
 
 end notation_spec
 
-@[derive reader.has_tokens reader.has_view]
-def notation_spec.reader : command_reader :=
+@[derive parser.has_tokens parser.has_view]
+def notation_spec.parser : command_parser :=
 node_choice! notation_spec {
   number_literal: number,
-  rules: node! notation_spec.rules [id: ident?, rules: notation_spec.rule.reader*]
+  rules: node! notation_spec.rules [id: ident?, rules: notation_spec.rule.parser*]
 }
 
-@[derive reader.has_tokens reader.has_view]
-def notation.reader : command_reader :=
-node! «notation» ["notation", spec: notation_spec.reader, ":=", term: term.reader]
+@[derive parser.has_tokens parser.has_view]
+def notation.parser : command_parser :=
+node! «notation» ["notation", spec: notation_spec.parser, ":=", term: term.parser]
 
-@[derive reader.has_tokens reader.has_view]
-def reserve_notation.reader : command_reader :=
-node! «reserve_notation» [try ["reserve", "notation"], spec: notation_spec.reader]
+@[derive parser.has_tokens parser.has_view]
+def reserve_notation.parser : command_parser :=
+node! «reserve_notation» [try ["reserve", "notation"], spec: notation_spec.parser]
 
-@[derive reader.has_tokens reader.has_view]
-def mixfix.kind.reader : command_reader :=
+@[derive parser.has_tokens parser.has_view]
+def mixfix.kind.parser : command_parser :=
 node_choice! mixfix.kind {"prefix", "infix", "infixl", "infixr", "postfix"}
 
-@[derive reader.has_tokens reader.has_view]
-def mixfix.reader : command_reader :=
+@[derive parser.has_tokens parser.has_view]
+def mixfix.parser : command_parser :=
 node! «mixfix» [
-  kind: mixfix.kind.reader,
-  symbol: notation_spec.notation_symbol.reader, ":=", term: term.reader]
+  kind: mixfix.kind.parser,
+  symbol: notation_spec.notation_symbol.parser, ":=", term: term.parser]
 
-@[derive reader.has_tokens reader.has_view]
-def reserve_mixfix.reader : command_reader :=
+@[derive parser.has_tokens parser.has_view]
+def reserve_mixfix.parser : command_parser :=
 node! «reserve_mixfix» [
-  try ["reserve", kind: mixfix.kind.reader],
-  symbol: notation_spec.notation_symbol.reader]
+  try ["reserve", kind: mixfix.kind.parser],
+  symbol: notation_spec.notation_symbol.parser]
 
-@[derive reader.has_tokens reader.has_view]
-def command.reader : module_reader :=
+@[derive parser.has_tokens parser.has_view]
+def command.parser : module_parser :=
 monad_lift $ with_recurse $ any_of [
-  open.reader, section.reader, universe.reader, notation.reader, reserve_notation.reader,
-  mixfix.reader, reserve_mixfix.reader] <?> "command"
+  open.parser, section.parser, universe.parser, notation.parser, reserve_notation.parser,
+  mixfix.parser, reserve_mixfix.parser] <?> "command"
 
 /-- Read commands, recovering from errors inside commands (attach partial syntax tree)
     as well as unknown commands (skip input). -/
-private def commands_aux : bool → list syntax → nat → module_reader
+private def commands_aux : bool → list syntax → nat → module_parser
 | recovering cs 0            := error "unreachable"
 -- on end of input, return list of parsed commands
 | recovering cs (nat.succ n) := (monad_parsec.eoi *> pure (syntax.node ⟨none, cs.reverse⟩)) <|> do
   (recovering, c) ← catch (do {
-    c ← command.reader,
+    c ← command.parser,
     pure (ff, some c)
   } <|> do {
       -- unknown command: try to skip token, or else single character
@@ -179,7 +179,7 @@ private def commands_aux : bool → list syntax → nat → module_reader
         it ← left_over,
         log_error $ to_string { parsec.message . expected := dlist.singleton "command", it := it, custom := () }
       },
-      tk_start ← reader_state.token_start <$> get,
+      tk_start ← parser_state.token_start <$> get,
       -- since the output of the following parser is never captured in a syntax tree...
       try (monad_lift token *> pure ()) <|> (any *> pure ()),
       -- ...restore `token_start` after it
@@ -195,22 +195,22 @@ private def commands_aux : bool → list syntax → nat → module_reader
   | some c := yield c >> commands_aux recovering (c :: cs) n
   | none   := commands_aux recovering cs n
 
-def commands.reader : module_reader :=
+def commands.parser : module_parser :=
 do { rem ← remaining, commands_aux ff [] rem.succ }
 
-instance commands.tokens : reader.has_tokens commands.reader :=
-⟨tokens command.reader⟩
+instance commands.tokens : parser.has_tokens commands.parser :=
+⟨tokens command.parser⟩
 
--- custom reader requires custom instance
-instance commands.reader.has_view : has_view commands.reader (list syntax) :=
-{..many.view command.reader}
+-- custom parser requires custom instance
+instance commands.parser.has_view : has_view commands.parser (list syntax) :=
+{..many.view command.parser}
 
-@[derive reader.has_tokens reader.has_view]
-def module.reader : module_reader :=
-node! module [«prelude»: prelude.reader?, imports: import.reader*, commands: commands.reader]
-end reader
+@[derive parser.has_tokens parser.has_view]
+def module.parser : module_parser :=
+node! module [«prelude»: prelude.parser?, imports: import.parser*, commands: commands.parser]
+end parser
 
-namespace reader
+namespace parser
 open syntax_node_kind.has_view combinators notation_spec
 
 def mixfix.expand (stx : syntax) : option syntax :=
@@ -231,5 +231,5 @@ do v ← view mixfix stx,
      | _ := sorry,
    pure $ review «notation» ⟨"notation", spec, ":=", v.term⟩
 
-end reader
-end lean.parser
+end parser
+end lean

@@ -954,13 +954,13 @@ static expr parse_node(parser & p, unsigned, expr const *, pos_info const &) {
             if (p.curr_is_string()) {
                 fname = p.get_str_val();
                 p.next();
-                reader = mk_app(mk_const({"lean", "parser", "reader", "symbol"}), from_string(p.get_str_val()));
+                reader = mk_app(mk_const({"lean", "parser", "symbol"}), from_string(p.get_str_val()));
                 args.push_back(mk_mdata(set_name(kvmap(), "fname", fname), reader));
             } else if (p.curr_is_token_or_id("try")) {
                 p.next();
                 auto try_args = go();
-                args.push_back(mk_app(mk_const({"lean", "parser", "reader", "combinators", "try"}),
-                                      mk_app(mk_const({"lean", "parser", "reader", "combinators", "seq"}),
+                args.push_back(mk_app(mk_const({"lean", "parser", "combinators", "try"}),
+                                      mk_app(mk_const({"lean", "parser", "combinators", "seq"}),
                                              mk_lean_list(try_args))));
             } else {
                 fname = p.check_id_next("identifier expected");
@@ -977,7 +977,7 @@ static expr parse_node(parser & p, unsigned, expr const *, pos_info const &) {
     };
     auto args = go();
     return mk_mdata(set_name(kvmap(), "node!", macro),
-                    mk_app(mk_const({"lean", "parser", "reader", "combinators", "node"}), mk_const(get_namespace(p.env()) + macro), mk_lean_list(args)));
+                    mk_app(mk_const({"lean", "parser", "combinators", "node"}), mk_const(get_namespace(p.env()) + macro), mk_lean_list(args)));
 }
 
 static expr parse_choice(parser & p, unsigned, expr const *, pos_info const &) {
@@ -991,7 +991,7 @@ static expr parse_choice(parser & p, unsigned, expr const *, pos_info const &) {
         if (p.curr_is_string()) {
             fname = p.get_str_val();
             p.next();
-            reader = mk_app(mk_const({"lean", "parser", "reader", "symbol"}), from_string(p.get_str_val()));
+            reader = mk_app(mk_const({"lean", "parser", "symbol"}), from_string(p.get_str_val()));
             args.push_back(mk_mdata(set_name(kvmap(), "fname", fname), reader));
         } else {
             fname = p.check_id_next("identifier expected");

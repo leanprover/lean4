@@ -7,7 +7,8 @@ prelude
 import init.data.rbmap init.lean.parser.syntax init.control.combinators
 
 namespace lean
-namespace parser
+namespace expander
+open parser
 
 local attribute [instance] name.has_lt_quick
 
@@ -85,5 +86,5 @@ def scope.insert (sc : scope) (id : syntax_ident) : scope :=
 def expand' (stx : syntax) : parse_m parse_state unit syntax :=
 adapt_state (λ _, ({expand_state . next_tag := 0}, ())) (λ _, id) (expand 1000 stx)
 
-end parser
+end expander
 end lean

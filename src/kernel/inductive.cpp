@@ -68,6 +68,11 @@ public:
 
     type_checker tc(local_ctx const & lctx = local_ctx()) { return type_checker(m_env, lctx, true, !m_is_meta); }
 
+    /** Return type of the parameter at position `i` */
+    expr get_param_type(unsigned i) const {
+        return m_lctx.get_local_decl(m_params[i]).get_type();
+    }
+
     /**
        \brief Check whether the type of each datatype is well typed, and do not contain free variables or meta variables,
        all inductive datatypes have the same parameters, the number of parameters match the argument m_nparams,
@@ -94,9 +99,15 @@ public:
             unsigned i = 0;
             while (is_pi(type)) {
                 if (i < m_nparams) {
-                    expr param = m_lctx.mk_local_decl(m_ngen, binding_name(type), binding_domain(type), binding_info(type));
-                    m_params.push_back(param);
-                    type = instantiate(binding_body(type), param);
+                    if (first) {
+                        expr param = m_lctx.mk_local_decl(m_ngen, binding_name(type), binding_domain(type), binding_info(type));
+                        m_params.push_back(param);
+                        type = instantiate(binding_body(type), param);
+                    } else {
+                        if (!tc(m_lctx).is_def_eq(binding_domain(type), get_param_type(i)))
+                            throw kernel_exception(m_env, "parameters of all inductive datatypes must match");
+                        type = instantiate(binding_body(type), m_params[i]);
+                    }
                     i++;
                 } else {
                     type = binding_body(type);
@@ -172,11 +183,6 @@ public:
             m_env.add_core(constant_info(inductive_val(n, m_lparams, ind_type.get_type(), m_nparams, m_nindices[idx],
                                                        all, names(cnstr_names), rec, m_is_meta)));
         }
-    }
-
-    /** Return type of the parameter at position `i` */
-    expr get_param_type(unsigned i) const {
-        return m_lctx.get_local_decl(m_params[i]).get_type();
     }
 
     /** \brief Return true iff `t` is a term of the form `I As t`

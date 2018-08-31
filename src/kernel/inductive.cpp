@@ -21,6 +21,10 @@ name mk_rec_name(name const & I) {
     return I + name("rec");
 }
 
+/* Auxiliary class for adding a mutual inductive datatype declaration.
+
+   \remak It does not support nested inductive datatypes. The helper
+   class elim_nested_inductive_fn should be used as a preprocessing step. */
 class add_inductive_fn {
     environment            m_env;
     name_generator         m_ngen;
@@ -201,12 +205,61 @@ public:
         return true;
     }
 
-    /** \brief Check whether the constructor declarations are type correct, parameters are in the expected positions,
-        constructor fields are in acceptable universe levels, and returns the expected result.
+    /** \brief Return some(i) iff `t` is of the form `I As t` where `I` the inductive `i`-th datatype being defined. */
+    optional<unsigned> is_valid_ind_app(expr const & t) {
+        for (unsigned i = 0; i < m_ind_types.size(); i++) {
+            if (is_valid_ind_app(t, i))
+                return optional<unsigned>(i);
+        }
+        return optional<unsigned>();
+    }
 
-        \brief We do not check positivity and whether it contains valid nested occurrences of
-        the inductive datatypes being defined. */
-    void check_constructor_types() {
+    /** \brief Return true iff `e` is one of the inductive datatype being declared. */
+    bool is_ind_occ(expr const & e) {
+        return
+            is_constant(e) &&
+            std::any_of(m_ind_cnsts.begin(), m_ind_cnsts.end(),
+                        [&](expr const & c) { return const_name(e) == const_name(c); });
+    }
+
+    /** \brief Return true iff `t` does not contain any occurrence of a datatype being declared. */
+    bool has_ind_occ(expr const & t) {
+        return static_cast<bool>(find(t, [&](expr const & e, unsigned) { return is_ind_occ(e); }));
+    }
+
+    /** \brief Return `some(d_idx)` iff `t` is a recursive argument, `d_idx` is the index of the
+        recursive inductive datatype. Otherwise, return `none`. */
+    optional<unsigned> is_rec_argument(local_ctx lctx, expr t) {
+        t = tc(lctx).whnf(t);
+        while (is_pi(t)) {
+            expr local = lctx.mk_local_decl(m_ngen, binding_name(t), binding_domain(t), binding_info(t));
+            t = tc(lctx).whnf(instantiate(binding_body(t), local));
+        }
+        return is_valid_ind_app(t);
+    }
+
+    /** \brief Check if \c t contains only positive occurrences of the inductive datatypes being declared. */
+    void check_positivity(local_ctx lctx, expr t, name const & cnstr_name, int arg_idx) {
+        t = tc(lctx).whnf(t);
+        if (!has_ind_occ(t)) {
+            // nonrecursive argument
+        } else if (is_pi(t)) {
+            if (has_ind_occ(binding_domain(t)))
+                throw kernel_exception(m_env, sstream() << "arg #" << (arg_idx + 1) << " of '" << cnstr_name << "' "
+                                       "has a non positive occurrence of the datatypes being declared");
+            expr local = lctx.mk_local_decl(m_ngen, binding_name(t), binding_domain(t), binding_info(t));
+            check_positivity(lctx, instantiate(binding_body(t), local), cnstr_name, arg_idx);
+        } else if (is_valid_ind_app(t)) {
+            // recursive argument
+        } else {
+            throw kernel_exception(m_env, sstream() << "arg #" << (arg_idx + 1) << " of '" << cnstr_name << "' "
+                                   "contains a non valid occurrence of the datatypes being declared");
+        }
+    }
+
+    /** \brief Check whether the constructor declarations are type correct, parameters are in the expected positions,
+        constructor fields are in acceptable universe levels, positivity constraints, and returns the expected result. */
+    void check_constructors() {
         for (unsigned idx = 0; idx < m_ind_types.size(); idx++) {
             inductive_type const & ind_type = m_ind_types[idx];
             for (constructor const & cnstr : ind_type.get_cnstrs()) {
@@ -232,7 +285,9 @@ public:
                             throw kernel_exception(m_env, sstream() << "universe level of type_of(arg #" << (i + 1) << ") "
                                                    << "of '" << n << "' is too big for the corresponding inductive datatype");
                         }
-                        expr local = m_lctx.mk_local_decl(m_ngen, binding_name(t), binding_domain(t), binding_info(t));
+                        if (!m_is_meta)
+                            check_positivity(lctx, binding_domain(t), n, i);
+                        expr local = lctx.mk_local_decl(m_ngen, binding_name(t), binding_domain(t), binding_info(t));
                         t = instantiate(binding_body(t), local);
                     }
                     i++;
@@ -357,7 +412,7 @@ public:
         m_env.check_duplicated_univ_params(m_lparams);
         check_inductive_types();
         declare_inductive_types();
-        check_constructor_types();
+        check_constructors();
         declare_constructors();
         init_elim_level();
         init_K_target();

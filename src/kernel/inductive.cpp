@@ -68,27 +68,30 @@ public:
         to_buffer(decl.get_types(), m_ind_types);
     }
 
-    type_checker tc(local_ctx const & lctx = local_ctx()) { return type_checker(m_env, lctx, true, !m_is_meta); }
+    type_checker tc() { return type_checker(m_env, m_lctx, true, !m_is_meta); }
 
     /** Return type of the parameter at position `i` */
     expr get_param_type(unsigned i) const {
         return m_lctx.get_local_decl(m_params[i]).get_type();
     }
 
-    expr mk_local_decl(local_ctx & lctx, name const & n, expr const & t, binder_info const & bi = binder_info()) {
-        return lctx.mk_local_decl(m_ngen, n, t, bi);
+    expr mk_local_decl(name const & n, expr const & t, binder_info const & bi = binder_info()) {
+        return m_lctx.mk_local_decl(m_ngen, n, t, bi);
     }
 
-    expr mk_local_decl_for(local_ctx & lctx, expr const & t) {
+    expr mk_local_decl_for(expr const & t) {
         lean_assert(is_pi(t));
-        return lctx.mk_local_decl(m_ngen, binding_name(t), binding_domain(t), binding_info(t));
+        return m_lctx.mk_local_decl(m_ngen, binding_name(t), binding_domain(t), binding_info(t));
     }
 
-    expr whnf(local_ctx const & lctx, expr const & t) { return tc(lctx).whnf(t); }
+    expr whnf(expr const & t) { return tc().whnf(t); }
 
-    expr infer_type(local_ctx const & lctx, expr const & t) { return tc(lctx).infer(t); }
+    expr infer_type(expr const & t) { return tc().infer(t); }
 
-    bool is_def_eq(local_ctx const & lctx, expr const & t1, expr const & t2) { return tc(lctx).is_def_eq(t1, t2); }
+    bool is_def_eq(expr const & t1, expr const & t2) { return tc().is_def_eq(t1, t2); }
+
+    expr mk_pi(buffer<expr> const & fvars, expr const & e) const { return m_lctx.mk_pi(fvars, e); }
+    expr mk_pi(expr const & fvar, expr const & e) const { return m_lctx.mk_pi(1, &fvar, e); }
 
     /**
        \brief Check whether the type of each datatype is well typed, and do not contain free variables or meta variables,
@@ -117,11 +120,11 @@ public:
             while (is_pi(type)) {
                 if (i < m_nparams) {
                     if (first) {
-                        expr param = mk_local_decl_for(m_lctx, type);
+                        expr param = mk_local_decl_for(type);
                         m_params.push_back(param);
                         type = instantiate(binding_body(type), param);
                     } else {
-                        if (!is_def_eq(m_lctx, binding_domain(type), get_param_type(i)))
+                        if (!is_def_eq(binding_domain(type), get_param_type(i)))
                             throw kernel_exception(m_env, "parameters of all inductive datatypes must match");
                         type = instantiate(binding_body(type), m_params[i]);
                     }
@@ -134,7 +137,7 @@ public:
             if (i != m_nparams)
                 throw kernel_exception(m_env, "number of parameters mismatch in inductive datatype declaration");
 
-            type = tc(m_lctx).ensure_sort(type);
+            type = tc().ensure_sort(type);
 
             if (first) {
                 m_result_level = sort_level(type);
@@ -241,26 +244,26 @@ public:
 
     /** \brief Return `some(d_idx)` iff `t` is a recursive argument, `d_idx` is the index of the
         recursive inductive datatype. Otherwise, return `none`. */
-    optional<unsigned> is_rec_argument(local_ctx lctx, expr t) {
-        t = whnf(lctx, t);
+    optional<unsigned> is_rec_argument(expr t) {
+        t = whnf(t);
         while (is_pi(t)) {
-            expr local = mk_local_decl_for(lctx, t);
-            t = whnf(lctx, instantiate(binding_body(t), local));
+            expr local = mk_local_decl_for(t);
+            t = whnf(instantiate(binding_body(t), local));
         }
         return is_valid_ind_app(t);
     }
 
     /** \brief Check if \c t contains only positive occurrences of the inductive datatypes being declared. */
-    void check_positivity(local_ctx lctx, expr t, name const & cnstr_name, int arg_idx) {
-        t = whnf(lctx, t);
+    void check_positivity(expr t, name const & cnstr_name, int arg_idx) {
+        t = whnf(t);
         if (!has_ind_occ(t)) {
             // nonrecursive argument
         } else if (is_pi(t)) {
             if (has_ind_occ(binding_domain(t)))
                 throw kernel_exception(m_env, sstream() << "arg #" << (arg_idx + 1) << " of '" << cnstr_name << "' "
                                        "has a non positive occurrence of the datatypes being declared");
-            expr local = mk_local_decl_for(lctx, t);
-            check_positivity(lctx, instantiate(binding_body(t), local), cnstr_name, arg_idx);
+            expr local = mk_local_decl_for(t);
+            check_positivity(instantiate(binding_body(t), local), cnstr_name, arg_idx);
         } else if (is_valid_ind_app(t)) {
             // recursive argument
         } else {
@@ -281,15 +284,14 @@ public:
                 check_no_metavar_no_fvar(m_env, n, t);
                 tc().check(t, m_lparams);
                 unsigned i = 0;
-                local_ctx lctx = m_lctx;
                 while (is_pi(t)) {
                     if (i < m_nparams) {
-                        if (!is_def_eq(lctx, binding_domain(t), get_param_type(i)))
+                        if (!is_def_eq(binding_domain(t), get_param_type(i)))
                             throw kernel_exception(m_env, sstream() << "arg #" << (i + 1) << " of '" << n << "' "
                                                    << "does not match inductive datatypes parameters'");
                         t = instantiate(binding_body(t), m_params[i]);
                     } else {
-                        expr s = tc(lctx).ensure_type(binding_domain(t));
+                        expr s = tc().ensure_type(binding_domain(t));
                         // the sort is ok IF
                         //   1- its level is <= inductive datatype level, OR
                         //   2- is an inductive predicate
@@ -298,8 +300,8 @@ public:
                                                    << "of '" << n << "' is too big for the corresponding inductive datatype");
                         }
                         if (!m_is_meta)
-                            check_positivity(lctx, binding_domain(t), n, i);
-                        expr local = mk_local_decl_for(lctx, t);
+                            check_positivity(binding_domain(t), n, i);
+                        expr local = mk_local_decl_for(t);
                         t = instantiate(binding_body(t), local);
                     }
                     i++;
@@ -356,11 +358,10 @@ public:
         expr type  = constructor_type(cnstr);
         unsigned i = 0;
         buffer<expr> to_check; /* Arguments that we must check if occur in the result type */
-        local_ctx lctx;
         while (is_pi(type)) {
-            expr fvar = mk_local_decl_for(lctx, type);
+            expr fvar = mk_local_decl_for(type);
             if (i >= m_nparams) {
-                expr s = tc(lctx).ensure_type(binding_domain(type));
+                expr s = tc().ensure_type(binding_domain(type));
                 if (!is_zero(sort_level(s))) {
                     /* Current argument is not in Prop (i.e., condition 1 failed).
                        We save it in to_check to be able to try condition 2 above. */
@@ -435,7 +436,7 @@ public:
     /** \brief Populate m_rec_infos. */
     void mk_rec_infos() {
         unsigned d_idx = 0;
-        /* First, populate the fields, m_C, m_indices, m_lctx, m_major */
+        /* First, populate the fields, m_C, m_indices, m_major */
         for (inductive_type const & ind_type : m_ind_types) {
             rec_info info;
             expr t      = ind_type.get_type();
@@ -444,21 +445,20 @@ public:
                 if (i < m_nparams) {
                     t = instantiate(binding_body(t), m_params[i]);
                 } else {
-                    expr idx = mk_local_decl_for(m_lctx, t);
+                    expr idx = mk_local_decl_for(t);
                     info.m_indices.push_back(idx);
                     t = instantiate(binding_body(t), idx);
                 }
                 i++;
             }
-            info.m_major = mk_local_decl(m_lctx, "t",
-                                         mk_app(mk_app(m_ind_cnsts[d_idx], m_params), info.m_indices));
+            info.m_major = mk_local_decl("t", mk_app(mk_app(m_ind_cnsts[d_idx], m_params), info.m_indices));
             expr C_ty = mk_sort(m_elim_level);
-            C_ty      = m_lctx.mk_pi(info.m_major, C_ty);
-            C_ty      = m_lctx.mk_pi(info.m_indices, C_ty);
+            C_ty      = mk_pi(info.m_major, C_ty);
+            C_ty      = mk_pi(info.m_indices, C_ty);
             name C_name("C");
             if (m_ind_types.size() > 1)
                 C_name = name(C_name).append_after(d_idx+1);
-            info.m_C = mk_local_decl(m_lctx, C_name, C_ty);
+            info.m_C = mk_local_decl(C_name, C_ty);
             m_rec_infos.push_back(info);
             d_idx++;
         }
@@ -476,9 +476,9 @@ public:
                     if (i < m_nparams) {
                         t = instantiate(binding_body(t), m_params[i]);
                     } else {
-                        expr l = mk_local_decl_for(m_lctx, t);
+                        expr l = mk_local_decl_for(t);
                         b_u.push_back(l);
-                        if (is_rec_argument(m_lctx, binding_domain(t)))
+                        if (is_rec_argument(binding_domain(t)))
                             u.push_back(l);
                         t = instantiate(binding_body(t), l);
                     }
@@ -492,24 +492,24 @@ public:
                 /* populate v using u */
                 for (unsigned i = 0; i < u.size(); i++) {
                     expr u_i    = u[i];
-                    expr u_i_ty = whnf(m_lctx, infer_type(m_lctx, u_i));
+                    expr u_i_ty = whnf(infer_type(u_i));
                     buffer<expr> xs;
                     while (is_pi(u_i_ty)) {
-                        expr x = mk_local_decl_for(m_lctx, u_i_ty);
+                        expr x = mk_local_decl_for(u_i_ty);
                         xs.push_back(x);
-                        u_i_ty = whnf(m_lctx, instantiate(binding_body(u_i_ty), x));
+                        u_i_ty = whnf(instantiate(binding_body(u_i_ty), x));
                     }
                     buffer<expr> it_indices;
                     unsigned it_idx = get_I_indices(u_i_ty, it_indices);
                     expr C_app  = mk_app(m_rec_infos[it_idx].m_C, it_indices);
                     expr u_app  = mk_app(u_i, xs);
                     C_app = mk_app(C_app, u_app);
-                    expr v_i_ty = m_lctx.mk_pi(xs, C_app);
-                    expr v_i    = mk_local_decl(m_lctx, name("v").append_after(i), v_i_ty, binder_info());
+                    expr v_i_ty = mk_pi(xs, C_app);
+                    expr v_i    = mk_local_decl(name("v").append_after(i), v_i_ty, binder_info());
                     v.push_back(v_i);
                 }
-                expr minor_ty = m_lctx.mk_pi(b_u, m_lctx.mk_pi(v, C_app));
-                expr minor    = mk_local_decl(m_lctx, name("m").append_after(minor_idx), minor_ty);
+                expr minor_ty = mk_pi(b_u, mk_pi(v, C_app));
+                expr minor    = mk_local_decl(name("m").append_after(minor_idx), minor_ty);
                 m_rec_infos[d_idx].m_minors.push_back(minor);
                 minor_idx++;
             }
@@ -539,8 +539,8 @@ public:
         for (unsigned d_idx = 0; d_idx < m_ind_types.size(); d_idx++) {
             rec_info const & info = m_rec_infos[d_idx];
             expr C_app            = mk_app(mk_app(info.m_C, info.m_indices), info.m_major);
-            expr rec_ty           = m_lctx.mk_pi(info.m_major, C_app);
-            rec_ty                = m_lctx.mk_pi(info.m_indices, rec_ty);
+            expr rec_ty           = mk_pi(info.m_major, C_app);
+            rec_ty                = mk_pi(info.m_indices, rec_ty);
             /* Add minor premises */
             unsigned nminors = 0;
             unsigned i = m_ind_types.size();
@@ -549,7 +549,7 @@ public:
                 unsigned j = m_rec_infos[i].m_minors.size();
                 while (j > 0) {
                     --j;
-                    rec_ty = m_lctx.mk_pi(m_rec_infos[i].m_minors[j], rec_ty);
+                    rec_ty = mk_pi(m_rec_infos[i].m_minors[j], rec_ty);
                     nminors++;
                 }
             }
@@ -558,10 +558,10 @@ public:
             i = m_ind_types.size();
             while (i > 0) {
                 --i;
-                rec_ty = m_lctx.mk_pi(m_rec_infos[i].m_C, rec_ty);
+                rec_ty = mk_pi(m_rec_infos[i].m_C, rec_ty);
                 nmotives++;
             }
-            rec_ty   = m_lctx.mk_pi(m_params, rec_ty);
+            rec_ty   = mk_pi(m_params, rec_ty);
             rec_ty   = infer_implicit(rec_ty, true /* strict */);
             /*
                TODO(Leo): gen reduction rule

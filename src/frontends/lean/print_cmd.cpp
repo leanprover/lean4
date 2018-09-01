@@ -383,6 +383,8 @@ void print_id_info(parser & p, message_builder & out, name const & id, bool show
                 out << n << "\n";
         } else if (d.is_constructor()) {
             print_constant(p, out, "(new) constructor", d);
+        } else if (d.is_recursor()) {
+            print_constant(p, out, "(new) recursor", d);
         }
         // print_patterns(p, c);
     }

@@ -99,8 +99,8 @@ structure recursor_val extends constant_val :=
 (nindices : nat)             -- Number of indices
 (nmotives : nat)             -- Number of motives
 (nminor : nat)               -- Number of minor premises
-(k : bool)                   -- It supports K-like reduction
 (rules : list recursor_rule) -- A reduction for each constructor
+(k : bool)                   -- It supports K-like reduction
 (is_meta : bool)
 
 inductive quot_kind

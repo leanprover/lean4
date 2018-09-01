@@ -326,12 +326,15 @@ structure recursor_val extends constant_val :=
 (nindices : nat)             -- Number of indices
 (nmotives : nat)             -- Number of motives
 (nminors : nat)              -- Number of minor premises
-(k : bool)                   -- It supports K-like reduction
 (rules : list recursor_rule) -- A reduction for each constructor
+(k : bool)                   -- It supports K-like reduction
 (is_meta : bool)
 */
 class recursor_val : public object_ref {
 public:
+    recursor_val(name const & n, level_param_names const & lparams, expr const & type,
+                 names const & all, unsigned nparams, unsigned nindices, unsigned nmotives,
+                 unsigned nminors, recursor_rules const & rules, bool k, bool is_meta);
     recursor_val(recursor_val const & other):object_ref(other) {}
     recursor_val(recursor_val && other):object_ref(other) {}
     recursor_val & operator=(recursor_val const & other) { object_ref::operator=(other); return *this; }
@@ -343,8 +346,8 @@ public:
     nat const & get_nmotives() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 4)); }
     nat const & get_nminors() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 5)); }
     recursor_rules const & get_rules() const { return static_cast<recursor_rules const &>(cnstr_obj_ref(*this, 6)); }
-    bool is_k() const;
-    bool is_meta() const;
+    bool is_k() const { return cnstr_scalar<unsigned char>(raw(), sizeof(object*)*7) != 0; }
+    bool is_meta() const { return cnstr_scalar<unsigned char>(raw(), sizeof(object*)*7 + 1) != 0; }
 };
 
 enum class quot_kind { Type, Mk, Lift, Ind };
@@ -396,6 +399,7 @@ public:
     constant_info(quot_val const & v);
     constant_info(inductive_val const & v);
     constant_info(constructor_val const & v);
+    constant_info(recursor_val const & v);
     constant_info(constant_info const & other):object_ref(other) {}
     constant_info(constant_info && other):object_ref(other) {}
 
@@ -413,6 +417,7 @@ public:
     bool is_theorem() const { return kind() == constant_info_kind::Theorem; }
     bool is_inductive() const { return kind() == constant_info_kind::Inductive; }
     bool is_constructor() const { return kind() == constant_info_kind::Constructor; }
+    bool is_recursor() const { return kind() == constant_info_kind::Recursor; }
 
     name const & get_name() const { return to_constant_val().get_name(); }
     level_param_names const & get_univ_params() const { return to_constant_val().get_lparams(); }
@@ -427,7 +432,7 @@ public:
     theorem_val const & to_theorem_val() const { lean_assert(is_theorem()); return static_cast<theorem_val const &>(to_val()); }
     inductive_val const & to_inductive_val() const { lean_assert(is_inductive()); return static_cast<inductive_val const &>(to_val()); }
     constructor_val const & to_constructor_val() const { lean_assert(is_constructor()); return static_cast<constructor_val const &>(to_val()); }
-    // recursor_val const & to_recursor_val() const { lean_assert(is_recursor()); return static_cast<recursor_val const &>(to_val()); }
+    recursor_val const & to_recursor_val() const { lean_assert(is_recursor()); return static_cast<recursor_val const &>(to_val()); }
 };
 
 inline optional<constant_info> none_constant_info() { return optional<constant_info>(); }

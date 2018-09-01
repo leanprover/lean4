@@ -84,12 +84,22 @@ constructor_val::constructor_val(name const & n, level_param_names const & lpara
     cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*3, static_cast<unsigned char>(is_meta));
 }
 
+recursor_val::recursor_val(name const & n, level_param_names const & lparams, expr const & type,
+                           names const & all, unsigned nparams, unsigned nindices, unsigned nmotives,
+                           unsigned nminors, recursor_rules const & rules, bool k, bool is_meta):
+    object_ref(mk_cnstr(0, constant_val(n, lparams, type), all, nat(nparams), nat(nindices), nat(nmotives),
+                        nat(nminors), rules, 2)) {
+    cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*7, static_cast<unsigned char>(k));
+    cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*7 + 1, static_cast<unsigned char>(is_meta));
+}
+
+
 bool declaration::is_meta() const {
     switch (kind()) {
     case declaration_kind::Definition:       return to_definition_val().is_meta();
     case declaration_kind::Axiom:            return to_axiom_val().is_meta();
     case declaration_kind::Theorem:          return false;
-    case declaration_kind::Inductive:        lean_unreachable(); // TODO(Leo):
+    case declaration_kind::Inductive:        return inductive_decl(*this).is_meta();
     case declaration_kind::Quot:             return false;
     case declaration_kind::MutualDefinition: return true;
     }
@@ -220,6 +230,10 @@ constant_info::constant_info(constructor_val const & v):
     object_ref(mk_cnstr(static_cast<unsigned>(constant_info_kind::Constructor), v)) {
 }
 
+constant_info::constant_info(recursor_val const & v):
+    object_ref(mk_cnstr(static_cast<unsigned>(constant_info_kind::Recursor), v)) {
+}
+
 static reducibility_hints * g_opaque = nullptr;
 
 reducibility_hints const & constant_info::get_hints() const {
@@ -237,7 +251,7 @@ bool constant_info::is_meta() const {
     case constant_info_kind::Quot:        return false;
     case constant_info_kind::Inductive:   return to_inductive_val().is_meta();
     case constant_info_kind::Constructor: return to_constructor_val().is_meta();
-    case constant_info_kind::Recursor:    return false; // TODO(Leo): to_recursor_val().is_meta();
+    case constant_info_kind::Recursor:    return to_recursor_val().is_meta();
     }
     lean_unreachable();
 }

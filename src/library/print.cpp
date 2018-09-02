@@ -208,6 +208,25 @@ struct print_expr_fn {
         }
     }
 
+    void print_mdata(expr const & a) {
+        out() << "[mdata ";
+        auto k = mdata_data(a);
+        while (!empty(k)) {
+            out() << head(k).fst() << ":";
+            auto const & v = head(k).snd();
+            switch (v.kind()) {
+                case data_value_kind::Bool: out() << v.get_bool(); break;
+                case data_value_kind::Name: out() << v.get_name(); break;
+                case data_value_kind::Nat: out() << v.get_nat(); break;
+                case data_value_kind::String: out() << escaped(v.get_string().data()); break;
+            }
+            out() << " ";
+            k = tail(k);
+        }
+        print(mdata_expr(a));
+        out() << "]";
+    }
+
     void print(expr const & a) {
         switch (a.kind()) {
         case expr_kind::MVar:
@@ -217,7 +236,7 @@ struct print_expr_fn {
             out() << fix_name(local_pp_name(a));
             break;
         case expr_kind::MData:
-            out() << "[mdata "; print(mdata_expr(a)); out() << "]";
+            print_mdata(a);
             break;
         case expr_kind::Proj:
             print(proj_expr(a)); out() << "." << proj_idx(a).to_mpz();

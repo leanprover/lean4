@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/find_fn.h"
 #include "library/placeholder.h"
 #include "library/locals.h"
+#include "library/pos_info_provider.h"
 
 namespace lean {
 void collect_univ_params_core(level const & l, name_set & r) {
@@ -53,9 +54,9 @@ level_param_names to_level_param_names(name_set const & ls) {
 }
 
 void collected_locals::insert(expr const & l) {
-    if (m_local_names.contains(local_name(l)))
+    if (m_local_names.contains(local_name_p(l)))
         return;
-    m_local_names.insert(local_name(l));
+    m_local_names.insert(local_name_p(l));
     m_locals.push_back(l);
 }
 
@@ -181,12 +182,12 @@ bool depends_on_any(expr const & e, unsigned hs_sz, expr const * hs) {
 }
 
 expr replace_locals(expr const & e, unsigned sz, expr const * locals, expr const * terms) {
-    return instantiate_rev(abstract(e, sz, locals), sz, terms);
+    return instantiate_rev(abstract_p(e, sz, locals), sz, terms);
 }
 
 expr replace_locals(expr const & e, buffer<expr> const & locals, buffer<expr> const & terms) {
     lean_assert(locals.size() == terms.size());
-    lean_assert(std::all_of(locals.begin(), locals.end(), is_local));
+    lean_assert(std::all_of(locals.begin(), locals.end(), is_local_p));
     return replace_locals(e, locals.size(), locals.data(), terms.data());
 }
 }

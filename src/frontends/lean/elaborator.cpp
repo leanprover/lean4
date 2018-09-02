@@ -240,7 +240,7 @@ bool elaborator::has_synth_sorry(std::initializer_list<expr> && es) {
 
 expr elaborator::mk_sorry(optional<expr> const & expected_type, expr const & ref, bool synthetic) {
     auto sorry_type = expected_type ? *expected_type : mk_type_metavar(ref);
-    return copy_pos(ref, mk_sorry(sorry_type, synthetic));
+    return mk_sorry(sorry_type, synthetic);
 }
 
 expr elaborator::recoverable_error(optional<expr> const & expected_type, expr const & ref, elaborator_exception const & ex) {
@@ -253,12 +253,12 @@ level elaborator::mk_univ_metavar() {
     return m_ctx.mk_univ_metavar_decl();
 }
 
-expr elaborator::mk_metavar(expr const & A, expr const & ref) {
-    return copy_pos(ref, m_ctx.mk_metavar_decl(m_ctx.lctx(), A));
+expr elaborator::mk_metavar(expr const & A, expr const &) {
+    return m_ctx.mk_metavar_decl(m_ctx.lctx(), A);
 }
 
-expr elaborator::mk_metavar(name const & pp_n, expr const & A, expr const & ref) {
-    return copy_pos(ref, m_ctx.mk_metavar_decl(pp_n, m_ctx.lctx(), A));
+expr elaborator::mk_metavar(name const & pp_n, expr const & A, expr const &) {
+    return m_ctx.mk_metavar_decl(pp_n, m_ctx.lctx(), A);
 }
 
 expr elaborator::mk_metavar(optional<expr> const & A, expr const & ref) {
@@ -330,8 +330,7 @@ expr elaborator::mk_instance(expr const & C, expr const & ref) {
 
 expr elaborator::instantiate_mvars(expr const & e) {
     expr r = m_ctx.instantiate_mvars(e);
-    if (!get_pos(r))
-        copy_pos(e, r);
+    lean_assert(!contains_pos(r));
     return r;
 }
 
@@ -442,7 +441,7 @@ auto elaborator::use_elim_elab_core(name const & fn) -> optional<elim_info> {
     constant_info d   = m_env.get(fn);
     expr type         = d.get_type();
     while (is_pi(type)) {
-        type = instantiate_propagating_pos(binding_body(type), locals.push_local_from_binding(type));
+        type = instantiate(binding_body(type), locals.push_local_from_binding(type));
     }
 
     buffer<expr> C_args;
@@ -946,22 +945,26 @@ expr elaborator::visit_const_core(expr const & e) {
 
 /** \brief Auxiliary function for saving information about which overloaded identifier was used by the elaborator. */
 void elaborator::save_identifier_info(expr const & f) {
-    if (!m_no_info && m_uses_infom && get_pos_info_provider() && (is_constant(f) || is_local(f))) {
-        if (auto p = get_pos_info_provider()->get_pos_info(f)) {
-            m_info.add_identifier_info(*p, is_constant(f) ? const_name(f) : local_pp_name(f));
-            m_info.add_type_info(*p, infer_type(f));
+    if (!m_no_info && m_uses_infom) {
+        if (auto p = get_pos(f)) {
+            expr uf = unwrap_pos(f);
+            if (is_constant(uf) || is_local(uf)) {
+                m_info.add_identifier_info(*p, is_constant(uf) ? const_name(uf) : local_pp_name(uf));
+                m_info.add_type_info(*p, infer_type(uf));
+            }
         }
     }
 }
 
 expr elaborator::visit_function(expr const & fn, bool has_args, optional<expr> const & expected_type, expr const & ref) {
-    if (is_placeholder(fn)) {
+    expr ufn = unwrap_pos(fn);
+    if (is_placeholder(ufn)) {
         throw elaborator_exception(ref, "placeholders '_' cannot be used where a function is expected");
     }
-    if (is_field_notation(fn))
+    if (is_field_notation(ufn))
         throw elaborator_exception(ref, "invalid occurrence of field notation");
     expr r;
-    switch (fn.kind()) {
+    switch (ufn.kind()) {
     case expr_kind::BVar:
     case expr_kind::Pi:
     case expr_kind::MVar:
@@ -969,17 +972,17 @@ expr elaborator::visit_function(expr const & fn, bool has_args, optional<expr> c
     case expr_kind::Lit:
         throw elaborator_exception(ref, "invalid application, function expected");
     // The expr_kind::App case can only happen when nary notation is used
-    case expr_kind::App:       r = visit(fn, expected_type); break;
-    case expr_kind::FVar:      r = fn; break;
-    case expr_kind::Const:     r = visit_const_core(fn); break;
-    case expr_kind::MData:     r = visit_mdata(fn, expected_type, true); break;
-    case expr_kind::Lambda:    r = visit_lambda(fn, expected_type); break;
-    case expr_kind::Let:       r = visit_let(fn, expected_type); break;
+    case expr_kind::App:       r = visit(ufn, expected_type); break;
+    case expr_kind::FVar:      r = ufn; break;
+    case expr_kind::Const:     r = visit_const_core(ufn); break;
+    case expr_kind::MData:     r = visit_mdata(ufn, expected_type, true); break;
+    case expr_kind::Lambda:    r = visit_lambda(ufn, expected_type); break;
+    case expr_kind::Let:       r = visit_let(ufn, expected_type); break;
     case expr_kind::Proj:      throw elaborator_exception(ref, "unexpected occurrence of proj constructor");
     case expr_kind::Quote:
         throw elaborator_exception(ref, "invalid application, function expected");
     }
-    save_identifier_info(r);
+    save_identifier_info(copy_pos(fn, r));
     if (has_args)
         r = ensure_function(r, ref);
     return r;
@@ -1102,7 +1105,7 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
             }
             new_args.push_back(new_arg);
             postponed_args.push_back(postponed);
-            type = try_to_pi(instantiate_propagating_pos(binding_body(type), new_arg));
+            type = try_to_pi(instantiate(binding_body(type), new_arg));
             i++;
         }
 
@@ -1221,7 +1224,7 @@ optional<expr> elaborator::process_optional_and_auto_params(expr type, expr cons
             eta_args.push_back(new_arg);
         }
         new_args.push_back(new_arg);
-        type = instantiate_propagating_pos(binding_body(type), new_arg);
+        type = instantiate(binding_body(type), new_arg);
         if (found) {
             result_type = type;
             sz1 = eta_args.size();
@@ -1329,6 +1332,7 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
                     new_arg = mk_metavar(d, arg_ref);
                 }
                 i++;
+                lean_assert(!get_pos(new_arg));
                 info.args_mvars.push_back(new_arg);
                 info.new_args_size.push_back(info.new_args.size());
                 info.new_instances_size.push_back(info.new_instances.size());
@@ -1337,7 +1341,7 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
             }
             info.new_args.push_back(new_arg);
             /* See comment above at visit_base_app_core */
-            type_before_whnf = instantiate_propagating_pos(binding_body(type), new_arg);
+            type_before_whnf = instantiate(binding_body(type), new_arg);
             type             = whnf(type_before_whnf);
         }
         type = type_before_whnf;
@@ -1503,7 +1507,7 @@ expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<
                 }
                 new_args.push_back(new_arg);
                 /* See comment above at first type_before_whnf assignment */
-                type_before_whnf = instantiate_propagating_pos(binding_body(type), new_arg);
+                type_before_whnf = instantiate(binding_body(type), new_arg);
                 type             = whnf(type_before_whnf);
            } else if (i < args.size()) {
                 bool progress = false;
@@ -1672,7 +1676,7 @@ expr elaborator::visit_overloaded_app_core(buffer<expr> const & fns, buffer<expr
                                            optional<expr> const & expected_type, expr const & ref) {
     buffer<expr> new_args;
     for (expr const & arg : args) {
-        new_args.push_back(copy_pos(arg, visit(arg, none_expr())));
+        new_args.push_back(visit(arg, none_expr()));
     }
 
     snapshot S(*this);
@@ -1887,6 +1891,7 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
 
     bool has_args = !args.empty();
 
+    fn = unwrap_pos(fn);
     while (is_annotation(fn))
         fn = get_annotation_arg(fn);
 
@@ -2007,7 +2012,7 @@ expr elaborator::visit_app(expr const & e, optional<expr> const & expected_type)
     if (is_app_of(e, get_scope_trace_name(), 1))
         return visit_scope_trace(e, expected_type);
     buffer<expr> args;
-    expr const & fn = get_app_args(e, args);
+    expr const & fn = unwrap_pos(get_app_args(e, args));
     if (is_infix_function(fn)) {
         expr infix_fn = get_annotation_arg(fn);
         lean_assert(is_lambda(infix_fn));
@@ -2087,7 +2092,7 @@ static expr instantiate_rev_locals(expr const & a, unsigned n, expr const * subs
         }
         return none_expr();
     };
-    return replace_propagating_pos(a, fn);
+    return replace(a, fn);
 }
 
 static expr instantiate_rev_locals(expr const & e, type_context_old::tmp_locals const & locals) {
@@ -2107,10 +2112,10 @@ static expr update_equations_fn_type(expr const & eqns, expr const & new_fn_type
 
 expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_type) {
     lean_assert(is_app(e));
-    lean_assert(is_equations(get_app_fn(e)));
+    lean_assert(is_equations(unwrap_pos(get_app_fn(e))));
     expr const & ref = e;
     buffer<expr> args, new_args;
-    expr const & eqns = get_app_args(e, args);
+    expr eqns = unwrap_pos(get_app_args(e, args));
     lean_assert(equations_num_fns(eqns) == 1);
     lean_assert(equations_size(eqns) > 0);
     expr fn_type = get_equations_fn_type(eqns);
@@ -2144,6 +2149,7 @@ expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_ty
         type_context_old::tmp_locals locals(m_ctx);
         expr it = fn_type;
         for (unsigned i = 0; i < args.size(); i++) {
+            it = unwrap_pos(it);
             if (!is_pi(it))
                 throw elaborator_exception(it, "type expected in match-expression");
             expr d        = instantiate_rev_locals(binding_domain(it), locals);
@@ -2166,7 +2172,7 @@ expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_ty
             while (i > 0) {
                 --i;
                 new_args[i]  = instantiate_mvars(new_args[i]);
-                new_fn_type  = instantiate_propagating_pos(kabstract(m_ctx, new_fn_type, new_args[i]), locals.as_buffer()[i]);
+                new_fn_type  = instantiate(kabstract(m_ctx, new_fn_type, new_args[i]), locals.as_buffer()[i]);
             }
             new_fn_type = locals.mk_pi(new_fn_type);
         } else {
@@ -2371,7 +2377,7 @@ class validate_and_collect_lhs_mvars : public replace_visitor {
     }
 
     virtual expr visit_let(expr const & e) override {
-        return visit(instantiate_propagating_pos(let_body(e), let_value(e)));
+        return visit(instantiate(let_body(e), let_value(e)));
     }
 
     virtual expr visit_sort(expr const & e) override {
@@ -2474,7 +2480,7 @@ public:
 /* Similar to instantiate_mvars, but add an inaccessible pattern annotation around metavariables
    whose value has been fixed by type inference. */
 static expr instantiate_pattern_mvars(type_context_old & ctx, expr const & lhs) {
-    return replace_propagating_pos(lhs, [&](expr const & e, unsigned) {
+    return replace(lhs, [&](expr const & e, unsigned) {
             if (is_metavar_decl_ref(e) && ctx.is_assigned(e)) {
                 expr v = ctx.instantiate_mvars(e);
                 if (!is_local(v) && !is_metavar(v))
@@ -2497,8 +2503,8 @@ expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
         expr d     = instantiate_rev_locals(binding_domain(it), fns);
         expr new_d = visit(d, none_expr());
         expr ref_d = get_ref_for_child(binding_domain(it), it);
-        expr fn    = copy_pos(binding_domain(it), push_local(fns, binding_name(it), new_d, binding_info(it), ref_d));
-        save_identifier_info(fn);
+        expr fn    = push_local(fns, binding_name(it), new_d, binding_info(it), ref_d);
+        save_identifier_info(copy_pos(binding_domain(it), fn));
         it = binding_body(it);
     }
     if (is_no_equation(it)) {
@@ -2512,7 +2518,7 @@ expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
         while (is_lambda(it)) {
             expr type = mk_type_metavar(it);
             type_mvars.push_back(type);
-            expr mvar = copy_pos(binding_domain(it), m_ctx.mk_metavar_decl(binding_name(it), m_ctx.lctx(), type));
+            expr mvar = m_ctx.mk_metavar_decl(binding_name(it), m_ctx.lctx(), type);
             local_mvars.push_back(mvar);
             it = binding_body(it);
         }
@@ -2522,7 +2528,7 @@ expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
         expr lhs_fn = get_app_fn(lhs);
         if (is_explicit_or_partial_explicit(lhs_fn))
             lhs_fn = get_explicit_or_partial_explicit_arg(lhs_fn);
-        if (!is_local(lhs_fn))
+        if (!is_local_p(lhs_fn))
             throw_ill_formed_equation(ref);
         expr new_lhs;
         {
@@ -2638,7 +2644,9 @@ expr elaborator::visit_equations(expr const & e) {
     } else {
         new_e = copy_pos(e, mk_equations(header, new_eqs.size(), new_eqs.data()));
     }
-    new_e = instantiate_mvars(new_e);
+    // NOTE: don't call `this.instantiate_mvars`, which checks for position preterm annotations, since equations
+    // are a mixture of terms and preterms
+    new_e = m_ctx.instantiate_mvars(new_e);
     ensure_no_unassigned_metavars(new_e);
     metavar_context mctx = m_ctx.mctx();
     expr r = compile_equations(m_env, *this, mctx, m_ctx.lctx(), new_e);
@@ -2668,7 +2676,7 @@ elaborator::field_resolution elaborator::field_to_decl(expr const & e, expr cons
             type_context_old::tmp_locals locals(m_ctx);
             expr t = whnf(s_type);
             while (is_pi(t)) {
-                t = whnf(instantiate_propagating_pos(binding_body(t), locals.push_local_from_binding(t)));
+                t = whnf(instantiate(binding_body(t), locals.push_local_from_binding(t)));
             }
             if (is_sort(t) && !is_anonymous_field_notation(e)) {
                 name fname = get_field_notation_field_name(e);
@@ -2786,7 +2794,7 @@ public:
 
 /* Predicated variant of `lean::instantiate_mvars`. It does not support universe mvars. */
 expr elaborator::instantiate_mvars(expr const & e, std::function<bool(expr const &)> pred) { // NOLINT
-    return replace_propagating_pos(e, [&](expr const & e) {
+    return replace(e, [&](expr const & e) {
         if (m_ctx.is_mvar(e) && pred(e))
             if (auto asn = m_ctx.get_assignment(e))
                 return some_expr(instantiate_mvars(*asn, pred));
@@ -2879,7 +2887,7 @@ class visit_structure_instance_fn {
                     constant_info decl = m_env.get(const_name(fn));
                     expr default_val = instantiate_value_univ_params(decl, const_levels(fn));
                     // clean up 'id' application inserted by `structure_cmd::declare_defaults`
-                    default_val = replace_propagating_pos(default_val, [](expr const & e) {
+                    default_val = replace(default_val, [](expr const & e) {
                         if (is_app_of(e, get_id_name(), 2)) {
                             return some_expr(app_arg(e));
                         }
@@ -3005,7 +3013,7 @@ class visit_structure_instance_fn {
             }
 
             c_args.push_back(c_arg);
-            c_type = instantiate_propagating_pos(binding_body(c_type), c_arg);
+            c_type = instantiate(binding_body(c_type), c_arg);
         }
         return mk_pair(mk_app(c, c_args), c_type);
     }
@@ -3218,7 +3226,7 @@ expr elaborator::visit_expr_quote(expr const & e, optional<expr> const & expecte
         // antiquotations ~> return `expr`
         buffer<expr> locals;
         buffer<expr> substs;
-        s = replace_propagating_pos(s, [&](expr const & t, unsigned) {
+        s = replace(s, [&](expr const & t, unsigned) {
             if (is_antiquote(t)) {
                 expr local = mk_local(mk_fresh_name(), x.append_after(locals.size() + 1),
                                       mk_expr_placeholder(), mk_binder_info());
@@ -3504,12 +3512,12 @@ expr elaborator::visit_lambda(expr const & e, optional<expr> const & expected_ty
         }
         expr ref_d = get_ref_for_child(binding_domain(it), it);
         new_d      = ensure_type(new_d, ref_d);
-        expr l     = copy_pos(binding_domain(it), push_local(locals, binding_name(it), new_d, binding_info(it), ref_d));
-        save_identifier_info(l);
+        expr l     = push_local(locals, binding_name(it), new_d, binding_info(it), ref_d);
+        save_identifier_info(copy_pos(binding_domain(it), l));
         it = binding_body(it);
         if (has_expected) {
             lean_assert(is_pi(ex));
-            ex = instantiate_propagating_pos(binding_body(ex), l);
+            ex = instantiate(binding_body(ex), l);
         }
     }
     expr b = instantiate_rev_locals(it, locals);
@@ -3534,8 +3542,8 @@ expr elaborator::visit_pi(expr const & e) {
         expr ref_d = get_ref_for_child(binding_domain(it), it);
         new_d      = ensure_type(new_d, ref_d);
         expr ref   = binding_domain(it);
-        expr l     = copy_pos(binding_domain(it), push_local(locals, binding_name(it), new_d, binding_info(it), ref));
-        save_identifier_info(l);
+        expr l     = push_local(locals, binding_name(it), new_d, binding_info(it), ref);
+        save_identifier_info(copy_pos(binding_domain(it), l));
         parent_it  = it;
         it         = binding_body(it);
     }
@@ -3560,8 +3568,8 @@ expr elaborator::visit_let(expr const & e, optional<expr> const & expected_type)
     new_value      = instantiate_mvars(new_value);
     ensure_no_unassigned_metavars(new_value);
     type_context_old::tmp_locals locals(m_ctx);
-    expr l = copy_pos(let_type(e), push_let(locals, let_name(e), new_type, new_value, ref));
-    save_identifier_info(l);
+    expr l = push_let(locals, let_name(e), new_type, new_value, ref);
+    save_identifier_info(copy_pos(let_type(e), l));
     expr body      = instantiate_rev_locals(let_body(e), locals);
     expr new_body  = visit(body, expected_type);
     synthesize();
@@ -3575,7 +3583,7 @@ expr elaborator::visit_placeholder(expr const & e, optional<expr> const & expect
 }
 
 static bool is_have_expr(expr const & e) {
-    return is_app(e) && is_have_annotation(app_fn(e)) && is_lambda(get_annotation_arg(app_fn(e)));
+    return is_app(e) && is_have_annotation(unwrap_pos(app_fn(e)));
 }
 
 expr elaborator::strict_visit(expr const & e, optional<expr> const & expected_type) {
@@ -3588,7 +3596,7 @@ expr elaborator::strict_visit(expr const & e, optional<expr> const & expected_ty
 
 expr elaborator::visit_have_expr(expr const & e, optional<expr> const & expected_type) {
     lean_assert(is_have_expr(e));
-    expr lambda     = get_annotation_arg(app_fn(e));
+    expr lambda     = unwrap_pos(get_annotation_arg(app_fn(e)));
     expr type       = binding_domain(lambda);
     expr proof      = app_arg(e);
     expr new_type   = visit(type, none_expr());
@@ -3611,7 +3619,7 @@ expr elaborator::visit_suffices_expr(expr const & e, optional<expr> const & expe
     lean_assert(is_suffices_annotation(e));
     expr body = get_annotation_arg(e);
     if (!is_app(body)) throw elaborator_exception(e, "ill-formed suffices expression");
-    expr fn   = app_fn(body);
+    expr fn   = unwrap_pos(app_fn(body));
     expr rest = app_arg(body);
     if (!is_lambda(fn)) throw elaborator_exception(e, "ill-formed suffices expression");
     expr new_fn;
@@ -3659,8 +3667,10 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
     flet<unsigned> inc_depth(m_depth, m_depth+1);
     trace_elab_detail(tout() << "[" << m_depth << "] visiting\n" << e << "\n";
                       if (expected_type) tout() << "expected type:\n" << instantiate_mvars(*expected_type) << "\n";);
-    return recover_expr_from_exception(expected_type, e, [&] () -> expr {
-        if (is_placeholder(e)) {
+    expr e2 = recover_expr_from_exception(expected_type, e, [&] () -> expr {
+        if (auto p = get_pos(e)) {
+            return visit(unwrap_pos(e), expected_type);
+        } else if (is_placeholder(e)) {
             return visit_placeholder(e, expected_type);
         } else if (is_typed_expr(e)) {
             return visit_typed_expr(e);
@@ -3689,32 +3699,34 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
                     }
                     lean_unreachable();
                 case expr_kind::MData:
-                    return copy_pos(e, visit_mdata(e, expected_type, false));
+                    return visit_mdata(e, expected_type, false);
                 case expr_kind::Proj:
                     throw elaborator_exception(e, "unexpected occurrence of proj constructor");
                 case expr_kind::Sort:
-                    return copy_pos(e, visit_sort(e));
+                    return visit_sort(e);
                 case expr_kind::FVar:
-                    return copy_pos(e, visit_local(e, expected_type));
+                    return visit_local(e, expected_type);
                 case expr_kind::Const:
-                    return copy_pos(e, visit_constant(e, expected_type));
+                    return visit_constant(e, expected_type);
                 case expr_kind::Lambda:
-                    return copy_pos(e, visit_lambda(e, expected_type));
+                    return visit_lambda(e, expected_type);
                 case expr_kind::Pi:
-                    return copy_pos(e, visit_pi(e));
+                    return visit_pi(e);
                 case expr_kind::App:
-                    return copy_pos(e, visit_app(e, expected_type));
+                    return visit_app(e, expected_type);
                 case expr_kind::Let:
-                    return copy_pos(e, visit_let(e, expected_type));
+                    return visit_let(e, expected_type);
                 case expr_kind::Quote:
                     if (is_expr_quote(e))
-                        return copy_pos(e, visit_expr_quote(e, expected_type));
+                        return visit_expr_quote(e, expected_type);
                     else
                         return e;
             }
             lean_unreachable(); // LCOV_EXCL_LINE
         }
     });
+    lean_assert(!contains_pos(instantiate_mvars(e2)));
+    return e2;
 }
 
 expr elaborator::get_default_numeral_type() {
@@ -3821,6 +3833,7 @@ void elaborator::ensure_no_unassigned_metavars(expr & e) {
     // TODO(gabriel): this needs to change e
     if (!has_expr_metavar(e)) return;
     for_each(e, [&](expr const & e, unsigned) {
+            lean_assert(!get_pos(e));
             if (!has_expr_metavar(e)) return false;
             if (is_metavar_decl_ref(e) && !m_ctx.is_assigned(e)) {
                 tactic_state s = mk_tactic_state_for(e);
@@ -3828,7 +3841,7 @@ void elaborator::ensure_no_unassigned_metavars(expr & e) {
                     auto ty = m_ctx.mctx().get_metavar_decl(e).get_type();
                     if (!has_synth_sorry(ty))
                         report_error(s, "context:", "don't know how to synthesize placeholder", e);
-                    m_ctx.assign(e, copy_pos(e, mk_sorry(ty)));
+                    m_ctx.assign(e, mk_sorry(ty));
                     ensure_no_unassigned_metavars(ty);
 
                     auto val = instantiate_mvars(e);
@@ -3942,7 +3955,7 @@ struct sanitize_param_names_fn : public replace_visitor {
     into regular kernel meta-variables. */
 static expr replace_with_simple_metavars(metavar_context mctx, name_map<expr> & cache, expr const & e) {
     if (!has_expr_metavar(e)) return e;
-    return replace_propagating_pos(e, [&](expr const & e, unsigned) {
+    return replace(e, [&](expr const & e, unsigned) {
             if (is_metavar(e)) {
                 if (auto r = cache.find(mvar_name(e))) {
                     return some_expr(*r);
@@ -4077,7 +4090,7 @@ static optional<expr> resolve_local_name_core(environment const & env, local_con
     /* check local_refs */
     if (auto ref = get_local_ref(env, id)) {
         /* ref may contain local references that have new names at lctx. */
-        return some_expr(copy_pos(src, replace_propagating_pos(*ref, [&](expr const & e, unsigned) {
+        return some_expr(copy_pos(src, replace(*ref, [&](expr const & e, unsigned) {
                         if (is_local(e)) {
                             if (auto decl = lctx.find_local_decl_from_user_name(local_pp_name(e))) {
                                 return some_expr(decl->mk_ref());

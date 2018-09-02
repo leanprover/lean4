@@ -5,46 +5,51 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <vector>
-#include "runtime/interrupt.h"
-#include "kernel/cache_stack.h"
 #include "library/pos_info_provider.h"
+#include "kernel/replace_fn.h"
+#include "kernel/find_fn.h"
 
 namespace lean {
-typedef std::unordered_map<void *, pos_info> pos_table;
+const name * g_column_name = nullptr;
+const name * g_row_name = nullptr;
 
-static pos_table * g_pos_table;
-static mutex *     g_pos_table_mutex;
-
-expr save_pos(expr const & e, pos_info const & pos) {
-    lock_guard<mutex> _(*g_pos_table_mutex);
-    g_pos_table->insert(mk_pair(e.raw(), pos));
+expr unwrap_pos(expr const & e) {
+    if (get_pos(e)) {
+        auto const & e2 = mdata_expr(e);
+        return unwrap_pos(e2);
+    }
     return e;
 }
 
-expr copy_pos(expr const & src, expr const & dest) {
-    lock_guard<mutex> _(*g_pos_table_mutex);
-    auto it = g_pos_table->find(src.raw());
-    if (it != g_pos_table->end())
-        g_pos_table->insert(mk_pair(dest.raw(), it->second));
-    return dest;
+expr save_pos(expr const & e, pos_info const & pos) {
+    if (is_app(e))
+        return e;
+    kvmap m;
+    m = set_nat(m, *g_column_name, pos.first);
+    m = set_nat(m, *g_row_name, pos.second);
+    return mk_mdata(m, unwrap_pos(e));
 }
 
-void erase_pos(expr const & e) {
-    lock_guard<mutex> _(*g_pos_table_mutex);
-    g_pos_table->erase(e.raw());
+expr copy_pos(expr const & src, expr const & dest) {
+    if (auto pos = get_pos(src))
+        return save_pos(dest, *pos);
+    else
+        return dest;
 }
 
 optional<pos_info> get_pos(expr const & e) {
-    lock_guard<mutex> _(*g_pos_table_mutex);
-    auto it = g_pos_table->find(e.raw());
-    if (it != g_pos_table->end())
-        return optional<pos_info>(it->second);
+    if (is_mdata(e)) {
+        kvmap const & m = mdata_data(e);
+        auto const & column = get_nat(m, *g_column_name);
+        auto const & row = get_nat(m, *g_row_name);
+        if (column && row)
+            return some(mk_pair(column->get_small_value(), row->get_small_value()));
+    }
     return optional<pos_info>();
 }
 
-void reset_positions() {
-    lock_guard<mutex> _(*g_pos_table_mutex);
-    g_pos_table->clear();
+bool contains_pos(expr const & e) {
+    return !!find(e, [](expr const & e, unsigned) { return get_pos(e); });
 }
 
 char const * pos_info_provider::get_file_name() const {
@@ -61,232 +66,68 @@ format pos_info_provider::pp(expr const & e) const {
 }
 
 void initialize_pos_info_provider() {
-    g_pos_table = new pos_table();
-    g_pos_table_mutex = new mutex;
+    g_column_name = new name("column");
+    g_row_name = new name("row");
 }
 
 void finalize_pos_info_provider() {
-    delete g_pos_table;
-    delete g_pos_table_mutex;
+    delete g_row_name;
+    delete g_column_name;
 }
 
-/* QUICK AND DIRT POSITION PROPAGATION FUNCTIONS */
-
-struct replace_cache2 {
-    struct entry {
-        object  *   m_cell;
-        unsigned    m_offset;
-        expr        m_result;
-        entry():m_cell(nullptr) {}
-    };
-    unsigned              m_capacity;
-    std::vector<entry>    m_cache;
-    std::vector<unsigned> m_used;
-    replace_cache2(unsigned c):m_capacity(c), m_cache(c) {}
-
-    expr * find(expr const & e, unsigned offset) {
-        unsigned i = hash(hash(e), offset) % m_capacity;
-        if (m_cache[i].m_cell == e.raw() && m_cache[i].m_offset == offset)
-            return &m_cache[i].m_result;
-        else
-            return nullptr;
-    }
-
-    void insert(expr const & e, unsigned offset, expr const & v) {
-        unsigned i = hash(hash(e), offset) % m_capacity;
-        if (m_cache[i].m_cell == nullptr)
-            m_used.push_back(i);
-        m_cache[i].m_cell   = e.raw();
-        m_cache[i].m_offset = offset;
-        m_cache[i].m_result = v;
-    }
-
-    void clear() {
-        for (unsigned i : m_used) {
-            m_cache[i].m_cell   = nullptr;
-            m_cache[i].m_result = expr();
-        }
-        m_used.clear();
-    }
-};
-
-MK_CACHE_STACK(replace_cache2, 1024*8)
-
-class replace_rec_fn2 {
-    replace_cache2_ref                                    m_cache;
-    std::function<optional<expr>(expr const &, unsigned)> m_f;
-    bool                                                  m_use_cache;
-
-    expr save_result(expr const & e, unsigned offset, expr const & r, bool shared) {
-        if (shared)
-            m_cache->insert(e, offset, r);
-        return r;
-    }
-
-    expr apply(expr const & e, unsigned offset) {
-        bool shared = false;
-        if (m_use_cache && is_shared(e)) {
-            if (auto r = m_cache->find(e, offset))
-                return *r;
-            shared = true;
-        }
-        check_system("replace");
-
-        if (optional<expr> r = m_f(e, offset)) {
-            return save_result(e, offset, *r, shared);
-        } else {
-            switch (e.kind()) {
-            case expr_kind::Const: case expr_kind::Sort: case expr_kind::BVar:
-            case expr_kind::Lit:
-                return save_result(e, offset, e, shared);
-            case expr_kind::MVar: {
-                expr new_t = apply(mvar_type(e), offset);
-                return save_result(e, offset, copy_pos(e, update_mvar(e, new_t)), shared);
-            }
-            case expr_kind::FVar: {
-                expr new_t = apply(local_type(e), offset);
-                return save_result(e, offset, copy_pos(e, update_local(e, new_t)), shared);
-            }
-            case expr_kind::MData: {
-                expr new_e = apply(mdata_expr(e), offset);
-                return save_result(e, offset, copy_pos(e, update_mdata(e, new_e)), shared);
-            }
-            case expr_kind::Proj: {
-                expr new_e = apply(proj_expr(e), offset);
-                return save_result(e, offset, copy_pos(e, update_proj(e, new_e)), shared);
-            }
-            case expr_kind::App: {
-                expr new_f = apply(app_fn(e), offset);
-                expr new_a = apply(app_arg(e), offset);
-                return save_result(e, offset, copy_pos(e, update_app(e, new_f, new_a)), shared);
-            }
-            case expr_kind::Pi: case expr_kind::Lambda: {
-                expr new_d = apply(binding_domain(e), offset);
-                expr new_b = apply(binding_body(e), offset+1);
-                return save_result(e, offset, copy_pos(e, update_binding(e, new_d, new_b)), shared);
-            }
-            case expr_kind::Let: {
-                expr new_t = apply(let_type(e), offset);
-                expr new_v = apply(let_value(e), offset);
-                expr new_b = apply(let_body(e), offset+1);
-                return save_result(e, offset, copy_pos(e, update_let(e, new_t, new_v, new_b)), shared);
-            }
-            case expr_kind::Quote:
-                return save_result(e, offset, e, shared);
-            }
-            lean_unreachable();
-        }
-    }
-public:
-    template<typename F>
-    replace_rec_fn2(F const & f, bool use_cache):m_f(f), m_use_cache(use_cache) {}
-
-    expr operator()(expr const & e) { return apply(e, 0); }
-};
-
-expr replace_propagating_pos(expr const & e, std::function<optional<expr>(expr const &, unsigned)> const & f, bool use_cache) {
-    return replace_rec_fn2(f, use_cache)(e);
-}
-
-
-template<bool rev>
-struct instantiate_easy_fn2 {
-    unsigned n;
-    expr const * subst;
-    instantiate_easy_fn2(unsigned _n, expr const * _subst):n(_n), subst(_subst) {}
-    optional<expr> operator()(expr const & a, bool app) const {
-        if (!has_loose_bvars(a))
-            return some_expr(a);
-        if (is_bvar(a) && bvar_idx(a) < n)
-            return some_expr(subst[rev ? n - bvar_idx(a).get_small_value() - 1 : bvar_idx(a).get_small_value()]);
-        if (app && is_app(a))
-        if (auto new_a = operator()(app_arg(a), false))
-        if (auto new_f = operator()(app_fn(a), true))
-            return some_expr(mk_app(*new_f, *new_a));
+optional<expr> is_local_p(expr const & e) {
+    auto e2 = unwrap_pos(e);
+    if (is_fvar(e2))
+        return some_expr(e2);
+    else
         return none_expr();
-    }
-};
-
-expr instantiate_propagating_pos(expr const & a, unsigned s, unsigned n, expr const * subst) {
-    if (
-#ifndef LEAN_NO_FREE_VAR_RANGE_OPT
-        s >= get_loose_bvar_range(a) ||
-#endif
-        n == 0)
-        return a;
-    if (s == 0)
-        if (auto r = instantiate_easy_fn2<false>(n, subst)(a, true))
-            return *r;
-    return replace_propagating_pos(a, [=](expr const & m, unsigned offset) -> optional<expr> {
-            unsigned s1 = s + offset;
-            if (s1 < s)
-                return some_expr(m); // overflow, vidx can't be >= max unsigned
-#ifndef LEAN_NO_FREE_VAR_RANGE_OPT
-            if (s1 >= get_loose_bvar_range(m))
-                return some_expr(m); // expression m does not contain free variables with idx >= s1
-#endif
-            if (is_var(m)) {
-                nat const & vidx = bvar_idx(m);
-                if (vidx >= s1) {
-                    unsigned h = s1 + n;
-                    if (h < s1 /* overflow, h is bigger than any vidx */ || vidx < h) {
-                        return some_expr(lift_loose_bvars(subst[vidx.get_small_value() - s1], offset));
-                    } else {
-                        return some_expr(mk_bvar(vidx - nat(n)));
-                    }
-                }
-            }
-            return none_expr();
-        });
+}
+name const & local_name_p(expr const & e) { auto o = is_local_p(e); lean_assert(o); return local_name(*o); }
+name const & local_pp_name_p(expr const & e) { auto o = is_local_p(e); lean_assert(o); return local_pp_name(*o); }
+expr const & local_type_p(expr const & e) { auto o = is_local_p(e); lean_assert(o); return local_type(*o); }
+binder_info local_info_p(expr const & e) { auto o = is_local_p(e); lean_assert(o); return local_info(*o); }
+expr update_local_p(expr const & e, expr const & new_type) {
+    return copy_pos(e, update_local(unwrap_pos(e), new_type));
+}
+expr update_local_p(expr const & e, expr const & new_type, binder_info bi) {
+    return copy_pos(e, update_local(unwrap_pos(e), new_type, bi));
+}
+expr update_local_p(expr const & e, binder_info bi) {
+    return copy_pos(e, update_local(unwrap_pos(e), bi));
 }
 
-expr instantiate_propagating_pos(expr const & e, unsigned n, expr const * s) { return instantiate_propagating_pos(e, 0, n, s); }
-expr instantiate_propagating_pos(expr const & e, std::initializer_list<expr> const & l) {  return instantiate_propagating_pos(e, l.size(), l.begin()); }
-expr instantiate_propagating_pos(expr const & e, unsigned i, expr const & s) { return instantiate_propagating_pos(e, i, 1, &s); }
-expr instantiate_propagating_pos(expr const & e, expr const & s) { return instantiate_propagating_pos(e, 0, s); }
-
-expr abstract_propagating_pos(expr const & e, unsigned n, expr const * subst) {
-    lean_assert(std::all_of(subst, subst+n, [](expr const & e) { return !has_loose_bvars(e) && is_local(e); }));
-#ifndef LEAN_NO_HAS_LOCAL_OPT
-    if (!has_local(e))
+expr abstract_p(expr const & e, unsigned n, expr const * subst) {
+    lean_assert(std::all_of(subst, subst+n, [](expr const & e) { return !has_loose_bvars(e) && is_fvar(unwrap_pos(e)); }));
+    if (!has_fvar(e))
         return e;
-#endif
-    return replace_propagating_pos(e, [=](expr const & m, unsigned offset) -> optional<expr> {
-#ifndef LEAN_NO_HAS_LOCAL_OPT
-            if (!has_local(m))
-                return some_expr(m); // expression m does not contain local constants
-#endif
-            if (is_local(m)) {
-                unsigned i = n;
-                while (i > 0) {
-                    --i;
-                    if (local_name(subst[i]) == local_name(m))
-                        return some_expr(mk_bvar(offset + n - i - 1));
-                }
-                return none_expr();
+    return replace(e, [=](expr const & m, unsigned offset) -> optional<expr> {
+        if (!has_fvar(m))
+            return some_expr(m); // expression m does not contain free variables
+        if (is_fvar(m)) {
+            unsigned i = n;
+            while (i > 0) {
+                --i;
+                if (fvar_name(unwrap_pos(subst[i])) == fvar_name(m))
+                    return some_expr(mk_bvar(offset + n - i - 1));
             }
             return none_expr();
-        });
-}
-
-expr abstract_propagating_pos(expr const & e, name const & l) {
-    expr dummy = mk_Prop();
-    expr local = mk_local(l, dummy);
-    return abstract_propagating_pos(e, 1, &local);
+        }
+        return none_expr();
+    });
 }
 
 template<bool is_lambda>
-expr mk_binding_p(unsigned num, expr const * locals, expr const & b) {
-    expr r     = abstract_propagating_pos(b, num, locals);
+static expr mk_binding_p(unsigned num, expr const * locals, expr const & b) {
+    expr r     = abstract_p(b, num, locals);
     unsigned i = num;
     while (i > 0) {
         --i;
         expr const & l = locals[i];
-        expr t = abstract_propagating_pos(local_type(l), i, locals);
+        expr t = abstract_p(local_type_p(l), i, locals);
         if (is_lambda)
-            r = mk_lambda(local_pp_name(l), t, r, local_info(l));
+            r = mk_lambda(local_pp_name_p(l), t, r, local_info_p(l));
         else
-            r = mk_pi(local_pp_name(l), t, r, local_info(l));
+            r = mk_pi(local_pp_name_p(l), t, r, local_info_p(l));
     }
     return r;
 }

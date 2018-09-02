@@ -1228,7 +1228,9 @@ bool pretty_fn::match(level const & p, level const & l) {
 }
 
 bool pretty_fn::match(expr const & p, expr const & e, buffer<optional<expr>> & args) {
-    if (is_explicit(p)) {
+    if (get_pos(p)) {
+        return match(unwrap_pos(p), e, args);
+    } else if (is_explicit(p)) {
         return match(get_explicit_arg(p), e, args);
     } else if (is_as_atomic(p)) {
         return match(get_app_fn(get_as_atomic_arg(p)), e, args);

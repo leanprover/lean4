@@ -230,16 +230,16 @@ expr Pi(expr const & local, expr const & e, parser & p) {
 
 template<bool is_lambda>
 static expr mk_binding_as_is(unsigned num, expr const * locals, expr const & b) {
-    expr r     = abstract_propagating_pos(b, num, locals);
+    expr r     = abstract_p(b, num, locals);
     unsigned i = num;
     while (i > 0) {
         --i;
         expr const & l = locals[i];
-        expr t = abstract_propagating_pos(local_type(l), i, locals);
+        expr t = abstract_p(local_type_p(l), i, locals);
         if (is_lambda)
-            r = mk_lambda(local_pp_name(l), mk_as_is(t), r, local_info(l));
+            r = mk_lambda(local_pp_name_p(l), mk_as_is(t), r, local_info_p(l));
         else
-            r = mk_pi(local_pp_name(l), mk_as_is(t), r, local_info(l));
+            r = mk_pi(local_pp_name_p(l), mk_as_is(t), r, local_info_p(l));
     }
     return r;
 }

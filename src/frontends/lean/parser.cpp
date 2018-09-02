@@ -249,15 +249,8 @@ name parser::mk_anonymous_inst_name() {
     return n;
 }
 
-void parser::erase_pos(expr const & e) {
-    ::lean::erase_pos(e);
-}
-
-expr parser::update_pos(expr e, pos_info p) {
-    return ::lean::save_pos(e, p);
-}
-
 expr parser::rec_save_pos(expr const & e, pos_info p) {
+    return e;
     unsigned m = std::numeric_limits<unsigned>::max();
     pos_info dummy(m, 0);
     for_each(e, [&](expr const & e, unsigned) {
@@ -273,45 +266,12 @@ expr parser::rec_save_pos(expr const & e, pos_info p) {
 
 /** \brief Create a copy of \c e, and the position of new expression with p */
 expr parser::copy_with_new_pos(expr const & e, pos_info p) {
-    switch (e.kind()) {
-    case expr_kind::Sort: case expr_kind::Const: case expr_kind::MVar:
-    case expr_kind::BVar: case expr_kind::FVar:  case expr_kind::Lit:
-        return save_pos(copy(e), p);
-    case expr_kind::MData:
-        return save_pos(::lean::mk_mdata(mdata_data(e), copy_with_new_pos(mdata_expr(e), p)), p);
-    case expr_kind::Proj:
-        return save_pos(::lean::mk_proj(proj_idx(e), copy_with_new_pos(proj_expr(e), p)), p);
-    case expr_kind::App:
-        return save_pos(::lean::mk_app(copy_with_new_pos(app_fn(e), p),
-                                       copy_with_new_pos(app_arg(e), p)),
-                        p);
-    case expr_kind::Lambda:
-        return save_pos(::lean::mk_lambda(binding_name(e),
-                                          copy_with_new_pos(binding_domain(e), p),
-                                          copy_with_new_pos(binding_body(e), p),
-                                          binding_info(e)),
-
-                        p);
-    case expr_kind::Pi:
-        return save_pos(::lean::mk_pi(binding_name(e),
-                                      copy_with_new_pos(binding_domain(e), p),
-                                      copy_with_new_pos(binding_body(e), p),
-                                      binding_info(e)),
-                        p);
-    case expr_kind::Let:
-        return save_pos(::lean::mk_let(let_name(e),
-                                       copy_with_new_pos(let_type(e), p),
-                                       copy_with_new_pos(let_value(e), p),
-                                       copy_with_new_pos(let_body(e), p)),
-                        p);
-    case expr_kind::Quote:
-        if (is_pexpr_quote(e)) {
-            return save_pos(mk_pexpr_quote(copy_with_new_pos(get_pexpr_quote_value(e), p)), p);
-        } else {
-            return save_pos(e, p);
-        }
-    }
-    lean_unreachable(); // LCOV_EXCL_LINE
+    return replace(e, [&](expr const & e, unsigned) {
+        if (get_pos(e))
+            return some(save_pos(copy_with_new_pos(unwrap_pos(e), p), p));
+        else
+            return none_expr();
+    });
 }
 
 pos_info parser::pos_of(expr const & e, pos_info default_pos) const {
@@ -402,8 +362,8 @@ name parser::check_atomic_decl_id_next(char const * msg) {
     return id;
 }
 
-expr parser::mk_app(expr fn, expr arg, pos_info const & p) {
-    return save_pos(::lean::mk_app(fn, arg), p);
+expr parser::mk_app(expr fn, expr arg, pos_info const &) {
+    return ::lean::mk_app(fn, arg);
 }
 
 expr parser::mk_app(expr fn, buffer<expr> const & args, pos_info const & p) {
@@ -485,8 +445,9 @@ void parser::add_local_expr(name const & n, expr const & p, bool is_variable) {
     }
     m_local_decls.insert(n, p);
     if (is_variable) {
-        lean_assert(is_local(p));
-        m_variables.insert(local_name(p));
+        lean_assert(is_local_p(p));
+        lean_assert(!contains_pos(local_type_p(p)));
+        m_variables.insert(local_name_p(p));
     }
 }
 
@@ -510,7 +471,7 @@ environment parser::add_local_ref(environment const & env, name const & n, expr 
 }
 
 static void check_no_metavars(name const & n, expr const & e) {
-    lean_assert(is_local(e));
+    lean_assert(is_local_p(e));
     if (has_metavar(e)) {
         throw generic_exception(none_expr(), [=](formatter const & fmt) {
                 format r("failed to add declaration '");
@@ -523,23 +484,23 @@ static void check_no_metavars(name const & n, expr const & e) {
 }
 
 void parser::add_variable(name const & n, expr const & v) {
-    lean_assert(is_local(v));
+    lean_assert(is_local_p(v));
     check_no_metavars(n, v);
     add_local_expr(n, v, true);
 }
 
 void parser::add_parameter(name const & n, expr const & p) {
-    lean_assert(is_local(p));
+    lean_assert(is_local_p(p));
     check_no_metavars(n, p);
     add_local_expr(n, p, false);
     m_has_params = true;
 }
 
 bool parser::is_local_decl(expr const & l) {
-    lean_assert(is_local(l));
+    lean_assert(is_local_p(l));
     // TODO(Leo): add a name_set with internal ids if this is a bottleneck
     for (pair<name, expr> const & p : m_local_decls.get_entries()) {
-        if (is_local(p.second) && local_name(p.second) == local_name(l))
+        if (is_local_p(p.second) && local_name_p(p.second) == local_name_p(l))
             return true;
     }
     return false;
@@ -547,7 +508,7 @@ bool parser::is_local_decl(expr const & l) {
 
 bool parser::update_local_binder_info(name const & n, binder_info bi) {
     auto it = get_local(n);
-    if (!it || !is_local(*it)) return false;
+    if (!it || !is_local_p(*it)) return false;
 
     buffer<pair<name, expr>> entries;
     to_buffer(m_local_decls.get_entries(), entries);
@@ -565,10 +526,10 @@ bool parser::update_local_binder_info(name const & n, binder_info bi) {
 
     for (unsigned i = idx; i < entries.size(); i++) {
         expr const & curr_e = entries[i].second;
-        expr r = is_local(curr_e) ? local_type(curr_e) : curr_e;
+        expr r = is_local_p(curr_e) ? local_type_p(curr_e) : curr_e;
         if (std::any_of(old_locals.begin(), old_locals.end(), [&](expr const & l) { return depends_on(r, l); })) {
             r  = replace_locals(r, old_locals, new_locals);
-            if (is_local(curr_e)) {
+            if (is_local_p(curr_e)) {
                 expr new_e = update_local(curr_e, r);
                 entries[i].second = new_e;
                 old_locals.push_back(curr_e);
@@ -602,7 +563,7 @@ list<expr> parser::locals_to_context() const {
     return map_filter<expr>(m_local_decls.get_entries(),
                             [](pair<name, expr> const & p, expr & out) {
                                 out = p.second;
-                                return is_local(p.second);
+                                return is_local_p(p.second);
                             });
 }
 
@@ -1179,9 +1140,9 @@ void parser::process_postponed(buffer<expr> const & args, bool is_left,
             scoped_idx++;
             if (is_var(a.get_rec(), 0)) {
                 if (a.use_lambda_abstraction())
-                    r = Fun(ps_sz, ps.data(), r);
+                    r = Fun_p(ps_sz, ps.data(), r);
                 else
-                    r = Pi(ps_sz, ps.data(), r);
+                    r = Pi_p(ps_sz, ps.data(), r);
                 r = rec_save_pos(r, binder_pos);
             } else {
                 expr rec = copy_with_new_pos(a.get_rec(), p);
@@ -1190,9 +1151,9 @@ void parser::process_postponed(buffer<expr> const & args, bool is_left,
                     --i;
                     expr const & l = ps[i];
                     if (a.use_lambda_abstraction())
-                        r = Fun(l, r);
+                        r = Fun_p(l, r);
                     else
-                        r = Pi(l, r);
+                        r = Pi_p(l, r);
                     r = save_pos(r, binder_pos);
                     new_args.push_back(r);
                     r = instantiate_rev(rec, new_args.size(), new_args.data());
@@ -1403,7 +1364,7 @@ expr parser::parse_notation(parse_table t, expr * left) {
             r = instantiate_rev(r, args.size(), args.data());
         }
         if (create_lambdas) {
-            r = rec_save_pos(eta_reduce(Fun(args, r)), p);
+            r = rec_save_pos(eta_reduce(Fun_p(args, r)), p);
         }
         cs.push_back(r);
     }
@@ -1537,7 +1498,7 @@ struct to_pattern_fn {
     }
 
     void add_new_local(expr const & l) {
-        name const & n = local_pp_name(l);
+        name const & n = local_pp_name_p(l);
         if (!n.is_atomic()) {
             return m_parser.maybe_throw_error({
                 "invalid pattern: variable, constructor or constant tagged as pattern expected",
@@ -1553,20 +1514,21 @@ struct to_pattern_fn {
     }
 
     void collect_new_local(expr const & e) {
-        name const & n = local_pp_name(e);
+        name const & n = local_pp_name_p(e);
         bool resolve_only = true;
         expr new_e = m_parser.id_to_expr(n, m_parser.pos_of(e), resolve_only);
+        expr unew_e = unwrap_pos(new_e);
         if (is_as_atomic(new_e)) {
             new_e = get_app_fn(get_as_atomic_arg(new_e));
             if (is_explicit(new_e))
                 new_e = get_explicit_arg(new_e);
         }
 
-        if (is_constant(new_e) && is_pattern_constant(const_name(new_e))) {
+        if (is_constant(unew_e) && is_pattern_constant(const_name(unew_e))) {
             m_locals_map.insert(n, new_e);
             return;
-        } else if (is_choice(new_e)) {
-            if (auto r = process_choice(new_e, e)) {
+        } else if (is_choice(unew_e)) {
+            if (auto r = process_choice(unew_e, e)) {
                 m_locals_map.insert(n, *r);
                 return;
             } else {
@@ -1601,7 +1563,7 @@ struct to_pattern_fn {
                                   << "and this kind of overloading is not currently supported in patterns",
                         m_parser.pos_of(e)});
             }
-        } else if (is_local(e)) {
+        } else if (is_local_p(e)) {
             if (skip_main_fn) {
                 // do nothing
             } else {
@@ -1622,6 +1584,8 @@ struct to_pattern_fn {
                 collect_new_locals(val, false);
         } else if (is_annotation(e)) {
             collect_new_locals(get_annotation_arg(e), skip_main_fn);
+        } else if (get_pos(e)) {
+            collect_new_locals(unwrap_pos(e), skip_main_fn);
         } else if (is_constant(e) && is_pattern_constant(const_name(e))) {
             // do nothing
         } else {
@@ -1633,9 +1597,9 @@ struct to_pattern_fn {
     }
 
     expr to_expr(expr const & e) {
-        return replace_propagating_pos(e, [&](expr const & e, unsigned) {
-                if (is_local(e)) {
-                    if (auto r = m_locals_map.find(local_pp_name(e)))
+        return replace(e, [&](expr const & e, unsigned) {
+                if (is_local_p(e)) {
+                    if (auto r = m_locals_map.find(local_pp_name_p(e)))
                         return some_expr(*r);
                     else
                         return some_expr(m_parser.patexpr_to_expr(e));
@@ -1679,8 +1643,8 @@ struct to_pattern_fn {
                     new_args.push_back(visit(get_choice(e, i)));
                 return mk_choice(new_args.size(), new_args.data());
             }
-        } else if (is_local(e)) {
-            if (auto r = m_locals_map.find(local_pp_name(e)))
+        } else if (is_local_p(e)) {
+            if (auto r = m_locals_map.find(local_pp_name_p(e)))
                 return *r;
             else
                 return e;
@@ -1701,6 +1665,8 @@ struct to_pattern_fn {
             return copy_pos(e, mk_structure_instance(info));
         } else if (is_annotation(e)) {
             return copy_pos(e, mk_annotation(get_annotation_kind(e), visit(get_annotation_arg(e))));
+        } else if (get_pos(e)) {
+            return visit(unwrap_pos(e));
         } else if (is_constant(e) && is_pattern_constant(const_name(e))) {
             return e;
         } else {
@@ -1740,7 +1706,7 @@ static expr quote(expr const & e) {
         return mk_expr_placeholder();
     case expr_kind::FVar:
         throw elaborator_exception(e, sstream() << "invalid quotation, unexpected local constant '"
-                                   << local_pp_name(e) << "'");
+                                   << local_pp_name_p(e) << "'");
     case expr_kind::App:
         if (is_metavar_app(e)) {
             /* Remark: metavariable applications of the form `?m x1 ... xn` may be introduced
@@ -1784,7 +1750,7 @@ static expr elaborate_quote(parser & p, expr e) {
     name x("_x");
     buffer<expr> locals;
     buffer<expr> aqs;
-    e = replace_propagating_pos(e, [&](expr const & t, unsigned) {
+    e = replace(e, [&](expr const & t, unsigned) {
         if (is_antiquote(t)) {
             expr local = mk_local(p.next_name(), x.append_after(locals.size() + 1),
                                   mk_expr_placeholder(), mk_binder_info());
@@ -1794,7 +1760,7 @@ static expr elaborate_quote(parser & p, expr e) {
         }
         return none_expr();
     });
-    e = copy_pos(e, Fun(locals, e));
+    e = copy_pos(e, Fun_p(locals, e));
 
     metavar_context ctx;
     local_context lctx;
@@ -1814,7 +1780,7 @@ static expr elaborate_quote(parser & p, expr e) {
 
 expr parser::patexpr_to_pattern(expr const & pat_or_expr, bool skip_main_fn, buffer<expr> & new_locals) {
     undef_id_to_local_scope scope(*this);
-    auto e = replace_propagating_pos(pat_or_expr, [&](expr const & e) {
+    auto e = replace(pat_or_expr, [&](expr const & e) {
         if (is_expr_quote(e)) {
             return some_expr(elaborate_quote(*this, e));
         } else {
@@ -2169,7 +2135,7 @@ expr parser::parse_nud() {
         expr e = parse_id();
         // if `id` is immediately followed by `@`, parse an as pattern `id@pat`
         if (in_pattern() && id.is_atomic() && curr_is_token(get_explicit_tk())) {
-            lean_assert(is_local(e));
+            lean_assert(is_local_p(e));
             // note: This number is not accurate for an escaped identifier. We should be able to do a better job
             // in the new backtracking parser.
             auto id_len = utf8_strlen(id.to_string().c_str());
@@ -2208,11 +2174,12 @@ expr parser::parse_led(expr left) {
     if (is_sort_wo_universe(left) &&
         (curr_is_numeral() || curr_is_identifier() || curr_is_token(get_lparen_tk()) || curr_is_token(get_placeholder_tk()))) {
         left    = get_annotation_arg(left);
+        level left_l = sort_level(unwrap_pos(left));
         level l = parse_level(get_max_prec());
-        lean_assert(sort_level(left) == mk_level_one() || sort_level(left) == mk_level_zero());
-        if (sort_level(left) == mk_level_one())
+        lean_assert(left_l == mk_level_one() || left_l == mk_level_zero());
+        if (left_l == mk_level_one())
             l = mk_succ(l);
-        return copy_pos(left, update_sort(left, l));
+        return copy_pos(left, update_sort(unwrap_pos(left), l));
     } else {
         switch (curr()) {
         case token_kind::Keyword:
@@ -2618,7 +2585,6 @@ level parser::parser_error_or_level(parser_error && err) {
 }
 
 bool parse_commands(environment & env, io_state & ios, char const * fname) {
-    reset_positions();
 //    st_task_queue tq;
 //    scope_global_task_queue scope(&tq);
     fs_module_vfs vfs;

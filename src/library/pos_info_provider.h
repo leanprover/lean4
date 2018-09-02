@@ -14,9 +14,9 @@ namespace lean {
 /* TEMPORARY HACK for getting position information until we have the new frontend */
 expr save_pos(expr const & e, pos_info const & pos);
 expr copy_pos(expr const & src, expr const & dest);
-void erase_pos(expr const & e);
+expr unwrap_pos(expr const & e);
 optional<pos_info> get_pos(expr const & e);
-void reset_positions();
+bool contains_pos(expr const & e);
 
 class pos_info_provider {
 public:
@@ -44,19 +44,18 @@ public:
 void initialize_pos_info_provider();
 void finalize_pos_info_provider();
 
-expr replace_propagating_pos(expr const & e, std::function<optional<expr>(expr const &, unsigned)> const & f, bool use_cache = true);
-inline expr replace_propagating_pos(expr const & e, std::function<optional<expr>(expr const &)> const & f, bool use_cache = true) {
-    return replace_propagating_pos(e, [&](expr const & e, unsigned) { return f(e); }, use_cache);
-}
-expr instantiate_propagating_pos(expr const & a, unsigned s, unsigned n, expr const * subst);
-expr instantiate_propagating_pos(expr const & e, unsigned n, expr const * s);
-expr instantiate_propagating_pos(expr const & e, std::initializer_list<expr> const & l);
-expr instantiate_propagating_pos(expr const & e, unsigned i, expr const & s);
-expr instantiate_propagating_pos(expr const & e, expr const & s);
+// TEMP: these functions ignore position annotations
 
-expr abstract_propagating_pos(expr const & e, unsigned n, expr const * s);
-inline expr abstract_propagating_pos(expr const & e, expr const & s) { return abstract_propagating_pos(e, 1, &s); }
-expr abstract_propagating_pos(expr const & e, name const & l);
+optional<expr> is_local_p(expr const & e);
+name const & local_name_p(expr const & e);
+name const & local_pp_name_p(expr const & e);
+expr const & local_type_p(expr const & e);
+binder_info local_info_p(expr const & e);
+expr update_local_p(expr const & e, expr const & new_type);
+expr update_local_p(expr const & e, expr const & new_type, binder_info bi);
+expr update_local_p(expr const & e, binder_info bi);
+
+expr abstract_p(expr const & e, unsigned n, expr const * subst);
 
 expr Fun_p(unsigned num, expr const * locals, expr const & b);
 inline expr Fun_p(expr const & local, expr const & b) { return Fun_p(1, &local, b); }

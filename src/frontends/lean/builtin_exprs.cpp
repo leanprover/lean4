@@ -168,8 +168,8 @@ static expr parse_let(parser & p, pos_info const & pos, bool in_do_block) {
             value = p.parse_scoped_expr(ps, lenv);
             value = Fun(ps, value, p);
         }
-        expr x = p.save_pos(mk_local(id, type), id_pos);
-        p.add_local_expr(id, x);
+        expr x = mk_local(id, type);
+        p.add_local_expr(id, p.save_pos(x, id_pos));
         expr b = parse_let_body(p, pos, in_do_block);
         return p.save_pos(mk_let(id, type, value, abstract(b, x)), pos);
     } else {
@@ -204,14 +204,14 @@ static std::tuple<optional<expr>, expr, expr, optional<expr>> parse_do_action(pa
     if (p.curr_is_token(get_colon_tk())) {
         p.next();
         type = p.parse_expr();
-        if (is_placeholder(*lhs)) {
+        if (is_placeholder(unwrap_pos(*lhs))) {
             lhs = mk_local("_x", type);
         }
-        if (!is_local(*lhs)) {
+        if (!is_local(unwrap_pos(*lhs))) {
             p.maybe_throw_error({"invalid 'do' block, unexpected ':' the left hand side is a pattern", lhs_pos});
             lhs = mk_local("_x", type);
         }
-        lhs = p.save_pos(mk_local(local_pp_name(*lhs), type), lhs_pos);
+        lhs = p.save_pos(mk_local(local_pp_name_p(*lhs), type), lhs_pos);
         new_locals.clear();
         new_locals.push_back(*lhs);
         p.check_token_next(get_larrow_tk(), "invalid 'do' block, '←' expected");
@@ -416,7 +416,7 @@ static expr parse_have(parser & p, unsigned, expr const *, pos_info const & pos)
     expr l = p.save_pos(mk_local(id, prop), pos);
     p.add_local(l);
     expr body = p.parse_expr();
-    body = abstract(body, l);
+    body = abstract(body, unwrap_pos(l));
     if (get_parser_checkpoint_have(p.get_options()))
         body = mk_checkpoint_annotation(body);
     expr r = p.save_pos(mk_have_annotation(p.save_pos(mk_lambda(id, prop, body), pos)), pos);
@@ -515,7 +515,7 @@ static expr parse_if_then_else(parser & p, unsigned, expr const *, pos_info cons
 static expr parse_explicit_core(parser & p, pos_info const & pos, bool partial) {
     if (!p.curr_is_identifier())
         return p.parser_error_or_expr({sstream() << "invalid '" << (partial ? "@@" : "@") << "', identifier expected", p.pos()});
-    expr fn = p.parse_id(/* allow_field_notation */ false);
+    expr fn = unwrap_pos(p.parse_id(/* allow_field_notation */ false));
     if (is_choice(fn)) {
         sstream s;
         s << "invalid '" << (partial ? "@@" : "@") << "', function is overloaded, use fully qualified names (overloads: ";
@@ -681,7 +681,7 @@ static expr parse_constructor_core(parser & p, pos_info const & pos) {
     }
     p.check_token_next(get_rangle_tk(), "invalid constructor, `⟩` expected");
     expr fn = p.save_pos(mk_expr_placeholder(), pos);
-    return p.save_pos(mk_anonymous_constructor(p.save_pos(mk_app(fn, args), pos)), pos);
+    return p.save_pos(mk_anonymous_constructor(mk_app(fn, args)), pos);
 }
 
 static expr parse_constructor(parser & p, unsigned, expr const *, pos_info const & pos) {
@@ -707,7 +707,7 @@ static expr parse_lambda_binder(parser & p, pos_info const & pos) {
         p.maybe_throw_error({"invalid lambda expression, ',' or '⟨' expected", p.pos()});
         body = p.parse_expr();
     }
-    return p.rec_save_pos(Fun(locals, body), pos);
+    return p.rec_save_pos(Fun(locals, body, p), pos);
 }
 
 static name * g_lambda_match_name = nullptr;

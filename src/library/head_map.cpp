@@ -11,6 +11,7 @@ namespace lean {
 head_index::head_index(expr const & e) {
     expr f = get_app_fn(e);
     while (true) {
+        f = unwrap_pos(f);
         if (is_as_atomic(f))
             f = get_app_fn(get_as_atomic_arg(f));
         else if (is_explicit(f))

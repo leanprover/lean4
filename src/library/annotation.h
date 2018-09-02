@@ -21,7 +21,7 @@ void register_annotation(name const & n);
 */
 expr mk_annotation(name const & kind, expr const & e);
 /** \brief Return true iff \c e was created using #mk_annotation. */
-bool is_annotation(expr const & e);
+optional<expr> is_annotation(expr const & e);
 /** \brief Return true iff \c e was created using #mk_annotation, and has tag \c kind. */
 bool is_annotation(expr const & e, name const & kind);
 /** \brief Return true iff \c e is of the form (a_1 ... (a_k e') ...)

@@ -128,8 +128,8 @@ static environment redeclare_aliases(environment env, parser & p,
         pair<name, expr> entry = head(old_entries);
         if (is_local_ref(entry.second))
             to_redeclare.push_back(entry);
-        else if (is_local(entry.second))
-            popped_locals.insert(local_name(entry.second));
+        else if (is_local_p(entry.second))
+            popped_locals.insert(local_name_p(entry.second));
         old_entries = tail(old_entries);
         old_len--;
     }

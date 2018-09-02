@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "runtime/sstream.h"
 #include "library/annotation.h"
 #include "library/explicit.h"
+#include "library/pos_info_provider.h"
 
 namespace lean {
 static name * g_explicit_name = nullptr;
@@ -27,7 +28,7 @@ expr const & get_partial_explicit_arg(expr const & e) { lean_assert(is_partial_e
 bool is_explicit_or_partial_explicit(expr const & e) { return is_explicit(e) || is_partial_explicit(e); }
 expr get_explicit_or_partial_explicit_arg(expr const & e) { lean_assert(is_explicit_or_partial_explicit(e)); return get_annotation_arg(e); }
 
-expr mk_as_is(expr const & e) { return mk_annotation(*g_as_is_name, e); }
+expr mk_as_is(expr const & e) { lean_assert(!contains_pos(e)); return mk_annotation(*g_as_is_name, e); }
 bool is_as_is(expr const & e) { return is_annotation(e, *g_as_is_name); }
 expr const & get_as_is_arg(expr const & e) { lean_assert(is_as_is(e)); return get_annotation_arg(e); }
 

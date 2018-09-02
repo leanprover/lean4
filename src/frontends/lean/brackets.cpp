@@ -19,7 +19,7 @@ static expr parse_subtype(parser & p, pos_info const & pos, expr const & local) 
     p.add_local(local);
     expr pred    = p.parse_expr();
     p.check_token_next(get_rcurly_tk(), "invalid subtype, '}' expected");
-    pred         = p.save_pos(Fun(local, pred), pos);
+    pred         = p.save_pos(Fun_p(local, pred), pos);
     expr subtype = p.save_pos(mk_constant(get_subtype_name()), pos);
     return p.mk_app(subtype, pred, pos);
 }
@@ -30,7 +30,7 @@ static expr parse_set_of(parser & p, pos_info const & pos, expr const & local) {
     p.add_local(local);
     expr pred    = p.parse_expr();
     p.check_token_next(get_rcurly_tk(), "invalid set_of, '}' expected");
-    pred        = p.save_pos(Fun(local, pred), pos);
+    pred        = p.save_pos(Fun_p(local, pred), pos);
     expr set_of = p.save_pos(mk_constant(get_set_of_name()), pos);
     return p.mk_app(set_of, pred, pos);
 }
@@ -65,7 +65,7 @@ static expr parse_sep(parser & p, pos_info const & pos, name const & id) {
     p.add_local(local);
     expr pred  = p.parse_expr();
     p.check_token_next(get_rcurly_tk(), "invalid sep expression, '}' expected");
-    pred   = p.rec_save_pos(Fun(local, pred), pos);
+    pred   = p.rec_save_pos(Fun_p(local, pred), pos);
     return p.rec_save_pos(mk_app(mk_constant(get_has_sep_sep_name()), pred, s), pos);
 }
 

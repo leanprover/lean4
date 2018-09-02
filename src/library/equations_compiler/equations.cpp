@@ -63,12 +63,13 @@ expr mk_equation(expr const & lhs, expr const & rhs, bool ignore_if_unused) {
 expr mk_no_equation() { return mk_mdata(*g_no_equation, mk_Prop()); }
 
 bool is_equation(expr const & e) {
-    return is_mdata(e) && get_bool(mdata_data(e), *g_equation_name);
+    expr e2 = unwrap_pos(e);
+    return is_mdata(e2) && get_bool(mdata_data(e2), *g_equation_name);
 }
 
 bool ignore_equation_if_unused(expr const & e) {
     lean_assert(is_equation(e));
-    return *get_bool(mdata_data(e), *g_equation_name);
+    return *get_bool(mdata_data(unwrap_pos(e)), *g_equation_name);
 }
 
 bool is_lambda_equation(expr const & e) {
@@ -78,9 +79,11 @@ bool is_lambda_equation(expr const & e) {
         return is_equation(e);
 }
 
-expr const & equation_lhs(expr const & e) { lean_assert(is_equation(e)); return app_fn(mdata_expr(e)); }
-expr const & equation_rhs(expr const & e) { lean_assert(is_equation(e)); return app_arg(mdata_expr(e)); }
-bool is_no_equation(expr const & e) { return is_mdata(e) && get_bool(mdata_data(e), *g_no_equation_name); }
+expr const & equation_lhs(expr const & e) { lean_assert(is_equation(e)); return app_fn(mdata_expr(unwrap_pos(e))); }
+expr const & equation_rhs(expr const & e) { lean_assert(is_equation(e)); return app_arg(mdata_expr(unwrap_pos(e))); }
+bool is_no_equation(expr const & e) {
+    expr e2 = unwrap_pos(e);
+    return is_mdata(e2) && get_bool(mdata_data(e2), *g_no_equation_name); }
 
 bool is_lambda_no_equation(expr const & e) {
     if (is_lambda(e))

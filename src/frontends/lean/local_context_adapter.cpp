@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/find_fn.h"
 #include "library/locals.h"
+#include "library/pos_info_provider.h"
 #include "frontends/lean/local_context_adapter.h"
 
 namespace lean {
@@ -35,21 +36,21 @@ local_context_adapter::local_context_adapter(local_expr_decls const & ldecls) {
     while (i > 0) {
         --i;
         pair<name, expr> const & entry = entries[i];
-        expr const & local = entry.second;
+        expr const & local = unwrap_pos(entry.second);
         if (!is_local(local)) continue;
         add_local(local);
     }
 }
 
 local_context_adapter::local_context_adapter(list<expr> const & lctx) {
-    lean_assert(std::all_of(lctx.begin(), lctx.end(), is_local));
+    lean_assert(std::all_of(lctx.begin(), lctx.end(), is_local_p));
     lean_assert(m_lctx.empty() && m_locals.empty());
     buffer<expr> entries;
     to_buffer(lctx, entries);
     unsigned i = entries.size();
     while (i > 0) {
         --i;
-        add_local(entries[i]);
+        add_local(unwrap_pos(entries[i]));
     }
 }
 

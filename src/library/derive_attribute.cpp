@@ -62,7 +62,8 @@ static exprs_attribute const & get_derive_attribute() {
 }
 
 static environment derive(environment env, options const & opts, name const & n, exprs const & clss) {
-    for (auto const & cls : clss) {
+    for (auto cls : clss) {
+        cls = unwrap_pos(cls);
         auto const & d = env.get(n);
         if (!is_constant(cls) || !d.is_definition())
             throw exception("don't know how to derive this");

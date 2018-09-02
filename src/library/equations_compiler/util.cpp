@@ -146,7 +146,7 @@ expr unpack_eqns::repack() {
     buffer<expr> new_eqs;
     for (buffer<expr> const & fn_eqs : m_eqs) {
         for (expr const & eq : fn_eqs) {
-            new_eqs.push_back(m_locals.ctx().mk_lambda(m_fns, eq));
+            new_eqs.push_back(m_locals.ctx().mk_lambda(m_fns, unwrap_pos(eq)));
         }
     }
     return update_equations(m_src, new_eqs);

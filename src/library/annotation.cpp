@@ -28,28 +28,35 @@ void register_annotation(name const & kind) {
     g_annotation_maps->insert(mk_pair(kind, mk_annotation_kvmap(kind)));
 }
 
-bool is_annotation(expr const & e) {
-    return is_mdata(e) && get_name(mdata_data(e), *g_annotation);
+optional<expr> is_annotation(expr const & e) {
+    expr e2 = unwrap_pos(e);
+    if (is_mdata(e2) && get_name(mdata_data(e2), *g_annotation))
+        return some_expr(e2);
+    else
+        return none_expr();
 }
 
 name get_annotation_kind(expr const & e) {
-    lean_assert(is_annotation(e));
-    return *get_name(mdata_data(e), *g_annotation);
+    auto o = is_annotation(e);
+    lean_assert(o);
+    return *get_name(mdata_data(*o), *g_annotation);
 }
 
 bool is_annotation(expr const & e, name const & kind) {
-    return is_annotation(e) && get_annotation_kind(e) == kind;
+    auto o = is_annotation(e);
+    return o && get_annotation_kind(*o) == kind;
 }
 
 expr const & get_annotation_arg(expr const & e) {
-    lean_assert(is_annotation(e));
-    return mdata_expr(e);
+    auto o = is_annotation(e);
+    lean_assert(o);
+    return mdata_expr(*o);
 }
 
 expr mk_annotation(name const & kind, expr const & e) {
     auto it = g_annotation_maps->find(kind);
     if (it != g_annotation_maps->end()) {
-        expr r = copy_pos(e, mk_mdata(it->second, e));
+        expr r = mk_mdata(it->second, e);
         lean_assert(is_annotation(r));
         lean_assert(get_annotation_kind(r) == kind);
         return r;

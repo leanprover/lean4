@@ -489,7 +489,7 @@ static expr expand_pp_pattern(unsigned num, transition const * ts, expr const & 
 
 optional<head_index> get_head_index(unsigned num, transition const * ts, expr const & a) {
     if (is_simple(num, ts)) {
-        expr n = expand_pp_pattern(num, ts, a);
+        expr n = unwrap_pos(expand_pp_pattern(num, ts, a));
         if (!is_var(n))
             return some(head_index(n));
     }

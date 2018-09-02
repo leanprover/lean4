@@ -267,8 +267,6 @@ public:
     virtual pos_info pos() const override final { return pos_info(m_scanner.get_line(), m_scanner.get_pos()); }
     expr rec_save_pos(expr const & e, pos_info p);
     expr rec_save_pos(expr const & e, optional<pos_info> p) { return p ? rec_save_pos(e, *p) : e; }
-    expr update_pos(expr e, pos_info p);
-    void erase_pos(expr const & e);
     pos_info pos_of(expr const & e, pos_info default_pos) const;
     pos_info pos_of(expr const & e) const { return pos_of(e, pos()); }
     pos_info cmd_pos() const { return m_last_cmd_pos; }
@@ -476,15 +474,15 @@ public:
     environment add_local_ref(environment const & env, name const & n, expr const & ref);
     void add_variable(name const & n, expr const & p);
     void add_parameter(name const & n, expr const & p);
-    void add_local(expr const & p) { return add_local_expr(local_pp_name(p), p); }
+    void add_local(expr const & p) { return add_local_expr(local_pp_name_p(p), p); }
     bool has_params() const { return m_has_params; }
-    bool is_local_decl_user_name(expr const & l) const { return is_local(l) && m_local_decls.contains(local_pp_name(l)); }
+    bool is_local_decl_user_name(expr const & l) const { return is_local_p(l) && m_local_decls.contains(local_pp_name_p(l)); }
     bool is_local_decl(expr const & l);
     bool is_local_level_variable(name const & n) const { return m_level_variables.contains(n); }
     bool is_local_variable(expr const & e) const { return m_variables.contains(local_name(e)); }
     bool is_local_variable_user_name(name const & n) const {
         if (expr const * d = m_local_decls.find(n))
-            return is_local(*d) && m_variables.contains(local_name(*d));
+            return is_local_p(*d) && m_variables.contains(local_name_p(*d));
         else
             return false;
     }
@@ -499,7 +497,7 @@ public:
     bool is_local_level(name const & n) const { return m_local_level_decls.contains(n); }
     /** \brief Position of the local declaration named \c n in the sequence of local decls. */
     unsigned get_local_index(name const & n) const;
-    unsigned get_local_index(expr const & e) const { return get_local_index(local_pp_name(e)); }
+    unsigned get_local_index(expr const & e) const { return get_local_index(local_pp_name_p(e)); }
     /** \brief Return the local parameter named \c n */
     expr const * get_local(name const & n) const { return m_local_decls.find(n); }
     /** \brief Return local declarations as a list of local constants. */

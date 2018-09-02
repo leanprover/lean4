@@ -18,7 +18,7 @@ namespace lean {
 // Check whether e is of the form (f ...) where f is a constant. If it is return f.
 static name const & get_fn_const(expr const & e, char const * msg) {
     expr const & fn = get_app_fn(e);
-    if (!is_constant(fn))
+    if (!is_constant(unwrap_pos(fn)))
         throw exception(msg);
     return const_name(fn);
 }

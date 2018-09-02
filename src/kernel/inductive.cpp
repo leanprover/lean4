@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
+#include "kernel/abstract.h"
 #include "kernel/find_fn.h"
 #include "kernel/replace_fn.h"
 #include "kernel/kernel_exception.h"
@@ -636,6 +637,15 @@ public:
 
 static name * g_nested = nullptr;
 
+/* Result produced by elim_nested_inductive_fn */
+struct elim_nested_inductive_result {
+    buffer<expr>             m_params;
+    buffer<pair<expr, name>> m_nested_aux;
+    declaration              m_aux_decl;
+    elim_nested_inductive_result(buffer<expr> const & params, buffer<pair<expr, name>> const & nested_aux, declaration const & d):
+        m_params(params), m_nested_aux(nested_aux), m_aux_decl(d) {}
+};
+
 /* Eliminate nested inductive datatypes by creating a new (auxiliary) declaration which contains and inductive types in `d`
    and copies of the nested inductive datatypes used in `d`. For each nested occurrence `I Ds is` where `I` is a nested inductive
    datatype and `Ds` are the parametric arguments and `is` the indices, we create an auxiliary type `Iaux` in the (mutual) inductive
@@ -646,13 +656,15 @@ static name * g_nested = nullptr;
 struct elim_nested_inductive_fn {
     environment const &        m_env;
     declaration const &        m_d;
-    buffer<pair<expr, name>> & m_nested_aux;
+    local_ctx                  m_params_lctx;
+    buffer<expr>               m_params;
+    buffer<pair<expr, name>>   m_nested_aux; /* The expressions stored here contains free vars in `m_params` */
     levels                     m_lvls;
     buffer<inductive_type>     m_new_types;
     unsigned                   m_next_idx{1};
 
-    elim_nested_inductive_fn(environment const & env, declaration const & d, buffer<pair<expr, name>> & nested_aux):
-        m_env(env), m_d(d), m_nested_aux(nested_aux) {
+    elim_nested_inductive_fn(environment const & env, declaration const & d):
+        m_env(env), m_d(d) {
         m_lvls = param_names_to_levels(inductive_decl(m_d).get_lparams());
     }
 
@@ -666,6 +678,11 @@ struct elim_nested_inductive_fn {
 
     void throw_ill_formed() {
         throw kernel_exception(m_env, "invalid nested inductive datatype, ill-formed declaration");
+    }
+
+    expr replace_params(expr const & e, buffer<expr> const & As) {
+        lean_assert(m_params.size() == As.size());
+        return instantiate_rev(abstract(e, As.size(), As.data()), m_params.size(), m_params.data());
     }
 
     /* IF `e` is of the form `I Ds is` where
@@ -729,8 +746,15 @@ struct elim_nested_inductive_fn {
         expr IAs = mk_app(fn, I_nparams, args.data()); /* `I As` */
         /* Check whether we have already created an auxiliary inductive_type for `I As` */
         optional<name> auxI_name;
+        /* Replace `As` with `m_params` before searching at `m_nested_aux`.
+           We need this step because we re-create parameters for each constructor with the correct binding info */
+        expr Iparams = replace_params(IAs, As);
         for (pair<expr, name> const & p : m_nested_aux) {
-            if (p.first == IAs) {
+            /* Remark: we could have used `is_def_eq` here instead of structural equality.
+               It is probably not needed, but if one day we decide to do it, we have to populate
+               an auxiliary environment with the inductive datatypes we are defining since `p.first` and `Iparams`
+               contain references to them. */
+            if (p.first == Iparams) {
                 auxI_name = p.second;
                 break;
             }
@@ -752,7 +776,7 @@ struct elim_nested_inductive_fn {
                 expr auxJ_type       = instantiate_univ_params(J_info.get_type(), J_info.get_univ_params(), I_lvls);
                 auxJ_type            = instantiate_pi_params(auxJ_type, I_nparams, args.data());
                 auxJ_type            = lctx.mk_pi(As, auxJ_type);
-                m_nested_aux.push_back(mk_pair(JAs, auxJ_name));
+                m_nested_aux.push_back(mk_pair(replace_params(JAs, m_params), auxJ_name));
                 if (J_name == I_name) {
                     /* Create result */
                     expr auxI = mk_constant(auxJ_name, m_lvls);
@@ -781,12 +805,24 @@ struct elim_nested_inductive_fn {
         return replace(e, [&](expr const & e, unsigned) { return replace_if_nested(lctx, As, e); });
     }
 
-    declaration operator()() {
+    expr get_params(expr type, unsigned nparams, local_ctx & lctx, buffer<expr> & params) {
+        lean_assert(params.empty());
+        for (unsigned i = 0; i < nparams; i++) {
+            if (!is_pi(type)) throw kernel_exception(m_env, "invalid inductive datatype declaration, incorrect number of parameters");
+            params.push_back(lctx.mk_local_decl(binding_name(type), binding_domain(type), binding_info(type)));
+            type = instantiate(binding_body(type), params.back());
+        }
+        return type;
+    }
+
+    elim_nested_inductive_result operator()() {
         inductive_decl ind_d(m_d);
         if (!ind_d.get_nparams().is_small()) throw_ill_formed();
         unsigned d_nparams = ind_d.get_nparams().get_small_value();
         to_buffer(ind_d.get_types(), m_new_types);
         if (m_new_types.size() == 0) throw kernel_exception(m_env, "invalid empty (mutual) inductive datatype declaration, it must contain at least one inductive type.");
+        /* initialize m_params and m_params_lctx */
+        get_params(m_new_types[0].get_type(), d_nparams, m_params_lctx, m_params);
         unsigned qhead = 0;
         /* Main elimination loop. */
         while (qhead < m_new_types.size()) {
@@ -799,11 +835,7 @@ struct elim_nested_inductive_fn {
                 /* Consume parameters.
 
                    We (re-)create the parameters for each constructor because we want to preserve the binding_info. */
-                for (unsigned i = 0; i < d_nparams; i++) {
-                    if (!is_pi(cnstr_type)) throw kernel_exception(m_env, "invalid inductive datatype declaration, incorrect number of parameters");
-                    As.push_back(lctx.mk_local_decl(binding_name(cnstr_type), binding_domain(cnstr_type), binding_info(cnstr_type)));
-                    cnstr_type = instantiate(binding_body(cnstr_type), As.back());
-                }
+                cnstr_type = get_params(cnstr_type, d_nparams, lctx, As);
                 lean_assert(As.size() == d_nparams);
                 expr new_cnstr_type = replace_all_nested(lctx, As, cnstr_type);
                 new_cnstr_type = lctx.mk_pi(As, new_cnstr_type);
@@ -812,14 +844,14 @@ struct elim_nested_inductive_fn {
             m_new_types[qhead] = inductive_type(ind_type.get_name(), ind_type.get_type(), constructors(new_cnstrs));
             qhead++;
         }
-        return mk_inductive_decl(ind_d.get_lparams(), ind_d.get_nparams(), inductive_types(m_new_types), ind_d.is_meta());
+        declaration aux_decl = mk_inductive_decl(ind_d.get_lparams(), ind_d.get_nparams(), inductive_types(m_new_types), ind_d.is_meta());
+        return elim_nested_inductive_result(m_params, m_nested_aux, aux_decl);
     }
 };
 
 environment environment::add_inductive(declaration const & d) const {
-    buffer<pair<expr, name>> nested_aux;
-    declaration aux_d   = elim_nested_inductive_fn(*this, d, nested_aux)();
-    environment aux_env = add_inductive_fn(*this, inductive_decl(aux_d))();
+    elim_nested_inductive_result res = elim_nested_inductive_fn(*this, d)();
+    environment aux_env = add_inductive_fn(*this, inductive_decl(res.m_aux_decl))();
     // TODO(Leo): if `nested_aux` is not empty, we must create a new environment using `aux_env` and `aux_d`
     return aux_env;
 }

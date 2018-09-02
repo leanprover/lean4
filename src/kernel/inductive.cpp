@@ -533,36 +533,35 @@ public:
             return m_lparams;
     }
 
+
+    /** \brief Store all type formers in `Cs` */
+    void collect_Cs(buffer<expr> & Cs) {
+        for (unsigned i = 0; i < m_ind_types.size(); i++)
+            Cs.push_back(m_rec_infos[i].m_C);
+    }
+
+    /** \brief Store all minor premises in `ms`. */
+    void collect_minor_premises(buffer<expr> & ms) {
+        for (unsigned i = 0; i < m_ind_types.size(); i++)
+            ms.append(m_rec_infos[i].m_minors);
+    }
+
     /** \brief Declare recursors. */
     void declare_recursors() {
-        names all = get_all_names();
+        buffer<expr> Cs; collect_Cs(Cs);
+        buffer<expr> minors; collect_minor_premises(minors);
+        unsigned nminors  = minors.size();
+        unsigned nmotives = Cs.size();
+        names all         = get_all_names();
         for (unsigned d_idx = 0; d_idx < m_ind_types.size(); d_idx++) {
             rec_info const & info = m_rec_infos[d_idx];
             expr C_app            = mk_app(mk_app(info.m_C, info.m_indices), info.m_major);
             expr rec_ty           = mk_pi(info.m_major, C_app);
             rec_ty                = mk_pi(info.m_indices, rec_ty);
-            /* Add minor premises */
-            unsigned nminors = 0;
-            unsigned i = m_ind_types.size();
-            while (i > 0) {
-                --i;
-                unsigned j = m_rec_infos[i].m_minors.size();
-                while (j > 0) {
-                    --j;
-                    rec_ty = mk_pi(m_rec_infos[i].m_minors[j], rec_ty);
-                    nminors++;
-                }
-            }
-            /* Add type formers (aka motives) */
-            unsigned nmotives = 0;
-            i = m_ind_types.size();
-            while (i > 0) {
-                --i;
-                rec_ty = mk_pi(m_rec_infos[i].m_C, rec_ty);
-                nmotives++;
-            }
-            rec_ty   = mk_pi(m_params, rec_ty);
-            rec_ty   = infer_implicit(rec_ty, true /* strict */);
+            rec_ty                = mk_pi(minors, rec_ty);
+            rec_ty                = mk_pi(Cs, rec_ty);
+            rec_ty                = mk_pi(m_params, rec_ty);
+            rec_ty                = infer_implicit(rec_ty, true /* strict */);
             /*
                TODO(Leo): gen reduction rule
             */

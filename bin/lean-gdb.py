@@ -76,37 +76,35 @@ class LeanExprPrinter:
     """Print a lean::expr object."""
 
     expr_kinds = [
-        ('lean::expr_var', 'Var', ['m_vidx']),
-        ('lean::expr_sort', 'Sort', ['m_level']),
-        ('lean::expr_const', 'Constant', ['m_name', 'm_levels']),
-        ('lean::expr_mlocal', 'Meta', ['m_name', 'm_type']),
-        ('lean::expr_local', 'Local', ['m_pp_name', 'm_name', 'm_bi', 'm_type']),
-        ('lean::expr_app', 'App', ['m_fn', 'm_arg']),
-        ('lean::expr_binding', 'Lambda', ['m_binder', 'm_body']),
-        ('lean::expr_binding', 'Pi', ['m_binder', 'm_body']),
-        ('lean::expr_let', 'Let', ['m_name', 'm_type', 'm_value', 'm_body']),
-        ('lean::expr_macro', 'Macro', ['m_definition']),
+        ('bvar', [('idx', 'nat')]),
+        ('fvar', ['name']),
+        ('mvar', ['name', ('type', 'expr')]),
+        ('sort', ['level']),
+        ('const', ['name', ('levels', 'list_ref<lean::level>')]),
+        ('app', [('fn', 'expr'), ('arg', 'expr')]),
+        ('lam', ['name', 'binder_info', ('type', 'expr'), ('body', 'expr')]),
+        ('pi', ['name', 'binder_info', ('type', 'expr'), ('body', 'expr')]),
+        ('let', ['name', ('type', 'expr'), ('val', 'expr'), ('body', 'expr')]),
+        ('lit', ['literal']),
+        ('mdata', ['kvmap', 'expr']),
+        ('proj', ['nat', 'expr']),
     ]
 
 
     def __init__(self, val):
-        self.kind = int(val['m_ptr']['m_kind'])
-        subtype = gdb.lookup_type(LeanExprPrinter.expr_kinds[self.kind][0])
-        self.val = val['m_ptr'].cast(subtype.pointer()).dereference()
+        self.val = val
 
     def to_string(self):
-        return 'lean::expr[{}]'.format(LeanExprPrinter.expr_kinds[self.kind][1])
+        return 'lean::expr[{}]'.format(LeanExprPrinter.expr_kinds[get_cnstr_tag(self.val)][0])
 
     def children(self):
-        kind, _, fields = LeanExprPrinter.expr_kinds[self.kind]
-        for f in fields:
-            yield (f, self.val[f])
-        if kind == 'lean::expr_macro':
-            p = self.val.address.cast(gdb.lookup_type('char').pointer())
-            p += gdb.lookup_type('lean::expr_macro').sizeof
-            p = p.cast(gdb.lookup_type('lean::expr').pointer())
-            for i in range(self.val['m_num_args']):
-                yield ('[%s]' % i, (p + i).dereference())
+        _, fields = LeanExprPrinter.expr_kinds[get_cnstr_tag(self.val)]
+        for i, f in enumerate(fields):
+            if isinstance(f, tuple):
+                name, typ = f
+            else:
+                name, typ = f, f
+            yield (name, get_cnstr_obj_arg(self.val, i).cast(gdb.lookup_type('lean::' + typ)))
 
 class LeanLevelPrinter:
     """Print a lean::level object."""
@@ -231,9 +229,9 @@ def build_pretty_printer():
     pp = gdb.printing.RegexpCollectionPrettyPrinter("lean")
     pp.add_printer('optional', '^lean::optional', LeanOptionalPrinter)
     pp.add_printer('name', '^lean::name$', LeanNamePrinter)
-    #pp.add_printer('expr', '^lean::expr$', LeanExprPrinter)
+    pp.add_printer('expr', '^lean::expr$', LeanExprPrinter)
     #pp.add_printer('level', '^lean::level$', LeanLevelPrinter)
-    pp.add_printer('list', '^lean::list', LeanListPrinter)
+    #pp.add_printer('list', '^lean::list', LeanListPrinter)
     pp.add_printer('buffer', '^lean::buffer', LeanBufferPrinter)
     pp.add_printer('obj_list', '^lean::obj_list', LeanObjListPrinter)
     pp.add_printer('rb_tree', '^lean::rb_tree', LeanRBTreePrinter)

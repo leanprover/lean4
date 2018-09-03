@@ -272,8 +272,8 @@ public:
     inductive_val & operator=(inductive_val const & other) { object_ref::operator=(other); return *this; }
     inductive_val & operator=(inductive_val && other) { object_ref::operator=(other); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_obj_ref(*this, 0)); }
-    nat const & get_nparams() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 1)); }
-    nat const & get_nindices() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 2)); }
+    unsigned get_nparams() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 1)).get_small_value(); }
+    unsigned get_nindices() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 2)).get_small_value(); }
     names const & get_all() const { return static_cast<names const &>(cnstr_obj_ref(*this, 3)); }
     names const & get_cnstrs() const { return static_cast<names const &>(cnstr_obj_ref(*this, 4)); }
     bool is_rec() const { return cnstr_scalar<unsigned char>(raw(), sizeof(object*)*5) != 0; }
@@ -295,7 +295,7 @@ public:
     constructor_val & operator=(constructor_val && other) { object_ref::operator=(other); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_obj_ref(*this, 0)); }
     name const & get_induct() const { return static_cast<name const &>(cnstr_obj_ref(*this, 1)); }
-    nat const & get_nparams() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 2)); }
+    unsigned get_nparams() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 2)).get_small_value(); }
     bool is_meta() const { return cnstr_scalar<unsigned char>(raw(), sizeof(object*)*3) != 0; }
 };
 
@@ -313,7 +313,7 @@ public:
     recursor_rule & operator=(recursor_rule const & other) { object_ref::operator=(other); return *this; }
     recursor_rule & operator=(recursor_rule && other) { object_ref::operator=(other); return *this; }
     name const & get_constructor() const { return static_cast<name const &>(cnstr_obj_ref(*this, 0)); }
-    nat const & get_nfields() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 1)); }
+    unsigned get_nfields() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 1)).get_small_value(); }
     expr const & get_rhs() const { return static_cast<expr const &>(cnstr_obj_ref(*this, 2)); }
 };
 
@@ -341,10 +341,10 @@ public:
     recursor_val & operator=(recursor_val && other) { object_ref::operator=(other); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_obj_ref(*this, 0)); }
     names const & get_all() const { return static_cast<names const &>(cnstr_obj_ref(*this, 1)); }
-    nat const & get_nparams() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 2)); }
-    nat const & get_nindices() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 3)); }
-    nat const & get_nmotives() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 4)); }
-    nat const & get_nminors() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 5)); }
+    unsigned get_nparams() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 2)).get_small_value(); }
+    unsigned get_nindices() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 3)).get_small_value(); }
+    unsigned get_nmotives() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 4)).get_small_value(); }
+    unsigned get_nminors() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 5)).get_small_value(); }
     recursor_rules const & get_rules() const { return static_cast<recursor_rules const &>(cnstr_obj_ref(*this, 6)); }
     bool is_k() const { return cnstr_scalar<unsigned char>(raw(), sizeof(object*)*7) != 0; }
     bool is_meta() const { return cnstr_scalar<unsigned char>(raw(), sizeof(object*)*7 + 1) != 0; }

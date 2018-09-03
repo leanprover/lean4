@@ -70,6 +70,28 @@ optional<expr> inductive_reduce_rec(environment const & env, expr const & e,
     return some_expr(rhs);
 }
 
+template<typename WHNF, typename IS_STUCK>
+optional<expr> inductive_is_stuck(environment const & env, expr const & e, WHNF const & whnf, IS_STUCK const & is_stuck) {
+    expr const & rec_fn   = get_app_fn(e);
+    if (!is_constant(rec_fn)) return none_expr();
+    optional<constant_info> rec_info = env.find(const_name(rec_fn));
+    if (!rec_info || !rec_info->is_recursor()) return none_expr();
+    buffer<expr> rec_args;
+    get_app_args(e, rec_args);
+    recursor_val const & rec_val = rec_info->to_recursor_val();
+    unsigned major_idx = rec_val.get_major_idx();
+    if (rec_args.size() < major_idx + 1) return none_expr();
+    expr cnstr_app = whnf(rec_args[major_idx]);
+    if (rec_val.is_k()) {
+        /* TODO(Leo): make it more precise.  Remark: this piece of
+           code does not affect the correctness of the kernel, but the
+           effectiveness of the elaborator. */
+        return none_expr();
+    } else {
+        return is_stuck(cnstr_app);
+    }
+}
+
 void initialize_inductive();
 void finalize_inductive();
 }

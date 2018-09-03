@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
 #include "kernel/quot.h"
+#include "kernel/inductive.h"
 #include "kernel/inductive/inductive.h"
 
 namespace lean {
@@ -303,11 +304,17 @@ bool type_checker::is_prop(expr const & e) {
 }
 
 /** \brief Apply normalizer extensions to \c e. */
-optional<expr> type_checker::norm_ext(expr const & e) {
+optional<expr> type_checker::reduce_recursor(expr const & e) {
     if (m_env.is_quot_initialized()) {
         if (optional<expr> r = quot_reduce_rec(e, [&](expr const & e) { return whnf(e); })) {
             return r;
         }
+    }
+    if (optional<expr> r = inductive_reduce_rec(m_env, e,
+                                                [&](expr const & e) { return whnf(e); },
+                                                [&](expr const & e) { return infer(e); },
+                                                [&](expr const & e1, expr const & e2) { return is_def_eq(e1, e2); })) {
+        return r;
     }
     return m_env.norm_ext()(e, *this);
 }
@@ -402,7 +409,7 @@ expr type_checker::whnf_core(expr const & e) {
             lean_assert(m <= num_args);
             r = whnf_core(mk_rev_app(instantiate(binding_body(f), m, args.data() + (num_args - m)), num_args - m, args.data()));
         } else if (f == f0) {
-            if (auto r = norm_ext(e)) {
+            if (auto r = reduce_recursor(e)) {
                 /* iota-reduction and quotient reduction rules */
                 return whnf_core(*r);
             } else {

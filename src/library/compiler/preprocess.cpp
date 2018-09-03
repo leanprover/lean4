@@ -68,7 +68,7 @@ class expand_aux_fn : public compiler_step_visitor {
            Remark: we only unfold reducible constants. */
         type_context_old::transparency_scope scope(ctx(), transparency_mode::Reducible);
         if (auto r1 = ctx().reduce_aux_recursor(e)) {
-            if (auto r2 = ctx().norm_ext(*r1)) {
+            if (auto r2 = ctx().reduce_recursor(*r1)) {
                 return compiler_step_visitor::visit(*r2);
             }
         }

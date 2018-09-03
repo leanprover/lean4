@@ -33,8 +33,8 @@ inline optional<expr> to_cnstr_when_K(environment const & env, recursor_val cons
 optional<recursor_rule> get_rec_rule_for(recursor_val const & rec_val, expr const & major);
 
 template<typename WHNF, typename INFER, typename IS_DEF_EQ>
-optional<expr> inductive_reduce_rec(environment const & env, expr const & e,
-                                    WHNF const & whnf, INFER const & infer_type, IS_DEF_EQ const & is_def_eq) {
+inline optional<expr> inductive_reduce_rec(environment const & env, expr const & e,
+                                           WHNF const & whnf, INFER const & infer_type, IS_DEF_EQ const & is_def_eq) {
     expr const & rec_fn   = get_app_fn(e);
     if (!is_constant(rec_fn)) return none_expr();
     constant_info rec_info = env.get(const_name(rec_fn));

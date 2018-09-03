@@ -56,7 +56,7 @@ class type_checker : public abstract_type_context {
     expr infer_type(expr const & e);
 
     enum class reduction_status { Continue, DefUnknown, DefEqual, DefDiff };
-    optional<expr> norm_ext(expr const & e);
+    optional<expr> reduce_recursor(expr const & e);
     optional<expr> reduce_proj(expr const & e);
     expr whnf_fvar(expr const & e);
     expr whnf_core(expr const & e);

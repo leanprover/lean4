@@ -119,7 +119,7 @@ class inline_simple_definitions_fn : public compiler_step_visitor {
                     return new_e;
             }
             /* reduce */
-            if (auto r = ctx().norm_ext(new_e))
+            if (auto r = ctx().reduce_recursor(new_e))
                 return visit(beta_reduce(*r));
         }
         return mk_app(fn, args);

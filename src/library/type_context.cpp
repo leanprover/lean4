@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/quot.h"
+#include "kernel/inductive.h"
 #include "kernel/inductive/inductive.h"
 #include "library/error_msgs.h"
 #include "library/trace.h"
@@ -629,14 +630,6 @@ optional<expr> type_context_old::unfold_definition(expr const & e) {
     }
 }
 
-optional<expr> type_context_old::norm_ext(expr const & e) {
-    if (env().is_quot_initialized()) {
-        if (optional<expr> r = quot_reduce_rec(e, [&](expr const & e) { return whnf(e); }))
-            return r;
-    }
-    return env().norm_ext()(e, *this);
-}
-
 projection_info const * type_context_old::is_projection(expr const & e) {
     expr const & f = get_app_fn(e);
     if (!is_constant(f))
@@ -735,11 +728,18 @@ bool type_context_old::use_zeta() const {
 }
 
 optional<expr> type_context_old::reduce_recursor(expr const & e) {
-    if (auto r = norm_ext(e))
+    if (env().is_quot_initialized()) {
+        if (optional<expr> r = quot_reduce_rec(e, [&](expr const & e) { return whnf(e); })) {
+            return r;
+        }
+    }
+    if (optional<expr> r = inductive_reduce_rec(env(), e,
+                                                [&](expr const & e) { return whnf(e); },
+                                                [&](expr const & e) { return infer(e); },
+                                                [&](expr const & e1, expr const & e2) { return is_def_eq(e1, e2); })) {
         return r;
-    if (auto r = reduce_aux_recursor(e))
-        return r;
-    return none_expr();
+    }
+    return env().norm_ext()(e, *this);
 }
 
 /*
@@ -817,8 +817,7 @@ expr type_context_old::whnf_core(expr const & e0, bool proj_reduce) {
                     num_args - m, args.data());
             continue;
         } else if (f == f0) {
-            if (auto r = norm_ext(e)) {
-                /* mainly iota-reduction, it also applies HIT and quotient reduction rules */
+            if (optional<expr> r = reduce_recursor(e)) {
                 e = *r;
                 continue;
             }
@@ -830,7 +829,7 @@ expr type_context_old::whnf_core(expr const & e0, bool proj_reduce) {
                 }
             }
 
-            if (auto r = reduce_aux_recursor(e)) {
+            if (optional<expr> r = reduce_aux_recursor(e)) {
                 e = *r;
                 continue;
             }
@@ -929,9 +928,16 @@ optional<expr> type_context_old::is_stuck(expr const & e) {
         return is_stuck(get_annotation_arg(e));
     } else {
         if (env().is_quot_initialized()) {
-            if (optional<expr> r = quot_is_stuck(e, [&](expr const & e) { return whnf(e); },
-                                                 [&](expr const & e) { return is_stuck(e); }))
+            if (optional<expr> r = quot_is_stuck(e,
+                                                 [&](expr const & e) { return whnf(e); },
+                                                 [&](expr const & e) { return is_stuck(e); })) {
                 return r;
+            }
+        }
+        if (optional<expr> r = inductive_is_stuck(env(), e,
+                                                  [&](expr const & e) { return whnf(e); },
+                                                  [&](expr const & e) { return is_stuck(e); })) {
+            return r;
         }
         return env().norm_ext().is_stuck(e, *this);
     }

@@ -746,11 +746,10 @@ struct elim_nested_inductive_result {
                         expr new_nested = instantiate_rev(abstract(nested, m_params.size(), m_params.data()), As.size(), As.data());
                         buffer<expr> I_args;
                         expr I = get_app_args(new_nested, I_args);
-                        lean_assert(I_args.size() == m_params.size());
                         lean_assert(is_constant(I));
                         name new_fn_name = const_name(fn).replace_prefix(auxI_name, const_name(I));
                         expr new_fn = mk_constant(new_fn_name, const_levels(I));
-                        expr new_t  = mk_app(mk_app(new_fn, I_args), args.size() - I_args.size(), args.data() + I_args.size());
+                        expr new_t  = mk_app(mk_app(new_fn, I_args), args.size() - m_params.size(), args.data() + m_params.size());
                         return some_expr(new_t);
                     }
                 }

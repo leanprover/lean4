@@ -38,6 +38,37 @@ static names get_all_inductive_names(inductive_decl const & d) {
     return get_all_inductive_names(ind_types);
 }
 
+/** \brief If \c d_name is the name of a non-empty inductive datatype, then return the
+    name of the first constructor. Return none otherwise. */
+static optional<name> get_first_cnstr(environment const & env, name const & d_name) {
+    constant_info info = env.get(d_name);
+    if (!info.is_inductive()) return optional<name>();
+    names const & cnstrs = info.to_inductive_val().get_cnstrs();
+    if (empty(cnstrs)) return optional<name>();
+    return optional<name>(head(cnstrs));
+}
+
+optional<expr> mk_nullary_cnstr(environment const & env, expr const & type, unsigned num_params) {
+    buffer<expr> args;
+    expr const & d = get_app_args(type, args);
+    if (!is_constant(d)) return none_expr();
+    name const & d_name = const_name(d);
+    auto cnstr_name = get_first_cnstr(env, d_name);
+    if (!cnstr_name) return none_expr();
+    args.shrink(num_params);
+    return some(mk_app(mk_constant(*cnstr_name, const_levels(d)), args));
+}
+
+optional<recursor_rule> get_rec_rule_for(recursor_val const & rec_val, expr const & major) {
+    expr const & fn = get_app_fn(major);
+    if (!is_constant(fn)) return optional<recursor_rule>();
+    for (recursor_rule const & rule : rec_val.get_rules()) {
+        if (rule.get_cnstr() == const_name(fn))
+            return optional<recursor_rule>(rule);
+    }
+    return optional<recursor_rule>();
+}
+
 /* Auxiliary class for adding a mutual inductive datatype declaration.
 
    \remak It does not support nested inductive datatypes. The helper
@@ -665,7 +696,7 @@ struct elim_nested_inductive_result {
        nested inductive associated with it and the name of its inductive type. Return none. */
     optional<pair<expr, name>> get_nested_if_aux_constructor(environment const & aux_env, name const & c) const {
         optional<constant_info> info = aux_env.find(c);
-        if (!info) return optional<pair<expr, name>>();
+        if (!info || !info->is_constructor()) return optional<pair<expr, name>>();
         name auxI_name = info->to_constructor_val().get_induct();
         expr const * nested = m_aux2nested.find(auxI_name);
         if (!nested) return optional<pair<expr, name>>();

@@ -340,11 +340,14 @@ public:
     recursor_val & operator=(recursor_val const & other) { object_ref::operator=(other); return *this; }
     recursor_val & operator=(recursor_val && other) { object_ref::operator=(other); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_obj_ref(*this, 0)); }
+    name const & get_name() const { return to_constant_val().get_name(); }
+    name const & get_induct() const { return get_name().get_prefix(); }
     names const & get_all() const { return static_cast<names const &>(cnstr_obj_ref(*this, 1)); }
     unsigned get_nparams() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 2)).get_small_value(); }
     unsigned get_nindices() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 3)).get_small_value(); }
     unsigned get_nmotives() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 4)).get_small_value(); }
     unsigned get_nminors() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 5)).get_small_value(); }
+    unsigned get_major_idx() const { return get_nparams() + get_nmotives() + get_nminors() + get_nindices(); }
     recursor_rules const & get_rules() const { return static_cast<recursor_rules const &>(cnstr_obj_ref(*this, 6)); }
     bool is_k() const { return cnstr_scalar<unsigned char>(raw(), sizeof(object*)*7) != 0; }
     bool is_meta() const { return cnstr_scalar<unsigned char>(raw(), sizeof(object*)*7 + 1) != 0; }

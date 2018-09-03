@@ -379,12 +379,21 @@ void print_id_info(parser & p, message_builder & out, name const & id, bool show
         } else if (d.is_inductive()) {
             print_constant(p, out, "(new) inductive", d);
             out << "constructors:\n";
-            for (name const & n : d.to_inductive_val().get_cnstrs())
-                out << n << "\n";
+            for (name const & n : d.to_inductive_val().get_cnstrs()) {
+                if (optional<constant_info> info = p.env().find(n)) {
+                    out << n << " : " << info->get_type() << "\n";
+                } else {
+                    out << n << "\n";
+                }
+            }
         } else if (d.is_constructor()) {
             print_constant(p, out, "(new) constructor", d);
         } else if (d.is_recursor()) {
             print_constant(p, out, "(new) recursor", d);
+            out << "reduction rules\n";
+            for (recursor_rule const & rule : d.to_recursor_val().get_rules()) {
+                out << rule.get_constructor() << " ==>\n" << rule.get_rhs() << "\n";
+            }
         }
         // print_patterns(p, c);
     }

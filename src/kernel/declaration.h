@@ -312,7 +312,7 @@ public:
     recursor_rule(recursor_rule && other):object_ref(other) {}
     recursor_rule & operator=(recursor_rule const & other) { object_ref::operator=(other); return *this; }
     recursor_rule & operator=(recursor_rule && other) { object_ref::operator=(other); return *this; }
-    name const & get_constructor() const { return static_cast<name const &>(cnstr_obj_ref(*this, 0)); }
+    name const & get_cnstr() const { return static_cast<name const &>(cnstr_obj_ref(*this, 0)); }
     unsigned get_nfields() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 1)).get_small_value(); }
     expr const & get_rhs() const { return static_cast<expr const &>(cnstr_obj_ref(*this, 2)); }
 };

@@ -392,7 +392,7 @@ void print_id_info(parser & p, message_builder & out, name const & id, bool show
             print_constant(p, out, "(new) recursor", d);
             out << "reduction rules\n";
             for (recursor_rule const & rule : d.to_recursor_val().get_rules()) {
-                out << rule.get_constructor() << " ==>\n" << rule.get_rhs() << "\n";
+                out << rule.get_cnstr() << " ==>\n" << rule.get_rhs() << "\n";
             }
         }
         // print_patterns(p, c);

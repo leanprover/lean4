@@ -992,7 +992,7 @@ environment environment::add_inductive(declaration const & d) const {
             buffer<recursor_rule> new_rules;
             for (recursor_rule const & rule : rec_val.get_rules()) {
                 expr new_rhs        = res.restore_nested(rule.get_rhs(), aux_env, aux_rec_name_map);
-                name cnstr_name     = rule.get_constructor();
+                name cnstr_name     = rule.get_cnstr();
                 name new_cnstr_name = cnstr_name;
                 if (new_rec_name != rec_name) {
                     /* We need to fix the constructor name */

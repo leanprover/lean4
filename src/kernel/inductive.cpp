@@ -22,6 +22,22 @@ name mk_rec_name(name const & I) {
     return I + name("rec");
 }
 
+/** Return the names of all inductive datatypes */
+static names get_all_inductive_names(buffer<inductive_type> const & ind_types) {
+    buffer<name> all_names;
+    for (inductive_type const & ind_type : ind_types) {
+        all_names.push_back(ind_type.get_name());
+    }
+    return names(all_names);
+}
+
+/** Return the names of all inductive datatypes in the given inductive declaration */
+static names get_all_inductive_names(inductive_decl const & d) {
+    buffer<inductive_type> ind_types;
+    to_buffer(d.get_types(), ind_types);
+    return get_all_inductive_names(ind_types);
+}
+
 /* Auxiliary class for adding a mutual inductive datatype declaration.
 
    \remak It does not support nested inductive datatypes. The helper
@@ -184,18 +200,14 @@ public:
     }
 
     /** Return list with the names of all inductive datatypes in the mutual declaration. */
-    names get_all_names() const {
-        buffer<name> all_names;
-        for (inductive_type const & ind_type : m_ind_types) {
-            all_names.push_back(ind_type.get_name());
-        }
-        return names(all_names);
+    names get_all_inductive_names() const {
+        return ::lean::get_all_inductive_names(m_ind_types);
     }
 
     /** \brief Add all datatype declarations to environment. */
     void declare_inductive_types() {
         bool rec  = is_rec();
-        names all = get_all_names();
+        names all = get_all_inductive_names();
         for (unsigned idx = 0; idx < m_ind_types.size(); idx++) {
             inductive_type const & ind_type = m_ind_types[idx];
             name const & n = ind_type.get_name();
@@ -601,7 +613,7 @@ public:
         buffer<expr> minors; collect_minor_premises(minors);
         unsigned nminors   = minors.size();
         unsigned nmotives  = Cs.size();
-        names all          = get_all_names();
+        names all          = get_all_inductive_names();
         unsigned minor_idx = 0;
         for (unsigned d_idx = 0; d_idx < m_ind_types.size(); d_idx++) {
             rec_info const & info = m_rec_infos[d_idx];
@@ -640,10 +652,37 @@ static name * g_nested = nullptr;
 /* Result produced by elim_nested_inductive_fn */
 struct elim_nested_inductive_result {
     buffer<expr>             m_params;
-    buffer<pair<expr, name>> m_nested_aux;
+    name_map<expr>           m_aux2nested; /* mapping from auxiliary type to nested inductive type. */
     declaration              m_aux_decl;
     elim_nested_inductive_result(buffer<expr> const & params, buffer<pair<expr, name>> const & nested_aux, declaration const & d):
-        m_params(params), m_nested_aux(nested_aux), m_aux_decl(d) {}
+        m_params(params), m_aux_decl(d) {
+        for (pair<expr, name> const & p : nested_aux) {
+            m_aux2nested.insert(p.second, p.first);
+        }
+    }
+
+    expr restore_nested(expr e) const {
+        local_ctx lctx;
+        buffer<expr> As;
+        for (unsigned i = 0; i < m_params.size(); i++) {
+            lean_assert(is_pi(e));
+            As.push_back(lctx.mk_local_decl(binding_name(e), binding_domain(e), binding_info(e)));
+            e = instantiate(binding_body(e), As.back());
+        }
+        e = replace(e, [&](expr const & t, unsigned) {
+                if (!is_app(t)) return none_expr();
+                expr const & fn = get_app_fn(t);
+                if (!is_constant(fn)) return none_expr();
+                expr const * nested = m_aux2nested.find(const_name(fn));
+                if (!nested) return none_expr();
+                buffer<expr> args;
+                get_app_args(t, args);
+                lean_assert(args.size() >= m_params.size());
+                expr new_t = instantiate_rev(abstract(*nested, m_params.size(), m_params.data()), As.size(), As.data());
+                return some_expr(mk_app(new_t, args.size() - m_params.size(), args.data() + m_params.size()));
+            });
+        return lctx.mk_pi(As, e);
+    }
 };
 
 /* Eliminate nested inductive datatypes by creating a new (auxiliary) declaration which contains and inductive types in `d`
@@ -852,8 +891,35 @@ struct elim_nested_inductive_fn {
 environment environment::add_inductive(declaration const & d) const {
     elim_nested_inductive_result res = elim_nested_inductive_fn(*this, d)();
     environment aux_env = add_inductive_fn(*this, inductive_decl(res.m_aux_decl))();
-    // TODO(Leo): if `nested_aux` is not empty, we must create a new environment using `aux_env` and `aux_d`
-    return aux_env;
+    if (res.m_aux2nested.empty()) {
+        /* `d` did not contain nested inductive types. */
+        return aux_env;
+    } else {
+        /* Restore nested inductives. */
+        environment new_env = *this;
+        inductive_decl ind_d(d);
+        names all_ind_names = get_all_inductive_names(ind_d);
+        for (inductive_type const & ind_type : ind_d.get_types()) {
+            constant_info ind_info = aux_env.get(ind_type.get_name());
+            inductive_val ind_val  = ind_info.to_inductive_val();
+            /* We just need to "fix" the `all` fields for ind_info.
+
+               Remark: if we decide to store the recursor names, we will also need to fix it. */
+            new_env.add_core(constant_info(inductive_val(ind_info.get_name(), ind_info.get_univ_params(), ind_info.get_type(),
+                                                         ind_val.get_nparams().get_small_value(), ind_val.get_nindices().get_small_value(),
+                                                         all_ind_names, ind_val.get_cnstrs(), ind_val.is_rec(), ind_val.is_meta())));
+            for (name const & cnstr_name : ind_val.get_cnstrs()) {
+                constant_info   cnstr_info = aux_env.get(cnstr_name);
+                constructor_val cnstr_val  = cnstr_info.to_constructor_val();
+                expr new_type = res.restore_nested(cnstr_info.get_type());
+                new_env.add_core(constant_info(constructor_val(cnstr_info.get_name(), cnstr_info.get_univ_params(), new_type,
+                                                               cnstr_val.get_induct(), cnstr_val.get_nparams().get_small_value(),
+                                                               cnstr_val.is_meta())));
+            }
+            /* TODO(leo): restore recursor and reduction rules. */
+        }
+        return new_env;
+    }
 }
 
 void initialize_inductive() {

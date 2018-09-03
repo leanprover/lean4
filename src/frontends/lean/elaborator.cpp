@@ -982,7 +982,7 @@ expr elaborator::visit_function(expr const & fn, bool has_args, optional<expr> c
     case expr_kind::Quote:
         throw elaborator_exception(ref, "invalid application, function expected");
     }
-    save_identifier_info(copy_pos(fn, r));
+    save_identifier_info(copy_pos(ref, r));
     if (has_args)
         r = ensure_function(r, ref);
     return r;
@@ -1881,16 +1881,18 @@ expr elaborator::visit_no_confusion_app(expr const & fn, buffer<expr> const & ar
 expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<expr> const & expected_type,
                                 expr const & ref) {
     arg_mask amask = arg_mask::Default;
-    if (is_explicit(fn)) {
-        fn   = get_explicit_arg(fn);
+    expr ufn = unwrap_pos(fn);
+    if (is_explicit(ufn)) {
+        fn   = get_explicit_arg(ufn);
         amask = arg_mask::AllExplicit;
-    } else if (is_partial_explicit(fn)) {
-        fn   = get_partial_explicit_arg(fn);
+    } else if (is_partial_explicit(ufn)) {
+        fn   = get_partial_explicit_arg(ufn);
         amask = arg_mask::InstHoExplicit;
     }
 
     bool has_args = !args.empty();
 
+    expr orig_fn = fn;
     fn = unwrap_pos(fn);
     while (is_annotation(fn))
         fn = get_annotation_arg(fn);
@@ -1950,7 +1952,7 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
                                    << field_res.get_full_fname() << "' does not have explicit argument with type ("
                                    << field_res.m_base_S_name << " ...)");
     } else {
-        expr new_fn = visit_function(fn, has_args, has_args ? none_expr() : expected_type, ref);
+        expr new_fn = visit_function(fn, has_args, has_args ? none_expr() : expected_type, orig_fn);
         /* Check if we should use a custom elaboration procedure for this application. */
         if (is_constant(new_fn) && amask == arg_mask::Default) {
             if (auto info = use_elim_elab(const_name(new_fn))) {
@@ -2012,12 +2014,13 @@ expr elaborator::visit_app(expr const & e, optional<expr> const & expected_type)
     if (is_app_of(e, get_scope_trace_name(), 1))
         return visit_scope_trace(e, expected_type);
     buffer<expr> args;
-    expr const & fn = unwrap_pos(get_app_args(e, args));
-    if (is_infix_function(fn)) {
-        expr infix_fn = get_annotation_arg(fn);
+    expr const & fn = get_app_args(e, args);
+    expr ufn = unwrap_pos(fn);
+    if (is_infix_function(ufn)) {
+        expr infix_fn = get_annotation_arg(ufn);
         lean_assert(is_lambda(infix_fn));
         return visit(head_beta_reduce(copy_pos(e, mk_app(infix_fn, args))), expected_type);
-    } else if (is_equations(fn)) {
+    } else if (is_equations(ufn)) {
         return visit_convoy(e, expected_type);
     } else {
         return visit_app_core(fn, args, expected_type, e);

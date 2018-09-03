@@ -90,7 +90,7 @@ static void check_parameter_type(parser & p, name const & n, expr const & type, 
 }
 
 static environment declare_var(parser & p, environment env,
-                               name const & n, level_param_names const & ls, expr const & type,
+                               name const & n, names const & ls, expr const & type,
                                variable_kind k, optional<binder_info> const & _bi, pos_info const & pos,
                                cmd_meta const & meta) {
     binder_info bi;
@@ -142,7 +142,7 @@ static environment declare_var(parser & p, environment env,
 }
 
 /** \brief If we are in a section, then add the new local levels to it. */
-static void update_local_levels(parser & p, level_param_names const & new_ls, bool is_variable) {
+static void update_local_levels(parser & p, names const & new_ls, bool is_variable) {
     for (auto const & l : new_ls)
         p.add_local_level(l, mk_univ_param(l), is_variable);
 }
@@ -290,14 +290,14 @@ static environment variable_cmd_core(parser & p, variable_kind k, cmd_meta const
     }
     p.parse_close_binder_info(bi);
     check_command_period_docstring_or_eof(p);
-    level_param_names ls;
+    names ls;
     if (ls_buffer.empty()) {
-        ls = to_level_param_names(collect_univ_params(type));
+        ls = to_names(collect_univ_params(type));
     } else {
         update_univ_parameters(p, ls_buffer, collect_univ_params(type));
         ls = names(ls_buffer);
     }
-    level_param_names new_ls;
+    names new_ls;
     list<expr> ctx = p.locals_to_context();
     std::tie(type, new_ls) = p.elaborate_type("_variable", ctx, type);
     if (k == variable_kind::Variable || k == variable_kind::Parameter)
@@ -417,12 +417,12 @@ static environment variables_cmd_core(parser & p, variable_kind k, cmd_meta cons
     }
     p.parse_close_binder_info(bi);
     environment env = p.env();
-    level_param_names ls = to_level_param_names(collect_univ_params(type));
+    names ls = to_names(collect_univ_params(type));
     list<expr> ctx = p.locals_to_context();
     for (auto id : ids) {
         // Hack: to make sure we get different universe parameters for each parameter.
         // Alternative: elaborate once and copy types replacing universes in new_ls.
-        level_param_names new_ls;
+        names new_ls;
         expr new_type;
         check_command_period_open_binder_or_eof(p);
         std::tie(new_type, new_ls) = p.elaborate_type("_variables", ctx, type);

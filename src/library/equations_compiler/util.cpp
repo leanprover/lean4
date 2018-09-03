@@ -486,7 +486,7 @@ environment mk_smart_unfolding_definition(environment const & env, options const
     type_context_old ctx(env, o, metavar_context(), local_context());
     constant_info info = env.get(n);
     expr val  = info.get_value();
-    levels ls = param_names_to_levels(info.get_univ_params());
+    levels ls = lparams_to_levels(info.get_lparams());
     type_context_old::tmp_locals locals(ctx);
     while (is_lambda(val)) {
         val = instantiate(binding_body(val), locals.push_local_from_binding(val));
@@ -510,20 +510,20 @@ environment mk_smart_unfolding_definition(environment const & env, options const
     expr helper_value;
     if (optional<constant_info> aux_info = env.find(meta_aux_fn_name)) {
         expr new_fn  = mk_app(mk_constant(n, ls), locals.size(), locals.data());
-        helper_value = instantiate_value_univ_params(*aux_info, const_levels(fn));
+        helper_value = instantiate_value_lparams(*aux_info, const_levels(fn));
         helper_value = apply_beta(helper_value, args.size(), args.data());
         replace_aux_meta_fn proc(meta_aux_fn_name, new_fn, args.size());
         helper_value = proc(helper_value);
         if (!proc.m_found)
             throw exception("failed to generate helper declaration for smart unfolding, auxiliary meta declaration does not contain recursive application");
     } else {
-        helper_value = instantiate_value_univ_params(env.get(fn_name), const_levels(fn));
+        helper_value = instantiate_value_lparams(env.get(fn_name), const_levels(fn));
         helper_value = apply_beta(helper_value, args.size(), args.data());
     }
 
     helper_value = locals.mk_lambda(helper_value);
     try {
-        declaration def = mk_definition(env, mk_smart_unfolding_name_for(n), info.get_univ_params(), info.get_type(), helper_value, true);
+        declaration def = mk_definition(env, mk_smart_unfolding_name_for(n), info.get_lparams(), info.get_type(), helper_value, true);
         return module::add(env, def);
     } catch (exception & ex) {
         throw nested_exception("failed to generate helper declaration for smart unfolding, type error", std::current_exception());

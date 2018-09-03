@@ -31,7 +31,7 @@ void collect_locals(expr const & e, collected_locals & ls, bool restricted = fal
 /** \brief Return true iff locals(e1) is a subset of locals(e2). */
 bool locals_subset(expr const & e1, expr const & e2);
 
-level_param_names to_level_param_names(name_set const & ls);
+names to_names(name_set const & ls);
 
 /** \brief Return true iff \c [begin_locals, end_locals) contains \c local */
 template<typename It>

@@ -93,7 +93,7 @@ bool is_eqn_prefix(parser & p, bool) {
 }
 
 // Return the local levels in \c ls that are not associated with variables
-levels collect_local_nonvar_levels(parser & p, level_param_names const & ls) {
+levels collect_local_nonvar_levels(parser & p, names const & ls) {
     buffer<level> section_ls_buffer;
     for (name const & l : ls) {
         if (p.is_local_level(l) && !p.is_local_level_variable(l))
@@ -267,16 +267,16 @@ level mk_result_level(buffer<level> const & r_lvls) {
     }
 }
 
-std::tuple<expr, level_param_names> parse_local_expr(parser & p, name const & decl_name, metavar_context & mctx, bool relaxed) {
+std::tuple<expr, names> parse_local_expr(parser & p, name const & decl_name, metavar_context & mctx, bool relaxed) {
     expr e = p.parse_expr();
     bool check_unassigend = !relaxed;
-    expr new_e; level_param_names ls;
+    expr new_e; names ls;
     std::tie(new_e, ls) = p.elaborate(decl_name, mctx, e, check_unassigend);
-    level_param_names new_ls = to_level_param_names(collect_univ_params(new_e));
+    names new_ls = to_names(collect_univ_params(new_e));
     return std::make_tuple(new_e, new_ls);
 }
 
-std::tuple<expr, level_param_names> parse_local_expr(parser & p, name const & decl_name, bool relaxed) {
+std::tuple<expr, names> parse_local_expr(parser & p, name const & decl_name, bool relaxed) {
     metavar_context mctx;
     return parse_local_expr(p, decl_name, mctx, relaxed);
 }
@@ -476,7 +476,7 @@ void initialize_frontend_lean_util() {
     g_field_notation_name   = new name("field_notation");
 }
 
-environment compile_expr(environment const & env, name const & n, level_param_names const & ls, expr const & type, expr const & e, pos_info const & /* pos */) {
+environment compile_expr(environment const & env, name const & n, names const & ls, expr const & type, expr const & e, pos_info const & /* pos */) {
     environment new_env = env;
     bool is_meta        = true;
     new_env = new_env.add(mk_definition(new_env, n, ls, type, e, is_meta));

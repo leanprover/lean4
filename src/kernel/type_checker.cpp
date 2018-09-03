@@ -62,8 +62,8 @@ expr type_checker::ensure_pi_core(expr e, expr const & s) {
 }
 
 void type_checker::check_level(level const & l) {
-    if (m_params) {
-        if (auto n2 = get_undef_param(l, *m_params))
+    if (m_lparams) {
+        if (auto n2 = get_undef_param(l, *m_lparams))
             throw kernel_exception(m_env, sstream() << "invalid reference to undefined universe level parameter '"
                                    << *n2 << "'");
     }
@@ -81,7 +81,7 @@ expr type_checker::infer_fvar(expr const & e) {
 
 expr type_checker::infer_constant(expr const & e, bool infer_only) {
     constant_info info = m_env.get(const_name(e));
-    auto const & ps = info.get_univ_params();
+    auto const & ps = info.get_lparams();
     auto const & ls = const_levels(e);
     if (length(ps) != length(ls))
         throw kernel_exception(m_env, sstream() << "incorrect number of universe levels parameters for '"
@@ -95,7 +95,7 @@ expr type_checker::infer_constant(expr const & e, bool infer_only) {
         for (level const & l : ls)
             check_level(l);
     }
-    return instantiate_type_univ_params(info, ls);
+    return instantiate_type_lparams(info, ls);
 }
 
 expr type_checker::infer_lambda(expr const & _e, bool infer_only) {
@@ -207,7 +207,7 @@ expr type_checker::infer_proj(expr const & e, bool infer_only) {
 
     inductive::intro_rule cnstr = head(decl->m_intro_rules);
     constant_info c_info = m_env.get(inductive::intro_rule_name(cnstr));
-    expr r = instantiate_type_univ_params(c_info, const_levels(I));
+    expr r = instantiate_type_lparams(c_info, const_levels(I));
     for (expr const & arg : args) {
         r = whnf(r);
         if (!is_pi(r)) throw invalid_proj_exception(m_env, m_lctx, e);
@@ -279,13 +279,13 @@ expr type_checker::infer_type(expr const & e) {
     return infer_type_core(e, true);
 }
 
-expr type_checker::check(expr const & e, level_param_names const & ps) {
-    flet<level_param_names const *> updt(m_params, &ps);
+expr type_checker::check(expr const & e, names const & lps) {
+    flet<names const *> updt(m_lparams, &lps);
     return infer_type_core(e, false);
 }
 
 expr type_checker::check_ignore_undefined_universes(expr const & e) {
-    flet<level_param_names const *> updt(m_params, nullptr);
+    flet<names const *> updt(m_lparams, nullptr);
     return infer_type_core(e, false);
 }
 
@@ -438,8 +438,8 @@ optional<constant_info> type_checker::is_delta(expr const & e) const {
 optional<expr> type_checker::unfold_definition_core(expr const & e) {
     if (is_constant(e)) {
         if (auto d = is_delta(e)) {
-            if (length(const_levels(e)) == d->get_num_univ_params())
-                return some_expr(instantiate_value_univ_params(*d, const_levels(e)));
+            if (length(const_levels(e)) == d->get_num_lparams())
+                return some_expr(instantiate_value_lparams(*d, const_levels(e)));
         }
     }
     return none_expr();
@@ -798,7 +798,7 @@ bool type_checker::is_def_eq(expr const & t, expr const & s) {
 
 type_checker::type_checker(environment const & env, local_ctx const & lctx, bool memoize, bool non_meta_only):
     m_env(env), m_lctx(lctx), m_name_generator(*g_kernel_fresh),
-    m_memoize(memoize), m_non_meta_only(non_meta_only), m_params(nullptr) {
+    m_memoize(memoize), m_non_meta_only(non_meta_only), m_lparams(nullptr) {
 }
 
 type_checker::~type_checker() {}

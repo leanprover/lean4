@@ -37,7 +37,7 @@ class old_type_checker : public abstract_type_context {
     expr_map<expr>            m_whnf_cache;
     equiv_manager             m_eqv_manager;
     expr_pair_set             m_failure_cache;
-    level_param_names const * m_params;
+    names const *             m_params;
 
     pair<expr, expr> open_binding_body(expr const & e);
     expr ensure_sort_core(expr e, expr const & s);
@@ -96,7 +96,7 @@ public:
 
     /** \brief Type check the given expression, and return the type of \c t.
         Throw an exception if a type error is found.  */
-    expr check(expr const & t, level_param_names const & ps);
+    expr check(expr const & t, names const & ps);
     /** \brief Like \c check, but ignores undefined universes */
     virtual expr check(expr const & t) { return check_ignore_undefined_universes(t); }
 

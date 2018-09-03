@@ -46,7 +46,7 @@ class add_inductive_fn {
     environment            m_env;
     name_generator         m_ngen;
     local_ctx              m_lctx;
-    level_param_names      m_lparams;
+    names      m_lparams;
     unsigned               m_nparams;
     bool                   m_is_meta;
     buffer<inductive_type> m_ind_types;
@@ -126,7 +126,7 @@ public:
 
        \remark The local context m_lctx contains the free variables in m_params. */
     void check_inductive_types() {
-        m_levels   = param_names_to_levels(m_lparams);
+        m_levels   = lparams_to_levels(m_lparams);
         bool first = true;
         for (inductive_type const & ind_type : m_ind_types) {
             expr type = ind_type.get_type();
@@ -533,7 +533,7 @@ public:
     }
 
     /** \brief Return the levels for the recursor. */
-    levels get_rec_level_params() {
+    levels get_rec_levels() {
         if (is_param(m_elim_level))
             return levels(m_elim_level, m_levels);
         else
@@ -541,9 +541,9 @@ public:
     }
 
     /** \brief Return the level parameter names for the recursor. */
-    names get_rec_level_param_names() {
+    names get_rec_lparams() {
         if (is_param(m_elim_level))
-            return level_param_names(param_id(m_elim_level), m_lparams);
+            return names(param_id(m_elim_level), m_lparams);
         else
             return m_lparams;
     }
@@ -563,7 +563,7 @@ public:
 
     recursor_rules mk_rec_rules(unsigned d_idx, buffer<expr> const & Cs, buffer<expr> const & minors, unsigned & minor_idx) {
         inductive_type const & d = m_ind_types[d_idx];
-        levels lvls = get_rec_level_params();
+        levels lvls = get_rec_levels();
         buffer<recursor_rule> rules;
         for (constructor const & cnstr : d.get_cnstrs()) {
             buffer<expr> b_u;
@@ -626,7 +626,7 @@ public:
             rec_ty                = infer_implicit(rec_ty, true /* strict */);
             recursor_rules rules  = mk_rec_rules(d_idx, Cs, minors, minor_idx);
             name rec_name         = mk_rec_name(m_ind_types[d_idx].get_name());
-            names rec_lparams     = get_rec_level_param_names();
+            names rec_lparams     = get_rec_lparams();
             m_env.add_core(constant_info(recursor_val(rec_name, rec_lparams, rec_ty, all,
                                                       m_nparams, m_nindices[d_idx], nmotives, nminors,
                                                       rules, m_K_target, m_is_meta)));
@@ -748,7 +748,7 @@ struct elim_nested_inductive_fn {
 
     elim_nested_inductive_fn(environment const & env, declaration const & d):
         m_env(env), m_d(d) {
-        m_lvls = param_names_to_levels(inductive_decl(m_d).get_lparams());
+        m_lvls = lparams_to_levels(inductive_decl(m_d).get_lparams());
     }
 
     name mk_unique_name(name const & n) {
@@ -856,7 +856,7 @@ struct elim_nested_inductive_fn {
                 expr J               = mk_constant(J_name, I_lvls);
                 expr JAs             = mk_app(J, I_nparams, args.data());
                 name auxJ_name       = mk_unique_name(*g_nested + J_name);
-                expr auxJ_type       = instantiate_univ_params(J_info.get_type(), J_info.get_univ_params(), I_lvls);
+                expr auxJ_type       = instantiate_lparams(J_info.get_type(), J_info.get_lparams(), I_lvls);
                 auxJ_type            = instantiate_pi_params(auxJ_type, I_nparams, args.data());
                 auxJ_type            = lctx.mk_pi(As, auxJ_type);
                 m_nested_aux.push_back(mk_pair(replace_params(JAs, m_params), auxJ_name));
@@ -871,7 +871,7 @@ struct elim_nested_inductive_fn {
                     constant_info J_cnstr_info = m_env.get(J_cnstr_name);
                     name auxJ_cnstr_name = J_cnstr_name.replace_prefix(J_name, auxJ_name);
                     /* auxJ_cnstr_type still has references to `J`, this will be fixed later when we process it. */
-                    expr auxJ_cnstr_type    = instantiate_univ_params(J_cnstr_info.get_type(), J_cnstr_info.get_univ_params(), I_lvls);
+                    expr auxJ_cnstr_type    = instantiate_lparams(J_cnstr_info.get_type(), J_cnstr_info.get_lparams(), I_lvls);
                     auxJ_cnstr_type         = instantiate_pi_params(auxJ_cnstr_type, I_nparams, args.data());
                     auxJ_cnstr_type         = lctx.mk_pi(As, auxJ_cnstr_type);
                     auxJ_constructors.push_back(constructor(auxJ_cnstr_name, auxJ_cnstr_type));
@@ -1001,7 +1001,7 @@ environment environment::add_inductive(declaration const & d) const {
                 new_rules.push_back(recursor_rule(new_cnstr_name, rule.get_nfields(), new_rhs));
             }
             new_env.check_name(new_rec_name);
-            new_env.add_core(constant_info(recursor_val(new_rec_name, rec_info.get_univ_params(), new_rec_type,
+            new_env.add_core(constant_info(recursor_val(new_rec_name, rec_info.get_lparams(), new_rec_type,
                                                         all_ind_names, rec_val.get_nparams(), rec_val.get_nindices(), rec_val.get_nmotives(),
                                                         rec_val.get_nminors(), recursor_rules(new_rules),
                                                         rec_val.is_k(), rec_val.is_meta())));
@@ -1012,14 +1012,14 @@ environment environment::add_inductive(declaration const & d) const {
             /* We just need to "fix" the `all` fields for ind_info.
 
                Remark: if we decide to store the recursor names, we will also need to fix it. */
-            new_env.add_core(constant_info(inductive_val(ind_info.get_name(), ind_info.get_univ_params(), ind_info.get_type(),
+            new_env.add_core(constant_info(inductive_val(ind_info.get_name(), ind_info.get_lparams(), ind_info.get_type(),
                                                          ind_val.get_nparams(), ind_val.get_nindices(),
                                                          all_ind_names, ind_val.get_cnstrs(), ind_val.is_rec(), ind_val.is_meta())));
             for (name const & cnstr_name : ind_val.get_cnstrs()) {
                 constant_info   cnstr_info = aux_env.get(cnstr_name);
                 constructor_val cnstr_val  = cnstr_info.to_constructor_val();
                 expr new_type = res.restore_nested(cnstr_info.get_type(), aux_env);
-                new_env.add_core(constant_info(constructor_val(cnstr_info.get_name(), cnstr_info.get_univ_params(), new_type,
+                new_env.add_core(constant_info(constructor_val(cnstr_info.get_name(), cnstr_info.get_lparams(), new_type,
                                                                cnstr_val.get_induct(), cnstr_val.get_nparams(),
                                                                cnstr_val.is_meta())));
             }

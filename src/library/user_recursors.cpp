@@ -82,9 +82,9 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
     unsigned given_major_pos = 0;
     if (_given_major_pos) given_major_pos = *_given_major_pos;
     if (auto I = inductive::is_elim_rule(env, r)) {
-        unsigned num_univ_params = env.get(*I).get_num_univ_params();
-        list<unsigned> universe_pos = mk_list_range(0, num_univ_params);
-        if (env.get(name(*I, "rec")).get_num_univ_params() != num_univ_params)
+        unsigned num_lparams = env.get(*I).get_num_lparams();
+        list<unsigned> universe_pos = mk_list_range(0, num_lparams);
+        if (env.get(name(*I, "rec")).get_num_lparams() != num_lparams)
             universe_pos = cons(recursor_info::get_motive_univ_idx(), universe_pos);
         bool is_rec                = is_recursive_datatype(env, *I);
         unsigned major_pos         = *inductive::get_elim_major_idx(env, r);
@@ -229,7 +229,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
 
     // A universe parameter must occur in the major premise or in the motive
     buffer<unsigned> univ_param_pos;
-    for (name const & p : info.get_univ_params()) {
+    for (name const & p : info.get_lparams()) {
         if (!is_zero(motive_lvl) && param_id(motive_lvl) == p) {
             univ_param_pos.push_back(recursor_info::get_motive_univ_idx());
         } else {

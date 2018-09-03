@@ -75,7 +75,7 @@ void environment::check_name(name const & n) const {
     ::lean::check_name(*this, n);
 }
 
-static void check_duplicated_univ_params(environment const & env, level_param_names ls) {
+static void check_duplicated_univ_params(environment const & env, names ls) {
     while (!is_nil(ls)) {
         auto const & p = head(ls);
         ls = tail(ls);
@@ -87,7 +87,7 @@ static void check_duplicated_univ_params(environment const & env, level_param_na
     }
 }
 
-void environment::check_duplicated_univ_params(level_param_names ls) const {
+void environment::check_duplicated_univ_params(names ls) const {
     ::lean::check_duplicated_univ_params(*this, ls);
 }
 

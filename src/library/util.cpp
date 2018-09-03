@@ -76,7 +76,7 @@ level get_level(abstract_type_context & ctx, expr const & A) {
     return sort_level(S);
 }
 
-name mk_fresh_lp_name(level_param_names const & lp_names) {
+name mk_fresh_lp_name(names const & lp_names) {
     name l("l");
     int i = 1;
     while (std::find(lp_names.begin(), lp_names.end(), l) != lp_names.end()) {
@@ -119,7 +119,7 @@ optional<expr> unfold_term(environment const & env, expr const & e) {
     auto decl = env.find(const_name(f));
     if (!decl || !decl->has_value())
         return none_expr();
-    expr d = instantiate_value_univ_params(*decl, const_levels(f));
+    expr d = instantiate_value_lparams(*decl, const_levels(f));
     buffer<expr> args;
     get_app_rev_args(e, args);
     return some_expr(apply_beta(d, args.size(), args.data()));
@@ -276,7 +276,7 @@ bool can_elim_to_type(environment const & env, name const & n) {
         return false; // n is not inductive datatype
     constant_info ind_info = env.get(n);
     constant_info rec_info = env.get(inductive::get_elim_name(n));
-    return rec_info.get_num_univ_params() > ind_info.get_num_univ_params();
+    return rec_info.get_num_lparams() > ind_info.get_num_lparams();
 }
 
 void get_intro_rule_names(environment const & env, name const & n, buffer<name> & result) {
@@ -381,7 +381,7 @@ void get_constructor_rec_arg_mask(environment const & env, name const & n, buffe
 }
 
 expr instantiate_univ_param (expr const & e, name const & p, level const & l) {
-    return instantiate_univ_params(e, names(p), levels(l));
+    return instantiate_lparams(e, names(p), levels(l));
 }
 
 unsigned get_expect_num_args(abstract_type_context & ctx, expr e) {

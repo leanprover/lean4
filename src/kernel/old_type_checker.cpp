@@ -75,7 +75,7 @@ void old_type_checker::check_level(level const & l) {
 
 expr old_type_checker::infer_constant(expr const & e, bool infer_only) {
     constant_info info = m_env.get(const_name(e));
-    auto const & ps = info.get_univ_params();
+    auto const & ps = info.get_lparams();
     auto const & ls = const_levels(e);
     if (length(ps) != length(ls))
         throw kernel_exception(m_env, sstream() << "incorrect number of universe levels parameters for '"
@@ -89,7 +89,7 @@ expr old_type_checker::infer_constant(expr const & e, bool infer_only) {
         for (level const & l : ls)
             check_level(l);
     }
-    return instantiate_type_univ_params(info, ls);
+    return instantiate_type_lparams(info, ls);
 }
 
 expr old_type_checker::infer_lambda(expr const & _e, bool infer_only) {
@@ -229,7 +229,7 @@ expr old_type_checker::infer_type_core(expr const & e, bool infer_only) {
 
         inductive::intro_rule cnstr = head(decl->m_intro_rules);
         constant_info c_info = m_env.get(inductive::intro_rule_name(cnstr));
-        r = instantiate_type_univ_params(c_info, const_levels(I));
+        r = instantiate_type_lparams(c_info, const_levels(I));
         for (expr const & arg : args) {
             r = whnf(r);
             if (!is_pi(r)) throw invalid_proj_exception(m_env, local_ctx(), e);
@@ -268,13 +268,13 @@ expr old_type_checker::infer_type(expr const & e) {
     return infer_type_core(e, true);
 }
 
-expr old_type_checker::check(expr const & e, level_param_names const & ps) {
-    flet<level_param_names const *> updt(m_params, &ps);
+expr old_type_checker::check(expr const & e, names const & ps) {
+    flet<names const *> updt(m_params, &ps);
     return infer_type_core(e, false);
 }
 
 expr old_type_checker::check_ignore_undefined_universes(expr const & e) {
-    flet<level_param_names const *> updt(m_params, nullptr);
+    flet<names const *> updt(m_params, nullptr);
     return infer_type_core(e, false);
 }
 
@@ -409,8 +409,8 @@ optional<constant_info> old_type_checker::is_delta(expr const & e) const {
 optional<expr> old_type_checker::unfold_definition_core(expr const & e) {
     if (is_constant(e)) {
         if (auto d = is_delta(e)) {
-            if (length(const_levels(e)) == d->get_num_univ_params())
-                return some_expr(instantiate_value_univ_params(*d, const_levels(e)));
+            if (length(const_levels(e)) == d->get_num_lparams())
+                return some_expr(instantiate_value_lparams(*d, const_levels(e)));
         }
     }
     return none_expr();

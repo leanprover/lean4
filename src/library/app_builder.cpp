@@ -154,13 +154,13 @@ class app_builder {
     environment const & env() const { return m_ctx.env(); }
 
     levels mk_metavars(constant_info const & info, buffer<expr> & mvars, buffer<optional<expr>> & inst_args) {
-        unsigned num_univ = info.get_num_univ_params();
+        unsigned num_univ = info.get_num_lparams();
         buffer<level> lvls_buffer;
         for (unsigned i = 0; i < num_univ; i++) {
             lvls_buffer.push_back(m_ctx.mk_tmp_univ_mvar());
         }
         levels lvls(lvls_buffer);
-        expr type   = m_ctx.relaxed_whnf(instantiate_type_univ_params(info, lvls));
+        expr type   = m_ctx.relaxed_whnf(instantiate_type_lparams(info, lvls));
         while (is_pi(type)) {
             expr mvar = m_ctx.mk_tmp_mvar(binding_domain(type));
             if (is_inst_implicit(binding_info(type)))
@@ -185,7 +185,7 @@ class app_builder {
                 if (nargs > mvars.size())
                     return optional<entry>(); // insufficient number of arguments
                 entry e;
-                e.m_num_umeta = info->get_num_univ_params();
+                e.m_num_umeta = info->get_num_lparams();
                 e.m_num_emeta = mvars.size();
                 e.m_app       = ::lean::mk_app(mk_constant(c, lvls), mvars);
                 e.m_inst_args = reverse_to_list(inst_args.begin(), inst_args.end());
@@ -201,13 +201,13 @@ class app_builder {
     }
 
     levels mk_metavars(constant_info const & info, unsigned arity, buffer<expr> & mvars, buffer<optional<expr>> & inst_args) {
-        unsigned num_univ = info.get_num_univ_params();
+        unsigned num_univ = info.get_num_lparams();
         buffer<level> lvls_buffer;
         for (unsigned i = 0; i < num_univ; i++) {
             lvls_buffer.push_back(m_ctx.mk_tmp_univ_mvar());
         }
         levels lvls(lvls_buffer);
-        expr type   = instantiate_type_univ_params(info, lvls);
+        expr type   = instantiate_type_lparams(info, lvls);
         for (unsigned i = 0; i < arity; i++) {
             type   = m_ctx.relaxed_whnf(type);
             if (!is_pi(type)) {
@@ -235,7 +235,7 @@ class app_builder {
                 buffer<optional<expr>> inst_args;
                 levels lvls = mk_metavars(*d, mask_sz, mvars, inst_args);
                 entry e;
-                e.m_num_umeta = d->get_num_univ_params();
+                e.m_num_umeta = d->get_num_lparams();
                 e.m_num_emeta = mvars.size();
                 e.m_app       = ::lean::mk_app(mk_constant(c, lvls), mvars);
                 e.m_inst_args = reverse_to_list(inst_args.begin(), inst_args.end());

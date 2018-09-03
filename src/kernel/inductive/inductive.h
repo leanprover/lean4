@@ -33,12 +33,12 @@ inline expr const & intro_rule_type(intro_rule const & r) { return local_type(r)
 /** \brief Inductive datatype */
 struct inductive_decl {
     name                 m_name;
-    level_param_names    m_level_params;
+    names                m_level_params;
     unsigned             m_num_params{0};
     expr                 m_type;
     list<intro_rule>     m_intro_rules;
     inductive_decl() {}
-    inductive_decl(name const & n, level_param_names const & ls, unsigned nparams, expr const & type,
+    inductive_decl(name const & n, names const & ls, unsigned nparams, expr const & type,
                    list<intro_rule> const & intro_rules):
         m_name(n), m_level_params(ls), m_num_params(nparams), m_type(type), m_intro_rules(intro_rules) {}
 };
@@ -57,7 +57,7 @@ private:
     bool               m_elim_prop;
     // remark: if m_elim_prop == true, then inductive datatype levels == m_levels, otherwise it is tail(m_levels)
     bool               m_dep_elim;
-    level_param_names  m_elim_levels; // eliminator levels
+    names  m_elim_levels; // eliminator levels
     expr               m_elim_type;
     inductive_decl     m_decl;
     bool               m_K_target;
@@ -69,9 +69,9 @@ private:
     friend class ::lean::read_certified_inductive_decl_fn;
 
     environment add_core(environment const & env, bool update_ext_only) const;
-    environment add_constant(environment const & env, name const & n, level_param_names const & ls, expr const & t) const;
+    environment add_constant(environment const & env, name const & n, names const & ls, expr const & t) const;
 
-    certified_inductive_decl(unsigned num_ACe, bool elim_prop, bool dep_delim, level_param_names const & elim_levels,
+    certified_inductive_decl(unsigned num_ACe, bool elim_prop, bool dep_delim, names const & elim_levels,
                              expr const & elim_type, inductive_decl const & decl, bool K_target, unsigned nindices,
                              list<comp_rule> const & crules, bool is_meta):
         m_num_ACe(num_ACe), m_elim_prop(elim_prop), m_dep_elim(dep_delim),
@@ -82,7 +82,7 @@ public:
     unsigned get_num_ACe() const { return m_num_ACe; }
     bool elim_prop_only() const { return m_elim_prop; }
     bool has_dep_elim() const { return m_dep_elim; }
-    level_param_names const & get_elim_levels() const { return m_elim_levels; }
+    names const & get_elim_levels() const { return m_elim_levels; }
     expr const & get_elim_type() const { return m_elim_type; }
     inductive_decl const & get_decl() const { return m_decl; }
     bool is_K_target() const { return m_K_target; }

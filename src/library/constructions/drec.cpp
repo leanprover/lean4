@@ -53,8 +53,8 @@ struct mk_drec_fn {
         num_minors(*inductive::get_num_minor_premises(env, I)),
         major_idx(*inductive::get_elim_major_idx(env, I_rec_name)),
         num_params(I_ind_decl.m_num_params),
-        lvls(param_names_to_levels(I_rec_info.get_univ_params())),
-        elim_to_prop(I_rec_info.get_num_univ_params() == I_info.get_num_univ_params()),
+        lvls(lparams_to_levels(I_rec_info.get_lparams())),
+        elim_to_prop(I_rec_info.get_num_lparams() == I_info.get_num_lparams()),
         I_lvls(elim_to_prop ? lvls : tail(lvls)) {
     }
 
@@ -195,7 +195,7 @@ struct mk_drec_fn {
         expr rec_cnst     = mk_constant(I_rec_name, lvls);
         expr drec_value   = Fun(drec_params, mk_app(rec_cnst, rec_args));
         name drec_name    = mk_drec_name();
-        declaration new_d = mk_definition_inferring_meta(env, drec_name, I_rec_info.get_univ_params(),
+        declaration new_d = mk_definition_inferring_meta(env, drec_name, I_rec_info.get_lparams(),
                                                          drec_type, drec_value,
                                                          reducibility_hints::mk_abbreviation());
         environment new_env = module::add(env, new_d);

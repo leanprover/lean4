@@ -45,10 +45,10 @@ name_set collect_univ_params(expr const & e, name_set const & ls) {
     }
 }
 
-level_param_names to_level_param_names(name_set const & ls) {
-    level_param_names r;
+names to_names(name_set const & ls) {
+    names r;
     ls.for_each([&](name const & n) {
-            r = level_param_names(n, r);
+            r = names(n, r);
         });
     return r;
 }

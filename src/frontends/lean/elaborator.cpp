@@ -934,17 +934,17 @@ expr elaborator::visit_const_core(expr const & e) {
         level new_l = replace_univ_placeholder(l);
         ls.push_back(new_l);
     }
-    unsigned num_univ_params = d.get_num_univ_params();
-    if (num_univ_params < ls.size()) {
+    unsigned num_lparams = d.get_num_lparams();
+    if (num_lparams < ls.size()) {
         format msg("incorrect number of universe levels parameters for '");
-        msg += format(const_name(e)) + format("', #") + format(num_univ_params);
+        msg += format(const_name(e)) + format("', #") + format(num_lparams);
         msg += format(" expected, #") + format(ls.size()) + format("provided");
         return recoverable_error({}, e, elaborator_exception(e, msg));
     }
     // "fill" with meta universe parameters
-    for (unsigned i = ls.size(); i < num_univ_params; i++)
+    for (unsigned i = ls.size(); i < num_lparams; i++)
         ls.push_back(mk_univ_metavar());
-    lean_assert(num_univ_params == ls.size());
+    lean_assert(num_lparams == ls.size());
     return update_constant(e, levels(ls));
 }
 
@@ -2893,7 +2893,7 @@ class visit_structure_instance_fn {
                 expr fn = get_app_args(fval, args);
                 if (is_constant(fn)) {
                     constant_info decl = m_env.get(const_name(fn));
-                    expr default_val = instantiate_value_univ_params(decl, const_levels(fn));
+                    expr default_val = instantiate_value_lparams(decl, const_levels(fn));
                     // clean up 'id' application inserted by `structure_cmd::declare_defaults`
                     default_val = replace(default_val, [](expr const & e) {
                         if (is_app_of(e, get_id_name(), 2)) {
@@ -4040,7 +4040,7 @@ void elaborator::finalize(buffer<expr> & es, buffer<name> & new_lp_names, bool c
     finalize_core(S, es, check_unassigned, to_simple_metavar, true);
 }
 
-pair<expr, level_param_names> elaborator::finalize(expr const & e, bool check_unassigned, bool to_simple_metavar) {
+pair<expr, names> elaborator::finalize(expr const & e, bool check_unassigned, bool to_simple_metavar) {
     buffer<expr> es; es.push_back(e);
     buffer<name> new_lp_names;
     finalize(es, new_lp_names, check_unassigned, to_simple_metavar);
@@ -4069,7 +4069,7 @@ expr elaborator::finalize_theorem_proof(expr const & val, theorem_finalization_i
     return es[0];
 }
 
-pair<expr, level_param_names>
+pair<expr, names>
 elaborate(environment & env, options const & opts, name const & decl_name,
           metavar_context & mctx, local_context const & lctx, expr const & e,
           bool check_unassigned, bool recover_from_errors) {

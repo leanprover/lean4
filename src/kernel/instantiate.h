@@ -31,17 +31,17 @@ expr head_beta_reduce(expr const & t);
 /** \brief Instantiate the universe level parameters \c ps occurring in \c e with the levels \c ls.
     \pre length(ps) == length(ls)
 */
-expr instantiate_univ_params(expr const & e, level_param_names const & ps, levels const & ls);
+expr instantiate_lparams(expr const & e, names const & ps, levels const & ls);
 
 class constant_info;
 /** \brief Instantiate the universe level parameters of the type of the given constant.
-    \pre d.get_num_univ_params() == length(ls) */
-expr instantiate_type_univ_params(constant_info const & info, levels const & ls);
+    \pre d.get_num_lparams() == length(ls) */
+expr instantiate_type_lparams(constant_info const & info, levels const & ls);
 /** \brief Instantiate the universe level parameters of the value of the given constant.
-    \pre d.get_num_univ_params() == length(ls) */
-expr instantiate_value_univ_params(constant_info const & info, levels const & ls);
+    \pre d.get_num_lparams() == length(ls) */
+expr instantiate_value_lparams(constant_info const & info, levels const & ls);
 
-/** \brief Clear thread local caches used by instantiate_value_univ_params and instantiate_type_univ_params.
+/** \brief Clear thread local caches used by instantiate_value_lparams and instantiate_type_lparams.
     We clear the caches whenever we enable expression caching (aka max sharing).
     We do that because the cache may still contain expressions that are not maximally shared. */
 void clear_instantiate_cache();

@@ -35,11 +35,11 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
     unsigned nparams         = decl->m_num_params;
     constant_info ind_info   = env.get(n);
     constant_info cases_info = env.get(name(n, "cases_on"));
-    level_param_names lps    = cases_info.get_univ_params();
+    names lps                = cases_info.get_lparams();
     level  plvl              = mk_univ_param(head(lps));
-    levels ilvls             = param_names_to_levels(tail(lps));
+    levels ilvls             = lparams_to_levels(tail(lps));
     level rlvl               = plvl;
-    expr ind_type            = instantiate_type_univ_params(ind_info, ilvls);
+    expr ind_type            = instantiate_type_lparams(ind_info, ilvls);
     level ind_lvl            = get_datatype_level(env, ind_type);
     // All inductive datatype parameters and indices are arguments
     buffer<expr> args;
@@ -141,11 +141,11 @@ environment mk_no_confusion(environment const & env, name const & n) {
     constant_info ind_info               = env.get(n);
     constant_info no_confusion_type_info = new_env.get(name{n, "no_confusion_type"});
     constant_info cases_info             = new_env.get(name(n, "cases_on"));
-    level_param_names lps                = no_confusion_type_info.get_univ_params();
-    levels ls                            = param_names_to_levels(lps);
-    expr ind_type                        = instantiate_type_univ_params(ind_info, tail(ls));
+    names lps                            = no_confusion_type_info.get_lparams();
+    levels ls                            = lparams_to_levels(lps);
+    expr ind_type                        = instantiate_type_lparams(ind_info, tail(ls));
     level ind_lvl                        = get_datatype_level(env, ind_type);
-    expr no_confusion_type_type          = instantiate_type_univ_params(no_confusion_type_info, ls);
+    expr no_confusion_type_type          = instantiate_type_lparams(no_confusion_type_info, ls);
     buffer<expr> args;
     expr type = no_confusion_type_type;
     type = to_telescope(type, args, some(mk_implicit_binder_info()));

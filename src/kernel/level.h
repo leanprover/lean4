@@ -183,14 +183,12 @@ template<typename F> level replace(level const & l, F const & f) { return replac
 /** \brief Return true if \c u occurs in \c l */
 bool occurs(level const & u, level const & l);
 
-typedef names level_param_names;
-
 /** \brief If \c l contains a parameter that is not in \c ps, then return it. Otherwise, return none. */
-optional<name> get_undef_param(level const & l, level_param_names const & ps);
+optional<name> get_undef_param(level const & l, names const & lparams);
 
 /** \brief Instantiate the universe level parameters \c ps occurring in \c l with the levels \c ls.
     \pre length(ps) == length(ls) */
-level instantiate(level const & l, level_param_names const & ps, levels const & ls);
+level instantiate(level const & l, names const & ps, levels const & ls);
 
 /** \brief Printer for debugging purposes */
 std::ostream & operator<<(std::ostream & out, level const & l);
@@ -209,7 +207,7 @@ format pp(level const & lhs, level const & rhs, bool unicode, unsigned indent);
 /** \brief Pretty print lhs <= rhs using the given configuration options. */
 format pp(level const & lhs, level const & rhs, options const & opts = options());
 /** \brief Convert a list of universe level parameter names into a list of levels. */
-levels param_names_to_levels(level_param_names const & ps);
+levels lparams_to_levels(names const & ps);
 
 void initialize_level();
 void finalize_level();

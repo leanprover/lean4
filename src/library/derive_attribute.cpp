@@ -69,15 +69,15 @@ static environment derive(environment env, options const & opts, name const & n,
             throw exception("don't know how to derive this");
         auto const & cls_d = env.get(const_name(cls));
         type_context_old ctx(env, opts);
-        auto ls = param_names_to_levels(d.get_univ_params());
+        auto ls = lparams_to_levels(d.get_lparams());
         auto tgt = mk_const(n, ls);
-        auto real_tgt = instantiate_univ_params(d.get_value(), d.get_univ_params(), ls);
-        auto tgt_ty = instantiate_univ_params(d.get_type(), d.get_univ_params(), ls);
+        auto real_tgt = instantiate_lparams(d.get_value(), d.get_lparams(), ls);
+        auto tgt_ty = instantiate_lparams(d.get_type(), d.get_lparams(), ls);
         auto cls_ty = env.get(const_name(cls)).get_type();
         levels new_meta_ls;
-        for (unsigned i = 0; i < length(cls_d.get_univ_params()); i++)
+        for (unsigned i = 0; i < length(cls_d.get_lparams()); i++)
             new_meta_ls = cons(ctx.mk_univ_metavar_decl(), new_meta_ls);
-        cls_ty = instantiate_univ_params(cls_ty, cls_d.get_univ_params(), new_meta_ls);
+        cls_ty = instantiate_lparams(cls_ty, cls_d.get_lparams(), new_meta_ls);
         if (!is_pi(cls_ty))
             throw exception("don't know how to derive this");
         auto expected_tgt_ty = cls_ty;
@@ -133,7 +133,7 @@ static environment derive(environment env, options const & opts, name const & n,
         tgt = ctx.mk_pi(params, tgt);
         auto inst2 = ctx.mk_lambda(params, inst.value());
         auto new_n = n + const_name(cls);
-        env = module::add(env, mk_definition(env, new_n, d.get_univ_params(),
+        env = module::add(env, mk_definition(env, new_n, d.get_lparams(),
                                              ctx.instantiate_mvars(tgt), inst2, d.is_meta()));
         env = add_instance(env, new_n, LEAN_DEFAULT_PRIORITY, true);
         env = add_protected(env, new_n);

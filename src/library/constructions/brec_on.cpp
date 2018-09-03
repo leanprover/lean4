@@ -51,11 +51,11 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
     unsigned nindices        = *inductive::get_num_indices(env, n);
     unsigned nminors         = *inductive::get_num_minor_premises(env, n);
     unsigned ntypeformers    = 1;
-    level_param_names lps    = rec_info.get_univ_params();
+    names lps                = rec_info.get_lparams();
     bool is_reflexive        = is_reflexive_datatype(tc, n);
     level  lvl               = mk_univ_param(head(lps));
-    levels lvls              = param_names_to_levels(tail(lps));
-    level_param_names blvls; // universe level parameters of ibelow/below
+    levels lvls              = lparams_to_levels(tail(lps));
+    names blvls; // universe level parameters of ibelow/below
     level  rlvl;  // universe level of the resultant type
     // The arguments of below (ibelow) are the ones in the recursor - minor premises.
     // The universe we map to is also different (l+1 for below of reflexive types) and (0 fo ibelow).
@@ -177,12 +177,12 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
     /* TODO(Leo): code can be simplified, it contains leftovers from the time the kernel had support
        for mutually inductive types */
     unsigned ntypeformers  = 1;
-    level_param_names lps  = rec_info.get_univ_params();
+    names lps              = rec_info.get_lparams();
     bool is_reflexive      = is_reflexive_datatype(tc, n);
     level  lvl             = mk_univ_param(head(lps));
-    levels lvls            = param_names_to_levels(tail(lps));
+    levels lvls            = lparams_to_levels(tail(lps));
     level rlvl;
-    level_param_names blps;
+    names blps;
     levels blvls; // universe level parameters of brec_on/binduction_on
     // The arguments of brec_on (binduction_on) are the ones in the recursor - minor premises.
     // The universe we map to is also different (l+1 for below of reflexive types) and (0 fo ibelow).

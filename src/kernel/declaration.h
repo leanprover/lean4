@@ -68,13 +68,13 @@ structure constant_val :=
 */
 class constant_val : public object_ref {
 public:
-    constant_val(name const & n, level_param_names const & lparams, expr const & type);
+    constant_val(name const & n, names const & lparams, expr const & type);
     constant_val(constant_val const & other):object_ref(other) {}
     constant_val(constant_val && other):object_ref(other) {}
     constant_val & operator=(constant_val const & other) { object_ref::operator=(other); return *this; }
     constant_val & operator=(constant_val && other) { object_ref::operator=(other); return *this; }
     name const & get_name() const { return static_cast<name const &>(cnstr_obj_ref(*this, 0)); }
-    level_param_names const & get_lparams() const { return static_cast<level_param_names const &>(cnstr_obj_ref(*this, 1)); }
+    names const & get_lparams() const { return static_cast<names const &>(cnstr_obj_ref(*this, 1)); }
     expr const & get_type() const { return static_cast<expr const &>(cnstr_obj_ref(*this, 2)); }
 };
 
@@ -84,14 +84,14 @@ structure axiom_val extends constant_val :=
 */
 class axiom_val : public object_ref {
 public:
-    axiom_val(name const & n, level_param_names const & lparams, expr const & type, bool is_meta);
+    axiom_val(name const & n, names const & lparams, expr const & type, bool is_meta);
     axiom_val(axiom_val const & other):object_ref(other) {}
     axiom_val(axiom_val && other):object_ref(other) {}
     axiom_val & operator=(axiom_val const & other) { object_ref::operator=(other); return *this; }
     axiom_val & operator=(axiom_val && other) { object_ref::operator=(other); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_obj_ref(*this, 0)); }
     name const & get_name() const { return to_constant_val().get_name(); }
-    level_param_names const & get_lparams() const { return to_constant_val().get_lparams(); }
+    names const & get_lparams() const { return to_constant_val().get_lparams(); }
     expr const & get_type() const { return to_constant_val().get_type(); }
     bool is_meta() const;
 };
@@ -102,14 +102,14 @@ structure definition_val extends constant_val :=
 */
 class definition_val : public object_ref {
 public:
-    definition_val(name const & n, level_param_names const & lparams, expr const & type, expr const & val, reducibility_hints const & hints, bool is_meta);
+    definition_val(name const & n, names const & lparams, expr const & type, expr const & val, reducibility_hints const & hints, bool is_meta);
     definition_val(definition_val const & other):object_ref(other) {}
     definition_val(definition_val && other):object_ref(other) {}
     definition_val & operator=(definition_val const & other) { object_ref::operator=(other); return *this; }
     definition_val & operator=(definition_val && other) { object_ref::operator=(other); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_obj_ref(*this, 0)); }
     name const & get_name() const { return to_constant_val().get_name(); }
-    level_param_names const & get_lparams() const { return to_constant_val().get_lparams(); }
+    names const & get_lparams() const { return to_constant_val().get_lparams(); }
     expr const & get_type() const { return to_constant_val().get_type(); }
     expr const & get_value() const { return static_cast<expr const &>(cnstr_obj_ref(*this, 1)); }
     reducibility_hints const & get_hints() const { return static_cast<reducibility_hints const &>(cnstr_obj_ref(*this, 2)); }
@@ -123,14 +123,14 @@ structure theorem_val extends constant_val :=
 */
 class theorem_val : public object_ref {
 public:
-    theorem_val(name const & n, level_param_names const & lparams, expr const & type, expr const & val);
+    theorem_val(name const & n, names const & lparams, expr const & type, expr const & val);
     theorem_val(theorem_val const & other):object_ref(other) {}
     theorem_val(theorem_val && other):object_ref(other) {}
     theorem_val & operator=(theorem_val const & other) { object_ref::operator=(other); return *this; }
     theorem_val & operator=(theorem_val && other) { object_ref::operator=(other); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_obj_ref(*this, 0)); }
     name const & get_name() const { return to_constant_val().get_name(); }
-    level_param_names const & get_lparams() const { return to_constant_val().get_lparams(); }
+    names const & get_lparams() const { return to_constant_val().get_lparams(); }
     expr const & get_type() const { return to_constant_val().get_type(); }
     expr const & get_value() const { return static_cast<expr const &>(cnstr_obj_ref(*this, 1)); }
 };
@@ -213,14 +213,14 @@ inline optional<declaration> none_declaration() { return optional<declaration>()
 inline optional<declaration> some_declaration(declaration const & o) { return optional<declaration>(o); }
 inline optional<declaration> some_declaration(declaration && o) { return optional<declaration>(std::forward<declaration>(o)); }
 
-definition_val mk_definition_val(environment const & env, name const & n, level_param_names const & params, expr const & t, expr const & v, bool meta);
-declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v,
+definition_val mk_definition_val(environment const & env, name const & n, names const & lparams, expr const & t, expr const & v, bool meta);
+declaration mk_definition(name const & n, names const & lparams, expr const & t, expr const & v,
                           reducibility_hints const & hints, bool meta = false);
-declaration mk_definition(environment const & env, name const & n, level_param_names const & params, expr const & t, expr const & v,
+declaration mk_definition(environment const & env, name const & n, names const & lparams, expr const & t, expr const & v,
                           bool meta = false);
-declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v);
-declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v);
-declaration mk_axiom(name const & n, level_param_names const & params, expr const & t, bool meta = false);
+declaration mk_theorem(name const & n, names const & lparams, expr const & t, expr const & v);
+declaration mk_theorem(name const & n, names const & lparams, expr const & t, expr const & v);
+declaration mk_axiom(name const & n, names const & lparams, expr const & t, bool meta = false);
 declaration mk_mutual_definitions(definition_vals const & ds);
 declaration mk_inductive_decl(names const & lparams, nat const & nparams, inductive_types const & types, bool is_meta);
 declaration mk_quot_decl();
@@ -230,14 +230,14 @@ bool use_meta(environment const & env, expr const & e);
 
 /** \brief Similar to mk_definition but infer the value of meta flag.
     That is, set it to true if \c t or \c v contains a meta declaration. */
-declaration mk_definition_inferring_meta(environment const & env, name const & n, level_param_names const & params,
+declaration mk_definition_inferring_meta(environment const & env, name const & n, names const & lparams,
                                          expr const & t, expr const & v, reducibility_hints const & hints);
-declaration mk_definition_inferring_meta(environment const & env, name const & n, level_param_names const & params,
+declaration mk_definition_inferring_meta(environment const & env, name const & n, names const & lparams,
                                          expr const & t, expr const & v);
 /** \brief Similar to mk_axiom but infer the value of meta flag.
     That is, set it to true if \c t or \c v contains a meta declaration. */
 declaration mk_axiom_inferring_meta(environment const & env, name const & n,
-                                    level_param_names const & params, expr const & t);
+                                    names const & lparams, expr const & t);
 
 /** \brief View for manipulating declaration.induct_decl constructor.
     | induct_decl      (lparams : list name) (nparams : nat) (types : list inductive_type) (is_meta : bool) */
@@ -265,7 +265,7 @@ structure inductive_val extends constant_val :=
 */
 class inductive_val : public object_ref {
 public:
-    inductive_val(name const & n, level_param_names const & lparams, expr const & type, unsigned nparams,
+    inductive_val(name const & n, names const & lparams, expr const & type, unsigned nparams,
                   unsigned nindices, names const & all, names const & cnstrs, bool is_rec, bool is_meta);
     inductive_val(inductive_val const & other):object_ref(other) {}
     inductive_val(inductive_val && other):object_ref(other) {}
@@ -288,7 +288,7 @@ structure constructor_val extends constant_val :=
 */
 class constructor_val : public object_ref {
 public:
-    constructor_val(name const & n, level_param_names const & lparams, expr const & type, name const & induct, unsigned nparams, bool is_meta);
+    constructor_val(name const & n, names const & lparams, expr const & type, name const & induct, unsigned nparams, bool is_meta);
     constructor_val(constructor_val const & other):object_ref(other) {}
     constructor_val(constructor_val && other):object_ref(other) {}
     constructor_val & operator=(constructor_val const & other) { object_ref::operator=(other); return *this; }
@@ -332,7 +332,7 @@ structure recursor_val extends constant_val :=
 */
 class recursor_val : public object_ref {
 public:
-    recursor_val(name const & n, level_param_names const & lparams, expr const & type,
+    recursor_val(name const & n, names const & lparams, expr const & type,
                  names const & all, unsigned nparams, unsigned nindices, unsigned nmotives,
                  unsigned nminors, recursor_rules const & rules, bool k, bool is_meta);
     recursor_val(recursor_val const & other):object_ref(other) {}
@@ -364,14 +364,14 @@ structure quot_val extends constant_val :=
 */
 class quot_val : public object_ref {
 public:
-    quot_val(name const & n, level_param_names const & lparams, expr const & type, quot_kind k);
+    quot_val(name const & n, names const & lparams, expr const & type, quot_kind k);
     quot_val(quot_val const & other):object_ref(other) {}
     quot_val(quot_val && other):object_ref(other) {}
     quot_val & operator=(quot_val const & other) { object_ref::operator=(other); return *this; }
     quot_val & operator=(quot_val && other) { object_ref::operator=(other); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_obj_ref(*this, 0)); }
     name const & get_name() const { return to_constant_val().get_name(); }
-    level_param_names const & get_lparams() const { return to_constant_val().get_lparams(); }
+    names const & get_lparams() const { return to_constant_val().get_lparams(); }
     expr const & get_type() const { return to_constant_val().get_type(); }
     quot_kind get_quot_kind() const;
 };
@@ -420,8 +420,8 @@ public:
     bool is_recursor() const { return kind() == constant_info_kind::Recursor; }
 
     name const & get_name() const { return to_constant_val().get_name(); }
-    level_param_names const & get_univ_params() const { return to_constant_val().get_lparams(); }
-    unsigned get_num_univ_params() const { return length(get_univ_params()); }
+    names const & get_lparams() const { return to_constant_val().get_lparams(); }
+    unsigned get_num_lparams() const { return length(get_lparams()); }
     expr const & get_type() const { return to_constant_val().get_type(); }
     bool has_value() const { return is_theorem() || is_definition(); }
     expr const & get_value() const { lean_assert(has_value()); return static_cast<expr const &>(cnstr_obj_ref(to_val(), 1)); }

@@ -58,12 +58,12 @@ static void collect_args(type_context_old & tctx, expr const & type, unsigned nu
     lean_assert(!is_pi(ty));
 }
 
-expr mk_injective_type_core(environment const & env, name const & ir_name, expr const & ir_type, unsigned num_params, level_param_names const & lp_names, bool use_eq) {
+expr mk_injective_type_core(environment const & env, name const & ir_name, expr const & ir_type, unsigned num_params, names const & lp_names, bool use_eq) {
     // The transparency needs to match the kernel since we need to be consistent with the no_confusion construction.
     type_context_old ctx(env, transparency_mode::All);
     buffer<expr> params, args1, args2, new_args;
     collect_args(ctx, ir_type, num_params, params, args1, args2, new_args);
-    expr c_ir_params = mk_app(mk_constant(ir_name, param_names_to_levels(lp_names)), params);
+    expr c_ir_params = mk_app(mk_constant(ir_name, lparams_to_levels(lp_names)), params);
     expr lhs = mk_app(c_ir_params, args1);
     expr rhs = mk_app(c_ir_params, args2);
     expr eq_type = mk_eq(ctx, lhs, rhs);
@@ -95,11 +95,11 @@ expr mk_injective_type_core(environment const & env, name const & ir_name, expr 
     return ctx.mk_pi(params, ctx.mk_pi(args1, ctx.mk_pi(new_args, result)));
 }
 
-expr mk_injective_type(environment const & env, name const & ir_name, expr const & ir_type, unsigned num_params, level_param_names const & lp_names) {
+expr mk_injective_type(environment const & env, name const & ir_name, expr const & ir_type, unsigned num_params, names const & lp_names) {
     return mk_injective_type_core(env, ir_name, ir_type, num_params, lp_names, false);
 }
 
-expr mk_injective_eq_type(environment const & env, name const & ir_name, expr const & ir_type, unsigned num_params, level_param_names const & lp_names) {
+expr mk_injective_eq_type(environment const & env, name const & ir_name, expr const & ir_type, unsigned num_params, names const & lp_names) {
     return mk_injective_type_core(env, ir_name, ir_type, num_params, lp_names, true);
 }
 
@@ -181,7 +181,7 @@ expr prove_injective(environment const & env, expr const & inj_type, name const 
     return tctx.mk_lambda(args, mk_app(H_nc, tctx.mk_lambda(eqs, prove_conjuncts(tctx, ty, eqs_to_keep))));
 }
 
-expr prove_injective_arrow(environment const & env, expr const & inj_arrow_type, name const & inj_name, level_param_names const & inj_lp_names) {
+expr prove_injective_arrow(environment const & env, expr const & inj_arrow_type, name const & inj_name, names const & inj_lp_names) {
     type_context_old tctx(env);
     expr ty = inj_arrow_type;
 
@@ -197,7 +197,7 @@ expr prove_injective_arrow(environment const & env, expr const & inj_arrow_type,
     expr H_P = args[args.size() - 2];
     expr H_arrow = args[args.size() - 1];
 
-    expr conjuncts = mk_app(mk_constant(inj_name, param_names_to_levels(inj_lp_names)), args.size() - 2, args.begin());
+    expr conjuncts = mk_app(mk_constant(inj_name, lparams_to_levels(inj_lp_names)), args.size() - 2, args.begin());
     expr pf = H_arrow;
     while (is_and(tctx.infer(conjuncts))) {
         pf = mk_app(pf, mk_and_elim_left(tctx, conjuncts));
@@ -211,7 +211,7 @@ environment mk_injective_arrow(environment const & env, name const & ir_name) {
     constant_info info = env.get(mk_injective_name(ir_name));
     type_context_old tctx(env);
 
-    name P_lp_name = mk_fresh_lp_name(info.get_univ_params());
+    name P_lp_name = mk_fresh_lp_name(info.get_lparams());
     expr P = tctx.push_local(name("P"), mk_sort(mk_univ_param(P_lp_name)), mk_strict_implicit_binder_info());
 
     expr ty = info.get_type();
@@ -240,10 +240,10 @@ environment mk_injective_arrow(environment const & env, name const & ir_name) {
 
     name inj_arrow_name = mk_injective_arrow_name(ir_name);
     expr inj_arrow_type = tctx.mk_pi(args, tctx.mk_pi(P, mk_arrow(antecedent, P)));
-    expr inj_arrow_val = prove_injective_arrow(env, inj_arrow_type, mk_injective_name(ir_name), info.get_univ_params());
+    expr inj_arrow_val = prove_injective_arrow(env, inj_arrow_type, mk_injective_name(ir_name), info.get_lparams());
     lean_trace(name({"constructions", "injective"}), tout() << inj_arrow_name << " : " << inj_arrow_type << "\n";);
     environment new_env = module::add(env, mk_definition_inferring_meta(env, inj_arrow_name,
-                                                                        cons(P_lp_name, info.get_univ_params()), inj_arrow_type, inj_arrow_val));
+                                                                        cons(P_lp_name, info.get_lparams()), inj_arrow_type, inj_arrow_val));
     return new_env;
 }
 
@@ -274,7 +274,7 @@ environment mk_injective_lemmas(environment const & _env, name const & ind_name,
         return _env;
 
     inductive::inductive_decl idecl = *idecls;
-    level_param_names lp_names = idecl.m_level_params;
+    names lp_names = idecl.m_level_params;
     unsigned num_params = idecl.m_num_params;
 
     buffer<inductive::intro_rule> intro_rules;

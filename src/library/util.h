@@ -31,7 +31,7 @@ optional<expr_pair> is_auto_param(expr const & e);
 level get_level(abstract_type_context & ctx, expr const & A);
 
 /** brief Return a name that does not appear in `lp_names`. */
-name mk_fresh_lp_name(level_param_names const & lp_names);
+name mk_fresh_lp_name(names const & lp_names);
 
 /** \brief Return true iff \c n occurs in \c m */
 bool occurs(expr const & n, expr const & m);

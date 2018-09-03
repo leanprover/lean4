@@ -411,7 +411,7 @@ static expr inline_new_defs(environment const & old_env, environment const & new
         } else if (is_constant(e) && !old_env.find(const_name(e))) {
             auto decl = new_env.get(const_name(e));
             if (decl.has_value()) {
-                expr val  = instantiate_value_univ_params(decl, const_levels(e));
+                expr val  = instantiate_value_lparams(decl, const_levels(e));
                 return some_expr(inline_new_defs(old_env, new_env, n, val));
             } else {
                 throw exception(sstream() << "invalid theorem '" << n << "', theorems should not depend on axioms introduced using "
@@ -463,7 +463,7 @@ static expr elaborate_proof(
 
 static void check_example(environment const & decl_env, options const & opts,
                           decl_modifiers modifiers, bool noncomputable_theory,
-                          level_param_names const & univ_params, list<expr> const & params,
+                          names const & univ_params, list<expr> const & params,
                           expr const & fn, expr const & val0,
                           metavar_context const & mctx, local_context const & lctx,
                           parser_pos_provider pos_provider, bool use_info_manager, std::string const & file_name) {

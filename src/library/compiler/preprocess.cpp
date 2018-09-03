@@ -173,7 +173,7 @@ class preprocess_fn {
         bool memoize       = true;
         bool non_meta_only = false;
         old_type_checker tc(m_env, memoize, non_meta_only);
-        expr t = tc.check(v, d.get_univ_params());
+        expr t = tc.check(v, d.get_lparams());
         if (!tc.is_def_eq(d.get_type(), t))
             throw exception("preprocess failed");
         return true;

@@ -70,7 +70,7 @@ namespace lean {
 
     \pre is_structure_like(env, S) */
 static auto get_structure_info(environment const & env, name const & S)
--> std::tuple<level_param_names, unsigned, inductive::intro_rule> {
+-> std::tuple<names, unsigned, inductive::intro_rule> {
     lean_assert(is_structure_like(env, S));
     inductive::inductive_decl idecl = *inductive::is_inductive_decl(env, S);
     inductive::intro_rule intro = head(idecl.m_intro_rules);
@@ -95,7 +95,7 @@ name mk_internal_subobject_field_name(name const & fname) {
 buffer<name> get_structure_fields(environment const & env, name const & S) {
     lean_assert(is_structure_like(env, S));
     buffer<name> fields;
-    level_param_names ls; unsigned nparams; inductive::intro_rule intro;
+    names ls; unsigned nparams; inductive::intro_rule intro;
     std::tie(ls, nparams, intro) = get_structure_info(env, S);
     expr intro_type = inductive::intro_rule_type(intro);
     unsigned i = 0;
@@ -111,7 +111,7 @@ buffer<name> get_structure_fields(environment const & env, name const & S) {
 bool is_structure(environment const & env, name const & S) {
     if (!is_structure_like(env, S))
         return false;
-    level_param_names ls; unsigned nparams; inductive::intro_rule intro;
+    names ls; unsigned nparams; inductive::intro_rule intro;
     std::tie(ls, nparams, intro) = get_structure_info(env, S);
     expr intro_type = inductive::intro_rule_type(intro);
     for (unsigned i = 0; i < nparams; i++) {
@@ -352,7 +352,7 @@ struct structure_cmd_fn {
     }
 
     /** \brief Return the universe parameters, number of parameters and introduction rule for the given parent structure */
-    std::tuple<level_param_names, unsigned, inductive::intro_rule> get_parent_info(name const & parent) {
+    std::tuple<names, unsigned, inductive::intro_rule> get_parent_info(name const & parent) {
         return get_structure_info(m_env, parent);
     }
 
@@ -537,14 +537,14 @@ struct structure_cmd_fn {
                 buffer<expr> ctx;
                 collect_implicit_locals(m_p, lp_names, ctx, tmp);
                 return elaborate_for_each<expr>(ctx, tmp, std::bind(&structure_cmd_fn::elaborate_local, this, true, _1, _2, _3, _4), [&](expr tmp) {
-                    level_param_names new_ls;
+                    names new_ls;
                     expr new_tmp;
                     std::tie(new_tmp, new_ls) = m_p.elaborate_type(m_name, list<expr>(), tmp);
                     levels new_meta_ls;
                     unsigned num_new_ls = length(new_ls);
                     for (unsigned i = 0; i < num_new_ls; i++)
                         new_meta_ls = cons(m_ctx.mk_univ_metavar_decl(), new_meta_ls);
-                    return instantiate_univ_params(new_tmp, new_ls, new_meta_ls);
+                    return instantiate_lparams(new_tmp, new_ls, new_meta_ls);
                 });
             });
         });
@@ -643,13 +643,13 @@ struct structure_cmd_fn {
                         throw elaborator_exception(parent, "cannot make base projection");
                     }
                     expr base_obj = *base_obj_opt;
-                    level_param_names lparams; unsigned nparams; inductive::intro_rule intro;
+                    names lparams; unsigned nparams; inductive::intro_rule intro;
                     std::tie(lparams, nparams, intro) = get_parent_info(base_S_name);
                     unsigned num_lparams = length(lparams);
                     levels meta_ls;
                     for (unsigned i = 0; i < num_lparams; i++)
                         meta_ls = cons(m_ctx.mk_univ_metavar_decl(), meta_ls);
-                    expr type = instantiate_univ_params(m_p.env().get(full_fname).get_type(), lparams, meta_ls);
+                    expr type = instantiate_lparams(m_p.env().get(full_fname).get_type(), lparams, meta_ls);
                     std::function<expr(expr const &, unsigned)> pi_to_lam = [&](expr const & e, unsigned i) {
                         if (i == nparams + 1)
                             return mk_as_is(e);
@@ -664,10 +664,10 @@ struct structure_cmd_fn {
                     m_fields.emplace_back(subfield, some_expr(proj), field_kind::from_parent);
                 }
             } else {
-                level_param_names lparams; unsigned nparams; inductive::intro_rule intro;
+                names lparams; unsigned nparams; inductive::intro_rule intro;
                 std::tie(lparams, nparams, intro) = get_parent_info(parent_name);
                 expr intro_type = inductive::intro_rule_type(intro);
-                intro_type      = instantiate_univ_params(intro_type, lparams, const_levels(parent_fn));
+                intro_type      = instantiate_lparams(intro_type, lparams, const_levels(parent_fn));
                 if (nparams != args.size()) {
                     throw elaborator_exception(parent,
                                                sstream() << "invalid 'structure' header, number of argument "
@@ -951,7 +951,7 @@ struct structure_cmd_fn {
                     return elaborate_for_each<expr>(m_params, tmp, std::bind(&structure_cmd_fn::elaborate_local, this, true, _1, _2, _3, _4), [&](expr tmp) {
                         collect_implicit_locals(m_p, m_level_names, m_ctx_locals, tmp);
                         return elaborate_for_each<expr>(m_ctx_locals, tmp, std::bind(&structure_cmd_fn::elaborate_local, this, true, _1, _2, _3, _4), [&](expr tmp) {
-                            level_param_names new_ls;
+                            names new_ls;
                             expr new_tmp;
                             metavar_context mctx = m_ctx.mctx();
                             std::tie(new_tmp, new_ls) = m_p.elaborate_type(m_name, mctx, tmp);
@@ -1027,7 +1027,7 @@ struct structure_cmd_fn {
     }
 
     expr mk_intro_type_no_params() {
-        levels ls = param_names_to_levels(names(m_level_names));
+        levels ls = lparams_to_levels(names(m_level_names));
         expr r    = mk_app(mk_constant(m_name, ls), m_params);
         for (unsigned i = 0; i < m_fields.size(); i++) {
             auto const & decl = m_fields[m_fields.size() - 1 - i];
@@ -1072,7 +1072,7 @@ struct structure_cmd_fn {
         expr structure_type = mk_structure_type();
         expr intro_type     = mk_intro_type();
 
-        level_param_names lnames = names(m_level_names);
+        names lnames = names(m_level_names);
         inductive::intro_rule intro = inductive::mk_intro_rule(m_mk, intro_type);
         inductive::inductive_decl  decl(m_name, lnames, m_params.size(), structure_type, to_list(intro));
         bool is_meta = m_meta_info.m_modifiers.m_is_meta;
@@ -1151,7 +1151,7 @@ struct structure_cmd_fn {
                 name_set used_univs;
                 used_univs = collect_univ_params(decl_value, used_univs);
                 used_univs = collect_univ_params(decl_type, used_univs);
-                level_param_names decl_lvls = to_level_param_names(used_univs);
+                names decl_lvls = to_names(used_univs);
                 declaration new_decl = mk_definition_inferring_meta(m_env, decl_name, decl_lvls,
                                                                        decl_type, decl_value, reducibility_hints::mk_abbreviation());
                 m_env = module::add(m_env, new_decl);
@@ -1163,7 +1163,7 @@ struct structure_cmd_fn {
     void add_rec_on_alias(name const & n) {
         name rec_on_name(m_name, "rec_on");
         constant_info rec_on_decl = m_env.get(rec_on_name);
-        declaration new_decl = mk_definition_inferring_meta(m_env, n, rec_on_decl.get_univ_params(),
+        declaration new_decl = mk_definition_inferring_meta(m_env, n, rec_on_decl.get_lparams(),
                                                             rec_on_decl.get_type(), rec_on_decl.get_value(),
                                                             reducibility_hints::mk_abbreviation());
         m_env = module::add(m_env, new_decl);
@@ -1216,8 +1216,8 @@ struct structure_cmd_fn {
         lean_assert(m_parents.size() == m_field_maps.size());
         buffer<name> coercion_names;
         mk_coercion_names(coercion_names);
-        level_param_names lnames = names(m_level_names);
-        levels st_ls             = param_names_to_levels(lnames);
+        names lnames = names(m_level_names);
+        levels st_ls             = lparams_to_levels(lnames);
         for (unsigned i = 0; i < m_parents.size(); i++) {
             expr const & parent            = m_parents[i];
             buffer<expr> parent_params;

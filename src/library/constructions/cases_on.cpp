@@ -47,8 +47,8 @@ environment mk_cases_on(environment const & env, name const & n) {
         rec_params.push_back(local);
     }
 
-    levels lvls       = param_names_to_levels(rec_info.get_univ_params());
-    bool elim_to_prop = rec_info.get_num_univ_params() == ind_info.get_num_univ_params();
+    levels lvls       = lparams_to_levels(rec_info.get_lparams());
+    bool elim_to_prop = rec_info.get_num_lparams() == ind_info.get_num_lparams();
     level elim_univ   = elim_to_prop ? mk_level_zero() : head(lvls);
 
     optional<expr> unit;
@@ -111,7 +111,7 @@ environment mk_cases_on(environment const & env, name const & n) {
     expr cases_on_type  = Pi(cases_on_params, rec_type);
     expr cases_on_value = Fun(cases_on_params,  mk_app(rec_cnst, rec_args));
 
-    declaration new_d = mk_definition_inferring_meta(env, cases_on_name, rec_info.get_univ_params(), cases_on_type, cases_on_value,
+    declaration new_d = mk_definition_inferring_meta(env, cases_on_name, rec_info.get_lparams(), cases_on_type, cases_on_value,
                                                      reducibility_hints::mk_abbreviation());
     environment new_env = module::add(env, new_d);
     new_env = set_reducible(new_env, cases_on_name, reducible_status::Reducible, true);

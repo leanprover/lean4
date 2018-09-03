@@ -374,7 +374,7 @@ environment add_local_ref(parser & p, environment const & env, name const & c_na
         expr new_type      = replace_locals_preserving_pos_info(type, i, params.data(), new_params.data());
         new_params.push_back(copy_pos(param, update_local_p(param, new_type)));
     }
-    expr ref = mk_local_ref(c_real_name, param_names_to_levels(names(lps)), new_params);
+    expr ref = mk_local_ref(c_real_name, lparams_to_levels(names(lps)), new_params);
     return p.add_local_ref(env, c_name, ref);
 }
 

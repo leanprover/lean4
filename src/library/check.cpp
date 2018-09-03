@@ -16,7 +16,7 @@ struct check_fn {
 
     void visit_constant(expr const & e) {
         constant_info info = m_ctx.env().get(const_name(e));
-        if (info.get_num_univ_params() != length(const_levels(e))) {
+        if (info.get_num_lparams() != length(const_levels(e))) {
             lean_trace("check", scope_trace_env _(m_ctx.env(), m_ctx);
                        tout() << "incorrect of universe levels at " << e << "\n";);
             throw exception("check failed, incorrect number of universe levels "

@@ -189,7 +189,7 @@ public:
 };
 
 environment check_cmd(parser & p) {
-    expr e; level_param_names ls;
+    expr e; names ls;
     transient_cmd_scope cmd_scope(p);
     std::tie(e, ls) = parse_local_expr(p, "_check");
     old_type_checker tc(p.env(), true, false);
@@ -216,7 +216,7 @@ environment reduce_cmd(parser & p) {
         p.next();
         whnf = true;
     }
-    expr e; level_param_names ls;
+    expr e; names ls;
     std::tie(e, ls) = parse_local_expr(p, "_reduce");
     expr r;
     type_context_old ctx(p.env(), p.get_options(), metavar_context(), local_context(), transparency_mode::All);
@@ -413,10 +413,10 @@ static expr convert_metavars(metavar_context & mctx, expr const & e) {
 static environment unify_cmd(parser & p) {
     transient_cmd_scope cmd_scope(p);
     environment const & env = p.env();
-    expr e1; level_param_names ls1;
+    expr e1; names ls1;
     std::tie(e1, ls1) = parse_local_expr(p, "_unify");
     p.check_token_next(get_comma_tk(), "invalid #unify command, proper usage \"#unify e1, e2\"");
-    expr e2; level_param_names ls2;
+    expr e2; names ls2;
     std::tie(e2, ls2) = parse_local_expr(p, "_unify");
     metavar_context mctx;
     local_context   lctx;
@@ -445,7 +445,7 @@ static environment compile_cmd(parser & p) {
 static environment eval_cmd(parser & p) {
     transient_cmd_scope cmd_scope(p);
     auto pos = p.pos();
-    expr e; level_param_names ls;
+    expr e; names ls;
     std::tie(e, ls) = parse_local_expr(p, "_eval", /* relaxed */ false);
     if (has_synthetic_sorry(e))
         return p.env();

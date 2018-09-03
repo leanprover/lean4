@@ -51,12 +51,12 @@ environment mk_rec_on(environment const & env, name const & n) {
         new_locals.push_back(locals[AC_sz + i]);
     expr rec_on_type = Pi(new_locals, rec_type);
 
-    levels ls = param_names_to_levels(rec_info.get_univ_params());
+    levels ls = lparams_to_levels(rec_info.get_lparams());
     expr rec  = mk_constant(rec_info.get_name(), ls);
     expr rec_on_val = Fun(new_locals, mk_app(rec, locals));
 
     environment new_env = module::add(env,
-                                      mk_definition_inferring_meta(env, rec_on_name, rec_info.get_univ_params(),
+                                      mk_definition_inferring_meta(env, rec_on_name, rec_info.get_lparams(),
                                                                    rec_on_type, rec_on_val, reducibility_hints::mk_abbreviation()));
     new_env = set_reducible(new_env, rec_on_name, reducible_status::Reducible, true);
     new_env = add_aux_recursor(new_env, rec_on_name);

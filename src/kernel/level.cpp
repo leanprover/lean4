@@ -308,7 +308,7 @@ bool occurs(level const & u, level const & l) {
     return found;
 }
 
-optional<name> get_undef_param(level const & l, level_param_names const & ps) {
+optional<name> get_undef_param(level const & l, names const & ps) {
     optional<name> r;
     for_each(l, [&](level const & l) {
             if (!has_param(l) || r)
@@ -336,7 +336,7 @@ level update_max(level const & l, level const & new_lhs, level const & new_rhs) 
         return mk_imax(new_lhs, new_rhs);
 }
 
-level instantiate(level const & l, level_param_names const & ps, levels const & ls) {
+level instantiate(level const & l, names const & ps, levels const & ls) {
     lean_assert(length(ps) == length(ls));
     return replace(l, [=](level const & l) {
             if (!has_param(l)) {
@@ -620,7 +620,7 @@ bool is_geq_core(level l1, level l2) {
 bool is_geq(level const & l1, level const & l2) {
     return is_geq_core(normalize(l1), normalize(l2));
 }
-levels param_names_to_levels(level_param_names const & ps) {
+levels lparams_to_levels(names const & ps) {
     buffer<level> ls;
     for (auto const & p : ps)
         ls.push_back(mk_univ_param(p));

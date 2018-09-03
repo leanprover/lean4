@@ -133,7 +133,7 @@ class inductive_cmd_fn {
     bool has_general_eliminator(name const & d_name) {
         constant_info d = m_env.get(d_name);
         constant_info r = m_env.get(mk_rec_name(d_name));
-        return d.get_num_univ_params() != r.get_num_univ_params();
+        return d.get_num_lparams() != r.get_num_lparams();
     }
 
     void remove_non_parameters(buffer<expr> & params) {
@@ -550,7 +550,7 @@ class inductive_cmd_fn {
         // We replace the inds appearing in the types of introduction rules with constants
         buffer<expr> c_inds;
         for (expr const & ind : inds) {
-            c_inds.push_back(mk_app(mk_constant(local_name_p(ind), param_names_to_levels(names(m_lp_names))), new_params));
+            c_inds.push_back(mk_app(mk_constant(local_name_p(ind), lparams_to_levels(names(m_lp_names))), new_params));
         }
 
         unsigned offset = offsets[0] + offsets[1];

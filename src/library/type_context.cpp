@@ -521,9 +521,9 @@ static bool is_smart_unfolding_target(environment const & env, name const & fn_n
 static expr ext_unfold_fn(environment const & env, expr const & fn) {
     lean_assert(is_constant(fn));
     if (optional<constant_info> meta_info = env.find(mk_smart_unfolding_name_for(const_name(fn)))) {
-        return instantiate_value_univ_params(*meta_info, const_levels(fn));
+        return instantiate_value_lparams(*meta_info, const_levels(fn));
     } else if (optional<constant_info> info = env.find(const_name(fn))) {
-        return instantiate_value_univ_params(*info, const_levels(fn));
+        return instantiate_value_lparams(*info, const_levels(fn));
     } else {
         lean_unreachable();
     }
@@ -533,8 +533,8 @@ static expr ext_unfold_fn(environment const & env, expr const & fn) {
 optional<expr> type_context_old::unfold_definition_core(expr const & e) {
     if (is_constant(e)) {
         if (auto d = get_decl(const_name(e))) {
-            if (length(const_levels(e)) == d->get_num_univ_params())
-                return some_expr(instantiate_value_univ_params(*d, const_levels(e)));
+            if (length(const_levels(e)) == d->get_num_lparams())
+                return some_expr(instantiate_value_lparams(*d, const_levels(e)));
         }
     }
     return none_expr();
@@ -562,7 +562,7 @@ optional<expr> type_context_old::unfold_definition(expr const & e) {
         if (!is_constant(f0))
             return none_expr();
         optional<constant_info> info = get_decl(const_name(f0));
-        if (!info || length(const_levels(f0)) != info->get_num_univ_params())
+        if (!info || length(const_levels(f0)) != info->get_num_lparams())
             return none_expr();
         if (m_smart_unfolding && is_smart_unfolding_target(env(), const_name(f0))) {
             expr it = e;
@@ -599,7 +599,7 @@ optional<expr> type_context_old::unfold_definition(expr const & e) {
                         return none_expr();
                     }
                     optional<constant_info> new_it_info = env().find(const_name(new_it_fn));
-                    if (!new_it_info || !new_it_info->has_value() || length(const_levels(new_it_fn)) != new_it_info->get_num_univ_params()) {
+                    if (!new_it_info || !new_it_info->has_value() || length(const_levels(new_it_fn)) != new_it_info->get_num_lparams()) {
                         lean_trace(name({"type_context", "smart_unfolding"}), tout() << "fail 2 [" << m_unfold_depth << "] " << whnf_core(new_it, true) << "\n";);
                         return none_expr();
                     }
@@ -609,7 +609,7 @@ optional<expr> type_context_old::unfold_definition(expr const & e) {
         } else {
             /* TODO(Leo): should we block unfolding of constants defined using well founded recursion? */
             lean_trace(name({"type_context", "smart_unfolding"}), tout() << "using simple unfolding [" << m_unfold_depth << "]\n" << e << "\n";);
-            expr f = instantiate_value_univ_params(*info, const_levels(f0));
+            expr f = instantiate_value_lparams(*info, const_levels(f0));
             buffer<expr> args;
             get_app_rev_args(e, args);
             expr r = apply_beta(f, args.size(), args.data());
@@ -1082,7 +1082,7 @@ expr type_context_old::infer_metavar(expr const & e) {
 
 expr type_context_old::infer_constant(expr const & e) {
     constant_info info = env().get(const_name(e));
-    auto const & ps = info.get_univ_params();
+    auto const & ps = info.get_lparams();
     auto const & ls = const_levels(e);
     if (length(ps) != length(ls)) {
         throw generic_exception(e, [=](formatter const & fmt) {
@@ -1090,7 +1090,7 @@ expr type_context_old::infer_constant(expr const & e) {
                 return format("infer type failed, incorrect number of universe levels") + pp_indent_expr(new_fmt, e);
             });
     }
-    return instantiate_type_univ_params(info, ls);
+    return instantiate_type_lparams(info, ls);
 }
 
 expr type_context_old::infer_lambda(expr e) {
@@ -3496,12 +3496,12 @@ struct instance_synthesizer {
     bool try_instance(stack_entry const & e, name const & inst_name) {
         if (auto decl = env().find(inst_name)) {
             buffer<level> ls_buffer;
-            unsigned num_univ_ps = decl->get_num_univ_params();
-            for (unsigned i = 0; i < num_univ_ps; i++)
+            unsigned num_lparams = decl->get_num_lparams();
+            for (unsigned i = 0; i < num_lparams; i++)
                 ls_buffer.push_back(m_ctx.mk_tmp_univ_mvar());
             levels ls(ls_buffer);
             expr inst_cnst = mk_constant(inst_name, ls);
-            expr inst_type = instantiate_type_univ_params(*decl, ls);
+            expr inst_type = instantiate_type_lparams(*decl, ls);
             return try_instance(e, inst_cnst, inst_type);
         } else {
             return false;

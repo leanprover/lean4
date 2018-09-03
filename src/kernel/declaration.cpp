@@ -37,29 +37,29 @@ int compare(reducibility_hints const & h1, reducibility_hints const & h2) {
     }
 }
 
-constant_val::constant_val(name const & n, level_param_names const & lparams, expr const & type):
+constant_val::constant_val(name const & n, names const & lparams, expr const & type):
     object_ref(mk_cnstr(0, n, lparams, type)) {
 }
 
-axiom_val::axiom_val(name const & n, level_param_names const & lparams, expr const & type, bool is_meta):
+axiom_val::axiom_val(name const & n, names const & lparams, expr const & type, bool is_meta):
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), 1)) {
     cnstr_set_scalar<unsigned char>(raw(), sizeof(object*), static_cast<unsigned char>(is_meta));
 }
 
 bool axiom_val::is_meta() const { return cnstr_scalar<unsigned char>(raw(), sizeof(object*)) != 0; }
 
-definition_val::definition_val(name const & n, level_param_names const & lparams, expr const & type, expr const & val, reducibility_hints const & hints, bool is_meta):
+definition_val::definition_val(name const & n, names const & lparams, expr const & type, expr const & val, reducibility_hints const & hints, bool is_meta):
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), val, hints, 1)) {
     cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*3, static_cast<unsigned char>(is_meta));
 }
 
 bool definition_val::is_meta() const { return cnstr_scalar<unsigned char>(raw(), sizeof(object*)*3) != 0; }
 
-theorem_val::theorem_val(name const & n, level_param_names const & lparams, expr const & type, expr const & val):
+theorem_val::theorem_val(name const & n, names const & lparams, expr const & type, expr const & val):
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), val)) {
 }
 
-quot_val::quot_val(name const & n, level_param_names const & lparams, expr const & type, quot_kind k):
+quot_val::quot_val(name const & n, names const & lparams, expr const & type, quot_kind k):
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), 1)) {
     cnstr_set_scalar<unsigned char>(raw(), sizeof(object*), static_cast<unsigned char>(k));
 }
@@ -70,7 +70,7 @@ recursor_rule::recursor_rule(name const & cnstr, unsigned nfields, expr const & 
     object_ref(mk_cnstr(0, cnstr, nat(nfields), rhs)) {
 }
 
-inductive_val::inductive_val(name const & n, level_param_names const & lparams, expr const & type, unsigned nparams,
+inductive_val::inductive_val(name const & n, names const & lparams, expr const & type, unsigned nparams,
                              unsigned nindices, names const & all, names const & cnstrs, bool rec, bool meta):
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), nat(nparams), nat(nindices), all, cnstrs, 2)) {
     cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*5, static_cast<unsigned char>(rec));
@@ -79,12 +79,12 @@ inductive_val::inductive_val(name const & n, level_param_names const & lparams, 
     lean_assert(is_rec() == rec);
 }
 
-constructor_val::constructor_val(name const & n, level_param_names const & lparams, expr const & type, name const & induct, unsigned nparams, bool is_meta):
+constructor_val::constructor_val(name const & n, names const & lparams, expr const & type, name const & induct, unsigned nparams, bool is_meta):
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), induct, nat(nparams), 1)) {
     cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*3, static_cast<unsigned char>(is_meta));
 }
 
-recursor_val::recursor_val(name const & n, level_param_names const & lparams, expr const & type,
+recursor_val::recursor_val(name const & n, names const & lparams, expr const & type,
                            names const & all, unsigned nparams, unsigned nindices, unsigned nmotives,
                            unsigned nminors, recursor_rules const & rules, bool k, bool is_meta):
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), all, nat(nparams), nat(nindices), nat(nmotives),
@@ -139,36 +139,36 @@ static unsigned get_max_height(environment const & env, expr const & v) {
     return h;
 }
 
-definition_val mk_definition_val(environment const & env, name const & n, level_param_names const & params, expr const & t, expr const & v, bool meta) {
+definition_val mk_definition_val(environment const & env, name const & n, names const & params, expr const & t, expr const & v, bool meta) {
     unsigned h = get_max_height(env, v);
     return definition_val(n, params, t, v, reducibility_hints::mk_regular(h+1), meta);
 }
 
-declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v,
+declaration mk_definition(name const & n, names const & params, expr const & t, expr const & v,
                           reducibility_hints const & h, bool meta) {
     return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Definition), definition_val(n, params, t, v, h, meta)));
 }
 
-declaration mk_definition(environment const & env, name const & n, level_param_names const & params, expr const & t,
+declaration mk_definition(environment const & env, name const & n, names const & params, expr const & t,
                           expr const & v, bool meta) {
     return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Definition), mk_definition_val(env, n, params, t, v, meta)));
 }
 
-declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v) {
+declaration mk_theorem(name const & n, names const & params, expr const & t, expr const & v) {
     return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Theorem), theorem_val(n, params, t, v)));
 }
 
-declaration mk_axiom(name const & n, level_param_names const & params, expr const & t, bool meta) {
+declaration mk_axiom(name const & n, names const & params, expr const & t, bool meta) {
     return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Axiom), axiom_val(n, params, t, meta)));
 }
 
-declaration mk_definition_inferring_meta(environment const & env, name const & n, level_param_names const & params,
+declaration mk_definition_inferring_meta(environment const & env, name const & n, names const & params,
                                             expr const & t, expr const & v, reducibility_hints const & hints) {
     bool meta = use_meta(env, t) || use_meta(env, v);
     return mk_definition(n, params, t, v, hints, meta);
 }
 
-declaration mk_definition_inferring_meta(environment const & env, name const & n, level_param_names const & params,
+declaration mk_definition_inferring_meta(environment const & env, name const & n, names const & params,
                                          expr const & t, expr const & v) {
     bool meta  = use_meta(env, t) && use_meta(env, v);
     unsigned h = get_max_height(env, v);
@@ -176,7 +176,7 @@ declaration mk_definition_inferring_meta(environment const & env, name const & n
 }
 
 declaration mk_axiom_inferring_meta(environment const & env, name const & n,
-                                    level_param_names const & params, expr const & t) {
+                                    names const & params, expr const & t) {
     return mk_axiom(n, params, t, use_meta(env, t));
 }
 
@@ -258,7 +258,7 @@ bool constant_info::is_meta() const {
 
 void initialize_declaration() {
     g_opaque = new reducibility_hints(reducibility_hints::mk_opaque());
-    g_dummy  = new declaration(mk_axiom(name(), level_param_names(), expr()));
+    g_dummy  = new declaration(mk_axiom(name(), names(), expr()));
 }
 
 void finalize_declaration() {

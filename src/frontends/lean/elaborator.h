@@ -328,7 +328,7 @@ public:
        meta-variable. */
     void finalize(buffer<expr> & es, buffer<name> & new_lp_names, bool check_unassigned, bool to_simple_metavar);
     /** Simpler version of \c finalize, where \c es contains only one expression. */
-    pair<expr, level_param_names> finalize(expr const & e, bool check_unassigned, bool to_simple_metavar);
+    pair<expr, names> finalize(expr const & e, bool check_unassigned, bool to_simple_metavar);
 
     /* We finalize theorem in two steps: type, and then its proof.
        We use theorem_finalization_info to communicate information from the first step to the second. */
@@ -354,9 +354,9 @@ expr elaborator::recover_expr_from_exception(optional<expr> const & expected_typ
     }
 }
 
-pair<expr, level_param_names> elaborate(environment & env, options const & opts, name const & decl_name,
-                                        metavar_context & mctx, local_context const & lctx,
-                                        expr const & e, bool check_unassigned, bool recover_from_errors);
+pair<expr, names> elaborate(environment & env, options const & opts, name const & decl_name,
+                            metavar_context & mctx, local_context const & lctx,
+                            expr const & e, bool check_unassigned, bool recover_from_errors);
 
 /** \brief Translated local constants (and undefined constants) occurring in \c e into
     local constants provided by \c ctx.

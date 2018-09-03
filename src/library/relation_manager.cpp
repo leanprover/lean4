@@ -30,7 +30,7 @@ static pair<expr, unsigned> extract_arg_types_core(environment const & env, name
         arg_types.push_back(binding_domain(f_type));
         f_type = binding_body(f_type);
     }
-    return mk_pair(f_type, info.get_num_univ_params());
+    return mk_pair(f_type, info.get_num_lparams());
 }
 
 enum class op_kind { Relation, Subst, Trans, Refl, Symm };

@@ -99,7 +99,7 @@ static name * g_inductive_extension = nullptr;
 struct inductive_env_ext : public environment_extension {
     struct elim_info {
         name              m_inductive_name; // name of the inductive datatype associated with eliminator
-        level_param_names m_level_names; // level parameter names used in computational rule
+        names m_level_names; // level parameter names used in computational rule
         unsigned          m_num_params;  // number of global parameters A
         unsigned          m_num_ACe;     // sum of number of global parameters A, type former C, and minor preimises e.
         unsigned          m_num_indices; // number of inductive datatype indices
@@ -116,7 +116,7 @@ struct inductive_env_ext : public environment_extension {
         /** \brief m_dep_elim == true, if dependent elimination is used for this eliminator */
         bool              m_dep_elim;
         elim_info() {}
-        elim_info(name const & id_name, level_param_names const & ls, unsigned num_ps, unsigned num_ACe, unsigned num_indices,
+        elim_info(name const & id_name, names const & ls, unsigned num_ps, unsigned num_ACe, unsigned num_indices,
                   bool is_K_target, bool dep_elim):
             m_inductive_name(id_name), m_level_names(ls), m_num_params(num_ps), m_num_ACe(num_ACe),
             m_num_indices(num_indices), m_K_target(is_K_target), m_dep_elim(dep_elim) {}
@@ -144,7 +144,7 @@ struct inductive_env_ext : public environment_extension {
 
     inductive_env_ext() {}
 
-    void add_elim(name const & n, name const & id_name, level_param_names const & ls,
+    void add_elim(name const & n, name const & id_name, names const & ls,
                   unsigned num_ps, unsigned num_ace, unsigned num_indices, bool is_K_target,
                   bool dep_elim) {
         m_elim_info.insert(n, elim_info(id_name, ls, num_ps, num_ace, num_indices, is_K_target, dep_elim));
@@ -186,7 +186,7 @@ name get_elim_name(name const & n) {
     return n + name("rec");
 }
 
-environment certified_inductive_decl::add_constant(environment const & env, name const & n, level_param_names const & ls,
+environment certified_inductive_decl::add_constant(environment const & env, name const & n, names const & ls,
                                                    expr const & t) const {
     return env.add(mk_axiom(n, ls, t, m_is_meta));
 }
@@ -265,7 +265,7 @@ struct add_inductive_fn {
         m_env(env), m_name_generator(*g_ind_fresh), m_decl(decl),
         m_tc(new old_type_checker(m_env, true, false)) {
         m_is_not_zero = false;
-        m_levels      = param_names_to_levels(decl.m_level_params);
+        m_levels      = lparams_to_levels(decl.m_level_params);
         m_is_meta  = is_meta;
     }
 
@@ -613,9 +613,9 @@ struct add_inductive_fn {
     name get_elim_name() { return ::lean::inductive::get_elim_name(m_decl.m_name); }
 
     /** \brief Return the level parameter names for the eliminator. */
-    level_param_names get_elim_level_param_names() {
+    names get_elim_level_param_names() {
         if (is_param(m_elim_level))
-            return level_param_names(param_id(m_elim_level), m_decl.m_level_params);
+            return names(param_id(m_elim_level), m_decl.m_level_params);
         else
             return m_decl.m_level_params;
     }
@@ -849,7 +849,7 @@ optional<expr> inductive_normalizer_extension::operator()(expr const & e, abstra
     for (unsigned i = 0; i < it2->m_num_bu; i++)
         ACebu.push_back(intro_args[it1->m_num_params + i]);
     std::reverse(ACebu.begin(), ACebu.end());
-    expr r = instantiate_univ_params(it2->m_comp_rhs_body, it1->m_level_names, const_levels(elim_fn));
+    expr r = instantiate_lparams(it2->m_comp_rhs_body, it1->m_level_names, const_levels(elim_fn));
     r = instantiate(r, ACebu.size(), ACebu.data());
     if (elim_args.size() > major_idx + 1) {
         unsigned num_args = elim_args.size() - major_idx - 1;

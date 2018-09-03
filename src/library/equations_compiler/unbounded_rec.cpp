@@ -127,7 +127,7 @@ eqn_compiler_result unbounded_rec(environment & env, elaborator & elab,
 
         names lvl_names;
         lvl_names = helper.get_norm_level_names();
-        levels lvls = param_names_to_levels(lvl_names);
+        levels lvls = lparams_to_levels(lvl_names);
         buffer<expr> const & params = helper.get_norm_closure_params();
 
         bool zeta = get_eqn_compiler_zeta(elab.get_options());

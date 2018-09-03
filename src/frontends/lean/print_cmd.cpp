@@ -257,7 +257,7 @@ static void print_attributes(parser const & p, message_builder & out, name const
 static void print_inductive(parser const & p, message_builder & out, name const & n, pos_info const & pos) {
     environment const & env = p.env();
     if (auto idecl = inductive::is_inductive_decl(env, n)) {
-        level_param_names ls = idecl->m_level_params;
+        names ls = idecl->m_level_params;
         print_attributes(p, out, n);
         if (is_structure(env, n))
             out << "structure";

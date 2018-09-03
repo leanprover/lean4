@@ -162,16 +162,16 @@ expr head_beta_reduce(expr const & t) {
     }
 }
 
-expr instantiate_univ_params(expr const & e, level_param_names const & ps, levels const & ls) {
+expr instantiate_lparams(expr const & e, names const & lps, levels const & ls) {
     if (!has_param_univ(e))
         return e;
     return replace(e, [&](expr const & e) -> optional<expr> {
             if (!has_param_univ(e))
                 return some_expr(e);
             if (is_constant(e)) {
-                return some_expr(update_constant(e, map_reuse(const_levels(e), [&](level const & l) { return instantiate(l, ps, ls); })));
+                return some_expr(update_constant(e, map_reuse(const_levels(e), [&](level const & l) { return instantiate(l, lps, ls); })));
             } else if (is_sort(e)) {
-                return some_expr(update_sort(e, instantiate(sort_level(e), ps, ls)));
+                return some_expr(update_sort(e, instantiate(sort_level(e), lps, ls)));
             } else {
                 return none_expr();
             }
@@ -181,26 +181,26 @@ expr instantiate_univ_params(expr const & e, level_param_names const & ps, level
 MK_THREAD_LOCAL_GET(instantiate_univ_cache, get_type_univ_cache, LEAN_INST_UNIV_CACHE_SIZE);
 MK_THREAD_LOCAL_GET(instantiate_univ_cache, get_value_univ_cache, LEAN_INST_UNIV_CACHE_SIZE);
 
-expr instantiate_type_univ_params(constant_info const & info, levels const & ls) {
-    lean_assert(info.get_num_univ_params() == length(ls));
+expr instantiate_type_lparams(constant_info const & info, levels const & ls) {
+    lean_assert(info.get_num_lparams() == length(ls));
     if (is_nil(ls) || !has_param_univ(info.get_type()))
         return info.get_type();
     instantiate_univ_cache & cache = get_type_univ_cache();
     if (auto r = cache.is_cached(info, ls))
         return *r;
-    expr r = instantiate_univ_params(info.get_type(), info.get_univ_params(), ls);
+    expr r = instantiate_lparams(info.get_type(), info.get_lparams(), ls);
     cache.save(info, ls, r);
     return r;
 }
 
-expr instantiate_value_univ_params(constant_info const & info, levels const & ls) {
-    lean_assert(info.get_num_univ_params() == length(ls));
+expr instantiate_value_lparams(constant_info const & info, levels const & ls) {
+    lean_assert(info.get_num_lparams() == length(ls));
     if (is_nil(ls) || !has_param_univ(info.get_value()))
         return info.get_value();
     instantiate_univ_cache & cache = get_value_univ_cache();
     if (auto r = cache.is_cached(info, ls))
         return *r;
-    expr r = instantiate_univ_params(info.get_value(), info.get_univ_params(), ls);
+    expr r = instantiate_lparams(info.get_value(), info.get_lparams(), ls);
     cache.save(info, ls, r);
     return r;
 }

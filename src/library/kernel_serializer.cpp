@@ -31,7 +31,7 @@ serializer & operator<<(serializer & s, inductive::inductive_decl const & d) {
 
 inductive::inductive_decl read_inductive_decl(deserializer & d) {
     name d_name                 = read_name(d);
-    level_param_names d_lparams = read_names(d);
+    names d_lparams = read_names(d);
     unsigned d_nparams          = d.read_unsigned();
     expr d_type                 = read_expr(d);
     unsigned num_intros         = d.read_unsigned();
@@ -58,7 +58,7 @@ public:
         unsigned nACe        = d.read_unsigned();
         bool elim_prop       = d.read_bool();
         bool dep_elim        = d.read_bool();
-        level_param_names ls = read_names(d);
+        names ls             = read_names(d);
         expr elim_type       = read_expr(d);
         inductive::inductive_decl decl  = read_inductive_decl(d);
         bool       K         = d.read_bool();

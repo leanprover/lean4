@@ -69,8 +69,8 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
     name rec_name                = inductive::get_elim_name(n);
     constant_info ind_info       = env.get(n);
     bool is_predicate            = is_prop(ind_info.get_type());
-    level_param_names lvl_params = ind_info.get_univ_params();
-    levels lvls                  = param_names_to_levels(lvl_params);
+    names lvl_params             = ind_info.get_lparams();
+    levels lvls                  = lparams_to_levels(lvl_params);
     buffer<expr> params; // datatype parameters
     for (unsigned i = 0; i < nparams; i++) {
         if (!is_pi(intro_type))

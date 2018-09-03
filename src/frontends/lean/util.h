@@ -33,7 +33,7 @@ bool is_eqn_prefix(parser & p, bool bar_only = false);
 /** \brief Return the local levels in \c ls that are not tagged as variables.
     A local level is tagged as variable if it associated with a variable.
 */
-levels collect_local_nonvar_levels(parser & p, level_param_names const & ls);
+levels collect_local_nonvar_levels(parser & p, names const & ls);
 /** \brief Collect local constants occurring in \c type and \c value, sort them, and store in ctx_ps */
 void collect_locals(expr const & type, expr const & value, parser const & p, buffer<expr> & ctx_ps);
 void collect_annonymous_inst_implicit(parser const & p, collected_locals & ls);
@@ -82,7 +82,7 @@ expr Pi_as_is(expr const & local, expr const & e);
 level mk_result_level(buffer<level> const & r_lvls);
 
 /** \brief Auxiliary function for check/eval/find_decl */
-std::tuple<expr, level_param_names> parse_local_expr(parser & p, name const & decl_name, bool relaxed = true);
+std::tuple<expr, names> parse_local_expr(parser & p, name const & decl_name, bool relaxed = true);
 
 optional<name> is_uniquely_aliased(environment const & env, name const & n);
 
@@ -132,7 +132,7 @@ bool is_anonymous_field_notation(expr const & e);
 name get_field_notation_field_name(expr const & e);
 unsigned get_field_notation_field_idx(expr const & e);
 
-environment compile_expr(environment const & env, name const & n, level_param_names const & ls, expr const & type, expr const & e, pos_info const & pos);
+environment compile_expr(environment const & env, name const & n, names const & ls, expr const & type, expr const & e, pos_info const & pos);
 vm_obj eval_closed_expr(environment const & env, name const & n, expr const & type, expr const & e, pos_info const & pos);
 
 expr mk_lean_list(parser & p, buffer<expr> const & es, pos_info const & pos);

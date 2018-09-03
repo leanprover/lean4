@@ -214,10 +214,15 @@ bool elaborator::try_report(std::exception const & ex, optional<expr> const & re
 
     auto pip = get_pos_info_provider();
     if (!pip) return false;
+    auto pos = pip->get_some_pos();
+    if (m_last_pos)
+        pos = *m_last_pos;
+    if (ref)
+        if (auto p = get_pos(*ref))
+            pos = *p;
 
     auto tc = std::make_shared<type_context_old>(m_env, m_opts, m_ctx.mctx(), m_ctx.lctx());
-    message_builder out(tc, m_env, get_global_ios(), pip->get_file_name(),
-                        ref ? pip->get_pos_info_or_some(*ref) : pip->get_some_pos(), ERROR);
+    message_builder out(tc, m_env, get_global_ios(), pip->get_file_name(), pos, ERROR);
     out.set_exception(ex);
     out.report();
     m_has_errors = true;
@@ -3672,6 +3677,7 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
                       if (expected_type) tout() << "expected type:\n" << instantiate_mvars(*expected_type) << "\n";);
     expr e2 = recover_expr_from_exception(expected_type, e, [&] () -> expr {
         if (auto p = get_pos(e)) {
+            m_last_pos = p;
             return visit(unwrap_pos(e), expected_type);
         } else if (is_placeholder(e)) {
             return visit_placeholder(e, expected_type);

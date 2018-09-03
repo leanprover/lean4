@@ -55,6 +55,9 @@ private:
     bool              m_uses_infom;
     bool              m_coercions;
 
+    /* Last encountered position information in `visit`. Hacky, but seems to be more or less accurate. */
+    optional<pos_info>  m_last_pos;
+
     struct snapshot {
         metavar_context        m_saved_mctx;
         info_manager           m_saved_info;

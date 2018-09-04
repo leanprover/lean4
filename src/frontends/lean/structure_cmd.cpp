@@ -47,7 +47,6 @@ Author: Leonardo de Moura
 #include "library/constructions/projection.h"
 #include "library/constructions/no_confusion.h"
 #include "library/constructions/injective.h"
-#include "library/constructions/drec.h"
 #include "library/equations_compiler/util.h"
 #include "library/inductive_compiler/add_decl.h"
 #include "library/tactic/elaborator_exception.h"

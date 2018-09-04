@@ -14,7 +14,6 @@ Author: Daniel Selsam
 #include "library/inductive_compiler/compiler.h"
 #include "library/inductive_compiler/basic.h"
 #include "library/inductive_compiler/util.h"
-#include "library/constructions/drec.h"
 #include "library/constructions/rec_on.h"
 #include "library/constructions/cases_on.h"
 #include "library/constructions/brec_on.h"

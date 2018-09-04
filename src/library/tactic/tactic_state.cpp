@@ -19,7 +19,6 @@ Author: Leonardo de Moura
 #include "library/documentation.h"
 #include "library/scoped_ext.h"
 #include "library/aux_definition.h"
-#include "library/inductive_compiler/ginductive.h"
 #include "library/vm/vm_format.h"
 #include "library/vm/vm_string.h"
 #include "library/vm/vm_options.h"

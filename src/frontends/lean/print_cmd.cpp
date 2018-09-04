@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "util/sexpr/option_declarations.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/quot.h"
-#include "kernel/inductive/inductive.h"
 #include "library/trace.h"
 #include "library/sorry.h"
 #include "library/util.h"
@@ -254,71 +253,6 @@ static void print_attributes(parser const & p, message_builder & out, name const
         out << "]\n";
 }
 
-static void print_inductive(parser const & p, message_builder & out, name const & n, pos_info const & pos) {
-    environment const & env = p.env();
-    if (auto idecl = inductive::is_inductive_decl(env, n)) {
-        names ls = idecl->m_level_params;
-        print_attributes(p, out, n);
-        if (is_structure(env, n))
-            out << "structure";
-        else
-            out << "inductive";
-        out << " " << n;
-        out << " : " << env.get(n).get_type() << "\n";
-        if (is_structure(env, n)) {
-            out << "fields:\n";
-            print_fields(p, out, n, pos);
-        } else {
-            out << "constructors:\n";
-            buffer<name> constructors;
-            get_intro_rule_names(env, n, constructors);
-            for (name const & c : constructors) {
-                out << c << " : " << env.get(c).get_type() << "\n";
-            }
-        }
-    } else {
-        throw parser_error(sstream() << "invalid '#print inductive', '" << n << "' is not an inductive declaration", pos);
-    }
-}
-
-static void print_recursor_info(parser & p, message_builder & out) {
-    name c = p.check_constant_next("invalid '#print [recursor]', constant expected");
-    recursor_info info = get_recursor_info(p.env(), c);
-    out << "recursor information\n"
-        << "  num. parameters:          " << info.get_num_params() << "\n"
-        << "  num. indices:             " << info.get_num_indices() << "\n"
-        << "  num. minors:              " << info.get_num_minors() << "\n"
-        << "  recursive:                " << info.is_recursive() << "\n"
-        << "  universe param pos.:     ";
-    for (unsigned idx : info.get_universe_pos()) {
-        if (idx == recursor_info::get_motive_univ_idx()) {
-            out << " [motive univ]";
-        } else {
-            out << " " << idx;
-        }
-    }
-    out << "\n";
-    out << "  motive pos.:              " << info.get_motive_pos() + 1 << "\n"
-        << "  major premise pos.:       " << info.get_major_pos() + 1 << "\n"
-        << "  dep. elimination:         " << info.has_dep_elim() << "\n";
-    if (info.get_num_params() > 0) {
-        out << "  parameters pos. at major:";
-        for (optional<unsigned> const & p : info.get_params_pos()) {
-            if (p)
-                out << " " << *p+1;
-            else
-                out << " [instance]";
-        }
-        out << "\n";
-    }
-    if (info.get_num_indices() > 0) {
-        out << "  indices pos. at major:   ";
-        for (unsigned p : info.get_indices_pos())
-            out << " " << p+1;
-        out << "\n";
-    }
-}
-
 static bool print_constant(parser const & p, message_builder & out, char const * kind, constant_info const & d, bool is_def = false) {
     print_attributes(p, out, d.get_name());
     if (is_protected(p.env(), d.get_name()))
@@ -361,17 +295,7 @@ void print_id_info(parser & p, message_builder & out, name const & id, bool show
                 out.set_exception(ex, use_pos);
             }
         } else if (d.is_axiom()) {
-            if (inductive::is_inductive_decl(env, c)) {
-                print_inductive(p, out, c, pos);
-            } else if (inductive::is_intro_rule(env, c)) {
-                print_constant(p, out, "constructor", d);
-            } else if (inductive::is_elim_rule(env, c)) {
-                print_constant(p, out, "eliminator", d);
-            } else if (quot_is_decl(c)) {
-                print_constant(p, out, "builtin-quotient-type-constant", d);
-            } else {
-                print_constant(p, out, "axiom", d);
-            }
+            print_constant(p, out, "axiom", d);
         } else if (d.is_definition()) {
             print_constant(p, out, "def", d, show_value);
             if (show_value)
@@ -572,25 +496,16 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token_or_id(get_notation_tk())) {
         p.next();
         print_notation(p, out);
-    } else if (p.curr_is_token_or_id(get_inductive_tk())) {
-        p.next();
-        auto pos = p.pos();
-        name c = p.check_constant_next("invalid '#print inductive', constant expected");
-        print_inductive(p, out, c, pos);
     } else if (p.curr_is_token(get_lbracket_tk())) {
         p.next();
         auto pos = p.pos();
         auto name = p.check_id_next("invalid attribute declaration, identifier expected");
         p.check_token_next(get_rbracket_tk(), "invalid '#print [<attr>]', ']' expected");
 
-        if (name == "recursor") {
-            print_recursor_info(p, out);
-        } else {
-            if (!is_attribute(p.env(), name))
-                throw parser_error(sstream() << "unknown attribute [" << name << "]", pos);
-            auto const & attr = get_attribute(p.env(), name);
-            print_attribute(p, out, attr);
-        }
+        if (!is_attribute(p.env(), name))
+            throw parser_error(sstream() << "unknown attribute [" << name << "]", pos);
+        auto const & attr = get_attribute(p.env(), name);
+        print_attribute(p, out, attr);
     } else {
         print_polymorphic(p, out);
     }

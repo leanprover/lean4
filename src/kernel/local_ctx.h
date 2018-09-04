@@ -104,6 +104,10 @@ public:
     local_decl const & get_local_decl(name const & n) const;
     local_decl const & get_local_decl(expr const & e) const { return get_local_decl(fvar_name(e)); }
 
+    /* \brief Return type of the given free variable.
+       \pre is_fvar(e) */
+    expr get_type(expr const & e) const { return get_local_decl(e).get_type(); }
+
     /** \brief Traverse local declarations based on the order they were created */
     void for_each(std::function<void(local_decl const &)> const & fn) const;
     optional<local_decl> find_if(std::function<bool(local_decl const &)> const & pred) const; // NOLINT

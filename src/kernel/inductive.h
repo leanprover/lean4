@@ -8,6 +8,8 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/instantiate.h"
 namespace lean {
+/**\ brief Return recursor name for the given inductive datatype name */
+name mk_rec_name(name const & I);
 
 /* Auxiliary function for to_cnstr_when_K */
 optional<expr> mk_nullary_cnstr(environment const & env, expr const & type, unsigned num_params);

@@ -13,5 +13,6 @@ namespace lean {
 
     \remark Throws an exception if \c n is not an inductive datatype.
 */
+environment mk_old_cases_on(environment const & env, name const & n);
 environment mk_cases_on(environment const & env, name const & n);
 }

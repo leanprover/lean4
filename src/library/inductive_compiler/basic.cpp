@@ -87,7 +87,7 @@ class add_basic_inductive_decl_fn {
         if (has_unit) {
             lean_trace(name({"inductive_compiler"}), tout() << ">> generate cases_on\n";);
             if (gen_cases_on)
-                m_env = mk_cases_on(m_env, ind_name);
+                m_env = mk_old_cases_on(m_env, ind_name);
 
             if (gen_cases_on && gen_no_confusion && has_eq && has_heq) {
                 lean_trace(name({"inductive_compiler"}), tout() << ">> generate no_confusion\n";);

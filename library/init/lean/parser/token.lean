@@ -13,7 +13,7 @@ the input string, we still use a "tokenizer" parser in the Lean parser in some c
 -/
 
 prelude
-import init.lean.parser.basic init.util
+import init.lean.parser.basic
 
 namespace lean
 namespace parser
@@ -23,13 +23,7 @@ open string
 def match_token : basic_parser_m (option token_config) :=
 do st ← get,
    it ← left_over,
-   -- the slowest longest prefix matcher on Earth
-   pure $ st.tokens.foldl (λ acc tk,
-     if tk.prefix.mk_iterator.is_prefix_of_remaining it then
-       match acc with
-       | some tk' := if tk.prefix > tk'.prefix then tk else tk'
-       | none     := tk
-     else acc) none
+   pure $ prod.snd <$> st.tokens.match_prefix it
 
 private def finish_comment_block_aux : nat → nat → basic_parser_m unit
 | nesting (n+1) :=
@@ -104,7 +98,7 @@ do tk ← match_token,
    -- constant-length token
    | some ⟨tk, none⟩   :=
      do str tk,
-         pure $ λ i, syntax.atom ⟨some i, atomic_val.string tk⟩
+        pure $ λ i, syntax.atom ⟨some i, atomic_val.string tk⟩
    -- variable-length token
    | some ⟨tk, some r⟩ := error "not implemented" --str tk *> monad_parsec.lift r
    | none              := error

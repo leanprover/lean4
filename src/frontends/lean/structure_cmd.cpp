@@ -46,7 +46,6 @@ Author: Leonardo de Moura
 #include "library/constructions/cases_on.h"
 #include "library/constructions/projection.h"
 #include "library/constructions/no_confusion.h"
-#include "library/constructions/injective.h"
 #include "library/equations_compiler/util.h"
 #include "library/inductive_compiler/add_decl.h"
 #include "library/tactic/elaborator_exception.h"
@@ -1279,21 +1278,6 @@ struct structure_cmd_fn {
         add_alias(no_confusion_name);
     }
 
-    void declare_injective_lemmas() {
-        if (!has_eq_decls(m_env))
-            return;
-        if (!has_heq_decls(m_env))
-            return;
-        if (!has_and_decls(m_env))
-            return;
-        /* We do not generate `*.inj_eq` lemmas for classes since they can be quite expensive to
-           generate for big classes, and they don't seem to be useful in this case. */
-        bool gen_inj_eq = !m_meta_info.m_attrs.has_class();
-        m_env = mk_injective_lemmas(m_env, m_name, gen_inj_eq);
-        add_alias(mk_injective_name(m_name));
-        add_alias(mk_injective_arrow_name(m_name));
-    }
-
     void add_doc_string() {
         if (m_meta_info.m_doc_string)
             m_env = ::lean::add_doc_string(m_env, m_name, *m_meta_info.m_doc_string);
@@ -1337,7 +1321,6 @@ struct structure_cmd_fn {
         add_doc_string();
         if (!m_inductive_predicate) {
             declare_no_confusion();
-            declare_injective_lemmas();
         }
         /* Apply attributes last so that they may access any information on the new decl */
         m_env = m_meta_info.m_attrs.apply(m_env, m_p.ios(), m_name);

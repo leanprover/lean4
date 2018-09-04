@@ -18,7 +18,6 @@ Author: Daniel Selsam
 #include "library/constructions/cases_on.h"
 #include "library/constructions/brec_on.h"
 #include "library/constructions/no_confusion.h"
-#include "library/constructions/injective.h"
 
 #ifndef LEAN_DEFAULT_XINDUCTIVE_REC_ON
 #define LEAN_DEFAULT_XINDUCTIVE_REC_ON true
@@ -93,8 +92,6 @@ class add_basic_inductive_decl_fn {
             if (gen_cases_on && gen_no_confusion && has_eq && has_heq) {
                 lean_trace(name({"inductive_compiler"}), tout() << ">> generate no_confusion\n";);
                 m_env = mk_no_confusion(m_env, ind_name);
-                lean_trace(name({"inductive_compiler"}), tout() << ">> generate injective\n";);
-                m_env = mk_injective_lemmas(m_env, ind_name);
             }
 
             if (gen_brec_on && has_prod) {

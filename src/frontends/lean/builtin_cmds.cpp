@@ -22,7 +22,6 @@ Author: Leonardo de Moura
 #include "library/export_decl.h"
 #include "library/protected.h"
 #include "library/constants.h"
-#include "library/normalize.h"
 #include "library/app_builder.h"
 #include "library/class.h"
 #include "library/user_recursors.h"
@@ -205,29 +204,6 @@ environment check_cmd(parser & p) {
     format type_fmt = fmt(type);
     format r = group(e_fmt + space() + colon() + nest(indent, line() + type_fmt));
     out.set_caption("check result") << r;
-    out.report();
-    return p.env();
-}
-
-environment reduce_cmd(parser & p) {
-    transient_cmd_scope cmd_scope(p);
-    bool whnf   = false;
-    if (p.curr_is_token(get_whnf_tk())) {
-        p.next();
-        whnf = true;
-    }
-    expr e; names ls;
-    std::tie(e, ls) = parse_local_expr(p, "_reduce");
-    expr r;
-    type_context_old ctx(p.env(), p.get_options(), metavar_context(), local_context(), transparency_mode::All);
-    if (whnf) {
-        r = ctx.whnf(e);
-    } else {
-        bool eta = false;
-        r = normalize(ctx, e, eta);
-    }
-    auto out = p.mk_message(p.cmd_pos(), p.pos(), INFORMATION);
-    out.set_caption("reduce result") << r;
     out.report();
     return p.env();
 }
@@ -649,7 +625,6 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("namespace",         "open a new namespace", namespace_cmd));
     add_cmd(r, cmd_info("end",               "close the current namespace/section", end_scoped_cmd));
     add_cmd(r, cmd_info("#check",            "type check given expression, and display its type", check_cmd));
-    add_cmd(r, cmd_info("#reduce",           "reduce given expression", reduce_cmd));
     add_cmd(r, cmd_info("#eval",             "evaluate given expression using VM", eval_cmd));
     add_cmd(r, cmd_info("local",             "define local attributes or notation", local_cmd));
     add_cmd(r, cmd_info("#help",             "brief description of available commands and options", help_cmd));

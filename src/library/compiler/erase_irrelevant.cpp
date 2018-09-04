@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/string.h"
 #include "library/constants.h"
-#include "library/normalize.h"
 #include "library/aux_recursors.h"
 #include "library/inductive_compiler/ginductive.h"
 #include "library/compiler/util.h"

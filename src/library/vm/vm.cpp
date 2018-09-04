@@ -29,7 +29,6 @@ Author: Leonardo de Moura
 #include "library/vm/vm.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_option.h"
-#include "library/normalize.h"
 
 #ifndef LEAN_DEFAULT_PROFILER_FREQ
 #define LEAN_DEFAULT_PROFILER_FREQ 1

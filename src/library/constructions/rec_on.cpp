@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/reducible.h"
 #include "library/protected.h"
-#include "library/normalize.h"
 #include "library/aux_recursors.h"
 #include "library/constructions/util.h"
 

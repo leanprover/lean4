@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/module.h"
 #include "library/trace.h"
-#include "library/normalize.h"
 #include "library/attribute_manager.h"
 #include "library/vm/vm.h"
 #include "library/compiler/util.h"

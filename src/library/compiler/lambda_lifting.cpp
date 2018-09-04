@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/inductive/inductive.h"
-#include "library/normalize.h"
 #include "library/util.h"
 #include "library/trace.h"
 #include "library/scope_pos_info_provider.h"

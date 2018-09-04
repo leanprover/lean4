@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "library/util.h"
 #include "library/projection.h"
-#include "library/normalize.h"
 #include "library/constants.h"
 #include "library/vm/vm.h"
 #include "library/inductive_compiler/ginductive.h"

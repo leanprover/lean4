@@ -22,7 +22,6 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/attribute_manager.h"
 #include "library/scoped_ext.h"
-#include "library/normalize.h"
 #include "library/placeholder.h"
 #include "library/locals.h"
 #include "library/reducible.h"

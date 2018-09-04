@@ -25,7 +25,6 @@ Author: Leonardo de Moura
 #include "library/string.h"
 #include "library/num.h"
 #include "library/util.h"
-#include "library/normalize.h"
 #include "library/metavar_context.h"
 #include "library/replace_visitor.h"
 #include "library/compiler/vm_compiler.h"

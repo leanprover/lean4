@@ -16,7 +16,6 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/bin_app.h"
 #include "library/util.h"
-#include "library/normalize.h"
 #include "library/aux_recursors.h"
 #include "library/constructions/util.h"
 

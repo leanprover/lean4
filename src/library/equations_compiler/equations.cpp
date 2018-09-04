@@ -23,7 +23,6 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/locals.h"
 #include "library/constants.h"
-#include "library/normalize.h"
 #include "library/pp_options.h"
 #include "library/equations_compiler/equations.h"
 

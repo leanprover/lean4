@@ -16,7 +16,6 @@ Author: Leonardo de Moura
 #include "library/projection.h"
 #include "library/module.h"
 #include "library/util.h"
-#include "library/normalize.h"
 #include "library/scoped_ext.h"
 #include "library/kernel_serializer.h"
 #include "library/class.h"

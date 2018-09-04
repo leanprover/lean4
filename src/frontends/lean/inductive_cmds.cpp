@@ -29,7 +29,6 @@ Authors: Daniel Selsam, Leonardo de Moura
 #include "library/type_context.h"
 #include "library/documentation.h"
 #include "library/constants.h"
-#include "library/normalize.h"
 #include "library/inductive_compiler/add_decl.h"
 #include "library/tactic/tactic_evaluator.h"
 #include "library/constructions/cases_on.h"
@@ -416,8 +415,10 @@ class inductive_cmd_fn {
 
     /* Apply beta and zeta reduction */
     expr normalize(expr const & e) {
-        type_context_old::transparency_scope scope(m_ctx, transparency_mode::None);
-        return ::lean::normalize(m_ctx, e);
+        // TODO(Leo)
+        return e;
+        // type_context_old::transparency_scope scope(m_ctx, transparency_mode::None);
+        // return ::lean::normalize(m_ctx, e);
     }
 
     void elaborate_inductive_decls(buffer<expr> const & params, buffer<expr> const & inds, buffer<buffer<expr> > const & intro_rules,

@@ -1169,7 +1169,7 @@ struct structure_cmd_fn {
     }
 
     void declare_auxiliary() {
-        m_env = mk_rec_on(m_env, m_name);
+        m_env = mk_old_rec_on(m_env, m_name);
         name rec_on_name(m_name, "rec_on");
         add_rec_alias(rec_on_name);
         m_env = add_aux_recursor(m_env, rec_on_name);

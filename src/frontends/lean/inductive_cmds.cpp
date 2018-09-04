@@ -32,6 +32,7 @@ Authors: Daniel Selsam, Leonardo de Moura
 #include "library/inductive_compiler/add_decl.h"
 #include "library/tactic/tactic_evaluator.h"
 #include "library/constructions/cases_on.h"
+#include "library/constructions/rec_on.h"
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/decl_util.h"
 #include "frontends/lean/util.h"
@@ -734,6 +735,7 @@ public:
         }
         m_env = m_env.add(mk_inductive_decl(names(m_lp_names), nat(num_params), inductive_types(ind_types), m_meta_info.m_modifiers.m_is_meta));
         for (inductive_type const & ind_type : ind_types) {
+            m_env = mk_rec_on(m_env, ind_type.get_name());
             m_env = mk_cases_on(m_env, ind_type.get_name());
         }
     }

@@ -32,3 +32,4 @@ with tst2 : Type
 
 #check @tst1.cases_on
 #check @tst2.cases_on
+#check @tst1.rec_on

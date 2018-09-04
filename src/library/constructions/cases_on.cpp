@@ -119,6 +119,15 @@ environment mk_old_cases_on(environment const & env, name const & n) {
     return add_protected(new_env, cases_on_name);
 }
 
+/** \brief Given a `C := As -> Type`, return `As -> unit` */
+static expr mk_pi_unit(expr const & C, expr const & unit) {
+    if (is_pi(C)) {
+        return mk_pi(binding_name(C), binding_domain(C), mk_pi_unit(binding_body(C), unit));
+    } else {
+        return unit;
+    }
+}
+
 /** \brief Given a `C := As -> Type`, return `fun (xs : As), unit` */
 static expr mk_fun_unit(expr const & C, expr const & unit) {
     if (is_pi(C)) {
@@ -131,25 +140,6 @@ static expr mk_fun_unit(expr const & C, expr const & unit) {
 static bool is_type_former_arg(buffer<name> const & C_ids, expr const & arg) {
     expr const & fn = get_app_fn(arg);
     return is_fvar(fn) && std::find(C_ids.begin(), C_ids.end(), fvar_name(fn)) != C_ids.end();
-}
-
-/** \brief Given minor premise type `Pi (a_1 : A_1) ... (a_n : A_n), B`
-    return `fun (a_1 : A_1') ... (a_n : A_n'), unit.star`, where `A_i'` is
-    - `unit` IF `A_i` is a type forme application `C_ids[k] ...` which is not `C_main_id`.
-    - `A_i` otherwise. */
-static expr mk_fun_star(expr const & minor, buffer<name> const & C_ids, name const & C_main_id,
-                        expr const & unit, expr const & star) {
-    if (is_pi(minor)) {
-        expr const & domain = binding_domain(minor);
-        expr const & body   = binding_body(minor);
-        if (is_type_former_arg(C_ids, domain) && fvar_name(get_app_fn(domain)) != C_main_id) {
-            return mk_lambda(binding_name(minor), unit, mk_fun_star(body, C_ids, C_main_id, unit, star));
-        } else {
-            return mk_lambda(binding_name(minor), binding_domain(minor), mk_fun_star(body, C_ids, C_main_id, unit, star));
-        }
-    } else {
-        return star;
-    }
 }
 
 environment mk_cases_on(environment const & env, name const & n) {
@@ -232,6 +222,42 @@ environment mk_cases_on(environment const & env, name const & n) {
         cases_on_params.push_back(rec_fvars[num_params + num_motives + num_minors + i]);
 
     /* Add minor premises */
+    auto process_minor = [&](expr const & minor, bool is_main) {
+        buffer<expr> minor_non_rec_params;
+        buffer<expr> minor_params;
+        local_decl minor_decl = lctx.get_local_decl(minor);
+        expr minor_type       = minor_decl.get_type();
+        while (is_pi(minor_type)) {
+            expr curr_type = binding_domain(minor_type);
+            expr local     = lctx.mk_local_decl(ngen, binding_name(minor_type), curr_type, binding_info(minor_type));
+            expr it        = curr_type;
+            while (is_pi(it))
+                it = binding_body(it);
+            if (is_type_former_arg(C_ids, it)) {
+                if (fvar_name(get_app_fn(it)) == C_main_id) {
+                    minor_params.push_back(local);
+                } else {
+                    expr new_local = lctx.mk_local_decl(ngen, binding_name(minor_type), mk_pi_unit(curr_type, unit),
+                                                        binding_info(minor_type));
+                    minor_params.push_back(new_local);
+                }
+            } else {
+                minor_params.push_back(local);
+                if (is_main) minor_non_rec_params.push_back(local);
+            }
+            minor_type = instantiate(binding_body(minor_type), local);
+        }
+        if (is_main) {
+            expr new_C = lctx.mk_local_decl(ngen, minor_decl.get_user_name(), lctx.mk_pi(minor_non_rec_params, minor_type),
+                                            minor_decl.get_info());
+            cases_on_params.push_back(new_C);
+            expr new_C_app = mk_app(new_C, minor_non_rec_params);
+            expr rec_arg   = lctx.mk_lambda(minor_params, new_C_app);
+            rec_args.push_back(rec_arg);
+        } else {
+            rec_args.push_back(lctx.mk_lambda(minor_params, star));
+        }
+    };
     unsigned minor_idx = 0;
     for (name const & J_name : ind_names) {
         constant_info J_info = env.get(J_name);
@@ -240,46 +266,13 @@ environment mk_cases_on(environment const & env, name const & n) {
         unsigned num_cnstrs = length(J_val.get_cnstrs());
         for (unsigned i = 0; i < num_cnstrs; i++) {
             expr minor = rec_fvars[num_params + num_motives + minor_idx];
-            if (J_name == n) {
-                // A cases_on minor premise does not contain "recursive" arguments
-                buffer<expr> minor_non_rec_params;
-                buffer<expr> minor_params;
-                local_decl minor_decl = lctx.get_local_decl(minor);
-                expr minor_type       = minor_decl.get_type();
-                while (is_pi(minor_type)) {
-                    expr curr_type = binding_domain(minor_type);
-                    expr local     = lctx.mk_local_decl(ngen, binding_name(minor_type), curr_type, binding_info(minor_type));
-                    while (is_pi(curr_type))
-                        curr_type = binding_body(curr_type);
-                    if (is_type_former_arg(C_ids, curr_type)) {
-                        if (fvar_name(get_app_fn(curr_type)) == C_main_id) {
-                            minor_params.push_back(local);
-                        } else {
-                            expr new_local = lctx.mk_local_decl(ngen, binding_name(minor_type), unit, binding_info(minor_type));
-                            minor_params.push_back(new_local);
-                        }
-                    } else {
-                        minor_params.push_back(local);
-                        minor_non_rec_params.push_back(local);
-                    }
-                    minor_type = instantiate(binding_body(minor_type), local);
-                }
-
-                expr new_C = lctx.mk_local_decl(ngen, minor_decl.get_user_name(), lctx.mk_pi(minor_non_rec_params, minor_type),
-                                                minor_decl.get_info());
-                cases_on_params.push_back(new_C);
-                expr new_C_app = mk_app(new_C, minor_non_rec_params);
-                expr rec_arg   = lctx.mk_lambda(minor_params, new_C_app);
-                rec_args.push_back(rec_arg);
-            } else {
-                rec_args.push_back(mk_fun_star(lctx.get_type(minor), C_ids, C_main_id, unit, star));
-            }
+            process_minor(minor, J_name == n);
             minor_idx++;
         }
     }
     for (; minor_idx < num_minors; minor_idx++) {
         expr minor = rec_fvars[num_params + num_motives + minor_idx];
-        rec_args.push_back(mk_fun_star(lctx.get_type(minor), C_ids, C_main_id, unit, star));
+        process_minor(minor, false);
     }
 
     /* Add indices and major-premise to rec_args */

@@ -308,7 +308,7 @@ static expr parse_do(parser & p, bool has_braces) {
     while (i > 0) {
         --i;
         if (auto lhs = lhss[i]) {
-            if (is_local(*lhs)) {
+            if (is_local_p(*lhs)) {
                 r = p.rec_save_pos(mk_app(p.save_pos(mk_bind_fn(p), ps[i]), es[i], Fun(*lhs, r, p)), ps[i]);
             } else {
                 // must introduce a "fake" match

@@ -42,7 +42,6 @@ Author: Leonardo de Moura
 #include "library/pattern_attribute.h"
 #include "library/comp_val.h"
 #include "library/documentation.h"
-#include "library/defeq_canonizer.h"
 #include "library/check.h"
 #include "library/parray.h"
 #include "library/profiling.h"
@@ -115,7 +114,6 @@ void initialize_library_module() {
     initialize_pattern_attribute();
     initialize_comp_val();
     initialize_documentation();
-    initialize_defeq_canonizer();
     initialize_check();
     initialize_parray();
     initialize_time_task();
@@ -125,7 +123,6 @@ void finalize_library_module() {
     finalize_time_task();
     finalize_parray();
     finalize_check();
-    finalize_defeq_canonizer();
     finalize_documentation();
     finalize_comp_val();
     finalize_pattern_attribute();

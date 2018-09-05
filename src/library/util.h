@@ -76,7 +76,9 @@ bool is_recursive_datatype(environment const & env, name const & n);
 /** \brief Return true if \c n is a recursive *and* reflexive datatype.
 
     We say an inductive type T is reflexive if it contains at least one constructor that
-    takes as an argument a function returning T. */
+    takes as an argument a function returning T.
+
+    TODO(Leo): delete */
 bool is_reflexive_datatype(abstract_type_context & tc, name const & n);
 
 /** \brief Return true iff \c n is an inductive predicate, i.e., an inductive datatype that is in Prop.

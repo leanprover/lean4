@@ -201,6 +201,12 @@ bool has_and_decls(environment const & env) {
       of an inductive datatype takes another inductive datatype from the
       same declaration as an argument. */
 bool is_recursive_datatype(environment const & env, name const & n) {
+    constant_info info = env.get(n);
+    if (info.is_inductive() && info.to_inductive_val().is_rec())
+        return true;
+
+    /* TODO(Leo): delete rest of this function */
+
     optional<inductive::inductive_decl> decl = inductive::is_inductive_decl(env, n);
     if (!decl) return false;
     for (inductive::intro_rule const & intro : decl->m_intro_rules) {
@@ -261,7 +267,8 @@ expr update_result_sort(expr t, level const & l) {
 }
 
 bool is_inductive_predicate(environment const & env, name const & n) {
-    if (!inductive::is_inductive_decl(env, n))
+    constant_info info = env.get(n);
+    if (!info.is_inductive() /* TODO(Leo): remove rest of the line */ && !inductive::is_inductive_decl(env, n))
         return false; // n is not inductive datatype
     return is_zero(get_datatype_level(env.get(n).get_type()));
 }

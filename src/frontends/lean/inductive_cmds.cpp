@@ -755,6 +755,13 @@ public:
                 m_env = mk_ibelow(m_env, ind_type.get_name());
             }
         }
+
+        for (inductive_type const & ind_type : ind_types) {
+            if (has_unit && has_prod) {
+                m_env = mk_brec_on(m_env, ind_type.get_name());
+                m_env = mk_binduction_on(m_env, ind_type.get_name());
+            }
+        }
     }
 
     environment inductive_cmd() {

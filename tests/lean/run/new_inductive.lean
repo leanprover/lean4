@@ -47,6 +47,8 @@ inductive rbnode (α : Type u)
 | red_node   (lchild : rbnode) (val : α) (rchild : rbnode) : rbnode
 | black_node (lchild : rbnode) (val : α) (rchild : rbnode) : rbnode
 
+#check @rbnode.brec_on
+
 namespace rbnode
 variables {α : Type u}
 

@@ -22,7 +22,7 @@ inductive term (α : Type) (β : Type)
 | foo (p : nat → my_pair term (my_list term)) (n : β) : my_list (my_list term) → term
 
 #print term
-
+#print term.below
 #check @term.cases_on
 #print term.no_confusion_type
 #print term.no_confusion

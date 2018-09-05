@@ -171,7 +171,7 @@ level get_datatype_level(expr const & ind_type);
     and store them in telescope and updates  . If `binfo` is provided, then the free variables are annotated with
     the given `binder_info`, otherwise the procedure uses the one attached in the domain.
     The procedure returns the "body" of type. */
-expr to_telescope(local_ctx & lctx, name_generator & ngen, expr const & type, buffer<expr> & telescope, optional<binder_info> const & binfo);
+expr to_telescope(local_ctx & lctx, name_generator & ngen, expr const & type, buffer<expr> & telescope, optional<binder_info> const & binfo = optional<binder_info>());
 
 /** \brief Similar to previous procedure, but uses whnf to check whether `type` reduces to `Pi` or not. */
 expr to_telescope(environment const & env, local_ctx & lctx, name_generator & ngen, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo = optional<binder_info>());
@@ -179,7 +179,7 @@ expr to_telescope(environment const & env, local_ctx & lctx, name_generator & ng
 /** \brief Update the result sort of the given type */
 expr update_result_sort(expr t, level const & l);
 
-expr instantiate_univ_param (expr const & e, name const & p, level const & l);
+expr instantiate_lparam (expr const & e, name const & p, level const & l);
 
 expr mk_true();
 bool is_true(expr const & e);

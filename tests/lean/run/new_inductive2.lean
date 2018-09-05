@@ -9,3 +9,5 @@ inductive foo
 
 #print foo
 #print foo.rec
+set_option pp.all true
+#print foo.below

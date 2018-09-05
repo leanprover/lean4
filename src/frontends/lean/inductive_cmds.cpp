@@ -33,6 +33,7 @@ Authors: Daniel Selsam, Leonardo de Moura
 #include "library/tactic/tactic_evaluator.h"
 #include "library/constructions/cases_on.h"
 #include "library/constructions/rec_on.h"
+#include "library/constructions/brec_on.h"
 #include "library/constructions/no_confusion.h"
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/decl_util.h"
@@ -741,14 +742,17 @@ public:
         bool has_eq   = has_eq_decls(m_env);
         bool has_heq  = has_heq_decls(m_env);
         bool has_unit = has_punit_decls(m_env);
-        // bool has_prod = has_pprod_decls(m_env);
+        bool has_prod = has_pprod_decls(m_env);
 
         for (inductive_type const & ind_type : ind_types) {
             m_env = mk_rec_on(m_env, ind_type.get_name());
-            if (has_unit) {
+            if (has_unit)
                 m_env = mk_cases_on(m_env, ind_type.get_name());
-                if (has_eq && has_heq)
-                    m_env = mk_no_confusion(m_env, ind_type.get_name());
+            if (has_unit && has_eq && has_heq)
+                m_env = mk_no_confusion(m_env, ind_type.get_name());
+            if (has_unit && has_prod) {
+                m_env = mk_below(m_env, ind_type.get_name());
+                m_env = mk_ibelow(m_env, ind_type.get_name());
             }
         }
     }

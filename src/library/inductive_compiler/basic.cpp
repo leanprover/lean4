@@ -96,17 +96,17 @@ class add_basic_inductive_decl_fn {
 
             if (gen_brec_on && has_prod) {
                 lean_trace(name({"inductive_compiler"}), tout() << ">> generate below\n";);
-                m_env = mk_below(m_env, ind_name);
+                m_env = old_mk_below(m_env, ind_name);
                 lean_trace(name({"inductive_compiler"}), tout() << ">> generate ibelow\n";);
-                m_env = mk_ibelow(m_env, ind_name);
+                m_env = old_mk_ibelow(m_env, ind_name);
             }
         }
 
         if (gen_brec_on && has_unit && has_prod) {
             lean_trace(name({"inductive_compiler"}), tout() << ">> generate brec_on\n";);
-            m_env = mk_brec_on(m_env, ind_name);
+            m_env = old_mk_brec_on(m_env, ind_name);
             lean_trace(name({"inductive_compiler"}), tout() << ">> generate binduction_on\n";);
-            m_env = mk_binduction_on(m_env, ind_name);
+            m_env = old_mk_binduction_on(m_env, ind_name);
         }
     }
 

@@ -388,7 +388,7 @@ void get_constructor_rec_arg_mask(environment const & env, name const & n, buffe
     get_num_inductive_hypotheses_for(env, n, rec_mask);
 }
 
-expr instantiate_univ_param (expr const & e, name const & p, level const & l) {
+expr instantiate_lparam (expr const & e, name const & p, level const & l) {
     return instantiate_lparams(e, names(p), levels(l));
 }
 

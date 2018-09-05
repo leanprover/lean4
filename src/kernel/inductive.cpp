@@ -230,6 +230,34 @@ public:
         return false;
     }
 
+    /* Return true if the given declarataion is reflexive.
+
+       Remark: We say an inductive type `T` is reflexive if it
+       contains at least one constructor that takes as an argument a
+       function returning `T'` where `T'` is another inductive datatype (possibly equal to `T`)
+       in the same mutual declaration. */
+    bool is_reflexive() {
+        for (unsigned idx = 0; idx < m_ind_types.size(); idx++) {
+            inductive_type const & ind_type = m_ind_types[idx];
+            for (constructor const & cnstr : ind_type.get_cnstrs()) {
+                expr t = constructor_type(cnstr);
+                while (is_pi(t)) {
+                    expr arg_type = binding_domain(t);
+                    try {
+                        arg_type  = whnf(arg_type);
+                    } catch (kernel_exception &) {
+                        /* whnf may fail since inductive datatypes have not been declared yet. */
+                    }
+                    if (is_pi(arg_type) && has_ind_occ(arg_type))
+                        return true;
+                    expr local = mk_local_decl_for(t);
+                    t = instantiate(binding_body(t), local);
+                }
+            }
+        }
+        return false;
+    }
+
     /** Return list with the names of all inductive datatypes in the mutual declaration. */
     names get_all_inductive_names() const {
         return ::lean::get_all_inductive_names(m_ind_types);
@@ -237,7 +265,8 @@ public:
 
     /** \brief Add all datatype declarations to environment. */
     void declare_inductive_types() {
-        bool rec  = is_rec();
+        bool rec       = is_rec();
+        bool reflexive = is_reflexive();
         names all = get_all_inductive_names();
         for (unsigned idx = 0; idx < m_ind_types.size(); idx++) {
             inductive_type const & ind_type = m_ind_types[idx];
@@ -247,7 +276,7 @@ public:
                 cnstr_names.push_back(constructor_name(cnstr));
             }
             m_env.add_core(constant_info(inductive_val(n, m_lparams, ind_type.get_type(), m_nparams, m_nindices[idx],
-                                                       all, names(cnstr_names), rec, m_is_meta)));
+                                                       all, names(cnstr_names), rec, m_is_meta, reflexive)));
         }
     }
 
@@ -1043,7 +1072,8 @@ environment environment::add_inductive(declaration const & d) const {
                Remark: if we decide to store the recursor names, we will also need to fix it. */
             new_env.add_core(constant_info(inductive_val(ind_info.get_name(), ind_info.get_lparams(), ind_info.get_type(),
                                                          ind_val.get_nparams(), ind_val.get_nindices(),
-                                                         all_ind_names, ind_val.get_cnstrs(), ind_val.is_rec(), ind_val.is_meta())));
+                                                         all_ind_names, ind_val.get_cnstrs(),
+                                                         ind_val.is_rec(), ind_val.is_meta(), ind_val.is_reflexive())));
             for (name const & cnstr_name : ind_val.get_cnstrs()) {
                 constant_info   cnstr_info = aux_env.get(cnstr_name);
                 constructor_val cnstr_val  = cnstr_info.to_constructor_val();

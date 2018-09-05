@@ -262,11 +262,12 @@ structure inductive_val extends constant_val :=
 (cnstrs : list name)  -- List of all constructors for this inductive datatype
 (is_rec : bool)       -- `tt` iff it is recursive
 (is_meta : bool)
+(is_reflexive : bool)
 */
 class inductive_val : public object_ref {
 public:
     inductive_val(name const & n, names const & lparams, expr const & type, unsigned nparams,
-                  unsigned nindices, names const & all, names const & cnstrs, bool is_rec, bool is_meta);
+                  unsigned nindices, names const & all, names const & cnstrs, bool is_rec, bool is_meta, bool is_reflexive);
     inductive_val(inductive_val const & other):object_ref(other) {}
     inductive_val(inductive_val && other):object_ref(other) {}
     inductive_val & operator=(inductive_val const & other) { object_ref::operator=(other); return *this; }
@@ -278,6 +279,7 @@ public:
     names const & get_cnstrs() const { return static_cast<names const &>(cnstr_obj_ref(*this, 4)); }
     bool is_rec() const { return cnstr_scalar<unsigned char>(raw(), sizeof(object*)*5) != 0; }
     bool is_meta() const { return cnstr_scalar<unsigned char>(raw(), sizeof(object*)*5 + 1) != 0; }
+    bool is_reflexive() const { return cnstr_scalar<unsigned char>(raw(), sizeof(object*)*5 + 2) != 0; }
 };
 
 /*

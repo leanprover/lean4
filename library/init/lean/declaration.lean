@@ -81,6 +81,7 @@ structure inductive_val extends constant_val :=
 (cnstrs : list name)  -- List of all constructors for this inductive datatype
 (is_rec : bool)       -- `tt` iff it is recursive
 (is_meta : bool)
+(is_reflexive : bool)
 
 structure constructor_val extends constant_val :=
 (induct  : name)  -- Inductive type this constructor is a member of

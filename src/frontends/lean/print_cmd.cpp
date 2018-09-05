@@ -301,6 +301,8 @@ void print_id_info(parser & p, message_builder & out, name const & id, bool show
                 print_definition(env, out, c, pos);
         } else if (d.is_inductive()) {
             print_constant(p, out, "(new) inductive", d);
+            if (d.to_inductive_val().is_reflexive())
+                out << "(reflexive inductive type)\n";
             out << "constructors:\n";
             for (name const & n : d.to_inductive_val().get_cnstrs()) {
                 if (optional<constant_info> info = p.env().find(n)) {

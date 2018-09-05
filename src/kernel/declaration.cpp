@@ -71,12 +71,14 @@ recursor_rule::recursor_rule(name const & cnstr, unsigned nfields, expr const & 
 }
 
 inductive_val::inductive_val(name const & n, names const & lparams, expr const & type, unsigned nparams,
-                             unsigned nindices, names const & all, names const & cnstrs, bool rec, bool meta):
+                             unsigned nindices, names const & all, names const & cnstrs, bool rec, bool meta, bool is_refl):
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), nat(nparams), nat(nindices), all, cnstrs, 2)) {
     cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*5, static_cast<unsigned char>(rec));
     cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*5 + 1, static_cast<unsigned char>(meta));
+    cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*5 + 2, static_cast<unsigned char>(is_refl));
     lean_assert(is_meta() == meta);
     lean_assert(is_rec() == rec);
+    lean_assert(is_reflexive() == is_refl);
 }
 
 constructor_val::constructor_val(name const & n, names const & lparams, expr const & type, name const & induct, unsigned nparams, bool is_meta):

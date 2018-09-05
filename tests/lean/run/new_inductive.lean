@@ -15,9 +15,13 @@ with bla : nat → Type (max u v)
 with boo : nat → Type (max u v)
 | mk₃ (n : nat) : bla n → bla (n+1) → boo (n+2)
 
+#print bla
+
 inductive term (α : Type) (β : Type)
 | var : α → bla term (λ _, term) 10 → term
 | foo (p : nat → my_pair term (my_list term)) (n : β) : my_list (my_list term) → term
+
+#print term
 
 #check @term.cases_on
 #print term.no_confusion_type

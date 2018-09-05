@@ -79,7 +79,7 @@ do r ← p s.mk_iterator,
    | ok_eps a _ _ := except.ok a
    | error msg _  := except.error msg
 
-protected def pure (a : α) : parsec_t μ m α :=
+@[inline] protected def pure (a : α) : parsec_t μ m α :=
 λ it, pure (mk_eps a it)
 
 def eps : parsec_t μ m unit :=
@@ -91,6 +91,18 @@ protected def failure [inhabited μ] : parsec_t μ m α :=
 def merge (msg₁ msg₂ : message μ) : message μ :=
 { expected := msg₁.expected ++ msg₂.expected, ..msg₁ }
 
+private def bind_1 (r : result μ β) : result μ β :=
+        match r with
+        | ok_eps b it msg₂ := ok b it
+        | error msg ff     := error msg tt
+        | other            := other
+
+private def bind_2 (ex₁) (r : result μ β) : result μ β :=
+        match r with
+        | ok_eps b it ex₂ := ok_eps b it (ex₁ ++ ex₂)
+        | error msg₂ ff   := error { expected := ex₁ ++ msg₂.expected, .. msg₂ } ff
+        | other           := other
+
 /--
   The `bind p q` combinator behaves as follows:
   1- If `p` fails, then it fails.
@@ -98,21 +110,11 @@ def merge (msg₁ msg₂ : message μ) : message μ :=
   3- If `q` succeeds but does not consume input, then execute `q`
      and merge error messages if both do not consume any input.
 -/
-protected def bind (p : parsec_t μ m α) (q : α → parsec_t μ m β) : parsec_t μ m β :=
+@[inline] protected def bind (p : parsec_t μ m α) (q : α → parsec_t μ m β) : parsec_t μ m β :=
 λ it, do r ← p it,
       match r with
-      | ok a it := do {
-        r ← q a it,
-        pure $ match r with
-        | ok_eps b it msg₂ := ok b it
-        | error msg ff     := error msg tt
-        | other            := other }
-      | ok_eps a it ex₁ := do {
-        r ← q a it,
-        pure $ match r with
-        | ok_eps b it ex₂ := ok_eps b it (ex₁ ++ ex₂)
-        | error msg₂ ff   := error { expected := ex₁ ++ msg₂.expected, .. msg₂ } ff
-        | other           := other }
+      | ok a it := bind_1 <$> q a it
+      | ok_eps a it ex₁ := bind_2 ex₁ <$> q a it
       | error msg c := pure (error msg c)
 
 instance : monad (parsec_t μ m) :=
@@ -255,7 +257,7 @@ variables {m : Type → Type} [monad m] [monad_parsec μ m] [inhabited μ] {α �
 @[inline] def error {α : Type} (unexpected : string := "") (expected : dlist string := dlist.empty) (it : option iterator := none) (custom : μ := default _) : m α :=
 lift $ λ it', result.error { unexpected := unexpected, expected := expected, it := it.get_or_else it', custom := custom } ff
 
-def left_over : m iterator :=
+@[inline] def left_over : m iterator :=
 lift $ λ it, result.mk_eps it it
 
 /-- Return the number of characters left to be parsed. -/

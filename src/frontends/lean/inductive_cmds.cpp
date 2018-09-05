@@ -642,6 +642,8 @@ class inductive_cmd_fn {
             parse_intro_rules(!params.empty(), pre_ind, intro_rules.back(), true);
             expr ind = mk_local(get_namespace(m_p.env()) + local_name_p(pre_ind), ind_type);
             inds.push_back(ind);
+            // HACK: without this line, `ind` would be wrapped in an `as_is` annotation by `collect_implicit_locals`
+            params.push_back(ind);
         }
 
         for (buffer<expr> & irs : intro_rules) {

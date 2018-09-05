@@ -21,6 +21,7 @@ inductive term (α : Type) (β : Type)
 
 #check @term.cases_on
 #print term.no_confusion_type
+#print term.no_confusion
 
 inductive arrow (α β : Type)
 | mk (s : nat → my_pair α β) : arrow
@@ -61,5 +62,5 @@ inductive trie
 | mk    : char → rbnode (my_pair char trie) → trie
 
 #print trie.rec
-
+#print trie.no_confusion
 end test

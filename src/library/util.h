@@ -162,10 +162,8 @@ expr to_telescope(old_type_checker & ctx, expr type, buffer<expr> & telescope,
                   optional<binder_info> const & binfo = optional<binder_info>());
 
 /** \brief Return the universe where inductive datatype resides
-    \pre \c ind_type is of the form <tt>Pi (a_1 : A_1) (a_2 : A_2[a_1]) ..., Type.{lvl}</tt>
-
-    TODO(Leo): delete because it uses old APIs */
-level get_datatype_level(environment const & env, expr const & ind_type);
+    \pre \c ind_type is of the form <tt>Pi (a_1 : A_1) (a_2 : A_2[a_1]) ..., Type.{lvl}</tt> */
+level get_datatype_level(expr const & ind_type);
 
 /** \brief "Consume" Pi-type `type`. This procedure creates free variables based on the domain of `type` using `lctx`,
     and store them in telescope and updates  . If `binfo` is provided, then the free variables are annotated with

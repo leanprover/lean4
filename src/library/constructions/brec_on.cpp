@@ -67,7 +67,7 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
         ref_type   = instantiate_univ_param(rec_info.get_type(), param_id(lvl), mk_level_zero());
     } else if (is_reflexive) {
         blvls = lps;
-        rlvl  = get_datatype_level(env, ind_info.get_type());
+        rlvl  = get_datatype_level(ind_info.get_type());
         // if rlvl is of the form (max 1 l), then rlvl <- l
         if (is_max(rlvl) && is_one(max_lhs(rlvl)))
             rlvl = max_rhs(rlvl);
@@ -195,7 +195,7 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
     } else if (is_reflexive) {
         blps    = lps;
         blvls   = cons(lvl, lvls);
-        rlvl    = get_datatype_level(env, ind_info.get_type());
+        rlvl    = get_datatype_level(ind_info.get_type());
         // if rlvl is of the form (max 1 l), then rlvl <- l
         if (is_max(rlvl) && is_one(max_lhs(rlvl)))
             rlvl = max_rhs(rlvl);

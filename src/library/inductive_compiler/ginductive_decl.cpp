@@ -86,8 +86,8 @@ bool ginductive_decl::is_param(expr const & e) const {
         && std::any_of(m_params.begin(), m_params.end(), [&](expr const & param) { return e == param; });
 }
 
-level ginductive_decl::get_result_level(environment const & env) const {
-    return get_datatype_level(env, local_type(m_inds[0]));
+level ginductive_decl::get_result_level(environment const &) const {
+    return get_datatype_level(local_type(m_inds[0]));
 }
 
 }

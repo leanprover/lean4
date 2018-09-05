@@ -341,7 +341,7 @@ public:
                         // the sort is ok IF
                         //   1- its level is <= inductive datatype level, OR
                         //   2- is an inductive predicate
-                        if (!is_geq(m_result_level, sort_level(s)) || is_zero(m_result_level)) {
+                        if (!(is_geq(m_result_level, sort_level(s)) || is_zero(m_result_level))) {
                             throw kernel_exception(m_env, sstream() << "universe level of type_of(arg #" << (i + 1) << ") "
                                                    << "of '" << n << "' is too big for the corresponding inductive datatype");
                         }

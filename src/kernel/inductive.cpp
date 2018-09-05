@@ -712,7 +712,6 @@ struct elim_nested_inductive_result {
     }
 
     expr restore_nested(expr e, environment const & aux_env, name_map<name> const & aux_rec_name_map = name_map<name>()) const {
-        lean_assert(is_pi(e) || is_lambda(e));
         local_ctx lctx;
         buffer<expr> As;
         bool pi = is_pi(e);

@@ -95,14 +95,7 @@ class server : public module_vfs {
     void handle_async_response(cmd_req const & req, task<cmd_res> const & res);
 
     cmd_res handle_sync(cmd_req const & req);
-    task<cmd_res> handle_complete(cmd_req const & req);
-    task<cmd_res> handle_info(cmd_req const & req);
-    cmd_res handle_search(cmd_req const & req);
     cmd_res handle_roi(cmd_req const & req);
-
-    json autocomplete(std::shared_ptr<module_info const> const & mod_info, bool skip_completions, pos_info const & pos);
-    json hole_command(std::shared_ptr<module_info const> const & mod_info, std::string const & action, pos_info const & pos);
-    json info(std::shared_ptr<module_info const> const & mod_info, pos_info const & pos);
 
 public:
     server(unsigned num_threads, search_path const & path, environment const & intial_env, io_state const & ios);

@@ -130,17 +130,12 @@ elaborator::elaborator(environment const & env, options const & opts, name const
     m_env(env), m_opts(opts), m_cache(opts), m_decl_name(decl_name),
     m_ctx(env, mctx, lctx, m_cache, transparency_mode::Semireducible),
     m_recover_from_errors(recover_from_errors),
-    m_uses_infom(get_global_info_manager() != nullptr), m_in_pattern(in_pattern), m_in_quote(in_quote) {
+    m_uses_infom(false /* get_global_info_manager() != nullptr */),
+    m_in_pattern(in_pattern), m_in_quote(in_quote) {
     m_coercions = get_elaborator_coercions(opts);
 }
 
 elaborator::~elaborator() {
-    try {
-        if (m_uses_infom && get_global_info_manager() && !in_thread_finalization()) {
-            m_info.instantiate_mvars(m_ctx.mctx());
-            get_global_info_manager()->merge(m_info);
-        }
-    } catch (...) {}
 }
 
 auto elaborator::mk_pp_ctx() -> pp_fn {
@@ -948,19 +943,6 @@ expr elaborator::visit_const_core(expr const & e) {
     return update_constant(e, levels(ls));
 }
 
-/** \brief Auxiliary function for saving information about which overloaded identifier was used by the elaborator. */
-void elaborator::save_identifier_info(expr const & f) {
-    if (!m_no_info && m_uses_infom) {
-        if (auto p = get_pos(f)) {
-            expr uf = unwrap_pos(f);
-            if (is_constant(uf) || is_local(uf)) {
-                m_info.add_identifier_info(*p, is_constant(uf) ? const_name(uf) : local_pp_name(uf));
-                m_info.add_type_info(*p, infer_type(uf));
-            }
-        }
-    }
-}
-
 expr elaborator::visit_function(expr const & fn, bool has_args, optional<expr> const & expected_type, expr const & ref) {
     expr ufn = unwrap_pos(fn);
     if (is_placeholder(ufn)) {
@@ -987,7 +969,6 @@ expr elaborator::visit_function(expr const & fn, bool has_args, optional<expr> c
     case expr_kind::Quote:
         throw elaborator_exception(ref, "invalid application, function expected");
     }
-    save_identifier_info(copy_pos(ref, r));
     if (has_args)
         r = ensure_function(r, ref);
     return r;
@@ -2512,7 +2493,6 @@ expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
         expr new_d = visit(d, none_expr());
         expr ref_d = get_ref_for_child(binding_domain(it), it);
         expr fn    = push_local(fns, binding_name(it), new_d, binding_info(it), ref_d);
-        save_identifier_info(copy_pos(binding_domain(it), fn));
         it = binding_body(it);
     }
     if (is_no_equation(it)) {
@@ -3521,7 +3501,6 @@ expr elaborator::visit_lambda(expr const & e, optional<expr> const & expected_ty
         expr ref_d = get_ref_for_child(binding_domain(it), it);
         new_d      = ensure_type(new_d, ref_d);
         expr l     = push_local(locals, binding_name(it), new_d, binding_info(it), ref_d);
-        save_identifier_info(copy_pos(binding_domain(it), l));
         it = binding_body(it);
         if (has_expected) {
             lean_assert(is_pi(ex));
@@ -3551,7 +3530,6 @@ expr elaborator::visit_pi(expr const & e) {
         new_d      = ensure_type(new_d, ref_d);
         expr ref   = binding_domain(it);
         expr l     = push_local(locals, binding_name(it), new_d, binding_info(it), ref);
-        save_identifier_info(copy_pos(binding_domain(it), l));
         parent_it  = it;
         it         = binding_body(it);
     }
@@ -3577,7 +3555,6 @@ expr elaborator::visit_let(expr const & e, optional<expr> const & expected_type)
     ensure_no_unassigned_metavars(new_value);
     type_context_old::tmp_locals locals(m_ctx);
     expr l = push_let(locals, let_name(e), new_type, new_value, ref);
-    save_identifier_info(copy_pos(let_type(e), l));
     expr body      = instantiate_rev_locals(let_body(e), locals);
     expr new_body  = visit(body, expected_type);
     synthesize();
@@ -3866,14 +3843,12 @@ void elaborator::ensure_no_unassigned_metavars(expr & e) {
 
 elaborator::snapshot::snapshot(elaborator const & e) {
     m_saved_mctx               = e.m_ctx.mctx();
-    m_saved_info               = e.m_info;
     m_saved_instances          = e.m_instances;
     m_saved_numeral_types      = e.m_numeral_types;
 }
 
 void elaborator::snapshot::restore(elaborator & e) {
     e.m_ctx.set_mctx(m_saved_mctx);
-    e.m_info               = m_saved_info;
     e.m_instances          = m_saved_instances;
     e.m_numeral_types      = m_saved_numeral_types;
 }
@@ -3985,7 +3960,6 @@ static expr replace_with_simple_metavars(metavar_context mctx, name_map<expr> & 
 }
 
 expr elaborator::elaborate(expr const & e) {
-    scoped_info_manager scope_infom(&m_info);
     expr r = visit(e,  none_expr());
     trace_elab_detail(tout() << "result before final checkpoint\n" << r << "\n";);
     synthesize();
@@ -3993,7 +3967,6 @@ expr elaborator::elaborate(expr const & e) {
 }
 
 expr elaborator::elaborate_type(expr const & e) {
-    scoped_info_manager scope_infom(&m_info);
     expr const & ref = e;
     expr new_e = ensure_type(visit(e, none_expr()), ref);
     synthesize();
@@ -4001,7 +3974,6 @@ expr elaborator::elaborate_type(expr const & e) {
 }
 
 expr_pair elaborator::elaborate_with_type(expr const & e, expr const & e_type) {
-    scoped_info_manager scope_infom(&m_info);
     expr const & ref = e;
     expr new_e, new_e_type;
     {

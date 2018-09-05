@@ -2063,9 +2063,6 @@ expr parser::parse_id(bool allow_field_notation) {
     lean_assert(curr_is_identifier());
     name id = check_id_next("", break_at_pos_exception::token_context::expr);
     expr e = id_to_expr(id, p, /* resolve_only */ false, allow_field_notation);
-    if (is_constant(e) && get_global_info_manager()) {
-        get_global_info_manager()->add_const_info(m_env, p, const_name(e));
-    }
     return e;
 }
 

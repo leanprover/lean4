@@ -26,9 +26,6 @@ Authors: Gabriel Ebner, Leonardo de Moura, Sebastian Ullrich
 #include "library/attribute_manager.h"
 #include "library/tactic/tactic_state.h"
 #include "frontends/lean/parser.h"
-#include "frontends/lean/info_manager.h"
-#include "frontends/lean/interactive.h"
-#include "frontends/lean/completion.h"
 #include "shell/server.h"
 
 namespace lean {
@@ -434,11 +431,11 @@ void server::handle_request(server::cmd_req const & req) {
     if (command == "sync") {
         send_msg(handle_sync(req));
     } else if (command == "complete") {
-        handle_async_response(req, handle_complete(req));
+        // handle_async_response(req, handle_complete(req));
     } else if (command == "info") {
-        handle_async_response(req, handle_info(req));
+        // handle_async_response(req, handle_info(req));
     } else if (command == "search") {
-        send_msg(handle_search(req));
+        // send_msg(handle_search(req));
     } else if (command == "roi") {
         send_msg(handle_roi(req));
     } else if (command == "sleep") {
@@ -539,110 +536,6 @@ void parse_breaking_at_pos(module_id const & mod_id, std::shared_ptr<module_info
 
         p->resume(*snap, {});
     }
-}
-
-json server::autocomplete(std::shared_ptr<module_info const> const & mod_info, bool skip_completions,
-                          pos_info const & pos0) {
-    auto pos = pos0;
-    if (pos.second == 0)
-        pos.first--;
-    pos.second--;
-    json j;
-
-    if (auto snap = get_closest_snapshot(mod_info, pos)) {
-        try {
-            parse_breaking_at_pos(mod_info->m_id, mod_info, pos, true);
-        } catch (break_at_pos_exception & e) {
-            report_completions(snap->m_snapshot_at_end->m_env, snap->m_snapshot_at_end->m_options,
-                               pos0, skip_completions, m_path, mod_info->m_id.c_str(),
-                               e, j);
-        } catch (throwable & ex) {}
-    }
-    return j;
-}
-
-task<server::cmd_res> server::handle_complete(cmd_req const & req) {
-    cancel(m_bg_task_ctok);
-    m_bg_task_ctok = mk_cancellation_token();
-
-    std::string fn = req.m_payload.at("file_name");
-    pos_info pos = {req.m_payload.at("line"), req.m_payload.at("column")};
-    bool skip_completions = false;
-    if (req.m_payload.count("skip_completions"))
-        skip_completions = req.m_payload.at("skip_completions");
-
-    auto mod_info = m_mod_mgr->get_module(fn);
-
-    return task_builder<cmd_res>([=] { return cmd_res(req.m_seq_num, autocomplete(mod_info, skip_completions, pos)); })
-        .wrap(library_scopes(log_tree::node()))
-        .set_cancellation_token(m_bg_task_ctok)
-        .build();
-}
-
-static void get_info_managers(log_tree::node const & n, std::vector<info_manager> & infoms) {
-    n.for_each([&] (log_tree::node const & c) {
-        for (auto & e : c.get_entries()) {
-            if (auto infom = dynamic_cast<info_manager const *>(e.get())) {
-                infoms.push_back(*infom);
-            }
-        }
-        return true;
-    });
-}
-
-std::vector<info_manager> get_info_managers(log_tree const & t) {
-    std::vector<info_manager> infoms;
-    get_info_managers(t.get_root(), infoms);
-    return infoms;
-}
-
-json server::info(std::shared_ptr<module_info const> const & mod_info, pos_info const & pos) {
-    json j;
-    try {
-        parse_breaking_at_pos(mod_info->m_id, mod_info, pos);
-    } catch (break_at_pos_exception & e) {
-        auto opts = m_ios.get_options();
-        auto env = m_initial_env;
-        if (auto snap = get_closest_snapshot(mod_info, e.m_token_info.m_pos)) {
-            env = snap->m_snapshot_at_end->m_env;
-            opts = snap->m_snapshot_at_end->m_options;
-        }
-        report_info(env, opts, m_ios, m_path, *mod_info, get_info_managers(m_lt), pos, e, j);
-    } catch (throwable & ex) {}
-
-    return j;
-}
-
-task<server::cmd_res> server::handle_info(server::cmd_req const & req) {
-    cancel(m_bg_task_ctok);
-    m_bg_task_ctok = mk_cancellation_token();
-
-    std::string fn = req.m_payload.at("file_name");
-    pos_info pos = {req.m_payload.at("line"), req.m_payload.at("column")};
-
-    auto mod_info = m_mod_mgr->get_module(fn);
-
-    return task_builder<cmd_res>([=] {
-        return cmd_res(req.m_seq_num, info(mod_info, pos));
-    }).wrap(library_scopes(log_tree::node()))
-      .set_cancellation_token(m_bg_task_ctok).build();
-}
-
-server::cmd_res server::handle_search(server::cmd_req const & req) {
-    std::string query = req.m_payload.at("query");
-
-    std::vector<pair<std::string, environment>> envs_to_search;
-    for (auto & mod : m_mod_mgr->get_all_modules()) {
-        envs_to_search.emplace_back(mod->m_id, mod->get_latest_env());
-    }
-
-    std::vector<json> results;
-    search_decls(query, envs_to_search, m_ios.get_options(), results);
-
-    json j;
-    j["results"] = results;
-
-    return cmd_res(req.m_seq_num, j);
 }
 
 std::shared_ptr<module_info> server::load_module(module_id const & id, bool can_use_olean) {

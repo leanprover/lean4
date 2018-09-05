@@ -22,11 +22,8 @@ Author: Leonardo de Moura
 #include "frontends/lean/notation_cmd.h"
 #include "frontends/lean/decl_attributes.h"
 #include "frontends/lean/util.h"
-#include "frontends/lean/info_manager.h"
 #include "frontends/lean/brackets.h"
 #include "frontends/lean/choice.h"
-#include "frontends/lean/interactive.h"
-#include "frontends/lean/completion.h"
 
 namespace lean {
 void initialize_frontend_lean_module() {
@@ -49,16 +46,10 @@ void initialize_frontend_lean_module() {
     initialize_elaborator();
     initialize_notation_cmd();
     initialize_frontend_lean_util();
-    initialize_info_manager();
     initialize_brackets();
-    initialize_interactive();
-    initialize_completion();
 }
 void finalize_frontend_lean_module() {
-    finalize_completion();
-    finalize_interactive();
     finalize_brackets();
-    finalize_info_manager();
     finalize_frontend_lean_util();
     finalize_notation_cmd();
     finalize_elaborator();

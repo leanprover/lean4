@@ -15,7 +15,6 @@ Author: Gabriel Ebner
 #include "kernel/instantiate.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/util.h"
-#include "frontends/lean/interactive.h"
 
 namespace lean {
 
@@ -73,7 +72,7 @@ json serialize_decl(name const & short_name, name const & long_name, environment
     }
     json completion;
     completion["text"] = short_name.to_string();
-    interactive_report_type(env, o, type, completion);
+    // interactive_report_type(env, o, type, completion);
     add_source_info(env, long_name, completion);
     if (auto doc = get_doc_string(env, long_name))
         completion["doc"] = *doc;

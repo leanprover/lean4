@@ -13,7 +13,6 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/elaborator_exception.h"
 #include "library/sorry.h"
-#include "frontends/lean/info_manager.h"
 
 namespace lean {
 enum class elaborator_strategy {
@@ -40,8 +39,7 @@ private:
     options           m_opts;
     context_cache     m_cache;
     name              m_decl_name;
-    type_context_old      m_ctx;
-    info_manager      m_info;
+    type_context_old  m_ctx;
     unsigned          m_aux_meta_idx = 1;
     bool              m_recover_from_errors;
     bool              m_has_errors = false;
@@ -60,7 +58,6 @@ private:
 
     struct snapshot {
         metavar_context        m_saved_mctx;
-        info_manager           m_saved_info;
         list<expr>             m_saved_instances;
         list<expr>             m_saved_numeral_types;
 
@@ -194,7 +191,6 @@ private:
 
     expr visit_sort(expr const & e);
     expr visit_const_core(expr const & e);
-    void save_identifier_info(expr const & f);
     expr visit_function(expr const & fn, bool has_args, optional<expr> const & expected_type, expr const & ref);
     [[noreturn]] void throw_app_type_mismatch_error(expr const & t, expr const & arg, expr const & arg_type,
                                                     expr const & expected_type, expr const & ref);

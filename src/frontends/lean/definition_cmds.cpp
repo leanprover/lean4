@@ -430,12 +430,11 @@ static expr elaborate_proof(
         expr const & fn, expr const & val0, elaborator::theorem_finalization_info const & finfo,
         bool /* is_rfl_lemma */, expr const & final_type,
         metavar_context const & mctx, local_context const & lctx,
-        parser_pos_provider pos_provider, bool use_info_manager, std::string const & file_name) {
+        parser_pos_provider pos_provider, bool /* use_info_manager */, std::string const & file_name) {
     auto tc = std::make_shared<type_context_old>(decl_env, opts, mctx, lctx);
     scope_trace_env scope2(decl_env, opts, *tc);
     scope_traces_as_messages scope2a(file_name, header_pos);
     scope_pos_info_provider scope3(pos_provider);
-    auto_reporting_info_manager_scope scope4(file_name, use_info_manager);
 
     try {
         bool recover_from_errors = true;
@@ -466,12 +465,11 @@ static void check_example(environment const & decl_env, options const & opts,
                           names const & univ_params, list<expr> const & params,
                           expr const & fn, expr const & val0,
                           metavar_context const & mctx, local_context const & lctx,
-                          parser_pos_provider pos_provider, bool use_info_manager, std::string const & file_name) {
+                          parser_pos_provider pos_provider, bool /* use_info_manager */, std::string const & file_name) {
     auto tc = std::make_shared<type_context_old>(decl_env, opts, mctx, lctx);
     scope_trace_env scope2(decl_env, opts, *tc);
     scope_traces_as_messages scope2a(file_name, pos_provider.get_some_pos());
     scope_pos_info_provider scope3(pos_provider);
-    auto_reporting_info_manager_scope scope4(file_name, use_info_manager);
 
     name decl_name = "_example";
 
@@ -562,7 +560,7 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
             auto mctx = elab.mctx();
             auto lctx = elab.lctx();
             auto pos_provider = p.get_parser_pos_provider(header_pos);
-            bool use_info_manager = get_global_info_manager() != nullptr;
+            bool use_info_manager = false; // get_global_info_manager() != nullptr;
             std::string file_name = p.get_file_name();
             opt_val = elaborate_proof(decl_env, opts, header_pos, new_params_list,
                                       new_fn, val, thm_finfo, is_rfl, type,
@@ -576,7 +574,7 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
             auto mctx = elab.mctx();
             auto lctx = elab.lctx();
             auto pos_provider = p.get_parser_pos_provider(p.cmd_pos());
-            bool use_info_manager = get_global_info_manager() != nullptr;
+            bool use_info_manager = false; // get_global_info_manager() != nullptr;
             bool noncomputable_theory = p.ignore_noncomputable();
             std::string file_name = p.get_file_name();
             check_example(env, opts, meta.m_modifiers, noncomputable_theory,

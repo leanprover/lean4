@@ -9,7 +9,6 @@ Author: Gabriel Ebner
 #include "runtime/utf8.h"
 #include "library/library_task_builder.h"
 #include "frontends/lean/module_parser.h"
-#include "frontends/lean/info_manager.h"
 
 namespace lean {
 
@@ -79,7 +78,6 @@ module_parser::parse_next_command_like(optional<std::vector<gtask>> const & depe
         bool done = false;
         try {
             check_system("module_parser::parse_next_command_like");
-            auto_reporting_info_manager_scope scope_infom(self->m_parser.m_file_name, self->m_save_info);
             done = self->m_parser.parse_command_like();
         } catch (parser_exception & ex) {
             report_message(ex);

@@ -531,7 +531,6 @@ static environment attribute_cmd_core(parser & p, bool persistent) {
         return modifiers_cmd(p, {attributes, {}, {}});
     }
     do {
-        auto pos = p.pos();
         name d = p.check_constant_next("invalid 'attribute' command, constant expected");
         ds.push_back(d);
     } while (p.curr_is_identifier());

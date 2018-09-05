@@ -1272,7 +1272,7 @@ struct structure_cmd_fn {
             return;
         if (!has_heq_decls(m_env))
             return;
-        m_env = mk_no_confusion(m_env, m_name);
+        m_env = old_mk_no_confusion(m_env, m_name);
         name no_confusion_name(m_name, "no_confusion");
         add_alias(no_confusion_name);
     }

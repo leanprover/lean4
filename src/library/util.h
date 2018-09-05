@@ -141,23 +141,40 @@ unsigned get_expect_num_args(abstract_type_context & ctx, expr e);
 /** \brief "Consume" Pi-type \c type. This procedure creates local constants based on the domain of \c type
     and store them in telescope. If \c binfo is provided, then the local constants are annoted with the given
     binder_info, otherwise the procedure uses the one attached in the domain.
-    The procedure returns the "body" of type. */
+    The procedure returns the "body" of type.
+
+    TODO(Leo): delete because it uses old APIs */
 expr to_telescope(expr const & type, buffer<expr> & telescope,
                   optional<binder_info> const & binfo = optional<binder_info>());
 
 /** \brief "Consume" fun/lambda. This procedure creates local constants based on the arguments of \c e
     and store them in telescope. If \c binfo is provided, then the local constants are annoted with the given
     binder_info, otherwise the procedure uses the one attached to the arguments.
-    The procedure returns the "body" of function. */
+    The procedure returns the "body" of function.
+
+    TODO(Leo): delete because it uses old APIs */
 expr fun_to_telescope(expr const & e, buffer<expr> & telescope, optional<binder_info> const & binfo);
 
-/** \brief Similar to previous procedure, but puts \c type in whnf */
+/** \brief Similar to previous procedure, but puts \c type in whnf
+
+    TODO(Leo): delete because it uses old APIs */
 expr to_telescope(old_type_checker & ctx, expr type, buffer<expr> & telescope,
                   optional<binder_info> const & binfo = optional<binder_info>());
 
 /** \brief Return the universe where inductive datatype resides
-    \pre \c ind_type is of the form <tt>Pi (a_1 : A_1) (a_2 : A_2[a_1]) ..., Type.{lvl}</tt> */
+    \pre \c ind_type is of the form <tt>Pi (a_1 : A_1) (a_2 : A_2[a_1]) ..., Type.{lvl}</tt>
+
+    TODO(Leo): delete because it uses old APIs */
 level get_datatype_level(environment const & env, expr const & ind_type);
+
+/** \brief "Consume" Pi-type `type`. This procedure creates free variables based on the domain of `type` using `lctx`,
+    and store them in telescope and updates  . If `binfo` is provided, then the free variables are annotated with
+    the given `binder_info`, otherwise the procedure uses the one attached in the domain.
+    The procedure returns the "body" of type. */
+expr to_telescope(local_ctx & lctx, name_generator & ngen, expr const & type, buffer<expr> & telescope, optional<binder_info> const & binfo);
+
+/** \brief Similar to previous procedure, but uses whnf to check whether `type` reduces to `Pi` or not. */
+expr to_telescope(environment const & env, local_ctx & lctx, name_generator & ngen, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo = optional<binder_info>());
 
 /** \brief Update the result sort of the given type */
 expr update_result_sort(expr t, level const & l);

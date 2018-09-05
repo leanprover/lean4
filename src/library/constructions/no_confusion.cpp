@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/inductive/inductive.h"
 #include "kernel/old_type_checker.h"
+#include "kernel/type_checker.h"
 #include "library/protected.h"
 #include "library/module.h"
 #include "library/util.h"
@@ -19,12 +20,14 @@ Author: Leonardo de Moura
 #include "library/aux_recursors.h"
 #include "library/constructions/util.h"
 
+#include "library/trace.h"
+
 namespace lean {
 static void throw_corrupted(name const & n) {
     throw exception(sstream() << "error in 'no_confusion' generation, '" << n << "' inductive datatype declaration is corrupted");
 }
 
-optional<environment> mk_no_confusion_type(environment const & env, name const & n) {
+static optional<environment> old_mk_no_confusion_type(environment const & env, name const & n) {
     optional<inductive::inductive_decl> decl = inductive::is_inductive_decl(env, n);
     if (!decl)
         throw exception(sstream() << "error in 'no_confusion' generation, '" << n << "' is not an inductive datatype");
@@ -128,8 +131,8 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
     return some(add_protected(new_env, no_confusion_type_name));
 }
 
-environment mk_no_confusion(environment const & env, name const & n) {
-    optional<environment> env1 = mk_no_confusion_type(env, n);
+environment old_mk_no_confusion(environment const & env, name const & n) {
+    optional<environment> env1 = old_mk_no_confusion_type(env, n);
     if (!env1)
         return env;
     environment new_env = *env1;
@@ -237,5 +240,117 @@ environment mk_no_confusion(environment const & env, name const & n) {
     new_env = set_reducible(new_env, no_confusion_name, reducible_status::Reducible, true);
     new_env = add_no_confusion(new_env, no_confusion_name);
     return add_protected(new_env, no_confusion_name);
+}
+
+
+static optional<environment> mk_no_confusion_type(environment const & env, name const & n) {
+    constant_info ind_info = env.get(n);
+    if (!ind_info.is_inductive() || !can_elim_to_type(env, n))
+        return optional<environment>();
+    inductive_val ind_val    = ind_info.to_inductive_val();
+    local_ctx lctx;
+    name_generator ngen      = mk_constructions_name_generator();
+    unsigned nparams         = ind_val.get_nparams();
+    constant_info cases_info = env.get(name(n, "cases_on"));
+    names lps                = cases_info.get_lparams();
+    level  plvl              = mk_univ_param(head(lps));
+    levels ilvls             = lparams_to_levels(tail(lps));
+    level rlvl               = plvl;
+    expr ind_type            = instantiate_type_lparams(ind_info, ilvls);
+    /* All inductive datatype parameters and indices are arguments */
+    buffer<expr> args;
+    ind_type = to_telescope(lctx, ngen, ind_type, args, some(mk_implicit_binder_info()));
+    if (!is_sort(ind_type) || args.size() < nparams)
+        throw_corrupted(n);
+    level ind_lvl            = sort_level(ind_type);
+    unsigned nindices        = ind_val.get_nindices();
+    lean_assert(nindices == args.size() - nparams);
+    /* Create inductive datatype */
+    expr I = mk_app(mk_constant(n, ilvls), args);
+    /* Add (P : Type) */
+    expr P = lctx.mk_local_decl(ngen, "P", mk_sort(plvl), mk_binder_info());
+    args.push_back(P);
+    /* Add v1 and v2 elements of the inductive type */
+    expr v1 = lctx.mk_local_decl(ngen, "v1", I, mk_binder_info());
+    expr v2 = lctx.mk_local_decl(ngen, "v2", I, mk_binder_info());
+    args.push_back(v1);
+    args.push_back(v2);
+    expr R = mk_sort(rlvl);
+    expr Pres = P;
+    name no_confusion_type_name{n, "no_confusion_type"};
+    expr no_confusion_type_type = lctx.mk_pi(args, R);
+    /* Create type former */
+    buffer<expr> type_former_args;
+    for (unsigned i = nparams; i < nparams + nindices; i++)
+        type_former_args.push_back(args[i]);
+    type_former_args.push_back(v1);
+    expr type_former = lctx.mk_lambda(type_former_args, R);
+    /* Create cases_on */
+    levels clvls   = levels(mk_succ(rlvl), ilvls);
+    expr cases_on  = mk_app(mk_app(mk_constant(cases_info.get_name(), clvls), nparams, args.data()), type_former);
+    cases_on       = mk_app(cases_on, nindices, args.data() + nparams);
+    expr cases_on1 = mk_app(cases_on, v1);
+    expr cases_on2 = mk_app(cases_on, v2);
+    expr t1        = type_checker(env, lctx).infer(cases_on1);
+    expr t2        = type_checker(env, lctx).infer(cases_on2);
+    buffer<expr> outer_cases_on_args;
+    unsigned idx1 = 0;
+    while (is_pi(t1)) {
+        buffer<expr> minor1_args;
+        expr minor1 = to_telescope(env, lctx, ngen, binding_domain(t1), minor1_args);
+        expr curr_t2  = t2;
+        buffer<expr> inner_cases_on_args;
+        unsigned idx2 = 0;
+        while (is_pi(curr_t2)) {
+            buffer<expr> minor2_args;
+            expr minor2 = to_telescope(env, lctx, ngen, binding_domain(curr_t2), minor2_args);
+            if (idx1 != idx2) {
+                // infeasible case, constructors do not match
+                inner_cases_on_args.push_back(lctx.mk_lambda(minor2_args, Pres));
+            } else {
+                if (minor1_args.size() != minor2_args.size())
+                    throw_corrupted(n);
+                buffer<expr> rtype_hyp;
+                // add equalities
+                for (unsigned i = 0; i < minor1_args.size(); i++) {
+                    expr lhs      = minor1_args[i];
+                    expr rhs      = minor2_args[i];
+                    expr lhs_type = lctx.get_type(lhs);
+                    if (!type_checker(env, lctx).is_prop(lhs_type)) {
+                        expr rhs_type = lctx.get_type(rhs);
+                        level l       = sort_level(type_checker(env, lctx).ensure_type(lhs_type));
+                        expr h_type;
+                        if (type_checker(env, lctx).is_def_eq(lhs_type, rhs_type)) {
+                            h_type = mk_app(mk_constant(get_eq_name(), levels(l)), lhs_type, lhs, rhs);
+                        } else {
+                            h_type = mk_app(mk_constant(get_heq_name(), levels(l)), lhs_type, lhs, rhs_type, rhs);
+                        }
+                        name lhs_user_name = lctx.get_local_decl(lhs).get_user_name();
+                        rtype_hyp.push_back(lctx.mk_local_decl(ngen, lhs_user_name.append_after("_eq"), h_type, mk_binder_info()));
+                    }
+                }
+                inner_cases_on_args.push_back(lctx.mk_lambda(minor2_args, mk_arrow(lctx.mk_pi(rtype_hyp, P), Pres)));
+            }
+            idx2++;
+            curr_t2 = binding_body(curr_t2);
+        }
+        outer_cases_on_args.push_back(lctx.mk_lambda(minor1_args, mk_app(cases_on2, inner_cases_on_args)));
+        idx1++;
+        t1 = binding_body(t1);
+    }
+    expr no_confusion_type_value = lctx.mk_lambda(args, mk_app(cases_on1, outer_cases_on_args));
+    declaration new_d = mk_definition_inferring_meta(env, no_confusion_type_name, lps, no_confusion_type_type, no_confusion_type_value,
+                                                     reducibility_hints::mk_abbreviation());
+    environment new_env = module::add(env, new_d);
+    new_env = set_reducible(new_env, no_confusion_type_name, reducible_status::Reducible, true);
+    return some(add_protected(new_env, no_confusion_type_name));
+}
+
+environment mk_no_confusion(environment const & env, name const & n) {
+    optional<environment> env1 = mk_no_confusion_type(env, n);
+    if (!env1)
+        return env;
+    // TODO(Leo)
+    return *env1;
 }
 }

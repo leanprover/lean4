@@ -10,8 +10,10 @@ Author: Leonardo de Moura
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/old_type_checker.h"
+#include "kernel/type_checker.h"
 #include "kernel/abstract.h"
 #include "kernel/abstract_type_context.h"
+#include "kernel/inductive.h"
 #include "kernel/inductive/inductive.h"
 #include "library/error_msgs.h"
 #include "library/locals.h"
@@ -272,10 +274,16 @@ bool is_inductive_predicate(environment const & env, name const & n) {
 }
 
 bool can_elim_to_type(environment const & env, name const & n) {
-    if (!inductive::is_inductive_decl(env, n))
-        return false; // n is not inductive datatype
+    // TODO(Leo): delete following if-statement
+    if (inductive::is_inductive_decl(env, n)) {
+        constant_info ind_info = env.get(n);
+        constant_info rec_info = env.get(inductive::get_elim_name(n));
+        return rec_info.get_num_lparams() > ind_info.get_num_lparams();
+    }
+
     constant_info ind_info = env.get(n);
-    constant_info rec_info = env.get(inductive::get_elim_name(n));
+    if (!ind_info.is_inductive()) return false;
+    constant_info rec_info = env.get(mk_rec_name(n));
     return rec_info.get_num_lparams() > ind_info.get_num_lparams();
 }
 
@@ -433,6 +441,39 @@ expr to_telescope(old_type_checker & ctx, expr type, buffer<expr> & telescope, o
         telescope.push_back(local);
         type     = instantiate(binding_body(type), local);
         new_type = ctx.whnf(type);
+    }
+    return type;
+}
+
+expr to_telescope(bool pi, local_ctx & lctx, name_generator & ngen, expr e, buffer<expr> & telescope, optional<binder_info> const & binfo) {
+    while ((pi && is_pi(e)) || (!pi && is_lambda(e))) {
+        expr local;
+        if (binfo)
+            local = lctx.mk_local_decl(ngen, binding_name(e), binding_domain(e), *binfo);
+        else
+            local = lctx.mk_local_decl(ngen, binding_name(e), binding_domain(e), binding_info(e));
+        telescope.push_back(local);
+        e = instantiate(binding_body(e), local);
+    }
+    return e;
+}
+
+expr to_telescope(local_ctx & lctx, name_generator & ngen, expr const & type, buffer<expr> & telescope, optional<binder_info> const & binfo) {
+    return to_telescope(true, lctx, ngen, type, telescope, binfo);
+}
+
+expr to_telescope(environment const & env, local_ctx & lctx, name_generator & ngen, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo) {
+    expr new_type = type_checker(env, lctx).whnf(type);
+    while (is_pi(new_type)) {
+        type = new_type;
+        expr local;
+        if (binfo)
+            local = lctx.mk_local_decl(ngen, binding_name(type), binding_domain(type), *binfo);
+        else
+            local = lctx.mk_local_decl(ngen, binding_name(type), binding_domain(type), binding_info(type));
+        telescope.push_back(local);
+        type     = instantiate(binding_body(type), local);
+        new_type = type_checker(env, lctx).whnf(type);
     }
     return type;
 }

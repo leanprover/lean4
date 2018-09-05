@@ -402,11 +402,25 @@ auto elaborator::get_elim_info_for_builtin(name const & fn) -> elim_info {
        only works for dependent elimination. */
     lean_assert(!fn.is_atomic());
     name const & I_name    = fn.get_prefix();
-    optional<inductive::inductive_decl> decl = inductive::is_inductive_decl(m_env, I_name);
-    lean_assert(decl);
-    unsigned nparams  = decl->m_num_params;
-    unsigned nindices = *inductive::get_num_indices(m_env, I_name);
-    unsigned nminors  = length(decl->m_intro_rules);
+
+    unsigned nparams;
+    unsigned nindices;
+    unsigned nminors;
+
+    // TODO(Leo): delete "then"-branch
+    if (optional<inductive::inductive_decl> decl = inductive::is_inductive_decl(m_env, I_name)) {
+        nparams  = decl->m_num_params;
+        nindices = *inductive::get_num_indices(m_env, I_name);
+        nminors  = length(decl->m_intro_rules);
+    } else {
+        constant_info I_info = m_env.get(I_name);
+        lean_assert(I_info.is_inductive());
+        inductive_val I_val  = I_info.to_inductive_val();
+        nparams              = I_val.get_nparams();
+        nindices             = I_val.get_nindices();
+        nminors              = length(I_val.get_cnstrs());
+    }
+
     elim_info r;
     if (fn.get_string() == "brec_on" || fn.get_string() == "binduction_on") {
         r.m_arity      = nparams + 1 /* motive */ + nindices + 1 /* major */ + 1;

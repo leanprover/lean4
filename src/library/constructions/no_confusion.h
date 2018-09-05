@@ -15,5 +15,6 @@ namespace lean {
     If the environment has an impredicative Prop, it also assumes heq is defined.
     If the environment does not have an impredicative Prop, then it also assumes lift is defined.
 */
+environment old_mk_no_confusion(environment const & env, name const & n);
 environment mk_no_confusion(environment const & env, name const & n);
 }

@@ -91,7 +91,7 @@ class add_basic_inductive_decl_fn {
 
             if (gen_cases_on && gen_no_confusion && has_eq && has_heq) {
                 lean_trace(name({"inductive_compiler"}), tout() << ">> generate no_confusion\n";);
-                m_env = mk_no_confusion(m_env, ind_name);
+                m_env = old_mk_no_confusion(m_env, ind_name);
             }
 
             if (gen_brec_on && has_prod) {

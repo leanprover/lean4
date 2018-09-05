@@ -20,6 +20,7 @@ inductive term (α : Type) (β : Type)
 | foo (p : nat → my_pair term (my_list term)) (n : β) : my_list (my_list term) → term
 
 #check @term.cases_on
+#print term.no_confusion_type
 
 inductive arrow (α β : Type)
 | mk (s : nat → my_pair α β) : arrow

@@ -33,3 +33,32 @@ with tst2 : Type
 #check @tst1.cases_on
 #check @tst2.cases_on
 #check @tst1.rec_on
+
+namespace test
+
+inductive rbnode (α : Type u)
+| leaf  {}                                                 : rbnode
+| red_node   (lchild : rbnode) (val : α) (rchild : rbnode) : rbnode
+| black_node (lchild : rbnode) (val : α) (rchild : rbnode) : rbnode
+
+namespace rbnode
+variables {α : Type u}
+
+constant insert (lt : α → α → Prop) [decidable_rel lt] (t : rbnode α) (x : α) : rbnode α
+
+inductive well_formed (lt : α → α → Prop) : rbnode α → Prop
+| leaf_wff : well_formed leaf
+| insert_wff {n n' : rbnode α} {x : α} (s : decidable_rel lt) : well_formed n → n' = insert lt n x → well_formed n'
+
+end rbnode
+
+def rbtree (α : Type u) (lt : α → α → Prop) : Type u :=
+{t : rbnode α // t.well_formed lt }
+
+inductive trie
+| empty : trie
+| mk    : char → rbnode (my_pair char trie) → trie
+
+#print trie.rec
+
+end test

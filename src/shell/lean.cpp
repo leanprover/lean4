@@ -51,9 +51,6 @@ Author: Leonardo de Moura
 #include <getopt.h>
 #include <unistd.h>
 #endif
-#if defined(LEAN_JSON)
-#include "shell/server.h"
-#endif
 #if defined(LEAN_EMSCRIPTEN)
 #include <emscripten.h>
 #endif
@@ -290,14 +287,8 @@ private:
     lean::initializer m_init;
 public:
     initializer() {
-#if defined(LEAN_JSON)
-        lean::initialize_server();
-#endif
     }
     ~initializer() {
-#if defined(LEAN_JSON)
-        lean::finalize_server();
-#endif
     }
 };
 
@@ -503,11 +494,6 @@ int main(int argc, char ** argv) {
             opts = opts.update(lean::name{"trace", "as_messages"}, true);
             json_output = true;
             break;
-        case 'S':
-            opts = opts.update("server", true);
-            opts = opts.update(lean::name{"trace", "as_messages"}, true);
-            if (optarg) server_in = optional<std::string>(optarg);
-            break;
         case 'p': {
             json out;
 
@@ -557,27 +543,6 @@ int main(int argc, char ** argv) {
     environment env(trust_lvl);
 
     io_state ios(opts, lean::mk_pretty_formatter_factory());
-
-#if defined(LEAN_JSON)
-    if (opts.get_bool("server")) {
-        /* Disable assertion violation dialog:
-           (C)ontinue, (A)bort, (S)top, Invoke (G)DB */
-        lean::enable_debug_dialog(false);
-
-        std::unique_ptr<std::ifstream> file_in;
-        if (server_in) {
-            file_in.reset(new std::ifstream(*server_in));
-            if (!file_in->is_open()) {
-                std::cerr << "cannot open file " << *server_in << std::endl;
-                return 1;
-            }
-            std::cin.rdbuf(file_in->rdbuf());
-        }
-
-        server(num_threads, path.get_path(), env, ios).run();
-        return 0;
-    }
-#endif
 
     log_tree lt;
 

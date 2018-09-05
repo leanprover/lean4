@@ -1,11 +1,6 @@
-add_executable(lean lean.cpp server.cpp)
+add_executable(lean lean.cpp)
 target_link_libraries(lean leanstatic)
 install(TARGETS lean DESTINATION bin)
-
-add_executable(lean_js lean_js.cpp lean_js_main.cpp server.cpp)
-target_link_libraries(lean_js leanstatic)
-
-add_library(shell_js OBJECT lean_js.cpp server.cpp)
 
 if(${EMSCRIPTEN})
     set(NODE_JS "node --stack_size=8192")
@@ -40,13 +35,6 @@ if(${EMSCRIPTEN})
     add_dependencies(lean_js lean_js_library)
     set_target_properties(lean_js PROPERTIES COMPILE_FLAGS --bind -s NO_EXIT_RUNTIME=1)
 
-    set(LEAN_JS_OPTS "-s 'EXTRA_EXPORTED_RUNTIME_METHODS=[\"FS\"]'")
-    add_executable(lean_js_wasm lean_js.cpp lean_js_new.cpp server.cpp)
-    target_link_libraries(lean_js_wasm leanstatic)
-    add_executable(lean_js_js lean_js.cpp lean_js_new.cpp server.cpp)
-    target_link_libraries(lean_js_js leanstatic)
-    set_target_properties(lean_js_wasm PROPERTIES LINK_FLAGS "-s WASM=1 ${LEAN_JS_OPTS} -s \"BINARYEN_METHOD='native-wasm'\"")
-    set_target_properties(lean_js_js PROPERTIES LINK_FLAGS "${LEAN_JS_OPTS}")
 else()
   if (MSVC)
     ADD_CUSTOM_TARGET(bin_lean ALL

@@ -19,7 +19,6 @@ Author: Leonardo de Moura
 #include "util/sexpr/option_declarations.h"
 #include "util/shared_mutex.h"
 #include "library/constants.h"
-#include "library/kernel_serializer.h"
 #include "library/trace.h"
 #include "library/module.h"
 #include "library/private.h"

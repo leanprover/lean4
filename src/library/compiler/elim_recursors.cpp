@@ -4,11 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "kernel/old_type_checker.h"
+#include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
-#include "kernel/inductive/inductive.h"
 #include "library/locals.h"
 #include "library/module.h"
 #include "library/util.h"
@@ -19,6 +18,45 @@ Author: Leonardo de Moura
 #include "library/compiler/compiler_step_visitor.h"
 
 namespace lean {
+static name * g_rec_arg_fresh = nullptr;
+
+/* Store in `rec_args` the recursive arguments of constructor application \c `e`.
+   The result is false if `e` is not a constructor application.
+   The unsigned value at rec_args represents the arity of the recursive argument.
+   The value is only greater than zero for reflexive inductive datatypes such as:
+
+      inductive inftree (A : Type)
+      | leaf : A → inftree
+      | node : (nat → inftree) → inftree
+
+  \pre `n` is a constructor name.
+
+  \remark This method does not support nested or mutual inductive datatypes. */
+static void get_constructor_rec_arg_mask(environment const & env, name const & n, buffer<bool> & rec_mask) {
+    lean_assert(rec_mask.empty());
+    constant_info info = env.get(n);
+    lean_assert(info.is_constructor());
+    local_ctx lctx;
+    name_generator ngen(*g_rec_arg_fresh);
+    name I_name = info.to_constructor_val().get_induct();
+    expr type   = type_checker(env).whnf(info.get_type());
+    while (is_pi(type)) {
+        expr dom = type_checker(env, lctx).whnf(binding_domain(type));
+        while (is_pi(dom)) {
+            expr local = lctx.mk_local_decl(ngen, binding_name(dom), binding_domain(dom));
+            dom = type_checker(env, lctx).whnf(instantiate(binding_body(dom), local));
+        }
+        auto fn = get_app_fn(dom);
+        if (is_constant(fn) && const_name(fn) == I_name) {
+            rec_mask.push_back(true);
+        } else {
+            rec_mask.push_back(false);
+        }
+        expr local = lctx.mk_local_decl(ngen, binding_name(type), binding_domain(type));
+        type = type_checker(env, lctx).whnf(instantiate(binding_body(type), local));
+    }
+}
+
 class elim_recursors_fn : public compiler_step_visitor {
     name                m_prefix;
     unsigned            m_idx;
@@ -27,9 +65,9 @@ protected:
     expr declare_aux_def(name const & n, expr const & value) {
         m_new_decls.emplace_back(n, optional<pos_info>(), value);
         /* We should use a new type checker because m_env is updated by this object.
-           It is safe to use type_checker because value does not contain local_decl_ref objects. */
+           It is safe to use type_checker because value does not contain free variables. */
         names ps = to_names (collect_univ_params(value));
-        old_type_checker tc(m_env);
+        type_checker tc(m_env);
         expr type         = tc.infer(value);
         bool meta         = true;
         /* We add declaration as an axiom to make sure
@@ -98,9 +136,14 @@ protected:
         expr const & fn = get_app_args(e, args);
         name const & rec_name     = const_name(fn);
         name const & I_name       = rec_name.get_prefix();
-        unsigned nparams          = *inductive::get_num_params(env(), I_name);
-        unsigned nminors          = *inductive::get_num_minor_premises(env(), I_name);
-        unsigned nindices         = *inductive::get_num_indices(env(), I_name);
+        constant_info rec_info    = env().get(rec_name);
+        recursor_val rec_val      = rec_info.to_recursor_val();
+        if (rec_val.get_nmotives() != 1) {
+            throw exception(sstream() << "failed to generate code for '" << rec_name << "', code generator currently does support recursors with more than one motive");
+        }
+        unsigned nparams          = rec_val.get_nparams();
+        unsigned nminors          = rec_val.get_nminors();
+        unsigned nindices         = rec_val.get_nindices();
         unsigned first_minor_idx  = nparams + 1;
         /* Create auxiliary application containing params + typeformer + minor premises.
            This application is going to be the base of the auxiliary recursive definition. */
@@ -166,7 +209,7 @@ protected:
             cases_on_args.push_back(major);
             /* Add minor premises */
             buffer<name> cnames; /* constructor names */
-            get_intro_rule_names(env(), I_name, cnames);
+            get_constructor_names(env(), I_name, cnames);
             for (unsigned i = 0; i < nminors; i++) {
                 // tout() << ">> cname: " << cnames[i] << "\n";
                 unsigned carity = get_constructor_arity(env(), cnames[i]);
@@ -233,17 +276,17 @@ protected:
     }
 
     bool is_recursive_recursor(name const & n) {
-        if (auto I_name = inductive::is_elim_rule(env(), n)) {
-            return is_recursive_datatype(env(), *I_name);
-        }
-        return false;
+        constant_info info = env().get(n);
+        if (!info.is_recursor())
+            return false;
+        return is_recursive_datatype(env(), info.to_recursor_val().get_induct());
     }
 
     virtual expr visit_app(expr const & e) override {
         expr const & fn = get_app_fn(e);
         if (is_constant(fn)) {
             name const & n = const_name(fn);
-            if (inductive::is_elim_rule(env(), n) && is_recursive_recursor(n)) {
+            if (is_recursor(env(), n) && is_recursive_recursor(n)) {
                 return visit_recursor_app(e);
             }
         }
@@ -264,5 +307,14 @@ expr elim_recursors(environment & env, abstract_context_cache & cache,
     expr new_e = fn(e);
     env = fn.env();
     return new_e;
+}
+
+void initialize_elim_recursors() {
+    g_rec_arg_fresh = new name("_rec_arg_fresh");
+    register_name_generator_prefix(*g_rec_arg_fresh);
+}
+
+void finalize_elim_recursors() {
+    delete g_rec_arg_fresh;
 }
 }

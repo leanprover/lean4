@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include "runtime/sstream.h"
 #include "util/fresh_name.h"
 #include "kernel/instantiate.h"
-#include "kernel/inductive/inductive.h"
 #include "library/sorry.h"
 #include "library/noncomputable.h"
 #include "library/constants.h"

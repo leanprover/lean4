@@ -1094,6 +1094,7 @@ environment environment::add_inductive(declaration const & d) const {
 void initialize_inductive() {
     g_nested    = new name("_nested");
     g_ind_fresh = new name("_ind_fresh");
+    register_name_generator_prefix(*g_ind_fresh);
 }
 
 void finalize_inductive() {

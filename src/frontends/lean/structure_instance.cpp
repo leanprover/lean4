@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "runtime/sstream.h"
-#include "library/kernel_serializer.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/structure_instance.h"

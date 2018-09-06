@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "kernel/environment.h"
+#include "kernel/abstract_type_context.h"
 
 namespace lean {
 /**

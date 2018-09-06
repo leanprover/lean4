@@ -64,6 +64,24 @@ bool has_eq_decls(environment const & env);
 bool has_heq_decls(environment const & env);
 bool has_and_decls(environment const & env);
 
+inline bool is_inductive(environment const & env, name const & n) {
+    if (optional<constant_info> info = env.find(n))
+        return info->is_inductive();
+    return false;
+}
+
+inline bool is_constructor(environment const & env, name const & n) {
+    if (optional<constant_info> info = env.find(n))
+        return info->is_constructor();
+    return false;
+}
+
+inline bool is_recursor(environment const & env, name const & n) {
+    if (optional<constant_info> info = env.find(n))
+        return info->is_recursor();
+    return false;
+}
+
 /** \brief Return true iff \c n is the name of a recursive datatype in \c env.
     That is, it must be an inductive datatype AND contain a recursive constructor.
 
@@ -73,14 +91,6 @@ bool has_and_decls(environment const & env);
     if there is a constructor taking \c n. */
 bool is_recursive_datatype(environment const & env, name const & n);
 
-/** \brief Return true if \c n is a recursive *and* reflexive datatype.
-
-    We say an inductive type T is reflexive if it contains at least one constructor that
-    takes as an argument a function returning T.
-
-    TODO(Leo): delete */
-bool is_reflexive_datatype(abstract_type_context & tc, name const & n);
-
 /** \brief Return true iff \c n is an inductive predicate, i.e., an inductive datatype that is in Prop.
 
     \remark If \c env does not have Prop (i.e., Type.{0} is not impredicative), then this method always return false. */
@@ -89,9 +99,9 @@ bool is_inductive_predicate(environment const & env, name const & n);
 /** \brief Return true iff \c n is an inductive type with a recursor with an extra level parameter. */
 bool can_elim_to_type(environment const & env, name const & n);
 
-/** \brief Store in \c result the introduction rules of the given inductive datatype.
-    \remark this procedure does nothing if \c n is not an inductive datatype. */
-void get_intro_rule_names(environment const & env, name const & n, buffer<name> & result);
+/** \brief Store in `result` the constructors of the given inductive datatype.
+    \remark this procedure does nothing if `n` is not an inductive datatype. */
+void get_constructor_names(environment const & env, name const & n, buffer<name> & result);
 
 /** \brief If \c e is a constructor application, then return the name of the constructor.
     Otherwise, return none. */
@@ -107,61 +117,18 @@ optional<name> is_constructor_app_ext(environment const & env, expr const & e);
     \pre inductive::is_intro_rule(env, n) */
 void get_constructor_relevant_fields(environment const & env, name const & n, buffer<bool> & result);
 
+/** Return the number of constructors of the given inductive datatype */
+unsigned get_num_constructors(environment const & env, name const & n);
+
 /** \brief Return the index (position) of the given constructor in the inductive datatype declaration.
     \pre inductive::is_intro_rule(env, n) */
 unsigned get_constructor_idx(environment const & env, name const & n);
-
-/** Given a C.rec, each minor premise has n arguments, and some of these arguments are inductive
-    hypotheses. This function return then number of inductive hypotheses for the minor premise associated with
-    the constructor named \c n. */
-unsigned get_num_inductive_hypotheses_for(environment const & env, name const & n);
-/** Given a constructor \c n, store in the bitmask rec_mask[i] = true iff the i-th argument
-    of \c n is recursive.
-
-    \pre is_intro_rule(n) && rec_mask.empty() */
-void get_constructor_rec_arg_mask(environment const & env, name const & n, buffer<bool> & rec_mask);
-/** Combines get_num_inductive_hypotheses_for and get_constructor_rec_arg_mask */
-unsigned get_num_inductive_hypotheses_for(environment const & env, name const & n, buffer<bool> & rec_mask);
-
-/* Store in `rec_args` the recursive arguments of constructor application \c `e`.
-   The result is false if `e` is not a constructor application.
-   The unsigned value at rec_args represents the arity of the recursive argument.
-   The value is only greater than zero for reflexive inductive datatypes such as:
-
-      inductive inftree (A : Type)
-      | leaf : A → inftree
-      | node : (nat → inftree) → inftree
-*/
-bool get_constructor_rec_args(environment const & env, expr const & e, buffer<pair<expr, unsigned>> & rec_args);
 
 /** \brief Given an expression \c e, return the number of arguments expected arguments.
 
     \remark This function counts the number of nested Pi's in \c e. Weak-head-normal-forms are computed for the type of \c e.
     \remark The type and whnf are computed using \c tc. */
 unsigned get_expect_num_args(abstract_type_context & ctx, expr e);
-
-/** \brief "Consume" Pi-type \c type. This procedure creates local constants based on the domain of \c type
-    and store them in telescope. If \c binfo is provided, then the local constants are annoted with the given
-    binder_info, otherwise the procedure uses the one attached in the domain.
-    The procedure returns the "body" of type.
-
-    TODO(Leo): delete because it uses old APIs */
-expr to_telescope(expr const & type, buffer<expr> & telescope,
-                  optional<binder_info> const & binfo = optional<binder_info>());
-
-/** \brief "Consume" fun/lambda. This procedure creates local constants based on the arguments of \c e
-    and store them in telescope. If \c binfo is provided, then the local constants are annoted with the given
-    binder_info, otherwise the procedure uses the one attached to the arguments.
-    The procedure returns the "body" of function.
-
-    TODO(Leo): delete because it uses old APIs */
-expr fun_to_telescope(expr const & e, buffer<expr> & telescope, optional<binder_info> const & binfo);
-
-/** \brief Similar to previous procedure, but puts \c type in whnf
-
-    TODO(Leo): delete because it uses old APIs */
-expr to_telescope(old_type_checker & ctx, expr type, buffer<expr> & telescope,
-                  optional<binder_info> const & binfo = optional<binder_info>());
 
 /** \brief Return the universe where inductive datatype resides
     \pre \c ind_type is of the form <tt>Pi (a_1 : A_1) (a_2 : A_2[a_1]) ..., Type.{lvl}</tt> */

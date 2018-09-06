@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "runtime/mpz.h"
-#include "library/kernel_serializer.h"
+#include "kernel/expr.h"
 
 namespace lean {
 expr mk_prenum(mpz const & v) {

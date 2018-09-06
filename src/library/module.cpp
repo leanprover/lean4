@@ -23,7 +23,6 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/noncomputable.h"
 #include "library/constants.h"
-#include "library/kernel_serializer.h"
 #include "library/module_mgr.h"
 #include "library/library_task_builder.h"
 
@@ -202,28 +201,6 @@ struct decl_modification : public modification {
     }
 };
 
-struct inductive_modification : public modification {
-    LEAN_MODIFICATION("ind")
-
-    inductive::certified_inductive_decl m_decl;
-
-    inductive_modification(inductive::certified_inductive_decl const & decl):
-        m_decl(decl) {}
-
-    void perform(environment & env) const override {
-        env = m_decl.add(env);
-    }
-
-    void serialize(serializer & s) const override {
-        s << m_decl;
-    }
-
-    static std::shared_ptr<modification const> deserialize(deserializer & d) {
-        auto decl = read_certified_inductive_decl(d);
-        return std::make_shared<inductive_modification>(std::move(decl));
-    }
-};
-
 namespace module {
 environment add(environment const & env, std::shared_ptr<modification const> const & modf) {
     module_ext ext = get_extension(env);
@@ -247,19 +224,6 @@ environment add(environment const & env, declaration const & d) {
             new_env = mark_noncomputable(new_env, v.get_name());
     }
     return add(new_env, std::make_shared<decl_modification>(d));
-}
-
-using inductive::certified_inductive_decl;
-
-environment add_inductive(environment                       env,
-                          inductive::inductive_decl const & decl,
-                          bool                              is_meta) {
-    pair<environment, certified_inductive_decl> r = inductive::add_inductive(env, decl, is_meta);
-    environment new_env             = r.first;
-    certified_inductive_decl cidecl = r.second;
-    module_ext ext = get_extension(env);
-    new_env = update(new_env, ext);
-    return add(new_env, std::make_shared<inductive_modification>(cidecl));
 }
 } // end of namespace module
 
@@ -441,11 +405,9 @@ void initialize_module() {
     g_ext            = new module_ext_reg();
     g_object_readers = new object_readers();
     decl_modification::init();
-    inductive_modification::init();
 }
 
 void finalize_module() {
-    inductive_modification::finalize();
     decl_modification::finalize();
     delete g_object_readers;
     delete g_ext;

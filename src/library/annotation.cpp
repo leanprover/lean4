@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include <string>
 #include "runtime/sstream.h"
 #include "kernel/abstract_type_context.h"
-#include "library/kernel_serializer.h"
 #include "library/annotation.h"
 #include "library/pos_info_provider.h"
 

@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include <string>
 #include "runtime/sstream.h"
 #include "kernel/environment.h"
-#include "library/kernel_serializer.h"
 #include "library/scoped_ext.h"
 #include "library/reducible.h"
 #include "library/attribute_manager.h"

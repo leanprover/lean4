@@ -9,7 +9,6 @@ Quotient types.
 #include "util/name_generator.h"
 #include "kernel/quot.h"
 #include "kernel/local_ctx.h"
-#include "kernel/inductive/inductive.h"
 
 namespace lean {
 name * quot_consts::g_quot = nullptr;
@@ -18,23 +17,30 @@ name * quot_consts::g_quot_ind  = nullptr;
 name * quot_consts::g_quot_mk   = nullptr;
 
 static void check_eq_type(environment const & env) {
-    optional<inductive::inductive_decl> decl = inductive::is_inductive_decl(env, "eq");
-    if (!decl) throw exception("failed to initialize quot module, environment does not have 'eq' type");
-    if (length(decl->m_level_params) != 1)
+    constant_info eq_info = env.get("eq");
+    if (!eq_info.is_inductive()) throw exception("failed to initialize quot module, environment does not have 'eq' type");
+    inductive_val eq_val  = eq_info.to_inductive_val();
+    if (length(eq_info.get_lparams()) != 1)
         throw exception("failed to initialize quot module, unexpected number of universe params at 'eq' type");
+    if (length(eq_val.get_cnstrs()) != 1)
+        throw exception("failed to initialize quot module, unexpected number of constructors for 'eq' type");
     local_ctx lctx;
     name_generator g;
-    level u = mk_univ_param(head(decl->m_level_params));
-    expr alpha = lctx.mk_local_decl(g, "α", mk_sort(u), mk_implicit_binder_info());
-    expr expected_eq_type = lctx.mk_pi(alpha, mk_arrow(alpha, mk_arrow(alpha, mk_Prop())));
-    if (decl->m_type != expected_eq_type)
-        throw exception("failed to initialize quot module, 'eq' has an expected type");
-    if (length(decl->m_intro_rules) != 1)
-        throw exception("failed to initialize quot module, unexpected number of constructors for 'eq' type");
-    expr a = lctx.mk_local_decl(g, "a", alpha);
-    expr expected_eq_refl_type = lctx.mk_pi({alpha, a}, mk_app(mk_constant("eq", {u}), alpha, a, a));
-    if (local_type(head(decl->m_intro_rules)) != expected_eq_refl_type) {
-        throw exception("failed to initialize quot module, unexpected type for 'eq' type constructor");
+    {
+        level u = mk_univ_param(head(eq_info.get_lparams()));
+        expr alpha = lctx.mk_local_decl(g, "α", mk_sort(u), mk_implicit_binder_info());
+        expr expected_eq_type = lctx.mk_pi(alpha, mk_arrow(alpha, mk_arrow(alpha, mk_Prop())));
+        if (expected_eq_type != eq_info.get_type())
+            throw exception("failed to initialize quot module, 'eq' has an expected type");
+    }
+    {
+        constant_info eq_refl_info = env.get(head(eq_val.get_cnstrs()));
+        level u = mk_univ_param(head(eq_refl_info.get_lparams()));
+        expr alpha = lctx.mk_local_decl(g, "α", mk_sort(u), mk_implicit_binder_info());
+        expr a = lctx.mk_local_decl(g, "a", alpha);
+        expr expected_eq_refl_type = lctx.mk_pi({alpha, a}, mk_app(mk_constant("eq", {u}), alpha, a, a));
+        if (eq_refl_info.get_type() != expected_eq_refl_type)
+            throw exception("failed to initialize quot module, unexpected type for 'eq' type constructor");
     }
 }
 

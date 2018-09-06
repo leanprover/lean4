@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
-#include "kernel/inductive/inductive.h"
 #include "library/util.h"
 #include "library/module.h"
 #include "library/trace.h"
@@ -79,10 +78,10 @@ class inline_simple_definitions_fn : public compiler_step_visitor {
     }
 
     bool is_nonrecursive_recursor(name const & n) {
-        if (auto I_name = inductive::is_elim_rule(env(), n)) {
-            return !is_recursive_datatype(env(), *I_name);
-        }
-        return false;
+        constant_info info = env().get(n);
+        if (!info.is_recursor())
+            return false;
+        return !is_recursive_datatype(env(), info.to_recursor_val().get_induct());
     }
 
     /* Try to reduce cases_on (and nonrecursive recursor) application
@@ -96,13 +95,15 @@ class inline_simple_definitions_fn : public compiler_step_visitor {
         bool is_cases_on            = is_cases_on_recursor(env(), const_name(fn));
         name const & rec_name       = const_name(fn);
         name const & I_name         = rec_name.get_prefix();
-        unsigned nparams            = *inductive::get_num_params(env(), I_name);
-        unsigned nindices           = *inductive::get_num_indices(env(), I_name);
+        constant_info I_info        = env().get(I_name);
+        inductive_val I_val         = I_info.to_inductive_val();
+        unsigned nparams            = I_val.get_nparams();
+        unsigned nindices           = I_val.get_nindices();
         unsigned major_idx;
         if (is_cases_on) {
-            major_idx       = nparams + 1 + nindices;
+            major_idx       = nparams + 1 /* motive */ + nindices;
         } else {
-            major_idx       = *inductive::get_elim_major_idx(env(), rec_name);
+            major_idx       = env().get(rec_name).to_recursor_val().get_major_idx();
         }
         if (major_idx >= args.size())
             return mk_app(fn, args);

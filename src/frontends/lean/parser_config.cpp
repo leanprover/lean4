@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "runtime/sstream.h"
 #include "util/list_fn.h"
 #include "library/scoped_ext.h"
-#include "library/kernel_serializer.h"
 #include "frontends/lean/parser_config.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/builtin_cmds.h"

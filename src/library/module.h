@@ -12,8 +12,8 @@ Author: Leonardo de Moura
 #include "runtime/serializer.h"
 #include "runtime/optional.h"
 #include "util/task.h"
-#include "kernel/inductive/inductive.h"
 #include "library/io_state.h"
+#include "kernel/environment.h"
 
 namespace lean {
 class corrupted_file_exception : public exception {
@@ -118,11 +118,6 @@ environment add_and_perform(environment const & env, std::shared_ptr<modificatio
 
 /** \brief Add the given declaration to the environment, and mark it to be exported. */
 environment add(environment const & env, declaration const & d);
-
-/** \brief Add the given inductive declaration to the environment, and mark it to be exported. */
-environment add_inductive(environment                       env,
-                          inductive::inductive_decl const & decl,
-                          bool                              is_meta);
 }
 void initialize_module();
 void finalize_module();

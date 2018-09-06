@@ -27,7 +27,6 @@ Author: Leonardo de Moura
 #include "util/sexpr/option_declarations.h"
 #include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
-#include "kernel/standard_kernel.h"
 #include "library/formatter.h"
 #include "library/st_task_queue.h"
 #include "library/eval_helper.h"
@@ -560,7 +559,7 @@ int main(int argc, char ** argv) {
         set_max_heartbeat_thousands(timeout);
     }
 
-    environment env = mk_environment(trust_lvl);
+    environment env(trust_lvl);
 
     io_state ios(opts, lean::mk_pretty_formatter_factory());
 

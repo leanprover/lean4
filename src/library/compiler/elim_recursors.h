@@ -10,4 +10,6 @@ Author: Leonardo de Moura
 namespace lean {
 /** \brief Eliminate recursor applications */
 expr elim_recursors(environment & env, abstract_context_cache & cache, name const & prefix, expr const & e, buffer<procedure> & new_decls);
+void initialize_elim_recursors();
+void finalize_elim_recursors();
 }

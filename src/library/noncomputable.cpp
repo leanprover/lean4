@@ -77,8 +77,7 @@ static bool is_noncomputable(old_type_checker & tc, noncomputable_ext const & ex
     if (info.is_meta()) {
         return false; /* ignore nontrusted definitions */
     } else if (info.is_axiom()) {
-        return !env.is_builtin(info.get_name()) && !tc.is_prop(info.get_type()) && !is_sort(info.get_type()) &&
-               !is_builtin_extra(info.get_name());
+        return !tc.is_prop(info.get_type()) && !is_sort(info.get_type()) && !is_builtin_extra(info.get_name());
     } else {
         return false;
     }

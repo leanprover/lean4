@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "library/module_mgr.h"
 #include "library/st_task_queue.h"
 #include "library/module.h"
-#include "kernel/standard_kernel.h"
 #include "library/type_context.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/parser.h"
@@ -35,7 +34,7 @@ private:
     st_task_queue m_tq;
 
 public:
-    emscripten_shell(): m_env(mk_environment(LEAN_BELIEVER_TRUST_LEVEL + 1)),
+    emscripten_shell(): m_env(LEAN_BELIEVER_TRUST_LEVEL + 1),
                         m_ios(options({"trace", "as_messages"}, true),
                               mk_pretty_formatter_factory()),
                         m_server(0, get_lean_js_path(), m_env, m_ios) {}

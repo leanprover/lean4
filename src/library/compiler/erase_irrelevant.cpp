@@ -6,12 +6,10 @@ Author: Leonardo de Moura
 */
 #include "runtime/sstream.h"
 #include "kernel/instantiate.h"
-#include "kernel/inductive/inductive.h"
 #include "library/util.h"
 #include "library/string.h"
 #include "library/constants.h"
 #include "library/aux_recursors.h"
-#include "library/inductive_compiler/ginductive.h"
 #include "library/compiler/util.h"
 #include "library/compiler/nat_value.h"
 #include "library/compiler/comp_irrelevant.h"
@@ -182,16 +180,18 @@ class erase_irrelevant_fn : public compiler_step_visitor {
         name const & I_name         = rec_name.get_prefix();
         if (I_name == get_false_name())
             return *g_unreachable_expr;
-        unsigned nparams            = *inductive::get_num_params(env(), I_name);
-        unsigned nminors            = *inductive::get_num_minor_premises(env(), I_name);
-        unsigned nindices           = *inductive::get_num_indices(env(), I_name);
+        constant_info I_info        = env().get(I_name);
+        inductive_val I_val         = I_info.to_inductive_val();
+        unsigned nparams            = I_val.get_nparams();
+        unsigned nminors            = length(I_val.get_cnstrs());
+        unsigned nindices           = I_val.get_nindices();
         unsigned arity              = nparams + 1 /* typeformer/motive */ + nindices + 1 /* major premise */ + nminors;
         lean_assert(args.size() >= arity);
         /* TODO(Leo, Daniel): we need a way to check whether the user is trying to cases_on
            on an auxiliary datatype
         */
         buffer<name> cnames;
-        get_intro_rule_names(env(), I_name, cnames);
+        get_constructor_names(env(), I_name, cnames);
         expr * minors        = args.data() + nparams + 1 + nindices + 1;
         unsigned nextra_args = args.size() - arity;
         expr * extra_args    = args.data() + arity;
@@ -211,13 +211,16 @@ class erase_irrelevant_fn : public compiler_step_visitor {
 
         /* This preprocessing step assumes that recursive recursors have already been eliminated */
         lean_assert(!is_recursive_datatype(env(), I_name));
-        unsigned nparams            = *inductive::get_num_params(env(), I_name);
-        unsigned nminors            = *inductive::get_num_minor_premises(env(), I_name);
-        unsigned nindices           = *inductive::get_num_indices(env(), I_name);
-        unsigned arity              = nparams + 1 /* typeformer/motive */ + nminors + nindices + 1 /* major premise */;
+        constant_info rec_info      = env().get(rec_name);
+        recursor_val rec_val        = rec_info.to_recursor_val();
+        unsigned nparams            = rec_val.get_nparams();
+        unsigned nminors            = rec_val.get_nminors();
+        unsigned nindices           = rec_val.get_nindices();
+        unsigned nmotives           = rec_val.get_nmotives();
+        unsigned arity              = nparams + nmotives + nminors + nindices + 1 /* major premise */;
         lean_assert(args.size() >= arity);
         buffer<name> cnames;
-        get_intro_rule_names(env(), I_name, cnames);
+        get_constructor_names(env(), I_name, cnames);
         expr new_fn = mk_constant(name(I_name, "cases_on"));
         expr major  = visit(args[nparams + 1 + nminors + nindices]);
         expr * minors        = args.data() + nparams + 1;
@@ -256,8 +259,10 @@ class erase_irrelevant_fn : public compiler_step_visitor {
         lean_assert(is_constant(fn));
         name const & no_confusion_name  = const_name(fn);
         name const & I_name             = no_confusion_name.get_prefix();
-        unsigned nparams                = *inductive::get_num_params(env(), I_name);
-        unsigned nindices               = *inductive::get_num_indices(env(), I_name);
+        constant_info I_info            = env().get(I_name);
+        inductive_val I_val             = I_info.to_inductive_val();
+        unsigned nparams                = I_val.get_nparams();
+        unsigned nindices               = I_val.get_nindices();
         DEBUG_CODE(unsigned basic_arity = nparams + nindices + 1 /* motive */ + 2 /* lhs/rhs */ + 1 /* equality */;);
         lean_assert(args.size() >= basic_arity);
         expr lhs                        = ctx().whnf(args[nparams + nindices + 1]);
@@ -366,9 +371,7 @@ class erase_irrelevant_fn : public compiler_step_visitor {
             return visit(beta_reduce(e));
         } else if (is_constant(fn)) {
             name const & n = const_name(fn);
-            if (is_ginductive_intro_rule(env(), n) && ir_to_simulated_ir_offset(env(), n) > 0) {
-                throw exception(sstream() << "code generation failed, auxiliary internal constructor '" << n << "' is being used");
-            } else if (n == get_eq_rec_name()) {
+            if (n == get_eq_rec_name()) {
                 return visit_eq_rec(args);
             } else if (n == get_acc_cases_on_name()) {
                 return visit_acc_cases_on(args);
@@ -384,7 +387,7 @@ class erase_irrelevant_fn : public compiler_step_visitor {
                 return visit_subtype_rec(args);
             } else if (is_cases_on_recursor(env(), n)) {
                 return visit_cases_on(fn, args);
-            } else if (inductive::is_elim_rule(env(), n)) {
+            } else if (is_recursor(env(), n)) {
                 return visit_rec(fn, args);
             } else if (is_no_confusion(env(), n)) {
                 return visit_no_confusion(fn, args);

@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/find_fn.h"
 #include "kernel/old_type_checker.h"
-#include "kernel/inductive/inductive.h"
 #include "library/scope_pos_info_provider.h"
 #include "library/util.h"
 #include "library/module.h"
@@ -27,7 +26,6 @@ Author: Leonardo de Moura
 #include "library/aux_definition.h"
 #include "library/comp_val.h"
 #include "library/compiler/vm_compiler.h"
-#include "library/inductive_compiler/ginductive.h"
 #include "library/equations_compiler/equations.h"
 #include "library/equations_compiler/util.h"
 #include "library/equations_compiler/wf_rec.h"
@@ -326,7 +324,7 @@ bool is_nat_int_char_string_name_value(type_context_old & ctx, expr const & e) {
 }
 
 static bool is_inductive(environment const & env, expr const & e) {
-    return is_constant(e) && is_ginductive(env, const_name(e));
+    return is_constant(e) && env.get(const_name(e)).is_inductive();
 }
 
 /* Normalize until head is an inductive datatype */
@@ -334,10 +332,6 @@ static expr whnf_inductive(type_context_old & ctx, expr const & e) {
     return ctx.whnf_head_pred(e, [&](expr const & e) {
             return !is_inductive(ctx.env(), get_app_fn(e));
         });
-}
-
-static void get_constructors_of(environment const & env, name const & n, buffer<name> & result) {
-    to_buffer(get_ginductive_intro_rules(env, n), result);
 }
 
 /* Given a variable (x : I A idx), where (I A idx) is an inductive datatype,
@@ -350,14 +344,17 @@ void for_each_compatible_constructor(type_context_old & ctx, expr const & var,
     lean_assert(is_local(var));
     expr var_type = whnf_inductive(ctx, ctx.infer(var));
     buffer<expr> I_args;
-    expr const & I      = get_app_args(var_type, I_args);
-    name const & I_name = const_name(I);
-    levels const & I_ls = const_levels(I);
-    unsigned nparams    = get_ginductive_num_params(ctx.env(), I_name);
+    expr const & I       = get_app_args(var_type, I_args);
+    name const & I_name  = const_name(I);
+    levels const & I_ls  = const_levels(I);
+    constant_info I_info = ctx.env().get(I_name);
+    lean_assert(I_info.is_inductive());
+    inductive_val I_val  = I_info.to_inductive_val();
+    unsigned nparams     = I_val.get_nparams();
     buffer<expr> I_params;
     I_params.append(nparams, I_args.data());
     buffer<name> constructor_names;
-    get_constructors_of(ctx.env(), I_name, constructor_names);
+    get_constructor_names(ctx.env(), I_name, constructor_names);
     for (name const & c_name : constructor_names) {
         buffer<expr> c_vars;
         buffer<name> c_var_names;

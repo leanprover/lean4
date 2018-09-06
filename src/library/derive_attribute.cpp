@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "kernel/old_type_checker.h"
 #include "library/util.h"
 #include "library/scoped_ext.h"
-#include "library/kernel_serializer.h"
 #include "library/user_recursors.h"
 #include "library/aux_recursors.h"
 #include "library/attribute_manager.h"

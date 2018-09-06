@@ -15,21 +15,7 @@ Author: Leonardo de Moura
 #include "kernel/quot.h"
 
 namespace lean {
-environment_header::environment_header(unsigned trust_lvl, std::unique_ptr<normalizer_extension const> ext):
-    m_trust_lvl(trust_lvl), m_norm_ext(std::move(ext)) {}
-
 environment_extension::~environment_extension() {}
-
-environment::environment(unsigned trust_lvl):
-    environment(trust_lvl, mk_id_normalizer_extension())
-{}
-
-environment::environment(unsigned trust_lvl, std::unique_ptr<normalizer_extension> ext):
-    m_header(std::make_shared<environment_header>(trust_lvl, std::move(ext))),
-    m_extensions(std::make_shared<environment_extensions const>())
-{}
-
-environment::~environment() {}
 
 optional<constant_info> environment::find(name const & n) const {
     constant_info const * r = m_constants.find(n);
@@ -41,14 +27,6 @@ constant_info environment::get(name const & n) const {
     if (!r)
         throw unknown_constant_exception(*this, n);
     return *r;
-}
-
-bool environment::is_recursor(name const & n) const {
-    return m_header->is_recursor(*this, n) || (m_quot_initialized && quot_is_rec(n));
-}
-
-bool environment::is_builtin(name const & n) const {
-    return m_header->is_builtin(*this, n) || (m_quot_initialized && quot_is_decl(n));
 }
 
 static void check_no_metavar(environment const & env, name const & n, expr const & e) {

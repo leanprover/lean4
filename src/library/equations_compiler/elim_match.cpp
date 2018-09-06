@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "kernel/abstract.h"
 #include "library/placeholder.h"
-#include "kernel/inductive/inductive.h"
 #include "library/max_sharing.h"
 #include "library/trace.h"
 #include "library/num.h"
@@ -33,7 +32,6 @@ Author: Leonardo de Moura
 #include "library/tactic/clear_tactic.h"
 #include "library/tactic/cases_tactic.h"
 #include "library/tactic/intro_tactic.h"
-#include "library/inductive_compiler/ginductive.h"
 #include "library/equations_compiler/equations.h"
 #include "library/equations_compiler/util.h"
 #include "library/equations_compiler/elim_match.h"
@@ -256,7 +254,11 @@ struct elim_match_fn {
     }
 
     optional<name> is_constructor(name const & n) const {
-        return is_ginductive_intro_rule(m_env, n);
+        constant_info info = m_env.get(n);
+        if (info.is_constructor())
+            return optional<name>(info.to_constructor_val().get_induct());
+        else
+            return optional<name>();
     }
     optional<name> is_constructor(expr const & e) const {
         if (!is_constant(e)) return optional<name>();
@@ -265,7 +267,7 @@ struct elim_match_fn {
     optional<name> is_constructor_app(type_context_old & ctx, expr const & e) const {
         if (auto ind_type = is_constructor(get_app_fn(e))) {
             // Check that e is not a partially applied constructor.
-            auto e_type = whnf_ginductive(ctx, ctx.infer(e));
+            auto e_type = ctx.relaxed_whnf(ctx.infer(e));
             if (is_app_of(e_type, *ind_type)){
                 return ind_type;
             }
@@ -273,13 +275,13 @@ struct elim_match_fn {
         return optional<name>();
     }
 
-    bool is_inductive(name const & n) const { return static_cast<bool>(is_ginductive(m_env, n)); }
+    bool is_inductive(name const & n) const { return m_env.get(n).is_inductive(); }
     bool is_inductive(expr const & e) const { return is_constant(e) && is_inductive(const_name(e)); }
     bool is_inductive_app(expr const & e) const { return is_inductive(get_app_fn(e)); }
 
     void get_constructors_of(name const & n, buffer<name> & c_names) const {
         lean_assert(is_inductive(n));
-        to_buffer(get_ginductive_intro_rules(m_env, n), c_names);
+        get_constructor_names(m_env, n, c_names);
     }
 
     /* Return true iff `e` is of the form (I.below ...) or (I.ibelow ...) where `I` is an inductive datatype.
@@ -336,7 +338,7 @@ struct elim_match_fn {
         return is_char_value(ctx, e);
     }
 
-    unsigned get_inductive_num_params(name const & n) const { return get_ginductive_num_params(m_env, n); }
+    unsigned get_inductive_num_params(name const & n) const { return m_env.get(n).to_inductive_val().get_nparams(); }
     unsigned get_inductive_num_params(expr const & I) const { return get_inductive_num_params(const_name(I)); }
 
     /* Normalize until head is constructor or value */
@@ -737,13 +739,10 @@ struct elim_match_fn {
         list<expr> new_goals;
         names new_goal_cnames;
         try {
-            /* Remark: reverted bcf44f7020, see issue #1739 */
-            /* bool unfold_ginductive = false; */
-            bool unfold_ginductive = true;
             names ids;
             std::tie(new_goals, new_goal_cnames) =
                 cases(m_env, get_options(), transparency_mode::Semireducible, m_mctx,
-                      P.m_goal, x, ids, &ilist, &slist, unfold_ginductive);
+                      P.m_goal, x, ids, &ilist, &slist);
             lean_assert(length(new_goals) == length(new_goal_cnames));
             lean_assert(length(new_goals) == length(ilist));
             lean_assert(length(new_goals) == length(slist));

@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "library/scoped_ext.h"
 #include "library/constants.h"
-#include "library/kernel_serializer.h"
 #include "library/protected.h"
 #include "library/type_context.h"
 #include "library/class.h"
@@ -79,7 +78,7 @@ struct class_state {
             m_has_out_params.insert(c);
     }
 
-    void add_instance(environment const & env, name const & c, name const & i, unsigned p) {
+    void add_instance(name const & c, name const & i, unsigned p) {
         auto it = m_instances.find(c);
         if (!it) {
             m_instances.insert(c, names(i));
@@ -102,7 +101,7 @@ struct class_config {
             s.add_class(env, e.m_class);
             break;
         case class_entry_kind::Instance:
-            s.add_instance(env, e.m_class, e.m_instance, e.m_priority);
+            s.add_instance(e.m_class, e.m_instance, e.m_priority);
             break;
         }
     }

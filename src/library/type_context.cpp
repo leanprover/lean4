@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/quot.h"
 #include "kernel/inductive.h"
-#include "kernel/inductive/inductive.h"
 #include "library/error_msgs.h"
 #include "library/trace.h"
 #include "library/class.h"
@@ -739,7 +738,7 @@ optional<expr> type_context_old::reduce_recursor(expr const & e) {
                                                 [&](expr const & e1, expr const & e2) { return is_def_eq(e1, e2); })) {
         return r;
     }
-    return env().norm_ext()(e, *this);
+    return none_expr();
 }
 
 /*
@@ -939,7 +938,7 @@ optional<expr> type_context_old::is_stuck(expr const & e) {
                                                   [&](expr const & e) { return is_stuck(e); })) {
             return r;
         }
-        return env().norm_ext().is_stuck(e, *this);
+        return none_expr();
     }
 }
 
@@ -2748,22 +2747,25 @@ expr type_context_old::try_to_unstuck_using_complete_instance(expr const & e) {
     expr const & fn = get_app_args(e, args);
     if (!is_constant(fn))
         return e; /* do nothing */
-    if (optional<unsigned> major_idx = inductive::get_elim_major_idx(env(), const_name(fn))) {
+    constant_info info = env().get(const_name(fn));
+    if (info.is_recursor()) {
+        unsigned major_idx = info.to_recursor_val().get_major_idx();
         /* This is an optimization for recursor/eliminator applications.
            In this case, we only need to instantiate metavariables in the major premise */
-        if (*major_idx < args.size()) {
-            expr major     = args[*major_idx];
+        if (major_idx < args.size()) {
+            expr major     = args[major_idx];
             expr new_major = complete_instance(major);
             if (new_major != major) {
-                args[*major_idx] = new_major;
+                args[major_idx] = new_major;
                 return mk_app(fn, args);
             }
         }
         return e;
+    } else {
+        /* For projections and other builtin constants that compute in the kernel, we
+           do not have any special optimization, we just invoke complete_instance */
+        return complete_instance(e);
     }
-    /* For projections and other builtin constants that compute in the kernel, we
-       do not have any special optimization, we just invoke complete_instance */
-    return complete_instance(e);
 }
 
 bool type_context_old::on_is_def_eq_failure(expr const & e1, expr const & e2) {

@@ -8,11 +8,10 @@ Author: Leonardo de Moura
 #include "runtime/sstream.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/instantiate.h"
-#include "kernel/inductive/inductive.h"
+#include "kernel/inductive.h"
 #include "library/util.h"
 #include "library/projection.h"
 #include "library/module.h"
-#include "library/kernel_serializer.h"
 
 namespace lean {
 /** \brief This environment extension stores information about all projection functions
@@ -84,9 +83,10 @@ name_map<projection_info> const & get_projection_info_map(environment const & en
     If not, generate an error message using \c pos.
 */
 bool is_structure_like(environment const & env, name const & S) {
-    optional<inductive::inductive_decl> decl = inductive::is_inductive_decl(env, S);
-    if (!decl) return false;
-    return length(decl->m_intro_rules) == 1 && *inductive::get_num_indices(env, S) == 0;
+    constant_info S_info = env.get(S);
+    if (!S_info.is_inductive()) return false;
+    inductive_val S_val = S_info.to_inductive_val();
+    return length(S_val.get_cnstrs()) == 1 && S_val.get_nindices() == 0;
 }
 
 void initialize_projection() {

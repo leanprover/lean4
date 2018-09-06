@@ -45,7 +45,7 @@ struct print_axioms_deps {
             return;
         m_visited.insert(n);
         constant_info info = m_env.get(n);
-        if (info.is_axiom() && !m_env.is_builtin(n)) {
+        if (info.is_axiom()) {
             m_use_axioms = true;
             m_ios << info.get_name() << "\n";
         }
@@ -84,7 +84,7 @@ static void print_axioms(parser & p, message_builder & out) {
         bool has_axioms = false;
         p.env().for_each_constant([&](constant_info const & info) {
                 name const & n = info.get_name();
-                if (info.is_axiom() && !p.env().is_builtin(n) && !info.is_meta()) {
+                if (info.is_axiom() && !info.is_meta()) {
                     out << n << " : " << info.get_type() << endl;
                     has_axioms = true;
                 }

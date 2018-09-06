@@ -20,7 +20,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
 #include "kernel/quot.h"
-#include "kernel/inductive/inductive.h"
+#include "kernel/inductive.h"
 
 namespace lean {
 static name * g_kernel_fresh = nullptr;
@@ -221,14 +221,15 @@ expr old_type_checker::infer_type_core(expr const & e, bool infer_only) {
         expr const & I = get_app_args(type, args);
         if (!is_constant(I))
             throw invalid_proj_exception(m_env, local_ctx(), e);
-        optional<inductive::inductive_decl> decl = inductive::is_inductive_decl(m_env, const_name(I));
-        if (!decl)
+        constant_info I_info = m_env.get(const_name(I));
+        if (!I_info.is_inductive())
             throw invalid_proj_exception(m_env, local_ctx(), e);
-        if (length(decl->m_intro_rules) != 1 || args.size() != decl->m_num_params)
+        inductive_val I_val = I_info.to_inductive_val();
+        if (length(I_val.get_cnstrs()) != 1 || args.size() != I_val.get_nparams())
             throw invalid_proj_exception(m_env, local_ctx(), e);
 
-        inductive::intro_rule cnstr = head(decl->m_intro_rules);
-        constant_info c_info = m_env.get(inductive::intro_rule_name(cnstr));
+        constant_info c_info = m_env.get(head(I_val.get_cnstrs()));
+
         r = instantiate_type_lparams(c_info, const_levels(I));
         for (expr const & arg : args) {
             r = whnf(r);
@@ -298,7 +299,13 @@ optional<expr> old_type_checker::norm_ext(expr const & e) {
             return r;
         }
     }
-    return m_env.norm_ext()(e, *this);
+    if (optional<expr> r = inductive_reduce_rec(m_env, e,
+                                                [&](expr const & e) { return whnf(e); },
+                                                [&](expr const & e) { return infer(e); },
+                                                [&](expr const & e1, expr const & e2) { return is_def_eq(e1, e2); })) {
+        return r;
+    }
+    return none_expr();
 }
 
 /** \brief Weak head normal form core procedure. It does not perform delta reduction nor normalization extensions. */
@@ -346,14 +353,14 @@ expr old_type_checker::whnf_core(expr const & e) {
             r = e;
             break;
         }
-        optional<name> I = inductive::is_intro_rule(m_env, const_name(mk));
-        if (!I) {
+        constant_info mk_info = m_env.get(const_name(mk));
+        if (!mk_info.is_constructor()) {
             r = e;
             break;
         }
-        inductive::inductive_decl decl = *inductive::is_inductive_decl(m_env, *I);
-        if (decl.m_num_params + idx < args.size())
-            r = args[decl.m_num_params + idx];
+        unsigned nparams = mk_info.to_constructor_val().get_nparams();
+        if (nparams + idx < args.size())
+            r = args[nparams + idx];
         else
             r = e;
         break;

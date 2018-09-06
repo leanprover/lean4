@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "util/sexpr/init_module.h"
 #include "kernel/init_module.h"
 #include "kernel/level.h"
-#include "library/kernel_serializer.h"
 #include "library/init_module.h"
 using namespace lean;
 

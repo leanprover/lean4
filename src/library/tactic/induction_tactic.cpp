@@ -15,7 +15,6 @@ Author: Leonardo de Moura
 #include "library/aux_recursors.h"
 #include "library/locals.h"
 #include "library/app_builder.h"
-#include "library/inductive_compiler/ginductive.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/revert_tactic.h"
 #include "library/tactic/intro_tactic.h"

@@ -6,12 +6,10 @@ Author: Leonardo de Moura
 */
 #include "runtime/sstream.h"
 #include "kernel/instantiate.h"
-#include "kernel/inductive/inductive.h"
 #include "library/util.h"
 #include "library/projection.h"
 #include "library/constants.h"
 #include "library/vm/vm.h"
-#include "library/inductive_compiler/ginductive.h"
 #include "library/compiler/util.h"
 #include "library/compiler/erase_irrelevant.h"
 #include "library/compiler/compiler_step_visitor.h"
@@ -73,7 +71,7 @@ unsigned get_vm_supported_cases_num_minors(environment const & env, expr const &
         optional<unsigned> builtin_cases_idx = get_vm_builtin_cases_idx(env, fn_name);
         if (builtin_cases_idx) {
             name const & I_name = fn_name.get_prefix();
-            return *inductive::get_num_intro_rules(env, I_name);
+            return get_num_constructors(env, I_name);
         } else {
             lean_assert(is_internal_cases(fn));
             return *is_internal_cases(fn);
@@ -122,10 +120,7 @@ public:
    datatype as the only relevant element. */
 class erase_trivial_structures_fn : public simp_inductive_core_fn {
     bool has_only_one_constructor(name const & I_name) const {
-        if (auto r = inductive::get_num_intro_rules(env(), I_name))
-            return *r == 1;
-        else
-            return false;
+        return get_num_constructors(env(), I_name) == 1;
     }
 
     /* Return true iff inductive datatype I_name has only one constructor,
@@ -155,11 +150,12 @@ class erase_trivial_structures_fn : public simp_inductive_core_fn {
         if (is_vm_builtin_function(fn))
             return visit_default(fn, args);
 
-        name I_name      = *inductive::is_intro_rule(env(), fn);
+        constructor_val cnstr_val = env().get(fn).to_constructor_val();
+        name I_name      = cnstr_val.get_induct();
         buffer<bool> rel_fields;
         get_constructor_info(fn, rel_fields);
         if (has_trivial_structure(I_name, rel_fields)) {
-            unsigned nparams = *inductive::get_num_params(env(), I_name);
+            unsigned nparams = cnstr_val.get_nparams();
             for (unsigned i = 0; i < rel_fields.size(); i++) {
                 if (rel_fields[i]) {
                     return visit(args[nparams + i]);
@@ -176,7 +172,8 @@ class erase_trivial_structures_fn : public simp_inductive_core_fn {
             return visit_default(fn, args);
 
         projection_info const & info = *get_projection_info(env(), fn);
-        name I_name = *inductive::is_intro_rule(env(), info.m_constructor);
+        constructor_val cnstr_val = env().get(info.m_constructor).to_constructor_val();
+        name I_name               = cnstr_val.get_induct();
         buffer<bool> rel_fields;
         get_constructor_info(info.m_constructor, rel_fields);
         if (has_trivial_structure(I_name, rel_fields)) {
@@ -197,7 +194,7 @@ class erase_trivial_structures_fn : public simp_inductive_core_fn {
 
         name const & I_name = fn.get_prefix();
         buffer<name> cnames;
-        get_intro_rule_names(env(), I_name, cnames);
+        get_constructor_names(env(), I_name, cnames);
         if (cnames.size() != 1)
             return visit_default(fn, args);
 
@@ -223,7 +220,7 @@ class erase_trivial_structures_fn : public simp_inductive_core_fn {
             name const & n = const_name(fn);
             if (is_cases_on_recursor(env(), n)) {
                 return visit_cases_on(n, args);
-            } else if (inductive::is_intro_rule(env(), n)) {
+            } else if (is_constructor(env(), n)) {
                 return visit_constructor(n, args);
             } else if (is_projection(env(), n)) {
                 return visit_projection(n, args);
@@ -246,7 +243,7 @@ class simp_inductive_fn : public simp_inductive_core_fn {
     */
     void distribute_extra_args_over_minors(name const & I_name, buffer<name> const & cnames, buffer<expr> & args) {
         lean_assert(args.size() > cnames.size() + 1);
-        unsigned nparams = *inductive::get_num_params(env(), I_name);
+        unsigned nparams = env().get(I_name).to_inductive_val().get_nparams();
         for (unsigned i = 0; i < cnames.size(); i++) {
             unsigned carity  = get_constructor_arity(env(), cnames[i]);
             unsigned data_sz = carity - nparams;
@@ -271,7 +268,7 @@ class simp_inductive_fn : public simp_inductive_core_fn {
             throw exception(sstream() << "code generation failed, inductive predicate '" << I_name << "' is not supported");
         bool is_builtin = is_vm_builtin_function(fn);
         buffer<name> cnames;
-        get_intro_rule_names(env(), I_name, cnames);
+        get_constructor_names(env(), I_name, cnames);
         lean_assert(args.size() >= cnames.size() + 1);
         if (args.size() > cnames.size() + 1)
             distribute_extra_args_over_minors(I_name, cnames, args);
@@ -328,9 +325,8 @@ class simp_inductive_fn : public simp_inductive_core_fn {
         } else {
             /* The following invariant should hold since erase_irrelevant rejected code
                where it doesn't hold. */
-            lean_assert(ir_to_simulated_ir_offset(env(), fn) == 0);
-            name I_name      = *inductive::is_intro_rule(env(), fn);
-            unsigned nparams = *inductive::get_num_params(env(), I_name);
+            constructor_val cnstr_val = env().get(fn).to_constructor_val();
+            unsigned nparams = cnstr_val.get_nparams();
             unsigned cidx    = get_constructor_idx(env(), fn);
             buffer<bool> rel_fields;
             get_constructor_info(fn, rel_fields);
@@ -352,7 +348,6 @@ class simp_inductive_fn : public simp_inductive_core_fn {
             projection_info const & info = *get_projection_info(env(), fn);
             expr major = visit(args[info.m_nparams]);
             buffer<bool> rel_fields;
-            name I_name = *inductive::is_intro_rule(env(), info.m_constructor);
             get_constructor_info(info.m_constructor, rel_fields);
             lean_assert(info.m_i < rel_fields.size());
             lean_assert(rel_fields[info.m_i]); /* We already erased irrelevant information */
@@ -378,7 +373,7 @@ class simp_inductive_fn : public simp_inductive_core_fn {
             name const & n = const_name(fn);
             if (is_cases_on_recursor(env(), n)) {
                 return visit_cases_on(n, args);
-            } else if (inductive::is_intro_rule(env(), n)) {
+            } else if (is_constructor(env(), n)) {
                 return visit_constructor(n, args);
             } else if (is_projection(env(), n)) {
                 return visit_projection(n, args);
@@ -391,7 +386,7 @@ class simp_inductive_fn : public simp_inductive_core_fn {
         name const & n = const_name(e);
         if (is_vm_builtin_function(n)) {
             return e;
-        } else if (inductive::is_intro_rule(env(), n)) {
+        } else if (is_constructor(env(), n)) {
             return mk_cnstr(get_constructor_idx(env(), n));
         } else {
             return e;

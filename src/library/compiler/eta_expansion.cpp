@@ -7,11 +7,11 @@ Author: Leonardo de Moura
 #include "util/fresh_name.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
-#include "kernel/inductive/inductive.h"
+#include "kernel/for_each_fn.h"
 #include "library/constants.h"
+#include "library/util.h"
 #include "library/projection.h"
 #include "library/aux_recursors.h"
-#include "library/inductive_compiler/ginductive.h"
 #include "library/sorry.h"
 #include "library/compiler/util.h"
 #include "library/compiler/compiler_step_visitor.h"
@@ -23,9 +23,9 @@ class eta_expand_fn : public compiler_step_visitor {
     bool m_saw_sorry = false;
 
     bool is_projection(name const & n) { return ::lean::is_projection(env(), n); }
-    bool is_constructor(name const & n) { return static_cast<bool>(is_ginductive_intro_rule(env(), n)); }
+    bool is_constructor(name const & n) { return ::lean::is_constructor(env(), n); }
     bool is_cases_on(name const & n) { return is_cases_on_recursor(env(), n); }
-    bool is_rec(name const & n) { return static_cast<bool>(inductive::is_elim_rule(env(), n)); }
+    bool is_rec(name const & n) { return ::lean::is_recursor(env(), n); }
     bool is_no_confusion(name const & n) { return ::lean::is_no_confusion(env(), n);  }
     bool is_quot_mk(name const & n) { return n == get_quot_mk_name(); }
     bool is_quot_lift(name const & n) { return n == get_quot_lift_name(); }
@@ -77,13 +77,17 @@ class eta_expand_fn : public compiler_step_visitor {
         if (is_rec(fn_name) || is_cases_on(fn_name)) {
             /* Eta-expand minor premises */
             name const & I_name       = fn_name.get_prefix();
-            unsigned nparams          = *inductive::get_num_params(env(), I_name);
-            unsigned nminors          = *inductive::get_num_minor_premises(env(), I_name);
+            inductive_val I_val       = env().get(I_name).to_inductive_val();
+            unsigned nparams          = I_val.get_nparams();
+            unsigned nminors;
             unsigned first_minor_idx;
             if (is_rec(fn_name)) {
-                first_minor_idx = nparams + 1 /*motive*/;
+                recursor_val rec_val  = env().get(fn_name).to_recursor_val();
+                nminors               = rec_val.get_nminors();
+                first_minor_idx       = nparams + rec_val.get_nmotives();
             } else {
-                unsigned nindices = *inductive::get_num_indices(env(), I_name);
+                unsigned nindices = I_val.get_nindices();
+                nminors           = length(I_val.get_cnstrs());
                 first_minor_idx   = nparams + 1 /*motive*/ + nindices + 1 /*major*/;
             }
             if (first_minor_idx + nminors > args.size()) {
@@ -108,8 +112,9 @@ class eta_expand_fn : public compiler_step_visitor {
               Moreover, the optional extra argument is expected to be eta-expanded at erase_irrelevant.cpp
             */
             name const & I_name       = fn_name.get_prefix();
-            unsigned nparams          = *inductive::get_num_params(env(), I_name);
-            unsigned nindices         = *inductive::get_num_indices(env(), I_name);
+            inductive_val I_val       = env().get(I_name).to_inductive_val();
+            unsigned nparams          = I_val.get_nparams();
+            unsigned nindices         = I_val.get_nindices();
             unsigned pos              = nparams + nindices + 4;
             if (pos >= args.size()) {
                 if (is_pi(ctx().relaxed_whnf(ctx().infer(e)))) {

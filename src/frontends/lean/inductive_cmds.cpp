@@ -9,13 +9,12 @@ Authors: Daniel Selsam, Leonardo de Moura
 #include "runtime/sstream.h"
 #include "util/name_map.h"
 #include "util/fresh_name.h"
-#include "util/sexpr/option_declarations.h"
 #include "kernel/replace_fn.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
-#include "kernel/inductive/inductive.h"
+#include "kernel/inductive.h"
 #include "library/locals.h"
 #include "library/attribute_manager.h"
 #include "library/deep_copy.h"
@@ -26,10 +25,10 @@ Authors: Daniel Selsam, Leonardo de Moura
 #include "library/reducible.h"
 #include "library/class.h"
 #include "library/trace.h"
+#include "library/module.h"
 #include "library/type_context.h"
 #include "library/documentation.h"
 #include "library/constants.h"
-#include "library/inductive_compiler/add_decl.h"
 #include "library/tactic/tactic_evaluator.h"
 #include "library/constructions/cases_on.h"
 #include "library/constructions/rec_on.h"
@@ -45,8 +44,6 @@ Authors: Daniel Selsam, Leonardo de Moura
 #include "frontends/lean/inductive_cmds.h"
 
 namespace lean {
-static name * g_new_inductive = nullptr;
-
 struct single_inductive_decl {
     decl_attributes m_attrs;
     expr            m_expr;
@@ -117,19 +114,11 @@ class inductive_cmd_fn {
     [[ noreturn ]] void throw_error(char const * error_msg) const { throw parser_error(error_msg, m_pos); }
     [[ noreturn ]] void throw_error(sstream const & strm) const { throw parser_error(strm, m_pos); }
 
-    bool use_new_inductive() const {
-        return m_p.get_options().get_bool(*g_new_inductive, false);
-    }
-
     implicit_infer_kind get_implicit_infer_kind(name const & n) {
         if (auto it = m_implicit_infer_map.find(n))
             return *it;
         else
             return implicit_infer_kind::Implicit;
-    }
-
-    name mk_rec_name(name const & n) {
-        return ::lean::inductive::get_elim_name(n);
     }
 
     /** \brief Return true if eliminator/recursor can eliminate into any universe */
@@ -737,7 +726,7 @@ public:
             }
             ind_types.push_back(inductive_type(local_name_p(r.m_inds[i]), Pi(r.m_params, local_type_p(r.m_inds[i])), constructors(cnstrs)));
         }
-        m_env = m_env.add(mk_inductive_decl(names(m_lp_names), nat(num_params), inductive_types(ind_types), m_meta_info.m_modifiers.m_is_meta));
+        m_env = module::add(m_env, mk_inductive_decl(names(m_lp_names), nat(num_params), inductive_types(ind_types), m_meta_info.m_modifiers.m_is_meta));
 
         bool has_eq   = has_eq_decls(m_env);
         bool has_heq  = has_heq_decls(m_env);
@@ -767,13 +756,8 @@ public:
     environment inductive_cmd() {
         parse_result r;
         parse(r);
-        if (use_new_inductive()) {
-            add_inductive_decls(r);
-        } else {
-            m_env = add_inductive_declaration(m_p.env(), m_p.get_options(), m_implicit_infer_map, m_lp_names, r.m_params,
-                                              r.m_inds, r.m_intro_rules, m_meta_info.m_modifiers.m_is_meta);
-            post_process(r.m_params, r.m_inds, r.m_intro_rules);
-        }
+        add_inductive_decls(r);
+        post_process(r.m_params, r.m_inds, r.m_intro_rules);
         return m_env;
     }
 
@@ -811,11 +795,8 @@ void initialize_inductive_cmds() {
     register_trace_class(name({"inductive", "lp_names"}));
     register_trace_class(name({"inductive", "infer_resultant"}));
     register_trace_class(name({"inductive", "unify"}));
-    g_new_inductive = new name{"new_inductive"};
-    register_bool_option(*g_new_inductive, false, "use new inductive datatype module");
 }
 
 void finalize_inductive_cmds() {
-    delete g_new_inductive;
 }
 }

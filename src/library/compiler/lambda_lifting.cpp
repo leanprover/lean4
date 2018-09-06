@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
-#include "kernel/inductive/inductive.h"
 #include "library/util.h"
 #include "library/trace.h"
 #include "library/scope_pos_info_provider.h"
@@ -103,7 +102,7 @@ class lambda_lifting_fn : public compiler_step_visitor {
 
         if (is_constant(fn)) {
             name const & n = const_name(fn);
-            if (!inductive::is_intro_rule(env(), n) && !is_cases_on_recursor(env(), n) && !is_projection(env(), n))
+            if (!is_constructor(env(), n) && !is_cases_on_recursor(env(), n) && !is_projection(env(), n))
                 return some_expr(new_value);
         }
 
@@ -160,8 +159,10 @@ class lambda_lifting_fn : public compiler_step_visitor {
         name const & rec_name       = const_name(fn);
         name const & I_name         = rec_name.get_prefix();
         /* erase_irrelevant already removed parameters and indices from cases_on applications */
-        unsigned nminors            = *inductive::get_num_minor_premises(env(), I_name);
-        unsigned nparams            = *inductive::get_num_params(env(), I_name);
+        constant_info I_info        = env().get(I_name);
+        inductive_val I_val         = I_info.to_inductive_val();
+        unsigned nminors            = length(I_val.get_cnstrs());
+        unsigned nparams            = I_val.get_nparams();
         unsigned arity              = nminors + 1 /* major premise */;
         unsigned major_idx          = 0;
         unsigned first_minor_idx    = 1;
@@ -169,7 +170,7 @@ class lambda_lifting_fn : public compiler_step_visitor {
            So, we should have a sufficient number of arguments. */
         lean_assert(args.size() >= arity);
         buffer<name> cnames;
-        get_intro_rule_names(env(), I_name, cnames);
+        get_constructor_names(env(), I_name, cnames);
         /* Process major premise */
         args[major_idx]        = visit(args[major_idx]);
         /* Process extra arguments */

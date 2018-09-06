@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/old_type_checker.h"
 #include "library/error_msgs.h"
-#include "library/kernel_serializer.h"
 #include "library/scoped_ext.h"
 #include "library/annotation.h"
 #include "library/locals.h"
@@ -375,19 +374,14 @@ expr mk_auto_param(expr const & t, name const & tac_name) {
     return copy_pos(t, mk_app(copy_pos(t, mk_constant(get_auto_param_name())), t, quote(tac_name)));
 }
 
-static bool is_tactic_unit(environment const & env, expr const & c) {
-    old_type_checker tc(env);
-    return tc.is_def_eq(tc.infer(c), mk_tactic_unit());
-}
-
 expr parse_auto_param(parser & p, expr const & type) {
     p.next();
     auto pos      = p.pos();
     name tac_id   = p.check_decl_id_next("invalid auto_param, identifier expected");
     if (get_auto_param_check_exists(p.get_options())) {
         expr tac_expr = p.id_to_expr(tac_id, pos, true);
-        if (!is_tactic_unit(p.env(), tac_expr))
-            throw parser_error(sstream() << "invalid auto_param, '" << tac_id << "' must have type (tactic unit)", pos);
+        // if (!is_tactic_unit(p.env(), tac_expr))
+        //     throw parser_error(sstream() << "invalid auto_param, '" << tac_id << "' must have type (tactic unit)", pos);
         return mk_auto_param(type, const_name(tac_expr));
     } else {
         return mk_auto_param(type, tac_id);

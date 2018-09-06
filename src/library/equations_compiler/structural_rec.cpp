@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include "util/fresh_name.h"
 #include "kernel/instantiate.h"
-#include "kernel/inductive/inductive.h"
 #include "library/trace.h"
 #include "library/constants.h"
 #include "library/locals.h"
@@ -76,7 +75,7 @@ struct structural_rec_fn {
             m_ctx(ctx), m_lhs(lhs), m_fn(fn), m_pattern(pattern), m_arg_idx(arg_idx) {}
 
         bool is_constructor(expr const & e) const {
-            return is_constant(e) && inductive::is_intro_rule(m_ctx.env(), const_name(e));
+            return is_constant(e) && m_ctx.env().get(const_name(e)).is_constructor();
         }
 
         expr whnf(expr const & e) {
@@ -221,14 +220,15 @@ struct structural_rec_fn {
         expr arg_type = ctx.relaxed_whnf(binding_domain(fn_type));
         buffer<expr> I_args;
         expr I        = get_app_args(arg_type, I_args);
-        if (!is_constant(I) || !inductive::is_inductive_decl(m_env, const_name(I))) {
+        if (!is_constant(I) || !m_env.get(const_name(I)).is_inductive()) {
             trace_struct(tout() << "structural recursion on argument #" << (arg_idx+1) << " was not used "
                          << "for '" << fn << "' because type is not inductive\n  "
                          << arg_type << "\n";);
             return false;
         }
         name I_name   = const_name(I);
-        m_reflexive   = is_reflexive_datatype(ctx, I_name);
+        inductive_val I_val = m_env.get(I_name).to_inductive_val();
+        m_reflexive   = I_val.is_reflexive();
         if (!m_env.find(name(I_name, "brec_on"))) {
             trace_struct(tout() << "structural recursion on argument #" << (arg_idx+1) << " was not used "
                          << "for '" << fn << "' because the inductive type '" << I << "' does have brec_on recursor\n  "
@@ -242,7 +242,7 @@ struct structural_rec_fn {
                          << arg_type << "\n";);
             return false;
         }
-        unsigned nindices = *inductive::get_num_indices(m_env, I_name);
+        unsigned nindices = I_val.get_nindices();
         if (nindices > 0) {
             lean_assert(I_args.size() >= nindices);
             unsigned first_index_pos = I_args.size() - nindices;

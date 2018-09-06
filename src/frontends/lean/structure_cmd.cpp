@@ -16,7 +16,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
 #include "kernel/type_checker.h"
-#include "kernel/inductive/inductive.h"
+#include "kernel/inductive.h"
 #include "library/error_msgs.h"
 #include "library/replace_visitor.h"
 #include "library/trace.h"
@@ -36,17 +36,14 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/projection.h"
 #include "library/aux_recursors.h"
-#include "library/kernel_serializer.h"
 #include "library/type_context.h"
 #include "library/app_builder.h"
 #include "library/documentation.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/constructions/rec_on.h"
-#include "library/constructions/cases_on.h"
 #include "library/constructions/projection.h"
 #include "library/constructions/no_confusion.h"
 #include "library/equations_compiler/util.h"
-#include "library/inductive_compiler/add_decl.h"
 #include "library/tactic/elaborator_exception.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
@@ -63,15 +60,15 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
-/** \brief Return the universe parameters, number of parameters and introduction rule for the given parent structure
+/** \brief Return the universe parameters, number of parameters and constructor info for the given parent structure
 
     \pre is_structure_like(env, S) */
 static auto get_structure_info(environment const & env, name const & S)
--> std::tuple<names, unsigned, inductive::intro_rule> {
+-> std::tuple<names, unsigned, constant_info> {
     lean_assert(is_structure_like(env, S));
-    inductive::inductive_decl idecl = *inductive::is_inductive_decl(env, S);
-    inductive::intro_rule intro = head(idecl.m_intro_rules);
-    return std::make_tuple(idecl.m_level_params, idecl.m_num_params, intro);
+    inductive_val S_val = env.get(S).to_inductive_val();
+    constant_info cnstr = env.get(head(S_val.get_cnstrs()));
+    return std::make_tuple(S_val.to_constant_val().get_lparams(), S_val.get_nparams(), cnstr);
 }
 
 // We mark subobject fields by prefixing them with "_" in the structure's intro rule
@@ -92,15 +89,15 @@ name mk_internal_subobject_field_name(name const & fname) {
 buffer<name> get_structure_fields(environment const & env, name const & S) {
     lean_assert(is_structure_like(env, S));
     buffer<name> fields;
-    names ls; unsigned nparams; inductive::intro_rule intro;
-    std::tie(ls, nparams, intro) = get_structure_info(env, S);
-    expr intro_type = inductive::intro_rule_type(intro);
+    names ls; unsigned nparams; constant_info cnstr_info;
+    std::tie(ls, nparams, cnstr_info) = get_structure_info(env, S);
+    expr cnstr_type = cnstr_info.get_type();
     unsigned i = 0;
-    while (is_pi(intro_type)) {
+    while (is_pi(cnstr_type)) {
         if (i >= nparams)
-            fields.push_back(deinternalize_field_name(binding_name(intro_type)));
+            fields.push_back(deinternalize_field_name(binding_name(cnstr_type)));
         i++;
-        intro_type = binding_body(intro_type);
+        cnstr_type = binding_body(cnstr_type);
     }
     return fields;
 }
@@ -108,22 +105,22 @@ buffer<name> get_structure_fields(environment const & env, name const & S) {
 bool is_structure(environment const & env, name const & S) {
     if (!is_structure_like(env, S))
         return false;
-    names ls; unsigned nparams; inductive::intro_rule intro;
-    std::tie(ls, nparams, intro) = get_structure_info(env, S);
-    expr intro_type = inductive::intro_rule_type(intro);
+    names ls; unsigned nparams; constant_info cnstr_info;
+    std::tie(ls, nparams, cnstr_info) = get_structure_info(env, S);
+    expr cnstr_type = cnstr_info.get_type();
     for (unsigned i = 0; i < nparams; i++) {
-        if (!is_pi(intro_type))
+        if (!is_pi(cnstr_type))
             return false;
-        intro_type = binding_body(intro_type);
+        cnstr_type = binding_body(cnstr_type);
     }
-    if (!is_pi(intro_type))
+    if (!is_pi(cnstr_type))
         return false;
-    name field_name = S + deinternalize_field_name(binding_name(intro_type));
+    name field_name = S + deinternalize_field_name(binding_name(cnstr_type));
     return get_projection_info(env, field_name) != nullptr;
 }
 
 optional<name> is_subobject_field(environment const & env, name const & S_name, name const & fname) {
-    expr intro_type = inductive::intro_rule_type(std::get<2>(get_structure_info(env, S_name)));
+    expr intro_type = std::get<2>(get_structure_info(env, S_name)).get_type();
     auto n = mk_internal_subobject_field_name(fname);
     while (is_pi(intro_type)) {
         if (binding_name(intro_type) == n)
@@ -255,7 +252,7 @@ struct structure_cmd_fn {
     parser &                    m_p;
     cmd_meta                    m_meta_info;
     environment                 m_env;
-    type_context_old                m_ctx;
+    type_context_old            m_ctx;
     name                        m_namespace;
     name                        m_name;
     name                        m_given_name;
@@ -349,7 +346,7 @@ struct structure_cmd_fn {
     }
 
     /** \brief Return the universe parameters, number of parameters and introduction rule for the given parent structure */
-    std::tuple<names, unsigned, inductive::intro_rule> get_parent_info(name const & parent) {
+    std::tuple<names, unsigned, constant_info> get_parent_info(name const & parent) {
         return get_structure_info(m_env, parent);
     }
 
@@ -383,12 +380,11 @@ struct structure_cmd_fn {
                 name const & parent_name = check_parent(parent);
                 auto parent_info         = get_parent_info(parent_name);
                 unsigned nparams         = std::get<1>(parent_info);
-                inductive::intro_rule intro = std::get<2>(parent_info);
-                expr intro_type = inductive::intro_rule_type(intro);
+                expr cnstr_type          = std::get<2>(parent_info).get_type();
                 for (unsigned i = 0; i < nparams; i++) {
-                    if (!is_pi(intro_type))
+                    if (!is_pi(cnstr_type))
                         throw parser_error("invalid 'structure' extends, parent structure seems to be ill-formed", pos);
-                    intro_type = binding_body(intro_type);
+                    cnstr_type = binding_body(cnstr_type);
                 }
                 m_renames.push_back(rename_vector());
                 if (!m_subobjects && m_p.curr_is_token(get_renaming_tk())) {
@@ -401,7 +397,7 @@ struct structure_cmd_fn {
                                          [&](pair<name, name> const & p) { return p.first == from_id; }) != v.end())
                             throw parser_error(sstream() << "invalid 'structure' renaming, a rename from '" <<
                                                from_id << "' has already been defined", from_pos);
-                        check_from_rename(parent_name, intro_type, from_id, from_pos);
+                        check_from_rename(parent_name, cnstr_type, from_id, from_pos);
                         m_p.next();
                         m_p.check_token_next(get_arrow_tk(), "invalid 'structure' renaming, '->' expected");
                         name to_id = m_p.check_id_next("invalid 'structure' renaming, identifier expected");
@@ -640,8 +636,8 @@ struct structure_cmd_fn {
                         throw elaborator_exception(parent, "cannot make base projection");
                     }
                     expr base_obj = *base_obj_opt;
-                    names lparams; unsigned nparams; inductive::intro_rule intro;
-                    std::tie(lparams, nparams, intro) = get_parent_info(base_S_name);
+                    names lparams; unsigned nparams; constant_info cnstr_info;
+                    std::tie(lparams, nparams, cnstr_info) = get_parent_info(base_S_name);
                     unsigned num_lparams = length(lparams);
                     levels meta_ls;
                     for (unsigned i = 0; i < num_lparams; i++)
@@ -661,42 +657,42 @@ struct structure_cmd_fn {
                     m_fields.emplace_back(subfield, some_expr(proj), field_kind::from_parent);
                 }
             } else {
-                names lparams; unsigned nparams; inductive::intro_rule intro;
-                std::tie(lparams, nparams, intro) = get_parent_info(parent_name);
-                expr intro_type = inductive::intro_rule_type(intro);
-                intro_type      = instantiate_lparams(intro_type, lparams, const_levels(parent_fn));
+                names lparams; unsigned nparams; constant_info cnstr_info;
+                std::tie(lparams, nparams, cnstr_info) = get_parent_info(parent_name);
+                expr cnstr_type = cnstr_info.get_type();
+                cnstr_type      = instantiate_lparams(cnstr_type, lparams, const_levels(parent_fn));
                 if (nparams != args.size()) {
                     throw elaborator_exception(parent,
                                                sstream() << "invalid 'structure' header, number of argument "
                                                        "mismatch for parent structure '" << parent_name << "'");
                 }
                 for (expr const & arg : args) {
-                    if (!is_pi(intro_type))
+                    if (!is_pi(cnstr_type))
                         throw_ill_formed_parent(parent_name);
-                    intro_type = instantiate(binding_body(intro_type), arg);
+                    cnstr_type = instantiate(binding_body(cnstr_type), arg);
                 }
 
                 size_t fmap_start = fmap.size();
-                while (is_pi(intro_type)) {
-                    name fname = binding_name(intro_type);
+                while (is_pi(cnstr_type)) {
+                    name fname = binding_name(cnstr_type);
                     fname      = rename(renames, fname);
-                    expr const & ftype = binding_domain(intro_type);
+                    expr const & ftype = binding_domain(cnstr_type);
                     name full_fname = parent_name + fname;
                     expr field;
                     if (auto fidx = merge(parent, fname, ftype)) {
                         fmap.push_back(*fidx);
                         field = m_fields[*fidx].m_local;
-                        if (local_info_p(field) != binding_info(intro_type)) {
+                        if (local_info_p(field) != binding_info(cnstr_type)) {
                             throw elaborator_exception(parent,
                                                        sstream() << "invalid 'structure' header, field '" << fname <<
                                                        "' has already been declared with a different binder annotation");
                         }
                     } else {
-                        field = mk_local(fname, mk_as_is(ftype), binding_info(intro_type));
+                        field = mk_local(fname, mk_as_is(ftype), binding_info(cnstr_type));
                         fmap.push_back(m_fields.size());
                         m_fields.emplace_back(field, none_expr(), field_kind::from_parent);
                     }
-                    intro_type = instantiate(binding_body(intro_type), field);
+                    cnstr_type = instantiate(binding_body(cnstr_type), field);
                 }
                 // construct and add default values now that all fields have been defined
                 for (size_t fmap_idx = fmap_start; fmap_idx < fmap.size(); fmap_idx++) {
@@ -764,8 +760,8 @@ struct structure_cmd_fn {
         levels const & parent_ls       = const_levels(parent_fn);
         name const & parent_name       = const_name(parent_fn);
         auto parent_info               = get_parent_info(parent_name);
-        name const & parent_intro_name = inductive::intro_rule_name(std::get<2>(parent_info));
-        expr parent_intro              = mk_app(mk_constant(parent_intro_name, parent_ls), parent_params);
+        name const & parent_cnstr_name = std::get<2>(parent_info).get_name();
+        expr parent_intro              = mk_app(mk_constant(parent_cnstr_name, parent_ls), parent_params);
         for (unsigned idx : fmap) {
             expr const & field = m_fields[idx].m_local;
             parent_intro = mk_app(parent_intro, field);
@@ -1068,21 +1064,18 @@ struct structure_cmd_fn {
     void declare_inductive_type() {
         expr structure_type = mk_structure_type();
         expr intro_type     = mk_intro_type();
-
-        names lnames = names(m_level_names);
-        inductive::intro_rule intro = inductive::mk_intro_rule(m_mk, intro_type);
-        inductive::inductive_decl  decl(m_name, lnames, m_params.size(), structure_type, to_list(intro));
-        bool is_meta = m_meta_info.m_modifiers.m_is_meta;
-        m_env = module::add_inductive(m_env, decl, is_meta);
-        name rec_name = inductive::get_elim_name(m_name);
+        names lnames        = names(m_level_names);
+        bool is_meta        = m_meta_info.m_modifiers.m_is_meta;
+        constructor cnstr(m_mk, intro_type);
+        inductive_type S(m_name, structure_type, constructors(cnstr));
+        declaration decl    = mk_inductive_decl(lnames, nat(m_params.size()), inductive_types(S), is_meta);
+        m_env = module::add(m_env, decl);
+        name rec_name = mk_rec_name(m_name);
         m_env = add_namespace(m_env, m_name);
         m_env = add_protected(m_env, rec_name);
         add_alias(m_given_name, m_name);
         add_alias(m_mk);
         add_rec_alias(rec_name);
-        m_env = add_structure_declaration_aux(m_env, m_p.get_options(), m_level_names, m_params,
-                                              mk_local(m_name, mk_structure_type_no_params()),
-                                              mk_local(m_mk, mk_intro_type_no_params()), is_meta);
     }
 
     void declare_projections() {
@@ -1169,7 +1162,7 @@ struct structure_cmd_fn {
     }
 
     void declare_auxiliary() {
-        m_env = mk_old_rec_on(m_env, m_name);
+        m_env = mk_rec_on(m_env, m_name);
         name rec_on_name(m_name, "rec_on");
         add_rec_alias(rec_on_name);
         m_env = add_aux_recursor(m_env, rec_on_name);
@@ -1233,8 +1226,8 @@ struct structure_cmd_fn {
 
             field_map const & fmap         = m_field_maps[i];
             auto parent_info               = get_parent_info(parent_name);
-            name const & parent_intro_name = inductive::intro_rule_name(std::get<2>(parent_info));
-            expr parent_intro              = mk_app(mk_constant(parent_intro_name, parent_ls), parent_params);
+            name const & parent_cnstr_name = std::get<2>(parent_info).get_name();
+            expr parent_cnstr              = mk_app(mk_constant(parent_cnstr_name, parent_ls), parent_params);
             expr parent_type               = m_ctx.infer(parent);
             if (!is_sort(parent_type))
                 throw_ill_formed_parent(parent_name);
@@ -1245,7 +1238,7 @@ struct structure_cmd_fn {
                 bi = mk_inst_implicit_binder_info();
             expr st                        = mk_local(m_p.next_name(), "s", st_type, bi);
             expr coercion_type             = infer_implicit(Pi_p(m_params, Pi_p(st, parent)), m_params.size(), true);;
-            expr coercion_value            = parent_intro;
+            expr coercion_value            = parent_cnstr;
             for (unsigned idx : fmap) {
                 name proj_name = m_name + m_fields[idx].get_name();
                 expr proj      = mk_app(mk_app(mk_constant(proj_name, st_ls), m_params), st);
@@ -1272,7 +1265,7 @@ struct structure_cmd_fn {
             return;
         if (!has_heq_decls(m_env))
             return;
-        m_env = old_mk_no_confusion(m_env, m_name);
+        m_env = mk_no_confusion(m_env, m_name);
         name no_confusion_name(m_name, "no_confusion");
         add_alias(no_confusion_name);
     }

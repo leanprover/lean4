@@ -17,7 +17,6 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "library/error_msgs.h"
 #include "library/exception.h"
-#include "library/kernel_serializer.h"
 #include "library/io_state_stream.h"
 #include "library/annotation.h"
 #include "library/util.h"

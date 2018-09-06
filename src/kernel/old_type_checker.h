@@ -127,10 +127,6 @@ public:
 
 typedef std::shared_ptr<old_type_checker> old_type_checker_ref;
 
-/** \brief Type check the given declaration, and return a certified declaration if it is type correct.
-    Throw an exception if the declaration is type incorrect. */
-certified_declaration check(environment const & env, declaration const & d);
-
 void initialize_old_type_checker();
 void finalize_old_type_checker();
 }

@@ -7,13 +7,11 @@ Author: Leonardo de Moura
 #include "util/list_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/replace_fn.h"
-#include "kernel/inductive/inductive.h"
 #include "library/util.h"
 #include "library/constants.h"
 #include "library/locals.h"
 #include "library/app_builder.h"
 #include "library/trace.h"
-#include "library/inductive_compiler/ginductive.h"
 #include "library/tactic/cases_tactic.h"
 #include "library/tactic/intro_tactic.h"
 #include "library/tactic/clear_tactic.h"
@@ -36,18 +34,14 @@ struct cases_tactic_fn {
     transparency_mode             m_mode;
     metavar_context &             m_mctx;
     /* User provided ids to name new hypotheses */
-    names &                  m_ids;
-    /* If m_unfold_ginductive is true, then we normalize major premise type using relaxed_whnf,
-       and expose the basic kernel inductive datatype. This feature is used by the equation compiler.
-       The `cases` tactic exposed to users hides how the generalized inductive datatype implementation. */
-    bool                          m_unfold_ginductive;
+    names &                       m_ids;
 
     /* Inductive datatype information */
     unsigned                      m_nparams;
     unsigned                      m_nindices;
     unsigned                      m_nminors;
-    constant_info                 m_I_decl;
-    constant_info                 m_cases_on_decl;
+    constant_info                 m_I_info;
+    constant_info                 m_cases_on_info;
 
     type_context_old mk_type_context_for(metavar_decl const & g) {
         return ::lean::mk_type_context_for(m_env, m_opts, m_mctx, g.get_context(), m_mode);
@@ -73,20 +67,20 @@ struct cases_tactic_fn {
     #define lean_cases_trace(MVAR, CODE) lean_trace(name({"tactic", "cases"}), type_context_old TMP_CTX = mk_type_context_for(MVAR); scope_trace_env _scope1(m_env, TMP_CTX); CODE)
 
     void init_inductive_info(name const & n) {
-        m_nindices       = get_ginductive_num_indices(m_env, n);
-        m_nparams        = get_ginductive_num_params(m_env, n);
+        constant_info ind_info = m_env.get(n);
+        lean_assert(ind_info.is_inductive());
+        inductive_val ind_val = ind_info.to_inductive_val();
+        m_nindices       = ind_val.get_nindices();
+        m_nparams        = ind_val.get_nparams();
         // This tactic is bases on cases_on construction which only has
         // minor premises for the introduction rules of this datatype.
-        m_nminors        = length(get_ginductive_intro_rules(m_env, n));
-        m_I_decl         = m_env.get(n);
-        m_cases_on_decl  = m_env.get(get_dep_cases_on(m_env, n));
+        m_nminors        = length(ind_val.get_cnstrs());
+        m_I_info         = m_env.get(n);
+        m_cases_on_info  = m_env.get(get_dep_cases_on(m_env, n));
     }
 
     expr whnf_inductive(type_context_old & ctx, expr const & e) {
-        if (m_unfold_ginductive)
-            return ctx.relaxed_whnf(e);
-        else
-            return ::lean::whnf_ginductive(ctx, e);
+        return ctx.relaxed_whnf(e);
     }
 
     /* For debugging purposes, check whether all hypotheses in Hs are in the local context for mvar */
@@ -108,7 +102,7 @@ struct cases_tactic_fn {
         expr const & fn = get_app_args(t, args);
         if (!is_constant(fn))
             return false;
-        if (!is_ginductive(m_env, const_name(fn)))
+        if (!m_env.get(const_name(fn)).is_inductive())
             return false;
         if (!m_env.find(name{const_name(fn), "cases_on"}) || !m_env.find(get_eq_name()))
             return false;
@@ -308,8 +302,8 @@ struct cases_tactic_fn {
         lean_assert(is_pi(target) && is_arrow(target));
         if (is_eq(binding_domain(target), lhs, rhs)) {
             type_context_old ctx     = mk_type_context_for(mvar);
-            expr lhs_n = whnf_gintro_rule(ctx, lhs);
-            expr rhs_n = whnf_gintro_rule(ctx, rhs);
+            expr lhs_n = ctx.relaxed_whnf(lhs);
+            expr rhs_n = ctx.relaxed_whnf(rhs);
             if (lhs != lhs_n || rhs != rhs_n) {
                 expr new_eq     = ::lean::mk_eq(ctx, lhs_n, rhs_n);
                 expr new_target = mk_arrow(new_eq, binding_body(target));
@@ -385,9 +379,13 @@ struct cases_tactic_fn {
                     lean_assert(is_constructor_app(m_env, rhs));
                     A = ctx.whnf(A);
                     buffer<expr> A_args;
-                    expr const & A_fn   = get_app_args(A, A_args);
-                    if (!is_constant(A_fn) || !inductive::is_inductive_decl(m_env, const_name(A_fn)))
+                    expr const & A_fn    = get_app_args(A, A_args);
+                    if (!is_constant(A_fn))
                         throw_ill_formed_datatype();
+                    constant_info A_info = m_env.get(const_name(A_fn));
+                    if (!A_info.is_inductive())
+                        throw_ill_formed_datatype();
+                    inductive_val A_val  = A_info.to_inductive_val();
                     name no_confusion_name(const_name(A_fn), "no_confusion");
                     if (!m_env.find(no_confusion_name)) {
                         throw exception(sstream() << "cases tactic failed, construction '"
@@ -403,7 +401,7 @@ struct cases_tactic_fn {
                         expr mvar2      = m_mctx.mk_metavar_decl(lctx, new_target);
                         expr val        = mk_app(no_confusion, mvar2);
                         m_mctx.assign(*mvar1, val);
-                        unsigned A_nparams = *inductive::get_num_params(m_env, const_name(A_fn));
+                        unsigned A_nparams = A_val.get_nparams();
                         lean_assert(get_app_num_args(lhs) >= A_nparams);
                         return unify_eqs(input_H, mvar2, num_eqs - 1 + get_app_num_args(lhs) - A_nparams,
                                          updating, new_intros, subst);
@@ -462,17 +460,16 @@ struct cases_tactic_fn {
     }
 
     cases_tactic_fn(environment const & env, options const & opts, transparency_mode m,
-                    metavar_context & mctx, names & ids, bool unfold_ginductive):
+                    metavar_context & mctx, names & ids):
         m_env(env),
         m_opts(opts),
         m_mode(m),
         m_mctx(mctx),
-        m_ids(ids),
-        m_unfold_ginductive(unfold_ginductive) {
+        m_ids(ids) {
     }
 
     pair<list<expr>, names> operator()(expr const & mvar, expr const & H,
-                                            intros_list * ilist, hsubstitution_list * slist) {
+                                       intros_list * ilist, hsubstitution_list * slist) {
         lean_assert((ilist != nullptr) == (slist != nullptr));
         lean_assert(is_metavar(mvar));
         lean_assert(m_mctx.find_metavar_decl(mvar));
@@ -480,14 +477,14 @@ struct cases_tactic_fn {
             throw exception("cases tactic failed, argument must be a hypothesis");
         if (!is_cases_applicable(mvar, H))
             throw exception("cases tactic failed, it is not applicable to the given hypothesis");
-        names cname_list = get_ginductive_intro_rules(m_env, m_I_decl.get_name());
-        metavar_decl g = m_mctx.get_metavar_decl(mvar);
+        names cname_list = m_I_info.to_inductive_val().get_cnstrs();
+        metavar_decl g  = m_mctx.get_metavar_decl(mvar);
         /* Remark: if ilist/rlist are provided, then we force dependent pattern matching
            even when indices are independent. */
         if (has_indep_indices(g, H) && (!slist || m_nindices == 0)) {
             /* Easy case */
             return mk_pair(induction(m_env, m_opts, m_mode, m_mctx, mvar, H,
-                                     m_cases_on_decl.get_name(), m_ids,
+                                     m_cases_on_info.get_name(), m_ids,
                                      ilist, slist),
                            cname_list);
         } else {
@@ -498,7 +495,7 @@ struct cases_tactic_fn {
             expr H1    = m_mctx.get_metavar_decl(mvar1).get_context().get_last_local_decl().mk_ref();
             intros_list tmp_ilist;
             hsubstitution_list tmp_slist;
-            list<expr> new_goals1 = induction(m_env, m_opts, m_mode, m_mctx, mvar1, H1, m_cases_on_decl.get_name(),
+            list<expr> new_goals1 = induction(m_env, m_opts, m_mode, m_mctx, mvar1, H1, m_cases_on_info.get_name(),
                                               m_ids, &tmp_ilist, &tmp_slist);
             lean_cases_trace(mvar1, tout() << "after applying cases_on:";
                              for (auto g : new_goals1) tout() << "\n" << pp_goal(g) << "\n";);
@@ -517,9 +514,8 @@ struct cases_tactic_fn {
 
 pair<list<expr>, names>
 cases(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
-      expr const & mvar, expr const & H, names & ids, intros_list * ilist, hsubstitution_list * slist,
-      bool unfold_ginductive) {
-    auto r = cases_tactic_fn(env, opts, m, mctx, ids, unfold_ginductive)(mvar, H, ilist, slist);
+      expr const & mvar, expr const & H, names & ids, intros_list * ilist, hsubstitution_list * slist) {
+    auto r = cases_tactic_fn(env, opts, m, mctx, ids)(mvar, H, ilist, slist);
     lean_assert(length(r.first) == length(r.second));
     return r;
 }

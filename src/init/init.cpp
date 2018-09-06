@@ -10,12 +10,10 @@ Author: Leonardo de Moura
 #include "util/init_module.h"
 #include "util/sexpr/init_module.h"
 #include "kernel/init_module.h"
-#include "kernel/inductive/inductive.h"
 #include "library/init_module.h"
 #include "library/tactic/init_module.h"
 #include "library/constructions/init_module.h"
 #include "library/equations_compiler/init_module.h"
-#include "library/inductive_compiler/init_module.h"
 #include "library/print.h"
 #include "library/vm/init_module.h"
 #include "library/compiler/init_module.h"
@@ -28,7 +26,6 @@ void initialize() {
     initialize_util_module();
     initialize_sexpr_module();
     initialize_kernel_module();
-    initialize_inductive_module();
     init_default_print_fn();
     initialize_library_core_module();
     initialize_vm_core_module();
@@ -37,7 +34,6 @@ void initialize() {
     initialize_tactic_module();
     initialize_constructions_module();
     initialize_equations_compiler_module();
-    initialize_inductive_compiler_module();
     initialize_frontend_lean_module();
     initialize_vm_module();
 }
@@ -52,7 +48,6 @@ void finalize() {
     run_thread_finalizers();
     finalize_vm_module();
     finalize_frontend_lean_module();
-    finalize_inductive_compiler_module();
     finalize_equations_compiler_module();
     finalize_constructions_module();
     finalize_tactic_module();
@@ -60,7 +55,6 @@ void finalize() {
     finalize_library_module();
     finalize_vm_core_module();
     finalize_library_core_module();
-    finalize_inductive_module();
     finalize_kernel_module();
     finalize_sexpr_module();
     finalize_util_module();

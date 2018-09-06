@@ -13,7 +13,6 @@ Author: Leonardo de Moura
 #include "util/fresh_name.h"
 #include "kernel/replace_fn.h"
 #include "kernel/abstract.h"
-#include "kernel/old_type_checker.h"
 #include "kernel/instantiate.h"
 #include "library/sorry.h"
 #include "library/annotation.h"
@@ -797,12 +796,12 @@ static bool is_structure_instance(environment const & env, expr const & e, bool 
     expr const & fn = get_app_fn(e);
     if (!is_constant(fn)) return false;
     name const & mk_name = const_name(fn);
-    if (!inductive::is_intro_rule(env, mk_name)) return false;
+    if (!is_constructor(env, mk_name)) return false;
     name const & S       = mk_name.get_prefix();
     if (!is_structure(env, S)) return false;
     /* If implicit arguments is true, and the structure has parameters, we should not
        pretty print using { ... }, because we will not be able to see the parameters. */
-    if (implicit && *inductive::get_num_params(env, S) > 0) return false;
+    if (implicit && env.get(S).to_inductive_val().get_nparams() > 0) return false;
     /* check whether it is a partially applied constructor application */
     if (get_app_num_args(e) != get_arity(env.get(mk_name).get_type())) return false;
     return true;
@@ -813,7 +812,7 @@ auto pretty_fn::pp_structure_instance(expr const & e) -> result {
     buffer<expr> args;
     expr const & mk = get_app_args(e, args);
     name const & S  = const_name(mk).get_prefix();
-    unsigned num_params = *inductive::get_num_params(m_env, S);
+    unsigned num_params = m_env.get(S).to_inductive_val().get_nparams();
     if (pp_using_anonymous_constructor(m_env, S)) {
         format r;
         for (unsigned i = num_params; i < args.size(); i++) {

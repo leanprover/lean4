@@ -72,7 +72,7 @@ recursor_rule::recursor_rule(name const & cnstr, unsigned nfields, expr const & 
 
 inductive_val::inductive_val(name const & n, names const & lparams, expr const & type, unsigned nparams,
                              unsigned nindices, names const & all, names const & cnstrs, bool rec, bool meta, bool is_refl):
-    object_ref(mk_cnstr(0, constant_val(n, lparams, type), nat(nparams), nat(nindices), all, cnstrs, 2)) {
+    object_ref(mk_cnstr(0, constant_val(n, lparams, type), nat(nparams), nat(nindices), all, cnstrs, 3)) {
     cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*5, static_cast<unsigned char>(rec));
     cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*5 + 1, static_cast<unsigned char>(meta));
     cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*5 + 2, static_cast<unsigned char>(is_refl));

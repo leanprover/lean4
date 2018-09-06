@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/num.h"
 #include "library/util.h"
-#include "library/kernel_serializer.h"
 #include "library/replace_visitor_with_tc.h"
 
 namespace lean {

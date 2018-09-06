@@ -19,7 +19,6 @@ Author: Leonardo de Moura
 #include "library/quote.h"
 #include "library/string.h"
 #include "library/trace.h"
-#include "library/kernel_serializer.h"
 #include "library/equations_compiler/equations.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/decl_cmds.h"

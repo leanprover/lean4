@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include "library/trace.h"
 #include "library/constants.h"
-#include "library/kernel_serializer.h"
 #include "library/class.h"
 #include "library/num.h"
 #include "library/string.h"
@@ -88,7 +87,6 @@ void initialize_library_module() {
     initialize_placeholder();
     initialize_idx_metavar();
     initialize_io_state();
-    initialize_kernel_serializer();
     initialize_string();
     initialize_num();
     initialize_annotation();
@@ -148,7 +146,6 @@ void finalize_library_module() {
     finalize_annotation();
     finalize_num();
     finalize_string();
-    finalize_kernel_serializer();
     finalize_io_state();
     finalize_idx_metavar();
     finalize_placeholder();

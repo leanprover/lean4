@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "library/constants.h"
 #include "library/annotation.h"
-#include "library/kernel_serializer.h"
 #include "library/exception.h"
 #include "library/util.h"
 #include "library/quote.h"

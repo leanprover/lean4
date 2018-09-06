@@ -21,13 +21,19 @@ inline optional<expr> to_cnstr_when_K(environment const & env, recursor_val cons
                                       WHNF const & whnf, INFER const & infer_type, IS_DEF_EQ const & is_def_eq) {
     lean_assert(rval.is_k());
     expr app_type    = whnf(infer_type(e));
-    if (has_expr_mvar(app_type)) return none_expr();
     expr const & app_type_I = get_app_fn(app_type);
     if (!is_constant(app_type_I) || const_name(app_type_I) != rval.get_induct()) return none_expr(); // type incorrect
+    if (has_expr_mvar(app_type)) {
+        buffer<expr> app_type_args;
+        get_app_args(app_type, app_type_args);
+        for (unsigned i = rval.get_nparams(); i < app_type_args.size(); i++) {
+            if (has_expr_metavar(app_type_args[i]))
+                return none_expr();
+        }
+    }
     optional<expr> new_cnstr_app = mk_nullary_cnstr(env, app_type, rval.get_nparams());
     if (!new_cnstr_app) return none_expr();
     expr new_type    = infer_type(*new_cnstr_app);
-    if (has_expr_mvar(new_type)) return none_expr();
     if (!is_def_eq(app_type, new_type)) return none_expr();
     return some_expr(*new_cnstr_app);
 }

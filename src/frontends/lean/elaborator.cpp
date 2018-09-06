@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
 #include "kernel/instantiate.h"
-#include "kernel/inductive/inductive.h"
 #include "library/scope_pos_info_provider.h"
 #include "library/error_msgs.h"
 #include "library/trace.h"
@@ -47,7 +46,6 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic_evaluator.h"
 #include "library/equations_compiler/compiler.h"
 #include "library/equations_compiler/util.h"
-#include "library/inductive_compiler/ginductive.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/brackets.h"
 #include "frontends/lean/util.h"
@@ -108,8 +106,8 @@ elaborator_strategy get_elaborator_strategy(environment const & env, name const 
     if (auto data = get_elaborator_strategy_attribute().get(env, n))
         return data->m_status;
 
-    if (inductive::is_elim_rule(env, n) ||
-        is_aux_recursor(env, n) ||
+    if (env.get(n).is_recursor() ||
+        is_aux_recursor(env, n)  ||
         is_user_defined_recursor(env, n)) {
         return elaborator_strategy::AsEliminator;
     }
@@ -397,7 +395,7 @@ static bool is_basic_aux_recursor(environment const & env, name const & n) {
 
 /** See comment at elim_info */
 auto elaborator::get_elim_info_for_builtin(name const & fn) -> elim_info {
-    lean_assert(is_basic_aux_recursor(m_env, fn) || inductive::is_elim_rule(m_env, fn));
+    lean_assert(is_basic_aux_recursor(m_env, fn) || m_env.get(fn).is_recursor());
     /* Remark: this is not just an optimization. The code at use_elim_elab_core
        only works for dependent elimination. */
     lean_assert(!fn.is_atomic());
@@ -407,19 +405,12 @@ auto elaborator::get_elim_info_for_builtin(name const & fn) -> elim_info {
     unsigned nindices;
     unsigned nminors;
 
-    // TODO(Leo): delete "then"-branch
-    if (optional<inductive::inductive_decl> decl = inductive::is_inductive_decl(m_env, I_name)) {
-        nparams  = decl->m_num_params;
-        nindices = *inductive::get_num_indices(m_env, I_name);
-        nminors  = length(decl->m_intro_rules);
-    } else {
-        constant_info I_info = m_env.get(I_name);
-        lean_assert(I_info.is_inductive());
-        inductive_val I_val  = I_info.to_inductive_val();
-        nparams              = I_val.get_nparams();
-        nindices             = I_val.get_nindices();
-        nminors              = length(I_val.get_cnstrs());
-    }
+    constant_info I_info = m_env.get(I_name);
+    lean_assert(I_info.is_inductive());
+    inductive_val I_val  = I_info.to_inductive_val();
+    nparams              = I_val.get_nparams();
+    nindices             = I_val.get_nindices();
+    nminors              = length(I_val.get_cnstrs());
 
     elim_info r;
     if (fn.get_string() == "brec_on" || fn.get_string() == "binduction_on") {
@@ -435,8 +426,9 @@ auto elaborator::get_elim_info_for_builtin(name const & fn) -> elim_info {
     }
     r.m_motive_idx = nparams;
     unsigned major_idx;
-    if (inductive::is_elim_rule(m_env, fn)) {
-        major_idx = nparams + 1 + nindices + nminors;
+    constant_info fn_info = m_env.get(fn);
+    if (fn_info.is_recursor()) {
+        major_idx = fn_info.to_recursor_val().get_major_idx();
     } else {
         major_idx = nparams + 1 + nindices;
     }
@@ -448,7 +440,7 @@ auto elaborator::get_elim_info_for_builtin(name const & fn) -> elim_info {
 auto elaborator::use_elim_elab_core(name const & fn) -> optional<elim_info> {
     if (!is_elim_elab_candidate(fn))
         return optional<elim_info>();
-    if (is_basic_aux_recursor(m_env, fn) || inductive::is_elim_rule(m_env, fn)) {
+    if (is_basic_aux_recursor(m_env, fn) || m_env.get(fn).is_recursor()) {
         return optional<elim_info>(get_elim_info_for_builtin(fn));
     }
     type_context_old::tmp_locals locals(m_ctx);
@@ -1863,8 +1855,9 @@ expr elaborator::visit_no_confusion_app(expr const & fn, buffer<expr> const & ar
     */
     expr Heq      = strict_visit(args[0], none_expr());
     name I_name   = fn_name.get_prefix();
-    unsigned nparams  = *inductive::get_num_params(m_env, I_name);
-    unsigned nindices = *inductive::get_num_indices(m_env, I_name);
+    inductive_val I_val  = m_env.get(I_name).to_inductive_val();
+    unsigned nparams     = I_val.get_nparams();
+    unsigned nindices    = I_val.get_nindices();
     buffer<expr> new_args;
     for (unsigned i = 0; i < nparams + nindices; i++) {
         new_args.push_back(copy_pos(ref, mk_expr_placeholder()));
@@ -2033,16 +2026,17 @@ expr elaborator::visit_anonymous_constructor(expr const & e, optional<expr> cons
     expr const & c = get_app_args(get_anonymous_constructor_arg(e), args);
     if (!expected_type)
         throw elaborator_exception(e, "invalid constructor ⟨...⟩, expected type must be known");
-    expr I = get_app_fn(whnf_ginductive(m_ctx, instantiate_mvars(*expected_type)));
+    expr I = get_app_fn(m_ctx.relaxed_whnf(instantiate_mvars(*expected_type)));
     if (!is_constant(I))
         throw elaborator_exception(e, format("invalid constructor ⟨...⟩, expected type is not an inductive type") +
                                    pp_indent(*expected_type));
     name I_name = const_name(I);
     if (is_private(m_env, I_name) && !is_expr_aliased(m_env, I_name))
         throw elaborator_exception(e, "invalid constructor ⟨...⟩, type is a private inductive datatype");
-    if (!is_ginductive(m_env, I_name))
+    constant_info I_info = m_env.get(I_name);
+    if (!I_info.is_inductive())
         throw elaborator_exception(e, sstream() << "invalid constructor ⟨...⟩, '" << I_name << "' is not an inductive type");
-    auto c_names = get_ginductive_intro_rules(m_env, I_name);
+    names c_names = I_info.to_inductive_val().get_cnstrs();
     if (!c_names || tail(c_names))
         throw elaborator_exception(e, sstream() << "invalid constructor ⟨...⟩, '" << I_name << "' must have only one constructor");
     expr type = m_env.get(head(c_names)).get_type();
@@ -2422,8 +2416,9 @@ class validate_and_collect_lhs_mvars : public replace_visitor {
                 return e;
             }
 
-            if (optional<name> I = is_ginductive_intro_rule(env(), const_name(fn))) {
-                unsigned num_params = get_ginductive_num_params(env(), *I);
+            constant_info fn_info = env().get(const_name(fn));
+            if (fn_info.is_constructor()) {
+                unsigned num_params = fn_info.to_constructor_val().get_nparams();
                 for (unsigned i = num_params; i < args.size(); i++) {
                     visit(args[i]);
                 }
@@ -2911,12 +2906,12 @@ class visit_structure_instance_fn {
                     (applicative.mk ?p1 (functor.mk ?p2 ?f1 ?f2...) ?f3..., applicative ?p1)` */
     std::pair<expr, expr> create_field_mvars(name const & nested_S_name) {
         buffer<name> c_names;
-        get_intro_rule_names(m_env, nested_S_name, c_names);
+        get_constructor_names(m_env, nested_S_name, c_names);
         lean_assert(c_names.size() == 1);
         expr c = m_elab.visit_const_core(copy_pos(m_e, mk_constant(c_names[0])));
         buffer<expr> c_args;
         expr c_type = m_elab.infer_type(c);
-        unsigned nparams = *inductive::get_num_params(m_env, nested_S_name);
+        unsigned nparams = m_env.get(nested_S_name).to_inductive_val().get_nparams();
 
         // iterate over nested_S_name's constructor parameters
         for (unsigned i = 0; is_pi(c_type); i++) {

@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/abstract_type_context.h"
 #include "kernel/inductive.h"
-#include "kernel/inductive/inductive.h"
 #include "library/error_msgs.h"
 #include "library/locals.h"
 #include "library/util.h"
@@ -202,47 +201,7 @@ bool has_and_decls(environment const & env) {
       same declaration as an argument. */
 bool is_recursive_datatype(environment const & env, name const & n) {
     constant_info info = env.get(n);
-    if (info.is_inductive() && info.to_inductive_val().is_rec())
-        return true;
-
-    /* TODO(Leo): delete rest of this function */
-
-    optional<inductive::inductive_decl> decl = inductive::is_inductive_decl(env, n);
-    if (!decl) return false;
-    for (inductive::intro_rule const & intro : decl->m_intro_rules) {
-        expr type = inductive::intro_rule_type(intro);
-        while (is_pi(type)) {
-            if (find(binding_domain(type), [&](expr const & e, unsigned) {
-                        if (is_constant(e)) {
-                            name const & c = const_name(e);
-                            if (decl->m_name == c) return true;
-                        }
-                        return false;
-                    })) {
-                return true;
-            }
-            type = binding_body(type);
-        }
-    }
-    return false;
-}
-
-bool is_reflexive_datatype(abstract_type_context & tc, name const & n) {
-    environment const & env = tc.env();
-    optional<inductive::inductive_decl> decl = inductive::is_inductive_decl(env, n);
-    if (!decl) return false;
-    for (inductive::intro_rule const & intro : decl->m_intro_rules) {
-        expr type = inductive::intro_rule_type(intro);
-        while (is_pi(type)) {
-            expr arg   = tc.whnf(binding_domain(type));
-            if (is_pi(arg) && find(arg, [&](expr const & e, unsigned) { return is_constant(e) && const_name(e) == n; })) {
-                return true;
-            }
-            expr local = mk_local(tc.next_name(), binding_domain(type));
-            type = instantiate(binding_body(type), local);
-        }
-    }
-    return false;
+    return info.is_inductive() && info.to_inductive_val().is_rec();
 }
 
 level get_datatype_level(expr const & ind_type) {
@@ -268,38 +227,30 @@ expr update_result_sort(expr t, level const & l) {
 
 bool is_inductive_predicate(environment const & env, name const & n) {
     constant_info info = env.get(n);
-    if (!info.is_inductive() /* TODO(Leo): remove rest of the line */ && !inductive::is_inductive_decl(env, n))
-        return false; // n is not inductive datatype
+    if (!info.is_inductive())
+        return false;
     return is_zero(get_datatype_level(env.get(n).get_type()));
 }
 
 bool can_elim_to_type(environment const & env, name const & n) {
-    // TODO(Leo): delete following if-statement
-    if (inductive::is_inductive_decl(env, n)) {
-        constant_info ind_info = env.get(n);
-        constant_info rec_info = env.get(inductive::get_elim_name(n));
-        return rec_info.get_num_lparams() > ind_info.get_num_lparams();
-    }
-
     constant_info ind_info = env.get(n);
     if (!ind_info.is_inductive()) return false;
     constant_info rec_info = env.get(mk_rec_name(n));
     return rec_info.get_num_lparams() > ind_info.get_num_lparams();
 }
 
-void get_intro_rule_names(environment const & env, name const & n, buffer<name> & result) {
-    if (auto decl = inductive::is_inductive_decl(env, n)) {
-        for (inductive::intro_rule const & ir : decl->m_intro_rules) {
-            result.push_back(inductive::intro_rule_name(ir));
-        }
-    }
+void get_constructor_names(environment const & env, name const & n, buffer<name> & result) {
+    constant_info info = env.get(n);
+    if (!info.is_inductive()) return;
+    to_buffer(info.to_inductive_val().get_cnstrs(), result);
 }
 
 optional<name> is_constructor_app(environment const & env, expr const & e) {
     expr const & fn = get_app_fn(e);
-    if (is_constant(fn))
-        if (auto I = inductive::is_intro_rule(env, const_name(fn)))
+    if (is_constant(fn)) {
+        if (env.get(const_name(fn)).is_constructor())
             return optional<name>(const_name(fn));
+    }
     return optional<name>();
 }
 
@@ -318,32 +269,45 @@ optional<name> is_constructor_app_ext(environment const & env, expr const & e) {
     return is_constructor_app_ext(env, *it);
 }
 
-static bool is_irrelevant_field_type(old_type_checker & tc, expr const & ftype) {
-    if (tc.is_prop(ftype)) return true;
-    buffer<expr> tele;
-    expr n_ftype = to_telescope(tc, ftype, tele);
-    return is_sort(n_ftype) || tc.is_prop(n_ftype);
-}
+static name * g_util_fresh = nullptr;
 
 void get_constructor_relevant_fields(environment const & env, name const & n, buffer<bool> & result) {
-    lean_assert(inductive::is_intro_rule(env, n));
-    expr type        = env.get(n).get_type();
-    name I_name      = *inductive::is_intro_rule(env, n);
-    unsigned nparams = *inductive::get_num_params(env, I_name);
+    constant_info info  = env.get(n);
+    lean_assert(info.is_constructor());
+    constructor_val val = info.to_constructor_val();
+    expr type           = info.get_type();
+    name I_name         = val.get_induct();
+    unsigned nparams    = val.get_nparams();
+    local_ctx lctx;
+    name_generator ngen(*g_util_fresh);
     buffer<expr> telescope;
-    old_type_checker tc(env);
-    to_telescope(tc, type, telescope);
+    to_telescope(env, lctx, ngen, type, telescope);
     lean_assert(telescope.size() >= nparams);
     for (unsigned i = nparams; i < telescope.size(); i++) {
-        result.push_back(!is_irrelevant_field_type(tc, local_type(telescope[i])));
+        expr ftype = lctx.get_type(telescope[i]);
+        if (type_checker(env, lctx).is_prop(ftype)) {
+            result.push_back(false);
+        } else {
+            buffer<expr> tmp;
+            expr n_ftype = to_telescope(env, lctx, ngen, ftype, tmp);
+            result.push_back(!is_sort(n_ftype) && !type_checker(env, lctx).is_prop(n_ftype));
+        }
     }
 }
 
+unsigned get_num_constructors(environment const & env, name const & n) {
+    constant_info info = env.get(n);
+    lean_assert(info.is_inductive());
+    return length(info.to_inductive_val().get_cnstrs());
+}
+
 unsigned get_constructor_idx(environment const & env, name const & n) {
-    lean_assert(inductive::is_intro_rule(env, n));
-    name I_name = *inductive::is_intro_rule(env, n);
+    constant_info info  = env.get(n);
+    lean_assert(info.is_constructor());
+    constructor_val val = info.to_constructor_val();
+    name I_name         = val.get_induct();
     buffer<name> cnames;
-    get_intro_rule_names(env, I_name, cnames);
+    get_constructor_names(env, I_name, cnames);
     unsigned r  = 0;
     for (name const & cname : cnames) {
         if (cname == n)
@@ -353,42 +317,7 @@ unsigned get_constructor_idx(environment const & env, name const & n) {
     lean_unreachable();
 }
 
-unsigned get_num_inductive_hypotheses_for(environment const & env, name const & n, buffer<bool> & rec_mask) {
-    lean_assert(inductive::is_intro_rule(env, n));
-    lean_assert(rec_mask.empty());
-    name I_name = *inductive::is_intro_rule(env, n);
-    inductive::inductive_decl decl = *inductive::is_inductive_decl(env, I_name);
-    type_context_old tc(env);
-    type_context_old::tmp_locals locals(tc);
-    expr type   = tc.whnf(env.get(n).get_type());
-    unsigned r  = 0;
-    while (is_pi(type)) {
-        auto dom = tc.whnf(binding_domain(type));
-        while (is_pi(dom)) {
-            dom = tc.whnf(instantiate(binding_body(dom), locals.push_local_from_binding(dom)));
-        }
-        auto fn = get_app_fn(dom);
-        if (is_constant(fn) && const_name(fn) == decl.m_name) {
-            rec_mask.push_back(true);
-            r++;
-        } else {
-            rec_mask.push_back(false);
-        }
-        type = tc.whnf(instantiate(binding_body(type), locals.push_local_from_binding(type)));
-    }
-    return r;
-}
-
-unsigned get_num_inductive_hypotheses_for(environment const & env, name const & n) {
-    buffer<bool> rec_mask;
-    return get_num_inductive_hypotheses_for(env, n, rec_mask);
-}
-
-void get_constructor_rec_arg_mask(environment const & env, name const & n, buffer<bool> & rec_mask) {
-    get_num_inductive_hypotheses_for(env, n, rec_mask);
-}
-
-expr instantiate_lparam (expr const & e, name const & p, level const & l) {
+expr instantiate_lparam(expr const & e, name const & p, level const & l) {
     return instantiate_lparams(e, names(p), levels(l));
 }
 
@@ -404,45 +333,6 @@ unsigned get_expect_num_args(abstract_type_context & ctx, expr e) {
         e = instantiate(binding_body(e), local);
         r++;
     }
-}
-
-expr to_telescope(bool pi, expr e, buffer<expr> & telescope,
-                  optional<binder_info> const & binfo) {
-    while ((pi && is_pi(e)) || (!pi && is_lambda(e))) {
-        expr local;
-        if (binfo)
-            local = mk_local(mk_fresh_name(), binding_name(e), binding_domain(e), *binfo);
-        else
-            local = mk_local(mk_fresh_name(), binding_name(e), binding_domain(e), binding_info(e));
-        telescope.push_back(local);
-        e = instantiate(binding_body(e), local);
-    }
-    return e;
-}
-
-expr to_telescope(expr const & type, buffer<expr> & telescope, optional<binder_info> const & binfo) {
-    return to_telescope(true, type, telescope, binfo);
-}
-
-expr fun_to_telescope(expr const & e, buffer<expr> & telescope,
-                      optional<binder_info> const & binfo) {
-    return to_telescope(false, e, telescope, binfo);
-}
-
-expr to_telescope(old_type_checker & ctx, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo) {
-    expr new_type = ctx.whnf(type);
-    while (is_pi(new_type)) {
-        type = new_type;
-        expr local;
-        if (binfo)
-            local = mk_local(ctx.next_name(), binding_name(type), binding_domain(type), *binfo);
-        else
-            local = mk_local(ctx.next_name(), binding_name(type), binding_domain(type), binding_info(type));
-        telescope.push_back(local);
-        type     = instantiate(binding_body(type), local);
-        new_type = ctx.whnf(type);
-    }
-    return type;
 }
 
 expr to_telescope(bool pi, local_ctx & lctx, name_generator & ngen, expr e, buffer<expr> & telescope, optional<binder_info> const & binfo) {
@@ -1062,29 +952,6 @@ expr infer_implicit_params(expr const & type, unsigned nparams, implicit_infer_k
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-bool get_constructor_rec_args(environment const & env, expr const & e, buffer<pair<expr, unsigned>> & rec_args) {
-    old_type_checker ctx(env);
-    buffer<expr> args;
-    expr const & fn = get_app_args(e, args);
-    if (!is_constant(fn)) return false;
-    optional<name> I_name = inductive::is_intro_rule(env, const_name(fn));
-    if (!I_name) return false;
-    expr type       = env.get(const_name(fn)).get_type();
-    buffer<expr> tele;
-    to_telescope(ctx, type, tele);
-    if (tele.size() != args.size()) return false;
-    for (unsigned i = 0; i < tele.size(); i++) {
-        expr d = tele[i];
-        buffer<expr> tele_tele;
-        expr r  = to_telescope(ctx, local_type(d), tele_tele);
-        expr fn = get_app_fn(r);
-        if (is_constant(fn, *I_name)) {
-            rec_args.push_back(mk_pair(args[i], tele_tele.size()));
-        }
-    }
-    return true;
-}
-
 static expr * g_bool = nullptr;
 static expr * g_bool_tt = nullptr;
 static expr * g_bool_ff = nullptr;
@@ -1181,9 +1048,13 @@ void initialize_library_util() {
         out << ", commit " << std::string(LEAN_GITHASH).substr(0, 12);
     }
     g_version_string = new std::string(out.str());
+
+    g_util_fresh = new name("_util_fresh");
+    register_name_generator_prefix(*g_util_fresh);
 }
 
 void finalize_library_util() {
+    delete g_util_fresh;
     delete g_version_string;
     finalize_bool();
     finalize_int();

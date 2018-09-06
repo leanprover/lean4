@@ -8,11 +8,10 @@ Author: Leonardo de Moura
 #include <string>
 #include "runtime/sstream.h"
 #include "kernel/find_fn.h"
-#include "kernel/old_type_checker.h"
-#include "kernel/inductive/inductive.h"
+#include "kernel/type_checker.h"
+#include "kernel/inductive.h"
 #include "library/util.h"
 #include "library/scoped_ext.h"
-#include "library/kernel_serializer.h"
 #include "library/user_recursors.h"
 #include "library/aux_recursors.h"
 #include "library/attribute_manager.h"
@@ -72,6 +71,8 @@ static void throw_invalid_motive(expr const & C) {
                     "and I is a constant");
 }
 
+static name * g_user_rec_fresh = nullptr;
+
 recursor_info mk_recursor_info(environment const & env, name const & r, optional<unsigned> const & _given_major_pos) {
     /* The has_given_major_pos/given_major_pos hack is used to workaround a g++ false warning.
        Note that the pragma
@@ -81,42 +82,55 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
     bool has_given_major_pos = static_cast<bool>(_given_major_pos);
     unsigned given_major_pos = 0;
     if (_given_major_pos) given_major_pos = *_given_major_pos;
-    if (auto I = inductive::is_elim_rule(env, r)) {
-        unsigned num_lparams = env.get(*I).get_num_lparams();
+    constant_info rec_info = env.get(r);
+    if (rec_info.is_recursor()) {
+        recursor_val rec_val = rec_info.to_recursor_val();
+        name I_name = rec_val.get_induct();
+        unsigned num_lparams = env.get(I_name).get_num_lparams();
         list<unsigned> universe_pos = mk_list_range(0, num_lparams);
-        if (env.get(name(*I, "rec")).get_num_lparams() != num_lparams)
+        if (rec_info.get_num_lparams() != num_lparams)
             universe_pos = cons(recursor_info::get_motive_univ_idx(), universe_pos);
-        bool is_rec                = is_recursive_datatype(env, *I);
-        unsigned major_pos         = *inductive::get_elim_major_idx(env, r);
-        unsigned num_indices       = *inductive::get_num_indices(env, *I);
-        unsigned num_params        = *inductive::get_num_params(env, *I);
-        unsigned num_minors        = *inductive::get_num_minor_premises(env, *I);
-        unsigned num_args          = num_params + 1 /* motive */ + num_minors + num_indices + 1 /* major */;
+        bool is_rec                = is_recursive_datatype(env, I_name);
+        unsigned major_pos         = rec_val.get_major_idx();
+        unsigned num_indices       = rec_val.get_nindices();
+        unsigned num_params        = rec_val.get_nparams();
+        unsigned num_minors        = rec_val.get_nminors();
+        unsigned num_motives       = rec_val.get_nmotives();
+        unsigned num_args          = num_params + num_motives + num_minors + num_indices + 1 /* major */;
         list<bool> produce_motive;
         for (unsigned i = 0; i < num_minors; i++)
             produce_motive = cons(true, produce_motive);
         list<optional<unsigned>> params_pos = map2<optional<unsigned>>(mk_list_range(0, num_params),
                                                                        [](unsigned i) { return optional<unsigned>(i); });
         list<unsigned> indices_pos = mk_list_range(num_params, num_params + num_indices);
-        return recursor_info(r, *I, universe_pos, inductive::has_dep_elim(env, *I), is_rec,
+        bool has_dep_elim = true;
+        return recursor_info(r, I_name, universe_pos, has_dep_elim, is_rec,
                              num_args, major_pos, params_pos, indices_pos, produce_motive);
     } else if (is_aux_recursor(env, r) &&
                (r.get_string() == "cases_on" ||
                 r.get_string() == "rec_on"   ||
                 r.get_string() == "brec_on")) {
-        name I = r.get_prefix();
-        unsigned num_indices  = *inductive::get_num_indices(env, I);
-        unsigned num_params   = *inductive::get_num_params(env, I);
+        name I_name           = r.get_prefix();
+        inductive_val I_val   = env.get(I_name).to_inductive_val();
+        unsigned num_indices  = I_val.get_nindices();
+        unsigned num_params   = I_val.get_nparams();
         has_given_major_pos   = true;
-        given_major_pos       = num_params + 1 /* motive */ + num_indices;
+        unsigned num_motives;
+        if (r.get_string() == "cases_on") {
+            num_motives = 1;
+        } else {
+            num_motives = env.get(mk_rec_name(I_name)).to_recursor_val().get_nmotives();
+        }
+        given_major_pos       = num_params + num_motives + num_indices;
     }
     constant_info info = env.get(r);
-    old_type_checker tc(env);
+    name_generator ngen(*g_user_rec_fresh);
+    local_ctx lctx;
     buffer<expr> tele;
-    expr rtype    = to_telescope(tc, info.get_type(), tele);
+    expr rtype    = to_telescope(env, lctx, ngen, info.get_type(), tele);
     buffer<expr> C_args;
     expr C        = get_app_args(rtype, C_args);
-    if (!is_local(C) || !std::all_of(C_args.begin(), C_args.end(), is_local)) {
+    if (!is_fvar(C) || !std::all_of(C_args.begin(), C_args.end(), is_fvar)) {
         throw exception("invalid user defined recursor, result type must be of the form (C t), "
                         "where C is a bound variable, and t is a (possibly empty) sequence of bound variables");
     }
@@ -125,7 +139,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
     // We assume a parameter is anything that occurs before the motive.
     unsigned num_params  = 0;
     for (expr const & x : tele) {
-        if (local_name(x) == local_name(C))
+        if (fvar_name(x) == fvar_name(C))
             break;
         num_params++;
     }
@@ -140,7 +154,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
                             "recursor has only " << tele.size() << "arguments");
         major_pos = given_major_pos;
         major     = tele[major_pos];
-        if (!C_args.empty() && tc.is_def_eq(C_args.back(), major))
+        if (!C_args.empty() && type_checker(env, lctx).is_def_eq(C_args.back(), major))
             dep_elim = true;
         else
             dep_elim = false;
@@ -152,7 +166,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
         major    = C_args.back();
         dep_elim = true;
         for (expr const & x : tele) {
-            if (tc.is_def_eq(x, major))
+            if (type_checker(env, lctx).is_def_eq(x, major))
                 break;
             major_pos++;
         }
@@ -167,7 +181,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
                         << major << "'");
 
     buffer<expr> I_args;
-    expr I = get_app_args(local_type(major), I_args);
+    expr I = get_app_args(lctx.get_type(major), I_args);
     if (!is_constant(I)) {
         throw exception(sstream() << "invalid user defined recursor, type of the major premise '" << major
                         << "' must be for the form (I ...), where I is a constant");
@@ -179,11 +193,11 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
         expr const & A = tele[i];
         unsigned j = 0;
         for (; j < I_args.size(); j++) {
-            if (tc.is_def_eq(I_args[j], A))
+            if (type_checker(env, lctx).is_def_eq(I_args[j], A))
                 break;
         }
         if (j == I_args.size()) {
-            if (is_inst_implicit(local_info(tele[i]))) {
+            if (is_inst_implicit(lctx.get_local_decl(tele[i]).get_info())) {
                 params_pos.push_back(optional<unsigned>());
             } else {
                 throw exception(sstream() << "invalid user defined recursor, type of the major premise '" << major
@@ -200,7 +214,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
         expr const & idx = tele[i];
         unsigned j = 0;
         for (; j < I_args.size(); j++) {
-            if (tc.is_def_eq(I_args[j], idx))
+            if (type_checker(env, lctx).is_def_eq(I_args[j], idx))
                 break;
         }
         if (j == I_args.size()) {
@@ -212,7 +226,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
 
 
     buffer<expr> C_tele;
-    expr C_rtype  = to_telescope(tc, local_type(C), C_tele);
+    expr C_rtype  = to_telescope(env, lctx, ngen, lctx.get_type(C), C_tele);
     if (!is_sort(C_rtype) || C_tele.size() != C_args.size()) {
         throw_invalid_motive(C);
     }
@@ -258,19 +272,19 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
         if (i < major_pos - nindices || i > major_pos) {
             // i is a minor premise
             buffer<expr> minor_args;
-            expr res = get_app_fn(to_telescope(tc, local_type(tele[i]), minor_args));
+            expr res = get_app_fn(to_telescope(env, lctx, ngen, lctx.get_type(tele[i]), minor_args));
             if (!is_rec) {
                 for (expr const & minor_arg : minor_args) {
-                    lean_assert(is_local(minor_arg));
-                    if (find(local_type(minor_arg), [&](expr const & e, unsigned) {
-                                return is_local(e) && local_name(C) == local_name(e);
+                    lean_assert(is_fvar(minor_arg));
+                    if (find(lctx.get_type(minor_arg), [&](expr const & e, unsigned) {
+                                return is_fvar(e) && fvar_name(C) == fvar_name(e);
                             })) {
                         is_rec = true;
                         break;
                     }
                 }
             }
-            if (is_local(res) && local_name(C) == local_name(res)) {
+            if (is_fvar(res) && fvar_name(C) == fvar_name(res)) {
                 produce_motive.push_back(true);
             } else {
                 produce_motive.push_back(false);
@@ -322,7 +336,7 @@ typedef scoped_ext<recursor_config> recursor_ext;
 
 environment add_user_recursor(environment const & env, name const & r, optional<unsigned> const & major_pos,
                               bool persistent) {
-    if (inductive::is_elim_rule(env, r))
+    if (env.get(r).is_recursor())
         throw exception(sstream() << "invalid user defined recursor, '" << r << "' is a builtin recursor");
     recursor_info info = mk_recursor_info(env, r, major_pos);
     return recursor_ext::add_entry(env, get_dummy_ios(), info, persistent);
@@ -363,6 +377,8 @@ void initialize_user_recursors() {
                                                                                 << "invalid [recursor] declaration, expected at most one parameter");
                                                     return add_user_recursor(env, n, head_opt(data.m_idxs), persistent);
                                                 }));
+    g_user_rec_fresh = new name("_user_rec_fresh");
+    register_name_generator_prefix(*g_user_rec_fresh);
 }
 
 void finalize_user_recursors() {

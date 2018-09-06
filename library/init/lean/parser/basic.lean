@@ -47,11 +47,11 @@ class monad_rec (α δ : out_param Type) (m : Type → Type) :=
 (recurse {} : α → m δ)
 export monad_rec (recurse)
 
-instance monad_rec.base (α δ m) [monad m] : monad_rec α δ (rec_t α δ m) :=
-{ recurse := rec_t.recurse }
-
 instance monad_rec.trans (α δ m m') [has_monad_lift m m'] [monad_rec α δ m] [monad m] : monad_rec α δ m' :=
 { recurse := λ a, monad_lift (recurse a : m δ) }
+
+instance monad_rec.base (α δ m) [monad m] : monad_rec α δ (rec_t α δ m) :=
+{ recurse := rec_t.recurse }
 
 namespace lean
 -- TODO: enhance massively
@@ -101,8 +101,23 @@ do t' ← t.find it.curr,
 end trie
 
 
+/- Maximum standard precedence. This is the precedence of function application.
+   In the standard Lean language, only the token `.` has a left-binding power greater
+   than `max_prec` (so that field accesses like `g (h x).f` are parsed as `g ((h x).f)`,
+   not `(g (h x)).f`). -/
+def max_prec : nat := 1024
+
 structure token_config :=
 («prefix» : string)
+/- Left-binding power used by the term parser. The term parser operates in the context
+   of a right-binding power between 0 (used by parentheses and on the top-level) and
+   (usually) `max_prec` (used by function application). After parsing an initial term,
+   it continues parsing and expanding that term only when the left-binding power of
+   the next token is greater than the current right-binding power. For example, it
+   never continues parsing an argument after the initial parse, unless a token with
+   lbp > max_prec is encountered. Conversely, the term parser will always continue
+   parsing inside parentheses until it finds a token with lbp 0 (such as `)`). -/
+(lbp : nat)
 -- reading a token should not need any state
 /- An optional parser that is activated after matching `prefix`.
    It should return a syntax tree with a "hole" for the
@@ -175,7 +190,7 @@ def eoi : syntax_node_kind := ⟨`lean.parser.parser.eoi⟩
 protected def parse [monad m] (cfg : parser_config) (s : string) (r : parser_t m syntax) [parser.has_tokens r] :
   m (syntax × list message) :=
 -- the only hardcoded tokens, because they are never directly mentioned by a `parser`
-let builtin_tokens : list token_config := [⟨"/-", none⟩, ⟨"--", none⟩] in
+let builtin_tokens : list token_config := [⟨"/-", 0, none⟩, ⟨"--", 0, none⟩] in
 let trie := (tokens r ++ builtin_tokens).foldl (λ t cfg, trie.insert t cfg.prefix cfg) trie.mk in
 parser.run cfg ⟨trie, [], s.mk_iterator⟩ s $ do
   stx ← catch r $ λ (msg : parsec.message _), do {
@@ -334,12 +349,6 @@ instance recurse.view (α δ m a) [monad_rec α δ m] : parser.has_view (recurse
 
 def with_recurse {α : Type} (init : α) (r : α → rec_t α syntax m syntax) : parser :=
 rec_t.run (λ _, error "recursion limit") r init
-
--- NOTE: we assume that the tokens and view of a recursive parser are independent of the argument `a`
-instance with_recurse.tokens {α : Type} (r : α → rec_t α syntax m syntax) (a : α) [parser.has_tokens (r a)] : parser.has_tokens (with_recurse a r) :=
-⟨tokens (r a)⟩
-instance with_recurse.view {α β : Type} (r : α → rec_t α syntax m syntax) (a : α) [i : parser.has_view (r a) β] : parser.has_view (with_recurse a r) β :=
-{..i}
 
 instance monad_lift.tokens {m' : Type → Type} [has_monad_lift_t m m'] (r : m syntax) [parser.has_tokens r] :
   parser.has_tokens (monad_lift r : m' syntax) :=

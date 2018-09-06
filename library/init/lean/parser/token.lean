@@ -41,9 +41,9 @@ do r ← remaining,
 private def whitespace_aux : nat → basic_parser_m unit
 | (n+1) :=
 do tk ← whitespace *> match_token,
-   (match tk with
-    | some ⟨"--", _⟩    := str "--" *> take_while' (= '\n') *> whitespace_aux n
-    | some ⟨"/-", _⟩    := str "/-" *> finish_comment_block *> whitespace_aux n
+   (match token_config.prefix <$> tk with
+    | some "--"         := str "--" *> take_while' (= '\n') *> whitespace_aux n
+    | some "/-"         := str "/-" *> finish_comment_block *> whitespace_aux n
     | _                 := pure ())
 | 0 := error "unreachable"
 
@@ -96,12 +96,12 @@ private def symbol' : basic_parser_m (source_info → syntax) :=
 do tk ← match_token,
    match tk with
    -- constant-length token
-   | some ⟨tk, none⟩   :=
+   | some ⟨tk, _, none⟩   :=
      do str tk,
         pure $ λ i, syntax.atom ⟨some i, atomic_val.string tk⟩
    -- variable-length token
-   | some ⟨tk, some r⟩ := error "not implemented" --str tk *> monad_parsec.lift r
-   | none              := error
+   | some ⟨tk, _, some r⟩ := error "not implemented" --str tk *> monad_parsec.lift r
+   | none                 := error
 
 def token : basic_parser_m syntax :=
 do (r, i) ← with_source_info $ do {
@@ -113,7 +113,7 @@ do (r, i) ← with_source_info $ do {
    pure (r i)
 
 --TODO(Sebastian): error messages
-def symbol (sym : string) : parser :=
+def symbol (sym : string) (lbp := 0) : parser :=
 lift $ try $ do
   it ← left_over,
   stx@(syntax.atom ⟨_, atomic_val.string sym'⟩) ← token | error "" (dlist.singleton (repr sym)) it,
@@ -121,9 +121,9 @@ lift $ try $ do
     error "" (dlist.singleton (repr sym)) it,
   pure stx
 
-instance symbol.tokens (sym : string) : parser.has_tokens (symbol sym : parser) :=
-⟨[⟨sym, none⟩]⟩
-instance symbol.view (s) : parser.has_view (symbol s : parser) syntax := default _
+instance symbol.tokens (sym lbp) : parser.has_tokens (symbol sym lbp : parser) :=
+⟨[⟨sym, lbp, none⟩]⟩
+instance symbol.view (sym lbp) : parser.has_view (symbol sym lbp : parser) syntax := default _
 
 def number : parser :=
 lift $ try $ do

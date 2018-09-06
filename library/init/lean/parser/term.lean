@@ -3,7 +3,7 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich
 
-Term-level parsers and macros
+Term-level parsers
 -/
 prelude
 import init.lean.parser.token

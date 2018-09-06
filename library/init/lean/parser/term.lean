@@ -13,11 +13,11 @@ namespace parser
 open combinators parser.has_view
 
 @[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec monad_basic_read]
-def command_parser_m := rec_t syntax basic_parser_m
+def command_parser_m := rec_t unit syntax basic_parser_m
 abbreviation command_parser := command_parser_m syntax
 
 @[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec monad_basic_read]
-def term_parser_m := rec_t syntax command_parser_m
+def term_parser_m := rec_t nat syntax command_parser_m
 abbreviation term_parser := term_parser_m syntax
 
 @[derive parser.has_tokens parser.has_view]
@@ -28,7 +28,7 @@ node! hole [hole: symbol "_"]
 -- While term.parser does not actually read a command, it does share the same effect set
 -- with command parsers, introducing the term-level recursion effect only for nested parsers
 def term.parser : command_parser :=
-with_recurse $ any_of [
+with_recurse 0 $ λ rbp, any_of [
   hole.parser
 ]
 

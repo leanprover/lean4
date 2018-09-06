@@ -17,6 +17,9 @@ local postfix `?`:10000 := optional
 local postfix *:10000 := combinators.many
 local postfix +:10000 := combinators.many1
 
+@[derive parser.has_view parser.has_tokens]
+def command_parser.recurse : command_parser := recurse ()
+
 set_option class.instance_max_depth 200
 @[derive parser.has_view parser.has_tokens]
 def open_spec.parser : command_parser :=
@@ -34,7 +37,7 @@ node! «open» ["open", spec: open_spec.parser]
 
 @[derive parser.has_tokens]
 def section.parser : command_parser :=
-node! «section» ["section", name: ident?, commands: recurse*, "end", end_name: ident?]
+node! «section» ["section", name: ident?, commands: command_parser.recurse*, "end", end_name: ident?]
 
 @[derive parser.has_tokens]
 def universe.parser : command_parser :=

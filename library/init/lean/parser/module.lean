@@ -50,7 +50,7 @@ private def commands_aux : bool → list syntax → nat → module_parser
 -- on end of input, return list of parsed commands
 | recovering cs (nat.succ n) := (monad_parsec.eoi *> pure (syntax.node ⟨none, cs.reverse⟩)) <|> do
   (recovering, c) ← catch (do {
-    c ← monad_lift $ with_recurse $ command.parser,
+    c ← monad_lift $ with_recurse () $ λ _, command.parser,
     pure (ff, some c)
   } <|> do {
       -- unknown command: try to skip token, or else single character

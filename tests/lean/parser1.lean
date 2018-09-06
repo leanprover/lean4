@@ -1,6 +1,7 @@
 import init.lean.parser.module init.io
 open lean
 open lean.parser
+open lean.parser.syntax_node_kind.has_view
 
 def show_result (p : syntax × list lean.message) (s : string) : eio unit :=
 let (stx, errors) := p in
@@ -17,25 +18,28 @@ match errors with
   io.println "partial syntax tree:",
   io.println (to_string stx)
 
-def show_parse (p : module_parser) [has_tokens p] (s : string) : eio unit :=
-show_result (coroutine.finish (λ cmd, ()) (parser.parse ⟨⟩ s p) ()) s
+def parse_module (s : string) : syntax × list lean.message :=
+coroutine.finish (λ cmd, ()) (parser.parse ⟨⟩ s module.parser) ()
 
-#eval show_parse module.parser "prelude"
-#eval show_parse module.parser "import me"
-#eval show_parse module.parser "importme"
-#eval show_parse module.parser "import"
+def show_parse (s : string) : eio unit :=
+show_result (parse_module s) s
 
-#eval show_parse module.parser "prelude
+#eval show_parse "prelude"
+#eval show_parse "import me"
+#eval show_parse "importme"
+#eval show_parse "import"
+
+#eval show_parse "prelude
 import ..a b
 import c"
 
-#eval show_parse module.parser "open me you"
-#eval show_parse module.parser "open me as you (a b c) (renaming a->b c->d) (hiding a b)"
-#eval show_parse module.parser "open me you."
-#eval show_parse module.parser "open open"
-#eval show_parse module.parser "open me import open you"
+#eval show_parse "open me you"
+#eval show_parse "open me as you (a b c) (renaming a->b c->d) (hiding a b)"
+#eval show_parse "open me you."
+#eval show_parse "open open"
+#eval show_parse "open me import open you"
 
-#eval show_parse module.parser "open a
+#eval show_parse "open a
 section b
   open c
   section d
@@ -44,14 +48,15 @@ section b
 end b"
 
 -- should not be a parser error
-#eval show_parse module.parser "section a end"
+#eval show_parse "section a end"
 
-#eval show_parse module.parser "notation `Prop` := _"
+#eval show_parse "notation `Prop` := _"
 
 -- expansion example
 #eval (do {
-  let (stx, _) := parser.parse ⟨⟩ "prefix `+`:10 := _" $ combinators.with_recurse mixfix.parser,
+  (stx, []) ← pure $ parse_module "prefix `+`:10 := _",
   some {root := stx, ..} ← pure $ parser.parse.view stx,
+  some {commands := [stx], ..} ← pure $ view module stx,
   some stx ← pure $ mixfix.expand stx | throw "expand fail",
   io.println stx,
   io.println stx.reprint

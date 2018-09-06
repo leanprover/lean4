@@ -9,49 +9,49 @@ prelude
 import init.lean.parser.parsec init.lean.parser.syntax
 import init.lean.parser.identifier init.data.rbmap
 
-/-- A small wrapper of `parser_t` that simplifies introducing and invoking
+/-- A small wrapper of `reader_t` that simplifies introducing and invoking
     recursion points in a computation. -/
 -- TODO(Sebastian): move?
-def rec_t (r : Type) (m : Type → Type) (α : Type) :=
-reader_t (m r) m α
+def rec_t (α δ : Type) (m : Type → Type) (β : Type) :=
+reader_t (α → m δ) m β
 
 namespace rec_t
-variables {m : Type → Type} {r α : Type} [monad m]
+variables {m : Type → Type} {α δ β : Type} [monad m]
 local attribute [reducible] rec_t
 
 /-- Continue at the recursion point stored at `run`. -/
-def recurse : rec_t r m r :=
+def recurse (a : α) : rec_t α δ m δ :=
 do x ← read,
-   monad_lift x
+   monad_lift (x a)
 
-variables (base : m r) (rec : rec_t r m r)
-private def run_aux : nat → m r
+variables (base : α → m δ) (rec : α → rec_t α δ m δ)
+private def run_aux : nat → α → m δ
 | 0     := base
-| (n+1) := rec.run (run_aux n)
+| (n+1) := λ a, (rec a).run (run_aux n)
 
-/-- Execute `rec`, re-executing it whenever `recurse` is called.
+/-- Execute `rec a`, re-executing it whenever `recurse` (with a new `a`) is called.
     After `max_rec` recursion steps, `base` is executed instead. -/
-protected def run (max_rec := 1000) : m r :=
-rec.run (run_aux base rec max_rec)
+protected def run (a : α) (max_rec := 1000) : m δ :=
+(rec a).run (run_aux base rec max_rec)
 
 -- not clear how to auto-derive these given the additional constraints
-instance : monad (rec_t r m) := infer_instance
-instance [alternative m] : alternative (rec_t r m) := infer_instance
-instance : has_monad_lift m (rec_t r m) := infer_instance
-instance (ε) [monad_except ε m] : monad_except ε (rec_t r m) := infer_instance
-instance (μ) [alternative m] [lean.parser.monad_parsec μ m] : lean.parser.monad_parsec μ (rec_t r m) :=
+instance : monad (rec_t α δ m) := infer_instance
+instance [alternative m] : alternative (rec_t α δ m) := infer_instance
+instance : has_monad_lift m (rec_t α δ m) := infer_instance
+instance (ε) [monad_except ε m] : monad_except ε (rec_t α δ m) := infer_instance
+instance (μ) [alternative m] [lean.parser.monad_parsec μ m] : lean.parser.monad_parsec μ (rec_t α δ m) :=
 infer_instance
 end rec_t
 
-class monad_rec (r : out_param Type) (m : Type → Type) :=
-(recurse {} : m r)
+class monad_rec (α δ : out_param Type) (m : Type → Type) :=
+(recurse {} : α → m δ)
 export monad_rec (recurse)
 
-instance monad_rec.base (r m) [monad m] : monad_rec r (rec_t r m) :=
+instance monad_rec.base (α δ m) [monad m] : monad_rec α δ (rec_t α δ m) :=
 { recurse := rec_t.recurse }
 
-instance monad_rec.trans (r m m') [has_monad_lift m m'] [monad_rec r m] [monad m] : monad_rec r m' :=
-{ recurse := monad_lift (recurse : m r) }
+instance monad_rec.trans (α δ m m') [has_monad_lift m m'] [monad_rec α δ m] [monad m] : monad_rec α δ m' :=
+{ recurse := λ a, monad_lift (recurse a : m δ) }
 
 namespace lean
 -- TODO: enhance massively
@@ -328,16 +328,17 @@ instance dbg.tokens (r : parser) (l) [parser.has_tokens r] : parser.has_tokens (
 instance dbg.view (r  : parser) (l) [i : parser.has_view r α] : parser.has_view (dbg l r) α :=
 {..i}
 
-instance recurse.tokens (r m) [monad_rec r m] : parser.has_tokens (recurse : m r) :=
+instance recurse.tokens (α δ m a) [monad_rec α δ m] : parser.has_tokens (recurse a : m δ) :=
 ⟨[]⟩ -- recursive use should not contribute any new tokens
-instance recurse.view (r m) [monad_rec r m] : parser.has_view (recurse : m r) syntax := default _
+instance recurse.view (α δ m a) [monad_rec α δ m] : parser.has_view (recurse a : m δ) syntax := default _
 
-def with_recurse (r : rec_t syntax m syntax) : parser :=
-rec_t.run (error "recursion limit") r
+def with_recurse {α : Type} (init : α) (r : α → rec_t α syntax m syntax) : parser :=
+rec_t.run (λ _, error "recursion limit") r init
 
-instance with_recurse.tokens (r : rec_t syntax m syntax) [parser.has_tokens r] : parser.has_tokens (with_recurse r) :=
-⟨tokens r⟩
-instance with_recurse.view (r : rec_t syntax m syntax) [i : parser.has_view r α] : parser.has_view (with_recurse r) α :=
+-- NOTE: we assume that the tokens and view of a recursive parser are independent of the argument `a`
+instance with_recurse.tokens {α : Type} (r : α → rec_t α syntax m syntax) (a : α) [parser.has_tokens (r a)] : parser.has_tokens (with_recurse a r) :=
+⟨tokens (r a)⟩
+instance with_recurse.view {α β : Type} (r : α → rec_t α syntax m syntax) (a : α) [i : parser.has_view (r a) β] : parser.has_view (with_recurse a r) β :=
 {..i}
 
 instance monad_lift.tokens {m' : Type → Type} [has_monad_lift_t m m'] (r : m syntax) [parser.has_tokens r] :

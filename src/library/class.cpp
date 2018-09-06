@@ -22,31 +22,24 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 
 namespace lean {
-enum class class_entry_kind { Class, Instance, Tracker };
+enum class class_entry_kind { Class, Instance };
 struct class_entry {
     class_entry_kind m_kind;
     name             m_class;
     name             m_instance;    // only relevant if m_kind == Instance
     unsigned         m_priority{0}; // only relevant if m_kind == Instance
-    name             m_track_attr;  // only relevant if m_kind == Tracker
     class_entry():m_kind(class_entry_kind::Class) {}
     explicit class_entry(name const & c):m_kind(class_entry_kind::Class), m_class(c) {}
     class_entry(class_entry_kind k, name const & c, name const & i, unsigned p):
         m_kind(k), m_class(c), m_instance(i), m_priority(p) {}
-    class_entry(name const & c, name const & track_attr):
-        m_kind(class_entry_kind::Tracker), m_class(c), m_track_attr(track_attr) {}
 };
 
 struct class_state {
     typedef name_map<names> class_instances;
     typedef name_map<unsigned>   instance_priorities;
-    typedef name_map<names> class_track_attrs;
-    typedef name_map<name_set>   attr_symbols;
 
     class_instances       m_instances;
     instance_priorities   m_priorities;
-    class_track_attrs     m_class_track_attrs;
-    attr_symbols          m_attr_symbols;
     name_set              m_has_out_params;
 
     unsigned get_priority(name const & i) const {
@@ -86,30 +79,6 @@ struct class_state {
             m_has_out_params.insert(c);
     }
 
-    void collect_symbols(old_type_checker & tc, name const & inst, name const & attr) {
-        environment const & env = tc.env();
-        name_set S;
-        if (auto curr_S = m_attr_symbols.find(attr))
-            S = *curr_S;
-        buffer<expr> params;
-        expr type = to_telescope(tc, env.get(inst).get_type(), params);
-        buffer<expr> args;
-        get_app_args(type, args);
-        for (expr const & arg : args) {
-            expr arg_type = tc.whnf(tc.infer(arg));
-            if (!is_sort(arg_type)) {
-                /* We only track symbols that are not occurring in types */
-                for_each(arg, [&](expr const & e, unsigned) {
-                        if (is_constant(e))
-                            S.insert(const_name(e));
-                        return true;
-                    });
-            }
-        }
-        if (!S.empty())
-            m_attr_symbols.insert(attr, S);
-    }
-
     void add_instance(environment const & env, name const & c, name const & i, unsigned p) {
         auto it = m_instances.find(c);
         if (!it) {
@@ -119,20 +88,6 @@ struct class_state {
             m_instances.insert(c, insert(i, p, lst));
         }
         m_priorities.insert(i, p);
-        if (auto attrs = m_class_track_attrs.find(c)) {
-            old_type_checker tc(env);
-            for (name const & attr : *attrs) {
-                collect_symbols(tc, i, attr);
-            }
-        }
-    }
-
-    void track_symbols(name const & c, name const & attr_name) {
-        if (auto s = m_class_track_attrs.find(c)) {
-            m_class_track_attrs.insert(c, cons(attr_name, *s));
-        } else {
-            m_class_track_attrs.insert(c, names(attr_name));
-        }
     }
 };
 
@@ -148,9 +103,6 @@ struct class_config {
             break;
         case class_entry_kind::Instance:
             s.add_instance(env, e.m_class, e.m_instance, e.m_priority);
-            break;
-        case class_entry_kind::Tracker:
-            s.track_symbols(e.m_class, e.m_track_attr);
             break;
         }
     }
@@ -170,9 +122,6 @@ struct class_config {
         case class_entry_kind::Instance:
             s << e.m_class << e.m_instance << e.m_priority;
             break;
-        case class_entry_kind::Tracker:
-            s << e.m_class << e.m_track_attr;
-            break;
         }
     }
 
@@ -187,9 +136,6 @@ struct class_config {
         case class_entry_kind::Instance:
             d >> e.m_class >> e.m_instance >> e.m_priority;
             break;
-        case class_entry_kind::Tracker:
-            d >> e.m_class >> e.m_track_attr;
-            break;
         }
         return e;
     }
@@ -200,8 +146,6 @@ struct class_config {
             return some(e.m_class.hash());
         case class_entry_kind::Instance:
             return some(hash(hash(e.m_class.hash(), e.m_instance.hash()), e.m_priority));
-        case class_entry_kind::Tracker:
-            return some(hash(e.m_class.hash(), e.m_track_attr.hash()));
         }
         lean_unreachable();
     }
@@ -342,43 +286,10 @@ bool is_class_out_param(expr const & e) {
     return is_app_of(e, get_out_param_name(), 1);
 }
 
-static name_set * g_tracking_attributes = nullptr;
-
-void register_class_symbol_tracking_attribute(name const & n, char const * descr) {
-    if (g_tracking_attributes->contains(n))
-        throw exception(sstream() << "invalid type class tracking attribute '" << n << "', attribute has already been defined");
-    g_tracking_attributes->insert(n);
-    register_system_attribute(basic_attribute(n, descr,
-                                              [=](environment const & env, io_state const &, name const & d, unsigned, bool persistent) {
-                                                  if (!persistent) {
-                                                      throw exception(sstream() << "invalid attribute [" << n << "] at '" << d << "', "
-                                                                      << "it must not be 'local'");
-                                                  }
-                                                  if (!is_class(env, d)) {
-                                                      throw exception(sstream() << "invalid attribute [" << n << "] at '" << d << "', "
-                                                                      << "declaration is not a class");
-                                                  }
-                                                  return class_ext::add_entry(env, get_dummy_ios(), class_entry(d, n), persistent);
-                                              }));
-}
-
-bool is_class_symbol_tracking_attribute(name const & n) {
-    return g_tracking_attributes->contains(n);
-}
-
-name_set get_class_attribute_symbols(environment const & env, name const & attr_name) {
-    class_state const & s = class_ext::get_state(env);
-    if (name_set const * S = s.m_attr_symbols.find(attr_name))
-        return *S;
-    else
-        return name_set();
-}
-
 void initialize_class() {
     g_class_attr_name = new name("class");
     g_instance_attr_name = new name("instance");
     g_class_name = new name("class");
-    g_tracking_attributes = new name_set();
     class_ext::initialize();
 
     register_system_attribute(basic_attribute(*g_class_attr_name, "type class",
@@ -400,8 +311,6 @@ void finalize_class() {
     class_ext::finalize();
     delete g_class_name;
     delete g_class_attr_name;
-    delete g_instance_attr_name;
     delete g_anonymous_inst_name_prefix;
-    delete g_tracking_attributes;
 }
 }

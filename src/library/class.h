@@ -39,27 +39,6 @@ bool is_class_out_param(expr const & e);
 /** \brief Return true iff c is a type class that contains an `out_param` */
 bool has_class_out_params(environment const & env, name const & c);
 
-/** \brief Add a new attribute for tracking symbols occurring in instances of type classes.
-
-    We use this feature for tracking "algebraic" symbols.
-    For example, the class is_commutative is marked with the [algebra] attribute
-    registered with this procedure.
-    Then, whenever we declarare an is_commutative instance, we store the symbols
-    occuring in the application (is_commutative ...) in a set.
-
-    \remark We ignore symbols occurring in types.
-
-    For more details see:
-    https://github.com/leanprover/lean/wiki/Refactoring-structures */
-void register_class_symbol_tracking_attribute(name const & n, char const * descr);
-
-/** \brief Return true iff \c n is the name of an attribute created with register_class_symbol_tracking_attribute. */
-bool is_class_symbol_tracking_attribute(name const & n);
-
-/** \brief Given an attribute created with register_class_symbol_tracking_attribute,
-    this function returns the symbols that occur in instances of any class marked with the attribute. */
-name_set get_class_attribute_symbols(environment const & env, name const & attr_name);
-
 void initialize_class();
 void finalize_class();
 }

@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "library/metavar_context.h"
 #include "library/type_context.h"
-#include "library/persistent_context_cache.h"
 #include "library/vm/vm.h"
 #include "library/vm/interaction_state.h"
 

@@ -34,7 +34,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 /* is_ts_safe is required by the interaction_state implementation. */
-bool is_ts_safe(tactic_state const & s) { return s.us().m_mem.empty(); }
 template struct interaction_monad<tactic_state>;
 
 void tactic_state_cell::dealloc() {
@@ -42,9 +41,8 @@ void tactic_state_cell::dealloc() {
 }
 
 tactic_state::tactic_state(environment const & env, options const & o, name const & decl_name, metavar_context const & ctx,
-                           list<expr> const & gs, expr const & main,
-                           context_cache_id const & cid, tactic_user_state const & us, tag_info const & tinfo) {
-    m_ptr = new tactic_state_cell(env, o, decl_name, ctx, gs, main, cid, us, tinfo);
+                           list<expr> const & gs, expr const & main) {
+    m_ptr = new tactic_state_cell(env, o, decl_name, ctx, gs, main);
     m_ptr->inc_ref();
 }
 
@@ -61,7 +59,7 @@ optional<metavar_decl> tactic_state::get_main_goal_decl() const {
 tactic_state mk_tactic_state_for(environment const & env, options const & o, name const & decl_name,
                                  metavar_context mctx, local_context const & lctx, expr const & type) {
     expr main = mctx.mk_metavar_decl(lctx, type);
-    return tactic_state(env, o, decl_name, mctx, list<expr>(main), main, unique_id(), tactic_user_state(), tag_info());
+    return tactic_state(env, o, decl_name, mctx, list<expr>(main), main);
 }
 
 tactic_state mk_tactic_state_for(environment const & env, options const & o, name const & decl_name,
@@ -71,24 +69,24 @@ tactic_state mk_tactic_state_for(environment const & env, options const & o, nam
 
 tactic_state mk_tactic_state_for_metavar(environment const & env, options const & opts, name const & decl_name,
                                          metavar_context const & mctx, expr const & mvar) {
-    return tactic_state(env, opts, decl_name, mctx, list<expr>(mvar), mvar, unique_id(), tactic_user_state(), tag_info());
+    return tactic_state(env, opts, decl_name, mctx, list<expr>(mvar), mvar);
 }
 
 tactic_state set_options(tactic_state const & s, options const & o) {
-    return tactic_state(s.env(), o, s.decl_name(), s.mctx(), s.goals(), s.main(), s.cid(), s.us(), s.tinfo());
+    return tactic_state(s.env(), o, s.decl_name(), s.mctx(), s.goals(), s.main());
 }
 
 tactic_state set_env(tactic_state const & s, environment const & env) {
-    return tactic_state(env, s.get_options(), s.decl_name(), s.mctx(), s.goals(), s.main(), s.cid(), s.us(), s.tinfo());
+    return tactic_state(env, s.get_options(), s.decl_name(), s.mctx(), s.goals(), s.main());
 }
 
 tactic_state set_mctx(tactic_state const & s, metavar_context const & mctx) {
     if (is_eqp(s.mctx(), mctx)) return s;
-    return tactic_state(s.env(), s.get_options(), s.decl_name(), mctx, s.goals(), s.main(), s.cid(), s.us(), s.tinfo());
+    return tactic_state(s.env(), s.get_options(), s.decl_name(), mctx, s.goals(), s.main());
 }
 
 tactic_state set_env_mctx(tactic_state const & s, environment const & env, metavar_context const & mctx) {
-    return tactic_state(env, s.get_options(), s.decl_name(), mctx, s.goals(), s.main(), s.cid(), s.us(), s.tinfo());
+    return tactic_state(env, s.get_options(), s.decl_name(), mctx, s.goals(), s.main());
 }
 
 static list<expr> consume_solved_prefix(metavar_context const & mctx, list<expr> const & gs) {
@@ -102,18 +100,17 @@ static list<expr> consume_solved_prefix(metavar_context const & mctx, list<expr>
 
 tactic_state set_goals(tactic_state const & s, list<expr> const & gs) {
     return tactic_state(s.env(), s.get_options(), s.decl_name(), s.mctx(), consume_solved_prefix(s.mctx(), gs),
-                        s.main(), s.cid(), s.us(), s.tinfo());
+                        s.main());
 }
 
 tactic_state set_mctx_goals(tactic_state const & s, metavar_context const & mctx, list<expr> const & gs) {
-    return tactic_state(s.env(), s.get_options(), s.decl_name(), mctx, consume_solved_prefix(mctx, gs), s.main(),
-                        s.cid(), s.us(), s.tinfo());
+    return tactic_state(s.env(), s.get_options(), s.decl_name(), mctx, consume_solved_prefix(mctx, gs), s.main());
 }
 
 tactic_state set_env_mctx_goals(tactic_state const & s, environment const & env,
                                 metavar_context const & mctx, list<expr> const & gs) {
     return tactic_state(env, s.get_options(), s.decl_name(), mctx, consume_solved_prefix(mctx, gs),
-                        s.main(), s.cid(), s.us(), s.tinfo());
+                        s.main());
 }
 
 tactic_state set_mctx_lctx(tactic_state const & s, metavar_context const & mctx, local_context const & lctx) {
@@ -124,47 +121,13 @@ tactic_state set_mctx_lctx(tactic_state const & s, metavar_context const & mctx,
     }
     metavar_context new_mctx = mctx;
     expr mvar = new_mctx.mk_metavar_decl(lctx, mk_true());
-    return tactic_state(s.env(), s.get_options(), s.decl_name(), new_mctx, to_list(mvar), mvar,
-                        s.cid(), s.us(), s.tinfo());
-}
-
-tactic_state set_user_state(tactic_state const & s, tactic_user_state const & us) {
-    return tactic_state(s.env(), s.get_options(), s.decl_name(), s.mctx(), s.goals(), s.main(),
-                        s.cid(), us, s.tinfo());
-}
-
-tactic_state set_tag_info(tactic_state const & s, tag_info const & tinfo) {
-    return tactic_state(s.env(), s.get_options(), s.decl_name(), s.mctx(), s.goals(), s.main(),
-                        s.cid(), s.us(), tinfo);
-}
-
-tactic_state set_context_cache_id(tactic_state const & s, context_cache_id const & cid) {
-    return tactic_state(s.env(), s.get_options(), s.decl_name(), s.mctx(), s.goals(), s.main(),
-                        cid, s.us(), s.tinfo());
+    return tactic_state(s.env(), s.get_options(), s.decl_name(), new_mctx, to_list(mvar), mvar);
 }
 
 format tactic_state::pp_expr(formatter_factory const & fmtf, expr const & e) const {
     type_context_old ctx = mk_cacheless_type_context_for(*this, transparency_mode::All);
     formatter fmt = fmtf(env(), get_options(), ctx);
     return fmt(e);
-}
-
-static format pp_tag(names const & tag) {
-    buffer<name> tmp;
-    for (auto n : tag) {
-        if (!is_internal_name(n))
-            tmp.push_back(n);
-    }
-    unsigned i = tmp.size();
-    if (i == 0) return format();
-    format r;
-    while (i > 0) {
-        --i;
-        r += format(tmp[i]);
-        if (i > 0)
-            r += comma() + space();
-    }
-    return format("case") + space() + r + line();
 }
 
 format tactic_state::pp_goal(formatter_factory const & fmtf, expr const & g, bool /* target_lhs_only */) const {
@@ -178,9 +141,6 @@ format tactic_state::pp_goal(formatter_factory const & fmtf, expr const & g, boo
     if (inst_mvars)
         lctx                   = lctx.instantiate_mvars(mctx_tmp);
     format r;
-    if (auto tag = get_tag_info().m_tags.find(g)) {
-        r                    += pp_tag(*tag);
-    }
     r                         += lctx.pp(fmt);
     unsigned indent            = get_pp_indent(get_options());
     bool unicode               = get_pp_unicode(get_options());
@@ -270,27 +230,6 @@ vm_obj tactic_format_result(vm_obj const & o) {
     formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
     formatter fmt = fmtf(s.env(), s.get_options(), ctx);
     return tactic::mk_success(to_obj(fmt(r)), s);
-}
-
-tactic_state_context_cache::tactic_state_context_cache(tactic_state & s):
-    persistent_context_cache(s.get_cache_id(), s.get_options()),
-    m_state(set_context_cache_id(s, get_id())) {
-    s       = m_state;
-}
-
-type_context_old tactic_state_context_cache::mk_type_context(tactic_state const & s, local_context const & lctx, transparency_mode m) {
-    lean_assert(s.get_cache_id() == m_state.get_cache_id());
-    return type_context_old(s.env(), s.mctx(), lctx, *this, m);
-}
-
-type_context_old tactic_state_context_cache::mk_type_context(tactic_state const & s, transparency_mode m) {
-    local_context lctx;
-    if (auto d = s.get_main_goal_decl()) lctx = d->get_context();
-    return mk_type_context(s, lctx, m);
-}
-
-type_context_old tactic_state_context_cache::mk_type_context(transparency_mode m) {
-    return mk_type_context(m_state, m);
 }
 
 type_context_old mk_type_context_for(environment const & env, options const & o, metavar_context const & mctx,

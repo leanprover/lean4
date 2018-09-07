@@ -16,7 +16,6 @@ Author: Leonardo de Moura
 #include "library/cache_helper.h"
 #include "library/module.h"
 #include "library/check.h"
-#include "library/documentation.h"
 #include "library/scoped_ext.h"
 #include "library/aux_definition.h"
 #include "library/vm/vm_format.h"

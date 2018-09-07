@@ -38,7 +38,6 @@ Author: Leonardo de Moura
 #include "library/aux_recursors.h"
 #include "library/type_context.h"
 #include "library/app_builder.h"
-#include "library/documentation.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/constructions/rec_on.h"
 #include "library/constructions/projection.h"
@@ -1270,11 +1269,6 @@ struct structure_cmd_fn {
         add_alias(no_confusion_name);
     }
 
-    void add_doc_string() {
-        if (m_meta_info.m_doc_string)
-            m_env = ::lean::add_doc_string(m_env, m_name, *m_meta_info.m_doc_string);
-    }
-
     environment operator()() {
         process_header();
         if (m_p.curr_is_token(get_assign_tk())) {
@@ -1310,7 +1304,6 @@ struct structure_cmd_fn {
         declare_defaults();
         declare_auxiliary();
         declare_coercions();
-        add_doc_string();
         if (!m_inductive_predicate) {
             declare_no_confusion();
         }

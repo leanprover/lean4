@@ -14,7 +14,7 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   locals.cpp mt_task_queue.cpp st_task_queue.cpp
   library_task_builder.cpp subscripted_name_set.cpp
   eval_helper.cpp messages.cpp message_builder.cpp module_mgr.cpp comp_val.cpp
-  documentation.cpp check.cpp parray.cpp process.cpp
+  check.cpp parray.cpp process.cpp
   pipe.cpp handle.cpp profiling.cpp time_task.cpp abstract_context_cache.cpp
   context_cache.cpp elab_context.cpp
   scope_pos_info_provider.cpp error_msgs.cpp formatter.cpp pos_info_provider.cpp

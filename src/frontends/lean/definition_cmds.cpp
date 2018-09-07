@@ -25,7 +25,6 @@ Author: Leonardo de Moura
 #include "library/noncomputable.h"
 #include "library/module.h"
 #include "library/aux_definition.h"
-#include "library/documentation.h"
 #include "library/scope_pos_info_provider.h"
 #include "library/replace_visitor.h"
 #include "library/equations_compiler/util.h"
@@ -243,9 +242,6 @@ declare_definition(parser & p, environment const & env, decl_cmd_kind kind, buff
     }
 
     new_env = compile_decl(p, new_env, c_name, c_real_name, pos);
-    if (meta.m_doc_string) {
-        new_env = add_doc_string(new_env, c_real_name, *meta.m_doc_string);
-    }
     return mk_pair(new_env, c_real_name);
 }
 

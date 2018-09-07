@@ -20,7 +20,6 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "library/locals.h"
 #include "library/explicit.h"
-#include "library/documentation.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/decl_util.h"
 #include "frontends/lean/util.h"
@@ -122,8 +121,6 @@ static environment declare_var(parser & p, environment env,
         bool is_meta = meta.m_modifiers.m_is_meta;
         env = module::add(env, mk_axiom(full_n, ls, new_type, is_meta));
 
-        if (meta.m_doc_string)
-            env = add_doc_string(env, full_n, *meta.m_doc_string);
         if (!ns.is_anonymous()) {
             if (meta.m_modifiers.m_is_protected)
                 env = add_expr_alias(env, get_protected_shortest_name(full_n), full_n);

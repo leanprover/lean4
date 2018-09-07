@@ -30,7 +30,6 @@ Author: Leonardo de Moura
 #include "library/private.h"
 #include "library/type_context.h"
 #include "library/reducible.h"
-#include "library/documentation.h"
 #include "library/placeholder.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_io.h"

@@ -7,7 +7,6 @@ Author: Gabriel Ebner
 #ifdef LEAN_JSON
 #include "frontends/lean/json.h"
 #include <string>
-#include "library/documentation.h"
 #include "library/scoped_ext.h"
 #include "library/protected.h"
 #include "kernel/declaration.h"
@@ -74,8 +73,6 @@ json serialize_decl(name const & short_name, name const & long_name, environment
     completion["text"] = short_name.to_string();
     // interactive_report_type(env, o, type, completion);
     add_source_info(env, long_name, completion);
-    if (auto doc = get_doc_string(env, long_name))
-        completion["doc"] = *doc;
     return completion;
 }
 

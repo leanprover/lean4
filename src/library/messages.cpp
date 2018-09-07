@@ -11,12 +11,11 @@ Author: Gabriel Ebner
 namespace lean {
 
 message::message(parser_exception const & ex) :
-        message(ex.get_file_name(), *ex.get_pos(),
-                ERROR, ex.get_msg()) {}
+        message(ex.get_file_name(), *ex.get_pos(), ERROR, ex.get_msg()) {}
 
 std::ostream & operator<<(std::ostream & out, message const & msg) {
     if (msg.get_severity() != INFORMATION) {
-        out << msg.get_file_name() << ":" << msg.get_pos().first << ":" << msg.get_pos().second << ": ";
+        out << msg.get_filename() << ":" << msg.get_pos().first << ":" << msg.get_pos().second << ": ";
         switch (msg.get_severity()) {
             case INFORMATION: break;
             case WARNING: out << "warning: "; break;
@@ -33,31 +32,24 @@ std::ostream & operator<<(std::ostream & out, message const & msg) {
 }
 
 void report_message(message const & msg0) {
-    auto & l = logtree();
-    auto & loc = logtree().get_location();
-
-    std::shared_ptr<message> msg;
-    if (loc.m_file_name.empty()) {
-        msg = std::make_shared<message>(msg0);
-    } else {
-        auto pos_ok = loc.m_range.m_begin <= msg0.get_pos() && msg0.get_pos() <= loc.m_range.m_end;
-        msg = std::make_shared<message>(loc.m_file_name,
-                                        pos_ok ? msg0.get_pos() : loc.m_range.m_begin,
-                                        pos_ok ? msg0.get_end_pos() : optional<pos_info>(),
-                                        msg0.get_severity(), msg0.get_caption(), msg0.get_text());
-    }
-    l.add(msg);
+    lean_assert(global_message_log());
+    *global_message_log() = cons(msg0, *global_message_log());
 }
 
-task<bool> has_errors(log_tree::node const & n) {
-    return n.has_entry(is_error_message);
-}
-
-bool is_error_message(log_entry const & e) {
-    if (auto msg = dynamic_cast<message const *>(e.get())) {
-        return msg->is_error();
+bool has_errors(message_log const & l) {
+    for (auto const & m : l) {
+        if (m.get_severity() == ERROR)
+            return true;
     }
     return false;
 }
 
+LEAN_THREAD_PTR(message_log, g_message_log);
+
+scope_message_log::scope_message_log(message_log * l) :
+        flet<message_log *>(g_message_log, l) {}
+
+message_log * global_message_log() {
+    return g_message_log;
+}
 }

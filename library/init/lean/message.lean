@@ -16,6 +16,7 @@ inductive message_severity
 | information | warning | error
 
 structure message :=
+(filename : string)
 (pos      : position)
 (end_pos  : option position  := none)
 (severity : message_severity := message_severity.error)

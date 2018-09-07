@@ -119,7 +119,8 @@ structure parser_state :=
    * During error recovery, skipped input should be associated to the next token -/
 (token_start : string.iterator)
 
-structure parser_config := mk
+structure parser_config :=
+(filename : string)
 
 @[derive monad alternative monad_reader monad_state monad_parsec monad_except]
 def parser_t (m : Type → Type) [monad m] := reader_t parser_config $ state_t parser_state $ parsec_t syntax m
@@ -151,15 +152,18 @@ class syntax_node_kind.has_view (k : syntax_node_kind) (α : out_param Type) :=
 (view : syntax → option α)
 (review : α → syntax)
 
+def message_of_parsec_message {μ : Type} (cfg : parser_config) (msg : parsec.message μ) : message :=
+-- FIXME: translate position
+{filename := cfg.filename, pos := ⟨0, 0⟩, text := to_string msg}
+
 section
 local attribute [reducible] parser_t
 protected def run {m : Type → Type} [monad m] (cfg : parser_config) (st : parser_state) (s : string) (r : parser_t m syntax) :
-  m (syntax × message_log) :=
+m (syntax × message_log) :=
 do r ← ((r.run cfg).run st).parse_with_eoi s,
-   pure $ match r with
-   | except.ok (a, st) := (a, st.messages)
-   -- FIXME: translate position
-   | except.error msg  := (msg.custom, [{pos := ⟨0, 0⟩, text := to_string msg}])
+pure $ match r with
+| except.ok (a, st) := (a, st.messages)
+| except.error msg  := (msg.custom, [message_of_parsec_message cfg msg])
 end
 
 open monad_parsec
@@ -167,9 +171,9 @@ open parser.has_view
 variables {α : Type} {m : Type → Type}
 local notation `parser` := m syntax
 
-def log_message {μ : Type} [monad_state parser_state m] (msg : parsec.message μ) : m unit :=
--- FIXME: translate position
-modify (λ st, {st with messages := st.messages.add {pos := ⟨0, 0⟩, text := to_string msg}})
+def log_message {μ : Type} [monad m] [monad_reader parser_config m] [monad_state parser_state m] (msg : parsec.message μ) : m unit :=
+do cfg ← read,
+   modify (λ st, {st with messages := st.messages.add (message_of_parsec_message cfg msg)})
 
 def eoi : syntax_node_kind := ⟨`lean.parser.parser.eoi⟩
 

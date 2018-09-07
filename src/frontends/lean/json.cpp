@@ -28,7 +28,7 @@ json json_of_severity(message_severity sev) {
 
 json json_of_message(message const & msg) {
     json j;
-    j["file_name"] = msg.get_file_name();
+    j["file_name"] = msg.get_filename();
     j["pos_line"]  = msg.get_pos().first;
     j["pos_col"]   = msg.get_pos().second;
     if (auto end_pos = msg.get_end_pos()) {

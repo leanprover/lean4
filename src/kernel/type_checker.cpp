@@ -73,8 +73,6 @@ expr type_checker::infer_fvar(expr const & e) {
     if (optional<local_decl> decl = m_lctx.find_local_decl(e)) {
         return decl->get_type();
     } else {
-        // TODO(Leo): delete after we refactor inductive datatype module
-        return local_type(e);
         throw kernel_exception(m_env, "unknown free variable");
     }
 }

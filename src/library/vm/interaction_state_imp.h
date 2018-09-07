@@ -8,7 +8,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include "runtime/sstream.h"
 #include "util/fresh_name.h"
 #include "kernel/instantiate.h"
-#include "kernel/old_type_checker.h"
 #include "library/profiling.h"
 #include "library/constants.h"
 #include "library/message_builder.h"

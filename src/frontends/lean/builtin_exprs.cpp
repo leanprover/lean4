@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "util/sexpr/option_declarations.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
-#include "kernel/old_type_checker.h"
 #include "library/annotation.h"
 #include "library/placeholder.h"
 #include "library/explicit.h"

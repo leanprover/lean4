@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include "kernel/find_fn.h"
-#include "kernel/old_type_checker.h"
 #include "library/aux_recursors.h"
 #include "library/util.h"
 #include "library/vm/vm.h"

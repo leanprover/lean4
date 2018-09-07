@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "util/lbool.h"
 #include "util/fresh_name.h"
 #include "util/name_set.h"
-#include "kernel/old_type_checker.h"
 #include "kernel/instantiate.h"
 #include "kernel/for_each_fn.h"
 #include "library/scoped_ext.h"

@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include "kernel/replace_fn.h"
-#include "kernel/old_type_checker.h"
 #include "library/locals.h"
 #include "library/placeholder.h"
 #include "library/module.h"

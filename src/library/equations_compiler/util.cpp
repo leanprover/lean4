@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/find_fn.h"
-#include "kernel/old_type_checker.h"
 #include "library/scope_pos_info_provider.h"
 #include "library/util.h"
 #include "library/module.h"

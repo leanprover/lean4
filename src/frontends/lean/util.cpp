@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/replace_fn.h"
 #include "kernel/for_each_fn.h"
-#include "kernel/old_type_checker.h"
 #include "library/error_msgs.h"
 #include "library/scoped_ext.h"
 #include "library/annotation.h"

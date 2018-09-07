@@ -5,9 +5,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/declaration.h"
-#include "kernel/old_type_checker.h"
 #include "kernel/replace_fn.h"
 #include "kernel/instantiate.h"
+#include "kernel/type_checker.h"
 #include "kernel/for_each_fn.h"
 #include "library/scope_pos_info_provider.h"
 #include "library/trace.h"
@@ -172,7 +172,7 @@ class preprocess_fn {
     bool check(constant_info const & d, expr const & v) {
         bool memoize       = true;
         bool non_meta_only = false;
-        old_type_checker tc(m_env, memoize, non_meta_only);
+        type_checker tc(m_env, memoize, non_meta_only);
         expr t = tc.check(v, d.get_lparams());
         if (!tc.is_def_eq(d.get_type(), t))
             throw exception("preprocess failed");

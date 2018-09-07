@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "util/fresh_name.h"
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
-#include "kernel/old_type_checker.h"
 #include "kernel/type_checker.h"
 #include "kernel/abstract.h"
 #include "kernel/abstract_type_context.h"

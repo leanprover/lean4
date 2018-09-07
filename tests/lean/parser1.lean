@@ -14,7 +14,7 @@ match errors with
   io.println "result: ",
   io.println (to_string stx)
 | _ := do
-  errors.mfor $ λ e, io.println e,
+  errors.mfor $ λ e, io.println e.text,
   io.println "partial syntax tree:",
   io.println (to_string stx)
 

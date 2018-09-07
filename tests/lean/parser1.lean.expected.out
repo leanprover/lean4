@@ -62,9 +62,9 @@ partial syntax tree:
   []
   [(lean.parser.open "open" [(lean.parser.open_spec me [] [] [] [])])])
  (lean.parser.parser.eoi "")]
-error at line 1, column 5:
-expected identifier
 error at line 1, column 9:
+expected identifier
+error at line 1, column 5:
 expected identifier
 partial syntax tree:
 [(lean.parser.module
@@ -150,12 +150,12 @@ result:
  ":="
  (lean.parser.hole "_"))
 notation`+`:10 b:10 :=_
-error at line 10, column 19:
-expected "_"
-error at line 11, column 26:
-expected "_"
 error at line 85, column 0:
 expected command
+error at line 11, column 26:
+expected "_"
+error at line 10, column 19:
+expected "_"
 partial syntax tree:
 [(lean.parser.module
   [(lean.parser.prelude "prelude")]

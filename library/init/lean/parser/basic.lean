@@ -7,7 +7,7 @@ Parser for the Lean language
 -/
 prelude
 import init.lean.parser.parsec init.lean.parser.syntax
-import init.lean.parser.identifier init.data.rbmap
+import init.lean.parser.identifier init.data.rbmap init.lean.message
 
 /-- A small wrapper of `reader_t` that simplifies introducing and invoking
     recursion points in a computation. -/
@@ -54,9 +54,6 @@ instance monad_rec.base (α δ m) [monad m] : monad_rec α δ (rec_t α δ m) :=
 { recurse := rec_t.recurse }
 
 namespace lean
--- TODO: enhance massively
-abbreviation message := string
-
 namespace parser
 
 inductive trie.node (α : Type)
@@ -127,8 +124,7 @@ structure token_config :=
 
 structure parser_state :=
 (tokens : trie token_config)
--- note: stored in reverse for efficient append
-(errors : list lean.message)
+(messages : message_log)
 /- Start position of the current token. This might not be equal to the parser
    position for two reasons:
    * We plan to eagerly parse leading whitespace so as not to do so multiple times
@@ -170,11 +166,12 @@ class syntax_node_kind.has_view (k : syntax_node_kind) (α : out_param Type) :=
 section
 local attribute [reducible] parser_t
 protected def run {m : Type → Type} [monad m] (cfg : parser_config) (st : parser_state) (s : string) (r : parser_t m syntax) :
-  m (syntax × list message) :=
+  m (syntax × message_log) :=
 do r ← ((r.run cfg).run st).parse_with_eoi s,
    pure $ match r with
-   | except.ok (a, st) := (a, st.errors.reverse)
-   | except.error msg  := (msg.custom, [to_string msg])
+   | except.ok (a, st) := (a, st.messages)
+   -- FIXME: translate position
+   | except.error msg  := (msg.custom, [{pos := ⟨0, 0⟩, text := to_string msg}])
 end
 
 open monad_parsec
@@ -182,8 +179,9 @@ open parser.has_view
 variables {α : Type} {m : Type → Type}
 local notation `parser` := m syntax
 
-def log_error [monad_state parser_state m] (e : message) : m unit :=
-modify (λ st, {st with errors := to_string e :: st.errors})
+def log_message {μ : Type} [monad_state parser_state m] (msg : parsec.message μ) : m unit :=
+-- FIXME: translate position
+modify (λ st, {st with messages := st.messages.add {pos := ⟨0, 0⟩, text := to_string msg}})
 
 def eoi : syntax_node_kind := ⟨`lean.parser.parser.eoi⟩
 
@@ -195,12 +193,12 @@ let trie := (tokens r ++ builtin_tokens).foldl (λ t cfg, trie.insert t cfg.pref
 parser.run cfg ⟨trie, [], s.mk_iterator⟩ s $ do
   stx ← catch r $ λ (msg : parsec.message _), do {
     modify $ λ st, {st with token_start := msg.it},
-    parser.log_error (to_string msg),
+    parser.log_message msg,
     pure msg.custom
   },
   whitespace,
   -- add `eoi` node and store any residual input in its prefix
-  catch monad_parsec.eoi $ λ msg, parser.log_error (to_string msg),
+  catch monad_parsec.eoi parser.log_message,
   tk_start ← parser_state.token_start <$> get,
   let stop := tk_start.to_end in
   pure $ syntax.node ⟨none, [

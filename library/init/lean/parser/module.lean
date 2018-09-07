@@ -56,7 +56,7 @@ private def commands_aux : bool → list syntax → nat → module_parser
       -- unknown command: try to skip token, or else single character
       when (¬ recovering) $ do {
         it ← left_over,
-        log_error $ to_string { parsec.message . expected := dlist.singleton "command", it := it, custom := () }
+        log_message {expected := dlist.singleton "command", it := it, custom := ()}
       },
       tk_start ← parser_state.token_start <$> get,
       -- since the output of the following parser is never captured in a syntax tree...
@@ -67,7 +67,7 @@ private def commands_aux : bool → list syntax → nat → module_parser
     }) $ λ msg, do {
       -- error inside command: log error, return partial syntax tree
       modify $ λ st, {st with token_start := msg.it},
-      log_error (to_string msg),
+      log_message msg,
       pure (tt, some msg.custom)
     },
   match c with

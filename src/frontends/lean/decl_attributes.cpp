@@ -35,14 +35,12 @@ void decl_attributes::parse_core(parser & p, bool compact) {
                 throw parser_error("cannot remove attribute globally (solution: use 'local attribute')", pos);
             p.next();
         }
-        p.check_break_before(break_at_pos_exception::token_context::attribute);
         name id;
         if (p.curr_is_command()) {
             id = p.get_token_info().value();
             p.next();
         } else {
-            id = p.check_id_next("invalid attribute declaration, identifier expected",
-                                 break_at_pos_exception::token_context::attribute);
+            id = p.check_id_next("invalid attribute declaration, identifier expected");
         }
         if (id == "priority") {
             if (deleted)

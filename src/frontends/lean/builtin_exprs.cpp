@@ -1049,37 +1049,12 @@ parse_table init_nud_table() {
 }
 
 static expr parse_field(parser & p, unsigned, expr const * args, pos_info const & pos) {
-    try {
-        if (p.curr_is_numeral()) {
-            unsigned fidx = p.parse_small_nat();
-            return p.save_pos(mk_field_notation(args[0], fidx), pos);
-        } else {
-            name field = p.check_id_next("identifier or numeral expected");
-            return p.save_pos(mk_field_notation(args[0], field), pos);
-        }
-    } catch (break_at_pos_exception & ex) {
-        if (!p.get_complete()) {
-            // info is stored at position of notation token
-            ex.m_token_info.m_pos = pos;
-        }
-        expr lhs = args[0];
-        expr lhs_type;
-        try {
-            metavar_context mctx;
-            bool check_unassigned = false;
-            lhs = p.elaborate({}, mctx, lhs, check_unassigned).first;
-            old_type_checker tc(p.env(), true, false);
-            lhs_type = tc.infer(lhs);
-        } catch (exception &) {
-            /* failed to elaborate or infer type */
-            throw ex;
-        }
-        expr fn = get_app_fn(lhs_type);
-        if (is_constant(fn)) {
-            ex.m_token_info.m_context = break_at_pos_exception::token_context::field;
-            ex.m_token_info.m_param   = const_name(fn);
-        }
-        throw;
+    if (p.curr_is_numeral()) {
+        unsigned fidx = p.parse_small_nat();
+        return p.save_pos(mk_field_notation(args[0], fidx), pos);
+    } else {
+        name field = p.check_id_next("identifier or numeral expected");
+        return p.save_pos(mk_field_notation(args[0], field), pos);
     }
 }
 

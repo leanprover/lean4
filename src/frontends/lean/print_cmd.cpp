@@ -375,7 +375,7 @@ void print_polymorphic(parser & p, message_builder & out) {
         }
     }
 
-    name id = p.check_id_next("invalid #print command", break_at_pos_exception::token_context::expr);
+    name id = p.check_id_next("invalid #print command");
     bool show_value = true;
     print_id_info(p, out, id, show_value, pos);
 }

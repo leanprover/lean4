@@ -323,7 +323,7 @@ char const * close_binder_string(binder_info bi, bool unicode) {
 
 pair<name, option_kind> parse_option_name(parser & p, char const * error_msg) {
     auto id_pos  = p.pos();
-    name id = p.check_id_next(error_msg, break_at_pos_exception::token_context::option);
+    name id = p.check_id_next(error_msg);
     option_declarations decls = get_option_declarations();
     auto it = decls.find(id);
     if (!it) {

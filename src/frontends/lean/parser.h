@@ -230,11 +230,6 @@ public:
     }
     bool get_complete() { return m_complete; }
     void set_complete(bool complete) { m_complete = complete; }
-    /** \brief Throw \c break_at_pos_exception with given context if \c m_break_at_pos is inside current token. */
-    void check_break_at_pos(break_at_pos_exception::token_context ctxt = break_at_pos_exception::token_context::none);
-    /** \brief Throw \c break_at_pos_exception with empty token and given context if \c m_break_at_pos is before current
-        position. */
-    void check_break_before(break_at_pos_exception::token_context ctxt = break_at_pos_exception::token_context::none);
 
     void set_imports_parsed() { m_imports_parsed = true; }
     bool ignore_noncomputable() const { return m_ignore_noncomputable; }
@@ -316,12 +311,10 @@ public:
     void check_token_or_id_next(name const & tk, char const * msg);
     /** \brief Check if the current token is an identifier, if it is return it and move to next token,
         otherwise throw an exception. */
-    name check_id_next(char const * msg, break_at_pos_exception::token_context ctxt =
-            break_at_pos_exception::token_context::none);
+    name check_id_next(char const * msg);
     void check_not_internal(name const & n, pos_info const & pos);
     /** \brief Similar to check_id_next, but also ensures the identifier is *not* an internal/reserved name. */
-    name check_decl_id_next(char const * msg, break_at_pos_exception::token_context ctxt =
-            break_at_pos_exception::token_context::none);
+    name check_decl_id_next(char const * msg);
     /** \brief Check if the current token is an atomic identifier, if it is, return it and move to next token,
         otherwise throw an exception. */
     name check_atomic_id_next(char const * msg);

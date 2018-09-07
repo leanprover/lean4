@@ -153,25 +153,14 @@ environment end_scoped_cmd(parser & p) {
         throw exception("invalid 'end', there is no open namespace/section");
     }
     p.pop_local_scope();
-    try {
-        p.check_break_before();
-        if (p.curr_is_identifier()) {
-            name n;
-            n = p.check_id_next("invalid end of scope, identifier expected");
-            environment env = pop_scope(p.env(), p.ios(), n);
-            return redeclare_aliases(env, p, level_decls, entries);
-        } else {
-            environment env = pop_scope(p.env(), p.ios());
-            return redeclare_aliases(env, p, level_decls, entries);
-        }
-    } catch (break_at_pos_exception & ex) {
-        if (p.get_complete()) {
-            if (auto n = get_scope_header(p.env())) {
-                ex.m_token_info.m_context = break_at_pos_exception::token_context::single_completion;
-                ex.m_token_info.m_param = n;
-            }
-        }
-        throw;
+    if (p.curr_is_identifier()) {
+        name n;
+        n = p.check_id_next("invalid end of scope, identifier expected");
+        environment env = pop_scope(p.env(), p.ios(), n);
+        return redeclare_aliases(env, p, level_decls, entries);
+    } else {
+        environment env = pop_scope(p.env(), p.ios());
+        return redeclare_aliases(env, p, level_decls, entries);
     }
 }
 
@@ -252,8 +241,7 @@ environment open_export_cmd(parser & p, bool open) {
     environment env = p.env();
     while (true) {
         auto pos   = p.pos();
-        name ns    = p.check_id_next("invalid 'open/export' command, identifier expected",
-                                     break_at_pos_exception::token_context::namespc);
+        name ns    = p.check_id_next("invalid 'open/export' command, identifier expected");
         optional<name> real_ns = to_valid_namespace_name(env, ns);
         if (!real_ns)
             throw parser_error(sstream() << "invalid namespace name '" << ns << "'", pos);

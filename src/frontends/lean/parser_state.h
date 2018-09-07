@@ -43,29 +43,6 @@ enum class id_behavior {
 
 struct snapshot;
 
-class break_at_pos_exception : public std::exception {
-public:
-    enum class token_context {
-        none, expr, notation, option, import, attribute, namespc, field, single_completion };
-    struct token_info {
-        pos_info           m_pos;
-        name               m_token;
-
-        token_context      m_context;
-        name               m_param;
-        optional<unsigned> m_tac_param_idx;
-    };
-
-    token_info m_token_info;
-    optional<pos_info>   m_goal_pos;
-
-    break_at_pos_exception(pos_info const & token_pos, name token = "",
-                           token_context ctxt = break_at_pos_exception::token_context::none):
-        m_token_info(token_info {token_pos, token, ctxt, {}, {}}) {}
-
-    void report_goal_pos(pos_info goal_pos);
-};
-
 struct parser_scope {
     optional<options>          m_options;
     name_set                   m_level_variables;

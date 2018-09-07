@@ -72,11 +72,6 @@ Author: Leonardo de Moura
 namespace lean {
 static name * g_frontend_fresh = nullptr;
 
-void break_at_pos_exception::report_goal_pos(pos_info goal_pos) {
-    if (!m_goal_pos)
-        m_goal_pos = goal_pos;
-}
-
 // ==========================================
 // Parser configuration options
 static name * g_parser_show_errors;
@@ -176,53 +171,10 @@ parser::parser(environment const & env, io_state const & ios,
 parser::~parser() {
 }
 
-void parser::check_break_at_pos(break_at_pos_exception::token_context ctxt) {
-    auto p = pos();
-    if (m_break_at_pos && p.first == m_break_at_pos->first && p.second <= m_break_at_pos->second) {
-        name tk;
-        if (curr_is_identifier() || curr() == token_kind::FieldName) {
-            tk = get_name_val();
-        } else if (curr_is_command() || curr_is_keyword()) {
-            tk = get_token_info().token();
-            // When completing at the end of a token that cannot be extended into an identifier,
-            // start an empty completion instead (in the next call to `check_break_before/at_pos`, using the correct
-            // context).
-            if (m_complete && m_break_at_pos->second == p.second + tk.utf8_size() - 1 &&
-                    !curr_is_token(get_period_tk())) {
-                auto s = tk.to_string();
-                if (!is_id_rest(get_utf8_last_char(s.c_str()), s.c_str() + s.size()))
-                    return;
-            }
-        } else {
-            return;
-        }
-        if (m_break_at_pos->second < p.second + tk.utf8_size())
-            throw break_at_pos_exception(p, tk, ctxt);
-    }
-}
-
-void parser::check_break_before(break_at_pos_exception::token_context ctxt) {
-    if (!get_complete())
-        ctxt = break_at_pos_exception::token_context::none;
-    if (m_break_at_pos && *m_break_at_pos < pos())
-        throw break_at_pos_exception(*m_break_at_pos, "", ctxt);
-}
-
 void parser::scan() {
-    check_break_before();
-    check_break_at_pos();
-    pos_info curr_pos = pos();
     if (m_error_since_last_cmd && (curr_is_command() && !curr_is_token(get_end_tk()))) {
         // If we're during error recovery, do not read past command tokens.
         // `end` is not treated as a command token since it occurs in begin-end blocks.
-        return;
-    }
-    if (m_break_at_pos && m_break_at_pos->first == curr_pos.first && curr_is_identifier()) {
-        name curr_ident = get_name_val();
-        m_curr = m_scanner.scan(m_env);
-        // when breaking on a '.' token trailing an identifier, report them as a single, concatenated token
-        if (*m_break_at_pos == pos() && curr_is_token(get_period_tk()))
-            throw break_at_pos_exception(curr_pos, name(curr_ident.to_string() + get_period_tk()));
         return;
     }
     m_curr = m_scanner.scan(m_env);
@@ -311,10 +263,7 @@ void parser::check_token_or_id_next(name const & tk, char const * msg) {
     next();
 }
 
-name parser::check_id_next(char const * msg, break_at_pos_exception::token_context ctxt) {
-    // initiate empty completion even if following token is not an identifier
-    if (get_complete())
-        check_break_before(ctxt);
+name parser::check_id_next(char const * msg) {
     name r;
     if (!curr_is_identifier()) {
         auto _ = no_error_recovery_scope_if(curr_is_command());
@@ -323,12 +272,7 @@ name parser::check_id_next(char const * msg, break_at_pos_exception::token_conte
     } else {
         r = get_name_val();
     }
-    try {
-        next();
-    } catch (break_at_pos_exception & e) {
-        e.m_token_info.m_context = ctxt;
-        throw;
-    }
+    next();
     return r;
 }
 
@@ -340,9 +284,9 @@ void parser::check_not_internal(name const & id, pos_info const & p) {
                 p});
 }
 
-name parser::check_decl_id_next(char const * msg, break_at_pos_exception::token_context ctxt) {
+name parser::check_decl_id_next(char const * msg) {
     auto p  = pos();
-    name id = check_id_next(msg, ctxt);
+    name id = check_id_next(msg);
     check_not_internal(id, p);
     return id;
 }
@@ -1211,15 +1155,6 @@ expr parser::parse_notation(parse_table t, expr * left) {
     lean_assert(curr() == token_kind::Keyword);
     auto p = pos();
     auto first_token = get_token_info().value();
-    auto check_break = [&]() {
-        try {
-            check_break_at_pos(break_at_pos_exception::token_context::notation);
-        } catch (break_at_pos_exception & e) {
-            // info is stored at position of first notation token
-            e.m_token_info.m_pos = p;
-            throw;
-        }
-    };
     buffer<expr>                     args;
     buffer<notation::action_kind>    kinds;
     buffer<list<expr>>               nargs; // nary args
@@ -1241,7 +1176,6 @@ expr parser::parse_notation(parse_table t, expr * left) {
         auto r = t.find(get_token_info().value());
         if (!r)
             break;
-        check_break();
         pair<notation::transition, parse_table> const * curr_pair = nullptr;
         if (tail(r)) {
             // There is more than one possible actions.
@@ -1278,13 +1212,11 @@ expr parser::parse_notation(parse_table t, expr * left) {
                 r_args.push_back(parse_expr(a.rbp()));
                 name sep = utf8_trim(a.get_sep().to_string()); // remove padding
                 while (curr_is_token(sep)) {
-                    check_break();
                     next();
                     r_args.push_back(parse_expr(a.rbp()));
                 }
             }
             if (terminator) {
-                check_break();
                 if (curr_is_token(*terminator)) {
                     next();
                 } else {
@@ -2061,7 +1993,7 @@ name parser::check_constant_next(char const * msg) {
 expr parser::parse_id(bool allow_field_notation) {
     auto p  = pos();
     lean_assert(curr_is_identifier());
-    name id = check_id_next("", break_at_pos_exception::token_context::expr);
+    name id = check_id_next("");
     expr e = id_to_expr(id, p, /* resolve_only */ false, allow_field_notation);
     return e;
 }
@@ -2367,51 +2299,41 @@ void parser::parse_imports(unsigned & fingerprint, std::vector<module_name> & im
         m_last_cmd_pos = pos();
         next();
         while (true) {
-            pos_info p  = pos();
             bool k_init = false;
             unsigned k  = 0;
-            try {
-                unsigned h = 0;
-                while (true) {
-                    if (curr_is_token(get_period_tk()) || curr_is_token(get_dotdot_tk()) ||
-                        curr_is_token(get_ellipsis_tk())) {
-                        unsigned d = get_token_info().token().size();
-                        if (!k_init) {
-                            k = d - 1;
-                            k_init = true;
-                            h = d - 1;
-                        } else {
-                            k = d;
-                            h = d;
-                        }
-                        next();
+            unsigned h = 0;
+            while (true) {
+                if (curr_is_token(get_period_tk()) || curr_is_token(get_dotdot_tk()) ||
+                    curr_is_token(get_ellipsis_tk())) {
+                    unsigned d = get_token_info().token().size();
+                    if (!k_init) {
+                        k = d - 1;
+                        k_init = true;
+                        h = d - 1;
                     } else {
-                        check_break_before();
-                        break;
+                        k = d;
+                        h = d;
                     }
-                }
-                if (!curr_is_identifier())
-                    break;
-                name f = get_name_val();
-                fingerprint = hash(fingerprint, f.hash());
-                if (k_init) {
-                    fingerprint = hash(fingerprint, h);
-                }
-                if (k_init) {
-                    module_name m(f, k);
-                    imports.push_back(m);
+                    next();
                 } else {
-                    module_name m(f);
-                    imports.push_back(m);
+                    break;
                 }
-                next();
-            } catch (break_at_pos_exception & e) {
-                if (k_init)
-                    e.m_token_info.m_token = std::string(k + 1, '.') + e.m_token_info.m_token.to_string();
-                e.m_token_info.m_context = break_at_pos_exception::token_context::import;
-                e.m_token_info.m_pos = p;
-                throw;
             }
+            if (!curr_is_identifier())
+                break;
+            name f = get_name_val();
+            fingerprint = hash(fingerprint, f.hash());
+            if (k_init) {
+                fingerprint = hash(fingerprint, h);
+            }
+            if (k_init) {
+                module_name m(f, k);
+                imports.push_back(m);
+            } else {
+                module_name m(f);
+                imports.push_back(m);
+            }
+            next();
         }
     }
 }

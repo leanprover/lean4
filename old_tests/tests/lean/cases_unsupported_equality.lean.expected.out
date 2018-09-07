@@ -1,9 +1,0 @@
-cases_unsupported_equality.lean:6:3: error: cases tactic failed, unsupported equality between type and constructor indices
-(only equalities between constructors and/or variables are supported, try cases on the indices):
-f n = 0
-
-state:
-n : ℕ,
-f : ℕ → ℕ,
-h : foo (f n)
-⊢ f n = 0 → h == foo.a → true

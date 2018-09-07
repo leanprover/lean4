@@ -1,4 +1,0 @@
-bad_print.lean:3:18: error: invalid '#print definition', 'boo' is not a definition
-bad_print.lean:5:7: error: invalid #print command
-bad_print.lean:7:14: error: invalid '#print fields' command, 'nat' is not a structure
-bad_print.lean:9:15: error: unknown identifier nat.addd

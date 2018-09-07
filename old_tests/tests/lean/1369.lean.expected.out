@@ -1,7 +1,0 @@
-1369.lean:15:0: warning: declaration '[anonymous]' uses sorry
-17 ≤ 555555
-⊢ 17 ≤ 555555
-1369.lean:21:0: warning: declaration '[anonymous]' uses sorry
-?m_1 ≤ 555555
-⊢ ?m_1 ≤ 555555
-1369.lean:33:0: warning: declaration '[anonymous]' uses sorry

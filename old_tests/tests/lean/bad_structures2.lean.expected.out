@@ -1,9 +1,0 @@
-bad_structures2.lean:7:27: error: invalid 'structure' header, field 'x' from 'boo' has already been declared
-bad_structures2.lean:12:27: error: invalid 'structure' header, field 'x' from 'boo2' has already been declared
-bad_structures2.lean:15:1: error: field 'x' has been declared in parent structure
-bad_structures2.lean:18:2: error: invalid field, identifier expected
-bad_structures2.lean:21:6: error: command expected
-bad_structures2.lean:23:23: error: invalid 'structure' extends, 'nat' is not a structure
-bad_structures2.lean:25:23: error: invalid 'structure', expression must be a 'parent' structure
-bad_structures2.lean:28:0: error: failed to generate projection 'bla2.x' for 'bla2', type is an inductive predicate, but field is not a proposition
-bad_structures2.lean:31:0: error: failed to generate projection 'bla3.x' for 'bla3', type is an inductive predicate, but field is not a proposition

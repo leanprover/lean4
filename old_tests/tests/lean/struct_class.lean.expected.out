@@ -1,9 +1,0 @@
-@[class]
-structure point : Type u_1 → Type u_2 → Type (max u_1 u_2)
-fields:
-point.x : Π (A : Type u_1) (B : Type u_2) [c : point A B], A
-point.y : Π (A : Type u_1) (B : Type u_2) [c : point A B], B
-structure point2 : Type u_1 → Type u_2 → Type (max u_1 u_2)
-fields:
-point2.x : Π {A : Type u_1} {B : Type u_2}, point2 A B → A
-point2.y : Π {A : Type u_1} {B : Type u_2}, point2 A B → B

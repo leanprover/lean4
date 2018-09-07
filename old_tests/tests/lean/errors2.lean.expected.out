@@ -1,2 +1,0 @@
-errors2.lean:8:11: error: unknown identifier 'foo'
-errors2.lean:5:0: warning: declaration 'foo.tst1' uses sorry

@@ -1,2 +1,0 @@
-{"message":"file invalidated","response":"ok","seq_num":0}
-{"completions":[{"source":,"text":"foo.rec","type":"Π (C : foo → Sort l) (n : foo), C n"},{"source":{"column":10,"line":3},"text":"foo.rec_on","type":"Π (C : foo → Sort l) (n : foo), C n"},{"source":{"column":10,"line":3},"text":"foo","type":"Type"}],"prefix":"foo.","response":"ok","seq_num":6}

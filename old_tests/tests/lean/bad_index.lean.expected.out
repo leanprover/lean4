@@ -1,2 +1,0 @@
-bad_index.lean:1:0: error: arg #1 of 'foo1.mk' contains a non valid occurrence of the datatypes being declared
-bad_index.lean:4:0: error: arg #1 of 'foo2.mk' contains a non valid occurrence of the datatypes being declared

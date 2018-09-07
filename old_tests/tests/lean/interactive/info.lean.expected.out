@@ -1,9 +1,0 @@
-{"msgs":[{"caption":"print result","end_pos_col":26,"end_pos_line":19,"file_name":"info.lean","pos_col":0,"pos_line":18,"severity":"information","text":"@[inline]\ndef id : Π {α : Sort u}, α → α :=\nλ {α : Sort u} (a : α), a"}],"response":"all_messages"}
-{"message":"file invalidated","response":"ok","seq_num":0}
-{"record":{"source":},"response":"ok","seq_num":2}
-{"record":{"doc":"reducible"},"response":"ok","seq_num":5}
-{"record":{"full-id":"bool.tt","source":,"type":"bool"},"response":"ok","seq_num":7}
-{"record":{"doc":"(trace) enable/disable tracing for the given module and submodules"},"response":"ok","seq_num":10}
-{"record":{"full-id":"list.cons","source":,"type":"Π {T : Type}, T → list T → list T"},"response":"ok","seq_num":13}
-{"record":{"full-id":"has_append.append","source":,"type":"Π {α : Type} [c : has_append α], α → α → α"},"response":"ok","seq_num":16}
-{"record":{"full-id":"id","source":,"type":"Π {α : Sort u}, α → α"},"response":"ok","seq_num":19}

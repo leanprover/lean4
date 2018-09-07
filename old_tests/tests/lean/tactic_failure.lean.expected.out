@@ -1,5 +1,0 @@
-tactic_failure.lean:4:3: error: assumption tactic failed
-state:
-A B : Type,
-Hb : B
-⊢ A

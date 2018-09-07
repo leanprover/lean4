@@ -1,4 +1,0 @@
-∃ (A : Type) (x y : A), x = y : Prop
-∃ (x : ℕ), x = 0 : Prop
-Σ' (x : ℕ), x = 10 : Type
-Σ (A : Type), List A : Type 1

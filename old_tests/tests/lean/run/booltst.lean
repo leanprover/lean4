@@ -1,3 +1,0 @@
-open bool
-
-#check ff

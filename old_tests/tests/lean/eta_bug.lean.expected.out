@@ -1,1 +1,0 @@
-λ (A : Type u_1) (x y : A) (H₁ : x = y) (H₂ : y = x), eq.rec H₁ H₂

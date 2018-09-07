@@ -1,4 +1,0 @@
-succ (nat.add 2 0)
-3
-succ (nat.add a 0)
-succ a

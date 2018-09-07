@@ -1,1 +1,0 @@
-prod2.{u_1 u_2} : Type (u_1+1) → Type (u_2+1) → Type (max (u_1+1) (u_2+1))

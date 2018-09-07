@@ -1,7 +1,0 @@
-1859.lean:7:0: warning: declaration 'X' uses sorry
-1859.lean:8:35: error: type mismatch at field 'x'
-  A.x ?m_1
-has type
-  T1.O ?m_1
-but is expected to have type
-  T1.O α

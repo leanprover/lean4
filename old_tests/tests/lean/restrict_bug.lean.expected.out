@@ -1,1 +1,0 @@
-∀ (a : A) (l : list.{0} A), @all A l (R a) : Prop

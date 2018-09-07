@@ -1,1 +1,0 @@
-wrong_arity.lean:5:6: error: invalid match/equations expression, each case must have the same number of patterns

@@ -1,4 +1,0 @@
-instance_cache_bug1.lean:5:9: error: failed to synthesize type class instance for
-⊢ has_add A
-a + a : A
-a + a : A

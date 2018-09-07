@@ -1,7 +1,0 @@
-ff_byte.lean:1:0: error: unexpected token
-ff_byte.lean:5:19: error: type mismatch, term
-  trivial
-has type
-  true
-but is expected to have type
-  false

@@ -1,3 +1,0 @@
-dsimp_whnf_post.lean:6:36: error: tactic failed, there are unsolved goals
-state:
-⊢ () = ()

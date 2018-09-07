@@ -1,3 +1,0 @@
-quot.sound : ∀ {α : Sort u} {r : α → α → Prop} {a b : α}, r a b → quot.mk r a = quot.mk r b
-classical.choice : Π {α : Sort u}, nonempty α → α
-propext : ∀ {a b : Prop}, (a ↔ b) → a = b

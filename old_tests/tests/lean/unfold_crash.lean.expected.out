@@ -1,3 +1,0 @@
-a b : ℕ,
-H : a = succ b
-⊢ a = succ b

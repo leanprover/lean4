@@ -1,1 +1,0 @@
-foo : Π (B : Type u_1), B → Π (A : Type u_1), A → A = B → Prop

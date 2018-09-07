@@ -1,2 +1,0 @@
-le_eq_trans a d e (le_trans a c d (eq_le_trans a b c H1 H2) H3) H4 : a ≤ e
-le_lt_trans b c d H2 H5 : b < d

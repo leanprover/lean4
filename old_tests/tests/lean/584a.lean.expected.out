@@ -1,5 +1,0 @@
-foo : Π (A : Type u_1) [H : inhabited A], A → A
-foo' : Π {A : Type u_1} [H : inhabited A] {x : A}, A
-foo ℕ 10 : ℕ
-def test : ∀ {A : Type u} [H : inhabited A], @foo' ℕ nat.inhabited (5 + 5) = 10 :=
-λ {A : Type u} [H : inhabited A], @rfl ℕ (@foo' ℕ nat.inhabited (5 + 5))

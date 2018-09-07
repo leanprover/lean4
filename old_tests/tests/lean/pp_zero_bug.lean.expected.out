@@ -1,2 +1,0 @@
-has_zero.zero : Π (α : Type u_1) [c : has_zero α], α
-has_zero.zero ℕ : Π [c : has_zero ℕ], ℕ

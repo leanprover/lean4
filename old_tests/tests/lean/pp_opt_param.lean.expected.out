@@ -1,4 +1,0 @@
-expr : Type
-expr ff : Type
-f 3 4 : ℕ
-expr tt : Type

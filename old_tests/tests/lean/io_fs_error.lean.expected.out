@@ -1,5 +1,0 @@
-io_fs_error.lean:10:0: error: close failed, stdout cannot be closed
-io_fs_error.lean:11:0: error: close failed, stdout cannot be closed
-io_fs_error.lean:18:0: error: close failed, stderr cannot be closed
-io_fs_error.lean:25:0: error: invalid io action, handle has been closed
-io_fs_error.lean:30:0: error: failed to open file 'bad_file_name.txt'

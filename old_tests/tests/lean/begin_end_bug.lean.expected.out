@@ -1,7 +1,0 @@
-begin_end_bug.lean:3:24: error: unknown identifier 'a'
-begin_end_bug.lean:3:18: error: don't know how to synthesize placeholder
-context:
-a b c : ℕ,
-hab : a = b,
-hac : a = c
-⊢ Type

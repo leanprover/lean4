@@ -1,8 +1,0 @@
-foo.has_reflect :
-  Π (α : Type) [a : has_reflect α] (β : Type) [a : has_reflect β] [a : reflected α] [a : reflected β],
-    has_reflect (foo α β)
-foo'.decidable_eq :
-  Π (α : Type u_1) [a : decidable_eq α] (β : Type u_1) [a : decidable_eq β] (n a : ℕ),
-    decidable_eq (foo' α β n a)
-foo'.has_sizeof :
-  Π (α : Type u_1) [a : has_sizeof α] (β : Type u_1) [a : has_sizeof β] (n a : ℕ), has_sizeof (foo' α β n a)

@@ -1,5 +1,0 @@
-(λ (x : ℕ), x) a + b = 10 : Prop
-@eq.{1} nat (@has_add.add.{0} nat nat.has_add ((λ (x : nat), x) a) b)
-  (@bit0.{0} nat nat.has_add
-     (@bit1.{0} nat nat.has_one nat.has_add (@bit0.{0} nat nat.has_add (@has_one.one.{0} nat nat.has_one)))) :
-  Prop

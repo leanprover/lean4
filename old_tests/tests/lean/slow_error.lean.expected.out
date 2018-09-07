@@ -1,8 +1,0 @@
-slow_error.lean:4:9: error: type mismatch at application
-  a = b
-term
-  b
-has type
-  string
-but is expected to have type
-  (user_attribute string)

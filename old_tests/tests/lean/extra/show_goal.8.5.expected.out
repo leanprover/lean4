@@ -1,7 +1,0 @@
-LEAN_INFORMATION
-position 9:4
-a b c d : ℕ,
-h₁ : a + 0 = 0,
-h₂ : b = 0
-⊢ a = 0
-END_LEAN_INFORMATION

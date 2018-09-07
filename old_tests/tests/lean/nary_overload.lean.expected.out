@@ -1,9 +1,0 @@
-nary_overload.lean:16:7: error: ambiguous overload, possible interpretations
-  [a, b, c]
-  [a, b, c]
-Additional information:
-nary_overload.lean:16:7: context: switched to basic overload resolution where arguments are elaborated without any information about the expected type because expected type was not available
-[a, b, c] : vec A
-[a, b, c] : lst A
-@vec.cons A a (@vec.cons A b (@vec.cons A c (@vec.nil A))) : vec.{0} A
-@lst.cons A a (@lst.cons A b (@lst.cons A c (@lst.nil A))) : lst.{0} A

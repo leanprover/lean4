@@ -1,2 +1,0 @@
-attributes.lean:5:0: error: cannot remove attribute [reducible]
-attributes.lean:9:0: error: cannot remove attribute [instance]

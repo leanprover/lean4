@@ -1,3 +1,0 @@
-id : ?M_1 → ?M_1
-refl : (?M_1 → ?M_1 → Prop) → Prop
-symm : (?M_1 → ?M_1 → Prop) → Prop

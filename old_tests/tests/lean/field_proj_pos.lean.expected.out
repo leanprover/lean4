@@ -1,7 +1,0 @@
-field_proj_pos.lean:2:18: error: don't know how to synthesize placeholder
-context:
-h : true ∨ true
-⊢ true → true
-state:
-h : true ∨ true
-⊢ true

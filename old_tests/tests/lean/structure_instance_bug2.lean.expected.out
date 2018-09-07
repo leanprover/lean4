@@ -1,4 +1,0 @@
-structure_instance_bug2.lean:4:0: error: invalid structure instance, 'default_smt_pre_config' is not the name of a structure type
-structure_instance_bug2.lean:13:0: error: invalid structure value { ... }, field 'fst' was not provided
-structure_instance_bug2.lean:13:0: error: invalid structure value { ... }, field 'snd' was not provided
-structure_instance_bug2.lean:13:0: error: invalid structure value { ... }, 'i' is not a field of structure 'prod'

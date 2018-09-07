@@ -1,8 +1,0 @@
-1279.lean:12:33: error: type mismatch at application
-  source.compose g f
-term
-  f
-has type
-  source.Hom A B
-but is expected to have type
-  source.Hom C ?m_1

@@ -1,7 +1,0 @@
-{"msgs":[{"caption":"trace output","file_name":"do_info.lean","pos_col":3,"pos_line":4,"severity":"information","text":"2 goals\na b c : ℕ,\nh : a = b,\na_1 : c = b\n⊢ a = ?m_1\n\na b c : ℕ,\nh : a = b,\na_1 : c = b\n⊢ ?m_1 = c\n"}],"response":"all_messages"}
-{"message":"file invalidated","response":"ok","seq_num":0}
-{"record":{"full-id":"tactic.intro","source":,"state":"a b c : ℕ\n⊢ a = b → c = b → a = c","type":"name → tactic expr"},"response":"ok","seq_num":6}
-{"record":{"full-id":"tactic.transitivity","source":,"state":"a b c : ℕ\n⊢ a = b → c = b → a = c","type":"opt_param transparency transparency.semireducible → tactic unit"},"response":"ok","seq_num":9}
-{"record":{"full-id":"tactic.assumption","source":,"state":"a b c : ℕ\n⊢ a = b → c = b → a = c","type":"tactic unit"},"response":"ok","seq_num":12}
-{"record":{"full-id":"tactic.symmetry","source":,"state":"a b c : ℕ\n⊢ a = b → c = b → a = c","type":"opt_param transparency transparency.semireducible → tactic unit"},"response":"ok","seq_num":14}
-{"record":{"full-id":"tactic.assumption","source":,"state":"a b c : ℕ\n⊢ a = b → c = b → a = c","type":"tactic unit"},"response":"ok","seq_num":16}

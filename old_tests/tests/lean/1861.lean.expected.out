@@ -1,6 +1,0 @@
-1861.lean:3:0: warning: result type does not have an instance of type class 'has_repr', dumping internal representation
-#2147483647
--1
--1
-1861.lean:22:0: warning: result type does not have an instance of type class 'has_repr', dumping internal representation
-(#0 #1)

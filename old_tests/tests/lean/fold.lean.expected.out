@@ -1,8 +1,0 @@
-(a, false, b, true, c) : num × (Prop × (num × (Prop × num)))
-prod.mk a (prod.mk false (prod.mk b (prod.mk true c))) : prod num (prod Prop (prod num (prod Prop num)))
-(a, false, b, true, c) : num × Prop × num × Prop × num
-prod.mk (prod.mk (prod.mk (prod.mk c true) b) false) a : prod (prod (prod (prod num Prop) num) Prop) num
-(a, false, b, true, c) : num × Prop × num × Prop × num
-prod.mk (prod.mk (prod.mk (prod.mk a false) b) true) c : prod (prod (prod (prod num Prop) num) Prop) num
-(a, false, b, true, c) : num × (Prop × (num × (Prop × num)))
-prod.mk c (prod.mk true (prod.mk b (prod.mk false a))) : prod num (prod Prop (prod num (prod Prop num)))

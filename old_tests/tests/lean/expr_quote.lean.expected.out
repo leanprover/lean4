@@ -1,8 +1,0 @@
-expr_quote.lean:1:30: error: invalid quotation, contains universe metavariable
-expr_quote.lean:1:9: error: type of sorry macro is not a sort
-expr_quote.lean:1:9: error: don't know how to synthesize placeholder
-context:
-α a : expr
-⊢ Sort ?
-meta def g : expr → expr → expr :=
-λ (α a : expr), id_rhs.{1} expr (expr.subst (expr.subst ↑`(λ (_x_1 : Type 2) (_x_2 : _x_1), id.{3} _x_2) α) a)

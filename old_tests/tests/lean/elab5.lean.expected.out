@@ -1,1 +1,0 @@
-eq.refl s : s = s

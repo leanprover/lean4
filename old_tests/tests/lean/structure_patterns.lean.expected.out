@@ -1,4 +1,0 @@
-structure_patterns.lean:10:8: error: non-exhaustive match, the following cases are missing:
-_example {a := 0, b := _, c := _}
-structure_patterns.lean:10:0: warning: declaration '[anonymous]' uses sorry
-structure_patterns.lean:13:25: error: invalid occurrence of structure notation source in pattern

@@ -1,1 +1,0 @@
-attribute quotient.rec [recursor]

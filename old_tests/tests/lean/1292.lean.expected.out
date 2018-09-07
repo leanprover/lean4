@@ -1,3 +1,0 @@
-1292.lean:4:0: error: invalid expression, unexpected token
-1292.lean:2:0: error: equation compiler failed (use 'set_option trace.eqn_compiler.elim_match true' for additional details)
-1292.lean:4:0: warning: using 'exit' to interrupt Lean

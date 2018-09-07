@@ -1,6 +1,0 @@
-[rewrite] before kabstract
-[kabstract] found target:
-f a
-[rewrite] before kabstract
-[kabstract] found target:
-f a

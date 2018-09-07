@@ -1,7 +1,0 @@
-{[fax1, patterns: {{f ?x_0}, {g ?x_0 ?x_0}}],
- [gax3, patterns: {{f ?x_0}, {g ?x_0 ?x_0}}],
- [gax6, patterns: {{g ?x_0 ?x_1}}],
- [gax1, patterns: {{g ?x_0 ?x_1}}],
- [gax2, patterns: {{g ?x_0 (f ?x_1)}}],
- [gax4, patterns: {{g ?x_0 (f ?x_1)}}],
- [gax5, patterns: {{p ?x_1, g ?x_0 ?x_2}}]}

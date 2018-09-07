@@ -1,3 +1,0 @@
-cls_err.lean:13:2: error: failed to synthesize type class instance for
-A : Type u
-⊢ H A

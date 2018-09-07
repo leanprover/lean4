@@ -1,6 +1,0 @@
-1766.lean:8:4: error: destruct tactic failed, recursor 'is_some.cases_on' can only eliminate into Prop
-state:
-x : option ℕ,
-H : is_some x,
-a : x = none
-⊢ ℕ

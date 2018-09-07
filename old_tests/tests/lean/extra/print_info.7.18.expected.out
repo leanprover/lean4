@@ -1,3 +1,0 @@
-LEAN_INFORMATION
-definition add : Π {A : Type} [s : has_add A], A → A → A
-END_LEAN_INFORMATION

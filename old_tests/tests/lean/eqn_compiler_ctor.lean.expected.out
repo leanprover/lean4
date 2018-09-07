@@ -1,1 +1,0 @@
-eqn_compiler_ctor.lean:8:4: error: equation compiler failed (use 'set_option trace.eqn_compiler.elim_match true' for additional details)

@@ -1,4 +1,0 @@
-foo1 : Π {A : Type u_1} {B : Type u_2}, A → B → A
-foo2 : Π {A : Type u_1} (B : Type u_2), A → B → A
-foo3 : Π (A : Type u_1) {B : Type u_2}, A → B → A
-foo4 : Π (A : Type u_1) (B : Type u_2), A → B → A

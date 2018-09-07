@@ -1,4 +1,0 @@
-synth_inferred_mismatch.lean:7:1: error: synthesized type class instance is not definitionally equal to expression inferred by typing rules, synthesized
-  _inst_1
-inferred
-  is_true h

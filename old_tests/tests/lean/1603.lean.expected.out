@@ -1,9 +1,0 @@
-1603.lean:9:0: error: tactic failed, there are unsolved goals
-state:
-n : ℕ
-⊢ ∃ (v : ℕ),
-    v =
-      let k : ℕ :=
-            (let k : ℕ := (let k : ℕ := (let k : ℕ := (let k : ℕ := n + n in k) + n in k) + n in k) + n in k) +
-              n
-      in k

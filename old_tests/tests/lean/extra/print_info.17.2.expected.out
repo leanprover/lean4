@@ -1,3 +1,0 @@
-LEAN_INFORMATION
-definition rfl : ∀ {A : Type} {a : A}, a = a
-END_LEAN_INFORMATION

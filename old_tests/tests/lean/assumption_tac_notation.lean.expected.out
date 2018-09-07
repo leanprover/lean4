@@ -1,8 +1,0 @@
-assumption_tac_notation.lean:3:26: error: assumption tactic failed
-state:
-A : Type
-⊢ A
-assumption_tac_notation.lean:4:22: error: assumption tactic failed
-state:
-A : Type
-⊢ A

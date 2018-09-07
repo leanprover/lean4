@@ -1,1 +1,0 @@
-λ (A B : Type u) (a : A) (b : B), a : Π (A B : Type u), A → B → A

@@ -1,3 +1,0 @@
-λ (f g : N → N → N) (x y : N), f x (g x y) : (N → N → N) → (N → N → N) → N → N → N
-a : N
-t12.lean:7:8: error: command expected

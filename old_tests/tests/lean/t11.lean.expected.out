@@ -1,3 +1,0 @@
-∃ (x : A), p x : bool
-∃ (x y : A), q x y : bool
-λ (x : A), x : A → A

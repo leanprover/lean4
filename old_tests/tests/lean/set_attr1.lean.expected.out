@@ -1,4 +1,0 @@
-set_attr1.lean:14:3: error: tactic failed, there are unsolved goals
-state:
-n : ℕ
-⊢ f n = n + 1

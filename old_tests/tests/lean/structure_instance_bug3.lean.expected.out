@@ -1,7 +1,0 @@
-structure_instance_bug3.lean:1:30: error: invalid structure value { ... }, field 'id_map' was not provided
-structure_instance_bug3.lean:1:30: error: invalid structure value { ... }, field 'pure_bind' was not provided
-structure_instance_bug3.lean:1:30: error: invalid structure value { ... }, field 'bind_assoc' was not provided
-structure_instance_bug3.lean:1:30: error: failed to synthesize type class instance for
-⊢ has_pure set
-structure_instance_bug3.lean:1:30: error: failed to synthesize type class instance for
-⊢ has_bind set

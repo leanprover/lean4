@@ -1,5 +1,0 @@
-bad_id.lean:5:12: error: invalid definition, '|' or ':=' expected
-bad_id.lean:5:11: error: don't know how to synthesize placeholder
-context:
-⊢ Sort ?
-bad_id.lean:5:12: error: command expected

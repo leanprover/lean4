@@ -1,2 +1,0 @@
-show_goal.lean:2:0: warning: imported file uses 'sorry'
-show_goal.lean:5:0: error: begin-end-exprs have been disabled

@@ -1,5 +1,0 @@
-1669.lean:3:20: error: failed to synthesize type class instance for
-⊢ has_emptyc (expr → list expr → tactic unit)
-1669.lean:3:20: error: failed to synthesize type class instance for
-⊢ has_insert ?m_1 (expr → list expr → tactic unit)
-1669.lean:1:4: error: failed to create auxiliary definition

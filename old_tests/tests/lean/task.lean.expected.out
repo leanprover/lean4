@@ -1,3 +1,0 @@
-trace message from a different task
-def foo : Π {α : Type u} {n : ℕ}, array (0 + n) α → array n α :=
-λ {α : Type u} {n : ℕ}, ite (n = 0) (λ (v : array (0 + n) α), cast _ v) (λ (v : array (0 + n) α), cast _ v)

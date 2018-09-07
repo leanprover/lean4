@@ -1,1 +1,0 @@
-inductive_cmd_leftover_placeholder_universe.lean:1:0: error: inductive type being declared can only be nested inside the parameters of other inductive types

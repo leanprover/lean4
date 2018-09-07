@@ -1,5 +1,0 @@
-#eval (0xff : nat)
-#eval (0xffff : nat)
-#eval (0xaa : nat)
-#eval (0x10 : nat)
-#eval (0x10000 : nat)

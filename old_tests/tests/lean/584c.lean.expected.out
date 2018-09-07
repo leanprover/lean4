@@ -1,5 +1,0 @@
-tst₁ : Π (A : Type u_1), A → A
-tst₂ : Π {A : Type u_1}, A → A
-symm₂ : ∀ {A : Type u_1} (a b : A), a = b → b = a
-tst₃ : Π (A : Type u_1), A → A
-foo : ∀ {A : Type u_1} {a b : A}, a = b → ∀ (c : A), c = b → c = a

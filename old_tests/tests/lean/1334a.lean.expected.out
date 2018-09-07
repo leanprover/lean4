@@ -1,2 +1,0 @@
-fn.equations._eqn_1 : fn atom = atom
-fn.equations._eqn_2 : ∀ (l : list nlist), fn (mk l) = mk nil

@@ -1,7 +1,0 @@
-2 goals
-a : ℕ
-⊢ ∀ (b : ℕ), 0 + b = b + 0
-
-a : ℕ
-⊢ ∀ (n : ℕ), (∀ (b : ℕ), n + b = b + n) → ∀ (b : ℕ), succ n + b = b + succ n
-apply_elim.lean:6:0: warning: declaration '[anonymous]' uses sorry

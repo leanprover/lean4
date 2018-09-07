@@ -1,1 +1,0 @@
-assertion1.lean:37:21: error: invalid field notation, function 'MonoidalCategory.tensorObjects' does not have explicit argument with type (MonoidalCategory ...)

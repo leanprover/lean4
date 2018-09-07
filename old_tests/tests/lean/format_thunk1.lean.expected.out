@@ -1,6 +1,0 @@
-format_thunk1.lean:4:3: error: invalid definev tactic, value has type
-  ℕ
-but is expected to have type
-  string
-state:
-⊢ true

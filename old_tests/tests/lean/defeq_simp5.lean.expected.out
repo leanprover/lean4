@@ -1,2 +1,0 @@
-@eq.{1} (nat → nat → nat) (λ (x y : nat), @has_add.add.{0} nat nat.has_add a b)
-  (λ (x y : nat), @has_add.add.{0} nat nat.has_add a x)

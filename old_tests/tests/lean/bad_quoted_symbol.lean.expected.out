@@ -1,4 +1,0 @@
-bad_quoted_symbol.lean:2:13: error: first character of a quoted symbols cannot be a digit
-bad_quoted_symbol.lean:3:14: error: first character of a quoted symbols cannot be a digit
-bad_quoted_symbol.lean:4:16: error: unexpected space inside of quoted symbol
-bad_quoted_symbol.lean:5:14: error: unexpected end of quoted symbol

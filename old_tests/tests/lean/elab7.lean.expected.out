@@ -1,8 +1,0 @@
-λ (x : nat), @has_add.add.{0} nat nat.has_add x (@has_one.one.{0} nat nat.has_one) : nat → nat
-λ (x y : nat), @has_add.add.{0} nat nat.has_add x y : nat → nat → nat
-λ (x y : nat),
-  @has_add.add.{0} nat nat.has_add (@has_add.add.{0} nat nat.has_add x y) (@has_one.one.{0} nat nat.has_one) :
-  nat → nat → nat
-λ (x : nat),
-  @list.cons.{0} nat (@has_add.add.{0} nat nat.has_add x (@has_one.one.{0} nat nat.has_one)) (@list.nil.{0} nat) :
-  nat → list.{0} nat

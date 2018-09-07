@@ -1,9 +1,0 @@
-def1.lean:5:16: error: "eliminator" elaborator type mismatch, term
-  rfl
-has type
-  ?m_2 = ?m_2
-but is expected to have type
-  f b = f c
-Additional information:
-def1.lean:5:16: context: the inferred motive for the eliminator-like application is
-  λ (_x : A), f _x = f c

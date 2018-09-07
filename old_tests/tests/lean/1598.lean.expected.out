@@ -1,3 +1,0 @@
-1598.lean:3:3: error: existsi tactic failed, type mismatch between given term witness and expected type
-state:
-⊢ 0 = false

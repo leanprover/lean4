@@ -1,7 +1,0 @@
-{"msgs":[{"caption":"","file_name":"info_tactic.lean","pos_col":0,"pos_line":22,"severity":"error","text":"tactic failed, there are unsolved goals\nstate:\n⊢ false"}],"response":"all_messages"}
-{"message":"file invalidated","response":"ok","seq_num":0}
-{"record":{"source":,"state":"⊢ false","tactic_params":["([expr, ...] | expr)?"],"text":"fooo","type":"parse (optional pexpr_list_or_texpr) → tactic unit"},"response":"ok","seq_num":13}
-{"record":{"source":,"state":"⊢ false","tactic_param_idx":0,"tactic_params":["([expr, ...] | expr)?"],"text":"fooo","type":"parse (optional pexpr_list_or_texpr) → tactic unit"},"response":"ok","seq_num":15}
-{"record":{"source":,"state":"⊢ false","tactic_param_idx":0,"tactic_params":["([expr, ...] | expr)?"],"text":"fooo","type":"parse (optional pexpr_list_or_texpr) → tactic unit"},"response":"ok","seq_num":17}
-{"record":{"source":,"state":"⊢ false","tactic_param_idx":1,"tactic_params":["([expr, ...] | expr)?"],"text":"fooo","type":"parse (optional pexpr_list_or_texpr) → tactic unit"},"response":"ok","seq_num":19}
-{"record":{"full-id":"fooo","source":,"state":"⊢ false","tactic_params":["([expr, ...] | expr)?"],"type":"parse (optional pexpr_list_or_texpr) → tactic unit"},"response":"ok","seq_num":21}

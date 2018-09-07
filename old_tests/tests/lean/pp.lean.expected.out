@@ -1,7 +1,0 @@
-λ {A : Type} (B : Type) (a : A) (b : B), a : Π {A : Type} (B : Type), A → B → A
-λ {A B : Type} (a : A) (b : B), a : Π {A B : Type}, A → B → A
-λ (A : Type) {B : Type} (a : A) (b : B), a : Π (A : Type) {B : Type}, A → B → A
-λ (A B : Type) (a : A) (b : B), a : Π (A B : Type), A → B → A
-λ [A : Type] (B : Type) (a : A) (b : B), a : Π [A : Type] (B : Type), A → B → A
-λ ⦃A : Type⦄ {B : Type} (a : A) (b : B), a : Π ⦃A : Type⦄ {B : Type}, A → B → A
-λ ⦃A B : Type⦄ (a : A) (b : B), a : Π ⦃A B : Type⦄, A → B → A

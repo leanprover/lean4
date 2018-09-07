@@ -1,3 +1,0 @@
-dunfold_constant.lean:2:28: error: tactic failed, there are unsolved goals
-state:
-⊢ [2] = [2]

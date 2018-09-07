@@ -1,7 +1,0 @@
-meta_equation_pos.lean:2:0: error: equation type mismatch, term
-  tt
-has type
-  bool
-but is expected to have type
-  ℕ
-ℕ : Type

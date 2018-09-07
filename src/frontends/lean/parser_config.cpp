@@ -100,9 +100,6 @@ struct token_config {
         d >> e.m_token >> e.m_prec;
         return e;
     }
-    static optional<unsigned> get_fingerprint(entry const &) {
-        return optional<unsigned>();
-    }
 };
 name * token_config::g_class_name = nullptr;
 
@@ -312,9 +309,6 @@ struct notation_config {
             d >> priority;
             return entry(is_nud, to_list(ts.begin(), ts.end()), e, overload, priority, g, parse_only);
         }
-    }
-    static optional<unsigned> get_fingerprint(entry const &) {
-        return optional<unsigned>();
     }
 };
 name * notation_config::g_class_name = nullptr;

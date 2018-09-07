@@ -137,16 +137,6 @@ struct class_config {
         }
         return e;
     }
-
-    static optional<unsigned> get_fingerprint(entry const & e) {
-        switch (e.m_kind) {
-        case class_entry_kind::Class:
-            return some(e.m_class.hash());
-        case class_entry_kind::Instance:
-            return some(hash(hash(e.m_class.hash(), e.m_instance.hash()), e.m_priority));
-        }
-        lean_unreachable();
-    }
 };
 
 template class scoped_ext<class_config>;
@@ -257,10 +247,6 @@ environment add_instance(environment const & env, name const & n, unsigned prior
 
 name const & get_instance_attr_name() {
     return *g_instance_attr_name;
-}
-
-unsigned get_instance_fingerprint(environment const & env) {
-    return get_attribute_fingerprint(env, get_instance_attr_name());
 }
 
 static name * g_anonymous_inst_name_prefix = nullptr;

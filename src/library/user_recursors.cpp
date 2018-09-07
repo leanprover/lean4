@@ -326,9 +326,6 @@ struct recursor_config {
     static entry read_entry(deserializer & d) {
         return recursor_info::read(d);
     }
-    static optional<unsigned> get_fingerprint(entry const & e) {
-        return some(e.get_name().hash());
-    }
 };
 
 template class scoped_ext<recursor_config>;

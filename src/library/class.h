@@ -27,7 +27,6 @@ name get_class_name(environment const & env, expr const & e);
 
 /** \brief Return name for attribute [instance] */
 name const & get_instance_attr_name();
-unsigned get_instance_fingerprint(environment const & env);
 
 name const & get_anonymous_instance_prefix();
 name mk_anonymous_inst_name(unsigned idx);

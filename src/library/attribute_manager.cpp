@@ -148,10 +148,6 @@ struct attr_config {
         }
         return e;
     }
-
-    static optional<unsigned> get_fingerprint(entry const & e) {
-        return optional<unsigned>(get_entry_hash(e));
-    }
 };
 
 template class scoped_ext<attr_config>;
@@ -201,13 +197,6 @@ void attribute::get_instances(environment const & env, buffer<name> & r) const {
                     r.push_back(rec.m_decl);
             });
     }
-}
-
-unsigned attribute::get_fingerprint(environment const & env) const {
-    if (auto p = attribute_ext::get_state(env).find(m_id)) {
-        return p->second;
-    }
-    return 0;
 }
 
 priority_queue<name, name_quick_cmp> attribute::get_instances_by_prio(environment const & env) const {
@@ -264,10 +253,6 @@ bool are_incompatible(attribute const & attr1, attribute const & attr2) {
     if (s1 > s2)
         std::swap(s1, s2);
     return std::find(g_incomp->begin(), g_incomp->end(), mk_pair(s1, s2)) != g_incomp->end();
-}
-
-unsigned get_attribute_fingerprint(environment const & env, name const & attr) {
-    return get_attribute(env, attr).get_fingerprint(env);
 }
 
 void initialize_attribute_manager() {

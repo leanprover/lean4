@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "util/hash.h"
 #include "library/private.h"
 #include "library/module.h"
-#include "library/fingerprint.h"
 
 namespace lean {
 struct private_ext : public environment_extension {
@@ -73,9 +72,6 @@ static environment preserve_private_data(environment const & env, name const & r
 static name mk_private_name_core(environment const & env, name const & n, optional<unsigned> const & extra_hash) {
     private_ext const & ext = get_extension(env);
     unsigned h              = hash(n.hash(), ext.m_counter);
-    uint64   f              = get_fingerprint(env);
-    h                       = hash(h, static_cast<unsigned>(f >> 32));
-    h                       = hash(h, static_cast<unsigned>(f));
     if (extra_hash)
         h = hash(h, *extra_hash);
     return name(*g_private, h) + n;

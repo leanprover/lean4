@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "library/module.h"
 #include "library/util.h"
-#include "library/fingerprint.h"
 #include "library/trace.h"
 #include "library/quote.h"
 #include "library/constants.h"

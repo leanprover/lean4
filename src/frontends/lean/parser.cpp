@@ -2369,7 +2369,6 @@ void parser::process_imports() {
         }
     }
 
-    m_env = update_fingerprint(m_env, fingerprint);
     m_env = activate_export_decls(m_env, {}); // explicitly activate exports in root namespace
     m_env = replay_export_decls_core(m_env, m_ios);
     m_imports_parsed = true;

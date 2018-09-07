@@ -96,7 +96,6 @@ environment execute_open(environment env, io_state const & ios, export_decl cons
         to_buffer(edecl.m_except_names, except_names);
         env = add_aliases(env, ns, edecl.m_as, except_names.size(), except_names.data());
     }
-    env = update_fingerprint(env, fingerprint);
     return replay_export_decls_core(env, ios, old_export_decls_sz);
 }
 
@@ -224,8 +223,7 @@ environment set_option_cmd(parser & p) {
     } else {
         throw parser_error("invalid option value, 'true', 'false', string, integer or decimal value expected", p.pos());
     }
-    environment env = p.env();
-    return update_fingerprint(env, p.get_options().hash());
+    return p.env();
 }
 
 static void check_identifier(parser & p, environment const & env, name const & ns, name const & id) {

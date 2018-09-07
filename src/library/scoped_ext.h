@@ -13,7 +13,6 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "library/io_state.h"
 #include "library/module.h"
-#include "library/fingerprint.h"
 
 namespace lean {
 enum class scope_kind { Namespace, Section };
@@ -85,10 +84,6 @@ class scoped_ext : public environment_extension {
     static void  write_entry(serializer & s, entry const & e) { Config::write_entry(s, e); }
     static entry read_entry(deserializer & d) { return Config::read_entry(d); }
     static const char * get_serialization_key() { return Config::get_serialization_key(); }
-    static optional<unsigned> get_fingerprint(entry const & e) {
-        return Config::get_fingerprint(e);
-    }
-
     /* Stack of states, it is updated using push/pop operations */
     list<state>           m_scopes;
     state                 m_state; // explicit top-most (current) scope
@@ -192,9 +187,6 @@ public:
     }
 
     static environment add_entry(environment env, io_state const & ios, entry const & e, persistence persist) {
-        if (auto h = get_fingerprint(e)) {
-            env = update_fingerprint(env, *h);
-        }
         if (persist == persistence::scope) {
             return update(env, get(env)._add_tmp_entry(env, ios, e));
         } else {

@@ -23,7 +23,6 @@ Author: Leonardo de Moura
 #include "library/idx_metavar.h"
 #include "library/placeholder.h"
 #include "library/print.h"
-#include "library/fingerprint.h"
 #include "library/util.h"
 #include "library/pp_options.h"
 #include "library/projection.h"
@@ -78,7 +77,6 @@ void finalize_library_core_module() {
 void initialize_library_module() {
     initialize_local_context();
     initialize_metavar_context();
-    initialize_fingerprint();
     initialize_print();
     initialize_placeholder();
     initialize_idx_metavar();
@@ -142,7 +140,6 @@ void finalize_library_module() {
     finalize_idx_metavar();
     finalize_placeholder();
     finalize_print();
-    finalize_fingerprint();
     finalize_metavar_context();
     finalize_local_context();
 }

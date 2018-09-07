@@ -68,7 +68,6 @@ public:
     virtual attr_data_ptr parse_data(abstract_parser &) const;
 
     virtual environment unset(environment env, io_state const & ios, name const & n, bool persistent) const;
-    virtual unsigned get_fingerprint(environment const & env) const;
 };
 
 typedef std::shared_ptr<attribute const> attribute_ptr;
@@ -178,10 +177,6 @@ public:
         for (name const & n : tmp)
             if (is_instance(env, n))
                 r.push_back(n);
-    }
-
-    virtual unsigned get_fingerprint(environment const & env) const override {
-        return get_attribute().get_fingerprint(env);
     }
 };
 

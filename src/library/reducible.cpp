@@ -14,10 +14,6 @@ Author: Leonardo de Moura
 namespace lean {
 static name * g_reducibility = nullptr;
 
-unsigned get_reducibility_fingerprint(environment const & env) {
-    return get_attribute_fingerprint(env, *g_reducibility);
-}
-
 struct reducibility_attribute_data : public attr_data {
     reducible_status m_status;
     reducibility_attribute_data() {}

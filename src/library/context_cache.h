@@ -67,28 +67,6 @@ class context_cache : public context_cacheless {
     whnf_cache                    m_whnf_cache[LEAN_NUM_TRANSPARENCY_MODES];
     name2bool                     m_aux_recursor_cache;
 
-    /* We use the following approach for caching type class instances.
-
-       Whenever a type_context_old object is initialized with a local_context lctx
-
-       1) If lctx has an instance_fingerprint, then we compare with the instance_fingerprint
-          stored in this cache, if they are equal, we keep m_local_instances,
-          m_instance_cache and m_subsingleton_cache.
-
-          New local instances added using methods type_context_old::push_local and type_context_old::push_let will
-          be ignored.
-
-       2) If lctx doesn't have one, we clear m_local_instances, m_instance_cache and m_subsingleton_cache.
-          We also traverse lctx and collect the local instances.
-
-          The methods type_context_old::push_local and type_context_old::push_let will flush the cache
-          whenever new local instances are pushed into the local context.
-
-          m_instance_cache and m_subsingleton_cache are flushed before the cache is returned to the
-          cache manager. */
-    instance_cache                m_instance_cache;
-    subsingleton_cache            m_subsingleton_cache;
-
     /* Cache datastructures for fun_info */
 
     typedef expr_map<fun_info>                fi_cache;
@@ -130,14 +108,6 @@ public:
 
     virtual optional<expr> get_whnf(transparency_mode, expr const &) override;
     virtual void set_whnf(transparency_mode, expr const &, expr const &) override;
-
-    virtual optional<optional<expr>> get_instance(expr const &) override;
-    virtual void set_instance(expr const &, optional<expr> const &) override;
-
-    virtual optional<optional<expr>> get_subsingleton(expr const &) override;
-    virtual void set_subsingleton(expr const &, optional<expr> const &) override;
-
-    virtual void flush_instances() override;
 
     /* Cache support for fun_info module */
 

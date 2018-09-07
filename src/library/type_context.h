@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/abstract_context_cache.h"
 #include "library/exception.h"
 #include "library/expr_pair.h"
+#include "library/local_instances.h"
 
 namespace lean {
 /* Return `f._sunfold` */
@@ -538,7 +539,6 @@ private:
     bool is_cached_failure(expr const & t, expr const & s);
 
     void init_local_instances();
-    void flush_instance_cache();
     void update_local_instances(expr const & new_local, expr const & new_type);
 
     projection_info const * is_projection(expr const & e);

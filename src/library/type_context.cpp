@@ -86,10 +86,6 @@ bool type_context_old::is_cached_failure(expr const & t, expr const & s) {
     }
 }
 
-void type_context_old::freeze_local_instances() {
-    m_lctx.freeze_local_instances(m_local_instances);
-}
-
 void type_context_old::init_local_instances() {
     m_local_instances = local_instances();
     m_lctx.for_each([&](local_decl const & decl) {
@@ -111,32 +107,14 @@ void type_context_old::init_local_instances() {
         });
 }
 
-void type_context_old::flush_instance_cache() {
-    lean_trace("type_context_cache", tout() << "flushing instance cache\n";);
-    m_cache->reset_frozen_local_instances();
-    m_cache->flush_instances();
-}
-
 void type_context_old::init_core(transparency_mode m) {
     m_transparency_mode           = m;
     m_smart_unfolding             = m_cache->get_smart_unfolding();
-    if (auto lis = m_lctx.get_frozen_local_instances()) {
-        m_local_instances = *lis;
-        if (m_cache->get_frozen_local_instances() == lis) {
-            lean_trace("type_context_cache", tout() << "reusing instance cache\n";);
-        } else {
-            lean_trace("type_context_cache", tout() << "incompatible local instances, flushing instance cache\n";);
-            m_cache->flush_instances();
-            m_cache->set_frozen_local_instances(m_local_instances);
-        }
-    } else {
-        init_local_instances();
-        flush_instance_cache();
-    }
+    init_local_instances();
 }
 
 type_context_old::type_context_old(environment const & env, options const & o, metavar_context const & mctx,
-                           local_context const & lctx, transparency_mode m):
+                                   local_context const & lctx, transparency_mode m):
     m_env(env),
     m_mctx(mctx), m_lctx(lctx),
     m_dummy_cache(o),
@@ -184,11 +162,8 @@ void type_context_old::set_env(environment const & env) {
 }
 
 void type_context_old::update_local_instances(expr const & new_local, expr const & new_type) {
-    if (!m_cache->get_frozen_local_instances()) {
-        if (auto c_name = is_class(new_type)) {
-            m_local_instances = local_instances(local_instance(*c_name, new_local), m_local_instances);
-            flush_instance_cache();
-        }
+    if (auto c_name = is_class(new_type)) {
+        m_local_instances = local_instances(local_instance(*c_name, new_local), m_local_instances);
     }
 }
 
@@ -205,16 +180,14 @@ expr type_context_old::push_let(name const & ppn, expr const & type, expr const 
 }
 
 void type_context_old::pop_local() {
-    if (!m_cache->get_frozen_local_instances() && m_local_instances) {
+    if (m_local_instances) {
         optional<local_decl> decl = m_lctx.find_last_local_decl();
         if (decl && decl->get_name() == local_name(head(m_local_instances).get_local())) {
             m_local_instances = tail(m_local_instances);
-            flush_instance_cache();
         }
     }
     m_lctx.pop_local_decl();
 }
-
 
 static local_decl get_local_with_smallest_idx(local_context const & lctx, buffer<expr> const & ls) {
     lean_assert(!ls.empty());
@@ -331,16 +304,6 @@ pair<local_context, expr> type_context_old::revert_core(buffer<expr> & to_revert
         std::sort(to_revert.begin(), to_revert.end(), [&](expr const & l1, expr const & l2) {
                 return ctx.get_local_decl(l1).get_idx() < ctx.get_local_decl(l2).get_idx();
             });
-    }
-    /* Check whether we are trying to revert a frozen local instance. */
-    if (optional<local_instances> lis = m_lctx.get_frozen_local_instances()) {
-        for (expr const & h : to_revert) {
-            for (local_instance const & li : *lis) {
-                if (local_name(h) == local_name(li.get_local())) {
-                    throw exception(sstream() << "failed to revert '" << h << "', it is a frozen local instance (possible solution: use tactic `tactic.unfreeze_local_instances` to reset the set of local instances)");
-                }
-            }
-        }
     }
     local_context new_ctx = ctx.remove(to_revert);
     return mk_pair(new_ctx, mk_pi(ctx, to_revert, type));
@@ -2340,17 +2303,12 @@ bool type_context_old::is_def_eq_binding(expr e1, expr e2) {
 }
 
 optional<expr> type_context_old::mk_class_instance_at(local_context const & lctx, expr const & type) {
-    if (m_cache->get_frozen_local_instances() &&
-        m_cache->get_frozen_local_instances() == lctx.get_frozen_local_instances()) {
-        return mk_class_instance(type);
-    } else {
-        context_cacheless tmp_cache(*m_cache, true);
-        type_context_old tmp_ctx(env(), m_mctx, lctx, tmp_cache, m_transparency_mode);
-        auto r = tmp_ctx.mk_class_instance(type);
-        if (r)
-            m_mctx = tmp_ctx.mctx();
-        return r;
-    }
+    context_cacheless tmp_cache(*m_cache, true);
+    type_context_old tmp_ctx(env(), m_mctx, lctx, tmp_cache, m_transparency_mode);
+    auto r = tmp_ctx.mk_class_instance(type);
+    if (r)
+        m_mctx = tmp_ctx.mctx();
+    return r;
 }
 
 /* Temporary hack until we can create type context objects efficiently */
@@ -3700,15 +3658,9 @@ struct instance_synthesizer {
             return none_expr();
     }
 
-    void cache_result(expr const & type, optional<expr> const & inst) {
-        if (!has_expr_metavar(type))
-            m_ctx.m_cache->set_instance(type, inst);
-    }
-
     optional<expr> ensure_no_meta(optional<expr> r) {
         while (true) {
             if (!r) {
-                cache_result(m_ctx.infer(m_main_mvar), r);
                 return none_expr();
             }
             if (!has_expr_metavar(*r)) {
@@ -3718,11 +3670,6 @@ struct instance_synthesizer {
                     r = m_ctx.instantiate_mvars(*r);
                 }
                 if (!has_idx_metavar(*r)) {
-                    expr type = m_ctx.infer(m_main_mvar);
-                    if (!has_idx_metavar(type)) {
-                        /* We only cache the result if it does not contain universe tmp metavars. */
-                        cache_result(type, some_expr(m_ctx.instantiate_mvars(*r)));
-                    }
                     return r;
                 }
             }
@@ -3735,18 +3682,6 @@ struct instance_synthesizer {
 
     optional<expr> mk_class_instance_core(expr const & type) {
         /* We do not cache results when multiple instances have to be generated. */
-        if (!has_expr_metavar(type)) {
-            if (auto r = m_ctx.m_cache->get_instance(type)) {
-                /* instance/failure is already cached */
-                lean_trace("class_instances",
-                           scope_trace_env scope(m_ctx.env(), m_ctx);
-                           if (*r)
-                               tout() << "cached instance for " << type << "\n" << *(*r) << "\n";
-                           else
-                               tout() << "cached failure for " << type << "\n";);
-                return *r;
-            }
-        }
         m_state          = state();
         m_main_mvar      = m_ctx.mk_tmp_mvar(type);
         m_state.m_stack  = to_list(stack_entry(m_main_mvar, 0));
@@ -3969,17 +3904,13 @@ optional<expr> type_context_old::mk_class_instance(expr const & type_0) {
 }
 
 optional<expr> type_context_old::mk_subsingleton_instance(expr const & type) {
-    if (optional<optional<expr>> r = m_cache->get_subsingleton(type))
-        return *r;
     expr Type  = whnf(infer(type));
     if (!is_sort(Type)) {
-        m_cache->set_subsingleton(type, none_expr());
         return none_expr();
     }
     level lvl    = sort_level(Type);
     expr subsingleton = mk_app(mk_constant(get_subsingleton_name(), {lvl}), type);
     optional<expr> r = mk_class_instance(subsingleton);
-    m_cache->set_subsingleton(type, r);
     return r;
 }
 

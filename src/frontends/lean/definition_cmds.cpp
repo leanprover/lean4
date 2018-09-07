@@ -533,7 +533,6 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
     elaborator elab(env, p.get_options(), get_namespace(env) + local_pp_name_p(fn), metavar_context(), local_context(), recover_from_errors);
     buffer<expr> new_params;
     elaborate_params(elab, params, new_params);
-    elab.freeze_local_instances();
     replace_params(params, new_params, fn, val);
 
     auto process = [&](expr val) -> environment {

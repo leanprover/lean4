@@ -98,27 +98,6 @@ void context_cache::set_whnf(transparency_mode m, expr const & e, expr const & r
     m_whnf_cache[static_cast<unsigned>(m)].insert(mk_pair(e, r));
 }
 
-optional<optional<expr>> context_cache::get_instance(expr const & e) {
-    return find_at<optional<expr>>(m_instance_cache, e);
-}
-
-void context_cache::set_instance(expr const & e, optional<expr> const & r) {
-    m_instance_cache.insert(mk_pair(e, r));
-}
-
-optional<optional<expr>> context_cache::get_subsingleton(expr const & e) {
-    return find_at<optional<expr>>(m_subsingleton_cache, e);
-}
-
-void context_cache::set_subsingleton(expr const & e, optional<expr> const & r) {
-    m_subsingleton_cache.insert(mk_pair(e, r));
-}
-
-void context_cache::flush_instances() {
-    m_instance_cache.clear();
-    m_subsingleton_cache.clear();
-}
-
 optional<fun_info> context_cache::get_fun_info(transparency_mode m, expr const & e) {
     return find_at<fun_info>(m_fi_cache[static_cast<unsigned>(m)], e);
 }

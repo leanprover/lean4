@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "kernel/declaration.h"
 #include "library/projection.h"
 #include "library/fun_info.h"
-#include "library/local_instances.h"
 
 namespace lean {
 #define LEAN_NUM_TRANSPARENCY_MODES 5
@@ -37,6 +36,11 @@ struct app_builder_info {
 };
 
 /*
+   ==== IMPORTANT ====
+   THIS FILE WILL BE DELETED
+   THIS COMMENT DOES NOT REFLECT THE CURRENT DESIGN
+   ===================
+
    We have two main kinds of cache in Lean: environmental and contextual.
    The environmental caches only depend on the environment, and are easier to maintain.
    We usually store them in thread local storage, and before using them we compare
@@ -195,19 +199,6 @@ public:
     virtual optional<expr> get_whnf(transparency_mode, expr const &) = 0;
     virtual void set_whnf(transparency_mode, expr const &, expr const &) = 0;
 
-    virtual optional<optional<expr>> get_instance(expr const &) = 0;
-    virtual void set_instance(expr const &, optional<expr> const &) = 0;
-
-    virtual optional<optional<expr>> get_subsingleton(expr const &) = 0;
-    virtual void set_subsingleton(expr const &, optional<expr> const &) = 0;
-
-    /* this method should flush the instance and subsingleton cache */
-    virtual void flush_instances() = 0;
-
-    virtual void reset_frozen_local_instances() = 0;
-    virtual void set_frozen_local_instances(local_instances const & lis) = 0;
-    virtual optional<local_instances> get_frozen_local_instances() const = 0;
-
     /* Cache support for fun_info module */
 
     virtual optional<fun_info> get_fun_info(transparency_mode, expr const &) = 0;
@@ -247,7 +238,6 @@ private:
     unsigned                  m_nat_offset_cnstr_threshold;
     unsigned                  m_smart_unfolding;
     unsigned                  m_class_instance_max_depth;
-    optional<local_instances> m_local_instances;
 public:
     context_cacheless();
     context_cacheless(options const &);
@@ -267,10 +257,6 @@ public:
     virtual unsigned get_nat_offset_cnstr_threshold() const override  { return m_nat_offset_cnstr_threshold; }
     virtual unsigned get_smart_unfolding() const override  { return m_smart_unfolding; }
     virtual unsigned get_class_instance_max_depth() const override  { return m_class_instance_max_depth; }
-
-    virtual void reset_frozen_local_instances() override { m_local_instances = optional<local_instances>(); }
-    virtual void set_frozen_local_instances(local_instances const & lis) override { m_local_instances = lis; }
-    virtual optional<local_instances> get_frozen_local_instances() const override { return m_local_instances; }
 
     /* Operations for accessing environment data more efficiently.
        The default implementation provided by this class does not have any optimization. */
@@ -292,14 +278,6 @@ public:
 
     virtual optional<expr> get_whnf(transparency_mode, expr const &) override { return none_expr(); }
     virtual void set_whnf(transparency_mode, expr const &, expr const &) override {}
-
-    virtual optional<optional<expr>> get_instance(expr const &) override { return optional<optional<expr>>(); }
-    virtual void set_instance(expr const &, optional<expr> const &) override {}
-
-    virtual optional<optional<expr>> get_subsingleton(expr const &) override { return optional<optional<expr>>(); }
-    virtual void set_subsingleton(expr const &, optional<expr> const &) override {}
-
-    virtual void flush_instances() override {}
 
     /* Cache support for fun_info module */
 

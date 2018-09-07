@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "kernel/local_ctx.h"
 #include "kernel/expr.h"
 #include "library/formatter.h"
-#include "library/local_instances.h"
 #include "library/subscripted_name_set.h"
 
 namespace lean {
@@ -41,8 +40,6 @@ class metavar_context;
    "freezing" local instances. */
 class local_context : public local_ctx {
     typedef rb_tree<unsigned, unsigned_cmp> unsigned_set;
-    /* frozen local instances */
-    optional<local_instances> m_local_instances;
     /* support for user names */
     subscripted_name_set      m_user_names;
     name_map<unsigned_set>    m_user_name2idxs;
@@ -60,10 +57,6 @@ class local_context : public local_ctx {
     }
 public:
     local_context() {}
-
-    void freeze_local_instances(local_instances const & lis);
-    void unfreeze_local_instances();
-    optional<local_instances> get_frozen_local_instances() const { return m_local_instances; }
 
     bool empty() const { return m_idx2local_decl.empty(); }
 

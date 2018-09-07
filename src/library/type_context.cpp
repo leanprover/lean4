@@ -576,7 +576,7 @@ optional<expr> type_context_old::unfold_definition(expr const & e) {
                 lean_trace(name({"type_context", "smart_unfolding"}), tout() << "before whnf_core [" << m_unfold_depth << "] " << new_it << "\n";);
                 /* whnf_core + unstuck loop */
                 while (true) {
-                    new_it             = whnf_core(new_it, true);
+                    new_it             = whnf_core(new_it, true, true);
                     lean_trace(name({"type_context", "smart_unfolding"}), tout() << "after whnf_core [" << m_unfold_depth << "] " << new_it << "\n";);
                     if (is_stuck(new_it)) {
                         expr new_new_it = try_to_unstuck_using_complete_instance(new_it);
@@ -600,7 +600,7 @@ optional<expr> type_context_old::unfold_definition(expr const & e) {
                     }
                     optional<constant_info> new_it_info = env().find(const_name(new_it_fn));
                     if (!new_it_info || !new_it_info->has_value() || length(const_levels(new_it_fn)) != new_it_info->get_num_lparams()) {
-                        lean_trace(name({"type_context", "smart_unfolding"}), tout() << "fail 2 [" << m_unfold_depth << "] " << whnf_core(new_it, true) << "\n";);
+                        lean_trace(name({"type_context", "smart_unfolding"}), tout() << "fail 2 [" << m_unfold_depth << "] " << whnf_core(new_it, true, true) << "\n";);
                         return none_expr();
                     }
                     it = new_it;
@@ -748,11 +748,12 @@ optional<expr> type_context_old::reduce_recursor(expr const & e) {
   This method does *not* apply delta-reduction at the head.
   Reason: we want to perform these reductions lazily at is_def_eq.
 
-  Remark: this method delta-reduce (transparent) aux-recursors (e.g., cases_on, rec_on).
+  Remark: this method delta-reduce (transparent) aux-recursors (e.g., cases_on, rec_on) IF
+  `aux_rec_reduce == true`
 
   Remark: if proj_reduce is false, then projection reduction is not performed.
 */
-expr type_context_old::whnf_core(expr const & e0, bool proj_reduce) {
+expr type_context_old::whnf_core(expr const & e0, bool proj_reduce, bool aux_rec_reduce) {
     expr e = e0;
     while (true) { switch (e.kind()) {
     case expr_kind::BVar:  case expr_kind::Sort:
@@ -802,7 +803,7 @@ expr type_context_old::whnf_core(expr const & e0, bool proj_reduce) {
         check_system("whnf");
         buffer<expr> args;
         expr f0 = get_app_rev_args(e, args);
-        expr f  = whnf_core(f0, proj_reduce);
+        expr f  = whnf_core(f0, proj_reduce, aux_rec_reduce);
         if (is_lambda(f)) {
             /* beta-reduction */
             unsigned m = 1;
@@ -828,9 +829,11 @@ expr type_context_old::whnf_core(expr const & e0, bool proj_reduce) {
                 }
             }
 
-            if (optional<expr> r = reduce_aux_recursor(e)) {
-                e = *r;
-                continue;
+            if (aux_rec_reduce) {
+                if (optional<expr> r = reduce_aux_recursor(e)) {
+                    e = *r;
+                    continue;
+                }
             }
 
             return e;
@@ -867,7 +870,7 @@ expr type_context_old::whnf(expr const & e) {
     unsigned postponed_sz = m_postponed.size();
     expr t = e;
     while (true) {
-        expr t1 = whnf_core(t, true);
+        expr t1 = whnf_core(t, true, true);
         if (auto next_t = unfold_definition(t1)) {
             t = *next_t;
         } else {
@@ -884,10 +887,13 @@ expr type_context_old::whnf(expr const & e) {
 expr type_context_old::whnf_head_pred(expr const & e, std::function<bool(expr const &)> const & pred) { // NOLINT
     expr t = e;
     while (true) {
-        expr t1 = whnf_core(t, true);
+        /* We disable auxiliary recursor reduction at `whnf_core` to make sure `pred` can disable it. */
+        expr t1 = whnf_core(t, true, false);
         if (!pred(t1)) {
             return t1;
-        } else if (auto next_t = unfold_definition(t1)) {
+        } else if (optional<expr> next_t = reduce_aux_recursor(t1)) {
+            t = *next_t;
+        } else if (optional<expr> next_t = unfold_definition(t1)) {
             t = *next_t;
         } else {
             return t1;
@@ -3178,8 +3184,8 @@ bool type_context_old::is_def_eq_core_core(expr t, expr s) {
     /* Apply beta/zeta/iota reduction to t and s */
     {
         /* We do not reduce projections here. */
-        expr t_n = whnf_core(t, false);
-        expr s_n = whnf_core(s, false);
+        expr t_n = whnf_core(t, false, true);
+        expr s_n = whnf_core(s, false, true);
 
         if (!is_eqp(t_n, t) || !is_eqp(s_n, s)) {
             lean_trace(name({"type_context", "is_def_eq_detail"}),

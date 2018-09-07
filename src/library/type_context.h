@@ -862,7 +862,7 @@ public:
 private:
     void init_core(transparency_mode m);
     optional<expr> unfold_definition_core(expr const & e);
-    expr whnf_core(expr const & e, bool iota_proj_reduce);
+    expr whnf_core(expr const & e, bool proj_reduce, bool aux_rec_reduce);
     optional<constant_info> get_decl(transparency_mode m, name const & n);
     optional<constant_info> get_decl(name const & n);
     bool use_zeta() const;

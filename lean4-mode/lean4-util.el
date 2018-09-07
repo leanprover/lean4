@@ -14,7 +14,7 @@
   (let ((root (executable-find lean4-executable-name)))
     (when root
       (setq lean4-rootdir (f-dirname (f-dirname root))))
-    root))
+    lean4-rootdir))
 
 (defun lean4-get-rootdir ()
   (if lean4-rootdir

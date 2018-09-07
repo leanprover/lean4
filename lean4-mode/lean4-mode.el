@@ -121,7 +121,7 @@
 
 (easy-menu-define lean4-mode-menu lean4-mode-map
   "Menu for the Lean major mode"
-  `("Lean"
+  `("Lean 4"
     ["Execute lean"         lean4-execute                      t]
     ;; ["Create a new project" (call-interactively 'lean4-project-create) (not (lean4-project-inside-p))]
     "-----------------"
@@ -193,7 +193,7 @@ enabled and disabled respectively.")
 
 ;; Automode List
 ;;;###autoload
-(define-derived-mode lean4-mode prog-mode "Lean"
+(define-derived-mode lean4-mode prog-mode "Lean 4"
   "Major mode for Lean
      \\{lean4-mode-map}
 Invokes `lean4-mode-hook'.

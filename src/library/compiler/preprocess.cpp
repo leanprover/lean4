@@ -132,7 +132,7 @@ class expand_aux_fn : public compiler_step_visitor {
             expr new_e;
             {
                 type_context_old::transparency_scope scope(ctx(), transparency_mode::Reducible);
-                new_e = ctx().whnf_head_pred(e, [&](expr const &) { return false; });
+                new_e = ctx().whnf_head_pred(e, [&](expr const & e) { return get_recursor_app_kind(e) == recursor_kind::NotRecursor; });
             }
             if (is_eqp(new_e, e))
                 return compiler_step_visitor::visit_app(new_e);
@@ -229,6 +229,7 @@ public:
     }
 
     void operator()(constant_info const & d, buffer<procedure> & procs) {
+        lean_trace(name({"compiler", "input"}), tout() << d.get_name() << "\n";);
         if (compile_irrelevant(d, procs))
             return;
         expr v = d.get_value();

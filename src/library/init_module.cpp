@@ -27,7 +27,6 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/pp_options.h"
 #include "library/projection.h"
-#include "library/relation_manager.h"
 #include "library/user_recursors.h"
 #include "library/noncomputable.h"
 #include "library/aux_recursors.h"
@@ -98,7 +97,6 @@ void initialize_library_module() {
     initialize_quote();
     initialize_pp_options();
     initialize_projection();
-    initialize_relation_manager();
     initialize_user_recursors();
     initialize_noncomputable();
     initialize_aux_recursors();
@@ -126,7 +124,6 @@ void finalize_library_module() {
     finalize_aux_recursors();
     finalize_noncomputable();
     finalize_user_recursors();
-    finalize_relation_manager();
     finalize_projection();
     finalize_pp_options();
     finalize_quote();

@@ -13,7 +13,6 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/cache_helper.h"
 #include "library/app_builder.h"
-#include "library/relation_manager.h"
 
 namespace lean {
 static void trace_fun(name const & n) {
@@ -414,26 +413,6 @@ public:
         return mk_app(c, total_nargs, {a1, a2, a3});
     }
 
-    /** \brief Similar to mk_app(n, lhs, rhs), but handles eq and iff more efficiently. */
-    expr mk_rel(name const & n, expr const & lhs, expr const & rhs) {
-        if (n == get_eq_name()) {
-            return mk_eq(lhs, rhs);
-        } else if (n == get_iff_name()) {
-            return mk_iff(lhs, rhs);
-        } else if (auto info = get_relation_info(env(), n)) {
-            buffer<bool> mask;
-            for (unsigned i = 0; i < info->get_arity(); i++) {
-                mask.push_back(i == info->get_lhs_pos() || i == info->get_rhs_pos());
-            }
-            expr args[2] = {lhs, rhs};
-            return mk_app(n, info->get_arity(), mask.data(), args);
-        } else {
-            // for unregistered relations assume lhs and rhs are the last two arguments.
-            expr args[2] = {lhs, rhs};
-            return mk_app(n, 2, args);
-        }
-    }
-
     expr mk_eq(expr const & a, expr const & b) {
         expr A    = m_ctx.infer(a);
         level lvl = get_level(A);
@@ -459,8 +438,6 @@ public:
             return mk_iff_refl(a);
         } else if (relname == get_heq_name()) {
             return mk_heq_refl(a);
-        } else if (auto info = get_refl_extra_info(env(), relname)) {
-            return mk_app(info->m_name, 1, &a);
         } else {
             lean_app_builder_trace(
                 tout() << "failed to build reflexivity proof, '" << relname
@@ -490,8 +467,6 @@ public:
             return mk_iff_symm(H);
         } else if (relname == get_heq_name()) {
             return mk_heq_symm(H);
-        } else if (auto info = get_symm_extra_info(env(), relname)) {
-            return mk_app(info->m_name, 1, &H);
         } else {
             lean_app_builder_trace(
                 tout() << "failed to build symmetry proof, '" << relname
@@ -544,9 +519,6 @@ public:
             return mk_iff_trans(H1, H2);
         } else if (relname == get_heq_name()) {
             return mk_heq_trans(H1, H2);
-        } else if (auto info = get_trans_extra_info(env(), relname, relname)) {
-            expr args[2] = {H1, H2};
-            return mk_app(info->m_name, 2, args);
         } else {
             lean_app_builder_trace(
                 tout() << "failed to build symmetry proof, '" << relname
@@ -670,27 +642,6 @@ public:
         return ::lean::mk_app({mk_constant(get_heq_of_eq_name(), {lvl}), A, a, b, H});
     }
 
-    /** \brief Given a reflexive relation R, and a proof H : a = b,
-        build a proof for (R a b) */
-    expr lift_from_eq(name const & R, expr const & H) {
-        if (R == get_eq_name())
-            return H;
-        expr H_type = m_ctx.relaxed_whnf(m_ctx.infer(H));
-        // H_type : @eq A a b
-        expr A, a, b;
-        if (!is_eq(H_type, A, a, b)) {
-            lean_app_builder_trace(tout() << "failed to build lift_of_eq equality proof expected:\n" << H << "\n";);
-            throw app_builder_exception();
-        }
-        type_context_old::tmp_locals locals(m_ctx);
-        expr x         = locals.push_local(name("A"), A);
-        // motive := fun x : A, a ~ x
-        expr motive    = locals.mk_lambda(mk_rel(R, a, x));
-        // minor : a ~ a
-        expr minor     = mk_refl(R, a);
-        return mk_eq_rec(motive, minor, H);
-    }
-
     expr mk_ss_elim(expr const & A, expr const & ss_inst, expr const & old_e, expr const & new_e) {
         level lvl = get_level(A);
         return ::lean::mk_app(mk_constant(get_subsingleton_elim_name(), {lvl}), A, ss_inst, old_e, new_e);
@@ -782,10 +733,6 @@ expr mk_app(type_context_old & ctx, name const & c, unsigned mask_sz, bool const
 
 expr mk_app(type_context_old & ctx, name const & c, unsigned total_nargs, unsigned expl_nargs, expr const * expl_args) {
     return app_builder(ctx).mk_app(c, total_nargs, expl_nargs, expl_args);
-}
-
-expr mk_rel(type_context_old & ctx, name const & n, expr const & lhs, expr const & rhs) {
-    return app_builder(ctx).mk_rel(n, lhs, rhs);
 }
 
 expr mk_eq(type_context_old & ctx, expr const & lhs, expr const & rhs) {
@@ -948,10 +895,6 @@ expr mk_congr(type_context_old & ctx, expr const & H1, expr const & H2, bool ski
 expr mk_funext(type_context_old & ctx, expr const & lam_pf) {
     // TODO(dhs): efficient version
     return mk_app(ctx, get_funext_name(), lam_pf);
-}
-
-expr lift_from_eq(type_context_old & ctx, name const & R, expr const & H) {
-    return app_builder(ctx).lift_from_eq(R, H);
 }
 
 expr mk_iff_false_intro(type_context_old & ctx, expr const & H) {

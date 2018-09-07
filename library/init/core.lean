@@ -215,20 +215,18 @@ intro :: (mp : a → b) (mpr : b → a)
 
 infix = := eq
 
-attribute [refl] eq.refl
-
 @[pattern] def rfl {α : Sort u} {a : α} : a = a := eq.refl a
 
-@[elab_as_eliminator, subst]
+@[elab_as_eliminator]
 theorem eq.subst {α : Sort u} {P : α → Prop} {a b : α} (h₁ : a = b) (h₂ : P a) : P b :=
 eq.ndrec h₂ h₁
 
 notation h1 ▸ h2 := eq.subst h1 h2
 
-@[trans] theorem eq.trans {α : Sort u} {a b c : α} (h₁ : a = b) (h₂ : b = c) : a = c :=
+theorem eq.trans {α : Sort u} {a b c : α} (h₁ : a = b) (h₂ : b = c) : a = c :=
 h₂ ▸ h₁
 
-@[symm] theorem eq.symm {α : Sort u} {a b : α} (h : a = b) : b = a :=
+theorem eq.symm {α : Sort u} {a b : α} (h : a = b) : b = a :=
 h ▸ rfl
 
 infix == := heq
@@ -627,7 +625,7 @@ notation x && y := band x y
 
 def implies (a b : Prop) := a → b
 
-@[trans] theorem implies.trans {p q r : Prop} (h₁ : implies p q) (h₂ : implies q r) : implies p r :=
+theorem implies.trans {p q r : Prop} (h₁ : implies p q) (h₂ : implies q r) : implies p r :=
 assume hp, h₂ (h₁ hp)
 
 def trivial : true := ⟨⟩
@@ -725,8 +723,6 @@ theorem eq_tt_of_ne_ff : ∀ {b : bool}, b ≠ ff → b = tt
 | tt h := rfl
 | ff h := false.elim (h rfl)
 
-attribute [refl] heq.refl
-
 section
 variables {α β φ : Sort u} {a a' : α} {b b' : β} {c : φ}
 
@@ -744,19 +740,19 @@ eq.rec_on (eq_of_heq h₁) h₂
 theorem heq.subst {p : ∀ T : Sort u, T → Prop} (h₁ : a == b) (h₂ : p α a) : p β b :=
 heq.ndrec_on h₁ h₂
 
-@[symm] theorem heq.symm (h : a == b) : b == a :=
+theorem heq.symm (h : a == b) : b == a :=
 heq.ndrec_on h (heq.refl a)
 
 theorem heq_of_eq (h : a = a') : a == a' :=
 eq.subst h (heq.refl a)
 
-@[trans] theorem heq.trans (h₁ : a == b) (h₂ : b == c) : a == c :=
+theorem heq.trans (h₁ : a == b) (h₂ : b == c) : a == c :=
 heq.subst h₂ h₁
 
-@[trans] theorem heq_of_heq_of_eq (h₁ : a == b) (h₂ : b = b') : a == b' :=
+theorem heq_of_heq_of_eq (h₁ : a == b) (h₂ : b = b') : a == b' :=
 heq.trans h₁ (heq_of_eq h₂)
 
-@[trans] theorem heq_of_eq_of_heq (h₁ : a = a') (h₂ : a' == b) : a == b :=
+theorem heq_of_eq_of_heq (h₁ : a = a') (h₂ : a' == b) : a == b :=
 heq.trans (heq_of_eq h₁) h₂
 
 def type_eq_of_heq (h : a == b) : α = β :=
@@ -820,20 +816,17 @@ theorem iff.elim_right : (a ↔ b) → b → a := iff.mpr
 theorem iff_iff_implies_and_implies (a b : Prop) : (a ↔ b) ↔ (a → b) ∧ (b → a) :=
 iff.intro (λ h, and.intro h.mp h.mpr) (λ h, iff.intro h.left h.right)
 
-@[refl]
 theorem iff.refl (a : Prop) : a ↔ a :=
 iff.intro (assume h, h) (assume h, h)
 
 theorem iff.rfl {a : Prop} : a ↔ a :=
 iff.refl a
 
-@[trans]
 theorem iff.trans (h₁ : a ↔ b) (h₂ : b ↔ c) : a ↔ c :=
 iff.intro
   (assume ha, iff.mp h₂ (iff.mp h₁ ha))
   (assume hc, iff.mpr h₁ (iff.mpr h₂ hc))
 
-@[symm]
 theorem iff.symm (h : a ↔ b) : b ↔ a :=
 iff.intro (iff.elim_right h) (iff.elim_left h)
 
@@ -1734,15 +1727,15 @@ instance setoid_has_equiv {α : Sort u} [setoid α] : has_equiv α :=
 namespace setoid
 variables {α : Sort u} [setoid α]
 
-@[refl] theorem refl (a : α) : a ≈ a :=
+theorem refl (a : α) : a ≈ a :=
 match setoid.iseqv α with
 | ⟨h_refl, h_symm, h_trans⟩ := h_refl a
 
-@[symm] theorem symm {a b : α} (hab : a ≈ b) : b ≈ a :=
+theorem symm {a b : α} (hab : a ≈ b) : b ≈ a :=
 match setoid.iseqv α with
 | ⟨h_refl, h_symm, h_trans⟩ := h_symm hab
 
-@[trans] theorem trans {a b c : α} (hab : a ≈ b) (hbc : b ≈ c) : a ≈ c :=
+theorem trans {a b c : α} (hab : a ≈ b) (hbc : b ≈ c) : a ≈ c :=
 (match setoid.iseqv α with
  | ⟨h_refl, h_symm, h_trans⟩ := h_trans hab hbc)
 end setoid
@@ -1787,7 +1780,7 @@ eq.subst (@iff_eq_eq a true) this
 /- Quotients -/
 
 -- iff can now be used to do substitutions in a calculation
-@[subst] theorem iff_subst {a b : Prop} {p : Prop → Prop} (h₁ : a ↔ b) (h₂ : p a) : p b :=
+theorem iff_subst {a b : Prop} {p : Prop → Prop} (h₁ : a ↔ b) (h₂ : p a) : p b :=
 eq.subst (propext h₁) h₂
 
 namespace quot

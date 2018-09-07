@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include <memory>
 #include <unordered_map>
 #include "kernel/environment.h"
-#include "library/relation_manager.h"
 #include "library/reducible.h"
 #include "library/type_context.h"
 
@@ -81,7 +80,6 @@ inline expr mk_app(type_context_old & ctx, name const & c, unsigned total_nargs,
 }
 
 /** \brief Similar to mk_app(n, lhs, rhs), but handles eq and iff more efficiently. */
-expr mk_rel(type_context_old & ctx, name const & n, expr const & lhs, expr const & rhs);
 expr mk_eq(type_context_old & ctx, expr const & lhs, expr const & rhs);
 expr mk_iff(type_context_old & ctx, expr const & lhs, expr const & rhs);
 expr mk_heq(type_context_old & ctx, expr const & lhs, expr const & rhs);
@@ -132,10 +130,6 @@ expr mk_congr_fun(type_context_old & ctx, expr const & H, expr const & a);
 expr mk_congr(type_context_old & ctx, expr const & H1, expr const & H2, bool skip_arrow_test = false);
 
 expr mk_funext(type_context_old & ctx, expr const & lam_pf);
-
-/** \brief Given a reflexive relation R, and a proof H : a = b,
-    build a proof for (R a b) */
-expr lift_from_eq(type_context_old & ctx, name const & R, expr const & H);
 
 /** \brief not p -> (p <-> false) */
 expr mk_iff_false_intro(type_context_old & ctx, expr const & H);

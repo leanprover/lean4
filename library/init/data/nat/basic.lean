@@ -198,7 +198,7 @@ h₁ ◾ h₂ ◾ h₃ ◾ h₄ ◾ h₅ ◾ h₆
 
 /- Inequalities -/
 
-@[refl] protected def le_refl : ∀ n : nat, n ≤ n
+protected def le_refl : ∀ n : nat, n ≤ n
 | zero     := rfl
 | (succ n) := le_refl n
 

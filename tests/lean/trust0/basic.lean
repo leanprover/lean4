@@ -49,14 +49,17 @@ instance : has_sub ℕ :=
 instance : has_mul ℕ :=
 ⟨nat.mul⟩
 
-instance : decidable_eq ℕ
+def has_dec_eq : Π a b : nat, decidable (a = b)
 | zero     zero     := is_true rfl
 | (succ x) zero     := is_false (λ h, nat.no_confusion h)
 | zero     (succ y) := is_false (λ h, nat.no_confusion h)
 | (succ x) (succ y) :=
-    match decidable_eq x y with
+    match has_dec_eq x y with
     | is_true xeqy := is_true (xeqy ▸ eq.refl (succ x))
     | is_false xney := is_false (λ h, nat.no_confusion h (λ xeqy, absurd xeqy xney))
+
+instance : decidable_eq ℕ :=
+{dec_eq := has_dec_eq}
 
 def {u} repeat {α : Type u} (f : ℕ → α → α) : ℕ → α → α
 | 0         a := a
@@ -67,7 +70,7 @@ rfl
 
 /- properties of inequality -/
 
-@[refl] protected def le_refl : ∀ a : ℕ, a ≤ a :=
+protected def le_refl : ∀ a : ℕ, a ≤ a :=
 less_than_or_equal.refl
 
 lemma le_succ (n : ℕ) : n ≤ succ n :=

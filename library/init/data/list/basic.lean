@@ -16,12 +16,12 @@ variables {α : Type u} {β : Type v} {γ : Type w}
 
 namespace list
 
-protected def has_dec_eq [s : decidable_eq α] : decidable_eq (list α)
+protected def has_dec_eq [decidable_eq α] : Π a b : list α, decidable (a = b)
 | []      []      := is_true rfl
 | (a::as) []      := is_false (λ h, list.no_confusion h)
 | []      (b::bs) := is_false (λ h, list.no_confusion h)
 | (a::as) (b::bs) :=
-  match s a b with
+  match dec_eq a b with
   | is_true hab  :=
     (match has_dec_eq as bs with
      | is_true habs  := is_true (eq.subst hab (eq.subst habs rfl))
@@ -29,7 +29,7 @@ protected def has_dec_eq [s : decidable_eq α] : decidable_eq (list α)
   | is_false nab := is_false (λ h, list.no_confusion h (λ hab _, absurd hab nab))
 
 instance [decidable_eq α] : decidable_eq (list α) :=
-list.has_dec_eq
+{dec_eq := list.has_dec_eq}
 
 protected def append : list α → list α → list α
 | []       l := l
@@ -153,7 +153,8 @@ def find_index (p : α → Prop) [decidable_pred p] : list α → nat
 | []     := 0
 | (a::l) := if p a then 0 else succ (find_index l)
 
-def index_of [decidable_eq α] (a : α) : list α → nat := find_index (eq a)
+def index_of [decidable_eq α] (a : α) (l : list α) : nat :=
+@find_index _ (eq a) (dec_eq a) l
 
 def assoc [decidable_eq α] : list (α × β) → α → option β
 | []         _  := none

@@ -133,7 +133,7 @@ inductive Expr
 
 open Expr
 
-instance eq_expr : decidable_eq Expr
+def eq_expr : Π a b : Expr, decidable (a = b)
 | (Var x)     (Var y)     := if h : x = y then is_true (h ▸ rfl)
                              else is_false (λ h', Expr.no_confusion h' (λ h', absurd h' h))
 | (Var x)     (Num n)     := is_false (λ h, Expr.no_confusion h)
@@ -150,6 +150,9 @@ instance eq_expr : decidable_eq Expr
                     | is_true  h' := is_true (h ▸ h' ▸ rfl)
                     | is_false h' := is_false (λ he, Expr.no_confusion he (λ h₁ h₂, absurd h₂ h')))
   | is_false h := is_false (λ he, Expr.no_confusion he (λ h₁ h₂, absurd h₁ h))
+
+instance : decidable_eq Expr :=
+{dec_eq := eq_expr}
 
 def parse_atom (p : parsec' Expr) : parsec' Expr :=
 (Var <$> lexeme var <?> "variable")

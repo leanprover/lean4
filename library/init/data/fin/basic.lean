@@ -94,5 +94,5 @@ end fin
 open fin
 
 instance (n : nat) : decidable_eq (fin n) :=
-λ i j, decidable_of_decidable_of_iff
-  (nat.decidable_eq i.val j.val) ⟨eq_of_veq, veq_of_eq⟩
+{dec_eq := λ i j, decidable_of_decidable_of_iff
+  (dec_eq i.val j.val) ⟨eq_of_veq, veq_of_eq⟩}

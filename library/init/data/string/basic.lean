@@ -19,7 +19,9 @@ structure string_imp :=
 def string := string_imp
 
 instance : decidable_eq string :=
-λ ⟨s₁⟩ ⟨s₂⟩, if h : s₁ = s₂ then is_true (congr_arg _ h) else is_false (λ h', string_imp.no_confusion h' (λ h', absurd h' h))
+{dec_eq := λ ⟨s₁⟩ ⟨s₂⟩,
+ if h : s₁ = s₂ then is_true (congr_arg _ h)
+ else is_false (λ h', string_imp.no_confusion h' (λ h', absurd h' h))}
 
 def list.as_string (s : list char) : string :=
 ⟨s⟩

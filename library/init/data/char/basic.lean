@@ -66,8 +66,8 @@ lemma vne_of_ne {c d : char} (h : c ≠ d) : c.val ≠ d.val :=
 λ h', absurd (eq_of_veq h') h
 
 instance : decidable_eq char :=
-λ i j, decidable_of_decidable_of_iff
-  (nat.decidable_eq i.val j.val) ⟨char.eq_of_veq, char.veq_of_eq⟩
+{dec_eq := λ i j, decidable_of_decidable_of_iff
+  (dec_eq i.val j.val) ⟨char.eq_of_veq, char.veq_of_eq⟩}
 
 instance : inhabited char :=
 ⟨'A'⟩

@@ -298,17 +298,19 @@ class inductive decidable (p : Prop)
 | is_false (h : ¬p) : decidable
 | is_true  (h : p) : decidable
 
-@[reducible]
-def decidable_pred {α : Sort u} (r : α → Prop) :=
+@[reducible] def decidable_pred {α : Sort u} (r : α → Prop) :=
 Π (a : α), decidable (r a)
 
-@[reducible]
-def decidable_rel {α : Sort u} (r : α → α → Prop) :=
+@[reducible] def decidable_rel {α : Sort u} (r : α → α → Prop) :=
 Π (a b : α), decidable (r a b)
 
-@[reducible]
-def decidable_eq (α : Sort u) :=
-decidable_rel (@eq α)
+class decidable_eq (α : Sort u) :=
+{dec_eq : Π a b : α, decidable (a = b)}
+
+export decidable_eq (dec_eq)
+
+instance decidable_of_decidable_eq {α : Sort u} (a b : α) [decidable_eq α] : decidable (a = b) :=
+dec_eq a b
 
 inductive option (α : Type u)
 | none {} : option
@@ -1227,27 +1229,28 @@ theorem bool.ff_ne_tt : ff = tt → false
 def is_dec_eq {α : Sort u} (p : α → α → bool) : Prop   := ∀ ⦃x y : α⦄, p x y = tt → x = y
 def is_dec_refl {α : Sort u} (p : α → α → bool) : Prop := ∀ x, p x x = tt
 
-instance : decidable_eq bool
-| ff ff := is_true rfl
-| ff tt := is_false bool.ff_ne_tt
-| tt ff := is_false (ne.symm bool.ff_ne_tt)
-| tt tt := is_true rfl
+instance : decidable_eq bool :=
+{dec_eq := λ a b, match a, b with
+ | ff, ff := is_true rfl
+ | ff, tt := is_false bool.ff_ne_tt
+ | tt, ff := is_false (ne.symm bool.ff_ne_tt)
+ | tt, tt := is_true rfl}
 
 def decidable_eq_of_bool_pred {α : Sort u} {p : α → α → bool} (h₁ : is_dec_eq p) (h₂ : is_dec_refl p) : decidable_eq α :=
-assume x y : α,
+{dec_eq := λ x y : α,
  if hp : p x y = tt then is_true (h₁ hp)
- else is_false (assume hxy : x = y, absurd (h₂ y) (@eq.rec_on _ _ (λ z _, ¬p z y = tt) _ hxy hp))
+ else is_false (assume hxy : x = y, absurd (h₂ y) (@eq.rec_on _ _ (λ z _, ¬p z y = tt) _ hxy hp))}
 
-theorem decidable_eq_inl_refl {α : Sort u} [h : decidable_eq α] (a : α) : h a a = is_true (eq.refl a) :=
-match (h a a) with
+theorem decidable_eq_inl_refl {α : Sort u} [decidable_eq α] (a : α) : dec_eq a a = is_true (eq.refl a) :=
+match (dec_eq a a) with
 | (is_true e)  := rfl
 | (is_false n) := absurd rfl n
 
-theorem decidable_eq_inr_neg {α : Sort u} [h : decidable_eq α] {a b : α} : Π n : a ≠ b, h a b = is_false n :=
+theorem decidable_eq_inr_neg {α : Sort u} [decidable_eq α] {a b : α} : Π n : a ≠ b, dec_eq a b = is_false n :=
 assume n,
-match (h a b) with
-| (is_true e)   := absurd e n
-| (is_false n₁) := proof_irrel n n₁ ▸ eq.refl (is_false n)
+match dec_eq a b with
+| is_true e   := absurd e n
+| is_false n₁ := proof_irrel n n₁ ▸ eq.refl (is_false n)
 
 /- if-then-else expression theorems -/
 
@@ -1611,10 +1614,10 @@ subtype.eq rfl
 instance {α : Type u} {p : α → Prop} {a : α} (h : p a) : inhabited {x // p x} :=
 ⟨⟨a, h⟩⟩
 
-instance {α : Type u} {p : α → Prop} [decidable_eq α] : decidable_eq {x : α // p x}
-| ⟨a, h₁⟩ ⟨b, h₂⟩ :=
+instance {α : Type u} {p : α → Prop} [decidable_eq α] : decidable_eq {x : α // p x} :=
+{dec_eq := λ ⟨a, h₁⟩ ⟨b, h₂⟩,
   if h : a = b then is_true (subtype.eq h)
-  else is_false (λ h', subtype.no_confusion h' (λ h', absurd h' h))
+  else is_false (λ h', subtype.no_confusion h' (λ h', absurd h' h))}
 end subtype
 
 /- Sum -/
@@ -1630,13 +1633,15 @@ instance sum.inhabited_left [h : inhabited α] : inhabited (α ⊕ β) :=
 instance sum.inhabited_right [h : inhabited β] : inhabited (α ⊕ β) :=
 ⟨sum.inr (default β)⟩
 
-instance {α : Type u} {β : Type v} [decidable_eq α] [decidable_eq β] : decidable_eq (α ⊕ β)
-| (sum.inl a) (sum.inl b) := if h : a = b then is_true (h ▸ rfl)
-                             else is_false (λ h', sum.no_confusion h' (λ h', absurd h' h))
-| (sum.inr a) (sum.inr b) := if h : a = b then is_true (h ▸ rfl)
-                             else is_false (λ h', sum.no_confusion h' (λ h', absurd h' h))
-| (sum.inr a) (sum.inl b) := is_false (λ h, sum.no_confusion h)
-| (sum.inl a) (sum.inr b) := is_false (λ h, sum.no_confusion h)
+instance {α : Type u} {β : Type v} [decidable_eq α] [decidable_eq β] : decidable_eq (α ⊕ β) :=
+{dec_eq := λ a b,
+ match a, b with
+ | (sum.inl a), (sum.inl b) := if h : a = b then is_true (h ▸ rfl)
+                               else is_false (λ h', sum.no_confusion h' (λ h', absurd h' h))
+ | (sum.inr a), (sum.inr b) := if h : a = b then is_true (h ▸ rfl)
+                               else is_false (λ h', sum.no_confusion h' (λ h', absurd h' h))
+ | (sum.inr a), (sum.inl b) := is_false (λ h, sum.no_confusion h)
+ | (sum.inl a), (sum.inr b) := is_false (λ h, sum.no_confusion h)}
 end
 
 /- Product -/
@@ -1650,23 +1655,22 @@ theorem prod.mk.eta : ∀{p : α × β}, (p.1, p.2) = p
 instance [inhabited α] [inhabited β] : inhabited (prod α β) :=
 ⟨(default α, default β)⟩
 
-instance [h₁ : decidable_eq α] [h₂ : decidable_eq β] : decidable_eq (α × β)
-| (a, b) (a', b') :=
-  match (h₁ a a') with
+instance [decidable_eq α] [decidable_eq β] : decidable_eq (α × β) :=
+{dec_eq := λ ⟨a, b⟩ ⟨a', b'⟩,
+  match (dec_eq a a') with
   | (is_true e₁) :=
-    (match (h₂ b b') with
+    (match (dec_eq b b') with
      | (is_true e₂)  := is_true (eq.rec_on e₁ (eq.rec_on e₂ rfl))
      | (is_false n₂) := is_false (assume h, prod.no_confusion h (λ e₁' e₂', absurd e₂' n₂)))
-  | (is_false n₁) := is_false (assume h, prod.no_confusion h (λ e₁' e₂', absurd e₁' n₁))
+  | (is_false n₁) := is_false (assume h, prod.no_confusion h (λ e₁' e₂', absurd e₁' n₁))}
 
 instance [has_lt α] [has_lt β] : has_lt (α × β) :=
 ⟨λ s t, s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)⟩
 
 instance prod_has_decidable_lt
-         [has_lt α] [has_lt β]
-         [decidable_eq α] [decidable_eq β]
-         [decidable_rel ((<) : α → α → Prop)]
-         [decidable_rel ((<) : β → β → Prop)] : Π s t : α × β, decidable (s < t) :=
+         [has_lt α] [has_lt β] [decidable_eq α] [decidable_eq β]
+         [Π a b : α, decidable (a < b)] [Π a b : β, decidable (a < b)]
+         : Π s t : α × β, decidable (s < t) :=
 λ t s, or.decidable
 
 theorem prod.lt_def [has_lt α] [has_lt β] (s t : α × β) : (s < t) = (s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)) :=
@@ -1714,7 +1718,7 @@ instance : inhabited punit :=
 ⟨()⟩
 
 instance : decidable_eq punit :=
-λ a b, is_true (punit_eq a b)
+{dec_eq := λ a b, is_true (punit_eq a b)}
 
 /- Setoid -/
 
@@ -2025,12 +2029,12 @@ eqv_gen.rec_on H
 end
 
 instance {α : Sort u} {s : setoid α} [d : ∀ a b : α, decidable (a ≈ b)] : decidable_eq (quotient s) :=
-λ q₁ q₂ : quotient s,
+{dec_eq := λ q₁ q₂ : quotient s,
   quotient.rec_on_subsingleton₂ q₁ q₂
     (λ a₁ a₂,
       match (d a₁ a₂) with
       | (is_true h₁)  := is_true (quotient.sound h₁)
-      | (is_false h₂) := is_false (λ h, absurd (quotient.exact h) h₂))
+      | (is_false h₂) := is_false (λ h, absurd (quotient.exact h) h₂))}
 
 /- Function extensionality -/
 
@@ -2168,7 +2172,7 @@ noncomputable def decidable_inhabited (a : Prop) : inhabited (decidable a) :=
 local attribute [instance] decidable_inhabited
 
 noncomputable def type_decidable_eq (α : Sort u) : decidable_eq α :=
-λ x y, prop_decidable (x = y)
+{dec_eq := λ x y, prop_decidable (x = y)}
 
 noncomputable def type_decidable (α : Sort u) : psum α (α → false) :=
 match (prop_decidable (nonempty α)) with

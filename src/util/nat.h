@@ -25,7 +25,7 @@ public:
     }
     nat(nat const & other):object_ref(other) {}
     nat(nat && other):object_ref(other) {}
-    explicit nat(object * o):object_ref(o) { inc(o); }
+    explicit nat(object * o):object_ref(o) {}
 
     nat & operator=(nat const & other) { object_ref::operator=(other); return *this; }
     nat & operator=(nat && other) { object_ref::operator=(other); return *this; }

@@ -35,7 +35,9 @@ theorem ne_of_beq_eq_ff : ∀ {n m : nat}, beq n m = ff → n ≠ m
   nat.no_confusion h₂ (λ h₂, absurd h₂ this)
 
 instance : decidable_eq nat :=
-λ n m, if h : beq n m = tt then is_true (eq_of_beq_eq_tt h) else is_false (ne_of_beq_eq_ff (eq_ff_of_ne_tt h))
+{dec_eq := λ n m,
+ if h : beq n m = tt then is_true (eq_of_beq_eq_tt h)
+ else is_false (ne_of_beq_eq_ff (eq_ff_of_ne_tt h))}
 
 def ble : nat → nat → bool
 | zero     zero     := tt
@@ -245,11 +247,11 @@ theorem pred_le_pred : ∀ {n m : nat}, n ≤ m → pred n ≤ pred m
 theorem le_of_succ_le_succ {n m : nat} : succ n ≤ succ m → n ≤ m :=
 pred_le_pred
 
-instance decidable_le : ∀ n m : nat, decidable (n ≤ m) :=
-λ n m, bool.decidable_eq _ _
+instance decidable_le (n m : nat) : decidable (n ≤ m) :=
+dec_eq (ble n m) tt
 
-instance decidable_lt : ∀ n m : nat, decidable (n < m) :=
-λ n m, nat.decidable_le (succ n) m
+instance decidable_lt (n m : nat) : decidable (n < m) :=
+nat.decidable_le (succ n) m
 
 protected theorem eq_or_lt_of_le : ∀ {n m: nat}, n ≤ m → n = m ∨ n < m
 | zero     zero     h := or.inl rfl

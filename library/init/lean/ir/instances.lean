@@ -28,10 +28,10 @@ theorem id2type_type2id_eq : ∀ (ty : type), id2type (type2id ty) = ty
 | type.float  := rfl  | type.double := rfl  | type.object := rfl
 
 instance type_has_dec_eq : decidable_eq type :=
-λ t₁ t₂,
+{dec_eq := λ t₁ t₂,
  if h : type2id t₁ = type2id t₂
  then is_true (id2type_type2id_eq t₁ ▸ id2type_type2id_eq t₂ ▸ h ▸ rfl)
- else is_false (λ h', absurd rfl (@eq.subst _ (λ t, ¬ type2id t = type2id t₂) _ _ h' h))
+ else is_false (λ h', absurd rfl (@eq.subst _ (λ t, ¬ type2id t = type2id t₂) _ _ h' h))}
 /- END of TEMPORARY HACK for (decidable_eq type) -/
 
 instance : has_coe string fnid :=

@@ -73,13 +73,14 @@ end option
 instance (α : Type u) : inhabited (option α) :=
 ⟨none⟩
 
-instance {α : Type u} [d : decidable_eq α] : decidable_eq (option α)
-| none      none      := is_true rfl
-| none      (some v₂) := is_false (λ h, option.no_confusion h)
-| (some v₁) none      := is_false (λ h, option.no_confusion h)
-| (some v₁) (some v₂) :=
-  match (d v₁ v₂) with
-  | (is_true e)  := is_true (congr_arg (@some α) e)
-  | (is_false n) := is_false (λ h, option.no_confusion h (λ e, absurd e n))
+instance {α : Type u} [decidable_eq α] : decidable_eq (option α) :=
+{dec_eq := λ a b, match a, b with
+ | none,      none      := is_true rfl
+ | none,      (some v₂) := is_false (λ h, option.no_confusion h)
+ | (some v₁), none      := is_false (λ h, option.no_confusion h)
+ | (some v₁), (some v₂) :=
+   match dec_eq v₁ v₂ with
+   | (is_true e)  := is_true (congr_arg (@some α) e)
+   | (is_false n) := is_false (λ h, option.no_confusion h (λ e, absurd e n))}
 
 instance {α : Type u} [has_lt α] : has_lt (option α) := ⟨option.lt (<)⟩

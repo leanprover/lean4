@@ -22,9 +22,9 @@ inductive color
 open color nat
 
 instance color.decidable_eq : decidable_eq color :=
-λ a b, color.cases_on a
+{dec_eq := λ a b, color.cases_on a
   (color.cases_on b (is_true rfl) (is_false (λ h, color.no_confusion h)))
-  (color.cases_on b (is_false (λ h, color.no_confusion h)) (is_true rfl))
+  (color.cases_on b (is_false (λ h, color.no_confusion h)) (is_true rfl))}
 
 def depth (f : nat → nat → nat) : rbnode α → nat
 | leaf               := 0

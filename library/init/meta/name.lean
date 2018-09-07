@@ -30,7 +30,7 @@ protected meta def name.lt (a b : name) : Prop :=
 name.cmp a b = ordering.lt
 
 meta instance : decidable_rel name.lt :=
-λ a b, ordering.decidable_eq _ _
+λ a b, dec_eq (name.cmp a b) ordering.lt
 
 meta instance : has_lt name :=
 ⟨name.lt⟩

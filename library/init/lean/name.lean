@@ -51,17 +51,17 @@ def update_prefix : name → name → name
 | (mk_string p s)  new_p := mk_string new_p s
 | (mk_numeral p s) new_p := mk_numeral new_p s
 
-instance has_decidable_eq : decidable_eq name
+protected def has_dec_eq : Π a b : name, decidable (a = b)
 | anonymous          anonymous          := is_true rfl
 | (mk_string p₁ s₁)  (mk_string p₂ s₂)  :=
   if h₁ : s₁ = s₂ then
-    match has_decidable_eq p₁ p₂ with
+    match has_dec_eq p₁ p₂ with
     | is_true h₂  := is_true $ h₁ ▸ h₂ ▸ rfl
     | is_false h₂ := is_false $ λ h, name.no_confusion h $ λ hp hs, absurd hp h₂
   else is_false $ λ h, name.no_confusion h $ λ hp hs, absurd hs h₁
 | (mk_numeral p₁ n₁) (mk_numeral p₂ n₂) :=
   if h₁ : n₁ = n₂ then
-    match has_decidable_eq p₁ p₂ with
+    match has_dec_eq p₁ p₂ with
     | is_true h₂  := is_true $ h₁ ▸ h₂ ▸ rfl
     | is_false h₂ := is_false $ λ h, name.no_confusion h $ λ hp hs, absurd hp h₂
   else is_false $ λ h, name.no_confusion h $ λ hp hs, absurd hs h₁
@@ -71,6 +71,9 @@ instance has_decidable_eq : decidable_eq name
 | (mk_string _ _)    (mk_numeral _ _)   := is_false $ λ h, name.no_confusion h
 | (mk_numeral _ _)   anonymous          := is_false $ λ h, name.no_confusion h
 | (mk_numeral _ _)   (mk_string _ _)    := is_false $ λ h, name.no_confusion h
+
+instance : decidable_eq name :=
+{dec_eq := name.has_dec_eq}
 
 def replace_prefix : name → name → name → name
 | anonymous anonymous new_p := new_p

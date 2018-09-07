@@ -40,7 +40,7 @@ def cmp {α : Type u} [has_lt α] [decidable_rel ((<) : α → α → Prop)] (a 
 cmp_using (<) a b
 
 instance : decidable_eq ordering :=
-λ a b,
+{dec_eq := λ a b,
   match a with
   | ordering.lt :=
     (match b with
@@ -56,4 +56,4 @@ instance : decidable_eq ordering :=
     match b with
     | ordering.lt := is_false (λ h, ordering.no_confusion h)
     | ordering.eq := is_false (λ h, ordering.no_confusion h)
-    | ordering.gt := is_true rfl
+    | ordering.gt := is_true rfl}

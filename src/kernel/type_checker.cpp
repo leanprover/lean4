@@ -341,7 +341,7 @@ optional<expr> type_checker::reduce_proj(expr const & e) {
     if (!mk_info.is_constructor())
         return none_expr();
     unsigned nparams = mk_info.to_constructor_val().get_nparams();
-   if (nparams + idx < args.size())
+    if (nparams + idx < args.size())
         return some_expr(args[nparams + idx]);
     else
         return none_expr();

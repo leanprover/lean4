@@ -37,13 +37,13 @@
 (require 'lean-input)
 (require 'lean-syntax)
 (require 'lean-leanpkg)
-(require 'lean-server)
+;(require 'lean-server)
 (require 'lean-flycheck)
-(require 'lean-info)
-(require 'lean-hole)
-(require 'lean-type)
-(require 'lean-message-boxes)
-(require 'lean-right-click)
+;(require 'lean-info)
+;(require 'lean-hole)
+;(require 'lean-type)
+;(require 'lean-message-boxes)
+;(require 'lean-right-click)
 (require 'lean-dev)
 
 (defun lean-compile-string (exe-name args file-name)
@@ -95,8 +95,6 @@
   (local-set-key lean-keybinding-std-exe1                  #'lean-std-exe)
   (local-set-key lean-keybinding-std-exe2                  #'lean-std-exe)
   (local-set-key lean-keybinding-show-key                  #'quail-show-key)
-  (local-set-key lean-keybinding-server-restart            #'lean-server-restart)
-  (local-set-key lean-keybinding-server-switch-version     #'lean-server-switch-version)
   (local-set-key lean-keybinding-find-definition           #'lean-find-definition)
   (local-set-key lean-keybinding-tab-indent                #'lean-tab-indent)
   (local-set-key lean-keybinding-hole                      #'lean-hole)
@@ -155,15 +153,15 @@
   '(
     ;; server
     ;; (kill-buffer-hook                    . lean-server-stop)
-    (after-change-functions              . lean-server-change-hook)
-    (focus-in-hook                       . lean-server-show-messages)
-    (window-scroll-functions             . lean-server-window-scroll-function-hook)
+    ;; (after-change-functions              . lean-server-change-hook)
+    ;; (focus-in-hook                       . lean-server-show-messages)
+    ;; (window-scroll-functions             . lean-server-window-scroll-function-hook)
     ;; Handle events that may start automatic syntax checks
     (before-save-hook                    . lean-whitespace-cleanup)
     ;; info windows
-    (post-command-hook                   . lean-show-goal--handler)
+    ;; (post-command-hook                   . lean-show-goal--handler)
     (post-command-hook                   . lean-next-error--handler)
-    (flycheck-after-syntax-check-hook    . lean-show-goal--handler)
+    ;; (flycheck-after-syntax-check-hook    . lean-show-goal--handler)
     (flycheck-after-syntax-check-hook    . lean-next-error--handler)
     )
   "Hooks which lean-mode needs to hook in.
@@ -175,22 +173,23 @@ enabled and disabled respectively.")
 (defun lean-mode-setup ()
   "Default lean-mode setup"
   ;; server
-  (ignore-errors (lean-server-ensure-alive))
-  (setq mode-name '("Lean" (:eval (lean-server-status-string))))
+  ;;(ignore-errors (lean-server-ensure-alive))
+  ;;(setq mode-name '("Lean" (:eval (lean-server-status-string))))
   ;; Right click menu sources
-  (setq lean-right-click-item-functions '(lean-info-right-click-find-definition
-                                          lean-hole-right-click))
+  ;;(setq lean-right-click-item-functions '(lean-info-right-click-find-definition
+  ;;                                        lean-hole-right-click))
   ;; Flycheck
   (lean-flycheck-turn-on)
   (setq-local flycheck-disabled-checkers '())
   ;; info buffers
   (lean-ensure-info-buffer lean-next-error-buffer-name)
-  (lean-ensure-info-buffer lean-show-goal-buffer-name)
+  ;(lean-ensure-info-buffer lean-show-goal-buffer-name)
   ;; eldoc
-  (when lean-eldoc-use
-    (set (make-local-variable 'eldoc-documentation-function)
-         'lean-eldoc-documentation-function)
-    (eldoc-mode t)))
+  ;;(when lean-eldoc-use
+  ;;  (set (make-local-variable 'eldoc-documentation-function)
+  ;;       'lean-eldoc-documentation-function)
+  ;;  (eldoc-mode t))
+  )
 
 ;; Automode List
 ;;;###autoload

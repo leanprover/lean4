@@ -8,8 +8,8 @@
 (require 'cl-lib)
 (require 'flycheck)
 (require 'lean-settings)
-(require 'lean-server)
 (require 'lean-info)
+(require 'lean-debug)
 
 (defun lean-toggle-flycheck-mode ()
   "Toggle flycheck-mode"
@@ -17,6 +17,16 @@
   (cond
    (flycheck-mode (flycheck-mode -1))
    (t             (flycheck-mode  1))))
+
+(defun lean-flycheck-command ()
+  "Concat lean-flychecker-checker-name with options"
+  (let ((command
+         (-concat `(,(lean-get-executable lean-executable-name))
+                  lean-extra-arguments
+                  '("--json")
+                  '("--")
+                  '(source-inplace))))
+    command))
 
 (cl-defun lean-flycheck-parse-task (checker buffer cur-file-name
                                             &key pos_line pos_col desc file_name &allow-other-keys)
@@ -70,6 +80,15 @@
                          :filename file_name
                          :checker checker :buffer buffer))
 
+(defun lean-flycheck-parse-errors (output checker buffer)
+  (mapcar (lambda (line)
+            (lean-debug "server=> %s" line)
+            (let* ((json-array-type 'list)
+                   (json-object-type 'plist)
+                   (json-false nil))
+              (apply #'lean-flycheck-parse-error checker buffer (json-read-from-string line))))
+   (split-string output "\n" t)))
+
 (defun lean-flycheck-start (checker callback)
   (let ((cur-fn (buffer-file-name))
         (buffer (current-buffer)))
@@ -83,9 +102,10 @@
 
 (defun lean-flycheck-init ()
   "Initialize lean-flychek checker"
-  (flycheck-define-generic-checker 'lean-checker
+  (flycheck-define-command-checker 'lean-checker
     "A Lean syntax checker."
-    :start #'lean-flycheck-start
+    :command (lean-flycheck-command)
+    :error-parser #'lean-flycheck-parse-errors
     :modes '(lean-mode))
   (add-to-list 'flycheck-checkers 'lean-checker))
 

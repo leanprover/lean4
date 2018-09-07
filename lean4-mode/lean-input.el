@@ -1,4 +1,4 @@
-;;; lean-input.el --- The Lean input method (based/copied from Agda)
+;;; lean4-input.el --- The Lean input method (based/copied from Agda)
 ;;;
 ;;; DISCLAIMER: This file is based on agda-input.el provided with the Agda language.
 ;;; We did minor modifications
@@ -9,13 +9,13 @@
 ;; Quail input methods. By default the input method is geared towards
 ;; the input of mathematical and other symbols in Lean programs.
 ;;
-;; Use M-x customize-group lean-input to customise this input method.
+;; Use M-x customize-group lean4-input to customise this input method.
 ;; Note that the functions defined under "Functions used to tweak
 ;; translation pairs" below can be used to tweak both the key
 ;; translations inherited from other input methods as well as the
 ;; ones added specifically for this one.
 ;;
-;; Use lean-input-show-translations to see all the characters which
+;; Use lean4-input-show-translations to see all the characters which
 ;; can be typed using this input method (except for those
 ;; corresponding to ASCII characters).
 
@@ -32,20 +32,20 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Utility functions
 
-(defun lean-input-concat-map (f xs)
+(defun lean4-input-concat-map (f xs)
   "Concat (map F XS)."
   (apply 'append (mapcar f xs)))
 
-(defun lean-input-to-string-list (s)
+(defun lean4-input-to-string-list (s)
   "Convert a string S to a list of one-character strings, after
 removing all space and newline characters."
-  (lean-input-concat-map
+  (lean4-input-concat-map
    (lambda (c) (if (member c (string-to-list " \n"))
               nil
             (list (string c))))
    (string-to-list s)))
 
-(defun lean-input-character-range (from to)
+(defun lean4-input-character-range (from to)
   "A string consisting of the characters from FROM to TO."
   (let (seq)
     (dotimes (i (1+ (- to from)))
@@ -57,33 +57,33 @@ removing all space and newline characters."
 
 ;; lexical-let is used since Elisp lacks lexical scoping.
 
-(defun lean-input-compose (f g)
+(defun lean4-input-compose (f g)
   "\x -> concatMap F (G x)"
   (lexical-let ((f1 f) (g1 g))
-    (lambda (x) (lean-input-concat-map f1 (funcall g1 x)))))
+    (lambda (x) (lean4-input-concat-map f1 (funcall g1 x)))))
 
-(defun lean-input-or (f g)
+(defun lean4-input-or (f g)
   "\x -> F x ++ G x"
   (lexical-let ((f1 f) (g1 g))
     (lambda (x) (append (funcall f1 x) (funcall g1 x)))))
 
-(defun lean-input-nonempty ()
+(defun lean4-input-nonempty ()
   "Only keep pairs with a non-empty first component."
   (lambda (x) (if (> (length (car x)) 0) (list x))))
 
-(defun lean-input-prepend (prefix)
+(defun lean4-input-prepend (prefix)
   "Prepend PREFIX to all key sequences."
   (lexical-let ((prefix1 prefix))
     (lambda (x) `((,(concat prefix1 (car x)) . ,(cdr x))))))
 
-(defun lean-input-prefix (prefix)
+(defun lean4-input-prefix (prefix)
   "Only keep pairs whose key sequence starts with PREFIX."
   (lexical-let ((prefix1 prefix))
     (lambda (x)
       (if (equal (substring (car x) 0 (length prefix1)) prefix1)
           (list x)))))
 
-(defun lean-input-suffix (suffix)
+(defun lean4-input-suffix (suffix)
   "Only keep pairs whose key sequence ends with SUFFIX."
   (lexical-let ((suffix1 suffix))
     (lambda (x)
@@ -92,60 +92,60 @@ removing all space and newline characters."
                  suffix1)
           (list x)))))
 
-(defun lean-input-drop (ss)
+(defun lean4-input-drop (ss)
   "Drop pairs matching one of the given key sequences.
 SS should be a list of strings."
   (lexical-let ((ss1 ss))
     (lambda (x) (unless (member (car x) ss1) (list x)))))
 
-(defun lean-input-drop-beginning (n)
+(defun lean4-input-drop-beginning (n)
   "Drop N characters from the beginning of each key sequence."
   (lexical-let ((n1 n))
     (lambda (x) `((,(substring (car x) n1) . ,(cdr x))))))
 
-(defun lean-input-drop-end (n)
+(defun lean4-input-drop-end (n)
   "Drop N characters from the end of each key sequence."
   (lexical-let ((n1 n))
     (lambda (x)
       `((,(substring (car x) 0 (- (length (car x)) n1)) .
          ,(cdr x))))))
 
-(defun lean-input-drop-prefix (prefix)
+(defun lean4-input-drop-prefix (prefix)
   "Only keep pairs whose key sequence starts with PREFIX.
 This prefix is dropped."
-  (lean-input-compose
-   (lean-input-drop-beginning (length prefix))
-   (lean-input-prefix prefix)))
+  (lean4-input-compose
+   (lean4-input-drop-beginning (length prefix))
+   (lean4-input-prefix prefix)))
 
-(defun lean-input-drop-suffix (suffix)
+(defun lean4-input-drop-suffix (suffix)
   "Only keep pairs whose key sequence ends with SUFFIX.
 This suffix is dropped."
   (lexical-let ((suffix1 suffix))
-    (lean-input-compose
-     (lean-input-drop-end (length suffix1))
-     (lean-input-suffix suffix1))))
+    (lean4-input-compose
+     (lean4-input-drop-end (length suffix1))
+     (lean4-input-suffix suffix1))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Customization
 
-;; The :set keyword is set to 'lean-input-incorporate-changed-setting
+;; The :set keyword is set to 'lean4-input-incorporate-changed-setting
 ;; so that the input method gets updated immediately when users
 ;; customize it. However, the setup functions cannot be run before all
 ;; variables have been defined. Hence the :initialize keyword is set to
 ;; 'custom-initialize-default to ensure that the setup is not performed
-;; until lean-input-setup is called at the end of this file.
+;; until lean4-input-setup is called at the end of this file.
 
-(defgroup lean-input nil
+(defgroup lean4-input nil
   "The Lean input method.
 After tweaking these settings you may want to inspect the resulting
-translations using `lean-input-show-translations'."
+translations using `lean4-input-show-translations'."
   :group 'lean
   :group 'leim)
 
-(defcustom lean-input-tweak-all
-  '(lean-input-compose
-    (lean-input-prepend "\\")
-    (lean-input-nonempty))
+(defcustom lean4-input-tweak-all
+  '(lean4-input-compose
+    (lean4-input-prepend "\\")
+    (lean4-input-nonempty))
   "An expression yielding a function which can be used to tweak
 all translations before they are included in the input method.
 The resulting function (if non-nil) is applied to every
@@ -154,23 +154,23 @@ pairs. (Note that the translations can be anything accepted by
 `quail-defrule'.)
 
 If you change this setting manually (without using the
-customization buffer) you need to call `lean-input-setup' in
+customization buffer) you need to call `lean4-input-setup' in
 order for the change to take effect."
-  :group 'lean-input
-  :set 'lean-input-incorporate-changed-setting
+  :group 'lean4-input
+  :set 'lean4-input-incorporate-changed-setting
   :initialize 'custom-initialize-default
   :type 'sexp)
 
-(defcustom lean-input-inherit
-  `(("TeX" . (lean-input-compose
-              (lean-input-drop '("geq" "leq" "bullet" "qed" "par"))
-              (lean-input-or
-               (lean-input-drop-prefix "\\")
-               (lean-input-or
-                (lean-input-compose
-                 (lean-input-drop '("^o"))
-                 (lean-input-prefix "^"))
-                (lean-input-prefix "_")))))
+(defcustom lean4-input-inherit
+  `(("TeX" . (lean4-input-compose
+              (lean4-input-drop '("geq" "leq" "bullet" "qed" "par"))
+              (lean4-input-or
+               (lean4-input-drop-prefix "\\")
+               (lean4-input-or
+                (lean4-input-compose
+                 (lean4-input-drop '("^o"))
+                 (lean4-input-prefix "^"))
+                (lean4-input-prefix "_")))))
     )
   "A list of Quail input methods whose translations should be
 inherited by the Lean input method (with the exception of
@@ -178,22 +178,22 @@ translations corresponding to ASCII characters).
 
 The list consists of pairs (qp . tweak), where qp is the name of
 a Quail package, and tweak is an expression of the same kind as
-`lean-input-tweak-all' which is used to tweak the translation
+`lean4-input-tweak-all' which is used to tweak the translation
 pairs of the input method.
 
 The inherited translation pairs are added last, after
-`lean-input-user-translations' and `lean-input-translations'.
+`lean4-input-user-translations' and `lean4-input-translations'.
 
 If you change this setting manually (without using the
-customization buffer) you need to call `lean-input-setup' in
+customization buffer) you need to call `lean4-input-setup' in
 order for the change to take effect."
-  :group 'lean-input
-  :set 'lean-input-incorporate-changed-setting
+  :group 'lean4-input
+  :set 'lean4-input-incorporate-changed-setting
   :initialize 'custom-initialize-default
   :type '(repeat (cons (string :tag "Quail package")
                        (sexp :tag "Tweaking function"))))
 
-(defcustom lean-input-translations
+(defcustom lean4-input-translations
   (let ((max-lisp-eval-depth 2800)) `(
 
   ;; Negation
@@ -202,10 +202,10 @@ order for the change to take effect."
 
   ;; Equality and similar symbols.
 
-  ("eq"  . ,(lean-input-to-string-list "=∼∽≈≋∻∾∿≀≃⋍≂≅ ≌≊≡≣≐≑≒≓≔≕≖≗≘≙≚≛≜≝≞≟≍≎≏≬⋕"))
-  ("eqn" . ,(lean-input-to-string-list "≠≁ ≉     ≄  ≇≆  ≢                 ≭    "))
-  ("equiv" . ,(lean-input-to-string-list "≃⋍"))
-  ("iso" . ,(lean-input-to-string-list "≅≌"))
+  ("eq"  . ,(lean4-input-to-string-list "=∼∽≈≋∻∾∿≀≃⋍≂≅ ≌≊≡≣≐≑≒≓≔≕≖≗≘≙≚≛≜≝≞≟≍≎≏≬⋕"))
+  ("eqn" . ,(lean4-input-to-string-list "≠≁ ≉     ≄  ≇≆  ≢                 ≭    "))
+  ("equiv" . ,(lean4-input-to-string-list "≃⋍"))
+  ("iso" . ,(lean4-input-to-string-list "≅≌"))
 
                     ("=n"  . ("≠"))
   ("~"    . ("∼"))  ("~n"  . ("≁")) ("homotopy"    . ("∼"))
@@ -244,10 +244,10 @@ order for the change to take effect."
 
   ;; Inequality and similar symbols.
 
-  ("leq"  . ,(lean-input-to-string-list "≤≦≲<≪⋘ ≶≺≼≾⊂⊆ ⋐⊏⊑ ⊰⊲⊴⋖⋚⋜⋞"))
-  ("leqn" . ,(lean-input-to-string-list "≰≨≮≴⋦   ≸⊀ ⋨⊄⊈⊊  ⋢⋤ ⋪⋬   ⋠"))
-  ("geq"  . ,(lean-input-to-string-list "≥≧≳>≫⋙ ≷≻≽≿⊃⊇ ⋑⊐⊒ ⊱⊳⊵⋗⋛⋝⋟"))
-  ("geqn" . ,(lean-input-to-string-list "≱≩≯≵⋧ ≹  ⊁ ⋩⊅⊉⊋  ⋣⋥ ⋫⋭   ⋡"))
+  ("leq"  . ,(lean4-input-to-string-list "≤≦≲<≪⋘ ≶≺≼≾⊂⊆ ⋐⊏⊑ ⊰⊲⊴⋖⋚⋜⋞"))
+  ("leqn" . ,(lean4-input-to-string-list "≰≨≮≴⋦   ≸⊀ ⋨⊄⊈⊊  ⋢⋤ ⋪⋬   ⋠"))
+  ("geq"  . ,(lean4-input-to-string-list "≥≧≳>≫⋙ ≷≻≽≿⊃⊇ ⋑⊐⊒ ⊱⊳⊵⋗⋛⋝⋟"))
+  ("geqn" . ,(lean4-input-to-string-list "≱≩≯≵⋧ ≹  ⊁ ⋩⊅⊉⊋  ⋣⋥ ⋫⋭   ⋡"))
 
   ("<="   . ("≤"))  (">="   . ("≥"))
   ("<=n"  . ("≰"))  (">=n"  . ("≱"))
@@ -267,7 +267,7 @@ order for the change to take effect."
 
   ;; Set membership etc.
 
-  ("member" . ,(lean-input-to-string-list "∈∉∊∋∌∍⋲⋳⋴⋵⋶⋷⋸⋹⋺⋻⋼⋽⋾⋿"))
+  ("member" . ,(lean4-input-to-string-list "∈∉∊∋∌∍⋲⋳⋴⋵⋶⋷⋸⋹⋺⋻⋼⋽⋾⋿"))
   ("mem" . ("∈"))
 
   ("inn" . ("∉"))
@@ -281,8 +281,8 @@ order for the change to take effect."
 
   ;; Intersections, unions etc.
 
-  ("intersection" . ,(lean-input-to-string-list "∩⋂∧⋀⋏⨇⊓⨅⋒∏ ⊼      ⨉"))
-  ("union"        . ,(lean-input-to-string-list "∪⋃∨⋁⋎⨈⊔⨆⋓∐⨿⊽⊻⊍⨃⊎⨄⊌∑⅀"))
+  ("intersection" . ,(lean4-input-to-string-list "∩⋂∧⋀⋏⨇⊓⨅⋒∏ ⊼      ⨉"))
+  ("union"        . ,(lean4-input-to-string-list "∪⋃∨⋁⋎⨈⊔⨆⋓∐⨿⊽⊻⊍⨃⊎⨄⊌∑⅀"))
 
   ("and" . ("∧"))  ("or"  . ("∨"))
   ("And" . ("⋀"))  ("Or"  . ("⋁"))
@@ -293,7 +293,7 @@ order for the change to take effect."
 
   ;; Entailment etc.
 
-  ("entails" . ,(lean-input-to-string-list "⊢⊣⊤⊥⊦⊧⊨⊩⊪⊫⊬⊭⊮⊯"))
+  ("entails" . ,(lean4-input-to-string-list "⊢⊣⊤⊥⊦⊧⊨⊩⊪⊫⊬⊭⊮⊯"))
 
   ("|-"   . ("⊢"))  ("|-n"  . ("⊬"))
   ("-|"   . ("⊣"))
@@ -319,9 +319,9 @@ order for the change to take effect."
 
   ;; Corners, ceilings and floors.
 
-  ("c"  . ,(lean-input-to-string-list "⌜⌝⌞⌟⌈⌉⌊⌋"))
-  ("cu" . ,(lean-input-to-string-list "⌜⌝  ⌈⌉  "))
-  ("cl" . ,(lean-input-to-string-list "  ⌞⌟  ⌊⌋"))
+  ("c"  . ,(lean4-input-to-string-list "⌜⌝⌞⌟⌈⌉⌊⌋"))
+  ("cu" . ,(lean4-input-to-string-list "⌜⌝  ⌈⌉  "))
+  ("cl" . ,(lean4-input-to-string-list "  ⌞⌟  ⌊⌋"))
 
   ("cul" . ("⌜"))  ("cuL" . ("⌈"))
   ("cur" . ("⌝"))  ("cuR" . ("⌉"))
@@ -329,8 +329,8 @@ order for the change to take effect."
   ("clr" . ("⌟"))  ("clR" . ("⌋"))
 
   ;; Various operators/symbols.
-  ("tr"        . ,(lean-input-to-string-list "⬝▹"))
-  ("trans"     . ,(lean-input-to-string-list "▹⬝"))
+  ("tr"        . ,(lean4-input-to-string-list "⬝▹"))
+  ("trans"     . ,(lean4-input-to-string-list "▹⬝"))
   ("transport" . ("▹"))
   ("con"       . ("⬝"))
   ("cdot"      . ("⬝"))
@@ -400,22 +400,22 @@ order for the change to take effect."
 
   ;; Various symbols.
 
-  ("integral" . ,(lean-input-to-string-list "∫∬∭∮∯∰∱∲∳"))
-  ("angle"    . ,(lean-input-to-string-list "∟∡∢⊾⊿"))
-  ("join"     . ,(lean-input-to-string-list "⋈⋉⋊⋋⋌⨝⟕⟖⟗"))
+  ("integral" . ,(lean4-input-to-string-list "∫∬∭∮∯∰∱∲∳"))
+  ("angle"    . ,(lean4-input-to-string-list "∟∡∢⊾⊿"))
+  ("join"     . ,(lean4-input-to-string-list "⋈⋉⋊⋋⋌⨝⟕⟖⟗"))
 
   ;; Arrows.
   ("iff" . ("↔")) ("imp"  . ("→"))
-  ("l"  . ,(lean-input-to-string-list "←⇐⇚⇇⇆↤⇦↞↼↽⇠⇺↜⇽⟵⟸↚⇍⇷ ↹     ↢↩↫⇋⇜⇤⟻⟽⤆↶↺⟲                                     "))
-  ("r"  . ,(lean-input-to-string-list "→⇒⇛⇉⇄↦⇨↠⇀⇁⇢⇻↝⇾⟶⟹↛⇏⇸⇶ ↴    ↣↪↬⇌⇝⇥⟼⟾⤇↷↻⟳⇰⇴⟴⟿ ➵➸➙➔➛➜➝➞➟➠➡➢➣➤➧➨➩➪➫➬➭➮➯➱➲➳➺➻➼➽➾⊸"))
-  ("u"  . ,(lean-input-to-string-list "↑⇑⟰⇈⇅↥⇧↟↿↾⇡⇞          ↰↱➦ ⇪⇫⇬⇭⇮⇯                                           "))
-  ("d"  . ,(lean-input-to-string-list "↓⇓⟱⇊⇵↧⇩↡⇃⇂⇣⇟         ↵↲↳➥ ↯                                                "))
-  ("ud" . ,(lean-input-to-string-list "↕⇕   ↨⇳                                                                    "))
-  ("lr" . ,(lean-input-to-string-list "↔⇔         ⇼↭⇿⟷⟺↮⇎⇹                                                        "))
-  ("ul" . ,(lean-input-to-string-list "↖⇖                        ⇱↸                                               "))
-  ("ur" . ,(lean-input-to-string-list "↗⇗                                         ➶➹➚                             "))
-  ("dr" . ,(lean-input-to-string-list "↘⇘                        ⇲                ➴➷➘                             "))
-  ("dl" . ,(lean-input-to-string-list "↙⇙                                                                         "))
+  ("l"  . ,(lean4-input-to-string-list "←⇐⇚⇇⇆↤⇦↞↼↽⇠⇺↜⇽⟵⟸↚⇍⇷ ↹     ↢↩↫⇋⇜⇤⟻⟽⤆↶↺⟲                                     "))
+  ("r"  . ,(lean4-input-to-string-list "→⇒⇛⇉⇄↦⇨↠⇀⇁⇢⇻↝⇾⟶⟹↛⇏⇸⇶ ↴    ↣↪↬⇌⇝⇥⟼⟾⤇↷↻⟳⇰⇴⟴⟿ ➵➸➙➔➛➜➝➞➟➠➡➢➣➤➧➨➩➪➫➬➭➮➯➱➲➳➺➻➼➽➾⊸"))
+  ("u"  . ,(lean4-input-to-string-list "↑⇑⟰⇈⇅↥⇧↟↿↾⇡⇞          ↰↱➦ ⇪⇫⇬⇭⇮⇯                                           "))
+  ("d"  . ,(lean4-input-to-string-list "↓⇓⟱⇊⇵↧⇩↡⇃⇂⇣⇟         ↵↲↳➥ ↯                                                "))
+  ("ud" . ,(lean4-input-to-string-list "↕⇕   ↨⇳                                                                    "))
+  ("lr" . ,(lean4-input-to-string-list "↔⇔         ⇼↭⇿⟷⟺↮⇎⇹                                                        "))
+  ("ul" . ,(lean4-input-to-string-list "↖⇖                        ⇱↸                                               "))
+  ("ur" . ,(lean4-input-to-string-list "↗⇗                                         ➶➹➚                             "))
+  ("dr" . ,(lean4-input-to-string-list "↘⇘                        ⇲                ➴➷➘                             "))
+  ("dl" . ,(lean4-input-to-string-list "↙⇙                                                                         "))
   ("==>" . ("⟹")) ("nattrans" . ("⟹")) ("nat_trans" . ("⟹"))
 
   ("l-"  . ("←"))  ("<-"  . ("←"))  ("l="  . ("⇐"))
@@ -457,61 +457,61 @@ order for the change to take effect."
 
   ;; Ellipsis.
 
-  ("..." . ,(lean-input-to-string-list "⋯⋮⋰⋱"))
+  ("..." . ,(lean4-input-to-string-list "⋯⋮⋰⋱"))
 
   ;; Box-drawing characters.
 
-  ("---" . ,(lean-input-to-string-list "─│┌┐└┘├┤┬┼┴╴╵╶╷╭╮╯╰╱╲╳"))
-  ("--=" . ,(lean-input-to-string-list "═║╔╗╚╝╠╣╦╬╩     ╒╕╘╛╞╡╤╪╧ ╓╖╙╜╟╢╥╫╨"))
-  ("--_" . ,(lean-input-to-string-list "━┃┏┓┗┛┣┫┳╋┻╸╹╺╻
+  ("---" . ,(lean4-input-to-string-list "─│┌┐└┘├┤┬┼┴╴╵╶╷╭╮╯╰╱╲╳"))
+  ("--=" . ,(lean4-input-to-string-list "═║╔╗╚╝╠╣╦╬╩     ╒╕╘╛╞╡╤╪╧ ╓╖╙╜╟╢╥╫╨"))
+  ("--_" . ,(lean4-input-to-string-list "━┃┏┓┗┛┣┫┳╋┻╸╹╺╻
                                         ┍┯┑┕┷┙┝┿┥┎┰┒┖┸┚┠╂┨┞╀┦┟╁┧┢╈┪┡╇┩
                                         ┮┭┶┵┾┽┲┱┺┹╊╉╆╅╄╃ ╿╽╼╾"))
-  ("--." . ,(lean-input-to-string-list "╌╎┄┆┈┊
+  ("--." . ,(lean4-input-to-string-list "╌╎┄┆┈┊
                                         ╍╏┅┇┉┋"))
 
   ;; Triangles.
 
   ;; Big/small, black/white.
 
-  ("t"     . ,(lean-input-to-string-list "▸▹►▻◂◃◄◅▴▵▾▿◢◿◣◺◤◸◥◹"))
-  ("Tr"    . ,(lean-input-to-string-list "◀◁▶▷▲△▼▽◬◭◮"))
+  ("t"     . ,(lean4-input-to-string-list "▸▹►▻◂◃◄◅▴▵▾▿◢◿◣◺◤◸◥◹"))
+  ("Tr"    . ,(lean4-input-to-string-list "◀◁▶▷▲△▼▽◬◭◮"))
 
-  ("tb" . ,(lean-input-to-string-list "◂▸▴▾◄►◢◣◤◥"))
-  ("tw" . ,(lean-input-to-string-list "◃▹▵▿◅▻◿◺◸◹"))
+  ("tb" . ,(lean4-input-to-string-list "◂▸▴▾◄►◢◣◤◥"))
+  ("tw" . ,(lean4-input-to-string-list "◃▹▵▿◅▻◿◺◸◹"))
 
-  ("Tb" . ,(lean-input-to-string-list "◀▶▲▼"))
-  ("Tw" . ,(lean-input-to-string-list "◁▷△▽"))
+  ("Tb" . ,(lean4-input-to-string-list "◀▶▲▼"))
+  ("Tw" . ,(lean4-input-to-string-list "◁▷△▽"))
 
   ;; Squares.
 
-  ("sq"  . ,(lean-input-to-string-list "◾◽■□◼◻▣▢▤▥▦▧▨▩◧◨◩◪◫◰◱◲◳"))
-  ("sqb" . ,(lean-input-to-string-list "■◼◾"))
-  ("sqw" . ,(lean-input-to-string-list "□◻◽"))
+  ("sq"  . ,(lean4-input-to-string-list "◾◽■□◼◻▣▢▤▥▦▧▨▩◧◨◩◪◫◰◱◲◳"))
+  ("sqb" . ,(lean4-input-to-string-list "■◼◾"))
+  ("sqw" . ,(lean4-input-to-string-list "□◻◽"))
   ("sq." . ("▣"))
   ("sqo" . ("▢"))
 
   ;; Rectangles.
 
-  ("re"  . ,(lean-input-to-string-list "▬▭▮▯"))
-  ("reb" . ,(lean-input-to-string-list "▬▮"))
-  ("rew" . ,(lean-input-to-string-list "▭▯"))
+  ("re"  . ,(lean4-input-to-string-list "▬▭▮▯"))
+  ("reb" . ,(lean4-input-to-string-list "▬▮"))
+  ("rew" . ,(lean4-input-to-string-list "▭▯"))
 
   ;; Parallelograms.
 
-  ("pa"  . ,(lean-input-to-string-list "▰▱"))
+  ("pa"  . ,(lean4-input-to-string-list "▰▱"))
   ("pab" . ("▰"))
   ("paw" . ("▱"))
 
   ;; Diamonds.
 
-  ("di"  . ,(lean-input-to-string-list "◆◇◈"))
+  ("di"  . ,(lean4-input-to-string-list "◆◇◈"))
   ("dib" . ("◆"))
   ("diw" . ("◇"))
   ("di." . ("◈"))
 
   ;; Circles.
 
-  ("ci"   . ,(lean-input-to-string-list "●○◎◌◯◍◐◑◒◓◔◕◖◗◠◡◴◵◶◷⚆⚇⚈⚉"))
+  ("ci"   . ,(lean4-input-to-string-list "●○◎◌◯◍◐◑◒◓◔◕◖◗◠◡◴◵◶◷⚆⚇⚈⚉"))
   ("cib"  . ("●"))
   ("ciw"  . ("○"))
   ("ci."  . ("◎"))
@@ -520,8 +520,8 @@ order for the change to take effect."
 
   ;; Stars.
 
-  ("st"   . ,(lean-input-to-string-list "⋆✦✧✶✴✹ ★☆✪✫✯✰✵✷✸"))
-  ("st4"  . ,(lean-input-to-string-list "✦✧"))
+  ("st"   . ,(lean4-input-to-string-list "⋆✦✧✶✴✹ ★☆✪✫✯✰✵✷✸"))
+  ("st4"  . ,(lean4-input-to-string-list "✦✧"))
   ("st6"  . ("✶"))
   ("st8"  . ("✴"))
   ("st12" . ("✹"))
@@ -552,8 +552,8 @@ order for the change to take effect."
 
   ;; Parentheses.
 
-  ("(" . ,(lean-input-to-string-list "([{⁅⁽₍〈⎴⟅⟦⟨⟪⦃〈《‹«「『【〔〖〚︵︷︹︻︽︿﹁﹃﹙﹛﹝（［｛｢"))
-  (")" . ,(lean-input-to-string-list ")]}⁆⁾₎〉⎵⟆⟧⟩⟫⦄〉》›»」』】〕〗〛︶︸︺︼︾﹀﹂﹄﹚﹜﹞）］｝｣"))
+  ("(" . ,(lean4-input-to-string-list "([{⁅⁽₍〈⎴⟅⟦⟨⟪⦃〈《‹«「『【〔〖〚︵︷︹︻︽︿﹁﹃﹙﹛﹝（［｛｢"))
+  (")" . ,(lean4-input-to-string-list ")]}⁆⁾₎〉⎵⟆⟧⟩⟫⦄〉》›»」』】〕〗〛︶︸︺︼︾﹀﹂﹄﹚﹜﹞）］｝｣"))
 
   ("[[" . ("⟦"))
   ("]]" . ("⟧"))
@@ -583,16 +583,16 @@ order for the change to take effect."
 
   ;; Primes.
 
-  ("'" . ,(lean-input-to-string-list "′″‴⁗"))
-  ("`" . ,(lean-input-to-string-list "‵‶‷"))
+  ("'" . ,(lean4-input-to-string-list "′″‴⁗"))
+  ("`" . ,(lean4-input-to-string-list "‵‶‷"))
 
   ;; Fractions.
 
-  ("frac" . ,(lean-input-to-string-list "¼½¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞⅟"))
+  ("frac" . ,(lean4-input-to-string-list "¼½¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞⅟"))
 
   ;; Bullets.
 
-  ("bu"  . ,(lean-input-to-string-list "•◦‣⁌⁍"))
+  ("bu"  . ,(lean4-input-to-string-list "•◦‣⁌⁍"))
   ("bub" . ("•"))
   ("buw" . ("◦"))
   ("but" . ("‣"))
@@ -626,7 +626,7 @@ order for the change to take effect."
 
   ;; Musical symbols.
 
-  ("note" . ,(lean-input-to-string-list "♩♪♫♬"))
+  ("note" . ,(lean4-input-to-string-list "♩♪♫♬"))
   ("flat" . ("♭"))
   ("#"    . ("♯"))
 
@@ -641,12 +641,12 @@ order for the change to take effect."
   ("??"         . ("⁇"))
   ("?!"         . ("‽" "⁈"))
   ("!?"         . ("⁉"))
-  ("die"        . ,(lean-input-to-string-list "⚀⚁⚂⚃⚄⚅"))
-  ("asterisk"   . ,(lean-input-to-string-list "⁎⁑⁂✢✣✤✥✱✲✳✺✻✼✽❃❉❊❋"))
+  ("die"        . ,(lean4-input-to-string-list "⚀⚁⚂⚃⚄⚅"))
+  ("asterisk"   . ,(lean4-input-to-string-list "⁎⁑⁂✢✣✤✥✱✲✳✺✻✼✽❃❉❊❋"))
   ("8<"         . ("✂" "✄"))
   ("tie"        . ("⁀"))
   ("undertie"   . ("‿"))
-  ("apl"        . ,(lean-input-to-string-list "⌶⌷⌸⌹⌺⌻⌼⌽⌾⌿⍀⍁⍂⍃⍄⍅⍆⍇⍈
+  ("apl"        . ,(lean4-input-to-string-list "⌶⌷⌸⌹⌺⌻⌼⌽⌾⌿⍀⍁⍂⍃⍄⍅⍆⍇⍈
                                                ⍉⍊⍋⍌⍍⍎⍏⍐⍑⍒⍓⍔⍕⍖⍗⍘⍙⍚⍛
                                                ⍜⍝⍞⍟⍠⍡⍢⍣⍤⍥⍦⍧⍨⍩⍪⍫⍬⍭⍮
                                                ⍯⍰⍱⍲⍳⍴⍵⍶⍷⍸⍹⍺⎕"))
@@ -657,22 +657,22 @@ order for the change to take effect."
   ;; translations:
   ;; ̀ ́ ̂ ̃ ̄ ̆ ̇ ̈ ̋ ̌ ̣ ̧ ̱
 
-  ("^--" . ,(lean-input-to-string-list"̅̿"))
-  ("_--" . ,(lean-input-to-string-list"̲̳"))
-  ("^~"  . ,(lean-input-to-string-list"̃͌"))
+  ("^--" . ,(lean4-input-to-string-list"̅̿"))
+  ("_--" . ,(lean4-input-to-string-list"̲̳"))
+  ("^~"  . ,(lean4-input-to-string-list"̃͌"))
   ("_~"  .  (                         "̰"))
-  ("^."  . ,(lean-input-to-string-list"̇̈⃛⃜"))
-  ("_."  . ,(lean-input-to-string-list"̣̤"))
-  ("^l"  . ,(lean-input-to-string-list"⃖⃐⃔"))
+  ("^."  . ,(lean4-input-to-string-list"̇̈⃛⃜"))
+  ("_."  . ,(lean4-input-to-string-list"̣̤"))
+  ("^l"  . ,(lean4-input-to-string-list"⃖⃐⃔"))
   ("^l-" .  (                         "⃖"))
-  ("^r"  . ,(lean-input-to-string-list"⃗⃑⃕"))
+  ("^r"  . ,(lean4-input-to-string-list"⃗⃑⃕"))
   ("^r-" .  (                         "⃗"))
   ("^lr" .  (                         "⃡"))
   ("_lr" .  (                         "͍"))
-  ("^^"  . ,(lean-input-to-string-list"̂̑͆"))
-  ("_^"  . ,(lean-input-to-string-list"̭̯̪"))
-  ("^v"  . ,(lean-input-to-string-list"̌̆"))
-  ("_v"  . ,(lean-input-to-string-list"̬̮̺"))
+  ("^^"  . ,(lean4-input-to-string-list"̂̑͆"))
+  ("_^"  . ,(lean4-input-to-string-list"̭̯̪"))
+  ("^v"  . ,(lean4-input-to-string-list"̌̆"))
+  ("_v"  . ,(lean4-input-to-string-list"̬̮̺"))
 
   ;; Shorter forms of many greek letters plus ƛ.
 
@@ -962,54 +962,54 @@ order for the change to take effect."
 
   ;; Circled, parenthesised etc. numbers and letters.
 
-  ( "(0)" . ,(lean-input-to-string-list " ⓪"))
-  ( "(1)" . ,(lean-input-to-string-list "⑴①⒈❶➀➊"))
-  ( "(2)" . ,(lean-input-to-string-list "⑵②⒉❷➁➋"))
-  ( "(3)" . ,(lean-input-to-string-list "⑶③⒊❸➂➌"))
-  ( "(4)" . ,(lean-input-to-string-list "⑷④⒋❹➃➍"))
-  ( "(5)" . ,(lean-input-to-string-list "⑸⑤⒌❺➄➎"))
-  ( "(6)" . ,(lean-input-to-string-list "⑹⑥⒍❻➅➏"))
-  ( "(7)" . ,(lean-input-to-string-list "⑺⑦⒎❼➆➐"))
-  ( "(8)" . ,(lean-input-to-string-list "⑻⑧⒏❽➇➑"))
-  ( "(9)" . ,(lean-input-to-string-list "⑼⑨⒐❾➈➒"))
-  ("(10)" . ,(lean-input-to-string-list "⑽⑩⒑❿➉➓"))
-  ("(11)" . ,(lean-input-to-string-list "⑾⑪⒒"))
-  ("(12)" . ,(lean-input-to-string-list "⑿⑫⒓"))
-  ("(13)" . ,(lean-input-to-string-list "⒀⑬⒔"))
-  ("(14)" . ,(lean-input-to-string-list "⒁⑭⒕"))
-  ("(15)" . ,(lean-input-to-string-list "⒂⑮⒖"))
-  ("(16)" . ,(lean-input-to-string-list "⒃⑯⒗"))
-  ("(17)" . ,(lean-input-to-string-list "⒄⑰⒘"))
-  ("(18)" . ,(lean-input-to-string-list "⒅⑱⒙"))
-  ("(19)" . ,(lean-input-to-string-list "⒆⑲⒚"))
-  ("(20)" . ,(lean-input-to-string-list "⒇⑳⒛"))
+  ( "(0)" . ,(lean4-input-to-string-list " ⓪"))
+  ( "(1)" . ,(lean4-input-to-string-list "⑴①⒈❶➀➊"))
+  ( "(2)" . ,(lean4-input-to-string-list "⑵②⒉❷➁➋"))
+  ( "(3)" . ,(lean4-input-to-string-list "⑶③⒊❸➂➌"))
+  ( "(4)" . ,(lean4-input-to-string-list "⑷④⒋❹➃➍"))
+  ( "(5)" . ,(lean4-input-to-string-list "⑸⑤⒌❺➄➎"))
+  ( "(6)" . ,(lean4-input-to-string-list "⑹⑥⒍❻➅➏"))
+  ( "(7)" . ,(lean4-input-to-string-list "⑺⑦⒎❼➆➐"))
+  ( "(8)" . ,(lean4-input-to-string-list "⑻⑧⒏❽➇➑"))
+  ( "(9)" . ,(lean4-input-to-string-list "⑼⑨⒐❾➈➒"))
+  ("(10)" . ,(lean4-input-to-string-list "⑽⑩⒑❿➉➓"))
+  ("(11)" . ,(lean4-input-to-string-list "⑾⑪⒒"))
+  ("(12)" . ,(lean4-input-to-string-list "⑿⑫⒓"))
+  ("(13)" . ,(lean4-input-to-string-list "⒀⑬⒔"))
+  ("(14)" . ,(lean4-input-to-string-list "⒁⑭⒕"))
+  ("(15)" . ,(lean4-input-to-string-list "⒂⑮⒖"))
+  ("(16)" . ,(lean4-input-to-string-list "⒃⑯⒗"))
+  ("(17)" . ,(lean4-input-to-string-list "⒄⑰⒘"))
+  ("(18)" . ,(lean4-input-to-string-list "⒅⑱⒙"))
+  ("(19)" . ,(lean4-input-to-string-list "⒆⑲⒚"))
+  ("(20)" . ,(lean4-input-to-string-list "⒇⑳⒛"))
 
-  ("(a)"  . ,(lean-input-to-string-list "⒜Ⓐⓐ"))
-  ("(b)"  . ,(lean-input-to-string-list "⒝Ⓑⓑ"))
-  ("(c)"  . ,(lean-input-to-string-list "⒞Ⓒⓒ"))
-  ("(d)"  . ,(lean-input-to-string-list "⒟Ⓓⓓ"))
-  ("(e)"  . ,(lean-input-to-string-list "⒠Ⓔⓔ"))
-  ("(f)"  . ,(lean-input-to-string-list "⒡Ⓕⓕ"))
-  ("(g)"  . ,(lean-input-to-string-list "⒢Ⓖⓖ"))
-  ("(h)"  . ,(lean-input-to-string-list "⒣Ⓗⓗ"))
-  ("(i)"  . ,(lean-input-to-string-list "⒤Ⓘⓘ"))
-  ("(j)"  . ,(lean-input-to-string-list "⒥Ⓙⓙ"))
-  ("(k)"  . ,(lean-input-to-string-list "⒦Ⓚⓚ"))
-  ("(l)"  . ,(lean-input-to-string-list "⒧Ⓛⓛ"))
-  ("(m)"  . ,(lean-input-to-string-list "⒨Ⓜⓜ"))
-  ("(n)"  . ,(lean-input-to-string-list "⒩Ⓝⓝ"))
-  ("(o)"  . ,(lean-input-to-string-list "⒪Ⓞⓞ"))
-  ("(p)"  . ,(lean-input-to-string-list "⒫Ⓟⓟ"))
-  ("(q)"  . ,(lean-input-to-string-list "⒬Ⓠⓠ"))
-  ("(r)"  . ,(lean-input-to-string-list "⒭Ⓡⓡ"))
-  ("(s)"  . ,(lean-input-to-string-list "⒮Ⓢⓢ"))
-  ("(t)"  . ,(lean-input-to-string-list "⒯Ⓣⓣ"))
-  ("(u)"  . ,(lean-input-to-string-list "⒰Ⓤⓤ"))
-  ("(v)"  . ,(lean-input-to-string-list "⒱Ⓥⓥ"))
-  ("(w)"  . ,(lean-input-to-string-list "⒲Ⓦⓦ"))
-  ("(x)"  . ,(lean-input-to-string-list "⒳Ⓧⓧ"))
-  ("(y)"  . ,(lean-input-to-string-list "⒴Ⓨⓨ"))
-  ("(z)"  . ,(lean-input-to-string-list "⒵Ⓩⓩ"))
+  ("(a)"  . ,(lean4-input-to-string-list "⒜Ⓐⓐ"))
+  ("(b)"  . ,(lean4-input-to-string-list "⒝Ⓑⓑ"))
+  ("(c)"  . ,(lean4-input-to-string-list "⒞Ⓒⓒ"))
+  ("(d)"  . ,(lean4-input-to-string-list "⒟Ⓓⓓ"))
+  ("(e)"  . ,(lean4-input-to-string-list "⒠Ⓔⓔ"))
+  ("(f)"  . ,(lean4-input-to-string-list "⒡Ⓕⓕ"))
+  ("(g)"  . ,(lean4-input-to-string-list "⒢Ⓖⓖ"))
+  ("(h)"  . ,(lean4-input-to-string-list "⒣Ⓗⓗ"))
+  ("(i)"  . ,(lean4-input-to-string-list "⒤Ⓘⓘ"))
+  ("(j)"  . ,(lean4-input-to-string-list "⒥Ⓙⓙ"))
+  ("(k)"  . ,(lean4-input-to-string-list "⒦Ⓚⓚ"))
+  ("(l)"  . ,(lean4-input-to-string-list "⒧Ⓛⓛ"))
+  ("(m)"  . ,(lean4-input-to-string-list "⒨Ⓜⓜ"))
+  ("(n)"  . ,(lean4-input-to-string-list "⒩Ⓝⓝ"))
+  ("(o)"  . ,(lean4-input-to-string-list "⒪Ⓞⓞ"))
+  ("(p)"  . ,(lean4-input-to-string-list "⒫Ⓟⓟ"))
+  ("(q)"  . ,(lean4-input-to-string-list "⒬Ⓠⓠ"))
+  ("(r)"  . ,(lean4-input-to-string-list "⒭Ⓡⓡ"))
+  ("(s)"  . ,(lean4-input-to-string-list "⒮Ⓢⓢ"))
+  ("(t)"  . ,(lean4-input-to-string-list "⒯Ⓣⓣ"))
+  ("(u)"  . ,(lean4-input-to-string-list "⒰Ⓤⓤ"))
+  ("(v)"  . ,(lean4-input-to-string-list "⒱Ⓥⓥ"))
+  ("(w)"  . ,(lean4-input-to-string-list "⒲Ⓦⓦ"))
+  ("(x)"  . ,(lean4-input-to-string-list "⒳Ⓧⓧ"))
+  ("(y)"  . ,(lean4-input-to-string-list "⒴Ⓨⓨ"))
+  ("(z)"  . ,(lean4-input-to-string-list "⒵Ⓩⓩ"))
   ("y"    . ("ɏ"))
 
 
@@ -1024,30 +1024,30 @@ Note that if you customize this setting you will not
 automatically benefit (or suffer) from modifications to its
 default value when the library is updated.  If you just want to
 add some bindings it is probably a better idea to customize
-`lean-input-user-translations'.
+`lean4-input-user-translations'.
 
 These translation pairs are included after those in
-`lean-input-user-translations', but before the ones inherited
-from other input methods (see `lean-input-inherit').
+`lean4-input-user-translations', but before the ones inherited
+from other input methods (see `lean4-input-inherit').
 
 If you change this setting manually (without using the
-customization buffer) you need to call `lean-input-setup' in
+customization buffer) you need to call `lean4-input-setup' in
 order for the change to take effect."
-  :group 'lean-input
-  :set 'lean-input-incorporate-changed-setting
+  :group 'lean4-input
+  :set 'lean4-input-incorporate-changed-setting
   :initialize 'custom-initialize-default
   :type '(repeat (cons (string :tag "Key sequence")
                        (repeat :tag "Translations" string))))
 
-(defcustom lean-input-user-translations nil
-  "Like `lean-input-translations', but more suitable for user
+(defcustom lean4-input-user-translations nil
+  "Like `lean4-input-translations', but more suitable for user
 customizations since by default it is empty.
 
 These translation pairs are included first, before those in
-`lean-input-translations' and the ones inherited from other input
+`lean4-input-translations' and the ones inherited from other input
 methods."
-  :group 'lean-input
-  :set 'lean-input-incorporate-changed-setting
+  :group 'lean4-input
+  :set 'lean4-input-incorporate-changed-setting
   :initialize 'custom-initialize-default
   :type '(repeat (cons (string :tag "Key sequence")
                        (repeat :tag "Translations" string))))
@@ -1055,7 +1055,7 @@ methods."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Inspecting and modifying translation maps
 
-(defun lean-input-get-translations (qp)
+(defun lean4-input-get-translations (qp)
   "Return a list containing all translations from the Quail
 package QP (except for those corresponding to ASCII).
 Each pair in the list has the form (KEY-SEQUENCE . TRANSLATION)."
@@ -1067,7 +1067,7 @@ Each pair in the list has the form (KEY-SEQUENCE . TRANSLATION)."
       (quail-build-decode-map (list (quail-map)) "" decode-map 0)
       (cdr decode-map))))
 
-(defun lean-input-show-translations (qp)
+(defun lean4-input-show-translations (qp)
   "Display all translations used by the Quail package QP (a string).
 \(Except for those corresponding to ASCII)."
   (interactive (list (read-input-method-name
@@ -1076,32 +1076,32 @@ Each pair in the list has the form (KEY-SEQUENCE . TRANSLATION)."
     (with-output-to-temp-buffer buf
       (with-current-buffer buf
         (quail-insert-decode-map
-         (cons 'decode-map (lean-input-get-translations qp)))))))
+         (cons 'decode-map (lean4-input-get-translations qp)))))))
 
-(defun lean-input-add-translations (trans)
+(defun lean4-input-add-translations (trans)
   "Add the given translations TRANS to the Lean input method.
 TRANS is a list of pairs (KEY-SEQUENCE . TRANSLATION). The
 translations are appended to the current translations."
   (with-temp-buffer
-    (dolist (tr (lean-input-concat-map (eval lean-input-tweak-all) trans))
+    (dolist (tr (lean4-input-concat-map (eval lean4-input-tweak-all) trans))
       (quail-defrule (car tr) (cdr tr) "Lean" t))))
 
-(defun lean-input-inherit-package (qp &optional fun)
+(defun lean4-input-inherit-package (qp &optional fun)
   "Let the Lean input method inherit the translations from the
 Quail package QP (except for those corresponding to ASCII).
 
 The optional function FUN can be used to modify the translations.
 It is given a pair (KEY-SEQUENCE . TRANSLATION) and should return
 a list of such pairs."
-  (let ((trans (lean-input-get-translations qp)))
-    (lean-input-add-translations
-     (if fun (lean-input-concat-map fun trans)
+  (let ((trans (lean4-input-get-translations qp)))
+    (lean4-input-add-translations
+     (if fun (lean4-input-concat-map fun trans)
        trans))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Setting up the input method
 
-(defun lean-input-setup ()
+(defun lean4-input-setup ()
   "Set up the Lean input method based on the customisable
 variables and underlying input methods."
 
@@ -1115,43 +1115,43 @@ tasks as well."
      nil nil nil nil nil nil t ; maximum-shortest
      ))
 
-  (lean-input-add-translations
+  (lean4-input-add-translations
    (mapcar (lambda (tr) (cons (car tr) (vconcat (cdr tr))))
-           (append lean-input-user-translations
-                   lean-input-translations)))
-  (dolist (def lean-input-inherit)
-    (lean-input-inherit-package (car def)
+           (append lean4-input-user-translations
+                   lean4-input-translations)))
+  (dolist (def lean4-input-inherit)
+    (lean4-input-inherit-package (car def)
                                 (eval (cdr def)))))
 
-(defun lean-input-incorporate-changed-setting (sym val)
+(defun lean4-input-incorporate-changed-setting (sym val)
   "Update the Lean input method based on the customisable
 variables and underlying input methods.
 Suitable for use in the :set field of `defcustom'."
   (set-default sym val)
-  (lean-input-setup))
+  (lean4-input-setup))
 
 ;; Set up the input method.
 
-(lean-input-setup)
+(lean4-input-setup)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Administrative details
 
-(provide 'lean-input)
-;;; lean-input.el ends here
+(provide 'lean4-input)
+;;; lean4-input.el ends here
 
-(defun lean-input-export-translations ()
+(defun lean4-input-export-translations ()
   "Export the current translation, (input, output) pairs for
 input-method, in a javascript format. It can be copy-pasted to
 leanprover.github.io/tutorial/js/input-method.js"
   (interactive)
   (with-current-buffer
-      (get-buffer-create "*lean-translations*")
+      (get-buffer-create "*lean4-translations*")
     (let ((exclude-list '("\\newline")))
       (insert "var corrections = {")
       (--each
           (--filter (not (member (car it) exclude-list))
-                    (lean-input-get-translations "Lean"))
+                    (lean4-input-get-translations "Lean"))
         (let* ((input (substring (car it) 1))
                (outputs (cdr it)))
           (insert (format "%s:\"" (prin1-to-string input)))
@@ -1161,7 +1161,7 @@ leanprover.github.io/tutorial/js/input-method.js"
           (insert (format "\",\n" input))))
       (insert "};"))))
 
-(defun lean-input-export-translations-to-stdout ()
-  (lean-input-export-translations)
-  (with-current-buffer "*lean-translations*"
+(defun lean4-input-export-translations-to-stdout ()
+  (lean4-input-export-translations)
+  (with-current-buffer "*lean4-translations*"
     (princ (buffer-string))))

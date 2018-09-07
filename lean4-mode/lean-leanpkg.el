@@ -8,89 +8,89 @@
 
 (require 's)
 (require 'json)
-(require 'lean-util)
+(require 'lean4-util)
 
-(defun lean-leanpkg-find-dir-in (dir)
+(defun lean4-leanpkg-find-dir-in (dir)
   (when dir
-    (or (lean-leanpkg-find-dir-in (f-parent dir))
+    (or (lean4-leanpkg-find-dir-in (f-parent dir))
         (when (f-exists? (f-join dir "leanpkg.toml")) dir))))
 
-(defun lean-leanpkg-find-dir ()
+(defun lean4-leanpkg-find-dir ()
   (and (buffer-file-name)
-       (lean-leanpkg-find-dir-in (f-dirname (buffer-file-name)))))
+       (lean4-leanpkg-find-dir-in (f-dirname (buffer-file-name)))))
 
-(defun lean-leanpkg-find-dir-safe ()
-  (or (lean-leanpkg-find-dir)
+(defun lean4-leanpkg-find-dir-safe ()
+  (or (lean4-leanpkg-find-dir)
       (error (format "cannot find leanpkg.toml for %s" (buffer-file-name)))))
 
-(defun lean-leanpkg-executable ()
-  (lean-get-executable "leanpkg"))
+(defun lean4-leanpkg-executable ()
+  (lean4-get-executable "leanpkg"))
 
-(defvar lean-leanpkg-running nil)
-(defvar-local lean-leanpkg-configure-prompt-shown nil)
+(defvar lean4-leanpkg-running nil)
+(defvar-local lean4-leanpkg-configure-prompt-shown nil)
 
-(defun lean-leanpkg-run (cmd &optional restart-lean-server)
+(defun lean4-leanpkg-run (cmd &optional restart-lean4-server)
   "Call `leanpkg $cmd`"
-  (let ((dir (file-name-as-directory (lean-leanpkg-find-dir-safe)))
+  (let ((dir (file-name-as-directory (lean4-leanpkg-find-dir-safe)))
         (orig-buf (current-buffer)))
     (with-current-buffer (get-buffer-create "*leanpkg*")
       (let ((inhibit-read-only t)) (erase-buffer))
       (switch-to-buffer-other-window (current-buffer))
       (redisplay)
       (insert (format "> leanpkg %s\n" cmd))
-      (setq lean-leanpkg-running t)
+      (setq lean4-leanpkg-running t)
       (let* ((default-directory dir)
              (out-buf (current-buffer))
              (proc (start-process "leanpkg" (current-buffer)
-                                  (lean-leanpkg-executable) cmd)))
+                                  (lean4-leanpkg-executable) cmd)))
         (comint-mode)
         (set-process-filter proc #'comint-output-filter)
         (set-process-sentinel
          proc (lambda (_p _e)
-                (setq lean-leanpkg-running nil)
-                (when restart-lean-server
+                (setq lean4-leanpkg-running nil)
+                (when restart-lean4-server
                   (with-current-buffer out-buf
                     (insert "; restarting lean server\n"))
                   (with-current-buffer orig-buf
-                    (lean-server-restart)))
+                    (lean4-server-restart)))
                 (with-current-buffer out-buf
                   (insert "; done"))))))))
 
-(defun lean-leanpkg-configure ()
+(defun lean4-leanpkg-configure ()
   "Call leanpkg configure"
   (interactive)
-  (lean-leanpkg-run "configure" 't))
+  (lean4-leanpkg-run "configure" 't))
 
-(defun lean-leanpkg-build ()
+(defun lean4-leanpkg-build ()
   "Call leanpkg build"
   (interactive)
-  (lean-leanpkg-run "build"))
+  (lean4-leanpkg-run "build"))
 
-(defun lean-leanpkg-test ()
+(defun lean4-leanpkg-test ()
   "Call leanpkg test"
   (interactive)
-  (lean-leanpkg-run "test"))
+  (lean4-leanpkg-run "test"))
 
-(defun lean-leanpkg-find-path-file ()
+(defun lean4-leanpkg-find-path-file ()
   (let* ((json-object-type 'plist) (json-array-type 'list) (json-false nil)
          (path-json (shell-command-to-string
-                     (concat (shell-quote-argument (lean-get-executable lean-executable-name))
+                     (concat (shell-quote-argument (lean4-get-executable lean4-executable-name))
                              " -p")))
          (path-out (json-read-from-string path-json)))
-    (when (and (eq major-mode 'lean-mode)
+    (when (and (eq major-mode 'lean4-mode)
                (plist-get path-out :is_user_leanpkg_path)
-               (not lean-leanpkg-running)
-               (not lean-leanpkg-configure-prompt-shown)
-               (setq lean-leanpkg-configure-prompt-shown t)
-               (lean-leanpkg-find-dir)
-               (y-or-n-p (format "Found leanpkg.toml in %s, call leanpkg configure?" (lean-leanpkg-find-dir))))
+               (not lean4-leanpkg-running)
+               (not lean4-leanpkg-configure-prompt-shown)
+               (setq lean4-leanpkg-configure-prompt-shown t)
+               (lean4-leanpkg-find-dir)
+               (y-or-n-p (format "Found leanpkg.toml in %s, call leanpkg configure?" (lean4-leanpkg-find-dir))))
       (save-match-data ; running in timer so that we don't mess up the window layout
         (run-at-time nil nil
                      (lambda (buf)
                        (with-current-buffer buf
-                         (lean-leanpkg-configure)))
+                         (lean4-leanpkg-configure)))
                      (current-buffer))))
-    (setq lean-leanpkg-configure-prompt-shown t)
+    (setq lean4-leanpkg-configure-prompt-shown t)
     (plist-get path-out :leanpkg_path_file)))
 
-(provide 'lean-leanpkg)
+(provide 'lean4-leanpkg)

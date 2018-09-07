@@ -5,28 +5,28 @@
 ;;
 (require 'cl-lib)
 
-(defvar lean-debug-mode nil)
+(defvar lean4-debug-mode nil)
 
-(defvar lean-debug-buffer-name "*lean-debug*")
+(defvar lean4-debug-buffer-name "*lean4-debug*")
 
-(defun lean-turn-on-debug-mode (&optional print-msg)
+(defun lean4-turn-on-debug-mode (&optional print-msg)
   (interactive)
   (when (or (called-interactively-p 'any) print-msg)
     (message "lean: turn on debug mode"))
-  (get-buffer-create lean-debug-buffer-name)
-  (buffer-disable-undo lean-debug-buffer-name)
-  (display-buffer lean-debug-buffer-name 'display-buffer-reuse-window
+  (get-buffer-create lean4-debug-buffer-name)
+  (buffer-disable-undo lean4-debug-buffer-name)
+  (display-buffer lean4-debug-buffer-name 'display-buffer-reuse-window
                   '((reusable-frames . t)))
-  (setq lean-debug-mode t))
+  (setq lean4-debug-mode t))
 
-(defun lean-turn-off-debug-mode (&optional print-msg)
+(defun lean4-turn-off-debug-mode (&optional print-msg)
   (interactive)
-  (when (eq major-mode 'lean-mode)
+  (when (eq major-mode 'lean4-mode)
     (when (or (called-interactively-p 'any) print-msg)
       (message "lean: turn off debug mode"))
-    (setq lean-debug-mode nil)))
+    (setq lean4-debug-mode nil)))
 
-(defun lean-output-to-buffer (buffer-name format-string args)
+(defun lean4-output-to-buffer (buffer-name format-string args)
   (with-current-buffer
       (get-buffer-create buffer-name)
     (save-selected-window
@@ -35,13 +35,13 @@
       (goto-char (point-max))
       (insert (apply 'format format-string args)))))
 
-(defun lean-debug (format-string &rest args)
-  "Display a message at the bottom of the *lean-debug* buffer."
-  (when lean-debug-mode
+(defun lean4-debug (format-string &rest args)
+  "Display a message at the bottom of the *lean4-debug* buffer."
+  (when lean4-debug-mode
     (let ((time-str (format-time-string "%H:%M:%S.%3N" (current-time))))
-      (lean-output-to-buffer lean-debug-buffer-name
+      (lean4-output-to-buffer lean4-debug-buffer-name
                              (concat "%s -- " format-string "\n")
                              (cons (propertize time-str 'face 'font-lock-keyword-face)
                                    args)))))
 
-(provide 'lean-debug)
+(provide 'lean4-debug)

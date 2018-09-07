@@ -7,7 +7,7 @@
 
 (require 'rx)
 
-(defconst lean-keywords1
+(defconst lean4-keywords1
   '("import" "prelude" "protected" "private" "noncomputable" "definition" "meta" "renaming"
     "hiding" "exposing" "parameter" "parameters" "begin" "constant" "constants"
     "lemma" "variable" "variables" "theorem" "example" "abbreviation"
@@ -22,9 +22,9 @@
     "exists" "if" "then" "else" "assume" "from"
     "mutual" "def" "run_cmd")
   "lean keywords ending with 'word' (not symbol)")
-(defconst lean-keywords1-regexp
-  (eval `(rx word-start (or ,@lean-keywords1) word-end)))
-(defconst lean-constants
+(defconst lean4-keywords1-regexp
+  (eval `(rx word-start (or ,@lean4-keywords1) word-end)))
+(defconst lean4-constants
   '("#" "@" "!" "$" "->" "∼" "↔" "/" "==" "=" ":=" "<->" "/\\" "\\/" "∧" "∨"
     "≠" "<" ">" "≤" "≥" "¬" "<=" ">=" "⁻¹" "⬝" "▸" "+" "*" "-" "/" "λ"
     "→" "∃" "∀" "∘" "×" "Σ" "Π" "~" "||" "&&" "≃" "≡" "≅"
@@ -33,18 +33,18 @@
     "∘n" "∘f" "∘fi" "∘nf" "∘fn" "∘n1f" "∘1nf" "∘f1n" "∘fn1"
     "^c" "≃c" "≅c" "×c" "×f" "×n" "+c" "+f" "+n" "ℕ₋₂")
   "lean constants")
-(defconst lean-constants-regexp (regexp-opt lean-constants))
-(defconst lean-numerals-regexp
+(defconst lean4-constants-regexp (regexp-opt lean4-constants))
+(defconst lean4-numerals-regexp
   (eval `(rx word-start
              (one-or-more digit) (optional (and "." (zero-or-more digit)))
              word-end)))
 
-(defconst lean-warnings '("sorry" "exit") "lean warnings")
-(defconst lean-warnings-regexp
-  (eval `(rx word-start (or ,@lean-warnings) word-end)))
+(defconst lean4-warnings '("sorry" "exit") "lean warnings")
+(defconst lean4-warnings-regexp
+  (eval `(rx word-start (or ,@lean4-warnings) word-end)))
 
 
-(defconst lean-syntax-table
+(defconst lean4-syntax-table
   (let ((st (make-syntax-table)))
     ;; Matching parens
     (modify-syntax-entry ?\[ "(]" st)
@@ -122,7 +122,7 @@
 
     st))
 
-(defconst lean-font-lock-defaults
+(defconst lean4-font-lock-defaults
   `((;; attributes
      (,(rx word-start "attribute" word-end (zero-or-more whitespace) (group (one-or-more "[" (zero-or-more (not (any "]"))) "]" (zero-or-more whitespace))))
       (1 'font-lock-doc-face))
@@ -152,7 +152,7 @@
      (,(rx (or "∘if")) . 'font-lock-constant-face)
      ;; Keywords
      ("\\(set_option\\)[ \t]*\\([^ \t\n]*\\)" (2 'font-lock-constant-face))
-     (,lean-keywords1-regexp . 'font-lock-keyword-face)
+     (,lean4-keywords1-regexp . 'font-lock-keyword-face)
      (,(rx word-start (group "example") ".") (1 'font-lock-keyword-face))
      (,(rx (or "∎")) . 'font-lock-keyword-face)
      ;; Types
@@ -161,12 +161,12 @@
      ;; String
      ("\"[^\"]*\"" . 'font-lock-string-face)
      ;; ;; Constants
-     (,lean-constants-regexp . 'font-lock-constant-face)
-     (,lean-numerals-regexp . 'font-lock-constant-face)
+     (,lean4-constants-regexp . 'font-lock-constant-face)
+     (,lean4-numerals-regexp . 'font-lock-constant-face)
      ;; place holder
      (,(rx symbol-start "_" symbol-end) . 'font-lock-preprocessor-face)
      ;; warnings
-     (,lean-warnings-regexp . 'font-lock-warning-face)
+     (,lean4-warnings-regexp . 'font-lock-warning-face)
      ;; escaped identifiers
      (,(rx (and (group "«") (group (one-or-more (not (any "»")))) (group "»")))
       (1 font-lock-comment-face t)
@@ -175,7 +175,7 @@
      )))
 
 ;; Syntax Highlighting for Lean Info Mode
-(defconst lean-info-font-lock-defaults
+(defconst lean4-info-font-lock-defaults
   (let ((new-entries
          `(;; Please add more after this:
            (,(rx (group (+ symbol-start (+ (or word (char ?₁ ?₂ ?₃ ?₄ ?₅ ?₆ ?₇ ?₈ ?₉ ?₀))) symbol-end (* white))) ":")
@@ -188,7 +188,7 @@
             (1 'font-lock-warning-face))
            (,(rx line-start "No Goal" line-end)
             . 'font-lock-constant-face)))
-        (inherited-entries (car lean-font-lock-defaults)))
+        (inherited-entries (car lean4-font-lock-defaults)))
     `(,(-concat new-entries inherited-entries))))
 
-(provide 'lean-syntax)
+(provide 'lean4-syntax)

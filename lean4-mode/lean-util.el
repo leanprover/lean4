@@ -10,30 +10,30 @@
 (require 'dash)
 (require 'dash-functional)
 
-(defun lean-setup-rootdir ()
-  (let ((root (executable-find lean-executable-name)))
+(defun lean4-setup-rootdir ()
+  (let ((root (executable-find lean4-executable-name)))
     (when root
-      (setq lean-rootdir (f-dirname (f-dirname root))))
+      (setq lean4-rootdir (f-dirname (f-dirname root))))
     root))
 
-(defun lean-get-rootdir ()
-  (if lean-rootdir
-      (let ((lean-path (f-full (f-join lean-rootdir "bin" lean-executable-name))))
-        (unless (f-exists? lean-path)
-          (error "Incorrect 'lean-rootdir' value, path '%s' does not exist." lean-path))
-        lean-rootdir)
+(defun lean4-get-rootdir ()
+  (if lean4-rootdir
+      (let ((lean4-path (f-full (f-join lean4-rootdir "bin" lean4-executable-name))))
+        (unless (f-exists? lean4-path)
+          (error "Incorrect 'lean4-rootdir' value, path '%s' does not exist." lean4-path))
+        lean4-rootdir)
     (or
-     (lean-setup-rootdir)
+     (lean4-setup-rootdir)
      (error
-      (concat "Lean was not found in the 'exec-path' and 'lean-rootdir' is not defined. "
-              "Please set it via M-x customize-variable RET lean-rootdir RET.")))))
+      (concat "Lean was not found in the 'exec-path' and 'lean4-rootdir' is not defined. "
+              "Please set it via M-x customize-variable RET lean4-rootdir RET.")))))
 
-(defun lean-get-executable (exe-name)
+(defun lean4-get-executable (exe-name)
   "Return fullpath of lean executable"
-  (let ((lean-bin-dir-name "bin"))
-    (f-full (f-join (lean-get-rootdir) lean-bin-dir-name exe-name))))
+  (let ((lean4-bin-dir-name "bin"))
+    (f-full (f-join (lean4-get-rootdir) lean4-bin-dir-name exe-name))))
 
-(defun lean-line-offset (&optional pos)
+(defun lean4-line-offset (&optional pos)
   "Return the byte-offset of `pos` or current position, counting from the
   beginning of the line"
   (interactive)
@@ -45,7 +45,7 @@
             (point))))
     (- pos bol-pos)))
 
-(defun lean-pos-at-line-col (l c)
+(defun lean4-pos-at-line-col (l c)
   "Return the point of the given line and column."
   ;; http://emacs.stackexchange.com/a/8083
   (save-excursion
@@ -54,11 +54,11 @@
     (move-to-column c)
     (point)))
 
-(defun lean-whitespace-cleanup ()
-    (when lean-delete-trailing-whitespace
+(defun lean4-whitespace-cleanup ()
+    (when lean4-delete-trailing-whitespace
       (delete-trailing-whitespace)))
 
-(defun lean-in-comment-p ()
+(defun lean4-in-comment-p ()
   "t if a current point is inside of comment block
    nil otherwise"
   (nth 4 (syntax-ppss)))
@@ -66,7 +66,7 @@
 ;; The following function is a slightly modified version of
 ;; f--collect-entries written by Johan Andersson
 ;; The URL is at https://github.com/rejeep/f.el/blob/master/f.el#L416-L435
-(defun lean--collect-entries (path recursive)
+(defun lean4--collect-entries (path recursive)
   (let (result
         (entries
          (-reject
@@ -87,7 +87,7 @@
                   (setq result (cons entry result))
                 (when (f-directory? entry)
                   (setq result (cons entry result))
-                  (setq result (append result (lean--collect-entries entry recursive))))))
+                  (setq result (append result (lean4--collect-entries entry recursive))))))
             entries))
           (t (setq result entries)))
     result))
@@ -95,10 +95,10 @@
 ;; The following function is a slightly modified version of
 ;; f-files function written by Johan Andersson The URL is at
 ;; https://github.com/rejeep/f.el/blob/master/f.el#L478-L481
-(defun lean-find-files (path &optional fn recursive)
+(defun lean4-find-files (path &optional fn recursive)
   "Find all files in PATH."
-  ;; It calls lean--collect-entries instead of f--collect-entries
-  (let ((files (-select 'f-file? (lean--collect-entries path recursive))))
+  ;; It calls lean4--collect-entries instead of f--collect-entries
+  (let ((files (-select 'f-file? (lean4--collect-entries path recursive))))
     (if fn (-select fn files) files)))
 
-(provide 'lean-util)
+(provide 'lean4-util)

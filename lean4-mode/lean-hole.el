@@ -16,16 +16,16 @@
 ;; helm or company's interface would be a good addition.
 ;;
 ;;; Code:
-(require 'lean-server)
+(require 'lean4-server)
 
-(defun lean-hole-handler-completing-read (alternatives)
+(defun lean4-hole-handler-completing-read (alternatives)
   "Pick a hole replacement from ALTERNATIVES with `completing-read'."
   (let* ((choices (cl-loop for alt in alternatives
                            collect (cons (concat (plist-get alt :code)
                                                  " — "
                                                  (plist-get alt :description))
                                          (plist-get alt :code))))
-         (selection (let ((this-command 'lean-hole))
+         (selection (let ((this-command 'lean4-hole))
                       (completing-read
                        "Response: "
                        choices
@@ -35,9 +35,9 @@
         (cdr code)
       (error "Didn't select a hole completion"))))
 
-(defvar lean-hole-handler-function 'lean-hole-handler-completing-read)
+(defvar lean4-hole-handler-function 'lean4-hole-handler-completing-read)
 
-(defun lean-hole--line-col->pos (line col)
+(defun lean4-hole--line-col->pos (line col)
   "Compute the position corresponding to LINE and COL."
   (save-restriction
     (widen)
@@ -47,19 +47,19 @@
       (forward-char col)
       (point))))
 
-(defun lean-hole ()
+(defun lean4-hole ()
   "Ask Lean for a list of holes, then ask the user which to use."
   (interactive)
   (with-demoted-errors "lean hole: %s"
-    (lean-server-send-command
+    (lean4-server-send-command
      'hole_commands (list :file_name (buffer-file-name)
                           :line (line-number-at-pos)
-                          :column (lean-line-offset))
+                          :column (lean4-line-offset))
      (cl-function
       (lambda (&key start end results)
-        (let ((start-pos (lean-hole--line-col->pos (plist-get start :line)
+        (let ((start-pos (lean4-hole--line-col->pos (plist-get start :line)
                                                    (plist-get start :column)))
-              (end-pos (lean-hole--line-col->pos (plist-get end :line)
+              (end-pos (lean4-hole--line-col->pos (plist-get end :line)
                                                  (plist-get end :column))))
           (let ((start-marker (make-marker))
                 (end-marker (make-marker)))
@@ -71,27 +71,27 @@
                                                    " — "
                                                    (plist-get res :description))
                                            (plist-get res :name))))
-                   (selection (let ((this-command 'lean-hole))
+                   (selection (let ((this-command 'lean4-hole))
                                 (completing-read
                                  "Hole command: "
                                  choices
                                  nil t nil nil nil t)))
                    (code (assoc selection choices)))
               (if code
-                  (lean-hole--command (cdr code) start-marker end-marker)
+                  (lean4-hole--command (cdr code) start-marker end-marker)
                 (error "Didn't select a hole completion"))))))))))
 
 ;; This uses markers to ensure that if the hole moves while the
 ;; command is running, it is still updated.
-(defun lean-hole--command (command start-marker end-marker)
+(defun lean4-hole--command (command start-marker end-marker)
   "Execute COMMAND in the hole between START-MARKER and END-MARKER."
   (interactive)
   (with-demoted-errors "lean hole: %s"
-    (lean-server-send-command
+    (lean4-server-send-command
      'hole (list :action command
                  :file_name (buffer-file-name)
                  :line (line-number-at-pos start-marker)
-                 :column (lean-line-offset start-marker))
+                 :column (lean4-line-offset start-marker))
      (cl-function
       (lambda (&key message replacements)
         (let ((replacement-count (length (plist-get replacements :alternatives))))
@@ -101,7 +101,7 @@
                        ((= replacement-count 1)
                         (plist-get (car (plist-get replacements :alternatives)) :code))
                        (t
-                        (lean-hole-handler-completing-read
+                        (lean4-hole-handler-completing-read
                          (plist-get replacements :alternatives))))))
             (when selected-code
               (save-excursion
@@ -113,7 +113,7 @@
         (set-marker start-marker nil)
         (set-marker end-marker nil))))))
 
-(defun lean-hole-right-click ()
+(defun lean4-hole-right-click ()
   "Ask Lean for a list of hole commands, then ask the user which to use."
   (interactive)
   (let ((buf (current-buffer)))
@@ -122,14 +122,14 @@
        'hole_commands
        (list :file_name (buffer-file-name)
              :line (line-number-at-pos)
-             :column (lean-line-offset))
+             :column (lean4-line-offset))
        (cl-function
         (lambda (&key start end results)
           (when (and start end)
             (with-current-buffer buf
-              (let ((start-pos (lean-hole--line-col->pos (plist-get start :line)
+              (let ((start-pos (lean4-hole--line-col->pos (plist-get start :line)
                                                          (plist-get start :column)))
-                    (end-pos (lean-hole--line-col->pos (plist-get end :line)
+                    (end-pos (lean4-hole--line-col->pos (plist-get end :line)
                                                        (plist-get end :column))))
                 (let ((start-marker (make-marker))
                       (end-marker (make-marker)))
@@ -142,10 +142,10 @@
                                     (concat item-name " — " item-desc)
                                     :action
                                     (lambda ()
-                                      (lean-hole--command
+                                      (lean4-hole--command
                                        item-name
                                        start-marker end-marker)))))
                           results)))))))))))
 
-(provide 'lean-hole)
-;;; lean-hole.el ends here
+(provide 'lean4-hole)
+;;; lean4-hole.el ends here

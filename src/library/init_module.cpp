@@ -45,7 +45,6 @@ Author: Leonardo de Moura
 #include "library/parray.h"
 #include "library/profiling.h"
 #include "library/time_task.h"
-#include "library/unique_id.h"
 #include "library/error_msgs.h"
 #include "library/formatter.h"
 #include "library/pos_info_provider.h"
@@ -79,7 +78,6 @@ void finalize_library_core_module() {
 }
 
 void initialize_library_module() {
-    initialize_unique_id();
     initialize_local_context();
     initialize_metavar_context();
     initialize_fingerprint();
@@ -153,6 +151,5 @@ void finalize_library_module() {
     finalize_fingerprint();
     finalize_metavar_context();
     finalize_local_context();
-    finalize_unique_id();
 }
 }

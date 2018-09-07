@@ -1,4 +1,4 @@
-import init.control.coroutine init.control.coroutine_io
+import init.control.coroutine
 
 universes u v
 open coroutine

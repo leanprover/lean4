@@ -1,4 +1,3 @@
-set_option new_inductive true
 universes u v
 
 inductive arrow (α : Type u) (β : Type v)

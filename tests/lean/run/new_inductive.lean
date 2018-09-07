@@ -1,4 +1,3 @@
-set_option new_inductive true
 universes u v
 
 inductive my_list (α : Type u)

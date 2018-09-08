@@ -36,7 +36,7 @@ class level : public object_ref {
     friend level mk_max_imax(level_kind k, level const & l1, level const & l2);
     friend level mk_univ_param(name const & n);
     friend level mk_univ_mvar(name const & n);
-    explicit level(object * o):object_ref(o) { inc(o); }
+    explicit level(b_obj_arg o, bool b):object_ref(o, b) {}
     explicit level(object_ref && o):object_ref(o) {}
 public:
     /** \brief Universe zero */
@@ -51,7 +51,7 @@ public:
 
     friend bool is_eqp(level const & l1, level const & l2) { return l1.raw() == l2.raw(); }
     void serialize(serializer & s) const { s.write_object(raw()); }
-    static level deserialize(deserializer & d) { return level(d.read_object()); }
+    static level deserialize(deserializer & d) { return level(d.read_object(), true); }
 
     bool is_zero() const { lean_assert((kind() == level_kind::Zero) == is_scalar(raw())); return is_scalar(raw()); }
     bool is_succ() const { return kind() == level_kind::Succ; }

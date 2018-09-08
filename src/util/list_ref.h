@@ -13,7 +13,7 @@ template<typename T> T const & head(object * o) { return static_cast<T const &>(
 /* Wrapper for manipulating Lean lists in C++ */
 template<typename T>
 class list_ref : public object_ref {
-    explicit list_ref(object * o):object_ref(o) { inc(o); }
+    list_ref(b_obj_arg o, bool b):object_ref(o, b) {}
 public:
     list_ref():object_ref(box(0)) {}
     explicit list_ref(T const & a):object_ref(mk_cnstr(1, a.raw(), box(0))) { inc(a.raw()); }
@@ -46,7 +46,7 @@ public:
 
     friend bool is_eqp(list_ref const & l1, list_ref const & l2) { return l1.raw() == l2.raw(); }
     void serialize(serializer & s) const { s.write_object(raw()); }
-    static list_ref deserialize(deserializer & d) { return list_ref(d.read_object()); }
+    static list_ref deserialize(deserializer & d) { return list_ref(d.read_object(), true); }
 
     /** \brief Structural equality. */
     friend bool operator==(list_ref const & l1, list_ref const & l2) {

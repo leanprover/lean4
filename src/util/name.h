@@ -55,10 +55,12 @@ public:
     static int cmp_core(object * o1, object * o2);
     size_t size_core(bool unicode) const;
 private:
+    name(b_obj_arg r, bool b):object_ref(r, b) {}
     friend name read_name(deserializer & d);
     explicit name(object_ref && r):object_ref(r) {}
 public:
     name():object_ref(box(static_cast<unsigned>(name_kind::ANONYMOUS))) {}
+    name(obj_arg o):object_ref(o) {}
     name(name const & prefix, char const * name);
     name(name const & prefix, unsigned k);
     name(name const & prefix, nat const & n);
@@ -74,7 +76,6 @@ public:
        name <tt>foo::bla::tst</tt>.
     */
     name(std::initializer_list<char const *> const & l);
-    explicit name(object * r):object_ref(r) { inc(r); }
     static name const & anonymous();
     /**
         \brief Create a unique internal name that is not meant to exposed
@@ -233,7 +234,7 @@ struct name_pair_quick_cmp {
 typedef std::function<bool(name const &)> name_predicate; // NOLINT
 
 inline serializer & operator<<(serializer & s, name const & n) { n.serialize(s); return s; }
-inline name read_name(deserializer & d) { return name(d.read_object()); }
+inline name read_name(deserializer & d) { return name(d.read_object(), true); }
 inline deserializer & operator>>(deserializer & d, name & n) { n = read_name(d); return d; }
 
 /** \brief Return true if it is a lean internal name, i.e., the name starts with a `_` */

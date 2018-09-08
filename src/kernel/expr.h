@@ -45,7 +45,7 @@ inline bool is_rec(binder_info bi) { return bi == binder_info::Rec; }
 /* Expression literal values */
 enum class literal_kind { Nat, String };
 class literal : public object_ref {
-    explicit literal(object * o):object_ref(o) { inc(o); }
+    explicit literal(b_obj_arg o, bool b):object_ref(o, b) {}
 public:
     explicit literal(char const * v);
     explicit literal(unsigned v);
@@ -62,7 +62,7 @@ public:
     friend bool operator<(literal const & a, literal const & b);
 
     void serialize(serializer & s) const { s.write_object(raw()); }
-    static literal deserialize(deserializer & d) { return literal(d.read_object()); }
+    static literal deserialize(deserializer & d) { return literal(d.read_object(), true); }
 };
 inline bool operator!=(literal const & a, literal const & b) { return !(a == b); }
 inline serializer & operator<<(serializer & s, literal const & l) { l.serialize(s); return s; }
@@ -91,7 +91,7 @@ inductive expr
 */
 enum class expr_kind { BVar, FVar, MVar, Sort, Const, App, Lambda, Pi, Let, Lit, MData, Proj, Quote };
 class expr : public object_ref {
-    explicit expr(object * o):object_ref(o) { inc(o); }
+    explicit expr(b_obj_arg o, bool b):object_ref(o, b) {}
     explicit expr(object_ref && o):object_ref(o) {}
 
     friend expr mk_lit(literal const & lit);
@@ -118,7 +118,7 @@ public:
 
     friend bool is_eqp(expr const & e1, expr const & e2) { return e1.raw() == e2.raw(); }
     void serialize(serializer & s) const { s.write_object(raw()); }
-    static expr deserialize(deserializer & d) { return expr(d.read_object()); }
+    static expr deserialize(deserializer & d) { return expr(d.read_object(), true); }
 };
 
 typedef list_ref<expr> exprs;

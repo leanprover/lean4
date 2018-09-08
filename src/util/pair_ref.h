@@ -11,7 +11,7 @@ namespace lean {
 /* Wrapper for manipulating Lean pairs in C++ */
 template<typename T1, typename T2>
 class pair_ref : public object_ref {
-    explicit pair_ref(object * o):object_ref(o) { inc(o); }
+    explicit pair_ref(b_obj_arg o, bool b):object_ref(o, b) {}
 public:
     pair_ref(T1 const & a, T2 const & b):object_ref(mk_cnstr(0, a.raw(), b.raw())) { inc(a.raw()); inc(b.raw()); }
     pair_ref(pair_ref const & other):object_ref(other) {}
@@ -23,7 +23,7 @@ public:
     T2 const & snd() const { return static_cast<T2 const &>(cnstr_obj_ref(*this, 1)); }
 
     void serialize(serializer & s) const { s.write_object(raw()); }
-    static pair_ref deserialize(deserializer & d) { return pair_ref(d.read_object()); }
+    static pair_ref deserialize(deserializer & d) { return pair_ref(d.read_object(), true); }
 };
 
 template<typename T1, typename T2> bool operator==(pair_ref<T1, T2> const & a, pair_ref<T1, T2> const & b) {

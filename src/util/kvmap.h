@@ -19,7 +19,7 @@ inductive data_value
 | of_name   (v : name)
 */
 class data_value : public object_ref {
-    explicit data_value(object * o):object_ref(o) { inc(o); }
+    data_value(b_obj_arg o, bool b):object_ref(o, b) {}
 public:
     data_value(char const * v):object_ref(mk_cnstr(static_cast<unsigned>(data_value_kind::String), mk_string(v))) {}
     data_value(string_ref const & v):object_ref(mk_cnstr(static_cast<unsigned>(data_value_kind::String), v.raw())) { inc(v.raw()); }
@@ -33,7 +33,7 @@ public:
     data_value & operator=(data_value && other) { object_ref::operator=(other); return *this; }
 
     void serialize(serializer & s) const { s.write_object(raw()); }
-    static data_value deserialize(deserializer & d) { return data_value(d.read_object()); }
+    static data_value deserialize(deserializer & d) { return data_value(d.read_object(), true); }
 
     data_value_kind kind() const { return static_cast<data_value_kind>(cnstr_tag(raw())); }
     string_ref const & get_string() const { lean_assert(kind() == data_value_kind::String); return static_cast<string_ref const &>(cnstr_obj_ref(*this, 0)); }

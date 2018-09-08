@@ -35,6 +35,7 @@ other Regular definitions used in a definition.
 Remark: the hint only affects performance. */
 enum class reducibility_hints_kind { Opaque, Abbreviation, Regular };
 class reducibility_hints : public object_ref {
+    reducibility_hints(b_obj_arg o, bool b):object_ref(o, b) {}
     explicit reducibility_hints(object * r):object_ref(r) {}
 public:
     static reducibility_hints mk_opaque() { return reducibility_hints(box(static_cast<unsigned>(reducibility_hints_kind::Opaque))); }
@@ -48,7 +49,7 @@ public:
     bool is_regular() const { return kind() == reducibility_hints_kind::Regular; }
     unsigned get_height() const { return is_regular() ? cnstr_scalar<unsigned>(raw(), 0) : 0; }
     void serialize(serializer & s) const { s.write_object(raw()); }
-    static reducibility_hints deserialize(deserializer & d) { object * o = d.read_object(); inc(o); return reducibility_hints(o); }
+    static reducibility_hints deserialize(deserializer & d) { return reducibility_hints(d.read_object(), true); }
 };
 
 inline serializer & operator<<(serializer & s, reducibility_hints const & l) { l.serialize(s); return s; }

@@ -11,7 +11,8 @@ Author: Leonardo de Moura
 namespace lean {
 /* Wrapper for manipulating Lean runtime nat values in C++. */
 class nat : public object_ref {
-    nat(object * o, bool):object_ref(o) {}
+    nat(b_obj_arg o, bool b):object_ref(o, b) {}
+    explicit nat(obj_arg o):object_ref(o) {}
     static nat wrap(object * o) { return nat(o, true); }
 public:
     nat():object_ref(box(0)) {}
@@ -25,7 +26,6 @@ public:
     }
     nat(nat const & other):object_ref(other) {}
     nat(nat && other):object_ref(other) {}
-    explicit nat(object * o):object_ref(o) {}
 
     nat & operator=(nat const & other) { object_ref::operator=(other); return *this; }
     nat & operator=(nat && other) { object_ref::operator=(other); return *this; }
@@ -55,10 +55,11 @@ public:
     friend nat operator/(nat const & a, nat const & b)   { return wrap(nat_div(a.raw(), b.raw())); }
     friend nat operator%(nat const & a, nat const & b)   { return wrap(nat_mod(a.raw(), b.raw())); }
     void serialize(serializer & s) const { s.write_object(raw()); }
+    static nat deserialize(deserializer & d) { return nat(d.read_object(), true); }
 };
 
 inline serializer & operator<<(serializer & s, nat const & n) { n.serialize(s); return s; }
-inline nat read_nat(deserializer & d) { return nat(d.read_object()); }
+inline nat read_nat(deserializer & d) { return nat::deserialize(d); }
 inline deserializer & operator>>(deserializer & d, nat & n) { n = read_nat(d); return d; }
 inline std::ostream & operator<<(std::ostream & out, nat const & n) { out << n.to_mpz(); return out; }
 };

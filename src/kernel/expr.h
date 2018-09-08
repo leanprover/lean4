@@ -122,6 +122,7 @@ public:
 };
 
 typedef list_ref<expr> exprs;
+typedef pair<expr, expr> expr_pair;
 
 inline serializer & operator<<(serializer & s, expr const & e) { e.serialize(s); return s; }
 inline serializer & operator<<(serializer & s, exprs const & es) { es.serialize(s); return s; }
@@ -148,6 +149,12 @@ unsigned get_depth(expr const & e);
 unsigned get_loose_bvar_range(expr const & e);
 
 struct expr_hash { unsigned operator()(expr const & e) const { return hash(e); } };
+struct expr_pair_hash {
+    unsigned operator()(expr_pair const & p) const { return hash(hash(p.first), hash(p.second)); }
+};
+struct expr_pair_eq {
+    bool operator()(expr_pair const & p1, expr_pair const & p2) const { return p1.first == p2.first && p1.second == p2.second; }
+};
 
 // =======================================
 // Testers

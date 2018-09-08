@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "util/name_generator.h"
 #include "kernel/environment.h"
 #include "kernel/local_ctx.h"
-#include "kernel/expr_pair.h"
 #include "kernel/expr_maps.h"
 #include "kernel/equiv_manager.h"
 #include "kernel/abstract_type_context.h"

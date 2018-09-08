@@ -73,6 +73,7 @@ public:
 };
 
 typedef list_ref<level> levels;
+typedef pair<level, level> level_pair;
 
 bool operator==(level const & l1, level const & l2);
 inline bool operator!=(level const & l1, level const & l2) { return !operator==(l1, l2); }

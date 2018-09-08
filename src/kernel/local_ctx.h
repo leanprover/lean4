@@ -11,47 +11,32 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
-/* TODO(Leo): implement using runtime objects */
-class local_decl {
-public:
-    struct cell {
-        /* <name> : <type> := <value>
-           m_user_name is used for interacting with the user, and it may not be not unique. */
-        name               m_name; /* this one is unique */
-        name               m_user_name;
-        expr               m_type;
-        optional<expr>     m_value;
-        binder_info        m_bi;
-        unsigned           m_idx;
-        MK_LEAN_RC(); // Declare m_rc counter
-        void dealloc();
-        cell(unsigned idx, name const & n, name const & un, expr const & t, optional<expr> const & v,
-             binder_info bi);
-    };
-private:
-    cell * m_ptr;
+class local_decl : public object_ref {
     friend class local_ctx;
     friend class local_context;
     friend void initialize_local_ctx();
-    local_decl(unsigned idx, name const & n, name const & un, expr const & t, optional<expr> const & v, binder_info bi);
-    local_decl(local_decl const & d, expr const & t, optional<expr> const & v);
+    local_decl(unsigned idx, name const & n, name const & un, expr const & t, expr const & v);
+    local_decl(local_decl const & d, expr const & t, expr const & v);
+    local_decl(unsigned idx, name const & n, name const & un, expr const & t, binder_info bi);
+    local_decl(local_decl const & d, expr const & t);
 public:
     local_decl();
-    local_decl(local_decl const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
-    local_decl(local_decl && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
-    ~local_decl() { if (m_ptr) m_ptr->dec_ref(); }
-    local_decl & operator=(local_decl const & s) { LEAN_COPY_REF(s); }
-    local_decl & operator=(local_decl && s) { LEAN_MOVE_REF(s); }
-
-    friend bool is_eqp(local_decl const & a, local_decl const & b) { return a.m_ptr == b.m_ptr; }
-
-    name const & get_name() const { return m_ptr->m_name; }
-    name const & get_user_name() const { return m_ptr->m_user_name; }
-    expr const & get_type() const { return m_ptr->m_type; }
-    optional<expr> const & get_value() const { return m_ptr->m_value; }
-    binder_info get_info() const { return m_ptr->m_bi; }
+    local_decl(local_decl const & other):object_ref(other) {}
+    local_decl(local_decl && other):object_ref(other) {}
+    local_decl & operator=(local_decl const & other) { object_ref::operator=(other); return *this; }
+    local_decl & operator=(local_decl && other) { object_ref::operator=(other); return *this; }
+    friend bool is_eqp(local_decl const & d1, local_decl const & d2) { return d1.raw() == d2.raw(); }
+    name const & get_name() const { return static_cast<name const &>(cnstr_obj_ref(raw(), 0)); }
+    name const & get_user_name() const { return static_cast<name const &>(cnstr_obj_ref(raw(), 1)); }
+    expr const & get_type() const { return static_cast<expr const &>(cnstr_obj_ref(raw(), 2)); }
+    optional<expr> get_value() const {
+        /* Remark: if we decide to expose `local_decl` in Lean, we will need to use Lean `option` type. */
+        if (is_scalar(cnstr_obj(raw(), 3))) return none_expr();
+        else return some_expr(static_cast<expr const &>(cnstr_obj_ref(raw(), 3)));
+    }
+    binder_info get_info() const { return static_cast<binder_info>(cnstr_scalar<unsigned char>(raw(), sizeof(object*)*4)); }
+    unsigned get_idx() const { return cnstr_scalar<unsigned>(raw(), sizeof(object*)*4+sizeof(unsigned char)); }
     expr mk_ref() const;
-    unsigned get_idx() const { return m_ptr->m_idx; }
 };
 
 /* Plain local context object used by the kernel type checker. */
@@ -64,35 +49,20 @@ protected:
 
     template<bool is_lambda> expr mk_binding(unsigned num, expr const * fvars, expr const & b) const;
 
-    local_decl mk_local_decl(name const & n, name const & un, expr const & type,
-                             optional<expr> const & value, binder_info bi);
+    local_decl mk_local_decl(name const & n, name const & un, expr const & type, binder_info bi);
+    local_decl mk_local_decl(name const & n, name const & un, expr const & type, expr const & value);
+
 public:
     local_ctx():m_next_idx(0) {}
 
     bool empty() const { return m_idx2local_decl.empty(); }
 
-    expr mk_local_decl(name const & n, expr const & type, binder_info bi = mk_binder_info()) {
-        return mk_local_decl(n, n, type, none_expr(), bi).mk_ref();
-    }
-
-    expr mk_local_decl(name const & n, expr const & type, expr const & value) {
-        return mk_local_decl(n, n, type, some_expr(value), mk_binder_info()).mk_ref();
-    }
-
-    expr mk_local_decl(name const & n, name const & un, expr const & type, binder_info bi = mk_binder_info()) {
-        return mk_local_decl(n, un, type, none_expr(), bi).mk_ref();
-    }
-
-    expr mk_local_decl(name const & n, name const & un, expr const & type, expr const & value) {
-        return mk_local_decl(n, un, type, some_expr(value), mk_binder_info()).mk_ref();
-    }
-
     expr mk_local_decl(name_generator & g, name const & un, expr const & type, binder_info bi = mk_binder_info()) {
-        return mk_local_decl(g.next(), un, type, bi);
+        return mk_local_decl(g.next(), un, type, bi).mk_ref();
     }
 
     expr mk_local_decl(name_generator & g, name const & un, expr const & type, expr const & value) {
-        return mk_local_decl(g.next(), un, type, some_expr(value), mk_binder_info()).mk_ref();
+        return mk_local_decl(g.next(), un, type, value).mk_ref();
     }
 
     /** \brief Return the local declarations for the given reference.

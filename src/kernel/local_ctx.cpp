@@ -21,31 +21,46 @@ bool is_local_decl_ref(expr const & e) { // TODO(Leo): delete
     return is_local(e) && local_type(e) == *g_dummy_type;
 }
 
-void local_decl::cell::dealloc() {
-    delete this;
+local_decl::local_decl():object_ref(*g_dummy_decl) {}
+
+local_decl::local_decl(unsigned idx, name const & n, name const & un, expr const & t, expr const & v):
+    object_ref(mk_cnstr(0, n, un, t, v, sizeof(unsigned) + sizeof(unsigned char))) {
+    cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*4, 0);
+    cnstr_set_scalar<unsigned>(raw(), sizeof(object*)*4+sizeof(unsigned char), idx);
 }
 
-local_decl::cell::cell(unsigned idx, name const & n, name const & un, expr const & t, optional<expr> const & v, binder_info bi):
-    m_name(n), m_user_name(un), m_type(t), m_value(v), m_bi(bi), m_idx(idx), m_rc(1) {}
-
-local_decl::local_decl():local_decl(*g_dummy_decl) {}
-
-local_decl::local_decl(unsigned idx, name const & n, name const & un, expr const & t, optional<expr> const & v, binder_info bi) {
-    m_ptr = new cell(idx, n, un, t, v, bi);
+local_decl::local_decl(unsigned idx, name const & n, name const & un, expr const & t, binder_info bi):
+    object_ref(mk_cnstr(0, n, un, t, object_ref(box(0)), sizeof(unsigned) + sizeof(unsigned char))) {
+    cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*4, static_cast<unsigned char>(bi));
+    cnstr_set_scalar<unsigned>(raw(), sizeof(object*)*4+sizeof(unsigned char), idx);
 }
 
-local_decl::local_decl(local_decl const & d, expr const & t, optional<expr> const & v):
-    local_decl(d.m_ptr->m_idx, d.m_ptr->m_name, d.m_ptr->m_user_name, t, v, d.m_ptr->m_bi) {}
+local_decl::local_decl(local_decl const & d, expr const & t, expr const & v):
+    local_decl(d.get_idx(), d.get_name(), d.get_user_name(), t, v) {}
+
+local_decl::local_decl(local_decl const & d, expr const & t):
+    local_decl(d.get_idx(), d.get_name(), d.get_user_name(), t, d.get_info()) {}
 
 expr local_decl::mk_ref() const {
-    return mk_local_ref(m_ptr->m_name, m_ptr->m_user_name, m_ptr->m_bi);
+    // TODO(Leo):
+    return mk_local_ref(get_name(), get_user_name(), get_info());
 }
 
-local_decl local_ctx::mk_local_decl(name const & n, name const & un, expr const & type, optional<expr> const & value, binder_info bi) {
+local_decl local_ctx::mk_local_decl(name const & n, name const & un, expr const & type, expr const & value) {
     lean_assert(!m_name2local_decl.contains(n));
     unsigned idx = m_next_idx;
     m_next_idx++;
-    local_decl d(idx, n, un, type, value, bi);
+    local_decl d(idx, n, un, type, value);
+    m_name2local_decl.insert(n, d);
+    m_idx2local_decl.insert(idx, d);
+    return d;
+}
+
+local_decl local_ctx::mk_local_decl(name const & n, name const & un, expr const & type, binder_info bi) {
+    lean_assert(!m_name2local_decl.contains(n));
+    unsigned idx = m_next_idx;
+    m_next_idx++;
+    local_decl d(idx, n, un, type, bi);
     m_name2local_decl.insert(n, d);
     m_idx2local_decl.insert(idx, d);
     return d;
@@ -123,7 +138,7 @@ void initialize_local_ctx() {
     g_dummy_type   = new expr(mk_constant(name::mk_internal_unique_name()));
     g_dummy_decl   = new local_decl(std::numeric_limits<unsigned>::max(),
                                     name("__local_decl_for_default_constructor"), name("__local_decl_for_default_constructor"),
-                                    mk_Prop(), optional<expr>(), mk_binder_info());
+                                    mk_Prop(), mk_binder_info());
 }
 
 void finalize_local_ctx() {

@@ -53,7 +53,8 @@ class local_context : public local_ctx {
                        optional<expr> const & value, binder_info bi);
     static local_decl update_local_decl(local_decl const & d, expr const & t,
                                         optional<expr> const & v) {
-        return local_decl(d, t, v);
+        if (v) return local_decl(d, t, *v);
+        else return local_decl(d, t);
     }
 public:
     local_context() {}

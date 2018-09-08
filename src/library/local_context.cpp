@@ -148,7 +148,7 @@ void local_context::erase_user_name(local_decl const & d) {
 }
 
 expr local_context::mk_local_decl(name const & n, name const & un, expr const & type, optional<expr> const & value, binder_info bi) {
-    local_decl d = local_ctx::mk_local_decl(n, un, type, value, bi);
+    local_decl d = value ? local_ctx::mk_local_decl(n, un, type, *value) : local_ctx::mk_local_decl(n, un, type, bi);
     insert_user_name(d);
     return d.mk_ref();
 }
@@ -213,7 +213,11 @@ void local_context::pop_local_decl() {
 bool local_context::rename_user_name(name const & from, name const & to) {
     if (auto d = find_local_decl_from_user_name(from)) {
         erase_user_name(*d);
-        local_decl new_d(d->get_idx(), d->get_name(), to, d->get_type(), d->get_value(), d->get_info());
+        local_decl new_d;
+        if (d->get_value())
+            new_d = local_decl(d->get_idx(), d->get_name(), to, d->get_type(), *d->get_value());
+        else
+            new_d = local_decl(d->get_idx(), d->get_name(), to, d->get_type(), d->get_info());
         m_idx2local_decl.insert(d->get_idx(), new_d);
         m_name2local_decl.insert(d->get_name(), new_d);
         insert_user_name(new_d);
@@ -388,11 +392,12 @@ local_context local_context::instantiate_mvars(metavar_context & mctx) const {
     local_context r;
     r.m_next_idx        = m_next_idx;
     m_idx2local_decl.for_each([&](unsigned, local_decl const & d) {
-            expr new_type = mctx.instantiate_mvars(d.m_ptr->m_type);
-            optional<expr> new_value;
-            if (d.m_ptr->m_value)
-                new_value = mctx.instantiate_mvars(*d.m_ptr->m_value);
-            local_decl new_d(d, new_type, new_value);
+            expr new_type = mctx.instantiate_mvars(d.get_type());
+            local_decl new_d;
+            if (auto v = d.get_value())
+                new_d = local_decl(d, new_type, mctx.instantiate_mvars(*v));
+            else
+                new_d = local_decl(d, new_type);
             r.m_name2local_decl.insert(d.get_name(), new_d);
             r.m_idx2local_decl.insert(d.get_idx(), new_d);
             r.insert_user_name(d);

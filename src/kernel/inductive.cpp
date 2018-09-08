@@ -116,7 +116,7 @@ public:
         to_buffer(decl.get_types(), m_ind_types);
     }
 
-    type_checker tc() { return type_checker(m_env, m_lctx, true, !m_is_meta); }
+    type_checker tc() { return type_checker(m_env, m_lctx, !m_is_meta); }
 
     /** Return type of the parameter at position `i` */
     expr get_param_type(unsigned i) const {

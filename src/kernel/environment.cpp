@@ -78,8 +78,7 @@ static void check_constant_val(environment const & env, constant_val const & v, 
 }
 
 static void check_constant_val(environment const & env, constant_val const & v, bool non_meta_only) {
-    bool memoize = true;
-    type_checker checker(env, memoize, non_meta_only);
+    type_checker checker(env, non_meta_only);
     check_constant_val(env, v, checker);
 }
 
@@ -96,14 +95,14 @@ environment environment::add_definition(declaration const & d, bool check) const
         /* Meta definition can be recursive.
            So, we check the header, add, and then type check the body. */
         if (check) {
-            bool memoize = true; bool non_meta_only = false;
-            type_checker checker(*this, memoize, non_meta_only);
+            bool non_meta_only = false;
+            type_checker checker(*this, non_meta_only);
             check_constant_val(*this, v.to_constant_val(), checker);
         }
         environment new_env = add(constant_info(d));
         if (check) {
-            bool memoize = true; bool non_meta_only = false;
-            type_checker checker(new_env, memoize, non_meta_only);
+            bool non_meta_only = false;
+            type_checker checker(new_env, non_meta_only);
             expr val_type = checker.check(v.get_value(), v.get_lparams());
             if (!checker.is_def_eq(val_type, v.get_type()))
                 throw definition_type_mismatch_exception(new_env, d, val_type);
@@ -111,8 +110,7 @@ environment environment::add_definition(declaration const & d, bool check) const
         return new_env;
     } else {
         if (check) {
-            bool memoize = true;
-            type_checker checker(*this, memoize);
+            type_checker checker(*this);
             check_constant_val(*this, v.to_constant_val(), checker);
             expr val_type = checker.check(v.get_value(), v.get_lparams());
             if (!checker.is_def_eq(val_type, v.get_type()))
@@ -126,8 +124,7 @@ environment environment::add_theorem(declaration const & d, bool check) const {
     theorem_val const & v = d.to_theorem_val();
     if (check) {
         // TODO(Leo): we must add support for handling tasks here
-        bool memoize = true;
-        type_checker checker(*this, memoize);
+        type_checker checker(*this);
         check_constant_val(*this, v.to_constant_val(), checker);
         expr val_type = checker.check(v.get_value(), v.get_lparams());
         if (!checker.is_def_eq(val_type, v.get_type()))
@@ -140,8 +137,8 @@ environment environment::add_mutual(declaration const & d, bool check) const {
     definition_vals const & vs = d.to_definition_vals();
     /* Check declarations header */
     if (check) {
-        bool memoize = true; bool non_meta_only = false;
-        type_checker checker(*this, memoize, non_meta_only);
+        bool non_meta_only = false;
+        type_checker checker(*this, non_meta_only);
         for (definition_val const & v : vs) {
             if (!v.is_meta())
                 throw kernel_exception(*this, "invalid mutual definition, declaration is not tagged as meta");
@@ -155,8 +152,8 @@ environment environment::add_mutual(declaration const & d, bool check) const {
     }
     /* Check actual definitions */
     if (check) {
-        bool memoize = true; bool non_meta_only = false;
-        type_checker checker(new_env, memoize, non_meta_only);
+        bool non_meta_only = false;
+        type_checker checker(new_env, non_meta_only);
         for (definition_val const & v : vs) {
             expr val_type = checker.check(v.get_value(), v.get_lparams());
             if (!checker.is_def_eq(val_type, v.get_type()))

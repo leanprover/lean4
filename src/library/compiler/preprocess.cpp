@@ -170,9 +170,8 @@ class preprocess_fn {
     name_set       m_decl_names; /* name of the functions being compiled */
 
     bool check(constant_info const & d, expr const & v) {
-        bool memoize       = true;
         bool non_meta_only = false;
-        type_checker tc(m_env, memoize, non_meta_only);
+        type_checker tc(m_env, non_meta_only);
         expr t = tc.check(v, d.get_lparams());
         if (!tc.is_def_eq(d.get_type(), t))
             throw exception("preprocess failed");

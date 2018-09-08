@@ -32,7 +32,6 @@ class type_checker : public abstract_type_context {
     environment               m_env;
     local_ctx                 m_lctx;
     name_generator            m_name_generator;
-    bool                      m_memoize;
     bool                      m_non_meta_only;
     cache                     m_infer_type_cache[2];
     expr_map<expr>            m_whnf_core_cache;
@@ -84,11 +83,10 @@ class type_checker : public abstract_type_context {
     expr check_ignore_undefined_universes(expr const & e);
 
 public:
-    /** \brief Create a type checker for the given environment.
-        memoize: if true, then inferred types are memoized/cached. */
-    type_checker(environment const & env, local_ctx const & lctx, bool memoize = true, bool non_meta_only = true);
-    type_checker(environment const & env, bool memoize = true, bool non_meta_only = true):
-        type_checker(env, local_ctx(), memoize, non_meta_only) {}
+    /** \brief Create a type checker for the given environment. */
+    type_checker(environment const & env, local_ctx const & lctx, bool non_meta_only = true);
+    type_checker(environment const & env, bool non_meta_only = true):
+        type_checker(env, local_ctx(), non_meta_only) {}
     ~type_checker();
 
     virtual environment const & env() const { return m_env; }

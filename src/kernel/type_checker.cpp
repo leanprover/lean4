@@ -233,11 +233,9 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
     lean_assert(!has_loose_bvars(e));
     check_system("type checker");
 
-    if (m_memoize) {
-        auto it = m_infer_type_cache[infer_only].find(e);
-        if (it != m_infer_type_cache[infer_only].end())
-            return it->second;
-    }
+    auto it = m_infer_type_cache[infer_only].find(e);
+    if (it != m_infer_type_cache[infer_only].end())
+        return it->second;
 
     expr r;
     switch (e.kind()) {
@@ -268,8 +266,7 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
         }
     }
 
-    if (m_memoize)
-        m_infer_type_cache[infer_only].insert(mk_pair(e, r));
+    m_infer_type_cache[infer_only].insert(mk_pair(e, r));
     return r;
 }
 
@@ -368,11 +365,9 @@ expr type_checker::whnf_core(expr const & e) {
     }
 
     // check cache
-    if (m_memoize) {
-        auto it = m_whnf_core_cache.find(e);
-        if (it != m_whnf_core_cache.end())
-            return it->second;
-    }
+    auto it = m_whnf_core_cache.find(e);
+    if (it != m_whnf_core_cache.end())
+        return it->second;
 
     // do the actual work
     expr r;
@@ -422,8 +417,7 @@ expr type_checker::whnf_core(expr const & e) {
         break;
     }
 
-    if (m_memoize)
-        m_whnf_core_cache.insert(mk_pair(e, r));
+    m_whnf_core_cache.insert(mk_pair(e, r));
     return r;
 }
 
@@ -485,11 +479,9 @@ expr type_checker::whnf(expr const & e) {
     }
 
     // check cache
-    if (m_memoize) {
-        auto it = m_whnf_cache.find(e);
-        if (it != m_whnf_cache.end())
-            return it->second;
-    }
+    auto it = m_whnf_cache.find(e);
+    if (it != m_whnf_cache.end())
+        return it->second;
 
     expr t = e;
     while (true) {
@@ -498,8 +490,7 @@ expr type_checker::whnf(expr const & e) {
             t = *next_t;
         } else {
             auto r = t1;
-            if (m_memoize)
-                m_whnf_cache.insert(mk_pair(e, r));
+            m_whnf_cache.insert(mk_pair(e, r));
             return r;
         }
     }
@@ -800,9 +791,9 @@ bool type_checker::is_def_eq(expr const & t, expr const & s) {
     return r;
 }
 
-type_checker::type_checker(environment const & env, local_ctx const & lctx, bool memoize, bool non_meta_only):
+type_checker::type_checker(environment const & env, local_ctx const & lctx, bool non_meta_only):
     m_env(env), m_lctx(lctx), m_name_generator(*g_kernel_fresh),
-    m_memoize(memoize), m_non_meta_only(non_meta_only), m_lparams(nullptr) {
+    m_non_meta_only(non_meta_only), m_lparams(nullptr) {
 }
 
 type_checker::~type_checker() {}

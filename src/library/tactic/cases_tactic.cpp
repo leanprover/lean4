@@ -102,7 +102,7 @@ struct cases_tactic_fn {
         expr const & fn = get_app_args(t, args);
         if (!is_constant(fn))
             return false;
-        if (!m_env.get(const_name(fn)).is_inductive())
+        if (!is_inductive(m_env, const_name(fn)))
             return false;
         if (!m_env.find(name{const_name(fn), "cases_on"}) || !m_env.find(get_eq_name()))
             return false;

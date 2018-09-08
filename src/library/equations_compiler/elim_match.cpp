@@ -275,7 +275,7 @@ struct elim_match_fn {
         return optional<name>();
     }
 
-    bool is_inductive(name const & n) const { return m_env.get(n).is_inductive(); }
+    bool is_inductive(name const & n) const { return ::lean::is_inductive(m_env, n); }
     bool is_inductive(expr const & e) const { return is_constant(e) && is_inductive(const_name(e)); }
     bool is_inductive_app(expr const & e) const { return is_inductive(get_app_fn(e)); }
 

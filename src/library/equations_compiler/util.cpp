@@ -322,7 +322,7 @@ bool is_nat_int_char_string_name_value(type_context_old & ctx, expr const & e) {
 }
 
 static bool is_inductive(environment const & env, expr const & e) {
-    return is_constant(e) && env.get(const_name(e)).is_inductive();
+    return is_constant(e) && is_inductive(env, const_name(e));
 }
 
 /* Normalize until head is an inductive datatype */

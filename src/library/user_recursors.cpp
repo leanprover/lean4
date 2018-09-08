@@ -333,7 +333,7 @@ typedef scoped_ext<recursor_config> recursor_ext;
 
 environment add_user_recursor(environment const & env, name const & r, optional<unsigned> const & major_pos,
                               bool persistent) {
-    if (env.get(r).is_recursor())
+    if (is_recursor(env, r))
         throw exception(sstream() << "invalid user defined recursor, '" << r << "' is a builtin recursor");
     recursor_info info = mk_recursor_info(env, r, major_pos);
     return recursor_ext::add_entry(env, get_dummy_ios(), info, persistent);

@@ -75,7 +75,7 @@ struct structural_rec_fn {
             m_ctx(ctx), m_lhs(lhs), m_fn(fn), m_pattern(pattern), m_arg_idx(arg_idx) {}
 
         bool is_constructor(expr const & e) const {
-            return is_constant(e) && m_ctx.env().get(const_name(e)).is_constructor();
+            return is_constant(e) && ::lean::is_constructor(m_ctx.env(), const_name(e));
         }
 
         expr whnf(expr const & e) {
@@ -220,7 +220,7 @@ struct structural_rec_fn {
         expr arg_type = ctx.relaxed_whnf(binding_domain(fn_type));
         buffer<expr> I_args;
         expr I        = get_app_args(arg_type, I_args);
-        if (!is_constant(I) || !m_env.get(const_name(I)).is_inductive()) {
+        if (!is_constant(I) || !is_inductive(m_env, const_name(I))) {
             trace_struct(tout() << "structural recursion on argument #" << (arg_idx+1) << " was not used "
                          << "for '" << fn << "' because type is not inductive\n  "
                          << arg_type << "\n";);

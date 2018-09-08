@@ -247,7 +247,7 @@ void get_constructor_names(environment const & env, name const & n, buffer<name>
 optional<name> is_constructor_app(environment const & env, expr const & e) {
     expr const & fn = get_app_fn(e);
     if (is_constant(fn)) {
-        if (env.get(const_name(fn)).is_constructor())
+        if (is_constructor(env, const_name(fn)))
             return optional<name>(const_name(fn));
     }
     return optional<name>();

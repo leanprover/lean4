@@ -106,7 +106,7 @@ elaborator_strategy get_elaborator_strategy(environment const & env, name const 
     if (auto data = get_elaborator_strategy_attribute().get(env, n))
         return data->m_status;
 
-    if (env.get(n).is_recursor() ||
+    if (is_recursor(env, n) ||
         is_aux_recursor(env, n)  ||
         is_user_defined_recursor(env, n)) {
         return elaborator_strategy::AsEliminator;
@@ -395,7 +395,7 @@ static bool is_basic_aux_recursor(environment const & env, name const & n) {
 
 /** See comment at elim_info */
 auto elaborator::get_elim_info_for_builtin(name const & fn) -> elim_info {
-    lean_assert(is_basic_aux_recursor(m_env, fn) || m_env.get(fn).is_recursor());
+    lean_assert(is_basic_aux_recursor(m_env, fn) || is_recursor(m_env, fn));
     /* Remark: this is not just an optimization. The code at use_elim_elab_core
        only works for dependent elimination. */
     lean_assert(!fn.is_atomic());
@@ -440,7 +440,7 @@ auto elaborator::get_elim_info_for_builtin(name const & fn) -> elim_info {
 auto elaborator::use_elim_elab_core(name const & fn) -> optional<elim_info> {
     if (!is_elim_elab_candidate(fn))
         return optional<elim_info>();
-    if (is_basic_aux_recursor(m_env, fn) || m_env.get(fn).is_recursor()) {
+    if (is_basic_aux_recursor(m_env, fn) || is_recursor(m_env, fn)) {
         return optional<elim_info>(get_elim_info_for_builtin(fn));
     }
     type_context_old::tmp_locals locals(m_ctx);

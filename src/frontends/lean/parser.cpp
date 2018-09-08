@@ -1385,7 +1385,7 @@ struct to_pattern_fn {
 
     /* Return true iff the constant n may occur in a pattern */
     bool is_pattern_constant(name const & n) {
-        if (env().get(n).is_constructor())
+        if (is_constructor(env(), n))
             return true;
         if (has_pattern_attribute(env(), n))
             return true;

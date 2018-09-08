@@ -13,7 +13,6 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "library/explicit.h"
 #include "library/aliases.h"
-#include "library/scoped_ext.h"
 #include "library/constants.h"
 #include "library/string.h"
 #include "library/trace.h"

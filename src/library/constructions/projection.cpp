@@ -15,7 +15,6 @@ Author: Leonardo de Moura
 #include "library/projection.h"
 #include "library/module.h"
 #include "library/util.h"
-#include "library/scoped_ext.h"
 #include "library/class.h"
 #include "library/constructions/projection.h"
 #include "library/constructions/util.h"

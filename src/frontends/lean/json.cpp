@@ -7,7 +7,6 @@ Author: Gabriel Ebner
 #ifdef LEAN_JSON
 #include "frontends/lean/json.h"
 #include <string>
-#include "library/scoped_ext.h"
 #include "library/protected.h"
 #include "kernel/declaration.h"
 #include "library/type_context.h"

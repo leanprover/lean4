@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include <string>
 #include "library/aux_recursors.h"
 #include "library/constants.h"
-#include "library/scoped_ext.h"
 #include "library/module.h"
 
 namespace lean {

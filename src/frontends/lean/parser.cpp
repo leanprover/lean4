@@ -37,7 +37,6 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "library/deep_copy.h"
 #include "library/module.h"
-#include "library/scoped_ext.h"
 #include "library/explicit.h"
 #include "library/num.h"
 #include "library/string.h"

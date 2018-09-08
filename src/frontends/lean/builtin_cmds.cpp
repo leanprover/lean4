@@ -15,7 +15,6 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "library/eval_helper.h"
-#include "library/scoped_ext.h"
 #include "library/trace.h"
 #include "library/aliases.h"
 #include "library/export_decl.h"

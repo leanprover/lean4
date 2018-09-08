@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
 #include "kernel/for_each_fn.h"
-#include "library/scoped_ext.h"
 #include "library/aliases.h"
 #include "library/private.h"
 #include "library/protected.h"

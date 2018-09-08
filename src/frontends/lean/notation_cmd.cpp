@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "runtime/utf8.h"
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
-#include "library/scoped_ext.h"
 #include "library/explicit.h"
 #include "library/num.h"
 #include "library/aliases.h"

@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "runtime/sstream.h"
 #include "kernel/find_fn.h"
 #include "library/util.h"
-#include "library/scoped_ext.h"
 #include "library/user_recursors.h"
 #include "library/aux_recursors.h"
 #include "library/attribute_manager.h"

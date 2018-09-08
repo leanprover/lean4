@@ -21,7 +21,6 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/trace.h"
 #include "library/attribute_manager.h"
-#include "library/scoped_ext.h"
 #include "library/placeholder.h"
 #include "library/locals.h"
 #include "library/reducible.h"

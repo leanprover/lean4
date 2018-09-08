@@ -13,7 +13,6 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "kernel/for_each_fn.h"
 #include "library/error_msgs.h"
-#include "library/scoped_ext.h"
 #include "library/annotation.h"
 #include "library/locals.h"
 #include "library/explicit.h"

@@ -18,7 +18,6 @@ Author: Leonardo de Moura
 #include "library/aliases.h"
 #include "library/explicit.h"
 #include "library/reducible.h"
-#include "library/scoped_ext.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/decl_util.h"
 #include "frontends/lean/tokens.h"

@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "library/num.h"
 #include "library/string.h"
 #include "library/annotation.h"
-#include "library/quote.h"
 #include "library/explicit.h"
 #include "library/module.h"
 #include "library/protected.h"
@@ -92,7 +91,6 @@ void initialize_library_module() {
     initialize_export_decl();
     initialize_class();
     initialize_library_util();
-    initialize_quote();
     initialize_pp_options();
     initialize_projection();
     initialize_user_recursors();
@@ -124,7 +122,6 @@ void finalize_library_module() {
     finalize_user_recursors();
     finalize_projection();
     finalize_pp_options();
-    finalize_quote();
     finalize_library_util();
     finalize_class();
     finalize_export_decl();

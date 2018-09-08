@@ -71,8 +71,6 @@ bool is_lt(expr const & a, expr const & b, bool use_hash, local_context const * 
             return mvar_name(a) < mvar_name(b);
         else
             return is_lt(mvar_type(a), mvar_type(b), use_hash, lctx);
-    case expr_kind::Quote:
-        return quote_value(a) < quote_value(b);
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
@@ -188,8 +186,6 @@ bool is_lt_no_level_params(expr const & a, expr const & b) {
             return mvar_name(a) < mvar_name(b);
         else
             return is_lt_no_level_params(mvar_type(a), mvar_type(b));
-    case expr_kind::Quote:
-        return quote_value(a) < quote_value(b);
     }
     lean_unreachable();
 }

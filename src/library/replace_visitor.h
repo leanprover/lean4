@@ -32,8 +32,6 @@ protected:
     virtual expr visit_mdata(expr const & e);
     virtual expr visit_proj(expr const & e);
     virtual expr visit(expr const &);
-
-    virtual expr visit_quote(expr const &);
 public:
     expr operator()(expr const & e) { return visit(e); }
     void clear() { m_cache.clear(); }

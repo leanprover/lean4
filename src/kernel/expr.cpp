@@ -133,7 +133,6 @@ inline constexpr unsigned hash_offset(expr_kind k) {
         k == expr_kind::FVar   ? scalar_offset(k) + sizeof(unsigned char) : // for binder_info, TODO(Leo): delete after we remove support for legacy code
         k == expr_kind::Lambda ? scalar_offset(k) + sizeof(unsigned char) : // for binder_info
         k == expr_kind::Pi     ? scalar_offset(k) + sizeof(unsigned char) : // for binder_info
-        k == expr_kind::Quote  ? scalar_offset(k) + sizeof(unsigned char) : // for reflected
         scalar_offset(k);
 }
 
@@ -176,10 +175,6 @@ template<expr_kind k> void set_binder_info(expr const & e, binder_info bi) {
 }
 
 /* Legacy support */
-void set_reflected(expr const & e, bool r) {
-    cnstr_set_scalar<unsigned char>(e.raw(), reflected_offset(expr_kind::Quote), r);
-}
-
 unsigned hash(expr const & e) { return cnstr_scalar<unsigned>(e.raw(), hash_offset(e.kind())); }
 static inline unsigned char get_flags(expr const & e) { return cnstr_scalar<unsigned char>(e.raw(), flags_offset(e.kind())); }
 bool has_expr_mvar(expr const & e) { return (get_flags(e) & 1) != 0; }
@@ -193,7 +188,6 @@ unsigned get_weight(expr const & e) {
     switch (e.kind()) {
     case expr_kind::BVar:  case expr_kind::Const: case expr_kind::Sort:
     case expr_kind::MVar:  case expr_kind::FVar:  case expr_kind::Lit:
-    case expr_kind::Quote:
         return 1;
     case expr_kind::Lambda:  return get_weight_core<expr_kind::Lambda>(e);
     case expr_kind::Pi:      return get_weight_core<expr_kind::Pi>(e);
@@ -211,7 +205,6 @@ unsigned get_depth(expr const & e) {
     switch (e.kind()) {
     case expr_kind::BVar:  case expr_kind::Const: case expr_kind::Sort:
     case expr_kind::MVar:  case expr_kind::FVar:  case expr_kind::Lit:
-    case expr_kind::Quote:
         return 1;
     case expr_kind::Lambda:  return get_depth_core<expr_kind::Lambda>(e);
     case expr_kind::Pi:      return get_depth_core<expr_kind::Pi>(e);
@@ -228,7 +221,7 @@ template<expr_kind k> unsigned get_loose_bvar_range_core(expr const & e) { retur
 unsigned get_loose_bvar_range(expr const & e) {
     switch (e.kind()) {
     case expr_kind::Const: case expr_kind::Sort:
-    case expr_kind::Quote: case expr_kind::Lit:
+    case expr_kind::Lit:
         return 0;
     case expr_kind::BVar:    {
         nat const & idx = bvar_idx(e);
@@ -250,7 +243,6 @@ bool is_atomic(expr const & e) {
     switch (e.kind()) {
     case expr_kind::Const: case expr_kind::Sort:
     case expr_kind::BVar:  case expr_kind::Lit:
-    case expr_kind::Quote:
         return true;
     case expr_kind::App:   case expr_kind::MVar:
     case expr_kind::FVar:  case expr_kind::Lambda:
@@ -259,11 +251,6 @@ bool is_atomic(expr const & e) {
         return false;
     }
     lean_unreachable(); // LCOV_EXCL_LINE
-}
-
-bool quote_is_reflected(expr const & e) {
-    lean_assert(is_quote(e));
-    return cnstr_scalar<unsigned char>(e.raw(), reflected_offset(expr_kind::Quote)) != 0;
 }
 
 binder_info binding_info(expr const & e) {
@@ -410,14 +397,6 @@ expr mk_let(name const & n, expr const & t, expr const & v, expr const & b) {
                                has_fvar(t)       || has_fvar(v)       || has_fvar(b),
                                has_univ_param(t) || has_univ_param(v) || has_univ_param(b));
     set_rec_scalar<expr_kind::Let>(r, w, d, lbvr);
-    return r;
-}
-
-/* Legacy */
-expr mk_quote(bool reflected, expr const & val) {
-    expr r(mk_cnstr(static_cast<unsigned>(expr_kind::Quote), val, expr_scalar_size(expr_kind::Quote)));
-    set_scalar<expr_kind::Quote>(r, hash(hash(val), reflected ? 17u : 11u), false, false, false, false);
-    set_reflected(r, reflected);
     return r;
 }
 

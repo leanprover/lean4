@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/util.h"
 #include "library/trace.h"
-#include "library/quote.h"
 #include "library/constants.h"
 #include "library/type_context.h"
 #include "library/vm/vm.h"
@@ -134,8 +133,6 @@ struct get_noncomputable_reason_fn {
     }
 
     void visit_mdata(expr const & e) {
-        if (is_expr_quote(e) || is_pexpr_quote(e))
-            return;
         if (should_visit(e)) {
             visit(mdata_expr(e));
         }
@@ -191,7 +188,6 @@ struct get_noncomputable_reason_fn {
         case expr_kind::Let:     visit_let(e);      return;
         case expr_kind::MData:   visit_mdata(e);    return;
         case expr_kind::Proj:    visit(proj_expr(e)); return;
-        case expr_kind::Quote:   return;
         }
     }
 

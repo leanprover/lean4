@@ -89,7 +89,7 @@ inductive expr
 | quote : bool → expr → expr
 
 */
-enum class expr_kind { BVar, FVar, MVar, Sort, Const, App, Lambda, Pi, Let, Lit, MData, Proj, Quote };
+enum class expr_kind { BVar, FVar, MVar, Sort, Const, App, Lambda, Pi, Let, Lit, MData, Proj };
 class expr : public object_ref {
     explicit expr(b_obj_arg o, bool b):object_ref(o, b) {}
     explicit expr(object_ref && o):object_ref(o) {}
@@ -359,7 +359,6 @@ inline expr update_constant(expr const & e, levels const & new_levels) { return 
     It also returns the meta-variable application found in \c e. */
 optional<expr> has_expr_metavar_strict(expr const & e);
 inline bool is_constant(expr const & e, name const & n) { return is_const(e, n); }
-inline bool is_quote(expr const & e) { return e.kind() == expr_kind::Quote; }
 inline bool is_mlocal(expr const & e) { return is_local(e) || is_metavar(e); }
 inline bool has_local(expr const & e) { return has_fvar(e); }
 }

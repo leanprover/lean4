@@ -124,8 +124,6 @@ struct check_fn {
             return visit(mdata_expr(e));
         case expr_kind::Proj:
             return visit(proj_expr(e));
-        case expr_kind::Quote:
-            break; /* do nothing */
         }
     }
 

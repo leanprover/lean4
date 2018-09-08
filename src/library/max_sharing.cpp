@@ -97,9 +97,6 @@ struct max_sharing_fn::imp {
         case expr_kind::FVar:
             res = update_local(a, apply(local_type(a)));
             break;
-        case expr_kind::Quote:
-            res = a;
-            break;
         }
         m_expr_cache.insert(res);
         return res;

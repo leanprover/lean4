@@ -22,7 +22,6 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "library/private.h"
 #include "library/protected.h"
-#include "library/quote.h"
 #include "library/explicit.h"
 #include "library/num.h"
 #include "library/util.h"
@@ -1115,8 +1114,6 @@ auto pretty_fn::pp_equations(expr const & e) -> optional<result> {
 auto pretty_fn::pp_mdata(expr const & e) -> result {
     if (is_explicit(e)) {
         return pp_explicit(e);
-    } else if (is_expr_quote(e)) {
-        return result(format("`(") + nest(4, pp(get_expr_quote_value(e)).fmt()) + format(")"));
     } else if (is_inaccessible(e)) {
         format r = format(".") + pp_child(get_annotation_arg(e), max_bp()).fmt();
         return result(r);
@@ -1765,11 +1762,6 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
     case expr_kind::Pi:        return pp_pi(e);
     case expr_kind::Let:       return pp_let(e);
     case expr_kind::Lit:       return pp_lit(e);
-    case expr_kind::Quote:
-        if (quote_is_reflected(e))
-            return result(format("`(") + nest(4, pp(quote_value(e)).fmt()) + format(")"));
-        else
-            return result(format("``(") + nest(2, pp(quote_value(e)).fmt()) + format(")"));
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }

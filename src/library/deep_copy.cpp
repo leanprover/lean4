@@ -23,7 +23,6 @@ expr copy(expr const & a) {
     case expr_kind::Pi:     return mk_pi(binding_name(a), binding_domain(a), binding_body(a), binding_info(a));
     case expr_kind::MVar:   return mk_mvar(mvar_name(a), mvar_type(a));
     case expr_kind::Let:    return mk_let(let_name(a), let_type(a), let_value(a), let_body(a));
-    case expr_kind::Quote:  return mk_quote(quote_is_reflected(a), quote_value(a));
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }

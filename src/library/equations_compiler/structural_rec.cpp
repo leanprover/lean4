@@ -169,10 +169,6 @@ struct structural_rec_fn {
                     type_context_old::tmp_locals locals(m_ctx);
                     return check_rhs(instantiate(binding_body(e), locals.push_local_from_binding(e)));
                 }
-
-
-            case expr_kind::Quote:
-                return true;
             }
             lean_unreachable();
         }

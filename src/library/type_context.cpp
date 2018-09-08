@@ -30,7 +30,6 @@ Author: Leonardo de Moura
 #include "library/attribute_manager.h"
 #include "library/fun_info.h"
 #include "library/num.h"
-#include "library/quote.h"
 #include "library/check.h"
 
 namespace lean {
@@ -814,8 +813,6 @@ expr type_context_old::whnf_core(expr const & e0, bool proj_reduce, bool aux_rec
     case expr_kind::MData:
         e = mdata_expr(e);
         continue;
-    case expr_kind::Quote:
-        return e;
     }}
 }
 
@@ -981,14 +978,6 @@ expr type_context_old::infer_core(expr const & e) {
     case expr_kind::Let:
         r = infer_let(e);
         break;
-
-    case expr_kind::Quote:
-        if (quote_is_reflected(e)) {
-            expr type = infer_core(quote_value(e));
-            return mk_app(mk_constant(get_reflected_name(), {get_level(type)}), type, quote_value(e));
-        } else {
-            return mk_constant(get_pexpr_name());
-        }
     }
 
     if ((!in_tmp_mode() || (!has_expr_metavar(e) && !has_expr_metavar(r))) &&
@@ -2659,9 +2648,6 @@ lbool type_context_old::quick_is_def_eq(expr const & e1, expr const & e2) {
         case expr_kind::Let:
             // We do not handle these cases in this method.
             break;
-
-        case expr_kind::Quote:
-            return to_lbool(quote_is_reflected(e1) == quote_is_reflected(e2) && quote_value(e1) == quote_value(e2));
         }
     }
     return l_undef; // This is not an "easy case"
@@ -3304,8 +3290,6 @@ lbool type_context_old::is_quick_class(expr const & type, name & result) {
         case expr_kind::Pi:
             it = &binding_body(*it);
             break;
-        case expr_kind::Quote:
-            return l_false;
         }
     }
 }
@@ -3541,74 +3525,9 @@ struct instance_synthesizer {
         return false;
     }
 
-    bool process_special(stack_entry const & e) {
-        type_context_old::tmp_locals locals(m_ctx);
-        expr const & mvar = e.m_mvar;
-        expr mvar_type    = m_ctx.infer(mvar);
-        while (true) {
-            expr new_mvar_type = m_ctx.relaxed_whnf(mvar_type);
-            if (!is_pi(new_mvar_type))
-                break;
-            mvar_type   = new_mvar_type;
-            expr local  = locals.push_local_from_binding(mvar_type);
-            mvar_type   = instantiate(binding_body(mvar_type), local);
-        }
-        mvar_type = m_ctx.instantiate_mvars(mvar_type);
-        if (!has_metavar(mvar_type) && !has_param_univ(mvar_type) &&
-            is_app_of(mvar_type, get_reflected_name(), 2)) {
-            lean_trace_plain("class_instances",
-                             scope_trace_env scope(m_ctx.env(), m_ctx);
-                             tout() << "process special: " << mvar_type << "\n";);
-            expr r = app_arg(mvar_type);
-            // prevent infinite recursion
-            if (is_local(r))
-                return false;
-            // recursively look up reflected instances for locals in r and substitute them into the quotation of r
-            r = zeta_expand(m_ctx.m_lctx, r);
-            collected_locals r_locals;
-            collect_locals(r, r_locals);
-            r = m_ctx.mk_lambda(r_locals.get_collected(), r);
-            expr r_ty = m_ctx.infer(r);
-            expr q = mk_elaborated_expr_quote(r);
-            buffer<expr> new_inst_mvars;
-            for (expr const & local : r_locals.get_collected()) {
-                expr ty = m_ctx.infer(local);
-                expr cls = mk_app(mk_constant(get_reflected_name(), {get_level(m_ctx, ty)}), ty, local);
-                expr new_mvar = m_ctx.mk_tmp_mvar(cls);
-                new_inst_mvars.push_back(new_mvar);
-                expr local_ty = m_ctx.infer(local);
-                level u = get_level(m_ctx, local_ty);
-                level v = get_level(m_ctx, instantiate(binding_body(r_ty), local));
-                q = mk_app(mk_constant(get_reflected_subst_name(), {v, u}),
-                           {local_ty, mk_lambda("_x", binding_domain(r_ty), binding_body(r_ty)), r, local, q, new_mvar});
-                r = instantiate(binding_body(r), local);
-                r_ty = instantiate(binding_body(r_ty), local);
-            }
-            q = locals.mk_lambda(q);
-            lean_trace_plain("class_instances",
-                             scope_trace_env scope(m_ctx.env(), m_ctx);
-                             trace(e.m_depth, e.m_mvar, mvar_type, q););
-            if (!m_ctx.is_def_eq(mvar, q)) {
-                lean_trace_plain("class_instances", tout() << "failed is_def_eq\n";);
-                return false;
-            }
-            m_state.m_stack = tail(m_state.m_stack);
-            // copy new_inst_mvars to stack
-            unsigned i = new_inst_mvars.size();
-            while (i > 0) {
-                --i;
-                m_state.m_stack = cons(stack_entry(new_inst_mvars[i], e.m_depth+1), m_state.m_stack);
-            }
-            return true;
-        }
-        return false;
-    }
-
     bool process_next_mvar() {
         lean_assert(!is_done());
         stack_entry e = head(m_state.m_stack);
-        if (process_special(e))
-            return true;
         if (!mk_choice_point(e.m_mvar))
             return false;
         m_state.m_stack = tail(m_state.m_stack);

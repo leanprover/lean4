@@ -15,7 +15,6 @@ Author: Leonardo de Moura
 namespace lean {
 expr replace_visitor::visit_sort(expr const & e) { lean_assert(is_sort(e)); return e; }
 expr replace_visitor::visit_var(expr const & e) { lean_assert(is_var(e)); return e; }
-expr replace_visitor::visit_quote(expr const & e) { lean_assert(is_quote(e)); return e; }
 expr replace_visitor::visit_lit(expr const & e) { lean_assert(is_lit(e)); return e; }
 expr replace_visitor::visit_constant(expr const & e) { lean_assert(is_constant(e)); return e; }
 expr replace_visitor::visit_meta(expr const & e) {
@@ -81,8 +80,6 @@ expr replace_visitor::visit(expr const & e) {
     case expr_kind::Lambda:  return save_result(e, visit_lambda(e), shared);
     case expr_kind::Pi:      return save_result(e, visit_pi(e), shared);
     case expr_kind::Let:     return save_result(e, visit_let(e), shared);
-
-    case expr_kind::Quote:     return save_result(e, visit_quote(e), shared);
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }

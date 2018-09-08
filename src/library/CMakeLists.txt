@@ -3,7 +3,7 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   max_sharing.cpp module.cpp private.cpp placeholder.cpp aliases.cpp
   scoped_ext.cpp sorry.cpp replace_visitor.cpp
   explicit.cpp num.cpp string.cpp head_map.cpp
-  class.cpp util.cpp print.cpp annotation.cpp quote.cpp
+  class.cpp util.cpp print.cpp annotation.cpp
   protected.cpp reducible.cpp init_module.cpp
   exception.cpp pp_options.cpp
   app_builder.cpp projection.cpp user_recursors.cpp idx_metavar.cpp noncomputable.cpp

@@ -114,8 +114,6 @@ class replace_rec_fn {
                 expr new_b = apply(let_body(e), offset+1);
                 return save_result(e, offset, update_let(e, new_t, new_v, new_b), shared);
             }
-            case expr_kind::Quote:
-                return save_result(e, offset, e, shared);
             }
             lean_unreachable();
         }

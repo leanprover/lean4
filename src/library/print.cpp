@@ -274,10 +274,6 @@ struct print_expr_fn {
             case literal_kind::String: out() << escaped(lit_value(a).get_string().data()); break; // HACK Lean string as C string
             }
             break;
-        case expr_kind::Quote:
-            out() << "quote " << quote_is_reflected(a) << " ";
-            print(quote_value(a));
-            break;
         }
     }
 

@@ -13,7 +13,6 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/annotation.h"
 #include "library/util.h"
-#include "library/quote.h"
 #include "library/replace_visitor.h"
 #include "library/vm/vm.h"
 #include "library/vm/optimize.h"
@@ -273,10 +272,6 @@ class vm_compiler_fn {
         emit(mk_drop_instr(counter));
     }
 
-    void compile_quote(expr const & e) {
-        emit(mk_expr_instr(quote_value(e)));
-    }
-
     void compile_lit(expr const & e) {
         switch (lit_value(e).kind()) {
         case literal_kind::Nat:
@@ -306,7 +301,6 @@ class vm_compiler_fn {
         case expr_kind::App:      compile_app(e, bpz, m);    break;
         case expr_kind::Let:      compile_let(e, bpz, m);    break;
         case expr_kind::Lit:      compile_lit(e);            break;
-        case expr_kind::Quote:    compile_quote(e);          break;
         }
     }
 

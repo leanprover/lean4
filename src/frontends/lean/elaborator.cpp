@@ -26,7 +26,6 @@ Author: Leonardo de Moura
 #include "library/string.h"
 #include "library/class.h"
 #include "library/sorry.h"
-#include "library/quote.h"
 #include "library/util.h"
 #include "library/annotation.h"
 #include "library/pp_options.h"
@@ -124,12 +123,12 @@ elaborator_strategy get_elaborator_strategy(environment const & env, name const 
 
 elaborator::elaborator(environment const & env, options const & opts, name const & decl_name,
                        metavar_context const & mctx, local_context const & lctx, bool recover_from_errors,
-                       bool in_pattern, bool in_quote):
+                       bool in_pattern):
     m_env(env), m_opts(opts), m_cache(opts), m_decl_name(decl_name),
     m_ctx(env, mctx, lctx, m_cache, transparency_mode::Semireducible),
     m_recover_from_errors(recover_from_errors),
     m_uses_infom(false /* get_global_info_manager() != nullptr */),
-    m_in_pattern(in_pattern), m_in_quote(in_quote) {
+    m_in_pattern(in_pattern) {
     m_coercions = get_elaborator_coercions(opts);
 }
 
@@ -972,8 +971,6 @@ expr elaborator::visit_function(expr const & fn, bool has_args, optional<expr> c
     case expr_kind::Lambda:    r = visit_lambda(ufn, expected_type); break;
     case expr_kind::Let:       r = visit_let(ufn, expected_type); break;
     case expr_kind::Proj:      throw elaborator_exception(ref, "unexpected occurrence of proj constructor");
-    case expr_kind::Quote:
-        throw elaborator_exception(ref, "invalid application, function expected");
     }
     if (has_args)
         r = ensure_function(r, ref);
@@ -1231,18 +1228,8 @@ optional<expr> elaborator::process_optional_and_auto_params(expr type, expr cons
         return result_type;
 }
 
-expr elaborator::post_process_implicit_arg(expr const & arg, expr const & ref) {
-    if (m_in_pattern && m_in_quote) {
-        // We ignore implicit arguments in quote patterns so that
-        // only explicitly given syntax is matched. Note that most
-        // implicit arguments in standard patterns are ignore via a
-        // different mechanism in instantiate_pattern_mvars. We cannot
-        // use the same mechanism for quote patterns because inst-implicit
-        // arguments are usually not inferable there.
-        return copy_pos(ref, mk_inaccessible(arg));
-    } else {
-        return arg;
-    }
+expr elaborator::post_process_implicit_arg(expr const & arg, expr const & /* ref */) {
+    return arg;
 }
 
 /* Check if fn args resulting type matches the expected type, and fill
@@ -3215,55 +3202,6 @@ expr elaborator::visit_structure_instance(expr const & e, optional<expr> expecte
     return visit_structure_instance_fn(*this, e, expected_type)();
 }
 
-expr elaborator::visit_expr_quote(expr const & e, optional<expr> const & expected_type) {
-    name x("_x");
-    expr s = get_expr_quote_value(e);
-    expr q;
-    if (find(s, [](expr const & t, unsigned) { return is_antiquote(t); })) {
-        // antiquotations ~> return `expr`
-        buffer<expr> locals;
-        buffer<expr> substs;
-        s = replace(s, [&](expr const & t, unsigned) {
-            if (is_antiquote(t)) {
-                expr local = mk_local(mk_fresh_name(), x.append_after(locals.size() + 1),
-                                      mk_expr_placeholder(), mk_binder_info());
-                locals.push_back(local);
-                substs.push_back(get_antiquote_expr(t));
-                return some_expr(local);
-            }
-            return none_expr();
-        });
-        s = Fun(locals, s);
-        expr new_s = visit(s, none_expr());
-        synthesize();
-        new_s = instantiate_mvars(new_s);
-        if (has_param_univ(new_s))
-            throw elaborator_exception(e, "invalid quotation, contains universe parameter");
-        if (has_univ_metavar(new_s))
-            throw elaborator_exception(e, "invalid quotation, contains universe metavariable");
-        if (has_local(new_s))
-            throw elaborator_exception(e, "invalid quotation, contains local constant");
-        q = mk_elaborated_expr_quote(new_s);
-        q = mk_as_is(q);
-        expr subst_fn = mk_constant(get_lean_expr_subst_name());
-        for (expr const & subst : substs) {
-            q = mk_app(subst_fn, q, subst);
-        }
-    } else {
-        // no antiquotations ~> infer `reflected new_s`
-        expr new_s;
-        if (expected_type && is_app_of(*expected_type, get_reflected_name(), 2)) {
-            new_s = visit(s, some_expr(app_arg(app_fn(*expected_type))));
-        } else {
-            new_s = visit(s, none_expr());
-        }
-        synthesize(); // try to instantiate all metavars in `new_s`, otherwise reflection will fail
-        expr cls = mk_app(m_ctx, get_reflected_name(), new_s);
-        return mk_instance(cls, e);
-    }
-    return visit(q, expected_type);
-}
-
 expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expected_type) {
     name macro = *get_name(mdata_data(e), "node!");
     name esc_macro = macro.is_atomic() ? "«" + macro.to_string() + "»" : macro;
@@ -3424,8 +3362,6 @@ expr elaborator::visit_mdata(expr const & e, optional<expr> const & expected_typ
         /* If the as_atomic is not the the function in a function application, then we need to consume
            implicit arguments. */
         return visit_base_app_core(new_e, arg_mask::Default, buffer<expr>(), true, expected_type, e);
-    } else if (is_expr_quote(e)) {
-        return visit_expr_quote(e, expected_type);
     } else if (is_inaccessible(e)) {
         if (is_app_fn)
             throw elaborator_exception(e, "invalid inaccessible term, function expected");
@@ -3711,11 +3647,6 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
                     return visit_app(e, expected_type);
                 case expr_kind::Let:
                     return visit_let(e, expected_type);
-                case expr_kind::Quote:
-                    if (is_expr_quote(e))
-                        return visit_expr_quote(e, expected_type);
-                    else
-                        return e;
             }
             lean_unreachable(); // LCOV_EXCL_LINE
         }

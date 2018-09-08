@@ -25,7 +25,6 @@ Author: Leonardo de Moura
 #include "library/module_mgr.h"
 #include "library/export_decl.h"
 #include "library/trace.h"
-#include "library/quote.h"
 #include "library/class.h"
 #include "library/exception.h"
 #include "library/aliases.h"
@@ -1615,110 +1614,9 @@ struct to_pattern_fn {
     }
 };
 
-static expr quote(expr const & e) {
-    switch (e.kind()) {
-    case expr_kind::Lit:
-        switch (lit_value(e).kind()) {
-        case literal_kind::Nat:
-            return mk_app(mk_constant({"lean", "expr", "lit"}),
-                          mk_app(mk_constant({"lean", "literal", "nat_value"}), quote(lit_value(e).get_nat().get_small_value()))); // HACK: it will crash if not small
-        case literal_kind::String:
-            return mk_app(mk_constant({"lean", "expr", "lit"}),
-                          mk_app(mk_constant({"lean", "literal", "str_value"}), quote(lit_value(e).get_string().data()))); // HACK: Lean string as C String
-        }
-        lean_unreachable();
-    case expr_kind::BVar:
-        return mk_app(mk_constant({"lean", "expr", "bvar"}), quote(bvar_idx(e).get_small_value()));
-    case expr_kind::Sort:
-        return mk_app(mk_constant({"lean", "expr", "sort"}), mk_expr_placeholder());
-    case expr_kind::Const:
-        return mk_app(mk_constant({"lean", "expr", "const"}), quote(const_name(e)), mk_expr_placeholder());
-    case expr_kind::MVar:
-        return mk_expr_placeholder();
-    case expr_kind::FVar:
-        throw elaborator_exception(e, sstream() << "invalid quotation, unexpected local constant '"
-                                   << local_pp_name_p(e) << "'");
-    case expr_kind::App:
-        if (is_metavar_app(e)) {
-            /* Remark: metavariable applications of the form `?m x1 ... xn` may be introduced
-               by type_context::elim_mvar_deps when we create lambda/pi-expressions. */
-            return mk_expr_placeholder();
-        } else {
-            return mk_app(mk_constant({"lean", "expr", "app"}), quote(app_fn(e)), quote(app_arg(e)));
-        }
-    case expr_kind::Lambda:
-        return mk_app(mk_constant({"lean", "expr", "lam"}), mk_expr_placeholder(), mk_expr_placeholder(),
-                      quote(binding_domain(e)), quote(binding_body(e)));
-    case expr_kind::Pi:
-        return mk_app(mk_constant({"lean", "expr", "pi"}), mk_expr_placeholder(), mk_expr_placeholder(),
-                      quote(binding_domain(e)), quote(binding_body(e)));
-    case expr_kind::Let:
-        return mk_app(mk_constant({"lean", "expr", "elet"}), mk_expr_placeholder(), quote(let_type(e)),
-                      quote(let_value(e)), quote(let_body(e)));
-    case expr_kind::Proj:
-        return mk_app(mk_constant({"lean", "expr", "proj"}), quote(proj_idx(e).get_small_value()), quote(proj_expr(e)));
-    case expr_kind::MData:
-        if (is_antiquote(e))
-            return get_antiquote_expr(e);
-        else if (is_inaccessible(e))
-            return mk_expr_placeholder();
-        else
-            throw exception("lean.expr.mdata is not supported at quote function");
-    case expr_kind::Quote:
-        throw elaborator_exception(e, sstream() << "invalid quotation, quote found");
-    }
-    lean_unreachable();
-}
-
-/** \brief Elaborate quote in an empty local context. We need to elaborate expr patterns in the parser to find out
-    their pattern variables. */
-static expr elaborate_quote(parser & p, expr e) {
-    lean_assert(is_expr_quote(e));
-    environment const & env = p.env();
-    options const & opts    = p.get_options();
-    e = get_expr_quote_value(e);
-
-    name x("_x");
-    buffer<expr> locals;
-    buffer<expr> aqs;
-    e = replace(e, [&](expr const & t, unsigned) {
-        if (is_antiquote(t)) {
-            expr local = mk_local(p.next_name(), x.append_after(locals.size() + 1),
-                                  mk_expr_placeholder(), mk_binder_info());
-            locals.push_back(local);
-            aqs.push_back(t);
-            return some_expr(local);
-        }
-        return none_expr();
-    });
-    e = copy_pos(e, Fun_p(locals, e));
-
-    metavar_context ctx;
-    local_context lctx;
-    elaborator elab(env, opts, "_elab_quote", ctx, lctx, /* recover_from_errors */ false,
-                    /* in_pattern */ true, /* in_quote */ true);
-    e = elab.elaborate(e);
-    e = elab.finalize(e, /* check_unassigned */ false, /* to_simple_metavar */ true).first;
-
-    expr body = e;
-    for (unsigned i = 0; i < aqs.size(); i++)
-        body = binding_body(body);
-
-    e = instantiate_rev(body, aqs.size(), aqs.data());
-    e = quote(e);
-    return mk_typed_expr(mk_constant(get_lean_expr_name()), e);
-}
-
 expr parser::patexpr_to_pattern(expr const & pat_or_expr, bool skip_main_fn, buffer<expr> & new_locals) {
     undef_id_to_local_scope scope(*this);
-    auto e = replace(pat_or_expr, [&](expr const & e) {
-        if (is_expr_quote(e)) {
-            return some_expr(elaborate_quote(*this, e));
-        } else {
-            return none_expr();
-        }
-    });
-    return to_pattern_fn(*this, new_locals)(e, skip_main_fn);
+    return to_pattern_fn(*this, new_locals)(pat_or_expr, skip_main_fn);
 }
 
 expr parser::parse_pattern_or_expr(unsigned rbp) {

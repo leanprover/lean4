@@ -95,7 +95,6 @@ private:
     bool              m_no_info{false};
 
     bool              m_in_pattern{false};
-    bool              m_in_quote{false};
 
     expr get_default_numeral_type();
 
@@ -259,7 +258,6 @@ private:
     expr visit_field(expr const & e, optional<expr> const & expected_type);
     expr instantiate_mvars(expr const & e, std::function<bool(expr const &)> pred); // NOLINT
     expr visit_structure_instance(expr const & e, optional<expr> expected_type);
-    expr visit_expr_quote(expr const & e, optional<expr> const & expected_type);
     expr visit(expr const & e, optional<expr> const & expected_type);
 
     tactic_state mk_tactic_state_for(expr const & mvar);
@@ -283,7 +281,7 @@ private:
 public:
     elaborator(environment const & env, options const & opts, name const & decl_name,
                metavar_context const & mctx, local_context const & lctx,
-               bool recover_from_errors = true, bool in_pattern = false, bool in_quote = false);
+               bool recover_from_errors = true, bool in_pattern = false);
     ~elaborator();
     abstract_context_cache & get_cache() { return m_cache; }
     metavar_context const & mctx() const { return m_ctx.mctx(); }

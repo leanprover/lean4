@@ -45,8 +45,6 @@ inductive expr
 | lit   : literal → expr                            -- literals
 | mdata : kvmap → expr → expr                       -- metadata
 | proj  : nat → expr → expr                         -- projection
--- TODO: quote constructor will be deleted.
-| quote : bool → expr → expr
 
 instance expr_is_inhabited : inhabited expr :=
 ⟨expr.sort level.zero⟩

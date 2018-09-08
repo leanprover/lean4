@@ -105,9 +105,6 @@ void collect_locals(expr const & e, collected_locals & ls, bool restricted) {
             visit(let_value(e));
             visit(let_body(e));
             break;
-
-        case expr_kind::Quote:
-            break; // do nothing
         }
     };
     visit(e);

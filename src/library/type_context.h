@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "util/lbool.h"
 #include "util/fresh_name.h"
 #include "kernel/environment.h"
-#include "kernel/abstract_type_context.h"
+#include "library/abstract_type_context.h"
 #include "library/idx_metavar.h"
 #include "library/projection.h"
 #include "library/metavar_context.h"

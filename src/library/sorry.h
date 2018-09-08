@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/environment.h"
-#include "kernel/abstract_type_context.h"
+#include "library/abstract_type_context.h"
 
 namespace lean {
 /** \brief Return true iff the given environment contains a sorry macro. */

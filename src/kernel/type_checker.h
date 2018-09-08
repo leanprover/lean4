@@ -16,12 +16,11 @@ Author: Leonardo de Moura
 #include "kernel/local_ctx.h"
 #include "kernel/expr_maps.h"
 #include "kernel/equiv_manager.h"
-#include "kernel/abstract_type_context.h"
 
 namespace lean {
 /** \brief Lean Type Checker. It can also be used to infer types, check whether a
     type \c A is convertible to a type \c B, etc. */
-class type_checker : public abstract_type_context {
+class type_checker {
     /* In the type checker cache, we must take into account binder information.
        Examples:
        The type of (lambda x : A, t)   is (Pi x : A, typeof(t))

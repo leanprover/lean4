@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/fresh_name.h"
-#include "kernel/abstract_type_context.h"
 #include "kernel/abstract.h"
+#include "library/abstract_type_context.h"
 
 namespace lean {
 expr abstract_type_context::push_local(name const & pp_name, expr const & type, binder_info bi) {

@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <memory>
 #include <string>
 #include "runtime/sstream.h"
-#include "kernel/abstract_type_context.h"
+#include "library/abstract_type_context.h"
 #include "library/annotation.h"
 #include "library/pos_info_provider.h"
 

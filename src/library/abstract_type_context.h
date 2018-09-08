@@ -8,12 +8,6 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
-/** \brief This is a basic API for implementing macro definitions,
-    kernel extensions, formatters, etc.
-
-    \remark This class will eventually replace the class extension_context.
-
-    TODO(Leo): try to remove this class from Lean4. */
 class abstract_type_context {
 public:
     virtual ~abstract_type_context() {}

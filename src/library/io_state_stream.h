@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <string>
 #include "kernel/environment.h"
-#include "kernel/abstract_type_context.h"
+#include "library/abstract_type_context.h"
 #include "library/exception.h"
 #include "library/io_state.h"
 #include "library/ext_exception.h"

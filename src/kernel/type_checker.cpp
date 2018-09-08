@@ -226,11 +226,9 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
     lean_assert(!has_loose_bvars(e));
     check_system("type checker");
 
-    if (m_cache) {
-        auto it = m_cache->m_infer_type[infer_only].find(e);
-        if (it != m_cache->m_infer_type[infer_only].end())
-            return it->second;
-    }
+    auto it = m_cache->m_infer_type[infer_only].find(e);
+    if (it != m_cache->m_infer_type[infer_only].end())
+        return it->second;
 
     expr r;
     switch (e.kind()) {
@@ -252,8 +250,7 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
     case expr_kind::Let:      r = infer_let(e, infer_only);            break;
     }
 
-    if (m_cache)
-        m_cache->m_infer_type[infer_only].insert(mk_pair(e, r));
+    m_cache->m_infer_type[infer_only].insert(mk_pair(e, r));
     return r;
 }
 
@@ -349,11 +346,9 @@ expr type_checker::whnf_core(expr const & e) {
     }
 
     // check cache
-    if (m_cache) {
-        auto it = m_cache->m_whnf_core.find(e);
-        if (it != m_cache->m_whnf_core.end())
-            return it->second;
-    }
+    auto it = m_cache->m_whnf_core.find(e);
+    if (it != m_cache->m_whnf_core.end())
+        return it->second;
 
     // do the actual work
     expr r;
@@ -400,8 +395,7 @@ expr type_checker::whnf_core(expr const & e) {
         break;
     }
 
-    if (m_cache)
-        m_cache->m_whnf_core.insert(mk_pair(e, r));
+    m_cache->m_whnf_core.insert(mk_pair(e, r));
     return r;
 }
 
@@ -460,11 +454,9 @@ expr type_checker::whnf(expr const & e) {
     }
 
     // check cache
-    if (m_cache) {
-        auto it = m_cache->m_whnf.find(e);
-        if (it != m_cache->m_whnf.end())
-            return it->second;
-    }
+    auto it = m_cache->m_whnf.find(e);
+    if (it != m_cache->m_whnf.end())
+        return it->second;
 
     expr t = e;
     while (true) {
@@ -473,8 +465,7 @@ expr type_checker::whnf(expr const & e) {
             t = *next_t;
         } else {
             auto r = t1;
-            if (m_cache)
-                m_cache->m_whnf.insert(mk_pair(e, r));
+            m_cache->m_whnf.insert(mk_pair(e, r));
             return r;
         }
     }
@@ -538,7 +529,7 @@ bool type_checker::is_def_eq(levels const & ls1, levels const & ls2) {
 
 /** \brief This is an auxiliary method for is_def_eq. It handles the "easy cases". */
 lbool type_checker::quick_is_def_eq(expr const & t, expr const & s, bool use_hash) {
-    if (m_cache && m_cache->m_eqv_manager.is_equiv(t, s, use_hash))
+    if (m_cache->m_eqv_manager.is_equiv(t, s, use_hash))
         return l_true;
     if (t.kind() == s.kind()) {
         switch (t.kind()) {
@@ -622,7 +613,6 @@ bool type_checker::is_def_eq_proof_irrel(expr const & t, expr const & s) {
 }
 
 bool type_checker::failed_before(expr const & t, expr const & s) const {
-    if (!m_cache) return false;
     if (hash(t) < hash(s)) {
         return m_cache->m_failure.find(mk_pair(t, s)) != m_cache->m_failure.end();
     } else if (hash(t) > hash(s)) {
@@ -635,12 +625,10 @@ bool type_checker::failed_before(expr const & t, expr const & s) const {
 }
 
 void type_checker::cache_failure(expr const & t, expr const & s) {
-    if (m_cache) {
-        if (hash(t) <= hash(s))
-            m_cache->m_failure.insert(mk_pair(t, s));
-        else
-            m_cache->m_failure.insert(mk_pair(s, t));
-    }
+    if (hash(t) <= hash(s))
+        m_cache->m_failure.insert(mk_pair(t, s));
+    else
+        m_cache->m_failure.insert(mk_pair(s, t));
 }
 
 static name * g_id_delta = nullptr;
@@ -770,7 +758,7 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
 
 bool type_checker::is_def_eq(expr const & t, expr const & s) {
     bool r = is_def_eq_core(t, s);
-    if (r && m_cache)
+    if (r)
         m_cache->m_eqv_manager.add_equiv(t, s);
     return r;
 }

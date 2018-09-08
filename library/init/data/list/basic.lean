@@ -154,7 +154,7 @@ def find_index (p : α → Prop) [decidable_pred p] : list α → nat
 | (a::l) := if p a then 0 else succ (find_index l)
 
 def index_of [decidable_eq α] (a : α) (l : list α) : nat :=
-@find_index _ (eq a) (dec_eq a) l
+find_index (eq a) l
 
 def assoc [decidable_eq α] : list (α × β) → α → option β
 | []         _  := none

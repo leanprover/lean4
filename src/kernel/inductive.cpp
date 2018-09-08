@@ -243,11 +243,6 @@ public:
                 expr t = constructor_type(cnstr);
                 while (is_pi(t)) {
                     expr arg_type = binding_domain(t);
-                    try {
-                        arg_type  = whnf(arg_type);
-                    } catch (kernel_exception &) {
-                        /* whnf may fail since inductive datatypes have not been declared yet. */
-                    }
                     if (is_pi(arg_type) && has_ind_occ(arg_type))
                         return true;
                     expr local = mk_local_decl_for(t);

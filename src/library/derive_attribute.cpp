@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 #include "library/app_builder.h"
 #include "library/class.h"
+#include "library/module.h"
 #include "library/protected.h"
 #include "library/sorry.h"
 

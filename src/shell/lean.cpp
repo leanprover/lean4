@@ -39,7 +39,6 @@ Author: Leonardo de Moura
 #include "library/time_task.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/pp.h"
-#include "frontends/lean/dependencies.h"
 #include "frontends/lean/json.h"
 #include "frontends/lean/util.h"
 #include "library/trace.h"
@@ -431,7 +430,6 @@ int main(int argc, char ** argv) {
     bool make_mode          = false;
     bool recursive          = false;
     unsigned trust_lvl      = LEAN_BELIEVER_TRUST_LEVEL+1;
-    bool only_deps          = false;
     bool test_suite         = false;
     unsigned num_threads    = 0;
 #if defined(LEAN_MULTI_THREAD)
@@ -491,9 +489,6 @@ int main(int argc, char ** argv) {
             break;
         case 'q':
             opts = opts.update(lean::get_verbose_opt_name(), false);
-            break;
-        case 'd':
-            only_deps = true;
             break;
         case 'D':
             try {
@@ -668,21 +663,6 @@ int main(int argc, char ** argv) {
         }
 
         bool ok = true;
-
-        if (only_deps) {
-            for (auto & mod_fn : module_args) {
-                try {
-                    if (!display_deps(path.get_path(), env, std::cout, std::cerr, mod_fn.c_str()))
-                        ok = false;
-                } catch (lean::exception &ex) {
-                    ok = false;
-                    lean::message_builder(env, ios, mod_fn, lean::pos_info(1, 1), lean::ERROR).set_exception(
-                            ex).report();
-                }
-            }
-
-            return ok ? 0 : 1;
-        }
 
         struct input_mod {
             module_id m_id;

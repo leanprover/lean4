@@ -10,7 +10,6 @@ Author: Gabriel Ebner
 #include "library/protected.h"
 #include "kernel/declaration.h"
 #include "library/type_context.h"
-#include "library/protected.h"
 #include "library/scoped_ext.h"
 #include "kernel/instantiate.h"
 #include "frontends/lean/pp.h"

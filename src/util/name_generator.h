@@ -23,7 +23,7 @@ public:
        The prefix should start with a name registered using \c register_name_generator_prefix.
 
        \pre uses_name_generator_prefix(prefix) */
-    name_generator(name const & prefix);
+    explicit name_generator(name const & prefix);
 
     name const & prefix() const { return m_prefix; }
 

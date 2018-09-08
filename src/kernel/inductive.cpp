@@ -703,14 +703,17 @@ public:
 };
 
 static name * g_nested = nullptr;
+static name * g_nested_fresh = nullptr;
 
 /* Result produced by elim_nested_inductive_fn */
 struct elim_nested_inductive_result {
+    name_generator           m_ngen;
     buffer<expr>             m_params;
     name_map<expr>           m_aux2nested; /* mapping from auxiliary type to nested inductive type. */
     declaration              m_aux_decl;
-    elim_nested_inductive_result(buffer<expr> const & params, buffer<pair<expr, name>> const & nested_aux, declaration const & d):
-        m_params(params), m_aux_decl(d) {
+
+    elim_nested_inductive_result(name_generator const & ngen, buffer<expr> const & params, buffer<pair<expr, name>> const & nested_aux, declaration const & d):
+        m_ngen(ngen), m_params(params), m_aux_decl(d) {
         for (pair<expr, name> const & p : nested_aux) {
             m_aux2nested.insert(p.second, p.first);
         }
@@ -735,13 +738,13 @@ struct elim_nested_inductive_result {
         return cnstr_name.replace_prefix(p->second, const_name(I));
     }
 
-    expr restore_nested(expr e, environment const & aux_env, name_map<name> const & aux_rec_name_map = name_map<name>()) const {
+    expr restore_nested(expr e, environment const & aux_env, name_map<name> const & aux_rec_name_map = name_map<name>()) {
         local_ctx lctx;
         buffer<expr> As;
         bool pi = is_pi(e);
         for (unsigned i = 0; i < m_params.size(); i++) {
             lean_assert(is_pi(e) || is_lambda(e));
-            As.push_back(lctx.mk_local_decl(binding_name(e), binding_domain(e), binding_info(e)));
+            As.push_back(lctx.mk_local_decl(m_ngen, binding_name(e), binding_domain(e), binding_info(e)));
             e = instantiate(binding_body(e), As.back());
         }
         e = replace(e, [&](expr const & t, unsigned) {
@@ -792,6 +795,7 @@ struct elim_nested_inductive_result {
 struct elim_nested_inductive_fn {
     environment const &        m_env;
     declaration const &        m_d;
+    name_generator             m_ngen;
     local_ctx                  m_params_lctx;
     buffer<expr>               m_params;
     buffer<pair<expr, name>>   m_nested_aux; /* The expressions stored here contains free vars in `m_params` */
@@ -800,7 +804,7 @@ struct elim_nested_inductive_fn {
     unsigned                   m_next_idx{1};
 
     elim_nested_inductive_fn(environment const & env, declaration const & d):
-        m_env(env), m_d(d) {
+        m_env(env), m_d(d), m_ngen(*g_nested_fresh) {
         m_lvls = lparams_to_levels(inductive_decl(m_d).get_lparams());
     }
 
@@ -912,7 +916,7 @@ struct elim_nested_inductive_fn {
                 expr auxJ_type       = instantiate_lparams(J_info.get_type(), J_info.get_lparams(), I_lvls);
                 auxJ_type            = instantiate_pi_params(auxJ_type, I_nparams, args.data());
                 auxJ_type            = lctx.mk_pi(As, auxJ_type);
-                m_nested_aux.push_back(mk_pair(replace_params(JAs, m_params), auxJ_name));
+                m_nested_aux.push_back(mk_pair(replace_params(JAs, As), auxJ_name));
                 if (J_name == I_name) {
                     /* Create result */
                     expr auxI = mk_constant(auxJ_name, m_lvls);
@@ -945,7 +949,7 @@ struct elim_nested_inductive_fn {
         lean_assert(params.empty());
         for (unsigned i = 0; i < nparams; i++) {
             if (!is_pi(type)) throw kernel_exception(m_env, "invalid inductive datatype declaration, incorrect number of parameters");
-            params.push_back(lctx.mk_local_decl(binding_name(type), binding_domain(type), binding_info(type)));
+            params.push_back(lctx.mk_local_decl(m_ngen, binding_name(type), binding_domain(type), binding_info(type)));
             type = instantiate(binding_body(type), params.back());
         }
         return type;
@@ -981,7 +985,7 @@ struct elim_nested_inductive_fn {
             qhead++;
         }
         declaration aux_decl = mk_inductive_decl(ind_d.get_lparams(), ind_d.get_nparams(), inductive_types(m_new_types), ind_d.is_meta());
-        return elim_nested_inductive_result(m_params, m_nested_aux, aux_decl);
+        return elim_nested_inductive_result(m_ngen, m_params, m_nested_aux, aux_decl);
     }
 };
 
@@ -1087,13 +1091,16 @@ environment environment::add_inductive(declaration const & d) const {
 }
 
 void initialize_inductive() {
-    g_nested    = new name("_nested");
-    g_ind_fresh = new name("_ind_fresh");
+    g_nested        = new name("_nested");
+    g_ind_fresh     = new name("_ind_fresh");
+    g_nested_fresh  = new name("_nested_fresh");
     register_name_generator_prefix(*g_ind_fresh);
+    register_name_generator_prefix(*g_nested_fresh);
 }
 
 void finalize_inductive() {
     delete g_nested;
     delete g_ind_fresh;
+    delete g_nested_fresh;
 }
 }

@@ -21,24 +21,35 @@ namespace lean {
 /** \brief Lean Type Checker. It can also be used to infer types, check whether a
     type \c A is convertible to a type \c B, etc. */
 class type_checker {
-    /* In the type checker cache, we must take into account binder information.
-       Examples:
-       The type of (lambda x : A, t)   is (Pi x : A, typeof(t))
-       The type of (lambda {x : A}, t) is (Pi {x : A}, typeof(t)) */
-    typedef expr_bi_map<expr> cache;
-    typedef std::unordered_set<expr_pair, expr_pair_hash, expr_pair_eq> expr_pair_set;
+public:
+    class cache {
+        /* In the cache, we must take into account binder information.
+           Examples:
+           The type of (lambda x : A, t)   is (Pi x : A, typeof(t))
+           The type of (lambda {x : A}, t) is (Pi {x : A}, typeof(t)) */
+        typedef expr_bi_map<expr> infer_cache;
+        typedef std::unordered_set<expr_pair, expr_pair_hash, expr_pair_eq> expr_pair_set;
+        infer_cache               m_infer_type[2];
+        expr_map<expr>            m_whnf_core;
+        expr_map<expr>            m_whnf;
+        equiv_manager             m_eqv_manager;
+        expr_pair_set             m_failure;
+        friend type_checker;
+    public:
+    };
+private:
     environment               m_env;
     local_ctx                 m_lctx;
-    name_generator            m_name_generator;
+    /* Generator for internal names that never leak to type_checker consumers.
+       This name generator is never used to create external names. */
+    name_generator            m_ngen;
     bool                      m_non_meta_only;
-    cache                     m_infer_type_cache[2];
-    expr_map<expr>            m_whnf_core_cache;
-    expr_map<expr>            m_whnf_cache;
-    equiv_manager             m_eqv_manager;
-    expr_pair_set             m_failure_cache;
+    /* When `m_lparams != nullptr, the `check` method makes sure all level parameters
+       are in `m_lparams`. */
     names const *             m_lparams;
+    bool                      m_own_cache;
+    cache *                   m_cache;
 
-    pair<expr, expr> open_binding_body(expr const & e);
     expr ensure_sort_core(expr e, expr const & s);
     expr ensure_pi_core(expr e, expr const & s);
     void check_level(level const & l);
@@ -82,51 +93,48 @@ class type_checker {
 
 public:
     /** \brief Create a type checker for the given environment. */
+    type_checker(environment const & env, local_ctx const & lctx, cache & cache, bool non_meta_only = true);
     type_checker(environment const & env, local_ctx const & lctx, bool non_meta_only = true);
-    type_checker(environment const & env, bool non_meta_only = true):
-        type_checker(env, local_ctx(), non_meta_only) {}
+    type_checker(environment const & env, bool non_meta_only = true):type_checker(env, local_ctx(), non_meta_only) {}
+    type_checker(environment const & env, cache & cache, bool non_meta_only = true):type_checker(env, local_ctx(), cache, non_meta_only) {}
+    type_checker(type_checker &&);
+    type_checker(type_checker const &) = delete;
     ~type_checker();
 
-    virtual environment const & env() const { return m_env; }
-
-    virtual name next_name() { return m_name_generator.next(); }
+    environment const & env() const { return m_env; }
 
     /** \brief Return the type of \c t.
         It does not check whether the input expression is type correct or not.
         The contract is: IF the input expression is type correct, then the inferred
         type is correct.
         Throw an exception if a type error is found. */
-    virtual expr infer(expr const & t) { return infer_type(t); }
+    expr infer(expr const & t) { return infer_type(t); }
 
     /** \brief Type check the given expression, and return the type of \c t.
         Throw an exception if a type error is found.  */
     expr check(expr const & t, names const & ps);
     /** \brief Like \c check, but ignores undefined universes */
-    virtual expr check(expr const & t) { return check_ignore_undefined_universes(t); }
+    expr check(expr const & t) { return check_ignore_undefined_universes(t); }
 
     /** \brief Return true iff t is definitionally equal to s. */
-    virtual bool is_def_eq(expr const & t, expr const & s);
+    bool is_def_eq(expr const & t, expr const & s);
     /** \brief Return true iff t is a proposition. */
     bool is_prop(expr const & t);
     /** \brief Return the weak head normal form of \c t. */
-    virtual expr whnf(expr const & t);
+    expr whnf(expr const & t);
     /** \brief Return a Pi if \c t is convertible to a Pi type. Throw an exception otherwise.
         The argument \c s is used when reporting errors */
     expr ensure_pi(expr const & t, expr const & s);
     expr ensure_pi(expr const & t) { return ensure_pi(t, t); }
     /** \brief Mare sure type of \c e is a Pi, and return it. Throw an exception otherwise. */
-    expr ensure_fun(expr const & e) {
-        return ensure_pi(infer(e), e);
-    }
+    expr ensure_fun(expr const & e) { return ensure_pi(infer(e), e); }
     /** \brief Return a Sort if \c t is convertible to Sort. Throw an exception otherwise.
         The argument \c s is used when reporting errors. */
     expr ensure_sort(expr const & t, expr const & s);
     /** \brief Return a Sort if \c t is convertible to Sort. Throw an exception otherwise. */
     expr ensure_sort(expr const & t) { return ensure_sort(t, t); }
     /** \brief Mare sure type of \c e is a sort, and return it. Throw an exception otherwise. */
-    expr ensure_type(expr const & e) {
-        return ensure_sort(infer(e), e);
-    }
+    expr ensure_type(expr const & e) { return ensure_sort(infer(e), e); }
 };
 
 void initialize_type_checker();

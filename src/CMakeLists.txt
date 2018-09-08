@@ -446,7 +446,6 @@ endfunction()
 add_subdirectory(tests/util)
 add_subdirectory(tests/kernel)
 add_subdirectory(tests/library)
-add_subdirectory(tests/shell)
 
 # Include style check
 if (NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows") AND PYTHONINTERP_FOUND)

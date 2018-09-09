@@ -47,7 +47,7 @@ public:
     }
     reducibility_hints_kind kind() const { return static_cast<reducibility_hints_kind>(obj_tag(raw())); }
     bool is_regular() const { return kind() == reducibility_hints_kind::Regular; }
-    unsigned get_height() const { return is_regular() ? cnstr_scalar<unsigned>(raw(), 0) : 0; }
+    unsigned get_height() const { return is_regular() ? cnstr_get_scalar<unsigned>(raw(), 0) : 0; }
     void serialize(serializer & s) const { s.write_object(raw()); }
     static reducibility_hints deserialize(deserializer & d) { return reducibility_hints(d.read_object(), true); }
 };
@@ -74,9 +74,9 @@ public:
     constant_val(constant_val && other):object_ref(other) {}
     constant_val & operator=(constant_val const & other) { object_ref::operator=(other); return *this; }
     constant_val & operator=(constant_val && other) { object_ref::operator=(other); return *this; }
-    name const & get_name() const { return static_cast<name const &>(cnstr_obj_ref(*this, 0)); }
-    names const & get_lparams() const { return static_cast<names const &>(cnstr_obj_ref(*this, 1)); }
-    expr const & get_type() const { return static_cast<expr const &>(cnstr_obj_ref(*this, 2)); }
+    name const & get_name() const { return static_cast<name const &>(cnstr_get_ref(*this, 0)); }
+    names const & get_lparams() const { return static_cast<names const &>(cnstr_get_ref(*this, 1)); }
+    expr const & get_type() const { return static_cast<expr const &>(cnstr_get_ref(*this, 2)); }
 };
 
 /*
@@ -90,7 +90,7 @@ public:
     axiom_val(axiom_val && other):object_ref(other) {}
     axiom_val & operator=(axiom_val const & other) { object_ref::operator=(other); return *this; }
     axiom_val & operator=(axiom_val && other) { object_ref::operator=(other); return *this; }
-    constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_obj_ref(*this, 0)); }
+    constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
     name const & get_name() const { return to_constant_val().get_name(); }
     names const & get_lparams() const { return to_constant_val().get_lparams(); }
     expr const & get_type() const { return to_constant_val().get_type(); }
@@ -108,12 +108,12 @@ public:
     definition_val(definition_val && other):object_ref(other) {}
     definition_val & operator=(definition_val const & other) { object_ref::operator=(other); return *this; }
     definition_val & operator=(definition_val && other) { object_ref::operator=(other); return *this; }
-    constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_obj_ref(*this, 0)); }
+    constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
     name const & get_name() const { return to_constant_val().get_name(); }
     names const & get_lparams() const { return to_constant_val().get_lparams(); }
     expr const & get_type() const { return to_constant_val().get_type(); }
-    expr const & get_value() const { return static_cast<expr const &>(cnstr_obj_ref(*this, 1)); }
-    reducibility_hints const & get_hints() const { return static_cast<reducibility_hints const &>(cnstr_obj_ref(*this, 2)); }
+    expr const & get_value() const { return static_cast<expr const &>(cnstr_get_ref(*this, 1)); }
+    reducibility_hints const & get_hints() const { return static_cast<reducibility_hints const &>(cnstr_get_ref(*this, 2)); }
     bool is_meta() const;
 };
 typedef list_ref<definition_val> definition_vals;
@@ -129,11 +129,11 @@ public:
     theorem_val(theorem_val && other):object_ref(other) {}
     theorem_val & operator=(theorem_val const & other) { object_ref::operator=(other); return *this; }
     theorem_val & operator=(theorem_val && other) { object_ref::operator=(other); return *this; }
-    constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_obj_ref(*this, 0)); }
+    constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
     name const & get_name() const { return to_constant_val().get_name(); }
     names const & get_lparams() const { return to_constant_val().get_lparams(); }
     expr const & get_type() const { return to_constant_val().get_type(); }
-    expr const & get_value() const { return static_cast<expr const &>(cnstr_obj_ref(*this, 1)); }
+    expr const & get_value() const { return static_cast<expr const &>(cnstr_get_ref(*this, 1)); }
 };
 
 /*
@@ -156,9 +156,9 @@ public:
     inductive_type(inductive_type && other):object_ref(other) {}
     inductive_type & operator=(inductive_type const & other) { object_ref::operator=(other); return *this; }
     inductive_type & operator=(inductive_type && other) { object_ref::operator=(other); return *this; }
-    name const & get_name() const { return static_cast<name const &>(cnstr_obj_ref(*this, 0)); }
-    expr const & get_type() const { return static_cast<expr const &>(cnstr_obj_ref(*this, 1)); }
-    constructors const & get_cnstrs() const { return static_cast<constructors const &>(cnstr_obj_ref(*this, 2)); }
+    name const & get_name() const { return static_cast<name const &>(cnstr_get_ref(*this, 0)); }
+    expr const & get_type() const { return static_cast<expr const &>(cnstr_get_ref(*this, 1)); }
+    constructors const & get_cnstrs() const { return static_cast<constructors const &>(cnstr_get_ref(*this, 2)); }
 };
 typedef list_ref<inductive_type> inductive_types;
 
@@ -173,8 +173,8 @@ inductive declaration
 */
 enum class declaration_kind { Axiom, Definition, Theorem, Quot, MutualDefinition, Inductive };
 class declaration : public object_ref {
-    object * get_val_obj() const { return cnstr_obj(raw(), 0); }
-    object_ref const & to_val() const { return cnstr_obj_ref(*this, 0); }
+    object * get_val_obj() const { return cnstr_get(raw(), 0); }
+    object_ref const & to_val() const { return cnstr_get_ref(*this, 0); }
 public:
     declaration();
     declaration(declaration const & other):object_ref(other) {}
@@ -197,10 +197,10 @@ public:
     bool is_meta() const;
     bool has_value() const { return is_theorem() || is_definition(); }
 
-    axiom_val const & to_axiom_val() const { lean_assert(is_axiom()); return static_cast<axiom_val const &>(cnstr_obj_ref(raw(), 0)); }
-    definition_val const & to_definition_val() const { lean_assert(is_definition()); return static_cast<definition_val const &>(cnstr_obj_ref(raw(), 0)); }
-    theorem_val const & to_theorem_val() const { lean_assert(is_theorem()); return static_cast<theorem_val const &>(cnstr_obj_ref(raw(), 0)); }
-    definition_vals const & to_definition_vals() const { lean_assert(is_mutual()); return static_cast<definition_vals const &>(cnstr_obj_ref(raw(), 0)); }
+    axiom_val const & to_axiom_val() const { lean_assert(is_axiom()); return static_cast<axiom_val const &>(cnstr_get_ref(raw(), 0)); }
+    definition_val const & to_definition_val() const { lean_assert(is_definition()); return static_cast<definition_val const &>(cnstr_get_ref(raw(), 0)); }
+    theorem_val const & to_theorem_val() const { lean_assert(is_theorem()); return static_cast<theorem_val const &>(cnstr_get_ref(raw(), 0)); }
+    definition_vals const & to_definition_vals() const { lean_assert(is_mutual()); return static_cast<definition_vals const &>(cnstr_get_ref(raw(), 0)); }
 
     void serialize(serializer & s) const { s.write_object(raw()); }
     static declaration deserialize(deserializer & d) { object * o = d.read_object(); inc(o); return declaration(o); }
@@ -249,9 +249,9 @@ public:
     inductive_decl(declaration const & d):object_ref(d) { lean_assert(d.is_inductive()); }
     inductive_decl & operator=(inductive_decl const & other) { object_ref::operator=(other); return *this; }
     inductive_decl & operator=(inductive_decl && other) { object_ref::operator=(other); return *this; }
-    names const & get_lparams() const { return static_cast<names const &>(cnstr_obj_ref(raw(), 0)); }
-    nat const & get_nparams() const { return static_cast<nat const &>(cnstr_obj_ref(raw(), 1)); }
-    inductive_types const & get_types() const { return static_cast<inductive_types const &>(cnstr_obj_ref(raw(), 2)); }
+    names const & get_lparams() const { return static_cast<names const &>(cnstr_get_ref(raw(), 0)); }
+    nat const & get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(raw(), 1)); }
+    inductive_types const & get_types() const { return static_cast<inductive_types const &>(cnstr_get_ref(raw(), 2)); }
     bool is_meta() const;
 };
 
@@ -273,14 +273,14 @@ public:
     inductive_val(inductive_val && other):object_ref(other) {}
     inductive_val & operator=(inductive_val const & other) { object_ref::operator=(other); return *this; }
     inductive_val & operator=(inductive_val && other) { object_ref::operator=(other); return *this; }
-    constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_obj_ref(*this, 0)); }
-    unsigned get_nparams() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 1)).get_small_value(); }
-    unsigned get_nindices() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 2)).get_small_value(); }
-    names const & get_all() const { return static_cast<names const &>(cnstr_obj_ref(*this, 3)); }
-    names const & get_cnstrs() const { return static_cast<names const &>(cnstr_obj_ref(*this, 4)); }
-    bool is_rec() const { return cnstr_scalar<unsigned char>(raw(), sizeof(object*)*5) != 0; }
-    bool is_meta() const { return cnstr_scalar<unsigned char>(raw(), sizeof(object*)*5 + 1) != 0; }
-    bool is_reflexive() const { return cnstr_scalar<unsigned char>(raw(), sizeof(object*)*5 + 2) != 0; }
+    constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
+    unsigned get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 1)).get_small_value(); }
+    unsigned get_nindices() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
+    names const & get_all() const { return static_cast<names const &>(cnstr_get_ref(*this, 3)); }
+    names const & get_cnstrs() const { return static_cast<names const &>(cnstr_get_ref(*this, 4)); }
+    bool is_rec() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*5) != 0; }
+    bool is_meta() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*5 + 1) != 0; }
+    bool is_reflexive() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*5 + 2) != 0; }
 };
 
 /*
@@ -296,10 +296,10 @@ public:
     constructor_val(constructor_val && other):object_ref(other) {}
     constructor_val & operator=(constructor_val const & other) { object_ref::operator=(other); return *this; }
     constructor_val & operator=(constructor_val && other) { object_ref::operator=(other); return *this; }
-    constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_obj_ref(*this, 0)); }
-    name const & get_induct() const { return static_cast<name const &>(cnstr_obj_ref(*this, 1)); }
-    unsigned get_nparams() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 2)).get_small_value(); }
-    bool is_meta() const { return cnstr_scalar<unsigned char>(raw(), sizeof(object*)*3) != 0; }
+    constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
+    name const & get_induct() const { return static_cast<name const &>(cnstr_get_ref(*this, 1)); }
+    unsigned get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
+    bool is_meta() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*3) != 0; }
 };
 
 /*
@@ -315,9 +315,9 @@ public:
     recursor_rule(recursor_rule && other):object_ref(other) {}
     recursor_rule & operator=(recursor_rule const & other) { object_ref::operator=(other); return *this; }
     recursor_rule & operator=(recursor_rule && other) { object_ref::operator=(other); return *this; }
-    name const & get_cnstr() const { return static_cast<name const &>(cnstr_obj_ref(*this, 0)); }
-    unsigned get_nfields() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 1)).get_small_value(); }
-    expr const & get_rhs() const { return static_cast<expr const &>(cnstr_obj_ref(*this, 2)); }
+    name const & get_cnstr() const { return static_cast<name const &>(cnstr_get_ref(*this, 0)); }
+    unsigned get_nfields() const { return static_cast<nat const &>(cnstr_get_ref(*this, 1)).get_small_value(); }
+    expr const & get_rhs() const { return static_cast<expr const &>(cnstr_get_ref(*this, 2)); }
 };
 
 typedef list_ref<recursor_rule> recursor_rules;
@@ -342,18 +342,18 @@ public:
     recursor_val(recursor_val && other):object_ref(other) {}
     recursor_val & operator=(recursor_val const & other) { object_ref::operator=(other); return *this; }
     recursor_val & operator=(recursor_val && other) { object_ref::operator=(other); return *this; }
-    constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_obj_ref(*this, 0)); }
+    constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
     name const & get_name() const { return to_constant_val().get_name(); }
     name const & get_induct() const { return get_name().get_prefix(); }
-    names const & get_all() const { return static_cast<names const &>(cnstr_obj_ref(*this, 1)); }
-    unsigned get_nparams() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 2)).get_small_value(); }
-    unsigned get_nindices() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 3)).get_small_value(); }
-    unsigned get_nmotives() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 4)).get_small_value(); }
-    unsigned get_nminors() const { return static_cast<nat const &>(cnstr_obj_ref(*this, 5)).get_small_value(); }
+    names const & get_all() const { return static_cast<names const &>(cnstr_get_ref(*this, 1)); }
+    unsigned get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
+    unsigned get_nindices() const { return static_cast<nat const &>(cnstr_get_ref(*this, 3)).get_small_value(); }
+    unsigned get_nmotives() const { return static_cast<nat const &>(cnstr_get_ref(*this, 4)).get_small_value(); }
+    unsigned get_nminors() const { return static_cast<nat const &>(cnstr_get_ref(*this, 5)).get_small_value(); }
     unsigned get_major_idx() const { return get_nparams() + get_nmotives() + get_nminors() + get_nindices(); }
-    recursor_rules const & get_rules() const { return static_cast<recursor_rules const &>(cnstr_obj_ref(*this, 6)); }
-    bool is_k() const { return cnstr_scalar<unsigned char>(raw(), sizeof(object*)*7) != 0; }
-    bool is_meta() const { return cnstr_scalar<unsigned char>(raw(), sizeof(object*)*7 + 1) != 0; }
+    recursor_rules const & get_rules() const { return static_cast<recursor_rules const &>(cnstr_get_ref(*this, 6)); }
+    bool is_k() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*7) != 0; }
+    bool is_meta() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*7 + 1) != 0; }
 };
 
 enum class quot_kind { Type, Mk, Lift, Ind };
@@ -375,7 +375,7 @@ public:
     quot_val(quot_val && other):object_ref(other) {}
     quot_val & operator=(quot_val const & other) { object_ref::operator=(other); return *this; }
     quot_val & operator=(quot_val && other) { object_ref::operator=(other); return *this; }
-    constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_obj_ref(*this, 0)); }
+    constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
     name const & get_name() const { return to_constant_val().get_name(); }
     names const & get_lparams() const { return to_constant_val().get_lparams(); }
     expr const & get_type() const { return to_constant_val().get_type(); }
@@ -395,9 +395,9 @@ inductive constant_info
 */
 enum class constant_info_kind { Axiom, Definition, Theorem, Quot, Inductive, Constructor, Recursor };
 class constant_info : public object_ref {
-    object * get_val_obj() const { return cnstr_obj(raw(), 0); }
-    object_ref const & to_val() const { return cnstr_obj_ref(*this, 0); }
-    constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_obj_ref(to_val(), 0)); }
+    object * get_val_obj() const { return cnstr_get(raw(), 0); }
+    object_ref const & to_val() const { return cnstr_get_ref(*this, 0); }
+    constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(to_val(), 0)); }
 public:
     constant_info();
     constant_info(declaration const & d);
@@ -430,7 +430,7 @@ public:
     unsigned get_num_lparams() const { return length(get_lparams()); }
     expr const & get_type() const { return to_constant_val().get_type(); }
     bool has_value() const { return is_theorem() || is_definition(); }
-    expr const & get_value() const { lean_assert(has_value()); return static_cast<expr const &>(cnstr_obj_ref(to_val(), 1)); }
+    expr const & get_value() const { lean_assert(has_value()); return static_cast<expr const &>(cnstr_get_ref(to_val(), 1)); }
     reducibility_hints const & get_hints() const;
 
     axiom_val const & to_axiom_val() const { lean_assert(is_axiom()); return static_cast<axiom_val const &>(to_val()); }

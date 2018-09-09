@@ -19,8 +19,8 @@ public:
     pair_ref & operator=(pair_ref const & other) { object_ref::operator=(other); return *this; }
     pair_ref & operator=(pair_ref && other) { object_ref::operator=(other); return *this; }
 
-    T1 const & fst() const { return static_cast<T1 const &>(cnstr_obj_ref(*this, 0)); }
-    T2 const & snd() const { return static_cast<T2 const &>(cnstr_obj_ref(*this, 1)); }
+    T1 const & fst() const { return static_cast<T1 const &>(cnstr_get_ref(*this, 0)); }
+    T2 const & snd() const { return static_cast<T2 const &>(cnstr_get_ref(*this, 1)); }
 
     void serialize(serializer & s) const { s.write_object(raw()); }
     static pair_ref deserialize(deserializer & d) { return pair_ref(d.read_object(), true); }

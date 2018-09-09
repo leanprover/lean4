@@ -281,7 +281,7 @@ object * deserializer::read_constructor() {
     for (unsigned i = 0; i < num_objs; i++) {
         object * o = read_object();
         inc(o);
-        cnstr_set_obj(r, i, o);
+        cnstr_set(r, i, o);
     }
     unsigned char * it  = cnstr_scalar_cptr(r);
     unsigned char * end = it + scalar_sz;
@@ -312,7 +312,7 @@ object * deserializer::read_array() {
     for (size_t i = 0; i < sz; i++) {
         object * o = read_object();
         inc(o);
-        array_set_obj(r, i, o);
+        array_set(r, i, o);
     }
     return r;
 }

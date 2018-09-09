@@ -47,10 +47,10 @@ public:
     /* Low level primitives */
     static name_kind kind(object * o) { return static_cast<name_kind>(obj_tag(o)); }
     static bool is_anonymous(object * o) { return is_scalar(o); }
-    static object * get_prefix(object * o) { return cnstr_obj(o, 0); }
-    static string_ref const & get_string(object * o) { return static_cast<string_ref const &>(cnstr_obj_ref(o, 1)); }
-    static nat const & get_numeral(object * o) { return static_cast<nat const &>(cnstr_obj_ref(o, 1)); }
-    static unsigned hash(object * o) { return cnstr_scalar<unsigned>(o, 2*sizeof(object*)); } // NOLINT
+    static object * get_prefix(object * o) { return cnstr_get(o, 0); }
+    static string_ref const & get_string(object * o) { return static_cast<string_ref const &>(cnstr_get_ref(o, 1)); }
+    static nat const & get_numeral(object * o) { return static_cast<nat const &>(cnstr_get_ref(o, 1)); }
+    static unsigned hash(object * o) { return cnstr_get_scalar<unsigned>(o, 2*sizeof(object*)); } // NOLINT
     static bool eq_core(object * o1, object * o2);
     static int cmp_core(object * o1, object * o2);
     size_t size_core(bool unicode) const;
@@ -123,7 +123,7 @@ public:
     string_ref const & get_string() const { lean_assert(is_string()); return get_string(raw()); }
     name const & get_prefix() const {
         if (is_anonymous()) return *this;
-        else return static_cast<name const &>(cnstr_obj_ref(*this, 0));
+        else return static_cast<name const &>(cnstr_get_ref(*this, 0));
     }
     bool is_atomic() const { return is_anonymous() || kind(get_prefix(raw())) == name_kind::ANONYMOUS; }
     /** \brief Given a name of the form a_1.a_2. ... .a_k, return a_1 if k >= 1, or the empty name otherwise. */

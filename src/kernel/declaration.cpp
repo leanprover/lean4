@@ -46,14 +46,14 @@ axiom_val::axiom_val(name const & n, names const & lparams, expr const & type, b
     cnstr_set_scalar<unsigned char>(raw(), sizeof(object*), static_cast<unsigned char>(is_meta));
 }
 
-bool axiom_val::is_meta() const { return cnstr_scalar<unsigned char>(raw(), sizeof(object*)) != 0; }
+bool axiom_val::is_meta() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)) != 0; }
 
 definition_val::definition_val(name const & n, names const & lparams, expr const & type, expr const & val, reducibility_hints const & hints, bool is_meta):
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), val, hints, 1)) {
     cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*3, static_cast<unsigned char>(is_meta));
 }
 
-bool definition_val::is_meta() const { return cnstr_scalar<unsigned char>(raw(), sizeof(object*)*3) != 0; }
+bool definition_val::is_meta() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*3) != 0; }
 
 theorem_val::theorem_val(name const & n, names const & lparams, expr const & type, expr const & val):
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), val)) {
@@ -64,7 +64,7 @@ quot_val::quot_val(name const & n, names const & lparams, expr const & type, quo
     cnstr_set_scalar<unsigned char>(raw(), sizeof(object*), static_cast<unsigned char>(k));
 }
 
-quot_kind quot_val::get_quot_kind() const { return static_cast<quot_kind>(cnstr_scalar<unsigned char>(raw(), sizeof(object*))); }
+quot_kind quot_val::get_quot_kind() const { return static_cast<quot_kind>(cnstr_get_scalar<unsigned char>(raw(), sizeof(object*))); }
 
 recursor_rule::recursor_rule(name const & cnstr, unsigned nfields, expr const & rhs):
     object_ref(mk_cnstr(0, cnstr, nat(nfields), rhs)) {
@@ -205,7 +205,7 @@ declaration mk_inductive_decl(names const & lparams, nat const & nparams, induct
     return r;
 }
 
-bool inductive_decl::is_meta() const { return cnstr_scalar<unsigned char>(raw(), inductive_decl_scalar_offset()) != 0; }
+bool inductive_decl::is_meta() const { return cnstr_get_scalar<unsigned char>(raw(), inductive_decl_scalar_offset()) != 0; }
 
 // =======================================
 // Constant info
@@ -240,7 +240,7 @@ static reducibility_hints * g_opaque = nullptr;
 
 reducibility_hints const & constant_info::get_hints() const {
     if (is_definition())
-        return static_cast<reducibility_hints const &>(cnstr_obj_ref(to_val(), 2));
+        return static_cast<reducibility_hints const &>(cnstr_get_ref(to_val(), 2));
     else
         return *g_opaque;
 }

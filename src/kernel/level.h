@@ -60,16 +60,16 @@ public:
     bool is_param() const { return kind() == level_kind::Param; }
     bool is_mvar() const { return kind() == level_kind::MVar; }
 
-    friend inline level const & max_lhs(level const & l) { lean_assert(l.is_max()); return static_cast<level const &>(cnstr_obj_ref(l, 0)); }
-    friend inline level const & max_rhs(level const & l) { lean_assert(l.is_max()); return static_cast<level const &>(cnstr_obj_ref(l, 1)); }
-    friend inline level const & imax_lhs(level const & l) { lean_assert(l.is_imax()); return static_cast<level const &>(cnstr_obj_ref(l, 0)); }
-    friend inline level const & imax_rhs(level const & l) { lean_assert(l.is_imax()); return static_cast<level const &>(cnstr_obj_ref(l, 1)); }
-    friend inline level const & level_lhs(level const & l) { lean_assert(l.is_max() || l.is_imax()); return static_cast<level const &>(cnstr_obj_ref(l, 0)); }
-    friend inline level const & level_rhs(level const & l) { lean_assert(l.is_max() || l.is_imax()); return static_cast<level const &>(cnstr_obj_ref(l, 1)); }
-    friend inline level const & succ_of(level const & l) { lean_assert(l.is_succ()); return static_cast<level const &>(cnstr_obj_ref(l, 0)); }
-    friend inline name const & param_id(level const & l) { lean_assert(l.is_param()); return static_cast<name const &>(cnstr_obj_ref(l, 0)); }
-    friend inline name const & mvar_id(level const & l)  { lean_assert(l.is_mvar()); return static_cast<name const &>(cnstr_obj_ref(l, 0)); }
-    friend inline name const & level_id(level const & l) { lean_assert(l.is_param() || l.is_mvar()); return static_cast<name const &>(cnstr_obj_ref(l, 0)); }
+    friend inline level const & max_lhs(level const & l) { lean_assert(l.is_max()); return static_cast<level const &>(cnstr_get_ref(l, 0)); }
+    friend inline level const & max_rhs(level const & l) { lean_assert(l.is_max()); return static_cast<level const &>(cnstr_get_ref(l, 1)); }
+    friend inline level const & imax_lhs(level const & l) { lean_assert(l.is_imax()); return static_cast<level const &>(cnstr_get_ref(l, 0)); }
+    friend inline level const & imax_rhs(level const & l) { lean_assert(l.is_imax()); return static_cast<level const &>(cnstr_get_ref(l, 1)); }
+    friend inline level const & level_lhs(level const & l) { lean_assert(l.is_max() || l.is_imax()); return static_cast<level const &>(cnstr_get_ref(l, 0)); }
+    friend inline level const & level_rhs(level const & l) { lean_assert(l.is_max() || l.is_imax()); return static_cast<level const &>(cnstr_get_ref(l, 1)); }
+    friend inline level const & succ_of(level const & l) { lean_assert(l.is_succ()); return static_cast<level const &>(cnstr_get_ref(l, 0)); }
+    friend inline name const & param_id(level const & l) { lean_assert(l.is_param()); return static_cast<name const &>(cnstr_get_ref(l, 0)); }
+    friend inline name const & mvar_id(level const & l)  { lean_assert(l.is_mvar()); return static_cast<name const &>(cnstr_get_ref(l, 0)); }
+    friend inline name const & level_id(level const & l) { lean_assert(l.is_param() || l.is_mvar()); return static_cast<name const &>(cnstr_get_ref(l, 0)); }
 };
 
 typedef list_ref<level> levels;

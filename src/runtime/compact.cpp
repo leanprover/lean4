@@ -83,7 +83,7 @@ bool object_compactor::insert_constructor(object * o) {
     bool missing_children = false;
     unsigned num_objs     = cnstr_num_objs(o);
     for (unsigned i = 0; i < num_objs; i++) {
-        object_offset c = to_offset(cnstr_obj(o, i));
+        object_offset c = to_offset(cnstr_get(o, i));
         if (c == g_null_offset)
             missing_children = true;
         offsets.push_back(c);
@@ -92,7 +92,7 @@ bool object_compactor::insert_constructor(object * o) {
         return false;
     object * new_o = copy_object(o);
     for (unsigned i = 0; i < cnstr_num_objs(o); i++)
-        cnstr_set_obj(new_o, i, offsets[i]);
+        cnstr_set(new_o, i, offsets[i]);
     return true;
 }
 
@@ -102,7 +102,7 @@ bool object_compactor::insert_array(object * o) {
     bool missing_children = false;
     size_t sz = array_size(o);
     for (size_t i = 0; i < sz; i++) {
-        object_offset c = to_offset(array_obj(o, i));
+        object_offset c = to_offset(array_get(o, i));
         if (c == g_null_offset)
             missing_children = true;
         offsets.push_back(c);
@@ -112,7 +112,7 @@ bool object_compactor::insert_array(object * o) {
     void * mem = alloc(sizeof(array_object) + sz * sizeof(object *));
     object * new_o = new (mem) array_object(sz, sz, object_memory_kind::Region);
     for (size_t i = 0; i < sz; i++) {
-        array_set_obj(new_o, i, offsets[i]);
+        array_set(new_o, i, offsets[i]);
     }
     save(o, new_o);
     return true;

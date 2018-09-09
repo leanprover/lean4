@@ -36,10 +36,10 @@ public:
     static data_value deserialize(deserializer & d) { return data_value(d.read_object(), true); }
 
     data_value_kind kind() const { return static_cast<data_value_kind>(cnstr_tag(raw())); }
-    string_ref const & get_string() const { lean_assert(kind() == data_value_kind::String); return static_cast<string_ref const &>(cnstr_obj_ref(*this, 0)); }
-    nat const & get_nat() const { lean_assert(kind() == data_value_kind::Nat); return static_cast<nat const &>(cnstr_obj_ref(*this, 0)); }
-    name const & get_name() const { lean_assert(kind() == data_value_kind::Name); return static_cast<name const &>(cnstr_obj_ref(*this, 0)); }
-    bool get_bool() const { lean_assert(kind() == data_value_kind::Bool); return static_cast<bool>(cnstr_scalar<unsigned char>(raw(), 0)); }
+    string_ref const & get_string() const { lean_assert(kind() == data_value_kind::String); return static_cast<string_ref const &>(cnstr_get_ref(*this, 0)); }
+    nat const & get_nat() const { lean_assert(kind() == data_value_kind::Nat); return static_cast<nat const &>(cnstr_get_ref(*this, 0)); }
+    name const & get_name() const { lean_assert(kind() == data_value_kind::Name); return static_cast<name const &>(cnstr_get_ref(*this, 0)); }
+    bool get_bool() const { lean_assert(kind() == data_value_kind::Bool); return static_cast<bool>(cnstr_get_scalar<unsigned char>(raw(), 0)); }
 
     friend bool operator==(data_value const & a, data_value const & b);
     friend bool operator<(data_value const & a, data_value const & b);

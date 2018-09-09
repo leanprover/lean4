@@ -292,7 +292,7 @@ size_t parray_size(b_obj_arg o) {
     return to_parray(o)->m_size;
 }
 
-b_obj_res parray_obj(b_obj_arg o, size_t i) {
+b_obj_res parray_get(b_obj_arg o, size_t i) {
     if (get_kind(o) != object_kind::PArrayRoot)
         parray_reroot(o);
     return to_parray(o)->m_data[i];
@@ -458,14 +458,14 @@ typedef object * (*lean_cfun3)(object *, object *, object *); // NOLINT
 
 static obj_res mk_closure_2_1(lean_cfun2 fn, obj_arg a) {
     object * c = alloc_closure(reinterpret_cast<lean_cfun>(fn), 2, 1);
-    closure_set_arg(c, 0, a);
+    closure_set(c, 0, a);
     return c;
 }
 
 static obj_res mk_closure_3_2(lean_cfun3 fn, obj_arg a1, obj_arg a2) {
     object * c = alloc_closure(reinterpret_cast<lean_cfun>(fn), 3, 2);
-    closure_set_arg(c, 0, a1);
-    closure_set_arg(c, 1, a2);
+    closure_set(c, 0, a1);
+    closure_set(c, 1, a2);
     return c;
 }
 
@@ -654,11 +654,11 @@ class task_manager {
     object * wait_any_check(object * task_list) {
         object * it = task_list;
         while (!is_scalar(it)) {
-            object * head = cnstr_obj(it, 0);
+            object * head = cnstr_get(it, 0);
             lean_assert(is_thunk(head) || is_task(head));
             if (is_thunk(head) || to_task(head)->m_value)
                 return head;
-            it = cnstr_obj(it, 1);
+            it = cnstr_get(it, 1);
         }
         return nullptr;
     }

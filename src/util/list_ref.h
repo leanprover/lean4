@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "util/object_ref.h"
 
 namespace lean {
-template<typename T> T const & head(object * o) { return static_cast<T const &>(cnstr_obj_ref(o, 0)); }
+template<typename T> T const & head(object * o) { return static_cast<T const &>(cnstr_get_ref(o, 0)); }
 
 /* Wrapper for manipulating Lean lists in C++ */
 template<typename T>
@@ -38,8 +38,8 @@ public:
     explicit operator bool() const { return !is_scalar(raw()); }
     friend bool is_nil(list_ref const & l) { return is_scalar(l.raw()); }
     friend bool empty(list_ref const & l) { return is_nil(l); }
-    friend T const & head(list_ref const & l) { lean_assert(!is_nil(l)); return static_cast<T const &>(cnstr_obj_ref(l, 0)); }
-    friend list_ref const & tail(list_ref const & l) { lean_assert(!is_nil(l)); return static_cast<list_ref const &>(cnstr_obj_ref(l, 1)); }
+    friend T const & head(list_ref const & l) { lean_assert(!is_nil(l)); return static_cast<T const &>(cnstr_get_ref(l, 0)); }
+    friend list_ref const & tail(list_ref const & l) { lean_assert(!is_nil(l)); return static_cast<list_ref const &>(cnstr_get_ref(l, 1)); }
     friend T const & car(list_ref const & l) { return head(l); }
     friend list_ref const & cdr(list_ref const & l) { return tail(l); }
     friend list_ref cons(T const & h, list_ref<T> const & t) { return list_ref(h, t); }
@@ -59,8 +59,8 @@ public:
             T const & h2 = ::lean::head<T>(it2);
             if (h1 != h2)
                 return false;
-            it1 = cnstr_obj(it1, 1);
-            it2 = cnstr_obj(it2, 1);
+            it1 = cnstr_get(it1, 1);
+            it2 = cnstr_get(it2, 1);
         }
         return is_scalar(it1) && is_scalar(it2);
     }
@@ -79,8 +79,8 @@ public:
                 return true;
             if (h2 < h1)
                 return false;
-            it1 = cnstr_obj(it1, 1);
-            it2 = cnstr_obj(it2, 1);
+            it1 = cnstr_get(it1, 1);
+            it2 = cnstr_get(it2, 1);
         }
         return is_scalar(it1) && !is_scalar(it2);
     }
@@ -96,7 +96,7 @@ public:
         typedef T const * pointer;
         typedef T const & reference;
         iterator(iterator const & s):m_it(s.m_it) {}
-        iterator & operator++() { m_it = cnstr_obj(m_it, 1); return *this; }
+        iterator & operator++() { m_it = cnstr_get(m_it, 1); return *this; }
         iterator operator++(int) { iterator tmp(*this); operator++(); return tmp; }
         bool operator==(iterator const & s) const { return m_it == s.m_it; }
         bool operator!=(iterator const & s) const { return !operator==(s); }
@@ -110,19 +110,19 @@ public:
         object * it = raw();
         while (!is_scalar(it)) {
             r.push_back(it);
-            it = cnstr_obj(it, 1);
+            it = cnstr_get(it, 1);
         }
     }
 };
 
-template<typename T> list_ref<T> const & tail(object * o) { return static_cast<list_ref<T> const &>(cnstr_obj_ref(o, 1)); }
+template<typename T> list_ref<T> const & tail(object * o) { return static_cast<list_ref<T> const &>(cnstr_get_ref(o, 1)); }
 
 template<typename T> size_t length(list_ref<T> const & l) {
     size_t r    = 0;
     object * it = l.raw();
     while (!is_scalar(it)) {
         r++;
-        it = cnstr_obj(it, 1);
+        it = cnstr_get(it, 1);
     }
     return r;
 }

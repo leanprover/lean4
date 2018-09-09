@@ -139,7 +139,7 @@ obj_res task3_fn(obj_arg val, obj_arg) {
 
 obj_res mk_task3_fn(obj_arg val) {
     object * c     = alloc_closure(reinterpret_cast<lean_cfun>(task3_fn), 2, 1);
-    closure_set_arg(c, 0, val);
+    closure_set(c, 0, val);
     return mk_task(c);
 }
 
@@ -223,7 +223,7 @@ obj_res task5_fn(obj_arg id, obj_arg) {
 
 obj_res mk_task5(obj_arg id) {
     object * c = alloc_closure(reinterpret_cast<lean_cfun>(task5_fn), 2, 1);
-    closure_set_arg(c, 0, id);
+    closure_set(c, 0, id);
     return mk_task(c);
 }
 
@@ -259,8 +259,8 @@ obj_res task6_fn(obj_arg) {
 obj_res mk_cons(b_obj_arg h, obj_arg t) {
     object * r = alloc_cnstr(1, 2, 0);
     inc(h);
-    cnstr_set_obj(r, 0, h);
-    cnstr_set_obj(r, 1, t);
+    cnstr_set(r, 0, h);
+    cnstr_set(r, 1, t);
     return r;
 }
 
@@ -344,7 +344,7 @@ obj_res task7_fn(obj_arg val, obj_arg) {
 
 obj_res mk_task7_fn(obj_arg val) {
     object * c     = alloc_closure(reinterpret_cast<lean_cfun>(task7_fn), 2, 1);
-    closure_set_arg(c, 0, val);
+    closure_set(c, 0, val);
     return mk_task(c);
 }
 
@@ -395,27 +395,27 @@ obj_res mk_parray(unsigned n, b_obj_arg v) {
 void tst14() {
     object * a = mk_parray(10, box(0));
     lean_assert(parray_size(a) == 10);
-    lean_assert(parray_obj(a, 0) == box(0));
+    lean_assert(parray_get(a, 0) == box(0));
     object * b = a;
     inc(b);
     lean_assert(get_rc(a) == 2);
     lean_assert(get_rc(b) == 2);
     a = parray_set(a, 0, box(1));
     lean_assert(a != b);
-    lean_assert(parray_obj(a, 0) == box(1));
-    lean_assert(parray_obj(a, 1) == box(0));
-    lean_assert(parray_obj(b, 0) == box(0));
-    lean_assert(parray_obj(a, 0) == box(1));
+    lean_assert(parray_get(a, 0) == box(1));
+    lean_assert(parray_get(a, 1) == box(0));
+    lean_assert(parray_get(b, 0) == box(0));
+    lean_assert(parray_get(a, 0) == box(1));
     inc(b);
     object * c = b;
     c = parray_push(c, box(20));
     lean_assert(parray_size(c) == 11);
     lean_assert(parray_size(a) == 10);
     lean_assert(parray_size(b) == 10);
-    lean_assert(parray_obj(c, 0)  == box(0));
-    lean_assert(parray_obj(c, 10) == box(20));
-    lean_assert(parray_obj(a, 0)  == box(1));
-    lean_assert(parray_obj(b, 0)  == box(0));
+    lean_assert(parray_get(c, 0)  == box(0));
+    lean_assert(parray_get(c, 10) == box(20));
+    lean_assert(parray_get(a, 0)  == box(1));
+    lean_assert(parray_get(b, 0)  == box(0));
     dec(a); dec(b); dec(c);
 
 }

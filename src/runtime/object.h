@@ -451,19 +451,19 @@ inline obj_res alloc_cnstr(unsigned tag, unsigned num_objs, unsigned scalar_sz) 
 }
 inline unsigned cnstr_tag(b_obj_arg o) { return to_cnstr(o)->m_tag; }
 /* Access constructor object field `i` */
-inline b_obj_res cnstr_obj(b_obj_arg o, unsigned i) {
+inline b_obj_res cnstr_get(b_obj_arg o, unsigned i) {
     lean_assert(i < cnstr_num_objs(o));
     return obj_data<object*>(o, sizeof(constructor_object) + sizeof(object*)*i); // NOLINT
 }
-/* Access scalar data at the given offset. */
-template<typename T> inline T cnstr_scalar(b_obj_arg o, size_t offset) {
-    return obj_data<T>(o, sizeof(constructor_object) + offset);
-}
 /* Update constructor field `i` */
-inline void cnstr_set_obj(u_obj_arg o, unsigned i, obj_arg v) {
+inline void cnstr_set(u_obj_arg o, unsigned i, obj_arg v) {
     lean_assert(!is_heap_obj(o) || !is_shared(o));
     lean_assert(i < cnstr_num_objs(o));
     obj_set_data(o, sizeof(constructor_object) + sizeof(object*)*i, v); // NOLINT
+}
+/* Access scalar data at the given offset. */
+template<typename T> inline T cnstr_get_scalar(b_obj_arg o, size_t offset) {
+    return obj_data<T>(o, sizeof(constructor_object) + offset);
 }
 template<typename T> inline void cnstr_set_scalar(b_obj_arg o, unsigned i, T v) {
     obj_set_data(o, sizeof(constructor_object) + i, v);
@@ -479,11 +479,11 @@ inline obj_res alloc_closure(lean_cfun fun, unsigned arity, unsigned num_fixed) 
     lean_assert(num_fixed < arity);
     return new (alloc_heap_object(closure_byte_size(num_fixed))) closure_object(fun, arity, num_fixed); // NOLINT
 }
-inline b_obj_res closure_arg(b_obj_arg o, unsigned i) {
+inline b_obj_res closure_get(b_obj_arg o, unsigned i) {
     lean_assert(i < closure_num_fixed(o));
     return obj_data<object*>(o, sizeof(closure_object) + sizeof(object*)*i); // NOLINT
 }
-inline void closure_set_arg(u_obj_arg o, unsigned i, obj_arg a) {
+inline void closure_set(u_obj_arg o, unsigned i, obj_arg a) {
     lean_assert(i < closure_num_fixed(o));
     obj_set_data(o, sizeof(closure_object) + sizeof(object*)*i, a); // NOLINT
 }
@@ -495,17 +495,17 @@ inline obj_res alloc_array(size_t size, size_t capacity) {
     return new (alloc_heap_object(array_byte_size(capacity))) array_object(size, capacity); // NOLINT
 }
 inline size_t array_size(b_obj_arg o) { return to_array(o)->m_size; }
-inline b_obj_res array_obj(b_obj_arg o, size_t i) {
-    lean_assert(i < array_size(o));
-    return obj_data<object*>(o, sizeof(array_object) + sizeof(object*)*i); // NOLINT
-}
 inline void array_set_size(u_obj_arg o, size_t sz) {
     lean_assert(is_array(o));
     lean_assert(!is_heap_obj(o) || !is_shared(o));
     lean_assert(sz <= array_capacity(o));
     to_array(o)->m_size = sz;
 }
-inline void array_set_obj(u_obj_arg o, size_t i, obj_arg v) {
+inline b_obj_res array_get(b_obj_arg o, size_t i) {
+    lean_assert(i < array_size(o));
+    return obj_data<object*>(o, sizeof(array_object) + sizeof(object*)*i); // NOLINT
+}
+inline void array_set(u_obj_arg o, size_t i, obj_arg v) {
     lean_assert(!is_heap_obj(o) || !is_shared(o));
     lean_assert(i < array_size(o));
     obj_set_data(o, sizeof(array_object) + sizeof(object*)*i, v); // NOLINT
@@ -516,7 +516,7 @@ inline void array_set_obj(u_obj_arg o, size_t i, obj_arg v) {
 
 obj_res alloc_parray(size_t size, size_t capacity);
 size_t parray_size(b_obj_arg o);
-b_obj_res parray_obj(b_obj_arg o, size_t i);
+b_obj_res parray_get(b_obj_arg o, size_t i);
 obj_res parray_set(obj_arg o, size_t i, obj_arg v);
 obj_res parray_push(obj_arg o, obj_arg v);
 obj_res parray_pop(obj_arg o);
@@ -531,15 +531,15 @@ inline obj_res alloc_sarray(unsigned elem_size, size_t size, size_t capacity) {
     return new (alloc_heap_object(sarray_byte_size(capacity, elem_size))) sarray_object(elem_size, size, capacity); // NOLINT
 }
 inline size_t sarray_size(b_obj_arg o) { return to_sarray(o)->m_size; }
-template<typename T> T sarray_data(b_obj_arg o, size_t i) { return sarray_cptr<T>(o)[i]; }
-template<typename T> void sarray_set_data(u_obj_arg o, size_t i, T v) {
-    obj_set_data(o, sizeof(sarray_object) + sizeof(T)*i, v);
-}
 inline void sarray_set_size(u_obj_arg o, size_t sz) {
     lean_assert(is_sarray(o));
     lean_assert(!is_heap_obj(o) || !is_shared(o));
     lean_assert(sz <= sarray_capacity(o));
     to_sarray(o)->m_size = sz;
+}
+template<typename T> T sarray_get(b_obj_arg o, size_t i) { return sarray_cptr<T>(o)[i]; }
+template<typename T> void sarray_set(u_obj_arg o, size_t i, T v) {
+    obj_set_data(o, sizeof(sarray_object) + sizeof(T)*i, v);
 }
 
 // =======================================

@@ -56,8 +56,8 @@ public:
     literal & operator=(literal && other) { object_ref::operator=(other); return *this; }
 
     literal_kind kind() const { return static_cast<literal_kind>(cnstr_tag(raw())); }
-    string_ref const & get_string() const { lean_assert(kind() == literal_kind::String); return static_cast<string_ref const &>(cnstr_obj_ref(*this, 0)); }
-    nat const & get_nat() const { lean_assert(kind() == literal_kind::Nat); return static_cast<nat const &>(cnstr_obj_ref(*this, 0)); }
+    string_ref const & get_string() const { lean_assert(kind() == literal_kind::String); return static_cast<string_ref const &>(cnstr_get_ref(*this, 0)); }
+    nat const & get_nat() const { lean_assert(kind() == literal_kind::Nat); return static_cast<nat const &>(cnstr_get_ref(*this, 0)); }
     friend bool operator==(literal const & a, literal const & b);
     friend bool operator<(literal const & a, literal const & b);
 
@@ -217,31 +217,31 @@ expr mk_Type();
 
 // =======================================
 // Accessors
-inline literal const & lit_value(expr const & e)             { lean_assert(is_lit(e)); return static_cast<literal const &>(cnstr_obj_ref(e, 0)); }
+inline literal const & lit_value(expr const & e)             { lean_assert(is_lit(e)); return static_cast<literal const &>(cnstr_get_ref(e, 0)); }
 expr const & lit_type(expr const & e);
-inline kvmap const &   mdata_data(expr const & e)            { lean_assert(is_mdata(e)); return static_cast<kvmap const &>(cnstr_obj_ref(e, 0)); }
-inline expr const &    mdata_expr(expr const & e)            { lean_assert(is_mdata(e)); return static_cast<expr const &>(cnstr_obj_ref(e, 1)); }
-inline nat const &     proj_idx(expr const & e)              { lean_assert(is_proj(e)); return static_cast<nat const &>(cnstr_obj_ref(e, 0)); }
-inline expr const &    proj_expr(expr const & e)             { lean_assert(is_proj(e)); return static_cast<expr const &>(cnstr_obj_ref(e, 1)); }
-inline nat const &     bvar_idx(expr const & e)              { lean_assert(is_bvar(e)); return static_cast<nat const &>(cnstr_obj_ref(e, 0)); }
+inline kvmap const &   mdata_data(expr const & e)            { lean_assert(is_mdata(e)); return static_cast<kvmap const &>(cnstr_get_ref(e, 0)); }
+inline expr const &    mdata_expr(expr const & e)            { lean_assert(is_mdata(e)); return static_cast<expr const &>(cnstr_get_ref(e, 1)); }
+inline nat const &     proj_idx(expr const & e)              { lean_assert(is_proj(e)); return static_cast<nat const &>(cnstr_get_ref(e, 0)); }
+inline expr const &    proj_expr(expr const & e)             { lean_assert(is_proj(e)); return static_cast<expr const &>(cnstr_get_ref(e, 1)); }
+inline nat const &     bvar_idx(expr const & e)              { lean_assert(is_bvar(e)); return static_cast<nat const &>(cnstr_get_ref(e, 0)); }
 inline bool            is_bvar(expr const & e, unsigned i)   { return is_bvar(e) && bvar_idx(e) == i; }
-inline name const &    fvar_name(expr const & e)             { lean_assert(is_fvar(e)); return static_cast<name const &>(cnstr_obj_ref(e, 0)); }
-inline level const &   sort_level(expr const & e)            { lean_assert(is_sort(e)); return static_cast<level const &>(cnstr_obj_ref(e, 0)); }
-inline name const &    mvar_name(expr const & e)             { lean_assert(is_mvar(e)); return static_cast<name const &>(cnstr_obj_ref(e, 0)); }
-inline expr const &    mvar_type(expr const & e)             { lean_assert(is_mvar(e)); return static_cast<expr const &>(cnstr_obj_ref(e, 1)); }
-inline name const &    const_name(expr const & e)            { lean_assert(is_const(e)); return static_cast<name const &>(cnstr_obj_ref(e, 0)); }
-inline levels const &  const_levels(expr const & e)          { lean_assert(is_const(e)); return static_cast<levels const &>(cnstr_obj_ref(e, 1)); }
+inline name const &    fvar_name(expr const & e)             { lean_assert(is_fvar(e)); return static_cast<name const &>(cnstr_get_ref(e, 0)); }
+inline level const &   sort_level(expr const & e)            { lean_assert(is_sort(e)); return static_cast<level const &>(cnstr_get_ref(e, 0)); }
+inline name const &    mvar_name(expr const & e)             { lean_assert(is_mvar(e)); return static_cast<name const &>(cnstr_get_ref(e, 0)); }
+inline expr const &    mvar_type(expr const & e)             { lean_assert(is_mvar(e)); return static_cast<expr const &>(cnstr_get_ref(e, 1)); }
+inline name const &    const_name(expr const & e)            { lean_assert(is_const(e)); return static_cast<name const &>(cnstr_get_ref(e, 0)); }
+inline levels const &  const_levels(expr const & e)          { lean_assert(is_const(e)); return static_cast<levels const &>(cnstr_get_ref(e, 1)); }
 inline bool is_const(expr const & e, name const & n)         { return is_const(e) && const_name(e) == n; }
-inline expr const &    app_fn(expr const & e)                { lean_assert(is_app(e));   return static_cast<expr const &>(cnstr_obj_ref(e, 0)); }
-inline expr const &    app_arg(expr const & e)               { lean_assert(is_app(e));   return static_cast<expr const &>(cnstr_obj_ref(e, 1)); }
-inline name const &    binding_name(expr const & e)          { lean_assert(is_binding(e)); return static_cast<name const &>(cnstr_obj_ref(e, 0)); }
-inline expr const &    binding_domain(expr const & e)        { lean_assert(is_binding(e)); return static_cast<expr const &>(cnstr_obj_ref(e, 1)); }
-inline expr const &    binding_body(expr const & e)          { lean_assert(is_binding(e)); return static_cast<expr const &>(cnstr_obj_ref(e, 2)); }
+inline expr const &    app_fn(expr const & e)                { lean_assert(is_app(e));   return static_cast<expr const &>(cnstr_get_ref(e, 0)); }
+inline expr const &    app_arg(expr const & e)               { lean_assert(is_app(e));   return static_cast<expr const &>(cnstr_get_ref(e, 1)); }
+inline name const &    binding_name(expr const & e)          { lean_assert(is_binding(e)); return static_cast<name const &>(cnstr_get_ref(e, 0)); }
+inline expr const &    binding_domain(expr const & e)        { lean_assert(is_binding(e)); return static_cast<expr const &>(cnstr_get_ref(e, 1)); }
+inline expr const &    binding_body(expr const & e)          { lean_assert(is_binding(e)); return static_cast<expr const &>(cnstr_get_ref(e, 2)); }
 binder_info binding_info(expr const & e);
-inline name const &    let_name(expr const & e)              { lean_assert(is_let(e)); return static_cast<name const &>(cnstr_obj_ref(e, 0)); }
-inline expr const &    let_type(expr const & e)              { lean_assert(is_let(e)); return static_cast<expr const &>(cnstr_obj_ref(e, 1)); }
-inline expr const &    let_value(expr const & e)             { lean_assert(is_let(e)); return static_cast<expr const &>(cnstr_obj_ref(e, 2)); }
-inline expr const &    let_body(expr const & e)              { lean_assert(is_let(e)); return static_cast<expr const &>(cnstr_obj_ref(e, 3)); }
+inline name const &    let_name(expr const & e)              { lean_assert(is_let(e)); return static_cast<name const &>(cnstr_get_ref(e, 0)); }
+inline expr const &    let_type(expr const & e)              { lean_assert(is_let(e)); return static_cast<expr const &>(cnstr_get_ref(e, 1)); }
+inline expr const &    let_value(expr const & e)             { lean_assert(is_let(e)); return static_cast<expr const &>(cnstr_get_ref(e, 2)); }
+inline expr const &    let_body(expr const & e)              { lean_assert(is_let(e)); return static_cast<expr const &>(cnstr_get_ref(e, 3)); }
 inline bool            is_shared(expr const & e)             { return is_shared(e.raw()); }
 //
 
@@ -341,14 +341,14 @@ expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info bi)
 inline expr mk_local(name const & n, expr const & t) { return mk_local(n, n, t, mk_binder_info()); }
 inline expr mk_local(name const & n, expr const & t, binder_info bi) { return mk_local(n, n, t, bi); }
 inline bool is_local(expr const & e) { return is_fvar(e); }
-inline name const & local_name(expr const & e) { lean_assert(is_local(e)); return static_cast<name const &>(cnstr_obj_ref(e, 0)); }
-inline name const & local_pp_name(expr const & e) { lean_assert(is_local(e)); return static_cast<name const &>(cnstr_obj_ref(e, 1)); }
-inline expr const & local_type(expr const & e) { lean_assert(is_local(e)); return static_cast<expr const &>(cnstr_obj_ref(e, 2)); }
+inline name const & local_name(expr const & e) { lean_assert(is_local(e)); return static_cast<name const &>(cnstr_get_ref(e, 0)); }
+inline name const & local_pp_name(expr const & e) { lean_assert(is_local(e)); return static_cast<name const &>(cnstr_get_ref(e, 1)); }
+inline expr const & local_type(expr const & e) { lean_assert(is_local(e)); return static_cast<expr const &>(cnstr_get_ref(e, 2)); }
 inline expr mk_constant(name const & n, levels const & ls) { return mk_const(n, ls); }
 inline expr mk_constant(name const & n) { return mk_constant(n, levels()); }
 inline bool is_constant(expr const & e) { return is_const(e); }
 expr mk_quote(bool is_reflected, expr const & e);
-inline expr const & quote_value(expr const & e) { return static_cast<expr const &>(cnstr_obj_ref(e, 0)); }
+inline expr const & quote_value(expr const & e) { return static_cast<expr const &>(cnstr_get_ref(e, 0)); }
 bool quote_is_reflected(expr const & e);
 expr update_local(expr const & e, expr const & new_type, binder_info bi);
 expr update_local(expr const & e, expr const & new_type);

@@ -175,14 +175,14 @@ template<expr_kind k> void set_binder_info(expr const & e, binder_info bi) {
 }
 
 /* Legacy support */
-unsigned hash(expr const & e) { return cnstr_scalar<unsigned>(e.raw(), hash_offset(e.kind())); }
-static inline unsigned char get_flags(expr const & e) { return cnstr_scalar<unsigned char>(e.raw(), flags_offset(e.kind())); }
+unsigned hash(expr const & e) { return cnstr_get_scalar<unsigned>(e.raw(), hash_offset(e.kind())); }
+static inline unsigned char get_flags(expr const & e) { return cnstr_get_scalar<unsigned char>(e.raw(), flags_offset(e.kind())); }
 bool has_expr_mvar(expr const & e) { return (get_flags(e) & 1) != 0; }
 bool has_univ_mvar(expr const & e) { return (get_flags(e) & 2) != 0; }
 bool has_fvar(expr const & e) { return (get_flags(e) & 4) != 0; }
 bool has_univ_param(expr const & e) { return (get_flags(e) & 8) != 0; }
 
-template<expr_kind k> unsigned get_weight_core(expr const & e) { return cnstr_scalar<unsigned>(e.raw(), weight_offset(k)); }
+template<expr_kind k> unsigned get_weight_core(expr const & e) { return cnstr_get_scalar<unsigned>(e.raw(), weight_offset(k)); }
 
 unsigned get_weight(expr const & e) {
     switch (e.kind()) {
@@ -199,7 +199,7 @@ unsigned get_weight(expr const & e) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-template<expr_kind k> unsigned get_depth_core(expr const & e) { return cnstr_scalar<unsigned>(e.raw(), depth_offset(k)); }
+template<expr_kind k> unsigned get_depth_core(expr const & e) { return cnstr_get_scalar<unsigned>(e.raw(), depth_offset(k)); }
 
 unsigned get_depth(expr const & e) {
     switch (e.kind()) {
@@ -216,7 +216,7 @@ unsigned get_depth(expr const & e) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-template<expr_kind k> unsigned get_loose_bvar_range_core(expr const & e) { return cnstr_scalar<unsigned>(e.raw(), loose_bvar_range_offset(k)); }
+template<expr_kind k> unsigned get_loose_bvar_range_core(expr const & e) { return cnstr_get_scalar<unsigned>(e.raw(), loose_bvar_range_offset(k)); }
 
 unsigned get_loose_bvar_range(expr const & e) {
     switch (e.kind()) {
@@ -256,13 +256,13 @@ bool is_atomic(expr const & e) {
 binder_info binding_info(expr const & e) {
     lean_assert(is_lambda(e) || is_pi(e));
     // Remark: lambda and Pi have the same memory layout
-    return static_cast<binder_info>(cnstr_scalar<unsigned char>(e.raw(), binder_info_offset(expr_kind::Lambda)));
+    return static_cast<binder_info>(cnstr_get_scalar<unsigned char>(e.raw(), binder_info_offset(expr_kind::Lambda)));
 }
 
 /* Legacy */
 binder_info local_info(expr const & e) {
     lean_assert(is_local(e));
-    return static_cast<binder_info>(cnstr_scalar<unsigned char>(e.raw(), binder_info_offset(expr_kind::FVar)));
+    return static_cast<binder_info>(cnstr_get_scalar<unsigned char>(e.raw(), binder_info_offset(expr_kind::FVar)));
 }
 
 static expr * g_nat_type    = nullptr;

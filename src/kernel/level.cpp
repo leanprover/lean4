@@ -28,10 +28,10 @@ inline static void set_level_scalar_fields(object * lvl, unsigned num_objs, unsi
     cnstr_set_scalar<unsigned char>(lvl, num_objs*sizeof(object*) + 2*sizeof(unsigned) + sizeof(unsigned char), has_meta);
 }
 
-inline static unsigned get_hash(object * lvl, unsigned num_objs) { return cnstr_scalar<unsigned>(lvl, num_objs*sizeof(object*)); }
-inline static unsigned get_depth(object * lvl, unsigned num_objs) { return cnstr_scalar<unsigned>(lvl, num_objs*sizeof(object*) + sizeof(unsigned)); }
-inline static bool get_has_param(object * lvl, unsigned num_objs) { return cnstr_scalar<unsigned char>(lvl, num_objs*sizeof(object*) + 2*sizeof(unsigned)); }
-inline static bool get_has_mvar(object * lvl, unsigned num_objs) { return cnstr_scalar<unsigned char>(lvl, num_objs*sizeof(object*) + 2*sizeof(unsigned) + sizeof(unsigned char)); }
+inline static unsigned get_hash(object * lvl, unsigned num_objs) { return cnstr_get_scalar<unsigned>(lvl, num_objs*sizeof(object*)); }
+inline static unsigned get_depth(object * lvl, unsigned num_objs) { return cnstr_get_scalar<unsigned>(lvl, num_objs*sizeof(object*) + sizeof(unsigned)); }
+inline static bool get_has_param(object * lvl, unsigned num_objs) { return cnstr_get_scalar<unsigned char>(lvl, num_objs*sizeof(object*) + 2*sizeof(unsigned)); }
+inline static bool get_has_mvar(object * lvl, unsigned num_objs) { return cnstr_get_scalar<unsigned char>(lvl, num_objs*sizeof(object*) + 2*sizeof(unsigned) + sizeof(unsigned char)); }
 
 level mk_succ(level const & l) {
     level r(mk_cnstr(static_cast<unsigned>(level_kind::Succ), l, g_level_num_scalars));

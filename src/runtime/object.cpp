@@ -82,6 +82,11 @@ inline object * pop_back(object * & todo) {
     return r;
 }
 
+inline void dec_ref(object * o, object* & todo) {
+    if (dec_ref_core(o))
+        push_back(todo, o);
+}
+
 inline void dec(object * o, object* & todo) {
     if (!is_scalar(o) && dec_ref_core(o))
         push_back(todo, o);
@@ -130,13 +135,13 @@ void del(object * o) {
             deactivate_task(to_task(o));
             break;
         case object_kind::PArrayPop:
-            dec(to_parray(o)->m_next, todo);
+            dec_ref(to_parray(o)->m_next, todo);
             free_heap_obj(o);
             break;
         case object_kind::PArrayPush:
         case object_kind::PArraySet:
             dec(to_parray(o)->m_elem, todo);
-            dec(to_parray(o)->m_next, todo);
+            dec_ref(to_parray(o)->m_next, todo);
             free_heap_obj(o);
             break;
         case object_kind::PArrayRoot: {

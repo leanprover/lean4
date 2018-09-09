@@ -64,11 +64,11 @@ size_t obj_header_size(object * o) {
 static_assert(sizeof(atomic<rc_type>) == sizeof(object*),  "unexpected atomic<rc_type> size, the object GC assumes these two types have the same size"); // NOLINT
 
 inline object * get_next(object * o) {
-    return *reinterpret_cast<object**>(rc_addr(o));
+    return *reinterpret_cast<object**>(st_rc_addr(o));
 }
 
 inline void set_next(object * o, object * n) {
-    *reinterpret_cast<object**>(rc_addr(o)) = n;
+    *reinterpret_cast<object**>(st_rc_addr(o)) = n;
 }
 
 inline void push_back(object * & todo, object * v) {
@@ -804,12 +804,12 @@ void deactivate_task(task_object * t) {
 }
 
 task_object::task_object(obj_arg c, unsigned prio):
-    object(object_kind::Task, object_memory_kind::Heap), m_value(nullptr), m_imp(new imp(c, prio)) {
+    object(object_kind::Task, object_memory_kind::STHeap), m_value(nullptr), m_imp(new imp(c, prio)) {
     lean_assert(is_closure(c));
 }
 
 task_object::task_object(obj_arg v):
-    object(object_kind::Task, object_memory_kind::Heap), m_value(v), m_imp(nullptr) {
+    object(object_kind::Task, object_memory_kind::STHeap), m_value(v), m_imp(nullptr) {
 }
 
 static task_object * alloc_task(obj_arg c, unsigned prio) {

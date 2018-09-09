@@ -31,8 +31,26 @@ inline void * alloca(size_t s) {
 #endif
 }
 
-enum class object_memory_kind { Heap = 0, Stack, Region };
+/* Objects can be stored in 5 different kinds of memory:
+   - `MTHeap`: multi-threaded heap, the reference counter (RC) is updated using atomic operations.
+      All objects reachable from an object in the `MTHeap` are in `MTHeap`, `Persistent` or `Region`.
+   - `STHeap`: single-threaded heap, the RC is faster to update.
+      All objects reachable from an object in the `STHeap` are not in the `Stack`.
+   - `Persistent`: RC is never updated, this kind of object is never garbage collected.
+      All objects reachable from a persistent object are not in the `Stack`.
+   - `Stack`: object does not have a RC and is allocated on the system stack.
+   - `Region`: object does not have a RC, and is stored in a compacted region.
+      All objects reachable from an object in a compacted region are also in the same compacted region.
+*/
+enum class object_memory_kind { MTHeap = 0, STHeap, Persistent, Stack, Region };
+
 enum class object_kind { Constructor, Closure, Array, ScalarArray, PArrayRoot, PArraySet, PArrayPush, PArrayPop, String, MPZ, Thunk, Task, External };
+
+/*
+   TODO(Leo): objects are initially allocated as STHeap. When we create a task, they become MTHeap.
+   We are temporarily using MTHeap because we are still using the old task manager.
+*/
+constexpr object_memory_kind c_init_mem_kind = object_memory_kind::MTHeap;
 
 /* The reference counter is a uintptr_t, because at deletion time, we use this field to implement
    a linked list of objects to be deleted. */
@@ -40,11 +58,11 @@ typedef uintptr_t rc_type;
 
 /* Base class for all runtime objects.
 
-   \remark If m_mem_kind == Heap, then we store the reference counter before the object. */
+   \remark If m_mem_kind == STHeap/MTHeap, then we store the reference counter before the object. */
 struct object {
     unsigned        m_kind:8;
     unsigned        m_mem_kind:8;
-    object(object_kind k, object_memory_kind m = object_memory_kind::Heap):
+    object(object_kind k, object_memory_kind m = c_init_mem_kind):
         m_kind(static_cast<unsigned>(k)), m_mem_kind(static_cast<unsigned>(m)) {}
 };
 
@@ -60,7 +78,7 @@ struct constructor_object : public object {
     unsigned    m_tag:16;
     unsigned    m_num_objs:16;
     unsigned    m_scalar_size:16;
-    constructor_object(unsigned tag, unsigned num_objs, unsigned scalar_sz, object_memory_kind m = object_memory_kind::Heap):
+    constructor_object(unsigned tag, unsigned num_objs, unsigned scalar_sz, object_memory_kind m = c_init_mem_kind):
         object(object_kind::Constructor, m), m_tag(tag), m_num_objs(num_objs), m_scalar_size(scalar_sz) {}
 };
 
@@ -69,7 +87,7 @@ struct constructor_object : public object {
 struct array_object : public object {
     size_t   m_size;
     size_t   m_capacity;
-    array_object(size_t sz, size_t c, object_memory_kind m = object_memory_kind::Heap):
+    array_object(size_t sz, size_t c, object_memory_kind m = c_init_mem_kind):
         object(object_kind::Array, m), m_size(sz), m_capacity(c) {}
 };
 
@@ -82,7 +100,7 @@ struct sarray_object : public object {
     unsigned m_elem_size:16; // in bytes
     size_t   m_size;
     size_t   m_capacity;
-    sarray_object(unsigned esz, size_t sz, size_t c, object_memory_kind m = object_memory_kind::Heap):
+    sarray_object(unsigned esz, size_t sz, size_t c, object_memory_kind m = c_init_mem_kind):
         object(object_kind::ScalarArray, m), m_elem_size(esz), m_size(sz), m_capacity(c) {}
 };
 
@@ -90,7 +108,7 @@ struct string_object : public object {
     size_t m_size;
     size_t m_capacity;
     size_t m_length;   // UTF8 length
-    string_object(size_t sz, size_t c, size_t len, object_memory_kind m = object_memory_kind::Heap):
+    string_object(size_t sz, size_t c, size_t len, object_memory_kind m = c_init_mem_kind):
         object(object_kind::String, m), m_size(sz), m_capacity(c), m_length(len) {}
 };
 
@@ -106,7 +124,9 @@ struct parray_object : public object {
         object ** m_data; // PArrayRoot
         object *  m_elem; // PArrayPush and PArraySet
     };
-    parray_object():object(object_kind::PArrayRoot, object_memory_kind::Heap) {}
+    /* Remark: persistent arrays are single threaded object. The `mark_shared` operation
+       copies it when the RC > 1 */
+    parray_object():object(object_kind::PArrayRoot, object_memory_kind::STHeap) {}
 };
 
 typedef object * (*lean_cfun)(object *); // NOLINT
@@ -125,20 +145,20 @@ struct closure_object : public object {
     unsigned  m_arity:16;     // number of arguments expected by m_fun.
     unsigned  m_num_fixed:16; // number of arguments that have been already fixed.
     lean_cfun m_fun;
-    closure_object(lean_cfun f, unsigned arity, unsigned n, object_memory_kind m = object_memory_kind::Heap):
+    closure_object(lean_cfun f, unsigned arity, unsigned n, object_memory_kind m = c_init_mem_kind):
         object(object_kind::Closure, m), m_arity(arity), m_num_fixed(n), m_fun(f) {}
 };
 
 struct mpz_object : public object {
     mpz m_value;
-    mpz_object(mpz const & v, object_memory_kind m = object_memory_kind::Heap):
+    mpz_object(mpz const & v, object_memory_kind m = c_init_mem_kind):
         object(object_kind::MPZ, m), m_value(v) {}
 };
 
 struct thunk_object : public object {
     atomic<object *> m_value;
     atomic<object *> m_closure;
-    thunk_object(object * c, bool is_value = false, object_memory_kind m = object_memory_kind::Heap);
+    thunk_object(object * c, bool is_value = false, object_memory_kind m = c_init_mem_kind);
 };
 
 struct task_object : public object {
@@ -196,21 +216,67 @@ inline void * alloc_heap_object(size_t sz) {
     return static_cast<char *>(r) + sizeof(rc_type);
 }
 
-inline atomic<rc_type> * rc_addr(object * o) {
+inline atomic<rc_type> * mt_rc_addr(object * o) {
     return reinterpret_cast<atomic<rc_type> *>(reinterpret_cast<char *>(o) - sizeof(rc_type));
+}
+
+inline rc_type * st_rc_addr(object * o) {
+    return reinterpret_cast<rc_type *>(reinterpret_cast<char *>(o) - sizeof(rc_type));
+}
+
+inline rc_type & st_rc_ref(object * o) {
+    return *st_rc_addr(o);
 }
 
 inline void free_heap_obj(object * o) {
     free(reinterpret_cast<char *>(o) - sizeof(rc_type));
 }
 
-inline bool is_heap_obj(object * o) { return o->m_mem_kind == static_cast<unsigned>(object_memory_kind::Heap); }
+inline bool is_mt_heap_obj(object * o) { return o->m_mem_kind == static_cast<unsigned>(object_memory_kind::MTHeap); }
+inline bool is_st_heap_obj(object * o) { return o->m_mem_kind == static_cast<unsigned>(object_memory_kind::STHeap); }
+inline bool is_heap_obj(object * o) { return is_mt_heap_obj(o) || is_st_heap_obj(o); }
 
-inline rc_type get_rc(object * o) { lean_assert(!is_scalar(o) && is_heap_obj(o)); return atomic_load_explicit(rc_addr(o), memory_order_acquire); }
+inline rc_type get_rc(object * o) {
+    lean_assert(!is_scalar(o));
+    if (is_mt_heap_obj(o)) {
+        return atomic_load_explicit(mt_rc_addr(o), memory_order_acquire);
+    } else {
+        lean_assert(is_st_heap_obj(o));
+        return st_rc_ref(o);
+    }
+}
+
 inline bool is_shared(object * o) { return get_rc(o) > 1; }
-inline void inc_ref(object * o) { if (is_heap_obj(o)) { atomic_fetch_add_explicit(rc_addr(o), static_cast<rc_type>(1), memory_order_relaxed); } }
-inline void dec_shared_ref(object * o) { lean_assert(is_shared(o)); atomic_fetch_sub_explicit(rc_addr(o), static_cast<rc_type>(1), memory_order_acq_rel); }
-inline bool dec_ref_core(object * o) { if (is_heap_obj(o)) { lean_assert(get_rc(o) > 0); return atomic_fetch_sub_explicit(rc_addr(o), static_cast<rc_type>(1), memory_order_acq_rel) == 1; } else { return false; } }
+
+inline void inc_ref(object * o) {
+    if (is_mt_heap_obj(o)) {
+        atomic_fetch_add_explicit(mt_rc_addr(o), static_cast<rc_type>(1), memory_order_relaxed);
+    } else {
+        st_rc_ref(o)++;
+    }
+}
+
+inline void dec_shared_ref(object * o) {
+    lean_assert(is_shared(o));
+    if (is_mt_heap_obj(o)) {
+        atomic_fetch_sub_explicit(mt_rc_addr(o), static_cast<rc_type>(1), memory_order_acq_rel);
+    } else if (is_st_heap_obj(o)) {
+        st_rc_ref(o)--;
+    }
+}
+
+inline bool dec_ref_core(object * o) {
+    if (is_mt_heap_obj(o)) {
+        lean_assert(get_rc(o) > 0);
+        return atomic_fetch_sub_explicit(mt_rc_addr(o), static_cast<rc_type>(1), memory_order_acq_rel) == 1;
+    } else if (is_st_heap_obj(o)) {
+        st_rc_ref(o)--;
+        return st_rc_ref(o) == 0;
+    } else {
+        return false;
+    }
+}
+
 inline void dec_ref(object * o) { if (dec_ref_core(o)) del(o); }
 inline void inc(object * o) { if (!is_scalar(o)) inc_ref(o); }
 inline void dec(object * o) { if (!is_scalar(o)) dec_ref(o); }

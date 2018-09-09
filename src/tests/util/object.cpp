@@ -417,7 +417,40 @@ void tst14() {
     lean_assert(parray_get(a, 0)  == box(1));
     lean_assert(parray_get(b, 0)  == box(0));
     dec(a); dec(b); dec(c);
+}
 
+obj_res mk_foo(unsigned n) {
+    object * r = alloc_cnstr(0, 1, 0);
+    cnstr_set(r, 0, box(n));
+    return r;
+}
+
+unsigned foo_val(b_obj_arg v) {
+    return unbox(cnstr_get(v, 0));
+}
+
+void tst15() {
+    object * v1 = alloc_parray(0, 0);
+    v1 = parray_push(v1, mk_foo(2));
+    v1 = parray_push(v1, mk_foo(3));
+    lean_assert(foo_val(parray_get(v1, 0)) == 2);
+    lean_assert(foo_val(parray_get(v1, 1)) == 3);
+    object * v2 = v1;
+    inc(v2);
+    for (unsigned i = 0; i < 10; i++)
+        v1 = parray_push(v1, mk_foo(i));
+    v1 = parray_set(v1, 0, mk_foo(100));
+    v1 = parray_set(v1, 1, mk_foo(100));
+    lean_assert(parray_size(v2) == 2);
+    lean_assert(foo_val(parray_get(v2, 0)) == 2);
+    lean_assert(foo_val(parray_get(v2, 1)) == 3);
+    object * v3 = v1;
+    inc(v3);
+    v1 = parray_pop(v1);
+    v1 = parray_pop(v1);
+    lean_assert(parray_size(v1) == 10);
+    lean_assert(parray_size(v3) == 12);
+    dec(v1); dec(v2); dec(v3);
 }
 
 int main() {
@@ -437,6 +470,7 @@ int main() {
     tst12();
     tst13();
     tst14();
+    tst15();
     finalize_util_module();
     return has_violations() ? 1 : 0;
 }

@@ -514,7 +514,7 @@ inline void array_set(u_obj_arg o, size_t i, obj_arg v) {
 // =======================================
 // Persistent Array of objects
 
-obj_res alloc_parray(size_t size, size_t capacity);
+obj_res alloc_parray(size_t capacity);
 size_t parray_size(b_obj_arg o);
 b_obj_res parray_get(b_obj_arg o, size_t i);
 obj_res parray_set(obj_arg o, size_t i, obj_arg v);

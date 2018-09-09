@@ -278,11 +278,10 @@ static parray_object * move_parray_root(parray_object * src) {
     return r;
 }
 
-obj_res alloc_parray(size_t size, size_t capacity) {
-    lean_assert(size <= capacity);
+obj_res alloc_parray(size_t capacity) {
     parray_object * r = new (alloc_heap_object(sizeof(parray_object))) parray_object();
     r->m_data = alloc_parray_data(capacity);
-    r->m_size = size;
+    r->m_size = 0;
     return r;
 }
 
@@ -302,35 +301,41 @@ obj_res parray_set(obj_arg o, size_t i, obj_arg v) {
     if (get_kind(o) != object_kind::PArrayRoot)
         parray_reroot(o);
     parray_object * p = to_parray(o);
-    if (get_rc(p) > 1) {
+    if (get_rc(p) == 1) {
+        dec(p->m_data[i]);
+        p->m_data[i] = v;
+        return p;
+    } else {
         parray_object * r = move_parray_root(p);
         p->m_kind    = static_cast<unsigned>(object_kind::PArraySet);
         p->m_idx     = i;
         p->m_elem    = r->m_data[i];
         p->m_next    = r;
         inc_ref(r);
-        p = r;
+        r->m_data[i] = v;
+        return r;
     }
-    p->m_data[i] = v;
-    return p;
 }
 
 obj_res parray_push(obj_arg o, obj_arg v) {
     if (get_kind(o) != object_kind::PArrayRoot)
         parray_reroot(o);
     parray_object * p = to_parray(o);
-    if (get_rc(p) > 1) {
+    if (p->m_size == parray_data_capacity(p->m_data))
+        p->m_data = parray_data_expand(p->m_data, p->m_size);
+    if (get_rc(p) == 1) {
+        p->m_data[p->m_size] = v;
+        p->m_size++;
+        return p;
+    } else {
         parray_object * r = move_parray_root(p);
         p->m_kind = static_cast<unsigned>(object_kind::PArrayPop);
         p->m_next = r;
         inc_ref(r);
-        p = r;
+        r->m_data[r->m_size] = v;
+        r->m_size++;
+        return r;
     }
-    if (p->m_size == parray_data_capacity(p->m_data))
-        p->m_data = parray_data_expand(p->m_data, p->m_size);
-    p->m_data[p->m_size] = v;
-    p->m_size++;
-    return p;
 }
 
 obj_res parray_pop(obj_arg o) {
@@ -339,6 +344,7 @@ obj_res parray_pop(obj_arg o) {
     parray_object * p = to_parray(o);
     if (get_rc(p) == 1) {
         p->m_size--;
+        dec(p->m_data[p->m_size]);
         return p;
     } else {
         parray_object * r = move_parray_root(p);

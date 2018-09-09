@@ -383,6 +383,43 @@ void tst13() {
     std::cout << g_task7_counter << "\n";
 }
 
+obj_res mk_parray(unsigned n, b_obj_arg v) {
+    object * r = alloc_parray(n, n);
+    for (unsigned i = 0; i < n; i++) {
+        inc(v);
+        r = parray_set(r, i, v);
+    }
+    return r;
+}
+
+void tst14() {
+    object * a = mk_parray(10, box(0));
+    lean_assert(parray_size(a) == 10);
+    lean_assert(parray_obj(a, 0) == box(0));
+    object * b = a;
+    inc(b);
+    lean_assert(get_rc(a) == 2);
+    lean_assert(get_rc(b) == 2);
+    a = parray_set(a, 0, box(1));
+    lean_assert(a != b);
+    lean_assert(parray_obj(a, 0) == box(1));
+    lean_assert(parray_obj(a, 1) == box(0));
+    lean_assert(parray_obj(b, 0) == box(0));
+    lean_assert(parray_obj(a, 0) == box(1));
+    inc(b);
+    object * c = b;
+    c = parray_push(c, box(20));
+    lean_assert(parray_size(c) == 11);
+    lean_assert(parray_size(a) == 10);
+    lean_assert(parray_size(b) == 10);
+    lean_assert(parray_obj(c, 0)  == box(0));
+    lean_assert(parray_obj(c, 10) == box(20));
+    lean_assert(parray_obj(a, 0)  == box(1));
+    lean_assert(parray_obj(b, 0)  == box(0));
+    dec(a); dec(b); dec(c);
+
+}
+
 int main() {
     save_stack_info();
     initialize_util_module();
@@ -399,6 +436,7 @@ int main() {
     tst11();
     tst12();
     tst13();
+    tst14();
     finalize_util_module();
     return has_violations() ? 1 : 0;
 }

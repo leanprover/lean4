@@ -30,6 +30,10 @@ size_t obj_byte_size(object * o) {
     case object_kind::MPZ:             return sizeof(mpz_object);
     case object_kind::Thunk:           return sizeof(thunk_object);
     case object_kind::Task:            return sizeof(task_object);
+    case object_kind::PArrayRoot:      return sizeof(parray_object);
+    case object_kind::PArraySet:       return sizeof(parray_object);
+    case object_kind::PArrayPush:      return sizeof(parray_object);
+    case object_kind::PArrayPop:       return sizeof(parray_object);
     case object_kind::External:        lean_unreachable();
     }
     lean_unreachable();
@@ -45,6 +49,10 @@ size_t obj_header_size(object * o) {
     case object_kind::MPZ:             return sizeof(mpz_object);
     case object_kind::Thunk:           return sizeof(thunk_object);
     case object_kind::Task:            return sizeof(task_object);
+    case object_kind::PArrayRoot:      return sizeof(parray_object);
+    case object_kind::PArraySet:       return sizeof(parray_object);
+    case object_kind::PArrayPush:      return sizeof(parray_object);
+    case object_kind::PArrayPop:       return sizeof(parray_object);
     case object_kind::External:        lean_unreachable();
     }
     lean_unreachable();
@@ -121,6 +129,24 @@ void del(object * o) {
         case object_kind::Task:
             deactivate_task(to_task(o));
             break;
+        case object_kind::PArrayPop:
+            dec(to_parray(o)->m_next, todo);
+            free_heap_obj(o);
+            break;
+        case object_kind::PArrayPush:
+        case object_kind::PArraySet:
+            dec(to_parray(o)->m_elem, todo);
+            dec(to_parray(o)->m_next, todo);
+            free_heap_obj(o);
+            break;
+        case object_kind::PArrayRoot: {
+            object ** it  = to_parray(o)->m_data;
+            object ** end = it + to_parray(o)->m_size;
+            for (; it != end; ++it) dec(*it, todo);
+            free(to_parray(o)->m_data);
+            free_heap_obj(o);
+            break;
+        }
         case object_kind::External:
             dealloc_external(o); break;
         }
@@ -154,6 +180,190 @@ static object * sarray_ensure_capacity(object * o, size_t extra) {
     }
 }
 #endif
+
+// =======================================
+// Persistent arrays
+
+static size_t parray_data_capacity(object ** data) {
+    return reinterpret_cast<size_t*>(data)[-1];
+}
+
+static object ** alloc_parray_data(size_t c) {
+    size_t * mem = static_cast<size_t*>(malloc(sizeof(object*)*c + sizeof(size_t)));
+    *mem = c;
+    mem++;
+    return reinterpret_cast<object**>(mem);
+}
+
+static void dealloc_parray_data(object ** data) {
+    size_t * mem = reinterpret_cast<size_t*>(data);
+    mem--;
+    free(mem);
+}
+
+static object ** parray_data_expand(object ** data, size_t sz) {
+    size_t curr_capacity = parray_data_capacity(data);
+    size_t new_capacity  = curr_capacity == 0 ? 2 : (3 * curr_capacity + 1) >> 1;
+    object ** new_data   = alloc_parray_data(new_capacity);
+    memcpy(new_data, data, sizeof(object*)*sz);
+    dealloc_parray_data(data);
+    return new_data;
+}
+
+/* Given `c -> ... -> root`,
+   revert links and make `c` to be the new root:
+   `c <- ... <- root` */
+static void parray_reroot(object * c) {
+    lean_assert(get_kind(c) != object_kind::PArrayRoot);
+    parray_object * it   = to_parray(c);
+    parray_object * prev = nullptr;
+    /* invert links */
+    while (get_kind(it) != object_kind::PArrayRoot) {
+        /* c <- ... <- prev, it -> it_next -> ... -> root
+           c <- ... <- prev <- it, it_next -> ... -> root */
+        parray_object * it_next = it->m_next;
+        it->m_next = prev;
+        prev = it;
+        it   = it_next;
+    }
+    lean_assert(prev != nullptr);
+    lean_assert(get_kind(it) == object_kind::PArrayRoot);
+    lean_assert(it != c);
+    it->m_next = prev;
+    object ** data = it->m_data;
+    size_t sz = it->m_size;
+    prev = it;
+    it   = it->m_next;
+    /* move array to `c` */
+    while (true) {
+        lean_assert(prev != nullptr && it != prev);
+        switch (get_kind(it)) {
+        case object_kind::PArraySet:
+            prev->m_kind = static_cast<unsigned>(object_kind::PArraySet);
+            prev->m_idx  = it->m_idx;
+            prev->m_elem = data[it->m_idx];
+            data[it->m_idx] = it->m_elem;
+            break;
+        case object_kind::PArrayPush:
+            if (sz == parray_data_capacity(data))
+                data = parray_data_expand(data, sz);
+            prev->m_kind = static_cast<unsigned>(object_kind::PArrayPop);
+            data[sz]   = it->m_elem;
+            sz++;
+            break;
+        case object_kind::PArrayPop:
+            --sz;
+            prev->m_kind = static_cast<unsigned>(object_kind::PArrayPush);
+            prev->m_elem = data[sz];
+            break;
+        default:
+            lean_unreachable();
+        }
+        if (it == c)
+            break;
+        prev = it;
+        it   = it->m_next;
+    }
+    lean_assert(it == c);
+    it->m_kind = static_cast<unsigned>(object_kind::PArrayRoot);
+    it->m_data = data;
+    it->m_size = sz;
+}
+
+static parray_object * move_parray_root(parray_object * src) {
+    lean_assert(src->m_kind == static_cast<unsigned>(object_kind::PArrayRoot));
+    parray_object * r = new (alloc_heap_object(sizeof(parray_object))) parray_object();
+    r->m_data = src->m_data;
+    r->m_size = src->m_size;
+    return r;
+}
+
+obj_res alloc_parray(size_t size, size_t capacity) {
+    lean_assert(size <= capacity);
+    parray_object * r = new (alloc_heap_object(sizeof(parray_object))) parray_object();
+    r->m_data = alloc_parray_data(capacity);
+    r->m_size = size;
+    return r;
+}
+
+size_t parray_size(b_obj_arg o) {
+    if (get_kind(o) != object_kind::PArrayRoot)
+        parray_reroot(o);
+    return to_parray(o)->m_size;
+}
+
+b_obj_res parray_obj(b_obj_arg o, size_t i) {
+    if (get_kind(o) != object_kind::PArrayRoot)
+        parray_reroot(o);
+    return to_parray(o)->m_data[i];
+}
+
+obj_res parray_set(obj_arg o, size_t i, obj_arg v) {
+    if (get_kind(o) != object_kind::PArrayRoot)
+        parray_reroot(o);
+    parray_object * p = to_parray(o);
+    if (get_rc(p) > 1) {
+        parray_object * r = move_parray_root(p);
+        p->m_kind    = static_cast<unsigned>(object_kind::PArraySet);
+        p->m_idx     = i;
+        p->m_elem    = r->m_data[i];
+        p->m_next    = r;
+        inc_ref(r);
+        p = r;
+    }
+    p->m_data[i] = v;
+    return p;
+}
+
+obj_res parray_push(obj_arg o, obj_arg v) {
+    if (get_kind(o) != object_kind::PArrayRoot)
+        parray_reroot(o);
+    parray_object * p = to_parray(o);
+    if (get_rc(p) > 1) {
+        parray_object * r = move_parray_root(p);
+        p->m_kind = static_cast<unsigned>(object_kind::PArrayPop);
+        p->m_next = r;
+        inc_ref(r);
+        p = r;
+    }
+    if (p->m_size == parray_data_capacity(p->m_data))
+        p->m_data = parray_data_expand(p->m_data, p->m_size);
+    p->m_data[p->m_size] = v;
+    p->m_size++;
+    return p;
+}
+
+obj_res parray_pop(obj_arg o) {
+    if (get_kind(o) != object_kind::PArrayRoot)
+        parray_reroot(o);
+    parray_object * p = to_parray(o);
+    if (get_rc(p) == 1) {
+        p->m_size--;
+        return p;
+    } else {
+        parray_object * r = move_parray_root(p);
+        r->m_size--;
+        p->m_kind = static_cast<unsigned>(object_kind::PArrayPush);
+        p->m_elem = r->m_data[r->m_size];
+        p->m_next = r;
+        inc_ref(r);
+        return r;
+    }
+}
+
+obj_res parray_copy(b_obj_arg o) {
+    if (get_kind(o) != object_kind::PArrayRoot)
+        parray_reroot(o);
+    size_t sz      = to_parray(o)->m_size;
+    object ** data = to_parray(o)->m_data;
+    parray_object * r = new (alloc_heap_object(sizeof(parray_object))) parray_object();
+    r->m_size = sz;
+    r->m_data = alloc_parray_data(parray_data_capacity(data));
+    memcpy(r->m_data, data, sz);
+    for (size_t i = 0; i < sz; i++)
+        inc(data[i]);
+    return r;
+}
 
 // =======================================
 // Strings

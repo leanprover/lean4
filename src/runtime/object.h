@@ -32,7 +32,7 @@ inline void * alloca(size_t s) {
 }
 
 enum class object_memory_kind { Heap = 0, Stack, Region };
-enum class object_kind { Constructor, Closure, Array, ScalarArray, String, MPZ, Thunk, Task, External };
+enum class object_kind { Constructor, Closure, Array, ScalarArray, PArrayRoot, PArraySet, PArrayPush, PArrayPop, String, MPZ, Thunk, Task, External };
 
 /* The reference counter is a uintptr_t, because at deletion time, we use this field to implement
    a linked list of objects to be deleted. */
@@ -92,6 +92,21 @@ struct string_object : public object {
     size_t m_length;   // UTF8 length
     string_object(size_t sz, size_t c, size_t len, object_memory_kind m = object_memory_kind::Heap):
         object(object_kind::String, m), m_size(sz), m_capacity(c), m_length(len) {}
+};
+
+/* Persistent arrays are implemented using 4 different kinds of cell:
+   PArraySet, PArrayPush, PArrayPop and PArrayRoot. */
+struct parray_object : public object {
+    parray_object * m_next; // PArraySet, PArrayPush, PArrayPop
+    union {
+        size_t   m_idx;  // PArraySet
+        size_t   m_size; // PArrayRoot
+    };
+    union {
+        object ** m_data; // PArrayRoot
+        object *  m_elem; // PArrayPush and PArraySet
+    };
+    parray_object():object(object_kind::PArrayRoot, object_memory_kind::Heap) {}
 };
 
 typedef object * (*lean_cfun)(object *); // NOLINT
@@ -191,7 +206,7 @@ inline void free_heap_obj(object * o) {
 
 inline bool is_heap_obj(object * o) { return o->m_mem_kind == static_cast<unsigned>(object_memory_kind::Heap); }
 
-inline unsigned get_rc(object * o) { lean_assert(!is_scalar(o) && is_heap_obj(o)); return atomic_load_explicit(rc_addr(o), memory_order_acquire); }
+inline rc_type get_rc(object * o) { lean_assert(!is_scalar(o) && is_heap_obj(o)); return atomic_load_explicit(rc_addr(o), memory_order_acquire); }
 inline bool is_shared(object * o) { return get_rc(o) > 1; }
 inline void inc_ref(object * o) { if (is_heap_obj(o)) { atomic_fetch_add_explicit(rc_addr(o), static_cast<rc_type>(1), memory_order_relaxed); } }
 inline void dec_shared_ref(object * o) { lean_assert(is_shared(o)); atomic_fetch_sub_explicit(rc_addr(o), static_cast<rc_type>(1), memory_order_acq_rel); }
@@ -208,6 +223,7 @@ inline bool is_cnstr(object * o) { return get_kind(o) == object_kind::Constructo
 inline bool is_closure(object * o) { return get_kind(o) == object_kind::Closure; }
 inline bool is_array(object * o) { return get_kind(o) == object_kind::Array; }
 inline bool is_sarray(object * o) { return get_kind(o) == object_kind::ScalarArray; }
+inline bool is_parray(object * o) { auto k = get_kind(o); return k == object_kind::PArrayRoot || k == object_kind::PArraySet || k == object_kind::PArrayPush || k == object_kind::PArrayPop; }
 inline bool is_string(object * o) { return get_kind(o) == object_kind::String; }
 inline bool is_mpz(object * o) { return get_kind(o) == object_kind::MPZ; }
 inline bool is_thunk(object * o) { return get_kind(o) == object_kind::Thunk; }
@@ -221,6 +237,7 @@ inline constructor_object * to_cnstr(object * o) { lean_assert(is_cnstr(o)); ret
 inline closure_object * to_closure(object * o) { lean_assert(is_closure(o)); return static_cast<closure_object*>(o); }
 inline array_object * to_array(object * o) { lean_assert(is_array(o)); return static_cast<array_object*>(o); }
 inline sarray_object * to_sarray(object * o) { lean_assert(is_sarray(o)); return static_cast<sarray_object*>(o); }
+inline parray_object * to_parray(object * o) { lean_assert(is_parray(o)); return static_cast<parray_object*>(o); }
 inline string_object * to_string(object * o) { lean_assert(is_string(o)); return static_cast<string_object*>(o); }
 inline mpz_object * to_mpz(object * o) { lean_assert(is_mpz(o)); return static_cast<mpz_object*>(o); }
 inline thunk_object * to_thunk(object * o) { lean_assert(is_thunk(o)); return static_cast<thunk_object*>(o); }
@@ -493,6 +510,19 @@ inline void array_set_obj(u_obj_arg o, size_t i, obj_arg v) {
     lean_assert(i < array_size(o));
     obj_set_data(o, sizeof(array_object) + sizeof(object*)*i, v); // NOLINT
 }
+
+// =======================================
+// Persistent Array of objects
+
+obj_res alloc_parray(size_t size, size_t capacity);
+size_t parray_size(b_obj_arg o);
+b_obj_res parray_obj(b_obj_arg o, size_t i);
+obj_res parray_set(obj_arg o, size_t i, obj_arg v);
+obj_res parray_push(obj_arg o, obj_arg v);
+obj_res parray_pop(obj_arg o);
+obj_res parray_copy(b_obj_arg o);
+
+// =======================================
 
 // =======================================
 // Array of scalars

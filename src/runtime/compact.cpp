@@ -183,6 +183,10 @@ void object_compactor::operator()(object * o) {
             case object_kind::Thunk:           r = insert_thunk(curr); break;
             case object_kind::Task:            r = insert_task(curr); break;
             case object_kind::External:        throw exception("external objects cannot be compacted");
+            case object_kind::PArrayRoot:
+            case object_kind::PArraySet:
+            case object_kind::PArrayPush:
+            case object_kind::PArrayPop:       throw exception("persistent array objects cannot be compacted");
             }
             if (r) m_todo.pop_back();
         }
@@ -294,6 +298,10 @@ object * compacted_region::read() {
             case object_kind::Thunk:           fix_thunk(curr); break;
             case object_kind::Task:            lean_unreachable();
             case object_kind::External:        lean_unreachable();
+            case object_kind::PArrayRoot:      lean_unreachable();
+            case object_kind::PArraySet:       lean_unreachable();
+            case object_kind::PArrayPush:      lean_unreachable();
+            case object_kind::PArrayPop:       lean_unreachable();
             }
         }
     }

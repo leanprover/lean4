@@ -94,6 +94,23 @@ inline void dec(object * o, object* & todo) {
 
 void deactivate_task(task_object * t);
 
+static size_t parray_data_capacity(object ** data) {
+    return reinterpret_cast<size_t*>(data)[-1];
+}
+
+static object ** alloc_parray_data(size_t c) {
+    size_t * mem = static_cast<size_t*>(malloc(sizeof(object*)*c + sizeof(size_t)));
+    *mem = c;
+    mem++;
+    return reinterpret_cast<object**>(mem);
+}
+
+static void dealloc_parray_data(object ** data) {
+    size_t * mem = reinterpret_cast<size_t*>(data);
+    mem--;
+    free(mem);
+}
+
 void del(object * o) {
     object * todo = nullptr;
     while (true) {
@@ -148,7 +165,7 @@ void del(object * o) {
             object ** it  = to_parray(o)->m_data;
             object ** end = it + to_parray(o)->m_size;
             for (; it != end; ++it) dec(*it, todo);
-            free(to_parray(o)->m_data);
+            dealloc_parray_data(to_parray(o)->m_data);
             free_heap_obj(o);
             break;
         }
@@ -189,23 +206,6 @@ static object * sarray_ensure_capacity(object * o, size_t extra) {
 // =======================================
 // Persistent arrays
 
-static size_t parray_data_capacity(object ** data) {
-    return reinterpret_cast<size_t*>(data)[-1];
-}
-
-static object ** alloc_parray_data(size_t c) {
-    size_t * mem = static_cast<size_t*>(malloc(sizeof(object*)*c + sizeof(size_t)));
-    *mem = c;
-    mem++;
-    return reinterpret_cast<object**>(mem);
-}
-
-static void dealloc_parray_data(object ** data) {
-    size_t * mem = reinterpret_cast<size_t*>(data);
-    mem--;
-    free(mem);
-}
-
 static object ** parray_data_expand(object ** data, size_t sz) {
     size_t curr_capacity = parray_data_capacity(data);
     size_t new_capacity  = curr_capacity == 0 ? 2 : (3 * curr_capacity + 1) >> 1;
@@ -234,6 +234,7 @@ static void parray_reroot(object * c) {
     lean_assert(prev != nullptr);
     lean_assert(get_kind(it) == object_kind::PArrayRoot);
     lean_assert(it != c);
+    object * old_root = it;
     it->m_next = prev;
     object ** data = it->m_data;
     size_t sz = it->m_size;
@@ -273,10 +274,14 @@ static void parray_reroot(object * c) {
     it->m_kind = static_cast<unsigned>(object_kind::PArrayRoot);
     it->m_data = data;
     it->m_size = sz;
+    dec_ref(old_root);
+    inc_ref(c);
 }
 
 static parray_object * move_parray_root(parray_object * src) {
     lean_assert(src->m_kind == static_cast<unsigned>(object_kind::PArrayRoot));
+    lean_assert(get_rc(src) > 1);
+    dec_ref(src);
     parray_object * r = new (alloc_heap_object(sizeof(parray_object))) parray_object();
     r->m_data = src->m_data;
     r->m_size = src->m_size;

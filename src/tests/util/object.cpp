@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <utility>
+#include <random>
 #include <iostream>
 #include <vector>
 #include "util/test.h"
@@ -402,6 +404,8 @@ void tst14() {
     lean_assert(get_rc(b) == 2);
     a = parray_set(a, 0, box(1));
     lean_assert(a != b);
+    lean_assert(get_rc(b) == 1);
+    lean_assert(get_rc(a) == 2);
     lean_assert(parray_get(a, 0) == box(1));
     lean_assert(parray_get(a, 1) == box(0));
     lean_assert(parray_get(b, 0) == box(0));
@@ -416,7 +420,9 @@ void tst14() {
     lean_assert(parray_get(c, 10) == box(20));
     lean_assert(parray_get(a, 0)  == box(1));
     lean_assert(parray_get(b, 0)  == box(0));
-    dec(a); dec(b); dec(c);
+    dec_ref(a); dec_ref(b);
+    lean_assert(get_rc(c) == 1);
+    dec_ref(c);
 }
 
 obj_res mk_foo(unsigned n) {
@@ -450,13 +456,88 @@ void tst15() {
     v1 = parray_pop(v1);
     lean_assert(parray_size(v1) == 10);
     lean_assert(parray_size(v3) == 12);
-    dec(v1); dec(v2); dec(v3);
+    dec_ref(v1); dec_ref(v2);
+    lean_assert(get_rc(v3) == 1);
+    dec_ref(v3);
+}
+
+void driver(unsigned max_sz, unsigned max_val, unsigned num_it,
+            double push_freq,
+            double pop_freq,
+            double set_freq,
+            double copy_freq) {
+    object * v1 = alloc_parray(0);
+    std::vector<unsigned> v2;
+    std::mt19937   rng;
+    rng.seed(static_cast<unsigned int>(time(0)));
+    std::uniform_int_distribution<unsigned int> uint_dist;
+    std::vector<std::pair<object*, std::vector<unsigned>>> copies;
+    lean_assert(get_rc(v1) == 1);
+    size_t acc_sz = 0;
+    for (unsigned i = 0; i < num_it; i++) {
+        acc_sz += parray_size(v1);
+        double f = static_cast<double>(uint_dist(rng) % 10000) / 10000.0;
+        if (f < copy_freq) {
+            inc_ref(v1);
+            copies.emplace_back(v1, v2);
+        }
+        f = static_cast<double>(uint_dist(rng) % 10000) / 10000.0;
+        if (f < push_freq) {
+            if (parray_size(v1) < max_sz) {
+                unsigned a = uint_dist(rng) % max_val;
+                v1 = parray_push(v1, box(a));
+                v2.push_back(a);
+            }
+        }
+        if (parray_size(v1) > 0) {
+            f = static_cast<double>(uint_dist(rng) % 10000) / 10000.0;
+            if (f < pop_freq) {
+                v1 = parray_pop(v1);
+                v2.pop_back();
+            }
+        }
+        if (parray_size(v1) > 0) {
+            f = static_cast<double>(uint_dist(rng) % 10000) / 10000.0;
+            if (f < set_freq) {
+                unsigned idx = uint_dist(rng) % parray_size(v1);
+                unsigned a   = uint_dist(rng) % max_val;
+                v1 = parray_set(v1, idx, box(a));
+                v2[idx] = a;
+            }
+        }
+        f = static_cast<double>(uint_dist(rng) % 10000) / 10000.0;
+        lean_assert(parray_size(v1) == v2.size());
+        for (unsigned i = 0; i < v2.size(); i++) {
+            lean_assert(unbox(parray_get(v1, i)) == v2[i]);
+        }
+    }
+    for (std::pair<object *, std::vector<unsigned>> const & p : copies) {
+        lean_assert(parray_size(p.first) == p.second.size());
+        for (unsigned i = 0; i < p.second.size(); i++) {
+            lean_assert(unbox(parray_get(p.first, i)) == p.second[i]);
+        }
+        dec_ref(p.first);
+    }
+    std::cout << "\n";
+    std::cout << "Copies created:  " << copies.size() << "\n";
+    std::cout << "Average size:    " << static_cast<double>(acc_sz) / static_cast<double>(num_it) << "\n";
+    lean_assert(get_rc(v1) == 1);
+    dec_ref(v1);
+}
+
+static void tst16() {
+    driver(4,  32, 10000, 0.5, 0.1, 0.5, 0.1);
+    driver(4,  32, 10000, 0.5, 0.1, 0.5, 0.1);
+    driver(4,  32, 10000, 0.5, 0.1, 0.5, 0.5);
+    driver(16, 16, 100000, 0.5, 0.5, 0.5, 0.01);
+    driver(16, 16, 100000, 0.5, 0.1, 0.5, 0.01);
+    driver(16, 16, 100000, 0.5, 0.6, 0.5, 0.01);
+    driver(16, 16, 10000, 0.5, 0.1, 0.5, 0.0);
 }
 
 int main() {
     save_stack_info();
     initialize_util_module();
-#if 0
     tst1();
     tst2();
     tst3();
@@ -470,9 +551,9 @@ int main() {
     tst11();
     tst12();
     tst13();
-#endif
     tst14();
     tst15();
+    tst16();
     finalize_util_module();
     return has_violations() ? 1 : 0;
 }

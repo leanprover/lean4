@@ -520,13 +520,13 @@ int main(int argc, char ** argv) {
         for (auto & mod : mods) {
             if (test_suite) {
                 std::ofstream out(mod.m_id + ".test_suite.out");
-                for (auto const & msg : mod.m_mod_info->m_log) {
+                for (auto const & msg : mod.m_mod_info->m_log.to_buffer()) {
                     out << msg;
                 }
             }
             if (test_suite) {
                 std::ofstream status(mod.m_id + ".status");
-                status << (!has_errors(mod.m_mod_info->m_log) ? 0 : 1);
+                status << (!mod.m_mod_info->m_log.has_errors() ? 0 : 1);
             }
         }
 
@@ -535,7 +535,7 @@ int main(int argc, char ** argv) {
         bool ok = true;
         if (!test_suite) {
             for (auto & mod : mods) {
-                for (auto const & msg : mod.m_mod_info->m_log) {
+                for (auto const & msg : mod.m_mod_info->m_log.to_buffer()) {
                     if (json_output) {
 #if defined(LEAN_JSON)
                         print_json(std::cout, msg);
@@ -544,7 +544,7 @@ int main(int argc, char ** argv) {
                         std::cout << msg;
                     }
                 }
-                if (has_errors(mod.m_mod_info->m_log))
+                if (mod.m_mod_info->m_log.has_errors())
                     ok = false;
             }
         }

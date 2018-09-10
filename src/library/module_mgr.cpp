@@ -83,7 +83,7 @@ static void compile_olean(std::shared_ptr<module_info> const & mod) {
         if (dep.m_mod_info)
             compile_olean(dep.m_mod_info);
 
-    if (mod->m_source != module_src::LEAN || has_errors(mod->m_log))
+    if (mod->m_source != module_src::LEAN || mod->m_log.has_errors())
         return;
     auto res = mod->m_result;
 

@@ -13,7 +13,6 @@ Author: Gabriel Ebner
 #include "util/unit.h"
 #include "util/name.h"
 #include "kernel/environment.h"
-#include "util/task.h"
 #include "library/io_state.h"
 #include "library/trace.h"
 #include "frontends/lean/parser.h"

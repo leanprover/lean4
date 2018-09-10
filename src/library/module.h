@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include <vector>
 #include "runtime/serializer.h"
 #include "runtime/optional.h"
-#include "util/task.h"
 #include "library/io_state.h"
 #include "kernel/environment.h"
 
@@ -87,7 +86,6 @@ public:
     virtual const char * get_key() const = 0;
     virtual void perform(environment &) const = 0;
     virtual void serialize(serializer &) const = 0;
-    virtual void get_task_dependencies(buffer<gtask> &) const {}
 };
 
 #define LEAN_MODIFICATION(k) \

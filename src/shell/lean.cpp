@@ -19,7 +19,6 @@ Author: Leonardo de Moura
 #include "runtime/debug.h"
 #include "runtime/sstream.h"
 #include "util/timer.h"
-#include "util/task_builder.h"
 #include "util/macros.h"
 #include "util/lean_path.h"
 #include "util/file_lock.h"
@@ -28,9 +27,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
 #include "library/formatter.h"
-#include "library/st_task_queue.h"
 #include "library/eval_helper.h"
-#include "library/mt_task_queue.h"
 #include "library/module_mgr.h"
 #include "library/module.h"
 #include "library/type_context.h"
@@ -444,18 +441,6 @@ int main(int argc, char ** argv) {
     scope_global_ios scope_ios(ios);
 
     try {
-        std::shared_ptr<task_queue> tq;
-#if defined(LEAN_MULTI_THREAD)
-        if (num_threads == 0) {
-            tq = std::make_shared<st_task_queue>();
-        } else {
-            tq = std::make_shared<mt_task_queue>(num_threads);
-        }
-#else
-        tq = std::make_shared<st_task_queue>();
-#endif
-        set_task_queue(tq.get());
-
         module_mgr mod_mgr(path.get_path(), env, ios);
 
         if (run_arg) {

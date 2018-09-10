@@ -196,9 +196,6 @@ struct decl_modification : public modification {
         auto decl = read_declaration(d);
         return std::make_shared<decl_modification>(std::move(decl));
     }
-
-    void get_task_dependencies(buffer<gtask> &) const override {
-    }
 };
 
 namespace module {

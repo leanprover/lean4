@@ -19,7 +19,6 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "library/error_msgs.h"
-#include "library/st_task_queue.h"
 #include "library/profiling.h"
 #include "library/module_mgr.h"
 #include "library/export_decl.h"

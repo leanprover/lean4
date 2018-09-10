@@ -6,7 +6,6 @@ Author: Gabriel Ebner
 */
 #include <string>
 #include "library/messages.h"
-#include "util/task_builder.h"
 
 namespace lean {
 

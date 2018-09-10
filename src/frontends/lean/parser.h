@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "runtime/exception.h"
 #include "runtime/flet.h"
 #include "util/name_map.h"
-#include "util/task.h"
 #include "kernel/environment.h"
 #include "kernel/expr_maps.h"
 #include "library/util.h"

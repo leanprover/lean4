@@ -161,8 +161,6 @@ loaded_module export_module(environment const & env, std::string const & mod_nam
     for (auto & w : ext.m_modifications)
         out.m_modifications.push_back(w);
     std::reverse(out.m_modifications.begin(), out.m_modifications.end());
-
-    out.m_env = env;
     return out;
 }
 
@@ -315,12 +313,6 @@ environment import_modules(environment const & env0, std::string const & module_
     return env;
 }
 
-environment build_env_for_module(environment const & env0, loaded_module const & lm, module_loader const & mod_ldr) {
-    auto env = import_modules(env0, lm.m_module_name, lm.m_imports, mod_ldr);
-    import_module(lm.m_modifications, lm.m_module_name, env);
-    return env;
-}
-
 modification_list parse_olean_modifications(std::string const & olean_code, std::string const & file_name) {
     modification_list ms;
     std::istringstream in(olean_code, std::ios_base::binary);
@@ -363,8 +355,7 @@ module_loader mk_olean_loader(std::vector<std::string> const & path) {
         std::ifstream in(fn, std::ios_base::binary);
         auto parsed = parse_olean(in, fn, check_hash);
         auto modifs = parse_olean_modifications(parsed.m_serialized_modifications, fn);
-        return std::make_shared<loaded_module>(
-            loaded_module { fn, parsed.m_imports, modifs, {} });
+        return std::make_shared<loaded_module>(loaded_module { fn, parsed.m_imports, modifs });
     };
 }
 

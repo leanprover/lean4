@@ -208,7 +208,6 @@ static void display_help(std::ostream & out) {
 static struct option g_long_options[] = {
     {"version",      no_argument,       0, 'v'},
     {"help",         no_argument,       0, 'h'},
-    {"run",          required_argument, 0, 'a'},
     {"githash",      no_argument,       0, 'g'},
     {"make",         no_argument,       0, 'm'},
     {"recursive",    no_argument,       0, 'R'},
@@ -326,7 +325,6 @@ int main(int argc, char ** argv) {
 
     options opts;
     optional<std::string> server_in;
-    optional<std::string> run_arg;
     std::string native_output;
     while (true) {
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
@@ -345,9 +343,6 @@ int main(int argc, char ** argv) {
         case 'h':
             display_help(std::cout);
             return 0;
-        case 'a':
-            run_arg = optarg;
-            break;
         case 's':
             lean::lthread::set_thread_stack_size(static_cast<size_t>((atoi(optarg)/4)*4)*static_cast<size_t>(1024));
             break;
@@ -416,10 +411,6 @@ int main(int argc, char ** argv) {
             display_help(std::cerr);
             return 1;
         }
-        if (run_arg) {
-            // treat run_arg as the last arg
-            break;
-        }
     }
 
     if (auto max_memory = opts.get_unsigned(get_max_memory_opt_name(),
@@ -442,32 +433,6 @@ int main(int argc, char ** argv) {
 
     try {
         module_mgr mod_mgr(path.get_path(), env, ios);
-
-        if (run_arg) {
-            auto mod = mod_mgr.get_module(lrealpath(*run_arg));
-            if (!mod) throw exception(sstream() << "could not load " << *run_arg);
-
-            auto main_env = mod->m_result.m_loaded_module->m_env;
-            auto main_opts = mod->m_result.m_opts;
-            set_io_cmdline_args({argv + optind, argv + argc});
-            eval_helper fn(main_env, main_opts, "main");
-
-            type_context_old tc(main_env, main_opts);
-            scope_trace_env scope2(main_env, main_opts, tc);
-
-            try {
-                if (fn.try_exec()) {
-                    return 0;
-                } else {
-                    throw exception(sstream() << *run_arg << ": cannot execute main function with type "
-                                              << ios.get_formatter_factory()(main_env, main_opts, tc)(fn.get_type()));
-                }
-            } catch (std::exception & ex) {
-                std::cerr << ex.what() << std::endl;
-                return 1;
-            }
-        }
-
         mod_mgr.set_save_olean(make_mode);
 
         std::vector<std::string> args(argv + optind, argv + argc);

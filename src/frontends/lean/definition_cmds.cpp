@@ -600,7 +600,7 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
 
         // If we have already logged an error during elaboration, don't
         // bother showing the less helpful kernel exception
-        if (!has_errors(*global_message_log()))
+        if (!global_message_log()->has_errors())
             p.mk_message(header_pos, ERROR).set_exception(ex).report();
         // As a last resort, try replacing the definition body with `sorry`.
         // If that doesn't work either, just silently give up since we have

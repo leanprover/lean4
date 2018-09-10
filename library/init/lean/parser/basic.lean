@@ -163,7 +163,7 @@ m (syntax × message_log) :=
 do r ← ((r.run cfg).run st).parse_with_eoi s,
 pure $ match r with
 | except.ok (a, st) := (a, st.messages)
-| except.error msg  := (msg.custom, [message_of_parsec_message cfg msg])
+| except.error msg  := (msg.custom, message_log.empty.add (message_of_parsec_message cfg msg))
 end
 
 open monad_parsec
@@ -178,11 +178,11 @@ do cfg ← read,
 def eoi : syntax_node_kind := ⟨`lean.parser.parser.eoi⟩
 
 protected def parse [monad m] (cfg : parser_config) (s : string) (r : parser_t m syntax) [parser.has_tokens r] :
-  m (syntax × list message) :=
+  m (syntax × message_log) :=
 -- the only hardcoded tokens, because they are never directly mentioned by a `parser`
 let builtin_tokens : list token_config := [⟨"/-", 0, none⟩, ⟨"--", 0, none⟩] in
 let trie := (tokens r ++ builtin_tokens).foldl (λ t cfg, trie.insert t cfg.prefix cfg) trie.mk in
-parser.run cfg ⟨trie, [], s.mk_iterator⟩ s $ do
+parser.run cfg ⟨trie, message_log.empty, s.mk_iterator⟩ s $ do
   stx ← catch r $ λ (msg : parsec.message _), do {
     modify $ λ st, {st with token_start := msg.it},
     parser.log_message msg,

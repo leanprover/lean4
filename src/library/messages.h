@@ -78,11 +78,17 @@ std::ostream & operator<<(std::ostream &, message const &);
 void report_message(message const &);
 
 /*
-def message_log := list message
+structure message_log :=
+-- messages are stored in reverse for efficient append
+(rev_list : list message)
 */
-using message_log = list_ref<message>;
-
-bool has_errors(message_log const &);
+class message_log {
+    list_ref<message> m_rev_list;
+public:
+    bool has_errors() const;
+    void add(message const &);
+    buffer<message> to_buffer() const;
+};
 
 struct scope_message_log : flet<message_log *> {
     scope_message_log(message_log *);

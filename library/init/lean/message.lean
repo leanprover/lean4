@@ -23,15 +23,23 @@ structure message :=
 (caption  : string           := "")
 (text     : string)
 
-def message_log := list message
+structure message_log :=
+-- messages are stored in reverse for efficient append
+(rev_list : list message)
 
 namespace message_log
-def add : message → message_log → message_log :=
-list.cons
+def empty : message_log :=
+⟨[]⟩
+
+def add (msg : message) (log : message_log) : message_log :=
+⟨msg :: log.rev_list⟩
 
 def has_errors (log : message_log) : bool :=
-log.any $ λ m, match m.severity with
+log.rev_list.any $ λ m, match m.severity with
 | message_severity.error := tt
 | _                      := ff
+
+def to_list (log : message_log) : list message :=
+log.rev_list.reverse
 end message_log
 end lean

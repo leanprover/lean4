@@ -327,7 +327,6 @@ expr elaborator::mk_instance(expr const & C, expr const & ref) {
 
 expr elaborator::instantiate_mvars(expr const & e) {
     expr r = m_ctx.instantiate_mvars(e);
-    lean_assert(!contains_pos(r));
     return r;
 }
 
@@ -2628,9 +2627,7 @@ expr elaborator::visit_equations(expr const & e) {
     } else {
         new_e = copy_pos(e, mk_equations(header, new_eqs.size(), new_eqs.data()));
     }
-    // NOTE: don't call `this.instantiate_mvars`, which checks for position preterm annotations, since equations
-    // are a mixture of terms and preterms
-    new_e = m_ctx.instantiate_mvars(new_e);
+    new_e = instantiate_mvars(new_e);
     ensure_no_unassigned_metavars(new_e);
     metavar_context mctx = m_ctx.mctx();
     expr r = compile_equations(m_env, *this, mctx, m_ctx.lctx(), new_e);
@@ -3651,7 +3648,6 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
             lean_unreachable(); // LCOV_EXCL_LINE
         }
     });
-    lean_assert(!contains_pos(instantiate_mvars(e2)));
     return e2;
 }
 
@@ -3759,7 +3755,6 @@ void elaborator::ensure_no_unassigned_metavars(expr & e) {
     // TODO(gabriel): this needs to change e
     if (!has_expr_metavar(e)) return;
     for_each(e, [&](expr const & e, unsigned) {
-            lean_assert(!get_pos(e));
             if (!has_expr_metavar(e)) return false;
             if (is_metavar_decl_ref(e) && !m_ctx.is_assigned(e)) {
                 tactic_state s = mk_tactic_state_for(e);

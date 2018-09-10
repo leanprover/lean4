@@ -191,7 +191,7 @@ class parser : public abstract_parser {
     optional<expr> resolve_local(name const & id, pos_info const & p, names const & extra_locals,
                                  bool allow_field_notation = true);
 
-    friend class module_parser;
+    friend class module_mgr;
     friend class patexpr_to_expr_fn;
 
     struct backtracking_exception {};
@@ -555,8 +555,6 @@ public:
     virtual pos_info get_some_pos() const override;
     virtual char const * get_file_name() const override;
 };
-
-bool parse_commands(environment & env, io_state & ios, char const * fname);
 
 void initialize_parser();
 void finalize_parser();

@@ -519,11 +519,6 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
     name prv_name;
     std::tie(fn, val, prv_name) = parse_definition(p, lp_names, params, is_example, is_instance, meta.m_modifiers.m_is_meta, is_abbrev);
 
-    auto begin_pos = p.cmd_pos();
-    auto end_pos = p.pos();
-    scope_log_tree lt(logtree().mk_child({}, (get_namespace(env) + local_pp_name_p(fn)).to_string(),
-                                         {logtree().get_location().m_file_name, {begin_pos, end_pos}}));
-
     // skip elaboration of definitions during reparsing
     if (p.get_break_at_pos())
         return p.env();
@@ -605,7 +600,7 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
 
         // If we have already logged an error during elaboration, don't
         // bother showing the less helpful kernel exception
-        if (!lt.get().has_entry_now(is_error_message))
+        if (!has_errors(*global_message_log()))
             p.mk_message(header_pos, ERROR).set_exception(ex).report();
         // As a last resort, try replacing the definition body with `sorry`.
         // If that doesn't work either, just silently give up since we have

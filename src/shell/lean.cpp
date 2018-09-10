@@ -292,111 +292,6 @@ public:
     }
 };
 
-class progress_message_stream {
-    mutex m_mutex;
-    bool m_showing_task = false;
-    std::ostream & m_out;
-    bool m_use_json;
-    log_tree::node m_lt;
-
-    bool m_show_progress;
-    std::unique_ptr<single_timer> m_timer;
-    std::string m_last_task;
-
-    void clear_shown_task() {
-        if (m_showing_task) {
-            m_out << "\33[2K\r";
-            m_showing_task = false;
-        }
-    }
-
-public:
-    progress_message_stream(std::ostream & out, bool use_json, bool show_progress, log_tree::node const & lt) :
-            m_out(out), m_use_json(use_json), m_lt(lt), m_show_progress(show_progress) {
-#if defined(LEAN_MULTI_THREAD)
-        if (show_progress) {
-            m_timer.reset(new single_timer);
-        }
-#endif
-    }
-
-    ~progress_message_stream() {
-        m_timer.reset();
-        clear_shown_task();
-    }
-
-    void on_event(std::vector<log_tree::event> const & events) {
-        bool refresh_task = false;
-        for (auto & e : events) {
-            switch (e.m_kind) {
-                case log_tree::event::EntryAdded:
-                    if (auto msg = dynamic_cast<message const *>(e.m_entry.get())) {
-                        unique_lock<mutex> lock(m_mutex);
-                        clear_shown_task();
-                        if (m_use_json) {
-#if defined(LEAN_JSON)
-                            print_json(m_out, *msg);
-#endif
-                        } else {
-                            m_out << *msg;
-                        }
-                    }
-                    break;
-                case log_tree::event::EntryRemoved: break;
-                case log_tree::event::ProducerSet:
-                    taskq().submit(e.m_node.get_producer());
-                    break;
-                case log_tree::event::StateChanged:
-                    refresh_task = true;
-                    break;
-            }
-        }
-        if (m_show_progress && refresh_task) {
-#if defined(LEAN_MULTI_THREAD)
-            lean_assert(m_timer);
-            m_timer->set(chrono::steady_clock::now() + chrono::milliseconds(100),
-                [=] { show_current_task(); }, false);
-#else
-            show_current_task_core();
-#endif
-        }
-    }
-
-    optional<std::string> find_current_task() {
-        optional<std::string> found_running;
-        m_lt.for_each([&] (log_tree::node const & lt) {
-            if (!found_running) {
-                if (lt.get_state() == log_tree::state::Running) {
-                    std::ostringstream fmt;
-                    fmt << lt.get_location().m_file_name << ": " << lt.get_description();
-                    found_running = fmt.str();
-                }
-            }
-            return !found_running;
-        });
-        return found_running;
-    }
-
-    void show_current_task() {
-        unique_lock<mutex> lock(m_mutex);
-        show_current_task_core();
-    }
-    void show_current_task_core() {
-        if (m_use_json) return;
-        if (auto desc = find_current_task()) {
-            if (*desc == m_last_task && m_showing_task) return;
-            m_last_task = *desc;
-            clear_shown_task();
-#if defined(LEAN_EMSCRIPTEN)
-            m_out << *desc << std::endl;
-#else
-            m_out << *desc << std::flush;
-            m_showing_task = true;
-#endif
-        }
-    }
-};
-
 int main(int argc, char ** argv) {
 #if defined(LEAN_EMSCRIPTEN)
     EM_ASM(
@@ -544,16 +439,7 @@ int main(int argc, char ** argv) {
 
     io_state ios(opts, lean::mk_pretty_formatter_factory());
 
-    log_tree lt;
-
-    bool show_progress = make_mode && isatty(STDOUT_FILENO);
-    progress_message_stream msg_stream(std::cout, json_output, show_progress, lt.get_root());
     if (json_output) ios.set_regular_channel(ios.get_diagnostic_channel_ptr());
-
-    if (!test_suite)
-        lt.add_listener([&] (std::vector<log_tree::event> const & evs) { msg_stream.on_event(evs); });
-    auto lt_root = lt.get_root();
-    scope_log_tree_core scope_lt(&lt_root);
 
     scope_global_ios scope_ios(ios);
 
@@ -570,15 +456,14 @@ int main(int argc, char ** argv) {
 #endif
         set_task_queue(tq.get());
 
-        fs_module_vfs vfs;
-        module_mgr mod_mgr(&vfs, lt.get_root(), path.get_path(), env, ios);
+        module_mgr mod_mgr(path.get_path(), env, ios);
 
         if (run_arg) {
             auto mod = mod_mgr.get_module(lrealpath(*run_arg));
             if (!mod) throw exception(sstream() << "could not load " << *run_arg);
 
-            auto main_env = get(get(mod->m_result).m_loaded_module->m_env);
-            auto main_opts = get(mod->m_result).m_opts;
+            auto main_env = mod->m_result.m_loaded_module->m_env;
+            auto main_opts = mod->m_result.m_opts;
             set_io_cmdline_args({argv + optind, argv + argc});
             eval_helper fn(main_env, main_opts, "main");
 
@@ -622,13 +507,6 @@ int main(int argc, char ** argv) {
         std::vector<std::string> module_args;
         for (auto & f : args) module_args.push_back(lrealpath(f));
 
-        if (!recursive) {
-            for (auto & mod_id : module_args)
-                vfs.m_modules_to_load_from_source.insert(mod_id);
-        }
-
-        bool ok = true;
-
         struct input_mod {
             module_id m_id;
             std::shared_ptr<module_info const> m_mod_info;
@@ -639,37 +517,40 @@ int main(int argc, char ** argv) {
             mods.push_back({mod, mod_info});
         }
 
-        taskq().wait_for_finish(lt.get_root().wait_for_finish());
-
         for (auto & mod : mods) {
             if (test_suite) {
                 std::ofstream out(mod.m_id + ".test_suite.out");
-                mod.m_mod_info->m_lt.for_each([&](log_tree::node const & n) {
-                    for (auto const & e : n.get_entries()) {
-                        if (auto msg = dynamic_cast<message const *>(e.get())) {
-                            out << *msg;
-                        }
-                    }
-                    return true;
-                });
-            }
-            bool mod_ok = true;
-            try {
-                auto res = get(mod.m_mod_info->m_result);
-            } catch (...) {
-                ok = mod_ok = false;
-                // exception has already been reported
+                for (auto const & msg : mod.m_mod_info->m_log) {
+                    out << msg;
+                }
             }
             if (test_suite) {
                 std::ofstream status(mod.m_id + ".status");
-                status << (mod_ok && !get(has_errors(mod.m_mod_info->m_lt)) ? 0 : 1);
+                status << (!has_errors(mod.m_mod_info->m_log) ? 0 : 1);
             }
         }
 
         display_cumulative_profiling_times(std::cerr);
-        return ((ok && !get(has_errors(lt.get_root()))) || test_suite) ? 0 : 1;
+
+        bool ok = true;
+        if (!test_suite) {
+            for (auto & mod : mods) {
+                for (auto const & msg : mod.m_mod_info->m_log) {
+                    if (json_output) {
+#if defined(LEAN_JSON)
+                        print_json(std::cout, msg);
+#endif
+                    } else {
+                        std::cout << msg;
+                    }
+                }
+                if (has_errors(mod.m_mod_info->m_log))
+                    ok = false;
+            }
+        }
+        return ok ? 0 : 1;
     } catch (lean::throwable & ex) {
-        lean::message_builder(env, ios, "<unknown>", lean::pos_info(1, 1), lean::ERROR).set_exception(ex).report();
+        std::cerr << lean::message_builder(env, ios, "<unknown>", lean::pos_info(1, 1), lean::ERROR).set_exception(ex).build();
     } catch (std::bad_alloc & ex) {
         std::cerr << "out of memory" << std::endl;
     }

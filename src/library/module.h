@@ -37,7 +37,7 @@ struct loaded_module {
     std::vector<module_name> m_imports;
     modification_list m_modifications;
 
-    task<environment> m_env;
+    environment m_env;
 };
 using module_loader = std::function<std::shared_ptr<loaded_module const> (std::string const &, module_name const &)>;
 module_loader mk_olean_loader(std::vector<std::string> const &);
@@ -68,9 +68,7 @@ import_modules(environment const & env,
 loaded_module export_module(environment const & env, std::string const & mod_name);
 void write_module(loaded_module const & mod, std::ostream & out);
 
-std::shared_ptr<loaded_module const> cache_preimported_env(
-        loaded_module &&, environment const & initial_env,
-        std::function<module_loader()> const & mk_mod_ldr);
+environment build_env_for_module(environment const & env0, loaded_module const & lm, module_loader const & mod_ldr);
 
 /** \brief Check whether we should try to load the given .olean file according to its header and Lean version. */
 bool is_candidate_olean_file(std::string const & file_name);

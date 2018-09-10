@@ -21,7 +21,6 @@ Author: Leonardo de Moura
 #include "library/error_msgs.h"
 #include "library/st_task_queue.h"
 #include "library/profiling.h"
-#include "library/library_task_builder.h"
 #include "library/module_mgr.h"
 #include "library/export_decl.h"
 #include "library/trace.h"
@@ -2239,14 +2238,11 @@ void parser::process_imports() {
     std::vector<module_name> imports;
 
     std::exception_ptr exception_during_scanning;
-    auto begin_pos = pos();
     try {
         parse_imports(fingerprint, imports);
     } catch (parser_exception) {
         exception_during_scanning = std::current_exception();
     }
-
-    scope_log_tree lt("importing", {begin_pos, pos()});
 
     buffer<import_error> import_errors;
     m_env = import_modules(m_env, m_file_name, imports, m_import_fn, import_errors);
@@ -2396,19 +2392,6 @@ expr parser::parser_error_or_expr(parser_error && err) {
 level parser::parser_error_or_level(parser_error && err) {
     maybe_throw_error(std::move(err));
     return mk_level_placeholder();
-}
-
-bool parse_commands(environment & env, io_state & ios, char const * fname) {
-//    st_task_queue tq;
-//    scope_global_task_queue scope(&tq);
-    fs_module_vfs vfs;
-    vfs.m_modules_to_load_from_source.insert(std::string(fname));
-    log_tree lt;
-    module_mgr mod_mgr(&vfs, lt.get_root(), standard_search_path().get_path(), env, ios);
-
-    auto mod = mod_mgr.get_module(fname);
-    env = mod->get_produced_env();
-    return get(has_errors(lt.get_root()));
 }
 
 void initialize_parser() {

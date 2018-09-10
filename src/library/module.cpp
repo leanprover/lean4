@@ -24,7 +24,6 @@ Author: Leonardo de Moura
 #include "library/noncomputable.h"
 #include "library/constants.h"
 #include "library/module_mgr.h"
-#include "library/library_task_builder.h"
 
 /*
 Missing features: non monotonic modifications in .olean files
@@ -163,6 +162,7 @@ loaded_module export_module(environment const & env, std::string const & mod_nam
         out.m_modifications.push_back(w);
     std::reverse(out.m_modifications.begin(), out.m_modifications.end());
 
+    out.m_env = env;
     return out;
 }
 
@@ -284,14 +284,10 @@ static void import_module(environment & env, std::string const & module_file_nam
         auto & ext0 = get_extension(env);
         if (ext0.m_imported.contains(name(res->m_module_name))) return;
 
-        if (ext0.m_imported.empty() && res->m_env) {
-            env = get(res->m_env);
-        } else {
-            for (auto &dep : res->m_imports) {
-                import_module(env, res->m_module_name, dep, mod_ldr, import_errors);
-            }
-            import_module(res->m_modifications, res->m_module_name, env);
+        for (auto &dep : res->m_imports) {
+            import_module(env, res->m_module_name, dep, mod_ldr, import_errors);
         }
+        import_module(res->m_modifications, res->m_module_name, env);
 
         auto ext = get_extension(env);
         ext.m_imported.insert(name(res->m_module_name));
@@ -322,30 +318,10 @@ environment import_modules(environment const & env0, std::string const & module_
     return env;
 }
 
-static environment mk_preimported_module(environment const & initial_env, loaded_module const & lm, module_loader const & mod_ldr) {
-    auto env = initial_env;
-    buffer<import_error> import_errors;
-    for (auto & dep : lm.m_imports) {
-        import_module(env, lm.m_module_name, dep, mod_ldr, import_errors);
-    }
-    if (!import_errors.empty()) std::rethrow_exception(import_errors.back().m_ex);
+environment build_env_for_module(environment const & env0, loaded_module const & lm, module_loader const & mod_ldr) {
+    auto env = import_modules(env0, lm.m_module_name, lm.m_imports, mod_ldr);
     import_module(lm.m_modifications, lm.m_module_name, env);
     return env;
-}
-
-std::shared_ptr<loaded_module const> cache_preimported_env(
-        loaded_module && lm_ref, environment const & env0,
-        std::function<module_loader()> const & mk_mod_ldr) {
-    auto lm = std::make_shared<loaded_module>(lm_ref);
-    std::weak_ptr<loaded_module> wlm = lm;
-    lm->m_env = task_builder<environment>([env0, wlm, mk_mod_ldr] {
-        if (auto lm = wlm.lock()) {
-            return mk_preimported_module(env0, *lm, mk_mod_ldr());
-        } else {
-            throw exception("loaded_module got deallocated before preimporting");
-        }
-    }).build();
-    return lm;
 }
 
 modification_list parse_olean_modifications(std::string const & olean_code, std::string const & file_name) {

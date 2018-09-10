@@ -149,9 +149,7 @@ void module_mgr::build_module(module_id const & id, bool can_use_olean, name_set
             auto deps = mod->m_deps;
             loaded_module lm {
                     id, parsed_olean.m_imports,
-                    parse_olean_modifications(parsed_olean.m_serialized_modifications, id),
-                    m_initial_env };
-            lm.m_env = build_env_for_module(m_initial_env, lm, mk_loader(id, deps));
+                    parse_olean_modifications(parsed_olean.m_serialized_modifications, id) };
             res.m_loaded_module = std::make_shared<loaded_module const>(lm);
 
             mod->m_result = res;

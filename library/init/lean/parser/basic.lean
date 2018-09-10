@@ -56,47 +56,35 @@ instance monad_rec.base (α δ m) [monad m] : monad_rec α δ (rec_t α δ m) :=
 namespace lean
 namespace parser
 
-inductive trie.node (α : Type)
-| mk : option α → list (char × trie.node) → trie.node
-
-def trie (α : Type) := rbmap char (trie.node α) (<)
+inductive trie (α : Type)
+| node : option α → rbnode (char × trie) → trie
 
 namespace trie
 variables {α : Type}
 
-protected def node.empty : trie.node α := ⟨none, []⟩
+protected def mk : trie α :=
+⟨none, rbnode.leaf⟩
 
-protected def mk : trie α := mk_rbmap _ _ _
-
-private def update_child (c : char) (f : trie.node α → trie.node α) : list (char × trie.node α) → list (char × trie.node α)
-| []           := [(c, f trie.node.empty)]
-| ((c',t)::ts) := if c = c' then (c', f t)::ts else (c',t)::update_child ts
-
-private def insert_aux (val : α) : nat → trie.node α → string.iterator → trie.node α
-| 0     ⟨_,   ts⟩ _  := ⟨some val, ts⟩   -- NOTE: overrides old value
-| (n+1) ⟨val, ts⟩ it :=
-  ⟨val, update_child it.curr (λ t, insert_aux n t it.next) ts⟩
+private def insert_aux (val : α) : nat → trie α → string.iterator → trie α
+| 0     (trie.node _ map)    _ := trie.node (some val) map   -- NOTE: overrides old value
+| (n+1) (trie.node val map) it :=
+  let t' := (rbmap_core.find (<) map it.curr).get_or_else trie.mk in
+  trie.node val (rbmap_core.insert (<) map it.curr (insert_aux n t' it.next))
 
 def insert (t : trie α) (s : string) (val : α) : trie α :=
-let it := s.mk_iterator in
-let t' := (t.find it.curr).get_or_else trie.node.empty in
-let it' := it.next in
-t.insert it.curr (insert_aux val it'.remaining t' it')
+insert_aux val s.length t s.mk_iterator
 
-private def match_prefix_aux : nat → trie.node α → string.iterator → option (string.iterator × α) → option (string.iterator × α)
-| 0 ⟨val, ts⟩ it acc := prod.mk it <$> val <|> acc
-| (n+1) ⟨val, ts⟩ it acc :=
+private def match_prefix_aux : nat → trie α → string.iterator → option (string.iterator × α) → option (string.iterator × α)
+| 0     (trie.node val map) it acc := prod.mk it <$> val <|> acc
+| (n+1) (trie.node val map) it acc :=
   let acc' := prod.mk it <$> val <|> acc in
-  match ts.assoc it.curr with
-  | some t := match_prefix_aux n t it.next acc'
-  | none   := acc'
+  match rbmap_core.find (<) map it.curr with
+    | some t := match_prefix_aux n t it.next acc'
+    | none   := acc'
 
 def match_prefix {α : Type} (t : trie α) (it : string.iterator) : option (string.iterator × α) :=
-do t' ← t.find it.curr,
-   let it' := it.next,
-   match_prefix_aux it'.remaining t' it' none
+match_prefix_aux it.remaining t it none
 end trie
-
 
 /- Maximum standard precedence. This is the precedence of function application.
    In the standard Lean language, only the token `.` has a left-binding power greater

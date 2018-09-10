@@ -11,6 +11,9 @@ universes u v w w'
 def rbmap_lt {α : Type u} {β : Type v} (lt : α → α → Prop) (a b : α × β) : Prop :=
 lt a.1 b.1
 
+def rbmap_lt_dec {α : Type u} {β : Type v} {lt : α → α → Prop} [h : decidable_rel lt] : decidable_rel (@rbmap_lt α β lt) :=
+λ a b, h a.1 b.1
+
 def rbmap (α : Type u) (β : Type v) (lt : α → α → Prop) : Type (max u v) :=
 rbtree (α × β) (rbmap_lt lt)
 
@@ -63,9 +66,6 @@ instance : has_mem α (rbmap α β lt) :=
 instance [has_repr α] [has_repr β] : has_repr (rbmap α β lt) :=
 ⟨λ t, "rbmap_of " ++ repr t.to_list⟩
 
-def rbmap_lt_dec [h : decidable_rel lt] : decidable_rel (@rbmap_lt α β lt) :=
-λ a b, h a.1 b.1
-
 variable [decidable_rel lt]
 
 def insert (m : rbmap α β lt) (k : α) (v : β) : rbmap α β lt :=
@@ -98,3 +98,35 @@ end rbmap
 
 def rbmap_of {α : Type u} {β : Type v} (l : list (α × β)) (lt : α → α → Prop) [decidable_rel lt] : rbmap α β lt :=
 rbmap.from_list l lt
+
+/- Low level functions that process `rbnode`'s directly.
+   It is useful when we need a mapping in a nested inductive datatypes. -/
+namespace rbmap_core
+variables {α : Type u} {β : Type v}
+
+def empty (m : rbnode (α × β)) : bool :=
+match m with
+| rbnode.leaf := tt
+| _           := ff
+
+variables (lt : α → α → Prop) [decidable_rel lt]
+
+def insert (m : rbnode (α × β)) (k : α) (v : β) : rbnode (α × β) :=
+@rbnode.insert (α × β) (rbmap_lt lt) rbmap_lt_dec m (k, v)
+
+def find_entry (m : rbnode (α × β)) (k : α) : option (α × β) :=
+match m with
+| rbnode.leaf             := none
+| rbnode.red_node _ e _   := @rbnode.find (α × β) (rbmap_lt lt) rbmap_lt_dec m (k, e.2)
+| rbnode.black_node _ e _ := @rbnode.find (α × β) (rbmap_lt lt) rbmap_lt_dec m (k, e.2)
+
+def find (m : rbnode (α × β)) (k : α) : option β :=
+rbmap.to_value (rbmap_core.find_entry lt m k)
+
+def contains (m : rbnode (α × β)) (k : α) : bool :=
+(find_entry lt m k).is_some
+
+def from_list (l : list (α × β)) (lt : α → α → Prop) [decidable_rel lt] : rbnode (α × β) :=
+l.foldl (λ m p, insert lt m p.1 p.2) rbnode.leaf
+
+end rbmap_core

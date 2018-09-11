@@ -68,7 +68,7 @@ search_path parse_leanpkg_path(std::string const & fn) {
         std::getline(in, line);
 
         if (auto rest = begins_with(line, "path "))
-            path.push_back(resolve(*rest, fn_dir));
+            path.push_back(lrealpath(resolve(*rest, fn_dir)));
 
         if (line == "builtin_path") {
             auto builtin = get_builtin_search_path();
@@ -88,12 +88,12 @@ optional<search_path> get_lean_path_from_env() {
         for (; j < sz; j++) {
             if (is_path_sep(lean_path[j])) {
                 if (j > i)
-                    path.push_back(lean_path.substr(i, j - i));
+                    path.push_back(lrealpath(lean_path.substr(i, j - i)));
                 i = j + 1;
             }
         }
         if (j > i)
-            path.push_back(lean_path.substr(i, j - i));
+            path.push_back(lrealpath(lean_path.substr(i, j - i)));
         return optional<search_path>(path);
     } else {
         return optional<search_path>();
@@ -104,8 +104,12 @@ search_path get_builtin_search_path() {
     search_path path;
 #if !defined(LEAN_EMSCRIPTEN)
     std::string exe_path = dirname(get_exe_location());
-    path.push_back(exe_path + get_dir_sep() + ".." + get_dir_sep() + "library");
-    path.push_back(exe_path + get_dir_sep() + ".." + get_dir_sep() + "lib" + get_dir_sep() + "lean" + get_dir_sep() + "library");
+    auto lib_path = exe_path + get_dir_sep() + ".." + get_dir_sep() + "library";
+    if (exists(lib_path))
+        path.push_back(lrealpath(lib_path));
+    auto installed_lib_path = exe_path + get_dir_sep() + ".." + get_dir_sep() + "lib" + get_dir_sep() + "lean" + get_dir_sep() + "library";
+    if (exists(installed_lib_path))
+        path.push_back(lrealpath(installed_lib_path));
 #endif
     return path;
 }
@@ -225,6 +229,34 @@ std::string find_file(search_path const & paths, name const & fname) {
 
 std::string find_file(search_path const & paths, name const & fname, std::initializer_list<char const *> const & exts) {
     return find_file(paths, fname.to_string(get_dir_sep()), exts);
+}
+
+name module_name_of_file(search_path const & paths, std::string const & fname0) {
+    auto fname = normalize_path(fname0);
+    lean_assert(is_lean_file(fname));
+    fname = fname.substr(0, fname.size() - std::string(".lean").size());
+    for (auto & path : paths) {
+        if (path.size() < fname.size() && fname.substr(0, path.size()) == path) {
+            size_t pos = path.size();
+            if (fname[pos] == get_dir_sep_ch())
+                pos++;
+            name n;
+            while (pos < fname.size()) {
+                auto sep_pos = fname.find(get_dir_sep_ch(), pos);
+                n = name(n, fname.substr(pos, sep_pos - pos).c_str());
+                pos = sep_pos;
+                if (pos != std::string::npos)
+                    pos++;
+            }
+            return n;
+        }
+    }
+    throw exception(sstream() << "file '" << fname0 << "' not part of any known Lean packages");
+}
+
+module_name absolutize_module_name(search_path const & path, std::string const & base, rel_module_name const & rel) {
+    // TODO(Sebastian): Should make sure that the result of `find_file` is still in the same package as `base`
+    return module_name_of_file(path, find_file(path, base, rel.m_updirs, rel.m_name, ".lean"));
 }
 
 void find_imports_core(std::string const & base, optional<unsigned> const & k,

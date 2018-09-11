@@ -2,7 +2,7 @@
 Copyright (c) 2014-2015 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Author: Leonardo de Moura
+Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 */
 #include <unordered_map>
 #include <vector>
@@ -97,26 +97,6 @@ static environment update(environment const & env, module_ext const & ext) {
 static char const * g_olean_end_file = "EndFile";
 static char const * g_olean_header   = "oleanfile";
 
-serializer & operator<<(serializer & s, module_name const & n) {
-    if (n.m_relative)
-        s << true << *n.m_relative << n.m_name;
-    else
-        s << false << n.m_name;
-    return s;
-}
-
-deserializer & operator>>(deserializer & d, module_name & r) {
-    if (d.read_bool()) {
-        unsigned k;
-        d >> k >> r.m_name;
-        r.m_relative = { k };
-    } else {
-        d >> r.m_name;
-        r.m_relative = optional<unsigned>();
-    }
-    return d;
-}
-
 static unsigned olean_hash(std::string const & data) {
     return hash(data.size(), [&] (unsigned i) { return static_cast<unsigned char>(data[i]); });
 }
@@ -133,7 +113,7 @@ void write_module(loaded_module const & mod, std::ostream & out) {
     s1 << g_olean_end_file;
 
     if (!out1.good()) {
-        throw exception(sstream() << "error during serialization of '" << mod.m_module_name << "'");
+        throw exception(sstream() << "error during serialization of '" << mod.m_name << "'");
     }
 
     std::string r = out1.str();
@@ -150,9 +130,9 @@ void write_module(loaded_module const & mod, std::ostream & out) {
     s2.write_blob(r);
 }
 
-loaded_module export_module(environment const & env, std::string const & mod_name) {
+loaded_module export_module(environment const & env, module_name const & mod) {
     loaded_module out;
-    out.m_module_name = mod_name;
+    out.m_name = mod;
 
     module_ext const & ext = get_extension(env);
 
@@ -271,44 +251,48 @@ olean_data parse_olean(std::istream & in, std::string const & file_name, bool ch
     return { imports, code };
 }
 
-static void import_module(environment & env, std::string const & module_file_name, module_name const & ref,
-                          module_loader const & mod_ldr, buffer<import_error> & import_errors) {
-    try {
-        auto res = mod_ldr(module_file_name, ref);
-
-        auto & ext0 = get_extension(env);
-        if (ext0.m_imported.contains(name(res->m_module_name))) return;
-
-        for (auto &dep : res->m_imports) {
-            import_module(env, res->m_module_name, dep, mod_ldr, import_errors);
-        }
-        import_module(res->m_modifications, res->m_module_name, env);
-
-        auto ext = get_extension(env);
-        ext.m_imported.insert(name(res->m_module_name));
-        env = update(env, ext);
-    } catch (throwable) {
-        import_errors.push_back({module_file_name, ref, std::current_exception()});
+static void import_module(modification_list const & modifications, environment & env) {
+    for (auto & m : modifications) {
+        m->perform(env);
     }
 }
 
-environment import_modules(environment const & env0, std::string const & module_file_name,
-                           std::vector<module_name> const & refs, module_loader const & mod_ldr,
+static void import_module_rec(environment & env, module_name const & mod,
+                              module_loader const & mod_ldr, buffer<import_error> & import_errors) {
+    try {
+        auto res = mod_ldr(mod);
+
+        auto & ext0 = get_extension(env);
+        if (ext0.m_imported.contains(name(res->m_name))) return;
+
+        for (auto &dep : res->m_imports) {
+            import_module_rec(env, dep, mod_ldr, import_errors);
+        }
+        import_module(res->m_modifications, env);
+
+        auto ext = get_extension(env);
+        ext.m_imported.insert(name(res->m_name));
+        env = update(env, ext);
+    } catch (throwable) {
+        import_errors.push_back({mod, std::current_exception()});
+    }
+}
+
+environment import_modules(environment const & env0, std::vector<module_name> const & imports, module_loader const & mod_ldr,
                            buffer<import_error> & import_errors) {
     environment env = env0;
 
-    for (auto & ref : refs)
-        import_module(env, module_file_name, ref, mod_ldr, import_errors);
+    for (auto & import : imports)
+        import_module_rec(env, import, mod_ldr, import_errors);
 
     module_ext ext = get_extension(env);
-    ext.m_direct_imports = refs;
+    ext.m_direct_imports = imports;
     return update(env, ext);
 }
 
-environment import_modules(environment const & env0, std::string const & module_file_name,
-                           std::vector<module_name> const & refs, module_loader const & mod_ldr) {
+environment import_modules(environment const & env0, std::vector<module_name> const & imports, module_loader const & mod_ldr) {
     buffer<import_error> import_errors;
-    auto env = import_modules(env0, module_file_name, refs, mod_ldr, import_errors);
+    auto env = import_modules(env0, imports, mod_ldr, import_errors);
     if (!import_errors.empty()) std::rethrow_exception(import_errors.back().m_ex);
     return env;
 }
@@ -339,30 +323,6 @@ modification_list parse_olean_modifications(std::string const & olean_code, std:
         throw exception(sstream() << "file '" << file_name << "' has been corrupted");
     }
     return ms;
-}
-
-void import_module(modification_list const & modifications, std::string const & /* file_name */, environment & env) {
-    for (auto & m : modifications) {
-        m->perform(env);
-    }
-}
-
-module_loader mk_olean_loader(std::vector<std::string> const & path) {
-    bool check_hash = false;
-    return[=] (std::string const & module_fn, module_name const & ref) {
-        auto base_dir = dirname(module_fn);
-        auto fn = find_file(path, base_dir, ref.m_relative, ref.m_name, ".olean");
-        std::ifstream in(fn, std::ios_base::binary);
-        auto parsed = parse_olean(in, fn, check_hash);
-        auto modifs = parse_olean_modifications(parsed.m_serialized_modifications, fn);
-        return std::make_shared<loaded_module>(loaded_module { fn, parsed.m_imports, modifs });
-    };
-}
-
-module_loader mk_dummy_loader() {
-    return[=] (std::string const &, module_name const &) -> std::shared_ptr<loaded_module const> {
-        throw exception("module importing disabled");
-    };
 }
 
 void initialize_module() {

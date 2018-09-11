@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/expr_maps.h"
 #include "library/util.h"
-#include "library/module.h"
 #include "library/abstract_parser.h"
 #include "library/io_state.h"
 #include "library/io_state_stream.h"
@@ -40,7 +39,6 @@ class parser : public abstract_parser {
     io_state                m_ios;
     bool                    m_use_exceptions;
     bool                    m_show_errors;
-    module_loader           m_import_fn;
     std::string             m_file_name;
     scanner                 m_scanner;
     token_kind              m_curr;
@@ -203,7 +201,6 @@ class parser : public abstract_parser {
 
 public:
     parser(environment const & env, io_state const & ios,
-           module_loader const & import_fn,
            std::istream & strm, std::string const & file_name,
            bool use_exceptions = false);
     ~parser();
@@ -437,7 +434,7 @@ public:
 
     bool parse_command_like();
     void parse_command(cmd_meta const & meta);
-    void parse_imports(unsigned & fingerprint, std::vector<module_name> &);
+    void parse_imports(std::vector<rel_module_name> &);
 
     struct local_scope {
         parser & m_p; environment m_env;
@@ -538,8 +535,6 @@ public:
 
     /** return true iff profiling is enabled */
     bool profiling() const { return m_profile; }
-
-    void get_imports(std::vector<module_name> &);
 
     class in_notation_ctx {
         scanner::in_notation_ctx m_ctx;

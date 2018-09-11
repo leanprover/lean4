@@ -143,12 +143,10 @@ parser::all_id_local_scope::all_id_local_scope(parser & p):
     flet<id_behavior>(p.m_id_behavior, id_behavior::AllLocal) {}
 
 parser::parser(environment const & env, io_state const & ios,
-               module_loader const & import_fn,
                std::istream & strm, std::string const & file_name,
                bool use_exceptions) :
     m_env(env), m_ngen(*g_frontend_fresh), m_ios(ios),
     m_use_exceptions(use_exceptions),
-    m_import_fn(import_fn),
     m_file_name(file_name),
     m_scanner(strm, m_file_name.c_str()),
     m_imports_parsed(false) {
@@ -2176,7 +2174,7 @@ void parser::parse_mod_doc_block() {
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
 
-void parser::parse_imports(unsigned & fingerprint, std::vector<module_name> & imports) {
+void parser::parse_imports(std::vector<rel_module_name> & imports) {
     init_scanner();
     scanner::field_notation_scope scope(m_scanner, false);
     m_last_cmd_pos = pos();
@@ -2186,7 +2184,7 @@ void parser::parse_imports(unsigned & fingerprint, std::vector<module_name> & im
         prelude = true;
     }
     if (!prelude) {
-        module_name m("init");
+        rel_module_name m("init");
         imports.push_back(m);
     }
     while (curr_is_token(get_import_tk())) {
@@ -2216,15 +2214,11 @@ void parser::parse_imports(unsigned & fingerprint, std::vector<module_name> & im
             if (!curr_is_identifier())
                 break;
             name f = get_name_val();
-            fingerprint = hash(fingerprint, f.hash());
             if (k_init) {
-                fingerprint = hash(fingerprint, h);
-            }
-            if (k_init) {
-                module_name m(f, k);
+                rel_module_name m(k, f);
                 imports.push_back(m);
             } else {
-                module_name m(f);
+                rel_module_name m(f);
                 imports.push_back(m);
             }
             next();
@@ -2233,45 +2227,13 @@ void parser::parse_imports(unsigned & fingerprint, std::vector<module_name> & im
 }
 
 void parser::process_imports() {
-    unsigned fingerprint = 0;
-    std::vector<module_name> imports;
-
-    std::exception_ptr exception_during_scanning;
-    try {
-        parse_imports(fingerprint, imports);
-    } catch (parser_exception) {
-        exception_during_scanning = std::current_exception();
-    }
-
-    buffer<import_error> import_errors;
-    m_env = import_modules(m_env, m_file_name, imports, m_import_fn, import_errors);
-
-    if (!import_errors.empty()) {
-        for (auto & e : import_errors) {
-            try {
-                std::rethrow_exception(e.m_ex);
-            } catch (throwable & t) {
-                parser_exception error((sstream() << "invalid import: " << e.m_import.m_name << "\n" << t.what()).str(),
-                                       m_file_name.c_str(), m_last_cmd_pos);
-                if (!m_use_exceptions && m_show_errors)
-                    report_message(error);
-                if (m_use_exceptions)
-                    throw error;
-            }
-        }
-    }
+    std::vector<rel_module_name> imports;
+    parse_imports(imports);
+    // we assume the module manager has already imported the modules into `m_env`
 
     m_env = activate_export_decls(m_env, {}); // explicitly activate exports in root namespace
     m_env = replay_export_decls_core(m_env, m_ios);
     m_imports_parsed = true;
-
-    if (exception_during_scanning) std::rethrow_exception(exception_during_scanning);
-}
-
-void parser::get_imports(std::vector<module_name> & imports) {
-    scope_pos_info_provider scope1(*this);
-    unsigned fingerprint;
-    parse_imports(fingerprint, imports);
 }
 
 bool parser::parse_command_like() {

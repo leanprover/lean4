@@ -251,7 +251,7 @@ name module_name_of_file(search_path const & paths, std::string const & fname0) 
             return n;
         }
     }
-    throw exception(sstream() << "file '" << fname0 << "' not part of any known Lean packages");
+    throw exception(sstream() << "file '" << fname0 << "' is not part of any known Lean packages");
 }
 
 module_name absolutize_module_name(search_path const & path, std::string const & base, rel_module_name const & rel) {
@@ -277,22 +277,6 @@ void find_imports_core(std::string const & base, optional<unsigned> const & k,
     }
 }
 
-void find_imports(search_path const & paths, std::string const & base, optional<unsigned> const & k,
-                  std::vector<pair<std::string, std::string>> & imports) {
-    if (!k) {
-        for (auto & base : paths)
-            if (is_dir(base))
-                find_imports_core(base, k, imports);
-    } else {
-        auto path = base;
-        for (unsigned i = 0; i < *k; i++) {
-            path += get_dir_sep();
-            path += "..";
-        }
-        find_imports_core(path, k, imports);
-    }
-}
-
 std::string olean_of_lean(std::string const & lean_fn) {
     if (lean_fn.size() > 5 && lean_fn.substr(lean_fn.size() - 5) == ".lean") {
         return lean_fn.substr(0, lean_fn.size() - 5) + ".olean";
@@ -300,12 +284,4 @@ std::string olean_of_lean(std::string const & lean_fn) {
         throw exception(sstream() << "not a .lean file: " << lean_fn);
     }
 }
-
-std::string olean_file_to_lean_file(std::string const &olean) {
-    lean_assert(is_olean_file(olean));
-    std::string lean = olean;
-    lean.erase(lean.size() - std::string("olean").size(), 1);
-    return lean;
-}
-
 }

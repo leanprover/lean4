@@ -124,25 +124,8 @@ time_t module_mgr::build_lean(std::shared_ptr<module_info> const & mod, name_set
     std::istringstream in(contents);
     auto env = import_modules(m_initial_env, imports, mk_loader());
     parser p(env, m_ios, in, mod->m_filename);
-
-    bool done = false;
-    while (!done) {
-        try {
-            check_system("module_parser::parse_next_command_like");
-            done = p.parse_command_like();
-        } catch (parser_exception & ex) {
-            report_message(ex);
-            p.sync_command();
-        } catch (throwable & ex) {
-            p.mk_message(p.m_last_cmd_pos, ERROR).set_exception(ex).report();
-            p.sync_command();
-        } catch (interrupt_parser) {
-            // this exception is thrown by the exit command
-            done = true;
-        }
-    }
-
-    mod->m_loaded_module = std::make_shared<loaded_module const>(export_module(p.mk_snapshot()->m_env, mod_name));
+    p.parse_commands();
+    mod->m_loaded_module = std::make_shared<loaded_module const>(export_module(p.env(), mod_name));
 
     if (m_save_olean) {
         compile_olean(m_path, mod);
@@ -159,15 +142,10 @@ std::shared_ptr<module_info const> module_mgr::get_module(module_name const & mo
 
 std::vector<module_name> module_mgr::get_direct_imports(std::string const & file_name, std::string const & contents) {
     std::vector<rel_module_name> rel_imports;
-    try {
-        std::istringstream in(contents);
-        bool use_exceptions = true;
-        parser p(get_initial_env(), m_ios, in, file_name, use_exceptions);
-        try {
-            p.init_scanner();
-        } catch (...) {}
-        p.parse_imports(rel_imports);
-    } catch (...) {}
+    std::istringstream in(contents);
+    bool use_exceptions = true;
+    parser p(get_initial_env(), m_ios, in, file_name, use_exceptions);
+    p.parse_imports(rel_imports);
 
     std::vector<module_name> imports;
     auto dir = dirname(file_name);

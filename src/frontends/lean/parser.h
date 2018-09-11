@@ -188,7 +188,6 @@ class parser : public abstract_parser {
     optional<expr> resolve_local(name const & id, pos_info const & p, names const & extra_locals,
                                  bool allow_field_notation = true);
 
-    friend class module_mgr;
     friend class patexpr_to_expr_fn;
 
     struct backtracking_exception {};
@@ -434,6 +433,7 @@ public:
 
     bool parse_command_like();
     void parse_command(cmd_meta const & meta);
+    environment parse_commands();
     void parse_imports(std::vector<rel_module_name> &);
 
     struct local_scope {

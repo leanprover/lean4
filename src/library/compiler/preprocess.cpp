@@ -288,7 +288,6 @@ void initialize_preprocess() {
     register_trace_class({"compiler", "input"});
     register_trace_class({"compiler", "expand_aux"});
     register_trace_class({"compiler", "eta_expansion"});
-    register_trace_class({"compiler", "simplify_pr1"});
     register_trace_class({"compiler", "inline"});
     register_trace_class({"compiler", "elim_recursors"});
     register_trace_class({"compiler", "erase_irrelevant"});

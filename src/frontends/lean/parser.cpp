@@ -2355,6 +2355,27 @@ level parser::parser_error_or_level(parser_error && err) {
     return mk_level_placeholder();
 }
 
+environment parser::parse_commands() {
+    bool done = false;
+    while (!done) {
+        try {
+            check_system("module_parser::parse_next_command_like");
+            done = parse_command_like();
+        } catch (parser_exception & ex) {
+            report_message(ex);
+            sync_command();
+        } catch (throwable & ex) {
+            mk_message(m_last_cmd_pos, ERROR).set_exception(ex).report();
+            sync_command();
+        } catch (interrupt_parser) {
+            // this exception is thrown by the exit command
+            done = true;
+        }
+    }
+
+    return env();
+}
+
 void initialize_parser() {
     g_frontend_fresh         = new name("_ffresh");
     register_name_generator_prefix(*g_frontend_fresh);

@@ -2193,7 +2193,6 @@ void parser::parse_imports(std::vector<rel_module_name> & imports) {
         while (true) {
             bool k_init = false;
             unsigned k  = 0;
-            unsigned h = 0;
             while (true) {
                 if (curr_is_token(get_period_tk()) || curr_is_token(get_dotdot_tk()) ||
                     curr_is_token(get_ellipsis_tk())) {
@@ -2201,10 +2200,8 @@ void parser::parse_imports(std::vector<rel_module_name> & imports) {
                     if (!k_init) {
                         k = d - 1;
                         k_init = true;
-                        h = d - 1;
                     } else {
                         k = d;
-                        h = d;
                     }
                     next();
                 } else {

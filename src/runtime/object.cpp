@@ -473,13 +473,13 @@ typedef object * (*lean_cfun2)(object *, object *); // NOLINT
 typedef object * (*lean_cfun3)(object *, object *, object *); // NOLINT
 
 static obj_res mk_closure_2_1(lean_cfun2 fn, obj_arg a) {
-    object * c = alloc_closure(reinterpret_cast<lean_cfun>(fn), 2, 1);
+    object * c = alloc_closure(fn, 1);
     closure_set(c, 0, a);
     return c;
 }
 
 static obj_res mk_closure_3_2(lean_cfun3 fn, obj_arg a1, obj_arg a2) {
-    object * c = alloc_closure(reinterpret_cast<lean_cfun>(fn), 3, 2);
+    object * c = alloc_closure(fn, 2);
     closure_set(c, 0, a1);
     closure_set(c, 1, a2);
     return c;

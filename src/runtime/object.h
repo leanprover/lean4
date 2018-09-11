@@ -126,8 +126,6 @@ struct parray_object : public object {
     parray_object():object(object_kind::PArrayRoot, object_memory_kind::STHeap) {}
 };
 
-typedef object * (*lean_cfun)(object *); // NOLINT
-
 /* Note that `lean_cfun` is a function pointer for a C function of
    arity 1. The `apply` operator performs a cast operation.
    It casts m_fun to a C function of the right arity.
@@ -141,8 +139,8 @@ typedef object * (*lean_cfun)(object *); // NOLINT
 struct closure_object : public object {
     unsigned  m_arity:16;     // number of arguments expected by m_fun.
     unsigned  m_num_fixed:16; // number of arguments that have been already fixed.
-    lean_cfun m_fun;
-    closure_object(lean_cfun f, unsigned arity, unsigned n, object_memory_kind m = c_init_mem_kind):
+    void *    m_fun;
+    closure_object(void * f, unsigned arity, unsigned n, object_memory_kind m = c_init_mem_kind):
         object(object_kind::Closure, m), m_arity(arity), m_num_fixed(n), m_fun(f) {}
 };
 
@@ -373,7 +371,7 @@ inline unsigned char * cnstr_scalar_cptr(object * o) {
 // =======================================
 // Closure auxiliary functions
 
-inline lean_cfun closure_fun(object * o) { return to_closure(o)->m_fun; }
+inline void * closure_fun(object * o) { return to_closure(o)->m_fun; }
 inline unsigned closure_arity(object * o) { return to_closure(o)->m_arity; }
 inline unsigned closure_num_fixed(object * o) { return to_closure(o)->m_num_fixed; }
 inline size_t closure_byte_size(unsigned num_fixed) { return sizeof(closure_object) + num_fixed*sizeof(object*); } // NOLINT
@@ -537,7 +535,7 @@ inline unsigned obj_tag(b_obj_arg o) { if (is_scalar(o)) return unbox(o); else r
 // =======================================
 // Closures
 
-inline obj_res alloc_closure(lean_cfun fun, unsigned arity, unsigned num_fixed) {
+inline obj_res alloc_closure(void * fun, unsigned arity, unsigned num_fixed) {
     lean_assert(arity > 0);
     lean_assert(num_fixed < arity);
     return new (alloc_heap_object(closure_byte_size(num_fixed))) closure_object(fun, arity, num_fixed); // NOLINT
@@ -549,6 +547,15 @@ inline b_obj_res closure_get(b_obj_arg o, unsigned i) {
 inline void closure_set(u_obj_arg o, unsigned i, obj_arg a) {
     lean_assert(i < closure_num_fixed(o));
     obj_set_data(o, sizeof(closure_object) + sizeof(object*)*i, a); // NOLINT
+}
+inline obj_res alloc_closure(object*(*fun)(object *), unsigned num_fixed) {
+    return alloc_closure(reinterpret_cast<void*>(fun), 1, num_fixed);
+}
+inline obj_res alloc_closure(object*(*fun)(object *, object *), unsigned num_fixed) {
+    return alloc_closure(reinterpret_cast<void*>(fun), 2, num_fixed);
+}
+inline obj_res alloc_closure(object*(*fun)(object *, object *, object *), unsigned num_fixed) {
+    return alloc_closure(reinterpret_cast<void*>(fun), 3, num_fixed);
 }
 
 // =======================================

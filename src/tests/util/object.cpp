@@ -25,7 +25,7 @@ object * f(object *) {
 }
 
 void tst1() {
-    object_ref t(mk_thunk(alloc_closure(f, 1, 0)));
+    object_ref t(mk_thunk(alloc_closure(f, 0)));
     object * r1 = thunk_get(t.raw());
     object * r2 = thunk_get(t.raw());
     std::cout << "thunk value: " << unbox(r1) << "\n";
@@ -40,7 +40,7 @@ object * g(object *) {
 }
 
 void tst2() {
-    object * c = alloc_closure(g, 1, 0);
+    object * c = alloc_closure(g, 0);
     inc(c);
     object * r1 = apply_1(c, box(0));
     inc(c);
@@ -67,7 +67,7 @@ object * h(object *) {
    The thunk implementation relies on the fact that nullptr is not a scalar nor a valid
    Lean object. */
 void tst3() {
-    object_ref t(mk_thunk(alloc_closure(h, 1, 0)));
+    object_ref t(mk_thunk(alloc_closure(h, 0)));
     lean_assert(g_h_counter == 0);
     object * r3 = thunk_get(t.raw());
     lean_assert(g_h_counter == 1);
@@ -83,7 +83,7 @@ object * r(object *) {
 }
 
 void tst4() {
-    object_ref t(mk_thunk(alloc_closure(r, 1, 0)));
+    object_ref t(mk_thunk(alloc_closure(r, 0)));
     object * r3  = thunk_get(t.raw());
     object * r4  = thunk_get(t.raw());
     lean_assert(string_eq(r3, "hello world"));
@@ -92,7 +92,7 @@ void tst4() {
 }
 
 void tst5() {
-    object_ref t(mk_thunk(alloc_closure(r, 1, 0)));
+    object_ref t(mk_thunk(alloc_closure(r, 0)));
     std::ostringstream out;
     serializer s(out);
     object_ref o(mk_string("bla bla"));
@@ -142,19 +142,19 @@ obj_res task3_fn(obj_arg val, obj_arg) {
 }
 
 obj_res mk_task3_fn(obj_arg val) {
-    object * c     = alloc_closure(reinterpret_cast<lean_cfun>(task3_fn), 2, 1);
+    object * c     = alloc_closure(task3_fn, 1);
     closure_set(c, 0, val);
     return mk_task(c);
 }
 
 obj_res mk_task2(b_obj_arg task1) {
     inc(task1);
-    return task_map(alloc_closure(add_10, 1, 0), task1);
+    return task_map(alloc_closure(add_10, 0), task1);
 }
 
 obj_res mk_task3(b_obj_arg task1) {
     inc_ref(task1);
-    return task_bind(task1, alloc_closure(mk_task3_fn, 1, 0));
+    return task_bind(task1, alloc_closure(mk_task3_fn, 0));
 }
 
 void tst6_core(object * task1) {
@@ -172,7 +172,7 @@ void tst6_core(object * task1) {
 void tst6() {
     {
         scoped_task_manager m(8);
-        object_ref task1(mk_task(alloc_closure(task1_fn, 1, 0)));
+        object_ref task1(mk_task(alloc_closure(task1_fn, 0)));
         tst6_core(task1.raw());
     }
     {
@@ -189,7 +189,7 @@ void tst6() {
     }
     {
         scoped_task_manager m(8);
-        object_ref task1(mk_thunk(alloc_closure(f, 1, 0)));
+        object_ref task1(mk_thunk(alloc_closure(f, 0)));
         lean_assert(io_has_finished_core(task1.raw()));
         tst6_core(task1.raw());
     }
@@ -208,7 +208,7 @@ obj_res task4_fn(obj_arg) {
 void tst7() {
     scoped_task_manager m(8);
     std::cout << ">> tst7 started...\n";
-    object_ref task4(mk_task(alloc_closure(task4_fn, 1, 0)));
+    object_ref task4(mk_task(alloc_closure(task4_fn, 0)));
     std::cout << "task4 has finished: " << io_has_finished_core(task4.raw()) << "\n";
     this_thread::sleep_for(std::chrono::milliseconds(100));
     show_msg("request interrupt...\n");
@@ -226,7 +226,7 @@ obj_res task5_fn(obj_arg id, obj_arg) {
 }
 
 obj_res mk_task5(obj_arg id) {
-    object * c = alloc_closure(reinterpret_cast<lean_cfun>(task5_fn), 2, 1);
+    object * c = alloc_closure(task5_fn, 1);
     closure_set(c, 0, id);
     return mk_task(c);
 }
@@ -271,9 +271,9 @@ obj_res mk_cons(b_obj_arg h, obj_arg t) {
 void tst9() {
     scoped_task_manager m(8);
     std::cout << ">> tst9 started...\n";
-    object_ref t1(mk_task(alloc_closure(loop_until_interrupt_fn, 1, 0)));
-    object_ref t2(mk_task(alloc_closure(loop_until_interrupt_fn, 1, 0)));
-    object_ref t3(mk_task(alloc_closure(task6_fn, 1, 0)));
+    object_ref t1(mk_task(alloc_closure(loop_until_interrupt_fn, 0)));
+    object_ref t2(mk_task(alloc_closure(loop_until_interrupt_fn, 0)));
+    object_ref t3(mk_task(alloc_closure(task6_fn, 0)));
     object_ref ts(mk_cons(t1.raw(), mk_cons(t2.raw(), mk_cons(t3.raw(), box(0)))));
     show_msg("invoke wait_any...\n");
     object * t = io_wait_any_core(ts.raw());
@@ -289,7 +289,7 @@ void tst9() {
 void tst10() {
     scoped_task_manager m(8);
     std::cout << ">> tst10 started...\n";
-    object_ref t1(mk_task(alloc_closure(task6_fn, 1, 0)));
+    object_ref t1(mk_task(alloc_closure(task6_fn, 0)));
     {
         object_ref t2(mk_task2(t1.raw()));
     }
@@ -302,7 +302,7 @@ void tst11() {
         scoped_task_manager m(2);
         std::vector<object_ref> tasks;
         for (unsigned i = 0; i < 100; i++) {
-            tasks.push_back(object_ref(mk_task(alloc_closure(loop_until_interrupt_fn, 1, 0))));
+            tasks.push_back(object_ref(mk_task(alloc_closure(loop_until_interrupt_fn, 0))));
         }
         this_thread::sleep_for(std::chrono::milliseconds(100));
     }
@@ -325,7 +325,7 @@ void tst12() {
     g_finished = false;
     scoped_task_manager m(8);
     {
-        object_ref t(mk_task(alloc_closure(loop_until_interrupt_fn2, 1, 0)));
+        object_ref t(mk_task(alloc_closure(loop_until_interrupt_fn2, 0)));
         this_thread::sleep_for(std::chrono::milliseconds(10));
         /* task t must be interrupted automatically */
     }
@@ -347,13 +347,13 @@ obj_res task7_fn(obj_arg val, obj_arg) {
 }
 
 obj_res mk_task7_fn(obj_arg val) {
-    object * c     = alloc_closure(reinterpret_cast<lean_cfun>(task7_fn), 2, 1);
+    object * c     = alloc_closure(task7_fn, 1);
     closure_set(c, 0, val);
     return mk_task(c);
 }
 
 obj_res mk_task7(obj_arg t) {
-    return task_bind(t, alloc_closure(mk_task7_fn, 1, 0));
+    return task_bind(t, alloc_closure(mk_task7_fn, 0));
 }
 
 object * mul2(object * a) {
@@ -363,12 +363,12 @@ object * mul2(object * a) {
 void tst13() {
     scoped_task_manager m(8);
     std::cout << "tst13 started ...\n";
-    object * curr = mk_task(alloc_closure(task1_fn, 1, 0));
+    object * curr = mk_task(alloc_closure(task1_fn, 0));
     std::vector<object *> children;
     for (unsigned i = 0; i < 1000; i++) {
         curr = mk_task7(curr);
         inc(curr);
-        children.push_back(task_map(alloc_closure(mul2, 1, 0), curr));
+        children.push_back(task_map(alloc_closure(mul2, 0), curr));
     }
     inc(curr);
     object * it = curr;
@@ -615,20 +615,16 @@ bool contains_hybrid(object * l, object * v) {
     } else {
         object * h_obj = cnstr_get(l_obj, 0);
         object * t_obj = cnstr_get(l_obj, 1);
-        object * h;
         object * t;
         if (l_b) {
-            h = mark_borrowed(h_obj);
             t = mark_borrowed(t_obj);
         } else if (!is_shared(l_obj)) {
             free_heap_obj(l_obj);
-            h = h_obj;
             t = t_obj;
         } else {
             inc(h_obj);
             inc(t_obj);
             dec_ref(l_obj);
-            h = mark_borrowed(h_obj);
             t = mark_borrowed(t_obj);
         }
         if (v_obj == h_obj) {

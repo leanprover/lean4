@@ -126,9 +126,8 @@ struct parray_object : public object {
     parray_object():object(object_kind::PArrayRoot, object_memory_kind::STHeap) {}
 };
 
-/* Note that `lean_cfun` is a function pointer for a C function of
-   arity 1. The `apply` operator performs a cast operation.
-   It casts m_fun to a C function of the right arity.
+/* Note that `m_fun` is a pointer to a C function.
+   The `apply` operator performs a cast operation. It casts m_fun to a C function pointer of the right arity.
 
    Header size: 16 bytes in 32 bit machines and 24 bytes in 64 bit machines.
 

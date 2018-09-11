@@ -46,11 +46,8 @@ enum class object_memory_kind { MTHeap = 0, STHeap, Persistent, Stack, Region };
 
 enum class object_kind { Constructor, Closure, Array, ScalarArray, PArrayRoot, PArraySet, PArrayPush, PArrayPop, String, MPZ, Thunk, Task, External };
 
-/*
-   TODO(Leo): objects are initially allocated as STHeap. When we create a task, they become MTHeap.
-   We are temporarily using MTHeap because we are still using the old task manager.
-*/
-constexpr object_memory_kind c_init_mem_kind = object_memory_kind::MTHeap;
+/* Objects are initially allocated as STHeap. When we create a task, we change it to MTHeap. */
+constexpr object_memory_kind c_init_mem_kind = object_memory_kind::STHeap;
 
 /* The reference counter is a uintptr_t, because at deletion time, we use this field to implement
    a linked list of objects to be deleted. */

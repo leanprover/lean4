@@ -23,9 +23,7 @@
   (let ((command
          (-concat `(,(lean4-get-executable lean4-executable-name))
                   lean4-extra-arguments
-                  '("--json")
-                  '("--")
-                  '(source-inplace))))
+                  '("--json" "--stdin"))))
     command))
 
 (cl-defun lean4-flycheck-parse-task (checker buffer cur-file-name
@@ -77,7 +75,7 @@
                            ("information" 'info)
                            (_ 'info))
                          (lean4-info-fontify-string text)
-                         :filename file_name
+                         :filename (if (equal file_name "<stdin>") nil file_name)
                          :checker checker :buffer buffer))
 
 (defun lean4-flycheck-parse-errors (output checker buffer)
@@ -105,6 +103,7 @@
   (flycheck-define-command-checker 'lean4-checker
     "A Lean syntax checker."
     :command (lean4-flycheck-command)
+    :standard-input t
     :error-parser #'lean4-flycheck-parse-errors
     :modes '(lean4-mode))
   (add-to-list 'flycheck-checkers 'lean4-checker))

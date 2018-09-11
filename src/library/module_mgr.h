@@ -55,8 +55,6 @@ class module_mgr {
 
     time_t build_module(module_name const & mod, bool can_use_olean, name_set module_stack);
 
-    std::vector<module_name>
-    get_direct_imports(std::string const & file_name, std::string const & contents);
     time_t build_lean(std::shared_ptr<module_info> const & mod, name_set const & module_stack);
 public:
     module_mgr(search_path const & path,
@@ -65,6 +63,7 @@ public:
 
     std::shared_ptr<module_info const> get_module(module_name const &);
     module_loader mk_loader();
+    std::vector<module_name> get_direct_imports(std::string const & file_name, std::string const & contents);
 
     void set_save_olean(bool save_olean) { m_save_olean = save_olean; }
 

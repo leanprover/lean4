@@ -178,6 +178,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --githash          display the git commit hash number used to build this binary\n";
     std::cout << "  --run              executes the 'main' definition\n";
     std::cout << "  --make             create olean files\n";
+    std::cout << "  --stdin            interpret stdin as content of single .lean file\n";
     std::cout << "  --recursive        recursively find *.lean files in directory arguments\n";
     std::cout << "  --trust=num -t     trust level (default: max) 0 means do not trust any macro,\n"
               << "                     and type check all imported modules\n";
@@ -210,6 +211,7 @@ static struct option g_long_options[] = {
     {"help",         no_argument,       0, 'h'},
     {"githash",      no_argument,       0, 'g'},
     {"make",         no_argument,       0, 'm'},
+    {"stdin",        no_argument,       0, 'i'},
     {"recursive",    no_argument,       0, 'R'},
     {"memory",       required_argument, 0, 'M'},
     {"trust",        required_argument, 0, 't'},
@@ -310,6 +312,7 @@ int main(int argc, char ** argv) {
 #endif
     ::initializer init;
     bool make_mode          = false;
+    bool use_stdin          = false;
     bool recursive          = false;
     unsigned trust_lvl      = LEAN_BELIEVER_TRUST_LEVEL+1;
     bool test_suite         = false;
@@ -345,6 +348,9 @@ int main(int argc, char ** argv) {
             return 0;
         case 's':
             lean::lthread::set_thread_stack_size(static_cast<size_t>((atoi(optarg)/4)*4)*static_cast<size_t>(1024));
+            break;
+        case 'i':
+            use_stdin = true;
             break;
         case 'm':
             make_mode = true;
@@ -413,6 +419,9 @@ int main(int argc, char ** argv) {
         }
     }
 
+    if (use_stdin)
+        recursive = false;
+
     if (auto max_memory = opts.get_unsigned(get_max_memory_opt_name(),
                                             opts.get_bool("server") ? LEAN_SERVER_DEFAULT_MAX_MEMORY : LEAN_DEFAULT_MAX_MEMORY)) {
         set_max_memory_megabyte(max_memory);
@@ -467,6 +476,40 @@ int main(int argc, char ** argv) {
             mods.push_back({mod, mod_info});
         }
 
+        bool ok = true;
+
+        if (use_stdin) {
+            std::stringstream buf;
+            buf << std::cin.rdbuf();
+
+            // This is where we will later spin off the server
+            scope_global_ios scope_ios(ios);
+            scope_traces_as_messages scope_trace_msgs("<stdin>", {1, 0});
+            message_log l;
+            scope_message_log scope_log(l);
+            auto imports = mod_mgr.get_direct_imports("<stdin>", buf.str());
+            for (auto & d : imports) {
+                mod_mgr.get_module(d);
+            }
+
+            auto mod_env = import_modules(env, imports, mod_mgr.mk_loader());
+            parser p(mod_env, ios, buf, "<stdin>");
+            // The server will obviously do something more complicated from here
+            p.parse_commands();
+
+            for (auto const & msg : l.to_buffer()) {
+                if (json_output) {
+#if defined(LEAN_JSON)
+                    print_json(std::cout, msg);
+#endif
+                } else {
+                    std::cout << msg;
+                }
+            }
+            if (l.has_errors())
+                ok = false;
+        }
+
         for (auto & mod : mods) {
             if (test_suite) {
                 std::ofstream out(mod.m_file_name + ".test_suite.out");
@@ -482,7 +525,6 @@ int main(int argc, char ** argv) {
 
         display_cumulative_profiling_times(std::cerr);
 
-        bool ok = true;
         if (!test_suite) {
             for (auto & mod : mods) {
                 for (auto const & msg : mod.m_mod_info->m_log.to_buffer()) {

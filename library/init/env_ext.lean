@@ -3,8 +3,6 @@ prelude
 /-
 Environment extensions:
 
-- inductive and quotient extensions will become part of the environment
-
 - private
   * unsigned       m_counter
   * name_map<name> m_inv_map;  // map: hidden-name -> user-name (for pretty printing purposes) it is serialized
@@ -23,12 +21,6 @@ Environment extensions:
   * name_set m_aux_recursor_set;
   * name_set m_no_confusion_set;
 
-- documentation
-  * list<doc_entry>       m_module_doc;      // this is not used
-  * name_map<std::string> m_doc_string_map;  // mapping declaration name to doc string
-
-- ginductive: it will be deleted
-
 - aliases: this is a transient object used during elaboration. We use it to store the mappings (user-facing-name -> private name); implementing `open` command; simulating `section` parameters; etc.
   * bool             m_in_section;
   * name_map<names>  m_aliases;
@@ -38,13 +30,6 @@ Environment extensions:
   * name_map<expr>   m_local_refs;
 
 - projection: it will be deleted
-
-- fingerprint: (we can store this information in the environment)
-  * uint64 m_fingerprint
-
-- eqn_lemmas: maps definition to its equational lemmas. It is used to implement tactics.
-  * name_map<list<simp_lemma>> m_lemmas;
-  * name_set                   m_has_simple_eqn_lemma;
 
 - user attributes:
   * name_map<attribute_ptr> m_attrs;
@@ -67,7 +52,6 @@ Environment extensions:
 
 - scoped_ext: a general purpose scoped extension. It is used to implement
   * parser/scanner tables
-  * inverse (it can be deleted after we remove g_inductive)
   * attribute_manager (do we need them? we can try to keep user attributes only)
     * elaboration strategy
     * user commands
@@ -76,19 +60,12 @@ Environment extensions:
     * reducibility annotations
     * [inline]
     * [pattern]
-    * [inverse] (it can be deleted in the future)
     * [class]
     * [instance]
     * [recursor]
-    * [simp]
-    * [congr]
-    * [refl]
-    * [symm]
-    * [trans]
   * active_export_decls
   * class
   * user_recursors
     * name_map<recursor_info> m_recursors;
     * name_map<names>         m_type2recursors;
-  * relation_manager
 -/

@@ -40,25 +40,38 @@ struct standard_search_path {
 std::string get_exe_location();
 #endif
 
-/** \brief Hierarchical names are converted into paths using the path separator. Example: foo.bar is converted into foo/bar */
-std::string find_file(search_path const &, name const & fname);
-std::string find_file(search_path const &, name const & fname, std::initializer_list<char const *> const & exts);
+/** \brief A module name is an absolute import path like 'init.lean.core'. We do not use actual absolute file paths
+ * because we store module names in .olean files, which should not be completely system-specific.
+ */
+using module_name = name;
+
+struct rel_module_name {
+    optional<unsigned> m_updirs;
+    module_name m_name;
+
+    rel_module_name(unsigned int const & updirs, module_name const & name) : m_updirs(some(updirs)), m_name(name) {}
+    explicit rel_module_name(module_name const & name) : m_name(name) {}
+};
+
+/** \brief Hierarchical names are converted into paths using the path separator. Example: foo.bar is converted into 'foo/bar.lean' */
+std::string find_file(search_path const &, module_name const & mod_name);
+std::string find_file(search_path const &, module_name const & mod_name, std::initializer_list<char const *> const & exts);
 
 /** \brief \brief Similar to previous find_file, but if k is not none then search at the k-th parent of base. */
-std::string find_file(search_path const &, std::string const & base, optional<unsigned> const & rel, name const & fname,
+std::string find_file(search_path const &, std::string const & base, optional<unsigned> const & rel, module_name const & mod_name,
                       std::initializer_list<char const *> const & extensions);
-std::string find_file(search_path const &, std::string const & base, optional<unsigned> const & k, name const & fname, char const * ext);
+std::string find_file(search_path const &, std::string const & base, optional<unsigned> const & k, module_name const & mod_name, char const * ext);
 
-void find_imports(search_path const &, std::string const & base, optional<unsigned> const & k,
-                  std::vector<pair<std::string, std::string>> & imports_and_files);
+/** \brief Inverse function of \c find_file */
+module_name module_name_of_file(search_path const &, std::string const & fname);
+
+/** \brief Resolve path like '.instances' in 'library/init/data/list' to 'init.data.list.instances' */
+module_name absolutize_module_name(search_path const &, std::string const & base, rel_module_name const & rel);
+
 /** \brief Return true iff fname ends with ".lean" */
 bool is_lean_file(std::string const & fname);
 /** \brief Return true iff fname ends with ".olean" */
 bool is_olean_file(std::string const & fname);
 
-/** \brief Return a string that replaces hierachical name separator '::' with a path separator. */
-std::string name_to_file(name const & fname);
-
 std::string olean_of_lean(std::string const & lean_fn);
-std::string olean_file_to_lean_file(std::string const & olean);
 }

@@ -2,7 +2,7 @@
 Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Author: Gabriel Ebner
+Authors: Gabriel Ebner, Sebastian Ullrich
 */
 #pragma once
 #include <string>
@@ -26,14 +26,14 @@ enum class module_src {
 };
 
 struct module_info {
-    module_id m_id;
+    module_name m_name;
+    std::string m_file_name;
     std::string m_contents;
     module_src m_source = module_src::LEAN;
     time_t m_mtime = -1, m_trans_mtime = -1;
 
     struct dependency {
-        module_id m_id;
-        module_name m_import_name;
+        module_name m_name;
         std::shared_ptr<module_info> m_mod_info;
     };
     std::vector<dependency> m_deps;
@@ -48,8 +48,8 @@ struct module_info {
 
     module_info() {}
 
-    module_info(module_id const & id, std::string const & contents, module_src src, time_t mtime)
-            : m_id(id), m_contents(contents), m_source(src), m_mtime(mtime) {}
+    module_info(module_name const & name, std::string const & contents, module_src src, time_t mtime)
+            : m_name(name), m_contents(contents), m_source(src), m_mtime(mtime) {}
 };
 
 class module_mgr {
@@ -59,18 +59,20 @@ class module_mgr {
     environment m_initial_env;
     io_state m_ios;
 
-    std::unordered_map<module_id, std::shared_ptr<module_info>> m_modules;
+    name_map<std::shared_ptr<module_info>> m_modules;
 
-    void build_module(module_id const & id, bool can_use_olean, name_set module_stack);
+    void build_module(module_name const & mod, bool can_use_olean, name_set module_stack);
 
-    std::vector<module_name> get_direct_imports(module_id const & id, std::string const & contents);
-    void build_lean(std::shared_ptr<module_info> const & mod, name_set const & module_stack);
+    std::vector<module_name>
+    get_direct_imports(std::string const & file_name, std::string const & contents);
+    void build_lean(std::shared_ptr<module_info> const & mod, std::string const & file_name, name_set const & module_stack);
 public:
     module_mgr(search_path const & path,
                environment const & initial_env, io_state const & ios) :
             m_path(path), m_initial_env(initial_env), m_ios(ios) {}
 
-    std::shared_ptr<module_info const> get_module(module_id const &);
+    std::shared_ptr<module_info const> get_module(module_name const &);
+    module_loader mk_loader();
 
     void set_save_olean(bool save_olean) { m_save_olean = save_olean; }
     bool get_save_olean() const { return m_save_olean; }

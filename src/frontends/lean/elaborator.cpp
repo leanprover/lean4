@@ -3267,7 +3267,7 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
             << "review := fun ⟨" << view_pat.str() << "⟩, syntax.node (syntax_node.mk " << esc_macro.to_string() << " [" << reviews.str() << "]) }";
     trace_elab_detail(tout() << "expansion of node! macro:\n" << struc.str(););
     std::istringstream in(struc.str());
-    parser p(m_env, get_global_ios(), nullptr, in, "foo");
+    parser p(m_env, get_global_ios(), in, "foo");
     p.set_imports_parsed();
     p.parse_command_like();
     p.parse_command_like();
@@ -3325,7 +3325,7 @@ expr elaborator::visit_node_choice_macro(expr const & e, optional<expr> const & 
           << review_cases.str()
           << "]) }";
     std::istringstream in(struc.str());
-    parser p(m_env, get_global_ios(), nullptr, in, "foo");
+    parser p(m_env, get_global_ios(), in, "foo");
     p.set_imports_parsed();
     p.parse_command_like();
     p.parse_command_like();

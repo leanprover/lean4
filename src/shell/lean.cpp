@@ -458,24 +458,24 @@ int main(int argc, char ** argv) {
         for (auto & f : args) module_args.push_back(lrealpath(f));
 
         struct input_mod {
-            module_id m_id;
+            std::string m_file_name;
             std::shared_ptr<module_info const> m_mod_info;
         };
         std::vector<input_mod> mods;
         for (auto & mod : module_args) {
-            auto mod_info = mod_mgr.get_module(mod);
+            auto mod_info = mod_mgr.get_module(module_name_of_file(path.get_path(), mod));
             mods.push_back({mod, mod_info});
         }
 
         for (auto & mod : mods) {
             if (test_suite) {
-                std::ofstream out(mod.m_id + ".test_suite.out");
+                std::ofstream out(mod.m_file_name + ".test_suite.out");
                 for (auto const & msg : mod.m_mod_info->m_log.to_buffer()) {
                     out << msg;
                 }
             }
             if (test_suite) {
-                std::ofstream status(mod.m_id + ".status");
+                std::ofstream status(mod.m_file_name + ".status");
                 status << (!mod.m_mod_info->m_log.has_errors() ? 0 : 1);
             }
         }

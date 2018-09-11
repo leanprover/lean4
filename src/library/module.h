@@ -24,12 +24,14 @@ public:
 struct modification;
 
 using modification_list = std::vector<std::shared_ptr<modification const>>;
+
 /** \brief A finished module. The in-memory representation of a .olean file. */
 struct loaded_module {
     module_name m_name; // not serialized
     std::vector<module_name> m_imports;
     modification_list m_modifications;
 };
+
 /** \brief Mapping from module name to module. Used to separate this file from the module_mgr. */
 using module_loader = std::function<std::shared_ptr<loaded_module const> (module_name const &)>;
 

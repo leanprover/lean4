@@ -27,10 +27,9 @@ enum class module_src {
 
 struct module_info {
     module_name m_name;
-    std::string m_file_name;
-    std::string m_contents;
+    std::string m_filename;
     module_src m_source = module_src::LEAN;
-    time_t m_mtime = -1, m_trans_mtime = -1;
+    time_t m_mtime = -1;
 
     struct dependency {
         module_name m_name;
@@ -38,18 +37,11 @@ struct module_info {
     };
     std::vector<dependency> m_deps;
 
-    struct parse_result {
-        options               m_opts;
-        std::shared_ptr<loaded_module const> m_loaded_module;
-    };
     message_log m_log;
-    parse_result m_result;
-    bool m_compiled_olean;
+    std::shared_ptr<loaded_module const> m_loaded_module;
 
-    module_info() {}
-
-    module_info(module_name const & name, std::string const & contents, module_src src, time_t mtime)
-            : m_name(name), m_contents(contents), m_source(src), m_mtime(mtime) {}
+    module_info(module_name const & name, std::string const & filename, module_src src, time_t mtime)
+            : m_name(name), m_filename(filename), m_source(src), m_mtime(mtime) {}
 };
 
 class module_mgr {
@@ -61,11 +53,11 @@ class module_mgr {
 
     name_map<std::shared_ptr<module_info>> m_modules;
 
-    void build_module(module_name const & mod, bool can_use_olean, name_set module_stack);
+    time_t build_module(module_name const & mod, bool can_use_olean, name_set module_stack);
 
     std::vector<module_name>
     get_direct_imports(std::string const & file_name, std::string const & contents);
-    void build_lean(std::shared_ptr<module_info> const & mod, std::string const & file_name, name_set const & module_stack);
+    time_t build_lean(std::shared_ptr<module_info> const & mod, name_set const & module_stack);
 public:
     module_mgr(search_path const & path,
                environment const & initial_env, io_state const & ios) :
@@ -75,10 +67,8 @@ public:
     module_loader mk_loader();
 
     void set_save_olean(bool save_olean) { m_save_olean = save_olean; }
-    bool get_save_olean() const { return m_save_olean; }
 
     environment get_initial_env() const { return m_initial_env; }
     options get_options() const { return m_ios.get_options(); }
-    io_state get_io_state() const { return m_ios; }
 };
 }

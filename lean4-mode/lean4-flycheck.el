@@ -23,7 +23,7 @@
   (let ((command
          (-concat `(,(lean4-get-executable lean4-executable-name))
                   lean4-extra-arguments
-                  '("--json" "--stdin"))))
+                  '("--json" "--make" "--stdin"))))
     command))
 
 (cl-defun lean4-flycheck-parse-task (checker buffer cur-file-name

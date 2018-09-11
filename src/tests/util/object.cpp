@@ -8,7 +8,9 @@ Author: Leonardo de Moura
 #include <random>
 #include <iostream>
 #include <vector>
-#include "util/test.h"
+#include "util/test.h" // <<< comment this list for performance experiments
+#include "util/timeit.h"
+#include "runtime/stackinfo.h"
 #include "runtime/serializer.h"
 #include "runtime/sstream.h"
 #include "util/object_ref.h"
@@ -535,6 +537,189 @@ static void tst16() {
     driver(16, 16, 10000, 0.5, 0.1, 0.5, 0.0);
 }
 
+object * mk_list(unsigned n) {
+    object * r = box(0);
+    for (unsigned i = 0; i < n; i++) {
+        object * new_r = alloc_cnstr(1, 2, 0);
+        cnstr_set(new_r, 0, box(i));
+        cnstr_set(new_r, 1, r);
+        r = new_r;
+    }
+    return r;
+}
+
+bool contains_borrow(object * l, object * v) {
+    if (is_scalar(l)) {
+        return false;
+    } else {
+        object * h = cnstr_get(l, 0);
+        object * t = cnstr_get(l, 1);
+        if (h == v) {
+            return true;
+        } else {
+            return contains_borrow(t, v);
+        }
+    }
+}
+
+bool contains(object * l, object * v) {
+    if (is_scalar(l)) {
+        dec(v);
+        return false;
+    } else {
+        object * h = cnstr_get(l, 0);
+        object * t = cnstr_get(l, 1);
+        if (!is_shared(l)) {
+            free_heap_obj(l);
+        } else {
+            inc(h);
+            inc(t);
+            dec_ref(l);
+        }
+        if (h == v) {
+            dec(h); dec(v); dec(t);
+            return true;
+        } else {
+            dec(h);
+            return contains(t, v);
+        }
+    }
+}
+
+inline object * mark_borrowed(object * o) {
+    if (is_scalar(o))
+        return o;
+    else
+        return reinterpret_cast<object*>(reinterpret_cast<uintptr_t>(o) | 0x2);
+}
+
+inline bool is_borrowed(object * o) {
+    return !is_scalar(o) && (reinterpret_cast<uintptr_t>(o) & 0x2) != 0;
+}
+
+inline object * get_object(object * o) {
+    if (is_scalar(o))
+        return o;
+    else
+        return reinterpret_cast<object*>((reinterpret_cast<uintptr_t>(o) >> 2) << 2);
+}
+
+bool contains_hybrid(object * l, object * v) {
+    bool l_b       = is_borrowed(l);
+    object * l_obj = get_object(l);
+    bool v_b       = is_borrowed(v);
+    object * v_obj = get_object(v);
+    if (is_scalar(l_obj)) {
+        if (!v_b) dec(v_obj);
+        return false;
+    } else {
+        object * h_obj = cnstr_get(l_obj, 0);
+        object * t_obj = cnstr_get(l_obj, 1);
+        object * h;
+        object * t;
+        if (l_b) {
+            h = mark_borrowed(h_obj);
+            t = mark_borrowed(t_obj);
+        } else if (!is_shared(l_obj)) {
+            free_heap_obj(l_obj);
+            h = h_obj;
+            t = t_obj;
+        } else {
+            inc(h_obj);
+            inc(t_obj);
+            dec_ref(l_obj);
+            h = mark_borrowed(h_obj);
+            t = mark_borrowed(t_obj);
+        }
+        if (v_obj == h_obj) {
+            if (!l_b) dec(h_obj);
+            if (!l_b) dec(t_obj);
+            if (!v_b) dec(v_obj);
+            return false;
+        } else {
+            if (!l_b) dec(h_obj);
+            return contains_hybrid(t, v);
+        }
+    }
+}
+
+bool contains_fast_hybrid(object * l, object * v) {
+    if (is_scalar(l)) {
+        dec(v);
+        return false;
+    } else {
+        object * h  = cnstr_get(l, 0);
+        object * t  = cnstr_get(l, 1);
+        bool shared = is_shared(l);
+        if (!shared) {
+            free_heap_obj(l);
+        } else {
+            inc(h);
+            inc(t);
+            dec_ref(l);
+        }
+        if (h == v) {
+            dec(h); dec(v); dec(t);
+            return true;
+        } else if (!shared) {
+            dec(h);
+            return contains_fast_hybrid(t, v);
+        } else {
+            dec(h);
+            bool r = contains_borrow(t, v);
+            dec(t);
+            dec(v);
+            return r;
+        }
+    }
+}
+
+void tst17(unsigned n, unsigned sz) {
+    {
+        timeit timer(std::cout, "contains standard");
+        object * l = mk_list(sz);
+        for (unsigned i = 0; i < n; i++) {
+            inc(l);
+            contains(l, box(sz));
+            inc(l);
+            contains(l, box(sz/2));
+        }
+        dec(l);
+    }
+    {
+        timeit timer(std::cout, "contains borrowed");
+        object * l = mk_list(sz);
+        for (unsigned i = 0; i < n; i++) {
+            contains_borrow(l, box(sz));
+            contains_borrow(l, box(sz/2));
+        }
+        dec(l);
+    }
+    {
+        timeit timer(std::cout, "contains hybrid");
+        object * l = mk_list(sz);
+        for (unsigned i = 0; i < n; i++) {
+            inc(l);
+            contains_hybrid(l, box(sz));
+            inc(l);
+            contains_hybrid(l, box(sz/2));
+        }
+        dec(l);
+    }
+    {
+        timeit timer(std::cout, "contains fast hybrid");
+        object * l = mk_list(sz);
+        for (unsigned i = 0; i < n; i++) {
+            inc(l);
+            contains_fast_hybrid(l, box(sz));
+            inc(l);
+            contains_fast_hybrid(l, box(sz/2));
+        }
+        dec(l);
+    }
+}
+
+
 int main() {
     save_stack_info();
     initialize_util_module();
@@ -554,6 +739,8 @@ int main() {
     tst14();
     tst15();
     tst16();
+    // tst17(40000, 3000);
+    tst17(400, 30);
     finalize_util_module();
     return has_violations() ? 1 : 0;
 }

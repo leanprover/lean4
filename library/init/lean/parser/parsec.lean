@@ -545,6 +545,9 @@ do it ← left_over,
 def dbg (label : string) (p : m α) : m α :=
 map (λ m' inst β, @parsec_t.dbg m' inst μ β label) p
 
+def observing [monad_except (message μ) m] (p : m α) : m (except (message μ) α) :=
+catch (except.ok <$> p) $ λ msg, pure (except.error msg)
+
 end monad_parsec
 
 namespace monad_parsec

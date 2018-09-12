@@ -50,7 +50,10 @@ end b"
 -- should not be a parser error
 #eval show_parse "section a end"
 
-#eval show_parse "notation `Prop` := _"
+universes u v
+#check Type max u v  -- eh
+-- parsed as `Type (max) (u) (v)`, will fail on elaboration ("max: must have at least two arguments", "function expected at 'Type'", "unknown identifier 'u'/'v'")
+#eval show_parse "#check Type max u v"
 
 -- expansion example
 #eval (do {

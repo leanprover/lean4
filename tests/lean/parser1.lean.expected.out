@@ -109,22 +109,20 @@ result:
 result: 
 [(lean.parser.module [] [] [(lean.parser.section "section" [a] [] "end" [])])
  (lean.parser.parser.eoi "")]
+Type (max u v) : Type ((max u v)+1)
 result: 
 [(lean.parser.module
   []
   []
-  [(lean.parser.notation
-    "notation"
-    (lean.parser.notation_spec
-     (1
-      (lean.parser.notation_spec.rules
-       []
-       [(lean.parser.notation_spec.rule
-         (lean.parser.notation_spec.notation_symbol
-          (0 (lean.parser.notation_spec.notation_quoted_symbol "`" "Prop" "`" [])))
-         [])])))
-    ":="
-    (lean.parser.hole "_"))])
+  [(lean.parser.check
+    "#check"
+    (lean.parser.term.app
+     (lean.parser.term.app
+      (lean.parser.term.sort_app
+       (lean.parser.term.sort (2 "Type"))
+       (lean.parser.level.leading (0 "max")))
+      u)
+     v))])
  (lean.parser.parser.eoi "")]
 (lean.parser.notation
  "notation"
@@ -148,12 +146,8 @@ result:
             ":"
             (lean.parser.notation_spec.action_kind (0 (lean.parser.parser.base10_lit "10"))))])))])])))
  ":="
- (lean.parser.hole "_"))
+ (lean.parser.term.hole "_"))
 notation`+`:10 b:10 :=_
-error at line 10, column 19:
-expected "_"
-error at line 11, column 26:
-expected "_"
 error at line 85, column 0:
 expected command
 partial syntax tree:
@@ -171,7 +165,9 @@ partial syntax tree:
           (0 (lean.parser.notation_spec.notation_quoted_symbol "`" "Prop" "`" [])))
          [])])))
     ":="
-    (lean.parser.hole <missing>))
+    (lean.parser.term.sort_app
+     (lean.parser.term.sort (0 "Sort"))
+     (lean.parser.level.leading (4 (lean.parser.parser.base10_lit "0")))))
    (lean.parser.notation
     "notation"
     (lean.parser.notation_spec
@@ -194,7 +190,7 @@ partial syntax tree:
                ":"
                (lean.parser.notation_spec.action_kind (0 (lean.parser.parser.base10_lit "0"))))])))])])))
     ":="
-    (lean.parser.hole <missing>))
+    (lean.parser.term.app f a))
    (lean.parser.reserve_mixfix
     ["reserve" (lean.parser.mixfix.kind (0 "prefix"))]
     (lean.parser.notation_spec.notation_symbol

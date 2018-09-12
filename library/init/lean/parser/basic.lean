@@ -39,7 +39,7 @@ instance : monad (rec_t α δ m) := infer_instance
 instance [alternative m] : alternative (rec_t α δ m) := infer_instance
 instance : has_monad_lift m (rec_t α δ m) := infer_instance
 instance (ε) [monad_except ε m] : monad_except ε (rec_t α δ m) := infer_instance
-instance (μ) [alternative m] [lean.parser.monad_parsec μ m] : lean.parser.monad_parsec μ (rec_t α δ m) :=
+instance (μ) [lean.parser.monad_parsec μ m] : lean.parser.monad_parsec μ (rec_t α δ m) :=
 infer_instance
 end rec_t
 
@@ -345,6 +345,16 @@ instance monad_lift.tokens {m' : Type → Type} [has_monad_lift_t m m'] (r : m s
 ⟨tokens r⟩
 instance monad_lift.view {m' : Type → Type} [has_monad_lift_t m m'] (r : m syntax) [i : parser.has_view r α] :
   parser.has_view (monad_lift r : m' syntax) α :=
+{..i}
+
+instance seq_left.tokens {α : Type} (x : m α) (p : m syntax) [parser.has_tokens p] : parser.has_tokens (p <* x) :=
+⟨tokens p⟩
+instance seq_left.view {α β : Type} (x : m α) (p : m syntax) [i : parser.has_view p β] : parser.has_view (p <* x) β :=
+{..i}
+
+instance seq_right.tokens {α : Type} (x : m α) (p : m syntax) [parser.has_tokens p] : parser.has_tokens (x *> p) :=
+⟨tokens p⟩
+instance seq_right.view {α β : Type} (x : m α) (p : m syntax) [i : parser.has_view p β] : parser.has_view (x *> p) β :=
 {..i}
 
 end combinators

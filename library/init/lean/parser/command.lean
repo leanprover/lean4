@@ -136,9 +136,13 @@ node! «reserve_mixfix» [
   symbol: notation_spec.notation_symbol.parser]
 
 @[derive parser.has_tokens parser.has_view]
+def check.parser : command_parser :=
+node! check ["#check", term: term.parser]
+
+@[derive parser.has_tokens parser.has_view]
 def command.parser : command_parser :=
 any_of [open.parser, section.parser, universe.parser, notation.parser, reserve_notation.parser,
-  mixfix.parser, reserve_mixfix.parser] <?> "command"
+  mixfix.parser, reserve_mixfix.parser, check.parser] <?> "command"
 
 end parser
 

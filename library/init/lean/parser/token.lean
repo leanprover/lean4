@@ -65,7 +65,7 @@ do token_start ← parser_state.token_start <$> get,
    lift whitespace,
    it ← left_over,
    a ← r,
-   -- TODO(Sebastian): less greedy, more natural whitespace assignement
+   -- TODO(Sebastian): less greedy, more natural whitespace assignment
    -- E.g. only read up to the next line break
    trailing ← lift whitespace,
    it2 ← left_over,

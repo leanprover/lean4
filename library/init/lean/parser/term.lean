@@ -6,7 +6,7 @@ Author: Sebastian Ullrich
 Term-level parsers
 -/
 prelude
-import init.lean.parser.token
+import init.lean.parser.level
 
 namespace lean
 namespace parser
@@ -25,58 +25,56 @@ abbreviation term_parser := term_parser_m syntax
 def trailing_term_parser_m := reader_t syntax term_parser_m
 abbreviation trailing_term_parser := trailing_term_parser_m syntax
 
+namespace term
 /-- Access leading term -/
-def leading : trailing_term_parser := read
-instance : has_tokens leading := ⟨[]⟩
-instance : has_view leading syntax := default _
+def get_leading : trailing_term_parser := read
+instance : has_tokens get_leading := ⟨[]⟩
+instance : has_view get_leading syntax := default _
 
 @[derive parser.has_tokens parser.has_view]
 def hole.parser : term_parser :=
-node! hole [hole: symbol "_"]
+node! hole [hole: symbol "_" max_prec]
 
 @[derive parser.has_tokens parser.has_view]
-def app.parser : trailing_term_parser :=
-node! app [fn: leading, arg: recurse max_prec]
+def sort.parser : term_parser :=
+node_choice! sort {"Sort":max_prec, "Sort*":max_prec, "Type":max_prec, "Type*":max_prec}
 
 @[derive parser.has_tokens parser.has_view]
 def leading.parser :=
 any_of [
-  hole.parser
+  ident,
+  number,
+  hole.parser,
+  sort.parser
 ]
+
+@[derive parser.has_tokens parser.has_view]
+def sort_app.parser : trailing_term_parser :=
+do { l ← get_leading, guard (syntax_node_kind.has_view.view sort l).is_some }  *>
+node! sort_app [fn: get_leading, arg: monad_lift (level.parser max_prec)]
+
+@[derive parser.has_tokens parser.has_view]
+def app.parser : trailing_term_parser :=
+node! app [fn: get_leading, arg: recurse max_prec]
 
 @[derive parser.has_tokens parser.has_view]
 def trailing.parser : trailing_term_parser :=
 any_of [
+  sort_app.parser,
   app.parser
 ]
 
-/- Pratt parser -/
-
-def curr_lbp : term_parser_m nat :=
-do some tk ← monad_lift match_token | pure 0,
-   pure tk.lbp
-
-def trailing_loop (rbp : nat) : nat → syntax → term_parser
-| 0 _ := error "unreachable"
-| (n+1) left := do
-  lbp ← curr_lbp,
-  if rbp < lbp then do
-    left ← trailing.parser.run left,
-    trailing_loop n left
-  else
-    pure left
+end term
 
 -- While term.parser does not actually read a command, it does share the same effect set
 -- with command parsers, introducing the term-level recursion effect only for nested parsers
-def term.parser : command_parser :=
-with_recurse 0 $ λ rbp, do
-  left ← leading.parser,
-  n ← remaining,
-  trailing_loop rbp (n+1) left
+def term.parser (rbp := 0) : command_parser :=
+pratt_parser term.leading.parser term.trailing.parser rbp <?> "term"
 
-instance term.parser.tokens : has_tokens term.parser :=
-⟨has_tokens.tokens leading.parser ++ has_tokens.tokens trailing.parser⟩
-instance term.parser.view : has_view term.parser syntax :=
+-- `[derive]` doesn't manage to derive these instances because of the parameter
+instance term.parser.tokens (rbp) : has_tokens (term.parser rbp) :=
+⟨has_tokens.tokens term.leading.parser ++ has_tokens.tokens term.trailing.parser⟩
+instance term.parser.view (rbp) : has_view (term.parser rbp) syntax :=
 default _
 
 end parser

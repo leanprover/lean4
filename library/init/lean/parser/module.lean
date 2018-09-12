@@ -25,7 +25,7 @@ def module_parser_m := parser_t (coroutine unit syntax)
 end
 abbreviation module_parser := module_parser_m syntax
 
-instance module_parser_m.lift_basic_parser_m : has_monad_lift_t basic_parser_m module_parser_m :=
+instance module_parser_m.lift_basic_parser_m : monad_basic_read module_parser_m :=
 { monad_lift := λ α x, ⟨λ r, ⟨λ st it, pure (((x.run r).run st) it)⟩⟩ }
 
 @[derive parser.has_view parser.has_tokens]

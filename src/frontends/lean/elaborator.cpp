@@ -3229,6 +3229,7 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
             name fname = *get_name(mdata_data(r), "fname");
             r = mdata_expr(r);
             r = visit(r, expected_type);
+            synthesize_type_class_instances();
             auto m = mk_metavar(mk_Type(), r);
             auto inst = m_ctx.mk_class_instance(mk_app(mk_const(name{"lean", "parser", "has_view"}), exp, r, m));
             if (!inst)
@@ -3302,15 +3303,16 @@ expr elaborator::visit_node_choice_macro(expr const & e, optional<expr> const & 
     buffer<expr> new_args;
     for (expr e = args; is_app(e); e = app_arg(e)) {
         expr r = app_arg(app_fn(e));
-        name fname = *get_name(mdata_data(r), "fname");
+        std::string fname = "«" + get_name(mdata_data(r), "fname")->to_string() + "»";
         r = mdata_expr(r);
         auto m = mk_metavar(mk_Type(), r);
         r = visit(r, expected_type);
+        synthesize_type_class_instances();
         auto inst = m_ctx.mk_class_instance(mk_app(mk_const(name{"lean", "parser", "has_view"}), exp, r, m));
         if (!inst)
             throw elaborator_exception(e, sstream() << "Could not infer instance of parser.has_view for '" << r
                                                     << "'");
-        struc << "| «" << fname << "» : " << instantiate_mvars(m) << " -> " << macro.to_string() << ".view\n";
+        struc << "| " << fname << " : " << instantiate_mvars(m) << " -> " << macro.to_string() << ".view\n";
 
         view_cases << "| " << i << " := " << macro.to_string() << ".view." << fname << " <$> view  (" << pp(r)
                 << " : " << pp(exp) << ") stx\n";

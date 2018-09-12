@@ -46,7 +46,10 @@ public:
             return e;
         } else {
             expr type = infer_type(e);
-            expr fvar = m_lctx.mk_local_decl(m_ngen, name(m_x, m_next_idx), type, e);
+            /* Remark: we use `m_x.append_after(m_next_idx)` instead of `name(m_x, m_next_idx)`
+               because the resulting name is confusing during debugging: it looks like a projection application.
+               We should replace it with `name(m_x, m_next_idx)` when the compiler code gets more stable. */
+            expr fvar = m_lctx.mk_local_decl(m_ngen, m_x.append_after(m_next_idx), type, e);
             m_next_idx++;
             m_fvars.push_back(fvar);
             return fvar;

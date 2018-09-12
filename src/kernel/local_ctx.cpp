@@ -81,7 +81,7 @@ local_decl const & local_ctx::get_local_decl(name const & n) const {
     if (local_decl const * r = m_name2local_decl.find(n))
         return *r;
     else
-        throw exception(sstream() << "unknown local constant: " << n);
+        throw exception(sstream() << "unknown free variable: " << n);
 }
 
 expr local_ctx::get_local(name const & n) const {

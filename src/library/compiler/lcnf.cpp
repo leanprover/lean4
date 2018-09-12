@@ -1,0 +1,296 @@
+/*
+Copyright (c) 2018 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Author: Leonardo de Moura
+*/
+#include "runtime/flet.h"
+#include "kernel/type_checker.h"
+#include "kernel/instantiate.h"
+#include "library/util.h"
+#include "library/constants.h"
+#include "library/projection.h"
+#include "library/compiler/lc_util.h"
+
+#include "library/trace.h"
+#include "kernel/for_each_fn.h"
+
+namespace lean {
+static name * g_lcnf_fresh = nullptr;
+
+class to_lcnf_fn {
+    environment         m_env;
+    local_ctx           m_lctx;
+    name_generator      m_ngen;
+    type_checker::cache m_tc_cache;
+    expr_map<expr>      m_cache;
+    buffer<expr>        m_fvars;
+    name                m_x;
+    unsigned            m_next_idx{1};
+public:
+    to_lcnf_fn(environment const & env, local_ctx const & lctx):
+        m_env(env), m_lctx(lctx), m_ngen(*g_lcnf_fresh), m_x("_x") {}
+
+    expr infer_type(expr const & e) { return type_checker(m_env, m_lctx, m_tc_cache).infer(e); }
+
+    expr whnf(expr const & e) { return type_checker(m_env, m_lctx, m_tc_cache).whnf(e); }
+
+    expr whnf_infer_type(expr const & e) {
+        type_checker tc(m_env, m_lctx, m_tc_cache);
+        return tc.whnf(tc.infer(e));
+    }
+
+    expr mk_let_decl(expr const & e, bool root) {
+        if (root) {
+            return e;
+        } else {
+            expr type = infer_type(e);
+            expr fvar = m_lctx.mk_local_decl(m_ngen, name(m_x, m_next_idx), type, e);
+            m_next_idx++;
+            m_fvars.push_back(fvar);
+            return fvar;
+        }
+    }
+
+    expr eta_expand(expr e, unsigned num_extra) {
+        lean_assert(num_extra > 0);
+        flet<local_ctx> save_lctx(m_lctx, m_lctx);
+        buffer<expr> args;
+        lean_assert(!is_lambda(e));
+        expr e_type = whnf_infer_type(e);
+        for (unsigned i = 0; i < num_extra; i++) {
+            if (!is_pi(e_type)) {
+                throw exception("failed to compile code, unexpected type at LCNF conversion");
+            }
+            expr arg = m_lctx.mk_local_decl(m_ngen, binding_name(e_type), binding_domain(e_type), binding_info(e_type));
+            args.push_back(arg);
+            e_type = whnf(instantiate(binding_body(e_type), arg));
+        }
+        return m_lctx.mk_lambda(args, mk_app(e, args));
+    }
+
+    expr visit_projection(expr const & fn, buffer<expr> const & args, bool root) {
+        constant_info info = m_env.get(const_name(fn));
+        expr fn_val        = instantiate_value_lparams(info, const_levels(fn));
+        return visit(apply_beta(fn_val, args.size(), args.data()), root);
+    }
+
+    expr visit_cases_on(expr const & fn, buffer<expr> & args, bool root) {
+        name const & rec_name = const_name(fn);
+        name const & I_name   = rec_name.get_prefix();
+        lean_assert(is_inductive(m_env, I_name));
+        constant_info I_info        = m_env.get(I_name);
+        inductive_val I_val         = I_info.to_inductive_val();
+        unsigned nparams            = I_val.get_nparams();
+        names cnstrs                = I_val.get_cnstrs();
+        unsigned nminors            = length(cnstrs);
+        unsigned nindices           = I_val.get_nindices();
+        unsigned first_minor_idx    = nparams + 1 /* typeformer/motive */ + nindices + 1 /* major premise */;
+        unsigned arity              = first_minor_idx + nminors;
+        if (args.size() < arity) {
+            return visit(eta_expand(mk_app(fn, args), arity - args.size()), root);
+        } else {
+            for (unsigned i = 0; i < first_minor_idx; i++) {
+                args[i] = visit(args[i], false);
+            }
+            for (unsigned i = first_minor_idx; i < first_minor_idx + nminors; i++) {
+                name cnstr_name = head(cnstrs);
+                cnstrs          = tail(cnstrs);
+                expr minor      = args[i];
+                constant_info cnstr_info = m_env.get(cnstr_name);
+                unsigned cnstr_arity = 0;
+                expr cnstr_type      = cnstr_info.get_type();
+                while (is_pi(cnstr_type)) {
+                    cnstr_arity++;
+                    cnstr_type = binding_body(cnstr_type);
+                }
+                lean_assert(cnstr_arity >= nparams);
+                unsigned num_fields = cnstr_arity - nparams;
+                flet<local_ctx> save_lctx(m_lctx, m_lctx);
+                buffer<expr> minor_fvars;
+                unsigned j = 0;
+                while (is_lambda(minor) && j < num_fields) {
+                    expr new_d    = instantiate_rev(binding_domain(minor), minor_fvars.size(), minor_fvars.data());
+                    expr new_fvar = m_lctx.mk_local_decl(m_ngen, binding_name(minor), new_d, binding_info(minor));
+                    minor_fvars.push_back(new_fvar);
+                    minor = binding_body(minor);
+                    j++;
+                }
+                minor = instantiate_rev(minor, minor_fvars.size(), minor_fvars.data());
+                if (j < num_fields) {
+                    minor = eta_expand(minor, num_fields - j);
+                }
+                unsigned m_fvars_init_size = m_fvars.size();
+                expr new_minor = visit(minor, true);
+                if (is_lambda(new_minor) && m_fvars.size() == m_fvars_init_size) {
+                    // create an aux let declaration to make sure we separate the cases_on binders from the result.
+                    new_minor = mk_let_decl(new_minor, false);
+                }
+                // add let-decls
+                new_minor      = m_lctx.mk_lambda(m_fvars.size() - m_fvars_init_size, m_fvars.data() + m_fvars_init_size, new_minor);
+                m_fvars.shrink(m_fvars_init_size);
+                new_minor      = m_lctx.mk_lambda(minor_fvars, new_minor);
+                args[i]        = new_minor;
+            }
+            for (unsigned i = first_minor_idx + nminors; i < args.size(); i++) {
+                args[i] = visit(args[i], false);
+            }
+            return mk_let_decl(mk_app(fn, args), root);
+        }
+    }
+
+    expr visit_app_default(expr const & fn, buffer<expr> & args, bool root) {
+        for (expr & arg : args) {
+            arg = visit(arg, false);
+        }
+        return mk_let_decl(mk_app(fn, args), root);
+    }
+
+    expr visit_app(expr const & e, bool root) {
+        buffer<expr> args;
+        expr fn = visit(get_app_args(e, args), false);
+        if (is_constant(fn)) {
+            if (is_cases_on_recursor(m_env, const_name(fn))) {
+                return visit_cases_on(fn, args, root);
+            } else if (is_projection(m_env, const_name(fn))) {
+                return visit_projection(fn, args, root);
+            } else if (const_name(fn) == get_id_rhs_name() && args.size() >= 2) {
+                expr new_e = args[1];
+                return visit(mk_app(new_e, args.size() - 2, args.data() + 2), root);
+            }
+        }
+        return visit_app_default(fn, args, root);
+    }
+
+    expr visit_proj(expr const & e, bool root) {
+        expr v = visit(proj_expr(e), false);
+        expr r = mk_proj(proj_idx(e), v);
+        return mk_let_decl(r, root);
+    }
+
+    expr visit_mdata(expr const & e, bool root) {
+        if (is_lc_mdata(e)) {
+            expr v = visit(mdata_expr(e), false);
+            expr r = mk_mdata(mdata_data(e), v);
+            return mk_let_decl(r, root);
+        } else {
+            return visit(mdata_expr(e), root);
+        }
+    }
+
+    expr visit_binding(expr e, bool root) {
+        lean_assert(is_lambda(e) || is_pi(e));
+        expr r;
+        {
+            flet<local_ctx> save_lctx(m_lctx, m_lctx);
+            unsigned m_fvars_init_size = m_fvars.size();
+            buffer<expr> binding_fvars;
+            expr_kind k = e.kind();
+            while (e.kind() == k) {
+                /* Types are ignored in compilation steps. So, we do not invoke visit for d. */
+                expr new_d    = instantiate_rev(binding_domain(e), binding_fvars.size(), binding_fvars.data());
+                expr new_fvar = m_lctx.mk_local_decl(m_ngen, binding_name(e), new_d, binding_info(e));
+                binding_fvars.push_back(new_fvar);
+                e = binding_body(e);
+            }
+            expr new_body = visit(instantiate_rev(e, binding_fvars.size(), binding_fvars.data()), true);
+            new_body      = m_lctx.mk_lambda(m_fvars.size() - m_fvars_init_size, m_fvars.data() + m_fvars_init_size, new_body);
+            m_fvars.shrink(m_fvars_init_size);
+            if (k == expr_kind::Lambda)
+                r = m_lctx.mk_lambda(binding_fvars, new_body);
+            else
+                r = m_lctx.mk_pi(binding_fvars, new_body);
+        }
+        return mk_let_decl(r, root);
+    }
+
+    expr visit_let(expr e, bool root) {
+        buffer<expr> let_fvars;
+        while (is_let(e)) {
+            expr new_type = instantiate_rev(let_type(e), let_fvars.size(), let_fvars.data());
+            expr new_val  = visit(instantiate_rev(let_value(e), let_fvars.size(), let_fvars.data()), false);
+            if (is_fvar(new_val)) {
+                let_fvars.push_back(new_val);
+            } else {
+                expr new_fvar = m_lctx.mk_local_decl(m_ngen, let_name(e), new_type, new_val);
+                let_fvars.push_back(new_fvar);
+                m_fvars.push_back(new_fvar);
+            }
+            e = let_body(e);
+        }
+        return visit(instantiate_rev(e, let_fvars.size(), let_fvars.data()), root);
+    }
+
+    expr cache_result(expr const & e, expr const & r, bool shared) {
+        if (shared)
+            m_cache.insert(mk_pair(e, r));
+        return r;
+    }
+
+    expr visit(expr const & e, bool root) {
+        switch (e.kind()) {
+        case expr_kind::BVar:  case expr_kind::MVar:
+            lean_unreachable();
+        case expr_kind::FVar:  case expr_kind::Sort:
+        case expr_kind::Const: case expr_kind::Lit:
+            return e;
+        default:
+            break;
+        }
+
+        bool shared = is_shared(e);
+        if (shared) {
+            auto it = m_cache.find(e);
+            if (it != m_cache.end())
+                return it->second;
+        }
+
+        {
+            type_checker tc(m_env, m_lctx, m_tc_cache);
+            expr type = tc.whnf(tc.infer(e));
+            if (is_sort(type)) {
+                // Types are not pre-processed
+                return cache_result(e, e, shared);
+            } else if (is_pi(type)) {
+                // Functions that return types are not pre-processed
+                while (is_pi(type))
+                    type = binding_body(type);
+                if (is_sort(type))
+                    return cache_result(e, e, shared);
+            } else if (tc.is_prop(type)) {
+                // We replace proofs with `lean.epr type` constant
+                expr r = mk_let_decl(mk_app(mk_constant(get_lean_epr_name()), type), root);
+                return cache_result(e, r, shared);
+            }
+        }
+
+        switch (e.kind()) {
+        case expr_kind::App:    return cache_result(e, visit_app(e, root), shared);
+        case expr_kind::Proj:   return cache_result(e, visit_proj(e, root), shared);
+        case expr_kind::MData:  return cache_result(e, visit_mdata(e, root), shared);
+        case expr_kind::Lambda: return cache_result(e, visit_binding(e, root), shared);
+        case expr_kind::Pi:     return cache_result(e, visit_binding(e, root), shared);
+        case expr_kind::Let:    return cache_result(e, visit_let(e, root), shared);
+        default: lean_unreachable();
+        }
+    }
+
+    expr operator()(expr const & e) {
+        expr r = visit(e, true);
+        return m_lctx.mk_lambda(m_fvars, r);
+    }
+};
+
+expr to_lcnf(environment const & env, local_ctx const & lctx, expr const & e) {
+    return to_lcnf_fn(env, lctx)(e);
+}
+
+void initialize_lcnf() {
+    g_lcnf_fresh = new name("_lcnf_fresh");
+    register_name_generator_prefix(*g_lcnf_fresh);
+}
+
+void finalize_lcnf() {
+    delete g_lcnf_fresh;
+}
+}

@@ -2227,6 +2227,9 @@ decidable.by_contradiction h
 
 end classical
 
+/-- Auxiliary meta constant used by the compiler when erasing proofs from code. -/
+meta constant lean.epr (α : Prop) : α
+
 /- Auxiliary axiom used to implement `sorry`.
    TODO: add this theorem on-demand. That is,
    we should only add it if after the first error. -/

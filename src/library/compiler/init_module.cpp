@@ -13,6 +13,8 @@ Author: Leonardo de Moura
 #include "library/compiler/elim_recursors.h"
 #include "library/compiler/vm_compiler.h"
 
+#include "library/compiler/lcnf.h"
+
 namespace lean {
 void initialize_compiler_module() {
     initialize_preprocess();
@@ -23,9 +25,13 @@ void initialize_compiler_module() {
     initialize_simp_inductive();
     initialize_vm_compiler();
     initialize_elim_recursors();
+    //======
+    initialize_lcnf();
 }
 
 void finalize_compiler_module() {
+    finalize_lcnf();
+    //======
     finalize_elim_recursors();
     finalize_vm_compiler();
     finalize_simp_inductive();

@@ -35,6 +35,7 @@ Author: Leonardo de Moura
 #include "library/compiler/elim_unused_lets.h"
 #include "library/compiler/extract_values.h"
 #include "library/compiler/cse.h"
+#include "library/compiler/lcnf.h"
 
 namespace lean {
 class expand_aux_fn : public compiler_step_visitor {
@@ -233,6 +234,7 @@ public:
             return;
         expr v = d.get_value();
         lean_trace(name({"compiler", "input"}), tout() << "\n" << v << "\n";);
+        lean_trace(name({"compiler", "lcnf"}), tout() << "\n" << to_lcnf(m_env, local_ctx(), v) << "\n";);
         v = inline_simple_definitions(m_env, m_cache, v);
         lean_cond_assert("compiler", check(d, v));
         lean_trace(name({"compiler", "inline"}), tout() << "\n" << v << "\n";);
@@ -286,6 +288,7 @@ void preprocess(environment const & env, buffer<constant_info> const & ds, buffe
 void initialize_preprocess() {
     register_trace_class("compiler");
     register_trace_class({"compiler", "input"});
+    register_trace_class({"compiler", "lcnf"});
     register_trace_class({"compiler", "expand_aux"});
     register_trace_class({"compiler", "eta_expansion"});
     register_trace_class({"compiler", "inline"});

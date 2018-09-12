@@ -930,9 +930,44 @@ expr type_context_old::infer(expr const & e) {
     return infer_core(e);
 }
 
-expr type_context_old::infer_proj(expr const &) {
-    // TODO(Leo):
-    lean_unreachable();
+static void throw_invalid_projection(expr const &) {
+    throw exception("invalid projection");
+}
+
+expr type_context_old::infer_proj(expr const & e) {
+    if (!proj_idx(e).is_small())
+        throw_invalid_projection(e);
+    expr type    = whnf(infer_core(proj_expr(e)));
+    unsigned idx = proj_idx(e).get_small_value();
+    buffer<expr> args;
+    expr const & I = get_app_args(type, args);
+    if (!is_constant(I))
+        throw_invalid_projection(e);
+    constant_info I_info = m_env.get(const_name(I));
+    if (!I_info.is_inductive())
+        throw_invalid_projection(e);
+    inductive_val I_val = I_info.to_inductive_val();
+    if (length(I_val.get_cnstrs()) != 1 || args.size() != I_val.get_nparams())
+        throw_invalid_projection(e);
+
+    constant_info c_info = m_env.get(head(I_val.get_cnstrs()));
+    expr r = instantiate_type_lparams(c_info, const_levels(I));
+    for (expr const & arg : args) {
+        r = whnf(r);
+        if (!is_pi(r)) throw_invalid_projection(e);
+        r = instantiate(binding_body(r), arg);
+    }
+    for (unsigned i = 0; i < idx; i++) {
+        r = whnf(r);
+        if (!is_pi(r)) throw_invalid_projection(e);
+        if (has_loose_bvars(binding_body(r)))
+            r = instantiate(binding_body(r), mk_proj(i, proj_expr(e)));
+        else
+            r = binding_body(r);
+    }
+    r = whnf(r);
+    if (!is_pi(r)) throw_invalid_projection(e);
+    return binding_domain(r);
 }
 
 expr type_context_old::infer_core(expr const & e) {

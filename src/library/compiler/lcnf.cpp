@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
 #include "library/util.h"
+#include "library/aux_recursors.h"
 #include "library/constants.h"
 #include "library/projection.h"
 #include "library/compiler/lc_util.h"
@@ -64,7 +65,7 @@ public:
         expr e_type = whnf_infer_type(e);
         for (unsigned i = 0; i < num_extra; i++) {
             if (!is_pi(e_type)) {
-                throw exception("failed to compile code, unexpected type at LCNF conversion");
+                throw exception("compiler error, unexpected type at LCNF conversion");
             }
             expr arg = m_lctx.mk_local_decl(m_ngen, binding_name(e_type), binding_domain(e_type), binding_info(e_type));
             args.push_back(arg);
@@ -78,6 +79,25 @@ public:
         expr fn_val        = instantiate_value_lparams(info, const_levels(fn));
         std::reverse(args.begin(), args.end());
         return visit(apply_beta(fn_val, args.size(), args.data()), root);
+    }
+
+    pair<unsigned, unsigned> get_constructor_arity_nfields(name const & n) {
+        constant_info cnstr_info = m_env.get(n);
+        lean_assert(cnstr_info.is_constructor());
+        unsigned nparams         = cnstr_info.to_constructor_val().get_nparams();
+        unsigned cnstr_arity     = 0;
+        expr cnstr_type          = cnstr_info.get_type();
+        while (is_pi(cnstr_type)) {
+            cnstr_arity++;
+            cnstr_type = binding_body(cnstr_type);
+        }
+        lean_assert(cnstr_arity >= nparams);
+        unsigned num_fields = cnstr_arity - nparams;
+        return mk_pair(cnstr_arity, num_fields);
+    }
+
+    unsigned get_constructor_nfields(name const & n) {
+        return get_constructor_arity_nfields(n).second;
     }
 
     expr visit_cases_on(expr const & fn, buffer<expr> & args, bool root) {
@@ -99,18 +119,10 @@ public:
                 args[i] = visit(args[i], false);
             }
             for (unsigned i = first_minor_idx; i < first_minor_idx + nminors; i++) {
-                name cnstr_name = head(cnstrs);
-                cnstrs          = tail(cnstrs);
-                expr minor      = args[i];
-                constant_info cnstr_info = m_env.get(cnstr_name);
-                unsigned cnstr_arity = 0;
-                expr cnstr_type      = cnstr_info.get_type();
-                while (is_pi(cnstr_type)) {
-                    cnstr_arity++;
-                    cnstr_type = binding_body(cnstr_type);
-                }
-                lean_assert(cnstr_arity >= nparams);
-                unsigned num_fields = cnstr_arity - nparams;
+                name cnstr_name     = head(cnstrs);
+                cnstrs              = tail(cnstrs);
+                expr minor          = args[i];
+                unsigned num_fields = get_constructor_nfields(cnstr_name);
                 flet<local_ctx> save_lctx(m_lctx, m_lctx);
                 buffer<expr> minor_fvars;
                 unsigned j = 0;
@@ -144,6 +156,51 @@ public:
         }
     }
 
+    expr visit_no_confusion(expr const & fn, buffer<expr> & args, bool root) {
+        name const & no_confusion_name  = const_name(fn);
+        name const & I_name             = no_confusion_name.get_prefix();
+        constant_info I_info            = m_env.get(I_name);
+        inductive_val I_val             = I_info.to_inductive_val();
+        unsigned nparams                = I_val.get_nparams();
+        unsigned nindices               = I_val.get_nindices();
+        unsigned basic_arity            = nparams + nindices + 1 /* motive */ + 2 /* lhs/rhs */ + 1 /* equality */;
+        if (args.size() < basic_arity) {
+            return visit(eta_expand(mk_app(fn, args), basic_arity - args.size()), root);
+        }
+        lean_assert(args.size() >= basic_arity);
+        type_checker tc(m_env, m_lctx, m_tc_cache);
+        expr lhs                        = tc.whnf(args[nparams + nindices + 1]);
+        expr rhs                        = tc.whnf(args[nparams + nindices + 2]);
+        optional<name> lhs_constructor  = is_constructor_app(m_env, lhs);
+        optional<name> rhs_constructor  = is_constructor_app(m_env, rhs);
+        if (!lhs_constructor || !rhs_constructor)
+            throw exception(sstream() << "compiler error, unsupported occurrence of '" << no_confusion_name << "', constructors expected");
+        if (lhs_constructor != rhs_constructor) {
+            expr type = tc.whnf(tc.infer(mk_app(fn, args)));
+            level lvl = sort_level(tc.ensure_type(type));
+            return mk_let_decl(mk_app(mk_constant(get_lc_unreachable_name(), {lvl}), type), root);
+        } else if (args.size() < basic_arity + 1 /* major */) {
+            return visit(eta_expand(mk_app(fn, args), basic_arity + 1 - args.size()), root);
+        } else {
+            lean_assert(args.size() >= basic_arity + 1);
+            unsigned major_idx = basic_arity;
+            expr major         = args[major_idx];
+            unsigned nfields   = get_constructor_nfields(*lhs_constructor);
+            while (nfields > 0) {
+                if (!is_lambda(major))
+                    major = eta_expand(major, nfields);
+                lean_assert(is_lambda(major));
+                expr type  = binding_domain(major);
+                lean_assert(tc.is_prop(type));
+                expr proof = mk_app(mk_constant(get_lc_proof_name()), type);
+                major      = instantiate(binding_body(major), proof);
+                nfields--;
+            }
+            expr new_e = mk_app(major, args.size() - major_idx - 1, args.data() + major_idx + 1);
+            return visit(new_e, root);
+        }
+    }
+
     expr visit_app_default(expr const & fn, buffer<expr> & args, bool root) {
         for (expr & arg : args) {
             arg = visit(arg, false);
@@ -162,6 +219,8 @@ public:
             } else if (const_name(fn) == get_id_rhs_name() && args.size() >= 2) {
                 expr new_e = args[1];
                 return visit(mk_app(new_e, args.size() - 2, args.data() + 2), root);
+            } else if (is_no_confusion(m_env, const_name(fn))) {
+                return visit_no_confusion(fn, args, root);
             }
         }
         return visit_app_default(fn, args, root);
@@ -264,7 +323,7 @@ public:
                     return cache_result(e, e, shared);
             } else if (tc.is_prop(type)) {
                 // We replace proofs with `lean.epr type` constant
-                expr r = mk_let_decl(mk_app(mk_constant(get_lean_epr_name()), type), root);
+                expr r = mk_let_decl(mk_app(mk_constant(get_lc_proof_name()), type), root);
                 return cache_result(e, r, shared);
             }
         }

@@ -234,7 +234,10 @@ public:
             return;
         expr v = d.get_value();
         lean_trace(name({"compiler", "input"}), tout() << "\n" << v << "\n";);
-        lean_trace(name({"compiler", "lcnf"}), tout() << "\n" << to_lcnf(m_env, local_ctx(), v) << "\n";);
+        lean_trace(name({"compiler", "lcnf"}),
+                   expr r = to_lcnf(m_env, local_ctx(), v);
+                   tout() << "\n" << r << "\n";
+                   check(d, r););
         v = inline_simple_definitions(m_env, m_cache, v);
         lean_cond_assert("compiler", check(d, v));
         lean_trace(name({"compiler", "inline"}), tout() << "\n" << v << "\n";);

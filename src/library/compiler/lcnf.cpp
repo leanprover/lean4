@@ -249,6 +249,24 @@ public:
         }
     }
 
+    expr visit_and_rec(expr const & fn, buffer<expr> & args, bool root) {
+        lean_assert(const_name(fn) == get_and_rec_name() || const_name(fn) == get_and_cases_on_name());
+        if (args.size() < 5) {
+            return visit(eta_expand(mk_app(fn, args), 5 - args.size()), root);
+        } else {
+            expr a    = args[0];
+            expr b    = args[1];
+            expr pr_a = mk_app(mk_constant(get_lc_proof_name()), a);
+            expr pr_b = mk_app(mk_constant(get_lc_proof_name()), b);
+            expr minor;
+            if (const_name(fn) == get_and_rec_name())
+                minor = args[3];
+            else
+                minor = args[4];
+            return visit(mk_app(minor, pr_a, pr_b), root);
+        }
+    }
+
     expr visit_constructor(expr const & fn, buffer<expr> & args, bool root) {
         unsigned arity = get_constructor_arity(const_name(fn));
         if (args.size() < arity) {
@@ -269,7 +287,13 @@ public:
         buffer<expr> args;
         expr fn = visit(get_app_args(e, args), false);
         if (is_constant(fn)) {
-            if (is_cases_on_recursor(m_env, const_name(fn))) {
+            if (const_name(fn) == get_and_rec_name() || const_name(fn) == get_and_cases_on_name()) {
+                return visit_and_rec(fn, args, root);
+            } else if (const_name(fn) == get_eq_rec_name() || const_name(fn) == get_eq_ndrec_name()) {
+                return visit_eq_rec(fn, args, root);
+            } else if (const_name(fn) == get_false_rec_name()) {
+                return visit_false_rec(fn, args, root);
+            } else if (is_cases_on_recursor(m_env, const_name(fn))) {
                 return visit_cases_on(fn, args, root);
             } else if (is_projection(m_env, const_name(fn))) {
                 return visit_projection(fn, args, root);
@@ -282,11 +306,6 @@ public:
                 }
             } else if (is_no_confusion(m_env, const_name(fn))) {
                 return visit_no_confusion(fn, args, root);
-            } else if (const_name(fn) == get_eq_rec_name() ||
-                       const_name(fn) == get_eq_ndrec_name()) {
-                return visit_eq_rec(fn, args, root);
-            } else if (const_name(fn) == get_false_rec_name()) {
-                return visit_false_rec(fn, args, root);
             } else if (is_constructor(m_env, const_name(fn))) {
                 return visit_constructor(fn, args, root);
             }

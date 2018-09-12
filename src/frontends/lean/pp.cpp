@@ -1165,7 +1165,7 @@ auto pretty_fn::pp_let(expr e) -> result {
         format sep     = i < sz - 1 ? comma() : format();
         format entry   = format(n);
         format v_fmt   = pp_child(v, 0).fmt();
-        if (is_neutral_expr(t)) {
+        if (!m_binder_types || is_neutral_expr(t)) {
             entry += space() + *g_assign_fmt + nest(m_indent, line() + v_fmt + sep);
         } else {
             format t_fmt   = pp_child(t, 0).fmt();

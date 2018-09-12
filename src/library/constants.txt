@@ -57,6 +57,7 @@ false
 false_of_true_iff_false
 false_of_true_eq_false
 false.rec
+false.cases_on
 fin.mk
 fin.ne_of_vne
 forall_congr

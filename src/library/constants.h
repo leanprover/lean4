@@ -64,6 +64,7 @@ name const & get_false_name();
 name const & get_false_of_true_iff_false_name();
 name const & get_false_of_true_eq_false_name();
 name const & get_false_rec_name();
+name const & get_false_cases_on_name();
 name const & get_fin_mk_name();
 name const & get_fin_ne_of_vne_name();
 name const & get_forall_congr_name();

@@ -213,12 +213,18 @@ public:
     }
 
     expr visit_eq_rec(expr const & fn, buffer<expr> & args, bool root) {
-        lean_assert(const_name(fn) == get_eq_rec_name() || const_name(fn) == get_eq_ndrec_name());
+        lean_assert(const_name(fn) == get_eq_rec_name() ||
+                    const_name(fn) == get_eq_ndrec_name() ||
+                    const_name(fn) == get_eq_cases_on_name());
         if (args.size() < 6) {
             return visit(eta_expand(mk_app(fn, args), 6 - args.size()), root);
         } else {
             unsigned eq_rec_nargs = 6;
-            unsigned minor_idx    = 3;
+            unsigned minor_idx;
+            if (const_name(fn) == get_eq_cases_on_name())
+                minor_idx = 5;
+            else
+                minor_idx = 3;
             type_checker tc(m_env, m_lctx, m_tc_cache);
             expr minor       = args[minor_idx];
             expr minor_type  = tc.whnf(tc.infer(minor));
@@ -241,7 +247,8 @@ public:
         if (args.size() < 2) {
             return visit(eta_expand(mk_app(fn, args), 2 - args.size()), root);
         } else {
-            /* Remark: args.size() may be greater than 2, but (lc_unreachable a_1 ... a_n) is equivalent to (lc_unreachable) */
+            /* Remark: args.size() may be greater than 2, but
+               (lc_unreachable a_1 ... a_n) is equivalent to (lc_unreachable) */
             type_checker tc(m_env, m_lctx, m_tc_cache);
             expr type = tc.whnf(tc.infer(mk_app(fn, args)));
             level lvl = sort_level(tc.ensure_type(type));
@@ -289,9 +296,10 @@ public:
         if (is_constant(fn)) {
             if (const_name(fn) == get_and_rec_name() || const_name(fn) == get_and_cases_on_name()) {
                 return visit_and_rec(fn, args, root);
-            } else if (const_name(fn) == get_eq_rec_name() || const_name(fn) == get_eq_ndrec_name()) {
+            } else if (const_name(fn) == get_eq_rec_name() || const_name(fn) == get_eq_ndrec_name() ||
+                       const_name(fn) == get_eq_cases_on_name()) {
                 return visit_eq_rec(fn, args, root);
-            } else if (const_name(fn) == get_false_rec_name()) {
+            } else if (const_name(fn) == get_false_rec_name() || const_name(fn) == get_false_cases_on_name()) {
                 return visit_false_rec(fn, args, root);
             } else if (is_cases_on_recursor(m_env, const_name(fn))) {
                 return visit_cases_on(fn, args, root);

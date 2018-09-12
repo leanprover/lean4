@@ -62,6 +62,7 @@ name const * g_false = nullptr;
 name const * g_false_of_true_iff_false = nullptr;
 name const * g_false_of_true_eq_false = nullptr;
 name const * g_false_rec = nullptr;
+name const * g_false_cases_on = nullptr;
 name const * g_fin_mk = nullptr;
 name const * g_fin_ne_of_vne = nullptr;
 name const * g_forall_congr = nullptr;
@@ -318,6 +319,7 @@ void initialize_constants() {
     g_false_of_true_iff_false = new name{"false_of_true_iff_false"};
     g_false_of_true_eq_false = new name{"false_of_true_eq_false"};
     g_false_rec = new name{"false", "rec"};
+    g_false_cases_on = new name{"false", "cases_on"};
     g_fin_mk = new name{"fin", "mk"};
     g_fin_ne_of_vne = new name{"fin", "ne_of_vne"};
     g_forall_congr = new name{"forall_congr"};
@@ -575,6 +577,7 @@ void finalize_constants() {
     delete g_false_of_true_iff_false;
     delete g_false_of_true_eq_false;
     delete g_false_rec;
+    delete g_false_cases_on;
     delete g_fin_mk;
     delete g_fin_ne_of_vne;
     delete g_forall_congr;
@@ -831,6 +834,7 @@ name const & get_false_name() { return *g_false; }
 name const & get_false_of_true_iff_false_name() { return *g_false_of_true_iff_false; }
 name const & get_false_of_true_eq_false_name() { return *g_false_of_true_eq_false; }
 name const & get_false_rec_name() { return *g_false_rec; }
+name const & get_false_cases_on_name() { return *g_false_cases_on; }
 name const & get_fin_mk_name() { return *g_fin_mk; }
 name const & get_fin_ne_of_vne_name() { return *g_fin_ne_of_vne; }
 name const & get_forall_congr_name() { return *g_forall_congr; }

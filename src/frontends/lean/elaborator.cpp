@@ -2532,9 +2532,17 @@ expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
         mvar_dep_sort(m_ctx, unassigned_mvars);
         // create local variables for each unassigned metavar
         type_context_old::tmp_locals new_locals(m_ctx);
+        unsigned next_idx = 1;
         for (expr & m : unassigned_mvars) {
             expr type      = instantiate_mvars(m_ctx.infer(m));
-            expr new_local = new_locals.push_local(mvar_name(m), type, mk_binder_info());
+            name user_name;
+            if (optional<metavar_decl> mdecl = m_ctx.find_metavar_decl(m)) {
+                user_name = mdecl->get_user_name();
+            } else {
+                user_name = name("_x").append_after(next_idx);
+                next_idx++;
+            }
+            expr new_local = new_locals.push_local(user_name, type, mk_binder_info());
             m_ctx.assign(m, new_local);
         }
         // replace metavariables with new locals

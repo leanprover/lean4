@@ -65,7 +65,7 @@ static void compile_olean(search_path const & path, std::shared_ptr<module_info>
 }
 
 void module_mgr::build_module(module_name const & mod_name, bool can_use_olean, name_set module_stack) {
-    if (auto const & existing_mod = m_modules.find(mod_name))
+    if (m_modules.find(mod_name))
         return;
 
     auto orig_module_stack = module_stack;

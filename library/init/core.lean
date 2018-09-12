@@ -2228,11 +2228,11 @@ decidable.by_contradiction h
 end classical
 
 /-- Auxiliary meta constant used by the compiler when erasing proofs from code. -/
-meta constant lc_proof (α : Prop) : α
+meta constant lc_proof {α : Prop} : α
 /-- Auxiliary meta constant used by the compiler to mark unreachable code. -/
-meta constant lc_unreachable (α : Sort u) : α
+meta constant lc_unreachable {α : Sort u} : α
 /-- Auxiliary meta constant used by the compiler to mark type casting. -/
-meta constant lc_cast (α : Sort u) (β : Sort v) : α → β
+meta constant lc_cast {α : Sort u} {β : Sort v} : α → β
 
 /- Auxiliary axiom used to implement `sorry`.
    TODO: add this theorem on-demand. That is,

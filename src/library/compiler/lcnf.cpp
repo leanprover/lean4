@@ -208,6 +208,31 @@ public:
         }
     }
 
+    expr visit_eq_rec(expr const & fn, buffer<expr> & args, bool root) {
+        lean_assert(const_name(fn) == get_eq_rec_name() || const_name(fn) == get_eq_ndrec_name());
+        if (args.size() < 6) {
+            return visit(eta_expand(mk_app(fn, args), 6 - args.size()), root);
+        } else {
+            unsigned eq_rec_nargs = 6;
+            unsigned minor_idx    = 3;
+            type_checker tc(m_env, m_lctx, m_tc_cache);
+            expr minor       = args[minor_idx];
+            expr minor_type  = tc.whnf(tc.infer(minor));
+            expr eq_rec_type = tc.whnf(tc.infer(mk_app(fn, eq_rec_nargs, args.data())));
+            expr new_e;
+            if (tc.is_def_eq(minor_type, eq_rec_type)) {
+                /* Type cast is not needed */
+                new_e = minor;
+            } else {
+                level minor_lvl  = sort_level(tc.ensure_type(minor_type));
+                level eq_rec_lvl = sort_level(tc.ensure_type(eq_rec_type));
+                new_e            = mk_app(mk_constant(get_lc_cast_name(), {eq_rec_lvl, minor_lvl}), minor_type, eq_rec_type, minor);
+            }
+            new_e            = mk_app(new_e, args.size() - eq_rec_nargs, args.data() + eq_rec_nargs);
+            return visit(new_e, root);
+        }
+    }
+
     expr visit_app_default(expr const & fn, buffer<expr> & args, bool root) {
         for (expr & arg : args) {
             arg = visit(arg, false);
@@ -232,6 +257,9 @@ public:
                 }
             } else if (is_no_confusion(m_env, const_name(fn))) {
                 return visit_no_confusion(fn, args, root);
+            } else if (const_name(fn) == get_eq_rec_name() ||
+                       const_name(fn) == get_eq_ndrec_name()) {
+                return visit_eq_rec(fn, args, root);
             }
         }
         return visit_app_default(fn, args, root);

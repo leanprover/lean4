@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "runtime/flet.h"
 #include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
+#include "library/expr_lt.h"
 #include "library/util.h"
 #include "library/aux_recursors.h"
 #include "library/constants.h"
@@ -21,11 +22,12 @@ namespace lean {
 static name * g_lcnf_fresh = nullptr;
 
 class to_lcnf_fn {
+    typedef rb_expr_map<expr> cache;
     environment         m_env;
     local_ctx           m_lctx;
     name_generator      m_ngen;
     type_checker::cache m_tc_cache;
-    expr_map<expr>      m_cache;
+    cache               m_cache;
     buffer<expr>        m_fvars;
     name                m_x;
     unsigned            m_next_idx{1};
@@ -141,6 +143,7 @@ public:
                 if (j < num_fields) {
                     minor = eta_expand(minor, num_fields - j);
                 }
+                flet<cache> save_cache(m_cache, m_cache);
                 unsigned m_fvars_init_size = m_fvars.size();
                 expr new_minor = visit(minor, true);
                 if (is_lambda(new_minor) && m_fvars.size() == m_fvars_init_size) {
@@ -251,6 +254,7 @@ public:
         expr r;
         {
             flet<local_ctx> save_lctx(m_lctx, m_lctx);
+            flet<cache>     save_cache(m_cache, m_cache);
             unsigned m_fvars_init_size = m_fvars.size();
             buffer<expr> binding_fvars;
             expr_kind k = e.kind();
@@ -291,7 +295,7 @@ public:
 
     expr cache_result(expr const & e, expr const & r, bool shared) {
         if (shared)
-            m_cache.insert(mk_pair(e, r));
+            m_cache.insert(e, r);
         return r;
     }
 
@@ -310,9 +314,8 @@ public:
 
         bool shared = is_shared(e);
         if (shared) {
-            auto it = m_cache.find(e);
-            if (it != m_cache.end())
-                return it->second;
+            if (auto it = m_cache.find(e))
+                return *it;
         }
 
         {

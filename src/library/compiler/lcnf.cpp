@@ -249,16 +249,15 @@ public:
         }
     }
 
-    expr visit_binding(expr e, bool root) {
-        lean_assert(is_lambda(e) || is_pi(e));
+    expr visit_lambda(expr e, bool root) {
+        lean_assert(is_lambda(e));
         expr r;
         {
             flet<local_ctx> save_lctx(m_lctx, m_lctx);
             flet<cache>     save_cache(m_cache, m_cache);
             unsigned m_fvars_init_size = m_fvars.size();
             buffer<expr> binding_fvars;
-            expr_kind k = e.kind();
-            while (e.kind() == k) {
+            while (is_lambda(e)) {
                 /* Types are ignored in compilation steps. So, we do not invoke visit for d. */
                 expr new_d    = instantiate_rev(binding_domain(e), binding_fvars.size(), binding_fvars.data());
                 expr new_fvar = m_lctx.mk_local_decl(m_ngen, binding_name(e), new_d, binding_info(e));
@@ -268,10 +267,7 @@ public:
             expr new_body = visit(instantiate_rev(e, binding_fvars.size(), binding_fvars.data()), true);
             new_body      = m_lctx.mk_lambda(m_fvars.size() - m_fvars_init_size, m_fvars.data() + m_fvars_init_size, new_body);
             m_fvars.shrink(m_fvars_init_size);
-            if (k == expr_kind::Lambda)
-                r = m_lctx.mk_lambda(binding_fvars, new_body);
-            else
-                r = m_lctx.mk_pi(binding_fvars, new_body);
+            r = m_lctx.mk_lambda(binding_fvars, new_body);
         }
         return mk_let_decl(r, root);
     }
@@ -305,6 +301,7 @@ public:
             lean_unreachable();
         case expr_kind::FVar:  case expr_kind::Sort:
         case expr_kind::Const: case expr_kind::Lit:
+        case expr_kind::Pi:
             return e;
         default:
             break;
@@ -341,8 +338,7 @@ public:
         case expr_kind::App:    return cache_result(e, visit_app(e, root), shared);
         case expr_kind::Proj:   return cache_result(e, visit_proj(e, root), shared);
         case expr_kind::MData:  return cache_result(e, visit_mdata(e, root), shared);
-        case expr_kind::Lambda: return cache_result(e, visit_binding(e, root), shared);
-        case expr_kind::Pi:     return cache_result(e, visit_binding(e, root), shared);
+        case expr_kind::Lambda: return cache_result(e, visit_lambda(e, root), shared);
         case expr_kind::Let:    return cache_result(e, visit_let(e, root), shared);
         default: lean_unreachable();
         }

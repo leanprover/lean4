@@ -233,6 +233,18 @@ public:
         }
     }
 
+    expr visit_false_rec(expr const & fn, buffer<expr> & args, bool root) {
+        if (args.size() < 2) {
+            return visit(eta_expand(mk_app(fn, args), 2 - args.size()), root);
+        } else {
+            /* Remark: args.size() may be greater than 2, but (lc_unreachable a_1 ... a_n) is equivalent to (lc_unreachable) */
+            type_checker tc(m_env, m_lctx, m_tc_cache);
+            expr type = tc.whnf(tc.infer(mk_app(fn, args)));
+            level lvl = sort_level(tc.ensure_type(type));
+            return mk_let_decl(mk_app(mk_constant(get_lc_unreachable_name(), {lvl}), type), root);
+        }
+    }
+
     expr visit_app_default(expr const & fn, buffer<expr> & args, bool root) {
         for (expr & arg : args) {
             arg = visit(arg, false);
@@ -260,6 +272,8 @@ public:
             } else if (const_name(fn) == get_eq_rec_name() ||
                        const_name(fn) == get_eq_ndrec_name()) {
                 return visit_eq_rec(fn, args, root);
+            } else if (const_name(fn) == get_false_rec_name()) {
+                return visit_false_rec(fn, args, root);
             }
         }
         return visit_app_default(fn, args, root);

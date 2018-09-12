@@ -42,6 +42,10 @@ public:
         return tc.whnf(tc.infer(e));
     }
 
+    static bool is_lc_proof(expr const & e) {
+        return is_app_of(e, get_lc_proof_name());
+    }
+
     expr mk_let_decl(expr const & e, bool root) {
         if (root) {
             return e;
@@ -302,6 +306,8 @@ public:
             break;
         }
 
+        if (is_lc_proof(e)) return e;
+
         bool shared = is_shared(e);
         if (shared) {
             auto it = m_cache.find(e);
@@ -322,8 +328,8 @@ public:
                 if (is_sort(type))
                     return cache_result(e, e, shared);
             } else if (tc.is_prop(type)) {
-                // We replace proofs with `lean.epr type` constant
-                expr r = mk_let_decl(mk_app(mk_constant(get_lc_proof_name()), type), root);
+                // We replace proofs using `lc_proof` constant
+                expr r = mk_app(mk_constant(get_lc_proof_name()), type);
                 return cache_result(e, r, shared);
             }
         }

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <algorithm>
 #include "runtime/flet.h"
 #include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
@@ -69,9 +70,10 @@ public:
         return m_lctx.mk_lambda(args, mk_app(e, args));
     }
 
-    expr visit_projection(expr const & fn, buffer<expr> const & args, bool root) {
+    expr visit_projection(expr const & fn, buffer<expr> & args, bool root) {
         constant_info info = m_env.get(const_name(fn));
         expr fn_val        = instantiate_value_lparams(info, const_levels(fn));
+        std::reverse(args.begin(), args.end());
         return visit(apply_beta(fn_val, args.size(), args.data()), root);
     }
 

@@ -316,9 +316,9 @@ int main(int argc, char ** argv) {
     bool recursive          = false;
     unsigned trust_lvl      = LEAN_BELIEVER_TRUST_LEVEL+1;
     bool test_suite         = false;
-    unsigned num_threads    = 0;
+    // unsigned num_threads    = 0;
 #if defined(LEAN_MULTI_THREAD)
-    num_threads = hardware_concurrency();
+    // num_threads = hardware_concurrency();
 #endif
 #if defined(LEAN_JSON)
     bool json_output        = false;
@@ -335,7 +335,7 @@ int main(int argc, char ** argv) {
             break; // end of command line
         switch (c) {
         case 'j':
-            num_threads = static_cast<unsigned>(atoi(optarg));
+            // num_threads = static_cast<unsigned>(atoi(optarg));
             break;
         case 'v':
             display_header(std::cout);

@@ -29,7 +29,8 @@ struct module_info {
     module_name m_name;
     std::string m_filename;
     module_src m_source = module_src::LEAN;
-    time_t m_mtime = -1;
+    // mtime of file and maximum mtime of file and all transitive dependencies
+    time_t m_mtime, m_trans_mtime;
 
     struct dependency {
         module_name m_name;
@@ -41,7 +42,7 @@ struct module_info {
     std::shared_ptr<loaded_module const> m_loaded_module;
 
     module_info(module_name const & name, std::string const & filename, module_src src, time_t mtime)
-            : m_name(name), m_filename(filename), m_source(src), m_mtime(mtime) {}
+            : m_name(name), m_filename(filename), m_source(src), m_mtime(mtime), m_trans_mtime(mtime) {}
 };
 
 class module_mgr {
@@ -53,9 +54,9 @@ class module_mgr {
 
     name_map<std::shared_ptr<module_info>> m_modules;
 
-    time_t build_module(module_name const & mod, bool can_use_olean, name_set module_stack);
+    void build_module(module_name const & mod, bool can_use_olean, name_set module_stack);
 
-    time_t build_lean(std::shared_ptr<module_info> const & mod, name_set const & module_stack);
+    void build_lean(std::shared_ptr<module_info> const & mod, name_set const & module_stack);
 public:
     module_mgr(search_path const & path,
                environment const & initial_env, io_state const & ios) :

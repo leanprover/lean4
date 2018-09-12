@@ -64,9 +64,9 @@ static void compile_olean(search_path const & path, std::shared_ptr<module_info>
     if (!out) throw exception("failed to write olean file");
 }
 
-time_t module_mgr::build_module(module_name const & mod_name, bool can_use_olean, name_set module_stack) {
+void module_mgr::build_module(module_name const & mod_name, bool can_use_olean, name_set module_stack) {
     if (auto const & existing_mod = m_modules.find(mod_name))
-        return (*existing_mod)->m_mtime;
+        return;
 
     auto orig_module_stack = module_stack;
     if (module_stack.contains(mod_name)) {
@@ -84,16 +84,15 @@ time_t module_mgr::build_module(module_name const & mod_name, bool can_use_olean
         std::ifstream in2(mod->m_filename, std::ios_base::binary);
         bool check_hash = false;
         auto parsed_olean = parse_olean(in2, mod->m_filename, check_hash);
-        auto max_mtime = mod->m_mtime;
 
         for (auto & d : parsed_olean.m_imports) {
-            max_mtime = std::max(max_mtime, build_module(d, true, module_stack));
-
+            build_module(d, true, module_stack);
             auto const & d_mod = *m_modules.find(d);
             mod->m_deps.push_back({ d, d_mod });
+            mod->m_trans_mtime = std::max(mod->m_trans_mtime, d_mod->m_trans_mtime);
         }
 
-        if (max_mtime > mod->m_mtime) {
+        if (mod->m_trans_mtime > mod->m_mtime) {
             lean_trace("import", tout() << "discarding " << mod->m_filename << ", older than a dependency\n";);
             return build_module(mod_name, false, orig_module_stack);
         }
@@ -105,26 +104,24 @@ time_t module_mgr::build_module(module_name const & mod_name, bool can_use_olean
 
         mod->m_loaded_module = std::make_shared<loaded_module const>(lm);
         m_modules[mod_name] = mod;
-        return max_mtime;
     } else if (mod->m_source == module_src::LEAN) {
-        auto max_mtime = build_lean(mod, module_stack);
+        build_lean(mod, module_stack);
         m_modules[mod_name] = mod;
-        return max_mtime;
     } else {
         throw exception("unknown module source");
     }
 }
 
-time_t module_mgr::build_lean(std::shared_ptr<module_info> const & mod, name_set const & module_stack) {
+void module_mgr::build_lean(std::shared_ptr<module_info> const & mod, name_set const & module_stack) {
     auto mod_name = mod->m_name;
     auto contents = read_file(mod->m_filename);
     auto imports = get_direct_imports(mod->m_filename, contents);
-    auto max_mtime = mod->m_mtime;
     for (auto & d : imports) {
         std::shared_ptr<module_info> d_mod;
         try {
-            max_mtime = std::max(max_mtime, build_module(d, true, module_stack));
+            build_module(d, true, module_stack);
             d_mod = m_modules[d];
+            mod->m_trans_mtime = std::max(mod->m_trans_mtime, d_mod->m_trans_mtime);
         } catch (throwable & ex) {
             message_builder(m_initial_env, m_ios, mod->m_filename, {1, 0}, ERROR).set_exception(ex).report();
         }
@@ -141,8 +138,6 @@ time_t module_mgr::build_lean(std::shared_ptr<module_info> const & mod, name_set
     if (m_save_olean) {
         compile_olean(m_path, mod);
     }
-
-    return max_mtime;
 }
 
 std::shared_ptr<module_info const> module_mgr::get_module(module_name const & mod_name) {

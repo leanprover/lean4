@@ -102,6 +102,10 @@ public:
         return mk_pair(cnstr_arity, num_fields);
     }
 
+    unsigned get_constructor_arity(name const & n) {
+        return get_constructor_arity_nfields(n).first;
+    }
+
     unsigned get_constructor_nfields(name const & n) {
         return get_constructor_arity_nfields(n).second;
     }
@@ -245,6 +249,15 @@ public:
         }
     }
 
+    expr visit_constructor(expr const & fn, buffer<expr> & args, bool root) {
+        unsigned arity = get_constructor_arity(const_name(fn));
+        if (args.size() < arity) {
+            return visit(eta_expand(mk_app(fn, args), arity - args.size()), root);
+        } else {
+            return visit_app_default(fn, args, root);
+        }
+    }
+
     expr visit_app_default(expr const & fn, buffer<expr> & args, bool root) {
         for (expr & arg : args) {
             arg = visit(arg, false);
@@ -274,6 +287,8 @@ public:
                 return visit_eq_rec(fn, args, root);
             } else if (const_name(fn) == get_false_rec_name()) {
                 return visit_false_rec(fn, args, root);
+            } else if (is_constructor(m_env, const_name(fn))) {
+                return visit_constructor(fn, args, root);
             }
         }
         return visit_app_default(fn, args, root);

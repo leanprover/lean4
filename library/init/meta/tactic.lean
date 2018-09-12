@@ -73,14 +73,14 @@ has_to_tactic_format.to_tactic_format
 open tactic format
 
 @[priority 10] meta instance has_to_format_to_has_to_tactic_format (α : Type) [has_to_format α] : has_to_tactic_format α :=
-⟨(λ x, return x) ∘ to_fmt⟩
+⟨(λ x, pure x) ∘ to_fmt⟩
 
 namespace tactic
 open tactic_state
 
 meta def trace {α : Type u} [has_to_tactic_format α] (a : α) : tactic unit :=
 do fmt ← pp a,
-   return $ _root_.trace_fmt fmt (λ u, ())
+   pure $ _root_.trace_fmt fmt (λ u, ())
 
 end tactic
 

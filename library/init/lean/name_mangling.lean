@@ -38,9 +38,9 @@ def string.mangle (s : string) : string :=
 string.mangle_aux s.length s.mk_iterator ""
 
 private def parse_mangled_string_aux : nat → string → parsec' string
-| 0     r := return r
+| 0     r := pure r
 | (i+1) r :=
-     (eoi >> return r)
+     (eoi >> pure r)
  <|> (do c ← alpha, parse_mangled_string_aux i (r.push c))
  <|> (do c ← digit, parse_mangled_string_aux i (r.push c))
  <|> (do str "__", parse_mangled_string_aux i (r.push '_'))
@@ -69,9 +69,9 @@ def name.mangle (n : name) (pre : string := "_l") : string :=
 name.mangle_aux pre n
 
 private def parse_mangled_name_aux : nat → name → parsec' name
-| 0 r     := return r
+| 0 r     := pure r
 | (i+1) r :=
-      (eoi >> return r)
+      (eoi >> pure r)
   <|> (do str "_s", n ← num, ch '_',
           (some s) ← string.demangle <$> take n,
           parse_mangled_name_aux i (r.mk_string s))

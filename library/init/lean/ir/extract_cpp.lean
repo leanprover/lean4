@@ -67,8 +67,8 @@ emit $ name.mangle b "_lbl"
 def fid2cpp (fid : fnid) : extract_m string :=
 do env ← read,
    match env.cfg.external_names fid with
-   | some s := return s
-   | none   := return (name.mangle fid)
+   | some s := pure s
+   | none   := pure (name.mangle fid)
 
 def emit_fnid (fid : fnid) : extract_m unit :=
 fid2cpp fid >>= emit
@@ -76,11 +76,11 @@ fid2cpp fid >>= emit
 def is_const (fid : fnid) : extract_m bool :=
 do env ← read,
    match env.cfg.env fid with
-   | some d := return d.header.is_const
-   | none   := return ff
+   | some d := pure d.header.is_const
+   | none   := pure ff
 
 def global2cpp (fid : fnid) : extract_m string :=
-do s ← fid2cpp fid, return $ "_g" ++ s
+do s ← fid2cpp fid, pure $ "_g" ++ s
 
 def emit_global (fid : fnid) : extract_m unit :=
 global2cpp fid >>= emit
@@ -96,7 +96,7 @@ def emit_type (ty : type) : extract_m unit :=
 emit (type2cpp ty)
 
 def emit_sep_aux {α} (f : α → extract_m unit) (sep : string) : list α → extract_m unit
-| []      := return ()
+| []      := pure ()
 | [a]     := f a
 | (a::as) := f a >> emit sep >> emit " " >> emit_sep_aux as
 
@@ -125,7 +125,7 @@ def emit_eos : extract_m unit :=
 emit ";" >> emit_line
 
 def emit_return_vars : list var → extract_m unit
-| []  := return ()
+| []  := pure ()
 | [x] := emit_var x
 | xs  := emit "std::make_tuple" >> paren(emit_var_list xs)
 
@@ -157,7 +157,7 @@ match term with
 | (terminator.case x bs) := emit_case x bs
 
 def emit_call_lhs : list var → extract_m unit
-| []  := return ()
+| []  := pure ()
 | [x] := emit_var x >> emit " = "
 | xs  := emit "std::tie" >> paren(emit_var_list xs) >> emit " = "
 
@@ -254,7 +254,7 @@ def emit_num_suffix : type → extract_m unit
 | type.uint32 := emit "u"
 | type.uint64 := emit "ull"
 | type.int64  := emit "ll"
-| _           := return ()
+| _           := pure ()
 
 def emit_assign_lit (x : var) (t : type) (l : literal) : extract_m unit :=
 match l with
@@ -304,8 +304,8 @@ do env ← read,
      let fname := if arity > closure_max_args then "uncurry" ++ fname else fname,
      emit "reinterpret_cast<lean::lean_cfun>(" >> emit fname >> emit ")" <+> emit arity <+> emit ys.length,
      emit ")",
-     ys.mfoldl (λ i y, emit ";\nlean::closure_set_arg" >> paren (emit_var x <+> emit i <+> emit_var y) >> return (i+1)) 0,
-     return ()
+     ys.mfoldl (λ i y, emit ";\nlean::closure_set_arg" >> paren (emit_var x <+> emit i <+> emit_var y) >> pure (i+1)) 0,
+     pure ()
    | none   := throw "invalid closure"
 
 def emit_instr (ins : instr) : extract_m unit :=
@@ -376,7 +376,7 @@ match d with
   >> decl_locals h.args >> bs.mfor emit_block
   >> emit "}" >> emit_line >>
   when (need_uncurry d) (emit_uncurry d)
-| _ := return ()
+| _ := pure ()
 
 def emit_def (d : decl) : extract_m unit :=
 do env ← read,
@@ -399,7 +399,7 @@ used.mfor (λ fid, match env.cfg.env fid with
  | some d := do
    unless (env.cfg.external_names fid = none) (emit "extern \"C\" "),
    emit_header d.header >> emit ";\n" >> when (need_uncurry d) (emit_uncurry_header d >> emit ";\n")
- | _      := return ())
+ | _      := pure ())
 
 def emit_global_var_decls (ds : list decl) : extract_m unit :=
 ds.mfor $ λ d, when d.header.is_const $
@@ -439,7 +439,7 @@ do env ← read,
         >> emit finalize_prefix >> emit env.cfg.unit_name >> emit "();\n"
         >> emit "return r;\n}\n"
       | none := throw ("unknown main function '" ++ to_string fid ++ "'"))
-   | none := return ()
+   | none := pure ()
 
 end cpp
 

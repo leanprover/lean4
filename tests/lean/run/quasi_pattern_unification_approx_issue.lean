@@ -43,4 +43,4 @@ first-order unification.
 
 def foo2 : state_t δ (state_t σ id) σ :=
 do s : σ  ← monad_lift (get : state_t σ id σ),
-   return s
+   pure s

@@ -13,7 +13,7 @@ namespace option
 
 def to_monad {m : Type → Type} [monad m] [alternative m] {A} : option A → m A
 | none := failure
-| (some a) := return a
+| (some a) := pure a
 
 def get_or_else {α : Type u} : option α → α → α
 | (some x) _ := x

@@ -23,7 +23,7 @@ do c  ← pure $ visit t,
    (yielded v₂ c) ← pure $ resume c (),
    io.println $ to_string v₁,
    io.println $ to_string v₂,
-   return ()
+   pure ()
 
 #eval tst (tree.node (tree.node (tree.node tree.leaf 5 tree.leaf) 10 (tree.node tree.leaf 20 tree.leaf)) 30 tree.leaf)
 
@@ -40,7 +40,7 @@ do
   x ← read,
   y ← get,
   yield ("2) val: " ++ to_string (x+y)),
-  return ()
+  pure ()
 
 def tst2 : except_t string io unit :=
 do let c := state_t.run ex 5,
@@ -52,7 +52,7 @@ do let c := state_t.run ex 5,
    (yielded r c₃) ← pure $ resume c₁ 100,
    io.println r,
    io.println "done",
-   return ()
+   pure ()
 
 #eval tst2
 
@@ -78,7 +78,7 @@ do let c := ex3.run,
    (yielded r c₃) ← monad_lift $ c₁.resume 100,
    io.println r,
    io.println "done",
-   return ()
+   pure ()
 
 #eval tst3
 

@@ -18,11 +18,11 @@ open lean.parser
 open lean.parser.monad_parsec
 
 def parse_input_aux : nat → list decl → fnid2string → parsec' (list decl × fnid2string)
-| 0     ds m := return (ds.reverse, m)
+| 0     ds m := pure (ds.reverse, m)
 | (n+1) ds m :=
-  (eoi >> return (ds.reverse, m))
+  (eoi >> pure (ds.reverse, m))
   <|>
-  (do cid ← (do symbol "[", n ← lexeme $ c_identifier, symbol "]", return (some n)) <|> return none,
+  (do cid ← (do symbol "[", n ← lexeme $ c_identifier, symbol "]", pure (some n)) <|> pure none,
       d ← parse_decl,
       match cid with
       | some cid := parse_input_aux n (d::ds) (m.insert d.name cid)
@@ -30,11 +30,11 @@ def parse_input_aux : nat → list decl → fnid2string → parsec' (list decl �
 
 def parse_input (s : string) : except format (list decl × fnid2string) :=
 match parsec.parse (whitespace >> parse_input_aux s.length [] mk_fnid2string) s with
-| except.ok r    := return r
+| except.ok r    := pure r
 | except.error m := throw m.to_string
 
 def check (env : environment) (ssa : bool) (d : decl) : except format unit :=
-when ssa (d.valid_ssa >> return ()) >> check_blockids d >> type_check d env >> return ()
+when ssa (d.valid_ssa >> pure ()) >> check_blockids d >> type_check d env >> pure ()
 
 local attribute [instance] name.has_lt_quick
 

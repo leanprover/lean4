@@ -28,7 +28,7 @@ def instr.declare_vars : instr → reader_t blockid ssa_pre_m unit
 | (instr.apply x _)              := x.declare
 | (instr.array a _ _)            := a.declare
 | (instr.sarray x _ _ _)         := x.declare
-| _                              := return ()
+| _                              := pure ()
 
 def phi.declare  (p : phi) : reader_t blockid ssa_pre_m unit :=
 p.decorate_error p.x.declare
@@ -46,7 +46,7 @@ def decl.declare_vars : decl → ssa_pre_m unit
   /- We assume that arguments are declared in the first basic block. -/
   h.decorate_error $ (h.args.mfor arg.declare).run b.id >> b.declare_vars >> bs.mfor block.declare_vars
 | (decl.defn _  []) := throw "declaration must have at least one basic block"
-| _                 := return ()
+| _                 := pure ()
 
 /- Generate the mapping from variable to blockid for the given declaration.
    This function assumes `d` is in SSA. -/
@@ -68,7 +68,7 @@ a.n.define
 /- Check whether `x` has been already defined in the current basic block or not. -/
 def var.defined (x : var) : ssa_valid_m unit :=
 do s ← get,
-   if s.contains x then return ()
+   if s.contains x then pure ()
    else throw ("undefined '" ++ to_fmt x ++ "'")
 
 /- Given, x := phi ys,
@@ -105,7 +105,7 @@ term.decorate_error $
 match term with
 | (terminator.ret ys)     := ys.mfor var.defined
 | (terminator.case x _)   := x.defined
-| (terminator.jmp _)      := return ()
+| (terminator.jmp _)      := pure ()
 
 def phi.predecessors (p : phi) : ssa_valid_m blockid_set :=
 p.ys.mfoldl (λ s y,
@@ -113,7 +113,7 @@ p.ys.mfoldl (λ s y,
      match m.find y with
      | some bid := if s.contains bid
                    then throw ("multiple predecessors at '" ++ to_fmt p ++ "'")
-                   else return $ (s.insert bid)
+                   else pure $ s.insert bid
      | none   := throw ("undefined '" ++ to_fmt y ++ "' at '" ++ to_fmt p ++ "'"))
   mk_blockid_set
 
@@ -122,11 +122,11 @@ do ps.mfoldl (λ (os : option blockid_set) (p : phi),
      p.decorate_error $
      do s' ← p.predecessors,
         match os with
-        | (some s) := if s.seteq s' then return os
+        | (some s) := if s.seteq s' then pure os
                       else throw ("missing predecessor '" ++ to_fmt p.x ++ "' at '" ++ to_fmt p ++ "'")
-        | none      := return (some s'))
+        | none      := pure (some s'))
      none,
-   return ()
+   pure ()
 
 def block.valid_ssa_core (b : block) : ssa_valid_m unit :=
 b.decorate_error $
@@ -148,8 +148,8 @@ do m ← d.var2blockid,
    | decl.defn {args:=args, ..} (b::bs) :=
        (args.mfor arg.define >> block.valid_ssa_core b).run m
     >> (bs.mfor block.valid_ssa_core).run m
-    >> return m
-   | _                   := return m
+    >> pure m
+   | _                   := pure m
 
 /- Check blockids -/
 @[reducible] def blockid_check_m :=
@@ -165,13 +165,13 @@ do s ← get,
 
 def blockid.defined (bid : blockid) : blockid_check_m unit :=
 do s ← get,
-   if s.contains bid then return ()
+   if s.contains bid then pure ()
    else throw $ "unknown basic block '" ++ to_fmt bid ++ "'"
 
 def terminator.check_blockids (term : terminator) : blockid_check_m unit :=
 term.decorate_error $
 match term with
-| (terminator.ret ys)      := return ()
+| (terminator.ret ys)      := pure ()
 | (terminator.case _ bids) := bids.mfor blockid.defined
 | (terminator.jmp bid)     := bid.defined
 
@@ -180,7 +180,7 @@ b.term.check_blockids
 
 def decl.check_blockids : decl → blockid_check_m unit
 | (decl.defn h bs) := h.decorate_error $ bs.mfor block.declare >> bs.mfor block.check_blockids
-| _                := return ()
+| _                := pure ()
 
 def check_blockids (d : decl) : except format blockid_set :=
 (d.check_blockids >> get).run

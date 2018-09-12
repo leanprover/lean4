@@ -10,7 +10,7 @@ abbreviation m := except_t string io
 
 def check_decl (d : decl) : m unit :=
 match type_check d with
-| except.ok _    := return ()
+| except.ok _    := pure ()
 | except.error e := io.println (to_string e)
 
 def show_result (p : parsec' decl) (s : string) : m unit :=

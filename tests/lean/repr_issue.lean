@@ -1,7 +1,7 @@
 def foo {m} [monad m] [monad_except string m] [monad_state (array nat) m] : m nat :=
 catch (do modify $ λ a : array nat, a.write' 0 33,
           throw "error")
-      (λ _, do a ← get, return $ a.read' 0)
+      (λ _, do a ← get, pure $ a.read' 0)
 
 def ex₁ : state_t (array nat) (except_t string id) nat :=
 foo

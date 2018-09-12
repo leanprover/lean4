@@ -100,7 +100,7 @@ def handle.get_line : handle → m string := prim.lift_eio ∘ prim.handle.get_l
 def get_char (h : handle) : m char :=
 do b ← h.read 1,
    if b.is_empty then fail "get_char failed"
-   else return b.mk_iterator.curr
+   else pure b.mk_iterator.curr
 -/
 
 def handle.put_char (h : handle) (c : char) : m unit :=
@@ -116,17 +116,17 @@ def handle.read_to_end (h : handle) : m string :=
 prim.lift_eio $ prim.iterate_eio "" $ λ r, do
   done ← h.is_eof,
   if done
-  then return (sum.inr r) -- stop
+  then pure (sum.inr r) -- stop
   else do
     -- HACK: use less efficient `get_line` while `read` is broken
     c ← h.get_line,
-    return $ sum.inl (r ++ c) -- continue
+    pure $ sum.inl (r ++ c) -- continue
 
 def read_file (fname : string) (bin := ff) : m string :=
 do h ← handle.mk fname mode.read bin,
    r ← h.read_to_end,
    h.close,
-   return r
+   pure r
 
 def write_file (fname : string) (data : string) (bin := ff) : m unit :=
 do h ← handle.mk fname mode.write bin,
@@ -185,7 +185,7 @@ do child ← io.proc.spawn { stdout := io.process.stdio.piped, ..args },
   io.fs.close child.stdout,
   exitv ← io.proc.wait child,
   if exitv ≠ 0 then io.fail $ "process exited with status " ++ repr exitv else pure (),
-  return s
+  pure s
 -/
 
 /--

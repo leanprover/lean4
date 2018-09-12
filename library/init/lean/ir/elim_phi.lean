@@ -25,11 +25,11 @@ def merge (x y : var) : elim_phi_m unit :=
 modify $ λ s, s.merge x y
 
 def find (x : var) : elim_phi_m var :=
-do s ← get, return $ s.find x
+do s ← get, pure $ s.find x
 
 def group_vars : decl → elim_phi_m unit
 | (decl.defn _ bs) := bs.mfor $ λ b, b.phis.mfor $ λ p, p.ys.mfor (merge p.x)
-| _                := return ()
+| _                := pure ()
 
 def instr.replace_vars : instr → elim_phi_m instr
 | (instr.assign x ty y)            := instr.assign <$> find x <*> pure ty <*> find y
@@ -55,15 +55,15 @@ def terminator.replace_vars : terminator → elim_phi_m terminator
 | j@(terminator.jmp _)   := pure j
 
 def arg.replace_vars (a : arg) : elim_phi_m arg :=
-do x ← find a.n, return { n := x, ..a }
+do x ← find a.n, pure { n := x, ..a }
 
 def header.replace_vars (h : header) : elim_phi_m header :=
-do as ← h.args.mmap arg.replace_vars, return { args := as, ..h }
+do as ← h.args.mmap arg.replace_vars, pure { args := as, ..h }
 
 def block.replace_vars (b : block) : elim_phi_m block :=
 do instrs' ← b.instrs.mmap instr.replace_vars,
    term'   ← b.term.replace_vars,
-   return
+   pure
      { phis   := [],
        instrs := instrs',
        term   := term', ..b}

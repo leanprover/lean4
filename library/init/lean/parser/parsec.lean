@@ -451,7 +451,7 @@ string.iterator.offset <$> left_over
 
 @[inline] def not_followed_by [monad_except message m] (p : m α) (msg : string := "input") : m unit :=
 do it ← left_over,
-   b ← lookahead $ catch (p >> return ff) (λ _, return tt),
+   b ← lookahead $ catch (p >> pure ff) (λ _, pure tt),
    if b then pure () else error msg dlist.empty it
 
 def eoi : m unit :=
@@ -460,32 +460,32 @@ do it ← left_over,
    else error (repr it.curr) (dlist.singleton ("end of input"))
 
 def many1_aux [alternative m] (p : m α) : nat → m (list α)
-| 0     := do a ← p, return [a]
+| 0     := do a ← p, pure [a]
 | (n+1) := do a ← p,
-              as ← (many1_aux n <|> return []),
-              return (a::as)
+              as ← (many1_aux n <|> pure []),
+              pure (a::as)
 
 def many1 [alternative m] (p : m α) : m (list α) :=
 do r ← remaining, many1_aux p r
 
 def many [alternative m] (p : m α) : m (list α) :=
-many1 p <|> return []
+many1 p <|> pure []
 
 def many1_aux' [alternative m] (p : m α) : nat → m unit
-| 0     := p >> return ()
-| (n+1) := p >> (many1_aux' n <|> return ())
+| 0     := p >> pure ()
+| (n+1) := p >> (many1_aux' n <|> pure ())
 
 def many1' [alternative m] (p : m α) : m unit :=
 do r ← remaining, many1_aux' p r
 
 def many' [alternative m] (p : m α) : m unit :=
-many1' p <|> return ()
+many1' p <|> pure ()
 
 def sep_by1 [alternative m] (p : m α) (sep : m β) : m (list α) :=
 (::) <$> p <*> many (sep >> p)
 
 def sep_by [alternative m] (p : m α) (sep : m β) : m (list α) :=
-sep_by1 p sep <|> return []
+sep_by1 p sep <|> pure []
 
 def fix_aux [alternative m] (f : m α → m α) : nat → m α
 | 0     := error "fix_aux: no progress"
@@ -495,8 +495,8 @@ def fix [alternative m] (f : m α → m α) : m α :=
 do n ← remaining, fix_aux f (n+1)
 
 def foldr_aux [alternative m] (f : α → β → β) (p : m α) (b : β) : nat → m β
-| 0     := return b
-| (n+1) := (f <$> p <*> foldr_aux n) <|> return b
+| 0     := pure b
+| (n+1) := (f <$> p <*> foldr_aux n) <|> pure b
 
 /-- Matches zero or more occurrences of `p`, and folds the result. -/
 def foldr [alternative m] (f : α → β → β) (p : m α) (b : β) : m β :=
@@ -504,8 +504,8 @@ do it ← left_over,
    foldr_aux f p b it.remaining
 
 def foldl_aux [alternative m] (f : α → β → α) (p : m β) : α → nat → m α
-| a 0     := return a
-| a (n+1) := (do x ← p, foldl_aux (f a x) n) <|> return a
+| a 0     := pure a
+| a (n+1) := (do x ← p, foldl_aux (f a x) n) <|> pure a
 
 /-- Matches zero or more occurrences of `p`, and folds the result. -/
 def foldl [alternative m] (f : α → β → α) (a : α) (p : m β) : m α :=

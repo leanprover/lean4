@@ -64,7 +64,7 @@ def c_identifier : m string :=
 def cpp_identifier : m string :=
 (try $ do n ← c_identifier,
        ns ← many ((++) <$> str "::" <*> c_identifier),
-       return $ string.join (n::ns)) <?> "C++ identifier"
+       pure $ string.join (n::ns)) <?> "C++ identifier"
 
 end parser
 end lean

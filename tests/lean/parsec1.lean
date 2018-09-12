@@ -4,13 +4,13 @@ open lean.parser.monad_parsec
 
 def test {α} [decidable_eq α] (p : parsec' α) (s : string) (e : α) : eio unit :=
 match parsec.parse p s with
-| except.ok a    := if a = e then return () else io.println "unexpected result"
+| except.ok a    := if a = e then pure () else io.println "unexpected result"
 | except.error e := io.println e
 
 def test_failure {α} (p : parsec' α) (s : string) : eio unit :=
 match parsec.parse p s with
 | except.ok a    := io.println "unexpected success"
-| except.error e := return ()
+| except.error e := pure ()
 
 def show_result {α} [has_to_string α] (p : parsec' α) (s : string) : eio unit :=
 match parsec.parse p s with
@@ -25,9 +25,9 @@ match parsec.parse p s with
 #eval test_failure ((str "foo" >> str "foo") <|> str "foo2" <|> str "boo") "foo2"
 #eval test (try (str "foo" >> str "foo") <|> str "foo2" <|> str "boo") "foo2" "foo2"
 #eval test num "1000" 1000
-#eval test (do n ← num, whitespace, m ← num, return (n, m)) "1000 200" (1000, 200)
-#eval test (do n ← num, whitespace, m ← num, return (n, m)) "1000      200" (1000, 200)
-#eval test (do n ← lexeme num, m ← num, return (n, m)) "1000 200" (1000, 200)
+#eval test (do n ← num, whitespace, m ← num, pure (n, m)) "1000 200" (1000, 200)
+#eval test (do n ← num, whitespace, m ← num, pure (n, m)) "1000      200" (1000, 200)
+#eval test (do n ← lexeme num, m ← num, pure (n, m)) "1000 200" (1000, 200)
 #eval test (whitespace >> prod.mk <$> (lexeme num) <*> (lexeme num)) "    1000 200    " (1000, 200)
 #eval test (whitespace >> prod.mk <$> (lexeme num) <*> (lexeme num) <* eoi) "    1000 200    " (1000, 200)
 #eval test_failure (whitespace >> prod.mk <$> (lexeme num) <*> num <* eoi) "    1000 200    "
@@ -53,7 +53,7 @@ symbol '(' >> lexeme p <* symbol ')'
 def var : parsec' string :=
 do c ← satisfy (λ a, a.is_alpha || a = '_'),
    r ← lexeme $ take_while (λ a, a.is_digit || a.is_alpha || a = '_'),
-   return (c.to_string ++ r)
+   pure (c.to_string ++ r)
 
 #eval test var "abc" "abc"
 #eval test var "_a_1bc" "_a_1bc"
@@ -98,7 +98,7 @@ open lean
 
 def parse_instr_pp : parsec' string :=
 do cmd ← lean.ir.parse_instr,
-   return $ to_string cmd
+   pure $ to_string cmd
 
 #eval test parse_instr_pp "x :    uint32 :=  10" "x : uint32 := 10"
 #eval test parse_instr_pp "x : bool:=not y" "x : bool := not y"
@@ -163,7 +163,7 @@ def parse_atom (p : parsec' Expr) : parsec' Expr :=
 
 def parse_add (p : parsec' Expr) : parsec' Expr :=
 do l ← parse_atom p,
-   (do symbol '+', r ← p, return $ Add l r) <|> return l
+   (do symbol '+', r ← p, pure $ Add l r) <|> pure l
 
 def parse_expr : parsec' Expr :=
 whitespace >> fix (λ F, parse_add F) <* eoi
@@ -186,7 +186,7 @@ namespace paper_ex
 #print "Failure 3"
 def digit  : parsec' char := monad_parsec.digit <?> "digit"
 def letter : parsec' char := monad_parsec.alpha <?> "letter"
-def tst    : parsec' char := (digit <|> return '0') >> letter
+def tst    : parsec' char := (digit <|> pure '0') >> letter
 #eval test tst "*" 'a'
 #print "---------"
 end paper_ex

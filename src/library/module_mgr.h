@@ -70,4 +70,7 @@ public:
     environment get_initial_env() const { return m_initial_env; }
     options get_options() const { return m_ios.get_options(); }
 };
+
+void initialize_module_mgr();
+void finalize_module_mgr();
 }

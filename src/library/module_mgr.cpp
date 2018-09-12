@@ -25,19 +25,29 @@ static std::shared_ptr<module_info>
 load_module(search_path const & path, module_name const & mod_name, bool can_use_olean) {
     auto lean_fn = find_file(path, mod_name, {".lean"});
     auto lean_mtime = get_mtime(lean_fn);
+    auto olean_fn = olean_of_lean(lean_fn);
+    shared_file_lock olean_lock(olean_fn);
+    auto olean_mtime = get_mtime(olean_fn);
 
-    try {
-        auto olean_fn = olean_of_lean(lean_fn);
-        shared_file_lock olean_lock(olean_fn);
-        auto olean_mtime = get_mtime(olean_fn);
-        if (olean_mtime != -1 && olean_mtime >= lean_mtime &&
-            can_use_olean &&
-            is_candidate_olean_file(olean_fn)) {
-            return std::make_shared<module_info>(mod_name, olean_fn, module_src::OLEAN, olean_mtime);
-        }
-    } catch (exception) {}
+    if (olean_mtime == -1) {
+        lean_trace("import", tout() << "loading " << lean_fn << ", .olean doesn't exist\n";);
+        return std::make_shared<module_info>(mod_name, lean_fn, module_src::LEAN, lean_mtime);
+    }
+    if (olean_mtime < lean_mtime) {
+        lean_trace("import", tout() << "loading " << lean_fn << ", .olean is out of date\n";);
+        return std::make_shared<module_info>(mod_name, lean_fn, module_src::LEAN, lean_mtime);
+    }
+    if (!can_use_olean) {
+        lean_trace("import", tout() << "loading " << lean_fn << ", ignoring .olean file\n";);
+        return std::make_shared<module_info>(mod_name, lean_fn, module_src::LEAN, lean_mtime);
+    }
+    if (!is_candidate_olean_file(olean_fn)) {
+        lean_trace("import", tout() << "loading " << lean_fn << ", .olean file is from a different Lean version\n";);
+        return std::make_shared<module_info>(mod_name, lean_fn, module_src::LEAN, lean_mtime);
+    }
 
-    return std::make_shared<module_info>(mod_name, lean_fn, module_src::LEAN, lean_mtime);
+    lean_trace("import", tout() << "loading " << olean_fn << "\n";);
+    return std::make_shared<module_info>(mod_name, olean_fn, module_src::OLEAN, olean_mtime);
 }
 
 static void compile_olean(search_path const & path, std::shared_ptr<module_info> const & mod) {
@@ -46,6 +56,7 @@ static void compile_olean(search_path const & path, std::shared_ptr<module_info>
         return;
 
     auto olean_fn = olean_of_lean(find_file(path, mod->m_name, {".lean"}));
+    lean_trace("import", tout() << "saving " << olean_fn << "\n";);
     exclusive_file_lock output_lock(olean_fn);
     std::ofstream out(olean_fn, std::ios_base::binary);
     write_module(*mod->m_loaded_module, out);
@@ -83,7 +94,7 @@ time_t module_mgr::build_module(module_name const & mod_name, bool can_use_olean
         }
 
         if (max_mtime > mod->m_mtime) {
-            // .olean file out of date, try again with .lean file
+            lean_trace("import", tout() << "discarding " << mod->m_filename << ", older than a dependency\n";);
             return build_module(mod_name, false, orig_module_stack);
         }
 
@@ -154,4 +165,9 @@ std::vector<module_name> module_mgr::get_direct_imports(std::string const & file
     return imports;
 }
 
+void initialize_module_mgr() {
+    register_trace_class("import");
+}
+
+void finalize_module_mgr() {}
 }

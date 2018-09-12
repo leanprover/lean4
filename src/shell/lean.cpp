@@ -439,6 +439,8 @@ int main(int argc, char ** argv) {
     if (json_output) ios.set_regular_channel(ios.get_diagnostic_channel_ptr());
 
     scope_global_ios scope_ios(ios);
+    type_context_old trace_ctx(env, opts);
+    scope_trace_env scope_trace(env, opts, trace_ctx);
 
     try {
         module_mgr mod_mgr(path.get_path(), env, ios);

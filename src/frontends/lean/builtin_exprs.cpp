@@ -895,6 +895,11 @@ static expr parse_node(parser & p, unsigned, expr const *, pos_info const &) {
                 fname = p.get_str_val();
                 p.next();
                 reader = mk_app(mk_const({"lean", "parser", "symbol"}), from_string(p.get_str_val()));
+                if (p.curr_is_token(":")) {
+                    p.next();
+                    auto prec = p.parse_expr(get_max_prec());
+                    reader = mk_app(reader, prec);
+                }
                 args.push_back(mk_mdata(set_name(kvmap(), "fname", fname), reader));
             } else if (p.curr_is_token_or_id("try")) {
                 p.next();
@@ -932,6 +937,11 @@ static expr parse_choice(parser & p, unsigned, expr const *, pos_info const &) {
             fname = p.get_str_val();
             p.next();
             reader = mk_app(mk_const({"lean", "parser", "symbol"}), from_string(p.get_str_val()));
+            if (p.curr_is_token(":")) {
+                p.next();
+                auto prec = p.parse_expr(get_max_prec());
+                reader = mk_app(reader, prec);
+            }
             args.push_back(mk_mdata(set_name(kvmap(), "fname", fname), reader));
         } else {
             fname = p.check_id_next("identifier expected");

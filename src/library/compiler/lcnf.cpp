@@ -283,6 +283,24 @@ public:
         }
     }
 
+    expr visit_lambda_app(expr fn, buffer<expr> & args, bool root) {
+        lean_assert(is_lambda(fn));
+        unsigned i = 0;
+        buffer<expr> fvars;
+        while (is_lambda(fn) && i < args.size()) {
+            expr new_type = instantiate_rev(binding_domain(fn), fvars.size(), fvars.data());
+            expr new_val  = visit(args[i], true);
+            expr new_fvar = m_lctx.mk_local_decl(m_ngen, binding_name(fn), new_type, new_val);
+            fvars.push_back(new_fvar);
+            m_fvars.push_back(new_fvar);
+            fn = binding_body(fn);
+            i++;
+        }
+        fn = instantiate_rev(fn, fvars.size(), fvars.data());
+        expr r = mk_app(fn, args.size() - i, args.data() + i);
+        return visit(r, root);
+    }
+
     expr visit_app_default(expr const & fn, buffer<expr> & args, bool root) {
         for (expr & arg : args) {
             arg = visit(arg, false);
@@ -292,7 +310,7 @@ public:
 
     expr visit_app(expr const & e, bool root) {
         buffer<expr> args;
-        expr fn = visit(get_app_args(e, args), false);
+        expr fn = get_app_args(e, args);
         if (is_constant(fn)) {
             if (const_name(fn) == get_and_rec_name() || const_name(fn) == get_and_cases_on_name()) {
                 return visit_and_rec(fn, args, root);
@@ -317,7 +335,10 @@ public:
             } else if (is_constructor(m_env, const_name(fn))) {
                 return visit_constructor(fn, args, root);
             }
+        } else if (is_lambda(fn)) {
+            return visit_lambda_app(fn, args, root);
         }
+        fn = visit(fn, root);
         return visit_app_default(fn, args, root);
     }
 

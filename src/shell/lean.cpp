@@ -523,7 +523,8 @@ int main(int argc, char ** argv) {
             }
         }
 
-        display_cumulative_profiling_times(std::cerr);
+        if (!json_output)
+            display_cumulative_profiling_times(std::cerr);
 
         if (!test_suite) {
             for (auto & mod : mods) {

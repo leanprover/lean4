@@ -21,26 +21,26 @@ Author: Leonardo de Moura
 namespace lean {
 class to_lcnf_fn {
     typedef rb_expr_map<expr> cache;
-    type_checker::context m_ctx;
-    local_ctx             m_lctx;
-    cache                 m_cache;
-    buffer<expr>          m_fvars;
-    name                  m_x;
-    unsigned              m_next_idx{1};
+    type_checker::state m_st;
+    local_ctx           m_lctx;
+    cache               m_cache;
+    buffer<expr>        m_fvars;
+    name                m_x;
+    unsigned            m_next_idx{1};
 public:
     to_lcnf_fn(environment const & env, local_ctx const & lctx):
-        m_ctx(env), m_lctx(lctx), m_x("_x") {}
+        m_st(env), m_lctx(lctx), m_x("_x") {}
 
-    environment & env() { return m_ctx.env(); }
+    environment & env() { return m_st.env(); }
 
-    name_generator & ngen() { return m_ctx.ngen(); }
+    name_generator & ngen() { return m_st.ngen(); }
 
-    expr infer_type(expr const & e) { return type_checker(m_ctx, m_lctx).infer(e); }
+    expr infer_type(expr const & e) { return type_checker(m_st, m_lctx).infer(e); }
 
-    expr whnf(expr const & e) { return type_checker(m_ctx, m_lctx).whnf(e); }
+    expr whnf(expr const & e) { return type_checker(m_st, m_lctx).whnf(e); }
 
     expr whnf_infer_type(expr const & e) {
-        type_checker tc(m_ctx, m_lctx);
+        type_checker tc(m_st, m_lctx);
         return tc.whnf(tc.infer(e));
     }
 
@@ -180,7 +180,7 @@ public:
             return visit(eta_expand(mk_app(fn, args), basic_arity - args.size()), root);
         }
         lean_assert(args.size() >= basic_arity);
-        type_checker tc(m_ctx, m_lctx);
+        type_checker tc(m_st, m_lctx);
         expr lhs                        = tc.whnf(args[nparams + nindices + 1]);
         expr rhs                        = tc.whnf(args[nparams + nindices + 2]);
         optional<name> lhs_constructor  = is_constructor_app(env(), lhs);
@@ -226,7 +226,7 @@ public:
                 minor_idx = 5;
             else
                 minor_idx = 3;
-            type_checker tc(m_ctx, m_lctx);
+            type_checker tc(m_st, m_lctx);
             expr minor       = args[minor_idx];
             expr minor_type  = tc.whnf(tc.infer(minor));
             expr eq_rec_type = tc.whnf(tc.infer(mk_app(fn, eq_rec_nargs, args.data())));
@@ -250,7 +250,7 @@ public:
         } else {
             /* Remark: args.size() may be greater than 2, but
                (lc_unreachable a_1 ... a_n) is equivalent to (lc_unreachable) */
-            type_checker tc(m_ctx, m_lctx);
+            type_checker tc(m_st, m_lctx);
             expr type = tc.whnf(tc.infer(mk_app(fn, args)));
             level lvl = sort_level(tc.ensure_type(type));
             return mk_let_decl(mk_app(mk_constant(get_lc_unreachable_name(), {lvl}), type), root);
@@ -297,7 +297,7 @@ public:
 
         if (is_lc_proof(e)) return false;
 
-        type_checker tc(m_ctx, m_lctx);
+        type_checker tc(m_st, m_lctx);
         e_type = tc.whnf(e_type);
         if (is_sort(e_type)) {
             return false;
@@ -460,7 +460,7 @@ public:
         }
 
         {
-            type_checker tc(m_ctx, m_lctx);
+            type_checker tc(m_st, m_lctx);
             expr type = tc.whnf(tc.infer(e));
             if (is_sort(type)) {
                 // Types are not pre-processed

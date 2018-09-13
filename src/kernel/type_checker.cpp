@@ -24,7 +24,7 @@ namespace lean {
 static name * g_kernel_fresh = nullptr;
 static expr * g_dont_care    = nullptr;
 
-type_checker::context::context(environment const & env):
+type_checker::state::state(environment const & env):
     m_env(env), m_ngen(*g_kernel_fresh) {}
 
 /** \brief Make sure \c e "is" a sort, and return the corresponding sort.
@@ -96,7 +96,7 @@ expr type_checker::infer_lambda(expr const & _e, bool infer_only) {
     expr e = _e;
     while (is_lambda(e)) {
         expr d    = instantiate_rev(binding_domain(e), fvars.size(), fvars.data());
-        expr fvar = m_lctx.mk_local_decl(m_ctx->m_ngen, binding_name(e), d, binding_info(e));
+        expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(e), d, binding_info(e));
         fvars.push_back(fvar);
         if (!infer_only) {
             ensure_sort_core(infer_type_core(d, infer_only), d);
@@ -116,7 +116,7 @@ expr type_checker::infer_pi(expr const & _e, bool infer_only) {
         expr d  = instantiate_rev(binding_domain(e), fvars.size(), fvars.data());
         expr t1 = ensure_sort_core(infer_type_core(d, infer_only), d);
         us.push_back(sort_level(t1));
-        expr fvar  = m_lctx.mk_local_decl(m_ctx->m_ngen, binding_name(e), d, binding_info(e));
+        expr fvar  = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(e), d, binding_info(e));
         fvars.push_back(fvar);
         e = binding_body(e);
     }
@@ -167,7 +167,7 @@ expr type_checker::infer_let(expr const & _e, bool infer_only) {
     while (is_let(e)) {
         expr type = instantiate_rev(let_type(e), fvars.size(), fvars.data());
         expr val  = instantiate_rev(let_value(e), fvars.size(), fvars.data());
-        expr fvar = m_lctx.mk_local_decl(m_ctx->m_ngen, let_name(e), type, val);
+        expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, let_name(e), type, val);
         fvars.push_back(fvar);
         if (!infer_only) {
             ensure_sort_core(infer_type_core(type, infer_only), type);
@@ -227,8 +227,8 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
     lean_assert(!has_loose_bvars(e));
     check_system("type checker");
 
-    auto it = m_ctx->m_infer_type[infer_only].find(e);
-    if (it != m_ctx->m_infer_type[infer_only].end())
+    auto it = m_st->m_infer_type[infer_only].find(e);
+    if (it != m_st->m_infer_type[infer_only].end())
         return it->second;
 
     expr r;
@@ -251,7 +251,7 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
     case expr_kind::Let:      r = infer_let(e, infer_only);            break;
     }
 
-    m_ctx->m_infer_type[infer_only].insert(mk_pair(e, r));
+    m_st->m_infer_type[infer_only].insert(mk_pair(e, r));
     return r;
 }
 
@@ -347,8 +347,8 @@ expr type_checker::whnf_core(expr const & e) {
     }
 
     // check cache
-    auto it = m_ctx->m_whnf_core.find(e);
-    if (it != m_ctx->m_whnf_core.end())
+    auto it = m_st->m_whnf_core.find(e);
+    if (it != m_st->m_whnf_core.end())
         return it->second;
 
     // do the actual work
@@ -396,7 +396,7 @@ expr type_checker::whnf_core(expr const & e) {
         break;
     }
 
-    m_ctx->m_whnf_core.insert(mk_pair(e, r));
+    m_st->m_whnf_core.insert(mk_pair(e, r));
     return r;
 }
 
@@ -455,8 +455,8 @@ expr type_checker::whnf(expr const & e) {
     }
 
     // check cache
-    auto it = m_ctx->m_whnf.find(e);
-    if (it != m_ctx->m_whnf.end())
+    auto it = m_st->m_whnf.find(e);
+    if (it != m_st->m_whnf.end())
         return it->second;
 
     expr t = e;
@@ -466,7 +466,7 @@ expr type_checker::whnf(expr const & e) {
             t = *next_t;
         } else {
             auto r = t1;
-            m_ctx->m_whnf.insert(mk_pair(e, r));
+            m_st->m_whnf.insert(mk_pair(e, r));
             return r;
         }
     }
@@ -497,7 +497,7 @@ bool type_checker::is_def_eq_binding(expr t, expr s) {
             // free variable is used inside t or s
             if (!var_s_type)
                 var_s_type = instantiate_rev(binding_domain(s), subst.size(), subst.data());
-            subst.push_back(m_lctx.mk_local_decl(m_ctx->m_ngen, binding_name(s), *var_s_type, binding_info(s)));
+            subst.push_back(m_lctx.mk_local_decl(m_st->m_ngen, binding_name(s), *var_s_type, binding_info(s)));
         } else {
             subst.push_back(*g_dont_care); // don't care
         }
@@ -530,7 +530,7 @@ bool type_checker::is_def_eq(levels const & ls1, levels const & ls2) {
 
 /** \brief This is an auxiliary method for is_def_eq. It handles the "easy cases". */
 lbool type_checker::quick_is_def_eq(expr const & t, expr const & s, bool use_hash) {
-    if (m_ctx->m_eqv_manager.is_equiv(t, s, use_hash))
+    if (m_st->m_eqv_manager.is_equiv(t, s, use_hash))
         return l_true;
     if (t.kind() == s.kind()) {
         switch (t.kind()) {
@@ -615,21 +615,21 @@ bool type_checker::is_def_eq_proof_irrel(expr const & t, expr const & s) {
 
 bool type_checker::failed_before(expr const & t, expr const & s) const {
     if (hash(t) < hash(s)) {
-        return m_ctx->m_failure.find(mk_pair(t, s)) != m_ctx->m_failure.end();
+        return m_st->m_failure.find(mk_pair(t, s)) != m_st->m_failure.end();
     } else if (hash(t) > hash(s)) {
-        return m_ctx->m_failure.find(mk_pair(s, t)) != m_ctx->m_failure.end();
+        return m_st->m_failure.find(mk_pair(s, t)) != m_st->m_failure.end();
     } else {
         return
-            m_ctx->m_failure.find(mk_pair(t, s)) != m_ctx->m_failure.end() ||
-            m_ctx->m_failure.find(mk_pair(s, t)) != m_ctx->m_failure.end();
+            m_st->m_failure.find(mk_pair(t, s)) != m_st->m_failure.end() ||
+            m_st->m_failure.find(mk_pair(s, t)) != m_st->m_failure.end();
     }
 }
 
 void type_checker::cache_failure(expr const & t, expr const & s) {
     if (hash(t) <= hash(s))
-        m_ctx->m_failure.insert(mk_pair(t, s));
+        m_st->m_failure.insert(mk_pair(t, s));
     else
-        m_ctx->m_failure.insert(mk_pair(s, t));
+        m_st->m_failure.insert(mk_pair(s, t));
 }
 
 static name * g_id_delta = nullptr;
@@ -760,29 +760,29 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
 bool type_checker::is_def_eq(expr const & t, expr const & s) {
     bool r = is_def_eq_core(t, s);
     if (r)
-        m_ctx->m_eqv_manager.add_equiv(t, s);
+        m_st->m_eqv_manager.add_equiv(t, s);
     return r;
 }
 
 type_checker::type_checker(environment const & env, local_ctx const & lctx, bool non_meta_only):
-    m_ctx_owner(true), m_ctx(new context(env)),
+    m_st_owner(true), m_st(new state(env)),
     m_lctx(lctx), m_non_meta_only(non_meta_only), m_lparams(nullptr) {
 }
 
-type_checker::type_checker(context & ctx, local_ctx const & lctx, bool non_meta_only):
-    m_ctx_owner(false), m_ctx(&ctx), m_lctx(lctx),
+type_checker::type_checker(state & st, local_ctx const & lctx, bool non_meta_only):
+    m_st_owner(false), m_st(&st), m_lctx(lctx),
     m_non_meta_only(non_meta_only), m_lparams(nullptr) {
 }
 
 type_checker::type_checker(type_checker && src):
-    m_ctx_owner(src.m_ctx_owner), m_ctx(src.m_ctx), m_lctx(std::move(src.m_lctx)),
+    m_st_owner(src.m_st_owner), m_st(src.m_st), m_lctx(std::move(src.m_lctx)),
     m_non_meta_only(src.m_non_meta_only), m_lparams(src.m_lparams) {
-    src.m_ctx_owner = false;
+    src.m_st_owner = false;
 }
 
 type_checker::~type_checker() {
-    if (m_ctx_owner)
-        delete m_ctx;
+    if (m_st_owner)
+        delete m_st;
 }
 
 void initialize_type_checker() {

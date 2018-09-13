@@ -22,7 +22,7 @@ namespace lean {
     type \c A is convertible to a type \c B, etc. */
 class type_checker {
 public:
-    class context {
+    class state {
         typedef expr_map<expr> infer_cache;
         typedef std::unordered_set<expr_pair, expr_pair_hash, expr_pair_eq> expr_pair_set;
         environment               m_env;
@@ -34,14 +34,14 @@ public:
         expr_pair_set             m_failure;
         friend type_checker;
     public:
-        context(environment const & env);
+        state(environment const & env);
         environment & env() { return m_env; }
         environment const & env() const { return m_env; }
         name_generator & ngen() { return m_ngen; }
     };
 private:
-    bool                      m_ctx_owner;
-    context *                 m_ctx;
+    bool                      m_st_owner;
+    state *                   m_st;
     local_ctx                 m_lctx;
     bool                      m_non_meta_only;
     /* When `m_lparams != nullptr, the `check` method makes sure all level parameters
@@ -90,16 +90,15 @@ private:
     expr check_ignore_undefined_universes(expr const & e);
 
 public:
-    /** \brief Create a type checker for the given environment. */
-    type_checker(context & ctx, local_ctx const & lctx, bool non_meta_only = true);
+    type_checker(state & st, local_ctx const & lctx, bool non_meta_only = true);
+    type_checker(state & st, bool non_meta_only = true):type_checker(st, local_ctx(), non_meta_only) {}
     type_checker(environment const & env, local_ctx const & lctx, bool non_meta_only = true);
     type_checker(environment const & env, bool non_meta_only = true):type_checker(env, local_ctx(), non_meta_only) {}
-    type_checker(context & ctx, bool non_meta_only = true):type_checker(ctx, local_ctx(), non_meta_only) {}
     type_checker(type_checker &&);
     type_checker(type_checker const &) = delete;
     ~type_checker();
 
-    environment const & env() const { return m_ctx->m_env; }
+    environment const & env() const { return m_st->m_env; }
 
     /** \brief Return the type of \c t.
         It does not check whether the input expression is type correct or not.

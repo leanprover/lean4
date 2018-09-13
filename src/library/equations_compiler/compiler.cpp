@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <string>
 #include "kernel/find_fn.h"
+#include "kernel/replace_fn.h"
 #include "kernel/instantiate.h"
 #include "library/trace.h"
 #include "library/locals.h"
@@ -343,6 +344,31 @@ static expr compile_equations_main(environment & env, elaborator & elab,
     return mk_equations_result(fns.size(), fns.data());
 }
 
+/*
+  We create auxiliary applications for nested match-expressions.  The
+  declarations should be expanded when we generate the `_meta_aux`
+  definitions for code generation. Thus, we don't need to use `pull_nested_rec_fn`
+  which may affect the runtime behavior of the generated code.
+*/
+static expr unfold_auxiliary_fns(environment const & env, names const & fn_names, expr const & e) {
+    return replace(e, [&](expr const & c, unsigned) {
+            if (!is_constant(c)) return none_expr();
+            name const & n = const_name(c);
+            if (!is_internal_name(n)) return none_expr();
+            /* Check whether `n` is an auxiliary function for some of the `fn_names`.
+               Remark: we assume that `f._match_1` is an auxiliary function for `f._main`
+            */
+            for (name const & fn : fn_names) {
+                if ((is_prefix_of(fn, n)) ||
+                    (!fn.is_atomic() && is_internal_name(fn) && is_prefix_of(fn.get_prefix(), n))) {
+                    constant_info info = env.get(n);
+                    return some_expr(unfold_auxiliary_fns(env, fn_names, instantiate_value_lparams(info, const_levels(c))));
+                }
+            }
+            return none_expr();
+        });
+}
+
 expr compile_equations(environment & env, elaborator & elab, metavar_context & mctx, local_context const & lctx, expr const & eqns) {
     equations_header const & header = get_equations_header(eqns);
     type_context_old ctx(env, mctx, lctx, elab.get_cache(), transparency_mode::Semireducible);
@@ -361,6 +387,7 @@ expr compile_equations(environment & env, elaborator & elab, metavar_context & m
         aux_header.m_aux_lemmas = false;
         aux_header.m_fn_actual_names = map(header.m_fn_actual_names, mk_aux_meta_rec_name);
         expr aux_eqns = remove_wf_annotation_from_equations(update_equations(eqns, aux_header));
+        aux_eqns = unfold_auxiliary_fns(env, header.m_fn_actual_names, aux_eqns);
         compile_equations_main(env, elab, mctx, lctx, aux_eqns, false);
     }
     return compile_equations_main(env, elab, mctx, lctx, eqns, true);

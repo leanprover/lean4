@@ -311,7 +311,9 @@ struct wf_rec_fn {
         fn = mk_fix(fn);
         expr fn_type = ctx.infer(fn);
         expr r;
-        std::tie(m_env, r) = mk_aux_definition(m_env, get_options(), m_mctx, m_lctx, header,
+        equations_header new_header = header;
+        new_header.m_gen_code = false;
+        std::tie(m_env, r) = mk_aux_definition(m_env, get_options(), m_mctx, m_lctx, new_header,
                                                head(header.m_fn_names), head(header.m_fn_actual_names),
                                                fn_type, fn);
         return r;

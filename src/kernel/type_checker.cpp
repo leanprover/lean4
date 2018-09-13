@@ -137,7 +137,7 @@ expr type_checker::infer_app(expr const & e, bool infer_only) {
         expr a_type = infer_type_core(app_arg(e), infer_only);
         expr d_type = binding_domain(f_type);
         if (!is_def_eq(a_type, d_type)) {
-            throw app_type_mismatch_exception(env(), m_lctx, e);
+            throw app_type_mismatch_exception(env(), m_lctx, e, f_type, a_type);
         }
         return instantiate(binding_body(f_type), app_arg(e));
     } else {

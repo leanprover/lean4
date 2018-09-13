@@ -58,6 +58,7 @@ class local_context : public local_ctx {
     }
 public:
     local_context() {}
+    explicit local_context(local_ctx const & lctx): local_ctx(lctx) {}
 
     bool empty() const { return m_idx2local_decl.empty(); }
 

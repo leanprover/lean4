@@ -118,10 +118,15 @@ public:
 
 class app_type_mismatch_exception : public kernel_exception_with_lctx {
     expr m_app;
+    expr m_function_type;
+    expr m_arg_type;
 public:
-    app_type_mismatch_exception(environment const & env, local_ctx const & lctx, expr const & app):
-        kernel_exception_with_lctx(env, lctx), m_app(app) {}
+    app_type_mismatch_exception(environment const & env, local_ctx const & lctx, expr const & app,
+            expr const & function_type, expr const & arg_type):
+        kernel_exception_with_lctx(env, lctx), m_app(app), m_function_type(function_type), m_arg_type(arg_type) {}
     expr const & get_app() const { return m_app; }
+    expr const & get_function_type() const { return m_function_type; }
+    expr const & get_arg_type() const { return m_arg_type; }
 };
 
 class invalid_proj_exception : public kernel_exception_with_lctx {

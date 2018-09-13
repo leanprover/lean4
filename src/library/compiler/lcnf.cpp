@@ -124,11 +124,15 @@ public:
         unsigned arity              = first_minor_idx + nminors;
         if (args.size() < arity) {
             return visit(eta_expand(mk_app(fn, args), arity - args.size()), root);
+        } else if (args.size() > arity) {
+            expr new_cases = visit(mk_app(fn, arity, args.data()), false);
+            return visit(mk_app(new_cases, args.size() - arity, args.data() + arity), root);
         } else {
             for (unsigned i = 0; i < first_minor_idx; i++) {
                 args[i] = visit(args[i], false);
             }
-            for (unsigned i = first_minor_idx; i < first_minor_idx + nminors; i++) {
+            lean_assert(first_minor_idx + nminors == arity);
+            for (unsigned i = first_minor_idx; i < arity; i++) {
                 name cnstr_name     = head(cnstrs);
                 cnstrs              = tail(cnstrs);
                 expr minor          = args[i];
@@ -159,9 +163,6 @@ public:
                 m_fvars.shrink(m_fvars_init_size);
                 new_minor      = m_lctx.mk_lambda(minor_fvars, new_minor);
                 args[i]        = new_minor;
-            }
-            for (unsigned i = first_minor_idx + nminors; i < args.size(); i++) {
-                args[i] = visit(args[i], false);
             }
             return mk_let_decl(mk_app(fn, args), root);
         }

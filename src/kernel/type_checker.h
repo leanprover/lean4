@@ -23,11 +23,7 @@ namespace lean {
 class type_checker {
 public:
     class context {
-        /* In the cache, we must take into account binder information.
-           Examples:
-           The type of (lambda x : A, t)   is (Pi x : A, typeof(t))
-           The type of (lambda {x : A}, t) is (Pi {x : A}, typeof(t)) */
-        typedef expr_bi_map<expr> infer_cache;
+        typedef expr_map<expr> infer_cache;
         typedef std::unordered_set<expr_pair, expr_pair_hash, expr_pair_eq> expr_pair_set;
         environment               m_env;
         name_generator            m_ngen;

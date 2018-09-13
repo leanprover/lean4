@@ -283,6 +283,36 @@ public:
         }
     }
 
+    bool should_create_let_decl(expr const & e, expr e_type) {
+        switch (e.kind()) {
+        case expr_kind::BVar:  case expr_kind::MVar:
+        case expr_kind::FVar:  case expr_kind::Sort:
+        case expr_kind::Const: case expr_kind::Lit:
+        case expr_kind::Pi:
+            return false;
+        default:
+            break;
+        }
+
+        if (is_lc_proof(e)) return false;
+
+        type_checker tc(m_env, m_lctx, m_tc_cache);
+        e_type = tc.whnf(e_type);
+        if (is_sort(e_type)) {
+            return false;
+        } else if (tc.is_prop(e_type)) {
+            return false;
+        } else if (is_pi(e_type)) {
+            // Functions that return types are not relevant
+            while (is_pi(e_type))
+                e_type = binding_body(e_type);
+            if (is_sort(e_type))
+                return false;
+        }
+
+        return true;
+    }
+
     expr visit_lambda_app(expr fn, buffer<expr> & args, bool root) {
         lean_assert(is_lambda(fn));
         unsigned i = 0;
@@ -290,9 +320,13 @@ public:
         while (is_lambda(fn) && i < args.size()) {
             expr new_type = instantiate_rev(binding_domain(fn), fvars.size(), fvars.data());
             expr new_val  = visit(args[i], true);
-            expr new_fvar = m_lctx.mk_local_decl(m_ngen, binding_name(fn), new_type, new_val);
-            fvars.push_back(new_fvar);
-            m_fvars.push_back(new_fvar);
+            if (should_create_let_decl(new_val, new_type)) {
+                expr new_fvar = m_lctx.mk_local_decl(m_ngen, binding_name(fn), new_type, new_val);
+                fvars.push_back(new_fvar);
+                m_fvars.push_back(new_fvar);
+            } else {
+                fvars.push_back(new_val);
+            }
             fn = binding_body(fn);
             i++;
         }
@@ -386,12 +420,12 @@ public:
         while (is_let(e)) {
             expr new_type = instantiate_rev(let_type(e), let_fvars.size(), let_fvars.data());
             expr new_val  = visit(instantiate_rev(let_value(e), let_fvars.size(), let_fvars.data()), false);
-            if (is_fvar(new_val)) {
-                let_fvars.push_back(new_val);
-            } else {
+            if (should_create_let_decl(new_val, new_type)) {
                 expr new_fvar = m_lctx.mk_local_decl(m_ngen, let_name(e), new_type, new_val);
                 let_fvars.push_back(new_fvar);
                 m_fvars.push_back(new_fvar);
+            } else {
+                let_fvars.push_back(new_val);
             }
             e = let_body(e);
         }

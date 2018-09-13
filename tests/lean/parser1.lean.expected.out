@@ -119,7 +119,7 @@ result:
     (lean.parser.term.app
      (lean.parser.term.app
       (lean.parser.term.sort_app
-       (lean.parser.term.sort (2 "Type"))
+       (lean.parser.term.sort (1 "Type"))
        (lean.parser.level.leading (0 "max")))
       u)
      v))])

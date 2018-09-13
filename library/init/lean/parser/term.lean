@@ -37,7 +37,7 @@ node! hole [hole: symbol "_" max_prec]
 
 @[derive parser.has_tokens parser.has_view]
 def sort.parser : term_parser :=
-node_choice! sort {"Sort":max_prec, "Type":max_prec, "Type*":max_prec}
+node_choice! sort {"Sort":max_prec, "Type":max_prec}
 
 @[derive parser.has_tokens parser.has_view]
 def leading.parser :=

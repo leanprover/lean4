@@ -37,7 +37,7 @@ node! hole [hole: symbol "_" max_prec]
 
 @[derive parser.has_tokens parser.has_view]
 def sort.parser : term_parser :=
-node_choice! sort {"Sort":max_prec, "Sort*":max_prec, "Type":max_prec, "Type*":max_prec}
+node_choice! sort {"Sort":max_prec, "Type":max_prec, "Type*":max_prec}
 
 @[derive parser.has_tokens parser.has_view]
 def leading.parser :=
@@ -50,7 +50,7 @@ any_of [
 
 @[derive parser.has_tokens parser.has_view]
 def sort_app.parser : trailing_term_parser :=
-do { l ← get_leading, guard (syntax_node_kind.has_view.view sort l).is_some }  *>
+do { l ← get_leading, guard (syntax_node_kind.has_view.view sort l).is_some } *>
 node! sort_app [fn: get_leading, arg: monad_lift (level.parser max_prec)]
 
 @[derive parser.has_tokens parser.has_view]

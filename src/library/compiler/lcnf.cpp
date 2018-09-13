@@ -464,16 +464,16 @@ public:
             if (is_sort(type)) {
                 // Types are not pre-processed
                 return cache_result(e, e, shared);
+            } else if (tc.is_prop(type)) {
+                // We replace proofs using `lc_proof` constant
+                expr r = mk_app(mk_constant(get_lc_proof_name()), type);
+                return cache_result(e, r, shared);
             } else if (is_pi(type)) {
                 // Functions that return types are not pre-processed
                 while (is_pi(type))
                     type = binding_body(type);
                 if (is_sort(type))
                     return cache_result(e, e, shared);
-            } else if (tc.is_prop(type)) {
-                // We replace proofs using `lc_proof` constant
-                expr r = mk_app(mk_constant(get_lc_proof_name()), type);
-                return cache_result(e, r, shared);
             }
         }
 

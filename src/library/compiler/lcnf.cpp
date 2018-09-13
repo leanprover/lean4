@@ -19,28 +19,28 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 
 namespace lean {
-static name * g_lcnf_fresh = nullptr;
-
 class to_lcnf_fn {
     typedef rb_expr_map<expr> cache;
-    environment         m_env;
-    local_ctx           m_lctx;
-    name_generator      m_ngen;
-    type_checker::cache m_tc_cache;
-    cache               m_cache;
-    buffer<expr>        m_fvars;
-    name                m_x;
-    unsigned            m_next_idx{1};
+    type_checker::context m_ctx;
+    local_ctx             m_lctx;
+    cache                 m_cache;
+    buffer<expr>          m_fvars;
+    name                  m_x;
+    unsigned              m_next_idx{1};
 public:
     to_lcnf_fn(environment const & env, local_ctx const & lctx):
-        m_env(env), m_lctx(lctx), m_ngen(*g_lcnf_fresh), m_x("_x") {}
+        m_ctx(env), m_lctx(lctx), m_x("_x") {}
 
-    expr infer_type(expr const & e) { return type_checker(m_env, m_lctx, m_tc_cache).infer(e); }
+    environment & env() { return m_ctx.env(); }
 
-    expr whnf(expr const & e) { return type_checker(m_env, m_lctx, m_tc_cache).whnf(e); }
+    name_generator & ngen() { return m_ctx.ngen(); }
+
+    expr infer_type(expr const & e) { return type_checker(m_ctx, m_lctx).infer(e); }
+
+    expr whnf(expr const & e) { return type_checker(m_ctx, m_lctx).whnf(e); }
 
     expr whnf_infer_type(expr const & e) {
-        type_checker tc(m_env, m_lctx, m_tc_cache);
+        type_checker tc(m_ctx, m_lctx);
         return tc.whnf(tc.infer(e));
     }
 
@@ -56,7 +56,7 @@ public:
             /* Remark: we use `m_x.append_after(m_next_idx)` instead of `name(m_x, m_next_idx)`
                because the resulting name is confusing during debugging: it looks like a projection application.
                We should replace it with `name(m_x, m_next_idx)` when the compiler code gets more stable. */
-            expr fvar = m_lctx.mk_local_decl(m_ngen, m_x.append_after(m_next_idx), type, e);
+            expr fvar = m_lctx.mk_local_decl(ngen(), m_x.append_after(m_next_idx), type, e);
             m_next_idx++;
             m_fvars.push_back(fvar);
             return fvar;
@@ -73,7 +73,7 @@ public:
             if (!is_pi(e_type)) {
                 throw exception("compiler error, unexpected type at LCNF conversion");
             }
-            expr arg = m_lctx.mk_local_decl(m_ngen, binding_name(e_type), binding_domain(e_type), binding_info(e_type));
+            expr arg = m_lctx.mk_local_decl(ngen(), binding_name(e_type), binding_domain(e_type), binding_info(e_type));
             args.push_back(arg);
             e_type = whnf(instantiate(binding_body(e_type), arg));
         }
@@ -81,14 +81,14 @@ public:
     }
 
     expr visit_projection(expr const & fn, buffer<expr> & args, bool root) {
-        constant_info info = m_env.get(const_name(fn));
+        constant_info info = env().get(const_name(fn));
         expr fn_val        = instantiate_value_lparams(info, const_levels(fn));
         std::reverse(args.begin(), args.end());
         return visit(apply_beta(fn_val, args.size(), args.data()), root);
     }
 
     pair<unsigned, unsigned> get_constructor_arity_nfields(name const & n) {
-        constant_info cnstr_info = m_env.get(n);
+        constant_info cnstr_info = env().get(n);
         lean_assert(cnstr_info.is_constructor());
         unsigned nparams         = cnstr_info.to_constructor_val().get_nparams();
         unsigned cnstr_arity     = 0;
@@ -113,8 +113,8 @@ public:
     expr visit_cases_on(expr const & fn, buffer<expr> & args, bool root) {
         name const & rec_name = const_name(fn);
         name const & I_name   = rec_name.get_prefix();
-        lean_assert(is_inductive(m_env, I_name));
-        constant_info I_info        = m_env.get(I_name);
+        lean_assert(is_inductive(env(), I_name));
+        constant_info I_info        = env().get(I_name);
         inductive_val I_val         = I_info.to_inductive_val();
         unsigned nparams            = I_val.get_nparams();
         names cnstrs                = I_val.get_cnstrs();
@@ -138,7 +138,7 @@ public:
                 unsigned j = 0;
                 while (is_lambda(minor) && j < num_fields) {
                     expr new_d    = instantiate_rev(binding_domain(minor), minor_fvars.size(), minor_fvars.data());
-                    expr new_fvar = m_lctx.mk_local_decl(m_ngen, binding_name(minor), new_d, binding_info(minor));
+                    expr new_fvar = m_lctx.mk_local_decl(ngen(), binding_name(minor), new_d, binding_info(minor));
                     minor_fvars.push_back(new_fvar);
                     minor = binding_body(minor);
                     j++;
@@ -170,7 +170,7 @@ public:
     expr visit_no_confusion(expr const & fn, buffer<expr> & args, bool root) {
         name const & no_confusion_name  = const_name(fn);
         name const & I_name             = no_confusion_name.get_prefix();
-        constant_info I_info            = m_env.get(I_name);
+        constant_info I_info            = env().get(I_name);
         inductive_val I_val             = I_info.to_inductive_val();
         unsigned nparams                = I_val.get_nparams();
         unsigned nindices               = I_val.get_nindices();
@@ -179,11 +179,11 @@ public:
             return visit(eta_expand(mk_app(fn, args), basic_arity - args.size()), root);
         }
         lean_assert(args.size() >= basic_arity);
-        type_checker tc(m_env, m_lctx, m_tc_cache);
+        type_checker tc(m_ctx, m_lctx);
         expr lhs                        = tc.whnf(args[nparams + nindices + 1]);
         expr rhs                        = tc.whnf(args[nparams + nindices + 2]);
-        optional<name> lhs_constructor  = is_constructor_app(m_env, lhs);
-        optional<name> rhs_constructor  = is_constructor_app(m_env, rhs);
+        optional<name> lhs_constructor  = is_constructor_app(env(), lhs);
+        optional<name> rhs_constructor  = is_constructor_app(env(), rhs);
         if (!lhs_constructor || !rhs_constructor)
             throw exception(sstream() << "compiler error, unsupported occurrence of '" << no_confusion_name << "', constructors expected");
         if (lhs_constructor != rhs_constructor) {
@@ -225,7 +225,7 @@ public:
                 minor_idx = 5;
             else
                 minor_idx = 3;
-            type_checker tc(m_env, m_lctx, m_tc_cache);
+            type_checker tc(m_ctx, m_lctx);
             expr minor       = args[minor_idx];
             expr minor_type  = tc.whnf(tc.infer(minor));
             expr eq_rec_type = tc.whnf(tc.infer(mk_app(fn, eq_rec_nargs, args.data())));
@@ -249,7 +249,7 @@ public:
         } else {
             /* Remark: args.size() may be greater than 2, but
                (lc_unreachable a_1 ... a_n) is equivalent to (lc_unreachable) */
-            type_checker tc(m_env, m_lctx, m_tc_cache);
+            type_checker tc(m_ctx, m_lctx);
             expr type = tc.whnf(tc.infer(mk_app(fn, args)));
             level lvl = sort_level(tc.ensure_type(type));
             return mk_let_decl(mk_app(mk_constant(get_lc_unreachable_name(), {lvl}), type), root);
@@ -296,7 +296,7 @@ public:
 
         if (is_lc_proof(e)) return false;
 
-        type_checker tc(m_env, m_lctx, m_tc_cache);
+        type_checker tc(m_ctx, m_lctx);
         e_type = tc.whnf(e_type);
         if (is_sort(e_type)) {
             return false;
@@ -321,7 +321,7 @@ public:
             expr new_type = instantiate_rev(binding_domain(fn), fvars.size(), fvars.data());
             expr new_val  = visit(args[i], true);
             if (should_create_let_decl(new_val, new_type)) {
-                expr new_fvar = m_lctx.mk_local_decl(m_ngen, binding_name(fn), new_type, new_val);
+                expr new_fvar = m_lctx.mk_local_decl(ngen(), binding_name(fn), new_type, new_val);
                 fvars.push_back(new_fvar);
                 m_fvars.push_back(new_fvar);
             } else {
@@ -353,9 +353,9 @@ public:
                 return visit_eq_rec(fn, args, root);
             } else if (const_name(fn) == get_false_rec_name() || const_name(fn) == get_false_cases_on_name()) {
                 return visit_false_rec(fn, args, root);
-            } else if (is_cases_on_recursor(m_env, const_name(fn))) {
+            } else if (is_cases_on_recursor(env(), const_name(fn))) {
                 return visit_cases_on(fn, args, root);
-            } else if (is_projection(m_env, const_name(fn))) {
+            } else if (is_projection(env(), const_name(fn))) {
                 return visit_projection(fn, args, root);
             } else if (const_name(fn) == get_id_rhs_name()) {
                 if (args.size() < 2) {
@@ -364,9 +364,9 @@ public:
                     expr new_e = args[1];
                     return visit(mk_app(new_e, args.size() - 2, args.data() + 2), root);
                 }
-            } else if (is_no_confusion(m_env, const_name(fn))) {
+            } else if (is_no_confusion(env(), const_name(fn))) {
                 return visit_no_confusion(fn, args, root);
-            } else if (is_constructor(m_env, const_name(fn))) {
+            } else if (is_constructor(env(), const_name(fn))) {
                 return visit_constructor(fn, args, root);
             }
         } else if (is_lambda(fn)) {
@@ -403,7 +403,7 @@ public:
             while (is_lambda(e)) {
                 /* Types are ignored in compilation steps. So, we do not invoke visit for d. */
                 expr new_d    = instantiate_rev(binding_domain(e), binding_fvars.size(), binding_fvars.data());
-                expr new_fvar = m_lctx.mk_local_decl(m_ngen, binding_name(e), new_d, binding_info(e));
+                expr new_fvar = m_lctx.mk_local_decl(ngen(), binding_name(e), new_d, binding_info(e));
                 binding_fvars.push_back(new_fvar);
                 e = binding_body(e);
             }
@@ -421,7 +421,7 @@ public:
             expr new_type = instantiate_rev(let_type(e), let_fvars.size(), let_fvars.data());
             expr new_val  = visit(instantiate_rev(let_value(e), let_fvars.size(), let_fvars.data()), false);
             if (should_create_let_decl(new_val, new_type)) {
-                expr new_fvar = m_lctx.mk_local_decl(m_ngen, let_name(e), new_type, new_val);
+                expr new_fvar = m_lctx.mk_local_decl(ngen(), let_name(e), new_type, new_val);
                 let_fvars.push_back(new_fvar);
                 m_fvars.push_back(new_fvar);
             } else {
@@ -459,7 +459,7 @@ public:
         }
 
         {
-            type_checker tc(m_env, m_lctx, m_tc_cache);
+            type_checker tc(m_ctx, m_lctx);
             expr type = tc.whnf(tc.infer(e));
             if (is_sort(type)) {
                 // Types are not pre-processed
@@ -498,11 +498,8 @@ expr to_lcnf(environment const & env, local_ctx const & lctx, expr const & e) {
 }
 
 void initialize_lcnf() {
-    g_lcnf_fresh = new name("_lcnf_fresh");
-    register_name_generator_prefix(*g_lcnf_fresh);
 }
 
 void finalize_lcnf() {
-    delete g_lcnf_fresh;
 }
 }

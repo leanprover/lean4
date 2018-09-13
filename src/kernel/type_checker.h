@@ -22,13 +22,15 @@ namespace lean {
     type \c A is convertible to a type \c B, etc. */
 class type_checker {
 public:
-    class cache {
+    class context {
         /* In the cache, we must take into account binder information.
            Examples:
            The type of (lambda x : A, t)   is (Pi x : A, typeof(t))
            The type of (lambda {x : A}, t) is (Pi {x : A}, typeof(t)) */
         typedef expr_bi_map<expr> infer_cache;
         typedef std::unordered_set<expr_pair, expr_pair_hash, expr_pair_eq> expr_pair_set;
+        environment               m_env;
+        name_generator            m_ngen;
         infer_cache               m_infer_type[2];
         expr_map<expr>            m_whnf_core;
         expr_map<expr>            m_whnf;
@@ -36,19 +38,19 @@ public:
         expr_pair_set             m_failure;
         friend type_checker;
     public:
+        context(environment const & env);
+        environment & env() { return m_env; }
+        environment const & env() const { return m_env; }
+        name_generator & ngen() { return m_ngen; }
     };
 private:
-    environment               m_env;
+    bool                      m_ctx_owner;
+    context *                 m_ctx;
     local_ctx                 m_lctx;
-    /* Generator for internal names that never leak to type_checker consumers.
-       This name generator is never used to create external names. */
-    name_generator            m_ngen;
     bool                      m_non_meta_only;
     /* When `m_lparams != nullptr, the `check` method makes sure all level parameters
        are in `m_lparams`. */
     names const *             m_lparams;
-    bool                      m_own_cache;
-    cache *                   m_cache;
 
     expr ensure_sort_core(expr e, expr const & s);
     expr ensure_pi_core(expr e, expr const & s);
@@ -93,15 +95,15 @@ private:
 
 public:
     /** \brief Create a type checker for the given environment. */
-    type_checker(environment const & env, local_ctx const & lctx, cache & cache, bool non_meta_only = true);
+    type_checker(context & ctx, local_ctx const & lctx, bool non_meta_only = true);
     type_checker(environment const & env, local_ctx const & lctx, bool non_meta_only = true);
     type_checker(environment const & env, bool non_meta_only = true):type_checker(env, local_ctx(), non_meta_only) {}
-    type_checker(environment const & env, cache & cache, bool non_meta_only = true):type_checker(env, local_ctx(), cache, non_meta_only) {}
+    type_checker(context & ctx, bool non_meta_only = true):type_checker(ctx, local_ctx(), non_meta_only) {}
     type_checker(type_checker &&);
     type_checker(type_checker const &) = delete;
     ~type_checker();
 
-    environment const & env() const { return m_env; }
+    environment const & env() const { return m_ctx->m_env; }
 
     /** \brief Return the type of \c t.
         It does not check whether the input expression is type correct or not.

@@ -10,7 +10,7 @@ import init.control.monad init.control.alternative init.data.list.basic init.coe
 universes u v w
 
 def nat.mrepeat {m} [monad m] (n : nat) (f : nat → m unit) : m unit :=
-n.repeat (λ i a, a >> f i) (pure ())
+n.repeat (λ i a, a *> f i) (pure ())
 
 def list.mmap {m : Type u → Type v} [monad m] {α : Type w} {β : Type u} (f : α → m β) : list α → m (list β)
 | []       := pure []
@@ -18,7 +18,7 @@ def list.mmap {m : Type u → Type v} [monad m] {α : Type w} {β : Type u} (f :
 
 def list.mmap' {m : Type u → Type v} [monad m] {α : Type w} {β : Type u} (f : α → m β) : list α → m punit
 | []       := pure ⟨⟩
-| (h :: t) := f h >> list.mmap' t
+| (h :: t) := f h *> list.mmap' t
 
 def list.mfor {m : Type u → Type v} [monad m] {α : Type w} {β : Type u} (f : α → m β) : list α → m punit :=
 list.mmap' f

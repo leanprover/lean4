@@ -15,7 +15,7 @@ match type_check d with
 
 def show_result (p : parsec' decl) (s : string) : m unit :=
 match parsec.parse p s with
-| except.ok d    := io.println (lean.to_fmt d) >> check_decl d
+| except.ok d    := io.println (lean.to_fmt d) *> check_decl d
 | except.error e := io.println e
 
 def IR1 := "
@@ -23,7 +23,7 @@ def succ (x : uint32) : uint32 :=
 main: one : uint32 := 1; x1 : uint32 := add x one; ret x1;
 "
 
-#eval show_result (whitespace >> parse_def) IR1
+#eval show_result (whitespace *> parse_def) IR1
 
 def IR2 := "
 def add_n (x : uint32) (y : uint32) (n : uint32) : uint32 :=
@@ -43,10 +43,10 @@ end:
   ret r3;
 "
 
-#eval show_result (whitespace >> parse_def) IR2
+#eval show_result (whitespace *> parse_def) IR2
 
 def tst_elim_phi (s : string) : m unit :=
-do d ← monad_except.lift_except $ parsec.parse (whitespace >> parse_def) s,
+do d ← monad_except.lift_except $ parsec.parse (whitespace *> parse_def) s,
    check_decl d,
    io.println (lean.to_fmt (elim_phi d))
 
@@ -64,10 +64,10 @@ main:
   sset o 25 d6;
   ret o;
 "
-#eval show_result (whitespace >> parse_def) IR3
+#eval show_result (whitespace *> parse_def) IR3
 
 def tst_extract_cpp (s : string) : m unit :=
-do d ← monad_except.lift_except $ parsec.parse (whitespace >> parse_def) s,
+do d ← monad_except.lift_except $ parsec.parse (whitespace *> parse_def) s,
    check_decl d,
    match extract_cpp [elim_phi d] with
    | except.ok code := io.println code

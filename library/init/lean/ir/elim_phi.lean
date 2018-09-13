@@ -73,7 +73,7 @@ def decl.replace_vars : decl → elim_phi_m decl
 | other            := pure other
 
 def elim_phi_aux (d : decl) : elim_phi_m decl :=
-group_vars d >> d.replace_vars
+group_vars d *> d.replace_vars
 
 def elim_phi (d : decl) : decl :=
 (elim_phi_aux d).run

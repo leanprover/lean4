@@ -194,7 +194,7 @@ def mfold {m : Type v → Type w} [monad m] (f : α → β → m β) : rbtree α
 | ⟨t, _⟩ b := t.mfold f b
 
 def mfor {m : Type v → Type w} [monad m] (f : α → m β) (t : rbtree α lt) : m punit :=
-t.mfold (λ a _, f a >> pure ⟨⟩) ⟨⟩
+t.mfold (λ a _, f a *> pure ⟨⟩) ⟨⟩
 
 def empty : rbtree α lt → bool
 | ⟨leaf, _⟩ := tt

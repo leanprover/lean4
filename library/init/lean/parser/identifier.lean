@@ -46,7 +46,7 @@ do c ← satisfy is_id_first,
    take_while_cont is_id_rest (to_string c)
 
 def id_part_escaped : m string :=
-ch id_begin_escape >> take_until1 is_id_end_escape <* ch id_end_escape
+ch id_begin_escape *> take_until1 is_id_end_escape <* ch id_end_escape
 
 def id_part : m string :=
 cond is_id_begin_escape
@@ -55,7 +55,7 @@ cond is_id_begin_escape
 
 def identifier : m name :=
 (try $ do s  ← id_part,
-       foldl name.mk_string (mk_simple_name s) (ch '.' >> id_part)) <?> "identifier"
+       foldl name.mk_string (mk_simple_name s) (ch '.' *> id_part)) <?> "identifier"
 
 def c_identifier : m string :=
 (try $ do c ← satisfy (λ c, c.is_alpha || c = '_'),

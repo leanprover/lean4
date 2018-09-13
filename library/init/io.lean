@@ -82,7 +82,7 @@ def print {α} [has_to_string α] (s : α) : m unit :=
 put_str ∘ to_string $ s
 
 def println {α} [has_to_string α] (s : α) : m unit :=
-print s >> put_str "\n"
+print s *> put_str "\n"
 end
 
 namespace fs
@@ -110,7 +110,7 @@ def handle.put_str (h : handle) (s : string) : m unit :=
 h.write s
 
 def handle.put_str_ln (h : handle) (s : string) : m unit :=
-h.put_str s >> h.put_str "\n"
+h.put_str s *> h.put_str "\n"
 
 def handle.read_to_end (h : handle) : m string :=
 prim.lift_eio $ prim.iterate_eio "" $ λ r, do
@@ -344,7 +344,7 @@ protected def bind : coroutine_io α δ β → (β → coroutine_io α δ γ) �
     | yielded d c, h :=
       -- have direct_subcoroutine_io c (mk k), { apply direct_subcoroutine.mk k a d, rw h },
       pure $ yielded d (bind c f)
---  using_well_founded { dec_tac := unfold_wf_rel >> process_lex (tactic.assumption) }
+--  using_well_founded { dec_tac := unfold_wf_rel *> process_lex (tactic.assumption) }
 
 def pipe : coroutine_io α δ β → coroutine_io δ γ β → coroutine_io α γ β
 | (mk k₁) (mk k₂) := mk $ λ a, do
@@ -358,7 +358,7 @@ def pipe : coroutine_io α δ β → coroutine_io δ γ β → coroutine_io α �
     | yielded r k₂' :=
       -- have direct_subcoroutine_io k₁' (mk k₁), { apply direct_subcoroutine.mk k₁ a d, rw h },
       yielded r (pipe k₁' k₂')
--- using_well_founded { dec_tac := unfold_wf_rel >> process_lex (tactic.assumption) }
+-- using_well_founded { dec_tac := unfold_wf_rel *> process_lex (tactic.assumption) }
 
 instance : monad (coroutine_io α δ) :=
 { pure := @coroutine_io.pure _ _,

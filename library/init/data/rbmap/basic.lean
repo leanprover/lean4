@@ -45,7 +45,7 @@ def mfold {m : Type w → Type w'} [monad m] (f : α → β → δ → m δ) (mp
 mp.mfold (λ e, f e.1 e.2) d
 
 def mfor {m : Type w → Type w'} [monad m] (f : α → β → m δ) (mp : rbmap α β lt) : m punit :=
-mp.mfold (λ a b _, f a b >> pure ⟨⟩) ⟨⟩
+mp.mfold (λ a b _, f a b *> pure ⟨⟩) ⟨⟩
 
 /-
 We don't assume β is inhabited when in membership predicate `mem` and

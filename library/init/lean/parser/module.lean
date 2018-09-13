@@ -71,7 +71,7 @@ private def commands_aux : bool → list syntax → nat → module_parser
       pure (tt, some msg.custom)
     },
   match c with
-  | some c := yield c >> commands_aux recovering (c :: cs) n
+  | some c := yield c *> commands_aux recovering (c :: cs) n
   | none   := commands_aux recovering cs n
 
 def commands.parser : module_parser :=

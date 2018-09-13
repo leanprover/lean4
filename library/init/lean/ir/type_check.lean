@@ -133,7 +133,7 @@ def literal.check (l : literal) (t : type) : type_checker_m unit :=
 match l with
 | literal.bool _  := unless (t = type.bool) invalid_literal
 | literal.str  _  := unless (t = type.object) invalid_literal
-| literal.num  v  := unless (is_nonfloat_arith_ty t) invalid_literal >>
+| literal.num  v  := unless (is_nonfloat_arith_ty t) invalid_literal *>
                      when (v < 0) (unless (is_signed_arith_ty t) invalid_literal)
 | literal.float _ := unless (t = type.float || t = type.double) invalid_literal
 
@@ -145,7 +145,7 @@ do (env, _) ← read,
 
 def set_result_types : list var → list result → type_checker_m unit
 | []      []      := pure ()
-| (x::xs) (t::ts) := set_type x t.ty >> set_result_types xs ts
+| (x::xs) (t::ts) := set_type x t.ty *> set_result_types xs ts
 | _       _       := throw "unexpected number of return values"
 
 def instr.infer_types (ins : instr) : type_checker_m unit :=
@@ -172,10 +172,10 @@ def arg.infer_types (a : arg) : type_checker_m unit :=
 set_type a.n a.ty
 
 def block.infer_types (b : block) : type_checker_m unit :=
-b.decorate_error $ b.phis.mfor phi.infer_types >> b.instrs.mfor instr.infer_types
+b.decorate_error $ b.phis.mfor phi.infer_types *> b.instrs.mfor instr.infer_types
 
 def decl.infer_types : decl → type_checker_m context
-| (decl.defn h bs) := h.decorate_error $ h.args.mfor arg.infer_types >> bs.mfor block.infer_types >> get
+| (decl.defn h bs) := h.decorate_error $ h.args.mfor arg.infer_types *> bs.mfor block.infer_types *> get
 | _                := get
 
 /-- Return context with the type of variables used in the given declaration.
@@ -185,7 +185,7 @@ d.infer_types.run env d.header.return
 
 def check_arg_types : list var → list arg → type_checker_m unit
 | []      []      := pure ()
-| (x::xs) (t::ts) := check_type x t.ty >> check_arg_types xs ts
+| (x::xs) (t::ts) := check_type x t.ty *> check_arg_types xs ts
 | _       _       := throw "unexpected number of arguments"
 
 /-- Check whether the given instruction is type correct or not. It assumes the context already contains
@@ -200,25 +200,25 @@ match ins with
 | (instr.unop _ x)          := check_type x type.object
 | (instr.call xs f ys)      := do d ← get_decl f, check_arg_types ys d.header.args
 | (instr.cnstr o _ _ _)     := pure ()
-| (instr.set o _ x)         := check_type o type.object >> check_type x type.object
+| (instr.set o _ x)         := check_type o type.object *> check_type x type.object
 | (instr.get x o _)         := check_type o type.object
-| (instr.sset o _ x)        := check_type o type.object >> check_ne_type x type.object
-| (instr.sget x t o _)      := check_type o type.object >> check_ne_type x type.object
+| (instr.sset o _ x)        := check_type o type.object *> check_ne_type x type.object
+| (instr.sget x t o _)      := check_type o type.object *> check_ne_type x type.object
 | (instr.closure x f ys)    := do ys.mfor (flip check_type type.object), d ← get_decl f,
                                  unless (d.header.return.length = 1) $ throw "unexpected number of return values",
                                  unless (d.header.args.length ≥ ys.length) $ throw "too many arguments",
                                  d.header.args.mfor (λ a, unless (a.ty = type.object) $ throw "invalid closure, arguments must have type object")
 | (instr.apply x ys)        := ys.mfor (flip check_type type.object)
-| (instr.array a sz c)      := check_type sz type.usize >> check_type c type.usize
-| (instr.sarray a t sz c)   := check_type sz type.usize >> check_type c type.usize >> unless (t ≠ type.object) (throw "invalid scalar array")
-| (instr.array_write a i _) := check_type a type.object >> check_type i type.usize
+| (instr.array a sz c)      := check_type sz type.usize *> check_type c type.usize
+| (instr.sarray a t sz c)   := check_type sz type.usize *> check_type c type.usize *> unless (t ≠ type.object) (throw "invalid scalar array")
+| (instr.array_write a i _) := check_type a type.object *> check_type i type.usize
 
 def phi.check (p : phi) : type_checker_m unit :=
 p.decorate_error $ p.ys.mfor (flip check_type p.ty)
 
 def check_result_types : list var → list result → type_checker_m unit
 | []      []      := pure ()
-| (x::xs) (t::ts) := check_type x t.ty >> check_result_types xs ts
+| (x::xs) (t::ts) := check_type x t.ty *> check_result_types xs ts
 | _       _       := throw "unexpected number of return values"
 
 def terminator.check (term : terminator) : type_checker_m unit :=
@@ -229,16 +229,16 @@ match term with
 | (terminator.jmp _)    := pure ()
 
 def block.check (b : block) : type_checker_m unit :=
-b.decorate_error $ b.phis.mfor phi.check >> b.instrs.mfor instr.check >> b.term.check
+b.decorate_error $ b.phis.mfor phi.check *> b.instrs.mfor instr.check *> b.term.check
 
 def decl.check : decl → type_checker_m unit
 | (decl.defn h bs) := h.decorate_error $
   when (h.is_const && (h.return.length ≠ 1 || h.args.length ≠ 0)) (throw "invalid constant definition")
-  >> bs.mfor block.check
+  *> bs.mfor block.check
 | _                := pure ()
 
 def type_check (d : decl) (env : environment := λ _, none) : except format context :=
-(d.infer_types >> d.check >> get).run env d.header.return
+(d.infer_types *> d.check *> get).run env d.header.return
 
 end ir
 end lean

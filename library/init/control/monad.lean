@@ -14,16 +14,8 @@ class has_bind (m : Type u → Type v) :=
 
 export has_bind (bind)
 
-@[inline] def has_bind.and_then {α β : Type u} {m : Type u → Type v} [has_bind m] (x : m α) (y : m β) : m β :=
-do x, y
-
 infixl ` >>= `:55 := bind
-infixl ` >> `:55  := has_bind.and_then
 
 class monad (m : Type u → Type v) extends applicative m, has_bind m : Type (max (u+1) v) :=
 (map := λ α β f x, x >>= pure ∘ f)
 (seq := λ α β f x, f >>= (<$> x))
-
-/- Identical to has_bind.and_then, but it is not inlined. -/
-def has_bind.seq {α β : Type u} {m : Type u → Type v} [has_bind m] (x : m α) (y : m β) : m β :=
-do x, y

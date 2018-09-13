@@ -451,7 +451,7 @@ string.iterator.offset <$> left_over
 
 @[inline] def not_followed_by [monad_except message m] (p : m α) (msg : string := "input") : m unit :=
 do it ← left_over,
-   b ← lookahead $ catch (p >> pure ff) (λ _, pure tt),
+   b ← lookahead $ catch (p *> pure ff) (λ _, pure tt),
    if b then pure () else error msg dlist.empty it
 
 def eoi : m unit :=
@@ -472,8 +472,8 @@ def many [alternative m] (p : m α) : m (list α) :=
 many1 p <|> pure []
 
 def many1_aux' [alternative m] (p : m α) : nat → m unit
-| 0     := p >> pure ()
-| (n+1) := p >> (many1_aux' n <|> pure ())
+| 0     := p *> pure ()
+| (n+1) := p *> (many1_aux' n <|> pure ())
 
 def many1' [alternative m] (p : m α) : m unit :=
 do r ← remaining, many1_aux' p r
@@ -482,7 +482,7 @@ def many' [alternative m] (p : m α) : m unit :=
 many1' p <|> pure ()
 
 def sep_by1 [alternative m] (p : m α) (sep : m β) : m (list α) :=
-(::) <$> p <*> many (sep >> p)
+(::) <$> p <*> many (sep *> p)
 
 def sep_by [alternative m] (p : m α) (sep : m β) : m (list α) :=
 sep_by1 p sep <|> pure []

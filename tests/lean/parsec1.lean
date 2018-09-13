@@ -14,28 +14,28 @@ match parsec.parse p s with
 
 def show_result {α} [has_to_string α] (p : parsec' α) (s : string) : eio unit :=
 match parsec.parse p s with
-| except.ok a    := io.println "result: " >> io.println (repr $ to_string a)
+| except.ok a    := io.println "result: " *> io.println (repr $ to_string a)
 | except.error e := io.println e
 
 #eval test (ch 'a') "a" 'a'
 #eval test any "a" 'a'
 #eval test any "b" 'b'
 #eval test (str "foo" <|> str "bla" <|> str "boo") "bla" "bla"
-#eval test ((str "foo" >> str "foo") <|> str "bla" <|> str "boo") "bla" "bla"
-#eval test_failure ((str "foo" >> str "foo") <|> str "foo2" <|> str "boo") "foo2"
-#eval test (try (str "foo" >> str "foo") <|> str "foo2" <|> str "boo") "foo2" "foo2"
+#eval test ((str "foo" *> str "foo") <|> str "bla" <|> str "boo") "bla" "bla"
+#eval test_failure ((str "foo" *> str "foo") <|> str "foo2" <|> str "boo") "foo2"
+#eval test (try (str "foo" *> str "foo") <|> str "foo2" <|> str "boo") "foo2" "foo2"
 #eval test num "1000" 1000
 #eval test (do n ← num, whitespace, m ← num, pure (n, m)) "1000 200" (1000, 200)
 #eval test (do n ← num, whitespace, m ← num, pure (n, m)) "1000      200" (1000, 200)
 #eval test (do n ← lexeme num, m ← num, pure (n, m)) "1000 200" (1000, 200)
-#eval test (whitespace >> prod.mk <$> (lexeme num) <*> (lexeme num)) "    1000 200    " (1000, 200)
-#eval test (whitespace >> prod.mk <$> (lexeme num) <*> (lexeme num) <* eoi) "    1000 200    " (1000, 200)
-#eval test_failure (whitespace >> prod.mk <$> (lexeme num) <*> num <* eoi) "    1000 200    "
+#eval test (whitespace *> prod.mk <$> (lexeme num) <*> (lexeme num)) "    1000 200    " (1000, 200)
+#eval test (whitespace *> prod.mk <$> (lexeme num) <*> (lexeme num) <* eoi) "    1000 200    " (1000, 200)
+#eval test_failure (whitespace *> prod.mk <$> (lexeme num) <*> num <* eoi) "    1000 200    "
 
-#eval test_failure ((ch 'a' >> ch 'b') <|> (ch 'a' >> ch 'c')) "ac"
-#eval test ((lookahead (str "ab") >> ch 'a' >> ch 'b') <|> (ch 'a' >> ch 'c')) "ac" 'c'
-#eval test (str "ab" >> pure () <|> (ch 'a' >> ch 'c' >> pure ())) "ac" ()
-#eval test (try (ch 'a' >> ch 'b') <|> (ch 'a' >> ch 'c')) "ac" 'c'
+#eval test_failure ((ch 'a' *> ch 'b') <|> (ch 'a' *> ch 'c')) "ac"
+#eval test ((lookahead (str "ab") *> ch 'a' *> ch 'b') <|> (ch 'a' *> ch 'c')) "ac" 'c'
+#eval test (str "ab" *> pure () <|> (ch 'a' *> ch 'c' *> pure ())) "ac" ()
+#eval test (try (ch 'a' *> ch 'b') <|> (ch 'a' *> ch 'c')) "ac" 'c'
 #eval test (lookahead (ch 'a')) "abc" 'a'
 #eval test_failure (not_followed_by (lookahead (ch 'a'))) "abc"
 
@@ -43,7 +43,7 @@ def symbol (c : char) : parsec' char :=
 lexeme (ch c) <?> repr c
 
 def paren {α} (p : parsec' α) : parsec' α :=
-symbol '(' >> lexeme p <* symbol ')'
+symbol '(' *> lexeme p <* symbol ')'
 
 #eval test (paren num) "(   10 )" 10
 #eval test (paren num) "(12)" 12
@@ -166,7 +166,7 @@ do l ← parse_atom p,
    (do symbol '+', r ← p, pure $ Add l r) <|> pure l
 
 def parse_expr : parsec' Expr :=
-whitespace >> fix (λ F, parse_add F) <* eoi
+whitespace *> fix (λ F, parse_add F) <* eoi
 
 #eval test parse_expr "10" (Num 10)
 #eval test parse_expr "(20)" (Num 20)
@@ -186,7 +186,7 @@ namespace paper_ex
 #print "Failure 3"
 def digit  : parsec' char := monad_parsec.digit <?> "digit"
 def letter : parsec' char := monad_parsec.alpha <?> "letter"
-def tst    : parsec' char := (digit <|> pure '0') >> letter
+def tst    : parsec' char := (digit <|> pure '0') *> letter
 #eval test tst "*" 'a'
 #print "---------"
 end paper_ex

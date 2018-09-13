@@ -34,7 +34,7 @@ def phi.declare  (p : phi) : reader_t blockid ssa_pre_m unit :=
 p.decorate_error p.x.declare
 
 def block.declare_vars (b : block) : ssa_pre_m unit :=
-b.decorate_error $ (b.phis.mfor phi.declare >> b.instrs.mfor instr.declare_vars).run b.id
+b.decorate_error $ (b.phis.mfor phi.declare *> b.instrs.mfor instr.declare_vars).run b.id
 
 def arg.declare (a : arg) : reader_t blockid ssa_pre_m unit :=
 a.n.declare
@@ -44,14 +44,14 @@ a.n.declare
 def decl.declare_vars : decl → ssa_pre_m unit
 | (decl.defn h (b::bs)) :=
   /- We assume that arguments are declared in the first basic block. -/
-  h.decorate_error $ (h.args.mfor arg.declare).run b.id >> b.declare_vars >> bs.mfor block.declare_vars
+  h.decorate_error $ (h.args.mfor arg.declare).run b.id *> b.declare_vars *> bs.mfor block.declare_vars
 | (decl.defn _  []) := throw "declaration must have at least one basic block"
 | _                 := pure ()
 
 /- Generate the mapping from variable to blockid for the given declaration.
    This function assumes `d` is in SSA. -/
 def decl.var2blockid (d : decl) : except format var2blockid :=
-run (d.declare_vars >> get) mk_var2blockid
+run (d.declare_vars *> get) mk_var2blockid
 
 @[reducible] def ssa_valid_m := except_t format (reader_t var2blockid (state_t var_set id))
 
@@ -83,22 +83,22 @@ do m ← read,
 def instr.valid_ssa (ins : instr) : ssa_valid_m unit :=
 ins.decorate_error $
 match ins with
-| (instr.assign x _ y)           := x.define >> y.defined
+| (instr.assign x _ y)           := x.define *> y.defined
 | (instr.assign_lit x _ _)       := x.define
-| (instr.assign_unop x _ _ y)    := x.define >> y.defined
-| (instr.assign_binop x _ _ y z) := x.define >> y.defined >> z.defined
+| (instr.assign_unop x _ _ y)    := x.define *> y.defined
+| (instr.assign_binop x _ _ y z) := x.define *> y.defined *> z.defined
 | (instr.unop _ x)               := x.defined
-| (instr.call xs _ ys)           := xs.mfor var.define >> ys.mfor var.defined
+| (instr.call xs _ ys)           := xs.mfor var.define *> ys.mfor var.defined
 | (instr.cnstr o _ _ _)          := o.define
-| (instr.set o _ x)              := o.defined >> x.defined
-| (instr.get x y _)              := x.define >> y.defined
-| (instr.sset o _ x)             := o.defined >> x.defined
-| (instr.sget x _ y _)           := x.define >> y.defined
-| (instr.closure x _ ys)         := x.define >> ys.mfor var.defined
-| (instr.apply x ys)             := x.define >> ys.mfor var.defined
-| (instr.array a sz c)           := a.define >> sz.defined >> c.defined
-| (instr.sarray x _ sz c)        := x.define >> sz.defined >> c.defined
-| (instr.array_write a i v)      := a.defined >> i.defined >> v.defined
+| (instr.set o _ x)              := o.defined *> x.defined
+| (instr.get x y _)              := x.define *> y.defined
+| (instr.sset o _ x)             := o.defined *> x.defined
+| (instr.sget x _ y _)           := x.define *> y.defined
+| (instr.closure x _ ys)         := x.define *> ys.mfor var.defined
+| (instr.apply x ys)             := x.define *> ys.mfor var.defined
+| (instr.array a sz c)           := a.define *> sz.defined *> c.defined
+| (instr.sarray x _ sz c)        := x.define *> sz.defined *> c.defined
+| (instr.array_write a i v)      := a.defined *> i.defined *> v.defined
 
 def terminator.valid_ssa (term : terminator) : ssa_valid_m unit :=
 term.decorate_error $
@@ -146,9 +146,9 @@ d.decorate_error $
 do m ← d.var2blockid,
    match d with
    | decl.defn {args:=args, ..} (b::bs) :=
-       (args.mfor arg.define >> block.valid_ssa_core b).run m
-    >> (bs.mfor block.valid_ssa_core).run m
-    >> pure m
+       (args.mfor arg.define *> block.valid_ssa_core b).run m
+    *> (bs.mfor block.valid_ssa_core).run m
+    *> pure m
    | _                   := pure m
 
 /- Check blockids -/
@@ -179,11 +179,11 @@ def block.check_blockids (b : block) : blockid_check_m unit :=
 b.term.check_blockids
 
 def decl.check_blockids : decl → blockid_check_m unit
-| (decl.defn h bs) := h.decorate_error $ bs.mfor block.declare >> bs.mfor block.check_blockids
+| (decl.defn h bs) := h.decorate_error $ bs.mfor block.declare *> bs.mfor block.check_blockids
 | _                := pure ()
 
 def check_blockids (d : decl) : except format blockid_set :=
-(d.check_blockids >> get).run
+(d.check_blockids *> get).run
 
 end ir
 end lean

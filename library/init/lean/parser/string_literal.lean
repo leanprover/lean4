@@ -37,7 +37,7 @@ do it ← left_over,
    else unexpected_at "quoted character" it
 
 def parse_string_literal_aux : nat → string → parsec' string
-| 0     s := ch '\"' >> pure s
+| 0     s := ch '\"' *> pure s
 | (n+1) s := do
   c ← any,
   if c = '\\' then do c ← parse_quoted_char, parse_string_literal_aux n (s.push c)

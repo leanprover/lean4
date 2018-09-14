@@ -34,10 +34,12 @@ theorem ne_of_beq_eq_ff : ∀ {n m : nat}, beq n m = ff → n ≠ m
   have n ≠ m, from ne_of_beq_eq_ff this,
   nat.no_confusion h₂ (λ h₂, absurd h₂ this)
 
+protected def dec_eq (n m : nat) : decidable (n = m) :=
+if h : beq n m = tt then is_true (eq_of_beq_eq_tt h)
+else is_false (ne_of_beq_eq_ff (eq_ff_of_ne_tt h))
+
 instance : decidable_eq nat :=
-{dec_eq := λ n m,
- if h : beq n m = tt then is_true (eq_of_beq_eq_tt h)
- else is_false (ne_of_beq_eq_ff (eq_ff_of_ne_tt h))}
+{dec_eq := nat.dec_eq}
 
 def ble : nat → nat → bool
 | zero     zero     := tt

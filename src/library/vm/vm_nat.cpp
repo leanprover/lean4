@@ -344,7 +344,7 @@ void initialize_vm_nat() {
     DECLARE_VM_BUILTIN(name({"nat", "div"}),              nat_div);
     DECLARE_VM_BUILTIN(name({"nat", "mod"}),              nat_mod);
     DECLARE_VM_BUILTIN(name({"nat", "gcd"}),              nat_gcd);
-    DECLARE_VM_BUILTIN(name({"nat", "decidable_eq"}),     nat_decidable_eq);
+    DECLARE_VM_BUILTIN(name({"nat", "dec_eq"}),           nat_decidable_eq);
     DECLARE_VM_BUILTIN(name({"nat", "decidable_le"}),     nat_decidable_le);
     DECLARE_VM_BUILTIN(name({"nat", "decidable_lt"}),     nat_decidable_lt);
     DECLARE_VM_BUILTIN(name({"nat", "repr"}),             nat_repr);

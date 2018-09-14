@@ -278,13 +278,15 @@ public:
         } else if (tc.is_prop(e_type)) {
             return false;
         } else if (is_pi(e_type)) {
-            // Functions that return types are not relevant
-            while (is_pi(e_type))
-                e_type = binding_body(e_type);
+            /* Functions that return types are not relevant */
+            flet<local_ctx> save_lctx(m_lctx, m_lctx);
+            while (is_pi(e_type)) {
+                expr fvar = m_lctx.mk_local_decl(ngen(), binding_name(e_type), binding_domain(e_type));
+                e_type = whnf(instantiate(binding_body(e_type), fvar));
+            }
             if (is_sort(e_type))
                 return false;
         }
-
         return true;
     }
 
@@ -423,11 +425,12 @@ public:
                 expr r = mk_app(mk_constant(get_lc_proof_name()), type);
                 return cache_result(e, r, shared);
             } else if (is_pi(type)) {
-                /* Functions that return types are not pre-processed.
-                   This is a partial (and quick) check since we are not using
-                   `whnf` on nested terms. */
-                while (is_pi(type))
-                    type = binding_body(type);
+                /* Functions that return types are not pre-processed. */
+                flet<local_ctx> save_lctx(m_lctx, m_lctx);
+                while (is_pi(type)) {
+                    expr fvar = m_lctx.mk_local_decl(ngen(), binding_name(type), binding_domain(type));
+                    type = whnf(instantiate(binding_body(type), fvar));
+                }
                 if (is_sort(type))
                     return cache_result(e, e, shared);
             }

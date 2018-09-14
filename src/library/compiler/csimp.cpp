@@ -155,7 +155,33 @@ class csimp_fn {
         } else if (is_cases_app(major)) {
             return reduce_cases_cases(c, args, I_val, major);
         } else {
-            return e;
+            inductive_val I_val      = env().get(const_name(c).get_prefix()).to_inductive_val();
+            unsigned motive_idx      = I_val.get_nparams();
+            unsigned first_index     = motive_idx + 1;
+            unsigned nindices        = I_val.get_nindices();
+            unsigned major_idx       = first_index + nindices;
+            unsigned first_minor_idx = major_idx + 1;
+            unsigned nminors         = length(I_val.get_cnstrs());
+            /* simplify minor premises */
+            for (unsigned i = 0; i < nminors; i++) {
+                unsigned minor_idx    = first_minor_idx + i;
+                expr minor            = args[minor_idx];
+                flet<local_ctx> save_lctx(m_lctx, m_lctx);
+                buffer<expr> minor_fvars;
+                unsigned m_fvars_init_size = m_fvars.size();
+                while (is_lambda(minor)) {
+                    expr new_d    = instantiate_rev(binding_domain(minor), minor_fvars.size(), minor_fvars.data());
+                    expr new_fvar = m_lctx.mk_local_decl(ngen(), binding_name(minor), new_d, binding_info(minor));
+                    minor_fvars.push_back(new_fvar);
+                    minor = binding_body(minor);
+                }
+                expr new_minor = visit(instantiate_rev(minor, minor_fvars.size(), minor_fvars.data()));
+                new_minor = m_lctx.mk_lambda(m_fvars.size() - m_fvars_init_size, m_fvars.data() + m_fvars_init_size, new_minor);
+                m_fvars.shrink(m_fvars_init_size);
+                new_minor = m_lctx.mk_lambda(minor_fvars, new_minor);
+                args[minor_idx] = new_minor;
+            }
+            return mk_let_decl(mk_app(c, args));
         }
     }
 

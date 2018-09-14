@@ -26,7 +26,7 @@ do st ← get,
      some ⟨_, tk_cfg⟩ ← pure (st.tokens.match_prefix sym.mk_iterator) | error "curr_lbp: unreachable",
      pure tk_cfg.lbp
    | syntax.node ⟨base10_lit, _⟩ := pure max_prec
-   | syntax.ident _ := pure max_prec
+   | syntax.node ⟨id, _⟩ := pure max_prec
    | _ := error "curr_lbp: unknown token kind"
 
 private def trailing_loop (trailing : reader_t syntax m syntax) (rbp : nat) : nat → syntax → parser

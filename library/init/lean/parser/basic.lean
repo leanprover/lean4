@@ -267,6 +267,13 @@ instance recurse.view (α δ m a) [monad_rec α δ m] : parser.has_view (recurse
 def with_recurse {α : Type} (init : α) (r : α → rec_t α syntax m syntax) : parser :=
 rec_t.run (λ _, error "recursion limit") r init
 
+instance with_recurse.tokens {α} (init : α) (r : α → _) [has_tokens (r init)] :
+  parser.has_tokens (with_recurse init r : parser) :=
+⟨tokens (r init)⟩
+instance with_recurse.view {α β} (init : α) (r : α → _) [i : has_view (r init) β] :
+  parser.has_view (with_recurse init r : parser) β :=
+{..i}
+
 instance monad_lift.tokens {m' : Type → Type} [has_monad_lift_t m m'] (r : m syntax) [parser.has_tokens r] :
   parser.has_tokens (monad_lift r : m' syntax) :=
 ⟨tokens r⟩

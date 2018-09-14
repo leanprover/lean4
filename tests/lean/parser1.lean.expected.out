@@ -4,7 +4,11 @@ result:
 result: 
 [(lean.parser.module
   []
-  [(lean.parser.import "import" [(lean.parser.import_path [] me)])]
+  [(lean.parser.import
+    "import"
+    [(lean.parser.import_path
+      []
+      (lean.parser.id (lean.parser.ident_part (1 "me")) []))])]
   [])
  (lean.parser.parser.eoi "")]
 error at line 1, column 0:
@@ -12,7 +16,7 @@ expected command
 partial syntax tree:
 [(lean.parser.module [] [] []) (lean.parser.parser.eoi "")]
 error at line 1, column 6:
-expected "." or identifier
+
 partial syntax tree:
 [(lean.parser.module
   []
@@ -25,8 +29,17 @@ result:
   [(lean.parser.prelude "prelude")]
   [(lean.parser.import
     "import"
-    [(lean.parser.import_path ["." "."] a) (lean.parser.import_path [] b)])
-   (lean.parser.import "import" [(lean.parser.import_path [] c)])]
+    [(lean.parser.import_path
+      ["." "."]
+      (lean.parser.id (lean.parser.ident_part (1 "a")) []))
+     (lean.parser.import_path
+      []
+      (lean.parser.id (lean.parser.ident_part (1 "b")) []))])
+   (lean.parser.import
+    "import"
+    [(lean.parser.import_path
+      []
+      (lean.parser.id (lean.parser.ident_part (1 "c")) []))])]
   [])
  (lean.parser.parser.eoi "")]
 result: 
@@ -35,7 +48,18 @@ result:
   []
   [(lean.parser.open
     "open"
-    [(lean.parser.open_spec me [] [] [] []) (lean.parser.open_spec you [] [] [] [])])])
+    [(lean.parser.open_spec
+      (lean.parser.id (lean.parser.ident_part (1 "me")) [])
+      []
+      []
+      []
+      [])
+     (lean.parser.open_spec
+      (lean.parser.id (lean.parser.ident_part (1 "you")) [])
+      []
+      []
+      []
+      [])])])
  (lean.parser.parser.eoi "")]
 result: 
 [(lean.parser.module
@@ -44,28 +68,58 @@ result:
   [(lean.parser.open
     "open"
     [(lean.parser.open_spec
-      me
-      [(lean.parser.open_spec.as "as" you)]
-      [(lean.parser.open_spec.only ["(" a] [b c] ")")]
+      (lean.parser.id (lean.parser.ident_part (1 "me")) [])
+      [(lean.parser.open_spec.as
+        "as"
+        (lean.parser.id (lean.parser.ident_part (1 "you")) []))]
+      [(lean.parser.open_spec.only
+        ["(" (lean.parser.id (lean.parser.ident_part (1 "a")) [])]
+        [(lean.parser.id (lean.parser.ident_part (1 "b")) [])
+         (lean.parser.id (lean.parser.ident_part (1 "c")) [])]
+        ")")]
       [(lean.parser.open_spec.renaming
         ["(" "renaming"]
-        [(lean.parser.open_spec.renaming.item a "->" b)
-         (lean.parser.open_spec.renaming.item c "->" d)]
+        [(lean.parser.open_spec.renaming.item
+          (lean.parser.id (lean.parser.ident_part (1 "a")) [])
+          "->"
+          (lean.parser.id (lean.parser.ident_part (1 "b")) []))
+         (lean.parser.open_spec.renaming.item
+          (lean.parser.id (lean.parser.ident_part (1 "c")) [])
+          "->"
+          (lean.parser.id (lean.parser.ident_part (1 "d")) []))]
         ")")]
-      [(lean.parser.open_spec.hiding "(" "hiding" [a b] ")")])])])
+      [(lean.parser.open_spec.hiding
+        "("
+        "hiding"
+        [(lean.parser.id (lean.parser.ident_part (1 "a")) [])
+         (lean.parser.id (lean.parser.ident_part (1 "b")) [])]
+        ")")])])])
  (lean.parser.parser.eoi "")]
-error at line 1, column 8:
+error at line 1, column 11:
 expected command
 partial syntax tree:
 [(lean.parser.module
   []
   []
-  [(lean.parser.open "open" [(lean.parser.open_spec me [] [] [] [])])])
+  [(lean.parser.open
+    "open"
+    [(lean.parser.open_spec
+      (lean.parser.id (lean.parser.ident_part (1 "me")) [])
+      []
+      []
+      []
+      [])
+     (lean.parser.open_spec
+      (lean.parser.id (lean.parser.ident_part (1 "you")) [])
+      []
+      []
+      []
+      [])])])
  (lean.parser.parser.eoi "")]
 error at line 1, column 5:
 expected identifier
 error at line 1, column 9:
-expected identifier
+
 partial syntax tree:
 [(lean.parser.module
   []
@@ -85,29 +139,72 @@ partial syntax tree:
 [(lean.parser.module
   []
   []
-  [(lean.parser.open "open" [(lean.parser.open_spec me [] [] [] [])])
-   (lean.parser.open "open" [(lean.parser.open_spec you [] [] [] [])])])
+  [(lean.parser.open
+    "open"
+    [(lean.parser.open_spec
+      (lean.parser.id (lean.parser.ident_part (1 "me")) [])
+      []
+      []
+      []
+      [])])
+   (lean.parser.open
+    "open"
+    [(lean.parser.open_spec
+      (lean.parser.id (lean.parser.ident_part (1 "you")) [])
+      []
+      []
+      []
+      [])])])
  (lean.parser.parser.eoi "")]
 result: 
 [(lean.parser.module
   []
   []
-  [(lean.parser.open "open" [(lean.parser.open_spec a [] [] [] [])])
+  [(lean.parser.open
+    "open"
+    [(lean.parser.open_spec
+      (lean.parser.id (lean.parser.ident_part (1 "a")) [])
+      []
+      []
+      []
+      [])])
    (lean.parser.section
     "section"
-    [b]
-    [(lean.parser.open "open" [(lean.parser.open_spec c [] [] [] [])])
+    [(lean.parser.id (lean.parser.ident_part (1 "b")) [])]
+    [(lean.parser.open
+      "open"
+      [(lean.parser.open_spec
+        (lean.parser.id (lean.parser.ident_part (1 "c")) [])
+        []
+        []
+        []
+        [])])
      (lean.parser.section
       "section"
-      [d]
-      [(lean.parser.open "open" [(lean.parser.open_spec e [] [] [] [])])]
+      [(lean.parser.id (lean.parser.ident_part (1 "d")) [])]
+      [(lean.parser.open
+        "open"
+        [(lean.parser.open_spec
+          (lean.parser.id (lean.parser.ident_part (1 "e")) [])
+          []
+          []
+          []
+          [])])]
       "end"
-      [d])]
+      [(lean.parser.id (lean.parser.ident_part (1 "d")) [])])]
     "end"
-    [b])])
+    [(lean.parser.id (lean.parser.ident_part (1 "b")) [])])])
  (lean.parser.parser.eoi "")]
 result: 
-[(lean.parser.module [] [] [(lean.parser.section "section" [a] [] "end" [])])
+[(lean.parser.module
+  []
+  []
+  [(lean.parser.section
+    "section"
+    [(lean.parser.id (lean.parser.ident_part (1 "a")) [])]
+    []
+    "end"
+    [])])
  (lean.parser.parser.eoi "")]
 Type (max u v) : Type ((max u v)+1)
 result: 
@@ -120,9 +217,10 @@ result:
      (lean.parser.term.app
       (lean.parser.term.sort_app
        (lean.parser.term.sort (1 "Type"))
-       (lean.parser.level.leading (0 "max")))
-      u)
-     v))])
+       (lean.parser.level.leading
+        (0 (lean.parser.id (lean.parser.ident_part (1 "max")) []))))
+      (lean.parser.id (lean.parser.ident_part (1 "u")) []))
+     (lean.parser.id (lean.parser.ident_part (1 "v")) [])))])
  (lean.parser.parser.eoi "")]
 (lean.parser.notation
  "notation"
@@ -141,7 +239,7 @@ result:
       [(lean.parser.notation_spec.transition
         (2
          (lean.parser.notation_spec.argument
-          b
+          (lean.parser.id (lean.parser.ident_part (1 "b")) [])
           [(lean.parser.notation_spec.action
             ":"
             (lean.parser.notation_spec.action_kind (0 (lean.parser.parser.base10_lit "10"))))])))])])))
@@ -173,7 +271,7 @@ partial syntax tree:
     (lean.parser.notation_spec
      (1
       (lean.parser.notation_spec.rules
-       [f]
+       [(lean.parser.id (lean.parser.ident_part (1 "f")) [])]
        [(lean.parser.notation_spec.rule
          (lean.parser.notation_spec.notation_symbol
           (0
@@ -185,12 +283,14 @@ partial syntax tree:
          [(lean.parser.notation_spec.transition
            (2
             (lean.parser.notation_spec.argument
-             a
+             (lean.parser.id (lean.parser.ident_part (1 "a")) [])
              [(lean.parser.notation_spec.action
                ":"
                (lean.parser.notation_spec.action_kind (0 (lean.parser.parser.base10_lit "0"))))])))])])))
     ":="
-    (lean.parser.term.app f a))
+    (lean.parser.term.app
+     (lean.parser.id (lean.parser.ident_part (1 "f")) [])
+     (lean.parser.id (lean.parser.ident_part (1 "a")) [])))
    (lean.parser.reserve_mixfix
     ["reserve" (lean.parser.mixfix.kind (0 "prefix"))]
     (lean.parser.notation_spec.notation_symbol
@@ -641,5 +741,9 @@ partial syntax tree:
        "; "
        "`"
        [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "1"))]))))
-   (lean.parser.universes "universes" [u v w])])
+   (lean.parser.universes
+    "universes"
+    [(lean.parser.id (lean.parser.ident_part (1 "u")) [])
+     (lean.parser.id (lean.parser.ident_part (1 "v")) [])
+     (lean.parser.id (lean.parser.ident_part (1 "w")) [])])])
  (lean.parser.parser.eoi "")]

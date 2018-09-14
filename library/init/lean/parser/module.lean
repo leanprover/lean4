@@ -34,9 +34,9 @@ node! «prelude» ["prelude"]
 
 @[derive parser.has_view parser.has_tokens]
 def import_path.parser : module_parser :=
--- use `raw_symbol` to ignore registered tokens like ".."
+-- use `raw` to ignore registered tokens like ".."
 node! import_path [
-  dirups: (raw_symbol ".")*,
+  dirups: (raw $ ch '.')*,
   module: ident]
 
 @[derive parser.has_view parser.has_tokens]

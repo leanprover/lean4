@@ -64,9 +64,9 @@ instance quoted_symbol.view : parser.has_view quoted_symbol.parser syntax := def
 @[derive parser.has_tokens parser.has_view]
 def symbol_quote.parser : command_parser :=
 node! notation_quoted_symbol [
-  left_quote: raw_symbol "`",
+  left_quote: raw $ ch '`',
   symbol: quoted_symbol.parser,
-  right_quote: raw_symbol "`",
+  right_quote: raw $ ch '`',
   prec: precedence.parser?]
 
 --TODO(Sebastian): cannot be called `symbol` because of hygiene problems

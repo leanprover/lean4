@@ -17,8 +17,7 @@ import init.lean.parser.basic
 
 namespace lean
 namespace parser
-open lean.parser.monad_parsec
-open string
+open monad_parsec combinators string has_view
 
 def match_token : basic_parser_m (option token_config) :=
 do st ← get,
@@ -48,39 +47,51 @@ do whitespace,
 | 0 := error "unreachable"
 
 abbreviation monad_basic_read := has_monad_lift_t basic_parser_m
-variables {m : Type → Type} [monad_basic_read m]
+variables {m : Type → Type}
 local notation `parser` := m syntax
 local notation `lift` := @monad_lift basic_parser_m _ _ _
 
 /-- Skip whitespace and comments. -/
-def whitespace : basic_parser_m substring :=
+def whitespace : basic_parser_m unit :=
 hidden $ do
   start ← left_over,
   -- every `whitespace_aux` loop reads at least one char
-  whitespace_aux (start.remaining+1),
-  stop ← left_over,
-  pure ⟨start, stop⟩
+  whitespace_aux (start.remaining+1)
 
-def with_source_info [monad m] [monad_state parser_state m] [monad_parsec syntax m] {α : Type} (r : m α) : m (α × source_info) :=
+section
+variables [monad m] [monad_parsec syntax m]
+
+def as_substring {α : Type} (p : m α) : m substring :=
+do start ← left_over,
+   p,
+   stop ← left_over,
+   pure ⟨start, stop⟩
+
+variables [monad_state parser_state m] [monad_basic_read m]
+
+def with_source_info {α : Type} (r : m α) (leading_ws := tt) (trailing_ws := tt) : m (α × source_info) :=
 do token_start ← parser_state.token_start <$> get,
-   lift whitespace,
+   when leading_ws $
+     lift whitespace,
    it ← left_over,
    a ← r,
    -- TODO(Sebastian): less greedy, more natural whitespace assignment
    -- E.g. only read up to the next line break
-   trailing ← lift whitespace,
+   trailing ← lift $ as_substring $ if trailing_ws then whitespace else pure (),
    it2 ← left_over,
    modify $ λ st, {st with token_start := it2},
    pure (a, ⟨⟨token_start, it⟩, it.offset, trailing⟩)
 
-/-- Match a string literally without consulting the token table. -/
-def raw_symbol (sym : string) : parser :=
-lift $ try $ do
-  (_, info) ← with_source_info $ str sym,
-  pure $ syntax.atom ⟨info, atomic_val.string sym⟩
+/-- Match an arbitrary parser and return the consumed string in an `atomic_val.string`. -/
+def raw {α : Type} (p : m α) (leading_ws := ff) (trailing_ws := ff) : parser :=
+try $ do
+  (ss, info) ← with_source_info (as_substring p) leading_ws trailing_ws,
+  pure $ syntax.atom ⟨info, atomic_val.string ss.to_string⟩
 
-instance raw_symbol.tokens (s) : parser.has_tokens (raw_symbol s : parser) := ⟨[]⟩
-instance raw_symbol.view (s) : parser.has_view (raw_symbol s : parser) syntax := default _
+instance raw.tokens {α} (p : m α) : parser.has_tokens (raw p : parser) := ⟨[]⟩
+instance raw.view {α} (p : m α) : parser.has_view (raw p : parser) syntax := default _
+
+end
 
 @[pattern] def base10_lit : syntax_node_kind := ⟨`lean.parser.parser.base10_lit⟩
 
@@ -89,9 +100,28 @@ private def number' : basic_parser_m (source_info → syntax) :=
 do num ← take_while1 char.is_digit,
    pure $ λ i, syntax.node ⟨base10_lit, [syntax.atom ⟨i, atomic_val.string num⟩]⟩
 
-private def ident' : basic_parser_m (source_info → syntax) :=
-do n ← identifier,
-   pure $ λ i, syntax.ident ⟨i, n, none, none⟩
+set_option class.instance_max_depth 200
+
+@[derive has_tokens has_view]
+def ident_part.parser : basic_parser_m syntax :=
+node_choice! ident_part {
+  escaped: node! ident_part_escaped [
+    esc_begin: raw $ ch id_begin_escape,
+    escaped: raw $ take_until1 is_id_end_escape,
+    esc_end: raw $ ch id_end_escape
+  ],
+  default: lookahead (satisfy is_id_first) *> raw (take_while is_id_rest)
+}
+
+@[derive has_tokens has_view]
+def ident_suffix.parser : rec_t unit syntax basic_parser_m syntax :=
+-- consume '.' only when followed by a character starting an ident_part
+try (lookahead (ch '.' *> (ch id_begin_escape *> pure () <|> satisfy is_id_first *> pure ()))) *>
+node! ident_suffix [«.»: raw $ ch '.', ident: recurse ()]
+
+def ident' : basic_parser :=
+with_recurse () $ λ _,
+  node! id [part: monad_lift ident_part.parser, suffix: optional ident_suffix.parser]
 
 private def symbol' : basic_parser_m (source_info → syntax) :=
 do tk ← match_token,
@@ -108,10 +138,12 @@ def token : basic_parser_m syntax :=
 do (r, i) ← with_source_info $ do {
      -- NOTE the order: if a token is both a symbol and a valid identifier (i.e. a keyword),
      -- we want it to be recognized as a symbol
-     f::_ ← longest_match [symbol', ident'] <|> list.ret <$> number' | failure,
+     f::_ ← longest_match [symbol', (function.const _) <$> ident'] <|> list.ret <$> number' | failure,
      pure f
    },
    pure (r i)
+
+variable [monad_basic_read m]
 
 --TODO(Sebastian): error messages
 def symbol (sym : string) (lbp := 0) : parser :=
@@ -138,7 +170,7 @@ instance number.view : parser.has_view (number : parser) syntax := default _
 def ident : parser :=
 lift $ try $ do
   it ← left_over,
-  stx@(syntax.ident _) ← token | error "" (dlist.singleton "identifier") it,
+  stx@(syntax.node ⟨ident, _⟩) ← token | error "" (dlist.singleton "identifier") it,
   pure stx
 
 instance ident.tokens : parser.has_tokens (ident : parser) := ⟨[]⟩

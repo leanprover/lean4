@@ -16,7 +16,9 @@ let x_5 := nat.succ x_4 in
 let x_6 := nat.succ x_5 in
 let x_7 := nat.succ x   in
 let x_8 := nat.succ x_7 in
-x + n
+let y_1 := x in
+let y_2 := y_1 in
+y_2 + n
 
 def tst1 (n : nat) : nat :=
 let p := (nat.succ n, n) in

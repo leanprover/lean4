@@ -34,7 +34,7 @@ Author: Leonardo de Moura
 #include "library/compiler/simp_inductive.h"
 #include "library/compiler/elim_unused_lets.h"
 #include "library/compiler/extract_values.h"
-#include "library/compiler/cse.h"
+#include "library/compiler/old_cse.h"
 
 #include "library/compiler/lcnf.h"
 #include "library/compiler/csimp.h"
@@ -282,7 +282,7 @@ public:
         lean_trace(name({"compiler", "elim_unused_lets"}), tout() << "\n"; display(procs););
         extract_values(m_env, m_cache, d.get_name(), procs);
         lean_trace(name({"compiler", "extract_values"}), tout() << "\n"; display(procs););
-        cse(m_env, m_cache, procs);
+        old_cse(m_env, m_cache, procs);
         lean_trace(name({"compiler", "cse"}), tout() << "\n"; display(procs););
         lean_trace(name({"compiler", "preprocess"}), tout() << "\n"; display(procs););
     }

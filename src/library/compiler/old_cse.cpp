@@ -299,7 +299,7 @@ public:
         compiler_step_visitor(env, cache) {}
 };
 
-void cse(environment const & env, abstract_context_cache & cache, buffer<procedure> & procs) {
+void old_cse(environment const & env, abstract_context_cache & cache, buffer<procedure> & procs) {
     cse_fn fn(env, cache);
     for (auto & proc : procs)
         proc.m_code = fn(proc.m_code);

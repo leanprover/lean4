@@ -10,5 +10,5 @@ Author: Leonardo de Moura
 namespace lean {
 /* Common subexpression elimination.
    It must be only applied after simp_inductive step. */
-void cse(environment const & env, abstract_context_cache & cache, buffer<procedure> & procs);
+void old_cse(environment const & env, abstract_context_cache & cache, buffer<procedure> & procs);
 }

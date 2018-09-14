@@ -1,15 +1,15 @@
 result: 
-[(module [(prelude "prelude")] [] []) (parser.eoi "")]
+[(module [(prelude "prelude")] [] []) (eoi "")]
 result: 
 [(module
   []
   [(import "import" [(import_path [] (id (ident_part (1 "me")) []))])]
   [])
- (parser.eoi "")]
+ (eoi "")]
 error at line 1, column 0:
 expected command
 partial syntax tree:
-[(module [] [] []) (parser.eoi "")]
+[(module [] [] []) (eoi "")]
 error at line 1, column 6:
 
 partial syntax tree:
@@ -17,7 +17,7 @@ partial syntax tree:
   []
   [(import "import" [(import_path [] <missing>) <missing>]) <missing>]
   <missing>)
- (parser.eoi "")]
+ (eoi "")]
 result: 
 [(module
   [(prelude "prelude")]
@@ -27,7 +27,7 @@ result:
      (import_path [] (id (ident_part (1 "b")) []))])
    (import "import" [(import_path [] (id (ident_part (1 "c")) []))])]
   [])
- (parser.eoi "")]
+ (eoi "")]
 result: 
 [(module
   []
@@ -36,7 +36,7 @@ result:
     "open"
     [(open_spec (id (ident_part (1 "me")) []) [] [] [] [])
      (open_spec (id (ident_part (1 "you")) []) [] [] [] [])])])
- (parser.eoi "")]
+ (eoi "")]
 result: 
 [(module
   []
@@ -66,7 +66,7 @@ result:
         "hiding"
         [(id (ident_part (1 "a")) []) (id (ident_part (1 "b")) [])]
         ")")])])])
- (parser.eoi "")]
+ (eoi "")]
 error at line 1, column 11:
 expected command
 partial syntax tree:
@@ -77,7 +77,7 @@ partial syntax tree:
     "open"
     [(open_spec (id (ident_part (1 "me")) []) [] [] [] [])
      (open_spec (id (ident_part (1 "you")) []) [] [] [] [])])])
- (parser.eoi "")]
+ (eoi "")]
 error at line 1, column 5:
 expected identifier
 error at line 1, column 9:
@@ -92,7 +92,7 @@ partial syntax tree:
    (open
     "open"
     [(open_spec <missing> <missing> <missing> <missing> <missing>) <missing>])])
- (parser.eoi "")]
+ (eoi "")]
 error at line 1, column 8:
 expected command
 partial syntax tree:
@@ -101,7 +101,7 @@ partial syntax tree:
   []
   [(open "open" [(open_spec (id (ident_part (1 "me")) []) [] [] [] [])])
    (open "open" [(open_spec (id (ident_part (1 "you")) []) [] [] [] [])])])
- (parser.eoi "")]
+ (eoi "")]
 result: 
 [(module
   []
@@ -119,10 +119,10 @@ result:
       [(id (ident_part (1 "d")) [])])]
     "end"
     [(id (ident_part (1 "b")) [])])])
- (parser.eoi "")]
+ (eoi "")]
 result: 
 [(module [] [] [(section "section" [(id (ident_part (1 "a")) [])] [] "end" [])])
- (parser.eoi "")]
+ (eoi "")]
 Type (max u v) : Type ((max u v)+1)
 result: 
 [(module
@@ -137,7 +137,7 @@ result:
        (level.leading (0 (id (ident_part (1 "max")) []))))
       (id (ident_part (1 "u")) []))
      (id (ident_part (1 "v")) [])))])
- (parser.eoi "")]
+ (eoi "")]
 (notation
  "notation"
  (notation_spec
@@ -151,14 +151,12 @@ result:
          "`"
          "+"
          "`"
-         [(notation_spec.precedence ":" (parser.base10_lit "10"))])))
+         [(notation_spec.precedence ":" (base10_lit "10"))])))
       [(notation_spec.transition
         (2
          (notation_spec.argument
           (id (ident_part (1 "b")) [])
-          [(notation_spec.action
-            ":"
-            (notation_spec.action_kind (0 (parser.base10_lit "10"))))])))])])))
+          [(notation_spec.action ":" (notation_spec.action_kind (0 (base10_lit "10"))))])))])])))
  ":="
  (term.hole "_"))
 notation`+`:10 b:10 :=_
@@ -179,9 +177,7 @@ partial syntax tree:
           (0 (notation_spec.notation_quoted_symbol "`" "Prop" "`" [])))
          [])])))
     ":="
-    (term.sort_app
-     (term.sort (0 "Sort"))
-     (level.leading (4 (parser.base10_lit "0")))))
+    (term.sort_app (term.sort (0 "Sort")) (level.leading (4 (base10_lit "0")))))
    (notation
     "notation"
     (notation_spec
@@ -195,14 +191,12 @@ partial syntax tree:
             "`"
             "$ "
             "`"
-            [(notation_spec.precedence ":" (parser.base10_lit "1"))])))
+            [(notation_spec.precedence ":" (base10_lit "1"))])))
          [(notation_spec.transition
            (2
             (notation_spec.argument
              (id (ident_part (1 "a")) [])
-             [(notation_spec.action
-               ":"
-               (notation_spec.action_kind (0 (parser.base10_lit "0"))))])))])])))
+             [(notation_spec.action ":" (notation_spec.action_kind (0 (base10_lit "0"))))])))])])))
     ":="
     (term.app (id (ident_part (1 "f")) []) (id (ident_part (1 "a")) [])))
    (reserve_mixfix
@@ -213,7 +207,7 @@ partial syntax tree:
        "`"
        "¬"
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "40"))]))))
+       [(notation_spec.precedence ":" (base10_lit "40"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (0 "prefix"))]
     (notation_spec.notation_symbol
@@ -222,7 +216,7 @@ partial syntax tree:
        "`"
        "~"
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "40"))]))))
+       [(notation_spec.precedence ":" (base10_lit "40"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (3 "infixr"))]
     (notation_spec.notation_symbol
@@ -231,7 +225,7 @@ partial syntax tree:
        "`"
        "∧ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "35"))]))))
+       [(notation_spec.precedence ":" (base10_lit "35"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (3 "infixr"))]
     (notation_spec.notation_symbol
@@ -240,7 +234,7 @@ partial syntax tree:
        "`"
        "/\\ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "35"))]))))
+       [(notation_spec.precedence ":" (base10_lit "35"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (3 "infixr"))]
     (notation_spec.notation_symbol
@@ -249,7 +243,7 @@ partial syntax tree:
        "`"
        "\\/ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "30"))]))))
+       [(notation_spec.precedence ":" (base10_lit "30"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (3 "infixr"))]
     (notation_spec.notation_symbol
@@ -258,7 +252,7 @@ partial syntax tree:
        "`"
        "∨ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "30"))]))))
+       [(notation_spec.precedence ":" (base10_lit "30"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_spec.notation_symbol
@@ -267,7 +261,7 @@ partial syntax tree:
        "`"
        "<-> "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "20"))]))))
+       [(notation_spec.precedence ":" (base10_lit "20"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_spec.notation_symbol
@@ -276,7 +270,7 @@ partial syntax tree:
        "`"
        "↔ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "20"))]))))
+       [(notation_spec.precedence ":" (base10_lit "20"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_spec.notation_symbol
@@ -285,7 +279,7 @@ partial syntax tree:
        "`"
        "= "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+       [(notation_spec.precedence ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_spec.notation_symbol
@@ -294,7 +288,7 @@ partial syntax tree:
        "`"
        "== "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+       [(notation_spec.precedence ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_spec.notation_symbol
@@ -303,7 +297,7 @@ partial syntax tree:
        "`"
        "≠ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+       [(notation_spec.precedence ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_spec.notation_symbol
@@ -312,7 +306,7 @@ partial syntax tree:
        "`"
        "≈ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+       [(notation_spec.precedence ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_spec.notation_symbol
@@ -321,7 +315,7 @@ partial syntax tree:
        "`"
        "~ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+       [(notation_spec.precedence ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_spec.notation_symbol
@@ -330,7 +324,7 @@ partial syntax tree:
        "`"
        "≡ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+       [(notation_spec.precedence ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (2 "infixl"))]
     (notation_spec.notation_symbol
@@ -339,7 +333,7 @@ partial syntax tree:
        "`"
        "⬝ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "75"))]))))
+       [(notation_spec.precedence ":" (base10_lit "75"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (3 "infixr"))]
     (notation_spec.notation_symbol
@@ -348,7 +342,7 @@ partial syntax tree:
        "`"
        "▸ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "75"))]))))
+       [(notation_spec.precedence ":" (base10_lit "75"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (3 "infixr"))]
     (notation_spec.notation_symbol
@@ -357,7 +351,7 @@ partial syntax tree:
        "`"
        "▹ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "75"))]))))
+       [(notation_spec.precedence ":" (base10_lit "75"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (3 "infixr"))]
     (notation_spec.notation_symbol
@@ -366,7 +360,7 @@ partial syntax tree:
        "`"
        "⊕ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "30"))]))))
+       [(notation_spec.precedence ":" (base10_lit "30"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (3 "infixr"))]
     (notation_spec.notation_symbol
@@ -375,7 +369,7 @@ partial syntax tree:
        "`"
        "× "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "35"))]))))
+       [(notation_spec.precedence ":" (base10_lit "35"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (2 "infixl"))]
     (notation_spec.notation_symbol
@@ -384,7 +378,7 @@ partial syntax tree:
        "`"
        "+ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "65"))]))))
+       [(notation_spec.precedence ":" (base10_lit "65"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (2 "infixl"))]
     (notation_spec.notation_symbol
@@ -393,7 +387,7 @@ partial syntax tree:
        "`"
        "- "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "65"))]))))
+       [(notation_spec.precedence ":" (base10_lit "65"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (2 "infixl"))]
     (notation_spec.notation_symbol
@@ -402,7 +396,7 @@ partial syntax tree:
        "`"
        "* "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "70"))]))))
+       [(notation_spec.precedence ":" (base10_lit "70"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (2 "infixl"))]
     (notation_spec.notation_symbol
@@ -411,7 +405,7 @@ partial syntax tree:
        "`"
        "/ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "70"))]))))
+       [(notation_spec.precedence ":" (base10_lit "70"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (2 "infixl"))]
     (notation_spec.notation_symbol
@@ -420,7 +414,7 @@ partial syntax tree:
        "`"
        "% "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "70"))]))))
+       [(notation_spec.precedence ":" (base10_lit "70"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (2 "infixl"))]
     (notation_spec.notation_symbol
@@ -429,7 +423,7 @@ partial syntax tree:
        "`"
        "%ₙ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "70"))]))))
+       [(notation_spec.precedence ":" (base10_lit "70"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (0 "prefix"))]
     (notation_spec.notation_symbol
@@ -438,7 +432,7 @@ partial syntax tree:
        "`"
        "-"
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "100"))]))))
+       [(notation_spec.precedence ":" (base10_lit "100"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (3 "infixr"))]
     (notation_spec.notation_symbol
@@ -447,7 +441,7 @@ partial syntax tree:
        "`"
        "^ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "80"))]))))
+       [(notation_spec.precedence ":" (base10_lit "80"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (3 "infixr"))]
     (notation_spec.notation_symbol
@@ -456,7 +450,7 @@ partial syntax tree:
        "`"
        "∘ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "90"))]))))
+       [(notation_spec.precedence ":" (base10_lit "90"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_spec.notation_symbol
@@ -465,7 +459,7 @@ partial syntax tree:
        "`"
        "<= "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+       [(notation_spec.precedence ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_spec.notation_symbol
@@ -474,7 +468,7 @@ partial syntax tree:
        "`"
        "≤ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+       [(notation_spec.precedence ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_spec.notation_symbol
@@ -483,7 +477,7 @@ partial syntax tree:
        "`"
        "< "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+       [(notation_spec.precedence ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_spec.notation_symbol
@@ -492,7 +486,7 @@ partial syntax tree:
        "`"
        ">= "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+       [(notation_spec.precedence ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_spec.notation_symbol
@@ -501,7 +495,7 @@ partial syntax tree:
        "`"
        "≥ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+       [(notation_spec.precedence ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_spec.notation_symbol
@@ -510,7 +504,7 @@ partial syntax tree:
        "`"
        "> "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+       [(notation_spec.precedence ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (0 "prefix"))]
     (notation_spec.notation_symbol
@@ -519,7 +513,7 @@ partial syntax tree:
        "`"
        "!"
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "40"))]))))
+       [(notation_spec.precedence ":" (base10_lit "40"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (2 "infixl"))]
     (notation_spec.notation_symbol
@@ -528,7 +522,7 @@ partial syntax tree:
        "`"
        "&& "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "35"))]))))
+       [(notation_spec.precedence ":" (base10_lit "35"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (2 "infixl"))]
     (notation_spec.notation_symbol
@@ -537,7 +531,7 @@ partial syntax tree:
        "`"
        "|| "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "30"))]))))
+       [(notation_spec.precedence ":" (base10_lit "30"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_spec.notation_symbol
@@ -546,7 +540,7 @@ partial syntax tree:
        "`"
        "∈ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+       [(notation_spec.precedence ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_spec.notation_symbol
@@ -555,7 +549,7 @@ partial syntax tree:
        "`"
        "∉ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+       [(notation_spec.precedence ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (2 "infixl"))]
     (notation_spec.notation_symbol
@@ -564,7 +558,7 @@ partial syntax tree:
        "`"
        "∩ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "70"))]))))
+       [(notation_spec.precedence ":" (base10_lit "70"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (2 "infixl"))]
     (notation_spec.notation_symbol
@@ -573,7 +567,7 @@ partial syntax tree:
        "`"
        "∪ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "65"))]))))
+       [(notation_spec.precedence ":" (base10_lit "65"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_spec.notation_symbol
@@ -582,7 +576,7 @@ partial syntax tree:
        "`"
        "⊆ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+       [(notation_spec.precedence ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_spec.notation_symbol
@@ -591,7 +585,7 @@ partial syntax tree:
        "`"
        "⊇ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+       [(notation_spec.precedence ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_spec.notation_symbol
@@ -600,7 +594,7 @@ partial syntax tree:
        "`"
        "⊂ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+       [(notation_spec.precedence ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_spec.notation_symbol
@@ -609,7 +603,7 @@ partial syntax tree:
        "`"
        "⊃ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+       [(notation_spec.precedence ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_spec.notation_symbol
@@ -618,7 +612,7 @@ partial syntax tree:
        "`"
        "\\ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "70"))]))))
+       [(notation_spec.precedence ":" (base10_lit "70"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (1 "infix"))]
     (notation_spec.notation_symbol
@@ -627,7 +621,7 @@ partial syntax tree:
        "`"
        "∣ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+       [(notation_spec.precedence ":" (base10_lit "50"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (2 "infixl"))]
     (notation_spec.notation_symbol
@@ -636,7 +630,7 @@ partial syntax tree:
        "`"
        "++ "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "65"))]))))
+       [(notation_spec.precedence ":" (base10_lit "65"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (3 "infixr"))]
     (notation_spec.notation_symbol
@@ -645,7 +639,7 @@ partial syntax tree:
        "`"
        ":: "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "67"))]))))
+       [(notation_spec.precedence ":" (base10_lit "67"))]))))
    (reserve_mixfix
     ["reserve" (mixfix.kind (2 "infixl"))]
     (notation_spec.notation_symbol
@@ -654,10 +648,10 @@ partial syntax tree:
        "`"
        "; "
        "`"
-       [(notation_spec.precedence ":" (parser.base10_lit "1"))]))))
+       [(notation_spec.precedence ":" (base10_lit "1"))]))))
    (universes
     "universes"
     [(id (ident_part (1 "u")) [])
      (id (ident_part (1 "v")) [])
      (id (ident_part (1 "w")) [])])])
- (parser.eoi "")]
+ (eoi "")]

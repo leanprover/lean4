@@ -102,7 +102,7 @@ def log_message {μ : Type} [monad m] [monad_reader parser_config m] [monad_stat
 do cfg ← read,
    modify (λ st, {st with messages := st.messages.add (message_of_parsec_message cfg msg)})
 
-def eoi : syntax_node_kind := ⟨`lean.parser.parser.eoi⟩
+def eoi : syntax_node_kind := ⟨`lean.parser.eoi⟩
 
 protected def parse [monad m] (cfg : parser_config) (s : string) (r : parser_t m syntax) [parser.has_tokens r] :
   m (syntax × message_log) :=

@@ -93,7 +93,7 @@ instance raw.view {α} (p : m α) : parser.has_view (raw p : parser) syntax := d
 
 end
 
-@[pattern] def base10_lit : syntax_node_kind := ⟨`lean.parser.parser.base10_lit⟩
+@[pattern] def base10_lit : syntax_node_kind := ⟨`lean.parser.base10_lit⟩
 
 --TODO(Sebastian): other bases
 private def number' : basic_parser_m (source_info → syntax) :=

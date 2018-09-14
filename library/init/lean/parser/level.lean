@@ -34,8 +34,8 @@ node! «paren» ["(":max_prec, inner: recurse 0, ")"]
 @[derive parser.has_tokens parser.has_view]
 def leading.parser : level_parser :=
 node_choice! leading {
-  max: raw_symbol "max",
-  imax: raw_symbol "imax",
+  max: symbol_or_ident "max",
+  imax: symbol_or_ident "imax",
   hole: symbol "_" max_prec,
   paren: paren.parser,
   lit: number,

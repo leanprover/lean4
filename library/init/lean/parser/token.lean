@@ -144,5 +144,32 @@ lift $ try $ do
 instance ident.tokens : parser.has_tokens (ident : parser) := ⟨[]⟩
 instance ident.view : parser.has_view (ident : parser) syntax := default _
 
+/-- Check if the following token is the symbol _or_ identifier `sym`. Useful for
+    parsing local tokens that have not been added to the token table (but may have
+    been so by some unrelated code).
+
+    For example, the universe `max` function is parsed using this combinator so that
+    it can still be used as an identifier outside of universes (but registering it
+    as a token in a term syntax would not break the universe parser). -/
+def symbol_or_ident (sym : string) : parser :=
+lift $ try $ do
+  it ← left_over,
+  stx ← token,
+  let sym' := match stx with
+  | syntax.atom ⟨_, atomic_val.string sym'⟩ := some sym'
+  | syntax.node ⟨ident, _⟩ :=
+    (match syntax_node_kind.has_view.view id stx with
+     | some {part := ident_part.view.default (syntax.atom ⟨_, atomic_val.string sym'⟩),
+             suffix := optional_view.none} := some sym'
+     | _ := none)
+  | _ := none,
+  when (sym' ≠ some sym) $
+    error "" (dlist.singleton (repr sym)) it,
+  pure stx
+
+instance symbol_or_ident.tokens (sym) : parser.has_tokens (symbol_or_ident sym : parser) :=
+⟨[]⟩
+instance symbol_or_ident.view (sym) : parser.has_view (symbol_or_ident sym : parser) syntax := default _
+
 end «parser»
 end lean

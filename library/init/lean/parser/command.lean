@@ -81,9 +81,9 @@ node_choice! notation_symbol {
 def action.parser : command_parser :=
 node! action [":", action: node_choice! action_kind {
   prec: number,
-  max: raw_symbol "max",
-  prev: raw_symbol "prev",
-  scoped: raw_symbol "scoped"
+  max: symbol_or_ident "max",
+  prev: symbol_or_ident "prev",
+  scoped: symbol_or_ident "scoped"
   /-TODO seq [
     "(",
     any_of ["foldl", "foldr"],

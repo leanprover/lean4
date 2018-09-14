@@ -314,28 +314,6 @@ public:
         return true;
     }
 
-    expr visit_lambda_app(expr fn, buffer<expr> & args, bool root) {
-        lean_assert(is_lambda(fn));
-        unsigned i = 0;
-        buffer<expr> fvars;
-        while (is_lambda(fn) && i < args.size()) {
-            expr new_type = instantiate_rev(binding_domain(fn), fvars.size(), fvars.data());
-            expr new_val  = visit(args[i], true);
-            if (should_create_let_decl(new_val, new_type)) {
-                expr new_fvar = m_lctx.mk_local_decl(ngen(), binding_name(fn), new_type, new_val);
-                fvars.push_back(new_fvar);
-                m_fvars.push_back(new_fvar);
-            } else {
-                fvars.push_back(new_val);
-            }
-            fn = binding_body(fn);
-            i++;
-        }
-        fn = instantiate_rev(fn, fvars.size(), fvars.data());
-        expr r = mk_app(fn, args.size() - i, args.data() + i);
-        return visit(r, root);
-    }
-
     expr visit_app_default(expr const & fn, buffer<expr> & args, bool root) {
         for (expr & arg : args) {
             arg = visit(arg, false);
@@ -370,10 +348,8 @@ public:
             } else if (is_constructor(env(), const_name(fn))) {
                 return visit_constructor(fn, args, root);
             }
-        } else if (is_lambda(fn)) {
-            return visit_lambda_app(fn, args, root);
         }
-        fn = visit(fn, root);
+        fn = visit(fn, false);
         return visit_app_default(fn, args, root);
     }
 

@@ -540,9 +540,9 @@ do it ← left_over,
              else result.ok (a::as) it
          | _                := result.ok [a] it)
        (λ msg, pure $ match r with
-           | result.error msg' _ := if nat.lt msg.it.offset msg'.it.offset then r -- FIXME
-             else if nat.lt msg'.it.offset msg.it.offset then result.error msg tt
-             else result.error (merge msg msg') tt
+           | result.error msg' _ := if msg.it.offset > msg.it.offset then r
+             else if msg.it.offset > msg'.it.offset then result.error msg tt
+             else result.error (merge msg msg') (msg.it.offset > it.offset)
            | _ := r))
     ((error "longest_match: empty list" : parsec _ _) it),
     lift $ λ _, r

@@ -210,7 +210,7 @@ public:
             } else {
                 level minor_lvl  = sort_level(tc.ensure_type(minor_type));
                 level eq_rec_lvl = sort_level(tc.ensure_type(eq_rec_type));
-                new_e            = mk_app(mk_constant(get_lc_cast_name(), {eq_rec_lvl, minor_lvl}), minor_type, eq_rec_type, minor);
+                new_e            = visit(mk_app(mk_constant(get_lc_cast_name(), {eq_rec_lvl, minor_lvl}), minor_type, eq_rec_type, minor), false);
             }
             new_e            = mk_app(new_e, args.size() - eq_rec_nargs, args.data() + eq_rec_nargs);
             return visit(new_e, root);

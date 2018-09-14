@@ -27,10 +27,10 @@ class csimp_fn {
         if (is_fvar(e)) {
             if (optional<local_decl> decl = m_lctx.find_local_decl(e)) {
                 if (optional<expr> v = decl->get_value())
-                    return find(*v);
+                    return find(*v, skip_mdata);
             }
         } else if (is_mdata(e) && skip_mdata) {
-            return find(mdata_expr(e));
+            return find(mdata_expr(e), true);
         }
         return e;
     }

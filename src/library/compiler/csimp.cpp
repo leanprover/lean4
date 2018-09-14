@@ -194,6 +194,11 @@ class csimp_fn {
         }
     }
 
+    expr mk_cast(expr const & A, expr const & B, expr const & t) {
+        type_checker tc(m_st, m_lctx);
+        return mk_cast(tc, A, B, t);
+    }
+
     expr distrib_app_cases(expr const & fn, expr const & e) {
         lean_assert(is_cases_app(fn));
         lean_assert(is_eqp(find(get_app_fn(e)), fn));
@@ -248,10 +253,9 @@ class csimp_fn {
             }
             expr new_minor = visit(instantiate_rev(minor, minor_fvars.size(), minor_fvars.data()));
             for (unsigned i = 0; i < args.size(); i++) {
-                type_checker tc(m_st, m_lctx);
-                expr new_minor_type = tc.whnf(tc.infer(new_minor));
+                expr new_minor_type = whnf_infer_type(new_minor);
                 lean_assert(is_pi(new_minor_type));
-                new_minor = mk_app(new_minor, mk_cast(tc, arg_types[i], binding_domain(new_minor_type), args[i]));
+                new_minor = mk_app(new_minor, mk_cast(arg_types[i], binding_domain(new_minor_type), args[i]));
             }
             new_minor = visit(new_minor);
             type_checker tc(m_st, m_lctx);
@@ -296,10 +300,41 @@ class csimp_fn {
         if (!is_lc_cast_app(fn) && !is_cases_app(fn)) {
             buffer<expr> args;
             get_app_args(e, args);
-            return mk_let_decl(mk_app(fn, args));
+            return mk_let_decl(visit(mk_app(fn, args)));
         } else {
             return e;
         }
+    }
+
+    expr reduce_cast_app_app(expr const & fn, expr const & e) {
+        lean_assert(is_lc_cast_app(fn));
+        lean_assert(is_eqp(find(get_app_fn(e)), fn));
+        /*
+            f  := lc_cast g
+            e  := f a_1 ... a_n
+            ==>
+            b_1 := lc_cast a_1
+            ...
+            b_n := lc_cast a_n
+            e   := g b_1 ... b_n
+        */
+        expr const & g = app_arg(fn);
+        buffer<expr> args;
+        get_app_args(e, args);
+        expr g_type = whnf_infer_type(g);
+        for (expr & arg : args) {
+            lean_assert(is_pi(g_type));
+            expr expected_type = binding_domain(g_type);
+            expr arg_type      = infer_type(arg);
+            expr new_arg       = mk_cast(arg_type, expected_type, arg);
+            arg                = new_arg;
+            g_type             = whnf(instantiate(binding_body(g_type), new_arg));
+        }
+        expr r      = mk_let_decl(visit(mk_app(g, args)));
+        type_checker tc(m_st, m_lctx);
+        expr r_type = tc.infer(r);
+        expr e_type = tc.infer(e);
+        return mk_cast(tc, r_type, e_type, r);
     }
 
     expr visit_app(expr const & e) {
@@ -313,6 +348,8 @@ class csimp_fn {
             return beta_reduce(fn, e);
         } else if (is_cases_app(fn)) {
             return distrib_app_cases(fn, e);
+        } else if (is_lc_cast_app(fn)) {
+            return reduce_cast_app_app(fn, e);
         } else if (is_lc_unreachable_app(fn)) {
             expr type = infer_type(e);
             return mk_let_decl(mk_lc_unreachable(m_st, m_lctx, type));
